@@ -795,13 +795,13 @@ void tst_QSpinBox::undoRedo()
     //the undo/redo is disabled by default
 
     QCOMPARE(spin.value(), 0); //this is the default value
-    QVERIFY(!spin.isUndoAvailable());
-    QVERIFY(!spin.isRedoAvailable());
+    QVERIFY(!spin.lineEdit()->isUndoAvailable());
+    QVERIFY(!spin.lineEdit()->isRedoAvailable());
 
     spin.lineEdit()->selectAll(); //ensures everything is selected and will be cleared by typing a key
     QTest::keyClick(&spin, Qt::Key_1); //we put 1 into the spinbox
     QCOMPARE(spin.value(), 1);
-    QVERIFY(spin.isUndoAvailable());
+    QVERIFY(spin.lineEdit()->isUndoAvailable());
 
     //testing CTRL+Z (undo)
     int val = QKeySequence(QKeySequence::Undo)[0];
@@ -809,33 +809,33 @@ void tst_QSpinBox::undoRedo()
     QTest::keyClick(&spin, val & ~mods, mods);
 
     QCOMPARE(spin.value(), 0);
-    QVERIFY(!spin.isUndoAvailable());
-    QVERIFY(spin.isRedoAvailable());
+    QVERIFY(!spin.lineEdit()->isUndoAvailable());
+    QVERIFY(spin.lineEdit()->isRedoAvailable());
 
     //testing CTRL+Y (redo)
     val = QKeySequence(QKeySequence::Redo)[0];
     mods = (Qt::KeyboardModifiers)(val & Qt::KeyboardModifierMask);
     QTest::keyClick(&spin, val & ~mods, mods);
     QCOMPARE(spin.value(), 1);
-    QVERIFY(!spin.isRedoAvailable());
-    QVERIFY(spin.isUndoAvailable());
+    QVERIFY(!spin.lineEdit()->isRedoAvailable());
+    QVERIFY(spin.lineEdit()->isUndoAvailable());
 
     spin.setValue(55);
-    QVERIFY(!spin.isUndoAvailable());
-    QVERIFY(!spin.isRedoAvailable());
+    QVERIFY(!spin.lineEdit()->isUndoAvailable());
+    QVERIFY(!spin.lineEdit()->isRedoAvailable());
 
     QTest::keyClick(&spin, Qt::Key_Return);
     QTest::keyClick(&spin, '1');
-    QVERIFY(spin.isUndoAvailable());
-    QVERIFY(!spin.isRedoAvailable());
-    spin.undo();
+    QVERIFY(spin.lineEdit()->isUndoAvailable());
+    QVERIFY(!spin.lineEdit()->isRedoAvailable());
+    spin.lineEdit()->undo();
     QCOMPARE(spin.value(), 55);
-    QVERIFY(!spin.isUndoAvailable());
-    QVERIFY(spin.isRedoAvailable());
-    spin.redo();
+    QVERIFY(!spin.lineEdit()->isUndoAvailable());
+    QVERIFY(spin.lineEdit()->isRedoAvailable());
+    spin.lineEdit()->redo();
     QCOMPARE(spin.value(), 1);
-    QVERIFY(spin.isUndoAvailable());
-    QVERIFY(!spin.isRedoAvailable());
+    QVERIFY(spin.lineEdit()->isUndoAvailable());
+    QVERIFY(!spin.lineEdit()->isRedoAvailable());
 
 }
 

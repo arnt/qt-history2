@@ -562,7 +562,7 @@ void QTreeModel::ensureSorted(int column, Qt::SortOrder order,
     QModelIndexList newPersistentIndexes;
     QList<QTreeWidgetItem*>::iterator lit = lst.begin();
     bool changed = false;
-    
+
     for (int i = 0; i < count; ++i) {
         int oldRow = sorting.at(i).second;
         QTreeWidgetItem *item = lst.takeAt(oldRow);
@@ -1463,7 +1463,7 @@ QTreeWidgetItem *QTreeWidgetItem::clone() const
         // set parent and add to parents children list
         if (parent) {
             copy->par = parent;
-            parent->children.append(copy);
+            parent->children.insert(0, copy);
         }
 
         for (int i = 0; i < item->childCount(); ++i) {
@@ -1944,7 +1944,7 @@ QList<QTreeWidgetItem*> QTreeWidgetItem::takeChildren()
         if (model) {
             // This will trigger a layoutChanged signal, thus we might want to optimize
             // this function by not emitting the rowsRemoved signal etc to the view.
-            // On the other hand we also need to make sure that the selectionmodel 
+            // On the other hand we also need to make sure that the selectionmodel
             // is updated in case we take an item that is selected.
             model->executePendingSort();
         }

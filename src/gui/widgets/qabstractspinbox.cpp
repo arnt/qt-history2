@@ -339,62 +339,6 @@ bool QAbstractSpinBox::isAccelerated() const
     return d->accelerate;
 }
 
-
-/*!
-    \property QAbstractSpinBox::modified
-    \brief whether the spinbox's contents has been modified by the user
-
-    The modified flag is never read by QAbstractSpinBox; it has a default
-    value of false and is changed to true whenever the user changes the
-    spinbox's contents.
-
-    This is useful for things that need to provide a default value but do
-    not start out knowing what the default should be (perhaps it depends on
-    other fields on the form). Start the spinbox without the best default,
-    and when the default is known, if modified() returns false (the user
-    hasn't entered any text), insert the default value.
-
-    \since 4.3
-*/
-
-bool QAbstractSpinBox::isModified() const
-{
-    Q_D(const QAbstractSpinBox);
-    return d->edit->isModified();
-}
-
-void QAbstractSpinBox::setModified(bool modified)
-{
-    Q_D(QAbstractSpinBox);
-    d->edit->setModified(modified);
-}
-
-/*!
-    \property QAbstractSpinBox::undoAvailable
-    \brief whether undo is available
-
-    \since 4.3
-*/
-
-bool QAbstractSpinBox::isUndoAvailable() const
-{
-    Q_D(const QAbstractSpinBox);
-    return d->edit->isUndoAvailable();
-}
-
-/*!
-    \property QAbstractSpinBox::redoAvailable
-    \brief whether redo is available
-
-    \since 4.3
-*/
-
-bool QAbstractSpinBox::isRedoAvailable() const
-{
-    Q_D(const QAbstractSpinBox);
-    return d->edit->isRedoAvailable();
-}
-
 /*!
     \enum QAbstractSpinBox::CorrectionMode
 
@@ -503,33 +447,6 @@ void QAbstractSpinBox::clear()
     d->edit->setText(d->prefix + d->suffix);
     d->edit->setCursorPosition(d->prefix.size());
 }
-
-/*!
-    Undoes the last operation if undo is \link
-    QAbstractSpinBox::undoAvailable available\endlink.
-
-    \since 4.3
-*/
-
-void QAbstractSpinBox::undo()
-{
-    Q_D(QAbstractSpinBox);
-    d->edit->undo();
-}
-
-/*!
-    Redoes the last operation if redo is \link
-    QAbstractSpinBox::redoAvailable available\endlink.
-
-    \since 4.3
-*/
-
-void QAbstractSpinBox::redo()
-{
-    Q_D(QAbstractSpinBox);
-    d->edit->redo();
-}
-
 
 /*!
     Virtual function that determines whether stepping up and down is
