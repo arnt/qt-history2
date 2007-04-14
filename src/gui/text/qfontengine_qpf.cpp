@@ -916,6 +916,13 @@ void QFontEngineQPF::remapFontData()
     }
 #else
     fontData = static_cast<uchar *>(::mremap(const_cast<uchar *>(fontData), dataSize, newFileSize, MREMAP_MAYMOVE));
+    if (!fontData || fontData == (const uchar *)MAP_FAILED) {
+#  if defined(DEBUG_FONTENGINE)
+        perror("QFontEngineQPF::remapFontData(): mremap failed");
+#  endif
+        fontData = 0;
+        return;
+    }
 #endif
     dataSize = newFileSize;
     glyphDataSize = newFileSize - glyphDataOffset;
