@@ -1406,7 +1406,7 @@ void QT_FASTCALL comp_func_solid_Plus(uint *dest, int length, uint color, uint c
 
     for (int i = 0; i < length; ++i) {
         uint d = dest[i];
-#define MIX(mask) (qMin(((s&mask) + (d&mask)), mask))
+#define MIX(mask) (qMin(((qint64(s)&mask) + (qint64(d)&mask)), qint64(mask)))
         d = (MIX(AMASK) | MIX(RMASK) | MIX(GMASK) | MIX(BMASK));
 #undef MIX
         dest[i] = d;
@@ -1415,7 +1415,7 @@ void QT_FASTCALL comp_func_solid_Plus(uint *dest, int length, uint color, uint c
 
 void QT_FASTCALL comp_func_Plus(uint *dest, const uint *src, int length, uint const_alpha)
 {
-#define MIX(mask) (qMin(((s&mask) + (d&mask)), mask))
+#define MIX(mask) (qMin(((qint64(s)&mask) + (qint64(d)&mask)), qint64(mask)))
     if (const_alpha == 255) {
         for (int i = 0; i < length; ++i) {
             uint d = dest[i];
