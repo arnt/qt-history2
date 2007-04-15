@@ -193,8 +193,10 @@ QAccessibleInterface *AccessibleFactory::create(const QString &classname, QObjec
         iface = new QAccessibleWidgetEx(widget, Dialog);
     } else if (classname == QLatin1String("QMessageBox")) {
         iface = new QAccessibleWidgetEx(widget, AlertMessage);
+#ifndef QT_NO_MAINWINDOW
     } else if (classname == QLatin1String("QMainWindow")) {
         iface = new QAccessibleMainWindow(widget);
+#endif
     } else if (classname == QLatin1String("QLabel") || classname == QLatin1String("QLCDNumber")) {
         iface = new QAccessibleDisplay(widget);
     } else if (classname == QLatin1String("QGroupBox")) {
