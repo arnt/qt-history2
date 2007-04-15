@@ -55,10 +55,13 @@ QWSSignalHandler::QWSSignalHandler()
 
 QWSSignalHandler::~QWSSignalHandler()
 {
+#ifndef QT_NO_QWS_MULTIPROCESS
     while (!semaphores.isEmpty())
         removeSemaphore(semaphores.last());
+#endif
 }
 
+#ifndef QT_NO_QWS_MULTIPROCESS
 void QWSSignalHandler::removeSemaphore(int semno)
 {
     const int index = semaphores.lastIndexOf(semno);
@@ -69,6 +72,7 @@ void QWSSignalHandler::removeSemaphore(int semno)
         semaphores.remove(index);
     }
 }
+#endif // QT_NO_QWS_MULTIPROCESS
 
 void QWSSignalHandler::handleSignal(int signum)
 {
@@ -76,10 +80,13 @@ void QWSSignalHandler::handleSignal(int signum)
 
     signal(signum, h->oldHandlers[signum]);
 
+#ifndef QT_NO_QWS_MULTIPROCESS
     semun semval;
     semval.val = 0;
     for (int i = 0; i < h->semaphores.size(); ++i)
         semctl(h->semaphores.at(i), 0, IPC_RMID, semval);
+#endif
+
     h->objects.clear();
     raise(signum);
 }

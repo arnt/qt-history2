@@ -47,15 +47,19 @@ public:
 
     ~QWSSignalHandler();
 
+#ifndef QT_NO_QWS_MULTIPROCESS
     inline void addSemaphore(int semno) { semaphores.append(semno); }
     void removeSemaphore(int semno);
+#endif
     inline void addObject(QObject *object) { (void)objects.add(object); }
 
 private:
     QWSSignalHandler();
     static void handleSignal(int signal);
     QMap<int, sighandler_t> oldHandlers;
+#ifndef QT_NO_QWS_MULTIPROCESS
     QVector<int> semaphores;
+#endif
     QObjectCleanupHandler objects;
 
     friend class QWSSignalHandlerPrivate;

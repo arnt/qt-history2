@@ -127,9 +127,12 @@ public:
 
 protected:
     QImage::Format preferredImageFormat(const QWidget *widget) const;
-    void setLock(int lockId);
 
+#ifndef QT_NO_QWS_MULTIPROCESS
+    void setLock(int lockId);
     QWSLock *memlock;
+#endif
+
     QImage img;
 };
 

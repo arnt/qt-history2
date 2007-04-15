@@ -691,19 +691,28 @@ static void scroll(const QImage &img, const QRect &rect, const QPoint &point)
 bool QWSMemorySurface::lock(int timeout)
 {
     Q_UNUSED(timeout);
+#ifdef QT_NO_QWS_MULTIPROCESS
+    return true;
+#else
     if (!memlock)
         return true;
     return memlock->lock(QWSLock::BackingStore);
+#endif
 }
 
 void QWSMemorySurface::unlock()
 {
+#ifndef QT_NO_QWS_MULTIPROCESS
     if (memlock)
         memlock->unlock(QWSLock::BackingStore);
+#endif
 }
 
 QWSMemorySurface::QWSMemorySurface()
-    : QWSWindowSurface(), memlock(0)
+    : QWSWindowSurface()
+#ifndef QT_NO_QWS_MULTIPROCESS
+    , memlock(0)
+#endif
 {
     setSurfaceFlags(Buffered);
 }
@@ -716,7 +725,9 @@ QWSMemorySurface::QWSMemorySurface(QWidget *w)
         flags |= Opaque;
     setSurfaceFlags(flags);
 
+#ifndef QT_NO_QWS_MULTIPROCESS
     memlock = QWSDisplay::Data::getClientLock();
+#endif
 }
 
 QWSMemorySurface::~QWSMemorySurface()
@@ -734,6 +745,7 @@ QWSMemorySurface::preferredImageFormat(const QWidget *widget) const
         return QImage::Format_ARGB32_Premultiplied;
 }
 
+#ifndef QT_NO_QWS_MULTIPROCESS
 void QWSMemorySurface::setLock(int lockId)
 {
     if (memlock && memlock->id() == lockId)
@@ -742,6 +754,7 @@ void QWSMemorySurface::setLock(int lockId)
     memlock = (lockId == -1 ? 0 : new QWSLock(lockId));
     return;
 }
+#endif // QT_NO_QWS_MULTIPROCESS
 
 bool QWSMemorySurface::isValid() const
 {

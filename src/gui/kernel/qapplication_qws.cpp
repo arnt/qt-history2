@@ -359,6 +359,7 @@ QWSDisplay::Data::~Data()
 #endif
 }
 
+#ifndef QT_NO_QWS_MULTIPROCESS
 bool QWSDisplay::Data::lockClient(QWSLock::LockType type, int timeout)
 {
     return !clientLock || clientLock->lock(type, timeout);
@@ -378,6 +379,7 @@ QWSLock* QWSDisplay::Data::getClientLock()
 {
     return clientLock;
 }
+#endif // QT_NO_QWS_MULTIPROCESS
 
 void QWSDisplay::Data::flush()
 {
@@ -495,15 +497,16 @@ void QWSDisplay::Data::setMouseFilter(void (*filter)(QWSMouseEvent*))
     mouseFilter = filter;
 }
 
+#ifndef QT_NO_QWS_MULTIPROCESS
+
 QWSLock* QWSDisplay::Data::clientLock = 0;
 
-#ifndef QT_NO_QWS_MULTIPROCESS
 void Q_GUI_EXPORT qt_app_reinit( const QString& newAppName )
 {
     qt_fbdpy->d->reinit( newAppName );
 }
 
-#endif
+#endif // QT_NO_QWS_MULTIPROCESS
 
 class QDesktopWidget;
 extern QDesktopWidget *qt_desktopWidget;
@@ -1184,7 +1187,12 @@ void QWSDisplay::requestFocus(int winId, bool get)
 void QWSDisplay::setIdentity(const QString &appName)
 {
     QWSIdentifyCommand cmd;
-    cmd.setId(appName, QWSDisplay::Data::clientLock ? QWSDisplay::Data::clientLock->id() : -1 );
+#ifdef QT_NO_QWS_MULTIPROCESS
+    const int id = -1;
+#else
+    const int id = QWSDisplay::Data::clientLock ? QWSDisplay::Data::clientLock->id() : -1;
+#endif
+    cmd.setId(appName, id);
     if (d->directServerConnection())
         qwsServer->d_func()->set_identity(&cmd);
     else

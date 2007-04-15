@@ -46,7 +46,7 @@ public:
 
     bool directServerConnection();
     void fillQueue();
-#ifndef QT_NO_MULTIPROCESS
+#ifndef QT_NO_QWS_MULTIPROCESS
     void connectToPipe();
     void waitForConnection();
 //    void waitForRegionAck();
@@ -82,12 +82,14 @@ public:
 #endif
     int sharedRamSize;
 
+#ifndef QT_NO_QWS_MULTIPROCESS
     static QWSLock *clientLock;
 
     static bool lockClient(QWSLock::LockType, int timeout = -1);
     static void unlockClient(QWSLock::LockType);
     static bool waitClient(QWSLock::LockType, int timeout = -1);
     static QWSLock* getClientLock();
+#endif // QT_NO_QWS_MULTIPROCESS
 
 private:
 #ifndef QT_NO_QWS_MULTIPROCESS
