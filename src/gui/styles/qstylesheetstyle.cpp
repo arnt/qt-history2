@@ -1497,7 +1497,9 @@ QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QStyleOption *o
                 extraClass |= PseudoClass_Exclusive;
             else if (mi->checkType == QStyleOptionMenuItem::NonExclusive)
                 extraClass |= PseudoClass_NonExclusive;
-        } else if (const QStyleOptionToolBar *tb = qstyleoption_cast<const QStyleOptionToolBar *>(opt)) {
+        }
+#ifndef QT_NO_TOOLBAR
+        else if (const QStyleOptionToolBar *tb = qstyleoption_cast<const QStyleOptionToolBar *>(opt)) {
             if (tb->toolBarArea == Qt::LeftToolBarArea)
                 extraClass |= PseudoClass_Left;
             else if (tb->toolBarArea == Qt::RightToolBarArea)
@@ -1516,7 +1518,7 @@ QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QStyleOption *o
             else if (tb->positionWithinLine == QStyleOptionToolBar::OnlyOne)
                 extraClass |= PseudoClass_OnlyOne;
         }
-
+#endif // QT_NO_TOOLBAR
 #ifndef QT_NO_LINEEDIT
         // LineEdit sets Sunken flag to indicate Sunken frame (argh)
         if (qobject_cast<const QLineEdit *>(w)) {

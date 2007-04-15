@@ -1165,6 +1165,7 @@ bool QMainWindow::event(QEvent *event)
     return QWidget::event(event);
 }
 
+#ifndef QT_NO_TOOLBAR
 
 /*!
     \property QMainWindow::unifiedTitleAndToolBarOnMac
@@ -1212,6 +1213,8 @@ bool QMainWindow::unifiedTitleAndToolBarOnMac() const
 #endif
     return false;
 }
+
+#endif // QT_NO_TOOLBAR
 
 /*!
     \internal

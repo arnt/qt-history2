@@ -189,9 +189,12 @@ void QMainWindowLayoutState::apply(bool animated)
 
 void QMainWindowLayoutState::fitLayout()
 {
-#ifndef QT_NO_TOOLBAR
+    QRect r;
+#ifdef QT_NO_TOOLBAR
+    r = rect;
+#else
     toolBarAreaLayout.rect = rect;
-    QRect r = toolBarAreaLayout.fitLayout();
+    r = toolBarAreaLayout.fitLayout();
 #endif // QT_NO_TOOLBAR
 
 #ifndef QT_NO_DOCKWIDGET

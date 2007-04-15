@@ -42,7 +42,9 @@ class Q_GUI_EXPORT QMainWindow : public QWidget
     Q_PROPERTY(bool dockNestingEnabled READ isDockNestingEnabled WRITE setDockNestingEnabled)
 #endif
     Q_PROPERTY(DockOptions dockOptions READ dockOptions WRITE setDockOptions)
+#ifndef QT_NO_TOOLBAR
     Q_PROPERTY(bool unifiedTitleAndToolBarOnMac READ unifiedTitleAndToolBarOnMac WRITE setUnifiedTitleAndToolBarOnMac)
+#endif
 
 public:
     enum DockOption {
