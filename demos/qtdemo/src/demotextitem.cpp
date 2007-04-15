@@ -24,6 +24,7 @@ DemoTextItem::DemoTextItem(const QString &text, const QFont &font, const QColor 
     this->textColor = textColor;
     this->bgColor = bgColor;
     this->textWidth = textWidth;
+    this->noSubPixeling = true;
 }
 
 void DemoTextItem::setText(const QString &text)
@@ -37,25 +38,34 @@ QImage *DemoTextItem::createImage(const QMatrix &matrix) const
     if (this->type == DYNAMIC_TEXT)
         return 0;
     
+    float sx = qMin(matrix.m11(), matrix.m22());
+    float sy = matrix.m22() < sx ? sx : matrix.m22();
+    
     QGraphicsTextItem textItem(0, 0);
     textItem.setHtml(this->text);
     textItem.setTextWidth(this->textWidth);
     textItem.setFont(this->font);
     textItem.setDefaultTextColor(this->textColor);
-    QRect scaledRect = matrix.mapRect(textItem.boundingRect().toRect());
-    QImage *image = new QImage(scaledRect.width(), scaledRect.height(), QImage::Format_ARGB32_Premultiplied);
+    
+    float w = textItem.boundingRect().width();
+    float h = textItem.boundingRect().height();
+    QImage *image = new QImage(int(w * sx), int(h * sy), QImage::Format_ARGB32_Premultiplied);
     image->fill(QColor(0, 0, 0, 0).rgba());
     QPainter painter(image);
-    painter.scale(matrix.m11(), matrix.m22());
-    painter.setRenderHints(QPainter::TextAntialiasing | QPainter::Antialiasing);
+    painter.scale(sx, sy);
     QStyleOptionGraphicsItem style;
-    if (this->bgColor.isValid()){
-        painter.setBrush(this->bgColor);
-        painter.setPen(Qt::NoPen);
-        painter.drawRoundRect(scaledRect, 10, 10);
-    }
     textItem.paint(&painter, &style, 0);
     return image;
+}
+
+void DemoTextItem::animationStarted(int)
+{
+    this->noSubPixeling = false;
+}
+
+void DemoTextItem::animationStopped(int)
+{
+    this->noSubPixeling = true;
 }
 
 QRectF DemoTextItem::boundingRect() const

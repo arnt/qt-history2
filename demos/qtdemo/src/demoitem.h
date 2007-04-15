@@ -51,6 +51,7 @@ public:
     qreal opacity;
     bool locked;
     DemoItemAnimation *currentAnimation;
+    bool noSubPixeling;
     
     // Used if controlled by a guide:
     void useGuide(Guide *guide, float startFrame = 0);

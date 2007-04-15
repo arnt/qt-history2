@@ -41,8 +41,9 @@ QImage *ScanItem::createImage(const QMatrix &matrix) const
         painter.drawEllipse(1, 1, scaledRect.width()-2, scaledRect.height()-2);
     }
     else {
-        painter.setPen(QPen(QColor(0, 0, 0, 250), 1));
-        painter.setBrush(QColor(206, 246, 117, 150));
+        painter.setPen(QPen(QColor(0, 0, 0, 20), 1));
+//        painter.setBrush(QColor(206, 246, 117, 150));
+        painter.setBrush(QColor(0, 0, 0, 20));
         painter.drawEllipse(1, 1, scaledRect.width()-2, scaledRect.height()-2);
     }
     return image;

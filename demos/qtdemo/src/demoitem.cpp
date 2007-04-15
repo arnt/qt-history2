@@ -25,6 +25,7 @@ DemoItem::DemoItem(QGraphicsScene *scene, QGraphicsItem *parent) : QGraphicsItem
     this->locked = false;
     this->prepared = false;
     this->neverVisible = false;
+    this->noSubPixeling = false;
     this->currentAnimation = 0;
     this->currGuide = 0;
     this->guideFrame = 0;
@@ -231,10 +232,12 @@ void DemoItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, 
         else {
             QMatrix m = painter->worldMatrix();
             painter->setWorldMatrix(QMatrix());
+            float x = this->noSubPixeling ? int(m.dx()) : m.dx();
+            float y = this->noSubPixeling ? int(m.dy()) : m.dy();
             if (this->sharedImage->image)
-                painter->drawImage(QPointF(m.dx(), m.dy()), *this->sharedImage->image);
+                painter->drawImage(QPointF(x, y), *this->sharedImage->image);
             else
-                painter->drawPixmap(QPointF(m.dx(), m.dy()), *this->sharedImage->pixmap);
+                painter->drawPixmap(QPointF(x, y), *this->sharedImage->pixmap);
         }
     }
 }

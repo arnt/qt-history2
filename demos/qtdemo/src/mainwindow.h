@@ -18,6 +18,7 @@
 #include <QPixmap>
 
 class DemoTextItem;
+class ImageItem;
 
 class MainWindow : public QGraphicsView
 {
@@ -64,6 +65,8 @@ private:
     QTimer updateTimer;
     QTime demoStartTime;
     QPixmap background;
+    ImageItem *trolltechLogo;
+    ImageItem *qtLogo;
     bool doneAdapt;
 };
 

@@ -42,6 +42,7 @@ int main(int argc, char *argv[])
     MenuManager::instance()->itemSelected(MenuManager::ROOT);
     if (Colors::useLoop){
         mainWindow.startLoop();
+        return 0;
     } else
         return app.exec();
 }

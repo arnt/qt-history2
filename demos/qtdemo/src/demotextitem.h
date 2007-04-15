@@ -25,7 +25,9 @@ public:
     DemoTextItem(const QString &text, const QFont &font, const QColor &textColor,
         float textWidth, QGraphicsScene *scene = 0, QGraphicsItem *parent = 0, TYPE type = STATIC_TEXT, const QColor &bgColor = QColor());
     void setText(const QString &text);
-    virtual QRectF boundingRect() const; // overridden
+    QRectF boundingRect() const; // overridden
+    void animationStarted(int id = 0);
+    void animationStopped(int id = 0);
 
 protected:
     virtual QImage *createImage(const QMatrix &matrix) const; // overridden

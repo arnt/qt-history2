@@ -28,6 +28,8 @@ MainWindow::MainWindow(QWidget *parent) : QGraphicsView(parent), updateTimer(thi
     this->fpsMedian = -1;
     this->fpsLabel = 0;
     this->doneAdapt = false;
+    this->trolltechLogo = 0;
+    this->qtLogo = 0;
     this->setupWidget();
     this->setupScene();
     this->setupSceneItems();
@@ -38,6 +40,8 @@ MainWindow::MainWindow(QWidget *parent) : QGraphicsView(parent), updateTimer(thi
 
 MainWindow::~MainWindow()
 {
+    delete this->trolltechLogo;
+    delete this->qtLogo;
 }
 
 void MainWindow::setupWidget()
@@ -206,6 +210,11 @@ void MainWindow::setupSceneItems()
         this->fpsLabel->setZValue(100);
         this->fpsLabel->setPos(Colors::stageStartX, 600 - QFontMetricsF(Colors::buttonFont()).height() - 5);
     }
+
+    this->trolltechLogo = new ImageItem(":/images/trolltech-logo.png", 1000, 1000, this->scene, 0, true, 0.5f);
+    this->qtLogo = new ImageItem(":/images/qtlogo_small.png", 1000, 1000, this->scene, 0, true, 0.5f);
+    this->trolltechLogo->setZValue(100);
+    this->qtLogo->setZValue(100);
 }
 
 void MainWindow::checkAdapt()
@@ -250,15 +259,7 @@ void MainWindow::drawBackgroundToPixmap()
     QPainter painter(&this->background);
     
     if (false && Colors::useEightBitPalette){
-        // Use plain color bacground to enhance readability
-        float top = Colors::stageStartY;
-        float bottom = Colors::stageStartY + Colors::stageHeight - 29;
-        painter.fillRect(r, Colors::sceneBg2);
-        painter.fillRect(QRectF(0, top, r.width(), bottom), QColor(100, 100, 100));
-        QImage bg(":/images/trolltech-logo.png");
-        painter.drawImage(int((r.width() - bg.width()) / 2), int(top + bottom) + 10, bg);
-        QImage logo(":/images/qtlogo_small.png");
-        painter.drawImage(int(r.width()) - logo.width() - 10, 10, logo);
+        painter.fillRect(r, Colors::sceneBg1);
     } else {
         QImage bg(":/images/demobg.png");
         painter.drawImage(0, 0, bg);
@@ -337,6 +338,14 @@ void MainWindow::resizeEvent(QResizeEvent *event)
     QGraphicsView::resizeEvent(event);
     DemoItem::setMatrix(this->matrix());
 
+    if (this->trolltechLogo){
+        const QRectF r = this->scene->sceneRect();
+        QRectF ttb = this->trolltechLogo->boundingRect();
+        this->trolltechLogo->setPos(int((r.width() - ttb.width()) / 2), 595 - ttb.height());
+        QRectF qtb = this->qtLogo->boundingRect();
+        this->qtLogo->setPos(802 - qtb.width(), 10);
+    }
+    
     // Changing size will almost always
     // hurt FPS during the changing. So
     // ignore it.
