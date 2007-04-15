@@ -545,6 +545,13 @@ Requires: TEXTEDIT
 Name: QErrorMessage
 SeeAlso: ???
 
+Feature: WIZARD
+Description: Provides a framework for wizards.
+Section: Dialogs
+Requires: 
+Name: QWizard
+SeeAlso: ???
+
 # ItemViews
 
 Feature: ITEMVIEWS

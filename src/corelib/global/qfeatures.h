@@ -227,6 +227,9 @@
 // QWheelEvent
 //#define QT_NO_WHEELEVENT
 
+// QWizard
+//#define QT_NO_WIZARD
+
 // QButtonGroup
 #if !defined(QT_NO_BUTTONGROUP) && (defined(QT_NO_GROUPBOX))
 #define QT_NO_BUTTONGROUP
