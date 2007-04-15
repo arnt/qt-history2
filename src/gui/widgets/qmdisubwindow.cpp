@@ -1168,13 +1168,16 @@ void QMdiSubWindowPrivate::setMaximizeMode()
     updateGeometryConstraints();
 
     if (!drawTitleBarWhenMaximized() && wasVisible) {
+#ifndef QT_NO_MAINWINDOW
         if (QMainWindow *mainWindow = qobject_cast<QMainWindow *>(q->window())) {
 #ifdef QT_NO_MENUBAR
             Q_UNUSED(mainWindow);
 #else
             showButtonsInMenuBar(mainWindow->menuBar());
 #endif
-        } else if (!controlContainer) {
+        } else
+#endif // QT_NO_MAINWINDOW
+        if (!controlContainer) {
             controlContainer = new ControlContainer(q);
         }
     }
@@ -1217,6 +1220,7 @@ void QMdiSubWindowPrivate::setActive(bool activate)
         ensureWindowState(Qt::WindowActive);
         emit q->aboutToActivate();
         if (q->isMaximized() && !drawTitleBarWhenMaximized()) {
+#ifndef QT_NO_MAINWINDOW
             if (QMainWindow *mainWindow = qobject_cast<QMainWindow *>(q->window())) {
 #ifdef QT_NO_MENUBAR
                 Q_UNUSED(mainWindow);
@@ -1224,6 +1228,7 @@ void QMdiSubWindowPrivate::setActive(bool activate)
                 showButtonsInMenuBar(mainWindow->menuBar());
 #endif
             }
+#endif // QT_NO_MAINWINDOW
         }
         if (!q->hasFocus() && !q->isAncestorOf(QApplication::focusWidget()))
             setFocusWidget();
@@ -1546,7 +1551,7 @@ bool QMdiSubWindowPrivate::drawTitleBarWhenMaximized() const
 #else
     if (q->style()->styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, 0, q))
         return true;
-#ifdef QT_NO_MENUBAR
+#if defined(QT_NO_MENUBAR) || defined(QT_NO_MAINWINDOW)
     return true;
 #else
     QMainWindow *mainWindow = qobject_cast<QMainWindow *>(q->window());
@@ -2582,7 +2587,7 @@ void QMdiSubWindow::showEvent(QShowEvent *showEvent)
     d->updateDirtyRegions();
     // Show buttons in the menu bar if they're already not there.
     // We want to do this when QMdiSubWindow becomes visible after being hidden.
-#ifndef QT_NO_MENUBAR
+#if !defined(QT_NO_MENUBAR) && !defined(QT_NO_MAINWINDOW)
     if (isMaximized() && d->controlContainer && !d->drawTitleBarWhenMaximized()) {
         if (QMainWindow *mainWindow = qobject_cast<QMainWindow *>(window())) {
             QMenuBar *menuBar = mainWindow->menuBar();
@@ -2590,7 +2595,7 @@ void QMdiSubWindow::showEvent(QShowEvent *showEvent)
                 d->showButtonsInMenuBar(menuBar);
         }
     }
-#endif // QT_NO_MENUBAR
+#endif
     d->setActive(true);
 }
 
