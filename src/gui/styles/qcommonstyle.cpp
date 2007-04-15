@@ -737,8 +737,8 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                 drawPrimitive(PE_FrameDefaultButton, opt, p, widget);
             if (btn->features & QStyleOptionButton::AutoDefaultButton)
                 br.setCoords(br.left() + dbi, br.top() + dbi, br.right() - dbi, br.bottom() - dbi);
-            if (!(btn->features & (QStyleOptionButton::Flat | QStyleOptionButton::CommandLinkButton)) 
-                || btn->state & (State_Sunken | State_On) 
+            if (!(btn->features & (QStyleOptionButton::Flat | QStyleOptionButton::CommandLinkButton))
+                || btn->state & (State_Sunken | State_On)
                 || (btn->features & QStyleOptionButton::CommandLinkButton && btn->state & State_MouseOver)) {
                 QStyleOptionButton tmpBtn = *btn;
                 tmpBtn.rect = br;
@@ -803,7 +803,7 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
             } else {
                 tf |= Qt::AlignHCenter;
             }
-            
+
             if (btn->features & QStyleOptionButton::HasMenu)
                 ir = ir.adjusted(0, 0, -pixelMetric(PM_MenuButtonIndicator, btn, widget), 0);
             drawItemText(p, ir, tf, btn->palette, (btn->state & State_Enabled),
@@ -4254,9 +4254,11 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
             vret->variant = fmt;
         }
         break;
+#ifndef QT_NO_WIZARD
     case SH_WizardStyle:
         ret = QWizard::ClassicStyle;
         break;
+#endif
     case SH_ItemView_ArrowKeysNavigateIntoChildren:
         ret = false;
         break;

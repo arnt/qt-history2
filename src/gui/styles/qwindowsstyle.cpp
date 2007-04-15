@@ -1077,9 +1077,11 @@ int QWindowsStyle::styleHint(StyleHint hint, const QStyleOption *opt, const QWid
                 ret = '*';
         }
         break;
+#ifndef QT_NO_WIZARD
     case SH_WizardStyle:
         ret = QWizard::ModernStyle;
         break;
+#endif
     case SH_ItemView_ArrowKeysNavigateIntoChildren:
         ret = true;
         break;
@@ -1252,7 +1254,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
             QPixmap pixmap;
             QString pixmapName;
             pixmapName.sprintf("%s-%s-%d-%d-%d-%lld",
-                               "$qt_ia", metaObject()->className(), 
+                               "$qt_ia", metaObject()->className(),
                                uint(opt->state), pe,
                                size, opt->palette.cacheKey());
             if (!QPixmapCache::find(pixmapName, pixmap)) {
@@ -3203,8 +3205,8 @@ QIcon QWindowsStyle::standardIconImplementation(StandardPixmap standardIcon, con
     case SP_VistaShield:
         {
             if (QSysInfo::WindowsVersion >= QSysInfo::WV_VISTA
-                && QSysInfo::WindowsVersion < QSysInfo::WV_NT_based 
-                && pSHGetStockIconInfo) 
+                && QSysInfo::WindowsVersion < QSysInfo::WV_NT_based
+                && pSHGetStockIconInfo)
             {
                 icon.addPixmap(standardPixmap(SP_VistaShield, option, widget)); //fetches small icon
                 QSHSTOCKICONINFO iconInfo; //append large icon

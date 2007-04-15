@@ -1075,7 +1075,7 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
             QPen oldPen = painter->pen();
             QBrush oldBrush = painter->brush();
             QRect r;
-            
+
             if (const QStyleOptionButton *button = qstyleoption_cast<const QStyleOptionButton*>(option)) {
                 isDefault = (button->features & QStyleOptionButton::DefaultButton) && (button->state & State_Enabled);
                 isFlat = (button->features & QStyleOptionButton::Flat);
@@ -1101,7 +1101,7 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
                 }
                 return;
             }
-            
+
             BEGIN_CLEANLOOKS_PIXMAPCACHE(QString::fromLatin1("pushbutton-%1").arg(isDefault))
             r = rect.adjusted(0, 1, 0, -1);
 
@@ -1216,7 +1216,7 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
             painter->setPen(oldPen);
             painter->setBrush(oldBrush);
             END_CLEANLOOKS_PIXMAPCACHE
-        }        
+        }
         break;
 #ifndef QT_NO_TABBAR
         case PE_FrameTabWidget:
@@ -3359,11 +3359,11 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
 
             QBrush oldBrush = painter->brush();
             QPen oldPen = painter->pen();
-                
+
             if ((option->subControls & SC_SliderGroove) && groove.isValid()) {
                 QString groovePixmapName = uniqueName(QLatin1String("slider_groove"), option, groove.size());
                 QRect pixmapRect(0, 0, groove.width(), groove.height());
-                
+
                 // draw background groove
                 if (!UsePixmapCache || !QPixmapCache::find(groovePixmapName, cache)) {
                     cache = QPixmap(pixmapRect.size());
@@ -3387,7 +3387,7 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                         QPixmapCache::insert(groovePixmapName, cache);
                 }
                 painter->drawPixmap(groove.topLeft(), cache);
-    
+
                 // draw blue groove highlight
                 QRect clipRect;
                 groovePixmapName += QLatin1String("_blue");
@@ -3428,7 +3428,7 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                 painter->drawPixmap(groove.topLeft(), cache);
                 painter->restore();
             }
-   
+
             // draw handle
             if ((option->subControls & SC_SliderHandle) ) {
                 QString handlePixmapName = uniqueName(QLatin1String("slider_handle"), option, handle.size());
@@ -3453,7 +3453,7 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                     // gradient fill
                     QRect innerBorder = gradRect;
                     QRect r = pixmapRect;
-                    
+
                     QColor outline = option->state & State_Enabled ? dark : dark.lighter(130);
 
                     qt_cleanlooks_draw_gradient(&handlePainter, horizontal ? gradRect.adjusted(1, 0, -1, 0) : gradRect.adjusted(1, 1, -1, 0),
@@ -3512,7 +3512,7 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                     if (UsePixmapCache)
                         QPixmapCache::insert(handlePixmapName, cache);
                 }
-            
+
                 painter->drawPixmap(handle.topLeft(), cache);
 
                 if (slider->state & State_HasFocus) {
@@ -4231,9 +4231,11 @@ int QCleanlooksStyle::styleHint(StyleHint hint, const QStyleOption *option, cons
     case SH_MessageBox_CenterButtons:
         ret = false;
         break;
+#ifndef QT_NO_WIZARD
     case SH_WizardStyle:
         ret = QWizard::ClassicStyle;
         break;
+#endif
     case SH_ItemView_ArrowKeysNavigateIntoChildren:
         ret = false;
         break;
