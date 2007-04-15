@@ -838,7 +838,7 @@ void QColumnView::currentChanged(const QModelIndex &current, const QModelIndex &
             }
         }
     }
-    
+
     // Scrolling to the right we need to have an empty spot
     bool found = false;
     if (currentParent == previous) {
@@ -1058,6 +1058,6 @@ void QColumnViewDelegate::paint(QPainter *painter,
     }
 }
 
-#endif // QT_NO_QCOLUMNVIEW
-
 #include "moc_qcolumnview.cpp"
+
+#endif // QT_NO_COLUMNVIEW
