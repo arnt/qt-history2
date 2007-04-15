@@ -102,7 +102,7 @@ static dbus_bool_t qDBusAddTimeout(DBusTimeout *timeout, void *data)
     if (!dbus_timeout_get_enabled(timeout))
         return true;
 
-    if (QThread::currentThread() == d->thread()) {
+    if (QCoreApplication::instance() && QThread::currentThread() == d->thread()) {
         // correct thread
         return qDBusRealAddTimeout(d, timeout, dbus_timeout_get_interval(timeout));
     } else {
@@ -136,7 +136,7 @@ static void qDBusRemoveTimeout(DBusTimeout *timeout, void *data)
 
     QDBusConnectionPrivate *d = static_cast<QDBusConnectionPrivate *>(data);
 
-    if (QThread::currentThread() == d->thread()) {
+    if (QCoreApplication::instance() && QThread::currentThread() == d->thread()) {
         qDBusRealRemoveTimeout(d, timeout);
     } else {
         QDBusConnectionCallbackEvent *ev = new QDBusConnectionCallbackEvent;
@@ -181,7 +181,7 @@ static dbus_bool_t qDBusAddWatch(DBusWatch *watch, void *data)
     int flags = dbus_watch_get_flags(watch);
     int fd = dbus_watch_get_fd(watch);
 
-    if (QThread::currentThread() == d->thread()) {
+    if (QCoreApplication::instance() && QThread::currentThread() == d->thread()) {
         return qDBusRealAddWatch(d, watch, flags, fd);
     } else {
         QDBusConnectionCallbackEvent *ev = new QDBusConnectionCallbackEvent;
@@ -231,7 +231,7 @@ static void qDBusRemoveWatch(DBusWatch *watch, void *data)
     QDBusConnectionPrivate *d = static_cast<QDBusConnectionPrivate *>(data);
     int fd = dbus_watch_get_fd(watch);
 
-    if (QThread::currentThread() == d->thread()) {
+    if (QCoreApplication::instance() && QThread::currentThread() == d->thread()) {
         qDBusRealRemoveWatch(d, watch, fd);
     } else {
         QDBusConnectionCallbackEvent *ev = new QDBusConnectionCallbackEvent;
@@ -265,7 +265,7 @@ static void qDBusToggleWatch(DBusWatch *watch, void *data)
     QDBusConnectionPrivate *d = static_cast<QDBusConnectionPrivate *>(data);
     int fd = dbus_watch_get_fd(watch);
 
-    if (QThread::currentThread() == d->thread()) {
+    if (QCoreApplication::instance() && QThread::currentThread() == d->thread()) {
         qDBusRealToggleWatch(d, watch, fd);
     } else {
         QDBusConnectionCallbackEvent *ev = new QDBusConnectionCallbackEvent;
