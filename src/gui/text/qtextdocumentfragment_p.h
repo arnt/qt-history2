@@ -158,7 +158,6 @@ private:
         int column;
     };
 
-    struct Table;
     friend struct Table;
     struct Table
     {
