@@ -619,6 +619,13 @@ Requires: ITEMVIEWS
 Name: QDataWidgetMapper
 SeeAlso: ???
 
+Feature: COLUMNVIEW
+Description: Provides a model/view implementation of a column view.
+Section: ItemViews
+Requires: ITEMVIEWS
+Name: QColumnView
+SeeAlso: ???
+
 # Styles
 
 Feature: STYLE_WINDOWS

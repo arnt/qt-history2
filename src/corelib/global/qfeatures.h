@@ -477,6 +477,11 @@
 #define QT_NO_WHATSTHIS
 #endif
 
+// QColumnView
+#if !defined(QT_NO_COLUMNVIEW) && (defined(QT_NO_ITEMVIEWS))
+#define QT_NO_COLUMNVIEW
+#endif
+
 // Common UNIX Printing System
 #if !defined(QT_NO_CUPS) && (defined(QT_NO_PRINTER) || defined(QT_NO_LIBRARY))
 #define QT_NO_CUPS

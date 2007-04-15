@@ -25,9 +25,10 @@
 // We mean it.
 //
 
+#include "qcolumnview.h"
+
 #ifndef QT_NO_QCOlUMNVIEW
 
-#include "qcolumnview.h"
 #include <private/qabstractitemview_p.h>
 
 #include <QtCore/qabstractitemmodel.h>

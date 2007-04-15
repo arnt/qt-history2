@@ -20,7 +20,7 @@ QT_BEGIN_HEADER
 
 QT_MODULE(Gui)
 
-#ifndef QT_NO_ITEMVIEWS
+#ifndef QT_NO_UNDOVIEW
 
 class QColumnViewPrivate;
 
