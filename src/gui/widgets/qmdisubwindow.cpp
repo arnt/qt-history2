@@ -2048,9 +2048,12 @@ void QMdiSubWindow::setWidget(QWidget *widget)
 
 #ifndef QT_NO_SIZEGRIP
     QSizeGrip *sizeGrip = qFindChild<QSizeGrip *>(widget);
+#ifndef QT_NO_STATUSBAR
     if (sizeGrip && qobject_cast<QStatusBar *>(sizeGrip->parent()))
         sizeGrip->installEventFilter(this);
-    else if (sizeGrip && !d->sizeGrip)
+    else
+#endif
+    if (sizeGrip && !d->sizeGrip)
         d->setSizeGrip(sizeGrip);
     else if (d->sizeGrip)
         d->sizeGrip->raise();
