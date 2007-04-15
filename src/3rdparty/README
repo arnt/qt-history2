@@ -15,6 +15,5 @@ have been removed:
     zlib/msdos - zlib for a platform not supported by Qt
     zlib/old - zlib for a platform not supported by Qt
     zlib/qnx - zlib packaging
-    sqlite/* - a few source files may have been removed
 
 Some patches are applied from time to time.
