@@ -2090,8 +2090,10 @@ void QStyleSheetStyle::unpolish(QWidget *w)
         QObject::disconnect(sa->verticalScrollBar(), SIGNAL(valueChanged(int)),
                             sa, SLOT(update()));
     }
+#ifndef QT_NO_PROGRESSBAR
     if (QProgressBar *pb = qobject_cast<QProgressBar *>(w))
         QWindowsStyle::unpolish(pb);
+#endif
 }
 
 void QStyleSheetStyle::unpolish(QApplication *app)
