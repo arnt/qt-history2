@@ -78,6 +78,7 @@ QWSWindow* tst_QWSWindowSystem::getWindow(int winId)
     const QPixmap pixmap = QPixmap::grabWindow(QDesktopWidget().winId(), \
                                                rect.left(), rect.top(), \
                                                rect.width(), rect.height()); \
+    QCOMPARE(pixmap.size(), rect.size());                               \
     QPixmap expectedPixmap(pixmap); /* ensure equal formats */          \
     expectedPixmap.fill(color);                                         \
     QCOMPARE(pixmap, expectedPixmap);                                   \

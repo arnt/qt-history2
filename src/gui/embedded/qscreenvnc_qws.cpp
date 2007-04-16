@@ -124,6 +124,7 @@ void QVNCScreenPrivate::configure()
         q_ptr->physWidth = subscreen->physicalWidth();
         q_ptr->physHeight = subscreen->physicalHeight();
 
+        q_ptr->setPixelFormat(subscreen->pixelFormat());
         q_ptr->setOffset(subscreen->offset());
     } else {
         q_ptr->lstep = (q_ptr->dw * q_ptr->d + 7) / 8;
@@ -1830,12 +1831,16 @@ bool QVNCScreen::connect(const QString &displaySpec)
         switch (d) {
         case 1:
             setPixelFormat(QImage::Format_Mono); //### LSB???
+            break;
         case 8:
             setPixelFormat(QImage::Format_Indexed8);
+            break;
         case 16:
             setPixelFormat(QImage::Format_RGB16);
+            break;
         case 32:
             setPixelFormat(QImage::Format_ARGB32_Premultiplied);
+            break;
         }
 
         QByteArray str = qgetenv("QWS_SIZE");

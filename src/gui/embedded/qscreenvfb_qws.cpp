@@ -180,7 +180,22 @@ bool QVFbScreen::connect(const QString &displaySpec)
     dw = w = d_ptr->hdr->width;
     dh = h = d_ptr->hdr->height;
     d = d_ptr->hdr->depth;
-    // hw: pixelFormat!!!
+
+    switch (d) {
+    case 1:
+        setPixelFormat(QImage::Format_Mono);
+        break;
+    case 8:
+        setPixelFormat(QImage::Format_Indexed8);
+        break;
+    case 16:
+        setPixelFormat(QImage::Format_RGB16);
+        break;
+    case 32:
+        setPixelFormat(QImage::Format_ARGB32_Premultiplied);
+        break;
+    }
+
     lstep = d_ptr->hdr->linestep;
 
     // Handle display physical size spec.
