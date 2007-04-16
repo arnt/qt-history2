@@ -1284,7 +1284,7 @@ void VcprojGenerator::initExtraCompilerOutputs()
                     const QString &filename = tmp_in.at(i);
                     if (extraCompilerSources.contains(filename))
                         extraCompile.addFile(
-                            Option::fixPathToTargetOS(replaceExtraCompilerVariables(tmp_out, filename, QString()), false));
+                            Option::fixPathToTargetOS(replaceExtraCompilerVariables(filename, tmp_out, QString()), false));
                 }
             }
         } else {
