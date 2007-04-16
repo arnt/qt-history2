@@ -384,12 +384,13 @@ public:
 
     uint filterCarriageReturn();
     inline uint getChar();
-    inline ushort peekChar();
+    inline uint peekChar();
     inline void putChar(uint c) { putStack.push() = c; }
     inline void putChar(QChar c) { putStack.push() =  c.unicode(); }
     void putString(const QString &s, int from = 0);
     void putStringLiteral(const QString &s);
-    void putStringWithLiteralQuotes(const QString &s);
+    void putReplacement(const QString &s);
+    void putReplacementInAttributeValue(const QString &s);
     ushort getChar_helper();
 
     bool scanUntil(const char *str, short tokenToInject = -1);
@@ -1307,7 +1308,7 @@ entity_value_content_with_dblquote ::= DBLQUOTE;
 entity_value_content_with_quote ::= QUOTE;
 
 entity_value_content ::= LETTER | DIGIT | LANGLE | RANGLE | HASH | LBRACK | RBRACK | LPAREN | RPAREN | PIPE | EQ | SLASH | COLON | SEMICOLON | COMMA | SPACE | DASH | PLUS | STAR | DOT | QUESTIONMARK | BANG;
-entity_value_content ::= char_ref_in_entity_value | entity_ref_in_entity_value | entity_done;
+entity_value_content ::= char_ref | entity_ref_in_entity_value | entity_done;
 
 
 attribute_value ::= QUOTE QUOTE;
@@ -1492,7 +1493,7 @@ entity_ref ::= AMPERSAND name SEMICOLON;
                     if (entity.literal)
                         putStringLiteral(entity.value);
                     else if (referenceEntity(entity))
-                        putString(entity.value);
+                        putReplacement(entity.value);
                     textBuffer.chop(2 + sym(2).len);
                     clearSym();
                 }
@@ -1556,7 +1557,7 @@ entity_ref_in_attribute_value ::= AMPERSAND name SEMICOLON;
                 if (entity.literal)
                     putStringLiteral(entity.value);
                 else if (referenceEntity(entity))
-                    putStringWithLiteralQuotes(entity.value);
+                    putReplacementInAttributeValue(entity.value);
                 textBuffer.chop(2 + sym(2).len);
                 clearSym();
             } else if (entitiesMustBeDeclared()) {
@@ -1576,27 +1577,6 @@ char_ref ::= AMPERSAND HASH char_ref_value SEMICOLON;
 
                 textBuffer.chop(3 + sym(3).len);
                 clearSym();
-            } else {
-                raiseWellFormedError(QXmlStream::tr("Invalid character reference."));
-            }
-        } break;
-./
-
-char_ref_in_entity_value ::= AMPERSAND HASH char_ref_value SEMICOLON;
-/.
-        case $rule_number: {
-            if (uint s = resolveCharRef(3)) {
-                if ( s == '\n' || s == '\r')
-                    sym(1).len += 2 + sym(3).len;
-                else {
-                    if (s >= 0xffff)
-                        putStringLiteral(QString::fromUcs4(&s, 1));
-                    else
-                        putChar((LETTER << 16) | s);
-
-                    textBuffer.chop(3 + sym(3).len);
-                    clearSym();
-                }
             } else {
                 raiseWellFormedError(QXmlStream::tr("Invalid character reference."));
             }

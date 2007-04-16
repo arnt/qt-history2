@@ -621,7 +621,7 @@ QXmlStreamReaderPrivate::~QXmlStreamReaderPrivate()
 
 inline uint QXmlStreamReaderPrivate::filterCarriageReturn()
 {
-    ushort peekc = peekChar();
+    uint peekc = peekChar();
     if (peekc == '\n') {
         if (putStack.size())
             putStack.pop();
@@ -651,12 +651,13 @@ inline uint QXmlStreamReaderPrivate::getChar()
         else
             c = getChar_helper();
     }
+
     return c;
 }
 
-inline ushort QXmlStreamReaderPrivate::peekChar()
+inline uint QXmlStreamReaderPrivate::peekChar()
 {
-    ushort c;
+    uint c;
     if (putStack.size()) {
         c = putStack.top();
     } else if (readBufferPos < readBuffer.size()) {
@@ -1153,13 +1154,26 @@ void QXmlStreamReaderPrivate::putStringLiteral(const QString &s)
         putStack.rawPush() = ((LETTER << 16) | s.at(i).unicode());
 }
 
-void QXmlStreamReaderPrivate::putStringWithLiteralQuotes(const QString &s)
+void QXmlStreamReaderPrivate::putReplacement(const QString &s)
 {
     putStack.reserve(s.size());
     for (int i = s.size()-1; i >= 0; --i) {
         ushort c = s.at(i).unicode();
-        if (c != '\"' && c != '\'')
+        if (c == '\n' || c == '\r')
+            putStack.rawPush() = ((LETTER << 16) | c);
+        else
             putStack.rawPush() = c;
+    }
+}
+void QXmlStreamReaderPrivate::putReplacementInAttributeValue(const QString &s)
+{
+    putStack.reserve(s.size());
+    for (int i = s.size()-1; i >= 0; --i) {
+        ushort c = s.at(i).unicode();
+        if (c == '&' || c == ';')
+            putStack.rawPush() = c;
+        else if (c == '\n' || c == '\r')
+            putStack.rawPush() = ' ';
         else
             putStack.rawPush() = ((LETTER << 16) | c);
     }
