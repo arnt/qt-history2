@@ -2083,7 +2083,7 @@ void tst_QWidget::lower()
 #ifdef Q_WS_X11
     qt_x11_wait_for_window_manager(parent);
 #endif
-    QApplication::processEvents();
+    QTest::qWait(1000);
 
     QList<QObject *> list1;
     list1 << child1 << child2 << child3 << child4;
@@ -2092,9 +2092,12 @@ void tst_QWidget::lower()
 
     foreach (UpdateWidget *child, allChildren) {
         int expectedPaintEvents = child == child4 ? 1 : 0;
-#ifdef Q_WS_WIN
+#if defined(Q_WS_WIN)
         if (expectedPaintEvents == 1 && child->numPaintEvents == 2)
             QEXPECT_FAIL(0, "Windows issues double repaints for Z-Order change", Continue);
+#elif defined(Q_WS_MAC)
+        if (expectedPaintEvents == 1)
+            QEXPECT_FAIL(0, "Show issues multiple paint events", Continue);
 #endif
         QCOMPARE(child->numPaintEvents, expectedPaintEvents);
         QCOMPARE(child->numZOrderChangeEvents, 0);
@@ -2102,19 +2105,20 @@ void tst_QWidget::lower()
     }
 
     for (int i = 0; i < 5; ++i)
-        child3->lower();
-    qApp->processEvents();
+        child4->lower();
+
+    QTest::qWait(1000);
 
     foreach (UpdateWidget *child, allChildren) {
-        int expectedPaintEvents = child == child4 ? 1 : 0;
-        int expectedZOrderChangeEvents = child == child3 ? 1 : 0;
-        QCOMPARE(child->numPaintEvents, expectedPaintEvents);
+        int expectedPaintEvents = child == child3 ? 1 : 0;
+        int expectedZOrderChangeEvents = child == child4 ? 1 : 0;
         QCOMPARE(child->numZOrderChangeEvents, expectedZOrderChangeEvents);
+        QCOMPARE(child->numPaintEvents, expectedPaintEvents);
         child->reset();
     }
 
     QList<QObject *> list2;
-    list2 << child3 << child1 << child2 << child4;
+    list2 << child4 << child1 << child2 << child3;
     QVERIFY(parent->children() == list2);
 
     delete parent;
