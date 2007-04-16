@@ -389,7 +389,7 @@ static EventTypeSpec window_events[] = {
 #if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4
     { kEventClassWindow, kEventWindowGetClickModality },
 #endif
-
+    { kEventClassWindow, kEventWindowTransitionCompleted },
     { kEventClassMouse, kEventMouseDown }
 };
 static EventHandlerUPP mac_win_eventUPP = 0;
@@ -432,6 +432,12 @@ OSStatus QWidgetPrivate::qt_window_event(EventHandlerCallRef er, EventRef event,
 #endif
         } else if(ekind == kEventWindowClose) {
             widget->d_func()->close_helper(QWidgetPrivate::CloseWithSpontaneousEvent);
+        } else if (ekind == kEventWindowTransitionCompleted) {
+            WindowTransitionAction transitionAction;
+            GetEventParameter(event, kEventParamWindowTransitionAction, typeWindowTransitionAction,
+                              0, sizeof(transitionAction), 0, &transitionAction);
+            if (transitionAction == kWindowHideTransitionAction)
+                widget->hide();
         } else if(ekind == kEventWindowExpanded) {
             Qt::WindowStates currState = Qt::WindowStates(widget->data->window_state);
             Qt::WindowStates newState = currState;
