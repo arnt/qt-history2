@@ -1229,6 +1229,7 @@ bool QAbstractItemView::focusNextPrevChild(bool next)
 */
 bool QAbstractItemView::event(QEvent *event)
 {
+    Q_D(QAbstractItemView);
     switch (event->type()) {
     case QEvent::LocaleChange:
         viewport()->update();
@@ -1239,6 +1240,19 @@ bool QAbstractItemView::event(QEvent *event)
         break;
     case QEvent::StyleChange:
         doItemsLayout();
+        break;
+    case QEvent::FocusOut:
+        if (QWidget *widget = qApp->focusWidget()) {
+            if (d->persistent.contains(widget)) {
+                //a persistent editor has gained the focus
+                QModelIndex index = d->indexForEditor(widget);
+                QItemSelectionModel::SelectionFlags flags = QItemSelectionModel::ClearAndSelect
+                    | d->selectionBehaviorFlags();
+                if (currentIndex() != index)
+                    d->selectionModel->setCurrentIndex(index, flags);
+            }
+        }
+
         break;
     default:
         break;
@@ -2225,16 +2239,22 @@ void QAbstractItemView::closeEditor(QWidget *editor, QAbstractItemDelegate::EndE
     Q_D(QAbstractItemView);
 
     // Close the editor
-    if (editor && !d->persistent.contains(editor)) {
-        setState(NoState);
-        d->removeEditor(editor);
+    if (editor) {
+        bool isPersistent = d->persistent.contains(editor);
         bool hadFocus = editor->hasFocus();
         QModelIndex index = d->indexForEditor(editor);
-        editor->removeEventFilter(d->delegateForIndex(index));
+        if (!isPersistent) {
+            setState(NoState);
+            d->removeEditor(editor);
+            QModelIndex index = d->indexForEditor(editor);
+            editor->removeEventFilter(d->delegateForIndex(index));
+        }
         if (hadFocus)
             setFocus(); // this will send a focusLost event to the editor
         QApplication::sendPostedEvents(editor, 0);
-        d->releaseEditor(editor);
+
+        if (!isPersistent)
+            d->releaseEditor(editor);
     }
 
     // The EndEditHint part
