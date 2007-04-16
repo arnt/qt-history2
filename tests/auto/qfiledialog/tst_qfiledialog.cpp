@@ -358,9 +358,16 @@ void tst_QFiledialog::proxymodel()
 {
     QFileDialog fd;
     QCOMPARE(fd.proxyModel(), (QAbstractProxyModel*)0);
+
+    fd.setProxyModel(0);
+    QCOMPARE(fd.proxyModel(), (QAbstractProxyModel*)0);
+
     QSortFilterProxyModel *proxyModel = new QSortFilterProxyModel(&fd);
     fd.setProxyModel(proxyModel);
     QCOMPARE(fd.proxyModel(), proxyModel);
+
+    fd.setProxyModel(0);
+    QCOMPARE(fd.proxyModel(), (QAbstractProxyModel*)0);
 }
 
 void tst_QFiledialog::setFilter()
