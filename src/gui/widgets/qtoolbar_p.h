@@ -58,6 +58,7 @@ public:
     Qt::Orientation orientation;
     Qt::ToolButtonStyle toolButtonStyle;
     QSize iconSize;
+    bool floatable;
 
     QAction *toggleViewAction;
 

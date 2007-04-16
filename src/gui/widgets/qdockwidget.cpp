@@ -611,7 +611,17 @@ void QDockWidgetPrivate::_q_toggleTopLevel()
 
 void QDockWidgetPrivate::initDrag(const QPoint &pos, bool nca)
 {
-    Q_ASSERT(state == 0);
+    Q_Q(QDockWidget);
+
+    if (state != 0)
+        return;
+
+    QMainWindow *win = qobject_cast<QMainWindow*>(q->parentWidget());
+    Q_ASSERT(win != 0);
+    QMainWindowLayout *layout = qobject_cast<QMainWindowLayout*>(win->layout());
+    Q_ASSERT(layout != 0);
+    if (layout->pluggingWidget != 0) // the main window is animating a docking operation
+        return;
 
     state = new QDockWidgetPrivate::DragState;
     state->pressPos = pos;
@@ -625,8 +635,7 @@ void QDockWidgetPrivate::startDrag()
 {
     Q_Q(QDockWidget);
 
-    Q_ASSERT(state != 0);
-    if (state->dragging)
+    if (state == 0 || state->dragging)
         return;
 
     QMainWindowLayout *layout
@@ -1242,11 +1251,8 @@ bool QDockWidget::event(QEvent *event)
     case QEvent::Leave:
         if (d->state != 0 && d->state->dragging && !d->state->nca) {
             // The cursor has left the widget while it is being dragged,
-            // we have to catch up! This only happens on Vista...
-            QPoint pos = QCursor::pos();
-            QMouseEvent fake(QEvent::MouseMove, mapFromGlobal(pos), pos, Qt::NoButton,
-                QApplication::mouseButtons(), QApplication::keyboardModifiers());
-            d->mouseMoveEvent(&fake);
+            // we end the drag
+            d->endDrag();
         }
         break;
 #endif

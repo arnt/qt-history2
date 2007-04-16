@@ -324,6 +324,9 @@ void ToolBar::insertToolBarBreak()
 
 void ToolBar::enterEvent(QEvent*)
 {
+/*
+    These labels on top of toolbars look darn ugly
+
     if (tip == 0) {
         tip = new QLabel(windowTitle(), this);
         QPalette pal = tip->palette();
@@ -342,6 +345,7 @@ void ToolBar::enterEvent(QEvent*)
                         hint.width(), hint.height());
 
     tip->show();
+*/
 }
 
 void ToolBar::leaveEvent(QEvent*)

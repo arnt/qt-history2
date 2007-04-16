@@ -47,6 +47,7 @@
 void QToolBarPrivate::init()
 {
     Q_Q(QToolBar);
+    floatable = true;
     movable = true;
     q->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed));
     q->setBackgroundRole(QPalette::Button);
@@ -106,13 +107,14 @@ void QToolBarPrivate::_q_updateToolButtonStyle(Qt::ToolButtonStyle style)
 void QToolBarPrivate::setWindowState(bool floating, bool unplug, const QRect &rect)
 {
     Q_Q(QToolBar);
-    bool visible = q->isVisible();
+    bool visible = !q->isHidden();
 
     q->hide();
 
     Qt::WindowFlags flags = floating ? Qt::Tool : Qt::Widget;
 
     flags |= Qt::FramelessWindowHint;
+
     if (unplug)
         flags |= Qt::X11BypassWindowManagerHint;
 
@@ -127,7 +129,17 @@ void QToolBarPrivate::setWindowState(bool floating, bool unplug, const QRect &re
 
 void QToolBarPrivate::initDrag(const QPoint &pos)
 {
-    Q_ASSERT(state == 0);
+    Q_Q(QToolBar);
+
+    if (state != 0)
+        return;
+
+    QMainWindow *win = qobject_cast<QMainWindow*>(q->parentWidget());
+    Q_ASSERT(win != 0);
+    QMainWindowLayout *layout = qobject_cast<QMainWindowLayout*>(win->layout());
+    Q_ASSERT(layout != 0);
+    if (layout->pluggingWidget != 0) // the main window is animating a docking operation
+        return;
 
     state = new DragState;
     state->pressPos = pos;
@@ -156,18 +168,29 @@ void QToolBarPrivate::startDrag()
 void QToolBarPrivate::endDrag()
 {
     Q_Q(QToolBar);
-
     Q_ASSERT(state != 0);
 
+    q->releaseMouse();
+
     if (state->dragging) {
-        QMainWindow *win = qobject_cast<QMainWindow*>(q->parentWidget());
-        Q_ASSERT(win != 0);
-        QMainWindowLayout *layout = qobject_cast<QMainWindowLayout*>(win->layout());
+        QMainWindowLayout *layout =
+            qobject_cast<QMainWindowLayout *>(q->parentWidget()->layout());
         Q_ASSERT(layout != 0);
 
-        if (!layout->plug(state->widgetItem))
-            layout->revert(state->widgetItem);
+        if (!layout->plug(state->widgetItem)) {
+            if (q->isFloatable()) {
+                layout->restore();
+#ifdef Q_WS_X11
+                setWindowState(true); // gets rid of the X11BypassWindowManager window flag
+                                      // and activates the resizer
+#endif
+                q->activateWindow();
+            } else {
+                layout->revert(state->widgetItem);
+            }
+        }
     }
+
     delete state;
     state = 0;
 }
@@ -185,9 +208,6 @@ void QToolBarPrivate::mousePressEvent(QMouseEvent *event)
 
 void QToolBarPrivate::mouseReleaseEvent(QMouseEvent*)
 {
-    Q_Q(QToolBar);
-
-    q->releaseMouse();
     endDrag();
 }
 
@@ -422,6 +442,23 @@ bool QToolBar::isMovable() const
 {
     Q_D(const QToolBar);
     return d->movable;
+}
+
+bool QToolBar::isFloatable() const
+{
+    Q_D(const QToolBar);
+    return d->floatable;
+}
+
+void QToolBar::setFloatable(bool floatable)
+{
+    Q_D(QToolBar);
+    d->floatable = floatable;
+}
+
+bool QToolBar::isFloating() const
+{
+    return isWindow();
 }
 
 /*!
@@ -875,11 +912,8 @@ bool QToolBar::event(QEvent *event)
 #ifdef Q_OS_WIN
         if (d->state != 0 && d->state->dragging) {
             // The cursor has left the toolbar while it is being dragged,
-            // we have to catch up! This only happens on Vista...
-            QPoint pos = QCursor::pos();
-            QMouseEvent fake(QEvent::MouseMove, mapFromGlobal(pos), pos, Qt::NoButton,
-                QApplication::mouseButtons(), QApplication::keyboardModifiers());
-            d->mouseMoveEvent(&fake);
+            // we end the drag. This only happens on Vista...
+            d->endDrag();
         } else
 #endif
         if (d->layout->expanded && !d->layout->collapsing) {

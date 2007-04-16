@@ -45,6 +45,8 @@ class Q_GUI_EXPORT QToolBar : public QWidget
     Q_PROPERTY(QSize iconSize READ iconSize WRITE setIconSize NOTIFY iconSizeChanged)
     Q_PROPERTY(Qt::ToolButtonStyle toolButtonStyle READ toolButtonStyle WRITE setToolButtonStyle
                NOTIFY toolButtonStyleChanged)
+    Q_PROPERTY(bool floating READ isFloating)
+    Q_PROPERTY(bool floatable READ isFloatable WRITE setFloatable)
 
 public:
     explicit QToolBar(const QString &title, QWidget *parent = 0);
@@ -94,6 +96,10 @@ public:
     Qt::ToolButtonStyle toolButtonStyle() const;
 
     QWidget *widgetForAction(QAction *action) const;
+
+    bool isFloatable() const;
+    void setFloatable(bool floatable);
+    bool isFloating() const;
 
 public Q_SLOTS:
     void setIconSize(const QSize &iconSize);
