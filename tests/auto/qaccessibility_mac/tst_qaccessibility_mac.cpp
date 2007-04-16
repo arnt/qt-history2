@@ -1040,58 +1040,33 @@ void tst_accessibiliry_mac::testSplitter()
     
     const AXUIElementRef splitGroupElement = childByRole(form, "AXSplitGroup");
     QVERIFY(splitGroupElement);
+
+    for (int i = 0; i < numChildren(splitGroupElement); ++i)
+        QVERIFY(child(splitGroupElement, 3));
+
+    // Visual Order: Foo splitter Bar splitter Baz
     QList<AXUIElementRef> splitterList = elementListAttribute(splitGroupElement, kAXSplittersAttribute);
     QCOMPARE(splitterList.count(), 2); 
-
-
-    // context1..3 and splitter1..2 below are numbered according to left-to-right
-    // visual order, but in since 4.3 the actual child ordering does not
-    // match the visual order.
-    const AXUIElementRef contents1 = child(splitGroupElement, 4);
-    QVERIFY(contents1);
-    QCOMPARE(role(contents1), QLatin1String("AXStaticText"));
-    QCOMPARE(title(contents1), QLatin1String("Foo"));
-
-    const AXUIElementRef contents2 = child(splitGroupElement, 3);
-    QVERIFY(contents2);
-    QCOMPARE(role(contents2), QLatin1String("AXStaticText"));
-    QCOMPARE(title(contents2), QLatin1String("Bar"));
-
-    const AXUIElementRef contents3 = child(splitGroupElement, 1);
-    QVERIFY(contents3);
-    QCOMPARE(role(contents3), QLatin1String("AXStaticText"));
-    QCOMPARE(title(contents3), QLatin1String("Baz"));
-
-    const AXUIElementRef splitter1 = child(splitGroupElement, 2);
-    QCOMPARE(role(splitter1), QLatin1String("AXSplitter"));
-    QVERIFY(splitter1);
-    QVERIFY(equal(splitterList.at(0), splitter1));
-    QVERIFY(supportsAttribute(splitter1, kAXPreviousContentsAttribute));
-    QVERIFY(supportsAttribute(splitter1, kAXNextContentsAttribute));
-    QCOMPARE(attribute(splitter1, kAXOrientationAttribute).toString(), QLatin1String("AXVerticalOrientation"));
-    {
-        QList<AXUIElementRef> prevList = elementListAttribute(splitter1, kAXPreviousContentsAttribute);  
+    foreach (AXUIElementRef splitter, splitterList) {
+        QCOMPARE(role(splitter), QLatin1String("AXSplitter"));
+        QVERIFY(supportsAttribute(splitter, kAXPreviousContentsAttribute));
+        QVERIFY(supportsAttribute(splitter, kAXNextContentsAttribute));
+        QCOMPARE(attribute(splitter, kAXOrientationAttribute).toString(), QLatin1String("AXVerticalOrientation"));
+        QList<AXUIElementRef> prevList = elementListAttribute(splitter, kAXPreviousContentsAttribute);  
         QCOMPARE(prevList.count(), 1); 
-        QVERIFY(equal(prevList.at(0), contents1));
-        QList<AXUIElementRef> nextList = elementListAttribute(splitter1, kAXNextContentsAttribute);  
+        QList<AXUIElementRef> nextList = elementListAttribute(splitter, kAXNextContentsAttribute);  
         QCOMPARE(nextList.count(), 1);
-        QVERIFY(equal(nextList.at(0), contents2)); 
-    }
-
-    const AXUIElementRef splitter2 = child(splitGroupElement, 0);
-    QCOMPARE(role(splitter2), QLatin1String("AXSplitter"));
-    QVERIFY(splitter2);
-    QVERIFY(equal(splitterList.at(1), splitter2));
-    {
-        QList<AXUIElementRef> prevList = elementListAttribute(splitter2, kAXPreviousContentsAttribute);  
-        QCOMPARE(prevList.count(), 1);
-        QVERIFY(equal(prevList.at(0), contents2));
-        QList<AXUIElementRef> nextList = elementListAttribute(splitter2, kAXNextContentsAttribute);  
-        QCOMPARE(nextList.count(), 1);
-        QVERIFY(equal(nextList.at(0), contents3)); 
+        
+        // verify order
+        if (title(prevList.at(0)) == QLatin1String("Foo"))
+            QCOMPARE(title(nextList.at(0)), QLatin1String("Bar"));
+        else if (title(prevList.at(0)) == QLatin1String("Bar"))
+            QCOMPARE(title(nextList.at(0)), QLatin1String("Baz"));
+        else {
+            QVERIFY(0); // one of the branches above should have hit.
+        }
     }
 }
-
 
 void tst_accessibiliry_mac::uitest_data()
 {
