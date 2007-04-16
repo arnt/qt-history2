@@ -260,50 +260,59 @@ bool QXmlUtils::isNameChar(const QChar c)
    \internal
 
    Determines whether \a c is a valid instance of
-   production [13]PubidChar in the XML 1.0 specification. If it
+   production [12] PubidLiteral in the XML 1.0 specification. If it
    is, true is returned, otherwise false.
 
-    \sa \l {http://www.w3.org/TR/REC-xml/#NT-PubidChar}
-           {Extensible Markup Language (XML) 1.0 (Fourth Edition), [13] PubidChar}
+    \sa \l {http://www.w3.org/TR/REC-xml/#NT-PubidLiteral}
+           {Extensible Markup Language (XML) 1.0 (Fourth Edition), [12] PubidLiteral}
  */
-bool QXmlUtils::isPubidChar(const QChar c)
+bool QXmlUtils::isPublicID(const QString &candidate)
 {
-    const ushort cp = c.unicode();
+    const int len = candidate.length();
 
-    if (cp >= 'a' && cp <= 'z'
-        || cp >= 'A' && cp <= 'Z'
-        || cp >= '0' && cp <= '9')
-        return true;
-
-    switch (cp)
+    for(int i = 0; i < len; ++i)
     {
-        /* Fallthrough all these. */
-        case 0x20:
-        case 0x0D:
-        case 0x0A:
-        case '-':
-        case '\'':
-        case '(':
-        case ')':
-        case '+':
-        case ',':
-        case '.':
-        case '/':
-        case ':':
-        case '=':
-        case '?':
-        case ';':
-        case '!':
-        case '*':
-        case '#':
-        case '@':
-        case '$':
-        case '_':
-        case '%':
-            return true;
-        default:
-            return false;
+        const ushort cp = candidate.at(i).unicode();
+
+        if (cp >= 'a' && cp <= 'z'
+            || cp >= 'A' && cp <= 'Z'
+            || cp >= '0' && cp <= '9')
+        {
+            continue;
+        }
+
+        switch (cp)
+        {
+            /* Fallthrough all these. */
+            case 0x20:
+            case 0x0D:
+            case 0x0A:
+            case '-':
+            case '\'':
+            case '(':
+            case ')':
+            case '+':
+            case ',':
+            case '.':
+            case '/':
+            case ':':
+            case '=':
+            case '?':
+            case ';':
+            case '!':
+            case '*':
+            case '#':
+            case '@':
+            case '$':
+            case '_':
+            case '%':
+                continue;
+            default:
+                return false;
+        }
     }
+
+    return true;
 }
 
 /*!

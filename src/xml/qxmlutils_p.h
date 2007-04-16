@@ -41,8 +41,8 @@ public:
     static bool isChar(const QChar c);
     static bool isNameChar(const QChar c);
     static bool isLetter(const QChar c);
-    static bool isPubidChar(const QChar c);
     static bool isNCName(const QString &ncName);
+    static bool isPublicID(const QString &candidate);
 
 private:
     typedef const QXmlCharRange *RangeIter;

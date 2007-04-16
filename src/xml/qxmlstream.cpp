@@ -560,6 +560,7 @@ void QXmlStreamReaderPrivate::init()
     attributeStack.reserve(16);
     entityParser = 0;
     hasCheckedStartDocument = false;
+    normalizeLiterals = false;
     hasSeenTag = false;
     atEnd = false;
     inParseEntity = false;
@@ -850,9 +851,14 @@ bool QXmlStreamReaderPrivate::scanAttType()
 /*!
  \internal
 
- Validates and normalizes strings which appears essentially where quotes or apostrophes
- surround them. For instance, attributes, the version and encoding field in the XML prolog
- and entity declarations.
+ Scan strings with quotes or apostrophes surround them. For instance,
+ attributes, the version and encoding field in the XML prolog and
+ entity declarations.
+
+ If normalizeLiterals is set to true, the function also normalizes
+ whitespace. It is set to true when the first start tag is
+ encountered.
+
  */
 inline int QXmlStreamReaderPrivate::fastScanLiteralContent()
 {
@@ -877,7 +883,10 @@ inline int QXmlStreamReaderPrivate::fastScanLiteralContent()
             // fall through
         case ' ':
         case '\t':
-            textBuffer.inline_append(QLatin1Char(' '));
+            if (normalizeLiterals)
+                textBuffer.inline_append(QLatin1Char(' '));
+            else
+                textBuffer.inline_append(c);
             ++n;
             break;
         case '&':
