@@ -27,7 +27,7 @@ typedef QHash<QString, StringHash> HashHash;
 
 class MenuManager : public QObject
 {
-    Q_OBJECT;
+    Q_OBJECT
     
 public:
     enum BUTTON_TYPE {ROOT, MENU1, MENU2, LAUNCH, DOCUMENTATION, QUIT, FULLSCREEN};

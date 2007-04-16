@@ -23,7 +23,7 @@
 class XmlStreamLint
 {
 public:
-    Q_DECLARE_TR_FUNCTIONS(XmlStreamLint);
+    Q_DECLARE_TR_FUNCTIONS(XmlStreamLint)
 };
 
 int main(int argc, char *argv[])

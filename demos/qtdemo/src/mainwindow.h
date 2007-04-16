@@ -22,7 +22,7 @@ class ImageItem;
 
 class MainWindow : public QGraphicsView
 {
-    Q_OBJECT;
+    Q_OBJECT
     
 public:
     MainWindow(QWidget *parent = 0);

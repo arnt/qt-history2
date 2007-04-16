@@ -21,7 +21,7 @@ class DemoItem;
 
 class DemoItemAnimation : public QGraphicsItemAnimation
 {
-    Q_OBJECT;
+    Q_OBJECT
     
 public:
     enum INOROUT {ANIM_IN, ANIM_OUT, ANIM_UNSPECIFIED};
