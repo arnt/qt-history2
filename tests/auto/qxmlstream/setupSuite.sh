@@ -1,4 +1,10 @@
 #!/bin/sh
+# 
+# Hello!
+#
+# You don't have to run this script unless you are actually updating the test suite.
+# For precaution, we therefore have this exit call.
+exit 0
 
 cvs up ¥XML-Test-Suite
 
