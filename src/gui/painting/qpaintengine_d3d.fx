@@ -175,7 +175,11 @@ PS_OUTPUT MaskPS(VS_FULL In, float2 pixelPos : VPOS)
     PS_OUTPUT Out;
 
     if (g_mBrushMode == 1) {
-        Out.Color = tex2D(PixmapSampler, In.TexCoords0.xy);
+        float x = In.TexCoords0.x;
+        float y = In.TexCoords0.y;
+        x = x - int(x);
+        y = y - int(y);
+        Out.Color = tex2D(PixmapSampler, float2(x, y));
         Out.Color.a = Out.Color.a * In.Diffuse.a;
     } else if (g_mBrushMode == 2) {
         Out.Color = tex1D(PixmapSampler, In.TexCoords0.x);
@@ -238,7 +242,11 @@ float4 SimplePS(float4 Color : COLOR0, float4 TexCoords : TEXCOORD0) : COLOR0
 {
     if (g_mBrushMode == 1) {
         float opacity = Color.a;
-        Color = tex2D(PixmapSampler, TexCoords.xy);
+        float x = TexCoords.x;
+        float y = TexCoords.y;
+        x = x - int(x);
+        y = y - int(y);
+        Color = tex2D(PixmapSampler, float2(x, y));
         Color.a = Color.a * opacity;
     } else if (g_mBrushMode == 2) {
         Color = tex1D(PixmapSampler, TexCoords.x);
@@ -259,7 +267,7 @@ float4 SimplePS(float4 Color : COLOR0, float4 TexCoords : TEXCOORD0) : COLOR0
     } else if (g_mBrushMode == 5) {
         Color = tex2D(PixmapSampler, TexCoords.xy) * Color;
     }
-    
+
     return Color;
 }
 
