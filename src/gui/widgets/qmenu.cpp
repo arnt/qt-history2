@@ -2010,6 +2010,16 @@ QMenu::event(QEvent *e)
 {
     Q_D(QMenu);
     switch (e->type()) {
+    case QEvent::ShortcutOverride: {
+            QKeyEvent *kev = static_cast<QKeyEvent*>(e);
+            if (kev->key() == Qt::Key_Up || kev->key() == Qt::Key_Down
+                || kev->key() == Qt::Key_Left || kev->key() == Qt::Key_Right
+                || kev->key() == Qt::Key_Enter || kev->key() == Qt::Key_Return) {
+                e->accept();
+                return true;
+            }
+        }
+        break;
     case QEvent::KeyPress: {
         QKeyEvent *ke = (QKeyEvent*)e;
         if (ke->key() == Qt::Key_Tab || ke->key() == Qt::Key_Backtab) {
