@@ -3343,20 +3343,44 @@ void QGraphicsItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 void QGraphicsItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
     if ((event->buttons() & Qt::LeftButton) && (flags() & ItemIsMovable)) {
-        // Handle ItemIsMovable.
-        QPointF newPos(mapToParent(event->pos()) - transform().map(event->buttonDownPos(Qt::LeftButton)));
-        QPointF diff = newPos - pos();
-
         // Determine the list of selected items
         QList<QGraphicsItem *> selectedItems;
         if (d_ptr->scene)
             selectedItems = d_ptr->scene->selectedItems();
-        selectedItems << this;
+        if (!isSelected())
+            selectedItems << this;
+
+        // Find the active view.
+        QGraphicsView *view = qobject_cast<QGraphicsView *>(event->widget() ? event->widget()->parentWidget() : 0);
 
         // Move all selected items
         foreach (QGraphicsItem *item, selectedItems) {
             if ((item->flags() & ItemIsMovable) && (!item->parentItem() || !item->parentItem()->isSelected())) {
-                item->setPos(item == this ? newPos : item->pos() + diff);
+                QPointF diff;
+                if (item->flags() & ItemIgnoresTransformations) {
+                    // Root items that ignore transformations need to
+                    // calculate their diff by mapping viewport coordinates to
+                    // parent coordinates. Items whose ancestors ignore
+                    // transformations can ignore this problem; their events
+                    // are already mapped correctly.
+                    QTransform viewToParentTransform = (sceneTransform() * view->viewportTransform()).inverted();
+
+                    QTransform myTransform = transform().translate(d_ptr->pos.x(), d_ptr->pos.y());
+                    viewToParentTransform = myTransform * viewToParentTransform;
+                    
+                    diff = viewToParentTransform.map(QPointF(view->mapFromGlobal(event->screenPos())))
+                           - viewToParentTransform.map(QPointF(view->mapFromGlobal(event->lastScreenPos())));
+                } else {
+                    if (item == this) {
+                        diff = mapToParent(event->pos()) - mapToParent(event->lastPos());
+                    } else {
+                        diff = item->mapToParent(item->mapFromScene(event->scenePos()))
+                               - item->mapToParent(item->mapFromScene(event->lastScenePos()));
+                    }
+                }
+                        
+                item->moveBy(diff.x(), diff.y());
+
                 if (item->flags() & ItemIsSelectable)
                     item->setSelected(true);
             }

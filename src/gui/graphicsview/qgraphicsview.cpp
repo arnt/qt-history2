@@ -284,6 +284,7 @@ public:
     QPoint mousePressViewPoint;
     QPoint mousePressScreenPoint;
     QPointF lastMouseMoveScenePoint;
+    QPoint lastMouseMoveScreenPoint;
     Qt::MouseButton mousePressButton;
     QTransform matrix;
     bool accelerateScrolling;
@@ -2294,6 +2295,7 @@ void QGraphicsView::contextMenuEvent(QContextMenuEvent *event)
     d->mousePressScenePoint = mapToScene(d->mousePressViewPoint);
     d->mousePressScreenPoint = event->globalPos();
     d->lastMouseMoveScenePoint = d->mousePressScenePoint;
+    d->lastMouseMoveScreenPoint = d->mousePressScreenPoint;
 
     QGraphicsSceneContextMenuEvent contextEvent(QEvent::GraphicsSceneContextMenu);
     contextEvent.setWidget(viewport());
@@ -2502,6 +2504,7 @@ void QGraphicsView::mouseDoubleClickEvent(QMouseEvent *event)
     d->mousePressScenePoint = mapToScene(d->mousePressViewPoint);
     d->mousePressScreenPoint = event->globalPos();
     d->lastMouseMoveScenePoint = d->mousePressScenePoint;
+    d->lastMouseMoveScreenPoint = d->mousePressScreenPoint;
     d->mousePressButton = event->button();
 
     QGraphicsSceneMouseEvent mouseEvent(QEvent::GraphicsSceneMouseDoubleClick);
@@ -2511,7 +2514,7 @@ void QGraphicsView::mouseDoubleClickEvent(QMouseEvent *event)
     mouseEvent.setScenePos(mapToScene(d->mousePressViewPoint));
     mouseEvent.setScreenPos(d->mousePressScreenPoint);
     mouseEvent.setLastScenePos(d->lastMouseMoveScenePoint);
-    mouseEvent.setLastScreenPos(mapFromScene(d->lastMouseMoveScenePoint));
+    mouseEvent.setLastScreenPos(d->lastMouseMoveScreenPoint);
     mouseEvent.setButtons(event->buttons());
     mouseEvent.setButtons(event->buttons());
     mouseEvent.setAccepted(false);
@@ -2539,6 +2542,7 @@ void QGraphicsView::mousePressEvent(QMouseEvent *event)
         d->mousePressScenePoint = mapToScene(d->mousePressViewPoint);
         d->mousePressScreenPoint = event->globalPos();
         d->lastMouseMoveScenePoint = d->mousePressScenePoint;
+        d->lastMouseMoveScreenPoint = d->mousePressScreenPoint;
         d->mousePressButton = event->button();
 
         if (d->scene) {
@@ -2550,7 +2554,7 @@ void QGraphicsView::mousePressEvent(QMouseEvent *event)
             mouseEvent.setScenePos(d->mousePressScenePoint);
             mouseEvent.setScreenPos(d->mousePressScreenPoint);
             mouseEvent.setLastScenePos(d->lastMouseMoveScenePoint);
-            mouseEvent.setLastScreenPos(mapFromScene(d->lastMouseMoveScenePoint));
+            mouseEvent.setLastScreenPos(d->lastMouseMoveScreenPoint);
             mouseEvent.setButtons(event->buttons());
             mouseEvent.setButton(event->button());
             mouseEvent.setModifiers(event->modifiers());
@@ -2665,11 +2669,12 @@ void QGraphicsView::mouseMoveEvent(QMouseEvent *event)
     mouseEvent.setScenePos(mapToScene(event->pos()));
     mouseEvent.setScreenPos(event->globalPos());
     mouseEvent.setLastScenePos(d->lastMouseMoveScenePoint);
-    mouseEvent.setLastScreenPos(mapFromScene(d->lastMouseMoveScenePoint));
+    mouseEvent.setLastScreenPos(d->lastMouseMoveScreenPoint);
     mouseEvent.setButtons(event->buttons());
     mouseEvent.setButton(event->button());
     mouseEvent.setModifiers(event->modifiers());
     d->lastMouseMoveScenePoint = mouseEvent.scenePos();
+    d->lastMouseMoveScreenPoint = mouseEvent.screenPos();
     mouseEvent.setAccepted(false);
     QApplication::sendEvent(d->scene, &mouseEvent);
 
@@ -2766,7 +2771,7 @@ void QGraphicsView::mouseReleaseEvent(QMouseEvent *event)
     mouseEvent.setScenePos(mapToScene(event->pos()));
     mouseEvent.setScreenPos(event->globalPos());
     mouseEvent.setLastScenePos(d->lastMouseMoveScenePoint);
-    mouseEvent.setLastScreenPos(mapFromScene(d->lastMouseMoveScenePoint));
+    mouseEvent.setLastScreenPos(d->lastMouseMoveScreenPoint);
     mouseEvent.setButtons(event->buttons());
     mouseEvent.setButton(event->button());
     mouseEvent.setModifiers(event->modifiers());
