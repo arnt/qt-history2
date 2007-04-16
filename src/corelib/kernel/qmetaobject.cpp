@@ -759,7 +759,7 @@ QByteArray QMetaObject::normalizedType(const char *type)
     if (!type || !*type)
         return result;
 
-    QVarLengthArray<char> stackbuf(int(strlen(type)));
+    QVarLengthArray<char> stackbuf((int)strlen(type));
     qRemoveWhitespace(type, stackbuf.data());
     int templdepth = 0;
     qNormalizeType(stackbuf.data(), templdepth, result);
