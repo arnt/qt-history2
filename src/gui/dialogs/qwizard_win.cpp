@@ -339,6 +339,8 @@ void QVistaHelper::mouseEvent(QEvent *event)
     case QEvent::MouseButtonRelease:
         mouseReleaseEvent(static_cast<QMouseEvent *>(event));
         break;
+    default:
+        break;
     }
 }
 
@@ -424,6 +426,8 @@ void QVistaHelper::mouseMoveEvent(QMouseEvent *event)
             QPoint newPos = event->pos() - pressedPos;
             rect.moveLeft(rect.left() + newPos.x());
             rect.moveTop(rect.top() + newPos.y());
+            break;
+        default:
             break;
         }
         wizard->setGeometry(rect);
