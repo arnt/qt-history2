@@ -335,6 +335,7 @@ bool QOpenType::shape(QShaperItem *item, const unsigned int *properties)
 //     dump_string(hb_buffer);
 #endif
 
+    // ### FT_LOAD_NO_HINTING might give problems here, see comment about MingLiu in qfontengine_ft.cpp
     loadFlags = item->flags & QTextEngine::DesignMetrics ? FT_LOAD_NO_HINTING : FT_LOAD_DEFAULT;
 
     glyphs_substituted = false;

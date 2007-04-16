@@ -279,9 +279,32 @@ QByteArray QFreetypeFace::getSfntTable(uint tag) const
     return table;
 }
 
-void QFreetypeFace::addGlyphToPath(FT_GlyphSlot g, const QFixedPoint &point, QPainterPath *path, bool no_scale)
+/* Some fonts (such as MingLiu rely on hinting to scale different
+   components to their correct sizes. While this is really broken (it
+   should be done in the component glyph itself, not the hinter) we
+   will have to live with it.
+
+   This means we can not use FT_LOAD_NO_HINTING to get the glyph
+   outline. All we can do is to load the unscaled glyph and scale it
+   down manually when required.
+*/
+static void scaleOutline(FT_Face face, FT_GlyphSlot g, FT_Fixed x_scale, FT_Fixed y_scale)
 {
-    qreal factor = no_scale ? 1. : 1./64.;
+    x_scale = FT_MulDiv(x_scale, 1 << 10, face->units_per_EM);
+    y_scale = FT_MulDiv(y_scale, 1 << 10, face->units_per_EM);
+    FT_Vector *p = g->outline.points;
+    const FT_Vector *e = p + g->outline.n_points;
+    while (p < e) {
+        p->x = FT_MulFix(p->x, x_scale);
+        p->y = FT_MulFix(p->y, y_scale);
+        ++p;
+    }
+}
+
+void QFreetypeFace::addGlyphToPath(FT_Face face, FT_GlyphSlot g, const QFixedPoint &point, QPainterPath *path, FT_Fixed x_scale, FT_Fixed y_scale)
+{
+    const qreal factor = 1/64.;
+    scaleOutline(face, g, x_scale, y_scale);
 
     QPointF cp = point.toPointF();
 
@@ -294,8 +317,8 @@ void QFreetypeFace::addGlyphToPath(FT_GlyphSlot g, const QFixedPoint &point, QPa
             start += cp + QPointF(g->outline.points[last_point].x*factor, -g->outline.points[last_point].y*factor);
             start /= 2;
         }
-//                 qDebug("contour: %d -- %d", i, g->outline.contours[c]);
-//                 qDebug("first point at %f %f", start.x(), start.y());
+//         qDebug("contour: %d -- %d", i, g->outline.contours[j]);
+//         qDebug("first point at %f %f", start.x(), start.y());
         path->moveTo(start);
 
         QPointF c[4];
@@ -304,7 +327,7 @@ void QFreetypeFace::addGlyphToPath(FT_GlyphSlot g, const QFixedPoint &point, QPa
         while (i < last_point) {
             ++i;
             c[n] = cp + QPointF(g->outline.points[i].x*factor, -g->outline.points[i].y*factor);
-//                     qDebug() << "    i=" << i << " flag=" << (int)g->outline.tags[i] << "point=" << c[n];
+//             qDebug() << "    i=" << i << " flag=" << (int)g->outline.tags[i] << "point=" << c[n];
             ++n;
             switch (g->outline.tags[i] & 3) {
             case 2:
@@ -326,7 +349,7 @@ void QFreetypeFace::addGlyphToPath(FT_GlyphSlot g, const QFixedPoint &point, QPa
             case 1:
             case 3:
                 if (n == 2) {
-//                             qDebug() << "lineTo" << c[1];
+//                     qDebug() << "lineTo" << c[1];
                     path->lineTo(c[1]);
                     c[0] = c[1];
                     n = 1;
@@ -338,13 +361,13 @@ void QFreetypeFace::addGlyphToPath(FT_GlyphSlot g, const QFixedPoint &point, QPa
                 }
                 break;
             }
-//                     qDebug() << "cubicTo" << c[1] << c[2] << c[3];
+//             qDebug() << "cubicTo" << c[1] << c[2] << c[3];
             path->cubicTo(c[1], c[2], c[3]);
             c[0] = c[3];
             n = 1;
         }
         if (n == 1) {
-//                     qDebug() << "closeSubpath";
+//             qDebug() << "closeSubpath";
             path->closeSubpath();
         } else {
             c[3] = start;
@@ -352,7 +375,7 @@ void QFreetypeFace::addGlyphToPath(FT_GlyphSlot g, const QFixedPoint &point, QPa
                 c[2] = (2*c[1] + c[3])/3;
                 c[1] = (2*c[1] + c[0])/3;
             }
-//                     qDebug() << "cubicTo" << c[1] << c[2] << c[3];
+//             qDebug() << "cubicTo" << c[1] << c[2] << c[3];
             path->cubicTo(c[1], c[2], c[3]);
         }
         ++i;
@@ -502,7 +525,7 @@ QFontEngineFT::Glyph *QFontEngineFT::loadGlyph(QGlyphSet *set, uint glyph, Glyph
     int vfactor = 1;
     int load_flags = FT_LOAD_DEFAULT | default_load_flags;
     if (outline_drawing) {
-        load_flags = FT_LOAD_NO_BITMAP|FT_LOAD_NO_HINTING;
+        load_flags = FT_LOAD_NO_BITMAP;
     } else if (format == Format_Mono) {
         load_flags |= FT_LOAD_TARGET_MONO;
     } else if (format == Format_A32) {
@@ -541,9 +564,9 @@ QFontEngineFT::Glyph *QFontEngineFT::loadGlyph(QGlyphSet *set, uint glyph, Glyph
     if (err != FT_Err_Ok)
         qWarning("load glyph failed err=%x face=%p, glyph=%d", err, face, glyph);
 
-    if (outline_drawing)
+    if (outline_drawing) 
         return 0;
-
+    
     FT_GlyphSlot slot = face->glyph;
 
     FT_Matrix matrix = freetype->matrix;
@@ -1063,9 +1086,9 @@ QFontEngineFT::QGlyphSet *QFontEngineFT::loadTransformedGlyphSet(glyph_t *glyphs
 
 void QFontEngineFT::getUnscaledGlyph(glyph_t glyph, QPainterPath *path, glyph_metrics_t *metrics)
 {
-    FT_Face face = lockFace();
+    FT_Face face = lockFace(Unscaled);
     FT_Set_Transform(face, 0, 0);
-    FT_Load_Glyph(face, glyph, FT_LOAD_NO_HINTING|FT_LOAD_NO_BITMAP|FT_LOAD_NO_SCALE);
+    FT_Load_Glyph(face, glyph, FT_LOAD_NO_BITMAP);
 
     int left  = face->glyph->metrics.horiBearingX;
     int right = face->glyph->metrics.horiBearingX + face->glyph->metrics.width;
@@ -1076,23 +1099,16 @@ void QFontEngineFT::getUnscaledGlyph(glyph_t glyph, QPainterPath *path, glyph_me
     p.x = 0;
     p.y = 0;
 
-    if (!FT_IS_SCALABLE(freetype->face)) {
-        metrics->width = QFixed::fromFixed(right-left);
-        metrics->height = QFixed::fromFixed(top-bottom);
-        metrics->x = QFixed::fromFixed(left);
-        metrics->y = QFixed::fromFixed(-top);
-        metrics->xoff = QFixed::fromFixed(face->glyph->advance.x);
+    metrics->width = QFixed::fromFixed(right-left);
+    metrics->height = QFixed::fromFixed(top-bottom);
+    metrics->x = QFixed::fromFixed(left);
+    metrics->y = QFixed::fromFixed(-top);
+    metrics->xoff = QFixed::fromFixed(face->glyph->advance.x);
 
+    if (!FT_IS_SCALABLE(freetype->face)) 
         QFreetypeFace::addBitmapToPath(face->glyph, p, path);
-    } else {
-        metrics->width = right-left;
-        metrics->height = top-bottom;
-        metrics->x = left;
-        metrics->y = -top;
-        metrics->xoff = face->glyph->advance.x;
-
-        QFreetypeFace::addGlyphToPath(face->glyph, p, path, true /* no_scale */);
-    }
+    else 
+        QFreetypeFace::addGlyphToPath(face, face->glyph, p, path, face->units_per_EM << 6, face->units_per_EM << 6);
 
     FT_Set_Transform(face, &freetype->matrix, 0);
     unlockFace();
@@ -1149,17 +1165,17 @@ void QFontEngineFT::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyph
 void QFontEngineFT::addGlyphsToPath(glyph_t *glyphs, QFixedPoint *positions, int numGlyphs,
                                     QPainterPath *path, QTextItem::RenderFlags)
 {
-    FT_Face face = lockFace();
+    FT_Face face = lockFace(Unscaled);
 
     for (int gl = 0; gl < numGlyphs; gl++) {
         FT_UInt glyph = glyphs[gl];
 
-        FT_Load_Glyph(face, glyph, FT_LOAD_NO_HINTING|FT_LOAD_NO_BITMAP);
+        FT_Load_Glyph(face, glyph, FT_LOAD_NO_BITMAP);
 
         FT_GlyphSlot g = face->glyph;
         if (g->format != FT_GLYPH_FORMAT_OUTLINE)
             continue;
-        QFreetypeFace::addGlyphToPath(g, positions[gl], path);
+        QFreetypeFace::addGlyphToPath(face, g, positions[gl], path, xsize, ysize);
     }
     unlockFace();
 }
@@ -1397,11 +1413,15 @@ int QFontEngineFT::glyphCount() const
     return count;
 }
 
-FT_Face QFontEngineFT::lockFace() const
+FT_Face QFontEngineFT::lockFace(Scaling scale) const
 {
     freetype->lock();
     FT_Face face = freetype->face;
-    if (freetype->xsize != xsize || freetype->ysize != ysize) {
+    if (scale == Unscaled) {
+        FT_Set_Char_Size(face, face->units_per_EM << 6, face->units_per_EM << 6, 0, 0);
+        freetype->xsize = face->units_per_EM << 6;
+        freetype->ysize = face->units_per_EM << 6;
+    } else if (freetype->xsize != xsize || freetype->ysize != ysize) {
         FT_Set_Char_Size(face, xsize, ysize, 0, 0);
         freetype->xsize = xsize;
         freetype->ysize = ysize;

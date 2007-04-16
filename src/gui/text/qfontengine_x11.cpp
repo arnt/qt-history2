@@ -619,9 +619,12 @@ void QFontEngineXLFD::getUnscaledGlyph(glyph_t glyph, QPainterPath *path, glyph_
     freetype->lock();
 
     FT_Face face = freetype->face;
+    FT_Set_Char_Size(face, face->units_per_EM << 6, face->units_per_EM << 6, 0, 0);
+    freetype->xsize = face->units_per_EM << 6;
+    freetype->ysize = face->units_per_EM << 6;
     FT_Set_Transform(face, 0, 0);
     glyph = glyphIndexToFreetypeGlyphIndex(glyph);
-    FT_Load_Glyph(face, glyph, FT_LOAD_NO_HINTING|FT_LOAD_NO_BITMAP|FT_LOAD_NO_SCALE);
+    FT_Load_Glyph(face, glyph, FT_LOAD_NO_BITMAP);
 
     int left  = face->glyph->metrics.horiBearingX;
     int right = face->glyph->metrics.horiBearingX + face->glyph->metrics.width;
@@ -631,23 +634,17 @@ void QFontEngineXLFD::getUnscaledGlyph(glyph_t glyph, QPainterPath *path, glyph_
     QFixedPoint p;
     p.x = 0;
     p.y = 0;
-    if (!FT_IS_SCALABLE(freetype->face)) {
-        metrics->width = QFixed::fromFixed(right-left);
-        metrics->height = QFixed::fromFixed(top-bottom);
-        metrics->x = QFixed::fromFixed(left);
-        metrics->y = QFixed::fromFixed(-top);
-        metrics->xoff = QFixed::fromFixed(face->glyph->advance.x);
+    metrics->width = QFixed::fromFixed(right-left);
+    metrics->height = QFixed::fromFixed(top-bottom);
+    metrics->x = QFixed::fromFixed(left);
+    metrics->y = QFixed::fromFixed(-top);
+    metrics->xoff = QFixed::fromFixed(face->glyph->advance.x);
 
+    if (!FT_IS_SCALABLE(freetype->face)) 
         QFreetypeFace::addBitmapToPath(face->glyph, p, path);
-    } else {
-        metrics->width = right-left;
-        metrics->height = top-bottom;
-        metrics->x = left;
-        metrics->y = -top;
-        metrics->xoff = face->glyph->advance.x;
+    else 
+        QFreetypeFace::addGlyphToPath(face, face->glyph, p, path, face->units_per_EM << 6, face->units_per_EM << 6);
 
-        QFreetypeFace::addGlyphToPath(face->glyph, p, path, true /* no_scale */);
-    }
     FT_Set_Transform(face, &freetype->matrix, 0);
     freetype->unlock();
 #endif // QT_NO_FREETYPE

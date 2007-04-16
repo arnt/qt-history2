@@ -75,7 +75,7 @@ struct QFreetypeFace
 
     int fsType() const;
 
-    static void addGlyphToPath(FT_GlyphSlot g, const QFixedPoint &point, QPainterPath *path, bool no_scale = false);
+    static void addGlyphToPath(FT_Face face, FT_GlyphSlot g, const QFixedPoint &point, QPainterPath *path, FT_Fixed x_scale, FT_Fixed y_scale);
     static void addBitmapToPath(FT_GlyphSlot slot, const QFixedPoint &point, QPainterPath *path, bool = false);
 
 private:
@@ -187,7 +187,11 @@ public:
 
     virtual int glyphCount() const;
 
-    FT_Face lockFace() const;
+    enum Scaling {
+        Scaled,
+        Unscaled
+    };
+    FT_Face lockFace(Scaling scale = Scaled) const;
     void unlockFace() const;
 
     FT_Face non_locked_face() const;
