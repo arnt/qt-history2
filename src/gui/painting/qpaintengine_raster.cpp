@@ -2173,11 +2173,18 @@ void QRasterPaintEngine::alphaPenBlt(const void* src, int bpl, bool mono, int rx
     const QRect rect(rx, ry, w, h);
     const QClipData *clip = d->rasterBuffer->clip;
     if (clip) {
+#if 0
         const QRect bound = QRect(clip->xmin, clip->ymin,
                                   clip->xmax - clip->xmin,
                                   clip->ymax - clip->ymin);
         if (!bound.intersects(rect))
             return;
+#else // inline for performance
+        const bool intersects = qMax(clip->xmin, rect.left()) <= qMin(clip->xmax - 1, rect.right())
+                                && qMax(clip->ymin, rect.top()) <= qMin(clip->ymax - 1, rect.bottom());
+        if (!intersects)
+            return;
+#endif
     }
 
     const bool unclipped = d->isUnclipped_normalized(rect);
