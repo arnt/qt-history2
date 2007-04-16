@@ -861,10 +861,10 @@ void QWindowsVistaStyle::drawControl(ControlElement element, const QStyleOption 
 
                     if (vertical) {
                         theme.rect = QRect(theme.rect.left(),
-                                           theme.rect.top() - theme.rect.height() + 2*ps*theme.rect.height(),
+                                           theme.rect.top() - theme.rect.height() + (int)(2*ps*theme.rect.height()),
                                            theme.rect.width(), (int)theme.rect.height()/2);
                     } else {
-                        theme.rect = QRect(theme.rect.left() - theme.rect.width() + 2*ps*theme.rect.width(),
+                        theme.rect = QRect(theme.rect.left() - theme.rect.width() + (int)(2*ps*theme.rect.width()),
                                            theme.rect.top(), (int)theme.rect.width()/2, theme.rect.height());
                     }
                     theme.partId = vertical ? PP_FILLVERT : PP_FILL;
@@ -908,12 +908,12 @@ void QWindowsVistaStyle::drawControl(ControlElement element, const QStyleOption 
                     painter->setClipRect(theme.rect);
                     if (vertical) {
                         theme.rect = QRect(theme.rect.left(),
-                                           inverted ? theme.rect.top() - theme.rect.height() + 3*ps*theme.rect.height() :
-                                                     theme.rect.top() + theme.rect.height() - 3*ps*theme.rect.height(),
+                                           inverted ? theme.rect.top() - theme.rect.height() + (int)(3*ps*theme.rect.height()) :
+                                                     theme.rect.top() + theme.rect.height() - (int)(3*ps*theme.rect.height()),
                                            theme.rect.width(), theme.rect.height());
                     } else {
-                        theme.rect = QRect(reverse ? theme.rect.left() + theme.rect.width() - 3*ps*theme.rect.width():
-                                           theme.rect.left() - theme.rect.width() + 3*ps*theme.rect.width(),
+                        theme.rect = QRect(reverse ? theme.rect.left() + theme.rect.width() - (int)(3*ps*theme.rect.width()):
+                                           theme.rect.left() - theme.rect.width() + (int)(3*ps*theme.rect.width()),
                                            theme.rect.top(), theme.rect.width(), theme.rect.height());
                     }
                     d->drawBackground(theme);
@@ -1242,7 +1242,7 @@ void QWindowsVistaStyle::drawComplexControl(ComplexControl control, const QStyle
                                   oldActiveControls            != option->activeSubControls);
 
 
-            if (const QStyleOptionSlider *slider= qstyleoption_cast<const QStyleOptionSlider *>(option)) {
+            if (qstyleoption_cast<const QStyleOptionSlider *>(option)) {
                 QRect oldSliderPos = w->property("_q_stylesliderpos").toRect();
                 QRect currentPos = subControlRect(CC_ScrollBar, option, SC_ScrollBarSlider, widget);
                 w->setProperty("_q_stylesliderpos", currentPos);
@@ -1418,7 +1418,7 @@ void QWindowsVistaStyle::drawComplexControl(ComplexControl control, const QStyle
                 theme.rect = subControlRect(CC_ScrollBar, option, SC_ScrollBarSlider, widget);
                 theme.rect = theme.rect.united(subControlRect(CC_ScrollBar, option, SC_ScrollBarSubPage, widget));
                 theme.rect = theme.rect.united(subControlRect(CC_ScrollBar, option, SC_ScrollBarAddPage, widget));
-                partId = scrollbar->direction == Qt::Horizontal ? SBP_LOWERTRACKHORZ : SBP_LOWERTRACKVERT;
+                partId = flags & State_Horizontal ? SBP_LOWERTRACKHORZ : SBP_LOWERTRACKVERT;
                 stateId = SCRBS_DISABLED;
                 theme.partId = partId;
                 theme.stateId = stateId;
