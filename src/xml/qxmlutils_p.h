@@ -33,8 +33,6 @@ class QXmlCharRange;
   \internal
   \short This class contains helper functions related to XML, for validating character classes,
          productions in the XML specification, and so on.
-
- This class is intentionally Not exported.
  */
 class Q_XML_EXPORT QXmlUtils
 {
