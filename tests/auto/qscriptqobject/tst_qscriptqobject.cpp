@@ -559,8 +559,9 @@ void tst_QScriptExtQObject::getSetDynamicProperty()
 
     // delete the property
     QCOMPARE(m_engine->evaluate("delete myObject.dynamicProperty").toBoolean(), true);
+    QCOMPARE(m_myObject->property("dynamicProperty").isValid(), false);
     QCOMPARE(m_engine->evaluate("myObject.dynamicProperty").isUndefined(), true);
-    QCOMPARE(m_engine->evaluate("myObject.hasOwnProperty(\"foooo\")").toBoolean(), false);
+    QCOMPARE(m_engine->evaluate("myObject.hasOwnProperty(\"dynamicProperty\")").toBoolean(), false);
 }
 
 void tst_QScriptExtQObject::getSetChildren()

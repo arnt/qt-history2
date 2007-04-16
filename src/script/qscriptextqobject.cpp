@@ -264,8 +264,7 @@ public:
         }   break;
 
         case DYNAPROPERTY_ID: {
-            QByteArray name = qobject->dynamicPropertyNames().value(member.id());
-            QVariant v = qobject->property(name);
+            QVariant v = qobject->property(member.nameId()->s.toLatin1());
             *result = eng->valueFromVariant(v);
         }   break;
 
@@ -330,9 +329,8 @@ public:
             }
 
         case DYNAPROPERTY_ID: {
-            QByteArray name = qobject->dynamicPropertyNames().value(member.id());
             QVariant v = value.toVariant();
-            return ! qobject->setProperty(name, v);
+            return ! qobject->setProperty(member.nameId()->s.toLatin1(), v);
         }
 
         } // switch
@@ -396,8 +394,7 @@ public:
             return false;
 
         if ((member.flags() & ID_MASK) == DYNAPROPERTY_ID) {
-            QByteArray name = qobject->dynamicPropertyNames().value(member.id());
-            qobject->setProperty(name, QVariant());
+            qobject->setProperty(member.nameId()->s.toLatin1(), QVariant());
             return true;
         }
 
