@@ -32,7 +32,9 @@
 
 #include <sys/types.h>
 #include <sys/time.h>
+#if !defined(Q_OS_HPUX) || defined(__ia64)
 #include <sys/select.h>
+#endif
 #if !defined(_POSIX_MONOTONIC_CLOCK)
 #  define _POSIX_MONOTONIC_CLOCK -1
 #endif
