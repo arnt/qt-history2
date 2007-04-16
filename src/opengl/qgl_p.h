@@ -250,6 +250,7 @@ public:
     Q_DECLARE_FLAGS(Extensions, Extension)
 
     static Extensions glExtensions;
+    static bool nvidiaFboNeedsFinish;
     static void init(); // sys dependent
     static void init_extensions(); // general: called by init()
 };

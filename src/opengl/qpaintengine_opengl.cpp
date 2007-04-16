@@ -592,7 +592,8 @@ inline void QGLOffscreen::release()
 
 #ifdef Q_WS_X11
     // workaround for bug in nvidia driver versions 9x.xx
-    glFinish();
+    if (QGLExtensions::nvidiaFboNeedsFinish)
+        glFinish();
 #endif
 
     DEBUG_ONCE_STR("QGLOffscreen: releasing offscreen");

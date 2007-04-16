@@ -45,6 +45,8 @@ public:
 };
 
 QGLExtensions::Extensions QGLExtensions::glExtensions = 0;
+bool QGLExtensions::nvidiaFboNeedsFinish = false;
+
 #ifndef APIENTRY
 # define APIENTRY
 #endif

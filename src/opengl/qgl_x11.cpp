@@ -1342,4 +1342,13 @@ void QGLExtensions::init()
     QGLWidget dmy;
     dmy.makeCurrent();
     init_extensions();
+
+    // nvidia 9x.xx unix drivers contain a bug which requires us to call glFinish before releasing an fbo
+    // to avoid painting artifacts
+    const QByteArray versionString(reinterpret_cast<const char*>(glGetString(GL_VERSION)));
+    const int pos = versionString.indexOf("NVIDIA");
+    if (pos >= 0) {
+        const float nvidiaDriverVersion = versionString.mid(pos + strlen("NVIDIA")).toFloat();
+        nvidiaFboNeedsFinish = nvidiaDriverVersion >= 90.0 && nvidiaDriverVersion < 100.0;
+    }
 }
