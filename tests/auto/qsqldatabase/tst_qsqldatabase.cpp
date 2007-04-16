@@ -1023,6 +1023,8 @@ void tst_QSqlDatabase::recordMySQL()
 	FieldDef("text", QVariant::String,	    QString("blah6")),
 	FieldDef("mediumtext", QVariant::String,  QString("blah7")),
 	FieldDef("longtext", QVariant::String,    QString("blah8")),
+        FieldDef("binary(20)", QVariant::ByteArray, QByteArray(Q3CString("ByteArray"))),
+        FieldDef("varbinary(20)", QVariant::ByteArray, QByteArray(Q3CString("ByteArray"))),
 	// SET OF?
 
 	FieldDef(QString::null, QVariant::Invalid)

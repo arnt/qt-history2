@@ -228,6 +228,8 @@ static QVariant::Type qDecodeMYSQLType(int mysqltype, uint flags)
     case FIELD_TYPE_TIMESTAMP :
         type = QVariant::DateTime;
         break;
+    case FIELD_TYPE_STRING :
+    case FIELD_TYPE_VAR_STRING :
     case FIELD_TYPE_BLOB :
     case FIELD_TYPE_TINY_BLOB :
     case FIELD_TYPE_MEDIUM_BLOB :
@@ -237,8 +239,6 @@ static QVariant::Type qDecodeMYSQLType(int mysqltype, uint flags)
     default:
     case FIELD_TYPE_ENUM :
     case FIELD_TYPE_SET :
-    case FIELD_TYPE_STRING :
-    case FIELD_TYPE_VAR_STRING :
     case FIELD_TYPE_DECIMAL :
         type = QVariant::String;
         break;
