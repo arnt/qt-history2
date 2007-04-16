@@ -154,6 +154,8 @@ void tst_QClipboard::copy_exit_paste()
 
 void tst_QClipboard::setMimeData()
 {
+    if (!nativeClipboardWorking())
+        QSKIP("Native clipboard not working in this setup", SkipAll);
     QMimeData *mimeData = new QMimeData;
     const QString TestName(QLatin1String("tst_QClipboard::setMimeData() mimeData"));
     mimeData->setObjectName(TestName);
