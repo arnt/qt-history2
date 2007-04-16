@@ -263,7 +263,8 @@ inline void QDirPrivate::sortFileList(QDir::SortFlags sort, QStringList &l,
             si[i].item = QFileInfo(path + l.at(i));
         }
         qt_cmp_si_sort_flags = sort;
-        qsort(si, i, sizeof(si[0]), qt_cmp_si);
+        if ((sort & QDir::SortByMask) != QDir::Unsorted)
+            qsort(si, i, sizeof(si[0]), qt_cmp_si);
         // put them back in the list(s)
         for (int j = 0; j<i; j++) {
             if(infos)
@@ -1369,6 +1370,9 @@ QStringList QDir::entryList(const QStringList &nameFilters, Filters filters,
         return d->data->files;
     }
     QStringList l = d->data->fileEngine->entryList(filters, nameFilters);
+    if ((sort & QDir::SortByMask) == QDir::Unsorted)
+        return l;
+
     QStringList ret;
     d->sortFileList(sort, l, &ret, 0);
     return ret;
