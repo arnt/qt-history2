@@ -1089,6 +1089,10 @@ void QGraphicsView::resetCachedContent()
     with tile-based backgrounds to notify changes when QGraphicsView has
     enabled background cacheing.
 
+    Note that QGraphicsView currently supports background caching only (see
+    CachedBackground). This function is equivalent to calling update() if any
+    layer but QGraphicsScene::BackgroundLayer is passed.
+
     \sa QGraphicsScene::invalidate(), update()
 */
 void QGraphicsView::invalidateScene(const QRectF &rect, QGraphicsScene::SceneLayers layers)

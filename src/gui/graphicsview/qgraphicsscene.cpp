@@ -2385,6 +2385,10 @@ void QGraphicsScene::update(const QRectF &rect)
       }
     \endcode
 
+    Note that QGraphicsView currently supports background caching only (see
+    QGraphicsView::CachedBackground). This function is equivalent to calling
+    update() if any layer but BackgroundLayer is passed.
+
     \sa QGraphicsView::resetCachedContent()
 */
 void QGraphicsScene::invalidate(const QRectF &rect, SceneLayers layers)
