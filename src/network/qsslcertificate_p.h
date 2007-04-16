@@ -42,6 +42,7 @@
 // We mean it.
 //
 
+#include "qsslsocket_p.h"
 #include <QtCore/qdatetime.h>
 #include <QtCore/qmap.h>
 
@@ -52,7 +53,9 @@ class QSslCertificatePrivate
 public:
     QSslCertificatePrivate()
         : null(true), x509(0)
-    { }
+    { 
+        QSslSocketPrivate::ensureInitialized();
+    }
 
     bool null;
     QByteArray versionString;

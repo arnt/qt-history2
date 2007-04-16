@@ -43,6 +43,7 @@
 #include "qsslsocket_openssl_symbols_p.h"
 #include "qsslkey.h"
 #include "qsslsocket.h"
+#include "qsslsocket_p.h"
 
 #include <QtCore/qbytearray.h>
 #ifndef QT_NO_DEBUG
@@ -55,7 +56,10 @@ public:
     inline QSslKeyPrivate()
         : rsa(0)
         , dsa(0)
-    { clear(); }
+    { 
+        QSslSocketPrivate::ensureInitialized();
+        clear(); 
+    }
 
     inline ~QSslKeyPrivate()
     { clear(); }
