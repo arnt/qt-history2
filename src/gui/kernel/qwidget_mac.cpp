@@ -29,6 +29,7 @@
 #include "qpainter.h"
 #include "qstyle.h"
 #include "qtimer.h"
+#include "qfocusframe.h"
 #include "qdebug.h"
 #include <private/qmainwindowlayout_p.h>
 
@@ -960,11 +961,14 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef er, EventRef event,
                   ekind == kEventControlDragLeave || ekind == kEventControlDragReceive) {
             handled_event = false;
             bool drag_allowed = false;
-            if(widget) {
+            QWidget *dropWidget = widget;
+            if (QFocusFrame *frame = qobject_cast<QFocusFrame *>(widget))
+                dropWidget = frame->widget();
+            if (dropWidget) {
                 //these are really handled in qdnd_mac.cpp just to modularize the code a little..
                 DragRef drag;
                 GetEventParameter(event, kEventParamDragRef, typeDragRef, 0, sizeof(drag), 0, &drag);
-                if(widget->d_func()->qt_mac_dnd_event(ekind, drag)) {
+                if(dropWidget->d_func()->qt_mac_dnd_event(ekind, drag)) {
                     drag_allowed = true;
                     handled_event = true;
                 }

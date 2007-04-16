@@ -122,6 +122,7 @@ QFocusFrame::QFocusFrame(QWidget *parent)
     setAttribute(Qt::WA_TransparentForMouseEvents);
     setFocusPolicy(Qt::NoFocus);
     setAttribute(Qt::WA_NoChildEventsForParent, true);
+    setAttribute(Qt::WA_AcceptDrops, style()->styleHint(QStyle::SH_FocusFrame_AboveWidget, 0, this));
 }
 
 /*!
