@@ -422,11 +422,11 @@ void QVistaHelper::mouseMoveEvent(QMouseEvent *event)
                     rect.setTop(rect.top() + dy);
             }
             break;
-        case movePosition:
+        case movePosition: {
             QPoint newPos = event->pos() - pressedPos;
             rect.moveLeft(rect.left() + newPos.x());
             rect.moveTop(rect.top() + newPos.y());
-            break;
+            break; }
         default:
             break;
         }
