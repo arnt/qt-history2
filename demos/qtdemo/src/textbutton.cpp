@@ -139,15 +139,16 @@ void TextButton::setupScanItem()
         scanItem->setZValue(zValue() + 1);
         
         this->scanAnim = new DemoItemAnimation(scanItem);
-        this->scanAnim->setDuration(1000);
         this->scanAnim->timeline->setLoopCount(1);
         
         float x = 1;
         float y = 1.5f;
         float stop = BUTTON_WIDTH - scanItem->boundingRect().width() - x;
         if (this->alignment == LEFT){
+            this->scanAnim->setDuration(2500);
             this->scanAnim->setPosAt(0.0, QPointF(x, y));
-            this->scanAnim->setPosAt(0.5, QPointF(stop, y));
+            this->scanAnim->setPosAt(0.5, QPointF(x, y));
+            this->scanAnim->setPosAt(0.7, QPointF(stop, y));
             this->scanAnim->setPosAt(1.0, QPointF(x, y));
             scanItem->setPos(QPointF(x, y));
         }
