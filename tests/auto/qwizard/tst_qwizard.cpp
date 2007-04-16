@@ -758,7 +758,8 @@ public:
     void cleanupPage() { ++cleanup; QWizardPage::cleanupPage(); checkInvariant(); }
     bool validatePage() { ++validate; return QWizardPage::validatePage(); }
 
-    void check(int init, int cleanup) { Q_ASSERT(init == this->init && cleanup == this->cleanup); }
+    void check(int init, int cleanup)
+    { Q_ASSERT(init == this->init && cleanup == this->cleanup); Q_UNUSED(init); Q_UNUSED(cleanup); }
 
     int init;
     int cleanup;
@@ -918,6 +919,7 @@ void tst_QWizard::setOption_IgnoreSubTitles()
     // Check that subtitles are shown when they should (i.e.,
     // they're set and IgnoreSubTitles is off).
 
+    qApp->setActiveWindow(0); // ensure no focus rectangle around cancel button
     QImage i11 = grabWidget(&wizard1);
     QImage i21 = grabWidget(&wizard2);
     QVERIFY(i11 != i21);
