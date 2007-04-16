@@ -633,6 +633,7 @@ void QListView::setRootIndex(const QModelIndex &index)
     Q_D(QListView);
     d->column = qBound(0, d->column, d->model->columnCount(index) - 1);
     QAbstractItemView::setRootIndex(index);
+    // ### clear the internal structures
 }
 
 /*!
@@ -2211,8 +2212,10 @@ void QStaticListViewBase::intersectingStaticSet(const QRect &area) const
             QModelIndex index = modelIndex(row);
             if (index.isValid())
                 appendToIntersections(index);
+#if 0 // for debugging
             else
                 qWarning("intersectingStaticSet: row %d was invalid", row);
+#endif
         }
     }
 }
