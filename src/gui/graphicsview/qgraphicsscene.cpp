@@ -3278,9 +3278,7 @@ void QGraphicsScene::itemUpdated(QGraphicsItem *item, const QRectF &rect)
         // "pixels" of compensation.
         foreach (QGraphicsView *view, d->views) {
             QRectF viewportRect = item->deviceTransform(view->viewportTransform()).mapRect(boundingRect);
-            if (!(view->optimizationFlags() & QGraphicsView::DontAdjustForAntialiasing))
-                viewportRect.adjust(-2, -2, 3, 3);
-            view->viewport()->update(viewportRect.toRect());
+            update(view->mapToScene(viewportRect.toRect()).boundingRect());
         }
     } else {
         QRectF sceneBoundingRect = item->sceneTransform().mapRect(boundingRect);
