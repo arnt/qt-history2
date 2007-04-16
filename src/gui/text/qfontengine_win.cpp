@@ -680,8 +680,8 @@ static inline double qt_fixed_to_double(const FIXED &p) {
     return ((p.value << 16) + p.fract) / 65536.0;
 }
 
-static inline QPointF qt_to_qpointf(const POINTFX &pt) {
-    return QPointF(qt_fixed_to_double(pt.x), -qt_fixed_to_double(pt.y));
+static inline QPointF qt_to_qpointf(const POINTFX &pt, qreal scale) {
+    return QPointF(qt_fixed_to_double(pt.x) * scale, -qt_fixed_to_double(pt.y) * scale);
 }
 
 #ifndef GGO_UNHINTED
@@ -689,7 +689,7 @@ static inline QPointF qt_to_qpointf(const POINTFX &pt) {
 #endif
 
 static void addGlyphToPath(glyph_t glyph, const QFixedPoint &position, HDC hdc,
-                           QPainterPath *path, bool ttf, glyph_metrics_t *metric = 0)
+                           QPainterPath *path, bool ttf, glyph_metrics_t *metric = 0, qreal scale = 1)
 {
     MAT2 mat;
     mat.eM11.value = mat.eM22.value = 1;
@@ -697,10 +697,6 @@ static void addGlyphToPath(glyph_t glyph, const QFixedPoint &position, HDC hdc,
     mat.eM21.value = mat.eM12.value = 0;
     mat.eM21.fract = mat.eM12.fract = 0;
     uint glyphFormat = GGO_NATIVE;
-        if ((QSysInfo::WindowsVersion & QSysInfo::WV_NT_based)
-        && QSysInfo::WindowsVersion != QSysInfo::WV_NT) {
-                glyphFormat |= GGO_UNHINTED;
-        }
 
     if (ttf)
         glyphFormat |= GGO_GLYPH_INDEX;
@@ -734,6 +730,7 @@ static void addGlyphToPath(glyph_t glyph, const QFixedPoint &position, HDC hdc,
     }
 
     if(metric) {
+        // #### obey scale
         *metric = glyph_metrics_t(gMetric.gmptGlyphOrigin.x, -gMetric.gmptGlyphOrigin.y,
                                   (int)gMetric.gmBlackBoxX, (int)gMetric.gmBlackBoxY,
                                   gMetric.gmCellIncX, gMetric.gmCellIncY);
@@ -747,7 +744,7 @@ static void addGlyphToPath(glyph_t glyph, const QFixedPoint &position, HDC hdc,
     while (headerOffset < bufferSize) {
         ttph = (TTPOLYGONHEADER*)((char *)dataBuffer + headerOffset);
 
-        QPointF lastPoint(qt_to_qpointf(ttph->pfxStart));
+        QPointF lastPoint(qt_to_qpointf(ttph->pfxStart, scale));
         path->moveTo(lastPoint + oset);
         offset += sizeof(TTPOLYGONHEADER);
         TTPOLYCURVE *curve;
@@ -756,7 +753,7 @@ static void addGlyphToPath(glyph_t glyph, const QFixedPoint &position, HDC hdc,
             switch (curve->wType) {
             case TT_PRIM_LINE: {
                 for (int i=0; i<curve->cpfx; ++i) {
-                    QPointF p = qt_to_qpointf(curve->apfx[i]) + oset;
+                    QPointF p = qt_to_qpointf(curve->apfx[i], scale) + oset;
                     path->lineTo(p);
                 }
                 break;
@@ -766,8 +763,8 @@ static void addGlyphToPath(glyph_t glyph, const QFixedPoint &position, HDC hdc,
                 QPointF prev(elm.x, elm.y);
                 QPointF endPoint;
                 for (int i=0; i<curve->cpfx - 1; ++i) {
-                    QPointF p1 = qt_to_qpointf(curve->apfx[i]) + oset;
-                    QPointF p2 = qt_to_qpointf(curve->apfx[i+1]) + oset;
+                    QPointF p1 = qt_to_qpointf(curve->apfx[i], scale) + oset;
+                    QPointF p2 = qt_to_qpointf(curve->apfx[i+1], scale) + oset;
                     if (i < curve->cpfx - 2) {
                         endPoint = QPointF((p1.x() + p2.x()) / 2, (p1.y() + p2.y()) / 2);
                     } else {
@@ -782,9 +779,9 @@ static void addGlyphToPath(glyph_t glyph, const QFixedPoint &position, HDC hdc,
             }
             case TT_PRIM_CSPLINE: {
                 for (int i=0; i<curve->cpfx; ) {
-                    QPointF p2 = qt_to_qpointf(curve->apfx[i++]) + oset;
-                    QPointF p3 = qt_to_qpointf(curve->apfx[i++]) + oset;
-                    QPointF p4 = qt_to_qpointf(curve->apfx[i++]) + oset;
+                    QPointF p2 = qt_to_qpointf(curve->apfx[i++], scale) + oset;
+                    QPointF p3 = qt_to_qpointf(curve->apfx[i++], scale) + oset;
+                    QPointF p4 = qt_to_qpointf(curve->apfx[i++], scale) + oset;
                     path->cubicTo(p2, p3, p4);
                 }
                 break;
@@ -803,12 +800,26 @@ static void addGlyphToPath(glyph_t glyph, const QFixedPoint &position, HDC hdc,
 void QFontEngineWin::addGlyphsToPath(glyph_t *glyphs, QFixedPoint *positions, int nglyphs,
                                      QPainterPath *path, QTextItem::RenderFlags)
 {
-    HDC hdc = shared_dc;
-    SelectObject(hdc, hfont);
-    Q_ASSERT(hdc);
+    LOGFONT lf = logfont;
+    lf.lfHeight = unitsPerEm;
+    int flags = synthesized();
+    if(flags & SynthesizedItalic)
+        lf.lfItalic = false;
+    lf.lfWidth = 0;
+    HFONT hf;
+    QT_WA({
+        hf = CreateFontIndirectW(&lf);
+    }, {
+        LOGFONTA lfa;
+        wa_copy_logfont(&lf, &lfa);
+        hf = CreateFontIndirectA(&lfa);
+    });
+    HGDIOBJ oldfont = SelectObject(shared_dc, hf);
 
     for(int i = 0; i < nglyphs; ++i)
-        addGlyphToPath(glyphs[i], positions[i], hdc, path, ttf);
+        addGlyphToPath(glyphs[i], positions[i], shared_dc, path, ttf, /*metric*/0, qreal(fontDef.pixelSize) / unitsPerEm);
+
+    DeleteObject(SelectObject(shared_dc, oldfont));
 }
 
 void QFontEngineWin::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs, int numGlyphs,
