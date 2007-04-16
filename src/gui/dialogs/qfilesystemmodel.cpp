@@ -131,7 +131,7 @@ QFileSystemModelPrivate::QFileSystemNode *QFileSystemModelPrivate::node(const QS
                 break;
         QFileSystemModelPrivate::QFileSystemNode *rootNode = const_cast<QFileSystemModelPrivate::QFileSystemNode*>(&root);
         if (r >= root.children.count()) {
-            if (pathElements.count() == 1 && !absolutePath.endsWith('/'))
+            if (pathElements.count() == 1 && !absolutePath.endsWith(QLatin1Char('/')))
 		return rootNode;
             QFileInfo info(host);
             if (!info.exists())
