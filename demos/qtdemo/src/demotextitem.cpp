@@ -15,8 +15,8 @@
 #include "colors.h"
 
 DemoTextItem::DemoTextItem(const QString &text, const QFont &font, const QColor &textColor,
-                            float textWidth, QGraphicsScene *scene, QGraphicsItem *parent, TYPE type, const QColor &bgColor)
-    : DemoItem(scene, parent)
+                           float textWidth, QGraphicsScene *scene, QGraphicsItem *parent, TYPE type, const QColor &bgColor)
+                           : DemoItem(scene, parent)
 {
     this->type = type;
     this->text = text;
@@ -37,16 +37,16 @@ QImage *DemoTextItem::createImage(const QMatrix &matrix) const
 {
     if (this->type == DYNAMIC_TEXT)
         return 0;
-    
+
     float sx = qMin(matrix.m11(), matrix.m22());
     float sy = matrix.m22() < sx ? sx : matrix.m22();
-    
+
     QGraphicsTextItem textItem(0, 0);
     textItem.setHtml(this->text);
     textItem.setTextWidth(this->textWidth);
     textItem.setFont(this->font);
     textItem.setDefaultTextColor(this->textColor);
-    
+
     float w = textItem.boundingRect().width();
     float h = textItem.boundingRect().height();
     QImage *image = new QImage(int(w * sx), int(h * sy), QImage::Format_ARGB32_Premultiplied);
@@ -58,10 +58,12 @@ QImage *DemoTextItem::createImage(const QMatrix &matrix) const
     return image;
 }
 
+
 void DemoTextItem::animationStarted(int)
 {
     this->noSubPixeling = false;
 }
+
 
 void DemoTextItem::animationStopped(int)
 {
@@ -69,11 +71,13 @@ void DemoTextItem::animationStopped(int)
 }
 
 QRectF DemoTextItem::boundingRect() const
+
 {
     if (this->type == STATIC_TEXT)
         return DemoItem::boundingRect();
     return QRectF(0, 0, 50, 20); // Sorry for using magic number
 }
+
 
 void DemoTextItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
@@ -86,5 +90,3 @@ void DemoTextItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
     painter->setPen(this->textColor);
     painter->drawText(0, 0, this->text);
 }
-
-
