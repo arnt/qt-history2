@@ -204,7 +204,7 @@ LT..q_atomic_set_ptr:
 	.globl .q_atomic_fetch_and_add_int
 	.csect q_atomic_fetch_and_add_int[DS],3
 q_atomic_fetch_and_add_int:
-	.long .q_atomic_fetch_and_add_int,TOC[tc0],0
+	.llong .q_atomic_fetch_and_add_int,TOC[tc0],0
 	.csect .text[PR]
 .q_atomic_fetch_and_add_int:
 	lwarx  5,0,3
@@ -228,7 +228,7 @@ LT..q_atomic_fetch_and_add_int:
 	.globl .q_atomic_fetch_and_add_acquire_int
 	.csect q_atomic_fetch_and_add_acquire_int[DS],3
 q_atomic_fetch_and_add_acquire_int:
-	.long .q_atomic_fetch_and_add_acquire_int,TOC[tc0],0
+	.llong .q_atomic_fetch_and_add_acquire_int,TOC[tc0],0
 	.csect .text[PR]
 .q_atomic_fetch_and_add_acquire_int:
 	lwarx  5,0,3
@@ -253,13 +253,13 @@ LT..q_atomic_fetch_and_add_acquire_int:
 	.globl .q_atomic_fetch_and_add_release_int
 	.csect q_atomic_fetch_and_add_release_int[DS],3
 q_atomic_fetch_and_add_release_int:
-	.long .q_atomic_fetch_and_add_release_int,TOC[tc0],0
+	.llong .q_atomic_fetch_and_add_release_int,TOC[tc0],0
 	.csect .text[PR]
 .q_atomic_fetch_and_add_release_int:
 	eieio
 	lwarx  5,0,3
 	add    6,4,5
-        extws  7,6
+        extsw  7,6
 	stwcx. 7,0,3
 	bne-   $-12
         extsw  3,5
