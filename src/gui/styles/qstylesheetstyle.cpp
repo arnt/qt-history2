@@ -185,10 +185,20 @@ struct QStyleSheetPositionData : public QSharedData
     QCss::PositionMode mode;
 };
 
+struct QStyleSheetImageData : public QSharedData
+{
+    QStyleSheetImageData(const QIcon &i, Qt::Alignment a, const QSize &sz)
+        : icon(i), alignment(a), size(sz) { }
+
+    QIcon icon;
+    Qt::Alignment alignment;
+    QSize size;
+};
+
 class QRenderRule
 {
 public:
-    QRenderRule() : features(0), hasFont(false), pal(0), b(0), bg(0), bd(0), geo(0), p(0) { }
+    QRenderRule() : features(0), hasFont(false), pal(0), b(0), bg(0), bd(0), geo(0), p(0), img(0) { }
     QRenderRule(const QVector<QCss::Declaration> &, const QWidget *);
     ~QRenderRule() { }
 
@@ -250,6 +260,7 @@ public:
     bool hasPosition() const { return p != 0; }
     bool hasGeometry() const { return geo != 0; }
     bool hasDrawable() const { return hasBorder() || hasBackground() || hasImage(); }
+    bool hasImage() const { return img != 0; }
 
     QSize minimumContentsSize() const
     { return geo ? QSize(geo->minWidth, geo->minHeight) : QSize(0, 0); }
@@ -257,18 +268,15 @@ public:
     { return boxSize(minimumContentsSize()); }
 
     QSize contentsSize() const
-    { return geo ? QSize(geo->width, geo->height) : (imageRect.isValid() ? imageRect.size() : QSize()); }
+    { return geo ? QSize(geo->width, geo->height)
+                 : ((img && img->size.isValid()) ? img->size : QSize()); }
     bool hasContentsSize() const
-    { return (geo && (geo->width != -1 || geo->height != -1)) || imageRect.isValid(); }
+    { return (geo && (geo->width != -1 || geo->height != -1)) || (img && img->size.isValid()); }
 
     QSize size() const { return boxSize(contentsSize()); }
 
-    bool hasImage() const { return !image.isNull(); }
-
     int features;
     QBrush defaultBackground;
-    QPixmap image;
-    QRect imageRect;
     QFont font;
     bool hasFont;
 
@@ -284,6 +292,7 @@ public:
     QSharedDataPointer<QStyleSheetBorderData> bd;
     QSharedDataPointer<QStyleSheetGeometryData> geo;
     QSharedDataPointer<QStyleSheetPositionData> p;
+    QSharedDataPointer<QStyleSheetImageData> img;
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -322,7 +331,7 @@ static const char *knownStyleHints[] = {
 static const int numKnownStyleHints = sizeof(knownStyleHints)/sizeof(knownStyleHints[0]);
 
 QRenderRule::QRenderRule(const QVector<Declaration> &declarations, const QWidget *widget)
-: features(0), hasFont(false), pal(0), b(0), bg(0), bd(0), geo(0), p(0)
+: features(0), hasFont(false), pal(0), b(0), bg(0), bd(0), geo(0), p(0), img(0)
 {
     Q_ASSERT(widget);
     QPalette palette = qApp->palette(); // ###: ideally widget's palette
@@ -371,6 +380,12 @@ QRenderRule::QRenderRule(const QVector<Declaration> &declarations, const QWidget
     if (v.extractPalette(&fg, &sfg, &sbg, &abg))
         pal = new QStyleSheetPaletteData(fg, sfg, sbg, abg);
 
+    QIcon icon;
+    alignment = Qt::AlignCenter;
+    QSize size;
+    if (v.extractImage(&icon, &alignment, &size))
+        img = new QStyleSheetImageData(icon, alignment, size);
+
     int adj = -255;
     hasFont = v.extractFont(&font, &adj);
 
@@ -403,18 +418,12 @@ QRenderRule::QRenderRule(const QVector<Declaration> &declarations, const QWidget
                 bi->horizStretch = horizStretch;
                 bi->vertStretch = vertStretch;
             }
-        } else if (decl.propertyId == QtImage) {
-            image = QPixmap(decl.uriValue()); // ###: support none
-            if (!imageRect.isValid())
-                imageRect = QRect(0, 0, image.width(), image.height());
         } else if (decl.propertyId == QtBackgroundRole) {
             if (bg && bg->brush.style() != Qt::NoBrush)
                 continue;
             int role = decl.values.first().variant.toInt();
             if (role >= Value_FirstColorRole && role <= Value_LastColorRole)
                 defaultBackground = palette.color((QPalette::ColorRole)(role-Value_FirstColorRole));
-        } else if (decl.property.compare(QLatin1String("image-region"), Qt::CaseInsensitive) == 0) {
-            imageRect = decl.rectValue();
         } else if (decl.property.startsWith(QLatin1String("qproperty-"), Qt::CaseInsensitive)) {
         } else if (decl.propertyId == UnknownProperty) {
             bool knownStyleHint = false;
@@ -933,11 +942,7 @@ void QRenderRule::drawImage(QPainter *p, const QRect &rect)
 {
     if (!hasImage())
         return;
-    // draw center aligned
-    QRect aligned = QStyle::alignedRect(Qt::LeftToRight, QFlag(Qt::AlignCenter), imageRect.size(), rect);
-    QRect inter = aligned.intersected(rect);
-    p->drawPixmap(inter.x(), inter.y(), image, imageRect.x() + inter.x() - aligned.x(),
-                  imageRect.y() + inter.y() - aligned.y(), inter.width(), inter.height());
+    img->icon.paint(p, rect, img->alignment);
 }
 
 void QRenderRule::drawRule(QPainter *p, const QRect& rect)
@@ -1812,7 +1817,7 @@ void QStyleSheetStyle::setProperties(QWidget *w)
         }
         QVariant v;
         switch (value.type()) {
-        case QVariant::Icon: v = QIcon(decl.uriValue()); break;
+        case QVariant::Icon: v = decl.iconValue(); break;
         case QVariant::Image: v = QImage(decl.uriValue()); break;
         case QVariant::Pixmap: v = QPixmap(decl.uriValue()); break;
         case QVariant::Rect: v = decl.rectValue(); break;
@@ -2128,7 +2133,7 @@ void QStyleSheetStyle::drawComplexControl(ComplexControl cc, const QStyleOptionC
                 if (!customDropDown)
                     return;
             } else {
-                rule.drawFrame(p, opt->rect);
+                rule.drawRule(p, opt->rect);
             }
 
             if (opt->subControls & QStyle::SC_ComboBoxArrow) {
@@ -2173,7 +2178,7 @@ void QStyleSheetStyle::drawComplexControl(ComplexControl cc, const QStyleOptionC
                 if (!customUp && !customDown)
                     return;
             } else {
-                rule.drawFrame(p, opt->rect);
+                rule.drawRule(p, opt->rect);
             }
 
             if ((opt->subControls & QStyle::SC_SpinBoxUp) && customUp) {
@@ -2300,7 +2305,7 @@ void QStyleSheetStyle::drawComplexControl(ComplexControl cc, const QStyleOptionC
                 if (!customArrow && !customDropDown)
                     return;
             } else {
-                rule.drawFrame(p, opt->rect);
+                rule.drawRule(p, opt->rect);
                 toolOpt.rect = rule.contentsRect(opt->rect);
                 if (rule.hasFont)
                     toolOpt.font = rule.font;
@@ -2347,7 +2352,7 @@ void QStyleSheetStyle::drawComplexControl(ComplexControl cc, const QStyleOptionC
                 rule.drawBackgroundImage(p, opt->rect);
                 baseStyle()->drawComplexControl(cc, &sbOpt, p, w);
             } else {
-                rule.drawFrame(p, opt->rect);
+                rule.drawRule(p, opt->rect);
                 QWindowsStyle::drawComplexControl(cc, opt, p, w);
             }
             return;
@@ -2405,7 +2410,7 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
                 if (!customMenu)
                     return;
             } else {
-                rule.drawFrame(p, opt->rect);
+                rule.drawRule(p, opt->rect);
             }
 
             if (btn->features & QStyleOptionButton::HasMenu) {
@@ -2431,7 +2436,7 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
 
     case CE_RadioButton:
     case CE_CheckBox:
-        rule.drawFrame(p, opt->rect);
+        rule.drawRule(p, opt->rect);
         ParentStyle::drawControl(ce, opt, p, w);
         return;
 

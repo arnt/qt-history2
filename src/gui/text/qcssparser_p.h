@@ -32,6 +32,7 @@
 #include <QtCore/QSize>
 #include <QtGui/QFont>
 #include <QtGui/QPalette>
+#include <QtGui/QIcon>
 
 namespace QCss
 {
@@ -122,6 +123,7 @@ enum Property {
     QtBackgroundRole,
     ListStyleType,
     ListStyle,
+    QtImageAlignment,
     NumProperties
 };
 
@@ -336,6 +338,7 @@ struct Q_GUI_EXPORT Declaration
     QSize sizeValue() const;
     QRect rectValue() const;
     QString uriValue() const;
+    QIcon iconValue() const;
 
     void borderImageValue(QString *image, int *cuts, TileMode *h, TileMode *v) const;
 };
@@ -447,6 +450,7 @@ struct Q_GUI_EXPORT ValueExtractor
     bool extractBorder(int *borders, QBrush *colors, BorderStyle *Styles, QSize *radii);
     bool extractPalette(QBrush *fg, QBrush *sfg, QBrush *sbg, QBrush *abg);
     int  extractStyleFeatures();
+    bool extractImage(QIcon *icon, Qt::Alignment *a, QSize *size);
 
 private:
     void extractFont();

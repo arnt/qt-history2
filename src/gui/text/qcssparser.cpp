@@ -122,6 +122,7 @@ static const QCssKnownValue properties[NumProperties - 1] = {
     { "font-weight", FontWeight },
     { "height", Height },
     { "image", QtImage },
+    { "image-alignment", QtImageAlignment },
     { "left", Left },
     { "list-style", ListStyle },
     { "list-style-type", ListStyleType },
@@ -1019,6 +1020,25 @@ void ValueExtractor::extractFont()
     extractFont(&f, &dummy);
 }
 
+bool ValueExtractor::extractImage(QIcon *icon, Qt::Alignment *a, QSize *size)
+{
+    bool hit = false;
+    for (int i = 0; i < declarations.count(); ++i) {
+        const Declaration &decl = declarations.at(i);
+        switch (decl.propertyId) {
+        case QtImage:
+            *icon = decl.iconValue();
+            if (decl.values.count() > 0 && decl.values.at(0).type == Value::Uri)
+                *size = QPixmap(decl.values.at(0).variant.toString()).size();
+            break;
+        case QtImageAlignment: *a = decl.alignmentValue();  break;
+        default: continue;
+        }
+        hit = true;
+    }
+    return hit;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // Declaration
 QColor Declaration::colorValue(const QPalette &pal) const
@@ -1241,6 +1261,21 @@ void Declaration::borderImageValue(QString *image, int *cuts,
                                         tileModes, NumKnownTileModes));
     } else
         *h = *v;
+}
+
+QIcon Declaration::iconValue() const
+{
+    QIcon icon;
+    for (int i = 0; i < values.count(); i++) {
+        const Value &value = values.at(i);
+        if (value.type != Value::Uri)
+            continue;
+        if (icon.isNull())
+            icon = QIcon(value.variant.toString());
+        else
+            icon.addPixmap(value.variant.toString());
+    }
+    return icon;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
