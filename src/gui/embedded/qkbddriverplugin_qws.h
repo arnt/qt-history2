@@ -27,7 +27,7 @@ class QWSKeyboardHandler;
 
 struct Q_GUI_EXPORT QWSKeyboardHandlerFactoryInterface : public QFactoryInterface
 {
-    virtual QWSKeyboardHandler* create(const QString& name) = 0;
+    virtual QWSKeyboardHandler* create(const QString &name, const QString &device) = 0;
 };
 
 #define QWSKeyboardHandlerFactoryInterface_iid "com.trolltech.Qt.QWSKeyboardHandlerFactoryInterface"

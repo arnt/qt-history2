@@ -27,7 +27,7 @@ class QWSMouseHandler;
 
 struct Q_GUI_EXPORT QWSMouseHandlerFactoryInterface : public QFactoryInterface
 {
-    virtual QWSMouseHandler* create(const QString& name) = 0;
+    virtual QWSMouseHandler* create(const QString &name, const QString &device) = 0;
 };
 
 #define QWSMouseHandlerFactoryInterface_iid "com.trolltech.Qt.QWSMouseHandlerFactoryInterface"

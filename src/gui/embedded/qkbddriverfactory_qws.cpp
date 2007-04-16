@@ -74,7 +74,6 @@ Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
 QWSKeyboardHandler *QKbdDriverFactory::create(const QString& key, const QString& device)
 {
     QString driver = key.toLower();
-    Q_UNUSED(device);
 #ifndef QT_NO_QWS_KBD_SL5000
     if (driver == QLatin1String("sl5000") || driver.isEmpty())
         return new QWSSL5000KeyboardHandler(device);
@@ -111,7 +110,7 @@ QWSKeyboardHandler *QKbdDriverFactory::create(const QString& key, const QString&
 #if !defined(Q_OS_WIN32) || defined(QT_MAKEDLL)
 #ifndef QT_NO_LIBRARY
     if (QWSKeyboardHandlerFactoryInterface *factory = qobject_cast<QWSKeyboardHandlerFactoryInterface*>(loader()->instance(driver)))
-        return factory->create(driver);
+        return factory->create(driver, device);
 #endif
 #endif
     return 0;

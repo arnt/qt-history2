@@ -20,7 +20,6 @@ public:
     TslibMouseDriver();
 
     QStringList keys() const;
-    QWSMouseHandler* create(const QString &name);
     QWSMouseHandler* create(const QString &driver, const QString &device);
 };
 
@@ -34,17 +33,11 @@ QStringList TslibMouseDriver::keys() const
     return (QStringList() << "tslib");
 }
 
-QWSMouseHandler* TslibMouseDriver::create(const QString &name)
-{
-    return create(name, QString());
-}
-
 QWSMouseHandler* TslibMouseDriver::create(const QString &driver,
                                           const QString &device)
 {
     if (driver.toLower() != "tslib")
         return 0;
-
     return new QWSTslibMouseHandler(driver, device);
 }
 
