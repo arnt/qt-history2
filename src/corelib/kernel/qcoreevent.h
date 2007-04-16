@@ -212,6 +212,8 @@ public:
         NonClientAreaMouseButtonDblClick = 176,
 
         MacSizeChange = 177,                    // when the Qt::WA_Mac{Normal,Small,Mini}Size changes
+        
+        ContentsRectChange = 178,               // sent by QWidget::setContentsMargins (internal)
 
         User = 1000,                            // first user event id
         MaxUser = 65535                         // last user event id

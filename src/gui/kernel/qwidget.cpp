@@ -5061,13 +5061,17 @@ void QWidget::setContentsMargins(int left, int top, int right, int bottom)
     else
         updateGeometry();
 
-    if (testAttribute(Qt::WA_WState_Polished)) {
+    // ###: compat, remove from Qt 5
+    if (isVisible()) {
         update();
         QResizeEvent e(data->crect.size(), data->crect.size());
         QApplication::sendEvent(this, &e);
     } else {
         setAttribute(Qt::WA_PendingResizeEvent, true);
     }
+
+    QEvent e(QEvent::ContentsRectChange);
+    QApplication::sendEvent(this, &e);
 }
 
 /*!  Returns the widget's contents margins for \a left, \a top, \a
@@ -6226,6 +6230,7 @@ bool QWidget::event(QEvent *event)
     case QEvent::WindowStateChange:
     case QEvent::LocaleChange:
     case QEvent::MacSizeChange:
+    case QEvent::ContentsRectChange:
         changeEvent(event);
         break;
 

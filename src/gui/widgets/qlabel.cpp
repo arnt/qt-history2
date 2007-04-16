@@ -898,10 +898,6 @@ bool QLabel::event(QEvent *e)
     if (type == QEvent::Resize) {
         if (d->control)
             d->textLayoutDirty = true;
-        QResizeEvent *re = static_cast<QResizeEvent *>(e);
-        // setContentsMargins sends a bogus resizeEvent to hint change in margins
-        if (re->oldSize() == re->size())
-            d->valid_hints = false;
     } else if (e->type() == QEvent::StyleChange
 #ifdef Q_WS_MAC
                || e->type() == QEvent::MacSizeChange
@@ -1325,6 +1321,8 @@ void QLabel::changeEvent(QEvent *ev)
         }
     } else if (ev->type() == QEvent::PaletteChange && d->control) {
         d->control->setPalette(palette());
+    } else if (ev->type() == QEvent::ContentsRectChange) {
+        d->updateLabel();
     }
     QFrame::changeEvent(ev);
 }
