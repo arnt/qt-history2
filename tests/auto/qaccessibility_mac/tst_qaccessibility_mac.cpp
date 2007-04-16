@@ -1107,9 +1107,9 @@ void tst_accessibiliry_mac::uitest()
     file.close();
     window->show();
 
-    QTimer::singleShot(50, this, qPrintable(testSlot));
+    QTimer::singleShot(800, this, qPrintable(testSlot));
     // Quit when returning to the main event loop after running tests.
-    QTimer::singleShot(200, &app, SLOT(quit()));
+    QTimer::singleShot(300, &app, SLOT(quit()));
     app.exec();
     delete window;
 }
