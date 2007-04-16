@@ -4586,6 +4586,62 @@ static void qt_bitmapblit_quint32(QRasterBuffer *rasterBuffer,
                                     map, mapWidth, mapHeight, mapStride);
 }
 
+static void qt_alphamapblit_quint32(QRasterBuffer *rasterBuffer,
+                                    int x, int y, quint32 color,
+                                    const uchar *map,
+                                    int mapWidth, int mapHeight, int mapStride)
+{
+    const quint32 c = color;
+    quint32 *dest = reinterpret_cast<quint32*>(rasterBuffer->scanLine(y)) + x;
+    const int destStride = rasterBuffer->bytesPerLine() / sizeof(quint32);
+
+    while (mapHeight--) {
+        for (int i = 0; i < mapWidth; ++i) {
+            const int coverage = map[i];
+
+            if (coverage == 0) {
+                // nothing
+            } else if (coverage == 255) {
+                dest[i] = c;
+            } else {
+                int ialpha = 255 - coverage;
+                dest[i] = BYTE_MUL(c, coverage) + BYTE_MUL(dest[i], ialpha);
+            }
+        }
+        dest += destStride;
+        map += mapStride;
+    }
+}
+
+#ifdef Q_WS_QWS
+static void qt_alphamapblit_quint16(QRasterBuffer *rasterBuffer,
+                                    int x, int y, quint32 color,
+                                    const uchar *map,
+                                    int mapWidth, int mapHeight, int mapStride)
+{
+    const quint16 c = qt_colorConvert<quint16, quint32>(color);
+    quint16 *dest = reinterpret_cast<quint16*>(rasterBuffer->scanLine(y)) + x;
+    const int destStride = rasterBuffer->bytesPerLine() / sizeof(quint16);
+
+    while (mapHeight--) {
+        for (int i = 0; i < mapWidth; ++i) {
+            const int coverage = map[i];
+
+            if (coverage == 0) {
+                // nothing
+            } else if (coverage == 255) {
+                dest[i] = c;
+            } else {
+                int ialpha = 255 - coverage;
+                dest[i] = BYTE_MUL_RGB16(c, coverage)
+                          + BYTE_MUL_RGB16(dest[i], ialpha);
+            }
+        }
+        dest += destStride;
+        map += mapStride;
+    }
+}
+#endif // Q_WS_QWS
 
 template <class T>
 inline void qt_rectfill_template(QRasterBuffer *rasterBuffer,
@@ -4608,30 +4664,31 @@ static void qt_rectfill_quint32(QRasterBuffer *rasterBuffer,
 DrawHelper qDrawHelper[QImage::NImageFormats] =
 {
     // Format_Invalid,
-    { 0, 0, 0, 0 },
+    { 0, 0, 0, 0, 0 },
     // Format_Mono,
     {
         blend_color_generic,
         blend_src_generic,
-        0, 0
+        0, 0, 0
     },
     // Format_MonoLSB,
     {
         blend_color_generic,
         blend_src_generic,
-        0, 0
+        0, 0, 0
     },
     // Format_Indexed8,
     {
         blend_color_generic,
         blend_src_generic,
-        0, 0
+        0, 0, 0
     },
     // Format_RGB32,
     {
         blend_color_generic,
         blend_src_generic,
         qt_bitmapblit_quint32,
+        0,
         qt_rectfill_quint32
     },
     // Format_ARGB32,
@@ -4639,6 +4696,7 @@ DrawHelper qDrawHelper[QImage::NImageFormats] =
         blend_color_generic,
         blend_src_generic,
         qt_bitmapblit_quint32,
+        0,
         qt_rectfill_quint32
     },
     // Format_ARGB32_Premultiplied
@@ -4646,6 +4704,7 @@ DrawHelper qDrawHelper[QImage::NImageFormats] =
         blend_color_argb,
         blend_src_argb,
         qt_bitmapblit_quint32,
+        qt_alphamapblit_quint32,
         qt_rectfill_quint32
     }
 #ifdef Q_WS_QWS
@@ -4654,6 +4713,7 @@ DrawHelper qDrawHelper[QImage::NImageFormats] =
         blend_color_rgb16,
         blend_src_generic,
         qt_bitmapblit_template<quint16>,
+        qt_alphamapblit_quint16,
         qt_rectfill_template<quint16>
     }
 #endif
@@ -4663,48 +4723,48 @@ DrawHelper qDrawHelper[QImage::NImageFormats] =
 DrawHelper qDrawHelperCallback[QImage::NImageFormats] =
 {
     // Format_Invalid,
-    { 0, 0, 0, 0 },
+    { 0, 0, 0, 0, 0 },
     // Format_Mono,
     {
         blend_color_generic_callback,
         blend_src_generic_callback,
-        0, 0
+        0, 0, 0
     },
     // Format_MonoLSB,
     {
         blend_color_generic_callback,
         blend_src_generic_callback,
-        0, 0
+        0, 0, 0
     },
     // Format_Indexed8,
     {
         blend_color_generic_callback,
         blend_src_generic_callback,
-        0, 0
+        0, 0, 0
     },
     // Format_RGB32,
     {
         blend_color_generic_callback,
         blend_src_generic_callback,
-        0, 0
+        0, 0, 0
     },
     // Format_ARGB32,
     {
         blend_color_generic_callback,
         blend_src_generic_callback,
-        0, 0
+        0, 0, 0
     },
     // Format_ARGB32_Premultiplied
     {
         blend_color_argb_callback,
         blend_src_argb_callback,
-        0, 0
+        0, 0, 0
     },
     // Format_RGB16
     {
         blend_color_generic_callback,
         blend_src_generic_callback,
-        0, 0
+        0, 0, 0
     }
 };
 #endif // Q_WS_QWS

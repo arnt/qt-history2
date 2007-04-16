@@ -74,6 +74,10 @@ typedef void (*BitmapBlitFunc)(QRasterBuffer *rasterBuffer,
                                int x, int y, quint32 color,
                                const uchar *bitmap,
                                int mapWidth, int mapHeight, int mapStride);
+typedef void (*AlphamapBlitFunc)(QRasterBuffer *rasterBuffer,
+                                 int x, int y, quint32 color,
+                                 const uchar *bitmap,
+                                 int mapWidth, int mapHeight, int mapStride);
 typedef void (*RectFillFunc)(QRasterBuffer *rasterBuffer,
                              int x, int y, int width, int height,
                              quint32 color);
@@ -82,6 +86,7 @@ struct DrawHelper {
     ProcessSpans blendColor;
     ProcessSpans blendGradient;
     BitmapBlitFunc bitmapBlit;
+    AlphamapBlitFunc alphamapBlit;
     RectFillFunc fillRect;
 };
 
@@ -187,6 +192,7 @@ struct QSpanData
     ProcessSpans blend;
     ProcessSpans unclipped_blend;
     BitmapBlitFunc bitmapBlit;
+    AlphamapBlitFunc alphamapBlit;
     RectFillFunc fillRect;
     qreal m11, m12, m13, m21, m22, m23, dx, dy;   // inverse xform matrix
     enum Type {

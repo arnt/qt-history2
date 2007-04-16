@@ -1467,7 +1467,7 @@ static void fillRect(const QRect &r, QSpanData *data,
     if (rect.isEmpty())
         return;
 
-    if (pe && data->fillRect && pe->isUnclipped(rect, 0)) {
+    if (pe && data->fillRect && pe->isUnclipped_normalized(rect)) {
         const QPainter::CompositionMode mode = pe->rasterBuffer->compositionMode;
         if (mode == QPainter::CompositionMode_Source
             || (mode == QPainter::CompositionMode_SourceOver
@@ -2180,14 +2180,24 @@ void QRasterPaintEngine::alphaPenBlt(const void* src, int bpl, bool mono, int rx
             return;
     }
 
-    const bool unclipped = d->isUnclipped(rect, 0);
+    const bool unclipped = d->isUnclipped_normalized(rect);
     ProcessSpans blend = unclipped ? d->penData.unclipped_blend : d->penData.blend;
     const uchar * scanline = static_cast<const uchar *>(src) + y0*bpl;
 
-    if (unclipped && d->fast_text && mono && d->penData.bitmapBlit) {
-        d->penData.bitmapBlit(rb, rx, ry, d->penData.solid.color,
-                              scanline, w, h, bpl);
-        return;
+    if (unclipped && d->fast_text) {
+        if (mono) {
+            if (d->penData.bitmapBlit) {
+                d->penData.bitmapBlit(rb, rx, ry, d->penData.solid.color,
+                                      scanline, w, h, bpl);
+                return;
+            }
+        } else {
+            if (d->penData.alphamapBlit) {
+                d->penData.alphamapBlit(rb, rx, ry, d->penData.solid.color,
+                                        scanline, w, h, bpl);
+                return;
+            }
+        }
     }
 
     const int NSPANS = 256;
@@ -2410,6 +2420,30 @@ bool QRasterPaintEngine::drawTextInFontBuffer(const QRect &devRect, int xmin, in
     return clearType;
 }
 #endif // Q_WS_WIN
+
+bool QRasterPaintEnginePrivate::isUnclipped_normalized(const QRect &r) const
+{
+    if (paint_unclipped)
+        return true;
+
+    if (rasterBuffer->clip)
+        return false;
+
+    // currently all painting functions clips to deviceRect internally
+    if (rasterBuffer->clipRect == deviceRect)
+        return true;
+
+    if (!rasterBuffer->clipRect.isEmpty()) {
+        // return rasterBuffer->clipRect.contains(r);
+
+        // inline for performance (we know the rects are normalized)
+        const QRect &r1 = rasterBuffer->clipRect;
+        return (r.left() >= r1.left() && r.right() <= r1.right()
+                && r.top() >= r1.top() && r.bottom() <= r1.bottom());
+    } else {
+        return qt_region_strictContains(clipRegion, r);
+    }
+}
 
 bool QRasterPaintEnginePrivate::isUnclipped(const QRect &rect,
                                             int penWidth) const
@@ -4527,6 +4561,7 @@ void QSpanData::setup(const QBrush &brush, int alpha)
 void QSpanData::adjustSpanMethods()
 {
     bitmapBlit = 0;
+    alphamapBlit = 0;
     fillRect = 0;
 
     switch(type) {
@@ -4536,6 +4571,7 @@ void QSpanData::adjustSpanMethods()
     case Solid:
         unclipped_blend = rasterBuffer->drawHelper->blendColor;
         bitmapBlit = rasterBuffer->drawHelper->bitmapBlit;
+        alphamapBlit = rasterBuffer->drawHelper->alphamapBlit;
         fillRect = rasterBuffer->drawHelper->fillRect;
         break;
     case LinearGradient:
