@@ -49,6 +49,7 @@ bool QC14N::isEqual(QIODevice *const firstDocument,
                
     Q_ASSERT_X(options == Options(), Q_FUNC_INFO,
                "Not yet implemented.");
+    Q_UNUSED(options);
 
     QXmlStreamReader r1(firstDocument);
     QXmlStreamReader r2(secondDocument);
