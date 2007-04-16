@@ -20,6 +20,8 @@
 //TESTED_CLASS=
 //TESTED_FILES=gui/image/qimage.h gui/image/qimage.cpp
 
+Q_DECLARE_METATYPE(QImage::Format)
+
 class tst_QImage : public QObject
 {
     Q_OBJECT
@@ -49,7 +51,8 @@ private slots:
     void convertToFormatPreserveDotsPrMeter();
     void convertToFormatPreserveText();
 
-    void rotate90();
+    void rotate_data();
+    void rotate();
 
 #if QT_VERSION >= 0x040102
     void copy();
@@ -481,27 +484,72 @@ void tst_QImage::dotsPerMeterZero()
     QCOMPARE(img.dotsPerMeterY(), defaultDpmY);
 }
 
-void tst_QImage::rotate90()
+void tst_QImage::rotate_data()
 {
+    QTest::addColumn<QImage::Format>("format");
+    QTest::addColumn<int>("degrees");
+
+    QVector<int> degrees;
+    degrees << 0 << 90 << 180 << 270;
+
+    foreach (int d, degrees) {
+        QString title = QString("%1 %2").arg(d);
+        QTest::newRow(title.arg("Format_RGB32"))
+            << QImage::Format_RGB32 << d;
+        QTest::newRow(title.arg("Format_ARGB32"))
+            << QImage::Format_ARGB32 << d;
+        QTest::newRow(title.arg("Format_ARGB32_Premultiplied"))
+            << QImage::Format_ARGB32_Premultiplied << d;
+        QTest::newRow(title.arg("Format_RGB16"))
+            << QImage::Format_RGB16 << d;
+        QTest::newRow(title.arg("Format_Indexed8"))
+            << QImage::Format_Indexed8 << d;
+    }
+}
+
+void tst_QImage::rotate()
+{
+    QFETCH(QImage::Format, format);
+    QFETCH(int, degrees);
+
     // test if rotate90 is lossless
     int w = 54;
     int h = 13;
-    QImage original(w,h, QImage::Format_RGB32);
+    QImage original(w, h, format);
     original.fill(qRgb(255,255,255));
 
-    for (int x = 0; x < w; ++x) {
-        original.setPixel(x,0, qRgb(x,0,128));
-        original.setPixel(x,h - 1, qRgb(0,255 - x,128));
+    if (format == QImage::Format_Indexed8) {
+        original.setNumColors(256);
+        for (int i = 0; i < 255; ++i)
+            original.setColor(i, qRgb(0, i, i));
     }
-    for (int y = 0; y < h; ++y) {
-        original.setPixel(0, y, qRgb(y,0,255));
-        original.setPixel(w - 1, y, qRgb(0,255 - y,255));
+
+    if (original.colorTable().isEmpty()) {
+        for (int x = 0; x < w; ++x) {
+            original.setPixel(x,0, qRgb(x,0,128));
+            original.setPixel(x,h - 1, qRgb(0,255 - x,128));
+        }
+        for (int y = 0; y < h; ++y) {
+            original.setPixel(0, y, qRgb(y,0,255));
+            original.setPixel(w - 1, y, qRgb(0,255 - y,255));
+        }
+    } else {
+        const int n = original.colorTable().size();
+        for (int x = 0; x < w; ++x) {
+            original.setPixel(x, 0, x % n);
+            original.setPixel(x,h - 1, n - (x % n));
+        }
+        for (int y = 0; y < h; ++y) {
+            original.setPixel(0, y, y % n);
+            original.setPixel(w - 1, y, n - (y % n));
+        }
     }
 
     // original.save("rotated90_original.png", "png");
 
     // Initialize the matrix manually (do not use rotate) to avoid rounding errors
-    QMatrix matRotate90 = QMatrix(0, 1, -1, 0, 0, 0);
+    QMatrix matRotate90;
+    matRotate90.rotate(degrees);
     QImage dest = original;
     // And rotate it 4 times, then the image should be identical to the original
     for (int i = 0; i < 4 ; ++i) {
@@ -509,13 +557,13 @@ void tst_QImage::rotate90()
     }
 
     // Make sure they are similar in format before we compare them.
-    dest = dest.convertToFormat(QImage::Format_RGB32);
+    dest = dest.convertToFormat(format);
 
     // dest.save("rotated90_result.png","png");
     QCOMPARE(original, dest);
 
     // Test with QMatrix::rotate 90 also, since we trust that now
-    matRotate90.rotate(90);
+    matRotate90.rotate(degrees);
     dest = original;
     // And rotate it 4 times, then the image should be identical to the original
     for (int i = 0; i < 4 ; ++i) {
@@ -523,11 +571,9 @@ void tst_QImage::rotate90()
     }
 
     // Make sure they are similar in format before we compare them.
-    dest = dest.convertToFormat(QImage::Format_RGB32);
+    dest = dest.convertToFormat(format);
 
     QCOMPARE(original, dest);
-
-
 }
 
 #if QT_VERSION >= 0x040102
