@@ -1488,7 +1488,7 @@ QDateTimeEditPrivate::QDateTimeEditPrivate()
 
 void QDateTimeEditPrivate::updateEdit()
 {
-    const QString newText = (specialValue() && !edit->hasFocus() ? specialValueText : textFromValue(value));
+    const QString newText = (specialValue() ? specialValueText : textFromValue(value));
     if (newText == displayText())
         return;
     int selsize = edit->selectedText().size();
