@@ -131,6 +131,8 @@ private slots:
     void checkHeaderReset();
     void checkHeaderMinSize();
 
+    void resizeToContents();
+
     void tabFocus();
 };
 
@@ -2564,6 +2566,47 @@ void tst_QTableView::checkHeaderMinSize()
     QVERIFY( view.verticalHeader()->y() >= view.horizontalHeader()->minimumHeight());
     QVERIFY( view.horizontalHeader()->x() >= view.verticalHeader()->minimumWidth());
 }
+
+void tst_QTableView::resizeToContents()
+{
+    //checks that the resize to contents is consistent
+    QTableWidget table(2,3);
+    QTableWidget table2(2,3);
+    QTableWidget table3(2,3);
+
+
+    table.setHorizontalHeaderItem(0, new QTableWidgetItem("A Lot of text here: BLA BLA BLA"));
+    table2.setHorizontalHeaderItem(0, new QTableWidgetItem("A Lot of text here: BLA BLA BLA"));
+    table3.setHorizontalHeaderItem(0, new QTableWidgetItem("A Lot of text here: BLA BLA BLA"));
+    table.horizontalHeader()->setVisible(false);
+    table2.horizontalHeader()->setVisible(false);
+    table.verticalHeader()->setVisible(false);
+    table2.verticalHeader()->setVisible(false);
+
+
+    for(int i = 0;i<table.columnCount();i++) {
+        table.resizeColumnToContents(i);
+    }
+    for(int i = 0;i<table.rowCount();i++) {
+        table.resizeRowToContents(i);
+    }
+    table2.resizeColumnsToContents();
+    table2.resizeRowsToContents();
+    table3.resizeColumnsToContents();
+    table3.resizeRowsToContents();
+
+    //now let's check the row/col sizes
+    for(int i = 0;i<table.columnCount();i++) {
+        QVERIFY( table.columnWidth(i) == table2.columnWidth(i));
+        QVERIFY( table2.columnWidth(i) == table3.columnWidth(i));
+    }
+    for(int i = 0;i<table.rowCount();i++) {
+        QVERIFY( table.rowHeight(i) == table2.rowHeight(i));
+        QVERIFY( table2.rowHeight(i) == table3.rowHeight(i));
+    }
+
+}
+
 
 void tst_QTableView::tabFocus()
 {
