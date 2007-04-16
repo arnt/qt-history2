@@ -1172,6 +1172,8 @@ void QGraphicsView::setScene(QGraphicsScene *scene)
         d->recalculateContentSize();
         d->lastCenterPoint = sceneRect().center();
         d->keepLastCenterPoint = true;
+    } else {
+        viewport()->update();
     }
 }
 
