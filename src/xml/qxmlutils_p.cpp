@@ -30,6 +30,10 @@ public:
 };
 typedef const QXmlCharRange *RangeIter;
 
+/*!
+  Performs a binary search between \a begin and \a end inclusive, to check whether \a
+  c is contained. Remember that the QXmlCharRange instances must be in numeric order.
+ */
 bool QXmlUtils::rangeContains(RangeIter begin, RangeIter end, const QChar c)
 {
     const ushort cp(c.unicode());
@@ -105,7 +109,7 @@ static const RangeIter g_base_end = g_base_begin + sizeof(g_base_begin) / sizeof
 
 static const QXmlCharRange g_ideographic_begin[] =
 {
-    {0x4E00, 0x9FA5}, {0x3007, 0x3007}, {0x3021, 0x3029}
+    {0x3007, 0x3007}, {0x3021, 0x3029}, {0x4E00, 0x9FA5}
 };
 static const RangeIter g_ideographic_end = g_ideographic_begin + sizeof(g_ideographic_begin) / sizeof(QXmlCharRange);
 
@@ -248,6 +252,7 @@ bool QXmlUtils::isNameChar(const QChar c)
            || c.unicode() == '_'
            || c.unicode() == ':'
            || isCombiningChar(c)
+           || isIdeographic(c)
            || isExtender(c);
 }
 
@@ -313,6 +318,9 @@ bool QXmlUtils::isPubidChar(const QChar c)
  */
 bool QXmlUtils::isNCName(const QString &ncName)
 {
+    if(ncName.isEmpty())
+        return false;
+
     const QChar first(ncName.at(0));
 
     if(!QXmlUtils::isLetter(first) && first.unicode() != '_' && first.unicode() != ':')
