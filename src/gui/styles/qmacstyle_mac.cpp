@@ -4339,6 +4339,10 @@ void QMacStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComplex 
             wdi.titleHeight = titlebar->rect.height();
             wdi.titleWidth = titlebar->rect.width();
             wdi.attributes = kThemeWindowHasTitleText;
+            // It seems HIThemeDrawTitleBarWidget is not able to draw a dirty
+            // close button, so use HIThemeDrawWindowFrame instead.
+            if (widget && widget->isWindowModified() && titlebar->subControls & SC_TitleBarCloseButton)
+                wdi.attributes |= kThemeWindowHasCloseBox | kThemeWindowHasDirty;
 
             HIRect titleBarRect;
             HIRect tmpRect = qt_hirectForQRect(titlebar->rect);
@@ -4361,7 +4365,7 @@ void QMacStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComplex 
                 if (titlebar->state & State_MouseOver)
                     wwdi.widgetState = kThemeStateRollover;
                 wwdi.windowType = QtWinType;
-                wwdi.attributes = wdi.attributes | kThemeWindowHasFullZoom | kThemeWindowHasCloseBox | kThemeWindowHasCollapseBox | kThemeWindowHasDirty;
+                wwdi.attributes = wdi.attributes | kThemeWindowHasFullZoom | kThemeWindowHasCloseBox | kThemeWindowHasCollapseBox;
                 wwdi.windowState = wdi.state;
                 wwdi.titleHeight = wdi.titleHeight;
                 wwdi.titleWidth = wdi.titleWidth;
@@ -4383,11 +4387,12 @@ void QMacStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComplex 
                         if (active && (titlebar->activeSubControls & tmp)
                                 && (titlebar->state & State_Sunken))
                             wwdi.widgetState = kThemeStatePressed;
-                           if (widget && widget->window()->isWindowModified()
-                                   && tbw == kThemeWidgetCloseBox)
-                           wwdi.widgetType = kThemeWidgetDirtyCloseBox;
-                        HIThemeDrawTitleBarWidget(&titleBarRect, &wwdi, cg, kHIThemeOrientationNormal);
-                        p->paintEngine()->syncState();
+                        // Draw all sub controllers except the dirty close button
+                        // (it is already handled by HIThemeDrawWindowFrame).
+                        if (!(widget && widget->isWindowModified() && tbw == kThemeWidgetCloseBox)) {
+                            HIThemeDrawTitleBarWidget(&titleBarRect, &wwdi, cg, kHIThemeOrientationNormal);
+                            p->paintEngine()->syncState();
+                        }
                     }
                     sc = sc << 1;
                     tbw = tbw >> 1;
