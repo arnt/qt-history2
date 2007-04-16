@@ -384,6 +384,10 @@ void tst_QScriptExtQObject::getSetStaticProperty()
              .equalTo(QScriptValue(m_engine, QLatin1String("zab"))), true);
 
     // property change in script should be reflected in C++
+    {
+        QScriptValue mobj = m_engine->globalObject().property("myObject");
+        QVERIFY(!(mobj.propertyFlags("intProperty") & QScriptValue::ReadOnly));
+    }
     QCOMPARE(m_engine->evaluate("myObject.intProperty = 123")
              .strictEqualTo(QScriptValue(m_engine, 123)), true);
     QCOMPARE(m_engine->evaluate("myObject.intProperty")
@@ -516,6 +520,11 @@ void tst_QScriptExtQObject::getSetStaticProperty()
     QCOMPARE(m_engine->evaluate("myObject.readOnlyProperty = 654;"
                                 "myObject.readOnlyProperty").toInt32(), 987);
     QCOMPARE(m_myObject->readOnlyProperty(), 987);
+    {
+        QScriptValue mobj = m_engine->globalObject().property("myObject");
+        QCOMPARE(mobj.propertyFlags("readOnlyProperty") & QScriptValue::ReadOnly,
+                 QScriptValue::ReadOnly);
+    }
 
     // auto-dereferencing of pointers
     {
@@ -1031,21 +1040,35 @@ void tst_QScriptExtQObject::classConstructor()
 void tst_QScriptExtQObject::overrideInvokable()
 {
     m_myObject->resetQtFunctionInvoked();
+    m_engine->evaluate("myObject.myInvokable()");
+    QCOMPARE(m_myObject->qtFunctionInvoked(), 0);
+
+    m_myObject->resetQtFunctionInvoked();
     m_engine->evaluate("myObject.myInvokable = function() { global.a = 123; }");
     m_engine->evaluate("myObject.myInvokable()");
     QCOMPARE(m_myObject->qtFunctionInvoked(), -1);
     QCOMPARE(m_engine->evaluate("global.a").toNumber(), 123.0);
+
     m_engine->evaluate("myObject.myInvokable = function() { global.a = 456; }");
     m_engine->evaluate("myObject.myInvokable()");
     QCOMPARE(m_myObject->qtFunctionInvoked(), -1);
     QCOMPARE(m_engine->evaluate("global.a").toNumber(), 456.0);
+
     m_engine->evaluate("delete myObject.myInvokable");
     m_engine->evaluate("myObject.myInvokable()");
     QCOMPARE(m_myObject->qtFunctionInvoked(), 0);
+
     m_myObject->resetQtFunctionInvoked();
     m_engine->evaluate("myObject.myInvokable = myObject.myInvokableWithIntArg");
     m_engine->evaluate("myObject.myInvokable(123)");
     QCOMPARE(m_myObject->qtFunctionInvoked(), 1);
+
+    m_engine->evaluate("delete myObject.myInvokable");
+    m_myObject->resetQtFunctionInvoked();
+    // this form (with the '()') is read-only
+    m_engine->evaluate("myObject['myInvokable()'] = function() { global.a = 123; }");
+    m_engine->evaluate("myObject.myInvokable()");
+    QCOMPARE(m_myObject->qtFunctionInvoked(), 0);
 }
 
 void tst_QScriptExtQObject::transferInvokable()

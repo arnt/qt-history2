@@ -177,6 +177,9 @@ public:
                 member->native(nameId, index,
                                QScriptValue::Undeletable
                                | QScriptValue::SkipInEnumeration
+                               | (!prop.isWritable()
+                                  ? QScriptValue::ReadOnly
+                                  : QScriptValue::PropertyFlag(0))
                                | (GeneratePropertyFunctions
                                   ? (QScriptValue::PropertyGetter
                                      | QScriptValue::PropertySetter)
@@ -239,8 +242,11 @@ public:
 
         switch (member.flags() & ID_MASK) {
         case PROPERTY_ID: {
+            const QMetaObject *meta = qobject->metaObject();
+            const int propertyIndex = member.id();
+            QMetaProperty prop = meta->property(propertyIndex);
+            Q_ASSERT(prop.isScriptable());
             if (GeneratePropertyFunctions) {
-                const int propertyIndex = member.id();
                 *result = eng->createFunction(new QtPropertyFunction(qobject, propertyIndex));
 
                 // make it persist
@@ -248,16 +254,16 @@ public:
                 QScriptObject *instance = obj.objectValue();
                 if (!instance->findMember(member.nameId(), &m)) {
                     instance->createMember(member.nameId(), &m,
-                                           QScriptValue::Undeletable
+                                           (!prop.isWritable()
+                                            ? QScriptValue::ReadOnly
+                                            : QScriptValue::PropertyFlag(0))
+                                           | QScriptValue::Undeletable
                                            | QScriptValue::SkipInEnumeration
                                            | QScriptValue::PropertyGetter
                                            | QScriptValue::PropertySetter);
                 }
                 instance->put(m, *result);
             } else {
-                const QMetaObject *meta = qobject->metaObject();
-                QMetaProperty prop = meta->property(member.id());
-                Q_ASSERT(prop.isScriptable());
                 QVariant v = prop.read(qobject);
                 *result = eng->valueFromVariant(v);
             }
