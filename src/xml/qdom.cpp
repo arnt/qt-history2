@@ -777,14 +777,11 @@ static QString fixedPubidLiteral(const QString &data, bool *ok)
 
     QString result;
 
-    for (int i = 0; i < data.size(); ++i) {
-        QChar c = data.at(i);
-        if (QXmlUtils::isPubidChar(c)) {
-            result.append(c);
-        } else if (QDomImplementationPrivate::invalidDataPolicy == QDomImplementation::ReturnNullNode) {
-            *ok = false;
-            return QString();
-        }
+    if(QXmlUtils::isPublicID(data))
+        result = data;
+    else if (QDomImplementationPrivate::invalidDataPolicy == QDomImplementation::ReturnNullNode) {
+        *ok = false;
+        return QString();
     }
 
     if (result.indexOf(QLatin1Char('\'')) != -1
