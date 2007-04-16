@@ -3149,12 +3149,11 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
             // tab. So, cheat a little here.
             bool hasMenu = btn->features & QStyleOptionButton::HasMenu;
             if (btn->icon.isNull() && !hasMenu) {
-                bool useHIThemeDrawText = false;
+                // ### this is really overly difficult, simplify.
                 QFont oldFont = p->font();
                 QFont newFont = qt_app_fonts_hash()->value("QPushButton", QFont());
                 ThemeFontID themeId = kThemePushButtonFont;
-                if (oldFont == newFont) {  // Yes, I can use HITheme to draw the text.
-                    useHIThemeDrawText = true;
+                if (oldFont == newFont) {  // Yes, use HITheme to draw the text for small sizes.
                     switch (qt_aqua_size_constrain(w)) {
                     default:
                         break;
@@ -3166,7 +3165,7 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
                         break;
                     }
                 }
-                if (!useHIThemeDrawText) {
+                if (themeId == kThemePushButtonFont) {
                     QWindowsStyle::drawControl(ce, btn, p, w);
                 } else {
                     p->save();
