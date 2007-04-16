@@ -23,9 +23,6 @@
 #include <QMouseEvent>
 #include <QDateTime>
 
-struct FakeDomEvent;
-Q_DECLARE_METATYPE(FakeDomEvent)
-
 struct FakeDomEvent
 {
     enum KeyCodes  {
@@ -81,190 +78,204 @@ struct FakeDomEvent
         DOM_VK_F23                  = 0xF00A,
         DOM_VK_F24                  = 0xF00B
     };
-    static int qtToDomKey(int keyCode) {
-        switch (keyCode) {
-        case Qt::Key_Backspace:
-            return  DOM_VK_BACK_SPACE;
-        case Qt::Key_Enter:
-            return  DOM_VK_ENTER;
-        case Qt::Key_Return:
-            return  DOM_VK_ENTER;
-        case Qt::Key_NumLock:
-            return  DOM_VK_NUM_LOCK;
-        case Qt::Key_Alt:
-            return  DOM_VK_RIGHT_ALT;
-        case Qt::Key_Control:
-            return  DOM_VK_LEFT_CONTROL;
-        case Qt::Key_Shift:
-            return  DOM_VK_LEFT_SHIFT;
-        case Qt::Key_Meta:
-            return  DOM_VK_META;
-        case Qt::Key_CapsLock:
-            return  DOM_VK_CAPS_LOCK;
-        case Qt::Key_Delete:
-            return  DOM_VK_DELETE;
-        case Qt::Key_End:
-            return  DOM_VK_END;
-        case Qt::Key_Escape:
-            return  DOM_VK_ESCAPE;
-        case Qt::Key_Home:
-            return  DOM_VK_HOME;
-        case Qt::Key_Pause:
-            return  DOM_VK_PAUSE;
-        case Qt::Key_Print:
-            return  DOM_VK_PRINTSCREEN;
-        case Qt::Key_ScrollLock:
-            return  DOM_VK_SCROLL_LOCK;
-        case Qt::Key_Left:
-            return  DOM_VK_LEFT;
-        case Qt::Key_Right:
-            return  DOM_VK_RIGHT;
-        case Qt::Key_Up:
-            return  DOM_VK_UP;
-        case Qt::Key_Down:
-            return  DOM_VK_DOWN;
-        case Qt::Key_PageDown:
-            return  DOM_VK_PAGE_DOWN;
-        case Qt::Key_PageUp:
-            return  DOM_VK_PAGE_UP;
-        case Qt::Key_F1:
-            return  DOM_VK_F1;
-        case Qt::Key_F2:
-            return  DOM_VK_F2;
-        case Qt::Key_F3:
-            return  DOM_VK_F3;
-        case Qt::Key_F4:
-            return  DOM_VK_F4;
-        case Qt::Key_F5:
-            return  DOM_VK_F5;
-        case Qt::Key_F6:
-            return  DOM_VK_F6;
-        case Qt::Key_F7:
-            return  DOM_VK_F7;
-        case Qt::Key_F8:
-            return  DOM_VK_F8;
-        case Qt::Key_F9:
-            return  DOM_VK_F9;
-        case Qt::Key_F10:
-            return  DOM_VK_F10;
-        case Qt::Key_F11:
-            return  DOM_VK_F11;
-        case Qt::Key_F12:
-            return  DOM_VK_F12;
-        case Qt::Key_F13:
-            return  DOM_VK_F13;
-        case Qt::Key_F14:
-            return  DOM_VK_F14;
-        case Qt::Key_F15:
-            return  DOM_VK_F15;
-        case Qt::Key_F16:
-            return  DOM_VK_F16;
-        case Qt::Key_F17:
-            return  DOM_VK_F17;
-        case Qt::Key_F18:
-            return  DOM_VK_F18;
-        case Qt::Key_F19:
-            return  DOM_VK_F19;
-        case Qt::Key_F20:
-            return  DOM_VK_F20;
-        case Qt::Key_F21:
-            return  DOM_VK_F21;
-        case Qt::Key_F22:
-            return  DOM_VK_F22;
-        case Qt::Key_F23:
-            return  DOM_VK_F23;
-        case Qt::Key_F24:
-            return  DOM_VK_F24;
-        }
-        return keyCode;
-    }
+
+    FakeDomEvent();
+    FakeDomEvent(QMouseEvent *e, QScriptEngine *eng);
+    FakeDomEvent(QKeyEvent *e, QScriptEngine *eng);
+
+    void setupModifiers(QInputEvent *e, QScriptEngine *eng);
+
+    static int qtToDomKey(int keyCode);
+    static void setupDefaults(QScriptEngine *e);
+    static void setup(QScriptEngine *e);
 
     static QScriptValue m_proto;
-
-    FakeDomEvent()
-    {
-    }
-
-    FakeDomEvent(QMouseEvent *e, QScriptEngine *eng)
-    {
-        setupDefaults(eng);
-        setupModifiers(e, eng);
-        m_proto.setProperty("type",
-                            QScriptValue(eng, QLatin1String("mouseevent")));
-        int button = 0;
-        if (e->button() == Qt::RightButton)
-            button = 2;
-        else if (e->button() == Qt::MidButton)
-            button = 1;
-        m_proto.setProperty("button", QScriptValue(eng, button));
-
-        m_proto.setProperty("clientX", QScriptValue(eng, e->x()));
-        m_proto.setProperty("clientY", QScriptValue(eng, e->y()));
-        m_proto.setProperty("layerX", QScriptValue(eng, e->x()));
-        m_proto.setProperty("layerY", QScriptValue(eng, e->y()));
-        m_proto.setProperty("pageX", QScriptValue(eng, e->x()));
-        m_proto.setProperty("pageY", QScriptValue(eng, e->y()));
-        m_proto.setProperty("screenX", QScriptValue(eng, e->globalX()));
-        m_proto.setProperty("screenY", QScriptValue(eng, e->globalY()));
-
-        eng->setDefaultPrototype(qMetaTypeId<FakeDomEvent>(), m_proto);
-    }
-    FakeDomEvent(QKeyEvent *e, QScriptEngine *eng)
-    {
-        setupDefaults(eng);
-        setupModifiers(e, eng);
-        m_proto.setProperty("type", QScriptValue(eng, QLatin1String("keyevent")));
-
-        m_proto.setProperty("isChar", QScriptValue(eng, !e->text().isEmpty()));
-        m_proto.setProperty("charCode", QScriptValue(eng, e->text()));
-        m_proto.setProperty("keyCode", QScriptValue(eng, qtToDomKey(e->key())));
-        m_proto.setProperty("which", QScriptValue(eng, e->key()));
-
-        eng->setDefaultPrototype(qMetaTypeId<FakeDomEvent>(), m_proto);
-    }
-
-    static void setupDefaults(QScriptEngine *e)
-    {
-        m_proto.setProperty("timeStamp", QScriptValue(e, QDateTime::currentDateTime().toTime_t()));
-        m_proto.setProperty("button", QScriptValue(e, 0));
-        m_proto.setProperty("charCode", QScriptValue(e, 0));
-        m_proto.setProperty("clientX", QScriptValue(e, 0));
-        m_proto.setProperty("clientY", QScriptValue(e, 0));
-        m_proto.setProperty("isChar", QScriptValue(e, 0));
-        m_proto.setProperty("keyCode", QScriptValue(e, 0));
-        m_proto.setProperty("layerX", QScriptValue(e, 0));
-        m_proto.setProperty("layerY", QScriptValue(e, 0));
-        m_proto.setProperty("pageX", QScriptValue(e, 0));
-        m_proto.setProperty("pageY", QScriptValue(e, 0));
-        m_proto.setProperty("screenX", QScriptValue(e, 0));
-        m_proto.setProperty("screenY", QScriptValue(e, 0));
-        m_proto.setProperty("which ", QScriptValue(e, 0));
-    }
-    void setupModifiers(QInputEvent *e, QScriptEngine *eng)
-    {
-        if (e->modifiers() & Qt::AltModifier)
-            m_proto.setProperty("altKey", QScriptValue(eng, true));
-        else
-            m_proto.setProperty("altKey", QScriptValue(eng, false));
-
-        if (e->modifiers() & Qt::ControlModifier)
-            m_proto.setProperty("ctrlKey", QScriptValue(eng, true));
-        else
-            m_proto.setProperty("ctrlKey", QScriptValue(eng, false));
-
-        if (e->modifiers() & Qt::MetaModifier)
-            m_proto.setProperty("metaKey", QScriptValue(eng, true));
-        else
-            m_proto.setProperty("metaKey", QScriptValue(eng, false));
-
-        if (e->modifiers() & Qt::ShiftModifier)
-            m_proto.setProperty("shiftKey", QScriptValue(eng, true));
-        else
-            m_proto.setProperty("shiftKey", QScriptValue(eng, true));
-    }
-
-    static void setup(QScriptEngine *e);
 };
+
+Q_DECLARE_METATYPE(FakeDomEvent)
+
+FakeDomEvent::FakeDomEvent()
+{
+}
+
+FakeDomEvent::FakeDomEvent(QMouseEvent *e, QScriptEngine *eng)
+{
+    setupDefaults(eng);
+    setupModifiers(e, eng);
+    m_proto.setProperty("type",
+                        QScriptValue(eng, QLatin1String("mouseevent")));
+    int button = 0;
+    if (e->button() == Qt::RightButton)
+        button = 2;
+    else if (e->button() == Qt::MidButton)
+        button = 1;
+    m_proto.setProperty("button", QScriptValue(eng, button));
+
+    m_proto.setProperty("clientX", QScriptValue(eng, e->x()));
+    m_proto.setProperty("clientY", QScriptValue(eng, e->y()));
+    m_proto.setProperty("layerX", QScriptValue(eng, e->x()));
+    m_proto.setProperty("layerY", QScriptValue(eng, e->y()));
+    m_proto.setProperty("pageX", QScriptValue(eng, e->x()));
+    m_proto.setProperty("pageY", QScriptValue(eng, e->y()));
+    m_proto.setProperty("screenX", QScriptValue(eng, e->globalX()));
+    m_proto.setProperty("screenY", QScriptValue(eng, e->globalY()));
+
+    eng->setDefaultPrototype(qMetaTypeId<FakeDomEvent>(), m_proto);
+}
+
+FakeDomEvent::FakeDomEvent(QKeyEvent *e, QScriptEngine *eng)
+{
+    setupDefaults(eng);
+    setupModifiers(e, eng);
+    m_proto.setProperty("type", QScriptValue(eng, QLatin1String("keyevent")));
+
+    m_proto.setProperty("isChar", QScriptValue(eng, !e->text().isEmpty()));
+    m_proto.setProperty("charCode", QScriptValue(eng, e->text()));
+    m_proto.setProperty("keyCode", QScriptValue(eng, qtToDomKey(e->key())));
+    m_proto.setProperty("which", QScriptValue(eng, e->key()));
+
+    eng->setDefaultPrototype(qMetaTypeId<FakeDomEvent>(), m_proto);
+}
+
+void FakeDomEvent::setupModifiers(QInputEvent *e, QScriptEngine *eng)
+{
+    if (e->modifiers() & Qt::AltModifier)
+        m_proto.setProperty("altKey", QScriptValue(eng, true));
+    else
+        m_proto.setProperty("altKey", QScriptValue(eng, false));
+
+    if (e->modifiers() & Qt::ControlModifier)
+        m_proto.setProperty("ctrlKey", QScriptValue(eng, true));
+    else
+        m_proto.setProperty("ctrlKey", QScriptValue(eng, false));
+
+    if (e->modifiers() & Qt::MetaModifier)
+        m_proto.setProperty("metaKey", QScriptValue(eng, true));
+    else
+        m_proto.setProperty("metaKey", QScriptValue(eng, false));
+
+    if (e->modifiers() & Qt::ShiftModifier)
+        m_proto.setProperty("shiftKey", QScriptValue(eng, true));
+    else
+        m_proto.setProperty("shiftKey", QScriptValue(eng, true));
+}
+
+int FakeDomEvent::qtToDomKey(int keyCode)
+{
+    switch (keyCode) {
+    case Qt::Key_Backspace:
+        return  DOM_VK_BACK_SPACE;
+    case Qt::Key_Enter:
+        return  DOM_VK_ENTER;
+    case Qt::Key_Return:
+        return  DOM_VK_ENTER;
+    case Qt::Key_NumLock:
+        return  DOM_VK_NUM_LOCK;
+    case Qt::Key_Alt:
+        return  DOM_VK_RIGHT_ALT;
+    case Qt::Key_Control:
+        return  DOM_VK_LEFT_CONTROL;
+    case Qt::Key_Shift:
+        return  DOM_VK_LEFT_SHIFT;
+    case Qt::Key_Meta:
+        return  DOM_VK_META;
+    case Qt::Key_CapsLock:
+        return  DOM_VK_CAPS_LOCK;
+    case Qt::Key_Delete:
+        return  DOM_VK_DELETE;
+    case Qt::Key_End:
+        return  DOM_VK_END;
+    case Qt::Key_Escape:
+        return  DOM_VK_ESCAPE;
+    case Qt::Key_Home:
+        return  DOM_VK_HOME;
+    case Qt::Key_Pause:
+        return  DOM_VK_PAUSE;
+    case Qt::Key_Print:
+        return  DOM_VK_PRINTSCREEN;
+    case Qt::Key_ScrollLock:
+        return  DOM_VK_SCROLL_LOCK;
+    case Qt::Key_Left:
+        return  DOM_VK_LEFT;
+    case Qt::Key_Right:
+        return  DOM_VK_RIGHT;
+    case Qt::Key_Up:
+        return  DOM_VK_UP;
+    case Qt::Key_Down:
+        return  DOM_VK_DOWN;
+    case Qt::Key_PageDown:
+        return  DOM_VK_PAGE_DOWN;
+    case Qt::Key_PageUp:
+        return  DOM_VK_PAGE_UP;
+    case Qt::Key_F1:
+        return  DOM_VK_F1;
+    case Qt::Key_F2:
+        return  DOM_VK_F2;
+    case Qt::Key_F3:
+        return  DOM_VK_F3;
+    case Qt::Key_F4:
+        return  DOM_VK_F4;
+    case Qt::Key_F5:
+        return  DOM_VK_F5;
+    case Qt::Key_F6:
+        return  DOM_VK_F6;
+    case Qt::Key_F7:
+        return  DOM_VK_F7;
+    case Qt::Key_F8:
+        return  DOM_VK_F8;
+    case Qt::Key_F9:
+        return  DOM_VK_F9;
+    case Qt::Key_F10:
+        return  DOM_VK_F10;
+    case Qt::Key_F11:
+        return  DOM_VK_F11;
+    case Qt::Key_F12:
+        return  DOM_VK_F12;
+    case Qt::Key_F13:
+        return  DOM_VK_F13;
+    case Qt::Key_F14:
+        return  DOM_VK_F14;
+    case Qt::Key_F15:
+        return  DOM_VK_F15;
+    case Qt::Key_F16:
+        return  DOM_VK_F16;
+    case Qt::Key_F17:
+        return  DOM_VK_F17;
+    case Qt::Key_F18:
+        return  DOM_VK_F18;
+    case Qt::Key_F19:
+        return  DOM_VK_F19;
+    case Qt::Key_F20:
+        return  DOM_VK_F20;
+    case Qt::Key_F21:
+        return  DOM_VK_F21;
+    case Qt::Key_F22:
+        return  DOM_VK_F22;
+    case Qt::Key_F23:
+        return  DOM_VK_F23;
+    case Qt::Key_F24:
+        return  DOM_VK_F24;
+    }
+    return keyCode;
+}
+
+void FakeDomEvent::setupDefaults(QScriptEngine *e)
+{
+    m_proto.setProperty("timeStamp", QScriptValue(e, QDateTime::currentDateTime().toTime_t()));
+    m_proto.setProperty("button", QScriptValue(e, 0));
+    m_proto.setProperty("charCode", QScriptValue(e, 0));
+    m_proto.setProperty("clientX", QScriptValue(e, 0));
+    m_proto.setProperty("clientY", QScriptValue(e, 0));
+    m_proto.setProperty("isChar", QScriptValue(e, 0));
+    m_proto.setProperty("keyCode", QScriptValue(e, 0));
+    m_proto.setProperty("layerX", QScriptValue(e, 0));
+    m_proto.setProperty("layerY", QScriptValue(e, 0));
+    m_proto.setProperty("pageX", QScriptValue(e, 0));
+    m_proto.setProperty("pageY", QScriptValue(e, 0));
+    m_proto.setProperty("screenX", QScriptValue(e, 0));
+    m_proto.setProperty("screenY", QScriptValue(e, 0));
+    m_proto.setProperty("which ", QScriptValue(e, 0));
+}
 
 void FakeDomEvent::setup(QScriptEngine *e)
 {
