@@ -1779,10 +1779,8 @@ void QFileDialogPrivate::_q_showHeader(QAction *action)
 void QFileDialog::setProxyModel(QAbstractProxyModel *proxyModel)
 {
     Q_D(QFileDialog);
-    proxyModel->setParent(this);
     QModelIndex idx = d->rootIndex();
     if (d->proxyModel) {
-        idx = d->proxyModel->mapToSource(idx);
         disconnect(d->proxyModel, SIGNAL(rowsInserted(const QModelIndex &, int, int)),
             this, SLOT(_q_rowsInserted(const QModelIndex &)));
     } else {
@@ -1791,6 +1789,7 @@ void QFileDialog::setProxyModel(QAbstractProxyModel *proxyModel)
     }
 
     if (proxyModel != 0) {
+        proxyModel->setParent(this);
         d->proxyModel = proxyModel;
         proxyModel->setSourceModel(d->model);
         d->qFileDialogUi->listView->setModel(d->proxyModel);
