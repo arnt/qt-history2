@@ -204,7 +204,7 @@ Preferences QDesignerSettings::preferences() const
     const UIMode defaultMode = TopLevelMode;
 #endif
     rc.m_uiMode = static_cast<UIMode>(value(QLatin1String("UI/currentMode"), defaultMode).toInt());
-    rc.m_writingSystem = static_cast<QFontDatabase::WritingSystem>(value(QLatin1String("UI/writingSystem"), QFontDatabase::Latin).toInt());
+    rc.m_writingSystem = static_cast<QFontDatabase::WritingSystem>(value(QLatin1String("UI/writingSystem"), QFontDatabase::Any).toInt());
     rc.m_font = qVariantValue<QFont>(value(QLatin1String("UI/font")));
     rc.m_useFont = value(QLatin1String("UI/useFont"), QVariant(false)).toBool();
     const QVariantMap defaultGridMap = value(QLatin1String("defaultGrid"), QVariantMap()).toMap();

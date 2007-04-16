@@ -21,15 +21,14 @@
 #include <QtCore/QTimer>
 #include <QtGui/QLineEdit>
 
-namespace {
-    // Add a row consisting of widget and a description label to a grid.
-    void addGridRow(const QString &description, QGridLayout *gridLayout, QWidget *w, int &row) {
-        QLabel *label = new QLabel(description);
-        label->setBuddy(w);
-        gridLayout->addWidget(label, row, 0);
-        gridLayout->addWidget(w, row, 1);
-        ++row;
-    }
+
+// Add a row consisting of widget and a description label to a grid.
+static void addGridRow(const QString &description, QGridLayout *gridLayout, QWidget *w, int &row) {
+    QLabel *label = new QLabel(description);
+    label->setBuddy(w);
+    gridLayout->addWidget(label, row, 0);
+    gridLayout->addWidget(w, row, 1);
+    ++row;
 }
 
 FontPanel::FontPanel(QWidget *parentWidget) :
@@ -48,7 +47,10 @@ FontPanel::FontPanel(QWidget *parentWidget) :
 
     // writing systems
     m_writingSystemComboBox->setEditable(false);
-    foreach (QFontDatabase::WritingSystem ws, m_fontDatabase.writingSystems ())
+
+    QList<QFontDatabase::WritingSystem> writingSystems = m_fontDatabase.writingSystems();
+    writingSystems.push_front(QFontDatabase::Any);
+    foreach (QFontDatabase::WritingSystem ws, writingSystems)
         m_writingSystemComboBox->addItem(QFontDatabase::writingSystemName(ws), QVariant(ws));
     connect(m_writingSystemComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(slotWritingSystemChanged(int)));
     addGridRow(tr("&Writing system"), gridLayout, m_writingSystemComboBox, row);
@@ -67,7 +69,7 @@ FontPanel::FontPanel(QWidget *parentWidget) :
     m_previewLineEdit->setReadOnly(true);
     gridLayout->addWidget (m_previewLineEdit, row, 0, 1, 2);
 
-    setWritingSystem(QFontDatabase::Latin);
+    setWritingSystem(QFontDatabase::Any);
 }
 
 QFont FontPanel::selectedFont() const
