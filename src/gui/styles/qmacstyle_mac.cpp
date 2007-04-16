@@ -3058,8 +3058,7 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
                         if (tb->toolButtonStyle != Qt::ToolButtonIconOnly) {
                             int alignment = 0;
                             if (tb->toolButtonStyle == Qt::ToolButtonTextUnderIcon) {
-                                int fh = p->fontMetrics().height();
-                                pr.adjust(0, 3, 0, -fh - 3);
+                                pr.setHeight(pixmap.size().height() + 6);
                                 cr.adjust(0, pr.bottom(), 0, -3);
                                 alignment |= Qt::AlignCenter;
                             } else {
