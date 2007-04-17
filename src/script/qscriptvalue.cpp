@@ -34,8 +34,7 @@
   QScriptValue supports the types defined in the \l{ECMA-262}
   standard: The primitive types, which are Undefined, Null, Boolean,
   Number, and String; and the Object type. Additionally, Qt Script
-  defines two types: \c{Variant} (a QVariant), and \c{QObject} (a pointer to a
-  QObject (or subclass)).
+  has built-in support for QVariant, QObject and QMetaObject.
 
   For the object-based types (including Date and RegExp), use the
   newT() functions in QScriptEngine (e.g. QScriptEngine::newObject())
@@ -450,6 +449,13 @@ bool QScriptValue::instanceOf(const QScriptValue &ctorValue) const
   returns false.  The comparison follows the behavior described in
   \l{ECMA-262} section 11.8.5, "The Abstract Relational Comparison
   Algorithm".
+
+  Note that if this QScriptValue or the \a other value are objects,
+  calling this function has side effects on the script engine, since
+  toPrimitive() will be called on each object-based operand (possibly
+  resulting in an uncaught script exception).
+
+  \sa equalTo()
 */
 bool QScriptValue::lessThan(const QScriptValue &other) const
 {
@@ -467,6 +473,13 @@ bool QScriptValue::lessThan(const QScriptValue &other) const
   returns false. The comparison follows the behavior described in
   \l{ECMA-262} section 11.9.3, "The Abstract Equality Comparison
   Algorithm".
+
+  Note that if this QScriptValue or the \a other value are objects,
+  calling this function has side effects on the script engine, since
+  toPrimitive() will be called on each object-based operand (possibly
+  resulting in an uncaught script exception).
+
+  \sa strictEqualTo(), lessThan()
 */
 bool QScriptValue::equalTo(const QScriptValue &other) const
 {
@@ -484,6 +497,8 @@ bool QScriptValue::equalTo(const QScriptValue &other) const
   comparison (no conversion), otherwise returns false. The comparison
   follows the behavior described in \l{ECMA-262} section 11.9.6, "The
   Strict Equality Comparison Algorithm".
+
+  \sa equalTo()
 */
 bool QScriptValue::strictEqualTo(const QScriptValue &other) const
 {
@@ -500,6 +515,11 @@ bool QScriptValue::strictEqualTo(const QScriptValue &other) const
   Returns the string value of this QScriptValue, as defined in
   \l{ECMA-262} section 9.8, "ToString".
 
+  Note that if this QScriptValue is an object, calling this function
+  has side-effects on the script engine, since toPrimitive() will be
+  called on the object (possibly resulting in an uncaught script
+  exception).
+
   \sa isString()
 */
 QString QScriptValue::toString() const
@@ -510,6 +530,11 @@ QString QScriptValue::toString() const
 /*!
   Returns the number value of this QScriptValue, as defined in
   \l{ECMA-262} section 9.3, "ToString".
+
+  Note that if this QScriptValue is an object, calling this function
+  has side-effects on the script engine, since toPrimitive() will be
+  called on the object (possibly resulting in an uncaught script
+  exception).
 
   \sa isNumber(), toInteger(), toInt32(), toUInt32(), toUInt16()
 */
@@ -522,6 +547,11 @@ qsreal QScriptValue::toNumber() const
   Returns the boolean value of this QScriptValue, using the conversion
   rules described in \l{ECMA-262} section 9.2, "ToBoolean".
 
+  Note that if this QScriptValue is an object, calling this function
+  has side-effects on the script engine, since toPrimitive() will be
+  called on the object (possibly resulting in an uncaught script
+  exception).
+
   \sa isBoolean()
 */
 bool QScriptValue::toBoolean() const
@@ -532,6 +562,11 @@ bool QScriptValue::toBoolean() const
 /*!
   Returns the signed 32-bit integer value of this QScriptValue, using
   the conversion rules described in \l{ECMA-262} section 9.5, "ToInt32".
+
+  Note that if this QScriptValue is an object, calling this function
+  has side-effects on the script engine, since toPrimitive() will be
+  called on the object (possibly resulting in an uncaught script
+  exception).
 
   \sa toNumber(), toUInt32()
 */
@@ -544,6 +579,11 @@ qint32 QScriptValue::toInt32() const
   Returns the unsigned 32-bit integer value of this QScriptValue, using
   the conversion rules described in \l{ECMA-262} section 9.6, "ToUint32".
 
+  Note that if this QScriptValue is an object, calling this function
+  has side-effects on the script engine, since toPrimitive() will be
+  called on the object (possibly resulting in an uncaught script
+  exception).
+
   \sa toNumber(), toInt32()
 */
 quint32 QScriptValue::toUInt32() const
@@ -555,6 +595,11 @@ quint32 QScriptValue::toUInt32() const
   Returns the unsigned 16-bit integer value of this QScriptValue, using
   the conversion rules described in \l{ECMA-262} section 9.7, "ToUint16".
 
+  Note that if this QScriptValue is an object, calling this function
+  has side-effects on the script engine, since toPrimitive() will be
+  called on the object (possibly resulting in an uncaught script
+  exception).
+
   \sa toNumber()
 */
 quint16 QScriptValue::toUInt16() const
@@ -565,6 +610,11 @@ quint16 QScriptValue::toUInt16() const
 /*!
   Returns the integer value of this QScriptValue, using the conversion
   rules described in \l{ECMA-262} section 9.4, "ToInteger".
+
+  Note that if this QScriptValue is an object, calling this function
+  has side-effects on the script engine, since toPrimitive() will be
+  called on the object (possibly resulting in an uncaught script
+  exception).
 
   \sa toNumber()
 */
@@ -625,9 +675,12 @@ QRegExp QScriptValue::toRegExp() const
   Returns the primitive value of this QScriptValue, as defined in
   \l{ECMA-262} section 9.1, "ToPrimitive".
 
-  If this QScriptValue is an object, the given \a hint can be used
-  to indicate the desired primitive type.
-
+  If this QScriptValue is an object, the given \a hint can be used to
+  indicate the desired primitive type. For objects, calling this
+  function has side-effects on the script engine, since e.g. toString()
+  can be called on the object (possibly resulting in an uncaught
+  script exception). If an exception occurred, toPrimitive() returns
+  the value that was thrown (typically an \c{Error} object).
 */
 QScriptValue QScriptValue::toPrimitive(TypeHint hint) const
 {
@@ -668,6 +721,12 @@ const QMetaObject *QScriptValue::toQMetaObject() const
 
   If \a value is invalid, the property is removed.
 
+  If the property is implemented using a setter function (i.e. has the
+  PropertySetter flag set), calling setProperty() has side-effects on
+  the script engine, since the setter function will be called with the
+  given \a value as argument (possibly resulting in an uncaught script
+  exception).
+
   \sa property()
 */
 void QScriptValue::setProperty(const QString &name, const QScriptValue &value,
@@ -687,6 +746,13 @@ void QScriptValue::setProperty(const QString &name, const QScriptValue &value,
   using the given \a mode to resolve the property.
 
   If no such property exists, an invalid QScriptValue is returned.
+
+  If the property is implemented using a getter function (i.e. has the
+  PropertyGetter flag set), calling property() has side-effects on the
+  script engine, since the getter function will be called (possibly
+  resulting in an uncaught script exception). If an exception
+  occurred, property() returns the value that was thrown (typically
+  an \c{Error} object).
 
   \sa setProperty(), propertyFlags()
 */
@@ -763,6 +829,12 @@ QScriptValue::PropertyFlags QScriptValue::propertyFlags(const QString &name,
   (see \l{QScriptEngine::globalObject()}) will be used as the
   `this' object.
 
+  Calling call() can cause an exception to occur in the script engine;
+  in that case, call() returns the value that was thrown (typically an
+  \c{Error} object). You can call
+  QScriptEngine::hasUncaughtException() to determine if an exception
+  occurred.
+
   \sa construct()
 */
 QScriptValue QScriptValue::call(const QScriptValue &thisObject,
@@ -821,6 +893,12 @@ QScriptValue QScriptValue::call(const QScriptValue &thisObject,
 
   \a arguments can be an arguments object, an array, null or
   undefined; any other type will cause a TypeError to be thrown.
+
+  Calling construct() can cause an exception to occur in the script
+  engine; in that case, construct() returns the value that was thrown
+  (typically an \c{Error} object). You can call
+  QScriptEngine::hasUncaughtException() to determine if an exception
+  occurred.
 
   \sa call(), QScriptEngine::newObject()
 */

@@ -411,7 +411,7 @@ QScriptValue QScriptEngine::newQObject(QObject *object, ValueOwnership ownership
   The prototype of the created object will be the Object
   prototype object.
 
-  \sa newArray()
+  \sa newArray(), QScriptValue::setProperty()
 */
 QScriptValue QScriptEngine::newObject()
 {
@@ -702,8 +702,11 @@ void QScriptEngine::popContext()
 }
 
 /*!
-  Returns true if the last invocation of evaluate() resulted in an
+  Returns true if the last script evaluation resulted in an
   uncaught exception; otherwise returns false.
+
+  The uncaught exception information is cleared every time a script
+  function call is done in the engine.
 
   \sa uncaughtExceptionLineNumber()
 */
