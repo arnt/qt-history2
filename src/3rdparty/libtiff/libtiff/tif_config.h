@@ -43,12 +43,21 @@
 
 /* Define to 1 if the system has the type `int16'. */
 /* #undef HAVE_INT16 */
+#ifdef Q_OS_AIX
+#define HAVE_INT16 1
+#endif
 
 /* Define to 1 if the system has the type `int32'. */
 /* #undef HAVE_INT32 */
+#ifdef Q_OS_AIX
+#define HAVE_INT32 1
+#endif
 
 /* Define to 1 if the system has the type `int8'. */
 /* #undef HAVE_INT8 */
+#ifdef Q_OS_AIX
+#define HAVE_INT8 1
+#endif
 
 /* Define to 1 if you have the <inttypes.h> header file. */
 /* #undef HAVE_INTTYPES_H */
