@@ -137,6 +137,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _q_toggleView(bool))
     Q_PRIVATE_SLOT(d_func(), void _q_updateIconSize(const QSize &))
     Q_PRIVATE_SLOT(d_func(), void _q_updateToolButtonStyle(Qt::ToolButtonStyle))
+    Q_PRIVATE_SLOT(d_func(), void _q_waitForPopup())
 
     friend class QMainWindow;
     friend class QMainWindowLayout;

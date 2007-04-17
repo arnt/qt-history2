@@ -27,6 +27,7 @@
 #include <qstylepainter.h>
 #include <qtoolbutton.h>
 #include <qwidgetaction.h>
+#include <qtimer.h>
 #include <private/qwidgetaction_p.h>
 #ifdef Q_WS_MAC
 #include <private/qt_mac_p.h>
@@ -47,6 +48,12 @@
 void QToolBarPrivate::init()
 {
     Q_Q(QToolBar);
+
+    waitForPopupTimer = new QTimer(q);
+    waitForPopupTimer->setSingleShot(false);
+    waitForPopupTimer->setInterval(500);
+    QObject::connect(waitForPopupTimer, SIGNAL(timeout()), q, SLOT(_q_waitForPopup()));
+
     floatable = true;
     movable = true;
     q->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed));
@@ -855,6 +862,38 @@ void QToolBar::paintEvent(QPaintEvent *)
         style->drawPrimitive(QStyle::PE_IndicatorToolBarHandle, &opt, &p, this);
 }
 
+/*
+    Checks if an expanded toolbar has to wait for this popup to close before
+    the toolbar collapses. This is true if
+    1) the popup has the toolbar in its parent chain,
+    2) the popup is a menu whose menuAction is somewhere in the toolbar.
+*/
+static bool waitForPopup(QToolBar *tb, QWidget *popup)
+{
+    if (popup == 0 || popup->isHidden())
+        return false;
+
+    QWidget *w = popup;
+    while (w != 0) {
+        if (w == tb)
+            return true;
+        w = w->parentWidget();
+    }
+
+    QMenu *menu = qobject_cast<QMenu*>(popup);
+    if (menu == 0)
+        return false;
+
+    QAction *action = menu->menuAction();
+    QList<QWidget*> widgets = action->associatedWidgets();
+    for (int i = 0; i < widgets.count(); ++i) {
+        if (waitForPopup(tb, widgets.at(i)))
+            return true;
+    }
+
+    return false;
+}
+
 /*! \reimp */
 bool QToolBar::event(QEvent *event)
 {
@@ -909,21 +948,42 @@ bool QToolBar::event(QEvent *event)
         }
         break;
     case QEvent::Leave:
-#ifdef Q_OS_WIN
         if (d->state != 0 && d->state->dragging) {
+#ifdef Q_OS_WIN
             // The cursor has left the toolbar while it is being dragged,
-            // we end the drag. This only happens on Vista...
+            // we end the drag.
             d->endDrag();
-        } else
 #endif
-        if (d->layout->expanded && !d->layout->collapsing) {
+        } else {
+            if (!d->layout->expanded || d->layout->collapsing)
+                break;
+
+            QWidget *w = qApp->activePopupWidget();
+            if (waitForPopup(this, w)) {
+                d->waitForPopupTimer->start();
+                break;
+            }
+
+            d->waitForPopupTimer->stop();
             d->layout->setExpanded(false);
+            break;
         }
-        break;
     default:
         break;
     }
     return QWidget::event(event);
+}
+
+void QToolBarPrivate::_q_waitForPopup()
+{
+    Q_Q(QToolBar);
+
+    QWidget *w = qApp->activePopupWidget();
+    if (!waitForPopup(q, w)) {
+        waitForPopupTimer->stop();
+        if (!q->underMouse())
+            layout->setExpanded(false);
+    }
 }
 
 /*!

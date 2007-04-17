@@ -32,6 +32,7 @@
 #ifndef QT_NO_TOOLBAR
 
 class QToolBarLayout;
+class QTimer;
 
 class QToolBarPrivate : public QWidgetPrivate
 {
@@ -50,6 +51,7 @@ public:
     void _q_toggleView(bool b);
     void _q_updateIconSize(const QSize &sz);
     void _q_updateToolButtonStyle(Qt::ToolButtonStyle style);
+    void _q_waitForPopup();
 
     bool explicitIconSize;
     bool explicitToolButtonStyle;
@@ -82,6 +84,8 @@ public:
 
     void unplug(const QRect &r);
     void plug(const QRect &r);
+
+    QTimer *waitForPopupTimer;
 };
 
 #endif // QT_NO_TOOLBAR
