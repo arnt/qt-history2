@@ -54,6 +54,10 @@ typedef GLfloat GLdouble;
 class QGLCmap;
 #endif
 
+#ifdef Q_WS_MAC64
+typedef void * GDHandle;
+#endif
+
 class QPixmap;
 #if defined(Q_WS_X11)
 class QGLOverlayWidget;
@@ -250,10 +254,7 @@ protected:
     virtual void* chooseVisual();
 #endif
 #if defined(Q_WS_MAC)
-#ifdef Q_WS_MAC32
-    virtual void* chooseMacVisual(GDHandle) { return chooseMacVisual(); }
-#endif
-    virtual void* chooseMacVisual();
+    virtual void* chooseMacVisual(GDHandle);
 #endif
 
     bool deviceIsPixmap() const;

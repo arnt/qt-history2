@@ -81,7 +81,7 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
 {
     Q_D(QGLContext);
     d->cx = 0;
-    d->vi = chooseMacVisual();
+    d->vi = chooseMacVisual(0);
     if(!d->vi)
         return false;
 
@@ -271,10 +271,12 @@ AGLPixelFormat QGLContextPrivate::tryFormat(const QGLFormat &format)
     simple-minded, so override this method in your subclass if your
     application has spcific requirements on visual selection.
 
+    The \a handle argument is always zero and is not used
+
     \sa chooseContext()
 */
 
-void *QGLContext::chooseMacVisual()
+void *QGLContext::chooseMacVisual(GDHandle /* handle */)
 {
     Q_D(QGLContext);
     AGLPixelFormat fmt;
