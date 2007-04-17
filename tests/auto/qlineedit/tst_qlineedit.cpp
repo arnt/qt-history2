@@ -3086,25 +3086,30 @@ void tst_QLineEdit::inlineCompletion()
     QCOMPARE(testWidget->text(), QString("x"));
 
     testWidget->clear();
+    QTest::qWait(500);
     QTest::keyClick(testWidget, Qt::Key_I);
     QCOMPARE(testWidget->selectedText(), QString("tem1"));
 
-    QTest::keyClick(testWidget, Qt::Key_Down, Qt::ControlModifier);
+    Qt::KeyboardModifiers keyboardModifiers = Qt::ControlModifier;
+#ifdef Q_WS_MAC
+    keyboardModifiers |= Qt::AltModifier;
+#endif
+    QTest::keyClick(testWidget, Qt::Key_Down, keyboardModifiers);
     QCOMPARE(testWidget->selectedText(), QString("tem3"));
 
     // wraps around (Default)
-    QTest::keyClick(testWidget, Qt::Key_Down, Qt::ControlModifier);
+    QTest::keyClick(testWidget, Qt::Key_Down, keyboardModifiers);
     QCOMPARE(testWidget->selectedText(), QString("tem1"));
 
-    QTest::keyClick(testWidget, Qt::Key_Up, Qt::ControlModifier);
+    QTest::keyClick(testWidget, Qt::Key_Up, keyboardModifiers);
     QCOMPARE(testWidget->selectedText(), QString("tem3"));
 
     // should not wrap
     completer->setWrapAround(false);
-    QTest::keyClick(testWidget, Qt::Key_Down, Qt::ControlModifier);
+    QTest::keyClick(testWidget, Qt::Key_Down, keyboardModifiers);
     QCOMPARE(testWidget->selectedText(), QString("tem3"));
-    QTest::keyClick(testWidget, Qt::Key_Up, Qt::ControlModifier); // item1
-    QTest::keyClick(testWidget, Qt::Key_Up, Qt::ControlModifier); // item1
+    QTest::keyClick(testWidget, Qt::Key_Up, keyboardModifiers); // item1
+    QTest::keyClick(testWidget, Qt::Key_Up, keyboardModifiers); // item1
     QCOMPARE(testWidget->selectedText(), QString("tem1"));
 
     // trivia :)
@@ -3115,15 +3120,15 @@ void tst_QLineEdit::inlineCompletion()
     QCOMPARE(testWidget->selectedText(), QString("tem1"));
     QTest::keyClick(testWidget, Qt::Key_Delete);
     QCOMPARE(testWidget->selectedText(), QString());
-    QTest::keyClick(testWidget, Qt::Key_Down, Qt::ControlModifier);
+    QTest::keyClick(testWidget, Qt::Key_Down, keyboardModifiers);
     QCOMPARE(testWidget->selectedText(), QString("tem1")); // neato
     testWidget->setText("item1");
     testWidget->setSelection(1, 2);
-    QTest::keyClick(testWidget, Qt::Key_Down, Qt::ControlModifier);
+    QTest::keyClick(testWidget, Qt::Key_Down, keyboardModifiers);
     testWidget->end(false);
     QCOMPARE(testWidget->text(), QString("item1")); // no effect for selection in "middle"
-    QTest::keyClick(testWidget, Qt::Key_Down, Qt::ControlModifier); // item1
-    QTest::keyClick(testWidget, Qt::Key_Down, Qt::ControlModifier); // item11
+    QTest::keyClick(testWidget, Qt::Key_Down, keyboardModifiers); // item1
+    QTest::keyClick(testWidget, Qt::Key_Down, keyboardModifiers); // item11
     QCOMPARE(testWidget->text(), QString("item11"));
 
     delete model;
