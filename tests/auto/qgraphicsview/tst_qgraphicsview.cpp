@@ -44,6 +44,7 @@ static void sendMousePress(QWidget *widget, const QPoint &point, Qt::MouseButton
 
 static void sendMouseMove(QWidget *widget, const QPoint &point, Qt::MouseButton button = Qt::NoButton)
 {
+    QTest::mouseMove(widget, point);
     QMouseEvent event(QEvent::MouseMove, point, button, 0, 0);
     QApplication::sendEvent(widget, &event);
 }

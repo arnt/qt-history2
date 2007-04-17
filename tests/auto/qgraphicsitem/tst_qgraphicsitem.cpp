@@ -3075,7 +3075,8 @@ void tst_QGraphicsItem::cursor()
     QCOMPARE(view.viewport()->cursor().shape(), cursor.shape());
 
     {
-        QMouseEvent event(QEvent::MouseMove, QPoint(25, 25), Qt::NoButton, 0, 0);
+        QTest::mouseMove(view.viewport(), view.mapFromScene(item1->sceneBoundingRect().center()));
+        QMouseEvent event(QEvent::MouseMove, view.mapFromScene(item1->sceneBoundingRect().center()), Qt::NoButton, 0, 0);
         QApplication::sendEvent(view.viewport(), &event);
     }
 
@@ -3084,7 +3085,8 @@ void tst_QGraphicsItem::cursor()
     QCOMPARE(view.viewport()->cursor().shape(), item1->cursor().shape());
 
     {
-        QMouseEvent event(QEvent::MouseMove, QPoint(175, 25), Qt::NoButton, 0, 0);
+        QTest::mouseMove(view.viewport(), view.mapFromScene(item2->sceneBoundingRect().center()));
+        QMouseEvent event(QEvent::MouseMove, view.mapFromScene(item2->sceneBoundingRect().center()), Qt::NoButton, 0, 0);
         QApplication::sendEvent(view.viewport(), &event);
     }
     
@@ -3093,6 +3095,7 @@ void tst_QGraphicsItem::cursor()
     QCOMPARE(view.viewport()->cursor().shape(), item2->cursor().shape());
 
     {
+        QTest::mouseMove(view.viewport(), view.rect().center());
         QMouseEvent event(QEvent::MouseMove, QPoint(100, 25), Qt::NoButton, 0, 0);
         QApplication::sendEvent(view.viewport(), &event);
     }
