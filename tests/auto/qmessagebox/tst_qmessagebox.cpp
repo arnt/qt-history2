@@ -144,7 +144,7 @@ void tst_QMessageBox::button()
     msgBox.addButton("retry", QMessageBox::DestructiveRole);
     QVERIFY(msgBox.button(QMessageBox::Ok) == 0); // not added yet
     QPushButton *b1 = msgBox.addButton(QMessageBox::Ok);
-    QCOMPARE(msgBox.button(QMessageBox::Ok), b1);  // just added
+    QCOMPARE(msgBox.button(QMessageBox::Ok), (QAbstractButton *)b1);  // just added
     QCOMPARE(msgBox.standardButton(b1), QMessageBox::Ok);
     msgBox.addButton(QMessageBox::Cancel);
     QCOMPARE(msgBox.standardButtons(), QMessageBox::Ok | QMessageBox::Cancel);
@@ -177,11 +177,11 @@ void tst_QMessageBox::defaultButton()
     QCOMPARE(msgBox.clickedButton(), msgBox.button(QMessageBox::Cancel));
 
     exec(&msgBox, Qt::Key_Enter);
-    QCOMPARE(msgBox.clickedButton(), retryButton);
+    QCOMPARE(msgBox.clickedButton(), (QAbstractButton *)retryButton);
 
     QAbstractButton *okButton = msgBox.button(QMessageBox::Ok);
     msgBox.setDefaultButton(QMessageBox::Ok);
-    QCOMPARE(msgBox.defaultButton(), okButton);
+    QCOMPARE(msgBox.defaultButton(), (QPushButton *)okButton);
     exec(&msgBox, Qt::Key_Enter);
     QCOMPARE(msgBox.clickedButton(), okButton);
     msgBox.setDefaultButton(QMessageBox::Yes); // its not in there!
@@ -204,13 +204,13 @@ void tst_QMessageBox::escapeButton()
     QPushButton invalidButton;
     msgBox.setEscapeButton(&invalidButton);
     QVERIFY(msgBox.escapeButton() == 0);
-    QPushButton *retryButton = msgBox.addButton(QMessageBox::Retry);
+    QAbstractButton *retryButton = msgBox.addButton(QMessageBox::Retry);
 
     exec(&msgBox);
     QVERIFY(msgBox.clickedButton() == msgBox.button(QMessageBox::Cancel)); // auto detected (cancel)
 
     msgBox.setEscapeButton(retryButton);
-    QCOMPARE(msgBox.escapeButton(), retryButton);
+    QCOMPARE(msgBox.escapeButton(), (QAbstractButton *)retryButton);
 
     // with escape
     exec(&msgBox, Qt::Key_Escape);
@@ -218,7 +218,7 @@ void tst_QMessageBox::escapeButton()
 
     // with close
     exec(&msgBox);
-    QCOMPARE(msgBox.clickedButton(), retryButton);
+    QCOMPARE(msgBox.clickedButton(), (QAbstractButton *)retryButton);
 
     QAbstractButton *okButton = msgBox.button(QMessageBox::Ok);
     msgBox.setEscapeButton(QMessageBox::Ok);
