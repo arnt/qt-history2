@@ -106,7 +106,7 @@
 */
 
 class QValidatorPrivate : public QObjectPrivate{
-    Q_DECLARE_PUBLIC(QValidator);
+    Q_DECLARE_PUBLIC(QValidator)
 public:
     QValidatorPrivate() : QObjectPrivate()
     {
@@ -474,7 +474,7 @@ QValidator::QValidator(QValidatorPrivate &d, QObject *parent)
 
 class QDoubleValidatorPrivate : public QValidatorPrivate
 {
-    Q_DECLARE_PUBLIC(QDoubleValidator);
+    Q_DECLARE_PUBLIC(QDoubleValidator)
 public:
     QDoubleValidatorPrivate()
         : QValidatorPrivate()
