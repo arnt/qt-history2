@@ -3944,10 +3944,12 @@ QSize QCommonStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
                                                             : SE_CheckBoxIndicator, btn, widget));
             int h = pixelMetric(isRadio ? PM_ExclusiveIndicatorHeight
                                         : PM_IndicatorHeight, btn, widget);
+
             int margins = 0;
+            // we add 4 pixels for label margins
             if (btn->icon.isNull() || !btn->text.isEmpty())
-                margins = pixelMetric(isRadio ? PM_RadioButtonLabelSpacing
-                                              : PM_CheckBoxLabelSpacing, opt, widget);
+                margins = 4 + pixelMetric(isRadio ? PM_RadioButtonLabelSpacing
+                                                  : PM_CheckBoxLabelSpacing, opt, widget);
             sz += QSize(irect.right() + margins, 4);
             sz.setHeight(qMax(sz.height(), h));
         }
