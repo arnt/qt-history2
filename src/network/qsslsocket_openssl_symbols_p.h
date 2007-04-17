@@ -289,5 +289,7 @@ time_t q_getTimeFromASN1(const ASN1_TIME *aTime);
 #define q_sk_SSL_CIPHER_value(st, i) q_SKM_sk_value(SSL_CIPHER, (st), (i))
 #define q_SSL_CTX_add_extra_chain_cert(ctx,x509) \
         q_SSL_CTX_ctrl(ctx,SSL_CTRL_EXTRA_CHAIN_CERT,0,(char *)x509)
+#define q_X509_get_notAfter(x) X509_get_notAfter(x)
+#define q_X509_get_notBefore(x) X509_get_notBefore(x)
 
 #endif
