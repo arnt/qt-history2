@@ -254,7 +254,7 @@ inline quint8 qt_colorConvert(quint32 color)
 template <>
 inline quint8 qt_colorConvert(quint16 color)
 {
-    return qt_colorConvert<quint32, quint8>(qt_conv16ToRgb(color));
+    return qt_colorConvert<quint8, quint32>(qt_conv16ToRgb(color));
 }
 #endif // QT_QWS_DEPTH_8
 
