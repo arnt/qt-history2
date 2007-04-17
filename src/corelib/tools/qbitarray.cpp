@@ -572,10 +572,12 @@ QBitArray QBitArray::operator~() const
     const uchar *a1 = reinterpret_cast<const uchar *>(d.constData()) + 1;
     uchar *a2 = reinterpret_cast<uchar*>(a.d.data()) + 1;
     int n = d.size() - 1;
-    while (n--)
+
+    while (n-- > 0)
         *a2++ = ~*a1++;
-     if (sz && sz%8)
-         *(a2-1) &= (1 << (sz%8)) - 1;
+
+    if (sz && sz%8)
+        *(a2-1) &= (1 << (sz%8)) - 1;
     return a;
 }
 

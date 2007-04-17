@@ -17,7 +17,7 @@
 /**
  * Helper function to initialize a bitarray from a string
  */
-QBitArray QStringToQBitArray(const QString &str)
+static QBitArray QStringToQBitArray(const QString &str)
 {
     QBitArray ba;
     ba.resize(str.length());
@@ -73,6 +73,7 @@ private slots:
     void operator_neg();
     void datastream_data();
     void datastream();
+    void invertOnNull() const;
 };
 
 Q_DECLARE_METATYPE(QBitArray)
@@ -413,14 +414,37 @@ void tst_QBitArray::operator_neg_data()
     QTest::addColumn<QBitArray>("res");
 
     QTest::newRow( "data0" )   << QStringToQBitArray(QString("11111111")) 
-                            << QStringToQBitArray(QString("00000000"));
+                               << QStringToQBitArray(QString("00000000"));
 
     QTest::newRow( "data1" )   << QStringToQBitArray(QString("11011011")) 
-                            << QStringToQBitArray(QString("00100100"));
+                               << QStringToQBitArray(QString("00100100"));
 
     QTest::newRow( "data2" )   << QStringToQBitArray(QString("00000000")) 
-                            << QStringToQBitArray(QString("11111111"));
+                               << QStringToQBitArray(QString("11111111"));
 
+    QTest::newRow( "data3" )   << QStringToQBitArray(QString()) 
+                               << QStringToQBitArray(QString());
+
+    QTest::newRow( "data4" )   << QStringToQBitArray("1") 
+                               << QStringToQBitArray("0");
+
+    QTest::newRow( "data5" )   << QStringToQBitArray("0") 
+                               << QStringToQBitArray("1");
+
+    QTest::newRow( "data6" )   << QStringToQBitArray("01") 
+                               << QStringToQBitArray("10");
+
+    QTest::newRow( "data7" )   << QStringToQBitArray("1110101") 
+                               << QStringToQBitArray("0001010");
+
+    QTest::newRow( "data8" )   << QStringToQBitArray("01110101") 
+                               << QStringToQBitArray("10001010");
+
+    QTest::newRow( "data9" )   << QStringToQBitArray("011101010") 
+                               << QStringToQBitArray("100010101");
+
+    QTest::newRow( "data10" )   << QStringToQBitArray("0111010101111010") 
+                                << QStringToQBitArray("1000101010000101");
 }
 
 void tst_QBitArray::operator_neg()
@@ -499,6 +523,12 @@ void tst_QBitArray::datastream()
     QCOMPARE(array1, bits);
     QCOMPARE(array2, bits);
     QCOMPARE(array3, bits);
+}
+
+void tst_QBitArray::invertOnNull() const
+{
+    QBitArray a; 
+    QCOMPARE(a = ~a, QBitArray());
 }
 
 QTEST_APPLESS_MAIN(tst_QBitArray)
