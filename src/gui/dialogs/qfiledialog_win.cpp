@@ -311,7 +311,7 @@ QString qt_win_get_open_file_name(const QFileDialogArgs &args,
     if (!fi.exists())
         *initialDirectory = QDir::homePath();
 
-    DWORD selFilIdx;
+    DWORD selFilIdx = 0;
 
     int idx = 0;
     if (selectedFilter) {
@@ -386,7 +386,7 @@ QString qt_win_get_save_file_name(const QFileDialogArgs &args,
     if (!fi.exists())
         *initialDirectory = QDir::homePath();
 
-    DWORD selFilIdx;
+    DWORD selFilIdx = 0;
 
     int idx = 0;
     if (selectedFilter) {
@@ -486,7 +486,7 @@ QStringList qt_win_get_open_file_names(const QFileDialogArgs &args,
     if (!fi.exists())
         *initialDirectory = QDir::homePath();
 
-    DWORD selFilIdx;
+    DWORD selFilIdx = 0;
 
     int idx = 0;
     if (selectedFilter) {

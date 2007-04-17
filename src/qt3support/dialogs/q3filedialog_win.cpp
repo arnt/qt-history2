@@ -307,7 +307,7 @@ QString Q3FileDialog::winGetOpenFileName(const QString &initialSelection,
     if (title.isNull())
         title = tr("Open");
 
-    DWORD selFilIdx;
+    DWORD selFilIdx = 0;
 
     int idx = 0;
     if (selectedFilter && !selectedFilter->isEmpty()) {
@@ -391,7 +391,7 @@ QString Q3FileDialog::winGetSaveFileName(const QString &initialSelection,
     if (title.isNull())
         title = tr("Save As");
 
-    DWORD selFilIdx;
+    DWORD selFilIdx = 0;
 
     int idx = 0;
     if (selectedFilter && !selectedFilter->isEmpty()) {
@@ -477,7 +477,7 @@ QStringList Q3FileDialog::winGetOpenFileNames(const QString &filter,
     if (title.isNull())
         title = tr("Open ");
 
-    DWORD selFilIdx;
+    DWORD selFilIdx = 0;
 
     int idx = 0;
     if (selectedFilter && !selectedFilter->isEmpty()) {
