@@ -62,6 +62,8 @@ public:
         PropertyGetter      = 0x00000008,
         PropertySetter      = 0x00000010,
 
+        QObjectMember       = 0x00000020,
+
         KeepExistingFlags   = 0x00000800,
 
         UserRange           = 0xff000000            // Users may use these as they see fit.

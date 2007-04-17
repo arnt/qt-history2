@@ -394,6 +394,12 @@ void tst_QScriptExtQObject::getSetStaticProperty()
         QVERIFY(!(mobj.propertyFlags("intProperty") & QScriptValue::ReadOnly));
         QVERIFY(!(mobj.propertyFlags("intProperty") & QScriptValue::Undeletable));
         QVERIFY(!(mobj.propertyFlags("intProperty") & QScriptValue::SkipInEnumeration));
+        QVERIFY(mobj.propertyFlags("intProperty") & QScriptValue::QObjectMember);
+
+        QVERIFY(!(mobj.propertyFlags("mySlot") & QScriptValue::ReadOnly));
+        QVERIFY(!(mobj.propertyFlags("mySlot") & QScriptValue::Undeletable));
+        QVERIFY(!(mobj.propertyFlags("mySlot") & QScriptValue::SkipInEnumeration));
+        QVERIFY(mobj.propertyFlags("mySlot") & QScriptValue::QObjectMember);
     }
 
     // property change in C++ should be reflected in script
@@ -590,6 +596,15 @@ void tst_QScriptExtQObject::getSetDynamicProperty()
              .strictEqualTo(QScriptValue(m_engine, true)), true);
     QCOMPARE(m_engine->evaluate("myObject.dynamicProperty")
              .strictEqualTo(QScriptValue(m_engine, 123)), true);
+
+    // check the flags
+    {
+        QScriptValue mobj = m_engine->globalObject().property("myObject");
+        QVERIFY(!(mobj.propertyFlags("dynamicProperty") & QScriptValue::ReadOnly));
+        QVERIFY(!(mobj.propertyFlags("dynamicProperty") & QScriptValue::Undeletable));
+        QVERIFY(!(mobj.propertyFlags("dynamicProperty") & QScriptValue::SkipInEnumeration));
+        QVERIFY(mobj.propertyFlags("dynamicProperty") & QScriptValue::QObjectMember);
+    }
 
     // property change in script should be reflected in C++
     QCOMPARE(m_engine->evaluate("myObject.dynamicProperty = \"foo\";"

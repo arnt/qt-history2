@@ -168,7 +168,9 @@ public:
             QByteArray normalized = QMetaObject::normalizedSignature(name);
 
             if (-1 != (index = meta->indexOfMethod(normalized))) {
-                member->native(nameId, index, METHOD_ID);
+                member->native(nameId, index,
+                               QScriptValue::QObjectMember
+                               | METHOD_ID);
 #ifndef Q_SCRIPT_NO_QMETAOBJECT_CACHE
                 metaCache->registerMember(nameId, *member);
 #endif
@@ -189,6 +191,7 @@ public:
                                   ? (QScriptValue::PropertyGetter
                                      | QScriptValue::PropertySetter)
                                   : QScriptValue::PropertyFlag(0))
+                               | QScriptValue::QObjectMember
                                | PROPERTY_ID);
 #ifndef Q_SCRIPT_NO_QMETAOBJECT_CACHE
                 metaCache->registerMember(nameId, *member);
@@ -199,7 +202,9 @@ public:
 
         index = qobject->dynamicPropertyNames().indexOf(name);
         if (index != -1) {
-            member->native(nameId, index, DYNAPROPERTY_ID);
+            member->native(nameId, index,
+                           QScriptValue::QObjectMember
+                           | DYNAPROPERTY_ID);
             // not cached because it can be removed
             return true;
         }
@@ -208,7 +213,8 @@ public:
             QMetaMethod method = meta->method(index);
             if (methodName(method) == name) {
                 member->native(nameId, index,
-                               METHOD_ID
+                               QScriptValue::QObjectMember
+                               | METHOD_ID
                                | MAYBE_OVERLOADED);
 #ifndef Q_SCRIPT_NO_QMETAOBJECT_CACHE
                 metaCache->registerMember(nameId, *member);
@@ -263,6 +269,7 @@ public:
                                            (!prop.isWritable()
                                             ? QScriptValue::ReadOnly
                                             : QScriptValue::PropertyFlag(0))
+                                           | QScriptValue::QObjectMember
                                            | QScriptValue::PropertyGetter
                                            | QScriptValue::PropertySetter);
                 }
@@ -286,7 +293,8 @@ public:
             // make it persist
             QScriptObject *instance = obj.objectValue();
             if (!instance->findMember(member.nameId(), &m)) {
-                instance->createMember(member.nameId(), &m, /*flags=*/0);
+                instance->createMember(member.nameId(), &m,
+                                       QScriptValue::QObjectMember);
             }
             instance->put(m, *result);
         }   break;
@@ -317,7 +325,8 @@ public:
             QScript::Member m;
             QScriptObject *instance = object->objectValue();
             if (!instance->findMember(member.nameId(), &m)) {
-                instance->createMember(member.nameId(), &m, /*flags=*/0);
+                instance->createMember(member.nameId(), &m,
+                                       /*flags=*/0);
             }
             instance->put(m, value);
             return true;
@@ -402,6 +411,7 @@ public:
                            | (!prop.isWritable()
                               ? QScriptValue::ReadOnly
                               : QScriptValue::PropertyFlag(0))
+                           | QScriptValue::QObjectMember
                            | PROPERTY_ID);
             return true;
         }
@@ -419,7 +429,9 @@ public:
         if (physicalIndex < dpNames.count()) {
             QByteArray name = dpNames.at(physicalIndex);
             QScriptNameIdImpl *nameId = eng->nameId(QLatin1String(name));
-            member->native(nameId, physicalIndex, DYNAPROPERTY_ID);
+            member->native(nameId, physicalIndex,
+                           QScriptValue::QObjectMember
+                           | DYNAPROPERTY_ID);
             return true;
         }
 
@@ -436,7 +448,9 @@ public:
         if (physicalIndex < meta->methodCount()) {
             QMetaMethod method = meta->method(physicalIndex);
             QScriptNameIdImpl *nameId = eng->nameId(QLatin1String(method.signature()));
-            member->native(nameId, index, METHOD_ID);
+            member->native(nameId, index,
+                           QScriptValue::QObjectMember
+                           | METHOD_ID);
             return true;
         }
 
