@@ -276,7 +276,6 @@ void tst_QHostInfo::reverseLookup_data()
     QTest::addColumn<int>("err");
 
     QTest::newRow("trolltech.com") << QString("62.70.27.69") << QStringList(QString("diverse.troll.no")) << 0;
-    QTest::newRow("www.nic.name") << QString("193.109.220.143") << (QStringList() << QString("www.nic.name") << QString("www.gnr.com") << QString("gnr.com") << QString("www.getyour.name") << QString("www.nameforlife.com") << QString("getyour.name") << QString("theglobalname.org") << QString("www.theglobalname.org")) << 0;
 
     // ### Use internal DNS instead. Discussed with Andreas.
     //QTest::newRow("classical.hexago.com") << QString("2001:5c0:0:2::24") << QStringList(QString("classical.hexago.com")) << 0;
