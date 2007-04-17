@@ -11,7 +11,6 @@
 **
 ****************************************************************************/
 
-#include <QGLWidget>
 #include "mainwindow.h"
 #include "menumanager.h"
 #include "colors.h"
@@ -20,6 +19,11 @@
 #include "imageitem.h"
 #include "demoitem.h"
 #include "demoscene.h"
+
+#ifndef QT_NO_OPENGL    
+    #include <QGLWidget>
+#endif
+//#define QT_NO_OPENGL
 
 MainWindow::MainWindow(QWidget *parent) : QGraphicsView(parent), updateTimer(this)
 {
@@ -54,6 +58,7 @@ void MainWindow::setupWidget()
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setFrameStyle(QFrame::NoFrame);
 
+#ifndef QT_NO_OPENGL    
     if (!Colors::noOpenGl){
         // Use OpenGL
         QGLWidget *widget = new QGLWidget(QGLFormat(QGL::SampleBuffers));
@@ -62,8 +67,9 @@ void MainWindow::setupWidget()
         widget->setAutoFillBackground(false);
         setViewport(widget);
     }
+#endif
     
-    if (Colors::low)
+    if (Colors::noOpenGl)
         setCacheMode(QGraphicsView::CacheBackground);
 
     connect(&this->updateTimer, SIGNAL(timeout()), this, SLOT(tick()));
@@ -129,7 +135,7 @@ void MainWindow::switchTimerOnOff(bool on)
     if (ticker)
         MenuManager::instance()->ticker->tickOnPaint = !on || Colors::noTimerUpdate;
 
-    if (ticker && on && !Colors::noTimerUpdate){
+    if (on && !Colors::noTimerUpdate){
         this->setViewportUpdateMode(QGraphicsView::NoViewportUpdate);
         this->updateTimer.start(int(1000 / Colors::fps));
     }
@@ -229,14 +235,16 @@ void MainWindow::checkAdapt()
     this->forceFpsMedianCalculation();
     
     if (this->fpsMedian < 30){
-       this->switchTimerOnOff(false);
-       if (MenuManager::instance()->ticker && MenuManager::instance()->ticker->scene())
+       if (MenuManager::instance()->ticker && MenuManager::instance()->ticker->scene()){
             this->scene->removeItem(MenuManager::instance()->ticker);
-       if (this->fpsMedian < 20)
+            Colors::noTimerUpdate = true;
             Colors::noAnimations = true;
+        }
 
        if (this->fpsLabel)
            this->fpsLabel->setText(QString("FPS: (") + QString::number(this->fpsMedian) + QString(")"));       
+
+       this->switchTimerOnOff(false);
     }
 }
 

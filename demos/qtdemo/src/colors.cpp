@@ -12,7 +12,11 @@
 ****************************************************************************/
 
 #include "colors.h"
-#include <QGLWidget>
+
+#ifndef QT_NO_OPENGL    
+    #include <QGLWidget>
+#endif
+//#define QT_NO_OPENGL
 
 // Colors:
 QColor Colors::sceneBg1(QColor(91, 91, 91));
@@ -128,7 +132,6 @@ float parseFloat(const QString &argument, const QString &name)
         exit(0);
     }
     float value = argument.mid(name.length()).toFloat();
-//    qDebug() << name << "=" << value;
     return value;
 }
 
@@ -142,7 +145,6 @@ QString parseText(const QString &argument, const QString &name)
         exit(0);
     }
     QString value = argument.mid(name.length());
-//    qDebug() << name << "=" << value;
     return value;
 }
 
@@ -219,11 +221,10 @@ void Colors::parseArgs(int argc, char *argv[])
         }   
     }
 
-    if (!QGLFormat::hasOpenGL()){
-        // If OpenGL is not supported, then
-        // let the rest of the app know:
-        Colors::noOpenGl = true; 
-    }            
+#ifndef QT_NO_OPENGL
+    if (!QGLFormat::hasOpenGL())
+#endif        
+        Colors::noOpenGl = true;
 }
 
 void Colors::adaptAccordingToEnvironment()
@@ -240,13 +241,25 @@ void Colors::adaptAccordingToEnvironment()
     }
 #endif
 
-    QGLWidget w;
+#ifndef QT_NO_OPENGL    
+    QGLWidget glw;
     if (Colors::low
         || !QGLFormat::hasOpenGL()
-        || !w.format().directRendering()
-        || !(QGLFormat::openGLVersionFlags() & QGLFormat::OpenGL_Version_1_5)
-        || w.depth() < 24
-        ){
+        || !glw.format().directRendering()
+        || !(QGLFormat::openGLVersionFlags() & QGLFormat::OpenGL_Version_1_4)
+        || glw.depth() < 24
+    )
+#endif    
+    {
+        // Since we are not going to use OpenGL,
+        // turn off the most requiering stuff:
+        Colors::noOpenGl = true;
+        Colors::noTicker = true;
+	    Colors::fps = 50;
+        Colors::usePixmaps = true;
+    }
+
+    if (Colors::low){
         Colors::noOpenGl = true;
         Colors::noTicker = true;
 	    Colors::noTimerUpdate = true;
@@ -255,9 +268,10 @@ void Colors::adaptAccordingToEnvironment()
         Colors::noAnimations = true;
         Colors::noBlending = true;
         Colors::low = true;
-
-        if (w.depth() < 16)
-            Colors::useEightBitPalette = true;
     }
+
+    QWidget w;
+    if (w.depth() < 16)
+        Colors::useEightBitPalette = true;
 }
 

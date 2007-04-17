@@ -166,6 +166,9 @@ void TextButton::setupButtonBg()
     this->bgOff = new ButtonBackground(this->buttonType, false, false, this->scene(), this);
     this->bgOn = new ButtonBackground(this->buttonType, true, false, this->scene(), this);
     this->bgPressed = new ButtonBackground(this->buttonType, true, true, this->scene(), this);
+    this->bgOn->setRecursiveVisible(false);
+    this->bgPressed->setRecursiveVisible(false);    
+    this->bgOff->setRecursiveVisible(true);
 }
 
 void TextButton::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
@@ -231,6 +234,7 @@ void TextButton::animationStarted(int)
 {
     this->bgOn->setRecursiveVisible(false);
     this->bgPressed->setRecursiveVisible(false);    
+    this->bgOff->setRecursiveVisible(true);
 }
 
 
