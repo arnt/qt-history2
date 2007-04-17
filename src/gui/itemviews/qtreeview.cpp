@@ -3093,9 +3093,18 @@ void QTreeViewPrivate::select(int top, int bottom,
         QModelIndex parent = index.parent();
         if (previous.isValid() && parent == previous.parent()) {
             // same parent
-            QModelIndex tl = model->index(currentRange.top(), currentRange.left(),
-                                          currentRange.parent());
-            currentRange = QItemSelectionRange(tl, index);
+            if (qAbs(previous.row() - index.row()) > 1) {
+                //a hole (hidden index inside a range) has been detected
+                if (currentRange.isValid()) {
+                    selection.append(currentRange);
+                }
+                //let's start a new range
+                currentRange = QItemSelectionRange(index);
+            } else {
+                QModelIndex tl = model->index(currentRange.top(), currentRange.left(),
+                    currentRange.parent());
+                currentRange = QItemSelectionRange(tl, index);
+            }
         } else if (previous.isValid() && parent == model->sibling(previous.row(), 0, previous)) {
             // item is child of previous
             rangeStack.push(currentRange);
@@ -3107,15 +3116,8 @@ void QTreeViewPrivate::select(int top, int bottom,
                 currentRange = QItemSelectionRange(index);
             } else {
                 currentRange = rangeStack.pop();
-                if (parent == currentRange.parent()) {
-                    QModelIndex tl = model->index(currentRange.top(),
-                                                  currentRange.left(),
-                                                  currentRange.parent());
-                    currentRange = QItemSelectionRange(tl, index);
-                } else {
-                    selection.append(currentRange);
-                    currentRange = QItemSelectionRange(index);
-                }
+                index = currentRange.bottomRight(); //let's resume the range
+                --i; //we process again the current item
             }
         }
         previous = index;

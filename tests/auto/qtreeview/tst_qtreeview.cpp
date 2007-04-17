@@ -153,6 +153,7 @@ private slots:
 
     void selection();
     void removeAndInsertExpandedCol0();
+    void selectionWithHiddenItems();
 };
 
 class QtTestModel: public QAbstractItemModel
@@ -2040,6 +2041,70 @@ void tst_QTreeView::selection()
 
     QTest::mousePress(treeView.viewport(), Qt::LeftButton, 0, treeView.visualRect(m.index(1, 0)).center());
     QTest::keyPress(treeView.viewport(), Qt::Key_Down);
+}
+
+//From task 151686 QTreeView ExtendedSelection selects hidden rows
+void tst_QTreeView::selectionWithHiddenItems()
+{
+  	QStandardItemModel model;
+	for (int i=0; i<model.rowCount(); ++i) {
+		model.setData(model.index(i,0), QString("row %1").arg(i));
+	}
+
+    QStandardItem item0("row 0");
+    QStandardItem item1("row 1");
+    QStandardItem item2("row 2");
+    QStandardItem item3("row 3");
+    model.appendColumn( QList<QStandardItem*>() << &item0 << &item1 << &item2 << &item3);
+
+    QStandardItem child("child");
+    item1.appendRow( &child);
+
+    QTreeView view;
+    view.setModel(&model);
+    view.setSelectionMode(QAbstractItemView::ExtendedSelection);
+
+    view.show();
+    qApp->processEvents();
+
+    //child should not be selected as it is hidden (its parent is not expanded)
+    view.selectAll();
+    QCOMPARE(view.selectionModel()->selection().count(), 1); //one range
+    QCOMPARE(view.selectionModel()->selectedRows().count(), 4);
+    view.expandAll();
+    QCOMPARE(view.selectionModel()->selection().count(), 1);
+    QCOMPARE(view.selectionModel()->selectedRows().count(), 4);
+    QVERIFY( !view.selectionModel()->isSelected(model.indexFromItem(&child)));
+    view.clearSelection();
+
+    //child should be selected as it is visible (its parent is expanded)
+    view.selectAll();
+    QCOMPARE(view.selectionModel()->selection().count(), 2);
+    QCOMPARE(view.selectionModel()->selectedRows().count(), 5); //everything is selected
+    view.clearSelection();
+    
+    //we hide the node with a child (there should then be 3 items selected in 2 ranges)
+    view.setRowHidden(1, QModelIndex(), true);
+    qApp->processEvents();
+    view.selectAll();
+    QCOMPARE(view.selectionModel()->selection().count(), 2);
+    QCOMPARE(view.selectionModel()->selectedRows().count(), 3);
+    QVERIFY( !view.selectionModel()->isSelected(model.indexFromItem(&item1)));
+    QVERIFY( !view.selectionModel()->isSelected(model.indexFromItem(&child)));
+    view.setRowHidden(1, QModelIndex(), false);
+    view.clearSelection();
+
+    //we hide a node without children (there should then be 4 items selected in 3 ranges)
+    view.setRowHidden(2, QModelIndex(), true);
+    qApp->processEvents();
+    view.selectAll();
+    QCOMPARE(view.selectionModel()->selection().count(), 3);
+    QCOMPARE(view.selectionModel()->selectedRows().count(), 4);
+    QVERIFY( !view.selectionModel()->isSelected(model.indexFromItem(&item2)));
+    view.setRowHidden(2, QModelIndex(), false);
+    view.clearSelection();
+
+
 }
 
 void tst_QTreeView::rowSizeHint()
