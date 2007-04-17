@@ -35,7 +35,7 @@ void tst_QDebug::assignment() const
 }
 
 static QtMsgType s_msgType;
-static const char *s_msg;
+static QByteArray s_msg;
 
 static void myMessageHandler(QtMsgType type, const char *msg)
 {
