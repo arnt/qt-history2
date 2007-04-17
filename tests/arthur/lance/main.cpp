@@ -289,7 +289,8 @@ int main(int argc, char **argv)
             pcmd.setContents(content);
 
             if (show_cmp) {
-                QString pmFile = QString(files.at(j)).replace(".", "_") + ".png";
+                QString pmFile = QString(files.at(j)).replace(".qps", "_qps") + ".png";
+                qDebug() << pmFile << QFileInfo(pmFile).exists();
                 QPixmap pixmap(pmFile);
                 if (!pixmap.isNull()) {
                     label->setWindowTitle("VERIFY: " + pmFile);
