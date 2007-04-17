@@ -2512,7 +2512,6 @@ void QHttpPrivate::_q_slotConnected()
     } else {
         bytesTotal += buffer.size();
         socket->write(buffer, buffer.size());
-        buffer = QByteArray(); // save memory
     }
 }
 
@@ -2589,7 +2588,6 @@ void QHttpPrivate::_q_slotReadyRead()
     QHttp::State oldState = state;
     if (state != QHttp::Reading) {
         setState(QHttp::Reading);
-        buffer = QByteArray();
         readHeader = true;
         headerStr = QLatin1String("");
         bytesDone = 0;
@@ -2675,6 +2673,8 @@ void QHttpPrivate::_q_slotReadyRead()
                     repost = true;
                 }
             }
+        } else {
+            buffer.clear();
         }
 
         // The 100-continue header is ignored, because when using the
