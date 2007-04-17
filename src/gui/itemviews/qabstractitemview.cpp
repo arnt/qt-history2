@@ -1242,17 +1242,7 @@ bool QAbstractItemView::event(QEvent *event)
         doItemsLayout();
         break;
     case QEvent::FocusOut:
-        if (QWidget *widget = qApp->focusWidget()) {
-            if (d->persistent.contains(widget)) {
-                //a persistent editor has gained the focus
-                QModelIndex index = d->indexForEditor(widget);
-                QItemSelectionModel::SelectionFlags flags = QItemSelectionModel::ClearAndSelect
-                    | d->selectionBehaviorFlags();
-                if (currentIndex() != index)
-                    d->selectionModel->setCurrentIndex(index, flags);
-            }
-        }
-
+        d->checkPersistentEditorFocus();
         break;
     default:
         break;
@@ -2251,6 +2241,9 @@ void QAbstractItemView::closeEditor(QWidget *editor, QAbstractItemDelegate::EndE
         }
         if (hadFocus)
             setFocus(); // this will send a focusLost event to the editor
+        else
+            d->checkPersistentEditorFocus();
+
         QApplication::sendPostedEvents(editor, 0);
 
         if (!isPersistent)
@@ -3443,6 +3436,27 @@ void QAbstractItemViewPrivate::clearOrRemove()
     }
 #endif
 }
+
+/*!
+    \internal
+
+    When persistent aeditor gets/loses focus, we need to check
+    and setcorrectly the current index.
+  */
+void QAbstractItemViewPrivate::checkPersistentEditorFocus()
+{
+    if (QWidget *widget = qApp->focusWidget()) {
+        if (persistent.contains(widget)) {
+            //a persistent editor has gained the focus
+            QModelIndex index = indexForEditor(widget);
+            QItemSelectionModel::SelectionFlags flags = QItemSelectionModel::ClearAndSelect
+                | selectionBehaviorFlags();
+            if (selectionModel->currentIndex() != index)
+                selectionModel->setCurrentIndex(index, flags);
+        }
+    }
+}
+
 
 QWidget *QAbstractItemViewPrivate::editorForIndex(const QModelIndex &index) const
 {

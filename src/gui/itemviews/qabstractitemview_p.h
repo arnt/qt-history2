@@ -169,6 +169,8 @@ public:
     }
 
     void clearOrRemove();
+    void checkPersistentEditorFocus();
+
     QPixmap renderToPixmap(const QModelIndexList &indexes, QRect *r = 0) const;
 
     inline bool isIndexValid(const QModelIndex &index) const {

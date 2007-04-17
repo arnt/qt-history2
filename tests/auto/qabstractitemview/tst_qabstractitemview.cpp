@@ -16,6 +16,7 @@
 #include <qtableview.h>
 #include <qtreeview.h>
 #include <qheaderview.h>
+#include <qspinbox.h>
 
 //TESTED_CLASS=
 //TESTED_FILES=gui/itemviews/qabstractitemview.h gui/itemviews/qabstractitemview.cpp
@@ -142,6 +143,7 @@ private slots:
     void columnDelegate();
     void selectAll();
     void ctrlA();
+    void persistentEditorFocus();
 	// The dragAndDrop() test doesn't work, and is thus disabled on Mac and Windows
 	// for the following reasons:
 	//   Mac: use of GetCurrentEventButtonState() in QDragManager::drag()
@@ -631,6 +633,35 @@ void tst_QAbstractItemView::ctrlA()
     QTest::keyClick(&view, Qt::Key_A, Qt::ControlModifier);
     QCOMPARE(tst_view->tst_selectedIndexes().count(), 4*4);
 }
+
+void tst_QAbstractItemView::persistentEditorFocus()
+{
+    QStandardItemModel model(1,3);
+    for(int i = 0; i<model.columnCount();i++) {
+        model.setData( model.index(0,i), i);
+    }
+    QTableView view;
+    view.setModel(&model);
+
+    view.openPersistentEditor( model.index(0,1));
+    view.openPersistentEditor(model.index(0,2));
+
+    //these are spinboxes because we put numbers inside
+    QList<QSpinBox*> list = view.viewport()->findChildren<QSpinBox*>();
+    QCOMPARE(list.count(), 2); //these should be the 2 editors
+
+    view.setCurrentIndex( model.index(0,0));
+    QCOMPARE( view.currentIndex(), model.index(0,0));
+    view.show();
+        qApp->processEvents();
+
+    foreach(QSpinBox *spin, list) {
+        QTest::mouseClick(spin, Qt::LeftButton);
+        QCOMPARE( qApp->focusWidget(), spin);
+        QCOMPARE( view.currentIndex(), model.index(0, spin->value()));
+    }
+}
+
 
 #if !defined(Q_OS_MAC) && !defined(Q_OS_WIN)
 
