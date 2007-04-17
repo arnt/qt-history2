@@ -726,7 +726,7 @@ void tst_QComboBox::autoCompletionCaseSensitivity()
     //is only used when the widget actually has the focus
     testWidget->setFocus();
     qApp->processEvents();
-    QCOMPARE(qApp->focusWidget(), testWidget);
+    QCOMPARE(qApp->focusWidget(), (QWidget *)testWidget);
 
     testWidget->clear();
     testWidget->setAutoCompletion(true);
