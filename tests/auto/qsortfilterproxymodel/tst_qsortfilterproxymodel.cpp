@@ -2097,7 +2097,7 @@ void tst_QSortFilterProxyModel::match()
     QModelIndex startIndex = proxy.index(proxyStartRow, 0);
     QModelIndexList indexes = proxy.match(startIndex, Qt::DisplayRole, what,
                                           expectedProxyItems.count(),
-                                          static_cast<Qt::MatchFlags>(matchFlags));
+                                          Qt::MatchFlags(matchFlags));
     QCOMPARE(indexes.count(), expectedProxyItems.count());
     for (int i = 0; i < indexes.count(); ++i)
         QCOMPARE(indexes.at(i).row(), expectedProxyItems.at(i));
