@@ -584,8 +584,10 @@ QTransform QPdfEnginePrivate::pageMatrix() const
 {
     qreal scale = 72./resolution;
     QTransform tmp(scale, 0.0, 0.0, -scale, 0.0, height());
-    if (!fullPage)
-        tmp.translate(resolution/3, resolution/3);
+    if (!fullPage) {
+        QRect r = pageRect();
+        tmp.translate(r.left(), r.top());
+    }
     return tmp;
 }
 
