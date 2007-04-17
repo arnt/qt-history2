@@ -2274,7 +2274,7 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
 #endif // QT_NO_DOCKWIDGET
 #ifndef QT_NO_RUBBERBAND
     case CE_RubberBand:
-        if (const QStyleOptionRubberBand *rbOpt = qstyleoption_cast<const QStyleOptionRubberBand *>(option)) {
+        if (qstyleoption_cast<const QStyleOptionRubberBand *>(option)) {
             QColor highlight = option->palette.color(QPalette::Active, QPalette::Highlight);
             p->save();
             QRect r = option->rect;
@@ -3582,7 +3582,7 @@ int QWindowsXPStyle::styleHint(StyleHint hint, const QStyleOption *option, const
         break;
 #ifndef QT_NO_RUBBERBAND
     case SH_RubberBand_Mask:
-        if (const QStyleOptionRubberBand *rbOpt = qstyleoption_cast<const QStyleOptionRubberBand *>(option)) {
+        if (qstyleoption_cast<const QStyleOptionRubberBand *>(option)) {
             res = 0;
             break;
         }
@@ -3613,7 +3613,7 @@ QPixmap QWindowsXPStyle::standardPixmap(StandardPixmap standardPixmap, const QSt
     switch(standardPixmap) {
     case SP_TitleBarMaxButton:
     case SP_TitleBarCloseButton:
-        if (const QStyleOptionDockWidget *dwOpt = qstyleoption_cast<const QStyleOptionDockWidget *>(option))
+        if (qstyleoption_cast<const QStyleOptionDockWidget *>(option))
         {
             if (widget && widget->isWindow()) {
                 XPThemeData theme(widget, 0, QLatin1String("WINDOW"), WP_SMALLCLOSEBUTTON, CBS_NORMAL);
@@ -3643,7 +3643,7 @@ QIcon QWindowsXPStyle::standardIconImplementation(StandardPixmap standardIcon,
     QWindowsXPStylePrivate *d = const_cast<QWindowsXPStylePrivate*>(d_func());
     switch(standardIcon) {
     case SP_TitleBarMaxButton:
-        if (const QStyleOptionDockWidget *dwOpt = qstyleoption_cast<const QStyleOptionDockWidget *>(option))
+        if (qstyleoption_cast<const QStyleOptionDockWidget *>(option))
         {
             if (d->dockFloat.isNull()) {
                 XPThemeData themeSize(0, 0, QLatin1String("WINDOW"), WP_SMALLCLOSEBUTTON, CBS_NORMAL);
@@ -3678,7 +3678,7 @@ QIcon QWindowsXPStyle::standardIconImplementation(StandardPixmap standardIcon,
         }
         break;
     case SP_TitleBarCloseButton:
-        if (const QStyleOptionDockWidget *dwOpt = qstyleoption_cast<const QStyleOptionDockWidget *>(option))
+        if (qstyleoption_cast<const QStyleOptionDockWidget *>(option))
         {
             if (d->dockClose.isNull()) {
                 XPThemeData theme(0, 0, QLatin1String("WINDOW"), WP_SMALLCLOSEBUTTON, CBS_NORMAL);
@@ -3712,7 +3712,7 @@ QIcon QWindowsXPStyle::standardIconImplementation(StandardPixmap standardIcon,
         }
         break;
     case SP_TitleBarNormalButton:
-        if (const QStyleOptionDockWidget *dwOpt = qstyleoption_cast<const QStyleOptionDockWidget *>(option))
+        if (qstyleoption_cast<const QStyleOptionDockWidget *>(option))
         {
             if (d->dockFloat.isNull()) {
                 XPThemeData themeSize(0, 0, QLatin1String("WINDOW"), WP_SMALLCLOSEBUTTON, CBS_NORMAL);
