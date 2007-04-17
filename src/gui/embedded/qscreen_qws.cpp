@@ -303,9 +303,11 @@ public:
 
     inline QImage::Format preferredImageFormat() const;
 
-    typedef void (*SolidFillFunc)(QScreen *screen, const QColor&,
-                                  const QRegion&);
+    typedef void (*SolidFillFunc)(QScreen*, const QColor&, const QRegion&);
+    typedef void (*BlitFunc)(QScreen*, const QImage&, const QPoint&, const QRegion&);
+
     SolidFillFunc solidFill;
+    BlitFunc blit;
 
     QPoint offset;
     QList<QScreen*> subScreens;
@@ -366,10 +368,122 @@ void qt_solidFill_setup(QScreen *screen, const QColor &color,
     screen->solidFill(color, region);
 }
 
+template <typename DST, typename SRC>
+static void blit_template(QScreen *screen, const QImage &image,
+                          const QPoint &topLeft, const QRegion &region)
+{
+    DST *dest = reinterpret_cast<DST*>(screen->base());
+    const SRC *src = reinterpret_cast<const SRC*>(image.bits());
+    const int screenStride = screen->linestep();
+    const int imageStride = image.bytesPerLine();
+    const QVector<QRect> rects = region.rects();
+
+    for (int i = 0; i < rects.size(); ++i) {
+        const QRect r = rects.at(i);
+        qt_rectconvert<DST, SRC>(dest,
+                                 src + r.y() * imageStride / sizeof(SRC) + r.x(),
+                                 r.x() + topLeft.x(), r.y() + topLeft.y(),
+                                 r.width(), r.height(),
+                                 screenStride, imageStride);
+    }
+}
+
+#ifdef QT_QWS_DEPTH_32
+static void blit_32(QScreen *screen, const QImage &image,
+                    const QPoint &topLeft, const QRegion &region)
+{
+    switch (image.format()) {
+    case QImage::Format_ARGB32_Premultiplied:
+        blit_template<quint32, quint32>(screen, image, topLeft, region);
+        return;
+#ifdef QT_QWS_DEPTH_16
+    case QImage::Format_RGB16:
+        blit_template<quint32, quint16>(screen, image, topLeft, region);
+        return;
+#endif
+    default:
+        qCritical("blit_16(): Image format %d not supported!", image.format());
+    }
+}
+#endif // QT_QWS_DEPTH_32
+
+#ifdef QT_QWS_DEPTH_16
+static void blit_16(QScreen *screen, const QImage &image,
+                    const QPoint &topLeft, const QRegion &region)
+{
+    switch (image.format()) {
+    case QImage::Format_ARGB32_Premultiplied:
+        blit_template<quint16, quint32>(screen, image, topLeft, region);
+        return;
+    case QImage::Format_RGB16:
+        blit_template<quint16, quint16>(screen, image, topLeft, region);
+        return;
+    default:
+        qCritical("blit_16(): Image format %d not supported!", image.format());
+    }
+}
+#endif // QT_QWS_DEPTH_16
+
+#ifdef QT_QWS_DEPTH_8
+static void blit_8(QScreen *screen, const QImage &image,
+                   const QPoint &topLeft, const QRegion &region)
+{
+    switch (image.format()) {
+    case QImage::Format_ARGB32_Premultiplied:
+        blit_template<quint8, quint32>(screen, image, topLeft, region);
+        return;
+    case QImage::Format_RGB16:
+        blit_template<quint8, quint16>(screen, image, topLeft, region);
+        return;
+    default:
+        qCritical("blit_8(): Image format %d not supported!", image.format());
+    }
+}
+#endif // QT_QWS_DEPTH_8
+
+void qt_blit_setup(QScreen *screen, const QImage &image,
+                   const QPoint &topLeft, const QRegion &region)
+{
+    switch (screen->depth()) {
+#ifdef QT_QWS_DEPTH_32
+    case 32:
+        screen->d_ptr->blit = blit_32;
+        break;
+#endif
+#ifdef QT_QWS_DEPTH_24
+    case 24:
+        screen->d_ptr->blit = blit_template<quint24, quint32>;
+        break;
+#endif
+#ifdef QT_QWS_DEPTH_18
+    case 18:
+        screen->d_ptr->blit = blit_template<quint18, quint32>;
+        break;
+#endif
+#ifdef QT_QWS_DEPTH_16
+    case 16:
+        screen->d_ptr->blit = blit_16;
+        break;
+#endif
+#ifdef QT_QWS_DEPTH_8
+    case 8:
+        screen->d_ptr->blit = blit_8;
+        break;
+#endif
+    default:
+        qFatal("blit_setup(): Screen depth %d not supported!",
+               screen->depth());
+        screen->d_ptr->blit = 0;
+        break;
+    }
+    screen->blit(image, topLeft, region);
+}
+
 QScreenPrivate::QScreenPrivate(QScreen *parent)
     :  pixelFormat(QImage::Format_Invalid), q_ptr(parent)
 {
     solidFill = qt_solidFill_setup;
+    blit = qt_blit_setup;
 }
 
 QImage::Format QScreenPrivate::preferredImageFormat() const
@@ -1317,42 +1431,7 @@ void QScreen::exposeRegion(QRegion r, int windowIndex)
         setDirty(rects.at(i));
 }
 
-struct blit_data {
-    const QImage *img;
-    uchar *data;
-    int lineStep;
-    int sx;
-    int sy;
-    int w;
-    int h;
-    int dx;
-    int dy;
-};
-
-typedef void (*blitFunc)(const blit_data *);
-
-#ifdef QT_QWS_DEPTH_32
-static void blit_32_to_32(const blit_data *data)
-{
-    const int sbpl = data->img->bytesPerLine() / 4;
-    const int dbpl = data->lineStep / 4;
-
-    const uint *src = (const uint *)data->img->bits();
-    src += data->sy * sbpl + data->sx;
-    uint *dest = (uint *)data->data;
-    dest += data->dy * dbpl + data->dx;
-
-    int h = data->h;
-    int bytes = data->w * 4;
-    while (h) {
-        memcpy(dest, src, bytes);
-        src += sbpl;
-        dest += dbpl;
-        --h;
-    }
-}
-#endif // QT_QWS_DEPTH_32
-
+#if 0 // Q_BYTE_ORDER == Q_BIG_ENDIAN
 #ifdef QT_QWS_DEPTH_16
 static void blit_32_to_16(const blit_data *data)
 {
@@ -1416,142 +1495,7 @@ static void blit_16_to_16(const blit_data *data)
     }
 }
 #endif // QT_QWS_DEPTH_16
-
-#if defined(QT_QWS_DEPTH_16) && defined(QT_QWS_DEPTH_32)
-static void blit_16_to_32(const blit_data *data)
-{
-    const int sbpl = data->img->bytesPerLine() / sizeof(quint16);
-    const int dbpl = data->lineStep / sizeof(quint32);
-
-    const quint16 *src = reinterpret_cast<const quint16 *>(data->img->bits())
-                         + data->sy * sbpl + data->sx;
-    quint32 *dest = reinterpret_cast<quint32 *>(data->data)
-                    + data->dy * dbpl + data->dx;
-
-    for (int y = 0; y < data->h; ++y) {
-        for (int x = 0; x < data->w; ++x)
-            dest[x] = qt_conv16ToRgb(src[x]);
-        src += sbpl;
-        dest += dbpl;
-    }
-}
-#endif
-
-#ifdef QT_QWS_DEPTH_8
-static inline uchar qt_32_to_8(uint rgb)
-{
-    uchar r = (qRed(rgb) + 0x19) / 0x33;
-    uchar g = (qGreen(rgb) + 0x19) / 0x33;
-    uchar b = (qBlue(rgb) + 0x19) / 0x33;
-
-    return r*6*6 + g*6 + b;
-}
-
-static inline uchar qt_16_to_8(ushort pix)
-{
-    return qt_32_to_8(qt_conv16ToRgb(pix));
-}
-
-static void blit_32_to_8(const blit_data *data)
-{
-    const int sbpl = data->img->bytesPerLine() / 4;
-    const int dbpl = data->lineStep;
-
-    const uint *src = (const uint *)data->img->bits();
-    src += data->sy * sbpl + data->sx;
-    uchar *dest = (uchar *)data->data;
-    dest += data->dy * dbpl + data->dx;
-
-    int h = data->h;
-    while (h) {
-        for (int i = 0; i < data->w; ++i)
-            dest[i] = qt_32_to_8(src[i]);
-        src += sbpl;
-        dest += dbpl;
-        --h;
-    }
-}
-
-static void blit_16_to_8(const blit_data *data)
-{
-    const int sbpl = data->img->bytesPerLine() / 2;
-    const int dbpl = data->lineStep;
-
-    const ushort *src = (const ushort *)data->img->bits();
-    src += data->sy * sbpl + data->sx;
-    uchar *dest = (uchar *)data->data;
-    dest += data->dy * dbpl + data->dx;
-
-    int h = data->h;
-    while (h) {
-        for (int i = 0; i < data->w; ++i)
-            dest[i] = qt_16_to_8(src[i]);
-        src += sbpl;
-        dest += dbpl;
-        --h;
-    }
-}
-#endif // QT_QWS_DEPTH_8
-
-#ifdef QT_QWS_DEPTH_24
-static void blit_32_to_24(const blit_data *data)
-{
-    const int sbpl = data->img->bytesPerLine() / 4;
-    const int dbpl = data->lineStep;
-
-    const uint *src = (const uint *)data->img->bits();
-    src += data->sy * sbpl + data->sx;
-    uchar *dest = (uchar *)data->data;
-    dest += data->dy * dbpl + data->dx*3;
-
-    int h = data->h;
-    while (h) {
-        uchar *d = dest;
-        for (int i = 0; i < data->w; ++i) {
-            QRgb s = src[i];
-            *d = qBlue(s);
-            *(d+1) = qGreen(s);
-            *(d+2) = qRed(s);
-            d += 3;
-        }
-        src += sbpl;
-        dest += dbpl;
-        --h;
-    }
-}
-#endif // QT_QWS_DEPTH_24
-
-#ifdef QT_QWS_DEPTH_18
-static void blit_32_to_18(const blit_data *data)
-{
-    const int sbpl = data->img->bytesPerLine() / 4;
-    const int dbpl = data->lineStep;
-
-    const uint *src = (const uint *)data->img->bits();
-    src += data->sy * sbpl + data->sx;
-    uchar *dest = (uchar *)data->data;
-    dest += data->dy * dbpl + data->dx*3;
-
-    int h = data->h;
-    while (h) {
-        uchar *d = dest;
-        for (int i = 0; i < data->w; ++i) {
-            uint s = src[i];
-            uchar b = s & 0xff;
-            uchar g = (s >> 8) & 0xff;
-            uchar r = (s >> 16) & 0xff;
-            uint p = (b>>2) | ((g>>2) << 6) | ((r>>2) << 12);
-            *d = p & 0xff;
-            *(d+1) = (p >> 8) & 0xff;
-            *(d+2) = (p >> 16) & 0xff;
-            d+=3;
-        }
-        src += sbpl;
-        dest += dbpl;
-        --h;
-    }
-}
-#endif // QT_QWS_DEPTH_18
+#endif // Q_BIG_ENDIAN
 
 /*!
     \fn void QScreen::blit(const QImage &image, const QPoint &topLeft, const QRegion &region)
@@ -1572,71 +1516,10 @@ static void blit_32_to_18(const blit_data *data)
 */
 void QScreen::blit(const QImage &img, const QPoint &topLeft, const QRegion &reg)
 {
-    const QVector<QRect> rects = reg.rects();
     const QRect bound = (region() & QRect(topLeft, img.size())).boundingRect();
-    blit_data data;
-    data.img = &img;
-    data.data = this->data;
-    data.lineStep = lstep;
-    blitFunc func = 0;
-    switch(d) {
-#ifdef QT_QWS_DEPTH_32
-    case 32:
-#ifdef QT_QWS_DEPTH_16
-        if (img.depth() == 16)
-            func = blit_16_to_32;
-        else
-#endif
-            func = blit_32_to_32;
-        break;
-#endif
-#ifdef QT_QWS_DEPTH_24
-    case 24:
-        func = blit_32_to_24;
-        break;
-#endif
-#ifdef QT_QWS_DEPTH_18
-    case 18:
-    case 19:
-        func = blit_32_to_18;
-        break;
-#endif
-#ifdef QT_QWS_DEPTH_16
-    case 16:
-        if (img.depth() == 16)
-            func = blit_16_to_16;
-        else
-            func = blit_32_to_16;
-        break;
-#endif
-#ifdef QT_QWS_DEPTH_8
-    case 8:
-        if (img.depth() == 16)
-            func = blit_16_to_8;
-        else
-            func = blit_32_to_8;
-        break;
-#endif
-    default:
-        qCritical("QScreen::blit(): Screen depth %d not supported!", d);
-        break;
-    }
-    if (!func)
-        return;
-
     QWSDisplay::grab();
-    for (int i = 0; i < rects.size(); ++i) {
-        QRect r = rects.at(i) & bound;
-        data.w = r.width();
-        data.h = r.height();
-        if (data.w <= 0 || data.h <= 0)
-            continue;
-        data.sx = r.x() - topLeft.x();
-        data.sy = r.y() - topLeft.y();
-        data.dx = r.x() - offset().x();
-        data.dy = r.y() - offset().y();
-        func(&data);
-    }
+    d_ptr->blit(this, img, topLeft - offset(),
+                (reg & bound).translated(-topLeft));
     QWSDisplay::ungrab();
 }
 

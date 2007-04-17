@@ -293,6 +293,8 @@ private:
     void paintBackground(const QRegion &);
 
     friend void qt_solidFill_setup(QScreen*, const QColor&, const QRegion&);
+    friend void qt_blit_setup(QScreen *screen, const QImage &image,
+                              const QPoint &topLeft, const QRegion &region);
 
     QScreenPrivate *d_ptr;
 };
