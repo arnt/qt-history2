@@ -1208,15 +1208,15 @@ static bool qt_try_modal(QWidget *widget, EventRef event)
     if (QApplicationPrivate::tryModalHelper(widget, &top))
         return true;
 
-    bool block_event  = false;
+    // INVARIANT: widget is modally shaddowed within its
+    // window, and should therefore not handle the event.
+    // However, if the window is not active, the event
+    // might suggest that we should bring it to front:   
+    
+    bool block_event = false;
 
-    UInt32 /*ekind = GetEventKind(event), */eclass=GetEventClass(event);
-    switch(eclass) {
+    switch (GetEventClass(event)) {
     case kEventClassMouse:
-        if(!top->isActiveWindow())
-            top->activateWindow();
-        block_event = true;
-        break;
     case kEventClassKeyboard:
         block_event = true;
         break;
