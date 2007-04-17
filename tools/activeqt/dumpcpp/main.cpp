@@ -989,6 +989,8 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
                         case TKIND_ENUM:
                             className = "enum " + className;
                             break;
+                        default:
+                            break;
                         }
                         namespaces[libName.toLatin1()].append(className);
                         if (!qax_qualified_usertypes.contains(className))
