@@ -182,11 +182,17 @@ QImage* QWindowSurface::buffer(const QWidget *widget)
   of \a widget that have received paint events since the last resize
   of the backing store.
 
+  If \a rectangle is a null rectangle (the default), the entire widget
+  is grabbed. Otherwise, the grabbed area is limited to \a rectangle.
+
   The default implementation returns a null pixmap.
 
+  \sa QPixmap::grabWidget()
 */
-QPixmap QWindowSurface::grabWidget(const QWidget *widget) const
+QPixmap QWindowSurface::grabWidget(const QWidget *widget, const QRect &rectangle) const
 {
+    Q_UNUSED(widget);
+    Q_UNUSED(rectangle);
     return QPixmap();
 }
 
