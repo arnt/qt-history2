@@ -753,61 +753,64 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
             }
         }
         break;
-    case CE_PushButtonLabel:
-        if (const QStyleOptionButton *btn = qstyleoption_cast<const QStyleOptionButton *>(opt)) {
-            QRect ir = btn->rect;
+ case CE_PushButtonLabel:
+        if (const QStyleOptionButton *button = qstyleoption_cast<const QStyleOptionButton *>(opt)) {
+            QRect textRect = button->rect;
             uint tf = Qt::AlignVCenter | Qt::TextShowMnemonic;
-            if (!styleHint(SH_UnderlineShortcut, btn, widget))
+            if (!styleHint(SH_UnderlineShortcut, button, widget))
                 tf |= Qt::TextHideMnemonic;
 
-            if (btn->state & (State_On | State_Sunken))
-                ir.translate(pixelMetric(PM_ButtonShiftHorizontal, opt, widget),
-                             pixelMetric(PM_ButtonShiftVertical, opt, widget));
-            if (!btn->icon.isNull()) {
-                QIcon::Mode mode = btn->state & State_Enabled ? QIcon::Normal
-                                                              : QIcon::Disabled;
-                if (mode == QIcon::Normal && btn->state & State_HasFocus)
+            if (!button->icon.isNull()) {
+                //Center both icon and text
+                QRect iconRect;
+                QIcon::Mode mode = button->state & State_Enabled ? QIcon::Normal : QIcon::Disabled;
+                if (mode == QIcon::Normal && button->state & State_HasFocus)
                     mode = QIcon::Active;
                 QIcon::State state = QIcon::Off;
-                if (btn->state & State_On)
+                if (button->state & State_On)
                     state = QIcon::On;
-                QPixmap pixmap = btn->icon.pixmap(btn->iconSize, mode, state);
-                int pixw = pixmap.width();
-                int pixh = pixmap.height();
-                //Center the icon if there is no text
 
-                QPoint point;
-                if (btn->text.isEmpty()) {
-                    point = QPoint(ir.x() + ir.width() / 2 - pixw / 2,
-                                   ir.y() + ir.height() / 2 - pixh / 2);
-                } else {
-                    point = QPoint(ir.x() + 2, ir.y() + ir.height() / 2 - pixh / 2);
-                }
-                if (btn->direction == Qt::RightToLeft)
-                    point.rx() += pixw;
+                QPixmap pixmap = button->icon.pixmap(button->iconSize, mode, state);
+                int labelWidth = pixmap.width();
+                int labelHeight = pixmap.height();
+                int iconSpacing = 4;//### 4 is currently hardcoded in QPushButton::sizeHint()
 
-                if ((btn->state & (State_On | State_Sunken)) && btn->direction == Qt::RightToLeft)
-                    point.rx() -= pixelMetric(PM_ButtonShiftHorizontal, opt, widget) * 2;
+                if (!button->text.isEmpty())
+                    labelWidth += button->fontMetrics.width(button->text) + iconSpacing; 
 
-                p->drawPixmap(visualPos(btn->direction, btn->rect, point), pixmap);
-
-                if (btn->direction == Qt::RightToLeft)
-                    ir.translate(-4, 0);
+                iconRect = QRect(textRect.x() + (textRect.width() - labelWidth) / 2,
+                                 textRect.y() + (textRect.height() - labelHeight) / 2, 
+                                 pixmap.width(), pixmap.height());
+                
+                iconRect = visualRect(button->direction, textRect, iconRect);
+                
+                tf |= Qt::AlignLeft; //left align, we adjust the text-rect instead
+                
+                if (button->direction == Qt::RightToLeft)
+                    textRect.setRight(iconRect.left() - iconSpacing);
                 else
-                    ir.translate(pixw + 4, 0);
+                    textRect.setLeft(iconRect.left() + iconRect.width() + iconSpacing);
 
-                ir.setWidth(ir.width() - (pixw + 4));
-                // left-align text if there is
-                if (!btn->text.isEmpty())
-                    tf |= Qt::AlignLeft;
+                if (button->state & (State_On | State_Sunken))
+                    iconRect.translate(pixelMetric(PM_ButtonShiftHorizontal, opt, widget),
+                                       pixelMetric(PM_ButtonShiftVertical, opt, widget));
+                p->drawPixmap(iconRect, pixmap);
             } else {
                 tf |= Qt::AlignHCenter;
             }
+            if (button->state & (State_On | State_Sunken))
+                textRect.translate(pixelMetric(PM_ButtonShiftHorizontal, opt, widget),
+                             pixelMetric(PM_ButtonShiftVertical, opt, widget));
 
-            if (btn->features & QStyleOptionButton::HasMenu)
-                ir = ir.adjusted(0, 0, -pixelMetric(PM_MenuButtonIndicator, btn, widget), 0);
-            drawItemText(p, ir, tf, btn->palette, (btn->state & State_Enabled),
-                         btn->text, QPalette::ButtonText);
+            if (button->features & QStyleOptionButton::HasMenu) {
+                int indicatorSize = pixelMetric(PM_MenuButtonIndicator, button, widget);
+                if (button->direction == Qt::LeftToRight)
+                    textRect = textRect.adjusted(0, 0, -indicatorSize, 0);
+                else
+                    textRect = textRect.adjusted(indicatorSize, 0, 0, 0);
+            }
+            drawItemText(p, textRect, tf, button->palette, (button->state & State_Enabled),
+                         button->text, QPalette::ButtonText);
         }
         break;
     case CE_RadioButton:
