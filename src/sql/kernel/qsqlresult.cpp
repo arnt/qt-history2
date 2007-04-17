@@ -811,6 +811,10 @@ QSqlRecord QSqlResult::record() const
     If more than one row was touched by the insert, the behavior is
     undefined.
 
+    Note that for Oracle databases the row's ROWID will be returned,
+    while for MySQL databases the row's auto-increment field will
+    be returned.
+
     \sa QSqlDriver::hasFeature()
 */
 QVariant QSqlResult::lastInsertId() const
