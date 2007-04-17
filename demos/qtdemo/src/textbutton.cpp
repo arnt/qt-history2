@@ -47,12 +47,13 @@ protected:
         painter.setPen(Qt::NoPen);
         
         if (Colors::useEightBitPalette){
+            painter.setPen(QColor(120, 120, 120));
             if (this->pressed)
-                painter.setBrush(QColor(100, 100, 100));
+                painter.setBrush(QColor(60, 60, 60));
             else if (this->highlighted)
-                painter.setBrush(QColor(120, 120, 120));
+                painter.setBrush(QColor(100, 100, 100));
             else
-                painter.setBrush(QColor(110, 110, 110));
+                painter.setBrush(QColor(80, 80, 80));
         }
         else {
             QLinearGradient outlinebrush(0, 0, 0, scaledRect.height());
