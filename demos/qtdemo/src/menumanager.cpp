@@ -293,6 +293,7 @@ void MenuManager::createLeftMenu1(const QDomElement &el)
     
     // create out-animation:
     DemoItemAnimation *BackButtonOut = new DemoItemAnimation(backButton, DemoItemAnimation::ANIM_OUT);
+    BackButtonOut->hideOnFinished = true;
     BackButtonOut->setDuration(400 * Colors::animSpeedButtons);
     BackButtonOut->setStartPos(QPointF(xOffset, Colors::contentStartY + Colors::contentHeight - 26));
     BackButtonOut->setPosAt(1.0, QPointF(-iw, Colors::contentStartY + Colors::contentHeight - 26));
@@ -403,6 +404,7 @@ void MenuManager::createRightMenu1(const QDomElement &el)
     movie_in->append(BackButtonIn);
     
     DemoItemAnimation *BackButtonOut = new DemoItemAnimation(backButton, DemoItemAnimation::ANIM_OUT);
+    BackButtonOut->hideOnFinished = true;
     BackButtonOut->setDuration(400 * Colors::animSpeedButtons);
     BackButtonOut->setStartPos(QPointF(xOffset, Colors::contentStartY + Colors::contentHeight - 26));
     BackButtonOut->setPosAt(1.0, QPointF(-iw, Colors::contentStartY + Colors::contentHeight - 26));
