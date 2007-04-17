@@ -356,7 +356,7 @@ bool QFileDialog::restoreState(const QByteArray &state)
     QByteArray sd = state;
     QDataStream stream(&sd, QIODevice::ReadOnly);
     if (stream.atEnd())
-        return true;
+        return false;
     QByteArray splitterState;
     QByteArray headerData;
     QList<QUrl> bookmarks;
@@ -1459,7 +1459,7 @@ QString QFileDialogPrivate::workingDirectory(const QString &path)
             return info.absoluteFilePath();
         return info.absolutePath();
     }
-    return QDir::currentPath();
+    return QString();
 }
 
 /*
@@ -1611,11 +1611,19 @@ void QFileDialogPrivate::init(const QString &directory, const QString &nameFilte
     createWidgets();
     createMenuActions();
     retranslateStrings();
+    q->setFileMode(fileMode);
+
+#ifndef QT_NO_SETTINGS
+    QSettings settings(QSettings::UserScope, QLatin1String("Trolltech"));
+    settings.beginGroup(QLatin1String("Qt"));
+    if (!q->restoreState(settings.value(QLatin1String("filedialog")).toByteArray())) {
+        q->setDirectory(QDir::currentPath());
+    }
+#endif
 
     // Default case
     if (!nameFilter.isEmpty())
         q->setFilter(nameFilter);
-    q->setFileMode(fileMode);
     q->setAcceptMode(QFileDialog::AcceptOpen);
     q->setDirectory(workingDirectory(directory));
     q->selectFile(initialSelection(directory));
@@ -1624,13 +1632,6 @@ void QFileDialogPrivate::init(const QString &directory, const QString &nameFilte
 
     _q_updateOkButton();
     q->resize(q->sizeHint());
-
-#ifndef QT_NO_SETTINGS
-    QSettings settings(QSettings::UserScope, QLatin1String("Trolltech"));
-    settings.beginGroup(QLatin1String("Qt"));
-    q->restoreState(settings.value(QLatin1String("filedialog")).toByteArray());
-#endif
-
 }
 
 /*!
