@@ -7,5 +7,4 @@ SOURCES		= main.cpp \
 unix:!contains( LIBS, .*db2.* ):LIBS 	*= -ldb2
 win32:!contains( LIBS, .*db2.* ):LIBS   *= -ldb2cli
 
-
 include(../qsqldriverbase.pri)
