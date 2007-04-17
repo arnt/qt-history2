@@ -82,7 +82,6 @@ private slots:
     void setGlobalCaCertificates();
     void setGlobalCiphers();
     void supportedCiphers();
-    void supportsSsl();
     void systemCaCertificates();
 
     static void exitLoop()
@@ -141,6 +140,9 @@ void tst_QSslSocket::cleanup()
 
 void tst_QSslSocket::constructing()
 {
+    if (!QSslSocket::supportsSsl())
+        return;
+
     QSslSocket socket;
 
     QCOMPARE(socket.state(), QSslSocket::UnconnectedState);
@@ -202,6 +204,9 @@ void tst_QSslSocket::constructing()
 
 void tst_QSslSocket::simpleConnect()
 {
+    if (!QSslSocket::supportsSsl())
+        return;
+
     QSslSocket socket;
     QSignalSpy connectedSpy(&socket, SIGNAL(connected()));
     QSignalSpy hostFoundSpy(&socket, SIGNAL(hostFound()));
@@ -253,6 +258,9 @@ void tst_QSslSocket::simpleConnect()
 
 void tst_QSslSocket::simpleConnectWithIgnore()
 {
+    if (!QSslSocket::supportsSsl())
+        return;
+
     QSslSocket socket;
     this->socket = &socket;
     QSignalSpy encryptedSpy(&socket, SIGNAL(encrypted()));
@@ -291,18 +299,27 @@ void tst_QSslSocket::simpleConnectWithIgnore()
 
 void tst_QSslSocket::addCaCertificate()
 {
+    if (!QSslSocket::supportsSsl())
+        return;
 }
 
 void tst_QSslSocket::addCaCertificates()
 {
+    if (!QSslSocket::supportsSsl())
+        return;
 }
 
 void tst_QSslSocket::addCaCertificates2()
 {
+    if (!QSslSocket::supportsSsl())
+        return;
 }
 
 void tst_QSslSocket::ciphers()
 {
+    if (!QSslSocket::supportsSsl())
+        return;
+
     QSslSocket socket;
     QCOMPARE(socket.ciphers(), QSslSocket::supportedCiphers());
     socket.setCiphers(QList<QSslCipher>());
@@ -315,6 +332,9 @@ void tst_QSslSocket::ciphers()
 
 void tst_QSslSocket::connectToHostEncrypted()
 {
+    if (!QSslSocket::supportsSsl())
+        return;
+
     QSslSocket socket;
 
     socket.addGlobalCaCertificates(QLatin1String("certs/fluke.ca.pem"));
@@ -337,6 +357,9 @@ void tst_QSslSocket::connectToHostEncrypted()
 
 void tst_QSslSocket::currentCipher()
 {
+    if (!QSslSocket::supportsSsl())
+        return;
+
     QSslSocket socket;
     this->socket = &socket;
     connect(&socket, SIGNAL(sslErrors(QList<QSslError>)), this, SLOT(ignoreErrorSlot()));
@@ -382,6 +405,9 @@ void tst_QSslSocket::privateKey()
 
 void tst_QSslSocket::protocol()
 {
+    if (!QSslSocket::supportsSsl())
+        return;
+
     QSslSocket socket;
     QCOMPARE(socket.protocol(), QSslSocket::SslV3);
     {
@@ -411,6 +437,9 @@ void tst_QSslSocket::protocol()
 
 void tst_QSslSocket::setCaCertificates()
 {
+    if (!QSslSocket::supportsSsl())
+        return;
+
     QSslSocket socket;
     QCOMPARE(socket.caCertificates(), QSslSocket::globalCaCertificates());
     socket.setCaCertificates(QSslCertificate::fromPath("certs/fluke.ca.pem"));
@@ -462,6 +491,9 @@ protected slots:
 void tst_QSslSocket::setSocketDescriptor()
 {
     /*
+    if (!QSslSocket::supportsSsl())
+        return;
+
     SslServer server;
     QVERIFY(server.listen());
 
@@ -484,6 +516,9 @@ void tst_QSslSocket::setSocketDescriptor()
 
 void tst_QSslSocket::waitForEncrypted()
 {
+    if (!QSslSocket::supportsSsl())
+        return;
+
     QSslSocket socket;
     this->socket = &socket;
 
@@ -503,6 +538,9 @@ void tst_QSslSocket::startServerHandShake()
 
 void tst_QSslSocket::addGlobalCaCertificate()
 {
+    if (!QSslSocket::supportsSsl())
+        return;
+
     // Reset the global CA chain
     QSslSocket::setGlobalCaCertificates(QSslSocket::systemCaCertificates());
 
@@ -528,6 +566,9 @@ void tst_QSslSocket::addGlobalCaCertificates2()
 
 void tst_QSslSocket::globalCaCertificates()
 {
+    if (!QSslSocket::supportsSsl())
+        return;
+
     QList<QSslCertificate> certs = QSslSocket::globalCaCertificates();
     QVERIFY(certs.size() > 1);
     QCOMPARE(certs, QSslSocket::systemCaCertificates());
@@ -551,6 +592,9 @@ void tst_QSslSocket::setGlobalCiphers()
 
 void tst_QSslSocket::supportedCiphers()
 {
+    if (!QSslSocket::supportsSsl())
+        return;
+
     QList<QSslCipher> ciphers = QSslSocket::supportedCiphers();
     QVERIFY(ciphers.size() > 1);
 
@@ -560,13 +604,11 @@ void tst_QSslSocket::supportedCiphers()
     QCOMPARE(socket.ciphers(), ciphers);
 }
 
-void tst_QSslSocket::supportsSsl()
-{
-    QVERIFY(QSslSocket::supportsSsl());
-}
-
 void tst_QSslSocket::systemCaCertificates()
 {
+    if (!QSslSocket::supportsSsl())
+        return;
+
     QList<QSslCertificate> certs = QSslSocket::systemCaCertificates();
     QVERIFY(certs.size() > 1);
     QCOMPARE(certs, QSslSocket::globalCaCertificates());
