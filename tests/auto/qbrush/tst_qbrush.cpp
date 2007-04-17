@@ -142,12 +142,12 @@ void tst_QBrush::testQRadialGradientSetters()
 {
     QRadialGradient rg;
 
-    QCOMPARE(rg.radius(), 1.0);
+    QCOMPARE(rg.radius(), qreal(1.0));
     QCOMPARE(rg.center(), QPointF(0, 0));
     QCOMPARE(rg.focalPoint(), QPointF(0, 0));
 
     rg.setRadius(100);
-    QCOMPARE(rg.radius(), 100.0);
+    QCOMPARE(rg.radius(), qreal(100.0));
 
     rg.setCenter(101, 102);
     QCOMPARE(rg.center(), QPointF(101, 102));
@@ -166,11 +166,11 @@ void tst_QBrush::testQConicalGradientSetters()
 {
     QConicalGradient cg;
 
-    QCOMPARE(cg.angle(), 0.0);
+    QCOMPARE(cg.angle(), qreal(0.0));
     QCOMPARE(cg.center(), QPointF(0, 0));
 
     cg.setAngle(100);
-    QCOMPARE(cg.angle(), 100.0);
+    QCOMPARE(cg.angle(), qreal(100.0));
 
     cg.setCenter(102, 103);
     QCOMPARE(cg.center(), QPointF(102, 103));
