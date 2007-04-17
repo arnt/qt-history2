@@ -272,7 +272,6 @@ public:
     bool autoScroll;
     QBasicTimer autoScrollTimer;
     int autoScrollMargin;
-    int autoScrollInterval;
     int autoScrollCount;
 
     bool alternatingColors;

@@ -52,7 +52,6 @@ QAbstractItemViewPrivate::QAbstractItemViewPrivate()
 #endif
         autoScroll(true),
         autoScrollMargin(16),
-        autoScrollInterval(50),
         autoScrollCount(0),
         alternatingColors(false),
         textElideMode(Qt::ElideRight),
@@ -3066,7 +3065,9 @@ QPoint QAbstractItemView::dirtyRegionOffset() const
 void QAbstractItemView::startAutoScroll()
 {
     Q_D(QAbstractItemView);
-    d->autoScrollTimer.start(d->autoScrollInterval, this);
+    // ### it would be nice to make this into a style hint one day
+    int scrollInterval = (verticalScrollMode() == QAbstractItemView::ScrollPerItem) ? 150 : 50;
+    d->autoScrollTimer.start(scrollInterval, this);
     d->autoScrollCount = 0;
 }
 
