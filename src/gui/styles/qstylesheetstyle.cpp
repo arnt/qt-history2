@@ -1051,7 +1051,6 @@ public:
     QString attribute(NodePtr node, const QString& name) const
     {
         QVariant value = WIDGET(node)->property(name.toLatin1());
-        qDebug() << WIDGET(node) << name << value;
         if (!value.isValid()) {
             if (name == QLatin1String("class")) {
                 return QString::fromLatin1(WIDGET(node)->metaObject()->className());
