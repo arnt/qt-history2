@@ -11,6 +11,7 @@
 #include <QtNetwork/qnetworkproxy.h>
 #include <QtNetwork/qsslcipher.h>
 #include <QtNetwork/qsslsocket.h>
+#include <QtNetwork/qtcpserver.h>
 #include <QtTest/QtTest>
 
 Q_DECLARE_METATYPE(QAbstractSocket::SocketState)
@@ -324,6 +325,14 @@ void tst_QSslSocket::connectToHostEncrypted()
 
     socket.disconnectFromHost();
     QVERIFY(socket.waitForDisconnected());
+
+    QCOMPARE(socket.mode(), QSslSocket::SslClientMode);
+
+    socket.connectToHost("fluke.troll.no", 13);
+
+    QCOMPARE(socket.mode(), QSslSocket::PlainMode);
+
+    QVERIFY(socket.waitForDisconnected());
 }
 
 void tst_QSslSocket::currentCipher()
@@ -422,8 +431,55 @@ void tst_QSslSocket::setProtocol()
 {
 }
 
+class SslServer : public QTcpServer
+{
+    Q_OBJECT
+public:
+    SslServer() : socket(0) { }
+    QSslSocket *socket;
+
+protected:
+    void incomingConnection(int socketDescriptor)
+    {
+        socket = new QSslSocket;
+        connect(socket, SIGNAL(sslErrors(const QList<QSslError> &)), this, SLOT(ignoreErrorSlot()));
+
+        QList<QSslCertificate> localCert = QSslCertificate::fromPath("qsslsocket.pem");
+        QVERIFY(!localCert.isEmpty());
+        socket->setLocalCertificate(localCert.first());
+
+        QVERIFY(socket->setSocketDescriptor(socketDescriptor, QAbstractSocket::ConnectedState));
+        socket->startServerHandShake();
+    }
+
+protected slots:
+    void ignoreErrorSlot()
+    {
+        socket->ignoreSslErrors();
+    }
+};
+
 void tst_QSslSocket::setSocketDescriptor()
 {
+    /*
+    SslServer server;
+    QVERIFY(server.listen());
+
+    QEventLoop loop;
+    QTimer::singleShot(5000, &loop, SLOT(quit()));
+
+    QSslSocket *client = new QSslSocket;
+    socket = client;
+    connect(socket, SIGNAL(sslErrors(const QList<QSslError> &)), this, SLOT(ignoreErrorSlot()));
+    connect(client, SIGNAL(encrypted()), &loop, SLOT(quit()));
+
+    client->connectToHostEncrypted(QHostAddress(QHostAddress::LocalHost).toString(), server.serverPort());
+
+    loop.exec();
+
+    QCOMPARE(client->state(), QAbstractSocket::ConnectedState);
+    QVERIFY(client->isEncrypted());
+    */
 }
 
 void tst_QSslSocket::waitForEncrypted()

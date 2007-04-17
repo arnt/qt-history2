@@ -250,23 +250,27 @@ bool QSslSocketBackendPrivate::initSslContext()
     // Register a custom callback to get all verification errors.
     X509_STORE_set_verify_cb_func(ctx->cert_store, q_X509Callback);
 
-    // Load private key
-    /*
-      if (!SSL_CTX_use_PrivateKey_file(d->ctx, QFile::encodeName(d->key).constData(), SSL_FILETYPE_PEM)) {
-      setErrorString(tr("Error loading private key, %1").arg(SSL_ERRORSTR()));
-      emit error(UnknownSocketError);
-            return false;
-            }
-    */
+    if (!localCertificate.isNull()) {
+        /*
+        q_SSL_CTX_use_certificate(ctx, (X509 *)localCertificate.handle());
 
-    // Check if the certificate matches the private key.
-    /*
-      if  (!SSL_CTX_check_private_key(d->ctx)) {
-      setErrorString(tr("Private key do not certificate public key, %1").arg(SSL_ERRORSTR()));
-      emit error(UnknownSocketError);
-      return false;
-      }
-    */
+        // Load private key
+        if (!q_SSL_CTX_use_PrivateKey(ctx, privateKey.handle())) {
+            q->setErrorString(QSslSocket::tr("Error loading private key, %1").arg(SSL_ERRORSTR()));
+            qDebug() << q->errorString();
+            emit q->error(QAbstractSocket::UnknownSocketError);
+            return false;
+        }
+
+        // Check if the certificate matches the private key.
+        if (!q_SSL_CTX_check_private_key(ctx)) {
+            q->setErrorString(QSslSocket::tr("Private key do not certificate public key, %1").arg(SSL_ERRORSTR()));
+            qDebug() << q->errorString();
+            emit q->error(QAbstractSocket::UnknownSocketError);
+            return false;
+        }
+        */
+    }
 
     // Create and initialize SSL session
     if (!(ssl = q_SSL_new(ctx))) {
@@ -586,6 +590,7 @@ bool QSslSocketBackendPrivate::testConnection()
             q->setErrorString(QSslSocket::tr("Error during SSL handshake: %1").arg(SSL_ERRORSTR()));
             q->setSocketError(QAbstractSocket::UnknownSocketError);
             emit q->error(QAbstractSocket::UnknownSocketError);
+            q->abort();
         }
         return false;
     }

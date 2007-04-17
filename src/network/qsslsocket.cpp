@@ -293,9 +293,8 @@ void QSslSocket::connectToHostEncrypted(const QString &hostName, quint16 port, O
         return;
     }
 
-    d->init();
-    d->autoStartHandShake = true;
     connectToHost(hostName, port, mode);
+    d->autoStartHandShake = true;
 }
 
 /*!
@@ -1122,6 +1121,7 @@ void QSslSocket::connectToHostImplementation(const QString &hostName, quint16 po
                                              OpenMode openMode)
 {
     Q_D(QSslSocket);
+    d->init();
 #ifdef QSSLSOCKET_DEBUG
     qDebug() << "QSslSocket::connectToHostImplementation("
              << hostName << "," << port << "," << openMode << ")";
