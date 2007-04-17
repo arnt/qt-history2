@@ -40,6 +40,8 @@ QT_MODULE(Network)
 #ifndef QT_NO_OPENSSL
 
 template <typename A, typename B> struct QPair;
+
+class QIODevice;
     
 class QSslKeyPrivate;
 class Q_NETWORK_EXPORT QSslKey

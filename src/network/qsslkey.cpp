@@ -47,6 +47,7 @@
 #include "qsslsocket_p.h"
 
 #include <QtCore/qbytearray.h>
+#include <QtCore/qiodevice.h>
 #ifndef QT_NO_DEBUG
 #include <QtCore/qdebug.h>
 #endif
