@@ -387,10 +387,11 @@ Qt::WindowFlags QWSWindow::windowFlags() const
 }
 
 /*
-  Returns the region that has been repainted since the previous QScreen::exposeRegion().
+  Returns the region that has been repainted since the previous
+  QScreen::exposeRegion(), and needs to be copied to the screen.
   \since 4.3
 */
-QRegion QWSWindow::newlyRepainted() const
+QRegion QWSWindow::dirtyOnScreen() const
 {
     return d->dirtyOnScreen;
 }
@@ -3614,7 +3615,7 @@ void QWSServerPrivate::request_region(int wid, const QString &surfaceKey,
         windowState = QWSWindow::Hiding;
     } else {
         if (changingw->isVisible())
-            windowState = QWSWindow::GeometryChanging;
+            windowState = QWSWindow::ChangingGeometry;
         else
             windowState = QWSWindow::Showing;
     }
