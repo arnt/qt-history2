@@ -124,13 +124,13 @@ void tst_QColor::getSetCheck()
     // qreal QColor::alphaF()
     // void QColor::setAlphaF(qreal)
     obj1.setAlphaF(0.0);
-    QCOMPARE(obj1.alphaF(), 0.0); // range<0.0, 1.0>
+    QCOMPARE(obj1.alphaF(), qreal(0.0)); // range<0.0, 1.0>
     obj1.setAlphaF(-0.2);
-    QCOMPARE(obj1.alphaF(), 0.0); // range<0.0, 1.0>
+    QCOMPARE(obj1.alphaF(), qreal(0.0)); // range<0.0, 1.0>
     obj1.setAlphaF(1.0);
-    QCOMPARE(obj1.alphaF(), 1.0); // range<0.0, 1.0>
+    QCOMPARE(obj1.alphaF(), qreal(1.0)); // range<0.0, 1.0>
     obj1.setAlphaF(1.1);
-    QCOMPARE(obj1.alphaF(), 1.0); // range<0.0, 1.0>
+    QCOMPARE(obj1.alphaF(), qreal(1.0)); // range<0.0, 1.0>
 
     // int QColor::red()
     // void QColor::setRed(int)
@@ -174,29 +174,29 @@ void tst_QColor::getSetCheck()
     // qreal QColor::redF()
     // void QColor::setRedF(qreal)
     obj1.setRedF(0.0);
-    QCOMPARE(obj1.redF(), 0.0);
+    QCOMPARE(obj1.redF(), qreal(0.0));
     obj1.setRedF(-0.2);
-    QCOMPARE(obj1.redF(), 0.0); // range<0.0, 1.0
+    QCOMPARE(obj1.redF(), qreal(0.0)); // range<0.0, 1.0
     obj1.setRedF(1.1);
-    QCOMPARE(obj1.redF(), 1.0); // range<0.0, 1.0
+    QCOMPARE(obj1.redF(), qreal(1.0)); // range<0.0, 1.0
 
     // qreal QColor::greenF()
     // void QColor::setGreenF(qreal)
     obj1.setGreenF(0.0);
-    QCOMPARE(obj1.greenF(), 0.0);
+    QCOMPARE(obj1.greenF(), qreal(0.0));
     obj1.setGreenF(-0.2);
-    QCOMPARE(obj1.greenF(), 0.0); // range<0.0, 1.0
+    QCOMPARE(obj1.greenF(), qreal(0.0)); // range<0.0, 1.0
     obj1.setGreenF(1.1);
-    QCOMPARE(obj1.greenF(), 1.0); // range<0.0, 1.0
+    QCOMPARE(obj1.greenF(), qreal(1.0)); // range<0.0, 1.0
 
     // qreal QColor::blueF()
     // void QColor::setBlueF(qreal)
     obj1.setBlueF(0.0);
-    QCOMPARE(obj1.blueF(), 0.0);
+    QCOMPARE(obj1.blueF(), qreal(0.0));
     obj1.setBlueF(-0.2);
-    QCOMPARE(obj1.blueF(), 0.0); // range<0.0, 1.0
+    QCOMPARE(obj1.blueF(), qreal(0.0)); // range<0.0, 1.0
     obj1.setBlueF(1.1);
-    QCOMPARE(obj1.blueF(), 1.0); // range<0.0, 1.0
+    QCOMPARE(obj1.blueF(), qreal(1.0)); // range<0.0, 1.0
 
     // QRgb QColor::rgba()
     // void QColor::setRgba(QRgb)
@@ -549,8 +549,8 @@ void tst_QColor::setRed()
     c = QColor(Qt::blue).toHsv();
     c.setRedF(0.5);
     QVERIFY(veryFuzzyCompare(c.redF(), 0.5));
-    QCOMPARE(c.greenF(), 0.0);
-    QCOMPARE(c.blueF(), 1.0);
+    QCOMPARE(c.greenF(), qreal(0.0));
+    QCOMPARE(c.blueF(), qreal(1.0));
 }
 
 void tst_QColor::setGreen()
@@ -565,9 +565,9 @@ void tst_QColor::setGreen()
 
     c = QColor(Qt::blue).toHsv();
     c.setGreenF(0.5);
-    QCOMPARE(c.redF(), 0.0);
+    QCOMPARE(c.redF(), qreal(0.0));
     QVERIFY(veryFuzzyCompare(c.greenF(), 0.5));
-    QCOMPARE(c.blueF(), 1.0);
+    QCOMPARE(c.blueF(), qreal(1.0));
 }
 
 void tst_QColor::setBlue()
@@ -582,8 +582,8 @@ void tst_QColor::setBlue()
 
     c = QColor(Qt::red).toHsv();
     c.setBlueF(0.5);
-    QCOMPARE(c.redF(), 1.0);
-    QCOMPARE(c.greenF(), 0.0);
+    QCOMPARE(c.redF(), qreal(1.0));
+    QCOMPARE(c.greenF(), qreal(0.0));
     QVERIFY(veryFuzzyCompare(c.blueF(), 0.5));
 }
 
@@ -618,7 +618,7 @@ void tst_QColor::setRgb()
 
         {
             // 0.0-1.0
-            double a = A / double(USHRT_MAX);
+            qreal a = A / qreal(USHRT_MAX);
             color.setRgbF(0.0, 0.0, 0.0, a);
             QCOMPARE(color.alphaF(), a);
 
@@ -654,7 +654,7 @@ void tst_QColor::setRgb()
 
         {
             // 0.0-1.0
-            double r = R / double(USHRT_MAX);
+            qreal r = R / qreal(USHRT_MAX);
             color.setRgbF(r, 0.0, 0.0);
             QCOMPARE(color.redF(), r);
 
@@ -685,7 +685,7 @@ void tst_QColor::setRgb()
 
         {
             // 0.0-1.0
-            double g = G / double(USHRT_MAX);
+            qreal g = G / qreal(USHRT_MAX);
             color.setRgbF(0.0, g, 0.0);
             QCOMPARE(color.greenF(), g);
 
@@ -716,7 +716,7 @@ void tst_QColor::setRgb()
 
         {
             // 0.0-1.0
-            double b = B / double(USHRT_MAX);
+            qreal b = B / qreal(USHRT_MAX);
             color.setRgbF(0.0, 0.0, b);
             QCOMPARE(color.blueF(), b);
 
@@ -776,7 +776,7 @@ void tst_QColor::setHsv()
 
         {
             // 0.0-1.0
-            double a = A / double(USHRT_MAX);
+            qreal a = A / qreal(USHRT_MAX);
             color.setHsvF(0.0, 0.0, 0.0, a); QCOMPARE(color.alphaF(), a);
 
             qreal h, s, v, a2;
@@ -824,7 +824,7 @@ void tst_QColor::setHsv()
 
         {
             // 0.0-1.0
-            double s = S / double(USHRT_MAX);
+            qreal s = S / qreal(USHRT_MAX);
             color.setHsvF(0.0, s, 0.0, 0.0);
             QCOMPARE(color.saturationF(), s);
 
@@ -848,7 +848,7 @@ void tst_QColor::setHsv()
 
         {
             // 0.0-1.0
-            double v = V / double(USHRT_MAX);
+            qreal v = V / qreal(USHRT_MAX);
             color.setHsvF(0.0, 0.0, v, 0.0);
             QCOMPARE(color.valueF(), v);
 
@@ -892,7 +892,7 @@ void tst_QColor::setCmyk()
 
         {
             // 0.0-1.0
-            double a = A / double(USHRT_MAX);
+            qreal a = A / qreal(USHRT_MAX);
             color.setCmykF(0.0, 0.0, 0.0, 0.0, a);
             QCOMPARE(color.alphaF(), a);
 
@@ -916,7 +916,7 @@ void tst_QColor::setCmyk()
 
         {
             // 0.0-1.0
-            double c = C / double(USHRT_MAX);
+            qreal c = C / qreal(USHRT_MAX);
             color.setCmykF(c, 0.0, 0.0, 0.0, 0.0);
             QCOMPARE(color.cyanF(), c);
 
@@ -940,7 +940,7 @@ void tst_QColor::setCmyk()
 
         {
             // 0.0-1.0
-            double m = M / double(USHRT_MAX);
+            qreal m = M / qreal(USHRT_MAX);
             color.setCmykF(0.0, m, 0.0, 0.0, 0.0);
             QCOMPARE(color.magentaF(), m);
 
@@ -964,7 +964,7 @@ void tst_QColor::setCmyk()
 
         {
             // 0.0-1.0
-            double y = Y / double(USHRT_MAX);
+            qreal y = Y / qreal(USHRT_MAX);
             color.setCmykF(0.0, 0.0, y, 0.0, 0.0);
             QCOMPARE(color.yellowF(), y);
 
@@ -988,7 +988,7 @@ void tst_QColor::setCmyk()
 
         {
             // 0.0-1.0
-            double k = K / double(USHRT_MAX);
+            qreal k = K / qreal(USHRT_MAX);
             color.setCmykF(0.0, 0.0, 0.0, k, 0.0);
             QCOMPARE(color.blackF(), k);
 
