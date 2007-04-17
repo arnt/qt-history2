@@ -75,6 +75,15 @@ public:
         AutoOwnership
     };
 
+    enum QObjectWrapOption {
+        ExcludeChildObjects = 0x0001,
+        ExcludeSuperClassMethods = 0x0002,
+        ExcludeSuperClassProperties = 0x0004,
+
+        AutoCreateDynamicProperties = 0x0100
+    };
+    Q_DECLARE_FLAGS(QObjectWrapOptions, QObjectWrapOption)
+
     QScriptEngine();
 #ifndef QT_NO_QOBJECT
     explicit QScriptEngine(QObject *parent);
@@ -115,7 +124,8 @@ public:
     QScriptValue newActivationObject();
 
 #ifndef QT_NO_QOBJECT
-    QScriptValue newQObject(QObject *object, ValueOwnership ownership = QtOwnership);
+    QScriptValue newQObject(QObject *object, ValueOwnership ownership = QtOwnership,
+                            const QObjectWrapOptions &options = 0);
 
     QScriptValue newQMetaObject(const QMetaObject *metaObject, const QScriptValue &ctor = QScriptValue());
 

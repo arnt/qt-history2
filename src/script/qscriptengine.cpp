@@ -61,10 +61,10 @@
   Use newQObject() to wrap a QObject (or subclass) pointer, and
   newQMetaObject() to wrap a QMetaObject. When wrapping a QObject
   pointer with newQObject(), properties, children and signals and
-  slots of the object will then become available to script code as
-  properties of the created QScriptValue.  No binding code is needed
-  because it is done dynamically using the Qt meta object system. See
-  the \l{QtScript} documentation for more information.
+  slots of the QObject will then become available to script code as
+  properties of the created Qt Script object.  No binding code is
+  needed because it is done dynamically using the Qt meta object
+  system. See the \l{QtScript} documentation for more information.
 
   Use newFunction() to wrap native (C++) functions, including
   constructors for your own custom types.
@@ -137,6 +137,17 @@
     \value QtOwnership The standard Qt ownership rules apply, i.e. the associated object will never be explicitly deleted by the script engine. This is the default. (QObject ownership is explained in \l{Object Trees and Object Ownership}.)
     \value ScriptOwnership The value is owned by the script environment. The associated data will be deleted when appropriate (i.e. after the garbage collector has discovered that there are no more live references to the value).
     \value AutoOwnership If the associated object has a parent, the Qt ownership rules apply (QtOwnership); otherwise, the object is owned by the script environment (ScriptOwnership).
+*/
+
+/*!
+    \enum  QScriptEngine::QObjectWrapOption
+
+    These flags specify options when wrapping a QObject pointer with newQObject().
+
+    \value ExcludeChildObjects The script object will not expose child objects as properties.
+    \value ExcludeSuperClassMethods The script object will not expose signals and slots inherited from the superclass.
+    \value ExcludeSuperClassProperties The script object will not expose properties inherited from the superclass.
+    \value AutoCreateDynamicProperties Properties that don't already exist in the QObject will be created as dynamic properties of that object, rather than as properties of the script object.
 */
 
 #ifdef QT_NO_QOBJECT
@@ -340,7 +351,7 @@ QScriptValue QScriptEngine::newFunction(QScriptEngine::FunctionSignature fun,
 
 #ifndef QT_NO_REGEXP
 /*!
-  Creates a QScriptValue object of class RegExp with the given
+  Creates a QtScript object of class RegExp with the given
   \a regexp.
 
   \sa QScriptValue::toRegExp()
@@ -356,7 +367,7 @@ QScriptValue QScriptEngine::newRegExp(const QRegExp &regexp)
 #endif // QT_NO_REGEXP
 
 /*!
-  Returns a QScriptValue holding the given variant \a value.
+  Creates a QtScript object holding the given variant \a value.
 
   If a default prototype has been registered with the meta type id of
   \a value, then the prototype of the created object will be that
@@ -373,8 +384,9 @@ QScriptValue QScriptEngine::newVariant(const QVariant &value)
 
 #ifndef QT_NO_QOBJECT
 /*!
-  Returns a QScriptValue that wraps the given QObject \a object,
-  using the given \a ownership.
+  Creates a QtScript object that wraps the given QObject \a
+  object, using the given \a ownership. The given \a options control
+  various aspects of the interaction with the resulting script object.
 
   Signals and slots, properties and children of \a object are
   available as properties of the created QScriptValue. For more
@@ -384,16 +396,17 @@ QScriptValue QScriptEngine::newVariant(const QVariant &value)
 
   \sa QScriptValue::toQObject()
 */
-QScriptValue QScriptEngine::newQObject(QObject *object, ValueOwnership ownership)
+QScriptValue QScriptEngine::newQObject(QObject *object, ValueOwnership ownership,
+                                       const QObjectWrapOptions &options)
 {
     Q_D(QScriptEngine);
-    return d->newQObject(object, ownership);
+    return d->newQObject(object, ownership, options);
 }
 
 #endif // QT_NO_QOBJECT
 
 /*!
-  Creates a QScriptValue object of class Object.
+  Creates a QtScript object of class Object.
 
   The prototype of the created object will be the Object
   prototype object.
@@ -488,7 +501,7 @@ QScriptValue QScriptEngine::newFunction(QScriptEngine::FunctionSignature fun, in
 
 
 /*!
-  Creates a QScriptValue object of class Array with the given \a length.
+  Creates a QtScript object of class Array with the given \a length.
 
   \sa newObject()
 */
@@ -503,7 +516,7 @@ QScriptValue QScriptEngine::newArray(uint length)
 }
 
 /*!
-  Creates a QScriptValue object of class RegExp with the given
+  Creates a QtScript object of class RegExp with the given
   \a pattern and \a flags.
 */
 QScriptValue QScriptEngine::newRegExp(const QString &pattern, const QString &flags)
@@ -515,7 +528,7 @@ QScriptValue QScriptEngine::newRegExp(const QString &pattern, const QString &fla
 }
 
 /*!
-  Creates a QScriptValue object of class Date with the given
+  Creates a QtScript object of class Date with the given
   \a value (the number of milliseconds since 01 January 1970,
   UTC).
 */
@@ -528,8 +541,7 @@ QScriptValue QScriptEngine::newDate(qsreal value)
 }
 
 /*!
-  Creates a QScriptValue object of class Date from the given
-  \a value.
+  Creates a QtScript object of class Date from the given \a value.
 
   \sa QScriptValue::toDateTime()
 */
@@ -543,7 +555,7 @@ QScriptValue QScriptEngine::newDate(const QDateTime &value)
 
 #ifndef QT_NO_QOBJECT
 /*!
-  Creates a QScriptValue that represents a QObject class, using the
+  Creates a QtScript object that represents a QObject class, using the
   the given \a metaObject and constructor \a ctor.
 
   Enums of \a metaObject are available as properties of the created

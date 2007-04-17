@@ -337,7 +337,9 @@ private slots:
     void findChild();
     void findChildren();
     void overloadedSlots();
+    void enumerate_data();
     void enumerate();
+    void wrapOptions();
 
 private:
     QScriptEngine *m_engine;
@@ -1271,39 +1273,101 @@ void tst_QScriptExtQObject::overloadedSlots()
     QCOMPARE(m_myObject->qtFunctionInvoked(), 35);
 }
 
+void tst_QScriptExtQObject::enumerate_data()
+{
+    QTest::addColumn<int>("wrapOptions");
+    QTest::addColumn<QStringList>("expectedNames");
+
+    QTest::newRow( "enumerate all" )
+        << 0
+        << (QStringList()
+            // meta-object-defined properties:
+            //   inherited
+            << "objectName"
+            //   non-inherited
+            << "p1" << "p2" << "p4" << "p6"
+            // dynamic properties
+            << "dp1" << "dp2" << "dp3"
+            // inherited slots
+            << "destroyed(QObject*)" << "destroyed()"
+            << "deleteLater()"
+            // not included because it's private:
+            // << "_q_reregisterTimers(void*)"
+            // signals
+            << "mySignal()"
+            // slots
+            << "mySlot()" << "myOtherSlot()");
+
+    QTest::newRow( "don't enumerate inherited properties" )
+        << int(QScriptEngine::ExcludeSuperClassProperties)
+        << (QStringList()
+            // meta-object-defined properties:
+            //   non-inherited
+            << "p1" << "p2" << "p4" << "p6"
+            // dynamic properties
+            << "dp1" << "dp2" << "dp3"
+            // inherited slots
+            << "destroyed(QObject*)" << "destroyed()"
+            << "deleteLater()"
+            // not included because it's private:
+            // << "_q_reregisterTimers(void*)"
+            // signals
+            << "mySignal()"
+            // slots
+            << "mySlot()" << "myOtherSlot()");
+
+    QTest::newRow( "don't enumerate inherited methods" )
+        << int(QScriptEngine::ExcludeSuperClassMethods)
+        << (QStringList()
+            // meta-object-defined properties:
+            //   inherited
+            << "objectName"
+            //   non-inherited
+            << "p1" << "p2" << "p4" << "p6"
+            // dynamic properties
+            << "dp1" << "dp2" << "dp3"
+            // signals
+            << "mySignal()"
+            // slots
+            << "mySlot()" << "myOtherSlot()");
+
+    QTest::newRow( "don't enumerate inherited members" )
+        << int(QScriptEngine::ExcludeSuperClassMethods
+               | QScriptEngine::ExcludeSuperClassProperties)
+        << (QStringList()
+            // meta-object-defined properties
+            << "p1" << "p2" << "p4" << "p6"
+            // dynamic properties
+            << "dp1" << "dp2" << "dp3"
+            // signals
+            << "mySignal()"
+            // slots
+            << "mySlot()" << "myOtherSlot()");
+}
+
 void tst_QScriptExtQObject::enumerate()
 {
+    QFETCH( int, wrapOptions );
+    QFETCH( QStringList, expectedNames );
+
     QScriptEngine eng;
     MyEnumTestQObject enumQObject;
     // give it some dynamic properties
     enumQObject.setProperty("dp1", "dp1");
     enumQObject.setProperty("dp2", "dp2");
     enumQObject.setProperty("dp3", "dp3");
-    QScriptValue obj = eng.newQObject(&enumQObject);
-    QStringList expected;
-    expected
-        // meta-object-defined properties
-        << "objectName" << "p1" << "p2" << "p4" << "p6"
-        // dynamic properties
-        << "dp1" << "dp2" << "dp3"
-        // inherited slots
-        << "destroyed(QObject*)" << "destroyed()"
-        << "deleteLater()"
-        // not included because it's private:
-        // << "_q_reregisterTimers(void*)"
-        // signals
-        << "mySignal()"
-        // slots
-        << "mySlot()" << "myOtherSlot()";
+    QScriptValue obj = eng.newQObject(&enumQObject, QScriptEngine::QtOwnership,
+                                      QScriptEngine::QObjectWrapOptions(wrapOptions));
+
     // enumerate in script
     {
         eng.globalObject().setProperty("myEnumObject", obj);
         eng.evaluate("var enumeratedProperties = []");
         eng.evaluate("for (var p in myEnumObject) { enumeratedProperties.push(p); }");
         QStringList result = qscriptvalue_cast<QStringList>(eng.evaluate("enumeratedProperties"));
-        QCOMPARE(result.size(), expected.size());
-        for (int i = 0; i < expected.size(); ++i)
-            QCOMPARE(result.at(i), expected.at(i));
+        QCOMPARE(result.size(), expectedNames.size());
+        for (int i = 0; i < expectedNames.size(); ++i)
+            QCOMPARE(result.at(i), expectedNames.at(i));
     }
     // enumerate in C++
     {
@@ -1312,10 +1376,77 @@ void tst_QScriptExtQObject::enumerate()
         while (it.hasNext()) {
             result.append(it.next());
         }
-        QCOMPARE(result.size(), expected.size());
-        for (int i = 0; i < expected.size(); ++i)
-            QCOMPARE(result.at(i), expected.at(i));
+        QCOMPARE(result.size(), expectedNames.size());
+        for (int i = 0; i < expectedNames.size(); ++i)
+            QCOMPARE(result.at(i), expectedNames.at(i));
     }
+}
+
+void tst_QScriptExtQObject::wrapOptions()
+{
+    QCOMPARE(m_myObject->setProperty("dynamicProperty", 123), false);
+    MyQObject *child = new MyQObject(m_myObject);
+    child->setObjectName("child");
+    // exclude child objects
+    {
+        QScriptValue obj = m_engine->newQObject(m_myObject, QScriptEngine::QtOwnership,
+                                                QScriptEngine::ExcludeChildObjects);
+        QCOMPARE(obj.property("child").isValid(), false);
+        obj.setProperty("child", QScriptValue(m_engine, 123));
+        QCOMPARE(obj.property("child")
+                 .strictEqualTo(QScriptValue(m_engine, 123)), true);
+    }
+    // don't auto-create dynamic properties
+    {
+        QScriptValue obj = m_engine->newQObject(m_myObject);
+        QVERIFY(!m_myObject->dynamicPropertyNames().contains("anotherDynamicProperty"));
+        obj.setProperty("anotherDynamicProperty", QScriptValue(m_engine, 123));
+        QVERIFY(!m_myObject->dynamicPropertyNames().contains("anotherDynamicProperty"));
+        QCOMPARE(obj.property("anotherDynamicProperty")
+                 .strictEqualTo(QScriptValue(m_engine, 123)), true);
+    }
+    // auto-create dynamic properties
+    {
+        QScriptValue obj = m_engine->newQObject(m_myObject, QScriptEngine::QtOwnership,
+                                                QScriptEngine::AutoCreateDynamicProperties);
+        QVERIFY(!m_myObject->dynamicPropertyNames().contains("anotherDynamicProperty"));
+        obj.setProperty("anotherDynamicProperty", QScriptValue(m_engine, 123));
+        QVERIFY(m_myObject->dynamicPropertyNames().contains("anotherDynamicProperty"));
+        QCOMPARE(obj.property("anotherDynamicProperty")
+                 .strictEqualTo(QScriptValue(m_engine, 123)), true);
+    }
+    // don't exclude super-class properties
+    {
+        QScriptValue obj = m_engine->newQObject(m_myObject);
+        QVERIFY(obj.property("objectName").isValid());
+        QVERIFY(obj.propertyFlags("objectName") & QScriptValue::QObjectMember);
+    }
+    // exclude super-class properties
+    {
+        QScriptValue obj = m_engine->newQObject(m_myObject, QScriptEngine::QtOwnership,
+                                                QScriptEngine::ExcludeSuperClassProperties);
+        QVERIFY(!obj.property("objectName").isValid());
+        QVERIFY(!(obj.propertyFlags("objectName") & QScriptValue::QObjectMember));
+        QVERIFY(obj.property("intProperty").isValid());
+        QVERIFY(obj.propertyFlags("intProperty") & QScriptValue::QObjectMember);
+    }
+    // don't exclude super-class methods
+    {
+        QScriptValue obj = m_engine->newQObject(m_myObject);
+        QVERIFY(obj.property("deleteLater").isValid());
+        QVERIFY(obj.propertyFlags("deleteLater") & QScriptValue::QObjectMember);
+    }
+    // exclude super-class methods
+    {
+        QScriptValue obj = m_engine->newQObject(m_myObject, QScriptEngine::QtOwnership,
+                                                QScriptEngine::ExcludeSuperClassMethods);
+        QVERIFY(!obj.property("deleteLater").isValid());
+        QVERIFY(!(obj.propertyFlags("deleteLater") & QScriptValue::QObjectMember));
+        QVERIFY(obj.property("mySlot").isValid());
+        QVERIFY(obj.propertyFlags("mySlot") & QScriptValue::QObjectMember);
+    }
+
+    delete child;
 }
 
 QTEST_MAIN(tst_QScriptExtQObject)

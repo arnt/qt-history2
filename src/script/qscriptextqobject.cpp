@@ -150,18 +150,37 @@ public:
     virtual bool resolve(const QScriptValueImpl &object, QScriptNameIdImpl *nameId,
                          QScript::Member *member, QScriptValueImpl *)
     {
-        QScriptEnginePrivate *eng = QScriptEnginePrivate::get(object.engine());
-
-        QObject *qobject = object.toQObject();
+        ExtQObject::Instance *inst = ExtQObject::Instance::get(object, m_classInfo);
+        QObject *qobject = inst->value;
         if (! qobject)
             return false;
 
+        const QScriptEngine::QObjectWrapOptions &opt = inst->options;
         const QMetaObject *meta = qobject->metaObject();
+
+        QScriptEnginePrivate *eng = QScriptEnginePrivate::get(object.engine());
 
 #ifndef Q_SCRIPT_NO_QMETAOBJECT_CACHE
         QScriptMetaObject *metaCache = eng->cachedMetaObject(meta);
-        if (metaCache->findMember(nameId, member))
-            return true;
+        if (metaCache->findMember(nameId, member)) {
+            bool ignore = false;
+            switch (member->flags() & ID_MASK) {
+            case PROPERTY_ID:
+                ignore = (opt & QScriptEngine::ExcludeSuperClassProperties)
+                         && (member->id() < meta->propertyOffset());
+                break;
+            case METHOD_ID:
+                ignore = (opt & QScriptEngine::ExcludeSuperClassMethods)
+                         && (member->id() < meta->methodOffset());
+                break;
+            // we don't cache dynamic properties nor children,
+            // so no need to handle DYNAPROPERTY_ID and CHILD_ID
+            default:
+                break;
+            }
+            if (!ignore)
+                return true;
+        }
 #endif
 
         QString memberName = eng->toString(nameId);
@@ -171,7 +190,6 @@ public:
 
         if (name.contains('(')) {
             QByteArray normalized = QMetaObject::normalizedSignature(name);
-
             if (-1 != (index = meta->indexOfMethod(normalized))) {
                 QMetaMethod method = meta->method(index);
                 if (hasMethodAccess(method)) {
@@ -181,7 +199,10 @@ public:
 #ifndef Q_SCRIPT_NO_QMETAOBJECT_CACHE
                     metaCache->registerMember(nameId, *member);
 #endif
-                    return true;
+                    if (!(opt & QScriptEngine::ExcludeSuperClassMethods)
+                        || (index >= meta->methodOffset())) {
+                        return true;
+                    }
                 }
             }
         }
@@ -204,7 +225,10 @@ public:
 #ifndef Q_SCRIPT_NO_QMETAOBJECT_CACHE
                 metaCache->registerMember(nameId, *member);
 #endif
-                return true;
+                if (!(opt & QScriptEngine::ExcludeSuperClassProperties)
+                    || (index >= meta->propertyOffset())) {
+                    return true;
+                }
             }
         }
 
@@ -217,7 +241,9 @@ public:
             return true;
         }
 
-        for (index = meta->methodCount() - 1; index >= 0; --index) {
+        const int offset = (opt & QScriptEngine::ExcludeSuperClassMethods)
+                           ? meta->methodOffset() : 0;
+        for (index = meta->methodCount() - 1; index >= offset; --index) {
             QMetaMethod method = meta->method(index);
             if (hasMethodAccess(method)
                 && (methodName(method) == name)) {
@@ -232,20 +258,25 @@ public:
             }
         }
 
-        // maybe a child ?
-        QList<QObject*> children = qobject->children();
-        for (index = 0; index < children.count(); ++index) {
-            QObject *child = children.at(index);
-
-            if (child->objectName() == memberName) {
-                member->native(nameId, index,
-                               QScriptValue::ReadOnly
-                               | QScriptValue::Undeletable
-                               | QScriptValue::SkipInEnumeration
-                               | CHILD_ID);
-                // not cached because it can be removed or change name
-                return true;
+        if (!(opt & QScriptEngine::ExcludeChildObjects)) {
+            QList<QObject*> children = qobject->children();
+            for (index = 0; index < children.count(); ++index) {
+                QObject *child = children.at(index);
+                if (child->objectName() == memberName) {
+                    member->native(nameId, index,
+                                   QScriptValue::ReadOnly
+                                   | QScriptValue::Undeletable
+                                   | QScriptValue::SkipInEnumeration
+                                   | CHILD_ID);
+                    // not cached because it can be removed or change name
+                    return true;
+                }
             }
+        }
+
+        if (opt & QScriptEngine::AutoCreateDynamicProperties) {
+            member->native(nameId, -1, DYNAPROPERTY_ID);
+            return true;
         }
 
         return false;
@@ -290,8 +321,12 @@ public:
         }   break;
 
         case DYNAPROPERTY_ID: {
-            QVariant v = qobject->property(member.nameId()->s.toLatin1());
-            *result = eng->valueFromVariant(v);
+            if (member.id() != -1) {
+                QVariant v = qobject->property(member.nameId()->s.toLatin1());
+                *result = eng->valueFromVariant(v);
+            } else {
+                *result = eng->undefinedValue();
+            }
         }   break;
 
         case METHOD_ID: {
@@ -365,13 +400,17 @@ public:
 
     virtual int extraMemberCount(const QScriptValueImpl &object)
     {
-        QObject *qobject = object.toQObject();
+        ExtQObject::Instance *inst = ExtQObject::Instance::get(object, m_classInfo);
+        QObject *qobject = inst->value;
         if (! qobject)
             return 0;
+        const QScriptEngine::QObjectWrapOptions &opt = inst->options;
         const QMetaObject *meta = qobject->metaObject();
         int count = 0;
         // meta-object-defined properties
-        for (int i = 0; i < meta->propertyCount(); ++i) {
+        int offset = (opt & QScriptEngine::ExcludeSuperClassProperties)
+                     ? meta->propertyOffset() : 0;
+        for (int i = offset; i < meta->propertyCount(); ++i) {
             QMetaProperty prop = meta->property(i);
             if (prop.isScriptable()
                 && !isObjectProperty(object, prop.name())) {
@@ -386,7 +425,9 @@ public:
             }
         }
         // meta-object-defined methods
-        for (int i = 0; i < meta->methodCount(); ++i) {
+        offset = (opt & QScriptEngine::ExcludeSuperClassMethods)
+                 ? meta->methodOffset() : 0;
+        for (int i = offset; i < meta->methodCount(); ++i) {
             QMetaMethod method = meta->method(i);
             if (hasMethodAccess(method)
                 && !isObjectProperty(object, method.signature())) {
@@ -398,12 +439,15 @@ public:
 
     virtual bool extraMember(const QScriptValueImpl &object, int index, QScript::Member *member)
     {
-        QScriptEnginePrivate *eng = QScriptEnginePrivate::get(object.engine());
-        QObject *qobject = object.toQObject();
+        ExtQObject::Instance *inst = ExtQObject::Instance::get(object, m_classInfo);
+        QObject *qobject = inst->value;
+        const QScriptEngine::QObjectWrapOptions &opt = inst->options;
         const QMetaObject *meta = qobject->metaObject();
+        QScriptEnginePrivate *eng = QScriptEnginePrivate::get(object.engine());
         int logicalIndex = 0;
         // meta-object-defined properties
-        int physicalIndex = 0;
+        int physicalIndex = (opt & QScriptEngine::ExcludeSuperClassProperties)
+                            ? meta->propertyOffset() : 0;
         for ( ; physicalIndex < meta->propertyCount(); ++physicalIndex) {
             QMetaProperty prop = meta->property(physicalIndex);
             if (prop.isScriptable()
@@ -446,7 +490,8 @@ public:
         }
 
         // meta-object-defined methods
-        physicalIndex = 0;
+        physicalIndex = (opt & QScriptEngine::ExcludeSuperClassMethods)
+                        ? meta->methodOffset() : 0;
         for ( ; physicalIndex < meta->methodCount(); ++physicalIndex) {
             QMetaMethod method = meta->method(physicalIndex);
             if (hasMethodAccess(method)
@@ -532,12 +577,15 @@ void QScript::ExtQObject::execute(QScriptContextPrivate *context)
 }
 
 void QScript::ExtQObject::newQObject(QScriptValueImpl *result, QObject *value,
-                                     QScriptEngine::ValueOwnership ownership, bool isConnection)
+                                     QScriptEngine::ValueOwnership ownership,
+                                     const QScriptEngine::QObjectWrapOptions &options,
+                                     bool isConnection)
 {
     Instance *instance = new Instance();
     instance->value = value;
     instance->isConnection = isConnection;
     instance->ownership = ownership;
+    instance->options = options;
 
     engine()->newObject(result, publicPrototype, classInfo());
     result->setObjectData(QExplicitlySharedDataPointer<QScriptObjectData>(instance));
@@ -608,7 +656,7 @@ QScript::ConnectionQObject::ConnectionQObject(const QMetaMethod &method,
     QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(eng);
     QScriptValueImpl me;
     eng_p->qobjectConstructor->newQObject(&me, this, QScriptEngine::QtOwnership,
-                                          /*isConnection=*/true);
+                                          /*options=*/0, /*isConnection=*/true);
     QScriptValuePrivate::init(m_self, eng_p->registerValue(me));
 
     QObject *qobject = static_cast<QtFunction*>(sender.toFunction())->object();

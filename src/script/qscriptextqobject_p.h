@@ -78,6 +78,7 @@ public:
         QPointer<QObject> value;
         bool isConnection;
         QScriptEngine::ValueOwnership ownership;
+        QScriptEngine::QObjectWrapOptions options;
     };
 
     inline Instance *get(const QScriptValueImpl &object) const
@@ -85,6 +86,7 @@ public:
 
     void newQObject(QScriptValueImpl *result, QObject *value,
                     QScriptEngine::ValueOwnership ownership = QScriptEngine::QtOwnership,
+                    const QScriptEngine::QObjectWrapOptions &options = 0,
                     bool isConnection = false);
 
 protected:

@@ -255,7 +255,8 @@ public:
 
 #ifndef QT_NO_QOBJECT
     inline QScriptValueImpl newQObject(QObject *object,
-                                       QScriptEngine::ValueOwnership ownership = QScriptEngine::QtOwnership);
+                                       QScriptEngine::ValueOwnership ownership = QScriptEngine::QtOwnership,
+                                       const QScriptEngine::QObjectWrapOptions &options = 0);
 
 # ifndef Q_SCRIPT_NO_QMETAOBJECT_CACHE
     inline QScriptMetaObject *cachedMetaObject(const QMetaObject *meta);
