@@ -1087,8 +1087,8 @@ void tst_QGraphicsView::itemsInRect()
     view.show();
 
     QPoint centerPoint = view.viewport()->rect().center();
-    QRect leftRect(centerPoint - QPoint(40, -10), QSize(20, 20));
-    QRect rightRect(centerPoint + QPoint(20, -10), QSize(20, 20));
+    QRect leftRect = view.mapFromScene(-30, -10, 20, 20).boundingRect();
+    QRect rightRect = view.mapFromScene(30, -10, 20, 20).boundingRect();
 
     QList<QGraphicsItem *> items = view.items(leftRect);
     QCOMPARE(items.size(), 5);
