@@ -158,9 +158,6 @@ void tst_CompilerWarnings::warnings()
 # endif
          // aCC generates too much bogus.
          << "-DQT_NO_STL" << "-c" << "-w"
-# if !defined __ia64
-         << "392,655,818,887"
-#endif
          << "-o" << tmpFile
          << "test.cpp";
 #elif defined(Q_CC_MIPS)
