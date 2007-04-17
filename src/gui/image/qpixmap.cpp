@@ -584,6 +584,10 @@ QBitmap QPixmap::createMaskFromColor(const QColor &maskColor) const
     result (e.g. converting from 32-bit to 8-bit), use the \a flags to
     control the conversion.
 
+    Note that QPixmaps are automatically added to the QPixmapCache
+    when loaded from a file; the key used is internal and can not
+    be acquired.
+
     \sa loadFromData(), {QPixmap#Reading and Writing Image
     Files}{Reading and Writing Image Files}
 */
