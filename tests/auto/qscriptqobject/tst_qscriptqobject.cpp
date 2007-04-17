@@ -1024,15 +1024,15 @@ void tst_QScriptExtQObject::classEnums()
     QCOMPARE(static_cast<MyQObject::Strategy>(m_engine->evaluate("MyQObject.BazStrategy").toInt32()),
              MyQObject::BazStrategy);
 
-    QCOMPARE(static_cast<MyQObject::Ability>(m_engine->evaluate("MyQObject.NoAbility").toInt32()),
+    QCOMPARE(MyQObject::Ability(m_engine->evaluate("MyQObject.NoAbility").toInt32()),
              MyQObject::NoAbility);
-    QCOMPARE(static_cast<MyQObject::Ability>(m_engine->evaluate("MyQObject.FooAbility").toInt32()),
+    QCOMPARE(MyQObject::Ability(m_engine->evaluate("MyQObject.FooAbility").toInt32()),
              MyQObject::FooAbility);
-    QCOMPARE(static_cast<MyQObject::Ability>(m_engine->evaluate("MyQObject.BarAbility").toInt32()),
+    QCOMPARE(MyQObject::Ability(m_engine->evaluate("MyQObject.BarAbility").toInt32()),
              MyQObject::BarAbility);
-    QCOMPARE(static_cast<MyQObject::Ability>(m_engine->evaluate("MyQObject.BazAbility").toInt32()),
+    QCOMPARE(MyQObject::Ability(m_engine->evaluate("MyQObject.BazAbility").toInt32()),
              MyQObject::BazAbility);
-    QCOMPARE(static_cast<MyQObject::Ability>(m_engine->evaluate("MyQObject.AllAbility").toInt32()),
+    QCOMPARE(MyQObject::Ability(m_engine->evaluate("MyQObject.AllAbility").toInt32()),
              MyQObject::AllAbility);
 
     // enums from Qt are inherited through prototype
