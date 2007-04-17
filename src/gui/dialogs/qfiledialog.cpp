@@ -2170,15 +2170,15 @@ void QFileDialogPrivate::_q_updateOkButton() {
                     lastDirectory = directory;
                     maxLength = maxNameLength(lastDirectory);
                 }
+                QString baseName = basename(files.at(i));
+                if (!baseName.isEmpty())
+                    emptyFileName = false;
                 if (maxLength < 0)
                     break;
-                QString baseName = basename(files.at(i));
                 if (baseName.length() > maxLength) {
                     enableButton = false;
                     break;
                 }
-                if (!baseName.isEmpty())
-                    emptyFileName = false;
             }
             if (emptyFileName)
                 enableButton = false;
