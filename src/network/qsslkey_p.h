@@ -53,7 +53,8 @@ public:
         , dsa(0)
     { 
         QSslSocketPrivate::ensureInitialized();
-        clear(); 
+        clear();
+        ref = 1;
     }
 
     inline ~QSslKeyPrivate()
@@ -73,6 +74,8 @@ public:
     QSsl::Algorithm algorithm;
     RSA *rsa;
     DSA *dsa;
+
+    QAtomic ref;
 };
 
 #endif // QSSLKEY_P_H

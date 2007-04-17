@@ -55,8 +55,15 @@ public:
         : null(true), x509(0)
     { 
         QSslSocketPrivate::ensureInitialized();
+        ref = 1;
     }
 
+    ~QSslCertificatePrivate()
+    {
+        if (x509)
+            q_X509_free(x509);
+    }
+    
     bool null;
     QByteArray versionString;
     QByteArray serialNumberString;
@@ -76,6 +83,8 @@ public:
     static QList<QSslCertificate> certificatesFromDer(const QByteArray &der, int count = -1);
 
     friend class QSslSocketBackendPrivate;
+
+    QAtomic ref;
 };
 
 #endif

@@ -94,6 +94,7 @@
 #include "qsslkey.h"
 #include "qsslkey_p.h"
 
+#include <QtCore/qatomic.h>
 #include <QtCore/qdatetime.h>
 #ifndef QT_NO_DEBUG
 #include <QtCore/qdebug.h>
@@ -131,13 +132,9 @@ QSslCertificate::QSslCertificate(const QByteArray &data, QSsl::EncodingFormat fo
 /*!
     Constructs an identical copy of \a other.
 */
-QSslCertificate::QSslCertificate(const QSslCertificate &other)
-    : d(new QSslCertificatePrivate)
+QSslCertificate::QSslCertificate(const QSslCertificate &other) : d(other.d)
 {
-    // ### make implicitly shared
-    *d = *other.d;
-    if (d->x509)
-        d->x509 = q_X509_dup(d->x509);
+    d->ref.ref();
 }
 
 /*!
@@ -145,9 +142,8 @@ QSslCertificate::QSslCertificate(const QSslCertificate &other)
 */
 QSslCertificate::~QSslCertificate()
 {
-    if (d->x509)
-        q_X509_free(d->x509);
-    delete d;
+    if (!d->ref.deref())
+        delete d;
 }
 
 /*!
@@ -156,10 +152,7 @@ QSslCertificate::~QSslCertificate()
 */
 QSslCertificate &QSslCertificate::operator=(const QSslCertificate &other)
 {
-    // ### make implicitly shared
-    *d = *other.d;
-    if (d->x509)
-        d->x509 = q_X509_dup(d->x509);
+    qAtomicAssign(d, other.d);
     return *this;
 }
 
@@ -169,6 +162,8 @@ QSslCertificate &QSslCertificate::operator=(const QSslCertificate &other)
 */
 bool QSslCertificate::operator==(const QSslCertificate &other) const
 {
+    if (d == other.d)
+        return true;
     if (d->null && other.d->null)
         return true;
     if (d->x509 && other.d->x509)
@@ -216,12 +211,10 @@ bool QSslCertificate::isValid() const
 */
 void QSslCertificate::clear()
 {
-    // ### crude implementation
-    if (d->x509)
-        q_X509_free(d->x509);
-    *d = QSslCertificatePrivate();
-    d->null = true;
-    d->x509 = 0;
+    if (!d->ref.deref()) {
+        delete d;
+        d = new QSslCertificatePrivate;
+    }
 }
 
 /*!

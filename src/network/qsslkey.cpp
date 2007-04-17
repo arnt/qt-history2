@@ -46,6 +46,7 @@
 #include "qsslsocket.h"
 #include "qsslsocket_p.h"
 
+#include <QtCore/qatomic.h>
 #include <QtCore/qbytearray.h>
 #include <QtCore/qiodevice.h>
 #ifndef QT_NO_DEBUG
@@ -230,16 +231,9 @@ QSslKey::QSslKey(QIODevice *device, QSsl::Algorithm algorithm,
 /*!
     Constructs an identical copy of \a other.
 */
-QSslKey::QSslKey(const QSslKey &other)
-    : d(new QSslKeyPrivate)
+QSslKey::QSslKey(const QSslKey &other) : d(other.d)
 {
-    *d = *other.d;
-
-    d->decodePem(toPem(), QByteArray(), false);
-    // ### using the following functions/macros for deep-copying the rsa/dsa structures is
-    // probably quicker:
-    //     RSAPublicKey_dup(), RSAPrivateKey_dup(),
-    //     i2d_DSAPublicKey(), i2d_DSAPrivateKey(), d2i_DSAPublicKey(), d2i_DSAPrivateKey()
+    d->ref.ref();
 }
 
 /*!
@@ -247,7 +241,8 @@ QSslKey::QSslKey(const QSslKey &other)
 */
 QSslKey::~QSslKey()
 {
-    delete d;
+    if (!d->ref.deref())
+        delete d;
 }
 
 /*!
@@ -258,14 +253,7 @@ QSslKey::~QSslKey()
 */
 QSslKey &QSslKey::operator=(const QSslKey &other)
 {
-    *d = *other.d;
-
-    d->decodePem(toPem(), QByteArray(), false);
-    // ### using the following functions/macros for deep-copying the rsa/dsa structures is
-    // probably quicker:
-    //     RSAPublicKey_dup(), RSAPrivateKey_dup(),
-    //     i2d_DSAPublicKey(), i2d_DSAPrivateKey(), d2i_DSAPublicKey(), d2i_DSAPrivateKey()
-
+    qAtomicAssign(d, other.d);
     return *this;
 }
 
@@ -286,7 +274,10 @@ bool QSslKey::isNull() const
 */
 void QSslKey::clear()
 {
-    d->clear();
+    if (!d->ref.deref()) {
+        delete d;
+        d = new QSslKeyPrivate;
+    }
 }
 
 /*!
