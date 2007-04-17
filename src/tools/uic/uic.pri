@@ -5,6 +5,7 @@ HEADERS += \
            $$PWD/customwidgetsinfo.h \
            $$PWD/databaseinfo.h \
            $$PWD/driver.h \
+           $$PWD/extractimages.h \
            $$PWD/globaldefs.h \
            $$PWD/option.h \
            $$PWD/treewalker.h \
@@ -17,6 +18,7 @@ SOURCES += \
            $$PWD/customwidgetsinfo.cpp \
            $$PWD/databaseinfo.cpp \
            $$PWD/driver.cpp \
+           $$PWD/extractimages.cpp \
            $$PWD/treewalker.cpp \
            $$PWD/ui4.cpp \
            $$PWD/uic.cpp \

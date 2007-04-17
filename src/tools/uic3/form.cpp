@@ -225,6 +225,8 @@ void Ui3Reader::createFormDecl(const QDomElement &e)
     Driver d;
     d.option().headerProtection = false;
     d.option().copyrightHeader = false;
+    d.option().extractImages = m_extractImages;
+    d.option().qrcOutputFile = m_qrcOutputFile;
     if (trmacro.size())
         d.option().translateFunction = trmacro;
     DomUI *ui = generateUi4(e);

@@ -81,6 +81,8 @@ public:
 
     QDomElement parse(const QDomDocument &doc);
 
+    void setExtractImages(bool extract, const QString &qrcOutputFile);
+
 private:
     void init();
 
@@ -190,6 +192,10 @@ private:
 
     QMap<QString, bool> candidateCustomWidgets;
     Porting *m_porting;
+
+    bool m_extractImages;
+    QString m_qrcOutputFile;
+    QMap<QString, QString> m_imageMap;
 };
 
 #endif // UI3READER_H

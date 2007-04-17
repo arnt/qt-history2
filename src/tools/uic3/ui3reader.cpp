@@ -215,6 +215,7 @@ Ui3Reader::Ui3Reader(QTextStream &outStream)
    : out(outStream), trout(&languageChangeBody)
 {
     m_porting = new Porting();
+    m_extractImages = false;
 }
 
 Ui3Reader::~Ui3Reader()
@@ -594,4 +595,10 @@ QStringList Ui3Reader::unique(const QStringList& list)
 bool Ui3Reader::isLayout(const QString& name) const
 {
     return layoutObjects.contains(name);
+}
+
+void Ui3Reader::setExtractImages(bool extract, const QString &qrcOutputFile)
+{
+    m_extractImages = extract;
+    m_qrcOutputFile = qrcOutputFile;
 }

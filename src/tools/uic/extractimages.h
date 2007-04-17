@@ -11,13 +11,13 @@
 **
 ****************************************************************************/
 
-#ifndef CPPWRITEICONDATA_H
-#define CPPWRITEICONDATA_H
+#ifndef EXTRACTIMAGES_H
+#define EXTRACTIMAGES_H
 
 #include "treewalker.h"
+#include <QtCore/QDir>
 
 class QTextStream;
-class QIODevice;
 class Driver;
 class Uic;
 
@@ -25,24 +25,21 @@ struct Option;
 
 namespace CPP {
 
-class WriteIconData : public TreeWalker
+class ExtractImages : public TreeWalker
 {
 public:
-    WriteIconData(Uic *uic);
+    ExtractImages(const Option &opt);
 
     void acceptUI(DomUI *node);
     void acceptImages(DomImages *images);
     void acceptImage(DomImage *image);
 
-    static void writeImage(QTextStream &output, const QString &indent, DomImage *image);
-    static void writeImage(QIODevice &output, DomImage *image);
-
 private:
-    Driver *driver;
-    QTextStream &output;
-    const Option &option;
+    QTextStream *m_output;
+    const Option &m_option;
+    QDir m_imagesDir;
 };
 
 } // namespace CPP
 
-#endif // CPPWRITEICONDATA_H
+#endif // EXTRACTIMAGES_H

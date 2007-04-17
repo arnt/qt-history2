@@ -1673,7 +1673,18 @@ QString WriteInitialization::pixCall(const DomProperty *p) const
         type += QLatin1String("()");
         return type;
     }
-    if (findImage(s) != 0) {
+    DomImage *image = findImage(s);
+    if (image) {
+        if (m_option.extractImages) {
+            QString format = image->elementData()->attributeFormat();
+            QString extension = format.left(format.indexOf('.')).toLower();
+            QString rc = QLatin1String("QPixmap(QString::fromUtf8(\":/");
+            rc += m_generatedClass;
+            rc += QLatin1String("/images/");
+            rc += s;
+            rc += QLatin1Char('.') + extension + QLatin1String("\"))");
+            return rc;
+        }
         QString rc = QLatin1String("icon(");
         rc += s;
         rc += QLatin1String("_ID)");

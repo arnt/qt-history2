@@ -19,6 +19,8 @@
 #include "globaldefs.h"
 #include "qt3to4.h"
 #include "utils.h"
+#include "option.h"
+#include "extractimages.h"
 
 #include <QtDebug>
 #include <QFile>
@@ -210,6 +212,9 @@ DomUI *Ui3Reader::generateUi4(const QDomElement &widget)
                 data->setText(tmp.firstChild().toText().data());
 
                 ui_image_list.append(img);
+                QString format = img->elementData()->attributeFormat();
+                QString extension = format.left(format.indexOf('.')).toLower();
+                m_imageMap[img->attributeName()] = img->attributeName() + QLatin1Char('.') + extension;
             }
 
             if (ui_image_list.size()) {
@@ -442,8 +447,31 @@ DomUI *Ui3Reader::generateUi4(const QDomElement &widget)
 
     ui->setAttributeStdSetDef(stdsetdef);
 
+    if (m_extractImages) {
+        Option opt;
+        opt.extractImages = m_extractImages;
+        opt.qrcOutputFile = m_qrcOutputFile;
+        CPP::ExtractImages(opt).acceptUI(ui);
+
+        ui->clearElementImages();
+
+        DomResources *res = ui->elementResources();
+        if (!res) {
+            res = new DomResources();
+        }
+        DomResource *incl = new DomResource();
+        incl->setAttributeLocation(m_qrcOutputFile);
+        QList<DomResource *> inclList = res->elementInclude();
+        inclList.append(incl);
+        res->setElementInclude(inclList);
+        if (!ui->elementResources())
+            ui->setElementResources(res);
+    }
+
     return ui;
 }
+
+
 
 QString Ui3Reader::fixActionProperties(QList<DomProperty*> &properties,
                                        bool isActionGroup)
@@ -1072,9 +1100,16 @@ DomProperty *Ui3Reader::readProperty(const QDomElement &e)
         if (value.contains(QLatin1Char('.'))) {
             p->setElementDouble(value.toDouble());
         }
-    }
-
-    else if (p->kind() == DomProperty::Unknown) {
+    } else if (p->kind() == DomProperty::Pixmap) {
+        DomResourcePixmap *domPix = p->elementPixmap();
+        if (m_extractImages) {
+            QString imageFile = domPix->text() + QLatin1String(".xpm");
+            if (m_imageMap.contains(domPix->text()))
+                imageFile = m_imageMap.value(domPix->text());
+            domPix->setAttributeResource(m_qrcOutputFile);
+            domPix->setText(QLatin1String(":/") + nameOfClass + QLatin1String("/images/") + imageFile);
+        }
+    } else if (p->kind() == DomProperty::Unknown) {
         delete p;
         p = 0;
     }

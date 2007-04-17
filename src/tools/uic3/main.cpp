@@ -33,6 +33,7 @@ int main(int argc, char * argv[])
     bool impl = false;
     bool wrap = false;
     bool subcl = false;
+    bool extract = false;
     bool imagecollection = false;
     bool imagecollection_tmpfile = false;
     bool convert = false;
@@ -43,6 +44,7 @@ int main(int argc, char * argv[])
     const char* headerFile = 0;
     const char* convertedUiFile = 0;
     QByteArray outputFile;
+    QByteArray qrcOutputFile;
     QByteArray image_tmpfile;
     const char* projectName = 0;
     const char* trmacro = 0;
@@ -87,6 +89,13 @@ int main(int argc, char * argv[])
                     convertedUiFile = argv[++n];
                 } else
                     convertedUiFile = opt.data() + 1;
+            } else if (opt == "extract") {                // output redirection
+                extract = true;
+                if (!(n < argc-1)) {
+                    error = "Missing output qrc-file name";
+                    break;
+                }
+                qrcOutputFile = argv[++n];
             } else if ( opt[0] == 'e' || opt == "embed" ) {
                 imagecollection = true;
                 if ( opt == "embed" || opt[1] == '\0' ) {
@@ -207,14 +216,15 @@ int main(int argc, char * argv[])
                  "\t<subclassname>     name of the subclass to generate\n"
                  "\t<subclassheaderfile>    declaration file of the subclass\n"
                  "Options:\n"
-                 "\t-o file         Write output to file rather than stdout\n"
-                 "\t-pch file       Add #include \"file\" as the first statement in implementation\n"
-                 "\t-nofwd          Omit forward declarations of custom classes\n"
-                 "\t-nounload       Don't unload plugins after processing\n"
-                 "\t-tr func        Use func() instead of tr() for i18n\n"
-                 "\t-L path         Additional plugin search path\n"
-                 "\t-version        Display version of uic\n"
-                 "\t-help           Display this information\n"
+                 "\t-o file            Write output to file rather than stdout\n"
+                 "\t-extract qrcFile   Create resource file and extract embedded images into \"image\" dir\n"
+                 "\t-pch file          Add #include \"file\" as the first statement in implementation\n"
+                 "\t-nofwd             Omit forward declarations of custom classes\n"
+                 "\t-nounload          Don't unload plugins after processing\n"
+                 "\t-tr func           Use func() instead of tr() for i18n\n"
+                 "\t-L path            Additional plugin search path\n"
+                 "\t-version           Display version of uic\n"
+                 "\t-help              Display this information\n"
                  , argv[0], argv[0], argv[0], argv[0], argv[0], argv[0], argv[0], argv[0], argv[0], argv[0]
            );
         return 1;
@@ -246,6 +256,7 @@ int main(int argc, char * argv[])
     QTextStream out(&fileOut);
 
     Ui3Reader ui3(out);
+    ui3.setExtractImages(extract, qrcOutputFile);
 
     if (projectName && imagecollection) {
         out.setEncoding(QTextStream::Latin1);
