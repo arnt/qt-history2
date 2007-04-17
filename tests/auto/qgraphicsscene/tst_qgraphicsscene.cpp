@@ -964,14 +964,14 @@ void tst_QGraphicsScene::addEllipse()
     QCOMPARE(ellipse->pen(), QPen(Qt::red));
     QCOMPARE(ellipse->brush(), QBrush(Qt::blue));
     QCOMPARE(ellipse->rect(), QRectF(-10, -10, 20, 20));
-    QCOMPARE(scene.itemAt(0, 0), ellipse);
+    QCOMPARE(scene.itemAt(0, 0), (QGraphicsItem *)ellipse);
     QCOMPARE(scene.itemAt(-10, -10), (QGraphicsItem *)0);
-    QCOMPARE(scene.itemAt(-9.9, 0), ellipse);
+    QCOMPARE(scene.itemAt(-9.9, 0), (QGraphicsItem *)ellipse);
     QCOMPARE(scene.itemAt(-10, 10), (QGraphicsItem *)0);
-    QCOMPARE(scene.itemAt(0, -9.9), ellipse);
-    QCOMPARE(scene.itemAt(0, 9.9), ellipse);
+    QCOMPARE(scene.itemAt(0, -9.9), (QGraphicsItem *)ellipse);
+    QCOMPARE(scene.itemAt(0, 9.9), (QGraphicsItem *)ellipse);
     QCOMPARE(scene.itemAt(10, -10), (QGraphicsItem *)0);
-    QCOMPARE(scene.itemAt(9.9, 0), ellipse);
+    QCOMPARE(scene.itemAt(9.9, 0), (QGraphicsItem *)ellipse);
     QCOMPARE(scene.itemAt(10, 10), (QGraphicsItem *)0);
 }
 
@@ -985,15 +985,15 @@ void tst_QGraphicsScene::addLine()
     QCOMPARE(line->pos(), QPointF());
     QCOMPARE(line->pen(), pen);
     QCOMPARE(line->line(), QLineF(-10, -10, 20, 20));
-    QCOMPARE(scene.itemAt(0, 0), line);
-    QCOMPARE(scene.itemAt(-10, -10), line);
+    QCOMPARE(scene.itemAt(0, 0), (QGraphicsItem *)line);
+    QCOMPARE(scene.itemAt(-10, -10), (QGraphicsItem *)line);
     QCOMPARE(scene.itemAt(-9.9, 0), (QGraphicsItem *)0);
     QCOMPARE(scene.itemAt(-10, 10), (QGraphicsItem *)0);
     QCOMPARE(scene.itemAt(0, -9.9), (QGraphicsItem *)0);
     QCOMPARE(scene.itemAt(0, 9.9), (QGraphicsItem *)0);
     QCOMPARE(scene.itemAt(10, -10), (QGraphicsItem *)0);
     QCOMPARE(scene.itemAt(9.9, 0), (QGraphicsItem *)0);
-    QCOMPARE(scene.itemAt(10, 10), line);
+    QCOMPARE(scene.itemAt(10, 10), (QGraphicsItem *)line);
 }
 
 void tst_QGraphicsScene::addPath()
@@ -1008,16 +1008,16 @@ void tst_QGraphicsScene::addPath()
     QCOMPARE(path->pen(), QPen(Qt::red));
     QCOMPARE(path->path(), p);
     QCOMPARE(path->brush(), QBrush(Qt::blue));
-    QCOMPARE(scene.itemAt(0, 0), path);
-    QCOMPARE(scene.itemAt(-9.9, 0), path);
-    QCOMPARE(scene.itemAt(9.9, 0), path);
-    QCOMPARE(scene.itemAt(0, -9.9), path);
-    QCOMPARE(scene.itemAt(0, 9.9), path);
-    QCOMPARE(scene.itemAt(0, 30), path);
-    QCOMPARE(scene.itemAt(-9.9, 30), path);
-    QCOMPARE(scene.itemAt(9.9, 30), path);
-    QCOMPARE(scene.itemAt(0, 20.1), path);
-    QCOMPARE(scene.itemAt(0, 39.9), path);
+    QCOMPARE(scene.itemAt(0, 0), (QGraphicsItem *)path);
+    QCOMPARE(scene.itemAt(-9.9, 0), (QGraphicsItem *)path);
+    QCOMPARE(scene.itemAt(9.9, 0), (QGraphicsItem *)path);
+    QCOMPARE(scene.itemAt(0, -9.9), (QGraphicsItem *)path);
+    QCOMPARE(scene.itemAt(0, 9.9), (QGraphicsItem *)path);
+    QCOMPARE(scene.itemAt(0, 30), (QGraphicsItem *)path);
+    QCOMPARE(scene.itemAt(-9.9, 30), (QGraphicsItem *)path);
+    QCOMPARE(scene.itemAt(9.9, 30), (QGraphicsItem *)path);
+    QCOMPARE(scene.itemAt(0, 20.1), (QGraphicsItem *)path);
+    QCOMPARE(scene.itemAt(0, 39.9), (QGraphicsItem *)path);
     QCOMPARE(scene.itemAt(-10, -10), (QGraphicsItem *)0);
     QCOMPARE(scene.itemAt(10, -10), (QGraphicsItem *)0);
     QCOMPARE(scene.itemAt(-10, 10), (QGraphicsItem *)0);
@@ -1036,10 +1036,10 @@ void tst_QGraphicsScene::addPixmap()
 
     QCOMPARE(pixmap->pos(), QPointF());
     QCOMPARE(pixmap->pixmap(), pix);
-    QCOMPARE(scene.itemAt(0, 0), pixmap);
-    QCOMPARE(scene.itemAt(pix.width() - 1, 0), pixmap);
-    QCOMPARE(scene.itemAt(0, pix.height() - 1), pixmap);
-    QCOMPARE(scene.itemAt(pix.width() - 1, pix.height() - 1), pixmap);
+    QCOMPARE(scene.itemAt(0, 0), (QGraphicsItem *)pixmap);
+    QCOMPARE(scene.itemAt(pix.width() - 1, 0), (QGraphicsItem *)pixmap);
+    QCOMPARE(scene.itemAt(0, pix.height() - 1), (QGraphicsItem *)pixmap);
+    QCOMPARE(scene.itemAt(pix.width() - 1, pix.height() - 1), (QGraphicsItem *)pixmap);
     QCOMPARE(scene.itemAt(-1, -1), (QGraphicsItem *)0);
     QCOMPARE(scene.itemAt(pix.width() - 1, -1), (QGraphicsItem *)0);
     QCOMPARE(scene.itemAt(-1, pix.height() - 1), (QGraphicsItem *)0);
@@ -1057,14 +1057,14 @@ void tst_QGraphicsScene::addRect()
     QCOMPARE(rect->pen(), QPen(Qt::red));
     QCOMPARE(rect->brush(), QBrush(Qt::blue));
     QCOMPARE(rect->rect(), QRectF(-10, -10, 20, 20));
-    QCOMPARE(scene.itemAt(0, 0), rect);
-    QCOMPARE(scene.itemAt(-10, -10), rect);
-    QCOMPARE(scene.itemAt(-9.9, 0), rect);
+    QCOMPARE(scene.itemAt(0, 0), (QGraphicsItem *)rect);
+    QCOMPARE(scene.itemAt(-10, -10), (QGraphicsItem *)rect);
+    QCOMPARE(scene.itemAt(-9.9, 0), (QGraphicsItem *)rect);
     QCOMPARE(scene.itemAt(-10, 10), (QGraphicsItem *)0);
-    QCOMPARE(scene.itemAt(0, -9.9), rect);
-    QCOMPARE(scene.itemAt(0, 9.9), rect);
+    QCOMPARE(scene.itemAt(0, -9.9), (QGraphicsItem *)rect);
+    QCOMPARE(scene.itemAt(0, 9.9), (QGraphicsItem *)rect);
     QCOMPARE(scene.itemAt(10, -10), (QGraphicsItem *)0);
-    QCOMPARE(scene.itemAt(9.9, 0), rect);
+    QCOMPARE(scene.itemAt(9.9, 0), (QGraphicsItem *)rect);
     QCOMPARE(scene.itemAt(10, 10), (QGraphicsItem *)0);
 }
 
@@ -1470,12 +1470,12 @@ void tst_QGraphicsScene::createItemGroup()
 
     QGraphicsItemGroup *group = scene.createItemGroup(children1);
     QCOMPARE(group->parentItem(), parent1);
-    QCOMPARE(children1.first()->parentItem(), group);
+    QCOMPARE(children1.first()->parentItem(), (QGraphicsItem *)group);
     scene.destroyItemGroup(group);
     QCOMPARE(children1.first()->parentItem(), parent1);
     group = scene.createItemGroup(children1);
     QCOMPARE(group->parentItem(), parent1);
-    QCOMPARE(children1.first()->parentItem(), group);
+    QCOMPARE(children1.first()->parentItem(), (QGraphicsItem *)group);
     scene.destroyItemGroup(group);
     QCOMPARE(children1.first()->parentItem(), parent1);
 
@@ -1491,15 +1491,15 @@ void tst_QGraphicsScene::createItemGroup()
     // The children2 group should still have parent2 as their common ancestor.
     group = scene.createItemGroup(children2);
     QCOMPARE(group->parentItem(), parent2);
-    QCOMPARE(children2.first()->parentItem(), group);
+    QCOMPARE(children2.first()->parentItem(), (QGraphicsItem *)group);
     scene.destroyItemGroup(group);
     QCOMPARE(children2.first()->parentItem(), parent2);
 
     // But the set of both children2 and children1 share only parent1.
     group = scene.createItemGroup(children2 + children1);
     QCOMPARE(group->parentItem(), parent1);
-    QCOMPARE(children1.first()->parentItem(), group);
-    QCOMPARE(children2.first()->parentItem(), group);
+    QCOMPARE(children1.first()->parentItem(), (QGraphicsItem *)group);
+    QCOMPARE(children2.first()->parentItem(), (QGraphicsItem *)group);
     scene.destroyItemGroup(group);
     QCOMPARE(children1.first()->parentItem(), parent1);
     QCOMPARE(children2.first()->parentItem(), parent1);
