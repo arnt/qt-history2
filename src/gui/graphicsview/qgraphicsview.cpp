@@ -2695,11 +2695,7 @@ void QGraphicsView::mouseMoveEvent(QMouseEvent *event)
     // Store the last item under the mouse for use when replaying. When
     // possible, reuse QGraphicsScene's existing calculations of what items
     // are under the mouse to avoid multiple index lookups.
-    QList<QGraphicsItem *> itemsUnderCursor;
-    if (mouseEvent.isAccepted())
-        itemsUnderCursor = d->scene->d_func()->cachedItemsUnderMouse;
-    else
-        itemsUnderCursor = items(event->pos());
+    QList<QGraphicsItem *> itemsUnderCursor = d->scene->d_func()->cachedItemsUnderMouse;
     if (!itemsUnderCursor.isEmpty()) {
         d->lastItemUnderCursor = itemsUnderCursor.first();
         d->lastItemUnderCursorPos = d->lastItemUnderCursor->mapFromScene(mouseEvent.scenePos());
@@ -2787,7 +2783,7 @@ void QGraphicsView::mouseReleaseEvent(QMouseEvent *event)
     d->lastMouseEvent.setAccepted(mouseEvent.isAccepted());
 
 #ifndef QT_NO_CURSOR
-    if (mouseEvent.isAccepted() && mouseEvent.buttons() == 0) {
+    if (mouseEvent.isAccepted() && mouseEvent.buttons() == 0 && viewport()->testAttribute(Qt::WA_SetCursor)) {
         // The last mouse release on the viewport will trigger clearing the cursor.
         d->_q_unsetViewportCursor();
     }
