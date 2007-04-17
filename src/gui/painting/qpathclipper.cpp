@@ -613,7 +613,8 @@ VertexList *VertexList::fromPainterPath(const QPainterPath &path)
             break;
         }
         case QPainterPath::LineToElement: {
-            if (i == (path.elementCount() - 1) && !multipleMoves) {
+            if (i == (path.elementCount() - 1) && !multipleMoves &&
+                qFuzzyCompare(firstMove->x, e.x) && qFuzzyCompare(firstMove->y, e.y)) {
                 firstMove->setType(PathVertex::MoveLineTo);
             } else {
                 lst->appendNode(new PathVertex(e.x, e.y,
@@ -626,7 +627,8 @@ VertexList *VertexList::fromPainterPath(const QPainterPath &path)
             Q_ASSERT(path.elementAt(i+1).type == QPainterPath::CurveToDataElement);
             Q_ASSERT(path.elementAt(i+2).type == QPainterPath::CurveToDataElement);
 #endif
-            if (i == (path.elementCount() - 3) && !multipleMoves) {
+            if (i == (path.elementCount() - 3) && !multipleMoves &&
+                qFuzzyCompare(firstMove->x, e.x) && qFuzzyCompare(firstMove->y, e.y)) {
                 firstMove->setType(PathVertex::MoveCurveTo);
                 firstMove->ctrl1 = QPointF(e.x, e.y);
                 firstMove->ctrl2 = QPointF(path.elementAt(i+1).x, path.elementAt(i+1).y);
@@ -1809,7 +1811,7 @@ bool QPathClipper::contains()
     bool intersect = d->areIntersecting();
 
     //we have an intersection clearly we can't be fully contained
-    if (!intersect)
+    if (intersect)
         return false;
 
     //if there's no intersections the path is already completely outside
