@@ -44,19 +44,19 @@ void tst_QGraphicsItemAnimation::construction()
     QCOMPARE(animation.matrixAt(0), QMatrix());
     QCOMPARE(animation.matrixAt(0.5), QMatrix());
     QCOMPARE(animation.matrixAt(1), QMatrix());
-    QCOMPARE(animation.rotationAt(0), 0.0);
-    QCOMPARE(animation.rotationAt(0.5), 0.0);
-    QCOMPARE(animation.rotationAt(1), 0.0);
-    QCOMPARE(animation.xTranslationAt(0), 0.0);
-    QCOMPARE(animation.xTranslationAt(0.5), 0.0);
-    QCOMPARE(animation.xTranslationAt(1), 0.0);
-    QCOMPARE(animation.yTranslationAt(0), 0.0);
-    QCOMPARE(animation.yTranslationAt(0.5), 0.0);
-    QCOMPARE(animation.yTranslationAt(1), 0.0);
-    QCOMPARE(animation.verticalScaleAt(0), 1.0);
-    QCOMPARE(animation.horizontalScaleAt(0), 1.0);
-    QCOMPARE(animation.verticalShearAt(0), 0.0);
-    QCOMPARE(animation.horizontalShearAt(0), 0.0);
+    QCOMPARE(animation.rotationAt(0), qreal(0.0));
+    QCOMPARE(animation.rotationAt(0.5), qreal(0.0));
+    QCOMPARE(animation.rotationAt(1), qreal(0.0));
+    QCOMPARE(animation.xTranslationAt(0), qreal(0.0));
+    QCOMPARE(animation.xTranslationAt(0.5), qreal(0.0));
+    QCOMPARE(animation.xTranslationAt(1), qreal(0.0));
+    QCOMPARE(animation.yTranslationAt(0), qreal(0.0));
+    QCOMPARE(animation.yTranslationAt(0.5), qreal(0.0));
+    QCOMPARE(animation.yTranslationAt(1), qreal(0.0));
+    QCOMPARE(animation.verticalScaleAt(0), qreal(1.0));
+    QCOMPARE(animation.horizontalScaleAt(0), qreal(1.0));
+    QCOMPARE(animation.verticalShearAt(0), qreal(0.0));
+    QCOMPARE(animation.horizontalShearAt(0), qreal(0.0));
     animation.clear(); // don't crash
 }
 
