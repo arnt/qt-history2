@@ -6,9 +6,8 @@ SOURCES		= smain.cpp \
 
 !system-sqlite:!contains( LIBS, .*sqlite.* ) {
     CONFIG(release, debug|release):DEFINES *= NDEBUG
-    DEFINES += SQLITE_OMIT_LOAD_EXTENSION
+    DEFINES += SQLITE_OMIT_LOAD_EXTENSION SQLITE_OMIT_COMPLETE
     INCLUDEPATH += ../../../3rdparty/sqlite
-
     SOURCES += ../../../3rdparty/sqlite/sqlite3.c
 } else {
     LIBS *= $$QT_LFLAGS_SQLITE

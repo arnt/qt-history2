@@ -48,7 +48,7 @@ contains(sql-drivers, odbc) {
      SOURCES += drivers/odbc/qsql_odbc.cpp
 
      mac:!contains( LIBS, .*odbc.* ):LIBS        *= -liodbc
-     unix:!contains( LIBS, .*odbc.* ):LIBS        *= -lodbc
+     unix:!contains( LIBS, .*odbc.* ):LIBS       *= -lodbc
 
      win32 {
          !win32-borland:LIBS     *= -lodbc32
@@ -110,7 +110,7 @@ contains(sql-drivers, sqlite2) {
 contains(sql-drivers, sqlite) {
     !system-sqlite:!contains( LIBS, .*sqlite3.* ) {
         CONFIG(release, debug|release):DEFINES *= NDEBUG
-        DEFINES += SQLITE_OMIT_LOAD_EXTENSION
+        DEFINES += SQLITE_OMIT_LOAD_EXTENSION SQLITE_OMIT_COMPLETE
         INCLUDEPATH +=  ../3rdparty/sqlite
         SOURCES +=      ../3rdparty/sqlite/sqlite3.c
     } else {
