@@ -5078,8 +5078,6 @@ static void qt_memfill16_setup(quint16 *dest, quint16 value, int count)
     qt_memfill16(dest, value, count);
 }
 
-#ifdef Q_WS_QWS
-
 #if QT_ROTATION_ALGORITHM == QT_ROTATION_TILED
 static const int tileSize = 32;
 #endif
@@ -5539,4 +5537,6 @@ template void qt_memrotate90(const quint16*, int, int, int, quint8*, int);
 template void qt_memrotate180(const quint16*, int, int, int, quint8*, int);
 template void qt_memrotate270(const quint16*, int, int, int, quint8*, int);
 
-#endif // Q_WS_QWS
+template void qt_memrotate90(const quint8*, int, int, int, quint8*, int);
+template void qt_memrotate180(const quint8*, int, int, int, quint8*, int);
+template void qt_memrotate270(const quint8*, int, int, int, quint8*, int);

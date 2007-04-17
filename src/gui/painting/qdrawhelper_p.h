@@ -450,7 +450,6 @@ do {                                          \
     }                                         \
 } while (0)
 
-#ifdef Q_WS_QWS
 template <class DST, class SRC>
 void qt_memrotate90(const SRC *src, int srcWidth, int srcHeight, int srcStride,
                     DST *dst, int dstStride);
@@ -460,7 +459,6 @@ void qt_memrotate180(const SRC *src, int srcWidth, int srcHeight, int srcStride,
 template <class DST, class SRC>
 void qt_memrotate270(const SRC *src, int srcWidth, int srcHeight, int srcStride,
                      DST *dst, int dstStride);
-#endif // Q_WS_QWS
 
 static inline int qt_div_255(int x) { return (x + (x>>8) + 0x80) >> 8; }
 

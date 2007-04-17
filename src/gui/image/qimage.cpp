@@ -5252,26 +5252,22 @@ static QImage rotated90(const QImage &image) {
     case QImage::Format_RGB32:
     case QImage::Format_ARGB32:
     case QImage::Format_ARGB32_Premultiplied:
-        {
-            QRgb *dst = (QRgb *) out.bits();
-            for (int y=0; y<h; ++y) {
-                const QRgb *src = (const QRgb *) image.scanLine(y);
-                for (int x=0; x<w; ++x)
-                    dst[x*h + h-y-1] = *src++;
-            }
-        }
+        qt_memrotate270<quint32, quint32>(reinterpret_cast<const quint32*>(image.bits()),
+                                          w, h, image.bytesPerLine() / sizeof(quint32),
+                                          reinterpret_cast<quint32*>(out.bits()),
+                                          out.bytesPerLine() / sizeof(quint32));
+        break;
+    case QImage::Format_RGB16:
+        qt_memrotate270<quint16, quint16>(reinterpret_cast<const quint16*>(image.bits()),
+                                          w, h, image.bytesPerLine() / sizeof(quint16),
+                                          reinterpret_cast<quint16*>(out.bits()),
+                                          out.bytesPerLine() / sizeof(quint16));
         break;
     case QImage::Format_Indexed8:
-        {
-            uchar *dst = out.bits();
-            int bytes_per_line = out.bytesPerLine();
-            for (int y=0; y<h; ++y) {
-                const uchar *src = image.scanLine(y);
-                for (int x=0; x<w; ++x) {
-                    dst[x*bytes_per_line + h-y-1] = *src++;
-                }
-            }
-        }
+        qt_memrotate270<quint8, quint8>(reinterpret_cast<const quint8*>(image.bits()),
+                                        w, h, image.bytesPerLine(),
+                                        reinterpret_cast<quint8*>(out.bits()),
+                                        out.bytesPerLine());
         break;
     default:
         for (int y=0; y<h; ++y) {
@@ -5303,26 +5299,22 @@ static QImage rotated270(const QImage &image) {
     case QImage::Format_RGB32:
     case QImage::Format_ARGB32:
     case QImage::Format_ARGB32_Premultiplied:
-        {
-            QRgb *dst = (QRgb *) out.bits();
-            for (int y=0; y<h; ++y) {
-                const QRgb *src = (const QRgb *) image.scanLine(y);
-                for (int x=0; x<w; ++x)
-                    dst[y + (w-x-1)*h] = *src++;
-            }
-        }
+        qt_memrotate90<quint32, quint32>(reinterpret_cast<const quint32*>(image.bits()),
+                                         w, h, image.bytesPerLine() / sizeof(quint32),
+                                         reinterpret_cast<quint32*>(out.bits()),
+                                         out.bytesPerLine() / sizeof(quint32));
+        break;
+    case QImage::Format_RGB16:
+        qt_memrotate90<quint16, quint16>(reinterpret_cast<const quint16*>(image.bits()),
+                                         w, h, image.bytesPerLine() / sizeof(quint16),
+                                         reinterpret_cast<quint16*>(out.bits()),
+                                         out.bytesPerLine() / sizeof(quint16));
         break;
     case QImage::Format_Indexed8:
-        {
-            uchar *dst = out.bits();
-            int bytes_per_line = out.bytesPerLine();
-            for (int y=0; y<h; ++y) {
-                const uchar *src = image.scanLine(y);
-                for (int x=0; x<w; ++x) {
-                    dst[y + (w-x-1)*bytes_per_line] = *src++;
-                }
-            }
-        }
+        qt_memrotate90<quint8, quint8>(reinterpret_cast<const quint8*>(image.bits()),
+                                       w, h, image.bytesPerLine(),
+                                       reinterpret_cast<quint8*>(out.bits()),
+                                       out.bytesPerLine());
         break;
     default:
         for (int y=0; y<h; ++y) {
@@ -5421,9 +5413,6 @@ QImage QImage::transformed(const QTransform &matrix, Qt::TransformationMode mode
 
     switch (bpp) {
         // initizialize the data
-        case 1:
-            memset(dImage.bits(), 0, dImage.numBytes());
-            break;
         case 8:
             if (dImage.d->colortable.size() < 256) {
                 // colors are left in the color table, so pick that one as transparent
@@ -5433,13 +5422,17 @@ QImage QImage::transformed(const QTransform &matrix, Qt::TransformationMode mode
                 memset(dImage.bits(), 0, dImage.numBytes());
             }
             break;
+        case 1:
+        case 16:
         case 32:
             memset(dImage.bits(), 0x00, dImage.numBytes());
             break;
     }
 
     if (target_format == QImage::Format_RGB32
-        || target_format == QImage::Format_ARGB32_Premultiplied) {
+        || target_format == QImage::Format_ARGB32_Premultiplied
+        || target_format == QImage::Format_RGB16)
+    {
         QPainter p(&dImage);
         if (mode == Qt::SmoothTransformation) {
             p.setRenderHint(QPainter::Antialiasing);
