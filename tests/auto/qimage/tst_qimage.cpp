@@ -327,7 +327,6 @@ void tst_QImage::convertToFormat_data()
 
     QTest::newRow("white mono -> rgb32") << int(QImage::Format_Mono) << 0x00000001u
                                          << int(QImage::Format_RGB32) << 0xffffffffu;
-#ifdef Q_WS_QWS
     QTest::newRow("red rgb16 -> argb32") << int(QImage::Format_RGB16) << 0xffff0000
                                          << int(QImage::Format_ARGB32) << 0xffff0000;
     QTest::newRow("green rgb16 -> argb32") << int(QImage::Format_RGB16) << 0xff00ff00
@@ -357,7 +356,6 @@ void tst_QImage::convertToFormat_data()
                                          << int(QImage::Format_RGB16) << 0xffffffffu;
     QTest::newRow("semiblack pm -> rgb16") << int(QImage::Format_ARGB32_Premultiplied) << 0x7f000000u
                                          << int(QImage::Format_RGB16) << 0xff000000u;
-#endif // Q_WS_QWS
 }
 
 
@@ -599,14 +597,12 @@ void tst_QImage::setPixel_data()
                                   << 0xff00ff00 << 0xff00ff00;
     QTest::newRow("ARGB32 blue") << int(QImage::Format_ARGB32)
                                  << 0xff0000ff << 0xff0000ff;
-#ifdef Q_WS_QWS
     QTest::newRow("RGB16 red") << int(QImage::Format_RGB16)
                                << 0xffff0000 << 0xf800u;
     QTest::newRow("RGB16 green") << int(QImage::Format_RGB16)
                                  << 0xff00ff00 << 0x07e0u;
     QTest::newRow("RGB16 blue") << int(QImage::Format_RGB16)
                                 << 0xff0000ff << 0x001fu;
-#endif // Q_WS_QWS
 }
 
 void tst_QImage::setPixel()
@@ -643,7 +639,6 @@ void tst_QImage::setPixel()
         }
         break;
     }
-#ifdef Q_WS_QWS
     case int(QImage::Format_RGB16):
     {
         for (int y = 0; y < h; ++y) {
@@ -658,7 +653,6 @@ void tst_QImage::setPixel()
         }
         break;
     }
-#endif
     default:
         qFatal("Test not implemented for format %d", format);
     }
