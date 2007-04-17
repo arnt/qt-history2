@@ -557,13 +557,11 @@
   QWorkspace in order to make porting between the two widgets a
   straightforward task.
 
-  \image qfiledialog-small.png
+  \image plastique-filedialog.png
 
   On X11, QFileDialog has been optimized to perform better with directories
   containing large numbers of files, automatically updates when files are
   added or removed, and has a brand new look and feel.
-
-  \image qfiledialog-expanded.png
 
   A platform-independent way to notify users about activity in a window
   is provided by the QApplication::alert() function. This alerts the user
