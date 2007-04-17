@@ -362,36 +362,32 @@ Qt::HANDLE QSslCertificate::handle() const
 */
 QSslKey QSslCertificate::publicKey() const
 {
-    // ### in progress
-    return QSslKey();
-
-#if 0
-
     if (!d->x509)
         return QSslKey();
 
     QSslKey key;
 
-    // ### tentative:
     key.d->type = QSsl::PublicKey;
     X509_PUBKEY *xkey = d->x509->cert_info->key;
-    EVP_PKEY *evp_pkey = xkey->pkey;
-    Q_ASSERT(evp_pkey);
+    EVP_PKEY *pkey = q_X509_PUBKEY_get(xkey);
+    Q_ASSERT(pkey);
 
-    if (evp_pkey->type == EVP_PK_RSA) { // is this right?
-        key.d->rsa = RSAPublicKey_dup(evp_pkey->pkey.rsa);
-//        EVP_PKEY_copy_parameters(to, from);
+    if (q_EVP_PKEY_type(pkey->type) == EVP_PKEY_RSA) {
+        key.d->rsa = q_EVP_PKEY_get1_RSA(pkey);
         key.d->algorithm = QSsl::Rsa;
         key.d->isNull = false;
-    } else {
-//        key.d->dsa = DSAPublicKey_dup(evp_pkey->pkey.dsa); // doesn't work!!!
+    } else if (q_EVP_PKEY_type(pkey->type) == EVP_PKEY_DSA) {
+        key.d->dsa = q_EVP_PKEY_get1_DSA(pkey);
         key.d->algorithm = QSsl::Dsa;
-//        key.d->isNull = false;
-        key.d->isNull = true;
+        key.d->isNull = false;
+    } else if (q_EVP_PKEY_type(pkey->type) == EVP_PKEY_DH) {
+        // DH unsupported
+    } else {
+        // error?
     }
 
+    q_EVP_PKEY_free(pkey);
     return key;
-#endif
 }
 
 /*!

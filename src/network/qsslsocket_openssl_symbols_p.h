@@ -188,6 +188,10 @@ X509 *q_d2i_X509(X509 **a, unsigned char **b, long c);
 char *q_ERR_error_string(unsigned long a, char *b);
 unsigned long q_ERR_get_error();
 const EVP_CIPHER *q_EVP_des_ede3_cbc();
+void q_EVP_PKEY_free(EVP_PKEY *a);
+RSA *q_EVP_PKEY_get1_RSA(EVP_PKEY *a);
+DSA *q_EVP_PKEY_get1_DSA(EVP_PKEY *a);
+int q_EVP_PKEY_type(int a);
 int q_i2d_X509(X509 *a, unsigned char **b);
 #ifdef SSLEAY_MACROS
 // ### verify
@@ -254,6 +258,7 @@ X509_NAME *q_X509_get_issuer_name(X509 *a);
 X509_NAME *q_X509_get_subject_name(X509 *a);
 int q_X509_verify_cert(X509_STORE_CTX *ctx);
 char *q_X509_NAME_oneline(X509_NAME *a, char *b, int c);
+EVP_PKEY *q_X509_PUBKEY_get(X509_PUBKEY *a);
 void q_X509_STORE_free(X509_STORE *store);
 X509_STORE *q_X509_STORE_new();
 int q_X509_STORE_add_cert(X509_STORE *ctx, X509 *x);
