@@ -718,7 +718,7 @@ void QKeyMapperPrivate::updatePossibleKeyCodes(unsigned char *kbdBuffer, quint32
 
 bool QKeyMapperPrivate::isADeadKey(unsigned int vk_key, unsigned int modifiers)
 {
-    if (keyLayout && keyLayout[vk_key]) {
+    if (keyLayout && (vk_key < 256) && keyLayout[vk_key]) {
         for(register int i = 0; i < 9; ++i) {
             if (ModsTbl[i] == modifiers)
                 return bool(keyLayout[vk_key]->deadkeys & 1<<i);
