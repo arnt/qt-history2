@@ -1,6 +1,5 @@
 HEADERS += rsslisting.h
 SOURCES += main.cpp rsslisting.cpp
-CONFIG += qt warn_on debug  create_prl link_prl
 QT += network xml
 
 # install
