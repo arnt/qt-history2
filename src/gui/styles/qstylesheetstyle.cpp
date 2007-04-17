@@ -1041,11 +1041,14 @@ public:
             && QString::fromLatin1("QTipLabel")== QString::fromLatin1(WIDGET(node)->metaObject()->className()))
             return true;
 #endif
+        const QMetaObject *metaObject = WIDGET(node)->metaObject();
         do {
-            if (WIDGET(node)->property("class") == name)
+            QString className = QString::fromUtf8(metaObject->className());
+            className.replace(QLatin1Char(':'), QLatin1Char('-'));
+            if (className == name)
                 return true;
-            node = parentNode(node);
-        } while (!isNullNode(node));
+            metaObject = metaObject->superClass();
+        } while (metaObject != 0);
         return false;
     }
     QString attribute(NodePtr node, const QString& name) const
@@ -1053,7 +1056,9 @@ public:
         QVariant value = WIDGET(node)->property(name.toLatin1());
         if (!value.isValid()) {
             if (name == QLatin1String("class")) {
-                return QString::fromLatin1(WIDGET(node)->metaObject()->className());
+                QString className = QString::fromLatin1(WIDGET(node)->metaObject()->className());
+                className.replace(QLatin1Char(':'), QLatin1Char('-'));
+                return className;
             } else if (name == QLatin1String("style")) {
                 QStyleSheetStyle *proxy = qobject_cast<QStyleSheetStyle *>(WIDGET(node)->style());
                 if (proxy)
@@ -1323,8 +1328,10 @@ static int pseudoClass(QStyle::State state)
         pc |= PseudoClass_Selected;
     if (state & QStyle::State_Horizontal)
         pc |= PseudoClass_Horizontal;
-    if (state & QStyle::State_Open)
+    if (state & (QStyle::State_Open | QStyle::State_On | QStyle::State_Sunken))
         pc |= PseudoClass_Open;
+    else
+        pc |= PseudoClass_Closed;
     if (state & QStyle::State_Children)
         pc |= PseudoClass_Children;
     if (state & QStyle::State_Sibling)

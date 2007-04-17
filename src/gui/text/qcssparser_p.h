@@ -379,7 +379,8 @@ enum PseudoClass
     PseudoClass_NonExclusive     = 0x10000000,
     PseudoClass_Frameless        = 0x20000000,
     PseudoClass_ReadOnly         = 0x40000000,
-    NumPseudos = 33
+    PseudoClass_Closed           = 0x80000000,
+    NumPseudos = 34
 };
 
 struct Q_GUI_EXPORT Pseudo

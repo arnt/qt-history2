@@ -30,6 +30,8 @@ private slots:
 #ifdef Q_OS_MAC
     void layoutSpacing();
 #endif
+    void qproperty();
+    void namespaces();
 private:
     QColor COLOR(const QWidget& w) {
         w.ensurePolished();
@@ -493,7 +495,6 @@ void tst_QStyleSheetStyle::appStyle()
 
 void tst_QStyleSheetStyle::dynamicProperty()
 {
-    return;
     QString appStyle = qApp->style()->metaObject()->className();
     QPushButton pb1, pb2;
     pb1.setProperty("type", "critical");
@@ -523,6 +524,47 @@ void tst_QStyleSheetStyle::layoutSpacing()
 }
 #endif
 
+void tst_QStyleSheetStyle::qproperty()
+{
+    QPushButton pb;
+    pb.setStyleSheet("QPushButton { qproperty-text: hello; qproperty-checkable: true; qproperty-checked: 1}");
+    pb.ensurePolished();
+    QCOMPARE(pb.text(), QString("hello"));
+    QCOMPARE(pb.isCheckable(), true);
+    QCOMPARE(pb.isChecked(), true);
+}
+
+namespace ns {
+    class PushButton1 : public QPushButton {
+        Q_OBJECT
+    public:
+        PushButton1() { }
+    };
+    class PushButton2 : public PushButton1 {
+        Q_OBJECT
+    public:
+        PushButton2() { setProperty("class", "PushButtonTwo PushButtonDuo"); }
+    };
+}
+
+void tst_QStyleSheetStyle::namespaces()
+{
+    ns::PushButton1 pb1;
+    qApp->setStyleSheet("ns--PushButton1 { background: white }");
+    QVERIFY(BACKGROUND(pb1) == QColor("white"));
+    qApp->setStyleSheet(".ns--PushButton1 { background: red }");
+    QVERIFY(BACKGROUND(pb1) == QColor("red"));
+
+    ns::PushButton2 pb2;
+    qApp->setStyleSheet("ns--PushButton1 { background: blue}");
+    QVERIFY(BACKGROUND(pb2) == QColor("blue"));
+    qApp->setStyleSheet("ns--PushButton2 { background: magenta }");
+    QVERIFY(BACKGROUND(pb2) == QColor("magenta"));
+    qApp->setStyleSheet(".PushButtonTwo { background: white; }");
+    QVERIFY(BACKGROUND(pb2) == QColor("white"));
+    qApp->setStyleSheet(".PushButtonDuo { background: red; }");
+    QVERIFY(BACKGROUND(pb2) == QColor("red"));
+}
 
 QTEST_MAIN(tst_QStyleSheetStyle)
 #include "tst_qstylesheetstyle.moc"
