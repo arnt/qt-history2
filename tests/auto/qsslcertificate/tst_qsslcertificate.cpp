@@ -308,9 +308,6 @@ void tst_QSslCertificate::publicKey()
     QSslKey pubkey(encodedPubkey, QSsl::Rsa, format, QSsl::PublicKey); // ### support DSA as well!
     QVERIFY(!pubkey.isNull());
 
-    if (!(certificate.publicKey() == pubkey))
-        qDebug() << certificate.publicKey()
-                 << pubkey;
     QCOMPARE(certificate.publicKey(), pubkey);
 }
 
