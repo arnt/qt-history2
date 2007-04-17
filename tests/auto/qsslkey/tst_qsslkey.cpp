@@ -52,6 +52,7 @@ private slots:
     void constructor();
     void copyAndAssign_data();
     void copyAndAssign();
+    void equalsOperator();
     void length_data();
     void length();
     void toPemOrDer_data();
@@ -119,6 +120,9 @@ void tst_QSslKey::emptyConstructor()
     QSslKey key;
     QVERIFY(key.isNull());
     QVERIFY(key.length() < 0);
+
+    QSslKey key2;
+    QCOMPARE(key, key2);
 }
 
 Q_DECLARE_METATYPE(QSsl::Algorithm);
@@ -178,6 +182,7 @@ void tst_QSslKey::copyAndAssign()
     QSslKey key(encoded, algorithm, format, type);
 
     QSslKey copied(key);
+    QCOMPARE(key, copied);
     QCOMPARE(key.algorithm(), copied.algorithm());
     QCOMPARE(key.type(), copied.type());
     QCOMPARE(key.length(), copied.length());
@@ -185,11 +190,17 @@ void tst_QSslKey::copyAndAssign()
     QCOMPARE(key.toDer(), copied.toDer());
 
     QSslKey assigned = key;
+    QCOMPARE(key, assigned);
     QCOMPARE(key.algorithm(), assigned.algorithm());
     QCOMPARE(key.type(), assigned.type());
     QCOMPARE(key.length(), assigned.length());
     QCOMPARE(key.toPem(), assigned.toPem());
     QCOMPARE(key.toDer(), assigned.toDer());
+}
+
+void tst_QSslKey::equalsOperator()
+{
+    // ### unimplemented
 }
 
 void tst_QSslKey::length_data()
@@ -244,9 +255,8 @@ void tst_QSslKey::toEncryptedPemOrDer_data()
     QTest::addColumn<QString>("password");
 
     QStringList passwords;
-//     passwords << "" << " " << "foobar" << "foo bar"
-//               << "aAzZ`1234567890-=~!@#$%^&*()_+[]{}\\|;:'\",.<>/?";
-    passwords << "foobar";
+    passwords << " " << "foobar" << "foo bar"
+              << "aAzZ`1234567890-=~!@#$%^&*()_+[]{}\\|;:'\",.<>/?"; // ### add more (?)
     foreach (KeyInfo keyInfo, keyInfoList) {
         foreach (QString password, passwords) {
             QString testName = QString("%1-%2-%3-%4").arg(keyInfo.fileInfo.fileName())
@@ -282,6 +292,7 @@ void tst_QSslKey::toEncryptedPemOrDer()
         QVERIFY(!encryptedPem.isEmpty());
         QSslKey keyPem(encryptedPem, algorithm, QSsl::Pem, type, pwBytes);
         QVERIFY(!keyPem.isNull());
+        QCOMPARE(keyPem, key);
         QCOMPARE(keyPem.toPem(), key.toPem());
     } else {
         // verify that public keys are never encrypted by toPem()

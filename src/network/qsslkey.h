@@ -50,6 +50,10 @@ public:
             QSsl::EncodingFormat format = QSsl::Pem,
             QSsl::KeyType type = QSsl::PrivateKey,
             const QByteArray &passPhrase = QByteArray());
+    QSslKey(QIODevice *device, QSsl::Algorithm algorithm,
+            QSsl::EncodingFormat format = QSsl::Pem,
+            QSsl::KeyType type = QSsl::PrivateKey,
+            const QByteArray &passPhrase = QByteArray());
     QSslKey(const QSslKey &other);
     ~QSslKey();
     QSslKey &operator=(const QSslKey &other);
@@ -66,8 +70,12 @@ public:
 
     Qt::HANDLE handle() const;
 
+    bool operator==(const QSslKey &key) const;
+    inline bool operator!=(const QSslKey &key) const { return !operator==(key); }
+
 private:
     QSslKeyPrivate *d;
+    friend class QSslCertificate;
 };
 
 #ifndef QT_NO_DEBUG

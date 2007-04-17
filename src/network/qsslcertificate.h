@@ -30,6 +30,7 @@
 #define QSSLCERTIFICATE_H
 
 #include <QtCore/qnamespace.h>
+#include <QtNetwork/qssl.h>
 
 QT_BEGIN_HEADER
 
@@ -61,13 +62,14 @@ public:
         StateOrProvinceName
     };
 
-    QSslCertificate(QIODevice *device);
-    QSslCertificate(const QByteArray &encoded = QByteArray());
+    QSslCertificate(QIODevice *device, QSsl::EncodingFormat format = QSsl::Pem);
+    QSslCertificate( // ### s/encoded/data (to be consistent with signature in .cpp file) ?
+        const QByteArray &encoded = QByteArray(), QSsl::EncodingFormat format = QSsl::Pem);
     QSslCertificate(const QSslCertificate &other);
     ~QSslCertificate();
     QSslCertificate &operator=(const QSslCertificate &other);
     bool operator==(const QSslCertificate &other) const;
-    inline bool operator!=(const QSslCertificate &other) const { return !operator==(other); }
+    inline bool operator!=(const QSslCertificate &other) const { return !operator==(other); } //###
 
     bool isNull() const;
     bool isValid() const;
@@ -89,9 +91,12 @@ public:
     QByteArray toPem() const;
     QByteArray toDer() const;
 
-    static QList<QSslCertificate> fromPath(const QString &path);
-    static QList<QSslCertificate> fromDevice(QIODevice *device);
-    static QList<QSslCertificate> fromData(const QByteArray &data);
+    static QList<QSslCertificate> fromPath(
+        const QString &path, QSsl::EncodingFormat format = QSsl::Pem);
+    static QList<QSslCertificate> fromDevice(
+        QIODevice *device, QSsl::EncodingFormat format = QSsl::Pem);
+    static QList<QSslCertificate> fromData(
+        const QByteArray &data, QSsl::EncodingFormat format = QSsl::Pem);
 
     Qt::HANDLE handle() const;
 

@@ -42,6 +42,7 @@
 
 #include "qsslsocket_openssl_symbols_p.h"
 #include "qsslkey.h"
+#include "qsslkey_p.h"
 #include "qsslsocket.h"
 #include "qsslsocket_p.h"
 
@@ -50,51 +51,26 @@
 #include <QtCore/qdebug.h>
 #endif
 
-class QSslKeyPrivate
+
+/*!
+    \internal
+ */
+void QSslKeyPrivate::clear(bool deep)
 {
-public:
-    inline QSslKeyPrivate()
-        : rsa(0)
-        , dsa(0)
-    { 
-        QSslSocketPrivate::ensureInitialized();
-        clear(); 
+    isNull = true;
+    if (!QSslSocket::supportsSsl())
+        return;
+    if (rsa) {
+        if (deep)
+            q_RSA_free(rsa);
+        rsa = 0;
     }
-
-    inline ~QSslKeyPrivate()
-    { clear(); }
-
-    inline void clear(bool deep = true)
-    {
-        isNull = true;
-        if (!QSslSocket::supportsSsl())
-            return;
-
-        if (rsa) {
-            if (deep)
-                q_RSA_free(rsa);
-            rsa = 0;
-        }
-        if (dsa) {
-            if (deep)
-                q_DSA_free(dsa);
-            dsa = 0;
-        }
+    if (dsa) {
+        if (deep)
+            q_DSA_free(dsa);
+        dsa = 0;
     }
-
-    void decodePem(const QByteArray &pem, const QByteArray &passPhrase,
-                   bool deepClear = true);
-    QByteArray pemHeader() const;
-    QByteArray pemFooter() const;
-    QByteArray pemFromDer(const QByteArray &der) const;
-    QByteArray derFromPem(const QByteArray &pem) const;
-
-    bool isNull;
-    QSsl::KeyType type;
-    QSsl::Algorithm algorithm;
-    RSA *rsa;
-    DSA *dsa;
-};
+}
 
 /*!
     \internal
@@ -233,6 +209,18 @@ QSslKey::QSslKey(const QByteArray &encoded, QSsl::Algorithm algorithm,
                  QSsl::EncodingFormat encoding, QSsl::KeyType type, const QByteArray &passPhrase)
     : d(new QSslKeyPrivate)
 {
+    d->type = type;
+    d->algorithm = algorithm;
+    d->decodePem((encoding == QSsl::Der) ? d->pemFromDer(encoded) : encoded, passPhrase);
+}
+
+QSslKey::QSslKey(QIODevice *device, QSsl::Algorithm algorithm,
+                 QSsl::EncodingFormat encoding, QSsl::KeyType type, const QByteArray &passPhrase)
+    : d(new QSslKeyPrivate)
+{
+    QByteArray encoded;
+    if (device)
+        encoded = device->readAll();
     d->type = type;
     d->algorithm = algorithm;
     d->decodePem((encoding == QSsl::Der) ? d->pemFromDer(encoded) : encoded, passPhrase);
@@ -402,6 +390,24 @@ QByteArray QSslKey::toPem(const QByteArray &passPhrase) const
 Qt::HANDLE QSslKey::handle() const
 {
     return (d->algorithm == QSsl::Rsa) ? Qt::HANDLE(d->rsa) : Qt::HANDLE(d->dsa);
+}
+
+/*!
+    Returns true if this key is equal to \a key; otherwise returns false.
+*/
+bool QSslKey::operator==(const QSslKey &key) const
+{
+    if (isNull())
+        return key.isNull();
+    if (key.isNull())
+        return isNull();
+    if (algorithm() != key.algorithm())
+        return false;
+    if (type() != key.type())
+        return false;
+    if (length() != key.length())
+        return false;
+    return toDer() == key.toDer();
 }
 
 #ifndef QT_NO_DEBUG

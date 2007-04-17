@@ -42,7 +42,7 @@
     There are many ways to construct a QSslCertificate. The most common way is
     to call QSslSocket::peerCertificate() or
     QSslSocket::peerCertificateChain(), which both return QSslCertificate
-    objects. You can also create load certificates from a binary or PEM
+    objects. You can also create load certificates from a binary or PEM   // ### create/load, DER
     encoded bundle, typically stored as one or more local files, or in a Qt
     Resource.
 
@@ -92,6 +92,7 @@
 #include "qsslcertificate.h"
 #include "qsslcertificate_p.h"
 #include "qsslkey.h"
+#include "qsslkey_p.h"
 
 #include <QtCore/qdatetime.h>
 #ifndef QT_NO_DEBUG
@@ -109,17 +110,11 @@
     available certificate. You can later call isNull() to see if \a device
     contained a certificate, and this certificate was loaded successfully.
 */
-QSslCertificate::QSslCertificate(QIODevice *device)
+QSslCertificate::QSslCertificate(QIODevice *device, QSsl::EncodingFormat format)
     : d(new QSslCertificatePrivate)
 {
-    if (device) {
-        QList<QSslCertificate> certs = d->QSslCertificates_from_QByteArray(device->readAll(), 1);
-        if (!certs.isEmpty()) {
-            *d = *certs.first().d;
-            if (d->x509)
-                d->x509 = q_X509_dup(d->x509);
-        }
-    }
+    if (device)
+        d->init(device->readAll(), format);
 }
 
 /*!
@@ -127,17 +122,10 @@ QSslCertificate::QSslCertificate(QIODevice *device)
     available certificate. You can later call isNull() to see if \a data
     contained a certificate, and this certificate was loaded successfully.
 */
-QSslCertificate::QSslCertificate(const QByteArray &data)
+QSslCertificate::QSslCertificate(const QByteArray &data, QSsl::EncodingFormat format)
     : d(new QSslCertificatePrivate)
 {
-    if (!data.isEmpty()) {
-        QList<QSslCertificate> certs = d->QSslCertificates_from_QByteArray(data, 1);
-        if (!certs.isEmpty()) {
-            *d = *certs.first().d;
-            if (d->x509)
-                d->x509 = q_X509_dup(d->x509);
-        }
-    }
+    d->init(data, format);
 }
 
 /*!
@@ -217,8 +205,8 @@ bool QSslCertificate::isNull() const
 */
 bool QSslCertificate::isValid() const
 {
-    // ### unimplemented
-    return false;
+    const QDateTime currentTime = QDateTime::currentDateTime();
+    return currentTime >= d->notValidBefore && currentTime <= d->notValidAfter;
 }
 
 /*!
@@ -258,9 +246,7 @@ QByteArray QSslCertificate::serialNumber() const
 */
 QByteArray QSslCertificate::digest(QCryptographicHash::Algorithm algorithm) const
 {
-    // ### unimplemented
-    Q_UNUSED(algorithm);
-    return QByteArray();
+    return QCryptographicHash::hash(toDer(), algorithm);
 }
 
 static QString _q_SubjectInfoToString(QSslCertificate::SubjectInfo info)
@@ -383,8 +369,36 @@ Qt::HANDLE QSslCertificate::handle() const
 */
 QSslKey QSslCertificate::publicKey() const
 {
-    // ### unimplemented
+    // ### in progress
     return QSslKey();
+
+#if 0
+
+    if (!d->x509)
+        return QSslKey();
+
+    QSslKey key;
+
+    // ### tentative:
+    key.d->type = QSsl::PublicKey;
+    X509_PUBKEY *xkey = d->x509->cert_info->key;
+    EVP_PKEY *evp_pkey = xkey->pkey;
+    Q_ASSERT(evp_pkey);
+
+    if (evp_pkey->type == EVP_PK_RSA) { // is this right?
+        key.d->rsa = RSAPublicKey_dup(evp_pkey->pkey.rsa);
+//        EVP_PKEY_copy_parameters(to, from);
+        key.d->algorithm = QSsl::Rsa;
+        key.d->isNull = false;
+    } else {
+//        key.d->dsa = DSAPublicKey_dup(evp_pkey->pkey.dsa); // doesn't work!!!
+        key.d->algorithm = QSsl::Dsa;
+//        key.d->isNull = false;
+        key.d->isNull = true;
+    }
+
+    return key;
+#endif
 }
 
 /*!
@@ -395,7 +409,7 @@ QByteArray QSslCertificate::toPem() const
 {
     if (!d->x509)
         return QByteArray();
-    return d->QByteArray_from_X509(d->x509, /* pemEncoded = */ true);
+    return d->QByteArray_from_X509(d->x509, QSsl::Pem);
 }
 
 /*!
@@ -406,7 +420,7 @@ QByteArray QSslCertificate::toDer() const
 {
     if (!d->x509)
         return QByteArray();
-    return d->QByteArray_from_X509(d->x509, /* pemEncoded = */ false);
+    return d->QByteArray_from_X509(d->x509, QSsl::Der);
 }
 
 /*!
@@ -416,7 +430,7 @@ QByteArray QSslCertificate::toDer() const
 
     \sa fromData()
 */
-QList<QSslCertificate> QSslCertificate::fromPath(const QString &path)
+QList<QSslCertificate> QSslCertificate::fromPath(const QString &path, QSsl::EncodingFormat format)
 {
     QStringList entryList;
     if (QFileInfo(path).isDir()) {
@@ -429,7 +443,7 @@ QList<QSslCertificate> QSslCertificate::fromPath(const QString &path)
     foreach (QString path, entryList) {
         QFile file(path);
         if (file.open(QIODevice::ReadOnly | QIODevice::Text))
-            certs << QSslCertificate(file.readAll());
+            certs << QSslCertificate(file.readAll(), format);
     }
     return certs;
 }
@@ -440,9 +454,9 @@ QList<QSslCertificate> QSslCertificate::fromPath(const QString &path)
 
     \sa fromData()
 */
-QList<QSslCertificate> QSslCertificate::fromDevice(QIODevice *device)
+QList<QSslCertificate> QSslCertificate::fromDevice(QIODevice *device, QSsl::EncodingFormat format)
 {
-    return fromData(device->readAll());
+    return fromData(device->readAll(), format);
 }
 
 /*!
@@ -451,15 +465,33 @@ QList<QSslCertificate> QSslCertificate::fromDevice(QIODevice *device)
 
     \sa fromDevice()
 */
-QList<QSslCertificate> QSslCertificate::fromData(const QByteArray &data)
+QList<QSslCertificate> QSslCertificate::fromData(
+    const QByteArray &data, QSsl::EncodingFormat format)
 {
-    return QSslCertificatePrivate::QSslCertificates_from_QByteArray(data);
+    return (format == QSsl::Pem)
+        ? QSslCertificatePrivate::certificatesFromPem(data)
+        : QSslCertificatePrivate::certificatesFromDer(data);
+}
+
+void QSslCertificatePrivate::init(const QByteArray &data, QSsl::EncodingFormat format)
+{
+    if (!data.isEmpty()) {
+        QList<QSslCertificate> certs = (format == QSsl::Pem)
+            ? certificatesFromPem(data, 1)
+            : certificatesFromDer(data, 1);
+        if (!certs.isEmpty()) {
+            *this = *certs.first().d;
+            if (x509)
+                x509 = q_X509_dup(x509);
+        }
+    }
 }
 
 static const char BeginCertString[] = "-----BEGIN CERTIFICATE-----\n";
 static const char EndCertString[] = "-----END CERTIFICATE-----\n";
 
-QByteArray QSslCertificatePrivate::QByteArray_from_X509(X509 *x509, bool pemEncoded)
+// ### refactor against QSsl::pemFromDer() etc. (to avoid redundant implementations)
+QByteArray QSslCertificatePrivate::QByteArray_from_X509(X509 *x509, QSsl::EncodingFormat format)
 {
     if (!x509) {
         qWarning("QSslSocketBackendPrivate::X509_to_QByteArray: null X509");
@@ -476,7 +508,7 @@ QByteArray QSslCertificatePrivate::QByteArray_from_X509(X509 *x509, bool pemEnco
     if (q_i2d_X509(x509, dataPu) < 0)
         return QByteArray();
 
-    if (!pemEncoded)
+    if (format == QSsl::Der)
         return array;
 
     // Convert to Base64 - wrap at 64 characters.
@@ -497,20 +529,32 @@ QByteArray QSslCertificatePrivate::QByteArray_from_X509(X509 *x509, bool pemEnco
 static QMap<QString, QString> _q_mapFromOnelineName(char *name)
 {
     QMap<QString, QString> info;
-    QString issuerInfoStr = QString::fromLocal8Bit(name);
+    QString infoStr = QString::fromLocal8Bit(name);
     q_CRYPTO_free(name);
 
-    foreach (QString entry, issuerInfoStr.split(QLatin1String("/"), QString::SkipEmptyParts)) {
-        // ### The right-hand encoding seems to allow hex (Regulierungsbeh\xC8orde)
-        //entry.replace(QLatin1String("\\x"), QLatin1String("%"));
-        //entry = QUrl::fromPercentEncoding(entry.toLatin1());
-        
-        int splitPos = entry.indexOf(QLatin1String("="));
-        if (splitPos != -1) {
-            info.insert(entry.left(splitPos), entry.mid(splitPos + 1));
-        } else {
-            info.insert(entry, QString());
+    // ### The right-hand encoding seems to allow hex (Regulierungsbeh\xC8orde)
+    //entry.replace(QLatin1String("\\x"), QLatin1String("%"));
+    //entry = QUrl::fromPercentEncoding(entry.toLatin1());
+    // ### See RFC-4630 for more details!
+
+    QRegExp rx(QLatin1String("/([A-Za-z]+)=(.+)"));
+
+    int pos = 0;
+    while ((pos = rx.indexIn(infoStr, pos)) != -1) {
+        const QString name = rx.cap(1);
+
+        QString value = rx.cap(2);
+        const int valuePos = rx.pos(2);
+
+        const int next = rx.indexIn(value);
+        if (next == -1) {
+            info.insert(name, value);
+            break;
         }
+
+        value = value.left(next);
+        info.insert(name, value);
+        pos = valuePos + value.length();
     }
 
     return info;
@@ -522,12 +566,13 @@ QSslCertificate QSslCertificatePrivate::QSslCertificate_from_X509(X509 *x509)
     if (!x509 || !QSslSocket::supportsSsl())
         return certificate;
 
-    // ### Don't use X509_NAME_oneline, at least try QRegexp splitting
-    certificate.d->issuerInfo = _q_mapFromOnelineName(q_X509_NAME_oneline(q_X509_get_issuer_name(x509), 0, 0));
-    certificate.d->subjectInfo = _q_mapFromOnelineName(q_X509_NAME_oneline(q_X509_get_subject_name(x509), 0, 0));
+    certificate.d->issuerInfo =
+        _q_mapFromOnelineName(q_X509_NAME_oneline(q_X509_get_issuer_name(x509), 0, 0));
+    certificate.d->subjectInfo =
+        _q_mapFromOnelineName(q_X509_NAME_oneline(q_X509_get_subject_name(x509), 0, 0));
 
-    ASN1_TIME *nbef = X509_get_notBefore(x509);
-    ASN1_TIME *naft = X509_get_notAfter(x509);
+    ASN1_TIME *nbef = X509_get_notBefore(x509); // ### convert to q_X509_get_notBefore
+    ASN1_TIME *naft = X509_get_notAfter(x509);  // ### convert to q_X509_get_notAfter
     certificate.d->notValidBefore.setTime_t(q_getTimeFromASN1(nbef));
     certificate.d->notValidAfter.setTime_t(q_getTimeFromASN1(naft));
     certificate.d->null = false;
@@ -536,25 +581,26 @@ QSslCertificate QSslCertificatePrivate::QSslCertificate_from_X509(X509 *x509)
     return certificate;
 }
 
-QList<QSslCertificate> QSslCertificatePrivate::QSslCertificates_from_QByteArray(const QByteArray &array,
-                                                                                int count)
+QList<QSslCertificate> QSslCertificatePrivate::certificatesFromPem(
+    const QByteArray &pem, int count)
 {
     QList<QSslCertificate> certificates;
 
     int offset = 0;
-    do {
-        int startPos = array.indexOf(BeginCertString, offset);
+    while (count == -1 || certificates.size() < count) {
+        int startPos = pem.indexOf(BeginCertString, offset);
         if (startPos == -1)
             break;
         startPos += sizeof(BeginCertString) - 1;
         
-        int endPos = array.indexOf(EndCertString, startPos);
+        int endPos = pem.indexOf(EndCertString, startPos);
         if (endPos == -1)
             break;
 
         offset = endPos + sizeof(EndCertString) - 1;
 
-        QByteArray decoded = QByteArray::fromBase64(QByteArray::fromRawData(array.data() + startPos, endPos - startPos));
+        QByteArray decoded = QByteArray::fromBase64(
+            QByteArray::fromRawData(pem.data() + startPos, endPos - startPos));
 #if OPENSSL_VERSION_NUMBER >= 0x00908000L
         const unsigned char *data = (const unsigned char *)decoded.data();
 #else
@@ -565,7 +611,32 @@ QList<QSslCertificate> QSslCertificatePrivate::QSslCertificates_from_QByteArray(
             certificates << QSslCertificate_from_X509(x509);
             q_X509_free(x509);
         }
-    } while (count == -1 || certificates.size() >= count);
+    }
+
+    return certificates;
+}
+
+QList<QSslCertificate> QSslCertificatePrivate::certificatesFromDer(
+    const QByteArray &der, int count)
+{
+    QList<QSslCertificate> certificates;
+
+#if OPENSSL_VERSION_NUMBER >= 0x00908000L
+        const unsigned char *data = (const unsigned char *)der.data();
+#else
+        unsigned char *data = (unsigned char *)der.data();
+#endif
+    int size = der.size();
+
+    while (count == -1 || certificates.size() < count) {
+        if (X509 *x509 = q_d2i_X509(0, &data, size)) {
+            certificates << QSslCertificate_from_X509(x509);
+            q_X509_free(x509);
+        } else {
+            break;
+        }
+        size -= ((char *)data - der.data());
+    }
 
     return certificates;
 }
