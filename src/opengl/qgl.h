@@ -54,10 +54,6 @@ typedef GLfloat GLdouble;
 class QGLCmap;
 #endif
 
-#ifdef Q_WS_MAC64
-typedef void * GDHandle;
-#endif
-
 class QPixmap;
 #if defined(Q_WS_X11)
 class QGLOverlayWidget;
