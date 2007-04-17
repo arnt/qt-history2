@@ -318,8 +318,8 @@ void sqlite3_interrupt(sqlite3*);
 ** in order to deal with triggers, but the basic idea is the same:  the
 ** statement is not complete unless it ends in a semicolon.
 */
-/* int sqlite3_complete(const char *sql); */
-/* int sqlite3_complete16(const void *sql); */
+int sqlite3_complete(const char *sql);
+int sqlite3_complete16(const void *sql);
 
 /*
 ** This routine identifies a callback function that is invoked
