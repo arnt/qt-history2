@@ -34,7 +34,7 @@ int main(int argc, char **argv)
 #if defined(Q_OS_UNIX)
     f.write(QByteArray::number(getpid()));
 #elif defined(Q_OS_WIN)
-    f.write(QByteArray::number(quint64(GetCurrentProcessId()));
+    f.write(QByteArray::number(quint64(GetCurrentProcessId())));
 #endif
     f.putChar('\n');
 
