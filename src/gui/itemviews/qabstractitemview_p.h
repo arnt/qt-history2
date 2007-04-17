@@ -80,6 +80,7 @@ public:
     void doDelayedItemsLayout();
 
     bool dropOn(QDropEvent *event, int *row, int *col, QModelIndex *index);
+    bool droppingOnItself(QDropEvent *event, const QModelIndex &index);
 
     QWidget *editor(const QModelIndex &index, const QStyleOptionViewItem &options);
     bool sendDelegateEvent(const QModelIndex &index, QEvent *event) const;

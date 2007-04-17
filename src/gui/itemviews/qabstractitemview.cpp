@@ -1560,7 +1560,7 @@ void QAbstractItemView::dragMoveEvent(QDragMoveEvent *event)
     event->ignore();
 
     QModelIndex index = indexAt(event->pos());
-    if (!(event->source() == this && selectedIndexes().contains(index))
+    if (!d->droppingOnItself(event, index)
         && d->canDecode(event)) {
         Qt::DropAction dropAction = (d->model->supportedDropActions() & event->proposedAction())
                                     ? event->proposedAction() : Qt::IgnoreAction;
@@ -1617,6 +1617,31 @@ void QAbstractItemView::dragMoveEvent(QDragMoveEvent *event)
 
     if (d->shouldAutoScroll(event->pos()))
         startAutoScroll();
+}
+
+/*!
+    \internal
+    Return true if this is a move from ourself and \a index is a child of the selection that
+    is being moved.
+ */
+bool QAbstractItemViewPrivate::droppingOnItself(QDropEvent *event, const QModelIndex &index)
+{
+    Q_Q(QAbstractItemView);
+    Qt::DropAction dropAction = event->dropAction();
+    if (q->dragDropMode() == QAbstractItemView::InternalMove)
+        dropAction = Qt::MoveAction;
+    if (event->source() == q
+        && event->possibleActions() & Qt::MoveAction
+        && dropAction == Qt::MoveAction) {
+        QModelIndexList selectedIndexes = q->selectedIndexes();
+        QModelIndex child = index;
+        while (child != root) {
+            if (selectedIndexes.contains(child))
+                return true;
+            child = child.parent();
+        }
+    }
+    return false;
 }
 
 /*!
@@ -1716,7 +1741,8 @@ bool QAbstractItemViewPrivate::dropOn(QDropEvent *event, int *dropRow, int *drop
         *dropIndex = index;
         *dropRow = row;
         *dropCol = col;
-        return true;
+        if (!droppingOnItself(event, index))
+            return true;
     }
     return false;
 }
