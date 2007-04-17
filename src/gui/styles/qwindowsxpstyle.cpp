@@ -1971,6 +1971,8 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
                 case QTabBar::RoundedWest:
                     rect.adjust(0,0, -1,0);
                     break;
+                default:
+                    break;
                 }
             }
         }
