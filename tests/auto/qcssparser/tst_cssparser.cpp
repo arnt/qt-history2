@@ -771,22 +771,22 @@ public:
     virtual bool isNullNode(NodePtr node) const {
         return reinterpret_cast<QDomElement *>(node.ptr)->isNull();
     }
-    virtual NodePtr parentNode(NodePtr node) {
+    virtual NodePtr parentNode(NodePtr node) const {
         NodePtr parent;
         parent.ptr = new QDomElement(reinterpret_cast<QDomElement *>(node.ptr)->parentNode().toElement());
         return parent;
     }
-    virtual NodePtr duplicateNode(NodePtr node) {
+    virtual NodePtr duplicateNode(NodePtr node) const {
         NodePtr n;
         n.ptr = new QDomElement(*reinterpret_cast<QDomElement *>(node.ptr));
         return n;
     }
-    virtual NodePtr previousSiblingNode(NodePtr node) {
+    virtual NodePtr previousSiblingNode(NodePtr node) const {
         NodePtr sibling;
         sibling.ptr = new QDomElement(reinterpret_cast<QDomElement *>(node.ptr)->previousSiblingElement());
         return sibling;
     }
-    virtual void freeNode(NodePtr node) {
+    virtual void freeNode(NodePtr node) const {
         delete reinterpret_cast<QDomElement *>(node.ptr);
     }
 

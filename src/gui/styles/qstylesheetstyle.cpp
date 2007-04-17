@@ -1068,13 +1068,13 @@ public:
     { return QStringList(WIDGET(node)->objectName()); }
     bool isNullNode(NodePtr node) const
     { return node.ptr == 0; }
-    NodePtr parentNode(NodePtr node)
+    NodePtr parentNode(NodePtr node) const
     { NodePtr n; n.ptr = WIDGET(node)->parentWidget(); return n; }
-    NodePtr previousSiblingNode(NodePtr)
+    NodePtr previousSiblingNode(NodePtr) const
     { NodePtr n; n.ptr = 0; return n; }
-    NodePtr duplicateNode(NodePtr node)
+    NodePtr duplicateNode(NodePtr node) const
     { return node; }
-    void freeNode(NodePtr)
+    void freeNode(NodePtr) const
     { }
 };
 

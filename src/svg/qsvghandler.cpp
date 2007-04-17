@@ -228,7 +228,7 @@ public:
         return !node.ptr;
     }
 
-    virtual NodePtr parentNode(NodePtr node)
+    virtual NodePtr parentNode(NodePtr node) const
     {
         QSvgNode *n = svgNode(node);
         NodePtr newNode;
@@ -242,7 +242,7 @@ public:
         }
         return newNode;
     }
-    virtual NodePtr previousSiblingNode(NodePtr node)
+    virtual NodePtr previousSiblingNode(NodePtr node) const
     {
         NodePtr newNode;
         newNode.ptr = 0;
@@ -258,14 +258,14 @@ public:
         }
         return newNode;
     }
-    virtual NodePtr duplicateNode(NodePtr node)
+    virtual NodePtr duplicateNode(NodePtr node) const
     {
         NodePtr n;
         n.ptr = node.ptr;
         n.id  = node.id;
         return n;
     }
-    virtual void freeNode(NodePtr node)
+    virtual void freeNode(NodePtr node) const
     {
         Q_UNUSED(node);
     }

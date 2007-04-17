@@ -530,10 +530,10 @@ public:
     virtual bool hasAttributes(NodePtr node) const = 0;
     virtual QStringList nodeIds(NodePtr node) const;
     virtual bool isNullNode(NodePtr node) const = 0;
-    virtual NodePtr parentNode(NodePtr node) = 0;
-    virtual NodePtr previousSiblingNode(NodePtr node) = 0;
-    virtual NodePtr duplicateNode(NodePtr node) = 0;
-    virtual void freeNode(NodePtr node) = 0;
+    virtual NodePtr parentNode(NodePtr node) const = 0;
+    virtual NodePtr previousSiblingNode(NodePtr node) const = 0;
+    virtual NodePtr duplicateNode(NodePtr node) const = 0;
+    virtual void freeNode(NodePtr node) const = 0;
 
     QVector<StyleSheet> styleSheets;
     QString medium;
