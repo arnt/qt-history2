@@ -49,8 +49,15 @@
   qscriptvalue_cast() function.
 
   Object values have zero or more properties which are themselves
-  QScriptValues. Use setProperty() to set a property of an object,
-  and call property() to retrieve the value of a property.
+  QScriptValues. Use setProperty() to set a property of an object, and
+  call property() to retrieve the value of a property.
+
+  Note that a QScriptValue for which isObject() is true only carries a
+  reference to an actual object; copying the QScriptValue will only
+  copy the object reference, not the object itself. If you want to
+  clone an object (i.e. copy an object's properties to another
+  object), you can do so with the help of a \c{for-in} statement in
+  script code, or QScriptValueIterator in C++.
 
   Object values have an internal \c{prototype} property, which can be
   accessed with prototype() and setPrototype(). Properties added to a
@@ -153,6 +160,10 @@ QScriptValue::~QScriptValue()
 
 /*!
   Constructs a new QScriptValue that is a copy of \a other.
+
+  Note that if \a other is an object (isObject() returns true),
+  only a reference to the underlying object will be copied;
+  the object itself will not be copied.
 */
 QScriptValue::QScriptValue(const QScriptValue &other)
     : d_ptr(other.d_ptr)
@@ -284,6 +295,10 @@ QScriptValue::QScriptValue(QScriptEngine *engine, const char *val)
 
 /*!
   Assigns the \a other value to this QScriptValue.
+
+  Note that if \a other is an object (isObject() returns true),
+  only a reference to the underlying object will be assigned;
+  the object itself will not be copied.
 */
 QScriptValue &QScriptValue::operator=(const QScriptValue &other)
 {
