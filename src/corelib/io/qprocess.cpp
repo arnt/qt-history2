@@ -1670,6 +1670,29 @@ int QProcess::execute(const QString &program)
     process.
 
     On Windows, arguments that contain spaces are wrapped in quotes.
+
+    The process will be started in the directory \a workingDirectory.
+
+    If the function is successful then *pid is set to the process identifier
+    of the started process.
+*/
+bool QProcess::startDetached(const QString &program, const QStringList &arguments, const QString &workingDirectory,
+                             qint64 *pid)
+{
+    return QProcessPrivate::startDetached(program, arguments, workingDirectory, pid);
+}
+
+/*!
+    Starts the program \a program with the arguments \a arguments in a
+    new process, and detaches from it. Returns true on success;
+    otherwise returns false. If the calling process exits, the
+    detached process will continue to live.
+
+    On Unix, the started process will run in its own session and act
+    like a daemon. On Windows, it will run as a regular standalone
+    process.
+
+    On Windows, arguments that contain spaces are wrapped in quotes.
 */
 bool QProcess::startDetached(const QString &program, const QStringList &arguments)
 {

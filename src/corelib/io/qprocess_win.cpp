@@ -940,7 +940,7 @@ void QProcessPrivate::_q_notified()
         notifier->start(NOTIFYTIMEOUT);
 }
 
-bool QProcessPrivate::startDetached(const QString &program, const QStringList &arguments)
+bool QProcessPrivate::startDetached(const QString &program, const QStringList &arguments, const QString &workingDir, qint64 *pid)
 {
     QString args = qt_create_commandline(program, arguments);
 
@@ -956,7 +956,8 @@ bool QProcessPrivate::startDetached(const QString &program, const QStringList &a
                                      0, 0, 0, 0, 0, 0, 0, 0, 0, 0
                                    };
         success = CreateProcessW(0, (WCHAR*)args.utf16(),
-                                 0, 0, FALSE, CREATE_UNICODE_ENVIRONMENT | CREATE_NEW_CONSOLE, 0, 0,
+                                 0, 0, FALSE, CREATE_UNICODE_ENVIRONMENT | CREATE_NEW_CONSOLE, 0, 
+                                 workingDir.isEmpty() ? (const WCHAR *)0 : (const WCHAR *)workingDir.utf16(),
                                  &startupInfo, &pinfo);
     } else
 #endif // UNICODE
@@ -968,7 +969,8 @@ bool QProcessPrivate::startDetached(const QString &program, const QStringList &a
                                      0, 0, 0, 0, 0, 0, 0, 0, 0, 0
                                   };
        success = CreateProcessA(0, args.toLocal8Bit().data(),
-                                0, 0, FALSE, CREATE_NEW_CONSOLE, 0, 0,
+                                0, 0, FALSE, CREATE_NEW_CONSOLE, 0,
+                                workingDir.isEmpty() ? (LPCSTR)0 : workingDir.toLocal8Bit().constData(),
                                 &startupInfo, &pinfo);
 #endif // Q_OS_TEMP
     }
@@ -976,7 +978,10 @@ bool QProcessPrivate::startDetached(const QString &program, const QStringList &a
     if (success) {
         CloseHandle(pinfo.hThread);
         CloseHandle(pinfo.hProcess);
+        if (pid)
+            *pid = pinfo.dwProcessId;
     }
+
     return success;
 }
 

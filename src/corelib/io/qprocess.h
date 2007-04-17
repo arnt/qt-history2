@@ -93,6 +93,7 @@ public:
     QProcess::ProcessError error() const;
     QProcess::ProcessState state() const;
 
+    // #### Qt 5: Q_PID is a pointer on Windows and a value on Unix
     Q_PID pid() const;
 
     bool waitForStarted(int msecs = 30000);
@@ -117,6 +118,8 @@ public:
     static int execute(const QString &program, const QStringList &arguments);
     static int execute(const QString &program);
 
+    static bool startDetached(const QString &program, const QStringList &arguments, const QString &workingDirectory,
+                              qint64 *pid = 0);
     static bool startDetached(const QString &program, const QStringList &arguments);
     static bool startDetached(const QString &program);
 

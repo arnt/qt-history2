@@ -15,6 +15,7 @@ SUBDIRS = testProcessCrash \
           testExitCodes \
           testSpaceInName \
           testGuiProcess \
+          testDetached \
           fileWriterProcess
 
 win32 {

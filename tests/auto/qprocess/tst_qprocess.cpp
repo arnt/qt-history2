@@ -17,6 +17,10 @@
 #include <QtNetwork/QHostInfo>
 #include <stdlib.h>
 
+#if defined(Q_OS_WIN)
+#include <windows.h>
+#endif
+
 //TESTED_CLASS=
 //TESTED_FILES=corelib/io/qprocess.h corelib/io/qprocess.cpp corelib/io/qprocess_p.h corelib/io/qprocess_unix.cpp
 
@@ -100,6 +104,7 @@ private slots:
     void failToStartWithEventLoop();
     void removeFileWhileProcessIsRunning();
     void fileWriterProcess();
+    void detachedWorkingDirectoryAndPid();
 
 protected slots:
     void readFromProcess();
@@ -1644,6 +1649,39 @@ void tst_QProcess::fileWriterProcess()
         QVERIFY(process.waitForFinished());
         QCOMPARE(QFile("fileWriterProcess.txt").size(), qint64(stdinStr.size()));
     } while (stopWatch.elapsed() < 3000);
+}
+
+void tst_QProcess::detachedWorkingDirectoryAndPid()
+{
+    qint64 pid;
+
+    QFile infoFile(QDir::currentPath() + QLatin1String("/detachedinfo.txt"));
+
+    QString workingDir = QDir::currentPath() + "/testDetached";
+    QVERIFY(QFile::exists(workingDir));
+
+    QStringList args;
+    args << infoFile.fileName();
+    QVERIFY(QProcess::startDetached(QDir::currentPath() + QLatin1String("/testDetached/testDetached"), args, workingDir, &pid));
+
+    while (!infoFile.exists()) {
+        QTest::qSleep(100);
+    }
+
+    QVERIFY(infoFile.open(QIODevice::ReadOnly | QIODevice::Text));
+    QString actualWorkingDir = QString::fromUtf8(infoFile.readLine());
+    actualWorkingDir.chop(1); // strip off newline
+    QByteArray processIdString = infoFile.readLine();
+    processIdString.chop(1);
+    infoFile.close();
+    QVERIFY(infoFile.remove());
+
+    bool ok = false;
+    qint64 actualPid = processIdString.toInt(&ok);
+    QVERIFY(ok);
+
+    QCOMPARE(actualWorkingDir, workingDir);
+    QCOMPARE(actualPid, pid);
 }
 
 QTEST_MAIN(tst_QProcess)

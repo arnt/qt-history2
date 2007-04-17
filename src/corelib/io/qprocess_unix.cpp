@@ -1196,24 +1196,38 @@ void QProcessPrivate::_q_notified()
 
 /*! \internal
  */
-bool QProcessPrivate::startDetached(const QString &program, const QStringList &arguments)
+bool QProcessPrivate::startDetached(const QString &program, const QStringList &arguments, const QString &workingDirectory, qint64 *pid)
 {
     processManager()->start();
+
+    QByteArray encodedWorkingDirectory = QFile::encodeName(workingDirectory);
 
     // To catch the startup of the child
     int startedPipe[2];
     ::pipe(startedPipe);
+    // To communicate the pid of the child
+    int pidPipe[2];
+    ::pipe(pidPipe);
 
     pid_t childPid = qt_fork();
     if (childPid == 0) {
+        struct sigaction noaction;
+        memset(&noaction, 0, sizeof(noaction));
+        noaction.sa_handler = SIG_IGN;
+        qt_native_sigaction(SIGPIPE, &noaction, 0);
+
         ::setsid();
-        ::signal(SIGHUP, SIG_IGN);
+
         qt_native_close(startedPipe[0]);
-        ::signal(SIGPIPE, SIG_DFL);
+        qt_native_close(pidPipe[0]);
 
         pid_t doubleForkPid = qt_fork();
         if (doubleForkPid == 0) {
             ::fcntl(startedPipe[1], F_SETFD, FD_CLOEXEC);
+            qt_native_close(pidPipe[1]);
+
+            if (!encodedWorkingDirectory.isEmpty())
+                qt_native_chdir(encodedWorkingDirectory.constData());
 
             char **argv = new char *[arguments.size() + 2];
             for (int i = 0; i < arguments.size(); ++i) {
@@ -1265,14 +1279,17 @@ bool QProcessPrivate::startDetached(const QString &program, const QStringList &a
         }
 
         qt_native_close(startedPipe[1]);
+        qt_native_write(pidPipe[1], (const char *)&doubleForkPid, sizeof(pid_t));
         qt_native_chdir("/");
         ::_exit(1);
     }
 
     qt_native_close(startedPipe[1]);
+    qt_native_close(pidPipe[1]);
 
     if (childPid == -1) {
         qt_native_close(startedPipe[0]);
+        qt_native_close(pidPipe[0]);
         return false;
     }
 
@@ -1281,7 +1298,17 @@ bool QProcessPrivate::startDetached(const QString &program, const QStringList &a
     int result;
     qt_native_close(startedPipe[0]);
     ::waitpid(childPid, &result, 0);
-    return startResult != -1 && reply == '\0';
+    bool success = (startResult != -1 && reply == '\0');
+    if (success && pid) {
+        pid_t actualPid = 0;
+        if (qt_native_read(pidPipe[0], (char *)&actualPid, sizeof(pid_t)) == sizeof(pid_t)) {
+            *pid = actualPid;
+        } else {
+            *pid = 0;
+        }
+    }
+    qt_native_close(pidPipe[0]);
+    return success;
 }
 
 void QProcessPrivate::initializeProcessManager()
