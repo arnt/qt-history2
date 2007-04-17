@@ -1422,9 +1422,7 @@ void tst_QGraphicsView::mapFromScenePoint()
         QGraphicsScene scene(0, 0, 100, 100);
         scene.addRect(QRectF(0, 0, 100, 100), QPen(Qt::black, 1));
         QGraphicsView view(&scene);
-        view.setFixedSize(104, 104);
-        view.setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        view.setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        view.resize(view.sizeHint());
         view.show();
 
         QCOMPARE(view.mapFromScene(0, 0), QPoint(0, 0));
