@@ -107,7 +107,7 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
       m_styleActions(createActionGroup(this, true)),
       m_editWidgetsAction(new QAction(tr("Edit Widgets"), this)),
       m_newFormAction(new QAction(qdesigner_internal::createIconSet(QLatin1String("filenew.png")), tr("&New Form..."), this)),
-      m_openFormAction(new QAction(qdesigner_internal::createIconSet(QLatin1String("fileopen.png")), ("&Open Form..."), this)),
+      m_openFormAction(new QAction(qdesigner_internal::createIconSet(QLatin1String("fileopen.png")), tr("&Open Form..."), this)),
       m_saveFormAction(new QAction(qdesigner_internal::createIconSet(QLatin1String("filesave.png")), tr("&Save Form"), this)),
       m_saveFormAsAction(new QAction(tr("Save Form &As..."), this)),
       m_saveAllFormsAction(new QAction(tr("Save A&ll Forms"), this)),
