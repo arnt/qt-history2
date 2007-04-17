@@ -1947,7 +1947,7 @@ void tst_QFile::handle()
     QFile file2;
     FILE *fp = fopen("tst_qfile.cpp", "r");
     file2.open(fp, QIODevice::ReadOnly);
-    QCOMPARE(int(file2.handle()), fileno(fp));
+    QCOMPARE(int(file2.handle()), int(fileno(fp)));
     fclose(fp);
 
 #ifdef Q_OS_UNIX
