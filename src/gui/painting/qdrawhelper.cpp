@@ -4688,7 +4688,7 @@ DrawHelper qDrawHelper[QImage::NImageFormats] =
         blend_color_generic,
         blend_src_generic,
         qt_bitmapblit_quint32,
-        0,
+        qt_alphamapblit_quint32,
         qt_rectfill_quint32
     },
     // Format_ARGB32,
@@ -4696,7 +4696,7 @@ DrawHelper qDrawHelper[QImage::NImageFormats] =
         blend_color_generic,
         blend_src_generic,
         qt_bitmapblit_quint32,
-        0,
+        qt_alphamapblit_quint32,
         qt_rectfill_quint32
     },
     // Format_ARGB32_Premultiplied
