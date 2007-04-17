@@ -175,6 +175,22 @@ QImage* QWindowSurface::buffer(const QWidget *widget)
     return img;
 }
 
+/*!
+  Returns a QPixmap generated from the part of the backing store
+  corresponding to \a widget. Returns a null QPixmap if an error
+  occurs. The contents of the pixmap are only defined for the regions
+  of \a widget that have received paint events since the last resize
+  of the backing store.
+
+  The default implementation returns a null pixmap.
+
+*/
+QPixmap QWindowSurface::grabWidget(const QWidget *widget) const
+{
+    return QPixmap();
+}
+
+
 QPoint QWindowSurface::offset(const QWidget *widget) const
 {
     QWidget *window = d_ptr->window;

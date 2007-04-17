@@ -734,6 +734,23 @@ QWSMemorySurface::~QWSMemorySurface()
 {
 }
 
+QPixmap QWSMemorySurface::grabWidget(const QWidget *widget) const
+{
+    QPixmap result;
+
+    if (widget->window() != window() || img.isNull())
+        return result;
+
+    const QPoint off = offset(widget);
+    QImage subimg(img.scanLine(off.y()) + off.x() * img.depth() / 8,
+                  widget->width(), widget->height(),
+                  img.bytesPerLine(), img.format());
+    subimg.detach(); //### expensive -- maybe we should have a real SubImage that shares reference count
+    result = QPixmap::fromImage(subimg);
+    return result;
+}
+
+
 QImage::Format
 QWSMemorySurface::preferredImageFormat(const QWidget *widget) const
 {

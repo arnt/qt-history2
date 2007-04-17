@@ -119,6 +119,7 @@ public:
     QPaintDevice *paintDevice() { return &img; }
     bool scroll(const QRegion &area, int dx, int dy);
 
+    QPixmap grabWidget(const QWidget *widget) const;
     QImage image() const { return img; };
     QPoint painterOffset() const;
 
