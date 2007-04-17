@@ -64,7 +64,6 @@ SUBDIRS += bic \
            qapplication \
            qatomic \
            qatomicpointer \
-           qaxcontainer \
            qbitarray \
            qbrush \
            qbuffer \
@@ -317,7 +316,7 @@ SUBDIRS += bic \
            qxmlstream \
            selftests \
            symbols \
-           qrand 
+           qrand
 
 unix:!embedded:contains(QT_CONFIG, qdbus):SUBDIRS += \
            qdbusabstractadaptor \
