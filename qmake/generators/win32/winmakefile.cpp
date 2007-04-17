@@ -396,7 +396,7 @@ void Win32MakefileGenerator::processRcFileVar()
             rcFile.write(rcString);
             rcFile.close();
         }
-        project->values("RC_FILE").insert(0, fileFixify(rcFile.fileName()));
+        project->values("RC_FILE").insert(0, rcFile.fileName());
     }
     if (!project->values("RC_FILE").isEmpty()) {
         if (!project->values("RES_FILE").isEmpty()) {
