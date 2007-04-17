@@ -251,6 +251,28 @@ void tst_QScriptEngine::newQObject()
         delete parent;
         QCOMPARE(v.toQObject(), (QObject *)0);
     }
+    {
+        QPointer<QObject> ptr = new QObject();
+        QVERIFY(ptr != 0);
+        {
+            QScriptValue v = eng.newQObject(ptr, QScriptEngine::AutoOwnership);
+        }
+        eng.evaluate("gc()");
+        // no parent, so it should be like ScriptOwnership
+        QVERIFY(ptr == 0);
+    }
+    {
+        QObject *parent = new QObject();
+        QPointer<QObject> child = new QObject(parent);
+        QVERIFY(child != 0);
+        {
+            QScriptValue v = eng.newQObject(child, QScriptEngine::AutoOwnership);
+        }
+        eng.evaluate("gc()");
+        // has parent, so it should be like QtOwnership
+        QVERIFY(child != 0);
+        delete parent;
+    }
 }
 
 Q_SCRIPT_DECLARE_QMETAOBJECT(QObject, QObject*)

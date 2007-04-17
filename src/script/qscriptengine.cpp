@@ -134,8 +134,9 @@
 
     This enum specifies the ownership when wrapping a C++ value, e.g. by using newQObject().
 
-    \value QtOwnership The standard Qt ownership rules apply, i.e. the associated data will never be explicitly deleted by the script engine. This is the default. (QObject ownership is explained in \l{Object Trees and Object Ownership}.)
+    \value QtOwnership The standard Qt ownership rules apply, i.e. the associated object will never be explicitly deleted by the script engine. This is the default. (QObject ownership is explained in \l{Object Trees and Object Ownership}.)
     \value ScriptOwnership The value is owned by the script environment. The associated data will be deleted when appropriate (i.e. after the garbage collector has discovered that there are no more live references to the value).
+    \value AutoOwnership If the associated object has a parent, the Qt ownership rules apply (QtOwnership); otherwise, the object is owned by the script environment (ScriptOwnership).
 */
 
 #ifdef QT_NO_QOBJECT

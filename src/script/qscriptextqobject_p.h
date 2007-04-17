@@ -57,8 +57,17 @@ public:
         Instance() { }
         virtual ~Instance()
         {
-            if (ownership == QScriptEngine::ScriptOwnership)
+            switch (ownership) {
+            case QScriptEngine::QtOwnership:
+                break;
+            case QScriptEngine::ScriptOwnership:
                 delete value;
+                break;
+            case QScriptEngine::AutoOwnership:
+                if (value && !value->parent())
+                    delete value;
+                break;
+            }
         }
 
         static Instance *get(const QScriptValueImpl &object, QScriptClassInfo *klass);

@@ -71,7 +71,8 @@ class Q_SCRIPT_EXPORT QScriptEngine
 public:
     enum ValueOwnership {
         QtOwnership,
-        ScriptOwnership
+        ScriptOwnership,
+        AutoOwnership
     };
 
     QScriptEngine();
