@@ -150,6 +150,7 @@ private slots:
 	//   Win: unknown reason
 #if !defined(Q_OS_MAC) && !defined(Q_OS_WIN)
     void dragAndDrop();
+    void dragAndDropOnChild();
 #endif
 };
 
@@ -703,23 +704,28 @@ static void sendMouseRelease(
 class DnDTestModel : public QStandardItemModel
 {
     Q_OBJECT
-    bool dropMimeData(const QMimeData *, Qt::DropAction action, int, int, const QModelIndex &)
+    bool dropMimeData(const QMimeData *md, Qt::DropAction action, int r, int c, const QModelIndex &p)
     {
         dropAction_result = action;
+        QStandardItemModel::dropMimeData(md, action, r, c, p);
         return true;
     }
     Qt::DropActions supportedDropActions() const { return Qt::CopyAction | Qt::MoveAction; }
 
     Qt::DropAction dropAction_result;
 public:
-    DnDTestModel() : QStandardItemModel(20, 20) {}
+    DnDTestModel() : QStandardItemModel(20, 20) {
+        for (int i = 0; i < rowCount(); ++i)
+            setData(index(i, 0), QString("%1").arg(i));
+    }
     Qt::DropAction dropAction() const { return dropAction_result; }
 };
 
-class DnDTestView : public QListView
+class DnDTestView : public QTreeView
 {
     Q_OBJECT
 
+    QPoint dropPoint;
     Qt::DropAction dropAction;
 
     void dragEnterEvent(QDragEnterEvent *event)
@@ -730,17 +736,41 @@ class DnDTestView : public QListView
     void dropEvent(QDropEvent *event)
     {
         event->setDropAction(dropAction);
-        QListView::dropEvent(event);
+        QTreeView::dropEvent(event);
+    }
+
+    void timerEvent(QTimerEvent *event)
+    {
+        killTimer(event->timerId());
+        sendMouseMove(this, dropPoint);
+        sendMouseRelease(this);
+    }
+
+    void mousePressEvent(QMouseEvent *e)
+    {
+        QTreeView::mousePressEvent(e);
+
+        startTimer(0);
+        setState(DraggingState);
+        startDrag(dropAction);
     }
 
 public:
     DnDTestView(Qt::DropAction dropAction, QAbstractItemModel *model)
         : dropAction(dropAction)
     {
+        header()->hide();
         setModel(model);
         setDragDropMode(QAbstractItemView::DragDrop);
         setAcceptDrops(true);
         setDragEnabled(true);
+    }
+
+    void dragAndDrop(QPoint drag, QPoint drop)
+    {
+        dropPoint = drop;
+        setCurrentIndex(indexAt(drag));
+        sendMousePress(viewport(), drag);
     }
 };
 
@@ -763,7 +793,7 @@ class DnDTestWidget : public QWidget
     {
         QDrag *drag = new QDrag(this);
         QMimeData *mimeData = new QMimeData;
-        mimeData->setData("application/x-qabstractitemmodeldatalist", QByteArray("foobar"));
+        mimeData->setData("application/x-qabstractitemmodeldatalist", QByteArray(""));
         drag->setMimeData(mimeData);
         startTimer(0);
         dropAction_result = drag->start(dropAction_request);
@@ -823,6 +853,45 @@ void tst_QAbstractItemView::dragAndDrop()
     }
     QVERIFY(successes > 0); // allow for some "event unstability" (i.e. unless
                             // successes == 0, QAbstractItemView is probably ok!)
+}
+
+void tst_QAbstractItemView::dragAndDropOnChild()
+{
+#ifdef Q_WS_QWS
+    QSKIP("Embedded drag-and-drop not good enough yet...", SkipAll);
+#endif
+
+    const int attempts = 10;
+    int successes = 0;
+    for (int i = 0; i < attempts; ++i) {
+        Qt::DropAction dropAction = Qt::MoveAction;
+
+        DnDTestModel model;
+        QModelIndex parent = model.index(0, 0);
+        model.insertRow(0, parent);
+        model.insertColumn(0, parent);
+        QModelIndex child = model.index(0, 0, parent);
+        model.setData(child, "child");
+        QCOMPARE(model.rowCount(parent), 1);
+        DnDTestView view(dropAction, &model);
+        view.setExpanded(parent, true);
+        view.setDragDropMode(QAbstractItemView::InternalMove);
+
+        const int size = 200;
+        view.setFixedSize(size, size);
+        view.move(int(size * 1.5), int(size * 1.5));
+        view.show();
+#if defined(Q_WS_X11)
+        qt_x11_wait_for_window_manager(&view);
+#endif
+
+        view.dragAndDrop(view.visualRect(parent).center(),
+                         view.visualRect(child).center());
+        if (model.dropAction() == dropAction)
+            ++successes;
+    }
+
+    QVERIFY(successes == 0);
 }
 
 #endif // !Q_OS_MAC && !Q_OS_WIN
