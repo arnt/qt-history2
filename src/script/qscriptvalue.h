@@ -64,7 +64,7 @@ public:
 
         KeepExistingFlags   = 0x00000800,
 
-        UserRange           = 0xffff0000            // Users may use these as they see fit.
+        UserRange           = 0xff000000            // Users may use these as they see fit.
     };
     Q_DECLARE_FLAGS(PropertyFlags, PropertyFlag)
 
