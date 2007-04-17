@@ -3226,7 +3226,7 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
                 }
                 // Draw the text:
                 textRect = visualRect(btn->direction, freeContentRect, textRect);
-                drawItemText(p, textRect, Qt::AlignLeft | Qt::AlignVCenter, btn->palette,
+                drawItemText(p, textRect, Qt::AlignLeft | Qt::AlignVCenter | Qt::TextShowMnemonic, btn->palette,
                              (btn->state & State_Enabled), btn->text, QPalette::ButtonText);
             }
         }
