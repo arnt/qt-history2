@@ -151,11 +151,13 @@ Lagain:
         value.member(index, &member);
         found = member.isValid() && ! member.dontEnum();
         if (found) {
-            QScriptValueImpl current;
-            value.get(member, &current);
-            found = current.isValid();
-
+            if (member.isObjectProperty() || value.isArray()) {
+                QScriptValueImpl current;
+                value.get(member, &current);
+                found = current.isValid();
+            }
             if (found && member.nameId()) {
+                // make sure that it's not a shadow
                 Member m;
                 QScriptValueImpl b;
                 if (object.resolve(member.nameId(), &m, &b, QScriptValue::ResolvePrototype))
@@ -164,7 +166,7 @@ Lagain:
         }
     }
 
-    if (! found && value.prototype().isValid() && value.prototype().isObject()) {
+    if (! found && value.prototype().isObject()) {
         value = value.prototype();
         index = -1;
         goto Lagain;

@@ -11,6 +11,7 @@
 
 #include <qscriptengine.h>
 #include <qscriptcontext.h>
+#include <qscriptvalueiterator.h>
 
 //TESTED_CLASS=
 //TESTED_FILES=qscriptextqobject.h qscriptextqobject.cpp
@@ -280,6 +281,31 @@ public:
         { }
 };
 
+class MyEnumTestQObject : public QObject
+{
+    Q_OBJECT
+    Q_PROPERTY(QString p1 READ p1)
+    Q_PROPERTY(QString p2 READ p2)
+    Q_PROPERTY(QString p3 READ p3 SCRIPTABLE false)
+    Q_PROPERTY(QString p4 READ p4)
+    Q_PROPERTY(QString p5 READ p5 SCRIPTABLE false)
+    Q_PROPERTY(QString p6 READ p6)
+public:
+    MyEnumTestQObject(QObject *parent = 0)
+        : QObject(parent) { }
+    QString p1() const { return QLatin1String("p1"); }
+    QString p2() const { return QLatin1String("p2"); }
+    QString p3() const { return QLatin1String("p3"); }
+    QString p4() const { return QLatin1String("p4"); }
+    QString p5() const { return QLatin1String("p5"); }
+    QString p6() const { return QLatin1String("p5"); }
+public Q_SLOTS:
+    void mySlot() { }
+    void myOtherSlot() { }
+Q_SIGNALS:
+    void mySignal();
+};
+
 class tst_QScriptExtQObject : public QObject
 {
     Q_OBJECT
@@ -305,6 +331,7 @@ private slots:
     void findChild();
     void findChildren();
     void overloadedSlots();
+    void enumerate();
 
 private:
     QScriptEngine *m_engine;
@@ -361,6 +388,14 @@ void tst_QScriptExtQObject::getSetStaticProperty()
     QCOMPARE(m_engine->evaluate("myObject.stringListProperty[1]").toString(),
              QLatin1String("zag"));
 
+    // default flags for "normal" properties
+    {
+        QScriptValue mobj = m_engine->globalObject().property("myObject");
+        QVERIFY(!(mobj.propertyFlags("intProperty") & QScriptValue::ReadOnly));
+        QVERIFY(!(mobj.propertyFlags("intProperty") & QScriptValue::Undeletable));
+        QVERIFY(!(mobj.propertyFlags("intProperty") & QScriptValue::SkipInEnumeration));
+    }
+
     // property change in C++ should be reflected in script
     m_myObject->setIntProperty(456);
     QCOMPARE(m_engine->evaluate("myObject.intProperty")
@@ -384,10 +419,6 @@ void tst_QScriptExtQObject::getSetStaticProperty()
              .equalTo(QScriptValue(m_engine, QLatin1String("zab"))), true);
 
     // property change in script should be reflected in C++
-    {
-        QScriptValue mobj = m_engine->globalObject().property("myObject");
-        QVERIFY(!(mobj.propertyFlags("intProperty") & QScriptValue::ReadOnly));
-    }
     QCOMPARE(m_engine->evaluate("myObject.intProperty = 123")
              .strictEqualTo(QScriptValue(m_engine, 123)), true);
     QCOMPARE(m_engine->evaluate("myObject.intProperty")
@@ -493,11 +524,11 @@ void tst_QScriptExtQObject::getSetStaticProperty()
         m_engine->globalObject().setProperty("myColor", QScriptValue());
     }
 
-    // try to delete
-    QCOMPARE(m_engine->evaluate("delete myObject.intProperty").toBoolean(), false);
+    // try to delete (we are just deleting the getter+setter)
+    QCOMPARE(m_engine->evaluate("delete myObject.intProperty").toBoolean(), true);
     QCOMPARE(m_engine->evaluate("myObject.intProperty").toNumber(), 123.0);
 
-    QCOMPARE(m_engine->evaluate("delete myObject.variantProperty").toBoolean(), false);
+    QCOMPARE(m_engine->evaluate("delete myObject.variantProperty").toBoolean(), true);
     QCOMPARE(m_engine->evaluate("myObject.variantProperty").toNumber(), 42.0);
 
     // non-scriptable property
@@ -1209,6 +1240,51 @@ void tst_QScriptExtQObject::overloadedSlots()
     QScriptValue f = m_engine->evaluate("myObject.myOverloadedSlot");
     f.call(QScriptValue(), QScriptValueList() << m_engine->newVariant(QVariant("ciao")));
     QCOMPARE(m_myObject->qtFunctionInvoked(), 35);
+}
+
+void tst_QScriptExtQObject::enumerate()
+{
+    QScriptEngine eng;
+    MyEnumTestQObject enumQObject;
+    // give it some dynamic properties
+    enumQObject.setProperty("dp1", "dp1");
+    enumQObject.setProperty("dp2", "dp2");
+    enumQObject.setProperty("dp3", "dp3");
+    QScriptValue obj = eng.newQObject(&enumQObject);
+    QStringList expected;
+    expected
+        // meta-object-defined properties
+        << "objectName" << "p1" << "p2" << "p4" << "p6"
+        // dynamic properties
+        << "dp1" << "dp2" << "dp3"
+        // inherited slots
+        << "destroyed(QObject*)" << "destroyed()"
+        << "deleteLater()" << "_q_reregisterTimers(void*)"
+        // signals
+        << "mySignal()"
+        // slots
+        << "mySlot()" << "myOtherSlot()";
+    // enumerate in script
+    {
+        eng.globalObject().setProperty("myEnumObject", obj);
+        eng.evaluate("var enumeratedProperties = []");
+        eng.evaluate("for (var p in myEnumObject) { enumeratedProperties.push(p); }");
+        QStringList result = qscriptvalue_cast<QStringList>(eng.evaluate("enumeratedProperties"));
+        QCOMPARE(result.size(), expected.size());
+        for (int i = 0; i < expected.size(); ++i)
+            QCOMPARE(result.at(i), expected.at(i));
+    }
+    // enumerate in C++
+    {
+        QScriptValueIterator it(obj);
+        QStringList result;
+        while (it.hasNext()) {
+            result.append(it.next());
+        }
+        QCOMPARE(result.size(), expected.size());
+        for (int i = 0; i < expected.size(); ++i)
+            QCOMPARE(result.at(i), expected.at(i));
+    }
 }
 
 QTEST_MAIN(tst_QScriptExtQObject)

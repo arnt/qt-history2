@@ -118,7 +118,7 @@ bool QScriptValueIterator::hasNext() const
         QScript::Member member;
         v.member(i, &member);
         found = member.isValid();
-        if (found) {
+        if (found && (member.isObjectProperty() || v.isArray())) {
             QScriptValueImpl vv;
             v.get(member, &vv);
             found = vv.isValid();

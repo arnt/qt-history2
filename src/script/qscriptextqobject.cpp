@@ -124,6 +124,16 @@ static inline QScriptable *scriptableFromQObject(QObject *qobj)
     return reinterpret_cast<QScriptable*>(ptr);
 }
 
+static bool isObjectProperty(const QScriptValueImpl &object, const char *name)
+{
+    QScriptEnginePrivate *eng = QScriptEnginePrivate::get(object.engine());
+    QScriptNameIdImpl *nameId = eng->nameId(QLatin1String(name));
+    QScript::Member member;
+    QScriptValueImpl base;
+    return object.resolve(nameId, &member, &base, QScriptValue::ResolveLocal)
+        && member.testFlags(QScript::Member::ObjectProperty);
+}
+
 class ExtQObjectData: public QScriptClassData
 {
 public:
@@ -158,11 +168,7 @@ public:
             QByteArray normalized = QMetaObject::normalizedSignature(name);
 
             if (-1 != (index = meta->indexOfMethod(normalized))) {
-                member->native(nameId, index,
-                               QScriptValue::Undeletable
-                               | QScriptValue::SkipInEnumeration
-                               | QScriptValue::ReadOnly
-                               | METHOD_ID);
+                member->native(nameId, index, METHOD_ID);
 #ifndef Q_SCRIPT_NO_QMETAOBJECT_CACHE
                 metaCache->registerMember(nameId, *member);
 #endif
@@ -176,7 +182,6 @@ public:
             if (prop.isScriptable()) {
                 member->native(nameId, index,
                                QScriptValue::Undeletable
-                               | QScriptValue::SkipInEnumeration
                                | (!prop.isWritable()
                                   ? QScriptValue::ReadOnly
                                   : QScriptValue::PropertyFlag(0))
@@ -194,9 +199,7 @@ public:
 
         index = qobject->dynamicPropertyNames().indexOf(name);
         if (index != -1) {
-            member->native(nameId, index,
-                           QScriptValue::SkipInEnumeration
-                           | DYNAPROPERTY_ID);
+            member->native(nameId, index, DYNAPROPERTY_ID);
             // not cached because it can be removed
             return true;
         }
@@ -205,8 +208,7 @@ public:
             QMetaMethod method = meta->method(index);
             if (methodName(method) == name) {
                 member->native(nameId, index,
-                               QScriptValue::SkipInEnumeration
-                               | METHOD_ID
+                               METHOD_ID
                                | MAYBE_OVERLOADED);
 #ifndef Q_SCRIPT_NO_QMETAOBJECT_CACHE
                 metaCache->registerMember(nameId, *member);
@@ -221,7 +223,11 @@ public:
             QObject *child = children.at(index);
 
             if (child->objectName() == memberName) {
-                member->native(nameId, index, QScriptValue::ReadOnly | CHILD_ID); // ### flags
+                member->native(nameId, index,
+                               QScriptValue::ReadOnly
+                               | QScriptValue::Undeletable
+                               | QScriptValue::SkipInEnumeration
+                               | CHILD_ID);
                 // not cached because it can be removed or change name
                 return true;
             }
@@ -257,8 +263,6 @@ public:
                                            (!prop.isWritable()
                                             ? QScriptValue::ReadOnly
                                             : QScriptValue::PropertyFlag(0))
-                                           | QScriptValue::Undeletable
-                                           | QScriptValue::SkipInEnumeration
                                            | QScriptValue::PropertyGetter
                                            | QScriptValue::PropertySetter);
                 }
@@ -282,8 +286,7 @@ public:
             // make it persist
             QScriptObject *instance = obj.objectValue();
             if (!instance->findMember(member.nameId(), &m)) {
-                instance->createMember(member.nameId(), &m,
-                                       QScriptValue::SkipInEnumeration);
+                instance->createMember(member.nameId(), &m, /*flags=*/0);
             }
             instance->put(m, *result);
         }   break;
@@ -314,8 +317,7 @@ public:
             QScript::Member m;
             QScriptObject *instance = object->objectValue();
             if (!instance->findMember(member.nameId(), &m)) {
-                instance->createMember(member.nameId(), &m,
-                                       QScriptValue::SkipInEnumeration);
+                instance->createMember(member.nameId(), &m, /*flags=*/0);
             }
             instance->put(m, value);
             return true;
@@ -349,10 +351,30 @@ public:
         if (! qobject)
             return 0;
         const QMetaObject *meta = qobject->metaObject();
-
-        return qobject->children().count()
-            + meta->propertyCount()
-            + meta->methodCount();
+        int count = 0;
+        // meta-object-defined properties
+        for (int i = 0; i < meta->propertyCount(); ++i) {
+            QMetaProperty prop = meta->property(i);
+            if (prop.isScriptable()
+                && !isObjectProperty(object, prop.name())) {
+                ++count;
+            }
+        }
+        // dynamic properties
+        QList<QByteArray> dpNames = qobject->dynamicPropertyNames();
+        for (int i = 0; i < dpNames.count(); ++i) {
+            if (!isObjectProperty(object, dpNames.at(i))) {
+                ++count;
+            }
+        }
+        // meta-object-defined methods
+        for (int i = 0; i < meta->methodCount(); ++i) {
+            QMetaMethod method = meta->method(i);
+            if (!isObjectProperty(object, method.signature())) {
+                ++count;
+            }
+        }
+        return count;
     }
 
     virtual bool extraMember(const QScriptValueImpl &object, int index, QScript::Member *member)
@@ -360,32 +382,61 @@ public:
         QScriptEnginePrivate *eng = QScriptEnginePrivate::get(object.engine());
         QObject *qobject = object.toQObject();
         const QMetaObject *meta = qobject->metaObject();
-
-        const QObjectList children = qobject->children();
-        if (index < children.count()) {
-            QScriptNameIdImpl *nameId = eng->nameId(children.at(index)->objectName());
-            member->native(nameId, index, QScriptValue::ReadOnly | CHILD_ID);
-            return true;
+        int logicalIndex = 0;
+        // meta-object-defined properties
+        int physicalIndex = 0;
+        for ( ; physicalIndex < meta->propertyCount(); ++physicalIndex) {
+            QMetaProperty prop = meta->property(physicalIndex);
+            if (prop.isScriptable()
+                && !isObjectProperty(object, prop.name())) {
+                if (logicalIndex == index)
+                    break;
+                ++logicalIndex;
+            }
         }
-
-        index -= children.count();
-        if (index < meta->propertyCount()) {
-            QScriptNameIdImpl *nameId = eng->nameId(QLatin1String(meta->property(index).name()));
-            member->native(nameId, index,
+        if (physicalIndex < meta->propertyCount()) {
+            QMetaProperty prop = meta->property(physicalIndex);
+            QScriptNameIdImpl *nameId = eng->nameId(QLatin1String(prop.name()));
+            member->native(nameId, physicalIndex,
                            QScriptValue::Undeletable
-                           | QScriptValue::SkipInEnumeration
+                           | (!prop.isWritable()
+                              ? QScriptValue::ReadOnly
+                              : QScriptValue::PropertyFlag(0))
                            | PROPERTY_ID);
             return true;
         }
 
-        index -= meta->propertyCount();
-        if (index < meta->methodCount()) {
-            QScriptNameIdImpl *nameId = eng->nameId(QLatin1String(meta->method(index).signature()));
-            member->native(nameId, index,
-                           QScriptValue::Undeletable
-                           | QScriptValue::SkipInEnumeration
-                           | QScriptValue::ReadOnly
-                           | METHOD_ID);
+        // dynamic properties
+        physicalIndex = 0;
+        QList<QByteArray> dpNames = qobject->dynamicPropertyNames();
+        for ( ; physicalIndex < dpNames.count(); ++physicalIndex) {
+            if (!isObjectProperty(object, dpNames.at(physicalIndex))) {
+                if (logicalIndex == index)
+                    break;
+                ++logicalIndex;
+            }
+        }
+        if (physicalIndex < dpNames.count()) {
+            QByteArray name = dpNames.at(physicalIndex);
+            QScriptNameIdImpl *nameId = eng->nameId(QLatin1String(name));
+            member->native(nameId, physicalIndex, DYNAPROPERTY_ID);
+            return true;
+        }
+
+        // meta-object-defined methods
+        physicalIndex = 0;
+        for ( ; physicalIndex < meta->methodCount(); ++physicalIndex) {
+            QMetaMethod method = meta->method(physicalIndex);
+            if (!isObjectProperty(object, method.signature())) {
+                if (logicalIndex == index)
+                    break;
+                ++logicalIndex;
+            }
+        }
+        if (physicalIndex < meta->methodCount()) {
+            QMetaMethod method = meta->method(physicalIndex);
+            QScriptNameIdImpl *nameId = eng->nameId(QLatin1String(method.signature()));
+            member->native(nameId, index, METHOD_ID);
             return true;
         }
 
