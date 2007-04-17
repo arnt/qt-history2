@@ -1923,8 +1923,12 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
                         SourceFileType type = TYPE_UNKNOWN;
                         if(type == TYPE_UNKNOWN) {
                             for(QStringList::Iterator cit = Option::c_ext.begin();
-                                cit != Option::c_ext.end(); ++cit)
-                                type = TYPE_C;
+                                cit != Option::c_ext.end(); ++cit) {
+                                if(dep.endsWith((*cit))) {
+                                   type = TYPE_C; 
+                                   break;
+                                }
+                            }
                         }
                         if(type == TYPE_UNKNOWN) {
                             for(QStringList::Iterator cppit = Option::cpp_ext.begin();
