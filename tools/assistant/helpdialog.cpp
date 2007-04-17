@@ -231,6 +231,8 @@ void HelpDialog::initialize()
     connect(ui.listBookmarks, SIGNAL(itemActivated(QTreeWidgetItem*,int)), this, SLOT(showTopic(QTreeWidgetItem*)));
     connect(ui.listBookmarks, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showTreeItemMenu(QPoint)));
 
+    connect(ui.termsEdit, SIGNAL(textChanged(const QString&)), this, SLOT(updateSearchButton(const QString&)));
+
     connect(ui.resultBox, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showListItemMenu(QPoint)));
 
     cacheFilesPath = QDir::homePath() + QLatin1String("/.assistant"); //### Find a better location for the dbs
@@ -725,6 +727,7 @@ void HelpDialog::addBookmark()
     QTreeWidgetItem *i = new QTreeWidgetItem(ui.listBookmarks, 0);
     i->setText(0, title);
     i->setData(0, LinkRole, link);
+    ui.buttonRemove->setEnabled(true);
     saveBookmarks();
     help->updateBookmarkMenu();
 }
@@ -744,6 +747,7 @@ void HelpDialog::on_buttonRemove_clicked()
     if (ui.listBookmarks->topLevelItemCount() != 0) {
         ui.listBookmarks->setCurrentItem(ui.listBookmarks->topLevelItem(0));
     }
+    ui.buttonRemove->setEnabled(ui.listBookmarks->topLevelItemCount() > 0);
     help->updateBookmarkMenu();
 }
 
@@ -763,6 +767,7 @@ void HelpDialog::insertBookmarks()
         i->setText(0, ts.readLine());
         i->setData(0, LinkRole, ts.readLine());
     }
+    ui.buttonRemove->setEnabled(ui.listBookmarks->topLevelItemCount() > 0);
     help->updateBookmarkMenu();
     showInitDoneMessage();
 }
@@ -1262,6 +1267,11 @@ void HelpDialog::showTreeItemMenu(const QPoint &pos)
 void HelpDialog::on_termsEdit_returnPressed()
 {
     startSearch();
+}
+
+void HelpDialog::updateSearchButton(const QString &txt)
+{
+    ui.searchButton->setDisabled(txt.isEmpty());
 }
 
 void HelpDialog::on_searchButton_clicked()

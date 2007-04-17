@@ -90,6 +90,7 @@ private slots:
     void on_helpButton_clicked();
     void on_searchButton_clicked();
     void on_resultBox_itemActivated(QListWidgetItem*);
+    void updateSearchButton(const QString &txt);
 
     void showResultPage(QListWidgetItem *);
 
