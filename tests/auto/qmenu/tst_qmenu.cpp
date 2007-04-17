@@ -452,8 +452,7 @@ void tst_QMenu::widgetActionFocus()
 
     QTest::keyClick(QApplication::focusWidget(), Qt::Key_Up);
     QVERIFY(l->hasFocus());
-    QCOMPARE(m.activeAction(), wa);
-
+    QCOMPARE(m.activeAction(), (QAction *)wa);
 }
 
 
