@@ -1230,9 +1230,6 @@ void QSslSocketPrivate::init()
     protocol = QSslSocket::SslV3;
     useLocalCaCertificatesOnly = false;
 
-    // Setup socket.
-    delete plainSocket;
-    plainSocket = 0;
     readBuffer.clear();
     writeBuffer.clear();
     peerCertificate.clear();
