@@ -496,8 +496,6 @@ void QTextControlPrivate::repaintCursor()
 void QTextControlPrivate::repaintOldAndNewSelection(const QTextCursor &oldSelection)
 {
     Q_Q(QTextControl);
-    QRectF updateRect = q->selectionRect() | q->selectionRect(oldSelection);
-
     if (cursor.hasSelection()
         && oldSelection.hasSelection()
         && cursor.currentFrame() == oldSelection.currentFrame()
