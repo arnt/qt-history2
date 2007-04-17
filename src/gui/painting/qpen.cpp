@@ -879,8 +879,10 @@ QDataStream &operator<<(QDataStream &s, const QPen &p)
 {
     if (s.version() < 3)
         s << (quint8)p.style();
-    else
+    else if (s.version() < QDataStream::Qt_4_3)
         s << (quint8)(p.style() | p.capStyle() | p.joinStyle());
+    else
+        s << (quint16)(p.style() | p.capStyle() | p.joinStyle());
 
     if (s.version() < 7) {
         s << (quint8)p.width();
@@ -908,7 +910,7 @@ QDataStream &operator<<(QDataStream &s, const QPen &p)
 
 QDataStream &operator>>(QDataStream &s, QPen &p)
 {
-    quint8 style;
+    quint16 style;
     quint8 width8 = 0;
     double width = 0;
     QColor color;
@@ -916,7 +918,13 @@ QDataStream &operator>>(QDataStream &s, QPen &p)
     double miterLimit = 2;
     QVector<qreal> dashPattern;
     double dashOffset = 0;
-    s >> style;
+    if (s.version() < QDataStream::Qt_4_3) {
+        quint8 style8;
+        s >> style8;
+        style = style8;
+    } else {
+        s >> style;
+    }
     if (s.version() < 7) {
         s >> width8;
         s >> color;
