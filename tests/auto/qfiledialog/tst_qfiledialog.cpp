@@ -37,8 +37,10 @@ public:
 
 public slots:
     void init();
+    void cleanup();
 
 private slots:
+    void args();
     void directory();
     void acceptMode();
     void confirmOverwrite();
@@ -60,6 +62,9 @@ private slots:
 
     void disableSaveButton_data();
     void disableSaveButton();
+
+private:
+    QByteArray userSettings;
 };
 
 tst_QFiledialog::tst_QFiledialog()
@@ -72,9 +77,21 @@ tst_QFiledialog::~tst_QFiledialog()
 
 void tst_QFiledialog::init()
 {
+    // Save the developers settings so they don't get mad when their sidebar folders are gone.
     QSettings settings(QSettings::UserScope, QLatin1String("Trolltech"));
     settings.beginGroup(QLatin1String("Qt"));
+    userSettings = settings.value(QLatin1String("filedialog")).toByteArray();
     settings.remove(QLatin1String("filedialog"));
+
+    // populate it with some default settings
+    QFileDialog fd;
+}
+
+void tst_QFiledialog::cleanup()
+{
+    QSettings settings(QSettings::UserScope, QLatin1String("Trolltech"));
+    settings.beginGroup(QLatin1String("Qt"));
+    settings.setValue(QLatin1String("filedialog"), userSettings);
 }
 
 class MyAbstractItemDelegate : public QAbstractItemDelegate
@@ -84,6 +101,19 @@ public:
     void paint(QPainter *, const QStyleOptionViewItem &, const QModelIndex &) const {}
     QSize sizeHint(const QStyleOptionViewItem &, const QModelIndex &) const { return QSize(); }
 };
+
+void tst_QFiledialog::args()
+{
+    QWidget *parent = 0;
+    QString caption = "caption";
+    QString directory = QDir::tempPath();
+    QString filter = "*.mp3";
+    QFileDialog fd(parent, caption, directory, filter);
+    QCOMPARE(fd.parent(), parent);
+    QCOMPARE(fd.windowTitle(), caption);
+    QCOMPARE(fd.directory(), QDir(directory));
+    QCOMPARE(fd.filters(), QStringList(filter));
+}
 
 void tst_QFiledialog::directory()
 {
@@ -211,8 +241,17 @@ void tst_QFiledialog::history()
             << QDir::toNativeSeparators(QDir::home().absolutePath())
             << QDir::toNativeSeparators(QDir::temp().absolutePath());
     fd.setHistory(history);
-    if (fd.history() != history)
-        qDebug() << fd.history() << history << QDir::currentPath();
+    if (fd.history() != history) {
+        qDebug() << fd.history() << history;
+        // quick and dirty output for windows failure.
+        QListView* list = fd.findChild<QListView*>("listView");
+        QVERIFY(list);
+        QModelIndex root = list->rootIndex();
+        while (root.isValid()) {
+            qDebug() << root.data();
+            root = root.parent();
+        }
+    }
     QCOMPARE(fd.history(), history);
 
     QStringList badHistory;
