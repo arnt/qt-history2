@@ -232,8 +232,8 @@ void DemoItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, 
         else {
             QMatrix m = painter->worldMatrix();
             painter->setWorldMatrix(QMatrix());
-            float x = this->noSubPixeling ? int(m.dx()) : m.dx();
-            float y = this->noSubPixeling ? int(m.dy()) : m.dy();
+            float x = this->noSubPixeling ? qRound(m.dx()) : m.dx();
+            float y = this->noSubPixeling ? qRound(m.dy()) : m.dy();
             if (this->sharedImage->image)
                 painter->drawImage(QPointF(x, y), *this->sharedImage->image);
             else
