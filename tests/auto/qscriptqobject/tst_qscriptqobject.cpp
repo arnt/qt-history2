@@ -250,6 +250,12 @@ public Q_SLOTS:
     void myOverloadedSlot(const QVariant &arg)
         { m_qtFunctionInvoked = 35; m_actuals << arg; }
 
+protected Q_SLOTS:
+    void myProtectedSlot() { m_qtFunctionInvoked = 36; }
+
+private Q_SLOTS:
+    void myPrivateSlot() { }
+
 Q_SIGNALS:
     void mySignal();
     void mySignalWithIntArg(int arg);
@@ -857,6 +863,14 @@ void tst_QScriptExtQObject::callQtInvokable()
 
         QCOMPARE(qscriptvalue_cast<QColor>(ret), color);
     }
+
+    // private slots should not be part of the QObject binding
+    QCOMPARE(m_engine->evaluate("myObject.myPrivateSlot").isUndefined(), true);
+
+    // protected slots should be fine
+    m_myObject->resetQtFunctionInvoked();
+    m_engine->evaluate("myObject.myProtectedSlot()");
+    QCOMPARE(m_myObject->qtFunctionInvoked(), 36);
 }
 
 void tst_QScriptExtQObject::connectAndDisconnect()
@@ -1274,7 +1288,9 @@ void tst_QScriptExtQObject::enumerate()
         << "dp1" << "dp2" << "dp3"
         // inherited slots
         << "destroyed(QObject*)" << "destroyed()"
-        << "deleteLater()" << "_q_reregisterTimers(void*)"
+        << "deleteLater()"
+        // not included because it's private:
+        // << "_q_reregisterTimers(void*)"
         // signals
         << "mySignal()"
         // slots

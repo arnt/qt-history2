@@ -134,6 +134,11 @@ static bool isObjectProperty(const QScriptValueImpl &object, const char *name)
         && member.testFlags(QScript::Member::ObjectProperty);
 }
 
+static bool hasMethodAccess(const QMetaMethod &method)
+{
+    return (method.access() != QMetaMethod::Private);
+}
+
 class ExtQObjectData: public QScriptClassData
 {
 public:
@@ -168,13 +173,16 @@ public:
             QByteArray normalized = QMetaObject::normalizedSignature(name);
 
             if (-1 != (index = meta->indexOfMethod(normalized))) {
-                member->native(nameId, index,
-                               QScriptValue::QObjectMember
-                               | METHOD_ID);
+                QMetaMethod method = meta->method(index);
+                if (hasMethodAccess(method)) {
+                    member->native(nameId, index,
+                                   QScriptValue::QObjectMember
+                                   | METHOD_ID);
 #ifndef Q_SCRIPT_NO_QMETAOBJECT_CACHE
-                metaCache->registerMember(nameId, *member);
+                    metaCache->registerMember(nameId, *member);
 #endif
-                return true;
+                    return true;
+                }
             }
         }
 
@@ -211,7 +219,8 @@ public:
 
         for (index = meta->methodCount() - 1; index >= 0; --index) {
             QMetaMethod method = meta->method(index);
-            if (methodName(method) == name) {
+            if (hasMethodAccess(method)
+                && (methodName(method) == name)) {
                 member->native(nameId, index,
                                QScriptValue::QObjectMember
                                | METHOD_ID
@@ -379,7 +388,8 @@ public:
         // meta-object-defined methods
         for (int i = 0; i < meta->methodCount(); ++i) {
             QMetaMethod method = meta->method(i);
-            if (!isObjectProperty(object, method.signature())) {
+            if (hasMethodAccess(method)
+                && !isObjectProperty(object, method.signature())) {
                 ++count;
             }
         }
@@ -439,7 +449,8 @@ public:
         physicalIndex = 0;
         for ( ; physicalIndex < meta->methodCount(); ++physicalIndex) {
             QMetaMethod method = meta->method(physicalIndex);
-            if (!isObjectProperty(object, method.signature())) {
+            if (hasMethodAccess(method)
+                && !isObjectProperty(object, method.signature())) {
                 if (logicalIndex == index)
                     break;
                 ++logicalIndex;

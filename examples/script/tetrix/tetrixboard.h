@@ -52,7 +52,7 @@ protected:
     void paintEvent(QPaintEvent *event);
     void keyPressEvent(QKeyEvent *event);
 
-private slots:
+protected slots:
     void showNextPiece(int width, int height);
     void drawPauseScreen(QPainter *painter);
     void drawSquare(QPainter *painter, int x, int y, int shape);
