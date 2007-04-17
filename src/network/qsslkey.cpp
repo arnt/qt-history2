@@ -385,22 +385,27 @@ Qt::HANDLE QSslKey::handle() const
 }
 
 /*!
-    Returns true if this key is equal to \a key; otherwise returns false.
+    Returns true if this key is equal to \a other; otherwise returns false.
 */
-bool QSslKey::operator==(const QSslKey &key) const
+bool QSslKey::operator==(const QSslKey &other) const
 {
     if (isNull())
-        return key.isNull();
-    if (key.isNull())
+        return other.isNull();
+    if (other.isNull())
         return isNull();
-    if (algorithm() != key.algorithm())
+    if (algorithm() != other.algorithm())
         return false;
-    if (type() != key.type())
+    if (type() != other.type())
         return false;
-    if (length() != key.length())
+    if (length() != other.length())
         return false;
-    return toDer() == key.toDer();
+    return toDer() == other.toDer();
 }
+
+/*! \fn bool QSslKey::operator!=(const QSslKey &other) const
+
+    Returns true if this key is not equal to key \a other; otherwise returns false.
+*/
 
 #ifndef QT_NO_DEBUG
 class QDebug;
