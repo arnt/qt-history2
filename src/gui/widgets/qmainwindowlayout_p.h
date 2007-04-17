@@ -190,7 +190,7 @@ public:
     // save/restore
 
     enum { // sentinel values used to validate state data
-        VersionMarker = 0xff,
+        VersionMarker = 0xff
     };
     void saveState(QDataStream &stream) const;
     bool restoreState(QDataStream &stream);
