@@ -51,7 +51,7 @@ bool Colors::showBoundingRect = false;
 bool Colors::showFps = false;
 bool Colors::noAdapt = false;
 bool Colors::noWindowMask = true;
-bool Colors::useButtonBalls = true;
+bool Colors::useButtonBalls = false;
 bool Colors::low = false;
 bool Colors::useEightBitPalette = false;
 bool Colors::noTimerUpdate = false;
@@ -194,8 +194,8 @@ void Colors::parseArgs(int argc, char *argv[])
             Colors::useLoop = true;
         else if (s == "-use-8bit")
             Colors::useEightBitPalette = true;
-        else if (s == "-no-balls")
-            Colors::useButtonBalls = false;
+        else if (s == "-use-balls")
+            Colors::useButtonBalls = true;
         else if (s.startsWith("-ticker-letters"))
             Colors::tickerLetterCount = int(parseFloat(s, "-ticker-letters"));
         else if (s.startsWith("-ticker-text"))
@@ -212,7 +212,7 @@ void Colors::parseArgs(int argc, char *argv[])
             QMessageBox::warning(0, "Arguments",
                                  QString("Usage: qtdemo [-no-adapt] [-no-opengl] [-no-ticker] [-no-rescale] ")
                                  + "[-no-animations] [-no-blending] [-no-sync] [-use-timer-update[0|1]] [-use-window-mask] [-fullscreen] "
-                                 + "[-use-pixmaps] [-show-fps] [-show-br] [-use-8bit] [-use-loop] [-no-balls] [-animation-speed<float>] [-fps<int>] "
+                                 + "[-use-pixmaps] [-show-fps] [-show-br] [-use-8bit] [-use-loop] [-use-balls] [-animation-speed<float>] [-fps<int>] "
                                  + "[-low] [-ticker-letters<int>] [-ticker-speed<float>] [-no-ticker-morph] "
                                  + "[-ticker-morph-speed<float>] [-ticker-text<string>]");
             exit(0);

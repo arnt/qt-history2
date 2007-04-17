@@ -343,7 +343,7 @@ void MainWindow::resizeEvent(QResizeEvent *event)
         QRectF ttb = this->trolltechLogo->boundingRect();
         this->trolltechLogo->setPos(int((r.width() - ttb.width()) / 2), 595 - ttb.height());
         QRectF qtb = this->qtLogo->boundingRect();
-        this->qtLogo->setPos(802 - qtb.width(), 10);
+        this->qtLogo->setPos(802 - qtb.width(), 0);
     }
     
     // Changing size will almost always
