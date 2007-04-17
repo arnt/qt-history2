@@ -384,19 +384,19 @@ void QGraphicsViewPrivate::recalculateContentSize()
     // Adjust the maximum width and height of the viewport based on the width
     // of visible scroll bars.
     int scrollBarExtent = q->style()->pixelMetric(QStyle::PM_ScrollBarExtent, 0, q);
-    bool useHorizontalScrollBar = (viewRect.width() >= maxSize.width());
-    bool useVerticalScrollBar = (viewRect.height() >= maxSize.height());
+    bool useHorizontalScrollBar = (viewRect.width() > maxSize.width());
+    bool useVerticalScrollBar = (viewRect.height() > maxSize.height());
     if (useHorizontalScrollBar && !useVerticalScrollBar) {
-        if (viewRect.height() >= maxSize.height() - scrollBarExtent)
+        if (viewRect.height() > maxSize.height() - scrollBarExtent)
             useVerticalScrollBar = true;
     }
     if (useVerticalScrollBar && !useHorizontalScrollBar) {
-        if (viewRect.width() >= maxSize.width() - scrollBarExtent)
+        if (viewRect.width() > maxSize.width() - scrollBarExtent)
             useHorizontalScrollBar = true;
     }
-    if (useHorizontalScrollBar)
+    if (useHorizontalScrollBar && hbarpolicy != Qt::ScrollBarAlwaysOn)
         height -= scrollBarExtent;
-    if (useVerticalScrollBar)
+    if (useVerticalScrollBar && vbarpolicy != Qt::ScrollBarAlwaysOn)
         width -= scrollBarExtent;
 
     // Setting the ranges of these scroll bars can/will cause the values to
@@ -726,10 +726,9 @@ QSize QGraphicsView::sizeHint() const
 {
     Q_D(const QGraphicsView);
     if (d->scene) {
-        return d->matrix.inverted().mapRect(sceneRect())
-            .size()
-            .boundedTo((3 * QApplication::desktop()->size()) / 4)
-            .toSize();
+        QSizeF baseSize = d->matrix.inverted().mapRect(sceneRect()).size();
+        baseSize += QSizeF(d->frameWidth * 2, d->frameWidth * 2);
+        return baseSize.boundedTo((3 * QApplication::desktop()->size()) / 4).toSize();
     }
     return QAbstractScrollArea::sizeHint();
 }
