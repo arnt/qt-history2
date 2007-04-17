@@ -1059,6 +1059,9 @@ void QAbstractItemModelPrivate::reset()
     Removes the given \a row from the child items of the \a parent specified.
     Returns true if the row is removed; otherwise returns false.
 
+    The removeRow() is a convenience function that calls removeRows().
+    The QAbstractItemModel implementation of removeRows does nothing.
+
     \sa removeRows(), removeColumn(), insertRow()
 */
 
