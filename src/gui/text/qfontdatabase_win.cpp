@@ -20,6 +20,17 @@
 #include "qabstractfileengine.h"
 #include "qendian.h"
 
+#ifdef MAKE_TAG
+#undef MAKE_TAG
+#endif
+// GetFontData expects the tags in little endian ;(
+#define MAKE_TAG(ch1, ch2, ch3, ch4) (\
+    (((quint32)(ch4)) << 24) | \
+    (((quint32)(ch3)) << 16) | \
+    (((quint32)(ch2)) << 8) | \
+    ((quint32)(ch1)) \
+   )
+
 extern HDC   shared_dc;                // common dc for all fonts
 static HFONT stock_sysfont  = 0;
 
