@@ -46,6 +46,10 @@
 #include <QTimeEdit>
 #include <QMetaType>
 #include <QDebug>
+#include <QTest>
+#include <QSignalSpy>
+#include <QTestEventList>
+#include <QWheelEvent>
 
 #ifdef Q_OS_WIN
 # include <windows.h>
@@ -173,6 +177,7 @@ private slots:
     void reverseTest();
 
     void ddMMMMyyyy();
+    void wheelEvent();
 private:
     EditorDateEdit* testWidget;
     QWidget *testFocusWidget;
@@ -2709,10 +2714,6 @@ void tst_QDateTimeEdit::task148522()
     QCOMPARE(edit.dateTime(), dt);
 }
 
-
-
-
-
 void tst_QDateTimeEdit::ddMMMMyyyy()
 {
     testWidget->setDisplayFormat("dd.MMMM.yyyy");
@@ -2727,6 +2728,19 @@ void tst_QDateTimeEdit::ddMMMMyyyy()
 #endif
     QTest::keyClick(testWidget, Qt::Key_Backspace);
     QCOMPARE(testWidget->lineEdit()->text(), QString("01.January.200"));
+}
+
+void tst_QDateTimeEdit::wheelEvent()
+{
+    testWidget->setDisplayFormat("dddd/MM");
+    testWidget->setDate(QDate(2000, 2, 21));
+    testWidget->setCurrentSection(QDateTimeEdit::DaySection);
+    QWheelEvent w(testWidget->lineEdit()->geometry().center(), 120, 0, 0);
+    qApp->sendEvent(testWidget, &w);
+    QCOMPARE(testWidget->date(), QDate(2000, 2, 22));
+    testWidget->setCurrentSection(QDateTimeEdit::MonthSection);
+    qApp->sendEvent(testWidget, &w);
+    QCOMPARE(testWidget->date(), QDate(2000, 3, 22));
 }
 
 QTEST_MAIN(tst_QDateTimeEdit)
