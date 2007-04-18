@@ -204,6 +204,18 @@ void tst_QScriptValue::toString()
     QCOMPARE(fun.toString(), QString("function () { [native] }"));
     QCOMPARE(qscriptvalue_cast<QString>(fun), QString("function () { [native] }"));
 
+    // toString() that throws exception
+    {
+        QScriptValue objectObject = eng.evaluate(
+            "(function(){"
+            "  o = { };"
+            "  o.toString = function() { throw new Error('toString'); };"
+            "  return o;"
+            "})()");
+        QCOMPARE(objectObject.toString(), QLatin1String("Object"));
+        QVERIFY(eng.hasUncaughtException());
+    }
+
     QScriptValue inv = QScriptValue();
     QCOMPARE(inv.toString(), QString());
 }
@@ -490,8 +502,8 @@ void tst_QScriptValue::toVariant()
     QCOMPARE(qscriptvalue_cast<QVariant>(undefined), QVariant());
 
     QScriptValue null = eng.nullValue();
-    QCOMPARE(null.toVariant(), QVariant(0));
-    QCOMPARE(qscriptvalue_cast<QVariant>(null), QVariant(0));
+    QCOMPARE(null.toVariant(), QVariant());
+    QCOMPARE(qscriptvalue_cast<QVariant>(null), QVariant());
 
     QScriptValue number = QScriptValue(&eng, 123.0);
     QCOMPARE(number.toVariant(), QVariant(123.0));
@@ -521,6 +533,20 @@ void tst_QScriptValue::toVariant()
         QVariant var = qobject.toVariant();
         QCOMPARE(var.userType(), int(QMetaType::QObjectStar));
         QCOMPARE(qVariantValue<QObject*>(var), (QObject *)this);
+    }
+
+    {
+        QDateTime dateTime = QDateTime(QDate(1980, 10, 4));
+        QScriptValue dateObject = eng.newDate(dateTime);
+        QVariant var = dateObject.toVariant();
+        QCOMPARE(var, QVariant(dateTime));
+    }
+
+    {
+        QRegExp rx = QRegExp("[0-9a-z]+");
+        QScriptValue rxObject = eng.newRegExp(rx);
+        QVariant var = rxObject.toVariant();
+        QCOMPARE(var, QVariant(rx));
     }
 
     QScriptValue inv;
@@ -752,7 +778,6 @@ void tst_QScriptValue::toPrimitive()
         QCOMPARE(tmp.toString(), QString("false"));
     }
 
-
     QScriptValue stringObject = eng.evaluate("new String(\"ciao\")");
     QCOMPARE(stringObject.isObject(), true);
     {
@@ -766,6 +791,64 @@ void tst_QScriptValue::toPrimitive()
         tmp = stringObject.toPrimitive(QScriptValue::StringTypeHint);
         QCOMPARE(tmp.isString(), true);
         QCOMPARE(tmp.toString(), str.toString());
+    }
+
+    {
+        QScriptValue objectObject = eng.newObject();
+        QScriptValue tmp;
+        tmp = objectObject.toPrimitive(QScriptValue::NoTypeHint);
+        QVERIFY(tmp.isString());
+        QCOMPARE(tmp.toString(), QLatin1String("[object Object]"));
+        tmp = objectObject.toPrimitive(QScriptValue::NumberTypeHint);
+        QVERIFY(tmp.isString());
+        QCOMPARE(tmp.toString(), QLatin1String("[object Object]"));
+        tmp = objectObject.toPrimitive(QScriptValue::StringTypeHint);
+        QVERIFY(tmp.isString());
+        QCOMPARE(tmp.toString(), QLatin1String("[object Object]"));
+    }
+
+    // custom toString() and valueOf()
+    {
+        QScriptValue objectObject = eng.evaluate("(function(){"
+                                                 "  o = { };"
+                                                 "  o.toString = function() { return 'ciao'; };"
+                                                 "  o.valueOf = function() { return 123; };"
+                                                 "  return o;"
+                                                 "})()");
+        QScriptValue tmp;
+        tmp = objectObject.toPrimitive(QScriptValue::NoTypeHint);
+        QVERIFY(tmp.isNumber());
+        QCOMPARE(tmp.toNumber(), 123.0);
+        tmp = objectObject.toPrimitive(QScriptValue::NumberTypeHint);
+        QVERIFY(tmp.isNumber());
+        QCOMPARE(tmp.toNumber(), 123.0);
+        tmp = objectObject.toPrimitive(QScriptValue::StringTypeHint);
+        QVERIFY(tmp.isString());
+        QCOMPARE(tmp.toString(), QLatin1String("ciao"));
+    }
+
+    // custom toString() and valueOf() that throw exceptions
+    {
+        QScriptValue objectObject = eng.evaluate(
+            "(function(){"
+            "  o = { };"
+            "  o.toString = function() { throw new Error('toString'); };"
+            "  o.valueOf = function() { throw new Error('valueOf'); };"
+            "  return o;"
+            "})()");
+        QScriptValue tmp;
+        tmp = objectObject.toPrimitive(QScriptValue::NoTypeHint);
+        QVERIFY(eng.hasUncaughtException());
+        QVERIFY(tmp.isError());
+        QCOMPARE(tmp.property("message").toString(), QLatin1String("valueOf"));
+        tmp = objectObject.toPrimitive(QScriptValue::NumberTypeHint);
+        QVERIFY(eng.hasUncaughtException());
+        QVERIFY(tmp.isError());
+        QCOMPARE(tmp.property("message").toString(), QLatin1String("valueOf"));
+        tmp = objectObject.toPrimitive(QScriptValue::StringTypeHint);
+        QVERIFY(eng.hasUncaughtException());
+        QVERIFY(tmp.isError());
+        QCOMPARE(tmp.property("message").toString(), QLatin1String("toString"));
     }
 
     QScriptValue inv;

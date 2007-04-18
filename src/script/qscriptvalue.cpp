@@ -624,7 +624,23 @@ qsreal QScriptValue::toInteger() const
 }
 
 /*!
-  Returns the variant value of this QScriptValue.
+  Returns the QVariant value of this QScriptValue, if it can be
+  converted to a QVariant; otherwise returns an invalid QVariant.
+  The conversion is performed according to the following table:
+
+    \table
+    \header \o Input Type \o Result
+    \row    \o Undefined  \o An invalid QVariant.
+    \row    \o Null       \o An invalid QVariant.
+    \row    \o Boolean    \o A QVariant containing the value of the boolean.
+    \row    \o Number     \o A QVariant containing the value of the number.
+    \row    \o String     \o A QVariant containing the value of the string.
+    \row    \o QVariant Object \o The result is the QVariant value of the object (no conversion).
+    \row    \o QObject Object \o A QVariant containing a pointer to the QObject.
+    \row    \o Date Object \o A QVariant containing the date value (toDateTime()).
+    \row    \o RegExp Object \o A QVariant containing the regular expression value (toRegExp()).
+    \row    \o Object     \o If toPrimitive() returns a primitive value, then the result is converted to a QVariant according to the above rules; otherwise, an invalid QVariant is returned.
+    \endtable
 
   \sa isVariant()
 */
@@ -634,10 +650,22 @@ QVariant QScriptValue::toVariant() const
 }
 
 /*!
-  Returns the object value of this QScriptValue, as defined in
-  \l{ECMA-262} section 9.9, "ToObject".
+  Returns the object value of this QScriptValue, if it can be
+  converted to an object; otherwise returns an invalid
+  QScriptValue. The conversion is performed according to the following
+  table:
 
-  \sa isObject(), QScriptEngine::newObject()
+    \table
+    \header \o Input Type \o Result
+    \row    \o Undefined  \o An invalid QScriptValue.
+    \row    \o Null       \o An invalid QScriptValue.
+    \row    \o Boolean    \o A new Boolean object whose internal value is set to the value of the boolean.
+    \row    \o Number     \o A new Number object whose internal value is set to the value of the number.
+    \row    \o String     \o A new String object whose internal value is set to the value of the string.
+    \row    \o Object     \o The result is the object itself (no conversion).
+    \endtable
+
+    \sa isObject(), QScriptEngine::newObject()
 */
 QScriptValue QScriptValue::toObject() const
 {
@@ -672,15 +700,25 @@ QRegExp QScriptValue::toRegExp() const
 #endif // QT_NO_REGEXP
 
 /*!
-  Returns the primitive value of this QScriptValue, as defined in
-  \l{ECMA-262} section 9.1, "ToPrimitive".
+  Returns the primitive value of this QScriptValue, if it can be
+  converted to a primitive value; otherwise returns this QScriptValue.
+  The conversion is performed according to the following table:
 
-  If this QScriptValue is an object, the given \a hint can be used to
-  indicate the desired primitive type. For objects, calling this
-  function has side-effects on the script engine, since e.g. toString()
-  can be called on the object (possibly resulting in an uncaught
-  script exception). If an exception occurred, toPrimitive() returns
-  the value that was thrown (typically an \c{Error} object).
+    \table
+    \header \o Input Type \o Result
+    \row    \o Undefined  \o The value itself (no conversion).
+    \row    \o Null       \o The value itself (no conversion).
+    \row    \o Boolean    \o The value itself (no conversion).
+    \row    \o Number     \o The value itself (no conversion).
+    \row    \o String     \o The value itself (no conversion).
+    \row    \o Object     \o The given \a hint can be used to indicate the desired primitive type.
+    \endtable
+
+  If this QScriptValue is an object, calling this function has
+  side-effects on the script engine, since e.g. toString() can be
+  called on the object (possibly resulting in an uncaught script
+  exception). If an exception occurred, toPrimitive() returns the
+  value that was thrown (typically an \c{Error} object).
 */
 QScriptValue QScriptValue::toPrimitive(TypeHint hint) const
 {

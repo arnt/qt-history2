@@ -765,8 +765,9 @@ QScriptValueImpl QScriptEnginePrivate::toPrimitive_helper(const QScriptValueImpl
             me->setThisObject(object);
             foo->execute(me);
             QScriptValueImpl result = me->returnValue();
+            bool exception = (me->state() == QScriptContext::ExceptionState);
             popContext();
-            if (result.isValid() && !result.isObject())
+            if (exception || (result.isValid() && !result.isObject()))
                 return result;
         }
     }

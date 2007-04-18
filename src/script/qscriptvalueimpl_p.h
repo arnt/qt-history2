@@ -308,12 +308,10 @@ inline QVariant QScriptValueImpl::toVariant() const
     switch (m_class->type()) {
 
     case QScript::UndefinedType:
+    case QScript::NullType:
     case QScript::PointerType:
     case QScript::FunctionType:
         break;
-
-    case QScript::NullType:
-        return QVariant(0); // ### hmm...
 
     case QScript::BooleanType:
         return QVariant(m_bool_value);
@@ -336,8 +334,13 @@ inline QVariant QScriptValueImpl::toVariant() const
 #endif
 
     default: {
-        QScriptValue v = toPrimitive();
+        if (isDate())
+            return QVariant(toDateTime());
 
+        if (isRegExp())
+            return QVariant(toRegExp());
+
+        QScriptValue v = toPrimitive();
         if (!v.isObject())
             return v.toVariant();
     }
