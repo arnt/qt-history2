@@ -102,12 +102,14 @@ QWidget*  WidgetFactory::createCustomWidget(const QString &className, QWidget *p
         designerWarning(QObject::tr("The custom widget factory registered for widgets of class %1 returned 0.").arg(className));
         return 0;
     }
-    // Check for mismatched class names which is hard to track
-    if (!rc->inherits(className.toUtf8().constData())) {
-        const QString createdClassName = QString::fromUtf8(rc->metaObject()->className());
+    // Check for mismatched class names which is hard to track.
+    // Perform literal comparison first for QAxWidget, for which a meta object hack is in effect.
+    const char *createdClassNameC = rc->metaObject()->className();
+    const QByteArray classNameB = className.toUtf8();
+    const char *classNameC = classNameB.constData();
+    if (qstrcmp(createdClassNameC, classNameC) && !rc->inherits(classNameC))
         designerWarning(QObject::tr("A class name mismatch occurred when creating a widget using the custom widget factory registered for widgets of class %1."
-                                  " It returned a widget of class %2.").arg(className).arg(createdClassName));
-    }
+                                  " It returned a widget of class %2.").arg(className).arg(QString::fromUtf8(createdClassNameC)));
     return rc;
 }
 
