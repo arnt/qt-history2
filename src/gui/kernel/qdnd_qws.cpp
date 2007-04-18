@@ -124,9 +124,16 @@ void QDragManager::updateCursor()
     if (willDrop) {
         if (qt_qws_dnd_deco)
             qt_qws_dnd_deco->show();
-        QApplication::changeOverrideCursor(QCursor(dragCursor(global_accepted_action), 0, 0));
+        if (currentActionForOverrideCursor != global_accepted_action) {
+            QApplication::changeOverrideCursor(QCursor(dragCursor(global_accepted_action), 0, 0));
+            currentActionForOverrideCursor = global_accepted_action;
+        }
     } else {
-        QApplication::changeOverrideCursor(QCursor(Qt::ForbiddenCursor));
+        QCursor *overrideCursor = QApplication::overrideCursor();
+        if (!overrideCursor || overrideCursor->shape() != Qt::ForbiddenCursor) {
+            QApplication::changeOverrideCursor(QCursor(Qt::ForbiddenCursor));
+            currentActionForOverrideCursor = Qt::IgnoreAction;
+        }
         if (qt_qws_dnd_deco)
             qt_qws_dnd_deco->hide();
     }

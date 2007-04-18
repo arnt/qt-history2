@@ -256,6 +256,9 @@ QDragManager::QDragManager()
 {
     Q_ASSERT(!instance);
     n_cursor = 3;
+#ifdef Q_WS_QWS
+    currentActionForOverrideCursor = Qt::IgnoreAction;
+#endif
     pm_cursor = new QPixmap[n_cursor];
     pm_cursor[0] = QPixmap((const char **)move_xpm);
     pm_cursor[1] = QPixmap((const char **)copy_xpm);

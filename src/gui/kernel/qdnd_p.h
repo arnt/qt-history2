@@ -160,6 +160,9 @@ public:
 private:
     QPixmap *pm_cursor;
     int n_cursor;
+#ifdef Q_WS_QWS
+    Qt::DropAction currentActionForOverrideCursor;
+#endif
 
     QWidget *currentDropTarget;
 
