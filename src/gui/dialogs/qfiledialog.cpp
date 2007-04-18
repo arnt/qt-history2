@@ -1625,7 +1625,8 @@ void QFileDialogPrivate::init(const QString &directory, const QString &nameFilte
     if (!nameFilter.isEmpty())
         q->setFilter(nameFilter);
     q->setAcceptMode(QFileDialog::AcceptOpen);
-    q->setDirectory(workingDirectory(directory));
+    if (!directory.isEmpty())
+        q->setDirectory(workingDirectory(directory));
     q->selectFile(initialSelection(directory));
 
     qFileDialogUi->fileNameEdit->setFocus();
