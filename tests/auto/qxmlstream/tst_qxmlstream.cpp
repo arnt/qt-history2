@@ -80,33 +80,38 @@ static QByteArray makeCanonical(const QString &filename,
             if (reader.isDTD()) {
                 if (!reader.notationDeclarations().isEmpty()) {
                     QString dtd;
-                    dtd += "<!DOCTYPE ";
-                    dtd += docType;
-                    dtd += " [\n";
+                    QTextStream writeDtd(&dtd);
+
+                    writeDtd << "<!DOCTYPE ";
+                    writeDtd << docType;
+                    writeDtd << " [";
+                    writeDtd << endl;
                     QMap<QString, QXmlStreamNotationDeclaration> sortedNotationDeclarations;
                     foreach (QXmlStreamNotationDeclaration notation, reader.notationDeclarations())
                         sortedNotationDeclarations.insert(notation.name().toString(), notation);
                     foreach (QXmlStreamNotationDeclaration notation, sortedNotationDeclarations.values()) {
-                        dtd += "<!NOTATION ";
-                        dtd += notation.name().toString();
+                        writeDtd << "<!NOTATION ";
+                        writeDtd << notation.name().toString();
                         if (notation.publicId().isEmpty()) {
-                            dtd += " SYSTEM \'";
-                            dtd += notation.systemId().toString();
-                            dtd += "\'";
+                            writeDtd << " SYSTEM \'";
+                            writeDtd << notation.systemId().toString();
+                            writeDtd << "\'";
                         } else {
-                            dtd += " PUBLIC \'";
-                            dtd += notation.publicId().toString();
-                            dtd += "\'";
+                            writeDtd << " PUBLIC \'";
+                            writeDtd << notation.publicId().toString();
+                            writeDtd << "\'";
                             if (!notation.systemId().isEmpty() ) {
-                                dtd += " \'";
-                                dtd += notation.systemId().toString();
-                                dtd += "\'";
+                                writeDtd << " \'";
+                                writeDtd << notation.systemId().toString();
+                                writeDtd << "\'";
                             }
                         }
-                        dtd += ">\n";
+                        writeDtd << ">";
+                        writeDtd << endl;
                     }
 
-                    dtd += "]>\n";
+                    writeDtd << "]>";
+                    writeDtd << endl;
                     writer.writeDTD(dtd);
                 }
             } else if (reader.isStartElement()) {
