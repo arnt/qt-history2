@@ -11,8 +11,8 @@
 
 #include <qcoreapplication.h>
 #include <qdebug.h>
+#include <qsettings.h>
 #include <qtextformat.h>
-
 
 //TESTED_CLASS=
 //TESTED_FILES=qtextformat.h
@@ -21,21 +21,25 @@ class tst_QTextFormat : public QObject
 {
 Q_OBJECT
 
-public:
-    tst_QTextFormat();
-    virtual ~tst_QTextFormat();
-
 private slots:
     void getSetCheck();
     void defaultAlignment();
+    void testQTextCharFormat() const;
 };
 
-tst_QTextFormat::tst_QTextFormat()
-{
-}
+/*! \internal
+  This (used to) trigger a crash in:
+ 
+    QDataStream &operator>>(QDataStream &stream, QTextFormat &fmt)
 
-tst_QTextFormat::~tst_QTextFormat()
+  which is most easily produced through QSettings.
+ */
+void tst_QTextFormat::testQTextCharFormat() const
 {
+    QSettings settings("test", "test");
+    QTextCharFormat test;
+
+    settings.value("test", test);
 }
 
 // Testing get/set functions

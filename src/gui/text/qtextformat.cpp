@@ -329,9 +329,16 @@ Q_GUI_EXPORT QDataStream &operator>>(QDataStream &stream, QTextFormat &fmt)
 {
     QMap<qint32, QVariant> properties;
     stream >> fmt.format_type >> properties;
+
+    // QTextFormat's default constructor doesn't allocate the private structure, so
+    // we have to do this, in case fmt is a default constructed value.
+    if(!fmt.d)
+        fmt.d = new QTextFormatPrivate();
+
     for (QMap<qint32, QVariant>::ConstIterator it = properties.constBegin();
          it != properties.constEnd(); ++it)
         fmt.d->insertProperty(it.key(), it.value());
+
     return stream;
 }
 
