@@ -1385,8 +1385,8 @@ class QGlobalStaticDeleter
 {
 public:
     QGlobalStatic<T> &globalStatic;
-    QGlobalStaticDeleter(QGlobalStatic<T> &globalStatic)
-        : globalStatic(globalStatic)
+    QGlobalStaticDeleter(QGlobalStatic<T> &_globalStatic)
+        : globalStatic(_globalStatic)
     { }
 
     inline ~QGlobalStaticDeleter()
