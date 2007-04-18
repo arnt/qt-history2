@@ -44,6 +44,7 @@
 #endif
 
 #define QD3D_MASK_MARGIN 1
+#define QD3D_BATCH_SIZE 256
 
 // for the ClearType detection stuff..
 #ifndef SPI_GETFONTSMOOTHINGTYPE
@@ -109,18 +110,18 @@ static PFND3DXCREATEEFFECT pD3DXCreateEffect = 0;
 static PFND3DXMATRIXORTHOOFFCENTERLH pD3DXMatrixOrthoOffCenterLH = 0;
 
 
-class QD3DWindowManager : public QObject {
+class QD3DSurfaceManager : public QObject {
     Q_OBJECT
 
 public:
-    enum QD3DWindowManagerStatus {
+    enum QD3DSurfaceManagerStatus {
         NoStatus = 0,
-        NeedsReseting = 0x01,
+        NeedsResetting = 0x01,
         MaxSizeChanged = 0x02
     };
 
-    QD3DWindowManager();
-    ~QD3DWindowManager();
+    QD3DSurfaceManager();
+    ~QD3DSurfaceManager();
 
     void init(LPDIRECT3D9 object);
 
@@ -151,7 +152,7 @@ private:
     void initPresentParameters(D3DPRESENT_PARAMETERS *params);
     D3DSwapChain *createSwapChain(QWidget *w);
 
-    QSize m_maxSize;
+    QSize m_max_size;
     int m_status;
     QMap<QPaintDevice *, D3DSwapChain *> m_swapchains;
 
@@ -176,7 +177,6 @@ public:
     int x, y, channel;
 };
 
-#define QD3D_BATCH_SIZE 256
 
 struct QD3DBatchItem {
     enum QD3DBatchInfo {
@@ -224,15 +224,13 @@ struct QD3DBatchItem {
     QVector<int> m_pointstops;
 };
 
-class QD3DBatch {
-public:
-    int m_itemIndex;
+struct QD3DBatch {
+    int m_item_index;
     QD3DBatchItem items[QD3D_BATCH_SIZE];
 };
 
 class QD3DStateManager;
 class QD3DFontCache;
-class QD3DMaskAllocator;
 class QD3DVertexBuffer;
 class QD3DGradientCache;
 
@@ -353,7 +351,7 @@ public:
 
     QPainter::CompositionMode m_cmode;
 
-    QD3DWindowManager m_winManager;
+    QD3DSurfaceManager m_surface_manager;
     QSize m_winSize;
 
     LPDIRECT3D9 m_d3dObject;
@@ -910,24 +908,6 @@ static void qd3d_image_cleanup(qint64 key)
 // end D3D image cache stuff
 //
 
-class QD3DMaskAllocator {
-public:
-    QD3DMaskAllocator();
-
-    void reset();
-    bool allocate(int w, int h);
-    void setSize(int w, int h);
-
-    QD3DMaskPosition mask_position;
-
-private:
-    int width;
-    int height;
-
-    int mask_offsetX2;
-    int mask_offsetY2;
-};
-
 class QD3DVertexBuffer : public QTessellator
 {
 public:
@@ -986,6 +966,7 @@ private:
     inline void lineToStencil(qreal x, qreal y);
     inline void curveToStencil(const QPointF &cp1, const QPointF &cp2, const QPointF &ep);
     QRectF pathToVertexArrays(const QPainterPath &path);
+    void resetMask();
 
     QDirect3DPaintEnginePrivate *m_pe;
 
@@ -1007,7 +988,6 @@ private:
 
     QPointF tess_lastpoint;
     int tess_index;
-    QD3DMaskAllocator m_maskallocator;
 
     bool m_locked;
     IDirect3DTexture9 *m_mask;
@@ -1019,6 +999,10 @@ private:
     bool m_clearmask;
     bool m_isLine;
     bool m_firstPoint;
+
+    QD3DMaskPosition m_mask_position;
+    int m_mask_offsetX2;
+    int m_mask_offsetY2;
 };
 
 QD3DStateManager::QD3DStateManager(LPDIRECT3DDEVICE9 pDevice, ID3DXEffect *effect)
@@ -1458,24 +1442,24 @@ void QD3DGradientCache::cleanCache()
     cache.clear();
 }
 
-QD3DWindowManager::QD3DWindowManager() :
+QD3DSurfaceManager::QD3DSurfaceManager() :
     m_status(NoStatus), m_dummy(0), m_device(0), m_pd(0), m_current(0)
 {
 
 }
 
-QD3DWindowManager::~QD3DWindowManager()
+QD3DSurfaceManager::~QD3DSurfaceManager()
 {
 }
 
-void QD3DWindowManager::setPaintDevice(QPaintDevice *pd)
+void QD3DSurfaceManager::setPaintDevice(QPaintDevice *pd)
 {
     m_status = NoStatus;
     m_pd = pd;
     m_current = 0;
 
     if (m_device->TestCooperativeLevel() != D3D_OK) {
-        m_status = NeedsReseting;
+        m_status = NeedsResetting;
         return;
     }
 
@@ -1498,12 +1482,12 @@ void QD3DWindowManager::setPaintDevice(QPaintDevice *pd)
     }
 }
 
-int QD3DWindowManager::status() const
+int QD3DSurfaceManager::status() const
 {
     return m_status;
 }
 
-void QD3DWindowManager::reset()
+void QD3DSurfaceManager::reset()
 {
     QList<QPaintDevice *> pds = m_swapchains.keys();
 
@@ -1549,24 +1533,24 @@ void QD3DWindowManager::reset()
     updateMaxSize();
 }
 
-LPDIRECT3DSURFACE9 QD3DWindowManager::renderTarget()
+LPDIRECT3DSURFACE9 QD3DSurfaceManager::renderTarget()
 {
     return m_current ? m_current->surface : 0;
 }
 
-LPDIRECT3DSURFACE9 QD3DWindowManager::surface(QPaintDevice *pd)
+LPDIRECT3DSURFACE9 QD3DSurfaceManager::surface(QPaintDevice *pd)
 {
     D3DSwapChain *swapchain = m_swapchains.value(pd, 0);
     return swapchain ? swapchain->surface : 0;
 }
 
-LPDIRECT3DSWAPCHAIN9 QD3DWindowManager::swapChain(QPaintDevice *pd)
+LPDIRECT3DSWAPCHAIN9 QD3DSurfaceManager::swapChain(QPaintDevice *pd)
 {
     D3DSwapChain *swapchain = m_swapchains.value(pd, 0);
     return swapchain ? swapchain->swapchain : 0;
 }
 
-void QD3DWindowManager::releasePaintDevice(QPaintDevice *pd)
+void QD3DSurfaceManager::releasePaintDevice(QPaintDevice *pd)
 {
     D3DSwapChain *swapchain = m_swapchains.take(pd);
 
@@ -1579,12 +1563,12 @@ void QD3DWindowManager::releasePaintDevice(QPaintDevice *pd)
     }
 }
 
-LPDIRECT3DDEVICE9 QD3DWindowManager::device()
+LPDIRECT3DDEVICE9 QD3DSurfaceManager::device()
 {
     return m_device;
 }
 
-void QD3DWindowManager::cleanup()
+void QD3DSurfaceManager::cleanup()
 {
     QPixmapCache::clear();
     qd3d_glyph_cache()->cleanCache();
@@ -1614,16 +1598,16 @@ void QD3DWindowManager::cleanup()
     });
 }
 
-QSize QD3DWindowManager::maxSize() const
+QSize QD3DSurfaceManager::maxSize() const
 {
-    return m_maxSize;
+    return m_max_size;
 }
 
 extern "C" {
     LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 };
 
-void QD3DWindowManager::init(LPDIRECT3D9 object)
+void QD3DSurfaceManager::init(LPDIRECT3D9 object)
 {
     QString cname(QLatin1String("qt_d3d_dummy"));
     uint style = CS_DBLCLKS | CS_SAVEBITS;
@@ -1680,7 +1664,7 @@ void QD3DWindowManager::init(LPDIRECT3D9 object)
         qWarning("QDirect3DPaintEngine: failed to create Direct3D device (error=0x%x).", res);
 }
 
-void QD3DWindowManager::updateMaxSize()
+void QD3DSurfaceManager::updateMaxSize()
 {
     int w = 0, h = 0;
     QMap<QPaintDevice *, D3DSwapChain *>::const_iterator i = m_swapchains.constBegin();
@@ -1698,13 +1682,13 @@ void QD3DWindowManager::updateMaxSize()
     }
 
     QSize newsize = QSize(w, h);
-    if (newsize != m_maxSize) {
+    if (newsize != m_max_size) {
         m_status |= MaxSizeChanged;
-        m_maxSize = newsize;
+        m_max_size = newsize;
     }
 }
 
-void QD3DWindowManager::initPresentParameters(D3DPRESENT_PARAMETERS *params)
+void QD3DSurfaceManager::initPresentParameters(D3DPRESENT_PARAMETERS *params)
 {
     ZeroMemory(params, sizeof(D3DPRESENT_PARAMETERS));
     params->Windowed = true;
@@ -1714,7 +1698,7 @@ void QD3DWindowManager::initPresentParameters(D3DPRESENT_PARAMETERS *params)
     params->Flags = D3DPRESENTFLAG_LOCKABLE_BACKBUFFER;
 }
 
-QD3DWindowManager::D3DSwapChain *QD3DWindowManager::createSwapChain(QWidget *w)
+QD3DSurfaceManager::D3DSwapChain *QD3DSurfaceManager::createSwapChain(QWidget *w)
 {
     D3DPRESENT_PARAMETERS params;
     initPresentParameters(&params);
@@ -1735,60 +1719,10 @@ QD3DWindowManager::D3DSwapChain *QD3DWindowManager::createSwapChain(QWidget *w)
     return swapchain;
 }
 
-void QD3DWindowManager::cleanupPaintDevice(QObject *object)
+void QD3DSurfaceManager::cleanupPaintDevice(QObject *object)
 {
     QWidget *w = static_cast<QWidget *>(object);
     releasePaintDevice(w);
-}
-
-QD3DMaskAllocator::QD3DMaskAllocator() {
-    reset();
-}
-
-void QD3DMaskAllocator::reset() {
-    mask_position.x = mask_position.y = QD3D_MASK_MARGIN;
-    mask_position.channel = 0;
-    mask_offsetX2 = mask_offsetY2 = QD3D_MASK_MARGIN;
-}
-
-// flow allocate free space in mask texture
-bool QD3DMaskAllocator::allocate(int w, int h)
-{
-    w += 3;
-    h += 3;
-
-    if (w > width)
-        w = width;
-    if (h > height)
-        h = height;
-
-    bool flush_mask = false;
-
-    if ((height - mask_offsetY2) >= h && (width - mask_position.x) >= w) {
-        mask_position.y = mask_offsetY2;
-    } else if ((width - mask_offsetX2) >= w) {
-        mask_position.y = QD3D_MASK_MARGIN;
-        mask_position.x = mask_offsetX2;
-    } else if (mask_position.channel < 3) {
-        ++mask_position.channel;
-        mask_position.x = mask_position.y = QD3D_MASK_MARGIN;
-        mask_offsetX2 = mask_offsetY2 = QD3D_MASK_MARGIN;
-    } else {
-        reset();
-        flush_mask = true;
-    }
-
-    int newoffset = mask_position.x + w;
-    if (mask_offsetX2 < newoffset)
-        mask_offsetX2 = newoffset;
-    mask_offsetY2 = (mask_position.y + h);
-
-    return flush_mask;
-}
-
-void QD3DMaskAllocator::setSize(int w, int h) {
-    width = w;
-    height = h;
 }
 
 int QD3DStateManager::m_maskChannels[4][4] =
@@ -1799,6 +1733,7 @@ QD3DVertexBuffer::QD3DVertexBuffer(QDirect3DPaintEnginePrivate *pe)
       m_locked(false), m_mask(0), m_startindex(0), m_index(0), m_vbuff(0), m_clearmask(true),
       m_isLine(false), m_firstPoint(true)
 {
+    resetMask();
     if (FAILED(D3DXMatrixIdentity(&m_d3dIdentityMatrix))) {
         qWarning("QDirect3DPaintEngine: D3DXMatrixIdentity failed");
     }
@@ -1988,8 +1923,40 @@ void QD3DVertexBuffer::queueRect(const QRectF &rect, QD3DBatchItem *item, D3DCOL
 
 QD3DMaskPosition QD3DVertexBuffer::allocateMaskPosition(const QRectF &brect, bool *breakbatch)
 {
-    *breakbatch = m_maskallocator.allocate(brect.width(), brect.height());
-    return m_maskallocator.mask_position;
+    int w = brect.width();
+    int h = brect.height();
+
+    w += 3;
+    h += 3;
+
+    if (w > m_width)
+        w = m_width;
+    if (h > m_height)
+        h = m_height;
+
+    *breakbatch = false;
+
+    if ((m_height - m_mask_offsetY2) >= h && (m_width - m_mask_position.x) >= w) {
+        m_mask_position.y = m_mask_offsetY2;
+    } else if ((m_width - m_mask_offsetX2) >= w) {
+        m_mask_position.y = QD3D_MASK_MARGIN;
+        m_mask_position.x = m_mask_offsetX2;
+    } else if (m_mask_position.channel < 3) {
+        ++m_mask_position.channel;
+        m_mask_position.x = m_mask_position.y = QD3D_MASK_MARGIN;
+        m_mask_offsetX2 = m_mask_offsetY2 = QD3D_MASK_MARGIN;
+    } else {
+        resetMask();
+        *breakbatch = true;
+    }
+
+    int newoffset = m_mask_position.x + w;
+    if (m_mask_offsetX2 < newoffset)
+        m_mask_offsetX2 = newoffset;
+    m_mask_offsetY2 = (m_mask_position.y + h);
+
+    return m_mask_position;
+
 }
 
 void QD3DVertexBuffer::queueRect(const QRectF &rect, QD3DBatchItem *item, D3DCOLOR color)
@@ -2199,14 +2166,13 @@ void QD3DVertexBuffer::queueTextGlyph(const QRectF &rect, const qreal *tex_coord
 
 bool QD3DVertexBuffer::needsFlushing() const
 {
-    return (m_pe->m_batch.m_itemIndex >= QD3D_BATCH_SIZE || m_startindex >= QT_VERTEX_RESET_LIMIT);
+    return (m_pe->m_batch.m_item_index >= QD3D_BATCH_SIZE || m_startindex >= QT_VERTEX_RESET_LIMIT);
 }
 
 void QD3DVertexBuffer::setMaskSize(QSize size)
 {
     m_width = size.width();
     m_height = size.height();
-    m_maskallocator.setSize(m_width, m_height);
 
     if (m_maskSurface)
         m_maskSurface->Release();
@@ -2243,7 +2209,7 @@ void QD3DVertexBuffer::setMaskSize(QSize size)
 
 void QD3DVertexBuffer::beforeReset()
 {
-    m_maskallocator.reset();
+    resetMask();
     m_clearmask = true;
 
     if (m_maskSurface) {
@@ -2283,7 +2249,7 @@ void QD3DVertexBuffer::afterReset()
 IDirect3DSurface9 *QD3DVertexBuffer::freeMaskSurface()
 {
      // we need to make sure the mask is cleared when it's used for something else
-    m_maskallocator.reset();
+    resetMask();
     m_clearmask = true;
 
     return m_maskSurface;
@@ -2724,6 +2690,14 @@ QRectF QD3DVertexBuffer::pathToVertexArrays(const QPainterPath &path)
     return result;
 }
 
+void QD3DVertexBuffer::resetMask()
+{
+    m_mask_position.x = m_mask_position.y = QD3D_MASK_MARGIN;
+    m_mask_position.channel = 0;
+    m_mask_offsetX2 = m_mask_offsetY2 = QD3D_MASK_MARGIN;
+}
+
+
 static inline QPainterPath strokeForPath(const QPainterPath &path, const QPen &cpen) {
     QPainterPathStroker stroker;
     if (cpen.style() == Qt::CustomDashLine)
@@ -2740,6 +2714,7 @@ static inline QPainterPath strokeForPath(const QPainterPath &path, const QPen &c
     stroke.setFillRule(Qt::WindingFill);
     return stroke;
 }
+
 
 QDirect3DPaintEnginePrivate::~QDirect3DPaintEnginePrivate()
 {
@@ -2771,7 +2746,7 @@ void QDirect3DPaintEnginePrivate::updateClipPath(const QPainterPath &path, Qt::C
 
     QPainterPath cpath = m_matrix.map(path);
 
-    QD3DBatchItem *item = &m_batch.items[m_batch.m_itemIndex++];
+    QD3DBatchItem *item = &m_batch.items[m_batch.m_item_index++];
     item->m_info = QD3DBatchItem::BI_COMPLEXCLIP;
 
     switch (op) {
@@ -2809,7 +2784,7 @@ void QDirect3DPaintEnginePrivate::updateClipPath(const QPainterPath &path, Qt::C
     if (m_vBuffer->needsFlushing())
         flushBatch();
 
-    QD3DBatchItem *aaitem = &m_batch.items[m_batch.m_itemIndex++];
+    QD3DBatchItem *aaitem = &m_batch.items[m_batch.m_item_index++];
     aaitem->m_info = item->m_info|QD3DBatchItem::BI_AA;
     m_vBuffer->setClipPath(m_clipPath, aaitem); */
 }
@@ -2908,7 +2883,7 @@ QD3DBatchItem *QDirect3DPaintEnginePrivate::nextBatchItem()
     if (m_vBuffer->needsFlushing())
         flushBatch();
 
-    QD3DBatchItem *item = &m_batch.items[m_batch.m_itemIndex++];
+    QD3DBatchItem *item = &m_batch.items[m_batch.m_item_index++];
     item->m_info = m_currentState;
     item->m_cmode = m_cmode;
     return item;
@@ -3325,7 +3300,7 @@ bool QDirect3DPaintEnginePrivate::init()
     m_penColor = 0;
     m_brushColor = 0;
     m_defaultSurface = 0;
-    m_batch.m_itemIndex = 0;
+    m_batch.m_item_index = 0;
     m_currentTechnique = RT_NoTechnique;
 
     if (!pDirect3DCreate9) {
@@ -3365,8 +3340,8 @@ bool QDirect3DPaintEnginePrivate::init()
         return false;
 
     D3DXMatrixIdentity(&m_d3dxidentmatrix);
-    m_winManager.init(m_d3dObject);
-    m_d3dDevice = m_winManager.device();
+    m_surface_manager.init(m_d3dObject);
+    m_d3dDevice = m_surface_manager.device();
 
     if (!m_d3dDevice)
         return false;
@@ -3539,7 +3514,7 @@ void QDirect3DPaintEnginePrivate::updateTransform(const QTransform &matrix)
 int QDirect3DPaintEnginePrivate::flushAntialiased(int offset)
 {
     // fills the mask (returns number of items added to the mask)
-    int newoffset = m_vBuffer->drawAntialiasedMask(offset, m_batch.m_itemIndex);
+    int newoffset = m_vBuffer->drawAntialiasedMask(offset, m_batch.m_item_index);
 
     // set the render target to the current output surface
     if (FAILED(m_d3dDevice->SetRenderTarget(0, m_defaultSurface)))
@@ -3728,7 +3703,7 @@ void QDirect3DPaintEnginePrivate::cleanup()
         m_batch.items[i].m_pixmap = QPixmap();
     }
 
-    m_winManager.cleanup();
+    m_surface_manager.cleanup();
 
     delete m_gradCache;
     delete m_vBuffer;
@@ -3798,7 +3773,7 @@ void QDirect3DPaintEnginePrivate::flushBatch()
     releaseDC();
 
     // iterate over all items in the batch
-    while (offset != m_batch.m_itemIndex) {
+    while (offset != m_batch.m_item_index) {
         QD3DBatchItem *item = &(m_batch.items[offset]);
 
         if (prepareBatch(item, offset)) {
@@ -3818,7 +3793,7 @@ void QDirect3DPaintEnginePrivate::flushBatch()
     }
 
     // reset batch
-    m_batch.m_itemIndex = 0;
+    m_batch.m_item_index = 0;
 
     // release doomed textures
     for (int i=0; i<qd3d_release_list.size(); ++i)
@@ -3876,28 +3851,28 @@ bool QDirect3DPaintEngine::begin(QPaintDevice *device)
 //             d->cleartype_text = (result == FE_FONTSMOOTHINGCLEARTYPE);
 //     });
 
-    d->m_winManager.setPaintDevice(device);
-    int status = d->m_winManager.status();
-    if (status & QD3DWindowManager::NeedsReseting) {
+    d->m_surface_manager.setPaintDevice(device);
+    int status = d->m_surface_manager.status();
+    if (status & QD3DSurfaceManager::NeedsResetting) {
         d->m_effect->OnLostDevice();
         d->m_vBuffer->beforeReset();
         d->m_statemanager->reset();
-        d->m_winManager.reset();
+        d->m_surface_manager.reset();
         d->m_vBuffer->afterReset();
         d->m_effect->OnResetDevice();
         d->initDevice();
     }
 
-    LPDIRECT3DSURFACE9 newsurface = d->m_winManager.renderTarget();
+    LPDIRECT3DSURFACE9 newsurface = d->m_surface_manager.renderTarget();
     if (d->m_defaultSurface != newsurface) {
         d->m_defaultSurface = newsurface;
         if (FAILED(d->m_d3dDevice->SetRenderTarget(0, newsurface)))
             qWarning() << "QDirect3DPaintEngine: SetRenderTarget failed!";
     }
 
-    status = d->m_winManager.status();
-    if (status & QD3DWindowManager::MaxSizeChanged) {
-        QSize maxsize = d->m_winManager.maxSize();
+    status = d->m_surface_manager.status();
+    if (status & QD3DSurfaceManager::MaxSizeChanged) {
+        QSize maxsize = d->m_surface_manager.maxSize();
         d->m_vBuffer->setMaskSize(maxsize);
         int masksize[2] = {maxsize.width(), maxsize.height()};
         d->m_effect->SetIntArray("g_mMaskSize", masksize, 2);
@@ -4442,7 +4417,7 @@ void QDirect3DPaintEngine::cleanup()
 void QDirect3DPaintEngine::scroll(QPaintDevice *pd, const RECT &srcrect, const RECT &destrect)
 {
     Q_D(QDirect3DPaintEngine);
-    LPDIRECT3DSURFACE9 srcsurf = d->m_winManager.surface(pd);
+    LPDIRECT3DSURFACE9 srcsurf = d->m_surface_manager.surface(pd);
     LPDIRECT3DSURFACE9 masksurf = d->m_vBuffer->freeMaskSurface();
     if (FAILED(d->m_d3dDevice->StretchRect(srcsurf, &srcrect, masksurf, &srcrect, D3DTEXF_NONE)))
         qWarning("QDirect3DPaintEngine: StretchRect failed.");
@@ -4467,13 +4442,13 @@ LPDIRECT3DSWAPCHAIN9 QDirect3DPaintEngine::swapChain(QPaintDevice *pd)
         d->m_inScene = false;
     }
 
-    return d->m_winManager.swapChain(pd);
+    return d->m_surface_manager.swapChain(pd);
 }
 
 void QDirect3DPaintEngine::releaseSwapChain(QPaintDevice *pd)
 {
     Q_D(QDirect3DPaintEngine);
-    d->m_winManager.releasePaintDevice(pd);
+    d->m_surface_manager.releasePaintDevice(pd);
 }
 
 HDC QDirect3DPaintEngine::getDC() const
