@@ -1037,26 +1037,7 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *event)
 #ifndef QT_NO_WHEELEVENT
 void QDateTimeEdit::wheelEvent(QWheelEvent *event)
 {
-    Q_D(QDateTimeEdit);
-    int fw = d->frame ? style()->pixelMetric(QStyle::PM_SpinBoxFrameWidth) : 0;
-    QPoint pnt(event->pos() - QPoint(fw, fw));
-    pnt.rx() -= d->edit->x();
-    int index = d->edit->cursorPositionAt(pnt);
-    int s = d->closestSection(index, d->edit->cursorPosition() > index); // should it be > pos?
-    if (s != d->currentSectionIndex) {
-        d->edit->setCursorPosition(d->sectionPos(s));
-        QDTEDEBUG << d->sectionPos(s);
-
-    }
-    switch (d->sectionType(s)) {
-    case QDateTimeParser::NoSection:
-    case QDateTimeParser::FirstSection:
-    case QDateTimeParser::LastSection:
-        break;
-    default:
-        QAbstractSpinBox::wheelEvent(event);
-        break;
-    }
+    QAbstractSpinBox::wheelEvent(event);
 }
 #endif
 
