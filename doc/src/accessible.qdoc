@@ -26,8 +26,7 @@
 
     In this overview document, we will examine the overall Qt
     accessibility architecture, and how to implement accessibility for
-    custom widgets and elements. Finally, we look at how Qt can be
-    extended to support other assistive technologies.
+    custom widgets and elements. 
 
     \section1 Architecture
 
@@ -38,7 +37,7 @@
     \image accessibilityarchitecture.png
 
     Accessibility compliant applications are called AT-Servers while
-    assistive tools are called AT-Clients.  A Qt application will
+    assistive tools are called AT-Clients. A Qt application will
     typically be an AT-Server, but specialized programs might also
     function like AT-Clients. 
 
@@ -51,7 +50,7 @@
     When we communicate with the assistive technologies, we need to
     describe Qt's user interface in a way that they can understand. Qt
     has QAccessibleInterface to expose information about the
-    individual UI elements. Currently, Qt provides support for widgets
+    individual UI elements. Currently, Qt provides support for its widgets
     and widget parts, e.g., slider handles, but the interface could
     also be implemented for any QObject if necessary. QAccessible
     contains enums that describe the UI. The description is mainly
@@ -119,15 +118,15 @@
     i.e., it is not a fixed numbering from the root node in the entire
     tree.
 
-    Qt provides accessible interfaces for its widgets. Interfaces for
-    any QObject subclass can be requested through
-    QAccessible::queryInterface(). A default implementation is
-    provided if a more specialized interface is not defined. An
-    AT-Client cannot acquire an interface for accessible objects that
-    do not have an equivalent QObject, e.g., scroll bar handles, but
-    they appear as normal objects through interfaces of parent
-    accessible objects, e.g., you can query their relationships with
-    QAccessible::relationTo().
+    Qt provides accessible interfaces for its widgets (except
+    QGraphicsView). Interfaces for any QObject subclass can be
+    requested through QAccessible::queryInterface(). A default
+    implementation is provided if a more specialized interface is not
+    defined. An AT-Client cannot acquire an interface for accessible
+    objects that do not have an equivalent QObject, e.g., scroll bar
+    handles, but they appear as normal objects through interfaces of
+    parent accessible objects, e.g., you can query their relationships
+    with QAccessible::relationTo().
 
     To illustrate, we present an image of an accessible object tree.
     Beneath the tree is a table with examples of object relationships.
@@ -513,6 +512,7 @@
     \skipto /^\}/
     \printuntil /^\}/ 
 
+    \omit
     \section1 Implementing Bridges for Other Assistive Technologies
 
     An accessibility bridge provides the means for an assistive
@@ -551,4 +551,5 @@
     \l{QAccessibleBridgePlugin::}{keys()}, which must me
     reimplemented. If Qt finds a built-in bridge to use, it will
     ignore any available plugins.
+    \endomit
 */
