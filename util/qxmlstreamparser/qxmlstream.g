@@ -299,6 +299,7 @@ public:
     uint isCDATA : 1;
     uint standalone : 1;
     uint hasCheckedStartDocument : 1;
+    uint normalizeLiterals : 1;
     uint hasSeenTag : 1;
     uint inParseEntity : 1;
     uint referenceToUnparsedEntityDetected : 1;
@@ -333,7 +334,7 @@ public:
     inline void reallocateStack();
     inline Value &sym(int index) const
     { return sym_stack[tos + index - 1]; }
-    QString textBuffer, dtdBuffer;
+    QString textBuffer;
     inline void clearTextBuffer() {
         if (!scanDtd) {
             textBuffer.resize(0);
@@ -768,7 +769,7 @@ external_id ::= SYSTEM literal;
             hasExternalDtdSubset = true;
         break;
 ./
-external_id ::= PUBLIC literal space literal;
+external_id ::= PUBLIC public_literal space literal;
 /.
         case $rule_number:
             checkPublicLiteral(symString(2));
@@ -1009,7 +1010,7 @@ entity_decl_external ::= entity_decl_start SYSTEM literal;
         } break;
 ./
 
-entity_decl_external ::= entity_decl_start PUBLIC literal space literal;
+entity_decl_external ::= entity_decl_start PUBLIC public_literal space literal;
 /.
         case $rule_number: {
             if (!scanNData() && atEnd) {
@@ -1158,7 +1159,7 @@ notation_decl ::= notation_decl_start SYSTEM literal space_opt RANGLE;
         } break;
 ./
 
-notation_decl ::= notation_decl_start PUBLIC literal space_opt RANGLE;
+notation_decl ::= notation_decl_start PUBLIC public_literal space_opt RANGLE;
 /.
         case $rule_number: {
             NotationDeclaration &notationDeclaration = notationDeclarations.top();
@@ -1167,7 +1168,7 @@ notation_decl ::= notation_decl_start PUBLIC literal space_opt RANGLE;
         } break;
 ./
 
-notation_decl ::= notation_decl_start PUBLIC literal space literal space_opt RANGLE;
+notation_decl ::= notation_decl_start PUBLIC public_literal space literal space_opt RANGLE;
 /.
         case $rule_number: {
             NotationDeclaration &notationDeclaration = notationDeclarations.top();
@@ -1251,7 +1252,8 @@ literal_content_start ::= LETTER | DIGIT | RANGLE | HASH | LBRACK | RBRACK | LPA
 literal_content_start ::= SPACE;
 /.
         case $rule_number:
-            textBuffer.data()[textBuffer.size()-1] = QLatin1Char(' ');
+	    if (normalizeLiterals)
+                textBuffer.data()[textBuffer.size()-1] = QLatin1Char(' ');
         break;
 ./
 
@@ -1267,6 +1269,17 @@ literal_content ::= literal_content_start;
 ./
 
 
+public_literal ::= literal;
+/.
+        case $rule_number: { 
+            if (!QXmlUtils::isPublicID(symString(1).toString())) { 
+                raiseWellFormedError(QXmlStream::tr("%1 is an invalid PUBLIC identifier.").arg(symString(1).toString())); 
+                resume($rule_number); 
+                return false; 
+            } 
+        } break; 
+./
+            
 entity_value ::= QUOTE QUOTE;
 /.
         case $rule_number:./
@@ -1432,6 +1445,7 @@ attribute_list ::= attribute | attribute_list space attribute;
 stag_start ::= LANGLE qname;
 /.
         case $rule_number: {
+            normalizeLiterals = true;
             Tag &tag = tagStack_push();
             prefix = tag.namespaceDeclaration.prefix  = addToStringStorage(symPrefix(2));
             name = tag.name = addToStringStorage(symString(2));

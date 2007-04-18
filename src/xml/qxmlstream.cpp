@@ -544,8 +544,6 @@ void QXmlStreamReaderPrivate::init()
     putStack.reserve(32);
     textBuffer.clear();
     textBuffer.reserve(256);
-    dtdBuffer.clear();
-    dtdBuffer.reserve(32);
     initTagStack();
     tagsDone = false;
     attributes.clear();

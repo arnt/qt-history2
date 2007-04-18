@@ -841,7 +841,7 @@ public:
     inline void reallocateStack();
     inline Value &sym(int index) const
     { return sym_stack[tos + index - 1]; }
-    QString textBuffer, dtdBuffer;
+    QString textBuffer;
     inline void clearTextBuffer() {
         if (!scanDtd) {
             textBuffer.resize(0);
