@@ -1270,8 +1270,6 @@ QVector<Declaration> declarations(const QVector<StyleRule> &styleRules, const QS
         if (part.compare(selector.pseudoElement(), Qt::CaseInsensitive) != 0)
             continue;
         int cssClass = selector.pseudoClass();
-        if (!(pseudoClass & PseudoClass_Horizontal))
-            cssClass &= ~PseudoClass_Vertical;
         if ((cssClass == PseudoClass_Unspecified) || ((cssClass & pseudoClass) == cssClass))
             decls += styleRules.at(i).declarations;
     }
@@ -1314,7 +1312,7 @@ static int pseudoClass(QStyle::State state)
              ? PseudoClass_Enabled : PseudoClass_Disabled;
     if (state & QStyle::State_Sunken)
         pc |= PseudoClass_Pressed;
-    if (state & (QStyle::State_MouseOver /*| QStyle::State_Selected*/))
+    if (state & QStyle::State_MouseOver)
         pc |= PseudoClass_Hover;
     if (state & QStyle::State_HasFocus)
         pc |= PseudoClass_Focus;
@@ -1328,6 +1326,8 @@ static int pseudoClass(QStyle::State state)
         pc |= PseudoClass_Selected;
     if (state & QStyle::State_Horizontal)
         pc |= PseudoClass_Horizontal;
+    else
+        pc |= PseudoClass_Vertical;
     if (state & (QStyle::State_Open | QStyle::State_On | QStyle::State_Sunken))
         pc |= PseudoClass_Open;
     else
@@ -1442,8 +1442,12 @@ QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QStyleOption *o
         if (const QStyleOptionMenuItem *mi = qstyleoption_cast<const QStyleOptionMenuItem *>(opt)) {
             if (mi->menuItemType == QStyleOptionMenuItem::DefaultItem)
                 extraClass |= PseudoClass_Default;
-            if (pseudoElement == PseudoElement_Item && opt->state & QStyle::State_Selected)
-                extraClass |= PseudoClass_Hover;
+            if (mi->checkType == QStyleOptionMenuItem::Exclusive)
+                extraClass |= PseudoClass_Exclusive;
+            else if (mi->checkType == QStyleOptionMenuItem::NonExclusive)
+                extraClass |= PseudoClass_NonExclusive;
+            if (mi->checkType != QStyleOptionMenuItem::NotCheckable)
+                extraClass |= (mi->checked) ? PseudoClass_Checked : PseudoClass_Unchecked;
         } else if (const QStyleOptionHeader *hdr = qstyleoption_cast<const QStyleOptionHeader *>(opt)) {
             if (hdr->position == QStyleOptionHeader::OnlyOneSection)
                 extraClass |= PseudoClass_OnlyOne;
@@ -1509,11 +1513,6 @@ QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QStyleOption *o
                 if (frame2->features & QStyleOptionFrameV2::Flat)
                     extraClass |= PseudoClass_Flat;
             }
-        } else if (const QStyleOptionMenuItem *mi = qstyleoption_cast<const QStyleOptionMenuItem *>(opt)) {
-            if (mi->checkType == QStyleOptionMenuItem::Exclusive)
-                extraClass |= PseudoClass_Exclusive;
-            else if (mi->checkType == QStyleOptionMenuItem::NonExclusive)
-                extraClass |= PseudoClass_NonExclusive;
         }
 #ifndef QT_NO_TOOLBAR
         else if (const QStyleOptionToolBar *tb = qstyleoption_cast<const QStyleOptionToolBar *>(opt)) {
@@ -1588,6 +1587,7 @@ static Origin defaultOrigin(int pe)
     case PseudoElement_ToolButtonDownArrow:
         return Origin_Padding;
 
+    case PseudoElement_MenuCheckMark:
     case PseudoElement_Indicator:
     case PseudoElement_ExclusiveIndicator:
     case PseudoElement_ComboBoxArrow:
@@ -1609,6 +1609,7 @@ static Qt::Alignment defaultPosition(int pe)
     switch (pe) {
     case PseudoElement_Indicator:
     case PseudoElement_ExclusiveIndicator:
+    case PseudoElement_MenuCheckMark:
         return Qt::AlignLeft | Qt::AlignVCenter;
 
     case PseudoElement_ScrollBarAddLine:
@@ -1652,6 +1653,7 @@ QSize QStyleSheetStyle::defaultSize(const QWidget *w, QSize sz, const QRect& rec
 
     switch (pe) {
     case PseudoElement_Indicator:
+    case PseudoElement_MenuCheckMark:
         if (sz.width() == -1)
             sz.setWidth(base->pixelMetric(PM_IndicatorWidth, 0, w));
         if (sz.height() == -1)
@@ -2527,10 +2529,19 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
                 || (mi.menuItemType == QStyleOptionMenuItem::SubMenu && hasStyleRule(w, PseudoElement_LeftArrow))
                 || (mi.checkType != QStyleOptionMenuItem::NotCheckable && hasStyleRule(w, PseudoElement_MenuCheckMark))) {
                 subRule.drawRule(p, opt->rect);
-                if (pseudo != PseudoElement_MenuSeparator) {
-                    mi.palette.setBrush(QPalette::Highlight, mi.palette.brush(QPalette::Button));
+                if (mi.menuItemType != QStyleOptionMenuItem::Separator) {
+                    mi.palette.setBrush(QPalette::Highlight, subRule.hasBackground() ? Qt::NoBrush : mi.palette.brush(QPalette::Button));
                     mi.palette.setBrush(QPalette::HighlightedText, mi.palette.brush(QPalette::ButtonText));
+                    bool customCheckMark = mi.checkType != QStyleOptionMenuItem::NotCheckable && hasStyleRule(w, PseudoElement_MenuCheckMark);
+                    if (customCheckMark)
+                        mi.checkType = QStyleOptionMenuItem::NotCheckable;
                     QWindowsStyle::drawControl(ce, &mi, p, w);
+                    if (customCheckMark) {
+                        QRenderRule subRule2 = renderRule(w, opt, PseudoElement_MenuCheckMark);
+                        mi.checkType = m->checkType;
+                        mi.rect = positionRect(w, rule, subRule2, PseudoElement_MenuCheckMark, mi.rect, mi.direction);
+                        drawPrimitive(PE_IndicatorMenuCheckMark, &mi, p, w);
+                    }
                 }
             } else {
                 baseStyle()->drawControl(ce, &mi, p, w);
