@@ -428,11 +428,12 @@ We will examine the use of layouts in more detail in
 
 The property editor can also be used to change the appearance of layouts on
 the form. To access the properties of a layout, we click inside the layout,
-taking care not to click any of the widgets. The \c margin property
-controls the thickness of the margin around the edges of the
-layout, and \c spacing determines the space between widgets. By default,
-\QD gives inner layouts a 1 pixel wide \c margin so that it can show a
-border around each object on the form. If you wish, you can set this to 0.
+taking care not to click any of the widgets. The \c layoutLeftMargin,
+\c layoutTopMargin, \c layoutRightMargin and \c layoutBottomMargin properties
+control the thickness of the margin around the edges of the
+layout, and \c layoutSpacing determines the space between widgets.
+If the selected layout is of grid type we can alter horizontal and vertical
+spacing independently using \c layoutHorizontalSpacing and layoutVerticalSpacing properties.
 
 We can create more complex layouts by selecting the layouts and placing
 them into other layouts. But, in our example, we really only need a top-level
