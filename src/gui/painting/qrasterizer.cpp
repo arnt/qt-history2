@@ -59,7 +59,7 @@ public:
         Q_ASSERT(y >= m_deviceRect.top());
         Q_ASSERT(y <= m_deviceRect.bottom());
         Q_ASSERT(x >= m_deviceRect.left());
-        Q_ASSERT(x + len - 1 <= m_deviceRect.right());
+        Q_ASSERT(x + int(len) - 1 <= m_deviceRect.right());
 
         m_spans[m_spanCount].x = x;
         m_spans[m_spanCount].len = len;
