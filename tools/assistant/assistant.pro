@@ -65,13 +65,7 @@ mac {
 target.path=$$[QT_INSTALL_BINS]
 INSTALLS += target
 
-#assistanttranslations.files = *.qm
-#assistanttranslations.path = $$[QT_INSTALL_TRANSLATIONS]
-#INSTALLS += assistanttranslations
-
-TRANSLATIONS        = assistant_de.ts \
-                  assistant_fr.ts
-
+TRANSLATIONS = assistant_de.ts
 
 unix:!contains(QT_CONFIG, zlib):LIBS += -lz
 
