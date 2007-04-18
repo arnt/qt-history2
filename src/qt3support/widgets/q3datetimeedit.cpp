@@ -1457,14 +1457,10 @@ void Q3DateEdit::addNumber(int sec, int num)
         } else {
             txt += QString::number(num);
             if (txt.length() == 4 ) {
-                int val = txt.toInt();
-                if (val < 1792)
-                    d->y = 1792;
-                else if (val > 8000)
-                    d->y = 8000;
-                else if (outOfRange(val, d->m, d->d))
+                const int val = qBound(1792, txt.toInt(), 8000);
+                if (outOfRange(val, d->m, d->d)) {
                     txt = QString::number(d->y);
-                else {
+                } else {
                     accepted = true;
                     d->y = val;
                 }
