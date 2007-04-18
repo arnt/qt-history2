@@ -30,6 +30,7 @@
 #include "private/qdatabuffer_p.h"
 #include "private/qdrawhelper_p.h"
 #include "private/qpaintengine_p.h"
+#include "private/qrasterizer_p.h"
 #include "private/qstroker_p.h"
 
 #include <stdlib.h>
@@ -224,9 +225,12 @@ public:
     uint user_clip_enabled : 1;
     uint fast_text : 1;
     uint paint_unclipped : 1;
+    uint tx_noshear : 1;
 #ifdef Q_WS_WIN
     uint isPlain45DegreeRotation : 1;
 #endif
+
+    QRasterizer rasterizer;
 };
 
 class QClipData {

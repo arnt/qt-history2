@@ -31,6 +31,7 @@
 #include <private/qpixmap_p.h>
 #include <private/qfontengine_p.h>
 #include <private/qpolygonclipper_p.h>
+#include <private/qrasterizer_p.h>
 
 #include "qpaintengine_raster_p.h"
 #include "qbezier_p.h"
@@ -88,6 +89,8 @@ void qt_draw_text_item(const QPointF &point, const QTextItemInt &ti, HDC hdc,
 
 // #define QT_DEBUG_DRAW
 // #define QT_DEBUG_CONVERT
+
+#define QT_FAST_SPANS
 
 /********************************************************************************
  * Span functions
@@ -871,6 +874,8 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
     d->outlineMapper->setMatrix(d->matrix, d->txop);
     d->outlineMapper->m_clipper.setBoundingRect(d->deviceRect.adjusted(-10, -10, 10, 10));
 
+    d->rasterizer.setDeviceRect(d->deviceRect);
+
     if (device->depth() == 1) {
         d->pen = QPen(Qt::color1);
         d->brush = QBrush(Qt::color0);
@@ -1056,6 +1061,21 @@ void QRasterPaintEngine::updateMatrix(const QTransform &matrix)
     case QTransform::TxNone:
         d->int_xform = true;
         break;
+    }
+
+    if (d->txop < QTransform::TxScale) {
+        d->tx_noshear = true;
+    } else if (d->txop < QTransform::TxRotate) {
+        d->tx_noshear = qFuzzyCompare(d->matrix.m11(), d->matrix.m22());
+    } else if (d->txop < QTransform::TxShear) {
+        const qreal xAxis = d->matrix.m11() * d->matrix.m11() +
+                            d->matrix.m12() * d->matrix.m12();
+        const qreal yAxis = d->matrix.m21() * d->matrix.m21() +
+                            d->matrix.m22() * d->matrix.m22();
+
+        d->tx_noshear = qFuzzyCompare(xAxis, yAxis);
+    } else {
+        d->tx_noshear = false;
     }
 
     d->txscale = d->txop > QTransform::TxTranslate ?
@@ -1574,6 +1594,60 @@ void QRasterPaintEngine::drawRects(const QRectF *rects, int rectCount)
 #ifdef QT_DEBUG_DRAW
     qDebug(" - QRasterPaintEngine::drawRect(), rectCount=%d", rectCount);
 #endif
+#ifdef QT_FAST_SPANS
+    Q_D(QRasterPaintEngine);
+    if (d->tx_noshear) {
+        d->rasterizer.initialize(d->antialiased, d->rasterBuffer);
+
+        if (d->brushData.blend) {
+            d->rasterizer.setSpanData(&d->brushData);
+            for (int i = 0; i < rectCount; ++i) {
+                const QRectF &rect = rects[i];
+                const QPointF a = d->matrix.map((rect.topLeft() + rect.bottomLeft()) * 0.5f);
+                const QPointF b = d->matrix.map((rect.topRight() + rect.bottomRight()) * 0.5f);
+                d->rasterizer.rasterizeLine(a, b, rect.height() / rect.width());
+            }
+        }
+
+        if (d->penData.blend) {
+            qreal width = d->pen.isCosmetic()
+                          ? (d->pen.widthF() == 0 ? 1 : d->pen.widthF())
+                          : d->pen.widthF() * d->txscale;
+
+            if (!d->fast_pen && width <= 1 && d->pen.style() == Qt::SolidLine) {
+                d->rasterizer.setSpanData(&d->penData);
+
+                for (int i = 0; i < rectCount; ++i) {
+                    const QRectF &rect = rects[i];
+                    const QPointF tl = d->matrix.map(rect.topLeft());
+                    const QPointF tr = d->matrix.map(rect.topRight());
+                    const QPointF bl = d->matrix.map(rect.bottomLeft());
+                    const QPointF br = d->matrix.map(rect.bottomRight());
+                    const qreal w = width / (rect.width() * d->txscale);
+                    const qreal h = width / (rect.height() * d->txscale);
+                    d->rasterizer.rasterizeLine(tl, tr, w); // top
+                    d->rasterizer.rasterizeLine(bl, br, w); // bottom
+                    d->rasterizer.rasterizeLine(bl, tl, h); // left
+                    d->rasterizer.rasterizeLine(br, tr, h); // right
+                }
+            } else {
+                ProcessSpans brush_blend = d->brushData.blend;
+                d->brushData.blend = 0;
+                for (int i = 0; i < rectCount; ++i) {
+                    const QRectF &rf = rects[i];
+                    QPointF pts[4] = { QPointF(rf.x(), rf.y()),
+                                       QPointF(rf.x() + rf.width(), rf.y()),
+                                       QPointF(rf.x() + rf.width(), rf.y() + rf.height()),
+                                       QPointF(rf.x(), rf.y() + rf.height()) };
+                    drawPolygon(pts, 4, ConvexMode);
+                }
+                d->brushData.blend = brush_blend;
+            }
+        }
+
+        return;
+    }
+#endif // QT_FAST_SPANS
     for (int i=0; i<rectCount; ++i) {
         const QRectF &rf = rects[i];
         QPointF pts[4] = { QPointF(rf.x(), rf.y()),
@@ -2978,6 +3052,26 @@ void QRasterPaintEngine::drawLines(const QLineF *lines, int lineCount)
                                            bounds, &dashOffset);
         }
     } else {
+#ifdef QT_FAST_SPANS
+        if (d->pen.style() == Qt::SolidLine
+            && d->pen.capStyle() <= Qt::SquareCap
+            && d->tx_noshear)
+        {
+            qreal width = d->pen.isCosmetic()
+                          ? (d->pen.widthF() == 0 ? 1 : d->pen.widthF())
+                          : d->pen.widthF() * d->txscale;
+
+            d->rasterizer.initialize(d->antialiased, d->rasterBuffer);
+            d->rasterizer.setSpanData(&d->penData);
+
+            for (int i = 0; i < lineCount; ++i) {
+                QLineF line = d->matrix.map(lines[i]);
+                d->rasterizer.rasterizeLine(line.p1(), line.p2(), width / line.length(), d->pen.capStyle() == Qt::SquareCap);
+            }
+
+            return;
+        }
+#endif // QT_FAST_SPANS
         QPaintEngine::drawLines(lines, lineCount);
     }
 }

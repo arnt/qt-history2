@@ -28,6 +28,7 @@ HEADERS += \
         painting/qtessellator_p.h \
         painting/qmatrix.h \
         painting/qwmatrix.h \
+        painting/qrasterizer_p.h \
         painting/qtransform.h \
         painting/qpathclipper_p.h
 
@@ -53,6 +54,7 @@ SOURCES += \
         painting/qtessellator.cpp \
         painting/qregion.cpp \
         painting/qmatrix.cpp \
+        painting/qrasterizer.cpp \
         painting/qtransform.cpp  \
         painting/qpathclipper.cpp
 
