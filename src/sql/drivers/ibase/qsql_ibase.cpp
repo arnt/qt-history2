@@ -34,6 +34,10 @@
 
 #define FBVERSION SQL_DIALECT_V6
 
+#ifndef SQLDA_CURRENT_VERSION
+#define SQLDA_CURRENT_VERSION SQLDA_VERSION1
+#endif
+
 enum { QIBaseChunkSize = SHRT_MAX / 2 };
 
 static bool getIBaseError(QString& msg, ISC_STATUS* status, long &sqlcode,
@@ -57,7 +61,7 @@ static void createDA(XSQLDA *&sqlda)
     sqlda = (XSQLDA *) malloc(XSQLDA_LENGTH(1));
     sqlda->sqln = 1;
     sqlda->sqld = 0;
-    sqlda->version = SQLDA_VERSION1;
+    sqlda->version = SQLDA_CURRENT_VERSION;
     sqlda->sqlvar[0].sqlind = 0;
     sqlda->sqlvar[0].sqldata = 0;
 }
@@ -67,7 +71,7 @@ static void enlargeDA(XSQLDA *&sqlda, int n)
     free(sqlda);
     sqlda = (XSQLDA *) malloc(XSQLDA_LENGTH(n));
     sqlda->sqln = n;
-    sqlda->version = SQLDA_VERSION1;
+    sqlda->version = SQLDA_CURRENT_VERSION;
 }
 
 static void initDA(XSQLDA *sqlda)
