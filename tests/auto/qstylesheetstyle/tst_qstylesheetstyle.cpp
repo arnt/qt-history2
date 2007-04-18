@@ -27,11 +27,12 @@ private slots:
     void widgetStyle();
     void appStyle();
     void dynamicProperty();
+    // NB! Invoking this slot after layoutSpacing crashes on Mac.
+    void namespaces();
 #ifdef Q_OS_MAC
     void layoutSpacing();
 #endif
     void qproperty();
-    void namespaces();
 private:
     QColor COLOR(const QWidget& w) {
         w.ensurePolished();
@@ -511,16 +512,13 @@ void tst_QStyleSheetStyle::dynamicProperty()
 #include <QtGui/QMacStyle>
 void tst_QStyleSheetStyle::layoutSpacing()
 {
-    QMacStyle *style = new QMacStyle();
-    QApplication::setStyle(style);
     qApp->setStyleSheet("* { color: red }");
     QCheckBox ck1;
     QCheckBox ck2;
     QWidget window;
     int spacing_widgetstyle = window.style()->layoutSpacing(ck1.sizePolicy().controlType(), ck2.sizePolicy().controlType(), Qt::Vertical);
-    int spacing_style = style->layoutSpacing(ck1.sizePolicy().controlType(), ck2.sizePolicy().controlType(), Qt::Vertical);
+    int spacing_style = window.style()->layoutSpacing(ck1.sizePolicy().controlType(), ck2.sizePolicy().controlType(), Qt::Vertical);
     QCOMPARE(spacing_widgetstyle, spacing_style);
-    delete style;
 }
 #endif
 
