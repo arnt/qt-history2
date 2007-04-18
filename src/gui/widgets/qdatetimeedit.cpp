@@ -1094,6 +1094,7 @@ void QDateTimeEdit::focusInEvent(QFocusEvent *event)
         first = false;
         break;
     case Qt::MouseFocusReason:
+    case Qt::PopupFocusReason:
         return;
     case Qt::ActiveWindowFocusReason:
         if (oldHasHadFocus)
