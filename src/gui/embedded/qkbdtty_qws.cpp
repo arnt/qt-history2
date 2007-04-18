@@ -23,6 +23,7 @@
 #include "qnamespace.h"
 #include "qtimer.h"
 #include <private/qwssignalhandler_p.h>
+#include <private/qwindowsurface_qws_p.h>
 
 #include <unistd.h>
 #include <sys/ioctl.h>
@@ -86,7 +87,7 @@ void QWSTtyKeyboardHandler::processKeyEvent(int unicode, int keycode,
                                             Qt::KeyboardModifiers modifiers, bool isPress,
                                             bool autoRepeat)
 {
-#if 0//defined(Q_OS_LINUX)
+#if defined(Q_OS_LINUX)
     // Virtual console switching
     int term = 0;
     bool ctrl = modifiers & Qt::ControlModifier;
@@ -184,20 +185,36 @@ void QWSTtyKbPrivate::handleTtySwitch(int sig)
 {
 #if defined(Q_OS_LINUX)
     if (sig == VTACQSIG) {
-       if (ioctl(kbdFD, VT_RELDISP, VT_ACKACQ) == 0) {
-           qwsServer->enablePainting(true);
-           qt_screen->restore();
-           qwsServer->resumeMouse();
-           qwsServer->refresh();
-       }
+        if (ioctl(kbdFD, VT_RELDISP, VT_ACKACQ) == 0) {
+            qwsServer->enablePainting(true);
+            qt_screen->restore();
+            qwsServer->resumeMouse();
+            qwsServer->refresh();
+        }
     } else if (sig == VTRELSIG) {
-       qwsServer->enablePainting(false);
-       qt_screen->save();
-       if (ioctl(kbdFD, VT_RELDISP, 1) == 0) {
-           qwsServer->suspendMouse();
-       } else {
-           qwsServer->enablePainting(true);
-       }
+        qwsServer->enablePainting(false);
+
+        // Check for reserved surfaces which might still do painting
+        bool allWindowsHidden = true;
+        const QList<QWSWindow*> windows = QWSServer::instance()->clientWindows();
+        for (int i = 0; i < windows.size(); ++i) {
+            const QWSWindow *w = windows.at(i);
+            QWSWindowSurface *s = w->windowSurface();
+            if (s && s->isRegionReserved() && !w->allocatedRegion().isEmpty()) {
+                allWindowsHidden = false;
+                break;
+            }
+        }
+
+        if (!allWindowsHidden) {
+            ioctl(kbdFD, VT_RELDISP, 0); // abort console switch
+            qwsServer->enablePainting(true);
+        } else if (ioctl(kbdFD, VT_RELDISP, 1) == 0) {
+            qt_screen->save();
+            qwsServer->suspendMouse();
+        } else {
+            qwsServer->enablePainting(true);
+        }
     }
 #endif
 }
