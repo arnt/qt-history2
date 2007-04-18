@@ -1421,6 +1421,12 @@ bool FormWindow::frameNeeded(QWidget *w) const
         return false;
     if (qobject_cast<QDockWidget *>(w))
         return false;
+    if (qobject_cast<QDesignerWidget *>(w))
+        return false;
+    if (qobject_cast<QMainWindow *>(w))
+        return false;
+    if (qobject_cast<QDialog *>(w))
+        return false;
     return true;
 }
 
