@@ -34,7 +34,9 @@ class tst_QSslCertificate : public QObject
     QMap<QString, QString> sha1Map;
 
     void createTestRows();
+#ifndef QT_NO_OPENSSL
     void compareCertificates(const QSslCertificate & cert1, const QSslCertificate & cert2);
+#endif
 
 public:
     tst_QSslCertificate();
