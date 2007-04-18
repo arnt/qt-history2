@@ -1318,12 +1318,12 @@ void tst_CssParser::gradient_data()
     QTest::newRow("color-string") <<
      "selection-background-color: qlineargradient(x1:1, y1:2, x2:3, y2:4, "
          "stop:0.2 red, stop:0.5 green)" << QPointF(1, 2) << QPointF(3, 4)
-         << 0 << 0.2 << QColor("red") << 0.5 << QColor("green");
+                                  << 0 << qreal(0.2) << QColor("red") << qreal(0.5) << QColor("green");
 
     QTest::newRow("color-#") <<
      "selection-background-color: qgradient(type: linear, x1:0, y1:0, x2:0, y2:1, "
          "spread: reflect, stop:0.2 #123, stop:0.5 #456)" << QPointF(0, 0) << QPointF(0, 1)
-         << 1 << 0.2 << QColor("#123") << 0.5 << QColor("#456");
+                             << 1 << qreal(0.2) << QColor("#123") << qreal(0.5) << QColor("#456");
 
 
     /* wont pass: stop values are expected to be sorted
