@@ -32,6 +32,7 @@ QColor Colors::tt_green(QColor(166, 206, 57));
 QColor Colors::fadeOut(QColor(206, 246, 117, 0));
 QColor Colors::heading(QColor(190,230,80));
 QString Colors::contentColor("<font color='#eeeeee'>");
+QString Colors::glVersion("Not detected!");
 
 // Guides:
 int Colors::stageStartY = 8;
@@ -60,9 +61,11 @@ bool Colors::low = false;
 bool Colors::useEightBitPalette = false;
 bool Colors::noTimerUpdate = false;
 bool Colors::noTickerMorph = false;
+bool Colors::adapted = false;
 int Colors::fps = 100;
 float Colors::animSpeed = 1.0;
 float Colors::animSpeedButtons = 1.0;
+float Colors::benchmarkFps = -1;
 int Colors::tickerLetterCount = 80;
 float Colors::tickerMoveSpeed = 0.4f;
 float Colors::tickerMorphSpeed = 2.5f;
@@ -222,6 +225,15 @@ void Colors::parseArgs(int argc, char *argv[])
     }
 
 #ifndef QT_NO_OPENGL
+    if (QGLFormat::openGLVersionFlags() & QGLFormat::OpenGL_Version_2_0)
+        Colors::glVersion = "2.0 or higher";
+    else if (QGLFormat::openGLVersionFlags() & QGLFormat::OpenGL_Version_1_5)
+        Colors::glVersion = "1.5";
+    else if (QGLFormat::openGLVersionFlags() & QGLFormat::OpenGL_Version_1_4)
+        Colors::glVersion = "1.4";
+    else if (QGLFormat::openGLVersionFlags() & QGLFormat::OpenGL_Version_1_4)
+        Colors::glVersion = "1.3 or lower";
+
     if (!QGLFormat::hasOpenGL())
 #endif        
         Colors::noOpenGl = true;
@@ -238,6 +250,7 @@ void Colors::adaptAccordingToEnvironment()
     if (!tmp.x11PictureHandle()){
         Colors::low = true;
         Colors::useEightBitPalette = true;
+        Colors::adapted = true;
     }
 #endif
 
@@ -246,7 +259,7 @@ void Colors::adaptAccordingToEnvironment()
     if (Colors::low
         || !QGLFormat::hasOpenGL()
         || !glw.format().directRendering()
-        || !(QGLFormat::openGLVersionFlags() & QGLFormat::OpenGL_Version_1_4)
+        || !(QGLFormat::openGLVersionFlags() & QGLFormat::OpenGL_Version_1_5)
         || glw.depth() < 24
     )
 #endif    
@@ -257,6 +270,7 @@ void Colors::adaptAccordingToEnvironment()
         Colors::noTicker = true;
 	    Colors::fps = 50;
         Colors::usePixmaps = true;
+        Colors::adapted = true;
     }
 
     if (Colors::low){
@@ -268,10 +282,13 @@ void Colors::adaptAccordingToEnvironment()
         Colors::noAnimations = true;
         Colors::noBlending = true;
         Colors::low = true;
+        Colors::adapted = true;
     }
 
     QWidget w;
-    if (w.depth() < 16)
+    if (w.depth() < 16){
         Colors::useEightBitPalette = true;
+        Colors::adapted = true;
+    }
 }
 

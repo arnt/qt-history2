@@ -40,6 +40,7 @@ public:
     static QColor sceneLine;
     static QColor heading;
     static QString contentColor;
+    static QString glVersion;
 
     // Guides:
     static int stageStartY;
@@ -68,9 +69,11 @@ public:
     static bool noTimerUpdate;
     static bool noTickerMorph;
     static bool useButtonBalls;
+    static bool adapted;
 
     static float animSpeed;
     static float animSpeedButtons;
+    static float benchmarkFps;
     static int tickerLetterCount;
     static int fps;
     static float tickerMoveSpeed;

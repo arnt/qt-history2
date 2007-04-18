@@ -233,12 +233,15 @@ void MainWindow::checkAdapt()
 
     this->doneAdapt = true;
     this->forceFpsMedianCalculation();
+    Colors::benchmarkFps = this->fpsMedian;
     
     if (this->fpsMedian < 30){
+       Colors::noAnimations = true;
+       Colors::adapted = true;       
+
        if (MenuManager::instance()->ticker && MenuManager::instance()->ticker->scene()){
             this->scene->removeItem(MenuManager::instance()->ticker);
             Colors::noTimerUpdate = true;
-            Colors::noAnimations = true;
         }
 
        if (this->fpsLabel)
@@ -306,22 +309,31 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
     }
     else if (event->key() == Qt::Key_1){
             QString s("");
-            s += "Low settings: ";
+            s += "Adapt: ";
+            s += Colors::noAdapt ? "off" : "on";
+            s += "\nAdaption occured: ";
+            s += Colors::adapted ? "yes" : "no";
+            s += "\nLow settings: ";
             s += Colors::low ? "yes" : "no";
             s += "\nOpenGL: ";
             s += Colors::noOpenGl ? "off" : "on";
+            s += "\nOpenGL version: ";
+            s += Colors::glVersion;
+            QWidget w;
+            s += "\nColor bit depth: ";
+            s += QString::number(w.depth());
+            s += "\nWanted FPS: ";
+            s += QString::number(Colors::fps);
+            s += "\nBenchmarked FPS: ";
+            s += Colors::benchmarkFps != -1 ? QString::number(Colors::benchmarkFps) : "not calculated";
             s += "\nAnimations: ";
             s += Colors::noAnimations ? "off" : "on";
             s += "\nBlending: ";
-            s += Colors::noBlending ? "off" : "on";
+            s += Colors::useEightBitPalette ? "off" : "on";
             s += "\nTicker: ";
             s += Colors::noTicker ? "off" : "on";
             s += "\nPixmaps: ";
             s += Colors::usePixmaps ? "on" : "off";
-            s += "\nAdapt: ";
-            s += Colors::noAdapt ? "off" : "on";
-            s += "\nWanted FPS: ";
-            s += QString::number(Colors::fps);
             s += "\nRescale images on resize: ";
             s += Colors::noRescale ? "off" : "on";
             s += "\nTimer based updates: ";
@@ -330,9 +342,6 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
             s += Colors::useLoop ? "yes" : "no";
             s += "\nScreen sync: ";
             s += Colors::noScreenSync ? "no" : "yes";
-            QWidget w;
-            s += "\nColor bit depth: ";
-            s += QString::number(w.depth());
             QMessageBox::information(0, QString("Current configuration"), s);
     }
 }
