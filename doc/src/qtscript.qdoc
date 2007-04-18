@@ -38,73 +38,10 @@
   in standard \l{ECMA-262}. Microsoft's JScript, and Netscape's
   JavaScript are also based on the ECMAScript standard. For an
   overview of ECMAScript, see the \l{ECMAScript Reference}{ECMAScript reference}.
-
-  ECMA-262 gives the following overview of ECMAScript:
-
-  \quote
-  ECMAScript is object-based: basic language and host facilities are
-  provided by objects, and an ECMAScript program is a cluster of
-  communicating objects. An ECMAScript object is [a collection
-  of properties] [...] Properties are containers that hold
-  other objects, primitive values, or methods. A primitive value is a
-  member of one of the following built-in types: Undefined, Null,
-  Boolean, Number, and String; an object is a member of the remaining
-  built-in type Object; and a method is a function associated with an
-  object via a property.
-
-  ECMAScript defines a collection of built-in objects that round out
-  the definition of ECMAScript entities.  These built-in objects
-  include the Global object, the Object object, the Function object,
-  the Array object, the String object, the Boolean object, the Number
-  object, the Math object, the Date object, the RegExp object and the
-  Error objects Error, EvalError, RangeError, ReferenceError,
-  SyntaxError, TypeError and URIError.
-
-  ECMAScript syntax intentionally resembles Java syntax. ECMAScript
-  syntax is relaxed to enable it to serve as an easy-to-use scripting
-  language. For example, a variable is not required to have its type
-  declared nor are types associated with properties, and defined
-  functions are not required to have their declarations appear
-  textually before calls to them.
-  \endquote
-
-  \section2 Objects
-
-  ECMA-262 gives the following description of ECMAScript objects:
-
-  \quote
-  ECMAScript does not contain proper classes such as those in C++,
-  Smalltalk, or Java, but rather, supports constructors which create
-  objects by executing code that allocates storage for the objects and
-  initialises all or part of them by assigning initial values to their
-  properties. [...] Each constructor has a Prototype property that is
-  used to implement prototype-based inheritance and shared
-  properties. Objects are created by using constructors in new
-  expressions; for example, new String("A String") creates a new
-  String object. Invoking a constructor without using new has
-  consequences that depend on the constructor. For example, String("A
-  String") produces a primitive string, not an object.
-
-  ECMAScript supports prototype-based inheritance. Every constructor
-  has an associated prototype, and every object created by that
-  constructor has an implicit reference to the prototype (called the
-  object's prototype) associated with its constructor. Furthermore, a
-  prototype may have a non-null implicit reference to its prototype,
-  and so on; this is called the prototype chain. When a reference is
-  made to a property in an object, that reference is to the property
-  of that name in the first object in the prototype chain that
-  contains a property of that name. In other words, first the object
-  mentioned directly is examined for such a property; if that object
-  contains the named property, that is the property to which the
-  reference refers; if that object does not contain the named
-  property, the prototype for that object is examined next; and so on.
-
-  Unlike class-based object languages, properties can be added to
-  objects dynamically by assigning values to them. That is,
-  constructors are not required to name or assign values to all or any
-  of the constructed object's properties.
-  \endquote
-
+  If you are not familiar with the ECMAScript language, there are
+  several existing tutorials and books that cover this subject, such
+  as \l{JavaScript: The Definitive Guide}.
+  
   \section1 Making a QObject Available to the Script Engine
 
   By passing a QObject to the scripting engine (using
@@ -123,11 +60,19 @@
   engine.globalObject().setProperty("myQObject", qobjectValue);
   \endcode
 
+  newQObject() can take two additional arguments, one being
+  the ownership mode, and the other being options that allow you
+  to control certain aspects of how the QScriptValue that wraps
+  the QObject should behave. We will come back to the usage of
+  these arguments later.
+
   \section2 Establishing Connections to Signals
 
   To connect to a signal, you invoke the \c{connect()} function of
-  the signal from script code, passing the function to invoke in
-  response to the signal as argument:
+  the signal from script code. There are three overloads of \c{connect()}:
+
+  \list
+  \i \c{connect(function)}: The argument is the function to connect to the signal.
 
   \code
   function myInterestingScriptFunction() { ... }
@@ -137,7 +82,7 @@
   myQObject.somethingChanged.connect(myInterestingScriptFunction);
   \endcode
 
-  The argument can be a Qt Script function, as in the previous
+  The argument can be a Qt Script function, as in the above
   example, or it can be a QObject slot, as in
   the following example:
 
@@ -153,6 +98,50 @@
   myQObject.somethingChanged.disconnect(myInterestingFunction);
   myQObject.somethingChanged.disconnect(myOtherQObject.doSomething);
   \endcode
+
+  When a script function is invoked in response to a signal, the
+  `this' object will be the object that emitted the signal.
+
+  \i \c{connect(thisObject, function)}: The first argument is the
+  object to use as the `this' object when invoking the function to
+  connect to the signal (the second argument).
+
+  If you have a pushbutton in a form, you typically want to do
+  something involving the form in response to the button's
+  \c{clicked} signal; passing the form as the `this' object
+  makes sense in such a case.
+
+  \code
+  var obj = { x: 123 };
+  var fun = function() { print(this.x); };
+  myQObject.somethingChanged.connect(obj, fun);
+  \endcode
+
+  To disconnect from the signal, pass the same arguments to \c{disconnect()}:
+
+  \code
+  myQObject.somethingChanged.disconnect(obj, fun);
+  \endcode
+
+  \i \c{connect(thisObject, functionName)}: The first argument is
+  the object to use as the `this' object when invoking the function
+  in response to the signal. The second argument is the name of the
+  property of \c{thisObject} that holds the function to connect to.
+  Note that the function is resolved at connect time, not at
+  signal handling time.
+
+  \code
+  var obj = { x: 123, fun: function() { print(this.x); } };
+  myQObject.somethingChanged.connect(obj, "fun");
+  \endcode
+
+  To disconnect from the signal, pass the same arguments to \c{disconnect()}:
+
+  \code
+  myQObject.somethingChanged.disconnect(obj, "fun");
+  \endcode
+
+  \endlist
 
   To emit a signal from script code, you simply invoke the signal
   function, passing the relevant arguments:
@@ -185,10 +174,10 @@
 
   \section2 Accessing Child QObjects
 
-  Every named child of the QObject is available as a property of
-  the corresponding Qt Script object. For example, if you have a
-  QDialog whose \c{objectName()} is \c{"okButton"}, you can access
-  this object in script code through the expression
+  Every named child of the QObject is by default available as
+  a property of the corresponding Qt Script object. For example,
+  if you have a QDialog whose \c{objectName()} is \c{"okButton"},
+  you can access this object in script code through the expression
 
   \code
   myDialog.okButton
@@ -222,6 +211,57 @@
   You typically want to use \c{findChild()} when manipulating a form
   that uses nested layouts; that way the script is isolated from the
   details about which particular layout a widget is located in.
+
+  \section2 Controlling QObject Ownership
+
+  By default, the script engine does not take ownership of the
+  QObject that is passed to QScriptEngine::newQObject(). You can
+  change that by specifying a different ownership mode as the
+  second argument (QScriptEngine::QtOwnership is the default).
+  Specifying QScriptEngine::ScriptOwnership will cause the script
+  engine to take full ownership of the QObject and delete it when
+  it deems that it is safe to do so. If the QObject does not
+  have a parent object, and/or the QObject is created in context
+  of the script engine and is not intended to outlive the script
+  engine, this ownership mode is appropriate.
+  For example, a constructor function that constructs QObjects
+  only to be used in the script environment is a good candidate:
+
+  \code
+  QScriptValue myQObjectConstructor(QScriptContext *context, QScriptEngine *engine)
+  {
+    // let the engine manage the new object's lifetime.
+    return engine->newQObject(new MyQObject(), QScriptEngine::ScriptOwnership);
+  }
+  \endcode
+
+  Another ownership mode is QScriptEngine::AutoOwnership, where
+  the ownership is based on whether the QObject has a parent or not.
+  If the QtScript garbage collector finds that the QObject is no
+  longer referenced within the script environment, the QObject will
+  be deleted \bold{only} if it does not have a parent.
+
+  \section2 Customizing Access to the QObject
+
+  QScriptEngine::newQObject() can take a third argument which allows
+  you to control various aspects of the access to the QObject through
+  the QtScript wrapper object (the value returned by newQObject()).
+  QScriptEngine::ExcludeChildObjects specifies that child objects of
+  the QObject should not appear as properties of the wrapper object.
+  QScriptEngine::ExcludeSuperClassProperties and
+  QScriptEngine::ExcludeSuperClassMethods can be used to avoid
+  exposing members that are inherited from the QObject's superclass;
+  this is useful e.g. when you want to define a "pure" interface where
+  inherited members don't make sense from a scripting perspective
+  (e.g. you don't want script authors to be able to change the
+  \c{objectName} property of the object, or invoke the \c{deleteLater()} slot).
+  QScriptEngine::AutoCreateDynamicProperties specifies that properties
+  that don't already exist in the QObject should be created as dynamic
+  properties of the QObject, rather than as properties of the QtScript
+  wrapper object. If you want new properties to truly become persistent
+  properties of the QObject, rather than properties that die when the
+  wrapper object dies (and that aren't shared if the QObject is wrapped
+  multiple times with newQObject()), you should use this option.
 
   \section1 How to Design and Implement Application Objects
 
