@@ -707,12 +707,25 @@ void tst_QLocale::macDefaultLocale()
 
     QTime currentTime = QTime::currentTime();
     QTime utcTime = QDateTime::currentDateTime().toUTC().time();
-    QString dateString;
-    if (currentTime.hour() - utcTime.hour() == 2)
-        dateString = QLatin1String("1:02:03 AM GMT+02:00");
-    else
-        dateString = QLatin1String("1:02:03 AM GMT+01:00");
-    QCOMPARE(locale.toString(QTime(1,2,3), QLocale::LongFormat), dateString);
+
+    const int diff = currentTime.hour() - utcTime.hour();
+    const QString timeString = locale.toString(QTime(1,2,3), QLocale::LongFormat);
+    QVERIFY(timeString.contains(QString("1:02:03")));
+
+    // Depending on the configured time zone, the time string might not
+    // contain a GMT specifier. (Sometimes it just names the zone, like "CEST")
+    if (timeString.contains(QString("GMT"))) {
+        QString expectedGMTSpecifier("GMT");
+        if (diff >= 0)
+            expectedGMTSpecifier.append("+");
+        else
+            expectedGMTSpecifier.append("-");
+        if (qAbs(diff) < 10)
+            expectedGMTSpecifier.append(QString("0%1").arg(qAbs(diff)));
+        else
+            expectedGMTSpecifier.append(QString("%1").arg(qAbs(diff)));
+        QVERIFY(timeString.contains(expectedGMTSpecifier));
+    }
     QCOMPARE(locale.dayName(1), QString("Monday"));
     QCOMPARE(locale.dayName(7), QString("Sunday"));
     QCOMPARE(locale.monthName(1), QString("January"));
