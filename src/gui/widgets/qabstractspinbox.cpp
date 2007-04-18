@@ -895,7 +895,7 @@ void QAbstractSpinBox::keyPressEvent(QKeyEvent *event)
 #endif
     case Qt::Key_Enter:
     case Qt::Key_Return:
-        d->interpret(AlwaysEmit);
+        d->interpret(EmitIfChanged);
         selectAll();
         event->ignore();
         emit editingFinished();
@@ -1327,18 +1327,9 @@ void QAbstractSpinBoxPrivate::emitSignals(EmitPolicy, const QVariant &)
 
 void QAbstractSpinBoxPrivate::_q_editorTextChanged(const QString &t)
 {
-    Q_Q(QAbstractSpinBox);
+    Q_UNUSED(t);
 
-    QString tmp = t;
-    int pos = edit->cursorPosition();
-    QValidator::State state = q->validate(tmp, pos);
-    if (state == QValidator::Acceptable) {
-        const QVariant v = valueFromText(tmp);
-        setValue(v, EmitIfChanged, tmp != t);
-        pendingEmit = false;
-    } else {
-        pendingEmit = true;
-    }
+    pendingEmit = true;
 }
 
 /*!
