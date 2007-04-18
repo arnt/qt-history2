@@ -285,12 +285,14 @@ void tst_QSslCertificate::digest()
 
 void tst_QSslCertificate::alternateSubjectNames()
 {
+/*
     QByteArray encoded =
         readFile(
             "/home/jasplin/dev/qt-4.3/tests/auto/qsslcertificate/subjaltnames/cert-ss-san.pem");
     QSslCertificate certificate(encoded, QSsl::Pem);
     QVERIFY(!certificate.isNull());
     qDebug() << certificate.alternateSubjectNames();
+*/
 }
 
 void tst_QSslCertificate::publicKey_data()
