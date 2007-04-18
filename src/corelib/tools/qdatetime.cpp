@@ -3330,7 +3330,7 @@ int QDateTimeParser::getDigit(const QVariant &t, int index) const
     case MinuteSection: return t.toTime().minute();
     case SecondSection: return t.toTime().second();
     case MSecSection: return t.toTime().msec();
-    case YearSection: return node.count == 2 ? t.toDate().year() % 100 : t.toDate().year();
+    case YearSection: return t.toDate().year();
     case MonthSection: return t.toDate().month();
     case DaySection: return t.toDate().day();
     case AmPmSection: return t.toTime().hour() > 11 ? 1 : 0;
@@ -3373,14 +3373,7 @@ void QDateTimeParser::setDigit(QVariant &v, int index, int newVal) const
     case MinuteSection: minute = newVal; break;
     case SecondSection: second = newVal; break;
     case MSecSection: msec = newVal; break;
-    case YearSection:
-        if (node.count == 2) {
-            year -= year % 100;
-            year += newVal;
-        } else {
-            year = newVal;
-        }
-        break;
+    case YearSection: year = newVal; break;
     case MonthSection: month = newVal; break;
     case DaySection: day = newVal; break;
     case AmPmSection: hour = (newVal == 0 ? hour % 12 : (hour % 12) + 12); break;
@@ -3823,133 +3816,128 @@ int QDateTimeParser::parseSection(int sectionIndex, QString &text, int index,
               << index;
 
     int used = 0;
-    if (false && sectiontext.trimmed().isEmpty()) {
-        state = Intermediate;
-    } else {
-        switch (sn.type) {
-        case AmPmSection: {
-            const int ampm = findAmPm(sectiontext, sectionIndex, &used);
-            switch (ampm) {
-            case AM: // sectiontext == AM
-            case PM: // sectiontext == PM
-                num = ampm;
-                state = Acceptable;
-                break;
-            case PossibleAM: // sectiontext => AM
-            case PossiblePM: // sectiontext => PM
-                num = ampm - 2;
-                state = Intermediate;
-                break;
-            case PossibleBoth: // sectiontext => AM|PM
-                num = 0;
-                state = Intermediate;
-                break;
-            case Neither:
-                state = Invalid;
-                QDTPDEBUG << "invalid because findAmPm(" << sectiontext << ") returned -1";
-                break;
-            default:
-                QDTPDEBUGN("This should never happen(findAmPm returned %d", ampm);
-                break;
-            }
-            if (state != Invalid) {
-                QString str = text;
-                text.replace(index, used, sectiontext.left(used));
-            }
+    switch (sn.type) {
+    case AmPmSection: {
+        const int ampm = findAmPm(sectiontext, sectionIndex, &used);
+        switch (ampm) {
+        case AM: // sectiontext == AM
+        case PM: // sectiontext == PM
+            num = ampm;
+            state = Acceptable;
+            break;
+        case PossibleAM: // sectiontext => AM
+        case PossiblePM: // sectiontext => PM
+            num = ampm - 2;
+            state = Intermediate;
+            break;
+        case PossibleBoth: // sectiontext => AM|PM
+            num = 0;
+            state = Intermediate;
+            break;
+        case Neither:
+            state = Invalid;
+            QDTPDEBUG << "invalid because findAmPm(" << sectiontext << ") returned -1";
+            break;
+        default:
+            QDTPDEBUGN("This should never happen(findAmPm returned %d", ampm);
             break;
         }
-        case MonthSection:
-        case DaySection:
-            if (sn.count >= 3) {
-                if (sn.type == MonthSection) {
-                    num = findMonth(sectiontext.toLower(), 1, sectionIndex, &sectiontext, &used);
-                } else {
-                    num = findDay(sectiontext.toLower(), 1, sectionIndex, &sectiontext, &used);
-                }
-
-                if (num != -1) {
-                    state = (used == sectiontext.size() ? Acceptable : Intermediate);
-                    QString str = text;
-                    text.replace(index, used, sectiontext.left(used));
-                } else {
-                    state = Intermediate;
-                }
-                break;
-            }
-            // fall through
-        case YearSection:
-        case Hour12Section:
-        case Hour24Section:
-        case MinuteSection:
-        case SecondSection:
-        case MSecSection: {
-            if (sectiontext.isEmpty()) {
-                num = 0;
-                used = 0;
-                state = Intermediate;
+        if (state != Invalid) {
+            QString str = text;
+            text.replace(index, used, sectiontext.left(used));
+        }
+        break; }
+    case MonthSection:
+    case DaySection:
+        if (sn.count >= 3) {
+            if (sn.type == MonthSection) {
+                num = findMonth(sectiontext.toLower(), 1, sectionIndex, &sectiontext, &used);
             } else {
-                const int absMax = absoluteMax(sectionIndex);
-                QLocale loc;
-                bool ok = true;
-                int last = -1;
-                used = -1;
+                num = findDay(sectiontext.toLower(), 1, sectionIndex, &sectiontext, &used);
+            }
 
-                const int max = qMin(sectionMaxSize(sectionIndex), sectiontext.size());
-                for (int digits=1; digits<=max; ++digits) {
-                    if (sectiontext.at(digits - 1).isSpace()) // loc.toUInt will allow spaces at the end
-                        break;
-                    int tmp = (int)loc.toUInt(sectiontext.left(digits), &ok, 10);
-                    if (ok && sn.type == Hour12Section) {
-                        if (tmp > 12) {
-                            tmp = -1;
-                            ok = false;
-                        } else if (tmp == 12) {
-                            tmp = 0;
-                        }
-                    }
-                    if (ok && tmp <= absMax) {
-                        QDTPDEBUG << sectiontext.left(digits) << tmp << digits;
-                        last = tmp;
-                        used = digits;
-                    } else {
-                        break;
-                    }
-                }
-                if (last == -1) {
-                    const QChar &first = sectiontext.at(0);
-                    if (separators.at(sectionIndex + 1).startsWith(first)) {
-                        used = 0;
-                        state = Intermediate;
-                    } else {
-                        state = Invalid;
-                        QDTPDEBUG << "invalid because" << sectiontext << "can't become a uint" << last << ok;
-                    }
-                } else {
-                    num += last;
-                    const FieldInfo fi = fieldInfo(sectionIndex);
-                    const int sectionms = sectionMaxSize(sectionIndex);
-                    const bool done = (used == sectionms);
-                    if (!done && fi & Fraction) { // typing 2 in a zzz field should be .200, not .002
-                        for (int i=used; i<sectionms; ++i) {
-                            num *= 10;
-                        }
-                    }
-                    if (num < absoluteMin(sectionIndex)) {
-                        state = done ? Invalid : Intermediate;
-                        if (done)
-                            QDTPDEBUG << "invalid because" << num << "is less than absoluteMin" << absoluteMin(sectionIndex);
-                    } else if (num > absMax) {
-                        state = Intermediate;
-                    } else if (!done && (fieldInfo(sectionIndex) & (FixedWidth|Numeric)) == (FixedWidth|Numeric)) {
-                        state = Intermediate;
-                    } else {
-                        state = Acceptable;
-                    }
-                }
+            if (num != -1) {
+                state = (used == sectiontext.size() ? Acceptable : Intermediate);
+                QString str = text;
+                text.replace(index, used, sectiontext.left(used));
+            } else {
+                state = Intermediate;
             }
             break; }
-        default: qFatal("NoSection or Internal. This should never happen"); break;
+        // fall through
+    case YearSection:
+    case Hour12Section:
+    case Hour24Section:
+    case MinuteSection:
+    case SecondSection:
+    case MSecSection: {
+        if (sectiontext.isEmpty()) {
+            num = 0;
+            used = 0;
+            state = Intermediate;
+        } else {
+            const int absMax = absoluteMax(sectionIndex);
+            QLocale loc;
+            bool ok = true;
+            int last = -1;
+            used = -1;
+
+            const int max = qMin(sectionMaxSize(sectionIndex), sectiontext.size());
+            for (int digits=1; digits<=max; ++digits) {
+                if (sectiontext.at(digits - 1).isSpace()) // loc.toUInt will allow spaces at the end
+                    break;
+                int tmp = (int)loc.toUInt(sectiontext.left(digits), &ok, 10);
+                if (ok && sn.type == Hour12Section) {
+                    if (tmp > 12) {
+                        tmp = -1;
+                        ok = false;
+                    } else if (tmp == 12) {
+                        tmp = 0;
+                    }
+                }
+                if (ok && tmp <= absMax) {
+                    QDTPDEBUG << sectiontext.left(digits) << tmp << digits;
+                    last = tmp;
+                    used = digits;
+                } else {
+                    break;
+                }
+            }
+            if (last == -1) {
+                const QChar &first = sectiontext.at(0);
+                if (separators.at(sectionIndex + 1).startsWith(first)) {
+                    used = 0;
+                    state = Intermediate;
+                } else {
+                    state = Invalid;
+                    QDTPDEBUG << "invalid because" << sectiontext << "can't become a uint" << last << ok;
+                }
+            } else {
+                num += last;
+                const FieldInfo fi = fieldInfo(sectionIndex);
+                const int sectionms = sectionMaxSize(sectionIndex);
+                const bool done = (used == sectionms);
+                if (!done && fi & Fraction) { // typing 2 in a zzz field should be .200, not .002
+                    for (int i=used; i<sectionms; ++i) {
+                        num *= 10;
+                    }
+                }
+                if (num < absoluteMin(sectionIndex)) {
+                    state = done ? Invalid : Intermediate;
+                    if (done)
+                        QDTPDEBUG << "invalid because" << num << "is less than absoluteMin" << absoluteMin(sectionIndex);
+                } else if (num > absMax) {
+                    state = Intermediate;
+                } else if (!done && (fieldInfo(sectionIndex) & (FixedWidth|Numeric)) == (FixedWidth|Numeric)) {
+                    state = Intermediate;
+                } else {
+                    state = Acceptable;
+                }
+            }
         }
+        break; }
+    default:
+        qFatal("NoSection or Internal. This should never happen"); break;
     }
 
     if (usedptr)
