@@ -130,7 +130,7 @@ bool ToolBarEventFilter::handleContextMenuEvent(QContextMenuEvent * event )
         connect(a, SIGNAL(triggered()), this, SLOT(slotRemoveSelectedAction()));
     }
 
-    QAction *remove_toolbar = menu.addAction(tr("Remove Toolbar '%1'").arg(objectName()));
+    QAction *remove_toolbar = menu.addAction(tr("Remove Toolbar '%1'").arg(m_toolBar->objectName()));
     connect(remove_toolbar, SIGNAL(triggered()), this, SLOT(slotRemoveToolBar()));
 
     menu.exec(event->globalPos());
