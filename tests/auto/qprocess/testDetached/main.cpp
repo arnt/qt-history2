@@ -32,7 +32,7 @@ int main(int argc, char **argv)
     f.write(QDir::currentPath().toUtf8());
     f.putChar('\n');
 #if defined(Q_OS_UNIX)
-    f.write(QByteArray::number(getpid()));
+    f.write(QByteArray::number(quint64(getpid())));
 #elif defined(Q_OS_WIN)
     f.write(QByteArray::number(quint64(GetCurrentProcessId())));
 #endif
