@@ -42,7 +42,7 @@ private slots:
 
     void testOnPath_data();
     void testOnPath();
-    
+
     void closing();
 };
 
@@ -53,25 +53,25 @@ void tst_QPainterPath::getSetCheck()
     // qreal QPainterPathStroker::width()
     // void QPainterPathStroker::setWidth(qreal)
     obj1.setWidth(0.0);
-    QCOMPARE(1.0, obj1.width()); // Pathstroker sets with to 1 if <= 0
+    QCOMPARE(qreal(1.0), obj1.width()); // Pathstroker sets with to 1 if <= 0
     obj1.setWidth(0.5);
-    QCOMPARE(0.5, obj1.width());
+    QCOMPARE(qreal(0.5), obj1.width());
     obj1.setWidth(1.1);
-    QCOMPARE(1.1, obj1.width());
+    QCOMPARE(qreal(1.1), obj1.width());
 
     // qreal QPainterPathStroker::miterLimit()
     // void QPainterPathStroker::setMiterLimit(qreal)
     obj1.setMiterLimit(0.0);
-    QCOMPARE(0.0, obj1.miterLimit());
+    QCOMPARE(qreal(0.0), obj1.miterLimit());
     obj1.setMiterLimit(1.1);
-    QCOMPARE(1.1, obj1.miterLimit());
+    QCOMPARE(qreal(1.1), obj1.miterLimit());
 
     // qreal QPainterPathStroker::curveThreshold()
     // void QPainterPathStroker::setCurveThreshold(qreal)
     obj1.setCurveThreshold(0.0);
-    QCOMPARE(0.0, obj1.curveThreshold());
+    QCOMPARE(qreal(0.0), obj1.curveThreshold());
     obj1.setCurveThreshold(1.1);
-    QCOMPARE(1.1, obj1.curveThreshold());
+    QCOMPARE(qreal(1.1), obj1.curveThreshold());
 }
 
 Q_DECLARE_METATYPE(QPainterPath)
@@ -499,34 +499,34 @@ void tst_QPainterPath::testOnPath_data()
                  QPointF(355, 201));
 
     QTest::newRow("First case") << path
-                                << -93.0
-                                << -4.0
-                                << 107.87;
+                                << qreal(-93.0)
+                                << qreal(-4.0)
+                                << qreal(107.87);
 
     path = QPainterPath(QPointF(328, 197));
     path.cubicTo(QPointF(150, 50), QPointF(401, 50),
                  QPointF(225, 197));
     QTest::newRow("Second case") << path
-                                << -140.0
-                                << 0.0
-                                << 140.0;
+                                 << qreal(-140.0)
+                                 << qreal(0.0)
+                                 << qreal(140.0);
 
     path = QPainterPath(QPointF(328, 197));
     path.cubicTo(QPointF(101 , 153), QPointF(596, 151),
                  QPointF(353, 197));
     QTest::newRow("Third case") << path
-                                << -169.0
-                                << -0.22
-                                <<  169.0;
+                                << qreal(-169.0)
+                                << qreal(-0.22)
+                                <<  qreal(169.0);
 
     path = QPainterPath(QPointF(153, 199));
     path.cubicTo(QPointF(59, 53), QPointF(597, 218),
                   QPointF(355, 201));
     QTest::newRow("Fourth case") << path
-                                 << -122.0
-                                 <<  12.0
-                                 << -175.0;
-    
+                                 << qreal(-122.0)
+                                 <<  qreal(12.0)
+                                 << qreal(-175.0);
+
 }
 
 #define SIGN(x) ((x < 0)?-1:1)
@@ -546,11 +546,11 @@ void tst_QPainterPath::testOnPath()
     qreal angle = path.angleAtPercent(0);
     QVERIFY(SIGN(angle) == signStart);
     QVERIFY(qAbs(angle-start) < diff);
-    
+
     angle = path.angleAtPercent(0.5);
     QVERIFY(SIGN(angle) == signMid);
     QVERIFY(qAbs(angle-middle) < diff);
-    
+
     angle = path.angleAtPercent(1);
     QVERIFY(SIGN(angle) == signEnd);
     QVERIFY(qAbs(angle-end) < diff);
