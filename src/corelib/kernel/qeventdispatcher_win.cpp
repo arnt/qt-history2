@@ -100,7 +100,6 @@ public:
 
     // internal window handle used for socketnotifiers/timers/etc
     HWND internalHwnd;
-    void createInternalHwnd();
 
     // timers
     TimerVec timerVec;
@@ -394,23 +393,25 @@ void QEventDispatcherWin32Private::doWsaAsyncSelect(int socket)
 #endif
 }
 
-void QEventDispatcherWin32Private::createInternalHwnd()
+void QEventDispatcherWin32::createInternalHwnd()
 {
-    Q_ASSERT(!internalHwnd);
-    if (internalHwnd)
+    Q_D(QEventDispatcherWin32);
+
+    Q_ASSERT(!d->internalHwnd);
+    if (d->internalHwnd)
         return;
-    internalHwnd = qt_create_internal_window(q_func());
+    d->internalHwnd = qt_create_internal_window(this);
 
     // register all socket notifiers
-    QList<int> sockets = (sn_read.keys().toSet()
-                          + sn_write.keys().toSet()
-                          + sn_except.keys().toSet()).toList();
+    QList<int> sockets = (d->sn_read.keys().toSet()
+                          + d->sn_write.keys().toSet()
+                          + d->sn_except.keys().toSet()).toList();
     for (int i = 0; i < sockets.count(); ++i)
-        doWsaAsyncSelect(sockets.at(i));
+        d->doWsaAsyncSelect(sockets.at(i));
 
     // start all normal timers
-    for (int i = 0; i < timerVec.count(); ++i)
-        registerTimer(timerVec.at(i));
+    for (int i = 0; i < d->timerVec.count(); ++i)
+        d->registerTimer(d->timerVec.at(i));
 }
 
 QEventDispatcherWin32::QEventDispatcherWin32(QObject *parent)
@@ -427,7 +428,7 @@ bool QEventDispatcherWin32::processEvents(QEventLoop::ProcessEventsFlags flags)
     Q_D(QEventDispatcherWin32);
 
     if (!d->internalHwnd)
-        d->createInternalHwnd();
+        createInternalHwnd();
 
     d->interrupt = false;
     emit awake();

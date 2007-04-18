@@ -946,7 +946,9 @@ public:
 
 QGuiEventDispatcherWin32::QGuiEventDispatcherWin32(QObject *parent)
     : QEventDispatcherWin32(parent)
-{ }
+{
+    createInternalHwnd();
+}
 
 bool QGuiEventDispatcherWin32::processEvents(QEventLoop::ProcessEventsFlags flags)
 {
