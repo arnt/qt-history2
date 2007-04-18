@@ -1408,7 +1408,11 @@ QMakeProject::read(uchar cmd)
             }
 
             if(QDir::isRelativePath(qmakespec)) {
-                if (!QFile::exists(qmakespec+"/qmake.conf")) {
+                if (QFile::exists(qmakespec+"/qmake.conf")) {
+                    Option::mkfile::qmakespec = QFileInfo(Option::mkfile::qmakespec).absoluteFilePath();
+                } else if (QFile::exists(Option::output_dir+"/"+qmakespec+"/qmake.conf")) {
+                    qmakespec = Option::mkfile::qmakespec = QFileInfo(Option::output_dir+"/"+qmakespec).absoluteFilePath();
+                } else {
                     bool found_mkspec = false;
                     for(QStringList::ConstIterator it = mkspec_roots.begin(); it != mkspec_roots.end(); ++it) {
                         QString mkspec = (*it) + QDir::separator() + qmakespec;
@@ -1423,8 +1427,6 @@ QMakeProject::read(uchar cmd)
                                 qmakespec.toLatin1().constData(), mkspec_roots.join("\n\t").toLatin1().constData());
                         return false;
                     }
-                } else {
-                    Option::mkfile::qmakespec = QFileInfo(Option::mkfile::qmakespec).absoluteFilePath();
                 }
             }
 
@@ -1728,11 +1730,10 @@ QMakeProject::doProjectInclude(QString file, uchar flags, QMap<QString, QStringL
             include_roots << qmake_getpwd();
         include_roots << Option::output_dir;
         for(int root = 0; root < include_roots.size(); ++root) {
-		QString testName = QDir::toNativeSeparators(include_roots[root]);
-		if (!testName.endsWith(QString(QDir::separator())))
-			testName += QDir::separator();
-		testName += file;
-
+            QString testName = QDir::toNativeSeparators(include_roots[root]);
+            if (!testName.endsWith(QString(QDir::separator())))
+                testName += QDir::separator();
+            testName += file;
             if(QFile::exists(testName)) {
                 file = testName;
                 break;
