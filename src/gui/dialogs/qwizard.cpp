@@ -1495,13 +1495,13 @@ void QWizardAntiFlickerWidget::paintEvent(QPaintEvent *)
 
     \section1 Wizard Look and Feel
 
-    QWizard supports three wizard looks:
+    QWizard supports four wizard looks:
 
     \list
-    \o ClassicStyle is the default on X11 and with Qtopia Core.
-    \o ModernStyle is the default on Windows (other than Vista).
-    \o MacStyle is the default on Mac OS X.
-    \o AeroStyle is the default on Windows Vista.
+    \o ClassicStyle
+    \o ModernStyle
+    \o MacStyle
+    \o AeroStyle
     \endlist
 
     You can explicitly set the look to use using setWizardStyle()
@@ -1847,10 +1847,10 @@ void QWizardAntiFlickerWidget::paintEvent(QPaintEvent *)
 
     This enum specifies the different looks supported by QWizard.
 
-    \value ClassicStyle  Classic Windows look (default on X11 and Qtopia)
-    \value ModernStyle  Modern Windows look (default on Windows)
-    \value MacStyle  Mac OS X look (default on Mac OS X)
-    \value AeroStyle  Windows Aero look (default on Windows Vista)
+    \value ClassicStyle  Classic Windows look
+    \value ModernStyle  Modern Windows look
+    \value MacStyle  Mac OS X look
+    \value AeroStyle  Windows Aero look
 
     \omitvalue NStyles
 
@@ -2132,9 +2132,11 @@ QVariant QWizard::field(const QString &name) const
     \property QWizard::wizardStyle
     \brief the look and feel of the wizard
 
-    By default, QWizard uses the ClassicStyle on X11 and QWS
-    (Qtopia Core), the ModernStyle on Windows, and the MacStyle on
-    Mac OS X.
+    By default, QWizard uses the AeroStyle on a Windows Vista system with alpha compositing
+    enabled, regardless of the current widget style. If this is not the case, the default
+    wizard style depends on the current widget style as follows: MacStyle is the default if
+    the current widget style is QMacStyle, ModernStyle is the default if the current widget
+    style is QWindowsStyle, and ClassicStyle is the default in all other cases.
 
     \sa {Wizard Look and Feel}, options
 */
