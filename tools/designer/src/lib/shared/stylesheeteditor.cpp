@@ -35,6 +35,7 @@ namespace qdesigner_internal {
 StyleSheetEditor::StyleSheetEditor(QWidget *parent)
     : QTextEdit(parent)
 {
+    setTabStopWidth(fontMetrics().width(QLatin1Char(' '))*4);
 }
 
 StyleSheetEditorDialog::StyleSheetEditorDialog(QWidget *fw, QWidget *widget)
