@@ -442,14 +442,16 @@ void tst_QColumnView::sizes()
     QModelIndex home = model.index(QDir::homePath());
     view.setCurrentIndex(home);
 
-    QCOMPARE(view.columnWidths().mid(0, newSizes.count()), newSizes);
+    QList<int> postSizes = view.columnWidths().mid(0, newSizes.count());
+    QCOMPARE(postSizes, newSizes.mid(0, postSizes.count()));
 
     QList<int> smallerSizes;
     smallerSizes << 6;
     view.setColumnWidths(smallerSizes);
     QList<int> expectedSizes = newSizes;
     expectedSizes[0] = 6;
-    QCOMPARE(view.columnWidths().mid(0, newSizes.count()), expectedSizes);
+    postSizes = view.columnWidths().mid(0, newSizes.count());
+    QCOMPARE(postSizes, expectedSizes.mid(0, postSizes.count()));
 }
 
 QTEST_MAIN(tst_QColumnView)
