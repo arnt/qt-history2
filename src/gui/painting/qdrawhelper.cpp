@@ -4637,8 +4637,8 @@ DrawHelper qDrawHelper[QImage::NImageFormats] =
     },
     // Format_RGB32,
     {
-        blend_color_generic,
-        blend_src_generic,
+        blend_color_argb,
+        blend_src_argb,
         qt_bitmapblit_quint32,
         qt_alphamapblit_quint32,
         qt_rectfill_quint32
