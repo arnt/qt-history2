@@ -3360,6 +3360,11 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
             QBrush oldBrush = painter->brush();
             QPen oldPen = painter->pen();
 
+            QColor shadowAlpha(Qt::black);
+            shadowAlpha.setAlpha(10);
+            QColor highlightAlpha(Qt::white);
+            highlightAlpha.setAlpha(80);
+                
             if ((option->subControls & SC_SliderGroove) && groove.isValid()) {
                 QString groovePixmapName = uniqueName(QLatin1String("slider_groove"), option, groove.size());
                 QRect pixmapRect(0, 0, groove.width(), groove.height());
@@ -3367,7 +3372,16 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                 // draw background groove
                 if (!UsePixmapCache || !QPixmapCache::find(groovePixmapName, cache)) {
                     cache = QPixmap(pixmapRect.size());
+                    cache.fill(Qt::transparent);
                     QPainter groovePainter(&cache);
+
+                    groovePainter.setPen(shadowAlpha);
+                    groovePainter.drawLine(1, 0, groove.width(), 0);
+                    groovePainter.drawLine(0, 0, 0, groove.height() - 1);
+
+                    groovePainter.setPen(highlightAlpha);
+                    groovePainter.drawLine(1, groove.height() - 1, groove.width() - 1, groove.height() - 1);
+                    groovePainter.drawLine(groove.width() - 1, 1, groove.width() - 1, groove.height() - 1);
                     QLinearGradient gradient;
                     if (horizontal) {
                         gradient.setStart(pixmapRect.center().x(), pixmapRect.top());
@@ -3377,11 +3391,11 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                         gradient.setStart(pixmapRect.left(), pixmapRect.center().y());
                         gradient.setFinalStop(pixmapRect.right(), pixmapRect.center().y());
                     }
-                    groovePainter.setPen(QPen(dark.lighter(110), 0));
-                    gradient.setColorAt(0, dark.lighter(120));
-                    gradient.setColorAt(1, palette.button().color().darker(115));
+                    groovePainter.setPen(QPen(darkOutline.darker(110), 0));
+                    gradient.setColorAt(0, grooveColor.darker(110));//dark.lighter(120));
+                    gradient.setColorAt(1, grooveColor.lighter(110));//palette.button().color().darker(115));
                     groovePainter.setBrush(gradient);
-                    groovePainter.drawRect(pixmapRect.adjusted(0, 0, -1, -1));
+                    groovePainter.drawRect(pixmapRect.adjusted(1, 1, -2, -2));
                     groovePainter.end();
                     if (UsePixmapCache)
                         QPixmapCache::insert(groovePixmapName, cache);
@@ -3393,6 +3407,7 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                 groovePixmapName += QLatin1String("_blue");
                 if (!UsePixmapCache || !QPixmapCache::find(groovePixmapName, cache)) {
                     cache = QPixmap(pixmapRect.size());
+                    cache.fill(Qt::transparent);
                     QPainter groovePainter(&cache);
                     QLinearGradient gradient;
                     if (horizontal) {
@@ -3405,9 +3420,9 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                     }
                     groovePainter.setPen(QPen(activeHighlight.darker(150), 0));
                     gradient.setColorAt(0, activeHighlight.darker(120));
-                    gradient.setColorAt(1, activeHighlight.lighter(108));
+                    gradient.setColorAt(1, activeHighlight.lighter(160));
                     groovePainter.setBrush(gradient);
-                    groovePainter.drawRect(pixmapRect.adjusted(0, 0, -1, -1));
+                    groovePainter.drawRect(pixmapRect.adjusted(1, 1, -2, -2));
                     groovePainter.end();
                     if (UsePixmapCache)
                         QPixmapCache::insert(groovePixmapName, cache);
@@ -3440,72 +3455,77 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
 
                     QColor highlightedGradientStartColor = option->palette.button().color();
                     QColor highlightedGradientStopColor = option->palette.light().color();
-                    QColor gradientStartColor = mergedColors(option->palette.button().color().lighter(120),
-                                                             dark.lighter(150), 50);
-                    QColor gradientStopColor = gradientStartColor.darker(115);
-                    QRect gradRect = pixmapRect.adjusted(1, 1, -1, -1);
+                    QColor gradientStartColor = mergedColors(option->palette.button().color().lighter(155),
+                                                             dark.lighter(155), 50);
+                    QColor gradientStopColor = gradientStartColor.darker(108);
+                    QRect gradRect = pixmapRect.adjusted(2, 2, -2, -2);
 
+                    QColor gradientBgStartColor = gradientStartColor;
+                    QColor gradientBgStopColor = gradientStopColor;
+
+                    QColor outline = option->state & State_Enabled ? dark : dark.lighter(130);
                     if (option->state & State_Enabled && option->state & State_MouseOver && option->activeSubControls & SC_SliderHandle) {
-                        gradientStartColor = gradientStartColor.lighter(110);
-                        gradientStopColor = gradientStopColor.lighter(110);
+                        gradientBgStartColor = option->palette.highlight().color().lighter(180);
+                        gradientBgStopColor = option->palette.highlight().color().lighter(110); 
+                        outline = option->palette.highlight().color().darker(130);
                     }
 
                     // gradient fill
                     QRect innerBorder = gradRect;
-                    QRect r = pixmapRect;
+                    QRect r = pixmapRect.adjusted(1, 1, -1, -1);
 
-                    QColor outline = option->state & State_Enabled ? dark : dark.lighter(130);
-
-                    qt_cleanlooks_draw_gradient(&handlePainter, horizontal ? gradRect.adjusted(1, 0, -1, 0) : gradRect.adjusted(1, 1, -1, 0),
-                                                gradientStartColor,
-                                                gradientStopColor, TopDown, option->palette.button());
-                    handlePainter.setPen(Qt::white);
-                    handlePainter.drawLine(innerBorder.topLeft(),
-                                      innerBorder.topRight());
-                    handlePainter.drawLine(innerBorder.topLeft(),
-                                      innerBorder.bottomLeft() + QPoint(0, -1));
-                    handlePainter.setPen(QPen(gradientStopColor, 0));
-                    handlePainter.drawLine(innerBorder.topRight(),
-                                      innerBorder.bottomRight());
-
+                    if (option->state & State_Enabled)
+                        qt_cleanlooks_draw_gradient(&handlePainter, gradRect,
+                                                    gradientBgStartColor,
+                                                    gradientBgStopColor,
+                                                    horizontal ? TopDown : FromLeft, option->palette.button());
+                    
                     handlePainter.setPen(QPen(outline.darker(110), 1));
-                    handlePainter.drawLine(QPoint(r.left(), r.top() + 2), QPoint(r.left(), r.bottom() - 2));
-                    handlePainter.drawLine(QPoint(r.right(), r.top() + 2), QPoint(r.right(), r.bottom() - 2));
-                    handlePainter.drawLine(QPoint(r.left() + 2, r.bottom()), QPoint(r.right() - 2, r.bottom()));
+                    handlePainter.drawLine(QPoint(r.left(), r.top() + 3), QPoint(r.left(), r.bottom() - 3));
+                    handlePainter.drawLine(QPoint(r.right(), r.top() + 3), QPoint(r.right(), r.bottom() - 3));
+                    handlePainter.drawLine(QPoint(r.left() + 3, r.bottom()), QPoint(r.right() - 3, r.bottom()));
 
-                    QColor cornerAlpha = outline.darker(130);
-                    cornerAlpha.setAlpha(150);
-                    handlePainter.setPen(cornerAlpha);
-                    handlePainter.drawPoint(QPoint(r.right() - 1, r.bottom() - 1));
-                    handlePainter.drawPoint(QPoint(r.right() - 1, r.top() + 1));
-                    handlePainter.drawPoint(QPoint(r.left() + 1, r.bottom() - 1));
-                    handlePainter.drawPoint(QPoint(r.left() + 1, r.top() + 1));
-
+                    handlePainter.save();
+                    handlePainter.setRenderHint(QPainter::Antialiasing);
+                    handlePainter.translate(0.5, 0.5);
+                    handlePainter.drawLine(QPoint(r.left(), r.bottom() - 2), QPoint(r.left() + 2, r.bottom()));
+                    handlePainter.drawLine(QPoint(r.left(), r.top() + 2), QPoint(r.left() + 2, r.top()));
+                    handlePainter.drawLine(QPoint(r.right(), r.bottom() - 2), QPoint(r.right() - 2, r.bottom()));
+                    handlePainter.drawLine(QPoint(r.right(), r.top() + 2), QPoint(r.right() - 2, r.top()));
+                    handlePainter.restore();;
                     handlePainter.setPen(QPen(outline.darker(130), 1));
-                    handlePainter.drawLine(QPoint(r.left() + 2, r.top()), QPoint(r.right() - 2, r.top()));
+                    handlePainter.drawLine(QPoint(r.left() + 3, r.top()), QPoint(r.right() - 3, r.top()));
+                    QColor cornerAlpha = outline.darker(120);
+                    cornerAlpha.setAlpha(80);
+
+                    handlePainter.setPen(cornerAlpha);
+                    if (horizontal) {
+                        handlePainter.drawLine(QPoint(r.left() + 6, r.top()), QPoint(r.left() + 6, r.bottom()));
+                        handlePainter.drawLine(QPoint(r.right() - 6, r.top()), QPoint(r.right() - 6, r.bottom()));
+                    } else {
+                        handlePainter.drawLine(QPoint(r.left(), r.top() + 6), QPoint(r.right(), r.top() + 6));
+                        handlePainter.drawLine(QPoint(r.left(), r.bottom() - 6), QPoint(r.right(), r.bottom() - 6));
+                    }
+
+                    //handle shadow
+                    handlePainter.setPen(shadowAlpha);
+                    handlePainter.drawLine(QPoint(r.left() + 2, r.bottom() + 1), QPoint(r.right() - 2, r.bottom() + 1));
+                    handlePainter.drawLine(QPoint(r.right() + 1, r.bottom() - 3), QPoint(r.right() + 1, r.top() + 4));
+                    handlePainter.drawLine(QPoint(r.right() - 1, r.bottom()), QPoint(r.right() + 1, r.bottom() - 2));
+
+                    qt_cleanlooks_draw_gradient(&handlePainter, horizontal ?
+                        gradRect.adjusted(6, 0, -6, 0) : gradRect.adjusted(0, 6, 0, -6),
+                        gradientStartColor,
+                        gradientStopColor.darker(106), 
+                        horizontal ? TopDown : FromLeft, 
+                        option->palette.button());
 
                     //draw grips
-                    if (horizontal) {
-                        for (int i = -3; i< 6 ; i += 3) {
-                            handlePainter.setPen(QPen(gripShadow, 1));
-                            handlePainter.drawLine(
-                                        QPoint(r.center().x() + i , r.top() + 4),
-                                        QPoint(r.center().x() + i, r.bottom() - 4));
-                            handlePainter.setPen(QPen(palette.light(), 1));
-                            handlePainter.drawLine(
-                                        QPoint(r.center().x() + i + 1, r.top() + 4 ),
-                                        QPoint(r.center().x() + i + 1, r.bottom() - 4 ));
-                        }
-                    } else {
-                        for (int i = -3; i < 6 ; i += 3) {
-                            handlePainter.setPen(QPen(gripShadow, 1));
-                            handlePainter.drawLine(
-                                        QPoint(r.left() + 4, r.center().y()+ i),
-                                        QPoint(r.right() - 4, r.center().y()+ i));
-                            handlePainter.setPen(QPen(palette.light(), 1));
-                            handlePainter.drawLine(
-                                        QPoint(r.left() + 4, r.center().y() + 1 + i),
-                                        QPoint(r.right() - 4, r.center().y() + 1 + i));
+                    for (int i = -3; i< 6 ; i += 3) {
+                        for (int j = -3; j< 6 ; j += 3) {
+                            handlePainter.fillRect(r.center().x() + i, r.center().y() + j, 2, 2, highlightAlpha);
+                            handlePainter.setPen(gripShadow);                            
+                            handlePainter.drawPoint(r.center().x() + i, r.center().y() + j );
                         }
                     }
                     handlePainter.end();
@@ -3627,10 +3647,10 @@ int QCleanlooksStyle::pixelMetric(PixelMetric metric, const QStyleOption *option
         ret = 15;
         break;
     case PM_SliderThickness:
-        ret = 16;
+        ret = 15;
         break;
     case PM_SliderLength:
-        ret = 32;
+        ret = 27;
         break;
     case PM_DockWidgetTitleMargin:
         ret = 1;
@@ -3854,8 +3874,8 @@ QRect QCleanlooksStyle::subControlRect(ComplexControl control, const QStyleOptio
             switch (subControl) {
             case SC_SliderHandle: {
                 if (slider->orientation == Qt::Horizontal) {
-                    rect.setWidth(32);
-                    rect.setHeight(13);
+                    rect.setHeight(pixelMetric(PM_SliderThickness));
+                    rect.setWidth(pixelMetric(PM_SliderLength));
                     int centerY = slider->rect.center().y() - rect.height() / 2;
                     if (slider->tickPosition & QSlider::TicksAbove)
                         centerY += tickSize;
@@ -3863,8 +3883,8 @@ QRect QCleanlooksStyle::subControlRect(ComplexControl control, const QStyleOptio
                         centerY -= tickSize;
                     rect.moveTop(centerY);
                 } else {
-                    rect.setWidth(13);
-                    rect.setHeight(32);
+                    rect.setWidth(pixelMetric(PM_SliderThickness));
+                    rect.setHeight(pixelMetric(PM_SliderLength));
                     int centerX = slider->rect.center().x() - rect.width() / 2;
                     if (slider->tickPosition & QSlider::TicksAbove)
                         centerX += tickSize;
@@ -3877,13 +3897,13 @@ QRect QCleanlooksStyle::subControlRect(ComplexControl control, const QStyleOptio
             case SC_SliderGroove: {
                 QPoint grooveCenter = slider->rect.center();
                 if (slider->orientation == Qt::Horizontal) {
-                    rect.setHeight(5);
+                    rect.setHeight(7);
                     if (slider->tickPosition & QSlider::TicksAbove)
                         grooveCenter.ry() += tickSize;
                     if (slider->tickPosition & QSlider::TicksBelow)
                         grooveCenter.ry() -= tickSize;
                 } else {
-                    rect.setWidth(5);
+                    rect.setWidth(7);
                     if (slider->tickPosition & QSlider::TicksAbove)
                         grooveCenter.rx() += tickSize;
                     if (slider->tickPosition & QSlider::TicksBelow)
