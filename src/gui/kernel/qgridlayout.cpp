@@ -187,8 +187,7 @@ private:
 int QGridLayoutPrivate::effectiveTopMargin() const
 {
     int margin = topMargin;
-#if 1
-    //Q_WS_MAC
+#ifdef Q_WS_MAC
     int topRow = vReversed ? 0 : INT_MAX;
     for (int i = 0; i < things.count(); ++i) {
         QGridBox *box = things.at(i);

@@ -131,8 +131,7 @@ static inline bool horz(QBoxLayout::Direction dir)
 int QBoxLayoutPrivate::effectiveTopMargin() const
 {
     int margin = topMargin;
-#if 1
-    //def Q_WS_MAC
+#ifdef Q_WS_MAC
 
     int count = horz(dir) ? list.count() : 1;
     int i = (dir == QBoxLayout::BottomToTop ? list.count() - 1 : 0);
