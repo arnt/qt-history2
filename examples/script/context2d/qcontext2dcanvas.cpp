@@ -16,7 +16,6 @@
 #include "context2d.h"
 #include "domimage.h"
 
-#include <QDebug>
 #include <QApplication>
 #include <QPainter>
 #include <QPaintEvent>
@@ -317,7 +316,6 @@ static QScriptValue getElementById(QScriptContext *context, QScriptEngine *env)
                 break;
         }
     }
-    //qDebug()<<"serching element "<<el<<lst.count();
 
     return env->newQObject(lst[0]);
 }
@@ -341,12 +339,11 @@ static QScriptValue setInterval(QScriptContext *context, QScriptEngine *env)
         func = env->globalObject().property(funcStr);
     }
     if (!func.isFunction()) {
-        qDebug()<<"Couldn't find function "
-                <<context->argument(0).toString();
+        qWarning("Couldn't find function %s",
+                 qPrintable(context->argument(0).toString()));
         return env->undefinedValue();
     }
 
-    //qDebug()<<"setInterval "<<func.isFunction()<<", "<<interval;
     canvas->setInterval(func, interval);
 
     return env->undefinedValue();
@@ -417,17 +414,15 @@ void QContext2DCanvas::paintEvent(QPaintEvent *e)
 
     QScriptValue ret;
     if (m_intervalFunc.isValid()) {
-        //qDebug()<<"Calling function ";
         m_context->begin();
         ret = m_intervalFunc.call(m_engine.globalObject());
     } else {
-        //qDebug()<<"Didn't find inter.";
         ret = m_engine.evaluate(m_script);
     }
     if (!m_script.isEmpty() && m_engine.hasUncaughtException()) {
         int lineno = m_engine.uncaughtExceptionLineNumber();
         QString msg = ret.toString();
-        qDebug() << msg <<", at "<< lineno;
+        qWarning("%s, at %d", qPrintable(msg), lineno);
         emit error(msg, lineno);
         m_timer.stop();
         return;
@@ -454,7 +449,6 @@ void QContext2DCanvas::mouseMoveEvent(QMouseEvent *e)
         FakeDomEvent event(e, &m_engine);
         QScriptValueList args;
         args << event.m_proto;
-        //qDebug()<<"invoke mouse move";
         m_mouseMoveHandler.call(m_engine.globalObject(), args);
     }
 }
@@ -463,7 +457,6 @@ void QContext2DCanvas::mouseMoveEvent(QMouseEvent *e)
 void QContext2DCanvas::mousePressEvent(QMouseEvent *e)
 {
     if (m_mouseDownHandler.isValid()) {
-        //qDebug()<<"invoke mouse down";
         FakeDomEvent event(e, &m_engine);
         QScriptValueList args;
         args << event.m_proto;
@@ -475,7 +468,6 @@ void QContext2DCanvas::mousePressEvent(QMouseEvent *e)
 void QContext2DCanvas::mouseReleaseEvent(QMouseEvent *e)
 {
     if (m_mouseUpHandler.isValid()) {
-        //qDebug()<<"invoke mouse up";
         FakeDomEvent event(e, &m_engine);
         QScriptValueList args;
         args << event.m_proto;
@@ -487,7 +479,6 @@ void QContext2DCanvas::mouseReleaseEvent(QMouseEvent *e)
 void QContext2DCanvas::keyPressEvent(QKeyEvent *e)
 {
     if (m_keyDownHandler.isValid()) {
-        //qDebug()<<"invoke key handler "<<m_keyDownHandler.toString();;
         FakeDomEvent event(e, &m_engine);
         QScriptValueList args;
         args << event.m_proto;
@@ -498,7 +489,6 @@ void QContext2DCanvas::keyPressEvent(QKeyEvent *e)
 void QContext2DCanvas::keyReleaseEvent(QKeyEvent *e)
 {
     if (m_keyUpHandler.isValid()) {
-        //qDebug()<<"invoke key handler "<<m_keyUpHandler.toString();;
         FakeDomEvent event(e, &m_engine);
         QScriptValueList args;
         args << event.m_proto;
@@ -510,17 +500,13 @@ void QContext2DCanvas::keyReleaseEvent(QKeyEvent *e)
 void QContext2DCanvas::resizeEvent(QResizeEvent *e)
 {
     Q_UNUSED(e);
-    //we delete th
-    //delete m_context;
-    //m_context = new Context2D(this);
     m_context->setSize(e->size().width(), e->size().height());
 }
 
 QObject * QContext2DCanvas::getContext(const QString &str) const
 {
-    //qDebug()<<"getting context "<<str<<m_context;
     if (str != QLatin1String("2d")) {
-        qDebug()<<"Passing invalid context "<<str;
+        qWarning("Passing invalid context %s", qPrintable(str));
     }
 
     m_context->begin();

@@ -16,7 +16,6 @@
 #include "qcontext2dcanvas.h"
 
 #include <QVariant>
-#include <QDebug>
 
 #include <math.h>
 static const double Q_PI   = 3.14159265358979323846;   // pi
@@ -69,7 +68,6 @@ static QColor colorFromString(const QString &name)
         }
         //alpha seems to be always between 0-1
         compo[3] *= 255;
-        //qDebug()<<compo;
         return QColor((int)compo[0], (int)compo[1],
                       (int)compo[2], (int)compo[3]);
     } else if (name.startsWith("rgb(")) {
@@ -232,7 +230,6 @@ void Context2D::setStrokeStyle(const QVariant &style)
 
 void Context2D::setFillStyle(const QVariant &style)
 {
-    //qDebug()<<"variant is "<<style<<qVariantCanConvert<CanvasGradient>(style);
     if (qVariantCanConvert<CanvasGradient>(style)) {
         CanvasGradient cg = qvariant_cast<CanvasGradient>(style);
         m_painter.setBrush(cg->qgradient());
