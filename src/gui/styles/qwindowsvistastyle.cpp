@@ -619,6 +619,32 @@ void QWindowsVistaStyle::drawPrimitive(PrimitiveElement element, const QStyleOpt
         break;
     }
 
+    case PE_Widget: 
+        {
+            const QDialogButtonBox *buttonBox = 0;
+
+            if (qobject_cast<const QMessageBox *> (widget))
+                buttonBox = widget->findChild<const QDialogButtonBox *>(QLatin1String("qt_msgbox_buttonbox"));
+            else if (qobject_cast<const QInputDialog *> (widget))
+                buttonBox = widget->findChild<const QDialogButtonBox *>(QLatin1String("qt_inputdlg_buttonbox"));
+
+            if (buttonBox) {
+                //draw white panel part
+                XPThemeData theme(widget, painter, QLatin1String("TASKDIALOG"), TDLG_PRIMARYPANEL, 0, option->rect);
+                QRect toprect = option->rect;
+                toprect.setBottom(buttonBox->geometry().top());
+                theme.rect = toprect;
+                d->drawBackground(theme);
+
+                //draw bottom panel part
+                QRect buttonRect = option->rect;
+                buttonRect.setTop(buttonBox->geometry().top());
+                theme.rect = buttonRect;
+                theme.partId = TDLG_SECONDARYPANEL;
+                d->drawBackground(theme);
+            }
+        }
+
     default:
         QWindowsXPStyle::drawPrimitive(element, option, painter, widget);
         break;
@@ -2051,6 +2077,16 @@ void QWindowsVistaStyle::polish(QWidget *widget)
                 widget->setPalette(pal);
             }
         }
+    } else if (qobject_cast<QMessageBox *> (widget)) {
+        widget->setAttribute(Qt::WA_StyledBackground);
+        QDialogButtonBox *buttonBox = widget->findChild<QDialogButtonBox *>(QLatin1String("qt_msgbox_buttonbox"));
+        if (buttonBox)
+            buttonBox->setContentsMargins(0, 9, 0, 0);
+    } else if (qobject_cast<QInputDialog *> (widget)) {
+        widget->setAttribute(Qt::WA_StyledBackground);
+        QDialogButtonBox *buttonBox = widget->findChild<QDialogButtonBox *>(QLatin1String("qt_inputdlg_buttonbox"));
+        if (buttonBox)
+            buttonBox->setContentsMargins(0, 9, 0, 0);
     }
 }
 
@@ -2068,6 +2104,17 @@ void QWindowsVistaStyle::unpolish(QWidget *widget)
         widget->setAttribute(Qt::WA_Hover, false);
     else if (qobject_cast<QGroupBox*>(widget))
         widget->setAttribute(Qt::WA_Hover, false);
+    else if (qobject_cast<QMessageBox *> (widget)) {
+        widget->setAttribute(Qt::WA_StyledBackground, false);
+        QDialogButtonBox *buttonBox = widget->findChild<QDialogButtonBox *>(QLatin1String("qt_msgbox_buttonbox"));
+        if (buttonBox)
+            buttonBox->setContentsMargins(0, 0, 0, 0);
+    } else if (qobject_cast<QInputDialog *> (widget)) {
+        widget->setAttribute(Qt::WA_StyledBackground, false);
+        QDialogButtonBox *buttonBox = widget->findChild<QDialogButtonBox *>(QLatin1String("qt_inputdlg_buttonbox"));
+        if (buttonBox)
+            buttonBox->setContentsMargins(0, 0, 0, 0);
+    }
 }
 
 

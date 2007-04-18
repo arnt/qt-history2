@@ -191,6 +191,7 @@ void QInputDialogPrivate::init(const QString &lbl, QInputDialog::Type type)
 
     QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Cancel,
                                                         Qt::Horizontal, q);
+    buttonBox->setObjectName(QLatin1String("qt_inputdlg_buttonbox"));
     QPushButton *okButton =
         static_cast<QPushButton *>(buttonBox->addButton(QDialogButtonBox::Ok));
     okButton->setDefault(true);
@@ -222,6 +223,7 @@ void QInputDialogPrivate::init(const QString &title, const QString &lbl, QWidget
 
     QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Cancel,
                                                        Qt::Horizontal, q);
+    buttonBox->setObjectName(QLatin1String("qt_inputdlg_buttonbox"));
     okButton = static_cast<QPushButton *>(buttonBox->addButton(QDialogButtonBox::Ok));
     okButton->setDefault(true);
     vbox->addWidget(buttonBox);

@@ -50,6 +50,9 @@
 #include <qdockwidget.h>
 #include <qtreeview.h>
 #include <qtextedit.h>
+#include <qmessagebox.h>
+#include <qdialogbuttonbox.h>
+#include <qinputdialog.h>
 
 #if !defined(SCHEMA_VERIFY_VSSYM32)
 #define TMT_ANIMATIONDURATION       5006
@@ -93,6 +96,8 @@
 #define SCRBS_HOVER                 5
 #define TVP_HOTGLYPH                4
 #define SPI_GETCLIENTAREAANIMATION  0x1042
+#define TDLG_PRIMARYPANEL           1
+#define TDLG_SECONDARYPANEL         8
 #endif
 
 class Animation
