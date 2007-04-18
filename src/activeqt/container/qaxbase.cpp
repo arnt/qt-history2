@@ -2146,7 +2146,7 @@ void MetaObjectGenerator::readClassInfo()
         dispInfo->GetContainingTypeLib(&typelib, &index);
 
     if (!typelib) {
-        QSettings controls(QLatin1String("HKEY_LOCAL_MACHINE\\Software"));
+        QSettings controls(QLatin1String("HKEY_LOCAL_MACHINE\\Software"), QSettings::NativeFormat);
         QString tlid = controls.value(QLatin1String("/Classes/CLSID/") + that->control() + QLatin1String("/TypeLib/.")).toString();
         QString tlfile;
         if (!tlid.isEmpty()) {
@@ -2177,8 +2177,8 @@ void MetaObjectGenerator::readClassInfo()
         }
     }
 
-    if (!classInfo && typelib && that)
-        typelib->GetTypeInfoOfGuid(QUuid(that->control()), &classInfo);
+    if (!dispInfo && typelib && that)
+        typelib->GetTypeInfoOfGuid(QUuid(that->control()), &dispInfo);
 
     if (!d || !dispInfo || !cacheKey.isEmpty() || !d->tryCache)
         return;
