@@ -84,7 +84,8 @@ void qt_format_text(const QFont &fnt, const QRectF &_r,
 const char  *qt_mfhdr_tag = "QPIC"; // header tag
 static const quint16 mfhdr_maj = 9; // major version #
 static const quint16 mfhdr_min = 0; // minor version #
-extern int qt_defaultDpi();
+extern int qt_defaultDpiX();
+extern int qt_defaultDpiY();
 
 /*!
     Constructs an empty picture.
@@ -463,8 +464,8 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
     QTransform  matrix;
 
     QTransform worldMatrix = painter->transform();
-    worldMatrix.scale(qreal(painter->device()->logicalDpiX()) / qreal(qt_defaultDpi()),
-                      qreal(painter->device()->logicalDpiY()) / qreal(qt_defaultDpi()));
+    worldMatrix.scale(qreal(painter->device()->logicalDpiX()) / qreal(qt_defaultDpiX()),
+                      qreal(painter->device()->logicalDpiY()) / qreal(qt_defaultDpiY()));
     painter->setTransform(worldMatrix);
 
     while (nrecords-- && !s.atEnd()) {
@@ -855,18 +856,18 @@ int QPicture::metric(PaintDeviceMetric m) const
             val = brect.height();
             break;
         case PdmWidthMM:
-            val = int(25.4/qt_defaultDpi()*brect.width());
+            val = int(25.4/qt_defaultDpiX()*brect.width());
             break;
         case PdmHeightMM:
-            val = int(25.4/qt_defaultDpi()*brect.height());
+            val = int(25.4/qt_defaultDpiY()*brect.height());
             break;
         case PdmDpiX:
         case PdmPhysicalDpiX:
-            val = qt_defaultDpi();
+            val = qt_defaultDpiX();
             break;
         case PdmDpiY:
         case PdmPhysicalDpiY:
-            val = qt_defaultDpi();
+            val = qt_defaultDpiY();
             break;
         case PdmNumColors:
             val = 16777216;

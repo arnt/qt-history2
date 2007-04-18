@@ -111,7 +111,33 @@ extern HDC shared_dc;
 
 extern bool qt_is_gui_used;
 
-Q_GUI_EXPORT int qt_defaultDpi()
+Q_GUI_EXPORT int qt_defaultDpiX()
+{
+    if (!qt_is_gui_used)
+        return 75;
+
+    int dpi;
+#ifdef Q_WS_X11
+    dpi = QX11Info::appDpiX();
+#elif defined(Q_WS_WIN)
+    dpi = GetDeviceCaps(shared_dc,LOGPIXELSX);
+#elif defined(Q_WS_MAC)
+    extern float qt_mac_defaultDpi_x(); //qpaintdevice_mac.cpp
+    dpi = qt_mac_defaultDpi_x();
+#elif defined(Q_WS_QWS)
+    if (!qt_screen)
+        return 72;
+    QScreen *screen = qt_screen;
+    const QList<QScreen*> subScreens = qt_screen->subScreens();
+    if (!subScreens.isEmpty())
+        screen = subScreens.at(0);
+    dpi = qRound(screen->width() / double(screen->physicalWidth() / 25.4));
+#endif // Q_WS_X11
+
+    return dpi;
+}
+
+Q_GUI_EXPORT int qt_defaultDpiY()
 {
     if (!qt_is_gui_used)
         return 75;
@@ -122,8 +148,8 @@ Q_GUI_EXPORT int qt_defaultDpi()
 #elif defined(Q_WS_WIN)
     dpi = GetDeviceCaps(shared_dc,LOGPIXELSY);
 #elif defined(Q_WS_MAC)
-    extern float qt_mac_defaultDpi_x(); //qpaintdevice_mac.cpp
-    dpi = qt_mac_defaultDpi_x();
+    extern float qt_mac_defaultDpi_y(); //qpaintdevice_mac.cpp
+    dpi = qt_mac_defaultDpi_y();
 #elif defined(Q_WS_QWS)
     if (!qt_screen)
         return 72;
@@ -135,6 +161,11 @@ Q_GUI_EXPORT int qt_defaultDpi()
 #endif // Q_WS_X11
 
     return dpi;
+}
+
+Q_GUI_EXPORT int qt_defaultDpi()
+{
+    return qt_defaultDpiY();
 }
 
 QFontPrivate::QFontPrivate()
