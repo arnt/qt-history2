@@ -1088,7 +1088,7 @@ char *toHexRepresentation(const char *ba, int length)
     while(true) {
         const char at = ba[i];
 
-        result[o] = toHex[at >> 4];
+        result[o] = toHex[(at >> 4) & 0x0F];
         ++o;
         result[o] = toHex[at & 0x0F];
 
