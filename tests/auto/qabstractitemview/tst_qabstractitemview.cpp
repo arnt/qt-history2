@@ -654,10 +654,12 @@ void tst_QAbstractItemView::persistentEditorFocus()
     view.setCurrentIndex( model.index(0,0));
     QCOMPARE( view.currentIndex(), model.index(0,0));
     view.show();
-        qApp->processEvents();
+    QTest::qWait(500);
 
     foreach(QSpinBox *spin, list) {
-        QTest::mouseClick(spin, Qt::LeftButton);
+        QMouseEvent mouseEvent(QEvent::MouseButtonPress, QPoint(10, 10), Qt::LeftButton,
+                               Qt::LeftButton, Qt::NoModifier);
+        qApp->sendEvent(spin, &mouseEvent);
         QCOMPARE( qApp->focusWidget(), spin);
         QCOMPARE( view.currentIndex(), model.index(0, spin->value()));
     }
