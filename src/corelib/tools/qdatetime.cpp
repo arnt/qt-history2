@@ -2566,14 +2566,16 @@ QDateTime QDateTime::fromString(const QString& s, Qt::DateFormat f)
     if (f == Qt::ISODate) {
         QString tmp = s;
         Qt::TimeSpec ts = Qt::LocalTime;
+        const QDate date = QDate::fromString(tmp.left(10), Qt::ISODate);
+        if (tmp.size() == 10)
+            return QDateTime(date);
 
         // Recognize UTC specifications
         if (tmp.endsWith(QLatin1Char('Z'))) {
             ts = Qt::UTC;
             tmp.chop(1);
         }
-        return QDateTime(QDate::fromString(tmp.mid(0, 10), Qt::ISODate),
-                         QTime::fromString(tmp.mid(11), Qt::ISODate), ts);
+        return QDateTime(date, QTime::fromString(tmp.mid(11), Qt::ISODate), ts);
     }
 #if !defined(QT_NO_TEXTDATE)
     else if (f == Qt::TextDate) {
