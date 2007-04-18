@@ -466,6 +466,19 @@ void tst_QPainterPath::testArcMoveTo_data()
 #endif
 #define ANGLE(t) ((t) * 2 * M_PI / 360.0)
 
+
+static inline bool pathFuzzyCompare(double p1, double p2)
+{
+    return qFuzzyCompare(p1, p2);
+}
+
+
+static inline bool pathFuzzyCompare(float p1, float p2)
+{
+     return qAbs(p1 - p2) < 0.0002;
+}
+
+
 void tst_QPainterPath::testArcMoveTo()
 {
     QFETCH(QRectF, rect);
@@ -483,8 +496,8 @@ void tst_QPainterPath::testArcMoveTo()
     QPointF shouldBe = rect.center()
                        + QPointF(x_radius * cos(ANGLE(angle)), -y_radius * sin(ANGLE(angle)));
 
-    QVERIFY(qFuzzyCompare(pos.x(), shouldBe.x()));
-    QVERIFY(qFuzzyCompare(pos.y(), shouldBe.y()));
+    QVERIFY(pathFuzzyCompare(pos.x(), shouldBe.x()));
+    QVERIFY(pathFuzzyCompare(pos.y(), shouldBe.y()));
 }
 
 void tst_QPainterPath::testOnPath_data()
