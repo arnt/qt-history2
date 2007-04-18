@@ -231,7 +231,7 @@ void Colors::parseArgs(int argc, char *argv[])
         Colors::glVersion = "1.5";
     else if (QGLFormat::openGLVersionFlags() & QGLFormat::OpenGL_Version_1_4)
         Colors::glVersion = "1.4";
-    else if (QGLFormat::openGLVersionFlags() & QGLFormat::OpenGL_Version_1_4)
+    else if (QGLFormat::openGLVersionFlags() & QGLFormat::OpenGL_Version_1_3)
         Colors::glVersion = "1.3 or lower";
 
     if (!QGLFormat::hasOpenGL())
