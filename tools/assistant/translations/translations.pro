@@ -1,34 +1,34 @@
 # Include those manually as they do not contain any directory specification
-APP_DIR = ..
-FORMS += APP_DIR/helpdialog.ui \
-         APP_DIR/mainwindow.ui \
-         APP_DIR/tabbedbrowser.ui \
-         APP_DIR/topicchooser.ui
 
-SOURCES += APP_DIR/main.cpp \
-           APP_DIR/helpwindow.cpp \
-           APP_DIR/topicchooser.cpp \
-           APP_DIR/docuparser.cpp \
-           APP_DIR/index.cpp \
-           APP_DIR/profile.cpp \
-           APP_DIR/config.cpp \
-           APP_DIR/helpdialog.cpp \
-           APP_DIR/mainwindow.cpp \
-           APP_DIR/tabbedbrowser.cpp \
-           APP_DIR/fontsettingsdialog.cpp
+FORMS += ../helpdialog.ui \
+         ../mainwindow.ui \
+         ../tabbedbrowser.ui \
+         ../topicchooser.ui
+
+SOURCES += ../main.cpp \
+           ../helpwindow.cpp \
+           ../topicchooser.cpp \
+           ../docuparser.cpp \
+           ../index.cpp \
+           ../profile.cpp \
+           ../config.cpp \
+           ../helpdialog.cpp \
+           ../mainwindow.cpp \
+           ../tabbedbrowser.cpp \
+           ../fontsettingsdialog.cpp
 
 SOURCES += ../../shared/fontpanel/fontpanel.cpp
 
-HEADERS += APP_DIR/helpwindow.h \
-           APP_DIR/topicchooser.h \
-           APP_DIR/docuparser.h \
-           APP_DIR/index.h \
-           APP_DIR/profile.h \
-           APP_DIR/helpdialog.h \
-           APP_DIR/mainwindow.h \
-           APP_DIR/tabbedbrowser.h \
-           APP_DIR/config.h \
-           APP_DIR/fontsettingsdialog.h
+HEADERS += ../helpwindow.h \
+           ../topicchooser.h \
+           ../docuparser.h \
+           ../index.h \
+           ../profile.h \
+           ../helpdialog.h \
+           ../mainwindow.h \
+           ../tabbedbrowser.h \
+           ../config.h \
+           ../fontsettingsdialog.h
 
 
 TRANSLATIONS=$$[QT_INSTALL_TRANSLATIONS]/assistant_de.ts $$[QT_INSTALL_TRANSLATIONS]/assistant_untranslated.ts
