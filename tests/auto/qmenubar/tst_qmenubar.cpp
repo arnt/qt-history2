@@ -13,6 +13,7 @@
 #include <qmenubar.h>
 #include <q3popupmenu.h>
 #include <qstyle.h>
+#include <qdesktopwidget.h>
 
 #ifdef Q_WS_WIN
 #include <windows.h>
@@ -92,6 +93,8 @@ private slots:
 
     void check_altPress();
     void check_shortcutPress();
+
+    void check_menuPosition();
 
 #if defined(QT3_SUPPORT)
     void indexBasedInsertion_data();
@@ -914,6 +917,62 @@ void tst_QMenuBar::check_shortcutPress()
     QTest::keyClick(mb, Qt::Key_2);
     QVERIFY(pm1->isActiveWindow()); // Should still be the active window
 }
+
+void tst_QMenuBar::check_menuPosition()
+{
+#ifdef Q_WS_MAC
+    QSKIP("Qt/Mac does not use the native popups/menubar", SkipAll);
+#endif
+
+    QMenu menu;
+    initComplexMenubar();
+    menu.setTitle("&menu");
+    QRect screenRect = QApplication::desktop()->screenGeometry(mw);
+
+    while(menu.sizeHint().height() < screenRect.height()/2+20) {
+        menu.addAction("item");
+    }
+
+    QAction *menu_action = mw->menuBar()->addMenu(&menu);
+
+    qApp->setActiveWindow(mw);
+    qApp->processEvents();
+
+    //the menu should be below the menubar item
+    {
+        mw->move(0,0);
+        QRect mbItemRect = mw->menuBar()->actionGeometry(menu_action);
+        mbItemRect.moveTo(mw->menuBar()->mapToGlobal(mbItemRect.topLeft()));
+        QTest::keyClick(mw, Qt::Key_M, Qt::AltModifier );
+        QVERIFY(menu.isActiveWindow());
+        QCOMPARE(menu.pos(), QPoint(mbItemRect.x(), mbItemRect.bottom() + 1));
+        menu.close();
+    }
+
+    //the menu should be above the menubar item
+    {
+        mw->move(0,screenRect.bottom() - screenRect.height()/4); //just leave some place for the menubar
+        QRect mbItemRect = mw->menuBar()->actionGeometry(menu_action);
+        mbItemRect.moveTo(mw->menuBar()->mapToGlobal(mbItemRect.topLeft()));
+        QTest::keyClick(mw, Qt::Key_M, Qt::AltModifier );
+        QVERIFY(menu.isActiveWindow());
+        QCOMPARE(menu.pos(), QPoint(mbItemRect.x(), mbItemRect.top() - menu.height()));
+        menu.close();
+    }
+
+    //the menu should be on the side of the menubar item and should be "stuck" to the bottom of the screen
+    {
+        mw->move(0,screenRect.y() + screenRect.height()/2); //put it in the middle
+        QRect mbItemRect = mw->menuBar()->actionGeometry(menu_action);
+        mbItemRect.moveTo(mw->menuBar()->mapToGlobal(mbItemRect.topLeft()));
+        QTest::keyClick(mw, Qt::Key_M, Qt::AltModifier );
+        QVERIFY(menu.isActiveWindow());
+        QCOMPARE(menu.pos(), QPoint(mbItemRect.right()+1, screenRect.bottom() - menu.height()));
+        menu.close();
+    }
+
+}
+
 
 #if defined(QT3_SUPPORT)
 void tst_QMenuBar::indexBasedInsertion_data()
