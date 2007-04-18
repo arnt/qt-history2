@@ -128,7 +128,6 @@ static uint * QT_FASTCALL destFetchARGB32P(uint *, QRasterBuffer *rasterBuffer, 
     return (uint *)rasterBuffer->scanLine(y) + x;
 }
 
-#ifdef Q_WS_QWS
 static uint * QT_FASTCALL destFetchRGB16(uint *buffer, QRasterBuffer *rasterBuffer, int x, int y, int length)
 {
     const ushort *data = (const ushort *)rasterBuffer->scanLine(y) + x;
@@ -136,7 +135,6 @@ static uint * QT_FASTCALL destFetchRGB16(uint *buffer, QRasterBuffer *rasterBuff
         buffer[i] = qConvertRgb16To32(data[i]);
     return buffer;
 }
-#endif
 
 static const DestFetchProc destFetchProc[QImage::NImageFormats] =
 {
@@ -146,10 +144,8 @@ static const DestFetchProc destFetchProc[QImage::NImageFormats] =
     0, // Format_Indexed8
     destFetchRGB32, // Format_RGB32
     destFetchARGB32, // Format_ARGB32,
-    destFetchARGB32P // Format_ARGB32_Premultiplied
-#ifdef Q_WS_QWS
-    ,  destFetchRGB16
-#endif
+    destFetchARGB32P, // Format_ARGB32_Premultiplied
+    destFetchRGB16    // Format_RGB16
 };
 
 /*
@@ -188,13 +184,11 @@ static void QT_FASTCALL destStoreARGB32(QRasterBuffer *rasterBuffer, int x, int 
         data[i] = INV_PREMUL(buffer[i]);
 }
 
-#ifdef Q_WS_QWS
 static void QT_FASTCALL destStoreRGB16(QRasterBuffer *rasterBuffer, int x, int y, const uint *buffer, int length)
 {
     quint16 *data = (quint16*)rasterBuffer->scanLine(y) + x;
     qt_memconvert<quint16, quint32>(data, buffer, length);
 }
-#endif
 
 static const DestStoreProc destStoreProc[QImage::NImageFormats] =
 {
@@ -204,10 +198,8 @@ static const DestStoreProc destStoreProc[QImage::NImageFormats] =
     0, // Format_Indexed8
     0, // Format_RGB32
     destStoreARGB32, // Format_ARGB32,
-    0 // Format_ARGB32_Premultiplied
-#ifdef Q_WS_QWS
-    ,  destStoreRGB16
-#endif
+    0, // Format_ARGB32_Premultiplied
+    destStoreRGB16 // Format_RGB16
 };
 
 /*
@@ -261,12 +253,10 @@ static uint QT_FASTCALL fetchPixel_ARGB32_Premultiplied(const uchar *scanLine, i
     return ((const uint *)scanLine)[x];
 }
 
-#ifdef Q_WS_QWS
 static uint QT_FASTCALL fetchPixel_RGB16(const uchar *scanLine, int x, const QVector<QRgb> *)
 {
     return qConvertRgb16To32(((const ushort *)scanLine)[x]);
 }
-#endif
 
 typedef uint QT_FASTCALL (*FetchPixelProc)(const uchar *scanLine, int x, const QVector<QRgb> *);
 
@@ -278,10 +268,8 @@ static const FetchPixelProc fetchPixelProc[QImage::NImageFormats] =
     fetchPixel_Indexed8,
     fetchPixel_RGB32,
     fetchPixel_ARGB32,
-    fetchPixel_ARGB32_Premultiplied
-#ifdef Q_WS_QWS
-    ,  fetchPixel_RGB16
-#endif
+    fetchPixel_ARGB32_Premultiplied,
+    fetchPixel_RGB16
 };
 
 enum TextureBlendType {
@@ -666,11 +654,9 @@ static const SourceFetchProc sourceFetch[NBlendTypes][QImage::NImageFormats] = {
         fetch_generic,   // Indexed8
         fetch_generic,   // RGB32
         fetch_generic,   // ARGB32
-        fetch_generic
-#ifdef Q_WS_QWS
-        ,  fetch_generic
-#endif
-    }, // ARGB32_Premultiplied
+        fetch_generic,   // ARGB32_Premultiplied
+        fetch_generic    // RGB16
+    },
     // Tiled
     {
         0, // Invalid
@@ -679,11 +665,9 @@ static const SourceFetchProc sourceFetch[NBlendTypes][QImage::NImageFormats] = {
         fetch_generic,   // Indexed8
         fetch_generic,   // RGB32
         fetch_generic,   // ARGB32
-        fetch_generic
-#ifdef Q_WS_QWS
-        ,  fetch_generic
-#endif
-    }, // ARGB32_Premultiplied
+        fetch_generic,   // ARGB32_Premultiplied
+        fetch_generic    // RGB16
+    },
     // Transformed
     {
         0, // Invalid
@@ -692,11 +676,9 @@ static const SourceFetchProc sourceFetch[NBlendTypes][QImage::NImageFormats] = {
         fetchTransformed_generic,   // Indexed8
         fetchTransformed_generic,   // RGB32
         fetchTransformed_generic,   // ARGB32
-        fetchTransformed_generic
-#ifdef Q_WS_QWS
-        ,  fetchTransformed_generic
-#endif
-    }, // ARGB32_Premultiplied
+        fetchTransformed_generic,   // ARGB32_Premultiplied
+        fetchTransformed_generic    // RGB16
+    },
     {
         0, // TransformedTiled
         fetchTransformedTiled_generic,   // Mono
@@ -704,11 +686,9 @@ static const SourceFetchProc sourceFetch[NBlendTypes][QImage::NImageFormats] = {
         fetchTransformedTiled_generic,   // Indexed8
         fetchTransformedTiled_generic,   // RGB32
         fetchTransformedTiled_generic,   // ARGB32
-        fetchTransformedTiled_generic
-#ifdef Q_WS_QWS
-        ,  fetchTransformedTiled_generic
-#endif
-    }, // ARGB32_Premultiplied
+        fetchTransformedTiled_generic,   // ARGB32_Premultiplied
+        fetchTransformedTiled_generic    // RGB16
+    },
     {
         0, // Bilinear
         fetchTransformedBilinear_generic,   // Mono
@@ -716,11 +696,9 @@ static const SourceFetchProc sourceFetch[NBlendTypes][QImage::NImageFormats] = {
         fetchTransformedBilinear_generic,   // Indexed8
         fetchTransformedBilinear_generic,   // RGB32
         fetchTransformedBilinear_generic,   // ARGB32
-        fetchTransformedBilinear_generic
-#ifdef Q_WS_QWS
-        ,  fetchTransformedBilinear_generic
-#endif
-    }, // ARGB32_Premultiplied
+        fetchTransformedBilinear_generic,   // ARGB32_Premultiplied
+        fetchTransformedBilinear_generic    // RGB16
+    },
     {
         0, // BilinearTiled
         fetchTransformedBilinearTiled_generic,   // Mono
@@ -728,11 +706,9 @@ static const SourceFetchProc sourceFetch[NBlendTypes][QImage::NImageFormats] = {
         fetchTransformedBilinearTiled_generic,   // Indexed8
         fetchTransformedBilinearTiled_generic,   // RGB32
         fetchTransformedBilinearTiled_generic,   // ARGB32
-        fetchTransformedBilinearTiled_generic
-#ifdef Q_WS_QWS
-        ,  fetchTransformedBilinearTiled_generic
-#endif
-    }, // ARGB32_Premultiplied
+        fetchTransformedBilinearTiled_generic,   // ARGB32_Premultiplied
+        fetchTransformedBilinearTiled_generic    // RGB16
+    },
 };
 
 
@@ -2326,8 +2302,6 @@ static void blend_color_argb_callback(int count, const QSpan *spans,
 }
 #endif // Q_WS_QWS
 
-#ifdef Q_WS_QWS
-
 static inline uint BYTE_MUL_RGB16(uint x, uint a) {
     a += 1;
     uint t = (((x & 0x07e0)*a) >> 8) & 0x07e0;
@@ -2415,8 +2389,6 @@ static void blend_color_rgb16(int count, const QSpan *spans, void *userData)
         ++spans;
     }
 }
-#endif
-
 
 static void blend_src_generic(int count, const QSpan *spans, void *userData)
 {
@@ -2705,7 +2677,6 @@ static void blend_untransformed_argb_callback(int count, const QSpan *spans,
 }
 #endif // Q_WS_QWS
 
-#ifdef Q_WS_QWS
 static void blend_untransformed_rgb16(int count, const QSpan *spans, void *userData)
 {
     QSpanData *data = reinterpret_cast<QSpanData *>(userData);
@@ -2800,8 +2771,6 @@ static void blend_untransformed_rgb16(int count, const QSpan *spans, void *userD
         ++spans;
     }
 }
-#endif
-
 
 static void blend_tiled_generic(int count, const QSpan *spans, void *userData)
 {
@@ -3004,7 +2973,6 @@ static void blend_tiled_argb_callback(int count, const QSpan *spans,
 }
 #endif
 
-#ifdef Q_WS_QWS
 static void blend_tiled_rgb16(int count, const QSpan *spans, void *userData)
 {
     QSpanData *data = reinterpret_cast<QSpanData *>(userData);
@@ -3127,8 +3095,6 @@ static void blend_tiled_rgb16(int count, const QSpan *spans, void *userData)
         ++spans;
     }
 }
-#endif
-
 
 static void blend_texture_generic(int count, const QSpan *spans, void *userData)
 {
@@ -4350,80 +4316,68 @@ static const ProcessSpans processTextureSpans[NBlendTypes][QImage::NImageFormats
     // Untransformed
     {
         0, // Invalid
-      blend_untransformed_generic,   // Mono
-      blend_untransformed_generic,   // MonoLsb
-      blend_untransformed_generic,   // Indexed8
-      blend_untransformed_generic,   // RGB32
-      blend_untransformed_generic,   // ARGB32
-      blend_untransformed_argb // ARGB32_Premultiplied
-#ifdef Q_WS_QWS
-        ,  blend_untransformed_rgb16 // RGB16
-#endif
+        blend_untransformed_generic,   // Mono
+        blend_untransformed_generic,   // MonoLsb
+        blend_untransformed_generic,   // Indexed8
+        blend_untransformed_generic,   // RGB32
+        blend_untransformed_generic,   // ARGB32
+        blend_untransformed_argb,    // ARGB32_Premultiplied
+        blend_untransformed_rgb16    // RGB16
     },
     // Tiled
     {
         0, // Invalid
-      blend_tiled_generic,   // Mono
-      blend_tiled_generic,   // MonoLsb
-      blend_tiled_generic,   // Indexed8
-      blend_tiled_generic,   // RGB32
-      blend_tiled_generic,   // ARGB32
-        blend_tiled_argb // ARGB32_Premultiplied
-#ifdef Q_WS_QWS
-        ,  blend_tiled_rgb16 // RGB16
-#endif
+        blend_tiled_generic,   // Mono
+        blend_tiled_generic,   // MonoLsb
+        blend_tiled_generic,   // Indexed8
+        blend_tiled_generic,   // RGB32
+        blend_tiled_generic,   // ARGB32
+        blend_tiled_argb,    // ARGB32_Premultiplied
+        blend_tiled_rgb16 // RGB16
     },
     // Transformed
     {
         0, // Invalid
-      blend_texture_generic,   // Mono
-      blend_texture_generic,   // MonoLsb
-      blend_texture_generic,   // Indexed8
-      blend_texture_generic,   // RGB32
-      blend_texture_generic,   // ARGB32
-      blend_transformed_argb // ARGB32_Premultiplied
-#ifdef Q_WS_QWS
-        ,  blend_src_generic // RGB16
-#endif
+        blend_texture_generic,   // Mono
+        blend_texture_generic,   // MonoLsb
+        blend_texture_generic,   // Indexed8
+        blend_texture_generic,   // RGB32
+        blend_texture_generic,   // ARGB32
+        blend_transformed_argb, // ARGB32_Premultiplied
+        blend_src_generic // RGB16
     },
      // TransformedTiled
     {
         0,
-      blend_texture_generic,   // Mono
-      blend_texture_generic,   // MonoLsb
-      blend_texture_generic,   // Indexed8
-      blend_texture_generic,   // RGB32
-      blend_texture_generic,   // ARGB32
-      blend_transformed_tiled_argb // ARGB32_Premultiplied
-#ifdef Q_WS_QWS
-        ,  blend_src_generic // RGB16
-#endif
+        blend_texture_generic,   // Mono
+        blend_texture_generic,   // MonoLsb
+        blend_texture_generic,   // Indexed8
+        blend_texture_generic,   // RGB32
+        blend_texture_generic,   // ARGB32
+        blend_transformed_tiled_argb, // ARGB32_Premultiplied
+        blend_src_generic // RGB16
     },
     // Bilinear
     {
         0,
-      blend_texture_generic,   // Mono
-      blend_texture_generic,   // MonoLsb
-      blend_texture_generic,   // Indexed8
-      blend_texture_generic,   // RGB32
-      blend_texture_generic,   // ARGB32
-      blend_transformed_bilinear_argb // ARGB32_Premultiplied
-#ifdef Q_WS_QWS
-        ,  blend_src_generic // RGB16
-#endif
+        blend_texture_generic,   // Mono
+        blend_texture_generic,   // MonoLsb
+        blend_texture_generic,   // Indexed8
+        blend_texture_generic,   // RGB32
+        blend_texture_generic,   // ARGB32
+        blend_transformed_bilinear_argb, // ARGB32_Premultiplied
+        blend_src_generic // RGB16
     },
     // BilinearTiled
     {
         0,
-      blend_texture_generic,   // Mono
-      blend_texture_generic,   // MonoLsb
-      blend_texture_generic,   // Indexed8
-      blend_texture_generic,   // RGB32
-      blend_texture_generic,   // ARGB32
-      blend_transformed_bilinear_tiled_argb // ARGB32_Premultiplied
-#ifdef Q_WS_QWS
-        ,  blend_src_generic // RGB16
-#endif
+        blend_texture_generic,   // Mono
+        blend_texture_generic,   // MonoLsb
+        blend_texture_generic,   // Indexed8
+        blend_texture_generic,   // RGB32
+        blend_texture_generic,   // ARGB32
+        blend_transformed_bilinear_tiled_argb, // ARGB32_Premultiplied
+        blend_src_generic // RGB16
     }
 };
 
@@ -4613,7 +4567,6 @@ static void qt_alphamapblit_quint32(QRasterBuffer *rasterBuffer,
     }
 }
 
-#ifdef Q_WS_QWS
 static void qt_alphamapblit_quint16(QRasterBuffer *rasterBuffer,
                                     int x, int y, quint32 color,
                                     const uchar *map,
@@ -4641,7 +4594,6 @@ static void qt_alphamapblit_quint16(QRasterBuffer *rasterBuffer,
         map += mapStride;
     }
 }
-#endif // Q_WS_QWS
 
 template <class T>
 inline void qt_rectfill_template(QRasterBuffer *rasterBuffer,
@@ -4706,17 +4658,15 @@ DrawHelper qDrawHelper[QImage::NImageFormats] =
         qt_bitmapblit_quint32,
         qt_alphamapblit_quint32,
         qt_rectfill_quint32
-    }
-#ifdef Q_WS_QWS
-    ,
-    { // Format_RGB16
+    },
+    // Format_RGB16
+    {
         blend_color_rgb16,
         blend_src_generic,
         qt_bitmapblit_template<quint16>,
         qt_alphamapblit_quint16,
         qt_rectfill_template<quint16>
     }
-#endif
 };
 
 #ifdef Q_WS_QWS

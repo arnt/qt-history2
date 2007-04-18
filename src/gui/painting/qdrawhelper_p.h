@@ -224,21 +224,28 @@ inline DST qt_colorConvert(SRC color)
     return color;
 }
 
-#if defined(QT_QWS_DEPTH_16) && defined(QT_QWS_DEPTH_32)
 template <>
 inline quint32 qt_colorConvert(quint16 color)
 {
-    return qt_conv16ToRgb(color);
-}
-#endif
+    const int r = (color & 0xf800);
+    const int g = (color & 0x07e0);
+    const int b = (color & 0x001f);
+    const int tr = (r >> 8) | (r >> 13);
+    const int tg = (g >> 3) | (g >> 9);
+    const int tb = (b << 3) | (b >> 2);
 
-#ifdef QT_QWS_DEPTH_16
+    return qRgb(tr, tg, tb);
+}
+
 template <>
 inline quint16 qt_colorConvert(quint32 color)
 {
-    return qt_convRgbTo16(color);
+    const int r = qRed(color) << 8;
+    const int g = qGreen(color) << 3;
+    const int b = qBlue(color) >> 3;
+
+    return (r & 0xf800) | (g & 0x07e0)| (b & 0x001f);
 }
-#endif
 
 #ifdef QT_QWS_DEPTH_8
 template <>

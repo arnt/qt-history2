@@ -849,10 +849,8 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
             gccaps |= PorterDuff;
         } else if (format == QImage::Format_ARGB32) {
             gccaps |= PorterDuff;
-#ifdef Q_WS_QWS
         } else if (format == QImage::Format_RGB16) {
             ;
-#endif
         } else {
             qWarning("QRasterPaintEngine::begin: Unsupported image format (%d)", format);
             return false;
