@@ -408,9 +408,13 @@ inline void QScriptEnginePrivate::popContext()
     m_context = context->parentContext();
     if (m_context) {
         // propagate the state
-        QScriptContextPrivate::get(m_context)->m_result = QScriptContextPrivate::get(context)->m_result;
-        QScriptContextPrivate::get(m_context)->m_state = QScriptContextPrivate::get(context)->m_state;
-        QScriptContextPrivate::get(m_context)->errorLineNumber = QScriptContextPrivate::get(context)->errorLineNumber;
+        QScriptContextPrivate *p1 = QScriptContextPrivate::get(m_context);
+        QScriptContextPrivate *p2 = QScriptContextPrivate::get(context);
+        p1->m_result = p2->m_result;
+        p1->m_state = p2->m_state;
+        // only update errorLineNumber if there actually was an exception
+        if (p2->state() == QScriptContext::ExceptionState)
+            p1->errorLineNumber = p2->errorLineNumber;
     }
     m_frameRepository.release(context);
 }
@@ -803,6 +807,13 @@ inline QScriptValueImpl QScriptEnginePrivate::globalObject() const
 inline bool QScriptEnginePrivate::hasUncaughtException() const
 {
     return (currentContext()->state() == QScriptContext::ExceptionState);
+}
+
+inline QScriptValueImpl QScriptEnginePrivate::uncaughtException() const
+{
+    if (!hasUncaughtException())
+        return QScriptValueImpl();
+    return QScriptContextPrivate::get(currentContext())->returnValue();
 }
 
 inline void QScriptEnginePrivate::maybeProcessEvents()

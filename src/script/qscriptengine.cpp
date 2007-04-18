@@ -33,6 +33,7 @@
 
   Use evaluate() to evaluate script code.
   \code
+    QScriptEngine myEngine;
     QScriptValue three = myEngine.evaluate("1 + 2");
   \endcode
 
@@ -41,7 +42,8 @@
   (typically an \c{Error} object). You can check whether the
   evaluation caused an exception by calling hasUncaughtException(). In
   that case, you can call toString() on the error object to obtain an
-  error message.
+  error message. The current uncaught exception is also available
+  through uncaughtException().
 
   \code
     QScriptValue result = myEngine.evaluate(...);
@@ -702,18 +704,35 @@ void QScriptEngine::popContext()
 }
 
 /*!
-  Returns true if the last script evaluation resulted in an
-  uncaught exception; otherwise returns false.
+  Returns true if the last script evaluation (whether direct or
+  indirect) resulted in an uncaught exception; otherwise returns
+  false.
 
-  The uncaught exception information is cleared every time a script
-  function call is done in the engine.
+  The exception state is cleared every time a script function call is
+  done in the engine, or when evaluate() is called.
 
-  \sa uncaughtExceptionLineNumber()
+  \sa uncaughtException(), uncaughtExceptionLineNumber()
 */
 bool QScriptEngine::hasUncaughtException() const
 {
     Q_D(const QScriptEngine);
     return d->hasUncaughtException();
+}
+
+/*!
+  Returns the current uncaught exception, or an invalid QScriptValue
+  if there is no uncaught exception.
+
+  The exception value is typically an \c{Error} object; in that case,
+  you can call toString() on the return value to obtain an error
+  message.
+
+  \sa uncaughtExceptionLineNumber(), hasUncaughtException()
+*/
+QScriptValue QScriptEngine::uncaughtException() const
+{
+    Q_D(const QScriptEngine);
+    return d->uncaughtException();
 }
 
 /*!

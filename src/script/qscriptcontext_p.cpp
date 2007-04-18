@@ -376,6 +376,7 @@ void QScriptContextPrivate::execute(QScript::Code *code)
     eng->newUndefined(&undefined);
 
     catching = false;
+    m_state = QScriptContext::NormalState;
     m_result = undefined;
     firstInstruction = code->firstInstruction;
     lastInstruction = code->lastInstruction;
@@ -1905,15 +1906,11 @@ Ltop:
 //        }
         Q_ASSERT(stackPtr->isValid());
         m_result = *stackPtr--;
-        m_state = QScriptContext::NormalState;
-
         ++iPtr;
     }   Done();
 
     I(Halt):
     {
-        m_state = QScriptContext::NormalState;
-
         ++iPtr;
     }   Done();
 

@@ -141,6 +141,7 @@ public:
     inline QScript::AST::Node *abstractSyntaxTree() const;
     inline QString errorMessage() const;
     inline bool hasUncaughtException() const;
+    inline QScriptValueImpl uncaughtException() const;
 
     inline QScriptContext *currentContext() const;
     inline QScriptContext *pushContext();

@@ -101,6 +101,7 @@ public:
     QScriptValue evaluate(const QString &program, int lineNumber);
 
     bool hasUncaughtException() const;
+    QScriptValue uncaughtException() const;
     int uncaughtExceptionLineNumber() const;
 
     QScriptValue nullValue();

@@ -41,6 +41,7 @@ private slots:
     void evaluate_data();
     void evaluate();
     void nestedEvaluate();
+    void uncaughtException();
     void getSetDefaultPrototype();
     void valueConversion();
     void importExtension();
@@ -415,6 +416,28 @@ void tst_QScriptEngine::nestedEvaluate()
     QCOMPARE(result.property("thisObjectIdBefore").toString(), QString("foo"));
     QCOMPARE(result.property("thisObjectIdAfter").toString(), QString("foo"));
     QCOMPARE(result.property("evaluatedThisObjectId").toString(), QString("foo"));
+}
+
+void tst_QScriptEngine::uncaughtException()
+{
+    QScriptEngine eng;
+    for (int x = 0; x < 2; ++x) {
+        {
+            QScriptValue ret = eng.evaluate("a = 10;\nb = 20;\n0 = 0;\n", /*lineNumber=*/x);
+            QVERIFY(eng.hasUncaughtException());
+            QCOMPARE(eng.uncaughtExceptionLineNumber(), x+2);
+            QVERIFY(eng.uncaughtException().strictEqualTo(ret));
+            (void)ret.toString();
+            QVERIFY(!eng.hasUncaughtException());
+            QCOMPARE(eng.uncaughtExceptionLineNumber(), x+2);
+            QVERIFY(!eng.uncaughtException().isValid());
+        }
+        {
+            QScriptValue ret = eng.evaluate("a = 10");
+            QVERIFY(!eng.hasUncaughtException());
+            QVERIFY(!eng.uncaughtException().isValid());
+        }
+    }
 }
 
 struct Foo {

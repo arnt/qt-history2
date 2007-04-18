@@ -214,6 +214,7 @@ void tst_QScriptValue::toString()
             "})()");
         QCOMPARE(objectObject.toString(), QLatin1String("Object"));
         QVERIFY(eng.hasUncaughtException());
+        QCOMPARE(eng.uncaughtException().toString(), QLatin1String("Error: toString"));
     }
 
     QScriptValue inv = QScriptValue();
@@ -840,14 +841,17 @@ void tst_QScriptValue::toPrimitive()
         tmp = objectObject.toPrimitive(QScriptValue::NoTypeHint);
         QVERIFY(eng.hasUncaughtException());
         QVERIFY(tmp.isError());
+        QVERIFY(tmp.strictEqualTo(eng.uncaughtException()));
         QCOMPARE(tmp.property("message").toString(), QLatin1String("valueOf"));
         tmp = objectObject.toPrimitive(QScriptValue::NumberTypeHint);
         QVERIFY(eng.hasUncaughtException());
         QVERIFY(tmp.isError());
+        QVERIFY(tmp.strictEqualTo(eng.uncaughtException()));
         QCOMPARE(tmp.property("message").toString(), QLatin1String("valueOf"));
         tmp = objectObject.toPrimitive(QScriptValue::StringTypeHint);
         QVERIFY(eng.hasUncaughtException());
         QVERIFY(tmp.isError());
+        QVERIFY(tmp.strictEqualTo(eng.uncaughtException()));
         QCOMPARE(tmp.property("message").toString(), QLatin1String("toString"));
     }
 
@@ -887,6 +891,14 @@ static QScriptValue getterSetter(QScriptContext *ctx, QScriptEngine *)
     if (ctx->argumentCount() > 0)
         ctx->thisObject().setProperty("x", ctx->argument(0));
     return ctx->thisObject().property("x");
+}
+
+static QScriptValue getterSetterThrowingError(QScriptContext *ctx, QScriptEngine *)
+{
+    if (ctx->argumentCount() > 0)
+        return ctx->throwError("set foo");
+    else
+        return ctx->throwError("get foo");
 }
 
 void tst_QScriptValue::getSetProperty()
@@ -1044,6 +1056,23 @@ void tst_QScriptValue::getSetProperty()
         object4.setProperty("foo", str);
         QCOMPARE(object4.property("x").strictEqualTo(num), true);
         QCOMPARE(object4.property("foo").strictEqualTo(str), true);
+
+        // getter/setter that throws an error
+        {
+            QScriptValue object5 = eng.newObject();
+            object5.setProperty("foo", eng.newFunction(getterSetterThrowingError),
+                                QScriptValue::PropertyGetter | QScriptValue::PropertySetter);
+            QVERIFY(!eng.hasUncaughtException());
+            QScriptValue ret = object5.property("foo");
+            QVERIFY(ret.isError());
+            QVERIFY(eng.hasUncaughtException());
+            QVERIFY(ret.strictEqualTo(eng.uncaughtException()));
+            eng.evaluate("Object"); // clear exception state...
+            QVERIFY(!eng.hasUncaughtException());
+            object5.setProperty("foo", str);
+            QVERIFY(eng.hasUncaughtException());
+            QCOMPARE(eng.uncaughtException().toString(), QLatin1String("Error: set foo"));
+        }
     }
 
     eng.globalObject().setProperty("object", object);
@@ -1173,6 +1202,7 @@ void tst_QScriptValue::getSetPrototype()
     {
         QScriptValue ret = eng.evaluate("o = { }; p = { }; o.__proto__ = p; p.__proto__ = o");
         QCOMPARE(eng.hasUncaughtException(), true);
+        QVERIFY(ret.strictEqualTo(eng.uncaughtException()));
         QCOMPARE(ret.isError(), true);
         QCOMPARE(ret.toString(), QLatin1String("Error: cycle in prototype chain"));
     }
@@ -1300,6 +1330,7 @@ void tst_QScriptValue::call()
             QScriptValue result = fun.call();
             QCOMPARE(result.isError(), true);
             QCOMPARE(eng.hasUncaughtException(), true);
+            QVERIFY(result.strictEqualTo(eng.uncaughtException()));
         }
     }
 
@@ -1455,6 +1486,7 @@ void tst_QScriptValue::construct()
         QScriptValue ret = fun.construct();
         QCOMPARE(ret.isError(), true);
         QCOMPARE(eng.hasUncaughtException(), true);
+        QVERIFY(ret.strictEqualTo(eng.uncaughtException()));
     }
 
     QScriptValue inv;
