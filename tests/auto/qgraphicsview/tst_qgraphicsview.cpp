@@ -36,6 +36,10 @@ Q_DECLARE_METATYPE(QPainterPath)
 Q_DECLARE_METATYPE(QPointF)
 Q_DECLARE_METATYPE(QRectF)
 
+#ifdef Q_WS_X11
+extern void qt_x11_wait_for_window_manager(QWidget *);
+#endif
+
 static void sendMousePress(QWidget *widget, const QPoint &point, Qt::MouseButton button = Qt::LeftButton)
 {
     QMouseEvent event(QEvent::MouseButtonPress, point, widget->mapToGlobal(point), button, 0, 0);
@@ -1624,6 +1628,9 @@ void tst_QGraphicsView::cursor()
     QGraphicsView view(&scene);
     view.setFixedSize(400, 400);
     view.show();
+#ifdef Q_WS_X11
+    qt_x11_wait_for_window_manager(&view);
+#endif
 
     QCOMPARE(view.viewport()->cursor().shape(), QCursor().shape());
     view.viewport()->setCursor(Qt::PointingHandCursor);
