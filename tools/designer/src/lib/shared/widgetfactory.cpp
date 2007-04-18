@@ -304,7 +304,7 @@ QLayout *WidgetFactory::createLayout(QWidget *widget, QLayout *parentLayout, int
     if (sheet)
         sheet->setChanged(sheet->indexOf(QLatin1String("alignment")), true);
 
-    if (widget && metaDataBase->item(widget->layout()) == 0) {
+    if (metaDataBase->item(widget->layout()) == 0) {
         Q_ASSERT(layout->parent() == 0);
         QBoxLayout *box = qobject_cast<QBoxLayout*>(widget->layout());
         Q_ASSERT(box != 0); // we support only unmanaged box layouts
