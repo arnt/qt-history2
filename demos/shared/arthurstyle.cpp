@@ -366,10 +366,12 @@ int ArthurStyle::pixelMetric(PixelMetric pm, const QStyleOption *opt, const QWid
 void ArthurStyle::polish(QWidget *widget)
 {
     if (widget->layout() && qobject_cast<QGroupBox *>(widget)) {
-        if (qFindChildren<QGroupBox *>(widget).size() == 0)
+        if (qFindChildren<QGroupBox *>(widget).size() == 0) {
             widget->layout()->setSpacing(0);
-        else
-            widget->layout()->setMargin(10);
+            widget->layout()->setMargin(12);
+        } else {
+            widget->layout()->setMargin(13);
+        }
     }
 
     if (qobject_cast<QPushButton *>(widget)
