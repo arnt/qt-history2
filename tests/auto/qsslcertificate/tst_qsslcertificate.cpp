@@ -69,7 +69,12 @@ private slots:
 
 tst_QSslCertificate::tst_QSslCertificate()
 {
+#ifdef Q_WS_MAC
+    // applicationDirPath() points to a path inside the app bundle on Mac.
+    QDir dir(qApp->applicationDirPath() + QLatin1String("/../../../certificates"));
+#else
     QDir dir(qApp->applicationDirPath() + QLatin1String("/certificates"));
+#endif
     QFileInfoList fileInfoList = dir.entryInfoList(QDir::Files | QDir::Readable);
 
     // register all certificates
