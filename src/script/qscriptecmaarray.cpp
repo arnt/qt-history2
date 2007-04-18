@@ -539,6 +539,7 @@ QScriptValueImpl Array::method_splice(QScriptContextPrivate *context,
         for (int i = 2; i < context->argumentCount(); ++i)
             items << context->argument(i);
         Instance *otherInstance = Instance::get(a, classInfo);
+        Q_ASSERT(otherInstance);
         instance->value.splice(start, deleteCount, items, otherInstance->value);
         return a;
     }
