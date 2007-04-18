@@ -811,7 +811,7 @@ QT_BEGIN_HEADER
 
 typedef int QNoImplicitBoolCast;
 
-#if defined(QT_ARCH_ARM) || defined(QT_ARCH_MIPS)
+#if defined(QT_ARCH_ARM) || (defined(QT_ARCH_MIPS) && !defined(Q_OS_IRIX))
 #define QT_NO_FPU
 #endif
 
