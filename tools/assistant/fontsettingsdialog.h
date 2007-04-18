@@ -14,6 +14,7 @@
 #ifndef _FONT_SETTINGS_DIALOG_H_
 #define _FONT_SETTINGS_DIALOG_H_
 
+#include <QtCore/QObject>
 #include <QtGui/QDialog>
 
 class FontPanel;
@@ -22,6 +23,8 @@ class QDialogButtonBox;
 
 class FontSettingsDialog : public QDialog
 {
+    Q_OBJECT
+
 public:
     FontSettingsDialog(QWidget *parent = 0);
     ~FontSettingsDialog();
