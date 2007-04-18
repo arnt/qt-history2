@@ -1736,8 +1736,8 @@ class QGlobalRasterPaintEngine: public QRasterPaintEngine
 {
 public:
     inline QGlobalRasterPaintEngine() : QRasterPaintEngine() { setFlushOnEnd(false); }
-    Q_GLOBAL_STATIC(QGlobalRasterPaintEngine, instance)
 };
+Q_GLOBAL_STATIC(QGlobalRasterPaintEngine, globalRasterPaintEngine)
 
 #ifndef QT_NO_DIRECT3D
 class QGlobal3DEngine
@@ -1794,7 +1794,7 @@ QPaintEngine *QWidget::paintEngine() const
     }
 #endif
     Q_D(const QWidget);
-    QPaintEngine *globalEngine = QGlobalRasterPaintEngine::instance();
+    QPaintEngine *globalEngine = globalRasterPaintEngine();
     if (globalEngine->isActive()) {
         if (d->extraPaintEngine)
             return d->extraPaintEngine;
