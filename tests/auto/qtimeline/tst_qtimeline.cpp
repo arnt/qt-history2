@@ -201,7 +201,7 @@ void tst_QTimeLine::frameRate()
     timeLine.setCurrentTime(0);
     timeLine.start();
     QTest::qWait(timeLine.duration()*2);
-    QCOMPARE(timeLine.state(), QTimeLine::NotRunning);    
+    QCOMPARE(timeLine.state(), QTimeLine::NotRunning);
     QVERIFY(slowCount < spy.count());
 }
 
@@ -371,9 +371,9 @@ void tst_QTimeLine::reverse_data()
     QTest::addColumn<int>("state");
     QTest::addColumn<int>("wait2");
 
-    QTest::newRow("start at end") << 200 << 1000 << 2000 << (int)QTimeLine::Backward << (int)QTimeLine::Forward << (int)QTimeLine::Backward << 200 << 2000 << 1.0 << 40 << (int)QTimeLine::Running << 140;
-    QTest::newRow("start at half") << 200 << 1000 << 2000 << (int)QTimeLine::Backward << (int)QTimeLine::Forward << (int)QTimeLine::Backward << 100 << 1500 << 0.5 << 40 << (int)QTimeLine::Running << 140;
-    QTest::newRow("start at quarter") << 200 << 1000 << 2000 << (int)QTimeLine::Backward << (int)QTimeLine::Forward << (int)QTimeLine::Backward << 50 << 1250 << 0.25 << 40 << (int)QTimeLine::Running << 140;
+    QTest::newRow("start at end") << 200 << 1000 << 2000 << (int)QTimeLine::Backward << (int)QTimeLine::Forward << (int)QTimeLine::Backward << 200 << 2000 << qreal(1.0) << 40 << (int)QTimeLine::Running << 140;
+    QTest::newRow("start at half") << 200 << 1000 << 2000 << (int)QTimeLine::Backward << (int)QTimeLine::Forward << (int)QTimeLine::Backward << 100 << 1500 << qreal(0.5) << 40 << (int)QTimeLine::Running << 140;
+    QTest::newRow("start at quarter") << 200 << 1000 << 2000 << (int)QTimeLine::Backward << (int)QTimeLine::Forward << (int)QTimeLine::Backward << 50 << 1250 << qreal(0.25) << 40 << (int)QTimeLine::Running << 140;
 }
 
 void tst_QTimeLine::reverse()
@@ -403,7 +403,7 @@ void tst_QTimeLine::reverse()
     timeLine.setCurrentTime(startTime);
     timeLine.setDirection((QTimeLine::Direction)direction);
     timeLine.setDirection((QTimeLine::Direction)direction2);
-    timeLine.setDirection((QTimeLine::Direction)direction3);    
+    timeLine.setDirection((QTimeLine::Direction)direction3);
 
     QCOMPARE(timeLine.currentFrame(), currentFrame);
     QCOMPARE(timeLine.currentValue(), currentValue);
@@ -583,7 +583,7 @@ void tst_QTimeLine::outOfRange()
 void tst_QTimeLine::stateInFinishedSignal()
 {
     QTimeLine timeLine(50);
-    
+
     connect(&timeLine, SIGNAL(finished()), this, SLOT(finishedSlot()));
     state = QTimeLine::State(-1);
 
