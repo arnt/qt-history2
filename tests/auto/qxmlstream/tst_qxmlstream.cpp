@@ -804,7 +804,8 @@ int main(int argc, char *argv[])
         // output canonical only
         bool error = false;
         QByteArray canonical = makeCanonical(argv[2], "doc", error);
-        QTextStream(stdout) << canonical << endl;
+        QTextStream myStdOut(stdout);
+        myStdOut << canonical << endl;
         exit(0);
     }
 
