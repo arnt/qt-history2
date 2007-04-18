@@ -102,6 +102,8 @@ private slots:
     void resizeAndMoveSection();
     void resizeHiddenSection_data();
     void resizeHiddenSection();
+    void resizeAndInsertSection_data();
+    void resizeAndInsertSection();
     void highlightSections();
     void showSortIndicator();
     void removeAndInsertRow();
@@ -871,6 +873,43 @@ void tst_QHeaderView::resizeHiddenSection()
 
     view->setSectionHidden(section, false);
     QCOMPARE(view->sectionSize(section), finalSize);
+}
+
+void tst_QHeaderView::resizeAndInsertSection_data()
+{
+    QTest::addColumn<int>("section");
+    QTest::addColumn<int>("size");
+    QTest::addColumn<int>("insert");
+    QTest::addColumn<int>("compare");
+    QTest::addColumn<int>("expected");
+
+    QTest::newRow("section 0 size 50 insert 0")
+        << 0 << 50 << 0 << 1 << 50;
+
+    QTest::newRow("section 1 size 50 insert 1")
+        << 0 << 50 << 1 << 0 << 50;
+
+    QTest::newRow("section 1 size 50 insert 0")
+        << 1 << 50 << 0 << 2 << 50;
+
+}
+
+void tst_QHeaderView::resizeAndInsertSection()
+{
+    QFETCH(int, section);
+    QFETCH(int, size);
+    QFETCH(int, insert);
+    QFETCH(int, compare);
+    QFETCH(int, expected);
+
+    view->setStretchLastSection(false);
+    
+    view->resizeSection(section, size);
+    QCOMPARE(view->sectionSize(section), size);
+
+    model->insertRow(insert);
+    
+    QCOMPARE(view->sectionSize(compare), expected);
 }
 
 void tst_QHeaderView::resizeMode()
