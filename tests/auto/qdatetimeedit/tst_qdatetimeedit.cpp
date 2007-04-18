@@ -2628,6 +2628,20 @@ void tst_QDateTimeEdit::yyTest()
     testWidget->setWrapping(true);
     QTest::keyClick(testWidget, Qt::Key_Up);
     QCOMPARE(testWidget->lineEdit()->displayText(), QString("01-Jan-05"));
+
+    testWidget->setDateRange(QDate(100, 1, 1), QDate(8000, 12, 31));
+    testWidget->setDate(QDate(2000, 1, 1));
+    testWidget->setCurrentSection(QDateTimeEdit::YearSection);
+    testWidget->setWrapping(false);
+    for (int i=0; i<10; ++i) {
+        for (int j=0; j<50; ++j) {
+            testWidget->stepBy(-1);
+        }
+        testWidget->stepBy(-50);
+        QCOMPARE(testWidget->sectionText(QDateTimeEdit::YearSection), QString("00"));
+        QCOMPARE(testWidget->date(), QDate(2000 - ((i + 1) * 100), 1, 1));
+    }
+
 }
 
 void tst_QDateTimeEdit::task108572()
