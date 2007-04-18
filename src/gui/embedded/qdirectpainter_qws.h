@@ -29,7 +29,10 @@ class Q_GUI_EXPORT QDirectPainter : public QObject {
     Q_DECLARE_PRIVATE(QDirectPainter)
 public:
 
-    enum SurfaceFlag { NonReserved, Reserved };
+    enum SurfaceFlag { NonReserved = 0,
+                       Reserved = 1,
+                       ReservedSynchronous = 3 };
+
     explicit QDirectPainter(QObject *parentObject = 0, SurfaceFlag flag = NonReserved);
     ~QDirectPainter();
 
