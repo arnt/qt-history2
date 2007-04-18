@@ -135,6 +135,7 @@ namespace qdesigner_internal {
                 baseItem = baseRow.front();
                 appendRow(baseRow);
             }
+            Q_ASSERT(baseItem);
             // Append derived
             baseItem->appendRow(promotedModelRow(widgetDataBase, it->promotedItem, usedPromotedClasses.contains(it->promotedItem->name())));
         }
