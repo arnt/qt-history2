@@ -678,7 +678,7 @@ QKeyMapperPrivate::translateKeyEvent(QWidget *widget, EventHandlerCallRef er, Ev
             break;
         QString text(ourChar);
         if(widget) {
-            {
+            if (!qApp->activePopupWidget()){
                 //Find out if someone else wants the event, namely
                 //is it of use to text services? If so we won't bother
                 //with a QKeyEvent.
