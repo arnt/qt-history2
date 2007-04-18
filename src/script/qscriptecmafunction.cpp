@@ -183,7 +183,7 @@ QScriptValueImpl Function::method_disconnect(QScriptContextPrivate *context, QSc
     QScriptValueImpl receiver;
     QScriptValueImpl slot;
     QScriptValueImpl arg0 = context->argument(0);
-    if (arg0.isFunction()) {
+    if (context->argumentCount() < 2) {
         receiver = self;
         slot = arg0;
     } else {
@@ -246,7 +246,7 @@ QScriptValueImpl Function::method_connect(QScriptContextPrivate *context, QScrip
     QScriptValueImpl receiver;
     QScriptValueImpl slot;
     QScriptValueImpl arg0 = context->argument(0);
-    if (arg0.isFunction()) {
+    if (context->argumentCount() < 2) {
         receiver = self;
         slot = arg0;
     } else {

@@ -960,6 +960,15 @@ void tst_QScriptExtQObject::connectAndDisconnect()
     QCOMPARE(m_engine->evaluate("slotThisObject").property("name").toString(), QLatin1String("bar"));
     QCOMPARE(m_engine->evaluate("myObject.mySignal2.disconnect(yetAnotherObject, myHandler)").toBoolean(), true);
 
+    QCOMPARE(m_engine->evaluate("myObject.mySignal2.connect(myObject, myHandler)").toBoolean(), true);
+    m_engine->evaluate("gotSignal = false");
+    m_myObject->emitMySignal2(true);
+    QCOMPARE(m_engine->evaluate("gotSignal").toBoolean(), true);
+    QCOMPARE(m_engine->evaluate("signalArgs.length").toNumber(), 1.0);
+    QCOMPARE(m_engine->evaluate("signalSender").toQObject(), (QObject *)m_myObject);
+    QCOMPARE(m_engine->evaluate("slotThisObject").toQObject(), (QObject *)m_myObject);
+    QCOMPARE(m_engine->evaluate("myObject.mySignal2.disconnect(myObject, myHandler)").toBoolean(), true);
+
     // connect(obj, string)
     QCOMPARE(m_engine->evaluate("myObject.mySignal.connect(yetAnotherObject, 'func')").toBoolean(), true);
     QCOMPARE(m_engine->evaluate("myObject.mySignal.connect(myObject, 'mySlot')").toBoolean(), true);
