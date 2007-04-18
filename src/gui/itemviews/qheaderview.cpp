@@ -1521,15 +1521,70 @@ void QHeaderView::resizeSections()
     section is inserted.
 */
 
-void QHeaderView::sectionsInserted(const QModelIndex &parent, int logicalFirst, int)
+void QHeaderView::sectionsInserted(const QModelIndex &parent,
+                                   int logicalFirst, int logicalLast)
 {
     Q_D(QHeaderView);
     if (parent != d->root)
         return; // we only handle changes in the top level
-    int lastSection = qMax(d->modelSectionCount() - 1, 0);
     int oldCount = d->sectionCount;
-    int oldLastSection = qMax(oldCount - 1, 0);
-    initializeSections(qMin(oldLastSection + 1, logicalFirst), lastSection);
+
+    d->invalidateCachedSizeHint();
+
+    // add the new sections
+    int insertAt = 0;
+    for (int spanStart = 0; insertAt < d->sectionSpans.count() && spanStart < logicalFirst; ++insertAt)
+        spanStart += d->sectionSpans.at(insertAt).count;
+    
+    int insertCount = logicalLast - logicalFirst + 1;
+    d->sectionCount += insertCount;
+        
+    if (d->sectionSpans.isEmpty() || insertAt >= d->sectionSpans.count()) {
+        int insertLength = d->defaultSectionSize * insertCount;
+        d->length += insertLength;
+        QHeaderViewPrivate::SectionSpan span(insertLength, insertCount, Interactive);
+        d->sectionSpans.append(span);
+    } else {
+        int insertLength = d->sectionSpans.at(insertAt).sectionSize() * insertCount;
+        d->length += insertLength;
+        d->sectionSpans[insertAt].size += insertLength;
+        d->sectionSpans[insertAt].count += insertCount;
+        d->createSectionSpan(logicalFirst, logicalLast, d->defaultSectionSize * insertCount, Interactive);
+    }
+    
+    // update resize mode section counts
+    if (d->globalResizeMode == Stretch)
+        d->stretchSections = d->sectionCount;
+    else if (d->globalResizeMode == ResizeToContents)
+        d->contentsSections = d->sectionCount;
+    
+    // insert new sections in sectionsHidden
+    if (!d->sectionHidden.isEmpty()) {
+        QBitArray sectionHidden(d->sectionHidden);
+        sectionHidden.resize(sectionHidden.count() + insertCount);
+        sectionHidden.fill(false, logicalFirst, logicalLast);
+        for (int j = logicalLast + 1; j < sectionHidden.count(); ++j)
+            sectionHidden.setBit(j, d->sectionHidden.testBit(j));
+        d->sectionHidden = sectionHidden;
+    }
+
+    // clear selection cache
+    d->sectionSelected.clear();
+
+    // update mapping
+    if (!d->visualIndices.isEmpty() && !d->logicalIndices.isEmpty()) {
+        for (int i = 0; i < d->sectionCount; ++i) {
+            if (d->visualIndices.at(i) >= logicalFirst)
+                d->visualIndices[i] += insertCount;
+            if (d->logicalIndices.at(i) >= logicalFirst)
+                d->logicalIndices[i] += insertCount;
+        }
+        for (int j = logicalFirst; j <= logicalLast; ++j) {
+            d->visualIndices.insert(j, j);
+            d->logicalIndices.insert(j, j);
+        }
+    }
+
     resizeSections();
     emit sectionCountChanged(oldCount, count());
 }
