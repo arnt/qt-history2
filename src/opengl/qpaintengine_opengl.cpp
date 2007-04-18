@@ -4302,6 +4302,13 @@ void QOpenGLPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
     qt_glColor4ubv(d->pen_color);
     glEnable(GL_TEXTURE_2D);
 
+#ifdef Q_WS_QWS
+    // XXX: it is necessary to disable alpha writes on GLES/embedded because we dont want
+    // text rendering to update the alpha in the window surface.
+    // XXX: This may not be needed as this behavior does seem to be caused by driver bug
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
+#endif
+
     // do the actual drawing
     float vertexArray[4*2];
     float texCoordArray[4*2];
@@ -4338,6 +4345,11 @@ void QOpenGLPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
     glDisableClientState(GL_VERTEX_ARRAY);
 
     glDisable(GL_TEXTURE_2D);
+
+#ifdef Q_WS_QWS
+    // XXX: This may not be needed as this behavior does seem to be caused by driver bug
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+#endif
 }
 
 
