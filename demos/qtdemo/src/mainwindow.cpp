@@ -226,7 +226,6 @@ void MainWindow::setupSceneItems()
 void MainWindow::checkAdapt()
 {
     if (this->doneAdapt
-        || Colors::noAdapt
         || Colors::noTimerUpdate
         || this->demoStartTime.elapsed() < 2000)
        return;
@@ -234,21 +233,24 @@ void MainWindow::checkAdapt()
     this->doneAdapt = true;
     this->forceFpsMedianCalculation();
     Colors::benchmarkFps = this->fpsMedian;
-    
-    if (this->fpsMedian < 30){
-       Colors::noAnimations = true;
-       Colors::adapted = true;       
 
-       if (MenuManager::instance()->ticker && MenuManager::instance()->ticker->scene()){
+    if (Colors::noAdapt)
+        return;
+
+    if (this->fpsMedian < 40){
+        if (MenuManager::instance()->ticker && MenuManager::instance()->ticker->scene()){
             this->scene->removeItem(MenuManager::instance()->ticker);
             Colors::noTimerUpdate = true;
+            this->switchTimerOnOff(false);
+            if (this->fpsLabel)
+               this->fpsLabel->setText(QString("FPS: (") + QString::number(this->fpsMedian) + QString(")"));       
         }
 
-       if (this->fpsLabel)
-           this->fpsLabel->setText(QString("FPS: (") + QString::number(this->fpsMedian) + QString(")"));       
+        if (this->fpsMedian < 20)
+            Colors::noAnimations = true;
 
-       this->switchTimerOnOff(false);
-    }
+        Colors::adapted = true;       
+    }    
 }
 
 int MainWindow::performBenchmark()
