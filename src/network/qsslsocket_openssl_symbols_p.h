@@ -188,10 +188,12 @@ X509 *q_d2i_X509(X509 **a, unsigned char **b, long c);
 char *q_ERR_error_string(unsigned long a, char *b);
 unsigned long q_ERR_get_error();
 const EVP_CIPHER *q_EVP_des_ede3_cbc();
+int q_EVP_PKEY_assign(EVP_PKEY *a, int b, char *c);
 void q_EVP_PKEY_free(EVP_PKEY *a);
 RSA *q_EVP_PKEY_get1_RSA(EVP_PKEY *a);
 DSA *q_EVP_PKEY_get1_DSA(EVP_PKEY *a);
 int q_EVP_PKEY_type(int a);
+EVP_PKEY *q_EVP_PKEY_new();
 int q_i2d_X509(X509 *a, unsigned char **b);
 #ifdef SSLEAY_MACROS
 // ### verify
@@ -226,6 +228,9 @@ SSL_CTX *q_SSL_CTX_new(SSL_METHOD *a);
 int q_SSL_CTX_set_cipher_list(SSL_CTX *a, const char *b);
 int q_SSL_CTX_set_default_verify_paths(SSL_CTX *a);
 int q_SSL_CTX_use_certificate(SSL_CTX *a, X509 *b);
+int q_SSL_CTX_use_certificate_file(SSL_CTX *a, const char *b, int c);
+int q_SSL_CTX_use_PrivateKey(SSL_CTX *a, EVP_PKEY *b);
+int q_SSL_CTX_use_RSAPrivateKey(SSL_CTX *a, RSA *b);
 int q_SSL_CTX_use_PrivateKey_file(SSL_CTX *a, const char *b, int c);
 void q_SSL_free(SSL *a);
 STACK_OF(SSL_CIPHER) *q_SSL_get_ciphers(const SSL *a);
@@ -291,5 +296,9 @@ time_t q_getTimeFromASN1(const ASN1_TIME *aTime);
         q_SSL_CTX_ctrl(ctx,SSL_CTRL_EXTRA_CHAIN_CERT,0,(char *)x509)
 #define q_X509_get_notAfter(x) X509_get_notAfter(x)
 #define q_X509_get_notBefore(x) X509_get_notBefore(x)
+#define q_EVP_PKEY_assign_RSA(pkey,rsa) q_EVP_PKEY_assign((pkey),EVP_PKEY_RSA,\
+					(char *)(rsa))
+#define q_EVP_PKEY_assign_DSA(pkey,dsa) q_EVP_PKEY_assign((pkey),EVP_PKEY_DSA,\
+					(char *)(dsa))
 
 #endif

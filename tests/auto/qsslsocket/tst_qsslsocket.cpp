@@ -10,6 +10,7 @@
 #include <QtNetwork/qhostaddress.h>
 #include <QtNetwork/qnetworkproxy.h>
 #include <QtNetwork/qsslcipher.h>
+#include <QtNetwork/qsslkey.h>
 #include <QtNetwork/qsslsocket.h>
 #include <QtNetwork/qtcpserver.h>
 #include <QtTest/QtTest>
@@ -470,11 +471,18 @@ public:
 protected:
     void incomingConnection(int socketDescriptor)
     {
-        socket = new QSslSocket;
+        socket = new QSslSocket(this);
         connect(socket, SIGNAL(sslErrors(const QList<QSslError> &)), this, SLOT(ignoreErrorSlot()));
 
-        QList<QSslCertificate> localCert = QSslCertificate::fromPath("qsslsocket.pem");
+        QFile file("certs/fluke.key");
+        QVERIFY(file.open(QIODevice::ReadOnly));
+        QSslKey key(file.readAll(), QSsl::Rsa, QSsl::Pem, QSsl::PrivateKey);
+        QVERIFY(!key.isNull());
+        socket->setPrivateKey(key);
+        
+        QList<QSslCertificate> localCert = QSslCertificate::fromPath("certs/fluke.cert");
         QVERIFY(!localCert.isEmpty());
+        QVERIFY(localCert.first().handle());
         socket->setLocalCertificate(localCert.first());
 
         QVERIFY(socket->setSocketDescriptor(socketDescriptor, QAbstractSocket::ConnectedState));
@@ -490,7 +498,6 @@ protected slots:
 
 void tst_QSslSocket::setSocketDescriptor()
 {
-    /*
     if (!QSslSocket::supportsSsl())
         return;
 
@@ -511,7 +518,6 @@ void tst_QSslSocket::setSocketDescriptor()
 
     QCOMPARE(client->state(), QAbstractSocket::ConnectedState);
     QVERIFY(client->isEncrypted());
-    */
 }
 
 void tst_QSslSocket::waitForEncrypted()

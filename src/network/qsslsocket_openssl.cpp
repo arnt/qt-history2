@@ -251,16 +251,36 @@ bool QSslSocketBackendPrivate::initSslContext()
     X509_STORE_set_verify_cb_func(ctx->cert_store, q_X509Callback);
 
     if (!localCertificate.isNull()) {
-        /*
-        q_SSL_CTX_use_certificate(ctx, (X509 *)localCertificate.handle());
+        // Require a private key as well.
+        if (privateKey.isNull()) {
+            q->setErrorString(QSslSocket::tr("Cannot provide a certificate with no key, %1").arg(SSL_ERRORSTR()));
+            qDebug() << q->errorString();
+            emit q->error(QAbstractSocket::UnknownSocketError);
+            return false;
+        }
+
+        // Load certificate
+        if (!q_SSL_CTX_use_certificate(ctx, (X509 *)localCertificate.handle())) {
+            q->setErrorString(QSslSocket::tr("Error loading local certificate, %1").arg(SSL_ERRORSTR()));
+            qDebug() << q->errorString();
+            emit q->error(QAbstractSocket::UnknownSocketError);
+            return false;
+        }
 
         // Load private key
-        if (!q_SSL_CTX_use_PrivateKey(ctx, privateKey.handle())) {
+        EVP_PKEY *pkey = q_EVP_PKEY_new();
+        if (privateKey.algorithm() == QSsl::Rsa)
+            q_EVP_PKEY_assign_RSA(pkey, (RSA *)privateKey.handle());
+        else
+            q_EVP_PKEY_assign_DSA(pkey, (DSA *)privateKey.handle());
+        if (!q_SSL_CTX_use_PrivateKey(ctx, pkey)) {
             q->setErrorString(QSslSocket::tr("Error loading private key, %1").arg(SSL_ERRORSTR()));
             qDebug() << q->errorString();
             emit q->error(QAbstractSocket::UnknownSocketError);
             return false;
         }
+
+        qDebug("Checking private key");
 
         // Check if the certificate matches the private key.
         if (!q_SSL_CTX_check_private_key(ctx)) {
@@ -269,7 +289,8 @@ bool QSslSocketBackendPrivate::initSslContext()
             emit q->error(QAbstractSocket::UnknownSocketError);
             return false;
         }
-        */
+
+        qDebug("Certificate checked out OK!");
     }
 
     // Create and initialize SSL session
