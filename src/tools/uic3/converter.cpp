@@ -20,7 +20,7 @@
 #include "qt3to4.h"
 #include "utils.h"
 #include "option.h"
-#include "extractimages.h"
+#include "cppextractimages.h"
 
 #include <QtDebug>
 #include <QFile>
