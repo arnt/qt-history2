@@ -2646,7 +2646,7 @@ void QMenu::internalDelayedPopup()
 /*!
     \fn void QMenu::triggered(QAction *action)
 
-    This signal is emitted when a menu action is triggered; \a action
+    This signal is emitted when an action in this menu is triggered; \a action
     is the action that caused the signal to be emitted.
 
     Normally, you connect each menu action's \l{QAction::}{triggered()} signal to its

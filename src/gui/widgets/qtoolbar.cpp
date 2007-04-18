@@ -325,8 +325,10 @@ void QToolBarPrivate::plug(const QRect &r)
 /*!
     \fn void QToolBar::actionTriggered(QAction *action)
 
-    This signal is emitted when a toolbar button is pressed. The
-    parameter holds the toolbar button's associated \a action.
+    This signal is emitted when an action in this toolbar is triggered.
+    This happens when the action's tool button is pressed, or when the
+    action is triggered in some other way outside the tool bar. The parameter
+    holds the triggered \a action.
 */
 
 /*!
