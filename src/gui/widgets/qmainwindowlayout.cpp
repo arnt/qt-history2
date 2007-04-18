@@ -1437,6 +1437,8 @@ static void fixToolBarOrientation(QLayoutItem *item, int dockPos)
     if (toolBar == 0)
         return;
 
+    QRect oldGeo = toolBar->geometry();
+
     QInternal::DockPosition pos
         = static_cast<QInternal::DockPosition>(dockPos);
     Qt::Orientation o = pos == QInternal::TopDock || pos == QInternal::BottomDock
@@ -1447,8 +1449,12 @@ static void fixToolBarOrientation(QLayoutItem *item, int dockPos)
     QSize hint = toolBar->sizeHint().boundedTo(toolBar->maximumSize())
                     .expandedTo(toolBar->minimumSize());
 
-    if (toolBar->size() != hint)
-        toolBar->resize(hint);
+    if (toolBar->size() != hint) {
+        QRect newGeo(oldGeo.topLeft(), hint);
+        if (toolBar->layoutDirection() == Qt::RightToLeft)
+            newGeo.moveRight(oldGeo.right());
+        toolBar->setGeometry(newGeo);
+    }
 
 #else
     Q_UNUSED(item);

@@ -167,9 +167,14 @@ void QToolBarPrivate::startDrag()
     QMainWindowLayout *layout = qobject_cast<QMainWindowLayout*>(win->layout());
     Q_ASSERT(layout != 0);
 
+    int w = q->width();
+
     state->widgetItem = layout->unplug(q);
     Q_ASSERT(state->widgetItem != 0);
     state->dragging = true;
+
+    if (q->layoutDirection() == Qt::RightToLeft)
+        state->pressPos = QPoint(w - state->pressPos.x(), state->pressPos.y());
 }
 
 void QToolBarPrivate::endDrag()
@@ -244,7 +249,13 @@ void QToolBarPrivate::mouseMoveEvent(QMouseEvent *event)
     }
 
     if (state->dragging) {
-        QPoint pos = event->globalPos() - state->pressPos;
+        QPoint pos = event->globalPos();
+        // if we are right-to-left, we move so as to keep the right edge the same distance
+        // from the mouse
+        if (q->layoutDirection() == Qt::LeftToRight)
+            pos -= state->pressPos;
+        else
+            pos += QPoint(state->pressPos.x() - q->width(), -state->pressPos.y());
         q->move(pos);
         layout->hover(state->widgetItem, event->globalPos());
     }
