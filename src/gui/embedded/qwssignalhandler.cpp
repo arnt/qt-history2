@@ -28,16 +28,20 @@ union semun {
 };
 #endif
 
-class QWSSignalHandlerPrivate
+
+class QWSSignalHandlerPrivate : public QWSSignalHandler
 {
 public:
-    Q_GLOBAL_STATIC(QWSSignalHandler, instance);
+    QWSSignalHandlerPrivate() : QWSSignalHandler() {}
 };
+
+
+Q_GLOBAL_STATIC(QWSSignalHandlerPrivate, signalHandlerInstance);
 
 
 QWSSignalHandler* QWSSignalHandler::instance()
 {
-    return QWSSignalHandlerPrivate::instance();
+    return signalHandlerInstance();
 }
 
 QWSSignalHandler::QWSSignalHandler()
