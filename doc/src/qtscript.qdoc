@@ -42,13 +42,35 @@
   several existing tutorials and books that cover this subject, such
   as \l{JavaScript: The Definitive Guide}.
   
+  \section1 Basic Usage
+
+  To evaluate script code, you create a QScriptEngine and call its
+  evaluate() function, passing the script code (text) to evaluate
+  as argument. The return value will be the result of the evaluation
+  (represented as a QScriptValue).
+
+  \code
+  QScriptEngine engine;
+  qDebug() << "the magic number is:" << engine.evaluate("1 + 2").toNumber();
+  \endcode
+
+  Registering your custom properties in the script environment (thus
+  making them available to script code) is most easily done by setting
+  properties of the script engine's \bold{Global Object}:
+
+  \code
+  QScriptValue val(&engine, 123);
+  engine.globalObject().setProperty("foo", val);
+  qDebug() << "foo times two is:" << engine.evaluate("foo * 2").toNumber();
+  \endcode
+
   \section1 Making a QObject Available to the Script Engine
 
-  By passing a QObject to the scripting engine (using
-  QScriptEngine::newQObject()), this object and all its
-  signals, slots, properties, and child objects are made available to
-  scripts. Because Qt Script uses Qt's meta object system, there is no
-  need to implement any additional wrappers or bindings.
+  By passing a QObject to the QScriptEngine::newQObject()) function,
+  you create a QtScript wrapper object that can be used to make the
+  QObject's signals, slots, properties, and child objects available
+  to scripts. Because Qt Script uses Qt's meta object system, there
+  is no need to implement any additional wrappers or bindings.
 
   Here's an example of making a QObject available to script code
   under the name \c{"myQObject"}:
