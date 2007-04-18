@@ -453,7 +453,9 @@ void QToolBarLayout::setGeometry(const QRect &rect)
         a[i].stretch = 0;
         a[i].empty = true;
 
-        qGeomCalc(a, start, i - start + (expansiveRow ? 0 : 1), 0, space, spacing);
+        qGeomCalc(a, start, i - start + (expansiveRow ? 0 : 1), 0,
+                    space - (ranOutOfSpace ? (extensionExtent + spacing) : 0),
+                    spacing);
 
         for (int j = start; j < i; ++j) {
             QToolBarItem *item = items.at(j);
@@ -523,7 +525,7 @@ void QToolBarLayout::setGeometry(const QRect &rect)
         QSize hint = sizeHint();
 
         QPoint pos;
-        rpick(o, pos) = pick(o, rect.bottomRight()) - margin - extensionExtent + 1;
+        rpick(o, pos) = pick(o, rect.bottomRight()) - margin - extensionExtent + 2;
         if (area == Qt::LeftToolBarArea || area == Qt::TopToolBarArea)
             rperp(o, pos) = perp(o, rect.topLeft()) + margin;
         else

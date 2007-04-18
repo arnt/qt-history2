@@ -58,7 +58,7 @@ void QToolBarPrivate::init()
     movable = true;
     q->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed));
     q->setBackgroundRole(QPalette::Button);
-    q->setMouseTracking(true);
+    q->setAttribute(Qt::WA_Hover);
 
     QStyle *style = q->style();
     int e = style->pixelMetric(QStyle::PM_ToolBarIconSize, 0, q);
@@ -944,15 +944,18 @@ bool QToolBar::event(QEvent *event)
             return true;
         }
         break;
+    case QEvent::HoverMove: {
+#ifndef QT_NO_CURSOR
+        QHoverEvent *e = static_cast<QHoverEvent*>(event);
+        if (d->layout->handleRect().contains(e->pos()))
+            setCursor(Qt::SizeAllCursor);
+        else
+            unsetCursor();
+#endif
+        break;
+    }
     case QEvent::MouseMove: {
             QMouseEvent *e = static_cast<QMouseEvent*>(event);
-
-#ifndef QT_NO_CURSOR
-            if (d->layout->handleRect().contains(e->pos()))
-                setCursor(Qt::SizeAllCursor);
-            else
-                unsetCursor();
-#endif
 
             if (d->state != 0) {
                 d->mouseMoveEvent(e);
