@@ -1,0 +1,4 @@
+StartDocument( )
+Comment( text=" Reserved prefixes and namespaces: declaring the xml prefix incorrectly " )
+Invalid( name="foo" qualifiedName="foo" )
+ERROR: Illegal namespace declaration.

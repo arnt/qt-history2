@@ -1,0 +1,4 @@
+StartDocument( )
+Comment( text=" Bad QName syntax: xmlns: " )
+Invalid( name="foo" qualifiedName="foo" )
+ERROR: Expected '=', but got ':'.

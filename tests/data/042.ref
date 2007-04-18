@@ -1,0 +1,4 @@
+StartDocument( )
+Comment( text=" Colon in PI name " )
+Invalid( )
+ERROR: Expected ' ' or '?', but got ':'.
