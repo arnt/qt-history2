@@ -42,7 +42,7 @@
     There are many ways to construct a QSslCertificate. The most common way is
     to call QSslSocket::peerCertificate() or
     QSslSocket::peerCertificateChain(), which both return QSslCertificate
-    objects. You can also create load certificates from a binary or PEM   // ### create/load, DER
+    objects. You can also load certificates from a DER (binary) or PEM (Base64)
     encoded bundle, typically stored as one or more local files, or in a Qt
     Resource.
 
@@ -313,10 +313,95 @@ QString QSslCertificate::subjectInfo(const QByteArray &tag) const
 
     \sa subjectInfo()
 */
-QStringList QSslCertificate::alternateSubjectNames() const
+QMultiMap<QSsl::AlternateNameEntry, QString> QSslCertificate::alternateSubjectNames() const
 {
-    // ### unimplemented
-    return QStringList();
+    QMultiMap<QSsl::AlternateNameEntry, QString> result;
+
+    // email addresses
+    STACK *emlist = q_X509_get1_email(d->x509);
+    if(emlist) {
+        for (int i = 0; char *email = q_sk_value(emlist, i); ++i)
+            result.insert(QSsl::EmailEntry, QLatin1String(email));
+        q_X509_email_free(emlist);
+    }
+
+    return result;
+/*
+    // DNS names
+    qDebug() << "# extensions:" << q_X509_get_ext_count(d->x509);
+    for (int i = 0; i < q_X509_get_ext_count(d->x509); ++i) {
+        X509_EXTENSION *ext = q_X509_get_ext(d->x509, i);
+        Q_ASSERT(ext);
+
+#if 0 // ### which one of these do we end up using? remove unused ones from qsslsocket_openssl_sym*
+        OBJ_obj2txt(char *buf, int buf_len, const ASN1_OBJECT *a, int no_name);
+        X509_EXTENSION *X509_get_ext(X509 *x, int loc);
+        ASN1_OBJECT * X509_EXTENSION_get_object(X509_EXTENSION *ex);
+        int OBJ_obj2nid(const ASN1_OBJECT *o);
+        const char *OBJ_nid2sn(int n);
+        X509V3_EXT_METHOD *X509V3_EXT_get(X509_EXTENSION *ext);
+#endif
+        const char *extName = q_OBJ_nid2sn(q_OBJ_obj2nid(q_X509_EXTENSION_get_object(ext)));
+#if 0
+        Q_ASSERT(extName);
+        qDebug() << "short name" << i << ":" << QLatin1String(extName);
+        char buf[1024];
+        const int noName = 0;
+        const int len = q_OBJ_obj2txt(buf, 1024, q_X509_EXTENSION_get_object(ext), noName);
+        qDebug() << "  full name (" << len << " bytes):" << QLatin1String(buf);
+#endif
+
+        if (QLatin1String(extName) == QLatin1String("subjectAltName")) {
+
+            // alternative 1
+#if 0
+            X509V3_EXT_METHOD *meth = q_X509V3_EXT_get(ext);
+            if (!meth)
+                break; // ###
+            Q_ASSERT(ext->value); // ###
+            const unsigned char *data = ext->value->data;
+
+            if (meth->i2v && meth->d2i) {
+                STACK_OF(CONF_VALUE) *val =
+                    // ### this crashes because meth->d2i is null!
+                    meth->i2v(meth, meth->d2i(0, &data, ext->value->length), 0);
+                for (int j = 0 ; j < sk_CONF_VALUE_num(val) ; ++j)
+                {
+                    CONF_VALUE *nval = sk_CONF_VALUE_value(val, j);
+                    if (QLatin1String(nval->name) == QLatin1String("DNS"))
+                        result.insert(QSsl::DNSName, QLatin1String(nval->value));
+                }
+            }
+#endif // alternative 1
+
+#if 1            // alternative 2
+
+            void *altNames = q_X509_get_ext_d2i(d->x509, NID_subject_alt_name, 0, 0);
+            if (altNames) {
+
+                int nAltNames = q_sk_GENERAL_NAME_num((const STACK *)altNames);
+                qDebug() << "nAltNames:" << nAltNames;
+            }
+#endif // alternative 2
+
+        }
+    }
+
+    return result;
+
+#if 0
+
+   // The following function prints out an individual extension to a BIO pointer.
+   // Currently the flag argument is unused and should be set to 0.
+   // The 'indent' argument is the number of spaces to indent each line.
+   //    int X509V3_EXT_print(BIO *out, X509_EXTENSION *ext, int flag, int indent); 
+
+    char * X509V3_get_string(X509V3_CTX *ctx, char *name, char *section);
+
+    STACK *X509_get1_email(X509 *x);
+    STACK *X509_REQ_get1_email(X509_REQ *x);
+#endif
+*/
 }
 
 /*!

@@ -51,8 +51,7 @@ public:
     inline QSslKeyPrivate()
         : rsa(0)
         , dsa(0)
-    { 
-        QSslSocketPrivate::ensureInitialized();
+    {
         clear();
         ref = 1;
     }

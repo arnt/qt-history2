@@ -69,7 +69,7 @@ public:
     ~QSslCertificate();
     QSslCertificate &operator=(const QSslCertificate &other);
     bool operator==(const QSslCertificate &other) const;
-    inline bool operator!=(const QSslCertificate &other) const { return !operator==(other); } //###
+    inline bool operator!=(const QSslCertificate &other) const { return !operator==(other); }
 
     bool isNull() const;
     bool isValid() const;
@@ -83,7 +83,7 @@ public:
     QString issuerInfo(const QByteArray &tag) const;
     QString subjectInfo(SubjectInfo info) const;
     QString subjectInfo(const QByteArray &tag) const;
-    QStringList alternateSubjectNames() const;
+    QMultiMap<QSsl::AlternateNameEntry, QString> alternateSubjectNames() const;
     QDateTime notValidBefore() const;
     QDateTime notValidAfter() const;
     QSslKey publicKey() const;

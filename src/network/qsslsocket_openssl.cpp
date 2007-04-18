@@ -641,8 +641,9 @@ bool QSslSocketBackendPrivate::testConnection()
     if (!peerCertificate.isNull()) {
         QString commonName = peerCertificate.subjectInfo(QSslCertificate::CommonName);
         // ### Both CommonName and AlternameSubjectNames can contain wildcards.
+        // ### We aren't using AlternateSubjectNames
         QString peerName = q->peerName();
-        if (commonName != peerName && !peerCertificate.alternateSubjectNames().contains(peerName))
+        if (commonName != peerName /* && !peerCertificate.alternateSubjectNames().contains(peerName) */)
             errors << QSslError(QSslError::HostNameMismatch);
     } else {
         errors << QSslError(QSslError::NoPeerCertificate);

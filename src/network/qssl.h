@@ -48,6 +48,11 @@ namespace QSsl {
         Rsa,
         Dsa
     };
+
+    enum AlternateNameEntry {
+        EmailEntry,
+        DnsEntry
+    };
 }
 
 QT_END_HEADER
