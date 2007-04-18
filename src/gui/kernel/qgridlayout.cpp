@@ -151,6 +151,7 @@ private:
                        Qt::Orientation orientation);
     void setupLayoutData(int hSpacing, int vSpacing);
     void setupHfwLayoutData();
+    int effectiveTopMargin() const;
 
     int rr;
     int cc;
@@ -182,6 +183,50 @@ private:
     uint has_hfw : 1;
     uint addVertical : 1;
 };
+
+int QGridLayoutPrivate::effectiveTopMargin() const
+{
+    int margin = topMargin;
+#if 1
+    //Q_WS_MAC
+    int topRow = vReversed ? 0 : INT_MAX;
+    for (int i = 0; i < things.count(); ++i) {
+        QGridBox *box = things.at(i);
+        
+        bool adjustMargin = false;
+        if (vReversed) {
+            if (box->torow >= topRow) {
+                adjustMargin = true;
+                if (box->torow > topRow) {
+                    // we found an item even closer to the margin, discard.
+                    topRow = box->torow;
+                    margin = topMargin;
+                }
+            }
+        } else {
+            if (box->row <= topRow) {
+                adjustMargin = true;
+                if (box->row < topRow) {
+                    // we found an item even closer to the margin, discard.
+                    topRow = box->row;
+                    margin = topMargin;
+                }
+            }
+        }
+
+        if (adjustMargin) {
+            QLayoutItem *itm = box->item();
+            QWidget *w = itm->widget();
+            if (w) {
+                QRect lir = itm->geometry();
+                QRect wr = w->geometry();
+                margin = qMax(margin, lir.top() - wr.top());
+            }
+        }
+    }
+#endif
+    return margin;
+}
 
 QGridLayoutPrivate::QGridLayoutPrivate()
 {
@@ -264,13 +309,13 @@ int QGridLayoutPrivate::heightForWidth(int w, int hSpacing, int vSpacing)
         qGeomCalc(colData, 0, cc, 0, w - hMargins);
         recalcHFW(w - hMargins);
     }
-    return hfw_height + topMargin + bottomMargin;
+    return hfw_height + effectiveTopMargin() + bottomMargin;
 }
 
 int QGridLayoutPrivate::minimumHeightForWidth(int w, int hSpacing, int vSpacing)
 {
     (void)heightForWidth(w, hSpacing, vSpacing);
-    return has_hfw ? (hfw_minheight + topMargin + bottomMargin) : -1;
+    return has_hfw ? (hfw_minheight + effectiveTopMargin() + bottomMargin) : -1;
 }
 
 QSize QGridLayoutPrivate::findSize(int QLayoutStruct::*size, int hSpacing, int vSpacing) const
@@ -796,7 +841,7 @@ void QGridLayoutPrivate::distribute(QRect r, int hSpacing, int vSpacing)
 
     setupLayoutData(hSpacing, vSpacing);
 
-    r.adjust(+leftMargin, +topMargin, -rightMargin, -bottomMargin);
+    r.adjust(+leftMargin, +effectiveTopMargin(), -rightMargin, -bottomMargin);
 
     qGeomCalc(colData, 0, cc, r.x(), r.width());
     QVector<QLayoutStruct> *rDataPtr;
@@ -1166,7 +1211,7 @@ QSize QGridLayout::sizeHint() const
 {
     Q_D(const QGridLayout);
     QSize result(d->sizeHint(horizontalSpacing(), verticalSpacing()));
-    result += QSize(d->leftMargin + d->rightMargin, d->topMargin + d->bottomMargin);
+    result += QSize(d->leftMargin + d->rightMargin, d->effectiveTopMargin() + d->bottomMargin);
     return result;
 }
 
@@ -1177,7 +1222,7 @@ QSize QGridLayout::minimumSize() const
 {
     Q_D(const QGridLayout);
     QSize result(d->minimumSize(horizontalSpacing(), verticalSpacing()));
-    result += QSize(d->leftMargin + d->rightMargin, d->topMargin + d->bottomMargin);
+    result += QSize(d->leftMargin + d->rightMargin, d->effectiveTopMargin() + d->bottomMargin);
     return result;
 }
 
@@ -1189,7 +1234,7 @@ QSize QGridLayout::maximumSize() const
     Q_D(const QGridLayout);
 
     QSize s = d->maximumSize(horizontalSpacing(), verticalSpacing());
-    s += QSize(d->leftMargin + d->rightMargin, d->topMargin + d->bottomMargin);
+    s += QSize(d->leftMargin + d->rightMargin, d->effectiveTopMargin() + d->bottomMargin);
     s = s.boundedTo(QSize(QLAYOUTSIZE_MAX, QLAYOUTSIZE_MAX));
     if (alignment() & Qt::AlignHorizontal_Mask)
         s.setWidth(QLAYOUTSIZE_MAX);

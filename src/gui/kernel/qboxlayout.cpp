@@ -112,6 +112,15 @@ public:
     int effectiveTopMargin() const;
 };
 
+QBoxLayoutPrivate::~QBoxLayoutPrivate()
+{
+}
+
+static inline bool horz(QBoxLayout::Direction dir)
+{
+    return dir == QBoxLayout::RightToLeft || dir == QBoxLayout::LeftToRight;
+}
+
 /**
  * The purpose of this function is to make sure that widgets are not laid out outside its layout.
  * E.g. the layoutItemRect margins are only meant to take of the surrounding margins/spacings.
@@ -122,9 +131,13 @@ public:
 int QBoxLayoutPrivate::effectiveTopMargin() const
 {
     int margin = topMargin;
-#ifdef Q_WS_MAC
-    QBoxLayoutItem *box = list.value(0);
-    if (box) {
+#if 1
+    //def Q_WS_MAC
+
+    int count = horz(dir) ? list.count() : 1;
+    int i = (dir == QBoxLayout::BottomToTop ? list.count() - 1 : 0);
+    while (count--) {
+        QBoxLayoutItem *box = list.at(i++);
         QLayoutItem *itm = box->item;
         QWidget *w = itm->widget();
         if (w) {
@@ -137,14 +150,6 @@ int QBoxLayoutPrivate::effectiveTopMargin() const
     return margin;
 }
 
-QBoxLayoutPrivate::~QBoxLayoutPrivate()
-{
-}
-
-static inline bool horz(QBoxLayout::Direction dir)
-{
-    return dir == QBoxLayout::RightToLeft || dir == QBoxLayout::LeftToRight;
-}
 
 /*
     Initializes the data structure needed by qGeomCalc and
