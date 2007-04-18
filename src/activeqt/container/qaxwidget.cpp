@@ -1949,8 +1949,7 @@ void QAxWidget::changeEvent(QEvent *e)
 
     switch (e->type()) {
     case QEvent::EnabledChange:
-        if (!isEnabled())
-            container->emitAmbientPropertyChange(DISPID_AMBIENT_UIDEAD);
+        container->emitAmbientPropertyChange(DISPID_AMBIENT_UIDEAD);
         break;
     case QEvent::FontChange:
         container->emitAmbientPropertyChange(DISPID_AMBIENT_FONT);
