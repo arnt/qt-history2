@@ -1438,7 +1438,7 @@ void tst_QTextEdit::adjustScrollbars()
     ed->setMaximumSize(140, 100);
     ed->show();
     QLatin1String txt("\nabc def ghi jkl mno pqr stu vwx");
-    ed->setText(txt + txt + txt);
+    ed->setText(txt + txt + txt + txt);
 
     QVERIFY(ed->verticalScrollBar()->maximum() > 0);
 
