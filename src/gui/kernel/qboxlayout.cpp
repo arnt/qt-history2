@@ -109,7 +109,33 @@ public:
     void setupGeom();
     void calcHfw(int);
 
+    int effectiveTopMargin() const;
 };
+
+/**
+ * The purpose of this function is to make sure that widgets are not laid out outside its layout.
+ * E.g. the layoutItemRect margins are only meant to take of the surrounding margins/spacings.
+ * However, if the margin is 0, it can easily cover the area of a widget above it.
+ * In theory we should add this for all four margins, but this problem only happens
+ * with top margins.
+ */
+int QBoxLayoutPrivate::effectiveTopMargin() const
+{
+    int margin = topMargin;
+#ifdef Q_WS_MAC
+    QBoxLayoutItem *box = list.value(0);
+    if (box) {
+        QLayoutItem *itm = box->item;
+        QWidget *w = itm->widget();
+        if (w) {
+            QRect lir = itm->geometry();
+            QRect wr = w->geometry();
+            margin = qMax(margin, lir.top() - wr.top());
+        }
+    }
+#endif
+    return margin;
+}
 
 QBoxLayoutPrivate::~QBoxLayoutPrivate()
 {
@@ -246,8 +272,8 @@ void QBoxLayoutPrivate::setupGeom()
     maxSize = QSize(maxw, maxh).expandedTo(minSize);
     sizeHint = QSize(hintw, hinth).expandedTo(minSize).boundedTo(maxSize);
 
-    q->getContentsMargins(&leftMargin, &topMargin, &rightMargin, &bottomMargin);
-    QSize extra(leftMargin + rightMargin, topMargin + bottomMargin);
+    q->getContentsMargins(&leftMargin, &topMargin, &rightMargin, &bottomMargin);    
+    QSize extra(leftMargin + rightMargin, effectiveTopMargin() + bottomMargin);
 
     minSize += extra;
     maxSize += extra;
@@ -560,7 +586,7 @@ int QBoxLayout::heightForWidth(int w) const
     if (w != d->hfwWidth)
         const_cast<QBoxLayout*>(this)->d_func()->calcHfw(w);
 
-    return d->hfwHeight + d->topMargin + d->bottomMargin;
+    return d->hfwHeight + d->effectiveTopMargin() + d->bottomMargin;
 }
 
 /*!
@@ -570,7 +596,7 @@ int QBoxLayout::minimumHeightForWidth(int w) const
 {
     Q_D(const QBoxLayout);
     (void) heightForWidth(w);
-    return d->hasHfw ? (d->hfwMinHeight + d->topMargin + d->bottomMargin) : -1;
+    return d->hasHfw ? (d->hfwMinHeight + d->effectiveTopMargin() + d->bottomMargin) : -1;
 }
 
 /*!
@@ -643,9 +669,10 @@ void QBoxLayout::setGeometry(const QRect &r)
             d->setupGeom();
         QRect cr = alignment() ? alignmentRect(r) : r;
 
-        QRect s(cr.x() + d->leftMargin, cr.y() + d->topMargin,
+        int tm = d->effectiveTopMargin();
+        QRect s(cr.x() + d->leftMargin, cr.y() + tm,
                 cr.width() - (d->leftMargin + d->rightMargin),
-                cr.height() - (d->topMargin + d->bottomMargin));
+                cr.height() - (tm + d->bottomMargin));
 
         QVector<QLayoutStruct> a = d->geomArray;
         int pos = horz(d->dir) ? s.x() : s.y();
