@@ -41,8 +41,8 @@ public:
         setOption(QGL::DirectRendering);
         setPlane(1);
     }
-    Q_GLOBAL_STATIC(QGLDefaultOverlayFormat, instance)
 };
+Q_GLOBAL_STATIC(QGLDefaultOverlayFormat, defaultOverlayFormatInstance)
 
 QGLExtensions::Extensions QGLExtensions::glExtensions = 0;
 bool QGLExtensions::nvidiaFboNeedsFinish = false;
@@ -1164,7 +1164,7 @@ void QGLFormat::setDefaultFormat(const QGLFormat &f)
 
 QGLFormat QGLFormat::defaultOverlayFormat()
 {
-    return *QGLDefaultOverlayFormat::instance();
+    return *defaultOverlayFormatInstance();
 }
 
 /*!
@@ -1203,7 +1203,7 @@ QGLFormat QGLFormat::defaultOverlayFormat()
 
 void QGLFormat::setDefaultOverlayFormat(const QGLFormat &f)
 {
-    QGLFormat *defaultFormat = QGLDefaultOverlayFormat::instance();
+    QGLFormat *defaultFormat = defaultOverlayFormatInstance();
     *defaultFormat = f;
     // Make sure the user doesn't request that the overlays themselves
     // have overlays, since it is unlikely that the system supports

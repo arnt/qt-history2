@@ -1367,22 +1367,37 @@ public:
 
 #else
 
+// forward declaration, since qatomic.h needs qglobal.h
+template <typename T> struct QBasicAtomicPointer;
+
+// POD for Q_GLOBAL_STATIC
 template <typename T>
 class QGlobalStatic
 {
 public:
     T *pointer;
     bool destroyed;
+};
 
-    inline ~QGlobalStatic()
+// Created as a function-local static to delete a QGlobalStatic<T>
+template <typename T>
+class QGlobalStaticDeleter
+{
+public:
+    QGlobalStatic<T> &globalStatic;
+    QGlobalStaticDeleter(QGlobalStatic<T> &globalStatic)
+        : globalStatic(globalStatic)
+    { }
+
+    inline ~QGlobalStaticDeleter()
     {
-        delete pointer;
-        pointer = 0;
-        destroyed = true;
+        delete globalStatic.pointer;
+        globalStatic.pointer = 0;
+        globalStatic.destroyed = true;
     }
 };
 
-#if defined Q_OS_HPUX && defined Q_CC_HPACC && !defined __ia64
+#if (defined Q_OS_HPUX && defined Q_CC_HPACC && !defined __ia64)
 // aCC 3.x bug
 #  define Q_GLOBAL_STATIC_INIT(TYPE, NAME)                              \
     static QGlobalStatic<TYPE > this_##NAME
@@ -1390,26 +1405,31 @@ public:
 #  define Q_GLOBAL_STATIC_INIT(TYPE, NAME)                              \
     static QGlobalStatic<TYPE > this_##NAME = { 0, false }
 #endif
+
 #define Q_GLOBAL_STATIC(TYPE, NAME)                                     \
+    Q_GLOBAL_STATIC_INIT(TYPE, NAME);                                   \
     static TYPE *NAME()                                                 \
     {                                                                   \
-        Q_GLOBAL_STATIC_INIT(TYPE, NAME);                               \
         if (!this_##NAME.pointer && !this_##NAME.destroyed) {           \
             TYPE *x = new TYPE;                                         \
             if (!q_atomic_test_and_set_ptr(&this_##NAME.pointer, 0, x)) \
                 delete x;                                               \
+            else                                                        \
+                static QGlobalStaticDeleter<TYPE > cleanup(this_##NAME); \
         }                                                               \
         return this_##NAME.pointer;                                     \
     }
 
 #define Q_GLOBAL_STATIC_WITH_ARGS(TYPE, NAME, ARGS)                     \
+    Q_GLOBAL_STATIC_INIT(TYPE, NAME);                                   \
     static TYPE *NAME()                                                 \
     {                                                                   \
-        Q_GLOBAL_STATIC_INIT(TYPE, NAME);                               \
         if (!this_##NAME.pointer && !this_##NAME.destroyed) {           \
             TYPE *x = new TYPE ARGS;                                    \
             if (!q_atomic_test_and_set_ptr(&this_##NAME.pointer, 0, x)) \
                 delete x;                                               \
+            else                                                        \
+                static QGlobalStaticDeleter<TYPE > cleanup(this_##NAME); \
         }                                                               \
         return this_##NAME.pointer;                                     \
     }

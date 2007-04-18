@@ -87,6 +87,7 @@ public:
 
     mutable QReadWriteLock lock;
 };
+Q_GLOBAL_STATIC(QConnectionDict, dbDict)
 
 class QSqlDatabasePrivate
 {
@@ -119,7 +120,6 @@ public:
     static void removeDatabase(const QString& name);
     static void invalidateDb(const QSqlDatabase &db, const QString &name);
     static DriverDict &driverDict();
-    Q_GLOBAL_STATIC(QConnectionDict, dbDict)
     static void cleanConnections();
 };
 
@@ -570,7 +570,7 @@ void QSqlDatabase::registerSqlDriver(const QString& name, QSqlDriverCreatorBase 
 
 bool QSqlDatabase::contains(const QString& connectionName)
 {
-    return QSqlDatabasePrivate::dbDict()->contains_ts(connectionName);
+    return dbDict()->contains_ts(connectionName);
 }
 
 /*!
@@ -582,7 +582,7 @@ bool QSqlDatabase::contains(const QString& connectionName)
 */
 QStringList QSqlDatabase::connectionNames()
 {
-    return QSqlDatabasePrivate::dbDict()->keys_ts();
+    return dbDict()->keys_ts();
 }
 
 /*!

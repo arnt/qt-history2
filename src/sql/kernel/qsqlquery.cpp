@@ -33,11 +33,12 @@ public:
     QSqlResult* sqlResult;
     QSql::NumericalPrecisionPolicy precisionPolicy;
 
-    Q_GLOBAL_STATIC_WITH_ARGS(QSqlQueryPrivate, nullQueryPrivate, (0))
-    Q_GLOBAL_STATIC(QSqlNullDriver, nullDriver)
-    Q_GLOBAL_STATIC_WITH_ARGS(QSqlNullResult, nullResult, (nullDriver()))
     static QSqlQueryPrivate* shared_null();
 };
+
+Q_GLOBAL_STATIC_WITH_ARGS(QSqlQueryPrivate, nullQueryPrivate, (0))
+Q_GLOBAL_STATIC(QSqlNullDriver, nullDriver)
+Q_GLOBAL_STATIC_WITH_ARGS(QSqlNullResult, nullResult, (nullDriver()))
 
 QSqlQueryPrivate* QSqlQueryPrivate::shared_null()
 {
@@ -195,7 +196,7 @@ QSqlQueryPrivate::~QSqlQueryPrivate()
     Note that unbound parameters will retain their values.
 
     Stored procedures that uses the return statement to return values,
-    or return multiple result sets, are not fully supported. For specific 
+    or return multiple result sets, are not fully supported. For specific
     details see \l{SQL Database Drivers}.
 
     \warning  You cannot allocate a QSqlQuery before the SQL driver
