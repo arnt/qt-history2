@@ -434,6 +434,9 @@ control the thickness of the margin around the edges of the
 layout, and \c layoutSpacing determines the space between widgets.
 If the selected layout is of grid type we can alter horizontal and vertical
 spacing independently using \c layoutHorizontalSpacing and layoutVerticalSpacing properties.
+By default, layout margins and spacings are not marked as changed. In that case
+while using the component in a real application, the values of those properties
+can differ from those used in \QD and will depend on the application's QStyle.
 
 We can create more complex layouts by selecting the layouts and placing
 them into other layouts. But, in our example, we really only need a top-level
