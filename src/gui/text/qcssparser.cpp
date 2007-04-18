@@ -159,7 +159,7 @@ static const QCssKnownValue properties[NumProperties - 1] = {
 };
 
 static const QCssKnownValue values[NumKnownValues - 1] = {
-    { "alternatebase", Value_AlternateBase },
+    { "alternate-base", Value_AlternateBase },
     { "always", Value_Always },
     { "auto", Value_Auto },
     { "base", Value_Base },
@@ -243,8 +243,8 @@ static const QCssKnownValue pseudos[NumPseudos - 1] = {
     { "left", PseudoClass_Left },
     { "middle", PseudoClass_Middle },
     { "next-selected", PseudoClass_NextSelected },
-    { "non-exclusive", PseudoClass_NonExclusive },
     { "no-frame", PseudoClass_Frameless },
+    { "non-exclusive", PseudoClass_NonExclusive },
     { "off", PseudoClass_Unchecked },
     { "on", PseudoClass_Checked },
     { "only-one", PseudoClass_OnlyOne },
