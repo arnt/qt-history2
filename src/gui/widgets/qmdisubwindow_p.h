@@ -190,7 +190,9 @@ public:
     void leaveInteractiveMode();
     void removeBaseWidget();
     void initOperationMap();
+#ifndef QT_NO_MENU
     void createSystemMenu();
+#endif
     void updateCursor();
     void updateDirtyRegions();
     void updateGeometryConstraints();

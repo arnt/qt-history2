@@ -863,6 +863,8 @@ void QMdiSubWindowPrivate::initOperationMap()
     operationMap.insert(BottomRightResize, OperationInfo(HResize | VResize, Qt::SizeFDiagCursor));
 }
 
+#ifndef QT_NO_MENU
+
 /*!
     \internal
 */
@@ -892,6 +894,7 @@ void QMdiSubWindowPrivate::createSystemMenu()
 #endif
     updateActions();
 }
+#endif
 
 /*!
     \internal
