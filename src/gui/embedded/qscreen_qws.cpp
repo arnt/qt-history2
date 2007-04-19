@@ -1336,7 +1336,7 @@ Q_GUI_EXPORT QScreen* qt_get_screen(int display_id, const char *spec)
 
     This function is called by the \l {Qtopia Core} server whenever a
     screen update is required. \a region is the screen region that needs to
-    be updated, and \a windowIndex is the index into QWindowSystem::clientWindows()
+    be updated, and \a windowIndex is the index into QWSServer::clientWindows()
     of the window that caused the update. QWSWindow::state() gives more information
     about the cause.
 
