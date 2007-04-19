@@ -83,6 +83,9 @@ SOURCES += main.cpp \
     extra/oubliette.cpp \
     extra/oublietteplan.cpp \
     extra/oublietteresource.cpp \
+    extra/oublietteresource1.cpp \
+    extra/oublietteresource2cpp \
+    extra/oublietteresource3cpp \
     extra/oublietteview.cpp \
     preferencesdialog.cpp \
     preferences.cpp
