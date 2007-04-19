@@ -84,8 +84,10 @@ void DemoTextItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
     Q_UNUSED(option);
     Q_UNUSED(widget);
 
-    if (this->type == STATIC_TEXT)
-        return DemoItem::paint(painter, option, widget);
+    if (this->type == STATIC_TEXT) {
+        DemoItem::paint(painter, option, widget);
+        return;
+    }
 
     painter->setPen(this->textColor);
     painter->drawText(0, 0, this->text);
