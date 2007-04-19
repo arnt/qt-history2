@@ -929,7 +929,7 @@ void tst_QMenuBar::check_menuPosition()
     menu.setTitle("&menu");
     QRect screenRect = QApplication::desktop()->screenGeometry(mw);
 
-    while(menu.sizeHint().height() < screenRect.height()/2+20) {
+    while(menu.sizeHint().height() < (screenRect.height()*2/3)) {
         menu.addAction("item");
     }
 
