@@ -1221,10 +1221,11 @@ bool QMainWindow::unifiedTitleAndToolBarOnMac() const
 */
 bool QMainWindow::isSeparator(const QPoint &pos) const
 {
-    Q_D(const QMainWindow);
 #ifndef QT_NO_DOCKWIDGET
+    Q_D(const QMainWindow);
     return !d->layout->layoutState.dockAreaLayout.findSeparator(pos).isEmpty();
 #else
+    Q_UNUSED(pos);
     return false;
 #endif
 }

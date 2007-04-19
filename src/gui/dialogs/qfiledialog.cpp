@@ -2083,7 +2083,6 @@ void QFileDialogPrivate::_q_renameCurrent()
 */
 void QFileDialogPrivate::_q_deleteCurrent()
 {
-    Q_Q(QFileDialog);
     QModelIndex index = qFileDialogUi->listView->currentIndex();
     index = mapToSource(index.sibling(index.row(), 0));
     if (!index.isValid() || model->isReadOnly())
@@ -2091,6 +2090,7 @@ void QFileDialogPrivate::_q_deleteCurrent()
 
     QString fileName = model->fileName(index);
 #ifndef QT_NO_MESSAGEBOX
+    Q_Q(QFileDialog);
     if (!model->fileInfo(index).isWritable()
         && (QMessageBox::warning(q_func(), q_func()->windowTitle(),
                                 QFileDialog::tr("'%1' is write protected.\nDo you want to delete it anyway?")

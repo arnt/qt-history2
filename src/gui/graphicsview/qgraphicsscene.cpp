@@ -515,7 +515,7 @@ void QGraphicsScenePrivate::_q_removeItemLater(QGraphicsItem *item)
     // Reenable selectionChanged() for individual items
     --selectionChanging;
     if (!selectionChanging && selectedItems.size() != oldSelectedItemsSize)
-        emit q->selectionChanged();        
+        emit q->selectionChanged();
 }
 
 /*!
@@ -743,7 +743,7 @@ void QGraphicsScenePrivate::sendMouseEvent(QGraphicsSceneMouseEvent *mouseEvent)
         mouseGrabberItem = 0;
         return;
     }
-    
+
     for (int i = 0x1; i <= 0x10; i <<= 1) {
         Qt::MouseButton button = Qt::MouseButton(i);
         mouseEvent->setButtonDownPos(button, mouseGrabberButtonDownPos.value(button, mouseGrabberItem->d_ptr->genericMapFromScene(mouseEvent->scenePos(), mouseEvent->widget())));
@@ -1310,14 +1310,14 @@ static void _qt_pathIntersectsItem(const QPainterPath &selectionPath, QGraphicsI
 {
     if (selectionPath.isEmpty())
         return;
-    
+
     QPainterPath path;
     if (mode == Qt::ContainsItemShape || mode == Qt::IntersectsItemShape) {
         path = item->mapToScene(item->shape());
     } else {
         path.addPolygon(item->mapToScene(item->boundingRect()));
     }
-    
+
     if (path.isEmpty())
         return;
 
@@ -1771,7 +1771,7 @@ void QGraphicsScene::addItem(QGraphicsItem *item)
     // Reenable selectionChanged() for individual items
     --d->selectionChanging;
     if (!d->selectionChanging && d->selectedItems.size() != oldSelectedItemSize)
-        emit selectionChanged();        
+        emit selectionChanged();
 }
 
 /*!
@@ -2452,7 +2452,7 @@ void QGraphicsScene::advance()
 bool QGraphicsScene::event(QEvent *event)
 {
     Q_D(QGraphicsScene);
-    
+
     switch (event->type()) {
     case QEvent::GraphicsSceneMousePress:
     case QEvent::GraphicsSceneMouseMove:
@@ -2752,7 +2752,7 @@ void QGraphicsScene::focusOutEvent(QFocusEvent *focusEvent)
     reimplemented in a subclass to receive help events. The events
     are of type QEvent::ToolTip, which are created when a tooltip is
     requested.
-    
+
     The default implementation shows the tooltip of the topmost
     item, i.e., the item with the highest z-value, at the mouse
     cursor position. If no item has a tooltip set, this function
@@ -2762,7 +2762,9 @@ void QGraphicsScene::focusOutEvent(QFocusEvent *focusEvent)
 */
 void QGraphicsScene::helpEvent(QGraphicsSceneHelpEvent *helpEvent)
 {
-#ifndef QT_NO_TOOLTIP
+#ifdef QT_NO_TOOLTIP
+    Q_UNUSED(helpEvent);
+#else
     // Find the first item that does tooltips
     Q_D(QGraphicsScene);
     QList<QGraphicsItem *> itemsAtPos = d->itemsAtPosition(helpEvent->screenPos(),

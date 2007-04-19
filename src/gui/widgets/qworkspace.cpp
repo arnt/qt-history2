@@ -76,9 +76,9 @@ bool QMDIControl::event(QEvent *event)
         QStyleOptionComplex opt;
         initStyleOption(&opt);
         QHelpEvent *helpEvent = static_cast<QHelpEvent *>(event);
+#ifndef QT_NO_TOOLTIP
         QStyle::SubControl ctrl = style()->hitTestComplexControl(QStyle::CC_MDIControls, &opt,
                                                                  helpEvent->pos(), this);
-#ifndef QT_NO_TOOLTIP
         if (ctrl == QStyle::SC_MDICloseButton)
             QToolTip::showText(helpEvent->globalPos(), QWorkspace::tr("Close"));
         else if (ctrl == QStyle::SC_MDIMinButton)

@@ -509,7 +509,6 @@ void QWSWindowSurface::setGeometry(const QRect &rect)
 {
     QRegion mask = rect;
 
-    const bool isResize = rect.size() != geometry().size();
     const QWidget *win = window();
     if (win) {
 #ifndef QT_NO_QWS_MANAGER
@@ -518,6 +517,7 @@ void QWSWindowSurface::setGeometry(const QRect &rect)
             QWSManager *manager = topextra->qwsManager;
 
             if (manager) {
+                const bool isResize = rect.size() != geometry().size();
                 if (!isBuffered() || isResize)
                     manager->d_func()->dirtyRegion(QDecoration::All,
                                                    QDecoration::Normal);

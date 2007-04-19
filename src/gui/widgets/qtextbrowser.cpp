@@ -922,8 +922,8 @@ void QTextBrowser::mouseReleaseEvent(QMouseEvent *e)
 */
 void QTextBrowser::focusOutEvent(QFocusEvent *ev)
 {
-    Q_D(QTextBrowser);
 #ifndef QT_NO_CURSOR
+    Q_D(QTextBrowser);
     d->viewport->setCursor((!(d->control->textInteractionFlags() & Qt::TextEditable)) ? d->oldCursor : Qt::IBeamCursor);
 #endif
     QTextEdit::focusOutEvent(ev);
