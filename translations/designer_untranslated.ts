@@ -2039,17 +2039,17 @@ and then paste again.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="1493"/>
+        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="1499"/>
         <source>Break layout</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="1832"/>
+        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="1838"/>
         <source>Lay out</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="2210"/>
+        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="2216"/>
         <source>Drop widget</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2972,7 +2972,7 @@ Please select another name.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/widgetfactory.cpp" line="109"/>
+        <location filename="../tools/designer/src/lib/shared/widgetfactory.cpp" line="112"/>
         <source>A class name mismatch occurred when creating a widget using the custom widget factory registered for widgets of class %1. It returned a widget of class %2.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3664,17 +3664,17 @@ Please select another name.</source>
 <context>
     <name>qdesigner_internal::StyleSheetEditorDialog</name>
     <message>
-        <location filename="../tools/designer/src/lib/shared/stylesheeteditor.cpp" line="45"/>
+        <location filename="../tools/designer/src/lib/shared/stylesheeteditor.cpp" line="46"/>
         <source>Edit Style Sheet</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/stylesheeteditor.cpp" line="105"/>
+        <location filename="../tools/designer/src/lib/shared/stylesheeteditor.cpp" line="106"/>
         <source>Valid Style Sheet</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/stylesheeteditor.cpp" line="102"/>
+        <location filename="../tools/designer/src/lib/shared/stylesheeteditor.cpp" line="103"/>
         <source>Invalid Style Sheet</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3700,6 +3700,19 @@ Please select another name.</source>
     <message>
         <location filename="../tools/designer/src/components/propertyeditor/styledbutton.cpp" line="107"/>
         <source>Open Image</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>qdesigner_internal::TabOrderEditor</name>
+    <message>
+        <location filename="../tools/designer/src/components/tabordereditor/tabordereditor.cpp" line="314"/>
+        <source>Start from Here</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/tabordereditor/tabordereditor.cpp" line="315"/>
+        <source>Restart</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4159,7 +4172,7 @@ Please select another name.</source>
 <context>
     <name>qdesigner_internal::WidgetFactory</name>
     <message>
-        <location filename="../tools/designer/src/lib/shared/widgetfactory.cpp" line="182"/>
+        <location filename="../tools/designer/src/lib/shared/widgetfactory.cpp" line="184"/>
         <source>%1 Widget</source>
         <translation type="unfinished"></translation>
     </message>

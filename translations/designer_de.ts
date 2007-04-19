@@ -2079,17 +2079,17 @@ and then paste again.</source>
 Bitte lösen Sie das Layout des gewünschten Containers auf und wählen Sie ihn erneut aus, um die Widgetseinzufügen.</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="1493"/>
+        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="1499"/>
         <source>Break layout</source>
         <translation>Layout auflösen</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="1832"/>
+        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="1838"/>
         <source>Lay out</source>
         <translation>Layout</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="2210"/>
+        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="2216"/>
         <source>Drop widget</source>
         <translation>Widget einfügen</translation>
     </message>
@@ -3014,7 +3014,7 @@ Bitte wählen Sie einen anderen Namen.</translation>
         <translation>Die Factory für benutzerdefinierte Widgets der Klasse %1 gab einen 0-Zeiger zurück.</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/widgetfactory.cpp" line="109"/>
+        <location filename="../tools/designer/src/lib/shared/widgetfactory.cpp" line="112"/>
         <source>A class name mismatch occurred when creating a widget using the custom widget factory registered for widgets of class %1. It returned a widget of class %2.</source>
         <translation>Bei der Erzeugung von Widgets wurden widersprüchliche Klassennamen festgestellt: Die Factory für benutzerdefinierte Widgets der Klasse %1 gab ein Widget der Klasse %2 zurück. </translation>
     </message>
@@ -3706,17 +3706,17 @@ Bitte wählen Sie einen anderen Namen.</translation>
 <context>
     <name>qdesigner_internal::StyleSheetEditorDialog</name>
     <message>
-        <location filename="../tools/designer/src/lib/shared/stylesheeteditor.cpp" line="45"/>
+        <location filename="../tools/designer/src/lib/shared/stylesheeteditor.cpp" line="46"/>
         <source>Edit Style Sheet</source>
         <translation>Stylesheet bearbeiten</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/stylesheeteditor.cpp" line="105"/>
+        <location filename="../tools/designer/src/lib/shared/stylesheeteditor.cpp" line="106"/>
         <source>Valid Style Sheet</source>
         <translation>Stylesheet gültig</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/stylesheeteditor.cpp" line="102"/>
+        <location filename="../tools/designer/src/lib/shared/stylesheeteditor.cpp" line="103"/>
         <source>Invalid Style Sheet</source>
         <translation>Stylesheet ungültig</translation>
     </message>
@@ -3744,6 +3744,19 @@ Bitte wählen Sie einen anderen Namen.</translation>
         <location filename="../tools/designer/src/components/propertyeditor/styledbutton.cpp" line="107"/>
         <source>Open Image</source>
         <translation>Bilddatei öffnen</translation>
+    </message>
+</context>
+<context>
+    <name>qdesigner_internal::TabOrderEditor</name>
+    <message>
+        <location filename="../tools/designer/src/components/tabordereditor/tabordereditor.cpp" line="314"/>
+        <source>Start from Here</source>
+        <translation>Hier neu beginnen</translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/tabordereditor/tabordereditor.cpp" line="315"/>
+        <source>Restart</source>
+        <translation>Neu beginnen</translation>
     </message>
 </context>
 <context>
@@ -4202,7 +4215,7 @@ Bitte wählen Sie einen anderen Namen.</translation>
 <context>
     <name>qdesigner_internal::WidgetFactory</name>
     <message>
-        <location filename="../tools/designer/src/lib/shared/widgetfactory.cpp" line="182"/>
+        <location filename="../tools/designer/src/lib/shared/widgetfactory.cpp" line="184"/>
         <source>%1 Widget</source>
         <translation>%1 Widget</translation>
     </message>
