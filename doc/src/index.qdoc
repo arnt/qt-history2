@@ -146,7 +146,7 @@
         <li><a href="object.html">Object Model</a></li>
         <li><a href="layout.html">Layout Management</a></li>
         <li><a href="paintsystem.html">Paint System</a></li>
-        <li><a href="dnd.html">Drag and Drop</a></li>
+        <li><a href="accessibility.html">Accessibility</a></li>
         <li><a href="containers.html">Tool and Container Classes</a></li>
         <li><a href="i18n.html">Internationalization</a></li>
         <li><a href="plugins-howto.html">Plugin System</a></li>
