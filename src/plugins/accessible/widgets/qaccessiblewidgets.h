@@ -17,7 +17,7 @@
 #include <QtGui/qaccessible2.h>
 #include <QtGui/qaccessiblewidget.h>
 
-#if !defined(QT_NO_ACCESSIBILITY) && !defined(QT_NO_TEXTEDIT)
+#ifndef QT_NO_ACCESSIBILITY
 
 #include <QtCore/QPointer>
 
@@ -35,6 +35,7 @@ class QDockWidget;
 class QDockWidgetLayout;
 class QMainWindow;
 
+#ifndef QT_NO_TEXTEDIT
 class QAccessibleTextEdit : public QAccessibleWidgetEx, public QAccessibleTextInterface,
                             public QAccessibleEditableTextInterface
 {
@@ -89,6 +90,7 @@ protected:
 private:
     int childOffset;
 };
+#endif // QT_NO_TEXTEDIT
 
 class QAccessibleStackedWidget : public QAccessibleWidgetEx
 {
@@ -124,6 +126,7 @@ protected:
     QToolBox *toolBox() const;
 };
 
+#ifndef QT_NO_MDIAREA
 class QAccessibleMdiArea : public QAccessibleWidgetEx
 {
 public:
@@ -157,6 +160,7 @@ public:
 protected:
     QMdiSubWindow *mdiSubWindow() const;
 };
+#endif // QT_NO_MDIAREA
 
 #ifndef QT_NO_WORKSPACE
 class QAccessibleWorkspace : public QAccessibleWidgetEx
@@ -260,7 +264,6 @@ public:
 };
 
 #endif // QT_NO_DOCKWIDGET
-
 
 #ifndef QT_NO_MAINWINDOW
 class QAccessibleMainWindow : public QAccessibleWidgetEx

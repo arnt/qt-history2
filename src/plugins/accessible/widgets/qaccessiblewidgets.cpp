@@ -54,8 +54,6 @@ QList<QWidget*> childWidgets(const QWidget *widget, bool includeTopLevel)
     return widgets;
 }
 
-#ifndef QT_NO_TEXTEDIT
-
 static inline int distance(QWidget *source, QWidget *target,
                            QAccessible::RelationFlag relation)
 {
@@ -89,11 +87,16 @@ static inline int distance(QWidget *source, QWidget *target,
 static inline QWidget *mdiAreaNavigate(QWidget *area,
                                        QAccessible::RelationFlag relation, int entry)
 {
+#ifndef QT_NO_MDIAREA
     const QMdiArea *mdiArea = qobject_cast<QMdiArea *>(area);
+#endif
 #ifndef QT_NO_WORKSPACE
     const QWorkspace *workspace = qobject_cast<QWorkspace *>(area);
 #endif
-    if (!mdiArea
+    if (true
+#ifndef QT_NO_MDIAREA
+        && !mdiArea
+#endif
 #ifndef QT_NO_WORKSPACE
     && !workspace
 #endif
@@ -101,10 +104,13 @@ static inline QWidget *mdiAreaNavigate(QWidget *area,
         return 0;
 
     QWidgetList windows;
+#ifndef QT_NO_MDIAREA
     if (mdiArea) {
         foreach (QMdiSubWindow *window, mdiArea->subWindowList())
             windows.append(window);
-    } else {
+    } else
+#endif
+    {
 #ifndef QT_NO_WORKSPACE
         foreach (QWidget *window, workspace->windowList())
             windows.append(window->parentWidget());
@@ -159,6 +165,8 @@ static inline QWidget *mdiAreaNavigate(QWidget *area,
 #endif
     return target;
 }
+
+#ifndef QT_NO_TEXTEDIT
 
 /*!
   \class QAccessibleTextEdit qaccessiblewidget.h
@@ -459,6 +467,7 @@ QToolBox * QAccessibleToolBox::toolBox() const
 #endif // QT_NO_TOOLBOX
 
 // ======================= QAccessibleMdiArea ======================
+#ifndef QT_NO_MDIAREA
 QAccessibleMdiArea::QAccessibleMdiArea(QWidget *widget)
     : QAccessibleWidgetEx(widget, LayeredPane)
 {
@@ -676,6 +685,7 @@ QMdiSubWindow *QAccessibleMdiSubWindow::mdiSubWindow() const
 {
     return static_cast<QMdiSubWindow *>(object());
 }
+#endif // QT_NO_MDIAREA
 
 // ======================= QAccessibleWorkspace ======================
 #ifndef QT_NO_WORKSPACE
@@ -1249,6 +1259,7 @@ bool QAccessibleTitleBar::isValid() const
 
 #endif // QT_NO_DOCKWIDGET
 
+#ifndef QT_NO_TEXTEDIT
 void QAccessibleTextEdit::addSelection(int startOffset, int endOffset)
 {
     setSelection(0, startOffset, endOffset);
@@ -1541,6 +1552,8 @@ void QAccessibleTextEdit::setAttributes(int startOffset, int endOffset, const QS
     Q_UNUSED(endOffset);
     Q_UNUSED(attributes);
 }
+
+#endif // QT_NO_TEXTEDIT
 
 #ifndef QT_NO_MAINWINDOW
 QAccessibleMainWindow::QAccessibleMainWindow(QWidget *widget)

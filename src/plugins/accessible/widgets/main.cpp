@@ -245,14 +245,20 @@ QAccessibleInterface *AccessibleFactory::create(const QString &classname, QObjec
         iface = new QAccessibleWidgetEx(widget, ToolTip);
     } else if (classname == QLatin1String("QFrame")) {
         iface = new QAccessibleWidget(widget, Border);
+#ifndef QT_NO_STACKEDWIDGET
     } else if (classname == QLatin1String("QStackedWidget")) {
         iface = new QAccessibleStackedWidget(widget);
+#endif
+#ifndef QT_NO_TOOLBOX
     } else if (classname == QLatin1String("QToolBox")) {
         iface = new QAccessibleToolBox(widget);
+#endif
+#ifndef QT_NO_MDIAREA
     } else if (classname == QLatin1String("QMdiArea")) {
         iface = new QAccessibleMdiArea(widget);
     } else if (classname == QLatin1String("QMdiSubWindow")) {
         iface = new QAccessibleMdiSubWindow(widget);
+#endif
 #ifndef QT_NO_WORKSPACE
     } else if (classname == QLatin1String("QWorkspace")) {
         iface = new QAccessibleWorkspace(widget);
