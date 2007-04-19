@@ -1044,7 +1044,7 @@ QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
         }
     }
 
-    if (d == 1) {
+    if (d == 1 || d == 16) {
         QImage im = image.convertToFormat(QImage::Format_RGB32, flags);
         return fromImage(im);
     }

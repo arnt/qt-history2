@@ -454,9 +454,7 @@ QPixmap QPixmap::fromImage(const QImage &image, Qt::ImageConversionFlags flags )
         break;
     case QImage::Format_RGB32:
     case QImage::Format_ARGB32_Premultiplied:
-#ifdef Q_WS_QWS
     case QImage::Format_RGB16:
-#endif
         pixmap.data->image = image;
         break;
     default:
