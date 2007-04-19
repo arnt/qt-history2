@@ -127,6 +127,11 @@ QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
         image.setColor(0, QColor(Qt::color0).rgba());
         image.setColor(1, QColor(Qt::color1).rgba());
     }
+    
+    if (d == 16) {
+        QImage im = image.convertToFormat(QImage::Format_RGB32, flags);
+        return fromImage(im);
+    }
 
     int w = image.width();
     int h = image.height();
