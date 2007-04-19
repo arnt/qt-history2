@@ -254,7 +254,6 @@ bool QSslSocketBackendPrivate::initSslContext()
         // Require a private key as well.
         if (privateKey.isNull()) {
             q->setErrorString(QSslSocket::tr("Cannot provide a certificate with no key, %1").arg(SSL_ERRORSTR()));
-            qDebug() << q->errorString();
             emit q->error(QAbstractSocket::UnknownSocketError);
             return false;
         }
@@ -262,7 +261,6 @@ bool QSslSocketBackendPrivate::initSslContext()
         // Load certificate
         if (!q_SSL_CTX_use_certificate(ctx, (X509 *)localCertificate.handle())) {
             q->setErrorString(QSslSocket::tr("Error loading local certificate, %1").arg(SSL_ERRORSTR()));
-            qDebug() << q->errorString();
             emit q->error(QAbstractSocket::UnknownSocketError);
             return false;
         }
@@ -275,22 +273,16 @@ bool QSslSocketBackendPrivate::initSslContext()
             q_EVP_PKEY_assign_DSA(pkey, (DSA *)privateKey.handle());
         if (!q_SSL_CTX_use_PrivateKey(ctx, pkey)) {
             q->setErrorString(QSslSocket::tr("Error loading private key, %1").arg(SSL_ERRORSTR()));
-            qDebug() << q->errorString();
             emit q->error(QAbstractSocket::UnknownSocketError);
             return false;
         }
-
-        qDebug("Checking private key");
 
         // Check if the certificate matches the private key.
         if (!q_SSL_CTX_check_private_key(ctx)) {
             q->setErrorString(QSslSocket::tr("Private key do not certificate public key, %1").arg(SSL_ERRORSTR()));
-            qDebug() << q->errorString();
             emit q->error(QAbstractSocket::UnknownSocketError);
             return false;
         }
-
-        qDebug("Certificate checked out OK!");
     }
 
     // Create and initialize SSL session
