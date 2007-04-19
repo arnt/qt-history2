@@ -1913,6 +1913,7 @@ void tst_QTreeWidget::setHeaderItem()
     headerItem->setText(0, "0");
     headerItem->setText(1, "1");
     testWidget->setHeaderItem(headerItem);
+    qApp->processEvents();
     QCOMPARE(testWidget->headerItem(), headerItem);
     QCOMPARE(headerItem->treeWidget(), testWidget);
 
