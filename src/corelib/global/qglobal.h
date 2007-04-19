@@ -1321,7 +1321,9 @@ Q_CORE_EXPORT void qt_check_pointer(const char *, int);
      * string literal. */
 #   define QT_STRINGIFY2(x) #x
 #   define QT_STRINGIFY(x) QT_STRINGIFY2(x)
-#   define Q_FUNC_INFO __FILE__ ":" QT_STRINGIFY(__LINE__)
+    /* The paranteses, which shouldn't be necessary, workaround a bug in
+     * the compiler on IRIX, which gets operator precedence wrong. */
+#   define Q_FUNC_INFO (__FILE__ ":" QT_STRINGIFY(__LINE__))
 #   undef QT_STRINGIFY2
 #   undef QT_STRINGIFY
 #endif
