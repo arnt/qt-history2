@@ -375,7 +375,9 @@ void QMenuPrivate::hideUpToMenuBar()
                     m->hide();
                 m->d_func()->setCurrentAction(0);
             } else {
+#ifndef QT_NO_TOOLBUTTON
                 if (qobject_cast<QToolButton*>(caused) == 0)
+#endif
                     qWarning("QMenu: Internal error");
                 caused = 0;
             }
