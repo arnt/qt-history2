@@ -253,7 +253,7 @@ void QToolButtonPrivate::init()
     toolButtonStyle = Qt::ToolButtonIconOnly;
 
     q->setFocusPolicy(Qt::TabFocus);
-    q->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed, 
+    q->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed,
                                  QSizePolicy::ToolButton));
 
     QObject::connect(q, SIGNAL(pressed()), q, SLOT(_q_buttonPressed()));
@@ -329,8 +329,10 @@ void QToolButton::initStyleOption(QStyleOptionToolButton *option) const
         option->features |= QStyleOptionToolButton::Arrow;
     if (d->popupMode == QToolButton::DelayedPopup)
         option->features |= QStyleOptionToolButton::PopupDelay;
+#ifndef QT_NO_MENU
     if (d->hasMenu())
         option->features |= QStyleOptionToolButton::HasMenu;
+#endif
     option->toolButtonStyle = d->toolButtonStyle;
     if (d->icon.isNull() && d->arrowType == Qt::NoArrow && !forceNoText) {
         if (!d->text.isEmpty())

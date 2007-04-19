@@ -2103,12 +2103,14 @@ void QStyleSheetStyle::unpolish(QWidget *w)
     unsetPalette(w);
     QObject::disconnect(w, SIGNAL(destroyed(QObject*)),
                       this, SLOT(widgetDestroyed(QObject*)));
+#ifndef QT_NO_SCROLLAREA
     if (QAbstractScrollArea *sa = qobject_cast<QAbstractScrollArea *>(w)) {
         QObject::disconnect(sa->horizontalScrollBar(), SIGNAL(valueChanged(int)),
                             sa, SLOT(update()));
         QObject::disconnect(sa->verticalScrollBar(), SIGNAL(valueChanged(int)),
                             sa, SLOT(update()));
     }
+#endif
 #ifndef QT_NO_PROGRESSBAR
     if (QProgressBar *pb = qobject_cast<QProgressBar *>(w))
         QWindowsStyle::unpolish(pb);
@@ -2979,10 +2981,13 @@ void QStyleSheetStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *op
 
     case PE_Frame:
         if (const QStyleOptionFrame *frm = qstyleoption_cast<const QStyleOptionFrame *>(opt)) {
+#ifndef QT_NO_SCROLLAREA
             if (const QAbstractScrollArea *sa = qobject_cast<const QAbstractScrollArea *>(w)) {
                 const QAbstractScrollAreaPrivate *sap = sa->d_func();
                 rule.drawBackground(p, opt->rect, sap->contentsOffset());
-            } else {
+            } else
+#endif
+            {
                 rule.drawBackground(p, opt->rect);
             }
 

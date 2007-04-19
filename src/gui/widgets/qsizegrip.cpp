@@ -279,11 +279,13 @@ void QSizeGrip::mousePressEvent(QMouseEvent * e)
         // Check if tlw is inside QAbstractScrollArea/QScrollArea.
         // If that's the case tlw->parentWidget() will return the viewport
         // and tlw->parentWidget()->parentWidget() will return the scroll area.
+#ifndef QT_NO_SCROLLAREA
         QAbstractScrollArea *scrollArea = qobject_cast<QAbstractScrollArea *>(tlwParent->parentWidget());
         if (scrollArea) {
             hasHorizontalSizeConstraint = scrollArea->horizontalScrollBarPolicy() == Qt::ScrollBarAlwaysOff;
             hasVerticalSizeConstraint = scrollArea->verticalScrollBarPolicy() == Qt::ScrollBarAlwaysOff;
         }
+#endif // QT_NO_SCROLLAREA
         availableGeometry = tlwParent->contentsRect();
     }
 
