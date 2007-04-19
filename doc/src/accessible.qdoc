@@ -118,15 +118,15 @@
     i.e., it is not a fixed numbering from the root node in the entire
     tree.
 
-    Qt provides accessible interfaces for its widgets (except
-    QGraphicsView). Interfaces for any QObject subclass can be
-    requested through QAccessible::queryInterface(). A default
-    implementation is provided if a more specialized interface is not
-    defined. An AT-Client cannot acquire an interface for accessible
-    objects that do not have an equivalent QObject, e.g., scroll bar
-    handles, but they appear as normal objects through interfaces of
-    parent accessible objects, e.g., you can query their relationships
-    with QAccessible::relationTo().
+    Qt provides accessible interfaces for its widgets. Interfaces for
+    any QObject subclass can be requested through
+    QAccessible::queryInterface(). A default implementation is
+    provided if a more specialized interface is not defined. An
+    AT-Client cannot acquire an interface for accessible objects that
+    do not have an equivalent QObject, e.g., scroll bar handles, but
+    they appear as normal objects through interfaces of parent
+    accessible objects, e.g., you can query their relationships with
+    QAccessible::relationTo().
 
     To illustrate, we present an image of an accessible object tree.
     Beneath the tree is a table with examples of object relationships.
