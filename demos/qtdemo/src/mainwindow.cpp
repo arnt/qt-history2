@@ -51,7 +51,7 @@ MainWindow::~MainWindow()
 void MainWindow::setupWidget()
 {
     QRect rect(0, 0, 800, 600);
-    rect.moveCenter(QApplication::desktop()->screenGeometry().center());
+    rect.moveCenter(QApplication::desktop()->screenGeometry(QApplication::desktop()->primaryScreen()).center());
     this->setGeometry(rect);
     setWindowTitle(tr("Qt Examples and Demos"));
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
