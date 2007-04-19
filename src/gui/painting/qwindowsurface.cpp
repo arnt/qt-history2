@@ -167,8 +167,15 @@ QImage* QWindowSurface::buffer(const QWidget *widget)
 
     const QPoint off = offset(widget);
     QImage *img = static_cast<QImage*>(pdev);
-    img = new QImage(img->scanLine(off.y()) + off.x() * img->depth() / 8,
-                     widget->width(), widget->height(),
+
+    QRect rect(off, widget->size());
+    rect &= QRect(QPoint(), img->size());
+
+    if (rect.isEmpty())
+        return 0;
+
+    img = new QImage(img->scanLine(rect.y()) + rect.x() * img->depth() / 8,
+                     rect.width(), rect.height(),
                      img->bytesPerLine(), img->format());
     d_ptr->bufferImages.append(img);
 
