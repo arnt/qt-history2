@@ -151,7 +151,8 @@ When used as a standalone application, \QD's user interface can be
 configured to provide either a multi-window user interface (the default
 mode), or it can be used in workbench mode. When used from within an
 integrated development environment (IDE) only the multi-window user
-interface is available.
+interface is available. To switch modes, open the \e Preferences dialog (\e Edit
+menu).
 
 In multi-window mode, you can arrange each of the tool windows to suit
 your working style. The main window consists of a menu bar, a tool bar,
@@ -327,7 +328,10 @@ form.  This is achieved by dragging each \gui Label from the \gui
 section of the widget box, one \gui {Vertical Spacer} and one \gui
 {Horizontal Spacer} from the \gui Spacers section (represented on the
 form as blue springs), and two \gui {Push Button}s from the \gui
-Buttons section.
+Buttons section. Note that a \gui {Dialog Button Box} should be used to
+ensure that the dialog buttons are positioned correctly on each
+platform.
+For explanatory reasons, we use single buttons throughout the example.
 
 Widgets and spacers can be moved around on the form by dragging them, or by
 using the cursor keys. A widget can be resized by dragging the resize handles
@@ -572,6 +576,9 @@ and at the midpoint of each side, indicating that it can be resized.
 To select additional objects, hold down the \gui{Shift} key and click on
 them. If more than one object is selected, the current object will be displayed
 with resize handles that are colored differently to the others.
+
+Alternatively, objects can be selected in the \l {The Object
+Inspector}{Object Inspector}.
 \endtable
 
 When selected, the normal clipboard operations can be performed on a widget
@@ -616,6 +623,10 @@ onto the form.
 
 Widgets can also be "cloned" on the form: Holding down \key Ctrl and dragging
 the widget creates a copy of the widget that can be dragged to a new position.
+
+It is also possible to drop Widgets onto the
+\l {The Object Inspector}{Object Inspector} to ease handling of
+nested layouts.
 \endtable
 
 \QD allows selections of objects to be copied, pasted, and dragged between
@@ -641,6 +652,12 @@ The property editor uses standard Qt input widgets to manage the properties
 of objects on the form. Textual properties are shown in line edits,
 integer properties are displayed in spinboxes, and compound properties such
 as colors and sizes are presented in drop-down lists of input widgets.
+
+Modified properties are indicated by bold labels. To reset, click the arrow
+button on the right-hand side.
+
+Changes in properties are applied to all selected objects that have a
+matching property.
 \endtable
 
 \raw HTML
@@ -679,9 +696,9 @@ The Object Inspector displays a hierarchical list of all the objects on the
 form that is currently being edited. To show the child objects of a container
 widget or a layout, click the handle next to the object label.
 
-Each object on a form can be selected by double clicking on the corresponding
-item in the Object Inspector. This feature can be useful if you have many
-overlapping objects.
+Each object on a form can be selected by clicking on the corresponding
+item in the Object Inspector. Right-clicking opens the form's context menu.
+These features can be useful if you have many overlapping objects.
 \endtable
 
 \target Layouts
@@ -1410,11 +1427,23 @@ widget the input focus then presses the tab key, the focus will move to the
 second input widget, and so on.
 
 The tab order is defined by clicking on each of the numbers in the correct
-order.You can set the first widget in the tab order by double-clicking on it.
-After this has been done, click on another widget to make it the second in the
-tab order, set the third with the next click, and so on until you are satisfied.
-If you make a mistake, simply double click to set the first widget, and start
-again.
+order. The first number you click will change to red, indicating the currently
+edited position in tab order chain, and the widget associated
+with the number will become the first one in the tab order chain.
+Clicking on another widget will make it the second in the tab order, and so on.
+You can continue this process until you are satisfied with the tab order in
+the form - you do not need to click every input widget if you see that the
+remaining widget are already in the correct order. Numbers, for which you
+already set the order, change to green, while those which were not clicked yet,
+remain blue.
+
+If you make a mistake, simply double click outside of any number or choose
+"Restart" action from the form's context menu to start again. If you have many
+widgets on your form and want to change the order in the middle or by the end of
+tab order chain, you can start edit tab order chain at any position you wish.
+Just press the control modifier and click the number from which
+you want to start, or alternatively choose "Start from Here" action from
+context menu.
 */
 
 /*!
@@ -1490,6 +1519,9 @@ option of selecting a source file in the ordinary way.
 You can open the resource editor to add new resources any time in the design
 process.
 
+To quickly assign icon pixmaps to actions or pixmap properties, you may
+drag the pixmap from the resource editor to the action editor, or to the
+pixmap property in the property editor.
 \endtable
 */
 
@@ -1504,7 +1536,7 @@ process.
     \image designer-form-settings.png
 
     When saving a form in \QD, it is stored as an \c .ui file. Several form
-    settings, for example the margin and spacing for the default layout,
+    settings, for example the grid settings or the margin and spacing for the default layout,
     are stored along with the form's components. These settings are used when the
     \l uic generates the form's C++ code.
     For more information on how to use forms in your application, see
@@ -1615,6 +1647,20 @@ process.
     widgets, it is worth considering adapting a custom widget for use in \QD.
     If this is not possible then QFrame is the obvious choice for a placeholder
     widget since it is the lowest common denominator for all widgets.
+
+    To add a placeholder, select an object of a suitable base class
+    and choose \gui{Promote to...} from the form's context menu.
+    After entering the class name and header file in the lower part
+    of the dialog, choose \gui{Add}. The placeholder class will
+    now appear along with the base class in the upper list.
+    Click the \gui{Promote} button to accept this choice.
+
+    Now, when the form's context menu is opened over objects of the base class,
+    the placeholder class will appear in the \gui{Promote to} submenu,
+    allowing for convenient promotion of objects to that class.
+
+    A promoted widget can be reverted to its base class by choosing
+    \gui{Demote to} from the form's context menu.
 
     \section2 User Defined Custom Widgets
 
@@ -1954,6 +2000,9 @@ without having to write code themselves.
     \row \o \c domXml()
          \o A description of the widget's properties, such as its object
             name, size hint, and other standard QWidget properties.
+    \row \o \c codeTemplate()
+         \o An optional \l{QtScript}{Qt Script} snippet to be executed when loading the
+            form.
     \endtable
 
     Two other virtual functions can also be reimplemented:
@@ -1962,7 +2011,7 @@ without having to write code themselves.
     \row    \o \c initialize()    \o Sets up extensions and other features for custom
                                      widgets. Custom container extensions (see
                                      QDesignerContainerExtension) and task menu extensions
-                                     (see QDesignerTaskMenuExtenstion) should be set up in
+                                     (see QDesignerTaskMenuExtension) should be set up in
                                      this function.
     \row    \o \c isInitialized() \o Returns true if the widget has been initialized;
                                      otherwise returns false. Reimplementations usually
@@ -2055,6 +2104,67 @@ without having to write code themselves.
     See QCoreApplication::libraryPaths() for more information about customizing
     paths for libraries and plugins with Qt applications.
 
+    \section1 Using Qt Script to Aid in Building Forms
+
+    Starting with Qt 4.3, \c .ui files may contain
+    \l{QtScript}{Qt Script} snippets that are executed by \l uic or QUiLoader
+    when building forms.
+
+    The snippets are executed per widget. The snippet may modify properties
+    or invoke slots on the widget.
+
+    Special variables are used to access the widget:
+
+    \table
+    \header
+    \o Name
+    \o Value
+    \row \o \c  widget
+         \o The widget being built.
+    \row \o \c  childWidgets
+         \o An array containing the child widgets. This is useful
+         for QDesignerContainerExtension subclasses.
+    \endtable
+
+    If scripts are present in an \c {uic}-generated form, the application
+    must be configured with Qt Script support.
+
+    \code
+    QT += script
+    \endcode
+
+    For security reasons, the execution of scripts is disabled
+    by default in QUiLoader. You can enable it by
+    calling the QUiLoader::setScriptingEnabled() method.
+
+    The resulting script snippet is concatenated from snippets occurring in
+    several places:
+
+    \table
+    \header
+    \o Source
+    \o Usage
+    \row \o The \c codeTemplate() function of QDesignerCustomWidgetInterface
+         \o Allows snippets to be run on a per-class basis; for example, to set up a
+            container using the QDesignerContainerExtension.
+    \row \o The \c script() method of QDesignerScriptExtension
+         \o Allows snippets to be run on a per-widget basis; for example,
+            to set up the internal state of a custom widget.
+
+            Such an internal state might be, for example, the contents of
+            a custom item view container widget, for which an editor
+            is provided by an QDesignerTaskMenuExtension object.
+
+    \row \o Snippets entered at run-time using the \gui{Change script...}
+            option of the form's context menu
+         \o Fast prototyping. To get an idea,
+            drag a QLineEdit onto the form, enter the script
+            \code
+            widget.text = 'Hi - I was built ' + new Date().toString();
+            \endcode
+            and preview the form.
+    \endtable
+
     \section1 Related Examples
 
     Please see the \l{designer/customwidgetplugin}{Custom Widget Plugin} and
@@ -2078,7 +2188,7 @@ without having to write code themselves.
 
     \section1 Extension Types
 
-    There are four available types of extensions in \QD. You can use
+    There are several available types of extensions in \QD. You can use
     all the extensions following the same pattern, only replacing the
     respective extension base class.
 
@@ -2124,11 +2234,20 @@ without having to write code themselves.
 
     \row
         \o \inlineimage designer-manual-propertysheetextension.png
-        \o \bold {QDesignerPropertySheetExtension}
+        \o \bold {QDesignerPropertySheetExtension, QDesignerDynamicPropertySheetExtension}
 
-           The QDesignerPropertySheetExtension class allows you to
+           These extension classes allow you to
            manipulate a widget's properties displayed in \QD's
            property editor.
+
+     \row
+        \o
+        \o \bold {QDesignerScriptExtension}
+
+         The QDesignerScriptExtension class allows you to define script
+         snippets that are executed when a form is loaded. The extension
+         is primarily intended to be used to set up the internal states
+         of custom widgets.
 
     \endtable
 
