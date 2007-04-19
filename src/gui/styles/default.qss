@@ -57,7 +57,7 @@ QComboBox[style="QCleanlooksStyle"][readOnly="true"]
     -qt-background-role: button;
 }
 
-QSpinBox {
+QAbstractSpinBox {
     border: native;
     -qt-style-features: background-color background-gradient;
     -qt-background-role: base;

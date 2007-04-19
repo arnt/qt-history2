@@ -3135,6 +3135,7 @@ QStyle::SubControl QStyleSheetStyle::hitTestComplexControl(ComplexControl cc, co
             break;
                        }
         // intentionally falls through
+    case CC_SpinBox:
     case CC_GroupBox:
     case CC_ComboBox:
     case CC_Slider:
@@ -3359,9 +3360,13 @@ QSize QStyleSheetStyle::sizeFromContents(ContentsType ct, const QStyleOption *op
     QSize sz = csz.expandedTo(rule.minimumContentsSize());
 
     switch (ct) {
+    case CT_SpinBox: // ### hopelessly broken QAbstractSpinBox (part 1)
+        if (rule.hasBox() || !rule.hasNativeBorder())
+            return csz;
+        return rule.baseStyleCanDraw() ? baseStyle()->sizeFromContents(ct, opt, sz, w)
+                                       : QWindowsStyle::sizeFromContents(ct, opt, sz, w);
     case CT_ToolButton:
         sz += QSize(3, 3); // ### broken QToolButton
-    case CT_SpinBox:
     case CT_ComboBox:
     case CT_PushButton:
     case CT_HeaderSection:
@@ -3374,10 +3379,13 @@ QSize QStyleSheetStyle::sizeFromContents(ContentsType ct, const QStyleOption *op
     case CT_GroupBox:
     case CT_LineEdit:
 #ifndef QT_NO_SPINBOX
+        // ### hopelessly broken QAbstractSpinBox (part 2)
         if (QAbstractSpinBox *spinBox = qobject_cast<QAbstractSpinBox *>(w->parentWidget())) {
             QRenderRule rule = renderRule(spinBox, opt);
-            if (rule.hasBox() || rule.hasBorder())
+            if (rule.hasBox() || !rule.hasNativeBorder())
                 return csz;
+            return rule.baseStyleCanDraw() ? baseStyle()->sizeFromContents(ct, opt, sz, w)
+                                           : QWindowsStyle::sizeFromContents(ct, opt, sz, w);
         }
 #endif
         if (rule.hasBox() || !rule.hasNativeBorder()) {
