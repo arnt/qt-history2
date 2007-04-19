@@ -199,7 +199,6 @@ HelpDialog::HelpDialog(QWidget *parent, MainWindow *h)
     : QWidget(parent), lwClosed(false), help(h)
 {
     ui.setupUi(this);
-    ui.tabWidget->setAttribute(Qt::WA_LayoutUsesWidgetRect);
     ui.listContents->setUniformRowHeights(true);
     ui.listContents->header()->setStretchLastSection(false);
     ui.listContents->header()->setResizeMode(QHeaderView::ResizeToContents);

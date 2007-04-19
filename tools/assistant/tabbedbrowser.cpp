@@ -41,7 +41,6 @@ TabbedBrowser::TabbedBrowser(MainWindow *parent)
     ui.setupUi(this);
     init();
 
-    ui.tab->setAttribute(Qt::WA_LayoutUsesWidgetRect);
     QStackedWidget *stack = qFindChild<QStackedWidget*>(ui.tab);
     Q_ASSERT(stack);
     stack->setContentsMargins(0, 0, 0, 0);
