@@ -901,29 +901,41 @@ void QFontEngineQPF::unlockFile()
 void QFontEngineQPF::remapFontData()
 {
     off_t newFileSize = ::lseek(fd, 0, SEEK_END);
-#ifdef QT_NO_MREMAP
-    int status = ::munmap((void *)fontData, dataSize);
-    if (status != 0)
-        qErrnoWarning(status, "QFontEngineQPF::remapFomrData: munmap failed!");
-
-    fontData = (const uchar *)::mmap(0, newFileSize, PROT_READ | (renderingFontEngine ? PROT_WRITE : 0), MAP_SHARED, fd, 0);
-    if (!fontData || fontData == (const uchar *)MAP_FAILED) {
-#  if defined(DEBUG_FONTENGINE)
-        perror("mmap failed");
-#  endif
+    if (newFileSize == (off_t)-1) {
+#ifdef DEBUG_FONTENGINE
+        perror("QFontEngineQPF::remapFontData: lseek failed");
+#endif
         fontData = 0;
         return;
     }
-#else
+
+#ifndef QT_NO_MREMAP
     fontData = static_cast<uchar *>(::mremap(const_cast<uchar *>(fontData), dataSize, newFileSize, MREMAP_MAYMOVE));
     if (!fontData || fontData == (const uchar *)MAP_FAILED) {
 #  if defined(DEBUG_FONTENGINE)
         perror("QFontEngineQPF::remapFontData(): mremap failed");
 #  endif
         fontData = 0;
-        return;
     }
-#endif
+
+    if (!fontData)
+#endif // QT_NO_MREMAP
+    {
+        int status = ::munmap((void *)fontData, dataSize);
+        if (status != 0)
+            qErrnoWarning(status, "QFontEngineQPF::remapFomrData: munmap failed!");
+
+        fontData = (const uchar *)::mmap(0, newFileSize, PROT_READ | (renderingFontEngine ? PROT_WRITE : 0),
+                                         MAP_SHARED, fd, 0);
+        if (!fontData || fontData == (const uchar *)MAP_FAILED) {
+#  if defined(DEBUG_FONTENGINE)
+            perror("mmap failed");
+#  endif
+            fontData = 0;
+            return;
+        }
+    }
+
     dataSize = newFileSize;
     glyphDataSize = newFileSize - glyphDataOffset;
 #if defined(DEBUG_FONTENGINE)
