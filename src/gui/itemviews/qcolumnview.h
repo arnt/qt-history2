@@ -20,7 +20,7 @@ QT_BEGIN_HEADER
 
 QT_MODULE(Gui)
 
-#ifndef QT_NO_UNDOVIEW
+#ifndef QT_NO_COLUMNVIEW
 
 class QColumnViewPrivate;
 
@@ -84,7 +84,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _q_clicked(const QModelIndex &))
 };
 
-#endif // QT_NO_ITEMVIEWS
+#endif // QT_NO_COLUMNVIEW
 
 QT_END_HEADER
 
