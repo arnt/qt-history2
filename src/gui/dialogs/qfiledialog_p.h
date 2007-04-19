@@ -272,6 +272,7 @@ inline QString QFileDialogPrivate::rootPath() const {
     return model->rootPath();
 }
 
+#ifndef QT_NO_COMPLETER
 /*!
     QCompleter that can deal with QFileSystemModel
   */
@@ -281,6 +282,7 @@ public:
     QString pathFromIndex(const QModelIndex &index) const;
     QStringList splitPath(const QString& path) const;
 };
+#endif // QT_NO_COMPLETER
 
 #endif
 

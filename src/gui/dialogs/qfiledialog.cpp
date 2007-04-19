@@ -1681,12 +1681,14 @@ void QFileDialogPrivate::createWidgets()
     // filename
     qFileDialogUi->fileNameEdit->init(this);
     qFileDialogUi->fileNameLabel->setBuddy(qFileDialogUi->fileNameEdit);
+#ifndef QT_NO_COMPLETER
     completer = new QFSCompletor(model, q);
     qFileDialogUi->fileNameEdit->setCompleter(completer);
     QObject::connect(qFileDialogUi->fileNameEdit, SIGNAL(textChanged(QString)),
-                     q, SLOT(_q_updateOkButton()));
-    QObject::connect(qFileDialogUi->fileNameEdit, SIGNAL(textChanged(QString)),
             q, SLOT(_q_autoCompleteFileName(QString)));
+#endif // QT_NO_COMPLETER
+    QObject::connect(qFileDialogUi->fileNameEdit, SIGNAL(textChanged(QString)),
+                     q, SLOT(_q_updateOkButton()));
     QObject::connect(qFileDialogUi->fileNameEdit, SIGNAL(returnPressed()), q, SLOT(accept()));
 
     // filetype
@@ -2490,6 +2492,8 @@ void QFileDialogLineEdit::keyPressEvent(QKeyEvent *e)
     }
 }
 
+#ifndef QT_NO_COMPLETER
+
 QString QFSCompletor::pathFromIndex(const QModelIndex &index) const
 {
     const QFileSystemModel *dirModel = static_cast<const QFileSystemModel *>(model());
@@ -2545,6 +2549,8 @@ QStringList QFSCompletor::splitPath(const QString &path) const
     }
     return parts;
 }
+
+#endif // QT_NO_COMPLETER
 
 #ifdef QT3_SUPPORT
 /*!
