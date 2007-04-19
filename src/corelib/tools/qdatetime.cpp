@@ -3337,7 +3337,9 @@ int QDateTimeParser::getDigit(const QVariant &t, int index) const
 
     default: break;
     }
-    qFatal("%s passed to getDigit. This should never happen. Index is %d", sectionName(node.type).toLatin1().constData(), index);
+    Q_ASSERT_X(0, "QDateTimeParser::getDigit()",
+               qPrintable(QString::fromAscii("Internal error (%1 %2)").
+                          arg(sectionName(node.type).arg(index))));
     return -1;
 }
 
@@ -3378,7 +3380,8 @@ void QDateTimeParser::setDigit(QVariant &v, int index, int newVal) const
     case DaySection: day = newVal; break;
     case AmPmSection: hour = (newVal == 0 ? hour % 12 : (hour % 12) + 12); break;
     default:
-        qFatal("%s passed to setDigit. This should never happen", sectionName(node.type).toLatin1().constData());
+        Q_ASSERT_X(0, "QDateTimeParser::setDigit()",
+                   qPrintable(QString::fromAscii("Internal error (%1)").arg(sectionName(node.type))));
         break;
     }
 
@@ -3417,7 +3420,8 @@ int QDateTimeParser::absoluteMax(int s, const QDateTime &cur) const
     case AmPmSection: return 1;
     default: break;
     }
-    qFatal("%s passed to max. This should never happen", sectionName(s).toLatin1().constData());
+    Q_ASSERT_X(0, "QDateTimeParser::absoluteMax()",
+               qPrintable(QString::fromAscii("Internal error (%1)").arg(sectionName(s))));
     return -1;
 
 }
@@ -3443,7 +3447,8 @@ int QDateTimeParser::absoluteMin(int s) const
     case AmPmSection: return 0;
     default: break;
     }
-    qFatal("%s passed to min. This should never happen", sectionName(s).toLatin1().constData());
+    Q_ASSERT_X(0, "QDateTimeParser::absoluteMin()",
+               qPrintable(QString::fromAscii("Internal error (%1)").arg(sectionName(s))));
     return -1;
 }
 
@@ -3937,7 +3942,9 @@ int QDateTimeParser::parseSection(int sectionIndex, QString &text, int index,
         }
         break; }
     default:
-        qFatal("NoSection or Internal. This should never happen"); break;
+        Q_ASSERT_X(0, "QDateTimeParser::parseSection()",
+                   qPrintable(QString::fromAscii("Internal error (%1)").arg(sectionName(sn.type))));
+        break;
     }
 
     if (usedptr)
@@ -3965,7 +3972,7 @@ QDateTimeParser::StateNode QDateTimeParser::parse(const QString &inp,
     int pos = 0;
     bool conflicts = false;
 
-//    QDTPDEBUG << "validateAndInterpret" << input;
+//    QDTPDEBUG << "parse" << input;
     {
         int year, month, day, hour12, hour, minute, second, msec, ampm, dayofweek, year2digits;
         const QDateTime &dt = currentValue.toDateTime();
@@ -4045,8 +4052,9 @@ QDateTimeParser::StateNode QDateTimeParser::parse(const QString &inp,
                     break;
                 case AmPmSection: current = &ampm; break;
                 default:
-                    qFatal("%s found in sections validateAndInterpret. This should never happen",
-                           sectionName(sn.type).toLatin1().constData());
+                    Q_ASSERT_X(0, "QDateTimeParser::parse()",
+                               qPrintable(QString::fromAscii("Internal error (%1)").
+                                          arg(sectionName(sn.type))));
                     break;
                 }
                 Q_ASSERT(current);
@@ -4425,8 +4433,12 @@ int QDateTimeParser::maxChange(int index) const
     case YearSection: return sn.count == 2
             ? 100 * 365
             : 9999 * 365;
-    default: qFatal("%s passed to maxChange. This should never happen", sectionName(sectionType(index)).toLatin1().constData());
+    default:
+        Q_ASSERT_X(0, "QDateTimeParser::maxChange",
+                   qPrintable(QString::fromAscii("Internal error (%1)").
+                              arg(sectionName(sectionType(index)))));
     }
+
     return -1;
 }
 
@@ -4466,16 +4478,25 @@ QDateTimeParser::FieldInfo QDateTimeParser::fieldInfo(int index) const
             break;
         case 4:
             break;
-        default: qFatal("This should not happen %d %s %d",
-                        index, qPrintable(sectionName(sn.type)), sn.count);
+        default:
+            Q_ASSERT_X(0, "QDateTimeParser::fieldInfo()",
+                       qPrintable(QString::fromAscii("Internal error 1 (%1 %2 %3)").
+                                  arg(index).
+                                  arg(sectionName(sn.type)).
+                                  arg(sn.count)));
             break;
         }
         break;
     case AmPmSection:
         ret |= FixedWidth;
         break;
-    default: qFatal("This should not happen %d %s",
-                    index, qPrintable(sectionName(sn.type)));
+    default:
+        Q_ASSERT_X(0, "QDateTimeParser::fieldInfo()",
+                   qPrintable(QString::fromAscii("Internal error 2 (%1 %2 %3)").
+                              arg(index).
+                              arg(sectionName(sn.type)).
+                              arg(sn.count)));
+        break;
     }
     return ret;
 }
@@ -4509,7 +4530,9 @@ QString QDateTimeParser::sectionFormat(Section s, int count) const
     case MonthSection: fillChar = QLatin1Char('M'); break;
     case YearSection: fillChar = QLatin1Char('y'); break;
     default:
-        qFatal("%s passed to sectionFormat. This should never happen", sectionName(s).toLatin1().constData());
+        Q_ASSERT_X(0, "QDateTimeParser::sectionFormat()",
+                   qPrintable(QString::fromAscii("Internal error (%1)").
+                              arg(sectionName(s))));
         return QString();
     }
     Q_ASSERT(!fillChar.isNull());
@@ -4600,8 +4623,11 @@ QDateTimeParser::State QDateTimeParser::checkIntermediate(const QDateTime &dt, c
             case AmPmSection:
                 switch (findAmPm(t, i)) {
                 case AM:
-                case PM: qFatal("%d This should not happen", __LINE__); return Acceptable;
-                case Neither: return Invalid;
+                case PM:
+                    Q_ASSERT_X(0, "QDateTimeParser::checkIntermediate", "Internal error");
+                    return Acceptable;
+                case Neither:
+                    return Invalid;
                 case PossibleAM:
                 case PossiblePM:
                 case PossibleBoth: {

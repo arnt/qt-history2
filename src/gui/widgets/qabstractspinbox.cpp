@@ -1876,13 +1876,11 @@ double operator/(const QVariant &arg1, const QVariant &arg2)
 
 int QAbstractSpinBoxPrivate::variantCompare(const QVariant &arg1, const QVariant &arg2)
 {
-    if ((arg1.type() == QVariant::Time && arg2.type() == QVariant::Date)
-        || (arg1.type() == QVariant::Date && arg2.type() == QVariant::Time)) {
-        qFatal("%s %d: Different types. This should never happen (%s vs %s)", __FILE__, __LINE__,
-               arg1.typeName(), arg2.typeName());
-    }
     switch (arg2.type()) {
     case QVariant::Date:
+        Q_ASSERT_X(arg1.type() == QVariant::Date, "QAbstractSpinBoxPrivate::variantCompare",
+                   qPrintable(QString::fromAscii("Internal error 1 (%1)").
+                              arg(QString::fromAscii(arg1.typeName()))));
         if (arg1.toDate() == arg2.toDate()) {
             return 0;
         } else if (arg1.toDate() < arg2.toDate()) {
@@ -1891,6 +1889,9 @@ int QAbstractSpinBoxPrivate::variantCompare(const QVariant &arg1, const QVariant
             return 1;
         }
     case QVariant::Time:
+        Q_ASSERT_X(arg1.type() == QVariant::Time, "QAbstractSpinBoxPrivate::variantCompare",
+                   qPrintable(QString::fromAscii("Internal error 2 (%1)").
+                              arg(QString::fromAscii(arg1.typeName()))));
         if (arg1.toTime() == arg2.toTime()) {
             return 0;
         } else if (arg1.toTime() < arg2.toTime()) {
@@ -1928,15 +1929,17 @@ int QAbstractSpinBoxPrivate::variantCompare(const QVariant &arg1, const QVariant
         if (arg2.type() == QVariant::Invalid)
             return 0;
     default:
-        break;
+        Q_ASSERT_X(0, "QAbstractSpinBoxPrivate::variantCompare",
+                   qPrintable(QString::fromAscii("Internal error 3 (%1 %2)").
+                              arg(QString::fromAscii(arg1.typeName())).
+                              arg(QString::fromAscii(arg2.typeName()))));
     }
-    qFatal("%s:%d Not supported types (%s, %s). This should not happen",
-           __FILE__, __LINE__, arg1.typeName(), arg2.typeName());
-
     return -2;
 }
 
-QVariant QAbstractSpinBoxPrivate::variantBound(const QVariant &min, const QVariant &value, const QVariant &max)
+QVariant QAbstractSpinBoxPrivate::variantBound(const QVariant &min,
+                                               const QVariant &value,
+                                               const QVariant &max)
 {
     Q_ASSERT(variantCompare(min, max) <= 0);
     if (variantCompare(min, value) < 0) {

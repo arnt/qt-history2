@@ -1965,9 +1965,11 @@ void QDateTimeEditPrivate::_q_editorCursorPositionChanged(int oldpos, int newpos
               << "was" << sectionName(sectionType(currentSectionIndex));
 
     currentSectionIndex = s;
-    if (currentSectionIndex >= sectionNodes.size())
-        qFatal("%d currentSectionIndex >= sectionNodes.size()) %d %d", __LINE__,
-               currentSectionIndex, sectionNodes.size());
+    Q_ASSERT_X(currentSectionIndex < sectionNodes.size(),
+               "QDateTimeEditPrivate::_q_editorCursorPositionChanged()",
+               qPrintable(QString::fromAscii("Internal error (%1 %2)").
+                          arg(currentSectionIndex).
+                          arg(sectionNodes.size())));
 
     ignoreCursorPositionChanged = false;
 }
