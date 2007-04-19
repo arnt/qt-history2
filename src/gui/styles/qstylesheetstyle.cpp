@@ -2360,6 +2360,7 @@ void QStyleSheetStyle::drawComplexControl(ComplexControl cc, const QStyleOptionC
         }
         break;
 
+#ifndef QT_NO_SCROLLBAR
     case CC_ScrollBar:
         if (const QStyleOptionSlider *sb = qstyleoption_cast<const QStyleOptionSlider *>(opt)) {
             QStyleOptionSlider sbOpt(*sb);
@@ -2374,6 +2375,7 @@ void QStyleSheetStyle::drawComplexControl(ComplexControl cc, const QStyleOptionC
             return;
         }
         break;
+#endif // QT_NO_SCROLLBAR
 
     default:
         break;
@@ -3291,6 +3293,7 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const 
             return subRule.box()->spacing;
         break;
 
+#ifndef QT_NO_SCROLLBAR
     case PM_ScrollBarExtent:
         if (rule.hasContentsSize()) {
             QSize sz = rule.size();
@@ -3309,6 +3312,7 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const 
             return msz.width() == -1 ? msz.height() : msz.width();
         }
         break;
+#endif // QT_NO_SCROLLBAR
 
     case PM_ProgressBarChunkWidth:
         subRule = renderRule(w, PseudoElement_ProgressBarChunk);
@@ -3695,6 +3699,7 @@ QRect QStyleSheetStyle::subControlRect(ComplexControl cc, const QStyleOptionComp
             }
             break;
 
+#ifndef QT_NO_SCROLLBAR
     case CC_ScrollBar:
         if (const QStyleOptionSlider *sb = qstyleoption_cast<const QStyleOptionSlider *>(opt)) {
             if (!rule.hasNativeBorder()) {
@@ -3755,6 +3760,8 @@ QRect QStyleSheetStyle::subControlRect(ComplexControl cc, const QStyleOptionComp
                                            : QWindowsStyle::subControlRect(cc, &scrollBar, sc, w);
         }
         break;
+#endif // QT_NO_SCROLLBAR
+
     default:
         break;
     }
