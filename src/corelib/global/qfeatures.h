@@ -405,6 +405,11 @@
 #define QT_NO_GRAPHICSVIEW
 #endif
 
+// QMdiArea
+#if !defined(QT_NO_MDIAREA) && (defined(QT_NO_SCROLLAREA))
+#define QT_NO_MDIAREA
+#endif
+
 // QSpinBox
 #if !defined(QT_NO_SPINBOX) && (defined(QT_NO_SPINWIDGET) || defined(QT_NO_LINEEDIT) || defined(QT_NO_VALIDATOR))
 #define QT_NO_SPINBOX

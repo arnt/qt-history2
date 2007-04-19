@@ -330,6 +330,13 @@ Requires: SCROLLBAR RESIZEHANDLER MENU TOOLBUTTON MAINWINDOW TOOLBAR MENUBAR
 Name: QWorkSpace
 SeeAlso: ???
 
+Feature: MDIAREA
+Description: Provides an area in which MDI windows are displayed.
+Section: Widgets
+Requires: SCROLLAREA
+Name: QMdiArea
+SeeAlso: ???
+
 Feature: RESIZEHANDLER
 Description: Supports an internal resize handler.
 Section: Widgets
