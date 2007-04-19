@@ -27,7 +27,8 @@
 
 #include <QtGui/QPainter>
 #include <QtGui/QMouseEvent>
-#include <QtGui/QResizeEvent>    
+#include <QtGui/QResizeEvent>
+#include <QtGui/QMenu>
 #include <QtGui/QApplication>
 
 namespace {
@@ -47,7 +48,8 @@ TabOrderEditor::TabOrderEditor(QDesignerFormWindowInterface *form, QWidget *pare
     m_bg_widget(0),
     m_undo_stack(form->commandHistory()),
     m_font_metrics(font()),
-    m_current_index(0)    
+    m_current_index(0),
+    m_beginning(true)
 {
     connect(form, SIGNAL(widgetRemoved(QWidget*)), this, SLOT(widgetRemoved(QWidget*)));
 
@@ -87,6 +89,7 @@ void TabOrderEditor::updateBackground()
 
 void TabOrderEditor::widgetRemoved(QWidget*)
 {
+    initTabOrder();
 }
 
 void TabOrderEditor::showEvent(QShowEvent *e)
@@ -129,6 +132,10 @@ void TabOrderEditor::paintEvent(QPaintEvent *e)
     QPainter p(this);
     p.setClipRegion(e->region());
 
+    int cur = m_current_index - 1;
+    if (m_beginning == false && cur < 0)
+        cur = m_tab_order_list.size() - 1;
+
     for (int i = 0; i < m_tab_order_list.size(); ++i) {
         QWidget *widget = m_tab_order_list.at(i);
         if (!isWidgetVisible(widget))
@@ -136,7 +143,11 @@ void TabOrderEditor::paintEvent(QPaintEvent *e)
 
         const QRect r = indicatorRect(i);
 
-        QColor c = Qt::blue;
+        QColor c = Qt::darkGreen;
+        if (i == cur)
+            c = Qt::red;
+        else if (i > cur)
+            c = Qt::blue;
         p.setPen(c);
         c.setAlpha(BG_ALPHA);
         p.setBrush(c);
@@ -193,6 +204,7 @@ void TabOrderEditor::initTabOrder()
     // Append any widgets that are in the form but are not in the tab order
     QDesignerFormWindowCursorInterface *cursor = formWindow()->cursor();
     for (int i = 0; i < cursor->widgetCount(); ++i) {
+
         QWidget *widget = cursor->widget(i);
         if (skipWidget(widget))
             continue;
@@ -206,6 +218,11 @@ void TabOrderEditor::initTabOrder()
         if (m_tab_order_list.at(i)->isVisible())
             m_indicator_region |= indicatorRect(i);
     }
+
+    if (m_current_index >= m_tab_order_list.size())
+        m_current_index = m_tab_order_list.size() - 1;
+    if (m_current_index < 0)
+        m_current_index = 0;
 }
 
 void TabOrderEditor::mouseMoveEvent(QMouseEvent *e)
@@ -259,15 +276,27 @@ void TabOrderEditor::mousePressEvent(QMouseEvent *e)
         return;
     }
 
+    if (e->button() != Qt::LeftButton)
+        return;
+
     const int target_index = widgetIndexAt(e->pos());
     if (target_index == -1)
         return;
 
-    update(indicatorRect(target_index));
-    update(indicatorRect(m_current_index));
+    m_beginning = false;
+
+    if (e->modifiers() & Qt::ControlModifier) {
+        m_current_index = target_index + 1;
+        if (m_current_index >= m_tab_order_list.size())
+            m_current_index = 0;
+        update();
+        return;
+    }
+
+    if (m_current_index == -1)
+        return;
+
     m_tab_order_list.swap(target_index, m_current_index);
-    update(indicatorRect(target_index));
-    update(indicatorRect(m_current_index));
 
     ++m_current_index;
     if (m_current_index == m_tab_order_list.size())
@@ -278,10 +307,39 @@ void TabOrderEditor::mousePressEvent(QMouseEvent *e)
     formWindow()->commandHistory()->push(cmd);
 }
 
+void TabOrderEditor::contextMenuEvent(QContextMenuEvent *e)
+{
+    QMenu menu(this);
+    const int target_index = widgetIndexAt(e->pos());
+    QAction *setIndex = menu.addAction(tr("Start from Here"));
+    QAction *resetIndex = menu.addAction(tr("Restart"));
+    setIndex->setEnabled(target_index >= 0);
+    QAction *result = menu.exec(e->globalPos());
+    if (result == resetIndex) {
+        m_current_index = 0;
+        m_beginning = true;
+        update();
+    } else if (result == setIndex) {
+        m_beginning = false;
+        m_current_index = target_index + 1;
+        if (m_current_index >= m_tab_order_list.size())
+            m_current_index = 0;
+        update();
+    }
+}
+
 void TabOrderEditor::mouseDoubleClickEvent(QMouseEvent *e)
 {
+    if (e->button() != Qt::LeftButton)
+        return;
+
+    const int target_index = widgetIndexAt(e->pos());
+    if (target_index >= 0)
+        return;
+
+    m_beginning = true;
     m_current_index = 0;
-    mousePressEvent(e);
+    update();
 }
 
 void TabOrderEditor::resizeEvent(QResizeEvent *e)
