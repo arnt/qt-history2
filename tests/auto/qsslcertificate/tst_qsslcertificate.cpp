@@ -12,9 +12,6 @@
 #include <qsslkey.h>
 #include <qsslsocket.h>
 
-#include <QtNetwork/qhostaddress.h> // ### needed?
-#include <QtNetwork/qnetworkproxy.h> // ### needed?
-
 class tst_QSslCertificate : public QObject
 {
     Q_OBJECT
@@ -29,6 +26,7 @@ class tst_QSslCertificate : public QObject
     };
 
     QList<CertInfo> certInfoList;
+    QMap<QString, QString> subjAltNameMap;
     QMap<QString, QString> pubkeyMap;
     QMap<QString, QString> md5Map;
     QMap<QString, QString> sha1Map;
@@ -57,6 +55,7 @@ private slots:
     void copyAndAssign();
     void digest_data();
     void digest();
+    void alternateSubjectNames_data();
     void alternateSubjectNames();
     void publicKey_data();
     void publicKey();
@@ -77,33 +76,24 @@ tst_QSslCertificate::tst_QSslCertificate()
     QDir dir(qApp->applicationDirPath() + QLatin1String("/certificates"));
 #endif
     QFileInfoList fileInfoList = dir.entryInfoList(QDir::Files | QDir::Readable);
-
-    // register all certificates
-    QRegExp rx(QLatin1String("^.+\\.(pem|der)$"));
+    QRegExp rxCert(QLatin1String("^.+\\.(pem|der)$"));
+    QRegExp rxSan(QLatin1String("^(.+\\.(?:pem|der))\\.san$"));
+    QRegExp rxPubKey(QLatin1String("^(.+\\.(?:pem|der))\\.pubkey$"));
+    QRegExp rxDigest(QLatin1String("^(.+\\.(?:pem|der))\\.digest-(md5|sha1)$"));
     foreach (QFileInfo fileInfo, fileInfoList) {
-        if (rx.indexIn(fileInfo.fileName()) >= 0)
-            certInfoList
-                << CertInfo(fileInfo, rx.cap(1) == QLatin1String("pem") ? QSsl::Pem : QSsl::Der);
-    }
-
-    // register all public keys
-    rx = QRegExp(QLatin1String("^(.+\\.(?:pem|der))\\.pubkey$"));
-    foreach (QFileInfo fileInfo, fileInfoList) {
-        if (rx.indexIn(fileInfo.fileName()) >= 0) {
-            QString key = rx.cap(1);
-            pubkeyMap.insert(key, fileInfo.absoluteFilePath());
-        }
-    }
-
-    // register all digests (of entire certificates)
-    rx = QRegExp(QLatin1String("^(.+\\.(?:pem|der))\\.digest-(md5|sha1)$"));
-    foreach (QFileInfo fileInfo, fileInfoList) {
-        if (rx.indexIn(fileInfo.fileName()) >= 0) {
-            QString key = rx.cap(1);
-            if (rx.cap(2) == QLatin1String("md5"))
-                md5Map.insert(key, fileInfo.absoluteFilePath());
+        if (rxCert.indexIn(fileInfo.fileName()) >= 0)
+            certInfoList <<
+                CertInfo(fileInfo,
+                         rxCert.cap(1) == QLatin1String("pem") ? QSsl::Pem : QSsl::Der);
+        if (rxSan.indexIn(fileInfo.fileName()) >= 0)
+            subjAltNameMap.insert(rxSan.cap(1), fileInfo.absoluteFilePath());
+        if (rxPubKey.indexIn(fileInfo.fileName()) >= 0)
+            pubkeyMap.insert(rxPubKey.cap(1), fileInfo.absoluteFilePath());
+        if (rxDigest.indexIn(fileInfo.fileName()) >= 0) {
+            if (rxDigest.cap(2) == QLatin1String("md5"))
+                md5Map.insert(rxDigest.cap(1), fileInfo.absoluteFilePath());
             else
-                sha1Map.insert(key, fileInfo.absoluteFilePath());
+                sha1Map.insert(rxDigest.cap(1), fileInfo.absoluteFilePath());
         }
     }
 }
@@ -283,16 +273,67 @@ void tst_QSslCertificate::digest()
                  certificate.digest(QCryptographicHash::Sha1));
 }
 
+void tst_QSslCertificate::alternateSubjectNames_data()
+{
+    QTest::addColumn<QString>("certFilePath");
+    QTest::addColumn<QSsl::EncodingFormat>("format");
+    QTest::addColumn<QString>("subjAltNameFilePath");
+
+    foreach (CertInfo certInfo, certInfoList) {
+        QString certName = certInfo.fileInfo.fileName();
+        if (subjAltNameMap.contains(certName))
+            QTest::newRow(certName.toLatin1())
+                << certInfo.fileInfo.absoluteFilePath()
+                << certInfo.format
+                << subjAltNameMap.value(certName);
+    }
+}
+
 void tst_QSslCertificate::alternateSubjectNames()
 {
-/*
-    QByteArray encoded =
-        readFile(
-            "/home/jasplin/dev/qt-4.3/tests/auto/qsslcertificate/subjaltnames/cert-ss-san.pem");
-    QSslCertificate certificate(encoded, QSsl::Pem);
+    if (!QSslSocket::supportsSsl())
+        return;
+
+    QFETCH(QString, certFilePath);
+    QFETCH(QSsl::EncodingFormat, format);
+    QFETCH(QString, subjAltNameFilePath);
+
+    QByteArray encodedCert = readFile(certFilePath);
+    QSslCertificate certificate(encodedCert, format);
     QVERIFY(!certificate.isNull());
-    qDebug() << certificate.alternateSubjectNames();
-*/
+
+    QByteArray fileContents = readFile(subjAltNameFilePath);
+
+    const QMultiMap<QSsl::AlternateNameEntry, QString> altSubjectNames =
+        certificate.alternateSubjectNames();
+
+    // verify that each entry in subjAltNames is present in fileContents
+    QMapIterator<QSsl::AlternateNameEntry, QString> it(altSubjectNames);
+    while (it.hasNext()) {
+        it.next();
+        QString type;
+        if (it.key() == QSsl::EmailEntry)
+            type = QLatin1String("email");
+        else if (it.key() == QSsl::DnsEntry)
+            type = QLatin1String("DNS");
+        else
+            QFAIL("unsupported alternative name type");
+        QString entry = QString("%1:%2").arg(type).arg(it.value());
+        QVERIFY(fileContents.contains(entry.toAscii()));
+    }
+
+    // verify that each entry in fileContents is present in subjAltNames
+    QRegExp rx(QLatin1String("(email|DNS):([^,\\n]+)"));
+    for (int pos = 0; (pos = rx.indexIn(fileContents, pos)) != -1; pos += rx.matchedLength()) {
+        QSsl::AlternateNameEntry key;
+        if (rx.cap(1) == QLatin1String("email"))
+            key = QSsl::EmailEntry;
+        else if (rx.cap(1) == QLatin1String("DNS"))
+            key = QSsl::DnsEntry;
+        else
+            QFAIL("unsupported alternative name type");
+        QVERIFY(altSubjectNames.contains(key, rx.cap(2)));
+    }
 }
 
 void tst_QSslCertificate::publicKey_data()

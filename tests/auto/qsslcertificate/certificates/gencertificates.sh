@@ -42,5 +42,13 @@ do
   openssl x509 -in cert.pem -noout -fingerprint -$digest > cert.pem.digest-$digest
 done
 
+#--- Subjet Alternative Name extension ----------------------------------------------------
+echo -e "\n generating self signed root cert. with Subject Alternative Name extension (X509v3) ..."
+outname=cert-ss-san.pem
+openssl req -out req-san.pem -new -key rsa-pri-1024.pem -subj "/CN=Johnny GuitarC=NO"
+openssl req -x509 -in req-san.pem -out $outname -key rsa-pri-1024.pem \
+    -config san.cnf -extensions subj_alt_name
+/bin/cp san.cnf $outname.san
+
 echo -e "\n cleaning up ..."
-/bin/rm rsa-pri-1024.pem rsa-pub-1024.* req.pem
+/bin/rm rsa-pri-1024.pem rsa-pub-1024.* req*.pem
