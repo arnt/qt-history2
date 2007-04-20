@@ -261,7 +261,13 @@ SSL_METHOD *q_TLSv1_server_method();
 int q_SSL_write(SSL *a, const void *b, int c);
 X509V3_EXT_METHOD *q_X509V3_EXT_get(X509_EXTENSION *a);
 int q_X509_cmp(X509 *a, X509 *b);
+#ifdef SSLEAY_MACROS
+void *q_ASN1_dup(i2d_of_void *i2d, d2i_of_void *d2i, char *x);
+#define q_X509_dup(x509) (X509 *)q_ASN1_dup((i2d_of_void *)q_i2d_X509, \
+		(d2i_of_void *)q_d2i_X509,(char *)x509)
+#else
 X509 *q_X509_dup(X509 *a);
+#endif
 void q_X509_email_free(STACK *a);
 ASN1_OBJECT *q_X509_EXTENSION_get_object(X509_EXTENSION *a);
 void q_X509_free(X509 *a);
@@ -286,14 +292,23 @@ time_t q_getTimeFromASN1(const ASN1_TIME *aTime);
 
 #define q_BIO_get_mem_data(b, pp) (int)q_BIO_ctrl(b,BIO_CTRL_INFO,0,(char *)pp)
 #define q_BIO_pending(b) (int)q_BIO_ctrl(b,BIO_CTRL_PENDING,0,NULL)
-#ifdef SSLEAY_MACROS // ### verify
+#ifdef SSLEAY_MACROS
+int 	q_i2d_DSAPrivateKey(const DSA *a, unsigned char **pp);
+int 	q_i2d_RSAPrivateKey(const RSA *a, unsigned char **pp);
+RSA *q_d2i_RSAPrivateKey(RSA **a, unsigned char **pp, long length);
+DSA *q_d2i_DSAPrivateKey(DSA **a, unsigned char **pp, long length);
 #define	q_PEM_read_bio_RSAPrivateKey(bp, x, cb, u) \
         (RSA *)q_PEM_ASN1_read_bio( \
-        (char *(*)())d2i_RSAPrivateKey, PEM_STRING_RSA, bp, (char **)x, cb, u)
+        (void *(*)(void**, const unsigned char**, long int))q_d2i_RSAPrivateKey, PEM_STRING_RSA, bp, (void **)x, cb, u)
 #define	q_PEM_read_bio_DSAPrivateKey(bp, x, cb, u) \
         (DSA *)q_PEM_ASN1_read_bio( \
-        (char *(*)())d2i_DSAPrivateKey, PEM_STRING_DSA, bp, (char **)x, cb, u)
-// ### ditto for write
+        (void *(*)(void**, const unsigned char**, long int))q_d2i_DSAPrivateKey, PEM_STRING_DSA, bp, (void **)x, cb, u)
+#define	q_PEM_write_bio_RSAPrivateKey(bp,x,enc,kstr,klen,cb,u) \
+		PEM_ASN1_write_bio((int (*)(void*, unsigned char**))q_i2d_RSAPrivateKey,PEM_STRING_RSA,\
+			bp,(char *)x,enc,kstr,klen,cb,u)
+#define	q_PEM_write_bio_DSAPrivateKey(bp,x,enc,kstr,klen,cb,u) \
+		PEM_ASN1_write_bio((int (*)(void*, unsigned char**))q_i2d_DSAPrivateKey,PEM_STRING_DSA,\
+			bp,(char *)x,enc,kstr,klen,cb,u)
 #endif
 #define q_SSL_CTX_set_options(ctx,op) q_SSL_CTX_ctrl((ctx),SSL_CTRL_OPTIONS,(op),NULL)
 #define q_SKM_sk_num(type, st) ((int (*)(const STACK_OF(type) *))q_sk_num)(st)

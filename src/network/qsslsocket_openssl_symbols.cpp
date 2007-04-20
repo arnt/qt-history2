@@ -30,6 +30,9 @@
 
 #include <QtCore/qlibrary.h>
 
+#ifdef SSLEAY_MACROS
+DEFINEFUNC3(void *, ASN1_dup, i2d_of_void *a, a, d2i_of_void *b, b, char *c, c, return 0)
+#endif
 DEFINEFUNC4(long, BIO_ctrl, BIO *a, a, int b, b, long c, c, void *d, d, return -1)
 DEFINEFUNC(int, BIO_free, BIO *a, a, return 0)
 DEFINEFUNC(BIO *, BIO_new, BIO_METHOD *a, a, return 0)
@@ -61,9 +64,9 @@ DEFINEFUNC2(int, i2d_X509, X509 *a, a, unsigned char **b, b, return -1)
 DEFINEFUNC(const char *, OBJ_nid2sn, int a, a, return 0)
 DEFINEFUNC(int, OBJ_obj2nid, const ASN1_OBJECT *a, a, return NID_undef)
 DEFINEFUNC4(int, OBJ_obj2txt, char *a, a, int b, b, const ASN1_OBJECT *c, c, int d, d, return 0)
-#ifdef SSLEAY_MACROS // ### verify
-DEFINEFUNC6(void *, PEM_ASN1_read_bio, d2i_of_void *a, a, const char *b, b, BIO *c, c, void **d, d, pem_password_cb *d, d, void *d, d, return 0)
-DEFINEFUNC6(void *, PEM_ASN1_write_bio, d2i_of_void *a, a, const char *b, b, BIO *c, c, void **d, d, pem_password_cb *d, d, void *d, d, return 0)
+#ifdef SSLEAY_MACROS
+DEFINEFUNC6(void *, PEM_ASN1_read_bio, d2i_of_void *a, a, const char *b, b, BIO *c, c, void **d, d, pem_password_cb *e, e, void *f, f, return 0)
+DEFINEFUNC6(void *, PEM_ASN1_write_bio, d2i_of_void *a, a, const char *b, b, BIO *c, c, void **d, d, pem_password_cb *e, e, void *f, f, return 0)
 #else
 DEFINEFUNC4(DSA *, PEM_read_bio_DSAPrivateKey, BIO *a, a, DSA **b, b, pem_password_cb *c, c, void *d, d, return 0)
 DEFINEFUNC4(RSA *, PEM_read_bio_RSAPrivateKey, BIO *a, a, RSA **b, b, pem_password_cb *c, c, void *d, d, return 0)
@@ -120,7 +123,9 @@ DEFINEFUNC(SSL_METHOD *, TLSv1_server_method,,, return 0)
 DEFINEFUNC3(int, SSL_write, SSL *a, a, const void *b, b, int c, c, return -1)
 DEFINEFUNC2(int, X509_cmp, X509 *a, a, X509 *b, b, return -1)
 DEFINEFUNC(X509V3_EXT_METHOD *, X509V3_EXT_get, X509_EXTENSION *a, a, return 0)
+#ifndef SSLEAY_MACROS
 DEFINEFUNC(X509 *, X509_dup, X509 *a, a, return 0)
+#endif
 DEFINEFUNC(void, X509_email_free, STACK *a, a,)
 DEFINEFUNC(ASN1_OBJECT *, X509_EXTENSION_get_object, X509_EXTENSION *a, a, return 0)
 DEFINEFUNC(void, X509_free, X509 *a, a,)
@@ -140,6 +145,12 @@ DEFINEFUNC(void, X509_STORE_CTX_free, X509_STORE_CTX *a, a,)
 DEFINEFUNC4(int, X509_STORE_CTX_init, X509_STORE_CTX *a, a, X509_STORE *b, b, X509 *c, c, STACK_OF(X509) *d, d, return -1)
 DEFINEFUNC2(int, X509_STORE_CTX_set_purpose, X509_STORE_CTX *a, a, int b, b, return -1)
 DEFINEFUNC(X509_STORE_CTX *, X509_STORE_CTX_new,,, return 0)
+#ifdef SSLEAY_MACROS
+DEFINEFUNC2(int, i2d_DSAPrivateKey, const DSA *a, a, unsigned char **b, b, return -1)
+DEFINEFUNC2(int, i2d_RSAPrivateKey, const RSA *a, a, unsigned char **b, b, return -1)
+DEFINEFUNC3(RSA *, d2i_RSAPrivateKey, RSA **a, a, unsigned char **b, b, long c, c, return 0)
+DEFINEFUNC3(DSA *, d2i_DSAPrivateKey, DSA **a, a, unsigned char **b, b, long c, c, return 0)
+#endif
 
 #ifdef Q_OS_WIN
 #define RESOLVEFUNC(func) \
@@ -207,6 +218,9 @@ bool q_resolveOpenSslSymbols()
     }
 #endif
 
+#ifdef SSLEAY_MACROS
+    RESOLVEFUNC(ASN1_dup)
+#endif
     RESOLVEFUNC(BIO_ctrl)
     RESOLVEFUNC(BIO_free)
     RESOLVEFUNC(BIO_new)
@@ -297,7 +311,9 @@ bool q_resolveOpenSslSymbols()
     RESOLVEFUNC(X509_STORE_CTX_new)
     RESOLVEFUNC(X509_STORE_CTX_set_purpose)
     RESOLVEFUNC(X509_cmp)
+#ifndef SSLEAY_MACROS
     RESOLVEFUNC(X509_dup)
+#endif
     RESOLVEFUNC(X509_email_free)
     RESOLVEFUNC(X509_EXTENSION_get_object)
     RESOLVEFUNC(X509_free)
@@ -312,6 +328,12 @@ bool q_resolveOpenSslSymbols()
     RESOLVEFUNC(i2d_X509)
     RESOLVEFUNC(sk_num)
     RESOLVEFUNC(sk_value)
+#ifdef SSLEAY_MACROS
+    RESOLVEFUNC(i2d_DSAPrivateKey)
+    RESOLVEFUNC(i2d_RSAPrivateKey)
+    RESOLVEFUNC(d2i_DSAPrivateKey)
+    RESOLVEFUNC(d2i_RSAPrivateKey)
+#endif
     symbolsResolved = true;
     return true;
 }
