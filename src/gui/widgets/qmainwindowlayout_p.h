@@ -215,7 +215,9 @@ public:
     QList<int> currentGapPos;
     QRect currentGapRect;
     QWidget *pluggingWidget;
+#ifndef QT_NO_RUBBERBAND
     QRubberBand *gapIndicator;
+#endif
 
     QList<int> hover(QLayoutItem *widgetItem, const QPoint &mousePos);
     bool plug(QLayoutItem *widgetItem);

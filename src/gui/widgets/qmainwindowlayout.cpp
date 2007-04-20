@@ -1618,8 +1618,10 @@ QMainWindowLayout::QMainWindowLayout(QMainWindow *mainwindow)
     connect(separatorMoveTimer, SIGNAL(timeout()), this, SLOT(doSeparatorMove()));
 #endif
 
+#ifndef QT_NO_RUBBERBAND
     gapIndicator = new QRubberBand(QRubberBand::Rectangle, mainwindow);
     gapIndicator->hide();
+#endif
     pluggingWidget = 0;
 
     setObjectName(mainwindow->objectName() + QLatin1String("_layout"));
@@ -1724,6 +1726,7 @@ QLayoutItem *QMainWindowLayout::unplug(QWidget *widget)
 
 void QMainWindowLayout::updateGapIndicator()
 {
+#ifndef QT_NO_RUBBERBAND
     if (widgetAnimator->animating() || currentGapPos.isEmpty()) {
         gapIndicator->hide();
     } else {
@@ -1732,6 +1735,7 @@ void QMainWindowLayout::updateGapIndicator()
         if (!gapIndicator->isVisible())
             gapIndicator->show();
     }
+#endif
 }
 
 QList<int> QMainWindowLayout::hover(QLayoutItem *widgetItem, const QPoint &mousePos)
