@@ -381,3 +381,42 @@ setPen 0x7fff0000
 translate 0.5 0.5
 repeat_block lines
 
+setPen 0x000000 8
+translate 20 240
+drawText 0 0 "Steep slopes:"
+
+translate 0 10
+
+drawLine 0 0 -8 400
+translate 20 0
+drawLine 0 0 -7 400
+translate 20 0
+drawLine 0 0 -6 400
+translate 20 0
+drawLine 0 0 -5 400
+translate 20 0
+drawLine 0 0 -4 400
+translate 20 0
+drawLine 0 0 -3 400
+translate 20 0
+drawLine 0 0 -2 400
+translate 20 0
+drawLine 0 0 -1 400
+translate 20 0
+drawLine 0 0 0 400
+translate 20 0
+drawLine 0 0 1 400
+translate 20 0
+drawLine 0 0 2 400
+translate 20 0
+drawLine 0 0 3 400
+translate 20 0
+drawLine 0 0 4 400
+translate 20 0
+drawLine 0 0 5 400
+translate 20 0
+drawLine 0 0 6 400
+translate 20 0
+drawLine 0 0 7 400
+translate 20 0
+drawLine 0 0 8 400

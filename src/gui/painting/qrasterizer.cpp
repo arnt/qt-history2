@@ -340,13 +340,15 @@ void QRasterizer::rasterizeLine(const QPointF &a, const QPointF &b, qreal width,
             buffer.setBoundingRect(int(left.x()), iTop, int(right.x()), iBottom);
 
             Q16Dot16 leftIntersectAf = FloatToQ16Dot16(top.x() + (iTop - top.y()) * leftSlope);
-            Q16Dot16 leftIntersectBf = FloatToQ16Dot16(left.x() + (iTop - left.y()) * rightSlope);
             Q16Dot16 rightIntersectAf = FloatToQ16Dot16(top.x() + (iTop - top.y()) * rightSlope);
-            Q16Dot16 rightIntersectBf = FloatToQ16Dot16(right.x() + (iTop - right.y()) * leftSlope);
+            Q16Dot16 leftIntersectBf = 0;
+            Q16Dot16 rightIntersectBf = 0;
 
             Q16Dot16 rowTop, rowBottomLeft, rowBottomRight, rowTopLeft, rowTopRight, rowBottom;
             Q16Dot16 topLeftIntersectAf, topLeftIntersectBf, topRightIntersectAf, topRightIntersectBf;
             Q16Dot16 bottomLeftIntersectAf, bottomLeftIntersectBf, bottomRightIntersectAf, bottomRightIntersectBf;
+
+            int leftMin, leftMax, rightMin, rightMax;
 
             for (int y = iTop; y <= iBottom; ++y) {
                 rowTop = FloatToQ16Dot16(qMax(qreal(y), top.y()));
@@ -367,6 +369,7 @@ void QRasterizer::rasterizeLine(const QPointF &a, const QPointF &b, qreal width,
                 }
 
                 if (y == iLeft) {
+                    leftIntersectBf = FloatToQ16Dot16(left.x() + (y - left.y()) * rightSlope);
                     topLeftIntersectBf = leftIntersectBf + Q16Dot16Multiply(rightSlopeFP, rowTopLeft - yFP);
                     bottomLeftIntersectAf = leftIntersectAf + Q16Dot16Multiply(leftSlopeFP, rowBottomLeft - yFP);
                 } else {
@@ -375,6 +378,7 @@ void QRasterizer::rasterizeLine(const QPointF &a, const QPointF &b, qreal width,
                 }
 
                 if (y == iRight) {
+                    rightIntersectBf = FloatToQ16Dot16(right.x() + (y - right.y()) * leftSlope);
                     topRightIntersectBf = rightIntersectBf + Q16Dot16Multiply(leftSlopeFP, rowTopRight - yFP);
                     bottomRightIntersectAf = rightIntersectAf + Q16Dot16Multiply(rightSlopeFP, rowBottomRight - yFP);
                 } else {
@@ -390,11 +394,33 @@ void QRasterizer::rasterizeLine(const QPointF &a, const QPointF &b, qreal width,
                     bottomRightIntersectBf = rightIntersectBf + leftSlopeFP;
                 }
 
-                int leftMin = qBound(d->deviceRect.left(), Q16Dot16ToInt(qMax(bottomLeftIntersectAf, topLeftIntersectBf)), d->deviceRect.right());
-                int leftMax = qBound(d->deviceRect.left(), Q16Dot16ToInt(qMax(topLeftIntersectAf, bottomLeftIntersectBf)), d->deviceRect.right());
+                if (y < iLeft) {
+                    leftMin = Q16Dot16ToInt(bottomLeftIntersectAf);
+                    leftMax = Q16Dot16ToInt(topLeftIntersectAf);
+                } else if (y == iLeft) {
+                    leftMin = Q16Dot16ToInt(qMax(bottomLeftIntersectAf, topLeftIntersectBf));
+                    leftMax = Q16Dot16ToInt(qMax(topLeftIntersectAf, bottomLeftIntersectBf));
+                } else {
+                    leftMin = Q16Dot16ToInt(topLeftIntersectBf);
+                    leftMax = Q16Dot16ToInt(bottomLeftIntersectBf);
+                }
 
-                int rightMin = qBound(d->deviceRect.left(), Q16Dot16ToInt(qMin(topRightIntersectAf, bottomRightIntersectBf)), d->deviceRect.right());
-                int rightMax = qBound(d->deviceRect.left(), Q16Dot16ToInt(qMin(bottomRightIntersectAf, topRightIntersectBf)), d->deviceRect.right());
+                leftMin = qBound(d->deviceRect.left(), leftMin, d->deviceRect.right());
+                leftMax = qBound(d->deviceRect.left(), leftMax, d->deviceRect.right());
+
+                if (y < iRight) {
+                    rightMin = Q16Dot16ToInt(topRightIntersectAf);
+                    rightMax = Q16Dot16ToInt(bottomRightIntersectAf);
+                } else if (y == iRight) {
+                    rightMin = Q16Dot16ToInt(qMin(topRightIntersectAf, bottomRightIntersectBf));
+                    rightMax = Q16Dot16ToInt(qMin(bottomRightIntersectAf, topRightIntersectBf));
+                } else {
+                    rightMin = Q16Dot16ToInt(bottomRightIntersectBf);
+                    rightMax = Q16Dot16ToInt(topRightIntersectBf);
+                }
+
+                rightMin = qBound(d->deviceRect.left(), rightMin, d->deviceRect.right());
+                rightMax = qBound(d->deviceRect.left(), rightMax, d->deviceRect.right());
 
                 leftMax = qMin(leftMax, rightMin);
                 rightMin = qMax(leftMax, rightMin);
