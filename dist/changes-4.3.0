@@ -52,3 +52,12 @@ Third party components
         If the block is empty the block character format is returned.
         List markers are now also drawn with the character format of the first character in a block
         instead of the invisible block character format.
+
+ - QDateTimeEdit
+        Improvements with regards to two-digit years in a QDateTimeEdit. Make stepping work properly
+
+ - QMainWindow 
+        Fix a crash with QMainWindow:setMainWindow(0); on X11
+
+ - QSpinBox
+        Disallow typing -0 in a QSpinBox with a positive range
