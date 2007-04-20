@@ -378,20 +378,26 @@ void QPainterPrivate::updateEmulationSpecifier(QPainterState *s)
         skip = false;
 
         QBrush penBrush = s->pen.brush();
-        alpha = (penBrush.style() != Qt::NoBrush && !penBrush.isOpaque())
-                || (s->brush.style() != Qt::NoBrush && !s->brush.isOpaque());
-        linearGradient = ((penBrush.style() == Qt::LinearGradientPattern) ||
-                           (s->brush.style() == Qt::LinearGradientPattern));
-        radialGradient = ((penBrush.style() == Qt::RadialGradientPattern) ||
-                           (s->brush.style() == Qt::RadialGradientPattern));
-        conicalGradient = ((penBrush.style() == Qt::ConicalGradientPattern) ||
-                            (s->brush.style() == Qt::ConicalGradientPattern));
-        patternBrush = (((penBrush.style() > Qt::SolidPattern
-                           && penBrush.style() < Qt::LinearGradientPattern)
-                          || s->brush.style() == Qt::TexturePattern) ||
-                         ((s->brush.style() > Qt::SolidPattern
-                           && s->brush.style() < Qt::LinearGradientPattern)
-                          || s->brush.style() == Qt::TexturePattern));
+        Qt::BrushStyle brushStyle = s->brush.style();
+        Qt::BrushStyle penBrushStyle = penBrush.style();
+        alpha = (penBrushStyle != Qt::NoBrush
+                 && (penBrushStyle < Qt::LinearGradientPattern && penBrush.color().alpha() != 255)
+                 && !penBrush.isOpaque())
+                || (brushStyle != Qt::NoBrush
+                    && (brushStyle < Qt::LinearGradientPattern && s->brush.color().alpha() != 255)
+                    && !s->brush.isOpaque());
+        linearGradient = ((penBrushStyle == Qt::LinearGradientPattern) ||
+                           (brushStyle == Qt::LinearGradientPattern));
+        radialGradient = ((penBrushStyle == Qt::RadialGradientPattern) ||
+                           (brushStyle == Qt::RadialGradientPattern));
+        conicalGradient = ((penBrushStyle == Qt::ConicalGradientPattern) ||
+                            (brushStyle == Qt::ConicalGradientPattern));
+        patternBrush = (((penBrushStyle > Qt::SolidPattern
+                           && brushStyle < Qt::LinearGradientPattern)
+                          || penBrushStyle == Qt::TexturePattern) ||
+                         ((brushStyle > Qt::SolidPattern
+                           && penBrushStyle < Qt::LinearGradientPattern)
+                          || brushStyle == Qt::TexturePattern));
 
         if (((penBrush.style() == Qt::TexturePattern && penBrush.texture().hasAlpha())
              || (s->brush.style() == Qt::TexturePattern && s->brush.texture().hasAlpha()))
