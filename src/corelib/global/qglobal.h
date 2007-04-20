@@ -1321,9 +1321,16 @@ Q_CORE_EXPORT void qt_check_pointer(const char *, int);
      * string literal. */
 #   define QT_STRINGIFY2(x) #x
 #   define QT_STRINGIFY(x) QT_STRINGIFY2(x)
-    /* The paranteses, which shouldn't be necessary, workaround a bug in
-     * the compiler on IRIX, which gets operator precedence wrong. */
-#   define Q_FUNC_INFO (__FILE__ ":" QT_STRINGIFY(__LINE__))
+
+#   if defined(Q_CC_MIPS)
+        /* The two pair of paranteses, which shouldn't be necessary, workaround a bug in
+         * the compiler on IRIX MIPS Pro, which gets operator precedence as well as
+         * macros inside macros wrong. The last pair of paranteses appear in
+         * the output, but it's better than the alternatives. */
+#       define Q_FUNC_INFO (__FILE__ ":" QT_STRINGIFY((__LINE__)))
+#   else
+#       define Q_FUNC_INFO __FILE__ ":" QT_STRINGIFY(__LINE__)
+#   endif
 #   undef QT_STRINGIFY2
 #   undef QT_STRINGIFY
 #endif
