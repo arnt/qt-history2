@@ -234,6 +234,9 @@ void tst_QProcess::readFromProcess()
 //-----------------------------------------------------------------------------
 void tst_QProcess::crashTest()
 {
+#ifdef Q_OS_WIN
+    QSKIP("This test opens a crash dialog on Windows", SkipSingle);
+#endif
     process = new QProcess;
     process->start("testProcessCrash/testProcessCrash");
     QVERIFY(process->waitForStarted(5000));
@@ -261,6 +264,9 @@ void tst_QProcess::crashTest()
 //-----------------------------------------------------------------------------
 void tst_QProcess::crashTest2()
 {
+#ifdef Q_OS_WIN
+    QSKIP("This test opens a crash dialog on Windows", SkipSingle);
+#endif
     process = new QProcess;
     process->start("testProcessCrash/testProcessCrash");
     QVERIFY(process->waitForStarted(5000));
@@ -527,6 +533,11 @@ void tst_QProcess::exitStatus()
     process = new QProcess;
     QFETCH(QStringList, processList);
     QFETCH(QList<QProcess::ExitStatus>, exitStatus);
+
+#ifdef Q_OS_WIN
+    if (exitStatus.contains(QProcess::CrashExit))
+        QSKIP("This test opens a crash dialog on Windows", SkipSingle);
+#endif
 
     Q_ASSERT(processList.count() == exitStatus.count());
     for (int i = 0; i < processList.count(); ++i) {
