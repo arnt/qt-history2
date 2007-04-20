@@ -636,7 +636,7 @@ SeeAlso: ???
 Feature: COLUMNVIEW
 Description: Provides a model/view implementation of a column view.
 Section: ItemViews
-Requires: ITEMVIEWS
+Requires: LISTVIEW
 Name: QColumnView
 SeeAlso: ???
 

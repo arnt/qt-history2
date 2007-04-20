@@ -485,11 +485,6 @@
 #define QT_NO_WHATSTHIS
 #endif
 
-// QColumnView
-#if !defined(QT_NO_COLUMNVIEW) && (defined(QT_NO_ITEMVIEWS))
-#define QT_NO_COLUMNVIEW
-#endif
-
 // Common UNIX Printing System
 #if !defined(QT_NO_CUPS) && (defined(QT_NO_PRINTER) || defined(QT_NO_LIBRARY))
 #define QT_NO_CUPS
@@ -548,6 +543,11 @@
 // QColorDialog
 #if !defined(QT_NO_COLORDIALOG) && (defined(QT_NO_LINEEDIT) || defined(QT_NO_VALIDATOR) || defined(QT_NO_SPINBOX))
 #define QT_NO_COLORDIALOG
+#endif
+
+// QColumnView
+#if !defined(QT_NO_COLUMNVIEW) && (defined(QT_NO_LISTVIEW))
+#define QT_NO_COLUMNVIEW
 #endif
 
 // QCompleter
