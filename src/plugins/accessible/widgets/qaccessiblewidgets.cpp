@@ -1533,7 +1533,9 @@ void QAccessibleTextEdit::pasteText(int offset)
     newCursor.setPosition(offset);
 
     edit->setTextCursor(newCursor);
+#ifndef QT_NO_CLIPBOARD
     edit->paste();
+#endif
     edit->setTextCursor(oldCursor);
 }
 
