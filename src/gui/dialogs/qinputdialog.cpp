@@ -70,7 +70,7 @@ private:
     {
         QString t = text();
         int pos = 0;
-        return validator->validate(t, pos) == QValidator::Acceptable;
+        return validate(t, pos) == QValidator::Acceptable;
     }
 
 private slots:
@@ -123,7 +123,7 @@ private:
     {
         QString t = text();
         int pos = 0;
-        return validator->validate(t, pos) == QValidator::Acceptable;
+        return validate(t, pos) == QValidator::Acceptable;
     }
 
 private slots:
