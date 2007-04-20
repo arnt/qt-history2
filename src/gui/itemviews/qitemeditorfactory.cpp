@@ -365,7 +365,7 @@ void QItemEditorFactory::setDefaultFactory(QItemEditorFactory *factory)
     Only use this class if your editor does not define a user
     property (using the USER keyword in the Q_PROPERTY macro).  If the
     widget has a user property, you should use
-    QStandardItemEditorCreator in stead. 
+    QStandardItemEditorCreator in stead.
 
     \sa QItemEditorCreatorBase, QStandardItemEditorCreator,
 	QItemEditorFactory, {Color Editor Factory Example}
@@ -493,7 +493,7 @@ bool QBooleanComboBox::value() const
 
 #endif // QT_NO_COMBOBOX
 
-#if !defined(QT_NO_LINEEDIT) && !defined(QT_NO_COMBOBOX)
+#if !defined(QT_NO_LINEEDIT) || !defined(QT_NO_COMBOBOX)
 #include "qitemeditorfactory.moc"
 #endif
 
