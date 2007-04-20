@@ -120,8 +120,10 @@ public:
     void setLabelText(DialogLabel label, const QString &text);
     QString labelText(DialogLabel label) const;
 
+#ifndef QT_NO_PROXYMODEL
     void setProxyModel(QAbstractProxyModel *model);
     QAbstractProxyModel *proxyModel() const;
+#endif
 
 Q_SIGNALS:
     void filesSelected(const QStringList &files);

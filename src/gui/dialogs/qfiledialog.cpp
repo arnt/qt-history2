@@ -429,8 +429,10 @@ void QFileDialogPrivate::retranslateStrings()
 
     QList<QAction*> actions = qFileDialogUi->treeView->header()->actions();
     QAbstractItemModel *abstractModel = model;
+#ifndef QT_NO_PROXYMODEL
     if (proxyModel)
         abstractModel = proxyModel;
+#endif
     int total = qMin(abstractModel->columnCount(QModelIndex()), actions.count() + 1);
     for (int i = 1; i < total; ++i) {
         actions.at(i - 1)->setText(QFileDialog::tr("Show ") + abstractModel->headerData(i, Qt::Horizontal, Qt::DisplayRole).toString());
@@ -1728,8 +1730,10 @@ void QFileDialogPrivate::createWidgets()
                      q, SLOT(_q_showHeader(QAction *)));;
 
     QAbstractItemModel *abstractModel = model;
+#ifndef QT_NO_PROXYMODEL
     if (proxyModel)
         abstractModel = proxyModel;
+#endif
     for (int i = 1; i < abstractModel->columnCount(QModelIndex()); ++i) {
         QAction *showHeader = new QAction(showActionGroup);
         showHeader->setCheckable(true);
@@ -1768,6 +1772,7 @@ void QFileDialogPrivate::_q_showHeader(QAction *action)
     qFileDialogUi->treeView->header()->setSectionHidden(actionGroup->actions().indexOf(action) + 1, !action->isChecked());
 }
 
+#ifndef QT_NO_PROXYMODEL
 /*!
     \since 4.3
 
@@ -1823,6 +1828,7 @@ QAbstractProxyModel *QFileDialog::proxyModel() const
     Q_D(const QFileDialog);
     return d->proxyModel;
 }
+#endif // QT_NO_PROXYMODEL
 
 /*!
     \internal

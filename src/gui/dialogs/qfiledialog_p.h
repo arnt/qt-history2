@@ -82,7 +82,9 @@ class QFileDialogPrivate : public QDialogPrivate
 public:
     QFileDialogPrivate() :
     urlModel(0),
+#ifndef QT_NO_PROXYMODEL
     proxyModel(0),
+#endif
     model(0),
     fileMode(QFileDialog::AnyFile),
     acceptMode(QFileDialog::AcceptOpen),
@@ -189,7 +191,9 @@ public:
 
     // layout
     QUrlModel *urlModel;
+#ifndef QT_NO_PROXYMODEL
     QAbstractProxyModel *proxyModel;
+#endif
 
     // data
     QStringList watching;
@@ -260,10 +264,18 @@ private:
 };
 
 inline QModelIndex QFileDialogPrivate::mapToSource(const QModelIndex &index) const {
+#ifdef QT_NO_PROXYMODEL
+    return index;
+#else
     return proxyModel ? proxyModel->mapToSource(index) : index;
+#endif
 }
 inline QModelIndex QFileDialogPrivate::mapFromSource(const QModelIndex &index) const {
+#ifdef QT_NO_PROXYMODEL
+    return index;
+#else
     return proxyModel ? proxyModel->mapFromSource(index) : index;
+#endif
 }
 
 inline QString QFileDialogPrivate::rootPath() const {
