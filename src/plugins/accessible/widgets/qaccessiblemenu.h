@@ -44,7 +44,6 @@ public:
 protected:
     QMenu *menu() const;
 };
-#endif // QT_NO_MENU
 
 #ifndef QT_NO_MENUBAR
 class QAccessibleMenuBar : public QAccessibleWidgetEx
@@ -76,7 +75,7 @@ class QAccessibleMenuItem : public QAccessibleInterface
 {
 public:
     explicit QAccessibleMenuItem(QWidget *owner, QAction *w);
-    
+
     virtual ~QAccessibleMenuItem();
     virtual QString actionText ( int action, Text t, int child ) const;
     virtual int childAt ( int x, int y ) const;
@@ -103,6 +102,7 @@ private:
     QAction *m_action;
     QWidget *m_owner; // can hold either QMenu or the QMenuBar that contains the action
 };
-#endif // QT_NO_ACCESSIBILITY
 
+#endif // QT_NO_MENU
+#endif // QT_NO_ACCESSIBILITY
 #endif // QACCESSIBLEMENU_H

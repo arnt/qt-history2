@@ -591,7 +591,9 @@ ControlContainer::ControlContainer(QMdiSubWindow *mdiChild)
 
     m_menuLabel = new ControlElement<ControlLabel>(mdiChild);
     m_menuLabel->setWindowIcon(mdiChild->windowIcon());
+#ifndef QT_NO_MENU
     connect(m_menuLabel, SIGNAL(_q_clicked()), mdiChild, SLOT(showSystemMenu()));
+#endif
     connect(m_menuLabel, SIGNAL(_q_doubleClicked()), mdiChild, SLOT(close()));
 }
 
@@ -1264,9 +1266,11 @@ void QMdiSubWindowPrivate::processClickedSubControl()
 {
     Q_Q(QMdiSubWindow);
     switch (activeSubControl) {
+#ifndef QT_NO_MENU
     case QStyle::SC_TitleBarSysMenu:
         q->showSystemMenu();
         break;
+#endif
     case QStyle::SC_TitleBarContextHelpButton:
 #ifndef QT_NO_WHATSTHIS
         QWhatsThis::enterWhatsThisMode();
@@ -1884,6 +1888,7 @@ void QMdiSubWindowPrivate::setVisible(WindowStateAction action, bool visible)
         actions[action]->setVisible(visible);
 }
 
+#ifndef QT_NO_MENU
 void QMdiSubWindowPrivate::addToSystemMenu(WindowStateAction action, const QString &text,
                                            const char *slot)
 {
@@ -1891,6 +1896,7 @@ void QMdiSubWindowPrivate::addToSystemMenu(WindowStateAction action, const QStri
         return;
     actions[action] = systemMenu->addAction(text, q_func(), slot);
 }
+#endif
 
 /*!
     \internal
@@ -1987,8 +1993,10 @@ QMdiSubWindow::QMdiSubWindow(QWidget *parent, Qt::WindowFlags flags)
     : QWidget(*new QMdiSubWindowPrivate, parent, 0)
 {
     Q_D(QMdiSubWindow);
+#ifndef QT_NO_MENU
     d->createSystemMenu();
     addActions(d->systemMenu->actions());
+#endif
     d->setWindowFlags(flags);
     setBackgroundRole(QPalette::Window);
     setAutoFillBackground(true);
@@ -2214,6 +2222,7 @@ void QMdiSubWindow::setKeyboardPageStep(int step)
     d_func()->keyboardPageStep = step;
 }
 
+#ifndef QT_NO_MENU
 /*!
     Sets \a systemMenu as the current system menu for this subwindow.
 
@@ -2281,6 +2290,7 @@ void QMdiSubWindow::showSystemMenu()
     QPoint menuPosition(x, d->titleBarHeight());
     d->systemMenu->popup(mapToGlobal(menuPosition));
 }
+#endif // QT_NO_MENU
 
 /*!
     Calling this function makes the subwindow enter the shaded mode.
@@ -3060,6 +3070,7 @@ void QMdiSubWindow::keyPressEvent(QKeyEvent *keyEvent)
 #endif
 }
 
+#ifndef QT_NO_MENU
 /*!
     \reimp
 */
@@ -3078,6 +3089,7 @@ void QMdiSubWindow::contextMenuEvent(QContextMenuEvent *contextMenuEvent)
         contextMenuEvent->ignore();
     }
 }
+#endif // QT_NO_MENU
 
 /*!
     \reimp

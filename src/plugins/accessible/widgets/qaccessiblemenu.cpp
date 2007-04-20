@@ -202,8 +202,6 @@ int QAccessibleMenu::indexOfChild( const QAccessibleInterface *child ) const
     return index;
 }
 
-#endif // QT_NO_MENU
-
 #ifndef QT_NO_MENUBAR
 QAccessibleMenuBar::QAccessibleMenuBar(QWidget *w)
 : QAccessibleWidgetEx(w)
@@ -616,4 +614,6 @@ QWidget *QAccessibleMenuItem::owner() const
 {
     return m_owner;
 }
+
+#endif // QT_NO_MENU
 #endif // QT_NO_ACCESSIBILITY

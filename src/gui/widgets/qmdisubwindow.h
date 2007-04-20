@@ -61,15 +61,19 @@ public:
     void setKeyboardPageStep(int step);
     int keyboardPageStep() const;
 
+#ifndef QT_NO_MENU
     void setSystemMenu(QMenu *systemMenu);
     QMenu *systemMenu() const;
+#endif
 
 Q_SIGNALS:
     void windowStateChanged(Qt::WindowStates oldState, Qt::WindowStates newState);
     void aboutToActivate();
 
 public Q_SLOTS:
+#ifndef QT_NO_MENU
     void showSystemMenu();
+#endif
     void showShaded();
 
 protected:
@@ -89,7 +93,9 @@ protected:
     void mouseReleaseEvent(QMouseEvent *mouseEvent);
     void mouseMoveEvent(QMouseEvent *mouseEvent);
     void keyPressEvent(QKeyEvent *keyEvent);
+#ifndef QT_NO_MENU
     void contextMenuEvent(QContextMenuEvent *contextMenuEvent);
+#endif
     void focusInEvent(QFocusEvent *focusInEvent);
     void focusOutEvent(QFocusEvent *focusOutEvent);
     void childEvent(QChildEvent *childEvent);

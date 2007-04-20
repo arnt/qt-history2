@@ -224,7 +224,9 @@ public:
     void setWindowFlags(Qt::WindowFlags windowFlags);
     void setEnabled(WindowStateAction, bool enable = true);
     void setVisible(WindowStateAction, bool visible = true);
+#ifndef QT_NO_MENU
     void addToSystemMenu(WindowStateAction, const QString &text, const char *slot);
+#endif
     QSize iconSize() const;
 #ifndef QT_NO_SIZEGRIP
     void setSizeGrip(QSizeGrip *sizeGrip);

@@ -363,6 +363,7 @@ void QSidebar::selectUrl(const QUrl &url)
             this, SLOT(clicked(const QModelIndex &)));
 }
 
+#ifndef QT_NO_MENU
 /*!
     \internal
 
@@ -381,6 +382,7 @@ void QSidebar::showContextMenu(const QPoint &position)
     if (actions.count() > 0)
         QMenu::exec(actions, mapToGlobal(position));
 }
+#endif // QT_NO_MENU
 
 /*!
     \internal
