@@ -1359,7 +1359,7 @@ bool Configure::checkAvailability(const QString &part)
     else if (part == "MMX" || part == "SSE")
         available = (dictionary.value("QMAKESPEC") != "win32-msvc") && (dictionary.value("QMAKESPEC") != "win32-g++");
     else if (part == "OPENSSL")
-        available = findFile("ssl.h");
+        available = findFile("openssl\\ssl.h");
 
     else if (part == "INCREDIBUILD_XGE")
         available = findFile("BuildConsole.exe") && findFile("xgConsole.exe");
