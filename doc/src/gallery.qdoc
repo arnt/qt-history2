@@ -19,6 +19,11 @@
 
   The Cleanlooks style is provided by QCleanlooksStyle.
 
+  \row \i \inlineimage windowsvista-tabwidget.png
+  \i \bold{\l{gallery-windowsvista.html}{Windows Vista Style Widget Gallery}}
+
+  The Windows Vista style is provided by QWindowsVistaStyle.
+
   \row \i \inlineimage windowsxp-tabwidget.png
   \i \bold{\l{gallery-windowsxp.html}{Windows XP Style Widget Gallery}}
 
