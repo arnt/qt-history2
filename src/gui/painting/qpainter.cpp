@@ -4576,6 +4576,14 @@ void QPainter::drawText(const QRectF &r, const QString &text, const QTextOption 
     Draws the text item \a ti at position \a p.
 */
 
+#ifndef QT_NO_DEBUG
+static void qt_painter_thread_test()
+{
+    if (QThread::currentThread() != qApp->thread())
+        qWarning("QPainter: It is not safe to use text and fonts outside the GUI thread");
+}
+#endif
+
 /*! \internal
     Draws the text item \a ti at position \a p.
 
@@ -4589,13 +4597,6 @@ void QPainter::drawText(const QRectF &r, const QString &text, const QTextOption 
     ignored aswell. You'll need to pass in the correct flags to get
     underlining and strikeout.
 */
-
-void qt_painter_tread_test()
-{
-    if (QThread::currentThread() != qApp->thread())
-        qWarning("QPainter: It is not safe to use text and fonts outside the GUI thread");
-}
-
 static QPainterPath generateWavyPath(qreal minWidth, QPaintDevice *device)
 {
     extern int qt_defaultDpi();
@@ -4700,7 +4701,7 @@ void QPainter::drawTextItem(const QPointF &p, const QTextItem &_ti)
 #endif
 
 #ifndef QT_NO_DEBUG
-    qt_painter_tread_test();
+    qt_painter_thread_test();
 #endif
 
     if (!isActive())

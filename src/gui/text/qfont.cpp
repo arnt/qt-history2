@@ -459,11 +459,13 @@ QFontEngineData::~QFontEngineData()
     \sa Weight
 */
 
-void qt_font_tread_test()
+#ifndef QT_NO_DEBUG
+static void qt_font_thread_test()
 {
     if (QApplication::instance() && QThread::currentThread() != QApplication::instance()->thread())
         qWarning("QFont: It is not safe to use text and fonts outside the GUI thread");
 }
+#endif
 
 /*!
   Constructs a font from \a font for use on the paint device \a pd.
@@ -499,7 +501,9 @@ QFont::QFont(const QFont &font, QPaintDevice *pd)
 QFont::QFont(QFontPrivate *data)
     : resolve_mask(QFontPrivate::Complete)
 {
-    qt_font_tread_test();
+#ifndef QT_NO_DEBUG
+    qt_font_thread_test();
+#endif
 
     d = data;
     d->ref.ref();
@@ -550,7 +554,9 @@ QFont::QFont()
 QFont::QFont(const QString &family, int pointSize, int weight, bool italic)
     :d(new QFontPrivate)
 {
-    qt_font_tread_test();
+#ifndef QT_NO_DEBUG
+    qt_font_thread_test();
+#endif
 
     resolve_mask = QFontPrivate::Family;
 
