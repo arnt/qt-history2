@@ -443,6 +443,7 @@ QByteArray QSslCertificate::toDer() const
 QList<QSslCertificate> QSslCertificate::fromPath(const QString &path, QSsl::EncodingFormat format,
                                                  QRegExp::PatternSyntax syntax)
 {
+    Q_UNUSED(format);
     if (syntax == QRegExp::FixedString) {
         QFile file(path);
         if (file.open(QIODevice::ReadOnly | QIODevice::Text))
