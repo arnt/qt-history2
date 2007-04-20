@@ -1342,6 +1342,8 @@ void QScriptEnginePrivate::init()
     m_maxCallDepth = 88;
 #elif defined(Q_OS_MAC)
     m_maxCallDepth = 640;
+#elif defined(QT_ARCH_ARM)
+    m_maxCallDepth = 360;
 #else
     m_maxCallDepth = 768;
 #endif
