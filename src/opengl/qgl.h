@@ -362,6 +362,11 @@ public:
     GLuint bindTexture(const QString &fileName);
     void deleteTexture(GLuint tx_id);
 
+#ifdef Q_WS_QWS
+    void glViewport(int x, int y, int width, int height);
+    void glClear(GLbitfield clearbits);
+#endif
+
 public Q_SLOTS:
     virtual void updateGL();
     virtual void updateOverlayGL();

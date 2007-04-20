@@ -1862,6 +1862,41 @@ int QGLContext::textureCacheLimit()
     return qt_tex_cache_limit;
 }
 
+
+#ifdef Q_WS_QWS
+void QGLWidget::glViewport(int x, int y, int width, int height)
+{
+    if (isWindow()) {
+        QRect fgeom = frameGeometry();
+        QRect geom = geometry();
+
+        int xoffset = geom.x() - fgeom.x();
+        int yoffset = fgeom.height() - geom.height() - (geom.y() - fgeom.y());
+        ::glViewport(x + xoffset,
+                     y + yoffset, width, height);
+    } else {
+        ::glViewport(x, y, width, height);
+    }
+}
+
+void QGLWidget::glClear(GLbitfield clearbits)
+{
+    if (isWindow()) {
+        QRect fgeom = frameGeometry();
+        QRect geom = geometry();
+
+        int xoffset = geom.x() - fgeom.x();
+        int yoffset = fgeom.height() - geom.height() - (geom.y() - fgeom.y());
+        glScissor(xoffset, yoffset, width(), height());
+        glEnable(GL_SCISSOR_TEST);
+        ::glClear(clearbits);
+        glDisable(GL_SCISSOR_TEST);
+    } else {
+        ::glClear(clearbits);
+    }
+}
+#endif
+
 /*!
     \fn QGLFormat QGLContext::format() const
 
