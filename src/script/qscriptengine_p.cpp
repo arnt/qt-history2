@@ -1338,8 +1338,10 @@ void QScriptEnginePrivate::init()
     qMetaTypeId<QScriptValue>();
 
     m_callDepth = 0;
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN)
     m_maxCallDepth = 88;
+#elif defined(Q_OS_MAC)
+    m_maxCallDepth = 640;
 #else
     m_maxCallDepth = 768;
 #endif
