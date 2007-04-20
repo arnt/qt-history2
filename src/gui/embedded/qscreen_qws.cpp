@@ -312,6 +312,9 @@ public:
     QPoint offset;
     QList<QScreen*> subScreens;
     QImage::Format pixelFormat;
+#if Q_BYTE_ORDER == Q_BIG_ENDIAN
+    bool fb_is_littleEndian;
+#endif
     QScreen *q_ptr;
 };
 
@@ -422,6 +425,40 @@ static void blit_16(QScreen *screen, const QImage &image,
         qCritical("blit_16(): Image format %d not supported!", image.format());
     }
 }
+
+#if Q_BYTE_ORDER == Q_BIG_ENDIAN
+class quint16LE
+{
+public:
+    inline quint16LE(quint32 v) {
+        data = ((v & 0xff00) >> 8) | ((v & 0x00ff) << 8);
+    }
+
+    inline quint16LE(quint16 v) {
+        data = ((v & 0xff00) >> 8) | ((v & 0x00ff) << 8);
+    }
+
+private:
+    quint16 data;
+};
+
+static void blit_16_bigToLittleEndian(QScreen *screen, const QImage &image,
+                                      const QPoint &topLeft,
+                                      const QRegion &region)
+{
+    switch (image.format()) {
+    case QImage::Format_ARGB32_Premultiplied:
+        blit_template<quint16LE, quint32>(screen, image, topLeft, region);
+        return;
+    case QImage::Format_RGB16:
+        blit_template<quint16LE, quint16>(screen, image, topLeft, region);
+        return;
+    default:
+        qCritical("blit_16_bigToLittleEndian(): Image format %d not supported!", image.format());
+    }
+}
+
+#endif // Q_BIG_ENDIAN
 #endif // QT_QWS_DEPTH_16
 
 #ifdef QT_QWS_DEPTH_8
@@ -462,7 +499,12 @@ void qt_blit_setup(QScreen *screen, const QImage &image,
 #endif
 #ifdef QT_QWS_DEPTH_16
     case 16:
-        screen->d_ptr->blit = blit_16;
+#if Q_BYTE_ORDER == Q_BIG_ENDIAN
+        if (screen->d_ptr->fb_is_littleEndian)
+            screen->d_ptr->blit = blit_16_bigToLittleEndian;
+        else
+#endif
+            screen->d_ptr->blit = blit_16;
         break;
 #endif
 #ifdef QT_QWS_DEPTH_8
@@ -484,6 +526,9 @@ QScreenPrivate::QScreenPrivate(QScreen *parent)
 {
     solidFill = qt_solidFill_setup;
     blit = qt_blit_setup;
+#if Q_BYTE_ORDER == Q_BIG_ENDIAN
+    fb_is_littleEndian = true;
+#endif
 }
 
 QImage::Format QScreenPrivate::preferredImageFormat() const
@@ -1430,72 +1475,6 @@ void QScreen::exposeRegion(QRegion r, int windowIndex)
     for (int i = 0; i < rects.size(); ++i)
         setDirty(rects.at(i));
 }
-
-#if 0 // Q_BYTE_ORDER == Q_BIG_ENDIAN
-#ifdef QT_QWS_DEPTH_16
-static void blit_32_to_16(const blit_data *data)
-{
-    const int sbpl = data->img->bytesPerLine() / 4;
-    const int dbpl = data->lineStep / 2;
-
-    const uint *src = (const uint *)data->img->bits();
-    src += data->sy * sbpl + data->sx;
-    ushort *dest = (ushort *)data->data;
-    dest += data->dy * dbpl + data->dx;
-
-    int h = data->h;
-    while (h) {
-#if Q_BYTE_ORDER == Q_BIG_ENDIAN
-        for (int i = 0; i < data->w; ++i) {
-            const quint16 val = qt_convRgbTo16(src[i]);
-            dest[i] = ((val & 0xff00) >> 8) | ((val & 0x00ff) << 8);
-        }
-#else
-        for (int i = 0; i < data->w; ++i)
-            dest[i] = qt_convRgbTo16(src[i]);
-#endif
-        src += sbpl;
-        dest += dbpl;
-        --h;
-    }
-}
-
-#if Q_BYTE_ORDER == Q_BIG_ENDIAN
-static inline void memblit_bigendian(quint16 *dst, const quint16 *src, int n)
-{
-    for (int i = 0; i < n; ++i)
-        dst[i] = ((src[i] & 0xff00) >> 8) | ((src[i] & 0x00ff) << 8);
-}
-#endif
-
-static void blit_16_to_16(const blit_data *data)
-{
-    const int sbpl = data->img->bytesPerLine();
-    const int dbpl = data->lineStep;
-
-    const uchar *src = (const uchar *)data->img->bits();
-    src += data->sy * sbpl + data->sx*2;
-    uchar *dest = (uchar *)data->data;
-    dest += data->dy * dbpl + data->dx*2;
-
-    int h = data->h;
-    while (h) {
-#if Q_BYTE_ORDER == Q_BIG_ENDIAN
-        memblit_bigendian((quint16*)dest, (quint16*)src, data->w);
-#else
-#ifdef QT_USE_MEMCPY_DUFF
-        QT_MEMCPY_USHORT(dest, src, data->w);
-#else
-        memcpy(dest, src, data->w * 2);
-#endif
-#endif
-        src += sbpl;
-        dest += dbpl;
-        --h;
-    }
-}
-#endif // QT_QWS_DEPTH_16
-#endif // Q_BIG_ENDIAN
 
 /*!
     \fn void QScreen::blit(const QImage &image, const QPoint &topLeft, const QRegion &region)
