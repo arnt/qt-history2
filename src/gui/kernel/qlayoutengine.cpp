@@ -347,11 +347,11 @@ Q_GUI_EXPORT QSize qSmartMaxSize(const QSize &sizeHint,
     QSize s = maxSize;
     QSize hint = sizeHint.expandedTo(minSize);
     if (s.width() == QWIDGETSIZE_MAX && !(align & Qt::AlignHorizontal_Mask))
-        if (!(sizePolicy.horizontalPolicy() & QSizePolicy::GrowFlag) && hint.width() > 0)
+        if (!(sizePolicy.horizontalPolicy() & QSizePolicy::GrowFlag) )
             s.setWidth(hint.width());
 
     if (s.height() == QWIDGETSIZE_MAX && !(align & Qt::AlignVertical_Mask))
-        if (!(sizePolicy.verticalPolicy() & QSizePolicy::GrowFlag) && hint.height() > 0)
+        if (!(sizePolicy.verticalPolicy() & QSizePolicy::GrowFlag) )
             s.setHeight(hint.height());
 
     if (align & Qt::AlignHorizontal_Mask)

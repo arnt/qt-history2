@@ -15,6 +15,8 @@
 #include <qmenubar.h>
 #include <QtGui/QFrame>
 #include <QtGui/QWindowsStyle>
+#include <QtGui/QSizePolicy>
+#include <private/qlayoutengine_p.h>
 
 //TESTED_CLASS=
 //TESTED_FILES=qlayout.h
@@ -30,6 +32,7 @@ public:
 private slots:
     void getSetCheck();
     void geometry();
+    void smartMaxSize();
 };
 
 tst_QLayout::tst_QLayout()
@@ -95,6 +98,68 @@ void tst_QLayout::geometry()
     QCOMPARE(item->geometry().size(), QSize(90,90));
 }
 
+void tst_QLayout::smartMaxSize()
+{
+    QVector<int> expectedWidths; 
+
+    QFile f(QLatin1String("baseline/smartmaxsize"));
+    QCOMPARE(f.open(QIODevice::ReadOnly | QIODevice::Text), true);
+
+    QTextStream stream(&f);
+
+    while(!stream.atEnd()) {
+        QString line = stream.readLine(200);
+        expectedWidths.append(line.section(QLatin1Char(' '), 6, -1, QString::SectionSkipEmpty).toInt());
+    }
+    f.close();
+
+    int sizeCombinations[] = { 0, 10, 20, QWIDGETSIZE_MAX};
+    QSizePolicy::Policy policies[] = {  QSizePolicy::Fixed, 
+                                        QSizePolicy::Minimum, 
+                                        QSizePolicy::Maximum, 
+                                        QSizePolicy::Preferred,
+                                        QSizePolicy::Expanding,
+                                        QSizePolicy::MinimumExpanding,
+                                        QSizePolicy::Ignored
+                                        };
+    Qt::Alignment alignments[] = {  0,
+                                    Qt::AlignLeft,
+                                    Qt::AlignRight,
+                                    Qt::AlignHCenter
+                                    };
+
+    int expectedIndex = 0;
+    int regressionCount = 0;
+    for (int p = 0; p < sizeof(policies)/sizeof(QSizePolicy::Policy); ++p) {
+        QSizePolicy sizePolicy;
+        sizePolicy.setHorizontalPolicy(policies[p]);
+        for (int min = 0; min < sizeof(sizeCombinations)/sizeof(int); ++min) {
+            int minSize = sizeCombinations[min];
+            for (int max = 0; max < sizeof(sizeCombinations)/sizeof(int); ++max) {
+                int maxSize = sizeCombinations[max];
+                for (int sh = 0; sh < sizeof(sizeCombinations)/sizeof(int); ++sh) {
+                    int sizeHint = sizeCombinations[sh];
+                    for (int a = 0; a < sizeof(alignments)/sizeof(int); ++a) {
+                        Qt::Alignment align = alignments[a];
+                        QSize sz = qSmartMaxSize(QSize(sizeHint, 1), QSize(minSize, 1), QSize(maxSize, 1), sizePolicy, align);
+                        int width = sz.width();
+#if 0
+                        qDebug() << expectedIndex << sizePolicy.horizontalPolicy() << align << minSize << sizeHint << maxSize << width;
+#else
+                        int expectedWidth = expectedWidths[expectedIndex];
+                        if (width != expectedWidth) {
+                            qDebug() << "error at index" << expectedIndex << ":" << sizePolicy.horizontalPolicy() << align << minSize << sizeHint << maxSize << width;
+                            ++regressionCount;
+                        }
+#endif
+                        ++expectedIndex;
+                    }
+                }
+            }
+        }
+    }
+    QCOMPARE(regressionCount, 0);
+}
 
 QTEST_MAIN(tst_QLayout)
 #include "tst_qlayout.moc"
