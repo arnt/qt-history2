@@ -1126,6 +1126,7 @@ class QLastResortMimes : public QWindowsMime
 {
 public:
 
+    QLastResortMimes();
     // for converting from Qt
     bool canConvertFromMime(const FORMATETC &formatetc, const QMimeData *mimeData) const;
     bool convertFromMime(const FORMATETC &formatetc, const QMimeData *mimeData, STGMEDIUM * pmedium) const;
@@ -1138,7 +1139,38 @@ public:
 
 private:
     QMap<int, QString> formats;
+    static QStringList ianaTypes;
+    static QStringList excludeList;
 };
+
+QStringList QLastResortMimes::ianaTypes;
+QStringList QLastResortMimes::excludeList;
+
+QLastResortMimes::QLastResortMimes()
+{
+    //MIME Media-Types
+    if (!ianaTypes.size()) {
+        ianaTypes.append(QLatin1String("application/"));
+        ianaTypes.append(QLatin1String("audio/"));
+        ianaTypes.append(QLatin1String("example/"));
+        ianaTypes.append(QLatin1String("image/"));
+        ianaTypes.append(QLatin1String("message/"));
+        ianaTypes.append(QLatin1String("model/"));
+        ianaTypes.append(QLatin1String("multipart/"));
+        ianaTypes.append(QLatin1String("text/"));
+        ianaTypes.append(QLatin1String("video/"));
+    }
+    //Types handled by other classes
+    if (!excludeList.size()) {
+        excludeList.append(QLatin1String("HTML Format"));
+        excludeList.append(QLatin1String("UniformResourceLocator"));
+        excludeList.append(QLatin1String("text/html"));
+        excludeList.append(QLatin1String("text/plain"));
+        excludeList.append(QLatin1String("text/uri-list"));
+        excludeList.append(QLatin1String("application/x-qt-image"));
+        excludeList.append(QLatin1String("application/x-color"));
+    }
+}
 
 bool QLastResortMimes::canConvertFromMime(const FORMATETC &formatetc, const QMimeData *mimeData) const
 {
@@ -1159,7 +1191,7 @@ QVector<FORMATETC> QLastResortMimes::formatsForMime(const QString &mimeType, con
     QVector<FORMATETC> formatetcs;
     if (!formats.keys(mimeType).isEmpty()) {
         formatetcs += setCf(formats.key(mimeType));
-    } else {
+    } else if (!excludeList.contains(mimeType, Qt::CaseInsensitive)){
         // register any other available formats
         int cf = QWindowsMime::registerMimeType(mimeType);
         QLastResortMimes *that = const_cast<QLastResortMimes *>(this);
@@ -1233,10 +1265,20 @@ QString QLastResortMimes::mimeForFormat(const FORMATETC &formatetc) const
                 format = clipFormat;
             else if((formatetc.cfFormat >= 0xC000) && (formatetc.cfFormat <= 0xFFFF)){
                 //create the mime as custom. not registered.
-                if (!clipFormat.startsWith(QLatin1String("HTML Format"), Qt::CaseInsensitive) && 
-                    !clipFormat.startsWith(QLatin1String("UniformResourceLocator"), Qt::CaseInsensitive) &&
-                    !clipFormat.startsWith(QLatin1String("application/x-color"), Qt::CaseInsensitive)) {
-                    format = QLatin1String(x_qt_windows_mime) + clipFormat + QLatin1Char('\"');
+                if (!excludeList.contains(clipFormat, Qt::CaseInsensitive)) {
+                    //check if this is a mime type
+                    bool ianaType = false;
+                    int sz = ianaTypes.size();
+                    for (int i = 0; i < sz; i++) {
+                        if (clipFormat.startsWith(ianaTypes[i], Qt::CaseInsensitive)) {
+                            ianaType =  true;
+                            break;
+                        }
+                    }
+                    if (!ianaType)
+                        format = QLatin1String(x_qt_windows_mime) + clipFormat + QLatin1Char('\"');
+                    else
+                        format = clipFormat;
                 }
             }
         }

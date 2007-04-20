@@ -257,8 +257,6 @@ QVariant QMimeDataPrivate::retrieveTypedData(const QString &format, QVariant::Ty
     \code
     application/x-qt-windows-mime;value="FileGroupDescriptor"
     application/x-qt-windows-mime;value="FileContents"
-    application/x-qt-windows-mime;value="text/_moz_htmlcontext" 
-    application/x-qt-windows-mime;value="text/_moz_htmlinfo"
     \endcode
 
     The \c value declaration of each format describes the way in which the
