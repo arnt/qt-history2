@@ -2177,8 +2177,39 @@ void MetaObjectGenerator::readClassInfo()
         }
     }
 
-    if (!dispInfo && typelib && that)
-        typelib->GetTypeInfoOfGuid(QUuid(that->control()), &dispInfo);
+    if (!classInfo && typelib && that)
+        typelib->GetTypeInfoOfGuid(QUuid(that->control()), &classInfo);
+
+    if (classInfo && !dispInfo) {
+        TYPEATTR *classAttr;
+        classInfo->GetTypeAttr(&classAttr);
+        if (classAttr) {
+            for (int i = 0; i < classAttr->cImplTypes; ++i) {
+                int typeFlags = 0;
+                classInfo->GetImplTypeFlags(i, &typeFlags);
+                if (typeFlags & IMPLTYPEFLAG_FSOURCE)
+                    continue;
+                
+                HREFTYPE hrefType;
+                if (S_OK == classInfo->GetRefTypeOfImplType(i, &hrefType))
+                    classInfo->GetRefTypeInfo(hrefType, &dispInfo);
+                if (dispInfo) {
+                    TYPEATTR *ifaceAttr;
+                    dispInfo->GetTypeAttr(&ifaceAttr);
+                    WORD typekind = ifaceAttr->typekind;
+                    dispInfo->ReleaseTypeAttr(ifaceAttr);
+                    
+                    if (typekind & TKIND_DISPATCH) {
+                        break;
+                    } else {
+                        dispInfo->Release();
+                        dispInfo = 0;
+                    }
+                }
+            }
+            classInfo->ReleaseTypeAttr(classAttr);
+        }
+    }
 
     if (!d || !dispInfo || !cacheKey.isEmpty() || !d->tryCache)
         return;
