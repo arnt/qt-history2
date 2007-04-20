@@ -609,7 +609,7 @@ qint64 QFSFileEnginePrivate::readLineFdFh(char *data, qint64 maxlen)
     }
 
     qint64 lineLength = QT_FTELL(fh) - oldPos;
-    return lineLength ? lineLength : qstrlen(data);
+    return lineLength >= 0 ? lineLength : qstrlen(data);
 }
 
 /*!
