@@ -2272,7 +2272,6 @@ void QDockAreaLayout::getGrid(QVector<QLayoutStruct> *_ver_struct_list,
     QSize left_min = docks[QInternal::LeftDock].minimumSize();
     QSize left_max = docks[QInternal::LeftDock].maximumSize();
     left_hint = left_hint.boundedTo(left_max).expandedTo(left_min);
-    int left_sep = docks[QInternal::LeftDock].isEmpty() ? 0 : sep;
 
     QSize right_hint = docks[QInternal::RightDock].size();
     if (!right_hint.isValid())
@@ -2280,7 +2279,6 @@ void QDockAreaLayout::getGrid(QVector<QLayoutStruct> *_ver_struct_list,
     QSize right_min = docks[QInternal::RightDock].minimumSize();
     QSize right_max = docks[QInternal::RightDock].maximumSize();
     right_hint = right_hint.boundedTo(right_max).expandedTo(right_min);
-    int right_sep = docks[QInternal::RightDock].isEmpty() ? 0 : sep;
 
     QSize top_hint = docks[QInternal::TopDock].size();
     if (!top_hint.isValid())
@@ -2288,7 +2286,6 @@ void QDockAreaLayout::getGrid(QVector<QLayoutStruct> *_ver_struct_list,
     QSize top_min = docks[QInternal::TopDock].minimumSize();
     QSize top_max = docks[QInternal::TopDock].maximumSize();
     top_hint = top_hint.boundedTo(top_max).expandedTo(top_min);
-    int top_sep = docks[QInternal::TopDock].isEmpty() ? 0 : sep;
 
     QSize bottom_hint = docks[QInternal::BottomDock].size();
     if (!bottom_hint.isValid())
@@ -2296,7 +2293,6 @@ void QDockAreaLayout::getGrid(QVector<QLayoutStruct> *_ver_struct_list,
     QSize bottom_min = docks[QInternal::BottomDock].minimumSize();
     QSize bottom_max = docks[QInternal::BottomDock].maximumSize();
     bottom_hint = bottom_hint.boundedTo(bottom_max).expandedTo(bottom_min);
-    int bottom_sep = docks[QInternal::BottomDock].isEmpty() ? 0 : sep;
 
     if (_ver_struct_list != 0) {
         QVector<QLayoutStruct> &ver_struct_list = *_ver_struct_list;
