@@ -500,8 +500,10 @@ QMetaCallEvent::~QMetaCallEvent()
     }
     if (types_) qFree(types_);
     if (args_) qFree(args_);
+#ifndef QT_NO_THREAD
     if (semaphore_)
         semaphore_->release();
+#endif
 }
 
 /*! \internal
@@ -2959,9 +2961,13 @@ static void blocking_activate(QObject *sender, const QConnection &c, void **argv
                  c.receiver->metaObject()->className(), c.receiver);
     }
 
+#ifdef QT_NO_THREAD
+    ::queued_activate(sender, c, argv, idFrom, idTo);
+#else
     QSemaphore semaphore;
     ::queued_activate(sender, c, argv, idFrom, idTo, &semaphore);
     semaphore.acquire();
+#endif
 }
 
 /*!\internal

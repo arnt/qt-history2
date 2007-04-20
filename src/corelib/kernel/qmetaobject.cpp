@@ -996,10 +996,14 @@ bool QMetaObject::invokeMethod(QObject *obj, const char *member, Qt::ConnectionT
             }
 
             // blocking queued connection
+#ifdef QT_NO_THREAD
+            QCoreApplication::postEvent(obj, new QMetaCallEvent(idx, 0, -1, -1, nargs, types, args));
+#else
             QSemaphore semaphore;
             QCoreApplication::postEvent(obj, new QMetaCallEvent(idx, 0, -1, -1, nargs, types, args,
                                                                 &semaphore));
             semaphore.acquire();
+#endif // QT_NO_THREAD
         }
     }
     return true;
