@@ -2316,28 +2316,22 @@ void QDockAreaLayout::getGrid(QVector<QLayoutStruct> *_ver_struct_list,
         // center --------------------------------------------------
 
         ver_struct_list[1].stretch = center_hint.height();
-        int left = left_hint.height();
-        if (corners[Qt::TopLeftCorner] == Qt::LeftDockWidgetArea)
-            left -= top_hint.height() + top_sep;
-        if (corners[Qt::BottomLeftCorner] == Qt::LeftDockWidgetArea)
-            left -= bottom_hint.height() + bottom_sep;
-        int right = right_hint.height();
-        if (corners[Qt::TopRightCorner] == Qt::RightDockWidgetArea)
-            right -= top_hint.height() + top_sep;
-        if (corners[Qt::BottomRightCorner] == Qt::RightDockWidgetArea)
-            right -= bottom_hint.height() + bottom_sep;
+
+        bool tl_significant = corners[Qt::TopLeftCorner] == Qt::TopDockWidgetArea
+                                    || docks[QInternal::TopDock].isEmpty();
+        bool bl_significant = corners[Qt::BottomLeftCorner] == Qt::BottomDockWidgetArea
+                                    || docks[QInternal::BottomDock].isEmpty();
+        bool tr_significant = corners[Qt::TopRightCorner] == Qt::TopDockWidgetArea
+                                    || docks[QInternal::TopDock].isEmpty();
+        bool br_significant = corners[Qt::BottomRightCorner] == Qt::BottomDockWidgetArea
+                                    || docks[QInternal::BottomDock].isEmpty();
+
+        int left = (tl_significant && bl_significant) ? left_hint.height() : 0;
+        int right = (tr_significant && br_significant) ? right_hint.height() : 0;
         ver_struct_list[1].sizeHint = qMax(left, center_hint.height(), right);
 
-        left = left_min.height();
-        if (corners[Qt::TopLeftCorner] == Qt::LeftDockWidgetArea)
-            left -= top_min.height() + top_sep;
-        if (corners[Qt::BottomLeftCorner] == Qt::LeftDockWidgetArea)
-            left -= bottom_min.height() + bottom_sep;
-        right = right_min.height();
-        if (corners[Qt::TopRightCorner] == Qt::RightDockWidgetArea)
-            right -= top_min.height() + top_sep;
-        if (corners[Qt::BottomRightCorner] == Qt::RightDockWidgetArea)
-            right -= bottom_min.height() + bottom_sep;
+        left = (tl_significant && bl_significant) ? left_min.height() : 0;
+        right = (tr_significant && br_significant) ? right_min.height() : 0;
         ver_struct_list[1].minimumSize = qMax(left, center_min.height(), right);
         ver_struct_list[1].maximumSize = have_central ? QWIDGETSIZE_MAX : 0;
         ver_struct_list[1].expansive = have_central;
@@ -2382,29 +2376,24 @@ void QDockAreaLayout::getGrid(QVector<QLayoutStruct> *_ver_struct_list,
         // center --------------------------------------------------
 
         hor_struct_list[1].stretch = center_hint.width();
-        int top = top_hint.width();
-        if (corners[Qt::TopLeftCorner] == Qt::TopDockWidgetArea)
-            top -= left_hint.width() + left_sep;
-        if (corners[Qt::TopRightCorner] == Qt::TopDockWidgetArea)
-            top -= right_hint.width() + right_sep;
-        int bottom = bottom_hint.width();
-        if (corners[Qt::BottomLeftCorner] == Qt::BottomDockWidgetArea)
-            bottom -= left_hint.width() + left_sep;
-        if (corners[Qt::BottomRightCorner] == Qt::BottomDockWidgetArea)
-            bottom -= right_hint.width() + right_sep;
+
+        bool tl_significant = corners[Qt::TopLeftCorner] == Qt::LeftDockWidgetArea
+                                    || docks[QInternal::LeftDock].isEmpty();
+        bool tr_significant = corners[Qt::TopRightCorner] == Qt::RightDockWidgetArea
+                                    || docks[QInternal::RightDock].isEmpty();
+        bool bl_significant = corners[Qt::BottomLeftCorner] == Qt::LeftDockWidgetArea
+                                    || docks[QInternal::LeftDock].isEmpty();
+        bool br_significant = corners[Qt::BottomRightCorner] == Qt::RightDockWidgetArea
+                                    || docks[QInternal::RightDock].isEmpty();
+
+        int top = (tl_significant && tr_significant) ? top_hint.width() : 0;
+        int bottom = (bl_significant && br_significant) ? bottom_hint.width() : 0;
         hor_struct_list[1].sizeHint = qMax(top, center_hint.width(), bottom);
 
-        top = top_min.width();
-        if (corners[Qt::TopLeftCorner] == Qt::TopDockWidgetArea)
-            top -= left_min.width() + left_sep;
-        if (corners[Qt::TopRightCorner] == Qt::TopDockWidgetArea)
-            top -= right_min.width() + right_sep;
-        bottom = bottom_min.width();
-        if (corners[Qt::BottomLeftCorner] == Qt::BottomDockWidgetArea)
-            bottom -= left_min.width() + left_sep;
-        if (corners[Qt::BottomRightCorner] == Qt::BottomDockWidgetArea)
-            bottom -= right_min.width() + right_sep;
+        top = (tl_significant && tr_significant) ? top_min.width() : 0;
+        bottom = (bl_significant && br_significant) ? bottom_min.width() : 0;
         hor_struct_list[1].minimumSize = qMax(top, center_min.width(), bottom);
+
         hor_struct_list[1].maximumSize = have_central ? QWIDGETSIZE_MAX : 0;
         hor_struct_list[1].expansive = have_central;
         hor_struct_list[1].empty = !have_central;
