@@ -165,6 +165,7 @@
         <li><a href="qtsql.html">SQL Module</a></li>
         <li><a href="qtsvg.html">SVG Module</a></li>
         <li><a href="qtxml.html">XML Module</a></li>
+        <li><a href="qtscript.html">Script Module</a></li>
         <li><a href="activeqt.html">ActiveQt Framework</a></li>
         </ul>
         </td>
