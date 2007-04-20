@@ -443,7 +443,9 @@ void QVNCServer::init(uint port)
 QVNCServer::~QVNCServer()
 {
     delete encoder;
+    encoder = 0;
     delete client;
+    client = 0;
 }
 
 void QVNCServer::setDirty()
