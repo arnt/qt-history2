@@ -1006,7 +1006,7 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef er, EventRef event,
                 HISize hisize = { size.width(), size.height() };
                 SetEventParameter(event, kEventParamMinimumSize, typeHISize, sizeof(HISize), &hisize);
                 size = item.maximumSize();
-                hisize.width = size.width();
+                hisize.width = size.width() + 2; // ### shouldn't have to add 2 (but it works).
                 hisize.height = size.height();
                 SetEventParameter(event, kEventParamMaximumSize, typeHISize, sizeof(HISize), &hisize);
             }
