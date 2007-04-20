@@ -1529,7 +1529,7 @@ static QScriptValueImpl __setupPackage__(QScriptContextPrivate *ctx,
 
 QScriptValueImpl QScriptEnginePrivate::importExtension(const QString &extension)
 {
-#ifndef QT_NO_QOBJECT
+#if !defined(QT_NO_QOBJECT) && !defined(QT_NO_LIBRARY)
     Q_Q(QScriptEngine);
     if (m_importedExtensions.contains(extension))
         return undefinedValue(); // already imported

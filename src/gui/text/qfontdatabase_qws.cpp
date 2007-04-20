@@ -555,6 +555,7 @@ QFontEngine *loadSingleEngine(int script, const QFontPrivate *fp,
         QFontEngine *engine = 0;
 
         if (file.isEmpty()) {
+#ifndef QT_NO_LIBRARY
             QFontEngineFactoryInterface *factory = qobject_cast<QFontEngineFactoryInterface *>(loader()->instance(foundry->name));
             if (factory) {
                 QFontEngineInfo info;
@@ -577,6 +578,7 @@ QFontEngine *loadSingleEngine(int script, const QFontPrivate *fp,
                     }
                 }
             }
+#endif // QT_NO_LIBRARY
         } else if (QFile::exists(file) || privateDb()->isApplicationFont(file)) {
             QFontEngine::FaceId faceId;
             faceId.filename = file.toLocal8Bit();

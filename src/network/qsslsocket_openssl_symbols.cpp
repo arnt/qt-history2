@@ -154,6 +154,19 @@ DEFINEFUNC(X509_STORE_CTX *, X509_STORE_CTX_new,,, return 0)
 #endif
 
 #ifdef QT_SHARED
+
+#ifdef QT_NO_LIBRARY
+bool q_resolveOpenSslSymbols()
+{
+    qWarning("QSslSocket: unable to resolve symbols. "
+             "QT_NO_LIBRARY is defined which means runtime resolving of "
+             "libraries won't work.");
+    qWarning("Either compile Qt staticly or with support for runtime resolving "
+             "of libraries.");
+    return false;
+}
+#else
+
 bool q_resolveOpenSslSymbols()
 {
     // ### This is non-reentrant
@@ -302,6 +315,8 @@ bool q_resolveOpenSslSymbols()
     symbolsResolved = true;
     return true;
 }
+#endif // QT_NO_LIBRARY
+
 #else
 bool q_resolveOpenSslSymbols()
 {
