@@ -4472,7 +4472,8 @@ template <class DST>
 inline void qt_bitmapblit_template(QRasterBuffer *rasterBuffer,
                                    int x, int y, quint32 color,
                                    const uchar *map,
-                                   int mapWidth, int mapHeight, int mapStride)
+                                   int mapWidth, int mapHeight, int mapStride,
+                                   DST dummy = 0)
 {
     const DST c = qt_colorConvert<DST, quint32>(color);
     DST *dest = reinterpret_cast<DST*>(rasterBuffer->scanLine(y)) + x;
@@ -4536,8 +4537,8 @@ inline static void qt_bitmapblit_quint32(QRasterBuffer *rasterBuffer,
                                    const uchar *map,
                                    int mapWidth, int mapHeight, int mapStride)
 {
-    qt_bitmapblit_template<quint32>(rasterBuffer, x,  y,  color,
-                                    map, mapWidth, mapHeight, mapStride);
+    qt_bitmapblit_template(rasterBuffer, x,  y,  color,
+                           map, mapWidth, mapHeight, mapStride, quint32());
 }
 
 inline static void qt_bitmapblit_quint16(QRasterBuffer *rasterBuffer,
@@ -4545,8 +4546,8 @@ inline static void qt_bitmapblit_quint16(QRasterBuffer *rasterBuffer,
                                    const uchar *map,
                                    int mapWidth, int mapHeight, int mapStride)
 {
-    qt_bitmapblit_template<quint16>(rasterBuffer, x,  y,  color,
-                                    map, mapWidth, mapHeight, mapStride);
+    qt_bitmapblit_template(rasterBuffer, x,  y,  color,
+                           map, mapWidth, mapHeight, mapStride, quint16());
 }
 
 
@@ -4608,7 +4609,7 @@ static void qt_alphamapblit_quint16(QRasterBuffer *rasterBuffer,
 template <class T>
 inline void qt_rectfill_template(QRasterBuffer *rasterBuffer,
                                  int x, int y, int width, int height,
-                                 quint32 color)
+                                 quint32 color, T dummy = 0)
 {
     qt_rectfill<T>(reinterpret_cast<T*>(rasterBuffer->buffer()),
                    qt_colorConvert<T, quint32>(color),
@@ -4619,14 +4620,14 @@ inline static void qt_rectfill_quint32(QRasterBuffer *rasterBuffer,
                                  int x, int y, int width, int height,
                                  quint32 color)
 {
-    qt_rectfill_template<quint32>(rasterBuffer, x, y, width, height, color);
+    qt_rectfill_template(rasterBuffer, x, y, width, height, color, quint32());
 }
 
 inline static void qt_rectfill_quint16(QRasterBuffer *rasterBuffer,
                                  int x, int y, int width, int height,
                                  quint32 color)
 {
-    qt_rectfill_template<quint16>(rasterBuffer, x, y, width, height, color);
+    qt_rectfill_template(rasterBuffer, x, y, width, height, color, quint16());
 }
 
 
