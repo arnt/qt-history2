@@ -1243,7 +1243,7 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
     }
 
     QSize sz(d->drawable.size());
-    glViewport(0, 0, sz.width(), sz.height());
+    glViewport(0, 0, sz.width(), sz.height()); // XXX (Embedded): We need a solution for GLWidgets that draw in a part or a bigger surface...
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
 #ifdef Q_WS_QWS
