@@ -452,7 +452,7 @@ QList<QSslCertificate> QSslCertificate::fromPath(const QString &path, QSsl::Enco
     }
 
     QList<QSslCertificate> certs;
-    QRegExp pattern(path, syntax);
+    QRegExp pattern(path, Qt::CaseSensitive, syntax);
 
     QDirIterator it(path);
     while (it.hasNext()) {
@@ -610,7 +610,7 @@ QList<QSslCertificate> QSslCertificatePrivate::certificatesFromPem(
         if (startPos == -1)
             break;
         startPos += sizeof(BeginCertString) - 1;
-        
+
         int endPos = pem.indexOf(EndCertString, startPos);
         if (endPos == -1)
             break;
@@ -624,7 +624,7 @@ QList<QSslCertificate> QSslCertificatePrivate::certificatesFromPem(
 #else
         unsigned char *data = (unsigned char *)decoded.data();
 #endif
-        
+
         if (X509 *x509 = q_d2i_X509(0, &data, decoded.size())) {
             certificates << QSslCertificate_from_X509(x509);
             q_X509_free(x509);
