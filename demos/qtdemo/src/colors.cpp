@@ -89,7 +89,7 @@ QFont Colors::headingFont()
 {
     QFont font;
     font.setStyleStrategy(QFont::PreferAntialias);
-    font.setPixelSize(22);
+    font.setPixelSize(23);
     font.setBold(true);
     font.setFamily("Verdana");
     return font;

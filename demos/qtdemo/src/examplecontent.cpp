@@ -15,6 +15,7 @@
 #include "colors.h"
 #include "menumanager.h"
 #include "imageitem.h"
+#include "headingitem.h"
 
 ExampleContent::ExampleContent(const QString &name, QGraphicsScene *scene, QGraphicsItem *parent)
     : DemoItem(scene, parent)
@@ -88,7 +89,7 @@ QString ExampleContent::extractTextFromParagraph(const QDomNode &parentNode)
 
 void ExampleContent::createContent()
 {
-    DemoTextItem *heading = new DemoTextItem(this->name, Colors::headingFont(), Colors::heading, -1, this->scene(), this);
+    HeadingItem *heading = new HeadingItem(this->name, this->scene(), this);
     DemoTextItem *s1 = new DemoTextItem(this->loadDescription(), Colors::contentFont(), Colors::heading, 500, this->scene(), this);
     int imgHeight = 340 - int(s1->boundingRect().height()) + 50;
     ImageItem *item = new ImageItem(MenuManager::instance()->info[this->name]["imgfile"], 550, imgHeight, this->scene(), this);

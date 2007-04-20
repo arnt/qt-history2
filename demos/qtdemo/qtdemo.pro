@@ -14,6 +14,7 @@ HEADERS = src/mainwindow.h \
     src/demoitemanimation.h \
     src/itemcircleanimation.h \
     src/demotextitem.h \
+    src/headingitem.h \
     src/dockitem.h \
     src/scanitem.h \
     src/letteritem.h \
@@ -34,6 +35,7 @@ SOURCES = src/main.cpp \
     src/demoitemanimation.cpp \
     src/itemcircleanimation.cpp \
     src/demotextitem.cpp \
+    src/headingitem.cpp \
     src/dockitem.cpp \
     src/scanitem.cpp \
     src/letteritem.cpp \
@@ -54,4 +56,3 @@ mac:ICON = qtdemo.icns
 target.path = $$[QT_INSTALL_BINS]
 sources.files = $$SOURCES $$HEADERS $$RESOURCES qtdemo.pro images xml *.ico *.icns *.rc
 sources.path = $$[QT_INSTALL_DEMOS]/qtdemo
-

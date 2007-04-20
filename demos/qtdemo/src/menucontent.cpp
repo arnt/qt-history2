@@ -15,6 +15,7 @@
 #include "colors.h"
 #include "menumanager.h"
 #include "demotextitem.h"
+#include "headingitem.h"
 
 MenuContentItem::MenuContentItem(const QDomElement &el, QGraphicsScene *scene, QGraphicsItem *parent)
     : DemoItem(scene, parent)
@@ -64,7 +65,7 @@ QString MenuContentItem::loadDescription(int startPara, int nrPara)
 
 void MenuContentItem::createContent()
 {
-    DemoTextItem *heading = new DemoTextItem(this->name, Colors::headingFont(), Colors::heading, -1, this->scene(), this);
+    HeadingItem *heading = new HeadingItem(this->name, this->scene(), this);
     QString para1 = this->loadDescription(0, 1);
     if (para1.isEmpty())
         para1 = Colors::contentColor + QLatin1String("Could not load description. Ensure that the documentation for Qt is built.");
