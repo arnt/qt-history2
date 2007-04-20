@@ -30,6 +30,9 @@
 #define QSSLCERTIFICATE_H
 
 #include <QtCore/qnamespace.h>
+#include <QtCore/qbytearray.h>
+#include <QtCore/qcryptographichash.h>
+#include <QtCore/qregexp.h>
 #include <QtNetwork/qssl.h>
 
 QT_BEGIN_HEADER
@@ -37,9 +40,6 @@ QT_BEGIN_HEADER
 QT_MODULE(Network)
 
 #ifndef QT_NO_OPENSSL
-
-#include <QtCore/qbytearray.h>
-#include <QtCore/qcryptographichash.h>
 
 class QDateTime;
 class QIODevice;
@@ -92,7 +92,8 @@ public:
     QByteArray toDer() const;
 
     static QList<QSslCertificate> fromPath(
-        const QString &path, QSsl::EncodingFormat format = QSsl::Pem);
+        const QString &path, QSsl::EncodingFormat format = QSsl::Pem,
+        QRegExp::PatternSyntax syntax = QRegExp::FixedString);
     static QList<QSslCertificate> fromDevice(
         QIODevice *device, QSsl::EncodingFormat format = QSsl::Pem);
     static QList<QSslCertificate> fromData(

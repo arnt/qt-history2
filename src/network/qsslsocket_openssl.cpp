@@ -206,7 +206,7 @@ bool QSslSocketBackendPrivate::initSslContext()
     case QSslSocket::SslV3:
         ctx = q_SSL_CTX_new(client ? q_SSLv3_client_method() : q_SSLv3_server_method());
         break;
-    case QSslSocket::Compat:
+    case QSslSocket::AnyProtocol:
         ctx = q_SSL_CTX_new(client ? q_SSLv23_client_method() : q_SSLv23_server_method());
         break;
     case QSslSocket::TlsV1:
@@ -227,7 +227,7 @@ bool QSslSocketBackendPrivate::initSslContext()
     // Initialize ciphers
     QByteArray cipherString;
     int first = true;
-    foreach (const QSslCipher &cipher, ciphers.isEmpty() ? globalCiphers() : ciphers) {
+    foreach (const QSslCipher &cipher, ciphers.isEmpty() ? defaultCiphers() : ciphers) {
         if (first)
             first = false;
         else
@@ -360,8 +360,8 @@ bool QSslSocketPrivate::ensureInitialized()
             q_RAND_seed((const char *)&randomish, sizeof(randomish));
         }
 
-        resetGlobalCiphers();
-        setGlobalCaCertificates(systemCaCertificates());
+        resetDefaultCiphers();
+        setDefaultCaCertificates(systemCaCertificates());
     }
     return true;
 }
@@ -372,7 +372,7 @@ bool QSslSocketPrivate::ensureInitialized()
     Declared static in QSslSocketPrivate, backend-dependent loading of
     application-wide global ciphers.
 */
-void QSslSocketPrivate::resetGlobalCiphers()
+void QSslSocketPrivate::resetDefaultCiphers()
 {
     SSL_CTX *myCtx = q_SSL_CTX_new(q_SSLv23_client_method());
     SSL *mySsl = q_SSL_new(myCtx);
@@ -395,8 +395,8 @@ void QSslSocketPrivate::resetGlobalCiphers()
     q_SSL_CTX_free(myCtx);
     q_SSL_free(mySsl);
 
-    setGlobalSupportedCiphers(ciphers);
-    setGlobalCiphers(ciphers);
+    setDefaultSupportedCiphers(ciphers);
+    setDefaultCiphers(ciphers);
 }
 
 QList<QSslCertificate> QSslSocketPrivate::systemCaCertificates()
@@ -433,28 +433,7 @@ QList<QSslCertificate> QSslSocketPrivate::systemCaCertificates()
     return QList<QSslCertificate>();
 }
 
-QList<QSslCertificate> QSslSocketPrivate::certificatesFromPath(const QString &path)
-{
-    // ### FIX: Should support wildcards.
-    QFileInfo info(path);
-    if (info.isFile()) {
-        QFile file(path);
-        if (file.open(QIODevice::ReadOnly | QIODevice::Text))
-            return QSslCertificate::fromData(file.readAll());
-        return QList<QSslCertificate>();
-    }
-
-    QList<QSslCertificate> certs;
-    foreach (QString entry, QDir(path).entryList(QDir::Files)) {
-        QFile file(path + QLatin1String("/") + entry);
-        if (file.open(QIODevice::ReadOnly | QIODevice::Text))
-            certs += QSslCertificate::fromData(file.readAll());
-    }
-
-    return certs;
-}
-
-void QSslSocketBackendPrivate::startClientHandShake()
+void QSslSocketBackendPrivate::startClientEncryption()
 {
     if (!initSslContext()) {
         // ### report error: internal OpenSSL failure
@@ -467,7 +446,7 @@ void QSslSocketBackendPrivate::startClientHandShake()
     transmit();
 }
 
-void QSslSocketBackendPrivate::startServerHandShake()
+void QSslSocketBackendPrivate::startServerEncryption()
 {
     if (!initSslContext()) {
         // ### report error: internal OpenSSL failure
@@ -693,7 +672,6 @@ bool QSslSocketBackendPrivate::testConnection()
     }
 
     if (!errors.isEmpty()) {
-        ignoreSslErrors = false;
         sslErrors = errors;
         emit q->sslErrors(errors);
         if (!ignoreSslErrors) {
@@ -730,12 +708,12 @@ void QSslSocketBackendPrivate::disconnected()
     }
 }
 
-QSslCipher QSslSocketBackendPrivate::currentCipher() const
+QSslCipher QSslSocketBackendPrivate::sessionCipher() const
 {
     if (!ssl || !ctx)
         return QSslCipher();
-    SSL_CIPHER *currentCipher = q_SSL_get_current_cipher(ssl);
-    return currentCipher ? QSslCipher_from_SSL_CIPHER(currentCipher) : QSslCipher();
+    SSL_CIPHER *sessionCipher = q_SSL_get_current_cipher(ssl);
+    return sessionCipher ? QSslCipher_from_SSL_CIPHER(sessionCipher) : QSslCipher();
 }
 
 QList<QSslCertificate> QSslSocketBackendPrivate::STACKOFX509_to_QSslCertificates(STACK_OF(X509) *x509)

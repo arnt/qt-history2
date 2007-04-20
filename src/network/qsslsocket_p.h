@@ -58,9 +58,9 @@ public:
 
     void init();
 
-    QSslSocket::Mode mode;
+    QSslSocket::SslMode mode;
     QSslSocket::Protocol protocol;
-    bool autoStartHandShake;
+    bool autoStartHandshake;
     bool connectionEncrypted;
     bool ignoreSslErrors;
 
@@ -73,19 +73,19 @@ public:
     QList<QSslError> sslErrors;
 
     static bool ensureInitialized();
-    static QList<QSslCipher> globalCiphers();
+    static QList<QSslCipher> defaultCiphers();
     static QList<QSslCipher> supportedCiphers();
-    static void setGlobalCiphers(const QList<QSslCipher> &ciphers);
-    static void setGlobalSupportedCiphers(const QList<QSslCipher> &ciphers);
-    static void resetGlobalCiphers();
+    static void setDefaultCiphers(const QList<QSslCipher> &ciphers);
+    static void setDefaultSupportedCiphers(const QList<QSslCipher> &ciphers);
+    static void resetDefaultCiphers();
 
-    static QList<QSslCertificate> globalCaCertificates();
+    static QList<QSslCertificate> defaultCaCertificates();
     static QList<QSslCertificate> systemCaCertificates();
-    static void setGlobalCaCertificates(const QList<QSslCertificate> &certs);
-    static bool addGlobalCaCertificates(const QString &path);
-    static void addGlobalCaCertificate(const QSslCertificate &cert);
-    static void addGlobalCaCertificates(const QList<QSslCertificate> &certs);
-    static QList<QSslCertificate> certificatesFromPath(const QString &path);
+    static void setDefaultCaCertificates(const QList<QSslCertificate> &certs);
+    static bool addDefaultCaCertificates(const QString &path, QSsl::EncodingFormat format,
+                                         QRegExp::PatternSyntax syntax);
+    static void addDefaultCaCertificate(const QSslCertificate &cert);
+    static void addDefaultCaCertificates(const QList<QSslCertificate> &certs);
 
     QSslKey privateKey;
 
@@ -105,12 +105,12 @@ public:
     void _q_bytesWrittenSlot(qint64);
 
     // Platform specific functions
-    virtual void startClientHandShake() = 0;
-    virtual void startServerHandShake() = 0;
+    virtual void startClientEncryption() = 0;
+    virtual void startServerEncryption() = 0;
     virtual void transmit() = 0;
     virtual void disconnectFromHost() = 0;
     virtual void disconnected() = 0;
-    virtual QSslCipher currentCipher() const = 0;
+    virtual QSslCipher sessionCipher() const = 0;
 };
 
 #endif

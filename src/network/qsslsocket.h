@@ -30,6 +30,7 @@
 #define QSSLSOCKET_H
 
 #include <QtCore/qlist.h>
+#include <QtCore/qregexp.h>
 
 QT_BEGIN_HEADER
 
@@ -51,8 +52,8 @@ class Q_NETWORK_EXPORT QSslSocket : public QTcpSocket
 {
     Q_OBJECT
 public:
-    enum Mode {
-        PlainMode,
+    enum SslMode {
+        UnencryptedMode,
         SslClientMode,
         SslServerMode
     };
@@ -61,7 +62,7 @@ public:
         SslV3,
         SslV2,
         TlsV1,
-        Compat
+        AnyProtocol
     };
 
     QSslSocket(QObject *parent = 0);
@@ -72,7 +73,7 @@ public:
     bool setSocketDescriptor(int socketDescriptor, SocketState state = ConnectedState,
                              OpenMode openMode = ReadWrite);
 
-    Mode mode() const;
+    SslMode mode() const;
     bool isEncrypted() const;
 
     Protocol protocol() const;
@@ -89,36 +90,40 @@ public:
 
     // Certificate & cipher accessors.
     void setLocalCertificate(const QSslCertificate &certificate);
+    void setLocalCertificate(const QString &fileName, QSsl::EncodingFormat format = QSsl::Pem);
     QSslCertificate localCertificate() const;
     QSslCertificate peerCertificate() const;
     QList<QSslCertificate> peerCertificateChain() const;
-    QSslCipher currentCipher() const;
+    QSslCipher sessionCipher() const;
 
     // Private keys, for server sockets.
     void setPrivateKey(const QSslKey &key);
+    void setPrivateKey(const QString &fileName, QSsl::Algorithm algorithm = QSsl::Rsa,
+                       QSsl::EncodingFormat format = QSsl::Pem,
+                       const QByteArray &passPhrase = QByteArray());
     QSslKey privateKey() const;
 
     // Cipher settings.
     QList<QSslCipher> ciphers() const;
-    void resetCiphers();
     void setCiphers(const QList<QSslCipher> &ciphers);
-    static void setGlobalCiphers(const QList<QSslCipher> &ciphers);
-    static void resetGlobalCiphers();
-    static QList<QSslCipher> globalCiphers();
+    void setCiphers(const QString &ciphers);
+    static void setDefaultCiphers(const QList<QSslCipher> &ciphers);
+    static QList<QSslCipher> defaultCiphers();
     static QList<QSslCipher> supportedCiphers();
 
     // CA settings.
-    bool addCaCertificates(const QString &path);
+    bool addCaCertificates(const QString &path, QSsl::EncodingFormat format = QSsl::Pem,
+                           QRegExp::PatternSyntax syntax = QRegExp::FixedString);
     void addCaCertificate(const QSslCertificate &certificate);
     void addCaCertificates(const QList<QSslCertificate> &certificates);
     void setCaCertificates(const QList<QSslCertificate> &certificates);
-    void resetCaCertificates();
     QList<QSslCertificate> caCertificates() const;
-    static bool addGlobalCaCertificates(const QString &path);
-    static void addGlobalCaCertificate(const QSslCertificate &certificate);
-    static void addGlobalCaCertificates(const QList<QSslCertificate> &certificates);
-    static void setGlobalCaCertificates(const QList<QSslCertificate> &certificates);
-    static QList<QSslCertificate> globalCaCertificates();
+    static bool addDefaultCaCertificates(const QString &path, QSsl::EncodingFormat format = QSsl::Pem,
+                                         QRegExp::PatternSyntax syntax = QRegExp::FixedString);
+    static void addDefaultCaCertificate(const QSslCertificate &certificate);
+    static void addDefaultCaCertificates(const QList<QSslCertificate> &certificates);
+    static void setDefaultCaCertificates(const QList<QSslCertificate> &certificates);
+    static QList<QSslCertificate> defaultCaCertificates();
     static QList<QSslCertificate> systemCaCertificates();
 
     bool waitForConnected(int msecs = 30000);
@@ -132,14 +137,14 @@ public:
     static bool supportsSsl();
 
 public Q_SLOTS:
-    void startClientHandShake();
-    void startServerHandShake();
+    void startClientEncryption();
+    void startServerEncryption();
     void ignoreSslErrors();
 
 Q_SIGNALS:
     void encrypted();
     void sslErrors(const QList<QSslError> &errors);
-    void modeChanged(QSslSocket::Mode newMode);
+    void modeChanged(QSslSocket::SslMode newMode);
 
 protected Q_SLOTS:
     void connectToHostImplementation(const QString &hostName, quint16 port,

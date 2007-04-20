@@ -28,6 +28,15 @@
 
 #include "qsslkey.h"
 
+/*! \namespace QSsl
+
+    \brief The QSsl namespace declares enums common to all SSL classes in QtNetwork.
+    \since 4.3
+
+    \ingroup io
+    \module network
+*/
+
 /*!
     \enum QSsl::KeyType
 
@@ -53,4 +62,19 @@
 
     \value Pem The PEM format.
     \value Der The DER format.
+*/
+
+/*!
+    \enum QSsl::AlternateNameEntry
+
+    Describes the key types for alternate name entries in QSslCertificate.
+
+    \value EmailEntry An email entry; the entry contains an email address that
+    the certificate is valid for.
+
+    \value DnsEntry A DNS host name entry; the entry contains a host name
+    entry that the certificate is valid for. The entry may contain wildcards.
+
+    \sa QSslCertificate::alternateSubjectNames()
+
 */

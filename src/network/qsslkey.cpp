@@ -216,6 +216,12 @@ QSslKey::QSslKey(const QByteArray &encoded, QSsl::Algorithm algorithm,
     d->decodePem((encoding == QSsl::Der) ? d->pemFromDer(encoded) : encoded, passPhrase);
 }
 
+/*!
+    Constructs a QSslKey by reading and parsing data from \a device. The key
+    is characterized by \a algorithm, \a encoding, \a type, and an optional \a
+    passPhrase. You can call isNull() later to check if \a device contained a
+    valid key or not.
+*/
 QSslKey::QSslKey(QIODevice *device, QSsl::Algorithm algorithm,
                  QSsl::EncodingFormat encoding, QSsl::KeyType type, const QByteArray &passPhrase)
     : d(new QSslKeyPrivate)

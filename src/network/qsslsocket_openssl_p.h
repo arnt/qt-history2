@@ -79,13 +79,13 @@ public:
     X509_STORE_CTX *certificateStoreCtx;
 
     // Platform specific functions
-    void startClientHandShake();
-    void startServerHandShake();
+    void startClientEncryption();
+    void startServerEncryption();
     void transmit();
     bool testConnection();
     void disconnectFromHost();
     void disconnected();
-    QSslCipher currentCipher() const;
+    QSslCipher sessionCipher() const;
 
     static QSslCipher QSslCipher_from_SSL_CIPHER(SSL_CIPHER *cipher);
     static QList<QSslCertificate> STACKOFX509_to_QSslCertificates(STACK_OF(X509) *x509);

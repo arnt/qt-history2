@@ -100,6 +100,7 @@
 #include <QtCore/qdebug.h>
 #endif
 #include <QtCore/qdir.h>
+#include <QtCore/qdiriterator.h>
 #include <QtCore/qfile.h>
 #include <QtCore/qfileinfo.h>
 #include <QtCore/qmap.h>
@@ -107,9 +108,10 @@
 #include <QtCore/qstringlist.h>
 
 /*!
-    Constructs a QSslCertificate, and reads from \a device to find the first
-    available certificate. You can later call isNull() to see if \a device
-    contained a certificate, and this certificate was loaded successfully.
+    Constructs a QSslCertificate, and reads \a format encoded data from \a
+    device to find the first available certificate. You can later call
+    isNull() to see if \a device contained a certificate, and this certificate
+    was loaded successfully.
 */
 QSslCertificate::QSslCertificate(QIODevice *device, QSsl::EncodingFormat format)
     : d(new QSslCertificatePrivate)
@@ -119,9 +121,10 @@ QSslCertificate::QSslCertificate(QIODevice *device, QSsl::EncodingFormat format)
 }
 
 /*!
-    Constructs a QSslCertificate, and parses \a data to find the first
-    available certificate. You can later call isNull() to see if \a data
-    contained a certificate, and this certificate was loaded successfully.
+    Constructs a QSslCertificate, and parses \a format encoded \a data to find
+    the first available certificate. You can later call isNull() to see if \a
+    data contained a certificate, and this certificate was loaded
+    successfully.
 */
 QSslCertificate::QSslCertificate(const QByteArray &data, QSsl::EncodingFormat format)
     : d(new QSslCertificatePrivate)
@@ -498,33 +501,40 @@ QByteArray QSslCertificate::toDer() const
 }
 
 /*!
-    Searches for and parses all certificates in all files in \a path, and
-    returns the list of certificates. \a path can be a file or a path, and it
-    can also contain wildcards.
+    Searches for and parses all certificates in all files in \a path using \a
+    format encoding, and returns the list of certificates. \a path can be a
+    file or a path, and it can also contain \a syntax formatted wildcards.
 
     \sa fromData()
 */
-QList<QSslCertificate> QSslCertificate::fromPath(const QString &path, QSsl::EncodingFormat format)
+QList<QSslCertificate> QSslCertificate::fromPath(const QString &path, QSsl::EncodingFormat format,
+                                                 QRegExp::PatternSyntax syntax)
 {
-    QStringList entryList;
-    if (QFileInfo(path).isDir()) {
-        entryList = QDir(path).entryList();
-    } else {
-        entryList << path;
+    if (syntax == QRegExp::FixedString) {
+        QFile file(path);
+        if (file.open(QIODevice::ReadOnly | QIODevice::Text))
+            return QSslCertificate::fromData(file.readAll());
+        return QList<QSslCertificate>();
     }
 
     QList<QSslCertificate> certs;
-    foreach (QString path, entryList) {
-        QFile file(path);
+    QRegExp pattern(path, syntax);
+
+    QDirIterator it(path);
+    while (it.hasNext()) {
+        if (!pattern.exactMatch(path))
+            continue;
+
+        QFile file(it.filePath());
         if (file.open(QIODevice::ReadOnly | QIODevice::Text))
-            certs << QSslCertificate(file.readAll(), format);
+            certs += QSslCertificate::fromData(file.readAll());
     }
     return certs;
 }
 
 /*!
-    Searches for and parses all certificates in \a device, and returns the
-    list of certificates.
+    Searches for and parses all certificates in \a device using \a format
+    encoding, and returns the list of certificates.
 
     \sa fromData()
 */
@@ -534,8 +544,8 @@ QList<QSslCertificate> QSslCertificate::fromDevice(QIODevice *device, QSsl::Enco
 }
 
 /*!
-    Searches for and parses all certificates in \a data, and returns the
-    list of certificates.
+    Searches for and parses all certificates in \a data using \a format
+    encoding, and returns the list of certificates.
 
     \sa fromDevice()
 */

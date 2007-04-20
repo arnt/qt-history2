@@ -70,7 +70,7 @@
     For servers, you can reimplement incomingConnection() in a subclass of
     QTcpServer, and construct a QSslSocket, passing the incoming socket
     descriptor to QSslSocket::setSocketDescriptor(). To start the server side
-    handshake, call startServerHandShake().
+    handshake, call startServerEncryption().
 
     \code
         void SslServer::incomingConnection(int socketDescriptor)
@@ -78,7 +78,7 @@
             QSslSocket *serverSocket = new QSslSocket;
             if (serverSocket->setSocketDescriptor(socketDescriptor)) {
                 connect(serverSocket, SIGNAL(encrypted()), this, SLOT(ready()));
-                serverSocket->startServerHandShake();
+                serverSocket->startServerEncryption();
             } else {
                 delete serverSocket;
             }
@@ -87,8 +87,8 @@
     
     If an error occurs, QSslSocket will emit sslErrors(). Unless any action is
     taken, the connection will then be dropped; the connection will fail. To
-    recover from an SSL handshake error, you must connect a slot to the
-    sslErrors() signal, and call ignoreSslErrors() from within your slot. This
+    recover from an SSL handshake error you must call ignoreSslErrors()
+    (either from within this slot, or prior to entering encrypted mode). This
     will allow QSslSocket to ignore the errors it encountered when
     establishing the identity of the peer. This feature must be used with
     caution, as it's a fundamental property of a secure connection to have
@@ -135,12 +135,12 @@
 */
 
 /*!
-    \enum QSslSocket::Mode
+    \enum QSslSocket::SslMode
 
     Describes the different connection modes a QSslSocket can be in.
 
-    \value PlainMode The socket is unencrypted, and behaves identically to
-    QTcpSocket.
+    \value UnencryptedMode The socket is unencrypted, and behaves identically
+    to QTcpSocket.
 
     \value SslClientMode The socket is a client-side SSL socket, and is either
     encrypted, or in the handshake phase (see QSslSocket::isEncrypted()).
@@ -157,7 +157,7 @@
     \value SslV3 SSLv3
     \value SslV2 SSLv2
     \value TlsV1 TLSv1
-    \value Compat The socket understands SSLv2, SSLv3 and TLSv1.
+    \value AnyProtocol The socket understands SSLv2, SSLv3 and TLSv1.
 */
 
 /*!
@@ -171,10 +171,10 @@
 */
 
 /*!
-    \fn QSslSocket::modeChanged(QSslSocket::Mode mode)
+    \fn QSslSocket::modeChanged(QSslSocket::SslMode mode)
 
     This signal is emitted when QSslSocket changes from \l
-    QSslSocket::PlainMode to either \l QSslSocket::SslClientMode or \l
+    QSslSocket::UnencryptedMode to either \l QSslSocket::SslClientMode or \l
     QSslSocket::SslServerMode. \a mode is the new mode.
 
     \sa QSslSocket::mode()
@@ -235,7 +235,7 @@ QSslSocket::QSslSocket(QObject *parent)
 #endif
     d->q_ptr = this;
     d->init();
-    resetCiphers();
+    setCiphers(defaultCiphers());
 }
 
 /*!
@@ -251,7 +251,7 @@ QSslSocket::~QSslSocket()
 /*!
     Starts an encrypted connection to \a hostName on \a port, using \a mode as
     the device \l OpenMode. This is equivalent to calling connectToHost(), and
-    then calling startClientHandShake() after the connection has been
+    then calling startClientEncryption() after the connection has been
     established.
 
     QSslSocket will enter HostLookupState, and after entering the event loop
@@ -263,9 +263,10 @@ QSslSocket::~QSslSocket()
     After initiating the SSL client handshake, QSslSocket can emit
     sslErrors(), indicating that the identity of the peer could not be
     established. If you want to ignore the errors and continue connecting, you
-    must call ignoreSslErrors() from inside a slot connected to the
-    sslErrors() signal. Otherwise, the connection will be dropped (QSslSocket
-    emits disconnected(), and reenters UnconnectedState).
+    must call ignoreSslErrors() (either from inside a slot connected to the
+    sslErrors() signal, or prior to entering encrypted mode). Otherwise, the
+    connection will be dropped (QSslSocket emits disconnected(), and reenters
+    UnconnectedState).
 
     If the SSL handshake is completed successfully, QSslSocket will emit
     encrypted().
@@ -280,10 +281,10 @@ QSslSocket::~QSslSocket()
     The default for \a mode is \l ReadWrite.
 
     If you want to create a QSslSocket on the server side of a connection, you
-    should instead call startServerHandShake() upon receiving the incoming
+    should instead call startServerEncryption() upon receiving the incoming
     connection through QTcpServer.
 
-    \sa connectToHost(), startClientHandShake(), waitForConnected(), waitForEncrypted()
+    \sa connectToHost(), startClientEncryption(), waitForConnected(), waitForEncrypted()
 */
 void QSslSocket::connectToHostEncrypted(const QString &hostName, quint16 port, OpenMode mode)
 {
@@ -294,7 +295,7 @@ void QSslSocket::connectToHostEncrypted(const QString &hostName, quint16 port, O
     }
 
     connectToHost(hostName, port, mode);
-    d->autoStartHandShake = true;
+    d->autoStartHandshake = true;
 }
 
 /*!
@@ -327,16 +328,16 @@ bool QSslSocket::setSocketDescriptor(int socketDescriptor, SocketState state, Op
 }
 
 /*!
-    Returns the current mode for the socket; either PlainMode, where
+    Returns the current mode for the socket; either UnencryptedMode, where
     QSslSocket behaves identially to QTcpSocket, or one of SslClientMode or
     SslServerMode, where the client is either negotiating or in encrypted
     mode.
 
     When the mode changes, QSslSocket emits modeChanged()
 
-    \sa Mode
+    \sa SslMode
 */
-QSslSocket::Mode QSslSocket::mode() const
+QSslSocket::SslMode QSslSocket::mode() const
 {
     Q_D(const QSslSocket);
     return d->mode;
@@ -352,7 +353,7 @@ QSslSocket::Mode QSslSocket::mode() const
 
     QSslSocket emits encrypted() when it enters encrypted mode.
 
-    You can call currentCipher() to find which cryptographic cipher is used to
+    You can call sessionCipher() to find which cryptographic cipher is used to
     encrypt and decrypt your data.
 
     \sa mode()
@@ -378,8 +379,6 @@ QSslSocket::Protocol QSslSocket::protocol() const
     Sets the socket's SSL protocol to \a protocol. This will affect the next
     initiated handshake; calling this function on an already-encrypted socket
     will not affect the socket's protocol.
-
-    \value setProtocol()
 */
 void QSslSocket::setProtocol(Protocol protocol)
 {
@@ -396,7 +395,7 @@ void QSslSocket::setProtocol(Protocol protocol)
 qint64 QSslSocket::bytesAvailable() const
 {
     Q_D(const QSslSocket);
-    if (d->mode == PlainMode)
+    if (d->mode == UnencryptedMode)
         return QIODevice::bytesAvailable() + (d->plainSocket ? d->plainSocket->bytesAvailable() : 0);
     return QIODevice::bytesAvailable() + d->readBuffer.size();
 }
@@ -410,7 +409,7 @@ qint64 QSslSocket::bytesAvailable() const
 qint64 QSslSocket::bytesToWrite() const
 {
     Q_D(const QSslSocket);
-    if (d->mode == PlainMode)
+    if (d->mode == UnencryptedMode)
         return d->plainSocket ? d->plainSocket->bytesToWrite() : 0;
     return d->writeBuffer.size();
 }
@@ -424,7 +423,7 @@ qint64 QSslSocket::bytesToWrite() const
 bool QSslSocket::canReadLine() const
 {
     Q_D(const QSslSocket);
-    if (d->mode == PlainMode)
+    if (d->mode == UnencryptedMode)
         return QIODevice::canReadLine() || (d->plainSocket && d->plainSocket->canReadLine());
     return QIODevice::canReadLine() || (!d->readBuffer.isEmpty() && d->readBuffer.canReadLine());
 }
@@ -446,7 +445,7 @@ void QSslSocket::close()
 bool QSslSocket::atEnd() const
 {
     Q_D(const QSslSocket);
-    if (d->mode == PlainMode)
+    if (d->mode == UnencryptedMode)
         return QIODevice::atEnd() && (!d->plainSocket || d->plainSocket->atEnd());
     return QIODevice::atEnd() && d->readBuffer.isEmpty();
 }
@@ -509,6 +508,19 @@ void QSslSocket::setLocalCertificate(const QSslCertificate &certificate)
 {
     Q_D(QSslSocket);
     d->localCertificate = certificate;
+}
+
+/*!
+    \overload
+
+    Sets the local certificate to \a path, using \a format encoding.
+*/
+void QSslSocket::setLocalCertificate(const QString &path, QSsl::EncodingFormat format)
+{
+    Q_D(QSslSocket);
+    QFile file(path);
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text))
+        d->localCertificate = QSslCertificate(file.readAll(), format);
 }
 
 /*!
@@ -581,13 +593,13 @@ QList<QSslCertificate> QSslSocket::peerCertificateChain() const
     QSslSocket also provides functions for selecting which ciphers should be
     used for encrypting data.
 
-    \sa ciphers(), resetCiphers(), setCiphers(), setGlobalCiphers(),
-    resetGlobalCiphers(), globalCiphers(), supportedCiphers()
+    \sa ciphers(), setCiphers(), setDefaultCiphers(), defaultCiphers(),
+    supportedCiphers()
 */
-QSslCipher QSslSocket::currentCipher() const
+QSslCipher QSslSocket::sessionCipher() const
 {
     Q_D(const QSslSocket);
-    return d->currentCipher();
+    return d->sessionCipher();
 }
 
 /*!
@@ -603,6 +615,26 @@ void QSslSocket::setPrivateKey(const QSslKey &key)
 {
     Q_D(QSslSocket);
     d->privateKey = key;
+}
+
+/*!
+    \overload
+
+    Loads the private key at \a fileName, using \a algorithm and \a format. If
+    the key is encrypted, \a passPhrase will be passed to decrypt the key.
+
+    \sa privateKey(), setLocalCertificate()
+*/
+void QSslSocket::setPrivateKey(const QString &fileName, QSsl::Algorithm algorithm,
+                               QSsl::EncodingFormat format,
+                               const QByteArray &passPhrase)
+{
+    Q_D(QSslSocket);
+    QFile file(fileName);
+    if (file.open(QIODevice::ReadOnly)) {
+        d->privateKey = QSslKey(file.readAll(), algorithm, format,
+                                QSsl::PrivateKey, passPhrase);
+    }
 }
 
 /*!
@@ -625,10 +657,10 @@ QSslKey QSslSocket::privateKey() const
     By default, the socket will use supportedCiphers(), a predefined set of
     ciphers that works for most common cases. This predefined set is defined
     by the current SSL libraries, and may vary from system to system. If you
-    change the ciphers for this socket, you can later call resetCiphers() at
+    change the ciphers for this socket, you can later call setCiphers() at
     any time to revert to using the default set.
 
-    \sa setCiphers(), resetCiphers(), globalCiphers(), supportedCiphers()
+    \sa setCiphers(), defaultCiphers(), supportedCiphers()
 */
 QList<QSslCipher> QSslSocket::ciphers() const
 {
@@ -637,21 +669,9 @@ QList<QSslCipher> QSslSocket::ciphers() const
 }
 
 /*!
-    Resets this socket's cryptographic cipher suite back to the global
-    default. This is the same as calling setCiphers(globalCiphers()).
-
-    \sa ciphers(), setCiphers(), resetGlobalCiphers(), supportedCiphers()
-*/
-void QSslSocket::resetCiphers()
-{
-    Q_D(QSslSocket);
-    d->ciphers = globalCiphers();
-}
-
-/*!
     Sets the cryptographic cipher suite for this socket to \a ciphers.
 
-    \sa ciphers(), setGlobalCiphers(), supportedCiphers()
+    \sa ciphers(), setDefaultCiphers(), supportedCiphers()
 */
 void QSslSocket::setCiphers(const QList<QSslCipher> &ciphers)
 {
@@ -660,27 +680,40 @@ void QSslSocket::setCiphers(const QList<QSslCipher> &ciphers)
 }
 
 /*!
-    Sets the default cryptographic cipher suite for all sockets in this
-    application to \a ciphers.
+    Sets the cryptographic cipher suite for this socket to \a ciphers, which
+    is a colon-separated list of cipher names. The ciphers are listed in order
+    of preference, starting with the most preferred cipher. For example:
 
-    \sa setCiphers(), resetGlobalCiphers(), globalCiphers(),
-    supportedCiphers()
+    \code
+        QSslSocket socket;
+        socket.setCiphers("!ADH:RC4+RSA:HIGH:MEDIUM:LOW:EXP:+SSLv2:+EXP");
+    \endcode
+
+    \sa ciphers(), setDefaultCiphers(), supportedCiphers()
 */
-void QSslSocket::setGlobalCiphers(const QList<QSslCipher> &ciphers)
+void QSslSocket::setCiphers(const QString &ciphers)
 {
-    QSslSocketPrivate::setGlobalCiphers(ciphers);
+    Q_D(QSslSocket);
+    d->ciphers.clear();
+    foreach (QString cipherName, ciphers.split(QLatin1String(":"), QString::SkipEmptyParts)) {
+        for (int i = 0; i < 3; ++i) {
+            // ### Crude
+            QSslCipher cipher(cipherName, QSslCipher::Protocol(i));
+            if (!cipher.isNull())
+                d->ciphers << cipher;
+        }
+    }
 }
 
 /*!
-    Resets the default cryptographic cipher suite for all sockets in this
-    application.
+    Sets the default cryptographic cipher suite for all sockets in this
+    application to \a ciphers.
 
-    \sa resetCiphers(), setGlobalCiphers(), globalCiphers(),
-    supportedCiphers()
+    \sa setCiphers(), defaultCiphers(), supportedCiphers()
 */
-void QSslSocket::resetGlobalCiphers()
+void QSslSocket::setDefaultCiphers(const QList<QSslCipher> &ciphers)
 {
-    QSslSocketPrivate::resetGlobalCiphers();
+    QSslSocketPrivate::setDefaultCiphers(ciphers);
 }
 
 /*!
@@ -696,9 +729,9 @@ void QSslSocket::resetGlobalCiphers()
 
     \sa supportedCiphers()
 */
-QList<QSslCipher> QSslSocket::globalCiphers()
+QList<QSslCipher> QSslSocket::defaultCiphers()
 {
-    return QSslSocketPrivate::globalCiphers();
+    return QSslSocketPrivate::defaultCiphers();
 }
 
 /*!
@@ -707,7 +740,7 @@ QList<QSslCipher> QSslSocket::globalCiphers()
     This list is determined by the current SSL libraries, and may vary from
     system to system.
 
-    \sa globalCiphers(), ciphers(), setCiphers()
+    \sa defaultCiphers(), ciphers(), setCiphers()
 */
 QList<QSslCipher> QSslSocket::supportedCiphers()
 {
@@ -715,17 +748,19 @@ QList<QSslCipher> QSslSocket::supportedCiphers()
 }
 
 /*!
-    Adds all CA certificates in \a path, which may be a file, or a directory
-    with wildcards. Returns true on success; otherwise returns false.
+    Adds all CA certificates in \a path using \a format encoding, which may be
+    a file, or a directory with \a syntax formatted wildcards. Returns true on
+    success; otherwise returns false.
 
     For more fine grained control, you can call addCaCertificate() instead.
 
     \sa addCaCertificate()
 */
-bool QSslSocket::addCaCertificates(const QString &path)
+bool QSslSocket::addCaCertificates(const QString &path, QSsl::EncodingFormat format,
+                                   QRegExp::PatternSyntax syntax)
 {
     Q_D(QSslSocket);
-    QList<QSslCertificate> certs = QSslSocketPrivate::certificatesFromPath(path);
+    QList<QSslCertificate> certs = QSslCertificate::fromPath(path, format, syntax);
     if (certs.isEmpty())
         return false;
 
@@ -736,7 +771,7 @@ bool QSslSocket::addCaCertificates(const QString &path)
 /*!
     Adds \a certificate to this socket's CA certificate database.
 
-    \sa caCertificates(), resetCaCertificates(), addGlobalCaCertificate()
+    \sa caCertificates(), addDefaultCaCertificate()
 */
 void QSslSocket::addCaCertificate(const QSslCertificate &certificate)
 {
@@ -747,7 +782,7 @@ void QSslSocket::addCaCertificate(const QSslCertificate &certificate)
 /*!
     Adds \a certificates to this socket's CA certificate database.
 
-    \sa caCertificates(), resetCaCertificates(), addGlobalCaCertificate()
+    \sa caCertificates(), addDefaultCaCertificate()
 */
 void QSslSocket::addCaCertificates(const QList<QSslCertificate> &certificates)
 {
@@ -759,10 +794,10 @@ void QSslSocket::addCaCertificates(const QList<QSslCertificate> &certificates)
     Sets \a certificates to be this socket's CA certificate database. Any
     global CA certificates are ignored.
 
-    You can later call resetCaCertificates() to restore the global CA
+    You can later call setCaCertificates() to restore the global CA
     certificate defaults.
 
-    \sa caCertificates(), resetCaCertificates(), addGlobalCaCertificate()
+    \sa caCertificates(), addDefaultCaCertificate()
 */
 void QSslSocket::setCaCertificates(const QList<QSslCertificate> &certificates)
 {
@@ -772,73 +807,62 @@ void QSslSocket::setCaCertificates(const QList<QSslCertificate> &certificates)
 }
 
 /*!
-    Resets this socket's CA certificate database. The socket will fall back to
-    using the global CA certificate database (See globalCaCertificates()).
-
-    \sa addCaCertificate(), setGlobalCaCertificates()
-*/
-void QSslSocket::resetCaCertificates()
-{
-    Q_D(QSslSocket);
-    d->useLocalCaCertificatesOnly = false;
-    d->localCaCertificates.clear();
-}
-
-/*!
     Returns this socket's CA certificate database.
 
-    \sa addCaCertificates(), globalCaCertificates()
+    \sa addCaCertificates(), defaultCaCertificates()
 */
 QList<QSslCertificate> QSslSocket::caCertificates() const
 {
     Q_D(const QSslSocket);
     if (d->useLocalCaCertificatesOnly)
         return d->localCaCertificates;
-    return d->globalCaCertificates() + d->localCaCertificates;
+    return d->defaultCaCertificates() + d->localCaCertificates;
 }
 
 /*!
-    Adds all CA certificates in \a path to the global CA certificate database.
-    \a path can be a file, or a directory with wildcards. Returns true on
-    success; otherwise returns false.
+    Adds all CA certificates in \a path, using \a encoding, to the global CA
+    certificate database.  \a path can be a file, or a directory with \a
+    syntax formatted wildcards. Returns true on success; otherwise returns
+    false.
 
-    \sa globalCaCertificates(), addCaCertificates(), addGlobalCaCertificate()
+    \sa defaultCaCertificates(), addCaCertificates(), addDefaultCaCertificate()
 */
-bool QSslSocket::addGlobalCaCertificates(const QString &path)
+bool QSslSocket::addDefaultCaCertificates(const QString &path, QSsl::EncodingFormat encoding,
+                                          QRegExp::PatternSyntax syntax)
 {
-    return QSslSocketPrivate::addGlobalCaCertificates(path);
+    return QSslSocketPrivate::addDefaultCaCertificates(path, encoding, syntax);
 }
 
 /*!
     Adds \a certificate to the global CA certificate database.
 
-    \sa globalCaCertificates(), addCaCertificates()
+    \sa defaultCaCertificates(), addCaCertificates()
 */
-void QSslSocket::addGlobalCaCertificate(const QSslCertificate &certificate)
+void QSslSocket::addDefaultCaCertificate(const QSslCertificate &certificate)
 {
-    QSslSocketPrivate::addGlobalCaCertificate(certificate);
+    QSslSocketPrivate::addDefaultCaCertificate(certificate);
 }
 
 /*!
     Adds \a certificates to the global CA certificate database.
 
-    \sa globalCaCertificates(), addCaCertificates()
+    \sa defaultCaCertificates(), addCaCertificates()
 */
-void QSslSocket::addGlobalCaCertificates(const QList<QSslCertificate> &certificates)
+void QSslSocket::addDefaultCaCertificates(const QList<QSslCertificate> &certificates)
 {
-    QSslSocketPrivate::addGlobalCaCertificates(certificates);
+    QSslSocketPrivate::addDefaultCaCertificates(certificates);
 }
 
 /*!
     Sets \a certificates to be QSslSocket's global CA certificate database.
 
-    \sa resetCaCertificates(), addGlobalCaCertificate()
+    \sa addDefaultCaCertificate()
 */
-void QSslSocket::setGlobalCaCertificates(const QList<QSslCertificate> &certificates)
+void QSslSocket::setDefaultCaCertificates(const QList<QSslCertificate> &certificates)
 {
     // ### Document exactly hos this works.
     // ### We might need a setter, and perhaps a ban'er.
-    QSslSocketPrivate::setGlobalCaCertificates(certificates);
+    QSslSocketPrivate::setDefaultCaCertificates(certificates);
 }
 
 /*!
@@ -846,9 +870,9 @@ void QSslSocket::setGlobalCaCertificates(const QList<QSslCertificate> &certifica
 
     \sa caCertificates()
 */
-QList<QSslCertificate> QSslSocket::globalCaCertificates()
+QList<QSslCertificate> QSslSocket::defaultCaCertificates()
 {
-    return QSslSocketPrivate::globalCaCertificates();
+    return QSslSocketPrivate::defaultCaCertificates();
 }
 
 /*!
@@ -900,14 +924,14 @@ bool QSslSocket::waitForConnected(int msecs)
 
     If msecs is -1, this function will not time out.
 
-    \sa startClientHandShake(), startServerHandShake(), encrypted(), isEncrypted()
+    \sa startClientEncryption(), startServerEncryption(), encrypted(), isEncrypted()
 */
 bool QSslSocket::waitForEncrypted(int msecs)
 {
     Q_D(QSslSocket);
     if (!d->plainSocket || d->connectionEncrypted)
         return false;
-    if (d->mode == PlainMode && !d->autoStartHandShake)
+    if (d->mode == UnencryptedMode && !d->autoStartHandshake)
         return false;
 
     QTime stopWatch;
@@ -921,8 +945,8 @@ bool QSslSocket::waitForEncrypted(int msecs)
 
     while (!d->connectionEncrypted) {
         // Start the handshake, if this hasn't been started yet.
-        if (d->mode == PlainMode)
-            startClientHandShake();
+        if (d->mode == UnencryptedMode)
+            startClientEncryption();
         // Loop, waiting until the connection has been encrypted or an error
         // occurs.
         if (!d->plainSocket->waitForReadyRead(qBound(0, msecs - stopWatch.elapsed(), msecs)))
@@ -939,7 +963,7 @@ bool QSslSocket::waitForReadyRead(int msecs)
     Q_D(QSslSocket);
     if (!d->plainSocket)
         return false;
-    if (d->mode == PlainMode && !d->autoStartHandShake)
+    if (d->mode == UnencryptedMode && !d->autoStartHandshake)
         return d->plainSocket->waitForReadyRead(msecs);
 
     int oldReadBufferSize = d->readBuffer.size();
@@ -970,7 +994,7 @@ bool QSslSocket::waitForBytesWritten(int msecs)
     Q_D(QSslSocket);
     if (!d->plainSocket)
         return false;
-    if (d->mode == PlainMode)
+    if (d->mode == UnencryptedMode)
         return d->plainSocket->waitForBytesWritten(msecs);
 
     QTime stopWatch;
@@ -1039,33 +1063,33 @@ bool QSslSocket::supportsSsl()
 
 /*!
     Starts a delayed SSL handshake for a client connection. This function must
-    be called when the socket is in \l PlainMode, and \l ConnectedState;
+    be called when the socket is in \l UnencryptedMode, and \l ConnectedState;
     otherwise, it has no effect.
 
     Clients that implement STARTTLS functionality often make use of delayed
     SSL handshakes; most other clients can avoid calling this function
     directly by using connectToHostEncrypted() instead.
 
-    \sa connectToHostEncrypted(), startServerHandShake()
+    \sa connectToHostEncrypted(), startServerEncryption()
 */
-void QSslSocket::startClientHandShake()
+void QSslSocket::startClientEncryption()
 {
     Q_D(QSslSocket);
-    if (d->mode != PlainMode) {
-        qWarning("QSslSocket::startClientHandShake: cannot start handshake on non-plain connection");
+    if (d->mode != UnencryptedMode) {
+        qWarning("QSslSocket::startClientEncryption: cannot start handshake on non-plain connection");
         return;
     }
 #ifdef QSSLSOCKET_DEBUG
-    qDebug() << "QSslSocket::startClientHandShake()";
+    qDebug() << "QSslSocket::startClientEncryption()";
 #endif
     d->mode = SslClientMode;
     emit modeChanged(d->mode);
-    d->startClientHandShake();
+    d->startClientEncryption();
 }
 
 /*!
     Starts a delayed SSL handshake for a server connection. This function must
-    be called when the socket is in \l PlainMode, and \l ConnectedState;
+    be called when the socket is in \l UnencryptedMode, and \l ConnectedState;
     otherwise, it has no effect.
 
     For server sockets, calling this function is the only way to initiate the
@@ -1078,29 +1102,30 @@ void QSslSocket::startClientHandShake()
     QTcpServer, and reimplement QTcpServer::incomingConnection(). The provided
     socket descriptor is then passed to QSslSocket::setSocketDescriptor().
     
-    \sa connectToHostEncrypted(), startClientHandShake()
+    \sa connectToHostEncrypted(), startClientEncryption()
 */
-void QSslSocket::startServerHandShake()
+void QSslSocket::startServerEncryption()
 {
     Q_D(QSslSocket);
-    if (d->mode != PlainMode) {
-        qWarning("QSslSocket::startClientHandShake: cannot start handshake on non-plain connection");
+    if (d->mode != UnencryptedMode) {
+        qWarning("QSslSocket::startClientEncryption: cannot start handshake on non-plain connection");
         return;
     }
 #ifdef QSSLSOCKET_DEBUG
-    qDebug() << "QSslSocket::startServerHandShake()";
+    qDebug() << "QSslSocket::startServerEncryption()";
 #endif
     d->mode = SslServerMode;
     emit modeChanged(d->mode);
-    d->startServerHandShake();
+    d->startServerEncryption();
 }
 
 /*!
     This slot allows QSslSocket to ignore all errors during QSslSocket's
     handshake phase, and continue connecting. If the handshake fails with one
-    or more errors, you must call this function from a slot connected to
-    sslErrors() to continue the connection; otherwise, the connection will be
-    dropped immediately after the signal has been emitted.
+    or more errors, you must call this function either from a slot connected
+    to sslErrors(), or before entering encrypted mode, to continue the
+    connection; otherwise, the connection will be dropped immediately after
+    the signal has been emitted.
 
     If there are no errors during the SSL handshake phase (i.e., the identity
     of the peer is established with no problems), QSslSocket will not emit the
@@ -1151,7 +1176,7 @@ void QSslSocket::disconnectFromHostImplementation()
 #endif
     if (!d->plainSocket)
         return;
-    if (d->mode == PlainMode) {
+    if (d->mode == UnencryptedMode) {
         d->plainSocket->disconnectFromHost();
     } else {
         d->disconnectFromHost();
@@ -1166,7 +1191,7 @@ qint64 QSslSocket::readData(char *data, qint64 maxlen)
     Q_D(QSslSocket);
     qint64 readBytes = 0;
 
-    if (d->mode == PlainMode && !d->autoStartHandShake) {
+    if (d->mode == UnencryptedMode && !d->autoStartHandshake) {
         readBytes = d->plainSocket->read(data, maxlen);
     } else {
         do {
@@ -1192,7 +1217,7 @@ qint64 QSslSocket::writeData(const char *data, qint64 len)
 #ifdef QSSLSOCKET_DEBUG
     qDebug() << "QSslSocket::writeData(" << (void *)data << "," << len << ")";
 #endif
-    if (d->mode == PlainMode && !d->autoStartHandShake)
+    if (d->mode == UnencryptedMode && !d->autoStartHandshake)
         return d->plainSocket->write(data, len);
 
     d->writeBuffer.write(data, len);
@@ -1223,8 +1248,8 @@ QSslSocketPrivate::~QSslSocketPrivate()
 */
 void QSslSocketPrivate::init()
 {
-    mode = QSslSocket::PlainMode;
-    autoStartHandShake = false;
+    mode = QSslSocket::UnencryptedMode;
+    autoStartHandshake = false;
     connectionEncrypted = false;
     ignoreSslErrors = false;
     protocol = QSslSocket::SslV3;
@@ -1238,7 +1263,7 @@ void QSslSocketPrivate::init()
 /*!
     \internal
 */
-QList<QSslCipher> QSslSocketPrivate::globalCiphers()
+QList<QSslCipher> QSslSocketPrivate::defaultCiphers()
 {
     QMutexLocker locker(&globalData()->mutex);
     return globalData()->ciphers;
@@ -1257,7 +1282,7 @@ QList<QSslCipher> QSslSocketPrivate::supportedCiphers()
 /*!
     \internal
 */
-void QSslSocketPrivate::setGlobalCiphers(const QList<QSslCipher> &ciphers)
+void QSslSocketPrivate::setDefaultCiphers(const QList<QSslCipher> &ciphers)
 {
     QMutexLocker locker(&globalData()->mutex);
     globalData()->ciphers = ciphers;
@@ -1266,7 +1291,7 @@ void QSslSocketPrivate::setGlobalCiphers(const QList<QSslCipher> &ciphers)
 /*!
     \internal
 */
-void QSslSocketPrivate::setGlobalSupportedCiphers(const QList<QSslCipher> &ciphers)
+void QSslSocketPrivate::setDefaultSupportedCiphers(const QList<QSslCipher> &ciphers)
 {
     QMutexLocker locker(&globalData()->mutex);
     globalData()->supportedCiphers = ciphers;
@@ -1275,7 +1300,7 @@ void QSslSocketPrivate::setGlobalSupportedCiphers(const QList<QSslCipher> &ciphe
 /*!
     \internal
 */
-QList<QSslCertificate> QSslSocketPrivate::globalCaCertificates()
+QList<QSslCertificate> QSslSocketPrivate::defaultCaCertificates()
 {
     QSslSocketPrivate::ensureInitialized();
     QMutexLocker locker(&globalData()->mutex);
@@ -1285,7 +1310,7 @@ QList<QSslCertificate> QSslSocketPrivate::globalCaCertificates()
 /*!
     \internal
 */
-void QSslSocketPrivate::setGlobalCaCertificates(const QList<QSslCertificate> &certs)
+void QSslSocketPrivate::setDefaultCaCertificates(const QList<QSslCertificate> &certs)
 {
     QSslSocketPrivate::ensureInitialized();
     QMutexLocker locker(&globalData()->mutex);
@@ -1295,10 +1320,11 @@ void QSslSocketPrivate::setGlobalCaCertificates(const QList<QSslCertificate> &ce
 /*!
     \internal
 */
-bool QSslSocketPrivate::addGlobalCaCertificates(const QString &path)
+bool QSslSocketPrivate::addDefaultCaCertificates(const QString &path, QSsl::EncodingFormat format,
+                                                 QRegExp::PatternSyntax syntax)
 {
     QSslSocketPrivate::ensureInitialized();
-    QList<QSslCertificate> certs = QSslSocketPrivate::certificatesFromPath(path);
+    QList<QSslCertificate> certs = QSslCertificate::fromPath(path, format, syntax);
     if (certs.isEmpty())
         return false;
 
@@ -1310,7 +1336,7 @@ bool QSslSocketPrivate::addGlobalCaCertificates(const QString &path)
 /*!
     \internal
 */
-void QSslSocketPrivate::addGlobalCaCertificate(const QSslCertificate &cert)
+void QSslSocketPrivate::addDefaultCaCertificate(const QSslCertificate &cert)
 {
     QSslSocketPrivate::ensureInitialized();
     QMutexLocker locker(&globalData()->mutex);
@@ -1320,7 +1346,7 @@ void QSslSocketPrivate::addGlobalCaCertificate(const QSslCertificate &cert)
 /*!
     \internal
 */
-void QSslSocketPrivate::addGlobalCaCertificates(const QList<QSslCertificate> &certs)
+void QSslSocketPrivate::addDefaultCaCertificates(const QList<QSslCertificate> &certs)
 {
     QSslSocketPrivate::ensureInitialized();
     QMutexLocker locker(&globalData()->mutex);
@@ -1363,7 +1389,7 @@ void QSslSocketPrivate::createPlainSocket(QIODevice::OpenMode openMode)
     connectionEncrypted = false;
     peerCertificate.clear();
     peerCertificateChain.clear();
-    mode = QSslSocket::PlainMode;
+    mode = QSslSocket::UnencryptedMode;
 }
 
 /*!
@@ -1386,8 +1412,8 @@ void QSslSocketPrivate::_q_connectedSlot()
 #endif
     emit q->connected();
 
-    if (autoStartHandShake)
-        q->startClientHandShake();
+    if (autoStartHandshake)
+        q->startClientEncryption();
 }
 
 /*!
@@ -1455,7 +1481,7 @@ void QSslSocketPrivate::_q_readyReadSlot()
 #ifdef QSSLSOCKET_DEBUG
     qDebug() << "QSslSocket::_q_readyReadSlot() -" << plainSocket->bytesAvailable() << "bytes available";
 #endif
-    if (mode == QSslSocket::PlainMode) {
+    if (mode == QSslSocket::UnencryptedMode) {
         emit q->readyRead();
         return;
     }

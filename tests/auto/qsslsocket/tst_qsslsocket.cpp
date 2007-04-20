@@ -18,7 +18,7 @@
 Q_DECLARE_METATYPE(QAbstractSocket::SocketState)
 Q_DECLARE_METATYPE(QAbstractSocket::SocketError)
 #ifndef QT_NO_OPENSSL
-Q_DECLARE_METATYPE(QSslSocket::Mode)
+Q_DECLARE_METATYPE(QSslSocket::SslMode)
 #endif
 
 class tst_QSslSocket : public QObject
@@ -57,7 +57,7 @@ private slots:
     void addCaCertificates2();
     void ciphers();
     void connectToHostEncrypted();
-    void currentCipher();
+    void sessionCipher();
     void flush();
     void isEncrypted();
     void localCertificate();
@@ -72,16 +72,16 @@ private slots:
     void setProtocol();
     void setSocketDescriptor();
     void waitForEncrypted();
-    void startClientHandShake();
-    void startServerHandShake();
-    void addGlobalCaCertificate();
-    void addGlobalCaCertificates();
-    void addGlobalCaCertificates2();
-    void globalCaCertificates();
-    void globalCiphers();
-    void resetGlobalCiphers();
-    void setGlobalCaCertificates();
-    void setGlobalCiphers();
+    void startClientEncryption();
+    void startServerEncryption();
+    void addDefaultCaCertificate();
+    void addDefaultCaCertificates();
+    void addDefaultCaCertificates2();
+    void defaultCaCertificates();
+    void defaultCiphers();
+    void resetDefaultCiphers();
+    void setDefaultCaCertificates();
+    void setDefaultCiphers();
     void supportedCiphers();
     void systemCaCertificates();
 
@@ -116,7 +116,7 @@ tst_QSslSocket::tst_QSslSocket()
     qRegisterMetaType<QList<QSslError> >("QList<QSslError>");
     qRegisterMetaType<QAbstractSocket::SocketState>("QAbstractSocket::SocketState");
     qRegisterMetaType<QAbstractSocket::SocketError>("QAbstractSocket::SocketError");
-    qRegisterMetaType<QAbstractSocket::SocketState>("QSslSocket::Mode");
+    qRegisterMetaType<QAbstractSocket::SocketState>("QSslSocket::SslMode");
 #endif
 }
 
@@ -147,7 +147,7 @@ void tst_QSslSocket::constructing()
     QSslSocket socket;
 
     QCOMPARE(socket.state(), QSslSocket::UnconnectedState);
-    QCOMPARE(socket.mode(), QSslSocket::PlainMode);
+    QCOMPARE(socket.mode(), QSslSocket::UnencryptedMode);
     QVERIFY(!socket.isEncrypted());
     QCOMPARE(socket.bytesAvailable(), qint64(0));
     QCOMPARE(socket.bytesToWrite(), qint64(0));
@@ -217,7 +217,7 @@ void tst_QSslSocket::simpleConnect()
 
     connect(&socket, SIGNAL(connected()), this, SLOT(exitLoop()));
     connect(&socket, SIGNAL(disconnected()), this, SLOT(exitLoop()));
-    connect(&socket, SIGNAL(modeChanged(QSslSocket::Mode)), this, SLOT(exitLoop()));
+    connect(&socket, SIGNAL(modeChanged(QSslSocket::SslMode)), this, SLOT(exitLoop()));
     connect(&socket, SIGNAL(encrypted()), this, SLOT(exitLoop()));
     connect(&socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)), this, SLOT(exitLoop()));
     connect(&socket, SIGNAL(sslErrors(const QList<QSslError> &)), this, SLOT(exitLoop()));
@@ -236,14 +236,14 @@ void tst_QSslSocket::simpleConnect()
 
     // Entered connected state
     QCOMPARE(socket.state(), QAbstractSocket::ConnectedState);
-    QCOMPARE(socket.mode(), QSslSocket::PlainMode);
+    QCOMPARE(socket.mode(), QSslSocket::UnencryptedMode);
     QVERIFY(!socket.isEncrypted());
     QCOMPARE(connectedSpy.count(), 1);
     QCOMPARE(hostFoundSpy.count(), 1);
     QCOMPARE(disconnectedSpy.count(), 0);
 
     // Enter encrypted mode
-    socket.startClientHandShake();
+    socket.startClientEncryption();
     QCOMPARE(socket.mode(), QSslSocket::SslClientMode);
     QVERIFY(!socket.isEncrypted());
     QCOMPARE(connectionEncryptedSpy.count(), 0);
@@ -280,7 +280,7 @@ void tst_QSslSocket::simpleConnectWithIgnore()
 
     // Start handshake
     QCOMPARE(socket.state(), QAbstractSocket::ConnectedState);
-    socket.startClientHandShake();
+    socket.startClientEncryption();
     enterLoop(10);
 
     // Done; encryption should be enabled.
@@ -325,9 +325,9 @@ void tst_QSslSocket::ciphers()
     QCOMPARE(socket.ciphers(), QSslSocket::supportedCiphers());
     socket.setCiphers(QList<QSslCipher>());
     QVERIFY(socket.ciphers().isEmpty());
-    socket.resetCiphers();
+    socket.setCiphers(socket.defaultCiphers());
     QCOMPARE(socket.ciphers(), QSslSocket::supportedCiphers());
-    socket.resetCiphers();
+    socket.setCiphers(socket.defaultCiphers());
     QCOMPARE(socket.ciphers(), QSslSocket::supportedCiphers());
 }
 
@@ -338,7 +338,7 @@ void tst_QSslSocket::connectToHostEncrypted()
 
     QSslSocket socket;
 
-    socket.addGlobalCaCertificates(QLatin1String("certs/fluke.ca.pem"));
+    socket.addDefaultCaCertificates(QLatin1String("certs/fluke.ca.pem"));
     socket.connectToHostEncrypted("fluke.troll.no", 443);
 
     // This should pass unconditionally when using fluke's CA certificate.
@@ -351,12 +351,12 @@ void tst_QSslSocket::connectToHostEncrypted()
 
     socket.connectToHost("fluke.troll.no", 13);
 
-    QCOMPARE(socket.mode(), QSslSocket::PlainMode);
+    QCOMPARE(socket.mode(), QSslSocket::UnencryptedMode);
 
     QVERIFY(socket.waitForDisconnected());
 }
 
-void tst_QSslSocket::currentCipher()
+void tst_QSslSocket::sessionCipher()
 {
     if (!QSslSocket::supportsSsl())
         return;
@@ -364,14 +364,14 @@ void tst_QSslSocket::currentCipher()
     QSslSocket socket;
     this->socket = &socket;
     connect(&socket, SIGNAL(sslErrors(QList<QSslError>)), this, SLOT(ignoreErrorSlot()));
-    QVERIFY(socket.currentCipher().isNull());
+    QVERIFY(socket.sessionCipher().isNull());
     socket.connectToHost("fluke.troll.no", 443 /* https */);
     QVERIFY(socket.waitForConnected(5000));
-    QVERIFY(socket.currentCipher().isNull());
-    socket.startClientHandShake();
+    QVERIFY(socket.sessionCipher().isNull());
+    socket.startClientEncryption();
     QVERIFY(socket.waitForEncrypted(5000));
-    QVERIFY(!socket.currentCipher().isNull());
-    QVERIFY(QSslSocket::supportedCiphers().contains(socket.currentCipher()));
+    QVERIFY(!socket.sessionCipher().isNull());
+    QVERIFY(QSslSocket::supportedCiphers().contains(socket.sessionCipher()));
     socket.disconnectFromHost();
     QVERIFY(socket.waitForDisconnected());
 }
@@ -428,9 +428,9 @@ void tst_QSslSocket::protocol()
         socket.abort();
     }
     {
-        // Fluke allows SSLV3, so it allows Compat.
-        socket.setProtocol(QSslSocket::Compat);
-        QCOMPARE(socket.protocol(), QSslSocket::Compat);
+        // Fluke allows SSLV3, so it allows AnyProtocol.
+        socket.setProtocol(QSslSocket::AnyProtocol);
+        QCOMPARE(socket.protocol(), QSslSocket::AnyProtocol);
         socket.connectToHostEncrypted(QLatin1String("fluke.troll.no"), 443);
         QVERIFY(socket.waitForEncrypted());
     }
@@ -442,11 +442,11 @@ void tst_QSslSocket::setCaCertificates()
         return;
 
     QSslSocket socket;
-    QCOMPARE(socket.caCertificates(), QSslSocket::globalCaCertificates());
+    QCOMPARE(socket.caCertificates(), QSslSocket::defaultCaCertificates());
     socket.setCaCertificates(QSslCertificate::fromPath("certs/fluke.ca.pem"));
     QCOMPARE(socket.caCertificates().size(), 1);
-    socket.resetCaCertificates();
-    QCOMPARE(socket.caCertificates(), QSslSocket::globalCaCertificates());
+    socket.setCaCertificates(socket.defaultCaCertificates());
+    QCOMPARE(socket.caCertificates(), QSslSocket::defaultCaCertificates());
 }
 
 void tst_QSslSocket::setLocalCertificate()
@@ -486,7 +486,7 @@ protected:
         socket->setLocalCertificate(localCert.first());
 
         QVERIFY(socket->setSocketDescriptor(socketDescriptor, QAbstractSocket::ConnectedState));
-        socket->startServerHandShake();
+        socket->startServerEncryption();
     }
 
 protected slots:
@@ -534,65 +534,65 @@ void tst_QSslSocket::waitForEncrypted()
     QVERIFY(socket.waitForEncrypted(10000));
 }
 
-void tst_QSslSocket::startClientHandShake()
+void tst_QSslSocket::startClientEncryption()
 {
 }
 
-void tst_QSslSocket::startServerHandShake()
+void tst_QSslSocket::startServerEncryption()
 {
 }
 
-void tst_QSslSocket::addGlobalCaCertificate()
+void tst_QSslSocket::addDefaultCaCertificate()
 {
     if (!QSslSocket::supportsSsl())
         return;
 
     // Reset the global CA chain
-    QSslSocket::setGlobalCaCertificates(QSslSocket::systemCaCertificates());
+    QSslSocket::setDefaultCaCertificates(QSslSocket::systemCaCertificates());
 
     QList<QSslCertificate> flukeCerts = QSslCertificate::fromPath("certs/fluke.ca.pem");
     QCOMPARE(flukeCerts.size(), 1);
-    QList<QSslCertificate> globalCerts = QSslSocket::globalCaCertificates();
+    QList<QSslCertificate> globalCerts = QSslSocket::defaultCaCertificates();
     QVERIFY(!globalCerts.contains(flukeCerts.first()));
-    QSslSocket::addGlobalCaCertificate(flukeCerts.first());
-    QCOMPARE(QSslSocket::globalCaCertificates().size(), globalCerts.size() + 1);
-    QVERIFY(QSslSocket::globalCaCertificates().contains(flukeCerts.first()));
+    QSslSocket::addDefaultCaCertificate(flukeCerts.first());
+    QCOMPARE(QSslSocket::defaultCaCertificates().size(), globalCerts.size() + 1);
+    QVERIFY(QSslSocket::defaultCaCertificates().contains(flukeCerts.first()));
 
     // Restore the global CA chain
-    QSslSocket::setGlobalCaCertificates(QSslSocket::systemCaCertificates());
+    QSslSocket::setDefaultCaCertificates(QSslSocket::systemCaCertificates());
 }
 
-void tst_QSslSocket::addGlobalCaCertificates()
+void tst_QSslSocket::addDefaultCaCertificates()
 {
 }
 
-void tst_QSslSocket::addGlobalCaCertificates2()
+void tst_QSslSocket::addDefaultCaCertificates2()
 {
 }
 
-void tst_QSslSocket::globalCaCertificates()
+void tst_QSslSocket::defaultCaCertificates()
 {
     if (!QSslSocket::supportsSsl())
         return;
 
-    QList<QSslCertificate> certs = QSslSocket::globalCaCertificates();
+    QList<QSslCertificate> certs = QSslSocket::defaultCaCertificates();
     QVERIFY(certs.size() > 1);
     QCOMPARE(certs, QSslSocket::systemCaCertificates());
 }
 
-void tst_QSslSocket::globalCiphers()
+void tst_QSslSocket::defaultCiphers()
 {
 }
 
-void tst_QSslSocket::resetGlobalCiphers()
+void tst_QSslSocket::resetDefaultCiphers()
 {
 }
 
-void tst_QSslSocket::setGlobalCaCertificates()
+void tst_QSslSocket::setDefaultCaCertificates()
 {
 }
 
-void tst_QSslSocket::setGlobalCiphers()
+void tst_QSslSocket::setDefaultCiphers()
 {
 }
 
@@ -606,7 +606,7 @@ void tst_QSslSocket::supportedCiphers()
 
     QSslSocket socket;
     QCOMPARE(socket.supportedCiphers(), ciphers);
-    QCOMPARE(socket.globalCiphers(), ciphers);
+    QCOMPARE(socket.defaultCiphers(), ciphers);
     QCOMPARE(socket.ciphers(), ciphers);
 }
 
@@ -617,7 +617,7 @@ void tst_QSslSocket::systemCaCertificates()
 
     QList<QSslCertificate> certs = QSslSocket::systemCaCertificates();
     QVERIFY(certs.size() > 1);
-    QCOMPARE(certs, QSslSocket::globalCaCertificates());
+    QCOMPARE(certs, QSslSocket::defaultCaCertificates());
 }
 
 #endif // QT_NO_OPENSSL
