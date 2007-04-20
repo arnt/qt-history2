@@ -40,6 +40,7 @@ private slots:
     void scrollTo();
     void moveCursor();
     void selectAll();
+    void clicked();
 
     // grip
     void moveGrip();
@@ -350,6 +351,36 @@ void tst_QColumnView::selectAll()
     view.setCurrentIndex(home);
     view.selectAll();
     QVERIFY(view.selectionModel()->selectedIndexes().count() > 0);
+}
+
+void tst_QColumnView::clicked()
+{
+    ColumnView view;
+    QDirModel model;
+    view.setModel(&model);
+    view.resize(800,300);
+    view.show();
+
+    QModelIndex home = model.index(QDir::homePath());
+    view.setCurrentIndex(home);
+    QTest::qWait(ANIMATION_DELAY);
+
+    QModelIndex child = home.parent();
+    
+    //child = child.sibling(child.row()-1, 0);
+
+    qRegisterMetaType<QModelIndex>("QModelIndex");
+    QSignalSpy spy(&view, SIGNAL(clicked(const QModelIndex &)));
+
+    // find the column to click on that contains child
+    QRect rect = view.visualRect(child);
+    QPoint globalPoint = view.mapToGlobal(rect.center());
+    QWidget *w = QApplication::widgetAt(globalPoint);
+    QVERIFY(w);
+    QPoint localPoint = w->mapFromGlobal(globalPoint);
+
+    QTest::mouseClick(w, Qt::LeftButton, 0, localPoint);
+    QCOMPARE(spy.count(), 1);
 }
 
 void tst_QColumnView::moveGrip()
