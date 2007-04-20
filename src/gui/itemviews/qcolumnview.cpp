@@ -630,6 +630,18 @@ QAbstractItemView *QColumnViewPrivate::createColumn(const QModelIndex &index, bo
         view = previewColumn;
         view->setMinimumWidth(qMax(view->minimumWidth(), previewWidget->minimumWidth()));
     }
+
+    q->connect(view, SIGNAL(activated(const QModelIndex &)),
+            q, SIGNAL(activated(const QModelIndex &)));
+    q->connect(view, SIGNAL(clicked(const QModelIndex &)),
+            q, SIGNAL(clicked(const QModelIndex &)));
+    q->connect(view, SIGNAL(doubleClicked(const QModelIndex &)),
+            q, SIGNAL(doubleClicked(const QModelIndex &)));
+    q->connect(view, SIGNAL(entered(const QModelIndex &)),
+            q, SIGNAL(entered(const QModelIndex &)));
+    q->connect(view, SIGNAL(pressed(const QModelIndex &)),
+            q, SIGNAL(pressed(const QModelIndex &)));
+
     view->setFocusPolicy(Qt::NoFocus);
     view->setParent(q->viewport());
     Q_ASSERT(view);
@@ -897,16 +909,6 @@ void QColumnViewPrivate::_q_changeCurrentColumn()
                 q->selectionModel()->selection(), QItemSelectionModel::Select);
             QAbstractItemView *view = columns.at(i);
             view->setSelectionModel(replacementSelectionModel);
-            q->disconnect(view, SIGNAL(activated(const QModelIndex &)),
-                    q, SIGNAL(activated(const QModelIndex &)));
-            q->disconnect(view, SIGNAL(clicked(const QModelIndex &)),
-                    q, SIGNAL(clicked(const QModelIndex &)));
-            q->disconnect(view, SIGNAL(doubleClicked(const QModelIndex &)),
-                    q, SIGNAL(doubleClicked(const QModelIndex &)));
-            q->disconnect(view, SIGNAL(entered(const QModelIndex &)),
-                    q, SIGNAL(entered(const QModelIndex &)));
-            q->disconnect(view, SIGNAL(pressed(const QModelIndex &)),
-                    q, SIGNAL(pressed(const QModelIndex &)));
             view->setFocusPolicy(Qt::NoFocus);
             break;
         }
@@ -914,17 +916,6 @@ void QColumnViewPrivate::_q_changeCurrentColumn()
     parentColumn->selectionModel()->deleteLater();
     parentColumn->setFocusPolicy(Qt::StrongFocus);
     parentColumn->setSelectionModel(q->selectionModel());
-    q->connect(parentColumn, SIGNAL(activated(const QModelIndex &)),
-            q, SIGNAL(activated(const QModelIndex &)));
-    q->connect(parentColumn, SIGNAL(clicked(const QModelIndex &)),
-            q, SIGNAL(clicked(const QModelIndex &)));
-    q->connect(parentColumn, SIGNAL(doubleClicked(const QModelIndex &)),
-            q, SIGNAL(doubleClicked(const QModelIndex &)));
-    q->connect(parentColumn, SIGNAL(entered(const QModelIndex &)),
-            q, SIGNAL(entered(const QModelIndex &)));
-    q->connect(parentColumn, SIGNAL(pressed(const QModelIndex &)),
-            q, SIGNAL(pressed(const QModelIndex &)));
-
     // We want the parent selection to stay highlighted (but dimmed depending upon the color theme)
     if (currentColumn > 0) {
         parentColumn = columns.at(currentColumn - 1);
