@@ -48,8 +48,8 @@
 #include <qdebug.h>
 #include "qsidebar_p.h"
 
-#if defined (Q_OS_UNIX) && !(defined(Q_OS_OPENBSD) || defined(Q_OS_MAC))  // statvfs.h not on Panther, so we can't use it
-#include <sys/statvfs.h>
+#if defined (Q_OS_UNIX)
+#include <unistd.h>
 #endif
 
 class QFileDialogListView;
@@ -117,10 +117,8 @@ public:
     QLineEdit *lineEdit() const;
 
     int maxNameLength(const QString &path) {
-#if (defined(Q_OS_UNIX) && !(defined(Q_OS_OPENBSD) || defined(Q_OS_MAC)))
-        struct statvfs vfs;
-        if (statvfs(path.toLocal8Bit().constData(), &vfs) >= 0)
-            return vfs.f_namemax;
+#if defined(Q_OS_UNIX)
+        return ::pathconf(QFile::encodeName(path).data(), _PC_NAME_MAX);
 #elif defined(Q_OS_WIN)
         DWORD maxLength;
         QString drive = path.left(3);
