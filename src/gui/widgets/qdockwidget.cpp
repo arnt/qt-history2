@@ -1150,6 +1150,7 @@ void QDockWidget::changeEvent(QEvent *event)
 #ifndef QT_NO_ACTION
         d->toggleViewAction->setText(windowTitle());
 #endif
+#ifndef QT_NO_TABBAR
         {
             QMainWindow *win = qobject_cast<QMainWindow*>(parentWidget());
             if (QMainWindowLayout *winLayout =
@@ -1158,6 +1159,7 @@ void QDockWidget::changeEvent(QEvent *event)
                     (winLayout ? winLayout->layoutState.dockAreaLayout.info(this) : 0))
                     info->updateTabBar();
         }
+#endif // QT_NO_TABBAR
         break;
     default:
         break;
