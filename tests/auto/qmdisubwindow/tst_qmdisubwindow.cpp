@@ -607,9 +607,11 @@ void tst_QMdiSubWindow::setOpaqueResizeAndMove()
     QMdiArea workspace;
     QMdiSubWindow *window = qobject_cast<QMdiSubWindow *>(workspace.addSubWindow(new QWidget));
     qApp->processEvents();
-    workspace.show();
     workspace.resize(workspaceSize);
-    window->show();
+    workspace.show();
+#ifdef Q_WS_X11
+    qt_x11_wait_for_window_manager(&workspace);
+#endif
 
     QWidget *mouseReceiver = 0;
     if (window->style()->inherits("QMacStyle"))
