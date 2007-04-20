@@ -161,7 +161,7 @@ static Q16Dot16 intersectPixelFP(int x, Q16Dot16 top, Q16Dot16 bottom, Q16Dot16 
     }
 
     if (leftIntersectX >= leftX && rightIntersectX <= rightX) {
-        return Q16Dot16FastMultiply(bottom - top, leftIntersectX - leftX + ((rightIntersectX - leftIntersectX) >> 1));
+        return Q16Dot16Multiply(bottom - top, leftIntersectX - leftX + ((rightIntersectX - leftIntersectX) >> 1));
     } else if (leftIntersectX >= rightX) {
         return bottom - top;
     } else if (leftIntersectX >= leftX) {
