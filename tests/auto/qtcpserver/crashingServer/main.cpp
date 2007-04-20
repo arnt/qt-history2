@@ -24,6 +24,6 @@ int main(int argc, char *argv[])
     fflush(stdout);
 
     server.waitForNewConnection(5000);
-    *(char *)0 = 0;
+    qFatal("Crash");
     return 0;
 }
