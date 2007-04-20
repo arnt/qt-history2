@@ -88,7 +88,7 @@
   the QObject should behave. We will come back to the usage of
   these arguments later.
 
-  \section2 Establishing Connections to Signals
+  \section2 Using Signals and Slots
 
   To connect to a signal, you invoke the \c{connect()} function of
   the signal from script code. There are three overloads of \c{connect()}:
@@ -490,4 +490,76 @@
   objects simply calls the functions in the application which do the
   real work. So instead of making all your QObjects available to the
   scripting engine, just add the wrapper QObjects.
+
+  \section1 ECMAScript Compatibility
+
+  QtScript implements all the built-in classes and functions defined
+  in ECMA-262.
+
+  The Date parsing and string conversion functions are implemented using
+  QDateTime::fromString() and QDateTime::toString(), respectively.
+
+  The RegExp class is a wrapper around QRegExp. The QRegExp semantics
+  do not precisely match the semantics for regular expressions defined
+  in ECMA-262.
+
+  \section1 QtScript Extensions to ECMAScript
+
+  \list
+  \i \c{__proto__}: The prototype of an object (QScriptValue::prototype())
+    can be accessed through its \c{__proto__} property in script code.
+    This property has flags QScriptValue::Undeletable.
+    Example:
+
+  \code
+    var o = new Object();
+    (o.__proto__ === Object.prototype); // this evaluates to true
+  \endcode
+
+  \i \c{Object.prototype.__defineGetter__}: This function installs a
+    getter function for a property of an object. The first argument is
+    the property name, and the second is the function to call to get
+    the value of that property. When the function is invoked, the
+    `this' object will be the object whose property is being accessed.
+    Example:
+
+  \code
+    var o = new Object();
+    o.__defineGetter__("x", function() { return 123; });
+    var y = o.x; // 123
+  \endcode
+
+  \i \c{Object.prototype.__defineSetter__}: This function installs a
+    setter function for a property of an object. The first argument is
+    the property name, and the second is the function to call to set
+    the value of that property.  When the function is invoked, the
+    `this' object will be the object whose property is being accessed.
+    Example:
+
+  \code
+    var o = new Object();
+    o.__defineSetter__("x", function(v) { print("and the value is:", v); });
+    o.x = 123; // will print "and the value is: 123"
+  \endcode
+
+  \i \c{Function.prototype.connect}: This function connects
+    a signal to a slot. Usage of this function is described in
+    the section \l{Using Signals and Slots}.
+
+  \i \c{Function.prototype.disconnect}: This function disconnects
+    a signal from a slot. Usage of this function is described in
+    the section \l{Using Signals and Slots}.
+
+  \i \c{QObject.prototype.findChild}: This function is semantically
+    equivalent to QObject::findChild().
+
+  \i \c{QObject.prototype.findChildren}: This function is semantically
+    equivalent to QObject::findChildren().
+
+  \i \c{QObject.prototype.toString}: This function returns a default string
+    representation of a QObject.
+
+  \i \c{gc}: This function invokes the garbage collector.
+  \endlist
+
  */
