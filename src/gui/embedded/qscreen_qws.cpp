@@ -2064,6 +2064,13 @@ QPoint QScreen::offset() const
     return d_ptr->offset;
 }
 
+#if Q_BYTE_ORDER == Q_BIG_ENDIAN
+void QScreen::setFrameBufferLittleEndian(bool littleEndian)
+{
+    d_ptr->fb_is_littleEndian = littleEndian;
+}
+#endif
+
 /*!
     \fn int QScreen::subScreenIndexAt(const QPoint &position) const
     \since 4.2

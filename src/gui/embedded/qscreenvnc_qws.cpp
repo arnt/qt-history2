@@ -1826,6 +1826,10 @@ bool QVNCScreen::connect(const QString &displaySpec)
         d_ptr->subscreen = screen;
 
     } else { // create virtual screen
+#if Q_BYTE_ORDER == Q_BIG_ENDIAN
+        QScreen::setFrameBufferLittleEndian(false);
+#endif
+
         d = qgetenv("QWS_DEPTH").toInt();
         if (!d)
             d = 16;
