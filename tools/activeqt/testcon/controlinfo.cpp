@@ -73,9 +73,10 @@ void ControlInfo::setControl(QWidget *activex)
 
     group = new QTreeWidgetItem(listInfo);
     group->setText(0, tr("Properties"));
-    group->setText(1, QString::number(mo->propertyCount()));
 
+    count = 0;
     for (i = mo->propertyOffset(); i < mo->propertyCount(); ++i) {
+        ++count;
 	const QMetaProperty property = mo->property(i);
 	item = new QTreeWidgetItem(group);
         item->setText(0, QString::fromLatin1(property.name()));
@@ -85,4 +86,5 @@ void ControlInfo::setControl(QWidget *activex)
             item->setTextColor(1, Qt::gray);
         }
     }
+    group->setText(1, QString::number(count));
 }
