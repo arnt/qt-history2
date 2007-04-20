@@ -2676,7 +2676,11 @@ void QMenu::internalDelayedPopup()
 */
 void QMenu::setNoReplayFor(QWidget *noReplayFor)
 {
+#ifdef Q_WS_WIN
     d_func()->noReplayFor = noReplayFor;
+#else
+    Q_UNUSED(noReplayFor);
+#endif
 }
 
 /*!
