@@ -166,6 +166,8 @@
 #endif // !defined QT_SHARED
 
 bool q_resolveOpenSslSymbols();
+unsigned char * q_ASN1_STRING_data(ASN1_STRING *a);
+int q_ASN1_STRING_length(ASN1_STRING *a);
 long q_BIO_ctrl(BIO *a, int b, long c, void *d);
 int q_BIO_free(BIO *a);
 BIO *q_BIO_new(BIO_METHOD *a);
@@ -197,7 +199,6 @@ EVP_PKEY *q_EVP_PKEY_new();
 int q_i2d_X509(X509 *a, unsigned char **b);
 const char *q_OBJ_nid2sn(int a);
 int q_OBJ_obj2nid(const ASN1_OBJECT *a);
-int q_OBJ_obj2txt(char *a, int b, const ASN1_OBJECT *c, int d);
 #ifdef SSLEAY_MACROS
 // ### verify
 void *q_PEM_ASN1_read_bio(d2i_of_void *a, const char *b, BIO *c, void **d, pem_password_cb *e,
@@ -218,6 +219,7 @@ int q_PEM_write_bio_RSA_PUBKEY(BIO *a, RSA *b);
 void q_RAND_seed(const void *a, int b);
 int q_RAND_status();
 void q_RSA_free(RSA *a);
+void q_sk_free(STACK *a);
 int q_sk_num(STACK *a);
 char * q_sk_value(STACK *a, int b);
 int q_SSL_accept(SSL *a);
@@ -259,7 +261,6 @@ SSL_METHOD *q_SSLv3_server_method();
 SSL_METHOD *q_SSLv23_server_method();
 SSL_METHOD *q_TLSv1_server_method();
 int q_SSL_write(SSL *a, const void *b, int c);
-X509V3_EXT_METHOD *q_X509V3_EXT_get(X509_EXTENSION *a);
 int q_X509_cmp(X509 *a, X509 *b);
 #ifdef SSLEAY_MACROS
 void *q_ASN1_dup(i2d_of_void *i2d, d2i_of_void *d2i, char *x);
@@ -268,7 +269,6 @@ void *q_ASN1_dup(i2d_of_void *i2d, d2i_of_void *d2i, char *x);
 #else
 X509 *q_X509_dup(X509 *a);
 #endif
-void q_X509_email_free(STACK *a);
 ASN1_OBJECT *q_X509_EXTENSION_get_object(X509_EXTENSION *a);
 void q_X509_free(X509 *a);
 X509_EXTENSION *q_X509_get_ext(X509 *a, int b);
@@ -276,7 +276,6 @@ int q_X509_get_ext_count(X509 *a);
 void *q_X509_get_ext_d2i(X509 *a, int b, int *c, int *d);
 X509_NAME *q_X509_get_issuer_name(X509 *a);
 X509_NAME *q_X509_get_subject_name(X509 *a);
-STACK *q_X509_get1_email(X509 *a);
 int q_X509_verify_cert(X509_STORE_CTX *ctx);
 char *q_X509_NAME_oneline(X509_NAME *a, char *b, int c);
 EVP_PKEY *q_X509_PUBKEY_get(X509_PUBKEY *a);
@@ -313,7 +312,8 @@ DSA *q_d2i_DSAPrivateKey(DSA **a, unsigned char **pp, long length);
 #define q_SSL_CTX_set_options(ctx,op) q_SSL_CTX_ctrl((ctx),SSL_CTRL_OPTIONS,(op),NULL)
 #define q_SKM_sk_num(type, st) ((int (*)(const STACK_OF(type) *))q_sk_num)(st)
 #define q_SKM_sk_value(type, st,i) ((type * (*)(const STACK_OF(type) *, int))q_sk_value)(st, i)
-#define q_sk_GENERAL_NAME_num(st) 
+#define q_sk_GENERAL_NAME_num(st) q_SKM_sk_num(GENERAL_NAME, (st))
+#define q_sk_GENERAL_NAME_value(st, i) q_SKM_sk_value(GENERAL_NAME, (st), (i))
 #define q_sk_X509_num(st) q_SKM_sk_num(X509, (st))
 #define q_sk_X509_value(st, i) q_SKM_sk_value(X509, (st), (i))
 #define q_sk_SSL_CIPHER_num(st) q_SKM_sk_num(SSL_CIPHER, (st))
