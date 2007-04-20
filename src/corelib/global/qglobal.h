@@ -1312,7 +1312,7 @@ Q_CORE_EXPORT void qt_check_pointer(const char *, int);
 #  define Q_CHECK_PTR(p)
 #endif
 
-#if defined Q_CC_GNU || defined Q_CC_HPACC
+#if defined(Q_CC_GNU) || defined(Q_CC_HPACC)
 #  define Q_FUNC_INFO __PRETTY_FUNCTION__
 #elif defined(_MSC_VER) && _MSC_VER > 1300
 #  define Q_FUNC_INFO __FUNCSIG__
@@ -1321,18 +1321,15 @@ Q_CORE_EXPORT void qt_check_pointer(const char *, int);
      * string literal. */
 #   define QT_STRINGIFY2(x) #x
 #   define QT_STRINGIFY(x) QT_STRINGIFY2(x)
-
-#   if defined(Q_CC_MIPS)
-        /* The two pair of paranteses, which shouldn't be necessary, workaround a bug in
-         * the compiler on IRIX MIPS Pro, which gets operator precedence as well as
-         * macros inside macros wrong. The last pair of paranteses appear in
-         * the output, but it's better than the alternatives. */
-#       define Q_FUNC_INFO (__FILE__ ":" QT_STRINGIFY((__LINE__)))
-#   else
-#       define Q_FUNC_INFO __FILE__ ":" QT_STRINGIFY(__LINE__)
+#   define Q_FUNC_INFO __FILE__ ":" QT_STRINGIFY(__LINE__)
+/* 
+   The MIPSpro compiler postpones macro expansion, and therefore macros must be in scope
+   when being used
+*/
+#   if !defined(Q_CC_MIPS)
+#   	undef QT_STRINGIFY2
+#   	undef QT_STRINGIFY
 #   endif
-#   undef QT_STRINGIFY2
-#   undef QT_STRINGIFY
 #endif
 
 enum QtMsgType { QtDebugMsg, QtWarningMsg, QtCriticalMsg, QtFatalMsg, QtSystemMsg = QtCriticalMsg };
