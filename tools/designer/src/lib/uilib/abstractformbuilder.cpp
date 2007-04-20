@@ -1859,6 +1859,9 @@ void QAbstractFormBuilder::loadExtraInfo(DomWidget *ui_widget, QWidget *widget, 
         DomProperty *currentIndex = propertyMap(ui_widget->elementProperty()).value(QLatin1String("currentIndex"));
         if (currentIndex)
             toolBox->setCurrentIndex(currentIndex->elementNumber());
+        DomProperty *tabSpacing = propertyMap(ui_widget->elementProperty()).value(QLatin1String("tabSpacing"));
+        if (tabSpacing)
+            toolBox->layout()->setSpacing(tabSpacing->elementNumber());
     }
 }
 

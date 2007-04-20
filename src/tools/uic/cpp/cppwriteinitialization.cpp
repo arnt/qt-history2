@@ -847,6 +847,11 @@ void WriteInitialization::writeProperties(const QString &varName,
             m_delayedOut << m_option.indent << varName << "->setCurrentIndex("
                        << p->elementNumber() << ");\n";
             continue;
+        } else if (propertyName == QLatin1String("tabSpacing")
+                    && m_uic->customWidgetsInfo()->extends(className, QLatin1String("QToolBox"))) {
+            m_delayedOut << m_option.indent << varName << "->layout()->setSpacing("
+                       << p->elementNumber() << ");\n";
+            continue;
         } else if (propertyName == QLatin1String("control") // ActiveQt support
                     && m_uic->customWidgetsInfo()->extends(className, QLatin1String("QAxWidget"))) {
             // already done ;)

@@ -43,6 +43,7 @@ class QDESIGNER_SHARED_EXPORT QDesignerToolBox : public QToolBox
     Q_PROPERTY(QString currentItemName READ currentItemName WRITE setCurrentItemName STORED false DESIGNABLE true)
     Q_PROPERTY(QIcon currentItemIcon READ currentItemIcon WRITE setCurrentItemIcon STORED false DESIGNABLE true)
     Q_PROPERTY(QString currentItemToolTip READ currentItemToolTip WRITE setCurrentItemToolTip STORED false DESIGNABLE true)
+    Q_PROPERTY(int tabSpacing READ tabSpacing WRITE setTabSpacing)
 public:
     QDesignerToolBox(QWidget *parent = 0);
 
@@ -60,7 +61,10 @@ public:
 
     QPalette::ColorRole currentItemBackgroundRole() const;
     void setCurrentItemBackgroundRole(QPalette::ColorRole role);
-    
+
+    int tabSpacing() const;
+    void setTabSpacing(int spacing);
+
     // Add context menu and return page submenu or 0.
     QMenu *addContextMenuActions(QMenu *popup);
 

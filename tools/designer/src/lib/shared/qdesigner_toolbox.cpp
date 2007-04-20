@@ -161,6 +161,16 @@ void QDesignerToolBox::setCurrentItemBackgroundRole(QPalette::ColorRole role)
     }
 }
 
+int QDesignerToolBox::tabSpacing() const
+{
+    return layout()->spacing();
+}
+
+void QDesignerToolBox::setTabSpacing(int spacing)
+{
+    layout()->setSpacing(spacing);
+}
+
 void QDesignerToolBox::slotCurrentChanged(int index)
 {
     if (widget(index)) {
