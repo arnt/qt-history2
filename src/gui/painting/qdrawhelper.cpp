@@ -4531,7 +4531,7 @@ inline void qt_bitmapblit_template(QRasterBuffer *rasterBuffer,
     }
 }
 
-static void qt_bitmapblit_quint32(QRasterBuffer *rasterBuffer,
+inline static void qt_bitmapblit_quint32(QRasterBuffer *rasterBuffer,
                                    int x, int y, quint32 color,
                                    const uchar *map,
                                    int mapWidth, int mapHeight, int mapStride)
@@ -4539,6 +4539,16 @@ static void qt_bitmapblit_quint32(QRasterBuffer *rasterBuffer,
     qt_bitmapblit_template<quint32>(rasterBuffer, x,  y,  color,
                                     map, mapWidth, mapHeight, mapStride);
 }
+
+inline static void qt_bitmapblit_quint16(QRasterBuffer *rasterBuffer,
+                                   int x, int y, quint32 color,
+                                   const uchar *map,
+                                   int mapWidth, int mapHeight, int mapStride)
+{
+    qt_bitmapblit_template<quint16>(rasterBuffer, x,  y,  color,
+                                    map, mapWidth, mapHeight, mapStride);
+}
+
 
 static void qt_alphamapblit_quint32(QRasterBuffer *rasterBuffer,
                                     int x, int y, quint32 color,
@@ -4605,11 +4615,18 @@ inline void qt_rectfill_template(QRasterBuffer *rasterBuffer,
                    x, y, width, height, rasterBuffer->bytesPerLine());
 }
 
-static void qt_rectfill_quint32(QRasterBuffer *rasterBuffer,
+inline static void qt_rectfill_quint32(QRasterBuffer *rasterBuffer,
                                  int x, int y, int width, int height,
                                  quint32 color)
 {
     qt_rectfill_template<quint32>(rasterBuffer, x, y, width, height, color);
+}
+
+inline static void qt_rectfill_quint16(QRasterBuffer *rasterBuffer,
+                                 int x, int y, int width, int height,
+                                 quint32 color)
+{
+    qt_rectfill_template<quint16>(rasterBuffer, x, y, width, height, color);
 }
 
 
@@ -4663,9 +4680,9 @@ DrawHelper qDrawHelper[QImage::NImageFormats] =
     {
         blend_color_rgb16,
         blend_src_generic,
-        qt_bitmapblit_template<quint16>,
+        qt_bitmapblit_quint16,
         qt_alphamapblit_quint16,
-        qt_rectfill_template<quint16>
+        qt_rectfill_quint16
     }
 };
 
