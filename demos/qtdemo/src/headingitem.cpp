@@ -29,8 +29,8 @@ QImage *HeadingItem::createImage(const QMatrix &matrix) const
     
     float w = fm.width(this->text) + 1;
     float h = fm.height();
-    int xShadow = 3.0f;
-    int yShadow = 3.0f;
+    float xShadow = 3.0f;
+    float yShadow = 3.0f;
 
     QImage *image = new QImage(int((w + xShadow) * sx), int((h + yShadow) * sy), QImage::Format_ARGB32_Premultiplied);
     image->fill(QColor(0, 0, 0, 0).rgba());
@@ -48,7 +48,7 @@ QImage *HeadingItem::createImage(const QMatrix &matrix) const
     QPen pen_shadow; 
     pen_shadow.setBrush(brush_shadow);
     painter.setPen(pen_shadow);
-    painter.drawText(xShadow, yShadow, w, h, Qt::AlignLeft, this->text);
+    painter.drawText(int(xShadow), int(yShadow), int(w), int(h), Qt::AlignLeft, this->text);
 
     // draw text
     QLinearGradient brush_text(0, 0, w, w);        
@@ -59,7 +59,7 @@ QImage *HeadingItem::createImage(const QMatrix &matrix) const
     QPen pen_text; 
     pen_text.setBrush(brush_text);
     painter.setPen(pen_text);
-    painter.drawText(0, 0, w, h, Qt::AlignLeft, this->text);
+    painter.drawText(0, 0, int(w), int(h), Qt::AlignLeft, this->text);
     return image;
 }
 
