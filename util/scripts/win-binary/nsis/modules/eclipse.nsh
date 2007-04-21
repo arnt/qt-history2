@@ -83,6 +83,7 @@ Section "${MODULE_ECLIPSE_QTPROJECT_LABEL}" ECLIPSE_SEC01
   
   IfFileExists "$ECLIPSE_MINGW_LOCATION\gcc.exe" 0 done
   Call MakeEclipseStartFile
+  CreateShortCut "$SMPROGRAMS\$STARTMENU_STRING\License.lnk" "$ECLIPSE_INSTDIR\LICENSE.txt"
   CreateShortCut "$SMPROGRAMS\$STARTMENU_STRING\Start Eclipse with MinGW.lnk" "%COMSPEC%" '/c "$ECLIPSE_INSTDIR\start.bat"'
 
   done:
@@ -172,6 +173,7 @@ FunctionEnd
 Function InstallQtModules
   SetOutPath "$ECLIPSE_INSTDIR"
   SetOverwrite ifnewer
+  File "${MODULE_ECLIPSE_ROOT}\bin\LICENSE.txt"
   File "${MODULE_ECLIPSE_ROOT}\bin\msvcp80.dll"
   File "${MODULE_ECLIPSE_ROOT}\bin\msvcr80.dll"
   File "${MODULE_ECLIPSE_ROOT}\bin\QtCore4.dll"
@@ -305,6 +307,7 @@ Section un."Eclipse Integration"
 ;    RMDir "$ECLIPSE_LOCATION\features\${MODULE_ECLIPSE_QTREFERENCE_ID}"
   DoneUnInstallQtReference:
   
+  Delete "$ECLIPSE_INSTDIR\LICENSE.txt"
   Delete "$ECLIPSE_INSTDIR\msvcp80.dll"
   Delete "$ECLIPSE_INSTDIR\msvcr80.dll"
   Delete "$ECLIPSE_INSTDIR\QtCore4.dll"
