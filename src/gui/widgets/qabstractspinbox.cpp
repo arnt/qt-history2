@@ -945,11 +945,13 @@ void QAbstractSpinBox::keyPressEvent(QKeyEvent *event)
         break;
 
     default:
+#ifndef QT_NO_SHORTCUT
         if (event == QKeySequence::SelectAll) {
             selectAll();
             event->accept();
             return;
         }
+#endif
         break;
     }
 

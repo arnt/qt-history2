@@ -833,8 +833,10 @@ QString QAccessibleWidget::actionText(int action, Text t, int child) const
                 return act->text();
             case Description:
                 return act->toolTip();
+#ifndef QT_NO_SHORTCUT
             case Accelerator:
                 return act->shortcut().toString();
+#endif
             default:
                 break;
             }

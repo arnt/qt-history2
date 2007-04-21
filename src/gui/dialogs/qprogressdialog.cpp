@@ -43,7 +43,9 @@ public:
         shown_once(false),
         cancellation_flag(false),
         showTime(defaultShowTime),
+#ifndef QT_NO_SHORTCUT
         escapeShortcut(0),
+#endif
         useDefaultCancelText(false)
     {
     }
@@ -66,7 +68,9 @@ public:
     bool autoClose;
     bool autoReset;
     bool forceHide;
+#ifndef QT_NO_SHORTCUT
     QShortcut *escapeShortcut;
+#endif
     bool useDefaultCancelText;
 };
 

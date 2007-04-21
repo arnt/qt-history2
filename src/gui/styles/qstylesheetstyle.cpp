@@ -1838,7 +1838,9 @@ void QStyleSheetStyle::setProperties(QWidget *w)
         case QVariant::Size: v = decl.sizeValue(); break;
         case QVariant::Color: v = decl.colorValue(); break;
         case QVariant::Brush: v = decl.brushValue(); break;
+#ifndef QT_NO_SHORTCUT
         case QVariant::KeySequence: v = QKeySequence(decl.values.first().variant.toString());
+#endif
         default: v = decl.values.first().variant; break;
         }
         propertyHash[property] = v;

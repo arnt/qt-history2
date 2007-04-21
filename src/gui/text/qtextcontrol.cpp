@@ -52,7 +52,7 @@
 #include <qkeysequence.h>
 #define ACCEL_KEY(k) QString::fromLatin1("\t") + QString(QKeySequence(k))
 #else
-#define ACCEL_KEY(k)
+#define ACCEL_KEY(k) QString()
 #endif
 
 // could go into QTextCursor...

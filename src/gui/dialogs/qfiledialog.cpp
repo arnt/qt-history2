@@ -1682,7 +1682,9 @@ void QFileDialogPrivate::createWidgets()
 
     // filename
     qFileDialogUi->fileNameEdit->init(this);
+#ifndef QT_NO_SHORTCUT
     qFileDialogUi->fileNameLabel->setBuddy(qFileDialogUi->fileNameEdit);
+#endif
 #ifndef QT_NO_COMPLETER
     completer = new QFSCompletor(model, q);
     qFileDialogUi->fileNameEdit->setCompleter(completer);
@@ -1886,7 +1888,9 @@ void QFileDialogPrivate::createMenuActions()
     Q_Q(QFileDialog);
 
     QAction *goHomeAction =  new QAction(q);
+#ifndef QT_NO_SHORTCUT
     goHomeAction->setShortcut(Qt::CTRL + Qt::Key_H + Qt::SHIFT);
+#endif
     QObject::connect(goHomeAction, SIGNAL(triggered()), q, SLOT(_q_goHome()));
     q->addAction(goHomeAction);
 
@@ -1894,7 +1898,9 @@ void QFileDialogPrivate::createMenuActions()
 
     QAction *goToParent =  new QAction(q);
     goToParent->setObjectName(QLatin1String("qt_goto_parent_action"));
+#ifndef QT_NO_SHORTCUT
     goToParent->setShortcut(Qt::CTRL + Qt::UpArrow);
+#endif
     QObject::connect(goToParent, SIGNAL(triggered()), q, SLOT(_q_navigateToParent()));
     q->addAction(goToParent);
 

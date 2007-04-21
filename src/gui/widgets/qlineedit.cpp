@@ -50,7 +50,7 @@
 #include "qkeysequence.h"
 #define ACCEL_KEY(k) QLatin1String("\t") + QString(QKeySequence(k))
 #else
-#define ACCEL_KEY(k)
+#define ACCEL_KEY(k) QString()
 #endif
 
 #ifdef Q_WS_MAC
