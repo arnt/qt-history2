@@ -629,6 +629,15 @@ void QGridLayoutPrivate::setupSpacings(QVector<QLayoutStruct> &chain,
                     if (style)
                         spacing = style->combinedLayoutSpacing(controlTypes1, controlTypes2,
                                              orientation, 0, q->parentWidget());
+                } else {
+                    if (orientation == Qt::Vertical) {
+                        QGridBox *sibling = vReversed ? previousBox : box;
+                        if (sibling) {
+                            QWidget *wid = sibling->item()->widget();
+                            if (wid)
+                                spacing = qMax(spacing, sibling->item()->geometry().top() - wid->geometry().top() );
+                        }
+                    }
                 }
 
                 if (spacing > chain.at(previousRow).spacing)
@@ -705,51 +714,25 @@ void QGridLayoutPrivate::setupLayoutData(int hSpacing, int vSpacing)
         }
 
         if (pass == 0) {
-            if (hSpacing < 0 || vSpacing < 0) {
-                /*
-                    Complex case: Compute the grid of items, so that we can determine
-                    which items are adjacent to which and compute the spacings
-                    correctly.
-                */
-                QVarLengthArray<QGridBox *> grid(rr * cc);
-                qMemSet(grid.data(), 0, rr * cc * sizeof(QGridBox *));
+            /*
+                Complex case: Compute the grid of items, so that we can determine
+                which items are adjacent to which and compute the spacings
+                correctly.
+            */
+            QVarLengthArray<QGridBox *> grid(rr * cc);
+            qMemSet(grid.data(), 0, rr * cc * sizeof(QGridBox *));
 
-                for (i = things.size() - 1; i >= 0; --i) {
-                    QGridBox *box = things.at(i);
-                    for (int r = box->row; r <= box->torow; ++r) {
-                        for (int c = box->col; c <= box->tocol; ++c) {
-                            gridAt(grid.data(), r, c, cc) = box;
-                        }
+            for (i = things.size() - 1; i >= 0; --i) {
+                QGridBox *box = things.at(i);
+                for (int r = box->row; r <= box->torow; ++r) {
+                    for (int c = box->col; c <= box->tocol; ++c) {
+                        gridAt(grid.data(), r, c, cc) = box;
                     }
                 }
-
-                setupSpacings(colData, grid.data(), hSpacing, Qt::Horizontal);
-                setupSpacings(rowData, grid.data(), vSpacing, Qt::Vertical);
-#if 1
-            } else {
-                /*
-                    Easy case with a fixed spacing in both directions.
-                    (Not sure this is really a useful optimization.)
-                */
-                int prevRow = -1;
-                for (int r = 0; r < rr; ++r) {
-                    if (!rowData[r].empty) {
-                        if (prevRow != -1)
-                            rowData[prevRow].spacing = qMax(0, vSpacing);
-                        prevRow = r;
-                    }
-                }
-
-                int prevCol = -1;
-                for (int c = 0; c < cc; ++c) {
-                    if (!colData[c].empty) {
-                        if (prevCol != -1)
-                            colData[prevCol].spacing = qMax(0, hSpacing);
-                        prevCol = c;
-                    }
-                }
-#endif
             }
+
+            setupSpacings(colData, grid.data(), hSpacing, Qt::Horizontal);
+            setupSpacings(rowData, grid.data(), vSpacing, Qt::Vertical);
         }
     }
 

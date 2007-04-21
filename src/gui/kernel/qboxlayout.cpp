@@ -132,8 +132,7 @@ int QBoxLayoutPrivate::effectiveTopMargin() const
 {
     int margin = topMargin;
 #ifdef Q_WS_MAC
-
-    int count = horz(dir) ? list.count() : 1;
+    int count = horz(dir) ? list.count() : (list.count() ? 1 : 0);
     int i = (dir == QBoxLayout::BottomToTop ? list.count() - 1 : 0);
     while (count--) {
         QBoxLayoutItem *box = list.at(i++);
@@ -199,6 +198,16 @@ void QBoxLayoutPrivate::setupGeom()
         if (!empty) {
             if (fixedSpacing >= 0) {
                 spacing = (previousNonEmptyIndex >= 0) ? fixedSpacing : 0;
+#ifdef Q_WS_MAC
+                if (!horz(dir) && previousNonEmptyIndex >= 0) {
+                    QBoxLayoutItem *sibling = (dir == QBoxLayout::TopToBottom  ? box : list.at(previousNonEmptyIndex));
+                    if (sibling) {
+                        QWidget *wid = sibling->item->widget();
+                        if (wid)
+                            spacing = qMax(spacing, sibling->item->geometry().top() - wid->geometry().top());
+                    }
+                }
+#endif
             } else {
                 controlTypes1 = controlTypes2;
                 controlTypes2 = box->item->controlTypes();
