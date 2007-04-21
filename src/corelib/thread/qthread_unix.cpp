@@ -76,10 +76,9 @@ QThreadData *QThreadData::current()
 
     QThreadData *data = reinterpret_cast<QThreadData *>(pthread_getspecific(current_thread_data_key));
     if (!data) {
-        QThread *adopted = 0;
-        void **a = reinterpret_cast<void **>(&adopted);
-        if (QInternal::activateCallbacks(QInternal::AdoptCurrentThread, a)) {
-
+        void *a;
+        if (QInternal::activateCallbacks(QInternal::AdoptCurrentThread, &a)) {
+            QThread *adopted = static_cast<QThread*>(a);
             Q_ASSERT(adopted);
             data = QThreadData::get2(adopted);
             pthread_setspecific(current_thread_data_key, data);
