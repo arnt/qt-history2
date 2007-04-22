@@ -1424,8 +1424,8 @@ void tst_QGraphicsView::mapFromScenePoint()
         }
     }
     {
-        QGraphicsScene scene(0, 0, 100, 100);
-        scene.addRect(QRectF(0, 0, 100, 100), QPen(Qt::black, 1));
+        QGraphicsScene scene(0, 0, 200, 200);
+        scene.addRect(QRectF(0, 0, 200, 200), QPen(Qt::black, 1));
         QGraphicsView view(&scene);
         view.resize(view.sizeHint());
         view.show();
