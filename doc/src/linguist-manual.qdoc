@@ -72,7 +72,7 @@
     \o Keyboard accelerators may need to be changed but without
     introducing conflicts, e.g. "\&Quit" in English becomes "Avslutt" in
     Norwegian which doesn't contain a "Q". We cannot use a letter that is
-    already in use -- unless we change several accelerators.
+    already in use - unless we change several accelerators.
     \o Phrases that contain variables, for example, "The 25 files selected will
     take 63 seconds to process", where the two numbers are inserted
     programmatically at runtime may need to be reworded because in a
@@ -91,6 +91,15 @@
     \o \l{Qt Linguist Manual: Programmers}{Programmers}
     \o \l{Qt Linguist Manual: TS File Format}{TS File Format}
     \endlist
+
+    \table
+    \row \o{1,2} \inlineimage wVista-Cert-border-small.png
+    \o \e{Qt Linguist 4.3 is Certified for Windows Vista}
+    \row \o
+    Windows Vista and the Windows Vista Start button are trademarks or
+    registered trademarks of Microsoft Corporation in the United States
+    and/or other countries.
+    \endtable
 */
 
 /*!
