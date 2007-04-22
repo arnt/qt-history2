@@ -169,7 +169,6 @@
     \o \l{tools/plugandpaint}{Plug & Paint}\raisedaster
     \o Plug & Paint Plugins: \l{tools/plugandpaintplugins/basictools}{Basic Tools}\raisedaster
        and \l{tools/plugandpaintplugins/extrafilters}{Extra Filters}\raisedaster
-    \o \l{tools/qtdemo}{Qt Demo}
     \o \l{tools/regexp}{RegExp}
     \o \l{tools/settingseditor}{Settings Editor}
     \o \l{tools/styleplugin}{Style Plugin}\raisedaster
