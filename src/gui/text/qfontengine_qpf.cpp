@@ -384,9 +384,12 @@ QFontEngineQPF::QFontEngineQPF(const QFontDef &def, int fileDescriptor, QFontEng
 #if !defined(QT_NO_FREETYPE)
     freetype = QFreetypeFace::getFace(face_id);
     if (!freetype) {
-        QString newPath = QLibraryInfo::location(QLibraryInfo::LibrariesPath)
-                          + QLatin1String("/fonts/")
-                          + QFileInfo(QFile::decodeName(face_id.filename)).fileName();
+        QString newPath =
+#ifndef QT_NO_SETTINGS
+            QLibraryInfo::location(QLibraryInfo::LibrariesPath) +
+#endif
+                          QLatin1String("/fonts/") +
+                          QFileInfo(QFile::decodeName(face_id.filename)).fileName();
         face_id.filename = QFile::encodeName(newPath);
         freetype = QFreetypeFace::getFace(face_id);
     }

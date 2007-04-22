@@ -53,10 +53,13 @@ private:
     QIntValidator *validator;
     void keyPressEvent(QKeyEvent *event)
     {
-        if ((event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter) && !textValid())
+        if ((event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter) && !textValid()) {
+#ifndef QT_NO_PROPERTIES
             setProperty("value", property("value"));
-        else
+#endif
+        } else {
             QSpinBox::keyPressEvent(event);
+        }
         notifyTextChanged();
     }
 
@@ -106,10 +109,13 @@ private:
     QDoubleValidator *validator;
     void keyPressEvent(QKeyEvent *event)
     {
-        if ((event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter) && !textValid())
+        if ((event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter) && !textValid()) {
+#ifndef QT_NO_PROPERTIES
             setProperty("value", property("value"));
-        else
+#endif
+        } else {
             QDoubleSpinBox::keyPressEvent(event);
+        }
         notifyTextChanged();
     }
 

@@ -478,6 +478,7 @@ static void initializeDb()
     binaryDb.rename(dbFileName);
 }
 
+#ifndef QT_NO_SETTINGS
 // called from qapplication_qws.cpp
 void qt_applyFontDatabaseSettings(const QSettings &settings)
 {
@@ -492,6 +493,7 @@ void qt_applyFontDatabaseSettings(const QSettings &settings)
     if (settings.contains(QLatin1String("Global Fallbacks")))
         db->fallbackFamilies = settings.value(QLatin1String("Global Fallbacks")).toStringList();
 }
+#endif // QT_NO_SETTINGS
 
 static inline void load(const QString & = QString(), int = -1)
 {

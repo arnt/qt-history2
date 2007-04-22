@@ -227,9 +227,6 @@
 // QWheelEvent
 //#define QT_NO_WHEELEVENT
 
-// QWizard
-//#define QT_NO_WIZARD
-
 // QButtonGroup
 #if !defined(QT_NO_BUTTONGROUP) && (defined(QT_NO_GROUPBOX))
 #define QT_NO_BUTTONGROUP
@@ -353,6 +350,11 @@
 // QUndoStack
 #if !defined(QT_NO_UNDOSTACK) && (defined(QT_NO_UNDOCOMMAND))
 #define QT_NO_UNDOSTACK
+#endif
+
+// QWizard
+#if !defined(QT_NO_WIZARD) && (defined(QT_NO_PROPERTIES))
+#define QT_NO_WIZARD
 #endif
 
 // Context menu
@@ -490,11 +492,6 @@
 #define QT_NO_CUPS
 #endif
 
-// QDataWidgetMapper
-#if !defined(QT_NO_DATAWIDGETMAPPER) && (defined(QT_NO_ITEMVIEWS))
-#define QT_NO_DATAWIDGETMAPPER
-#endif
-
 // QDirModel
 #if !defined(QT_NO_DIRMODEL) && (defined(QT_NO_ITEMVIEWS))
 #define QT_NO_DIRMODEL
@@ -553,6 +550,11 @@
 // QCompleter
 #if !defined(QT_NO_COMPLETER) && (defined(QT_NO_PROXYMODEL))
 #define QT_NO_COMPLETER
+#endif
+
+// QDataWidgetMapper
+#if !defined(QT_NO_DATAWIDGETMAPPER) && (defined(QT_NO_ITEMVIEWS) || defined(QT_NO_PROPERTIES))
+#define QT_NO_DATAWIDGETMAPPER
 #endif
 
 // QListWidget

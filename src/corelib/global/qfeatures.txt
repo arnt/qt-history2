@@ -555,7 +555,7 @@ SeeAlso: ???
 Feature: WIZARD
 Description: Provides a framework for wizards.
 Section: Dialogs
-Requires: 
+Requires: PROPERTIES
 Name: QWizard
 SeeAlso: ???
 
@@ -629,7 +629,7 @@ SeeAlso: ???
 Feature: DATAWIDGETMAPPER
 Description: Provides mapping between a section of a data model to widgets.
 Section: ItemViews
-Requires: ITEMVIEWS
+Requires: ITEMVIEWS PROPERTIES
 Name: QDataWidgetMapper
 SeeAlso: ???
 
