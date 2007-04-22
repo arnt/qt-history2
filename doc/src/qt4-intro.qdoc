@@ -405,7 +405,7 @@
 */
 
 /*!
-  \page qt4.3-intro.html
+  \page qt4-3-intro.html
   \title What's New in Qt 4.3
 
   Qt 4.3 provides many improvements and enhancements over the previous releases
@@ -429,7 +429,7 @@
   \section1 Main Window Styles
 
   The \l{Main Window and Related Classes}{main window classes} now
-  provide \bold{support for different main window paradigms}, such as
+  provide \e{support for different main window paradigms}, such as
   those found in Visual Studio or KDevelop.
 
   Dock widgets occupying the same area can now be arranged in horizontal,
@@ -489,7 +489,7 @@
   \section1 Improved Graphics Support
 
   To improve graphics performance on Windows, this release includes an
-  \bold{experimental Direct3D paint engine} to provide native hardware
+  \e{experimental Direct3D paint engine} to provide native hardware
   acceleration on Windows systems with suitable graphics hardware.
   Although we have conducted internal testing with a selection of
   graphics cards, we cannot guarantee that this feature will work
@@ -501,13 +501,13 @@
   a paint device that can be used to save Qt rendering operations in
   the form of an SVG drawing.
   This class can be used alongside the existing QSvgWidget and QSvgRenderer
-  classes to provide \bold{full input/output support for vector graphics}.
+  classes to provide \e{full input/output support for vector graphics}.
 
   The OpenGL paint engine has been heavily improved to take advantage of
   new features in modern graphics hardware. Through the extensive usage of
   fragment programs, users with suitable graphics hardware can expect to
-  experience much \bold{faster and higher quality rendering when OpenGL
-  is used}.
+  experience much
+  \e{faster and higher quality rendering when OpenGL is used}.
   Support for an additional anti-aliasing mode for OpenGL allows developers
   to choose between high quality rendering or speed when older or
   less-capable hardware is used.
@@ -516,7 +516,7 @@
   two-dimensional coordinates, allowing perspective transformations to
   be applied to 2D graphics.
 
-  \bold{Support for set operations on paths} has been added to QPainterPath,
+  \e{Support for set operations on paths} has been added to QPainterPath,
   improving support for clipping and animations.
 
   An object bounding mode for gradients that enables them to be defined
@@ -526,8 +526,8 @@
 
   Applications running on Windows Vista automatically support animations
   and other Vista-related enhancements through the use of the new
-  QWindowsVistaStyle class, providing a widget style that makes Qt
-  applications \bold{look and feel native on Windows Vista}.
+  QWindowsVistaStyle class, providing a widget style that gives Qt
+  applications \e{a native look and feel on Windows Vista}.
 
   Qt 4.3 also provides a number of new and redesigned widgets, including
   the QWizard class which supports application wizard functionality
@@ -540,7 +540,7 @@
        \o \inlineimage qtwizard-aero2.png
   \endtable
 
-  \bold{Unified toolbar support on Mac OS X} improves the look and feel of
+  \e{Unified toolbar support on Mac OS X} improves the look and feel of
   applications by blending adjacent toolbars and window title bars
   together.
 
@@ -574,7 +574,7 @@
   Almost all standard widgets can be styled with \l{Qt Style Sheets},
   making it easier to customize the appearance of applications.
 
-  An \bold{enhanced layout system} accommodates many special cases for
+  An \e{enhanced layout system} accommodates many special cases for
   Mac OS X, enabling Mac OS X style to provide a faithful Mac look and
   feel.
 
@@ -583,7 +583,7 @@
   \l{Qt Designer} has seen a number of improvements since Qt 4.2, many of
   which are focused on making the application easier to use. Other
   improvements track other additions and new features in Qt, such as new
-  widgets.
+  widgets and support for application scripting.
 
   Support for
   \l{Qt Designer's Widget Editing Mode#The Property Editor}{dynamic properties}
@@ -598,37 +598,57 @@
   Selection handling has been improved to allow properties to be changed
   when more than one widget has been selected.
 
-  \omit
-  Added QColumnView? widget 
-  Added Qt script support for widget construction 
-  Improved handling for promoted widgets 
-  Enabled multiline editing for labels 
-  Drag and drop widget to the object inspector 
-  Improved custom widget plugin handling 
-  Drag and drop of images from resource editor to action editor and image/iconproperties 
-  Some uic optimizations
-  \endomit
+  Drag and drop support has been extended to allow widgets to be dragged to
+  the object inspector. Additionally, images can be dragged from the resource
+  editor to the action editor and to image/icon properties in the property
+  editor.
+
+  A new preferences dialog introduces the ability to set tool window fonts
+  (added at the request of Japanese customers).
+
+  Improved selection behaviour in the signal slot editor, transparent
+  connection labels and preference of widgets over connection labels
+
+  Integration with the QtScript module enables the widget construction process
+  to be extended using QtScript, making it possible for designers to produce
+  appearance and style-related customizations to forms. Developers can also
+  take advantage of this feature to set up widgets for use in Qt Designer and
+  other situations.
+
+  Improved handling of promoted widgets makes it easier and more convenient
+  to work with placeholders for custom widgets; promotion candidates are now
+  displayed in the form's context menu. Multiple widgets in a selection can
+  now be promoted at the same time.
+
+  Custom widget plugin support has been extended to provide error reporting
+  for cases where plugins fail to load. Additionally, Qt Designer is now able
+  to scan for newly installed custom widget plugins.
+
+  Qt Designer's configuration options have been extended to allow the default
+  form editor grid setting to be set, enabling the grid setting to be specified
+  on a per-form basis.
+
+  Enabled multi-line plain and rich text editing for labels.
 
   \section1 Extended and Improved Infrastructure
 
-  The QtNetwork module has been extended to include \bold{support for
-  Secure Socket Layer (SSL) communications} via the QSslSocket class.
-  As a result, QHttp is now able to provide support for the HTTPS
+  The QtNetwork module has been extended to include
+  \e{support for Secure Socket Layer (SSL) communications} via the QSslSocket
+  class. As a result, QHttp is now able to provide support for the HTTPS
   protocol.
 
-  Qt's network proxying facilties have been \bold{extended to cover HTTP
-  CONNECT} proxying, and also include \bold{support for Cram-MD5 and NTLM
-  authentication}.
+  Qt's network proxying facilties have been \e{extended to cover HTTP CONNECT}
+  proxying, and also include \e{support for Cram-MD5 and NTLM authentication}.
 
   The QtXml module has been expanded with classes to provide
-  \bold{a streaming API for handling XML}: QXmlStreamReader and
+  \e{a streaming API for handling XML}: QXmlStreamReader and
   QXmlStreamWriter complement Qt's existing range of SAX and DOM-based
   classes. 
 
   Support for the MSYS environment for MinGW on Windows.
 
-  Qt's threading has been enhanced to include \bold{support for timed
-  try-locks} in QMutex, QReadWriteLock and QSemaphore. Additionally, a
+  Qt's threading has been enhanced to include \e{support for timed try-locks}
+  in QMutex, QReadWriteLock and QSemaphore. Additionally, a
   \l{Qt::}{BlockingQueuedConnection} connection type has been introduced
   to complement \l{Qt::}{DirectConnection} and \l{Qt::}{QueuedConnection}.
 
@@ -637,14 +657,15 @@
   determine the optimal number of threads that can be run on a given
   system.
 
-  \bold{The event system \l{QCoreApplication::postEvent()}{has been extended}
+  \e{The event system \l{QCoreApplication::postEvent()}{has been extended}
   to allow events to be posted with specific priorities}, enabling
   applications to prioritize certain types of event depending on the
   activities they are performing.
 
   QDir has been enhanced with the \l{QDir::}{addSearchPath()} function to
-  provide \bold{an extensible mechanism, allowing search paths to be added at
-  run-time} to \l{The Qt Resource System}{Qt's resource system}.
+  provide
+  \e{an extensible mechanism, allowing search paths to be added at run-time}
+  to \l{The Qt Resource System}{Qt's resource system}.
 
   The new QDirIterator class provides a convenient and less resource-intensive
   way to traverse large directory structures.
