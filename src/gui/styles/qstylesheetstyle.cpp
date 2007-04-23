@@ -1189,6 +1189,8 @@ enum PseudoElement {
     PseudoElement_ScrollBarSubLine,
     PseudoElement_ScrollBarFirst,
     PseudoElement_ScrollBarLast,
+    PseudoElement_ScrollBarUpArrow,
+    PseudoElement_ScrollBarDownArrow,
     PseudoElement_SplitterHandle,
     PseudoElement_ToolBarHandle,
     PseudoElement_ToolBarSeparator,
@@ -1242,6 +1244,8 @@ static PseudoElementInfo knownPseudoElements[NumPseudoElements] = {
     { QStyle::SC_ScrollBarSubLine, "sub-line" },
     { QStyle::SC_ScrollBarFirst, "first" },
     { QStyle::SC_ScrollBarLast, "last" },
+    { QStyle::SC_ScrollBarSubLine, "up-arrow" },
+    { QStyle::SC_ScrollBarAddLine, "down-arrow" },
     { QStyle::SC_None, "handle" },
     { QStyle::SC_None, "handle" },
     { QStyle::SC_None, "separator" },
@@ -1257,7 +1261,7 @@ static PseudoElementInfo knownPseudoElements[NumPseudoElements] = {
     { QStyle::SC_None, "label" },
     { QStyle::SC_None, "tab" },
     { QStyle::SC_None, "scroller" },
-    { QStyle::SC_None, "tear" }
+    { QStyle::SC_None, "tear" },
 };
 
 QVector<Declaration> declarations(const QVector<StyleRule> &styleRules, const QString &part, int pseudoClass = PseudoClass_Unspecified)
@@ -1591,6 +1595,8 @@ static Origin defaultOrigin(int pe)
     case PseudoElement_Indicator:
     case PseudoElement_ExclusiveIndicator:
     case PseudoElement_ComboBoxArrow:
+    case PseudoElement_ScrollBarUpArrow:
+    case PseudoElement_ScrollBarDownArrow:
     case PseudoElement_SpinBoxUpArrow:
     case PseudoElement_SpinBoxDownArrow:
     case PseudoElement_ToolButtonMenuArrow:
@@ -1626,6 +1632,8 @@ static Qt::Alignment defaultPosition(int pe)
     case PseudoElement_ToolButtonMenu:
         return Qt::AlignRight | Qt::AlignTop;
 
+    case PseudoElement_ScrollBarUpArrow:
+    case PseudoElement_ScrollBarDownArrow:
     case PseudoElement_SpinBoxUpArrow:
     case PseudoElement_SpinBoxDownArrow:
     case PseudoElement_ComboBoxArrow:
@@ -2815,13 +2823,13 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
 
     case CE_ScrollBarAddLine:
         pe1 = PseudoElement_ScrollBarAddLine;
-        pe2 = PseudoElement_DownArrow;
+        pe2 = PseudoElement_ScrollBarDownArrow;
         fallback = true;
         break;
 
     case CE_ScrollBarSubLine:
         pe1 = PseudoElement_ScrollBarSubLine;
-        pe2 = PseudoElement_UpArrow;
+        pe2 = PseudoElement_ScrollBarUpArrow;
         fallback = true;
         break;
 
@@ -3140,7 +3148,7 @@ QStyle::SubControl QStyleSheetStyle::hitTestComplexControl(ComplexControl cc, co
     switch (cc) {
     case CC_ScrollBar: {
         QRenderRule rule = renderRule(w, opt);
-        if (rule.hasNativeBorder())
+        if (!rule.hasDrawable())
             break;
                        }
         // intentionally falls through
@@ -3704,7 +3712,7 @@ QRect QStyleSheetStyle::subControlRect(ComplexControl cc, const QStyleOptionComp
 #ifndef QT_NO_SCROLLBAR
     case CC_ScrollBar:
         if (const QStyleOptionSlider *sb = qstyleoption_cast<const QStyleOptionSlider *>(opt)) {
-            if (!rule.hasNativeBorder()) {
+            if (rule.hasDrawable()) {
                 QRenderRule subRule;
                 PseudoElement pe = PseudoElement_None;
                 switch (sc) {
@@ -3748,8 +3756,16 @@ QRect QStyleSheetStyle::subControlRect(ComplexControl cc, const QStyleOptionComp
                 }
                 case SC_ScrollBarAddLine: pe = PseudoElement_ScrollBarAddLine; break;
                 case SC_ScrollBarSubLine: pe = PseudoElement_ScrollBarSubLine; break;
-                case SC_ScrollBarFirst: pe = PseudoElement_ScrollBarFirst; break;
-                case SC_ScrollBarLast: pe = PseudoElement_ScrollBarLast; break;
+                case SC_ScrollBarFirst:
+                    if (!hasStyleRule(w, PseudoElement_ScrollBarFirst))
+                        return QRect();
+                    pe = PseudoElement_ScrollBarFirst;
+                    break;
+                case SC_ScrollBarLast:
+                    if (!hasStyleRule(w, PseudoElement_ScrollBarLast))
+                        return QRect();
+                    pe = PseudoElement_ScrollBarLast;
+                    break;
                 default: break;
                 }
                 subRule = renderRule(w, opt, pe);
