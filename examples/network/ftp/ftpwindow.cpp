@@ -30,7 +30,6 @@ FtpWindow::FtpWindow(QWidget *parent)
     fileList->setRootIsDecorated(false);
     fileList->setHeaderLabels(QStringList() << tr("Name") << tr("Size") << tr("Owner") << tr("Group") << tr("Time"));
     fileList->header()->setStretchLastSection(false);
-    fileList->header()->setResizeMode(0, QHeaderView::Stretch);
 
     connectButton = new QPushButton(tr("Connect"));
     connectButton->setDefault(true);
