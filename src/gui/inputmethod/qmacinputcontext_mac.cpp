@@ -166,6 +166,9 @@ QMacInputContext::globalEventProcessor(EventHandlerCallRef, EventRef event, void
                 break;
             }
 
+            if (context->recursionGuard)
+                break;
+
             ByteCount unilen = 0;
             GetEventParameter(event, kEventParamTextInputSendText, typeUnicodeText,
                               0, 0, &unilen, 0);
