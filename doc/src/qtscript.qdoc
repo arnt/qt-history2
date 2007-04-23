@@ -22,8 +22,7 @@
       #include <QtScript>
   \endcode
 
-  To link against the module, add this line to your \l qmake \c
-  .pro file:
+  To link against the module, add this line to your \l qmake \c .pro file:
 
   \code
       QT += script
@@ -37,74 +36,79 @@
   Qt Script is based on the ECMAScript scripting language, as defined
   in standard \l{ECMA-262}. Microsoft's JScript, and Netscape's
   JavaScript are also based on the ECMAScript standard. For an
-  overview of ECMAScript, see the \l{ECMAScript Reference}{ECMAScript reference}.
+  overview of ECMAScript, see the
+  \l{ECMAScript Reference}{ECMAScript reference}.
   If you are not familiar with the ECMAScript language, there are
   several existing tutorials and books that cover this subject, such
   as \l{JavaScript: The Definitive Guide}.
-  
+
   \section1 Basic Usage
 
   To evaluate script code, you create a QScriptEngine and call its
   evaluate() function, passing the script code (text) to evaluate
-  as argument. The return value will be the result of the evaluation
-  (represented as a QScriptValue).
+  as argument.
 
-  \code
-  QScriptEngine engine;
-  qDebug() << "the magic number is:" << engine.evaluate("1 + 2").toNumber();
-  \endcode
+  \quotefromfile snippets/qtscript/evaluation/main.cpp
+  \skipto QScriptEngine
+  \printuntil qDebug()
 
-  Registering your custom properties in the script environment (thus
-  making them available to script code) is most easily done by setting
+  The return value will be the result of the evaluation (represented
+  as a QScriptValue object); this can be converted to standard C++
+  and Qt types.
+
+  Custom properties can be made available to scripts by registering
+  them with the script engine. This is most easily done by setting
   properties of the script engine's \bold{Global Object}:
 
-  \code
-  QScriptValue val(&engine, 123);
-  engine.globalObject().setProperty("foo", val);
-  qDebug() << "foo times two is:" << engine.evaluate("foo * 2").toNumber();
-  \endcode
+  \quotefromfile snippets/qtscript/registeringvalues/main.cpp
+  \skipto QScriptValue
+  \printuntil qDebug()
+
+  This places the properties in the script environment, thus making them
+  available to script code.
 
   \section1 Making a QObject Available to the Script Engine
 
-  By passing a QObject to the QScriptEngine::newQObject()) function,
-  you create a QtScript wrapper object that can be used to make the
+  Any QObject subclass can be made available for use with scripts.
+
+  When a QObject is passed to the QScriptEngine::newQObject() function,
+  a QtScript wrapper object is created that can be used to make the
   QObject's signals, slots, properties, and child objects available
-  to scripts. Because Qt Script uses Qt's meta object system, there
+  to scripts. Because QtScript uses Qt's meta-object system, there
   is no need to implement any additional wrappers or bindings.
 
-  Here's an example of making a QObject available to script code
-  under the name \c{"myQObject"}:
+  Here's an example of making an instance of a QObject subclass
+  available to script code under the name \c{"myObject"}:
 
-  \code
-  QScriptEngine engine;
-  QObject *someQObject = ...;
-  QScriptValue qobjectValue = engine.newQObject(someQObject);
-  engine.globalObject().setProperty("myQObject", qobjectValue);
-  \endcode
+  \quotefromfile snippets/qtscript/registeringobjects/main.cpp
+  \skipto QScriptEngine engine;
+  \printuntil engine.globalObject()
 
-  newQObject() can take two additional arguments, one being
-  the ownership mode, and the other being options that allow you
-  to control certain aspects of how the QScriptValue that wraps
-  the QObject should behave. We will come back to the usage of
-  these arguments later.
+  The newQObject() function accepts two additional optional arguments:
+  one is the ownership mode, and the other is a collection of options
+  that allow you to control certain aspects of how the QScriptValue
+  that wraps the QObject should behave. We will come back to the usage
+  of these arguments later.
 
   \section2 Using Signals and Slots
 
   To connect to a signal, you invoke the \c{connect()} function of
-  the signal from script code. There are three overloads of \c{connect()}:
+  the signal from script code. There are three overloads of \c{connect()}.
 
-  \list
-  \i \c{connect(function)}: The argument is the function to connect to the signal.
+  \section3 Signal to Function Connections
+
+  \c{connect(function)}
+
+  In this form of connection, the argument to \c{connect()} is the
+  function to connect to the signal.
 
   \code
   function myInterestingScriptFunction() { ... }
-
   ...
-
   myQObject.somethingChanged.connect(myInterestingScriptFunction);
   \endcode
 
-  The argument can be a Qt Script function, as in the above
+  The argument can be a QtScript function, as in the above
   example, or it can be a QObject slot, as in
   the following example:
 
@@ -124,13 +128,17 @@
   When a script function is invoked in response to a signal, the
   `this' object will be the object that emitted the signal.
 
-  \i \c{connect(thisObject, function)}: The first argument is the
-  object to use as the `this' object when invoking the function to
-  connect to the signal (the second argument).
+  \section3 Signal to Member Function Connections
 
-  If you have a pushbutton in a form, you typically want to do
+  \c{connect(thisObject, function)}
+
+  In this form of the \c{connect()} function, the first argument
+  is the object that will be bound to the variable, \c this, when
+  the function specified using the second argument is invoked.
+
+  If you have a push button in a form, you typically want to do
   something involving the form in response to the button's
-  \c{clicked} signal; passing the form as the `this' object
+  \c{clicked} signal; passing the form as the \c this object
   makes sense in such a case.
 
   \code
@@ -145,12 +153,19 @@
   myQObject.somethingChanged.disconnect(obj, fun);
   \endcode
 
-  \i \c{connect(thisObject, functionName)}: The first argument is
-  the object to use as the `this' object when invoking the function
-  in response to the signal. The second argument is the name of the
-  property of \c{thisObject} that holds the function to connect to.
-  Note that the function is resolved at connect time, not at
-  signal handling time.
+  \section3 Signal to Named Member Function Connections
+
+  \c{connect(thisObject, functionName)}
+
+  In this form of the \c{connect()} function, the first argument is
+  the object that will be bound to the variable, \c this, when
+  a function is invoked in response to the signal. The second argument
+  specifies the name of a function that is connected to the signal,
+  and this refers to a member function of the object passed as the
+  first argument (\c thisObject in the above scheme).
+
+  Note that the function is resolved when the connection is made, not
+  when the signal is emitted.
 
   \code
   var obj = { x: 123, fun: function() { print(this.x); } };
@@ -163,7 +178,7 @@
   myQObject.somethingChanged.disconnect(obj, "fun");
   \endcode
 
-  \endlist
+  \section3 Emitting Signals from Scripts
 
   To emit a signal from script code, you simply invoke the signal
   function, passing the relevant arguments:
@@ -520,7 +535,7 @@
     getter function for a property of an object. The first argument is
     the property name, and the second is the function to call to get
     the value of that property. When the function is invoked, the
-    `this' object will be the object whose property is being accessed.
+    \c this object will be the object whose property is being accessed.
     Example:
 
   \code
@@ -533,7 +548,7 @@
     setter function for a property of an object. The first argument is
     the property name, and the second is the function to call to set
     the value of that property.  When the function is invoked, the
-    `this' object will be the object whose property is being accessed.
+    \c this object will be the object whose property is being accessed.
     Example:
 
   \code
