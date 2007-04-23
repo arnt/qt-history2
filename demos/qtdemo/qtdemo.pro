@@ -1,11 +1,13 @@
 CONFIG += assistant x11inc
-CONFIG += release opengl
+CONFIG += release
 TARGET = qtdemo
 DESTDIR = $$QT_BUILD_TREE/bin
 OBJECTS_DIR = .obj
 MOC_DIR = .moc
 INSTALLS += target sources
-QT += xml network opengl
+QT += xml network
+contains(QT_CONFIG, opengl): QT += opengl
+
 RESOURCES = qtdemo.qrc
 HEADERS = src/mainwindow.h \
     src/demoscene.h \
