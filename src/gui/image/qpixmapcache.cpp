@@ -131,7 +131,7 @@ QPixmap *QPMCache::object(const QString &key) const
 bool QPMCache::insert(const QString& key, const QPixmap &pixmap, int cost)
 {
     qint64 cacheKey = pixmap.cacheKey();
-    if (contains(cacheKey)) {
+    if (QCache<qint64, QDetachedPixmap>::object(cacheKey)) {
         cacheKeys.insert(key, cacheKey);
         return true;
     }
