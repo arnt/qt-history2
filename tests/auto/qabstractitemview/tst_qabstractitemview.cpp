@@ -17,6 +17,7 @@
 #include <qtreeview.h>
 #include <qheaderview.h>
 #include <qspinbox.h>
+#include <qitemdelegate.h>
 
 //TESTED_CLASS=
 //TESTED_FILES=gui/itemviews/qabstractitemview.h gui/itemviews/qabstractitemview.cpp
@@ -144,6 +145,7 @@ private slots:
     void selectAll();
     void ctrlA();
     void persistentEditorFocus();
+    void setItemDelegate();
 	// The dragAndDrop() test doesn't work, and is thus disabled on Mac and Windows
 	// for the following reasons:
 	//   Mac: use of GetCurrentEventButtonState() in QDragManager::drag()
@@ -897,6 +899,50 @@ void tst_QAbstractItemView::dragAndDropOnChild()
 }
 
 #endif // !Q_OS_MAC && !Q_OS_WIN
+
+class TestModel : public QStandardItemModel
+{
+public:
+    TestModel(int rows, int columns) : QStandardItemModel(rows, columns) 
+    {
+        setData_count = 0;
+    }
+
+    virtual bool setData(const QModelIndex &/*index*/, const QVariant &/*value*/, int /*role = Qt::EditRole*/) 
+    {
+        ++setData_count;
+        return true;
+    }
+
+    int setData_count;
+};
+
+void tst_QAbstractItemView::setItemDelegate()
+{
+    QTableView v;
+    QItemDelegate *delegate = new QItemDelegate(&v);
+    TestModel model(5, 5);
+    v.setModel(&model);
+    v.setItemDelegateForColumn(0, delegate);
+    v.setItemDelegateForColumn(1, delegate);
+    v.setItemDelegateForColumn(2, delegate);
+    v.setItemDelegateForColumn(3, delegate);
+    v.show();
+
+    QModelIndex index = v.model()->index(0, 0);
+    v.edit(index);
+
+    // This will close the editor
+    if(QWidget *editor = QApplication::focusWidget()) {
+        editor->hide();
+        delete editor;
+    }
+    QCOMPARE(model.setData_count, 1);
+
+
+
+
+}
 
 QTEST_MAIN(tst_QAbstractItemView)
 #include "tst_qabstractitemview.moc"

@@ -228,6 +228,32 @@ public:
         return QPoint(q->horizontalOffset(), q->verticalOffset());
     }
 
+    /**
+     * For now, assume that we have few editors, if we need a more efficient implementation 
+     * we should add a QMap<QAbstractItemDelegate*, int> member.
+     */
+    int delegateRefCount(const QAbstractItemDelegate *delegate) const
+    {
+        int ref = 0;
+        if (itemDelegate == delegate)
+            ++ref;
+
+        for (int maps = 0; maps < 2; ++maps) {
+            const QMap<int, QPointer<QAbstractItemDelegate> > *delegates = maps ? &columnDelegates : &rowDelegates;
+            for (QMap<int, QPointer<QAbstractItemDelegate> >::const_iterator it = delegates->begin(); 
+                it != delegates->end(); ++it) {
+                    if (it.value() == delegate) {
+                        ++ref;
+                        // optimization, we are only interested in the ref count values 0, 1 or >=2
+                        if (ref >= 2) {
+                            return ref;
+                        }
+                    }
+            }
+        }
+        return ref;
+    }
+
     QStyleOptionViewItemV3 viewOptionsV3() const;
 
     QAbstractItemModel *model;
