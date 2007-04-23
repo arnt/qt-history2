@@ -5,7 +5,7 @@
 CONFIG += ordered
 TEMPLATE = subdirs
 isEmpty(QT_PROJECTS) { #defaults
-   QT_PROJECTS = libs tools examples demos 
+   QT_PROJECTS = libs tools examples demos
 } else { #make sure the order makes sense
    contains(QT_PROJECTS, tools) {
        QT_PROJECTS -= tools
@@ -39,8 +39,10 @@ for(PROJECT, $$list($$lower($$unique(QT_PROJECTS)))) {
     }
 }
 
+
+confclean.depends += clean
+confclean.commands =
 unix {
-  confclean.depends += clean
   confclean.commands += (cd config.tests/unix/stl && $(MAKE) distclean); \
 			(cd config.tests/unix/endian && $(MAKE) distclean); \
 			(cd config.tests/unix/ipv6 && $(MAKE) distclean); \
@@ -80,12 +82,20 @@ unix {
 			$(DEL_FILE) src/core/global/qconfig.cpp; \
 			$(DEL_FILE) mkspecs/qconfig.pri; \
 			$(DEL_FILE) .qmake.cache; \
- 			(cd qmake && $(MAKE) distclean); 
-  QMAKE_EXTRA_UNIX_TARGETS += confclean
-  qmakeclean.commands += (cd qmake && $(MAKE) clean)
-  QMAKE_EXTRA_UNIX_TARGETS += qmakeclean
-  CLEAN_DEPS += qmakeclean
+ 			(cd qmake && $(MAKE) distclean);
 }
+win32 {
+  confclean.commands += -$(DEL_FILE) src\core\global\qconfig.h $$escape_expand(\n\t) \
+			-$(DEL_FILE) src\core\global\qconfig.cpp $$escape_expand(\n\t) \
+			-$(DEL_FILE) mkspecs\qconfig.pri $$escape_expand(\n\t) \
+			-$(DEL_FILE) .qmake.cache $$escape_expand(\n\t) \
+			(cd qmake && $(MAKE) distclean)
+}
+QMAKE_EXTRA_TARGETS += confclean
+qmakeclean.commands += (cd qmake && $(MAKE) clean)
+QMAKE_EXTRA_TARGETS += qmakeclean
+CLEAN_DEPS += qmakeclean
+
 CONFIG -= qt
 
 ### installations ####
