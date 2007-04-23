@@ -68,6 +68,7 @@ QFSFileEnginePrivate::QFSFileEnginePrivate() : QAbstractFileEnginePrivate()
 */
 void QFSFileEnginePrivate::init()
 {
+    is_sequential = 0;
     tried_stat = 0;
 #ifdef Q_OS_UNIX
     need_lstat = 1;
@@ -167,9 +168,7 @@ bool QFSFileEngine::open(QIODevice::OpenMode openMode)
     d->fh = 0;
     d->fd = -1;
 
-    bool opened = d->nativeOpen(openMode);
-    d->is_sequential = d->nativeIsSequential();
-    return opened;
+    return d->nativeOpen(openMode);
 }
 
 /*!
@@ -195,9 +194,7 @@ bool QFSFileEngine::open(QIODevice::OpenMode openMode, FILE *fh)
     d->filePath.clear();
     d->fd = -1;
 
-    bool opened = d->openFh(openMode, fh);
-    d->is_sequential = d->nativeIsSequential();
-    return opened;
+    return d->openFh(openMode, fh);
 }
 
 /*!
@@ -249,9 +246,7 @@ bool QFSFileEngine::open(QIODevice::OpenMode openMode, int fd)
     d->fh = 0;
     d->fd = -1;
 
-    bool opened = d->openFd(openMode, fd);
-    d->is_sequential = d->nativeIsSequential();
-    return opened;
+    return d->openFd(openMode, fd);
 }
 
 
@@ -604,7 +599,8 @@ qint64 QFSFileEnginePrivate::readLineFdFh(char *data, qint64 maxlen)
 
     QT_OFF_T oldPos = 0;
 #ifdef Q_OS_WIN
-    if (!is_sequential)
+    bool seq = q->isSequential();
+    if (!seq)
 #endif
         oldPos = QT_FTELL(fh);
 
@@ -618,7 +614,7 @@ qint64 QFSFileEnginePrivate::readLineFdFh(char *data, qint64 maxlen)
     }
 
 #ifdef Q_OS_WIN
-    if (is_sequential)
+    if (seq)
         return qstrlen(data);
 #endif
 
@@ -712,7 +708,9 @@ QStringList QFSFileEngine::entryList(QDir::Filters filters, const QStringList &f
 bool QFSFileEngine::isSequential() const
 {
     Q_D(const QFSFileEngine);
-    return d->is_sequential;
+    if (d->is_sequential == 0)
+        d->is_sequential = d->nativeIsSequential() ? 1 : 2;
+    return d->is_sequential == 1;
 }
 
 /*!

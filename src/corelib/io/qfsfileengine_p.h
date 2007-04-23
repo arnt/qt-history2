@@ -73,7 +73,7 @@ public:
     HANDLE fileHandle;
 #endif
 
-    uint is_sequential : 1;
+    mutable uint is_sequential : 2;
     mutable uint could_stat : 1;
     mutable uint tried_stat : 1;
 #ifdef Q_OS_UNIX
