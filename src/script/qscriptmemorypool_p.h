@@ -59,7 +59,7 @@ public:
             m_currentBlock = m_storage[m_blockIndex] = reinterpret_cast<char*>(qMalloc(defaultBlockSize));
             ::memset(m_currentBlock, 0, defaultBlockSize);
 
-            m_currentIndex = (8 - int(m_currentBlock)) & 7; // ensure first chunk is 64-bit aligned
+            m_currentIndex = (8 - quintptr(m_currentBlock)) & 7; // ensure first chunk is 64-bit aligned
             Q_ASSERT(m_currentIndex + bytes <= defaultBlockSize);
         }
 
