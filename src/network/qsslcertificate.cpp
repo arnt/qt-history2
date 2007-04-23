@@ -107,6 +107,8 @@
 #include <QtCore/qstring.h>
 #include <QtCore/qstringlist.h>
 
+#include <QtCore/qdebug.h>
+
 /*!
     Constructs a QSslCertificate, and reads \a format encoded data from \a
     device to find the first available certificate. You can later call
@@ -325,9 +327,8 @@ QMultiMap<QSsl::AlternateNameEntry, QString> QSslCertificate::alternateSubjectNa
     if (altNames) {
         for (int i = 0; i < q_sk_GENERAL_NAME_num(altNames); ++i) {
             const GENERAL_NAME *genName = q_sk_GENERAL_NAME_value(altNames, i);
-            const QLatin1String altName(
-                QByteArray(
-                    (const char *)q_ASN1_STRING_data(genName->d.ia5),
+            const QString altName = QLatin1String(
+                    QByteArray(reinterpret_cast<const char *>(q_ASN1_STRING_data(genName->d.ia5)),
                     q_ASN1_STRING_length(genName->d.ia5)));
             if (genName->type == GEN_DNS)
                 result.insert(QSsl::DnsEntry, altName);
