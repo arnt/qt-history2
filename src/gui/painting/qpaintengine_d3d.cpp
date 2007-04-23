@@ -3701,6 +3701,7 @@ void QDirect3DPaintEnginePrivate::cleanup()
     }
 
     m_surface_manager.cleanup();
+    m_patterns.clear();
 
     delete m_gradient_cache;
     delete m_draw_helper;
