@@ -192,8 +192,8 @@ static QImageIOHandler *createReadHandler(QIODevice *device, const QByteArray &f
              << keys.size() << "plugins available: " << keys;
 #endif
 
-    int suffixPluginIndex = -1;
 #ifndef QT_NO_LIBRARY
+    int suffixPluginIndex = -1;
     if (device && format.isEmpty()) {
         // if there's no format, see if \a device is a file, and if so, find
         // the file suffix and find support for that format among our plugins.

@@ -1512,6 +1512,7 @@ void QScriptEnginePrivate::init()
     context_p->setThisObject(m_globalObject);
 }
 
+#if !defined(QT_NO_QOBJECT) && !defined(QT_NO_LIBRARY)
 static QScriptValueImpl __setupPackage__(QScriptContextPrivate *ctx,
                                          QScriptEnginePrivate *eng,
                                          QScriptClassInfo *)
@@ -1530,10 +1531,13 @@ static QScriptValueImpl __setupPackage__(QScriptContextPrivate *ctx,
     }
     return o;
 }
+#endif
 
 QScriptValueImpl QScriptEnginePrivate::importExtension(const QString &extension)
 {
-#if !defined(QT_NO_QOBJECT) && !defined(QT_NO_LIBRARY)
+#if defined(QT_NO_QOBJECT) || defined(QT_NO_LIBRARY)
+    Q_UNUSED(extension);
+#else
     Q_Q(QScriptEngine);
     if (m_importedExtensions.contains(extension))
         return undefinedValue(); // already imported

@@ -934,8 +934,8 @@ void QLabel::paintEvent(QPaintEvent *)
     if (d->isTextLabel) {
         QRectF lr = d->layoutRect();
         if (d->control) {
-            const bool underline = (bool)style->styleHint(QStyle::SH_UnderlineShortcut, 0, this, 0);
 #ifndef QT_NO_SHORTCUT
+            const bool underline = (bool)style->styleHint(QStyle::SH_UnderlineShortcut, 0, this, 0);
             if (d->shortcutId != 0
                 && underline != d->shortcutCursor.charFormat().fontUnderline()) {
                 QTextCharFormat fmt;

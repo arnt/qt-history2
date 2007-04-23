@@ -776,16 +776,16 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                 int iconSpacing = 4;//### 4 is currently hardcoded in QPushButton::sizeHint()
 
                 if (!button->text.isEmpty())
-                    labelWidth += button->fontMetrics.width(button->text) + iconSpacing; 
+                    labelWidth += button->fontMetrics.width(button->text) + iconSpacing;
 
                 iconRect = QRect(textRect.x() + (textRect.width() - labelWidth) / 2,
-                                 textRect.y() + (textRect.height() - labelHeight) / 2, 
+                                 textRect.y() + (textRect.height() - labelHeight) / 2,
                                  pixmap.width(), pixmap.height());
-                
+
                 iconRect = visualRect(button->direction, textRect, iconRect);
-                
+
                 tf |= Qt::AlignLeft; //left align, we adjust the text-rect instead
-                
+
                 if (button->direction == Qt::RightToLeft)
                     textRect.setRight(iconRect.left() - iconSpacing);
                 else
@@ -4279,6 +4279,11 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
 QPixmap QCommonStyle::standardPixmap(StandardPixmap sp, const QStyleOption *option,
                                      const QWidget *widget) const
 {
+#ifdef QT_NO_IMAGEFORMAT_PNG
+    Q_UNUSED(option);
+    Q_UNUSED(widget);
+#endif
+
     switch (sp) {
 #ifndef QT_NO_IMAGEFORMAT_XPM
     case SP_ToolBarHorizontalExtensionButton:

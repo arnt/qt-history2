@@ -131,8 +131,8 @@ QString QAccessibleButton::text(Text t, int child) const
     switch (t) {
     case Accelerator:
         {
-            QPushButton *pb = qobject_cast<QPushButton*>(object());
 #ifndef QT_NO_SHORTCUT
+            QPushButton *pb = qobject_cast<QPushButton*>(object());
             if (pb && pb->isDefault())
                 str = (QString)QKeySequence(Qt::Key_Enter);
 #endif
@@ -435,7 +435,7 @@ QString QAccessibleDisplay::text(Text t, int child) const
         } else if (qobject_cast<QGroupBox*>(object())) {
             str = qobject_cast<QGroupBox*>(object())->title();
 #endif
-#ifndef QT_NO_LCDNUMBER	    
+#ifndef QT_NO_LCDNUMBER
         } else if (qobject_cast<QLCDNumber*>(object())) {
             QLCDNumber *l = qobject_cast<QLCDNumber*>(object());
             if (l->numDigits())
@@ -477,7 +477,7 @@ QAccessible::Relation QAccessibleDisplay::relationTo(int child, const QAccessibl
 #ifndef QT_NO_GROUPBOX
     } else {
 	QGroupBox *groupbox = qobject_cast<QGroupBox*>(object());
-	if (groupbox && !groupbox->title().isEmpty()) 
+	if (groupbox && !groupbox->title().isEmpty())
 	    if (groupbox->children().contains(o))
 		relation |= Label;
 #endif
@@ -500,7 +500,7 @@ int QAccessibleDisplay::navigate(RelationFlag rel, int entry, QAccessibleInterfa
 #ifndef QT_NO_GROUPBOX
         } else {
 	    QGroupBox *groupbox = qobject_cast<QGroupBox*>(object());
-	    if (groupbox && !groupbox->title().isEmpty()) 
+	    if (groupbox && !groupbox->title().isEmpty())
 		rel = Child;
 #endif
         }
@@ -580,8 +580,8 @@ QAccessible::State QAccessibleLineEdit::state(int child) const
     state |= Selectable;
     if (l->hasSelectedText())
         state |= Selected;
-    
-    if (l->contextMenuPolicy() != Qt::NoContextMenu 
+
+    if (l->contextMenuPolicy() != Qt::NoContextMenu
         && l->contextMenuPolicy() != Qt::PreventContextMenu)
         state |= HasPopup;
 
