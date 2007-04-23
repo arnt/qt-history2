@@ -127,6 +127,8 @@ private slots:
     void lastQuery();
     void bindWithDoubleColonCastOperator_data() { generic_data(); }
     void bindWithDoubleColonCastOperator();
+    void queryOnInvalidDatabase_data() { generic_data(); }
+    void queryOnInvalidDatabase();
 
 private:
     // returns all database connections
@@ -2142,6 +2144,31 @@ void tst_QSqlQuery::bindWithDoubleColonCastOperator()
     QCOMPARE(q.executedQuery(), QString("select sum((fld1 - fld2)::int) from " + tablename + " where id1 = 1 and id2 =2 and id3=3"));
 
     tst_Databases::safeDropTable(db, tablename);
+}
+
+/* For task 157397: Using QSqlQuery with an invalid QSqlDatabase
+   does not set the last error of the query.
+   This test function will output some warnings, that's ok.
+*/
+void tst_QSqlQuery::queryOnInvalidDatabase()
+{
+    {
+        QSqlDatabase db = QSqlDatabase::addDatabase("INVALID", "invalidConnection");
+        QVERIFY2(db.lastError().isValid(),
+            qPrintable(QString("db.lastError().isValid() should be true!")));
+
+        QSqlQuery query("SELECT 1 AS ID", db);
+        QVERIFY2(query.lastError().isValid(),
+            qPrintable(QString("query.lastError().isValid() should be true!")));
+    }
+    QSqlDatabase::removeDatabase("invalidConnection");
+    
+    {
+    QSqlDatabase db = QSqlDatabase::database ("this connection does not exist");
+    QSqlQuery query ("SELECT 1 AS ID", db);
+    QVERIFY2(query.lastError().isValid(),
+        qPrintable(QString("query.lastError().isValid() should be true!")));
+    }
 }
 
 QTEST_MAIN(tst_QSqlQuery)
