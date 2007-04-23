@@ -613,7 +613,7 @@ QRect QFontMetrics::boundingRect(const QString &text) const
 
 /*!
     Returns the rectangle that is covered by ink if character \a ch
-    where to be drawn at the origin of the coordinate system.
+    were to be drawn at the origin of the coordinate system.
 
     Note that the bounding rectangle may extend to the left of (0, 0),
     e.g. for italicized fonts, and that the text output may cover \e
