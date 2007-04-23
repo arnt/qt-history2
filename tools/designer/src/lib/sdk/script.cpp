@@ -15,18 +15,36 @@
 
 /*!
     \class QDesignerScriptExtension
-    \brief The QDesignerScriptExtension is queried for a script
-           to be associated with the widget while saving the \c .ui file.
-           This script is then run after creating the widget by \l uic or
-           the form builder classes.
+    \brief The QDesignerScriptExtension allows you to generate a per-widget
+    \l{QtScript} {Qt Script} snippet to be executed while building the form.
 
     \inmodule QtDesigner
     \since 4.3
 
-           As opposed to \l QDesignerCustomWidgetInterface::codeTemplate(),
-           it allows for applying an internal state
-           created for example by a task menu
-           extension implementation.
+    On saving the form, the extension is queried for a script snippet
+    to be associated with the widget while saving the \c .ui file.
+    This script is then run after creating the widget by \l uic or
+    QUiLoader.
+
+    As opposed to \l QDesignerCustomWidgetInterface::codeTemplate(),
+    it allows for applying an internal state of the widget
+    that can be manipulated using \QD.
+
+    Such a state might for example be the contents of a custom item view widget,
+    for which an editor is provided by the QDesignerTaskMenuExtension.
+
+    While saving the form, the state is serialized as a QVariantMap of
+    \QD-supported properties, which is stored in the \c .ui file. This is
+    handled by data() and setData().
+
+    For item view contents, there might be for example a key that determines
+    the number of items and other keys that contain the actual items following
+    a naming scheme (\c numItems, \c item1, \c item2, ...).
+
+    On saving, script() is invoked, which should return a script snippet that
+    applies the state to the widget while building the form.
+
+    \sa {Creating Custom Widgets for Qt Designer#Using Qt Script to Aid in Building Forms}{Creating Custom Widgets for Qt Designer}, QtScript
 */
 
 /*!
@@ -53,5 +71,5 @@ QDesignerScriptExtension::~QDesignerScriptExtension()
 /*!
     \fn virtual void QDesignerScriptExtension::setData(const QVariantMap &data)
 
-    Applies the internal state stored in \a data to the widget while loading a form. 
+    Applies the internal state stored in \a data to the widget while loading a form.
 */
