@@ -979,7 +979,7 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef er, EventRef event,
                         sizeof(wouldAccept), &wouldAccept);
             }
         } else if (ekind == kEventControlBoundsChanged) {
-            if (!widget || (widget && widget->isWindow())) {
+            if (!widget || widget->isWindow() || widget->testAttribute(Qt::WA_Moved) || widget->testAttribute(Qt::WA_Resized)) {
                 handled_event = false;
             } else {
                 // Sync our view in case some other (non-Qt) view is controling us.
