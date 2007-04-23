@@ -167,7 +167,9 @@ bool QFSFileEngine::open(QIODevice::OpenMode openMode)
     d->fh = 0;
     d->fd = -1;
 
-    return d->nativeOpen(openMode);
+    bool opened = d->nativeOpen(openMode);
+    d->is_sequential = d->nativeIsSequential();
+    return opened;
 }
 
 /*!
@@ -193,8 +195,9 @@ bool QFSFileEngine::open(QIODevice::OpenMode openMode, FILE *fh)
     d->filePath.clear();
     d->fd = -1;
 
-    // ### check if fh is "valid"?
-    return d->openFh(openMode, fh);
+    bool opened = d->openFh(openMode, fh);
+    d->is_sequential = d->nativeIsSequential();
+    return opened;
 }
 
 /*!
@@ -246,7 +249,9 @@ bool QFSFileEngine::open(QIODevice::OpenMode openMode, int fd)
     d->fh = 0;
     d->fd = -1;
 
-    return d->openFd(openMode, fd);
+    bool opened = d->openFd(openMode, fd);
+    d->is_sequential = d->nativeIsSequential();
+    return opened;
 }
 
 
@@ -597,8 +602,12 @@ qint64 QFSFileEnginePrivate::readLineFdFh(char *data, qint64 maxlen)
     if (!fh)
         return q->QAbstractFileEngine::readLine(data, maxlen);
 
-    QT_OFF_T oldPos = QT_FTELL(fh);
-    
+    QT_OFF_T oldPos = 0;
+#ifdef Q_OS_WIN
+    if (!is_sequential)
+#endif
+        oldPos = QT_FTELL(fh);
+
     // QIODevice::readLine() passes maxlen - 1 to QFile::readLineData()
     // because it has made space for the '\0' at the end of data.  But fgets
     // does the same, so we'd get two '\0' at the end - passing maxlen + 1
@@ -608,13 +617,13 @@ qint64 QFSFileEnginePrivate::readLineFdFh(char *data, qint64 maxlen)
         return 0;
     }
 
-    qint64 lineLength = QT_FTELL(fh) - oldPos;
 #ifdef Q_OS_WIN
-    // ### Investigate further
-    return lineLength >= 0 ? lineLength : qstrlen(data);
-#else
-    return lineLength > 0 ? lineLength : qstrlen(data);
+    if (is_sequential)
+        return qstrlen(data);
 #endif
+
+    qint64 lineLength = QT_FTELL(fh) - oldPos;
+    return lineLength > 0 ? lineLength : qstrlen(data);
 }
 
 /*!
@@ -703,7 +712,7 @@ QStringList QFSFileEngine::entryList(QDir::Filters filters, const QStringList &f
 bool QFSFileEngine::isSequential() const
 {
     Q_D(const QFSFileEngine);
-    return d->nativeIsSequential();
+    return d->is_sequential;
 }
 
 /*!
