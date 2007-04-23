@@ -97,8 +97,25 @@ int QWSWindowSurface::winId() const
     const QWidget *win = window();
     if (win && win->isWindow())
         return win->internalWinId();
-    else
-        return d_ptr->winId;
+
+#ifdef Q_BACKINGSTORE_SUBSURFACES
+    if (!d_ptr->winId) {
+        QWSWindowSurface *that = const_cast<QWSWindowSurface*>(this);
+        QWSDisplay *display = QWSDisplay::instance();
+        const int id = display->takeId();
+        qt_insertWindowSurface(id, that);
+        that->d_ptr->winId = id;
+
+        if (win)
+            display->nameRegion(id, win->objectName(), win->windowTitle());
+        else
+            display->nameRegion(id, QString(), QString());
+
+        display->setAltitude(id, 1, true); // XXX
+    }
+#endif
+
+    return d_ptr->winId;
 }
 
 void QWSWindowSurface::setWinId(int id)
@@ -315,23 +332,6 @@ QWSWindowSurface::QWSWindowSurface()
 QWSWindowSurface::QWSWindowSurface(QWidget *widget)
     : QWindowSurface(widget), d_ptr(new QWSWindowSurfacePrivate)
 {
-    if (!widget)
-        return;
-
-    if (widget->isWindow()) {
-        d_ptr->winId = widget->winId();
-    }
-#ifdef Q_BACKINGSTORE_SUBSURFACES
-    else {
-        QWSDisplay *display = QWSDisplay::instance();
-        const int id = display->takeId();
-        qt_insertWindowSurface(id, this);
-        d_ptr->winId = id;
-        display->nameRegion(id, widget->objectName(), widget->windowTitle());
-
-        QWSDisplay::instance()->setAltitude(id, 1, true); // XXX
-    }
-#endif
 }
 
 QWSWindowSurface::~QWSWindowSurface()
