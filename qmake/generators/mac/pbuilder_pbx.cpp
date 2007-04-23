@@ -60,6 +60,17 @@ ProjectBuilderMakefileGenerator::writeMakefile(QTextStream &t)
     return false;
 }
 
+struct ProjectBuilderSubDirs {
+    QMakeProject *project;
+    QString subdir;
+    bool autoDelete;
+    ProjectBuilderSubDirs(QMakeProject *p, QString s, bool a=true) : project(p), subdir(s), autoDelete(a) { }
+    ~ProjectBuilderSubDirs() {
+        if(autoDelete)
+            delete project;
+    }
+};
+
 bool
 ProjectBuilderMakefileGenerator::writeSubDirs(QTextStream &t)
 {
@@ -86,24 +97,34 @@ ProjectBuilderMakefileGenerator::writeSubDirs(QTextStream &t)
       << "\t" << "objects = {" << endl;
 
     //SUBDIRS
-    QStringList subdirs = project->values("SUBDIRS");
+    QList<ProjectBuilderSubDirs*> pb_subdirs;
+    pb_subdirs.append(new ProjectBuilderSubDirs(project, QString(), false));
     QString oldpwd = qmake_getpwd();
     QMap<QString, QStringList> groups;
-    for(int subdir = 0; subdir < subdirs.count(); subdir++) {
-        QString tmp = subdirs[subdir];
-        if(!project->isEmpty(tmp + ".file"))
-            tmp = project->first(tmp + ".file");
-        else if(!project->isEmpty(tmp + ".subdir"))
-            tmp = project->first(tmp + ".subdir");
-        QFileInfo fi(fileInfo(Option::fixPathToLocalOS(tmp, true)));
-        if(fi.exists()) {
-            if(fi.isDir()) {
-                QString profile = tmp;
-                if(!profile.endsWith(Option::dir_sep))
-                    profile += Option::dir_sep;
-                profile += fi.baseName() + ".pro";
-                subdirs.append(profile);
-            } else {
+    for(int pb_subdir = 0; pb_subdir < pb_subdirs.size(); ++pb_subdir) {
+        ProjectBuilderSubDirs *pb = pb_subdirs[pb_subdir];
+        const QStringList subdirs = pb->project->values("SUBDIRS");
+        for(int subdir = 0; subdir < subdirs.count(); subdir++) {
+            QString tmp = subdirs[subdir];
+            if(!pb->project->isEmpty(tmp + ".file"))
+                tmp = pb->project->first(tmp + ".file");
+            else if(!pb->project->isEmpty(tmp + ".subdir"))
+                tmp = pb->project->first(tmp + ".subdir");
+            if(fileInfo(tmp).isRelative() && !pb->subdir.isEmpty()) {
+                QString subdir = pb->subdir;
+                if(!subdir.endsWith(Option::dir_sep))
+                    subdir += Option::dir_sep;
+                tmp = subdir + tmp;
+            }
+            QFileInfo fi(fileInfo(Option::fixPathToLocalOS(tmp, true)));
+            if(fi.exists()) {
+                if(fi.isDir()) {
+                    QString profile = tmp;
+                    if(!profile.endsWith(Option::dir_sep))
+                        profile += Option::dir_sep;
+                    profile += fi.baseName() + ".pro";
+                    fi = QFileInfo(profile);
+                }
                 QMakeProject tmp_proj;
                 QString dir = fi.path(), fn = fi.fileName();
                 if(!dir.isEmpty()) {
@@ -121,7 +142,9 @@ ProjectBuilderMakefileGenerator::writeSubDirs(QTextStream &t)
                         }
                     }
                     if(tmp_proj.first("TEMPLATE") == "subdirs") {
-                        subdirs += fileFixify(tmp_proj.variables()["SUBDIRS"]);
+                        QMakeProject *pp = new QMakeProject(&tmp_proj);
+                        pp->read(0);
+                        pb_subdirs += new ProjectBuilderSubDirs(pp, dir);
                     } else if(tmp_proj.first("TEMPLATE") == "app" || tmp_proj.first("TEMPLATE") == "lib") {
                         QString pbxproj = qmake_getpwd() + Option::dir_sep + tmp_proj.first("TARGET") + projectSuffix();
                         if(!exists(pbxproj)) {
@@ -224,11 +247,14 @@ ProjectBuilderMakefileGenerator::writeSubDirs(QTextStream &t)
 #endif
                     }
                 }
-nextfile:
+            nextfile:
                 qmake_setpwd(oldpwd);
             }
         }
     }
+    qDeleteAll(pb_subdirs);
+    pb_subdirs.clear();
+
     for(QMap<QString, QStringList>::Iterator grp_it = groups.begin(); grp_it != groups.end(); ++grp_it) {
         t << "\t\t" << keyFor(grp_it.key()) << " = {" << "\n"
           << "\t\t\t" << writeSettings("isa", "PBXGroup", SettingsNoQuote) << ";" << "\n"
@@ -1144,10 +1170,8 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
     QString target_key = keyFor(pbx_dir + "QMAKE_PBX_TARGET");
     project->values("QMAKE_PBX_TARGETS").append(target_key);
     t << "\t\t" << target_key << " = {" << "\n"
-      << "\t\t\t" << "buildPhases = (" << "\n"
-      << varGlue("QMAKE_PBX_PRESCRIPT_BUILDPHASES", "\t\t\t\t", ",\n\t\t\t\t", ",\n")
-      << varGlue("QMAKE_PBX_BUILDPHASES", "\t\t\t\t", ",\n\t\t\t\t", "\n")
-      << "\t\t\t" << ");" << "\n"
+      << "\t\t\t" << writeSettings("buildPhases", project->values("QMAKE_PBX_PRESCRIPT_BUILDPHASES") + project->values("QMAKE_PBX_BUILDPHASES"),
+                                   SettingsAsList, 4) << ";" << "\n"
       << "\t\t\t" << "buildSettings = {" << "\n"
       << "\t\t\t\t" << writeSettings("CC", fixForOutput(findProgram(project->first("QMAKE_CC")))) << ";" << "\n"
       << "\t\t\t\t" << writeSettings("CPLUSPLUS", fixForOutput(findProgram(project->first("QMAKE_CXX")))) << ";" << "\n"
@@ -1736,7 +1760,7 @@ ProjectBuilderMakefileGenerator::writeSettings(QString var, QStringList vals, in
             if(!val.isEmpty()) {
                 if(count++ > 0)
                     ret += "," + newline;
-                ret += quote + val + quote;
+                ret += quote + val.replace(quote, escape_quote) + quote;
             }
         }
         ret += ")";
