@@ -746,6 +746,7 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
     d->opacity = 256;
     d->fast_text = true;
     d->paint_unclipped = false;
+    d->tx_noshear = true;
 
     const QPaintDevice *originalDevice = painter()->d_ptr->original_device;
     if (originalDevice->devType() == QInternal::Widget) {
