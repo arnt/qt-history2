@@ -1609,8 +1609,10 @@ void QGraphicsView::render(QPainter *painter, const QRectF &target, const QRect 
     QTransform moveMatrix;
     moveMatrix.translate(-d->horizontalScroll(), -d->verticalScroll());
     QTransform painterMatrix = d->matrix * moveMatrix;
-    painterMatrix *= QTransform().scale(xratio, yratio).translate(targetRect.left() - sourceRect.left(),
-                                                                  targetRect.top() - sourceRect.top());
+    painterMatrix *= QTransform()
+                     .translate(targetRect.left(), targetRect.top())
+                     .scale(xratio, yratio)
+                     .translate(-sourceRect.left(), -sourceRect.top());
 
     // Two unit vectors.
     QLineF v1(0, 0, 1, 0);
