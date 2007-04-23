@@ -484,7 +484,7 @@
   in C++ can be exposed to the script engine, including
   \l{QtScript Calculator Example}{a port} of the
   \l{Calculator Example}{Calculator example} which shows how a
-  QtScript can be used with a user interface created with Qt Designer.
+  QtScript can be used with a user interface created with \QD.
 
   \section1 Improved Graphics Support
 
@@ -580,7 +580,7 @@
 
   \section1 Qt Designer Improvements
 
-  \l{Qt Designer} has seen a number of improvements since Qt 4.2, many of
+  \QD has seen a number of improvements since Qt 4.2, many of
   which are focused on making the application easier to use. Other
   improvements track other additions and new features in Qt, such as new
   widgets and support for application scripting.
@@ -588,7 +588,7 @@
   Support for
   \l{Qt Designer's Widget Editing Mode#The Property Editor}{dynamic properties}
   enables standard Qt widgets and user-created forms to be customized with
-  extra information from within Qt Designer.
+  extra information from within \QD.
 
   \image designer-adding-dynamic-property.png
 
@@ -612,7 +612,7 @@
   Integration with the QtScript module enables the widget construction process
   to be extended using QtScript, making it possible for designers to produce
   appearance and style-related customizations to forms. Developers can also
-  take advantage of this feature to set up widgets for use in Qt Designer and
+  take advantage of this feature to set up widgets for use in \QD and
   other situations.
 
   Improved handling of promoted widgets makes it easier and more convenient
@@ -621,10 +621,10 @@
   now be promoted at the same time.
 
   Custom widget plugin support has been extended to provide error reporting
-  for cases where plugins fail to load. Additionally, Qt Designer is now able
+  for cases where plugins fail to load. Additionally, \QD is now able
   to scan for newly installed custom widget plugins.
 
-  Qt Designer's configuration options have been extended to allow the default
+  \QD's configuration options have been extended to allow the default
   form editor grid setting to be set, enabling the grid setting to be specified
   on a per-form basis.
 
