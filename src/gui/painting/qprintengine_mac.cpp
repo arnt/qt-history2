@@ -578,10 +578,14 @@ void QMacPrintEngine::setProperty(PrintEnginePropertyKey key, const QVariant &va
         PMSetCopies(d->settings, value.toInt(), false);
         break;
     case PPK_Orientation: {
-        d->orient = QPrinter::Orientation(value.toInt());
-        PMOrientation o = d->orient == QPrinter::Portrait ? kPMPortrait : kPMLandscape;
-        PMSetOrientation(d->format, o, false);
-        PMSessionValidatePageFormat(d->session, d->format, kPMDontWantBoolean);
+        if (d->state == QPrinter::Active) {
+            qWarning("QMacPrintEngine::setOrientation: Orientation cannot be changed during a print job, ignoring change");
+        } else {
+            d->orient = QPrinter::Orientation(value.toInt());
+            PMOrientation o = d->orient == QPrinter::Portrait ? kPMPortrait : kPMLandscape;
+            PMSetOrientation(d->format, o, false);
+            PMSessionValidatePageFormat(d->session, d->format, kPMDontWantBoolean);
+        }
         break; }
     case PPK_OutputFileName:
         d->outputFilename = value.toString();

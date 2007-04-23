@@ -723,8 +723,10 @@ QPrinter::Orientation QPrinter::orientation() const
   The printer driver reads this setting and prints using the
   specified orientation.
 
-  On Windows and Mac OS X, this option can be changed while printing and will
+  On Windows, this option can be changed while printing and will
   take effect from the next call to newPage().
+
+  On Mac OS X, changing the orientation during a print job has no effect.
 
   \sa orientation()
 */
