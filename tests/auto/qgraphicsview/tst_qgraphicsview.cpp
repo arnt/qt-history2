@@ -1657,6 +1657,9 @@ void tst_QGraphicsView::cursor2()
     view.viewport()->setCursor(Qt::PointingHandCursor);
     view.setFixedSize(400, 400);
     view.show();
+#ifdef Q_WS_X11
+    qt_x11_wait_for_window_manager(&view);
+#endif
 
     sendMouseMove(view.viewport(), view.mapFromScene(-30, -30));
     QCOMPARE(view.viewport()->cursor().shape(), Qt::PointingHandCursor);
