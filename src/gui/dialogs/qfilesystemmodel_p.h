@@ -170,7 +170,7 @@ public:
         inline QIcon icon() const { if (info) return info->icon; return QIcon(); }
 
         inline bool operator <(const QFileSystemNode &node) const {
-            if (caseSensitive())
+            if (caseSensitive() || node.caseSensitive())
                 return fileName < node.fileName;
             return fileName.toLower() < node.fileName.toLower();
         }
