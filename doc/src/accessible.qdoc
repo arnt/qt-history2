@@ -43,9 +43,9 @@
     when talking about AT-Clients and AT-Servers in the rest of this
     document.
 
-    In the rest of this document, we will focus on the Qt
-    accessibility interface and how it is implemented to create
-    Qt applications that support accessibility.
+    We will from now on focus on the Qt accessibility interface and
+    how it is implemented to create Qt applications that support
+    accessibility.
 
     \section2 Accessibility in Qt
 
@@ -214,9 +214,9 @@
     and distribute it in a QAccessiblePlugin. It is also possible to
     compile the interface into the application and provide a
     QAccessible::InterfaceFactory for it. The factory can be used if
-    you link statically or do not want the added complexity of plugins.
-    This can be an advantage if you, for instance, want to statically
-    build a third party library into an application.
+    you link statically or do not want the added complexity of
+    plugins.  This can be an advantage if you, for instance, are
+    delivering a 3-rd party library.
 
     All widgets and other user interface elements should have
     interfaces and plugins. If you want your application to support
@@ -273,7 +273,7 @@
            \l{QAccessibleInterface::}{rect()}.
         \o It gives \l{QAccessibleInterface::}{text()} strings that are
            appropriate for a generic widget.
-        \o It sets handles the \l{QAccessible::State}{states} that
+        \o It sets the \l{QAccessible::State}{states} that
            are common for all widgets.
     \endlist
 
@@ -301,9 +301,6 @@
     apply to all signals that are declared in this way. Note that we
     use QLatin1String to ensure that the signal name is correctly
     specified.
-    \omit
-    Should we say something about the slider being its own controller?
-    \endomit
 
     When an accessible object is changed in a way that users need
     to know about, it notifies clients of the change by sending them
@@ -365,12 +362,12 @@
     \skipto /::text()/
     \printuntil /^\}/
 
-    Its implementation is pretty straight forward. The \c slider()
-    function returns a pointer to the interface's QSlider. Some values
-    are left for the superclass's implementation. Not all values are
-    appropriate for all accessible objects, as you can see for
-    QAccessible::Value case. You should just return an empty string
-    for those values where no relevant text can be provided.
+    The \c slider() function returns a pointer to the interface's
+    QSlider. Some values are left for the superclass's implementation.
+    Not all values are appropriate for all accessible objects, as you
+    can see for QAccessible::Value case. You should just return an
+    empty string for those values where no relevant text can be
+    provided.
 
     The implementation of the \l{QAccessibleInterface::}{role()}
     function is straightforward:
@@ -400,8 +397,8 @@
 
     We have now exposed the information we have about the slider to
     the clients. For the clients to be able to alter the slider - for
-    example, to change its value - we need to provide information about
-    the actions that can be performed, and also perform them upon request.
+    example, to change its value - we must provide information about
+    the actions that can be performed and perform them upon request.
     We discuss this in the next section.
 
     \section2 Handling Action Requests from Clients
@@ -441,8 +438,8 @@
 
     \list
         \o \l{QAccessibleInterface::}{supportedMethods()} returns
-            a QSet of Method values that are supported by the
-            object.
+            a QSet of \l{QAccessible::}{Method} values that are 
+            supported by the object.
         \o \l{QAccessibleInterface::}{invokeMethod()} executes
            methods requested by clients.
     \endlist
@@ -460,7 +457,7 @@
     In this section we will explain the procedure of implementing
     accessible plugins for your interfaces. A plugin is a class stored
     in a shared library that can be loaded at run-time. It is
-    convenient to distribute interfaces as plugins as they will only
+    convenient to distribute interfaces as plugins since they will only
     be loaded when required.
 
     Creating an accessible plugin is achieved by inheriting
@@ -532,6 +529,7 @@
     \printuntil /^\}/ 
 
     \omit
+
     \section1 Implementing Bridges for Other Assistive Technologies
 
     An accessibility bridge provides the means for an assistive
@@ -570,5 +568,6 @@
     \l{QAccessibleBridgePlugin::}{keys()}, which must me
     reimplemented. If Qt finds a built-in bridge to use, it will
     ignore any available plugins.
+
     \endomit
 */
