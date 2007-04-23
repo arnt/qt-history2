@@ -58,6 +58,8 @@ private slots:
 
     void mkdir();
 
+    void caseSensitivity();
+
 protected:
     bool createFiles(const QString &test_path, const QStringList &initial_files, const QStringList &intial_dirs = QStringList(), const QString &baseDir = QDir::temp().absolutePath());
 
@@ -599,6 +601,19 @@ void tst_QFileSystemModel::mkdir()
     bestatic.rmdir(newFolderPath);
     QVERIFY(0 != idx.row());
     QCOMPARE(oldRow, idx.row());
+}
+
+void tst_QFileSystemModel::caseSensitivity()
+{
+    QString tmp = QDir::temp().path() + QDir::separator() + QString("flatdirtest");
+    QStringList files;
+    files << "a" << "c" << "C";
+    QVERIFY(createFiles(tmp, files));
+    QModelIndex root = model->index(tmp);
+    QCOMPARE(model->rowCount(root), 0);
+    for (int i = 0; i < files.count(); ++i) {
+        QVERIFY(model->index(tmp + QDir::separator() + files.at(i)).isValid());
+    }
 }
 
 QTEST_MAIN(tst_QFileSystemModel)
