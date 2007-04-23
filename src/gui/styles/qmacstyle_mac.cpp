@@ -3144,11 +3144,15 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
     case CE_PushButtonLabel:
         if (const QStyleOptionButton *btn = qstyleoption_cast<const QStyleOptionButton *>(opt)) {
             // We really don't want the label to be drawn the same as on
-            // windows style if it has an icon, then it should be more like a
-            // tab. So, cheat a little here.
+            // windows style if it has an icon and text, then it should be more like a
+            // tab. So, cheat a little here. However, if it *is* only an icon
+            // the windows style works great, so just use that implementation.
             bool hasMenu = btn->features & QStyleOptionButton::HasMenu;
-            if (btn->icon.isNull() && !hasMenu) {
+            bool hasIcon = !btn->icon.isNull();
+            bool hasText = !btn->text.isEmpty();
+            if (!hasIcon && !hasMenu) {
                 // ### this is really overly difficult, simplify.
+                // It basically tries to get the right font for "small" and "mini" icons.
                 QFont oldFont = p->font();
                 QFont newFont = qt_app_fonts_hash()->value("QPushButton", QFont());
                 ThemeFontID themeId = kThemePushButtonFont;
@@ -3192,42 +3196,49 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
                     p->restore();
                 }
             } else {
-                // Decide if icon should be normal, active or disabled:
-                // Calculate the combined with of the actual content:
-                QRect textRect = itemTextRect(btn->fontMetrics, btn->rect, Qt::AlignCenter, btn->state & State_Enabled,
-                                              btn->text);
-                if (hasMenu)
-                    textRect.adjust(-1, 0, -1, 0);
-                // Get the free content space inside the button that can be used:
-                HIThemeButtonDrawInfo bdi;
-                d->initHIThemePushButton(btn, w, tds, &bdi);
-                QRect freeContentRect = qt_qrectForHIRect(d->pushButtonContentBounds(btn, &bdi));
-                // Draw the icon:
-                if (!btn->icon.isNull()) {
-                    int contentW = textRect.width();
+                if (hasIcon && !hasText) {
+                    QWindowsStyle::drawControl(ce, btn, p, w);
+                } else {
+                    // Decide if icon should be normal, active or disabled:
+                    // Calculate the combined with of the actual content:
+                    QRect textRect = itemTextRect(btn->fontMetrics, btn->rect, Qt::AlignCenter,
+                                                  btn->state & State_Enabled, btn->text);
                     if (hasMenu)
-                        contentW += pixelMetric(PM_MenuButtonIndicator) + 4;
-                    QIcon::Mode mode = btn->state & State_Enabled ? QIcon::Normal : QIcon::Disabled;
-                    if (mode == QIcon::Normal && btn->state & State_HasFocus)
-                        mode = QIcon::Active;
-                    // Decide if the icon is should be on or off:
-                    QIcon::State state = QIcon::Off;
-                    if (btn->state & State_On)
-                        state = QIcon::On;
-                    QPixmap pixmap = btn->icon.pixmap(btn->iconSize, mode, state);
-                    contentW += pixmap.width() + PushButtonContentPadding;
-                    int iconLeftOffset = freeContentRect.x() + (freeContentRect.width() - contentW) / 2;
-                    int iconTopOffset = freeContentRect.y() + (freeContentRect.height() - pixmap.height()) / 2;
-                    QRect iconDestRect(iconLeftOffset, iconTopOffset, pixmap.width(), pixmap.height());
-                    QRect visualIconDestRect = visualRect(btn->direction, freeContentRect, iconDestRect);
-                    drawItemPixmap(p, visualIconDestRect, Qt::AlignLeft | Qt::AlignVCenter, pixmap);
-                    int newOffset = iconDestRect.x() + iconDestRect.width() + PushButtonContentPadding - textRect.x();
-                    textRect.adjust(newOffset, 0, newOffset, 0);
+                        textRect.adjust(-1, 0, -1, 0);
+                    // Get the free content space inside the button that can be used:
+                    HIThemeButtonDrawInfo bdi;
+                    d->initHIThemePushButton(btn, w, tds, &bdi);
+                    QRect freeContentRect = qt_qrectForHIRect(d->pushButtonContentBounds(btn, &bdi));
+                    // Draw the icon:
+                    if (hasIcon) {
+                        int contentW = textRect.width();
+                        if (hasMenu)
+                            contentW += pixelMetric(PM_MenuButtonIndicator) + 4;
+                        QIcon::Mode mode = btn->state & State_Enabled ? QIcon::Normal : QIcon::Disabled;
+                        if (mode == QIcon::Normal && btn->state & State_HasFocus)
+                            mode = QIcon::Active;
+                        // Decide if the icon is should be on or off:
+                        QIcon::State state = QIcon::Off;
+                        if (btn->state & State_On)
+                            state = QIcon::On;
+                        QPixmap pixmap = btn->icon.pixmap(btn->iconSize, mode, state);
+                        contentW += pixmap.width() + PushButtonContentPadding;
+                        int iconLeftOffset = freeContentRect.x() + (freeContentRect.width() - contentW) / 2;
+                        int iconTopOffset = freeContentRect.y() + (freeContentRect.height() - pixmap.height()) / 2;
+                        QRect iconDestRect(iconLeftOffset, iconTopOffset, pixmap.width(), pixmap.height());
+                        QRect visualIconDestRect = visualRect(btn->direction, freeContentRect, iconDestRect);
+                        drawItemPixmap(p, visualIconDestRect, Qt::AlignLeft | Qt::AlignVCenter, pixmap);
+                        int newOffset = iconDestRect.x() + iconDestRect.width()
+                                        + PushButtonContentPadding - textRect.x();
+                        textRect.adjust(newOffset, 0, newOffset, 0);
+                    }
+                    // Draw the text:
+                    if (hasText) {
+                        textRect = visualRect(btn->direction, freeContentRect, textRect);
+                        drawItemText(p, textRect, Qt::AlignLeft | Qt::AlignVCenter | Qt::TextShowMnemonic, btn->palette,
+                                     (btn->state & State_Enabled), btn->text, QPalette::ButtonText);
+                    }
                 }
-                // Draw the text:
-                textRect = visualRect(btn->direction, freeContentRect, textRect);
-                drawItemText(p, textRect, Qt::AlignLeft | Qt::AlignVCenter | Qt::TextShowMnemonic, btn->palette,
-                             (btn->state & State_Enabled), btn->text, QPalette::ButtonText);
             }
         }
         break;
