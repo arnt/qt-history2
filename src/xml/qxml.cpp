@@ -1573,6 +1573,11 @@ QString QXmlInputSource::fromRawData(const QByteArray &data, bool beginning)
                     delete d->encMapper;
                     d->encMapper = codec->makeDecoder();
 
+                    /* The variable input can potentially be large, so we deallocate
+                     * it before calling toUnicode() in order to avoid having two
+                     * large QStrings in memory simultaneously. */
+                    input.clear();
+
                     // prime the decoder with the data so far
                     d->encMapper->toUnicode(d->encodingDeclBytes, d->encodingDeclBytes.size());
                     // now feed it the new data
