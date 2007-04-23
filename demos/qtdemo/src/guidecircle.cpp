@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include <cmath>
+#include <math.h>
 #include "guidecircle.h"
 
 static float PI2 = 2*3.1415f;

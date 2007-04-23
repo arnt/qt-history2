@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include <cmath>
+#include <math.h>
 #include "itemcircleanimation.h"
 #include "demoitemanimation.h"
 #include "colors.h"
@@ -33,53 +33,53 @@ public:
 
 class PostRotateXY : public TickerPostEffect
 {
-public: 
+public:
     float currRotX, currRotY;
     float speedx, speedy, curvx, curvy;
 
     PostRotateXY(float speedx, float speedy, float curvx, float curvy)
         : currRotX(0), currRotY(0),
         speedx(speedx), speedy(speedy),
-        curvx(curvx), curvy(curvy){};  
-        
+        curvx(curvx), curvy(curvy){};
+
     void tick(float adjust)
     {
         currRotX += speedx * adjust;
         currRotY += speedy * adjust;
     }
-    
+
     void transform(DemoItem *item, QPointF &pos)
     {
         DemoItem *parent = (DemoItem *) item->parentItem();
         QPointF center = parent->boundingRect().center();
-        pos.setX(center.x() + (pos.x() - center.x()) * cos(currRotX + pos.x() * curvx));  
-        pos.setY(center.y() + (pos.y() - center.y()) * cos(currRotY + pos.y() * curvy));  
+        pos.setX(center.x() + (pos.x() - center.x()) * cos(currRotX + pos.x() * curvx));
+        pos.setY(center.y() + (pos.y() - center.y()) * cos(currRotY + pos.y() * curvy));
     }
 };
 
 class PostRotateXYTwist : public TickerPostEffect
 {
-public: 
+public:
     float currRotX, currRotY;
     float speedx, speedy, curvx, curvy;
 
     PostRotateXYTwist(float speedx, float speedy, float curvx, float curvy)
         : currRotX(0), currRotY(0),
         speedx(speedx), speedy(speedy),
-        curvx(curvx), curvy(curvy){};  
-        
+        curvx(curvx), curvy(curvy){};
+
     void tick(float adjust)
     {
         currRotX += speedx * adjust;
         currRotY += speedy * adjust;
     }
-    
+
     void transform(DemoItem *item, QPointF &pos)
     {
         DemoItem *parent = (DemoItem *) item->parentItem();
         QPointF center = parent->boundingRect().center();
-        pos.setX(center.x() + (pos.x() - center.x()) * cos(currRotX + pos.y() * curvx));  
-        pos.setY(center.y() + (pos.y() - center.y()) * cos(currRotY + pos.x() * curvy));  
+        pos.setX(center.x() + (pos.x() - center.x()) * cos(currRotX + pos.y() * curvx));
+        pos.setY(center.y() + (pos.y() - center.y()) * cos(currRotY + pos.x() * curvy));
     }
 };
 
@@ -94,7 +94,7 @@ public:
     float morphSpeed, moveSpeed;
     float normalMorphSpeed, normalMoveSpeed;
     bool useSheepDog, morphBetweenModels;
-    
+
     TickerEffect(LetterList *letters)
         : postEffect(new TickerPostEffect()), status(Intro), letters(letters),
         morphSpeed(Colors::tickerMorphSpeed), moveSpeed(Colors::tickerMoveSpeed),
@@ -106,7 +106,7 @@ public:
         delete postEffect;
         postEffect = effect;
     }
-    
+
     virtual ~TickerEffect()
     {
         delete postEffect;
@@ -126,34 +126,34 @@ public:
             }
         }
     }
-    
+
     void moveLetters(float adjust)
     {
         float adaptedMoveSpeed = this->moveSpeed * adjust;
         float adaptedMorphSpeed = this->morphSpeed * adjust;
         postEffect->tick(adjust);
-        
+
         for (int i=0; i<letters->size(); i++){
             LetterItem *letter = letters->at(i);
             letter->guideAdvance(this->morphBetweenModels ? adaptedMoveSpeed : Colors::tickerMoveSpeed);
             letter->guideMove(this->morphBetweenModels ? adaptedMorphSpeed : -1);
-        
+
             QPointF pos = letter->getGuidedPos();
             postEffect->transform(letter, pos);
-            
+
             if (useSheepDog)
                 letter->setPosUsingSheepDog(pos, QRectF(0, 0, 800, 600));
             else
                 letter->setPos(pos);
         }
     }
-    
+
     virtual void tick(float adjust)
     {
         slowDownAfterIntro(adjust);
         moveLetters(adjust);
     }
-    
+
 };
 
 class EffectWhirlWind : public TickerEffect
@@ -348,7 +348,7 @@ void ItemCircleAnimation::switchToNextEffect()
 {
     ++this->showCount;
     delete this->effect;
-    
+
     switch (this->showCount){
     case 1:
         this->effect = new EffectSnake(this->letterList);
