@@ -252,8 +252,12 @@ inline QGLFormat QGLDrawable::format() const
         return widget->format();
     else if (buffer)
         return buffer->format();
-    else if (fbo && QGLContext::currentContext())
-        return QGLContext::currentContext()->format();
+    else if (fbo && QGLContext::currentContext()) {
+        QGLFormat fmt = QGLContext::currentContext()->format();
+        fmt.setStencil(fbo->attachments() == QGLFramebufferObject::DepthStencil);
+        fmt.setDepth(fbo->attachments() != QGLFramebufferObject::NoDepthStencil);
+        return fmt;
+    }
 #ifdef Q_WS_QWS
     else if (wsurf)
         return wsurf->context()->format();
