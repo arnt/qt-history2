@@ -141,7 +141,7 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
     m_fileActions->addAction(m_newFormAction);
 
     m_openFormAction->setShortcut(tr("CTRL+O"));
-    connect(m_openFormAction, SIGNAL(triggered()), this, SLOT(openForm()));
+    connect(m_openFormAction, SIGNAL(triggered()), this, SLOT(slotOpenForm()));
     m_fileActions->addAction(m_openFormAction);
 
     QAction *act;
@@ -401,14 +401,18 @@ void QDesignerActions::showNewFormDialog(const QString &fileName)
     dlg->exec();
 }
 
+void QDesignerActions::slotOpenForm()
+{
+    openForm(core()->topLevel());
+}
 
-bool QDesignerActions::openForm()
+bool QDesignerActions::openForm(QWidget *parent)
 {
 #ifdef NONMODAL_PREVIEW
     closePreview();
 #endif
     const QString extension = getFileExtension(core());
-    const QStringList fileNames = QFileDialog::getOpenFileNames(core()->topLevel(), tr("Open Form"),
+    const QStringList fileNames = QFileDialog::getOpenFileNames(parent, tr("Open Form"),
         m_openDirectory, tr("Designer UI files (*.%1);;All Files (*)").arg(extension), 0, QFileDialog::DontUseSheet);
 
     if (fileNames.isEmpty())

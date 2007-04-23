@@ -66,10 +66,12 @@ public:
 
     virtual bool eventFilter(QObject *watched, QEvent *event);
 
+    bool openForm(QWidget *parent);
+
 public slots:
     void activeFormWindowChanged(QDesignerFormWindowInterface *formWindow);
     void createForm();
-    bool openForm();
+    void slotOpenForm();
 
 signals:
     void useBigIcons(bool);

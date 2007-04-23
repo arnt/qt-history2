@@ -118,25 +118,19 @@ void NewForm::on_buttonBox_clicked(QAbstractButton *btn)
 {
     switch (ui.buttonBox->buttonRole(btn)) {
     case QDialogButtonBox::RejectRole:
-        close();
+        reject();
         break;
     case QDialogButtonBox::ActionRole:
         if (btn != m_recentButton) {
-            hide();
             m_fileName.clear();
-            if (m_workbench->actionManager()->openForm())
-                close();
-            else
-                show();
+            if (m_workbench->actionManager()->openForm(this))
+                accept();
         }
         break;
     case QDialogButtonBox::AcceptRole:
         if (const QTreeWidgetItem *item = ui.treeWidget->currentItem()) {
-            if (openTemplate(item->data(0, TemplateNameRole).toString())) {
-                close();
-            } else {
-                show();
-            }
+            if (openTemplate(item->data(0, TemplateNameRole).toString()))
+                accept();
         }
         break;
     default:
