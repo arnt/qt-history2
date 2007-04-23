@@ -263,11 +263,13 @@ void tst_QFiledialog::history()
 
 void tst_QFiledialog::iconProvider()
 {
-    QFileDialog fd;
-    QVERIFY(fd.iconProvider() != 0);
-    QFileIconProvider ip;
-    fd.setIconProvider(&ip);
-    QCOMPARE(fd.iconProvider(), &ip);
+    QFileDialog *fd = new QFileDialog();
+    QVERIFY(fd->iconProvider() != 0);
+    QFileIconProvider *ip = new QFileIconProvider();
+    fd->setIconProvider(ip);
+    QCOMPARE(fd->iconProvider(), ip);
+    delete fd;
+    delete ip;
 }
 
 void tst_QFiledialog::isReadOnly()
