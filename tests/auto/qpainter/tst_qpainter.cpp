@@ -96,6 +96,8 @@ private slots:
     void clippedPolygon_data();
     void clippedPolygon();
 
+    void clippedText();
+
 private:
     void fillData();
     QColor baseColor( int k, int intensity=255 );
@@ -1813,6 +1815,61 @@ void tst_QPainter::clippedPolygon()
     }
 #endif
     QCOMPARE(clippedRect, clippedPath);
+}
+
+// this just draws some text that should be clipped in the raster
+// paint engine.
+void tst_QPainter::clippedText()
+{
+    for (char ch = 'A'; ch < 'Z'; ++ch) {
+        //qDebug() << ch;
+        QFont f;
+        f.setPixelSize(24);
+        QFontMetrics metrics(f);
+        QRect textRect = metrics.boundingRect(QChar(ch));
+
+        if (textRect.width() <= 8)
+            continue;
+        if (textRect.height() <= 8)
+            continue;
+
+        QRect imageRect = textRect.adjusted(4, 4, -4, -4);
+
+        QImage image(imageRect.size(), QImage::Format_ARGB32_Premultiplied);
+
+        image.fill(qRgba(255, 255, 255, 255));
+        {
+            QPainter painter(&image);
+            painter.setFont(f);
+            painter.setPen(Qt::black);
+
+            painter.drawText(0, 0, QChar(ch));
+        }
+
+        image.fill(qRgba(255, 255, 255, 255));
+        {
+            QPainter painter(&image);
+            painter.setFont(f);
+            painter.setPen(Qt::black);
+
+            painter.drawText(-imageRect.topLeft(), QChar(ch));
+        }
+
+        bool foundPixel = false;
+        for (int x = 0; x < image.width(); ++x)
+            for (int y = 0; y < image.height(); ++y)
+                if (image.pixel(x, y) != 0)
+                    foundPixel = true;
+        // can't QVERIFY(foundPixel) as sometimes all pixels are clipped
+        // away. For example for 'O'
+        // just call /some/ function to prevent the compiler from optimizing
+        // foundPixel away
+        QString::number(foundPixel);
+
+        //image.save(QString("debug") + ch + ".xpm");
+    }
+
+    QVERIFY(true); // reached, don't trigger any valgrind errors
 }
 
 QTEST_MAIN(tst_QPainter)

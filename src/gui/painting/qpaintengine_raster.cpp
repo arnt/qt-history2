@@ -2231,37 +2231,33 @@ void QRasterPaintEngine::alphaPenBlt(const void* src, int bpl, bool mono, int rx
     if (!d->penData.blend)
         return;
 
-    int y0 = (ry < 0) ? -ry : 0;
-    int x0 = (rx < 0) ? -rx : 0;
-
     QRasterBuffer *rb = d->rasterBuffer;
 
-    w = qMin(w, rb->width() - rx);
-    h = qMin(h, rb->height() - ry);
-
-    if (w <= 0 || h <= 0)
-        return;
-
     const QRect rect(rx, ry, w, h);
-    const QClipData *clip = d->rasterBuffer->clip;
+    const QClipData *clip = rb->clip;
+    bool unclipped = false;
     if (clip) {
-#if 0
-        const QRect bound = QRect(clip->xmin, clip->ymin,
-                                  clip->xmax - clip->xmin,
-                                  clip->ymax - clip->ymin);
-        if (!bound.intersects(rect))
-            return;
-#else // inline for performance
+        // inlined QRect::intersects
         const bool intersects = qMax(clip->xmin, rect.left()) <= qMin(clip->xmax - 1, rect.right())
                                 && qMax(clip->ymin, rect.top()) <= qMin(clip->ymax - 1, rect.bottom());
         if (!intersects)
             return;
-#endif
+    } else {
+        // inlined QRect::intersects
+        const bool intersects = qMax(0, rect.left()) <= qMin(rb->width() - 1, rect.right())
+                                && qMax(0, rect.top()) <= qMin(rb->height() - 1, rect.bottom());
+        if (!intersects)
+            return;
+
+        // inlined QRect::contains
+        const bool contains = rect.left() >= 0 && rect.right() < rb->width()
+                              && rect.top() >= 0 && rect.bottom() < rb->height();
+
+        unclipped = contains && d->isUnclipped_normalized(rect);
     }
 
-    const bool unclipped = d->isUnclipped_normalized(rect);
     ProcessSpans blend = unclipped ? d->penData.unclipped_blend : d->penData.blend;
-    const uchar * scanline = static_cast<const uchar *>(src) + y0*bpl;
+    const uchar * scanline = static_cast<const uchar *>(src);
 
     if (unclipped && d->fast_text) {
         if (mono) {
@@ -2279,13 +2275,35 @@ void QRasterPaintEngine::alphaPenBlt(const void* src, int bpl, bool mono, int rx
         }
     }
 
+    int x0 = 0;
+    if (rx < 0) {
+        x0 = -rx;
+        w -= x0;
+    }
+
+    int y0 = 0;
+    if (ry < 0) {
+        y0 = -ry;
+        scanline += bpl * y0;
+        h -= y0;
+    }
+
+    w = qMin(w, rb->width() - qMax(0, rx));
+    h = qMin(h, rb->height() - qMax(0, ry));
+
+    if (w <= 0 || h <= 0)
+        return;
+
     const int NSPANS = 256;
     QSpan spans[NSPANS];
     int current = 0;
 
+    const int x1 = x0 + w;
+    const int y1 = y0 + h;
+
     if (mono) {
-        for (int y=y0; y < h; ++y) {
-            for (int x = x0; x < w; ) {
+        for (int y = y0; y < y1; ++y) {
+            for (int x = x0; x < x1; ) {
                 if (!monoVal(scanline, x)) {
                     ++x;
                     continue;
@@ -2301,7 +2319,7 @@ void QRasterPaintEngine::alphaPenBlt(const void* src, int bpl, bool mono, int rx
                 int len = 1;
                 ++x;
                 // extend span until we find a different one.
-                while (x < w && monoVal(scanline, x)) {
+                while (x < x1 && monoVal(scanline, x)) {
                     ++x;
                     ++len;
                 }
@@ -2311,8 +2329,8 @@ void QRasterPaintEngine::alphaPenBlt(const void* src, int bpl, bool mono, int rx
             scanline += bpl;
         }
     } else {
-        for (int y=y0; y < h; ++y) {
-            for (int x = x0; x < w; ) {
+        for (int y = y0; y < y1; ++y) {
+            for (int x = x0; x < x1; ) {
                 // Skip those with 0 coverage
                 if (scanline[x] == 0) {
                     ++x;
@@ -2331,7 +2349,7 @@ void QRasterPaintEngine::alphaPenBlt(const void* src, int bpl, bool mono, int rx
                 ++x;
 
                 // extend span until we find a different one.
-                while (x < w && scanline[x] == coverage) {
+                while (x < x1 && scanline[x] == coverage) {
                     ++x;
                     ++len;
                 }
@@ -2533,7 +2551,7 @@ bool QRasterPaintEnginePrivate::isUnclipped(const QRect &rect,
     if (rasterBuffer->clip)
         return false;
 
-    // currently all painting functions clips to deviceRect internally
+    // currently all painting functions that call this function clip to deviceRect internally
     if (rasterBuffer->clipRect == deviceRect)
         return true;
 
