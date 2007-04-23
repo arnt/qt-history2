@@ -184,7 +184,7 @@ QAuthenticatorPrivate::QAuthenticatorPrivate()
     , phase(Start)
     , nonceCount(0)
 {
-    cnonce = QCryptographicHash::hash(QByteArray::number(rand(), 16) + QByteArray::number(rand(), 16),
+    cnonce = QCryptographicHash::hash(QByteArray::number(qrand(), 16) + QByteArray::number(qrand(), 16),
                                       QCryptographicHash::Md5).toHex();
     nonceCount = 0;
 }
