@@ -223,9 +223,11 @@ void tst_QDoubleSpinBox::setTracking_data()
     QTest::addColumn<int>("decimals");
     QTest::addColumn<QTestEventList>("keys");
     QTest::addColumn<QStringList>("texts");
+    QTest::addColumn<bool>("tracking");
 
     QTestEventList keys;
-    QStringList texts;
+    QStringList texts1;
+    QStringList texts2;
 #ifdef Q_WS_MAC
     keys.addKeyClick(Qt::Key_Right, Qt::ControlModifier);
 #else
@@ -245,8 +247,12 @@ void tst_QDoubleSpinBox::setTracking_data()
     keys.addKeyClick(Qt::Key_Backspace);
     keys.addKeyClick('2');
     keys.addKeyClick(Qt::Key_Enter);
-    texts << "7" << "7.9" << "7." << "7.2" << "7.200";
-    QTest::newRow("data1") << 3 << keys << texts;
+    keys.addKeyClick(Qt::Key_Enter);
+    keys.addKeyClick(Qt::Key_Enter);
+    texts1 << "7" << "7.9" << "7." << "7.2" << "7.200" << "7.200" << "7.200";
+    texts2 << "7.200";
+    QTest::newRow("data1") << 3 << keys << texts1 << true;
+    QTest::newRow("data2") << 3 << keys << texts2 << false;
 
 }
 
@@ -258,8 +264,10 @@ void tst_QDoubleSpinBox::setTracking()
     QFETCH(int, decimals);
     QFETCH(QTestEventList, keys);
     QFETCH(QStringList, texts);
+    QFETCH(bool, tracking);
 
     QDoubleSpinBox spin(0);
+    spin.setKeyboardTracking(tracking);
     spin.setDecimals(decimals);
     spin.show();
 

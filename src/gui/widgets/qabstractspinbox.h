@@ -44,6 +44,7 @@ class Q_GUI_EXPORT QAbstractSpinBox : public QWidget
     Q_PROPERTY(bool accelerated READ isAccelerated WRITE setAccelerated)
     Q_PROPERTY(CorrectionMode correctionMode READ correctionMode WRITE setCorrectionMode)
     Q_PROPERTY(bool acceptableInput READ hasAcceptableInput)
+    Q_PROPERTY(bool keyboardTracking READ keyboardTracking WRITE setKeyboardTracking)
 public:
     explicit QAbstractSpinBox(QWidget *parent = 0);
     ~QAbstractSpinBox();
@@ -73,6 +74,9 @@ public:
 
     void setReadOnly(bool r);
     bool isReadOnly() const;
+
+    void setKeyboardTracking(bool kt);
+    bool keyboardTracking() const;
 
     void setAlignment(Qt::Alignment flag);
     Qt::Alignment alignment() const;

@@ -333,9 +333,11 @@ void tst_QSpinBox::setTracking_data()
 {
     QTest::addColumn<QTestEventList>("keys");
     QTest::addColumn<QStringList>("texts");
+    QTest::addColumn<bool>("tracking");
 
     QTestEventList keys;
-    QStringList texts;
+    QStringList texts1;
+    QStringList texts2;
 
 #ifdef Q_WS_MAC
     keys.addKeyClick(Qt::Key_Right, Qt::ControlModifier);
@@ -345,9 +347,12 @@ void tst_QSpinBox::setTracking_data()
     keys.addKeyClick('7');
     keys.addKeyClick('9');
     keys.addKeyClick(Qt::Key_Enter);
-    texts << "07" << "079" << "79";
-    QTest::newRow("data1") << keys << texts;
-
+    keys.addKeyClick(Qt::Key_Enter);
+    keys.addKeyClick(Qt::Key_Enter);
+    texts1 << "07" << "079" << "79" << "79" << "79";
+    texts2 << "79";
+    QTest::newRow("data1") << keys << texts1 << true;
+    QTest::newRow("data2") << keys << texts2 << false;
 }
 
 void tst_QSpinBox::setTracking()
@@ -355,8 +360,10 @@ void tst_QSpinBox::setTracking()
     actualTexts.clear();
     QFETCH(QTestEventList, keys);
     QFETCH(QStringList, texts);
+    QFETCH(bool, tracking);
 
     QSpinBox spin(0);
+    spin.setKeyboardTracking(tracking);
     spin.show();
     connect(&spin, SIGNAL(valueChanged(QString)), this, SLOT(valueChangedHelper(const QString &)));
 

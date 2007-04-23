@@ -295,6 +295,32 @@ void QAbstractSpinBox::setReadOnly(bool enable)
 }
 
 /*!
+    \property QAbstractSpinBox::keyboardTracking
+    \brief whether keyboard tracking is enabled for the spinbox.
+    \since 4.3
+
+    If keyboard tracking is enabled (the default), the spinbox emits the
+    valueChanged() signal while the new value is being entered from the keyboard.
+    E.g. when the user's intention is to enter a value of 600 by typing:
+    6, 0 and 0, the spinbox will emit 3 signals with values: 6, 60 and 600 respectively.
+    If keyboard tracking is disabled, the spinbox doesn't emit valueChanged() signal
+    while typing - it emits the signal later, after pressing return key, loosing focus or
+    interacting with other spinbox' functionality like pressing the arrow button.
+*/
+
+bool QAbstractSpinBox::keyboardTracking() const
+{
+    Q_D(const QAbstractSpinBox);
+    return d->keyboardTracking;
+}
+
+void QAbstractSpinBox::setKeyboardTracking(bool enable)
+{
+    Q_D(QAbstractSpinBox);
+    d->keyboardTracking = enable;
+}
+
+/*!
     \property QAbstractSpinBox::frame
     \brief whether the spin box draws itself with a frame
 
@@ -895,7 +921,7 @@ void QAbstractSpinBox::keyPressEvent(QKeyEvent *event)
 #endif
     case Qt::Key_Enter:
     case Qt::Key_Return:
-        d->interpret(AlwaysEmit);
+        d->interpret(d->keyboardTracking ? AlwaysEmit : EmitIfChanged);
         selectAll();
         event->ignore();
         emit editingFinished();
@@ -1209,7 +1235,7 @@ QAbstractSpinBoxPrivate::QAbstractSpinBoxPrivate()
       spinClickTimerInterval(100), spinClickThresholdTimerId(-1), spinClickThresholdTimerInterval(thresholdTime),
       buttonState(None), cachedText(QLatin1String("\x01")), cachedState(QValidator::Invalid),
       pendingEmit(false), readOnly(false), wrapping(false),
-      ignoreCursorPositionChanged(false), frame(true), accelerate(false),
+      ignoreCursorPositionChanged(false), frame(true), accelerate(false), keyboardTracking(true),
       correctionMode(QAbstractSpinBox::CorrectToPreviousValue), acceleration(0),
       hoverControl(QStyle::SC_None), buttonSymbols(QAbstractSpinBox::UpDownArrows), validator(0)
 {
@@ -1331,13 +1357,17 @@ void QAbstractSpinBoxPrivate::_q_editorTextChanged(const QString &t)
 {
     Q_Q(QAbstractSpinBox);
 
-    QString tmp = t;
-    int pos = edit->cursorPosition();
-    QValidator::State state = q->validate(tmp, pos);
-    if (state == QValidator::Acceptable) {
-        const QVariant v = valueFromText(tmp);
-        setValue(v, EmitIfChanged, tmp != t);
-        pendingEmit = false;
+    if (keyboardTracking) {
+        QString tmp = t;
+        int pos = edit->cursorPosition();
+        QValidator::State state = q->validate(tmp, pos);
+        if (state == QValidator::Acceptable) {
+            const QVariant v = valueFromText(tmp);
+            setValue(v, EmitIfChanged, tmp != t);
+            pendingEmit = false;
+        } else {
+            pendingEmit = true;
+        }
     } else {
         pendingEmit = true;
     }
