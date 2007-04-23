@@ -928,15 +928,19 @@ void tst_QAbstractItemView::setItemDelegate()
     v.setItemDelegateForColumn(2, delegate);
     v.setItemDelegateForColumn(3, delegate);
     v.show();
+#ifdef Q_WS_X11
+    qt_x11_wait_for_window_manager(&v);
+#endif
 
     QModelIndex index = v.model()->index(0, 0);
     v.edit(index);
+    qApp->processEvents();
 
     // This will close the editor
-    if(QWidget *editor = QApplication::focusWidget()) {
-        editor->hide();
-        delete editor;
-    }
+    QWidget *editor = QApplication::focusWidget();
+    QVERIFY(editor);
+    editor->hide();
+    delete editor;
     QCOMPARE(model.setData_count, 1);
 
 
