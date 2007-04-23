@@ -51,6 +51,7 @@ public:
     }
 
     char *allocate(int bytes) {
+        bytes += (8 - bytes) & 7; // ensure multiple of 8 bytes (maintain alignment)
         if (m_currentBlock == 0 || defaultBlockSize < m_currentIndex + bytes) {
             ++m_blockIndex;
 
@@ -58,7 +59,8 @@ public:
             m_currentBlock = m_storage[m_blockIndex] = reinterpret_cast<char*>(qMalloc(defaultBlockSize));
             ::memset(m_currentBlock, 0, defaultBlockSize);
 
-            m_currentIndex = 0;
+            m_currentIndex = (8 - int(m_currentBlock)) & 7; // ensure first chunk is 64-bit aligned
+            Q_ASSERT(m_currentIndex + bytes <= defaultBlockSize);
         }
 
         char *p = reinterpret_cast<char *>
