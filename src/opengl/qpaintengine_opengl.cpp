@@ -1343,7 +1343,9 @@ bool QOpenGLPaintEngine::end()
     glPopAttrib();
 #endif
 
+#ifndef Q_WS_QWS
     d->drawable.swapBuffers();
+#endif
     d->drawable.doneCurrent();
     qt_mask_texture_cache()->maintainCache();
 
