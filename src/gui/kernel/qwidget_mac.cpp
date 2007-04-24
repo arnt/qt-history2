@@ -250,6 +250,11 @@ static void qt_mac_release_stays_on_top_group(WindowGroupRef group)
     }
 }
 
+static bool qt_isGenuineQWidget(const QWidget *window)
+{
+    return window && HIObjectIsOfClass(HIObjectRef(window->winId()), kObjectQWidget);
+}
+
 /* Use this function instead of ReleaseWindowGroup, this will be sure to release the
    stays on top window group (created with qt_mac_get_stays_on_top_group below) */
 static void qt_mac_release_window_group(WindowGroupRef group)
@@ -1615,7 +1620,10 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
                 }
                 if(WindowRef windowref = qt_mac_window_for(hiview)) {
                     RetainWindow(windowref);
-                    parent = qt_mac_hiview_for(windowref);
+                    if (initializeWindow)
+                        parent = qt_mac_hiview_for(windowref);
+                    else
+                        parent = HIViewGetSuperview(hiview);
                     break;
                 }
             }
@@ -1793,6 +1801,8 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WindowFlags f)
     QObjectPrivate::setParent_helper(parent);
     QPoint pt = q->pos();
     bool explicitlyHidden = q->testAttribute(Qt::WA_WState_Hidden) && q->testAttribute(Qt::WA_WState_ExplicitShowHide);
+    if (wasCreated && !qt_isGenuineQWidget(q))
+        return;
     setWinId(0); //do after the above because they may want the id
 
     data.window_flags = f;
