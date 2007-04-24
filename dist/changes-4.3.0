@@ -186,6 +186,49 @@ Examples
 - Assistant
 
 - Designer
+    * [155464] Added a German translation.
+    * [146953] Widgets can now be dragged onto the object inspector.
+    * [152475] The widget box now saves and restores its state.
+    * [111092] Added drag and drop of images from the resource editor to the action editor or icon properties.
+    * [111091] Icon dialogs now default to resource browser.
+    * [152475] Added button to load newly found custom widget plugin to plugin dialog.
+    * [151122] Added warnings for custom widget plugin issues (load failures, class name mismatches).
+    * [138645] Improved form preview on Mac, provided close button and menu entry.
+    * [103801] Made buddy editing possible for custom widgets derived from QLabel.
+    * [148677] Added font chooser for tool windows.
+    * [107233] Made grid customizable, provided default and per-form grid setting.
+    * [149325] Provided form editor context menu in object inspector.
+    * [147174] Changed elide mode and improved column resizing behaviour
+               of property editor and object inspector.
+    * [147317] Better handling of switching user interface modes (prevent form window
+               geometry from being changed).
+               Made 'Bring to front' deiconify windows.
+    * [146629] Fixed never ending loop on Linux triggered by scrolling fast through the pages
+               of a QStackedWidget.
+    * [133687] Added Qt Script support to aid in building forms.
+    * [145806] Enabled KDialog to be used as a template.
+    * [142723] Enabled pages of QStackedWidget, QTabWidget and QToolBox to be promoted.
+    * [105916] Enabled QMenuBar to be promoted.
+    * [147317] Improved the New Form dialog.
+    * [95038]  Fixed handling of layout defaults.
+    * [103326] Made connections to form signals possible.
+    * [145954] Added new dialog for promoted widgets with ability to specify global include files.
+               Added promotion candidates to context menu.
+    * [127232] Handle global include files returned by QDesignerCustomWidgetInterface::includeFile() correctly.
+    * [139985] Improved handling of layouts for custom widgets.
+    * [99129]  Made custom implementations of QDesignerMemberSheetExtension work.
+    * [87181]  Added support for setting properties to a multiselection.
+               Added support for sub-properties (for example, changing the
+               font size of a multiselection does not overwrite other font settings).
+               Added undo-support for property comments.
+    * [135360] Added tooltips to property editor, action editor and object inspector.
+    * [103215] Added handling of escaped newline characters for text properties.
+               Added validator and syntax highlighting for style sheets.
+    * [135468] Added support for toolbar breaks.
+    * [135620] Fixed several issues concerning handling of properties of promoted widgets.
+    * [109077] Provided multiselection in the object inspector.
+    * [133907] Made in-place editing of plain label texts possible.
+    * [134657] Fixed table widget editor.
 
 - Linguist
     * Translations can be exported to XLIFF.
@@ -200,6 +243,9 @@ Examples
 - moc
 
 - uic
+    * [144383] Prevent uic-generated code from calling ensurePolished() before constructor is finished.
+    * [138949] Re-use font and size policy instances in uic-generated code.
+    * [141217] Improved handling of include files of Qt 3 classes.
 
 - qmake
     [132154] Support for /bigobj option in the vcproj generator.
