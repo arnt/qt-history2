@@ -53,6 +53,11 @@
     }
   \endcode
 
+  When handling possibly incomplete input, the canEvaluate() function
+  can be used to determine whether code can usefully be passed to
+  evaluate(). This can be useful when implementing tools that allow
+  code to be written incrementally, such as command line interpreters.
+  
   Use newObject() to create a standard Qt Script object. You can use
   the object-specific functionality in QScriptValue to manipulate the
   script object (e.g. QScriptValue::setProperty()). Use newArray() to
@@ -115,7 +120,7 @@
   same manner as a "normal" script function:
 
   \code
-    QSscriptValue result = myEngine.evaluate("myAdd(myNumber, 1)");
+    QScriptValue result = myEngine.evaluate("myAdd(myNumber, 1)");
   \endcode
 
   You can define shared script functionality for a custom C++ type
@@ -614,12 +619,67 @@ QScriptValue QScriptEngine::newQMetaObject(
 #endif // QT_NO_QOBJECT
 
 /*!
-  Returns true if \a program can be evaluated (is syntactically
-  complete); otherwise returns false.
+  Returns true if \a program can be evaluated; i.e. the code is
+  sufficient to determine whether it appears to be a syntactically
+  correct program, or contains a syntax error.
+
+  This function returns false if \a program is incomplete; i.e. the
+  input is syntactically correct up to the point where the input is
+  terminated.
 
   Note that this function only does a static check of \a program;
   e.g. it does not check whether references to variables are
   valid, and so on.
+
+  A typical usage of canEvaluate() is to implement an interactive
+  interpreter for QtScript. The user is repeatedly queried for
+  individual lines of code; the lines are concatened internally, and
+  only when canEvaluate() returns true for the resulting program is it
+  passed to evaluate().
+
+  The following are some examples to illustrate the behavior of
+  canEvaluate(). (Note that all example inputs are assumed to have an
+  explicit newline as their last character, since otherwise the
+  QtScript parser would automatically insert a semi-colon character at
+  the end of the input, and this could cause canEvaluate() to produce
+  different results.)
+
+  Given the input
+  \code
+  if (hello && world)
+    print("hello world");
+  \endcode
+  canEvaluate() will return true, since the program appears to be complete.
+
+  Given the input
+  \code
+  if (hello &&
+  \endcode
+  canEvaluate() will return false, since the if-statement is not complete,
+  but is syntactically correct so far.
+
+  Given the input
+  \code
+  0 = 0
+  \endcode
+  canEvaluate() will return true, but evaluate() will throw a
+  SyntaxError given the same input.
+
+  Given the input
+  \code
+  ./test.js
+  \endcode
+  canEvaluate() will return true, even though the code is clearly not
+  syntactically valid QtScript code. evaluate() will throw a
+  SyntaxError when this code is evaluated.
+
+  Given the input
+  \code
+  foo["bar"]
+  \endcode
+  canEvaluate() will return true, but evaluate() will throw a
+  ReferenceError if \c{foo} is not defined in the script
+  environment.
 
   \sa evaluate()
 */
