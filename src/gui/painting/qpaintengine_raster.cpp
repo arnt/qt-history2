@@ -2153,6 +2153,18 @@ void QRasterPaintEngine::drawImage(const QRectF &r, const QImage &img, const QRe
         textureData.setupMatrix(copy, d->bilinear);
 	textureData.adjustSpanMethods();
 
+#ifdef QT_FAST_SPANS
+        if (d->tx_noshear || d->txop == QTransform::TxScale) {
+            d->rasterizer.initialize(d->antialiased || d->bilinear, d->rasterBuffer);
+
+            d->rasterizer.setSpanData(&textureData);
+            const QRectF &rect = r.normalized();
+            const QPointF a = d->matrix.map((rect.topLeft() + rect.bottomLeft()) * 0.5f);
+            const QPointF b = d->matrix.map((rect.topRight() + rect.bottomRight()) * 0.5f);
+            d->rasterizer.rasterizeLine(a, b, rect.height() / rect.width());
+            return;
+        }
+#endif
         bool wasAntialiased = d->antialiased;
         if (!d->antialiased)
             d->antialiased = d->bilinear;
@@ -2197,6 +2209,18 @@ void QRasterPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap,
         copy.translate(-sr.x(), -sr.y());
         textureData.setupMatrix(copy, d->bilinear);
 
+#ifdef QT_FAST_SPANS
+        if (d->tx_noshear || d->txop == QTransform::TxScale) {
+            d->rasterizer.initialize(d->antialiased || d->bilinear, d->rasterBuffer);
+
+            d->rasterizer.setSpanData(&textureData);
+            const QRectF &rect = r.normalized();
+            const QPointF a = d->matrix.map((rect.topLeft() + rect.bottomLeft()) * 0.5f);
+            const QPointF b = d->matrix.map((rect.topRight() + rect.bottomRight()) * 0.5f);
+            d->rasterizer.rasterizeLine(a, b, rect.height() / rect.width());
+            return;
+        }
+#endif
         bool wasAntialiased = d->antialiased;
         if (!d->antialiased)
             d->antialiased = d->bilinear;
