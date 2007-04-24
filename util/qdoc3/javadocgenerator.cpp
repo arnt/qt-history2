@@ -308,8 +308,10 @@ QString JavadocGenerator::linkForNode( const Node *node, const Node *relative )
 
     QStringList nodePackage = packageName(node).split(".");
     QStringList relativePackage = packageName(relative).split(".");
-    if (nodePackage == QStringList(QString()) || relativePackage == QStringList(QString()))
-        qFatal("I'm in trouble [%s][%s]", qPrintable(node->name()), qPrintable(relative->name()));
+    if (nodePackage == QStringList(QString()) || relativePackage == QStringList(QString())) {
+        qWarning("I'm in trouble [%s][%s]", qPrintable(node->name()), qPrintable(relative->name()));
+        return QString();
+    }
 
     int i = nodePackage.count() - 1;
     while (nodePackage.value(i) != relativePackage.value(i)) {
