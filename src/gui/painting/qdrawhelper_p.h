@@ -219,17 +219,17 @@ struct QSpanData
 };
 
 template <class DST, class SRC>
-inline DST qt_colorConvert(SRC color)
+inline DST qt_colorConvert(SRC color, DST dummy = 0)
 {
+    Q_UNUSED(dummy);
     return color;
 }
 
 
-#ifndef Q_OS_SOLARIS
 template <>
-#endif
-inline quint32 qt_colorConvert(quint16 color)
+inline quint32 qt_colorConvert(quint16 color, quint32 dummy)
 {
+    Q_UNUSED(dummy);
     const int r = (color & 0xf800);
     const int g = (color & 0x07e0);
     const int b = (color & 0x001f);
@@ -240,11 +240,10 @@ inline quint32 qt_colorConvert(quint16 color)
     return qRgb(tr, tg, tb);
 }
 
-#ifndef Q_OS_SOLARIS
 template <>
-#endif
-inline quint16 qt_colorConvert(quint32 color)
+inline quint16 qt_colorConvert(quint32 color, quint16 dummy)
 {
+    Q_UNUSED(dummy);
     const int r = qRed(color) << 8;
     const int g = qGreen(color) << 3;
     const int b = qBlue(color) >> 3;
@@ -254,8 +253,9 @@ inline quint16 qt_colorConvert(quint32 color)
 
 #ifdef QT_QWS_DEPTH_8
 template <>
-inline quint8 qt_colorConvert(quint32 color)
+inline quint8 qt_colorConvert(quint32 color, quint8 dummy)
 {
+    Q_UNUSED(dummy);
     uchar r = (qRed(color) + 0x19) / 0x33;
     uchar g = (qGreen(color) + 0x19) / 0x33;
     uchar b = (qBlue(color) + 0x19) / 0x33;
@@ -264,8 +264,9 @@ inline quint8 qt_colorConvert(quint32 color)
 }
 
 template <>
-inline quint8 qt_colorConvert(quint16 color)
+inline quint8 qt_colorConvert(quint16 color, quint8 dummy)
 {
+    Q_UNUSED(dummy);
     return qt_colorConvert<quint8, quint32>(qt_conv16ToRgb(color));
 }
 #endif // QT_QWS_DEPTH_8
@@ -293,8 +294,9 @@ private:
 } Q_PACKED;
 
 template <>
-inline quint24 qt_colorConvert(quint32 color)
+inline quint24 qt_colorConvert(quint32 color, quint24 dummy)
 {
+    Q_UNUSED(dummy);
     return quint24(color);
 }
 
@@ -330,8 +332,9 @@ private:
 } Q_PACKED;
 
 template <>
-inline quint18 qt_colorConvert(quint32 color)
+inline quint18 qt_colorConvert(quint32 color, quint18 dummy)
 {
+    Q_UNUSED(dummy);
     return quint18(color);
 }
 
