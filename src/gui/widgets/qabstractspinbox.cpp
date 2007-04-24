@@ -299,13 +299,19 @@ void QAbstractSpinBox::setReadOnly(bool enable)
     \brief whether keyboard tracking is enabled for the spinbox.
     \since 4.3
 
-    If keyboard tracking is enabled (the default), the spinbox emits the
-    valueChanged() signal while the new value is being entered from the keyboard.
-    E.g. when the user's intention is to enter a value of 600 by typing:
-    6, 0 and 0, the spinbox will emit 3 signals with values: 6, 60 and 600 respectively.
-    If keyboard tracking is disabled, the spinbox doesn't emit valueChanged() signal
-    while typing - it emits the signal later, after pressing return key, loosing focus or
-    interacting with other spinbox' functionality like pressing the arrow button.
+    If keyboard tracking is enabled (the default), the spinbox
+    emits the valueChanged() signal while the new value is being
+    entered from the keyboard.
+    
+    E.g. when the user enters the value 600 by typing 6, 0, and 0,
+    the spinbox emits 3 signals with the values 6, 60, and 600
+    respectively.
+    
+    If keyboard tracking is disabled, the spinbox doesn't emit the
+    valueChanged() signal while typing. It emits the signal later,
+    when the return key is pressed, when keyboard focus is lost, or
+    when other spinbox functionality is used, e.g. pressing an arrow
+    key.
 */
 
 bool QAbstractSpinBox::keyboardTracking() const
