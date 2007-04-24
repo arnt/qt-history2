@@ -1834,21 +1834,6 @@ bool QVNCScreen::connect(const QString &displaySpec)
         if (!d)
             d = 16;
 
-        switch (d) {
-        case 1:
-            setPixelFormat(QImage::Format_Mono); //### LSB???
-            break;
-        case 8:
-            setPixelFormat(QImage::Format_Indexed8);
-            break;
-        case 16:
-            setPixelFormat(QImage::Format_RGB16);
-            break;
-        case 32:
-            setPixelFormat(QImage::Format_ARGB32_Premultiplied);
-            break;
-        }
-
         QByteArray str = qgetenv("QWS_SIZE");
         if(!str.isEmpty()) {
             sscanf(str.constData(), "%dx%d", &w, &h);
@@ -1901,6 +1886,21 @@ bool QVNCScreen::connect(const QString &displaySpec)
         lstep = (dw * d + 7) / 8;
         size = h * lstep;
         mapsize = size;
+
+        switch (d) {
+        case 1:
+            setPixelFormat(QImage::Format_Mono); //### LSB???
+            break;
+        case 8:
+            setPixelFormat(QImage::Format_Indexed8);
+            break;
+        case 16:
+            setPixelFormat(QImage::Format_RGB16);
+            break;
+        case 32:
+            setPixelFormat(QImage::Format_ARGB32_Premultiplied);
+            break;
+        }
 
         QWSServer::setDefaultMouse("None");
         QWSServer::setDefaultKeyboard("None");
