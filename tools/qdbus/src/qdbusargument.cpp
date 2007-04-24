@@ -42,8 +42,7 @@ QByteArray QDBusArgumentPrivate::createSignature(int id)
     // run it
     void *null = 0;
     QVariant v(id, null);
-    QDBusArgument arg;
-    arg.d = marshaller;
+    QDBusArgument arg(marshaller);
     QDBusMetaType::marshall(arg, v.userType(), v.constData());
     arg.d = 0;
 
