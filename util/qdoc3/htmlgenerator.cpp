@@ -450,7 +450,7 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
             }
 
             if (itemValue.isEmpty())
-                out() << "&nbsp;";
+                out() << "?";
             else
                 out() << "<tt>" << protect(itemValue) << "</tt>";
 

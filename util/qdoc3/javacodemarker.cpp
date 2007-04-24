@@ -85,10 +85,10 @@ QString JavaCodeMarker::markedUpFullName(const Node *node, const Node * /* relat
     return fullName;
 }
 
-QString JavaCodeMarker::markedUpEnumValue(const QString & /* enumValue */,
+QString JavaCodeMarker::markedUpEnumValue(const QString &enumValue,
                                           const Node * /* relative */)
 {
-    return QString();
+    return protect(enumValue);
 }
 
 QString JavaCodeMarker::markedUpIncludes( const QStringList& /* includes */ )
