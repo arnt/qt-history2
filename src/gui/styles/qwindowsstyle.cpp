@@ -1505,6 +1505,11 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
             } else {
                 QCommonStyle::drawPrimitive(pe, opt, p, w);
             }
+        } else {
+            QPalette popupPal = opt->palette;
+            popupPal.setColor(QPalette::Light, opt->palette.background().color());
+            popupPal.setColor(QPalette::Midlight, opt->palette.light().color());
+            qDrawWinPanel(p, opt->rect, popupPal, opt->state & State_Sunken);
         }
         break;
 #endif // QT_NO_FRAME
