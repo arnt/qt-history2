@@ -78,7 +78,7 @@
             QApplication *app;
 
         public:
-            MyInterfaceAdaptor(QApplication *application)
+            MainApplicationAdaptor(QApplication *application)
                 : QDBusAbstractAdaptor(application), app(application)
             {
                 connect(application, SIGNAL(aboutToQuit()), SIGNAL(aboutToQuit());
