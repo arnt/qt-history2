@@ -355,6 +355,14 @@ void tst_QScriptEngine::canEvaluate_data()
     QTest::newRow("0") << QString("0") << true;
     QTest::newRow("!") << QString("!\n") << false;
     QTest::newRow("if (") << QString("if (\n") << false;
+    QTest::newRow("a = 1; if (") << QString("a = 1;\nif (\n") << false;
+    QTest::newRow("./test.js") << QString("./test.js\n") << true;
+    QTest::newRow("if (0) print(1)") << QString("if (0)\nprint(1)\n") << true;
+    QTest::newRow("0 = ") << QString("0 = \n") << false;
+    QTest::newRow("0 = 0") << QString("0 = 0\n") << true;
+    QTest::newRow("foo[") << QString("foo[") << true; // automatic semicolon will be inserted
+    QTest::newRow("foo[") << QString("foo[\n") << false;
+    QTest::newRow("foo['bar']") << QString("foo['bar']") << true;
 }
 
 void tst_QScriptEngine::canEvaluate()
