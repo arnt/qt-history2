@@ -897,10 +897,10 @@
     \value WA_PaintUnclipped Makes all painters operating on this
     widget unclipped. Children of this widget or other widgets in
     front of it do not clip the area the painter can paint on. This
-    flag is only supported on X11 for widgets for which the
-    WA_PaintOnScreen flag is set. The preferred way to do this in a
-    cross platform way is to create a transparent widget that lies
-    in front of the other widgets.
+    flag is only supported for widgets for which the WA_PaintOnScreen 
+    flag is set. The preferred way to do this in a cross platform way 
+    is to create a transparent widget that lies in front of the other 
+    widgets.
 
     \value WA_PendingMoveEvent Indicates that a move event is
     pending, e.g. when a hidden widget was moved. This is set/cleared
