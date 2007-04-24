@@ -1772,6 +1772,7 @@ QList<int> QMainWindowLayout::hover(QLayoutItem *widgetItem, const QPoint &mouse
 
     currentGapPos = path;
     if (path.isEmpty()) {
+        fixToolBarOrientation(widgetItem, 2); // 2 = top dock, ie. horizontal
         restore();
         return QList<int>();
     }
