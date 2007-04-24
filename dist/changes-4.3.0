@@ -22,6 +22,9 @@ Third party components
 *                          Library                                         *
 ****************************************************************************
 
+- QAccessible
+    * Added preliminary support for the upcomming IAccessible2 standard
+
 - QChar
     * Updated the Unicode tables to Unicode 5.0
 
@@ -37,8 +40,16 @@ Third party components
 - QMainWindow 
     * Fix a crash with QMainWindow:setMainWindow(0); on X11
 
+- QMenu
+    * the addAction() overloads that take a slot argument now honor the slot's bool
+      argument correctly.
+
 - QMessageBox
     * [119777] Pressing Ctrl+C in message boxes on Windows copies text to clipboard
+
+- QObject
+    * Added a compile time check to ensure that the objects passed to qobject_cast contain
+      a Q_OBJECT macro.
 
 - QPrintDialog
     * [128964] Make "Print" button the default
@@ -53,6 +64,16 @@ Third party components
 
 - QSpinBox
     * Disallow typing -0 in a QSpinBox with a positive range
+
+- QSql
+    * Added NumericalPrecisionPolicy to allow retrieving numbers as double or float.
+
+- QSqlDriver
+    * [128671] Added SimpleLocking to DriverFeature
+
+- QSqlTableModel
+    * [128671] Ensure that the model has no read locks on a table before updating it. Fixes
+      parallel access for in-process databases like SQLite.
 
 - QString
     * fromUtf8() now discards UTF-8 encoded byte order marks just like the UTF-8 QTextCodec
@@ -80,21 +101,50 @@ Third party components
 ****************************************************************************
 
 - Interbase driver
+
+    * [127724] Support OUT values from stored procedures. (See SQL Database Drivers
+      documentation for details).
       
 - MySQL driver
       
 - OCI driver
+
+    * Added support for low-precision retrieval of floating point numbers.
     
 - ODBC driver
 
+    * Performance increase for iterating a query backwards.
+    * [89844] Added support for fetching multiple error messages from an ODBC driver.
+
 - SQLite driver
+
+- PostgreSQL driver
+
+    * [135403] Properly quote schemas in table names ("schema"."tablename")
 
 ****************************************************************************
 *                             QTestLib                                     *
 ****************************************************************************
 
--
+    * [138388] Floating point numbers are printed in printf's "%g" format.
 
+
+****************************************************************************
+*                               QDBus                                      *
+****************************************************************************
+
+- Library
+
+    * Support QList<QDBusObjectPath> and QList<QDBusSignature> implicitely without
+      having to register the types.
+
+- Viewer
+
+    * Moved QDBusViewer from demos to QDBus tools.
+    * Added ability to set and get properties.
+    * Added support for demarshalling D-Bus variants.
+    * Added property dialog for entering arguments.
+    * Made QDBusObjectPath clickable in the output pane.
 
 ****************************************************************************
 *                      Platform Specific Changes                           *
@@ -114,8 +164,13 @@ Windows
 Mac OS X
 --------
 
+    * qtconfig is no longer available on Mac OS X. All settings are read from
+      the system's configuration.
+
 Qtopia Core
 -----------
+
+    * Better support for compiling a LSB (Linux Standard Base) compliant Qtopia Core library.
 
 ****************************************************************************
 *                   Significant Documentation Changes                      *
