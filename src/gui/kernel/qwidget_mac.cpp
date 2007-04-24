@@ -39,6 +39,7 @@
 #include <limits.h>
 
 #include "qwidget_p.h"
+#include "qdnd_p.h"
 
 #define XCOORD_MAX 16383
 #define WRECT_MAX 8191
@@ -959,25 +960,47 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef er, EventRef event,
             }
         } else if(ekind == kEventControlDragEnter || ekind == kEventControlDragWithin ||
                   ekind == kEventControlDragLeave || ekind == kEventControlDragReceive) {
+            // dnd are really handled in qdnd_mac.cpp,
+            // just modularize the code a little...
+            DragRef drag;
+            GetEventParameter(event, kEventParamDragRef, typeDragRef, 0, sizeof(drag), 0, &drag);
             handled_event = false;
             bool drag_allowed = false;
+
             QWidget *dropWidget = widget;
-            if (QFocusFrame *frame = qobject_cast<QFocusFrame *>(widget))
-                dropWidget = frame->widget();
-            if (dropWidget) {
-                //these are really handled in qdnd_mac.cpp just to modularize the code a little..
-                DragRef drag;
-                GetEventParameter(event, kEventParamDragRef, typeDragRef, 0, sizeof(drag), 0, &drag);
-                if(dropWidget->d_func()->qt_mac_dnd_event(ekind, drag)) {
-                    drag_allowed = true;
-                    handled_event = true;
+            if (qobject_cast<QFocusFrame *>(widget)){
+                // We might shadow widgets underneath the focus
+                // frame, so stay interrested, and let the dnd through
+                drag_allowed = true;
+                handled_event = true;
+                Point where;
+                GetDragMouse(drag, &where, 0);
+                dropWidget = QApplication::widgetAt(QPoint(where.h, where.v));
+
+                if (dropWidget != QDragManager::self()->currentTarget()){
+                    // We have to 'fake' enter and leave events for the shaddowed widgets:
+                    if (QDragManager::self()->currentTarget())
+                        QDragManager::self()->currentTarget()->d_func()->qt_mac_dnd_event(kEventControlDragLeave, drag);
+                    if (dropWidget){    
+                        dropWidget->d_func()->qt_mac_dnd_event(kEventControlDragEnter, drag);
+                        dropWidget = 0;
+                    }
                 }
             }
-            if(ekind == kEventControlDragEnter) {
+
+            // Send the dnd event to the widget:
+            if (dropWidget && dropWidget->d_func()->qt_mac_dnd_event(ekind, drag)) {
+                drag_allowed = true;
+                handled_event = true;
+            }
+
+            if (ekind == kEventControlDragEnter) {
+                // If we don't accept the enter event, we will
+                // receive no more drag events for this widget
                 const Boolean wouldAccept = drag_allowed ? true : false;
                 SetEventParameter(event, kEventParamControlWouldAcceptDrop, typeBoolean,
                         sizeof(wouldAccept), &wouldAccept);
-            }
+            }            
         } else if (ekind == kEventControlBoundsChanged) {
             if (!widget || widget->isWindow() || widget->testAttribute(Qt::WA_Moved) || widget->testAttribute(Qt::WA_Resized)) {
                 handled_event = false;
