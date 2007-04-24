@@ -234,28 +234,38 @@ extern QDirect3DPaintEngine *qt_d3dEngine();
 
 QWindowSurface *qt_default_window_surface(QWidget *widget)
 {
+    QWindowSurface *surface = 0;
+
 #ifdef Q_WS_WIN
 #ifndef QT_NO_DIRECT3D
     if (qApp->testAttribute(Qt::AA_MSWindowsUseDirect3DByDefault)
         && (widget->windowOpacity() == 1.0f)
         && qt_d3dEngine()->hasDirect3DSupport())
-        return new QD3DWindowSurface(widget);
+        surface = new QD3DWindowSurface(widget);
     else
-        return new QRasterWindowSurface(widget);
+        surface = new QRasterWindowSurface(widget);
 #else
-    return new QRasterWindowSurface(widget);
+    surface = new QRasterWindowSurface(widget);
 #endif
 #elif defined(Q_WS_X11)
-    return new QX11WindowSurface(widget);
+    surface = new QX11WindowSurface(widget);
 #elif defined(Q_WS_QWS)
     if (widget->windowType() == Qt::Desktop)
         return 0;
     widget->ensurePolished();
-    return qt_screen->createSurface(widget);
+    surface = qt_screen->createSurface(widget);
 #else
     Q_UNUSED(widget);
-    return 0;
 #endif
+
+    // The QWindowSurface constructor will call QWidget::setWindowSurface(),
+    // but automatically created surfaces should not be added to the topdata.
+#ifdef Q_BACKINGSTORE_SUBSURFACES
+    Q_ASSERT(widget->d_func()->topData()->windowSurface == surface);
+#endif
+    widget->d_func()->topData()->windowSurface = 0;
+
+    return surface;
 }
 
 #ifdef Q_WS_WIN

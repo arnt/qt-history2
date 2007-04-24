@@ -8916,6 +8916,9 @@ void QWidget::setWindowSurface(QWindowSurface *surface)
     if (topData->windowSurface == surface)
         return;
 
+#ifndef Q_WS_MAC
+    const QWindowSurface *oldSurface = topData->windowSurface;
+#endif
     delete topData->windowSurface;
     topData->windowSurface = surface;
 
@@ -8924,13 +8927,17 @@ void QWidget::setWindowSurface(QWindowSurface *surface)
     if (!bs)
         return;
 
-#ifdef Q_BACKINGSTORE_SUBSURFACES
-    if (!isTopLevel())
-        bs->subSurfaces.append(surface);
-    else
-#endif
+    if (isTopLevel()) {
+        if (bs->windowSurface != oldSurface && bs->windowSurface != surface)
+            delete bs->windowSurface;
         bs->windowSurface = surface;
+    }
+#ifdef Q_BACKINGSTORE_SUBSURFACES
+    else {
+        bs->subSurfaces.append(surface);
+    }
 #endif
+#endif // Q_WS_MAC
 }
 
 /*!
@@ -8942,6 +8949,10 @@ void QWidget::setWindowSurface(QWindowSurface *surface)
 QWindowSurface *QWidget::windowSurface() const
 {
     Q_D(const QWidget);
+    QTLWExtra *extra = d->maybeTopData();
+    if (extra && extra->windowSurface)
+        return extra->windowSurface;
+
 #ifndef Q_WS_MAC
     QWidgetBackingStore *bs = d->maybeBackingStore();
     if (!bs)
@@ -8951,20 +8962,22 @@ QWindowSurface *QWidget::windowSurface() const
     if (bs->subSurfaces.isEmpty())
 #endif
         return bs->windowSurface;
-#else
-    Q_UNUSED(d);
 #endif
 
 #ifdef Q_BACKINGSTORE_SUBSURFACES
-    // hw: loop up to window() instead of doing this recursively!!
-    QTLWExtra *extra = d->maybeTopData();
-    if (extra && extra->windowSurface)
-        return extra->windowSurface;
-
-    if (isTopLevel())
-        return 0;
+    if (!isTopLevel()) {
+        const QWidget *w = parentWidget();
+        while (w) {
+            QTLWExtra *extra = w->d_func()->maybeTopData();
+            if (extra && extra->windowSurface)
+                return extra->windowSurface;
+            if (w->isTopLevel())
+                return 0;
+            w = w->parentWidget();
+        }
+    }
+    return bs->windowSurface;
 #endif
-    return parentWidget()->windowSurface();
 }
 
 
