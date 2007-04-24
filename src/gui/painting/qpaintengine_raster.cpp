@@ -618,6 +618,10 @@ static inline void resolveGradientBounds(const QRectF &rect, QSpanData *data)
     (derived from QWSWindowSurface) must be implemented to make \l
     {Qtopia Core} aware of the accelerated driver.
 
+    \note The QRasterPaintEngine class does not support 8-bit images.
+    Instead, they need to be converted to a supported format, such as
+    QImage::Format_ARGB32_Premultiplied.
+
     See the \l {Adding an Accelerated Graphics Driver in Qtopia Core}
     documentation for details.
 
