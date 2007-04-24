@@ -1397,9 +1397,7 @@ void QDockAreaLayoutInfo::apply(bool animate)
             }
         }
 
-        if (tab_rect != tabBar->geometry())
-            widgetAnimator->animate(tabBar, tab_rect, animate);
-//        dump(qDebug() << "QDockAreaLayoutInfo::apply():" << tabIndex, *this, QString());
+        widgetAnimator->animate(tabBar, tab_rect, animate);
     }
 #endif // QT_NO_TABBAR
 
