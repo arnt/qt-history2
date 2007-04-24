@@ -45,7 +45,7 @@ Third party components
     * Added support for lazy populated models.
 
 - QDateTimeEdit
-    * Improvements with regards to two-digit years in a QDateTimeEdit. Make stepping work properly
+    * [111557] Improvements with regards to two-digit years in a QDateTimeEdit. Make stepping work properly
 
 - QFileDialog
     * Updated file dialog with native icons, faster performance and a sidebar to
@@ -64,7 +64,7 @@ Third party components
     * [136614] Batched mode did not display the last item of the batch.
 
 - QMainWindow 
-    * Fix a crash with QMainWindow:setMainWindow(0); on X11
+    * [145493] Fix a crash with QMainWindow:setMainWindow(0); on X11
 
 - QMenu
     * the addAction() overloads that take a slot argument now honor the slot's bool
@@ -98,7 +98,7 @@ Third party components
     * Prevent QSlider from getting in an infinite loops when extreme values were used. 
 
 - QSpinBox
-    * Disallow typing -0 in a QSpinBox with a positive range
+    * [141569] Disallow typing -0 in a QSpinBox with a positive range
 
 - QSyntaxHighligher
     * [151831] calling rehighlight() was causing highlighBlock() to be called
