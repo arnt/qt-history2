@@ -44,8 +44,27 @@ Third party components
     * Significantly reduced the construction time.
     * Added support for lazy populated models.
 
+- QDateTime
+    * [151789] Allow passing of date only format to QDateTime::fromString() (according to ISO 8601)
+    * Remove legacy behavior which assumed that a year between 0 and 99 was meant 1900 + year in QDateTime
+
 - QDateTimeEdit
-    * [111557] Improvements with regards to two-digit years in a QDateTimeEdit. Make stepping work properly
+    * [111557 and 141266] Improvements with regards to two-digit years in a QDateTimeEdit. Make stepping work properly.
+    * [110034] Don't change current section on wheelEvent.
+    * [152622] Don't switch section on focusInEvent if the reason is Popup.
+    * Fix a bug that would cause problems with formats like dd.MMMM.yyyy.
+    * [148522] Make sure the dateRange is valid for QDateTimeEdits that only shows time.
+    * [148725] Fix a bug with wrapping and months with fewer than 31 days.
+    * [149097] Emit dateTimeChanged even if only date or time is shown.
+    * [108572] Make typing 2 into a zzz field turn into 200 rather than 002.
+    * Skip to the next field when separator is typed.
+    * [141703] Allow empty input when only one section is displayed.
+    * [134392] Add a sectionCount property.
+    * [134392] Add sectionAt()/currentSectionIndex()/setCurrentSectionIndex() to QDateTimeEdit.
+    * Add a NoButtons value for the buttonSymbols property.
+
+- QDoubleSpinBox
+    * [99254] Allow higher settings for decimals
 
 - QFileDialog
     * Updated file dialog with native icons, faster performance and a sidebar to
@@ -85,7 +104,7 @@ Third party components
     * Added QPrinter::supportedPaperSources()
 
 - QTabBar 
-    * Added int tabAt(const QPoint &pos) const
+    * [126438] Added int tabAt(const QPoint &pos) const
     * [143760] Scroll buttons are now never shown when setUsesScrollButtons(false)
 
 - QTabWidget
@@ -99,6 +118,7 @@ Third party components
 
 - QSpinBox
     * [141569] Disallow typing -0 in a QSpinBox with a positive range
+
 
 - QSyntaxHighligher
     * [151831] calling rehighlight() was causing highlighBlock() to be called
@@ -158,6 +178,9 @@ Third party components
 
 - QTreeWidget
     * [153361] Check that an item exists before emiting itemChanged().
+
+- Q3DateEdit
+    * [131577] Fix a bug with typing in out-of-range years in a Q3DateEdit
 
 ****************************************************************************
 *                          Database Drivers                                *
@@ -292,6 +315,7 @@ Examples
     * [109077] Provided multiselection in the object inspector.
     * [133907] Made in-place editing of plain label texts possible.
     * [134657] Fixed table widget editor.
+    * [90085] Make the resource editor consume a little less horizontal real estate.
 
 - Linguist
     * Translations can be exported to XLIFF.
