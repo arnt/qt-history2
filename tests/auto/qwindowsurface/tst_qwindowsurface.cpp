@@ -51,11 +51,13 @@ void tst_QWindowSurface::getSetWindowSurface()
     QApplication::processEvents();
     QVERIFY(w.windowSurface());
 
-    MyWindowSurface *surface = new MyWindowSurface(&w);
-    QCOMPARE(w.windowSurface(), surface);
+    for (int i = 0; i < 2; ++i) {
+        MyWindowSurface *surface = new MyWindowSurface(&w);
+        QCOMPARE(w.windowSurface(), surface);
 
-    w.setWindowSurface(surface);
-    QCOMPARE(w.windowSurface(), surface);
+        w.setWindowSurface(surface);
+        QCOMPARE(w.windowSurface(), surface);
+    }
 }
 
 QTEST_MAIN(tst_QWindowSurface)
