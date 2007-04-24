@@ -2750,6 +2750,7 @@ void QWizard::resizeEvent(QResizeEvent *event)
     if (d->wizStyle == AeroStyle)
         d->vistaHelper->resizeEvent(event);
 #endif
+    QDialog::resizeEvent(event);
 }
 
 /*!
