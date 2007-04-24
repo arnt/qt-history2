@@ -2065,7 +2065,7 @@ void Q3ListViewItem::paintCell(QPainter * p, const QColorGroup & cg,
     int r = marg;
     const QPixmap * icon = pixmap(column);
 
-    const QPalette::ColorRole crole = lv->backgroundRole();
+    const QPalette::ColorRole crole = lv->viewport()->backgroundRole();
     if (pal.brush(crole) != lv->palette().brush(crole))
         p->fillRect(0, 0, width, height(), pal.brush(crole));
     else
