@@ -6,61 +6,71 @@ General Improvements
 --------------------
 
 - Configuration/Compilation
-    * [] Fixed OpenBSD and NetBSD build issues.
+    * Fixed OpenBSD and NetBSD build issues.
 
 Third party components
 ----------------------
 
-- [] Updated Qt's SQLite version to 3.3.13.
+- Updated Qt's SQLite version to 3.3.13.
 
-- [] Updated Qt's FreeType version to 2.3.0.
+- Updated Qt's FreeType version to 2.3.0.
 
-- [] Updated Qt's libpng version to 1.2.16.
+- Updated Qt's libpng version to 1.2.16.
 
 
 ****************************************************************************
 *                          Library                                         *
 ****************************************************************************
 
- - QPrinter
-        [] Added QPrinter::supportedPaperSources()
+- QChar
+    * Updated the Unicode tables to Unicode 5.0
 
- - QChar
-        [] Updated the Unicode tables to Unicode 5.0
+- QDateTimeEdit
+    * Improvements with regards to two-digit years in a QDateTimeEdit. Make stepping work properly
 
- - QHeaderView
-        [] Now uses Qt::NoFocus for its default focus policy
+- QHeaderView
+    * Now uses Qt::NoFocus for its default focus policy
 
- - QTextDocumentFragment
-        [] QTextDocumentFragment no more stores the root frame properties,
-        the document title or the document default font when it's created
-        from a document or from HTML. Use QTextDocument's toHtml/setHtml
-        if you want to propagate these properties to and from HTML.
+- QMainWindow 
+    * Fix a crash with QMainWindow:setMainWindow(0); on X11
 
+- QMessageBox
+    * [119777] Pressing Ctrl+C in message boxes on Windows copies text to clipboard
 
- - QTabBar 
-        [] Added int tabAt(const QPoint &pos) const
+- QPrintDialog
+    * [128964] Make "Print" button the default
+    * [138924] The filename in the file dialog is set when printing to a file
 
- - QString
-        [] fromUtf8() now discards UTF-8 encoded byte order marks just like the UTF-8 QTextCodec
+- QPrinter
+    * Added QPrinter::supportedPaperSources()
 
- - QTextCursor
-        [] The definition of the block char format (QTextCursor::blockCharFormat/QTextBlock::charFormat)
-        has been changed to be the format used only when inserting text into an empty block.
-        If a QTextCursor is positioned at the beginning of a block and the text block is not empty
-        then the char format to the right of the cursor (the first character in the block) is returned.
-        If the block is empty the block character format is returned.
-        List markers are now also drawn with the character format of the first character in a block
-        instead of the invisible block character format.
+- QTabBar 
+    * Added int tabAt(const QPoint &pos) const
+    * [143760] Scroll buttons are now never shown when setUsesScrollButtons(false)
 
- - QDateTimeEdit
-        [] Improvements with regards to two-digit years in a QDateTimeEdit. Make stepping work properly
+- QSpinBox
+    * Disallow typing -0 in a QSpinBox with a positive range
 
- - QMainWindow 
-        [] Fix a crash with QMainWindow:setMainWindow(0); on X11
+- QString
+    * fromUtf8() now discards UTF-8 encoded byte order marks just like the UTF-8 QTextCodec
 
- - QSpinBox
-        [] Disallow typing -0 in a QSpinBox with a positive range
+- QTextCursor
+    * The definition of the block char format (QTextCursor::blockCharFormat/QTextBlock::charFormat)
+      has been changed to be the format used only when inserting text into an empty block.
+      If a QTextCursor is positioned at the beginning of a block and the text block is not empty
+      then the char format to the right of the cursor (the first character in the block) is returned.
+      If the block is empty the block character format is returned.
+      List markers are now also drawn with the character format of the first character in a block
+      instead of the invisible block character format.
+
+- QToolTip
+    * [135988] Allow tooltips to be shown immediately below the cursor
+
+- QTextDocumentFragment
+    * QTextDocumentFragment no more stores the root frame properties,
+      the document title or the document default font when it's created
+      from a document or from HTML. Use QTextDocument's toHtml/setHtml
+      if you want to propagate these properties to and from HTML.
 
 ****************************************************************************
 *                          Database Drivers                                *
@@ -102,6 +112,9 @@ Qtopia Core
 ****************************************************************************
 *                   Significant Documentation Changes                      *
 ****************************************************************************
+
+Examples
+--------
 
 ****************************************************************************
 *                          Tools                                           *
