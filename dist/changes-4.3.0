@@ -22,17 +22,43 @@ Third party components
 *                          Library                                         *
 ****************************************************************************
 
+- QAbstractItemView
+    * [111503] Give the focus back to the view when the tab key is pressed
+      while inside an editor.
+    * [156290] When the ScrollMode is set to ScrollPerItem, scroll slower.
+
 - QAccessible
     * Added preliminary support for the upcomming IAccessible2 standard
 
 - QChar
     * Updated the Unicode tables to Unicode 5.0
 
+- QColumnView
+    * A new widget that provide a column based implementation of QAbstractItemView
+
+- QComboBox
+    * Significantly reduced the construction time.
+    * [155614] Speedup addItem() and addItems()
+
+- QCompleter
+    * Significantly reduced the construction time.
+    * Added support for lazy populated models.
+
 - QDateTimeEdit
     * Improvements with regards to two-digit years in a QDateTimeEdit. Make stepping work properly
 
+- QFileDialog
+    * Updated file dialog with native icons, faster performance and a sidebar to
+      remember commonly used folders.
+    * [134557] Add the ability to set a proxy model.
+    * Added dirEntered() and filterSelected() signals which existed in Qt3's file dialog.
+
 - QHeaderView
     * Now uses Qt::NoFocus for its default focus policy
+    * [99569] Speedups providing up to a 2X speed increase for some cases
+
+- QItemSelectionModel
+    * Optimizations for some common cases. 
 
 - QListView
     * [136614] Batched mode did not display the last item of the batch.
@@ -62,8 +88,21 @@ Third party components
     * Added int tabAt(const QPoint &pos) const
     * [143760] Scroll buttons are now never shown when setUsesScrollButtons(false)
 
+- QTabWidget
+    * TabWidget now takes ownership of corner widgets and allows setting 0 on the corner widget.
+
+- QTimer
+    * Added property to determine if the timer is active.
+
+- QSlider
+    * Prevent QSlider from getting in an infinite loops when extreme values were used. 
+
 - QSpinBox
     * Disallow typing -0 in a QSpinBox with a positive range
+
+- QSyntaxHighligher
+    * [151831] calling rehighlight() was causing highlighBlock() to be called
+      twice for each block of text
 
 - QSql
     * Added NumericalPrecisionPolicy to allow retrieving numbers as double or float.
@@ -75,8 +114,19 @@ Third party components
     * [128671] Ensure that the model has no read locks on a table before updating it. Fixes
       parallel access for in-process databases like SQLite.
 
+- QStandardItemModel
+    * Reduced the construction time when rows and columns are given.
+    * [133449] Improve the speed of setData()
+    * [153238] Moving an item will no longer cause that item to loose its flags.
+
 - QString
     * fromUtf8() now discards UTF-8 encoded byte order marks just like the UTF-8 QTextCodec
+
+- QStyle
+    * Add StandardPixmap SP_DirHomeIcon which is native icon for the home directory.
+
+- QTableView
+    * No longer allow invalid spans to be created.
 
 - QTextCursor
     * The definition of the block char format (QTextCursor::blockCharFormat/QTextBlock::charFormat)
@@ -95,6 +145,19 @@ Third party components
       the document title or the document default font when it's created
       from a document or from HTML. Use QTextDocument's toHtml/setHtml
       if you want to propagate these properties to and from HTML.
+
+- QTreeView
+    * [158096] Prevent dropping an item on its own child.
+    * [113800] When dragging an item over an item that has child items
+      QTreeView will now automatically expand after a set time.
+    * [107766] Added style option (enabled in the windows style) to
+      select the first child when the right arrow key is pressed.
+    * [157790] It was possible to get in a state where clicking on +/- 
+      to expand an item didn't do anything until elsewhere in thew view
+      was clicked.
+
+- QTreeWidget
+    * [153361] Check that an item exists before emiting itemChanged().
 
 ****************************************************************************
 *                          Database Drivers                                *
