@@ -907,7 +907,6 @@ void QTextDocumentPrivate::appendUndoItem(QAbstractUndoItem *item)
 
 void QTextDocumentPrivate::appendUndoItem(const QTextUndoCommand &c)
 {
-    Q_Q(QTextDocument);
     PMDEBUG("appendUndoItem, command=%d enabled=%d", c.command, undoEnabled);
     if (!undoEnabled)
         return;
@@ -966,7 +965,6 @@ void QTextDocumentPrivate::emitRedoAvailable(bool available)
 
 void QTextDocumentPrivate::enableUndoRedo(bool enable)
 {
-    Q_Q(QTextDocument);
     if (!enable) {
         undoState = 0;
         truncateUndoStack();
