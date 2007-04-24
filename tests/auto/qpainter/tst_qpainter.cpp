@@ -1074,7 +1074,7 @@ void tst_QPainter::drawRoundRect()
         QTest::currentDataTag() == QByteArray("rect(17, 6, 24, 3) with pen") ||
         QTest::currentDataTag() == QByteArray("rect(24, 12, 38, 14) with pen"))
         QSKIP("The Mac paint engine is off-by-one on certain rect sizes", SkipSingle);
-#endif    
+#endif
     QPixmap pixmap(rect.x() + rect.width() + 10,
                    rect.y() + rect.height() + 10);
     {
@@ -1115,6 +1115,7 @@ void tst_QPainter::qimageFormats_data()
     QTest::newRow("QImage::Format_RGB32") << QImage::Format_RGB32;
     QTest::newRow("QImage::Format_ARGB32") << QImage::Format_ARGB32;
     QTest::newRow("QImage::Format_ARGB32_Premultiplied") << QImage::Format_ARGB32_Premultiplied;
+    QTest::newRow("QImage::Format_RGB16") << QImage::Format_RGB16;
 }
 
 /*
