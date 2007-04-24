@@ -1603,7 +1603,7 @@ void QRasterPaintEngine::drawRects(const QRectF *rects, int rectCount)
         if (d->brushData.blend) {
             d->rasterizer.setSpanData(&d->brushData);
             for (int i = 0; i < rectCount; ++i) {
-                const QRectF &rect = rects[i];
+                const QRectF &rect = rects[i].normalized();
                 const QPointF a = d->matrix.map((rect.topLeft() + rect.bottomLeft()) * 0.5f);
                 const QPointF b = d->matrix.map((rect.topRight() + rect.bottomRight()) * 0.5f);
                 d->rasterizer.rasterizeLine(a, b, rect.height() / rect.width());
@@ -1619,7 +1619,7 @@ void QRasterPaintEngine::drawRects(const QRectF *rects, int rectCount)
                 d->rasterizer.setSpanData(&d->penData);
 
                 for (int i = 0; i < rectCount; ++i) {
-                    const QRectF &rect = rects[i];
+                    const QRectF &rect = rects[i].normalized();
                     const QPointF tl = d->matrix.map(rect.topLeft());
                     const QPointF tr = d->matrix.map(rect.topRight());
                     const QPointF bl = d->matrix.map(rect.bottomLeft());
@@ -1635,7 +1635,7 @@ void QRasterPaintEngine::drawRects(const QRectF *rects, int rectCount)
                 ProcessSpans brush_blend = d->brushData.blend;
                 d->brushData.blend = 0;
                 for (int i = 0; i < rectCount; ++i) {
-                    const QRectF &rf = rects[i];
+                    const QRectF &rf = rects[i].normalized();
                     QPointF pts[4] = { QPointF(rf.x(), rf.y()),
                                        QPointF(rf.x() + rf.width(), rf.y()),
                                        QPointF(rf.x() + rf.width(), rf.y() + rf.height()),
