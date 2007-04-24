@@ -1465,9 +1465,9 @@ QVariant PPDOptionsModel::data(const QModelIndex& index, int role) const
                 itm = reinterpret_cast<OptionTreeItem*>(index.internalPointer());
 
             if (index.column() == 0)
-                return QVariant(QString::fromLocal8Bit(itm->description));
+                return cups->unicodeString(itm->description);
             else if (itm->type == OptionTreeItem::Option && itm->selected > -1)
-                return QVariant(QString::fromLocal8Bit(itm->selDescription));
+                return cups->unicodeString(itm->selDescription);
             else
                 return QVariant();
         }

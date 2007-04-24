@@ -12,6 +12,7 @@
 ****************************************************************************/
 #include <qdebug.h>
 #include "qcups_p.h"
+#include <cups/language.h>
 
 #ifndef QT_NO_CUPS
 
@@ -25,6 +26,8 @@ typedef void (*PPDClose)(ppd_file_t *ppd);
 typedef int (*PPDMarkOption)(ppd_file_t *ppd, const char *keyword, const char *option);
 typedef void (*CupsFreeOptions)(int num_options, cups_option_t *options);
 typedef void (*CupsSetDests)(int num_dests, cups_dest_t *dests);
+typedef cups_lang_t* (*CupsLangGet)(const char *language);
+typedef const char* (*CupsLangEncoding)(cups_lang_t *language);
 typedef int (*CupsAddOption)(const char *name, const char *value, int num_options, cups_option_t **options);
 
 static bool cupsLoaded = false;
@@ -37,6 +40,8 @@ static CupsMarkOptions _cupsMarkOptions = 0;
 static PPDMarkOption _ppdMarkOption = 0;
 static CupsFreeOptions _cupsFreeOptions = 0;
 static CupsSetDests _cupsSetDests = 0;
+static CupsLangGet _cupsLangGet = 0;
+static CupsLangEncoding _cupsLangEncoding = 0;
 static CupsAddOption _cupsAddOption = 0;
 
 static void resolveCups()
@@ -45,6 +50,8 @@ static void resolveCups()
     if(cupsLib.load()) {
         _cupsGetDests = (CupsGetDests) cupsLib.resolve("cupsGetDests");
         _cupsGetPPD = (CupsGetPPD) cupsLib.resolve("cupsGetPPD");
+        _cupsLangGet = (CupsLangGet) cupsLib.resolve("cupsLangGet");
+        _cupsLangEncoding = (CupsLangEncoding) cupsLib.resolve("cupsLangEncoding");
         _ppdOpenFile = (PPDOpenFile) cupsLib.resolve("ppdOpenFile");
         _ppdMarkDefaults = (PPDMarkDefaults) cupsLib.resolve("ppdMarkDefaults");
         _ppdClose = (PPDClose) cupsLib.resolve("ppdClose");
@@ -81,6 +88,11 @@ QCUPSSupport::QCUPSSupport()
             break;
         }
     }
+
+    cups_lang_t *cupsLang = _cupsLangGet(0);
+    codec = QTextCodec::codecForName(_cupsLangEncoding(cupsLang));
+    if (!codec)
+        codec = QTextCodec::codecForLocale();
 }
 
 QCUPSSupport::~QCUPSSupport()
@@ -155,6 +167,8 @@ bool QCUPSSupport::isAvailable()
         _ppdMarkOption &&
         _cupsFreeOptions &&
         _cupsSetDests &&
+        _cupsLangGet &&
+        _cupsLangEncoding &&
         _cupsAddOption;
 }
 
@@ -268,6 +282,11 @@ bool QCUPSSupport::printerHasPPD(const char *printerName)
     if (!isAvailable())
         return false;
     return _cupsGetPPD(printerName) != 0;
+}
+
+QString QCUPSSupport::unicodeString(const char *s)
+{
+    return codec->toUnicode(s);
 }
 
 void QCUPSSupport::collectMarkedOptions(QStringList& list, const ppd_group_t* group) const
