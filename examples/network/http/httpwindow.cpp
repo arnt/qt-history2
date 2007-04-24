@@ -20,7 +20,7 @@
 HttpWindow::HttpWindow(QWidget *parent)
     : QDialog(parent)
 {
-    urlLineEdit = new QLineEdit("https://www.nordea.no");
+    urlLineEdit = new QLineEdit("https://");
 
     urlLabel = new QLabel(tr("&URL:"));
     urlLabel->setBuddy(urlLineEdit);
