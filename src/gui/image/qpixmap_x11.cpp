@@ -375,8 +375,14 @@ QPixmapData::~QPixmapData()
     single reference or if the pixmap has not been initialized yet.
 */
 
+typedef void (*_qt_pixmap_cleanup_hook_64)(qint64);
+extern _qt_pixmap_cleanup_hook_64 qt_pixmap_cleanup_hook_64;
+
 void QPixmap::detach()
 {
+    if (qt_pixmap_cleanup_hook_64 && data->count == 1)
+        qt_pixmap_cleanup_hook_64(cacheKey());
+
     if (data->count != 1)
         *this = copy();
     ++data->detach_no;

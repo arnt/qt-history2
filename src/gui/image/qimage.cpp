@@ -1252,6 +1252,9 @@ QImage::operator QVariant() const
 void QImage::detach()
 {
     if (d) {
+        if (qt_image_cleanup_hook_64 && d->ref == 1)
+            qt_image_cleanup_hook_64(cacheKey());
+
         if (d->ref != 1 || d->ro_data)
             *this = copy();
         ++d->detach_no;

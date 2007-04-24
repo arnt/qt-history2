@@ -127,7 +127,7 @@ QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
         image.setColor(0, QColor(Qt::color0).rgba());
         image.setColor(1, QColor(Qt::color1).rgba());
     }
-    
+
     if (d == 16) {
         QImage im = image.convertToFormat(QImage::Format_RGB32, flags);
         return fromImage(im);
@@ -348,8 +348,14 @@ void QPixmap::setMask(const QBitmap &newmask)
     data->macSetAlphaChannel(&newmask, true);
 }
 
+typedef void (*_qt_pixmap_cleanup_hook_64)(qint64);
+extern _qt_pixmap_cleanup_hook_64 qt_pixmap_cleanup_hook_64;
+
 void QPixmap::detach()
 {
+    if (qt_pixmap_cleanup_hook_64 && data->count == 1)
+        qt_pixmap_cleanup_hook_64(cacheKey());
+
     if(data->cg_mask) {
         CGImageRelease(data->cg_mask);
         data->cg_mask = 0;

@@ -1293,7 +1293,7 @@ public:
     QGLTexture(const QGLContext *ctx, GLuint tx_id, qint64 _qt_id, bool _clean = false)
         : context(ctx), id(tx_id), qt_id(_qt_id), clean(_clean) {}
     ~QGLTexture() {
-        if (!context->isSharing()) {
+        if (clean || !context->isSharing()) {
             QGLContext *current = const_cast<QGLContext *>(QGLContext::currentContext());
             QGLContext *ctx = const_cast<QGLContext *>(context);
             bool switch_context = current && current != ctx;
@@ -1731,7 +1731,9 @@ bool QGLContextPrivate::textureCacheLookup(const QString &key, GLuint *id, qint6
     Q_Q(QGLContext);
     if (qt_tex_cache) {
         QGLTexture *texture = qt_tex_cache->object(key);
-        if (texture && texture->context == q) {
+        if (texture && (texture->context == q
+                        || qgl_share_reg()->checkSharing(q, texture->context)))
+        {
             *id = texture->id;
             *qt_id = texture->qt_id;
             return true;
