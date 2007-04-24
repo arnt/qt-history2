@@ -8,6 +8,7 @@ General Improvements
 - Configuration/Compilation
     * Fixed OpenBSD and NetBSD build issues.
 
+
 Third party components
 ----------------------
 
@@ -48,6 +49,13 @@ Third party components
     * [151789] Allow passing of date only format to QDateTime::fromString() (according to ISO 8601)
     * Remove legacy behavior which assumed that a year between 0 and 99 was meant 1900 + year in QDateTime
 
+- QVariant
+    * [127225] Unloading a GUI plugin will no longer cause crash in
+      QVariant in QtCore application.
+
+- QDesktopWidget
+    * [135002] emit signal after resize takes place on Mac OS X.
+
 - QDateTimeEdit
     * [111557 and 141266] Improvements with regards to two-digit years in a QDateTimeEdit. Make stepping work properly.
     * [110034] Don't change current section on wheelEvent.
@@ -63,14 +71,26 @@ Third party components
     * [134392] Add sectionAt()/currentSectionIndex()/setCurrentSectionIndex() to QDateTimeEdit.
     * Add a NoButtons value for the buttonSymbols property.
 
+- QSocketNotifier
+    * [148472] Mac OS X now prevented from closing the file descriptor when
+      the QSocketNotifier is deregistered.
+    * [140018] Mac OS X will now invalidate the backing native socket
+      notifier upon deregistration.
+
 - QDoubleSpinBox
     * [99254] Allow higher settings for decimals
+
+- QFileInfo
+    * Do not follow symbolic link for Mac FS hidden flag detection.
+    * [128604] Introduced isBundle() for Mac OS X bundle types.
 
 - QFileDialog
     * Updated file dialog with native icons, faster performance and a sidebar to
       remember commonly used folders.
     * [134557] Add the ability to set a proxy model.
-    * Added dirEntered() and filterSelected() signals which existed in Qt3's file dialog.
+    * Added dirEntered() and filterSelected() signals which existed in
+      Qt3's file dialog.
+    * [130353] Fixed Qt/Mac native filedialog pattern splitting
 
 - QHeaderView
     * Now uses Qt::NoFocus for its default focus policy
@@ -82,12 +102,30 @@ Third party components
 - QListView
     * [136614] Batched mode did not display the last item of the batch.
 
+- QResource
+    * [129429] Allow a QByteArray for runtime resource registration.
+
 - QMainWindow 
     * [145493] Fix a crash with QMainWindow:setMainWindow(0); on X11
 
 - QMenu
     * the addAction() overloads that take a slot argument now honor the slot's bool
       argument correctly.
+    * [129289] Support context menus from within a QMenu.
+    * [144054] Fixed scrolling logic.
+    * [132524] Allow setVisible() of separator items on Mac OS X native
+      menu items.
+    * [131408] tornoff QMenu has a fixed size now to prevent window system
+      resizes.
+    * [113989] Added some fuzziness to the snapto detection.
+    * [155030] Do not disable command actions when merge is disabled.
+
+- QMenuBar
+    * [135320] Make QMenuBar::show() a no-op to on Mac OS X to prevent
+      QMenuBar being visible at the same time as a native Mac menubar.
+    * [115471] Fix tornoff menu behaviour to propgate mouse events correctly
+      on 2nd level tearoffs.
+
 
 - QMessageBox
     * [119777] Pressing Ctrl+C in message boxes on Windows copies text to clipboard
@@ -119,7 +157,6 @@ Third party components
 - QSpinBox
     * [141569] Disallow typing -0 in a QSpinBox with a positive range
 
-
 - QSyntaxHighligher
     * [151831] calling rehighlight() was causing highlighBlock() to be called
       twice for each block of text
@@ -141,6 +178,9 @@ Third party components
 
 - QString
     * fromUtf8() now discards UTF-8 encoded byte order marks just like the UTF-8 QTextCodec
+
+- QSystemTrayIcon
+    * [131892] Mac OS X will issue messages to growl via AppleScript now.
 
 - QStyle
     * Add StandardPixmap SP_DirHomeIcon which is native icon for the home directory.
@@ -165,6 +205,9 @@ Third party components
       the document title or the document default font when it's created
       from a document or from HTML. Use QTextDocument's toHtml/setHtml
       if you want to propagate these properties to and from HTML.
+
+- QToolButton
+    * [130358] Send Hover to the associated QAction upon enter.
 
 - QTreeView
     * [158096] Prevent dropping an item on its own child.
@@ -252,6 +295,28 @@ Mac OS X
 
     * qtconfig is no longer available on Mac OS X. All settings are read from
       the system's configuration.
+    * [259326] Always offers a 'TEXT' type flavor for non-Pasteboard aware
+      Mac Application pastes.
+    * [259041] Mouse Event propagation bugs.
+    * Introduced Q_WS_MAC32/Q_WS_MAC64 for 64 vs 32 bit detection
+      at compile time.
+    * [258549] Introduced WA_MacAlwaysShowToolWindow to behave as a utility
+      window as opposed to a floating window.
+    * [257991] Qt will now follow the HIView focus chain to allow wrapped
+      HIViewRef's to take focus as appropriate.
+    * [257782] Qt will not deliver mouse release events to widgets that do
+      not process mouse press events (including widgets with
+      WA_MacNoClickThrough).
+    * Introduce support for 64 bit Mac OS X builds.
+    * [145166] CoreGraphics interpolation set to High quality when using
+      SmoothPixmapTransform.
+    * [134873] Will find a widget with a cursor by climbing the parent
+      heirarchy rather than looking at the front most widget.
+    * [132178] Double click detection requires the second click being near
+      the previous click to prevent false double click detection.
+    * [131327] Toplevel-window mouse propgation for with WA_MacNoClickThrough.
+    * Now entirely QuickDraw clean.
+    * [155540] Asymetic scales work with cosmetic pens.
 
 Qtopia Core
 -----------
@@ -268,6 +333,24 @@ Examples
 ****************************************************************************
 *                          Tools                                           *
 ****************************************************************************
+
+- Build System
+  * Shadowbuilds are now supported by bmake/nmake/mingw-make of Qt
+     buildsystem.
+  * [151184] Separate -make options for demos and examples
+  * [150610] fvisibility requires gcc on Unix builds.
+  * [77152] At "make install" time all meta information files will be
+    cleaned up to remove reference to source code path.
+  * [139399] Use environment CC/CXX on Unix when running the build tests.
+  * [145344] "make confclean" will remove all configure generated files as well.
+  * [145659] Added ability to disable SSE.
+  * Added dwarf2 detection and support into Qt build system for improved
+    debug library size. 
+  * Added macx-g++-64 meta spec for Qt configure purposes.
+  * [127840] Our pkgconfig files (.pc) are placed into lib/pkgconfig now.
+  * [135547] Allow Windows line endings on UNIX and vice versa in
+    .qt-license files.
+  * [133068] GIF support is enabled by default now.
 
 - Assistant
 
@@ -327,6 +410,13 @@ Examples
 
 - lrelease
 
+- rcc
+    * [260738] Default compression set to zlib default (normally level 6).
+    * [256265] Allow absolute paths in .qrc files (accessible through
+    original filesystem path).
+    * [146958] No longer returns error when a .qrc is empty, simply
+    generates a (mostly) empty file.
+
 - moc
 
 - uic
@@ -335,4 +425,33 @@ Examples
     * [141217] Improved handling of include files of Qt 3 classes.
 
 - qmake
-    [132154] Support for /bigobj option in the vcproj generator.
+    * Support for /bigobj option in the vcproj generator.
+    * [260738] Fixed crash with dependency analysis.
+    * Do not add cleanup rules for extra compilers with no inputs.
+    * LEX/YACC support has been moved into .prf files.
+    * [258558] Introduced PRECOMPILED_DIR for PCH output (defaults to OBJECTS_DIR).
+    * [257985] Fixed qmake location detection bug.
+    * Strip out empty INCLUDEPATH.
+    * Allow QMAKE_UUID to override qmake deteremined UUID in
+      vcproj generator.
+    * [151332] Terminate .pc files with an extra carriage return.
+    * [148535] Introduced QMAKE_FRAMEWORKPATH and use it internally.
+    * [127415] Fix object_with_source.
+    * [127413] Introduce QMAKE_FILE_IN_PATH place holder for extra compilers.
+    * [141749] Prevent cyclical dependencies.
+    * [146368] Remove GNUmake .d files upon distclean.
+    * Improved extensibility of the precompiled header support to allow icc
+      precompiled headers.
+    * [147142] Short-circuit previously seen library paths to avoid
+      cyclical .prl processing.
+    * [144492] Set INSTALL_PROGRAM for INSTALLS in macx-xcode projects.
+    * [143720] Extra compilers will now depend upon the input file automatically.
+    * Introduced QMAKE_DISTCLEAN for extra files to be removed upon "make distclean".
+    * [133518] Reduced the noise created by qmake warnings.
+    * [108012] Bring macx-xcode into line with macx-g++ with regards to
+      custom bundle types
+    * [128759] Support spaces in paths to linked libraries.
+    * [83445] Make sure that "make distclean" in a library with a DESTDIR
+      really does remove the destination symbolic links.
+    * subdir generator will now use - to separate target words and _ to
+      separate internally appended words.
