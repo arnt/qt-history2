@@ -90,3 +90,13 @@ span.string,span.char
 {
   color: darkgreen;
 }
+
+.subtitle
+{
+    font-size: 0.8em
+}
+
+.small-subtitle
+{
+    font-size: 0.65em
+}
