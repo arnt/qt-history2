@@ -57,16 +57,6 @@ void MainWindow::saveAs()
     if (fileName.isEmpty())
         return;
 
-    if (QFile::exists(fileName)) {
-	QMessageBox::StandardButton ret;
-        ret = QMessageBox::warning(this, tr("Recent Files"),
-                     tr("File %1 already exists.\n"
-                        "Do you want to overwrite it?")
-                     .arg(QDir::toNativeSeparators(fileName)),
-                     QMessageBox::Yes | QMessageBox::Cancel);
-        if (ret == QMessageBox::Cancel)
-            return;
-    }
     saveFile(fileName);
 }
 
