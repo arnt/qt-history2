@@ -12,9 +12,10 @@
 ****************************************************************************/
 #include <qdebug.h>
 #include "qcups_p.h"
-#include <cups/language.h>
 
 #ifndef QT_NO_CUPS
+
+#include <cups/language.h>
 
 typedef int (*CupsGetDests)(cups_dest_t **dests);
 typedef const char* (*CupsGetPPD)(const char *printer);
