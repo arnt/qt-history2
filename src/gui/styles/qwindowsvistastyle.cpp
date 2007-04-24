@@ -1757,6 +1757,10 @@ QRect QWindowsVistaStyle::subElementRect(SubElement element, const QStyleOption 
             rect = visualRect(option->direction, option->rect, r);
         }
         break;
+    case SE_ProgressBarContents:
+        rect = QCommonStyle::subElementRect(SE_ProgressBarGroove, option, widget);
+        break;
+
     default:
         break;
     }
