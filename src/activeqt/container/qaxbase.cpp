@@ -3288,8 +3288,18 @@ void QAxBase::connectNotify()
         if (d->eventSink.contains(connuuid))
             break;
 
+        // Get ITypeInfo for source-interface, and skip if not supporting IDispatch
         ITypeInfo *eventinfo = 0;
         typelib->GetTypeInfoOfGuid(conniid, &eventinfo);
+        TYPEATTR *eventAttr;
+        eventinfo->GetTypeAttr(&eventAttr);
+        if (!eventAttr)
+            break;
+
+        TYPEKIND eventKind = eventAttr->typekind;
+        eventinfo->ReleaseTypeAttr(eventAttr);
+        if (eventKind != TKIND_DISPATCH)
+            break;
 
         // always into the cache to avoid recoursion
         QAxEventSink *eventSink = eventinfo ? new QAxEventSink(this) : 0;
