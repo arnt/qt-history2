@@ -7486,6 +7486,22 @@ void QWidget::setParent(QWidget *parent, Qt::WindowFlags f)
 
     d->setParent_sys(parent, f);
 
+#ifdef Q_BACKINGSTORE_SUBSURFACES
+    QTLWExtra *extra = d->maybeTopData();
+    QWindowSurface *windowSurface = (extra ? extra->windowSurface : 0);
+    if (newParent && windowSurface) {
+        QWidgetBackingStore *oldBs = oldtlw->d_func()->maybeBackingStore();
+        if (oldBs)
+            oldBs->subSurfaces.removeAll(windowSurface);
+
+        if (parent) {
+            QWidgetBackingStore *newBs = parent->d_func()->maybeBackingStore();
+            if (newBs)
+                newBs->subSurfaces.append(windowSurface);
+        }
+    }
+#endif
+
 #ifdef Q_WIDGET_USE_DIRTYLIST
     if (newParent) {
         QWidgetBackingStore *oldBs = oldtlw->d_func()->maybeBackingStore();
