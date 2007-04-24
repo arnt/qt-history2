@@ -125,7 +125,7 @@ Configure::Configure( int& argc, char** argv )
                         QDir().mkpath(od );
                         bool justCopy = true;
                         const QString fname = fi.fileName();
-			const QString outFile(od + "/" + fname), inFile(id + "/" + fname);
+                        const QString outFile(od + "/" + fname), inFile(id + "/" + fname);
                         if(fi.fileName() == "Makefile") { //ignore
                         } else if(fi.suffix() == "h" || fi.suffix() == "cpp") {
                             QTemporaryFile tmpFile;
@@ -133,13 +133,13 @@ Configure::Configure( int& argc, char** argv )
                                 QTextStream stream(&tmpFile);
                                 stream << "#include \"" << inFile << "\"" << endl;
                                 justCopy = false;
-				stream.flush();
-				tmpFile.flush();
-				if(filesDiffer(tmpFile.fileName(), outFile)) {
-				    QFile::remove(outFile);
-				    tmpFile.copy(outFile);
-				}
-			    }
+                                stream.flush();
+                                tmpFile.flush();
+                                if(filesDiffer(tmpFile.fileName(), outFile)) {
+                                    QFile::remove(outFile);
+                                    tmpFile.copy(outFile);
+                                }
+                            }
                         }
                         if(justCopy && filesDiffer(inFile, outFile))
                             QFile::copy(inFile, outFile);
@@ -649,12 +649,44 @@ void Configure::parseCmdLine()
         else if (configCmdLine.at(i) == "-direct3d") {
             QString sdk_dir(QString::fromLocal8Bit(getenv("DXSDK_DIR")));
             QDir dir;
-            if (!sdk_dir.isEmpty() && dir.exists(sdk_dir)) {
+            bool has_d3d = false;
+
+            if (!sdk_dir.isEmpty() && dir.exists(sdk_dir))
+                has_d3d = true;
+
+            if (has_d3d && !QFile::exists(sdk_dir + QLatin1String("\\include\\d3d9.h"))) {
+                cout << "No Direct3D version 9 SDK found." << endl;
+                has_d3d = false;
+            }
+
+            // find the first dxguid.lib in the current LIB paths, if it is NOT
+            // the D3D SDK one, we're most likely in trouble..
+            if (has_d3d) {
+                has_d3d = false;
+                QString env_lib(QString::fromLocal8Bit(getenv("LIB")));
+                QStringList lib_paths = env_lib.split(';');
+                for (int i=0; i<lib_paths.size(); ++i) {
+                    QString lib_path = lib_paths.at(i);
+                    if (QFile::exists(lib_path + QLatin1String("\\dxguid.lib")))
+                    {
+                        if (lib_path.startsWith(sdk_dir)) {
+                            has_d3d = true;
+                        } else {
+                            cout << "Your D3D/Platform SDK library paths seem to appear in the wrong order." << endl;
+                        }
+                        break;
+                    }
+                }
+            }
+
+            if (has_d3d) {
                 dictionary[ "DIRECT3D" ] = "yes";
             } else {
-                cout << "Setting Direct3D to NO, since the Direct3D SDK was not detected." << endl
+                cout << "Setting Direct3D to NO, since the proper Direct3D SDK was not detected." << endl
                      << "Make sure you have the Direct3D SDK installed, and that you have run" << endl
-                     << "the <path to SDK>\\Utilities\\Bin\\dx_setenv.cmd command." << endl;
+                     << "the <path to SDK>\\Utilities\\Bin\\dx_setenv.cmd script." << endl
+                     << "The D3D SDK library path *needs* to appear before the Platform SDK library" << endl
+                     << "path in your LIB environment variable." << endl;
             }
 
         } else if( configCmdLine.at(i) == "-no-openssl" ) {
@@ -2031,23 +2063,23 @@ void Configure::generateConfigfiles()
             tmpStream << addDefine(qconfigList.at(i));
 
         tmpStream.flush();
-	tmpFile.flush();
-	if(!QFile::exists(outName) || filesDiffer(tmpFile.fileName(), outName)) {
-	    ::SetFileAttributesA( outName.toLocal8Bit(), FILE_ATTRIBUTE_NORMAL );
-	    QFile::remove( outName );
-	    tmpFile.copy( outName );
-	}
-	tmpFile.close();
+        tmpFile.flush();
+        if(!QFile::exists(outName) || filesDiffer(tmpFile.fileName(), outName)) {
+            ::SetFileAttributesA( outName.toLocal8Bit(), FILE_ATTRIBUTE_NORMAL );
+            QFile::remove( outName );
+            tmpFile.copy( outName );
+        }
+        tmpFile.close();
 
-	if(!QFile::exists(buildPath + "/include/QtCore/qconfig.h")) {
-	    if (!writeToFile("#include \"../../src/corelib/global/qconfig.h\"\n",
-			     buildPath + "/include/QtCore/qconfig.h")
+        if(!QFile::exists(buildPath + "/include/QtCore/qconfig.h")) {
+            if (!writeToFile("#include \"../../src/corelib/global/qconfig.h\"\n",
+                             buildPath + "/include/QtCore/qconfig.h")
             || !writeToFile("#include \"../../src/corelib/global/qconfig.h\"\n",
-			    buildPath + "/include/Qt/qconfig.h")) {
-		dictionary["DONE"] = "error";
-		return;
-	    }
-	}
+                            buildPath + "/include/Qt/qconfig.h")) {
+                dictionary["DONE"] = "error";
+                return;
+            }
+        }
     }
 
     QString archFile = sourcePath + "/src/corelib/arch/qatomic_" + dictionary["ARCHITECTURE"].toLower() + ".h";
@@ -2061,19 +2093,19 @@ void Configure::generateConfigfiles()
     archhelper.mkdir(buildPath + "/include/QtCore/arch");
     const QString outArchFile(buildPath + "/include/QtCore/arch/qatomic.h");
     if(!QFile::exists(outArchFile) || filesDiffer(archFile, outArchFile)) {
-	if (!CopyFileA(archFile.toLocal8Bit(), outArchFile.toLocal8Bit(), FALSE))
-	    qDebug("Couldn't copy %s to include/arch", qPrintable(archFile) );
-	if (!SetFileAttributesA(QString(buildPath + "/include/QtCore/arch/qatomic.h").toLocal8Bit(), FILE_ATTRIBUTE_NORMAL))
-	    qDebug("Couldn't reset writable file attribute for qatomic.h");
+        if (!CopyFileA(archFile.toLocal8Bit(), outArchFile.toLocal8Bit(), FALSE))
+            qDebug("Couldn't copy %s to include/arch", qPrintable(archFile) );
+        if (!SetFileAttributesA(QString(buildPath + "/include/QtCore/arch/qatomic.h").toLocal8Bit(), FILE_ATTRIBUTE_NORMAL))
+            qDebug("Couldn't reset writable file attribute for qatomic.h");
     }
     if(!QFile::exists(buildPath + "/include/QtCore/arch/qatomic.h")) {
-	// Create qatomic.h "symlinks"
-	QString atomicContents = QString("#include \"../../../src/corelib/arch/qatomic_" + dictionary[ "ARCHITECTURE" ].toLower() + ".h\"\n");
-	if (!writeToFile(atomicContents.toLocal8Bit(),    buildPath + "/include/QtCore/arch/qatomic.h")
-	    || !writeToFile(atomicContents.toLocal8Bit(), buildPath + "/include/Qt/arch/qatomic.h")) {
-	    dictionary[ "DONE" ] = "error";
-	    return;
-	}
+        // Create qatomic.h "symlinks"
+        QString atomicContents = QString("#include \"../../../src/corelib/arch/qatomic_" + dictionary[ "ARCHITECTURE" ].toLower() + ".h\"\n");
+        if (!writeToFile(atomicContents.toLocal8Bit(),    buildPath + "/include/QtCore/arch/qatomic.h")
+            || !writeToFile(atomicContents.toLocal8Bit(), buildPath + "/include/Qt/arch/qatomic.h")) {
+            dictionary[ "DONE" ] = "error";
+            return;
+        }
     }
 
     // Copy configured mkspec to default directory, but remove the old one first, if there is any
@@ -2098,7 +2130,7 @@ void Configure::generateConfigfiles()
     ::SetFileAttributesA(outName.toLocal8Bit(), FILE_ATTRIBUTE_NORMAL );
     QFile qmakeConfFile(outName);
     if (qmakeConfFile.open(QFile::Append | QFile::WriteOnly | QFile::Text)) {
-	QTextStream qmakeConfStream;
+        QTextStream qmakeConfStream;
         qmakeConfStream.setDevice(&qmakeConfFile);
         qmakeConfStream << endl << "QMAKESPEC_ORIGINAL=" << pltSpec << endl;
         qmakeConfStream.flush();
@@ -2142,13 +2174,13 @@ void Configure::generateConfigfiles()
                   << endl;
 
         tmpStream.flush();
-	tmpFile.flush();
-	if(!QFile::exists(outName) || filesDiffer(tmpFile.fileName(), outName)) {
-	    ::SetFileAttributesA(outName.toLocal8Bit(), FILE_ATTRIBUTE_NORMAL );
-	    QFile::remove( outName );
-	    tmpFile.copy(outName);
-	}
-	tmpFile.close();
+        tmpFile.flush();
+        if(!QFile::exists(outName) || filesDiffer(tmpFile.fileName(), outName)) {
+            ::SetFileAttributesA(outName.toLocal8Bit(), FILE_ATTRIBUTE_NORMAL );
+            QFile::remove( outName );
+            tmpFile.copy(outName);
+        }
+        tmpFile.close();
     }
 }
 #endif
@@ -2722,24 +2754,24 @@ Configure::filesDiffer(const QString &fn1, const QString &fn2)
 {
     QFile file1(fn1), file2(fn2);
     if(!file1.open(QFile::ReadOnly) || !file2.open(QFile::ReadOnly))
-	return true;
+        return true;
     const int chunk = 2048;
     int used1 = 0, used2 = 0;
     char b1[chunk], b2[chunk];
     while(!file1.atEnd() && !file2.atEnd()) {
-	if(!used1)
-	    used1 = file1.read(b1, chunk);
-	if(!used2)
-	    used2 = file2.read(b2, chunk);
-	if(used1 > 0 && used2 > 0) {
-	    const int cmp = qMin(used1, used2);
-	    if(memcmp(b1, b2, cmp))
-		return true;
-	    if((used1 -= cmp))
-		memcpy(b1, b1+cmp, used1);
-	    if((used2 -= cmp))
-		memcpy(b2, b2+cmp, used2);
-	}
+        if(!used1)
+            used1 = file1.read(b1, chunk);
+        if(!used2)
+            used2 = file2.read(b2, chunk);
+        if(used1 > 0 && used2 > 0) {
+            const int cmp = qMin(used1, used2);
+            if(memcmp(b1, b2, cmp))
+                return true;
+            if((used1 -= cmp))
+                memcpy(b1, b1+cmp, used1);
+            if((used2 -= cmp))
+                memcpy(b2, b2+cmp, used2);
+        }
     }
     return !file1.atEnd() || !file2.atEnd();
 }
