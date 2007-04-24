@@ -11,9 +11,9 @@ General Improvements
 Third party components
 ----------------------
 
-- Updated Qt's SQLite version to 3.3.13.
+- Updated Qt's SQLite version to 3.3.16.
 
-- Updated Qt's FreeType version to 2.3.0.
+- Updated Qt's FreeType version to 2.3.4.
 
 - Updated Qt's libpng version to 1.2.16.
 
