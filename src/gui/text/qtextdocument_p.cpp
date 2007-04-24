@@ -144,6 +144,8 @@ bool QTextUndoCommand::tryMerge(const QTextUndoCommand &other)
 }
 
 QTextDocumentPrivate::QTextDocumentPrivate()
+    : wasUndoAvailable(false)
+    , wasRedoAvailable(false)
 {
     editBlock = 0;
     docChangeFrom = -1;
@@ -875,9 +877,8 @@ int QTextDocumentPrivate::undoRedo(bool undo)
         editPos = qMin(docChangeFrom + docChangeLength, length() - 1);
     }
     endEditBlock();
-    Q_Q(QTextDocument);
-    emit q->undoAvailable(isUndoAvailable());
-    emit q->redoAvailable(isRedoAvailable());
+    emitUndoAvailable(isUndoAvailable());
+    emitRedoAvailable(isRedoAvailable());
     return editPos;
 }
 
@@ -920,8 +921,8 @@ void QTextDocumentPrivate::appendUndoItem(const QTextUndoCommand &c)
     }
     undoStack.append(c);
     undoState++;
-    emit q->undoAvailable(true);
-    emit q->redoAvailable(false);
+    emitUndoAvailable(true);
+    emitRedoAvailable(false);
 }
 
 void QTextDocumentPrivate::truncateUndoStack() {
@@ -945,14 +946,32 @@ void QTextDocumentPrivate::truncateUndoStack() {
     undoStack.resize(undoState);
 }
 
+void QTextDocumentPrivate::emitUndoAvailable(bool available)
+{
+    if (available != wasUndoAvailable) {
+        Q_Q(QTextDocument);
+        emit q->undoAvailable(available);
+        wasUndoAvailable = available;
+    }
+}
+
+void QTextDocumentPrivate::emitRedoAvailable(bool available)
+{
+    if (available != wasRedoAvailable) {
+        Q_Q(QTextDocument);
+        emit q->redoAvailable(available);
+        wasRedoAvailable = available;
+    }
+}
+
 void QTextDocumentPrivate::enableUndoRedo(bool enable)
 {
     Q_Q(QTextDocument);
     if (!enable) {
         undoState = 0;
         truncateUndoStack();
-        emit q->undoAvailable(false);
-        emit q->redoAvailable(false);
+        emitUndoAvailable(false);
+        emitRedoAvailable(false);
     }
     modifiedState = modified ? -1 : undoState;
     undoEnabled = enable;

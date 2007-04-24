@@ -159,6 +159,9 @@ public:
     void setBlockFormat(const QTextBlock &from, const QTextBlock &to,
 			const QTextBlockFormat &newFormat, FormatChangeMode mode = SetFormat);
 
+    void emitUndoAvailable(bool available);
+    void emitRedoAvailable(bool available);
+
     int undoRedo(bool undo);
     inline void undo() { undoRedo(true); }
     inline void redo() { undoRedo(false); }
@@ -223,6 +226,9 @@ private:
     static void clearFrame(QTextFrame *f);
 
     void adjustDocumentChangesAndCursors(int from, int addedOrRemoved, QTextUndoCommand::Operation op);
+
+    bool wasUndoAvailable;
+    bool wasRedoAvailable;
 
 public:
     void documentChange(int from, int length);

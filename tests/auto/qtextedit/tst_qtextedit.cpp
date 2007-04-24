@@ -76,6 +76,7 @@ private slots:
     void cursorPositionChanged();
     void setTextCursor();
     void undoAvailableAfterPaste();
+    void undoRedoAvailableRepetition();
     void appendShouldUseCurrentFormat();
     void appendShouldNotTouchTheSelection();
     void backspace();
@@ -652,6 +653,62 @@ void tst_QTextEdit::undoAvailableAfterPaste()
     ed->paste();
     QVERIFY(spy.count() >= 1);
     QCOMPARE(ed->toPlainText(), txt);
+}
+
+class UndoRedoRecorder : public QObject
+{
+    Q_OBJECT
+public:
+    UndoRedoRecorder(QTextDocument *doc)
+        : undoRepetitions(false)
+        , redoRepetitions(false)
+        , undoCount(0)
+        , redoCount(0)
+    {
+        connect(doc, SIGNAL(undoAvailable(bool)), this, SLOT(undoAvailable(bool)));
+        connect(doc, SIGNAL(redoAvailable(bool)), this, SLOT(redoAvailable(bool)));
+    }
+
+    bool undoRepetitions;
+    bool redoRepetitions;
+
+private slots:
+    void undoAvailable(bool enabled) {
+        if (undoCount > 0 && enabled == lastUndoEnabled)
+            undoRepetitions = true;
+
+        ++undoCount;
+        lastUndoEnabled = enabled;
+    }
+
+    void redoAvailable(bool enabled) {
+        if (redoCount > 0 && enabled == lastRedoEnabled)
+            redoRepetitions = true;
+
+        ++redoCount;
+        lastRedoEnabled = enabled;
+    }
+
+private:
+    bool lastUndoEnabled;
+    bool lastRedoEnabled;
+
+    int undoCount;
+    int redoCount;
+};
+
+void tst_QTextEdit::undoRedoAvailableRepetition()
+{
+    UndoRedoRecorder spy(ed->document());
+
+    ed->textCursor().insertText("ABC\n\nDEF\n\nGHI\n");
+    ed->textCursor().insertText("foo\n");
+    ed->textCursor().insertText("bar\n");
+    ed->undo(); ed->undo(); ed->undo();
+    ed->redo(); ed->redo(); ed->redo();
+
+    QVERIFY(!spy.undoRepetitions);
+    QVERIFY(!spy.redoRepetitions);
 }
 
 void tst_QTextEdit::appendShouldUseCurrentFormat()
