@@ -1173,7 +1173,11 @@ QRect QWindowsXPStyle::subElementRect(SubElement sr, const QStyleOption *option,
         }
         break;
     case SE_ProgressBarContents:
-        rect = subElementRect(SE_ProgressBarGroove, option, widget);
+        rect = QCommonStyle::subElementRect(SE_ProgressBarGroove, option, widget);
+        if (option->state & QStyle::State_Horizontal)
+            rect.adjust(4, 3, -4, -3);
+        else
+            rect.adjust(3, 2, -3, -2);
         break;
     default:
         rect = QWindowsStyle::subElementRect(sr, option, widget);
@@ -1611,14 +1615,20 @@ case PE_Frame:
     case PE_IndicatorProgressChunk:
         {
         Qt::Orientation orient = Qt::Horizontal;
-        if (const QStyleOptionProgressBarV2 *pb2 = qstyleoption_cast<const QStyleOptionProgressBarV2 *>(option))
+        bool inverted = false;
+        if (const QStyleOptionProgressBarV2 *pb2 = qstyleoption_cast<const QStyleOptionProgressBarV2 *>(option)) {
             orient = pb2->orientation;
+            if (pb2->invertedAppearance)
+                inverted = true;
+        }
         if (orient == Qt::Horizontal) {
             partId = PP_CHUNK;
-            rect = QRect(option->rect.x(), option->rect.y() + 3, option->rect.width(), option->rect.height() - 5);
+            rect = QRect(option->rect.x(), option->rect.y(), option->rect.width(), option->rect.height() );
+            if (inverted && option->direction == Qt::LeftToRight)
+                hMirrored = true;
         } else {
             partId = PP_CHUNKVERT;
-            rect = QRect(option->rect.x() + 2, option->rect.y() - 1, option->rect.width() - 5, option->rect.height());
+            rect = QRect(option->rect.x(), option->rect.y(), option->rect.width(), option->rect.height());
         }
         name = QLatin1String("PROGRESS");
         stateId = 1;
@@ -3155,9 +3165,9 @@ int QWindowsXPStyle::pixelMetric(PixelMetric pm, const QStyleOption *option, con
                 orient = pb2->orientation;
             XPThemeData theme(widget, 0, QLatin1String("PROGRESS"), (orient == Qt::Horizontal) ? PP_CHUNK : PP_CHUNKVERT);
             if (theme.isValid()) {
-                int size;
-                pGetThemeInt(theme.handle(), theme.partId, theme.stateId, TMT_PROGRESSCHUNKSIZE, &size);
-                res = size;
+                SIZE size;
+                pGetThemePartSize(theme.handle(), 0, theme.partId, theme.stateId, 0, TS_TRUE, &size);
+                res = (orient == Qt::Horizontal) ? size.cx : size.cy;
             }
         }
         break;

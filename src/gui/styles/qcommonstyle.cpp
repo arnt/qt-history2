@@ -960,12 +960,12 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                 vertical = (pb2->orientation == Qt::Vertical);
                 inverted = pb2->invertedAppearance;
             }
-
             QMatrix m;
+
             if (vertical) {
-                rect = QRect(rect.left(), rect.top(), rect.height(), rect.width()); // flip width and height
-                m.translate(rect.height(), 0.0);
+                rect = QRect(rect.y(), rect.x(), rect.height(), rect.width()); // flip width and height
                 m.rotate(90);
+                m.translate(0, -(rect.height() + rect.y()*2));
             }
 
             QPalette pal2 = pb->palette;
@@ -992,7 +992,7 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
 
                 int u;
                 if (unit_width > 1)
-                    u = (rect.width() + unit_width / 3) / unit_width;
+                    u = ((rect.width() + unit_width) / unit_width);
                 else
                     u = w / unit_width;
                 qint64 p_v = progress - minimum;
@@ -1027,7 +1027,7 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                 pbBits.state = State_None;
                 for (int i = 0; i < nu; ++i) {
                     pbBits.rect.setRect(x0 + x, myY, unit_width, myHeight);
-                    pbBits.rect = m.mapRect(pbBits.rect);
+                    pbBits.rect = m.mapRect(QRectF(pbBits.rect)).toRect();
                     drawPrimitive(PE_IndicatorProgressChunk, &pbBits, p, widget);
                     x += reverse ? -unit_width : unit_width;
                 }
@@ -1038,7 +1038,7 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                     int pixels_left = w - (nu * unit_width);
                     int offset = reverse ? x0 + x + unit_width-pixels_left : x0 + x;
                     pbBits.rect.setRect(offset, myY, pixels_left, myHeight);
-                    pbBits.rect = m.mapRect(pbBits.rect);
+                    pbBits.rect = m.mapRect(QRectF(pbBits.rect)).toRect();
                     drawPrimitive(PE_IndicatorProgressChunk, &pbBits, p, widget);
                 }
             }

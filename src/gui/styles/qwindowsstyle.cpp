@@ -1608,15 +1608,34 @@ case PE_FrameDockWidget:
 #ifndef QT_NO_PROGRESSBAR
     case PE_IndicatorProgressChunk:
         {
-            bool vertical = false;
-            if (const QStyleOptionProgressBarV2 *pb2 = qstyleoption_cast<const QStyleOptionProgressBarV2 *>(opt))
+            bool vertical = false, inverted = false;
+            if (const QStyleOptionProgressBarV2 *pb2 = qstyleoption_cast<const QStyleOptionProgressBarV2 *>(opt)) {
                 vertical = (pb2->orientation == Qt::Vertical);
+                inverted = pb2->invertedAppearance;
+            }
+
+            int space = 2;
+            int chunksize = pixelMetric(PM_ProgressBarChunkWidth, opt, w) - space;
             if (!vertical) {
-                p->fillRect(opt->rect.x(), opt->rect.y(), opt->rect.width() - 2, opt->rect.height(),
+                if (opt->rect.width() <= chunksize)
+                    space = 0;
+
+                if (inverted)
+                    p->fillRect(opt->rect.x() + space, opt->rect.y(), opt->rect.width() - space, opt->rect.height(),
                             opt->palette.brush(QPalette::Highlight));
+                else
+                    p->fillRect(opt->rect.x(), opt->rect.y(), opt->rect.width() - space, opt->rect.height(),
+                                opt->palette.brush(QPalette::Highlight));
             } else {
-                p->fillRect(opt->rect.x(), opt->rect.y(), opt->rect.width(), opt->rect.height() - 2,
+                if (opt->rect.height() <= chunksize)
+                    space = 0;
+
+                if (inverted)
+                    p->fillRect(opt->rect.x(), opt->rect.y(), opt->rect.width(), opt->rect.height() - space,
                             opt->palette.brush(QPalette::Highlight));
+                else
+                    p->fillRect(opt->rect.x(), opt->rect.y() + space, opt->rect.width(), opt->rect.height() - space,
+                                opt->palette.brush(QPalette::Highlight));
             }
         }
         break;
@@ -2275,9 +2294,9 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
             }
             QMatrix m;
             if (vertical) {
-                rect = QRect(rect.left(), rect.top(), rect.height(), rect.width()); // flip width and height
-                m.translate(rect.height(), 0.0);
+                rect = QRect(rect.y(), rect.x(), rect.height(), rect.width()); // flip width and height
                 m.rotate(90);
+                m.translate(0, -(rect.height() + rect.y()*2));
             }
             QPalette pal2 = pb->palette;
             // Correct the highlight color if it is the same as the background
@@ -2299,47 +2318,37 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
 
                 int chunkCount = w / unit_width + 1;
                 int step = d->animateStep%chunkCount;
-                int margin = 3;
                 int chunksInRow = 5;
                 int myY = pbBits.rect.y();
                 int myHeight = pbBits.rect.height();
                 int chunksToDraw = chunksInRow;
 
                 if(step > chunkCount - 5)chunksToDraw = (chunkCount - step);
-                QRegion prevClip = p->clipRegion(); //save state
-                QRect clip = rect;
-                clip.setLeft(clip.left() + margin);
-                clip.setRight(clip.right() - margin);
-                QRegion intersection = prevClip.intersected(clip);
+                p->save();
+                p->setClipRect(m.mapRect(QRectF(rect)).toRect());
 
-                int x0 = reverse ? rect.right() - unit_width*(step) - unit_width  : margin + unit_width * step;
+                int x0 = reverse ? rect.left() + rect.width() - unit_width*(step) - unit_width  : rect.left() + unit_width * step;
                 int x = 0;
-
-                //Make sure the cliprect is also rotated if vertical
-                if(vertical)clip = m.mapRect(clip);
-
-                if(!prevClip.isEmpty())p->setClipRegion(intersection);
-                else p->setClipRect(clip);
 
                 for (int i = 0; i < chunksToDraw ; ++i) {
                     pbBits.rect.setRect(x0 + x, myY, unit_width, myHeight);
-                    pbBits.rect = m.mapRect(pbBits.rect);
+                    pbBits.rect = m.mapRect(QRectF(pbBits.rect)).toRect();
                     drawPrimitive(PE_IndicatorProgressChunk, &pbBits, p, widget);
                     x += reverse ? -unit_width : unit_width;
                 }
                 //Draw wrap-around chunks
                 if( step > chunkCount-5){
-                    x0 = reverse ? rect.right() - unit_width : margin ;
+                    x0 = reverse ? rect.left() + rect.width() - unit_width : rect.left() ;
                     x = 0;
                     int chunksToDraw = step - (chunkCount - chunksInRow);
                     for (int i = 0; i < chunksToDraw ; ++i) {
                         pbBits.rect.setRect(x0 + x, myY, unit_width, myHeight);
-                        pbBits.rect = m.mapRect(pbBits.rect);
+                        pbBits.rect = m.mapRect(QRectF(pbBits.rect)).toRect();
                         drawPrimitive(PE_IndicatorProgressChunk, &pbBits, p, widget);
                         x += reverse ? -unit_width : unit_width;
                     }
                 }
-                p->setClipRegion(prevClip); //restore state
+                p->restore(); //restore state
             }
             else {
                 QCommonStyle::drawControl(ce, opt, p, widget);
@@ -2466,7 +2475,7 @@ QRect QWindowsStyle::subElementRect(SubElement sr, const QStyleOption *opt, cons
     }
     case SE_ProgressBarContents:
         r = QCommonStyle::subElementRect(SE_ProgressBarGroove, opt, w);
-        r.adjust(2, 3, -2, -3);
+        r.adjust(3, 3, -3, -3);
         break;
     default:
         r = QCommonStyle::subElementRect(sr, opt, w);

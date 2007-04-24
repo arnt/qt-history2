@@ -1301,8 +1301,8 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
             QTransform m;
             if (vertical) {
                 rect = QRect(rect.left(), rect.top(), rect.height(), rect.width()); // flip width and height
-                m.translate(rect.height(), 0.0);
                 m.rotate(90);
+                m.translate(0, -(rect.height() + rect.y()*2));
             }
 
             QPalette pal2 = pb->palette;
