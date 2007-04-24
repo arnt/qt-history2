@@ -103,6 +103,11 @@ X11
 Windows
 -------
 
+- ActiveQt
+    * [260763] When loading a typelib file to obtain information about a control it
+      now processes the typelib correctly.
+
+
 Mac OS X
 --------
 
