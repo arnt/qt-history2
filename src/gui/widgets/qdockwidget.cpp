@@ -1260,9 +1260,11 @@ bool QDockWidget::event(QEvent *event)
 #ifdef Q_OS_WIN
     case QEvent::Leave:
         if (d->state != 0 && d->state->dragging && !d->state->nca) {
-            // The cursor has left the widget while it is being dragged,
-            // we end the drag
-            d->endDrag();
+            // This is a workaround for loosing the mouse on Vista.
+            QPoint pos = QCursor::pos();
+            QMouseEvent fake(QEvent::MouseMove, mapFromGlobal(pos), pos, Qt::NoButton,
+                             QApplication::mouseButtons(), QApplication::keyboardModifiers());
+            d->mouseMoveEvent(&fake);
         }
         break;
 #endif
