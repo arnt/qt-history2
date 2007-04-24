@@ -15,13 +15,6 @@
 //TESTED_CLASS=
 //TESTED_FILES=
 
-#undef QCOMPARE
-#define QCOMPARE(actual, expected) \
-do { \
-    bool ok = QTest::qCompare(actual, expected, #actual, #expected, filename.toLatin1(), 0);\
-    if (ok) ++m_passedCount; else ++m_failedCount; \
-} while(0)
-
 static QString readFile(const QString &filename)
 {
     QFile file(filename);
@@ -68,7 +61,6 @@ public:
 private:
     QStringList m_testFiles;
     int m_passedCount;
-    int m_failedCount;
 };
 
 QMetaObject tst_Suite::staticMetaObject;
@@ -119,28 +111,45 @@ int tst_Suite::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
             int count = testcases.property("length").toInt32();
             QTest::addColumn<QString>("expect");
             QTest::addColumn<QString>("actual");
+            QTest::addColumn<bool>("success");
             if (count > 0) {
                 for (int i = 0; i < count; ++i) {
                     QScriptValue kase = testcases.property(i);
                     Q_ASSERT(kase.isValid());
                     QString description = kase.property("description").toString();
-                    QString expect = kase.property("expect").toString();
-                    QString actual = kase.property("actual").toString();
+                    QScriptValue expect = kase.property("expect");
+                    QScriptValue actual = kase.property("actual");
+                    bool equal;
+                    if (actual.isNumber() && expect.isNumber()) {
+                        qsreal n1 = actual.toNumber();
+                        qsreal n2 = expect.toNumber();
+                        if (qIsNan(n1) && qIsNan(n2))
+                            equal = true;
+                        else
+                            equal = qFuzzyCompare(n1, n2);
+                    }
+                    else if (actual.isDate() && expect.isDate())
+                        equal = (actual.toDateTime() == expect.toDateTime());
+                    else
+                        equal = (actual.toString() == expect.toString());
                     QTest::newRow(description.toLatin1())
-                        << kase.property("expect").toString()
-                        << kase.property("actual").toString();
+                        << expect.toString() << actual.toString() << equal;
                 }
             } else {
-                QTest::newRow("")
-                    << QString()
-                    << QString();
+                QTest::newRow("") << QString() << QString() << false;
             }
         } else {
             // test
             QString filename = m_testFiles.at(_id / 2);
-            QFETCH(QString, actual);
             QFETCH(QString, expect);
-            QCOMPARE(actual, expect);
+            QFETCH(QString, actual);
+            QFETCH(bool, success);
+            if (success) {
+                QTest::qCompare("", "", "", "", "", 0);
+                ++m_passedCount;
+            } else {
+                QTest::qCompare(actual, expect, "actual", "expect", filename.toLatin1(), 0);
+            }
         }
         _id -= m_testFiles.size() * 2;
     }
@@ -148,7 +157,7 @@ int tst_Suite::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
 }
 
 tst_Suite::tst_Suite()
-    : m_passedCount(0), m_failedCount(0)
+    : m_passedCount(0)
 {
     // get the list of testfiles
     QDir dir(testsDir());
@@ -204,7 +213,7 @@ tst_Suite::tst_Suite()
 
 tst_Suite::~tst_Suite()
 {
-    qDebug() << "passed:" << m_passedCount << "failed:" << m_failedCount;
+    qDebug() << "JS testcases passed:" << m_passedCount;
 }
 
 QTEST_MAIN(tst_Suite)
