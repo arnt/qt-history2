@@ -45,6 +45,7 @@ void BuddyEditorPlugin::initialize(QDesignerFormEditorInterface *core)
     Q_ASSERT(!isInitialized());
 
     m_action = new QAction(tr("Edit Buddies"), this);
+    m_action->setObjectName(QLatin1String("__qt_edit_buddies_action"));
     m_action->setIcon(QIcon(core->resourceLocation() + QLatin1String("/buddytool.png")));
     m_action->setIcon(QIcon(core->resourceLocation() + QLatin1String("/buddytool.png")));
     m_action->setEnabled(false);

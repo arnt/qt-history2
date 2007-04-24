@@ -24,6 +24,7 @@
 #include "qdesigner_signalsloteditor.h"
 #include "qdesigner_actioneditor.h"
 #include "qdesigner_resourceeditor.h"
+#include "qttoolbardialog.h"
 
 #include <QtDesigner/QDesignerFormEditorInterface>
 #include <QtDesigner/QDesignerFormWindowInterface>
@@ -151,7 +152,7 @@ void QDesignerWorkbench::Position::applyTo(QDockWidget *dockWidget) const
 // -------- QDesignerWorkbench
 
 QDesignerWorkbench::QDesignerWorkbench()
-    : m_mode(NeutralMode), m_mdiArea(0), m_state(StateInitializing)
+    : m_toolBarManager(0), m_mode(NeutralMode), m_mdiArea(0), m_state(StateInitializing)
 {
     initialize();
     applyPreferences(QDesignerSettings().preferences());
@@ -170,6 +171,7 @@ QDesignerWorkbench::~QDesignerWorkbench()
 
         settings.setMainWindowState(mw->saveState(2));
     }
+    removeToolBarManager();
 
     while (!m_toolWindows.isEmpty())
         delete m_toolWindows.takeLast();
@@ -375,11 +377,12 @@ void QDesignerWorkbench::initialize()
             m_formToolBar->addAction(action);
     }
 
-    QMenu *toolbarMenu = m_toolMenu->addMenu(tr("Toolbars"));
-    toolbarMenu->addAction(m_fileToolBar->toggleViewAction());
-    toolbarMenu->addAction(m_editToolBar->toggleViewAction());
-    toolbarMenu->addAction(m_toolToolBar->toggleViewAction());
-    toolbarMenu->addAction(m_formToolBar->toggleViewAction());
+    m_toolbarMenu = m_toolMenu->addMenu(tr("Toolbars"));
+
+    m_configureToolBars = new QAction(tr("Configure Toolbars..."), this);
+    m_configureToolBars->setObjectName(QLatin1String("__qt_configure_tool_bars_action"));
+    m_toolMenu->addAction(m_configureToolBars);
+    connect(m_configureToolBars, SIGNAL(triggered()), this, SLOT(configureToolBars()));
 
     emit initialized();
 
@@ -437,6 +440,10 @@ void QDesignerWorkbench::switchToNeutralMode()
         settings.setMainWindowState(mw->saveState(2));
     }
 
+    if (m_mode != NeutralMode) {
+        removeToolBarManager();
+    }
+
     saveGeometries();
 
     m_mode = NeutralMode;
@@ -471,6 +478,7 @@ void QDesignerWorkbench::switchToDockedMode()
     bool wasTopLevel = (m_mode == TopLevelMode);
     if (m_mode == DockedMode)
         return;
+
 
     switchToNeutralMode();
     m_mode = DockedMode;
@@ -539,6 +547,7 @@ void QDesignerWorkbench::switchToDockedMode()
         if (pit != m_Positions.constEnd()) pit->applyTo(dockWidget);
     }
 
+    createToolBarManager(mw);
     mw->restoreState(settings.mainWindowState(), 2);
 
     foreach (QDesignerFormWindow *fw, m_formWindows)
@@ -621,6 +630,7 @@ void QDesignerWorkbench::switchToTopLevelMode()
         widgetBoxWrapper->addToolBar(m_formToolBar);
 
         widgetBoxWrapper->insertToolBarBreak(m_formToolBar);
+        createToolBarManager(widgetBoxWrapper);
     }
 
     QDesignerSettings settings;
@@ -1133,6 +1143,17 @@ void QDesignerWorkbench::toggleFormMinimizationState()
     setFormWindowMinimized(fw, !isFormWindowMinimized(fw));
 }
 
+void QDesignerWorkbench::configureToolBars()
+{
+    if (!m_toolBarManager)
+        return;
+
+    QtToolBarDialog dlg(0);
+    dlg.setToolBarManager(m_toolBarManager);
+    dlg.exec();
+    updateToolBarMenu();
+}
+
 bool QDesignerWorkbench::isFormWindowMinimized(const QDesignerFormWindow *fw)
 {
     switch (m_mode) {
@@ -1190,4 +1211,87 @@ void QDesignerWorkbench::setDesignerUIFont(const QFont &font)
 
     foreach(QDesignerToolWindow *tw, m_toolWindows)
         tw->setFont(font);
+}
+
+void QDesignerWorkbench::createToolBarManager(QMainWindow *mw)
+{
+    if (m_toolBarManager)
+        return;
+
+    m_toolBarManager = new QtToolBarManager(this);
+    m_toolBarManager->setMainWindow(mw);
+
+    m_toolBarManager->addToolBar(m_fileToolBar, tr("File"));
+    m_toolBarManager->addToolBar(m_editToolBar, tr("Edit"));
+    m_toolBarManager->addToolBar(m_toolToolBar, tr("Tools"));
+    m_toolBarManager->addToolBar(m_formToolBar, tr("Form"));
+
+    QList<QAction *> actions = m_actionManager->fileActions()->actions();
+    foreach (QAction *a, actions)
+        m_toolBarManager->addAction(a, tr("File"));
+
+    actions = m_actionManager->editActions()->actions();
+    foreach (QAction *a, actions)
+        m_toolBarManager->addAction(a, tr("Edit"));
+    m_toolBarManager->addAction(m_actionManager->preferencesAction(), tr("Edit"));
+
+    actions = m_actionManager->formActions()->actions();
+    foreach (QAction *a, actions)
+        m_toolBarManager->addAction(a, tr("Form"));
+
+    actions = m_actionManager->windowActions()->actions();
+    foreach (QAction *a, actions)
+        m_toolBarManager->addAction(a, tr("Window"));
+
+    actions = m_actionManager->helpActions()->actions();
+    foreach (QAction *a, actions)
+        m_toolBarManager->addAction(a, tr("Help"));
+
+    actions = m_actionManager->styleActions()->actions();
+    foreach (QAction *a, actions)
+        m_toolBarManager->addAction(a, tr("Style"));
+
+    actions = m_actionManager->toolActions()->actions();
+    foreach (QAction *a, actions)
+        m_toolBarManager->addAction(a, tr("Tools"));
+
+    foreach (QDesignerToolWindow *tw, m_toolWindows) {
+        if (QAction *action = tw->action())
+            m_toolBarManager->addAction(action, tr("Dock views"));
+    }
+    m_toolBarManager->addAction(m_configureToolBars, tr("Toolbars"));
+
+    QDesignerSettings settings;
+    m_toolBarManager->restoreState(settings.toolBarsState());
+
+    updateToolBarMenu();
+}
+
+void QDesignerWorkbench::removeToolBarManager()
+{
+    if (!m_toolBarManager)
+        return;
+
+    QDesignerSettings settings;
+    settings.setToolBarsState(m_toolBarManager->saveState());
+    delete m_toolBarManager;
+    m_toolBarManager = 0;
+}
+
+void QDesignerWorkbench::updateToolBarMenu()
+{
+    if (!m_toolBarManager)
+        return;
+
+    m_toolbarMenu->clear();
+
+    QList<QToolBar *> toolBars = m_toolBarManager->toolBars();
+    QMultiMap<QString, QToolBar *> namedToolBars;
+    foreach (QToolBar *toolBar, toolBars)
+        namedToolBars.insert(toolBar->windowTitle(), toolBar);
+    QMapIterator<QString, QToolBar *> it(namedToolBars);
+    while (it.hasNext()) {
+        it.next();
+        m_toolbarMenu->addAction(it.value()->toggleViewAction());
+    }
 }

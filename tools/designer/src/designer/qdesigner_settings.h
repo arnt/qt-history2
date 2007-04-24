@@ -46,6 +46,9 @@ public:
     QByteArray mainWindowState() const;
     void setMainWindowState(const QByteArray &mainWindowState);
 
+    QByteArray toolBarsState() const;
+    void setToolBarsState(const QByteArray &mainWindowState);
+
     void clearBackup();
     void setBackup(const QMap<QString, QString> &map);
     QMap<QString, QString> backup() const;

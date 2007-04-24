@@ -12,7 +12,6 @@
 ****************************************************************************/
 
 #include "qdesigner_formwindow.h"
-#include "qdesigner_actions.h"
 #include "qdesigner_workbench.h"
 #include "qdesigner_settings.h"
 

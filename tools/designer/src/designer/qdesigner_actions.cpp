@@ -126,7 +126,22 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
 
     m_core = m_workbench->core();
     Q_ASSERT(m_core != 0);
-    
+
+    m_editWidgetsAction->setObjectName(QLatin1String("__qt_edit_widgets_action"));
+    m_newFormAction->setObjectName(QLatin1String("__qt_new_form_action"));
+    m_openFormAction->setObjectName(QLatin1String("__qt_open_form_action"));
+    m_saveFormAction->setObjectName(QLatin1String("__qt_save_form_action"));
+    m_saveFormAsAction->setObjectName(QLatin1String("__qt_save_form_as_action"));
+    m_saveAllFormsAction->setObjectName(QLatin1String("__qt_save_all_forms_action"));
+    m_saveFormAsTemplateAction->setObjectName(QLatin1String("__qt_save_form_as_template_action"));
+    m_closeFormAction->setObjectName(QLatin1String("__qt_close_form_action"));
+    m_quitAction->setObjectName(QLatin1String("__qt_quit_action"));
+    m_previewFormAction->setObjectName(QLatin1String("__qt_preview_form_action"));
+    m_formSettings->setObjectName(QLatin1String("__qt_form_settings_action"));
+    m_minimizeAction->setObjectName(QLatin1String("__qt_minimize_action"));
+    m_bringAllToFrontAction->setObjectName(QLatin1String("__qt_bring_all_to_front_action"));
+    m_preferencesAction->setObjectName(QLatin1String("__qt_preferences_action"));
+
     m_helpActions = createHelpActions();
 
     QDesignerFormWindowManagerInterface *formWindowManager = m_core->formWindowManager();
@@ -179,7 +194,6 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
 
     m_fileActions->addAction(createSeparator(this));
 
-    m_closeFormAction = new QAction(this);
     m_closeFormAction->setShortcut(tr("CTRL+W"));
     connect(m_closeFormAction, SIGNAL(triggered()), this, SLOT(closeForm()));
     m_fileActions->addAction(m_closeFormAction);
@@ -195,10 +209,12 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
 // edit actions
 //
     QAction *undoAction = formWindowManager->actionUndo();
+    undoAction->setObjectName(QLatin1String("__qt_undo_action"));
     undoAction->setShortcut(tr("CTRL+Z"));
     m_editActions->addAction(undoAction);
 
     QAction *redoAction = formWindowManager->actionRedo();
+    redoAction->setObjectName(QLatin1String("__qt_redo_action"));
     redoAction->setShortcut(tr("CTRL+SHIFT+Z"));
     m_editActions->addAction(redoAction);
 
@@ -245,7 +261,7 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
         }
     }
 
-    connect(m_preferencesAction, SIGNAL(triggered()),  this, SLOT(showPreferencesDialog()));
+    connect(m_preferencesAction, SIGNAL(triggered()), this, SLOT(showPreferencesDialog()));
 //
 // form actions
 //
@@ -273,6 +289,10 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
 
     foreach (QString style,  QStyleFactory::keys()) {
         QAction *a = new QAction(tr("%1 Style").arg(style), this);
+        QString objName = QLatin1String("__qt_style_");
+        objName += style;
+        objName += QLatin1String("_action");
+        a->setObjectName(objName);
         a->setData(style);
         m_styleActions->addAction(a);
     }
@@ -306,32 +326,38 @@ QActionGroup *QDesignerActions::createHelpActions()
     QActionGroup *helpActions = createActionGroup(this);
 
     QAction *mainHelpAction = new QAction(tr("Qt Designer &Help"), this);
+    mainHelpAction->setObjectName(QLatin1String("__qt_designer_help_action"));
     connect(mainHelpAction, SIGNAL(triggered()), this, SLOT(showDesignerHelp()));
     mainHelpAction->setShortcut(Qt::CTRL + Qt::Key_Question);
     helpActions->addAction(mainHelpAction);
 
     helpActions->addAction(createSeparator(this));
     QAction *widgetHelp = new QAction(tr("Current Widget Help"), this);
+    widgetHelp->setObjectName(QLatin1String("__qt_current_widget_help_action"));
     widgetHelp->setShortcut(Qt::Key_F1);
     connect(widgetHelp, SIGNAL(triggered()), this, SLOT(showWidgetSpecificHelp()));
     helpActions->addAction(widgetHelp);
 
     helpActions->addAction(createSeparator(this));
     QAction *whatsNewAction = new QAction(tr("What's New in Qt Designer?"), this);
+    whatsNewAction->setObjectName(QLatin1String("__qt_whats_new_in_qt_designer_action"));
     connect(whatsNewAction, SIGNAL(triggered()), this, SLOT(showWhatsNew()));
     helpActions->addAction(whatsNewAction);
 
     helpActions->addAction(createSeparator(this));
     QAction *aboutPluginsAction = new QAction(tr("About Plugins"), this);
+    aboutPluginsAction->setObjectName(QLatin1String("__qt_about_plugins_action"));
     aboutPluginsAction->setMenuRole(QAction::ApplicationSpecificRole);
     connect(aboutPluginsAction, SIGNAL(triggered()), this, SLOT(aboutPlugins()));
     helpActions->addAction(aboutPluginsAction);
 
     QAction *aboutDesignerAction = new QAction(tr("About Qt Designer"), this);
+    aboutDesignerAction->setObjectName(QLatin1String("__qt_about_designer_action"));
     connect(aboutDesignerAction, SIGNAL(triggered()), this, SLOT(aboutDesigner()));
     helpActions->addAction(aboutDesignerAction);
 
     QAction *aboutQtAction = new QAction(tr("About Qt"), this);
+    aboutQtAction->setObjectName(QLatin1String("__qt_about_qt_action"));
     connect(aboutQtAction, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
     helpActions->addAction(aboutQtAction);
     return helpActions;

@@ -18,6 +18,8 @@
 #include <QtDesigner/QDesignerFormEditorInterface>
 #include <QtDesigner/QDesignerComponents>
 
+#include <QtGui/QAction>
+
 QDesignerObjectInspector::QDesignerObjectInspector(QDesignerWorkbench *workbench)
     : QDesignerToolWindow(workbench)
 {
@@ -28,6 +30,7 @@ QDesignerObjectInspector::QDesignerObjectInspector(QDesignerWorkbench *workbench
     setCentralWidget(widget);
 
     setWindowTitle(tr("Object Inspector"));
+    action()->setObjectName(QLatin1String("__qt_object_inspector_tool_action"));
 }
 
 QDesignerObjectInspector::~QDesignerObjectInspector()

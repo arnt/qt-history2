@@ -16,6 +16,7 @@
 
 #include <QtDesigner/QDesignerFormEditorInterface>
 #include <QtDesigner/QDesignerComponents>
+#include <QtGui/QAction>
 
 QDesignerSignalSlotEditor::QDesignerSignalSlotEditor(QDesignerWorkbench *workbench)
     : QDesignerToolWindow(workbench)
@@ -26,6 +27,7 @@ QDesignerSignalSlotEditor::QDesignerSignalSlotEditor(QDesignerWorkbench *workben
     setCentralWidget(widget);
 
     setWindowTitle(tr("Signal/Slot Editor"));
+    action()->setObjectName(QLatin1String("__qt_signal_slot_editor_tool_action"));
 }
 
 QDesignerSignalSlotEditor::~QDesignerSignalSlotEditor()

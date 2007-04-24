@@ -152,6 +152,16 @@ void QDesignerSettings::setMainWindowState(const QByteArray &mainWindowState)
     setValue(QLatin1String("MainWindowState"), mainWindowState);
 }
 
+QByteArray QDesignerSettings::toolBarsState() const
+{
+    return value(QLatin1String("ToolBarsState")).toByteArray();
+}
+
+void QDesignerSettings::setToolBarsState(const QByteArray &toolBarsState)
+{
+    setValue(QLatin1String("ToolBarsState"), toolBarsState);
+}
+
 void QDesignerSettings::clearBackup()
 {
     remove(QLatin1String("backup/fileListOrg"));

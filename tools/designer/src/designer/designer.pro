@@ -28,6 +28,7 @@ contains(CONFIG, static) {
 TARGET = designer
 
 include($$QT_SOURCE_TREE/tools/shared/fontpanel/fontpanel.pri)
+include(qttoolbardialog.pri)
 
 HEADERS += \
     qdesigner.h \

@@ -32,6 +32,7 @@ QDesignerPropertyEditor::QDesignerPropertyEditor(QDesignerWorkbench *workbench)
 
     setWindowTitle(tr("Property Editor"));
     action()->setShortcut(tr("Ctrl+I"));
+    action()->setObjectName(QLatin1String("__qt_property_editor_action"));
 }
 
 QDesignerPropertyEditor::~QDesignerPropertyEditor()

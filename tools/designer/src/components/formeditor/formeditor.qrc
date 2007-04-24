@@ -118,6 +118,8 @@
     <file>images/win/forward.png</file>
     <file>images/win/down.png</file>
     <file>images/win/up.png</file>
+    <file>images/win/undo.png</file>
+    <file>images/win/redo.png</file>
     <file>images/mac/textbold.png</file>
     <file>images/mac/textitalic.png</file>
     <file>images/mac/textunder.png</file>

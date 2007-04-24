@@ -32,11 +32,13 @@ class QActionGroup;
 class QDockWidget;
 class QMenu;
 class QMenuBar;
+class QMainWindow;
 class QToolBar;
 class QMdiArea;
 class QMdiSubWindow;
 class QCloseEvent;
 class QFont;
+class QtToolBarManager;
 
 class QDesignerFormEditorInterface;
 class QDesignerFormWindowInterface;
@@ -105,6 +107,7 @@ public slots:
     void setUIMode(UIMode mode);
     void bringAllToFront();
     void toggleFormMinimizationState();
+    void configureToolBars();
 
 // ### private slots:
     void switchToNeutralMode();
@@ -139,6 +142,10 @@ private:
     void setFormWindowMinimized(QDesignerFormWindow *fw, bool minimized);
     void setDesignerUIFont(const QFont &);
 
+    void createToolBarManager(QMainWindow *mw);
+    void removeToolBarManager();
+    void updateToolBarMenu();
+
     QDesignerFormEditorInterface *m_core;
     qdesigner_internal::QDesignerIntegration *m_integration;
 
@@ -159,12 +166,16 @@ private:
     QToolBar *m_editToolBar;
     QToolBar *m_fileToolBar;
 
+    QtToolBarManager *m_toolBarManager;
+
     UIMode m_mode;
 
     QList<QDesignerToolWindow*> m_toolWindows;
     QList<QDesignerFormWindow*> m_formWindows;
 
     QMdiArea *m_mdiArea;
+    QMenu *m_toolbarMenu;
+    QAction *m_configureToolBars;
 
     // Helper class to remember the position of a window while switching user interface modes.
     class Position {
