@@ -31,6 +31,9 @@ Third party components
 - QHeaderView
     * Now uses Qt::NoFocus for its default focus policy
 
+- QListView
+    * [136614] Batched mode did not display the last item of the batch.
+
 - QMainWindow 
     * Fix a crash with QMainWindow:setMainWindow(0); on X11
 
@@ -130,8 +133,12 @@ Examples
 - Designer
 
 - Linguist
+    * Translations can be exported to XLIFF.
+    * [136633] Fixed "Find" so that it searched in comments.
+    * [129163] "Next Unifinished" did not work if we did not have a selected item.
 
 - lupdate
+    * Small improvements in lupdates pro parser.
 
 - lrelease
 
@@ -139,3 +146,5 @@ Examples
 
 - uic
 
+- qmake
+    [132154] Support for /bigobj option in the vcproj generator.
