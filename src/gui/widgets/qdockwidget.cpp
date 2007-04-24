@@ -660,6 +660,8 @@ void QDockWidgetPrivate::endDrag(bool abort)
     Q_Q(QDockWidget);
     Q_ASSERT(state != 0);
 
+    q->releaseMouse();
+
     if (state->dragging) {
         QMainWindowLayout *layout =
             qobject_cast<QMainWindowLayout *>(q->parentWidget()->layout());
@@ -779,10 +781,7 @@ void QDockWidgetPrivate::mouseMoveEvent(QMouseEvent *event)
 
 void QDockWidgetPrivate::mouseReleaseEvent(QMouseEvent *event)
 {
-    Q_Q(QDockWidget);
 #if !defined(QT_NO_MAINWINDOW)
-
-    q->releaseMouse();
 
     if (event->button() != Qt::LeftButton)
         return;
