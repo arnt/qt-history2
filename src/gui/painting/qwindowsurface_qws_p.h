@@ -33,8 +33,6 @@
 class QScreen;
 class QWSWindowSurfacePrivate;
 
-// TODO: add windowId(), protected createWindowId()
-
 class Q_GUI_EXPORT QWSWindowSurface : public QWindowSurface
 {
 public:
