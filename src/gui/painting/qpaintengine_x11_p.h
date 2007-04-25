@@ -157,6 +157,7 @@ public:
     int scrn;
     int pdev_depth;
     Qt::HANDLE hd;
+    QPixmap brush_pm;
 #if !defined (QT_NO_XRENDER)
     Qt::HANDLE picture;
     Qt::HANDLE current_brush;

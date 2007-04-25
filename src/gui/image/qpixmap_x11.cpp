@@ -2057,7 +2057,10 @@ void QPixmap::x11SetScreen(int screen)
 
     QImage img = toImage();
     x11SetDefaultScreen(screen);
-    (*this) = fromImage(img);
+    if (img.depth() == 1)
+        (*this) = QBitmap::fromImage(img);
+    else
+        (*this) = fromImage(img);
 }
 
 /*!

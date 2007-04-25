@@ -1075,36 +1075,35 @@ void QX11PaintEngine::updateBrush(const QBrush &brush, const QPointF &origin)
     vals.line_style = LineSolid;
 
     if (d->has_pattern || d->has_texture) {
-        QPixmap pm;
         if (bs == Qt::TexturePattern) {
-            pm = d->cbrush.texture();
+            d->brush_pm = d->cbrush.texture();
 #if !defined(QT_NO_XRENDER)
             if (X11->use_xrender) {
                 XRenderPictureAttributes attrs;
                 attrs.repeat = true;
-                XRenderChangePicture(d->dpy, pm.x11PictureHandle(), CPRepeat, &attrs);
-                if (pm.data->mask_picture)
-                    XRenderChangePicture(d->dpy, pm.data->mask_picture, CPRepeat, &attrs);
+                XRenderChangePicture(d->dpy, d->brush_pm.x11PictureHandle(), CPRepeat, &attrs);
+                if (d->brush_pm.data->mask_picture)
+                    XRenderChangePicture(d->dpy, d->brush_pm.data->mask_picture, CPRepeat, &attrs);
             }
 #endif
         } else {
-            pm = qt_pixmapForBrush(bs, true);
+            d->brush_pm = qt_pixmapForBrush(bs, true);
         }
-        pm.x11SetScreen(d->scrn);
-        if (pm.depth() == 1) {
+        d->brush_pm.x11SetScreen(d->scrn);
+        if (d->brush_pm.depth() == 1) {
             mask |= GCStipple;
-            vals.stipple = pm.handle();
+            vals.stipple = d->brush_pm.handle();
             s = FillStippled;
 #if !defined(QT_NO_XRENDER)
             if (X11->use_xrender) {
-                d->bitmap_texture = QPixmap(pm.size());
+                d->bitmap_texture = QPixmap(d->brush_pm.size());
                 d->bitmap_texture.fill(Qt::transparent);
 
                 ::Picture src  = X11->getSolidFill(d->scrn, d->cbrush.color());
-                XRenderComposite(d->dpy, PictOpSrc, src, pm.x11PictureHandle(),
+                XRenderComposite(d->dpy, PictOpSrc, src, d->brush_pm.x11PictureHandle(),
                                  d->bitmap_texture.x11PictureHandle(),
-                                 0, 0, pm.width(), pm.height(),
-                                 0, 0, pm.width(), pm.height());
+                                 0, 0, d->brush_pm.width(), d->brush_pm.height(),
+                                 0, 0, d->brush_pm.width(), d->brush_pm.height());
 
                 XRenderPictureAttributes attrs;
                 attrs.repeat = true;
@@ -1116,12 +1115,12 @@ void QX11PaintEngine::updateBrush(const QBrush &brush, const QPointF &origin)
         } else {
             mask |= GCTile;
 #ifndef QT_NO_XRENDER
-            if (d->pdev_depth == 32 && pm.depth() != 32)
-                pm.data->convertToARGB32();
+            if (d->pdev_depth == 32 && d->brush_pm.depth() != 32)
+                d->brush_pm.data->convertToARGB32();
 #endif
-            vals.tile = (pm.depth() == d->pdev_depth
-                         ? pm.handle()
-                         : pm.data->x11ConvertToDefaultDepth());
+            vals.tile = (d->brush_pm.depth() == d->pdev_depth
+                         ? d->brush_pm.handle()
+                         : d->brush_pm.data->x11ConvertToDefaultDepth());
             s = FillTiled;
 #if !defined(QT_NO_XRENDER)
             d->current_brush = d->cbrush.texture().x11PictureHandle();
