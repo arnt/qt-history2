@@ -8969,7 +8969,9 @@ QWindowSurface *QWidget::windowSurface() const
     if (extra && extra->windowSurface)
         return extra->windowSurface;
 
-#ifndef Q_WS_MAC
+#ifdef Q_WS_MAC
+    return 0;
+#else
     QWidgetBackingStore *bs = d->maybeBackingStore();
     if (!bs)
         return 0;
