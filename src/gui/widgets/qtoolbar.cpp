@@ -863,7 +863,7 @@ void QToolBar::paintEvent(QPaintEvent *)
     QStyleOptionToolBar opt;
     initStyleOption(&opt);
 
-    if (d->layout->expanded || isWindow()) {
+    if (d->layout->expanded || d->layout->animating || isWindow()) {
         p.fillRect(opt.rect, palette().background());
         style->drawPrimitive(QStyle::PE_FrameMenu, &opt, &p, this);
     } else {
@@ -973,7 +973,7 @@ bool QToolBar::event(QEvent *event)
             d->mouseMoveEvent(&fake);
 #endif
         } else {
-            if (!d->layout->expanded || d->layout->collapsing)
+            if (!d->layout->expanded || d->layout->animating)
                 break;
 
             QWidget *w = qApp->activePopupWidget();

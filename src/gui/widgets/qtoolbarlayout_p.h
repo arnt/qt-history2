@@ -72,8 +72,9 @@ public:
 
     QRect handleRect() const;
 
+    void layoutActions(const QSize &size);
     QSize expandedSize(const QSize &size) const;
-    bool expanded, collapsing;
+    bool expanded, animating;
 
     void setUsePopupMenu(bool set); // Yeah, there's no getter, but it's internal.
 
@@ -92,8 +93,6 @@ private:
 
     void updateGeomArray() const;
     QToolBarItem *createItem(QAction *action);
-    int expandedHeight(int width) const;
-    int expandedWidth(int width) const;
     QMenu *popupMenu;
 };
 

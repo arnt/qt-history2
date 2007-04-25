@@ -1554,10 +1554,9 @@ void QMainWindowLayout::animationFinished(QWidget *widget)
 #ifndef QT_NO_TOOLBAR
     if (QToolBar *tb = qobject_cast<QToolBar*>(widget)) {
         QToolBarLayout *tbl = qobject_cast<QToolBarLayout*>(tb->layout());
-        if (tbl->expanded && tbl->collapsing) {
-            tbl->expanded = false;
-            tbl->collapsing = false;
-            tbl->invalidate();
+        if (tbl->animating) {
+            tbl->animating = false;
+            tbl->layoutActions(tb->size());
             tb->update();
         }
     }

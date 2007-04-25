@@ -719,7 +719,7 @@ void QToolBarAreaLayout::apply(bool animate)
                 QWidget *widget = item.widgetItem->widget();
                 if (QToolBar *toolBar = qobject_cast<QToolBar*>(widget)) {
                     QToolBarLayout *tbl = qobject_cast<QToolBarLayout*>(toolBar->layout());
-                    if (tbl->expanded && !tbl->collapsing) {
+                    if (tbl->expanded) {
                         QPoint tr = r.topRight();
                         QSize size = tbl->expandedSize(r.size());
                         r.setSize(size);
@@ -738,6 +738,7 @@ void QToolBarAreaLayout::apply(bool animate)
                 QRect geo = r;
                 if (visible && dock.o == Qt::Horizontal)
                     geo = QStyle::visualRect(dir, line.rect, geo);
+
                 layout->widgetAnimator->animate(widget, geo, animate);
             }
         }
