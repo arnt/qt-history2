@@ -8996,6 +8996,7 @@ QWindowSurface *QWidget::windowSurface() const
     }
     return bs->windowSurface;
 #endif
+    return 0;
 }
 
 
