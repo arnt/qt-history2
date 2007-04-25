@@ -428,9 +428,6 @@ void QRasterizer::rasterizeLine(const QPointF &a, const QPointF &b, qreal width,
                 rightMin = qBound(d->deviceRect.left(), rightMin, d->deviceRect.right());
                 rightMax = qBound(d->deviceRect.left(), rightMax, d->deviceRect.right());
 
-                leftMax = qMin(leftMax, rightMin);
-                rightMin = qMax(leftMax, rightMin);
-
                 Q16Dot16 rowHeight = rowBottom - rowTop;
 
                 int x = leftMin;
