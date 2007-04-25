@@ -2164,7 +2164,11 @@ void QRasterPaintEngine::drawImage(const QRectF &r, const QImage &img, const QRe
             const QRectF &rect = r.normalized();
             const QPointF a = d->matrix.map((rect.topLeft() + rect.bottomLeft()) * 0.5f);
             const QPointF b = d->matrix.map((rect.topRight() + rect.bottomRight()) * 0.5f);
-            d->rasterizer.rasterizeLine(a, b, rect.height() / rect.width());
+            if (d->tx_noshear)
+                d->rasterizer.rasterizeLine(a, b, rect.height() / rect.width());
+            else
+                d->rasterizer.rasterizeLine(a, b, (d->matrix.m22() * rect.height()) / (d->matrix.m11() * rect.width()));
+
             return;
         }
 #endif
@@ -2220,7 +2224,10 @@ void QRasterPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap,
             const QRectF &rect = r.normalized();
             const QPointF a = d->matrix.map((rect.topLeft() + rect.bottomLeft()) * 0.5f);
             const QPointF b = d->matrix.map((rect.topRight() + rect.bottomRight()) * 0.5f);
-            d->rasterizer.rasterizeLine(a, b, rect.height() / rect.width());
+            if (d->tx_noshear)
+                d->rasterizer.rasterizeLine(a, b, rect.height() / rect.width());
+            else
+                d->rasterizer.rasterizeLine(a, b, (d->matrix.m22() * rect.height()) / (d->matrix.m11() * rect.width()));
             return;
         }
 #endif
