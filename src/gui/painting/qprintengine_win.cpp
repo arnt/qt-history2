@@ -360,8 +360,20 @@ void QAlphaPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem
         if (d->m_alphaPen || d->m_alphaOpacity || d->m_advancedPen) {
             d->addAlphaRect(tr);
         }
-        if (d->m_picengine)
-            d->m_picengine->drawTextItem(p, textItem);
+		if (d->m_picengine) {
+			QFont fnt = textItem.font();
+			int font_dpi = fnt.d->dpi;
+			qreal scalex = font_dpi / d->m_picpainter->device()->logicalDpiX();
+			qreal scaley = font_dpi / d->m_picpainter->device()->logicalDpiY();
+			QTransform newtrans = d->m_transform;
+			newtrans.scale(scalex, scaley);
+			d->m_picpainter->setTransform(newtrans);
+			d->m_picengine->syncState();
+			QPointF tp(p.x() / scalex, p.y() / scaley); 
+            d->m_picengine->drawTextItem(tp, textItem);
+			d->m_picpainter->setTransform(d->m_transform);
+			d->m_picengine->syncState();
+		}
     } else {
         d->m_continueCall = !d->fullyContained(tr);
     }
@@ -513,12 +525,8 @@ void QAlphaPaintEnginePrivate::drawAlphaImage(const QRectF &rect)
     qreal dpiY = qMax(m_pdev->logicalDpiY(), 300);
     qreal xscale = (dpiX / m_pdev->logicalDpiX());
     qreal yscale = (dpiY / m_pdev->logicalDpiY());
-    qreal txscale = qreal(dpiX) / qreal(qt_defaultDpi());
-    qreal tyscale = qreal(dpiY) / qreal(qt_defaultDpi());
 
     QTransform picscale;
-    picscale.scale(qreal(qt_defaultDpi()) / qreal(dpiX),
-        qreal(qt_defaultDpi()) / qreal(dpiY));
     picscale.scale(xscale, yscale);
 
     QSize size((rect.width() * xscale), (rect.height() * yscale));
@@ -540,13 +548,11 @@ void QAlphaPaintEnginePrivate::drawAlphaImage(const QRectF &rect)
 
             QSize imgsize(width * xscale, height * yscale);
             QImage img(imgsize, QImage::Format_RGB32);
-            img.setDotsPerMeterX((dpiX * 100) / 2.54f);
-            img.setDotsPerMeterY((dpiY * 100) / 2.54f);
             img.fill(QColor(Qt::white).rgb());
 
             QPainter imgpainter(&img);
             imgpainter.setTransform(picscale);
-            QPointF picpos(qreal(-xpos) * txscale, qreal(-ypos) * tyscale);
+            QPointF picpos(qreal(-xpos), qreal(-ypos));
             imgpainter.drawPicture(picpos, *m_pic);
             imgpainter.end();
 

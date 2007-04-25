@@ -393,7 +393,11 @@ void QPicturePaintEngine::drawTextItem(const QPointF &p , const QTextItem &ti)
     if (d->pic_d->formatMajor >= 9) {
         int pos;
         SERIALIZE_CMD(QPicturePrivate::PdcDrawTextItem);
-        d->s << p << ti.text() << ti.font() << ti.renderFlags();
+		QFont fnt = ti.font();
+		fnt.setUnderline(false);
+		fnt.setStrikeOut(false);
+		fnt.setOverline(false);
+        d->s << p << ti.text() << fnt << ti.renderFlags();
         writeCmdLength(pos, /*brect=*/QRectF(), /*corr=*/false);
     } else if (d->pic_d->formatMajor >= 8) {
         // old old (buggy) format
