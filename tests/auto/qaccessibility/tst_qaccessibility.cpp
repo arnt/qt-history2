@@ -209,6 +209,7 @@ private slots:
     void dockWidgetTest();
     void pushButtonTest();
     void comboBoxTest();
+    void accessibleName();
 
 private:
     QWidget *createGUI();
@@ -1378,6 +1379,83 @@ void tst_QAccessibility::navigateLabels()
     delete acc_border;
     delete acc_lineedit3;
     }
+    QTestAccessibility::clearEvents();
+#else
+    QSKIP("Test needs Qt >= 0x040000 and accessibility support.", SkipAll);
+#endif
+}
+
+static QWidget *createWidgets()
+{
+    QWidget *w = new QWidget();
+    
+    QHBoxLayout *box = new QHBoxLayout(w);
+
+    int i = 0;
+    box->addWidget(new QComboBox(w));
+    box->addWidget(new QPushButton(QString::fromAscii("widget text %1").arg(i++), w));
+    box->addWidget(new QHeaderView(Qt::Vertical, w));
+    box->addWidget(new QTreeView(w));
+    box->addWidget(new QTreeWidget(w));
+    box->addWidget(new QListView(w));
+    box->addWidget(new QListWidget(w));
+    box->addWidget(new QTableView(w));
+    box->addWidget(new QTableWidget(w));
+    box->addWidget(new QCalendarWidget(w));
+    box->addWidget(new QDialogButtonBox(w));
+    box->addWidget(new QGroupBox(QString::fromAscii("widget text %1").arg(i++), w));
+    box->addWidget(new QFrame(w));
+    box->addWidget(new QLineEdit(QString::fromAscii("widget text %1").arg(i++), w));
+    box->addWidget(new QProgressBar(w));
+    box->addWidget(new QTabWidget(w));
+    box->addWidget(new QCheckBox(QString::fromAscii("widget text %1").arg(i++), w));
+    box->addWidget(new QRadioButton(QString::fromAscii("widget text %1").arg(i++), w));
+    box->addWidget(new QDial(w));
+    box->addWidget(new QScrollBar(w));
+    box->addWidget(new QSlider(w));
+    box->addWidget(new QDateTimeEdit(w));
+    box->addWidget(new QDoubleSpinBox(w));
+    box->addWidget(new QSpinBox(w));
+    box->addWidget(new QLabel(QString::fromAscii("widget text %1").arg(i++), w));
+    box->addWidget(new QLCDNumber(w));
+    box->addWidget(new QStackedWidget(w));
+    box->addWidget(new QToolBox(w));
+    box->addWidget(new QLabel(QString::fromAscii("widget text %1").arg(i++), w));
+    box->addWidget(new QTextEdit(QString::fromAscii("widget text %1").arg(i++), w));
+
+    /* Not in the list
+     * QAbstractItemView, QGraphicsView, QScrollArea,
+     * QToolButton, QDockWidget, QFocusFrame, QMainWindow, QMenu, QMenuBar, QSizeGrip, QSplashScreen, QSplitterHandle, 
+     * QStatusBar, QSvgWidget, QTabBar, QToolBar, QWorkspace, QSplitter
+     */
+    return w; 
+}
+
+void tst_QAccessibility::accessibleName()
+{
+#ifdef QTEST_ACCESSIBILITY
+    QWidget *toplevel = createWidgets();
+    toplevel->show();
+#if defined(Q_WS_X11)
+    qt_x11_wait_for_window_manager(toplevel);
+#endif
+    QLayout *lout = toplevel->layout();
+    for (int i = 0; i < lout->count(); i++) {
+        QLayoutItem *item = lout->itemAt(i);
+        QWidget *child = item->widget();
+
+        QString name = tr("Widget Name %1").arg(i);
+        child->setAccessibleName(name);
+        QAccessibleInterface *acc = QAccessible::queryAccessibleInterface(child);
+        QCOMPARE(acc->text(QAccessible::Name, 0), name);
+
+        QString desc = tr("Widget Description %1").arg(i);
+        child->setAccessibleDescription(desc);
+        QCOMPARE(acc->text(QAccessible::Description, 0), desc);
+
+    }
+
+    delete toplevel;
     QTestAccessibility::clearEvents();
 #else
     QSKIP("Test needs Qt >= 0x040000 and accessibility support.", SkipAll);

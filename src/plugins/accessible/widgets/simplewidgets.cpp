@@ -141,7 +141,9 @@ QString QAccessibleButton::text(Text t, int child) const
         }
         break;
     case Name:
-        str = button()->text();
+        str = widget()->accessibleName();
+        if (str.isEmpty())
+            str = button()->text();
         break;
     default:
         break;
@@ -429,20 +431,23 @@ QString QAccessibleDisplay::text(Text t, int child) const
         return str;
     switch (t) {
     case Name:
-        if (qobject_cast<QLabel*>(object())) {
-            str = qobject_cast<QLabel*>(object())->text();
+        str = widget()->accessibleName();
+        if (str.isEmpty()) {
+            if (qobject_cast<QLabel*>(object())) {
+                str = qobject_cast<QLabel*>(object())->text();
 #ifndef QT_NO_GROUPBOX
-        } else if (qobject_cast<QGroupBox*>(object())) {
-            str = qobject_cast<QGroupBox*>(object())->title();
+            } else if (qobject_cast<QGroupBox*>(object())) {
+                str = qobject_cast<QGroupBox*>(object())->title();
 #endif
 #ifndef QT_NO_LCDNUMBER
-        } else if (qobject_cast<QLCDNumber*>(object())) {
-            QLCDNumber *l = qobject_cast<QLCDNumber*>(object());
-            if (l->numDigits())
-                str = QString::number(l->value());
-            else
-                str = QString::number(l->intValue());
+            } else if (qobject_cast<QLCDNumber*>(object())) {
+                QLCDNumber *l = qobject_cast<QLCDNumber*>(object());
+                if (l->numDigits())
+                    str = QString::number(l->value());
+                else
+                    str = QString::number(l->intValue());
 #endif
+            }
         }
         break;
     case Value:

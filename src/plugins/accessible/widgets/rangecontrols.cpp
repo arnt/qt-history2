@@ -915,6 +915,8 @@ QString QAccessibleDial::text(Text textType, int child) const
     if (textType == Name) {
         switch (child) {
         case Self:
+            if (!widget()->accessibleName().isEmpty())
+                return widget()->accessibleName();
             return QDial::tr("QDial");
         case SpeedoMeter:
             return QDial::tr("SpeedoMeter");
