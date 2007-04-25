@@ -51,6 +51,7 @@
   \value Image
   \value ImageText
   \value InlineImage
+  \value LineBreak
   \value Link
   \value LinkNode
   \value ListLeft
@@ -117,6 +118,7 @@ static const struct {
     { "InlineImage", Atom::InlineImage },
     { "LegaleseLeft", Atom::LegaleseLeft },
     { "LegaleseRight", Atom::LegaleseRight },
+    { "LineBreak", Atom::LineBreak },
     { "Link", Atom::Link },
     { "LinkNode", Atom::LinkNode },
     { "ListLeft", Atom::ListLeft },
