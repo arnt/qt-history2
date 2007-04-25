@@ -75,8 +75,8 @@ public:
     QEGLWindowSurfacePrivate() :
         qglContext(0), device(0) {}
 
-    QEGLPaintDevice *device;
     QGLContext *qglContext;
+    QEGLPaintDevice *device;
 };
 
 QEGLWindowSurface::QEGLWindowSurface(QWidget *window)
@@ -123,4 +123,3 @@ void QEGLWindowSurface::setContext(QGLContext *context)
     Q_D(QEGLWindowSurface);
     d->qglContext = context;
 }
-

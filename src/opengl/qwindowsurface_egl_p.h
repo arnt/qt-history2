@@ -55,13 +55,7 @@ public:
     virtual bool chooseContext(QGLContext *context, const QGLContext *shareContext) = 0;
     QGLContext *context() const;
 
-    // remove virtual when we have a better data() function
-    virtual GLuint textureId() const = 0;
-
 protected:
-    // remove virtual when we have a better data() function
-    virtual void setTextureId(GLuint texId) = 0;
-
     void setContext(QGLContext *context);
 
 private:
