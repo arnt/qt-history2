@@ -31,6 +31,11 @@ Third party components
 - QAccessible
     * Added preliminary support for the upcomming IAccessible2 standard
 
+- QCalendarWidget
+    * Don't set maximum width for month/year buttons
+    * Use QPalette::Text role for default text
+    * date edit feature added, dateEditEnabled and dateEditAcceptDelay properties added
+
 - QChar
     * Updated the Unicode tables to Unicode 5.0
 
@@ -156,6 +161,7 @@ Third party components
 
 - QSpinBox
     * [141569] Disallow typing -0 in a QSpinBox with a positive range
+    * [158445] keyboardTracking property added, when set to false don't send valueChanged() with every key press
 
 - QSyntaxHighligher
     * [151831] calling rehighlight() was causing highlighBlock() to be called
@@ -355,6 +361,36 @@ Examples
 - Assistant
 
 - Designer
+    * [151376] Context menu added to the tab order editor
+    * [39163] Tab Order Editor - Ctrl + LMB makes it possible to start ordering from selected widget
+    * [159129] Fixed Tab Order Editor crash
+    * Better snapping for multiselection, better snapping for negative positions
+    * [126671] Moving widget possible now with arrows without modifiers, Shift modifier enables resizing, Control modifier snaps
+    * [111093] File toolbar added
+    * [156225] Fixed delete widget command in case when deleted widget is a child of QSplitter
+    * [101420] Better WYSIWYG regarding background colors
+    * [112034] Ctrl + drag copies actions now in menus and toolbars
+    * [128334] Double clicking on widget invokes default action from task menu
+    * [129473] Fixed bug with handling default tab order
+    * [131994] Setting tab order for checkable QGroupBox enabled
+    * New cursor shapes added
+    * [91139] Additional Escape shortcut for "Edit Widgets" action
+    * [137879] Better editor for key sequence properties
+    * [150634] Improved refreshing of all properties after property change
+    * [147655] Fixed shadow build of designer
+    * [151567, 149966] Ensure object names are unique
+    * [80270] Fixed saving icons taken from resources which are specified with alias
+    * [152417] Fixed loading/saving header labels of Q3Table
+    * QColumnView widget added to widget box
+    * New margin (left, top, right and bottom) and spacing (horizontal and vertical) properties of layout supported
+    * [146337] Dont's save margin and spacing if they have default value
+    * Fixed layout handling in Q3GroupBox
+    * [124680] Correct pages in QStackedWidget are displayed when selecting a page in the object inspector
+    * [88264] Breaking a nested layout doesn't break the parent container's layout anymore
+    * [129477] Support for dynamic properties added (context menu in property editor)
+    * [101166] "Add separator" action added to menu's context menu
+    * [132238] "Recent files" button added to new form dialog
+    * [107934] Antialiasing of font property is no more bool property, now it has 3 values
     * [155464] Added a German translation.
     * [146953] Widgets can now be dragged onto the object inspector.
     * [152475] The widget box now saves and restores its state.
@@ -422,7 +458,18 @@ Examples
 - uic
     * [144383] Prevent uic-generated code from calling ensurePolished() before constructor is finished.
     * [138949] Re-use font and size policy instances in uic-generated code.
+    * [141350] Re-use color brushes in genetared code
     * [141217] Improved handling of include files of Qt 3 classes.
+    * [144371] Don't set form's objectName in setupUi in case the name was already set
+    * QLocale property supported
+    * [141820] Fixed connection generation of the form
+    * [137520] Uic doesn't generate tooltip, statustip and whatsthis when relevant QT_NO_xxx is defined
+    * [128958] Get rid of static casts in generated code, ui format holds enum string instead of int in case of size policy and cursor
+    * [116280] qulonglong and uint supported
+
+-uic3
+    * [137915] Extract images functionality added, -extract option
+    * [129950] -wrap option added, it generates a wrapper class which is qt3 source compatible
 
 - qmake
     * Support for /bigobj option in the vcproj generator.
