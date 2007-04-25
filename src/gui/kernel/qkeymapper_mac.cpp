@@ -864,6 +864,8 @@ QKeyMapper::sendKeyEvent(QWidget *widget, bool grab,
                 }
             }
         }
+#else
+Q_UNUSED(grab);
 #endif // QT3_SUPPORT && !QT_NO_SHORTCUT
         if(key_event) {
 #if defined(DEBUG_KEY_BINDINGS) || defined(DEBUG_KEY_BINDINGS_MODIFIERS)
