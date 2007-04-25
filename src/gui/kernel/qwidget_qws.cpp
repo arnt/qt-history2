@@ -907,13 +907,13 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
             }
 #ifdef Q_BACKINGSTORE_SUBSURFACES
             // XXX: merge this case with the isWindow() case
-            else if (maybeTopData() && topData()->windowSurface) {
+            else if (maybeTopData() && maybeTopData()->windowSurface) {
                 QWSWindowSurface *surface;
                 surface = static_cast<QWSWindowSurface*>(q->windowSurface());
                 if (isMove && !isResize) {
                     moveSurface(surface, QPoint(x - oldp.x(), y - oldp.y()));
                 } else {
-                    const QPoint p = q->mapToGlobal(QPoint(x, y));
+                    const QPoint p = q->mapToGlobal(QPoint());
                     surface->setGeometry(QRect(p, QSize(w, h)));
                 }
             }

@@ -556,8 +556,14 @@ void QWSWindowSurface::setGeometry(const QRect &rect, const QRegion &mask)
                                          region);
 
     const QWidget *win = window();
-    if (win && !isBuffered() || isResize)
-        setDirty(region.translated(-win->geometry().topLeft()));
+    if (win && (!isBuffered() || isResize)) {
+#ifdef Q_BACKINGSTORE_SUBSURFACES
+        const QPoint offset = -win->mapToGlobal(QPoint());
+#else
+        const QPoint offset = -win->geometry().topLeft();
+#endif
+        setDirty(region.translated(offset));
+    }
 }
 
 static inline void flushUpdate(QWidget *widget, const QRegion &region,
