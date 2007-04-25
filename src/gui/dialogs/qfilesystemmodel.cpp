@@ -103,7 +103,7 @@ QFileSystemModelPrivate::QFileSystemNode *QFileSystemModelPrivate::node(const QS
 {
     Q_Q(const QFileSystemModel);
     Q_UNUSED(q);
-    if (path.isEmpty() || path == myComputer())
+    if (path.isEmpty() || path == myComputer() || path.startsWith(QLatin1String(":")))
         return const_cast<QFileSystemModelPrivate::QFileSystemNode*>(&root);
 
     // Construct the nodes up to the new root path if they need to be built
