@@ -69,6 +69,7 @@ private slots:
     void toHtmlRootFrameProperties();
 
     void cursorPositionChanged();
+    void cursorPositionChangedOnSetText();
 
     void textFrameIterator();
 
@@ -1465,6 +1466,28 @@ void tst_QTextDocument::cursorPositionChanged()
     spy.calls = 0;
     cursor.movePosition(QTextCursor::PreviousCharacter);
     QCOMPARE(spy.calls, 0);
+}
+
+void tst_QTextDocument::cursorPositionChangedOnSetText()
+{
+    CursorPosSignalSpy spy(doc);
+
+    cursor = QTextCursor();
+
+    doc->setPlainText("Foo\nBar\nBaz\nBlub\nBlah");
+
+    // the signal should still be emitted once for the QTextCursor that
+    // QTextDocument::setPlainText creates temporarily. But the signal
+    // should not be emitted more often.
+    QCOMPARE(spy.calls, 1);
+
+    spy.calls = 0;
+    doc->setHtml("<p>Foo<p>Bar<p>Baz<p>Blah");
+
+    // the signal should still be emitted once for the QTextCursor that
+    // QTextDocument::setPlainText creates temporarily. But the signal
+    // should not be emitted more often.
+    QCOMPARE(spy.calls, 1);
 }
 
 void tst_QTextDocument::textFrameIterator()

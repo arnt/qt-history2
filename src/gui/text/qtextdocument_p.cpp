@@ -1047,10 +1047,12 @@ void QTextDocumentPrivate::adjustDocumentChangesAndCursors(int from, int addedOr
     for (int i = 0; i < cursors.size(); ++i) {
         QTextCursorPrivate *curs = cursors.at(i);
         if (curs->adjustPosition(from, addedOrRemoved, op) == QTextCursorPrivate::CursorMoved) {
-            if (editBlock)
-                changedCursors.append(curs);
-            else
+            if (editBlock) {
+                if (!changedCursors.contains(curs))
+                    changedCursors.append(curs);
+            } else {
                 emit q->cursorPositionChanged(QTextCursor(curs));
+            }
         }
     }
 
