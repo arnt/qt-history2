@@ -16,6 +16,7 @@
 #ifndef QT_NO_CUPS
 
 #include <cups/language.h>
+#include <qtextcodec.h>
 
 typedef int (*CupsGetDests)(cups_dest_t **dests);
 typedef const char* (*CupsGetPPD)(const char *printer);
