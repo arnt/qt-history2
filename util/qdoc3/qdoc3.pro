@@ -27,6 +27,7 @@ HEADERS += apigenerator.h \
            jambiapiparser.h \
 	   javacodemarker.h \
            javadocgenerator.h \
+           linguistgenerator.h \
            location.h \
 	   loutgenerator.h \
 	   mangenerator.h \
@@ -69,6 +70,7 @@ SOURCES += apigenerator.cpp \
            jambiapiparser.cpp \
 	   javacodemarker.cpp \
            javadocgenerator.cpp \
+           linguistgenerator.cpp \
            location.cpp \
 	   loutgenerator.cpp \
 	   mangenerator.cpp \
