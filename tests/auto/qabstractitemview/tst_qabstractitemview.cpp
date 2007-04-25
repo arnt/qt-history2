@@ -718,7 +718,7 @@ class DnDTestModel : public QStandardItemModel
 
     Qt::DropAction dropAction_result;
 public:
-    DnDTestModel() : QStandardItemModel(20, 20) {
+    DnDTestModel() : QStandardItemModel(20, 20), dropAction_result(Qt::IgnoreAction) {
         for (int i = 0; i < rowCount(); ++i)
             setData(index(i, 0), QString("%1").arg(i));
     }
