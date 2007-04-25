@@ -3692,9 +3692,6 @@ void tst_QAccessibility::pushButtonTest()
         acc = acc2;
     }
     QCOMPARE(acc->role(0), QAccessible::PushButton);
-#ifdef Q_WS_MAC
-    QEXPECT_FAIL("", "Task 155501", Continue);
-#endif
     QCOMPARE(acc->rect(0), rect);
     QCOMPARE(acc->childAt(pt.x(), pt.y()), 0);
 
