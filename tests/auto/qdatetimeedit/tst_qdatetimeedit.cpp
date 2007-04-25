@@ -221,7 +221,7 @@ tst_QDateTimeEdit::tst_QDateTimeEdit()
     qRegisterMetaType<QDate>("QDate");
     qRegisterMetaType<QTime>("QTime");
     qRegisterMetaType<QDateTime>("QDateTime");
-    qRegisterMetaType<QDateTime>("QList<int>");
+    qRegisterMetaType<QList<int> >("QList<int>");
 }
 
 tst_QDateTimeEdit::~tst_QDateTimeEdit()
