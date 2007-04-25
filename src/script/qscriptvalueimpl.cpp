@@ -158,6 +158,14 @@ void QScriptValueImpl::setProperty(QScriptNameIdImpl *nameId,
         // we resolved an existing property with that name
         if (flags & (QScriptValue::PropertyGetter | QScriptValue::PropertySetter)) {
             // setting the getter or setter of a property in this object
+            if (member.isNativeProperty()) {
+                if (value.isValid()) {
+                    qWarning("QScriptValue::setProperty() failed: "
+                             "cannot set getter or setter of native property `%s'",
+                             qPrintable(nameId->s));
+                }
+                return;
+            }
             if (member.isSetter()) {
                 // the property we resolved is a setter
                 if (!(flags & QScriptValue::PropertySetter) && !member.isGetter()) {

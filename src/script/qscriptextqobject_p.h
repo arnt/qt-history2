@@ -354,7 +354,23 @@ public:
         return m_members.keys();
     }
 
+    inline QScriptValueImpl findPropertyAccessor(int index) const
+    {
+        return m_propertyAccessors.value(index);
+    }
+
+    inline void registerPropertyAccessor(int index, const QScriptValueImpl &accessor)
+    {
+        m_propertyAccessors.insert(index, accessor);
+    }
+
+    inline QList<QScriptValueImpl> registeredPropertyAccessors() const
+    {
+        return m_propertyAccessors.values();
+    }
+
 private:
+    QHash<int, QScriptValueImpl> m_propertyAccessors;
     QHash<int, QScriptMetaMethod> m_methods;
     QHash<QScriptNameIdImpl*, QScript::Member> m_members;
 };

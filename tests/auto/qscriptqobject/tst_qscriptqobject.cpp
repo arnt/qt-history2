@@ -12,6 +12,8 @@
 #include <qscriptengine.h>
 #include <qscriptcontext.h>
 #include <qscriptvalueiterator.h>
+#include <qwidget.h>
+#include <qpushbutton.h>
 
 //TESTED_CLASS=
 //TESTED_FILES=qscriptextqobject.h qscriptextqobject.cpp
@@ -340,6 +342,7 @@ private slots:
     void enumerate_data();
     void enumerate();
     void wrapOptions();
+    void prototypes();
 
 private:
     QScriptEngine *m_engine;
@@ -366,6 +369,13 @@ void tst_QScriptExtQObject::cleanup()
 {
     delete m_engine;
     delete m_myObject;
+}
+
+static QScriptValue getSetProperty(QScriptContext *ctx, QScriptEngine *)
+{
+    if (ctx->argumentCount() != 0)
+        ctx->callee().setProperty("value", ctx->argument(0));
+    return ctx->callee().property("value");
 }
 
 void tst_QScriptExtQObject::getSetStaticProperty()
@@ -400,7 +410,9 @@ void tst_QScriptExtQObject::getSetStaticProperty()
     {
         QScriptValue mobj = m_engine->globalObject().property("myObject");
         QVERIFY(!(mobj.propertyFlags("intProperty") & QScriptValue::ReadOnly));
-        QVERIFY(!(mobj.propertyFlags("intProperty") & QScriptValue::Undeletable));
+        QVERIFY(mobj.propertyFlags("intProperty") & QScriptValue::Undeletable);
+        QVERIFY(mobj.propertyFlags("intProperty") & QScriptValue::PropertyGetter);
+        QVERIFY(mobj.propertyFlags("intProperty") & QScriptValue::PropertySetter);
         QVERIFY(!(mobj.propertyFlags("intProperty") & QScriptValue::SkipInEnumeration));
         QVERIFY(mobj.propertyFlags("intProperty") & QScriptValue::QObjectMember);
 
@@ -538,11 +550,11 @@ void tst_QScriptExtQObject::getSetStaticProperty()
         m_engine->globalObject().setProperty("myColor", QScriptValue());
     }
 
-    // try to delete (we are just deleting the getter+setter)
-    QCOMPARE(m_engine->evaluate("delete myObject.intProperty").toBoolean(), true);
+    // try to delete
+    QCOMPARE(m_engine->evaluate("delete myObject.intProperty").toBoolean(), false);
     QCOMPARE(m_engine->evaluate("myObject.intProperty").toNumber(), 123.0);
 
-    QCOMPARE(m_engine->evaluate("delete myObject.variantProperty").toBoolean(), true);
+    QCOMPARE(m_engine->evaluate("delete myObject.variantProperty").toBoolean(), false);
     QCOMPARE(m_engine->evaluate("myObject.variantProperty").toNumber(), 42.0);
 
     // non-scriptable property
@@ -589,6 +601,16 @@ void tst_QScriptExtQObject::getSetStaticProperty()
             QCOMPARE(qscriptvalue_cast<QBrush>(m_engine->evaluate("myObject.brushProperty")), b);
         }
         m_engine->globalObject().setProperty("brushPointer", QScriptValue());
+    }
+
+    // try to install custom property getter+setter
+    {
+        QScriptValue mobj = m_engine->globalObject().property("myObject");
+        QTest::ignoreMessage(QtWarningMsg, "QScriptValue::setProperty() failed: "
+                             "cannot set getter or setter of native property "
+                             "`intProperty'");
+        mobj.setProperty("intProperty", m_engine->newFunction(getSetProperty),
+                         QScriptValue::PropertyGetter | QScriptValue::PropertySetter);
     }
 }
 
@@ -1106,6 +1128,8 @@ void tst_QScriptExtQObject::classConstructor()
     QVERIFY(qqobj != 0);
     QCOMPARE(qqobj->metaObject()->className(), "QObject");
     QCOMPARE(qqobj->parent(), qobj);
+
+    delete qobj;
 }
 
 void tst_QScriptExtQObject::overrideInvokable()
@@ -1456,6 +1480,35 @@ void tst_QScriptExtQObject::wrapOptions()
     }
 
     delete child;
+}
+
+Q_DECLARE_METATYPE(QWidget*)
+Q_DECLARE_METATYPE(QPushButton*)
+
+void tst_QScriptExtQObject::prototypes()
+{
+    QScriptEngine eng;
+    QScriptValue widgetProto = eng.newQObject(new QWidget(), QScriptEngine::ScriptOwnership);
+    eng.setDefaultPrototype(qMetaTypeId<QWidget*>(), widgetProto);
+    QPushButton *pbp = new QPushButton();
+    QScriptValue buttonProto = eng.newQObject(pbp, QScriptEngine::ScriptOwnership);
+    buttonProto.setPrototype(widgetProto);
+    eng.setDefaultPrototype(qMetaTypeId<QPushButton*>(), buttonProto);
+    QPushButton *pb = new QPushButton();
+    QScriptValue button = eng.newQObject(pb, QScriptEngine::ScriptOwnership);
+    QVERIFY(button.prototype().strictEqualTo(buttonProto));
+
+    buttonProto.setProperty("text", QScriptValue(&eng, "prototype button"));
+    QCOMPARE(pbp->text(), QLatin1String("prototype button"));
+    button.setProperty("text", QScriptValue(&eng, "not the prototype button"));
+    QCOMPARE(pb->text(), QLatin1String("not the prototype button"));
+    QCOMPARE(pbp->text(), QLatin1String("prototype button"));
+
+    buttonProto.setProperty("objectName", QScriptValue(&eng, "prototype button"));
+    QCOMPARE(pbp->objectName(), QLatin1String("prototype button"));
+    button.setProperty("objectName", QScriptValue(&eng, "not the prototype button"));
+    QCOMPARE(pb->objectName(), QLatin1String("not the prototype button"));
+    QCOMPARE(pbp->objectName(), QLatin1String("prototype button"));
 }
 
 QTEST_MAIN(tst_QScriptExtQObject)

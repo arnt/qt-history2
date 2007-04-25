@@ -23,6 +23,7 @@ class MyScriptable : public QObject, protected QScriptable
     Q_PROPERTY(QObject* zab READ zab WRITE setZab)
     Q_PROPERTY(int 0 READ baz)
     Q_PROPERTY(QObject* 1 READ zab)
+    Q_PROPERTY(int oof WRITE setOof)
 public:
     MyScriptable(QObject *parent = 0)
         : QObject(parent), m_lastEngine(0)
@@ -30,6 +31,11 @@ public:
     ~MyScriptable() { }
 
     QScriptEngine *lastEngine() const;
+
+    void setOof(int)
+        { m_oofThisObject = context()->thisObject(); }
+    QScriptValue oofThisObject() const
+        { return m_oofThisObject; }
 
 public slots:
     void foo();
@@ -48,6 +54,7 @@ public slots:
 private:
     QScriptEngine *m_lastEngine;
     QScriptEngine *m_otherEngine;
+    QScriptValue m_oofThisObject;
 };
 
 QScriptEngine *MyScriptable::lastEngine() const
@@ -258,6 +265,15 @@ void tst_QScriptable::thisObject()
         QScriptValue ret = m_engine.evaluate("scriptable.setZab(null)");
         QCOMPARE(ret.isQObject(), true);
         QCOMPARE(ret.toQObject(), (QObject *)&m_scriptable);
+    }
+    {
+        QVERIFY(!m_scriptable.oofThisObject().isValid());
+        m_engine.evaluate("o.oof = 123");
+        QVERIFY(m_scriptable.oofThisObject().strictEqualTo(m_engine.evaluate("o")));
+    }
+    {
+        m_engine.evaluate("scriptable.oof = 123");
+        QVERIFY(m_scriptable.oofThisObject().strictEqualTo(m_engine.evaluate("scriptable")));
     }
 
     m_engine.evaluate("delete o");

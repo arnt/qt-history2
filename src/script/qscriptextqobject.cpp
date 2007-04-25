@@ -43,8 +43,8 @@ namespace QScript {
 class QtPropertyFunction: public QScriptFunction
 {
 public:
-    QtPropertyFunction(QObject *object, int index)
-        : m_object(object), m_index(index)
+    QtPropertyFunction(const QMetaObject *meta, int index)
+        : m_meta(meta), m_index(index)
         { }
 
     ~QtPropertyFunction() { }
@@ -54,7 +54,7 @@ public:
     virtual Type type() const { return QScriptFunction::QtProperty; }
 
 private:
-    QObject *m_object;
+    const QMetaObject *m_meta;
     int m_index;
 };
 
@@ -299,21 +299,18 @@ public:
             QMetaProperty prop = meta->property(propertyIndex);
             Q_ASSERT(prop.isScriptable());
             if (GeneratePropertyFunctions) {
-                *result = eng->createFunction(new QtPropertyFunction(qobject, propertyIndex));
-
-                // make it persist
-                QScript::Member m;
-                QScriptObject *instance = obj.objectValue();
-                if (!instance->findMember(member.nameId(), &m)) {
-                    instance->createMember(member.nameId(), &m,
-                                           (!prop.isWritable()
-                                            ? QScriptValue::ReadOnly
-                                            : QScriptValue::PropertyFlag(0))
-                                           | QScriptValue::QObjectMember
-                                           | QScriptValue::PropertyGetter
-                                           | QScriptValue::PropertySetter);
+                QScriptValueImpl accessor;
+#ifndef Q_SCRIPT_NO_QMETAOBJECT_CACHE
+                QScriptMetaObject *metaCache = eng->cachedMetaObject(meta);
+                accessor = metaCache->findPropertyAccessor(propertyIndex);
+                if (!accessor.isValid()) {
+#endif
+                    accessor = eng->createFunction(new QtPropertyFunction(meta, propertyIndex));
+#ifndef Q_SCRIPT_NO_QMETAOBJECT_CACHE
+                    metaCache->registerPropertyAccessor(propertyIndex, accessor);
                 }
-                instance->put(m, *result);
+#endif
+                *result = accessor;
             } else {
                 QVariant v = prop.read(qobject);
                 *result = eng->valueFromVariant(v);
@@ -378,7 +375,8 @@ public:
 
         case PROPERTY_ID:
             if (GeneratePropertyFunctions) {
-                Q_ASSERT(0);
+                // we shouldn't get here, QScriptValueImpl::setProperty() messed up
+                Q_ASSERT_X(0, "put", "Q_PROPERTY access cannot be overridden");
                 return false;
             } else {
                 const QMetaObject *meta = qobject->metaObject();
@@ -819,20 +817,29 @@ void QScript::QtPropertyFunction::execute(QScriptContextPrivate *context)
     QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(eng);
     QScriptValueImpl result = eng_p->undefinedValue();
 
-    QMetaProperty prop = m_object->metaObject()->property(m_index);
+    QScriptValueImpl object = context->thisObject();
+    QObject *qobject = object.toQObject();
+    while ((!qobject || (qobject->metaObject() != m_meta))
+           && object.prototype().isObject()) {
+        object = object.prototype();
+        qobject = object.toQObject();
+    }
+    Q_ASSERT(qobject);
+
+    QMetaProperty prop = m_meta->property(m_index);
     Q_ASSERT(prop.isScriptable());
 
     if (context->argumentCount() == 0) {
         // get
         if (prop.isValid()) {
-            QScriptable *scriptable = scriptableFromQObject(m_object);
+            QScriptable *scriptable = scriptableFromQObject(qobject);
             QScriptEngine *oldEngine = 0;
             if (scriptable) {
                 oldEngine = QScriptablePrivate::get(scriptable)->engine;
                 QScriptablePrivate::get(scriptable)->engine = eng;
             }
             
-            QVariant v = prop.read(m_object);
+            QVariant v = prop.read(qobject);
             
             if (scriptable)
                 QScriptablePrivate::get(scriptable)->engine = oldEngine;
@@ -843,14 +850,14 @@ void QScript::QtPropertyFunction::execute(QScriptContextPrivate *context)
         // set
         QVariant v = variantFromValue(prop.userType(), context->argument(0));
 
-        QScriptable *scriptable = scriptableFromQObject(m_object);
+        QScriptable *scriptable = scriptableFromQObject(qobject);
         QScriptEngine *oldEngine = 0;
         if (scriptable) {
             oldEngine = QScriptablePrivate::get(scriptable)->engine;
             QScriptablePrivate::get(scriptable)->engine = eng;
         }
 
-        prop.write(m_object, v);
+        prop.write(qobject, v);
 
         if (scriptable)
             QScriptablePrivate::get(scriptable)->engine = oldEngine;

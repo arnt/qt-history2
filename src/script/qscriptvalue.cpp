@@ -765,6 +765,10 @@ const QMetaObject *QScriptValue::toQMetaObject() const
   given \a value as argument (possibly resulting in an uncaught script
   exception).
 
+  Note that you cannot specify custom getter or setter functions for
+  built-in properties, such as the \c{length} property of Array objects
+  or meta properties of QObject objects.
+
   \sa property()
 */
 void QScriptValue::setProperty(const QString &name, const QScriptValue &value,

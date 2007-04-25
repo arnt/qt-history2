@@ -901,6 +901,13 @@ static QScriptValue getterSetterThrowingError(QScriptContext *ctx, QScriptEngine
         return ctx->throwError("get foo");
 }
 
+static QScriptValue getSet__proto__(QScriptContext *ctx, QScriptEngine *)
+{
+    if (ctx->argumentCount() > 0)
+        ctx->callee().setProperty("value", ctx->argument(0));
+    return ctx->callee().property("value");
+}
+
 void tst_QScriptValue::getSetProperty()
 {
     QScriptEngine eng;
@@ -987,12 +994,18 @@ void tst_QScriptValue::getSetProperty()
         for (int x = 0; x < 2; ++x) {
             object4.setProperty("foo", QScriptValue());
             // getter() returns this.x
-            object4.setProperty("foo", eng.newFunction(getter), QScriptValue::PropertyGetter);
+            object4.setProperty("foo", eng.newFunction(getter),
+                                QScriptValue::PropertyGetter | QScriptValue::UserRange);
+            QCOMPARE(object4.propertyFlags("foo"),
+                     QScriptValue::PropertyGetter | QScriptValue::UserRange);
             object4.setProperty("x", num);
             QCOMPARE(object4.property("foo").strictEqualTo(num), true);
             
             // setter() sets this.x
-            object4.setProperty("foo", eng.newFunction(setter), QScriptValue::PropertySetter);
+            object4.setProperty("foo", eng.newFunction(setter),
+                                QScriptValue::PropertySetter | QScriptValue::UserRange);
+            QCOMPARE(object4.propertyFlags("foo"),
+                     QScriptValue::PropertySetter | QScriptValue::UserRange);
             object4.setProperty("foo", str);
             QCOMPARE(object4.property("x").strictEqualTo(str), true);
             QCOMPARE(object4.property("foo").strictEqualTo(str), true);
@@ -1045,7 +1058,11 @@ void tst_QScriptValue::getSetProperty()
         // use a single function as both getter and setter
         object4.setProperty("foo", QScriptValue());
         object4.setProperty("foo", eng.newFunction(getterSetter),
-                            QScriptValue::PropertyGetter | QScriptValue::PropertySetter);
+                            QScriptValue::PropertyGetter | QScriptValue::PropertySetter
+                            | QScriptValue::UserRange);
+        QCOMPARE(object4.propertyFlags("foo"),
+                 QScriptValue::PropertyGetter | QScriptValue::PropertySetter
+                 | QScriptValue::UserRange);
         object4.setProperty("x", num);
         QCOMPARE(object4.property("foo").strictEqualTo(num), true);
 
@@ -1072,6 +1089,26 @@ void tst_QScriptValue::getSetProperty()
             object5.setProperty("foo", str);
             QVERIFY(eng.hasUncaughtException());
             QCOMPARE(eng.uncaughtException().toString(), QLatin1String("Error: set foo"));
+        }
+
+        // attempt to install getter+setter on built-in (native) property
+        {
+            QScriptValue object6 = eng.newObject();
+            QVERIFY(object6.property("__proto__").strictEqualTo(object6.prototype()));
+
+            QScriptValue fun = eng.newFunction(getSet__proto__);
+            fun.setProperty("value", QScriptValue(&eng, "boo"));
+            QTest::ignoreMessage(QtWarningMsg, "QScriptValue::setProperty() failed: "
+                                 "cannot set getter or setter of native property "
+                                 "`__proto__'");
+            object6.setProperty("__proto__", fun,
+                                QScriptValue::PropertyGetter | QScriptValue::PropertySetter
+                                | QScriptValue::UserRange);
+            QVERIFY(object6.property("__proto__").strictEqualTo(object6.prototype()));
+
+            object6.setProperty("__proto__", QScriptValue(),
+                                QScriptValue::PropertyGetter | QScriptValue::PropertySetter);
+            QVERIFY(object6.property("__proto__").strictEqualTo(object6.prototype()));
         }
     }
 

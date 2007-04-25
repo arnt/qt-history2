@@ -463,10 +463,18 @@ void QScriptEnginePrivate::maybeGC_helper(bool do_string_gc)
     {
         QHash<const QMetaObject*, QScriptMetaObject*>::const_iterator it;
         for (it = m_cachedMetaObjects.constBegin(); it != m_cachedMetaObjects.constEnd(); ++it) {
-            QList<QScriptNameIdImpl*> memberNames = (*it)->registeredMemberNames();
-            QList<QScriptNameIdImpl*>::const_iterator it2;
-            for (it2 = memberNames.constBegin(); it2 != memberNames.constEnd(); ++it2)
-                markString(*it2, generation);
+            {
+                QList<QScriptNameIdImpl*> memberNames = (*it)->registeredMemberNames();
+                QList<QScriptNameIdImpl*>::const_iterator it2;
+                for (it2 = memberNames.constBegin(); it2 != memberNames.constEnd(); ++it2)
+                    markString(*it2, generation);
+            }
+            {
+                QList<QScriptValueImpl> propertyAccessors = (*it)->registeredPropertyAccessors();
+                QList<QScriptValueImpl>::const_iterator it2;
+                for (it2 = propertyAccessors.constBegin(); it2 != propertyAccessors.constEnd(); ++it2)
+                    markObject(*it2, generation);
+            }
         }
     }
 # endif
