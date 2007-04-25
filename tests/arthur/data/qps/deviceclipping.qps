@@ -22,6 +22,7 @@ begin_block drawing
   
 end_block
 
+save
 translate 20 20
 setBrush #0x7f7f7fff
 setPen #0x7f00007f
@@ -32,4 +33,13 @@ setRenderHint Antialiasing
 setBrush #0x7f7fff7f
 setPen #0x7f007f00
 repeat_block drawing
+restore
 
+setPen 0x00007f 2
+setRenderHint Antialiasing
+
+drawLine 0 -200 200 200
+
+setPen 0x007f00 10
+
+drawLine 0 -200 200 0

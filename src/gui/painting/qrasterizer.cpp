@@ -344,6 +344,12 @@ void QRasterizer::rasterizeLine(const QPointF &a, const QPointF &b, qreal width,
             Q16Dot16 leftIntersectBf = 0;
             Q16Dot16 rightIntersectBf = 0;
 
+            if (iLeft < iTop)
+                leftIntersectBf = FloatToQ16Dot16(left.x() + (iTop - left.y()) * rightSlope);
+
+            if (iRight < iTop)
+                rightIntersectBf = FloatToQ16Dot16(right.x() + (iTop - right.y()) * leftSlope);
+
             Q16Dot16 rowTop, rowBottomLeft, rowBottomRight, rowTopLeft, rowTopRight, rowBottom;
             Q16Dot16 topLeftIntersectAf, topLeftIntersectBf, topRightIntersectAf, topRightIntersectBf;
             Q16Dot16 bottomLeftIntersectAf, bottomLeftIntersectBf, bottomRightIntersectAf, bottomRightIntersectBf;
