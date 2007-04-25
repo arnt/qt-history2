@@ -285,7 +285,6 @@ void QToolBarLayout::setGeometry(const QRect &rect)
             ? style->pixelMetric(QStyle::PM_ToolBarHandleExtent, &opt, tb) : 0;
     const int margin = style->pixelMetric(QStyle::PM_ToolBarItemMargin, &opt, tb)
                         + style->pixelMetric(QStyle::PM_ToolBarFrameWidth, &opt, tb);
-    const int spacing = style->pixelMetric(QStyle::PM_ToolBarItemSpacing, &opt, tb);
     const int extensionExtent = style->pixelMetric(QStyle::PM_ToolBarExtensionExtent, &opt, tb);
     Qt::Orientation o = tb->orientation();
 
