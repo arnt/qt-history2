@@ -6389,7 +6389,7 @@ bool QWidget::event(QEvent *event)
   QEvent::ActivationChange, QEvent::EnabledChange, QEvent::FontChange,
   QEvent::StyleChange, QEvent::PaletteChange,
   QEvent::WindowTitleChange, QEvent::IconTextChange,
-  QEcvent::ModifiedChange, QEvent::MouseTrackingChange,
+  QEvent::ModifiedChange, QEvent::MouseTrackingChange,
   QEvent::ParentChange, QEvent::WindowStateChange,
   QEvent::LanguageChange, QEvent::LocaleChange,
   QEvent::LayoutDirectionChange.
