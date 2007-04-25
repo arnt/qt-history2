@@ -683,8 +683,8 @@ QKeyMapperPrivate::translateKeyEvent(QWidget *widget, EventHandlerCallRef er, Ev
                 //is it of use to text services? If so we won't bother
                 //with a QKeyEvent.
                 qt_mac_eat_unicode_key = false;
-                bool eaten = CallNextEventHandler(er, event) == noErr;
-                if(eaten || qt_mac_eat_unicode_key) {
+                CallNextEventHandler(er, event);
+                if (qt_mac_eat_unicode_key) {
                     handled_event = true;
                     break;
                 }
