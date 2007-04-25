@@ -363,9 +363,13 @@ Option::init(int argc, char **argv)
         QString argv0 = argv[0];
         if(Option::qmake_mode == Option::QMAKE_GENERATE_NOTHING)
             Option::qmake_mode = default_mode(argv0);
-        if(!argv0.isEmpty() && argv0.at(0) == QLatin1Char('/')) {
+        if(!argv0.isEmpty() && !QFileInfo(argv0).isRelative()) {
             Option::qmake_abslocation = argv0;
-        } else if (argv0.contains(QLatin1Char('/'))) { //relative PWD
+        } else if (argv0.contains(QLatin1Char('/'))
+#ifdef Q_OS_WIN
+		   || argv0.contains(QLatin1Char('\\'))
+#endif
+	    ) { //relative PWD
             Option::qmake_abslocation = QDir::current().absoluteFilePath(argv0);
         } else { //in the PATH
             QByteArray pEnv = qgetenv("PATH");
@@ -485,6 +489,7 @@ Option::init(int argc, char **argv)
             Option::dir_sep = "/";
         Option::obj_ext = ".o";
     }
+    Option::qmake_abslocation = Option::fixPathToTargetOS(Option::qmake_abslocation);
     return QMAKE_CMDLINE_SUCCESS;
 }
 
