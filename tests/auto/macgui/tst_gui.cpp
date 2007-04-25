@@ -45,6 +45,10 @@ QPixmap grabWindowContents(QWidget * widget)
 */
 void tst_gui::scrollbarPainting()
 {
+#if defined (Q_WS_MAC) && defined (__i386__)
+    QSKIP("This test fails on scruffy when run by the autotest system (but not when you run it manually).", SkipAll);
+#endif
+
     ColorWidget colorWidget;
     colorWidget.resize(400, 400);
 
@@ -77,6 +81,9 @@ void tst_gui::scrollbarPainting()
 */
 void tst_gui::splashScreenModality()
 {
+#if defined (Q_WS_MAC) && defined (__i386__)
+    QSKIP("This test fails on scruffy when run by the autotest system (but not when you run it manually).", SkipAll);
+#endif
     QPixmap pix(100, 100);
     QSplashScreen splash(pix);
     splash.show();
