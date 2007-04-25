@@ -235,7 +235,7 @@ QScriptValueImpl Math::method_pow(QScriptContextPrivate *context,
     qsreal y = context->argument(1).toNumber();
     if (qIsNan(y))
         return QScriptValueImpl(eng, qSNan());
-    if ((x == 1) && qIsInf(y))
+    if (((x == 1) || (x == -1)) && qIsInf(y))
         return QScriptValueImpl(eng, qSNan());
     return (QScriptValueImpl(eng, ::pow(x, y)));
 }
