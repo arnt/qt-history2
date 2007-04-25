@@ -688,8 +688,10 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool 
 #endif
 #ifdef Q_WS_QWS
         if (!static_cast<QWSWindowSurface*>(windowSurface)->isValid()) {
+            // this looks strange but it really just releases the surface
             windowSurface->setGeometry(QRect());
-            delete windowSurface;
+            // the old window surface is deleted in setWindowSurface, which is
+            // called from QWindowSurface constructor
             windowSurface = qt_default_window_surface(tlw);
         }
 #endif
@@ -830,8 +832,10 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool 
 
 #ifdef Q_WS_QWS
     if (!static_cast<QWSWindowSurface*>(windowSurface)->isValid()) {
+        // this looks strange but it really just releases the surface
         windowSurface->setGeometry(QRect());
-        delete windowSurface;
+        // the old window surface is deleted in setWindowSurface, which is
+        // called from QWindowSurface constructor
         windowSurface = qt_default_window_surface(tlw);
     }
     toClean = static_cast<QWSWindowSurface*>(windowSurface)->dirtyRegion();
