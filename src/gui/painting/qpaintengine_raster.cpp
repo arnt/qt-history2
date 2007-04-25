@@ -2155,7 +2155,6 @@ void QRasterPaintEngine::drawImage(const QRectF &r, const QImage &img, const QRe
             copy.scale(r.width() / sr.width(), r.height() / sr.height());
         copy.translate(-sr.x(), -sr.y());
         textureData.setupMatrix(copy, d->bilinear);
-	textureData.adjustSpanMethods();
 
 #ifdef QT_FAST_SPANS
         if (d->tx_noshear || d->txop == QTransform::TxScale) {
