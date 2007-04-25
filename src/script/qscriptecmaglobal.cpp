@@ -406,7 +406,7 @@ QScriptValueImpl Global::method_parseFloat(QScriptContextPrivate *context,
 
     QString str = context->argument(0).toString().trimmed();
     bool ok = false;
-    qsreal result = str.toFloat(&ok);
+    qsreal result = str.toDouble(&ok);
     if (!ok) {
         if (str == QLatin1String("Infinity"))
             result = +qInf();
