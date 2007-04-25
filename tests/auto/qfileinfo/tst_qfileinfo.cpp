@@ -62,6 +62,9 @@ private slots:
     void fileName_data();
     void fileName();
 
+    void bundleName_data();
+    void bundleName();
+
     void dir_data();
     void dir();
 
@@ -384,6 +387,27 @@ void tst_QFileInfo::fileName()
 
     QFileInfo fi(file);
     QCOMPARE(fi.fileName(), expected);
+}
+
+void tst_QFileInfo::bundleName_data()
+{
+    QTest::addColumn<QString>("file");
+    QTest::addColumn<QString>("expected");
+
+    QTest::newRow("root") << "/" << "";
+    QTest::newRow("etc") << "/etc" << "";
+#ifdef Q_OS_MAC
+    QTest::newRow("safari") << "/Applications/Safari.app" << "Safari";
+#endif
+}
+
+void tst_QFileInfo::bundleName()
+{
+    QFETCH(QString, file);
+    QFETCH(QString, expected);
+
+    QFileInfo fi(file);
+    QCOMPARE(fi.bundleName(), expected);
 }
 
 void tst_QFileInfo::dir_data()
