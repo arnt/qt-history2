@@ -98,6 +98,9 @@ private slots:
     void isHidden_data();
     void isHidden();
 
+    void isBundle_data();
+    void isBundle();
+
     void refresh();
 
 #ifdef Q_OS_WIN
@@ -726,7 +729,7 @@ void tst_QFileInfo::fileTimes_oldFile()
             flagsAndAtts,
             NULL);
     });
-    
+
     // Set file times back to 1601.
     FILETIME ctime;
     ctime.dwLowDateTime = 1;
@@ -788,6 +791,25 @@ void tst_QFileInfo::isHidden()
     QFETCH(bool, isHidden);
     QFileInfo fi(path);
     QCOMPARE(fi.isHidden(), isHidden);
+}
+
+void tst_QFileInfo::isBundle_data()
+{
+    QTest::addColumn<QString>("path");
+    QTest::addColumn<bool>("isBundle");
+    QTest::newRow("root") << QString::fromLatin1("/") << false;
+#ifdef Q_OS_MAC
+    QTest::newRow("mac_Applications") << QString::fromLatin1("/Applications") << false;
+    QTest::newRow("mac_Applications") << QString::fromLatin1("/Applications/Safari.app") << true;
+#endif
+}
+
+void tst_QFileInfo::isBundle()
+{
+    QFETCH(QString, path);
+    QFETCH(bool, isBundle);
+    QFileInfo fi(path);
+    QCOMPARE(fi.isBundle(), isBundle);
 }
 
 void tst_QFileInfo::refresh()

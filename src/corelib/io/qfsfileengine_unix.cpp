@@ -586,8 +586,8 @@ QAbstractFileEngine::FileFlags QFSFileEngine::fileFlags(FileFlags type) const
             if(ret & DirectoryType) {
                 QCFType<CFURLRef> url = CFURLCreateWithFileSystemPath(0, QCFString(d->filePath),
                                                                       kCFURLPOSIXPathStyle, true);
-                QCFType<CFBundleRef> bundle = CFBundleCreate(0, url);
-                if(bundle && CFBundleGetIdentifier(bundle))
+                UInt32 type, creator;
+                if(CFBundleGetPackageInfoInDirectory(url, &type, &creator))
                     ret |= BundleType;
             }
 #endif
