@@ -245,8 +245,8 @@ void QAbstractSpinBox::setSpecialValueText(const QString &specialValueText)
         QSpinBox *spinBox = new QSpinBox(this);
         spinBox->setRange(0, 100);
         spinBox->setWrapping(true);
-        sb->setValue(100);
-        sb->stepBy(1);
+        spinBox->setValue(100);
+        spinBox->stepBy(1);
         // value is 0
     \endcode
 
