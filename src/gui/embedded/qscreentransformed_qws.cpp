@@ -270,7 +270,7 @@ static inline void blit90(QScreen *screen, const QImage &image,
     const int h = rect.height();
     const int w = rect.width();
 
-    qt_memrotate90<DST, SRC>(src, w, h, sstride, dest, dstride);
+    qt_memrotate90(src, w, h, sstride, dest, dstride);
 }
 
 template <class DST, class SRC>
@@ -286,7 +286,7 @@ static inline void blit180(QScreen *screen, const QImage &image,
     const int h = rect.height();
     const int w = rect.width();
 
-    qt_memrotate180<DST, SRC>(src, w, h, sstride, dest, dstride);
+    qt_memrotate180(src, w, h, sstride, dest, dstride);
 }
 
 template <class DST, class SRC>
@@ -302,7 +302,7 @@ static inline void blit270(QScreen *screen, const QImage &image,
     const int h = rect.height();
     const int w = rect.width();
 
-    qt_memrotate270<DST, SRC>(src, w, h, sstride, dest, dstride);
+    qt_memrotate270(src, w, h, sstride, dest, dstride);
 }
 
 typedef void (*BlitFunc)(QScreen *, const QImage &, const QRect &, const QPoint &);

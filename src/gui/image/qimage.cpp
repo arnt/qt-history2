@@ -5255,22 +5255,22 @@ static QImage rotated90(const QImage &image) {
     case QImage::Format_RGB32:
     case QImage::Format_ARGB32:
     case QImage::Format_ARGB32_Premultiplied:
-        qt_memrotate270<quint32, quint32>(reinterpret_cast<const quint32*>(image.bits()),
-                                          w, h, image.bytesPerLine() / sizeof(quint32),
-                                          reinterpret_cast<quint32*>(out.bits()),
-                                          out.bytesPerLine() / sizeof(quint32));
+        qt_memrotate270(reinterpret_cast<const quint32*>(image.bits()),
+                        w, h, image.bytesPerLine() / sizeof(quint32),
+                        reinterpret_cast<quint32*>(out.bits()),
+                        out.bytesPerLine() / sizeof(quint32));
         break;
     case QImage::Format_RGB16:
-        qt_memrotate270<quint16, quint16>(reinterpret_cast<const quint16*>(image.bits()),
-                                          w, h, image.bytesPerLine() / sizeof(quint16),
-                                          reinterpret_cast<quint16*>(out.bits()),
-                                          out.bytesPerLine() / sizeof(quint16));
+        qt_memrotate270(reinterpret_cast<const quint16*>(image.bits()),
+                        w, h, image.bytesPerLine() / sizeof(quint16),
+                        reinterpret_cast<quint16*>(out.bits()),
+                        out.bytesPerLine() / sizeof(quint16));
         break;
     case QImage::Format_Indexed8:
-        qt_memrotate270<quint8, quint8>(reinterpret_cast<const quint8*>(image.bits()),
-                                        w, h, image.bytesPerLine(),
-                                        reinterpret_cast<quint8*>(out.bits()),
-                                        out.bytesPerLine());
+        qt_memrotate270(reinterpret_cast<const quint8*>(image.bits()),
+                        w, h, image.bytesPerLine(),
+                        reinterpret_cast<quint8*>(out.bits()),
+                        out.bytesPerLine());
         break;
     default:
         for (int y=0; y<h; ++y) {
@@ -5302,22 +5302,22 @@ static QImage rotated270(const QImage &image) {
     case QImage::Format_RGB32:
     case QImage::Format_ARGB32:
     case QImage::Format_ARGB32_Premultiplied:
-        qt_memrotate90<quint32, quint32>(reinterpret_cast<const quint32*>(image.bits()),
-                                         w, h, image.bytesPerLine() / sizeof(quint32),
-                                         reinterpret_cast<quint32*>(out.bits()),
-                                         out.bytesPerLine() / sizeof(quint32));
+        qt_memrotate90(reinterpret_cast<const quint32*>(image.bits()),
+                       w, h, image.bytesPerLine() / sizeof(quint32),
+                       reinterpret_cast<quint32*>(out.bits()),
+                       out.bytesPerLine() / sizeof(quint32));
         break;
     case QImage::Format_RGB16:
-        qt_memrotate90<quint16, quint16>(reinterpret_cast<const quint16*>(image.bits()),
-                                         w, h, image.bytesPerLine() / sizeof(quint16),
-                                         reinterpret_cast<quint16*>(out.bits()),
-                                         out.bytesPerLine() / sizeof(quint16));
+        qt_memrotate90(reinterpret_cast<const quint16*>(image.bits()),
+                       w, h, image.bytesPerLine() / sizeof(quint16),
+                       reinterpret_cast<quint16*>(out.bits()),
+                       out.bytesPerLine() / sizeof(quint16));
         break;
     case QImage::Format_Indexed8:
-        qt_memrotate90<quint8, quint8>(reinterpret_cast<const quint8*>(image.bits()),
-                                       w, h, image.bytesPerLine(),
-                                       reinterpret_cast<quint8*>(out.bits()),
-                                       out.bytesPerLine());
+        qt_memrotate90(reinterpret_cast<const quint8*>(image.bits()),
+                       w, h, image.bytesPerLine(),
+                       reinterpret_cast<quint8*>(out.bits()),
+                       out.bytesPerLine());
         break;
     default:
         for (int y=0; y<h; ++y) {

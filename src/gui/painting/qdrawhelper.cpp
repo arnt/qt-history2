@@ -5074,9 +5074,9 @@ static inline void qt_memrotate90_cachedRead(const SRC *src, int w, int h,
 }
 
 template <class DST, class SRC>
-static void qt_memrotate270_cachedRead(const SRC *src, int w, int h,
-                                       int sstride,
-                                       DST *dest, int dstride)
+static inline void qt_memrotate270_cachedRead(const SRC *src, int w, int h,
+                                              int sstride,
+                                              DST *dest, int dstride)
 {
     src += (h - 1) * sstride;
     for (int y = h - 1; y >= 0; --y) {
@@ -5106,9 +5106,9 @@ static inline void qt_memrotate90_cachedWrite(const SRC *src, int w, int h,
 }
 
 template <class DST, class SRC>
-static void qt_memrotate270_cachedWrite(const SRC *src, int w, int h,
-                                        int sstride,
-                                        DST *dest, int dstride)
+static inline void qt_memrotate270_cachedWrite(const SRC *src, int w, int h,
+                                               int sstride,
+                                               DST *dest, int dstride)
 {
     for (int x = 0; x < w; ++x) {
         DST *d = dest + x * dstride;
@@ -5369,8 +5369,9 @@ static inline void qt_memrotate270_tiled_unpacked(const SRC *src, int w, int h,
 #endif // QT_ROTATION_ALFORITHM
 
 template <class DST, class SRC>
-void qt_memrotate90(const SRC *src, int srcWidth, int srcHeight, int srcStride,
-                    DST *dest, int dstStride)
+static inline void qt_memrotate90_template(const SRC *src,
+                                           int srcWidth, int srcHeight, int srcStride,
+                                           DST *dest, int dstStride)
 {
 #if QT_ROTATION_ALGORITHM == QT_ROTATION_CACHEDREAD
     qt_memrotate90_cachedRead<DST,SRC>(src, srcWidth, srcHeight, srcStride,
@@ -5388,8 +5389,9 @@ void qt_memrotate90(const SRC *src, int srcWidth, int srcHeight, int srcStride,
 }
 
 template <class DST, class SRC>
-void qt_memrotate180(const SRC *src, int w, int h, int sstride,
-                     DST *dest, int dstride)
+static inline void qt_memrotate180_template(const SRC *src,
+                                            int w, int h, int sstride,
+                                            DST *dest, int dstride)
 {
     src += (h - 1) * sstride;
     for (int y = h - 1; y >= 0; --y) {
@@ -5401,9 +5403,9 @@ void qt_memrotate180(const SRC *src, int w, int h, int sstride,
 }
 
 template <class DST, class SRC>
-void qt_memrotate270(const SRC *src, int srcWidth, int srcHeight,
-                     int srcStride,
-                     DST *dest, int dstStride)
+static inline void qt_memrotate270_template(const SRC *src,
+                                            int srcWidth, int srcHeight, int srcStride,
+                                            DST *dest, int dstStride)
 {
 #if QT_ROTATION_ALGORITHM == QT_ROTATION_CACHEDREAD
     qt_memrotate270_cachedRead<DST,SRC>(src, srcWidth, srcHeight, srcStride,
@@ -5423,9 +5425,9 @@ void qt_memrotate270(const SRC *src, int srcWidth, int srcHeight,
 
 #ifdef QT_QWS_DEPTH_24
 template <>
-void qt_memrotate90<quint24, quint32>(const quint32 *src, int srcWidth,
-                                      int srcHeight, int srcStride,
-                                      quint24 *dest, int dstStride)
+static inline void qt_memrotate90_template<quint24, quint32>(const quint32 *src,
+                                                             int srcWidth, int srcHeight, int srcStride,
+                                                             quint24 *dest, int dstStride)
 {
 #if QT_ROTATION_ALGORITHM == QT_ROTATION_CACHEDREAD
     qt_memrotate90_cachedRead<quint24,quint32>(src, srcWidth, srcHeight,
@@ -5447,9 +5449,9 @@ void qt_memrotate90<quint24, quint32>(const quint32 *src, int srcWidth,
 
 #ifdef QT_QWS_DEPTH_18
 template <>
-void qt_memrotate90<quint18, quint32>(const quint32 *src, int srcWidth,
-                                      int srcHeight, int srcStride,
-                                      quint18 *dest, int dstStride)
+static inline void qt_memrotate90_template<quint18, quint32>(const quint32 *src,
+                                                             int srcWidth, int srcHeight, int srcStride,
+                                                             quint18 *dest, int dstStride)
 {
 #if QT_ROTATION_ALGORITHM == QT_ROTATION_CACHEDREAD
     qt_memrotate90_cachedRead<quint18,quint32>(src, srcWidth, srcHeight,
@@ -5469,44 +5471,34 @@ void qt_memrotate90<quint18, quint32>(const quint32 *src, int srcWidth,
 }
 #endif // QT_QWS_DEPTH_24
 
-// qt_memrotate template instantiations
+#define QT_IMPL_MEMROTATE(srctype, desttype)                        \
+void qt_memrotate90(const srctype *src, int w, int h, int sstride,  \
+                    desttype *dest, int dstride)                    \
+{                                                                   \
+    qt_memrotate90_template(src, w, h, sstride, dest, dstride);     \
+}                                                                   \
+void qt_memrotate180(const srctype *src, int w, int h, int sstride, \
+                     desttype *dest, int dstride)                   \
+{                                                                   \
+    qt_memrotate180_template(src, w, h, sstride, dest, dstride);    \
+}                                                                   \
+void qt_memrotate270(const srctype *src, int w, int h, int sstride, \
+                     desttype *dest, int dstride)                   \
+{                                                                   \
+    qt_memrotate270_template(src, w, h, sstride, dest, dstride);    \
+}
 
-template void qt_memrotate90(const quint32*, int, int, int, quint32*, int);
-template void qt_memrotate180(const quint32*, int, int, int, quint32*, int);
-template void qt_memrotate270(const quint32*, int, int, int, quint32*, int);
-
-template void qt_memrotate90(const quint32*, int, int, int, quint16*, int);
-template void qt_memrotate180(const quint32*, int, int, int, quint16*, int);
-template void qt_memrotate270(const quint32*, int, int, int, quint16*, int);
-
-template void qt_memrotate90(const quint16*, int, int, int, quint32*, int);
-template void qt_memrotate180(const quint16*, int, int, int, quint32*, int);
-template void qt_memrotate270(const quint16*, int, int, int, quint32*, int);
-
-template void qt_memrotate90(const quint16*, int, int, int, quint16*, int);
-template void qt_memrotate180(const quint16*, int, int, int, quint16*, int);
-template void qt_memrotate270(const quint16*, int, int, int, quint16*, int);
-
+QT_IMPL_MEMROTATE(quint32, quint32)
+QT_IMPL_MEMROTATE(quint32, quint16)
+QT_IMPL_MEMROTATE(quint16, quint32)
+QT_IMPL_MEMROTATE(quint16, quint16)
 #ifdef QT_QWS_DEPTH_24
-template void qt_memrotate90(const quint32*, int, int, int, quint24*, int);
-template void qt_memrotate180(const quint32*, int, int, int, quint24*, int);
-template void qt_memrotate270(const quint32*, int, int, int, quint24*, int);
+QT_IMPL_MEMROTATE(quint32, quint24)
 #endif
-
 #ifdef QT_QWS_DEPTH_18
-template void qt_memrotate90(const quint32*, int, int, int, quint18*, int);
-template void qt_memrotate180(const quint32*, int, int, int, quint18*, int);
-template void qt_memrotate270(const quint32*, int, int, int, quint18*, int);
+QT_IMPL_MEMROTATE(quint32, quint18)
 #endif
+QT_IMPL_MEMROTATE(quint32, quint8)
+QT_IMPL_MEMROTATE(quint16, quint8)
+QT_IMPL_MEMROTATE(quint8, quint8)
 
-template void qt_memrotate90(const quint32*, int, int, int, quint8*, int);
-template void qt_memrotate180(const quint32*, int, int, int, quint8*, int);
-template void qt_memrotate270(const quint32*, int, int, int, quint8*, int);
-
-template void qt_memrotate90(const quint16*, int, int, int, quint8*, int);
-template void qt_memrotate180(const quint16*, int, int, int, quint8*, int);
-template void qt_memrotate270(const quint16*, int, int, int, quint8*, int);
-
-template void qt_memrotate90(const quint8*, int, int, int, quint8*, int);
-template void qt_memrotate180(const quint8*, int, int, int, quint8*, int);
-template void qt_memrotate270(const quint8*, int, int, int, quint8*, int);

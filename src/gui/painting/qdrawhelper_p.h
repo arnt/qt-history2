@@ -465,15 +465,26 @@ do {                                          \
     }                                         \
 } while (0)
 
-template <class DST, class SRC>
-void qt_memrotate90(const SRC *src, int srcWidth, int srcHeight, int srcStride,
-                    DST *dst, int dstStride);
-template <class DST, class SRC>
-void qt_memrotate180(const SRC *src, int srcWidth, int srcHeight, int srcStride,
-                     DST *dst, int dstStride);
-template <class DST, class SRC>
-void qt_memrotate270(const SRC *src, int srcWidth, int srcHeight, int srcStride,
-                     DST *dst, int dstStride);
+#define QT_DECL_MEMROTATE(srctype, desttype)                            \
+    void qt_memrotate90(const srctype*, int, int, int, desttype*, int); \
+    void qt_memrotate180(const srctype*, int, int, int, desttype*, int); \
+    void qt_memrotate270(const srctype*, int, int, int, desttype*, int)
+
+QT_DECL_MEMROTATE(quint32, quint32);
+QT_DECL_MEMROTATE(quint32, quint16);
+QT_DECL_MEMROTATE(quint16, quint32);
+QT_DECL_MEMROTATE(quint16, quint16);
+#ifdef QT_QWS_DEPTH_24
+QT_DECL_MEMROTATE(quint32, quint24);
+#endif
+#ifdef QT_QWS_DEPTH_18
+QT_DECL_MEMROTATE(quint32, quint18);
+#endif
+QT_DECL_MEMROTATE(quint32, quint8);
+QT_DECL_MEMROTATE(quint16, quint8);
+QT_DECL_MEMROTATE(quint8, quint8);
+
+#undef QT_DECL_MEMROTATE
 
 static inline int qt_div_255(int x) { return (x + (x>>8) + 0x80) >> 8; }
 
