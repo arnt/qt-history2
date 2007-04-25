@@ -6461,7 +6461,7 @@ QString QString::fromRawData(const QChar *unicode, int size)
     x->ref.init(1);
     x->alloc = x->size = size;
     *x->array = '\0';
-    x->clean = x->asciiCache = x->simpletext = x->righttoleft = 0;
+    x->clean = x->asciiCache = x->simpletext = x->righttoleft = x->capacity = 0;
     return QString(x, 0);
 }
 
