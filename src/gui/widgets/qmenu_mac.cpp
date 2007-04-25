@@ -1053,7 +1053,7 @@ QMenuBarPrivate::QMacMenuBarPrivate::~QMacMenuBarPrivate()
 void
 QMenuBarPrivate::QMacMenuBarPrivate::addAction(QAction *a, QMacMenuAction *before)
 {
-    if (a->isSeparator())
+    if (a->isSeparator() || !menu)
         return;
     QMacMenuAction *action = new QMacMenuAction;
     action->action = a;
