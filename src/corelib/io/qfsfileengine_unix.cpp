@@ -616,7 +616,7 @@ QString QFSFileEngine::fileName(FileName file) const
 #if !defined(QWS) && defined(Q_OS_MAC)
         QCFType<CFURLRef> url = CFURLCreateWithFileSystemPath(0, QCFString(d->filePath),
                                                               kCFURLPOSIXPathStyle, true);
-        if(CFDictionaryRef dict = CFBundleCopyInfoDictionaryInDirectory(url)) {
+        if(CFDictionaryRef dict = CFBundleCopyInfoDictionaryForURL(url)) {
             if(CFTypeRef name = (CFTypeRef)CFDictionaryGetValue(dict, kCFBundleNameKey)) {
                 if(CFGetTypeID(name) == CFStringGetTypeID())
                     return QCFString::toQString((CFStringRef)name);
