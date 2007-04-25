@@ -3064,7 +3064,19 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
         }
         QCommonStyle::drawControl(element, option, painter, widget);
         break;
+
+    case CE_MenuBarEmptyArea:
+        if (widget && qobject_cast<const QMainWindow *>(widget->parentWidget())) {
+            painter->fillRect(option->rect, option->palette.window());
+            QPen oldPen = painter->pen();
+            painter->setPen(QPen(option->palette.dark().color()));
+            painter->drawLine(option->rect.bottomLeft(), option->rect.bottomRight());
+            painter->setPen(oldPen);
+        }
+        break;
+
 #endif // QT_NO_MENUBAR
+
 #ifndef QT_NO_TOOLBOX
     case CE_ToolBoxTabShape:
         if (const QStyleOptionToolBox *toolBox = qstyleoption_cast<const QStyleOptionToolBox *>(option)) {

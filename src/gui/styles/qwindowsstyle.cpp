@@ -1695,6 +1695,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
             QPen oldPen = p->pen();
             p->setPen(QPen(opt->palette.dark().color()));
             p->drawLine(opt->rect.bottomLeft(), opt->rect.bottomRight());
+            p->setPen(oldPen);
         }
         break;
 #endif
