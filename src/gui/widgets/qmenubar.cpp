@@ -75,23 +75,44 @@ QAction *QMenuBarPrivate::actionAt(QPoint p) const
     return 0;
 }
 
-bool QMenuBarPrivate::isVisible(QAction *action)
+QRect QMenuBarPrivate::menuRect() const
 {
-    Q_Q(QMenuBar);
+    Q_Q(const QMenuBar);
+
+    int hmargin = q->style()->pixelMetric(QStyle::PM_MenuBarPanelWidth, 0, q);
+    QRect result = q->rect();
+    result.adjust(hmargin, 0, -hmargin, 0);
 
     if (!extension->isHidden()) {
-        int hmargin = q->style()->pixelMetric(QStyle::PM_MenuBarPanelWidth, 0, q);
-        QRect menuRect = q->rect();
         if (QApplication::layoutDirection() == Qt::RightToLeft)
-            menuRect.setLeft(menuRect.left() + extension->width() + hmargin);
+            result.setLeft(result.left() + extension->width());
         else
-            menuRect.setWidth(menuRect.width() - extension->width() - hmargin);
-        if (menuRect.contains(actionRect(action)))
-            return true;
+            result.setWidth(result.width() - extension->width());
+    }
+
+    if (leftWidget && leftWidget->isVisible()) {
+        QSize sz = leftWidget->sizeHint();
+        if (q->layoutDirection() == Qt::RightToLeft)
+            result.setRight(result.right() - sz.width());
         else
-            return false;
-     }
-     return true;
+            result.setLeft(result.left() + sz.width());
+    }
+
+    if (rightWidget && rightWidget->isVisible()) {
+        QSize sz = rightWidget->sizeHint();
+        if (q->layoutDirection() == Qt::RightToLeft)
+            result.setLeft(result.left() + sz.width());
+        else
+            result.setRight(result.right() - sz.width());
+    }
+
+    return result;
+}
+
+bool QMenuBarPrivate::isVisible(QAction *action)
+{
+    QRect r = menuRect();
+    return r.contains(actionRect(action));
 }
 
 void QMenuBarPrivate::updateGeometries()
@@ -145,14 +166,7 @@ void QMenuBarPrivate::updateGeometries()
     itemsDirty = false;
 
     QList<QAction *> hiddenActions;
-    int hmargin = q->style()->pixelMetric(QStyle::PM_MenuBarPanelWidth, 0, q);
-    QRect menuRect = q->rect();
-    if (!extension->isHidden() && (menuRect.width() < q->sizeHint().width())) {
-        if (QApplication::layoutDirection() == Qt::RightToLeft)
-            menuRect.setLeft(menuRect.left() + extension->width() + hmargin);
-        else
-            menuRect.setWidth(menuRect.width() - extension->width() - hmargin);
-    }
+    QRect menuRect = this->menuRect();
     for (int i = 0; i < actionList.count(); ++i) {
         if (!menuRect.contains(actionRect(actionList.at(i))))
             hiddenActions.append(actionList.at(i));
@@ -169,8 +183,8 @@ void QMenuBarPrivate::updateGeometries()
 
         int vmargin = q->style()->pixelMetric(QStyle::PM_MenuBarVMargin, 0, q);
         int x = QApplication::layoutDirection() == Qt::RightToLeft
-                ? hmargin
-                : q->width() - extension->sizeHint().width() - hmargin;
+                ? menuRect.left() - extension->sizeHint().width() + 1
+                : menuRect.right();
         extension->setGeometry(x, vmargin, extension->sizeHint().width(), menuRect.height() - vmargin*2);
         extension->show();
     } else {

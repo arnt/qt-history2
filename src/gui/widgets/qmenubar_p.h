@@ -94,6 +94,8 @@ public:
     //menu fading/scrolling effects
     bool doChildEffects;
 
+    QRect menuRect() const;
+
     // reparenting
     void handleReparent();
     QWidget *oldParent;
