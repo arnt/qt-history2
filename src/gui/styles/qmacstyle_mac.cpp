@@ -2294,10 +2294,12 @@ int QMacStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *w
             QImage img;
             {
                 QPixmap pix(opt->rect.size());
-                pix.fill(QColor(fillR, fillG, fillB));
-                QPainter pix_paint(&pix);
-                drawControl(CE_FocusFrame, opt, &pix_paint, w);
-                pix_paint.end();
+                if (pix.isNull() == false) {
+                    pix.fill(QColor(fillR, fillG, fillB));
+                    QPainter pix_paint(&pix);
+                    drawControl(CE_FocusFrame, opt, &pix_paint, w);
+                    pix_paint.end();
+                }
                 img = pix.toImage();
             }
 
