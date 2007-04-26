@@ -9,47 +9,47 @@ QT += xml network
 contains(QT_CONFIG, opengl): QT += opengl
 
 RESOURCES = qtdemo.qrc
-HEADERS = src/mainwindow.h \
-    src/demoscene.h \
-    src/demoitem.h \
-    src/score.h \
-    src/demoitemanimation.h \
-    src/itemcircleanimation.h \
-    src/demotextitem.h \
-    src/headingitem.h \
-    src/dockitem.h \
-    src/scanitem.h \
-    src/letteritem.h \
-    src/examplecontent.h \
-    src/menucontent.h \
-    src/guide.h \
-    src/guideline.h \
-    src/guidecircle.h \
-    src/menumanager.h \
-    src/colors.h \
-    src/textbutton.h \
-    src/imageitem.h
-SOURCES = src/main.cpp \
-    src/demoscene.cpp \
-    src/mainwindow.cpp \
-    src/demoitem.cpp \
-    src/score.cpp \
-    src/demoitemanimation.cpp \
-    src/itemcircleanimation.cpp \
-    src/demotextitem.cpp \
-    src/headingitem.cpp \
-    src/dockitem.cpp \
-    src/scanitem.cpp \
-    src/letteritem.cpp \
-    src/examplecontent.cpp \
-    src/menucontent.cpp \
-    src/guide.cpp \
-    src/guideline.cpp \
-    src/guidecircle.cpp \
-    src/menumanager.cpp \
-    src/colors.cpp \
-    src/textbutton.cpp \
-    src/imageitem.cpp
+HEADERS = mainwindow.h \
+    demoscene.h \
+    demoitem.h \
+    score.h \
+    demoitemanimation.h \
+    itemcircleanimation.h \
+    demotextitem.h \
+    headingitem.h \
+    dockitem.h \
+    scanitem.h \
+    letteritem.h \
+    examplecontent.h \
+    menucontent.h \
+    guide.h \
+    guideline.h \
+    guidecircle.h \
+    menumanager.h \
+    colors.h \
+    textbutton.h \
+    imageitem.h
+SOURCES = main.cpp \
+    demoscene.cpp \
+    mainwindow.cpp \
+    demoitem.cpp \
+    score.cpp \
+    demoitemanimation.cpp \
+    itemcircleanimation.cpp \
+    demotextitem.cpp \
+    headingitem.cpp \
+    dockitem.cpp \
+    scanitem.cpp \
+    letteritem.cpp \
+    examplecontent.cpp \
+    menucontent.cpp \
+    guide.cpp \
+    guideline.cpp \
+    guidecircle.cpp \
+    menumanager.cpp \
+    colors.cpp \
+    textbutton.cpp \
+    imageitem.cpp
 
 win32:RC_FILE = qtdemo.rc
 mac:ICON = qtdemo.icns
