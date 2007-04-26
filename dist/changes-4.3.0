@@ -27,6 +27,8 @@ Third party components
     * [111503] Give the focus back to the view when the tab key is pressed
       while inside an editor.
     * [156290] When the ScrollMode is set to ScrollPerItem, scroll slower.
+    * When displaying dates and numbers, the item view classes use their locale
+      property, allowing easy customization.
 
 - QAccessible
     * Added preliminary support for the upcomming IAccessible2 standard
@@ -36,6 +38,7 @@ Third party components
     * Use QPalette::Text role for default text
     * date edit feature added, dateEditEnabled and dateEditAcceptDelay properties added
     * [137031] Grid lines are drawn properly when headers are not visible.
+    * [151828] the language can be set with QCalendarWidget::setLocale()
 
 - QChar
     * Updated the Unicode tables to Unicode 5.0
@@ -53,7 +56,13 @@ Third party components
 
 - QDateTime
     * [151789] Allow passing of date only format to QDateTime::fromString() (according to ISO 8601)
-    * Remove legacy behavior which assumed that a year between 0 and 99 was meant 1900 + year in QDateTime
+    * Remove legacy behavior which assumed that a year between 0 and 99 was meant 1900 + year in
+      QDateTime
+    * [40085, 153114, 145167] Fix bugs in parsing strings into dates.
+
+- QIntValidator, QDoubleValidator
+    * Validators recognise numbers formatted in various locales, depending on their "locale"
+      property.
 
 - QVariant
     * [127225] Unloading a GUI plugin will no longer cause crash in
@@ -76,6 +85,19 @@ Third party components
     * [134392] Add a sectionCount property.
     * [134392] Add sectionAt()/currentSectionIndex()/setCurrentSectionIndex() to QDateTimeEdit.
     * Add a NoButtons value for the buttonSymbols property.
+
+- QDockWidget
+    * [130773] QDockWidgets remember their undocked positions and sizes.
+    * Added support for vertical title bars, which can save space in a QMainWindow.
+    * Added support for setting an arbitrary widget as a custom dock widget title bar.
+    * [141792] added the visibilityChanged() signal which is emitted when QDockWidgets
+      change visibility due to show or hide events, or being selected/deselected in a
+      tabbed dock area.
+    * added the dockLocationChanged() signal, emitted when dock widgets are moved around
+      in a QMainWindow.
+
+- QSettings
+    * [153758] Fixed various bugs when writing and reading from Windows registry.
 
 - QSocketNotifier
     * [148472] Mac OS X now prevented from closing the file descriptor when
@@ -103,16 +125,30 @@ Third party components
     * [99569] Speedups providing up to a 2X speed increase for some cases
 
 - QItemSelectionModel
-    * Optimizations for some common cases. 
+    * Optimizations for some common cases.
 
 - QListView
     * [136614] Batched mode did not display the last item of the batch.
 
+- QLocale
+    * Locale database updated to CLDR 1.4: more locales supported, numerous
+      fixes to existing locales.
+
 - QResource
     * [129429] Allow a QByteArray for runtime resource registration.
 
-- QMainWindow 
+- QMainWindow
     * [145493] Fix a crash with QMainWindow:setMainWindow(0); on X11
+    * [137013, 158094] Fixed bugs respecting size hints, minimum/maximum sizes and
+      size policies of QDockWidgets in QMainWindow.
+    * [147964] Animated tool bar areas adjust dynamically when a QToolBar is dragged
+      over them.
+    * Added the dockOptions property QMainWindow. This makes it possible to:
+        - specify that tabbed dock areas should have vertical tab bars,
+        - disable tabbed docking alltogether,
+        - force tabbed docking, disallowing placing dock widgets next to each other.
+    * Fixed bugs in saving and restoring QMainWindow state.
+    * [143026] Fixed support for hiding/showing toolbars on Mac.
 
 - QMenu
     * the addAction() overloads that take a slot argument now honor the slot's bool
@@ -148,7 +184,7 @@ Third party components
     * Added QPrinter::supportedPaperSources()
     * [153735] Significantly speed up generation of PDF documents with Asian characters.
 
-- QTabBar 
+- QTabBar
     * [126438] Added int tabAt(const QPoint &pos) const
     * [143760] Scroll buttons are now never shown when setUsesScrollButtons(false)
 
@@ -158,8 +194,12 @@ Third party components
 - QTimer
     * Added property to determine if the timer is active.
 
+- QToolBar
+    * [128156, 138908] tool bars do animated expand to display all their actions when the
+      extension button is pressed.
+
 - QSlider
-    * Prevent QSlider from getting in an infinite loops when extreme values were used. 
+    * Prevent QSlider from getting in an infinite loops when extreme values were used.
 
 - QSpinBox
     * [141569] Disallow typing -0 in a QSpinBox with a positive range
@@ -234,7 +274,7 @@ Third party components
       QTreeView will now automatically expand after a set time.
     * [107766] Added style option (enabled in the windows style) to
       select the first child when the right arrow key is pressed.
-    * [157790] It was possible to get in a state where clicking on +/- 
+    * [157790] It was possible to get in a state where clicking on +/-
       to expand an item didn't do anything until elsewhere in thew view
       was clicked.
 
@@ -243,6 +283,18 @@ Third party components
 
 - QTreeWidget
     * [153361] Check that an item exists before emiting itemChanged().
+
+- QUndoStack
+    * [142276] Added undoLimit proprerty which controls the maximum number
+      of commands on the stack.
+
+- QWidget
+    * [139359] "locale" property added, this makes it easy to customize
+      how individual widgets display dates and numbers.
+
+- QXmlSimpleReader
+    * QXmlSimpleReader no longer reads entire file into memory, allowing
+      it to handle large XML files.
 
 - Q3DateEdit
     * [131577] Fix a bug with typing in out-of-range years in a Q3DateEdit
@@ -275,13 +327,13 @@ Third party components
 
     * [127724] Support OUT values from stored procedures. (See SQL Database Drivers
       documentation for details).
-      
+
 - MySQL driver
-      
+
 - OCI driver
 
     * Added support for low-precision retrieval of floating point numbers.
-    
+
 - ODBC driver
 
     * Performance increase for iterating a query backwards.
@@ -438,7 +490,7 @@ Examples
   * [145344] "make confclean" will remove all configure generated files as well.
   * [145659] Added ability to disable SSE.
   * Added dwarf2 detection and support into Qt build system for improved
-    debug library size. 
+    debug library size.
   * Added macx-g++-64 meta spec for Qt configure purposes.
   * [127840] Our pkgconfig files (.pc) are placed into lib/pkgconfig now.
   * [135547] Allow Windows line endings on UNIX and vice versa in
