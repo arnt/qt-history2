@@ -70,6 +70,7 @@ public:
     static bool noTickerMorph;
     static bool useButtonBalls;
     static bool adapted;
+    static bool verbose;
 
     static float animSpeed;
     static float animSpeedButtons;

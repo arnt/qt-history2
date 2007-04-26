@@ -233,6 +233,8 @@ void MainWindow::checkAdapt()
     this->doneAdapt = true;
     this->forceFpsMedianCalculation();
     Colors::benchmarkFps = this->fpsMedian;
+    if (Colors::verbose)
+        qDebug() << "- benchmark:" << QString::number(Colors::benchmarkFps);
 
     if (Colors::noAdapt)
         return;
@@ -244,10 +246,15 @@ void MainWindow::checkAdapt()
             this->switchTimerOnOff(false);
             if (this->fpsLabel)
                this->fpsLabel->setText(QString("FPS: (") + QString::number(this->fpsMedian) + QString(")"));       
+            if (Colors::verbose)
+               qDebug() << "- benchmark adaption: removed ticker (fps < 40)";
         }
 
-        if (this->fpsMedian < 20)
+        if (this->fpsMedian < 20){
             Colors::noAnimations = true;
+            if (Colors::verbose)
+               qDebug() << "- benchmark adaption: animations switched off (fps < 20)";
+        }
 
         Colors::adapted = true;       
     }    

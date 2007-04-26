@@ -62,6 +62,7 @@ bool Colors::useEightBitPalette = false;
 bool Colors::noTimerUpdate = false;
 bool Colors::noTickerMorph = false;
 bool Colors::adapted = false;
+bool Colors::verbose = false;
 int Colors::fps = 100;
 float Colors::animSpeed = 1.0;
 float Colors::animSpeedButtons = 1.0;
@@ -161,6 +162,8 @@ void Colors::parseArgs(int argc, char *argv[])
              Colors::noAdapt = true;
         else if (s == "-low")
              Colors::low = true;
+        else if (s == "-verbose")
+            Colors::verbose = true;
     }
 
     Colors::adaptAccordingToEnvironment();
@@ -216,7 +219,7 @@ void Colors::parseArgs(int argc, char *argv[])
         else if (s.startsWith("-h") || s.startsWith("-help")){
             QMessageBox::warning(0, "Arguments",
                                  QString("Usage: qtdemo [-no-adapt] [-no-opengl] [-no-ticker] [-no-rescale] ")
-                                 + "[-no-animations] [-no-blending] [-no-sync] [-use-timer-update[0|1]] [-use-window-mask] [-fullscreen] "
+                                 + "[-no-animations] [-no-blending] [-no-sync] [-verbose] [-use-timer-update[0|1]] [-use-window-mask] [-fullscreen] "
                                  + "[-use-pixmaps] [-show-fps] [-show-br] [-use-8bit] [-use-loop] [-use-balls] [-animation-speed<float>] [-fps<int>] "
                                  + "[-low] [-ticker-letters<int>] [-ticker-speed<float>] [-no-ticker-morph] "
                                  + "[-ticker-morph-speed<float>] [-ticker-text<string>]");
@@ -251,6 +254,8 @@ void Colors::adaptAccordingToEnvironment()
         Colors::low = true;
         Colors::useEightBitPalette = true;
         Colors::adapted = true;
+        if (Colors::verbose)
+            qDebug("- Adapt: X render not present.");
     }
 #endif
 
@@ -271,6 +276,8 @@ void Colors::adaptAccordingToEnvironment()
 	    Colors::fps = 50;
         Colors::usePixmaps = true;
         Colors::adapted = true;
+        if (Colors::verbose)
+            qDebug("- Adapt: not using OpenGL.");
     }
 
     if (Colors::low){
@@ -283,12 +290,16 @@ void Colors::adaptAccordingToEnvironment()
         Colors::noBlending = true;
         Colors::low = true;
         Colors::adapted = true;
+        if (Colors::verbose)
+            qDebug("- Adapt: using setting 'low'.");
     }
 
     QWidget w;
     if (w.depth() < 16){
         Colors::useEightBitPalette = true;
         Colors::adapted = true;
+        if (Colors::verbose)
+            qDebug("- Adapt: color depth < 16. Using 8 bit palette.");
     }
 }
 

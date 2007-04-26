@@ -41,8 +41,11 @@ QString MenuContentItem::loadDescription(int startPara, int nrPara)
 {
     QString result;
     QFile readme(this->readmePath);
-    if (!readme.open(QFile::ReadOnly))
+    if (!readme.open(QFile::ReadOnly)){
+        if (Colors::verbose)
+            qDebug() << "- MenuContentItem::loadDescription: Could not load:" << this->readmePath;
         return "";
+    }
 
     QTextStream in(&readme);
     // Skip a certain number of paragraphs:

@@ -27,8 +27,11 @@ ImageItem::ImageItem(const QString &path, int maxWidth, int maxHeight, QGraphics
 QImage *ImageItem::createImage(const QMatrix &matrix) const
 {
     QImage *original = new QImage();
-    if (!original->load(this->path))
+    if (!original->load(this->path)){
+        if (Colors::verbose)
+            qDebug() << "- ImageItem::createImage(): Could not load image:" << this->path;
         return original; // nothing we can do about it...
+    }
     
     QPoint size = matrix.map(QPoint(this->maxWidth, this->maxHeight));
     float w = size.x(); // x, y is the used as width, height
