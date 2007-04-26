@@ -198,7 +198,7 @@ QWidget *QDrag::target() const
 
     Starts the drag and drop operation and returns a value indicating the requested
     drop action when it is completed. The drop actions that the user can choose
-    from are specified in \a allowedActions. The default proposed action will be selected
+    from are specified in \a supportedActions. The default proposed action will be selected
     among the allowed actions in the following order : Move, Copy and Link.
 
     \bold{Note:} Although the drag and drop operation can take some time, this function
