@@ -778,6 +778,7 @@ QFileInfo::fileName() const
 }
 
 /*!
+    \since 4.3
     Returns the name of the bundle.
 
     On Mac OS X this returns the proper localized name for a bundle if the
@@ -1053,9 +1054,9 @@ QFileInfo::isDir() const
 
 
 /*!
-    Returns true if this object points to a file or to a symbolic
-    link to a file. Returns false if the
-    object points to something which isn't a file, such as a directory.
+    \since 4.3
+    Returns true if this object points to a bundle or to a symbolic
+    link to a bundle on Mac OS X; otherwise returns false.
 
     \sa isDir(), isSymLink(), isFile()
 */
