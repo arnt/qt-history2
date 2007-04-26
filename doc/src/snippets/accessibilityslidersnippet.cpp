@@ -6,13 +6,11 @@ AccessibleSlider::QAccessibleSlider(QWidget *w)
     addControllingSignal(QLatin1String("valueChanged(int)"));
 }
 
-/*! Returns the slider. */
 QSlider *QAccessibleSlider::slider() const
 {
     return qobject_cast<QSlider*>(object());
 }
 
-/*! \reimp */
 QRect QAccessibleSlider::rect(int child) const
 {
     QRect rect;
@@ -46,7 +44,6 @@ QRect QAccessibleSlider::rect(int child) const
     return QRect(tp.x() + rect.x(), tp.y() + rect.y(), rect.width(), rect.height());
 }
 
-/*! \reimp */
 int QAccessibleSlider::childCount() const
 {
     if (!slider()->isVisible())
@@ -54,7 +51,6 @@ int QAccessibleSlider::childCount() const
     return PageRight;
 }
 
-/*! \reimp */
 QString QAccessibleSlider::text(Text t, int child) const
 {
     if (!slider()->isVisible())
@@ -82,7 +78,6 @@ QString QAccessibleSlider::text(Text t, int child) const
     return QAccessibleAbstractSlider::text(t, child);
 }
 
-/*! \reimp */
 QAccessible::Role QAccessibleSlider::role(int child) const
 {
     switch (child) {
@@ -96,7 +91,6 @@ QAccessible::Role QAccessibleSlider::role(int child) const
     }
 }
 
-/*! \reimp */
 QAccessible::State QAccessibleSlider::state(int child) const
 {
     const State parentState = QAccessibleAbstractSlider::state(0);
@@ -126,12 +120,6 @@ QAccessible::State QAccessibleSlider::state(int child) const
     return state;
 }
 
-/*!
-    \fn int QAccessibleSlider::defaultAction(int child) const
-
-    Returns the default action for the given \a child. The base class
-    implementation returns 0.
-*/
 int QAccessibleSlider::defaultAction(int child) const
 {
     switch (child) {
