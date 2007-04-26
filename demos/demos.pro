@@ -16,7 +16,7 @@ SUBDIRS     = \
 
 !contains(QT_EDITION, Console):!cross_compile:!embedded:SUBDIRS += demos_arthurplugin
 
-!cross_compile:SUBDIRS += demos_sqlbrowser demos_qtdemo
+!cross_compile:contains(QT_BUILD_PARTS, tools):SUBDIRS += demos_sqlbrowser demos_qtdemo
 
 # install
 sources.files = README *.pro

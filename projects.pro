@@ -4,25 +4,25 @@
 
 CONFIG += ordered
 TEMPLATE = subdirs
-isEmpty(QT_PROJECTS) { #defaults
-   QT_PROJECTS = libs tools examples demos
+isEmpty(QT_BUILD_PARTS) { #defaults
+   QT_BUILD_PARTS = libs tools examples demos
 } else { #make sure the order makes sense
-   contains(QT_PROJECTS, tools) {
-       QT_PROJECTS -= tools
-       QT_PROJECTS = tools $$QT_PROJECTS
+   contains(QT_BUILD_PARTS, tools) {
+       QT_BUILD_PARTS -= tools
+       QT_BUILD_PARTS = tools $$QT_BUILD_PARTS
    }
-   contains(QT_PROJECTS, libs) {
-       QT_PROJECTS -= libs
-       QT_PROJECTS = libs $$QT_PROJECTS
+   contains(QT_BUILD_PARTS, libs) {
+       QT_BUILD_PARTS -= libs
+       QT_BUILD_PARTS = libs $$QT_BUILD_PARTS
    }
-   contains(QT_PROJECTS, qmake) {
-       QT_PROJECTS -= qmake
-       QT_PROJECTS = qmake $$QT_PROJECTS
+   contains(QT_BUILD_PARTS, qmake) {
+       QT_BUILD_PARTS -= qmake
+       QT_BUILD_PARTS = qmake $$QT_BUILD_PARTS
    }
 }
 
 #process the projects
-for(PROJECT, $$list($$lower($$unique(QT_PROJECTS)))) {
+for(PROJECT, $$list($$lower($$unique(QT_BUILD_PARTS)))) {
     isEqual(PROJECT, tools) {
        !cross_compile:SUBDIRS += tools
        else:SUBDIRS += tools/qtestlib

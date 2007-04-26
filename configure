@@ -5561,25 +5561,10 @@ EXEC=""
 
 echo "Finding project files. Please wait..."
 "$outpath/bin/qmake" -prl -r "${relpath}/projects.pro"
-if [ -z "$QMAKE_PROJECTS" ]; then
-    QMAKE_PROJECTS=`find "$relpath/." -name '*.pro' -print | sed 's-/\./-/-'`
-else
-    QT_PROJECTS=
-    for a in `echo $QMAKE_PROJECTS`; do
-        put_in="$a"
-        for leave_out in `echo $QMAKE_IGNORE_PROJECTS`; do
-            if [ "$put_in" = "$leave_out" ]; then
-                put_in=
-                break;
-            fi
-        done
-        [ '!' -z "$put_in" ] && QT_PROJECTS="$QT_PROJECTS $put_in"
-    done
-fi
 if [ -f "${relpath}/projects.pro" ]; then
     mkfile="${outpath}/Makefile"
     [ -f "$mkfile" ] && chmod +w "$mkfile"
-    QTDIR="$outpath" "$outpath/bin/qmake" "QT_PROJECTS=$CFG_BUILD_PARTS" -spec "$XQMAKESPEC" "${relpath}/projects.pro" -o "$mkfile"
+    QTDIR="$outpath" "$outpath/bin/qmake" -spec "$XQMAKESPEC" "${relpath}/projects.pro" -o "$mkfile"
 fi
 
 # .projects      -> projects to process
@@ -5588,6 +5573,7 @@ fi
 # .projects.3    -> the rest
 rm -f .projects .projects.1 .projects.2 .projects.3
 
+QMAKE_PROJECTS=`find "$relpath/." -name '*.pro' -print | sed 's-/\./-/-'`
 if [ -z "$AWK" ]; then
     for p in `echo $QMAKE_PROJECTS`; do
         echo "$p" >> .projects
