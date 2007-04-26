@@ -7,7 +7,7 @@ General Improvements
 
 - Configuration/Compilation
     * Fixed OpenBSD and NetBSD build issues.
-
+- Added support for CP949 Korean Codec
 
 Third party components
 ----------------------
@@ -35,6 +35,7 @@ Third party components
     * Don't set maximum width for month/year buttons
     * Use QPalette::Text role for default text
     * date edit feature added, dateEditEnabled and dateEditAcceptDelay properties added
+    * [137031] Grid lines are drawn properly when headers are not visible.
 
 - QChar
     * Updated the Unicode tables to Unicode 5.0
@@ -290,11 +291,36 @@ X11
 
 Windows
 -------
-
+    * [141503] When clicked inside the tool windows, it wont be activated if there 
+      is no child widget to take focus.
+    * [153315] Better handling of Synaptic touchpad wheel messages.
+    * [150639] Support for CF_DIBV5 format and better support for transparent images 
+      on clipboard.
+    * [146862] Improves readability of progress bar text when shown in Highlight color.
+    * [146928] Fixes shortcut events being discarded when AutoRepeat is turned off.
+    * [141079] wheelEvent now contains the button information.
+    * [149367] QMimeData::formats() returns all the available formats in the object.
+    * [135417] WM_SYSCOLORCHANGE will not trigger resetting of fonts.
+    * [150579] Fix the wrong background color for QSlider in XP style.
+    * [137023] Fix the crash while translating mouse events.
+    * [138349] Fix wrong focus handling with multiple top levels.
+    * [111211] Tool windows won't steal focus from their parents while opening.
+    * [143812] Fix a bug which can break the widget's ability to maximize after 
+      saving and restoring its state.
+    * [111501] SPI_SETWORKAREA message now triggers a triggers a workAreaResized().
+    * [141633] Fixed commandline parsing for GUI applications.
+    * [134984] SockAct events wont be triggered from processEvents(ExcludeSocketNotifiers).
+    * [134164] The toplevel widgets with MSWindowsFixedSizeDialogHint are centered properly.
+    
 - ActiveQt
     * [260763] When loading a typelib file to obtain information about a control it
       now processes the typelib correctly.
-
+    * [158990] Ambient property change events are now emitted regardless of the 
+      container state.
+    * [150327] ActiveQt based controls will now return the correct Extents depending
+      on the size restrictions set on the widget.
+    * [141296] Unloading of ActiveQt dll should be done from the same thread which 
+      loaded it. 
 
 Mac OS X
 --------
