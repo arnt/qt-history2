@@ -77,12 +77,12 @@
     An example of using the delayed SSL handshake to secure an
     existing connection is the case where an SSL server secures an
     incoming connection. Suppose you create an SSL server class as a
-    subclass of QTcpServer. You would reimplement
+    subclass of QTcpServer. You would override
     QTcpServer::incomingConnection() with something like the example
     below, which first constructs an instance of QSslSocket and then
-    calls setSocketDescriptor() to set the socket desxcriptor to the
-    one passed in. Then the server initiates the SSL handshake by
-    calling startServerEncryption().
+    calls setSocketDescriptor() to set the new socket's descriptor to
+    the exiasting one passed in. It then initiates the SSL handshake
+    by calling startServerEncryption().
 
     \code
         void SslServer::incomingConnection(int socketDescriptor)
