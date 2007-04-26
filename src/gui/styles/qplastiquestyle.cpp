@@ -3065,6 +3065,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
         QCommonStyle::drawControl(element, option, painter, widget);
         break;
 
+#ifndef QT_NO_MAINWINDOW
     case CE_MenuBarEmptyArea:
         if (widget && qobject_cast<const QMainWindow *>(widget->parentWidget())) {
             painter->fillRect(option->rect, option->palette.window());
@@ -3074,6 +3075,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
             painter->setPen(oldPen);
         }
         break;
+#endif // QT_NO_MAINWINDOW
 
 #endif // QT_NO_MENUBAR
 
