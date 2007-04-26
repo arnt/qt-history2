@@ -31,10 +31,16 @@
 
 static const char *designerPath = "/.designer";
 
-static bool ensurePath(const QString &path)
+static bool checkTemplatePath(const QString &path, bool create)
 {
     QDir current(QDir::current());
-    if (current.exists(path) || current.mkpath(path))
+    if (current.exists(path))
+        return true;
+
+    if (!create)
+        return false;
+
+    if (current.mkpath(path))
         return true;
 
     qdesigner_internal::designerWarning(QObject::tr("The template path %1 could not be created.").arg(path));
@@ -55,13 +61,13 @@ const QStringList &QDesignerSettings::defaultFormTemplatePaths()
         QString path = QDir::homePath();
         path += QLatin1String(designerPath);
         path += templatePath;
-        if (ensurePath(path))
+        if (checkTemplatePath(path, true))
             rc += path;
 
-        // designer/bin
+        // designer/bin: Might be owned by root in some installations, do not force it.
         path = qDesigner->applicationDirPath();
         path += templatePath;
-        if (ensurePath(path))
+        if (checkTemplatePath(path, false))
             rc += path;
     }
     return rc;
