@@ -1312,23 +1312,25 @@ Q_CORE_EXPORT void qt_check_pointer(const char *, int);
 #  define Q_CHECK_PTR(p)
 #endif
 
-#if defined(Q_CC_GNU) || defined(Q_CC_HPACC)
+#if (defined(Q_CC_GNU) && !defined(Q_OS_SOLARIS)) || defined(Q_CC_HPACC)
 #  define Q_FUNC_INFO __PRETTY_FUNCTION__
 #elif defined(_MSC_VER) && _MSC_VER > 1300
 #  define Q_FUNC_INFO __FUNCSIG__
 #else
-    /* These two macros makes it possible to turn the builtin line expander into a
-     * string literal. */
-#   define QT_STRINGIFY2(x) #x
-#   define QT_STRINGIFY(x) QT_STRINGIFY2(x)
-#   define Q_FUNC_INFO __FILE__ ":" QT_STRINGIFY(__LINE__)
-/* 
-   The MIPSpro compiler postpones macro expansion, and therefore macros must be in scope
-   when being used
-*/
+#   if defined(Q_OS_SOLARIS)
+#	define Q_FUNC_INFO __FILE__ "(line number unavailable)"
+#   else
+        /* These two macros makes it possible to turn the builtin line expander into a
+         * string literal. */
+#       define QT_STRINGIFY2(x) #x
+#       define QT_STRINGIFY(x) QT_STRINGIFY2(x)
+#       define Q_FUNC_INFO __FILE__ ":" QT_STRINGIFY(__LINE__)
+#   endif
+    /* The MIPSpro compiler postpones macro expansion, and therefore macros must be in scope
+     * when being used. */
 #   if !defined(Q_CC_MIPS)
-#   	undef QT_STRINGIFY2
-#   	undef QT_STRINGIFY
+#       undef QT_STRINGIFY2
+#       undef QT_STRINGIFY
 #   endif
 #endif
 
