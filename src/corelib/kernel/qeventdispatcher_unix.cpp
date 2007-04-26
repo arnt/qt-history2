@@ -99,6 +99,9 @@ int QEventDispatcherUNIXPrivate::doSelect(QEventLoop::ProcessEventsFlags flags, 
 {
     Q_Q(QEventDispatcherUNIX);
 
+    // needed in QEventDispatcherUNIX::select() 
+    timerList.updateCurrentTime();
+
     int nsel;
     do {
         if (mainThread) {
