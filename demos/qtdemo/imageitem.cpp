@@ -32,19 +32,19 @@ QImage *ImageItem::createImage(const QMatrix &matrix) const
             qDebug() << "- ImageItem::createImage(): Could not load image:" << this->path;
         return original; // nothing we can do about it...
     }
-    
+
     QPoint size = matrix.map(QPoint(this->maxWidth, this->maxHeight));
     float w = size.x(); // x, y is the used as width, height
     float h = size.y();
-    
+
     // Optimization: if image is smaller than maximum allowed size, just return the loaded image
     if (original->size().height() <= h && original->size().width() <= w && !this->adjustSize && this->scale == 1)
         return original;
-    
+
     // Calculate what the size of the final image will be:
     w = qMin(w, float(original->size().width()) * this->scale);
     h = qMin(h, float(original->size().height()) * this->scale);
-    
+
     float adjustx = 1.0f;
     float adjusty = 1.0f;
     if (this->adjustSize){
@@ -53,7 +53,7 @@ QImage *ImageItem::createImage(const QMatrix &matrix) const
         w *= adjustx;
         h *= adjusty;
     }
-    
+
     // Create a new image with correct size, and draw original on it
     QImage *image = new QImage(int(w+2), int(h+2), QImage::Format_ARGB32_Premultiplied);
     image->fill(QColor(0, 0, 0, 0).rgba());
@@ -86,6 +86,3 @@ QImage *ImageItem::createImage(const QMatrix &matrix) const
     delete original;
     return image;
 }
-
-
-
