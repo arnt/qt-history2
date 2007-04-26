@@ -146,6 +146,7 @@ Third party components
 
 - QPrinter
     * Added QPrinter::supportedPaperSources()
+    * [153735] Significantly speed up generation of PDF documents with Asian characters.
 
 - QTabBar 
     * [126438] Added int tabAt(const QPoint &pos) const
@@ -213,6 +214,17 @@ Third party components
       from a document or from HTML. Use QTextDocument's toHtml/setHtml
       if you want to propagate these properties to and from HTML.
 
+- QTextDocument
+    * [152692] Use the document's default font size in QTextDocument::print().
+    * Added QTextDocument::defaultTextOption.
+    * Setting a maximum block count implicitly disables the undo/redo history.
+    * Numerious fixes and speed-ups in the HTML import.
+
+- QTextEdit
+    * [152208] Preserve the undo/redo enabled state across setPlainText/setHtml calls.
+    * [125177] Added print() convenience function that makes it possible to support
+      QPrinter::Selection as selection range.
+
 - QToolButton
     * [130358] Send Hover to the associated QAction upon enter.
 
@@ -226,11 +238,34 @@ Third party components
       to expand an item didn't do anything until elsewhere in thew view
       was clicked.
 
+- QTextLayout
+    * Fixed support for justified arabic text.
+
 - QTreeWidget
     * [153361] Check that an item exists before emiting itemChanged().
 
 - Q3DateEdit
     * [131577] Fix a bug with typing in out-of-range years in a Q3DateEdit
+
+- QTextBrowser
+    * [126914] Fix drawing of focus indicator when activating links.
+    * [82277] Added openLinks property to prevent QTextBrowser from automatically
+      opening any links.
+
+- QProcess
+    * [97517] Added suport for specifying the working directory of detached
+      processes as well as retrieving the PID of such a process.
+
+- QLabel
+    * [133589] Fixed performance problems with plain text labels.
+    * Fixed support for buddies with richtext labels.
+
+- QTextLayout
+    * [140165] Changed boundingRect() to not always report (0, 0) as top left corner but the actual position
+      of the top left line.
+
+- QSplashScreen
+    * [38269] Added support for rich text.
 
 ****************************************************************************
 *                          Database Drivers                                *
@@ -264,7 +299,6 @@ Third party components
 
     * [138388] Floating point numbers are printed in printf's "%g" format.
 
-
 ****************************************************************************
 *                               QDBus                                      *
 ****************************************************************************
@@ -273,6 +307,14 @@ Third party components
 
     * Support QList<QDBusObjectPath> and QList<QDBusSignature> implicitely without
       having to register the types.
+
+    * Added support for using QtDBus from multiple threads
+
+    * Make it possible to marshal custom types into QDBusArgument.
+
+    * qdbuscpp2xml:
+        * [144663] Fix running qdbuscpp2xml on Windows.
+        * Don't require moc being in the PATH environment variable.
 
 - Viewer
 
@@ -288,6 +330,9 @@ Third party components
 
 X11
 ---
+
+- QTextLayout
+    * Fixed various problems with text kerning.
 
 Windows
 -------
@@ -349,6 +394,8 @@ Mac OS X
     * [131327] Toplevel-window mouse propgation for with WA_MacNoClickThrough.
     * Now entirely QuickDraw clean.
     * [155540] Asymetic scales work with cosmetic pens.
+    * [141300] Fixed QFontDatabase/QFontDialog not showing all fonts installed on the system.
+    * Fixed writing system detection in QFontDatabase.
 
 Qtopia Core
 -----------
@@ -356,6 +403,18 @@ Qtopia Core
     * Better support for compiling a LSB (Linux Standard Base) compliant Qtopia Core library.
     * [253123] Allow blocking the key/mouse event that stops the screen saver
       at a particular level - QWSServer::setScreenSaverBlockLevel().
+
+    * A new font subsystem has been implemented that by default allows sharing
+      glyphs rendered at run-time to be shared between applications. A new
+      pre-rendered font format (QPF2) has also been implemented together with
+      a new "makeqpf" tool to generate them.
+
+    * Support for custom font engine plugins has been added through
+      QAbstractFontEngine and QFontEnginePlugin.
+
+    * The default font has been changed to the DejaVu Sans family.
+
+    * Fixed QFontDatabase::addApplicationFont for Qtopia Core.
 
 ****************************************************************************
 *                   Significant Documentation Changes                      *
@@ -482,6 +541,10 @@ Examples
     generates a (mostly) empty file.
 
 - moc
+
+    * [149054] Fixed parsing of old-style C enums.
+    * [145205] The moc now warns when subclassing a known interface (marked with Q_DECLARE_INTERFACE)
+      that is not mentioned in Q_INTERFACES.
 
 - uic
     * [144383] Prevent uic-generated code from calling ensurePolished() before constructor is finished.
