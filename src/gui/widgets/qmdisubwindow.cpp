@@ -802,8 +802,6 @@ void QMdiSubWindowPrivate::_q_enterInteractiveMode()
 void QMdiSubWindowPrivate::_q_processFocusChanged(QWidget *old, QWidget *now)
 {
     Q_Q(QMdiSubWindow);
-    if (old && (old == q || q->isAncestorOf(old)) && now != q && !q->isAncestorOf(now))
-        setActive(false);
     if (now && (now == q || q->isAncestorOf(now))) {
         if (now == q && !isInInteractiveMode)
             setFocusWidget();
