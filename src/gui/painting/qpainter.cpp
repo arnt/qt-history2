@@ -444,6 +444,11 @@ void QPainterPrivate::updateEmulationSpecifier(QPainterState *s)
         complexXform = !s->matrix.isAffine();
     }
 
+    const bool brushXform = (!s->brush.transform().type() == QTransform::TxNone);
+    const bool penXform = (!s->pen.brush().transform().type() == QTransform::TxNone);
+
+    const bool patternXform = patternBrush && (xform || brushXform || penXform);
+
     // Check alphablending
     if (alpha && !engine->hasFeature(QPaintEngine::AlphaBlend))
         s->emulationSpecifier |= QPaintEngine::AlphaBlend;
@@ -475,7 +480,7 @@ void QPainterPrivate::updateEmulationSpecifier(QPainterState *s)
         s->emulationSpecifier &= ~QPaintEngine::PatternBrush;
 
     // Pattern XForms
-    if (patternBrush && xform && !engine->hasFeature(QPaintEngine::PatternTransform))
+    if (patternXform && !engine->hasFeature(QPaintEngine::PatternTransform))
         s->emulationSpecifier |= QPaintEngine::PatternTransform;
     else
         s->emulationSpecifier &= ~QPaintEngine::PatternTransform;
