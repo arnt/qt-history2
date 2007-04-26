@@ -3067,7 +3067,7 @@ QVector<QGLTrapezoid> QGLRectMaskGenerator::generateTrapezoids()
     return tessellator.trapezoids;
 }
 
-QPainterPath ellipseRectToPath(const QRectF &rect)
+static QPainterPath ellipseRectToPath(const QRectF &rect)
 {
     QPainterPath path;
     path.addEllipse(rect);
