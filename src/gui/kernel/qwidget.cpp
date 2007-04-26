@@ -8973,16 +8973,11 @@ QWindowSurface *QWidget::windowSurface() const
     return 0;
 #else
     QWidgetBackingStore *bs = d->maybeBackingStore();
-    if (!bs)
-        return 0;
 
 #ifdef Q_BACKINGSTORE_SUBSURFACES
-    if (bs->subSurfaces.isEmpty())
-#endif
+    if (bs && bs->subSurfaces.isEmpty())
         return bs->windowSurface;
-#endif
 
-#ifdef Q_BACKINGSTORE_SUBSURFACES
     if (!isTopLevel()) {
         const QWidget *w = parentWidget();
         while (w) {
@@ -8990,13 +8985,14 @@ QWindowSurface *QWidget::windowSurface() const
             if (extra && extra->windowSurface)
                 return extra->windowSurface;
             if (w->isTopLevel())
-                return 0;
+                break;
             w = w->parentWidget();
         }
     }
-    return bs->windowSurface;
-#endif
-    return 0;
+#endif // Q_BACKINGSTORE_SUBSURFACES
+
+    return bs ? bs->windowSurface : 0;
+#endif // Q_WS_MAC
 }
 
 
