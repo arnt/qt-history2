@@ -237,8 +237,8 @@ QTransform::QTransform(qreal h11, qreal h12, qreal h13,
 }
 
 /*!
-    Constructs a matrix with the elements, \a m11, \a m12, \a m21, \a
-    m22, \a dx and \a dy.
+    Constructs a matrix with the elements, \a h11, \a h12, \a h21, \a
+    h22, \a dx and \a dy.
 
     \sa setMatrix()
 */
@@ -253,8 +253,11 @@ QTransform::QTransform(qreal h11, qreal h12, qreal h21,
 }
 
 /*!
-     Constructs a matrix that is a copy of the given \a matrix.
-     \a m13 and \a m23 are set to 0.
+    \fn QTransform::QTransform(const QMatrix &matrix)
+
+    Constructs a matrix that is a copy of the given \a matrix.
+    Note that the \c m13, \c m23, and \c m33 elements are set to 0, 0,
+    and 1 respectively.
  */
 QTransform::QTransform(const QMatrix &mtx)
     : affine(mtx),
