@@ -323,7 +323,7 @@ static void solidFill_template(QScreen *screen, const QColor &color,
                                const QRegion &region)
 {
     T *dest = reinterpret_cast<T*>(screen->base());
-    const T c = qt_colorConvert<T, quint32>(color.rgba());
+    const T c = qt_colorConvert<T, quint32>(color.rgba(), 0);
     const int stride = screen->linestep();
     const QVector<QRect> rects = region.rects();
 

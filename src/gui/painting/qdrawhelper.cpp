@@ -4476,7 +4476,7 @@ inline void qt_bitmapblit_template(QRasterBuffer *rasterBuffer,
                                    DST dummy = 0)
 {
     Q_UNUSED(dummy);
-    const DST c = qt_colorConvert<DST, quint32>(color);
+    const DST c = qt_colorConvert<DST, quint32>(color, 0);
     DST *dest = reinterpret_cast<DST*>(rasterBuffer->scanLine(y)) + x;
     const int destStride = rasterBuffer->bytesPerLine() / sizeof(DST);
 
@@ -4584,7 +4584,7 @@ static void qt_alphamapblit_quint16(QRasterBuffer *rasterBuffer,
                                     const uchar *map,
                                     int mapWidth, int mapHeight, int mapStride)
 {
-    const quint16 c = qt_colorConvert<quint16, quint32>(color);
+    const quint16 c = qt_colorConvert<quint16, quint32>(color, 0);
     quint16 *dest = reinterpret_cast<quint16*>(rasterBuffer->scanLine(y)) + x;
     const int destStride = rasterBuffer->bytesPerLine() / sizeof(quint16);
 
@@ -4614,7 +4614,7 @@ inline void qt_rectfill_template(QRasterBuffer *rasterBuffer,
 {
     Q_UNUSED(dummy);
     qt_rectfill<T>(reinterpret_cast<T*>(rasterBuffer->buffer()),
-                   qt_colorConvert<T, quint32>(color),
+                   qt_colorConvert<T, quint32>(color, 0),
                    x, y, width, height, rasterBuffer->bytesPerLine());
 }
 
@@ -4742,7 +4742,7 @@ DrawHelper qDrawHelperCallback[QImage::NImageFormats] =
 template <class DST, class SRC>
 inline void qt_memfill_template(DST *dest, SRC color, int count)
 {
-    const DST c = qt_colorConvert<DST, SRC>(color);
+    const DST c = qt_colorConvert<DST, SRC>(color, 0);
     int n = (count + 7) / 8;
     switch (count & 0x07)
     {
@@ -5067,7 +5067,7 @@ static inline void qt_memrotate90_cachedRead(const SRC *src, int w, int h,
 {
     for (int y = 0; y < h; ++y) {
         for (int x = w - 1; x >= 0; --x) {
-            dest[(w - x - 1) * dstride + y] = qt_colorConvert<DST,SRC>(src[x]);
+            dest[(w - x - 1) * dstride + y] = qt_colorConvert<DST,SRC>(src[x], 0);
         }
         src += sstride;
     }
@@ -5081,7 +5081,7 @@ static inline void qt_memrotate270_cachedRead(const SRC *src, int w, int h,
     src += (h - 1) * sstride;
     for (int y = h - 1; y >= 0; --y) {
         for (int x = 0; x < w; ++x) {
-            dest[x * dstride + h - y - 1] = qt_colorConvert<DST,SRC>(src[x]);
+            dest[x * dstride + h - y - 1] = qt_colorConvert<DST,SRC>(src[x], 0);
         }
         src -= sstride;
     }
@@ -5099,7 +5099,7 @@ static inline void qt_memrotate90_cachedWrite(const SRC *src, int w, int h,
     for (int x = w - 1; x >= 0; --x) {
         DST *d = dest + (w - x - 1) * dstride;
         for (int y = 0; y < h; ++y) {
-            *d++ = qt_colorConvert<DST,SRC>(src[y * sstride + x]);
+            *d++ = qt_colorConvert<DST,SRC>(src[y * sstride + x], 0);
         }
     }
 
@@ -5113,7 +5113,7 @@ static inline void qt_memrotate270_cachedWrite(const SRC *src, int w, int h,
     for (int x = 0; x < w; ++x) {
         DST *d = dest + x * dstride;
         for (int y = h - 1; y >= 0; --y) {
-            *d++ = qt_colorConvert<DST,SRC>(src[y * sstride + x]);
+            *d++ = qt_colorConvert<DST,SRC>(src[y * sstride + x], 0);
         }
     }
 }
@@ -5137,7 +5137,7 @@ static inline void qt_memrotate90_packing(const SRC *src, int w, int h,
 
         for (int i = 0; i < unaligned; ++i) {
             dest[(w - x - 1) * dstride + y]
-                = qt_colorConvert<DST,SRC>(src[y * sstride + x]);
+                = qt_colorConvert<DST,SRC>(src[y * sstride + x], 0);
             ++y;
         }
 
@@ -5145,9 +5145,9 @@ static inline void qt_memrotate90_packing(const SRC *src, int w, int h,
                                                 + unaligned);
         const int rest = (h - unaligned) % pack;
         while (y < h - rest) {
-            quint32 c = qt_colorConvert<DST,SRC>(src[y * sstride + x]);
+            quint32 c = qt_colorConvert<DST,SRC>(src[y * sstride + x], 0);
             for (int i = 1; i < pack; ++i) {
-                c |= qt_colorConvert<DST,SRC>(src[(y + i) * sstride + x])
+                c |= qt_colorConvert<DST,SRC>(src[(y + i) * sstride + x], 0)
                      << (sizeof(int) * 8 / pack * i);
             }
             *d++ = c;
@@ -5156,7 +5156,7 @@ static inline void qt_memrotate90_packing(const SRC *src, int w, int h,
 
         while (y < h) {
             dest[(w - x - 1) * dstride + y]
-                 = qt_colorConvert<DST,SRC>(src[y * sstride + x]);
+                = qt_colorConvert<DST,SRC>(src[y * sstride + x], 0);
             ++y;
         }
     }
@@ -5175,7 +5175,7 @@ static inline void qt_memrotate270_packing(const SRC *src, int w, int h,
 
         for (int i = 0; i < unaligned; ++i) {
             dest[x * dstride + h - y - 1]
-                = qt_colorConvert<DST,SRC>(src[y * sstride + x]);
+                = qt_colorConvert<DST,SRC>(src[y * sstride + x], 0);
             --y;
         }
 
@@ -5183,9 +5183,9 @@ static inline void qt_memrotate270_packing(const SRC *src, int w, int h,
                                                 + unaligned);
         const int rest = (h - unaligned) % pack;
         while (y > rest) {
-            quint32 c = qt_colorConvert<DST,SRC>(src[y * sstride + x]);
+            quint32 c = qt_colorConvert<DST,SRC>(src[y * sstride + x], 0);
             for (int i = 1; i < pack; ++i) {
-                c |= qt_colorConvert<DST,SRC>(src[(y - i) * sstride + x])
+                c |= qt_colorConvert<DST,SRC>(src[(y - i) * sstride + x], 0)
                      << (sizeof(int) * 8 / pack * i);
             }
             *d++ = c;
@@ -5193,7 +5193,7 @@ static inline void qt_memrotate270_packing(const SRC *src, int w, int h,
         }
         while (y >= 0) {
             dest[x * dstride + h - y - 1]
-                = qt_colorConvert<DST,SRC>(src[y * sstride + x]);
+                = qt_colorConvert<DST,SRC>(src[y * sstride + x], 0);
             --y;
         }
     }
@@ -5224,7 +5224,7 @@ static inline void qt_memrotate90_tiled(const SRC *src, int w, int h,
             for (int x = startx; x >= stopx; --x) {
                 DST *d = dest + (w - x - 1) * dstride;
                 for (int y = 0; y < unaligned; ++y) {
-                    *d++ = qt_colorConvert<DST,SRC>(src[y * sstride + x]);
+                    *d++ = qt_colorConvert<DST,SRC>(src[y * sstride + x], 0);
                 }
             }
         }
@@ -5236,10 +5236,10 @@ static inline void qt_memrotate90_tiled(const SRC *src, int w, int h,
             for (int x = startx; x >= stopx; --x) {
                 quint32 *d = reinterpret_cast<quint32*>(dest + (w - x - 1) * dstride + starty);
                 for (int y = starty; y < stopy; y += pack) {
-                    quint32 c = qt_colorConvert<DST,SRC>(src[y * sstride + x]);
+                    quint32 c = qt_colorConvert<DST,SRC>(src[y * sstride + x], 0);
                     for (int i = 1; i < pack; ++i) {
                         const int shift = (sizeof(int) * 8 / pack * i);
-                        const DST color = qt_colorConvert<DST,SRC>(src[(y + i) * sstride + x]);
+                        const DST color = qt_colorConvert<DST,SRC>(src[(y + i) * sstride + x], 0);
                         c |= color << shift;
                     }
                     *d++ = c;
@@ -5252,7 +5252,7 @@ static inline void qt_memrotate90_tiled(const SRC *src, int w, int h,
             for (int x = startx; x >= stopx; --x) {
                 DST *d = dest + (w - x - 1) * dstride + starty;
                 for (int y = starty; y < h; ++y) {
-                    *d++ = qt_colorConvert<DST,SRC>(src[y * sstride + x]);
+                    *d++ = qt_colorConvert<DST,SRC>(src[y * sstride + x], 0);
                 }
             }
         }
@@ -5278,7 +5278,7 @@ static inline void qt_memrotate90_tiled_unpacked(const SRC *src, int w, int h,
             for (int x = startx; x >= stopx; --x) {
                 DST *d = dest + (w - x - 1) * dstride + starty;
                 for (int y = starty; y < stopy; ++y)
-                    *d++ = qt_colorConvert<DST,SRC>(src[y * sstride + x]);
+                    *d++ = qt_colorConvert<DST,SRC>(src[y * sstride + x], 0);
             }
         }
     }
@@ -5306,7 +5306,7 @@ static inline void qt_memrotate270_tiled(const SRC *src, int w, int h,
             for (int x = startx; x < stopx; ++x) {
                 DST *d = dest + x * dstride;
                 for (int y = h - 1; y >= h - unaligned; --y) {
-                    *d++ = qt_colorConvert<DST,SRC>(src[y * sstride + x]);
+                    *d++ = qt_colorConvert<DST,SRC>(src[y * sstride + x], 0);
                 }
             }
         }
@@ -5319,10 +5319,10 @@ static inline void qt_memrotate270_tiled(const SRC *src, int w, int h,
                 quint32 *d = reinterpret_cast<quint32*>(dest + x * dstride
                                                         + h - 1 - starty);
                 for (int y = starty; y > stopy; y -= pack) {
-                    quint32 c = qt_colorConvert<DST,SRC>(src[y * sstride + x]);
+                    quint32 c = qt_colorConvert<DST,SRC>(src[y * sstride + x], 0);
                     for (int i = 1; i < pack; ++i) {
                         const int shift = (sizeof(int) * 8 / pack * i);
-                        const DST color = qt_colorConvert<DST,SRC>(src[(y - i) * sstride + x]);
+                        const DST color = qt_colorConvert<DST,SRC>(src[(y - i) * sstride + x], 0);
                         c |= color << shift;
                     }
                     *d++ = c;
@@ -5334,7 +5334,7 @@ static inline void qt_memrotate270_tiled(const SRC *src, int w, int h,
             for (int x = startx; x < stopx; ++x) {
                 DST *d = dest + x * dstride + h - 1 - starty;
                 for (int y = starty; y >= 0; --y) {
-                    *d++ = qt_colorConvert<DST,SRC>(src[y * sstride + x]);
+                    *d++ = qt_colorConvert<DST,SRC>(src[y * sstride + x], 0);
                 }
             }
         }
@@ -5360,7 +5360,7 @@ static inline void qt_memrotate270_tiled_unpacked(const SRC *src, int w, int h,
             for (int x = startx; x < stopx; ++x) {
                 DST *d = dest + x * dstride + h - 1 - starty;
                 for (int y = starty; y >= stopy; --y)
-                    *d++ = qt_colorConvert<DST,SRC>(src[y * sstride + x]);
+                    *d++ = qt_colorConvert<DST,SRC>(src[y * sstride + x], 0);
             }
         }
     }
@@ -5396,7 +5396,7 @@ static inline void qt_memrotate180_template(const SRC *src,
     src += (h - 1) * sstride;
     for (int y = h - 1; y >= 0; --y) {
         for (int x = w - 1; x >= 0; --x) {
-            dest[(h - y - 1) * dstride + w - x - 1] = qt_colorConvert<DST,SRC>(src[x]);
+            dest[(h - y - 1) * dstride + w - x - 1] = qt_colorConvert<DST,SRC>(src[x], 0);
         }
         src -= sstride;
     }

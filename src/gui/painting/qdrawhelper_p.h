@@ -219,7 +219,7 @@ struct QSpanData
 };
 
 template <class DST, class SRC>
-inline DST qt_colorConvert(SRC color, DST dummy = 0)
+inline DST qt_colorConvert(SRC color, DST dummy)
 {
     Q_UNUSED(dummy);
     return color;
@@ -267,7 +267,7 @@ template <>
 inline quint8 qt_colorConvert(quint16 color, quint8 dummy)
 {
     Q_UNUSED(dummy);
-    return qt_colorConvert<quint8, quint32>(qt_conv16ToRgb(color));
+    return qt_colorConvert<quint8, quint32>(qt_conv16ToRgb(color), 0);
 }
 #endif // QT_QWS_DEPTH_8
 
@@ -392,14 +392,14 @@ inline void qt_memconvert(DST *dest, const SRC *src, int count)
     int n = (count + 7) / 8;
     switch (count & 0x07)
     {
-    case 0: do { *dest++ = qt_colorConvert<DST, SRC>(*src++);
-    case 7:      *dest++ = qt_colorConvert<DST, SRC>(*src++);
-    case 6:      *dest++ = qt_colorConvert<DST, SRC>(*src++);
-    case 5:      *dest++ = qt_colorConvert<DST, SRC>(*src++);
-    case 4:      *dest++ = qt_colorConvert<DST, SRC>(*src++);
-    case 3:      *dest++ = qt_colorConvert<DST, SRC>(*src++);
-    case 2:      *dest++ = qt_colorConvert<DST, SRC>(*src++);
-    case 1:      *dest++ = qt_colorConvert<DST, SRC>(*src++);
+    case 0: do { *dest++ = qt_colorConvert<DST, SRC>(*src++, 0);
+    case 7:      *dest++ = qt_colorConvert<DST, SRC>(*src++, 0);
+    case 6:      *dest++ = qt_colorConvert<DST, SRC>(*src++, 0);
+    case 5:      *dest++ = qt_colorConvert<DST, SRC>(*src++, 0);
+    case 4:      *dest++ = qt_colorConvert<DST, SRC>(*src++, 0);
+    case 3:      *dest++ = qt_colorConvert<DST, SRC>(*src++, 0);
+    case 2:      *dest++ = qt_colorConvert<DST, SRC>(*src++, 0);
+    case 1:      *dest++ = qt_colorConvert<DST, SRC>(*src++, 0);
     } while (--n > 0);
     }
 }
