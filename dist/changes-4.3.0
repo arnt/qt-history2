@@ -43,6 +43,10 @@ Third party components
 - QChar
     * Updated the Unicode tables to Unicode 5.0
 
+- QColor
+    * [140150] Fixed bug where QColor::isValid() would return true for certain
+      invalid color strings.
+
 - QColumnView
     * A new widget that provide a column based implementation of QAbstractItemView
 
@@ -59,6 +63,9 @@ Third party components
     * Remove legacy behavior which assumed that a year between 0 and 99 was meant 1900 + year in
       QDateTime
     * [40085, 153114, 145167] Fix bugs in parsing strings into dates.
+
+- QImage
+    * [157549] Fixed crash when calling QImage::copy with negative coordinates.
 
 - QIntValidator, QDoubleValidator
     * Validators recognise numbers formatted in various locales, depending on their "locale"
@@ -176,9 +183,37 @@ Third party components
     * Added a compile time check to ensure that the objects passed to qobject_cast contain
       a Q_OBJECT macro.
 
+- QPainter
+    * Fixed stroking of non-closed polygons with non-cosmetic pens in the
+      OpenGL paint engine.
+    * [133980 and 143502] Fixed stroking bug for RoundJoin and MiterJoin with paths
+      containing successive line segments with a 180 degree angle between them.
+    * [141826] Fixed stroking with MiterJoin of paths with duplicated control points.
+    * [139454 and 139209] Fixed problem with SmoothTransformation that caused images 
+      to fade out toward the edges in raster paint engine.
+    * Added HighQualityAntialiasing render hint to QPainter to use pixel shaders for
+      antialiasing in the OpenGL paint engine.
+    * [143503] Fixed broken painting when using a QPainter on a non-toplevel widget
+      and calling setWorldMatrixEnabled(false) and then setWorldMatrixEnabled(true).
+    * [142471] Fixed dashed line drawing of lines that are clipped against the device rect.
+    * [147001] Fixed bug with drawing of polygons with more than 65536 points in the
+      raster paint engine.
+    * [157639] Calling drawPolygon() from multiple threads no longer causes an assert.
+    * Optimized line and rectangle drawing in the raster paint engine.
+    * [159047] Fixed case where QPainter::fillRect would ignore the brush origin.
+    * [143119] Fixed bug where drawing a scaled image on another image would cause black
+      lines to appear on the edges of the scaled image.
+
+- QPicture
+    * [142703] QPicture now correctly preserves composition mode changes.
+
+- QPixmapCache
+    * [144319] Reinserting a pixmap now moves it to the top of the Least Recently Used-list.
+
 - QPrintDialog
     * [128964] Make "Print" button the default
     * [138924] The filename in the file dialog is set when printing to a file
+    * [141486] Made QPrintDialog::setPrintRange correctly update the print dialog on X11.
 
 - QPrinter
     * Added QPrinter::supportedPaperSources()
@@ -245,6 +280,18 @@ Third party components
       List markers are now also drawn with the character format of the first character in a block
       instead of the invisible block character format.
 
+- QTextTable
+    * [138905] Fixed bug where merging cells in a QTextTable would cause text to end up in the
+      wrong cells.
+    * [139074] Fixed wrong cell widths in HTML export of tables containing column spans.
+    * [137236] Fixed bug where a text table would ignore page breaks.
+    * [96765] Improved handling of page breaks for table rows spanning several pages.
+    * [144291] Fixed crash when using QTextTable::setFormat with an old format after
+      inserting or removing columns.
+    * [143501 and 144439] Added support for vertical alignment of table cells.
+    * [136397, 144320, and 144322] Various border styles and border brushes are now supported.
+    * [139052] Made sure that empty text table cells get a visible selection.
+
 - QToolTip
     * [135988] Allow tooltips to be shown immediately below the cursor
 
@@ -258,12 +305,28 @@ Third party components
     * [152692] Use the document's default font size in QTextDocument::print().
     * Added QTextDocument::defaultTextOption.
     * Setting a maximum block count implicitly disables the undo/redo history.
-    * Numerious fixes and speed-ups in the HTML import.
+    * Numerous fixes and speed-ups in the HTML import.
+    * [143296] Fixed HTML import bug where adding a <br> tag after a table would
+      insert two empty lines instead of one.
+    * [144637 and 144653] The user state property of QTextBlock is now preserved.
+    * [140147] Fixed layouting bug where the document size would not be updated properly.
+    * [151526] Fixed problem where the margins of an empty paragraph above a table
+      would be ignored.
+    * [136013] The "id" tag can now be used to specify anchors.
+    * [144129] Root frame properties are now properly exported/imported.
 
 - QTextEdit
     * [152208] Preserve the undo/redo enabled state across setPlainText/setHtml calls.
     * [125177] Added print() convenience function that makes it possible to support
       QPrinter::Selection as selection range.
+    * [126422] Fixed bug in copy/paste which could cause the background color of pasted
+      text to differ from that of the copied text.
+    * [147603, 153931] Fixed various cases where parts of a text document would be
+      inaccessible or hidden by the scrollbars.
+    * [148739] Fixed bug where ensureCursorVisible would not result in a visible cursor.
+    * [152065] Fixed cases where currentCharFormatChanged would not be emitted.
+    * [154151] The undoAvailable and redoAvailable signals are no longer emitted too many
+      times when entering or pasting text.
 
 - QToolButton
     * [130358] Send Hover to the associated QAction upon enter.
@@ -280,6 +343,7 @@ Third party components
 
 - QTextLayout
     * Fixed support for justified arabic text.
+    * [152248] Fixed assert in sub/superscript handling of fonts specified in pixel sizes.
 
 - QTreeWidget
     * [153361] Check that an item exists before emiting itemChanged().
@@ -298,6 +362,9 @@ Third party components
 
 - Q3DateEdit
     * [131577] Fix a bug with typing in out-of-range years in a Q3DateEdit
+
+- Q3TextEdit
+    * [136214] Fixed invalid memory reads when using undo/redo-functionality.
 
 - QTextBrowser
     * [126914] Fix drawing of focus indicator when activating links.
