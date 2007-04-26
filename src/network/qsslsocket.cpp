@@ -46,16 +46,15 @@
     it before the handshake has started.
 
     SSL encryption operates on top of the existing TCP stream after
-    the socket enters the ConnectedState. There are two main ways to
-    establish a secure connection with QSslSocket: with an immediate
-    SSL handshake, or with a delayed handshake that occurs after the
-    socket has started in plain, unencrypted mode and then is told to
-    enter SSL mode.
+    the socket enters the ConnectedState. There are two simple ways to
+    establish a secure connection using QSslSocket: With an immediate
+    SSL handshake, or with a delayed SSL handshake occurring after the
+    connection has been established in unencrypted mode.
 
     The most common way to use QSslSocket is to construct an object
-    and start a connection by calling connectToHostEncrypted(), which
-    starts an immediate SSL handshake once the connection has been
-    established.
+    and start a secure connection by calling connectToHostEncrypted().
+    This method starts an immediate SSL handshake once the connection
+    has been established.
 
     \code
         QSslSocket *socket = new QSslSocket(this);
@@ -64,16 +63,25 @@
         socket->connectToHostEncrypted("imap.example.com", 993);
     \endcode
 
-    As with a plain QTcpSocket, QSslSocket enters HostLookupState,
-    ConnectingState, and finally ConnectedState, if the connection is
-    established. The hand shake then starts automatically, and if it
+    As with a plain QTcpSocket, QSslSocket enters the HostLookupState,
+    ConnectingState, and finally the ConnectedState, if the connection
+    is successful. The hand shake then starts automatically, and if it
     succeeds, the encrypted() signal is emitted to indicate the socket
     has entered the encrypted state and is ready for use.
 
-    For servers, you can reimplement incomingConnection() in a subclass of
-    QTcpServer, and construct a QSslSocket, passing the incoming socket
-    descriptor to QSslSocket::setSocketDescriptor(). To start the server side
-    handshake, call startServerEncryption().
+    Note that data can be written to the socket immediately after the
+    return from connectToHostEncrypted() (i.e., before the encrypted()
+    signal is emitted). The data is queued in QSslSocket until after
+    the encrypted() signal is emitted.
+
+    An example of using the delayed SSL handshake to secure an
+    existing connection is the case where an SSL server secures an
+    incoming connection. Suppose you create an SSL server class as a
+    subclass of QTcpServer. You would reimplement incomingConnection()
+    with something like the example below, which first constructs a
+    QSslSocket and calls setSocketDescriptor() to set its descriptor
+    to the one passed in. Then the server side SSL handshake is
+    initiated by calling startServerEncryption().
 
     \code
         void SslServer::incomingConnection(int socketDescriptor)
@@ -88,28 +96,30 @@
         }
     \endcode
     
-    If an error occurs, QSslSocket will emit sslErrors(). Unless any action is
-    taken, the connection will then be dropped; the connection will fail. To
-    recover from an SSL handshake error you must call ignoreSslErrors()
-    (either from within this slot, or prior to entering encrypted mode). This
-    will allow QSslSocket to ignore the errors it encountered when
-    establishing the identity of the peer. This feature must be used with
-    caution, as it's a fundamental property of a secure connection to have
-    successfully completed the handshake phase.
+    If an error occurs, QSslSocket emits signal sslErrors(). In that
+    case, if no action is taken to ignore the error(s), the connection
+    is dropped. To continue, despite the occurrance of an error, you
+    can call ignoreSslErrors(), either from within this slot after the
+    error occurs, or anytime after construction of the QSslSocket and
+    before the connection is attempted. This will allow QSslSocket to
+    ignore the errors it encounters when establishing the identity of
+    the peer. ignoreSslErrors() should be used with caution, since a
+    fundamental characteristic of secure connections is that they are
+    established with a successful handshake.
     
-    Once encrypted, you can use QSslSocket just like a regular
-    QTcpSocket. When readyRead() is emitted, you can call read(),
-    canReadLine()/readLine() or getChar() to read decrypted data from
-    QSslSocket's internal buffer, and you can call write() or putChar() to
-    write data back to the peer. QSslSocket will automatically encrypt the
-    data for you, and emit bytesWritten() once the data has been written to
-    the peer.
+    Once encrypted, you use QSslSocket as a regular QTcpSocket. When
+    readyRead() is emitted, you can call read(), canReadLine() and
+    readLine(), or getChar() to read decrypted data from QSslSocket's
+    internal buffer, and you can call write() or putChar() to write
+    data back to the peer. QSslSocket will automatically encrypt the
+    written data for you, and emit bytesWritten() once the data has
+    been written to the peer.
 
-    As a convenience, QSslSocket also supports QTcpSocket's blocking functions
-    waitForConnected(), waitForReadyRead(), waitForBytesWritten(), and
-    waitForDisconnected(). In addition, it provides waitForEncrypted(), which
-    will block the calling thread until an encrypted connection has been
-    established.
+    As a convenience, QSslSocket supports QTcpSocket's blocking
+    functions waitForConnected(), waitForReadyRead(),
+    waitForBytesWritten(), and waitForDisconnected(). It also provides
+    waitForEncrypted(), which will block the calling thread until an
+    encrypted connection has been established.
 
     \code
         QSslSocket socket;
@@ -125,14 +135,14 @@
     \endcode
 
     QSslSocket provides an extensive, easy-to-use API for handling SSL
-    certificates, ciphers, and for managing errors. You can customize the
-    socket's cryptographic cipher suite and CA database by calling
-    setCiphers() or setCaCertificates(). For more information about ciphers,
-    refer to QSslCipher's documentation. You can read about SSL certificates
-    in the class documentation for QSslCertificate.
+    certificates, ciphers, and for managing errors. You can customize
+    the socket's cryptographic cipher suite and CA database by calling
+    setCiphers() or setCaCertificates(). For more information about
+    ciphers, refer to QSslCipher's documentation. You can read about
+    SSL certificates in the class documentation for QSslCertificate.
     
-    This product includes software developed by the OpenSSL Project for use in
-    the OpenSSL Toolkit (http://www.openssl.org/).
+    This product includes software developed by the OpenSSL Project
+    for use in the OpenSSL Toolkit (http://www.openssl.org/).
 
     \sa QSslCertificate, QSslCipher, QSslError
 */
@@ -252,24 +262,25 @@ QSslSocket::~QSslSocket()
 }
 
 /*!
-    Starts an encrypted connection to \a hostName on \a port, using \a
-    mode as the device \l OpenMode. This is equivalent to calling
-    connectToHost(), and then calling startClientEncryption() after
-    the connection has been established.
+    Starts an encrypted connection to the device \a hostName on \a
+    port, using \a mode as the \l OpenMode. This is equivalent to
+    calling connectToHost() to establish the connection, followed by a
+    call to startClientEncryption().
 
-    QSslSocket will enter HostLookupState, and after entering the
-    event loop (or calling one of the waitFor...() functions), it will
-    enter ConnectingState, emit connected(), and then initiate the SSL
-    client handshake. Between all state changes, QSslSocket emits
-    stateChanged().
+    QSslSocket first enters the HostLookupState. Then, after entering
+    either the event loop or one of the waitFor...() functions, it
+    enters the ConnectingState, emits connected(), and then initiates
+    the SSL client handshake. At each state change, QSslSocket emits
+    signal stateChanged().
 
     After initiating the SSL client handshake, if the identity of the
     peer can't be established, signal sslErrors() is emitted. If you
     want to ignore the errors and continue connecting, you must call
-    ignoreSslErrors() (either from inside a slot function connected to
-    the sslErrors() signal or prior to entering encrypted mode). If
-    this is not done, the connection is dropped and QSslSocket emits
-    disconnected() and returns to the UnconnectedState.
+    ignoreSslErrors(), either from inside a slot function connected to
+    the sslErrors() signal, or prior to entering encrypted mode. If
+    ignoreSslErrors is not called, the connection is dropped, signal
+    disconnected() is emitted, and QSslSocket returns to the
+    UnconnectedState.
 
     If the SSL handshake is successful, QSslSocket emits encrypted().
 
@@ -283,7 +294,7 @@ QSslSocket::~QSslSocket()
 
     Note, in the example above, text can be written to the socket
     immediately after requesting the encrypted connection, before the
-    encripted() signal has been emitted. In such cases, the text is
+    encrypted() signal has been emitted. In such cases, the text is
     queued in the object and written to the socket \e after the
     connection is established and the encrypted() signal is emitted.
 
