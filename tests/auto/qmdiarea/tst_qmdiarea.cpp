@@ -21,6 +21,7 @@
 #include <QVBoxLayout>
 #include <QLineEdit>
 #include <QDesktopWidget>
+#include <QDockWidget>
 
 #if defined(Q_WS_X11)
 extern void qt_x11_wait_for_window_manager(QWidget *w);
@@ -58,6 +59,7 @@ private slots:
     void minimumSizeHint();
     void sizeHint();
     void setActiveSubWindow();
+    void activeSubWindow();
     void addAndRemoveWindows();
     void addAndRemoveWindowsWithReparenting();
     void closeWindows();
@@ -658,6 +660,57 @@ void tst_QMdiArea::setActiveSubWindow()
     QTest::ignoreMessage(QtWarningMsg, "QMdiArea::setActiveSubWindow: window is not inside workspace");
     workspace.setActiveSubWindow(&fakeWindow);
 
+}
+
+void tst_QMdiArea::activeSubWindow()
+{
+    QMainWindow mainWindow;
+
+    QMdiArea *mdiArea = new QMdiArea;
+    QLineEdit *subWindowLineEdit = new QLineEdit;
+    QMdiSubWindow *subWindow = mdiArea->addSubWindow(subWindowLineEdit);
+    mainWindow.setCentralWidget(mdiArea);
+
+    QDockWidget *dockWidget = new QDockWidget(QLatin1String("Dock Widget"), &mainWindow);
+    dockWidget->setAllowedAreas(Qt::LeftDockWidgetArea);
+    QLineEdit *dockWidgetLineEdit = new QLineEdit;
+    dockWidget->setWidget(dockWidgetLineEdit);
+    mainWindow.addDockWidget(Qt::LeftDockWidgetArea, dockWidget);
+
+    mainWindow.show();
+#ifdef Q_WS_X11
+    qt_x11_wait_for_window_manager(&mainWindow);
+#endif
+
+    qApp->setActiveWindow(&mainWindow);
+    QCOMPARE(mdiArea->activeSubWindow(), subWindow);
+    QCOMPARE(qApp->focusWidget(), subWindowLineEdit);
+
+    dockWidgetLineEdit->setFocus();
+    QCOMPARE(qApp->focusWidget(), dockWidgetLineEdit);
+    QCOMPARE(mdiArea->activeSubWindow(), subWindow);
+
+    QEvent deactivateEvent(QEvent::WindowDeactivate);
+    qApp->sendEvent(subWindow, &deactivateEvent);
+    QVERIFY(!mdiArea->activeSubWindow());
+    QCOMPARE(qApp->focusWidget(), dockWidgetLineEdit);
+
+    QEvent activateEvent(QEvent::WindowActivate);
+    qApp->sendEvent(subWindow, &activateEvent);
+    QCOMPARE(mdiArea->activeSubWindow(), subWindow);
+    QCOMPARE(qApp->focusWidget(), subWindowLineEdit);
+
+    QLineEdit dummyTopLevel;
+    dummyTopLevel.show();
+#ifdef Q_WS_X11
+    qt_x11_wait_for_window_manager(&dummyTopLevel);
+#endif
+
+    qApp->setActiveWindow(&dummyTopLevel);
+    QVERIFY(!mdiArea->activeSubWindow());
+
+    qApp->setActiveWindow(&mainWindow);
+    QCOMPARE(mdiArea->activeSubWindow(), subWindow);
 }
 
 void tst_QMdiArea::addAndRemoveWindows()
