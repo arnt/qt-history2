@@ -730,15 +730,24 @@ void tst_QItemDelegate::decoration()
 
     QVariant value;
     switch ((QVariant::Type)type) {
-    case QVariant::Pixmap:
-        value = QPixmap(size);
+    case QVariant::Pixmap: {
+        QPixmap pm(size);
+        pm.fill(Qt::black);
+        value = pm;
         break;
-    case QVariant::Image:
-        value = QImage(size, QImage::Format_Mono);
+    }
+    case QVariant::Image: {
+        QImage img(size, QImage::Format_Mono);
+        qMemSet(img.bits(), 0, img.numBytes());
+        value = img;
         break;
-    case QVariant::Icon:
-        value = QIcon(QPixmap(size));
+    }
+    case QVariant::Icon: {
+        QPixmap pm(size);
+        pm.fill(Qt::black);
+        value = QIcon(pm);
         break;
+    }
     case QVariant::Color:
         value = QColor(Qt::green);
         break;
