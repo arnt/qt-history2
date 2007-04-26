@@ -292,6 +292,9 @@ void MainWindow::createMenus()
     helpMenu = menuBar()->addMenu(tr("&Help"));
     helpMenu->addAction(aboutAct);
     helpMenu->addAction(aboutQtAct);
+
+    menuBar()->addAction(tr("Ding"));
+    menuBar()->addAction(tr("Dong"));
 }
 
 void MainWindow::createToolBars()
