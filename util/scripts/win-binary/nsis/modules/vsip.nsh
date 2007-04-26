@@ -133,6 +133,7 @@ Function InstallIntegration
   File "${MODULE_VSIP_ROOT}\bin\QtCore4.dll"
   File "${MODULE_VSIP_ROOT}\bin\QtGui4.dll"
   File "${MODULE_VSIP_ROOT}\bin\QtXml4.dll"
+  File "${MODULE_VSIP_ROOT}\bin\QtScript4.dll"
 
   File "${MODULE_VSIP_ROOT}\bin\QtDesigner4.dll"
   File "${MODULE_VSIP_ROOT}\bin\QtDesignerComponents4.dll"
@@ -192,15 +193,21 @@ Function InstallIntegration
 
 
   MODULE_VSIP_BOTH:
-  CreateDirectory "$VSIP_INSTDIR\bin\$0\1033"
-  SetOutPath "$VSIP_INSTDIR\bin\$0\1033"
-  SetOverwrite ifnewer
+  !insertmacro InstallUnManagedTranslation $0 "1033"
+  !insertmacro InstallUnManagedTranslation $0 "1031"
+  !insertmacro InstallUnManagedTranslation $0 "1041"
+  !insertmacro InstallManagedTranslation $0 "de"
+  !insertmacro InstallManagedTranslation $0 "ja"
+  
+  ;CreateDirectory "$VSIP_INSTDIR\bin\$0\1033"
+  ;SetOutPath "$VSIP_INSTDIR\bin\$0\1033"
+  ;SetOverwrite ifnewer
+  
+  ;StrCmp $0 "8.0" 0 +2
+  ;  File "${MODULE_VSIP_ROOT}\bin\8.0\1033\Qt4VS2005UI.dll"
 
-  StrCmp $0 "8.0" 0 +2
-    File "${MODULE_VSIP_ROOT}\bin\8.0\1033\Qt4VS2005UI.dll"
-
-  StrCmp $0 "7.1" 0 +2
-  File "${MODULE_VSIP_ROOT}\bin\7.1\1033\Qt4VS2003UI.dll"
+  ;StrCmp $0 "7.1" 0 +2
+  ;File "${MODULE_VSIP_ROOT}\bin\7.1\1033\Qt4VS2003UI.dll"
 
   CreateDirectory "$VSIP_INSTDIR\plugins"
   SetOutPath "$VSIP_INSTDIR\plugins"
@@ -365,7 +372,6 @@ Function InstallResources
   !insertmacro InstallResourceFiles "ui" "form"
 FunctionEnd
 
-
 Function un.InstallVSIP
   Exch $0
   
@@ -403,7 +409,7 @@ Function un.InstallIntegration
   Delete "$VSIP_INSTDIR\bin\$0\Microsoft.VisualStudio.dll"
 
   StrCmp $0 "7.1" 0 MODULE_VSIP_UNINST_2005
-  Delete "$VSIP_INSTDIR\bin\$0\1033\Qt4VS2003UI.dll"
+  ;Delete "$VSIP_INSTDIR\bin\$0\1033\Qt4VS2003UI.dll"
   Delete "$VSIP_INSTDIR\bin\$0\RegQt4VS2003.exe"
   Delete "$VSIP_INSTDIR\bin\$0\Microsoft.VisualStudio.Designer.Interfaces.dll"
   Delete "$VSIP_INSTDIR\bin\$0\Trolltech.Qt4VS2003Base.dll"
@@ -411,14 +417,19 @@ Function un.InstallIntegration
   Goto MODULE_VSIP_CONTINUE
   
   MODULE_VSIP_UNINST_2005:
-  Delete "$VSIP_INSTDIR\bin\$0\1033\Qt4VS2005UI.dll"
+  ;Delete "$VSIP_INSTDIR\bin\$0\1033\Qt4VS2005UI.dll"
   Delete "$VSIP_INSTDIR\bin\$0\RegQt4VS2005.exe"
   Delete "$VSIP_INSTDIR\bin\$0\Trolltech.Qt4VS2005Base.dll"
   Delete "$VSIP_INSTDIR\bin\$0\Qt4VS2005.dll"
 
   MODULE_VSIP_CONTINUE:
-
-  RmDir "$VSIP_INSTDIR\bin\$0\1033"
+  !insertmacro UnInstallUnManagedTranslation $0 "1033"
+  !insertmacro UnInstallUnManagedTranslation $0 "1031"
+  !insertmacro UnInstallUnManagedTranslation $0 "1041"
+  !insertmacro UnInstallManagedTranslation $0 "de"
+  !insertmacro UnInstallManagedTranslation $0 "ja"
+  
+  ;RmDir "$VSIP_INSTDIR\bin\$0\1033"
   
   Delete "$VSIP_INSTDIR\bin\$0\QtProjectLib.dll"
   Delete "$VSIP_INSTDIR\bin\$0\formeditor1Lib.dll"
@@ -432,6 +443,7 @@ Function un.InstallIntegration
   Delete "$VSIP_INSTDIR\bin\QtCore4.dll"
   Delete "$VSIP_INSTDIR\bin\QtGui4.dll"
   Delete "$VSIP_INSTDIR\bin\QtXml4.dll"
+  Delete "$VSIP_INSTDIR\bin\QtScript4.dll"
   Delete "$VSIP_INSTDIR\bin\msvcp71.dll"
   Delete "$VSIP_INSTDIR\bin\msvcr71.dll"
   RmDir "$VSIP_INSTDIR\bin"
@@ -579,7 +591,6 @@ Function un.InstallResources
 
   RmDir "$VSIP_INSTDIR\resources"
 FunctionEnd
-
 !macroend
 
 !macro InstallResourceFiles TYPE TMPLNAME
@@ -592,6 +603,53 @@ FunctionEnd
   Delete "$VSIP_INSTDIR\resources\${TYPE}.xml"
   Delete "$VSIP_INSTDIR\resources\${TYPE}icon.bmp"
   Delete "$VSIP_INSTDIR\resources\${TMPLNAME}.${TYPE}"
+!macroend
+
+!macro InstallUnManagedTranslation VS_SHORT LOCALE
+  CreateDirectory "$VSIP_INSTDIR\bin\${VS_SHORT}\${LOCALE}"
+  SetOutPath "$VSIP_INSTDIR\bin\${VS_SHORT}\${LOCALE}"
+  SetOverwrite ifnewer
+
+  StrCmp ${VS_SHORT} "8.0" 0 +2
+    File "${MODULE_VSIP_ROOT}\bin\8.0\${LOCALE}\Qt4VS2005UI.dll"
+
+  StrCmp ${VS_SHORT} "7.1" 0 +2
+    File "${MODULE_VSIP_ROOT}\bin\7.1\${LOCALE}\Qt4VS2003UI.dll"
+!macroend
+
+!macro UnInstallUnManagedTranslation VS_SHORT LOCALE
+  StrCmp ${VS_SHORT} "8.0" 0 +2
+    Delete "$VSIP_INSTDIR\bin\8.0\${LOCALE}\Qt4VS2005UI.dll"
+
+  StrCmp ${VS_SHORT} "7.1" 0 +2
+    Delete "$VSIP_INSTDIR\bin\7.1\${LOCALE}\Qt4VS2003UI.dll"
+
+  RMDir "$VSIP_INSTDIR\bin\${VS_SHORT}\${LOCALE}"
+!macroend
+
+!macro InstallManagedTranslation VS_SHORT LOCALE
+  CreateDirectory "$VSIP_INSTDIR\bin\${VS_SHORT}\${LOCALE}"
+  SetOutPath "$VSIP_INSTDIR\bin\${VS_SHORT}\${LOCALE}"
+  SetOverwrite ifnewer
+
+  StrCmp ${VS_SHORT} "8.0" 0 +3
+    File "${MODULE_VSIP_ROOT}\bin\8.0\${LOCALE}\Qt4VS2005.resources.dll"
+    File "${MODULE_VSIP_ROOT}\bin\8.0\${LOCALE}\QtProjectLib.resources.dll"
+
+  StrCmp ${VS_SHORT} "7.1" 0 +3
+    File "${MODULE_VSIP_ROOT}\bin\7.1\${LOCALE}\Qt4VS2003.resources.dll"
+    File "${MODULE_VSIP_ROOT}\bin\7.1\${LOCALE}\QtProjectLib.resources.dll"
+!macroend
+
+!macro UnInstallManagedTranslation VS_SHORT LOCALE
+  StrCmp ${VS_SHORT} "8.0" 0 +2
+    Delete "$VSIP_INSTDIR\bin\8.0\${LOCALE}\Qt4VS2005.resources.dll"
+
+  StrCmp ${VS_SHORT} "7.1" 0 +2
+    Delete "$VSIP_INSTDIR\bin\7.1\${LOCALE}\Qt4VS2003.resources.dll"
+
+  Delete "$VSIP_INSTDIR\bin\${VS_SHORT}\${LOCALE}\QtProjectLib.resources.dll"
+  RMDir "$VSIP_INSTDIR\bin\${VS_SHORT}\${LOCALE}"
 !macroend
 
 ;------------------------------------------------------------------------------------------------

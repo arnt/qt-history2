@@ -47,6 +47,11 @@ Var ItemInstDir
   SetOutPath "$WizardInstDir\${TT}\html\1033"
   SetOverwrite ifnewer
   File "${SD}\html\1033\*"
+  
+  CreateDirectory "$WizardInstDir\${TT}\html\1031"
+  SetOutPath "$WizardInstDir\${TT}\html\1031"
+  SetOverwrite ifnewer
+  File "${SD}\html\1031\*"
 !macroend
 
 !macro UnInstallProjectTemplate TT
@@ -70,6 +75,10 @@ Var ItemInstDir
 
   Delete "$WizardInstDir\${TT}\html\1033\*"
   RmDir "$WizardInstDir\${TT}\html\1033"
+  
+  Delete "$WizardInstDir\${TT}\html\1031\*"
+  RmDir "$WizardInstDir\${TT}\html\1031"
+
   RmDir "$WizardInstDir\${TT}\html"
 
   RmDir "$ProjectInstDir\${TT}"
