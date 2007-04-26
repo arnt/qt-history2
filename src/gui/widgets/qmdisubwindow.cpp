@@ -741,6 +741,7 @@ QMdiSubWindowPrivate::QMdiSubWindowPrivate()
 */
 void QMdiSubWindowPrivate::_q_updateStaysOnTopHint()
 {
+#ifndef QT_NO_ACTION
     Q_Q(QMdiSubWindow);
     if (QAction *senderAction = qobject_cast<QAction *>(q->sender())) {
         if (senderAction->isChecked()) {
@@ -751,6 +752,7 @@ void QMdiSubWindowPrivate::_q_updateStaysOnTopHint()
             q->lower();
         }
     }
+#endif // QT_NO_ACTION
 }
 
 /*!
@@ -758,6 +760,7 @@ void QMdiSubWindowPrivate::_q_updateStaysOnTopHint()
 */
 void QMdiSubWindowPrivate::_q_enterInteractiveMode()
 {
+#ifndef QT_NO_ACTION
     Q_Q(QMdiSubWindow);
     QAction *action = qobject_cast<QAction *>(q->sender());
     if (!action)
@@ -794,6 +797,7 @@ void QMdiSubWindowPrivate::_q_enterInteractiveMode()
     {
         q->grabMouse();
     }
+#endif // QT_NO_ACTION
 }
 
 /*!
@@ -801,6 +805,8 @@ void QMdiSubWindowPrivate::_q_enterInteractiveMode()
 */
 void QMdiSubWindowPrivate::_q_processFocusChanged(QWidget *old, QWidget *now)
 {
+    Q_UNUSED(old);
+
     Q_Q(QMdiSubWindow);
     if (now && (now == q || q->isAncestorOf(now))) {
         if (now == q && !isInInteractiveMode)
@@ -1066,7 +1072,9 @@ void QMdiSubWindowPrivate::setMinimizeMode()
     isShadeRequestFromMinimizeMode = false;
 
     moveEnabled = false;
+#ifndef QT_NO_ACTION
     setEnabled(MoveAction, moveEnabled);
+#endif
 
     Q_ASSERT(q->windowState() & Qt::WindowMinimized);
     Q_ASSERT(!(q->windowState() & Qt::WindowMaximized));
@@ -1125,11 +1133,13 @@ void QMdiSubWindowPrivate::setNormalMode()
     setSizeGripVisible(true);
 #endif
 
+#ifndef QT_NO_ACTION
     setEnabled(MoveAction, true);
     setEnabled(MaximizeAction, true);
     setEnabled(MinimizeAction, true);
     setEnabled(RestoreAction, false);
     setEnabled(ResizeAction, resizeEnabled);
+#endif // QT_NO_ACTION
 
     Q_ASSERT(!(q_func()->windowState() & (Qt::WindowMinimized | Qt::WindowMaximized)));
     Q_ASSERT(!isShadeMode);
@@ -1205,11 +1215,13 @@ void QMdiSubWindowPrivate::setMaximizeMode()
     resizeEnabled = false;
     moveEnabled = false;
 
+#ifndef QT_NO_ACTION
     setEnabled(MoveAction, moveEnabled);
     setEnabled(MaximizeAction, false);
     setEnabled(MinimizeAction, true);
     setEnabled(RestoreAction, true);
     setEnabled(ResizeAction, resizeEnabled);
+#endif // QT_NO_ACTION
 
     Q_ASSERT(q->windowState() & Qt::WindowMaximized);
     Q_ASSERT(!(q->windowState() & Qt::WindowMinimized));
@@ -1749,6 +1761,7 @@ QPalette QMdiSubWindowPrivate::desktopPalette() const
     return newPalette;
 }
 
+#ifndef QT_NO_ACTION
 void QMdiSubWindowPrivate::updateActions()
 {
     Qt::WindowFlags windowFlags = q_func()->windowFlags();
@@ -1779,6 +1792,7 @@ void QMdiSubWindowPrivate::updateActions()
     if (windowFlags & Qt::WindowMaximizeButtonHint)
         setVisible(MaximizeAction, true);
 }
+#endif // QT_NO_ACTION
 
 void QMdiSubWindowPrivate::setFocusWidget()
 {
@@ -1863,12 +1877,14 @@ void QMdiSubWindowPrivate::setWindowFlags(Qt::WindowFlags windowFlags)
     windowFlags &= ~windowType;
     windowFlags |= Qt::SubWindow;
 
+#ifndef QT_NO_ACTION
     if (QAction *stayOnTopAction = actions[QMdiSubWindowPrivate::StayOnTopAction]) {
         if (windowFlags & Qt::WindowStaysOnTopHint)
             stayOnTopAction->setChecked(true);
         else
             stayOnTopAction->setChecked(false);
     }
+#endif
 
 #ifndef QT_NO_SIZEGRIP
     if ((windowFlags & Qt::FramelessWindowHint) && sizeGrip)
@@ -1877,7 +1893,9 @@ void QMdiSubWindowPrivate::setWindowFlags(Qt::WindowFlags windowFlags)
 
     q->setWindowFlags(windowFlags);
     updateGeometryConstraints();
+#ifndef QT_NO_ACTION
     updateActions();
+#endif
     QSize currentSize = q->size();
     if (q->isVisible() && (currentSize.width() < internalMinimumSize.width()
             || currentSize.height() < internalMinimumSize.height())) {
@@ -1885,6 +1903,7 @@ void QMdiSubWindowPrivate::setWindowFlags(Qt::WindowFlags windowFlags)
     }
 }
 
+#ifndef QT_NO_ACTION
 void QMdiSubWindowPrivate::setEnabled(WindowStateAction action, bool enable)
 {
     if (actions[action])
@@ -1906,6 +1925,7 @@ void QMdiSubWindowPrivate::addToSystemMenu(WindowStateAction action, const QStri
     actions[action] = systemMenu->addAction(text, q_func(), slot);
 }
 #endif
+#endif // QT_NO_ACTION
 
 /*!
     \internal
@@ -2386,11 +2406,13 @@ void QMdiSubWindow::showShaded()
     d->updateDirtyRegions();
     d->updateMask();
 
+#ifndef QT_NO_ACTION
     d->setEnabled(QMdiSubWindowPrivate::MinimizeAction, false);
     d->setEnabled(QMdiSubWindowPrivate::ResizeAction, d->resizeEnabled);
     d->setEnabled(QMdiSubWindowPrivate::MaximizeAction, true);
     d->setEnabled(QMdiSubWindowPrivate::RestoreAction, true);
     d->setEnabled(QMdiSubWindowPrivate::MoveAction, d->moveEnabled);
+#endif
 }
 
 /*!
@@ -2539,7 +2561,9 @@ bool QMdiSubWindow::event(QEvent *event)
         d->updateCursor();
         d->updateMask();
         d->updateDirtyRegions();
+#ifndef QT_NO_ACTION
         d->updateActions();
+#endif
         if (!wasResized && testAttribute(Qt::WA_Resized))
             setAttribute(Qt::WA_Resized, false);
         break;

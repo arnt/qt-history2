@@ -41,9 +41,11 @@ public:
     Role role(int child) const;
     State state(int child) const;
 
+#ifndef QT_NO_ACTION
     int userActionCount(int child) const;
     QString actionText(int action, Text t, int child) const;
     bool doAction(int action, int child, const QVariantList &params);
+#endif
 
 protected:
     ~QAccessibleWidget();

@@ -811,6 +811,8 @@ QString QAccessibleWidget::text(Text t, int child) const
     return str;
 }
 
+#ifndef QT_NO_ACTION
+
 /*! \reimp */
 int QAccessibleWidget::userActionCount(int child) const
 {
@@ -867,6 +869,8 @@ bool QAccessibleWidget::doAction(int action, int child, const QVariantList &para
     }
     return QAccessibleObject::doAction(action, child, params);
 }
+
+#endif // QT_NO_ACTION
 
 /*! \reimp */
 QAccessible::Role QAccessibleWidget::role(int child) const
