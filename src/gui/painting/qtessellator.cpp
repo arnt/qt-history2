@@ -536,8 +536,8 @@ void QTessellatorPrivate::Vertices::init(int maxVertices)
 {
     if (!storage || maxVertices > allocated) {
         int size = qMax((int)default_alloc, maxVertices);
-        storage = (Vertex *)malloc(size*sizeof(Vertex));
-        sorted = (Vertex **)malloc(size*sizeof(Vertex *));
+        storage = (Vertex *)realloc(storage, size*sizeof(Vertex));
+        sorted = (Vertex **)realloc(sorted, size*sizeof(Vertex *));
         allocated = maxVertices;
     }
 }
@@ -597,6 +597,7 @@ QRectF QTessellatorPrivate::collectAndSortVertices(const QPointF *points, int *m
 
         v->x = x_next;
         v->y = y_next;
+        v->flags = 0;
 
     next_point:
 
@@ -627,7 +628,6 @@ QRectF QTessellatorPrivate::collectAndSortVertices(const QPointF *points, int *m
             break;
         }
 
-        v->flags = 0;
         if (y_prev < y_curr)
             v->flags |= LineBeforeEnds;
         else if (y_prev > y_curr)
