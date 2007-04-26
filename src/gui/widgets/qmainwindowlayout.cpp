@@ -1168,7 +1168,9 @@ void QMainWindowLayout::tabifyDockWidget(QDockWidget *first, QDockWidget *second
 
 void QMainWindowLayout::setVerticalTabsEnabled(bool enabled)
 {
-#ifndef QT_NO_TABBAR
+#ifdef QT_NO_TABBAR
+    Q_UNUSED(enabled);
+#else
     QDockAreaLayout &layout = layoutState.dockAreaLayout;
 
     const QTabBar::Shape verticalShapes[] = {
