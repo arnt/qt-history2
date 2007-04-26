@@ -3390,6 +3390,8 @@ public:
 
     QList<QEvent::Type> receivedEvents;
 
+    EventFilterTesterItem() : handlesSceneEvents(false) {}
+
 protected:
     bool sceneEventFilter(QGraphicsItem *watched, QEvent *event)
     {
