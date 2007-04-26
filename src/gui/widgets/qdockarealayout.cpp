@@ -841,7 +841,9 @@ static int separatorMove(QVector<QLayoutStruct> &list, int index, int delta, int
 
 int QDockAreaLayoutInfo::separatorMove(int index, int delta, QVector<QLayoutStruct> *cache)
 {
+#ifndef QT_NO_TABBAR
     Q_ASSERT(!tabbed);
+#endif
 
     if (cache->isEmpty()) {
         QVector<QLayoutStruct> &list = *cache;
