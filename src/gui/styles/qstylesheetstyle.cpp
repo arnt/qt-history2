@@ -1207,6 +1207,11 @@ enum PseudoElement {
     PseudoElement_TabBarTab,
     PseudoElement_TabBarScroller,
     PseudoElement_TabBarTear,
+    PseudoElement_SliderGroove,
+    PseudoElement_SliderHandle,
+    PseudoElement_SliderAddPage,
+    PseudoElement_SliderSubPage,
+    PseudoElement_SliderTickmark,
     NumPseudoElements
 };
 
@@ -1262,6 +1267,11 @@ static PseudoElementInfo knownPseudoElements[NumPseudoElements] = {
     { QStyle::SC_None, "tab" },
     { QStyle::SC_None, "scroller" },
     { QStyle::SC_None, "tear" },
+    { QStyle::SC_SliderGroove, "groove" },
+    { QStyle::SC_SliderHandle, "handle" },
+    { QStyle::SC_None, "add-page" },
+    { QStyle::SC_None, "sub-page"},
+    { QStyle::SC_SliderTickmarks, "tick-mark" }
 };
 
 QVector<Declaration> declarations(const QVector<StyleRule> &styleRules, const QString &part, int pseudoClass = PseudoClass_Unspecified)
@@ -1582,6 +1592,8 @@ static Origin defaultOrigin(int pe)
     case PseudoElement_GroupBoxTitle:
     case PseudoElement_GroupBoxIndicator: // never used
     case PseudoElement_ToolButtonMenu:
+    case PseudoElement_SliderAddPage:
+    case PseudoElement_SliderSubPage:
         return Origin_Border;
 
     case PseudoElement_SpinBoxUpButton:
@@ -1603,6 +1615,8 @@ static Origin defaultOrigin(int pe)
     case PseudoElement_HeaderViewUpArrow:
     case PseudoElement_HeaderViewDownArrow:
     case PseudoElement_Label:
+    case PseudoElement_SliderGroove:
+    case PseudoElement_SliderHandle:
         return Origin_Content;
 
     default:
@@ -1640,6 +1654,7 @@ static Qt::Alignment defaultPosition(int pe)
     case PseudoElement_DownArrow:
     case PseudoElement_ToolButtonMenuArrow:
     case PseudoElement_Label:
+    case PseudoElement_SliderGroove:
         return Qt::AlignCenter;
 
     case PseudoElement_GroupBoxTitle:
@@ -1759,6 +1774,7 @@ static PositionMode defaultPositionMode(int pe)
     case PseudoElement_ScrollBarSubPage:
     case PseudoElement_ScrollBarSlider:
     case PseudoElement_TabBarTab:
+    case PseudoElement_SliderGroove:
         return PositionMode_Absolute;
     default:
         return PositionMode_Static;
@@ -2386,6 +2402,48 @@ void QStyleSheetStyle::drawComplexControl(ComplexControl cc, const QStyleOptionC
         }
         break;
 #endif // QT_NO_SCROLLBAR
+
+    case CC_Slider:
+        if (const QStyleOptionSlider *slider = qstyleoption_cast<const QStyleOptionSlider *>(opt)) {
+            rule.drawRule(p, opt->rect);
+
+            QRenderRule subRule = renderRule(w, opt, PseudoElement_SliderGroove);
+            if (!subRule.hasDrawable()) {
+                baseStyle()->drawComplexControl(cc, slider, p, w);
+                return;
+            }
+
+            QRect gr = subControlRect(cc, opt, SC_SliderGroove, w);
+            if (slider->subControls & SC_SliderGroove) {
+                subRule.drawRule(p, gr);
+            }
+
+            if (slider->subControls & SC_SliderHandle) {
+                QRenderRule subRule = renderRule(w, opt, PseudoElement_SliderHandle);
+                QRect hr = subControlRect(cc, opt, SC_SliderHandle, w);
+
+                QRenderRule subRule1 = renderRule(w, opt, PseudoElement_SliderSubPage);
+                if (subRule1.hasDrawable()) {
+                    QRect r(gr.topLeft(), slider->orientation == Qt::Horizontal ? hr.bottomLeft() : hr.topRight());
+                    subRule1.drawRule(p, r);
+                }
+
+                QRenderRule subRule2 = renderRule(w, opt, PseudoElement_SliderAddPage);
+                if (subRule2.hasDrawable()) {
+                    QRect r(slider->orientation == Qt::Horizontal ? hr.topRight() : hr.bottomLeft(), gr.bottomRight());
+                    subRule2.drawRule(p, r);
+                }
+
+                subRule.drawRule(p, hr);
+            }
+
+            if (slider->subControls & SC_SliderTickmarks) {
+                // TODO...
+            }
+
+            return;
+        }
+        break;
 
     default:
         break;
@@ -3365,6 +3423,24 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const 
 
     //case PM_TabBarBaseHeight:  return 100;
 
+    case PM_SliderControlThickness:
+    case PM_SliderThickness: // horizontal slider's height (sizeHint)
+    case PM_SliderLength:  { // minimum length of slider
+        QRenderRule subRule = renderRule(w, PseudoElement_SliderGroove);
+        if (!subRule.hasDrawable())
+            break;
+        QRenderRule subRule2 = renderRule(w, PseudoElement_SliderHandle);
+        bool horizontal = opt->state & QStyle::State_Horizontal;
+        if (m == PM_SliderThickness) {
+            return horizontal ? rule.size().height() : rule.size().width();
+        } else if (m == PM_SliderControlThickness || m == PM_SliderLength) {
+            QRect r = positionRect(w, rule, subRule, PseudoElement_SliderGroove, opt->rect, opt->direction);
+            r = positionRect(w, subRule, subRule2, PseudoElement_SliderHandle, r, opt->direction);
+            return horizontal && m == PM_SliderControlThickness ? r.height() : r.width();
+        }
+        break;
+                            }
+
     default:
         break;
     }
@@ -3463,6 +3539,7 @@ QSize QStyleSheetStyle::sizeFromContents(ContentsType ct, const QStyleOption *op
             : rule.boxSize(baseStyle()->sizeFromContents(ct, opt, sz, w));
         break;
 
+    case CT_Slider:
     case CT_ProgressBar:
         if (rule.hasBorder() || rule.hasBox())
             return rule.boxSize(sz);
@@ -3779,6 +3856,36 @@ QRect QStyleSheetStyle::subControlRect(ComplexControl cc, const QStyleOptionComp
         }
         break;
 #endif // QT_NO_SCROLLBAR
+
+    case CC_Slider:
+        if (const QStyleOptionSlider *slider = qstyleoption_cast<const QStyleOptionSlider *>(opt)) {
+            QRenderRule subRule = renderRule(w, opt, PseudoElement_SliderGroove);
+            if (!subRule.hasDrawable())
+                break;
+            QRect gr = positionRect(w, rule, subRule, PseudoElement_SliderGroove, opt->rect, opt->direction);
+            switch (sc) {
+            case SC_SliderGroove:
+                return gr;
+            case SC_SliderHandle: {
+                QRect cr = subRule.contentsRect(gr);
+                int sliderPos = 0;
+                int thickness = pixelMetric(PM_SliderControlThickness, slider, w);
+                int len = pixelMetric(PM_SliderLength, slider, w);
+                bool horizontal = slider->orientation == Qt::Horizontal;
+                sliderPos = sliderPositionFromValue(slider->minimum, slider->maximum, slider->sliderPosition,
+                                                    (horizontal ? cr.width() : cr.height()) - len, slider->upsideDown);
+                if (horizontal)
+                    return QRect(cr.x() + sliderPos, cr.y(), len, thickness);
+                else
+                    return QRect(cr.x(), cr.y() + sliderPos, thickness, len);
+                break; }
+            case SC_SliderTickmarks:
+                // TODO...
+            default:
+                break;
+            }
+        }
+        break;
 
     default:
         break;
