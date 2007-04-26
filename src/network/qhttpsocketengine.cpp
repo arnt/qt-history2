@@ -17,7 +17,7 @@
 #include "qdatetime.h"
 #include "qhttp.h"
 
-#ifndef QT_NO_NETWORKPROXY
+#if !defined(QT_NO_NETWORKPROXY) && !defined(QT_NO_HTTP)
 #include <qdebug.h>
 
 #define DEBUG
@@ -175,7 +175,7 @@ qint64 QHttpSocketEngine::read(char *data, qint64 maxlen)
         && d->socket->bytesAvailable() == 0) {
         emitReadNotification();
     }
-    
+
     if (bytesReadFromSocket > 0) {
         // Add to what we read so far.
         bytesRead += bytesReadFromSocket;
@@ -468,7 +468,7 @@ void QHttpSocketEngine::slotSocketReadNotification()
 
     QHttpResponseHeader responseHeader(QString::fromLatin1(d->readBuffer));
     d->readBuffer.clear();
-    
+
     int statusCode = responseHeader.statusCode();
     if (statusCode == 200) {
         d->state = Connected;
@@ -484,7 +484,7 @@ void QHttpSocketEngine::slotSocketReadNotification()
 
         priv->parseHttpResponse(responseHeader, true);
 
-        if (priv->phase == QAuthenticatorPrivate::Done) 
+        if (priv->phase == QAuthenticatorPrivate::Done)
             emit proxyAuthenticationRequired(d->proxy, &d->authenticator);
 
         // priv->phase will get reset to QAuthenticatorPrivate::Start if the authenticator got modified in the signal above.

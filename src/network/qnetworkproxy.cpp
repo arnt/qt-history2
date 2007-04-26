@@ -12,7 +12,7 @@
 ****************************************************************************/
 
 
-/*! 
+/*!
     \class QNetworkProxy
 
     \since 4.1
@@ -128,7 +128,9 @@ public:
 #ifndef QT_NO_SOCKS5
         , socks5SocketEngineHandler(0)
 #endif
+#ifndef QT_NO_HTTP
         , httpSocketEngineHandler(0)
+#endif
     {
     }
 
@@ -137,7 +139,9 @@ public:
 #ifndef QT_NO_SOCKS5
         delete socks5SocketEngineHandler;
 #endif
+#ifndef QT_NO_HTTP
         delete httpSocketEngineHandler;
+#endif
     }
 
     void init()
@@ -147,8 +151,10 @@ public:
         if (!socks5SocketEngineHandler)
             socks5SocketEngineHandler = new QSocks5SocketEngineHandler();
 #endif
+#ifndef QT_NO_HTTP
         if (!httpSocketEngineHandler)
             httpSocketEngineHandler = new QHttpSocketEngineHandler();
+#endif
     }
 
     void setApplicationProxy(const QNetworkProxy &proxy)
@@ -169,7 +175,9 @@ private:
 #ifndef QT_NO_SOCKS5
     QSocks5SocketEngineHandler *socks5SocketEngineHandler;
 #endif
+#ifndef QT_NO_HTTP
     QHttpSocketEngineHandler *httpSocketEngineHandler;
+#endif
 };
 
 Q_GLOBAL_STATIC(QGlobalNetworkProxy, globalNetworkProxy);

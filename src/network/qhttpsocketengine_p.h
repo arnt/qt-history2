@@ -30,7 +30,8 @@
 #include "qnetworkproxy.h"
 #include "qauthenticator_p.h"
 
-#ifndef QT_NO_NETWORKPROXY
+#if !defined(QT_NO_NETWORKPROXY) && !defined(QT_NO_HTTP)
+
 class QTcpSocket;
 class QHttpSocketEnginePrivate;
 
@@ -100,7 +101,7 @@ public slots:
     void slotSocketBytesWritten();
     void slotSocketError(QAbstractSocket::SocketError error);
     void slotSocketStateChanged(QAbstractSocket::SocketState state);
-            
+
 private slots:
     void emitPendingReadNotification();
     void emitPendingWriteNotification();
