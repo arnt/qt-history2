@@ -121,8 +121,8 @@ tst_QHttp::~tst_QHttp()
 void tst_QHttp::initTestCase_data()
 {
     QTest::addColumn<bool>("setProxy");
-    QTest::addColumn<int>("proxyType");  
-    
+    QTest::addColumn<int>("proxyType");
+
     QTest::newRow("WithoutProxy") << false << 0;
 #ifdef TEST_QNETWORK_PROXY
     QTest::newRow("WithSocks5Proxy") << true << int(QNetworkProxy::Socks5Proxy);
@@ -175,7 +175,7 @@ void tst_QHttp::cleanup()
     http = 0;
 
     QCoreApplication::processEvents();
-    
+
     QFETCH_GLOBAL(bool, setProxy);
     if (setProxy) {
 #ifdef TEST_QNETWORK_PROXY
@@ -358,19 +358,19 @@ void tst_QHttp::head()
     QFETCH( QString, host );
     QFETCH( uint, port );
     QFETCH( QString, path );
-    
+
     http = newHttp();
     QCOMPARE( http->currentId(), 0 );
     QCOMPARE( (int)http->state(), (int)QHttp::Unconnected );
-    
+
     addRequest( QHttpRequestHeader(), http->setHost( host, port ) );
     headId = http->head( path );
     addRequest( QHttpRequestHeader(), headId );
-    
+
     QTestEventLoop::instance().enterLoop( 30 );
     if ( QTestEventLoop::instance().timeout() )
         QFAIL( "Network operation timed out" );
-    
+
     ResMapIt res = resultMap.find( headId );
     QVERIFY( res != resultMap.end() );
     if ( res.value().success!=1 && host=="www.ietf.org" ) {
@@ -383,7 +383,7 @@ void tst_QHttp::head()
     if ( res.value().success ) {
         QTEST( res.value().resp.statusCode(), "statusCode" );
         QTEST( res.value().resp.contentLength(), "contentLength" );
-        
+
         QCOMPARE( (uint)readyRead_ba.size(), 0u );
         QVERIFY( bytesTotalRead == bytesTotal_init );
         QVERIFY( bytesDoneRead == bytesDone_init );
@@ -452,10 +452,10 @@ void tst_QHttp::proxy_data()
     QTest::addColumn<QString>("proxyuser");
     QTest::addColumn<QString>("proxypass");
 
-    QTest::newRow("shusaku.troll.no") << QString::fromLatin1("shusaku.troll.no") << 3128
+    QTest::newRow("fluke.troll.no") << QString::fromLatin1("fluke.troll.no") << 3128
                                  << QString::fromLatin1("www.vg.no") << QString::fromLatin1("/")
                                  << QString::fromLatin1("") << QString::fromLatin1("");
-    QTest::newRow("shusaku.troll.no pct") << QString::fromLatin1("shusaku.troll.no") << 3128
+    QTest::newRow("fluke.troll.no pct") << QString::fromLatin1("fluke.troll.no") << 3128
                                  << QString::fromLatin1("www.vg.no") << QString::fromLatin1("/%69ndex.html")
                                  << QString::fromLatin1("") << QString::fromLatin1("");
 }
@@ -492,9 +492,9 @@ void tst_QHttp::proxy()
 void tst_QHttp::proxy2()
 {
     readyRead_ba.clear();
-    
+
     QHttp http;
-    http.setProxy("shusaku.troll.no", 3128);
+    http.setProxy("fluke.troll.no", 3128);
     http.setHost("intern.troll.no");
     http.get("/index.cgi");
     http.get("/index.cgi");
@@ -893,12 +893,12 @@ void tst_QHttp::unexpectedRemoteClose()
 
     QEventLoop loop;
     QTimer::singleShot(3000, &loop, SLOT(quit()));
-    
+
     QHttp http;
     QObject::connect(&http, SIGNAL(done(bool)), &loop, SLOT(quit()));
     QSignalSpy finishedSpy(&http, SIGNAL(requestFinished(int, bool)));
     QSignalSpy doneSpy(&http, SIGNAL(done(bool)));
-    
+
     http.setHost("localhost", server.serverPort());
     http.get("/");
     http.get("/");
