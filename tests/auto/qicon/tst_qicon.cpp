@@ -180,6 +180,15 @@ void tst_QIcon::bestMatch()
     QPixmap p7(7, 7);
     QPixmap p8(8, 8);
 
+    p1.fill(Qt::black);
+    p2.fill(Qt::black);
+    p3.fill(Qt::black);
+    p4.fill(Qt::black);
+    p5.fill(Qt::black);
+    p6.fill(Qt::black);
+    p7.fill(Qt::black);
+    p8.fill(Qt::black);
+
     for (int i = 0; i < 4; ++i) {
         for (int j = 0; j < 2; ++j) {
             QIcon::State state = (j == 0) ? QIcon::On : QIcon::Off;
