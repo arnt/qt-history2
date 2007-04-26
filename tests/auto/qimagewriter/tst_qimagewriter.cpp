@@ -65,6 +65,17 @@ private slots:
 
 static const QLatin1String prefix(SRCDIR "/images/");
 
+static void initializePadding(QImage *image)
+{
+    int effectiveBytesPerLine = (image->width() * image->depth() + 7) / 8;
+    int paddingBytes = image->bytesPerLine() - effectiveBytesPerLine;
+    if (paddingBytes == 0)
+        return;
+    for (int y = 0; y < image->height(); ++y) {
+        qMemSet(image->scanLine(y) + effectiveBytesPerLine, 0, paddingBytes);
+    }
+}
+
 // Testing get/set functions
 void tst_QImageWriter::getSetCheck()
 {
@@ -195,6 +206,7 @@ void tst_QImageWriter::writeImage2_data()
     QImage::Format imgFormat = QImage::Format_Mono;
     while (imgFormat != QImage::NImageFormats) {
         QImage image = image0.convertToFormat(imgFormat);
+        initializePadding(&image);
         foreach (const QString format, formats) {
             const QString fileName = QString("solidcolor_%1.%2").arg(imgFormat)
                                      .arg(format);
