@@ -101,12 +101,22 @@ bool QPropertyEditorDelegate::eventFilter(QObject *object, QEvent *event)
         case QEvent::KeyPress:
         case QEvent::KeyRelease: {
             QKeyEvent *ke = static_cast<QKeyEvent*>(event);
+            if (object->metaObject()->className() == QLatin1String("QtKeySequenceEdit"))
+                return false;
             if (!(ke->modifiers() & Qt::ControlModifier)
                 && (ke->key() == Qt::Key_Up || ke->key() == Qt::Key_Down)) {
                 event->ignore();
                 return true;
             }
         } break;
+
+        case QEvent::ShortcutOverride: {
+            QKeyEvent *ke = static_cast<QKeyEvent*>(event);
+            if (ke->key() == Qt::Key_Escape) {
+                event->accept();
+                return false;
+            }
+        }
 
         case QEvent::FocusOut:
             if (!editor->isActiveWindow() || (QApplication::focusWidget() != editor)) {
