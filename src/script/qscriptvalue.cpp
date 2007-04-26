@@ -172,7 +172,8 @@ QScriptValue::QScriptValue(const QScriptValue &other)
 }
 
 /*!
-  Constructs a new QScriptValue with the given \a value.
+  Constructs a new QScriptValue with the given \a value and registers
+  it with the QScriptEngine \a engine.
 */
 QScriptValue::QScriptValue(QScriptEngine *engine, QScriptValue::SpecialValue value)
 {
@@ -187,7 +188,8 @@ QScriptValue::QScriptValue(QScriptEngine *engine, QScriptValue::SpecialValue val
 }
 
 /*!
-  Constructs a new QScriptValue with a boolean value, \a val.
+  Constructs a new QScriptValue with a boolean value, \a val and
+  registers it with the QScriptEngine \a engine.
 */
 QScriptValue::QScriptValue(QScriptEngine *engine, bool val)
 {
@@ -199,7 +201,8 @@ QScriptValue::QScriptValue(QScriptEngine *engine, bool val)
 }
 
 /*!
-  Constructs a new QScriptValue with an integer value, \a val.
+  Constructs a new QScriptValue with an integer value, \a val and
+  registers it with the QScriptEngine \a engine.
 */
 QScriptValue::QScriptValue(QScriptEngine *engine, int val)
 {
@@ -211,8 +214,9 @@ QScriptValue::QScriptValue(QScriptEngine *engine, int val)
 }
 
 /*!
-  Constructs a new QScriptValue with an unsigned integer value, \a val.
-*/
+  Constructs a new QScriptValue with an unsigned integer value, \a val and
+  registers it with the QScriptEngine \a engine.
+ */
 QScriptValue::QScriptValue(QScriptEngine *engine, uint val)
 {
     QScriptValueImpl v;
@@ -223,7 +227,8 @@ QScriptValue::QScriptValue(QScriptEngine *engine, uint val)
 }
 
 /*!
-  Constructs a new QScriptValue with a qlonglong value, \a val.
+  Constructs a new QScriptValue with a qlonglong value, \a val and
+  registers it with the QScriptEngine \a engine.
 */
 QScriptValue::QScriptValue(QScriptEngine *engine, qlonglong val)
 {
@@ -235,7 +240,8 @@ QScriptValue::QScriptValue(QScriptEngine *engine, qlonglong val)
 }
 
 /*!
-  Constructs a new QScriptValue with a qulonglong value, \a val.
+  Constructs a new QScriptValue with a qulonglong value, \a val and
+  registers it with the QScriptEngine \a engine.
 */
 QScriptValue::QScriptValue(QScriptEngine *engine, qulonglong val)
 {
@@ -252,7 +258,8 @@ QScriptValue::QScriptValue(QScriptEngine *engine, qulonglong val)
 }
 
 /*!
-  Constructs a new QScriptValue with a qsreal value, \a val.
+  Constructs a new QScriptValue with a qsreal value, \a val and
+  registers it with the QScriptEngine \a engine.
 */
 QScriptValue::QScriptValue(QScriptEngine *engine, qsreal val)
 {
@@ -264,7 +271,8 @@ QScriptValue::QScriptValue(QScriptEngine *engine, qsreal val)
 }
 
 /*!
-  Constructs a new QScriptValue with a string value, \a val.
+  Constructs a new QScriptValue with a string value, \a val and
+  registers it with the QScriptEngine \a engine.
 */
 QScriptValue::QScriptValue(QScriptEngine *engine, const QString &val)
 {
@@ -278,7 +286,8 @@ QScriptValue::QScriptValue(QScriptEngine *engine, const QString &val)
 /*!
   \fn QScriptValue::QScriptValue(QScriptEngine *engine, const char *value)
 
-  Constructs a new QScriptValue with a string value, \a val.
+  Constructs a new QScriptValue with a string value, \a val and
+  registers it with the QScriptEngine \a engine.
 */
 
 #ifndef QT_NO_CAST_FROM_ASCII
