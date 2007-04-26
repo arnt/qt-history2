@@ -19,6 +19,7 @@
 #include "jambiapiparser.h"
 #include "javacodemarker.h"
 #include "javadocgenerator.h"
+#include "linguistgenerator.h"
 #include "loutgenerator.h"
 #include "mangenerator.h"
 #include "plaincodemarker.h"
@@ -121,6 +122,8 @@ static void processQdocconfFile(const QString &fileName)
 	translators.append( translator );
 	++fn;
     }
+
+//    QSet<QString> outputLanguages = config.getStringSet(CONFIG_OUTPUTLANGUAGES);
 
     QString lang = config.getString(CONFIG_LANGUAGE);
     Location langLocation = config.lastLocation();
@@ -228,6 +231,7 @@ int main( int argc, char **argv )
     ApiGenerator apiGenerator;
     HtmlGenerator htmlGenerator;
     JavadocGenerator javadocGenerator;
+    LinguistGenerator linguistGenerator;
     LoutGenerator loutGenerator;
     ManGenerator manGenerator;
     SgmlGenerator smglGenerator;
