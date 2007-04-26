@@ -1735,6 +1735,8 @@ QString QFSFileEngine::fileName(FileName file) const
         return ret;
     } else if(file == LinkName) {
         return QDir::fromNativeSeparators(d->getLink());
+    } else if(file == BundleName) {
+        return QString();
     }
     return d->filePath;
 }
