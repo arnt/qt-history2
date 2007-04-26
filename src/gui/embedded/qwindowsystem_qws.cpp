@@ -3908,7 +3908,7 @@ void QWSServer::removeKeyboardFilter()
     Note that an interval of 0 milliseconds will turn off the
     screensaver, and that the \a intervals array must be 0-terminated.
 
-    \sa setScreenSaverInterval()
+    \sa setScreenSaverInterval(), setScreenSaverBlockLevel()
 */
 void QWSServer::setScreenSaverIntervals(int* ms)
 {
@@ -3944,7 +3944,7 @@ void QWSServer::setScreenSaverIntervals(int* ms)
     milliseconds. To turn off the screensaver, set the timout interval
     to 0.
 
-    \sa setScreenSaverIntervals()
+    \sa setScreenSaverIntervals(), setScreenSaverBlockLevel()
 */
 void QWSServer::setScreenSaverInterval(int ms)
 {
@@ -3954,6 +3954,66 @@ void QWSServer::setScreenSaverInterval(int ms)
     setScreenSaverIntervals(v);
 }
 
+/*!
+  Block the key or mouse event that wakes the system from level \a eventBlockLevel or higher.
+  To completely disable event blocking (the default behavior), set \a eventBlockLevel to -1.
+
+  The algorithm blocks the "down", "up" as well as any "repeat" events for the same key
+  but will not block other key events after the initial "down" event. For mouse events, the
+  algorithm blocks all mouse events until an event with no buttons pressed is received.
+
+  There are 2 keys that are never blocked, Qt::Key_F34 (POWER) and Qt::Key_F35 (LIGHT).
+
+  Example usage:
+
+  \code
+    bool MyScreenSaver::save( int level )
+    {
+        switch ( level ) {
+            case 0:
+                if ( dim_enabled ) {
+                    // dim the screen
+                }
+                return true;
+            case 1:
+                if ( screenoff_enabled ) {
+                    // turn off the screen
+                }
+                return true;
+            case 2:
+                if ( suspend_enabled ) {
+                    // suspend
+                }
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    ...
+
+    int timings[4];
+    timings[0] = 5000;  // dim after 5 seconds
+    timings[1] = 10000; // light off after 15 seconds
+    timings[2] = 45000; // suspend after 60 seconds
+    timings[3] = 0;
+    QWSServer::setScreenSaverIntervals( timings );
+
+    // ignore the key/mouse event that turns on the screen
+    int blocklevel = 1;
+    if ( !screenoff_enabled ) {
+        // screenoff is disabled, ignore the key/mouse event that wakes from suspend
+        blocklevel = 2;
+        if ( !suspend_enabled ) {
+            // suspend is disabled, never ignore events
+            blocklevel = -1;
+        }
+    }
+    QWSServer::setScreenSaverBlockLevel( blocklevel );
+  \endcode
+
+  \sa setScreenSaverIntervals(), setScreenSaverInterval()
+*/
 void QWSServer::setScreenSaverBlockLevel(int eventBlockLevel)
 {
     if (!qwsServerPrivate)
@@ -4004,7 +4064,7 @@ void QWSServerPrivate::_q_screenSaverSleep()
     Installs the given \a screenSaver, deleting the current screen
     saver.
 
-    \sa screenSaverActivate(), setScreenSaverInterval(), setScreenSaverIntervals()
+    \sa screenSaverActivate(), setScreenSaverInterval(), setScreenSaverIntervals(), setScreenSaverBlockLevel()
 */
 void QWSServer::setScreenSaver(QWSScreenSaver* ss)
 {
@@ -4018,7 +4078,7 @@ void QWSServerPrivate::screenSave(int level)
     if (saver) {
         if (saver->save(level)) {
             if ( *screensaverinterval >= 1000 ) {
-                screensaverblockevents = (screensavereventblocklevel >= 0 && screensavereventblocklevel <= level);
+                screensaverblockevents = (screensavereventblocklevel >= 0 && screensavereventblocklevel < level);
 #ifdef EVENT_BLOCK_DEBUG
                 if ( screensaverblockevents )
                     qDebug( "ready to block events" );

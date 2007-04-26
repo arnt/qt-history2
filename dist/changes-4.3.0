@@ -328,6 +328,8 @@ Qtopia Core
 -----------
 
     * Better support for compiling a LSB (Linux Standard Base) compliant Qtopia Core library.
+    * [253123] Allow blocking the key/mouse event that stops the screen saver
+      at a particular level - QWSServer::setScreenSaverBlockLevel().
 
 ****************************************************************************
 *                   Significant Documentation Changes                      *
