@@ -3127,6 +3127,14 @@ QIcon QWindowsStyle::standardIconImplementation(StandardPixmap standardIcon, con
     QPixmap pixmap;
 #ifdef Q_OS_WIN
     switch (standardIcon) {
+    case SP_FileDialogNewFolder:
+    {
+        for (int size = 16 ; size <= 32 ; size += 16) {
+            pixmap = loadIconFromShell32(319, size);
+            icon.addPixmap(pixmap, QIcon::Normal);
+        }
+        break;
+    }
     case SP_DirHomeIcon:
     {
         for (int size = 16 ; size <= 32 ; size += 16) {
