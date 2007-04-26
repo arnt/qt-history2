@@ -104,6 +104,7 @@ void tst_QImage::createInvalidXPM()
 void tst_QImage::convertBitOrder()
 {
     QImage i(9,5,1,2,QImage::LittleEndian);
+    qMemSet(i.bits(), 0, i.numBytes());
     i.setDotsPerMeterX(9);
     i.setDotsPerMeterY(5);
     i.fill(0x12345678);
