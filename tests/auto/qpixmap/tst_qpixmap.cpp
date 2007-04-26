@@ -233,6 +233,7 @@ void tst_QPixmap::mask()
     QVERIFY(pm.mask().isNull());
 
     bm = QBitmap(100, 100);
+    bm.fill();
     pm.setMask(bm);
     QVERIFY(!pm.mask().isNull());
 }
