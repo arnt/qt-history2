@@ -1668,7 +1668,7 @@ void tst_QFile::fullDisk()
     QVERIFY(!file.flush());
     QCOMPARE(file.error(), QFile::ResourceError);
 
-    char c;
+    char c = 0;
     file.write(&c, 0);
     QVERIFY(!file.flush());
     QCOMPARE(file.error(), QFile::ResourceError);
