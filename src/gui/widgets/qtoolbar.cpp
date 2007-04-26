@@ -973,7 +973,7 @@ bool QToolBar::event(QEvent *event)
             d->mouseMoveEvent(&fake);
 #endif
         } else {
-            if (!d->layout->expanded || d->layout->animating)
+            if (!d->layout->expanded)
                 break;
 
             QWidget *w = qApp->activePopupWidget();

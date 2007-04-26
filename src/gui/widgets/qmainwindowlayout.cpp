@@ -1558,7 +1558,8 @@ void QMainWindowLayout::animationFinished(QWidget *widget)
         QToolBarLayout *tbl = qobject_cast<QToolBarLayout*>(tb->layout());
         if (tbl->animating) {
             tbl->animating = false;
-            tbl->layoutActions(tb->size());
+            if (tbl->expanded)
+                tbl->layoutActions(tb->size());
             tb->update();
         }
     }

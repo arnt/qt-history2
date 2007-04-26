@@ -304,7 +304,7 @@ void QToolBarLayout::setGeometry(const QRect &rect)
     if (!animating)
         layoutActions(rect.size());
 
-    if (pick(o, sizeHint()) > pick(o, rect.size())) {
+    if (expanded || animating || pick(o, sizeHint()) > pick(o, rect.size())) {
         Qt::ToolBarArea area = Qt::TopToolBarArea;
         if (QMainWindow *win = qobject_cast<QMainWindow*>(tb->parentWidget()))
             area = win->toolBarArea(tb);
@@ -548,9 +548,16 @@ void QToolBarLayout::setExpanded(bool exp)
     QToolBar *tb = qobject_cast<QToolBar*>(parentWidget());
     if (QMainWindow *win = qobject_cast<QMainWindow*>(tb->parentWidget())) {
         animating = true;
-        if (expanded)
-            tb->raise();
         QMainWindowLayout *layout = qobject_cast<QMainWindowLayout*>(win->layout());
+        if (expanded) {
+            tb->raise();
+        } else {
+            QList<int> path = layout->layoutState.indexOf(tb);
+            if (!path.isEmpty()) {
+                QRect rect = layout->layoutState.itemRect(path);
+                layoutActions(rect.size());
+            }
+        }
         layout->layoutState.toolBarAreaLayout.apply(true);
     }
 }
