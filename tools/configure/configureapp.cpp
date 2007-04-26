@@ -2082,32 +2082,6 @@ void Configure::generateConfigfiles()
         }
     }
 
-    QString archFile = sourcePath + "/src/corelib/arch/qatomic_" + dictionary["ARCHITECTURE"].toLower() + ".h";
-    QFileInfo archInfo(archFile);
-    if (!archInfo.exists()) {
-        qDebug("Architecture file %s does not exist!", qPrintable(archFile) );
-        dictionary[ "DONE" ] = "error";
-        return;
-    }
-    QDir archhelper;
-    archhelper.mkdir(buildPath + "/include/QtCore/arch");
-    const QString outArchFile(buildPath + "/include/QtCore/arch/qatomic.h");
-    if(!QFile::exists(outArchFile) || filesDiffer(archFile, outArchFile)) {
-        if (!CopyFileA(archFile.toLocal8Bit(), outArchFile.toLocal8Bit(), FALSE))
-            qDebug("Couldn't copy %s to include/arch", qPrintable(archFile) );
-        if (!SetFileAttributesA(QString(buildPath + "/include/QtCore/arch/qatomic.h").toLocal8Bit(), FILE_ATTRIBUTE_NORMAL))
-            qDebug("Couldn't reset writable file attribute for qatomic.h");
-    }
-    if(!QFile::exists(buildPath + "/include/QtCore/arch/qatomic.h")) {
-        // Create qatomic.h "symlinks"
-        QString atomicContents = QString("#include \"../../../src/corelib/arch/qatomic_" + dictionary[ "ARCHITECTURE" ].toLower() + ".h\"\n");
-        if (!writeToFile(atomicContents.toLocal8Bit(),    buildPath + "/include/QtCore/arch/qatomic.h")
-            || !writeToFile(atomicContents.toLocal8Bit(), buildPath + "/include/Qt/arch/qatomic.h")) {
-            dictionary[ "DONE" ] = "error";
-            return;
-        }
-    }
-
     // Copy configured mkspec to default directory, but remove the old one first, if there is any
     QString defSpec = buildPath + "/mkspecs/default";
     QFileInfo defSpecInfo(defSpec);
