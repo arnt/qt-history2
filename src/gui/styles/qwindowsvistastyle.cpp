@@ -216,9 +216,13 @@ void Animation::drawBlendedImage(QPainter *painter, QRect rect, float alpha) {
 
 void Transition::paint(QPainter *painter, const QStyleOption *option)
 {
-    QTime current = QTime::currentTime();
     float alpha = 1.0;
     if (_duration > 0) {
+        QTime current = QTime::currentTime();
+
+        if (_startTime > current)
+            _startTime = current;
+
         int timeDiff = _startTime.msecsTo(current);
         alpha = timeDiff/(float)_duration;
         if (timeDiff > _duration) {
@@ -246,6 +250,10 @@ void Pulse::paint(QPainter *painter, const QStyleOption *option)
     float alpha = 1.0;
     if (_duration > 0) {
         QTime current = QTime::currentTime();
+        
+        if (_startTime > current)
+            _startTime = current;
+
         int timeDiff = _startTime.msecsTo(current) % _duration*2;
         if (timeDiff > _duration)
             timeDiff = _duration*2 - timeDiff;
