@@ -327,7 +327,7 @@ QWSWindowSurface::QWSWindowSurface()
 }
 
 /*!
-    Constructs an empty surface for the given top-level \a window.
+    Constructs an empty surface for the given top-level \a widget.
 */
 QWSWindowSurface::QWSWindowSurface(QWidget *widget)
     : QWindowSurface(widget), d_ptr(new QWSWindowSurfacePrivate)
