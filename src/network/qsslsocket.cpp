@@ -77,11 +77,12 @@
     An example of using the delayed SSL handshake to secure an
     existing connection is the case where an SSL server secures an
     incoming connection. Suppose you create an SSL server class as a
-    subclass of QTcpServer. You would reimplement incomingConnection()
-    with something like the example below, which first constructs a
-    QSslSocket and calls setSocketDescriptor() to set its descriptor
-    to the one passed in. Then the server side SSL handshake is
-    initiated by calling startServerEncryption().
+    subclass of QTcpServer. You would reimplement
+    QTcpServer::incomingConnection() with something like the example
+    below, which first constructs an instance of QSslSocket and then
+    calls setSocketDescriptor() to set the socket desxcriptor to the
+    one passed in. Then the server initiates the SSL handshake by
+    calling startServerEncryption().
 
     \code
         void SslServer::incomingConnection(int socketDescriptor)
@@ -103,9 +104,10 @@
     error occurs, or anytime after construction of the QSslSocket and
     before the connection is attempted. This will allow QSslSocket to
     ignore the errors it encounters when establishing the identity of
-    the peer. ignoreSslErrors() should be used with caution, since a
-    fundamental characteristic of secure connections is that they are
-    established with a successful handshake.
+    the peer. Ignoring errors during an SSL handshake should be used
+    with caution, since a fundamental characteristic of secure
+    connections is that they should be established with a successful
+    handshake.
     
     Once encrypted, you use QSslSocket as a regular QTcpSocket. When
     readyRead() is emitted, you can call read(), canReadLine() and
@@ -1140,16 +1142,23 @@ void QSslSocket::startServerEncryption()
 }
 
 /*!
-    This slot allows QSslSocket to ignore all errors during QSslSocket's
-    handshake phase, and continue connecting. If the handshake fails with one
-    or more errors, you must call this function either from a slot connected
-    to sslErrors(), or before entering encrypted mode, to continue the
-    connection; otherwise, the connection will be dropped immediately after
-    the signal has been emitted.
+    This slot tells QSslSocket to ignore errors during QSslSocket's
+    handshake phase and continue connecting. If an error occurs during
+    the handshake phase, but you want to continue with the connection
+    anyway, then you must call this slot, either from a slot connected
+    to sslErrors(), or before the attempt to enter encrypted mode. If
+    you don't call this slot, either in response to errors or before
+    connecting, the connection will be dropped after the sslErrors()
+    signal has been emitted.
 
-    If there are no errors during the SSL handshake phase (i.e., the identity
-    of the peer is established with no problems), QSslSocket will not emit the
-    sslErrors() signal, and it is unnecessary to call this function.
+    If there are no errors during the SSL handshake phase (i.e., the
+    identity of the peer is established with no problems), QSslSocket
+    will not emit the sslErrors() signal, and it is unnecessary to
+    call this function.
+
+    Ignoring errors during an SSL handshake should be used with
+    caution, since a fundamental characteristic of secure connections
+    is that they should be established with a successful handshake.
 
     \sa sslErrors()
 */
