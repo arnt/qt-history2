@@ -2850,10 +2850,10 @@ void QAbstractItemViewPrivate::_q_modelDestroyed()
 void QAbstractItemViewPrivate::_q_layoutChanged()
 {
     Q_Q(QAbstractItemView);
-    if (q->isHidden())
-        doDelayedItemsLayout();
-    else
+    if (q->isVisible())
         q->doItemsLayout();
+    else
+        doDelayedItemsLayout();
 }
 
 /*!

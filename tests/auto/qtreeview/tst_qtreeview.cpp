@@ -2133,14 +2133,31 @@ void tst_QTreeView::rowSizeHint()
 //is turned on before items are added)
 void tst_QTreeView::setSortingEnabled()
 {
-    QTreeView view;
-    QStandardItemModel model(1,1);
-    view.setModel(&model);
-    const int size = view.header()->sectionSize(0);
-    view.setSortingEnabled(true);
-    model.setColumnCount(3);
-    //we test that changing the column count doesn't change the 1st column size
-    QCOMPARE(view.header()->sectionSize(0), size);
+    //1st the treeview is a top-level
+    {
+        QTreeView view;
+        QStandardItemModel model(1,1);
+        view.setModel(&model);
+        const int size = view.header()->sectionSize(0);
+        view.setSortingEnabled(true);
+        model.setColumnCount(3);
+        //we test that changing the column count doesn't change the 1st column size
+        QCOMPARE(view.header()->sectionSize(0), size);
+    }
+
+    //then it is no more a top-level
+    {
+        QMainWindow win;
+        QTreeView view;
+        QStandardItemModel model(1,1);
+        view.setModel(&model);
+        win.setCentralWidget(&view);
+        const int size = view.header()->sectionSize(0);
+        view.setSortingEnabled(true);
+        model.setColumnCount(3);
+        //we test that changing the column count doesn't change the 1st column size
+        QCOMPARE(view.header()->sectionSize(0), size);
+    }
 }
 
 
