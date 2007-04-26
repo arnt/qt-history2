@@ -593,7 +593,7 @@ void QComboBoxPrivateContainer::mousePressEvent(QMouseEvent *e)
     if ((combo->isEditable() && sc == QStyle::SC_ComboBoxArrow)
         || (!combo->isEditable() && sc != QStyle::SC_None))
         setAttribute(Qt::WA_NoMouseReplay);
-    QFrame::mousePressEvent(e);
+    combo->hidePopup();
 }
 
 void QComboBoxPrivateContainer::mouseReleaseEvent(QMouseEvent *e)
