@@ -1179,7 +1179,7 @@ void QScriptEngine::setProcessEventsInterval(int interval)
   Returns the interval in milliseconds between calls to
   QCoreApplication::processEvents() while the interpreter is running.
 
-  \sa setProcessEventsInterval();
+  \sa setProcessEventsInterval()
 */
 int QScriptEngine::processEventsInterval() const
 {
