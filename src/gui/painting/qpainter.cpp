@@ -819,9 +819,12 @@ void QPainterPrivate::updateState(QPainterState *newState)
     {RenderHint}{QPainter::AntiAliasing} indicates that the engine
     should antialias edges of primitives if possible, \l
     {RenderHint}{QPainter::TextAntialiasing} indicates that the engine
-    should antialias text if possible, and finally the \l
+    should antialias text if possible, and the \l
     {RenderHint}{QPainter::SmoothPixmapTransform} indicates that the
     engine should use a smooth pixmap transformation algorithm.
+    \l {RenderHint}{HighQualityAntialiasing} is an OpenGL-specific rendering hint
+    indicating that the engine should use fragment programs and offscreen
+    rendering for antialiasing.
 
     The renderHints() function returns a flag that specifies the
     rendering hints that are set for this painter.  Use the
@@ -971,6 +974,10 @@ void QPainterPrivate::updateState(QPainterState *newState)
     \value SmoothPixmapTransform Indicates that the engine should use
     a smooth pixmap transformation algorithm (such as bilinear) rather
     than nearest neighbor.
+
+    \value HighQualityAntialiasing An OpenGL-specific rendering hint
+    indicating that the engine should use fragment programs and offscreen
+    rendering for antialiasing.
 
     \sa renderHints(), setRenderHint(), {QPainter#Rendering
     Quality}{Rendering Quality}, {Concentric Circles Example}
@@ -1566,9 +1573,11 @@ void QPainter::setBrushOrigin(const QPointF &p)
     destination pixel in such a way that the alpha component of the
     source defines the translucency of the pixel.
 
-    Composition modes will only work when the paint device is a QImage
-    in Format_ARGB32_Premultiplied or Format_ARGB32, where the
-    premultiplied version is the preferred format.
+    When the paint device is a QImage, the image format must be set to
+    \l {QImage::Format}{Format_ARGB32Premultiplied} or
+    \l {QImage::Format}{Format_ARGB32} for the composition modes to have
+    any effect. For performance the premultiplied version is the preferred
+    format.
 
     When a composition mode is set it applies to all painting
     operator, pens, brushes, gradients and pixmap/image drawing.
@@ -1615,10 +1624,57 @@ void QPainter::setBrushOrigin(const QPointF &p)
     pixel is reduced by the alpha of the destination pixel. This mode
     is the inverse of CompositionMode_SourceAtop.
 
-    \value CompositionMode_Xor The source, which alpha is reduced with
+    \value CompositionMode_Xor The source, whose alpha is reduced with
     the inverse of the destination alpha, is merged with the
-    destination, which alpha is reduced by the inverse of the source
+    destination, whose alpha is reduced by the inverse of the source
     alpha. CompositionMode_Xor is not the same as the bitwise Xor.
+
+    \value CompositionMode_Plus Both the alpha and color of the source
+    and destination pixels are added together.
+
+    \value CompositionMode_Multiply The output is the source color
+    multiplied by the destination. Multiplying a color with white
+    leaves the color unchanged, while multiplying a color
+    with black produces black.
+
+    \value CompositionMode_Screen The source and destination colors
+    are inverted and then multiplied. Screening a color with white
+    produces white, whereas screening a color with black leaves the
+    color unchanged.
+
+    \value CompositionMode_Overlay Multiplies or screens the colors
+    depending on the destination color. The destination color is mixed
+    with the source color to reflect the lightness or darkness of the
+    destination.
+
+    \value CompositionMode_Darken The darker of the source and destination
+    colors is selected.
+
+    \value CompositionMode_Lighten The lighter of the source and destination
+    colors is selected.
+
+    \value CompositionMode_ColorDodge The destination color is brightened
+    to reflect the source color. A black source color leaves the destination
+    color unchanged.
+
+    \value CompositionMode_ColorBurn The destination color is darkened to
+    reflect the source color. A white source color leaves the destination color
+    unchanged.
+
+    \value CompositionMode_HardLight Multiplies or screens the colors depending
+    on the source color. A light source color will lighten the destination color,
+    whereas a dark source color will darken the destination color.
+
+    \value CompositionMode_SoftLight Darkens or lightens the colors depending on the
+    source color. Similar to CompositionMode_HardLight.
+
+    \value CompositionMode_Difference Subtracts the darker of the colors from the lighter.
+    Painting with white inverts the destination color, whereas painting with black leaves the
+    destination color unchanged.
+
+    \value CompositionMode_Exclusion Similar to CompositionMode_Difference,
+    but with a lower contrast. Painting with white inverts the destination color, whereas painting
+    with black leaves the destination color unchanged.
 
     \sa compositionMode(), setCompositionMode(), {QPainter#Composition
     Modes}{Composition Modes}, {Image Composition Example}
