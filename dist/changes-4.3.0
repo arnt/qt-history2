@@ -18,6 +18,7 @@ Third party components
 
 - Updated Qt's libpng version to 1.2.16.
 
+- Added libtiff version 3.8.2 for the tiff plugin.
 
 ****************************************************************************
 *                          Library                                         *
@@ -33,12 +34,18 @@ Third party components
 - QAccessible
     * Added preliminary support for the upcomming IAccessible2 standard
 
+- QApplication
+    * Add a flash() method for marking windows that need attention.
+
 - QCalendarWidget
     * Don't set maximum width for month/year buttons
     * Use QPalette::Text role for default text
     * date edit feature added, dateEditEnabled and dateEditAcceptDelay properties added
     * [137031] Grid lines are drawn properly when headers are not visible.
     * [151828] the language can be set with QCalendarWidget::setLocale()
+
+- QColorDialog
+    * [131160] The color dialog now on Mac OS X can now get an alpha color as well.
 
 - QChar
     * Updated the Unicode tables to Unicode 5.0
@@ -112,6 +119,9 @@ Third party components
     * [140018] Mac OS X will now invalidate the backing native socket
       notifier upon deregistration.
 
+- QLineEdit
+    * [156104] Disable input methods when not in the "Normal" edit mode.
+
 - QDoubleSpinBox
     * [99254] Allow higher settings for decimals
 
@@ -156,6 +166,12 @@ Third party components
         - force tabbed docking, disallowing placing dock widgets next to each other.
     * Fixed bugs in saving and restoring QMainWindow state.
     * [143026] Fixed support for hiding/showing toolbars on Mac.
+    * [131695] Add unified toolbar support on Mac OS X.
+
+- QClipboard
+    * Make sure that clear() on the Mac OS X clipboard really clears its data.
+    * [143927] Don't drop alpha channel information on when pasting pixmaps on Mac OS X.
+    * The Mac OS X clipboard now understands tiff information and exports images as tiff as well.
 
 - QMenu
     * the addAction() overloads that take a slot argument now honor the slot's bool
@@ -218,6 +234,7 @@ Third party components
 - QPrinter
     * Added QPrinter::supportedPaperSources()
     * [153735] Significantly speed up generation of PDF documents with Asian characters.
+    * [140759] Document that you can't change orientation on an active printer on Mac OS X (native format).
 
 - QTabBar
     * [126438] Added int tabAt(const QPoint &pos) const
@@ -267,6 +284,11 @@ Third party components
 
 - QStyle
     * Add StandardPixmap SP_DirHomeIcon which is native icon for the home directory.
+    * Add documentation that pixelMetrics are not necessarily followed in all styles.
+    * standardPixmap() has been obsoleted. Use standardIcon() instead.
+
+- QStyleOption
+    * Add an initializeFromStyleOption() for many widgets that need to create a QStyleOption subclass for style-related calls.
 
 - QTableView
     * No longer allow invalid spans to be created.
@@ -382,9 +404,20 @@ Third party components
 - QTextLayout
     * [140165] Changed boundingRect() to not always report (0, 0) as top left corner but the actual position
       of the top left line.
+    * Fixed various problems with text kerning.
 
 - QSplashScreen
     * [38269] Added support for rich text.
+
+- QMacStyle
+    * [159270] Fix icon drawing on buttons with no text.
+    * [146364] Fix drawing of multiline text for items in a QToolBar
+    * [145346] Remove unwanted wrapping of text in a QPushButton
+    * Fix drawing of "Flat" group boxes.
+    * [113472] Fix drawing of text on vertical headers when resizing.
+    * [148509] Draw with the correct font for buttons and labels when desktop settings aware is false.
+    * [106100] Improve the look of QPushButtons with menus.
+
 
 ****************************************************************************
 *                          Database Drivers                                *
@@ -449,9 +482,7 @@ Third party components
 
 X11
 ---
-
-- QTextLayout
-    * Fixed various problems with text kerning.
+    * [153346] Don't deliver tablet events while in Drag and Drop.
 
 Windows
 -------
@@ -503,7 +534,7 @@ Mac OS X
     * [257782] Qt will not deliver mouse release events to widgets that do
       not process mouse press events (including widgets with
       WA_MacNoClickThrough).
-    * Introduce support for 64 bit Mac OS X builds.
+    * Introduce support for 64 bit Mac OS X builds--Only available on Mac OS X 10.5 (Leopard)
     * [145166] CoreGraphics interpolation set to High quality when using
       SmoothPixmapTransform.
     * [134873] Will find a widget with a cursor by climbing the parent
@@ -515,6 +546,17 @@ Mac OS X
     * [155540] Asymetic scales work with cosmetic pens.
     * [141300] Fixed QFontDatabase/QFontDialog not showing all fonts installed on the system.
     * Fixed writing system detection in QFontDatabase.
+    * [148876] Don't commit a character twice in the Chinese Input method.
+    * Remove an extra setFocus() in the event loop when a window is activated.
+    * [152224] Fix bug in QWidget's window state.
+    * [156431] Add the Qt::WA_MacAlwaysShowToolWindow to allow Mac users to create utility-windows-style applications.
+    * [144110] Fix resizing of sheets on Panther.
+    * [140014] Make it possible to drag QUrls on Panther.
+    * [119251] Tooltips and dialogs now don't cause fullscreen windows to show their menubar and the dock.
+    * [147640] Fix scrolling when between 2^15 and 2^16 pixels.
+    * Only use Roman for determining with System Fonts, Mac OS X does the translation for us.
+    * In OpenGL, opt for the 32-bit accumulation buffer over the 64-bit accumulation by default.
+
 
 Qtopia Core
 -----------
