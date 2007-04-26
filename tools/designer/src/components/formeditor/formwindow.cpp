@@ -491,22 +491,8 @@ bool FormWindow::handleMousePressEvent(QWidget * widget, QWidget *managedWidget,
     if (!selected)
         clearSelection(false);
 
-    bool curLaidOut = false;
-    bool curSelected = false;
-    for (;;) {
-        curLaidOut = current ? LayoutInfo::isWidgetLaidout(core(), current) : false;
-        curSelected = current ? isWidgetSelected(current) : false;
-
-        if (!current || !curLaidOut || !curSelected)
-            break;
-
-        current = designerWidget(current->parentWidget());
-    }
-
-    if (!(current == 0 || !curLaidOut && curSelected)) {
-        selectWidget(current);
-        raiseChildSelections(current);
-    }
+    selectWidget(current);
+    raiseChildSelections(current);
 
     return true;
 }
