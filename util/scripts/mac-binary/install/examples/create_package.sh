@@ -46,11 +46,7 @@ for category_dir in $BINDIR/examples/*; do
 	[ -d "${OUTDIR}/Developer/Examples/Qt/${example_cat}" ] || continue
 	example=`basename $example_dir`
 	EXE=
-	if [ "$example" = "qtdemo" ]; then
-            mkdir -p "${OUTDIR}/Developer/Applications/Qt/"
-            cp -R "$BINDIR/bin/${example}.app" "${OUTDIR}/Developer/Applications/Qt/"
-	    EXE="${OUTDIR}/Developer/Applications/Qt/${example}.app/Contents/MacOS/${example}"
-	elif [ -x "${example_dir}/${example}" ]; then
+	if [ -x "${example_dir}/${example}" ]; then
             mkdir -p "${OUTDIR}/Developer/Examples/Qt/${example_cat}/"
 	    EXE="${OUTDIR}/Developer/Examples/Qt/${example_cat}/${example}"
             cp "${example_dir}/${example}" "$EXE"
@@ -106,7 +102,11 @@ for demo_dir in $BINDIR/demos/*; do
     [ -d "$demo_dir" ] || continue
     demo=`basename $demo_dir`
     EXE=
-    if [ -x "${demo_dir}/${demo}" ]; then
+    if [ "$demo" = "qtdemo" ]; then
+        mkdir -p "${OUTDIR}/Developer/Applications/Qt/"
+        cp -R "$BINDIR/bin/${demo}.app" "${OUTDIR}/Developer/Applications/Qt/"
+        EXE="${OUTDIR}/Developer/Applications/Qt/${demo}.app/Contents/MacOS/${demo}"
+    elif [ -x "${demo_dir}/${demo}" ]; then
         mkdir -p "${OUTDIR}/Developer/Examples/Qt/Demos/${demo}"
 	EXE="${OUTDIR}/Developer/Examples/Qt/Demos/${demo_dir}/${demo}"
         cp "${demo}/${demo}" "$EXE"
