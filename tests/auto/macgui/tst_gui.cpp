@@ -25,6 +25,7 @@ Q_OBJECT
 private slots:
     void scrollbarPainting();
     
+    void dummy();
     void splashScreenModality();
     void dialogModality();
     void nonModalOrder();
@@ -76,14 +77,35 @@ void tst_gui::scrollbarPainting()
     QVERIFY(isContent(pixmap.toImage(), horizontalScrollbar.geometry(), GuiTester::Vertical));
 }
 
+// When running the auto-tests on scruffy, the first enter-the-event-loop-and-wait-for-a-click
+// test that runs always times out, so we have this dummy test.
+void tst_gui::dummy()
+{
+    QPixmap pix(100, 100);
+    QSplashScreen splash(pix);
+    splash.show();
+
+    QMessageBox *box = new QMessageBox();
+    box->setText("accessible?");
+    box->show();
+
+    // Find the "OK" button and schedule a press.
+    InterfaceChildPair interface = wn.find(QAccessible::Name, "OK", box);
+    QVERIFY(interface.iface);
+    const int delay = 1000;
+    clickLater(interface, Qt::LeftButton, delay);
+
+    // Show dialog and and enter event loop.
+    connect(wn.getWidget(interface), SIGNAL(clicked()), SLOT(exitLoopSlot()));
+    const int timeout = 4;
+    QTestEventLoop::instance().enterLoop(timeout);
+}
+
 /*
     Test that a message box pops up in front of a QSplashScreen.
 */
 void tst_gui::splashScreenModality()
 {
-#if defined (Q_WS_MAC) && defined (__i386__)
-    QSKIP("This test fails on scruffy when run by the autotest system (but not when you run it manually).", SkipAll);
-#endif
     QPixmap pix(100, 100);
     QSplashScreen splash(pix);
     splash.show();
