@@ -3345,7 +3345,6 @@ bool QDirect3DPaintEnginePrivate::init()
         return false;
 
     /* load shaders */
-    //QFile file("C:\\depot\\qt\\main\\src\\gui\\painting\\qpaintengine_d3d.fx");
     QFile file(QLatin1String(":/qpaintengine_d3d.fx"));
     QByteArray fxFile;
     if (file.open(QFile::ReadOnly))
@@ -3356,7 +3355,7 @@ bool QDirect3DPaintEnginePrivate::init()
         pD3DXCreateBuffer(4096, &compout);
         DWORD dwShaderFlags = D3DXFX_NOT_CLONEABLE|D3DXFX_DONOTSAVESTATE;
         if(FAILED(pD3DXCreateEffect(m_d3d_device, fxFile.constData(), fxFile.size(),
-                                      NULL, NULL, dwShaderFlags, NULL, &m_effect, &compout))) {
+                                    NULL, NULL, dwShaderFlags, NULL, &m_effect, &compout))) {
             qWarning("QDirect3DPaintEngine: failed to compile effect file");
             if (compout)
                 qWarning((char *)compout->GetBufferPointer());
@@ -3370,7 +3369,10 @@ bool QDirect3DPaintEnginePrivate::init()
             initDevice();
             m_gradient_cache = new QD3DGradientCache(m_d3d_device);
         }
+    } else {
+        return false;
     }
+
     return true;
 }
 

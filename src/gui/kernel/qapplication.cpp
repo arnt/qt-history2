@@ -669,6 +669,9 @@ void QApplicationPrivate::construct(
                                     )
 {
     Q_INIT_RESOURCE(qstyle);
+#if !defined(QT_NO_DIRECT3D) && defined(Q_WS_WIN)
+    Q_INIT_RESOURCE(qpaintengine_d3d);
+#endif
 
     qt_is_gui_used = (qt_appType != QApplication::Tty);
     process_cmdline();
