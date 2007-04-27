@@ -611,6 +611,9 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::Invoke(long dispIdMember, const _G
             break;
     }
 
+    if (!SUCCEEDED(hr)) {
+        return hr;
+    }
     return hr;
 }
 
@@ -1032,6 +1035,8 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accSelection(VARIANT *pvarChil
     return S_OK;
 }
 
+#include <qdebug.h>
+
 HRESULT STDMETHODCALLTYPE QWindowsAccessible::GetWindow(HWND *phwnd)
 {
     *phwnd = 0;
@@ -1039,7 +1044,7 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::GetWindow(HWND *phwnd)
         return E_UNEXPECTED;
 
     QObject *o = accessible->object();
-    if (!o->isWidgetType())
+    if (!o || !o->isWidgetType())
         return E_FAIL;
 
     *phwnd = static_cast<QWidget*>(o)->winId();
