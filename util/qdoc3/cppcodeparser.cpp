@@ -3,6 +3,7 @@
 */
 
 #include <qfile.h>
+#include <QDebug>
 
 #include <stdio.h>
 
@@ -1035,9 +1036,6 @@ bool CppCodeParser::matchBaseSpecifier( ClassNode *classe, bool isClass )
 {
     Node::Access access;
 
-    if ( tok == Tok_virtual )
-	readToken();
-
     switch ( tok ) {
     case Tok_public:
 	access = Node::Public;
@@ -1054,6 +1052,9 @@ bool CppCodeParser::matchBaseSpecifier( ClassNode *classe, bool isClass )
     default:
 	access = isClass ? Node::Private : Node::Public;
     }
+
+    if ( tok == Tok_virtual )
+	readToken();
 
     CodeChunk baseClass;
     if (!matchDataType(&baseClass))
