@@ -941,6 +941,8 @@ void QPrintDialogPrivate::init()
 #if !defined(QT_NO_CUPS) && !defined(QT_NO_LIBRARY)
     }
 #endif
+    if (!ui.cbPrinters->count()) 
+        ui.buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
 
     ui.cbPaperLayout->addItem(QPrintDialog::tr("Portrait"), QPrinter::Portrait);
     ui.cbPaperLayout->addItem(QPrintDialog::tr("Landscape"), QPrinter::Landscape);
@@ -1041,9 +1043,13 @@ void QPrintDialogPrivate::_q_printToFileChanged(int state)
 
         ui.leFile->setCursorPosition(ui.leFile->text().length());
         ui.leFile->selectAll();
+        ui.buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
+        
     } else {
         ui.stackedWidget->setCurrentIndex(0);
         ui.gbDestination->setTitle(QPrintDialog::tr("Printer"));
+        if (!ui.cbPrinters->count()) 
+            ui.buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
     }
     refreshPageSizes();
 }
