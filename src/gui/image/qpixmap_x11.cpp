@@ -356,6 +356,8 @@ QPixmapData::~QPixmapData()
     delete paintEngine;
 }
 
+typedef void (*_qt_pixmap_cleanup_hook_64)(qint64);
+extern _qt_pixmap_cleanup_hook_64 qt_pixmap_cleanup_hook_64;
 
 /*!
     Detaches the pixmap from shared pixmap data.
@@ -374,10 +376,6 @@ QPixmapData::~QPixmapData()
     The detach() function returns immediately if there is just a
     single reference or if the pixmap has not been initialized yet.
 */
-
-typedef void (*_qt_pixmap_cleanup_hook_64)(qint64);
-extern _qt_pixmap_cleanup_hook_64 qt_pixmap_cleanup_hook_64;
-
 void QPixmap::detach()
 {
     if (qt_pixmap_cleanup_hook_64 && data->count == 1)
