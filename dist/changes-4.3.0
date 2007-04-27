@@ -73,6 +73,11 @@ Third party components
 
 - QImage
     * [157549] Fixed crash when calling QImage::copy with negative coordinates.
+    * Added cacheKey() as a replacement for serialNumber().
+
+- QIcon
+    * Added cacheKey() as a replacement for serialNumber().
+    * Fixed QIcon streaming operators.
 
 - QIntValidator, QDoubleValidator
     * Validators recognise numbers formatted in various locales, depending on their "locale"
@@ -199,13 +204,30 @@ Third party components
     * Added a compile time check to ensure that the objects passed to qobject_cast contain
       a Q_OBJECT macro.
 
+- QGL
+    * [158971] Fixed a resource leak in the GL texture cache.
+
+- QGLWidget
+    * [145621] Avoid a QGLFormat object copy when checking the buffer format with the
+	       QGLWidget::doubleBuffer() function.
+    * [100519] Rewritten renderText(). It now supports Unicode text, and it doesn't
+	       try to overwrite previously defined display lists.
+
+- QGLFramebufferObject
+    * Make it possible to configure the depth/stencil buffer in a framebuffer object.
+    * Add support for floating point formats for the texture in a framebuffer object.
+
+- QGLPixelBuffer
+    * [138393] Make QGLPixelbuffer work under Windows on systems without the
+	       render_texture extension.
+
 - QPainter
     * Fixed stroking of non-closed polygons with non-cosmetic pens in the
       OpenGL paint engine.
     * [133980 and 143502] Fixed stroking bug for RoundJoin and MiterJoin with paths
       containing successive line segments with a 180 degree angle between them.
     * [141826] Fixed stroking with MiterJoin of paths with duplicated control points.
-    * [139454 and 139209] Fixed problem with SmoothTransformation that caused images 
+    * [139454 and 139209] Fixed problem with SmoothTransformation that caused images
       to fade out toward the edges in raster paint engine.
     * Added HighQualityAntialiasing render hint to QPainter to use pixel shaders for
       antialiasing in the OpenGL paint engine.
@@ -219,12 +241,28 @@ Third party components
     * [159047] Fixed case where QPainter::fillRect would ignore the brush origin.
     * [143119] Fixed bug where drawing a scaled image on another image would cause black
       lines to appear on the edges of the scaled image.
+    * [159894] Fixed X11 errors when using QPainter brush patterns on multiple screens.
+    * [148524] Fixed X11 errors when drawing bitmaps containing a color table with alpha values.
+    * [141871] Optimized and fixed drawing of extremely large polygons.
+    * [140952] Fixed transformed text drawing on X11 setups that used fontconfig without Xrender.
+    * [139611] Fixed smooth transform of pixmaps for X11.
+    * [132837] Fixed text drawing to QImages with certain fonts for Mac OS X.
 
 - QPicture
     * [142703] QPicture now correctly preserves composition mode changes.
+    * Fix QPicture text sizes on devices with non-default DPI.
+    * [133727] Fix text alignment when drawing RightToLeft formatted text into a QPicture.
+
+- QPixmap
+    * Added cacheKey() as a replacement for serialNumber().
+    * [97426] Add a way to invert masks created with createMaskFromColor().
 
 - QPixmapCache
     * [144319] Reinserting a pixmap now moves it to the top of the Least Recently Used-list.
+
+
+- QPageSetupDialog
+    * [136041] Margins are now saved and used properly when printing.
 
 - QPrintDialog
     * [128964] Make "Print" button the default
@@ -483,13 +521,15 @@ Third party components
 X11
 ---
     * [153346] Don't deliver tablet events while in Drag and Drop.
+    * [141756] Don't try to use the Plastique or Cleanlooks styles as the default
+	       style when there is no Xrender present.
 
 Windows
 -------
-    * [141503] When clicked inside the tool windows, it wont be activated if there 
+    * [141503] When clicked inside the tool windows, it wont be activated if there
       is no child widget to take focus.
     * [153315] Better handling of Synaptic touchpad wheel messages.
-    * [150639] Support for CF_DIBV5 format and better support for transparent images 
+    * [150639] Support for CF_DIBV5 format and better support for transparent images
       on clipboard.
     * [146862] Improves readability of progress bar text when shown in Highlight color.
     * [146928] Fixes shortcut events being discarded when AutoRepeat is turned off.
@@ -500,22 +540,22 @@ Windows
     * [137023] Fix the crash while translating mouse events.
     * [138349] Fix wrong focus handling with multiple top levels.
     * [111211] Tool windows won't steal focus from their parents while opening.
-    * [143812] Fix a bug which can break the widget's ability to maximize after 
+    * [143812] Fix a bug which can break the widget's ability to maximize after
       saving and restoring its state.
     * [111501] SPI_SETWORKAREA message now triggers a triggers a workAreaResized().
     * [141633] Fixed commandline parsing for GUI applications.
     * [134984] SockAct events wont be triggered from processEvents(ExcludeSocketNotifiers).
     * [134164] The toplevel widgets with MSWindowsFixedSizeDialogHint are centered properly.
-    
+
 - ActiveQt
     * [260763] When loading a typelib file to obtain information about a control it
       now processes the typelib correctly.
-    * [158990] Ambient property change events are now emitted regardless of the 
+    * [158990] Ambient property change events are now emitted regardless of the
       container state.
     * [150327] ActiveQt based controls will now return the correct Extents depending
       on the size restrictions set on the widget.
-    * [141296] Unloading of ActiveQt dll should be done from the same thread which 
-      loaded it. 
+    * [141296] Unloading of ActiveQt dll should be done from the same thread which
+      loaded it.
 
 Mac OS X
 --------
@@ -607,6 +647,8 @@ Examples
   * [133068] GIF support is enabled by default now.
 
 - Assistant
+  * [99923] Added a context menu for the tabs in tab bar. Right click on a tab to get a list
+	    of common options.
 
 - Designer
     * [151376] Context menu added to the tab order editor
