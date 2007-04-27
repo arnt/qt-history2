@@ -130,7 +130,7 @@
 
     \quotefromfile snippets/signalsandslots/signalsandslots.cpp
     \skipto ::setValue
-    \printuntil /^\}$/
+    \printuntil /^\}/
 
     The \c{emit} line emits the signal \c valueChanged() from the
     object, with the new value as argument.
