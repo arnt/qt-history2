@@ -985,7 +985,7 @@ QScriptValue QScriptValue::construct(const QScriptValueList &args)
   \a arguments can be an arguments object, an array, null or
   undefined. Any other type will cause a TypeError to be thrown.
 
-  \sa call(), newObject(), QScriptContext::argumentsObject()
+  \sa call(), QScriptEngine::newObject(), QScriptContext::argumentsObject()
 */
 QScriptValue QScriptValue::construct(const QScriptValue &arguments)
 {
