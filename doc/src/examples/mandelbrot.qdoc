@@ -12,7 +12,7 @@
     real-time zooming in the Mandelbrot set, the standard Mandelbrot
     algorithm is just slow enough for our purposes.
 
-    \image mandelbrot.png Screenshot of the Mandelbrot example
+    \image mandelbrot-example.png Screenshot of the Mandelbrot example
 
     In real life, the approach described here is applicable to a
     large set of problems, including synchronous network I/O and
