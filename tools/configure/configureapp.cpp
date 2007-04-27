@@ -1859,6 +1859,7 @@ void Configure::generateCachefile()
             cacheStream << (*var) << endl;
         }
         cacheStream << "CONFIG         += " << qmakeConfig.join( " " ) << " incremental create_prl link_prl depend_includepath QTDIR_build" << endl;
+	cacheStream << "QT_BUILD_PARTS  = libs tools examples demos" << endl;
         QString mkspec_path = fixSeparators(sourcePath + "/mkspecs/" + dictionary[ "QMAKESPEC" ]);
         if(QFile::exists(mkspec_path))
             cacheStream << "QMAKESPEC       = " << mkspec_path << endl;
