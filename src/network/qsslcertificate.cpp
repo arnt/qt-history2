@@ -670,8 +670,10 @@ QDebug operator<<(QDebug debug, const QSslCertificate &certificate)
           << "," << certificate.issuerInfo(QSslCertificate::Organization)
           << "," << certificate.subjectInfo(QSslCertificate::Organization)
           << "," << certificate.alternateSubjectNames()
+#ifndef QT_NO_TEXTSTREAM
           << "," << certificate.notValidBefore()
           << "," << certificate.notValidAfter()
+#endif
           << ")";
     return debug;
 }
