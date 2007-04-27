@@ -690,7 +690,7 @@ bool QScriptEngine::canEvaluate(const QString &program) const
 }
 
 /*!
-  Evaluates \a program beginning at \a lineNumber in that program
+  Evaluates \a program, using \a lineNumber as the base line number,
   and returns the result of the evaluation.
 
   The script code will be evaluated in the current context.
@@ -700,6 +700,15 @@ bool QScriptEngine::canEvaluate(const QString &program) const
   that was thrown (typically an \c{Error} object). You can call
   hasUncaughtException() to determine if an exception occurred in
   the last call to evaluate().
+
+  \a lineNumber is used to specify a starting line number for \a
+  program; line number information reported by the engine that pertain
+  to this evaluation (e.g. uncaughtExceptionLineNumber()) will be
+  based on this argument. For example, if \a program consists of two
+  lines of code, and the statement on the second line causes a script
+  exception, uncaughtExceptionLineNumber() would return the given \a
+  lineNumber plus one. When no starting line number is specified, 0
+  will be used as the base.
 
   \sa canEvaluate(), hasUncaughtException()
 */
@@ -723,8 +732,7 @@ QScriptValue QScriptEngine::evaluate(const QString &program, int lineNumber)
 QScriptValue QScriptEngine::evaluate(const QString &program)
 {
     Q_D(QScriptEngine);
-    QScriptContextPrivate *ctx_p = QScriptContextPrivate::get(d->currentContext());
-    return evaluate(program, ctx_p->currentLine);
+    return evaluate(program, /*lineNumber=*/0);
 }
 
 /*!

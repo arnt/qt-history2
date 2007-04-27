@@ -377,13 +377,14 @@ void tst_QScriptEngine::canEvaluate()
 void tst_QScriptEngine::evaluate_data()
 {
     QTest::addColumn<QString>("code");
+    QTest::addColumn<int>("lineNumber");
     QTest::addColumn<bool>("expectHadError");
     QTest::addColumn<int>("expectErrorLineNumber");
 
-    QTest::newRow("0")      << QString("0")             << false        << 0;
-    QTest::newRow("0=1")    << QString("\n0=1\n")       << true         << 1;
-    QTest::newRow("a=1")    << QString("a=1\n")         << false        << 0;
-    QTest::newRow("a=1;K")  << QString("a=1;\nK")       << true         << 1;
+    QTest::newRow("0")     << QString("0")       << -1 << false << 0;
+    QTest::newRow("0=1")   << QString("\n0=1\n") << -1 << true  << 1;
+    QTest::newRow("a=1")   << QString("a=1\n")   << -1 << false << 0;
+    QTest::newRow("a=1;K") << QString("a=1;\nK") << -1 << true  << 1;
 
     QTest::newRow("f()") << QString("function f()\n"
                                     "{\n"
@@ -391,17 +392,35 @@ void tst_QScriptEngine::evaluate_data()
                                     "  var b=\";\n" // here's the error
                                     "}\n"
                                     "f();\n")
-                         << true << 3;
+                         << -1 << true << 3;
+
+    QTest::newRow("0")     << QString("0")       << 10 << false << 0;
+    QTest::newRow("0=1")   << QString("\n\n0=1\n") << 10 << true  << 12;
+    QTest::newRow("a=1")   << QString("a=1\n")   << 10 << false << 0;
+    QTest::newRow("a=1;K") << QString("a=1;\n\nK") << 10 << true  << 12;
+
+    QTest::newRow("f()") << QString("function f()\n"
+                                    "{\n"
+                                    "  var a;\n"
+                                    "\n\n"
+                                    "  var b=\";\n" // here's the error
+                                    "}\n"
+                                    "f();\n")
+                         << 10 << true << 15;
 }
 
 void tst_QScriptEngine::evaluate()
 {
     QFETCH(QString, code);
+    QFETCH(int, lineNumber);
     QFETCH(bool, expectHadError);
     QFETCH(int, expectErrorLineNumber);
 
     QScriptEngine eng;
-    (void)eng.evaluate(code);
+    if (lineNumber != -1)
+        (void)eng.evaluate(code, lineNumber);
+    else
+        (void)eng.evaluate(code);
     QCOMPARE(eng.hasUncaughtException(), expectHadError);
     QCOMPARE(eng.uncaughtExceptionLineNumber(), expectErrorLineNumber);
 }
