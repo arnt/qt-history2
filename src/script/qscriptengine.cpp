@@ -986,7 +986,7 @@ QScriptValue QScriptEngine::importExtension(const QString &extension)
     be a function that will convert from a value of type \c{T} to a
     QScriptValue, and \a fromScriptValue a function that does the
     opposite. \a prototype, if valid, is the prototype that's set on
-    QScriptValues returned by \a toValue.
+    QScriptValues returned by \a toScriptValue.
 
     Returns the internal ID used by QMetaType.
 
