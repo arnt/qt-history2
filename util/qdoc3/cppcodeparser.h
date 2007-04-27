@@ -65,6 +65,7 @@ private:
     bool matchBaseList( ClassNode *classe, bool isClass );
     bool matchClassDecl( InnerNode *parent, const QString &templateStuff = QString() );
     bool matchNamespaceDecl(InnerNode *parent);
+    bool matchUsingDecl();
     bool matchEnumItem( InnerNode *parent, EnumNode *enume );
     bool matchEnumDecl( InnerNode *parent );
     bool matchTypedefDecl( InnerNode *parent );
@@ -93,6 +94,7 @@ private:
     QString mutableSequentialIteratorDefinition;
     QString associativeIteratorDefinition;
     QString mutableAssociativeIteratorDefinition;
+    QSet<QString> usedNamespaces;
     QMap<QString, QString> sequentialIteratorClasses;
     QMap<QString, QString> mutableSequentialIteratorClasses;
     QMap<QString, QString> associativeIteratorClasses;

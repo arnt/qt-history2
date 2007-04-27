@@ -203,6 +203,7 @@ void CppCodeParser::parseSourceFile( const Location& location,
     FileTokenizer fileTokenizer( fileLocation, in );
     tokenizer = &fileTokenizer;
     readToken();
+    usedNamespaces.clear();
     matchDocsAndStuff();
     fclose( in );
 }
@@ -375,8 +376,19 @@ Node *CppCodeParser::processTopicCommand( const Doc& doc,
 	    doc.location().warning( tr("Invalid syntax in '\\%1'")
 				    .arg(COMMAND_FN) );
 	} else {
-	    func = tre->findFunctionNode( parentPath, clone );
-	    if ( func == 0 ) {
+            if (!usedNamespaces.isEmpty()) {
+                foreach (QString usedNamespace, usedNamespaces) {
+                    QStringList newPath = usedNamespace.split("::") + parentPath;
+	            func = tre->findFunctionNode( newPath, clone );
+                    if (func)
+                        break;
+                }
+            }
+            // Search the root namespace if no match was found.
+            if (func == 0)
+	        func = tre->findFunctionNode( parentPath, clone );
+
+	    if (func == 0) {
 		if ( parentPath.isEmpty() && !lastPath.isEmpty() )
 		    func = tre->findFunctionNode( lastPath, clone );
 		if ( func == 0 ) {
@@ -436,10 +448,26 @@ Node *CppCodeParser::processTopicCommand( const Doc& doc,
         }
         return func;
     } else if ( nodeTypeMap.contains(command) ) {
+
 	// ### split(" ") hack is there to support header file syntax
 	QStringList path = arg.split(" ")[0].split("::");
-	Node *node = tre->findNode(path, nodeTypeMap[command]);
-	if ( node == 0 ) {
+
+        Node *node = 0;
+        if (!usedNamespaces.isEmpty()) {
+            foreach (QString usedNamespace, usedNamespaces) {
+                QStringList newPath = usedNamespace.split("::") + path;
+	        node = tre->findNode(newPath, nodeTypeMap[command]);
+                if (node) {
+                    path = newPath;
+                    break;
+                }
+            }
+        }
+        // Search the root namespace if no match was found.
+        if (node == 0)
+            node = tre->findNode(path, nodeTypeMap[command]);
+
+	if (node == 0) {
 	    doc.location().warning(tr("Cannot find '%1' specified with '\\%2' in any header file")
 				   .arg(arg).arg(command));
 	    lastPath = path;
@@ -453,7 +481,14 @@ Node *CppCodeParser::processTopicCommand( const Doc& doc,
 		cnode->setServiceName( args[1] );
 		cnode->setHideFromMainList( true );
 	    }
-	}
+	} else if (node->isInnerNode()) {
+            InnerNode *innerNode = static_cast<InnerNode *>(node);
+            if (path.size() > 1) {
+                path.pop_back();
+                usedNamespaces.insert(path.join("::"));
+            }
+        }
+
 	return node;
     } else if ( command == COMMAND_EXAMPLE ) {
 	FakeNode *fake = new FakeNode( tre->root(), arg, FakeNode::Example );
@@ -1108,8 +1143,41 @@ bool CppCodeParser::matchNamespaceDecl(InnerNode *parent)
     }
 
     readToken(); // skip '{'
+    bool matched = matchDeclList(namespasse);
 
-    return matchDeclList(namespasse) && match(Tok_RightBrace);
+    return matched && match(Tok_RightBrace);
+}
+
+bool CppCodeParser::matchUsingDecl()
+{
+    readToken(); // skip 'using'
+
+    // 'namespace'
+    if (tok != Tok_namespace)
+        return false;
+
+    readToken();
+    // identifier
+    if (tok != Tok_Ident)
+        return false;
+
+    QString name;
+    while (tok == Tok_Ident) {
+        name += lexeme();
+        readToken();
+        if (tok == Tok_Semicolon)
+            break;
+        else if (tok != Tok_Gulbrandsen)
+            return false;
+        name += "::";
+        readToken();
+    }
+
+    /*
+        So far, so good. We have 'using namespace Foo;'.
+    */
+    usedNamespaces.insert(name);
+    return true;
 }
 
 bool CppCodeParser::matchEnumItem( InnerNode *parent, EnumNode *enume )
@@ -1289,6 +1357,9 @@ bool CppCodeParser::matchDeclList( InnerNode *parent )
         case Tok_namespace:
             matchNamespaceDecl(parent);
             break;
+        case Tok_using:
+            matchUsingDecl();
+            break;
 	case Tok_template:
 	    templateStuff = matchTemplateHeader();
 	    continue;
@@ -1429,7 +1500,15 @@ bool CppCodeParser::matchDocsAndStuff()
 		FunctionNode *func = 0;
 
 		if ( matchFunctionDecl(0, &parentPath, &clone) ) {
-		    func = tre->findFunctionNode( parentPath, clone );
+                    foreach (QString usedNamespace, usedNamespaces) {
+                        QStringList newPath = usedNamespace.split("::") + parentPath;
+		        func = tre->findFunctionNode(newPath, clone);
+                        if (func)
+                            break;
+                    }
+                    if (func == 0)
+		        func = tre->findFunctionNode( parentPath, clone );
+
 		    if (func) {
 			func->borrowParameterNames( clone );
 			nodes.append( func );
@@ -1474,6 +1553,8 @@ bool CppCodeParser::matchDocsAndStuff()
 		++d;
 		++n;
 	    }
+        } else if (tok == Tok_using) {
+            matchUsingDecl();
 	} else {
 	    QStringList parentPath;
 	    FunctionNode *clone;
