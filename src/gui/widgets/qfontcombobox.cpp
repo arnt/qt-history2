@@ -100,7 +100,7 @@ void QFontFamilyDelegate::paint(QPainter *painter,
 {
     QString text = index.data(Qt::DisplayRole).toString();
     QFont font(option.font);
-    font.setPointSize(font.pointSize() * 3 / 2);
+    font.setPointSize(QFontInfo(font).pointSize() * 3 / 2);
     QFont font2 = font;
     font2.setFamily(text);
 
@@ -161,7 +161,7 @@ QSize QFontFamilyDelegate::sizeHint(const QStyleOptionViewItem &option,
     QString text = index.data(Qt::DisplayRole).toString();
     QFont font(option.font);
 //     font.setFamily(text);
-    font.setPointSize(font.pointSize() * 3/2);
+    font.setPointSize(QFontInfo(font).pointSize() * 3/2);
     QFontMetrics fontMetrics(font);
     return QSize(fontMetrics.width(text), fontMetrics.lineSpacing());
 }
