@@ -224,17 +224,7 @@ inline void QGLDrawable::doneCurrent()
 inline QSize QGLDrawable::size() const
 {
     if (widget)
-#ifdef Q_WS_QWS
-        if (widget->isWindow()) {
-            QTLWExtra *topextra = widget->d_func()->extra->topextra;
-            QWSManager *manager = topextra->qwsManager;
-            if (manager && manager->d_func()->paintingDecorations)
-                return widget->frameSize();
-            else
-                return widget->size();
-        } else
-#endif
-            return widget->size();
+        return widget->size();
     else if (buffer)
         return buffer->size();
     else if (fbo)
@@ -320,20 +310,9 @@ inline QGLContext *QGLDrawable::context() const
 inline bool QGLDrawable::autoFillBackground() const
 {
     if (widget)
-#ifndef Q_WS_QWS
         return widget->autoFillBackground();
-#else
-    if (widget->isWindow()) {
-            QTLWExtra *topextra = widget->d_func()->extra->topextra;
-            QWSManager *manager = topextra->qwsManager;
-            if (manager && manager->d_func()->paintingDecorations)
-                return false;
-            else
-                return widget->autoFillBackground();
-    } else
-        return widget->autoFillBackground();
-#endif
-    return false;
+    else
+        return false;
 }
 
 

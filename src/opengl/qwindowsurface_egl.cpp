@@ -73,10 +73,9 @@ class QEGLWindowSurfacePrivate
 {
 public:
     QEGLWindowSurfacePrivate() :
-        qglContext(0), device(0), ownsContext(false) {}
+        qglContext(0), ownsContext(false) {}
 
     QGLContext *qglContext;
-    QEGLPaintDevice *device;
     bool ownsContext;
 };
 
@@ -84,17 +83,11 @@ QEGLWindowSurface::QEGLWindowSurface(QWidget *window)
     : QWSWindowSurface(window),
       d_ptr(new QEGLWindowSurfacePrivate)
 {
-    Q_D(QEGLWindowSurface);
-    if (window)
-        d->device = new QEGLPaintDevice(window, this);
-
-    setSurfaceFlags(QWSWindowSurface::Buffered);
 }
 
 QEGLWindowSurface::QEGLWindowSurface()
     : d_ptr(new QEGLWindowSurfacePrivate)
 {
-    setSurfaceFlags(QWSWindowSurface::Buffered);
 }
 
 QEGLWindowSurface::~QEGLWindowSurface()
@@ -102,17 +95,7 @@ QEGLWindowSurface::~QEGLWindowSurface()
     Q_D(QEGLWindowSurface);
     if (d->ownsContext)
         delete d->qglContext;
-    delete d->device;
     delete d;
-}
-
-QPaintDevice *QEGLWindowSurface::paintDevice()
-{
-    Q_D(QEGLWindowSurface);
-    if (qobject_cast<QGLWidget*>(d->device->d_func()->widget) != 0)
-        return d->device->d_func()->widget;
-    else
-        return d->device;
 }
 
 QGLContext *QEGLWindowSurface::context() const

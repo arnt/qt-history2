@@ -47,11 +47,6 @@ public:
     QEGLWindowSurface();
     ~QEGLWindowSurface();
 
-    QPaintDevice *paintDevice();
-
-    bool isValid() const { return true; }
-    QImage image() const { return QImage(); }
-
     virtual bool chooseContext(QGLContext *context, const QGLContext *shareContext) = 0;
     QGLContext *context() const;
 

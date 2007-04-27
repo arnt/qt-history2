@@ -103,7 +103,7 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
 {
 #ifdef Q_USE_EGLWINDOWSURFACE
     if (device() && device()->devType() == QInternal::Widget) {
-        // EGL Only works if drawable is a QGLWidget. QGLFramebufferObject, QGLPixelBuffer not supported
+        // EGL Only works if drawable is a QGLWidget. QGLPixelBuffer not supported
         QEGLWindowSurface *surface = static_cast<QGLWidget*>(device())->d_func()->wsurf;
         if (surface)
             return surface->chooseContext(this, shareContext);
