@@ -83,6 +83,7 @@ QSystemTrayIconSys::QSystemTrayIconSys(QSystemTrayIcon *q)
       q(q)
 {
     setAttribute(Qt::WA_AlwaysShowToolTips);
+    setAttribute(Qt::WA_QuitOnClose, false);
     static bool eventFilterAdded = false;
     Display *display = QX11Info::display();
     if (!eventFilterAdded) {

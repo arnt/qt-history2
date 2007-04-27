@@ -34,6 +34,7 @@ private slots:
     void showHide();
     void showMessage();
     void supportsMessages();
+    void lastWindowClosed();
 };
 
 tst_QSystemTrayIcon::tst_QSystemTrayIcon()
@@ -101,6 +102,19 @@ void tst_QSystemTrayIcon::supportsMessages()
 
 }
 
+void tst_QSystemTrayIcon::lastWindowClosed()
+{
+    QSignalSpy spy(qApp, SIGNAL(lastWindowClosed()));
+    QWidget window;
+    QSystemTrayIcon icon;
+    icon.setIcon(QIcon("whatever.png"));
+    icon.show();
+    window.show();
+    QTimer::singleShot(500, &window, SLOT(close()));
+    QTimer::singleShot(1000, qApp, SLOT(quit())); // in case the test fails
+    qApp->exec();
+    QVERIFY(spy.count() == 1);
+}
 
 QTEST_MAIN(tst_QSystemTrayIcon)
 #include "tst_qsystemtrayicon.moc"
