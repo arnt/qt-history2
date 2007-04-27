@@ -129,6 +129,8 @@ private slots:
     void bindWithDoubleColonCastOperator();
     void queryOnInvalidDatabase_data() { generic_data(); }
     void queryOnInvalidDatabase();
+    void createQueryOnClosedDatabase_data() { generic_data(); }
+    void createQueryOnClosedDatabase();
 
 private:
     // returns all database connections
@@ -2169,6 +2171,41 @@ void tst_QSqlQuery::queryOnInvalidDatabase()
     QVERIFY2(query.lastError().isValid(),
         qPrintable(QString("query.lastError().isValid() should be true!")));
     }
+}
+
+/* For task 159138: Error on instantiating a sql-query before explicitly
+   opening the database. This is something we don't support, so this isn't
+   really a bug. However some of the drivers are nice enough to support it.
+*/
+void tst_QSqlQuery::createQueryOnClosedDatabase()
+{
+    QFETCH(QString, dbName);
+    QSqlDatabase db = QSqlDatabase::database(dbName);
+    CHECK_DATABASE(db);
+
+    // Only supported by these drivers
+    if (!db.driverName().startsWith("QPSQL") 
+        && !db.driverName().startsWith("QOCI")
+            && !db.driverName().startsWith("QMYSQL") 
+            && !db.driverName().startsWith("QDB2")) {
+        QSKIP("Test is specific for PostgreSQL, Oracle, MySql and DB2", SkipSingle);
+        return;
+    }
+
+    db.close();
+    QSqlQuery query(db);
+    db.open();
+    QVERIFY2(query.exec(QString("select * from %1 where id = 0").arg(qTableName("qtest"))),
+        qPrintable(query.lastError().text()));
+
+    QVERIFY2(query.next(), qPrintable(query.lastError().text()));
+    QCOMPARE(query.value(0).toInt(), 0);
+    QCOMPARE(query.value(1).toString().trimmed(), QLatin1String("VarChar0"));
+    QCOMPARE(query.value(2).toString().trimmed(), QLatin1String("Char0"));
+
+    db.close();
+    QVERIFY2(!query.exec(QString("select * from %1 where id = 0").arg(qTableName("qtest"))),
+        qPrintable(QString("This can't happen! The query should not have been executed!")));
 }
 
 QTEST_MAIN(tst_QSqlQuery)

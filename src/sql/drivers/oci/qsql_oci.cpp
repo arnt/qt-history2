@@ -114,7 +114,7 @@ struct QOCIResultPrivate
     QOCIResult *q;
     OCIEnv *env;
     OCIError *err;
-    OCISvcCtx *svc;
+    OCISvcCtx *&svc;
     OCIStmt *sql;
     bool transaction;
     int serverVersion;
@@ -1542,7 +1542,7 @@ void QOCICols::getValues(QVector<QVariant> &v, int index)
 }
 
 QOCIResultPrivate::QOCIResultPrivate(QOCIResult *result, const QOCIDriverPrivate *driver)
-    : cols(0), q(result), env(driver->env), err(0), svc(driver->svc),
+    : cols(0), q(result), env(driver->env), err(0), svc(const_cast<OCISvcCtx*>(driver->svc)),
       sql(0), transaction(driver->transaction), serverVersion(driver->serverVersion),
       prefetchRows(driver->prefetchRows), prefetchMem(driver->prefetchMem),
       precisionPolicy(driver->precisionPolicy)
@@ -1734,6 +1734,7 @@ bool QOCIResult::exec()
                     NULL,
                     OCI_ATTR_STMT_TYPE,
                     d->err);
+
     // execute
     if (stmtType == OCI_STMT_SELECT)
     {
