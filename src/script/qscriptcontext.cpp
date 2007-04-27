@@ -71,9 +71,9 @@
 
     This enum specifies the execution state of the context.
 
-    \value Normal The context is in a normal state.
+    \value NormalState The context is in a normal state.
 
-    \value Exception The context is in an exceptional state.
+    \value ExceptionState The context is in an exceptional state.
 */
 
 /*!
