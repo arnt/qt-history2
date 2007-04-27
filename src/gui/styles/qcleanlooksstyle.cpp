@@ -2653,37 +2653,45 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
             QColor textColor(active ? 0xffffff : 0xff000000);
             QColor textAlphaColor(active ? 0xffffff : 0xff000000 );
 
-            // Fill title bar gradient
-            qt_cleanlooks_draw_gradient(painter, option->rect.adjusted(1, 1, -1, 0),
-                                       titleBarGradientStart,
-                                       titleBarGradientStop, TopDown, active ? highlight : palette.background().color());
+#ifdef  QT3_SUPPORT
+            if (widget && widget->inherits("Q3DockWindowTitleBar")) {
+                QStyleOptionDockWidgetV2 dockwidget;
+                dockwidget.QStyleOption::operator=(*option);
+                drawControl(CE_DockWidgetTitle, &dockwidget, painter, widget);
+            } else 
+#endif // QT3_SUPPORT
+            {
+                // Fill title bar gradient
+                qt_cleanlooks_draw_gradient(painter, option->rect.adjusted(1, 1, -1, 0),
+                                           titleBarGradientStart,
+                                           titleBarGradientStop, TopDown, active ? highlight : palette.background().color());
 
-            // Frame and rounded corners
-            painter->setPen(titleBarFrameBorder);
+                // Frame and rounded corners
+                painter->setPen(titleBarFrameBorder);
 
-            // top outline
-            painter->drawLine(fullRect.left() + 5, fullRect.top(), fullRect.right() - 5, fullRect.top());
-            painter->drawLine(fullRect.left(), fullRect.top() + 4, fullRect.left(), fullRect.bottom());
-            painter->drawPoint(fullRect.left() + 4, fullRect.top() + 1);
-            painter->drawPoint(fullRect.left() + 3, fullRect.top() + 1);
-            painter->drawPoint(fullRect.left() + 2, fullRect.top() + 2);
-            painter->drawPoint(fullRect.left() + 1, fullRect.top() + 3);
-            painter->drawPoint(fullRect.left() + 1, fullRect.top() + 4);
+                // top outline
+                painter->drawLine(fullRect.left() + 5, fullRect.top(), fullRect.right() - 5, fullRect.top());
+                painter->drawLine(fullRect.left(), fullRect.top() + 4, fullRect.left(), fullRect.bottom());
+                painter->drawPoint(fullRect.left() + 4, fullRect.top() + 1);
+                painter->drawPoint(fullRect.left() + 3, fullRect.top() + 1);
+                painter->drawPoint(fullRect.left() + 2, fullRect.top() + 2);
+                painter->drawPoint(fullRect.left() + 1, fullRect.top() + 3);
+                painter->drawPoint(fullRect.left() + 1, fullRect.top() + 4);
 
-            painter->drawLine(fullRect.right(), fullRect.top() + 4, fullRect.right(), fullRect.bottom());
-            painter->drawPoint(fullRect.right() - 3, fullRect.top() + 1);
-            painter->drawPoint(fullRect.right() - 4, fullRect.top() + 1);
-            painter->drawPoint(fullRect.right() - 2, fullRect.top() + 2);
-            painter->drawPoint(fullRect.right() - 1, fullRect.top() + 3);
-            painter->drawPoint(fullRect.right() - 1, fullRect.top() + 4);
+                painter->drawLine(fullRect.right(), fullRect.top() + 4, fullRect.right(), fullRect.bottom());
+                painter->drawPoint(fullRect.right() - 3, fullRect.top() + 1);
+                painter->drawPoint(fullRect.right() - 4, fullRect.top() + 1);
+                painter->drawPoint(fullRect.right() - 2, fullRect.top() + 2);
+                painter->drawPoint(fullRect.right() - 1, fullRect.top() + 3);
+                painter->drawPoint(fullRect.right() - 1, fullRect.top() + 4);
 
-            // draw bottomline
-            painter->drawLine(fullRect.right(), fullRect.bottom(), fullRect.left(), fullRect.bottom());
+                // draw bottomline
+                painter->drawLine(fullRect.right(), fullRect.bottom(), fullRect.left(), fullRect.bottom());
 
-            // top highlight
-            painter->setPen(titleBarHighlight);
-            painter->drawLine(fullRect.left() + 6, fullRect.top() + 1, fullRect.right() - 6, fullRect.top() + 1);
-
+                // top highlight
+                painter->setPen(titleBarHighlight);
+                painter->drawLine(fullRect.left() + 6, fullRect.top() + 1, fullRect.right() - 6, fullRect.top() + 1);
+            }
             // draw title
             QRect textRect = subControlRect(CC_TitleBar, titleBar, SC_TitleBarLabel, widget);
             QFont font = painter->font();
@@ -2695,7 +2703,6 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
             painter->setPen(Qt::white);
             if (active)
                 painter->drawText(textRect, titleBar->text, QTextOption(Qt::AlignHCenter | Qt::AlignVCenter));
-
             // min button
             if ((titleBar->subControls & SC_TitleBarMinButton) && (titleBar->titleBarFlags & Qt::WindowMinimizeButtonHint) &&
                 !(titleBar->titleBarState& Qt::WindowMinimized)) {

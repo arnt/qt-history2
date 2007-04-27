@@ -4563,94 +4563,104 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
             QColor textColor(active ? 0x282e40 : 0x282e40);
             QColor textAlphaColor(active ? 0x3f4862 : 0x3f4862);
 
-            // Fill title bar gradient
-            qt_plastique_draw_gradient(painter, option->rect.adjusted(1, 1, -1, 0),
-                                       titleBarGradientStart,
-                                       titleBarGradientStop);
+#ifdef  QT3_SUPPORT
+            if (widget && widget->inherits("Q3DockWindowTitleBar")) {
+                QStyleOptionDockWidgetV2 dockwidget;
+                dockwidget.QStyleOption::operator=(*option);
+                dockwidget.title = titleBar->text;
+                drawControl(CE_DockWidgetTitle, &dockwidget, painter, widget);
+            } else 
+#endif // QT3_SUPPORT
 
-            // Frame and rounded corners
-            painter->setPen(titleBarFrameBorder);
-
-            // top border line
             {
-                const QLine lines[3] = {
-                    QLine(fullRect.left() + 2, fullRect.top(), fullRect.right() - 2, fullRect.top()),
-                    QLine(fullRect.left(), fullRect.top() + 2, fullRect.left(), fullRect.bottom()),
-                    QLine(fullRect.right(), fullRect.top() + 2, fullRect.right(), fullRect.bottom()) };
-                painter->drawLines(lines, 3);
-                const QPoint points[2] = {
-                    QPoint(fullRect.left() + 1, fullRect.top() + 1),
-                    QPoint(fullRect.right() - 1, fullRect.top() + 1) };
-                painter->drawPoints(points, 2);
-            }
+                // Fill title bar gradient
+                qt_plastique_draw_gradient(painter, option->rect.adjusted(1, 1, -1, 0),
+                                           titleBarGradientStart,
+                                           titleBarGradientStop);
 
-            // alpha corners
-            painter->setPen(titleBarAlphaCorner);
-            {
-                const QPoint points[4] = {
-                    QPoint(fullRect.left() + 2, fullRect.top() + 1),
-                    QPoint(fullRect.left() + 1, fullRect.top() + 2),
-                    QPoint(fullRect.right() - 2, fullRect.top() + 1),
-                    QPoint(fullRect.right() - 1, fullRect.top() + 2) };
-                painter->drawPoints(points, 4);
-            }
-
-            // inner top line
-            painter->setPen(titleBarInnerTopLine);
-            painter->drawLine(fullRect.left() + 3, fullRect.top() + 1, fullRect.right() - 3, fullRect.top() + 1);
-
-            // inner inner top line
-            painter->setPen(titleBarInnerInnerTopLine);
-            painter->drawLine(fullRect.left() + 2, fullRect.top() + 2, fullRect.right() - 2, fullRect.top() + 2);
-
-            // left and right inner
-            painter->setPen(leftCorner);
-            painter->drawLine(fullRect.left() + 1, fullRect.top() + 3, fullRect.left() + 1, fullRect.bottom());
-            painter->setPen(rightCorner);
-            painter->drawLine(fullRect.right() - 1, fullRect.top() + 3, fullRect.right() - 1, fullRect.bottom());
-
-            if (titleBar->titleBarState & Qt::WindowMinimized) {
+                // Frame and rounded corners
                 painter->setPen(titleBarFrameBorder);
-                painter->drawLine(fullRect.left() + 2, fullRect.bottom(), fullRect.right() - 2, fullRect.bottom());
+
+                // top border line
                 {
+                    const QLine lines[3] = {
+                        QLine(fullRect.left() + 2, fullRect.top(), fullRect.right() - 2, fullRect.top()),
+                        QLine(fullRect.left(), fullRect.top() + 2, fullRect.left(), fullRect.bottom()),
+                        QLine(fullRect.right(), fullRect.top() + 2, fullRect.right(), fullRect.bottom()) };
+                    painter->drawLines(lines, 3);
                     const QPoint points[2] = {
-                        QPoint(fullRect.left() + 1, fullRect.bottom() - 1),
-                        QPoint(fullRect.right() - 1, fullRect.bottom() - 1) };
+                        QPoint(fullRect.left() + 1, fullRect.top() + 1),
+                        QPoint(fullRect.right() - 1, fullRect.top() + 1) };
                     painter->drawPoints(points, 2);
                 }
-                painter->setPen(rightCorner);
-                painter->drawLine(fullRect.left() + 2, fullRect.bottom() - 1, fullRect.right() - 2, fullRect.bottom() - 1);
+
+                // alpha corners
                 painter->setPen(titleBarAlphaCorner);
                 {
                     const QPoint points[4] = {
-                        QPoint(fullRect.left() + 1, fullRect.bottom() - 2),
-                        QPoint(fullRect.left() + 2, fullRect.bottom() - 1),
-                        QPoint(fullRect.right() - 1, fullRect.bottom() - 2),
-                        QPoint(fullRect.right() - 2, fullRect.bottom() - 1) };
+                        QPoint(fullRect.left() + 2, fullRect.top() + 1),
+                        QPoint(fullRect.left() + 1, fullRect.top() + 2),
+                        QPoint(fullRect.right() - 2, fullRect.top() + 1),
+                        QPoint(fullRect.right() - 1, fullRect.top() + 2) };
                     painter->drawPoints(points, 4);
                 }
+
+                // inner top line
+                painter->setPen(titleBarInnerTopLine);
+                painter->drawLine(fullRect.left() + 3, fullRect.top() + 1, fullRect.right() - 3, fullRect.top() + 1);
+
+                // inner inner top line
+                painter->setPen(titleBarInnerInnerTopLine);
+                painter->drawLine(fullRect.left() + 2, fullRect.top() + 2, fullRect.right() - 2, fullRect.top() + 2);
+
+                // left and right inner
+                painter->setPen(leftCorner);
+                painter->drawLine(fullRect.left() + 1, fullRect.top() + 3, fullRect.left() + 1, fullRect.bottom());
+                painter->setPen(rightCorner);
+                painter->drawLine(fullRect.right() - 1, fullRect.top() + 3, fullRect.right() - 1, fullRect.bottom());
+
+                if (titleBar->titleBarState & Qt::WindowMinimized) {
+                    painter->setPen(titleBarFrameBorder);
+                    painter->drawLine(fullRect.left() + 2, fullRect.bottom(), fullRect.right() - 2, fullRect.bottom());
+                    {
+                        const QPoint points[2] = {
+                            QPoint(fullRect.left() + 1, fullRect.bottom() - 1),
+                            QPoint(fullRect.right() - 1, fullRect.bottom() - 1) };
+                        painter->drawPoints(points, 2);
+                    }
+                    painter->setPen(rightCorner);
+                    painter->drawLine(fullRect.left() + 2, fullRect.bottom() - 1, fullRect.right() - 2, fullRect.bottom() - 1);
+                    painter->setPen(titleBarAlphaCorner);
+                    {
+                        const QPoint points[4] = {
+                            QPoint(fullRect.left() + 1, fullRect.bottom() - 2),
+                            QPoint(fullRect.left() + 2, fullRect.bottom() - 1),
+                            QPoint(fullRect.right() - 1, fullRect.bottom() - 2),
+                            QPoint(fullRect.right() - 2, fullRect.bottom() - 1) };
+                        painter->drawPoints(points, 4);
+                    }
+                }
+                // draw title
+                QRect textRect = subControlRect(CC_TitleBar, titleBar, SC_TitleBarLabel, widget);
+
+                QFont font = painter->font();
+                font.setBold(true);
+                painter->setFont(font);
+                painter->setPen(titleBar->palette.text().color());
+
+                // Attempt to align left if there is not enough room for the title
+                // text. Otherwise, align center. QWorkspace does elliding for us,
+                // and it doesn't know about the bold title, so we need to work
+                // around some of the width mismatches.
+                bool tooWide = (QFontMetrics(font).width(titleBar->text) > textRect.width());
+                QTextOption option((tooWide ? Qt::AlignLeft : Qt::AlignHCenter) | Qt::AlignVCenter);
+                option.setWrapMode(QTextOption::NoWrap);
+
+                painter->drawText(textRect.adjusted(1, 1, 1, 1), titleBar->text, option);
+                painter->setPen(titleBar->palette.highlightedText().color());
+                painter->drawText(textRect, titleBar->text, option);
             }
-
-            // draw title
-            QRect textRect = subControlRect(CC_TitleBar, titleBar, SC_TitleBarLabel, widget);
-
-            QFont font = painter->font();
-            font.setBold(true);
-            painter->setFont(font);
-            painter->setPen(titleBar->palette.text().color());
-
-            // Attempt to align left if there is not enough room for the title
-            // text. Otherwise, align center. QWorkspace does elliding for us,
-            // and it doesn't know about the bold title, so we need to work
-            // around some of the width mismatches.
-            bool tooWide = (QFontMetrics(font).width(titleBar->text) > textRect.width());
-            QTextOption option((tooWide ? Qt::AlignLeft : Qt::AlignHCenter) | Qt::AlignVCenter);
-            option.setWrapMode(QTextOption::NoWrap);
-
-            painter->drawText(textRect.adjusted(1, 1, 1, 1), titleBar->text, option);
-            painter->setPen(titleBar->palette.highlightedText().color());
-            painter->drawText(textRect, titleBar->text, option);
-
+            
             // min button
             if ((titleBar->subControls & SC_TitleBarMinButton)
                     && (titleBar->titleBarFlags & Qt::WindowMinimizeButtonHint)
@@ -5582,7 +5592,7 @@ int QPlastiqueStyle::pixelMetric(PixelMetric metric, const QStyleOption *option,
 #ifdef QT3_SUPPORT
         if (widget && widget->inherits("Q3DockWindowTitleBar")) {
             // Q3DockWindow has smaller title bars than QDockWidget
-            ret = qMax(widget->fontMetrics().lineSpacing(), 16);
+            ret = qMax(widget->fontMetrics().lineSpacing(), 20);
         } else
 #endif
         ret = qMax(widget ? widget->fontMetrics().lineSpacing() :

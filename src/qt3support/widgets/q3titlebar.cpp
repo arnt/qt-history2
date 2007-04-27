@@ -442,14 +442,18 @@ void Q3TitleBar::paintEvent(QPaintEvent *)
         if (d->window && (d->flags & Qt::WindowMaximizeButtonHint) && !d->window->isMaximized())
             opt.subControls |= QStyle::SC_TitleBarMaxButton;
     }
-
     QStyle::SubControl under_mouse = QStyle::SC_None;
-    if(autoRaise() && underMouse()) {
+    
+    if (underMouse()) {
         under_mouse = style()->hitTestComplexControl(QStyle::CC_TitleBar, &opt,
                                                      mapFromGlobal(QCursor::pos()), this);
         opt.activeSubControls |= under_mouse;
-        opt.state |= QStyle::State_MouseOver;
+        if (d->pressed)
+            opt.state |= QStyle::State_Sunken;
+        else if(autoRaise())
+            opt.state |= QStyle::State_MouseOver;
     }
+    
     opt.palette.setCurrentColorGroup(usesActiveColor() ? QPalette::Active : QPalette::Inactive);
 
     QPainter p(this);
