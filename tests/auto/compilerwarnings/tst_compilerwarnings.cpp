@@ -25,6 +25,7 @@ private slots:
     void warnings();
 };
 
+#if 0
 /*
     Return list of all documented qfeatures (QT_NO_*)
  */
@@ -64,6 +65,7 @@ static QStringList getFeatures()
 
     return features;
 }
+#endif
 
 void tst_CompilerWarnings::warnings_data()
 {
