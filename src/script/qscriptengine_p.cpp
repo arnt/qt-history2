@@ -58,11 +58,9 @@ public:
 
     virtual ~EvalFunction() {}
 
-    void evaluate(QScriptContextPrivate *context, QString contents, int lineNo, bool calledFromScript)
+    void evaluate(QScriptContextPrivate *context, const QString &contents,
+                  int lineNo, bool calledFromScript)
     {
-        if (! contents.endsWith(QLatin1Char('\n')))
-            contents += QLatin1Char('\n'); // ### kill me
-
         QScriptEngine *engine = context->engine();
         QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(engine);
 

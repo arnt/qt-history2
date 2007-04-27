@@ -416,7 +416,7 @@ int QScript::Lexer::lex()
             } else if (current == 0) {
                 if (!terminator && !delimited) {
                     // automatic semicolon insertion if program incomplete
-                    token = ';';
+                    token = QScriptGrammar::T_SEMICOLON;
                     stackToken = 0;
                     setDone(Other);
                 } else {
@@ -429,7 +429,7 @@ int QScript::Lexer::lex()
                 bol = true;
                 terminator = true;
                 if (restrKeyword) {
-                    token = ';';
+                    token = QScriptGrammar::T_SEMICOLON;
                     setDone(Other);
                 }
             } else if (current == '"' || current == '\'') {
@@ -543,7 +543,7 @@ int QScript::Lexer::lex()
                 terminator = true;
                 bol = true;
                 if (restrKeyword) {
-                    token = ';';
+                    token = QScriptGrammar::T_SEMICOLON;
                     setDone(Other);
                 } else
                     state = Start;
@@ -713,7 +713,7 @@ int QScript::Lexer::lex()
     case Eof:
         return 0;
     case Other:
-        if(token == '}' || token == ';')
+        if(token == QScriptGrammar::T_RBRACE || token == QScriptGrammar::T_SEMICOLON)
             delimited = true;
         return token;
     case Identifier:
