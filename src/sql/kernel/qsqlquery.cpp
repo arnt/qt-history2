@@ -201,7 +201,10 @@ QSqlQueryPrivate::~QSqlQueryPrivate()
 
     \warning  You cannot allocate a QSqlQuery before the SQL driver
     is loaded; the query will return "driver not loaded" SQL errors if
-    you do so.
+    you do so. You must also open the connection the query is for with
+    QSqlDatabase::open() before creating the query. If the connection
+    is not opened, or if you close and re-open the connection while the
+    query exists, the query's behavior is undefined.
 
     \sa QSqlDatabase, QSqlQueryModel, QSqlTableModel, QVariant
 */
