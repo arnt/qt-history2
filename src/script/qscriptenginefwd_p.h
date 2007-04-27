@@ -386,7 +386,6 @@ public: // attributes
 
     QSet<QString> m_importedExtensions;
     QSet<QString> m_extensionsBeingImported;
-    QHash<QString, QStringList> m_cachedPluginKeys;
 
     int m_processEventsInterval;
     int m_nextProcessEvents;
