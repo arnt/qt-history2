@@ -113,6 +113,7 @@ public:
     QString drvName;
     int port;
     QString connOptions;
+    QString connName;
 
     static QSqlDatabasePrivate *shared_null();
     static QSqlDatabase database(const QString& name, bool open);
@@ -188,6 +189,7 @@ void QSqlDatabasePrivate::invalidateDb(const QSqlDatabase &db, const QString &na
         qWarning("QSqlDatabasePrivate::removeDatabase: connection '%s' is still in use, "
                  "all queries will cease to work.", name.toLocal8Bit().constData());
         db.d->disable();
+        db.d->connName = QString();
     }
 }
 
@@ -215,6 +217,7 @@ void QSqlDatabasePrivate::addDatabase(const QSqlDatabase &db, const QString &nam
                  "connection removed.", name.toLocal8Bit().data());
     }
     dict->insert(name, db);
+    db.d->connName = name;
 }
 
 /*! \internal
@@ -1033,7 +1036,7 @@ QString QSqlDatabase::password() const
 }
 
 /*!
-    Returns the connection's host name. It may be empty.
+    Returns the connection's host name; it may be empty.
 
     \sa setHostName()
 */
@@ -1446,6 +1449,16 @@ QSqlDatabase QSqlDatabase::cloneDatabase(const QSqlDatabase &other, const QStrin
     db.d->copy(other.d);
     QSqlDatabasePrivate::addDatabase(db, connectionName);
     return db;
+}
+
+/*!
+    Returns the connection's name; it may be empty.
+
+    \sa addDatabase()
+*/
+QString QSqlDatabase::connectionName() const
+{
+    return d->connName;
 }
 
 #ifndef QT_NO_DEBUG_STREAM

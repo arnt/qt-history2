@@ -89,6 +89,7 @@ public:
     QString driverName() const;
     int port() const;
     QString connectOptions() const;
+    QString connectionName() const;
 
     QSqlDriver* driver() const;
 

@@ -82,6 +82,10 @@ private slots:
     void bigIntField_data() { generic_data(); }
     void bigIntField();
 
+    // general tests
+    void getConnectionName_data() { generic_data(); }
+    void getConnectionName(); // For task 129992
+
     //problem specific tests
     void alterTable_data() { generic_data(); }
     void alterTable();
@@ -1861,6 +1865,19 @@ void tst_QSqlDatabase::odbc_uniqueidentifier()
     q.exec(QString("DROP TABLE %1").arg(tableName));
 }
 
+void tst_QSqlDatabase::getConnectionName()
+{
+    QFETCH(QString, dbName);
+    QSqlDatabase db = QSqlDatabase::database(dbName);
+    CHECK_DATABASE(db);
+
+    QCOMPARE(db.connectionName(), dbName);
+    QSqlDatabase clone = QSqlDatabase::cloneDatabase(db, "clonedDatabase");
+    QCOMPARE(clone.connectionName(), QString("clonedDatabase"));
+    QSqlDatabase::removeDatabase("clonedDatabase");
+    QCOMPARE(clone.connectionName(), QString());
+    QCOMPARE(db.connectionName(), dbName);
+}
 
 QTEST_MAIN(tst_QSqlDatabase)
 #include "tst_qsqldatabase.moc"
