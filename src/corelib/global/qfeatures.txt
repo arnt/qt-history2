@@ -846,6 +846,14 @@ Requires:
 Name: Qt Prerendered Font Format
 SeeAlso: ???
 
+Feature: QWS_QPF2
+Description: Supports Qt's second generation of pre-rendered fonts, a light-weight 
+non-scalable font format specific to Qtopia Core.
+Section: Fonts
+Requires: QWS_QPF
+Name: Qt Prerendered Font Format 2
+SeeAlso: ???
+
 # Internationalization
 
 Feature: TEXTCODECPLUGIN

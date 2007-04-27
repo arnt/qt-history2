@@ -532,7 +532,7 @@ QFontEngine *loadSingleEngine(int script, const QFontPrivate *fp,
     if (!pixelSize || style->smoothScalable && pixelSize == SMOOTH_SCALABLE)
         pixelSize = request.pixelSize;
 
-#ifndef QT_NO_QPF2
+#ifndef QT_NO_QWS_QPF2
     if (foundry->name == QLatin1String("prerendered")) {
         int f = ::open(size->fileName, O_RDONLY);
         if (f >= 0) {
@@ -588,7 +588,7 @@ QFontEngine *loadSingleEngine(int script, const QFontPrivate *fp,
 
             QFontEngineFT *fte = new QFontEngineFT(def);
             if (fte->init(faceId, style->antialiased)) {
-#ifdef QT_NO_QPF2
+#ifdef QT_NO_QWS_QPF2
                 return fte;
 #else
                 engine = fte;
@@ -604,9 +604,11 @@ QFontEngine *loadSingleEngine(int script, const QFontPrivate *fp,
         }
         if (engine) {
             if (shareFonts) {
+#ifndef QT_NO_QWS_QPF
                 QFontEngineQPF *fe = new QFontEngineQPF(def, -1, engine);
                 if (fe->isValid())
                     return fe;
+#endif
                 engine = 0;
             } else {
                 return engine;

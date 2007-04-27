@@ -307,6 +307,11 @@
 #define QT_NO_QWS_MANAGER
 #endif
 
+// Qt Prerendered Font Format 2
+#if !defined(QT_NO_QWS_QPF2) && (defined(QT_NO_QWS_QPF))
+#define QT_NO_QWS_QPF2
+#endif
+
 // QScrollBar
 #if !defined(QT_NO_SCROLLBAR) && (defined(QT_NO_SLIDER))
 #define QT_NO_SCROLLBAR

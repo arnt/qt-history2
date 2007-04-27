@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "qfontengine_qpf_p.h"
+
 #include "private/qpaintengine_raster_p.h"
 #include <QtCore/qlibraryinfo.h>
 #include <QtCore/qfileinfo.h>
@@ -32,6 +33,8 @@
 #include <sys/mman.h>
 #include <fcntl.h>
 #include <errno.h>
+
+#ifndef QT_NO_QWS_QPF
 
 #include "qpfutil.cpp"
 
@@ -215,6 +218,8 @@ QVariant QFontEngineQPF::extractHeaderField(const uchar *data, HeaderTag request
     return QVariant();
 }
 
+#endif // QT_NO_QWS_QPF
+
 QString qws_fontCacheDir()
 {
     static QString dir;
@@ -232,6 +237,8 @@ QString qws_fontCacheDir()
         dir = QDir::tempPath();
     return dir;
 }
+
+#ifndef QT_NO_QWS_QPF
 
 QList<QByteArray> QFontEngineQPF::cleanUpAfterClientCrash(const QList<int> &crashedClientIds)
 {
@@ -1062,6 +1069,8 @@ void QPFGenerator::writeTaggedQFixed(QFontEngineQPF::HeaderTag tag, QFixed value
     writeUInt32(value.value());
 }
 
+#endif // QT_NO_QWS_QPF
+
 QFontEngineMultiQWS::QFontEngineMultiQWS(QFontEngine *fe, int _script, const QStringList &fallbacks)
     : QFontEngineMulti(fallbacks.size() + 1),
       fallbackFamilies(fallbacks), script(_script)
@@ -1091,5 +1100,4 @@ void QFontEngineMultiQWS::draw(QPaintEngine */*p*/, qreal /*x*/, qreal /*y*/, co
 {
     qFatal("QFontEngineMultiQWS::draw should never be called!");
 }
-
 

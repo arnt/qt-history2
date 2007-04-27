@@ -28,6 +28,8 @@
 #include "qfontengine_p.h"
 #include <qendian.h>
 
+#ifndef QT_NO_QWS_QPF
+
 #if !defined(QT_NO_FREETYPE)
 #include "qfontengine_ft_p.h"
 #endif
@@ -231,6 +233,8 @@ struct QPFGenerator
     QIODevice *dev;
     QFontEngine *fe;
 };
+
+#endif // QT_NO_QWS_QPF
 
 class QFontEngineMultiQWS : public QFontEngineMulti
 {

@@ -2228,6 +2228,7 @@ void QFontCache::removeEngineForFont(const QByteArray &_fontName)
     QString fontName = QFile::decodeName(_fontName);
 //    qDebug() << "removeEngineForFont" << fontName;
 
+#ifndef QT_NO_QWS_QPF
     for (EngineCache::ConstIterator it = engineCache.constBegin(), end = engineCache.constEnd();
          it != end; ++it) {
         if (it->data->type() == QFontEngine::QPF2
@@ -2236,6 +2237,7 @@ void QFontCache::removeEngineForFont(const QByteArray &_fontName)
             break;
         }
     }
+#endif // QT_NO_QWS_QPF
 
     if (!engineToRemove)
         return;

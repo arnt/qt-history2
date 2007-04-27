@@ -14,7 +14,7 @@
 #include "qdebug.h"
 #include "qopentype_p.h"
 #include "qfontengine_ft_p.h"
-#if defined(Q_WS_QWS) && !defined(QT_NO_QPF2)
+#if defined(Q_WS_QWS) && !defined(QT_NO_QWS_QPF2)
 #include "qfontengine_qpf_p.h"
 #endif
 #include "qscriptengine_p.h"
@@ -308,7 +308,7 @@ bool QOpenType::shape(QShaperItem *item, const unsigned int *properties)
 {
     if (!has_features)
         return true;
-    
+
     length = item->num_glyphs;
 
     hb_buffer_clear(hb_buffer);
@@ -364,7 +364,7 @@ bool QOpenType::positionAndAdd(QShaperItem *item, int availableGlyphs, bool doLo
 {
     if (!has_features)
         return true;
-    
+
     bool glyphs_positioned = false;
     if (gpos) {
         switch (fontEngine->type()) {
@@ -373,7 +373,7 @@ bool QOpenType::positionAndAdd(QShaperItem *item, int availableGlyphs, bool doLo
             face = static_cast<QFontEngineFT *>(fontEngine)->lockFace();
             break;
 #endif
-#if defined(Q_WS_QWS) && !defined(QT_NO_QPF2) && !defined(QT_NO_FREETYPE)
+#if defined(Q_WS_QWS) && !defined(QT_NO_QWS_QPF2) && !defined(QT_NO_FREETYPE)
         case QFontEngine::QPF2:
             face = static_cast<QFontEngineQPF *>(fontEngine)->lockFace();
             break;
@@ -390,7 +390,7 @@ bool QOpenType::positionAndAdd(QShaperItem *item, int availableGlyphs, bool doLo
             static_cast<QFontEngineFT *>(fontEngine)->unlockFace();
             break;
 #endif
-#if defined(Q_WS_QWS) && !defined(QT_NO_QPF2) && !defined(QT_NO_FREETYPE)
+#if defined(Q_WS_QWS) && !defined(QT_NO_QWS_QPF2) && !defined(QT_NO_FREETYPE)
         case QFontEngine::QPF2:
             static_cast<QFontEngineQPF *>(fontEngine)->unlockFace();
             break;

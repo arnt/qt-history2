@@ -1652,7 +1652,10 @@ void QWSServerPrivate::cleanupFonts(bool force)
     if (crashedClientIds.isEmpty())
         return;
 
-    QList<QByteArray> removedFonts = QFontEngineQPF::cleanUpAfterClientCrash(crashedClientIds);
+    QList<QByteArray> removedFonts;
+#ifndef QT_NO_QWS_QPF
+    removedFonts = QFontEngineQPF::cleanUpAfterClientCrash(crashedClientIds);
+#endif
     crashedClientIds.clear();
 
     for (int i = 0; i < removedFonts.count(); ++i)
