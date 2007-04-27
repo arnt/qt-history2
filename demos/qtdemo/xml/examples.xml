@@ -118,6 +118,13 @@
     <example filename="orderform" name="Order Form" />
     <example filename="syntaxhighlighter" name="Syntax Highlighter" />
   </category>
+  <category dirname="script" name="QtScript">
+    <example filename="calculator" name="Calculator" />
+    <example filename="context2d" name="Context2D" />
+    <example filename="defaultprototypes" name="Default Prototypes" />
+    <example filename="helloscript" name="Hello Script" />
+    <example filename="tetrix" name="Tetrix" />
+  </category>
   <category dirname="sql" name="SQL">
     <example filename="cachedtable" name="Cached Table" />
     <example filename="querymodel" name="Query Model" />
