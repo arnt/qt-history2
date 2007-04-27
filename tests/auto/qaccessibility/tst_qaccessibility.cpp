@@ -2752,6 +2752,7 @@ void tst_QAccessibility::mdiSubWindowTest()
     testWindow->setEnabled(true);
     qApp->setActiveWindow(&mdiArea);
     mdiArea.setActiveSubWindow(testWindow);
+    testWindow->setFocus();
     QVERIFY(testWindow->isAncestorOf(qApp->focusWidget()));
     QVERIFY(interface->state(0) & QAccessible::Focused);
     testWindow->setGeometry(originalGeometry);
