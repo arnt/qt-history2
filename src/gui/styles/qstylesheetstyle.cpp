@@ -1088,10 +1088,44 @@ public:
     { }
 };
 
+static bool unstylable(const QWidget *w)
+{
+    if (w->windowType() == Qt::Desktop)
+        return true;
+
+#ifndef QT_NO_SCROLLAREA
+    if (const QAbstractScrollArea *sa = qobject_cast<const QAbstractScrollArea *>(w->parentWidget())) {
+        if (sa->viewport() == w)
+            return true;
+    } else
+#endif
+#ifndef QT_NO_LINEEDIT
+    if (qobject_cast<const QLineEdit *>(w)) {
+        if (0
+#ifndef QT_NO_COMBOBOX
+            || qobject_cast<const QComboBox *>(w->parentWidget())
+#endif
+#ifndef QT_NO_SPINBOX
+            || qobject_cast<const QAbstractSpinBox *>(w->parentWidget())
+#endif
+            )
+            return true;
+    }
+#endif
+    return false;
+}
+
 QVector<QCss::StyleRule> QStyleSheetStyle::styleRules(const QWidget *w) const
 {
     if (styleRulesCache->contains(w))
         return styleRulesCache->value(w);
+
+    QObject::connect(w, SIGNAL(destroyed(QObject*)), this, SLOT(widgetDestroyed(QObject*)));
+    if (unstylable(w)) {
+        QVector<StyleRule> emptyRule;
+        styleRulesCache->insert(w, emptyRule);
+        return emptyRule;
+    }
 
     QStyleSheetStyleSelector styleSelector;
 
@@ -1128,8 +1162,6 @@ QVector<QCss::StyleRule> QStyleSheetStyle::styleRules(const QWidget *w) const
 
     QVector<QCss::StyleSheet> widgetSs;
     for (const QWidget *wid = w; wid; wid = wid->parentWidget()) {
-        if (wid->styleSheet().isEmpty())
-            continue;
         StyleSheet ss;
         if (!styleSheetCache->contains(wid)) {
             Parser parser(wid->styleSheet());
@@ -1362,14 +1394,16 @@ QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, int element, int stat
         return QRenderRule();
 
     const QString part = QLatin1String(knownPseudoElements[element].name);
-    QHash<int, QRenderRule> &renderRules = (*renderRulesCache)[w][part];
+    if (renderRulesCache->contains(w)) {
+        QHash<int, QRenderRule> &renderRules = (*renderRulesCache)[w][part];
 
-    if (renderRules.contains(state))
-        return renderRules[state]; // already computed before
+        if (renderRules.contains(state))
+            return renderRules[state]; // already computed before
+    }
 
     QVector<Declaration> decls = declarations(styleRules(w), part, state);
     QRenderRule newRule(decls, w);
-    renderRules[state] = newRule;
+    (*renderRulesCache)[w][part][state] = newRule;
     return newRule;
 }
 
@@ -2001,52 +2035,25 @@ void QStyleSheetStyle::widgetDestroyed(QObject *o)
     styleRulesCache->remove((const QWidget *)o);
     renderRulesCache->remove((const QWidget *)o);
     customPaletteWidgets->remove((const QWidget *)o);
-}
-
-static bool unstylable(QWidget *w)
-{
-    if (w->windowType() == Qt::Desktop)
-        return true;
-
-#ifndef QT_NO_SCROLLAREA
-    if (QAbstractScrollArea *sa = qobject_cast<QAbstractScrollArea *>(w->parentWidget())) {
-        if (sa->viewport() == w)
-            return true;
-    } else
-#endif
-#ifndef QT_NO_LINEEDIT
-    if (qobject_cast<QLineEdit *>(w)) {
-        if (0
-#ifndef QT_NO_COMBOBOX
-            || qobject_cast<QComboBox *>(w->parentWidget())
-#endif
-#ifndef QT_NO_SPINBOX
-            || qobject_cast<QAbstractSpinBox *>(w->parentWidget())
-#endif
-            )
-            return true;
-    }
-#endif
-    return false;
+    customFontWidgets->remove((const QWidget *)o);
+    styleSheetCache->remove((const QWidget *)o);
+    autoFillDisabledWidgets->remove((const QWidget *)o);
 }
 
 void QStyleSheetStyle::polish(QWidget *w)
 {
     baseStyle()->polish(w);
-    if (unstylable(w)) {
-        styleRulesCache->insert(w, QVector<StyleRule>());
-        return;
-    }
 
-    if (styleRulesCache->contains(w)) {
+    if (styleSheetCache->contains(w)) {
         // the widget accessed its style pointer before polish (or repolish)
+        // and the stylesheet could have changed behind our back
+        styleSheetCache->remove(w);
         styleRulesCache->remove(w);
         renderRulesCache->remove(w);
     }
 
     QRenderRule rule = renderRule(w, PseudoElement_None);
     setProperties(w);
-    QObject::connect(w, SIGNAL(destroyed(QObject*)), this, SLOT(widgetDestroyed(QObject*)));
     unsetPalette(w);
     setPalette(w);
     w->setAttribute(Qt::WA_Hover);
@@ -2110,7 +2117,6 @@ void QStyleSheetStyle::repolish(QWidget *w)
 {
     QList<const QWidget *> children = qFindChildren<const QWidget *>(w, QString());
     children.append(w);
-    styleSheetCache->remove(w);
     updateWidgets(children);
 }
 
