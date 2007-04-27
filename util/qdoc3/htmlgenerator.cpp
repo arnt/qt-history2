@@ -377,6 +377,9 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
     case Atom::LegaleseRight:
         out() << "</div>";
         break;
+    case Atom::LineBreak:
+        out() << "<br />";
+        break;
     case Atom::Link:
         {
             QString myLink = getLink(atom, relative, marker);
@@ -683,12 +686,18 @@ void HtmlGenerator::generateClassLikeNode(const InnerNode *inner, CodeMarker *ma
     const NamespaceNode *namespasse = 0;
 
     QString title;
+    QString rawTitle;
+    QString fullTitle;
     if (inner->type() == Node::Namespace) {
         namespasse = static_cast<const NamespaceNode *>(inner);
-        title = marker->plainFullName(inner) + " Namespace Reference";
+        rawTitle = marker->plainName(inner);
+        fullTitle = marker->plainFullName(inner);
+        title = rawTitle + " Namespace Reference";
     } else if (inner->type() == Node::Class) {
         classe = static_cast<const ClassNode *>(inner);
-        title = marker->plainFullName(inner) + " Class Reference";
+        rawTitle = marker->plainName(inner);
+        fullTitle = marker->plainFullName(inner);
+        title = rawTitle + " Class Reference";
     }
 
     DcfSection classSection;
@@ -696,15 +705,19 @@ void HtmlGenerator::generateClassLikeNode(const InnerNode *inner, CodeMarker *ma
     classSection.ref = linkForNode(inner, 0);
     classSection.keywords += qMakePair(inner->name(), classSection.ref);
 
-    Text moduleText;
+    Text subtitleText;
+    if (rawTitle != fullTitle)
+        subtitleText << "(" << Atom(Atom::AutoLink, fullTitle) << ")"
+                     << Atom(Atom::LineBreak);
+
     QString fixedModule = inner->moduleName();
     if (fixedModule == "Qt3SupportLight")
         fixedModule = "Qt3Support";
     if (!fixedModule.isEmpty())
-        moduleText << "[" << Atom(Atom::AutoLink, fixedModule) << " module]";
+        subtitleText << "[" << Atom(Atom::AutoLink, fixedModule) << " module]";
 
     generateHeader(title, inner, marker, true);
-    generateTitle(title, moduleText, SmallSubTitle, inner, marker);
+    generateTitle(title, subtitleText, SmallSubTitle, inner, marker);
 
     generateBrief(inner, marker);
     generateIncludes(inner, marker);
@@ -1106,14 +1119,11 @@ void HtmlGenerator::generateTitle(const QString& title, const Text &subTitle,
     if (!subTitle.isEmpty()) {
         out() << "<br />";
         if (subTitleSize == SmallSubTitle)
-            out() << "<sup><sup>";
+            out() << "<span class=\"small-subtitle\">";
         else
-            out() << "<small>";
+            out() << "<span class=\"subtitle\">";
         generateText(subTitle, relative, marker);
-        if (subTitleSize == SmallSubTitle)
-            out() << "</sup></sup>";
-        else
-            out() << "</small>";
+        out() << "</span>\n";
     }
     out() << "</h1>\n";
 }
@@ -1146,12 +1156,13 @@ void HtmlGenerator::generateBrief(const Node *node, CodeMarker *marker,
 
 void HtmlGenerator::generateIncludes(const InnerNode *inner, CodeMarker *marker)
 {
-    if (!inner->includes().isEmpty())
+    if (!inner->includes().isEmpty()) {
         out() << "<pre>" << trimmedTrailing(highlightedCode(indent(codeIndent,
                                                                    marker->markedUpIncludes(
                                                                         inner->includes())),
                                                                         marker, inner))
               << "</pre>";
+    }
 }
 
 void HtmlGenerator::generateTableOfContents(const Node *node, CodeMarker *marker,
@@ -2324,7 +2335,7 @@ void HtmlGenerator::findAllFunctions(const InnerNode *node)
     NodeList::ConstIterator c = node->childNodes().begin();
     while (c != node->childNodes().end()) {
         if ((*c)->access() != Node::Private) {
-            if ((*c)->isInnerNode()) {
+            if ((*c)->isInnerNode() && (*c)->url().isEmpty()) {
                 findAllFunctions(static_cast<const InnerNode *>(*c));
             } else if ((*c)->type() == Node::Function) {
                 const FunctionNode *func = static_cast<const FunctionNode *>(*c);
@@ -2357,7 +2368,7 @@ void HtmlGenerator::findAllNamespaces(const InnerNode *node)
     NodeList::ConstIterator c = node->childNodes().begin();
     while (c != node->childNodes().end()) {
         if ((*c)->access() != Node::Private) {
-            if ((*c)->isInnerNode()) {
+            if ((*c)->isInnerNode() && (*c)->url().isEmpty()) {
                 findAllNamespaces(static_cast<const InnerNode *>(*c));
                 if ((*c)->type() == Node::Namespace) {
                     const NamespaceNode *nspace = static_cast<const NamespaceNode *>(*c);
