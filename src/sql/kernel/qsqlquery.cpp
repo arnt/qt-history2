@@ -199,12 +199,9 @@ QSqlQueryPrivate::~QSqlQueryPrivate()
     or return multiple result sets, are not fully supported. For specific
     details see \l{SQL Database Drivers}.
 
-    \warning  You cannot allocate a QSqlQuery before the SQL driver
-    is loaded; the query will return "driver not loaded" SQL errors if
-    you do so. You must also open the connection the query is for with
-    QSqlDatabase::open() before creating the query. If the connection
-    is not opened, or if you close and re-open the connection while the
-    query exists, the query's behavior is undefined.
+    \warning You must load the SQL driver and open the connection before a
+    QSqlQuery is created. Also, the connection must remain open while the
+    query exists; otherwise, the behavior of QSqlQuery is undefined.
 
     \sa QSqlDatabase, QSqlQueryModel, QSqlTableModel, QVariant
 */
