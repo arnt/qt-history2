@@ -93,7 +93,7 @@ QScriptValueIterator::~QScriptValueIterator()
 
 /*!
   Returns true if there is at least one item ahead of the iterator,
-  i.e. the iterator is \i not at the back of the property sequence;
+  i.e. the iterator is \e not at the back of the property sequence;
   otherwise returns false.
 
   \sa next(), hasPrevious()
@@ -156,7 +156,7 @@ QString QScriptValueIterator::next()
 
 /*!
   Returns true if there is at least one item behind the iterator,
-  i.e. the iterator is \i not at the front of the property sequence;
+  i.e. the iterator is \e not at the front of the property sequence;
   otherwise returns false.
 
   \sa previous(), hasNext()
