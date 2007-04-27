@@ -90,12 +90,17 @@ void QSslKeyPrivate::clear(bool deep)
 void QSslKeyPrivate::decodePem(const QByteArray &pem, const QByteArray &passPhrase,
                                bool deepClear)
 {
+    if (pem.isEmpty())
+        return;
+
     clear(deepClear);
 
     if (!QSslSocket::supportsSsl())
         return;
 
     BIO *bio = q_BIO_new_mem_buf(const_cast<char *>(pem.data()), pem.size());
+    if (!bio)
+        return;
 
     void *phrase = passPhrase.isEmpty()
         ? (void *)0
@@ -334,6 +339,9 @@ QByteArray QSslKey::toPem(const QByteArray &passPhrase) const
         return QByteArray();
 
     BIO *bio = q_BIO_new(q_BIO_s_mem());
+    if (!bio)
+        return QByteArray();
+
     bool fail = false;
 
     if (d->algorithm == QSsl::Rsa) {
