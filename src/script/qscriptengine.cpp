@@ -731,7 +731,6 @@ QScriptValue QScriptEngine::evaluate(const QString &program, int lineNumber)
 */
 QScriptValue QScriptEngine::evaluate(const QString &program)
 {
-    Q_D(QScriptEngine);
     return evaluate(program, /*lineNumber=*/0);
 }
 
