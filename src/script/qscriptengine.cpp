@@ -690,7 +690,8 @@ bool QScriptEngine::canEvaluate(const QString &program) const
 }
 
 /*!
-  Evaluates \a program and returns the result of the evaluation.
+  Evaluates \a program beginning at \a lineNumber in that program
+  and returns the result of the evaluation.
 
   The script code will be evaluated in the current context.
 
