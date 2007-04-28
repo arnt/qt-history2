@@ -1662,8 +1662,10 @@ void CppCodeParser::createExampleFileNodes(FakeNode *fake)
     int sizeOfBoringPartOfName = fullPath.size() - proFileName.size();
     fullPath.truncate(fullPath.lastIndexOf('/'));
 
-    // should not hardcode the file extensions
-    QStringList exampleFiles = Config::getFilesHere(fullPath, "*.cpp *.h");
+    // should not hardcode the file extensions.
+    // To do: create a new configuration setting and make sure its value
+    // finds its way here.
+    QStringList exampleFiles = Config::getFilesHere(fullPath, "*.cpp *.h *.js");
     if (!exampleFiles.isEmpty()) {
         // move main.cpp and to the end, if it exists
         QString mainCpp;
