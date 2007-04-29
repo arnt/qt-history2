@@ -1615,9 +1615,9 @@ QString QCompleter::pathFromIndex(const QModelIndex& index) const
 */
 QStringList QCompleter::splitPath(const QString& path) const
 {
-    Q_D(const QCompleter);
     bool isDirModel = false;
 #ifndef QT_NO_DIRMODEL
+    Q_D(const QCompleter);
     isDirModel = qobject_cast<QDirModel *>(d->proxy->sourceModel()) != 0;
 #endif
 

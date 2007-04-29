@@ -108,8 +108,8 @@ bool QAccessibleButton::doAction(int action, int child, const QVariantList &para
     case DefaultAction:
     case Press:
         {
-            QPushButton *pb = qobject_cast<QPushButton*>(object());
 #ifndef QT_NO_MENU
+            QPushButton *pb = qobject_cast<QPushButton*>(object());
             if (pb && pb->menu())
                 pb->showMenu();
             else

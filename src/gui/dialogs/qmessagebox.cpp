@@ -50,7 +50,9 @@ public:
         TextEdit(QWidget *parent=0) : QTextEdit(parent) { }
         void contextMenuEvent(QContextMenuEvent * e)
         {
-#ifndef QT_NO_CONTEXTMENU
+#ifdef QT_NO_CONTEXTMENU
+            Q_UNUSED(e);
+#else
             QMenu *menu = createStandardContextMenu();
             menu->exec(e->globalPos());
             delete menu;

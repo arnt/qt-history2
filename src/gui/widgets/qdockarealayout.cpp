@@ -1529,7 +1529,10 @@ int QDockAreaLayoutInfo::prev(int index) const
 
 void QDockAreaLayoutInfo::tab(int index, QLayoutItem *dockWidgetItem)
 {
-#ifndef QT_NO_TABBAR
+#ifdef QT_NO_TABBAR
+    Q_UNUSED(index);
+    Q_UNUSED(dockWidgetItem);
+#else
     if (tabbed) {
         item_list.append(QDockAreaLayoutItem(dockWidgetItem));
     } else {

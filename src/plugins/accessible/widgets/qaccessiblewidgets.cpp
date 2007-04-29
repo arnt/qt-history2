@@ -87,6 +87,9 @@ static inline int distance(QWidget *source, QWidget *target,
 static inline QWidget *mdiAreaNavigate(QWidget *area,
                                        QAccessible::RelationFlag relation, int entry)
 {
+#if defined(QT_NO_MDIAREA) && defined(QT_NO_WORKSPACE)
+    Q_UNUSED(area);
+#endif
 #ifndef QT_NO_MDIAREA
     const QMdiArea *mdiArea = qobject_cast<QMdiArea *>(area);
 #endif
