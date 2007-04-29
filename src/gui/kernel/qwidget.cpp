@@ -4449,11 +4449,11 @@ void QWidget::clearFocus()
             SetFocus(0);
         else
 #endif
-#ifndef QT_NO_ACCESSIBILITY
         {
+#ifndef QT_NO_ACCESSIBILITY
             QAccessible::updateAccessibility(this, 0, QAccessible::Focus);
-        }
 #endif
+        }
     }
 }
 
