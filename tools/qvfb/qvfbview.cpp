@@ -20,7 +20,6 @@
 #include <QPainter>
 #include <QImage>
 #include <QBitmap>
-#include <QTimer>
 #include <QMatrix>
 #include <QPaintEvent>
 #include <QScrollArea>
@@ -257,7 +256,7 @@ void QVFbView::refreshDisplay(const QRect &r)
         }
     }
     if (!r.isNull())
-	repaint();
+	update(r);
 }
 
 QImage QVFbView::getBuffer(const QRect &r, int &leading) const
@@ -397,12 +396,9 @@ static int findMultiple(int start, double m, int limit, int step)
     return r;
 }
 
-void QVFbView::drawScreen()
+void QVFbView::drawScreen(const QRect &rect)
 {
-    QPainter p(this);
-
-    /* later just draw the update */
-    QRect r(0, 0, mView->width(), mView->height());
+    QRect r = rect & QRect(0, 0, mView->width(), mView->height());
 
     if (int(hzm) != hzm || int(vzm) != vzm) {
         r.setLeft(findMultiple(r.left(),hzm,0,-1));
@@ -485,8 +481,8 @@ void QVFbView::drawScreen()
         m.rotate(rotation * 90.0);
         pm = pm.transformed(m);
     }
-    p.setPen(Qt::black);
-    p.setBrush(Qt::white);
+
+    QPainter p(this);
     p.drawPixmap(x1, y1, pm, leadingX, leadingY, pm.width(), pm.height());
 }
 
@@ -499,16 +495,9 @@ void QVFbView::drawScreen()
 //    return QWidgetView::eventFilter(obj, e);
 //}
 
-void QVFbView::paintEvent(QPaintEvent * /*pe*/)
+void QVFbView::paintEvent(QPaintEvent *e)
 {
-    /*
-      QRect r(pe->rect());
-      r = QRect(int(r.x()/hzm),int(r.y()/vzm),
-      int(r.width()/hzm)+1,int(r.height()/vzm)+1);
-
-      mView->flushChanges();
-    */
-    drawScreen();
+    drawScreen(e->rect());
 }
 
 void QVFbView::mousePressEvent(QMouseEvent *e)

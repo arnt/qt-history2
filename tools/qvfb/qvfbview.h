@@ -79,7 +79,7 @@ protected slots:
 
 protected:
     QImage getBuffer(const QRect &r, int &leading) const;
-    void drawScreen();
+    void drawScreen(const QRect &r);
     void sendMouseData(const QPoint &pos, int buttons, int wheel);
     void sendKeyboardData(QString unicode, int keycode, int modifiers,
 			   bool press, bool repeat);
