@@ -245,7 +245,7 @@ QVariant SpreadSheetItem::computeFormula(const QString &formula,
 }
 
 #if !defined(QT_NO_DBUS) && defined(Q_OS_UNIX)
-#include <QtDBus>
+#include <QtDBus/QtDBus>
 
 class SpreadSheetAdaptor : public QDBusAbstractAdaptor
 {

@@ -14,7 +14,7 @@
 #ifndef QDBUSBINDING_H
 #define QDBUSBINDING_H
 
-#include <QtDBus>
+#include <QtDBus/QtDBus>
 #include <QtScript/qscriptable.h>
 #include <QtScript/qscriptengine.h>
 
