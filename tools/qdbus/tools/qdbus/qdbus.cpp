@@ -19,7 +19,7 @@
 #include <QtCore/qmetaobject.h>
 #include <QtXml/QDomDocument>
 #include <QtXml/QDomElement>
-#include <QtDBus>
+#include <QtDBus/QtDBus>
 #include <private/qdbusutil_p.h>
 
 static QDBusConnection connection(QLatin1String(""));

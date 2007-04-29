@@ -21,7 +21,7 @@
 #include <QtCore/qtextstream.h>
 #include <QtCore/qset.h>
 
-#include <QtDBus>
+#include <QtDBus/QtDBus>
 #include "private/qdbusmetaobject_p.h"
 #include "private/qdbusintrospection_p.h"
 
