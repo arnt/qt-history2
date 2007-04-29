@@ -191,7 +191,7 @@ static void qt_debug_path(const QPainterPath &path)
     \o Qt::WindingFill
     \endtable
 
-    See the Qt::Fillrule documentation for the definition of the
+    See the Qt::FillRule documentation for the definition of the
     rules. A painter path's currently set fill rule can be retrieved
     using the fillRule() function, and altered using the setFillRule()
     function.
