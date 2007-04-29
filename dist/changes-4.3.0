@@ -465,23 +465,52 @@ Third party components
 
     * [127724] Support OUT values from stored procedures. (See SQL Database Drivers
       documentation for details).
+    * [260478] Fixed crash when fetching data from Interbase 2007 databases.
+    * [143474] Added support for SQL security based roles.
+    * [134608] Fixed bug where queries in some cases returned empty VARCHAR fields
+      it they contained non-ascii characters.
+    * [143471] Fixed bug that caused fetching multisegment BLOB fields to fail
+      in some cases.
+    * [125053] Fixed bugs where NUMERIC fields were corrupted or returned as 
+      wrong type in some cases.   
 
 - MySQL driver
+    * [156342] Fixed bug where BINARY and VARBINARY fields were returned as QString
+      instead of QByteArray.
+    * [144331] Fixed bug where a query would become unusable after executing a
+      stored procedure returning multiple result sets.
 
 - OCI driver
 
     * Added support for low-precision retrieval of floating point numbers.
+    * [124834] Fixed bug where the binding strings failed on certain setups.
+    * [154518] Fixed bug where connections were not properly terminated, which lead
+      to resource leaks and connection failures.
 
 - ODBC driver
 
     * Performance increase for iterating a query backwards.
     * [89844] Added support for fetching multiple error messages from an ODBC driver.
+    * [114440] Fixed bug where binding strings longer that 127 characters failed
+      with MS Access databases.
+    * [139891] Fixed bug where unsigned ints were returned as ints.
 
 - SQLite driver
+    * [130799] Improved support for attatched databases when used with
+      QSqlTableModel.
+    * [142374] Improved error message if failing to fetching a row.
 
 - PostgreSQL driver
 
     * [135403] Properly quote schemas in table names ("schema"."tablename")
+    * [138424] Fixed resource leak after failed connection attempts.
+    
+- DB2 driver
+
+    * [110259] Fixed bug where random characters were prepended to BLOB
+      fields when fetched.
+    * [91441] Fixed bug where binding strings resulted in only parts of the
+      strings being stored.
 
 ****************************************************************************
 *                             QTestLib                                     *
