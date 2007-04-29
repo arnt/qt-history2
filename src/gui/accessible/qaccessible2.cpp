@@ -92,7 +92,10 @@ static QString textForRange(QAccessibleInterface *iface, int startOffset, int en
 
 void QAccessibleSimpleEditableTextInterface::copyText(int startOffset, int endOffset)
 {
-#ifndef QT_NO_CLIPBOARD
+#ifdef QT_NO_CLIPBOARD
+    Q_UNUSED(startOffset);
+    Q_UNUSED(endOffset);
+#else
     QApplication::clipboard()->setText(textForRange(iface, startOffset, endOffset));
 #endif
 }
@@ -113,7 +116,10 @@ void QAccessibleSimpleEditableTextInterface::insertText(int offset, const QStrin
 
 void QAccessibleSimpleEditableTextInterface::cutText(int startOffset, int endOffset)
 {
-#ifndef QT_NO_CLIPBOARD
+#ifdef QT_NO_CLIPBOARD
+    Q_UNUSED(startOffset);
+    Q_UNUSED(endOffset);
+#else
     QString sub = textForRange(iface, startOffset, endOffset);
     deleteText(startOffset, endOffset);
     QApplication::clipboard()->setText(sub);
@@ -122,7 +128,9 @@ void QAccessibleSimpleEditableTextInterface::cutText(int startOffset, int endOff
 
 void QAccessibleSimpleEditableTextInterface::pasteText(int offset)
 {
-#ifndef QT_NO_CLIPBOARD
+#ifdef QT_NO_CLIPBOARD
+    Q_UNUSED(offset);
+#else
     QString txt = iface->text(QAccessible::Value, 0);
     txt.insert(offset, QApplication::clipboard()->text());
     iface->setText(QAccessible::Value, 0, txt);
