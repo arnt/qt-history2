@@ -40,7 +40,7 @@ public:
     QDateTime &getFileTime(QAbstractFileEngine::FileTime) const;
     QString getFileName(QAbstractFileEngine::FileName) const;
 
-    enum { CachedFileFlags=0x01, CachedLinkTypeFlag=0x02,
+    enum { CachedFileFlags=0x01, CachedLinkTypeFlag=0x02, CachedBundleTypeFlag=0x04,
            CachedMTime=0x10, CachedCTime=0x20, CachedATime=0x40,
            CachedSize =0x08 };
     struct Data {
@@ -173,14 +173,17 @@ QFileInfoPrivate::getFileName(QAbstractFileEngine::FileName name) const
 uint
 QFileInfoPrivate::getFileFlags(QAbstractFileEngine::FileFlags request) const
 {
-    // we split the testing for LinkType and the rest because, in order to
-    // determine if a file is a symlink or not, we have to lstat(). If we're not
-    // interested in that information, we might as well avoid one extra syscall.
+    // We split the testing into tests for for LinkType, BundleType and the rest.
+    // In order to determine if a file is a symlink or not, we have to lstat(). 
+    // If we're not interested in that information, we might as well avoid one 
+    // extra syscall. Bundle detecton on Mac can be slow, expecially on network
+    // paths, so we separate out that as well.
 
     QAbstractFileEngine::FileFlags flags;
     if (!data->getCachedFlag(CachedFileFlags)) {
         QAbstractFileEngine::FileFlags req = QAbstractFileEngine::FileInfoAll;
         req &= (~QAbstractFileEngine::LinkType);
+        req &= (~QAbstractFileEngine::BundleType);
 
         flags = data->fileEngine->fileFlags(req);
         data->setCachedFlag(CachedFileFlags);
@@ -199,6 +202,18 @@ QFileInfoPrivate::getFileFlags(QAbstractFileEngine::FileFlags request) const
             flags |= linkflag;
         }
     }
+
+    if (request & QAbstractFileEngine::BundleType) {
+        if (!data->getCachedFlag(CachedBundleTypeFlag)) {
+            QAbstractFileEngine::FileFlags bundleflag;
+            bundleflag = data->fileEngine->fileFlags(QAbstractFileEngine::BundleType);
+
+            data->setCachedFlag(CachedBundleTypeFlag);
+            data->fileFlags |= uint(bundleflag);
+            flags |= bundleflag;
+        }
+    }
+
     // no else branch
     // if we had it cached, it was caught in the previous else branch
 

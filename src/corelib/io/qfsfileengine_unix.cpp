@@ -583,7 +583,7 @@ QAbstractFileEngine::FileFlags QFSFileEngine::fileFlags(FileFlags type) const
             else if (exists && (d->st.st_mode & S_IFMT) == S_IFDIR)
                 ret |= DirectoryType;
 #if !defined(QWS) && defined(Q_OS_MAC)
-            if(ret & DirectoryType) {
+            if((ret & DirectoryType) && (type & BundleType)) {
                 QCFType<CFURLRef> url = CFURLCreateWithFileSystemPath(0, QCFString(d->filePath),
                                                                       kCFURLPOSIXPathStyle, true);
                 UInt32 type, creator;

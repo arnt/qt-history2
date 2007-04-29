@@ -49,6 +49,7 @@ public:
     enum {
         CachedFileFlags = 0x01,
         CachedLinkTypeFlag = 0x02,
+        CachedBundleTypeFlag= 0x04,
         CachedMTime = 0x10,
         CachedCTime = 0x20,
         CachedATime = 0x40,
