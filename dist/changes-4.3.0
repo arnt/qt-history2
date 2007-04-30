@@ -40,6 +40,10 @@ Third party components
 *                          Library                                         *
 ****************************************************************************
 
+- QAbstractButton
+    * [138210] Ensure strictly alternating ordering of signals resulting from
+      autorepeating shortcut. Also fix repeat timer infinite retriggering bug.
+
 - QAbstractItemView
     * [111503] Give the focus back to the view when the tab key is pressed
       while inside an editor.
@@ -54,6 +58,7 @@ Third party components
       to happen.
     * [139247] click on a partially visible item was triggering a scroll and the 
       wrong item was then clicked.
+    * [137729] Use dropAction() instead of proposedAction() in QAbstractItemView::dropEvent().
 
 - QAbstractSlider
     * [76155] Fixed bug where the slider handle did not stop under the mouse.
@@ -168,6 +173,7 @@ Third party components
     * [136380] QDir's permission filters on Unix now behave the same as on
       Windows (previously the filters' behavior was reversed on Unix).
     * [158610] Passing QDir::Unsorted now properly bypasses sorting.
+    * [136989] Report removed dirs as non-existent.
 
 - QFrame
     * [156112] Fixed bug where the default frame was not correct when created without a parent and
@@ -179,6 +185,7 @@ Third party components
 - QDialog
     * [131396] Fixed a crash in QDialog::exec() when the dialog was
       deleted from an event handler.
+    * [124269] Hide size grip for extended dialogs.
 
 - QDirIterator
     * New class
@@ -202,6 +209,9 @@ Third party components
 - QIcon
     * Added cacheKey() as a replacement for serialNumber().
     * Fixed QIcon streaming operators.
+
+- QInputDialog
+    * [115565] Disable OK button for non-acceptable text (getInteger() and getDouble()).
 
 - QIntValidator, QDoubleValidator
     * Validators recognise numbers formatted in various locales, depending on their "locale"
@@ -278,6 +288,7 @@ Third party components
     * [156104] Disable input methods when not in the "Normal" edit mode.
     * [157355] Fixed drag-n-drop bug on Mac when dragging inside the widget.
     * [151328] Removed caret when text is selected on Mac.
+    * [136919] Replace fewer non-printable characters with spaces.
 
 - QDoubleSpinBox
     * [99254] Allow higher settings for decimals
@@ -554,6 +565,8 @@ Third party components
     * Added deviceTransform(), which returns a matrix that maps between item
       and device (viewport) coordinates.
     * Added ItemSceneChange notification flag.
+    * [128696] Enable moving of editable text item.
+    * [148268 and 128684] Improve highlighting of selected items.
 
 - QGraphicsScene
     * [130614] Add QGraphicsScene::invalidate(), for resetting the cache
@@ -650,6 +663,7 @@ Third party components
     * [138924] The filename in the file dialog is set when printing to a file
     * [141486] Made QPrintDialog::setPrintRange correctly update the print dialog on X11.
     * [154690] "Print last page first" did not update the QPrinter instance on X11.
+    * [149991] Support more text encodings in the PPD subdialog.
 
 - QPrinter
     * Added QPrinter::supportedPaperSources()
@@ -663,6 +677,7 @@ Third party components
     * [146855] setFormat() now calls update() if the format changes.
     * [152227] Improved support for wide ranges (INT_MIN - INT_MAX).
     * [248795] QProgressBar::setRange() is now a slot.
+    * [137020] Ensure setValue() forces repaint for %v.
 
 - QProgressDialog
     * [248795] QProgressDialog::setRange() is now a slot.
@@ -904,6 +919,7 @@ Third party components
     * [142074] Scrollbars are no more shown when there is no item.
     * [143127] QTreeView would not emit the collapsed() signal when the animated 
       property was set to true.
+    * [145199] Fix crash when column 0 with expanded items was removed and inserted.
 
 - QTreeWidget
     * [159078] Fixed drag-n-drop bug on Mac when dragging inside the widget. 
@@ -961,6 +977,10 @@ Third party components
 - QWindowsStyle:
     * [142599] Drawing a CE_DockWidgetTitle by using the style doesn't require to have
       a QDockWidget subclass. 
+
+- QWizard
+- QWizardPage
+    * New classes. Based on QtWizard and QtWizardPage in Qt 4 Solutions. Redesign of QWizard from Qt 3.
 
 - QXmlSimpleReader
     * QXmlSimpleReader no longer reads entire file into memory, allowing
@@ -1020,6 +1040,7 @@ Third party components
     * [133589] Fixed performance problems with plain text labels.
     * Fixed support for buddies with richtext labels.
     * [136918] Fixed setText() to not turn off mouse tracking when the text is plain.
+    * [143063] Reset mouse cursor upon clicking link.
 
 - QTextFormat
     * [156343] Fix crash when streaming QTextFormat instances.
@@ -1039,6 +1060,7 @@ Third party components
 - QTextStream
     * [133063] atEnd() now works properly with stdin.
     * [152819] Added support for reading and writing NaN and INF.
+    * [125496] Ensure uppercasebase and uppercasedigits work as expected.
 
 - QSplashScreen
     * [38269] Added support for rich text.
@@ -1231,6 +1253,7 @@ X11
       QTextEdit.
     * [124723] Fixed PseudoColor detection to correctly handle cases
       where the colormap is not sequential.
+    * [140484] Don't use GLib event dispatcher if GLib version is too old.
 
 Windows
 -------
