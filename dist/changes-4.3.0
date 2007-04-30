@@ -11,6 +11,9 @@ General Improvements
 - The whole Qt source compiles with the QT_NO_CAST_FROM_ASCII and QT_NO_CAST_TO_ASCII defines and therefore is more robust when using codecs.
 - Added support for HP-UX 11i (Itanium) with the aCC compiler
 
+- Changed dialogs to respond much better to the LanguageChange event. (i.e. run-time translation
+  now works much better.)
+
 Third party components
 ----------------------
 
@@ -32,9 +35,14 @@ Third party components
     * [156290] When the ScrollMode is set to ScrollPerItem, scroll slower.
     * When displaying dates and numbers, the item view classes use their locale
       property, allowing easy customization.
+    * Fix a repaint issue with the focus rect if selection mode is NoSelection
 
 - QAccessible
     * Added preliminary support for the upcomming IAccessible2 standard
+    * Improvements to most of the accessible interfaces.
+    * [154534] Make sure that our accessible interfaces honour QWidget::setAccessibleName() and
+               QWidget::setAccessibleDescription() better.
+    * Avoid crash if QAccessibleInterface::object() returns 0. (it is absolutely legal)
 
 - QApplication
     * Add a flash() method for marking windows that need attention.
@@ -136,6 +144,9 @@ Third party components
       in a QMainWindow.
     * [135878] Titlebars now support mnemonics properly.
 
+- QGridLayout
+    * [156497] Fix a one-off error in that caused the bottom button in a QDialogButtonBox to be 
+               cropped off with one pixel.
 - QSettings
     * [153758] Fixed various bugs when writing and reading from Windows registry.
 
@@ -183,7 +194,8 @@ Third party components
     * Added dirEntered() and filterSelected() signals which existed in
       Qt3's file dialog.
     * [130353] Fixed Qt/Mac native filedialog pattern splitting
-
+    * [140332] Make QFileDialog respond much better to the LanguageChange event.
+    * [154173] Fix a memory deallocation error.
 
 - QFileInfo
     * Do not follow symbolic link for Mac FS hidden flag detection.
@@ -199,6 +211,10 @@ Third party components
     * [136008] Improved tolerance for servers with no EPRT/EPSV support.
     * [150607] Fixed a race condition when using ActiveMode for uploading.
 
+- QFSFileEngine
+    * Fix bug in fileTime() on Win98 and WinME
+    * Make sure we set the working directory of a windows shortcut when a link is created.
+
 - QHeaderView
     * Now uses Qt::NoFocus for its default focus policy
     * [99569] Speedups providing up to a 2X speed increase for some cases
@@ -213,8 +229,34 @@ Third party components
 - QItemSelectionModel
     * Optimizations for some common cases.
 
+- QLayout
+    * New features to Qt's layout system:
+      - Can specify independent values of all of the four margins.
+      - Can specify horizontalSpacing and verticalSpacing in QGridLayout.
+      - The spacing between layout items can now be different.
+      - Layout items can now occupy parts of the margin or spacing.
+
+- QLibrary
+    * QLibrary::load() would discard the real error message if the error was something else than 
+      ERROR_MOD_NOT_FOUND. (Win32)
+    * QLibrary::load() would not load a library with no suffix. (because LoadLibrary automagically
+      appended the .dll suffix on Win32)
+    * If we loaded a library without specifying a suffix, and the file found had the .dll suffix,
+      fileName() would not return the fileName found, but the fileName searched for.
+    * [156276] Fix behaviour of unload() to return true only if the library could be *unloaded*.
+
 - QListView
     * [136614] Batched mode did not display the last item of the batch.
+    * Fix some issues with jerky scrolling in ScrollPerItem mode if the gridsize was different 
+      from the delegates size hint.
+    * [113437] Avoid some very noticeable flicker on slow systems in Batched mode. (The first batch
+      is laid out immediately; no need to wait for the timer).
+    * [114473] Added new property to QListView: selectionRectVisible
+    * Fix a bug where too many items was selected.
+    * [136614] QListView::Batched did not display the last item when number of items was a multiple
+      of batchSize.
+    * If we had a gridSize different from itemSize we could some times end up with wrong scrollbar
+      range.
 
 - QLocale
     * Locale database updated to CLDR 1.4: more locales supported, numerous
@@ -261,6 +303,8 @@ Third party components
     * [113989] Added some fuzziness to the snapto detection.
     * [155030] Do not disable command actions when merge is disabled.
     * [131702] The tearoff menu no longer appears only once.
+    * [138464] If a popup menu does not ffit on the right-hand side of the screen, align it to the
+      right side of the parent widget instead of the left side.
 
 - QMenuBar
     * [135320] Make QMenuBar::show() a no-op to on Mac OS X to prevent
@@ -431,9 +475,11 @@ Third party components
 - QTabBar
     * [126438] Added int tabAt(const QPoint &pos) const
     * [143760] Scroll buttons are now never shown when setUsesScrollButtons(false)
+    * [130089] Make the tooplip help show up on disabled tabs also.
 
 - QTabWidget
     * TabWidget now takes ownership of corner widgets and allows setting 0 on the corner widget.
+    * [142464] It should not be possible to navigate to disabled tabs.
 
 - QTimeEdit
     * [136043] Fixed the USER properties.
@@ -481,6 +527,9 @@ Third party components
 
 - QString
     * fromUtf8() now discards UTF-8 encoded byte order marks just like the UTF-8 QTextCodec
+
+- QStringListModel
+    * Make it possible to drop items below the other visible items on a view with a QStringListModel
 
 - QSystemTrayIcon
     * [131892] Mac OS X will issue messages to growl via AppleScript now.
@@ -562,6 +611,7 @@ Third party components
     * [152065] Fixed cases where currentCharFormatChanged would not be emitted.
     * [154151] The undoAvailable and redoAvailable signals are no longer emitted too many
       times when entering or pasting text.
+    * [137706] Make the semantics of the selectionChanged signal more alike QLineEdit::selectionChanged()
 
 - QToolButton
     * [130358] Send Hover to the associated QAction upon enter.
@@ -575,6 +625,10 @@ Third party components
     * [157790] It was possible to get in a state where clicking on +/-
       to expand an item didn't do anything until elsewhere in thew view
       was clicked.
+    * Make it possible to do a selection with a rectangle with negative width or height.
+    * [153238] If a drop is done on the branch it should be dropped on the root node.
+    * [152868] Fix setSelection() so that it works with a negative y-coordinate.
+    * [156522] Fix repaint errors for selections in -reverse mode.
 
 - QTextLayout
     * Fixed support for justified arabic text.
@@ -582,6 +636,7 @@ Third party components
 
 - QTreeWidget
     * [153361] Check that an item exists before emiting itemChanged().
+    * [155700] Fix a crash in QTreeWidget.
 
 - QToolBox
     * [107787] Fixed rendering bugs in reverse mode.
@@ -619,6 +674,11 @@ Third party components
 
 - Q3ListView
     * [150781] Fixed a crash in setOpen() (previously fixed in Qt 3).
+
+- Q3ScrollView
+    * [125149] Mouse events should not be delivered if the Q3ScrollView is disabled.
+      This fixed the case where items was still selectable when Q3ListVies was disabled using 
+      setEnabled() method.
 
 - Q3TextEdit
     * [136214] Fixed invalid memory reads when using undo/redo-functionality.
@@ -668,6 +728,7 @@ Third party components
     * [113472] Fix drawing of text on vertical headers when resizing.
     * [148509] Draw with the correct font for buttons and labels when desktop settings aware is false.
     * [106100] Improve the look of QPushButtons with menus.
+    * Fixes to Qt's layout system that enables more native looking forms.
 
 - QUrl
     * [134604] Fixed the behavior dirPath() on Windows (obsolete member)
@@ -977,12 +1038,24 @@ Examples
     * [90085] Make the resource editor consume a little less horizontal real estate.
 
 - Linguist
-    * Translations can be exported to XLIFF.
+    * Translations can be exported and imported to XLIFF.
     * [136633] Fixed "Find" so that it searched in comments.
     * [129163] "Next Unifinished" did not work if we did not have a selected item.
+    * [125131] Make the translation loading behaviour consistent with Assistant and Qt Designer.
+    * [125130] Added the command-line argument -resourceDir (for consistency with Assistant and Qt Designer)
+               be able to specify path of translation files.
+    * [124932] Xml files (.ts and .xlf) are now written in platform-specific line endings.
+    * [128081] Don't shift focus away from the treeview if moving up or down with the keys.
+               Use Shift+Ctrl+{K,L} instead if you really want this behaviour.
+    * [139079] Add documentation of the TS file format. (DTD)
 
 - lupdate
     * Small improvements in lupdates pro parser.
+    * Pro parser: Fix bug in inclusion of relative pri files.
+    * [140581] Improve namespace/context parsing in lupdate.
+    * [142373] Running lupdate on a SUBDIRS pro file did not create any TS files.
+    * [135991] Handle pro-file comments within a list of several variable assignments.
+    * [154553] Fix bug with CODECFORTR that caused saving of incorrect characters.
 
 - lrelease
 
@@ -1016,7 +1089,7 @@ Examples
     * [129950] -wrap option added, it generates a wrapper class which is qt3 source compatible
 
 - qmake
-    * Support for /bigobj option in the vcproj generator.
+    * [132154] Support for /bigobj option in the vcproj generator.
     * [260738] Fixed crash with dependency analysis.
     * Do not add cleanup rules for extra compilers with no inputs.
     * LEX/YACC support has been moved into .prf files.
@@ -1046,3 +1119,4 @@ Examples
       really does remove the destination symbolic links.
     * subdir generator will now use - to separate target words and _ to
       separate internally appended words.
+    * [125557] Fix broken generation of dependencies for extra compilers.
