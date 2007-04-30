@@ -8,6 +8,7 @@ General Improvements
 - Configuration/Compilation
     * Fixed OpenBSD and NetBSD build issues.
 - Added support for CP949 Korean Codec
+- The whole Qt source compiles with the QT_NO_CAST_FROM_ASCII and QT_NO_CAST_TO_ASCII defines and therefore is more robust when using codecs.
 
 Third party components
 ----------------------
@@ -36,6 +37,9 @@ Third party components
 
 - QApplication
     * Add a flash() method for marking windows that need attention.
+
+- QBitArray
+    * [158816] Fix crash in operator~()
 
 - QCalendarWidget
     * Don't set maximum width for month/year buttons
@@ -335,6 +339,9 @@ Third party components
     * [125285] Only emit dataChanged() once when setItemData() is used to set data for
       more than one role.
 
+- QTextCodec
+    * The UTF-8 codec have had a number of improvements in its handling of large, rare codepoints.
+
 - QTextCursor
     * The definition of the block char format (QTextCursor::blockCharFormat/QTextBlock::charFormat)
       has been changed to be the format used only when inserting text into an empty block.
@@ -343,6 +350,9 @@ Third party components
       If the block is empty the block character format is returned.
       List markers are now also drawn with the character format of the first character in a block
       instead of the invisible block character format.
+
+- QTextDecoder
+    * Add hasFailure() that indicates whether the input was correctly encoded.
 
 - QTextTable
     * [138905] Fixed bug where merging cells in a QTextTable would cause text to end up in the
@@ -424,6 +434,14 @@ Third party components
     * QXmlSimpleReader no longer reads entire file into memory, allowing
       it to handle large XML files.
 
+- QXmlParseException
+    * [137998] SystemId/publicId was never reported.
+
+- QDomDocument
+    * [128594] Indent comment nodes.
+    * [144781] Crash fix for not adjusting the ownerDocument of new attributes.
+    * [107123] Check that appendChild() doesn't add two elements to document nodes.
+
 - Q3DateEdit
     * [131577] Fix a bug with typing in out-of-range years in a Q3DateEdit
 
@@ -443,11 +461,16 @@ Third party components
     * [133589] Fixed performance problems with plain text labels.
     * Fixed support for buddies with richtext labels.
 
+- QTextFormat
+    * [156343] Fix crash when streaming QTextFormat instances.
+
 - QTextLayout
     * [140165] Changed boundingRect() to not always report (0, 0) as top left corner but the actual position
       of the top left line.
     * Fixed various problems with text kerning.
 
+- QtGlobal
+    * Add Q_FUNC_INFO, a macro that expands to a string describing the function it is used in.
 - QSplashScreen
     * [38269] Added support for rich text.
 
@@ -521,6 +544,11 @@ Third party components
 ****************************************************************************
 
     * [138388] Floating point numbers are printed in printf's "%g" format.
+    * [145643] QEXPECT_FAIL does not copy or take ownership of "comment" pointer.
+    * [156346] Gracefully handle calls to qFatal().
+    * [154013] Don't count skips as passes.
+    * [145208] Display QByteArrays in convenient ways.
+    * Output well-formed XML.
 
 ****************************************************************************
 *                               QDBus                                      *
