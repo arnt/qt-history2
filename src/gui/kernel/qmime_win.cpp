@@ -35,7 +35,11 @@
 #ifndef CF_DIBV5
 #define CF_DIBV5 17
 #endif
-#define BMP_LCS_sRGB  'sRGB'
+/* The MSVC compilers allows multi-byte characters, that has the behavior of
+ * that each character gets shifted into position. 0x73524742 below is for MSVC
+ * equivalent to doing 'sRGB', but this does of course not work
+ * on conformant C++ compilers. */
+#define BMP_LCS_sRGB  0x73524742
 #define BMP_LCS_GM_IMAGES  0x00000004L
 
 struct _CIEXYZ {
