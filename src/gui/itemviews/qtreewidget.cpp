@@ -352,9 +352,11 @@ QMap<int, QVariant> QTreeModel::itemData(const QModelIndex &index) const
     QTreeWidgetItem *itm = item(index);
     if (itm) {
         int column = index.column();
-        for (int i = 0; i < itm->values.at(column).count(); ++i) {
-            roles.insert(itm->values.at(column).at(i).role,
-                         itm->values.at(column).at(i).value);
+        if (column < itm->values.count()) {
+            for (int i = 0; i < itm->values.at(column).count(); ++i) {
+                roles.insert(itm->values.at(column).at(i).role,
+                             itm->values.at(column).at(i).value);
+            }
         }
 
         // the two special cases
