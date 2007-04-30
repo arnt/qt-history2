@@ -638,22 +638,28 @@ void QFtpDTP::socketReadyRead()
         }
     } else {
         if (!is_ba && data.dev) {
-            QByteArray ba;
-            ba.resize(socket->bytesAvailable());
-            qint64 bytesRead = socket->read(ba.data(), ba.size());
-            if (bytesRead < 0) {
-                // a read following a readyRead() signal will
-                // never fail.
-                return;
-            }
-            ba.resize(bytesRead);
-            bytesDone += bytesRead;
+            do {
+                QByteArray ba;
+                ba.resize(socket->bytesAvailable());
+                qint64 bytesRead = socket->read(ba.data(), ba.size());
+                if (bytesRead < 0) {
+                    // a read following a readyRead() signal will
+                    // never fail.
+                    return;
+                }
+                ba.resize(bytesRead);
+                bytesDone += bytesRead;
 #if defined(QFTPDTP_DEBUG)
-            qDebug("QFtpDTP read: %lli bytes (total %lli bytes)", bytesRead, bytesDone);
+                qDebug("QFtpDTP read: %lli bytes (total %lli bytes)", bytesRead, bytesDone);
 #endif
-            emit dataTransferProgress(bytesDone, bytesTotal);
-            if (data.dev)       // make sure it wasn't deleted in the slot
-                data.dev->write(ba);
+                if (data.dev)       // make sure it wasn't deleted in the slot
+                    data.dev->write(ba);
+                emit dataTransferProgress(bytesDone, bytesTotal);
+
+                // Need to loop; dataTransferProgress is often connected to
+                // slots that update the GUI (e.g., progress bar values), and
+                // if events are processed, more data may have arrived.
+            } while (socket->bytesAvailable());
         } else {
 #if defined(QFTPDTP_DEBUG)
             qDebug("QFtpDTP readyRead: %lli bytes available (total %lli bytes read)",
