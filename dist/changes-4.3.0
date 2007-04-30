@@ -331,6 +331,10 @@ Third party components
 - QTableView
     * No longer allow invalid spans to be created.
 
+- QTableWidget
+    * [125285] Only emit dataChanged() once when setItemData() is used to set data for
+      more than one role.
+
 - QTextCursor
     * The definition of the block char format (QTextCursor::blockCharFormat/QTextBlock::charFormat)
       has been changed to be the format used only when inserting text into an empty block.
