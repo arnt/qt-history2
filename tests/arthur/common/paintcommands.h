@@ -37,10 +37,16 @@ class PaintCommands
 public:
     // construction / initialization
     PaintCommands(const QStringList &cmds, int w, int h)
-        : m_painter(0), m_surface_painter(0),
-          m_commands(cmds), m_gradientSpread(QGradient::PadSpread),
-          m_width(w), m_height(h), m_verboseMode(false), m_type(WidgetType),
-          m_checkers_background(true), m_gradientCoordinate(QGradient::LogicalMode)
+        : m_painter(0)
+        , m_surface_painter(0)
+        , m_commands(cmds)
+        , m_gradientSpread(QGradient::PadSpread)
+        , m_gradientCoordinate(QGradient::LogicalMode)
+        , m_width(w)
+        , m_height(h)
+        , m_verboseMode(false)
+        , m_type(WidgetType)
+        , m_checkers_background(true)
     { staticInit(); }
 
 public:
@@ -234,7 +240,12 @@ public:
     struct PaintCommandInfos
     {
         PaintCommandInfos(QString id, void (PaintCommands::*p)(QRegExp), QRegExp r, QString sy, QString sa)
-            : identifier(id), syntax(sy), sample(sa), regExp(r), paintMethod(p) {}
+            : identifier(id)
+            , regExp(r)
+            , syntax(sy)
+            , sample(sa)
+            , paintMethod(p)
+            {}
         PaintCommandInfos(QString title)
             : identifier(title), paintMethod(0) {}
         bool isSectionHeader() const { return paintMethod == 0; }

@@ -117,7 +117,7 @@ QList<QPair<QString,QStringList> > PaintCommands::s_enumsTable = QList<QPair<QSt
 
 #define ADD_ENUMLIST(listCaption, cStrArray) { \
         QStringList list; \
-        for (int i=0; i<sizeof(cStrArray)/sizeof(char*); i++) \
+        for (int i=0; i<int(sizeof(cStrArray)/sizeof(char*)); i++)      \
         list << cStrArray[i]; \
         s_enumsTable << qMakePair(QString(listCaption), list); \
     }
@@ -1514,7 +1514,7 @@ void PaintCommands::command_rotate(QRegExp re)
     double angle = convertToDouble(caps.at(1));
 
     if (m_verboseMode)
-        printf(" - rotate(%d)\n", angle);
+        printf(" - rotate(%.2f)\n", angle);
 
     m_painter->rotate(angle);
 }
@@ -1953,7 +1953,7 @@ void PaintCommands::command_setRenderHint(QRegExp re)
 }
 
 /***************************************************************************************************/
-void PaintCommands::command_clearRenderHint(QRegExp re)
+void PaintCommands::command_clearRenderHint(QRegExp /*re*/)
 {
     m_painter->setRenderHint(QPainter::Antialiasing, false);
     m_painter->setRenderHint(QPainter::SmoothPixmapTransform, false);
