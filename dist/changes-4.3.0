@@ -44,6 +44,12 @@ Third party components
     * [139247] click on a partially visible item was triggering a scroll and the 
       wrong item was then clicked.
 
+- QAbstractSlider
+    * [76155] Fixed bug where the slider handle did not stop under the mouse.
+
+- QAbstractSocket
+    * [128546] Fixed bug where an error was emitted with the wrong type.
+
 - QAccessible
     * Added preliminary support for the upcomming IAccessible2 standard
     * Improvements to most of the accessible interfaces.
@@ -98,6 +104,9 @@ Third party components
     * [150768] inserting items doesn't change the current text on editable comboboxes.
     * [150902] The only button on the mouse that can open the popup list is left one.
     * [150735] Fixed pop-up hiding behind top-level windows on Mac. 
+    * [156700] Fixed bug where the popup was closed when pressing the scroll arrows.
+    * [133328] Fixed bug where disabled entries were not grayed out.
+    * [134085] Fixed bug where QComboBox::AdjustToContents had no effect.
 
 - QFontComboBox
     * [132826] QFontComboBox popup could be shown off-screen.
@@ -115,12 +124,17 @@ Third party components
     * Remove legacy behavior which assumed that a year between 0 and 99 was meant 1900 + year in
       QDateTime
     * [40085, 153114, 145167] Fix bugs in parsing strings into dates.
+    * [122047] 0 to 99 are no longer interepreted as 1900 to 1999.
     * [136043] Fixed the USER properties.
 
 - QDir
     * [136380] QDir's permission filters on Unix now behave the same as on
       Windows (previously the filters' behavior was reversed on Unix).
     * [158610] Passing QDir::Unsorted now properly bypasses sorting.
+
+- QFrame
+    * [156112] Fixed bug where the default frame was not correct when created without a parent and
+      reparented afterwards.
 
 - QDial
     * [151897] Even With tracking disabled, the signal sliderMoved() is emitted
@@ -158,6 +172,9 @@ Third party components
 - QVariant
     * [127225] Unloading a GUI plugin will no longer cause crash in
       QVariant in QtCore application.
+
+- QDir
+    * [129488] Fixed cleanPath for paths with "foo/../bar" pattern.
 
 - QDesktopWidget
     * [135002] emit signal after resize takes place on Mac OS X.
@@ -267,6 +284,9 @@ Third party components
 - QGraphicsItem
     * [151271] Fixed crash when calling update on items that are not fully constructed.
 
+- QFileSystemWatcher
+    * [143381] Fixed bug where addPath/removePath would fail when passing an empty string.
+
 - QGraphicsItemAnimation
     * [140522] Fixed special case interpolation bug.
     * [140079] Fixed multiple insertations for the same step.
@@ -276,6 +296,7 @@ Third party components
     * [99569] Speedups providing up to a 2X speed increase for some cases
     * [146292] It was under certain circumstances impossible to resize the last section.
     * [144452] setDefaultAlignment had no effect.
+    * [156453] Fixed resizing of columns causing branches to be drawn in the next column.
 
 - QHostInfo
     * [141946] No longer stops working after destroying QCoreApplication.
@@ -390,6 +411,8 @@ Third party components
       space (neither above neither below) to display it.
     * [131010] adding an action and setting its menu would prevent the action from 
       being triggered through its shortcut.
+    * [142749] Fixed bug where setEnabled(false) had no effect on Mac OSX.
+    * [141255] Make it possible to set the menu bar application-wide with setParent(0) on Mac OSX.
 
 - QMessageBox
     * [119777] Pressing Ctrl+C in message boxes on Windows copies text to clipboard
@@ -540,6 +563,7 @@ Third party components
     * [128964] Make "Print" button the default
     * [138924] The filename in the file dialog is set when printing to a file
     * [141486] Made QPrintDialog::setPrintRange correctly update the print dialog on X11.
+    * [154690] "Print last page first" did not update the QPrinter instance on X11.
 
 - QPrinter
     * Added QPrinter::supportedPaperSources()
@@ -699,6 +723,7 @@ Third party components
     * [145458] Tooltip fading now looks native on Mac (fading out rather than in).
     * [145557] Tooltips doesn't remain if the mouse leaves the application fast on Mac.
     * [143701] Tooltips doesn't hide behind stay-on-top windows on Mac.
+    * [158794] Fixed bug on Mac OSX here isVisible() returns true even though the tip is hidden.
 
 - QTextDocumentFragment
     * QTextDocumentFragment no more stores the root frame properties,
@@ -736,6 +761,7 @@ Third party components
 
 - QToolButton
     * [130358] Send Hover to the associated QAction upon enter.
+    * [106760] Fixed bug where the button was drawn as pressed when using MenuButtonPopup as popup mode.
 
 - QTableView
     * [158096] resizeColumnToContents(int i) now has the same behaviour as 
@@ -791,6 +817,8 @@ Third party components
       how individual widgets display dates and numbers.
     * [155100] Fixed a regression causing Qt::FramelessWindowHint to be ignored for frameless windows.
     * [137190] Setting a window mask is now rendered correct with respect to shadow on Mac.
+    * [139182] Added a new function, render(), that renders the widget into another QPaintDevice.
+    * [131917] Fixed bug where min/max sizes were not respected when using X11BypassWindowManagerHint.
 
 - QWindowsStyle
     * [110784] Scrollbar and spinbox arrows now scale with the widget size.
@@ -859,9 +887,13 @@ Third party components
       while using the waitFor... functions.
     * [152838] No longer emits finished() if the process couldn't start.
 
+- QPushButton
+    * [132211] Fixed setDefault() behavior.
+
 - QLabel
     * [133589] Fixed performance problems with plain text labels.
     * Fixed support for buddies with richtext labels.
+    * [136918] Fixed setText() to not turn off mouse tracking when the text is plain.
 
 - QTextFormat
     * [156343] Fix crash when streaming QTextFormat instances.
@@ -880,6 +912,15 @@ Third party components
 
 - QSplashScreen
     * [38269] Added support for rich text.
+
+- QSizeGrip
+    * Added support for having size grips in TopLeftCorner/TopRightCorner on Windows.
+    * Added support for having size grips on Qt::SubWindows.
+    * [150109] Fixed bug where the position (x,y) could change during resize.
+    * [156114] Fixed wrong size grip orientation on X11.
+
+- QSplitter
+    * [139262] Fixed bug where the splitter was snapping back and forth.
 
 - QMacStyle
     * [159270] Fix icon drawing on buttons with no text.
@@ -901,6 +942,9 @@ Third party components
     * [141980] Text with small font sizes is now centered vertically correct inside pushbuttons.
     * [149631] Choose beveled button types if the text doesn't fit rather than cutting the text.
     * [151500] Fixed QPushButton text clipping.
+    * [147653] Sort indicator was drawn on top of the text in QHeaderView.
+    * [139149] Fixed issues with CE_SizeGrip in "right to left" mode.
+    * [139311] Improved drawing of the title in QGroupBox.
 
 - QUrl
     * [134604] Fixed the behavior dirPath() on Windows (obsolete member)
@@ -1030,20 +1074,20 @@ Windows
     * [111501] SPI_SETWORKAREA message now triggers a triggers a workAreaResized().
     * [141633] Fixed commandline parsing for GUI applications.
     * [134984] SockAct events wont be triggered from processEvents(ExcludeSocketNotifiers).
-    * [134164] The toplevel widgets with MSWindowsFixedSizeDialogHint are
-    centered properly.
+    * [134164] The toplevel widgets with MSWindowsFixedSizeDialogHint are centered properly.
     * [145270] Fixed mapFromGlobal() and mapToGlobal() for minimized or
-    invisible widgets.
+      invisible widgets.
     * [132695] Fixed a potential crash when changing the application style after
       the system theme had been changed.
-    * [103739] Workspace title bars now respect custom titlebar heights on XP and 
-style.
+    * [103739] Workspace title bars now respect custom titlebar heights on XP and style.
     * [48770] Improved size grip behavior in toplevel windows.
     * [113739] Fixed an issue when using QWidget::scroll() with onScreenPaint.
     * [129589] Added support for moving the mouse cursor to the default button in dialogs.
     * [139120] Added support for resolving native file icons through QFileIconProvider.
     * [129927] Added QWindowsVista style.
     * [106437] Removed WindowsXPStyle from QStyleFactory:keys() on platforms where it is not available.
+    * [109814] Improved UNC path support.
+
 - ActiveQt
     * When loading a typelib file to obtain information about a control it
       now processes the typelib correctly.
@@ -1130,6 +1174,7 @@ Qtopia Core
       QAbstractFontEngine and QFontEnginePlugin.
     * The default font has been changed to the DejaVu Sans family.
     * Fixed QFontDatabase::addApplicationFont for Qtopia Core.
+    * [131714] Fixed performance problems with drag'n drop.
 
 ****************************************************************************
 *                   Significant Documentation Changes                      *
