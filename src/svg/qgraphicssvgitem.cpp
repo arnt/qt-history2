@@ -100,7 +100,7 @@ public:
     black->setElementId(QLatin1String("black_joker"));
 
     red->setSharedRenderer(renderer);
-    red->setElementId(QLatin1String("black_joker"));
+    red->setElementId(QLatin1String("red_joker"));
     \endcode
 
     Size of the item can be set via the setSize() method or via
