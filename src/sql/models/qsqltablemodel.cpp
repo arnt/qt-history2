@@ -915,7 +915,7 @@ void QSqlTableModel::sort(int column, Qt::SortOrder order)
 }
 
 /*!
-    Sets the sort oder for \a column to \a order. This does not
+    Sets the sort order for \a column to \a order. This does not
     affect the current data, to refresh the data using the new
     sort order, call select().
 
