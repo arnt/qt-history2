@@ -46,6 +46,9 @@ public:
     QByteArray mainWindowState() const;
     void setMainWindowState(const QByteArray &mainWindowState);
 
+    QByteArray toolBoxState() const;
+    void setToolBoxState(const QByteArray &state);
+
     QByteArray toolBarsState() const;
     void setToolBarsState(const QByteArray &mainWindowState);
 

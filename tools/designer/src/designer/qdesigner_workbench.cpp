@@ -170,6 +170,11 @@ QDesignerWorkbench::~QDesignerWorkbench()
         Q_ASSERT(mw != 0);
 
         settings.setMainWindowState(mw->saveState(2));
+    } else if (m_mode == TopLevelMode) {
+        QDesignerToolWindow *widgetBoxWrapper = findToolWindow(core()->widgetBox());
+        if (widgetBoxWrapper) {
+            settings.setToolBoxState(widgetBoxWrapper->saveState());
+        }
     }
     removeToolBarManager();
 
@@ -438,6 +443,12 @@ void QDesignerWorkbench::switchToNeutralMode()
         QMainWindow *mw = qobject_cast<QMainWindow*>(m_mdiArea->window());
         QDesignerSettings settings;
         settings.setMainWindowState(mw->saveState(2));
+    } else if (m_mode == TopLevelMode) {
+        QDesignerToolWindow *widgetBoxWrapper = findToolWindow(core()->widgetBox());
+        if (widgetBoxWrapper) {
+            QDesignerSettings settings;
+            settings.setToolBoxState(widgetBoxWrapper->saveState());
+        }
     }
 
     if (m_mode != NeutralMode) {
@@ -615,6 +626,7 @@ void QDesignerWorkbench::switchToTopLevelMode()
 
     // The widget box is special, it gets the menubar and gets to be the main widget.
 
+    QDesignerSettings settings;
     if (widgetBoxWrapper) {
         m_core->setTopLevel(widgetBoxWrapper);
 #ifndef Q_WS_MAC
@@ -631,9 +643,9 @@ void QDesignerWorkbench::switchToTopLevelMode()
 
         widgetBoxWrapper->insertToolBarBreak(m_formToolBar);
         createToolBarManager(widgetBoxWrapper);
+        widgetBoxWrapper->restoreState(settings.toolBoxState());
     }
 
-    QDesignerSettings settings;
     bool found_visible_window = false;
     foreach (QDesignerToolWindow *tw, m_toolWindows) {
         tw->setParent(magicalParent(), magicalWindowFlags(tw));

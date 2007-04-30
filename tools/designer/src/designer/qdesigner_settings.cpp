@@ -158,6 +158,16 @@ void QDesignerSettings::setMainWindowState(const QByteArray &mainWindowState)
     setValue(QLatin1String("MainWindowState"), mainWindowState);
 }
 
+QByteArray QDesignerSettings::toolBoxState() const
+{
+    return value(QLatin1String("ToolBoxState")).toByteArray();
+}
+
+void QDesignerSettings::setToolBoxState(const QByteArray &state)
+{
+    setValue(QLatin1String("ToolBoxState"), state);
+}
+
 QByteArray QDesignerSettings::toolBarsState() const
 {
     return value(QLatin1String("ToolBarsState")).toByteArray();
