@@ -920,9 +920,12 @@ QScriptValue QScriptEngine::importExtension(const QString &extension)
 
     Note that the template type \c{T} must be known to QMetaType.
 
-    By default, non-built-in types are represented as QVariants; you
-    can change this behavior by installing your own type conversion
-    functions with qScriptRegisterMetaType().
+    See \l{Conversion Between QtScript and C++ Types} for a
+    description of the built-in type conversion provided by
+    QtScript. By default, the types that are not specially handled by
+    QtScript are represented as QVariants (e.g. the \a value is passed
+    to newVariant()); you can change this behavior by installing your
+    own type conversion functions with qScriptRegisterMetaType().
 
     \warning This function is not available with MSVC 6. Use
     qScriptValueFromValue() instead if you need to support that
@@ -936,6 +939,10 @@ QScriptValue QScriptEngine::importExtension(const QString &extension)
     Returns the given \a value converted to the template type \c{T}.
 
     Note that \c{T} must be known to QMetaType.
+
+    See \l{Conversion Between QtScript and C++ Types} for a
+    description of the built-in type conversion provided by
+    QtScript. 
 
     \warning This function is not available with MSVC 6. Use
     qScriptValueToValue() or qscriptvalue_cast() instead if you need

@@ -116,6 +116,10 @@
   myQObject.somethingChanged.connect(myOtherQObject.doSomething);
   \endcode
 
+  When the argument is a QObject slot, the argument types of the
+  signal and slot must be compatible (i.e. QMetaObject::checkConnectArgs()
+  must return true).
+
   To disconnect from a signal, you invoke the signal's
   \c{disconnect()} function, passing the function to disconnect
   as argument:
@@ -185,6 +189,24 @@
 
   \code
   myQObject.somethingChanged("hello");
+  \endcode
+
+  \section3 Overloaded Signals and Slots
+
+  When a signal or slot is overloaded, QtScript will attempt to
+  pick the right overload based on the actual types of the QScriptValue arguments
+  involved in the function invocation. For example, if your class has slots \c{myOverloadedSlot(int)} and \c{myOverloadedSlot(QString)}, the following script code will behave reasonably:
+
+  \code
+  myQObject.myOverloadedSlot(10);   // will call the int overload
+  myQObject.myOverloadedSlot("10"); // will call the QString overload
+  \endcode
+
+  You can specify a particular overload by using array-style property access with the \l{QMetaObject::normalizedSignature()}{normalized signature} of the C++ function as the property name:
+
+  \code
+  myQObject['myOverloadedSlot(int)']("10");   // call int overload; the argument is converted to an int
+  myQObject['myOverloadedSlot(QString)'](10); // call QString overload; the argument is converted to a string
   \endcode
 
   \section2 Accessing Properties
@@ -299,6 +321,84 @@
   properties of the QObject, rather than properties that die when the
   wrapper object dies (and that aren't shared if the QObject is wrapped
   multiple times with newQObject()), you should use this option.
+
+  \section1 Conversion Between QtScript and C++ Types
+
+  QtScript will perform type conversion when a value needs to be
+  converted from the script side to the C++ side or vice versa; for
+  instance, when a C++ signal triggers a script function, or when
+  you call QScriptEngine::toScriptValue() or
+  QScriptEngine::fromScriptValue(). QtScript provides default
+  conversion for many of the built-in Qt types. You can change the
+  conversion for a type by registering your own
+  conversion functions with qScriptRegisterMetaType().
+
+  The following table describes the default conversion from a
+  QScriptValue to a C++ type:
+
+    \table 70%
+    \header \o C++ Type \o Default Conversion
+    \row    \o bool \o QScriptValue::toBoolean()
+    \row    \o int \o QScriptValue::toInt32()
+    \row    \o uint \o QScriptValue::toUInt32()
+    \row    \o float \o float(QScriptValue::toNumber())
+    \row    \o double \o QScriptValue::toNumber()
+    \row    \o short \o short(QScriptValue::toInt32())
+    \row    \o ushort \o QScriptValue::toUInt16()
+    \row    \o char \o char(QScriptValue::toInt32())
+    \row    \o uchar \o unsigned char(QScriptValue::toInt32())
+    \row    \o QDateTime \o QScriptValue::toDateTime()
+    \row    \o QDate \o QScriptValue::toDateTime().date()
+    \row    \o QRegExp \o QScriptValue::toRegExp()
+    \row    \o QObject* \o QScriptValue::toQObject()
+    \row    \o QWidget* \o QScriptValue::toQObject()
+    \row    \o QVariant \o QScriptValue::toVariant()
+    \row    \o QChar \o If the QScriptValue is a string, the result is the first character of the string, or a null QChar if the string is empty; otherwise, the result is a QChar constructed from the unicode obtained by converting the QScriptValue to a \c{ushort}.
+    \row    \o QStringList \o If the QScriptValue is an array, the result is a QStringList constructed from the result of QScriptValue::toString() for each array element; otherwise, the result is an empty QStringList.
+    \row    \o QVariantList \o If the QScriptValue is an array, the result is a QVariantList constructed from the result of QScriptValue::toVariant() for each array element; otherwise, the result is an empty QVariantList.
+    \row    \o QVariantMap \o If the QScriptValue is an object, the result is a QVariantMap with a (key, value) pair (propertyName, propertyValue.toVariant()) for each property, using QScriptValueIterator to iterate over the object's properties.
+    \row    \o QObjectList \o If the QScriptValue is an array, the result is a QObjectList constructed from the result of QScriptValue::toQObject() for each array element; otherwise, the result is an empty QObjectList.
+    \row    \o QList<int> \o If the QScriptValue is an array, the result is a QList<int> constructed from the result of QScriptValue::toInt32() for each array element; otherwise, the result is an empty QList<int>.
+    \endtable
+
+  Additionally, QtScript will handle the following cases:
+
+  \list
+  \i If the QScriptValue is a QObject and the target type name ends with a '*' (i.e. it's a pointer), the QObject pointer will be qobject_cast'ed to the target type.
+  \i If the QScriptValue is a QVariant and the target type name ends with a '*' (i.e. it's a pointer), and the \l{QVariant::userType()}{userType()} of the QVariant is the type that the target type points to, the result is a pointer to the QVariant's data.
+  \i If the QScriptValue is a QVariant and it can be converted to the target type (according to QVariant::canConvert()), the QVariant will be qvariant_cast'ed to the target type.
+  \endlist
+
+  The following table describes the default behavior when a QScriptValue
+  is constructed from a C++ type:
+
+    \table 70%
+    \header \o C++ Type \o Default Construction
+    \row    \o void \o QScriptEngine::undefinedValue()
+    \row    \o bool \o QScriptValue(engine, value)
+    \row    \o int \o QScriptValue(engine, value)
+    \row    \o uint \o QScriptValue(engine, value)
+    \row    \o float \o QScriptValue(engine, value)
+    \row    \o double \o QScriptValue(engine, value)
+    \row    \o short \o QScriptValue(engine, value)
+    \row    \o ushort \o QScriptValue(engine, value)
+    \row    \o char \o QScriptValue(engine, value)
+    \row    \o uchar \o QScriptValue(engine, value)
+    \row    \o QChar \o QScriptValue(this, value.unicode())
+    \row    \o QDateTime \o \l{QScriptEngine::newDate()}{QScriptEngine::newDate}(value)
+    \row    \o QDate \o \l{QScriptEngine::newDate()}{QScriptEngine::newDate}(value)
+    \row    \o QRegExp \o \l{QScriptEngine::newRegExp()}{QScriptEngine::newRegExp}(value)
+    \row    \o QObject* \o \l{QScriptEngine::newQObject()}{QScriptEngine::newQObject}(value)
+    \row    \o QWidget* \o \l{QScriptEngine::newQObject()}{QScriptEngine::newQObject}(value)
+    \row    \o QVariant \o \l{QScriptEngine::newVariant()}{QScriptEngine::newVariant}(value)
+    \row    \o QStringList \o A new script array (created with QScriptEngine::newArray()), whose elements are created using the QScriptValue(QScriptEngine *, QString) constructor for each element of the list.
+    \row    \o QVariantList \o A new script array (created with QScriptEngine::newArray()), whose elements are created using QScriptEngine::newVariant() for each element of the list.
+    \row    \o QVariantMap \o A new script object (created with QScriptEngine::newObject()), whose properties are initialized according to the (key, value) pairs of the map.
+    \row    \o QObjectList \o A a new script array (created with QScriptEngine::newArray()), whose elements are created using QScriptEngine::newQObject() for each element of the list.
+    \row    \o QList<int> \o A new script array (created with QScriptEngine::newArray()), whose elements are created using the QScriptValue(QScriptEngine *, int) constructor for each element of the list.
+    \endtable
+
+  Other types will be wrapped using QScriptEngine::newVariant(). For null pointers of any type, the result is QScriptEngine::nullValue().
 
   \section1 How to Design and Implement Application Objects
 
