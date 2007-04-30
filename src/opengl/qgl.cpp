@@ -1067,7 +1067,7 @@ QGLFormat::OpenGLVersionFlags Q_AUTOTEST_EXPORT qOpenGLVersionFlagsFromString(co
     (i.e., version 1.4 and lower) are also supported. To identify the
     support of a particular feature, like multi texturing, test for
     the version in which the feature was first introduced (i.e.,
-    version 1.3 in the case of multi texting) to adapt to the largest
+    version 1.3 in the case of multi texturing) to adapt to the largest
     possible group of runtime platforms.
 
     This function needs a valid current OpenGL context to work;
@@ -2233,10 +2233,11 @@ const QGLContext* QGLContext::currentContext()
     \ingroup multimedia
     \mainclass
 
-    QGLWidget provides functionality for displaying OpenGL graphics integrated into
-    a Qt application. It is very simple to use. You inherit from it and use the
-    subclass like any other QWidget, except that you have the choice between
-    using QPainter and standard OpenGL rendering commands.
+    QGLWidget provides functionality for displaying OpenGL graphics
+    integrated into a Qt application. It is very simple to use. You
+    inherit from it and use the subclass like any other QWidget,
+    except that you have the choice between using QPainter and
+    standard OpenGL rendering commands.
 
     QGLWidget provides three convenient virtual functions that you can
     reimplement in your subclass to perform the typical OpenGL tasks:
