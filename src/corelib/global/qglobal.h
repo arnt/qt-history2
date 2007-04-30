@@ -1322,7 +1322,7 @@ Q_CORE_EXPORT void qt_check_pointer(const char *, int);
 #      define Q_FUNC_INFO __FUNCSIG__
 #  endif
 #else
-#   if defined(Q_OS_SOLARIS)
+#   if defined(Q_OS_SOLARIS) || defined(Q_CC_XLC)
 #      define Q_FUNC_INFO __FILE__ "(line number unavailable)"
 #   else
         /* These two macros makes it possible to turn the builtin line expander into a
