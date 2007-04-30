@@ -1339,7 +1339,7 @@ bool QIBaseDriver::open(const QString & db,
     if (!host.isEmpty())
         ldb += host + QLatin1Char(':');
     ldb += db;
-    isc_attach_database(d->status, 0, const_cast<char *>(ldb.toLatin1().constData()),
+    isc_attach_database(d->status, 0, const_cast<char *>(ldb.toLocal8Bit().constData()),
                         &d->ibase, i, ba.data());
     if (d->isError(QT_TRANSLATE_NOOP("QIBaseDriver", "Error opening database"),
                    QSqlError::ConnectionError)) {
