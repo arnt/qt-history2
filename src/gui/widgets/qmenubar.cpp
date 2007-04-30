@@ -83,12 +83,10 @@ QRect QMenuBarPrivate::menuRect() const
     QRect result = q->rect();
     result.adjust(hmargin, 0, -hmargin, 0);
 
-    if (!extension->isHidden()) {
-        if (QApplication::layoutDirection() == Qt::RightToLeft)
-            result.setLeft(result.left() + extension->width());
-        else
-            result.setWidth(result.width() - extension->width());
-    }
+    if (QApplication::layoutDirection() == Qt::RightToLeft)
+        result.setLeft(result.left() + extension->width());
+    else
+        result.setWidth(result.width() - extension->width());
 
     if (leftWidget && leftWidget->isVisible()) {
         QSize sz = leftWidget->sizeHint();
