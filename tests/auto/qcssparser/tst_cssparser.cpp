@@ -47,6 +47,7 @@ private slots:
     void extractFontFamily();
     void extractBorder_data();
     void extractBorder();
+    void noTextDecoration();
 };
 
 void tst_CssParser::scanner_data()
@@ -1463,6 +1464,29 @@ void tst_CssParser::extractBorder()
     QVERIFY(widths[QCss::TopEdge] == expectedTopWidth);
     QVERIFY(styles[QCss::TopEdge] == expectedTopStyle);
     QVERIFY(colors[QCss::TopEdge] == expectedTopColor);
+}
+
+void tst_CssParser::noTextDecoration()
+{
+    QCss::Parser parser("dummy { text-decoration: none; }");
+    QCss::StyleSheet sheet;
+    QVERIFY(parser.parse(&sheet));
+
+    QCOMPARE(sheet.styleRules.count(), 1);
+    const QVector<QCss::Declaration> decls = sheet.styleRules.at(0).declarations;
+    QVERIFY(!decls.isEmpty());
+    QCss::ValueExtractor extractor(decls);
+
+    int adjustment = 0;
+    QFont f;
+    f.setUnderline(true);
+    f.setOverline(true);
+    f.setStrikeOut(true);
+    QVERIFY(extractor.extractFont(&f, &adjustment));
+
+    QVERIFY(!f.underline());
+    QVERIFY(!f.overline());
+    QVERIFY(!f.strikeOut());
 }
 
 QTEST_MAIN(tst_CssParser)

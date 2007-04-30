@@ -932,6 +932,11 @@ static void setTextDecorationFromValues(const QVector<Value> &values, QFont *fon
             case Value_Underline: font->setUnderline(true); break;
             case Value_Overline: font->setOverline(true); break;
             case Value_LineThrough: font->setStrikeOut(true); break;
+            case Value_None:
+                font->setUnderline(false);
+                font->setOverline(false);
+                font->setStrikeOut(false);
+                break;
             default: break;
         }
     }
