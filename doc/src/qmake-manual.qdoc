@@ -1434,7 +1434,7 @@
     All libraries that the \l{#TARGET}{target} depends on can be
     listed in this variable. Some backends do not support this, these include
     MSVC Dsp, and ProjectBuilder .pbproj files. Generally this is support
-    internally by these build tools, this is usefull for explicitly listing
+    internally by these build tools, this is useful for explicitly listing
     dependant static libraries.
 
     This list will go after all builtin (and \link #PRE_TARGETDEPS
@@ -1446,7 +1446,7 @@
     All libraries that the \l{#TARGET}{target} depends on can be
     listed in this variable. Some backends do not support this, these include
     MSVC Dsp, and ProjectBuilder .pbproj files. Generally this is support
-    internally by these build tools, this is usefull for explicitly listing
+    internally by these build tools, this is useful for explicitly listing
     dependant static libraries.
 
     This list will go before all builtin dependencies.
