@@ -631,19 +631,15 @@ Qtopia Core
 -----------
 
     * Better support for compiling a LSB (Linux Standard Base) compliant Qtopia Core library.
-    * [253123] Allow blocking the key/mouse event that stops the screen saver
+    * [133365] Allow blocking the key/mouse event that stops the screen saver
       at a particular level - QWSServer::setScreenSaverBlockLevel().
-
     * A new font subsystem has been implemented that by default allows sharing
       glyphs rendered at run-time to be shared between applications. A new
       pre-rendered font format (QPF2) has also been implemented together with
       a new "makeqpf" tool to generate them.
-
     * Support for custom font engine plugins has been added through
       QAbstractFontEngine and QFontEnginePlugin.
-
     * The default font has been changed to the DejaVu Sans family.
-
     * Fixed QFontDatabase::addApplicationFont for Qtopia Core.
 
 ****************************************************************************
