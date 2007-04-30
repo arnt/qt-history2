@@ -39,7 +39,7 @@ extern QString qt_mac_no_ampersands(QString str); //qmenu_mac.cpp
     QNSImageView *imageCell;
 }
 -(id)initWithIcon:(QSystemTrayIcon*)icon;
--(void)free;
+-(void)dealloc;
 -(QSystemTrayIcon*)icon;
 -(NSStatusItem*)item;
 -(QRectF)geometry;
@@ -98,7 +98,7 @@ public:
     }
     ~QSystemTrayIconSys() {
         QMacCocoaAutoReleasePool pool;
-        [item free];
+        [[[item item] view] setHidden: YES];
         [item release];
     }
     QNSStatusItem *item;
@@ -246,6 +246,7 @@ void QSystemTrayIconPrivate::showMessage_sys(const QString &title, const QString
     down = NO;
     return self;
 }
+
 -(QSystemTrayIcon*)icon {
     return [parent icon];
 }
@@ -303,10 +304,11 @@ void QSystemTrayIconPrivate::showMessage_sys(const QString &title, const QString
     }
     return self;
 }
--(void)free {
+-(void)dealloc {
     [[NSStatusBar systemStatusBar] removeStatusItem:item];
     [imageCell release];
     [item release];
+    [super dealloc];
 
 }
 
