@@ -992,6 +992,7 @@ void tst_QListView::scrollTo()
     QCOMPARE(lv.visualRect(index).x(), 0);
 
     lv.setWrapping(false);
+    qApp->processEvents(); //let the layout happen
 
     //Let's try with scrolling per pixel
     lv.setHorizontalScrollMode( QListView::ScrollPerPixel);
