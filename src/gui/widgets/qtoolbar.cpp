@@ -1062,6 +1062,8 @@ void QToolBar::initStyleOption(QStyleOptionToolBar *option) const
     option->features = d->layout->movable()
                         ? QStyleOptionToolBar::Movable
                         : QStyleOptionToolBar::None;
+    // if the tool bar is not in a QMainWindow, this will make the painting right
+    option->toolBarArea = Qt::NoToolBarArea;
 
     // Add more styleoptions if the toolbar has been added to a mainwindow.
     QMainWindow *mainWindow = qobject_cast<QMainWindow *>(parentWidget());
