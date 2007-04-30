@@ -711,8 +711,11 @@ QDebug operator<<(QDebug dbg, const QPolygonF &a)
 /*!
     \since 4.3
 
+    \fn bool QPolygonF::containsPoint(const QPointF &point, Qt::FillRule fillRule)
+    const
+
     Returns true if the given \a point is inside the polygon according to
-    the specified winding rule, otherwise returns false.
+    the specified \a fillRule; otherwise returns false.
 */
 bool QPolygonF::containsPoint(const QPointF &pt, Qt::FillRule fillRule) const
 {
@@ -741,8 +744,10 @@ bool QPolygonF::containsPoint(const QPointF &pt, Qt::FillRule fillRule) const
 /*!
     \since 4.3
 
+    \fn bool QPolygon::containsPoint(const QPointF &point, Qt::FillRule fillRule)
+    const
     Returns true if the given \a point is inside the polygon according to
-    the specified winding rule, otherwise returns false.
+    the specified \a fillRule; otherwise returns false.
 */
 bool QPolygon::containsPoint(const QPointF &pt, Qt::FillRule fillRule) const
 {
@@ -768,6 +773,14 @@ bool QPolygon::containsPoint(const QPointF &pt, Qt::FillRule fillRule) const
             : ((winding_number % 2) != 0));
 }
 
+/*!
+    \since 4.3
+
+    Returns a polygon which is the union of this polygon and \a r.
+
+    \sa intersected(), subtracted()
+*/
+
 QPolygon QPolygon::united(const QPolygon &r) const
 {
     QPainterPath subject; subject.addPolygon(*this);
@@ -775,6 +788,12 @@ QPolygon QPolygon::united(const QPolygon &r) const
 
     return subject.united(clip).toFillPolygon().toPolygon();
 }
+
+/*!
+    \since 4.3
+
+    Returns a polygon which is the intersection of this polygon and \a r.
+*/
 
 QPolygon QPolygon::intersected(const QPolygon &r) const
 {
@@ -784,6 +803,12 @@ QPolygon QPolygon::intersected(const QPolygon &r) const
     return subject.intersected(clip).toFillPolygon().toPolygon();
 }
 
+/*!
+    \since 4.3
+
+    Returns a polygon which is \a r subtracted from this polygon.
+*/
+
 QPolygon QPolygon::subtracted(const QPolygon &r) const
 {
     QPainterPath subject; subject.addPolygon(*this);
@@ -791,6 +816,14 @@ QPolygon QPolygon::subtracted(const QPolygon &r) const
 
     return subject.subtracted(clip).toFillPolygon().toPolygon();
 }
+
+/*!
+    \since 4.3
+
+    Returns a polygon which is the union of this polygon and \a r.
+
+    \sa intersected(), subtracted()
+*/
 
 QPolygonF QPolygonF::united(const QPolygonF &r) const
 {
@@ -800,6 +833,12 @@ QPolygonF QPolygonF::united(const QPolygonF &r) const
     return subject.united(clip).toFillPolygon();
 }
 
+/*!
+    \since 4.3
+
+    Returns a polygon which is the intersection of this polygon and \a r.
+*/
+
 QPolygonF QPolygonF::intersected(const QPolygonF &r) const
 {
     QPainterPath subject; subject.addPolygon(*this);
@@ -807,6 +846,12 @@ QPolygonF QPolygonF::intersected(const QPolygonF &r) const
 
     return subject.intersected(clip).toFillPolygon();
 }
+
+/*!
+    \since 4.3
+
+    Returns a polygon which is \a r subtracted from this polygon.
+*/
 
 QPolygonF QPolygonF::subtracted(const QPolygonF &r) const
 {
