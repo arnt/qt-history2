@@ -577,7 +577,7 @@ Windows
     * [134164] The toplevel widgets with MSWindowsFixedSizeDialogHint are centered properly.
 
 - ActiveQt
-    * [260763] When loading a typelib file to obtain information about a control it
+    * When loading a typelib file to obtain information about a control it
       now processes the typelib correctly.
     * [158990] Ambient property change events are now emitted regardless of the
       container state.
