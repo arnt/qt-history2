@@ -1834,6 +1834,7 @@ void tst_QTreeWidget::itemData()
 {
     QTreeWidget widget;
     QTreeWidgetItem item(&widget);
+    widget.setColumnCount(2);
     item.setFlags(item.flags() | Qt::ItemIsEditable);
     item.setData(0, Qt::DisplayRole,  QString("0"));
     item.setData(0, Qt::CheckStateRole, Qt::PartiallyChecked);
@@ -1841,9 +1842,13 @@ void tst_QTreeWidget::itemData()
     item.setData(0, Qt::UserRole + 1, QString("2"));
     item.setData(0, Qt::UserRole + 2, QString("3"));
     item.setData(0, Qt::UserRole + 3, QString("4"));
+
     QMap<int, QVariant> flags = widget.model()->itemData(widget.model()->index(0, 0));
     QCOMPARE(flags.count(), 6);
     QCOMPARE(flags[Qt::UserRole + 0].toString(), QString("1"));
+
+    flags = widget.model()->itemData(widget.model()->index(0, 1));
+    QCOMPARE(flags.count(), 0);
 }
 
 void tst_QTreeWidget::enableDisable()
