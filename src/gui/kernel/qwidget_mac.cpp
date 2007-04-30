@@ -798,12 +798,6 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef er, EventRef event,
                         qWarning("QWidget::repaint: Recursive repaint detected");
 
                     QPoint redirectionOffset(0, 0);
-                    // handle the first paintable point since Mac doesn't.
-                    if(QWidget *tl = widget->window()) {
-                        if(tl->d_func()->extra && !tl->d_func()->extra->mask.isEmpty())
-                            redirectionOffset += tl->d_func()->extra->mask.boundingRect().topLeft();
-                    }
-
                     //setup the context
                     widget->setAttribute(Qt::WA_WState_InPaintEvent);
                     QPaintEngine *engine = widget->paintEngine();
@@ -819,17 +813,12 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef er, EventRef event,
                             qDebug(" Handling erase for [%s::%s]", widget->metaObject()->className(),
                                    widget->objectName().local8Bit().data());
 #endif
-                        if (!redirectionOffset.isNull()) {
-                            QPainter::setRedirected(widget, widget, redirectionOffset);
-                            rr.setWidth(rr.width()+redirectionOffset.x());
-                            rr.setHeight(rr.height()+redirectionOffset.y());
-                        }
                         bool was_unclipped = widget->testAttribute(Qt::WA_PaintUnclipped);
                         widget->setAttribute(Qt::WA_PaintUnclipped, false);
                         QPainter p(widget);
                         if(was_unclipped)
                             widget->setAttribute(Qt::WA_PaintUnclipped);
-                        p.setClipRegion(qrgn.translated(redirectionOffset));
+                        p.setClipRegion(qrgn);
 
                         QAbstractScrollArea *scrollArea = qobject_cast<QAbstractScrollArea *>(widget->parent());
                         if (scrollArea && scrollArea->viewport() == widget) {
@@ -846,8 +835,6 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef er, EventRef event,
                             p.fillRect(rr, tint);
                         }
                         p.end();
-                        if (!redirectionOffset.isNull())
-                            QPainter::restoreRedirected(widget);
                     } else if(0) {
                         QRect qrgnRect = qrgn.boundingRect();
                         CGContextClearRect(cg, CGRectMake(qrgnRect.x(), qrgnRect.y(), qrgnRect.width(), qrgnRect.height()));
@@ -986,7 +973,7 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef er, EventRef event,
                     // We have to 'fake' enter and leave events for the shaddowed widgets:
                     if (QDragManager::self()->currentTarget())
                         QDragManager::self()->currentTarget()->d_func()->qt_mac_dnd_event(kEventControlDragLeave, drag);
-                    if (dropWidget){    
+                    if (dropWidget){
                         dropWidget->d_func()->qt_mac_dnd_event(kEventControlDragEnter, drag);
                         dropWidget = 0;
                     }
@@ -1005,7 +992,7 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef er, EventRef event,
                 const Boolean wouldAccept = drag_allowed ? true : false;
                 SetEventParameter(event, kEventParamControlWouldAcceptDrop, typeBoolean,
                         sizeof(wouldAccept), &wouldAccept);
-            }            
+            }
         } else if (ekind == kEventControlBoundsChanged) {
             if (!widget || widget->isWindow() || widget->testAttribute(Qt::WA_Moved) || widget->testAttribute(Qt::WA_Resized)) {
                 handled_event = false;
