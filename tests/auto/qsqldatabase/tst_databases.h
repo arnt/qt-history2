@@ -152,6 +152,10 @@ public:
 //	addDb("QIBASE", "silence.troll.no:c:\\ibase\\testdb", "SYSDBA", "masterkey", ""); // InterBase 7.5 on silence
 //	addDb("QIBASE", "silence.troll.no:c:\\ibase\\testdb_ascii", "SYSDBA", "masterkey", ""); // InterBase 7.5 on silence
 
+	// Anders' local Firebird and InterBase test databases
+//	addDb("QIBASE", "localhost:c:\\Firebird\\Firebird_2_0\\TESTDB.FDB", "SYSDBA", "masterkey", ""); // FireBird 2.0	
+//	addDb("QIBASE", "localhost:c:\\Borland\\InterBase\\TESTDB_UTF8.IB", "SYSDBA", "masterkey", ""); // InterBase 2007 Developer
+
 	// use in-memory database to prevent local files
 	addDb("QSQLITE", ":memory:");
 //	addDb("QSQLITE", "/tmp/foo.db");
