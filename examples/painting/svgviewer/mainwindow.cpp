@@ -91,7 +91,9 @@ void MainWindow::openFile(const QString &path)
 
 void MainWindow::setRenderer(QAction *action)
 {
+    #ifndef QT_NO_OPENGL
     highQualityAntialiasingAction->setEnabled(false);
+    #endif
 
     if (action == nativeAction)
         area->setRenderer(SvgWindow::Native);
