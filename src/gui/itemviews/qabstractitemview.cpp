@@ -2926,6 +2926,7 @@ void QAbstractItemView::startDrag(Qt::DropActions supportedActions)
             return;
         QRect rect;
         QPixmap pixmap = d->renderToPixmap(indexes, &rect);
+        rect.adjust(horizontalOffset(), verticalOffset(), 0, 0);
         QDrag *drag = new QDrag(this);
         drag->setPixmap(pixmap);
         drag->setMimeData(data);
