@@ -608,6 +608,7 @@ QFontEngine *loadSingleEngine(int script, const QFontPrivate *fp,
                 QFontEngineQPF *fe = new QFontEngineQPF(def, -1, engine);
                 if (fe->isValid())
                     return fe;
+                delete fe;
 #endif
                 engine = 0;
             } else {
