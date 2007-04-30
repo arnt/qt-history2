@@ -101,13 +101,6 @@ void tst_QScriptValue::ctor()
         QCOMPARE(v.toNumber(), 1.0);
     }
     {
-        QScriptValue v(&eng, qlonglong(1));
-        QCOMPARE(v.isValid(), true);
-        QCOMPARE(v.isNumber(), true);
-        QCOMPARE(v.isObject(), false);
-        QCOMPARE(v.toNumber(), 1.0);
-    }
-    {
         QScriptValue v(&eng, 1.0);
         QCOMPARE(v.isValid(), true);
         QCOMPARE(v.isNumber(), true);
@@ -385,14 +378,6 @@ void tst_QScriptValue::toInt32()
     QCOMPARE(number6.toInt32(), -456);
     QCOMPARE(qscriptvalue_cast<qint32>(number6), -456);
 
-    QScriptValue number7 = QScriptValue(&eng, Q_INT64_C(0x100000000));
-    QCOMPARE(number7.toInt32(), 0);
-    QCOMPARE(qscriptvalue_cast<qint32>(number7), 0);
-
-    QScriptValue number8 = QScriptValue(&eng, Q_INT64_C(0x100000001));
-    QCOMPARE(number8.toInt32(), 1);
-    QCOMPARE(qscriptvalue_cast<qint32>(number8), 1);
-
     QScriptValue inv;
     QCOMPARE(inv.toInt32(), 0);
     QCOMPARE(qscriptvalue_cast<qint32>(inv), 0);
@@ -431,14 +416,6 @@ void tst_QScriptValue::toUInt32()
     QScriptValue number6 = QScriptValue(&eng, -456.5);
     QCOMPARE(number6.toUInt32(), quint32(-456));
     QCOMPARE(qscriptvalue_cast<quint32>(number6), quint32(-456));
-
-    QScriptValue number7 = QScriptValue(&eng, Q_INT64_C(0x100000000));
-    QCOMPARE(number7.toUInt32(), quint32(0));
-    QCOMPARE(qscriptvalue_cast<quint32>(number7), quint32(0));
-
-    QScriptValue number8 = QScriptValue(&eng, Q_INT64_C(0x100000001));
-    QCOMPARE(number8.toUInt32(), quint32(1));
-    QCOMPARE(qscriptvalue_cast<quint32>(number8), quint32(1));
 
     QScriptValue inv;
     QCOMPARE(inv.toUInt32(), quint32(0));

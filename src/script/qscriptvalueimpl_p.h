@@ -64,21 +64,6 @@ inline QScriptValueImpl::QScriptValueImpl(QScriptEnginePrivate *engine, uint val
     engine->newNumber(this, val);
 }
 
-inline QScriptValueImpl::QScriptValueImpl(QScriptEnginePrivate *engine, qlonglong val)
-{
-    engine->newNumber(this, val);
-}
-
-inline QScriptValueImpl::QScriptValueImpl(QScriptEnginePrivate *engine, qulonglong val)
-{
-#if defined(Q_OS_WIN) && _MSC_FULL_VER <= 12008804
-#pragma message("** NOTE: You need the Visual Studio Processor Pack to compile support for 64bit unsigned integers.")
-    engine->newNumber(this, (qlonglong)val);
-#else
-    engine->newNumber(this, val);
-#endif
-}
-
 inline QScriptValueImpl::QScriptValueImpl(QScriptEnginePrivate *engine, qsreal val)
 {
     engine->newNumber(this, val);

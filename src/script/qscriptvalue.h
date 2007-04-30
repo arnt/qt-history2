@@ -83,8 +83,6 @@ public:
     QScriptValue(QScriptEngine *engine, bool val);
     QScriptValue(QScriptEngine *engine, int val);
     QScriptValue(QScriptEngine *engine, uint val);
-    QScriptValue(QScriptEngine *engine, qlonglong val);
-    QScriptValue(QScriptEngine *engine, qulonglong val);
     QScriptValue(QScriptEngine *engine, qsreal val);
     QScriptValue(QScriptEngine *engine, const QString &val);
 

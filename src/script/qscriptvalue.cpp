@@ -233,41 +233,6 @@ QScriptValue::QScriptValue(QScriptEngine *engine, uint val)
 }
 
 /*!
-  \fn QScriptValue::QScriptValue(QScriptEngine *engine, qlonglong value)
-
-  Constructs a new QScriptValue with the qlonglong \a value and
-  registers it with the script \a engine.
-*/
-QScriptValue::QScriptValue(QScriptEngine *engine, qlonglong val)
-{
-    QScriptValueImpl v;
-    QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(engine);
-    eng_p->newNumber(&v, val);
-    d_ptr = eng_p->registerValue(v);
-    d_ptr->ref.ref();
-}
-
-/*!
-  \fn QScriptValue::QScriptValue(QScriptEngine *engine, qulonglong value)
-
-  Constructs a new QScriptValue with the qulonglong \a value and
-  registers it with the script \a engine.
-*/
-QScriptValue::QScriptValue(QScriptEngine *engine, qulonglong val)
-{
-    QScriptValueImpl v;
-    QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(engine);
-#if defined(Q_OS_WIN) && _MSC_FULL_VER <= 12008804
-#pragma message("** NOTE: You need the Visual Studio Processor Pack to compile support for 64bit unsigned integers.")
-    eng_p->newNumber(&v, (qlonglong)val);
-#else
-    eng_p->newNumber(&v, val);
-#endif
-    d_ptr = eng_p->registerValue(v);
-    d_ptr->ref.ref();
-}
-
-/*!
   \fn QScriptValue::QScriptValue(QScriptEngine *engine, qsreal value)
 
   Constructs a new QScriptValue with the qsreal \a value and

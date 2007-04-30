@@ -20,12 +20,15 @@
 
 QScriptValue fromLongLong(QScriptEngine *eng, const qlonglong &ll)
 {
-    return QScriptValue(eng, ll);
+    return eng->newVariant(qVariantFromValue(ll));
 }
     
 void toLongLong(const QScriptValue &value, qlonglong &ll)
 {
-    ll = qlonglong(value.toNumber());
+    if (value.isVariant())
+        ll = value.toVariant().toLongLong();
+    else
+        ll = qlonglong(value.toNumber());
 }
 
 struct CustomType

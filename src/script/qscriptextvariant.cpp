@@ -106,18 +106,6 @@ QScriptValueImpl Variant::method_valueOf(QScriptContextPrivate *context, QScript
         case QVariant::UInt:
             return (QScriptValueImpl(eng, v.toUInt()));
 
-        case QVariant::LongLong:
-            return QScriptValueImpl(eng, qsreal(v.toLongLong())); // ###
-
-
-        case QVariant::ULongLong:
-#if defined(Q_OS_WIN) && _MSC_FULL_VER <= 12008804
-#pragma message("** NOTE: You need the Visual Studio Processor Pack to compile support for 64bit unsigned integers.")
-            return QScriptValueImpl(eng, qsreal(v.toLongLong()));
-#else
-            return QScriptValueImpl(eng, qsreal(v.toULongLong()));
-#endif
-
         default:
             return context->thisObject();
         } // switch

@@ -49,8 +49,6 @@ public:
     inline QScriptValueImpl(QScriptEnginePrivate *engine, bool val);
     inline QScriptValueImpl(QScriptEnginePrivate *engine, int val);
     inline QScriptValueImpl(QScriptEnginePrivate *engine, uint val);
-    inline QScriptValueImpl(QScriptEnginePrivate *engine, qlonglong val);
-    inline QScriptValueImpl(QScriptEnginePrivate *engine, qulonglong val);
     inline QScriptValueImpl(QScriptEnginePrivate *engine, qsreal val);
     inline QScriptValueImpl(QScriptEnginePrivate *engine, const QString &val);
     inline QScriptValueImpl(QScriptEnginePrivate *engine, QScriptNameIdImpl *val);
