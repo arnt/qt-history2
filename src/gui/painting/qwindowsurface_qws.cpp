@@ -152,6 +152,7 @@ void QWSWindowSurface::setWinId(int id)
     \since 4.2
     \ingroup qws
     \preliminary
+    \internal
 
     \brief The QWSWindowSurface class provides the drawing area for top-level
     windows in Qtopia Core.
