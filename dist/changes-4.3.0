@@ -1313,16 +1313,16 @@ Mac OS X
 
     * qtconfig is no longer available on Mac OS X. All settings are read from
       the system's configuration.
-    * [259326] Always offers a 'TEXT' type flavor for non-Pasteboard aware
+    * [156965] Always offers a 'TEXT' type flavor for non-Pasteboard aware
       Mac Application pastes.
-    * [259041] Mouse Event propagation bugs.
+    * [158087] Mouse Event propagation bugs.
     * Introduced Q_WS_MAC32/Q_WS_MAC64 for 64 vs 32 bit detection
       at compile time.
-    * [258549] Introduced WA_MacAlwaysShowToolWindow to behave as a utility
+    * [156431] Introduced WA_MacAlwaysShowToolWindow to behave as a utility
       window as opposed to a floating window.
-    * [257991] Qt will now follow the HIView focus chain to allow wrapped
+    * [155651] Qt will now follow the HIView focus chain to allow wrapped
       HIViewRef's to take focus as appropriate.
-    * [257782] Qt will not deliver mouse release events to widgets that do
+    * [149753] Qt will not deliver mouse release events to widgets that do
       not process mouse press events (including widgets with
       WA_MacNoClickThrough).
     * Introduce support for 64 bit Mac OS X builds--Only available on Mac OS X 10.5 (Leopard)
@@ -1536,8 +1536,8 @@ Examples
 - lrelease
 
 - rcc
-    * [260738] Default compression set to zlib default (normally level 6).
-    * [256265] Allow absolute paths in .qrc files (accessible through
+    * [158522] Default compression set to zlib default (normally level 6).
+    * [133837] Allow absolute paths in .qrc files (accessible through
     original filesystem path).
     * [146958] No longer returns error when a .qrc is empty, simply
     generates a (mostly) empty file.
@@ -1566,10 +1566,10 @@ Examples
 
 - qmake
     * [132154] Support for /bigobj option in the vcproj generator.
-    * [260738] Fixed crash with dependency analysis.
+    * Fixed crash with dependency analysis.
     * Do not add cleanup rules for extra compilers with no inputs.
     * LEX/YACC support has been moved into .prf files.
-    * [258558] Introduced PRECOMPILED_DIR for PCH output (defaults to OBJECTS_DIR).
+    * [156793] Introduced PRECOMPILED_DIR for PCH output (defaults to OBJECTS_DIR).
     * [257985] Fixed qmake location detection bug.
     * Strip out empty INCLUDEPATH.
     * Allow QMAKE_UUID to override qmake deteremined UUID in
