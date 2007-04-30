@@ -94,16 +94,22 @@ Third party components
 - QComboBox
     * Significantly reduced the construction time.
     * [155614] Speedup addItem() and addItems()
+    * [155614] Speedup addItem() and addItems()
     * [150768] inserting items doesn't change the current text on editable comboboxes.
     * [150902] The only button on the mouse that can open the popup list is left one.
+    * [150735] Fixed pop-up hiding behind top-level windows on Mac. 
 
 - QFontComboBox
     * [132826] QFontComboBox popup could be shown off-screen.
+    * [155614] Speedup addItem() and addItems().
 
 - QCompleter
     * Significantly reduced the construction time.
     * Added support for lazy populated models.
 
+- QCursor
+    * [154593] Fixed hotspot bug for cursors on Mac.
+    
 - QDateTime
     * [151789] Allow passing of date only format to QDateTime::fromString() (according to ISO 8601)
     * Remove legacy behavior which assumed that a year between 0 and 99 was meant 1900 + year in
@@ -128,6 +134,9 @@ Third party components
 - QDrag
     * [124962] Added QDrag::exec() to allow changing the default proposed action.
 
+- QDialog
+    * [151328] The user can explicit specify the use of buttons on the title bar on Mac.
+    
 - QImage
     * [157549] Fixed crash when calling QImage::copy with negative coordinates.
     * Added cacheKey() as a replacement for serialNumber().
@@ -208,6 +217,8 @@ Third party components
 
 - QLineEdit
     * [156104] Disable input methods when not in the "Normal" edit mode.
+    * [157355] Fixed drag-n-drop bug on Mac when dragging inside the widget.
+    * [151328] Removed caret when text is selected on Mac.
 
 - QDoubleSpinBox
     * [99254] Allow higher settings for decimals
@@ -250,6 +261,16 @@ Third party components
     * Fix bug in fileTime() on Win98 and WinME
     * Make sure we set the working directory of a windows shortcut when a link is created.
 
+- QGraphicsView
+    * [149317] Added 'NoViewportUpdate' to the set of modes for updating a view.
+    
+- QGraphicsItem
+    * [151271] Fixed crash when calling update on items that are not fully constructed.
+
+- QGraphicsItemAnimation
+    * [140522] Fixed special case interpolation bug.
+    * [140079] Fixed multiple insertations for the same step.
+    
 - QHeaderView
     * Now uses Qt::NoFocus for its default focus policy
     * [99569] Speedups providing up to a 2X speed increase for some cases
@@ -355,6 +376,9 @@ Third party components
     * [141856] QMenu.exec() would return NULL if user press mnemonic
     * [133633] Fixed focus problem with keyboard navigation in QMenu with QWidgetAction.
     * [134560] statustip was not shown with an action in a toolbutton's menu.
+    * [150545] Fixed memory leak on Mac.
+    * [138331] Fixed bug that menus stay highlighted after the closing of a dialog.
+    * Menu shortcuts are now cleared if the corresponding QAction is cleared on Mac. 
 
 - QMenuBar
     * [135320] Make QMenuBar::show() a no-op to on Mac OS X to prevent
@@ -570,6 +594,7 @@ Third party components
     * [141569] Disallow typing -0 in a QSpinBox with a positive range
     * [158445] keyboardTracking property added, when set to false don't send valueChanged() with every key press
     * [143504] Make undo/redo work.
+    * [131165] Fixed highlighting according to the native look on Mac.
 
 - QSyntaxHighligher
     * [151831] calling rehighlight() was causing highlighBlock() to be called
@@ -638,6 +663,9 @@ Third party components
 - QTextCodec
     * The UTF-8 codec have had a number of improvements in its handling of large, rare codepoints.
 
+- QTextStream
+    * [141391] Fixed bug when reusing a text stream with the setString method.
+
 - QTextCursor
     * The definition of the block char format (QTextCursor::blockCharFormat/QTextBlock::charFormat)
       has been changed to be the format used only when inserting text into an empty block.
@@ -667,6 +695,10 @@ Third party components
 
 - QToolTip
     * [135988] Allow tooltips to be shown immediately below the cursor
+    * [148546] The usage of tooltip fading now adhers to user settings on Mac.
+    * [145458] Tooltip fading now looks native on Mac (fading out rather than in).
+    * [145557] Tooltips doesn't remain if the mouse leaves the application fast on Mac.
+    * [143701] Tooltips doesn't hide behind stay-on-top windows on Mac.
 
 - QTextDocumentFragment
     * QTextDocumentFragment no more stores the root frame properties,
@@ -731,6 +763,9 @@ Third party components
     * [143127] QTreeView would not emit the collapsed() signal when the animated 
       property was set to true.
 
+- QTreeWidget
+    * [159078] Fixed drag-n-drop bug on Mac when dragging inside the widget. 
+
 - QTextLayout
     * Fixed support for justified arabic text.
     * [152248] Fixed assert in sub/superscript handling of fonts specified in pixel sizes.
@@ -755,6 +790,7 @@ Third party components
     * [139359] "locale" property added, this makes it easy to customize
       how individual widgets display dates and numbers.
     * [155100] Fixed a regression causing Qt::FramelessWindowHint to be ignored for frameless windows.
+    * [137190] Setting a window mask is now rendered correct with respect to shadow on Mac.
 
 - QWindowsStyle
     * [110784] Scrollbar and spinbox arrows now scale with the widget size.
@@ -854,10 +890,20 @@ Third party components
     * [148509] Draw with the correct font for buttons and labels when desktop settings aware is false.
     * [106100] Improve the look of QPushButtons with menus.
     * Fixes to Qt's layout system that enables more native looking forms.
+    * [151739] Buttons with an icon are now centered correct.
+    * [142672] Fixed font size bug on the drop down box for QComboBox on Mac.
+    * [148832] The button on a combobox is now showing as pressed when the combo is open.
+    * [147377] QComboBox now scales correctly on Mac.
+    * [143901] Fixed highlight color for e.g. QComboBox so that it follows the system settings on Mac.
+    * [151852] Fixed size calculation for QPushButton with an icon.
+    * [133263] Removed the coupling of text size and button kind. You can now set those independently.
+    * [133263] QPushButton now respects setFont.
+    * [141980] Text with small font sizes is now centered vertically correct inside pushbuttons.
+    * [149631] Choose beveled button types if the text doesn't fit rather than cutting the text.
+    * [151500] Fixed QPushButton text clipping.
 
 - QUrl
     * [134604] Fixed the behavior dirPath() on Windows (obsolete member)
-
 
 ****************************************************************************
 *                          Database Drivers                                *
@@ -1043,11 +1089,32 @@ Mac OS X
     * [156431] Add the Qt::WA_MacAlwaysShowToolWindow to allow Mac users to create utility-windows-style applications.
     * [144110] Fix resizing of sheets on Panther.
     * [140014] Make it possible to drag QUrls on Panther.
+    * [155312] Fixed bug when dragging several URLs to e.g. Finder.
+    * [155244] Fixed bug when dragging a URL to Finder.
+    * [153413] Fixed bug when dragging URLs between Qt applications.
+    * [152450] Fixed bug when dragging URLs to e.g the trashcan.
+    * [151158] Fixed widgets not receiveing drag events if a move event is ignored.
+    * [145876] You now always receive a drag move event directly after a drag enter event (according to the doc).
+    * [156365] Fixed event bug when dragging URLs to reveivers that only points us to a drop location.
     * [119251] Tooltips and dialogs now don't cause fullscreen windows to show their menubar and the dock.
     * [147640] Fix scrolling when between 2^15 and 2^16 pixels.
+    * [158988] A mouse enter event is now sendt before a mouse press event upon window activation.
+    * [157313] Fixed hanging bug if the system clock is adjusted backwards while using sockets.
+    * [151411] Fixed window switching bug (Cmd + ~) when showing a modal dialog with a popup.
+    * Changing a shortcut containing a cursor movement key now works correctly. 
+    * [158869] Fixed / removed showing of mnemonics.
+    * [143912] Fixed focus problem caused by mouse hovering over widgets with modal sheets.
+    * [141456] Fixed activation bug on minimized windows upon show.
+    * [155394] Fixed move and resize state not set correct upon widget initialization.
+    * [254325] Fixed sheet transparency bug.
+    * [152481] Fixed crash when clicking in a window when a modal pring dialog is showing.
+    * [143835] Removed unnecessary window updates for active windows.
+    * [145552] A mouse up event is now sendt when a window drag has finished after a mouse press.
+    * [146443] If a window is moved before it's shown the first time, it is now placed correctly upon show.
+    * [141387] Fixed bug that two fast mouse presses on different widget is seen as a click.
+    * [139087] Fixed activation for some types of shortcuts (e.g. QKeySequence(Qt::CTRL | Qt::Key_Plus)).
     * Only use Roman for determining with System Fonts, Mac OS X does the translation for us.
     * In OpenGL, opt for the 32-bit accumulation buffer over the 64-bit accumulation by default.
-
 
 Qtopia Core
 -----------
