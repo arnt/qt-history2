@@ -97,7 +97,7 @@
         }
     \endcode
     
-    If an error occurs, QSslSocket emits signal sslErrors(). In that
+    If an error occurs, QSslSocket emits signal sslErrors(const QList<QSslError> & errors). In that
     case, if no action is taken to ignore the error(s), the connection
     is dropped. To continue, despite the occurrance of an error, you
     can call ignoreSslErrors(), either from within this slot after the
@@ -152,22 +152,24 @@
 /*!
     \enum QSslSocket::SslMode
 
-    Describes the different connection modes a QSslSocket can be in.
+    Describes the connection modes available for QSslSocket.
 
-    \value UnencryptedMode The socket is unencrypted, and behaves identically
-    to QTcpSocket.
+    \value UnencryptedMode The socket is unencrypted. Its
+    behavior is identical to QTcpSocket.
 
-    \value SslClientMode The socket is a client-side SSL socket, and is either
-    encrypted, or in the handshake phase (see QSslSocket::isEncrypted()).
+    \value SslClientMode The socket is a client-side SSL socket.
+    It is either alreayd encrypted, or it is in the SSL handshake
+    phase (see QSslSocket::isEncrypted()).
 
-    \value SslServerMode The socket is a client-side SSL socket, and is either
-    encrypted, or in the handshake phase (see QSslSocket::isEncrypted()).
+    \value SslServerMode The socket is a client-side SSL socket.
+    It is either already encrypted, or it is in the SSL handshake
+    phase (see QSslSocket::isEncrypted()).
 */
 
 /*!
     \enum QSslSocket::Protocol
 
-    Describes the protocol to use for the connection.
+    Describes the protocols avaialable for the connection.
     
     \value SslV3 SSLv3
     \value SslV2 SSLv2
