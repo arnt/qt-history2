@@ -2010,6 +2010,8 @@ void QHeaderView::mouseMoveEvent(QMouseEvent *e)
             int logical = logicalIndexAt(pos);
             if (logical == d->pressed)
                 return; // nothing to do
+            else if (d->pressed != -1)
+                updateSection(d->pressed);
             d->pressed = logical;
             if (d->clickableSections && logical != -1) {
                 emit sectionTouched(d->pressed);
