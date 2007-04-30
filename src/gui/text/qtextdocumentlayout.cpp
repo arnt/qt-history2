@@ -1826,13 +1826,14 @@ QRectF QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, in
     const QTextFrameData *pd = parent ? data(parent) : 0;
 
     const qreal maximumWidth = qMax(qreal(0), pd ? pd->contentsWidth.toReal() : q_func()->document()->pageSize().width());
-
     const QFixed width = QFixed::fromReal(fformat.width().value(maximumWidth));
 
-    QTextLength height = fformat.height();
-    qreal h = height.value(pd ? pd->contentsHeight.toReal() : -1);
+    const QFixed maximumHeight = pd ? pd->contentsHeight : -1;
+    const QFixed height = (maximumHeight != -1 || fformat.height().type() != QTextLength::PercentageLength)
+                            ? QFixed::fromReal(fformat.height().value(maximumHeight.toReal()))
+                            : -1;
 
-    return layoutFrame(f, layoutFrom, layoutTo, width, QFixed::fromReal(h), parentY);
+    return layoutFrame(f, layoutFrom, layoutTo, width, height, parentY);
 }
 
 QRectF QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, int layoutTo, QFixed frameWidth, QFixed frameHeight, QFixed parentY)
