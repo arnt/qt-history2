@@ -584,6 +584,10 @@ Third party components
 - QProgressBar
     * [146855] setFormat() now calls update() if the format changes.
     * [152227] Improved support for wide ranges (INT_MIN - INT_MAX).
+    * [248795] QProgressBar::setRange() is now a slot.
+
+- QProgressDialog
+    * [248795] QProgressDialog::setRange() is now a slot.
 
 - QPushButton
     * [114245] Fixed some styling issues of push buttons with popup menus.
@@ -960,6 +964,12 @@ Third party components
 - QUrl
     * [134604] Fixed the behavior dirPath() on Windows (obsolete member)
 
+- QThread
+    * Added QThread::idealThreadCount() which returns the ideal number of threads that can be run on the system.
+
+- QtAlgorithms
+   * [140027] Improve qStableSort performance on large data sets.
+
 ****************************************************************************
 *                          Database Drivers                                *
 ****************************************************************************
@@ -1172,6 +1182,13 @@ Mac OS X
     * [139087] Fixed activation for some types of shortcuts (e.g. QKeySequence(Qt::CTRL | Qt::Key_Plus)).
     * Only use Roman for determining with System Fonts, Mac OS X does the translation for us.
     * In OpenGL, opt for the 32-bit accumulation buffer over the 64-bit accumulation by default.
+    * [123467] Fixed bug where the event loop would spin and not emit aboutToBlock when popup menus were shown.
+    * [137677] QString::localAwareCompare() now respects the sorting order set in the system preferences.
+    * [139658] Mac accessibility is no longer require that QApplication::exec() is called.
+    * [118814, 126253, 105525] Fixed several QCombobox look-and-feel issues.
+    * [145075] Fix aliased line drawing bug.
+    * [122826] Fix QScrollBar painting error.
+    * [131794] PixelTool and QWidget::grabWindow() now work on non-primary monitors.
 
 Qtopia Core
 -----------
@@ -1221,6 +1238,7 @@ Examples
 - Assistant
   * [99923] Added a context menu for the tabs in tab bar. Right click on a tab to get a list
             of common options.
+ * Assistant now uses the "unified toolbar" look on Mac OS X
 
 - Designer
     * [151376] Context menu added to the tab order editor
