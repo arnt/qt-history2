@@ -516,7 +516,7 @@ private:
 
 void tst_QXmlStream::initTestCase()
 {
-    QFile file((QLatin1String(catalogFile)));
+    QFile file(QString::fromLatin1(catalogFile));
     QVERIFY2(file.open(QIODevice::ReadOnly),
              qPrintable(QString::fromLatin1("Failed to open the test suite catalog; %1").arg(file.fileName())));
 
