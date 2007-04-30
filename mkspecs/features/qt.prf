@@ -2,11 +2,13 @@ CONFIG *= moc thread
 
 #handle defines
 win32 {
-   shared:DEFINES += QT_DLL
+   qt_static:DEFINES += QT_NODLL
    !contains(DEFINES, QT_NODLL) {
       QT_ENV_DLL = $$(QT_DLL)
       QT_ENV_NO_DLL = $$(QT_NODLL)
-      !isEmpty(QT_ENV_DLL):isEmpty(QT_ENV_NO_DLL):DEFINES += QT_DLL
+      isEmpty(QT_ENV_NO_DLL) {
+          shared|!isEmpty(QT_ENV_DLL):DEFINES += QT_DLL
+      }
       contains(DEFINES, QT_MAKEDLL)|contains(DEFINES, QT_DLL):QMAKE_QT_DLL = 1
    }
 }
