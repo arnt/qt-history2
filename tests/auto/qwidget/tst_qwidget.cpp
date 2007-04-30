@@ -1313,6 +1313,10 @@ void tst_QWidget::activation()
     QVERIFY(qApp->activeWindow() == &widget1);
     widget2.showNormal();
     QTest::qWait(100);
+#if defined(Q_WS_WIN)
+    if (QSysInfo::WindowsVersion > Qt::WV_XP)
+        QEXPECT_FAIL("", "MS introduced new behavior after XP", Continue);
+#endif
     QVERIFY(qApp->activeWindow() == &widget2);
     widget2.hide();
     QTest::qWait(100);
