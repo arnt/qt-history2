@@ -248,6 +248,13 @@ QList<QGraphicsItem *> QGraphicsScenePrivate::estimateItemsInRect(const QRectF &
         for (int i = 0; i < unindexedItems.size(); ++i) {
             if (QGraphicsItem *item = unindexedItems.at(i)) {
                 QRectF boundingRect = item->sceneBoundingRect();
+                if (!boundingRect.width() || !boundingRect.height()) {
+                    // QRectF::intersects() returns false always if either the
+                    // source or target rectangle's width or height are
+                    // 0. This works around that problem.
+                    const qreal p = 0.00001;
+                    boundingRect.adjust(-p, -p, p, p);
+                }
                 if (!item->d_ptr->itemDiscovered && item->isVisible()
                     && (boundingRect.intersects(rect) || boundingRect.contains(rect))) {
                     item->d_ptr->itemDiscovered = 1;
