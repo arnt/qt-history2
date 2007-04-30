@@ -209,9 +209,9 @@ Third party components
 
 - QGLWidget
     * [145621] Avoid a QGLFormat object copy when checking the buffer format with the
-	       QGLWidget::doubleBuffer() function.
+               QGLWidget::doubleBuffer() function.
     * [100519] Rewritten renderText(). It now supports Unicode text, and it doesn't
-	       try to overwrite previously defined display lists.
+               try to overwrite previously defined display lists.
 
 - QGLFramebufferObject
     * Make it possible to configure the depth/stencil buffer in a framebuffer object.
@@ -219,7 +219,7 @@ Third party components
 
 - QGLPixelBuffer
     * [138393] Make QGLPixelbuffer work under Windows on systems without the
-	       render_texture extension.
+               render_texture extension.
 
 - QPainter
     * Fixed stroking of non-closed polygons with non-cosmetic pens in the
@@ -551,7 +551,7 @@ X11
 ---
     * [153346] Don't deliver tablet events while in Drag and Drop.
     * [141756] Don't try to use the Plastique or Cleanlooks styles as the default
-	       style when there is no Xrender present.
+               style when there is no Xrender present.
 
 Windows
 -------
@@ -673,7 +673,7 @@ Examples
 
 - Assistant
   * [99923] Added a context menu for the tabs in tab bar. Right click on a tab to get a list
-	    of common options.
+            of common options.
 
 - Designer
     * [151376] Context menu added to the tab order editor
@@ -777,7 +777,7 @@ Examples
 - uic
     * [144383] Prevent uic-generated code from calling ensurePolished() before constructor is finished.
     * [138949] Re-use font and size policy instances in uic-generated code.
-    * [141350] Re-use color brushes in genetared code
+    * [141350] Re-use color brushes in generated code
     * [141217] Improved handling of include files of Qt 3 classes.
     * [144371] Don't set form's objectName in setupUi in case the name was already set
     * QLocale property supported
