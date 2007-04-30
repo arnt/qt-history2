@@ -370,6 +370,10 @@ Third party components
     * [143026] Fixed support for hiding/showing toolbars on Mac.
     * [131695] Add unified toolbar support on Mac OS X.
 
+- QMdiArea
+- QMdiSubWindow
+    * New classes. Replacement for QWorkspace.
+
 - QClipboard
     * Make sure that clear() on the Mac OS X clipboard really clears its data.
     * [143927] Don't drop alpha channel information on when pasting pixmaps on Mac OS X.
