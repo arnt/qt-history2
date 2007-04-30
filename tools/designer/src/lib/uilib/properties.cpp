@@ -598,10 +598,12 @@ DomProperty *variantToDomProperty(QAbstractFormBuilder *afb, QObject *obj,
 
     case QVariant::Pixmap:
         afb->setPixmapProperty(*dom_prop, afb->pixmapPaths(qvariant_cast<QPixmap>(v)));
+        dom_prop->setAttributeName(pname);
         break;
 
     case QVariant::Icon:
         afb->setIconProperty(*dom_prop, afb->iconPaths(qvariant_cast<QIcon>(v)));
+        dom_prop->setAttributeName(pname);
         break;
 
     default:
