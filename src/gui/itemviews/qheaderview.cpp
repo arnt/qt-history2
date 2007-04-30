@@ -1662,19 +1662,29 @@ void QHeaderViewPrivate::_q_layoutAboutToBeChanged()
 
 void QHeaderViewPrivate::_q_layoutChanged()
 {
+    Q_Q(QHeaderView);
     if (persistentHiddenSections.isEmpty())
         return;
-    sectionHidden.fill(false);
+    bool sectionCountChanged = false;
     for (int i = 0; i < persistentHiddenSections.count(); ++i) {
         QModelIndex index = persistentHiddenSections.at(i);
+        int logical = (orientation == Qt::Horizontal
+                       ? persistentHiddenSections.at(i).column()
+                       : persistentHiddenSections.at(i).row());
+        int visual = visualIndex(logical);
         if (index.isValid()) {
-            int logical = (orientation == Qt::Horizontal
-                           ? persistentHiddenSections.at(i).column()
-                           : persistentHiddenSections.at(i).row());
-            sectionHidden.setBit(visualIndex(logical));
-        }
+            sectionHidden.setBit(visual);
+        } else if (!sectionCountChanged && (modelSectionCount() != sectionCount)) {
+            sectionCountChanged = true;
+            break;
+        } // if the index was invalidated, but the section count is unchanged,
+          // let the section be in the same hidden state as before
     }
     persistentHiddenSections.clear();
+
+    // the number of sections changed; we need to reread the state of the model
+    if (sectionCountChanged)
+        q->initializeSections();
 }
 
 /*!
