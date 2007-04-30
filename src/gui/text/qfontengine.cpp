@@ -819,14 +819,33 @@ glyph_metrics_t QFontEngineBox::boundingBox(const QGlyphLayout *, int numGlyphs)
     return overall;
 }
 
-#if !defined(Q_WS_X11) && !defined(Q_WS_WIN) && !defined(Q_WS_MAC)
-void QFontEngineBox::draw(QPaintEngine *p, qreal x, qreal y, const QTextItemInt &si)
+#if defined(Q_WS_QWS)
+void QFontEngineBox::draw(QPaintEngine *p, qreal x, qreal y, const QTextItemInt &ti)
 {
-    Q_UNUSED(p);
-    Q_UNUSED(x);
-    Q_UNUSED(y);
-    Q_UNUSED(si);
-    //qDebug("QFontEngineBox::draw(%d, %d, numglyphs=%d", x, y, numGlyphs);
+    if (!ti.num_glyphs)
+        return;
+
+    int size = qRound(ascent());
+    QSize s(size - 3, size - 3);
+
+    QVarLengthArray<QFixedPoint> positions;
+    QVarLengthArray<glyph_t> glyphs;
+    QTransform matrix;
+    matrix.translate(x, y - size);
+    ti.fontEngine->getGlyphPositions(ti.glyphs, ti.num_glyphs, matrix, ti.flags, glyphs, positions);
+    if (glyphs.size() == 0)
+        return;
+
+
+    QPainter *painter = p->painter();
+    painter->save();
+    painter->setBrush(Qt::NoBrush);
+    QPen pen = painter->pen();
+    pen.setWidthF(lineThickness().toReal());
+    painter->setPen(pen);
+    for (int k = 0; k < positions.size(); k++)
+        painter->drawRect(QRectF(positions[k].toPointF(), s));
+    painter->restore();
 }
 #endif
 

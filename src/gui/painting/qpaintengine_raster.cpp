@@ -2846,6 +2846,11 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
 
     QFontEngine *fontEngine = ti.fontEngine;
 #if defined(Q_WS_QWS)
+    if (fontEngine->type() == QFontEngine::Box) {
+        fontEngine->draw(this, qRound(p.x()), qRound(p.y()), ti);
+        return;
+    }
+
     if (d->txop < QTransform::TxScale
         && (fontEngine->type() == QFontEngine::QPF1 || fontEngine->type() == QFontEngine::QPF2
             || (fontEngine->type() == QFontEngine::Proxy
