@@ -112,6 +112,9 @@ Third party components
     * [132826] QFontComboBox popup could be shown off-screen.
     * [155614] Speedup addItem() and addItems().
 
+- QFontMetrics
+    * [152013] Fixed bug where boundingRect() gave too big a size using Visual Studio 6.
+
 - QCompleter
     * Significantly reduced the construction time.
     * Added support for lazy populated models.
@@ -543,6 +546,7 @@ Third party components
     * [140952] Fixed transformed text drawing on X11 setups that used fontconfig without Xrender.
     * [139611] Fixed smooth transform of pixmaps for X11.
     * [132837] Fixed text drawing to QImages with certain fonts for Mac OS X.
+    * [147911] Use font antialiasing when rotating small fonts on Windows.
 
 - QPicture
     * [142703] QPicture now correctly preserves composition mode changes.
@@ -573,6 +577,9 @@ Third party components
     * Added QPrinter::supportedPaperSources()
     * [153735] Significantly speed up generation of PDF documents with Asian characters.
     * [140759] Document that you can't change orientation on an active printer on Mac OS X (native format).
+    * [139566] Added support for alpha blending when printing on Windows.
+    * [151495] Fixed image scaling problems when printing on Windows.
+    * [146788] Optimized drawTiledPixmap on Windows.
 
 - QProgressBar
     * [146855] setFormat() now calls update() if the format changes.
@@ -1060,6 +1067,7 @@ X11
 
 Windows
 -------
+    * Added experimental DirectX based paint engine.
     * [141503] When clicked inside the tool windows, it wont be activated if there
       is no child widget to take focus.
     * [153315] Better handling of Synaptic touchpad wheel messages.
@@ -1091,6 +1099,7 @@ Windows
     * [129927] Added QWindowsVista style.
     * [106437] Removed WindowsXPStyle from QStyleFactory:keys() on platforms where it is not available.
     * [109814] Improved UNC path support.
+    * [157261] Fixed crash when using Alt keycodes with text handling widgets.
 
 - ActiveQt
     * When loading a typelib file to obtain information about a control it
