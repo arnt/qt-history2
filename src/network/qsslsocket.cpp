@@ -198,9 +198,8 @@
 */
 
 /*!
-    \fn QSslSocket::sslErrors(const QList<QSslError> &errors)
-
     \target signal sslErrors
+    
     QSslSocket emits this signal during the SSL handshake to indicate that an
     error has occurred while establishing the identity of the peer. The error
     is usually an indication that QSslSocket is unable to securely identify
