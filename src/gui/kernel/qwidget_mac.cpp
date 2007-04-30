@@ -575,9 +575,7 @@ OSStatus QWidgetPrivate::qt_window_event(EventHandlerCallRef er, EventRef event,
                         }
                     }
                     if((flags & kWindowBoundsChangeSizeChanged)) {
-                        if (widget->isWindow()
-                                && widget->layout() && widget->layout()->hasHeightForWidth()) {
-                            QRect rect = widget->geometry();
+                        if (widget->isWindow()) {
                             QSize newSize = QLayout::closestAcceptableSize(widget, newRect.size());
                             int dh = newSize.height() - newRect.height();
                             int dw = newSize.width() - newRect.width();
