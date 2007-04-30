@@ -1710,8 +1710,6 @@ bool QDockAreaLayoutInfo::restoreState(QDataStream &stream, QList<QDockWidget*> 
             uchar flags;
             stream >> name >> flags;
             if (name.isEmpty()) {
-                qWarning("QMainWindow::restoreState: Cannot restore "
-                         "a QDockWidget with an empty 'objectName'");
                 int dummy;
                 stream >> dummy >> dummy >> dummy >> dummy;
                 continue;
@@ -1725,9 +1723,6 @@ bool QDockAreaLayoutInfo::restoreState(QDataStream &stream, QList<QDockWidget*> 
                 }
             }
             if (widget == 0) {
-                qWarning("QMainWindow::restoreState(): cannot find a QDockWidget with "
-                         "matching 'objectName' (looking for \"%s\").",
-                         qPrintable(name));
                 int dummy;
                 stream >> dummy >> dummy >> dummy >> dummy;
                 continue;

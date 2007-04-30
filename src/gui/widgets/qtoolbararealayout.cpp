@@ -994,9 +994,6 @@ bool QToolBarAreaLayout::restoreState(QDataStream &stream, const QList<QToolBar*
                 }
             }
             if (toolBar == 0) {
-                qWarning("QMainWindow::restoreState(): cannot find a QToolBar with "
-                         "matching 'objectName' (looking for \"%s\").",
-                         qPrintable(objectName));
                 continue;
             }
 
