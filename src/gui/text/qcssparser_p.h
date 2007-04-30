@@ -523,7 +523,7 @@ public:
     };
 
     QVector<StyleRule> styleRulesForNode(NodePtr node);
-    QVector<Declaration> declarationsForNode(NodePtr node);
+    QVector<Declaration> declarationsForNode(NodePtr node, const char *extraPseudo = 0);
 
     virtual bool nodeNameEquals(NodePtr node, const QString& nodeName) const = 0;
     virtual QString attribute(NodePtr node, const QString &name) const = 0;

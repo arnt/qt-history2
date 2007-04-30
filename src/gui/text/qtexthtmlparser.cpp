@@ -447,7 +447,7 @@ QTextHtmlParserNode::QTextHtmlParserNode()
     : parent(0), id(Html_unknown),
       cssFloat(QTextFrameFormat::InFlow), hasOwnListStyle(false),
       hasCssListIndent(false), isEmptyParagraph(false), isTextFrame(false), isRootFrame(false),
-      displayMode(QTextHtmlElement::DisplayInline),
+      displayMode(QTextHtmlElement::DisplayInline), hasHref(false),
       listStyle(QTextListFormat::ListStyleUndefined), imageWidth(-1), imageHeight(-1), tableBorder(0),
       tableCellRowSpan(1), tableCellColSpan(1), tableCellSpacing(2), tableCellPadding(0),
       borderBrush(Qt::darkGray), borderStyle(QTextFrameFormat::BorderStyle_Outset),
@@ -1003,6 +1003,7 @@ void QTextHtmlParserNode::initializeProperties(const QTextHtmlParserNode *parent
                 const QString key = attributes.at(i);
                 if (key.compare(QLatin1String("href"), Qt::CaseInsensitive) == 0
                     && !attributes.at(i + 1).isEmpty()) {
+                    hasHref = true;
                     charFormat.setUnderlineStyle(QTextCharFormat::SingleUnderline);
                     charFormat.setForeground(Qt::blue);
                 }
@@ -1752,7 +1753,11 @@ QVector<QCss::Declaration> QTextHtmlParser::declarationsForNode(int node) const
 
     QCss::StyleSelector::NodePtr n;
     n.id = node;
-    decls = selector.declarationsForNode(n);
+
+    const char *extraPseudo = 0;
+    if (nodes.at(node).id == Html_a && nodes.at(node).hasHref)
+        extraPseudo = "link";
+    decls = selector.declarationsForNode(n, extraPseudo);
 
     return decls;
 }

@@ -167,6 +167,7 @@ private slots:
     void css_textUnderlineStyle();
     void css_textUnderlineStyleAndDecoration();
     void css_listStyleType();
+    void css_linkPseudo();
     void universalSelectors_data();
     void universalSelectors();
     void screenMedia();
@@ -2559,6 +2560,18 @@ void tst_QTextDocumentFragment::css_listStyleType()
     cursor.movePosition(QTextCursor::End);
     QVERIFY(cursor.currentList());
     QVERIFY(cursor.currentList()->format().style() == QTextListFormat::ListDecimal);
+}
+
+void tst_QTextDocumentFragment::css_linkPseudo()
+{
+    doc->setHtml("<a href=\"foobar\">Blah</a>");
+    QVERIFY(doc->begin().begin().fragment().charFormat().fontUnderline());
+
+    doc->setHtml("<style>a { text-decoration: none; }</style><a href=\"foobar\">Blah</a>");
+    QVERIFY(!doc->begin().begin().fragment().charFormat().fontUnderline());
+
+    doc->setHtml("<style>a:link { text-decoration: none; }</style><a href=\"foobar\">Blah</a>");
+    QVERIFY(!doc->begin().begin().fragment().charFormat().fontUnderline());
 }
 
 void tst_QTextDocumentFragment::universalSelectors_data()

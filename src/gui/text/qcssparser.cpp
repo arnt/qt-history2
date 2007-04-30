@@ -1485,13 +1485,20 @@ QVector<StyleRule> StyleSelector::styleRulesForNode(NodePtr node)
 
 // for qtexthtmlparser which requires just the declarations with Enabled state
 // and without pseudo elements
-QVector<Declaration> StyleSelector::declarationsForNode(NodePtr node)
+QVector<Declaration> StyleSelector::declarationsForNode(NodePtr node, const char *extraPseudo)
 {
     QVector<Declaration> decls;
     QVector<StyleRule> rules = styleRulesForNode(node);
     for (int i = 0; i < rules.count(); i++) {
         const Selector& selector = rules.at(i).selectors.at(0);
-        if (!selector.pseudoElement().isEmpty()) // skip rules with pseudo elements
+        const QString pseudoElement = selector.pseudoElement();
+
+        if (extraPseudo && pseudoElement == QLatin1String(extraPseudo)) {
+            decls += rules.at(i).declarations;
+            continue;
+        }
+
+        if (!pseudoElement.isEmpty()) // skip rules with pseudo elements
             continue;
         int pseudoClass = selector.pseudoClass();
         if (pseudoClass == PseudoClass_Enabled || pseudoClass == PseudoClass_Unspecified)
