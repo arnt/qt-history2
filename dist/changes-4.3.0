@@ -36,6 +36,13 @@ Third party components
     * When displaying dates and numbers, the item view classes use their locale
       property, allowing easy customization.
     * Fix a repaint issue with the focus rect if selection mode is NoSelection
+    * [147422] Detect when persistent editors take/lose focus and update the
+      view accordingly.
+    * [146292] items are now updated even if they contain an editor.
+    * [130168] auto-scrolling when clicking is now delayed to allow double-clicking
+      to happen.
+    * [139247] click on a partially visible item was triggering a scroll and the 
+      wrong item was then clicked.
 
 - QAccessible
     * Added preliminary support for the upcomming IAccessible2 standard
@@ -87,6 +94,11 @@ Third party components
 - QComboBox
     * Significantly reduced the construction time.
     * [155614] Speedup addItem() and addItems()
+    * [150768] inserting items doesn't change the current text on editable comboboxes.
+    * [150902] The only button on the mouse that can open the popup list is left one.
+
+- QFontComboBox
+    * [132826] QFontComboBox popup could be shown off-screen.
 
 - QCompleter
     * Significantly reduced the construction time.
@@ -103,6 +115,9 @@ Third party components
     * [136380] QDir's permission filters on Unix now behave the same as on
       Windows (previously the filters' behavior was reversed on Unix).
     * [158610] Passing QDir::Unsorted now properly bypasses sorting.
+
+- QDial
+    * [151897] Even With tracking disabled, the signal sliderMoved() is emitted
 
 - QDirIterator
     * New class
@@ -127,6 +142,9 @@ Third party components
 - QIntValidator, QDoubleValidator
     * Validators recognise numbers formatted in various locales, depending on their "locale"
       property.
+
+- QItemDelegate
+    * [145142] It could happen that text was drawn out of the bounds of a cell.
 
 - QVariant
     * [127225] Unloading a GUI plugin will no longer cause crash in
@@ -235,6 +253,8 @@ Third party components
 - QHeaderView
     * Now uses Qt::NoFocus for its default focus policy
     * [99569] Speedups providing up to a 2X speed increase for some cases
+    * [146292] It was under certain circumstances impossible to resize the last section.
+    * [144452] setDefaultAlignment had no effect.
 
 - QHostInfo
     * [141946] No longer stops working after destroying QCoreApplication.
@@ -245,6 +265,7 @@ Third party components
 
 - QItemSelectionModel
     * Optimizations for some common cases.
+    * [143383] hasSelection was not always giving good results.
 
 - QLayout
     * New features to Qt's layout system:
@@ -274,6 +295,10 @@ Third party components
       of batchSize.
     * If we had a gridSize different from itemSize we could some times end up with wrong scrollbar
       range.
+    * [144378] Better navigation when an item is taller than the viewport.
+
+-QListWidget
+    * [146284] SingleSelection is also taken into account when calling setSelected on items.
 
 - QLocale
     * Locale database updated to CLDR 1.4: more locales supported, numerous
@@ -324,13 +349,23 @@ Third party components
       right side of the parent widget instead of the left side.
     * [130343] Ensured that only the left mouse button triggers menu actions on Windows.
     * [139332] Fixed an issue that caused submenus to close when moving the mouse over a separator.
+    * [157218] Do not close torn-off menu when pressing Alt.
+    * [135193] Takes sizeHint, maximum size and minimum size into account for QWidgetAction.
+    * [133232] Makes executing a QMenu with a position as argument work better.
+    * [141856] QMenu.exec() would return NULL if user press mnemonic
+    * [133633] Fixed focus problem with keyboard navigation in QMenu with QWidgetAction.
+    * [134560] statustip was not shown with an action in a toolbutton's menu.
 
 - QMenuBar
     * [135320] Make QMenuBar::show() a no-op to on Mac OS X to prevent
       QMenuBar being visible at the same time as a native Mac menubar.
-    * [115471] Fix tornoff menu behaviour to propgate mouse events correctly
+    * [115471] Fix tornoff menu behaviour to propagate mouse events correctly
       on 2nd level tearoffs.
-	* [126856] Fixed an issue that could cause several menus to be open at the same time.
+    * [126856] Fixed an issue that could cause several menus to be open at the same time.
+    * [47589] The position of the menu is now shifted horizontally when there is not enough
+      space (neither above neither below) to display it.
+    * [131010] adding an action and setting its menu would prevent the action from 
+      being triggered through its shortcut.
 
 - QMessageBox
     * [119777] Pressing Ctrl+C in message boxes on Windows copies text to clipboard
@@ -504,6 +539,7 @@ Third party components
     * [143760] Scroll buttons are now never shown when setUsesScrollButtons(false)
     * [130089] Make the tooplip help show up on disabled tabs also.
     * [118712] Enabled autorepeat on scroll buttons.
+    * [146903] QTabBar now emits currentChanged when a tab is removed
 
 - QTabWidget
     * TabWidget now takes ownership of corner widgets and allows setting 0 on the corner widget.
@@ -533,6 +569,7 @@ Third party components
 - QSpinBox
     * [141569] Disallow typing -0 in a QSpinBox with a positive range
     * [158445] keyboardTracking property added, when set to false don't send valueChanged() with every key press
+    * [143504] Make undo/redo work.
 
 - QSyntaxHighligher
     * [151831] calling rehighlight() was causing highlighBlock() to be called
@@ -566,6 +603,7 @@ Third party components
     * Reduced the construction time when rows and columns are given.
     * [133449] Improve the speed of setData()
     * [153238] Moving an item will no longer cause that item to loose its flags.
+    * [143073] Calling setItemData() now triggers the emission of the dataChanged signal.
 
 - QString
     * fromUtf8() now discards UTF-8 encoded byte order marks just like the UTF-8 QTextCodec
@@ -591,6 +629,7 @@ Third party components
 
 - QTableView
     * No longer allow invalid spans to be created.
+    * [145446] Setting minimum height on horizontal header rendered the table garbled.
 
 - QTableWidget
     * [125285] Only emit dataChanged() once when setItemData() is used to set data for
@@ -666,6 +705,10 @@ Third party components
 - QToolButton
     * [130358] Send Hover to the associated QAction upon enter.
 
+- QTableView
+    * [158096] resizeColumnToContents(int i) now has the same behaviour as 
+      resizeColumnsToContents().
+
 - QTreeView
     * [158096] Prevent dropping an item on its own child.
     * [113800] When dragging an item over an item that has child items
@@ -679,6 +722,14 @@ Third party components
     * [153238] If a drop is done on the branch it should be dropped on the root node.
     * [152868] Fix setSelection() so that it works with a negative y-coordinate.
     * [156522] Fix repaint errors for selections in -reverse mode.
+    * [155449] Prevent to tree from having huge columns when setting the 
+      alignment before it is shown.
+    * [151686] Hidden rows are now filtered out of the user selection range.
+    * [146468] indexRowSizeHint might not be correct in case columns were moved.
+    * [138938] Fixed an infinite loop when calling expandAll with no column.
+    * [142074] Scrollbars are no more shown when there is no item.
+    * [143127] QTreeView would not emit the collapsed() signal when the animated 
+      property was set to true.
 
 - QTextLayout
     * Fixed support for justified arabic text.
@@ -717,6 +768,10 @@ Third party components
     * [114120] Respect the frame property for combo boxes.
     * [138444] Fixed crash when passing 0 to drawComplexControl()'s widget argument.
 
+- QWindowsStyle:
+    * [142599] Drawing a CE_DockWidgetTitle by using the style doesn't require to have
+      a QDockWidget subclass. 
+
 - QXmlSimpleReader
     * QXmlSimpleReader no longer reads entire file into memory, allowing
       it to handle large XML files.
@@ -734,6 +789,9 @@ Third party components
 
 - Q3ListView
     * [150781] Fixed a crash in setOpen() (previously fixed in Qt 3).
+
+- Q3GroupBox
+    * Added FrameShape, FrameShadow, lineWidth, midLineWidth properties.
 
 - Q3ScrollView
     * [125149] Mouse events should not be delivered if the Q3ScrollView is disabled.
