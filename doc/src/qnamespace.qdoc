@@ -702,6 +702,18 @@
     \sa QImage::scaled()
 */
 
+/*! \enum Qt::Axis
+
+    This enum type defines three values to represent the three
+    axes in the cartesian coordinate system.
+
+    \value XAxis  The X axis.
+    \value YAxis  The Y axis.
+    \value ZAxis  The Z axis.
+
+    \sa QTransform::rotate(), QTransform::rotateRadians()
+ */ 
+
 /*!
     \enum Qt::WidgetAttribute
 
