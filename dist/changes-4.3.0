@@ -70,6 +70,17 @@ Third party components
     * [140150] Fixed bug where QColor::isValid() would return true for certain
       invalid color strings.
 
+- QCleanlooksStyle
+    [129506] * Sliders now looks and acts correct with both reversed and inverted slider appearance.
+    [131490] * Group boxes no longer reserves space for title when no title is set.
+    [134344] * A sunken frame is now used to indicate checked menu items with icons.
+    [133691] * Improved appearance of spin box and buttons when used against dark backgrounds.
+    [154499] * Fixed a rendering issue with disabled checked push buttons.
+    [154862] * Fixed an issue causing combo box to sometimes show text clipped.
+    * Slider appearance is now based on Clearlooks Cairo and the performance on X11 has been improved.
+    * The appearance of tab bars when used with Qt::RightToLeft layout direction has been improved.
+    * Dock widget title is now elided when the text is too long.
+
 - QColumnView
     * A new widget that provide a column based implementation of QAbstractItemView
 
@@ -95,6 +106,12 @@ Third party components
 
 - QDirIterator
     * New class
+
+- QDialogButtonBox
+    * [154493] Action role was moved before Reject role on Windows to conform with platform guidelines.
+
+- QDrag
+    * [124962] Added QDrag::exec() to allow changing the default proposed action.
 
 - QImage
     * [157549] Fixed crash when calling QImage::copy with negative coordinates.
@@ -305,13 +322,15 @@ Third party components
     * [131702] The tearoff menu no longer appears only once.
     * [138464] If a popup menu does not ffit on the right-hand side of the screen, align it to the
       right side of the parent widget instead of the left side.
+    * [130343] Ensured that only the left mouse button triggers menu actions on Windows.
+    * [139332] Fixed an issue that caused submenus to close when moving the mouse over a separator.
 
 - QMenuBar
     * [135320] Make QMenuBar::show() a no-op to on Mac OS X to prevent
       QMenuBar being visible at the same time as a native Mac menubar.
     * [115471] Fix tornoff menu behaviour to propgate mouse events correctly
       on 2nd level tearoffs.
-
+	* [126856] Fixed an issue that could cause several menus to be open at the same time.
 
 - QMessageBox
     * [119777] Pressing Ctrl+C in message boxes on Windows copies text to clipboard
@@ -472,10 +491,19 @@ Third party components
     * [146855] setFormat() now calls update() if the format changes.
     * [152227] Improved support for wide ranges (INT_MIN - INT_MAX).
 
-- QTabBar
+- QPushButton
+    * [114245] Fixed some styling issues of push buttons with popup menus.
+    * [158951] Buttons with icons now center their content to be more consistent 
+    with buttons that do not have icons in most styles.
+
+- QStatusbar
+	* [131558] Increased text margin and fixed a look and feel issue on Windows.
+
+- QTabBar 
     * [126438] Added int tabAt(const QPoint &pos) const
     * [143760] Scroll buttons are now never shown when setUsesScrollButtons(false)
     * [130089] Make the tooplip help show up on disabled tabs also.
+    * [118712] Enabled autorepeat on scroll buttons.
 
 - QTabWidget
     * TabWidget now takes ownership of corner widgets and allows setting 0 on the corner widget.
@@ -547,11 +575,16 @@ Third party components
 
 - QSystemTrayIcon
     * [131892] Mac OS X will issue messages to growl via AppleScript now.
-
+    * [151666] Increased the maximum tooltip size to 128 characters on Windows 
+      platforms that support it.
+    * [135645] Fixed an issue preventing system tray messages from working on some 
+      windows platforms.
+	
 - QStyle
     * Add StandardPixmap SP_DirHomeIcon which is native icon for the home directory.
     * Add documentation that pixelMetrics are not necessarily followed in all styles.
     * standardPixmap() has been obsoleted. Use standardIcon() instead.
+    * Added SP_VistaShield to support Vista UAC prompts on Windows Vista.
 
 - QStyleOption
     * Add an initializeFromStyleOption() for many widgets that need to create a QStyleOption subclass for style-related calls.
@@ -589,6 +622,9 @@ Third party components
     * [143501 and 144439] Added support for vertical alignment of table cells.
     * [136397, 144320, and 144322] Various border styles and border brushes are now supported.
     * [139052] Made sure that empty text table cells get a visible selection.
+
+- QToolButton
+    * [127814] The popup delay is now respecting style changes.
 
 - QToolTip
     * [135988] Allow tooltips to be shown immediately below the cursor
@@ -667,8 +703,18 @@ Third party components
 - QWidget
     * [139359] "locale" property added, this makes it easy to customize
       how individual widgets display dates and numbers.
+    * [155100] Fixed a regression causing Qt::FramelessWindowHint to be ignored for frameless windows.
+
+- QWindowsStyle
+    * [110784] Scrollbar and spinbox arrows now scale with the widget size.
+    * More native appearance for certain panel and button frames.
 
 - QWindowsXPStyle
+    * [150579] Fix the wrong background color for QSlider.
+    * [133517] Fixed styling of unused area in header sections.
+    * [48387] Fixed styling of MDI/Workspace controls.
+    * [109317] Fixed a rendering issue with tab widgets in the Silver color scheme.
+    * [114120] Respect the frame property for combo boxes.
     * [138444] Fixed crash when passing 0 to drawComplexControl()'s widget argument.
 
 - QXmlSimpleReader
@@ -700,6 +746,9 @@ Third party components
     
 - Q3TextEdit
     * [136214] Fixed invalid memory reads when using undo/redo-functionality.
+
+- Q3DockWindow
+	* [125117] Fixed some style issues with Windows XP and Plastique styles.
 
 - QTextBrowser
     * [126914] Fix drawing of focus indicator when activating links.
@@ -869,7 +918,6 @@ Windows
     * [141079] wheelEvent now contains the button information.
     * [149367] QMimeData::formats() returns all the available formats in the object.
     * [135417] WM_SYSCOLORCHANGE will not trigger resetting of fonts.
-    * [150579] Fix the wrong background color for QSlider in XP style.
     * [137023] Fix the crash while translating mouse events.
     * [138349] Fix wrong focus handling with multiple top levels.
     * [111211] Tool windows won't steal focus from their parents while opening.
@@ -882,7 +930,16 @@ Windows
     centered properly.
     * [145270] Fixed mapFromGlobal() and mapToGlobal() for minimized or
     invisible widgets.
-
+    * [132695] Fixed a potential crash when changing the application style after
+      the system theme had been changed.
+    * [103739] Workspace title bars now respect custom titlebar heights on XP and 
+style.
+    * [48770] Improved size grip behavior in toplevel windows.
+    * [113739] Fixed an issue when using QWidget::scroll() with onScreenPaint.
+    * [129589] Added support for moving the mouse cursor to the default button in dialogs.
+    * [139120] Added support for resolving native file icons through QFileIconProvider.
+    * [129927] Added QWindowsVista style.
+    * [106437] Removed WindowsXPStyle from QStyleFactory:keys() on platforms where it is not available.
 - ActiveQt
     * When loading a typelib file to obtain information about a control it
       now processes the typelib correctly.
@@ -1057,6 +1114,7 @@ Examples
     * [133907] Made in-place editing of plain label texts possible.
     * [134657] Fixed table widget editor.
     * [90085] Make the resource editor consume a little less horizontal real estate.
+    * [105671] Added support to maximize main windows while beeing previewed.
 
 - Linguist
     * Translations can be exported and imported to XLIFF.
