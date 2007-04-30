@@ -800,12 +800,13 @@ void QWidgetPrivate::stackUnder_sys(QWidget*)
 
 static void moveSurface(QWindowSurface *surface, const QPoint &offset)
 {
-    const int winId = static_cast<QWSWindowSurface*>(surface)->winId();
-    QWSDisplay::instance()->moveRegion(winId, offset.x(), offset.y());
+    QWSWindowSurface *s = static_cast<QWSWindowSurface*>(surface);
 
-    // update surface geometry without triggering QWSDisplay::requestRegion()
-    const QRect newGeometry = surface->geometry().translated(offset);
-    surface->QWindowSurface::setGeometry(newGeometry);
+    // XXX: invalidateBuffer() if returns false,
+    // currently handled in QWSWindowSurface
+    (void)(s->move(offset));
+
+    QWSDisplay::instance()->moveRegion(s->winId(), offset.x(), offset.y());
 }
 
 void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
@@ -859,7 +860,7 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
             const QWidgetBackingStore *bs = maybeBackingStore();
             if (bs)
                 surface = static_cast<QWSWindowSurface*>(bs->windowSurface);
-            if (isMove && !isResize && (!surface || surface->isBuffered())) {
+            if (isMove && !isResize && surface) {
                 const QPoint offset(x - oldp.x(), y - oldp.y());
                 moveSurface(surface, offset);
                 toplevelMove = true; //server moves window, but we must send moveEvent, which might trigger painting

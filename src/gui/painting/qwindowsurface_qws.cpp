@@ -90,6 +90,30 @@ public:
     int winId;
 };
 
+// XXX: this should probably be handled in QWidgetPrivate
+void QWSWindowSurface::invalidateBuffer()
+{
+    d_ptr->dirty = QRegion();
+    d_ptr->clip = QRegion();
+    d_ptr->clippedDirty = QRegion();
+
+    QWidget *win = window();
+    if (win) {
+#ifdef Q_BACKINGSTORE_SUBSURFACES
+        const QPoint offset = -win->mapToGlobal(QPoint());
+#else
+        const QPoint offset = -win->geometry().topLeft();
+#endif
+        setDirty(geometry().translated(offset)); // XXX: clip with mask
+
+        QTLWExtra *topextra = win->d_func()->extra->topextra;
+        QWSManager *manager = topextra->qwsManager;
+        if (manager)
+            manager->d_func()->dirtyRegion(QDecoration::All,
+                                           QDecoration::Normal);
+    }
+}
+
 int QWSWindowSurface::winId() const
 {
     // XXX: the widget winId may change during the lifetime of the widget!!!
@@ -470,6 +494,8 @@ void QWSWindowSurface::setClipRegion(const QRegion &clip)
         dirtyExpose = expose & d_ptr->clippedDirty;
         d_ptr->clippedDirty -= expose;
         expose -= dirtyExpose;
+    } else {
+        dirtyExpose = expose;
     }
 
     if (!dirtyExpose.isEmpty()) {
@@ -517,11 +543,6 @@ void QWSWindowSurface::setGeometry(const QRect &rect)
             QWSManager *manager = topextra->qwsManager;
 
             if (manager) {
-                const bool isResize = rect.size() != geometry().size();
-                if (!isBuffered() || isResize)
-                    manager->d_func()->dirtyRegion(QDecoration::All,
-                                                   QDecoration::Normal);
-
                 // The frame geometry is the bounding rect of manager->region,
                 // which could be too much, so we need to clip.
                 mask &= (manager->region() + win->geometry());
@@ -543,11 +564,7 @@ void QWSWindowSurface::setGeometry(const QRect &rect, const QRegion &mask)
         return;
 
     const bool isResize = rect.size() != geometry().size();
-    if (!isBuffered() || isResize) {
-        d_ptr->dirty = QRegion();
-        d_ptr->clip = QRegion();
-        d_ptr->clippedDirty = QRegion();
-    }
+    const bool needsRepaint = isResize || !isBuffered();
 
     QWindowSurface::setGeometry(rect);
 
@@ -555,15 +572,8 @@ void QWSWindowSurface::setGeometry(const QRect &rect, const QRegion &mask)
     QWidget::qwsDisplay()->requestRegion(winId(), key(), permanentState(),
                                          region);
 
-    const QWidget *win = window();
-    if (win && (!isBuffered() || isResize)) {
-#ifdef Q_BACKINGSTORE_SUBSURFACES
-        const QPoint offset = -win->mapToGlobal(QPoint());
-#else
-        const QPoint offset = -win->geometry().topLeft();
-#endif
-        setDirty(region.translated(offset));
-    }
+    if (needsRepaint)
+        invalidateBuffer();
 }
 
 static inline void flushUpdate(QWidget *widget, const QRegion &region,
@@ -632,13 +642,19 @@ void QWSWindowSurface::flush(QWidget *widget, const QRegion &region,
     false otherwise.
 
     The default implementation updates the QWindowSurface geometry and
-    returns false.
+    returns true if the surface is buffered; false otherwise.
 
     This function is called by the window system on the client instance.
+
+    \sa isBuffered()
 */
 bool QWSWindowSurface::move(const QPoint offset)
 {
     QWindowSurface::setGeometry(geometry().translated(offset));
+    if (isBuffered())
+        return true;
+
+    invalidateBuffer();
     return false;
 }
 
@@ -1074,8 +1090,7 @@ QWSOnScreenSurface::~QWSOnScreenSurface()
 
 QPoint QWSOnScreenSurface::painterOffset() const
 {
-    const QPoint offset = brect.topLeft() - screen->offset();
-    return offset + QWSWindowSurface::painterOffset();
+    return geometry().topLeft() + QWSWindowSurface::painterOffset();
 }
 
 bool QWSOnScreenSurface::isValid() const
@@ -1088,12 +1103,6 @@ bool QWSOnScreenSurface::isValid() const
     if (!isWidgetOpaque(win))
         return false;
     return true;
-}
-
-void QWSOnScreenSurface::setGeometry(const QRect &rect)
-{
-    brect = rect;
-    QWSWindowSurface::setGeometry(rect);
 }
 
 QByteArray QWSOnScreenSurface::permanentState() const

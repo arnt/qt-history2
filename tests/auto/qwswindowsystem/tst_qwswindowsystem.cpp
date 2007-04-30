@@ -15,6 +15,7 @@
 #include <qpainter.h>
 #include <qdesktopwidget.h>
 #include <qdirectpainter_qws.h>
+#include <private/qwindowsurface_qws_p.h>
 
 class tst_QWSWindowSystem : public QObject
 {
@@ -32,6 +33,7 @@ private slots:
     void directPainter();
     void setMaxWindowRect();
     void initialGeometry();
+    void WA_PaintOnScreen();
 
 private:
     QWSWindow* getWindow(int windId);
@@ -300,6 +302,36 @@ void tst_QWSWindowSystem::initialGeometry()
     VERIFY_COLOR(rect, QColor(Qt::red));
 }
 
+void tst_QWSWindowSystem::WA_PaintOnScreen()
+{
+    ColorWidget w(Qt::red);
+    w.setAttribute(Qt::WA_PaintOnScreen);
+
+    QRect rect;
+
+    QVERIFY(w.testAttribute(Qt::WA_PaintOnScreen));
+    rect = QRect(10, 0, 50, 50);
+    w.setGeometry(rect);
+    w.show();
+
+    QApplication::processEvents();
+    QWSWindowSurface *surface = static_cast<QWSWindowSurface*>(w.windowSurface());
+    QCOMPARE(surface->key(), QLatin1String("OnScreen"));
+    QVERIFY(w.testAttribute(Qt::WA_PaintOnScreen));
+    VERIFY_COLOR(rect, QColor(Qt::red));
+
+    // move
+    rect = QRect(10, 100, 50, 50);
+    w.setGeometry(rect);
+    QApplication::processEvents();
+    VERIFY_COLOR(rect, QColor(Qt::red));
+
+    // resize
+    rect = QRect(10, 100, 60, 60);
+    w.setGeometry(rect);
+    QApplication::processEvents();
+    VERIFY_COLOR(rect, QColor(Qt::red));
+}
 
 QTEST_MAIN(tst_QWSWindowSystem)
 

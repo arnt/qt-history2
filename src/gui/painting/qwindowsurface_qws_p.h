@@ -98,6 +98,8 @@ protected:
     void setWinId(int id);
 
 private:
+    void invalidateBuffer();
+
     QWSWindowSurfacePrivate *d_ptr;
 };
 
@@ -187,8 +189,6 @@ public:
     bool isValid() const;
     QPoint painterOffset() const;
 
-    void setGeometry(const QRect &rect);
-
     QString key() const { return QLatin1String("OnScreen"); }
     QByteArray permanentState() const;
 
@@ -197,7 +197,6 @@ public:
 private:
     void attachToScreen(const QScreen *screen);
 
-    mutable QRect brect;
     const QScreen *screen;
 };
 #endif // QT_NO_PAINTONSCREEN
