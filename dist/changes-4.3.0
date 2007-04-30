@@ -7,12 +7,23 @@ General Improvements
 
 - Configuration/Compilation
     * Fixed OpenBSD and NetBSD build issues.
+
 - Added support for CP949 Korean Codec
-- The whole Qt source compiles with the QT_NO_CAST_FROM_ASCII and QT_NO_CAST_TO_ASCII defines and therefore is more robust when using codecs.
+
+- [138140] The whole Qt source compiles with the QT_NO_CAST_FROM_ASCII
+  and QT_NO_CAST_TO_ASCII defines and therefore is more robust when
+  using codecs.
+
 - Added support for HP-UX 11i (Itanium) with the aCC compiler
 
 - Changed dialogs to respond much better to the LanguageChange event. (i.e. run-time translation
   now works much better.)
+
+- Signals and slots
+    * [61295] Added Qt::BlockingQueuedConnection connection type,
+      which waits for all slots to be called before continuing.
+    * [128646] Ignore optional keywords specified in SIGNAL() and
+      SLOT() signatures (struct, class, and enum).
 
 Third party components
 ----------------------
@@ -59,6 +70,20 @@ Third party components
 
 - QApplication
     * Add a flash() method for marking windows that need attention.
+    * [86725] Allow the -style command line argument to override a
+      style set (with QApplication::setStyle()) before QApplication
+      construction.
+    * [111892] Fixed a bug that caused Qt to steal all input when
+      connecting the QAction::hovered() signal to a slot that called
+      QMainWindow::setEnabled(false).
+    * [148512] Fixed QApplication::keyboardModifiers() to update
+      correctly when minimizing the window when Qt::MetaModifier is held.
+    * [148796] Fixed a bug that prevented Qt from detecting system font changes.
+
+- QAtomic
+    * [126321] Fixed several flaws in the inline assembler implementations
+      for several architectures (ARM, i386, PowerPC, x86-64).
+    * [133043] Added support for atomic fetch-and-add.
 
 - QBitArray
     * [158816] Fix crash in operator~()
@@ -82,6 +107,15 @@ Third party components
 - QColor
     * [140150] Fixed bug where QColor::isValid() would return true for certain
       invalid color strings.
+    * [120367] Added QColor::setAllowX11ColorNames(bool), which allows
+      applications to use X11 color names.
+
+- QCoreApplication
+    * Added support for posted event priorities.
+    * [34019] Added QCoreApplication::removePostedEvents() overload
+      for removing events of a specific type.
+    * Document QCoreApplication::processEvents() as thread-safe;
+      calling it will process events for the calling thread.
 
 - QCleanlooksStyle
     [129506] * Sliders now looks and acts correct with both reversed and inverted slider appearance.
@@ -141,6 +175,10 @@ Third party components
 
 - QDial
     * [151897] Even With tracking disabled, the signal sliderMoved() is emitted
+
+- QDialog
+    * [131396] Fixed a crash in QDialog::exec() when the dialog was
+      deleted from an event handler.
 
 - QDirIterator
     * New class
@@ -207,6 +245,7 @@ Third party components
     * added the dockLocationChanged() signal, emitted when dock widgets are moved around
       in a QMainWindow.
     * [135878] Titlebars now support mnemonics properly.
+    * [138995] QDockWidget titlebars now correctly indicate their activation state.
 
 - QGridLayout
     * [156497] Fix a one-off error in that caused the bottom button in a QDialogButtonBox to be 
@@ -270,6 +309,9 @@ Third party components
 
 - QFileSystemWatcher
     * [155548] Reliability fixes.
+    * When in polling mode, send change notification when file permissions change.
+    * [144049, 149637] Fixed a bug that prevented watching a directory
+      for notification on Windows.
 
 - QFtp
     * [107381] Greatly improved LIST support; QFtp now supports more server
@@ -328,6 +370,10 @@ Third party components
       fileName() would not return the fileName found, but the fileName searched for.
     * [156276] Fix behaviour of unload() to return true only if the library could be *unloaded*.
 
+- QList
+    * Fixed a race-condition in QList::detach() which could cause an
+      assertion in debug mode.
+
 - QListView
     * [136614] Batched mode did not display the last item of the batch.
     * Fix some issues with jerky scrolling in ScrollPerItem mode if the gridsize was different 
@@ -381,6 +427,8 @@ Third party components
     * Make sure that clear() on the Mac OS X clipboard really clears its data.
     * [143927] Don't drop alpha channel information on when pasting pixmaps on Mac OS X.
     * The Mac OS X clipboard now understands tiff information and exports images as tiff as well.
+    * [145437] Fixed crash when calling QClipboard::setMimeData()
+      twice with the same data.
 
 - QMenu
     * the addAction() overloads that take a slot argument now honor the slot's bool
@@ -424,9 +472,39 @@ Third party components
 - QMessageBox
     * [119777] Pressing Ctrl+C in message boxes on Windows copies text to clipboard
 
+- QMetaObject
+    * Optimize QMetaObject::invokeMethod() to avoid calling
+      QMetaType::type() unnecessarily.
+
+- QMetaType
+    * [143011] Fixed QMetaType::isRegistered() to return false when
+      type id is < QMetaType::User.
+
+- QMotifStyle
+    * [38624] Fixed the behavior when clicking on a menubar item a
+      second time; the menu will now close in the sam way that native
+      Motif do.
+
+- QMutex
+    * [106089] Added QMutex::tryLock(int timeout), which allows a
+      thread to specify the maximum amount of time to wait for the
+      mutex to become available.
+    * [137309] Fixed a rare deadlock when compiling with optimizations enabled.
+    * Optimize recursive locking to avoid 2 unnecessary atomic
+      operations when the current thread already owns the lock.
+
 - QObject
-    * Added a compile time check to ensure that the objects passed to qobject_cast contain
-      a Q_OBJECT macro.
+    * Added a compile time check to ensure that the objects passed to
+      qobject_cast contain a Q_OBJECT macro.
+    * [133901] Improve runtime warning from QObject::setParent() when
+      trying to set a new parent that is in a different thread
+    * [140106] Fixed a deadlock when deleting a QObject from the
+      destructor of a QEvent subclass.
+    * [133739] Fixed compiler warnings from g++ in QObject::findChildren<T>().
+    * Document the QEvent::ThreadChange that is sent by QObject::moveToThread().
+    * [130367] Improve runtime warning when creating a QObject with a
+      parent from a different thread.
+    * [114049] Make QObject::dumpObjectInfo() also dump connection information.
 
 - QGL
     * [158971] Fixed a resource leak in the GL texture cache.
@@ -594,6 +672,13 @@ Third party components
     * [158951] Buttons with icons now center their content to be more consistent 
     with buttons that do not have icons in most styles.
 
+- QReadWriteLock
+    * [106089] Added QReadWriteLock::tryLockForRead(int timeout) and
+      QReadWriteLock::tryLockForWrite(int timeout), which allows a
+      thread to specify the maximum amount of time to wait for the lock
+      to become available.
+    * [131880] Added support for recursive write locking.
+    
 - QStatusbar
 	* [131558] Increased text margin and fixed a look and feel issue on Windows.
 
@@ -607,6 +692,17 @@ Third party components
 - QTabWidget
     * TabWidget now takes ownership of corner widgets and allows setting 0 on the corner widget.
     * [142464] It should not be possible to navigate to disabled tabs.
+
+- QThread
+    * [140734] Fixed a bug that prevented QThread::exec() from being
+      called more than once per thread.
+    * Added QThread::idealThreadCount().
+
+- QThreadStorage
+    * [131944] Refactored to allow an arbitrary number of instances
+      (not just 256 as in previous versions).
+    * Updated documentation, as many caveats have been removed in Qt
+      4.2 and 4.3.
 
 - QTimeEdit
     * [136043] Fixed the USER properties.
@@ -625,6 +721,11 @@ Third party components
 
 - QScrollArea
     * [140603] Fixed flickering when the scroll widget is right-aligned.
+
+- QSemaphore
+    * Add QSemaphore::tryAcquire(int n, int timeout), which allows a
+      thread to specify the maximum amount of time to wait for the
+      semaphore to become available.
 
 - QSlider
     * Prevent QSlider from getting in an infinite loops when extreme values were used.
@@ -827,6 +928,12 @@ Third party components
     * [142276] Added undoLimit proprerty which controls the maximum number
       of commands on the stack.
 
+- QWaitCondition
+    * [126007] Made QWaitCondition::wakeOne() behavior consistent
+      between Windows and UNIX when calling wakeOne() twice when
+      exactly 2 threads are waiting (the correct behavior is to wake
+      up both threads).
+
 - QWidget
     * [139359] "locale" property added, this makes it easy to customize
       how individual widgets display dates and numbers.
@@ -834,6 +941,10 @@ Third party components
     * [137190] Setting a window mask is now rendered correct with respect to shadow on Mac.
     * [139182] Added a new function, render(), that renders the widget into another QPaintDevice.
     * [131917] Fixed bug where min/max sizes were not respected when using X11BypassWindowManagerHint.
+    * [117896] Fixed QWidget::setGeometry() to be more consistent
+      across Mac, Windows, X11 and Qtopia Core.
+    * [132827] Allow setting focus to a hidden widget; it will get
+      focus when shown.
 
 - QWindowsStyle
     * [110784] Scrollbar and spinbox arrows now scale with the widget size.
@@ -920,6 +1031,10 @@ Third party components
 
 - QtGlobal
     * Add Q_FUNC_INFO, a macro that expands to a string describing the function it is used in.
+    * [132145] Fix Q_FOREACH to protect against for-scoping compiler bugs.
+    * Fixed a race condition in the internal Q_GLOBAL_STATIC() macro.
+    * [123910] Fixed crashes on some systems when passing 0 as the
+      message to qDebug(), qWarning(), and qFatal().
 
 - QTextStream
     * [133063] atEnd() now works properly with stdin.
@@ -1074,6 +1189,48 @@ X11
     * [141756] Don't try to use the Plastique or Cleanlooks styles as the default
 	       style when there is no Xrender present.
     * [139455] Fixed QX11EmbedContainer race causing sudden un-embedding of clients.
+    * [96507] Add support for using _POSIX_MONOTONIC_CLOCK as the
+      timer source (also effects Qtopia Core).
+    * [128118] Fixed garbage output when calling QPixmap::grabWindow()
+      on a window on a non-default screen.
+    * [133119] Detect X11 color names in the RESOURCE_MANAGER property.
+    * [56319] Add support for _NET_WM_MOVERESIZE to QSizeGrip, which
+      cooperates with the window manager to do the resizing.
+    * Fixed QWidget::isMaximized() to return false when the window is
+      only maximized in a single direction.
+    * [67263] Fixed a bug that could cause applications to freeze
+      while querying the clipboard for data.
+    * [89224] Fixed minimized Qt applications to show the correct icon
+      (instead of the standard OpenWindows icon) on Solaris.
+    * [116080] Fixed setting of TIMESTAMP clipboard property to use
+      XA_INTEGER (as defined in the ICCCM).
+    * [127556] Refactored timer accounting code to be more efficient
+      and less cumbersome to maintain.
+    * [Related to 132241] Add support for DirectColor visuals, Qt will
+      now create and initialize a colormap when using such visuals.
+    * [140737] Fixed QEventDispatcherGlib::versionSupported() to be
+      much simpler.
+    * Fixed a bug where QWidget::windowFlags() would not include
+      Qt::X11BypassWindowManagerHint for Qt::ToolTip and Qt::Popuip
+      windows.
+    * [146472] Fixed a bug where QWidget::setWindowFlags() would
+      disable drag-and-drop from outside Qt applications.
+    * [150352] Fixed painting errors after show(), hide(), then show()
+      under GNOME.
+    * [150348] Fixed a bug that would incorrectly set the
+      Qt::WA_SetCursor attribute on top-level windows.
+    * [135054] Fixed system palette detection code to have contrast
+      more similar to the desktop settings.
+    * [124689] Document potential QDrag::setHotSpot() inefficiency on X11.
+    * [121547] Fixed QWidget::underMouse() to be correctly updated
+      after the mouse button is released.
+    * [151742] Improved robustness when executing in an X11-SECURITY
+      reduced ssh-forwarded session.
+    * [142009] Fixed a bug that caused an application using the Qt
+      Motif Extension to freeze when trying to copy text to a
+      QTextEdit.
+    * [124723] Fixed PseudoColor detection to correctly handle cases
+      where the colormap is not sequential.
 
 Windows
 -------
@@ -1120,6 +1277,13 @@ Windows
       on the size restrictions set on the widget.
     * [141296] Unloading of ActiveQt dll should be done from the same thread which
       loaded it.
+    * [116307] Fixed QEvent::WindowActivate not being sent for Qt::Tool windows.
+    * [150346] Fixed a bug that would exit the application when the
+      last window (a modal dialog) was closed and a new window shown
+      immediately afterward.
+    * [90144] Fixed a bug that caused
+      QApplication::keyboardMotifiers() to return modifiers even after
+      they had been released.
 
 Mac OS X
 --------
@@ -1205,6 +1369,8 @@ Qtopia Core
     * The default font has been changed to the DejaVu Sans family.
     * Fixed QFontDatabase::addApplicationFont for Qtopia Core.
     * [131714] Fixed performance problems with drag'n drop.
+    * [96507] Add support for using _POSIX_MONOTONIC_CLOCK as the
+      timer source (also effects Qt/X11).
 
 ****************************************************************************
 *                   Significant Documentation Changes                      *
@@ -1234,6 +1400,13 @@ Examples
   * [135547] Allow Windows line endings on UNIX and vice versa in
     .qt-license files.
   * [133068] GIF support is enabled by default now.
+  * [137728, 138862] Fixed failed build on Mac OS X and Solaris when
+    using -separate-debug-info.
+  * [137819] Added support for precompiled headers with the Intel C++
+    Compiler for Linux.
+  * Re-use qplatformdefs.h from linux-g++ in the linux-icc mkspec.
+  * [121633] Add linux-icc-64 mkspec, which is needed for building on
+    some 64-bit hosts.
 
 - Assistant
   * [99923] Added a context menu for the tabs in tab bar. Right click on a tab to get a list
@@ -1400,3 +1573,5 @@ Examples
     * subdir generator will now use - to separate target words and _ to
       separate internally appended words.
     * [125557] Fix broken generation of dependencies for extra compilers.
+    * Give the QMAKE_QMAKE variable a reasonable default before
+      parsing and evaluating project files.
