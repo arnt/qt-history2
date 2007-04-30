@@ -5099,7 +5099,7 @@ void QPainter::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPo
         setRenderHint(Antialiasing, renderHints() & SmoothPixmapTransform);
         setBrush(QBrush(d->state->pen.color(), pixmap));
         setPen(Qt::NoPen);
-        setBrushOrigin(QPointF(-sx, -sy));
+        setBrushOrigin(QPointF(r.x()-sx, r.y()-sy));
         drawRect(r);
         restore();
         return;
