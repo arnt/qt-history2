@@ -100,8 +100,8 @@ bool QC14N::isAttributesEqual(const QXmlStreamReader &r1,
 {
     Q_UNUSED(message);
 
-    const QXmlStreamAttributes &attrs1(r1.attributes());
-    const QXmlStreamAttributes &attrs2(r2.attributes());
+    const QXmlStreamAttributes &attrs1 = r1.attributes();
+    const QXmlStreamAttributes &attrs2 = r2.attributes();
     const int len = attrs1.size();
 
     if(len != attrs2.size())

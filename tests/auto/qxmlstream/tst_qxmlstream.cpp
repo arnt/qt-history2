@@ -737,6 +737,8 @@ void tst_QXmlStream::testReader_data() const
 
 void tst_QXmlStream::parseXSLTTestSuite() const
 {
+    /* We disable this test for now, so it doesn't show up as an XFAIL. */
+#if 0 
     QEXPECT_FAIL("", "Two problems needs to be solved in order to enable this test: \n"
                      "* The XSLT suite is 69 MB large, which is quite a lot compared to the existing XML suite on 2 mb.\n"
                      "* We need a c14n-like implementation in order to compare the outputs.", Abort);
@@ -798,6 +800,7 @@ void tst_QXmlStream::parseXSLTTestSuite() const
     }
 
     QCOMPARE(xsltExpectedRunCount, filesParsed);
+#endif
 }
 /*
   In addition to QTestLib's flags, one can specify "-c <filename>" and have that file output in its canonical form.
