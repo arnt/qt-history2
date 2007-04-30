@@ -1648,7 +1648,7 @@ void PaintCommands::command_setBgMode(QRegExp re)
 {
     QString cap = re.cap(2);
     Qt::BGMode mode = Qt::TransparentMode;
-    if (cap == "OpaqueMode" || cap == "Opaque")
+    if (cap.toLower() == QLatin1String("opaquemode") || cap.toLower() == QLatin1String("opaque"))
         mode = Qt::OpaqueMode;
 
     if (m_verboseMode)
