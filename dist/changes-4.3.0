@@ -516,9 +516,23 @@ Third party components
 - QSqlDriver
     * [128671] Added SimpleLocking to DriverFeature
 
+- QSqlQueryModel
+    * [155402] Fixed bug where the rowsAboutToBeRemoved and rowsRemoved signals were emitted when
+      setQuery() was called on an already empty model.
+    * [149491] Fixed bug where blank rows were inserted into the model if the database driver
+      didn't support the QuerySize feature and the result set contained more than 256 rows.
+    
+- QSqlRelationalTableModel
+    * [142865] Fixed support for Interbase and Firebird by not using 'AS' in generated SQL statements.
+    
 - QSqlTableModel
     * [128671] Ensure that the model has no read locks on a table before updating it. Fixes
       parallel access for in-process databases like SQLite.
+    * [140210] Fixed bug where setting a sort order for a column caused no rows to be selected
+      with PostgreSQL and Oracle databases due to missing escape identifiers in the generated
+      SQL statement.
+    * [118547] Don't issue asserts when inserting records before calling select() on the model.
+    * [118547] Improved error messaging.
 
 - QStandardItemModel
     * Reduced the construction time when rows and columns are given.
@@ -680,6 +694,10 @@ Third party components
       This fixed the case where items was still selectable when Q3ListVies was disabled using 
       setEnabled() method.
 
+- Q3SqlCursor
+    * [117996] Improved support for tables and views having fields with whitespaces
+      in their names.
+    
 - Q3TextEdit
     * [136214] Fixed invalid memory reads when using undo/redo-functionality.
 
@@ -776,6 +794,9 @@ Third party components
     * [130799] Improved support for attatched databases when used with
       QSqlTableModel.
     * [142374] Improved error message if failing to fetching a row.
+    * [144572] Fixed the implementation of escapeIdentifier() to improve support for
+      identifiers containing whitespaces and reserved words when used with the model
+      classes.
 
 - PostgreSQL driver
 
