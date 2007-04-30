@@ -178,6 +178,13 @@ public:
 
     QFontEngine *renderingEngine() const { return renderingFontEngine; }
 
+    QFontEngine *takeRenderingEngine()
+    {
+        QFontEngine *engine = renderingFontEngine;
+        renderingFontEngine = 0; 
+        return engine;
+    }
+
 private:
 #if !defined(QT_NO_FREETYPE)
     void ensureGlyphsLoaded(const QGlyphLayout *glyphs, int len);

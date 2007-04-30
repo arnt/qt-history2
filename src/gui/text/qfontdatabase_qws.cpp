@@ -603,17 +603,18 @@ QFontEngine *loadSingleEngine(int script, const QFontPrivate *fp,
             }
         }
         if (engine) {
+#ifndef QT_NO_QWS_QPF2
             if (shareFonts) {
-#ifndef QT_NO_QWS_QPF
                 QFontEngineQPF *fe = new QFontEngineQPF(def, -1, engine);
+                engine = 0;
                 if (fe->isValid())
                     return fe;
+                qWarning("Initializing QFontEngineQPF failed for %s", qPrintable(file));
+                engine = fe->takeRenderingEngine();
                 delete fe;
-#endif
-                engine = 0;
-            } else {
-                return engine;
             }
+#endif
+            return engine;
         }
     } else
 #endif // QT_NO_FREETYPE
