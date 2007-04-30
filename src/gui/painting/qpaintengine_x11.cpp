@@ -1753,34 +1753,17 @@ void QX11PaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, co
     Q_D(QX11PaintEngine);
 #ifndef QT_NO_XRENDER
     if (X11->use_xrender && d->picture && pixmap.x11PictureHandle()) {
-        // this is essentially qt_draw_tile(), inlined for
-        // the XRenderComposite call
-        int yPos, xPos, drawH, drawW, yOff, xOff;
-        yPos = y;
-        yOff = sy;
-        while(yPos < y + h) {
-            drawH = pixmap.height() - yOff;    // Cropping first row
-            if (yPos + drawH > y + h)        // Cropping last row
-                drawH = y + h - yPos;
-            xPos = x;
-            xOff = sx;
-            while(xPos < x + w) {
-                drawW = pixmap.width() - xOff; // Cropping first column
-                if (xPos + drawW > x + w)    // Cropping last column
-                    drawW = x + w - xPos;
-                if (pixmap.depth() == 1) {
-                    qt_render_bitmap(d->dpy, d->scrn, pixmap.x11PictureHandle(), d->picture,
-                                     xOff, yOff, xPos, yPos, drawW, drawH, d->cpen);
-                } else {
-                    XRenderComposite(d->dpy, d->composition_mode,
-                                     pixmap.x11PictureHandle(), XNone, d->picture,
-                                     xOff, yOff, 0, 0, xPos, yPos, drawW, drawH);
-                }
-                xPos += drawW;
-                xOff = 0;
-            }
-            yPos += drawH;
-            yOff = 0;
+        XRenderPictureAttributes attrs;
+        attrs.repeat = true;
+        XRenderChangePicture(d->dpy, pixmap.x11PictureHandle(), CPRepeat, &attrs);
+
+        if (pixmap.depth() == 1) {
+            qt_render_bitmap(d->dpy, d->scrn, pixmap.x11PictureHandle(), d->picture,
+                             sx, sy, x, y, w, h, d->cpen);
+        } else {
+            XRenderComposite(d->dpy, d->composition_mode,
+                             pixmap.x11PictureHandle(), XNone, d->picture,
+                             sx, sy, 0, 0, x, y, w, h);
         }
     } else
 #endif // !QT_NO_XRENDER
