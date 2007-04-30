@@ -985,6 +985,7 @@ void tst_QWizard::setOption_IgnoreSubTitles()
 void tst_QWizard::setOption_ExtendedWatermarkPixmap()
 {
     QPixmap watermarkPixmap(200, 400);
+    watermarkPixmap.fill(Qt::black);
 
     QWizard wizard1;
     wizard1.setButtonLayout(QList<QWizard::WizardButton>() << QWizard::CancelButton);
