@@ -335,6 +335,8 @@ private:
     void emitFrameStyle(const QTextFrameFormat &format, FrameType frameType);
     void emitBorderStyle(QTextFrameFormat::BorderStyle style);
 
+    void emitFontFamily(const QString &family);
+
     QString html;
     QTextCharFormat defaultCharFormat;
     const QTextDocument *doc;

@@ -1581,9 +1581,7 @@ QString QTextHtmlExporter::toHtml(const QByteArray &encoding, ExportMode mode)
     if (mode == ExportEntireDocument) {
         html += QLatin1String(" style=\"");
 
-        html += QLatin1String(" font-family:'");
-        html += defaultCharFormat.fontFamily();
-        html += QLatin1String("';");
+        emitFontFamily(defaultCharFormat.fontFamily());
 
         if (defaultCharFormat.hasProperty(QTextFormat::FontPointSize)) {
             html += QLatin1String(" font-size:");
@@ -1645,9 +1643,7 @@ bool QTextHtmlExporter::emitCharFormatStyle(const QTextCharFormat &format)
     {
         const QString family = format.fontFamily();
         if (!family.isEmpty() && family != defaultCharFormat.fontFamily()) {
-            html += QLatin1String(" font-family:'");
-            html += family;
-            html += QLatin1String("';");
+            emitFontFamily(family);
             attributesEmitted = true;
         }
     }
@@ -1866,6 +1862,20 @@ void QTextHtmlExporter::emitBorderStyle(QTextFrameFormat::BorderStyle style)
         break;
     };
 
+    html += QLatin1Char(';');
+}
+
+void QTextHtmlExporter::emitFontFamily(const QString &family)
+{
+    html += QLatin1String(" font-family:");
+
+    QLatin1Char quote('\'');
+    if (family.contains(quote))
+        quote = QLatin1Char('\"');
+
+    html += quote;
+    html += family;
+    html += quote;
     html += QLatin1Char(';');
 }
 

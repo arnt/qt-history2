@@ -534,6 +534,28 @@ void tst_QTextDocument::toHtml_data()
     {
         CREATE_DOC_AND_CURSOR();
 
+        QTextCharFormat fmt;
+        fmt.setFontFamily("Foo's Family");
+        cursor.insertText("Blah", fmt);
+
+        QTest::newRow("font-family-with-quotes1") << QTextDocumentFragment(&doc)
+                                  << QString("<p DEFAULTBLOCKSTYLE><span style=\" font-family:\"Foo's Family\";\">Blah</span></p>");
+    }
+
+    {
+        CREATE_DOC_AND_CURSOR();
+
+        QTextCharFormat fmt;
+        fmt.setFontFamily("Foo\"s Family");
+        cursor.insertText("Blah", fmt);
+
+        QTest::newRow("font-family-with-quotes2") << QTextDocumentFragment(&doc)
+                                  << QString("<p DEFAULTBLOCKSTYLE><span style=\" font-family:'Foo\"s Family';\">Blah</span></p>");
+    }
+
+    {
+        CREATE_DOC_AND_CURSOR();
+
         QTextBlockFormat fmt;
         fmt.setNonBreakableLines(true);
         cursor.insertBlock(fmt);
