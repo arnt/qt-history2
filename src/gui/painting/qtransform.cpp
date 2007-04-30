@@ -391,16 +391,16 @@ const qreal deg2rad = qreal(0.017453292519943295769);        // pi/180
 const qreal inv_dist_to_plane = 1. / 1024.;
 
 /*!
-    Rotates the coordinate system the given \a degrees
-    counterclockwise.
+    \fn QTransform &QTransform::rotate(qreal angle, Qt::Axis axis)
+    
+    Rotates the coordinate system counterclockwise by the given \a angle
+    about the specified \a axis and returns a reference to the matrix.
 
     Note that if you apply a QTransform to a point defined in widget
     coordinates, the direction of the rotation will be clockwise
     because the y-axis points downwards.
 
-    Method uses degrees for angles.
-
-    Returns a reference to the matrix.
+    The angle is specified in degrees.
 
     \sa setMatrix()
 */
@@ -445,16 +445,16 @@ QTransform & QTransform::rotate(qreal a, Qt::Axis axis)
 }
 
 /*!
-    Rotates the coordinate system the given \a radians
-    counterclockwise.
-
+    \fn QTransform & QTransform::rotateRadians(qreal angle, Qt::Axis axis)
+    
+    Rotates the coordinate system counterclockwise by the given \a angle
+    about the specified \a axis and returns a reference to the matrix.
+    
     Note that if you apply a QTransform to a point defined in widget
     coordinates, the direction of the rotation will be clockwise
     because the y-axis points downwards.
 
-    Method uses radians for angles.
-
-    Returns a reference to the matrix.
+    The angle is specified in radians.
 
     \sa setMatrix()
 */
@@ -487,6 +487,7 @@ QTransform & QTransform::rotateRadians(qreal a, Qt::Axis axis)
 }
 
 /*!
+    \fn bool QTransform::operator==(const QTransform &matrix) const
     Returns true if this matrix is equal to the given \a matrix,
     otherwise returns false.
 */
@@ -500,6 +501,7 @@ bool QTransform::operator==(const QTransform &o) const
 }
 
 /*!
+    \fn bool QTransform::operator!=(const QTransform &matrix) const
     Returns true if this matrix is not equal to the given \a matrix,
     otherwise returns false.
 */
@@ -509,6 +511,7 @@ bool QTransform::operator!=(const QTransform &o) const
 }
 
 /*!
+    \fn QTransform & QTransform::operator*=(const QTransform &matrix)
     \overload
 
     Returns the result of multiplying this matrix by the given \a
@@ -538,6 +541,7 @@ QTransform & QTransform::operator*=(const QTransform &o)
 }
 
 /*!
+    \fn QTransform QTransform::operator*(const QTransform &matrix) const
     Returns the result of multiplying this matrix by the given \a
     matrix.
 
@@ -700,9 +704,8 @@ QPoint QTransform::map(const QPoint &p) const
 /*!
     \overload
 
-    Creates and returns a QPointF object that is a copy of the given
-    \a point, mapped into the coordinate system defined by this
-    matrix.
+    Creates and returns a QPointF object that is a copy of the given point,
+    \a p, mapped into the coordinate system defined by this matrix.
 */
 QPointF QTransform::map(const QPointF &p) const
 {
@@ -751,8 +754,8 @@ QPointF QTransform::map(const QPointF &p) const
 /*!
     \overload
 
-    Creates and returns a QLineF object that is a copy of the given \a
-    line, mapped into the coordinate system defined by this matrix.
+    Creates and returns a QLineF object that is a copy of the given line,
+    \a l, mapped into the coordinate system defined by this matrix.
 */
 QLine QTransform::map(const QLine &l) const
 {
@@ -762,11 +765,14 @@ QLine QTransform::map(const QLine &l) const
 /*!
     \overload
 
+    \fn QLineF QTransform::map(const QLineF &line) const
+    
     Creates and returns a QLine object that is a copy of the given \a
     line, mapped into the coordinate system defined by this matrix.
     Note that the transformed coordinates are rounded to the nearest
     integer.
 */
+
 QLineF QTransform::map(const QLineF &l) const
 {
     return QLineF(map(l.p1()), map(l.p2()));
@@ -996,9 +1002,10 @@ QPolygon QTransform::mapToPolygon(const QRect &rect) const
 }
 
 /*!
-    Creates a transformation that maps a unit square to a the given
-    quad. Returns false if such transformation is impossible, true
-    on success.
+
+    Creates a transformation matrix, \a trans, that maps a unit square
+    to a four-sided polygon, \a quad. Returns true if the transformation
+    is constructed or false if such a transformation does not exist.
 
     \sa squareToQuad()
 */
@@ -1059,9 +1066,11 @@ bool QTransform::squareToQuad(const QPolygonF &quad, QTransform &trans)
 }
 
 /*!
-    Creates a transformation that maps a quad to a unit square.
-    Returns false if such transformation doesn't exist and true
-    if the transformation has been constructed.
+    \fn bool QTransform::quadToSquare(const QPolygonF &quad, QTransform &trans)
+    
+    Creates a transformation matrix, \a trans, that maps a four-sided polygon,
+    \a quad, to a unit square. Returns true if the transformation is constructed
+    or false if such a transformation does not exist. 
 
     \sa squareToQuad(), quadToQuad()
 */
@@ -1077,12 +1086,13 @@ bool QTransform::quadToSquare(const QPolygonF &quad, QTransform &trans)
 }
 
 /*!
-    Creates a transformation mapping one arbitrary
-    quad into another.
+    Creates a transformation matrix, \a trans, that maps a
+    four-sided polygon, \a one, to another four-sided
+    polygon, \a two.
 
-    It's a convenience method combining quadToSquare and
-    squareToQuad methods. It allows transforming
-    input quad into any other quad.
+    This is a convenience method combining quadToSquare() and
+    squareToQuad() methods. It allows the input quad to be
+    transformed into any other quad.
 
     \sa squareToQuad(), quadToSquare()
 */
@@ -1099,6 +1109,17 @@ bool QTransform::quadToQuad(const QPolygonF &one,
     //qDebug()<<"Final = "<<trans;
     return true;
 }
+
+/*! 
+    Sets the matrix elements to the specified values, \a m11,
+    \a m12, \a m13 \a m21, \a m22, \a m23 \a m31, \a m32 and
+    \a m33. Note that this function replaces the previous values. 
+    QMatrix provides the translate(), rotate(), scale() and shear()
+    convenience functions to manipulate the various matrix elements
+    based on the currently defined coordinate system. 
+    
+    \sa QTransform()
+*/
 
 void QTransform::setMatrix(qreal m11, qreal m12, qreal m13,
                            qreal m21, qreal m22, qreal m23,
@@ -1381,7 +1402,7 @@ QTransform::operator QVariant() const
 
     Returns the horizontal translation factor.
 
-    \sa translate(), {QTransform#Basic Matrix Operations}{Basic Matrix
+    \sa m31(), translate(), {QTransform#Basic Matrix Operations}{Basic Matrix
     Operations}
 */
 
@@ -1414,6 +1435,23 @@ QTransform::operator QVariant() const
     Operations}
 */
 
+/*!
+    \fn qreal QTransform::m31() const
+
+    Returns the horizontal translation factor.
+
+    \sa dx(), translate(), {QTransform#Basic Matrix Operations}{Basic Matrix
+    Operations}
+*/
+
+/*!
+    \fn qreal QTransform::m32() const
+
+    Returns the vertical translation factor.
+
+    \sa dy(), translate(), {QTransform#Basic Matrix Operations}{Basic Matrix
+    Operations}
+*/
 
 /*!
     \fn qreal QTransform::m33() const
@@ -1422,6 +1460,12 @@ QTransform::operator QVariant() const
 
     \sa translate(), {QTransform#Basic Matrix Operations}{Basic Matrix
     Operations}
+*/
+
+/*!
+    \fn qreal QTransform::determinant() const
+
+    Returns the matrix's determinant.
 */
 
 /*!
