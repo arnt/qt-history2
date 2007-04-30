@@ -465,7 +465,7 @@ Third party components
 
     * [127724] Support OUT values from stored procedures. (See SQL Database Drivers
       documentation for details).
-    * [260478] Fixed crash when fetching data from Interbase 2007 databases.
+    * [159123] Fixed crash when fetching data from Interbase 2007 databases.
     * [143474] Added support for SQL security based roles.
     * [134608] Fixed bug where queries in some cases returned empty VARCHAR fields
       it they contained non-ascii characters.
