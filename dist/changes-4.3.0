@@ -9,6 +9,7 @@ General Improvements
     * Fixed OpenBSD and NetBSD build issues.
 - Added support for CP949 Korean Codec
 - The whole Qt source compiles with the QT_NO_CAST_FROM_ASCII and QT_NO_CAST_TO_ASCII defines and therefore is more robust when using codecs.
+- Added support for HP-UX 11i (Itanium) with the aCC compiler
 
 Third party components
 ----------------------
@@ -40,6 +41,9 @@ Third party components
 
 - QBitArray
     * [158816] Fix crash in operator~()
+
+- QAuthenticator
+    * New class; added support for complex authenticators.
 
 - QCalendarWidget
     * Don't set maximum width for month/year buttons
@@ -74,10 +78,22 @@ Third party components
     * Remove legacy behavior which assumed that a year between 0 and 99 was meant 1900 + year in
       QDateTime
     * [40085, 153114, 145167] Fix bugs in parsing strings into dates.
+    * [136043] Fixed the USER properties.
+
+- QDir
+    * [136380] QDir's permission filters on Unix now behave the same as on
+      Windows (previously the filters' behavior was reversed on Unix).
+    * [158610] Passing QDir::Unsorted now properly bypasses sorting.
+
+- QDirIterator
+    * New class
 
 - QImage
     * [157549] Fixed crash when calling QImage::copy with negative coordinates.
     * Added cacheKey() as a replacement for serialNumber().
+
+- QImageReader
+    * [141781] Fixed support for doublebyte PPM files (>256 colors).
 
 - QIcon
     * Added cacheKey() as a replacement for serialNumber().
@@ -118,6 +134,7 @@ Third party components
       tabbed dock area.
     * added the dockLocationChanged() signal, emitted when dock widgets are moved around
       in a QMainWindow.
+    * [135878] Titlebars now support mnemonics properly.
 
 - QSettings
     * [153758] Fixed various bugs when writing and reading from Windows registry.
@@ -128,15 +145,36 @@ Third party components
     * [140018] Mac OS X will now invalidate the backing native socket
       notifier upon deregistration.
 
+- QSslCertificate
+- QSslCipher
+- QSslError
+- QSslKey
+- QSslSocket
+    * New classes; added support for SSL to QtNetwork.
+
+- QTcpSocket
+    * Several fixes for improved connection reliability on Windows.
+    * Several optimizations.
+    * Improved detection of ConnectionRefusedError on Windows and older Unixes.
+
+- QTemporaryFile
+    * [150770] Fixed large file support on Unix.
+
 - QLineEdit
     * [156104] Disable input methods when not in the "Normal" edit mode.
 
 - QDoubleSpinBox
     * [99254] Allow higher settings for decimals
 
-- QFileInfo
-    * Do not follow symbolic link for Mac FS hidden flag detection.
-    * [128604] Introduced isBundle() for Mac OS X bundle types.
+- QFile
+    * [128352] A backend refactoring on Windows with major performance
+      improvements; in particular line and character reading is much
+      faster now.
+    * [146693] Fixed a lock-up in copy().
+    * [148447] QFile now supports large files when available on Windows.
+    * General improved support for stdin.
+    * Byte writing performance has improved on all platforms.
+    * [151898] Support reading lines with an embedded '\0' character.
 
 - QFileDialog
     * Updated file dialog with native icons, faster performance and a sidebar to
@@ -146,9 +184,31 @@ Third party components
       Qt3's file dialog.
     * [130353] Fixed Qt/Mac native filedialog pattern splitting
 
+
+- QFileInfo
+    * Do not follow symbolic link for Mac FS hidden flag detection.
+    * [128604] Introduced isBundle() for Mac OS X bundle types.
+    * [139106] No longer reports drives as hidden on Windows.
+
+- QFileSystemWatcher
+    * [155548] Reliability fixes.
+
+- QFtp
+    * [107381] Greatly improved LIST support; QFtp now supports more server
+    types.
+    * [136008] Improved tolerance for servers with no EPRT/EPSV support.
+    * [150607] Fixed a race condition when using ActiveMode for uploading.
+
 - QHeaderView
     * Now uses Qt::NoFocus for its default focus policy
     * [99569] Speedups providing up to a 2X speed increase for some cases
+
+- QHostInfo
+    * [141946] No longer stops working after destroying QCoreApplication.
+    * [152805] Now periodically reinitializes DNS settings on Unix.
+
+- QHttp
+    * [139575] Fixed state for servers that use the "100 Continue" response.
 
 - QItemSelectionModel
     * Optimizations for some common cases.
@@ -159,6 +219,13 @@ Third party components
 - QLocale
     * Locale database updated to CLDR 1.4: more locales supported, numerous
       fixes to existing locales.
+
+- QNetworkInterface
+    * [146834] Now properly generates broadcast addresses on Windows XP.
+
+- QNetworkProxy
+    * Added support for transparent HTTP CONNECT client proxying.
+    * Added support for complex authenticators through QAuthenticator.
 
 - QResource
     * [129429] Allow a QByteArray for runtime resource registration.
@@ -193,6 +260,7 @@ Third party components
       resizes.
     * [113989] Added some fuzziness to the snapto detection.
     * [155030] Do not disable command actions when merge is disabled.
+    * [131702] The tearoff menu no longer appears only once.
 
 - QMenuBar
     * [135320] Make QMenuBar::show() a no-op to on Mac OS X to prevent
@@ -224,6 +292,81 @@ Third party components
 - QGLPixelBuffer
     * [138393] Make QGLPixelbuffer work under Windows on systems without the
                render_texture extension.
+
+- QGraphicsItem
+    * [237041] QGraphicsItem's selected state no longer changes state twice
+      for each mouse click.
+    * [138576] QGraphicsItem::setParent() now correctly adds the child to the
+      parent's scene.
+    * [130263] Added support for partial obscurity testing,
+      isObscured(QRectF).
+    * [140725] QGraphicsTextItem is now also selectable when editable.
+    * [141694] QGraphicsTextItem now calls ensureVisible() if it has input
+      focus.
+    * [144734] Fixed bugs in unsetCursor().
+    * [144895] Improved bounding rect calculations for all standard items.
+    * Added support for QTransform.
+    * [137055] Added QGraphicsItem::ItemPositionHasChanged and
+      ItemTransformHasChanged.
+    * Several convenience functions have been added.
+    * [146863] Added clipping flags: ItemClipsToShape and
+    ItemClipsChildrenToShape.
+    * [139782] Greatly improved hit and selection tests.
+    * [123942] New flag: ItemIgnoresTransformations, allows items to bypass
+      any inherited transformations.
+    * All QGraphicsItem and standard item classes constructors have now had
+      their (scene) arguments obsoleted.
+    * [150767] Add support for implicit and explicit show and hide. Explicitly
+      hidden items are no longer implicitly shown when their parent is shown.
+    * [151522] Fixed crash when nesting QGraphicsItems that enabled
+      child event handling.
+    * [151265] Cursors now change correctly also with no mouse interaction.
+    * Added deviceTransform(), which returns a matrix that maps between item
+      and device (viewport) coordinates.
+    * Added ItemSceneChange notification flag.
+
+- QGraphicsScene
+    * [130614] Add QGraphicsScene::invalidate(), for resetting the cache
+      individually for each scene layer.
+    * [139747] Fixed slow memory leaks caused by repeatedly scheduling
+    single-shot timers.
+    * [128581] New signal: selectionChanged(), is emitted when the selection
+    changes.
+    * Introduced delayed item reindexing, which greatly improves performance
+    when moving items.
+    * The BSP tree implementation has undergone several optimizations.
+    * Added new bspTreeDepth property, for fixating the BSP tree depth.
+    * Optimization: Reduced the number of unnecessary index lookups.
+    * [146518] Add selectionArea() function.
+
+- QGraphicsSceneWheelEvent
+    * [146864] Added wheel orientation.
+
+- QGraphicView
+    * [136173] Hit-tests are now greatly improved for thin items.
+    * [133680] The scrollbars now max out instead of overflowing when the
+      transformed scene is larger than INT_MIN - INT_MAX.
+    * [129946] Changing the viewport no longer resets the acceptsDrops()
+    property.
+    * [139752] ScrollHandDrag is now allowed also in non-interactive mode.
+    * [128226] Fixed rendering bugs for rubberband (flicker & transparency).
+    * [144276] The selection is no longer reset by scroll-dragging.
+    * Added support for QTransform.
+    * [137027] Added new viewportUpdateMode() property for better control
+      over how QGraphicsView schedules updates.
+    * Several convenience functions have been added.
+    * [146517] Added rubberBandSelectionMode(), for controlling how items are
+      selected with the rubber band.
+    * [150344] Fixed the scrollbar ranges to avoid the scrollbars from hiding
+      parts of the scene.
+    * [150321] Added new optimizationFlags() property for disabling individual
+      features to speed up rendering.
+    * The level-of-detail algorithm has been changed to improve support for
+      transformations that change the view's aspect ratio.
+    * [154942] Fixed background rendering in render().
+    * [156922] render() now properly supports all transformations, source and
+      target rectangles.
+    * [158245] Calling setScene(0) now implicitly calls update().
 
 - QPainter
     * Fixed stroking of non-closed polygons with non-cosmetic pens in the
@@ -268,6 +411,9 @@ Third party components
 - QPageSetupDialog
     * [136041] Margins are now saved and used properly when printing.
 
+- QPlastiqueStyle
+    * [133220] QProgressBar rendering bugs fixed.
+
 - QPrintDialog
     * [128964] Make "Print" button the default
     * [138924] The filename in the file dialog is set when printing to a file
@@ -278,6 +424,10 @@ Third party components
     * [153735] Significantly speed up generation of PDF documents with Asian characters.
     * [140759] Document that you can't change orientation on an active printer on Mac OS X (native format).
 
+- QProgressBar
+    * [146855] setFormat() now calls update() if the format changes.
+    * [152227] Improved support for wide ranges (INT_MIN - INT_MAX).
+
 - QTabBar
     * [126438] Added int tabAt(const QPoint &pos) const
     * [143760] Scroll buttons are now never shown when setUsesScrollButtons(false)
@@ -285,12 +435,23 @@ Third party components
 - QTabWidget
     * TabWidget now takes ownership of corner widgets and allows setting 0 on the corner widget.
 
+- QTimeEdit
+    * [136043] Fixed the USER properties.
+
+- QTimeLine
+    * [145592] Fixed the time line state after finished() has been emitted.
+    * [125135] Add resume() for resuming instead of restarting the timeline.
+    * [153425] Fixed support for loopcount >= 2.
+
 - QTimer
     * Added property to determine if the timer is active.
 
 - QToolBar
     * [128156, 138908] tool bars do animated expand to display all their actions when the
       extension button is pressed.
+
+- QScrollArea
+    * [140603] Fixed flickering when the scroll widget is right-aligned.
 
 - QSlider
     * Prevent QSlider from getting in an infinite loops when extreme values were used.
@@ -422,6 +583,14 @@ Third party components
 - QTreeWidget
     * [153361] Check that an item exists before emiting itemChanged().
 
+- QToolBox
+    * [107787] Fixed rendering bugs in reverse mode.
+
+- QUdpSocket
+    * [142853] Now continues to emit readyRead() also if the peer temporarily
+      disappears.
+    * [154913] Now detects datagrams also when sender's port is invalid.
+
 - QUndoStack
     * [142276] Added undoLimit proprerty which controls the maximum number
       of commands on the stack.
@@ -429,6 +598,9 @@ Third party components
 - QWidget
     * [139359] "locale" property added, this makes it easy to customize
       how individual widgets display dates and numbers.
+
+- QWindowsXPStyle
+    * [138444] Fixed crash when passing 0 to drawComplexControl()'s widget argument.
 
 - QXmlSimpleReader
     * QXmlSimpleReader no longer reads entire file into memory, allowing
@@ -445,6 +617,9 @@ Third party components
 - Q3DateEdit
     * [131577] Fix a bug with typing in out-of-range years in a Q3DateEdit
 
+- Q3ListView
+    * [150781] Fixed a crash in setOpen() (previously fixed in Qt 3).
+
 - Q3TextEdit
     * [136214] Fixed invalid memory reads when using undo/redo-functionality.
 
@@ -456,6 +631,12 @@ Third party components
 - QProcess
     * [97517] Added suport for specifying the working directory of detached
       processes as well as retrieving the PID of such a process.
+    * [138770] Stdin/stdout performance on Windows has been greatly improved.
+    * [154135] Fixed crashes and lockups due to use of non-signalsafe
+      functions on Unix.
+    * [144728] Fixed race conditions on Windows when calling bytesWritten()
+      while using the waitFor... functions.
+    * [152838] No longer emits finished() if the process couldn't start.
 
 - QLabel
     * [133589] Fixed performance problems with plain text labels.
@@ -471,6 +652,11 @@ Third party components
 
 - QtGlobal
     * Add Q_FUNC_INFO, a macro that expands to a string describing the function it is used in.
+
+- QTextStream
+    * [133063] atEnd() now works properly with stdin.
+    * [152819] Added support for reading and writing NaN and INF.
+
 - QSplashScreen
     * [38269] Added support for rich text.
 
@@ -482,6 +668,9 @@ Third party components
     * [113472] Fix drawing of text on vertical headers when resizing.
     * [148509] Draw with the correct font for buttons and labels when desktop settings aware is false.
     * [106100] Improve the look of QPushButtons with menus.
+
+- QUrl
+    * [134604] Fixed the behavior dirPath() on Windows (obsolete member)
 
 
 ****************************************************************************
@@ -583,7 +772,8 @@ X11
 ---
     * [153346] Don't deliver tablet events while in Drag and Drop.
     * [141756] Don't try to use the Plastique or Cleanlooks styles as the default
-               style when there is no Xrender present.
+	       style when there is no Xrender present.
+    * [139455] Fixed QX11EmbedContainer race causing sudden un-embedding of clients.
 
 Windows
 -------
@@ -606,7 +796,10 @@ Windows
     * [111501] SPI_SETWORKAREA message now triggers a triggers a workAreaResized().
     * [141633] Fixed commandline parsing for GUI applications.
     * [134984] SockAct events wont be triggered from processEvents(ExcludeSocketNotifiers).
-    * [134164] The toplevel widgets with MSWindowsFixedSizeDialogHint are centered properly.
+    * [134164] The toplevel widgets with MSWindowsFixedSizeDialogHint are
+    centered properly.
+    * [145270] Fixed mapFromGlobal() and mapToGlobal() for minimized or
+    invisible widgets.
 
 - ActiveQt
     * When loading a typelib file to obtain information about a control it
