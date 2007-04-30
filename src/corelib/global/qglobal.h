@@ -1314,9 +1314,9 @@ Q_CORE_EXPORT void qt_check_pointer(const char *, int);
 
 #if (defined(Q_CC_GNU) && !defined(Q_OS_SOLARIS)) || defined(Q_CC_HPACC)
 #  define Q_FUNC_INFO __PRETTY_FUNCTION__
-#elif defined(_MSC_VER) && _MSC_VER >= 1300
+#elif defined(_MSC_VER)
     /* MSVC 2002 doesn't have __FUNCSIG__ nor can it handle QT_STRINGIFY. */
-#  if _MSC_VER == 1300
+#  if _MSC_VER <= 1300
 #      define Q_FUNC_INFO __FILE__ "(line number unavailable)"
 #  else
 #      define Q_FUNC_INFO __FUNCSIG__
