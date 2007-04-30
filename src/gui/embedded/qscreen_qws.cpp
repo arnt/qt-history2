@@ -396,6 +396,8 @@ static void blit_32(QScreen *screen, const QImage &image,
                     const QPoint &topLeft, const QRegion &region)
 {
     switch (image.format()) {
+    case QImage::Format_RGB32:
+    case QImage::Format_ARGB32:
     case QImage::Format_ARGB32_Premultiplied:
         blit_template<quint32, quint32>(screen, image, topLeft, region);
         return;
@@ -415,6 +417,8 @@ static void blit_16(QScreen *screen, const QImage &image,
                     const QPoint &topLeft, const QRegion &region)
 {
     switch (image.format()) {
+    case QImage::Format_RGB32:
+    case QImage::Format_ARGB32:
     case QImage::Format_ARGB32_Premultiplied:
         blit_template<quint16, quint32>(screen, image, topLeft, region);
         return;
@@ -447,6 +451,8 @@ static void blit_16_bigToLittleEndian(QScreen *screen, const QImage &image,
                                       const QRegion &region)
 {
     switch (image.format()) {
+    case QImage::Format_RGB32:
+    case QImage::Format_ARGB32:
     case QImage::Format_ARGB32_Premultiplied:
         blit_template<quint16LE, quint32>(screen, image, topLeft, region);
         return;
@@ -466,6 +472,8 @@ static void blit_8(QScreen *screen, const QImage &image,
                    const QPoint &topLeft, const QRegion &region)
 {
     switch (image.format()) {
+    case QImage::Format_RGB32:
+    case QImage::Format_ARGB32:
     case QImage::Format_ARGB32_Premultiplied:
         blit_template<quint8, quint32>(screen, image, topLeft, region);
         return;
