@@ -919,7 +919,7 @@ static void qt_set_x11_resources(const char* font = 0, const char* fg = 0,
         resBG = QString::fromLocal8Bit(bg);
     if (resButton.isEmpty())
         resButton = QString::fromLocal8Bit(button);
-    if (!resFont.isEmpty()) { // set application font
+    if (!resFont.isEmpty() && !X11->has_fontconfig) { // set application font
         QFont fnt;
         fnt.setRawName(resFont);
 
