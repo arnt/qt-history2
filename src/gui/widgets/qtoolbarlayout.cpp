@@ -483,10 +483,10 @@ QSize QToolBarLayout::expandedSize(const QSize &size) const
 
     int total_w = 0;
     int count = 0;
-    for (int i = 0; i < items.count(); ++i) {
-        if (!geomArray[i].empty) {
+    for (int x = 0; x < items.count(); ++x) {
+        if (!geomArray[x].empty) {
             ++count;
-            total_w += spacing + geomArray[i].minimumSize;
+            total_w += spacing + geomArray[x].minimumSize;
         }
     }
     if (count == 0)
