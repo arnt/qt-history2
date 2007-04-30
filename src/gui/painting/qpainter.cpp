@@ -2004,6 +2004,9 @@ void QPainter::setClipRegion(const QRegion &r, Qt::ClipOperation op)
 
     Sets the transformation matrix to \a matrix and enables transformations.
 
+    \note It is advisable to use setWorldTransform() instead of this function to
+    preserve the properties of perspective transformations.
+
     If \a combine is true, then \a matrix is combined with the current
     transformation matrix; otherwise \a matrix replaces the current
     transformation matrix.
@@ -2056,7 +2059,11 @@ void QPainter::setWorldMatrix(const QMatrix &matrix, bool combine)
 
     Returns the world transformation matrix.
 
-    \sa {QPainter#Coordinate Transformations}{Coordinate Transformations}, {The Coordinate System}
+    It is advisable to use worldTransform() because worldMatrix() does not
+    preserve the properties of perspective transformations.
+    
+    \sa {QPainter#Coordinate Transformations}{Coordinate Transformations},
+    {The Coordinate System}
 */
 
 const QMatrix &QPainter::worldMatrix() const
@@ -2068,9 +2075,9 @@ const QMatrix &QPainter::worldMatrix() const
 /*!
     \obsolete
 
-    Use setWorldMatrix() instead.
+    Use setWorldTransform() instead.
 
-    \sa setWorldMatrix()
+    \sa setWorldTransform()
 */
 
 void QPainter::setMatrix(const QMatrix &matrix, bool combine)
@@ -2081,9 +2088,9 @@ void QPainter::setMatrix(const QMatrix &matrix, bool combine)
 /*!
     \obsolete
 
-    Use worldMatrix() instead.
+    Use worldTransform() instead.
 
-    \sa worldMatrix()
+    \sa worldTransform()
 */
 
 const QMatrix &QPainter::matrix() const
@@ -2098,6 +2105,9 @@ const QMatrix &QPainter::matrix() const
     Returns the transformation matrix combining the current
     window/viewport and world transformation.
 
+    It is advisable to use combinedTransform() instead of this
+    function to preserve the properties of perspective transformations.
+
     \sa setWorldMatrix(), setWindow(), setViewport()
 */
 QMatrix QPainter::combinedMatrix() const
@@ -2110,8 +2120,11 @@ QMatrix QPainter::combinedMatrix() const
     Returns the matrix that transforms from logical coordinates to
     device coordinates of the platform dependent paint device.
 
+    \note It is advisable to use deviceTransform() instead of this
+    function to preserve the properties of perspective transformations.
+
     This function is \e only needed when using platform painting
-    commands on the platform dependent handle ( Qt::HANDLE), and the
+    commands on the platform dependent handle (Qt::HANDLE), and the
     platform does not do transformations nativly.
 
     The QPaintEngine::PaintEngineFeature enum can be queried to
@@ -2131,9 +2144,13 @@ const QMatrix &QPainter::deviceMatrix() const
     shear(), rotate(), setWorldMatrix(), setViewport() and
     setWindow().
 
+    It is advisable to use resetTransform() instead of this function
+    to preserve the properties of perspective transformations.
+
     \sa {QPainter#Coordinate Transformations}{Coordinate
     Transformations}
 */
+
 void QPainter::resetMatrix()
 {
     resetTransform();
@@ -5606,7 +5623,7 @@ void QPainter::map(int x, int y, int *rx, int *ry) const
 /*!
     \fn QPoint QPainter::xForm(const QPoint &point) const
 
-    Use \a point * combinedMatrix() instead.
+    Use combinedTransform() instead.
 */
 
 QPoint QPainter::xForm(const QPoint &p) const
@@ -5622,7 +5639,8 @@ QPoint QPainter::xForm(const QPoint &p) const
     \fn QRect QPainter::xForm(const QRect &rectangle) const
     \overload
 
-    Use \a combinedMatrix().mapRect(rectangle) instead.
+    Use combinedTransform() instead of this function and call
+    mapRect() on the result to obtain a QRect.
 */
 
 QRect QPainter::xForm(const QRect &r) const
@@ -5637,7 +5655,7 @@ QRect QPainter::xForm(const QRect &r) const
     \fn QPolygon QPainter::xForm(const QPolygon &polygon) const
     \overload
 
-    Use \a polygon * combinedMatrix() instead.
+    Use combinedTransform() instead.
 */
 
 QPolygon QPainter::xForm(const QPolygon &a) const
@@ -5652,7 +5670,7 @@ QPolygon QPainter::xForm(const QPolygon &a) const
     \fn QPolygon QPainter::xForm(const QPolygon &polygon, int index, int count) const
     \overload
 
-    Use combinedMatrix() combined with QPolygon::mid() instead.
+    Use combinedTransform() combined with QPolygon::mid() instead.
 
     \oldcode
         QPainter painter(this);
@@ -5675,7 +5693,7 @@ QPolygon QPainter::xForm(const QPolygon &av, int index, int npoints) const
     \fn QPoint QPainter::xFormDev(const QPoint &point) const
     \overload
 
-    Use  combinedMatrix() combined with QMatrix::inverted() instead.
+    Use combinedTransform() combined with QMatrix::inverted() instead.
 
     \oldcode
         QPainter painter(this);
@@ -6853,21 +6871,56 @@ qreal QPaintEngineState::opacity() const
     return static_cast<const QPainterState *>(this)->opacity;
 }
 
+/*!
+    setTransform() has been added for compatibility with setMatrix(), 
+    but as with setMatrix() the preferred method of setting a
+    transformation on the painter is through setWorldTransform().
+*/
+
 void QPainter::setTransform(const QTransform &transform, bool combine )
 {
     setWorldTransform(transform, combine);
 }
+
+/*!
+    Returns the world transformation matrix.
+*/
 
 const QTransform & QPainter::transform() const
 {
     return worldTransform();
 }
 
+
+/*!
+    Returns the matrix that transforms from logical coordinates to
+    device coordinates of the platform dependent paint device.
+
+    This function is \e only needed when using platform painting
+    commands on the platform dependent handle (Qt::HANDLE), and the
+    platform does not do transformations nativly.
+
+    The QPaintEngine::PaintEngineFeature enum can be queried to
+    determine whether the platform performs the transformations or
+    not.
+
+    \sa worldTransform(), QPaintEngine::hasFeature(),
+*/
+
 const QTransform & QPainter::deviceTransform() const
 {
     Q_D(const QPainter);
     return d->state->matrix;
 }
+
+
+/*!
+    Resets any transformations that were made using translate(),
+    scale(), shear(), rotate(), setWorldTransform(), setViewport()
+    and setWindow().
+
+    \sa {Coordinate Transformations}
+*/
 
 void QPainter::resetTransform()
 {
@@ -6891,6 +6944,10 @@ void QPainter::resetTransform()
         d->engine->setDirty(QPaintEngine::DirtyTransform);
 }
 
+/*!
+    Sets the transformation matrix to \a matrix and enables transformations.
+*/
+
 void QPainter::setWorldTransform(const QTransform &matrix, bool combine )
 {
     Q_D(QPainter);
@@ -6911,12 +6968,26 @@ void QPainter::setWorldTransform(const QTransform &matrix, bool combine )
         d->updateMatrix();
 }
 
+/*!
+    Returns the world transformation matrix.
+*/
+
 const QTransform & QPainter::worldTransform() const
 {
 
     Q_D(const QPainter);
     return d->state->worldMatrix;
 }
+
+/*!
+    Returns the transformation matrix combining the current
+    window/viewport and world transformation.
+
+    It is advisable to use combinedTransform() instead of this
+    function to preserve the properties of perspective transformations.
+
+    \sa setWorldMatrix(), setWindow(), setViewport()
+*/
 
 QTransform QPainter::combinedTransform() const
 {
