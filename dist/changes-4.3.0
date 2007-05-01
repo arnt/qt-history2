@@ -202,6 +202,7 @@ Third party components
 - QImage
     * [157549] Fixed crash when calling QImage::copy with negative coordinates.
     * Added cacheKey() as a replacement for serialNumber().
+    * [131852] Optimized 90 and 270 degrees rotation.
 
 - QImageReader
     * [141781] Fixed support for doublebyte PPM files (>256 colors).
@@ -638,6 +639,12 @@ Third party components
     * [139611] Fixed smooth transform of pixmaps for X11.
     * [132837] Fixed text drawing to QImages with certain fonts for Mac OS X.
     * [147911] Use font antialiasing when rotating small fonts on Windows.
+    * [127901] Optimized gradient calculations.
+    * [139705, 151562] Optimized clipping algorithms in the raster paint 
+      engine.
+    * Optimized blending operations in the raster paint engine using MMX and
+      3DNOW.
+    * Optimized QPainter::fillRect() for opaque brushes.
 
 - QPicture
     * [142703] QPicture now correctly preserves composition mode changes.
@@ -693,7 +700,10 @@ Third party components
       thread to specify the maximum amount of time to wait for the lock
       to become available.
     * [131880] Added support for recursive write locking.
-    
+
+- QRegion 
+    * Several optimizations for common operations on X11 and Qtopia Core.
+
 - QStatusbar
 	* [131558] Increased text margin and fixed a look and feel issue on Windows.
 
@@ -961,6 +971,7 @@ Third party components
       across Mac, Windows, X11 and Qtopia Core.
     * [132827] Allow setting focus to a hidden widget; it will get
       focus when shown.
+    * Reduced overhead when repainting a widget with lots of children.
 
 - QWindowsStyle
     * [110784] Scrollbar and spinbox arrows now scale with the widget size.
@@ -1375,7 +1386,7 @@ Mac OS X
     * [118814, 126253, 105525] Fixed several QCombobox look-and-feel issues.
     * [145075] Fix aliased line drawing bug.
     * [122826] Fix QScrollBar painting error.
-    * [131794] PixelTool and QWidget::grabWindow() now work on non-primary monitors.
+    * [131794] PixelTool and QWidget::grabWindow() now work on non-primary monitors.
 
 Qtopia Core
 -----------
@@ -1394,6 +1405,20 @@ Qtopia Core
     * [131714] Fixed performance problems with drag'n drop.
     * [96507] Add support for using _POSIX_MONOTONIC_CLOCK as the
       timer source (also effects Qt/X11).
+    * [132346] Fixed a performance bug causing unecessary screen copies when
+      using a hardware cursor.
+    * [131510, 121496] Lot's of performance improvements in the VNC driver.
+    * [131321] Optimized text drawing.
+    * [136282] Fixed a bug preventing QWidget::setCursor() and 
+      QWidget::unsetCursor() having effect immediately.
+    * [139318] Fixed a performance bug causing non-visible regions to receive
+      paint events.
+    * [139858] Implemented acceleration for the 'pc' mouse handler.
+    * [140705, 140760] Improved release of used resources (e.g shared memory
+      and hardware resources) when the application exits unexpectedly.
+    * [144245] Fixed a problem with some cross-compilers triggered by using
+      math.h functions taking a double argument when using float data.
+
 
 ****************************************************************************
 *                   Significant Documentation Changes                      *
