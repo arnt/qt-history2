@@ -2898,11 +2898,15 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
             }
         }
 
+        FT_Face lockedFace = 0;
         for(int i = 0; i < glyphs.size(); i++) {
             QFontEngineFT::Glyph *glyph = gset->glyph_data.value(glyphs[i]);
 
-            if (!glyph || glyph->format != neededFormat)
+            if (!glyph || glyph->format != neededFormat) {
+                if (!lockedFace)
+                    lockedFace = fe->lockFace();
                 glyph = fe->loadGlyph(gset, glyphs[i], neededFormat);
+            }
 
             if (!glyph || !glyph->data)
                 continue;
@@ -2915,6 +2919,8 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
                         qRound(positions[i].y) - glyph->y,
                         glyph->width, glyph->height);
         }
+        if (lockedFace)
+            fe->unlockFace();
         return;
     }
 #endif
