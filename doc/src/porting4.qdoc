@@ -1268,7 +1268,7 @@
     \section1 QDial
 
     See \l{#virtual.functions}{Virtual Functions} for a list of
-    QComboBox virtual member functions in Qt 3 that are no longer
+    QDial virtual member functions in Qt 3 that are no longer
     virtual in Qt 4.
 
     See \l{#properties}{Properties} for a list of QDial properties in
