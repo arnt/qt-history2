@@ -220,7 +220,7 @@ public:
     QFontEngineFT(const QFontDef &fd);
     virtual ~QFontEngineFT();
 
-    bool init(FaceId faceId, bool antiaalias);
+    bool init(FaceId faceId, bool antiaalias, GlyphFormat defaultFormat = Format_None);
 protected:
 
     void freeGlyphSets();
@@ -236,9 +236,10 @@ protected:
     bool outline_drawing;
     bool transform;
     SubpixelAntialiasingType subpixelType;
-    GlyphFormat defaultGlyphFormat;
+    bool canUploadGlyphsToServer;
 
 private:
+    GlyphFormat defaultGlyphFormat;
     FT_Matrix matrix;
 
     QList<QGlyphSet> transformedGlyphSets;

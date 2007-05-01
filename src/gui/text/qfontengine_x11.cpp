@@ -810,6 +810,8 @@ QFontEngineX11FT::QFontEngineX11FT(FcPattern *pattern, const QFontDef &fd, int s
     face_id.filename = file_name;
     face_id.index = face_index;
 
+    canUploadGlyphsToServer = true;
+
     subpixelType = Subpixel_None;
     if (antialias) {
         int subpixel = 0;
@@ -854,6 +856,8 @@ QFontEngineX11FT::QFontEngineX11FT(FcPattern *pattern, const QFontDef &fd, int s
     }
 #endif
 
+    GlyphFormat defaultFormat = Format_None;
+
 #ifndef QT_NO_XRENDER
     if (X11->use_xrender) {
         int format = PictStandardA8;
@@ -867,15 +871,15 @@ QFontEngineX11FT::QFontEngineX11FT(FcPattern *pattern, const QFontDef &fd, int s
         xglyph_format = format;
 
         if (subpixelType != QFontEngineFT::Subpixel_None)
-            defaultGlyphFormat = Format_A32;
+            defaultFormat = Format_A32;
         else if (antialias)
-            defaultGlyphFormat = Format_A8;
+            defaultFormat = Format_A8;
         else
-            defaultGlyphFormat = Format_Mono;
+            defaultFormat = Format_Mono;
     }
 #endif
 
-    if (!init(face_id, antialias)) {
+    if (!init(face_id, antialias, defaultFormat)) {
         FcPatternDestroy(pattern);
         return;
     }

@@ -587,7 +587,8 @@ QFontEngine *loadSingleEngine(int script, const QFontPrivate *fp,
             faceId.index = size->fileIndex;
 
             QFontEngineFT *fte = new QFontEngineFT(def);
-            if (fte->init(faceId, style->antialiased)) {
+            if (fte->init(faceId, style->antialiased,
+                          style->antialiased ? QFontEngineFT::Format_A8 : QFontEngineFT::Format_Mono)) {
 #ifdef QT_NO_QWS_QPF2
                 return fte;
 #else

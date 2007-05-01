@@ -421,6 +421,7 @@ QFontEngineFT::QFontEngineFT(const QFontDef &fd)
     default_load_flags = 0;
     subpixelType = Subpixel_None;
     defaultGlyphFormat = Format_None;
+    canUploadGlyphsToServer = false;
 }
 
 QFontEngineFT::~QFontEngineFT()
@@ -440,8 +441,9 @@ void QFontEngineFT::freeGlyphSets()
         freeServerGlyphSet(transformedGlyphSets.at(i).id);
 }
 
-bool QFontEngineFT::init(FaceId faceId, bool antialias)
+bool QFontEngineFT::init(FaceId faceId, bool antialias, GlyphFormat defaultFormat)
 {
+    defaultGlyphFormat = defaultFormat;
     this->antialias = antialias;
     face_id = faceId;
     freetype = QFreetypeFace::getFace(face_id);
@@ -500,10 +502,12 @@ QFontEngineFT::Glyph *QFontEngineFT::loadGlyph(QGlyphSet *set, uint glyph, Glyph
 
     bool uploadToServer = false;
     if (format == Format_None) {
-        format = Format_Mono;
         if (defaultGlyphFormat != Format_None) {
-            uploadToServer = true;
             format = defaultGlyphFormat;
+            if (canUploadGlyphsToServer)
+                uploadToServer = true;
+        } else {
+            format = Format_Mono;
         }
     }
 
