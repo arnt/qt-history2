@@ -4492,6 +4492,7 @@ if [ "$CFG_QWS_DEPTHS" = "prompted" -a "$PLATFORM_QWS" = "yes" ]; then
     echo
     echo "Choose pixel-depths to support:"
     echo
+    echo "   4. 4bpp grayscale"
     echo "   8. 8bpp"
     echo "  16. 16bpp"
     echo "  18. 18bpp"

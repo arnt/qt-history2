@@ -284,7 +284,9 @@ QImage QVFbView::getBuffer(const QRect &r, int &leading) const
 	    sptr += r.x();
 	    for (int col=0; col < r.width(); col++) {
 		ushort s = *sptr++;
-		*dptr++ = qRgb(qRed(gammatable[(s>>rsh)&rmax]),qGreen(gammatable[(s>>gsh)&gmax]),qBlue(gammatable[(s>>bsh)&bmax]));
+		*dptr++ = qRgb(qRed(gammatable[(s >> rsh) & rmax]),
+                               qGreen(gammatable[(s >> gsh) & gmax]),
+                               qBlue(gammatable[(s >> bsh) & bmax]));
 		//*dptr++ = qRgb(((s>>rsh)&rmax)*255/rmax,((s>>gsh)&gmax)*255/gmax,((s>>bsh)&bmax)*255/bmax);
 	    }
 	}
@@ -294,25 +296,43 @@ QImage QVFbView::getBuffer(const QRect &r, int &leading) const
     case 4: {
         if (requiredSize > buffer.size())
             buffer.resize(requiredSize);
+
+        // XXX: hw: replace by drawhelper functionality
+
+        const int pixelsPerByte = 2;
+        const int doAlign = r.x() & 1;
+        const int doTail = (r.width() - doAlign) & 1;
+        const int width8 = (r.width() - doAlign) / pixelsPerByte;
+
         uchar *b = reinterpret_cast<uchar*>(buffer.data());
-	QImage img(b, r.width(), r.height(), QImage::Format_Indexed8);
-        //img.setColorTable(mView->clut());
-	for (int row = 0; row < r.height(); row++) {
-	    unsigned char *dptr = img.scanLine(row);
-	    const unsigned char *sptr = mView->data() + (r.y()+row)*mView->linestep();
-	    sptr += r.x()/2;
-	    int col = 0;
-	    if (r.x() & 1) {
-		*dptr++ = *sptr++ >> 4;
-		col++;
+	QImage img(b, r.width(), r.height(), QImage::Format_RGB32);
+	for (int y = 0; y < r.height(); ++y) {
+            const quint8 *sptr = mView->data()
+                                 + (r.y() + y) * mView->linestep()
+                                 + r.x() / pixelsPerByte;
+            quint32 *dptr = reinterpret_cast<quint32*>(img.scanLine(y));
+
+            if (doAlign) {
+                quint8 c = (*sptr++ & 0x0f);
+                c |= (c << 4);
+                *dptr++ = qRgb(c, c, c);
+            }
+
+            for (int i = 0; i < width8; ++i) {
+                quint8 c1 = (*sptr >> 4);
+                quint8 c2 = (*sptr & 0x0f);
+                c1 |= (c1 << 4);
+                c2 |= (c2 << 4);
+		*dptr++ = qRgb(c1, c1, c1);
+		*dptr++ = qRgb(c2, c2, c2);
+                ++sptr;
 	    }
-	    for (; col < r.width()-1; col+=2) {
-		unsigned char s = *sptr++;
-		*dptr++ = s & 0x0f;
-		*dptr++ = s >> 4;
-	    }
-	    if (!(r.right() & 1))
-		*dptr = *sptr & 0x0f;
+
+            if (doTail) {
+                quint8 c = (*sptr & 0xf0);
+                c |= (c << 4);
+                *dptr = qRgb(c, c, c);
+            }
 	}
 	leading = 0;
 	return img;
@@ -337,7 +357,9 @@ QImage QVFbView::getBuffer(const QRect &r, int &leading) const
                 uint s = *(reinterpret_cast<uint*>(sptr));
                 s &= 0x00ffffff;
                 sptr += 3;
-                *dptr++ = qRgb(qRed(gammatable[(s>>rsh)&rmax]),qGreen(gammatable[(s>>gsh)&gmax]),qBlue(gammatable[(s>>bsh)&bmax]));
+                *dptr++ = qRgb(qRed(gammatable[(s >> rsh) & rmax]),
+                               qGreen(gammatable[(s >> gsh) & gmax]),
+                               qBlue(gammatable[(s >> bsh) & bmax]));
 	    }
 	}
 	leading = 0;
@@ -408,8 +430,10 @@ void QVFbView::drawScreen(const QRect &rect)
         r.setRight(r.left()+w-1);
         r.setBottom(r.top()+h-1);
     }
+
     int leading;
-    QImage img(getBuffer(r, leading));
+    const QImage img = getBuffer(r, leading);
+
     QPixmap pm;
     if (hzm == 1.0 && vzm == 1.0) {
         pm = QPixmap::fromImage(img);

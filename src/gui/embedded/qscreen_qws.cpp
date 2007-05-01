@@ -333,6 +333,48 @@ static void solidFill_template(QScreen *screen, const QColor &color,
     }
 }
 
+#ifdef QT_QWS_DEPTH_4
+static inline void qt_rectfill_gray4(quint8 *dest, quint8 value,
+                                     int x, int y, int width, int height,
+                                     int stride)
+{
+    const int pixelsPerByte = 2;
+    dest += y * stride + x / pixelsPerByte;
+    const int doAlign = x & 1;
+    const int doTail = (width - doAlign) & 1;
+    const int width8 = (width - doAlign) / pixelsPerByte;
+
+    for (int j = 0; j < height; ++j) {
+        if (doAlign)
+            *dest = (*dest & 0xf0) | (value & 0x0f);
+        if (width8)
+            qt_memfill<quint8>(dest + doAlign, value, width8);
+        if (doTail) {
+            quint8 *d = dest + doAlign + width8;
+            *d = (*d & 0x0f) | (value & 0xf0);
+        }
+        dest += stride;
+    }
+}
+
+static void solidFill_gray4(QScreen *screen, const QColor &color,
+                            const QRegion &region)
+{
+    quint8 *dest = reinterpret_cast<quint8*>(screen->base());
+    const quint8 c = qGray(color.rgba()) >> 4;
+    const quint8 c8 = (c << 4) | c;
+
+    const int stride = screen->linestep();
+    const QVector<QRect> rects = region.rects();
+
+    for (int i = 0; i < rects.size(); ++i) {
+        const QRect r = rects.at(i);
+        qt_rectfill_gray4(dest, c8, r.x(), r.y(), r.width(), r.height(),
+                          stride);
+    }
+}
+#endif // QT_QWS_DEPTH_4
+
 void qt_solidFill_setup(QScreen *screen, const QColor &color,
                         const QRegion &region)
 {
@@ -362,7 +404,12 @@ void qt_solidFill_setup(QScreen *screen, const QColor &color,
         screen->d_ptr->solidFill = solidFill_template<quint8>;
         break;
 #endif
-    default:
+#ifdef QT_QWS_DEPTH_4
+    case 4:
+        screen->d_ptr->solidFill = solidFill_gray4;
+        break;
+#endif
+     default:
         qFatal("solidFill_setup(): Screen depth %d not supported!",
                screen->depth());
         screen->d_ptr->solidFill = 0;
@@ -486,6 +533,108 @@ static void blit_8(QScreen *screen, const QImage &image,
 }
 #endif // QT_QWS_DEPTH_8
 
+#ifdef QT_QWS_DEPTH_4
+
+struct qgray4 { quint8 dummy; } Q_PACKED;
+
+template <typename SRC>
+static inline quint8 qt_convertToGray4(SRC color);
+
+template <>
+static inline quint8 qt_convertToGray4(quint32 color)
+{
+    return qGray(color) >> 4;
+}
+
+template <>
+static inline quint8 qt_convertToGray4(quint16 color)
+{
+    return (qGray(qt_colorConvert<quint32, quint16>(color, 0)) >> 4);
+}
+
+template <typename SRC>
+static inline void qt_rectconvert_gray4(qgray4 *dest4, const SRC *src,
+                                        int x, int y, int width, int height,
+                                        int dstStride, int srcStride)
+{
+    const int pixelsPerByte = 2;
+    quint8 *dest8 = reinterpret_cast<quint8*>(dest4)
+                    + y * dstStride + x / pixelsPerByte;
+    const int doAlign = x & 1;
+    const int doTail = (width - doAlign) & 1;
+    const int width8 = (width - doAlign) / pixelsPerByte;
+    const int count8 = (width8 + 3) / 4;
+
+    srcStride = srcStride / sizeof(SRC) - width;
+    dstStride -= (width8 + doAlign);
+
+    for (int i = 0; i < height; ++i) {
+        if (doAlign) {
+            *dest8 = (*dest8 & 0xf0) | qt_convertToGray4<SRC>(*src++);
+            ++dest8;
+        }
+        if (count8) {
+            int n = count8;
+            switch (width8 & 0x03) // duff's device
+            {
+            case 0: do { *dest8++ = qt_convertToGray4<SRC>(src[0]) << 4
+                                    | qt_convertToGray4<SRC>(src[1]);
+                         src += 2;
+            case 3:      *dest8++ = qt_convertToGray4<SRC>(src[0]) << 4
+                                    | qt_convertToGray4<SRC>(src[1]);
+                         src += 2;
+            case 2:      *dest8++ = qt_convertToGray4<SRC>(src[0]) << 4
+                                    | qt_convertToGray4<SRC>(src[1]);
+                         src += 2;
+            case 1:      *dest8++ = qt_convertToGray4<SRC>(src[0]) << 4
+                                    | qt_convertToGray4<SRC>(src[1]);
+                         src += 2;
+            } while (--n > 0);
+            }
+        }
+
+        if (doTail)
+            *dest8 = qt_convertToGray4<SRC>(*src++) << 4 | (*dest8 & 0x0f);
+
+        dest8 += dstStride;
+        src += srcStride;
+    }
+}
+
+template <>
+void qt_rectconvert(qgray4 *dest, const quint32 *src,
+                    int x, int y, int width, int height,
+                    int dstStride, int srcStride)
+{
+    qt_rectconvert_gray4<quint32>(dest, src, x, y, width, height,
+                                  dstStride, srcStride);
+}
+
+template <>
+void qt_rectconvert(qgray4 *dest, const quint16 *src,
+                    int x, int y, int width, int height,
+                    int dstStride, int srcStride)
+{
+    qt_rectconvert_gray4<quint16>(dest, src, x, y, width, height,
+                                  dstStride, srcStride);
+}
+
+static void blit_4(QScreen *screen, const QImage &image,
+                   const QPoint &topLeft, const QRegion &region)
+{
+    switch (image.format()) {
+    case QImage::Format_ARGB32_Premultiplied:
+        blit_template<qgray4, quint32>(screen, image, topLeft, region);
+        return;
+    case QImage::Format_RGB16:
+        blit_template<qgray4, quint16>(screen, image, topLeft, region);
+        return;
+    default:
+        qCritical("blit_4(): Image format %d not supported!", image.format());
+    }
+}
+#endif // QT_QWS_DEPTH_4
+
 void qt_blit_setup(QScreen *screen, const QImage &image,
                    const QPoint &topLeft, const QRegion &region)
 {
@@ -518,6 +667,11 @@ void qt_blit_setup(QScreen *screen, const QImage &image,
 #ifdef QT_QWS_DEPTH_8
     case 8:
         screen->d_ptr->blit = blit_8;
+        break;
+#endif
+#ifdef QT_QWS_DEPTH_4
+    case 4:
+        screen->d_ptr->blit = blit_4;
         break;
 #endif
     default:
