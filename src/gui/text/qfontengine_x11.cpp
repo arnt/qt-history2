@@ -867,11 +867,11 @@ QFontEngineX11FT::QFontEngineX11FT(FcPattern *pattern, const QFontDef &fd, int s
         xglyph_format = format;
 
         if (subpixelType != QFontEngineFT::Subpixel_None)
-            preferredServerGlyphFormat = Format_A32;
+            defaultGlyphFormat = Format_A32;
         else if (antialias)
-            preferredServerGlyphFormat = Format_A8;
+            defaultGlyphFormat = Format_A8;
         else
-            preferredServerGlyphFormat = Format_Mono;
+            defaultGlyphFormat = Format_Mono;
     }
 #endif
 

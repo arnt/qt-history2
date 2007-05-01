@@ -236,7 +236,7 @@ protected:
     bool outline_drawing;
     bool transform;
     SubpixelAntialiasingType subpixelType;
-    GlyphFormat preferredServerGlyphFormat;
+    GlyphFormat defaultGlyphFormat;
 
 private:
     FT_Matrix matrix;

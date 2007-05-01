@@ -420,7 +420,7 @@ QFontEngineFT::QFontEngineFT(const QFontDef &fd)
     antialias = true;
     default_load_flags = 0;
     subpixelType = Subpixel_None;
-    preferredServerGlyphFormat = Format_None;
+    defaultGlyphFormat = Format_None;
 }
 
 QFontEngineFT::~QFontEngineFT()
@@ -501,9 +501,9 @@ QFontEngineFT::Glyph *QFontEngineFT::loadGlyph(QGlyphSet *set, uint glyph, Glyph
     bool uploadToServer = false;
     if (format == Format_None) {
         format = Format_Mono;
-        if (preferredServerGlyphFormat != Format_None) {
+        if (defaultGlyphFormat != Format_None) {
             uploadToServer = true;
-            format = preferredServerGlyphFormat;
+            format = defaultGlyphFormat;
         }
     }
 
