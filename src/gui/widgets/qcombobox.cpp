@@ -1475,6 +1475,9 @@ void QComboBox::setEditable(bool editable)
         delete d->lineEdit;
         d->lineEdit = 0;
     }
+    
+    if (!testAttribute(Qt::WA_Resized))
+        adjustSize();
 }
 
 /*!
