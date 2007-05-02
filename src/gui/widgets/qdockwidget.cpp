@@ -31,6 +31,7 @@
 #include "qdockwidget_p.h"
 #include "qmainwindowlayout_p.h"
 #ifdef Q_WS_MAC
+#include <private/qt_mac_p.h>
 #include <qmacstyle_mac.h>
 #endif
 
@@ -908,6 +909,12 @@ void QDockWidgetPrivate::setWindowState(bool floating, bool unplug, const QRect 
         flags |= Qt::X11BypassWindowManagerHint;
 
     q->setWindowFlags(flags);
+
+#ifdef Q_WS_MAC
+    if (floating && nativeDeco && (q->features() & QDockWidget::DockWidgetVerticalTitleBar)) {
+        ChangeWindowAttributes(HIViewGetWindow(HIViewRef(q->winId())), kWindowSideTitlebarAttribute, 0);
+    }
+#endif
 
     if (!rect.isNull())
         q->setGeometry(rect);

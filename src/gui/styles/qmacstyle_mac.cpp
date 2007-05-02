@@ -3452,12 +3452,35 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
         // Draw the text...
         if (const QStyleOptionDockWidget *dwOpt = qstyleoption_cast<const QStyleOptionDockWidget *>(opt)) {
             if (!dwOpt->title.isEmpty()) {
+                const QStyleOptionDockWidgetV2 *v2
+                    = qstyleoption_cast<const QStyleOptionDockWidgetV2*>(dwOpt);
+                bool verticalTitleBar = v2 == 0 ? false : v2->verticalTitleBar;
+
+                QRect titleRect = subElementRect(SE_DockWidgetTitleBarText, opt, w);
+                if (verticalTitleBar) {
+                    QRect rect = dwOpt->rect;
+                    QRect r = rect;
+                    QSize s = r.size();
+                    s.transpose();
+                    r.setSize(s);
+
+                    titleRect = QRect(r.left() + rect.bottom()
+                                        - titleRect.bottom(),
+                                    r.top() + titleRect.left() - rect.left(),
+                                    titleRect.height(), titleRect.width());
+
+                    p->translate(r.left(), r.top() + r.width());
+                    p->rotate(-90);
+                    p->translate(-r.left(), -r.top());
+                }
+
                 QFont oldFont = p->font();
                 p->setFont(qt_app_fonts_hash()->value("QToolButton", p->font()));
-                const int indent = p->fontMetrics().descent();
-                drawItemText(p, dwOpt->rect.adjusted(indent + 1, 1, -indent - 1, -1),
+                QString text = p->fontMetrics().elidedText(dwOpt->title, Qt::ElideRight,
+                    titleRect.width());
+                drawItemText(p, titleRect,
                               Qt::AlignCenter | Qt::TextShowMnemonic, dwOpt->palette,
-                              dwOpt->state & State_Enabled, dwOpt->title,
+                              dwOpt->state & State_Enabled, text,
                               QPalette::WindowText);
                 p->setFont(oldFont);
             }
