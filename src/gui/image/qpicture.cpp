@@ -1847,3 +1847,13 @@ bool QPictureIO::write()
 */
 
 #endif // QT_NO_PICTURE
+
+/*!
+    \typedef QPicture::DataPtr
+    \internal
+*/
+
+/*!
+    \fn DataPtr &QPicture::data_ptr()
+    \internal
+*/

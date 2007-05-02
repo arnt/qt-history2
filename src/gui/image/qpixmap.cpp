@@ -1390,3 +1390,14 @@ QPixmap QPixmap::scaledToHeight(int h, Qt::TransformationMode mode) const
 
     \sa QBitmap, QImage, QImageReader, QImageWriter
 */
+
+
+/*!
+    \typedef QPixmap::DataPtr
+    \internal
+*/
+
+/*!
+    \fn DataPtr &QPixmap::data_ptr()
+    \internal
+*/
