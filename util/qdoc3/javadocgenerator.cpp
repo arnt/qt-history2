@@ -163,7 +163,7 @@ void JavadocGenerator::endText(const Node *relative, CodeMarker *marker)
         buffer.replace("\"", "&quot;");
         buffer.replace("<", "&lt;");
         buffer.replace(">", "&gt;");
-        buffer.replace("*/", "*<!-- noop -->/");
+        buffer.replace("*/", "*&#47;");
         out() << buffer;
         buffer.clear();
     }
