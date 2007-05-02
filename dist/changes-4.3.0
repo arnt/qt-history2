@@ -1545,7 +1545,9 @@ Qtopia Core
     * [154689] Fixed the -no-gfx-multiscreen parameter to configure.
     * Added QScreen::pixelFormat() and QScreen::setPixelFormat() to enable
       drawing optimizations for some formats.
-
+    * [126421, 126424] Added QGLWindowSurface and QGLScreen framework for
+      OpenGLES (and others) on Qtopia Core. Sample implementation found in examples/qtopiacore/.
+ 
 ****************************************************************************
 *                      Compiler Specific Changes                           *
 ****************************************************************************
