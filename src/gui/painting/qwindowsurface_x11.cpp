@@ -105,3 +105,44 @@ bool QX11WindowSurface::scroll(const QRegion &area, int dx, int dy)
     return true;
 }
 
+QPixmap QX11WindowSurface::grabWidget(const QWidget *widget,
+                                      const QRect& rect) const
+{
+    if (d_ptr->device.isNull())
+        return QPixmap();
+
+    QRect br = rect;
+    QRect wbr(widget->geometry());
+
+    if (wbr.isNull())
+        return QPixmap();
+
+    int w = qMin(rect.size().width(), wbr.size().width());
+    if (!w)
+        w = qMax(rect.size().width(), wbr.size().width());
+
+    int h = qMin(rect.size().height(), wbr.size().height());
+    if (!h)
+        h = qMax(rect.size().height(), wbr.size().height());
+
+    if (br.isNull())
+        br = wbr;
+
+    QPixmap::x11SetDefaultScreen(widget->x11Info().screen());
+    QPixmap px(w, h);
+
+    GC gc = XCreateGC(X11->display, d_ptr->device.handle(), 0, 0);
+    XRectangle xrect;
+    xrect.x = short(wbr.x());
+    xrect.y = short(wbr.y());
+    xrect.width = ushort(wbr.width());
+    xrect.height = ushort(wbr.height());
+    XSetClipRectangles(X11->display, gc, 0, 0, &xrect, 1, YXBanded);
+    XSetGraphicsExposures(X11->display, gc, False);
+    XCopyArea(X11->display, d_ptr->device.handle(), px.handle(), gc,
+              br.x(), br.y(), br.width(), br.height(), 0, 0);
+    XFreeGC(X11->display, gc);
+
+    return px;
+}
+
