@@ -5640,6 +5640,7 @@ QStringList QString::split(const QRegExp &rx, SplitBehavior behavior) const
 */
 
 /*!
+    \fn QString normalized(NormalizationForm mode) const
     Returns the string in the given Unicode normalization \a mode.
 */
 QString QString::normalized(QString::NormalizationForm mode) const
@@ -5647,9 +5648,9 @@ QString QString::normalized(QString::NormalizationForm mode) const
     return normalized(mode, CURRENT_VERSION);
 }
 
-
 /*!
     \overload
+    \fn QString normalized(NormalizationForm mode, QChar::UnicodeVersion version) const
 
     Returns the string in the given Unicode normalization \a mode,
     according to the given \a version of the Unicode standard.
@@ -7394,6 +7395,17 @@ bool operator<(const QStringRef &s1,const QStringRef &s2)
     Constructs a string reference to the given \a string and assigns it to
     this string reference, returning the result.
 */
+
+/*!
+    \typedef QString::DataPtr
+    \internal
+*/
+
+/*!
+    \fn DataPtr & QString::data_ptr()
+    \internal
+*/
+
 
 
 /*!  Appends the string reference to \a string, and returns a new
