@@ -38,6 +38,17 @@ bool SvgalibScreen::connect(const QString &displaySpec)
     QScreen::size = QScreen::lstep * dh;
     QScreen::data = 0;
 
+    switch (depth()) {
+    case 32:
+        setPixelFormat(QImage::Format_ARGB32_Premultiplied);
+        break;
+    case 16:
+        setPixelFormat(QImage::Format_RGB16);
+        break;
+    default:
+        break;
+    }
+
     const int dpi = 72;
     QScreen::physWidth = qRound(QScreen::dw * 25.4 / dpi);
     QScreen::physHeight = qRound(QScreen::dh * 25.4 / dpi);
@@ -109,14 +120,7 @@ void SvgalibScreen::solidFill(const QColor &color, const QRegion &reg)
 void SvgalibScreen::blit(const QImage &img, const QPoint &topLeft,
                          const QRegion &reg)
 {
-    bool do_fallback = true;
-
-    if (depth() == 16 && img.format() == QImage::Format_RGB16)
-        do_fallback = false;
-    if (depth() == 32 && img.format() == QImage::Format_ARGB32_Premultiplied)
-        do_fallback = false;
-
-    if (do_fallback) {
+    if (img.format() != pixelFormat()) {
         QScreen::blit(img, topLeft, reg);
         return;
     }

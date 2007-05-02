@@ -35,16 +35,15 @@ SvgalibSurface::~SvgalibSurface()
 
 void SvgalibSurface::setGeometry(const QRect &rect)
 {
-    brect = rect;
     QWSWindowSurface::setGeometry(rect);
 }
 
 QPoint SvgalibSurface::painterOffset() const
 {
-    return brect.topLeft() + QWSWindowSurface::painterOffset();
+    return geometry().topLeft() + QWSWindowSurface::painterOffset();
 }
 
-void SvgalibSurface::scroll(const QRegion &region, int dx, int dy)
+bool SvgalibSurface::scroll(const QRegion &region, int dx, int dy)
 {
     const QVector<QRect> rects = region.rects();
     for (int i = 0; i < rects.size(); ++i) {
@@ -52,5 +51,7 @@ void SvgalibSurface::scroll(const QRegion &region, int dx, int dy)
         gl_copybox(r.left(), r.top(), r.width(), r.height(),
                    r.left() + dx, r.top() + dy);
     }
+
+    return true;
 }
 

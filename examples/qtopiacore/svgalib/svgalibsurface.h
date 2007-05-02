@@ -28,24 +28,18 @@ public:
     ~SvgalibSurface();
 
     void setGeometry(const QRect &rect);
-    QRect geometry() const { return brect; }
-
-    bool isValidFor(const QWidget *) const { return true; }
-
-    void scroll(const QRegion &region, int dx, int dy);
-
-    const QString key() const { return QLatin1String("svgalib"); }
-    const QByteArray data() const { return QByteArray(); }
+    bool isValid() const { return true; }
+    bool scroll(const QRegion &region, int dx, int dy);
+    QString key() const { return QLatin1String("svgalib"); }
 
     bool attach(const QByteArray &) { return true; }
     void detach() {}
 
-    const QImage image() const { return QImage(); }
+    QImage image() const { return QImage(); }
     QPaintDevice *paintDevice() { return pdevice; }
     QPoint painterOffset() const;
 
 private:
-    QRect brect;
     SvgalibPaintDevice *pdevice;
 };
 
