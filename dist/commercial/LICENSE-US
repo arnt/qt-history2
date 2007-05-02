@@ -1,5 +1,5 @@
 Qt COMMERCIAL LICENSE AGREEMENT
-Agreement version 3.2
+Agreement version 3.3
 
 IMPORTANT-READ CAREFULLY: 
 
@@ -119,7 +119,7 @@ functionality of the device will depend on the Licensed Software.
 
 c) If the combination of the Licensed Software and hardware and/or
 software ("Product"), in the final working end-user configuration either
-(i) relies on Apple OS X (R) or Windows 98/ME/2000/2003/ XP/Vista (R)
+(i) relies on Apple OS X ® or Windows 98/ME/2000/2003/ XP/Vista ®
 (however not including embedded versions of these, e.g XP Embedded) as
 an integral part of and foundation for its functionality; or (ii) is a
 workstation, server, desktop computer or notebook computer relying on a
@@ -127,11 +127,9 @@ complete 3rd party desktop environment such as KDE or GNOME as an
 integral part of and foundation for its functionality; or (iii) only
 depends on modules in the Licensed Software's Console edition (Qt Core,
 Database, Network, XML) and is not dependent on a window system (such as
-the X Windows system or similar) to operate; or (iv) requires a
-permanent mains power supply for normal operation; or (v) does not lose
-core functionality when the Licensed Software is removed, then Licensee
-is hereby granted an exception from the requirement for a runtime
-distribution license agreement. 
+the X Windows system or similar) or the Java Virtual Machine ("JVM") to
+operate, then Licensee is hereby granted an exception from the
+requirement for a runtime distribution license agreement. 
 
 d) In all instances not covered above, Licensee shall contact Trolltech
 or one of Trolltech's authorized distributors to obtain a distribution
@@ -319,7 +317,7 @@ information remains a trade secret under applicable law.
 interpreted and governed by the laws of the State of California, USA.
 Any action or proceeding arising from or relating to this Agreement
 shall be brought in a federal court in the Northern District of
-California or in the State Court in Santa Clara County, California, and
+California or in the State Court in San Mateo County, California, and
 each party irrevocably submits to the personal jurisdiction of any such
 court in any such action or proceeding. The Agreement gives Licensee
 specific legal rights; Licensee may have others, which vary from state
@@ -335,7 +333,7 @@ Appendix 1:
 - The Licensed Software's main and plug-in libraries in object code form
 - The Licensed Software's configuration tool ("qtconfig")
 - The Licensed Software's help tool in object code/executable form ("Qt
-Assistant")
+Assistant") 
 - The Licensed Software's internationalization tools in object
 code/executable form ("Qt Linguist", "lupdate", "lrelease") 
 
@@ -347,8 +345,10 @@ distribution include, but are not limited to:
 - The Licensed Software's designer tool ("Qt Designer")
 - The Licensed Software's tool for writing makefiles ("qmake")
 - The Licensed Software's Meta Object Compiler ("moc")
-- The Licensed Software's User Interface Compiler ("uic")
+- The Licensed Software's User Interface Compiler ("uic" or in the case 
+of Qt Jambi: "juic")
 - The Licensed Software's Resource Compiler ("rcc")
+- The Licensed Software’s generator (only in the case of Qt Jambi)
 
 
 
