@@ -1,3 +1,4 @@
+bool g_mCosmeticPen;
 int4 g_mChannel;
 float2 g_mMaskOffset;
 int2 g_mMaskSize;
@@ -317,8 +318,12 @@ VS_NORMAL AliasedLinesVS(VS_NORMAL In)
 {
     VS_NORMAL Output;
 
-    float2 start = In.Position.xy;
-    float2 end = In.TexCoords.zw;
+	float4 start = float4(In.Position.x, In.Position.y, 0.5, In.Position.w);
+	float4 end = float4(In.TexCoords.z, In.TexCoords.w, 0.5, In.Position.w);
+	if (g_mCosmeticPen) {
+		start = mul(start, g_mTransformation);
+		end =  mul(end, g_mTransformation);
+	}
 
     float2 line_vec = end - start;
     float2 vec = normalize(line_vec);
@@ -328,16 +333,18 @@ VS_NORMAL AliasedLinesVS(VS_NORMAL In)
     norm = norm * pen_width * 0.5;
     vec = vec * pen_width * 0.5;
 
-    Output.Position = In.Position;
-    Output.Position.x = In.Position.x + (vec.x * In.TexCoords.x);
+    Output.Position.w = In.Position.w;
+    Output.Position.x = start.x + (vec.x * In.TexCoords.x);
     Output.Position.x = Output.Position.x + (norm.x * In.TexCoords.y);
     Output.Position.x = Output.Position.x + (line_vec.x * step(0, In.TexCoords.x));
-    Output.Position.y = In.Position.y + (vec.y * In.TexCoords.x);
+    Output.Position.y = start.y + (vec.y * In.TexCoords.x);
     Output.Position.y = Output.Position.y + (norm.y * In.TexCoords.y);
     Output.Position.y = Output.Position.y + (line_vec.y * step(0, In.TexCoords.x));
     Output.Position.z = 0.5;
 
-    Output.Position = mul(Output.Position, g_mTransformation);
+    if (!g_mCosmeticPen) {
+	    Output.Position = mul(Output.Position, g_mTransformation);
+	}
     Output.Position = mul(Output.Position, g_mViewProjection);
 
     Output.Diffuse = In.Diffuse;
