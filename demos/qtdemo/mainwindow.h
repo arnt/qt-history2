@@ -50,7 +50,9 @@ protected:
     void resizeEvent(QResizeEvent *event);
     void drawBackground(QPainter *painter, const QRectF &rect);
     void drawItems(QPainter *painter, int numItems, QGraphicsItem ** items, const QStyleOptionGraphicsItem* options);
-    
+    void focusInEvent(QFocusEvent *event);
+    void focusOutEvent(QFocusEvent *event);
+        
 private slots:
     void tick();
 
@@ -68,6 +70,7 @@ private:
     ImageItem *trolltechLogo;
     ImageItem *qtLogo;
     bool doneAdapt;
+    bool useTimer;
 };
 
 #endif // MAIN_WINDOW_H

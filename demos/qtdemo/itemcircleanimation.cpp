@@ -228,12 +228,13 @@ ItemCircleAnimation::ItemCircleAnimation(QGraphicsScene *scene, QGraphicsItem *p
     this->scale = 1;
     this->showCount = -1;
     this->tickOnPaint = false;
+    this->paused = false;
     this->setAcceptsHoverEvents(true);
     this->setCursor(Qt::OpenHandCursor);
     this->setupGuides();
     this->setupLetters();
     this->useGuideQt();
-    this->effect = new TickerEffect(this->letterList);
+    this->effect = 0;//new TickerEffect(this->letterList);
 }
 
 ItemCircleAnimation::~ItemCircleAnimation()
@@ -337,11 +338,6 @@ QRectF ItemCircleAnimation::boundingRect() const
 
 void ItemCircleAnimation::prepare()
 {
-    // Make all letters dissapear
-   for (int i=0; i<this->letterList->size(); i++){
-       LetterItem *letter = this->letterList->at(i);
-       letter->setPos(1000, 0);
-   }
 }
 
 void ItemCircleAnimation::switchToNextEffect()
@@ -375,12 +371,19 @@ void ItemCircleAnimation::switchToNextEffect()
 void ItemCircleAnimation::animationStarted(int id)
 {
     if (id == DemoItemAnimation::ANIM_IN){
+        // Make all letters dissapear
+        for (int i=0; i<this->letterList->size(); i++){
+            LetterItem *letter = this->letterList->at(i);
+            letter->setPos(1000, 0);
+        }
         this->switchToNextEffect();
         this->useGuideQt();
         this->scale = 1;
     }
-    else
+    else if (this->effect)
         this->effect->useSheepDog = false;
+
+    this->tickTimer = QTime::currentTime();
 }
 
 void ItemCircleAnimation::animationStopped(int)
@@ -443,11 +446,19 @@ void ItemCircleAnimation::wheelEvent(QGraphicsSceneWheelEvent *event)
         this->effect->moveSpeed = 0;
 }
 
+void ItemCircleAnimation::pause(bool on)
+{
+    this->paused = on;
+    this->tickTimer = QTime::currentTime();
+}
+
 void ItemCircleAnimation::tick()
 {
-    static QTime prev = QTime::currentTime();
-    float t = prev.msecsTo(QTime::currentTime());
-    prev = QTime::currentTime();
+    if (this->paused || !this->effect)
+        return;
+    
+    float t = this->tickTimer.msecsTo(QTime::currentTime());
+    this->tickTimer = QTime::currentTime();
     this->effect->tick(t/10.0f);
 }
 

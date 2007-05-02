@@ -49,8 +49,10 @@ public:
     void switchToNextEffect();
     void useGuideQt();
     void useGuideTt();
+    void pause(bool on);
 
     bool tickOnPaint;
+    bool paused;
 
 private:
     void setupLetters();
@@ -70,6 +72,7 @@ private:
     Guide *qtGuide3;
     Guide *currGuide;
     TickerEffect *effect;
+    QTime tickTimer;
 };
 
 #endif // ITEM_CIRCLE_ANIMATION_H

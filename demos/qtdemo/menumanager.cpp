@@ -31,6 +31,7 @@ MenuManager::MenuManager()
     this->assistant = new QAssistantClient(QLibraryInfo::location(QLibraryInfo::BinariesPath), this);
     this->score = new Score();
     this->currentMenu = "-no menu";
+    this->currentMenuCode = -1;
     this->currentExample = "-no example";
     this->readXmlDocument();
 }
@@ -62,6 +63,7 @@ void MenuManager::readXmlDocument()
 
 void MenuManager::itemSelected(int userCode, const QString &menuName)
 {
+    this->currentMenuCode = userCode;
     if (userCode == LAUNCH)
         this->launchExample(this->currentExample);
     else if (userCode == DOCUMENTATION)
@@ -520,8 +522,12 @@ void MenuManager::createTicker()
     if (!Colors::noTicker){
         Movie *movie_in = new Movie();
         Movie *movie_out = new Movie();
+        Movie *movie_activate = new Movie();
+        Movie *movie_deactivate = new Movie();
         this->score->insertMovie("ticker", movie_in);
         this->score->insertMovie("ticker -out", movie_out);
+        this->score->insertMovie("ticker -activate", movie_activate);
+        this->score->insertMovie("ticker -deactivate", movie_deactivate);
         
         this->ticker = new ItemCircleAnimation(this->window->scene, 0);
         this->ticker->setZValue(50);
@@ -548,5 +554,24 @@ void MenuManager::createTicker()
         qtOut->setStartPos(QPointF(qtendpos, Colors::contentStartY + qtPosY));
         qtOut->setPosAt(1.00, QPointF(this->window->scene->sceneRect().width() + 700, Colors::contentStartY + qtPosY));
         movie_out->append(qtOut);
+
+        // Move ticker in on activate:
+        DemoItemAnimation *qtActivate = new DemoItemAnimation(this->ticker);
+        qtActivate->setDuration(400);
+        qtActivate->setStartPos(QPointF(this->window->scene->sceneRect().width(), Colors::contentStartY + qtPosY));
+        qtActivate->setPosAt(0.60, QPointF(qtendpos, Colors::contentStartY + qtPosY));
+        qtActivate->setPosAt(0.70, QPointF(qtendpos + 30, Colors::contentStartY + qtPosY));
+        qtActivate->setPosAt(0.80, QPointF(qtendpos, Colors::contentStartY + qtPosY));
+        qtActivate->setPosAt(0.90, QPointF(qtendpos + 5, Colors::contentStartY + qtPosY));
+        qtActivate->setPosAt(1.00, QPointF(qtendpos, Colors::contentStartY + qtPosY));
+        movie_activate->append(qtActivate);
+
+        // Move ticker out on deactivate:
+        DemoItemAnimation *qtDeactivate = new DemoItemAnimation(this->ticker);
+        qtDeactivate->hideOnFinished = true;
+        qtDeactivate->setDuration(400);
+        qtDeactivate->setStartPos(QPointF(qtendpos, Colors::contentStartY + qtPosY));
+        qtDeactivate->setPosAt(1.00, QPointF(qtendpos, 800));
+        movie_deactivate->append(qtDeactivate);
     }
 }

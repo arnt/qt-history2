@@ -28,10 +28,12 @@
 MainWindow::MainWindow(QWidget *parent) : QGraphicsView(parent), updateTimer(this)
 {
     this->currentFps = Colors::fps;
-    this->loop = true;
+    this->loop = false;
     this->fpsMedian = -1;
     this->fpsLabel = 0;
     this->doneAdapt = false;
+    this->useTimer = false;
+    this->updateTimer.setSingleShot(true);
     this->trolltechLogo = 0;
     this->qtLogo = 0;
     this->setupWidget();
@@ -76,12 +78,18 @@ void MainWindow::setupWidget()
 }
 
 void MainWindow::startLoop()
-{
-    this->updateTimer.stop();    
+{/*
+    this->loop = true;
+    this->updateTimer.stop();
+    QTime time;
+    float msPerFrame = 1000.0f / float(Colors::fps);
+     
     while (this->loop){
+        time.restart();
         this->tick();
-        QCoreApplication::processEvents(QEventLoop::AllEvents);
-    }
+        while (msPerFrame - time.elapsed() > 0)
+            QCoreApplication::processEvents(QEventLoop::AllEvents);
+    }*/
 }
 
 void MainWindow::enableMask(bool enable)
@@ -136,10 +144,12 @@ void MainWindow::switchTimerOnOff(bool on)
         MenuManager::instance()->ticker->tickOnPaint = !on || Colors::noTimerUpdate;
 
     if (on && !Colors::noTimerUpdate){
+        this->useTimer = true;
         this->setViewportUpdateMode(QGraphicsView::NoViewportUpdate);
-        this->updateTimer.start(int(1000 / Colors::fps));
+        this->updateTimer.start(10.0f);
     }
     else{
+        this->useTimer = false;
         this->updateTimer.stop();
         if (Colors::low)
             this->setViewportUpdateMode(QGraphicsView::MinimalViewportUpdate);
@@ -207,6 +217,9 @@ void MainWindow::tick()
         MenuManager::instance()->ticker->tick();
     
     this->viewport()->update();
+
+    if (this->useTimer)
+        this->updateTimer.start(int(1000 / Colors::fps));
 }
 
 void MainWindow::setupSceneItems()
@@ -353,6 +366,26 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
             s += Colors::noScreenSync ? "no" : "yes";
             QMessageBox::information(0, QString("Current configuration"), s);
     }
+}
+
+void MainWindow::focusInEvent(QFocusEvent *)
+{
+    if (MenuManager::instance()->ticker)
+        MenuManager::instance()->ticker->pause(false);
+
+    int code = MenuManager::instance()->currentMenuCode;
+    if (code == MenuManager::ROOT || code == MenuManager::MENU1)
+        this->switchTimerOnOff(true);
+}
+
+void MainWindow::focusOutEvent(QFocusEvent *)
+{
+    if (MenuManager::instance()->ticker)
+        MenuManager::instance()->ticker->pause(true);
+        
+    int code = MenuManager::instance()->currentMenuCode;
+    if (code == MenuManager::ROOT || code == MenuManager::MENU1)
+        this->switchTimerOnOff(false);
 }
 
 void MainWindow::resizeEvent(QResizeEvent *event)

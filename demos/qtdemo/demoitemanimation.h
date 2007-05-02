@@ -63,7 +63,7 @@ public:
     bool fromStart;
     INOROUT inOrOut;
 
-public slots:
+private slots:
     virtual void playWithoutDelay();
 };
 

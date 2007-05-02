@@ -30,6 +30,7 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
     Colors::parseArgs(argc, argv);
     MainWindow mainWindow;
+    mainWindow.setFocus();
     if (Colors::fullscreen)
         mainWindow.showFullScreen();
     else {

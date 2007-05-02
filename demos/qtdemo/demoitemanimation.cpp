@@ -69,16 +69,6 @@ void DemoItemAnimation::play(bool fromStart, bool force)
     this->fromStart = fromStart;
     this->forcePlay = force;
     
-    if (this->startDelay){
-        QTimer::singleShot(this->startDelay, this, SLOT(playWithoutDelay()));
-        return;
-    }
-    else
-        this->playWithoutDelay();
-}
-
-void DemoItemAnimation::playWithoutDelay()
-{
     QPointF currPos = this->demoItem()->pos();
     
     // If the item that this animation controls in currently under the
@@ -105,6 +95,17 @@ void DemoItemAnimation::playWithoutDelay()
 
     this->demoItem()->setPos(this->posAt(this->timeline->currentTime()));
     this->demoItem()->setRecursiveVisible(true);
+
+    if (this->startDelay){
+        QTimer::singleShot(this->startDelay, this, SLOT(playWithoutDelay()));
+        return;
+    }
+    else
+        this->playWithoutDelay();
+}
+
+void DemoItemAnimation::playWithoutDelay()
+{
     if (this->moveOnPlay && !(Colors::noAnimations && !this->forcePlay))
         this->timeline->start();
     this->demoItem()->animationStarted(this->inOrOut);       

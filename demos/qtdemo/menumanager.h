@@ -42,6 +42,8 @@ public:
     HashHash info;
     ItemCircleAnimation *ticker;
     MainWindow *window;
+    Score *score;
+    int currentMenuCode;
     
 private slots:
     void exampleFinished();
@@ -68,7 +70,6 @@ private:
     
     QDomDocument *contentsDoc;
     QAssistantClient *assistant;
-    Score *score;
     QString currentMenu;
     QString currentExample;
     QDir docDir;
