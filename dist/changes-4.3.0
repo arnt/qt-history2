@@ -189,6 +189,10 @@ Third party components
       Windows (previously the filters' behavior was reversed on Unix).
     * [158610] Passing QDir::Unsorted now properly bypasses sorting.
     * [136989] Report removed dirs as non-existent.
+    * [129488] Fixed cleanPath for paths with "foo/../bar" pattern.
+
+- QFocusFrame
+    * [128713, 129126] Make the QFocusFrame visible in more situations on Mac OS X.
 
 - QFrame
     * [156112] Fixed bug where the default frame was not correct when created without a parent and
@@ -196,6 +200,7 @@ Third party components
 
 - QDial
     * [151897] Even With tracking disabled, the signal sliderMoved() is emitted
+    * [70209] Support the inverted appearance property.
 
 - QDialog
     * [131396] Fixed a crash in QDialog::exec() when the dialog was
@@ -241,9 +246,6 @@ Third party components
 - QVariant
     * [127225] Unloading a GUI plugin will no longer cause crash in
       QVariant in QtCore application.
-
-- QDir
-    * [129488] Fixed cleanPath for paths with "foo/../bar" pattern.
 
 - QDesktopWidget
     * [135002] emit signal after resize takes place on Mac OS X.
@@ -330,6 +332,7 @@ Third party components
     * [130353] Fixed Qt/Mac native filedialog pattern splitting
     * [140332] Make QFileDialog respond much better to the LanguageChange event.
     * [154173] Fix a memory deallocation error.
+    * Make the selected filter argument work for native Mac OS X file dialogs.
 
 - QFileInfo
     * Do not follow symbolic link for Mac FS hidden flag detection.
@@ -351,6 +354,7 @@ Third party components
 - QFSFileEngine
     * Fix bug in fileTime() on Win98 and WinME
     * Make sure we set the working directory of a windows shortcut when a link is created.
+    * Improve reliability of buffered reads on platforms that cache their EOF status.
 
 - QGraphicsView
     * [149317] Added 'NoViewportUpdate' to the set of modes for updating a view.
@@ -458,6 +462,7 @@ Third party components
     * The Mac OS X clipboard now understands tiff information and exports images as tiff as well.
     * [145437] Fixed crash when calling QClipboard::setMimeData()
       twice with the same data.
+    * QMacMime now does correct normalization of file names in a URL list from foreign applications.
 
 - QMenu
     * the addAction() overloads that take a slot argument now honor the slot's bool
@@ -484,6 +489,8 @@ Third party components
     * [150545] Fixed memory leak on Mac.
     * [138331] Fixed bug that menus stay highlighted after the closing of a dialog.
     * Menu shortcuts are now cleared if the corresponding QAction is cleared on Mac. 
+    * Fix bug when changing a shortcut on Mac OS X would not take effect
+    * [12536] Don't allow tab to navigate menus on Mac OS X.
 
 - QMenuBar
     * [135320] Make QMenuBar::show() a no-op to on Mac OS X to prevent
@@ -730,6 +737,9 @@ Third party components
     * [130089] Make the tooplip help show up on disabled tabs also.
     * [118712] Enabled autorepeat on scroll buttons.
     * [146903] QTabBar now emits currentChanged when a tab is removed
+    * Take corner widgets into account when we calculate tab position and the tab bar is centered
+    * [132091] "Scroll" tabs backwards the same way that it was done in Qt 3.
+    * [132074] Always emit currentChanged() when the current tab is deleted.
 
 - QTabWidget
     * TabWidget now takes ownership of corner widgets and allows setting 0 on the corner widget.
@@ -832,9 +842,14 @@ Third party components
     * Add documentation that pixelMetrics are not necessarily followed in all styles.
     * standardPixmap() has been obsoleted. Use standardIcon() instead.
     * Added SP_VistaShield to support Vista UAC prompts on Windows Vista.
+    * [103150] Added SH_FocusFrame_AboveWidget to allow the focus frame to be stacked above the widget it has focus on.
+    * The default password character is now a Unicode circle, the asterisk is still used for QMotifStyle and its subclasses.
+    * [127454] CE_ToolBoxTab now draws two parts, CE_ToolBoxTabShape and CE_ToolBoxTabLabel. This should make
+      QToolBox more style-able.
+    * [242107] Added a QStyleOptionToolBoxV2 with tab position and selected position enums.
 
 - QStyleOption
-    * Add an initializeFromStyleOption() for many widgets that need to create a QStyleOption subclass for style-related calls.
+    * [86988] Add an initializeFromStyleOption() for many widgets that need to create a QStyleOption subclass for style-related calls.
 
 - QTableView
     * No longer allow invalid spans to be created.
@@ -1135,6 +1150,15 @@ Third party components
     * [147653] Sort indicator was drawn on top of the text in QHeaderView.
     * [139149] Fixed issues with CE_SizeGrip in "right to left" mode.
     * [139311] Improved drawing of the title in QGroupBox.
+    * [128713] Drawing the focus frame now follows pixel metrics.
+    * [142274] Make QSlider tickmark drawing more like Cocoa.
+    * focusRectPolicy() is now obsolete. This is now controlled by the Qt::WA_MacShowFocusRect attribute
+    * widgetSizePolicy() is now obsolete. This is now controlled by the Qt::WA_Mac*Size attribute
+    * [129503] A group box without a title no longer allocates space for it.
+    * Use a better width for QPushButtons.
+    * [132674] Ensure the tab bar drawing is correct when the tab's font isn't as tall as the default.
+    * [126214] Draw the QSizeGrip correctly in a brushed-metal window.
+    * Better styling of docked QDockWidgets.
 
 - QUrl
     * [134604] Fixed the behavior dirPath() on Windows (obsolete member)
@@ -1429,6 +1453,22 @@ Mac OS X
     * [145075] Fix aliased line drawing bug.
     * [122826] Fix QScrollBar painting error.
     * [131794] PixelTool and QWidget::grabWindow() now work on non-primary monitors.
+    * [160228] The Quartz 2D-based paint engine now respects the font style strategy.
+    * Miscellaneous changes to make wrapping non-Qt HIViews more painless.
+    * Qt is now built with MACOSX_DEPLOYMENT_TARGET set to 10.3 (since Qt can only be run on Mac OS X 10.3 and up).
+    * QSound now uses NSSound for its implementation instead of the deprecated C
+      QuickTime API. This means that the QtGui library is no longer dependant
+      on the QuickTime framework.
+    * Added a -dwarf-2 configure switch to allow people to turn on DWARF2 debugging symbols when that is not the default
+      The ability for DWARF2 debugging symbols was added in later version of the Xcode 2.x series.
+    * Fixed many assertions when running against Carbon_debug.
+    * Renamed the Qt::WA_MacMetalStyle to the WA_MacBrushedMetal attribute.
+    * Changing the Qt::WA_MacBrushedMetal attribute will now emit a StyleChange event.
+    * The Qt translations and Qt Linguist phrase books have been added to the binary package.
+    * [134630] Fix loading of plugins when using universal plugins and accidentally
+      reading wrong architecture first and returning an architecture mismatch.
+    * QCursor now uses NSCursor internally instead of deprecated QuickDraw functions.
+    * Correct our encoding and decoding functions for QFile to handle different Unicode normalization forms.
 
 Qtopia Core
 -----------
@@ -1679,3 +1719,8 @@ Examples
     * [125557] Fix broken generation of dependencies for extra compilers.
     * Give the QMAKE_QMAKE variable a reasonable default before
       parsing and evaluating project files.
+    * For Unix/Mac OS X, configure now has an -optimized-qmake option that
+      allows people to build qmake with optimizations
+      This is disabled by default as older versions of some compilers take a
+      long time to build an optimized qmake. qmake is already built optimized
+      on Windows.
