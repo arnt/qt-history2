@@ -26,6 +26,12 @@ General Improvements
       SLOT() signatures (struct, class, and enum).
     * Optimize emitting signals that do not have anything connected to them.
 
+- [121629] Added support for Mingw/MSYS platform
+
+- [102293] Added Search path functionality (QDir::addSearchPath)
+
+- Almost all widgets are now styleable using Qt Style Sheets
+
 Third party components
 ----------------------
 
@@ -44,6 +50,8 @@ Third party components
 - QAbstractButton
     * [138210] Ensure strictly alternating ordering of signals resulting from
       autorepeating shortcut. Also fix repeat timer infinite retriggering bug.
+    * [150995] Fixed bug where non-checkable buttons take focus when activating 
+      shortcuts
 
 - QAbstractItemView
     * [111503] Give the focus back to the view when the tab key is pressed
@@ -159,10 +167,12 @@ Third party components
     * [156700] Fixed bug where the popup was closed when pressing the scroll arrows.
     * [133328] Fixed bug where disabled entries were not grayed out.
     * [134085] Fixed bug where QComboBox::AdjustToContents had no effect.
+    * [152840] Fixed bug where QComboBox does not automatically scroll to the current item
 
 - QFontComboBox
     * [132826] QFontComboBox popup could be shown off-screen.
     * [155614] Speedup addItem() and addItems().
+    * [160110] Fixed crash when setting a QFont with pixel size
 
 - QFontMetrics
     * [152013] Fixed bug where boundingRect() gave too big a size using Visual Studio 6.
@@ -170,6 +180,10 @@ Third party components
 - QCompleter
     * Significantly reduced the construction time.
     * Added support for lazy populated models.
+    * [135735] Make QCompleter work in a QLineEdit with a QValidator
+    * Added property wrapAround to wrap around completions in popup mode
+    * The same QCompleter object can now be set on multiple widgets
+    * [143441] Added support for models that sorted in descending order
 
 - QCursor
     * [154593] Fixed hotspot bug for cursors on Mac.
@@ -197,6 +211,7 @@ Third party components
 - QFrame
     * [156112] Fixed bug where the default frame was not correct when created without a parent and
       reparented afterwards.
+    * [150995] Fixed bug where setting frameStyle did not invalidate the sizeHint
 
 - QDial
     * [151897] Even With tracking disabled, the signal sliderMoved() is emitted
@@ -235,6 +250,7 @@ Third party components
 
 - QInputDialog
     * [115565] Disable OK button for non-acceptable text (getInteger() and getDouble()).
+    * [90535]  Input dialogs now have a size grip
 
 - QIntValidator, QDoubleValidator
     * Validators recognise numbers formatted in various locales, depending on their "locale"
@@ -507,6 +523,7 @@ Third party components
 
 - QMessageBox
     * [119777] Pressing Ctrl+C in message boxes on Windows copies text to clipboard
+    * Added setDefaultButton(StandardButton) and setEscapeButton(StandardButton)
 
 - QMetaObject
     * Optimize QMetaObject::invokeMethod() to avoid calling
@@ -691,7 +708,7 @@ Third party components
 
 - QPrintDialog
     * [128964] Make "Print" button the default
-    * [138924] The filename in the file dialog is set when printing to a file
+    * [138924] Set the filename in the file dialog when printing to a file
     * [141486] Made QPrintDialog::setPrintRange correctly update the print dialog on X11.
     * [154690] "Print last page first" did not update the QPrinter instance on X11.
     * [149991] Support more text encodings in the PPD subdialog.
@@ -712,6 +729,7 @@ Third party components
 
 - QProgressDialog
     * QProgressDialog::setRange() is now a slot.
+    * [123199] Escape key closes dialog even when the cancel text is empty
 
 - QPushButton
     * [114245] Fixed some styling issues of push buttons with popup menus.
@@ -729,11 +747,11 @@ Third party components
     * Several optimizations for common operations on X11 and Qtopia Core.
 
 - QStatusbar
-	* [131558] Increased text margin and fixed a look and feel issue on Windows.
+    * [131558] Increased text margin and fixed a look and feel issue on Windows.
 
 - QTabBar 
     * [126438] Added int tabAt(const QPoint &pos) const
-    * [143760] Scroll buttons are now never shown when setUsesScrollButtons(false)
+    * [143760] Fixed a bug where scroll buttons are now shown event when setUsesScrollButtons(false)
     * [130089] Make the tooplip help show up on disabled tabs also.
     * [118712] Enabled autorepeat on scroll buttons.
     * [146903] QTabBar now emits currentChanged when a tab is removed
@@ -744,6 +762,7 @@ Third party components
 - QTabWidget
     * TabWidget now takes ownership of corner widgets and allows setting 0 on the corner widget.
     * [142464] It should not be possible to navigate to disabled tabs.
+    * [124987] Relayout when a corner widget is set
 
 - QThread
     * [140734] Fixed a bug that prevented QThread::exec() from being
@@ -836,6 +855,7 @@ Third party components
       platforms that support it.
     * [135645] Fixed an issue preventing system tray messages from working on some 
       windows platforms.
+    * Addded geometry() to return the global position of the tray icon
 	
 - QStyle
     * Add StandardPixmap SP_DirHomeIcon which is native icon for the home directory.
@@ -1094,6 +1114,7 @@ Third party components
     * Fixed support for buddies with richtext labels.
     * [136918] Fixed setText() to not turn off mouse tracking when the text is plain.
     * [143063] Reset mouse cursor upon clicking link.
+    * [156912] Fixes bug where the mouse cursor can be stuck on the pointing hand cursor
 
 - QTextFormat
     * [156343] Fix crash when streaming QTextFormat instances.
@@ -1385,6 +1406,13 @@ Windows
     * [141296] Unloading of ActiveQt dll should be done from the same thread which
       loaded it.
 
+- Qt Style Sheets
+    * Added support for clipping background using border-radius
+    * Almost all widgets are now style sheet styleable
+    * Added support for -stylesheet command line argument to QApplication
+    * Added support for styling through SVG
+    * Added support to specify colors and brushes as gradients
+
 Mac OS X
 --------
 
@@ -1517,11 +1545,20 @@ Qtopia Core
       drawing optimizations for some formats.
 
 ****************************************************************************
+*                      Compiler Specific Changes                           *
+****************************************************************************
+
+- MinGW
+    * [119777] Removed dependancy on mingwm.dll when compiled with 
+      -no-exceptions
+
+****************************************************************************
 *                   Significant Documentation Changes                      *
 ****************************************************************************
 
 Examples
 --------
+    * Added new example to show usage of QCompleter with custom tree models
 
 ****************************************************************************
 *                          Tools                                           *
@@ -1633,6 +1670,7 @@ Examples
     * [134657] Fixed table widget editor.
     * [90085] Make the resource editor consume a little less horizontal real estate.
     * [105671] Added support to maximize main windows while beeing previewed.
+    * Added style sheet editor
 
 - Linguist
     * Translations can be exported and imported to XLIFF.
