@@ -6872,9 +6872,13 @@ qreal QPaintEngineState::opacity() const
 }
 
 /*!
-    setTransform() has been added for compatibility with setMatrix(), 
+    \since 4.3
+
+    This function has been added for compatibility with setMatrix(), 
     but as with setMatrix() the preferred method of setting a
     transformation on the painter is through setWorldTransform().
+
+    \sa transform()
 */
 
 void QPainter::setTransform(const QTransform &transform, bool combine )
