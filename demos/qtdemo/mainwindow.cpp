@@ -146,7 +146,7 @@ void MainWindow::switchTimerOnOff(bool on)
     if (on && !Colors::noTimerUpdate){
         this->useTimer = true;
         this->setViewportUpdateMode(QGraphicsView::NoViewportUpdate);
-        this->updateTimer.start(10.0f);
+        this->updateTimer.start(int(1000 / Colors::fps));
     }
     else{
         this->useTimer = false;
