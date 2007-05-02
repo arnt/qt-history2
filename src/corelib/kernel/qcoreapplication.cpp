@@ -769,7 +769,7 @@ void QCoreApplication::exit(int returnCode)
     approach is to create the event on the stack, for example:
 
     \code
-        QMouseEvent event(QEvent::MouseButtonPress, pos, 0, 0);
+        QMouseEvent event(QEvent::MouseButtonPress, pos, 0, 0, 0);
         QApplication::sendEvent(mainWindow, &event);
     \endcode
 
