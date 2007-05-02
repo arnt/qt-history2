@@ -906,7 +906,7 @@ void QCoreGraphicsPaintEngine::drawTextItem(const QPointF &pos, const QTextItem 
 
     QFontEngineMac *fe = static_cast<QFontEngineMac *>(ti.fontEngine);
 
-    const bool textAA = state->renderHints() & QPainter::TextAntialiasing && fe->fontDef.pointSize > qt_antialiasing_threshold;
+    const bool textAA = state->renderHints() & QPainter::TextAntialiasing && fe->fontDef.pointSize > qt_antialiasing_threshold && !(fe->fontDef.styleStrategy & QFont::NoAntialias);
     const bool lineAA = state->renderHints() & QPainter::Antialiasing;
     if(textAA != lineAA)
         CGContextSetShouldAntialias(d->hd, textAA);
