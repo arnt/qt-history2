@@ -2810,7 +2810,7 @@ qreal QPainterPath::slopeAtPercent(qreal t) const
     \fn bool QPainterPath::addRoundRect(const QRectF &rect, int roundness);
     \since 4.3
 
-    Adds a rounded rectangle to the path.
+    Adds a rounded rectangle, \a rect, to the path.
 
     The \a roundness argument specifies uniform roundness for the rectangle.
     Vertical and horizontal roundness factors will be adjusted accordingly
@@ -2822,10 +2822,11 @@ qreal QPainterPath::slopeAtPercent(qreal t) const
 
 
 /*!
-    \fn bool QPainterPath::addRoundRect(qreal x, qreal y, qreal w, qreal h, int roundness);
+    \fn bool QPainterPath::addRoundRect(qreal x, qreal y, qreal width, qreal height, int roundness);
     \since 4.3
 
-    Adds a rounded rectangle to the path.
+    Adds a rounded rectangle to the path, defined by the coordinates \a x and \a y with the
+    specified \a width and \a height.
 
     The \a roundness argument specifies uniform roundness for the rectangle.
     Vertical and horizontal roundness factors will be adjusted accordingly
