@@ -24,6 +24,7 @@ General Improvements
       which waits for all slots to be called before continuing.
     * [128646] Ignore optional keywords specified in SIGNAL() and
       SLOT() signatures (struct, class, and enum).
+    * Optimize emitting signals that do not have anything connected to them.
 
 Third party components
 ----------------------
@@ -84,6 +85,13 @@ Third party components
     * [148512] Fixed QApplication::keyboardModifiers() to update
       correctly when minimizing the window when Qt::MetaModifier is held.
     * [148796] Fixed a bug that prevented Qt from detecting system font changes.
+    * [154727] Prevent a crash when a widget deletes itself in an key
+      event handler without accepting event.
+    * [156484] Fixed lastWindowClosed() being emited for each top
+      level window when calling QApplication::closeAllWindows().
+    * [157667] Fixed widgets with Qt::WA_DeleteOnClose to be properly
+      deleted when they are closed in the dropEvent() handler when the
+      drag was started in the same application.
 
 - QAtomic
     * [126321] Fixed several flaws in the inline assembler implementations
@@ -114,6 +122,7 @@ Third party components
       invalid color strings.
     * [120367] Added QColor::setAllowX11ColorNames(bool), which allows
       applications to use X11 color names.
+    * Fixed internal errors in toHsv() due to inexact float comparisions.
 
 - QCoreApplication
     * Added support for posted event priorities.
@@ -121,6 +130,10 @@ Third party components
       for removing events of a specific type.
     * Document QCoreApplication::processEvents() as thread-safe;
       calling it will process events for the calling thread.
+    * Optimized delivery of QEvent::ChildInserted compatibility events.
+    * [154727] Compress posted QEvent::DeferredDelete events (used by
+      QObject::deleteLater()) to prevent objects from being delete
+      unexpectedly when many such events are postred.
 
 - QCleanlooksStyle
     [129506] * Sliders now looks and acts correct with both reversed and inverted slider appearance.
@@ -160,6 +173,8 @@ Third party components
 
 - QCursor
     * [154593] Fixed hotspot bug for cursors on Mac.
+    * [153381] Fixed crash in QCursor assignment operator when the
+      cursor was created before QApplication.
     
 - QDateTime
     * [151789] Allow passing of date only format to QDateTime::fromString() (according to ISO 8601)
@@ -722,6 +737,7 @@ Third party components
     * [140734] Fixed a bug that prevented QThread::exec() from being
       called more than once per thread.
     * Added QThread::idealThreadCount().
+    * Optimize QThread::currentThread() on UNIX.
 
 - QThreadStorage
     * [131944] Refactored to allow an arbitrary number of instances
@@ -797,6 +813,7 @@ Third party components
 
 - QString
     * fromUtf8() now discards UTF-8 encoded byte order marks just like the UTF-8 QTextCodec
+    * [154454] Fixed several UTF-8 decoder compliance problems (also affects the UTF-8 QTextCodec).
 
 - QStringListModel
     * Make it possible to drop items below the other visible items on a view with a QStringListModel
@@ -827,6 +844,10 @@ Third party components
 
 - QTextCodec
     * The UTF-8 codec have had a number of improvements in its handling of large, rare codepoints.
+    * [154932] UTF-8 codec now keeps correct state for sequence f0 90 80 80 f4 8f bf bd.
+    * [154454] Fixed several UTF-8 decoder compliance problems (also affects QString::fromUtf8()).
+    * Fixed the UTF-8 codec's handling of incomplete trailing UTF
+      sequences to be the same as QString::fromUtf8().
 
 - QTextStream
     * [141391] Fixed bug when reusing a text stream with the setString method.
@@ -972,6 +993,9 @@ Third party components
     * [132827] Allow setting focus to a hidden widget; it will get
       focus when shown.
     * Reduced overhead when repainting a widget with lots of children.
+    * Clarified documentation for the Qt::WA_AlwaysShowToolTips widget attribute.
+    * [154634] Ensure that the Qt::WA_AlwaysShowToolTips widget
+      attribute is respected for all widgets.
 
 - QWindowsStyle
     * [110784] Scrollbar and spinbox arrows now scale with the widget size.
@@ -1265,6 +1289,17 @@ X11
     * [124723] Fixed PseudoColor detection to correctly handle cases
       where the colormap is not sequential.
     * [140484] Don't use GLib event dispatcher if GLib version is too old.
+    * Fixed a bug where a window would get an incorrect size after the
+      second call to show().
+    * [153379] Fixed shortcuts where the modifier also includes
+      Mode_switch in the modifier mask, for example Alt+F on HP-UX.
+    * [154369] Fixed drag and drop to work properly after re-creating
+      the window id.
+    * [151778] Fixed mouse enter/leave event platform inconsistencies.
+    * [153155] Added the QT_NO_THREADED_GLIB environment variable,
+      which tells Qt to use Glib only for the GUI thread.
+    * Fixed restoreGeometry() to move a full-screen window to the
+      correct position.
 
 Windows
 -------
@@ -1301,6 +1336,17 @@ Windows
     * [106437] Removed WindowsXPStyle from QStyleFactory:keys() on platforms where it is not available.
     * [109814] Improved UNC path support.
     * [157261] Fixed crash when using Alt keycodes with text handling widgets.
+    * [116307] Fixed QEvent::WindowActivate not being sent for Qt::Tool windows.
+    * [150346] Fixed a bug that would exit the application when the
+      last window (a modal dialog) was closed and a new window shown
+      immediately afterward.
+    * [90144] Fixed a bug that caused
+      QApplication::keyboardMotifiers() to return modifiers even after
+      they had been released.
+    * [142767] Fixed a bug that allowed a QPushButton to become
+      pressed even though the mousePressEvent() was never called.
+    * [151199] Usage of blocking QProcess API in a thread no longer
+      hangs the desktop.
 
 - ActiveQt
     * When loading a typelib file to obtain information about a control it
@@ -1311,13 +1357,6 @@ Windows
       on the size restrictions set on the widget.
     * [141296] Unloading of ActiveQt dll should be done from the same thread which
       loaded it.
-    * [116307] Fixed QEvent::WindowActivate not being sent for Qt::Tool windows.
-    * [150346] Fixed a bug that would exit the application when the
-      last window (a modal dialog) was closed and a new window shown
-      immediately afterward.
-    * [90144] Fixed a bug that caused
-      QApplication::keyboardMotifiers() to return modifiers even after
-      they had been released.
 
 Mac OS X
 --------
@@ -1418,6 +1457,7 @@ Qtopia Core
       and hardware resources) when the application exits unexpectedly.
     * [144245] Fixed a problem with some cross-compilers triggered by using
       math.h functions taking a double argument when using float data.
+    * Optimized QSocketNotifier activation.
 
 
 ****************************************************************************
