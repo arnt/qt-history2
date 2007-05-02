@@ -3280,6 +3280,11 @@ void QWSServerPrivate::moveWindowRegion(QWSWindow *changingw, int dx, int dy)
     changingw->d->state = QWSWindow::Moving;
     const QRegion oldRegion(changingw->allocatedRegion());
     changingw->requested_region.translate(dx, dy);
+
+    // hw: Even if the allocated region doesn't change, the requested region
+    // region has changed and we need to send region events.
+    // Resetting the allocated region to force update_regions to send events.
+    changingw->setAllocatedRegion(QRegion());
     update_regions();
     const QRegion newRegion(changingw->allocatedRegion());
 
