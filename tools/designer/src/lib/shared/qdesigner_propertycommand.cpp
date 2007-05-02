@@ -71,6 +71,8 @@ void checkSizes(QDesignerFormWindowInterface *fw, const QSize &size, QSize *form
 
     newFormSize = newContainerSize - diff;
 
+    newContainerSize = checkSize(newContainerSize);
+
     if (formSize)
         *formSize = newFormSize;
     if (containerSize)
