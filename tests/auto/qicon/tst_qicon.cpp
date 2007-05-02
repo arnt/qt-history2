@@ -30,11 +30,6 @@ private slots:
     void bestMatch();
     void cacheKey();
     void detach();
-    void operatorEqual() const;
-    void operatorEqual_data() const;
-
-    void operatorNotEqual() const;
-    void operatorNotEqual_data() const;
 };
 
 tst_QIcon::tst_QIcon()
@@ -310,58 +305,6 @@ void tst_QIcon::detach()
     img1 = icon1.pixmap(32, 32).toImage();
     img2 = icon2.pixmap(32, 32).toImage();
     QVERIFY(img1 == img2);
-}
-
-void tst_QIcon::operatorEqual() const
-{
-    QFETCH(QIcon, operandA);
-    QFETCH(QIcon, operandB);
-    QFETCH(bool, result);
-
-    QCOMPARE(operandA == operandB, result);
-}
-
-void tst_QIcon::operatorEqual_data() const
-{
-    QImage img(32, 32, QImage::Format_ARGB32_Premultiplied);
-    img.fill(0xffff0000);
-    const QIcon fromImage(QPixmap::fromImage(img));
-    QVERIFY(!fromImage.isNull()); // Check that we're actually populated.
-
-    QTest::addColumn<QIcon>("operandA");
-    QTest::addColumn<QIcon>("operandB");
-    QTest::addColumn<bool>("result");
-
-    QTest::newRow("Both are null") << QIcon() << QIcon() << true;
-    QTest::newRow("Left is null") << QIcon() << fromImage << false;
-    QTest::newRow("Right is null") << fromImage << QIcon() << false;
-
-    QTest::newRow("Two identical, filled") << fromImage << fromImage << true;
-
-    const QIcon fromFile("image.png");
-    QVERIFY(!fromFile.isNull()); // Check that loading the file didn't fail.
-
-    QTest::newRow("Two from same file") << fromFile << fromFile << true;
-    QTest::newRow("Different icons") << fromFile << fromImage << false;
-    QTest::newRow("Different icons") << fromImage << fromFile << false;
-}
-
-/*!
-  \internal
-  The exact same code as for operatorEqual(), but we simply negate the result.
- */
-void tst_QIcon::operatorNotEqual() const
-{
-    QFETCH(QIcon, operandA);
-    QFETCH(QIcon, operandB);
-    QFETCH(bool, result);
-
-    QCOMPARE(operandA != operandB, !result);
-}
-
-void tst_QIcon::operatorNotEqual_data() const
-{
-    operatorEqual_data();
 }
 
 QTEST_MAIN(tst_QIcon)

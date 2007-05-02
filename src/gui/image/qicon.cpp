@@ -570,23 +570,6 @@ QIcon::operator QVariant() const
     return QVariant(QVariant::Icon, this);
 }
 
-/*!
-  Returns true if this icon and \a other have the same
-  contents; otherwise returns false.
- */
-bool QIcon::operator==(const QIcon &other) const
-{
-    return cacheKey() == other.cacheKey();
-}
-
-/*!
-  Returns true if this icon and the given icon have different contents; otherwise returns false.
- */
-bool QIcon::operator!=(const QIcon &other) const
-{
-    return cacheKey() != other.cacheKey();
-}
-
 /*! \obsolete
 
     Returns a number that identifies the contents of this

@@ -198,7 +198,6 @@ private slots:
     void globalColor();
 
     void variantMap();
-    void compareQIcon() const;
 
     void invalidAsByteArray();
 };
@@ -2163,32 +2162,6 @@ void tst_QVariant::qvariant_cast_QObject() {
 
     QObject *o = qvariant_cast<QObject *>(data);
     QCOMPARE(o != 0, success);
-}
-
-void tst_QVariant::compareQIcon() const
-{
-    const QVariant a = QIcon();
-    const QVariant b = QIcon();
-
-    QPixmap pixmap(32, 32);
-    pixmap.fill(0xffff0000);
-
-    const QIcon fromImage(pixmap);
-    QVERIFY(!fromImage.isNull()); // Check that we're actually populated.
-
-    const QVariant c = fromImage;
-    QVERIFY(a == a);
-    QVERIFY(b == b);
-    QVERIFY(a == b);
-    QVERIFY(c == c);
-    QVERIFY(!(QIcon() == fromImage));
-    QVERIFY(!(a == c));
-    QVERIFY(!(c == a));
-
-    QCOMPARE(a != a, false);
-    QCOMPARE(a != b, false);
-    QCOMPARE(a != c, true);
-    QCOMPARE(c != a, true);
 }
 
 QTEST_MAIN(tst_QVariant)
