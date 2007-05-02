@@ -218,6 +218,8 @@ Third party components
     * [157549] Fixed crash when calling QImage::copy with negative coordinates.
     * Added cacheKey() as a replacement for serialNumber().
     * [131852] Optimized 90 and 270 degrees rotation.
+    * [158986] Fixed painting onto a QImage with format QImage::Format_RGB16.
+    * Fixed 90 and 270 degrees rotation for QImage::Format_RGB16.
 
 - QImageReader
     * [141781] Fixed support for doublebyte PPM files (>256 colors).
@@ -657,8 +659,8 @@ Third party components
     * [127901] Optimized gradient calculations.
     * [139705, 151562] Optimized clipping algorithms in the raster paint 
       engine.
-    * Optimized blending operations in the raster paint engine using MMX and
-      3DNOW.
+    * Optimized blending operations in the raster paint engine using MMX,
+      3DNOW and SSE2.
     * Optimized QPainter::fillRect() for opaque brushes.
 
 - QPicture
@@ -996,6 +998,7 @@ Third party components
     * Clarified documentation for the Qt::WA_AlwaysShowToolTips widget attribute.
     * [154634] Ensure that the Qt::WA_AlwaysShowToolTips widget
       attribute is respected for all widgets.
+    * [151858] Improved the approximation returned by QWidget::visibleRegion().
 
 - QWindowsStyle
     * [110784] Scrollbar and spinbox arrows now scale with the widget size.
@@ -1447,6 +1450,8 @@ Qtopia Core
     * [132346] Fixed a performance bug causing unecessary screen copies when
       using a hardware cursor.
     * [131510, 121496] Lot's of performance improvements in the VNC driver.
+    * [138615] Fixed color conversion when VNC server is running on a 
+      big-endian machine.
     * [131321] Optimized text drawing.
     * [136282] Fixed a bug preventing QWidget::setCursor() and 
       QWidget::unsetCursor() having effect immediately.
@@ -1458,7 +1463,18 @@ Qtopia Core
     * [144245] Fixed a problem with some cross-compilers triggered by using
       math.h functions taking a double argument when using float data.
     * Optimized QSocketNotifier activation.
-
+    * [156511] Implemented QDirectPainter::ReservedSynchronous which makes
+      a QDirectPainter object behave as a QDirectPainter region allocated
+      using the static functions.
+    * [94856] Fixed console switching when using the Tty keyboard driver.
+    * [157705, 132811] Pass device parameters to keyboard and mouse plugins.
+    * [150564] API changes in QWSWindowSurface. New functions include
+      QWSWindowSurface::move() to enable acceleration move of top-level 
+      windows.
+    * [156704] Fixed QPixmap::grabWindow() for 18 and 24 bit screens.
+    * [154689] Fixed the -no-gfx-multiscreen parameter to configure.
+    * Added QScreen::pixelFormat() and QScreen::setPixelFormat() to enable
+      drawing optimizations for some formats.
 
 ****************************************************************************
 *                   Significant Documentation Changes                      *
