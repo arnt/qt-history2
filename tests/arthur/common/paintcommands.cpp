@@ -257,6 +257,10 @@ void PaintCommands::staticInit()
                       "^gradient_setRadial\\s+([\\w.]*)\\s+([\\w.]*)\\s+([\\w.]*)\\s?([\\w.]*)\\s?([\\w.]*)$",
                       "gradient_setRadial <cx> <cy> <rad> <fx> <fy>\n  - C is the center\n  - rad is the angle in degrees\n  - F is the focal point",
                       "gradient_setRadial 1.0 1.0 45.0 2.0 2.0");
+    DECL_PAINTCOMMAND("gradient_setLinearPen", command_gradient_setLinearPen,
+                      "^gradient_setLinearPen\\s+([\\w.]*)\\s+([\\w.]*)\\s+([\\w.]*)\\s+([\\w.]*)$",
+                      "gradient_setLinearPen <x1> <y1> <x2> <y2>",
+                      "gradient_setLinearPen 1.0 1.0 2.0 2.0");
     DECL_PAINTCOMMAND("gradient_setSpread", command_gradient_setSpread,
                       "^gradient_setSpread\\s+(\\w*)$",
                       "gradient_setSpread <spread method enum>",
@@ -2148,6 +2152,28 @@ void PaintCommands::command_gradient_setLinear(QRegExp re)
     brush.setTransform(brush_matrix);
 #endif
     m_painter->setBrush(brush);
+}
+
+/***************************************************************************************************/
+void PaintCommands::command_gradient_setLinearPen(QRegExp re)
+{
+    QStringList caps = re.capturedTexts();
+    double x1 = convertToDouble(caps.at(1));
+    double y1 = convertToDouble(caps.at(2));
+    double x2 = convertToDouble(caps.at(3));
+    double y2 = convertToDouble(caps.at(4));
+
+    if (m_verboseMode)
+        printf(" - gradient_setLinear (%.2f, %.2f), (%.2f, %.2f), spread=%d\n",
+               x1, y1, x2, y2, m_gradientSpread);
+
+    QLinearGradient lg(QPointF(x1, y1), QPointF(x2, y2));
+    lg.setStops(m_gradientStops);
+    lg.setSpread(m_gradientSpread);
+    lg.setCoordinateMode(m_gradientCoordinate);
+    QPen pen = m_painter->pen();
+    pen.setBrush(lg);
+    m_painter->setPen(pen);
 }
 
 /***************************************************************************************************/

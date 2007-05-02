@@ -119,6 +119,7 @@ private:
     void command_gradient_setConical(QRegExp re);
     void command_gradient_setLinear(QRegExp re);
     void command_gradient_setRadial(QRegExp re);
+    void command_gradient_setLinearPen(QRegExp re);
     void command_gradient_setSpread(QRegExp re);
     void command_gradient_setCoordinateMode(QRegExp re);
 

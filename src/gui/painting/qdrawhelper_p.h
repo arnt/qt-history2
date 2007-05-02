@@ -153,6 +153,13 @@ struct GradientData
         ConicalGradientData conical;
     };
 
+    // need to keep track of these as the same gradient might be used for several objects
+    union {
+        LinearGradientData unresolvedLinear;
+        RadialGradientData unresolvedRadial;
+        ConicalGradientData unresolvedConical;
+    };
+
 #ifdef Q_WS_QWS
 #define GRADIENT_STOPTABLE_SIZE 256
 #else
