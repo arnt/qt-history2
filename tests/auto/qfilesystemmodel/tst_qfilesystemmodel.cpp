@@ -115,7 +115,13 @@ void tst_QFileSystemModel::rootPath()
 
     QString oldRootPath = model->rootPath();
     root = model->setRootPath(QDir::homePath());
-    QTest::qWait(WAITTIME);
+
+    for (int i = 0; i < 5; ++i) {
+        QTest::qWait(WAITTIME);
+        if (model->rowCount(root) > 0)
+            break;
+    }
+
     QCOMPARE(model->rootPath(), QString(QDir::homePath()));
     QCOMPARE(rootChanged.count(), oldRootPath == model->rootPath() ? 0 : 1);
     QVERIFY(model->rowCount(root) > 0);
@@ -184,7 +190,13 @@ void tst_QFileSystemModel::naturalCompare()
 void tst_QFileSystemModel::readOnly()
 {
     QModelIndex root = model->setRootPath(QDir::homePath());
-    QTest::qWait(WAITTIME);
+
+    for (int i = 0; i < 5; ++i) {
+        QTest::qWait(WAITTIME);
+        if (model->rowCount(root) > 0)
+            break;
+    }
+
     QCOMPARE(model->isReadOnly(), true);
     QVERIFY(model->rowCount(root) > 0);
     QVERIFY(!(model->flags(model->index(0, 0, root)) & Qt::ItemIsEditable));
