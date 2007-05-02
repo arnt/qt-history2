@@ -983,3 +983,13 @@ QSize QIcon::pixmapSize(Size which)
 */
 
 #endif // QT3_SUPPORT
+
+/*!
+    \fn DataPtr &QIcon::data_ptr()
+    \internal
+*/
+
+/*!
+    \typedef QIcon::DataPtr
+    \internal
+*/
