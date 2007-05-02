@@ -53,7 +53,7 @@ class QMacWindowChangeEvent;
 #ifdef Q_WS_QWS
 #include <GLES/egl.h>
 class QGLDirectPainter;
-class QEGLWindowSurface;
+class QGLWindowSurface;
 #endif
 
 #include <QtOpenGL/private/qglextensions_p.h>
@@ -119,7 +119,7 @@ public:
     void resizeHandler(const QSize &);
     void render(const QRegion&);
 #ifdef Q_USE_EGLWINDOWSURFACE
-    QEGLWindowSurface *wsurf;
+    QGLWindowSurface *wsurf;
 #endif
 #endif
 };

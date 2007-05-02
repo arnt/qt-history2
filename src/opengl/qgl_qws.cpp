@@ -18,8 +18,7 @@
 #include <GLES/gl.h>
 #include <qdirectpainter_qws.h>
 
-#include <qscreen_qws.h>
-
+#include <qscreengl_p.h>
 #include <private/qwindowsurface_qws_p.h>
 
 #endif
@@ -46,7 +45,7 @@
 #include "qegl_qws_p.h"
 
 #ifdef Q_USE_EGLWINDOWSURFACE
-#include "private/qwindowsurface_egl_p.h"
+#include "private/qwindowsurface_gl_p.h"
 #endif
 #endif
 
@@ -102,14 +101,11 @@ static bool checkConfig(EGLDisplay dpy, EGLConfig config, int r, int g, int b, i
 bool QGLContext::chooseContext(const QGLContext* shareContext)
 {
 #ifdef Q_USE_EGLWINDOWSURFACE
-    if (device() && device()->devType() == QInternal::Widget) {
-        // EGL Only works if drawable is a QGLWidget. QGLPixelBuffer not supported
-        QEGLWindowSurface *surface = static_cast<QGLWidget*>(device())->d_func()->wsurf;
-        if (surface)
-            return surface->chooseContext(this, shareContext);
-        else return false;
-    }
-    return false;
+    // EGL Only works if drawable is a QGLWidget. QGLPixelBuffer not supported
+    if (device() && device()->devType() == QInternal::Widget)
+        return static_cast<QGLScreen*>(QScreen::instance())->chooseContext(this, shareContext);
+    else
+        return false;
 #else
     Q_D(QGLContext);
     d->cx = 0;
@@ -638,7 +634,7 @@ void QGLWidgetPrivate::init(QGLContext *context, const QGLWidget* shareWidget)
     directPainter = 0;
 
 #ifdef Q_USE_EGLWINDOWSURFACE
-    wsurf = static_cast<QEGLWindowSurface*>(QScreen::instance()->createSurface(q));
+    wsurf = static_cast<QGLWindowSurface*>(QScreen::instance()->createSurface(q));
     q->setWindowSurface(wsurf);
 #endif
 

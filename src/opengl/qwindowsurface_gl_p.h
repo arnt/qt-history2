@@ -11,43 +11,47 @@
 **
 ****************************************************************************/
 
-#ifndef QEGLPAINTDEVICE_EGL_P_H
-#define QEGLPAINTDEVICE_EGL_P_H
+#ifndef QWINDOWSURFACE_GL_P_H
+#define QWINDOWSURFACE_GL_P_H
 
 //
 //  W A R N I N G
 //  -------------
 //
 // This file is not part of the Qt API.  It exists for the convenience
-// of the QEGLWindowSurface class.  This header file may change from
+// of the QGLWindowSurface class.  This header file may change from
 // version to version without notice, or even be removed.
 //
 // We mean it.
 //
 
+#include <QtCore/qglobal.h>
 #include <QPaintDevice>
+#include "private/qwindowsurface_qws_p.h"
 
+class QPaintDevice;
+class QPoint;
+class QRegion;
+class QSize;
 class QWidget;
-class QEGLWindowSurface;
-class QEGLPaintDevicePrivate;
+class QGLContext;
 
-class QEGLPaintDevice : public QPaintDevice
+class QGLWindowSurfacePrivate;
+
+class QGLWindowSurface : public QWSWindowSurface
 {
-    Q_DECLARE_PRIVATE(QEGLPaintDevice)
+    Q_DECLARE_PRIVATE(QGLWindowSurface)
 public:
-    QEGLPaintDevice(QWidget *w, QEGLWindowSurface *surf);
-    ~QEGLPaintDevice();
+    QGLWindowSurface(QWidget *widget);
+    QGLWindowSurface();
+    ~QGLWindowSurface();
 
-    QPaintEngine *paintEngine() const;
-
-    int metric(PaintDeviceMetric m) const;
-
-    QEGLWindowSurface *windowSurface() const;
+    QGLContext *context() const;
+    void setContext(QGLContext *context);
 
 private:
-    friend class QEGLWindowSurface;
-    QEGLPaintDevicePrivate *d_ptr;
+    QGLWindowSurfacePrivate *d_ptr;
 };
 
 
-#endif // QEGLPAINTDEVICE_EGL_P_H
+#endif // QWINDOWSURFACE_GL_P_H

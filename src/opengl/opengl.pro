@@ -47,7 +47,8 @@ win32 {
 embedded {
     SOURCES += qgl_qws.cpp \
                qglpixelbuffer_qws.cpp \
-               qwindowsurface_egl.cpp
+               qwindowsurface_gl.cpp \
+               qscreengl.cpp
      	contains(QT_CONFIG, fontconfig) {
  		include($$QT_SOURCE_TREE/config.tests/unix/freetype/freetype.pri)
 	} else {
@@ -56,7 +57,8 @@ embedded {
 
        SOURCES += qegl_qws.cpp
        HEADERS += qegl_qws_p.h \
-                  qwindowsurface_egl_p.h
+                  qwindowsurface_gl_p.h \
+                  qscreengl_p.h
 }
 
 QMAKE_LIBS += $$QMAKE_LIBS_OPENGL

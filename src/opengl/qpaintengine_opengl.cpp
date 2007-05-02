@@ -37,8 +37,8 @@
 #include "util/fragmentprograms_p.h"
 
 #ifdef Q_WS_QWS
-#include "private/qpaintdevice_egl_p.h"
-#include "private/qwindowsurface_egl_p.h"
+#include "private/qpaintdevice_gl_p.h"
+#include "private/qwindowsurface_gl_p.h"
 #include "qwsmanager_qws.h"
 #include "private/qwsmanager_p.h"
 #endif
@@ -171,7 +171,7 @@ private:
     QGLPixelBuffer *buffer;
     QGLFramebufferObject *fbo;
 #ifdef Q_WS_QWS
-    QEGLWindowSurface *wsurf;
+    QGLWindowSurface *wsurf;
 #endif
 };
 
@@ -191,7 +191,7 @@ void QGLDrawable::setDevice(QPaintDevice *pdev)
         fbo = static_cast<QGLFramebufferObject *>(pdev);
 #ifdef Q_WS_QWS
     else if (pdev->devType() == QInternal::UnknownDevice)
-        wsurf = static_cast<QEGLPaintDevice*>(pdev)->windowSurface();
+        wsurf = static_cast<QGLPaintDevice*>(pdev)->windowSurface();
 #endif
 }
 
