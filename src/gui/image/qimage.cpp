@@ -600,6 +600,36 @@ QImageData::~QImageData()
     \o Resizes the color table. Only monochrome and 8-bit formats.
 
     \endtable
+    
+    \section1 Legal Information
+
+    For smooth scaling, the transformed() functions use code based on
+    smooth scaling algorithm by Daniel M. Duley.
+
+    \legalese
+     Copyright (C) 2004, 2005 Daniel M. Duley
+
+     Redistribution and use in source and binary forms, with or without
+        modification, are permitted provided that the following conditions
+        are met:
+
+     1. Redistributions of source code must retain the above copyright
+        notice, this list of conditions and the following disclaimer.
+     2. Redistributions in binary form must reproduce the above copyright
+        notice, this list of conditions and the following disclaimer in the
+        documentation and/or other materials provided with the distribution.
+
+     THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+     IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+     OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+     IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+     INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+     NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+     DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+     THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+     (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+     THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+    \endlegalese
 
     \sa QImageReader, QImageWriter, QPixmap, QSvgRenderer, {Image Composition Example},
         {Image Viewer Example}, {Scribble Example}, {Pixelator Example}
@@ -3606,37 +3636,7 @@ QMatrix QImage::trueMatrix(const QMatrix &matrix, int w, int h)
     for unwanted translation; i.e. the image produced is the smallest
     image that contains all the transformed points of the original
     image. Use the trueMatrix() function to retrieve the actual matrix
-    used for transforming an image
-
-    For smooth scaling, this function uses code based on
-    smooth scaling algorithm by Daniel M. Duley.
-
-
-    \legalese
-
-     Copyright (C) 2004, 2005 Daniel M. Duley
-
-     Redistribution and use in source and binary forms, with or without
-        modification, are permitted provided that the following conditions
-        are met:
-
-     1. Redistributions of source code must retain the above copyright
-        notice, this list of conditions and the following disclaimer.
-     2. Redistributions in binary form must reproduce the above copyright
-        notice, this list of conditions and the following disclaimer in the
-        documentation and/or other materials provided with the distribution.
-
-     THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
-     IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
-     OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-     IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
-     INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
-     NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-     DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-     THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-     (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
-     THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
+    used for transforming an image.
 
     \sa trueMatrix(), {QImage#Image Transformations}{Image
     Transformations}
@@ -5333,6 +5333,23 @@ static QImage rotated270(const QImage &image) {
     return out;
 }
 
+/*!
+    Returns a copy of the image that is transformed using the given
+    transformation \a matrix and transformation \a mode.
+
+    The transformation \a matrix is internally adjusted to compensate
+    for unwanted translation; i.e. the image produced is the smallest
+    image that contains all the transformed points of the original
+    image. Use the trueMatrix() function to retrieve the actual matrix
+    used for transforming an image.
+
+    Unlike the other overload, this function can be used to perform perspective
+    transformations on images.
+
+    \sa trueMatrix(), {QImage#Image Transformations}{Image
+    Transformations}
+*/
+
 QImage QImage::transformed(const QTransform &matrix, Qt::TransformationMode mode ) const
 {
     if (!d)
@@ -5457,6 +5474,27 @@ QImage QImage::transformed(const QTransform &matrix, Qt::TransformationMode mode
     return dImage;
 }
 
+/*!
+    \fn QTransform QImage::trueMatrix(const QTransform &matrix, int width, int height)
+
+    Returns the actual matrix used for transforming an image with the
+    given \a width, \a height and \a matrix.
+
+    When transforming an image using the transformed() function, the
+    transformation matrix is internally adjusted to compensate for
+    unwanted translation, i.e. transformed() returns the smallest
+    image containing all transformed points of the original image.
+    This function returns the modified matrix, which maps points
+    correctly from the original image into the new image.
+
+    Unlike the other overload, this function creates transformation
+    matrices that can be used to perform perspective
+    transformations on images.
+
+    \sa transformed(), {QImage#Image Transformations}{Image
+    Transformations}
+*/
+
 QTransform QImage::trueMatrix(const QTransform &matrix, int w, int h)
 {
     const qreal dt = qreal(0.);
@@ -5496,3 +5534,14 @@ QTransform QImage::trueMatrix(const QTransform &matrix, int w, int h)
                   -xmin, -ymin, 1);
     return mat;
 }
+
+
+/*!
+    \typedef QImage::DataPtr
+    \internal
+*/
+
+/*!
+    \fn DataPtr & QImage::data_ptr()
+    \internal
+*/
