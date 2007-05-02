@@ -505,7 +505,6 @@ bool QSslSocket::flush()
 
     \sa disconnectFromHost(), close()
 */
-// Note! docs copied from QAbstractSocket::aborts()
 void QSslSocket::abort()
 {
     Q_D(QSslSocket);
@@ -537,7 +536,10 @@ void QSslSocket::setLocalCertificate(const QSslCertificate &certificate)
 /*!
     \overload
 
-    Sets the local certificate to \a path, using \a format encoding.
+    Sets the socket's local certificate to a QSslCertificate
+    constructed from the first certificate found in the file
+    at \a path, which is expected to be encoded in the
+    specified \a format.
 */
 void QSslSocket::setLocalCertificate(const QString &path, QSsl::EncodingFormat format)
 {
@@ -560,21 +562,27 @@ QSslCertificate QSslSocket::localCertificate() const
 }
 
 /*!
-    Returns the peer's certificate (i.e., the immediate certificate of the
-    host you are connected to), or a null certificate if either the peer
-    hasn't provided any certificate (common for server sockets).
+    Returns the peer's digital certificate (i.e., the immediate
+    certificate of the host you are connected to), or a null
+    certificate.
+    
+    The peer certificate is checked automatically during the
+    handshake phase, so this function is normally used to fetch
+    the certificate for display or for connection diagnostic
+    purposes. It contains information about the peer, including
+    its host name, the certificate issuer, and the peer's public
+    key.
 
-    The peer certificate is provided for connection diagnostic purposes, and
-    it's commonly used for displaying to the user. It contains information
-    about the peer, including its host name, the certificate issuer, and the
-    peer's public key.
+    The peer certificate is set during the handshake phase, so it's
+    safe to check this certificate from inside a slot connected to the
+    sslErrors() or encrypted() signals.
 
-    The peer certificate is set during the handshake phase, so it's safe to
-    check this certificate from inside a slot connected to the sslErrors() or
-    encrypted() signals.
+    If a null certificate is returned, it can mean the SSL handshake
+    failed, or it can mean the host you are connected to doesn't have
+    a certificate, or it can mean there is no connection.
 
-    If you also want to check the rest of the peer's chain of certificates,
-    you can call peerCertificateChain().
+    If you want to check the peer's complete chain of certificates,
+    use peerCertificateChain() to get them all at once.
 
     \sa peerCertificateChain()
 */
@@ -585,20 +593,25 @@ QSslCertificate QSslSocket::peerCertificate() const
 }
 
 /*!
-    Returns the peer's chain of certificates, or an empty list of certificates
-    if the peer either hasn't provided any certificates.
+    Returns the peer's chain of digital certificates, or an empty list
+    of certificates.
 
-    The peer certificate chain is provided for connection diagnostic purposes,
-    and it's commonly used for displaying to the user. It contains information
-    about the peer, including its host name, the certificate issuer and its
-    chain of authorities, and the peer's and issuer's public keys.
+    Peer certificates are checked automatically during the handshake.
+    This function is normally only used to fetch certificates for
+    display, or for performing connection diagnostics. Certificates
+    contain information about the peer and the certificate issuers,
+    including host name, issuer names, and issuer public keys.
 
-    The peer certificates are set during the handshake phase, so it's safe to
-    check the certificate chain from inside a slot connected to the
-    sslErrors() or encrypted() signals.
+    The peer certificates are set in QSslSocket during the handshake
+    phase, so it's safe to check the certificate chain from inside a
+    slot connected to the encrypted() or the sslErrors() signal.
 
-    If all you want is to check the peer's own certificate, you can call
-    peerCertificateChain() instead.
+    If an empty list is returned, it can mean the SSL handshake
+    failed, or it can mean the host you are connected to doesn't have
+    a certificate, or it can mean there is no connection.
+
+    If you want to get only the peer's immediate certificate, use
+    peerCertificate().
 
     \sa peerCertificate()
 */
@@ -609,7 +622,8 @@ QList<QSslCertificate> QSslSocket::peerCertificateChain() const
 }
 
 /*!
-    Returns the socket's current cryptographic cipher, or a null cipher if the
+    Returns the socket's current cryptographic \l {QSslCypher} {cipher},
+    or a null cipher if the
     connection isn't encrypted. You can call this function to find information
     about the cipher that is used to encrypt and decrypt all data transmitted
     through this socket.
