@@ -700,11 +700,11 @@ Third party components
 - QProgressBar
     * [146855] setFormat() now calls update() if the format changes.
     * [152227] Improved support for wide ranges (INT_MIN - INT_MAX).
-    * [248795] QProgressBar::setRange() is now a slot.
+    * QProgressBar::setRange() is now a slot.
     * [137020] Ensure setValue() forces repaint for %v.
 
 - QProgressDialog
-    * [248795] QProgressDialog::setRange() is now a slot.
+    * QProgressDialog::setRange() is now a slot.
 
 - QPushButton
     * [114245] Fixed some styling issues of push buttons with popup menus.
