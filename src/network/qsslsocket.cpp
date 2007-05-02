@@ -97,7 +97,7 @@
         }
     \endcode
     
-    If an error occurs, QSslSocket emits \l {signal sslErrors}. In this
+    If an error occurs, QSslSocket emits signal sslErrors. In this
     case, if no action is taken to ignore the error(s), the connection
     is dropped. To continue, despite the occurrance of an error, you
     can call ignoreSslErrors(), either from within this slot after the
@@ -198,8 +198,6 @@
 */
 
 /*!
-    \target signal sslErrors
-
     \fn void QSslSocket::sslErrors(const QList<QSslError> &errors);
     
     QSslSocket emits this signal during the SSL handshake to indicate that an
