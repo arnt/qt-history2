@@ -2717,6 +2717,12 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
            p.x(), p.y(), QString::fromRawData(ti.chars, ti.num_chars).toLatin1().data());
 #endif
     Q_D(QRasterPaintEngine);
+
+    //### compute object space bounding box of text instead
+    if (needsResolving(&d->penData)) {
+        QPaintEngine::drawTextItem(p, textItem);
+        return;
+    }
 #if defined(Q_WS_WIN)
 
     if (!d->penData.blend)
