@@ -358,6 +358,8 @@ public:
     void setLayoutItemMargins(QStyle::SubElement element, const QStyleOption *opt = 0);
 
 #if defined(Q_WS_QWS)
+    void moveSurface(QWindowSurface *surface, const QPoint &offset);
+
     QRegion localRequestedRegion() const;
     QRegion localAllocatedRegion() const;
 

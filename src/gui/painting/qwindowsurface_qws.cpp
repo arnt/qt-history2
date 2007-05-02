@@ -652,11 +652,7 @@ void QWSWindowSurface::flush(QWidget *widget, const QRegion &region,
 bool QWSWindowSurface::move(const QPoint offset)
 {
     QWindowSurface::setGeometry(geometry().translated(offset));
-    if (isBuffered())
-        return true;
-
-    invalidateBuffer();
-    return false;
+    return isBuffered();
 }
 
 /*!

@@ -798,13 +798,11 @@ void QWidgetPrivate::stackUnder_sys(QWidget*)
     }
 }
 
-static void moveSurface(QWindowSurface *surface, const QPoint &offset)
+void QWidgetPrivate::moveSurface(QWindowSurface *surface, const QPoint &offset)
 {
     QWSWindowSurface *s = static_cast<QWSWindowSurface*>(surface);
-
-    // XXX: invalidateBuffer() if returns false,
-    // currently handled in QWSWindowSurface
-    (void)(s->move(offset));
+    if (s->move(offset))
+        s->invalidateBuffer();
 
     QWSDisplay::instance()->moveRegion(s->winId(), offset.x(), offset.y());
 }

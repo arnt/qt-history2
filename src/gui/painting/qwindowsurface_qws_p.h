@@ -98,6 +98,8 @@ protected:
     void setWinId(int id);
 
 private:
+    friend class QWidgetPrivate;
+
     void invalidateBuffer();
 
     QWSWindowSurfacePrivate *d_ptr;
