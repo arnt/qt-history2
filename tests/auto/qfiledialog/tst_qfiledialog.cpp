@@ -54,6 +54,7 @@ private slots:
     void labelText();
     void resolveSymlinks();
     void selectFile();
+    void selectFiles();
     void selectFilter();
     void viewMode();
     void proxymodel();
@@ -356,6 +357,31 @@ void tst_QFiledialog::selectFile()
 
     // default value
     QCOMPARE(fd.selectedFiles().count(), 1);
+}
+
+void tst_QFiledialog::selectFiles()
+{
+    QFileDialog fd;
+    fd.show();
+    fd.setFileMode(QFileDialog::ExistingFiles);
+
+    // Get a list of files in the view and then get the corresponding index's
+    QStringList list = fd.directory().entryList(QDir::Files);
+    QModelIndexList toSelect;
+    QVERIFY(list.count() > 1);
+    QListView* listView = fd.findChild<QListView*>("listView");
+    QVERIFY(listView);
+    for (int i = 0; i < list.count(); ++i) {
+        fd.selectFile(fd.directory().path() + "/" + list.at(i));
+        toSelect.append(listView->currentIndex());
+    }
+
+    // select the indexes
+    for (int i = 0; i < toSelect.count(); ++i) {
+        listView->selectionModel()->select(toSelect.at(i),
+                QItemSelectionModel::Select | QItemSelectionModel::Rows);
+    }
+    QCOMPARE(fd.selectedFiles().count(), toSelect.count());
 }
 
 void tst_QFiledialog::viewMode()
