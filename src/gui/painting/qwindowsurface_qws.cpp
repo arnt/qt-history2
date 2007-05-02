@@ -895,8 +895,6 @@ QByteArray QWSLocalMemSurface::permanentState() const
     array.resize(sizeof(uchar*) + 2 * sizeof(int) + sizeof(QImage::Format) +
                  sizeof(SurfaceFlags));
 
-    Q_ASSERT(memlock == 0);
-
     char *ptr = array.data();
 
     *reinterpret_cast<uchar**>(ptr) = mem;
