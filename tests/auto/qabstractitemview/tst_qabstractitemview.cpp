@@ -934,7 +934,7 @@ void tst_QAbstractItemView::setItemDelegate()
 
     QModelIndex index = v.model()->index(0, 0);
     v.edit(index);
-    qApp->processEvents();
+    QTest::qWait(100);
 
     // This will close the editor
     QWidget *editor = QApplication::focusWidget();
