@@ -776,6 +776,16 @@ void QBrush::setMatrix(const QMatrix &matrix)
 {
     setTransform(QTransform(matrix));
 }
+
+/*!
+    \since 4.3
+
+    Sets \a matrix as an explicit transformation matrix on the
+    current brush. The brush transformation matrix is merged with
+    QPainter transformation matrix to produce the final result.
+
+    \sa transform()
+*/
 void QBrush::setTransform(const QTransform &matrix)
 {
     detach(d->style);
@@ -1927,4 +1937,29 @@ void QConicalGradient::setAngle(qreal angle)
     \relates QGradient
 
     Typedef for QVector<QGradientStop>.
+*/
+
+/*!
+    \typedef QBrush::DataPtr
+    \internal
+*/
+
+/*!
+    \fn DataPtr &QBrush::data_ptr()
+    \internal
+*/
+
+
+/*!
+    \fn bool QBrush::isDetached() const
+    \internal
+*/
+
+/*!
+    \fn QTransform QBrush::transform() const
+    \since 4.3
+
+    Returns the current transformation matrix for the brush.
+
+    \sa setTransform()
 */
