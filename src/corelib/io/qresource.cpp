@@ -553,6 +553,10 @@ int QResourceRoot::findNode(const QString &_path, const QLocale &locale) const
             }
         }
     }
+#ifdef DEBUG_RESOURCE_MATCH
+    qDebug() << "!!!!" << "START" << path << locale.country() << locale.language();
+#endif
+
     if(path == QLatin1String("/"))
         return 0;
 
@@ -571,9 +575,9 @@ int QResourceRoot::findNode(const QString &_path, const QLocale &locale) const
     for(int i = 0; child_count && i < segments.size(); ++i) {
         const QString &segment = segments[i];
 #ifdef DEBUG_RESOURCE_MATCH
-        qDebug() << "  TRY" << segment;
+        qDebug() << "  CHILDREN" << segment;
         for(int j = 0; j < child_count; ++j) {
-            qDebug() << "   " << j << " :: " << name(child+j);
+            qDebug() << "   " << child+j << " :: " << name(child+j);
         }
 #endif
         const int h = qHash(segment);
@@ -601,7 +605,11 @@ int QResourceRoot::findNode(const QString &_path, const QLocale &locale) const
             for(; sub_node < child+child_count && hash(sub_node) == h; ++sub_node) { //here we go...
                 if(name(sub_node) == segment) {
                     found = true;
-                    int offset = findOffset(sub_node) + 4; //jump past name
+                    int offset = findOffset(sub_node);
+#ifdef DEBUG_RESOURCE_MATCH
+                    qDebug() << "  TRY" << sub_node << name(sub_node) << offset;
+#endif
+                    offset += 4;  //jump past name
 
                     const short flags = (tree[offset+0] << 8) +
                                         (tree[offset+1] << 0);
@@ -616,14 +624,24 @@ int QResourceRoot::findNode(const QString &_path, const QLocale &locale) const
                             const short language = (tree[offset+0] << 8) +
                                                    (tree[offset+1] << 0);
                             offset += 2;
-
-                            if(country == locale.country() && language == locale.language())
+#ifdef DEBUG_RESOURCE_MATCH
+                            qDebug() << "    " << "LOCALE" << country << language;
+#endif
+                            if(country == locale.country() && language == locale.language()) {
+#ifdef DEBUG_RESOURCE_MATCH
+                                qDebug() << "!!!!" << "FINISHED" << __LINE__ << sub_node;
+#endif
                                 return sub_node;
-                            else if((country == QLocale::AnyCountry && language == locale.language()) ||
-                                    (country == QLocale::AnyCountry && language == QLocale::C && node == -1))
+                            } else if((country == QLocale::AnyCountry && language == locale.language()) ||
+                                      (country == QLocale::AnyCountry && language == QLocale::C && node == -1)) {
                                 node = sub_node;
+                            }
                             continue;
                         } else {
+#ifdef DEBUG_RESOURCE_MATCH
+                            qDebug() << "!!!!" << "FINISHED" << __LINE__ << sub_node;
+#endif
+
                             return sub_node;
                         }
                     }
@@ -643,6 +661,9 @@ int QResourceRoot::findNode(const QString &_path, const QLocale &locale) const
         if(!found)
             break;
     }
+#ifdef DEBUG_RESOURCE_MATCH
+    qDebug() << "!!!!" << "FINISHED" << __LINE__ << node;
+#endif
     return node;
 }
 short QResourceRoot::flags(int node) const
