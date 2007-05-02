@@ -6874,6 +6874,10 @@ qreal QPaintEngineState::opacity() const
 /*!
     \since 4.3
 
+    Sets the world transformation matrix.
+    If \a combine is true, the specified \a matrix is combined with the current matrix;
+    otherwise it replaces the current matrix.
+
     This function has been added for compatibility with setMatrix(), 
     but as with setMatrix() the preferred method of setting a
     transformation on the painter is through setWorldTransform().
@@ -6949,7 +6953,11 @@ void QPainter::resetTransform()
 }
 
 /*!
-    Sets the transformation matrix to \a matrix and enables transformations.
+    Sets the world transformation matrix.
+    If \a combine is true, the specified \a matrix is combined with the current matrix;
+    otherwise it replaces the current matrix.
+
+    \sa transform(), setTransform()
 */
 
 void QPainter::setWorldTransform(const QTransform &matrix, bool combine )
