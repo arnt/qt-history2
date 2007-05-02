@@ -1547,7 +1547,8 @@ Qtopia Core
       drawing optimizations for some formats.
     * [126421, 126424] Added QGLWindowSurface and QGLScreen framework for
       OpenGLES (and others) on Qtopia Core. Sample implementation found in examples/qtopiacore/.
- 
+    * [160404] Fixed 4-bit grayscale support in QVFb and QScreen.
+
 ****************************************************************************
 *                      Compiler Specific Changes                           *
 ****************************************************************************
