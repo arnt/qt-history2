@@ -469,7 +469,7 @@ void QVNCServer::newConnection()
     wantUpdate = false;
 
     timer->start(1000 / refreshRate);
-    qvnc_screen->d_ptr->dirty->reset();
+    dirtyMap()->reset();
 
     // send protocol version
     char *proto = "RFB 003.003\n";
@@ -1955,9 +1955,6 @@ bool QVNCScreen::initDevice()
     d_ptr->vncServer = new QVNCServer(this, displayId);
     d_ptr->vncServer->setRefreshRate(d_ptr->refreshRate);
 
-    if (d_ptr->subscreen)
-        return d_ptr->subscreen->initDevice();
-
     switch (depth()) {
 #ifdef QT_QWS_DEPTH_32
     case 32:
@@ -1980,6 +1977,9 @@ bool QVNCScreen::initDevice()
         d_ptr->dirty = 0;
         return false;
     }
+
+    if (d_ptr->subscreen)
+        return d_ptr->subscreen->initDevice();
 
 #ifndef QT_NO_QWS_CURSOR
     qt_screencursor = new QVNCCursor(this);
