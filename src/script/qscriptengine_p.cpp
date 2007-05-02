@@ -1064,6 +1064,17 @@ QScriptValueImpl QScriptEnginePrivate::create(int type, const void *ptr)
         case QMetaType::UInt:
             result = QScriptValueImpl(this, *reinterpret_cast<const uint*>(ptr));
             break;
+        case QMetaType::LongLong:
+            result = QScriptValueImpl(this, qsreal(*reinterpret_cast<const qlonglong*>(ptr)));
+            break;
+        case QMetaType::ULongLong:
+#if defined(Q_OS_WIN) && _MSC_FULL_VER <= 12008804
+#pragma message("** NOTE: You need the Visual Studio Processor Pack to compile support for 64bit unsigned integers.")
+            result = QScriptValueImpl(this, qsreal((qlonglong)*reinterpret_cast<const qulonglong*>(ptr)));
+#else
+            result = QScriptValueImpl(this, qsreal(*reinterpret_cast<const qulonglong*>(ptr)));
+#endif
+            break;
         case QMetaType::Double:
             result = QScriptValueImpl(this, *reinterpret_cast<const double*>(ptr));
             break;
@@ -1169,6 +1180,12 @@ bool QScriptEnginePrivate::convert(const QScriptValueImpl &value,
         return true;
     case QMetaType::UInt:
         *reinterpret_cast<uint*>(ptr) = value.toUInt32();
+        return true;
+    case QMetaType::LongLong:
+        *reinterpret_cast<qlonglong*>(ptr) = qlonglong(value.toInteger());
+        return true;
+    case QMetaType::ULongLong:
+        *reinterpret_cast<qulonglong*>(ptr) = qulonglong(value.toInteger());
         return true;
     case QMetaType::Double:
         *reinterpret_cast<double*>(ptr) = value.toNumber();

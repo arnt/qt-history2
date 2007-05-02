@@ -565,6 +565,14 @@ void tst_QScriptEngine::valueConversion()
         QCOMPARE(qScriptValueToValue<unsigned short>(num), (unsigned short)(123));
         QCOMPARE(qScriptValueToValue<float>(num), float(123));
         QCOMPARE(qScriptValueToValue<double>(num), double(123));
+        QCOMPARE(qScriptValueToValue<qlonglong>(num), qlonglong(123));
+        QCOMPARE(qScriptValueToValue<qulonglong>(num), qulonglong(123));
+    }
+
+    {
+        QScriptValue num = qScriptValueFromValue(&eng, Q_INT64_C(0x100000000));
+        QCOMPARE(qScriptValueToValue<qlonglong>(num), Q_INT64_C(0x100000000));
+        QCOMPARE(qScriptValueToValue<qulonglong>(num), Q_UINT64_C(0x100000000));
     }
 
     {

@@ -18,19 +18,6 @@
 //TESTED_CLASS=
 //TESTED_FILES=qscriptextqobject.h qscriptextqobject.cpp
 
-QScriptValue fromLongLong(QScriptEngine *eng, const qlonglong &ll)
-{
-    return eng->newVariant(qVariantFromValue(ll));
-}
-    
-void toLongLong(const QScriptValue &value, qlonglong &ll)
-{
-    if (value.isVariant())
-        ll = value.toVariant().toLongLong();
-    else
-        ll = qlonglong(value.toNumber());
-}
-
 struct CustomType
 {
     QString string;
@@ -180,6 +167,8 @@ public:
         { m_qtFunctionInvoked = 6; m_actuals << arg1 << arg2; }
     Q_INVOKABLE int myInvokableReturningInt()
         { m_qtFunctionInvoked = 7; return 123; }
+    Q_INVOKABLE qlonglong myInvokableReturningLongLong()
+        { m_qtFunctionInvoked = 39; return 456; }
     Q_INVOKABLE QString myInvokableReturningString()
         { m_qtFunctionInvoked = 8; return QLatin1String("ciao"); }
     Q_INVOKABLE void myInvokableWithIntArg(int arg1, int arg2) // overload
@@ -706,7 +695,6 @@ void tst_QScriptExtQObject::callQtInvokable()
     QCOMPARE(m_myObject->qtFunctionActuals().at(0).toInt(), 123);
 
     m_myObject->resetQtFunctionInvoked();
-    qScriptRegisterMetaType<qlonglong>(m_engine, fromLongLong, toLongLong);
     QCOMPARE(m_engine->evaluate("myObject.myInvokableWithLonglongArg(123)").isUndefined(), true);
     QCOMPARE(m_myObject->qtFunctionInvoked(), 2);
     QCOMPARE(m_myObject->qtFunctionActuals().size(), 1);
@@ -747,6 +735,12 @@ void tst_QScriptExtQObject::callQtInvokable()
     QCOMPARE(m_engine->evaluate("myObject.myInvokableReturningInt()")
              .strictEqualTo(QScriptValue(m_engine, 123)), true);
     QCOMPARE(m_myObject->qtFunctionInvoked(), 7);
+    QCOMPARE(m_myObject->qtFunctionActuals(), QVariantList());
+
+    m_myObject->resetQtFunctionInvoked();
+    QCOMPARE(m_engine->evaluate("myObject.myInvokableReturningLongLong()")
+             .strictEqualTo(QScriptValue(m_engine, 456)), true);
+    QCOMPARE(m_myObject->qtFunctionInvoked(), 39);
     QCOMPARE(m_myObject->qtFunctionActuals(), QVariantList());
 
     m_myObject->resetQtFunctionInvoked();
