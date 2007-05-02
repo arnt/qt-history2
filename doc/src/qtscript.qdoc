@@ -117,8 +117,9 @@
   \endcode
 
   When the argument is a QObject slot, the argument types of the
-  signal and slot must be compatible (i.e. QMetaObject::checkConnectArgs()
-  must return true).
+  signal and slot do not necessarily have to be compatible;
+  QtScript will, if necessary, perform conversion of the signal
+  arguments to match the argument types of the slot.
 
   To disconnect from a signal, you invoke the signal's
   \c{disconnect()} function, passing the function to disconnect
@@ -208,6 +209,14 @@
   myQObject['myOverloadedSlot(int)']("10");   // call int overload; the argument is converted to an int
   myQObject['myOverloadedSlot(QString)'](10); // call QString overload; the argument is converted to a string
   \endcode
+
+  If the overloads have different number of arguments, QtScript will
+  pick the overload with the argument count that best matches the
+  actual number of arguments passed to the slot.
+
+  For overloaded signals, QtScript will connect to the most general
+  overload, unless you refer to the signal with its full normalized
+  signature.
 
   \section2 Accessing Properties
 
@@ -347,6 +356,8 @@
     \row    \o ushort \o QScriptValue::toUInt16()
     \row    \o char \o char(QScriptValue::toInt32())
     \row    \o uchar \o unsigned char(QScriptValue::toInt32())
+    \row    \o qlonglong \o qlonglong(QScriptValue::toInteger())
+    \row    \o qulonglong \o qulonglong(QScriptValue::toInteger())
     \row    \o QDateTime \o QScriptValue::toDateTime()
     \row    \o QDate \o QScriptValue::toDateTime().date()
     \row    \o QRegExp \o QScriptValue::toRegExp()
@@ -384,6 +395,8 @@
     \row    \o ushort \o QScriptValue(engine, value)
     \row    \o char \o QScriptValue(engine, value)
     \row    \o uchar \o QScriptValue(engine, value)
+    \row    \o qlonglong \o QScriptValue(engine, qsreal(value)). Note that the conversion may lead to loss of precision, since not all 64-bit integers can be represented as a qsreal.
+    \row    \o qulonglong \o QScriptValue(engine, qsreal(value)). Note that the conversion may lead to loss of precision, since not all 64-bit unsigned integers can be represented as a qsreal.
     \row    \o QChar \o QScriptValue(this, value.unicode())
     \row    \o QDateTime \o \l{QScriptEngine::newDate()}{QScriptEngine::newDate}(value)
     \row    \o QDate \o \l{QScriptEngine::newDate()}{QScriptEngine::newDate}(value)

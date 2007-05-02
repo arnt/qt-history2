@@ -193,10 +193,6 @@ QScriptValueImpl Function::method_disconnect(QScriptContextPrivate *context, QSc
             slot = arg1;
         else
             slot = receiver.property(arg1.toString(), QScriptValue::ResolvePrototype);
-        if (slot.isFunction() && slot.toFunction()->type() == QScriptFunction::Qt) {
-            receiver = self;
-            slot = arg1;
-        }
     }
 
     QScriptFunction *otherFun = slot.toFunction();
@@ -214,14 +210,7 @@ QScriptValueImpl Function::method_disconnect(QScriptContextPrivate *context, QSc
             .arg(QLatin1String(sig.signature())));
     }
 
-    bool ok = false;
-    if (otherFun->type() == QScriptFunction::Qt) {
-        QtFunction *qtSlot = static_cast<QtFunction*>(otherFun);
-        ok = QMetaObject::disconnect(qtSignal->object(), qtSignal->initialIndex(),
-                                     qtSlot->object(), qtSlot->initialIndex());
-    } else {
-        ok = qtSignal->destroyConnection(self, receiver, slot);
-    }
+    bool ok = qtSignal->destroyConnection(self, receiver, slot);
     return QScriptValueImpl(eng, ok);
 #else
     return context->throwError(QScriptContext::TypeError,
@@ -256,10 +245,6 @@ QScriptValueImpl Function::method_connect(QScriptContextPrivate *context, QScrip
             slot = arg1;
         else
             slot = receiver.property(arg1.toString(), QScriptValue::ResolvePrototype);
-        if (slot.isFunction() && slot.toFunction()->type() == QScriptFunction::Qt) {
-            receiver = self;
-            slot = arg1;
-        }
     }
 
     QScriptFunction *otherFun = slot.toFunction();
@@ -277,23 +262,7 @@ QScriptValueImpl Function::method_connect(QScriptContextPrivate *context, QScrip
             .arg(QLatin1String(sig.signature())));
     }
 
-    bool ok = false;
-    if (otherFun->type() == QScriptFunction::Qt) {
-        QtFunction *qtSlot = static_cast<QtFunction*>(otherFun);
-        QMetaMethod slot = qtSlot->metaObject()->method(qtSlot->initialIndex());
-        // ### check if signal or slot overloaded
-        if (!QMetaObject::checkConnectArgs(sig.signature(), slot.signature())) {
-            return context->throwError(QScriptContext::TypeError,
-                QString::fromLatin1("Function.prototype.connect: "
-                                    "incompatible method signatures: %0 - %1")
-                                    .arg(QLatin1String(sig.signature()))
-                                    .arg(QLatin1String(slot.signature())));
-        }
-        ok = QMetaObject::connect(qtSignal->object(), qtSignal->initialIndex(),
-                                  qtSlot->object(), qtSlot->initialIndex());
-    } else {
-        ok = qtSignal->createConnection(self, receiver, slot);
-    }
+    bool ok = qtSignal->createConnection(self, receiver, slot);
     return QScriptValueImpl(eng, ok);
 #else
     Q_UNUSED(eng);

@@ -988,7 +988,7 @@ void QScript::QtFunction::execute(QScriptContextPrivate *context)
         else if (mtd.name() != funName)
             continue;
 
-        if (context->argumentCount() != mtd.argumentCount())
+        if (context->argumentCount() < mtd.argumentCount())
             continue;
 
         if (!mtd.fullyResolved()) {
@@ -1007,7 +1007,7 @@ void QScript::QtFunction::execute(QScriptContextPrivate *context)
         // try to convert arguments
         bool converted = true;
         int matchDistance = 0;
-        for (int i = 0; converted && i < context->argumentCount(); ++i) {
+        for (int i = 0; converted && i < mtd.argumentCount(); ++i) {
             QScriptValueImpl actual = context->argument(i);
             QScriptMetaType argType = mtd.argumentType(i);
             int tid = argType.typeId();
@@ -1145,7 +1145,8 @@ void QScript::QtFunction::execute(QScriptContextPrivate *context)
         }
 
         if (converted) {
-            if (matchDistance == 0) {
+            if ((context->argumentCount() == mtd.argumentCount())
+                && (matchDistance == 0)) {
                 // perfect match, use this one
                 chosenMethod = mtd;
                 chosenIndex = index;
@@ -1153,9 +1154,10 @@ void QScript::QtFunction::execute(QScriptContextPrivate *context)
             } else {
                 candidates.append(QScriptMetaArguments(matchDistance, index, mtd, args));
             }
-        } else if (!m_maybeOverloaded) {
-            break;
         }
+
+        if (!m_maybeOverloaded)
+            break;
     }
 
     if ((chosenIndex == -1) && candidates.isEmpty()) {
@@ -1167,11 +1169,15 @@ void QScript::QtFunction::execute(QScriptContextPrivate *context)
             .arg(QLatin1String(funName)));
     } else {
         if (chosenIndex == -1) {
-            // pick the one with lowest match distance
+            // pick the best match
             int dist = INT_MAX;
+            args.clear();
             for (int i = 0; i < candidates.size(); ++i) {
                 QScriptMetaArguments cdt = candidates.at(i);
-                if (cdt.method.fullyResolved() && (cdt.matchDistance < dist)) {
+                if (cdt.method.fullyResolved()
+                    && ((cdt.args.count() > args.count())
+                        || ((cdt.args.count() == args.count())
+                            && (cdt.matchDistance < dist)))) {
                     dist = cdt.matchDistance;
                     chosenMethod = cdt.method;
                     chosenIndex = cdt.index;

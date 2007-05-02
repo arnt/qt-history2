@@ -37,6 +37,9 @@ public:
     QScriptValue oofThisObject() const
         { return m_oofThisObject; }
 
+    void emitSig(int value)
+        { emit sig(value); }
+
 public slots:
     void foo();
     void setX(int x);
@@ -50,6 +53,10 @@ public slots:
     void setOtherEngine();
     QObject *zab();
     QObject *setZab(QObject *);
+    QScriptValue getArguments();
+
+signals:
+    void sig(int);
 
 private:
     QScriptEngine *m_lastEngine;
@@ -83,6 +90,11 @@ QObject *MyScriptable::setZab(QObject *)
     return thisObject().toQObject();
 }
 
+QScriptValue MyScriptable::getArguments()
+{
+    return context()->argumentsObject();
+}
+
 void MyScriptable::foo()
 {
     m_lastEngine = engine();
@@ -113,12 +125,14 @@ void MyScriptable::setOtherEngine()
 void MyScriptable::setX(int x)
 {
     m_lastEngine = engine();
+    Q_ASSERT(engine());
     thisObject().setProperty("x", QScriptValue(engine(), x));
 }
 
 void MyScriptable::setX(const QString &x)
 {
     m_lastEngine = engine();
+    Q_ASSERT(engine());
     thisObject().setProperty("x", QScriptValue(engine(), x));
 }
 
@@ -149,6 +163,7 @@ private slots:
 
     void engine();
     void thisObject();
+    void arguments();
     void throwError();
 
 private:
@@ -227,15 +242,22 @@ void tst_QScriptable::engine()
 
 void tst_QScriptable::thisObject()
 {
-    m_engine.evaluate("o = { }; o.__proto__ = scriptable");
+    m_engine.evaluate("o = { }");
     {
-        QScriptValue ret = m_engine.evaluate("o.setX(123); o.x");
+        QScriptValue ret = m_engine.evaluate("o.__proto__ = scriptable;"
+                                             "o.setX(123);"
+                                             "o.__proto__ = Object.prototype;"
+                                             "o.x");
         QCOMPARE(ret.strictEqualTo(QScriptValue(&m_engine, 123)), true);
     }
     {
-        QScriptValue ret = m_engine.evaluate("o.setX2(456); o.x");
+        QScriptValue ret = m_engine.evaluate("o.__proto__ = scriptable;"
+                                             "o.setX2(456);"
+                                             "o.__proto__ = Object.prototype;"
+                                             "o.x");
         QCOMPARE(ret.strictEqualTo(QScriptValue(&m_engine, 456)), true);
     }
+    m_engine.evaluate("o.__proto__ = scriptable");
     {
         QScriptValue ret = m_engine.evaluate("o.isBar()");
         QCOMPARE(ret.strictEqualTo(QScriptValue(&m_engine, false)), true);
@@ -276,7 +298,37 @@ void tst_QScriptable::thisObject()
         QVERIFY(m_scriptable.oofThisObject().strictEqualTo(m_engine.evaluate("scriptable")));
     }
 
+    // target of signal
+    {
+        {
+            QScriptValue ret = m_engine.evaluate("scriptable.sig.connect(o, scriptable.setX)");
+            QVERIFY(ret.isBoolean());
+            QVERIFY(ret.toBoolean());
+        }
+        QVERIFY(m_engine.evaluate("o.x").strictEqualTo(QScriptValue(&m_engine, 456)));
+        m_scriptable.emitSig(654321);
+        QVERIFY(m_engine.evaluate("o.x").strictEqualTo(QScriptValue(&m_engine, 654321)));
+        {
+            QScriptValue ret = m_engine.evaluate("scriptable.sig.disconnect(o, scriptable.setX)");
+            QVERIFY(ret.isBoolean());
+            QVERIFY(ret.toBoolean());
+        }
+    }
+
     m_engine.evaluate("delete o");
+}
+
+void tst_QScriptable::arguments()
+{
+    // even though the C++ slot accepts zero arguments, it should
+    // still be invoked; the arguments should be accessible through
+    // the QScriptable API
+    QScriptValue args = m_engine.evaluate("scriptable.getArguments(10, 20, 30, 'hi')");
+    QVERIFY(args.property("length").strictEqualTo(QScriptValue(&m_engine, 4)));
+    QVERIFY(args.property("0").strictEqualTo(QScriptValue(&m_engine, 10)));
+    QVERIFY(args.property("1").strictEqualTo(QScriptValue(&m_engine, 20)));
+    QVERIFY(args.property("2").strictEqualTo(QScriptValue(&m_engine, 30)));
+    QVERIFY(args.property("3").strictEqualTo(QScriptValue(&m_engine, "hi")));
 }
 
 void tst_QScriptable::throwError()
