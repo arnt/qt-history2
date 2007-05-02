@@ -2140,12 +2140,22 @@ void QFileDialogPrivate::_q_autoCompleteFileName(const QString &text) {
         idx = mapFromSource(model->index(rootPath() + QDir::separator() + text));
 
     if (!idx.isValid()) {
-        qFileDialogUi->listView->selectionModel()->clear();
         QStringList multipleFiles = typedFiles();
         if (multipleFiles.count() > 0) {
+            QModelIndexList oldFiles = qFileDialogUi->listView->selectionModel()->selectedRows();
+            QModelIndexList newFiles;
             for (int i = 0; i < multipleFiles.count(); ++i) {
-                select(model->index(multipleFiles.at(i)));
+                QModelIndex idx = model->index(multipleFiles.at(i));
+                if (oldFiles.contains(idx))
+                    oldFiles.remove(idx);
+                else
+                    newFiles.append(idx);
             }
+            for (int i = 0; i < newFiles.count(); ++i)
+                select(newFiles.at(i));
+            for (int i = 0; i < oldFiles.count(); ++i)
+                qFileDialogUi->listView->selectionModel()->select(oldFiles.at(i),
+                        QItemSelectionModel::Toggle | QItemSelectionModel::Rows);
         }
     } else {
         qFileDialogUi->listView->setCurrentIndex(idx);
