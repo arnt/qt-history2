@@ -1198,6 +1198,8 @@ void QTreeView::drawTree(QPainter *painter, const QRegion &region) const
         return;
 
     QVector<QRect> rects = region.rects();
+    QVector<int> drawn;
+    bool multipleRects = (rects.size() > 1);
     for (int a = 0; a < rects.size(); ++a) {
 
         const QRect area = rects.at(a);
@@ -1222,7 +1224,11 @@ void QTreeView::drawTree(QPainter *painter, const QRegion &region) const
                                     ? QStyle::State_Open : QStyle::State_None);
             d->current = i;
             d->spanning = viewItems.at(i).spanning;
-            drawRow(painter, option, viewItems.at(i).index);
+            if (!multipleRects || !drawn.contains(i)) {
+                drawRow(painter, option, viewItems.at(i).index);
+                if (multipleRects)
+                    drawn.append(i);
+            }
             y += itemHeight;
         }
     }
