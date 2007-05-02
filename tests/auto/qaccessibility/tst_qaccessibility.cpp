@@ -129,6 +129,7 @@ static int verifyHierarchy(QAccessibleInterface *iface)
                 entry = if2->navigate(QAccessible::Sibling, middle, &if3);
                 EXPECT(entry == 0 && if3->object() == middleChild->object());
                 delete if3;
+                EXPECT(iface->indexOfChild(middleChild) == middle);
             }
 
             // verify children...
@@ -210,6 +211,7 @@ private slots:
     void pushButtonTest();
     void comboBoxTest();
     void accessibleName();
+    void treeWidgetTest();
 
 private:
     QWidget *createGUI();
@@ -3744,6 +3746,52 @@ void tst_QAccessibility::comboBoxTest()
     QSKIP("Test needs Qt >= 0x040000 and accessibility support.", SkipAll);
 #endif
 
+}
+
+void tst_QAccessibility::treeWidgetTest()
+{
+#ifdef QTEST_ACCESSIBILITY
+    QWidget *w = new QWidget();
+    QTreeWidget *tree = new QTreeWidget(w);
+    QHBoxLayout *l = new QHBoxLayout(w);
+    l->addWidget(tree);
+    for (int i = 0; i < 10; ++i) {
+        QStringList strings = QStringList() << QString::fromAscii("row: %1").arg(i) 
+                                            << QString("column 1") << QString("column 2");
+
+        tree->addTopLevelItem(new QTreeWidgetItem(strings));
+    }
+    w->show();
+#if defined(Q_WS_X11)
+    qt_x11_wait_for_window_manager(w);
+#endif
+
+    QAccessibleInterface *acc = QAccessible::queryAccessibleInterface(tree);
+    QAccessibleInterface *accViewport = 0;
+    int entry = acc->navigate(QAccessible::Child, 1, &accViewport);
+    QVERIFY(accViewport);
+    QEXPECT_FAIL("", "QAccessibleAbstractScrollArea::navigate must be fixed", Continue);
+    QCOMPARE(entry, 0);
+    QAccessibleInterface *accTreeItem = 0;
+    entry = accViewport->navigate(QAccessible::Child, 1, &accTreeItem);
+    QCOMPARE(entry, 0);
+
+    QAccessibleInterface *accTreeItem2 = 0;
+    entry = accTreeItem->navigate(QAccessible::Sibling, 2, &accTreeItem2);
+    QCOMPARE(entry, 0);
+    QCOMPARE(accTreeItem2->text(QAccessible::Name, 0), QLatin1String("row: 1"));
+
+    QCOMPARE(verifyHierarchy(acc), 0);
+    delete accTreeItem2;
+    delete accTreeItem;
+    delete accViewport;
+    delete acc;
+
+
+    QTestAccessibility::clearEvents();
+#else
+    QSKIP("Test needs Qt >= 0x040000 and accessibility support.", SkipAll);
+#endif
 }
 
 QTEST_MAIN(tst_QAccessibility)

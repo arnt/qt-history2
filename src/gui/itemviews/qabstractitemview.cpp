@@ -30,6 +30,9 @@
 #include <qitemdelegate.h>
 #include <private/qabstractitemview_p.h>
 #include <private/qabstractitemmodel_p.h>
+#ifndef QT_NO_ACCESSIBILITY
+#include <qaccessible.h>
+#endif
 
 QAbstractItemViewPrivate::QAbstractItemViewPrivate()
     :   model(QAbstractItemModelPrivate::staticEmptyModel()),
@@ -2870,6 +2873,18 @@ void QAbstractItemView::selectionChanged(const QItemSelection &selected,
     if (isVisible() && updatesEnabled()) {
         d->setDirtyRegion(visualRegionForSelection(deselected));
         d->setDirtyRegion(visualRegionForSelection(selected));
+#ifndef QT_NO_ACCESSIBILITY
+        // ### does not work properly for selection ranges.
+        QModelIndex sel = selected.indexes().value(0);
+        if (sel.isValid()) {
+            QAccessible::updateAccessibility(viewport(), sel.row() + 1, QAccessible::Selection);
+            QAccessible::updateAccessibility(viewport(), sel.row() + 1, QAccessible::Focus);
+        }
+        QModelIndex desel = deselected.indexes().value(0);
+        if (desel.isValid()) {
+            QAccessible::updateAccessibility(viewport(), desel.row() + 1, QAccessible::SelectionRemove);
+        }
+#endif
     }
 }
 

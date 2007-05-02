@@ -127,8 +127,9 @@ class QAccessibleItemView: public QAccessibleAbstractScrollArea, public QAccessi
 {
     Q_ACCESSIBLE_OBJECT
 public:
-    explicit QAccessibleItemView(QWidget *w, bool atViewport = false);
+    explicit QAccessibleItemView(QWidget *w);
 
+    QObject *object() const;
     Role role(int child) const;
     State state(int child) const;
     QRect rect(int child) const;
@@ -174,7 +175,12 @@ protected:
     QModelIndex index(int row, int column) const;
 
 private:
-    bool atViewport;
+    inline bool atViewport() const {
+        return atVP;
+    };
+    QAccessible::Role expectedRoleOfChildren() const;
+
+    bool atVP;
 };
 
 #endif

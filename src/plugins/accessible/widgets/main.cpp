@@ -84,6 +84,7 @@ QStringList AccessibleFactory::keys() const
     list << QLatin1String("QWorkspaceChild");
     list << QLatin1String("QSizeGrip");
     list << QLatin1String("QAbstractItemView");
+    list << QLatin1String("QWidget");
 #ifndef QT_NO_SPLITTER
     list << QLatin1String("QSplitter");
     list << QLatin1String("QSplitterHandle");
@@ -221,6 +222,10 @@ QAccessibleInterface *AccessibleFactory::create(const QString &classname, QObjec
     } else if (classname == QLatin1String("QHeaderView")) {
         iface = new QAccessibleHeader(widget);
     } else if (classname == QLatin1String("QAbstractItemView")) {
+        iface = new QAccessibleItemView(widget);
+    } else if (classname == QLatin1String("QWidget")
+               && widget->objectName() == QLatin1String("qt_scrollarea_viewport")
+               && qobject_cast<QAbstractItemView*>(widget->parentWidget())) {
         iface = new QAccessibleItemView(widget);
 #endif
 #ifndef QT_NO_TABBAR
