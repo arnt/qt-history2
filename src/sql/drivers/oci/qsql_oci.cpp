@@ -1930,8 +1930,8 @@ static void qParseOpts(const QString &options, QOCIDriverPrivate *d)
 bool QOCIDriver::open(const QString & db,
                        const QString & user,
                        const QString & password,
-                       const QString & ,
-                       int,
+                       const QString & hostname,
+                       int port,
                        const QString &opts)
 {
     int r;
@@ -1941,10 +1941,17 @@ bool QOCIDriver::open(const QString & db,
 
     qParseOpts(opts, d);
 
+    // Connect without tnsnames.ora if a hostname is given
+    QString connectionString = db;
+    if (!hostname.isEmpty())
+        connectionString = 
+            QString(QLatin1String("(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(Host=%1)(Port=%2))"
+                "(CONNECT_DATA=(SID=%3)))")).arg(hostname).arg((port > -1 ? port : 1521)).arg(db);
+
     r = OCIHandleAlloc(d->env, reinterpret_cast<void **>(&d->srvhp), OCI_HTYPE_SERVER, 0, 0);
     if (r == OCI_SUCCESS)
-        r = OCIServerAttach(d->srvhp, d->err, reinterpret_cast<const OraText *>(db.utf16()),
-                            db.length() * sizeof(QChar), OCI_DEFAULT);
+        r = OCIServerAttach(d->srvhp, d->err, reinterpret_cast<const OraText *>(connectionString.utf16()),
+                            connectionString.length() * sizeof(QChar), OCI_DEFAULT);
     if (r == OCI_SUCCESS || r == OCI_SUCCESS_WITH_INFO)
         r = OCIHandleAlloc(d->env, reinterpret_cast<void **>(&d->svc), OCI_HTYPE_SVCCTX, 0, 0);
     if (r == OCI_SUCCESS)
