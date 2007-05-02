@@ -440,13 +440,13 @@
 
   \section2 Making C++ Class Member Functions Available in Qt Script
 
-  The meta object system makes information about slots dynamically
-  available at runtime. This means that for QObject derived classes,
-  only the slots are automatically made available to scripts. This is
-  very convenient, because in practice we normally only want to make
-  specially chosen functions available to scripters.  When you create
-  a QObject subclass, make sure that the functions you want to be
-  available to scripters are public slots:
+  The meta object system makes information about signals and slots
+  dynamically available at runtime. This means that for QObject
+  derived classes, only the signals and slots are automatically made
+  available to scripts. This is very convenient, because in practice
+  we normally only want to make specially chosen functions available
+  to scripters. When you create a QObject subclass, make sure that the
+  functions you want to be available to scripters are public slots:
 
     \code
     class MyObject : public QObject
@@ -472,6 +472,28 @@
   In the example above, aNonScriptableFunction() is not declared as a
   slot, so it will not be available in Qt Script. The other three
   functions will automatically be made available in Qt Script.
+
+  It is possible to make any function script-invokable by specifying
+  the \c{Q_INVOKABLE} modifier when declaring the function:
+
+  \code
+  class MyObject : public QObject
+  {
+      Q_OBJECT
+
+      public:
+      Q_INVOKABLE void thisMethodIsInvokableInQtScript();
+      void thisMethodIsNotInvokableInQtScript();
+
+      ...
+  };
+  \endcode
+
+  Once declared with \c{Q_INVOKABLE}, the method can be invoked from
+  QtScript code just as if it were a slot. Although such a method is
+  not a slot, you can still specify it as the target function in a
+  call to \c{connect()} in script code (\c{connect()} accepts any
+  function as target, both native and non-native).
 
   \section2 Making C++ Class Properties Available in Qt Script
 
@@ -527,6 +549,15 @@
   The only difference from the original code is the use of the macro
   \c{Q_PROPERTY}, which takes the type and name of the property, and
   the names of the setter and getter functions as arguments.
+
+  If you don't want a property of your class to be accessible in
+  QtScript, you set the \c{SCRIPTABLE} attribute to false when
+  declaring the property; by default, the \c{SCRIPTABLE} attribute is
+  true. Example:
+
+  \code
+  Q_PROPERTY(int nonScriptableProperty READ foo WRITE bar SCRIPTABLE false)
+  \endcode
 
   \section2 Reacting to C++ Objects Signals in Scripts
 
