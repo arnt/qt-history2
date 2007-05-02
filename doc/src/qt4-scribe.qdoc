@@ -169,9 +169,9 @@
 
     Sometimes it is important to be able to format plain text within an
     irregularly-shaped region, perhaps when rendering a custom widget, for
-    example. Scribe provides generic features to help developers perform
-    word-wrapping and layout tasks without the need to create a document
-    first.
+    example. Scribe provides generic features, such as those provided by
+    the QTextLayout class, to help developers perform word-wrapping and
+    layout tasks without the need to create a document first.
 
     \img plaintext-layout.png
 
