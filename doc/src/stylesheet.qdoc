@@ -85,7 +85,7 @@
 
     \warning Qt style sheets are currently not supported for
     QMacStyle (the default style on Mac OS X). We plan to address
-    this in Qt 4.3.
+    this in Qt 4.4.
 
     \section1 The Style Sheet Syntax
 
@@ -1854,11 +1854,11 @@
         \o The widget is \l{QWidget::enabled}{disabled}.
 
     \row
-        \o \c :enabled
-        \o The widget is \l{QWidget::enabled}{enabled}. \target :enabled}{enabled}.-ps
+        \o \c :enabled \target enabled-ps
+        \o The widget is \l{QWidget::enabled}{enabled}.
 
     \row
-        \o \c :focus
+        \o \c :focus \target focus-ps
         \o The widget has \l{QWidget::hasFocus()}{input focus}.
 
     \row
@@ -1873,7 +1873,9 @@
     \row
         \o \c :off \target off-ps
         \o For widgets that can be toggled, this applies to widgets
-           in the "off" state.
+           in the "off" state. This also applies to \l{QComboBox}es
+           that have their list open, and to \l{QMenuBar}s that have
+           one of their menus open.
 
     \row
         \o \c :on \target on-ps
