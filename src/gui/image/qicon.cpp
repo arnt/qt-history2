@@ -59,7 +59,7 @@
 
 extern Q_GUI_EXPORT qint64 qt_pixmap_id(const QPixmap &pixmap);
 
-QBasicAtomic serialNumCounter = Q_ATOMIC_INIT(0);
+QBasicAtomic serialNumCounter = Q_ATOMIC_INIT(1);
 
 class QIconPrivate
 {
@@ -568,6 +568,23 @@ QIcon &QIcon::operator=(const QIcon &other)
 QIcon::operator QVariant() const
 {
     return QVariant(QVariant::Icon, this);
+}
+
+/*!
+  Returns true if this icon and \a other have the same
+  contents; otherwise returns false.
+ */
+bool QIcon::operator==(const QIcon &other) const
+{
+    return cacheKey() == other.cacheKey();
+}
+
+/*!
+  Returns true if this icon and the given icon have different contents; otherwise returns false.
+ */
+bool QIcon::operator!=(const QIcon &other) const
+{
+    return cacheKey() != other.cacheKey();
 }
 
 /*! \obsolete

@@ -276,7 +276,7 @@ static bool compare(const QVariant::Private *a, const QVariant::Private *b)
 #endif
 #ifndef QT_NO_ICON
     case QVariant::Icon:
-        return false; // #### FIXME
+        return *v_cast<QIcon>(a) == *v_cast<QIcon>(b);
 #endif
     case QVariant::Matrix:
         return *v_cast<QMatrix>(a) == *v_cast<QMatrix>(b);
