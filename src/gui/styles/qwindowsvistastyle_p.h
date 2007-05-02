@@ -53,6 +53,7 @@
 #include <qmessagebox.h>
 #include <qdialogbuttonbox.h>
 #include <qinputdialog.h>
+#include <qtreeview.h>
 
 #if !defined(SCHEMA_VERIFY_VSSYM32)
 #define TMT_ANIMATIONDURATION       5006

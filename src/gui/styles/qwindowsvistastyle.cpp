@@ -2099,6 +2099,8 @@ void QWindowsVistaStyle::polish(QWidget *widget)
         QDialogButtonBox *buttonBox = qFindChild<QDialogButtonBox *>(widget,QLatin1String("qt_inputdlg_buttonbox"));
         if (buttonBox)
             buttonBox->setContentsMargins(0, 9, 0, 0);
+    } else if (QTreeView *tree = qobject_cast<QTreeView *> (widget)) {
+        tree->viewport()->setAttribute(Qt::WA_Hover);
     }
 }
 
@@ -2126,6 +2128,8 @@ void QWindowsVistaStyle::unpolish(QWidget *widget)
         QDialogButtonBox *buttonBox = qFindChild<QDialogButtonBox *>(widget,QLatin1String("qt_inputdlg_buttonbox"));
         if (buttonBox)
             buttonBox->setContentsMargins(0, 0, 0, 0);
+    } else if (QTreeView *tree = qobject_cast<QTreeView *> (widget)) {
+        tree->viewport()->setAttribute(Qt::WA_Hover, false);
     }
 }
 
