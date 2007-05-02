@@ -708,6 +708,9 @@ void tst_QFileInfo::fileTimes()
         QVERIFY(fileInfo.lastRead().addDays(1) > beforeRead);
     } else
 #endif
+    //In Vista the last-access timestamp is not updated when the file is accessed/touched (by default).
+    //To enable this the HKLM\SYSTEM\CurrentControlSet\Control\FileSystem\NtfsDisableLastAccessUpdate
+    //is set to 0, in the test machine.
     QVERIFY(fileInfo.lastRead() > beforeRead);
     QVERIFY(fileInfo.lastModified() > beforeWrite);
     QVERIFY(fileInfo.lastModified() < beforeRead);
