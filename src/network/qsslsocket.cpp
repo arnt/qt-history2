@@ -622,7 +622,7 @@ QList<QSslCertificate> QSslSocket::peerCertificateChain() const
 }
 
 /*!
-    Returns the socket's current cryptographic \l {QSslCypher} {cipher},
+    Returns the socket's current cryptographic \l {QSslCipher} {cipher},
     or a null cipher if the
     connection isn't encrypted. You can call this function to find information
     about the cipher that is used to encrypt and decrypt all data transmitted
