@@ -32,11 +32,8 @@
 #include <QtCore/qmap.h>
 #include <QtCore/qvector.h>
 #include <QtCore/qobjectcleanuphandler.h>
-#include <signal.h>
 
-#ifdef Q_OS_BSD4
-typedef sig_t sighandler_t;
-#endif
+typedef void (*qt_sighandler_t)(int);
 
 class QWSSignalHandlerPrivate;
 
@@ -56,7 +53,7 @@ public:
 private:
     QWSSignalHandler();
     static void handleSignal(int signal);
-    QMap<int, sighandler_t> oldHandlers;
+    QMap<int, qt_sighandler_t> oldHandlers;
 #ifndef QT_NO_QWS_MULTIPROCESS
     QVector<int> semaphores;
 #endif

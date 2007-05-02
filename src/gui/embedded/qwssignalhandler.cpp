@@ -18,6 +18,7 @@
 #include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/sem.h>
+#include <signal.h>
 
 #ifndef Q_OS_BSD4
 union semun {
@@ -52,7 +53,7 @@ QWSSignalHandler::QWSSignalHandler()
 
     for (int i = 0; i < n; ++i) {
         const int signum = signums[i];
-        sighandler_t old = signal(signum, handleSignal);
+        qt_sighandler_t old = signal(signum, handleSignal);
         oldHandlers[signum] = (old == SIG_ERR ? SIG_DFL : old);
     }
 }
