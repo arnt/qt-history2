@@ -745,7 +745,7 @@ QWizardLayoutInfo QWizardPrivate::layoutInfoForCurrentPage()
     QWizardLayoutInfo info;
 
     info.topLevelMargin = style->pixelMetric(QStyle::PM_LayoutBottomMargin, 0, q);
-    info.childMargin = style->pixelMetric(QStyle::PM_DefaultChildMargin);
+    info.childMargin = style->pixelMetric(QStyle::PM_LayoutLeftMargin, 0, titleLabel);
     info.hspacing = style->pixelMetric(QStyle::PM_LayoutHorizontalSpacing);
     info.vspacing = style->pixelMetric(QStyle::PM_LayoutVerticalSpacing);
     info.buttonSpacing = info.hspacing;
@@ -910,7 +910,7 @@ void QWizardPrivate::recreateLayout(const QWizardLayoutInfo &info)
             subTitleLabel->setWordWrap(true);
 
             // ideally, the same margin should be used on the right side as well
-            subTitleLabel->setIndent(info.childMargin);
+            subTitleLabel->setIndent(info.childMargin + 1); // ###
 
             pageVBoxLayout->insertWidget(1, subTitleLabel);
         }
