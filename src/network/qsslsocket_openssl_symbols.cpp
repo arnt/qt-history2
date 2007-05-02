@@ -88,7 +88,12 @@ DEFINEFUNC(int, SSL_accept, SSL *a, a, return -1)
 DEFINEFUNC(int, SSL_clear, SSL *a, a, return -1)
 DEFINEFUNC3(char *, SSL_CIPHER_description, SSL_CIPHER *a, a, char *b, b, int c, c, return 0)
 DEFINEFUNC(int, SSL_connect, SSL *a, a, return -1)
+#if OPENSSL_VERSION_NUMBER >= 0x00908000L
+// 0.9.8 broke SC and BC by changing this function's signature.
 DEFINEFUNC(int, SSL_CTX_check_private_key, const SSL_CTX *a, a, return -1)
+#else
+DEFINEFUNC(int, SSL_CTX_check_private_key, SSL_CTX *a, a, return -1)
+#endif
 DEFINEFUNC4(long, SSL_CTX_ctrl, SSL_CTX *a, a, int b, b, long c, c, void *d, d, return -1);
 DEFINEFUNC(void, SSL_CTX_free, SSL_CTX *a, a,)
 DEFINEFUNC(SSL_CTX *, SSL_CTX_new, SSL_METHOD *a, a, return 0)
@@ -100,12 +105,22 @@ DEFINEFUNC2(int, SSL_CTX_use_PrivateKey, SSL_CTX *a, a, EVP_PKEY *b, b, return -
 DEFINEFUNC2(int, SSL_CTX_use_RSAPrivateKey, SSL_CTX *a, a, RSA *b, b, return -1)
 DEFINEFUNC3(int, SSL_CTX_use_PrivateKey_file, SSL_CTX *a, a, const char *b, b, int c, c, return -1)
 DEFINEFUNC(void, SSL_free, SSL *a, a,)
+#if OPENSSL_VERSION_NUMBER >= 0x00908000L
+// 0.9.8 broke SC and BC by changing this function's signature.
 DEFINEFUNC(STACK_OF(SSL_CIPHER) *, SSL_get_ciphers, const SSL *a, a, return 0)
+#else
+DEFINEFUNC(STACK_OF(SSL_CIPHER) *, SSL_get_ciphers, SSL *a, a, return 0)
+#endif
 DEFINEFUNC(SSL_CIPHER *, SSL_get_current_cipher, SSL *a, a, return 0)
 DEFINEFUNC2(int, SSL_get_error, SSL *a, a, int b, b, return -1)
 DEFINEFUNC(STACK_OF(X509) *, SSL_get_peer_cert_chain, SSL *a, a, return 0)
 DEFINEFUNC(X509 *, SSL_get_peer_certificate, SSL *a, a, return 0)
+#if OPENSSL_VERSION_NUMBER >= 0x00908000L
+// 0.9.8 broke SC and BC by changing this function's signature.
 DEFINEFUNC(long, SSL_get_verify_result, const SSL *a, a, return -1)
+#else
+DEFINEFUNC(long, SSL_get_verify_result, SSL *a, a, return -1)
+#endif
 DEFINEFUNC(int, SSL_library_init, void,, return -1)
 DEFINEFUNC(void, SSL_load_error_strings, void,,)
 DEFINEFUNC(SSL *, SSL_new, SSL_CTX *a, a, return 0)
