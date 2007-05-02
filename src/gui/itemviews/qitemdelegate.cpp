@@ -593,9 +593,6 @@ void QItemDelegate::drawDisplay(QPainter *painter, const QStyleOptionViewItem &o
 {
     Q_D(const QItemDelegate);
 
-    if (text.isEmpty())
-        return;
-
     QPen pen = painter->pen();
     QPalette::ColorGroup cg = option.state & QStyle::State_Enabled
                               ? QPalette::Normal : QPalette::Disabled;
@@ -608,6 +605,9 @@ void QItemDelegate::drawDisplay(QPainter *painter, const QStyleOptionViewItem &o
         painter->setPen(option.palette.color(cg, QPalette::Text));
     }
 
+    if (text.isEmpty())
+        return;
+    
     if (option.state & QStyle::State_Editing) {
         painter->save();
         painter->setPen(option.palette.color(cg, QPalette::Text));
