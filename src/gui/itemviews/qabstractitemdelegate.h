@@ -89,8 +89,9 @@ Q_SIGNALS:
     void closeEditor(QWidget *editor, QAbstractItemDelegate::EndEditHint hint = NoHint);
 
 protected:
-    Q_DISABLE_COPY(QAbstractItemDelegate)
     QAbstractItemDelegate(QObjectPrivate &, QObject *parent = 0);
+private:
+    Q_DISABLE_COPY(QAbstractItemDelegate)
 };
 
 #endif // QT_NO_ITEMVIEWS
