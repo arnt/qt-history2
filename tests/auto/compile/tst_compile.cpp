@@ -35,6 +35,7 @@ private slots:
     void stdSortQVector();
     void templateCallOrder();
     void virtualFunctionNoLongerPureVirtual();
+    void charSignedness() const;
 };
 
 #if defined(Q_CC_MSVC) && _MSC_VER < 1300
@@ -509,6 +510,33 @@ void tst_Compiler::virtualFunctionNoLongerPureVirtual()
     DerivedClass derivedClass;
     QTest::ignoreMessage(QtDebugMsg, "DerivedClass::wasAPureVirtualFunction()");
     derivedClass.wasAPureVirtualFunction();
+}
+
+template<typename T> const char *resolveCharSignedness();
+
+template<>
+const char *resolveCharSignedness<char>()
+{
+    return "char";
+}
+
+template<>
+const char *resolveCharSignedness<unsigned char>()
+{
+    return "unsigned char";
+}
+
+template<>
+const char *resolveCharSignedness<signed char>()
+{
+    return "signed char";
+}
+
+void tst_Compiler::charSignedness() const
+{
+    QCOMPARE("char",            resolveCharSignedness<char>());
+    QCOMPARE("unsigned char",   resolveCharSignedness<unsigned char>());
+    QCOMPARE("signed char",     resolveCharSignedness<signed char>());
 }
 
 QTEST_MAIN(tst_Compiler)
