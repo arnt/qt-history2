@@ -1752,9 +1752,12 @@ QDataStream &operator<<(QDataStream &s, const QFont &font)
     s << (quint8) font.d->request.styleHint;
     if (s.version() >= 5)
         s << (quint8) font.d->request.styleStrategy;
-    return s << (quint8) 0
-             << (quint8) font.d->request.weight
-             << get_font_bits(s.version(), font.d);
+    s << (quint8) 0
+      << (quint8) font.d->request.weight
+      << get_font_bits(s.version(), font.d);
+    if (s.version() >= QDataStream::Qt_4_3)
+        s << (quint16)font.d->request.stretch;
+    return s;
 }
 
 
@@ -1803,6 +1806,7 @@ QDataStream &operator>>(QDataStream &s, QFont &font)
     s >> styleHint;
     if (s.version() >= 5)
         s >> styleStrategy;
+
     s >> charSet;
     s >> weight;
     s >> bits;
@@ -1812,6 +1816,12 @@ QDataStream &operator>>(QDataStream &s, QFont &font)
     font.d->request.weight = weight;
 
     set_font_bits(s.version(), bits, font.d);
+
+    if (s.version() >= QDataStream::Qt_4_3) {
+        quint16 stretch;
+        s >> stretch;
+        font.d->request.stretch = stretch;
+    }
 
     return s;
 }

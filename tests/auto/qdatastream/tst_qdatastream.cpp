@@ -1282,10 +1282,16 @@ static QFont QFontData(int index)
 		f.setFixedPitch(TRUE);
 		return f;
 	    }
+        case 13:
+            {
+                QFont f("Helvetica", 10, QFont::Bold, TRUE);
+                f.setStretch(200);
+                return f;
+            }
     }
     return QFont("Courier", 18, QFont::Bold, TRUE);
 }
-#define MAX_QFONT_DATA 13
+#define MAX_QFONT_DATA 14
 
 void tst_QDataStream::stream_QFont_data()
 {
