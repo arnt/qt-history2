@@ -774,8 +774,11 @@ void QColumnView::setPreviewWidget(QWidget *widget) {
 void QColumnViewPrivate::setPreviewWidget(QWidget *widget)
 {
     Q_Q(QColumnView);
-    if (previewColumn)
+    if (previewColumn) {
+        if(!columns.isEmpty() && columns.last() == previewColumn)
+            columns.removeLast();
         previewColumn->deleteLater();
+    }
     QColumnViewPreviewColumn *column = new QColumnViewPreviewColumn(q);
     column->setPreviewWidget(widget);
     previewColumn = column;
