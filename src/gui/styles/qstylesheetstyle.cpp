@@ -1274,7 +1274,7 @@ static PseudoElementInfo knownPseudoElements[NumPseudoElements] = {
     { QStyle::SC_ToolButtonMenu, "menu-arrow" },
     { QStyle::SC_None, "menu-arrow" },
     { QStyle::SC_None, "tab" },
-    { QStyle::SC_ScrollBarSlider, "slider" },
+    { QStyle::SC_ScrollBarSlider, "handle" },
     { QStyle::SC_ScrollBarAddPage, "add-page" },
     { QStyle::SC_ScrollBarSubPage, "sub-page" },
     { QStyle::SC_ScrollBarAddLine, "add-line" },
@@ -1616,7 +1616,6 @@ bool QStyleSheetStyle::hasStyleRule(const QWidget *w, int part) const
 static Origin defaultOrigin(int pe)
 {
     switch (pe) {
-    case PseudoElement_ScrollBarSlider:
     case PseudoElement_ScrollBarAddPage:
     case PseudoElement_ScrollBarSubPage:
     case PseudoElement_ScrollBarAddLine:
@@ -1641,6 +1640,7 @@ static Origin defaultOrigin(int pe)
     case PseudoElement_Indicator:
     case PseudoElement_ExclusiveIndicator:
     case PseudoElement_ComboBoxArrow:
+    case PseudoElement_ScrollBarSlider:
     case PseudoElement_ScrollBarUpArrow:
     case PseudoElement_ScrollBarDownArrow:
     case PseudoElement_SpinBoxUpArrow:
@@ -3804,7 +3804,9 @@ QRect QStyleSheetStyle::subControlRect(ComplexControl cc, const QStyleOptionComp
                 case SC_ScrollBarAddPage:
                 case SC_ScrollBarSubPage:
                 case SC_ScrollBarSlider: {
-                    QRect cr = rule.contentsRect(opt->rect);
+                    subRule = renderRule(w, opt, PseudoElement_ScrollBarSlider);
+                    Origin origin = subRule.hasPosition() ? subRule.position()->origin : defaultOrigin(PseudoElement_ScrollBarSlider);
+                    QRect cr = rule.originRect(opt->rect, origin);
                     int maxlen = (sb->orientation == Qt::Horizontal) ? cr.width() : cr.height();
                     int sliderlen;
 
@@ -3831,9 +3833,14 @@ QRect QStyleSheetStyle::subControlRect(ComplexControl cc, const QStyleOptionComp
                     if (sc == SC_ScrollBarSlider) {
                         return sr;
                     } else if (sc == SC_ScrollBarSubPage) {
-                        return QRect(cr.topLeft(), sb->orientation == Qt::Horizontal ? sr.bottomLeft() : sr.topRight());
+                        return QRect(cr.topLeft(), sb->orientation == Qt::Horizontal
+                                                    ? QPoint(sr.x()+sr.width()/2, cr.y()+cr.height())
+                                                    : QPoint(cr.x()+cr.width(), sr.y()+sr.height()/2));
                     } else { // SC_ScrollBarAddPage
-                        return QRect(sb->orientation == Qt::Horizontal ? sr.topRight() : sr.bottomLeft(), cr.bottomRight());
+                        return QRect(sb->orientation == Qt::Horizontal
+                                         ? QPoint(sr.x()+sr.width()/2+1, cr.y())
+                                         : QPoint(cr.x(), sr.y()+sr.height()/2+1),
+                                     cr.bottomRight());
                     }
                     break;
                 }
