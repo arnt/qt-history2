@@ -67,7 +67,7 @@ static void qSignalDumperCallback(QObject *caller, int method_index, void **argv
         str += args.at(i);
         int typeId = QMetaType::type(args.at(i).constData());
         if (args.at(i).endsWith("*")) {
-            quint64 addr = quint64(*reinterpret_cast<void **>(argv[i + 1]));
+            quintptr addr = quintptr(*reinterpret_cast<void **>(argv[i + 1]));
             str.append("(0x").append(QByteArray::number(addr, 16)).append(")");
         } else if (typeId != QMetaType::Void) {
             str.append("(").append(QVariant(typeId, argv[i + 1]).toString().toLocal8Bit()).append(
