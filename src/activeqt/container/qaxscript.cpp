@@ -252,9 +252,14 @@ HRESULT WINAPI QAxScriptSite::OnScriptError(IActiveScriptError *error)
     error->GetExceptionInfo(&exception);
     error->GetSourcePosition(&context, &lineNumber, &charPos);
     HRESULT hres = error->GetSourceLineText(&bstrLineText);
-    if (hres == S_OK)
+    if (hres == S_OK) {
         lineText = QString::fromUtf16((const ushort*)bstrLineText);
-    
+        SysFreeString(bstrLineText);
+    }
+    SysFreeString(exception.bstrSource);
+    SysFreeString(exception.bstrDescription);
+    SysFreeString(exception.bstrHelpFile);
+
     emit script->error(exception.wCode, QString::fromUtf16((const ushort*)exception.bstrDescription), lineNumber, lineText);
     
     return S_OK;
@@ -452,11 +457,13 @@ bool QAxScriptEngine::initialize(IUnknown **ptr)
         return false;
     }
     
+    BSTR bstrCode = QStringToBSTR(script_code->scriptCode());
 #ifdef Q_OS_WIN64
-	hres = parser->ParseScriptText(QStringToBSTR(script_code->scriptCode()), 0, 0, 0, DWORDLONG(this), 0, SCRIPTTEXT_ISVISIBLE, 0, 0);
+    hres = parser->ParseScriptText(bstrCode, 0, 0, 0, DWORDLONG(this), 0, SCRIPTTEXT_ISVISIBLE, 0, 0);
 #else
-	hres = parser->ParseScriptText(QStringToBSTR(script_code->scriptCode()), 0, 0, 0, DWORD(this), 0, SCRIPTTEXT_ISVISIBLE, 0, 0);
+    hres = parser->ParseScriptText(bstrCode, 0, 0, 0, DWORD(this), 0, SCRIPTTEXT_ISVISIBLE, 0, 0);
 #endif
+    SysFreeString(bstrCode);
     
     parser->Release();
     parser = 0;

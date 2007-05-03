@@ -2701,6 +2701,7 @@ void MetaObjectGenerator::readInterfaceInfo()
                 typeinfo->ReleaseTypeAttr(typeattr);
             } else {
                 interesting = false;
+                typeinfo->ReleaseTypeAttr(typeattr);
             }
         }
 
