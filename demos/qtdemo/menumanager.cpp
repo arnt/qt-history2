@@ -186,6 +186,7 @@ void MenuManager::readInfoAboutExample(const QDomElement &example)
 {
     QString name = example.attribute("name");
     this->info[name]["filename"] = example.attribute("filename");
+    this->info[name]["changedirectory"] = example.attribute("changedirectory");
     this->info[name]["executable"] = this->resolveExecutable(example);
     this->info[name]["docfile"] = this->resolveDocFile(example);
     this->info[name]["imgfile"] = this->resolveImgFile(example);
