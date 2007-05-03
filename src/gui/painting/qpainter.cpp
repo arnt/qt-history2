@@ -6716,6 +6716,18 @@ QMatrix QPaintEngineState::matrix() const
     return st->matrix.toAffine();
 }
 
+/*!
+    \since 4.3
+
+    Returns the matrix in the current paint engine state.
+
+    This variable should only be used when the state() returns a
+    combination which includes the QPaintEngine::DirtyTransform flag.
+
+    \sa state(), QPaintEngine::updateState()
+*/
+
+
 QTransform QPaintEngineState::transform() const
 {
     const QPainterState *st = static_cast<const QPainterState *>(this);
@@ -6875,8 +6887,8 @@ qreal QPaintEngineState::opacity() const
     \since 4.3
 
     Sets the world transformation matrix.
-    If \a combine is true, the specified \a matrix is combined with the current matrix;
-    otherwise it replaces the current matrix.
+    If \a combine is true, the specified \a transform is combined with
+    the current matrix; otherwise it replaces the current matrix.
 
     This function has been added for compatibility with setMatrix(), 
     but as with setMatrix() the preferred method of setting a
