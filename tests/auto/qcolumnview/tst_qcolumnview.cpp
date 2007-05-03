@@ -13,6 +13,7 @@
 #include <qcolumnview.h>
 #include "../../../src/gui/itemviews/qcolumnviewgrip_p.h"
 #include <qdirmodel.h>
+#include <qstringlistmodel.h>
 #include <qdebug.h>
 
 //TESTED_CLASS=QColumnView
@@ -48,9 +49,11 @@ private slots:
     void gripMoved();
 
     void preview();
+    void swapPreview();
     void sizes();
 
-protected:
+protected slots:
+    void setPreviewWidget();
 };
 
 class ColumnView : public QColumnView {
@@ -454,6 +457,25 @@ void tst_QColumnView::preview()
     QWidget *previewWidget2 = new QWidget(&view);
     view.setPreviewWidget(previewWidget2);
     QCOMPARE(view.previewWidget(), previewWidget2);
+}
+
+void tst_QColumnView::swapPreview()
+{
+    // swap the preview widget in updatePreviewWidget
+    QColumnView view;
+    QStringListModel model(QStringList(QLatin1String("test")));
+    view.setModel(&model);
+    view.setCurrentIndex(view.indexAt(QPoint(1, 1)));
+    connect(&view, SIGNAL(updatePreviewWidget(const QModelIndex &)),
+            this, SLOT(setPreviewWidget()));
+    view.setCurrentIndex(view.indexAt(QPoint(1, 1)));
+    QTest::qWait(ANIMATION_DELAY);
+    qApp->processEvents();
+}
+
+void tst_QColumnView::setPreviewWidget()
+{
+    ((QColumnView*)sender())->setPreviewWidget(new QWidget);
 }
 
 void tst_QColumnView::sizes()
