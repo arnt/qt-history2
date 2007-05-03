@@ -126,8 +126,17 @@ void MenuManager::launchExample(const QString &name)
     QString newpath = QString("PATH=%1;%2").arg(QLibraryInfo::location(QLibraryInfo::BinariesPath), curpath);
     process->setEnvironment(QStringList(newpath));
 #endif
-    
-    //    process->setWorkingDirectory(info[name]["executable"]);
+        
+    if (info[name]["changedirectory"] != "false"){
+        QDir dir(info[name]["executable"]);
+        dir.cdUp();
+        process->setWorkingDirectory(dir.absolutePath());
+        if (Colors::verbose)
+            qDebug() << "Setting working directory:" << dir.absolutePath();
+    }
+
+    if (Colors::verbose)
+        qDebug() << "Launching:" << executable;    
     process->start(executable);
 }
 
