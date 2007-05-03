@@ -5421,3 +5421,13 @@ QString QUrl::errorString() const
 {
     return d->createErrorString();
 }
+
+/*!
+    \typedef QUrl::DataPtr
+    \internal
+*/
+
+/*!
+    \fn DataPtr &QUrl::data_ptr()
+    \internal
+*/

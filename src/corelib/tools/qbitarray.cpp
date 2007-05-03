@@ -777,3 +777,13 @@ QDataStream &operator>>(QDataStream &in, QBitArray &ba)
     return in;
 }
 #endif
+
+/*!
+    \fn DataPtr &QBitArray::data_ptr()
+    \internal
+*/
+
+/*!
+    \typedef QBitArray::DataPtr
+    \internal
+*/

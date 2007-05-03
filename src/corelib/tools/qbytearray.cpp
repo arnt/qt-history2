@@ -3898,3 +3898,12 @@ QByteArray QByteArray::toHex() const
     Use lastIndexOf() instead.
 */
 
+/*!
+    \fn DataPtr &QByteArray::data_ptr()
+    \internal
+*/
+
+/*!
+    \typedef QByteArray::DataPtr
+    \internal
+*/

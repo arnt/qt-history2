@@ -2943,3 +2943,12 @@ QDebug operator<<(QDebug dbg, const QVariant::Type p)
     Synonym for QMap<QString, QVariant>.
 */
 
+/*!
+    \typedef QVariant::DataPtr
+    \internal
+*/
+
+/*!
+    \fn DataPtr &QVariant::data_ptr()
+    \internal
+*/
