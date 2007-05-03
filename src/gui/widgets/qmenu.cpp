@@ -1571,14 +1571,7 @@ void QMenu::popup(const QPoint &p, QAction *atAction)
             pos.setX(qMax(p.x()-size.width(), screen.right()-desktopFrame-size.width()));
     } else {
         if (pos.x()+size.width() > screen.right()-desktopFrame) {
-            // If menu has a parent, we can do better
-            QWidget *par = parentWidget();
-            if (par) {
-                pos.setX(qMin(par->mapToGlobal(par->rect().topRight()).x() - size.width(),
-                              screen.right()-desktopFrame-size.width()));
-            }else {
-                pos.setX(qMin(p.x()-size.width(), screen.right()-desktopFrame-size.width()));
-            }
+            pos.setX(qMin(p.x()-size.width(), screen.right()-desktopFrame-size.width()));
         }
         if (pos.x() < screen.left()+desktopFrame)
             pos.setX(qMax(p.x(), screen.left() + desktopFrame));
