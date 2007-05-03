@@ -2469,6 +2469,9 @@ bool QMdiSubWindow::eventFilter(QObject *object, QEvent *event)
         d->currentOperation = QMdiSubWindowPrivate::None;
         d->updateCursor();
         break;
+    case QEvent::LayoutRequest:
+        d->updateGeometryConstraints();
+        break;
     case QEvent::WindowTitleChange:
         if (d->ignoreWindowTitleChange)
             break;
@@ -2593,6 +2596,9 @@ bool QMdiSubWindow::event(QEvent *event)
         break;
     case QEvent::LayoutDirectionChange:
         d->updateDirtyRegions();
+        break;
+    case QEvent::LayoutRequest:
+        d->updateGeometryConstraints();
         break;
     case QEvent::WindowIconChange:
         d->menuIcon = windowIcon();
