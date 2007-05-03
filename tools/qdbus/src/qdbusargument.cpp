@@ -786,11 +786,11 @@ void QDBusArgument::endStructure()
     \endcode
 
     If the type you want to marshall is a QList, QVector or any of the
-    Qt's \l {containers.html}{containers} that take one template
-    parameter, you need not declare an \c{operator<<} function for
-    it, since QtDBus provides generic templates to do the job of
-    marshalling the data. The same applies for STL's sequence
-    containers, such as \c {std::list}, \c {std::vector}, etc.
+    Qt's \l {Generic Containers} that take one template parameter,
+    you need not declare an \c{operator<<} function for it, since
+    QtDBus provides generic templates to do the job of marshalling
+    the data. The same applies for STL's sequence containers, such
+    as \c {std::list}, \c {std::vector}, etc.
 
     \sa endArray(), beginStructure(), beginMap()
 */
@@ -950,11 +950,11 @@ void QDBusArgument::endStructure() const
     \endcode
 
     If the type you want to demarshall is a QList, QVector or any of the
-    Qt's \l {containers.html}{containers} that take one template
-    parameter, you need not declare an \c{operator>>} function for
-    it, since QtDBus provides generic templates to do the job of
-    demarshalling the data. The same applies for STL's sequence
-    containers, such as \c {std::list}, \c {std::vector}, etc.
+    Qt's \l {Generic Containers} that take one template parameter, you
+    need not declare an \c{operator>>} function for it, since QtDBus
+    provides generic templates to do the job of demarshalling the data.
+    The same applies for STL's sequence containers, such as \c {std::list},
+    \c {std::vector}, etc.
 
     \sa atEnd(), beginStructure(), beginMap()
 */
