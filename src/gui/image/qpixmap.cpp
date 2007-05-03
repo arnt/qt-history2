@@ -598,8 +598,8 @@ bool QPixmap::load(const QString &fileName, const char *format, Qt::ImageConvers
         return false;
 
     QFileInfo info(fileName);
-    QString key = QLatin1String("qt_pixmap_") + info.absoluteFilePath() + QLatin1Char('_') + info.lastModified().toString() + "_" +
-                  QString::number(info.size()) + "_" + QString::number(data->type);
+    QString key = QLatin1String("qt_pixmap_") + info.absoluteFilePath() + QLatin1Char('_') + info.lastModified().toString() + QLatin1Char('_') +
+                  QString::number(info.size()) + QLatin1Char('_') + QString::number(data->type);
 
     if (QPixmapCache::find(key, *this))
         return true;
