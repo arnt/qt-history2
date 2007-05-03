@@ -162,7 +162,7 @@ public:
 #if defined(Q_WS_X11) || defined(Q_WS_QWS)
     FT_Face freetypeFace() const;
 #endif
-    
+
     // needed for X11
     void setRawName(const QString &);
     QString rawName() const;
@@ -228,9 +228,10 @@ private:
     friend struct QScriptLine;
     friend class QGLContext;
     friend class QWin32PaintEngine;
-	friend class QAlphaPaintEngine;
+    friend class QAlphaPaintEngine;
     friend class QPainterPath;
     friend class QTextItemInt;
+    friend class QPicturePaintEngine;
 
 #ifndef QT_NO_DATASTREAM
     friend Q_GUI_EXPORT QDataStream &operator<<(QDataStream &, const QFont &);

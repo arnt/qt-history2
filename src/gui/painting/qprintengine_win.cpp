@@ -198,7 +198,7 @@ bool QAlphaPaintEngine::begin(QPaintDevice *pdev)
     if (d->m_pass != 0) {
         return true;
     }
-    
+
     d->m_savedcaps = gccaps;
     d->m_pdev = pdev;
 
@@ -261,7 +261,7 @@ void QAlphaPaintEngine::updateState(const QPaintEngineState &state)
             d->m_alphaBrush = !state.brush().isOpaque();
         }
     }
-    
+
     if (flags & QPaintEngine::DirtyPen) {
         d->m_pen = state.pen();
         if (d->m_pen.style() == Qt::NoPen) {
@@ -333,7 +333,6 @@ void QAlphaPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRe
     Q_D(QAlphaPaintEngine);
 
     QRectF tr = d->m_transform.mapRect(r);
-
     if (d->m_pass == 0) {
         d->m_continueCall = false;
         if (pm.hasAlpha() || d->m_alphaOpacity || d->m_complexTransform) {
@@ -360,20 +359,9 @@ void QAlphaPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem
         if (d->m_alphaPen || d->m_alphaOpacity || d->m_advancedPen) {
             d->addAlphaRect(tr);
         }
-		if (d->m_picengine) {
-			QFont fnt = textItem.font();
-			int font_dpi = fnt.d->dpi;
-			qreal scalex = font_dpi / d->m_picpainter->device()->logicalDpiX();
-			qreal scaley = font_dpi / d->m_picpainter->device()->logicalDpiY();
-			QTransform newtrans = d->m_transform;
-			newtrans.scale(scalex, scaley);
-			d->m_picpainter->setTransform(newtrans);
-			d->m_picengine->syncState();
-			QPointF tp(p.x() / scalex, p.y() / scaley); 
-            d->m_picengine->drawTextItem(tp, textItem);
-			d->m_picpainter->setTransform(d->m_transform);
-			d->m_picengine->syncState();
-		}
+        if (d->m_picengine) {
+            d->m_picengine->drawTextItem(p, textItem);
+        }
     } else {
         d->m_continueCall = !d->fullyContained(tr);
     }
@@ -416,7 +404,7 @@ void QAlphaPaintEngine::flushAndInit(bool init)
 
     if (d->m_pic) {
         d->m_picpainter->end();
-        
+
         // set clip region
         d->m_cliprgn = d->m_alphargn;
 
@@ -439,10 +427,10 @@ void QAlphaPaintEngine::flushAndInit(bool init)
         d->resetState(painter());
 
         QVector<QRect> rects = d->m_alphargn.rects();
-        for (int i=0; i<rects.count(); ++i) {
+        for (int i=0; i<rects.count(); ++i)
             d->drawAlphaImage(rects.at(i));
-        }
-            
+        d->m_alphargn = QRegion();
+
         --d->m_pass; // pass #2 finished
 
         cleanUp();
@@ -482,7 +470,7 @@ QAlphaPaintEnginePrivate::QAlphaPaintEnginePrivate()
         m_advancedBrush(false),
         m_complexTransform(false)
 {
-        
+
 }
 
 QAlphaPaintEnginePrivate::~QAlphaPaintEnginePrivate()
@@ -547,8 +535,8 @@ void QAlphaPaintEnginePrivate::drawAlphaImage(const QRectF &rect)
             int width = ( (x == (divw - 1)) ? (rect.width() - (incx * x)) : incx ) + 1;
 
             QSize imgsize(width * xscale, height * yscale);
-            QImage img(imgsize, QImage::Format_RGB32);
-            img.fill(QColor(Qt::white).rgb());
+            QImage img(imgsize, QImage::Format_ARGB32_Premultiplied);
+            img.fill(0xffffffff);
 
             QPainter imgpainter(&img);
             imgpainter.setTransform(picscale);
@@ -1013,8 +1001,7 @@ void QWin32PrintEngine::updateClipPath(const QPainterPath &clipPath, Qt::ClipOpe
     QPainterPath aclip;
     aclip.addRegion(alphaClipping());
     if (!aclip.isEmpty()) {
-        QTransform tx;
-        tx.scale(d->stretch_x, d->stretch_y);
+        QTransform tx(d->stretch_x, 0, 0, d->stretch_y, d->origin_x, d->origin_y);
         d->composeGdiPath(tx.map(aclip));
         SelectClipPath(d->hdc, RGN_DIFF);
     }
@@ -1057,7 +1044,7 @@ void QWin32PrintEngine::drawPixmap(const QRectF &targetRect,
 
     QTransform scaleMatrix;
     scaleMatrix.scale(r.width() / pixmap.width(), r.height() / pixmap.height());
-    QTransform adapted = QPixmap::trueMatrix(d->painterMatrix * scaleMatrix, 
+    QTransform adapted = QPixmap::trueMatrix(d->painterMatrix * scaleMatrix,
         pixmap.width(), pixmap.height());
 
     qreal xform_offset_x = adapted.dx();
@@ -1339,7 +1326,7 @@ void QWin32PrintEngine::drawPolygon(const QPointF *points, int pointCount, Polyg
         return;
 
     Q_ASSERT(pointCount > 1);
-    
+
     QPainterPath path(points[0]);
 
     for (int i=1; i<pointCount; ++i) {

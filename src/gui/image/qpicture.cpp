@@ -427,6 +427,35 @@ bool QPicture::play(QPainter *painter)
 }
 
 
+//
+// FakeDevice is used to create fonts with a custom DPI
+//
+class FakeDevice : public QPaintDevice
+{
+public:
+    FakeDevice() { dpi_x = qt_defaultDpiX(); dpi_y = qt_defaultDpiY(); }
+    void setDpiX(int dpi) { dpi_x = dpi; }
+    void setDpiY(int dpi) { dpi_y = dpi; }
+    QPaintEngine *paintEngine() const { return 0; }
+    int metric(PaintDeviceMetric m) const
+    {
+        switch(m) {
+            case PdmPhysicalDpiX:
+            case PdmDpiX:
+                return dpi_x;
+            case PdmPhysicalDpiY:
+            case PdmDpiY:
+                return dpi_y;
+            default:
+                return QPaintDevice::metric(m);
+        }
+    }
+
+private:
+    int dpi_x;
+    int dpi_y;
+};
+
 /*!
   \internal
   Iterates over the internal picture data and draws the picture using
@@ -640,9 +669,18 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
             // drawText() call, therefore ul is unsed in this context
 
             if (d->formatMajor >= 9) {
-                QFontMetrics fm(font);
+                s >> dbl;
+                QFont fnt(font);
+                if (dbl != 1.0) {
+                    FakeDevice fake;
+                    fake.setDpiX(dbl*qt_defaultDpiX());
+                    fake.setDpiY(dbl*qt_defaultDpiY());
+                    fnt = QFont(font, &fake);
+                }
+
+                QFontMetrics fm(fnt);
                 QPointF pt(p.x(), p.y() - fm.ascent());
-                qt_format_text(font, QRectF(pt, QSizeF(1, 1)), Qt::TextSingleLine | Qt::TextDontClip,
+                qt_format_text(fnt, QRectF(pt, QSizeF(1, 1)), Qt::TextSingleLine | Qt::TextDontClip,
                                str, /*brect=*/0, /*tabstops=*/0, /*...*/0, /*tabarraylen=*/0, painter);
             } else {
                 qt_format_text(font, QRectF(p, QSizeF(1, 1)), Qt::TextSingleLine | Qt::TextDontClip,

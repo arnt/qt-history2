@@ -14,6 +14,7 @@
 #include "private/qpaintengine_p.h"
 #include "private/qpainter_p.h"
 #include "private/qpicture_p.h"
+#include "private/qfont_p.h"
 
 #ifndef QT_NO_PICTURE
 
@@ -383,6 +384,8 @@ void QPicturePaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap
     writeCmdLength(pos, r, false);
 }
 
+extern int qt_defaultDpi();
+
 void QPicturePaintEngine::drawTextItem(const QPointF &p , const QTextItem &ti)
 {
     Q_D(QPicturePaintEngine);
@@ -393,11 +396,11 @@ void QPicturePaintEngine::drawTextItem(const QPointF &p , const QTextItem &ti)
     if (d->pic_d->formatMajor >= 9) {
         int pos;
         SERIALIZE_CMD(QPicturePrivate::PdcDrawTextItem);
-		QFont fnt = ti.font();
-		fnt.setUnderline(false);
-		fnt.setStrikeOut(false);
-		fnt.setOverline(false);
-        d->s << p << ti.text() << fnt << ti.renderFlags();
+        QFont fnt = ti.font();
+        fnt.setUnderline(false);
+        fnt.setStrikeOut(false);
+        fnt.setOverline(false);
+        d->s << p << ti.text() << fnt << ti.renderFlags() << double(fnt.d->dpi)/qt_defaultDpi();
         writeCmdLength(pos, /*brect=*/QRectF(), /*corr=*/false);
     } else if (d->pic_d->formatMajor >= 8) {
         // old old (buggy) format
