@@ -1828,6 +1828,15 @@ void Configure::generateOutputVars()
     if (!qmakeFormatPlugins.isEmpty())
         qmakeVars += QString("imageformat-plugins += ") + qmakeFormatPlugins.join( " " );
 
+    if (dictionary["QMAKESPEC"].endsWith("-g++")) {
+        QString includepath = qgetenv("INCLUDE");
+        bool hasSh = Environment::detectExecutable("sh.exe");
+        QChar separator = (!includepath.contains(":\\") && hasSh ? QChar(':') : QChar(';'));
+        qmakeVars += QString("ENVINCPATH      = $$(INCLUDE)");
+        qmakeVars += QString("ENVINCPATH      = $$split(ENVINCPATH,\"%1\")").arg(separator);
+        qmakeVars += QString("INCLUDEPATH    += $$ENVINCPATH");
+    }
+
     if( !dictionary[ "QMAKESPEC" ].length() ) {
         cout << "Configure could not detect your compiler. QMAKESPEC must either" << endl
              << "be defined as an environment variable, or specified as an" << endl
