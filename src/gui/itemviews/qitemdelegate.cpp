@@ -179,16 +179,23 @@ QSizeF QItemDelegatePrivate::doTextLayout(int lineWidth) const
     by processing events in the normal manner, or by implementing a
     custom editor widget. The item delegate takes the approach of providing
     a widget for editing purposes that can be supplied to
-    QAbstractItemView::setDelegate() or the equivalent function in
+    QAbstractItemView::setItemDelegate() or the equivalent function in
     subclasses of QAbstractItemView.
 
     Only the standard editing functions for widget-based delegates are
-    reimplemented here: editor() returns the widget used to change data
-    from the model; setEditorData() provides the widget with data to
-    manipulate; updateEditorGeometry() ensures that the editor is displayed
-    correctly with respect to the item view; setModelData() returns the
-    updated data to the model; releaseEditor() indicates that the user has
-    completed editing the data, and that the editor widget can be destroyed.
+    reimplemented here: 
+    
+    \list
+        \o createEditor() returns the widget used to change data from the model
+           and can be reimplemented to customize editing behavior.
+        \o setEditorData() provides the widget with data to manipulate.
+        \o updateEditorGeometry() ensures that the editor is displayed correctly
+           with respect to the item view.
+        \o setModelData() returns updated data to the model.
+    \endlist
+    
+    The closeEditor() signal indicates that the user has completed editing the data,
+    and that the editor widget can be destroyed.
 
     \section1 Standard Roles and Data Types
 
