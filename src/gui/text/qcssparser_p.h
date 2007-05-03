@@ -385,9 +385,11 @@ enum PseudoClass
 
 struct Q_GUI_EXPORT Pseudo
 {
+    Pseudo() : negated(false) { }
     PseudoClass type;
     QString name;
     QString function;
+    bool negated;
 };
 
 struct Q_GUI_EXPORT AttributeSelector
@@ -429,7 +431,7 @@ struct Q_GUI_EXPORT Selector
 {
     QVector<BasicSelector> basicSelectors;
     int specificity() const;
-    int pseudoClass() const;
+    int pseudoClass(int *negated = 0) const;
     QString pseudoElement() const;
 };
 

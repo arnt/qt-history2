@@ -1139,11 +1139,23 @@ void tst_CssParser::rulesForNode_data()
 
     QTest::newRow("multisel2") << QString("<p/>")
         << QString("p:enabled { color: red; } p:hover:focus { color: gray } *:hover { color: white } ")
-        << int(QCss::PseudoClass_Hover|QCss::PseudoClass_Focus) << 1 << "gray" << "";
+        << int(QCss::PseudoClass_Hover|QCss::PseudoClass_Focus) << 2 << "white" << "gray";
 
     QTest::newRow("multisel3-diffspec") << QString("<p/>")
         << QString("p:enabled { color: red; } p:hover:focus { color: gray } *:hover { color: white } ")
-        << int(QCss::PseudoClass_Hover) << 2 << "white" << "gray";
+        << int(QCss::PseudoClass_Hover) << 1 << "white" << "";
+
+    QTest::newRow("!-1") << QString("<p/>")
+        << QString("p:checked:!hover { color: red; } p:checked:hover { color: gray } p:checked { color: white }")
+        << int(QCss::PseudoClass_Hover|QCss::PseudoClass_Checked) << 2 << "white" << "gray";
+
+    QTest::newRow("!-2") << QString("<p/>")
+        << QString("p:checked:!hover:!pressed { color: red; } p:!checked:hover { color: gray } p:!focus { color: blue }")
+        << int(QCss::PseudoClass_Focus) << 0 << "" << "";
+
+    QTest::newRow("!-3") << QString("<p/>")
+        << QString("p:checked:!hover:!pressed { color: red; } p:!checked:hover { color: gray } p:!focus { color: blue; }")
+        << int(QCss::PseudoClass_Pressed) << 1 << "blue" << "";
 }
 
 void tst_CssParser::rulesForNode()
@@ -1172,7 +1184,11 @@ void tst_CssParser::rulesForNode()
 
     QVector<QCss::Declaration> decls;
     for (int i = 0; i < rules.count(); i++) {
-        if ((rules.at(i).selectors.at(0).pseudoClass() & pseudoClass) == pseudoClass)
+        const QCss::Selector &selector = rules.at(i).selectors.at(0);
+        int negated = 0;
+        int cssClass = selector.pseudoClass(&negated);
+        if ((cssClass == QCss::PseudoClass_Unspecified)
+            || (((cssClass & pseudoClass) == cssClass)) && ((negated & pseudoClass) == 0))
             decls += rules.at(i).declarations;
     }
 

@@ -1315,8 +1315,10 @@ QVector<Declaration> declarations(const QVector<StyleRule> &styleRules, const QS
         // diversion for CSS
         if (part.compare(selector.pseudoElement(), Qt::CaseInsensitive) != 0)
             continue;
-        int cssClass = selector.pseudoClass();
-        if ((cssClass == PseudoClass_Unspecified) || ((cssClass & pseudoClass) == cssClass))
+        int negated = 0;
+        int cssClass = selector.pseudoClass(&negated);
+        if ((cssClass == PseudoClass_Unspecified)
+            || ((((cssClass & pseudoClass) == cssClass)) && ((negated & pseudoClass) == 0)))
             decls += styleRules.at(i).declarations;
     }
     return decls;

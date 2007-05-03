@@ -1308,16 +1308,20 @@ QString Selector::pseudoElement() const
     return QString();
 }
 
-int Selector::pseudoClass() const
+int Selector::pseudoClass(int *negated) const
 {
     const BasicSelector& bs = basicSelectors.last();
     if (bs.pseudos.isEmpty())
         return PseudoClass_Unspecified;
     int pc = PseudoClass_Unknown;
     for (int i = !pseudoElement().isEmpty(); i < bs.pseudos.count(); i++) {
-        if (bs.pseudos.at(i).type == PseudoClass_Unknown)
+        const Pseudo &pseudo = bs.pseudos.at(i);
+        if (pseudo.type == PseudoClass_Unknown)
             return PseudoClass_Unknown;
-        pc |= bs.pseudos.at(i).type;
+        if (!pseudo.negated)
+            pc |= pseudo.type;
+        else if (negated)
+            *negated |= pseudo.type;
     }
     return pc;
 }
@@ -1957,6 +1961,7 @@ bool Parser::parseAttrib(AttributeSelector *attr)
 bool Parser::parsePseudo(Pseudo *pseudo)
 {
     test(COLON);
+    pseudo->negated = test(EXCLAMATION_SYM);
     if (test(IDENT)) {
         pseudo->name = lexem();
         pseudo->type = static_cast<PseudoClass>(findKnownValue(pseudo->name, pseudos, NumPseudos));
