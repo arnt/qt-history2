@@ -318,6 +318,7 @@ static QTextCodec * ru_RU_hack(const char * i) {
 
 #endif
 
+#ifndef Q_OS_WIN32
 static QTextCodec *checkForCodec(const char *name) {
     QTextCodec *c = QTextCodec::codecForName(name);
     if (!c) {
@@ -329,6 +330,7 @@ static QTextCodec *checkForCodec(const char *name) {
     }
     return c;
 }
+#endif
 
 /* the next two functions are implicitely thread safe,
    as they are only called by setup() which uses a mutex.

@@ -206,7 +206,7 @@ void QOleDropSource::createCursors()
                 if (reqw < w) {
                     // Not wide enough - move objectpm right
                     qreal r = qreal(newHotSpot.x()) / w;
-                    newHotSpot = QPoint(r * reqw, newHotSpot.y()); 
+                    newHotSpot = QPoint(int(r * reqw), newHotSpot.y()); 
                     if (newHotSpot.x() + cpm.width() > reqw)
                         newHotSpot.setX(reqw - cpm.width());
 
@@ -214,7 +214,7 @@ void QOleDropSource::createCursors()
                 }
                 if (reqh < h) {
                     qreal r = qreal(newHotSpot.y()) / h;
-                    newHotSpot = QPoint(newHotSpot.x(), r * reqh);
+                    newHotSpot = QPoint(newHotSpot.x(), int(r * reqh));
                     if (newHotSpot.y() + cpm.height() > reqh)
                         newHotSpot.setY(reqh - cpm.height());
                     

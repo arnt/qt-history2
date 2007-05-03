@@ -70,7 +70,7 @@ void QWindowsFileSystemWatcherEngine::run()
                     qDebug("QWindowsFileSystemWatcherEngine: unknown message '%c' send to thread", char(m));
                 }
                 break;
-            } else if (r > WAIT_OBJECT_0 && r < WAIT_OBJECT_0+handlesCopy.count()) {
+            } else if (r > WAIT_OBJECT_0 && r < WAIT_OBJECT_0 + uint(handlesCopy.count())) {
                 int at = r - WAIT_OBJECT_0;
                 Q_ASSERT(at < handlesCopy.count());
                 HANDLE handle = handlesCopy.at(at);

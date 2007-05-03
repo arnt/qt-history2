@@ -143,7 +143,7 @@ QEventDispatcherWin32Private::~QEventDispatcherWin32Private()
     CloseHandle(wakeUpNotifier.handle());
     if (internalHwnd)
         DestroyWindow(internalHwnd);
-    QByteArray className = "QEventDispatcherWin32_Internal_Widget" + QByteArray::number(quint64(qt_internal_proc));
+    QByteArray className = "QEventDispatcherWin32_Internal_Widget" + QByteArray::number(quintptr(qt_internal_proc));
     UnregisterClassA(className.constData(), qWinAppInst());
     DeleteCriticalSection(&fastTimerCriticalSection);
 }
@@ -309,7 +309,7 @@ static HWND qt_create_internal_window(const QEventDispatcherWin32 *eventDispatch
     wc.lpszMenuName = NULL;
 
     // make sure that multiple Qt's can coexist in the same process
-    QByteArray className = "QEventDispatcherWin32_Internal_Widget" + QByteArray::number(quint64(qt_internal_proc));
+    QByteArray className = "QEventDispatcherWin32_Internal_Widget" + QByteArray::number(quintptr(qt_internal_proc));
     wc.lpszClassName = className.constData();
     RegisterClassA(&wc);
 
@@ -575,8 +575,9 @@ void QEventDispatcherWin32::registerSocketNotifier(QSocketNotifier *notifier)
 
     if (dict->contains(sockfd)) {
         const char *t[] = { "Read", "Write", "Exception" };
+	/* Variable "socket" below is a function pointer. */
         qWarning("QSocketNotifier: Multiple socket notifiers for "
-                 "same socket %d and type %s", socket, t[type]);
+                 "same socket %d and type %s", socketfd, t[type]);
     }
 
     QSockNot *sn = new QSockNot;

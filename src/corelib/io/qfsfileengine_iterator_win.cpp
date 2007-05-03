@@ -32,11 +32,11 @@ public:
 
     QStringList uncShares;
     int uncShareIndex;
-    bool uncFallback;
 
     HANDLE findFileHandle;
     WIN32_FIND_DATA findData;
     bool done;
+    bool uncFallback;
 
     void advance();
     void saveCurrentFileName();

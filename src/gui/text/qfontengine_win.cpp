@@ -75,8 +75,6 @@ typedef void *SCRIPT_CACHE;
 typedef HRESULT (WINAPI *fScriptFreeCache)(SCRIPT_CACHE *);
 extern fScriptFreeCache ScriptFreeCache;
 
-static QVector<QFontEngineWin::KernPair> getKerning(HDC hdc, QFixed factor);
-
 static inline quint32 getUInt(unsigned char *p)
 {
     quint32 val;

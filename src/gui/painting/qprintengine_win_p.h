@@ -152,19 +152,19 @@ class QWin32PrintEnginePrivate : public QAlphaPaintEnginePrivate
     Q_DECLARE_PUBLIC(QWin32PrintEngine)
 public:
     QWin32PrintEnginePrivate() :
-	hPrinter(0),
+        hPrinter(0),
         globalDevMode(0),
-	devMode(0),
-	pInfo(0),
+        devMode(0),
+        pInfo(0),
         hdc(0),
         mode(QPrinter::ScreenResolution),
-	state(QPrinter::Idle),
+        state(QPrinter::Idle),
         resolution(0),
+        pageMarginsSet(false),
         num_copies(1),
         printToFile(false),
         fullPage(false),
-	reinit(false),
-	pageMarginsSet(false)
+        reinit(false)
     {
     }
 

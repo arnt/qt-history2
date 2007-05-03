@@ -3275,6 +3275,7 @@ static bool indic_shape_syllable(QOpenType *openType, QShaperItem *item, bool in
 
    We return syllable boundaries on invalid combinations aswell
 */
+#if defined(Q_WS_X11) || defined(Q_WS_QWS)
 static int indic_nextSyllableBoundary(int script, const QString &s, int start, int end, bool *invalid)
 {
     *invalid = false;
@@ -3356,6 +3357,7 @@ static int indic_nextSyllableBoundary(int script, const QString &s, int start, i
  finish:
     return pos+start;
 }
+#endif
 
 #if defined(Q_WS_X11) || defined(Q_WS_QWS)
 
@@ -3409,6 +3411,7 @@ static bool indic_shape(QShaperItem *item)
 }
 #endif
 
+#if defined(Q_WS_X11) || defined(Q_WS_QWS)
 static void indic_attributes(int script, const QString &text, int from, int len, QCharAttributes *attributes)
 {
     int end = from + len;
@@ -3432,6 +3435,7 @@ static void indic_attributes(int script, const QString &text, int from, int len,
 
 
 }
+#endif
 
 
 // --------------------------------------------------------------------------------------------------------------------------------------------
@@ -3444,6 +3448,7 @@ static void indic_attributes(int script, const QString &text, int from, int len,
 #include <qlibrary.h>
 
 
+#if defined(Q_WS_X11) || defined(Q_WS_QWS)
 static void thaiWordBreaks(const QChar *string, const int len, QCharAttributes *attributes)
 {
 #ifdef QT_NO_TEXTCODEC
@@ -3489,14 +3494,17 @@ static void thaiWordBreaks(const QChar *string, const int len, QCharAttributes *
         delete [] break_positions;
 #endif // QT_NO_TEXTCODEC
 }
+#endif
 
 
+#if defined(Q_WS_X11) || defined(Q_WS_QWS)
 static void thai_attributes( int script, const QString &text, int from, int len, QCharAttributes *attributes )
 {
     Q_UNUSED(script);
     Q_ASSERT(script == QUnicodeTables::Thai);
     thaiWordBreaks(text.unicode() + from, len, attributes);
 }
+#endif
 
 
 
@@ -3634,6 +3642,7 @@ static bool tibetan_shape_syllable(QOpenType *openType, QShaperItem *item, bool 
 #endif
 
 
+#if defined(Q_WS_X11) || defined(Q_WS_QWS)
 static int tibetan_nextSyllableBoundary(const QString &s, int start, int end, bool *invalid)
 {
     const QChar *uc = s.unicode() + start;
@@ -3677,6 +3686,7 @@ finish:
     *invalid = false;
     return start+pos;
 }
+#endif
 
 #if defined(Q_WS_X11) || defined(Q_WS_QWS)
 static bool tibetan_shape(QShaperItem *item)
@@ -3721,6 +3731,7 @@ static bool tibetan_shape(QShaperItem *item)
 }
 #endif
 
+#if defined(Q_WS_X11) || defined(Q_WS_QWS)
 static void tibetan_attributes(int script, const QString &text, int from, int len, QCharAttributes *attributes)
 {
     Q_UNUSED(script);
@@ -3745,6 +3756,7 @@ static void tibetan_attributes(int script, const QString &text, int from, int le
         Q_ASSERT(i == boundary);
     }
 }
+#endif
 
 // --------------------------------------------------------------------------------------------------------------------------------------------
 //
@@ -4355,6 +4367,7 @@ static bool khmer_shape(QShaperItem *item)
 }
 #endif
 
+#if defined(Q_WS_MAC) || defined(Q_WS_X11) || defined(Q_WS_QWS)
 static void khmer_attributes( int script, const QString &text, int from, int len, QCharAttributes *attributes )
 {
     Q_UNUSED(script);
@@ -4379,6 +4392,7 @@ static void khmer_attributes( int script, const QString &text, int from, int len
 	Q_ASSERT( i == boundary );
     }
 }
+#endif
 
 
 // --------------------------------------------------------------------------------------------------------------------------------------------
@@ -4609,6 +4623,7 @@ static const QOpenType::Features myanmar_features[] = {
 // This means that we can keep the logical order apart from having to
 // move the pre vowel, medial ra and kinzi
 
+#if defined(Q_WS_X11) || defined(Q_WS_QWS)
 static bool myanmar_shape_syllable(QOpenType *openType, QShaperItem *item, bool invalid)
 {
 #ifndef QT_NO_OPENTYPE
@@ -4815,7 +4830,9 @@ static bool myanmar_shape_syllable(QOpenType *openType, QShaperItem *item, bool 
     item->glyphs[0].attributes.clusterStart = true;
     return true;
 }
+#endif
 
+#if defined(Q_WS_X11) || defined(Q_WS_QWS)
 static bool myanmar_shape(QShaperItem *item)
 {
     Q_ASSERT(item->script == QUnicodeTables::Myanmar);
@@ -4865,7 +4882,9 @@ static bool myanmar_shape(QShaperItem *item)
     item->num_glyphs = first_glyph;
     return true;
 }
+#endif
 
+#if defined(Q_WS_X11) || defined(Q_WS_QWS)
 static void myanmar_attributes(int script, const QString &text, int from, int len, QCharAttributes *attributes)
 {
     Q_UNUSED(script);
@@ -4893,6 +4912,7 @@ static void myanmar_attributes(int script, const QString &text, int from, int le
 	Q_ASSERT(i == boundary);
     }
 }
+#endif
 
 #endif
 // --------------------------------------------------------------------------------------------------------------------------------------------

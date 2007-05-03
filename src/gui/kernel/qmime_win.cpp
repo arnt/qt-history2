@@ -894,7 +894,7 @@ QVector<FORMATETC> QWindowsMimeImage::formatsForMime(const QString &mimeType, co
 QString QWindowsMimeImage::mimeForFormat(const FORMATETC &formatetc) const
 {
     int cf = getCf(formatetc);
-    if (cf == CF_DIB || cf == CF_DIBV5 || cf == CF_PNG)
+    if (cf == CF_DIB || cf == CF_DIBV5 || cf == int(CF_PNG))
        return QLatin1String("application/x-qt-image");
     return QString();
 }
@@ -1267,7 +1267,7 @@ QString QLastResortMimes::mimeForFormat(const FORMATETC &formatetc) const
             QString clipFormat = QString::fromLocal8Bit(ba.data(), len);
             if (QInternalMimeData::canReadData(clipFormat))
                 format = clipFormat;
-            else if((formatetc.cfFormat >= 0xC000) && (formatetc.cfFormat <= 0xFFFF)){
+            else if((formatetc.cfFormat >= 0xC000)){
                 //create the mime as custom. not registered.
                 if (!excludeList.contains(clipFormat, Qt::CaseInsensitive)) {
                     //check if this is a mime type

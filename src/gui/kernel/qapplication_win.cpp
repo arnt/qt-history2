@@ -311,8 +311,6 @@ static void        releaseAutoCapture();
 
 static void     unregWinClasses();
 
-static int        translateKeyCode(int);
-
 extern QCursor *qt_grab_cursor();
 
 #if defined(Q_WS_WIN)

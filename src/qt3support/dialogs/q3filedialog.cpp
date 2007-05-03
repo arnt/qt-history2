@@ -4955,11 +4955,6 @@ static QString getWindowsRegString(HKEY key, const QString &subKey)
     return s;
 }
 
-static void initPixmap(QPixmap &pm)
-{
-    pm.fill(Qt::white);
-}
-
 QPixmap fromHICON(HICON hIcon)
 {
     ICONINFO icoInfo;

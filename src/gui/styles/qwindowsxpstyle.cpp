@@ -812,7 +812,8 @@ void QWindowsXPStylePrivate::drawBackgroundThruNativeBuffer(XPThemeData &themeDa
 
         // Drawing the part into the backing store
         if (pDrawThemeBackgroundEx != 0) {
-            pDrawThemeBackgroundEx(themeData.handle(), dc, themeData.partId, themeData.stateId, &(themeData.toRECT(area)), &drawOptions);
+	    RECT rect(themeData.toRECT(area));
+            pDrawThemeBackgroundEx(themeData.handle(), dc, themeData.partId, themeData.stateId, &rect, &drawOptions);
         } else {
             // Set the clip region, if used..
             if (addBorderContentClipping) {

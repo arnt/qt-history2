@@ -747,6 +747,7 @@ static void match(int script, const QFontDef &request,
                   const QString &family_name, const QString &foundry_name, int force_encoding_id,
                   QtFontDesc *desc);
 
+#if defined(Q_WS_X11) || defined(Q_WS_QWS)
 static void initFontDef(const QtFontDesc &desc, const QFontDef &request, QFontDef *fontDef)
 {
     fontDef->family = desc.family->name;
@@ -772,6 +773,7 @@ static void initFontDef(const QtFontDesc &desc, const QFontDef &request, QFontDe
     fontDef->stretch       = desc.style->key.stretch;
     fontDef->ignorePitch   = false;
 }
+#endif
 #endif
 
 #if defined(Q_WS_X11) || defined(Q_WS_WIN)

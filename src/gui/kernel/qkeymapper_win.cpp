@@ -570,7 +570,9 @@ void QKeyMapperPrivate::clearMappings()
         }
     }
 
-    LCID newLCID = MAKELCID(GetKeyboardLayout(0), SORT_DEFAULT);
+    /* MAKELCID()'s first argument is a WORD, and GetKeyboardLayout()
+     * returns a DWORD. */
+    LCID newLCID = MAKELCID(DWORD(GetKeyboardLayout(0)), SORT_DEFAULT);
     keyboardInputLocale = qt_localeFromLCID(newLCID);
 
     bool bidi = false;
@@ -720,7 +722,7 @@ bool QKeyMapperPrivate::isADeadKey(unsigned int vk_key, unsigned int modifiers)
 {
     if (keyLayout && (vk_key < 256) && keyLayout[vk_key]) {
         for(register int i = 0; i < 9; ++i) {
-            if (ModsTbl[i] == modifiers)
+            if (uint(ModsTbl[i]) == modifiers)
                 return bool(keyLayout[vk_key]->deadkeys & 1<<i);
         }
     }
@@ -735,7 +737,7 @@ QList<int> QKeyMapperPrivate::possibleKeys(QKeyEvent *e)
     if(!kbItem)
         return result;
 
-    int baseKey = kbItem->qtKey[0];
+    quint32 baseKey = kbItem->qtKey[0];
     Qt::KeyboardModifiers keyMods = e->modifiers();
     if (baseKey == Qt::Key_Return && (e->nativeModifiers() & ExtendedKey)) {
         result << int(Qt::Key_Enter + keyMods);

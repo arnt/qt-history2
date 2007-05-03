@@ -160,7 +160,7 @@ void qt_adopted_thread_watcher_function(void *)
             } while (ret == WAIT_TIMEOUT);
         }
 
-        if (ret == WAIT_FAILED || !(ret >= WAIT_OBJECT_0 && ret < WAIT_OBJECT_0 + count)) {
+        if (ret == WAIT_FAILED || !(ret >= WAIT_OBJECT_0 && ret < WAIT_OBJECT_0 + uint(count))) {
             qWarning("QThread internal error while waiting for adopted threads: %d", int(GetLastError()));
             continue;
         }

@@ -123,62 +123,6 @@ static int mapPaperSourceDevmode(QPrinter::PaperSource s)
     return sources[i].winSourceName ? sources[i].winSourceName : s;
 }
 
-static BITMAPINFO *getWindowsBITMAPINFO( const QImage &image )
-{
-    int w, h, depth, ncols=2;
-
-    w = image.width();
-    h = image.height();
-    depth = image.depth();
-
-    if ( w == 0 || h == 0 || depth == 0 )           // invalid image or pixmap
-        return 0;
-
-    if ( depth > 1 && depth <= 8 ) {                    // set to nearest valid depth
-        depth = 8;                                  //   2..7 ==> 8
-        ncols = 256;
-    }
-    else if ( depth > 8 ) {
-        // some windows printer drivers on 95/98 can't handle 32 bit DIBs,
-        // so we have to use 24 bits in that case.
-        if ( QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based )
-            depth = 24;
-        else
-            depth = 32;
-        ncols = 0;
-    }
-
-    int   bpl = ((w*depth+31)/32)*4;                // bytes per line
-    int   bmi_len = sizeof(BITMAPINFO)+sizeof(RGBQUAD)*ncols;
-    char *bmi_data = (char *)malloc( bmi_len );
-    memset( bmi_data, 0, bmi_len );
-    BITMAPINFO       *bmi = (BITMAPINFO*)bmi_data;
-    BITMAPINFOHEADER *bmh = (BITMAPINFOHEADER*)bmi;
-    bmh->biSize           = sizeof(BITMAPINFOHEADER);
-    bmh->biWidth          = w;
-    bmh->biHeight         = h;
-    bmh->biPlanes         = 1;
-    bmh->biBitCount       = depth;
-    bmh->biCompression    = BI_RGB;
-    bmh->biSizeImage      = bpl*h;
-    bmh->biClrUsed        = ncols;
-    bmh->biClrImportant   = 0;
-
-    if ( ncols > 0  && !image.isNull()) {       // image with color map
-        RGBQUAD *r = (RGBQUAD*)(bmi_data + sizeof(BITMAPINFOHEADER));
-        ncols = qMin(ncols,image.numColors());
-        for ( int i=0; i<ncols; i++ ) {
-            QColor c = image.color(i);
-            r[i].rgbRed = c.red();
-            r[i].rgbGreen = c.green();
-            r[i].rgbBlue = c.blue();
-            r[i].rgbReserved = 0;
-        }
-    }
-
-    return bmi;
-}
-
 QAlphaPaintEngine::QAlphaPaintEngine(QAlphaPaintEnginePrivate &data, PaintEngineFeatures devcaps)
     : QPaintEngine(data, devcaps)
 {
@@ -462,10 +406,10 @@ QAlphaPaintEnginePrivate::QAlphaPaintEnginePrivate()
         m_pic(0),
         m_picengine(0),
         m_picpainter(0),
+        m_hasalpha(false),
         m_alphaPen(false),
         m_alphaBrush(false),
         m_alphaOpacity(false),
-        m_hasalpha(false),
         m_advancedPen(false),
         m_advancedBrush(false),
         m_complexTransform(false)
@@ -493,10 +437,10 @@ QRectF QAlphaPaintEnginePrivate::addPenWidth(const QRectF &rect)
 QRect QAlphaPaintEnginePrivate::toRect(const QRectF &rect) const
 {
     QRect r;
-    r.setLeft(rect.left());
-    r.setTop(rect.top());
-    r.setRight(rect.right() + 1);
-    r.setBottom(rect.bottom() + 1);
+    r.setLeft(int(rect.left()));
+    r.setTop(int(rect.top()));
+    r.setRight(int(rect.right() + 1));
+    r.setBottom(int(rect.bottom() + 1));
     return r;
 }
 
@@ -517,24 +461,24 @@ void QAlphaPaintEnginePrivate::drawAlphaImage(const QRectF &rect)
     QTransform picscale;
     picscale.scale(xscale, yscale);
 
-    QSize size((rect.width() * xscale), (rect.height() * yscale));
+    QSize size((int(rect.width() * xscale)), int(rect.height() * yscale));
     int divw = (size.width() / 1024);
     int divh = (size.height() / 1024);
     divw += 1;
     divh += 1;
 
-    int incx = rect.width() / divw;
-    int incy = rect.height() / divh;
+    int incx = int(rect.width() / divw);
+    int incy = int(rect.height() / divh);
 
     for (int y=0; y<divh; ++y) {
-        int ypos = (incy * y) + rect.y();
-        int height = ( (y == (divh - 1)) ? (rect.height() - (incy * y)) : incy ) + 1;
+        int ypos = int((incy * y) + rect.y());
+        int height = int((y == (divh - 1)) ? (rect.height() - (incy * y)) : incy) + 1;
 
         for (int x=0; x<divw; ++x) {
-            int xpos = (incx * x) + rect.x();
-            int width = ( (x == (divw - 1)) ? (rect.width() - (incx * x)) : incx ) + 1;
+            int xpos = int((incx * x) + rect.x());
+            int width = int((x == (divw - 1)) ? (rect.width() - (incx * x)) : incx) + 1;
 
-            QSize imgsize(width * xscale, height * yscale);
+            QSize imgsize(int(width * xscale), int(height * yscale));
             QImage img(imgsize, QImage::Format_ARGB32_Premultiplied);
             img.fill(0xffffffff);
 
@@ -859,16 +803,16 @@ int QWin32PrintEngine::metric(QPaintDevice::PaintDeviceMetric m) const
               * GetDeviceCaps(d->hdc, d->fullPage ? PHYSICALWIDTH : HORZRES)
               / GetDeviceCaps(d->hdc, LOGPIXELSX);
         if (d->pageMarginsSet)
-            val -= mmToInches(d->previousDialogMargins.left() +
-                              d->previousDialogMargins.width());
+            val -= int(mmToInches(d->previousDialogMargins.left() +
+                                  d->previousDialogMargins.width()));
         break;
     case QPaintDevice::PdmHeight:
         val = res
               * GetDeviceCaps(d->hdc, d->fullPage ? PHYSICALHEIGHT : VERTRES)
               / GetDeviceCaps(d->hdc, LOGPIXELSY);
         if (d->pageMarginsSet)
-            val -= mmToInches(d->previousDialogMargins.top() +
-                              d->previousDialogMargins.height());
+            val -= int(mmToInches(d->previousDialogMargins.top() +
+                                  d->previousDialogMargins.height()));
         break;
     case QPaintDevice::PdmDpiX:
         val = res;
@@ -1060,10 +1004,10 @@ void QWin32PrintEngine::drawPixmap(const QRectF &targetRect,
     }
 
     QPointF topLeft = r.topLeft() * d->painterMatrix;
-    int tx = topLeft.x() * d->stretch_x + d->origin_x;
-    int ty = topLeft.y() * d->stretch_y + d->origin_y;
-    int tw = pixmap.width() * scaleX;
-    int th = pixmap.height() * scaleY;
+    int tx = int(topLeft.x() * d->stretch_x + d->origin_x);
+    int ty = int(topLeft.y() * d->stretch_y + d->origin_y);
+    int tw = int(pixmap.width() * scaleX);
+    int th = int(pixmap.height() * scaleY);
 
     xform_offset_x *= d->stretch_x;
     xform_offset_y *= d->stretch_y;
@@ -1132,29 +1076,29 @@ void QWin32PrintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pm, cons
         HGDIOBJ null_bitmap = SelectObject(hbitmap_hdc, hbitmap);
 
         QRectF trect = d->painterMatrix.mapRect(r);
-        int tx = trect.left() * d->stretch_x + d->origin_x;
-        int ty = trect.top() * d->stretch_y + d->origin_y;
+        int tx = int(trect.left() * d->stretch_x + d->origin_x);
+        int ty = int(trect.top() * d->stretch_y + d->origin_y);
 
-        int xtiles = (trect.width() / pm.width()) + 1;
-        int ytiles = (trect.height() / pm.height()) + 1;
-        int xinc = (pm.width() * d->stretch_x);
-        int yinc = (pm.height() * d->stretch_y);
+        int xtiles = int(trect.width() / pm.width()) + 1;
+        int ytiles = int(trect.height() / pm.height()) + 1;
+        int xinc = int(pm.width() * d->stretch_x);
+        int yinc = int(pm.height() * d->stretch_y);
 
         for (int y = 0; y < ytiles; ++y) {
             int ity = ty + (yinc * y);
             int ith = pm.height();
             if (y == (ytiles - 1)) {
-                ith = trect.height() - (pm.height() * y);
+                ith = int(trect.height() - (pm.height() * y));
             }
 
             for (int x = 0; x < xtiles; ++x) {
                 int itx = tx + (xinc * x);
                 int itw = pm.width();
                 if (x == (xtiles - 1)) {
-                    itw = trect.width() - (pm.width() * x);
+                    itw = int(trect.width() - (pm.width() * x));
                 }
 
-                if (!StretchBlt(d->hdc, itx, ity, itw * d->stretch_x, ith * d->stretch_y,
+                if (!StretchBlt(d->hdc, itx, ity, int(itw * d->stretch_x), int(ith * d->stretch_y),
                                 hbitmap_hdc, 0, 0, itw, ith, SRCCOPY))
                     qErrnoWarning("QWin32PrintEngine::drawPixmap, StretchBlt failed");
 

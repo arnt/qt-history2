@@ -197,7 +197,11 @@ QIcon QFileIconProviderPrivate::getWinIcon(const QFileInfo &fileInfo) const
         return retIcon;
     }
 
+    /* We don't use the variable, but by storing it statically, we
+     * ensure CoInitialize is only called once. */
     static HRESULT comInit = CoInitialize(NULL);
+    Q_UNUSED(comInit);
+
     SHFILEINFO info;
     unsigned long val = 0;
 
