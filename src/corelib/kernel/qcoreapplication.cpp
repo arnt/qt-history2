@@ -455,8 +455,15 @@ QCoreApplication::~QCoreApplication()
 
 
 /*!
-    Sets the attribute \a attribute  if \a on is true;
+    Sets the attribute \a attribute if \a on is true;
     otherwise clears the attribute.
+
+    One of the attributes that can be set with this method is
+    Qt::AA_ImmediateWidgetCreation. It tells Qt to create toplevel
+    windows immediately. Normally, resources for widgets are allocated
+    on demand to improve efficiency and minimize resource usage.
+    Therefore, if it is important to minimize resource consumption, do
+    not set this attribute.
 
     \sa testAttribute()
 */
