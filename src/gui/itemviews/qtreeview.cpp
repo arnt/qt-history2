@@ -2557,7 +2557,7 @@ void QTreeViewPrivate::beginAnimatedOperation()
     animatedOperation.after = renderTreeToPixmap(rect);
 
     timeline.stop();
-    timeline.setDuration(1000);
+    timeline.setDuration(250);
     timeline.setFrameRange(animatedOperation.top, animatedOperation.top + animatedOperation.duration);
     timeline.start();
 
