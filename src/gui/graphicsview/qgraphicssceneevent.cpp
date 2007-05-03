@@ -891,6 +891,7 @@ public:
     QPointF pos;
     QPointF scenePos;
     QPoint screenPos;
+    Qt::KeyboardModifiers modifiers;
 };
 
 /*!
@@ -983,6 +984,27 @@ void QGraphicsSceneHoverEvent::setScreenPos(const QPoint &pos)
 {
     Q_D(QGraphicsSceneHoverEvent);
     d->screenPos = pos;
+}
+
+/*!
+    Returns the keyboard modifiers at the moment the the hover event was sent.
+*/
+Qt::KeyboardModifiers QGraphicsSceneHoverEvent::modifiers() const
+{
+    Q_D(const QGraphicsSceneHoverEvent);
+    return d->modifiers;
+}
+
+/*!
+    \fn void QGraphicsSceneHoverEvent::setModifiers(Qt::KeyboardModifiers modifiers)
+    \internal
+
+    Sets the modifiers for the current hover event to \a modifiers.
+*/
+void QGraphicsSceneHoverEvent::setModifiers(Qt::KeyboardModifiers modifiers)
+{
+    Q_D(QGraphicsSceneHoverEvent);
+    d->modifiers = modifiers;
 }
 
 class QGraphicsSceneHelpEventPrivate : public QGraphicsSceneEventPrivate

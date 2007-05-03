@@ -735,6 +735,7 @@ void QGraphicsScenePrivate::sendHoverEvent(QEvent::Type type, QGraphicsItem *ite
     event.setPos(item->d_ptr->genericMapFromScene(hoverEvent->scenePos(), hoverEvent->widget()));
     event.setScenePos(hoverEvent->scenePos());
     event.setScreenPos(hoverEvent->screenPos());
+    event.setModifiers(hoverEvent->modifiers());
     sendEvent(item, &event);
 }
 
@@ -2510,6 +2511,7 @@ bool QGraphicsScene::event(QEvent *event)
             hover.setPos(mouseEvent->pos());
             hover.setScenePos(mouseEvent->scenePos());
             hover.setScreenPos(mouseEvent->screenPos());
+            hover.setModifiers(mouseEvent->modifiers());
             if (!d->dispatchHoverEvent(&hover))
                 mouseMoveEvent(static_cast<QGraphicsSceneMouseEvent *>(event));
         }
@@ -3017,6 +3019,7 @@ void QGraphicsScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *mouseEvent)
         hoverEvent.setPos(mouseEvent->pos());
         hoverEvent.setScenePos(mouseEvent->scenePos());
         hoverEvent.setScreenPos(mouseEvent->screenPos());
+        hoverEvent.setModifiers(mouseEvent->modifiers());
         QCoreApplication::sendEvent(this, &hoverEvent);
     }
 }

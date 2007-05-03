@@ -165,6 +165,9 @@ public:
     QPoint screenPos() const;
     void setScreenPos(const QPoint &pos);
 
+    Qt::KeyboardModifiers modifiers() const;
+    void setModifiers(Qt::KeyboardModifiers modifiers);
+
 private:
     Q_DECLARE_PRIVATE(QGraphicsSceneHoverEvent)
 };
