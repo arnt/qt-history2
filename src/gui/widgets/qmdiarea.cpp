@@ -458,6 +458,7 @@ QMdiAreaPrivate::QMdiAreaPrivate()
       isActivated(false),
       isSubWindowsTiled(false),
       showActiveWindowMaximized(false),
+      tileCalledFromResizeEvent(false),
       indexToNextWindow(-1),
       indexToPreviousWindow(-1),
       resizeTimerId(-1)
@@ -486,6 +487,8 @@ void QMdiAreaPrivate::_q_deactivateAllWindows()
             showActiveWindowMaximized = child->isMaximized() && child->isVisible();
         if (showActiveWindowMaximized && child->isMaximized())
             child->showNormal();
+        if (child->isMinimized() && !child->isShaded() && !windowStaysOnTop(child))
+            child->lower();
         ignoreWindowStateChange = false;
         if (child->windowState() & Qt::WindowActive) {
             QEvent windowDeactivate(QEvent::WindowDeactivate);
@@ -630,8 +633,11 @@ void QMdiAreaPrivate::rearrange(Rearranger *rearranger)
         if (!sanityCheck(child, "QMdiArea::rearrange") || !child->isVisible())
             continue;
         if (rearranger->type() == Rearranger::IconTiler) {
-            if (child->isMinimized() && !child->isShaded())
+            if (child->isMinimized() && !child->isShaded()) {
                 widgets.append(child);
+                if (!windowStaysOnTop(child))
+                    child->lower();
+            }
         } else {
             if (child->isMinimized() && !child->isShaded())
                 continue;
@@ -644,10 +650,10 @@ void QMdiAreaPrivate::rearrange(Rearranger *rearranger)
 
     if (active) {
         int indexToActive = widgets.indexOf((QWidget *)active);
-        if (indexToActive >= 0)
+        if (indexToActive >= 0) {
             widgets.move(indexToActive, widgets.size() - 1);
-        if (!active->isMinimized())
             internalRaise(active);
+        }
     }
 
     rearranger->rearrange(widgets, q->viewport()->rect());
@@ -841,11 +847,11 @@ void QMdiAreaPrivate::internalRaise(QMdiSubWindow *mdiChild) const
         return;
 
     QMdiSubWindow *stackUnderChild = 0;
-    if (!(mdiChild->windowFlags() & Qt::WindowStaysOnTopHint)) {
+    if (!windowStaysOnTop(mdiChild)) {
         foreach (QMdiSubWindow *child, childWindows) {
             if (!sanityCheck(child, "QMdiArea::internalRaise"))
                 continue;
-            if (!child->isHidden() && (child->windowFlags() & Qt::WindowStaysOnTopHint)) {
+            if (!child->isHidden() && windowStaysOnTop(child)) {
                 if (stackUnderChild)
                     child->stackUnder(stackUnderChild);
                 else
@@ -1027,7 +1033,7 @@ QList<QMdiSubWindow *> QMdiArea::subWindowList(WindowOrder order) const
             QMdiSubWindow *child = d->childWindows.at(d->indicesToStackedChildren.at(i));
             if (!sanityCheck(child, "QMdiArea::subWindowList"))
                 continue;
-            if (child->windowFlags() & Qt::WindowStaysOnTopHint)
+            if (d->windowStaysOnTop(child))
                 staysOnTopChildren.append(child);
             else
                 list.append(child);
@@ -1348,7 +1354,9 @@ void QMdiArea::resizeEvent(QResizeEvent *resizeEvent)
     // the geometry of the children, which in turn means 'isSubWindowsTiled'
     // is set to false, so we have to update the state at the end.
     if (d->isSubWindowsTiled) {
+        d->tileCalledFromResizeEvent = true;
         tileSubWindows();
+        d->tileCalledFromResizeEvent = false;
         d->isSubWindowsTiled = true;
         d->startResizeTimer();
         // We don't have scroll bars or any maximized views.
@@ -1480,10 +1488,13 @@ bool QMdiArea::viewportEvent(QEvent *event)
 void QMdiArea::scrollContentsBy(int dx, int dy)
 {
     Q_D(QMdiArea);
-    d->isSubWindowsTiled = false;
+    const bool wasSubWindowsTiled = d->isSubWindowsTiled;
     d->ignoreGeometryChange = true;
     viewport()->scroll(isLeftToRight() ? dx : -dx, dy);
+    d->arrangeMinimizedSubWindows();
     d->ignoreGeometryChange = false;
+    if (wasSubWindowsTiled)
+        d->isSubWindowsTiled = true;
 }
 
 /*!
@@ -1559,6 +1570,8 @@ bool QMdiArea::eventFilter(QObject *object, QEvent *event)
     switch (event->type()) {
     case QEvent::Move:
     case QEvent::Resize:
+        if (d->tileCalledFromResizeEvent)
+            break;
         d->updateScrollBars();
         if (!static_cast<QMdiSubWindow *>(object)->isMinimized())
             d->isSubWindowsTiled = false;

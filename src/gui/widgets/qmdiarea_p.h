@@ -127,6 +127,7 @@ public:
     bool isActivated;
     bool isSubWindowsTiled;
     bool showActiveWindowMaximized;
+    bool tileCalledFromResizeEvent;
     int indexToNextWindow;
     int indexToPreviousWindow;
     int resizeTimerId;
@@ -153,6 +154,13 @@ public:
         if (resizeTimerId > 0)
             q->killTimer(resizeTimerId);
         resizeTimerId = q->startTimer(200);
+    }
+
+    inline bool windowStaysOnTop(QMdiSubWindow *subWindow) const
+    {
+        if (!subWindow)
+            return false;
+        return subWindow->windowFlags() & Qt::WindowStaysOnTopHint;
     }
 };
 
