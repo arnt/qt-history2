@@ -891,6 +891,9 @@ public:
     QPointF pos;
     QPointF scenePos;
     QPoint screenPos;
+    QPointF lastPos;
+    QPointF lastScenePos;
+    QPoint lastScreenPos;
     Qt::KeyboardModifiers modifiers;
 };
 
@@ -984,6 +987,70 @@ void QGraphicsSceneHoverEvent::setScreenPos(const QPoint &pos)
 {
     Q_D(QGraphicsSceneHoverEvent);
     d->screenPos = pos;
+}
+
+/*!
+    Returns the last recorded mouse cursor position in item coordinates.
+
+    \sa lastScenePos(), lastScreenPos(), pos()
+*/
+QPointF QGraphicsSceneHoverEvent::lastPos() const
+{
+    Q_D(const QGraphicsSceneHoverEvent);
+    return d->lastPos;
+}
+
+/*!
+    \internal
+*/
+void QGraphicsSceneHoverEvent::setLastPos(const QPointF &pos)
+{
+    Q_D(QGraphicsSceneHoverEvent);
+    d->lastPos = pos;
+}
+
+/*!
+    Returns the last recorded, the scene coordinates of the previous mouse or
+    hover event received by the view, that created the event mouse cursor
+    position in scene coordinates.
+
+    \sa lastPos(), lastScreenPos(), scenePos()
+*/
+QPointF QGraphicsSceneHoverEvent::lastScenePos() const
+{
+    Q_D(const QGraphicsSceneHoverEvent);
+    return d->lastScenePos;
+}
+
+/*!
+    \internal
+*/
+void QGraphicsSceneHoverEvent::setLastScenePos(const QPointF &pos)
+{
+    Q_D(QGraphicsSceneHoverEvent);
+    d->lastScenePos = pos;
+}
+
+/*!
+    Returns the last recorded mouse cursor position in screen coordinates. The
+    last recorded position is the position of the previous mouse or hover
+    event received by the view that created the event.
+
+    \sa lastPos(), lastScenePos(), screenPos()
+*/
+QPoint QGraphicsSceneHoverEvent::lastScreenPos() const
+{
+    Q_D(const QGraphicsSceneHoverEvent);
+    return d->lastScreenPos;
+}
+
+/*!
+    \internal
+*/
+void QGraphicsSceneHoverEvent::setLastScreenPos(const QPoint &pos)
+{
+    Q_D(QGraphicsSceneHoverEvent);
+    d->lastScreenPos = pos;
 }
 
 /*!

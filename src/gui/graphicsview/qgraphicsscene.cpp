@@ -735,6 +735,9 @@ void QGraphicsScenePrivate::sendHoverEvent(QEvent::Type type, QGraphicsItem *ite
     event.setPos(item->d_ptr->genericMapFromScene(hoverEvent->scenePos(), hoverEvent->widget()));
     event.setScenePos(hoverEvent->scenePos());
     event.setScreenPos(hoverEvent->screenPos());
+    event.setLastPos(item->d_ptr->genericMapFromScene(hoverEvent->lastScenePos(), hoverEvent->widget()));
+    event.setLastScenePos(hoverEvent->lastScenePos());
+    event.setLastScreenPos(hoverEvent->lastScreenPos());
     event.setModifiers(hoverEvent->modifiers());
     sendEvent(item, &event);
 }
@@ -2511,6 +2514,9 @@ bool QGraphicsScene::event(QEvent *event)
             hover.setPos(mouseEvent->pos());
             hover.setScenePos(mouseEvent->scenePos());
             hover.setScreenPos(mouseEvent->screenPos());
+            hover.setLastPos(mouseEvent->lastPos());
+            hover.setLastScenePos(mouseEvent->lastScenePos());
+            hover.setLastScreenPos(mouseEvent->lastScreenPos());
             hover.setModifiers(mouseEvent->modifiers());
             if (!d->dispatchHoverEvent(&hover))
                 mouseMoveEvent(static_cast<QGraphicsSceneMouseEvent *>(event));
@@ -2894,7 +2900,9 @@ void QGraphicsScenePrivate::leaveScene()
     if (senderWidget) {
         QPoint cursorPos = QCursor::pos();
         hoverEvent.setScenePos(senderWidget->mapToScene(senderWidget->mapFromGlobal(cursorPos)));
+        hoverEvent.setLastScenePos(hoverEvent.scenePos());
         hoverEvent.setScreenPos(cursorPos);
+        hoverEvent.setLastScreenPos(hoverEvent.screenPos());
     }
 
     while (!hoverItems.isEmpty()) {
@@ -3019,6 +3027,9 @@ void QGraphicsScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *mouseEvent)
         hoverEvent.setPos(mouseEvent->pos());
         hoverEvent.setScenePos(mouseEvent->scenePos());
         hoverEvent.setScreenPos(mouseEvent->screenPos());
+        hoverEvent.setLastPos(mouseEvent->lastPos());
+        hoverEvent.setLastScenePos(mouseEvent->lastScenePos());
+        hoverEvent.setLastScreenPos(mouseEvent->lastScreenPos());
         hoverEvent.setModifiers(mouseEvent->modifiers());
         QCoreApplication::sendEvent(this, &hoverEvent);
     }

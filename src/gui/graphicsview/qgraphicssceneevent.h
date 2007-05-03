@@ -165,6 +165,15 @@ public:
     QPoint screenPos() const;
     void setScreenPos(const QPoint &pos);
 
+    QPointF lastPos() const;
+    void setLastPos(const QPointF &pos);
+
+    QPointF lastScenePos() const;
+    void setLastScenePos(const QPointF &pos);
+
+    QPoint lastScreenPos() const;
+    void setLastScreenPos(const QPoint &pos);
+
     Qt::KeyboardModifiers modifiers() const;
     void setModifiers(Qt::KeyboardModifiers modifiers);
 
