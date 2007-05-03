@@ -1421,11 +1421,11 @@ enum Action {
     NoAction,
     AddWhiteSpace,
     AddTemp,
-    Error
+    ErrorState
 };
 
 const Action state_table[3][3] = {
-    { Error, Error, Error },
+    { ErrorState, ErrorState, ErrorState },
     { NoAction, NoAction, AddTemp },
     { NoAction, AddWhiteSpace, NoAction },
 };
@@ -1537,7 +1537,7 @@ void QTextLine::layout_helper(int maxGlyphs)
             break;
         case AddWhiteSpace:
             break;
-        case Error:
+        case ErrorState:
             Q_ASSERT(false);
             break;
         case AddTemp:
