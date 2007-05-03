@@ -45,81 +45,82 @@
 #ifdef QT_SHARED
 // **************** Shared declarations ******************
 // ret func(arg)
-#  define DEFINEFUNC(ret, func, arg, a, err)				\
+#  define DUMMYARG
+#  define DEFINEFUNC(ret, func, arg, a, err, funcret)				\
     typedef ret (*_q_PTR_##func)(arg);					\
     static _q_PTR_##func _q_##func = 0;					\
     ret q_##func(arg) {						\
-        if (_q_##func) return _q_##func(a);				\
+        if (_q_##func) funcret _q_##func(a);				\
         qWarning("QSslSocket: cannot call unresolved function "#func);	\
         err;								\
     }
 
 // ret func(arg1, arg2)
-#  define DEFINEFUNC2(ret, func, arg1, a, arg2, b, err) \
+#  define DEFINEFUNC2(ret, func, arg1, a, arg2, b, err, funcret) \
     typedef ret (*_q_PTR_##func)(arg1, arg2);         \
     static _q_PTR_##func _q_##func = 0;               \
     ret q_##func(arg1, arg2) { \
-        if (_q_##func) return _q_##func(a, b); \
+        if (_q_##func) funcret _q_##func(a, b); \
         qWarning("QSslSocket: cannot call unresolved function "#func);\
         err; \
     }
 
 // ret func(arg1, arg2, arg3)
-#  define DEFINEFUNC3(ret, func, arg1, a, arg2, b, arg3, c, err) \
+#  define DEFINEFUNC3(ret, func, arg1, a, arg2, b, arg3, c, err, funcret) \
     typedef ret (*_q_PTR_##func)(arg1, arg2, arg3);            \
     static _q_PTR_##func _q_##func = 0;                        \
     ret q_##func(arg1, arg2, arg3) { \
-        if (_q_##func) return _q_##func(a, b, c); \
+        if (_q_##func) funcret _q_##func(a, b, c); \
         qWarning("QSslSocket: cannot call unresolved function "#func); \
         err; \
     }
 
 // ret func(arg1, arg2, arg3, arg4)
-#  define DEFINEFUNC4(ret, func, arg1, a, arg2, b, arg3, c, arg4, d, err) \
+#  define DEFINEFUNC4(ret, func, arg1, a, arg2, b, arg3, c, arg4, d, err, funcret) \
     typedef ret (*_q_PTR_##func)(arg1, arg2, arg3, arg4);               \
     static _q_PTR_##func _q_##func = 0;                                 \
     ret q_##func(arg1, arg2, arg3, arg4) { \
-         if (_q_##func) return _q_##func(a, b, c, d); \
+         if (_q_##func) funcret _q_##func(a, b, c, d); \
          qWarning("QSslSocket: cannot call unresolved function "#func); \
          err; \
     }
 
 // ret func(arg1, arg2, arg3, arg4, arg5)
-#  define DEFINEFUNC5(ret, func, arg1, a, arg2, b, arg3, c, arg4, d, arg5, e, err) \
+#  define DEFINEFUNC5(ret, func, arg1, a, arg2, b, arg3, c, arg4, d, arg5, e, err, funcret) \
     typedef ret (*_q_PTR_##func)(arg1, arg2, arg3, arg4, arg5);         \
     static _q_PTR_##func _q_##func = 0;                                 \
     ret q_##func(arg1, arg2, arg3, arg4, arg5) { \
-        if (_q_##func) return _q_##func(a, b, c, d, e); \
+        if (_q_##func) funcret _q_##func(a, b, c, d, e); \
         qWarning("QSslSocket: cannot call unresolved function "#func); \
         err; \
     }
 
 // ret func(arg1, arg2, arg3, arg4, arg6)
-#  define DEFINEFUNC6(ret, func, arg1, a, arg2, b, arg3, c, arg4, d, arg5, e, arg6, f, err) \
+#  define DEFINEFUNC6(ret, func, arg1, a, arg2, b, arg3, c, arg4, d, arg5, e, arg6, f, err, funcret) \
     typedef ret (*_q_PTR_##func)(arg1, arg2, arg3, arg4, arg5, arg6);   \
     static _q_PTR_##func _q_##func = 0;                                 \
     ret q_##func(arg1, arg2, arg3, arg4, arg5, arg6) { \
-        if (_q_##func) return _q_##func(a, b, c, d, e, f); \
+        if (_q_##func) funcret _q_##func(a, b, c, d, e, f); \
         qWarning("QSslSocket: cannot call unresolved function "#func); \
         err; \
     }
 
 // ret func(arg1, arg2, arg3, arg4, arg6, arg7)
-#  define DEFINEFUNC7(ret, func, arg1, a, arg2, b, arg3, c, arg4, d, arg5, e, arg6, f, arg7, g, err) \
+#  define DEFINEFUNC7(ret, func, arg1, a, arg2, b, arg3, c, arg4, d, arg5, e, arg6, f, arg7, g, err, funcret) \
     typedef ret (*_q_PTR_##func)(arg1, arg2, arg3, arg4, arg5, arg6, arg7);   \
     static _q_PTR_##func _q_##func = 0;                                       \
     ret q_##func(arg1, arg2, arg3, arg4, arg5, arg6, arg7) { \
-        if (_q_##func) return _q_##func(a, b, c, d, e, f, g); \
+        if (_q_##func) funcret _q_##func(a, b, c, d, e, f, g); \
         qWarning("QSslSocket: cannot call unresolved function "#func); \
         err; \
     }
 
 // ret func(arg1, arg2, arg3, arg4, arg6, arg7, arg8, arg9)
-#  define DEFINEFUNC9(ret, func, arg1, a, arg2, b, arg3, c, arg4, d, arg5, e, arg6, f, arg7, g, arg8, h, arg9, i, err) \
+#  define DEFINEFUNC9(ret, func, arg1, a, arg2, b, arg3, c, arg4, d, arg5, e, arg6, f, arg7, g, arg8, h, arg9, i, err, funcret) \
     typedef ret (*_q_PTR_##func)(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);   \
     static _q_PTR_##func _q_##func = 0;                                                   \
     ret q_##func(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9) { \
-        if (_q_##func) return _q_##func(a, b, c, d, e, f, g, h, i); \
+        if (_q_##func) funcret _q_##func(a, b, c, d, e, f, g, h, i); \
         qWarning("QSslSocket: cannot call unresolved function "#func); \
         err; \
     }
@@ -130,36 +131,36 @@
 // **************** Static declarations ******************
 
 // ret func(arg)
-#  define DEFINEFUNC(ret, func, arg, a, err)				\
-    ret q_##func(arg) {	return func(a); }
+#  define DEFINEFUNC(ret, func, arg, a, err, funcret)				\
+    ret q_##func(arg) {	funcret func(a); }
 
 // ret func(arg1, arg2)
-#  define DEFINEFUNC2(ret, func, arg1, a, arg2, b, err) \
-    ret q_##func(arg1, arg2) { return func(a, b); }
+#  define DEFINEFUNC2(ret, func, arg1, a, arg2, b, err, funcret) \
+    ret q_##func(arg1, arg2) { funcret func(a, b); }
 
 // ret func(arg1, arg2, arg3)
-#  define DEFINEFUNC3(ret, func, arg1, a, arg2, b, arg3, c, err) \
-    ret q_##func(arg1, arg2, arg3) { return func(a, b, c); }
+#  define DEFINEFUNC3(ret, func, arg1, a, arg2, b, arg3, c, err, funcret) \
+    ret q_##func(arg1, arg2, arg3) { funcret func(a, b, c); }
 
 // ret func(arg1, arg2, arg3, arg4)
-#  define DEFINEFUNC4(ret, func, arg1, a, arg2, b, arg3, c, arg4, d, err) \
-    ret q_##func(arg1, arg2, arg3, arg4) { return func(a, b, c, d); }
+#  define DEFINEFUNC4(ret, func, arg1, a, arg2, b, arg3, c, arg4, d, err, funcret) \
+    ret q_##func(arg1, arg2, arg3, arg4) { funcret func(a, b, c, d); }
 
 // ret func(arg1, arg2, arg3, arg4, arg5)
-#  define DEFINEFUNC5(ret, func, arg1, a, arg2, b, arg3, c, arg4, d, arg5, e, err) \
-    ret q_##func(arg1, arg2, arg3, arg4, arg5) { return func(a, b, c, d, e); }
+#  define DEFINEFUNC5(ret, func, arg1, a, arg2, b, arg3, c, arg4, d, arg5, e, err, funcret) \
+    ret q_##func(arg1, arg2, arg3, arg4, arg5) { funcret func(a, b, c, d, e); }
 
 // ret func(arg1, arg2, arg3, arg4, arg6)
-#  define DEFINEFUNC6(ret, func, arg1, a, arg2, b, arg3, c, arg4, d, arg5, e, arg6, f, err) \
-    ret q_##func(arg1, arg2, arg3, arg4, arg5, arg6) { return func(a, b, c, d, e, f); }
+#  define DEFINEFUNC6(ret, func, arg1, a, arg2, b, arg3, c, arg4, d, arg5, e, arg6, f, err, funcret) \
+    ret q_##func(arg1, arg2, arg3, arg4, arg5, arg6) { funcret func(a, b, c, d, e, f); }
 
 // ret func(arg1, arg2, arg3, arg4, arg6, arg7)
-#  define DEFINEFUNC7(ret, func, arg1, a, arg2, b, arg3, c, arg4, d, arg5, e, arg6, f, arg7, g, err) \
-    ret q_##func(arg1, arg2, arg3, arg4, arg5, arg6, arg7) { return func(a, b, c, d, e, f, g); }
+#  define DEFINEFUNC7(ret, func, arg1, a, arg2, b, arg3, c, arg4, d, arg5, e, arg6, f, arg7, g, err, funcret) \
+    ret q_##func(arg1, arg2, arg3, arg4, arg5, arg6, arg7) { funcret func(a, b, c, d, e, f, g); }
 
 // ret func(arg1, arg2, arg3, arg4, arg6, arg7, arg8, arg9)
-#  define DEFINEFUNC9(ret, func, arg1, a, arg2, b, arg3, c, arg4, d, arg5, e, arg6, f, arg7, g, arg8, h, arg9, i, err) \
-    ret q_##func(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9) { return func(a, b, c, d, e, f, g, h, i); }
+#  define DEFINEFUNC9(ret, func, arg1, a, arg2, b, arg3, c, arg4, d, arg5, e, arg6, f, arg7, g, arg8, h, arg9, i, err, funcret) \
+    ret q_##func(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9) { funcret func(a, b, c, d, e, f, g, h, i); }
 
 // **************** Static declarations ******************
 
