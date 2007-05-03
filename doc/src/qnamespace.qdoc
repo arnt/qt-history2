@@ -88,20 +88,27 @@
 /*!
     \enum Qt::ApplicationAttribute
 
-    This enum describes attributes that change the behavior of application-wide
-    features. These are enabled and disabled using QCoreApplication::setAttribute(),
-    and can be tested for with QCoreApplication::testAttribute().
+    This enum describes attributes that change the behavior of
+    application-wide features. These are enabled and disabled using
+    QCoreApplication::setAttribute(), and can be tested for with
+    QCoreApplication::testAttribute().
 
-    \value AA_ImmediateWidgetCreation Ensures that widgets are created as soon as
-           they are constructed. By default, resources for widgets are allocated on
-           demand to improve efficiency and minimize resource usage. Setting or clearing
-           this attribute will influence widgets constructed after the change.
+    \value AA_ImmediateWidgetCreation Ensures that widgets are created
+           as soon as they are constructed. By default, resources for
+           widgets are allocated on demand to improve efficiency and
+           minimize resource usage. Setting or clearing this attribute
+           affects widgets constructed after the change. Setting it
+           tells Qt to create toplevel windows immediately.
+           Therefore, if it is important to minimize resource
+           consumption, do not set this attribute.
 
-    \value AA_MSWindowsUseDirect3DByDefault Is a Windows specific attribute, that
-           will make the Direct3D paint engine the default Qt widget paint engine.
-           Note that you can toggle usage of the Direct3D engine on individual
-           QWidgets by setting/clearing the \c WA_MSWindowsUseDirect3D attribute
-           on a specific widget. \bold {This functionality is experimental}.
+    \value AA_MSWindowsUseDirect3DByDefault Is a Windows specific
+           attribute, that will make the Direct3D paint engine the
+           default Qt widget paint engine.  Note that you can toggle
+           usage of the Direct3D engine on individual QWidgets by
+           setting/clearing the \c WA_MSWindowsUseDirect3D attribute
+           on a specific widget. \bold {This functionality is
+           experimental}.
     
     \omitvalue AA_AttributeCount
 */
