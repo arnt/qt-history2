@@ -83,8 +83,8 @@ void QVNCCursor::move(int x, int y)
 #endif // QT_NO_QWS_CURSOR
 
 QVNCScreenPrivate::QVNCScreenPrivate(QVNCScreen *parent)
-    : doOnScreenSurface(false), refreshRate(25), vncServer(0),
-      subscreen(0), q_ptr(parent)
+    : dpiX(72), dpiY(72), doOnScreenSurface(false), refreshRate(25),
+      vncServer(0), subscreen(0), q_ptr(parent)
 {
 #ifndef QT_NO_QWS_MULTIPROCESS
     shm = 0;
@@ -130,6 +130,23 @@ void QVNCScreenPrivate::configure()
         q_ptr->lstep = (q_ptr->dw * q_ptr->d + 7) / 8;
         q_ptr->size = q_ptr->h * q_ptr->lstep;
         q_ptr->mapsize = q_ptr->size;
+        q_ptr->physWidth = qRound(q_ptr->dw * 25.4 / dpiX);
+        q_ptr->physHeight = qRound(q_ptr->dh * 25.4 / dpiY);
+
+        switch (q_ptr->d) {
+        case 1:
+            q_ptr->setPixelFormat(QImage::Format_Mono); //### LSB???
+            break;
+        case 8:
+            q_ptr->setPixelFormat(QImage::Format_Indexed8);
+            break;
+        case 16:
+            q_ptr->setPixelFormat(QImage::Format_RGB16);
+            break;
+        case 32:
+            q_ptr->setPixelFormat(QImage::Format_ARGB32_Premultiplied);
+            break;
+        }
 
 #ifndef QT_NO_QWS_MULTIPROCESS
         if (shm) {
@@ -1810,19 +1827,6 @@ bool QVNCScreen::connect(const QString &displaySpec)
     if (QScreenDriverFactory::keys().contains(driver, Qt::CaseInsensitive)) {
         const int id = getDisplayId(dspec);
         screen = qt_get_screen(id, dspec.toLatin1().constData());
-
-        QScreen::d = screen->depth();
-        QScreen::w = screen->width();
-        QScreen::h = screen->height();
-        QScreen::dw = screen->deviceWidth();
-        QScreen::dh = screen->deviceHeight();
-        QScreen::lstep = screen->linestep();
-        QScreen::data = screen->base();
-        QScreen::physWidth = screen->physicalWidth();
-        QScreen::physHeight = screen->physicalHeight();
-        setOffset(screen->offset());
-        setPixelFormat(screen->pixelFormat());
-
         d_ptr->subscreen = screen;
 
     } else { // create virtual screen
@@ -1861,60 +1865,29 @@ bool QVNCScreen::connect(const QString &displaySpec)
         }
 
         // Handle display physical size spec.
-        QRegExp mmWidthRx(QLatin1String("mmWidth=?(\\d+)"));
-        int dimIdxW = args.indexOf(mmWidthRx);
-        QRegExp mmHeightRx(QLatin1String("mmHeight=?(\\d+)"));
-        int dimIdxH = args.indexOf(mmHeightRx);
-        if (dimIdxW >= 0) {
-            mmWidthRx.exactMatch(args.at(dimIdxW));
-            physWidth = mmWidthRx.cap(1).toInt();
-            if (dimIdxH < 0)
-                physHeight = dh * physWidth / dw;
+        QRegExp mmWidthRegexp(QLatin1String("^mmWidth=?(\\d+)$"));
+        if (args.indexOf(mmWidthRegexp) != -1) {
+            const int mmWidth = mmWidthRegexp.cap(1).toInt();
+            if (mmWidth > 0)
+                d_ptr->dpiX = dw * 25.4 / mmWidth;
         }
-        if (dimIdxH >= 0) {
-            mmHeightRx.exactMatch(args.at(dimIdxH));
-            physHeight = mmHeightRx.cap(1).toInt();
-            if (dimIdxW < 0)
-                physWidth = dw * physHeight / dh;
+        QRegExp mmHeightRegexp(QLatin1String("^mmHeight=?(\\d+)$"));
+        if (args.indexOf(mmHeightRegexp) != -1) {
+            const int mmHeight = mmHeightRegexp.cap(1).toInt();
+            if (mmHeight > 0)
+                d_ptr->dpiY = dh * 25.4 / mmHeight;
         }
-        if (dimIdxW < 0 && dimIdxH < 0) {
-            const int dpi = 72;
-            physWidth = qRound(dw * 25.4 / dpi);
-            physHeight = qRound(dh * 25.4 / dpi);
-        }
-
-        lstep = (dw * d + 7) / 8;
-        size = h * lstep;
-        mapsize = size;
-
-        switch (d) {
-        case 1:
-            setPixelFormat(QImage::Format_Mono); //### LSB???
-            break;
-        case 8:
-            setPixelFormat(QImage::Format_Indexed8);
-            break;
-        case 16:
-            setPixelFormat(QImage::Format_RGB16);
-            break;
-        case 32:
-            setPixelFormat(QImage::Format_ARGB32_Premultiplied);
-            break;
+        QRegExp dpiRegexp(QLatin1String("^dpi=(\\d+)(?:,(\\d+))?$"));
+        if (args.indexOf(dpiRegexp) != -1) {
+            const qreal dpiX = dpiRegexp.cap(1).toFloat();
+            const qreal dpiY = dpiRegexp.cap(2).toFloat();
+            if (dpiX > 0)
+                d_ptr->dpiX = dpiX;
+            d_ptr->dpiY = (dpiY > 0 ? dpiY : dpiX);
         }
 
         QWSServer::setDefaultMouse("None");
         QWSServer::setDefaultKeyboard("None");
-
-#ifndef QT_NO_QWS_MULTIPROCESS
-        d_ptr->shm = new QSharedMemory(size, qws_qtePipeFilename(), displayId);
-        if (!d_ptr->shm->create())
-            qDebug("QVNCScreen could not create shared memory");
-        if (!d_ptr->shm->attach())
-            qDebug("QVNCScreen could not attach to shared memory");
-        QScreen::data = reinterpret_cast<uchar*>(d_ptr->shm->base());
-#else
-        QScreen::data = new uchar[size];
-#endif
     }
 
     d_ptr->configure();

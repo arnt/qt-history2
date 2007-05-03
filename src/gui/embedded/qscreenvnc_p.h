@@ -204,6 +204,8 @@ public:
     void setDirty(const QRect &rect, bool force = false);
     void configure();
 
+    qreal dpiX;
+    qreal dpiY;
     bool doOnScreenSurface;
     QVNCDirtyMap *dirty;
     int refreshRate;
