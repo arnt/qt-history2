@@ -197,6 +197,7 @@ private:
     typedef QHash<FontHandle, QString> FontPropertiesNameMap;
     typedef QHash<SizePolicyHandle, QString> SizePolicyNameMap;
 #else
+    typedef QMap<FontHandle, QString> FontPropertiesNameMap;
     typedef QMap<SizePolicyHandle, QString> SizePolicyNameMap;
 #endif
     FontPropertiesNameMap m_FontPropertiesNameMap;
