@@ -19,7 +19,7 @@ QAccessibleInterface *SliderPlugin::create(const QString &classname, QObject *ob
     QAccessibleInterface *interface = 0;
 
     if (classname == "QSlider" && object && object->isWidgetType())
-        interface = new QAccessibleInterface(classname, static_cast<QWidget *>(object));
+        interface = new AccessibleSlider(classname, static_cast<QWidget *>(object));
 
     return interface;
 }

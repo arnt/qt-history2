@@ -89,7 +89,7 @@ void DiagramScene::editorLostFocus(DiagramTextItem *item)
 
     if (item->toPlainText().isEmpty()) {
         removeItem(item);
-        delete item;
+        item->deleteLater();
     }
 }
 

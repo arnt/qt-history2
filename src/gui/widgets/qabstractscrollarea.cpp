@@ -70,13 +70,13 @@
     \endlist
 
     With a scroll bar policy of Qt::ScrollBarAsNeeded (the default),
-    QAbstractScrollArea shows scroll bars when those provide a non-zero
+    QAbstractScrollArea shows scroll bars when they provide a non-zero
     scrolling range, and hides them otherwise.
 
     The scroll bars and viewport should be updated whenever the viewport
-    receives a resize event or the size of the contents change.
+    receives a resize event or the size of the contents changes.
     The viewport also needs to be updated when the scroll bars
-    values changes. The initial values of the scroll bars is often
+    values change. The initial values of the scroll bars are often
     set when the area receives new contents. 
 
     We give a simple example, in which we have implemented a scroll area
