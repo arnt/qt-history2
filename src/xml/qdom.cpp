@@ -1069,8 +1069,8 @@ bool QDomImplementation::isNull()
    \value EncodingFromDocument The encoding is fetched from the document.
    \value EncodingFromTextStream The encoding is fetched from the QTextStream.
 
-   \sa save(QTextStream& str, int indent, EncodingPolicy encodingPolicy)
- */
+   See also the overload of the save() function that takes an EncodingPolicy.
+*/
 
 /*!
     \since 4.1
