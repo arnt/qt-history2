@@ -52,13 +52,17 @@ bool QMacPrintEngine::begin(QPaintDevice *dev)
             return false;
         }
     }
+    OSStatus status = noErr;
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
-    OSStatus status = d->suppressStatus ? PMSessionBeginCGDocumentNoDialog(d->session, d->settings, d->format)
-                                        : PMSessionBeginCGDocument(d->session, d->settings, d->format);
-#else
-    OSStatus status = d->suppressStatus ? PMSessionBeginDocumentNoDialog(d->session, d->settings, d->format)
-                                        : PMSessionBeginDocument(d->session, d->settings, d->format);
+    if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_4) {
+        status = d->suppressStatus ? PMSessionBeginCGDocumentNoDialog(d->session, d->settings, d->format)
+                                   : PMSessionBeginCGDocument(d->session, d->settings, d->format);
+    } else
 #endif
+    {
+        status = d->suppressStatus ? PMSessionBeginDocumentNoDialog(d->session, d->settings, d->format)
+                                   : PMSessionBeginDocument(d->session, d->settings, d->format);
+    }
     if (status != noErr) {
         d->state = QPrinter::Error;
         return false;
@@ -321,10 +325,13 @@ int QMacPrintEngine::metric(QPaintDevice::PaintDeviceMetric m) const
         if(PMSessionGetCurrentPrinter(d->session, &printer) == noErr) {
             PMResolution resolution;
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
-            PMPrinterGetOutputResolution(printer, d->settings, &resolution);
-#else
-            PMPrinterGetPrinterResolution(printer, kPMCurrentValue, &resolution);
+            if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_5) {
+                PMPrinterGetOutputResolution(printer, d->settings, &resolution);
+            } else
 #endif
+            {
+                PMPrinterGetPrinterResolution(printer, kPMCurrentValue, &resolution);
+            }
             val = (int)resolution.vRes;
             break;
         }
@@ -402,6 +409,24 @@ void QMacPrintEnginePrivate::initialize()
         formatOK = PMSessionValidatePageFormat(session, format, kPMDontWantBoolean) == noErr;
     }
 
+
+#ifndef Q_OS_MAC64
+    if (QSysInfo::MacintoshVersion < QSysInfo::MV_10_4) {
+        if(paintEngine->type() == QPaintEngine::CoreGraphics) {
+            CFStringRef strings[1] = { kPMGraphicsContextCoreGraphics };
+            QCFType<CFArrayRef> contextArray = CFArrayCreate(kCFAllocatorDefault,
+                    reinterpret_cast<const void **>(strings),
+                    1, &kCFTypeArrayCallBacks);
+            OSStatus err = PMSessionSetDocumentFormatGeneration(session, kPMDocumentFormatPDF,
+                    contextArray, 0);
+            if(err != noErr) {
+                qWarning("QMacPrintEngine::initialize: Cannot set format generation to PDF: %ld", err);
+                state = QPrinter::Error;
+            }
+        }
+    }
+#endif
+
     if (!settingsOK || !formatOK) {
         qWarning("QMacPrintEngine::initialize: Unable to initialize QPainter");
         state = QPrinter::Error;
@@ -429,12 +454,16 @@ bool QMacPrintEnginePrivate::newPage_helper()
     QRect paper = q->property(QPrintEngine::PPK_PaperRect).toRect();
 
     CGContextRef cgContext;
+    OSStatus err = noErr;
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
-    OSStatus err = PMSessionGetCGGraphicsContext(session, &cgContext);
-#else
-    OSStatus err = PMSessionGetGraphicsContext(session, kPMGraphicsContextCoreGraphics,
-                                               reinterpret_cast<void **>(&cgContext));
+    if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_4) {
+        err = PMSessionGetCGGraphicsContext(session, &cgContext);
+    } else
 #endif
+    {
+        err = PMSessionGetGraphicsContext(session, kPMGraphicsContextCoreGraphics,
+                                          reinterpret_cast<void **>(&cgContext));
+    }
     if(err != noErr) {
         qWarning("QMacPrintEngine::newPage: Cannot retrieve CoreGraphics context: %ld", long(err));
         state = QPrinter::Error;
@@ -594,11 +623,15 @@ void QMacPrintEngine::setProperty(PrintEnginePropertyKey key, const QVariant &va
         d->setPageSize(QPrinter::PageSize(value.toInt()));
         break;
     case PPK_PrinterName: {
+        OSStatus status = noErr;
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
-        OSStatus status = PMPrintSettingsSetJobName(d->settings, QCFString(value.toString()));
-#else
-        OSStatus status = PMSetJobNameCFString(d->settings, QCFString(value.toString()));
+        if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_4) {
+            status = PMPrintSettingsSetJobName(d->settings, QCFString(value.toString()));
+        } else
 #endif
+        {
+            status = PMSetJobNameCFString(d->settings, QCFString(value.toString()));
+        }
         if (status == noErr)
             qWarning("QMacPrintEngine::setPrinterName: Error setting printer: %ld", long(status));
         break; }
