@@ -241,7 +241,8 @@ Q_GLOBAL_STATIC(QSslSocketGlobalData, globalData)
 
 /*!
     Constructs a QSslSocket object. \a parent is passed to QObject's
-    constructor.
+    constructor. The new socket's \l {QSslCipher} {cipher} suite is
+    set to the one returned by the static method defaultCiphers().
 */
 QSslSocket::QSslSocket(QObject *parent)
     : QTcpSocket(*new QSslSocketBackendPrivate, parent)
@@ -296,11 +297,12 @@ QSslSocket::~QSslSocket()
         socket->write("1 CAPABILITY\r\n");
     \endcode
 
-    Note, in the example above, text can be written to the socket
-    immediately after requesting the encrypted connection, before the
-    encrypted() signal has been emitted. In such cases, the text is
-    queued in the object and written to the socket \e after the
-    connection is established and the encrypted() signal is emitted.
+    \bold{Note:} The example above shows that text can be written to
+    the socket immediately after requesting the encrypted connection,
+    before the encrypted() signal has been emitted. In such cases, the
+    text is queued in the object and written to the socket \e after
+    the connection is established and the encrypted() signal has been
+    emitted.
 
     The default for \a mode is \l ReadWrite.
 
@@ -622,14 +624,15 @@ QList<QSslCertificate> QSslSocket::peerCertificateChain() const
 }
 
 /*!
-    Returns the socket's current cryptographic \l {QSslCipher} {cipher},
-    or a null cipher if the
-    connection isn't encrypted. You can call this function to find information
-    about the cipher that is used to encrypt and decrypt all data transmitted
-    through this socket.
+    Returns the socket's cryptographic \l {QSslCipher} {cipher}, or a
+    null cipher if the connection isn't encrypted. The socket's cipher
+    is set during the handshake. It is used to encrypt and decrypt all
+    data transmitted through the socket during the session. 
 
-    QSslSocket also provides functions for selecting which ciphers should be
-    used for encrypting data.
+    QSslSocket also provides functions for setting the ordered list
+    of ciphers from which the handshake will select the cipher that
+    will be used for encrypting and decrypting data. The list of
+    ciphers must be set before the handshake phase.
 
     \sa ciphers(), setCiphers(), setDefaultCiphers(), defaultCiphers(),
     supportedCiphers()
@@ -641,11 +644,15 @@ QSslCipher QSslSocket::sessionCipher() const
 }
 
 /*!
-    Sets the socket's private key to \a key. The private key and local
-    certificate are used by clients or servers that need to prove their
-    identity to the peer. This key and the local certificate are necessary for
-    all SSL server sockets, but are rarely also used by clients that need to
-    authenticate against a server.
+    Sets the socket's private \l {QSslKey} {key} to \a key. The
+    private key and the local \l {QSslCertificate} {certificate} are
+    used by clients and servers that must prove their identity to
+    SSL peers.
+
+    Both the key and the local certificate are required if you are
+    creating an SSL server socket. If you are creating an SSL client
+    socket, the key and local certificate are required if your client
+    must identify itself to an SSL server.
 
     \sa privateKey(), setLocalCertificate()
 */
@@ -658,20 +665,36 @@ void QSslSocket::setPrivateKey(const QSslKey &key)
 /*!
     \overload
 
-    Loads the private key at \a fileName, using \a algorithm and \a format. If
-    the key is encrypted, \a passPhrase will be passed to decrypt the key.
+    Reads the string in file \a fileName and decodes it using
+    a specified \a algorithm and encoding \a format to construct
+    an \l {QSslKey} {SSL key}. If the encoded key is encrypted,
+    \a passPhrase is used to decrypt it.
 
+    The socket's private key is set to the constructed \a key. The
+    private key and the local \l {QSslCertificate} {certificate} are
+    used by clients and servers that must prove their identity to SSL
+    peers.
+
+    Both the key and the local certificate are required if you are
+    creating an SSL server socket. If you are creating an SSL client
+    socket, the key and local certificate are required if your client
+    must identify itself to an SSL server.
+    
     \sa privateKey(), setLocalCertificate()
 */
-void QSslSocket::setPrivateKey(const QString &fileName, QSsl::Algorithm algorithm,
+void QSslSocket::setPrivateKey(const QString &fileName,
+			       QSsl::Algorithm algorithm,
                                QSsl::EncodingFormat format,
                                const QByteArray &passPhrase)
 {
     Q_D(QSslSocket);
     QFile file(fileName);
     if (file.open(QIODevice::ReadOnly)) {
-        d->privateKey = QSslKey(file.readAll(), algorithm, format,
-                                QSsl::PrivateKey, passPhrase);
+        d->privateKey = QSslKey(file.readAll(),
+				algorithm,
+				format,
+                                QSsl::PrivateKey,
+				passPhrase);
     }
 }
 

@@ -87,7 +87,8 @@ void QSslKeyPrivate::clear(bool deep)
     If \a passPhrase is non-empty, it will be used for decrypting
     \a pem.
 */
-void QSslKeyPrivate::decodePem(const QByteArray &pem, const QByteArray &passPhrase,
+void QSslKeyPrivate::decodePem(const QByteArray &pem,
+			       const QByteArray &passPhrase,
                                bool deepClear)
 {
     if (pem.isEmpty())
@@ -201,34 +202,48 @@ QByteArray QSslKeyPrivate::derFromPem(const QByteArray &pem) const
     if (headerIndex == -1 || footerIndex == -1)
         return QByteArray();
 
-    der = der.mid(headerIndex + header.size(), footerIndex - (headerIndex + header.size()));
+    der = der.mid(headerIndex + header.size(),
+		  footerIndex - (headerIndex + header.size()));
 
     return QByteArray::fromBase64(der); // ignores newlines
 }
 
 /*!
-    Constructs a QSslKey by parsing \a encoded. The key is
-    characterized by \a algorithm, \a encoding, \a type, and an
-    optional \a passPhrase. You can call isNull() later to check if \a
-    encoded contained a valid key or not.
+    Constructs a QSslKey by decoding the string in the byte array
+    \a encoded using a specified \a algorithm and \a encoding format.
+    If the encoded key is encrypted, \a passPhrase is used to decrypt
+    it. \a type specifies whether the key is public or private.
+
+    After construction, use isNull() to check if \a encoded contained
+    a valid key.
 */
-QSslKey::QSslKey(const QByteArray &encoded, QSsl::Algorithm algorithm,
-                 QSsl::EncodingFormat encoding, QSsl::KeyType type, const QByteArray &passPhrase)
+QSslKey::QSslKey(const QByteArray &encoded,
+		 QSsl::Algorithm algorithm,
+                 QSsl::EncodingFormat encoding,
+		 QSsl::KeyType type,
+		 const QByteArray &passPhrase)
     : d(new QSslKeyPrivate)
 {
     d->type = type;
     d->algorithm = algorithm;
-    d->decodePem((encoding == QSsl::Der) ? d->pemFromDer(encoded) : encoded, passPhrase);
+    d->decodePem((encoding == QSsl::Der) ? d->pemFromDer(encoded) : encoded,
+		 passPhrase);
 }
 
 /*!
-    Constructs a QSslKey by reading and parsing data from \a device. The key
-    is characterized by \a algorithm, \a encoding, \a type, and an optional \a
-    passPhrase. You can call isNull() later to check if \a device contained a
-    valid key or not.
+    Constructs a QSslKey by reading and decoding data from a
+    \a device using a specified \a algorithm and \a encoding format.
+    If the encoded key is encrypted, \a passPhrase is used to decrypt
+    it. \a type specifies whether the key is public or private.
+
+    After construction, use isNull() to check if \a device provided
+    a valid key.
 */
-QSslKey::QSslKey(QIODevice *device, QSsl::Algorithm algorithm,
-                 QSsl::EncodingFormat encoding, QSsl::KeyType type, const QByteArray &passPhrase)
+QSslKey::QSslKey(QIODevice *device,
+		 QSsl::Algorithm algorithm,
+                 QSsl::EncodingFormat encoding,
+		 QSsl::KeyType type,
+		 const QByteArray &passPhrase)
     : d(new QSslKeyPrivate)
 {
     QByteArray encoded;
@@ -236,7 +251,8 @@ QSslKey::QSslKey(QIODevice *device, QSsl::Algorithm algorithm,
         encoded = device->readAll();
     d->type = type;
     d->algorithm = algorithm;
-    d->decodePem((encoding == QSsl::Der) ? d->pemFromDer(encoded) : encoded, passPhrase);
+    d->decodePem((encoding == QSsl::Der) ? d->pemFromDer(encoded) : encoded,
+		 passPhrase);
 }
 
 /*!
@@ -298,7 +314,8 @@ int QSslKey::length() const
 {
     if (d->isNull)
         return -1;
-    return (d->algorithm == QSsl::Rsa) ? q_BN_num_bits(d->rsa->n) : q_BN_num_bits(d->dsa->p);
+    return (d->algorithm == QSsl::Rsa) ? q_BN_num_bits(d->rsa->n)
+	: q_BN_num_bits(d->dsa->p);
 }
 
 /*!
