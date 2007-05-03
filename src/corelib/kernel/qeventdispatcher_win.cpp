@@ -577,7 +577,7 @@ void QEventDispatcherWin32::registerSocketNotifier(QSocketNotifier *notifier)
         const char *t[] = { "Read", "Write", "Exception" };
 	/* Variable "socket" below is a function pointer. */
         qWarning("QSocketNotifier: Multiple socket notifiers for "
-                 "same socket %d and type %s", socketfd, t[type]);
+                 "same socket %d and type %s", sockfd, t[type]);
     }
 
     QSockNot *sn = new QSockNot;
