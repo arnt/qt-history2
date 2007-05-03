@@ -539,7 +539,7 @@ void QPen::setDashPattern(const QVector<qreal> &pattern)
 /*!
     Returns the dash offset for the pen.
 
-    \sa setDashOffset
+    \sa setDashOffset()
 */
 qreal QPen::dashOffset() const
 {
@@ -802,7 +802,8 @@ bool QPen::isCosmetic() const
 
 
 /*!
-    Sets this pen to cosmetic.
+    Sets this pen to cosmetic or non-cosmetic, depending on the value of
+    \a cosmetic.
 
     \sa isCosmetic()
 */
@@ -971,3 +972,12 @@ QDebug operator<<(QDebug dbg, const QPen &p)
 }
 #endif
 
+/*!
+    \fn DataPtr &QPen::data_ptr()
+    \internal
+*/
+
+/*!
+    \typedef QPen::DataPtr
+    \internal
+*/
