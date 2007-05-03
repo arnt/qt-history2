@@ -1075,7 +1075,7 @@
     \skipto QModelIndexList indexes
     \printuntil }
 
-    The above code uses Qt's convenient \l{containers.html}{foreach
+    The above code uses Qt's convenient \l{Generic Containers}{foreach
     keyword} to iterate over, and modify, the items corresponding to the
     indexes returned by the selection model.
 
