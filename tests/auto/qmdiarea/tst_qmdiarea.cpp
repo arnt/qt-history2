@@ -22,6 +22,7 @@
 #include <QLineEdit>
 #include <QDesktopWidget>
 #include <QDockWidget>
+#include <QScrollBar>
 
 #if defined(Q_WS_X11)
 extern void qt_x11_wait_for_window_manager(QWidget *w);
@@ -1231,6 +1232,56 @@ void tst_QMdiArea::tileSubWindows()
     workspace.resize(workspace.size() - QSize(10, 10));
     workspace.setActiveSubWindow(0);
     QVERIFY(workspace.viewport()->childrenRect() != workspace.viewport()->rect());
+
+    // Verify that we try to resize the area such that all sub-windows are visible.
+    // It's important that tiled windows are NOT overlapping.
+    workspace.resize(50, 50);
+#ifdef Q_WS_X11
+    qt_x11_wait_for_window_manager(&workspace);
+#endif
+    qApp->processEvents();
+
+    foreach (QMdiSubWindow *subWindow, workspace.subWindowList())
+        subWindow->setMinimumSize(100, 100);
+
+    QCOMPARE(workspace.size(), QSize(50, 50));
+    workspace.tileSubWindows();
+    int frameWidth = 0;
+    if (workspace.style()->styleHint(QStyle::SH_ScrollView_FrameOnlyAroundContents, 0, &workspace))
+        frameWidth = workspace.style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
+    QCOMPARE(workspace.viewport()->rect().size(), QSize(302 + 2 * frameWidth, 302 + 2 * frameWidth));
+
+    // Not enough space for all sub-windows to be visible -> provide scroll bars.
+    workspace.resize(100, 100);
+#ifdef Q_WS_X11
+    qt_x11_wait_for_window_manager(&workspace);
+#endif
+    qApp->processEvents();
+    QCOMPARE(workspace.size(), QSize(100, 100));
+
+    // Horizontal scroll bar.
+    QScrollBar *hBar = workspace.horizontalScrollBar();
+    QCOMPARE(workspace.horizontalScrollBarPolicy(), Qt::ScrollBarAsNeeded);
+    QVERIFY(hBar->isVisible());
+    QCOMPARE(hBar->value(), 0);
+    QCOMPARE(hBar->minimum(), 0);
+
+    // Vertical scroll bar.
+    QScrollBar *vBar = workspace.verticalScrollBar();
+    QCOMPARE(workspace.verticalScrollBarPolicy(), Qt::ScrollBarAsNeeded);
+    QVERIFY(vBar->isVisible());
+    QCOMPARE(vBar->value(), 0);
+    QCOMPARE(vBar->minimum(), 0);
+
+    workspace.tileSubWindows();
+#ifdef Q_WS_X11
+    qt_x11_wait_for_window_manager(&workspace);
+#endif
+    qApp->processEvents();
+
+    QVERIFY(workspace.size() != QSize(100, 100));
+    QVERIFY(!vBar->isVisible());
+    QVERIFY(!hBar->isVisible());
 }
 
 void tst_QMdiArea::cascadeAndTileSubWindows()
