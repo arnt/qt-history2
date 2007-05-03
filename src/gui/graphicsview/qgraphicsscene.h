@@ -125,7 +125,6 @@ public:
     QPainterPath selectionArea() const;
     void setSelectionArea(const QPainterPath &path);
     void setSelectionArea(const QPainterPath &path, Qt::ItemSelectionMode);
-    void clearSelection();
 
     QGraphicsItemGroup *createItemGroup(const QList<QGraphicsItem *> &items);
     void destroyItemGroup(QGraphicsItemGroup *group);
@@ -174,6 +173,7 @@ public Q_SLOTS:
     void update(const QRectF &rect = QRectF());
     void invalidate(const QRectF &rect = QRectF(), SceneLayers layers = AllLayers);
     void advance();
+    void clearSelection();
 
 protected:
     bool event(QEvent *event);
