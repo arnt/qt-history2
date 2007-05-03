@@ -25,7 +25,7 @@
 // We mean it.
 //
 
-// takes a type, returns the internal void* pointer casted
+// takes a type, returns the internal void* pointer cast
 // to a pointer of the input type
 
 #ifdef Q_CC_SUN // Sun CC picks the wrong overload, so introduce awful hack

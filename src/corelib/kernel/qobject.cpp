@@ -1695,7 +1695,7 @@ QObjectList QObject::queryList(const char *inheritsClass,
 /*!
     \fn T *QObject::findChild(const QString &name) const
 
-    Returns the child of this object that can be casted into type T and
+    Returns the child of this object that can be cast into type T and
     that is called \a name, or 0 if there is no such object.
     Omitting the \a name argument causes all object names to be matched.
     The search is performed recursively.
@@ -1757,7 +1757,7 @@ QObjectList QObject::queryList(const char *inheritsClass,
     \fn QList<T> QObject::findChildren(const QRegExp &regExp) const
     \overload
 
-    Returns the children of this object that can be casted to type T
+    Returns the children of this object that can be cast to type T
     and that have names matching the regular expression \a regExp,
     or an empty list if there are no such objects.
     The search is performed recursively.

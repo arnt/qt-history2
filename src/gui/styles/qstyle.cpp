@@ -772,7 +772,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
 
     The \a widget argument is optional and can be used as aid in
     drawing the control. The \a option parameter is a pointer to a
-    QStyleOption object that can be casted to the correct subclass
+    QStyleOption object that can be cast to the correct subclass
     using the qstyleoption_cast() function.
 
     The table below is listing the control elements and their
@@ -947,7 +947,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     screen coordinates.
 
     The \a widget argument is optional and can be used to aid
-    determining the area. The QStyleOption object can be casted to the
+    determining the area. The QStyleOption object can be cast to the
     appropriate type using the qstyleoption_cast() function. See the
     table below for the appropriate \a option casts:
 
@@ -1079,7 +1079,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     drawing the control.
 
     The \a option parameter is a pointer to a QStyleOptionComplex
-    object that can be casted to the correct subclass using the
+    object that can be cast to the correct subclass using the
     qstyleoption_cast() function. Note that the \c rect member of the
     specified \a option must be in logical
     coordinates. Reimplementations of this function should use
@@ -1150,7 +1150,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     option). The rectangle is defined in screen coordinates.
 
     The \a option argument is a pointer to QStyleOptionComplex or
-    one of its subclasses, and can be casted to the appropriate type
+    one of its subclasses, and can be cast to the appropriate type
     using the qstyleoption_cast() function. See drawComplexControl()
     for details. The \a widget is optional and can contain additional
     information for the function.
@@ -1170,7 +1170,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     Note that the \a position is expressed in screen coordinates.
 
     The \a option argument is a pointer to a QStyleOptionComplex
-    object (or one of its subclasses). The object can be casted to the
+    object (or one of its subclasses). The object can be cast to the
     appropriate type using the qstyleoption_cast() function. See
     drawComplexControl() for details. The \a widget argument is
     optional and can contain additional information for the function.

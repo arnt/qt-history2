@@ -1971,7 +1971,7 @@ QTextStream &QTextStream::operator>>(char &c)
 
 /*!
     Reads an integer from the stream and stores it in \a i, then
-    returns a reference to the QTextStream. The number is casted to
+    returns a reference to the QTextStream. The number is cast to
     the correct type before it is stored. If no number was detected on
     the stream, \a i is set to 0.
 
@@ -2070,7 +2070,7 @@ QTextStream &QTextStream::operator>>(qulonglong &i)
 
 /*!
     Reads a real number from the stream and stores it in \a f, then
-    returns a reference to the QTextStream. The number is casted to
+    returns a reference to the QTextStream. The number is cast to
     the correct type. If no real number is detect on the stream, \a f
     is set to 0.0.
 

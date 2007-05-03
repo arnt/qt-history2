@@ -88,7 +88,7 @@ class QByteArray;
 #define Q_OBJECT_CHECK
 #else
 
-/* This is a compile time check that ensures that any class casted with qobject_cast
+/* This is a compile time check that ensures that any class cast with qobject_cast
    actually contains a Q_OBJECT macro. Note: qobject_cast will fail if a QObject
    subclass doesn't contain Q_OBJECT.
 
