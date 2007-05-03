@@ -147,6 +147,7 @@ public:
     void updateActiveWindow(int removedIndex);
     void updateScrollBars();
     void internalRaise(QMdiSubWindow *child) const;
+    QRect resizeToMinimumTileSize(const QSize &minSubWindowSize, int subWindowCount);
 
     inline void startResizeTimer()
     {

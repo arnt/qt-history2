@@ -629,6 +629,7 @@ void QMdiAreaPrivate::rearrange(Rearranger *rearranger)
     }
 
     QList<QWidget *> widgets;
+    QSize minSubWindowSize;
     foreach (QMdiSubWindow *child, childWindows) {
         if (!sanityCheck(child, "QMdiArea::rearrange") || !child->isVisible())
             continue;
@@ -643,6 +644,7 @@ void QMdiAreaPrivate::rearrange(Rearranger *rearranger)
                 continue;
             if (child->isMaximized() || child->isShaded())
                 child->showNormal();
+            minSubWindowSize = minSubWindowSize.expandedTo(child->minimumSize());
             widgets.append(child);
             internalRaise(child);
         }
@@ -656,12 +658,18 @@ void QMdiAreaPrivate::rearrange(Rearranger *rearranger)
         }
     }
 
-    rearranger->rearrange(widgets, q->viewport()->rect());
-
+    QRect domain = q->viewport()->rect();
     if (rearranger->type() == Rearranger::RegularTiler && !widgets.isEmpty())
+        domain = resizeToMinimumTileSize(minSubWindowSize, widgets.count());
+
+    rearranger->rearrange(widgets, domain);
+
+    if (rearranger->type() == Rearranger::RegularTiler && !widgets.isEmpty()) {
         isSubWindowsTiled = true;
-    else if (rearranger->type() == Rearranger::SimpleCascader)
+        updateScrollBars();
+    } else if (rearranger->type() == Rearranger::SimpleCascader) {
         isSubWindowsTiled = false;
+    }
 }
 
 /*!
@@ -814,23 +822,29 @@ void QMdiAreaPrivate::updateActiveWindow(int removedIndex)
 void QMdiAreaPrivate::updateScrollBars()
 {
     Q_Q(QMdiArea);
-    if (ignoreGeometryChange || !q->scrollBarsEnabled())
+    if (ignoreGeometryChange || (q->horizontalScrollBarPolicy() == Qt::ScrollBarAlwaysOff
+                                 && q->verticalScrollBarPolicy() == Qt::ScrollBarAlwaysOff)) {
         return;
+    }
 
     QRect viewportRect = q->viewport()->rect();
     QRect childrenRect = q->viewport()->childrenRect();
-
-    QScrollBar *hBar = q->horizontalScrollBar();
     int startX = q->isLeftToRight() ? childrenRect.left() : viewportRect.right()
                                                             - childrenRect.right();
+    // Horizontal scroll bar.
+    QScrollBar *hBar = q->horizontalScrollBar();
+    if (isSubWindowsTiled && hBar->value() != 0)
+        hBar->setValue(0);
     int xOffset = startX + hBar->value();
-    int minX = qMin(0, xOffset);
-    int maxX = qMax(0, xOffset + childrenRect.width() - viewportRect.width());
-    hBar->setRange(minX, maxX);
+    hBar->setRange(qMin(0, xOffset),
+                   qMax(0, xOffset + childrenRect.width() - viewportRect.width()));
     hBar->setPageStep(childrenRect.width());
     hBar->setSingleStep(childrenRect.width() / 20);
 
+    // Vertical scroll bar.
     QScrollBar *vBar = q->verticalScrollBar();
+    if (isSubWindowsTiled && vBar->value() != 0)
+        vBar->setValue(0);
     int yOffset = childrenRect.top() + vBar->value();
     vBar->setRange(qMin(0, yOffset),
                    qMax(0, yOffset + childrenRect.height() - viewportRect.height()));
@@ -865,6 +879,63 @@ void QMdiAreaPrivate::internalRaise(QMdiSubWindow *mdiChild) const
         mdiChild->stackUnder(stackUnderChild);
     else
         mdiChild->raise();
+}
+
+QRect QMdiAreaPrivate::resizeToMinimumTileSize(const QSize &minSubWindowSize, int subWindowCount)
+{
+    Q_Q(QMdiArea);
+    if (!minSubWindowSize.isValid() || subWindowCount <= 0)
+        return q->viewport()->rect();
+
+    // Calculate minimum size.
+    const int columns = qMax(qCeil(qSqrt(qreal(subWindowCount))), 1);
+    const int rows = qMax((subWindowCount % columns) ? (subWindowCount / columns + 1)
+                                                     : (subWindowCount / columns), 1);
+    const int minWidth = minSubWindowSize.width() * columns;
+    const int minHeight = minSubWindowSize.height() * rows;
+
+    // Increase area size if necessary. Scroll bars are provided if we're not able
+    // to resize to the minimum size.
+    if (!tileCalledFromResizeEvent) {
+        QWidget *topLevel = q;
+        // Find the topLevel for this area, either a real top-level or a sub-window.
+        while (topLevel && !topLevel->isWindow() && topLevel->windowType() != Qt::SubWindow)
+            topLevel = topLevel->parentWidget();
+        // We don't want sub-subwindows to be placed at the edge, thus add 2 pixels.
+        int minAreaWidth = minWidth + left + right + 2;
+        int minAreaHeight = minHeight + top + bottom + 2;
+        if (q->horizontalScrollBar()->isVisible())
+            minAreaHeight += q->horizontalScrollBar()->height();
+        if (q->verticalScrollBar()->isVisible())
+            minAreaWidth += q->verticalScrollBar()->width();
+        if (q->style()->styleHint(QStyle::SH_ScrollView_FrameOnlyAroundContents, 0, q)) {
+            const int frame = q->style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
+            minAreaWidth += 2 * frame;
+            minAreaHeight += 2 * frame;
+        }
+        const QSize diff = QSize(minAreaWidth, minAreaHeight).expandedTo(q->size()) - q->size();
+        topLevel->resize(topLevel->size() + diff);
+    }
+
+    QRect domain = q->viewport()->rect();
+
+    // Adjust domain width and provide horizontal scroll bar.
+    if (domain.width() < minWidth) {
+        domain.setWidth(minWidth);
+        if (q->horizontalScrollBarPolicy() == Qt::ScrollBarAlwaysOff)
+            q->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+        else if (q->horizontalScrollBar()->value() != 0)
+            q->horizontalScrollBar()->setValue(0);
+    }
+    // Adjust domain height and provide vertical scroll bar.
+    if (domain.height() < minHeight) {
+        domain.setHeight(minHeight);
+        if (q->verticalScrollBarPolicy() == Qt::ScrollBarAlwaysOff)
+            q->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+        else if (q->verticalScrollBar()->value() != 0)
+            q->verticalScrollBar()->setValue(0);
+    }
+    return domain;
 }
 
 /*!
@@ -1466,6 +1537,7 @@ bool QMdiArea::viewportEvent(QEvent *event)
                 break;
             }
         }
+        d->updateScrollBars();
         break;
     }
     case QEvent::Destroy:
