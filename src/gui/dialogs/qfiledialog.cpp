@@ -2147,7 +2147,7 @@ void QFileDialogPrivate::_q_autoCompleteFileName(const QString &text) {
             for (int i = 0; i < multipleFiles.count(); ++i) {
                 QModelIndex idx = model->index(multipleFiles.at(i));
                 if (oldFiles.contains(idx))
-                    oldFiles.remove(idx);
+                    oldFiles.removeAll(idx);
                 else
                     newFiles.append(idx);
             }
