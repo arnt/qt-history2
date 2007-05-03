@@ -36,6 +36,9 @@ namespace CPP {
         int compare(const FontHandle &) const;
     private:
         const DomFont *m_domFont;
+#if defined(Q_OS_MAC) && defined(Q_CC_GNU) && (__GNUC__ == 3 && __GNUC_MINOR__ == 3)
+        friend uint qHash(const FontHandle &);
+#endif
     };
     inline bool operator ==(const FontHandle &f1, const FontHandle &f2) { return f1.compare(f2) == 0; }
     inline bool operator  <(const FontHandle &f1, const FontHandle &f2) { return f1.compare(f2) < 0; }
@@ -189,14 +192,14 @@ private:
     QHash<QString, DomAction*> m_registeredActions;
     QHash<uint, QString> m_colorBrushHash;
     // Map from font properties to  font variable name for reuse
-    typedef QMap<FontHandle, QString> FontPropertiesNameMap;
-    FontPropertiesNameMap m_FontPropertiesNameMap;
     // Map from size policy to  variable for reuse
 #if defined(Q_OS_MAC) && defined(Q_CC_GNU) && (__GNUC__ == 3 && __GNUC_MINOR__ == 3)
+    typedef QHash<FontHandle, QString> FontPropertiesNameMap;
     typedef QHash<SizePolicyHandle, QString> SizePolicyNameMap;
 #else
     typedef QMap<SizePolicyHandle, QString> SizePolicyNameMap;
 #endif
+    FontPropertiesNameMap m_FontPropertiesNameMap;
     SizePolicyNameMap m_SizePolicyNameMap;
 
     class LayoutDefaultHandler {

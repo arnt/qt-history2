@@ -175,6 +175,7 @@ int FontHandle::compare(const FontHandle &rhs) const
 
 #if defined(Q_OS_MAC) && defined(Q_CC_GNU) && (__GNUC__ == 3 && __GNUC_MINOR__ == 3)
 inline uint qHash(const SizePolicyHandle &handle) { return qHash(handle.m_domSizePolicy); }
+inline uint qHash(const FontHandle &handle) { return qHash(handle.m_domFont); }
 #endif
 
 SizePolicyHandle::SizePolicyHandle(const DomSizePolicy *domSizePolicy) :
