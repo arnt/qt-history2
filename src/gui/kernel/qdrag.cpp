@@ -73,9 +73,9 @@
     \l{QWidget::mouseMoveEvent()}{mouseMoveEvent()} to check whether a QDrag is
     required.
 
-    \sa {Drag and Drop}, QClipboard, QMimeData, QWindowsMime, QMacPasteBoardMime,
+    \sa {Drag and Drop}, QClipboard, QMimeData, QWindowsMime, QMacPasteboardMime,
         {Draggable Icons Example}, {Draggable Text Example}, {Drop Site Example},
-	{Fridge Magnets Example}
+	    {Fridge Magnets Example}
 */
 
 /*!
@@ -258,7 +258,7 @@ Qt::DropAction QDrag::exec(Qt::DropActions supportedActions, Qt::DropAction defa
 /*!
     \obsolete
 
-    \bold{Note:} It is reccommended to use \a exec() instead of this function.
+    \bold{Note:} It is recommended to use exec() instead of this function.
 
     Starts the drag and drop operation and returns a value indicating the requested
     drop action when it is completed. The drop actions that the user can choose
