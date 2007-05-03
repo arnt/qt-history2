@@ -673,8 +673,8 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
                 QFont fnt(font);
                 if (dbl != 1.0) {
                     FakeDevice fake;
-                    fake.setDpiX(dbl*qt_defaultDpiX());
-                    fake.setDpiY(dbl*qt_defaultDpiY());
+                    fake.setDpiX(qRound(dbl*qt_defaultDpiX()));
+                    fake.setDpiY(qRound(dbl*qt_defaultDpiY()));
                     fnt = QFont(font, &fake);
                 }
 
