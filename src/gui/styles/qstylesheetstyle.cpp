@@ -2430,13 +2430,19 @@ void QStyleSheetStyle::drawComplexControl(ComplexControl cc, const QStyleOptionC
 
                 QRenderRule subRule1 = renderRule(w, opt, PseudoElement_SliderSubPage);
                 if (subRule1.hasDrawable()) {
-                    QRect r(gr.topLeft(), slider->orientation == Qt::Horizontal ? hr.bottomLeft() : hr.topRight());
+                    QRect r(gr.topLeft(),
+                            slider->orientation == Qt::Horizontal
+                                ? QPoint(hr.x()+hr.width()/2, gr.y()+gr.height())
+                                : QPoint(gr.x()+gr.width(), hr.y()+hr.height()/2));
                     subRule1.drawRule(p, r);
                 }
 
                 QRenderRule subRule2 = renderRule(w, opt, PseudoElement_SliderAddPage);
                 if (subRule2.hasDrawable()) {
-                    QRect r(slider->orientation == Qt::Horizontal ? hr.topRight() : hr.bottomLeft(), gr.bottomRight());
+                    QRect r(slider->orientation == Qt::Horizontal
+                                ? QPoint(hr.x()+hr.width()/2+1, gr.y())
+                                : QPoint(gr.x(), hr.y()+hr.height()/2+1),
+                            gr.bottomRight());
                     subRule2.drawRule(p, r);
                 }
 
@@ -3438,11 +3444,11 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const 
         QRenderRule subRule2 = renderRule(w, PseudoElement_SliderHandle);
         bool horizontal = opt->state & QStyle::State_Horizontal;
         if (m == PM_SliderThickness) {
-            return horizontal ? rule.size().height() : rule.size().width();
+            return horizontal ? subRule.size().height() : subRule.size().width();
         } else if (m == PM_SliderControlThickness || m == PM_SliderLength) {
-            QRect r = positionRect(w, rule, subRule, PseudoElement_SliderGroove, opt->rect, opt->direction);
-            r = positionRect(w, subRule, subRule2, PseudoElement_SliderHandle, r, opt->direction);
-            return horizontal && m == PM_SliderControlThickness ? r.height() : r.width();
+            QRenderRule subRule2 = renderRule(w, opt, PseudoElement_SliderHandle);
+            QSize size = subRule2.size();
+            return horizontal && m == PM_SliderControlThickness ? size.width() : size.height();
         }
         break;
                             }
@@ -3880,7 +3886,9 @@ QRect QStyleSheetStyle::subControlRect(ComplexControl cc, const QStyleOptionComp
             case SC_SliderGroove:
                 return gr;
             case SC_SliderHandle: {
-                QRect cr = subRule.contentsRect(gr);
+                QRenderRule subRule2 = renderRule(w, opt, PseudoElement_SliderHandle);
+                Origin origin = subRule2.hasPosition() ? subRule2.position()->origin : defaultOrigin(PseudoElement_SliderHandle);
+                QRect cr = subRule.originRect(gr, origin);
                 int sliderPos = 0;
                 int thickness = pixelMetric(PM_SliderControlThickness, slider, w);
                 int len = pixelMetric(PM_SliderLength, slider, w);
