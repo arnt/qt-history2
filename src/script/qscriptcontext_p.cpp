@@ -731,11 +731,15 @@ Ltop:
         } else if (resolveField(eng, &argp[-1], &callee)) {
             // base = argp[-2];
         } else {
+            QScriptValueImpl member = argp[-1];
             stackPtr = argp - 1;
             Q_ASSERT(isReference);
             stackPtr -= 2;
 
-            throwTypeError(QLatin1String("not a constructor"));
+            if (member.isString())
+                throwNotDefined(member.toString());
+            else
+                throwNotDefined(QLatin1String("constructor"));
             HandleException();
         }
 
@@ -744,7 +748,15 @@ Ltop:
 
         QScriptFunction *function = eng->convertToNativeFunction(callee);
         if (! function) {
-            throwTypeError(QLatin1String("not a constructor"));
+            QScriptValueImpl member = argp[-1];
+            QString message;
+            if (member.isString()) {
+                message = QString::fromLatin1("%0 is not a constructor")
+                          .arg(member.toString());
+            } else {
+                message = QLatin1String("not a constructor");
+            }
+            throwTypeError(message);
             HandleException();
         }
 
