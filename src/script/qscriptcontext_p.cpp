@@ -673,13 +673,15 @@ Ltop:
         if (isReference)
             stackPtr -= 2;
 
+        if (nested_data->m_state == QScriptContext::ExceptionState) {
+            eng->popContext();
+            Done();
+        }
+
         CHECK_TEMPSTACK(1);
         *++stackPtr = nested_data->m_result;
 
         eng->popContext();
-
-        if (nested_data->m_state == QScriptContext::ExceptionState)
-            Done();
 
         ++iPtr;
     }   Next();
