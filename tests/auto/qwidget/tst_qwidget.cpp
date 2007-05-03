@@ -1188,7 +1188,7 @@ void tst_QWidget::checkFocus()
 #ifdef Q_WS_X11
     qt_x11_wait_for_window_manager(&widget);
 #endif
-    QTest::qWait( 100 );
+    QTest::qWait( 500 );
     QVERIFY( widget.focusWidget() == focusWidget );
 }
 
