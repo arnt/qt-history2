@@ -91,7 +91,7 @@ QObject* WidgetFactory::createObject(const QString &className, QObject* parent) 
 
 QWidget*  WidgetFactory::createCustomWidget(const QString &className, QWidget *parentWidget) const
 {
-    const CustomWidgetFactoryMap::const_iterator it = m_customFactory.constFind(className);
+    CustomWidgetFactoryMap::const_iterator it = m_customFactory.constFind(className);
     if (it == m_customFactory.constEnd())
         return 0;
 
