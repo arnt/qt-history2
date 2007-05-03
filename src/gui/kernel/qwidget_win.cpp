@@ -1477,7 +1477,7 @@ void QWidgetPrivate::scroll_sys(int dx, int dy, const QRect &r)
     Q_Q(QWidget);
 
     if (!QWidgetBackingStore::paintOnScreen(q)) {
-        scrollRect(q->rect(), dx, dy);
+        scrollRect(r, dx, dy);
     } else {
         RECT wr;
         wr.top = r.top();
