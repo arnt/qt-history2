@@ -496,7 +496,11 @@ void QWidgetPrivate::moveRect(const QRect &rect, int dx, int dy)
         pd->invalidateBuffer(parentExpose);
 #ifdef Q_WS_QWS
         //QWS does not have native child widgets: copy everything to screen, just like scrollRect()
-        pd->dirtyWidget_sys(QRegion(sourceRect)+destRect);
+//        pd->dirtyWidget_sys(QRegion(sourceRect)+destRect);
+
+        const QPoint offset = q->mapTo(tlw, QPoint());
+        wbs->dirtyOnScreen += sourceRect.translated(offset);
+        wbs->dirtyOnScreen += destRect.translated(offset);
 #endif
     }
 }
@@ -569,7 +573,11 @@ void QWidgetPrivate::scrollRect(const QRect &rect, int dx, int dy)
         // Instead of using native scroll-on-screen, we copy from
         // backingstore, giving only one screen update for each
         // scroll, and a solid appearance
+#ifdef Q_WS_QWS
+        wbs->dirtyOnScreen += destRect.translated(toplevelOffset);
+#else
         dirtyWidget_sys(rect);
+#endif
     }
 }
 
@@ -618,7 +626,10 @@ void QWidgetBackingStore::copyToScreen(const QRegion &rgn, QWidget *widget, cons
     Q_ASSERT(widget->testAttribute(Qt::WA_WState_Created));
 #ifdef Q_WS_QWS
     Q_UNUSED(recursive);
-    windowSurface->flush(widget, rgn, offset);
+     // XXX: hw: this addition should probably be moved to cleanRegion()
+    const QRegion toFlush = rgn + dirtyOnScreen;
+    windowSurface->flush(widget, toFlush, offset);
+    dirtyOnScreen = QRegion();
 #else
     if (!QWidgetBackingStore::paintOnScreen(widget)) {
         widget->d_func()->cleanWidget_sys(rgn);

@@ -56,7 +56,9 @@ public:
 
 private:
     QWidget *tlw;
-#ifndef Q_WS_QWS
+#ifdef Q_WS_QWS
+    QRegion dirtyOnScreen;
+#else
     QRegion dirty;
 #endif
 #ifdef Q_WIDGET_USE_DIRTYLIST
