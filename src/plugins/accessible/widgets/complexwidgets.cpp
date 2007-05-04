@@ -284,9 +284,9 @@ int QAccessibleItemRow::navigate(RelationFlag relation, int index,
 
 QAccessible::Role QAccessibleItemRow::role(int child) const
 {
-    if (qobject_cast<QTreeView*>(view)) {
+    if (qobject_cast<const QTreeView*>(view)) {
         return TreeItem;
-    } else if (qobject_cast<QListView*>(view)) {
+    } else if (qobject_cast<const QListView*>(view)) {
         return ListItem;
     }
     // TableView
@@ -425,7 +425,7 @@ QAccessible::Role QAccessibleItemView::expectedRoleOfChildren() const
 QObject *QAccessibleItemView::object() const
 {
     QObject *view = QAccessibleAbstractScrollArea::object();
-    Q_ASSERT(qobject_cast<QAbstractItemView *>(view));
+    Q_ASSERT(qobject_cast<const QAbstractItemView *>(view));
     if (atViewport())
         view = qobject_cast<QAbstractItemView *>(view)->viewport();
     return view;
