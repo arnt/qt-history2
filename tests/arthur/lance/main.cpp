@@ -142,6 +142,15 @@ static void runInteractive()
     interactive_widget->show();
 }
 
+static QLabel* createLabel()
+{
+    QLabel *label = new QLabel;
+    QPalette palette = label->palette();
+    palette.setColor(QPalette::Active, QPalette::Window, QBrush(Qt::white));
+    label->setPalette(palette);
+    return label;
+}
+
 int main(int argc, char **argv)
 {
     QApplication app(argc, argv);
@@ -259,11 +268,6 @@ int main(int argc, char **argv)
 #ifndef QT_NO_OPENGL
     OnScreenWidget<QGLWidget> *qGLWidget = 0;
 #endif
-    QLabel *label = new QLabel;
-    QPalette palette = label->palette();
-    palette.setColor(QPalette::Active, QPalette::Window, QBrush(Qt::white));
-    label->setPalette(palette);
-
     if (interactive) {
         runInteractive();
         if (!files.isEmpty())
@@ -293,6 +297,7 @@ int main(int argc, char **argv)
                 qDebug() << pmFile << QFileInfo(pmFile).exists();
                 QPixmap pixmap(pmFile);
                 if (!pixmap.isNull()) {
+                    QLabel *label = createLabel();
                     label->setWindowTitle("VERIFY: " + pmFile);
                     label->setPixmap(pixmap);
                     label->show();
@@ -328,6 +333,7 @@ int main(int argc, char **argv)
                 QImage new_image(image.bits(), image.width(), image.height(), QImage::Format_ARGB32_Premultiplied);
                 image.save("output_image.png", "PNG");
 
+                QLabel *label = createLabel();
                 label->setPixmap(QPixmap::fromImage(new_image));
                 label->resize(label->sizeHint());
                 label->show();
@@ -385,6 +391,7 @@ int main(int argc, char **argv)
                     pt.end();
                     bitmap.save("output_bitmap.png", "PNG");
 
+                    QLabel *label = createLabel();
                     label->setPixmap(bitmap);
                     label->resize(label->sizeHint());
                     label->show();
@@ -404,7 +411,9 @@ int main(int argc, char **argv)
                     pcmd.runCommands();
                     pt.end();
                     image.convertToFormat(QImage::Format_ARGB32).save("output_image.png", "PNG");
-                    label->setPixmap(QPixmap::fromImage(image));
+                    
+                    QLabel *label = createLabel();
+	            label->setPixmap(QPixmap::fromImage(image));
                     label->resize(label->sizeHint());
                     label->show();
                     break;
@@ -423,6 +432,7 @@ int main(int argc, char **argv)
                     pt.begin(&image);
                     pt.drawPicture(0, 0, pic);
                     pt.end();
+                    QLabel *label = createLabel();
                     label->setWindowTitle(fileinfo.absolutePath());
                     label->setPixmap(QPixmap::fromImage(image));
                     label->resize(label->sizeHint());
