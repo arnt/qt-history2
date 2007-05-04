@@ -23,6 +23,7 @@
 #include <qaction.h>
 #include <qdialogbuttonbox.h>
 #include <qsortfilterproxymodel.h>
+#include <qlineedit.h>
 
 //TESTED_CLASS=
 //TESTED_FILES=qfiledialog.h
@@ -42,6 +43,7 @@ public slots:
 private slots:
     void args();
     void directory();
+    void completor();
     void acceptMode();
     void confirmOverwrite();
     void defaultSuffix();
@@ -128,6 +130,20 @@ void tst_QFiledialog::directory()
     QList<QListView*> list = fd.findChildren<QListView*>("listView");
     QVERIFY(list.count() > 0);
     QCOMPARE(list.at(0)->rootIndex().data().toString(), temp.dirName());
+}
+
+void tst_QFiledialog::completor()
+{
+    // ### flesh this out more
+    QFileDialog fd;
+    fd.show();
+    QLineEdit *lineEdit = fd.findChild<QLineEdit*>("fileNameEdit");
+    QVERIFY(lineEdit);
+    int depth = QDir::currentPath().split('/').count();
+    for (int i = 0; i <= depth * 3 + 1; ++i) {
+        lineEdit->insert("../");
+        qApp->processEvents();
+    }
 }
 
 void tst_QFiledialog::acceptMode()
