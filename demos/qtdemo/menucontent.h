@@ -18,6 +18,9 @@
 #include <QtXml>
 #include "demoitem.h"
 
+class HeadingItem;
+class DemoTextItem;
+
 class MenuContentItem : public DemoItem
 {
     
@@ -26,11 +29,15 @@ public:
     
     virtual QRectF boundingRect() const; // overridden
     virtual void paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget * = 0){}; // overridden
+    void animationStopped(int id);
     void prepare();
     
 private:
     QString name;
     QString readmePath;
+    HeadingItem *heading;
+    DemoTextItem *description1;
+    DemoTextItem *description2;
     
     QString loadDescription(int startPara, int nrPara);
     QString extractTextFromParagraph(const QDomNode &parentNode);

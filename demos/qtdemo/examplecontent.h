@@ -18,6 +18,10 @@
 #include <QtXml>
 #include "demoitem.h"
 
+class HeadingItem;
+class DemoTextItem;
+class ImageItem;
+
 class ExampleContent : public DemoItem
 {
     
@@ -26,10 +30,14 @@ public:
     
     virtual QRectF boundingRect() const;
     virtual void paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget * = 0){};
+    void animationStopped(int id);
     void prepare();
     
 private:
     QString name;
+    HeadingItem *heading;
+    DemoTextItem *description;
+    ImageItem *screenshot;
     
     QString loadDescription();
     QString extractTextFromParagraph(const QDomNode &parentNode);	

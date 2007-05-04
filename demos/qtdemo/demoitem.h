@@ -23,6 +23,12 @@ class SharedImage
 {
 public:    
     SharedImage() : refCount(0), image(0), pixmap(0){};
+    ~SharedImage()
+    {
+        delete image;
+        delete pixmap;
+    }
+    
     int refCount;
     QImage *image;
     QPixmap *pixmap;

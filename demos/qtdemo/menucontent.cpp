@@ -21,6 +21,9 @@ MenuContentItem::MenuContentItem(const QDomElement &el, QGraphicsScene *scene, Q
     : DemoItem(scene, parent)
 {
     this->name = el.attribute("name");
+    this->heading = 0;
+    this->description1 = 0;
+    this->description2 = 0;
 
     if (el.tagName() == "demos")
         this->readmePath = QLibraryInfo::location(QLibraryInfo::DemosPath) + "/README";
@@ -34,6 +37,23 @@ void MenuContentItem::prepare()
     if (!this->prepared){
         this->prepared= true;
         this->createContent();
+    }
+}
+
+void MenuContentItem::animationStopped(int id)
+{
+    if (this->name == QLatin1String("Qt Examples and Demos"))
+        return; // Optimization hack.
+        
+    if (id == DemoItemAnimation::ANIM_OUT){
+        // Free up some memory:
+        delete this->heading;
+        delete this->description1;
+        delete this->description2;
+        this->heading = 0;
+        this->description1 = 0;
+        this->description2 = 0;
+        this->prepared = false;
     }
 }
 
@@ -68,17 +88,20 @@ QString MenuContentItem::loadDescription(int startPara, int nrPara)
 
 void MenuContentItem::createContent()
 {
-    HeadingItem *heading = new HeadingItem(this->name, this->scene(), this);
+    // Create the items:
+    this->heading = new HeadingItem(this->name, this->scene(), this);
     QString para1 = this->loadDescription(0, 1);
     if (para1.isEmpty())
         para1 = Colors::contentColor + QLatin1String("Could not load description. Ensure that the documentation for Qt is built.");
     QColor bgcolor = Colors::sceneBg1.darker(200);
     bgcolor.setAlpha(100);
-    DemoTextItem *s1 = new DemoTextItem(para1, Colors::contentFont(), Colors::heading, 500, this->scene(), this, DemoTextItem::STATIC_TEXT);
-    DemoTextItem *s2 = new DemoTextItem(this->loadDescription(1, 2), Colors::contentFont(), Colors::heading, 250, this->scene(), this, DemoTextItem::STATIC_TEXT);
-    heading->setPos(0, 3);
-    s1->setPos(0, heading->pos().y() + heading->boundingRect().height() + 10);
-    s2->setPos(0, s1->pos().y() + s1->boundingRect().height() + 15);
+    this->description1 = new DemoTextItem(para1, Colors::contentFont(), Colors::heading, 500, this->scene(), this, DemoTextItem::STATIC_TEXT);
+    this->description2 = new DemoTextItem(this->loadDescription(1, 2), Colors::contentFont(), Colors::heading, 250, this->scene(), this, DemoTextItem::STATIC_TEXT);
+
+    // Place the items on screen:
+    this->heading->setPos(0, 3);
+    this->description1->setPos(0, this->heading->pos().y() + this->heading->boundingRect().height() + 10);
+    this->description2->setPos(0, this->description1->pos().y() + this->description1->boundingRect().height() + 15);
 }
 
 QRectF MenuContentItem::boundingRect() const

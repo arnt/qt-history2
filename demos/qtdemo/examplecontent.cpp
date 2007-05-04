@@ -21,6 +21,9 @@ ExampleContent::ExampleContent(const QString &name, QGraphicsScene *scene, QGrap
     : DemoItem(scene, parent)
 {
     this->name = name;
+    this->heading = 0;
+    this->description = 0;
+    this->screenshot = 0;
 }
 
 void ExampleContent::prepare()
@@ -28,6 +31,20 @@ void ExampleContent::prepare()
     if (!this->prepared){
         this->prepared = true;
         this->createContent();
+    }
+}
+
+void ExampleContent::animationStopped(int id)
+{
+    if (id == DemoItemAnimation::ANIM_OUT){
+        // Free up some memory:
+        delete this->heading;
+        delete this->description;
+        delete this->screenshot;
+        this->heading = 0;
+        this->description = 0;
+        this->screenshot = 0;
+        this->prepared = false;
     }
 }
 
@@ -90,13 +107,17 @@ QString ExampleContent::extractTextFromParagraph(const QDomNode &parentNode)
 
 void ExampleContent::createContent()
 {
-    HeadingItem *heading = new HeadingItem(this->name, this->scene(), this);
-    DemoTextItem *s1 = new DemoTextItem(this->loadDescription(), Colors::contentFont(), Colors::heading, 500, this->scene(), this);
-    int imgHeight = 340 - int(s1->boundingRect().height()) + 50;
-    ImageItem *item = new ImageItem(MenuManager::instance()->info[this->name]["imgfile"], 550, imgHeight, this->scene(), this);
-    heading->setPos(0, 3);
-    s1->setPos(0, heading->pos().y() + heading->boundingRect().height() + 10);
-    item->setPos(0, s1->pos().y() + s1->boundingRect().height() + 10);
+    // Create the items:
+    this->heading = new HeadingItem(this->name, this->scene(), this);
+    this->description = new DemoTextItem(this->loadDescription(), Colors::contentFont(),
+                                            Colors::heading, 500, this->scene(), this);
+    int imgHeight = 340 - int(this->description->boundingRect().height()) + 50;
+    this->screenshot = new ImageItem(MenuManager::instance()->info[this->name]["imgfile"],
+                                            550, imgHeight, this->scene(), this);
+    // Place the items on screen:
+    this->heading->setPos(0, 3);
+    this->description->setPos(0, this->heading->pos().y() + this->heading->boundingRect().height() + 10);
+    this->screenshot->setPos(0, this->description->pos().y() + this->description->boundingRect().height() + 10);
 }
 
 QRectF ExampleContent::boundingRect() const

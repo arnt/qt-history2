@@ -185,6 +185,10 @@ void MenuManager::init(MainWindow *window)
 void MenuManager::readInfoAboutExample(const QDomElement &example)
 {
     QString name = example.attribute("name");
+    if (this->info.contains(name))
+        qWarning() << "WARNING: MenuManager::readInfoAboutExample: Demo/example with name"
+                    << name << "appears twize in the xml-file!";
+        
     this->info[name]["filename"] = example.attribute("filename");
     this->info[name]["changedirectory"] = example.attribute("changedirectory");
     this->info[name]["executable"] = this->resolveExecutable(example);
@@ -195,7 +199,6 @@ void MenuManager::readInfoAboutExample(const QDomElement &example)
 QString MenuManager::resolveExecutable(const QDomElement &example)
 {
     QDomElement parent = example.parentNode().toElement();
-    
     QDir dir;
     if (parent.tagName() == "demos")
         dir = QDir(QLibraryInfo::location(QLibraryInfo::DemosPath));
@@ -230,13 +233,29 @@ QString MenuManager::resolveDocFile(const QDomElement &example)
 
 QString MenuManager::resolveImgFile(const QDomElement &example)
 {
-    QDomElement parent = example.parentNode().toElement();
-    QString docRootPath = QLibraryInfo::location(QLibraryInfo::DocumentationPath);
-    if (parent.tagName() == "demos")
-        return docRootPath + "/html/images/" + example.attribute("filename") + "-demo.png";
+    // Scan the html document and look for an image:
+    QDomDocument domDoc;
+    QFile docFile(this->info[example.attribute("name")]["docfile"]);
+    domDoc.setContent(&docFile);
+    QDomNodeList images = domDoc.elementsByTagName("img");
+    QDir docRootDir = QDir(QLibraryInfo::location(QLibraryInfo::DocumentationPath));
+    docRootDir.cd("html");
+    QStringList imageFiles;
+    
+    for (int i = 0; i< int(images.length()); ++i) {
+        QDomElement imageElement = images.item(i).toElement();
+        QString imagePath = imageElement.attribute("src");
+        if (!imagePath.contains("-logo"))
+            imageFiles.append(docRootDir.absoluteFilePath(imagePath));
+    }
+    
+    if (imageFiles.size() > 0)
+        return imageFiles[0];
     else
-        return docRootPath + "/html/images/" + example.attribute("filename") + "-example.png";
+        return QLatin1String("No image found in document: ") + 
+            this->info[example.attribute("name")]["docfile"];
 }
+
 
 void MenuManager::createLeftMenu1(const QDomElement &el)
 {

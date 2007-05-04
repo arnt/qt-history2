@@ -55,7 +55,7 @@
     <example filename="customsortfiltermodel" name="Custom Sort/Filter Model" />
     <example filename="dirview" name="Directory View" />
     <example filename="pixelator" name="Pixelator" />
-    <example filename="puzzle" name="Puzzle" />
+    <example filename="puzzle" name="Puzzle " />
     <example filename="simpledommodel" name="Simple DOM Model" />
     <example filename="simpletreemodel" name="Simple Tree Model" />
     <example filename="spinboxdelegate" name="Spin Box Delegate" />
@@ -147,7 +147,7 @@
   </category>
   <category dirname="widgets" name="Widgets">
     <example filename="analogclock" name="Analog Clock" />
-    <example filename="calculator" name="Calculator" />
+    <example filename="calculator" name="Calculator " />
     <example filename="charactermap" name="Character Map" />
     <example filename="digitalclock" name="Digital Clock" />
     <example filename="groupbox" name="Group Box" />
@@ -160,7 +160,7 @@
     <example filename="sliders" name="Sliders" />
     <example filename="spinboxes" name="Spin Boxes" />
     <example filename="styles" name="Styles" />
-    <example filename="tetrix" name="Tetrix" />
+    <example filename="tetrix" name="Tetrix " />
     <example filename="tooltips" name="Tool Tips" />
     <example filename="wiggly" name="Wiggly" />
     <example filename="windowflags" name="Window Flags" />
