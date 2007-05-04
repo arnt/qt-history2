@@ -54,6 +54,7 @@ private slots:
 # define DONT_TEST_STATIC_TEMPLATE_METHODS
 # define DONT_TEST_STATIC_TEMPLATE_METHOD_SPECIALIZATION
 # define DONT_TEST_STL_SORTING
+# define DONT_TEST_SIGNEDNESS
 #endif
 
 #if defined(MSVC2002)
@@ -534,9 +535,13 @@ const char *resolveCharSignedness<signed char>()
 
 void tst_Compiler::charSignedness() const
 {
+#ifdef DONT_TEST_SIGNEDNESS
+    QSKIP("MS VC 6.0 instantiates the char function for type unsigned char.", Continue);
+#else
     QCOMPARE("char",            resolveCharSignedness<char>());
     QCOMPARE("unsigned char",   resolveCharSignedness<unsigned char>());
     QCOMPARE("signed char",     resolveCharSignedness<signed char>());
+#endif
 }
 
 QTEST_MAIN(tst_Compiler)
