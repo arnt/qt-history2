@@ -878,12 +878,14 @@ bool QPen::isDetached()
 
 QDataStream &operator<<(QDataStream &s, const QPen &p)
 {
-    if (s.version() < 3)
+    if (s.version() < 3) {
         s << (quint8)p.style();
-    else if (s.version() < QDataStream::Qt_4_3)
+    } else if (s.version() < QDataStream::Qt_4_3) {
         s << (quint8)(p.style() | p.capStyle() | p.joinStyle());
-    else
+    } else {
         s << (quint16)(p.style() | p.capStyle() | p.joinStyle());
+        s << p.isCosmetic();
+    }
 
     if (s.version() < 7) {
         s << (quint8)p.width();
@@ -919,12 +921,14 @@ QDataStream &operator>>(QDataStream &s, QPen &p)
     double miterLimit = 2;
     QVector<qreal> dashPattern;
     double dashOffset = 0;
+    bool cosmetic = false;
     if (s.version() < QDataStream::Qt_4_3) {
         quint8 style8;
         s >> style8;
         style = style8;
     } else {
         s >> style;
+        s >> cosmetic;
     }
     if (s.version() < 7) {
         s >> width8;
@@ -949,6 +953,7 @@ QDataStream &operator>>(QDataStream &s, QPen &p)
     p.d->dashPattern = dashPattern;
     p.d->miterLimit = miterLimit;
     p.d->dashOffset = dashOffset;
+    p.d->cosmetic = cosmetic;
 
     return s;
 }
