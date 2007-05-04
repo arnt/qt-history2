@@ -14,9 +14,14 @@ class tst_TestA : public QObject
     Q_OBJECT
 
 private slots:
-    void nothingA() const
+    void slotName() const
     {
         QVERIFY(true);
+    }
+
+    void aDifferentSlot() const
+    {
+        QVERIFY(false);
     }
 };
 
@@ -25,15 +30,24 @@ class tst_TestB : public QObject
     Q_OBJECT
 
 private slots:
-    void nothingB() const
+    void slotName() const
     {
         QVERIFY(true);
     }
+
+    void aSecondDifferentSlot() const
+    {
+        QVERIFY(false);
+    }
 };
 
-int main(int argc, char *argv[])
+int main()
 {
+    char *argv[] = {"appName", "slotName"};
+    int argc = 2;
+
     tst_TestA testA;
+    QTest::qExec(&testA, argc, argv);
     QTest::qExec(&testA, argc, argv);
 
     tst_TestB testB;

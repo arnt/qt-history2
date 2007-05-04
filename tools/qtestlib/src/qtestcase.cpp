@@ -797,6 +797,8 @@ static int qToInt(char *str)
 
 static void qParseArgs(int argc, char *argv[])
 {
+    lastTestFuncIdx = -1;
+
     const char *testOptions =
          " options:\n"
          " -functions : Returns a list of current testfunctions\n"
