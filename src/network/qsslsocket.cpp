@@ -231,7 +231,7 @@
 
 class QSslSocketGlobalData
 {
-public:
+  public:
     QMutex mutex;
     QList<QSslCipher> ciphers;
     QList<QSslCipher> supportedCiphers;
@@ -626,13 +626,14 @@ QList<QSslCertificate> QSslSocket::peerCertificateChain() const
 /*!
     Returns the socket's cryptographic \l {QSslCipher} {cipher}, or a
     null cipher if the connection isn't encrypted. The socket's cipher
-    is set during the handshake. It is used to encrypt and decrypt all
-    data transmitted through the socket during the session. 
+    for the session is set during the handshake. It is used to encrypt
+    and decrypt all data transmitted through the socket.
 
-    QSslSocket also provides functions for setting the ordered list
-    of ciphers from which the handshake will select the cipher that
-    will be used for encrypting and decrypting data. The list of
-    ciphers must be set before the handshake phase.
+    QSslSocket also provides functions for setting the ordered list of
+    ciphers from which the handshake will select the cipher that will
+    be the session cipher for encrypting and decrypting data. The
+    cipher list must be set before the handshake chooses the session
+    cipher.
 
     \sa ciphers(), setCiphers(), setDefaultCiphers(), defaultCiphers(),
     supportedCiphers()
@@ -670,7 +671,7 @@ void QSslSocket::setPrivateKey(const QSslKey &key)
     an \l {QSslKey} {SSL key}. If the encoded key is encrypted,
     \a passPhrase is used to decrypt it.
 
-    The socket's private key is set to the constructed \a key. The
+    The socket's private key is set to the constructed key. The
     private key and the local \l {QSslCertificate} {certificate} are
     used by clients and servers that must prove their identity to SSL
     peers.
@@ -710,18 +711,29 @@ QSslKey QSslSocket::privateKey() const
 }
 
 /*!
-    Returns this socket's current cryptographic cipher suite. This list is
-    used during the socket's handshake phase when negotiating ciphers with the
-    peer. The list is returned in descending preferred order (i.e., the first
-    cipher in the list is the most preferred cipher).
+    Returns this socket's current cryptographic cipher suite. This
+    list is used during the socket's handshake phase for choosing a
+    session cipher. The returned list of ciphers is ordered by
+    descending preference. (i.e., the first cipher in the list is the
+    most preferred cipher). The session cipher will be the first one
+    in the list that is also supported by the peer.
 
-    By default, the socket will use supportedCiphers(), a predefined set of
-    ciphers that works for most common cases. This predefined set is defined
-    by the current SSL libraries, and may vary from system to system. If you
-    change the ciphers for this socket, you can later call setCiphers() at
-    any time to revert to using the default set.
+    By default, the handshake phase can choose any of the ciphers
+    supported by this system's SSL libraries, which may vary from
+    system to system. The list of ciphers supported by this system's
+    SSL libraries is returned by supportedCiphers(). You can restrict
+    the list of ciphers used for choosing the session cipher for this
+    socket by calling setCiphers() with a subset of the supported
+    ciphers. You can revert to using the entire set by calling
+    setCiphers() with the list returned by supportedCiphers().
 
-    \sa setCiphers(), defaultCiphers(), supportedCiphers()
+    You can restrict the list of ciphers used for choosing the session
+    cipher for \e all sockets by calling setDefaultCiphers() with a
+    subset of the supported ciphers. You can revert to using the
+    entire set by calling setCiphers() with the list returned by
+    supportedCiphers().
+
+    \sa setCiphers(), defaultCiphers(), setDefaultCiphers(), supportedCiphers()
 */
 QList<QSslCipher> QSslSocket::ciphers() const
 {
@@ -730,7 +742,9 @@ QList<QSslCipher> QSslSocket::ciphers() const
 }
 
 /*!
-    Sets the cryptographic cipher suite for this socket to \a ciphers.
+    Sets the cryptographic cipher suite for this socket to \a ciphers,
+    which must contain a subset of the ciphers in the list returned by
+    supportedCiphers().
 
     \sa ciphers(), setDefaultCiphers(), supportedCiphers()
 */
@@ -750,13 +764,17 @@ void QSslSocket::setCiphers(const QList<QSslCipher> &ciphers)
         socket.setCiphers("!ADH:RC4+RSA:HIGH:MEDIUM:LOW:EXP:+SSLv2:+EXP");
     \endcode
 
+    Each cipher name in \a ciphers must be the name of a cipher in the
+    list returned by supportedCiphers().
+
     \sa ciphers(), setDefaultCiphers(), supportedCiphers()
 */
 void QSslSocket::setCiphers(const QString &ciphers)
 {
     Q_D(QSslSocket);
     d->ciphers.clear();
-    foreach (QString cipherName, ciphers.split(QLatin1String(":"), QString::SkipEmptyParts)) {
+    foreach (QString cipherName,
+	     ciphers.split(QLatin1String(":"),QString::SkipEmptyParts)) {
         for (int i = 0; i < 3; ++i) {
             // ### Crude
             QSslCipher cipher(cipherName, QSslCipher::Protocol(i));
@@ -767,8 +785,9 @@ void QSslSocket::setCiphers(const QString &ciphers)
 }
 
 /*!
-    Sets the default cryptographic cipher suite for all sockets in this
-    application to \a ciphers.
+    Sets the default cryptographic cipher suite for all sockets in
+    this application to \a ciphers, which must contain a subset of the
+    ciphers in the list returned by supportedCiphers().
 
     \sa setCiphers(), defaultCiphers(), supportedCiphers()
 */
@@ -778,15 +797,16 @@ void QSslSocket::setDefaultCiphers(const QList<QSslCipher> &ciphers)
 }
 
 /*!
-    Returns the default cryptographic cipher suite for all sockets in this
-    application. This list is used during the socket's handshake phase when
-    negotiating ciphers with the peer. The list is returned in descending
-    preferred order (i.e., the first cipher in the list is the most preferred
-    cipher).
+    Returns the default cryptographic cipher suite for all sockets in
+    this application. This list is used during the socket's handshake
+    phase when negotiating with the peer to choose a session cipher.
+    The list is ordered by preference (i.e., the first cipher in the
+    list is the most preferred cipher).
 
-    By default, the system will use a predefined set of ciphers that works for
-    most common cases. This set is defined by the current SSL libraries, and
-    may vary from system to system.
+    By default, the handshake phase can choose any of the ciphers
+    supported by this system's SSL libraries, which may vary from
+    system to system. The list of ciphers supported by this system's
+    SSL libraries is returned by supportedCiphers().
 
     \sa supportedCiphers()
 */
@@ -796,10 +816,9 @@ QList<QSslCipher> QSslSocket::defaultCiphers()
 }
 
 /*!
-    Returns the list of cryptographic ciphers supported by this system.
-
-    This list is determined by the current SSL libraries, and may vary from
-    system to system.
+    Returns the list of cryptographic ciphers supported by this
+    system. This list is set by the current SSL libraries and may vary
+    from system to system.
 
     \sa defaultCiphers(), ciphers(), setCiphers()
 */
@@ -888,7 +907,8 @@ QList<QSslCertificate> QSslSocket::caCertificates() const
 
     \sa defaultCaCertificates(), addCaCertificates(), addDefaultCaCertificate()
 */
-bool QSslSocket::addDefaultCaCertificates(const QString &path, QSsl::EncodingFormat encoding,
+bool QSslSocket::addDefaultCaCertificates(const QString &path,
+					  QSsl::EncodingFormat encoding,
                                           QRegExp::PatternSyntax syntax)
 {
     return QSslSocketPrivate::addDefaultCaCertificates(path, encoding, syntax);
@@ -1359,7 +1379,8 @@ void QSslSocketPrivate::setDefaultCiphers(const QList<QSslCipher> &ciphers)
 /*!
     \internal
 */
-void QSslSocketPrivate::setDefaultSupportedCiphers(const QList<QSslCipher> &ciphers)
+void
+QSslSocketPrivate::setDefaultSupportedCiphers(const QList<QSslCipher> &ciphers)
 {
     QMutexLocker locker(&globalData()->mutex);
     globalData()->supportedCiphers = ciphers;
@@ -1378,7 +1399,8 @@ QList<QSslCertificate> QSslSocketPrivate::defaultCaCertificates()
 /*!
     \internal
 */
-void QSslSocketPrivate::setDefaultCaCertificates(const QList<QSslCertificate> &certs)
+void
+QSslSocketPrivate::setDefaultCaCertificates(const QList<QSslCertificate> &certs)
 {
     QSslSocketPrivate::ensureInitialized();
     QMutexLocker locker(&globalData()->mutex);
@@ -1388,11 +1410,13 @@ void QSslSocketPrivate::setDefaultCaCertificates(const QList<QSslCertificate> &c
 /*!
     \internal
 */
-bool QSslSocketPrivate::addDefaultCaCertificates(const QString &path, QSsl::EncodingFormat format,
-                                                 QRegExp::PatternSyntax syntax)
+bool
+QSslSocketPrivate::addDefaultCaCertificates(const QString &path,
+					    QSsl::EncodingFormat format,
+					    QRegExp::PatternSyntax syntax)
 {
     QSslSocketPrivate::ensureInitialized();
-    QList<QSslCertificate> certs = QSslCertificate::fromPath(path, format, syntax);
+    QList<QSslCertificate> certs=QSslCertificate::fromPath(path,format,syntax);
     if (certs.isEmpty())
         return false;
 
@@ -1414,7 +1438,8 @@ void QSslSocketPrivate::addDefaultCaCertificate(const QSslCertificate &cert)
 /*!
     \internal
 */
-void QSslSocketPrivate::addDefaultCaCertificates(const QList<QSslCertificate> &certs)
+void
+QSslSocketPrivate::addDefaultCaCertificates(const QList<QSslCertificate> &certs)
 {
     QSslSocketPrivate::ensureInitialized();
     QMutexLocker locker(&globalData()->mutex);
