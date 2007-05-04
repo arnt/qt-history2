@@ -107,6 +107,10 @@ Third party components
       for several architectures (ARM, i386, PowerPC, x86-64).
     * [133043] Added support for atomic fetch-and-add.
 
+- QAuthenticator
+    * New Class. Needed for authentication support in the Network module.
+      Currently supports the Basic, Digest-Md5 and Ntlm authentication mechanisms.
+
 - QBitArray
     * [158816] Fix crash in operator~()
 
@@ -125,6 +129,9 @@ Third party components
 
 - QChar
     * Updated the Unicode tables to Unicode 5.0
+    * Added foldCase() and toTitleCase() methods.
+    * Added public API to handle the full Unicode range.
+
 
 - QColor
     * [140150] Fixed bug where QColor::isValid() would return true for certain
@@ -172,6 +179,12 @@ Third party components
     * [152840] Fixed bug where QComboBox does not automatically scroll to the current item
     * [90172] Fixed bug where sizeHint iterated over all icons to detect availability.
 
+- QCryptographicHash
+    * New Class. Implements support for the Md4, Md5 and Sha1 hash functions.
+
+- QFont
+    * X11: Add a method to retrieve the freetype handle from the QFont.
+
 - QFontComboBox
     * [132826] QFontComboBox popup could be shown off-screen.
     * [155614] Speedup addItem() and addItems().
@@ -179,6 +192,7 @@ Third party components
 
 - QFontMetrics
     * [152013] Fixed bug where boundingRect() gave too big a size using Visual Studio 6.
+    * [145980] Added tightBoundingBox() method.
 
 - QCompleter
     * Significantly reduced the construction time.
@@ -243,6 +257,8 @@ Third party components
     * [131852] Optimized 90 and 270 degrees rotation.
     * [158986] Fixed painting onto a QImage with format QImage::Format_RGB16.
     * Fixed 90 and 270 degrees rotation for QImage::Format_RGB16.
+    * [152850] Fixed bug in QImage::text()/setText().
+    * don't crash when passing a 0 pointer to the constructor from a xpm.
 
 - QImageReader
     * [141781] Fixed support for doublebyte PPM files (>256 colors).
@@ -310,6 +326,7 @@ Third party components
       the QSocketNotifier is deregistered.
     * [140018] Mac OS X will now invalidate the backing native socket
       notifier upon deregistration.
+    * Optimise performance by avoiding some debugging code in release builds.
 
 - QSslCertificate
 - QSslCipher
@@ -322,6 +339,7 @@ Third party components
     * Several fixes for improved connection reliability on Windows.
     * Several optimizations.
     * Improved detection of ConnectionRefusedError on Windows and older Unixes.
+    * Added support for proxy authentication.
 
 - QTemporaryFile
     * [150770] Fixed large file support on Unix.
@@ -404,6 +422,9 @@ Third party components
 
 - QHttp
     * [139575] Fixed state for servers that use the "100 Continue" response.
+    * Added support for the https protocol.
+    * Improved proxy support.
+    * Added support for server and proxy authentication.
 
 - QItemSelectionModel
     * Optimizations for some common cases.
@@ -456,6 +477,9 @@ Third party components
 - QNetworkProxy
     * Added support for transparent HTTP CONNECT client proxying.
     * Added support for complex authenticators through QAuthenticator.
+
+- QRectF
+    * [143550] Added QRectF(topRight,bottomLeft) constructor.
 
 - QResource
     * [129429] Allow a QByteArray for runtime resource registration.
@@ -552,6 +576,7 @@ Third party components
     * [137309] Fixed a rare deadlock when compiling with optimizations enabled.
     * Optimize recursive locking to avoid 2 unnecessary atomic
       operations when the current thread already owns the lock.
+    * Optimise non recursive mutexes by avoiding call to pthread_self() on Unix.
 
 - QObject
     * Added a compile time check to ensure that the objects passed to
@@ -693,15 +718,21 @@ Third party components
     * Optimized blending operations in the raster paint engine using MMX,
       3DNOW and SSE2.
     * Optimized QPainter::fillRect() for opaque brushes.
+    * General speed optimisations, esp in the openGL and Raster paint engines.
+
+- QPainterPath
+    * [136924] Correctly convert Traditional Chinese fonts as e.g. MingLiu to painter paths.
 
 - QPicture
     * [142703] QPicture now correctly preserves composition mode changes.
     * Fix QPicture text sizes on devices with non-default DPI.
     * [133727] Fix text alignment when drawing RightToLeft formatted text into a QPicture.
+    * [154088] Fix bugs when reading Qt3 generated QPicture files.
 
 - QPixmap
     * Added cacheKey() as a replacement for serialNumber().
     * [97426] Add a way to invert masks created with createMaskFromColor().
+    * don't crash when passing a 0 pointer to the constructor from a xpm.
 
 - QPixmapCache
     * [144319] Reinserting a pixmap now moves it to the top of the Least Recently Used-list.
@@ -719,14 +750,26 @@ Third party components
     * [141486] Made QPrintDialog::setPrintRange correctly update the print dialog on X11.
     * [154690] "Print last page first" did not update the QPrinter instance on X11.
     * [149991] Support more text encodings in the PPD subdialog.
+    * [158824] Disable Ok button in the dialog if no printers are installed
+    * [128990] Don't create the output filename in the printdialog when printing to a file on X11.
 
 - QPrinter
     * Added QPrinter::supportedPaperSources()
     * [153735] Significantly speed up generation of PDF documents with Asian characters.
     * [140759] Document that you can't change orientation on an active printer on Mac OS X (native format).
+    * [136242] PS generator: Don't generate huge Postscript files for pattern brushes
     * [139566] Added support for alpha blending when printing on Windows.
     * [151495] Fixed image scaling problems when printing on Windows.
     * [146788] Optimized drawTiledPixmap on Windows.
+    * [152637] PDF generator: Setup the pageRect correctly.
+    * [152222] PDF generator: Fixed bug that lead to fonts being to small on Mac OS X.
+    * [151126] Respect ScreenResolution on Mac OS X.
+    * [151141] PDF generator: Make PDFs using the default font on Mac OS X searchable.
+    * [129297, 140555] PS/PDF generator: Drastically reduce size of generated files and speedup generation when using simple pens.
+    * [143803] Correctly set the default printer name on X11.
+    * [134204] PDF generator: generate correct output when drawing 1bit images
+    * [152068, 151541] PS generator: Generate correct PS when embedding TrueType fonts with broken POST tables.
+    * [143270] X11: Ignore sigpipe when printing to an invalid printer using the PDF generator.
 
 - QProgressBar
     * [146855] setFormat() now calls update() if the format changes.
@@ -852,6 +895,10 @@ Third party components
 - QString
     * fromUtf8() now discards UTF-8 encoded byte order marks just like the UTF-8 QTextCodec
     * [154454] Fixed several UTF-8 decoder compliance problems (also affects the UTF-8 QTextCodec).
+    * Remove old compatibility hack in fromUtf8()/toUtf8() to allow round trip conversions of invalid utf8.
+    * Support full Unicode case mappings for toUpper/toLower.
+    * Correctly implement case folding (foldCase() method). Also for QChar.
+    * [54399] Add more overloads (taking up to 9 arguments) for QString::arg().
 
 - QStringListModel
     * Make it possible to drop items below the other visible items on a view with a QStringListModel
@@ -920,17 +967,6 @@ Third party components
     * [136397, 144320, and 144322] Various border styles and border brushes are now supported.
     * [139052] Made sure that empty text table cells get a visible selection.
 
-- QToolButton
-    * [127814] The popup delay is now respecting style changes.
-
-- QToolTip
-    * [135988] Allow tooltips to be shown immediately below the cursor
-    * [148546] The usage of tooltip fading now adhers to user settings on Mac.
-    * [145458] Tooltip fading now looks native on Mac (fading out rather than in).
-    * [145557] Tooltips doesn't remain if the mouse leaves the application fast on Mac.
-    * [143701] Tooltips doesn't hide behind stay-on-top windows on Mac.
-    * [158794] Fixed bug on Mac OSX here isVisible() returns true even though the tip is hidden.
-
 - QTextDocumentFragment
     * QTextDocumentFragment no more stores the root frame properties,
       the document title or the document default font when it's created
@@ -966,8 +1002,17 @@ Third party components
     * [137706] Make the semantics of the selectionChanged signal more alike QLineEdit::selectionChanged()
 
 - QToolButton
+    * [127814] The popup delay is now respecting style changes.
     * [130358] Send Hover to the associated QAction upon enter.
     * [106760] Fixed bug where the button was drawn as pressed when using MenuButtonPopup as popup mode.
+
+- QToolTip
+    * [135988] Allow tooltips to be shown immediately below the cursor
+    * [148546] The usage of tooltip fading now adhers to user settings on Mac.
+    * [145458] Tooltip fading now looks native on Mac (fading out rather than in).
+    * [145557] Tooltips doesn't remain if the mouse leaves the application fast on Mac.
+    * [143701] Tooltips doesn't hide behind stay-on-top windows on Mac.
+    * [158794] Fixed bug on Mac OSX here isVisible() returns true even though the tip is hidden.
 
 - QTableView
     * [158096] resizeColumnToContents(int i) now has the same behaviour as
@@ -1002,6 +1047,10 @@ Third party components
 - QTextLayout
     * Fixed support for justified arabic text.
     * [152248] Fixed assert in sub/superscript handling of fonts specified in pixel sizes.
+    * Optimise text layouting for pure latin text.
+    * Skip opentype processing alltogether if the font doesn't contain open type tables.
+    * Fix some issues in the shaper for indic languages.
+    * Upgrade line breaking algorithm to the newest version (http://www.unicode.org/reports/tr14/tr14-19.html).
 
 - QTreeWidget
     * [153361] Check that an item exists before emiting itemChanged().
