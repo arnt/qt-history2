@@ -3275,7 +3275,7 @@ static bool indic_shape_syllable(QOpenType *openType, QShaperItem *item, bool in
 
    We return syllable boundaries on invalid combinations aswell
 */
-#if defined(Q_WS_X11) || defined(Q_WS_QWS)
+#if defined(Q_WS_X11) || defined(Q_WS_QWS) || defined(Q_WS_MAC)
 static int indic_nextSyllableBoundary(int script, const QString &s, int start, int end, bool *invalid)
 {
     *invalid = false;
@@ -3497,7 +3497,7 @@ static void thaiWordBreaks(const QChar *string, const int len, QCharAttributes *
 #endif
 
 
-#if defined(Q_WS_X11) || defined(Q_WS_QWS)
+#if defined(Q_WS_X11) || defined(Q_WS_QWS) || defined(Q_WS_MAC)
 static void thai_attributes( int script, const QString &text, int from, int len, QCharAttributes *attributes )
 {
     Q_UNUSED(script);
@@ -3731,7 +3731,7 @@ static bool tibetan_shape(QShaperItem *item)
 }
 #endif
 
-#if defined(Q_WS_X11) || defined(Q_WS_QWS)
+#if defined(Q_WS_X11) || defined(Q_WS_QWS) || defined(Q_WS_MAC)
 static void tibetan_attributes(int script, const QString &text, int from, int len, QCharAttributes *attributes)
 {
     Q_UNUSED(script);
