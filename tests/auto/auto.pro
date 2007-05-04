@@ -95,6 +95,7 @@ SUBDIRS += bic \
            qdialog \
            qdialogbuttonbox \
            qdir \
+           qdirectpainter \
            qdirmodel \
            qdockwidget \
            qdom \
