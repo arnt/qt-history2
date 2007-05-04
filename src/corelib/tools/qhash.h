@@ -546,8 +546,8 @@ Q_INLINE_TEMPLATE QHash<Key, T> &QHash<Key, T>::operator=(const QHash<Key, T> &o
 template <class Key, class T>
 Q_INLINE_TEMPLATE const T QHash<Key, T>::value(const Key &akey) const
 {
-    Node *node = *findNode(akey);
-    if (node == e) {
+    Node *node;
+    if (d->size == 0 || (node = *findNode(akey)) == e) {
         return T();
     } else {
         return node->value;
@@ -557,8 +557,8 @@ Q_INLINE_TEMPLATE const T QHash<Key, T>::value(const Key &akey) const
 template <class Key, class T>
 Q_INLINE_TEMPLATE const T QHash<Key, T>::value(const Key &akey, const T &adefaultValue) const
 {
-    Node *node = *findNode(akey);
-    if (node == e) {
+    Node *node;
+    if (d->size == 0 || (node = *findNode(akey)) == e) {
         return adefaultValue;
     } else {
         return node->value;

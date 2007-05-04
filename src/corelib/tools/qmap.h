@@ -406,8 +406,8 @@ Q_INLINE_TEMPLATE QMapData::Node *QMap<Key, T>::findNode(const Key &akey) const
 template <class Key, class T>
 Q_INLINE_TEMPLATE const T QMap<Key, T>::value(const Key &akey) const
 {
-    QMapData::Node *node = findNode(akey);
-    if (node == e) {
+    QMapData::Node *node;
+    if (d->size == 0 || (node = findNode(akey)) == e) {
         return T();
     } else {
         return concrete(node)->value;
@@ -417,8 +417,8 @@ Q_INLINE_TEMPLATE const T QMap<Key, T>::value(const Key &akey) const
 template <class Key, class T>
 Q_INLINE_TEMPLATE const T QMap<Key, T>::value(const Key &akey, const T &adefaultValue) const
 {
-    QMapData::Node *node = findNode(akey);
-    if (node == e) {
+    QMapData::Node *node;
+    if (d->size == 0 || (node = findNode(akey)) == e) {
         return adefaultValue;
     } else {
         return concrete(node)->value;
