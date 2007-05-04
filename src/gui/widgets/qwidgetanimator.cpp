@@ -61,6 +61,16 @@ QWidgetAnimator::~QWidgetAnimator()
     delete m_time;
 }
 
+void QWidgetAnimator::abort(QWidget *w)
+{
+    if (m_animation_map.remove(w) == 0)
+        return;
+    if (m_animation_map.isEmpty()) {
+        m_timer->stop();
+        emit finishedAll();
+    }
+}
+
 void QWidgetAnimator::animate(QWidget *widget, const QRect &_final_geometry, bool animate)
 {
     QRect final_geometry = _final_geometry;

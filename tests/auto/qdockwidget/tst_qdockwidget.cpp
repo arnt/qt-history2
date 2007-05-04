@@ -182,10 +182,10 @@ void tst_QDockWidget::features()
     QSignalSpy spy(&dw, SIGNAL(featuresChanged(QDockWidget::DockWidgetFeatures)));
 
     // default features for dock widgets
-    int allDockWidgetFeatures = QDockWidget::DockWidgetClosable | 
-                                QDockWidget::DockWidgetMovable  | 
+    int allDockWidgetFeatures = QDockWidget::DockWidgetClosable |
+                                QDockWidget::DockWidgetMovable  |
                                 QDockWidget::DockWidgetFloatable;
-    
+
     // defaults
     QCOMPARE(dw.features(), allDockWidgetFeatures);
     QVERIFY(hasFeature(&dw, QDockWidget::DockWidgetClosable));
@@ -576,9 +576,7 @@ void tst_QDockWidget::dockLocationChanged()
     spy.clear();
 
     mw.addDockWidget(Qt::LeftDockWidgetArea, &dw);
-    QCOMPARE(spy.count(), 2);
-    QCOMPARE(qvariant_cast<Qt::DockWidgetArea>(spy.at(0).at(0)),
-                Qt::NoDockWidgetArea);
+    QCOMPARE(spy.count(), 1);
     QCOMPARE(qvariant_cast<Qt::DockWidgetArea>(spy.at(1).at(0)),
                 Qt::LeftDockWidgetArea);
     spy.clear();

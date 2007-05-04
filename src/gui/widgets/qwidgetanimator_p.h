@@ -43,6 +43,8 @@ public:
     bool animating() const;
     bool animating(QWidget *widget);
 
+    void abort(QWidget *widget);
+
 signals:
     void finished(QWidget *widget);
     void finishedAll();
