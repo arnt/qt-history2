@@ -3448,7 +3448,7 @@ static void indic_attributes(int script, const QString &text, int from, int len,
 #include <qlibrary.h>
 
 
-#if defined(Q_WS_X11) || defined(Q_WS_QWS)
+#if defined(Q_WS_X11) || defined(Q_WS_QWS) || defined(Q_WS_MAC)
 static void thaiWordBreaks(const QChar *string, const int len, QCharAttributes *attributes)
 {
 #ifdef QT_NO_TEXTCODEC
@@ -3642,7 +3642,7 @@ static bool tibetan_shape_syllable(QOpenType *openType, QShaperItem *item, bool 
 #endif
 
 
-#if defined(Q_WS_X11) || defined(Q_WS_QWS)
+#if defined(Q_WS_X11) || defined(Q_WS_QWS) || defined(Q_WS_MAC)
 static int tibetan_nextSyllableBoundary(const QString &s, int start, int end, bool *invalid)
 {
     const QChar *uc = s.unicode() + start;
