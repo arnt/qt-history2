@@ -1021,15 +1021,31 @@ static void addSelectedRegionsToPath(QTextEngine *eng, int lineNumber, const QPo
 
     const QFixed y = QFixed::fromReal(pos.y()) + line.y + line.ascent;
 
+    const qreal lineHeight = line.height().toReal();
+    const qreal selectionY = (y - line.ascent).toReal();
+
+    QFixed lastSelectionX = iterator.x;
+    QFixed lastSelectionWidth;
+
     while (!iterator.atEnd()) {
         iterator.next();
 
         QFixed selectionX, selectionWidth;
         if (iterator.getSelectionBounds(&selectionX, &selectionWidth)) {
-            QRectF r(selectionX.toReal(), (y - line.ascent).toReal(), selectionWidth.toReal(), line.height().toReal());
-            region->addRect(r);
+            if (selectionX == lastSelectionX + lastSelectionWidth) {
+                lastSelectionWidth += selectionWidth;
+                continue;
+            }
+
+            if (lastSelectionWidth > 0)
+                region->addRect(QRectF(lastSelectionX.toReal(), selectionY, lastSelectionWidth.toReal(), lineHeight));
+
+            lastSelectionX = selectionX;
+            lastSelectionWidth = selectionWidth;
         }
     }
+    if (lastSelectionWidth > 0)
+        region->addRect(QRectF(lastSelectionX.toReal(), selectionY, lastSelectionWidth.toReal(), lineHeight));
 }
 
 /*!
