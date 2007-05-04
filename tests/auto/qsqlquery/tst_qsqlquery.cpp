@@ -732,7 +732,7 @@ void tst_QSqlQuery::outValuesDB2()
                      "END P1"),
              tst_Databases::printError(q.lastError()));
 
-    QVERIFY2(q.prepare("call " + qTableName("tst_outValues") + "(? ? ?)"),
+    QVERIFY2(q.prepare("call " + qTableName("tst_outValues") + "(?, ?, ?)"),
 	    tst_Databases::printError(q.lastError()));
 
     q.addBindValue(0, QSql::Out);
