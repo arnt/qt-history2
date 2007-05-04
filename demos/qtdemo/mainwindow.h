@@ -66,6 +66,7 @@ private:
     void checkAdapt();
     QTimer updateTimer;
     QTime demoStartTime;
+    QTime fpsTime;
     QPixmap background;
     ImageItem *trolltechLogo;
     ImageItem *qtLogo;

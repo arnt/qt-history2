@@ -146,6 +146,7 @@ void MainWindow::switchTimerOnOff(bool on)
     if (on && !Colors::noTimerUpdate){
         this->useTimer = true;
         this->setViewportUpdateMode(QGraphicsView::NoViewportUpdate);
+        this->fpsTime = QTime::currentTime();
         this->updateTimer.start(int(1000 / Colors::fps));
     }
     else{
@@ -161,15 +162,14 @@ void MainWindow::switchTimerOnOff(bool on)
 }	
 
 bool MainWindow::measureFps()
-{ 
-    static QTime prev = QTime::currentTime();
-    float t = prev.msecsTo(QTime::currentTime());
+{
+    // Calculate time diff: 
+    float t = this->fpsTime.msecsTo(QTime::currentTime());
     if (t == 0)
-        t = 0.01f;
-        
+        t = 0.01f;    
     this->currentFps = (1000.0f / t);
     this->fpsHistory += this->currentFps;
-    prev = QTime::currentTime();
+    this->fpsTime = QTime::currentTime();
 
     // Calculate median:
     int size = this->fpsHistory.size();
