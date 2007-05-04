@@ -39,30 +39,6 @@ static bool parsePathDataFast(const QStringRef &data, QPainterPath &path);
 static QPen defaultPen(Qt::black, 1, Qt::NoPen,
                        Qt::FlatCap, Qt::SvgMiterJoin);
 
-static QString xmlSimplify(const QString &str)
-{
-    QString dummy = str;
-    dummy.remove(QLatin1Char('\n'));
-    if (dummy.trimmed().isEmpty())
-        return QString();
-    QString temp;
-    QString::const_iterator itr = dummy.constBegin();
-    bool wasSpace = false;
-    for (;itr != dummy.constEnd(); ++itr) {
-        if ((*itr).isSpace()) {
-            if (wasSpace || !(*itr).isPrint()) {
-                continue;
-            }
-            temp += *itr;
-            wasSpace = true;
-        } else {
-            temp += *itr;
-            wasSpace = false;
-        }
-    }
-    return temp;
-}
-
 struct QSvgAttributes
 {
     QSvgAttributes(const QXmlStreamAttributes &xmlAttributes, QSvgHandler *handler);
@@ -3233,6 +3209,27 @@ bool QSvgHandler::startElement(const QString &localName,
         m_colorTagCount.push(top);
     }
 
+    /* The xml:space attribute may appear on any element. We do
+     * a lookup by the qualified name here, but this is namespace aware, since
+     * the XML namespace can only be bound to prefix "xml." */
+    const QStringRef xmlSpace(attributes.value(QLatin1String("xml:space")));
+    if(xmlSpace.isNull())
+    {
+        // This element has no xml:space attribute.
+        m_whitespaceMode.push(Default);
+    }
+    else if(xmlSpace == QLatin1String("preserve"))
+        m_whitespaceMode.push(Preserve);
+    else if(xmlSpace == QLatin1String("default"))
+        m_whitespaceMode.push(Default);
+    else
+    {
+        qWarning() << QString::fromLatin1("\"%1\" is an invalid value for attribute xml:space. "
+                                          "Valid values are \"preserve\" and \"default\".").arg(xmlSpace.toString());
+
+        m_whitespaceMode.push(Default);
+    }
+
     if (s_groupFactory.contains(localName)) {
         //group
         m_style = 0;
@@ -3330,6 +3327,7 @@ bool QSvgHandler::endElement(const QStringRef &localName)
 {
     CurrentNode node = m_skipNodes.top();
     m_skipNodes.pop();
+    m_whitespaceMode.pop();
 
     if (m_colorTagCount.count()) {
         int top = m_colorTagCount.pop();
@@ -3368,7 +3366,7 @@ bool QSvgHandler::characters(const QStringRef &str)
     } else if (m_skipNodes.top() == Unknown)
         return true;
 
-    QString text = xmlSimplify(str.toString());
+    const QString text(normalizeCharacters(str.toString()));
     if (text.isEmpty())
         return true;
 
@@ -3380,7 +3378,37 @@ bool QSvgHandler::characters(const QStringRef &str)
     return true;
 }
 
+/*!
+  \internal
+  Makes sure whitespace in \a input is treated as according to the xml:space attribute.
 
+  See Scalable Vector Graphics (SVG) 1.1 Specification, 10.15 White space handling.
+  */
+QString QSvgHandler::normalizeCharacters(const QString &input) const
+{
+    if(m_whitespaceMode.top() == Default)
+        return input.simplified();
+    else
+    {
+        Q_ASSERT(m_whitespaceMode.top() == Preserve);
+
+        QString retval(input);
+        const int len = retval.length();
+
+        for(int i = 0; i < len; ++i)
+        {
+            switch(retval.at(i).unicode())
+            {
+                case '\t':
+                /* Fallthrough. */
+                case '\n':
+                    retval[i] = QLatin1Char(' ');
+            }
+        }
+
+        return retval;
+    }
+}
 
 void QSvgHandler::init()
 {

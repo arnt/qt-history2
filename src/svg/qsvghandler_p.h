@@ -109,6 +109,7 @@ public:
 
 private:
     void init();
+    QString normalizeCharacters(const QString &input) const;
 
     QSvgTinyDocument *m_doc;
     QStack<QSvgNode*> m_nodes;
@@ -123,6 +124,18 @@ private:
     };
     QStack<CurrentNode> m_skipNodes;
 
+    enum WhitespaceMode
+    {
+        Preserve,
+        Default
+    };
+
+    /*!
+        Follows the depths of elements. The top is current xml:space
+        value that applies for a given element.
+     */
+    QStack<WhitespaceMode> m_whitespaceMode;
+
     QSvgRefCounter<QSvgStyleProperty> m_style;
 
     LengthType m_defaultCoords;
@@ -135,7 +148,7 @@ private:
     QSvgStyleSelector *m_selector;
 
     int m_animEnd;
-private:
+
     QXmlStreamReader xml;
     QCss::Parser m_cssParser;
     void parse();
