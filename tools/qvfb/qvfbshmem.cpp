@@ -185,9 +185,11 @@ QShMemViewProtocol::QShMemViewProtocol(int displayid, const QSize &s,
     hdr->height = h;
     hdr->depth = actualdepth;
     hdr->linestep = bpl;
-    hdr->numcols = 0;
     hdr->dataoffset = data_offset_value;
     hdr->update = QRect();
+    hdr->dirty = 0;
+    hdr->numcols = 0;
+    hdr->viewerVersion = QT_VERSION;
 
     displayPipe = qws_dataDir(displayid) + QString( QTE_PIPE ).arg( displayid );
 
