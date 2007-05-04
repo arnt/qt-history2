@@ -64,6 +64,9 @@ public:
     const Grid &designerGrid() const { return m_grid; }
     void setDesignerGrid(const  Grid& grid);
 
+    bool hasFormGrid() const { return m_hasFormGrid; }
+    void setHasFormGrid(bool b) { m_hasFormGrid = b; }
+
     bool gridVisible() const;
 
     static const Grid &defaultDesignerGrid() { return m_defaultGrid; }
@@ -92,6 +95,7 @@ private:
 
     Feature m_feature;
     Grid m_grid;
+    bool m_hasFormGrid;
 };
 }  // namespace qdesigner_internal
 

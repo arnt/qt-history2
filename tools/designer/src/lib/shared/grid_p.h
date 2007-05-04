@@ -40,10 +40,10 @@ class QDESIGNER_SHARED_EXPORT Grid
 public:
     Grid();
 
-    void fromVariantMap(const QVariantMap& vm);
+    bool fromVariantMap(const QVariantMap& vm);
 
-    void addToVariantMap(QVariantMap& vm) const;
-    QVariantMap toVariantMap() const;
+    void addToVariantMap(QVariantMap& vm, bool forceKeys = false) const;
+    QVariantMap toVariantMap(bool forceKeys = false) const;
 
     inline bool visible() const   { return m_visible; }
     void setVisible(bool visible) { m_visible = visible; }

@@ -121,5 +121,7 @@ FORMS += $$APP_DIR/newform.ui \
 
 SOURCES += ../../shared/fontpanel/fontpanel.cpp
 
-TRANSLATIONS=$$[QT_INSTALL_TRANSLATIONS]/designer_de.ts $$[QT_INSTALL_TRANSLATIONS]/designer_untranslated.ts
+TRANSLATIONS=$$[QT_INSTALL_TRANSLATIONS]/designer_de.ts \
+             $$[QT_INSTALL_TRANSLATIONS]/designer_ja.ts \
+             $$[QT_INSTALL_TRANSLATIONS]/designer_untranslated.ts 
 error("This is a dummy profile to be used for translations ONLY.")

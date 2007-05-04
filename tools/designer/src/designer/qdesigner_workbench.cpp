@@ -1214,6 +1214,13 @@ void QDesignerWorkbench::applyPreferences(const Preferences &preferences)
 
     qdesigner_internal::FormWindowBase::setDefaultDesignerGrid(preferences.m_defaultGrid);
 
+    QDesignerFormWindowManagerInterface *fwm = formWindowManager();
+    if (const int numWindows =  fwm->formWindowCount()) {
+        for (int i = 0; i < numWindows; i++)
+            if (qdesigner_internal::FormWindowBase *fwb = qobject_cast<qdesigner_internal::FormWindowBase *>( fwm->formWindow(i)))
+                if (!fwb->hasFormGrid())
+                    fwb->setDesignerGrid(preferences.m_defaultGrid);
+    }
 }
 
 void QDesignerWorkbench::setDesignerUIFont(const QFont &font)

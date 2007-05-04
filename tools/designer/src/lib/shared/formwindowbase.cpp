@@ -33,7 +33,8 @@ Grid FormWindowBase::m_defaultGrid;
 FormWindowBase::FormWindowBase(QWidget *parent, Qt::WindowFlags flags) :
     QDesignerFormWindowInterface(parent, flags),
     m_feature(DefaultFeature),
-    m_grid(m_defaultGrid)
+    m_grid(m_defaultGrid),
+    m_hasFormGrid(false)
 {
     syncGridFeature();
 }
@@ -41,13 +42,17 @@ FormWindowBase::FormWindowBase(QWidget *parent, Qt::WindowFlags flags) :
 QVariantMap FormWindowBase::formData()
 {
     QVariantMap rc;
-    m_grid.addToVariantMap(rc);
+    if (m_hasFormGrid)
+        m_grid.addToVariantMap(rc, true);
     return rc;
 }
 
 void FormWindowBase::setFormData(const QVariantMap &vm)
 {
-    m_grid.fromVariantMap(vm);
+    Grid formGrid;
+    m_hasFormGrid = formGrid.fromVariantMap(vm);
+    if (m_hasFormGrid)
+         m_grid = formGrid;
 }
 
 QPoint FormWindowBase::grid() const

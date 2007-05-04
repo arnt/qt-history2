@@ -60,4 +60,30 @@ void GridPanel::reset()
 {
     setGrid(Grid());
 }
+
+void GridPanel::setCheckable (bool c)
+{
+    m_ui->m_gridGroupBox->setCheckable(c);
+}
+
+bool GridPanel::isCheckable () const
+{
+    return m_ui->m_gridGroupBox->isCheckable ();
+}
+
+bool GridPanel::isChecked () const
+{
+    return m_ui->m_gridGroupBox->isChecked ();
+}
+
+void GridPanel::setChecked(bool c)
+{
+    m_ui->m_gridGroupBox->setChecked(c);
+}
+
+void GridPanel::setResetButtonVisible(bool v)
+{
+    m_ui->m_resetButton->setVisible(v);
+}
+
 }

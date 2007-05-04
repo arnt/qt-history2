@@ -30,17 +30,19 @@ static const char* KEY_DELTAY =  "gridDeltaY";
 
 // Insert a value into the serialization map unless default
 template <class T>
-    static inline void valueToVariantMap(T value, T defaultValue, const QString &key, QVariantMap &v) {
-        if (value != defaultValue)
+    static inline void valueToVariantMap(T value, T defaultValue, const QString &key, QVariantMap &v, bool forceKey) {
+        if (forceKey || value != defaultValue)
             v.insert(key, QVariant(value));
     }
 
 // Obtain a value form QVariantMap
 template <class T>
-    static inline void valueFromVariantMap(const QVariantMap &v, const QString &key, T &value) {
+    static inline bool valueFromVariantMap(const QVariantMap &v, const QString &key, T &value) {
         const QVariantMap::const_iterator it = v.constFind(key);
-        if (it != v.constEnd())
+        const bool found = it != v.constEnd();
+        if (found)
             value = qVariantValue<T>(it.value());
+        return found;
     }
 
 namespace qdesigner_internal
@@ -55,30 +57,30 @@ Grid::Grid() :
 {
 }
 
-void  Grid::fromVariantMap(const QVariantMap& vm)
+bool Grid::fromVariantMap(const QVariantMap& vm)
 {
     *this = Grid();
     valueFromVariantMap(vm, QLatin1String(KEY_VISIBLE), m_visible);
     valueFromVariantMap(vm, QLatin1String(KEY_SNAPX), m_snapX);
     valueFromVariantMap(vm, QLatin1String(KEY_SNAPY), m_snapY);
     valueFromVariantMap(vm, QLatin1String(KEY_DELTAX), m_deltaX);
-    valueFromVariantMap(vm, QLatin1String(KEY_DELTAY), m_deltaY);
+    return valueFromVariantMap(vm, QLatin1String(KEY_DELTAY), m_deltaY);
 }
 
-QVariantMap Grid::toVariantMap() const
+QVariantMap Grid::toVariantMap(bool forceKeys) const
 {
     QVariantMap rc;
-    addToVariantMap(rc);
+    addToVariantMap(rc, forceKeys);
     return rc;
 }
 
-void  Grid::addToVariantMap(QVariantMap& vm) const
+void  Grid::addToVariantMap(QVariantMap& vm, bool forceKeys) const
 {
-    valueToVariantMap(m_visible, defaultVisible, QLatin1String(KEY_VISIBLE), vm);
-    valueToVariantMap(m_snapX, defaultSnap, QLatin1String(KEY_SNAPX), vm);
-    valueToVariantMap(m_snapY, defaultSnap, QLatin1String(KEY_SNAPY), vm);
-    valueToVariantMap(m_deltaX, DEFAULT_GRID, QLatin1String(KEY_DELTAX), vm);
-    valueToVariantMap(m_deltaY, DEFAULT_GRID, QLatin1String(KEY_DELTAY), vm);
+    valueToVariantMap(m_visible, defaultVisible, QLatin1String(KEY_VISIBLE), vm, forceKeys);
+    valueToVariantMap(m_snapX, defaultSnap, QLatin1String(KEY_SNAPX), vm, forceKeys);
+    valueToVariantMap(m_snapY, defaultSnap, QLatin1String(KEY_SNAPY), vm, forceKeys);
+    valueToVariantMap(m_deltaX, DEFAULT_GRID, QLatin1String(KEY_DELTAX), vm, forceKeys);
+    valueToVariantMap(m_deltaY, DEFAULT_GRID, QLatin1String(KEY_DELTAY), vm, forceKeys);
 }
 
 void Grid::paint(QWidget *widget, QPaintEvent *e, bool needFrame) const

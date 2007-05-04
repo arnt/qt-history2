@@ -63,6 +63,7 @@
 #include <QtCore/qdebug.h>
 #include <QtCore/QTimer>
 #include <QtCore/QMetaObject>
+#include <QtCore/QFileInfo>
 #include <QtGui/QStatusBar>
 #include <QtGui/QDesktopWidget>
 #include <QtXml/QDomDocument>
@@ -1063,6 +1064,11 @@ void QDesignerActions::showFormSettings()
     if (! settingsDialog)
         settingsDialog = new FormWindowSettings(formWindow);
 
+    QString title = QFileInfo(formWindow->fileName()).fileName();
+    if (title.isEmpty())
+        title = window->windowTitle();
+
+    settingsDialog->setWindowTitle(tr("Form Settings - %1").arg(title));
     if (settingsDialog->exec() && window) {
         formWindow->setDirty(true);
         window->updateChanged();

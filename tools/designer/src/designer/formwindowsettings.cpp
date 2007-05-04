@@ -16,11 +16,14 @@
 #include <QtGui/QStyle>
 
 FormWindowSettings::FormWindowSettings(QDesignerFormWindowInterface *parent) :
-    QDialog(parent), 
+    QDialog(parent),
     m_formWindow(qobject_cast<qdesigner_internal::FormWindowBase*>(parent))
 {
     Q_ASSERT(m_formWindow);
     ui.setupUi(this);
+    ui.gridPanel->setCheckable(true);
+    ui.gridPanel->setResetButtonVisible(false);
+
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
     int defaultMargin = INT_MIN, defaultSpacing = INT_MIN;
@@ -64,8 +67,10 @@ FormWindowSettings::FormWindowSettings(QDesignerFormWindowInterface *parent) :
 
         ui.includeHintsTextEdit->append(includeHint);
     }
-    
-    ui.gridPanel->setGrid(m_formWindow->designerGrid());
+
+    const bool hasFormGrid = m_formWindow->hasFormGrid();
+    ui.gridPanel->setChecked(hasFormGrid);
+    ui.gridPanel->setGrid(hasFormGrid ? m_formWindow->designerGrid() : qdesigner_internal::FormWindowBase::defaultDesignerGrid());
 }
 
 void FormWindowSettings::accept()
@@ -89,8 +94,12 @@ void FormWindowSettings::accept()
 
     m_formWindow->setIncludeHints(ui.includeHintsTextEdit->toPlainText().split(QString(QLatin1Char('\n'))));
 
-    m_formWindow->setDesignerGrid(ui.gridPanel->grid());
-    
+    const bool hadFormGrid = m_formWindow->hasFormGrid();
+    const bool wantsFormGrid = ui.gridPanel->isChecked();
+    m_formWindow->setHasFormGrid(wantsFormGrid);
+    if (wantsFormGrid || hadFormGrid != wantsFormGrid)
+        m_formWindow->setDesignerGrid(wantsFormGrid ? ui.gridPanel->grid() : qdesigner_internal::FormWindowBase::defaultDesignerGrid());
+
     m_formWindow->setDirty(true);
 
     QDialog::accept();

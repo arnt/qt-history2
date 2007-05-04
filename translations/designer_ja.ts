@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS><TS version="1.1" language="ja_JP">
+<defaultcodec></defaultcodec>
 <context>
     <name></name>
     <message>
@@ -262,42 +263,42 @@ ate the goose who was loose.</source>
         <translation>メニューを挿入</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_propertycommand.cpp" line="884"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_propertycommand.cpp" line="886"/>
         <source>changed &apos;%1&apos; of &apos;%2&apos;</source>
         <translation>&apos;%2&apos; の &apos;%1&apos; を変更</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_propertycommand.cpp" line="886"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_propertycommand.cpp" line="888"/>
         <source>changed &apos;%1&apos; of %2 objects</source>
         <translation>&apos;%2&apos; オブジェクトの &apos;%1&apos; を変更</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_propertycommand.cpp" line="962"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_propertycommand.cpp" line="964"/>
         <source>reset &apos;%1&apos; of &apos;%2&apos;</source>
         <translation>&apos;%2&apos; の &apos;%1&apos; をリセット</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_propertycommand.cpp" line="964"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_propertycommand.cpp" line="966"/>
         <source>reset &apos;%1&apos; of %2 objects</source>
         <translation>&apos;%2&apos; オブジェクトの &apos;%1&apos; をリセット</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_propertycommand.cpp" line="1053"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_propertycommand.cpp" line="1055"/>
         <source>add dynamic property &apos;%1&apos; to &apos;%2&apos;</source>
         <translation>ダイナミックプロパティ &apos;%1&apos; を &apos;%2&apos; に追加</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_propertycommand.cpp" line="1055"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_propertycommand.cpp" line="1057"/>
         <source>add dynamic property &apos;%1&apos; to %2 objects</source>
         <translation>ダイナミックプロパティ &apos;%1&apos; を &apos;%2&apos; オブジェクトに追加</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_propertycommand.cpp" line="1141"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_propertycommand.cpp" line="1143"/>
         <source>remove dynamic property &apos;%1&apos; from &apos;%2&apos;</source>
         <translation>ダイナミックプロパティ &apos;%1&apos; を &apos;%2&apos; から削除</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_propertycommand.cpp" line="1143"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_propertycommand.cpp" line="1145"/>
         <source>remove dynamic property &apos;%1&apos; from %2 objects</source>
         <translation>ダイナミックプロパティ &apos;%1&apos; を &apos;%2&apos; オブジェクトから削除</translation>
     </message>
@@ -535,7 +536,7 @@ The old form has been untouched, but you will have to save this form under a new
         <translation>プレビューのためテンプレートを選択</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/newform.cpp" line="356"/>
+        <location filename="../tools/designer/src/designer/newform.cpp" line="350"/>
         <source>Read error</source>
         <translation>読み込みエラー</translation>
     </message>
@@ -780,240 +781,240 @@ There&apos;s nothing more here. You should get back to work.</source>
 <context>
     <name>QDesignerActions</name>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="108"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="109"/>
         <source>Edit Widgets</source>
         <translation>ウィジェットを編集</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="109"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="110"/>
         <source>&amp;New Form...</source>
         <translation>新しいフォーム(&amp;N)...</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="276"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="281"/>
         <source>&amp;Open Form...</source>
         <translation>フォームを開く(&amp;O)...</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="111"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="112"/>
         <source>&amp;Save Form</source>
         <translation>フォームを保存(&amp;S)</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="112"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="113"/>
         <source>Save Form &amp;As...</source>
         <translation>名前をつけてフォームを保存(&amp;A)...</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="113"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="114"/>
         <source>Save A&amp;ll Forms</source>
         <translation>すべてのフォームを保存(&amp;L)</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="114"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="115"/>
         <source>Save Form As &amp;Template...</source>
         <translation>フォームをテンプレートとして保存(&amp;T)...</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="1087"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="1097"/>
         <source>&amp;Close Form</source>
         <translation>フォームを閉じる(&amp;C)</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="116"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="117"/>
         <source>&amp;Quit</source>
         <translation>終了(&amp;Q)</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="117"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="118"/>
         <source>&amp;Preview</source>
         <translation>プレビュー(&amp;P)</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="118"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="119"/>
         <source>Form &amp;Settings...</source>
         <translation>フォームの設定(&amp;S)...</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="119"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="120"/>
         <source>&amp;Minimize</source>
         <translation>最小化(&amp;M)</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="121"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="122"/>
         <source>Bring All to Front</source>
         <translation>全てのウィンドウを前面に</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="123"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="124"/>
         <source>Preferences...</source>
         <translation>設定...</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="139"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="140"/>
         <source>CTRL+N</source>
         <translation>CTRL+N</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="143"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="144"/>
         <source>CTRL+O</source>
         <translation>CTRL+O</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="159"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="160"/>
         <source>Clear &amp;Menu</source>
         <translation>メニューをクリア(&amp;M)</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="166"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="167"/>
         <source>CTRL+S</source>
         <translation>CTRL+S</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="173"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="174"/>
         <source>CTRL+SHIFT+S</source>
         <translation>CTRL+SHIFT+S</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="183"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="184"/>
         <source>CTRL+W</source>
         <translation>CTRL+W</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="190"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="191"/>
         <source>CTRL+Q</source>
         <translation>CTRL+Q</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="198"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="199"/>
         <source>CTRL+Z</source>
         <translation>CTRL+Z</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="202"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="203"/>
         <source>CTRL+SHIFT+Z</source>
         <translation>CTRL+SHIFT+Z</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="262"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="263"/>
         <source>CTRL+R</source>
         <translation>CTRL+R</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="275"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="276"/>
         <source>%1 Style</source>
         <translation>%1 スタイル</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="285"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="286"/>
         <source>CTRL+M</source>
         <translation>CTRL+M</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="308"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="309"/>
         <source>Qt Designer &amp;Help</source>
         <translation>Qt Designer ヘルプ(&amp;H)</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="314"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="315"/>
         <source>Current Widget Help</source>
         <translation>現在のウィジェットのヘルプ</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="320"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="321"/>
         <source>What&apos;s New in Qt Designer?</source>
         <translation>Qt Designer の新機能</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="325"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="326"/>
         <source>About Plugins</source>
         <translation>プラグインについて</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="950"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="955"/>
         <source>About Qt Designer</source>
         <translation>Qt Designer について</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="334"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="335"/>
         <source>About Qt</source>
         <translation>Qt について</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="681"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="686"/>
         <source>Open Form</source>
         <translation>フォームを開く</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="682"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="687"/>
         <source>Designer UI files (*.%1);;All Files (*)</source>
         <translation>Designer UI ファイル(*.%1);;すべてのファイル (*)</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="765"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="770"/>
         <source>Save form as</source>
         <translation>名前を付けてフォームを保存</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="465"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="470"/>
         <source>Save</source>
         <translation>保存</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="466"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="471"/>
         <source>%1 already exists.
 Do you want to replace it?</source>
         <translation>%1 はすでに存在します。上書きしますか?</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="541"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="546"/>
         <source>Form %1 successful saved...</source>
         <translation>フォーム %1 は無事保存できました...</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="556"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="561"/>
         <source>Designer</source>
         <translation>Designer</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="556"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="561"/>
         <source>Feature not implemented yet!</source>
         <translation>機能がまだ実装されていません!</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="668"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="673"/>
         <source>Read error</source>
         <translation>読み込みエラー</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="669"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="674"/>
         <source>%1
 Do you want to update the file location or generate a new form?</source>
         <translation>%1
 ファイルの位置を更新しますか、それとも新しいフォームを生成しますか?</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="672"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="677"/>
         <source>&amp;Update</source>
         <translation>更新(&amp;U)</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="673"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="678"/>
         <source>&amp;New Form</source>
         <translation>新しいフォーム(&amp;N)</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="785"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="790"/>
         <source>Save Form?</source>
         <translation>フォームを保存しますか?</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="746"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="751"/>
         <source>Could not open file</source>
         <translation>ファイルをオープンできませんでした</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="753"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="758"/>
         <source>The file, %1, could not be opened
 Reason: %2
 Would you like to retry or change your file?</source>
@@ -1022,17 +1023,17 @@ Would you like to retry or change your file?</source>
 リトライしますか、それともファイルを変更しますか?</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="756"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="761"/>
         <source>Select New File</source>
         <translation>新しいファイルを選択</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="786"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="791"/>
         <source>Could not write file</source>
         <translation>ファイルに書き込むことができませんでした</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="791"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="796"/>
         <source>It was not possible to write the entire file, %1, to disk.
 Reason:%2
 Would you like to retry?</source>
@@ -1041,9 +1042,14 @@ Would you like to retry?</source>
 リトライしますか?</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="1085"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="1095"/>
         <source>&amp;Close Preview</source>
         <translation>プレビューを閉じる(&amp;C)</translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="1045"/>
+        <source>Form Settings - %1</source>
+        <translation>フォーム設定 - %1</translation>
     </message>
 </context>
 <context>
@@ -1305,122 +1311,122 @@ Would you like to retry?</source>
 <context>
     <name>QDesignerWorkbench</name>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="273"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="278"/>
         <source>&amp;File</source>
         <translation>ファイル(&amp;F)</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="277"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="282"/>
         <source>&amp;Recent Forms</source>
         <translation>最近使用したフォーム(&amp;R)</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="284"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="289"/>
         <source>&amp;Edit</source>
         <translation>編集(&amp;E)</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="298"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="303"/>
         <source>F&amp;orm</source>
         <translation>フォーム(&amp;O)</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="303"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="308"/>
         <source>Preview in</source>
         <translation>スタイルを指定してプレビュー</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="310"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="315"/>
         <source>&amp;Tools</source>
         <translation>ツール(&amp;T)</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="314"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="319"/>
         <source>&amp;Window</source>
         <translation>ウィンドウ(&amp;W)</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="319"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="324"/>
         <source>&amp;Help</source>
         <translation>ヘルプ(&amp;H)</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="348"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="353"/>
         <source>File</source>
         <translation>ファイル</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="356"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="361"/>
         <source>Edit</source>
         <translation>編集</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="364"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="369"/>
         <source>Tools</source>
         <translation>ツール</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="372"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="377"/>
         <source>Form</source>
         <translation>フォーム</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="378"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="383"/>
         <source>Toolbars</source>
         <translation>ツールバー</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="481"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="492"/>
         <source>Widget Box</source>
         <translation>ウィジェットボックス</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="616"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="628"/>
         <source>Qt Designer</source>
         <translation>Qt Designer</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="846"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="857"/>
         <source>Save Forms?</source>
         <translation>フォームを保存しますか?</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="849"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="860"/>
         <source>There are %1 forms with unsaved changes. Do you want to review these changes before quitting?</source>
         <translation>変更分を保存されていないフォームが %1 個あります。終了する前に変更を確認しますか?</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="851"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="862"/>
         <source>If you don&apos;t review your documents, all your changes will be lost.</source>
         <translation>ドキュメントを確認しない場合は、行ったすべての変更は失われます。</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="852"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="863"/>
         <source>Discard Changes</source>
         <translation>変更を破棄</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="854"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="865"/>
         <source>Review Changes</source>
         <translation>変更内容を確認</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="966"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="977"/>
         <source>Backup Information</source>
         <translation>バックアップ情報</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="968"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="979"/>
         <source>Designer was not correctly terminated during your last session.There are existing Backup files, do you want to load them?</source>
         <translation>前回使用したときに Designer は正しく終了されませんでした。バックアップファイルが存在します。ロードしますか?</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="1053"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="1064"/>
         <source>The file &lt;b&gt;%1&lt;/b&gt; could not be opened.</source>
         <translation>ファイル &lt;b&gt;%1&lt;/b&gt; はオープンできませんでした。</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="1072"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="1083"/>
         <source>The file &lt;b&gt;%1&lt;/b&gt; is not a valid Designer ui file.</source>
         <translation>ファイル &lt;b&gt;%1&lt;/b&gt; は、有効な Designer の UI ファイルではありません。</translation>
     </message>
@@ -1515,22 +1521,22 @@ Script: %3</source>
         <translation>%1 - 警告</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="1143"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="1153"/>
         <source>The backup file %1 could not be written.</source>
         <translation>バックアップファイル %1 に書き込めませんでした。</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="1249"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="1259"/>
         <source>The backup directory %1 could not be created.</source>
         <translation>バックアップディレクトリ %1 を作成できませんでした。</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="1255"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="1265"/>
         <source>The temporary backup directory %1 could not be created.</source>
         <translation>バックアップ用の一時ディレクトリ %1 を作成できませんでした。</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_settings.cpp" line="40"/>
+        <location filename="../tools/designer/src/designer/qdesigner_settings.cpp" line="46"/>
         <source>The template path %1 could not be created.</source>
         <translation>テンプレートのパス %1 を作成できませんでした。</translation>
     </message>
@@ -2018,32 +2024,32 @@ Do you want overwrite the template?</source>
         <translation>F2</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="946"/>
+        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="932"/>
         <source>Insert widget &apos;%1</source>
         <translation>ウィジェット &apos;%1 を挿入</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="1010"/>
+        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="996"/>
         <source>Resize</source>
         <translation>サイズ変更</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="1239"/>
+        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="1225"/>
         <source>Key Move</source>
         <translation>キーの移動</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="1377"/>
+        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="1363"/>
         <source>Paste</source>
         <translation>貼り付け</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="1393"/>
+        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="1379"/>
         <source>Paste error</source>
         <translation>貼り付けエラー</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="1397"/>
+        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="1383"/>
         <source>Can&apos;t paste widgets. Designer couldn&apos;t find a container
 to paste into which does not contain a layout. Break the layout
 of the container you want to paste into and select this container
@@ -2051,17 +2057,17 @@ and then paste again.</source>
         <translation>ウィジェットを貼り付けられません。Designer は、ウィジェットを貼り付けることができる、レイアウトを含まないコンテナを見つけることができませんでした。貼り付け先のコンテナのレイアウトを破棄し、もう一度そのコンテナを選んで貼り付けてください。</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="1493"/>
+        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="1485"/>
         <source>Break layout</source>
         <translation>レイアウトを破棄する</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="1832"/>
+        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="1824"/>
         <source>Lay out</source>
         <translation>レイアウト</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="2210"/>
+        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="2202"/>
         <source>Drop widget</source>
         <translation>ウィジェットの貼り付け</translation>
     </message>
@@ -2069,7 +2075,7 @@ and then paste again.</source>
 <context>
     <name>qdesigner_internal::FormWindowBase</name>
     <message>
-        <location filename="../tools/designer/src/lib/shared/formwindowbase.cpp" line="155"/>
+        <location filename="../tools/designer/src/lib/shared/formwindowbase.cpp" line="160"/>
         <source>Delete</source>
         <translation>削除</translation>
     </message>
@@ -2986,7 +2992,7 @@ Please select another name.</source>
         <translation>%1 というクラスのウィジェットのために登録されたカスタムウィジェットファクトリーが 0 を返しました。</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/widgetfactory.cpp" line="109"/>
+        <location filename="../tools/designer/src/lib/shared/widgetfactory.cpp" line="112"/>
         <source>A class name mismatch occurred when creating a widget using the custom widget factory registered for widgets of class %1. It returned a widget of class %2.</source>
         <translation>%1 というクラスのウィジェットのために登録されたカスタムウィジェットファクトリーを使ってウィジェットを作成しているときに、クラス名のミスマッチが発生しました。%2 というクラスのウィジェットを返しました。</translation>
     </message>
@@ -3678,17 +3684,17 @@ Please select another name.</source>
 <context>
     <name>qdesigner_internal::StyleSheetEditorDialog</name>
     <message>
-        <location filename="../tools/designer/src/lib/shared/stylesheeteditor.cpp" line="45"/>
+        <location filename="../tools/designer/src/lib/shared/stylesheeteditor.cpp" line="46"/>
         <source>Edit Style Sheet</source>
         <translation>スタイルシートを変更</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/stylesheeteditor.cpp" line="105"/>
+        <location filename="../tools/designer/src/lib/shared/stylesheeteditor.cpp" line="106"/>
         <source>Valid Style Sheet</source>
         <translation>有効なスタイルシート</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/stylesheeteditor.cpp" line="102"/>
+        <location filename="../tools/designer/src/lib/shared/stylesheeteditor.cpp" line="103"/>
         <source>Invalid Style Sheet</source>
         <translation>無効なスタイルシート</translation>
     </message>
@@ -3715,6 +3721,19 @@ Please select another name.</source>
         <location filename="../tools/designer/src/components/propertyeditor/styledbutton.cpp" line="107"/>
         <source>Open Image</source>
         <translation>イメージを開く</translation>
+    </message>
+</context>
+<context>
+    <name>qdesigner_internal::TabOrderEditor</name>
+    <message>
+        <location filename="../tools/designer/src/components/tabordereditor/tabordereditor.cpp" line="314"/>
+        <source>Start from Here</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/tabordereditor/tabordereditor.cpp" line="315"/>
+        <source>Restart</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4173,7 +4192,7 @@ Please select another name.</source>
 <context>
     <name>qdesigner_internal::WidgetFactory</name>
     <message>
-        <location filename="../tools/designer/src/lib/shared/widgetfactory.cpp" line="182"/>
+        <location filename="../tools/designer/src/lib/shared/widgetfactory.cpp" line="184"/>
         <source>%1 Widget</source>
         <translation>%1 ウィジェット</translation>
     </message>

@@ -238,42 +238,42 @@ ate the goose who was loose.</source>
         <translation>Werkzeugleiste löschen</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_propertycommand.cpp" line="884"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_propertycommand.cpp" line="886"/>
         <source>changed &apos;%1&apos; of &apos;%2&apos;</source>
         <translation>&apos;%1&apos; von &apos;%2&apos; geändert</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_propertycommand.cpp" line="886"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_propertycommand.cpp" line="888"/>
         <source>changed &apos;%1&apos; of %2 objects</source>
         <translation>%1&apos; von &apos;%2&apos; Objekten geändert</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_propertycommand.cpp" line="962"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_propertycommand.cpp" line="964"/>
         <source>reset &apos;%1&apos; of &apos;%2&apos;</source>
         <translation> &apos;%1&apos; von &apos;%2&apos; zurückgesetzt</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_propertycommand.cpp" line="964"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_propertycommand.cpp" line="966"/>
         <source>reset &apos;%1&apos; of %2 objects</source>
         <translation> &apos;%1&apos; von &apos;%2&apos; Objekten zurückgesetzt</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_propertycommand.cpp" line="1053"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_propertycommand.cpp" line="1055"/>
         <source>add dynamic property &apos;%1&apos; to &apos;%2&apos;</source>
         <translation>Dynamische Eigenschaft &apos;%1&apos; zu &apos;%2&apos; hinzufügen</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_propertycommand.cpp" line="1055"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_propertycommand.cpp" line="1057"/>
         <source>add dynamic property &apos;%1&apos; to %2 objects</source>
         <translation>Dynamische Eigenschaft &apos;%1&apos; zu &apos;%2&apos; Objeketen hinzufügen</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_propertycommand.cpp" line="1141"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_propertycommand.cpp" line="1143"/>
         <source>remove dynamic property &apos;%1&apos; from &apos;%2&apos;</source>
         <translation>Dynamische Eigenschaft &apos;%1&apos; von &apos;%2&apos; entfernen</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_propertycommand.cpp" line="1143"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_propertycommand.cpp" line="1145"/>
         <source>remove dynamic property &apos;%1&apos; from %2 objects</source>
         <translation>Dynamische Eigenschaft &apos;%1&apos; von &apos;%2&apos; Objekten entfernen</translation>
     </message>
@@ -537,7 +537,7 @@ Der Befehl zur Konvertierung in das Format der Version 4 lautet&lt;b&gt;uic3 -co
         <translation>Wählen Sie eine Vorlage für die Vorschau</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/newform.cpp" line="356"/>
+        <location filename="../tools/designer/src/designer/newform.cpp" line="350"/>
         <source>Read error</source>
         <translation>Lesefehler</translation>
     </message>
@@ -783,241 +783,241 @@ There&apos;s nothing more here. You should get back to work.</source>
 <context>
     <name>QDesignerActions</name>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="108"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="109"/>
         <source>Edit Widgets</source>
         <translation>Widgets bearbeiten</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="109"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="110"/>
         <source>&amp;New Form...</source>
         <translation>&amp;Neues Formular...</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="276"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="281"/>
         <source>&amp;Open Form...</source>
         <translation>Formular &amp;öffnen...</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="111"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="112"/>
         <source>&amp;Save Form</source>
         <translation>Formular &amp;speichern</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="112"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="113"/>
         <source>Save Form &amp;As...</source>
         <translation>Formular &amp;unter einem anderen Namen speichern...</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="113"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="114"/>
         <source>Save A&amp;ll Forms</source>
         <translation>&amp;Alle Formulare speichern</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="114"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="115"/>
         <source>Save Form As &amp;Template...</source>
         <translation>Formular als &amp;Vorlage speichern...</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="1087"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="1097"/>
         <source>&amp;Close Form</source>
         <translation>Formular s&amp;chließen</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="116"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="117"/>
         <source>&amp;Quit</source>
         <translation>&amp;Beenden</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="117"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="118"/>
         <source>&amp;Preview</source>
         <translation>&amp;Vorschau</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="118"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="119"/>
         <source>Form &amp;Settings...</source>
         <translation>Formular&amp;einstellungen...</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="119"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="120"/>
         <source>&amp;Minimize</source>
         <translation>&amp;Minimieren</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="121"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="122"/>
         <source>Bring All to Front</source>
         <translation>Alle Formulare anzeigen</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="123"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="124"/>
         <source>Preferences...</source>
         <translation>Einstellungen...</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="139"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="140"/>
         <source>CTRL+N</source>
         <translation>CTRL+N</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="143"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="144"/>
         <source>CTRL+O</source>
         <translation>CTRL+O</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="159"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="160"/>
         <source>Clear &amp;Menu</source>
         <translation>Menü &amp;löschen</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="166"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="167"/>
         <source>CTRL+S</source>
         <translation>CTRL+S</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="173"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="174"/>
         <source>CTRL+SHIFT+S</source>
         <translation>CTRL+SHIFT+S</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="183"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="184"/>
         <source>CTRL+W</source>
         <translation>CTRL+W</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="190"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="191"/>
         <source>CTRL+Q</source>
         <translation>CTRL+Q</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="198"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="199"/>
         <source>CTRL+Z</source>
         <translation>CTRL+Z</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="202"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="203"/>
         <source>CTRL+SHIFT+Z</source>
         <translation>CTRL+SHIFT+Z</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="262"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="263"/>
         <source>CTRL+R</source>
         <translation>CTRL+R</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="275"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="276"/>
         <source>%1 Style</source>
         <translation>%1-Stil</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="285"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="286"/>
         <source>CTRL+M</source>
         <translation>CTRL+M</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="308"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="309"/>
         <source>Qt Designer &amp;Help</source>
         <translation>Qt Designer &amp;Hilfe</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="314"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="315"/>
         <source>Current Widget Help</source>
         <translation>Hilfe zum ausgewählten Widget</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="320"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="321"/>
         <source>What&apos;s New in Qt Designer?</source>
         <translation>Was gibt es Neues beim  Qt Designer?</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="325"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="326"/>
         <source>About Plugins</source>
         <translation>Plugins</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="950"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="955"/>
         <source>About Qt Designer</source>
         <translation>Über Qt Designer</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="334"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="335"/>
         <source>About Qt</source>
         <translation>Über Qt</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="681"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="686"/>
         <source>Open Form</source>
         <translation>Formular öffnen</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="682"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="687"/>
         <source>Designer UI files (*.%1);;All Files (*)</source>
         <translation>Designer UI-Dateien (*.%1);;Alle Dateien (*)</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="765"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="770"/>
         <source>Save form as</source>
         <translation>Formular speichern</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="465"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="470"/>
         <source>Save</source>
         <translation>Speichern</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="466"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="471"/>
         <source>%1 already exists.
 Do you want to replace it?</source>
         <translation>Die Datei %1 existiert bereits.
 Wollen Sie sie überschreiben?</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="541"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="546"/>
         <source>Form %1 successful saved...</source>
         <translation>Das Formular %1 wurde gespeichert...</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="556"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="561"/>
         <source>Designer</source>
         <translation>Designer</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="556"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="561"/>
         <source>Feature not implemented yet!</source>
         <translation>Diese Funktionalität ist noch nicht implementiert!</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="668"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="673"/>
         <source>Read error</source>
         <translation>Lesefehler</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="669"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="674"/>
         <source>%1
 Do you want to update the file location or generate a new form?</source>
         <translation>%1
 Möchten Sie einen anderen Namen eingeben oder ein neues Formular erzeugen?</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="672"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="677"/>
         <source>&amp;Update</source>
         <translation>&amp;Anderer Name</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="673"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="678"/>
         <source>&amp;New Form</source>
         <translation>&amp;Neues Formular</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="785"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="790"/>
         <source>Save Form?</source>
         <translation>Formular speichern?</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="746"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="751"/>
         <source>Could not open file</source>
         <translation>Die Datei konnte nicht geöffnet werden</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="753"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="758"/>
         <source>The file, %1, could not be opened
 Reason: %2
 Would you like to retry or change your file?</source>
@@ -1026,17 +1026,17 @@ Would you like to retry or change your file?</source>
 Möchten Sie es noch einmal versuchen oder eine andere Datei auswählen?</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="756"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="761"/>
         <source>Select New File</source>
         <translation>Andere Datei</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="786"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="791"/>
         <source>Could not write file</source>
         <translation>Die Datei konnte nicht geschrieben werden</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="791"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="796"/>
         <source>It was not possible to write the entire file, %1, to disk.
 Reason:%2
 Would you like to retry?</source>
@@ -1045,9 +1045,14 @@ Would you like to retry?</source>
 Möchten Sie es noch einmal versuchen?</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="1085"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="1095"/>
         <source>&amp;Close Preview</source>
         <translation>Vorschau &amp;schließen</translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="1045"/>
+        <source>Form Settings - %1</source>
+        <translation>Formulareinstellungen - %1</translation>
     </message>
 </context>
 <context>
@@ -1327,122 +1332,122 @@ Möchten Sie es noch einmal versuchen?</translation>
 <context>
     <name>QDesignerWorkbench</name>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="273"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="278"/>
         <source>&amp;File</source>
         <translation>&amp;Datei</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="277"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="282"/>
         <source>&amp;Recent Forms</source>
         <translation>&amp;Zuletzt bearbeitete Formulare</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="284"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="289"/>
         <source>&amp;Edit</source>
         <translation>B&amp;earbeiten</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="298"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="303"/>
         <source>F&amp;orm</source>
         <translation>F&amp;ormular</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="303"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="308"/>
         <source>Preview in</source>
         <translation>Vorschau im</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="310"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="315"/>
         <source>&amp;Tools</source>
         <translation>&amp;Werkzeuge</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="314"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="319"/>
         <source>&amp;Window</source>
         <translation>&amp;Fenster</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="319"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="324"/>
         <source>&amp;Help</source>
         <translation>&amp;Hilfe</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="356"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="361"/>
         <source>Edit</source>
         <translation>Bearbeiten</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="364"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="369"/>
         <source>Tools</source>
         <translation>Werkzeuge</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="372"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="377"/>
         <source>Form</source>
         <translation>Formular</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="378"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="383"/>
         <source>Toolbars</source>
         <translation>Werkzeugleisten</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="481"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="492"/>
         <source>Widget Box</source>
         <translation>Widgetbox</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="616"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="628"/>
         <source>Qt Designer</source>
         <translation>Qt Designer</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="846"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="857"/>
         <source>Save Forms?</source>
         <translation>Formulare speichern?</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="849"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="860"/>
         <source>There are %1 forms with unsaved changes. Do you want to review these changes before quitting?</source>
         <translation>%1 Formular(e)  wurden geändert. Möchten Sie sich die Änderungen ansehen, bevor Sie das Programm beenden?</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="851"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="862"/>
         <source>If you don&apos;t review your documents, all your changes will be lost.</source>
         <translation>Die Änderungen gehen verloren, wenn Sie sich die Formulare nicht noch einmal ansehen.</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="852"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="863"/>
         <source>Discard Changes</source>
         <translation>Änderungen verwerfen</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="854"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="865"/>
         <source>Review Changes</source>
         <translation>Änderungen ansehen</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="966"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="977"/>
         <source>Backup Information</source>
         <translation>Information zur Hintergrundsicherung</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="968"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="979"/>
         <source>Designer was not correctly terminated during your last session.There are existing Backup files, do you want to load them?</source>
         <translation>Designer wurde offenbar nicht ordnungsgemäß beendet; es existieren noch Dateien von der Hintergrundsicherung. Möchten Sie sie laden?</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="1053"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="1064"/>
         <source>The file &lt;b&gt;%1&lt;/b&gt; could not be opened.</source>
         <translation>Die Datei &lt;b&gt;%1&lt;/b&gt; konnte nicht geöffnet werden.</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="1072"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="1083"/>
         <source>The file &lt;b&gt;%1&lt;/b&gt; is not a valid Designer ui file.</source>
         <translation>Die Datei &lt;b&gt;%1&lt;/b&gt; ist keine gültige Designer-Datei.</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="348"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="353"/>
         <source>File</source>
         <translation>Datei</translation>
     </message>
@@ -1563,22 +1568,22 @@ Script: %3</source>
         <translation>%1 - Warnung</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="1143"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="1153"/>
         <source>The backup file %1 could not be written.</source>
         <translation>Hintergrundsicherung: Die Datei %1 konnte nicht geschrieben werden.</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="1249"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="1259"/>
         <source>The backup directory %1 could not be created.</source>
         <translation>Hintergrundsicherung: Das Verzeichnis %1 konnte nicht angelegt werden.</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="1255"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="1265"/>
         <source>The temporary backup directory %1 could not be created.</source>
         <translation>Hintergrundsicherung: Das temporäre Verzeichnis %1 konnte nicht angelegt werden.</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_settings.cpp" line="40"/>
+        <location filename="../tools/designer/src/designer/qdesigner_settings.cpp" line="46"/>
         <source>The template path %1 could not be created.</source>
         <translation>Das Vorlagenverzeichnis %1 konnte nicht angelegt werden.</translation>
     </message>
@@ -2040,17 +2045,17 @@ Möchten Sie sie überschreiben?</translation>
         <translation>F2</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="946"/>
+        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="932"/>
         <source>Insert widget &apos;%1</source>
         <translation>Widget  %1 einfügen</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="1010"/>
+        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="996"/>
         <source>Resize</source>
         <translation>Größe ändern</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="1239"/>
+        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="1225"/>
         <source>Key Move</source>
         <translation>Verschieben mittels Tastatur</translation>
     </message>
@@ -2060,17 +2065,17 @@ Möchten Sie sie überschreiben?</translation>
         <translation type="obsolete">Löschen</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="1377"/>
+        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="1363"/>
         <source>Paste</source>
         <translation>Einfügen</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="1393"/>
+        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="1379"/>
         <source>Paste error</source>
         <translation>Fehler beim Einfügen</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="1397"/>
+        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="1383"/>
         <source>Can&apos;t paste widgets. Designer couldn&apos;t find a container
 to paste into which does not contain a layout. Break the layout
 of the container you want to paste into and select this container
@@ -2079,17 +2084,17 @@ and then paste again.</source>
 Bitte lösen Sie das Layout des gewünschten Containers auf und wählen Sie ihn erneut aus, um die Widgetseinzufügen.</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="1499"/>
+        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="1485"/>
         <source>Break layout</source>
         <translation>Layout auflösen</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="1838"/>
+        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="1824"/>
         <source>Lay out</source>
         <translation>Layout</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="2216"/>
+        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="2202"/>
         <source>Drop widget</source>
         <translation>Widget einfügen</translation>
     </message>
@@ -2097,7 +2102,7 @@ Bitte lösen Sie das Layout des gewünschten Containers auf und wählen Sie ihn 
 <context>
     <name>qdesigner_internal::FormWindowBase</name>
     <message>
-        <location filename="../tools/designer/src/lib/shared/formwindowbase.cpp" line="155"/>
+        <location filename="../tools/designer/src/lib/shared/formwindowbase.cpp" line="160"/>
         <source>Delete</source>
         <translation>Löschen</translation>
     </message>

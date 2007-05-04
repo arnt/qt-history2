@@ -49,6 +49,14 @@ public:
     void setGrid(const Grid &g);
     Grid grid() const;
 
+    void setCheckable (bool c);
+    bool isCheckable () const;
+
+    bool isChecked () const;
+    void setChecked(bool c);
+
+    void setResetButtonVisible(bool v);
+
 private slots:
     void reset();
 
