@@ -152,7 +152,7 @@ QFileSystemModelPrivate::QFileSystemNode *QFileSystemModelPrivate::node(const QS
     }
 #else
     // add the "/" item, since it is a valid path element on Unix
-    if (path[0] == QLatin1Char('/'))
+    if (absolutePath[0] == QLatin1Char('/'))
         pathElements.prepend(QLatin1String("/"));
 #endif
 
