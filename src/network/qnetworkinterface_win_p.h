@@ -30,7 +30,7 @@
 #include <time.h>
 
 #ifndef GAA_FLAG_INCLUDE_ALL_INTERFACES
-# define GAA_FLAG_INCLUDE_ALL_INTERFACES 0
+# define GAA_FLAG_INCLUDE_ALL_INTERFACES 0x0100
 #endif
 #ifndef MAX_ADAPTER_ADDRESS_LENGTH
 // definitions from iptypes.h

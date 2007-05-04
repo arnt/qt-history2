@@ -14,6 +14,7 @@
 #include "qnetworkinterface.h"
 #include "qnetworkinterface_p.h"
 #include "qnetworkinterface_win_p.h"
+#include <qhash.h>
 
 typedef DWORD (WINAPI *PtrGetAdaptersInfo)(PIP_ADAPTER_INFO, PULONG);
 PtrGetAdaptersInfo ptrGetAdaptersInfo = 0;
@@ -105,6 +106,43 @@ static QHostAddress netmaskFromPrefixLength(uint len, int family)
         return QHostAddress();
 }
 
+static QHash<QHostAddress, QHostAddress> ipv4Netmasks()
+{
+    //Retrieve all the IPV4 addresses & netmasks
+    IP_ADAPTER_INFO staticBuf[2]; // 2 is arbitrary
+    PIP_ADAPTER_INFO pAdapter = staticBuf;
+    ULONG bufSize = sizeof staticBuf;
+    QHash<QHostAddress, QHostAddress> ipv4netmasks; 
+
+    DWORD retval = ptrGetAdaptersInfo(pAdapter, &bufSize);
+    if (retval == ERROR_BUFFER_OVERFLOW) {
+        // need more memory
+        pAdapter = (IP_ADAPTER_INFO *)qMalloc(bufSize);
+        // try again
+        if (ptrGetAdaptersInfo(pAdapter, &bufSize) != ERROR_SUCCESS) {
+            qFree(pAdapter);
+            return ipv4netmasks;
+        }
+    } else if (retval != ERROR_SUCCESS) {
+        // error
+        return ipv4netmasks;
+    }
+
+    // iterate over the list and add the entries to our listing
+    for (PIP_ADAPTER_INFO ptr = pAdapter; ptr; ptr = ptr->Next) {
+        for (PIP_ADDR_STRING addr = &ptr->IpAddressList; addr; addr = addr->Next) {
+            QHostAddress address(QLatin1String(addr->IpAddress.String));
+            QHostAddress mask(QLatin1String(addr->IpMask.String));
+            ipv4netmasks[address] = mask;
+        }
+    }
+    if (pAdapter != staticBuf)
+        qFree(pAdapter);
+
+    return ipv4netmasks;
+
+}
+
 static QList<QNetworkInterfacePrivate *> interfaceListingWinXP()
 {
     QList<QNetworkInterfacePrivate *> interfaces;
@@ -112,7 +150,8 @@ static QList<QNetworkInterfacePrivate *> interfaceListingWinXP()
     PIP_ADAPTER_ADDRESSES pAdapter = staticBuf;
     ULONG bufSize = sizeof staticBuf;
 
-    ULONG flags = GAA_FLAG_INCLUDE_ALL_INTERFACES |
+    QHash<QHostAddress, QHostAddress> &ipv4netmasks = ipv4Netmasks();
+    ULONG flags =  GAA_FLAG_INCLUDE_ALL_INTERFACES |
                   GAA_FLAG_INCLUDE_PREFIX |
                   GAA_FLAG_SKIP_DNS_SERVER |
                   GAA_FLAG_SKIP_MULTICAST;
@@ -169,16 +208,20 @@ static QList<QNetworkInterfacePrivate *> interfaceListingWinXP()
             QNetworkAddressEntry entry;
             entry.setIp(addressFromSockaddr(addr->Address.lpSockaddr));
             if (pprefix) {
-                entry.setNetmask(netmaskFromPrefixLength(pprefix->PrefixLength, addr->Address.lpSockaddr->sa_family));
+                if (entry.ip().protocol() == QAbstractSocket::IPv4Protocol) {
+                    entry.setNetmask(ipv4netmasks[entry.ip()]);
+                    if (entry.ip() != QHostAddress::LocalHost) {
+                        // calculate the broadcast address
+                        quint32 ip = entry.ip().toIPv4Address();
+                        quint32 mask = entry.netmask().toIPv4Address();
+                        quint32 broadcast = (ip & mask) | (0xFFFFFFFFU & ~mask);
+                        entry.setBroadcast(QHostAddress((broadcast)));
+                    }
+                } else { //IPV6
+                    entry.setNetmask(netmaskFromPrefixLength(pprefix->PrefixLength, addr->Address.lpSockaddr->sa_family));
+                }
                 pprefix = pprefix->Next ? pprefix->Next : pprefix;
-
-                // calculate the broadcast address
-                quint32 ip = entry.ip().toIPv4Address();
-                quint32 mask = entry.netmask().toIPv4Address();
-                quint32 broadcast = (ip & mask) | (0xFFFFFFFFU & ~mask);
-                entry.setBroadcast(QHostAddress((broadcast)));
             }
-
             iface->addressEntries << entry;
         }
     }
