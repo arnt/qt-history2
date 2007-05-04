@@ -3411,7 +3411,7 @@ static bool indic_shape(QShaperItem *item)
 }
 #endif
 
-#if defined(Q_WS_X11) || defined(Q_WS_QWS)
+#if defined(Q_WS_X11) || defined(Q_WS_QWS) || defined(Q_WS_MAC)
 static void indic_attributes(int script, const QString &text, int from, int len, QCharAttributes *attributes)
 {
     int end = from + len;
