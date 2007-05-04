@@ -35,7 +35,7 @@ class QGLPaintDevice : public QPaintDevice
 {
     Q_DECLARE_PRIVATE(QGLPaintDevice)
 public:
-    QGLPaintDevice(QWidget *w, QGLWindowSurface *surf);
+    QGLPaintDevice(QWidget *widget);
     ~QGLPaintDevice();
 
     QPaintEngine *paintEngine() const;

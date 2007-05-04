@@ -32,16 +32,14 @@ QOpenGLPaintEngine* qt_qgl_paint_engine();
 class QGLPaintDevicePrivate
 {
 public:
-    QGLWindowSurface *wsurf;
     QWidget *widget;
 };
 
-QGLPaintDevice::QGLPaintDevice(QWidget *w, QGLWindowSurface *surf) :
+QGLPaintDevice::QGLPaintDevice(QWidget *widget) :
     d_ptr(new QGLPaintDevicePrivate)
 {
     Q_D(QGLPaintDevice);
-    d->widget = w;
-    d->wsurf = surf;
+    d->widget = widget;
 }
 
 QGLPaintDevice::~QGLPaintDevice()
@@ -66,7 +64,7 @@ int QGLPaintDevice::metric(PaintDeviceMetric m) const
 QGLWindowSurface *QGLPaintDevice::windowSurface() const
 {
      Q_D(const QGLPaintDevice);
-     return d->wsurf;
+     return static_cast<QGLWindowSurface*>(d->widget->windowSurface());
 }
 
 /*!
