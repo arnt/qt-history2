@@ -68,6 +68,7 @@ public:
 
         if (! program) {
             context->errorLineNumber = lineNo;
+            context->currentLine = lineNo;
             context->throwError(QScriptContext::SyntaxError, eng_p->errorMessage());
             return;
         }

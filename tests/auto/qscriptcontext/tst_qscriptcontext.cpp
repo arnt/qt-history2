@@ -32,6 +32,7 @@ private slots:
     void throwValue();
     void evaluateInFunction();
     void pushAndPopContext();
+    void lineNumber();
 };
 
 tst_QScriptContext::tst_QScriptContext()
@@ -339,6 +340,21 @@ void tst_QScriptContext::pushAndPopContext()
     // popping the top-level context is not allowed
     eng.popContext();
     QCOMPARE(eng.currentContext(), topLevel);
+}
+
+void tst_QScriptContext::lineNumber()
+{
+    QScriptEngine eng;
+
+    QScriptValue result = eng.evaluate("try { eval(\"foo = 123;\\n this[is{a{syntax|error@#$%@#% \"); } catch (e) { return e.lineNumber; } return \"not reached!\";");
+    QVERIFY(!eng.hasUncaughtException());
+    QVERIFY(result.isNumber());
+    QCOMPARE(result.toInt32(), 1);
+
+    result = eng.evaluate("foo = 123;\n bar = 42\n0 = 0");
+    QVERIFY(eng.hasUncaughtException());
+    QCOMPARE(eng.uncaughtExceptionLineNumber(), 3);
+    QCOMPARE(result.property("lineNumber").toInt32(), 3);
 }
 
 QTEST_MAIN(tst_QScriptContext)

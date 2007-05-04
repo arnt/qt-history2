@@ -2037,7 +2037,8 @@ Ldone:
 
 QScriptValueImpl QScriptContextPrivate::throwError(QScriptContext::Error error, const QString &text)
 {
-    QScript::Ecma::Error *ctor = QScriptEnginePrivate::get(engine())->errorConstructor;
+    QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(engine());
+    QScript::Ecma::Error *ctor = eng_p->errorConstructor;
     switch (error) {
     case QScriptContext::ReferenceError:
         ctor->newReferenceError(&m_result, text);
@@ -2059,6 +2060,7 @@ QScriptValueImpl QScriptContextPrivate::throwError(QScriptContext::Error error, 
         ctor->newError(&m_result, text);
     }
     m_state = QScriptContext::ExceptionState;
+    m_result.setProperty(QLatin1String("lineNumber"), QScriptValueImpl(eng_p, currentLine));
     return m_result;
 }
 

@@ -407,6 +407,9 @@ void tst_QScriptEngine::evaluate_data()
                                     "}\n"
                                     "f();\n")
                          << 10 << true << 15;
+    QTest::newRow("functionThatDoesntExist()")
+        << QString(";\n;\n;\nfunctionThatDoesntExist()")
+        << -1 << true << 4;
 }
 
 void tst_QScriptEngine::evaluate()
@@ -417,12 +420,15 @@ void tst_QScriptEngine::evaluate()
     QFETCH(int, expectErrorLineNumber);
 
     QScriptEngine eng;
+    QScriptValue ret;
     if (lineNumber != -1)
-        (void)eng.evaluate(code, lineNumber);
+        ret = eng.evaluate(code, lineNumber);
     else
-        (void)eng.evaluate(code);
+        ret = eng.evaluate(code);
     QCOMPARE(eng.hasUncaughtException(), expectHadError);
     QCOMPARE(eng.uncaughtExceptionLineNumber(), expectErrorLineNumber);
+    if (eng.hasUncaughtException() && ret.isError())
+        QVERIFY(ret.property("lineNumber").strictEqualTo(QScriptValue(&eng, expectErrorLineNumber)));
 }
 
 static QScriptValue eval_nested(QScriptContext *ctx, QScriptEngine *eng)
