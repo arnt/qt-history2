@@ -707,8 +707,8 @@ bool QScriptEngine::canEvaluate(const QString &program) const
   based on this argument. For example, if \a program consists of two
   lines of code, and the statement on the second line causes a script
   exception, uncaughtExceptionLineNumber() would return the given \a
-  lineNumber plus one. When no starting line number is specified, 0
-  will be used as the base.
+  lineNumber plus one. When no starting line number is specified, line
+  numbers will be 1-based.
 
   \sa canEvaluate(), hasUncaughtException()
 */
@@ -731,7 +731,7 @@ QScriptValue QScriptEngine::evaluate(const QString &program, int lineNumber)
 */
 QScriptValue QScriptEngine::evaluate(const QString &program)
 {
-    return evaluate(program, /*lineNumber=*/0);
+    return evaluate(program, /*lineNumber=*/1);
 }
 
 /*!
@@ -805,6 +805,9 @@ QScriptValue QScriptEngine::uncaughtException() const
 
 /*!
   Returns the line number where the last uncaught exception occurred.
+
+  Line numbers are 1-based, unless a different base was specified as
+  the second argument to evaluate().
 
   \sa hasUncaughtException()
 */

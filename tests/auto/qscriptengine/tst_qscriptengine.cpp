@@ -382,9 +382,9 @@ void tst_QScriptEngine::evaluate_data()
     QTest::addColumn<int>("expectErrorLineNumber");
 
     QTest::newRow("0")     << QString("0")       << -1 << false << 0;
-    QTest::newRow("0=1")   << QString("\n0=1\n") << -1 << true  << 1;
+    QTest::newRow("0=1")   << QString("\n0=1\n") << -1 << true  << 2;
     QTest::newRow("a=1")   << QString("a=1\n")   << -1 << false << 0;
-    QTest::newRow("a=1;K") << QString("a=1;\nK") << -1 << true  << 1;
+    QTest::newRow("a=1;K") << QString("a=1;\nK") << -1 << true  << 2;
 
     QTest::newRow("f()") << QString("function f()\n"
                                     "{\n"
@@ -392,7 +392,7 @@ void tst_QScriptEngine::evaluate_data()
                                     "  var b=\";\n" // here's the error
                                     "}\n"
                                     "f();\n")
-                         << -1 << true << 3;
+                         << -1 << true << 4;
 
     QTest::newRow("0")     << QString("0")       << 10 << false << 0;
     QTest::newRow("0=1")   << QString("\n\n0=1\n") << 10 << true  << 12;
