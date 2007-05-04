@@ -501,7 +501,7 @@ QScriptValueImpl String::method_search(QScriptContextPrivate *context, QScriptEn
 #ifndef QT_NO_REGEXP
     return (QScriptValueImpl(eng, value.indexOf(rx_data->value)));
 #else
-    return eng->createNull();
+    return eng->nullValue();
 #endif
 }
 

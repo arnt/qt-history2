@@ -322,8 +322,10 @@ inline QVariant QScriptValueImpl::toVariant() const
         if (isDate())
             return QVariant(toDateTime());
 
+#ifndef QT_NO_REGEXP
         if (isRegExp())
             return QVariant(toRegExp());
+#endif
 
         QScriptValue v = toPrimitive();
         if (!v.isObject())

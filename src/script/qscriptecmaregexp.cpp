@@ -98,6 +98,7 @@ void RegExp::newRegExp(QScriptValueImpl *result, const QString &pattern, const Q
     instance->pattern = pattern;
     instance->flags = flags;
 
+    QScriptEnginePrivate *eng = engine();
     eng->newObject(result, publicPrototype, classInfo());
     result->setObjectData(QExplicitlySharedDataPointer<QScriptObjectData>(instance));
     result->setProperty(QLatin1String("source"), QScriptValueImpl(eng, pattern), QScriptValue::ReadOnly);
@@ -105,13 +106,10 @@ void RegExp::newRegExp(QScriptValueImpl *result, const QString &pattern, const Q
 }
 
 #ifndef QT_NO_REGEXP
-void RegExp::newRegExp(QScriptValueImpl *result, const QRegExp &rx)
+void RegExp::newRegExp(QScriptValueImpl *result, const QRegExp &rx, const QString &flags)
 {
-    bool ignoreCase = rx.caseSensitivity() == Qt::CaseInsensitive;
-    QString flags;
-    if (ignoreCase)
-        flags += QLatin1String("i");
-
+    Q_ASSERT(!flags.contains(QLatin1Char('i'))
+             || (rx.caseSensitivity() == Qt::CaseInsensitive));
     newRegExp_helper(result, rx, flags);
 }
 
@@ -216,6 +214,8 @@ QScriptValueImpl RegExp::method_toString(QScriptContextPrivate *context, QScript
         pattern += QLatin1Char('/');
 #ifndef QT_NO_REGEXP
         pattern += instance->value.pattern(); // ### quote
+#else
+        pattern += instance->pattern;
 #endif
         pattern += QLatin1Char('/');
         pattern += instance->flags;

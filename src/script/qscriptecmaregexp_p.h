@@ -65,7 +65,8 @@ public:
     void newRegExp(QScriptValueImpl *result, const QString &pattern,
                    const QString &flags);
 #ifndef QT_NO_REGEXP
-    void newRegExp(QScriptValueImpl *result, const QRegExp &rx);
+    void newRegExp(QScriptValueImpl *result, const QRegExp &rx,
+                   const QString &flags = QString());
     QRegExp toRegExp(const QScriptValueImpl &value) const;
 #endif
 

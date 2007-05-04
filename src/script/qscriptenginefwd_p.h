@@ -21,6 +21,7 @@
 
 #include <QtCore/QHash>
 #include <QtCore/QList>
+#include <QtCore/QRegExp>
 #include <QtCore/QSet>
 #include <QtCore/QStringList>
 #include <QtCore/QTime>
@@ -381,6 +382,9 @@ public: // attributes
     QHash<QScriptObject*, QScriptValuePrivate*> m_objectHandles;
     QHash<QScriptNameIdImpl*, QScriptValuePrivate*> m_stringHandles;
     QVector<QScriptValuePrivate*> m_otherHandles;
+#ifndef QT_NO_REGEXP
+    QHash<QString, QRegExp> m_regExpLiterals;
+#endif
 
     QScript::IdTable m_id_table;
 

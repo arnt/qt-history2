@@ -699,12 +699,36 @@ Ltop:
         CHECK_TEMPSTACK(1);
 
         QString pattern = eng->toString(iPtr->operand[0].m_string_value);
+#ifndef QT_NO_REGEXP
+        QString literal = pattern;
+#endif
         QString flags;
-
-        if (iPtr->operand[1].isValid())
+        if (iPtr->operand[1].isValid()) {
             flags = eng->toString(iPtr->operand[1].m_string_value);
+#ifndef QT_NO_REGEXP
+            literal += QLatin1String("/");
+            literal += flags;
+#endif
+        }
 
+#ifndef QT_NO_REGEXP
+        QRegExp rx;
+        // lazy compilation of regexp literals
+        QHash<QString, QRegExp>::const_iterator it;
+        it = eng->m_regExpLiterals.constFind(literal);
+        if (it == eng->m_regExpLiterals.constEnd()) {
+            bool ignoreCase = flags.contains(QLatin1Char('i'));
+            rx = QRegExp(pattern,
+                         (ignoreCase ? Qt::CaseInsensitive: Qt::CaseSensitive),
+                         QRegExp::RegExp2);
+            eng->m_regExpLiterals.insert(literal, rx);
+        } else {
+            rx = *it;
+        }
+        eng->regexpConstructor->newRegExp(++stackPtr, rx, flags);
+#else
         eng->regexpConstructor->newRegExp(++stackPtr, pattern, flags);
+#endif
         ++iPtr;
     }   Next();
 
