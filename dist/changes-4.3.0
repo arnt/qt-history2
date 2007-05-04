@@ -68,6 +68,7 @@ Third party components
     * [139247] click on a partially visible item was triggering a scroll and the
       wrong item was then clicked.
     * [137729] Use dropAction() instead of proposedAction() in QAbstractItemView::dropEvent().
+    * Fix a bug that keyboardSearch() was not ignoring disabled items.
 
 - QAbstractSlider
     * [76155] Fixed bug where the slider handle did not stop under the mouse.
@@ -142,6 +143,7 @@ Third party components
     * [154727] Compress posted QEvent::DeferredDelete events (used by
       QObject::deleteLater()) to prevent objects from being delete
       unexpectedly when many such events are postred.
+    * avoid duplicate entries in libpaths.
 
 - QCleanlooksStyle
     [129506] * Sliders now looks and acts correct with both reversed and inverted slider appearance.
@@ -168,6 +170,7 @@ Third party components
     * [133328] Fixed bug where disabled entries were not grayed out.
     * [134085] Fixed bug where QComboBox::AdjustToContents had no effect.
     * [152840] Fixed bug where QComboBox does not automatically scroll to the current item
+    * [90172] Fixed bug where sizeHint iterated over all icons to detect availability.
 
 - QFontComboBox
     * [132826] QFontComboBox popup could be shown off-screen.
@@ -243,6 +246,9 @@ Third party components
 
 - QImageReader
     * [141781] Fixed support for doublebyte PPM files (>256 colors).
+
+- QImageWriter
+    * Added support to enable compression if plugin supports it.
 
 - QIcon
     * Added cacheKey() as a replacement for serialNumber().
@@ -1012,6 +1018,9 @@ Third party components
 - QUndoStack
     * [142276] Added undoLimit proprerty which controls the maximum number
       of commands on the stack.
+
+- QValidator
+    * [34933] Added support for scientific notation.
 
 - QWaitCondition
     * [126007] Made QWaitCondition::wakeOne() behavior consistent
@@ -1804,3 +1813,9 @@ Examples
     * Escape filepaths for COPY_FILE and QMAKE_BUNDLE
     * [83765] Add input files instead of output files to extra compiler steps under certain conditions.
     * [101482] Fix relative path for RC_FILE.
+
+****************************************************************************
+*                          Plugins                                         *
+****************************************************************************
+- QTiffPlugin
+    * [93364] Added support for TIFF imageformat.
