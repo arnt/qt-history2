@@ -8,6 +8,19 @@ General Improvements
 - Configuration/Compilation
     * Fixed OpenBSD and NetBSD build issues.
 
+- Legal
+    * Added information about the OpenSSL exception to the GPL.
+
+- Documentation
+    * Added information about the TS file format used in Linguist.
+    * Moved platform and compiler support information from
+      www.trolltech.com into the documentation.
+    * Added an Accessibility overview document.
+
+- Translations
+    * [129392] Added a Slovak translation of Qt courtesy of Richard Fric.
+    * [154260] Added a Ukranian translation of Qt courtesy of Andriy Rysin.
+
 - Added support for CP949 Korean Codec
 
 - [138140] The whole Qt source compiles with the QT_NO_CAST_FROM_ASCII
