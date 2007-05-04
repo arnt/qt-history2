@@ -14,9 +14,8 @@
 #include "window.h"
 #include "qcontext2dcanvas.h"
 #include <QHBoxLayout>
-#include <QListView>
+#include <QListWidget>
 #include <QDir>
-#include <QStandardItemModel>
 
 static QString scriptsDir()
 {
@@ -29,7 +28,7 @@ Window::Window(QWidget *parent)
     : QWidget(parent)
 {
     QHBoxLayout *hbox = new QHBoxLayout(this);
-    QListView *view = new QListView(this);
+    QListWidget *view = new QListWidget(this);
     view->setEditTriggers(QAbstractItemView::NoEditTriggers);
     canvas = new QContext2DCanvas(this);
     canvas->setFixedSize(150, 150);
@@ -38,22 +37,17 @@ Window::Window(QWidget *parent)
 
     QDir dir(scriptsDir());
     QFileInfoList entries = dir.entryInfoList(QStringList() << "*.js");
-    scripts = new QStandardItemModel(this);
-    for (int i = 0; i < entries.size(); ++i) {
-        QString name = entries.at(i).fileName();
-        scripts->appendRow(new QStandardItem(name));
-    }
-    view->setModel(scripts);
-    connect(view, SIGNAL(activated(const QModelIndex &)),
-            this, SLOT(selectScript(const QModelIndex &)));
+    for (int i = 0; i < entries.size(); ++i)
+        view->addItem(entries.at(i).fileName());
+    connect(view, SIGNAL(currentItemChanged(QListWidgetItem*, QListWidgetItem*)),
+            this, SLOT(selectScript(QListWidgetItem*)));
 
     setWindowTitle(tr("Context 2D"));
 }
 
-void Window::selectScript(const QModelIndex &index)
+void Window::selectScript(QListWidgetItem *item)
 {
-    QStandardItem *item = scripts->itemFromIndex(index);
-    QFile file(scriptsDir() + "/" + item->text());
+    QFile file(scriptsDir() + QDir::separator() + item->text());
     file.open(QIODevice::ReadOnly);
     QString contents = file.readAll();
     file.close();

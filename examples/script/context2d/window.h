@@ -16,8 +16,7 @@
 
 #include <QWidget>
 class QContext2DCanvas;
-class QStandardItemModel;
-class QModelIndex;
+class QListWidgetItem;
 
 class Window : public QWidget
 {
@@ -25,10 +24,9 @@ class Window : public QWidget
 public:
     Window(QWidget *parent = 0);
 private slots:
-    void selectScript(const QModelIndex &);
+    void selectScript(QListWidgetItem *item);
 private:
     QContext2DCanvas *canvas;
-    QStandardItemModel *scripts;
 };
 
 #endif // WINDOW_H
