@@ -2314,12 +2314,24 @@ void QMdiSubWindow::showSystemMenu()
     Q_D(QMdiSubWindow);
     if (!d->systemMenu)
         return;
-    int frameWidth = 0;
-    if (!(isMaximized() && !d->drawTitleBarWhenMaximized()))
-        frameWidth += style()->pixelMetric(QStyle::PM_MDIFrameWidth);
-    int x = isLeftToRight() ? frameWidth : width() - d->systemMenu->width() - frameWidth;
-    QPoint menuPosition(x, d->titleBarHeight());
-    d->systemMenu->popup(mapToGlobal(menuPosition));
+
+    QPoint globalPopupPos;
+    if (QWidget *icon = maximizedSystemMenuIconWidget()) {
+        if (isLeftToRight())
+            globalPopupPos = icon->mapToGlobal(QPoint(0, icon->y() + icon->height()));
+        else
+            globalPopupPos = icon->mapToGlobal(QPoint(icon->width(), icon->y() + icon->height()));
+    } else {
+        if (isLeftToRight())
+            globalPopupPos = mapToGlobal(contentsRect().topLeft());
+        else // + QPoint(1, 0) because topRight() == QPoint(left() + width() -1, top())
+            globalPopupPos = mapToGlobal(contentsRect().topRight()) + QPoint(1, 0);
+    }
+
+    // Adjust x() with -menuwidth in reverse mode.
+    if (isRightToLeft())
+        globalPopupPos -= QPoint(d->systemMenu->sizeHint().width(), 0);
+    d->systemMenu->popup(globalPopupPos);
 }
 #endif // QT_NO_MENU
 
