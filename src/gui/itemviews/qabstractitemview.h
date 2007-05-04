@@ -36,6 +36,7 @@ class Q_GUI_EXPORT QAbstractItemView : public QAbstractScrollArea
     Q_ENUMS(SelectionMode SelectionBehavior ScrollHint ScrollMode DragDropMode)
     Q_FLAGS(EditTriggers)
     Q_PROPERTY(bool autoScroll READ hasAutoScroll WRITE setAutoScroll)
+    Q_PROPERTY(int autoScrollMargin READ autoScrollMargin WRITE setAutoScrollMargin)
     Q_PROPERTY(EditTriggers editTriggers READ editTriggers WRITE setEditTriggers)
     Q_PROPERTY(bool tabKeyNavigation READ tabKeyNavigation WRITE setTabKeyNavigation)
 #ifndef QT_NO_DRAGANDDROP
@@ -123,6 +124,9 @@ public:
 
     void setAutoScroll(bool enable);
     bool hasAutoScroll() const;
+
+    void setAutoScrollMargin(int margin);
+    int autoScrollMargin() const;
 
     void setTabKeyNavigation(bool enable);
     bool tabKeyNavigation() const;

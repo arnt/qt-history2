@@ -1050,6 +1050,26 @@ bool QAbstractItemView::hasAutoScroll() const
 }
 
 /*!
+    \since 4.4
+    \property QAbstractItemView::autoScrollMargin
+    \brief the size of the area when auto scrolling is triggered
+
+    This property controlls the size of the area at the edge of the viewport that
+    triggers autoscrolling. The default value is 16 pixels.
+*/
+void QAbstractItemView::setAutoScrollMargin(int margin)
+{
+    Q_D(QAbstractItemView);
+    d->autoScrollMargin = margin;
+}
+
+int QAbstractItemView::autoScrollMargin() const
+{
+    Q_D(const QAbstractItemView);
+    return d->autoScrollMargin;
+}
+
+/*!
   \property QAbstractItemView::tabKeyNavigation
   \brief whether item navigation with tab and backtab is enabled.
 */
