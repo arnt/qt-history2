@@ -394,6 +394,9 @@ static bool compare(const QVariant::Private *a, const QVariant::Private *b)
     return a->data.shared->ptr == b->data.shared->ptr;
 }
 
+/*!
+  \internal
+ */
 static qlonglong qMetaTypeNumber(const QVariant::Private *d)
 {
     switch (d->type) {
@@ -500,6 +503,11 @@ static qulonglong qConvertToUnsignedNumber(const QVariant::Private *d, bool *ok)
     return Q_UINT64_C(0);
 }
 
+/*!
+ \internal
+
+ Converts \a d to type \a t, which is placed in \a result.
+ */
 static bool convert(const QVariant::Private *d, QVariant::Type t, void *result, bool *ok)
 {
     Q_ASSERT(d->type != uint(t));
@@ -750,6 +758,10 @@ static bool convert(const QVariant::Private *d, QVariant::Type t, void *result, 
         *static_cast<qulonglong *>(result) = qConvertToUnsignedNumber(d, ok);
         return *ok;
     }
+    case QMetaType::UChar: {
+        *static_cast<uchar *>(result) = qConvertToUnsignedNumber(d, ok);
+        return *ok;
+    }
     case QVariant::Bool: {
         bool *b = static_cast<bool *>(result);
         switch(d->type) {
@@ -908,6 +920,11 @@ static bool convert(const QVariant::Private *d, QVariant::Type t, void *result, 
         else
             return false;
         break;
+    case QMetaType::Char:
+    {
+        *static_cast<qint8 *>(result) = qint8(qConvertToNumber(d, ok));
+        return *ok;
+    }
 #endif
     default:
         return false;

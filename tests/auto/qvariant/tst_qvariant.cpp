@@ -200,7 +200,7 @@ private slots:
     void variantMap();
 
     void invalidAsByteArray();
-
+    void convertToQUint8() const;
     void invalidQColor() const;
 };
 
@@ -2174,6 +2174,67 @@ void tst_QVariant::qvariant_cast_QObject() {
 
     QObject *o = qvariant_cast<QObject *>(data);
     QCOMPARE(o != 0, success);
+}
+
+Q_DECLARE_METATYPE(qint8);
+
+void tst_QVariant::convertToQUint8() const
+{
+    // See task 158470.
+
+    /* qint8. */
+    {
+        const qint8 anInt = 32;
+
+        /* QVariant(int) gets invoked here so the QVariant has nothing with qint8 to do.
+         * It's of type QVariant::Int. */
+        const QVariant v0 = anInt;
+
+        QVERIFY(v0.canConvert<qint8>());
+        QCOMPARE(int(qvariant_cast<qint8>(v0)), 32);
+        QCOMPARE(int(v0.toInt()), 32);
+        QCOMPARE(v0.toString(), QString("32"));
+
+        QCOMPARE(int(qvariant_cast<qlonglong>(v0)), 32);
+        QCOMPARE(int(qvariant_cast<char>(v0)),      32);
+        QCOMPARE(int(qvariant_cast<short>(v0)),     32);
+        QCOMPARE(int(qvariant_cast<long>(v0)),      32);
+        QCOMPARE(int(qvariant_cast<float>(v0)),     32);
+        QCOMPARE(int(qvariant_cast<double>(v0)),    32);
+    }
+
+    /* quint8. */
+    {
+        const quint8 anInt = 32;
+        const QVariant v0 = anInt;
+
+        QVERIFY(v0.canConvert<quint8>());
+        QCOMPARE(int(qvariant_cast<quint8>(v0)), 32);
+        QCOMPARE(int(v0.toUInt()), 32);
+        QCOMPARE(v0.toString(), QString("32"));
+    }
+
+    /* qint16. */
+    {
+        const qint16 anInt = 32;
+        const QVariant v0 = anInt;
+
+        QVERIFY(v0.canConvert<qint16>());
+        QCOMPARE(int(qvariant_cast<qint16>(v0)), 32);
+        QCOMPARE(int(v0.toInt()), 32);
+        QCOMPARE(v0.toString(), QString("32"));
+    }
+
+    /* quint16. */
+    {
+        const quint16 anInt = 32;
+        const QVariant v0 = anInt;
+
+        QVERIFY(v0.canConvert<quint16>());
+        QCOMPARE(int(qvariant_cast<quint16>(v0)), 32);
+        QCOMPARE(int(v0.toUInt()), 32);
+        QCOMPARE(v0.toString(), QString("32"));
+    }
 }
 
 QTEST_MAIN(tst_QVariant)
