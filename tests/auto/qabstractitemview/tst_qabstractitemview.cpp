@@ -263,6 +263,12 @@ void tst_QAbstractItemView::getSetCheck()
     obj1->setViewport(vp);
     QCOMPARE(vp, obj1->viewport());
 #endif
+
+    QCOMPARE(16, obj1->autoScrollMargin());
+    obj1->setAutoScrollMargin(20);
+    QCOMPARE(20, obj1->autoScrollMargin());
+    obj1->setAutoScrollMargin(16);
+    QCOMPARE(16, obj1->autoScrollMargin());
 }
 
 tst_QAbstractItemView::tst_QAbstractItemView()
