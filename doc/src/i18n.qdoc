@@ -232,7 +232,7 @@
 
     If you disable the \c{const char *} to QString automatic
     conversion by compiling your software with the macro \c
-    QT_NO_CAST_ASCII defined, you'll be very likely to catch any
+    QT_NO_CAST_FROM_ASCII defined, you'll be very likely to catch any
     strings you are missing. See QString::fromLatin1() for more
     information. Disabling the conversion can make programming a bit
     cumbersome.
