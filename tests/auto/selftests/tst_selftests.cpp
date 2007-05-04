@@ -69,6 +69,7 @@ void tst_Selftests::runSubTest_data()
 #endif
 
     QTest::newRow("waitwithoutgui") << "waitwithoutgui";
+    QTest::newRow("differentexec") << "differentexec";
 }
 
 void tst_Selftests::runSubTest()
@@ -162,6 +163,7 @@ void tst_Selftests::checkXML() const
 
     QEXPECT_FAIL("multiexec", "Output from several tests is broken with the XML output method, "
                               "and it's quite heavy in the design. See task 155001.", Continue);
+    QEXPECT_FAIL("differentexec", "Output from several tests is broken with the XML output method.", Continue);
 
     QVERIFY(!reader.error());
 }
