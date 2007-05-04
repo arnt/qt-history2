@@ -34,6 +34,9 @@
     <example filename="findfiles" name="Find Files Dialog" />
     <example filename="standarddialogs" name="Standard Dialogs" />
     <example filename="tabdialog" name="Tab Dialog" />
+    <example filename="trivialwizard" name="Trivial Wizard" />
+    <example filename="licensewizard" name="License Wizard" />
+    <example filename="classwizard" name="Class Wizard" />
   </category>
   <category dirname="draganddrop" name="Drag and Drop">
     <example filename="draggableicons" name="Draggable Icons" />
