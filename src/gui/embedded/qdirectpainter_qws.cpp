@@ -62,9 +62,9 @@
     \section1 Static Allocation
 
 
-    Using the static approach, the client application gets the
-    complete control over the reserved region, i.e. the affected
-    region will never be modified by the screen driver.
+    Using the static approach, the client application gets complete
+    control over the reserved region, i.e., the affected region will
+    never be modified by the screen driver.
 
     To create a static region, pass the QDirectPainter::Reserved
     surface flag to the constructor. After the reserved region is
@@ -119,7 +119,7 @@
     \l {Static Allocation}.
 
     \value ReservedSynchronous The allocated region will never change and
-    each function that change the allocated region will be blocking.
+    each function that changes the allocated region will be blocking.
 
     \sa reservedRegion(), allocatedRegion()
 */
@@ -375,9 +375,13 @@ void QDirectPainter::regionChanged(const QRegion &region)
     \since 4.2
 
     Call this function before you start updating the pixels in the
-    allocated region.
+    allocated region. The hardware will be notified, if necessary,
+    that you are about to start painting operations.
 
-    \sa endPainting, flush
+    Set \a lockDisplay if you want startPainting() and endPainting()
+    to lock() and unlock() the display automatically.
+
+    \sa endPainting(), flush()
 */
 void QDirectPainter::startPainting(bool lockDisplay)
 {
@@ -388,7 +392,9 @@ void QDirectPainter::startPainting(bool lockDisplay)
     \preliminary
     \since 4.2
 
-    Call this function whenever you are done updating the screen.
+    Call this function when you are done updating the screen. It will
+    notify the hardware, if necessary, that your painting operations
+    have ended.
 */
 void QDirectPainter::endPainting()
 {
@@ -399,7 +405,9 @@ void QDirectPainter::endPainting()
     \since 4.3
     \overload
 
-    This function will automatically call flush() with the given \a region.
+    This function will automatically call flush() to flush the
+    \a region to the display before notifying the hardware, if
+    necessary, that painting operations have ended.
 */
 void QDirectPainter::endPainting(const QRegion &region)
 {
@@ -410,7 +418,7 @@ void QDirectPainter::endPainting(const QRegion &region)
     \preliminary
     \since 4.3
 
-    Flushes the given \a region onto the screen.
+    Flushes the \a region onto the screen.
 */
 void QDirectPainter::flush(const QRegion &region)
 {
@@ -430,7 +438,7 @@ void QDirectPainter::flush(const QRegion &region)
 */
 void QDirectPainter::raise()
 {
-    QWidget::qwsDisplay()->setAltitude(winId(), QWSChangeAltitudeCommand::Raise);
+    QWidget::qwsDisplay()->setAltitude(winId(),QWSChangeAltitudeCommand::Raise);
 }
 
 /*!
@@ -445,15 +453,15 @@ void QDirectPainter::raise()
 */
 void QDirectPainter::lower()
 {
-    QWidget::qwsDisplay()->setAltitude(winId(), QWSChangeAltitudeCommand::Lower);
+    QWidget::qwsDisplay()->setAltitude(winId(),QWSChangeAltitudeCommand::Lower);
 }
 
 
 /*!
     \fn QRegion QDirectPainter::reserveRegion(const QRegion &region)
 
-    Attempts to reserve the given \a region, and returns the region
-    that is actually reserved.
+    Attempts to reserve the \a region and returns the region that is
+    actually reserved.
 
     This function also releases the previously reserved region if
     any. If not released explicitly, the region will be released on
@@ -572,12 +580,14 @@ int QDirectPainter::linestep()
 
 
 /*!
-    Locks access to the framebuffer.
+  \warning This function is not yet implemented.
+  
+  Locks access to the framebuffer.
 
-    Note that calling this function will prevent all other
-    applications from working until unlock() is called.
+  Note that calling this function will prevent all other
+  applications from working until unlock() is called.
 
-    \sa unlock()
+  \sa unlock()
 */
 void QDirectPainter::lock()
 {
@@ -585,10 +595,12 @@ void QDirectPainter::lock()
     qDebug("QDirectPainter::lock() not implemented");
 }
 /*!
-    Unlocks the lock on the framebuffer (set using the lock()
-    function), allowing other applications to access the screen.
+  \warning This function is not yet implemented.
 
-    \sa lock()
+  Unlocks the lock on the framebuffer (set using the lock()
+  function), allowing other applications to access the screen.
+
+  \sa lock()
  */
 void QDirectPainter::unlock()
 {
