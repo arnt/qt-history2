@@ -1240,6 +1240,12 @@ void QSortFilterProxyModelPrivate::_q_sourceColumnsRemoved(
     \l{itemviews/customsortfiltermodel}{Custom Sort/Filter Model}
     example.)
 
+    If you are working with large amounts of filtering and have to invoke
+    invalidateFilter() repeatedly, using reset() may be more efficient,
+    depending on the implementation of your model. However, note that reset()
+    returns the proxy model to its original state, losing selection
+    information, and will cause the proxy model to be repopulated.
+
     \section1 Subclassing
 
     \bold{Note:} Some general guidelines for subclassing models are
