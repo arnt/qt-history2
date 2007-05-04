@@ -210,6 +210,8 @@ void tst_QMetaType::construct()
 
 void tst_QMetaType::typedefs()
 {
+    QCOMPARE(QMetaType::type("long long"), int(QMetaType::LongLong));
+    QCOMPARE(QMetaType::type("unsigned long long"), int(QMetaType::ULongLong));
     QCOMPARE(QMetaType::type("qint8"), int(QMetaType::Char));
     QCOMPARE(QMetaType::type("quint8"), int(QMetaType::UChar));
     QCOMPARE(QMetaType::type("qint16"), int(QMetaType::Short));
@@ -229,15 +231,15 @@ void tst_QMetaType::isRegistered_data()
 {
     QTest::addColumn<int>("typeId");
     QTest::addColumn<bool>("registered");
-    
+
     // predefined/custom types
     QTest::newRow("QMetaType::Void") << int(QMetaType::Void) << true;
     QTest::newRow("QMetaType::Int") << int(QMetaType::Int) << true;
-    
+
     int dummyTypeId = qRegisterMetaType<IsRegisteredDummyType>("IsRegisteredDummyType");
-    
+
     QTest::newRow("IsRegisteredDummyType") << dummyTypeId << true;
-    
+
     // unknown types
     QTest::newRow("-1") << -1 << false;
     QTest::newRow("-42") << -42 << false;
@@ -247,7 +249,7 @@ void tst_QMetaType::isRegistered_data()
 void tst_QMetaType::isRegistered()
 {
     QFETCH(int, typeId);
-    QFETCH(bool, registered);    
+    QFETCH(bool, registered);
     QCOMPARE(QMetaType::isRegistered(typeId), registered);
 }
 

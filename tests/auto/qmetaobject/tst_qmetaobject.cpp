@@ -275,6 +275,8 @@ public slots:
 
     void testReference(QString &str);
 
+    void testLongLong(long long ll1, unsigned long long ll2);
+
 signals:
     void sig0();
     QString sig1(QString s1);
@@ -321,6 +323,8 @@ QList<QString> QtTestObject::sl13(QList<QString> l1)
 { slotResult = "sl13"; return l1; }
 void QtTestObject::testReference(QString &str)
 { slotResult = "testReference:" + str; str = "gotcha"; }
+void QtTestObject::testLongLong(long long ll1, unsigned long long ll2)
+{ slotResult = "testLongLong:" + QString::number(ll1) + "," + QString::number(ll2); }
 
 void QtTestObject::testSender()
 {
@@ -388,6 +392,14 @@ void tst_QMetaObject::invokeMetaMember()
     QVERIFY(QMetaObject::invokeMethod(&obj, "testReference", QGenericArgument("QString&", &refStr)));
     QCOMPARE(obj.slotResult, QString("testReference:whatever"));
     QCOMPARE(refStr, QString("gotcha"));
+
+    long long ll1 = -1ll;
+    unsigned long long ll2 = 0ull;
+    QVERIFY(QMetaObject::invokeMethod(&obj,
+                                      "testLongLong",
+                                      Q_ARG(long long, ll1),
+                                      Q_ARG(unsigned long long, ll2)));
+    QCOMPARE(obj.slotResult, QString("testLongLong:-1,0"));
 
     QString exp;
     QVERIFY(QMetaObject::invokeMethod(&obj, "sl1", Q_RETURN_ARG(QString, exp), Q_ARG(QString, "bubu")));
@@ -476,6 +488,16 @@ void tst_QMetaObject::invokeQueuedMetaMember()
     QTest::ignoreMessage(QtWarningMsg, "QMetaObject::invokeMethod: Unable to invoke methods with return values in queued connections");
     QVERIFY(!QMetaObject::invokeMethod(&obj, "sig1", Qt::QueuedConnection, Q_RETURN_ARG(QString, exp),
                               Q_ARG(QString, "nono")));
+
+    long long ll1 = -1ll;
+    unsigned long long ll2 = 0ull;
+    QVERIFY(QMetaObject::invokeMethod(&obj,
+                                      "testLongLong",
+                                      Qt::QueuedConnection,
+                                      Q_ARG(long long, ll1),
+                                      Q_ARG(unsigned long long, ll2)));
+    qApp->processEvents(QEventLoop::AllEvents);
+    QCOMPARE(obj.slotResult, QString("testLongLong:-1,0"));
 }
 
 
