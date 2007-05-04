@@ -174,7 +174,7 @@ void QPicturePaintEngine::updateOpacity(qreal opacity)
     writeCmdLength(pos, QRectF(), false);
 }
 
-void QPicturePaintEngine::updateBrush(const QBrush &brush, const QPointF &)
+void QPicturePaintEngine::updateBrush(const QBrush &brush)
 {
     Q_D(QPicturePaintEngine);
 #ifdef QT_PICTURE_DEBUG
@@ -183,6 +183,18 @@ void QPicturePaintEngine::updateBrush(const QBrush &brush, const QPointF &)
     int pos;
     SERIALIZE_CMD(QPicturePrivate::PdcSetBrush);
     d->s << brush;
+    writeCmdLength(pos, QRect(), false);
+}
+
+void QPicturePaintEngine::updateBrushOrigin(const QPointF &p)
+{
+    Q_D(QPicturePaintEngine);
+#ifdef QT_PICTURE_DEBUG
+    qDebug() << " -> updateBrushOrigin(): " << p;
+#endif
+    int pos;
+    SERIALIZE_CMD(QPicturePrivate::PdcSetBrushOrigin);
+    d->s << p;
     writeCmdLength(pos, QRect(), false);
 }
 
@@ -421,8 +433,8 @@ void QPicturePaintEngine::updateState(const QPaintEngineState &state)
 {
     QPaintEngine::DirtyFlags flags = state.state();
     if (flags & DirtyPen) updatePen(state.pen());
-    if (flags & DirtyBrush) updateBrush(state.brush(), state.brushOrigin());
-    if (flags & DirtyBrushOrigin) updateBrush(state.brush(), state.brushOrigin());
+    if (flags & DirtyBrush) updateBrush(state.brush());
+    if (flags & DirtyBrushOrigin) updateBrushOrigin(state.brushOrigin());
     if (flags & DirtyFont) updateFont(state.font());
     if (flags & DirtyBackground) updateBackground(state.backgroundMode(), state.backgroundBrush());
     if (flags & DirtyTransform) updateMatrix(state.transform());

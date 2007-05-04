@@ -903,6 +903,10 @@ QDataStream &operator<<(QDataStream &s, const QBrush &b)
         const QGradient *gradient = b.gradient();
         int type_as_int = int(gradient->type());
         s << type_as_int;
+        if (s.version() >= QDataStream::Qt_4_3) {
+            s << int(gradient->spread());
+            s << int(gradient->coordinateMode());
+        }
 
         if (sizeof(qreal) == sizeof(double)) {
             s << gradient->stops();
@@ -962,9 +966,17 @@ QDataStream &operator>>(QDataStream &s, QBrush &b)
         int type_as_int;
         QGradient::Type type;
         QGradientStops stops;
+        QGradient::CoordinateMode cmode = QGradient::LogicalMode;
+        QGradient::Spread spread = QGradient::PadSpread;
 
         s >> type_as_int;
         type = QGradient::Type(type_as_int);
+        if (s.version() >= QDataStream::Qt_4_3) {
+            s >> type_as_int;
+            spread = QGradient::Spread(type_as_int);
+            s >> type_as_int;
+            cmode = QGradient::CoordinateMode(type_as_int);
+        }
 
         if (sizeof(qreal) == sizeof(double)) {
             s >> stops;
@@ -986,6 +998,8 @@ QDataStream &operator>>(QDataStream &s, QBrush &b)
             s >> p2;
             QLinearGradient lg(p1, p2);
             lg.setStops(stops);
+            lg.setSpread(spread);
+            lg.setCoordinateMode(cmode);
             b = QBrush(lg);
         } else if (type == QGradient::RadialGradient) {
             QPointF center, focal;
@@ -995,6 +1009,8 @@ QDataStream &operator>>(QDataStream &s, QBrush &b)
             s >> radius;
             QRadialGradient rg(center, radius, focal);
             rg.setStops(stops);
+            rg.setSpread(spread);
+            rg.setCoordinateMode(cmode);
             b = QBrush(rg);
         } else { // type == QGradient::ConicalGradient
             QPointF center;
@@ -1003,9 +1019,10 @@ QDataStream &operator>>(QDataStream &s, QBrush &b)
             s >> angle;
             QConicalGradient cg(center, angle);
             cg.setStops(stops);
+            cg.setSpread(spread);
+            cg.setCoordinateMode(cmode);
             b = QBrush(cg);
         }
-
     } else {
         b = QBrush(color, (Qt::BrushStyle)style);
     }

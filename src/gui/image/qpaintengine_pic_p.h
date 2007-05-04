@@ -46,7 +46,8 @@ public:
     void updateState(const QPaintEngineState &state);
 
     void updatePen(const QPen &pen);
-    void updateBrush(const QBrush &brush, const QPointF &origin);
+    void updateBrush(const QBrush &brush);
+    void updateBrushOrigin(const QPointF &origin);
     void updateFont(const QFont &font);
     void updateBackground(Qt::BGMode bgmode, const QBrush &bgBrush);
     void updateMatrix(const QTransform &matrix);
