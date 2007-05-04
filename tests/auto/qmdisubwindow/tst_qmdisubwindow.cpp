@@ -879,22 +879,30 @@ void tst_QMdiSubWindow::mouseDoubleClick()
 void tst_QMdiSubWindow::setSystemMenu()
 {
     QMdiSubWindow *subWindow = new QMdiSubWindow;
+    subWindow->resize(200, 50);
     QPointer<QMenu>systemMenu = subWindow->systemMenu();
     QVERIFY(systemMenu);
     QCOMPARE(subWindow->actions(), systemMenu->actions());
 
-    QMdiArea mdiArea;
-    mdiArea.addSubWindow(subWindow);
-    qApp->processEvents();
-    mdiArea.show();
-    subWindow->show();
-    qApp->processEvents();
+    QMainWindow mainWindow;
+    QMdiArea *mdiArea = new QMdiArea;
+    mdiArea->addSubWindow(subWindow);
+    mainWindow.setCentralWidget(mdiArea);
+    mainWindow.menuBar();
+    mainWindow.show();
+#ifdef Q_WS_X11
+    qt_x11_wait_for_window_manager(&mainWindow);
+#endif
+
+    QVERIFY(subWindow->isVisible());
+    QPoint globalPopupPos = subWindow->mapToGlobal(subWindow->contentsRect().topLeft());
 
     // Show system menu
     QVERIFY(!qApp->activePopupWidget());
     subWindow->showSystemMenu();
     QTest::qWait(250);
     QCOMPARE(qApp->activePopupWidget(), qobject_cast<QWidget *>(systemMenu));
+    QCOMPARE(systemMenu->mapToGlobal(QPoint(0, 0)), globalPopupPos);
 
     systemMenu->hide();
     QVERIFY(!qApp->activePopupWidget());
@@ -918,10 +926,63 @@ void tst_QMdiSubWindow::setSystemMenu()
     subWindow->showSystemMenu();
     QTest::qWait(250);
     QCOMPARE(qApp->activePopupWidget(), qobject_cast<QWidget *>(systemMenu));
+    QCOMPARE(systemMenu->mapToGlobal(QPoint(0, 0)), globalPopupPos);
+
+    systemMenu->hide();
+    QVERIFY(!qApp->activePopupWidget());
+
+#ifndef Q_WS_MAC
+    // System menu in menu bar.
+    subWindow->showMaximized();
+    QVERIFY(subWindow->isMaximized());
+    QWidget *menuLabel = subWindow->maximizedSystemMenuIconWidget();
+    QVERIFY(menuLabel);
+    subWindow->showSystemMenu();
+    QTest::qWait(250);
+    QCOMPARE(qApp->activePopupWidget(), qobject_cast<QWidget *>(systemMenu));
+    globalPopupPos = menuLabel->mapToGlobal(QPoint(0, menuLabel->y() + menuLabel->height()));
+    QCOMPARE(systemMenu->mapToGlobal(QPoint(0, 0)), globalPopupPos);
+    systemMenu->hide();
+    QVERIFY(!qApp->activePopupWidget());
+    subWindow->showNormal();
+#endif
+
+    // Reverse
+    qApp->setLayoutDirection(Qt::RightToLeft);
+    qApp->processEvents();
+    mainWindow.updateGeometry();
+
+    subWindow->showSystemMenu();
+    QTest::qWait(250);
+    QCOMPARE(qApp->activePopupWidget(), qobject_cast<QWidget *>(systemMenu));
+    // + QPoint(1, 0) because topRight() == QPoint(left() + width() -1, top())
+    globalPopupPos = subWindow->mapToGlobal(subWindow->contentsRect().topRight()) + QPoint(1, 0);
+    globalPopupPos -= QPoint(systemMenu->sizeHint().width(), 0);
+    QCOMPARE(systemMenu->mapToGlobal(QPoint(0, 0)), globalPopupPos);
+
+    systemMenu->hide();
+    QVERIFY(!qApp->activePopupWidget());
+
+#ifndef Q_WS_MAC
+    // System menu in menu bar in reverse mode.
+    subWindow->showMaximized();
+    QVERIFY(subWindow->isMaximized());
+    menuLabel = subWindow->maximizedSystemMenuIconWidget();
+    QVERIFY(menuLabel);
+    subWindow->showSystemMenu();
+    QTest::qWait(250);
+    QCOMPARE(qApp->activePopupWidget(), qobject_cast<QWidget *>(systemMenu));
+    globalPopupPos = menuLabel->mapToGlobal(QPoint(menuLabel->width(), menuLabel->y() + menuLabel->height()));
+    globalPopupPos -= QPoint(systemMenu->sizeHint().width(), 0);
+    QCOMPARE(systemMenu->mapToGlobal(QPoint(0, 0)), globalPopupPos);
+#endif
 
     delete systemMenu;
     QVERIFY(!qApp->activePopupWidget());
     QVERIFY(!subWindow->systemMenu());
+
+    // Restore layout direction.
+    qApp->setLayoutDirection(Qt::LeftToRight);
 }
 
 void tst_QMdiSubWindow::restoreFocus()
