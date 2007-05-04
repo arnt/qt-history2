@@ -252,7 +252,7 @@ void MainWindow::checkAdapt()
     if (Colors::noAdapt)
         return;
 
-    if (this->fpsMedian < 40){
+    if (this->fpsMedian < 30){
         if (MenuManager::instance()->ticker && MenuManager::instance()->ticker->scene()){
             this->scene->removeItem(MenuManager::instance()->ticker);
             Colors::noTimerUpdate = true;
@@ -316,6 +316,8 @@ void MainWindow::toggleFullscreen()
     if (this->isFullScreen()){
         this->enableMask(true);
         this->showNormal();
+        if (MenuManager::instance()->ticker)
+            MenuManager::instance()->ticker->pause(false);
     }
     else {
         this->enableMask(false);
