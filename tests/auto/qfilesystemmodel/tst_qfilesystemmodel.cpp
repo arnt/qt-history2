@@ -16,6 +16,7 @@
 //TESTED_FILES=qfilesystemmodel.h qfilesystemmodel.cpp
 
 #define WAITTIME 1000
+#define WAITTIME2 1
 
 class tst_QFileSystemModel : public QObject {
   Q_OBJECT
@@ -29,6 +30,8 @@ public Q_SLOTS:
     void cleanup();
 
 private slots:
+    void indexPath();
+
     void rootPath();
     void naturalCompare_data();
     void naturalCompare();
@@ -102,6 +105,21 @@ void tst_QFileSystemModel::cleanup()
         QVERIFY(list.count() == 0);
         QVERIFY(dir.rmdir(tmp));
     }
+}
+
+void tst_QFileSystemModel::indexPath()
+{
+    int depth = QDir::currentPath().count('/');
+    model->setRootPath(QDir::currentPath());
+    QTest::qWait(WAITTIME);
+    QString backPath;
+    for (int i = 0; i <= depth * 2 + 1; ++i) {
+        backPath += "../";
+        QModelIndex idx = model->index(backPath);
+        QVERIFY(i != depth - 1 ? idx.isValid() : !idx.isValid());
+    }
+    QTest::qWait(WAITTIME * 3);
+    qApp->processEvents();
 }
 
 void tst_QFileSystemModel::rootPath()
