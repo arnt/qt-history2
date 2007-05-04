@@ -42,10 +42,11 @@
 
 #include "qsslsocket_openssl_p.h"
 
+#define DUMMYARG
+
 #ifdef QT_SHARED
 // **************** Shared declarations ******************
 // ret func(arg)
-#  define DUMMYARG
 #  define DEFINEFUNC(ret, func, arg, a, err, funcret)				\
     typedef ret (*_q_PTR_##func)(arg);					\
     static _q_PTR_##func _q_##func = 0;					\
