@@ -5,7 +5,7 @@
     The License Wizard example shows how to implement complex wizards in
     Qt.
 
-    \image wizard.png Screenshot of the License Wizard example
+    \image licensewizard-example.png Screenshot of the License Wizard example
 
     Most wizards have a linear structure, with page 1 followed by
     page 2 and so on until the last page. The
