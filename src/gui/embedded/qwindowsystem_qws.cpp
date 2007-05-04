@@ -3328,7 +3328,7 @@ void QWSServerPrivate::exposeRegion(QRegion r, int changing)
         changing = 0;
         initial = false;
     }
-    qt_screen->exposeRegion(r, qMax(nReserved, changing));
+    qt_screen->exposeRegion(r, changing);
 }
 
 /*!
