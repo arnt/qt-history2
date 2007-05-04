@@ -307,18 +307,18 @@ int main(int argc, char **argv)
             switch (type) {
 
             case WidgetType:
-                {
-                    qWidget = new OnScreenWidget<QWidget>;
-                    qWidget->setVerboseMode(verboseMode);
-                    qWidget->setType(type);
-                    qWidget->setCheckersBackground(checkers_background);
-                    qWidget->m_filename = files.at(j);
-                    qWidget->setWindowTitle(fileinfo.filePath());
-                    qWidget->m_commands = content;
-                    qWidget->resize(width, height);
-                    qWidget->show();
-                    break;
-                }
+            {
+                qWidget = new OnScreenWidget<QWidget>;
+                qWidget->setVerboseMode(verboseMode);
+                qWidget->setType(type);
+                qWidget->setCheckersBackground(checkers_background);
+                qWidget->m_filename = files.at(j);
+                qWidget->setWindowTitle(fileinfo.filePath());
+                qWidget->m_commands = content;
+                qWidget->resize(width, height);
+                qWidget->show();
+                break;
+            }
 #ifndef QT_NO_OPENGL
             case OpenGLPBufferType:
             {
@@ -340,15 +340,15 @@ int main(int argc, char **argv)
                 break;
             }
             case OpenGLType:
-                {
-                    qGLWidget = new OnScreenWidget<QGLWidget>;
-                    qGLWidget->m_filename = files.at(j);
-                    qGLWidget->setWindowTitle(fileinfo.filePath());
-                    qGLWidget->m_commands = content;
-                    qGLWidget->resize(width, height);
-                    qGLWidget->show();
-                    break;
-                }
+            {
+                qGLWidget = new OnScreenWidget<QGLWidget>;
+                qGLWidget->m_filename = files.at(j);
+                qGLWidget->setWindowTitle(fileinfo.filePath());
+                qGLWidget->m_commands = content;
+                qGLWidget->resize(width, height);
+                qGLWidget->show();
+                break;
+            }
 #else
             case OpenGLType:
                 printf("OpenGL type not supported in this Qt build\n");
@@ -356,159 +356,160 @@ int main(int argc, char **argv)
 #endif
 #ifdef USE_CUSTOM_DEVICE
             case CustomType:
-                {
-                    CustomPaintDevice custom(width, height);
-                    QPainter pt;
-                    pt.begin(&custom);
-                    pcmd.setPainter(&pt);
-                    pcmd.setFilePath(fileinfo.absolutePath());
-                    pcmd.runCommands();
-                    pt.end();
-                    custom.save("custom_output_pixmap.png", "PNG");
-                    break;
-                }
+            {
+                CustomPaintDevice custom(width, height);
+                QPainter pt;
+                pt.begin(&custom);
+                pcmd.setPainter(&pt);
+                pcmd.setFilePath(fileinfo.absolutePath());
+                pcmd.runCommands();
+                pt.end();
+                custom.save("custom_output_pixmap.png", "PNG");
+                break;
+            }
 #endif
             case PixmapType:
-                {
-                    QPixmap pixmap(width, height);
-                    pixmap.fill(Qt::white);
-                    QPainter pt(&pixmap);
-                    pcmd.setPainter(&pt);
-                    pcmd.setFilePath(fileinfo.absolutePath());
-                    pcmd.runCommands();
-                    pt.end();
-                    pixmap.save("output_pixmap.png", "PNG");
-                    break;
-                }
+            {
+                QPixmap pixmap(width, height);
+                pixmap.fill(Qt::white);
+                QPainter pt(&pixmap);
+                pcmd.setPainter(&pt);
+                pcmd.setFilePath(fileinfo.absolutePath());
+                pcmd.runCommands();
+                pt.end();
+                pixmap.save("output_pixmap.png", "PNG");
+                break;
+            }
 
             case BitmapType:
-                {
-                    QBitmap bitmap(width, height);
-                    QPainter pt(&bitmap);
-                    pcmd.setPainter(&pt);
-                    pcmd.setFilePath(fileinfo.absolutePath());
-                    pcmd.runCommands();
-                    pt.end();
-                    bitmap.save("output_bitmap.png", "PNG");
+            {
+                QBitmap bitmap(width, height);
+                QPainter pt(&bitmap);
+                pcmd.setPainter(&pt);
+                pcmd.setFilePath(fileinfo.absolutePath());
+                pcmd.runCommands();
+                pt.end();
+                bitmap.save("output_bitmap.png", "PNG");
 
-                    QLabel *label = createLabel();
-                    label->setPixmap(bitmap);
-                    label->resize(label->sizeHint());
-                    label->show();
-                    break;
-                }
+                QLabel *label = createLabel();
+                label->setPixmap(bitmap);
+                label->resize(label->sizeHint());
+                label->show();
+                break;
+            }
 
             case ImageMonoType:
             case ImageType:
-                {
-                    qDebug() << "Creating image";
-                    QImage image(width, height, type == ImageMonoType
-                                 ? QImage::Format_MonoLSB
-                                 : QImage::Format_ARGB32_Premultiplied);
-                    QPainter pt(&image);
-                    pcmd.setPainter(&pt);
-                    pcmd.setFilePath(fileinfo.absolutePath());
-                    pcmd.runCommands();
-                    pt.end();
-                    image.convertToFormat(QImage::Format_ARGB32).save("output_image.png", "PNG");
-                    
-                    QLabel *label = createLabel();
-	            label->setPixmap(QPixmap::fromImage(image));
-                    label->resize(label->sizeHint());
-                    label->show();
-                    break;
-                }
+            {
+                qDebug() << "Creating image";
+                QImage image(width, height, type == ImageMonoType
+                             ? QImage::Format_MonoLSB
+                             : QImage::Format_ARGB32_Premultiplied);
+                QPainter pt(&image);
+                pcmd.setPainter(&pt);
+                pcmd.setFilePath(fileinfo.absolutePath());
+                pcmd.runCommands();
+                pt.end();
+                image.convertToFormat(QImage::Format_ARGB32).save("output_image.png", "PNG");
+
+                QLabel *label = createLabel();
+                label->setPixmap(QPixmap::fromImage(image));
+                label->resize(label->sizeHint());
+                label->show();
+                break;
+            }
 
             case PictureType:
-                {
-                    QPicture pic;
-                    QPainter pt(&pic);
-                    pcmd.setPainter(&pt);
-                    pcmd.setFilePath(fileinfo.absolutePath());
-                    pcmd.runCommands();
-                    pt.end();
+            {
+                QPicture pic;
+                QPainter pt(&pic);
+                pcmd.setPainter(&pt);
+                pcmd.setFilePath(fileinfo.absolutePath());
+                pcmd.runCommands();
+                pt.end();
 
-                    QImage image(width, height, 32, 0, QImage::BigEndian);
-                    pt.begin(&image);
-                    pt.drawPicture(0, 0, pic);
-                    pt.end();
-                    QLabel *label = createLabel();
-                    label->setWindowTitle(fileinfo.absolutePath());
-                    label->setPixmap(QPixmap::fromImage(image));
-                    label->resize(label->sizeHint());
-                    label->show();
-                    break;
-                }
+                QImage image(width, height, QImage::Format_ARGB32_Premultiplied);
+                image.fill(0);
+                pt.begin(&image);
+                pt.drawPicture(0, 0, pic);
+                pt.end();
+                QLabel *label = createLabel();
+                label->setWindowTitle(fileinfo.absolutePath());
+                label->setPixmap(QPixmap::fromImage(image));
+                label->resize(label->sizeHint());
+                label->show();
+                break;
+            }
 
             case PrinterType:
-                {
-                    QString file = QString(files.at(j)).replace(".", "_") + ".ps";
+            {
+                QString file = QString(files.at(j)).replace(".", "_") + ".ps";
 
-                    QPrinter p(highres ? QPrinter::HighResolution : QPrinter::ScreenResolution);
-                    if (printdlg) {
-                        QPrintDialog printDialog(&p, 0);
-                        if (printDialog.exec() != QDialog::Accepted)
-                            break;
-                    } else {
-                        p.setOutputToFile(true);
-                        p.setOutputFileName(file);
-                    }
-
-                    QPainter pt(&p);
-                    pcmd.setPainter(&pt);
-                    pcmd.setFilePath(fileinfo.absolutePath());
-                    pcmd.runCommands();
-                    pt.end();
-
-                    if (!printdlg) {
-                        printf("wrote file: %s\n", qPrintable(file));
-                    }
-
-                    Q_ASSERT(!p.paintingActive());
-                    break;
+                QPrinter p(highres ? QPrinter::HighResolution : QPrinter::ScreenResolution);
+                if (printdlg) {
+                    QPrintDialog printDialog(&p, 0);
+                    if (printDialog.exec() != QDialog::Accepted)
+                        break;
+                } else {
+                    p.setOutputToFile(true);
+                    p.setOutputFileName(file);
                 }
+
+                QPainter pt(&p);
+                pcmd.setPainter(&pt);
+                pcmd.setFilePath(fileinfo.absolutePath());
+                pcmd.runCommands();
+                pt.end();
+
+                if (!printdlg) {
+                    printf("wrote file: %s\n", qPrintable(file));
+                }
+
+                Q_ASSERT(!p.paintingActive());
+                break;
+            }
             case PsType:
             case PdfType:
-                {
-                    bool ps = type == PsType;
-                    QPrinter p;
-                    QFileInfo input(files.at(j));
-                    QString file = QString("%1_%2.%3")
-                                   .arg(input.baseName())
-                                   .arg(input.extension())
-                                   .arg(ps ? "ps" : "pdf");
-                    p.setOutputFormat(ps ? QPrinter::PdfFormat : QPrinter::PostScriptFormat);
-                    p.setOutputFileName(file);
-                    p.setPageSize(QPrinter::A4);
-                    QPainter pt(&p);
-                    pcmd.setPainter(&pt);
-                    pcmd.setFilePath(fileinfo.absolutePath());
-                    pcmd.runCommands();
-                    pt.end();
+            {
+                bool ps = type == PsType;
+                QPrinter p;
+                QFileInfo input(files.at(j));
+                QString file = QString("%1_%2.%3")
+                               .arg(input.baseName())
+                               .arg(input.extension())
+                               .arg(ps ? "ps" : "pdf");
+                p.setOutputFormat(ps ? QPrinter::PdfFormat : QPrinter::PostScriptFormat);
+                p.setOutputFileName(file);
+                p.setPageSize(QPrinter::A4);
+                QPainter pt(&p);
+                pcmd.setPainter(&pt);
+                pcmd.setFilePath(fileinfo.absolutePath());
+                pcmd.runCommands();
+                pt.end();
 
-                    printf("write file: %s\n", qPrintable(file));
-                    break;
-                }
+                printf("write file: %s\n", qPrintable(file));
+                break;
+            }
             case GrabType:
-                {
-                    QImage image(width, height, QImage::Format_ARGB32_Premultiplied);
-                    image.fill(QColor(Qt::white).rgb());
-                    QPainter pt(&image);
-                    pcmd.setPainter(&pt);
-                    pcmd.setFilePath(fileinfo.absolutePath());
-                    pcmd.runCommands();
-                    pt.end();
-                    QImage image1(width, height, QImage::Format_RGB32);
-                    image1.fill(QColor(Qt::white).rgb());
-                    QPainter pt1(&image1);
-                    pt1.drawImage(QPointF(0, 0), image);
-                    pt1.end();
+            {
+                QImage image(width, height, QImage::Format_ARGB32_Premultiplied);
+                image.fill(QColor(Qt::white).rgb());
+                QPainter pt(&image);
+                pcmd.setPainter(&pt);
+                pcmd.setFilePath(fileinfo.absolutePath());
+                pcmd.runCommands();
+                pt.end();
+                QImage image1(width, height, QImage::Format_RGB32);
+                image1.fill(QColor(Qt::white).rgb());
+                QPainter pt1(&image1);
+                pt1.drawImage(QPointF(0, 0), image);
+                pt1.end();
 
-                    QString filename = QString(files.at(j)).replace(".", "_") + ".png";
-                    image1.save(filename, "PNG");
-                    printf("%s grabbed to %s\n", qPrintable(files.at(j)), qPrintable(filename));
-                    break;
-                }
+                QString filename = QString(files.at(j)).replace(".", "_") + ".png";
+                image1.save(filename, "PNG");
+                printf("%s grabbed to %s\n", qPrintable(files.at(j)), qPrintable(filename));
+                break;
+            }
 
             default:
                 break;

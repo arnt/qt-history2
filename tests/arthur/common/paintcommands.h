@@ -51,7 +51,18 @@ public:
 
 public:
     void setCheckersBackground(bool b) { staticInit(); m_checkers_background = b; }
-    void setContents(const QStringList &cmds) { staticInit(); m_commands = cmds; }
+    void setContents(const QStringList &cmds) {
+        staticInit();
+        m_blockMap.clear();
+        m_pathMap.clear();
+        m_pixmapMap.clear();
+        m_imageMap.clear();
+        m_regionMap.clear();
+        m_gradientStops.clear();
+        m_controlPoints.clear();
+        m_commands = cmds;
+
+    }
     void setPainter(QPainter *pt) { staticInit(); m_painter = pt; }
     void setType(DeviceType t) { staticInit(); m_type = t; }
     void setFilePath(const QString &path) { staticInit(); m_filepath = path; }
