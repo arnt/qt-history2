@@ -1712,15 +1712,16 @@ void QVNCServer::discardClient()
 
 /*!
     \class QVNCScreen
+    \internal
     \ingroup qws
 
     \brief The QVNCScreen class implements a screen driver for VNC
     servers.
 
     Note that this class is only available in \l {Qtopia Core}.
-    Custom screen drivers can be added by subclassing the
-    QScreenDriver class, using the QScreenDriverFactory class to
-    dynamically load the driver into the application.
+    Custom screen drivers can be added by subclassing the QScreen
+    class, using the QScreenDriverFactory class to dynamically load
+    the driver into the application.
 
     The VNC protocol allows you to view and interact with the
     computer's display from anywhere on the network. See the \l {The
@@ -1731,7 +1732,7 @@ void QVNCServer::discardClient()
     class. This is easily achieved by manipulating the \c
     VNCSCREEN_BASE definition in the header file.
 
-    \sa QScreen, QScreenDriver, {Running Applications}
+    \sa QScreen, {Running Applications}
 */
 
 /*!

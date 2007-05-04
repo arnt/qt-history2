@@ -149,6 +149,7 @@ QWSEvent *QWSEvent::factory(int type)
     \value NEvent The number of events has changed.
     \value Embed An event used internally to implement embedded windows. See also
            QWSEmbedWidget.
+    \omitvalue Font
     \omitvalue IMInit
 */
 
