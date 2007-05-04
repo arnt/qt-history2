@@ -280,6 +280,7 @@ Third party components
     * Fixed 90 and 270 degrees rotation for QImage::Format_RGB16.
     * [152850] Fixed bug in QImage::text()/setText().
     * don't crash when passing a 0 pointer to the constructor from a xpm.
+    * [150746] Added a constructor taking an existing memory buffer with non-default stride (bytes per line).
 
 - QImageReader
     * [141781] Fixed support for doublebyte PPM files (>256 colors).
@@ -1169,6 +1170,7 @@ Third party components
     * [154634] Ensure that the Qt::WA_AlwaysShowToolTips widget
       attribute is respected for all widgets.
     * [151858] Improved the approximation returned by QWidget::visibleRegion().
+    * [129486] Make setLayout() on visible widget show children, to be consistent with QXxxxLayout::addWidget()
 
 - QWindowsStyle
     * [110784] Scrollbar and spinbox arrows now scale with the widget size.
@@ -1491,6 +1493,7 @@ X11
     * Fixed restoreGeometry() to move a full-screen window to the
       correct position.
     * [155083] Don't use legacy xlfd fonts if we have fontconfig available on Solaris.
+    * [150348] Fixed bug where setCursor() would not work properly after setParent().
 
 Windows
 -------
@@ -1541,6 +1544,7 @@ Windows
     * [144430] Make shortcut system distinguish Key_Return and Key_Enter
     * [144663] Make sure qdbuscpp2xml on Windows can parse moc output.
     * [126332] Nake QDBus compile on Windows platform.
+    * [133823, 160131] Fixed bug in QWidget::scroll() with a rectangle argument
 
 - ActiveQt
     * When loading a typelib file to obtain information about a control it
@@ -1647,9 +1651,7 @@ Mac OS X
 Qtopia Core
 -----------
 
-    * Better support for compiling a LSB (Linux Standard Base) compliant Qtopia Core library.
-    * [133365] Allow blocking the key/mouse event that stops the screen saver
-      at a particular level - QWSServer::setScreenSaverBlockLevel().
+ - New font system
     * A new font subsystem has been implemented that by default allows sharing
       glyphs rendered at run-time to be shared between applications. A new
       pre-rendered font format (QPF2) has also been implemented together with
@@ -1657,6 +1659,26 @@ Qtopia Core
     * Support for custom font engine plugins has been added through
       QAbstractFontEngine and QFontEnginePlugin.
     * The default font has been changed to the DejaVu Sans family.
+
+- OpenGL ES
+    * [126421, 126424] Added QGLWindowSurface and QGLScreen framework for
+      OpenGLES (and others) on Qtopia Core. Sample implementation found in examples/qtopiacore/.
+
+ - Accelerated graphics API
+    * [150564] API changes in QWSWindowSurface. New functions include
+      QWSWindowSurface::move() to enable acceleration move of top-level
+      windows.
+    * [152755] API clarification: the windowIndex parameter to exposeRegion() now always refers
+      to the window that is being changed.
+    * [150569, 139550] API additions in QWSWindow to give QScreen information about the 
+      window state, window flags, and window dirty region
+    * [150746] Added QScreen::pixelFormat() and QScreen::setPixelFormat() to enable
+      drawing optimizations for some formats.
+
+ - General fixes
+    * Better support for compiling a LSB (Linux Standard Base) compliant Qtopia Core library.
+    * [133365] Allow blocking the key/mouse event that stops the screen saver
+      at a particular level - QWSServer::setScreenSaverBlockLevel().
     * Fixed QFontDatabase::addApplicationFont for Qtopia Core.
     * [131714] Fixed performance problems with drag'n drop.
     * [96507] Add support for using _POSIX_MONOTONIC_CLOCK as the
@@ -1682,16 +1704,16 @@ Qtopia Core
       using the static functions.
     * [94856] Fixed console switching when using the Tty keyboard driver.
     * [157705, 132811] Pass device parameters to keyboard and mouse plugins.
-    * [150564] API changes in QWSWindowSurface. New functions include
-      QWSWindowSurface::move() to enable acceleration move of top-level
-      windows.
     * [156704] Fixed QPixmap::grabWindow() for 18 and 24 bit screens.
     * [154689] Fixed the -no-gfx-multiscreen parameter to configure.
-    * Added QScreen::pixelFormat() and QScreen::setPixelFormat() to enable
-      drawing optimizations for some formats.
-    * [126421, 126424] Added QGLWindowSurface and QGLScreen framework for
-      OpenGLES (and others) on Qtopia Core. Sample implementation found in examples/qtopiacore/.
     * [160404] Fixed 4-bit grayscale support in QVFb and QScreen.
+    * Optimized QCop communication
+    * Fixed bug in QWidget::setMask() for visible widgets.
+    * [152738] Allow transparent windows on top of unbuffered windows.
+    * [154244] Fixed bug where client process would not terminate when server closed.
+    * [152234] No longer send key events for one client to other client processes. (security/performance)
+    * [148996] Added checks in server to avoid buffer overruns if clients send malformed commands
+    * [154203] Fixed mouse calibration bug with mirrored/180-degree-rotated touch screen.
 
 ****************************************************************************
 *                      Compiler Specific Changes                           *
