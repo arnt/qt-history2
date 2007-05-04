@@ -5640,7 +5640,7 @@ QStringList QString::split(const QRegExp &rx, SplitBehavior behavior) const
 */
 
 /*!
-    \fn QString normalized(NormalizationForm mode) const
+    \fn QString QString::normalized(NormalizationForm mode) const
     Returns the string in the given Unicode normalization \a mode.
 */
 QString QString::normalized(QString::NormalizationForm mode) const
@@ -5650,7 +5650,7 @@ QString QString::normalized(QString::NormalizationForm mode) const
 
 /*!
     \overload
-    \fn QString normalized(NormalizationForm mode, QChar::UnicodeVersion version) const
+    \fn QString QString::normalized(NormalizationForm mode, QChar::UnicodeVersion version) const
 
     Returns the string in the given Unicode normalization \a mode,
     according to the given \a version of the Unicode standard.
