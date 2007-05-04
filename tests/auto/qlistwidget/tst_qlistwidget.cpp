@@ -86,6 +86,9 @@ private slots:
     void changeDataWithSorting();
     void itemData();
     void itemWidget();
+#ifndef Q_WS_MAC
+    void fastScroll();
+#endif
 
 protected slots:
     void rowsAboutToBeInserted(const QModelIndex &parent, int first, int last)
@@ -1273,7 +1276,7 @@ void tst_QListWidget::itemWidget()
     QWidget widget;
 
     QListWidgetItem *item = new QListWidgetItem(&list);
-    
+
 
     QCOMPARE(list.itemWidget(item), static_cast<QWidget*>(0));
     list.setItemWidget(item, &widget);
@@ -1281,6 +1284,40 @@ void tst_QListWidget::itemWidget()
     list.removeItemWidget(item);
     QCOMPARE(list.itemWidget(item), static_cast<QWidget*>(0));
 }
+
+#ifndef Q_WS_MAC
+class MyListWidget : public QListWidget
+{
+public:
+    void paintEvent(QPaintEvent *e) {
+        painted += e->region();
+        QListWidget::paintEvent(e);
+    }
+
+    QRegion painted;
+};
+
+void tst_QListWidget::fastScroll()
+{
+    MyListWidget widget;
+    for (int i = 0; i < 50; ++i)
+        widget.addItem(QString("Item %1").arg(i));
+
+    widget.show();
+    QApplication::processEvents();
+
+    QSize itemSize = widget.visualItemRect(widget.item(0)).size();
+    QVERIFY(!itemSize.isEmpty());
+
+    QScrollBar *sbar = widget.verticalScrollBar();
+    widget.painted = QRegion();
+    sbar->setValue(sbar->value() + sbar->singleStep());
+    QApplication::processEvents();
+
+    // only one item should be repainted, the rest should be scrolled in memory
+    QCOMPARE(widget.painted.boundingRect().size(), itemSize);
+}
+#endif // Q_WS_MAC
 
 QTEST_MAIN(tst_QListWidget)
 #include "tst_qlistwidget.moc"
