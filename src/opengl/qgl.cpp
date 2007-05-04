@@ -284,7 +284,7 @@ QGLFormat::QGLFormat()
     {
         if (!format().stencil())
             qWarning("Could not get stencil buffer; results will be suboptimal");
-        if (!format().alphaChannel())
+        if (!format().alpha())
             qWarning("Could not get alpha channel; results will be suboptimal");
         ...
     }
