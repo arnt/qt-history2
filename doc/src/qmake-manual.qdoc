@@ -63,13 +63,6 @@
     \o \l{Configuring qmake's Environment}
       \tableofcontents{1 Configuring qmake's Environment}
     \endlist
-
-    \section1 Additional Information
-
-    \list
-    \o \l{Third-Party Code Used in qmake}
-      \tableofcontents{1 Third-Party Code Used in qmake}
-    \endlist
 */
 
 /*!
@@ -2890,7 +2883,6 @@
     \page qmake-environment-reference.html
     \contentspage {qmake Manual}{Contents}
     \previouspage qmake Function Reference
-    \nextpage Third-Party Code Used in qmake
 
     \title Configuring qmake's Environment
 
