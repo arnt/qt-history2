@@ -65,6 +65,7 @@ Third party components
       autorepeating shortcut. Also fix repeat timer infinite retriggering bug.
     * [150995] Fixed bug where non-checkable buttons take focus when activating 
       shortcuts
+    * [120409] Fixed bug where the button was set to unpressed when the right mouse button was released.
 
 - QAbstractItemView
     * [111503] Give the focus back to the view when the tab key is pressed
@@ -82,6 +83,13 @@ Third party components
       wrong item was then clicked.
     * [137729] Use dropAction() instead of proposedAction() in QAbstractItemView::dropEvent().
     * Fix a bug that keyboardSearch() was not ignoring disabled items.
+    * [151491] Make sure we pass a proper mouseButtonPressEvent in QAbstractItemView::mouseDoubleClickEvent().
+    * [147990] Make sure that double-clicking does not opens editor when edit trigger is SelectedClicked.
+    * [144095] Make sure sizeHintForIndex uses the correct item delegate.
+    * [140180] Clicking a selected item when the view has ExtendedSelection and SelectedClicked as an edit trigger now clears the selections.
+    * [130168] Fixed bug where double clicking on partially visible items would not activate them.
+    * [139342] Allow editing to be started programatically, even if there are no edit triggers.
+    * [130135] Added public slot updateIndex(const QModelIndex &index).
 
 - QAbstractSlider
     * [76155] Fixed bug where the slider handle did not stop under the mouse.
@@ -293,6 +301,9 @@ Third party components
 
 - QItemDelegate
     * [145142] It could happen that text was drawn out of the bounds of a cell.
+    * [137198] Setting the decoration position to be bottom will cause the text to be incorrectly positioned.
+    * [142593] Take wordwrap into account when calculating the item sizehint.
+    * [139160] Show the focus rectangle, even for empty cells.
 
 - QVariant
     * [127225] Unloading a GUI plugin will no longer cause crash in
@@ -327,6 +338,7 @@ Third party components
       in a QMainWindow.
     * [135878] Titlebars now support mnemonics properly.
     * [138995] QDockWidget titlebars now correctly indicate their activation state.
+    * [145798] Make sure setWindowTitle from a nested docked QDockWidget updates the title in the tab bar. 
 
 - QGridLayout
     * [156497] Fix a one-off error in that caused the bottom button in a QDialogButtonBox to be
@@ -428,6 +440,10 @@ Third party components
     * [146292] It was under certain circumstances impossible to resize the last section.
     * [144452] setDefaultAlignment had no effect.
     * [156453] Fixed resizing of columns causing branches to be drawn in the next column.
+    * [142640] Use the Qt::SizeHintRole when available.
+    * [142994] Hidden items are now restored to their original size when shown.
+    * [127430] Added saveState() and restoreState().
+    * [105635] Added support for drag selecting.
 
 - QHostInfo
     * [141946] No longer stops working after destroying QCoreApplication.
@@ -439,9 +455,24 @@ Third party components
     * Improved proxy support.
     * Added support for server and proxy authentication.
 
+- QModelIndex
+    * [144919] If the internal pointers are equal, compare the model pointers.
+
 - QItemSelectionModel
     * Optimizations for some common cases.
     * [143383] hasSelection was not always giving good results.
+
+- QAbstractProxyModel
+    * [154393] QAbstractProxyModel now reimplements itemData().
+
+- QSortFilterProxyModel
+    * [151352] QSortFilterProxyModel didn't emit dataChanged() signal when sorting.
+    * [154075] Handle inserting of rows in the source model.
+    * [140152] Added a property for forcing QSortFilterProxyModel to use QString's local aware compare method.
+
+- QDataWidgetMapper
+    * [125493] Added addMapping(QWidget *widget, int section, const QByteArray &propertyName)
+               and mappedPropertyName(QWidget *widget).
 
 - QLayout
     * New features to Qt's layout system:
@@ -476,9 +507,14 @@ Third party components
     * If we had a gridSize different from itemSize we could some times end up with wrong scrollbar
       range.
     * [144378] Better navigation when an item is taller than the viewport.
+    * [148846] Scroll bars would not be updated correctly when items were moved programmatically.
+    * [143306] Improved keyboard navigation and selection.
+    * [137917] Shift-click extended mode selection in icon mode now selects the correct items.
+    * [138411] Fixed bug where hidden items would cause drawing problems when pressing Ctrl+ A.
 
 -QListWidget
     * [146284] SingleSelection is also taken into account when calling setSelected on items.
+    * [151211] Add removeCellWidget() and removeItemWidget().
 
 - QLocale
     * Locale database updated to CLDR 1.4: more locales supported, numerous
@@ -551,6 +587,7 @@ Third party components
     * Fix bug when changing a shortcut on Mac OS X would not take effect
     * [12536] Don't allow tab to navigate menus on Mac OS X.
     * [108509] Avoid shortcuts stealing keyboard navigation keys.
+    * [134190] Added support for Shift+Tab to navigate backwards.
 
 - QMenuBar
     * [135320] Make QMenuBar::show() a no-op to on Mac OS X to prevent
@@ -765,6 +802,7 @@ Third party components
     * [149991] Support more text encodings in the PPD subdialog.
     * [158824] Disable Ok button in the dialog if no printers are installed
     * [128990] Don't create the output filename in the printdialog when printing to a file on X11.
+    * [143804] Set the default printer to the one specified by $PRINTER.
 
 - QPrinter
     * Added QPrinter::supportedPaperSources()
@@ -825,7 +863,8 @@ Third party components
 - QTabWidget
     * TabWidget now takes ownership of corner widgets and allows setting 0 on the corner widget.
     * [142464] It should not be possible to navigate to disabled tabs.
-    * [124987] Relayout when a corner widget is set
+    * [124987] Relayout when a corner widget is set.
+    * [111672] Added QTabWidget::clear().
 
 - QThread
     * [140734] Fixed a bug that prevented QThread::exec() from being
@@ -941,10 +980,16 @@ Third party components
 - QTableView
     * No longer allow invalid spans to be created.
     * [145446] Setting minimum height on horizontal header rendered the table garbled.
+    * [131388] Fixed case where QTableView::setRowHeight information was lost on insertRow.
+    * [141750] Spanned table items got painted twice per paint event.
+    * [150683] Added property for enabling/disabling the corner button.
+    * [135727] Added wordWrap property.
 
 - QTableWidget
     * [125285] Only emit dataChanged() once when setItemData() is used to set data for
       more than one role.
+    * [151211] Add removeCellWidget() and removeItemWidget().
+    * [140186] Fix bug where calling setAutoScroll(false) would have no effect.
 
 - QTextCodec
     * The UTF-8 codec have had a number of improvements in its handling of large, rare codepoints.
@@ -1053,9 +1098,27 @@ Third party components
     * [143127] QTreeView would not emit the collapsed() signal when the animated
       property was set to true.
     * [145199] Fix crash when column 0 with expanded items was removed and inserted.
+    * [151165] Add indexRowHeight(const QModelIndex &index).
+    * [151156] Add support for hover appearence.
+    * [140377] Add expandTo(int depth).
+    * [243244] Clicking in the empty area no longer selects all items.
+    * [135727] Added wordWrap property.
+    * [121646] setSelection() now selects the item within the given rectangle.
+    * Added setRowSpanning(int row, const QModelIndex &parent) and
+      isRowSpanning(int row, const QModelIndex &parent).
 
 - QTreeWidget
     * [159078] Fixed drag-n-drop bug on Mac when dragging inside the widget.
+    * [159726] Fixed crash when dragging QTreeWidgetItem with an empty last column.
+    * [154092] Fixed case where the drag pixmap could get the wrong position when dragging many items fast.
+    * [152970] Hidden items are no longer returned as selected from the selectedItems().
+    * [151211] Add removeCellWidget() and removeItemWidget().
+    * [151149] Make the header text left aligned instead of center aligned by default.
+    * [131234] Make it possible to do lazy population by introducing QTreeWidgetItem::ChildIndicatorPolicy.
+    * [134194] Added itemAbove() and itemBelow(). 
+    * [128935] The disabled state of an item is now propagated to its children.
+    * [103421] Added QTreeWidgetItem::setExpandable().
+    * [134138] Added QTreeWidgetItem::removeChild().
 
 - QTextLayout
     * Fixed support for justified arabic text.
@@ -1345,8 +1408,15 @@ Third party components
     * Make it possible to marshal custom types into QDBusArgument.
 
     * qdbuscpp2xml:
+        * [153102] ignored Q_NOREPLY
         * [144663] Fix running qdbuscpp2xml on Windows.
         * Don't require moc being in the PATH environment variable.
+
+    * QDBusInterface:
+	* Change asserts in the QDBusInterface constructor to QDBusErrors.
+    * QDBusConnection:
+	* Added a separate slot for delivering errors when calling callWithCallback().
+
 
 - Viewer
 
@@ -1420,6 +1490,7 @@ X11
       which tells Qt to use Glib only for the GUI thread.
     * Fixed restoreGeometry() to move a full-screen window to the
       correct position.
+    * [155083] Don't use legacy xlfd fonts if we have fontconfig available on Solaris.
 
 Windows
 -------
@@ -1468,6 +1539,8 @@ Windows
     * [151199] Usage of blocking QProcess API in a thread no longer
       hangs the desktop.
     * [144430] Make shortcut system distinguish Key_Return and Key_Enter
+    * [144663] Make sure qdbuscpp2xml on Windows can parse moc output.
+    * [126332] Nake QDBus compile on Windows platform.
 
 - ActiveQt
     * When loading a typelib file to obtain information about a control it
