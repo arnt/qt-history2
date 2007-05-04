@@ -1282,6 +1282,9 @@ QImage::Format QScreen::pixelFormat() const
     return d_ptr->pixelFormat;
 }
 
+/*!
+  Sets the screen's pixel format to \a format.
+ */
 void QScreen::setPixelFormat(QImage::Format format)
 {
     d_ptr->pixelFormat = format;
@@ -1542,15 +1545,14 @@ Q_GUI_EXPORT QScreen* qt_get_screen(int display_id, const char *spec)
     \fn void QScreen::exposeRegion(QRegion region, int windowIndex)
 
     This function is called by the \l {Qtopia Core} server whenever a
-    screen update is required. \a region is the screen region that needs to
-    be updated, and \a windowIndex is the index into QWSServer::clientWindows()
-    of the window that caused the update. QWSWindow::state() gives more information
-    about the cause.
+    screen update is required. \a region is the area on the screen
+    that must be updated, and \a windowIndex is the index into
+    QWSServer::clientWindows() of the window that required the
+    update. QWSWindow::state() gives more information about the cause.
 
     The default implementation composes the
     affected windows and paints the given \a region on screen by
     calling the blit() and solidFill() functions
-
 
     This function can be reimplemented to perform composition in
     hardware, or to perform transition effects.

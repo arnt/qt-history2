@@ -347,7 +347,7 @@ QWSWindow::QWSWindow(int i, QWSClient* client)
 
     This enum describes the state of a window. Most of the
     transitional states are set just before a call to
-    QScreen::exposeRegion(), and reset immediately afterwards.
+    QScreen::exposeRegion() and reset immediately afterwards.
 
     \value NoState Initial state before the window is properly initialized.
     \value Hidden The window is not visible.
@@ -357,17 +357,14 @@ QWSWindow::QWSWindow(int i, QWSClient* client)
     \value Raising The windoe is being raised.
     \value Lowering The window is being raised.
     \value Moving The window is being moved.
-    \value GeometryChanging The window's geometry is being changed.
+    \value ChangingGeometry The window's geometry is being changed.
     \value Destroyed  The window is destroyed.
 
-    \sa state(), QScreen::exposeRegion
+    \sa state(), QScreen::exposeRegion()
 */
 
-
-
-/*
+/*!
   Returns the current state of the window.
-
 
   \since 4.3
 */
@@ -376,8 +373,9 @@ QWSWindow::State QWSWindow::state() const
     return d->state;
 }
 
-/*
-  Returns the window flags of the window. This value is only available after the first paint event.
+/*!
+  Returns the window flags of the window. This value is only available
+  after the first paint event.
 
   \since 4.3
 */
@@ -386,7 +384,7 @@ Qt::WindowFlags QWSWindow::windowFlags() const
     return d->windowFlags;
 }
 
-/*
+/*!
   Returns the region that has been repainted since the previous
   QScreen::exposeRegion(), and needs to be copied to the screen.
   \since 4.3
@@ -1356,6 +1354,9 @@ QWSServer::~QWSServer()
     d_func()->cleanupFonts(/*force =*/true);
 }
 
+/*!
+  \internal
+ */
 void QWSServer::timerEvent(QTimerEvent *e)
 {
     Q_D(QWSServer);
