@@ -200,6 +200,8 @@ private slots:
     void variantMap();
 
     void invalidAsByteArray();
+
+    void invalidQColor() const;
 };
 
 Q_DECLARE_METATYPE(QDate)
@@ -2144,6 +2146,16 @@ void tst_QVariant::invalidAsByteArray()
     a[0] = 'a';
     a[1] = 'b';
     QCOMPARE(v, QVariant(QByteArray("ab")));
+}
+
+void tst_QVariant::invalidQColor() const
+{
+    QVariant va("An invalid QColor::name() value.");
+    QVERIFY(va.canConvert(QVariant::Color));
+
+    QVERIFY(!va.convert(QVariant::Color));
+
+    QVERIFY(!qvariant_cast<QColor>(va).isValid());
 }
 
 void tst_QVariant::qvariant_cast_QObject_data() {

@@ -383,7 +383,7 @@ static bool convert(const QVariant::Private *d, QVariant::Type t,
     case QVariant::Color:
         if (d->type == QVariant::String) {
             static_cast<QColor *>(result)->setNamedColor(*v_cast<QString>(d));
-            return true;
+            return static_cast<QColor *>(result)->isValid();
         } else if (d->type == QVariant::ByteArray) {
             static_cast<QColor *>(result)->setNamedColor(QString::fromLatin1(
                                 *v_cast<QByteArray>(d)));
