@@ -148,7 +148,7 @@ void MenuManager::exampleError(QProcess::ProcessError error)
 {
     Q_UNUSED(error);
     QMessageBox::critical(0, tr("Failed to launch the example"),
-                          tr("Could not launch the example. Ensure that it have been build."),
+                          tr("Could not launch the example. Ensure that it has been build."),
                           QMessageBox::Cancel);
 }
 
