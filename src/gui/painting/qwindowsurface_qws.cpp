@@ -106,11 +106,13 @@ void QWSWindowSurface::invalidateBuffer()
 #endif
         setDirty(geometry().translated(offset)); // XXX: clip with mask
 
+#ifndef QT_NO_QWS_MANAGER
         QTLWExtra *topextra = win->d_func()->extra->topextra;
         QWSManager *manager = topextra->qwsManager;
         if (manager)
             manager->d_func()->dirtyRegion(QDecoration::All,
                                            QDecoration::Normal);
+#endif
     }
 }
 
