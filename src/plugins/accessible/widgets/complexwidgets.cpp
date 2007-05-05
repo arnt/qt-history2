@@ -284,10 +284,15 @@ int QAccessibleItemRow::navigate(RelationFlag relation, int index,
 
 QAccessible::Role QAccessibleItemRow::role(int child) const
 {
-    if (qobject_cast<const QTreeView*>(view)) {
+    if (false) {
+#ifndef QT_NO_TREEVIEW
+    } else if (qobject_cast<const QTreeView*>(view)) {
         return TreeItem;
+#endif
+#ifndef QT_NO_LISTVIEW
     } else if (qobject_cast<const QListView*>(view)) {
         return ListItem;
+#endif
     }
     // TableView
     if (!child)
@@ -404,18 +409,28 @@ QAccessibleItemView::QAccessibleItemView(QWidget *w)
 QAccessible::Role QAccessibleItemView::expectedRoleOfChildren() const
 {
     if (atViewport()) {
-        if (qobject_cast<QTreeView*>(itemView())) {
+        if (false) {
+#ifndef QT_NO_TREEVIEW
+        } else if (qobject_cast<QTreeView*>(itemView())) {
             return TreeItem;
+#endif
+#ifndef QT_NO_LISTVIEW
         } else if (qobject_cast<QListView*>(itemView())) {
             return ListItem;
+#endif
         }
         // TableView
         return Row;
     } else {
-        if (qobject_cast<QTreeView*>(itemView())) {
+        if (false) {
+#ifndef QT_NO_TREEVIEW
+        } else if (qobject_cast<QTreeView*>(itemView())) {
             return Tree;
+#endif
+#ifndef QT_NO_LISTVIEW
         } else if (qobject_cast<QListView*>(itemView())) {
             return List;
+#endif
         }
         // TableView
         return Table;
