@@ -2411,6 +2411,7 @@ void QStyleSheetStyle::drawComplexControl(ComplexControl cc, const QStyleOptionC
         break;
 #endif // QT_NO_SCROLLBAR
 
+#ifndef QT_NO_SLIDER
     case CC_Slider:
         if (const QStyleOptionSlider *slider = qstyleoption_cast<const QStyleOptionSlider *>(opt)) {
             rule.drawRule(p, opt->rect);
@@ -2458,6 +2459,7 @@ void QStyleSheetStyle::drawComplexControl(ComplexControl cc, const QStyleOptionC
             return;
         }
         break;
+#endif // QT_NO_SLIDER
 
     default:
         break;
@@ -3878,6 +3880,7 @@ QRect QStyleSheetStyle::subControlRect(ComplexControl cc, const QStyleOptionComp
         break;
 #endif // QT_NO_SCROLLBAR
 
+#ifndef QT_NO_SLIDER
     case CC_Slider:
         if (const QStyleOptionSlider *slider = qstyleoption_cast<const QStyleOptionSlider *>(opt)) {
             QRenderRule subRule = renderRule(w, opt, PseudoElement_SliderGroove);
@@ -3909,6 +3912,7 @@ QRect QStyleSheetStyle::subControlRect(ComplexControl cc, const QStyleOptionComp
             }
         }
         break;
+#endif // QT_NO_SLIDER
 
     default:
         break;
