@@ -429,7 +429,7 @@
   \section1 Main Window Styles
 
   The \l{Main Window and Related Classes}{main window classes} now
-  provide \e{support for different main window paradigms}, such as
+  provide support for different main window paradigms, such as
   those found in Visual Studio or KDevelop.
 
   Dock widgets occupying the same area can now be arranged in horizontal,
@@ -489,7 +489,7 @@
   \section1 Improved Graphics Support
 
   To improve graphics performance on Windows, this release includes an
-  \e{experimental Direct3D paint engine} to provide native hardware
+  experimental Direct3D paint engine to provide native hardware
   acceleration on Windows systems with suitable graphics hardware.
   Although we have conducted internal testing with a selection of
   graphics cards, we cannot guarantee that this feature will work
@@ -501,13 +501,13 @@
   a paint device that can be used to save Qt rendering operations in
   the form of an SVG drawing.
   This class can be used alongside the existing QSvgWidget and QSvgRenderer
-  classes to provide \e{full input/output support for vector graphics}.
+  classes to provide full input/output support for vector graphics.
 
   The OpenGL paint engine has been heavily improved to take advantage of
   new features in modern graphics hardware. Through the extensive usage of
   fragment programs, users with suitable graphics hardware can expect to
   experience much
-  \e{faster and higher quality rendering when OpenGL is used}.
+  faster and higher quality rendering when OpenGL is used.
   Support for an additional anti-aliasing mode for OpenGL allows developers
   to choose between high quality rendering or speed when older or
   less-capable hardware is used.
@@ -516,7 +516,7 @@
   two-dimensional coordinates, allowing perspective transformations to
   be applied to 2D graphics.
 
-  \e{Support for set operations on paths} has been added to QPainterPath,
+  Support for set operations on paths has been added to QPainterPath,
   improving support for clipping and animations.
 
   An object bounding mode for gradients that enables them to be defined
@@ -527,7 +527,7 @@
   Applications running on Windows Vista automatically support animations
   and other Vista-related enhancements through the use of the new
   QWindowsVistaStyle class, providing a widget style that gives Qt
-  applications \e{a native look and feel on Windows Vista}.
+  applications a native look and feel on Windows Vista.
 
   Qt 4.3 also provides a number of new and redesigned widgets, including
   the QWizard class which supports application wizard functionality
@@ -540,7 +540,7 @@
        \o \inlineimage qtwizard-aero2.png
   \endtable
 
-  \e{Unified toolbar support on Mac OS X} improves the look and feel of
+  Unified toolbar support on Mac OS X improves the look and feel of
   applications by blending adjacent toolbars and window title bars
   together.
 
@@ -574,7 +574,7 @@
   Almost all standard widgets can be styled with \l{Qt Style Sheets},
   making it easier to customize the appearance of applications.
 
-  An \e{enhanced layout system} accommodates many special cases for
+  An enhanced layout system accommodates many special cases for
   Mac OS X, enabling Mac OS X style to provide a faithful Mac look and
   feel.
 
@@ -633,21 +633,21 @@
   \section1 Extended and Improved Infrastructure
 
   The QtNetwork module has been extended to include
-  \e{support for Secure Socket Layer (SSL) communications} via the QSslSocket
+  support for Secure Socket Layer (SSL) communications via the QSslSocket
   class. As a result, QHttp is now able to provide support for the HTTPS
   protocol.
 
-  Qt's network proxying facilties have been \e{extended to cover HTTP CONNECT}
-  proxying, and also include \e{support for Cram-MD5 and NTLM authentication}.
+  Qt's network proxying facilties have been extended to cover HTTP CONNECT
+  proxying, and also include support for Cram-MD5 and NTLM authentication.
 
   The QtXml module has been expanded with classes to provide
-  \e{a streaming API for handling XML}: QXmlStreamReader and
+  a streaming API for handling XML: QXmlStreamReader and
   QXmlStreamWriter complement Qt's existing range of SAX and DOM-based
   classes. 
 
   Support for the MSYS environment for MinGW on Windows.
 
-  Qt's threading has been enhanced to include \e{support for timed try-locks}
+  Qt's threading has been enhanced to include support for timed try-locks
   in QMutex, QReadWriteLock and QSemaphore. Additionally, a
   \l{Qt::}{BlockingQueuedConnection} connection type has been introduced
   to complement \l{Qt::}{DirectConnection} and \l{Qt::}{QueuedConnection}.
@@ -657,14 +657,14 @@
   determine the optimal number of threads that can be run on a given
   system.
 
-  \e{The event system \l{QCoreApplication::postEvent()}{has been extended}
-  to allow events to be posted with specific priorities}, enabling
+  The event system \l{QCoreApplication::postEvent()}{has been extended}
+  to allow events to be posted with specific priorities, enabling
   applications to prioritize certain types of event depending on the
   activities they are performing.
 
   QDir has been enhanced with the \l{QDir::}{addSearchPath()} function to
   provide
-  \e{an extensible mechanism, allowing search paths to be added at run-time}
+  an extensible mechanism, allowing search paths to be added at run-time
   to \l{The Qt Resource System}{Qt's resource system}.
 
   The new QDirIterator class provides a convenient and less resource-intensive
