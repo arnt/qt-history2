@@ -1426,7 +1426,7 @@
 
     All libraries that the \l{#TARGET}{target} depends on can be
     listed in this variable. Some backends do not support this, these include
-    MSVC Dsp, and ProjectBuilder .pbproj files. Generally this is support
+    MSVC Dsp, and ProjectBuilder .pbproj files. Generally this is supported
     internally by these build tools, this is useful for explicitly listing
     dependant static libraries.
 
@@ -1438,7 +1438,7 @@
 
     All libraries that the \l{#TARGET}{target} depends on can be
     listed in this variable. Some backends do not support this, these include
-    MSVC Dsp, and ProjectBuilder .pbproj files. Generally this is support
+    MSVC Dsp, and ProjectBuilder .pbproj files. Generally this is supported
     internally by these build tools, this is useful for explicitly listing
     dependant static libraries.
 
@@ -2834,6 +2834,22 @@
     with \\n \\r and \\t. The return value does not contain either single
     or double quotation marks unless you explicitly include them yourself,
     but will be placed into a single entry (for literal expansion).
+
+    \section1 replace(string, old_string, new_string)
+
+    Replaces each instance of \c old_string with \c new_string in the
+    contents of the variable supplied as \c string. For example, the
+    code
+
+    \quotefromfile snippets/qmake/replace.pro
+    \skipto MESSAGE
+    \printuntil message
+
+    prints the message:
+
+    \code
+    This is a test.
+    \endcode
 
     \section1 sprintf(string, arguments...)
 
