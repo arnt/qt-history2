@@ -111,6 +111,9 @@ bool QWindowsVistaStylePrivate::useVista()
   \sa QMacStyle, QWindowsXPStyle, QPlastiqueStyle, QCleanlooksStyle, QMotifStyle
 */
 
+/*!
+  Constructs a QWindowsVistaStyle object.
+*/
 QWindowsVistaStyle::QWindowsVistaStyle()
     : QWindowsXPStyle(*new QWindowsVistaStylePrivate)
 {
