@@ -232,7 +232,7 @@ Third party components
     * [151789] Allow passing of date only format to QDateTime::fromString() (according to ISO 8601)
     * Remove legacy behavior which assumed that a year between 0 and 99 was meant 1900 + year in
       QDateTime
-    * [40085, 153114, 145167] Fix bugs in parsing strings into dates.
+    * [153114, 145167] Fix bugs in parsing strings into dates.
     * [122047] 0 to 99 are no longer interepreted as 1900 to 1999.
     * [136043] Fixed the USER properties.
 
@@ -314,7 +314,7 @@ Third party components
     * [135002] emit signal after resize takes place on Mac OS X.
 
 - QDateTimeEdit
-    * [111557 and 141266] Improvements with regards to two-digit years in a QDateTimeEdit. Make stepping work properly.
+    * [111557, 141266] Improvements with regards to two-digit years in a QDateTimeEdit. Make stepping work properly.
     * [110034] Don't change current section on wheelEvent.
     * [152622] Don't switch section on focusInEvent if the reason is Popup.
     * Fix a bug that would cause problems with formats like dd.MMMM.yyyy.
@@ -691,7 +691,7 @@ Third party components
       and device (viewport) coordinates.
     * Added ItemSceneChange notification flag.
     * [128696] Enable moving of editable text item.
-    * [148268 and 128684] Improve highlighting of selected items.
+    * [128684] Improve highlighting of selected items.
 
 - QGraphicsScene
     * [130614] Add QGraphicsScene::invalidate(), for resetting the cache
@@ -739,10 +739,10 @@ Third party components
 - QPainter
     * Fixed stroking of non-closed polygons with non-cosmetic pens in the
       OpenGL paint engine.
-    * [133980 and 143502] Fixed stroking bug for RoundJoin and MiterJoin with paths
+    * [133980] Fixed stroking bug for RoundJoin and MiterJoin with paths
       containing successive line segments with a 180 degree angle between them.
     * [141826] Fixed stroking with MiterJoin of paths with duplicated control points.
-    * [139454 and 139209] Fixed problem with SmoothTransformation that caused images
+    * [139454, 139209] Fixed problem with SmoothTransformation that caused images
       to fade out toward the edges in raster paint engine.
     * Added HighQualityAntialiasing render hint to QPainter to use pixel shaders for
       antialiasing in the OpenGL paint engine.
@@ -820,7 +820,7 @@ Third party components
     * [129297, 140555] PS/PDF generator: Drastically reduce size of generated files and speedup generation when using simple pens.
     * [143803] Correctly set the default printer name on X11.
     * [134204] PDF generator: generate correct output when drawing 1bit images
-    * [152068, 151541] PS generator: Generate correct PS when embedding TrueType fonts with broken POST tables.
+    * [152068] PS generator: Generate correct PS when embedding TrueType fonts with broken POST tables.
     * [143270] X11: Ignore sigpipe when printing to an invalid printer using the PDF generator.
 
 - QProgressBar
@@ -1022,8 +1022,8 @@ Third party components
     * [96765] Improved handling of page breaks for table rows spanning several pages.
     * [144291] Fixed crash when using QTextTable::setFormat with an old format after
       inserting or removing columns.
-    * [143501 and 144439] Added support for vertical alignment of table cells.
-    * [136397, 144320, and 144322] Various border styles and border brushes are now supported.
+    * [143501] Added support for vertical alignment of table cells.
+    * [136397, 144320, 144322] Various border styles and border brushes are now supported.
     * [139052] Made sure that empty text table cells get a visible selection.
 
 - QTextDocumentFragment
@@ -1039,7 +1039,7 @@ Third party components
     * Numerous fixes and speed-ups in the HTML import.
     * [143296] Fixed HTML import bug where adding a <br> tag after a table would
       insert two empty lines instead of one.
-    * [144637 and 144653] The user state property of QTextBlock is now preserved.
+    * [144637, 144653] The user state property of QTextBlock is now preserved.
     * [140147] Fixed layouting bug where the document size would not be updated properly.
     * [151526] Fixed problem where the margins of an empty paragraph above a table
       would be ignored.
@@ -1052,7 +1052,7 @@ Third party components
       QPrinter::Selection as selection range.
     * [126422] Fixed bug in copy/paste which could cause the background color of pasted
       text to differ from that of the copied text.
-    * [147603, 153931] Fixed various cases where parts of a text document would be
+    * [147603] Fixed various cases where parts of a text document would be
       inaccessible or hidden by the scrollbars.
     * [148739] Fixed bug where ensureCursorVisible would not result in a visible cursor.
     * [152065] Fixed cases where currentCharFormatChanged would not be emitted.
@@ -1455,7 +1455,7 @@ X11
       XA_INTEGER (as defined in the ICCCM).
     * [127556] Refactored timer accounting code to be more efficient
       and less cumbersome to maintain.
-    * [Related to 132241] Add support for DirectColor visuals, Qt will
+    * [132241] Add support for DirectColor visuals, Qt will
       now create and initialize a colormap when using such visuals.
     * [140737] Fixed QEventDispatcherGlib::versionSupported() to be
       much simpler.
@@ -1685,7 +1685,7 @@ Qtopia Core
       timer source (also effects Qt/X11).
     * [132346] Fixed a performance bug causing unecessary screen copies when
       using a hardware cursor.
-    * [131510, 121496] Lot's of performance improvements in the VNC driver.
+    * [121496] Lot's of performance improvements in the VNC driver.
     * [138615] Fixed color conversion when VNC server is running on a
       big-endian machine.
     * [131321] Optimized text drawing.
@@ -1703,7 +1703,7 @@ Qtopia Core
       a QDirectPainter object behave as a QDirectPainter region allocated
       using the static functions.
     * [94856] Fixed console switching when using the Tty keyboard driver.
-    * [157705, 132811] Pass device parameters to keyboard and mouse plugins.
+    * [157705] Pass device parameters to keyboard and mouse plugins.
     * [156704] Fixed QPixmap::grabWindow() for 18 and 24 bit screens.
     * [154689] Fixed the -no-gfx-multiscreen parameter to configure.
     * [160404] Fixed 4-bit grayscale support in QVFb and QScreen.
@@ -1752,7 +1752,7 @@ Examples
   * [135547] Allow Windows line endings on UNIX and vice versa in
     .qt-license files.
   * [133068] GIF support is enabled by default now.
-  * [137728, 138862] Fixed failed build on Mac OS X and Solaris when
+  * [137728] Fixed failed build on Mac OS X and Solaris when
     using -separate-debug-info.
   * [137819] Added support for precompiled headers with the Intel C++
     Compiler for Linux.
