@@ -5489,6 +5489,9 @@ QIcon QMacStyle::standardIconImplementation(StandardPixmap standardIcon, const Q
     return QWindowsStyle::standardIconImplementation(standardIcon, opt, widget);
 }
 
+/*!
+  \internal
+*/
 int QMacStyle::layoutSpacingImplementation(QSizePolicy::ControlType control1,
                                            QSizePolicy::ControlType control2,
                                            Qt::Orientation orientation,
