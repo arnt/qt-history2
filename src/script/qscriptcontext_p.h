@@ -103,6 +103,11 @@ inline void QScriptContextPrivate::throwException()
     m_state = QScriptContext::ExceptionState;
 }
 
+inline bool QScriptContextPrivate::hasUncaughtException() const
+{
+    return m_state == QScriptContext::ExceptionState;
+}
+
 inline void QScriptContextPrivate::recover()
 {
     m_state = QScriptContext::NormalState;

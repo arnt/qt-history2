@@ -717,6 +717,10 @@ QScriptValue QScriptValue::toPrimitive(TypeHint hint) const
   If this QScriptValue is a QObject, returns the QObject pointer
   that the QScriptValue represents; otherwise, returns 0.
 
+  If the QObject that this QScriptValue wraps has been deleted,
+  this function returns 0 (i.e. it is possible for toQObject()
+  to return 0 even when isQObject() returns true).
+
   \sa isQObject()
 */
 QObject *QScriptValue::toQObject() const
@@ -1060,6 +1064,9 @@ bool QScriptValue::isVariant() const
 /*!
   Returns true if this QScriptValue is a QObject; otherwise returns
   false.
+
+  Note: This function returns true even if the QObject that this
+  QScriptValue wraps has been deleted.
 
   \sa toQObject(), QScriptEngine::newQObject()
 */

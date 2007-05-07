@@ -401,6 +401,11 @@ QScriptValue QScriptEngine::newVariant(const QVariant &value)
 
   If \a object is a null pointer, this function returns nullValue().
 
+  If the given \a object is deleted outside of QtScript's control, any
+  attempt to access the deleted QObject's members through the QtScript
+  wrapper object (either by script code or C++) will result in a
+  script exception.
+
   \sa QScriptValue::toQObject()
 */
 QScriptValue QScriptEngine::newQObject(QObject *object, ValueOwnership ownership,

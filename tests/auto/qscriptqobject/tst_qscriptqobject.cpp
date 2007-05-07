@@ -244,6 +244,9 @@ public Q_SLOTS:
     void myOverloadedSlot(const QVariant &arg)
         { m_qtFunctionInvoked = 35; m_actuals << arg; }
 
+    void qscript_call()
+        { m_qtFunctionInvoked = 40; }
+
 protected Q_SLOTS:
     void myProtectedSlot() { m_qtFunctionInvoked = 36; }
 
@@ -335,6 +338,7 @@ private slots:
     void enumerate();
     void wrapOptions();
     void prototypes();
+    void objectDeleted();
 
 private:
     QScriptEngine *m_engine;
@@ -1492,6 +1496,27 @@ void tst_QScriptExtQObject::wrapOptions()
         QVERIFY(obj.property("mySlot").isValid());
         QVERIFY(obj.propertyFlags("mySlot") & QScriptValue::QObjectMember);
     }
+    // exclude all that we can
+    {
+        QScriptValue obj = m_engine->newQObject(m_myObject, QScriptEngine::QtOwnership,
+                                                QScriptEngine::ExcludeSuperClassMethods
+                                                | QScriptEngine::ExcludeSuperClassProperties
+                                                | QScriptEngine::ExcludeChildObjects);
+        QVERIFY(!obj.property("deleteLater").isValid());
+        QVERIFY(!(obj.propertyFlags("deleteLater") & QScriptValue::QObjectMember));
+        QVERIFY(obj.property("mySlot").isValid());
+        QVERIFY(obj.propertyFlags("mySlot") & QScriptValue::QObjectMember);
+
+        QVERIFY(!obj.property("objectName").isValid());
+        QVERIFY(!(obj.propertyFlags("objectName") & QScriptValue::QObjectMember));
+        QVERIFY(obj.property("intProperty").isValid());
+        QVERIFY(obj.propertyFlags("intProperty") & QScriptValue::QObjectMember);
+
+        QCOMPARE(obj.property("child").isValid(), false);
+        obj.setProperty("child", QScriptValue(m_engine, 123));
+        QCOMPARE(obj.property("child")
+                 .strictEqualTo(QScriptValue(m_engine, 123)), true);
+    }
 
     delete child;
 }
@@ -1523,6 +1548,86 @@ void tst_QScriptExtQObject::prototypes()
     button.setProperty("objectName", QScriptValue(&eng, "not the prototype button"));
     QCOMPARE(pb->objectName(), QLatin1String("not the prototype button"));
     QCOMPARE(pbp->objectName(), QLatin1String("prototype button"));
+}
+
+void tst_QScriptExtQObject::objectDeleted()
+{
+    QScriptEngine eng;
+    MyQObject *qobj = new MyQObject();
+    QScriptValue v = eng.newQObject(qobj);
+    v.setProperty("objectName", QScriptValue(&eng, "foo"));
+    QCOMPARE(qobj->objectName(), QLatin1String("foo"));
+    v.setProperty("intProperty", QScriptValue(&eng, 123));
+    QCOMPARE(qobj->intProperty(), 123);
+    qobj->resetQtFunctionInvoked();
+    v.property("myInvokable").call(v);
+    QCOMPARE(qobj->qtFunctionInvoked(), 0);
+
+    // now delete the object
+    delete qobj;
+
+    // the documented behavior is: isQObject() should still return true,
+    // but toQObject() should return 0
+    QVERIFY(v.isQObject());
+    QCOMPARE(v.toQObject(), (QObject *)0);
+
+    // any attempt to access properties of the object should result in an exception
+    {
+        QScriptValue ret = v.property("objectName");
+        QVERIFY(ret.isError());
+        QCOMPARE(ret.toString(), QLatin1String("Error: cannot access member `objectName' of deleted QObject"));
+    }
+    {
+        eng.evaluate("Object");
+        QVERIFY(!eng.hasUncaughtException());
+        v.setProperty("objectName", QScriptValue(&eng, "foo"));
+        QVERIFY(eng.hasUncaughtException());
+        QVERIFY(eng.uncaughtException().isError());
+        QCOMPARE(eng.uncaughtException().toString(), QLatin1String("Error: cannot access member `objectName' of deleted QObject"));
+    }
+
+    {
+        QScriptValue ret = v.call();
+        QVERIFY(ret.isError());
+        QCOMPARE(ret.toString(), QLatin1String("Error: cannot call function of deleted QObject"));
+    }
+
+    // myInvokable is stored in member table (since we've accessed it before deletion)
+    QVERIFY(v.property("myInvokable").isFunction());
+    {
+        QScriptValue ret = v.property("myInvokable").call(v);
+        QVERIFY(ret.isError());
+        QCOMPARE(ret.toString(), QLatin1String("Error: cannot call function of deleted QObject"));
+    }
+    // myInvokableWithIntArg is not stored in member table (since we've not accessed it)
+    {
+        QScriptValue ret = v.property("myInvokableWithIntArg");
+        QVERIFY(ret.isError());
+        QCOMPARE(ret.toString(), QLatin1String("Error: cannot access member `myInvokableWithIntArg' of deleted QObject"));
+    }
+
+    // access from script
+    eng.globalObject().setProperty("o", v);
+    {
+        QScriptValue ret = eng.evaluate("o()");
+        QVERIFY(ret.isError());
+        QCOMPARE(ret.toString(), QLatin1String("Error: cannot call function of deleted QObject"));
+    }
+    {
+        QScriptValue ret = eng.evaluate("o.objectName");
+        QVERIFY(ret.isError());
+        QCOMPARE(ret.toString(), QLatin1String("Error: cannot access member `objectName' of deleted QObject"));
+    }
+    {
+        QScriptValue ret = eng.evaluate("o.myInvokable()");
+        QVERIFY(ret.isError());
+        QCOMPARE(ret.toString(), QLatin1String("Error: cannot call function of deleted QObject"));
+    }
+    {
+        QScriptValue ret = eng.evaluate("o.myInvokableWithIntArg(10)");
+        QVERIFY(ret.isError());
+        QCOMPARE(ret.toString(), QLatin1String("Error: cannot access member `myInvokableWithIntArg' of deleted QObject"));
+    }
 }
 
 QTEST_MAIN(tst_QScriptExtQObject)

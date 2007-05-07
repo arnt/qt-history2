@@ -58,6 +58,15 @@ private:
     int m_index;
 };
 
+class QObjectPrototype : public QObject
+{
+    Q_OBJECT
+public:
+    QObjectPrototype(QObject *parent = 0)
+        : QObject(parent) { }
+    ~QObjectPrototype() { }
+};
+
 static inline QByteArray methodName(const QMetaMethod &method)
 {
     QByteArray signature = method.signature();
@@ -100,6 +109,11 @@ ExtQObject::Instance *ExtQObject::Instance::get(const QScriptValueImpl &object, 
 
 void ExtQObject::Instance::execute(QScriptContextPrivate *context)
 {
+    if (!value) {
+        context->throwError(QLatin1String("cannot call function of deleted QObject"));
+        return;
+    }
+
     const QMetaObject *meta = value->metaObject();
     // look for qscript_call()
     QByteArray qscript_call = QByteArray("qscript_call");
@@ -152,8 +166,12 @@ public:
     {
         ExtQObject::Instance *inst = ExtQObject::Instance::get(object, m_classInfo);
         QObject *qobject = inst->value;
-        if (! qobject)
-            return false;
+        if (! qobject) {
+            // the object was deleted. We return true so we can
+            // throw an error in get()/put()
+            member->native(nameId, /*id=*/-1, /*flags=*/0);
+            return true;
+        }
 
         const QScriptEngine::QObjectWrapOptions &opt = inst->options;
         const QMetaObject *meta = qobject->metaObject();
@@ -291,6 +309,13 @@ public:
 
         ExtQObject::Instance *inst = ExtQObject::Instance::get(obj, m_classInfo);
         QObject *qobject = inst->value;
+        if (!qobject) {
+            QScriptContextPrivate *ctx = QScriptContextPrivate::get(eng->currentContext());
+            *result = ctx->throwError(
+                QString::fromLatin1("cannot access member `%0' of deleted QObject")
+                .arg(member.nameId()->s));
+            return true;
+        }
 
         switch (member.flags() & ID_MASK) {
         case PROPERTY_ID: {
@@ -331,7 +356,7 @@ public:
             bool maybeOverloaded = (member.flags() & MAYBE_OVERLOADED) != 0;
             *result = eng->createFunction(new QtFunction(qobject, member.id(),
                                                            maybeOverloaded));
-            // make it persist
+            // make it persist (otherwise Function.prototype.disconnect() would fail)
             QScriptObject *instance = obj.objectValue();
             if (!instance->findMember(member.nameId(), &m)) {
                 instance->createMember(member.nameId(), &m,
@@ -357,6 +382,13 @@ public:
 
         ExtQObject::Instance *inst = ExtQObject::Instance::get(*object, m_classInfo);
         QObject *qobject = inst->value;
+        if (!qobject) {
+            QScriptEnginePrivate *eng = QScriptEnginePrivate::get(object->engine());
+            QScriptContextPrivate *ctx = QScriptContextPrivate::get(eng->currentContext());
+            ctx->throwError(QString::fromLatin1("cannot access member `%0' of deleted QObject")
+                            .arg(member.nameId()->s));
+            return true;
+        }
 
         switch (member.flags() & ID_MASK) {
         case CHILD_ID:
@@ -547,8 +579,11 @@ private:
 QScript::ExtQObject::ExtQObject(QScriptEnginePrivate *eng, QScriptClassInfo *classInfo):
     Ecma::Core(eng), m_classInfo(classInfo)
 {
-    publicPrototype.invalidate();
-    newQObject(&publicPrototype, 0);
+    newQObject(&publicPrototype, new QScript::QObjectPrototype(),
+               QScriptEngine::AutoOwnership,
+               QScriptEngine::ExcludeSuperClassMethods
+               | QScriptEngine::ExcludeSuperClassProperties
+               | QScriptEngine::ExcludeChildObjects);
 
     eng->newConstructor(&ctor, this, publicPrototype);
     const QScriptValue::PropertyFlags flags = QScriptValue::SkipInEnumeration;
@@ -888,12 +923,16 @@ static int indexOfMetaEnum(const QMetaObject *meta, const QByteArray &str)
 
 void QScript::QtFunction::execute(QScriptContextPrivate *context)
 {
+    if (!m_object) {
+        context->throwError(QLatin1String("cannot call function of deleted QObject"));
+        return;
+    }
+
     QScriptEngine *eng = context->engine();
     QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(eng);
 
     QScriptValueImpl result = eng_p->undefinedValue();
 
-    Q_ASSERT(m_object);
     const QMetaObject *meta = m_object->metaObject();
 
     QObject *thisQObject = context->thisObject().toQObject();
@@ -1461,3 +1500,5 @@ QScriptValueImpl QScript::ExtQMetaObject::method_className(QScriptContextPrivate
     }
     return eng->undefinedValue();
 }
+
+#include "qscriptextqobject.moc"

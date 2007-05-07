@@ -55,6 +55,7 @@ public:
     inline QScriptValueImpl argument(int index) const;
     inline int argumentCount() const;
     inline void throwException();
+    inline bool hasUncaughtException() const;
     inline void recover();
 
     inline bool isNumerical(const QScriptValueImpl &v) const;
