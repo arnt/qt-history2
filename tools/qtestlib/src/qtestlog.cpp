@@ -128,6 +128,7 @@ namespace QTest {
              * this function, it will proceed with calling exit() and abort()
              * and hence crash. Therefore, we call these logging functions such
              * that we wrap up nicely, and in particular produce well-formed XML. */
+            QTestResult::addFailure("Received a fatal error.", "Unknown file", 0);
             QTestLog::leaveTestFunction();
             QTestLog::stopLogging();
             break;
