@@ -488,11 +488,13 @@ void tst_QMdiSubWindow::showShaded()
 {
     QMdiArea workspace;
     QMdiSubWindow *window = new QMdiSubWindow;
+    window = workspace.addSubWindow(new QLineEdit);
     window->resize(300, 300);
-    workspace.addSubWindow(window);
     qApp->processEvents();
     workspace.show();
-    window->show();
+#ifdef Q_WS_X11
+    qt_x11_wait_for_window_manager(&workspace);
+#endif
 
     QVERIFY(!window->isShaded());
     QVERIFY(!window->isMaximized());
@@ -519,6 +521,32 @@ void tst_QMdiSubWindow::showShaded()
     QCOMPARE(window->width(), workspace.contentsRect().width());
     window->showNormal();
     QCOMPARE(window->geometry(), workspace.contentsRect());
+
+    window->resize(300, 300);
+    QCOMPARE(window->size(), QSize(300, 300));
+    window->showShaded();
+    window->showNormal();
+    QTest::qWait(250);
+
+    const QSize minimumSizeHint = window->minimumSizeHint();
+    QVERIFY(minimumSizeHint.height() < 300);
+    const int maxHeightDiff = 300 - minimumSizeHint.height();
+
+    // Calculate mouse position for bottom edge and simulate a
+    // vertical resize with the mouse.
+    int offset = window->style()->pixelMetric(QStyle::PM_MDIFrameWidth) / 2;
+    QPoint mousePosition(window->width() / 2, window->height() - qMax(offset, 2));
+    sendMouseMove(window, mousePosition, Qt::NoButton);
+    sendMousePress(window, mousePosition);
+
+    for (int i = 0; i < maxHeightDiff + 20; ++i) {
+        --mousePosition.ry();
+        sendMouseMove(window, mousePosition);
+    }
+
+    sendMouseRelease(window, mousePosition);
+    // Make sure we respect the minimumSizeHint!
+    QCOMPARE(window->height(), minimumSizeHint.height());
 
     window->showShaded();
     window->setParent(0);
