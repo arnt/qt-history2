@@ -1908,16 +1908,7 @@ QRectF QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, in
     }
 
     if (isFrameFromInlineObject(f)) {
-        int startPos = f->firstPosition();
-        fd->contentsWidth = newContentsWidth;
-        // inline image
-        QTextCharFormat format = q->format(startPos - 1);
-        QTextObjectInterface *iface = q->handlerForObject(format.objectType());
-        if (iface) {
-            fd->size = QFixedSize::fromSizeF(iface->intrinsicSize(q->document(), startPos - 1, format));
-            fd->minimumWidth = fd->maximumWidth = fd->size.width;
-        }
-        fd->sizeDirty = false;
+        // never reached, handled in resizeInlineObject/positionFloat instead
         return QRectF();
     }
 
