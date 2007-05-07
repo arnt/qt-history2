@@ -210,6 +210,7 @@ private:
     void itemUpdated(QGraphicsItem *item, const QRectF &rect);
 
     Q_DECLARE_PRIVATE(QGraphicsScene)
+    Q_DISABLE_COPY(QGraphicsScene)
     Q_PRIVATE_SLOT(d_func(), void _q_generateBspTree())
     Q_PRIVATE_SLOT(d_func(), void _q_emitUpdated())
     Q_PRIVATE_SLOT(d_func(), void _q_removeItemLater(QGraphicsItem *item))

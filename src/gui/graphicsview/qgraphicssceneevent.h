@@ -40,6 +40,7 @@ protected:
     QGraphicsSceneEvent(QGraphicsSceneEventPrivate &dd, Type type = None);
     QGraphicsSceneEventPrivate *d_ptr;
     Q_DECLARE_PRIVATE(QGraphicsSceneEvent)
+    Q_DISABLE_COPY(QGraphicsSceneEvent)
 };
 
 class QGraphicsSceneMouseEventPrivate;
@@ -87,6 +88,7 @@ public:
 
 private:
     Q_DECLARE_PRIVATE(QGraphicsSceneMouseEvent)
+    Q_DISABLE_COPY(QGraphicsSceneMouseEvent)
 };
 
 class QGraphicsSceneWheelEventPrivate;
@@ -119,6 +121,7 @@ public:
 
 private:
     Q_DECLARE_PRIVATE(QGraphicsSceneWheelEvent)
+    Q_DISABLE_COPY(QGraphicsSceneWheelEvent)
 };
 
 class QGraphicsSceneContextMenuEventPrivate;
@@ -147,6 +150,7 @@ public:
 
 private:
     Q_DECLARE_PRIVATE(QGraphicsSceneContextMenuEvent)
+    Q_DISABLE_COPY(QGraphicsSceneContextMenuEvent)
 };
 
 class QGraphicsSceneHoverEventPrivate;
@@ -179,6 +183,7 @@ public:
 
 private:
     Q_DECLARE_PRIVATE(QGraphicsSceneHoverEvent)
+    Q_DISABLE_COPY(QGraphicsSceneHoverEvent)
 };
 
 class QGraphicsSceneHelpEventPrivate;
@@ -196,6 +201,7 @@ public:
 
 private:
     Q_DECLARE_PRIVATE(QGraphicsSceneHelpEvent)
+    Q_DISABLE_COPY(QGraphicsSceneHelpEvent)
 };
 
 class QGraphicsSceneDragDropEventPrivate;
@@ -238,6 +244,7 @@ public:
 
 private:
     Q_DECLARE_PRIVATE(QGraphicsSceneDragDropEvent)
+    Q_DISABLE_COPY(QGraphicsSceneDragDropEvent)
 };
 
 
