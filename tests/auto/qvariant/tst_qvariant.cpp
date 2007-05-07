@@ -202,6 +202,9 @@ private slots:
     void invalidAsByteArray();
     void convertToQUint8() const;
     void invalidQColor() const;
+    void comparePointers() const;
+    void voidStar() const;
+    void dataStar() const;
 };
 
 Q_DECLARE_METATYPE(QDate)
@@ -1821,7 +1824,11 @@ void tst_QVariant::userType()
 
             QVariant userVar3;
             qVariantSetValue(userVar3, &data2);
-            QVERIFY(userVar2 != userVar3);
+
+            /* This check is correct now. userVar2 contains a pointer to data2 and so
+             * does userVar3. */
+            QVERIFY(userVar2 == userVar3);
+
             userVar3 = userVar2;
             QVERIFY(userVar2 == userVar3);
         }
@@ -2236,6 +2243,58 @@ void tst_QVariant::convertToQUint8() const
         QCOMPARE(int(v0.toUInt()), 32);
         QCOMPARE(v0.toString(), QString("32"));
     }
+}
+
+void tst_QVariant::comparePointers() const
+{
+    class MyClass
+    {
+    };
+
+    MyClass myClass;
+
+    QVariant v  = qVariantFromValue<void *>(&myClass);
+    QVariant v2 = qVariantFromValue<void *>(&myClass);
+
+    QCOMPARE(v, v2);
+}
+
+struct Data {};
+Q_DECLARE_METATYPE(Data*)
+
+void tst_QVariant::voidStar() const
+{
+    char c;
+    void *p1 = &c;
+    void *p2 = p1;
+
+    QVariant v1, v2;
+    v1 = qVariantFromValue(p1);
+    v2 = v1;
+    QVERIFY(v1 == v2);
+
+    v2 = qVariantFromValue(p2);
+    QVERIFY(v1 == v2);
+
+    p2 = 0;
+    v2 = qVariantFromValue(p2);
+    QVERIFY(v1 != v2);
+}
+
+void tst_QVariant::dataStar() const
+{
+    qRegisterMetaType<Data*>();
+    Data *p1 = new Data;
+
+    QVariant v1 = qVariantFromValue(p1);
+    QCOMPARE(v1.userType(), qMetaTypeId<Data*>());
+    QCOMPARE(qvariant_cast<Data*>(v1), p1);
+
+    QVariant v2 = v1;
+    QVERIFY(v1 == v2);
+
+    v2 = qVariantFromValue(p1);
+    QVERIFY(v1 == v2);
 }
 
 QTEST_MAIN(tst_QVariant)

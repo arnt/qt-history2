@@ -391,6 +391,15 @@ static bool compare(const QVariant::Private *a, const QVariant::Private *b)
     }
     if (!QMetaType::isRegistered(a->type))
         qFatal("QVariant::compare: type %d unknown to QVariant.", a->type);
+
+    /* The reason we cannot place this test in a case branch above for the types
+     * QMetaType::VoidStar, QMetaType::QObjectStar and so forth, is that it wouldn't include
+     * user defined pointer types. */
+    const char *const typeName = QMetaType::typeName(a->type);
+    if (typeName[qstrlen(typeName) - 1] == '*')
+        return *static_cast<void **>(a->data.shared->ptr) ==
+               *static_cast<void **>(b->data.shared->ptr);
+
     return a->data.shared->ptr == b->data.shared->ptr;
 }
 
@@ -1641,6 +1650,7 @@ void QVariant::detach()
     \internal
 */
 
+// Qt 5 ###: change typeName()(and froends= to return a QString. Suggestion from Harald.
 /*!
     Returns the name of the type stored in the variant. The returned
     strings describe the C++ datatype used to store the data: for
