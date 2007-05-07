@@ -107,21 +107,6 @@ static PtrGetThemePartSize pGetThemePartSize = 0;
 
 bool QVistaHelper::is_vista = false;
 
-//### BUG: Hovering very quickly into the middle of the wizard from a start position over one
-//    of the glowing buttons in the upper right corner (Help, Close), leaves the button glowing.
-//    Same thing when hovering from the inside to the outside passing over one of the glowing
-//    buttons.
-
-//### BUG: When the wizard is not vertically resizable, the mouse handling in this file still
-//    pretends that it is (with cursor changing and all). Same for other directions.
-//    However, since an AeroStyle wizard is supposed to always be freely resizable, this will
-//    probably be an issue only when the user decides to override this guideline by
-//    explicitly setting a fixed height.
-
-// ### POTENTIAL BUG: Use Windows-specific mouse handling for moving and resizing titlebar
-//     just like in qsizegrip. This gets rid of the grabMouse() and releaseMouse() calls which,
-//     according to Jens, could be risky on Windows.
-
 /******************************************************************************
 ** QVistaBackButton
 */
@@ -148,8 +133,6 @@ QSize QVistaBackButton::sizeHint() const
     return QSize(width, height);
 }
 
-// ### Ensure that while the mouse is over the back button, the cursor is a regular arrow
-//     and resizing the wizard is not possible ... 2 B DONE!
 void QVistaBackButton::enterEvent(QEvent *event)
 {
     if (isEnabled())
