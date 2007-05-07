@@ -536,7 +536,7 @@ const char *resolveCharSignedness<signed char>()
 void tst_Compiler::charSignedness() const
 {
 #ifdef DONT_TEST_SIGNEDNESS
-    QSKIP("MS VC 6.0 instantiates the char function for type unsigned char.", Continue);
+    QSKIP("MS VC 6.0 instantiates the char function for type unsigned char.", SkipSingle);
 #else
     QCOMPARE("char",            resolveCharSignedness<char>());
     QCOMPARE("unsigned char",   resolveCharSignedness<unsigned char>());
