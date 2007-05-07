@@ -379,6 +379,10 @@ void ItemCircleAnimation::animationStarted(int id)
         this->switchToNextEffect();
         this->useGuideQt();
         this->scale = 1;
+        // The first time we run, we have a rather large
+        // delay to perform benchmark before the ticker shows.
+        // But now, since we are showing, use a more appropriate value:
+        this->currentAnimation->startDelay = 1500;
     }
     else if (this->effect)
         this->effect->useSheepDog = false;

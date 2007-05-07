@@ -55,6 +55,7 @@ void MainWindow::setupWidget()
     QRect rect(0, 0, 800, 600);
     rect.moveCenter(QApplication::desktop()->screenGeometry(QApplication::desktop()->primaryScreen()).center());
     this->setGeometry(rect);
+    this->setMinimumSize(80, 60);
     setWindowTitle(tr("Qt Examples and Demos"));
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -240,7 +241,7 @@ void MainWindow::checkAdapt()
 {
     if (this->doneAdapt
         || Colors::noTimerUpdate
-        || this->demoStartTime.elapsed() < 2000)
+        || this->demoStartTime.elapsed() < 3300)
        return;
 
     this->doneAdapt = true;

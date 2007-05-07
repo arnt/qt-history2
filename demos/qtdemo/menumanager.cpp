@@ -146,8 +146,8 @@ void MenuManager::exampleFinished()
 
 void MenuManager::exampleError(QProcess::ProcessError error)
 {
-    Q_UNUSED(error);
-    QMessageBox::critical(0, tr("Failed to launch the example"),
+    if (error != QProcess::Crashed)
+        QMessageBox::critical(0, tr("Failed to launch the example"),
                           tr("Could not launch the example. Ensure that it has been build."),
                           QMessageBox::Cancel);
 }
@@ -567,7 +567,7 @@ void MenuManager::createTicker()
         int qtPosY = 120;
         DemoItemAnimation *qtIn = new DemoItemAnimation(this->ticker, DemoItemAnimation::ANIM_IN);
         qtIn->setDuration(500);
-        qtIn->startDelay = 1500;
+        qtIn->startDelay = 2000;
         qtIn->setStartPos(QPointF(this->window->scene->sceneRect().width(), Colors::contentStartY + qtPosY));
         qtIn->setPosAt(0.60, QPointF(qtendpos, Colors::contentStartY + qtPosY));
         qtIn->setPosAt(0.70, QPointF(qtendpos + 30, Colors::contentStartY + qtPosY));
