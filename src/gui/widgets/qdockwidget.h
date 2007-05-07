@@ -50,10 +50,10 @@ public:
         DockWidgetClosable    = 0x01,
         DockWidgetMovable     = 0x02,
         DockWidgetFloatable   = 0x04,
-        DockWidgetVerticalTitleBar = 0x08,
+        DockWidgetVerticalTitleBar = 0x10,
 
         DockWidgetFeatureMask = 0x0f,
-        AllDockWidgetFeatures = DockWidgetFeatureMask,
+        AllDockWidgetFeatures = DockWidgetFeatureMask, // ### remove in 5.0
         NoDockWidgetFeatures  = 0x00,
 
         Reserved              = 0xff
