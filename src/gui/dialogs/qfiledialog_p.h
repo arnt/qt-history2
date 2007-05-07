@@ -250,13 +250,6 @@ public:
     void init(QFileDialogPrivate *d_pointer);
     QSize sizeHint() const;
 
-    void selectAnyIndex() {
-        QModelIndex idx = moveCursor(QAbstractItemView::MoveDown, Qt::NoModifier);
-        if (!idx.isValid())
-            idx = model()->index(0, 0, rootIndex());
-        selectionModel()->select(idx, QItemSelectionModel::Select | QItemSelectionModel::Rows);
-    }
-
 protected:
     void keyPressEvent(QKeyEvent *e);
 private:

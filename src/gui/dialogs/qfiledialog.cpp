@@ -481,10 +481,6 @@ void QFileDialog::setDirectory(const QString &directory)
     d->qFileDialogUi->newFolderButton->setEnabled(d->model->flags(root) & Qt::ItemIsDropEnabled);
     d->setRootIndex(root);
     d->qFileDialogUi->listView->selectionModel()->clear();
-    if (d->qFileDialogUi->treeView->model()->rowCount(d->qFileDialogUi->treeView->rootIndex()) > 0
-        && d->lineEdit()->text().isEmpty()
-        && d->acceptMode == AcceptOpen)
-        d->qFileDialogUi->treeView->selectAnyIndex();
 }
 
 /*!
@@ -2373,10 +2369,6 @@ void QFileDialogPrivate::_q_rowsInserted(const QModelIndex &parent)
         || qFileDialogUi->treeView->selectionModel()->hasSelection()
         || qFileDialogUi->treeView->model()->rowCount(parent) == 0)
         return;
-    if (fileMode != QFileDialog::ExistingFile
-        && lineEdit()->text().isEmpty()
-        && acceptMode == QFileDialog::AcceptOpen)
-    qFileDialogUi->treeView->selectAnyIndex();
 }
 
 /*!
