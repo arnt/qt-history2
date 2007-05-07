@@ -154,7 +154,7 @@ void QPicturePaintEngine::updateClipEnabled(bool enabled)
 {
     Q_D(QPicturePaintEngine);
 #ifdef QT_PICTURE_DEBUG
-    qDebug() << " -> updateCompositionMode():" << cmode;
+    qDebug() << " -> updateClipEnabled():" << enabled;
 #endif
     int pos;
     SERIALIZE_CMD(QPicturePrivate::PdcSetClipEnabled);
@@ -166,7 +166,7 @@ void QPicturePaintEngine::updateOpacity(qreal opacity)
 {
     Q_D(QPicturePaintEngine);
 #ifdef QT_PICTURE_DEBUG
-    qDebug() << " -> updateCompositionMode():" << cmode;
+    qDebug() << " -> updateOpacity():" << opacity;
 #endif
     int pos;
     SERIALIZE_CMD(QPicturePrivate::PdcSetOpacity);
