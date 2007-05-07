@@ -195,6 +195,7 @@ TrWindow::TrWindow()
     tv = new MessagesTreeView(dwScope);
     cmdl = new MessageModel(dwScope);
     tv->setModel(cmdl);
+    tv->setAllColumnsShowFocus(true);
     dwScope->setWidget(tv);
     addDockWidget(Qt::LeftDockWidgetArea, dwScope);
 
