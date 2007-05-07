@@ -134,7 +134,7 @@ void Document::deleteShape(const QString &shapeName)
 
     m_shapeList.removeAt(index);
 
-    if (index == m_currentIndex) {
+    if (index <= m_currentIndex) {
         m_currentIndex = -1;
         if (index == m_shapeList.count())
             --index;
