@@ -17,6 +17,7 @@
 #include "qreadwritelock.h"
 #include "qatomic.h"
 #include "qmutex_p.h"
+#include "qnamespace.h"
 #include "qreadwritelock_p.h"
 #include "qstring.h"
 #include <errno.h>
