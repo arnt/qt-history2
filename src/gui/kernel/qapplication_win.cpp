@@ -52,6 +52,14 @@
 #ifndef QT_NO_ACCESSIBILITY
 #include "qaccessible.h"
 
+#include <oleacc.h>
+#ifndef WM_GETOBJECT
+#define WM_GETOBJECT                    0x003D
+#endif
+
+extern IAccessible *qt_createWindowsAccessible(QAccessibleInterface *object);
+#endif // QT_NO_ACCESSIBILITY
+
 #if WINVER >= 0x0600
 #include <winuser.h>
 #else
@@ -75,14 +83,6 @@ typedef struct {
 #endif /* FLASHW_STOP */
 typedef BOOL (WINAPI *PtrFlashWindowEx)(PFLASHWINFO pfwi);
 static PtrFlashWindowEx pFlashWindowEx = 0;
-
-#include <oleacc.h>
-#ifndef WM_GETOBJECT
-#define WM_GETOBJECT                    0x003D
-#endif
-
-extern IAccessible *qt_createWindowsAccessible(QAccessibleInterface *object);
-#endif // QT_NO_ACCESSIBILITY
 
 #include <windowsx.h>
 #include <limits.h>
