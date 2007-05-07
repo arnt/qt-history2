@@ -64,6 +64,8 @@ private:
     bool measureFps();
     void forceFpsMedianCalculation();
     void checkAdapt();
+    void useOpenGl(bool useOgl);
+    
     QTimer updateTimer;
     QTime demoStartTime;
     QTime fpsTime;

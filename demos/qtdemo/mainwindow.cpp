@@ -60,22 +60,32 @@ void MainWindow::setupWidget()
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setFrameStyle(QFrame::NoFrame);
+    this->useOpenGl(true);
+    connect(&this->updateTimer, SIGNAL(timeout()), this, SLOT(tick()));
+}
 
+void MainWindow::useOpenGl(bool useOgl)
+{
+    QWidget *viewport = new QWidget;  
 #ifndef QT_NO_OPENGL    
-    if (!Colors::noOpenGl){
+    if (useOgl && !Colors::noOpenGl){
         // Use OpenGL
-        QGLWidget *widget = new QGLWidget(QGLFormat(QGL::SampleBuffers));
+        QGLWidget *glw = new QGLWidget(QGLFormat(QGL::SampleBuffers));
         if (Colors::noScreenSync)
-            widget->format().setSwapInterval(0);
-        widget->setAutoFillBackground(false);
-        setViewport(widget);
+            glw->format().setSwapInterval(0);
+        glw->setAutoFillBackground(false);
+
+        delete viewport;
+        viewport = glw;
     }
 #endif
-    
-    if (Colors::noOpenGl)
-        setCacheMode(QGraphicsView::CacheBackground);
 
-    connect(&this->updateTimer, SIGNAL(timeout()), this, SLOT(tick()));
+    setViewport(viewport);
+    return;
+    if (!useOgl || Colors::noOpenGl)
+        setCacheMode(QGraphicsView::CacheBackground);
+    else
+        setCacheMode(QGraphicsView::CacheNone);
 }
 
 void MainWindow::startLoop()
