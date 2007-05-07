@@ -51,13 +51,13 @@ public:
     EventQueue queue;
     EventQueue freeQueue;
 
+    void pre();
     bool wait(QMutex *mutex, unsigned long time);
+    void post();
 };
 
-bool QWaitConditionPrivate::wait(QMutex *mutex, unsigned long time)
+QWaitConditionEvent *QWaitConditionPrivate::pre()
 {
-    bool ret = false;
-
     mtx.lock();
     QWaitConditionEvent *wce =
         freeQueue.isEmpty() ? new QWaitConditionEvent : freeQueue.takeFirst();
@@ -74,9 +74,13 @@ bool QWaitConditionPrivate::wait(QMutex *mutex, unsigned long time)
     queue.insert(index, wce);
     mtx.unlock();
 
-    mutex->unlock();
+    return wce;
+}
 
+bool QWaitConditionPrivate::wait(QWaitConditionEvent *wce, unsigned long time)
+{
     // wait for the event
+    bool ret = false;
     switch (WaitForSingleObject(wce->event, time)) {
     default: break;
 
@@ -84,9 +88,11 @@ bool QWaitConditionPrivate::wait(QMutex *mutex, unsigned long time)
         ret = true;
         break;
     }
+    return ret;
+}
 
-    mutex->lock();
-
+void QWaitConditionEvent::post(QWaitConditionEvent *wce)
+{
     mtx.lock();
 
     // remove 'wce' from the queue
@@ -102,8 +108,6 @@ bool QWaitConditionPrivate::wait(QMutex *mutex, unsigned long time)
     }
 
     mtx.unlock();
-
-    return ret;
 }
 
 //***********************************************************************
@@ -130,12 +134,44 @@ bool QWaitCondition::wait(QMutex *mutex, unsigned long time)
 {
     if (!mutex)
         return false;
-
     if (mutex->d->recursive) {
         qWarning("QWaitCondition::wait: Cannot wait on recursive mutexes");
         return false;
     }
-    return d->wait(mutex, time);
+
+    QWaitConditionEvent *wce = d->pre();
+    mutex->unlock();
+
+    bool returnValue = d->wait(wce, time);
+
+    mutex->lock();
+    d->post(wce);
+
+    return returnValue;
+}
+
+bool QWaitCondition::wait(QReadWriteLock *readWriteLock, unsigned long time)
+{
+    if (!readWriteLock || readWriteLock->d->accessCount == 0)
+        return false;
+    if (readWriteLock->d->accessCount < -1) {
+        qWarning("QWaitCondition: cannot wait on QReadWriteLocks with recursive lockForWrite()");
+        return false;
+    }
+
+    QWaitConditionEvent *wce = d->pre();
+    int previousAccessCount = readWriteLock->d->accessCount;
+    readWriteLock->unlock();
+
+    bool returnValue = d>wait(wce, time);
+
+    if (previousAccessCount < 0)
+        readWriteLock->lockForWrite();
+    else
+        readWriteLock->lockForRead();
+    d->post(wce);
+
+    return returnValue;
 }
 
 void QWaitCondition::wakeOne()

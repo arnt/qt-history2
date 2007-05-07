@@ -19,21 +19,7 @@
 #include "qthread.h"
 #include "qwaitcondition.h"
 
-struct QReadWriteLockPrivate
-{
-    QReadWriteLockPrivate()
-        : accessCount(0), currentWriter(0), waitingReaders(0), waitingWriters(0)
-    { }
-
-    QMutex mutex;
-    QWaitCondition readerWait;
-    QWaitCondition writerWait;
-
-    int accessCount;
-    Qt::HANDLE currentWriter;
-    int waitingReaders;
-    int waitingWriters;
-};
+#include "qreadwritelock_p.h"
 
 /*! \class QReadWriteLock
     \brief The QReadWriteLock class provides read-write locking.

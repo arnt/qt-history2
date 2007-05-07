@@ -12,6 +12,7 @@ HEADERS += thread/qmutex.h \
 # private headers
 HEADERS += thread/qmutex_p.h \
            thread/qmutexpool_p.h \
+           thread/qreadwritelock_p.h \
            thread/qthread_p.h
 
 SOURCES += thread/qmutex.cpp \

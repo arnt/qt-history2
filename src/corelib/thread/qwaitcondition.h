@@ -26,6 +26,7 @@ QT_MODULE(Core)
 
 class QWaitConditionPrivate;
 class QMutex;
+class QReadWriteLock;
 
 class Q_CORE_EXPORT QWaitCondition
 {
@@ -34,6 +35,7 @@ public:
     ~QWaitCondition();
 
     bool wait(QMutex *mutex, unsigned long time = ULONG_MAX);
+    bool wait(QReadWriteLock *readWriteLock, unsigned long time = ULONG_MAX);
 
     void wakeOne();
     void wakeAll();

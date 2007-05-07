@@ -44,6 +44,8 @@ public:
 private:
     Q_DISABLE_COPY(QReadWriteLock)
     QReadWriteLockPrivate *d;
+
+    friend class QWaitCondition;
 };
 
 class Q_CORE_EXPORT QReadLocker

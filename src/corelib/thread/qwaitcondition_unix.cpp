@@ -14,8 +14,10 @@
 #include "qplatformdefs.h"
 #include "qwaitcondition.h"
 #include "qmutex.h"
+#include "qreadwritelock.h"
 #include "qatomic.h"
 #include "qmutex_p.h"
+#include "qreadwritelock_p.h"
 #include "qstring.h"
 #include <errno.h>
 
@@ -34,6 +36,46 @@ struct QWaitConditionPrivate {
     pthread_cond_t cond;
     int waiters;
     int wakeups;
+
+    bool wait(unsigned long time)
+    {
+        int code;
+        forever {
+            if (time != ULONG_MAX) {
+                struct timeval tv;
+                gettimeofday(&tv, 0);
+
+                timespec ti;
+                ti.tv_nsec = (tv.tv_usec + (time % 1000) * 1000) * 1000;
+                ti.tv_sec = tv.tv_sec + (time / 1000) + (ti.tv_nsec / 1000000000);
+                ti.tv_nsec %= 1000000000;
+
+                code = pthread_cond_timedwait(&cond, &mutex, &ti);
+            } else {
+                code = pthread_cond_wait(&cond, &mutex);
+            }
+            if (code == 0 && wakeups == 0) {
+                // many vendors warn of spurios wakeups from
+                // pthread_cond_wait(), especially after signal delivery,
+                // even though POSIX doesn't allow for it... sigh
+                continue;
+            }
+            break;
+        }
+
+        Q_ASSERT_X(waiters > 0, "QWaitCondition::wait", "internal error (waiters)");
+        --waiters;
+        if (code == 0) {
+            Q_ASSERT_X(wakeups > 0, "QWaitCondition::wait", "internal error (wakeups)");
+            --wakeups;
+        }
+        report_error(pthread_mutex_unlock(&mutex), "QWaitCondition::wait()", "mutex unlock");
+
+        if (code && code != ETIMEDOUT)
+            report_error(code, "QWaitCondition::wait()", "cv wait");
+
+        return (code == 0);
+    }
 };
 
 
@@ -191,13 +233,12 @@ void QWaitCondition::wakeAll()
 }
 
 /*!
-    Releases the locked \a mutex and wait on the wait condition.
-    The \a mutex must be initially locked by the calling thread. If
-    \a mutex is not in a locked state, this function returns
+    Releases the locked \a mutex and waits on the wait condition.  The
+    \a mutex must be initially locked by the calling thread. If \a
+    mutex is not in a locked state, this function returns
     immediately. If \a mutex is a recursive mutex, this function
     returns immediately. The \a mutex will be unlocked, and the
-    calling thread will block until either of these conditions is
-    met:
+    calling thread will block until either of these conditions is met:
 
     \list
     \o Another thread signals it using wakeOne() or wakeAll(). This
@@ -218,7 +259,6 @@ bool QWaitCondition::wait(QMutex *mutex, unsigned long time)
 {
     if (! mutex)
         return false;
-
     if (mutex->d->recursive) {
         qWarning("QWaitCondition: cannot wait on recursive mutexes");
         return false;
@@ -228,42 +268,59 @@ bool QWaitCondition::wait(QMutex *mutex, unsigned long time)
     ++d->waiters;
     mutex->unlock();
 
-    int code;
-    forever {
-        if (time != ULONG_MAX) {
-            struct timeval tv;
-            gettimeofday(&tv, 0);
+    bool returnValue = d->wait(time);
 
-            timespec ti;
-            ti.tv_nsec = (tv.tv_usec + (time % 1000) * 1000) * 1000;
-            ti.tv_sec = tv.tv_sec + (time / 1000) + (ti.tv_nsec / 1000000000);
-            ti.tv_nsec %= 1000000000;
-
-            code = pthread_cond_timedwait(&d->cond, &d->mutex, &ti);
-        } else {
-            code = pthread_cond_wait(&d->cond, &d->mutex);
-        }
-        if (code == 0 && d->wakeups == 0) {
-            // many vendors warn of spurios wakeups from
-            // pthread_cond_wait(), especially after signal delivery,
-            // even though POSIX doesn't allow for it... sigh
-            continue;
-        }
-        break;
-    }
-
-    Q_ASSERT_X(d->waiters > 0, "QWaitCondition::wait", "internal error (waiters)");
-    --d->waiters;
-    if (code == 0) {
-        Q_ASSERT_X(d->wakeups > 0, "QWaitCondition::wait", "internal error (wakeups)");
-        --d->wakeups;
-    }
-    report_error(pthread_mutex_unlock(&d->mutex), "QWaitCondition::wait()", "mutex unlock");
     mutex->lock();
 
-    if (code && code != ETIMEDOUT)
-        report_error(code, "QWaitCondition::wait()", "cv wait");
+    return returnValue;
+}
 
-    return (code == 0);
+/*!
+    Releases the locked \a readWriteLock and waits on the wait
+    condition.  The \a readWriteLock must be initially locked by the
+    calling thread. If \a readWriteLock is not in a locked state, this
+    function returns immediately. The \a readWriteLock must not be
+    locked recursively, otherwise this function will not release the
+    lock properly. The \a readWriteLock will be unlocked, and the
+    calling thread will block until either of these conditions is met:
+
+    \list
+    \o Another thread signals it using wakeOne() or wakeAll(). This
+       function will return true in this case.
+    \o \a time milliseconds has elapsed. If \a time is \c ULONG_MAX
+       (the default), then the wait will never timeout (the event
+       must be signalled). This function will return false if the
+       wait timed out.
+    \endlist
+
+    The \a readWriteLock will be returned to the same locked
+    state. This function is provided to allow the atomic transition
+    from the locked state to the wait state.
+
+    \sa wakeOne(), wakeAll()
+*/
+bool QWaitCondition::wait(QReadWriteLock *readWriteLock, unsigned long time)
+{
+    if (!readWriteLock || readWriteLock->d->accessCount == 0)
+        return false;
+    if (readWriteLock->d->accessCount < -1) {
+        qWarning("QWaitCondition: cannot wait on QReadWriteLocks with recursive lockForWrite()");
+        return false;
+    }
+
+    report_error(pthread_mutex_lock(&d->mutex), "QWaitCondition::wait()", "mutex lock");
+    ++d->waiters;
+
+    int previousAccessCount = readWriteLock->d->accessCount;
+    readWriteLock->unlock();
+
+    bool returnValue = d->wait(time);
+
+    if (previousAccessCount < 0)
+        readWriteLock->lockForWrite();
+    else
+        readWriteLock->lockForRead();
+
+    return returnValue;
 }
 #endif // QT_NO_THREAD
