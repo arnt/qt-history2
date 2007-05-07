@@ -390,6 +390,9 @@ public:
     \sa QSvgRenderer, QSvgWidget
 */
 
+/*!
+    Constructs a new generator.
+*/
 QSvgGenerator::QSvgGenerator()
     : d_ptr(new QSvgGeneratorPrivate)
 {
@@ -399,6 +402,9 @@ QSvgGenerator::QSvgGenerator()
     d->owns_iodevice = false;
 }
 
+/*!
+    Destroys the generator.
+*/
 QSvgGenerator::~QSvgGenerator()
 {
     Q_D(QSvgGenerator);
@@ -478,12 +484,19 @@ void QSvgGenerator::setOutputDevice(QIODevice *outputDevice)
     d->engine->setOutputDevice(outputDevice);
 }
 
+/*!
+    Returns the paint engine used to render graphics to be converted to SVG
+    format information.
+*/
 QPaintEngine *QSvgGenerator::paintEngine() const
 {
     Q_D(const QSvgGenerator);
     return d->engine;
 }
 
+/*!
+    \reimp
+*/
 int QSvgGenerator::metric(QPaintDevice::PaintDeviceMetric metric) const
 {
     Q_D(const QSvgGenerator);
@@ -514,6 +527,21 @@ int QSvgGenerator::metric(QPaintDevice::PaintDeviceMetric metric) const
     }
     return 0;
 }
+
+/*!
+    \fn QString QSvgGenerator::fileName() const
+
+    Returns the name of the file to be created by the generator.
+*/
+
+/*!
+    \fn void QSvgGenerator::setResolution(int resolution)
+
+    Sets the \a resolution of the generated output to the value specified
+    in dots per inch.
+
+    The resolution is used to calculate the physical size of an SVG drawing.
+*/
 
 /*****************************************************************************
  * class QSvgPaintEngine

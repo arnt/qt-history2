@@ -62,6 +62,7 @@
     \value CustomError A custom error has been raised with raiseError()
     \value NotWellFormedError The parser internally raised an error due to the read XML not being well-formed.
     \value PrematureEndOfDocumentError The input stream ended before the document was parsed completely. This error can be recovered from.
+    \value UnexpectedElementError The parser encountered an element that was different to those it expected.
 */
 
 
