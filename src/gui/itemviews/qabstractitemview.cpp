@@ -3009,6 +3009,7 @@ QStyleOptionViewItemV3 QAbstractItemViewPrivate::viewOptionsV3() const
     if (wrapItemText)
         option.features = QStyleOptionViewItemV2::WrapText;
     option.locale = q->locale();
+    option.locale.setNumberOptions(QLocale::OmitGroupSeparator);
     option.widget = q;
     return option;
 }
