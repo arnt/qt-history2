@@ -146,6 +146,9 @@
 #ifndef QT_NO_PRINTER
 #  define QT_NO_PRINTER
 #endif
+#ifndef QT_NO_CUPS
+#  define QT_NO_CUPS
+#endif
 
 /* Qtopia Core */
 #ifndef QT_NO_QWSEMBEDWIDGET
@@ -165,18 +168,39 @@
 #ifndef QT_NO_STYLE_CDE
 #  define QT_NO_STYLE_CDE
 #endif
+#ifndef QT_NO_STYLE_STYLESHEET
+#  define QT_NO_STYLE_STYLESHEET
+#endif
 
 /* Utilities */
 #ifndef QT_NO_UNDOCOMMAND
 #  define QT_NO_UNDOCOMMAND
+#endif
+#ifndef QT_NO_UNDOGROUP
+#  define QT_NO_UNDOGROUP
+#endif
+#ifndef QT_NO_UNDOSTACK
+#  define QT_NO_UNDOSTACK
+#endif
+#ifndef QT_NO_UNDOVIEW
+#  define QT_NO_UNDOVIEW
 #endif
 
 /* Widgets */
 #ifndef QT_NO_LCDNUMBER
 #  define QT_NO_LCDNUMBER
 #endif
+#ifndef QT_NO_CALENDARWIDGET
+#  define QT_NO_CALENDARWIDGET
+#endif
+#ifndef QT_NO_DATETIMEEDIT
+#  define QT_NO_DATETIMEEDIT
+#endif
 #ifndef QT_NO_MENU
 #  define QT_NO_MENU
+#endif
+#ifndef QT_NO_CONTEXTMENU
+#  define QT_NO_CONTEXTMENU
 #endif
 #ifndef QT_NO_MAINWINDOW
 #  define QT_NO_MAINWINDOW
@@ -201,6 +225,12 @@
 #endif
 #ifndef QT_NO_DIAL
 #  define QT_NO_DIAL
+#endif
+#ifndef QT_NO_STACKEDWIDGET
+#  define QT_NO_STACKEDWIDGET
+#endif
+#ifndef QT_NO_TABWIDGET
+#  define QT_NO_TABWIDGET
 #endif
 #ifndef QT_NO_STATUSBAR
 #  define QT_NO_STATUSBAR

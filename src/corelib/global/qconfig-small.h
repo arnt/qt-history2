@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-// Data structures
+/* Data structures */
 #ifndef QT_NO_QUUID_STRING
 #  define QT_NO_QUUID_STRING
 #endif
@@ -19,12 +19,15 @@
 #  define QT_NO_STL
 #endif
 
-// Dialogs
+/* Dialogs */
 #ifndef QT_NO_COLORDIALOG
 #  define QT_NO_COLORDIALOG
 #endif
 #ifndef QT_NO_ERRORMESSAGE
 #  define QT_NO_ERRORMESSAGE
+#endif
+#ifndef QT_NO_FILEDIALOG
+#  define QT_NO_FILEDIALOG
 #endif
 #ifndef QT_NO_FONTDIALOG
 #  define QT_NO_FONTDIALOG
@@ -34,9 +37,6 @@
 #endif
 #ifndef QT_NO_MESSAGEBOX
 #  define QT_NO_MESSAGEBOX
-#endif
-#ifndef QT_NO_FILEDIALOG
-#  define QT_NO_FILEDIALOG
 #endif
 #ifndef QT_NO_PRINTDIALOG
 #  define QT_NO_PRINTDIALOG
@@ -48,7 +48,7 @@
 #  define QT_NO_TABDIALOG
 #endif
 
-// File I/O
+/* File I/O */
 #ifndef QT_NO_TEXTSTREAM
 #  define QT_NO_TEXTSTREAM
 #endif
@@ -59,12 +59,12 @@
 #  define QT_NO_LIBRARY
 #endif
 
-// Fonts
+/* Fonts */
 #ifndef QT_NO_FREETYPE
 #  define QT_NO_FREETYPE
 #endif
 
-// Images
+/* Images */
 #ifndef QT_NO_IMAGEFORMATPLUGIN
 #  define QT_NO_IMAGEFORMATPLUGIN
 #endif
@@ -80,6 +80,9 @@
 #ifndef QT_NO_IMAGEFORMAT_XBM
 #  define QT_NO_IMAGEFORMAT_XBM
 #endif
+#ifndef QT_NO_IMAGEFORMAT_XPM
+#  define QT_NO_IMAGEFORMAT_XPM
+#endif
 #ifndef QT_NO_IMAGE_TEXT
 #  define QT_NO_IMAGE_TEXT
 #endif
@@ -87,7 +90,7 @@
 #  define QT_NO_MOVIE
 #endif
 
-// Internationalization
+/* Internationalization */
 #ifndef QT_NO_QWS_INPUTMETHODS
 #  define QT_NO_QWS_INPUTMETHODS
 #endif
@@ -107,12 +110,15 @@
 #  define QT_NO_TRANSLATION_UTF8
 #endif
 
-// ItemViews
+/* ItemViews */
 #ifndef QT_NO_DIRMODEL
 #  define QT_NO_DIRMODEL
 #endif
 #ifndef QT_NO_PROXYMODEL
 #  define QT_NO_PROXYMODEL
+#endif
+#ifndef QT_NO_SORTFILTERPROXYMODEL
+#  define QT_NO_SORTFILTERPROXYMODEL
 #endif
 #ifndef QT_NO_STRINGLISTMODEL
 #  define QT_NO_STRINGLISTMODEL
@@ -124,7 +130,7 @@
 #  define QT_NO_TREEVIEW
 #endif
 
-// Kernel
+/* Kernel */
 #ifndef QT_NO_ACTION
 #  define QT_NO_ACTION
 #endif
@@ -153,7 +159,7 @@
 #  define QT_NO_WHEELEVENT
 #endif
 
-// Networking
+/* Networking */
 #ifndef QT_NO_COP
 #  define QT_NO_COP
 #endif
@@ -164,7 +170,7 @@
 #  define QT_NO_HTTP
 #endif
 
-// Painting
+/* Painting */
 #ifndef QT_NO_COLORNAMES
 #  define QT_NO_COLORNAMES
 #endif
@@ -174,8 +180,11 @@
 #ifndef QT_NO_PRINTER
 #  define QT_NO_PRINTER
 #endif
+#ifndef QT_NO_CUPS
+#  define QT_NO_CUPS
+#endif
 
-// Qtopia Core
+/* Qtopia Core */
 #ifndef QT_NO_QWS_SOUNDSERVER
 #  define QT_NO_QWS_SOUNDSERVER
 #endif
@@ -183,32 +192,58 @@
 #  define QT_NO_QWS_PROPERTIES
 #endif
 
-// Styles
+/* Styles */
 #ifndef QT_NO_STYLE_MOTIF
 #  define QT_NO_STYLE_MOTIF
 #endif
 #ifndef QT_NO_STYLE_CDE
 #  define QT_NO_STYLE_CDE
 #endif
+#ifndef QT_NO_STYLE_CLEANLOOKS
+#  define QT_NO_STYLE_CLEANLOOKS
+#endif
 #ifndef QT_NO_STYLE_PLASTIQUE
 #  define QT_NO_STYLE_PLASTIQUE
+#endif
+#ifndef QT_NO_STYLE_STYLESHEET
+#  define QT_NO_STYLE_STYLESHEET
 #endif
 #ifndef QT_NO_STYLE_WINDOWSXP
 #  define QT_NO_STYLE_WINDOWSXP
 #endif
 
-// Widgets
+/* Utilities */
+#ifndef QT_NO_COMPLETER
+#  define QT_NO_COMPLETER
+#endif
+#ifndef QT_NO_DESKTOPSERVICES
+#  define QT_NO_DESKTOPSERVICES
+#endif
+#ifndef QT_NO_SYSTEMTRAYICON
+#  define QT_NO_SYSTEMTRAYICON
+#endif
+
+/* Widgets */
 #ifndef QT_NO_LCDNUMBER
 #  define QT_NO_LCDNUMBER
 #endif
+#ifndef QT_NO_FONTCOMBOBOX
+#  define QT_NO_FONTCOMBOBOX
+#endif
 #ifndef QT_NO_SPINBOX
 #  define QT_NO_SPINBOX
+#endif
+#ifndef QT_NO_CALENDARWIDGET
+#  define QT_NO_CALENDARWIDGET
 #endif
 #ifndef QT_NO_DATETIMEEDIT
 #  define QT_NO_DATETIMEEDIT
 #endif
 #ifndef QT_NO_MENU
 #  define QT_NO_MENU
+#endif
+#ifndef QT_NO_CONTEXTMENU
+#  define QT_NO_CONTEXTMENU
 #endif
 #ifndef QT_NO_MAINWINDOW
 #  define QT_NO_MAINWINDOW
