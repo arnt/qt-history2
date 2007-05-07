@@ -260,6 +260,7 @@ Configure::Configure( int& argc, char** argv )
     dictionary[ "DIRECT3D" ]        = "no";
     dictionary[ "IPV6" ]            = "yes"; // Always, dynamicly loaded
     dictionary[ "OPENSSL" ]         = "auto";
+    dictionary[ "QDBUS" ]           = "auto";
 
     dictionary[ "STYLE_WINDOWS" ]   = "yes";
     dictionary[ "STYLE_WINDOWSXP" ] = "auto";
@@ -693,6 +694,10 @@ void Configure::parseCmdLine()
               dictionary[ "OPENSSL"] = "no";
         } else if( configCmdLine.at(i) == "-openssl" ) {
               dictionary[ "OPENSSL" ] = "yes";
+        } else if( configCmdLine.at(i) == "-no-qdbus" ) {
+            dictionary[ "QDBUS"] = "no";
+        } else if( configCmdLine.at(i) == "-qdbus" ) {
+            dictionary[ "QDBUS" ] = "yes";
         }
 
         else if( configCmdLine.at(i) == "-internal" )
@@ -1070,7 +1075,7 @@ bool Configure::displayHelp()
                     "[-system-libtiff] [-no-libjpeg] [-qt-libjpeg] [-system-libjpeg]\n"
                     "[-no-libmng] [-qt-libmng] [-system-libmng] [-no-qt3support]\n"
                     "[-no-mmx] [-no-3dnow] [-no-sse] [-no-sse2] [-direct3d]\n"
-                    "[-openssl] [-no-openssl] [-platform <spec>]\n\n", 0, 7);
+                    "[-openssl] [-no-openssl] [-qdbus] [-no-qdbus] [-platform <spec>]\n\n", 0, 7);
 
         desc("Installation options:\n\n");
 #if !defined(EVAL)
@@ -1211,6 +1216,8 @@ bool Configure::displayHelp()
         desc("DIRECT3D", "yes",  "-direct3d",           "Compile in Direct3D support (experimental - see INSTALL for more info)");
         desc("OPENSSL", "no",    "-no-openssl",         "Do not compile in OpenSSL support");
         desc("OPENSSL", "yes",   "-openssl",            "Compile in OpenSSL support");
+        desc("QDBUS", "no",      "-no-qbus",            "Do not compile in qdbus support");
+        desc("QDBUS", "yes",     "-qdbus",              "Compile in qdbus support");
 
         desc(                   "-arch <arch>",         "Specify an architecture.\n"
                                                         "Available values for <arch>:");
@@ -1392,6 +1399,8 @@ bool Configure::checkAvailability(const QString &part)
         available = (dictionary.value("QMAKESPEC") != "win32-msvc") && (dictionary.value("QMAKESPEC") != "win32-g++");
     else if (part == "OPENSSL")
         available = findFile("openssl\\ssl.h");
+    else if (part == "QDBUS")
+        available = findFile("dbus\\dbus.h");
 
     else if (part == "INCREDIBUILD_XGE")
         available = findFile("BuildConsole.exe") && findFile("xgConsole.exe");
@@ -1466,6 +1475,8 @@ void Configure::autoDetection()
         dictionary["SSE2"] = checkAvailability("SSE2") ? "yes" : "no";
     if (dictionary["OPENSSL"] == "auto")
         dictionary["OPENSSL"] = checkAvailability("OPENSSL") ? "yes" : "no";
+    if (dictionary["QDBUS"] == "auto")
+        dictionary["QDBUS"] = checkAvailability("QDBUS") ? "yes" : "no";
 
     // Detection of IncrediBuild buildconsole
     if (dictionary["INCREDIBUILD_XGE"] == "auto")
@@ -1765,6 +1776,9 @@ void Configure::generateOutputVars()
     if (dictionary[ "OPENSSL" ] == "yes")
         qtConfig += "openssl";
 
+    if (dictionary[ "QDBUS" ] == "yes")
+        qtConfig += "qdbus";
+
     if (dictionary["IPV6"] == "yes")
         qtConfig += "ipv6";
     else if (dictionary["IPV6"] == "no")
@@ -2056,6 +2070,7 @@ void Configure::generateConfigfiles()
         if(dictionary["OPENGL"] == "no")            qconfigList += "QT_NO_OPENGL";
         if(dictionary["DIRECT3D"] == "no")          qconfigList += "QT_NO_DIRECT3D";
         if(dictionary["OPENSSL"] == "no")          qconfigList += "QT_NO_OPENSSL";
+        if(dictionary["QDBUS"] == "no")             qconfigList += "QT_NO_QDBUS";
         if(dictionary["IPV6"] == "no")              qconfigList += "QT_NO_IPV6";
 
         if(dictionary["SQL_MYSQL"] == "yes")        qconfigList += "QT_SQL_MYSQL";
@@ -2224,6 +2239,7 @@ void Configure::displayConfig()
     cout << "OpenGL support.............." << dictionary[ "OPENGL" ] << endl;
     cout << "Direct3D support............" << dictionary[ "DIRECT3D" ] << endl;
     cout << "OpenSSL support............." << dictionary[ "OPENSSL" ] << endl;
+    cout << "QDBus support..............." << dictionary[ "QDBUS" ] << endl;
     cout << "Qt3 compatibility..........." << dictionary[ "QT3SUPPORT" ] << endl << endl;
 
     cout << "Third Party Libraries:" << endl;
