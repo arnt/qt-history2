@@ -173,6 +173,8 @@ void QOleDropSource::createCursors()
         QPixmap pm = manager->object->pixmap();
         QList<Qt::DropAction> actions;
         actions << Qt::MoveAction << Qt::CopyAction << Qt::LinkAction;
+        if (!manager->object->pixmap().isNull())
+            actions << Qt::IgnoreAction;
         QPoint hotSpot = manager->object->hotSpot();
         for (int cnum = 0; cnum < actions.size(); ++cnum) {
             QPixmap cpm = manager->dragCursor(actions.at(cnum));

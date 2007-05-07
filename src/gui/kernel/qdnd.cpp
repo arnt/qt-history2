@@ -68,6 +68,45 @@ static const char * const move_xpm[] = {
 ".......aXXa",
 "........aa."};
 
+#ifdef Q_WS_WIN
+/* XPM */
+static const char * const ignore_xpm[] = {
+"24 30 3 1",
+".        c None",
+"a        c #000000",
+"X        c #FFFFFF",
+"aa......................",
+"aXa.....................",
+"aXXa....................",
+"aXXXa...................",
+"aXXXXa..................",
+"aXXXXXa.................",
+"aXXXXXXa................",
+"aXXXXXXXa...............",
+"aXXXXXXXXa..............",
+"aXXXXXXXXXa.............",
+"aXXXXXXaaaa.............",
+"aXXXaXXa................",
+"aXXaaXXa................",
+"aXa..aXXa...............",
+"aa...aXXa...............",
+"a.....aXXa..............",
+"......aXXa.....XXXX.....",
+".......aXXa..XXaaaaXX...",
+".......aXXa.XaaaaaaaaX..",
+"........aa.XaaaXXXXaaaX.",
+"...........XaaaaX..XaaX.",
+"..........XaaXaaaX..XaaX",
+"..........XaaXXaaaX.XaaX",
+"..........XaaX.XaaaXXaaX",
+"..........XaaX..XaaaXaaX",
+"...........XaaX..XaaaaX.",
+"...........XaaaXXXXaaaX.",
+"............XaaaaaaaaX..",
+".............XXaaaaXX...",
+"...............XXXX....."};
+#endif
+
 /* XPM */
 static const char * const copy_xpm[] = {
 "24 30 3 1",
@@ -255,7 +294,13 @@ QDragManager::QDragManager()
     : QObject(qApp)
 {
     Q_ASSERT(!instance);
+
+#ifdef Q_WS_WIN
+    n_cursor = 4;
+#else 
     n_cursor = 3;
+#endif
+
 #ifdef Q_WS_QWS
     currentActionForOverrideCursor = Qt::IgnoreAction;
 #endif
@@ -263,6 +308,9 @@ QDragManager::QDragManager()
     pm_cursor[0] = QPixmap((const char **)move_xpm);
     pm_cursor[1] = QPixmap((const char **)copy_xpm);
     pm_cursor[2] = QPixmap((const char **)link_xpm);
+#ifdef Q_WS_WIN
+    pm_cursor[3] = QPixmap((const char **)ignore_xpm);
+#endif
     object = 0;
     beingCancelled = false;
     restoreCursor = false;
@@ -305,6 +353,10 @@ QPixmap QDragManager::dragCursor(Qt::DropAction action) const
         return pm_cursor[1];
     else if (action == Qt::LinkAction)
         return pm_cursor[2];
+#ifdef Q_WS_WIN
+    else if (action == Qt::IgnoreAction)
+        return pm_cursor[3];
+#endif
     return 0;
 }
 
