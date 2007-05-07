@@ -70,6 +70,8 @@ public:
 
 class QFileIconProvider;
 
+#ifndef QT_NO_FILESYSTEMWATCHER
+
 class Q_AUTOTEST_EXPORT QFileInfoGatherer : public QThread
 {
 Q_OBJECT
@@ -111,9 +113,7 @@ private:
     QStack<QString> path;
     QStack<QStringList> files;
 
-#ifndef QT_NO_FILESYSTEMWATCHER
     QFileSystemWatcher *watcher;
-#endif
     bool m_resolveSymlinks;
     QFileIconProvider *m_iconProvider;
     QFileIconProvider defaultProvider;
@@ -122,6 +122,7 @@ private:
     uint groupId;
 #endif
 };
+#endif // QT_NO_FILESYSTEMWATCHER
 
 #endif // QFILEINFOGATHERER_H
 

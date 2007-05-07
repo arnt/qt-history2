@@ -20,6 +20,8 @@
 #include <sys/types.h>
 #endif
 
+#ifndef QT_NO_FILESYSTEMWATCHER
+
 /*!
     Creates thread
 */
@@ -327,3 +329,5 @@ void QFileInfoGatherer::fetch(const QFileInfo &fileInfo, QTime &base, bool &firs
         firstTime = false;
     }
 }
+
+#endif // QT_NO_FILESYSTEMWATCHER

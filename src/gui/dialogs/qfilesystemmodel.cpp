@@ -18,6 +18,8 @@
 #include <qdebug.h>
 #include <qmessagebox.h>
 
+#ifndef QT_NO_FILESYSTEMWATCHER
+
 /*!
     \enum QFileSystemModel::Roles
     \value FileIconRole
@@ -188,7 +190,11 @@ QFileSystemModelPrivate::QFileSystemNode *QFileSystemModelPrivate::node(const QS
                 return const_cast<QFileSystemModelPrivate::QFileSystemNode*>(&root);
             QFileSystemModelPrivate *p = const_cast<QFileSystemModelPrivate*>(this);
             row = p->addNode(parent, element);
+#ifdef QT_NO_FILESYSTEMWATCHER
             parent->children[row].populate(fileInfoGatherer.getInfo(info));
+#else
+            parent->children[row].populate(fileInfoGatherer.getInfo(info));
+#endif
         }
         Q_ASSERT(row >= 0);
         if (parent->visibleLocation(row) == -1) {
@@ -1543,3 +1549,5 @@ bool QFileSystemModelPrivate::passNameFilters(const QFileSystemNode *node) const
 }
 
 //#include "moc_qfilesystemmodel.cpp"
+
+#endif // QT_NO_FILESYSTEMWATCHER

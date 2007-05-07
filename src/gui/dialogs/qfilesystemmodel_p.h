@@ -23,6 +23,8 @@ class ExtendedInformation;
 class QFileSystemModelPrivate;
 class QFileIconProvider;
 
+#ifndef QT_NO_FILESYSTEMWATCHER
+
 class Q_AUTOTEST_EXPORT QFileSystemModel : public QAbstractItemModel
 {
     Q_OBJECT
@@ -119,11 +121,6 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _q_fileSystemChanged(const QString &path, const QList<QPair<QString, QExtendedInformation> > &))
     Q_PRIVATE_SLOT(d_func(), void _q_resolvedName(const QString &fileName, const QString &resolvedName))
 };
-
-#endif // QFILESYSTEMMODEL_H
-
-#ifndef QFLATDIRMODEL_P_H
-#define QFLATDIRMODEL_P_H
 
 #include <qabstractitemmodel.h>
 #include <private/qabstractitemmodel_p.h>
@@ -319,7 +316,9 @@ public:
     static int naturalCompare(const QString &s1, const QString &s2, Qt::CaseSensitivity cs);
 
     QDir rootDir;
+#ifndef QT_NO_FILESYSTEMWATCHER
     QFileInfoGatherer fileInfoGatherer;
+#endif
     QTimer delayedSortTimer;
     bool forceSort;
     int sortColumn;
@@ -345,6 +344,7 @@ public:
     QList<Fetching> toFetch;
 
 };
+#endif // QT_NO_FILESYSTEMWATCHER
 
 #endif
 
