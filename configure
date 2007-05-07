@@ -4240,6 +4240,18 @@ fi # X11
 # QWS
 if [ "$PLATFORM_QWS" = "yes" ]; then
 
+    # OpenGL ES
+    if [ "$CFG_OPENGL" = "yes" ]; then
+	if ! "$unixtests/compile.test" "$XQMAKESPEC" "$QMAKE_CONFIG" $OPT_VERBOSE "$relpath" "$outpath" config.tests/qws/opengles "OpenGL ES" $L_FLAGS $I_FLAGS $l_FLAGS; then
+	    echo "The OpenGL ES functionality test failed!"
+            echo " You might need to modify the include and library search paths by editing"
+	    echo " QMAKE_INCDIR_OPENGL, QMAKE_LIBDIR_OPENGL and QMAKE_LIBS_OPENGL in"
+	    echo " ${XQMAKESPEC}."
+            exit 1
+        fi
+	
+    fi
+
     # mouse drivers
     for mouse in ${CFG_MOUSE_ON} ${CFG_MOUSE_PLUGIN}; do
 	if [ "${mouse}" = "tslib" ] && [ "${CFG_CONFIGURE_EXIT_ON_ERROR}" = "yes" ]; then
@@ -4536,6 +4548,10 @@ if [ "$CFG_OPENGL" = "no" ]; then
 else
     if [ "$PLATFORM_QWS" = "yes" ]; then
 	QCONFIG_FLAGS="$QCONFIG_FLAGS Q_BACKINGSTORE_SUBSURFACES"
+	QCONFIG_FLAGS="$QCONFIG_FLAGS Q_USE_EGLWINDOWSURFACE"
+
+	# The examples and demos currently don't compile with OpenGL ES
+	CFG_NOBUILD_PARTS="$CFG_NOBUILD_PARTS examples demos"
     fi
     QT_CONFIG="$QT_CONFIG opengl"
 fi
