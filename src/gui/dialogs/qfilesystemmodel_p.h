@@ -141,7 +141,7 @@ public:
     public:
         QFileSystemNode(const QString &filename = QString(), QFileSystemNode *p=0)
             : fileName(filename), populatedChildren(false), parent(p), info(0) {}
-        ~QFileSystemNode() { delete info; }
+        ~QFileSystemNode() { delete info; info = 0; }
 
         QString fileName;
 

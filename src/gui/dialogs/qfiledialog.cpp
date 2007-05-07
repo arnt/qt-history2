@@ -512,7 +512,7 @@ void QFileDialog::selectFile(const QString &filename)
         QString current = d->rootPath();
         text.remove(current);
     }
-    QModelIndex index = d->select(d->model->index(text));
+    QModelIndex index = d->select(d->model->index(filename));
     if (!index.isValid()) {
         d->qFileDialogUi->listView->selectionModel()->clear();
         if (!d->lineEdit()->hasFocus())
@@ -2136,26 +2136,23 @@ void QFileDialogPrivate::_q_autoCompleteFileName(const QString &text) {
     if (!idx.isValid())
         idx = mapFromSource(model->index(rootPath() + QDir::separator() + text));
 
-    if (!idx.isValid()) {
-        QStringList multipleFiles = typedFiles();
-        if (multipleFiles.count() > 0) {
-            QModelIndexList oldFiles = qFileDialogUi->listView->selectionModel()->selectedRows();
-            QModelIndexList newFiles;
-            for (int i = 0; i < multipleFiles.count(); ++i) {
-                QModelIndex idx = model->index(multipleFiles.at(i));
-                if (oldFiles.contains(idx))
-                    oldFiles.removeAll(idx);
-                else
-                    newFiles.append(idx);
-            }
-            for (int i = 0; i < newFiles.count(); ++i)
-                select(newFiles.at(i));
+    QStringList multipleFiles = typedFiles();
+    if (multipleFiles.count() > 0) {
+        QModelIndexList oldFiles = qFileDialogUi->listView->selectionModel()->selectedRows();
+        QModelIndexList newFiles;
+        for (int i = 0; i < multipleFiles.count(); ++i) {
+            QModelIndex idx = model->index(multipleFiles.at(i));
+            if (oldFiles.contains(idx))
+                oldFiles.removeAll(idx);
+            else
+                newFiles.append(idx);
+        }
+        for (int i = 0; i < newFiles.count(); ++i)
+            select(newFiles.at(i));
+        if (lineEdit()->hasFocus())
             for (int i = 0; i < oldFiles.count(); ++i)
                 qFileDialogUi->listView->selectionModel()->select(oldFiles.at(i),
-                        QItemSelectionModel::Toggle | QItemSelectionModel::Rows);
-        }
-    } else {
-        qFileDialogUi->listView->setCurrentIndex(idx);
+                    QItemSelectionModel::Toggle | QItemSelectionModel::Rows);
     }
 }
 
@@ -2328,23 +2325,23 @@ void QFileDialogPrivate::_q_useNameFilter(const QString &nameFilter)
 */
 void QFileDialogPrivate::_q_selectionChanged()
 {
-    if (lineEdit()->hasFocus())
-        return; // the selection changed because of auto completion
-
     QModelIndexList indexes = qFileDialogUi->listView->selectionModel()->selectedRows();
     bool stripDirs = (fileMode != QFileDialog::DirectoryOnly && fileMode != QFileDialog::Directory);
-    bool addQuotes = indexes.count() > 1;
-    QString allFiles;
+
+    QStringList allFiles;
     for (int i = 0; i < indexes.count(); ++i) {
         if (stripDirs && model->isDir(mapToSource(indexes.at(i))))
             continue;
-        QString fileName = indexes.at(i).data().toString();
-        if (addQuotes)
-            fileName = (QLatin1Char('"')) + fileName + QLatin1String("\" ");
-        allFiles.append(fileName);
+        allFiles.append(indexes.at(i).data().toString());
     }
-    if (!allFiles.isEmpty() && !lineEdit()->hasFocus() && lineEdit()->isVisible())
-        lineEdit()->setText(allFiles);
+    if (allFiles.count() > 1)
+        for (int i = 0; i < allFiles.count(); ++i) {
+            allFiles.replace(i, QString(QLatin1Char('"') + allFiles.at(i) + QLatin1Char('"')));
+    }
+
+    QString finalFiles = allFiles.join(QLatin1String(" "));
+    if (!finalFiles.isEmpty() && !lineEdit()->hasFocus() && lineEdit()->isVisible())
+        lineEdit()->setText(finalFiles);
 }
 
 /*!
