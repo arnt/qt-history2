@@ -72,7 +72,9 @@ private:
     const ppd_option_t* page_sizes;
     int currPrinterIndex;
     ppd_file_t *currPPD;
+#ifndef QT_NO_TEXTCODEC
     QTextCodec *codec;
+#endif
 };
 
 #endif // QT_NO_CUPS

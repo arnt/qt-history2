@@ -1943,12 +1943,12 @@ void QDomNodePrivate::setLocation(int lineNumber, int columnNumber)
     which return a QDomNode, e.g. firstChild(). You can make an
     independent (deep) copy of the node with cloneNode().
 
-    A QDomNode can be null, much like a null pointer. Creating a copy 
+    A QDomNode can be null, much like a null pointer. Creating a copy
     of a null node results in another null node. It is not
     possible to modify a null node, but it is possible to assign another,
     possibly non-null node to it. In this case, the copy of the null node
     will remain null. You can check if a QDomNode is null by calling isNull().
-    The empty constructor of a QDomNode (or any of the derived classes) creates 
+    The empty constructor of a QDomNode (or any of the derived classes) creates
     a null node.
 
     Nodes are inserted with insertBefore(), insertAfter() or
@@ -2614,7 +2614,7 @@ QDomNode QDomNode::removeChild(const QDomNode& oldChild)
 
     Calling this function on a null node(created, for example, with the
     default constructor) does nothing.
-     
+
     The DOM specification disallow inserting attribute nodes, but due
     to historical reasons QDom accept them nevertheless.
 
@@ -4179,8 +4179,12 @@ static QString encodeText(const QString &str,
                           const bool performAVN = false,
                           const bool encodeEOLs = false)
 {
+#ifdef QT_NO_TEXTCODEC
+    Q_UNUSED(s);
+#else
     const QTextCodec *const codec = s.codec();
     Q_ASSERT(codec);
+#endif
     QString retval(str);
     int len = retval.length();
     int i = 0;
@@ -4217,9 +4221,12 @@ static QString encodeText(const QString &str,
             len += 4;
             i += 5;
         } else {
+#ifndef QT_NO_TEXTCODEC
             if(codec->canEncode(ati))
                 ++i;
-            else {
+            else
+#endif
+            {
                 // We have to use a character reference to get it through.
                 const ushort codepoint(ati.unicode());
                 const QString replacement(QLatin1String("&#x") + QString::number(codepoint, 16) + QLatin1Char(';'));
@@ -6500,11 +6507,16 @@ void QDomDocumentPrivate::saveDocument(QTextStream& s, const int indent, QDomNod
     else {
 
         // Write out the XML declaration.
+#ifdef QT_NO_TEXTCODEC
+        const QLatin1String codecName("iso-8859-1");
+#else
         const QTextCodec *const codec = s.codec();
         Q_ASSERT_X(codec, "QDomNode::save()", "A codec must be specified in the text stream.");
+        const QByteArray codecName = codec->name();
+#endif
 
         s << "<?xml version=\"1.0\" encoding=\""
-          << codec->name()
+          << codecName
           << "\"?>\n";
 
         //  Skip the first processing instruction by name "xml", if any such exists.

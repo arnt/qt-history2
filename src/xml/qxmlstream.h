@@ -278,9 +278,11 @@ public:
     void setDevice(QIODevice *device);
     QIODevice *device() const;
 
+#ifndef QT_NO_TEXTCODEC
     void setCodec(QTextCodec *codec);
     void setCodec(const char *codecName);
     QTextCodec *codec() const;
+#endif
 
     void setAutoFormatting(bool);
     bool autoFormatting() const;

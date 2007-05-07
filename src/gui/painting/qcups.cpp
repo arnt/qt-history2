@@ -91,10 +91,12 @@ QCUPSSupport::QCUPSSupport()
         }
     }
 
+#ifndef QT_NO_TEXTCODEC
     cups_lang_t *cupsLang = _cupsLangGet(0);
     codec = QTextCodec::codecForName(_cupsLangEncoding(cupsLang));
     if (!codec)
         codec = QTextCodec::codecForLocale();
+#endif
 }
 
 QCUPSSupport::~QCUPSSupport()
@@ -288,7 +290,11 @@ bool QCUPSSupport::printerHasPPD(const char *printerName)
 
 QString QCUPSSupport::unicodeString(const char *s)
 {
+#ifndef QT_NO_TEXTCODEC
     return codec->toUnicode(s);
+#else
+    return QLatin1String(s);
+#endif
 }
 
 void QCUPSSupport::collectMarkedOptions(QStringList& list, const ppd_group_t* group) const

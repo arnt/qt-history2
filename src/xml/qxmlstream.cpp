@@ -241,8 +241,12 @@ QXmlStreamReader::QXmlStreamReader(const QString &data)
     : d_ptr(new QXmlStreamReaderPrivate(this))
 {
     Q_D(QXmlStreamReader);
+#ifdef QT_NO_TEXTCODEC
+    d->dataBuffer = data.toLatin1();
+#else
     d->dataBuffer = d->codec->fromUnicode(data);
     d->decoder = d->codec->makeDecoder();
+#endif
     d->lockEncoding = true;
 
 }
@@ -335,7 +339,11 @@ void QXmlStreamReader::addData(const QString &data)
 {
     Q_D(QXmlStreamReader);
     d->lockEncoding = true;
+#ifdef QT_NO_TEXTCODEC
+    addData(data.toLatin1());
+#else
     addData(d->codec->fromUnicode(data));
+#endif
 }
 
 /*! \overload
@@ -514,7 +522,9 @@ QXmlStreamReaderPrivate::QXmlStreamReaderPrivate(QXmlStreamReader *q)
 {
     device = 0;
     deleteDevice = false;
+#ifndef QT_NO_TEXTCODEC
     decoder = 0;
+#endif
     stack_size = 64;
     sym_stack = 0;
     state_stack = 0;
@@ -552,9 +562,11 @@ void QXmlStreamReaderPrivate::init()
     lineNumber = lastLineStart = characterOffset = 0;
     readBufferPos = 0;
     nbytesread = 0;
+#ifndef QT_NO_TEXTCODEC
     codec = QTextCodec::codecForMib(106); // utf8
     delete decoder;
     decoder = 0;
+#endif
     attributeStack.clear();
     attributeStack.reserve(16);
     entityParser = 0;
@@ -612,7 +624,9 @@ inline void QXmlStreamReaderPrivate::reallocateStack()
 
 QXmlStreamReaderPrivate::~QXmlStreamReaderPrivate()
 {
+#ifndef QT_NO_TEXTCODEC
     delete decoder;
+#endif
     qFree(sym_stack);
     qFree(state_stack);
     delete entityParser;
@@ -1193,8 +1207,10 @@ ushort QXmlStreamReaderPrivate::getChar_helper()
     characterOffset += readBufferPos;
     readBufferPos = 0;
     readBuffer.resize(0);
+#ifndef QT_NO_TEXTCODEC
     if (decoder)
         nbytesread = 0;
+#endif
     if (device) {
         rawReadBuffer.resize(BUFFER_SIZE);
         nbytesread += device->read(rawReadBuffer.data() + nbytesread, BUFFER_SIZE - nbytesread);
@@ -1211,6 +1227,7 @@ ushort QXmlStreamReaderPrivate::getChar_helper()
         return 0;
     }
 
+#ifndef QT_NO_TEXTCODEC
     if (!decoder) {
         if (nbytesread < 4) { // the 4 is to cover 0xef 0xbb 0xbf plus
                               // one extra for the utf8 codec
@@ -1240,6 +1257,9 @@ ushort QXmlStreamReaderPrivate::getChar_helper()
         readBuffer.clear();
         return 0;
     }
+#else
+    readBuffer = QString::fromLatin1(rawReadBuffer.data(), nbytesread);
+#endif // QT_NO_TEXTCODEC
 
     readBuffer.reserve(1); // keep capacity when calling resize() next time
 
@@ -1468,6 +1488,9 @@ void QXmlStreamReaderPrivate::startDocument(const QStringRef &version)
             if(!QXmlUtils::isEncName(name))
                 err = QXmlStream::tr("%1 is an invalid encoding name.").arg(name);
             else {
+#ifdef QT_NO_TEXTCODEC
+                readBuffer = QString::fromLatin1(rawReadBuffer.data(), nbytesread);
+#else
                 QTextCodec *const newCodec = QTextCodec::codecForName(name.toLatin1());
                 if (!newCodec)
                     err = QXmlStream::tr("Encoding %1 is unsupported").arg(name);
@@ -1479,6 +1502,7 @@ void QXmlStreamReaderPrivate::startDocument(const QStringRef &version)
                     decoder = codec->makeDecoder();
                     decoder->toUnicode(&readBuffer, rawReadBuffer.data(), nbytesread);
                 }
+#endif // QT_NO_TEXTCODEC
             }
         } else if (prefix.isEmpty() && key == QLatin1String("standalone")) {
             hasStandalone = true;
@@ -2436,7 +2460,9 @@ public:
     ~QXmlStreamWriterPrivate() {
         if (deleteDevice)
             delete device;
+#ifndef QT_NO_TEXTCODEC
         delete encoder;
+#endif
     }
 
     void write(const QStringRef &);
@@ -2456,8 +2482,10 @@ public:
     NamespaceDeclaration emptyNamespace;
     int lastNamespaceDeclaration;
 
+#ifndef QT_NO_TEXTCODEC
     QTextCodec *codec;
     QTextEncoder *encoder;
+#endif
 
     NamespaceDeclaration &findNamespace(const QString &namespaceUri, bool writeDeclaration = false, bool noDefault = false);
     void writeNamespaceDeclaration(const NamespaceDeclaration &namespaceDeclaration);
@@ -2473,9 +2501,11 @@ QXmlStreamWriterPrivate::QXmlStreamWriterPrivate(QXmlStreamWriter *q)
     stringDevice = 0;
     deleteDevice = false;
     initTagStack();
+#ifndef QT_NO_TEXTCODEC
     codec = QTextCodec::codecForMib(106); // utf8
     encoder = codec->makeEncoder();
     encoder->fromUnicode(QLatin1String("")); // no byte order mark for utf8
+#endif
     inStartElement = inEmptyElement = false;
     wroteSomething = false;
     lastWasStartElement = false;
@@ -2486,8 +2516,13 @@ QXmlStreamWriterPrivate::QXmlStreamWriterPrivate(QXmlStreamWriter *q)
 
 void QXmlStreamWriterPrivate::write(const QStringRef &s)
 {
-    if (device)
+    if (device) {
+#ifdef QT_NO_TEXTCODEC
+        device->write(s.toString().toLatin1(), s.size());
+#else
         device->write(encoder->fromUnicode(s.constData(), s.size()));
+#endif
+    }
     else if (stringDevice)
         s.appendTo(stringDevice);
     else
@@ -2496,8 +2531,13 @@ void QXmlStreamWriterPrivate::write(const QStringRef &s)
 
 void QXmlStreamWriterPrivate::write(const QString &s)
 {
-    if (device)
+    if (device) {
+#ifdef QT_NO_TEXTCODEC
+        device->write(s.toLatin1(), s.size());
+#else
         device->write(encoder->fromUnicode(s));
+#endif
+    }
     else if (stringDevice)
         stringDevice->append(s);
     else
@@ -2531,8 +2571,13 @@ void QXmlStreamWriterPrivate::writeEscaped(const QString &s, bool escapeWhitespa
             escaped.inline_append(c);
         }
     }
-    if (device)
+    if (device) {
+#ifdef QT_NO_TEXTCODEC
+        device->write(escaped.toLatin1(), escaped.size());
+#else
         device->write(encoder->fromUnicode(escaped));
+#endif
+    }
     else if (stringDevice)
         stringDevice->append(escaped);
     else
@@ -2543,9 +2588,11 @@ void QXmlStreamWriterPrivate::writeEscaped(const QString &s, bool escapeWhitespa
 void QXmlStreamWriterPrivate::write(const char *s)
 {
     if (device) {
+#ifndef QT_NO_TEXTCODEC
         if (codec->mibEnum() != 106)
             device->write(encoder->fromUnicode(QLatin1String(s)));
         else
+#endif
             device->write(s, strlen(s));
     } else if (stringDevice) {
         stringDevice->append(QLatin1String(s));
@@ -2704,6 +2751,7 @@ QIODevice *QXmlStreamWriter::device() const
 }
 
 
+#ifndef QT_NO_TEXTCODEC
 /*!
     Sets the codec for this stream to \a codec. The codec is used for
     encoding any data that is written. By default, QXmlStreamWriter
@@ -2744,7 +2792,7 @@ QTextCodec *QXmlStreamWriter::codec() const
     Q_D(const QXmlStreamWriter);
     return d->codec;
 }
-
+#endif // QT_NO_TEXTCODEC
 
 /*!
     \property  QXmlStreamWriter::autoFormatting
@@ -3147,7 +3195,11 @@ void QXmlStreamWriter::writeStartDocument(const QString &version)
     d->write(version);
     if (d->device) { // stringDevice does not get any encoding
         d->write("\" encoding=\"");
+#ifdef QT_NO_TEXTCODEC
+        d->write("iso-8859-1");
+#else
         d->write(d->codec->name().constData());
+#endif
     }
     d->write("\"?>");
 }
