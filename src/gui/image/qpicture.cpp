@@ -496,6 +496,8 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
     worldMatrix.scale(qreal(painter->device()->logicalDpiX()) / qreal(qt_defaultDpiX()),
                       qreal(painter->device()->logicalDpiY()) / qreal(qt_defaultDpiY()));
     painter->setTransform(worldMatrix);
+    painter->setClipRegion(QRegion());
+    painter->setClipPath(QPainterPath());
 
     while (nrecords-- && !s.atEnd()) {
         s >> c;                 // read cmd
@@ -831,7 +833,11 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
             break;
         case QPicturePrivate::PdcSetClipRegion:
             s >> rgn >> i_8;
-            painter->setClipRegion(rgn);
+            if (d->formatMajor >= 9) {
+                painter->setClipRegion(rgn, Qt::ClipOperation(i_8));
+            } else {
+                painter->setClipRegion(rgn);
+            }
             break;
         case QPicturePrivate::PdcSetClipPath:
             {

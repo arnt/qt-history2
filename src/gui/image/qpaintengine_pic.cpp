@@ -246,14 +246,9 @@ void QPicturePaintEngine::updateClipRegion(const QRegion &region, Qt::ClipOperat
     qDebug() << " -> updateClipRegion(): op:" << op
              << "bounding rect:" << region.boundingRect();
 #endif
-    Q_UNUSED(op);
     int pos;
     SERIALIZE_CMD(QPicturePrivate::PdcSetClipRegion);
-    d->s << region << qint8(0);
-    writeCmdLength(pos, QRectF(), false);
-
-    SERIALIZE_CMD(QPicturePrivate::PdcSetClip);
-    d->s << (qint8) !region.isEmpty();
+    d->s << region << qint8(op);
     writeCmdLength(pos, QRectF(), false);
 }
 
@@ -264,11 +259,10 @@ void QPicturePaintEngine::updateClipPath(const QPainterPath &path, Qt::ClipOpera
     qDebug() << " -> updateClipPath(): op:" << op
              << "bounding rect:" << path.boundingRect();
 #endif
-    Q_UNUSED(op);
     int pos;
 
     SERIALIZE_CMD(QPicturePrivate::PdcSetClipPath);
-    d->s << path << (qint8) op;
+    d->s << path << qint8(op);
     writeCmdLength(pos, QRectF(), false);
 }
 
@@ -438,11 +432,11 @@ void QPicturePaintEngine::updateState(const QPaintEngineState &state)
     if (flags & DirtyFont) updateFont(state.font());
     if (flags & DirtyBackground) updateBackground(state.backgroundMode(), state.backgroundBrush());
     if (flags & DirtyTransform) updateMatrix(state.transform());
+    if (flags & DirtyClipEnabled) updateClipEnabled(state.isClipEnabled());
     if (flags & DirtyClipRegion) updateClipRegion(state.clipRegion(), state.clipOperation());
     if (flags & DirtyClipPath) updateClipPath(state.clipPath(), state.clipOperation());
     if (flags & DirtyHints) updateRenderHints(state.renderHints());
     if (flags & DirtyCompositionMode) updateCompositionMode(state.compositionMode());
-    if (flags & DirtyClipEnabled) updateClipEnabled(state.isClipEnabled());
     if (flags & DirtyOpacity) updateOpacity(state.opacity());
 }
 
