@@ -492,12 +492,13 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
     QMatrix     wmatrix;
     QTransform  matrix;
 
+    painter->save();
     QTransform worldMatrix = painter->transform();
     worldMatrix.scale(qreal(painter->device()->logicalDpiX()) / qreal(qt_defaultDpiX()),
                       qreal(painter->device()->logicalDpiY()) / qreal(qt_defaultDpiY()));
     painter->setTransform(worldMatrix);
-    painter->setClipRegion(QRegion());
-    painter->setClipPath(QPainterPath());
+    painter->setClipRegion(QRegion(), Qt::NoClip);
+    painter->setClipPath(QPainterPath(), Qt::NoClip);
 
     while (nrecords-- && !s.atEnd()) {
         s >> c;                 // read cmd
@@ -728,12 +729,16 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
             break;
         case QPicturePrivate::PdcBegin:
             s >> ul;                        // number of records
-            if (!exec(painter, s, ul))
+            if (!exec(painter, s, ul)) {
+                painter->restore();
                 return false;
+            }
             break;
         case QPicturePrivate::PdcEnd:
-            if (nrecords == 0)
+            if (nrecords == 0) {
+                painter->restore();
                 return true;
+            }
             break;
         case QPicturePrivate::PdcSave:
             painter->save();
@@ -875,6 +880,7 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
         Q_ASSERT(qint32(s.device()->pos() - strm_pos) == len);
 #endif
     }
+    painter->restore();
     return false;
 }
 
