@@ -58,6 +58,8 @@ bool QSystemTrayIconSys::sysTrayTracker(void *message, long *result)
             if (sysTrayWindow == None) {
 	        QBalloonTip::hideBalloon();
                 trayIcons[i]->hide(); // still no luck
+                trayIcons[i]->destroy();
+                trayIcons[i]->create();
 	    } else
                 trayIcons[i]->addToTray(); // add it to the new tray
         }
@@ -94,8 +96,10 @@ QSystemTrayIconSys::QSystemTrayIconSys(QSystemTrayIcon *q)
 	Window root = QX11Info::appRootWindow();
         XWindowAttributes attr;
         XGetWindowAttributes(display, root, &attr);
-        if ((attr.your_event_mask & StructureNotifyMask) != StructureNotifyMask)
+        if ((attr.your_event_mask & StructureNotifyMask) != StructureNotifyMask) {
+            (void) QApplication::desktop(); // lame trick to ensure our event mask is not overriden
             XSelectInput(display, root, attr.your_event_mask | StructureNotifyMask); // for MANAGER selection
+        }
     }
     if (trayIcons.isEmpty()) {
         sysTrayWindow = locateSystemTray();
