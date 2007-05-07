@@ -153,10 +153,12 @@ bool QSqlCachedResult::fetch(int i)
     }
     if (d->rowCacheEnd > 0)
         setAt(d->cacheCount());
-    while (at() < i) {
+    while (at() < i + 1) {
         if (!cacheNext())
             return false;
     }
+    setAt(i);
+
     return true;
 }
 

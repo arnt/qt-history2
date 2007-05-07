@@ -131,6 +131,8 @@ private slots:
     void queryOnInvalidDatabase();
     void createQueryOnClosedDatabase_data() { generic_data(); }
     void createQueryOnClosedDatabase();
+    void seekForwardOnlyQuery_data() { generic_data(); }
+    void seekForwardOnlyQuery();
 
 private:
     // returns all database connections
@@ -1123,23 +1125,70 @@ void tst_QSqlQuery::seek()
     CHECK_DATABASE(db);
     QSqlQuery q(QString::null, db);
     QVERIFY(q.at() == QSql::BeforeFirstRow);
-    QVERIFY2(q.exec("select * from " + qTableName("qtest")),
+    QVERIFY2(q.exec(QString("select id from %1 order by id").arg(qTableName("qtest"))),
 	     tst_Databases::printError(q.lastError()));
+
     // NB! The order of the calls below are important!
     QVERIFY(q.last());
     QVERIFY(!q.seek(QSql::BeforeFirstRow));
     QCOMPARE(q.at(), int(QSql::BeforeFirstRow));
     QVERIFY(q.seek(0));
     QCOMPARE(q.at(), 0);
+    QCOMPARE(q.value(0).toInt(), 0);
 
     QVERIFY(q.seek(1));
     QCOMPARE(q.at(), 1);
+    QCOMPARE(q.value(0).toInt(), 1);
+
     QVERIFY(q.seek(3));
     QCOMPARE(q.at(), 3);
+    QCOMPARE(q.value(0).toInt(), 3);
+
     QVERIFY(q.seek(-2, TRUE));
     QCOMPARE(q.at(), 1);
     QVERIFY(q.seek(0));
     QCOMPARE(q.at(), 0);
+    QCOMPARE(q.value(0).toInt(), 0);
+}
+
+void tst_QSqlQuery::seekForwardOnlyQuery()
+{
+    QFETCH(QString, dbName);
+    QSqlDatabase db = QSqlDatabase::database(dbName);
+    CHECK_DATABASE(db);
+
+    QSqlQuery q(QString::null, db);
+    q.setForwardOnly(FALSE);
+    QVERIFY(!q.isForwardOnly());
+
+    QVERIFY(q.at() == QSql::BeforeFirstRow);
+    QVERIFY2(q.exec(QString("select id from %1 order by id").arg(qTableName("qtest"))),
+	     tst_Databases::printError(q.lastError()));
+
+    QSqlRecord rec;
+
+    // NB! The order of the calls below are important!
+    QVERIFY(q.seek(0));
+    QCOMPARE(q.at(), 0);
+    rec = q.record();
+    QCOMPARE(rec.value(0).toInt(), 0);
+
+    QVERIFY(q.seek(1));
+    QCOMPARE(q.at(), 1);
+    rec = q.record();
+    QCOMPARE(rec.value(0).toInt(), 1);
+
+    // Make a jump!
+    QVERIFY(q.seek(3));
+    QCOMPARE(q.at(), 3);
+    rec = q.record();
+    QCOMPARE(rec.value(0).toInt(), 3);
+
+    // Last record in result set
+    QVERIFY(q.seek(4));
+    QCOMPARE(q.at(), 4);
+    rec = q.record();
+    QCOMPARE(rec.value(0).toInt(), 4);
 }
 
 // tests the forward only mode;
