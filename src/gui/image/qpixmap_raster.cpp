@@ -691,12 +691,16 @@ QDataStream &operator<<(QDataStream &s, const QPixmap &pixmap)
 
 QDataStream &operator>>(QDataStream &s, QPixmap &pixmap)
 {
-    QImage img;
-    s >> img;
-    if (pixmap.data->type == QPixmap::BitmapType)
-        pixmap = QBitmap::fromImage(img);
-    else
-        pixmap = QPixmap::fromImage(img);
+    QImage image;
+    s >> image;
+
+    if (image.isNull()) {
+        pixmap = QPixmap();
+    } else if (image.depth() == 1) {
+        pixmap = QBitmap::fromImage(image);
+    } else {
+        pixmap = QPixmap::fromImage(image);
+    }
     return s;
 }
 #endif // QT_NO_DATASTREAM

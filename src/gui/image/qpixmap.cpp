@@ -996,10 +996,9 @@ QDataStream &operator>>(QDataStream &stream, QPixmap &pixmap)
     QImage image;
     stream >> image;
 
-    QPixmap::Type type = pixmap.data->type;
     if (image.isNull()) {
-        pixmap = QPixmap(QSize(0, 0), type);
-    } else if (pixmap.data->type == QPixmap::BitmapType) {
+        pixmap = QPixmap();
+    } else if (image.depth() == 1) {
         pixmap = QBitmap::fromImage(image);
     } else {
         pixmap = QPixmap::fromImage(image);

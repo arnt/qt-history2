@@ -279,7 +279,7 @@ void QAlphaPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRe
     QRectF tr = d->m_transform.mapRect(r);
     if (d->m_pass == 0) {
         d->m_continueCall = false;
-        if (pm.hasAlpha() || d->m_alphaOpacity || d->m_complexTransform) {
+        if (pm.hasAlpha() || d->m_alphaOpacity || d->m_complexTransform || pm.isQBitmap()) {
             d->addAlphaRect(tr);
         }
 
@@ -319,7 +319,7 @@ void QAlphaPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, 
 
     if (d->m_pass == 0) {
         d->m_continueCall = false;
-        if (pixmap.hasAlpha() || d->m_alphaOpacity || d->m_complexTransform) {
+        if (pixmap.hasAlpha() || d->m_alphaOpacity || d->m_complexTransform || pixmap.isQBitmap()) {
             d->addAlphaRect(brect);
         }
         if (d->m_picengine)
