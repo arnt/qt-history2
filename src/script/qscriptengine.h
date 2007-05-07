@@ -333,6 +333,8 @@ int qScriptRegisterSequenceMetaType(
                                       qScriptValueToSequence, prototype);
 }
 
+Q_DECLARE_OPERATORS_FOR_FLAGS(QScriptEngine::QObjectWrapOptions)
+
 QT_END_HEADER
 
 #endif // QSCRIPTENGINE_H
