@@ -3784,7 +3784,7 @@ void tst_QAccessibility::treeWidgetTest()
     QAccessibleInterface *accViewport = 0;
     int entry = acc->navigate(QAccessible::Child, 1, &accViewport);
     QVERIFY(accViewport);
-    QEXPECT_FAIL("", "QAccessibleAbstractScrollArea::navigate must be fixed", Continue);
+    //QEXPECT_FAIL("", "QAccessibleAbstractScrollArea::navigate must be fixed", Continue);
     QCOMPARE(entry, 0);
     QAccessibleInterface *accTreeItem = 0;
     entry = accViewport->navigate(QAccessible::Child, 1, &accTreeItem);
