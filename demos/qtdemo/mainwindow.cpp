@@ -261,7 +261,7 @@ void MainWindow::checkAdapt()
             if (this->fpsLabel)
                this->fpsLabel->setText(QString("FPS: (") + QString::number(this->fpsMedian) + QString(")"));       
             if (Colors::verbose)
-               qDebug() << "- benchmark adaption: removed ticker (fps < 40)";
+               qDebug() << "- benchmark adaption: removed ticker (fps < 30)";
         }
 
         if (this->fpsMedian < 20){
