@@ -853,15 +853,13 @@ void QMacStylePrivate::initComboboxBdi(const QStyleOptionComboBox *combo, HIThem
         // an extra check here before using the mini and small buttons.
         int h = combo->rect.size().height();
         if (combo->editable){
-            int h = combo->rect.size().height();
             if (h < 25)
                 bdi->kind = kThemeComboBoxMini;
             else if (h < 28)
                 bdi->kind = kThemeComboBoxSmall;
             else
                 bdi->kind = kThemeComboBox;
-        }
-        else {
+        } else {
             // Even if we specify that we want the kThemePopupButton, Carbon
             // will use the kThemePopupButtonSmall if the size matches. So we
             // do the same size check explicit to have the size of the inner
@@ -885,52 +883,49 @@ void QMacStylePrivate::initComboboxBdi(const QStyleOptionComboBox *combo, HIThem
 HIRect QMacStylePrivate::comboboxInnerBounds(const HIRect &outerBounds, int buttonKind)
 {
     HIRect innerBounds = outerBounds;
-    if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_4) {
-        // Carbon draw parts of the view outside the rect.
-        // So make the rect a bit smaller to compensate
-        // (I wish HIThemeGetButtonBackgroundBounds worked)
-        switch (buttonKind){
-        case kThemePopupButton:
-            innerBounds.origin.x += 2;
-            innerBounds.origin.y += 3;
-            innerBounds.size.width -= 5;
-            innerBounds.size.height -= 7;
-            break;
-        case kThemePopupButtonSmall:
-            innerBounds.origin.x += 3;
-            innerBounds.origin.y += 3;
-            innerBounds.size.width -= 6;
-            innerBounds.size.height -= 7;
-            break;
-        case kThemePopupButtonMini:
-            innerBounds.origin.x += 2;
-            innerBounds.origin.y += 3;
-            innerBounds.size.width -= 5;
-            innerBounds.size.height -= 6;
-            break;
-        case kThemeComboBox:
-            innerBounds.origin.x += 3;
-            innerBounds.origin.y += 3;
-            innerBounds.size.width -= 6;
-            innerBounds.size.height -= 8;
-            break;
-        case kThemeComboBoxSmall:
-            innerBounds.origin.x += 3;
-            innerBounds.origin.y += 3;
-            innerBounds.size.width -= 7;
-            innerBounds.size.height -= 8;
-            break;
-        case kThemeComboBoxMini:
-            innerBounds.origin.x += 3;
-            innerBounds.origin.y += 3;
-            innerBounds.size.width -= 4;
-            innerBounds.size.height -= 8;
-            break;
-        default:
-            break;
-        }
+    // Carbon draw parts of the view outside the rect.
+    // So make the rect a bit smaller to compensate
+    // (I wish HIThemeGetButtonBackgroundBounds worked)
+    switch (buttonKind){
+    case kThemePopupButton:
+        innerBounds.origin.x += 2;
+        innerBounds.origin.y += 3;
+        innerBounds.size.width -= 5;
+        innerBounds.size.height -= 7;
+        break;
+    case kThemePopupButtonSmall:
+        innerBounds.origin.x += 3;
+        innerBounds.origin.y += 3;
+        innerBounds.size.width -= 6;
+        innerBounds.size.height -= 7;
+        break;
+    case kThemePopupButtonMini:
+        innerBounds.origin.x += 2;
+        innerBounds.origin.y += 3;
+        innerBounds.size.width -= 5;
+        innerBounds.size.height -= 6;
+        break;
+    case kThemeComboBox:
+        innerBounds.origin.x += 3;
+        innerBounds.origin.y += 3;
+        innerBounds.size.width -= 6;
+        innerBounds.size.height -= 8;
+        break;
+    case kThemeComboBoxSmall:
+        innerBounds.origin.x += 3;
+        innerBounds.origin.y += 3;
+        innerBounds.size.width -= 7;
+        innerBounds.size.height -= 8;
+        break;
+    case kThemeComboBoxMini:
+        innerBounds.origin.x += 3;
+        innerBounds.origin.y += 3;
+        innerBounds.size.width -= 4;
+        innerBounds.size.height -= 8;
+        break;
+    default:
+        break;
     }
-
     return innerBounds;
 }
 
@@ -954,13 +949,13 @@ QRect QMacStylePrivate::comboboxEditBounds(const QRect &outerBounds, const HIThe
         ret.setHeight(13);
         break;
     case kThemePopupButton:
-        ret.adjust(6, 4, -23, -3);
+        ret.adjust(10, 3, -23, -3);
         break;
     case kThemePopupButtonSmall:
-        ret.adjust(6, 4, -20, -3);
+        ret.adjust(6, 3, -20, -3);
         break;
     case kThemePopupButtonMini:
-        ret.adjust(6, 4, -19, 0);
+        ret.adjust(6, 3, -19, 0);
         ret.setHeight(13);
         break;
     }
@@ -978,8 +973,7 @@ void QMacStylePrivate::drawCombobox(const HIRect &outerBounds, const HIThemeButt
         // We have an unscaled combobox, or popup-button; use Carbon directly.
         HIRect innerBounds = QMacStylePrivate::comboboxInnerBounds(outerBounds, bdi.kind);
         HIThemeDrawButton(&innerBounds, &bdi, QMacCGContext(p), kHIThemeOrientationNormal, 0);
-    }
-    else {
+    } else {
         QPixmap buffer;
         QString key = QString("$qt_cbox%1-%2").arg(int(bdi.state)).arg(int(bdi.adornment));
         if (!QPixmapCache::find(key, buffer)) {
@@ -4892,7 +4886,7 @@ QRect QMacStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *op
                 if (combo->editable) {
                     HIRect inner = QMacStylePrivate::comboboxInnerBounds(qt_hirectForQRect(combo->rect), bdi.kind);
                     QRect editRect = QMacStylePrivate::comboboxEditBounds(combo->rect, bdi);
-                    ret.adjust(inner.origin.x, 0, inner.origin.x + inner.size.width, editRect.y() + editRect.height() + 2);
+                    ret.adjust(qRound(inner.origin.x), 0, qRound(inner.origin.x + inner.size.width), editRect.y() + editRect.height() + 2);
                 } else {
                     QRect editRect = QMacStylePrivate::comboboxEditBounds(combo->rect, bdi);
                     ret.adjust(4, 0, editRect.width() + 10, 0);
@@ -5254,8 +5248,8 @@ QSize QMacStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
         }
         HIRect tmpRect = {{0, 0}, {0, 0}};
         HIRect diffRect = QMacStylePrivate::comboboxInnerBounds(tmpRect, bkind);
-        sz.rwidth() -= diffRect.size.width;
-        sz.rheight() -= diffRect.size.height;
+        sz.rwidth() -= qRound(diffRect.size.width);
+        sz.rheight() -= qRound(diffRect.size.height);
     } else if (ct == CT_PushButton || ct == CT_ToolButton){           
         ThemeButtonKind bkind;
         QAquaWidgetSize widgetSize = qt_aqua_size_constrain(widget);          
