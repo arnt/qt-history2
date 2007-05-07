@@ -109,6 +109,7 @@ void tst_QFileSystemModel::cleanup()
 
 void tst_QFileSystemModel::indexPath()
 {
+#ifndef Q_OS_WIN
     int depth = QDir::currentPath().count('/');
     model->setRootPath(QDir::currentPath());
     QTest::qWait(WAITTIME);
@@ -120,6 +121,7 @@ void tst_QFileSystemModel::indexPath()
     }
     QTest::qWait(WAITTIME * 3);
     qApp->processEvents();
+#endif
 }
 
 void tst_QFileSystemModel::rootPath()
