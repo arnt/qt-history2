@@ -1753,6 +1753,8 @@ void QX11PaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, co
     Q_D(QX11PaintEngine);
 #ifndef QT_NO_XRENDER
     if (X11->use_xrender && d->picture && pixmap.x11PictureHandle()) {
+#if 0
+        // ### enable this in Qt 5
         XRenderPictureAttributes attrs;
         attrs.repeat = true;
         XRenderChangePicture(d->dpy, pixmap.x11PictureHandle(), CPRepeat, &attrs);
@@ -1765,6 +1767,87 @@ void QX11PaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, co
                              pixmap.x11PictureHandle(), XNone, d->picture,
                              sx, sy, 0, 0, x, y, w, h);
         }
+#else
+        const int numTiles = (w / pixmap.width()) * (h / pixmap.height());
+        if (numTiles < 100) {
+            // this is essentially qt_draw_tile(), inlined for
+            // the XRenderComposite call
+            int yPos, xPos, drawH, drawW, yOff, xOff;
+            yPos = y;
+            yOff = sy;
+            while(yPos < y + h) {
+                drawH = pixmap.height() - yOff;    // Cropping first row
+                if (yPos + drawH > y + h)        // Cropping last row
+                    drawH = y + h - yPos;
+                xPos = x;
+                xOff = sx;
+                while(xPos < x + w) {
+                    drawW = pixmap.width() - xOff; // Cropping first column
+                    if (xPos + drawW > x + w)    // Cropping last column
+                        drawW = x + w - xPos;
+                    if (pixmap.depth() == 1) {
+                        qt_render_bitmap(d->dpy, d->scrn, pixmap.x11PictureHandle(), d->picture,
+                                         xOff, yOff, xPos, yPos, drawW, drawH, d->cpen);
+                    } else {
+                        XRenderComposite(d->dpy, d->composition_mode,
+                                         pixmap.x11PictureHandle(), XNone, d->picture,
+                                         xOff, yOff, 0, 0, xPos, yPos, drawW, drawH);
+                    }
+                    xPos += drawW;
+                    xOff = 0;
+                }
+                yPos += drawH;
+                yOff = 0;
+            }
+        } else {
+            w = qMin(w, d->pdev->width() - x);
+            h = qMin(h, d->pdev->height() - y);
+
+            const int pw = w + sx;
+            const int ph = h + sy;
+            QPixmap pm(pw, ph);
+            pm.fill(pixmap.hasAlpha() ? Qt::transparent : Qt::black);
+
+            const int mode = pixmap.hasAlpha() ? PictOpOver : PictOpSrc;
+            const ::Picture pmPicture = pm.x11PictureHandle();
+
+            // first tile
+            XRenderComposite(d->dpy, mode,
+                             pixmap.x11PictureHandle(), XNone, pmPicture,
+                             0, 0, 0, 0, 0, 0, qMin(pw, pixmap.width()), qMin(ph, pixmap.height()));
+
+            // first row of tiles
+            int xPos = pixmap.width();
+            const int sh = qMin(ph, pixmap.height());
+            while (xPos < pw) {
+                const int sw = qMin(xPos, pw - xPos);
+                XRenderComposite(d->dpy, mode,
+                                 pmPicture, XNone, pmPicture,
+                                 0, 0, 0, 0, xPos, 0, sw, sh);
+                xPos *= 2;
+            }
+
+            // remaining rows
+            int yPos = pixmap.height();
+            const int sw = pw;
+            while (yPos < ph) {
+                const int sh = qMin(yPos, ph - yPos);
+                XRenderComposite(d->dpy, mode,
+                                 pmPicture, XNone, pmPicture,
+                                 0, 0, 0, 0, 0, yPos, sw, sh);
+                yPos *= 2;
+            }
+
+            // composite
+            if (pixmap.depth() == 1)
+                qt_render_bitmap(d->dpy, d->scrn, pmPicture, d->picture,
+                                 sx, sy, x, y, w, h, d->cpen);
+            else
+                XRenderComposite(d->dpy, d->composition_mode,
+                                 pmPicture, XNone, d->picture,
+                                 sx, sy, 0, 0, x, y, w, h);
+        }
+#endif
     } else
 #endif // !QT_NO_XRENDER
         if (pixmap.depth() > 1 && !pixmap.data->x11_mask) {
