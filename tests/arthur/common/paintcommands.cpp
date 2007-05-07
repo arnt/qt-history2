@@ -603,6 +603,13 @@ void PaintCommands::runCommand(const QString &scriptLine)
 void PaintCommands::runCommands()
 {
     staticInit();
+    int width = m_painter->window().width();
+    int height = m_painter->window().height();
+
+    if (width <= 0)
+        width = 800;
+    if (height <= 0)
+        height = 800;
 
     // paint background
     if (m_checkers_background) {
@@ -612,9 +619,9 @@ void PaintCommands::runCommands()
         pt.fillRect(0, 0, 10, 10, QColor::fromRgba(0xffdfdfdf));
         pt.fillRect(10, 10, 10, 10, QColor::fromRgba(0xffdfdfdf));
 
-        m_painter->drawTiledPixmap(0, 0, m_painter->window().width(), m_painter->window().height(), pm);
+        m_painter->drawTiledPixmap(0, 0, width, height, pm);
     } else {
-        m_painter->fillRect(0,0,m_painter->window().width(), m_painter->window().height(), Qt::white);
+        m_painter->fillRect(0, 0, width, height, Qt::white);
     }
 
     // run each command
