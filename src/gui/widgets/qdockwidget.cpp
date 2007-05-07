@@ -978,7 +978,7 @@ void QDockWidgetPrivate::setWindowState(bool floating, bool unplug, const QRect 
                                 window.
     \value DockWidgetVerticalTitleBar The dock widget displays a vertical title
                                   bar on its left side. This can be used to
-                                  increase the ammount of vertical space in
+                                  increase the amount of vertical space in
                                   a QMainWindow.
     \value AllDockWidgetFeatures  (Deprecated) The dock widget can be closed, moved,
                                   and floated. Since new features might be added in future
