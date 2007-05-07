@@ -952,10 +952,10 @@ QRect QMacStylePrivate::comboboxEditBounds(const QRect &outerBounds, const HIThe
         ret.adjust(10, 3, -23, -3);
         break;
     case kThemePopupButtonSmall:
-        ret.adjust(6, 3, -20, -3);
+        ret.adjust(9, 3, -20, -3);
         break;
     case kThemePopupButtonMini:
-        ret.adjust(6, 3, -19, 0);
+        ret.adjust(8, 3, -19, 0);
         ret.setHeight(13);
         break;
     }
