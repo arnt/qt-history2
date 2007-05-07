@@ -273,7 +273,7 @@ void QDesignerTaskMenu::changeObjectName()
     QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(core->extensionManager(), widget());
     Q_ASSERT(sheet != 0);
 
-    ObjectNameDialog dialog(widget(), sheet->property(sheet->indexOf(QLatin1String("objectName"))).toString());
+    ObjectNameDialog dialog(fw, sheet->property(sheet->indexOf(QLatin1String("objectName"))).toString());
     if (dialog.exec() == QDialog::Accepted) {
         const QString newObjectName = dialog.newObjectName();
         if (!newObjectName.isEmpty())

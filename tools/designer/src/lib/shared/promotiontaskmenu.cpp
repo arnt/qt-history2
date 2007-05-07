@@ -214,9 +214,9 @@ void PromotionTaskMenu::slotEditPromoteTo()
     QString promoteToClassName;
     QDialog *promotionEditor = 0;
     if (QDesignerLanguageExtension *lang = qt_extension<QDesignerLanguageExtension*>(core->extensionManager(), core))
-        promotionEditor = lang->createPromotionDialog(core, base_class_name, &promoteToClassName, m_widget);
+        promotionEditor = lang->createPromotionDialog(core, base_class_name, &promoteToClassName, fw);
     if (!promotionEditor)
-        promotionEditor = new QDesignerPromotionDialog(core, m_widget, base_class_name, &promoteToClassName);
+        promotionEditor = new QDesignerPromotionDialog(core, fw, base_class_name, &promoteToClassName);
     if (promotionEditor->exec() == QDialog::Accepted && !promoteToClassName.isEmpty()) {
         promoteTo(fw, promoteToClassName);
     }
@@ -229,7 +229,7 @@ void PromotionTaskMenu::slotEditPromotedWidgets()
     QDesignerFormWindowInterface *fw = formWindow();
     if (!fw)
         return;
-    editPromotedWidgets(fw->core(), m_widget);
+    editPromotedWidgets(fw->core(), fw);
 }
 
 PromotionTaskMenu::PromotionSelectionList PromotionTaskMenu::promotionSelectionList(QDesignerFormWindowInterface *formWindow) const
