@@ -411,7 +411,10 @@ void QMacPrintEnginePrivate::initialize()
 
 
 #ifndef Q_OS_MAC64
-    if (QSysInfo::MacintoshVersion < QSysInfo::MV_10_4) {
+# if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
+    if (QSysInfo::MacintoshVersion < QSysInfo::MV_10_4)
+# endif
+    {
         if(paintEngine->type() == QPaintEngine::CoreGraphics) {
             CFStringRef strings[1] = { kPMGraphicsContextCoreGraphics };
             QCFType<CFArrayRef> contextArray = CFArrayCreate(kCFAllocatorDefault,
