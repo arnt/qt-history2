@@ -3847,50 +3847,10 @@ QRect QMacStyle::subElementRect(SubElement sr, const QStyleOption *opt,
         }
         break;
     case SE_HeaderLabel:
-        if (const QStyleOptionHeader *header = qstyleoption_cast<const QStyleOptionHeader *>(opt)) {
-            HIRect inRect = CGRectMake(opt->rect.x(), opt->rect.y(),
-                                       opt->rect.width(), opt->rect.height());
-            HIRect outRect;
-            HIThemeButtonDrawInfo bdi;
-            bdi.version = qt_mac_hitheme_version;
-            bdi.state = kThemeStateActive;
-            bdi.value = kThemeButtonOff;
-            int margin = pixelMetric(QStyle::PM_HeaderMargin, opt, widget);
-            int xpos = opt->rect.x() + margin;
-            int width = opt->rect.width() - 10;
-            if (!isTreeView(widget)) {
-                // Our code below doesn't handle vertical headers that well, so just
-                // get the value from the Windows style.
-                if (!(header->state & QStyle::State_Horizontal)) {
-                    rect = QWindowsStyle::subElementRect(sr, opt, widget);
-                    break; // (from the switch)
-                }
-                bdi.kind = kThemeBevelButton;
-            } else {
-                bdi.kind = kThemeListHeaderButton;
-                // We have to adjust when we're not drawing the arrow ourself (in reverse mode).
-                // E.g. with the dirview example:
-                // tree.setSortingEnabled(true):
-                // tree.header()->setClickable(true);
-                if (opt->direction == Qt::RightToLeft) {
-                    xpos = opt->rect.x() + 15;
-                    width = opt->rect.width() - 20;
-                }
-            }
-
-            bdi.adornment = kThemeAdornmentNone;
-            HIThemeGetButtonContentBounds(&inRect, &bdi, &outRect);
-
-            int height = int(qMin(qAbs(opt->rect.height() - 2 * outRect.origin.y), outRect.size.height));
-            if (header->sortIndicator != QStyleOptionHeader::None) {
-                if (header->state & State_Horizontal)
-                    width = opt->rect.width() - 22 - 2 * margin;
-                else
-                    height -= 3 * margin;
-            }
-
-            rect.setRect(xpos, int(outRect.origin.y - 1), width, height);
-            rect = visualRect(opt->direction, opt->rect, rect);
+        if (qstyleoption_cast<const QStyleOptionHeader *>(opt)) {            
+            rect = QWindowsStyle::subElementRect(sr, opt, widget);
+            if (opt->direction == Qt::RightToLeft)
+                rect.adjust(15, 0, -20, 0);
         }
         break;
     case SE_ProgressBarGroove:
