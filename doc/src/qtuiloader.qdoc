@@ -1,31 +1,42 @@
 /*!
-  \module QtUiTools
-  \since 4.1
-  \title QtUiTools Module
-  \contentspage Qt's Modules
-  \previouspage QtDesigner
-  \nextpage QtAssistant
-  \ingroup modules
+    \module QtUiTools
+    \since 4.1
+    \title QtUiTools Module
+    \contentspage Qt's Modules
+    \previouspage QtDesigner
+    \nextpage QtAssistant
+    \ingroup modules
 
-  \brief The QtUiTools module provides classes to handle forms created with Qt Designer.
+    \brief The QtUiTools module provides classes to handle forms created 
+    with Qt Designer.
 
-  \tableofcontents
+    These forms are processed at run-time to produce dynamically-generated
+    user interfaces. In order to generate a form at run-time, a resource
+    file containing a \c{.ui} file is needed. Applications that use the
+    form handling classes need to be configured to be built against the
+    QtUiTools module. This is done by including the following declaration
+    in a \c qmake project file to ensure that the application is compiled
+    and linked appropriately.
 
-  \section1 Configuring the Build Process
+    \code
+        CONFIG += uitools
+    \endcode
 
-  Applications that use the form handling classes need to
-  be configured to be built against the QtUiTools module.
-  The following declaration in a \c qmake project file ensures that
-  an application is compiled and linked appropriately:
+    A form loader object, provided by the QUiLoader class, is used to
+    construct the user interface. This user interface can
+    be retrieved from any QIODevice; for example, a QFile object can be
+    used to obtain a form stored in a project's resources. The
+    QUiLoader::load() function takes the user interface description
+    contained in the file and constructs the form widget.
 
-  \code
-      CONFIG += uitools
-  \endcode
+    To include the definitions of the module's classes, use the following
+    directive:
 
-  To include the definitions of the module's classes, use the
-  following directive:
+    \code
+        #include <QtUiTools>
+    \endcode
 
-  \code
-      #include <QtUiTools>
-  \endcode
-*/
+    \sa{Calculator Builder Example}, {World Time Clock Builder Example}
+    
+    */
+
