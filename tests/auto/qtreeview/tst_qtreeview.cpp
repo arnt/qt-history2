@@ -154,6 +154,8 @@ private slots:
     void selection();
     void removeAndInsertExpandedCol0();
     void selectionWithHiddenItems();
+
+    void proxyRowsRemoved();
 };
 
 class QtTestModel: public QAbstractItemModel
@@ -2183,6 +2185,19 @@ void tst_QTreeView::removeAndInsertExpandedCol0()
 
     view.show();
     qApp->processEvents();
+}
+
+// Task 160990
+void tst_QTreeView::proxyRowsRemoved()
+{   
+    QDirModel model;
+    QSortFilterProxyModel proxy;
+    proxy.setSourceModel(&model);
+    QTreeView view;
+    view.setModel(&proxy);
+    view.setRootIndex(proxy.mapFromSource(model.index(QDir::homePath())));
+    view.doItemsLayout();
+    proxy.setFilterRegExp(QRegExp("foo"));
 }
 
 QTEST_MAIN(tst_QTreeView)
