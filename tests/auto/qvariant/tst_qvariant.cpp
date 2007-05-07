@@ -2151,6 +2151,7 @@ void tst_QVariant::invalidAsByteArray()
 void tst_QVariant::invalidQColor() const
 {
     QVariant va("An invalid QColor::name() value.");
+    QTest::ignoreMessage(QtWarningMsg, "QColor::setNamedColor: Unknown color name 'An invalid QColor::name() value.'");
     QVERIFY(va.canConvert(QVariant::Color));
 
     QVERIFY(!va.convert(QVariant::Color));
@@ -2190,7 +2191,7 @@ void tst_QVariant::convertToQUint8() const
          * It's of type QVariant::Int. */
         const QVariant v0 = anInt;
 
-        QVERIFY(v0.canConvert<qint8>());
+        QVERIFY(qVariantCanConvert<qint8>(v0));
         QCOMPARE(int(qvariant_cast<qint8>(v0)), 32);
         QCOMPARE(int(v0.toInt()), 32);
         QCOMPARE(v0.toString(), QString("32"));
@@ -2208,7 +2209,7 @@ void tst_QVariant::convertToQUint8() const
         const quint8 anInt = 32;
         const QVariant v0 = anInt;
 
-        QVERIFY(v0.canConvert<quint8>());
+        QVERIFY(qVariantCanConvert<quint8>(v0));
         QCOMPARE(int(qvariant_cast<quint8>(v0)), 32);
         QCOMPARE(int(v0.toUInt()), 32);
         QCOMPARE(v0.toString(), QString("32"));
@@ -2219,7 +2220,7 @@ void tst_QVariant::convertToQUint8() const
         const qint16 anInt = 32;
         const QVariant v0 = anInt;
 
-        QVERIFY(v0.canConvert<qint16>());
+        QVERIFY(qVariantCanConvert<qint16>(v0));
         QCOMPARE(int(qvariant_cast<qint16>(v0)), 32);
         QCOMPARE(int(v0.toInt()), 32);
         QCOMPARE(v0.toString(), QString("32"));
@@ -2230,7 +2231,7 @@ void tst_QVariant::convertToQUint8() const
         const quint16 anInt = 32;
         const QVariant v0 = anInt;
 
-        QVERIFY(v0.canConvert<quint16>());
+        QVERIFY(qVariantCanConvert<quint16>(v0));
         QCOMPARE(int(qvariant_cast<quint16>(v0)), 32);
         QCOMPARE(int(v0.toUInt()), 32);
         QCOMPARE(v0.toString(), QString("32"));
