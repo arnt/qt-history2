@@ -184,13 +184,19 @@ void QAlphaPaintEngine::updateState(const QPaintEngineState &state)
 {
     Q_D(QAlphaPaintEngine);
 
+    DirtyFlags flags = state.state();
+    if (flags & QPaintEngine::DirtyTransform) {
+        d->m_transform = state.transform();
+        d->m_complexTransform = (d->m_transform.type() > QTransform::TxScale);
+
+    }
+
     if (d->m_pass != 0) {
         d->m_continueCall = true;
         return;
     }
     d->m_continueCall = false;
 
-    DirtyFlags flags = state.state();
     if (flags & QPaintEngine::DirtyOpacity) {
         d->m_alphaOpacity = (state.opacity() != 1.0f);
     }
@@ -218,11 +224,6 @@ void QAlphaPaintEngine::updateState(const QPaintEngineState &state)
         }
     }
 
-    if (flags & QPaintEngine::DirtyTransform) {
-        d->m_transform = state.transform();
-        d->m_complexTransform = (d->m_transform.type() > QTransform::TxScale);
-
-    }
 
     d->m_hasalpha = d->m_alphaOpacity || d->m_alphaBrush || d->m_alphaPen;
 
@@ -509,6 +510,7 @@ void QAlphaPaintEnginePrivate::resetState(QPainter *p)
     p->setBackground(QBrush());
     p->setFont(QFont());
     p->setTransform(QTransform());
+    p->setClipRegion(QRegion(), Qt::NoClip);
     p->setClipPath(QPainterPath(), Qt::NoClip);
     p->setClipping(false);
     p->setOpacity(1.0f);
@@ -969,7 +971,6 @@ void QWin32PrintEngine::drawPixmap(const QRectF &targetRect,
     Q_D(QWin32PrintEngine);
 
     QAlphaPaintEngine::drawPixmap(targetRect, originalPixmap, sourceRect);
-    //if (d->m_pass == 0)
     if (!continueCall())
         return;
 
