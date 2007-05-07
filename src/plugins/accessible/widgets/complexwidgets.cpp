@@ -1608,7 +1608,7 @@ int QAccessibleAbstractScrollArea::navigate(RelationFlag relation, int entry, QA
     }
 
     *target = QAccessible::queryAccessibleInterface(targetWidget);
-    return indexOfChild(*target);
+    return *target ? 0: -1;
 }
 
 QRect QAccessibleAbstractScrollArea::rect(int child) const

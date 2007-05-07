@@ -460,7 +460,7 @@ int QAccessibleToolBox::navigate(RelationFlag relation, int entry, QAccessibleIn
     else if (relation == QAccessible::Down)
         index = entry;
     *target = QAccessible::queryAccessibleInterface(toolBox()->widget(index));
-    return *target ? index + 1: -1;
+    return *target ? 0: -1;
 }
 
 QToolBox * QAccessibleToolBox::toolBox() const
@@ -534,7 +534,7 @@ int QAccessibleMdiArea::navigate(RelationFlag relation, int entry, QAccessibleIn
         return QAccessibleWidgetEx::navigate(relation, entry, target);
     }
     *target = QAccessible::queryAccessibleInterface(targetObject);
-    return indexOfChild(*target);
+    return *target ? 0: -1;
 }
 
 QMdiArea *QAccessibleMdiArea::mdiArea() const
@@ -645,7 +645,7 @@ int QAccessibleMdiSubWindow::navigate(RelationFlag relation, int entry, QAccessi
         return QAccessibleWidgetEx::navigate(relation, entry, target);
     }
     *target = QAccessible::queryAccessibleInterface(targetObject);
-    return indexOfChild(*target);
+    return *target ? 0: -1;
 }
 
 QRect QAccessibleMdiSubWindow::rect(int child) const
@@ -755,7 +755,7 @@ int QAccessibleWorkspace::navigate(RelationFlag relation, int entry, QAccessible
         return QAccessibleWidgetEx::navigate(relation, entry, target);
     }
     *target = QAccessible::queryAccessibleInterface(targetObject);
-    return indexOfChild(*target);
+    return *target ? 0: -1;
 }
 
 QWorkspace *QAccessibleWorkspace::workspace() const
@@ -849,7 +849,7 @@ int QAccessibleCalendarWidget::navigate(RelationFlag relation, int entry, QAcces
         return QAccessibleWidgetEx::navigate(relation, entry, target);
     }
     *target = queryAccessibleInterface(targetWidget);
-    return indexOfChild(*target);
+    return *target ? 0: -1;
 }
 
 QRect QAccessibleCalendarWidget::rect(int child) const
