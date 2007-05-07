@@ -1111,16 +1111,16 @@ void QMdiSubWindowPrivate::setNormalMode()
         userMinimumSize = QSize(-1, -1);
     }
 
-    updateGeometryConstraints();
-    QRect newGeometry = oldGeometry;
-    newGeometry.setSize(restoreSize.expandedTo(internalMinimumSize));
-    q->setGeometry(newGeometry);
-
     // Show the internal widget if it was hidden by us,
     if (baseWidget && isWidgetHiddenByUs) {
         baseWidget->show();
         isWidgetHiddenByUs = false;
     }
+
+    updateGeometryConstraints();
+    QRect newGeometry = oldGeometry;
+    newGeometry.setSize(restoreSize.expandedTo(internalMinimumSize));
+    q->setGeometry(newGeometry);
 
     if (wasVisible)
         q->setVisible(true);
