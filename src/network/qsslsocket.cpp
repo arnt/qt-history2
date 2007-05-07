@@ -746,6 +746,9 @@ QList<QSslCipher> QSslSocket::ciphers() const
     which must contain a subset of the ciphers in the list returned by
     supportedCiphers().
 
+    Restricting the cipher suite must be done before the handshake
+    phase, where the session cipher is chosen.
+
     \sa ciphers(), setDefaultCiphers(), supportedCiphers()
 */
 void QSslSocket::setCiphers(const QList<QSslCipher> &ciphers)
@@ -765,7 +768,9 @@ void QSslSocket::setCiphers(const QList<QSslCipher> &ciphers)
     \endcode
 
     Each cipher name in \a ciphers must be the name of a cipher in the
-    list returned by supportedCiphers().
+    list returned by supportedCiphers().  Restricting the cipher suite
+    must be done before the handshake phase, where the session cipher
+    is chosen.
 
     \sa ciphers(), setDefaultCiphers(), supportedCiphers()
 */
@@ -788,6 +793,10 @@ void QSslSocket::setCiphers(const QString &ciphers)
     Sets the default cryptographic cipher suite for all sockets in
     this application to \a ciphers, which must contain a subset of the
     ciphers in the list returned by supportedCiphers().
+
+    Restricting the default cipher suite only affects SSL sockets
+    that perform their handshake phase after the default cipher
+    suite has been changed.
 
     \sa setCiphers(), defaultCiphers(), supportedCiphers()
 */
@@ -817,8 +826,8 @@ QList<QSslCipher> QSslSocket::defaultCiphers()
 
 /*!
     Returns the list of cryptographic ciphers supported by this
-    system. This list is set by the current SSL libraries and may vary
-    from system to system.
+    system. This list is set by the system's SSL libraries and may
+    vary from system to system.
 
     \sa defaultCiphers(), ciphers(), setCiphers()
 */
@@ -828,19 +837,22 @@ QList<QSslCipher> QSslSocket::supportedCiphers()
 }
 
 /*!
-    Adds all CA certificates in \a path using \a format encoding, which may be
-    a file, or a directory with \a syntax formatted wildcards. Returns true on
-    success; otherwise returns false.
+    Adds all CA certificates in \a path using \a format encoding,
+    which may be a file, or a directory with \a syntax formatted
+    wildcards. Returns true on success; otherwise returns false.
 
-    For more fine grained control, you can call addCaCertificate() instead.
+    For more fine grained control, you can call addCaCertificate()
+    instead.
 
     \sa addCaCertificate()
 */
-bool QSslSocket::addCaCertificates(const QString &path, QSsl::EncodingFormat format,
+bool QSslSocket::addCaCertificates(const QString &path,
+				   QSsl::EncodingFormat format,
                                    QRegExp::PatternSyntax syntax)
 {
     Q_D(QSslSocket);
-    QList<QSslCertificate> certs = QSslCertificate::fromPath(path, format, syntax);
+    QList<QSslCertificate> certs =
+	QSslCertificate::fromPath(path, format, syntax);
     if (certs.isEmpty())
         return false;
 

@@ -435,20 +435,22 @@ QByteArray QSslCertificate::toDer() const
 }
 
 /*!
-    Searches for and parses all certificates in all files in \a path using \a
-    format encoding, and returns the list of certificates. \a path can be a
-    file or a path, and it can also contain \a syntax formatted wildcards.
+    Searches all files in the \a path for all certificates encoded in
+    the \a format and returns them in a list of certificates. \a path
+    can be the path of an explicit file, or it can contain wildcards
+    in the format specified by \a syntax.
 
     \sa fromData()
 */
-QList<QSslCertificate> QSslCertificate::fromPath(const QString &path, QSsl::EncodingFormat format,
-                                                 QRegExp::PatternSyntax syntax)
+QList<QSslCertificate>
+QSslCertificate::fromPath(const QString &path,
+			  QSsl::EncodingFormat format,
+			  QRegExp::PatternSyntax syntax)
 {
-    Q_UNUSED(format);
     if (syntax == QRegExp::FixedString) {
         QFile file(path);
         if (file.open(QIODevice::ReadOnly | QIODevice::Text))
-            return QSslCertificate::fromData(file.readAll());
+            return QSslCertificate::fromData(file.readAll(),format);
         return QList<QSslCertificate>();
     }
 
@@ -462,7 +464,7 @@ QList<QSslCertificate> QSslCertificate::fromPath(const QString &path, QSsl::Enco
 
         QFile file(it.filePath());
         if (file.open(QIODevice::ReadOnly | QIODevice::Text))
-            certs += QSslCertificate::fromData(file.readAll());
+            certs += QSslCertificate::fromData(file.readAll(),format);
     }
     return certs;
 }
@@ -473,7 +475,8 @@ QList<QSslCertificate> QSslCertificate::fromPath(const QString &path, QSsl::Enco
 
     \sa fromData()
 */
-QList<QSslCertificate> QSslCertificate::fromDevice(QIODevice *device, QSsl::EncodingFormat format)
+QList<QSslCertificate>
+QSslCertificate::fromDevice(QIODevice *device, QSsl::EncodingFormat format)
 {
     return fromData(device->readAll(), format);
 }
@@ -484,15 +487,16 @@ QList<QSslCertificate> QSslCertificate::fromDevice(QIODevice *device, QSsl::Enco
 
     \sa fromDevice()
 */
-QList<QSslCertificate> QSslCertificate::fromData(
-    const QByteArray &data, QSsl::EncodingFormat format)
+QList<QSslCertificate>
+QSslCertificate::fromData(const QByteArray &data, QSsl::EncodingFormat format)
 {
     return (format == QSsl::Pem)
         ? QSslCertificatePrivate::certificatesFromPem(data)
         : QSslCertificatePrivate::certificatesFromDer(data);
 }
 
-void QSslCertificatePrivate::init(const QByteArray &data, QSsl::EncodingFormat format)
+void QSslCertificatePrivate::init(const QByteArray &data,
+				  QSsl::EncodingFormat format)
 {
     if (!data.isEmpty()) {
         QList<QSslCertificate> certs = (format == QSsl::Pem)
