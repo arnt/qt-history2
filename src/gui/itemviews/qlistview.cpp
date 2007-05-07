@@ -1163,7 +1163,7 @@ int QListView::verticalOffset() const
             if (d->flow == LeftToRight && !d->staticListView->segmentPositions.isEmpty()) {
                 int value = verticalScrollBar()->value();
                 if (value >= d->staticListView->segmentPositions.count()) {
-                    qWarning("QListView: Vertical scroll bar is out of bounds");
+                    //qWarning("QListView: Vertical scroll bar is out of bounds");
                     return 0;
                 }
                 return d->staticListView->segmentPositions.at(value);
@@ -1172,7 +1172,7 @@ int QListView::verticalOffset() const
             if (d->flow == TopToBottom && !d->staticListView->flowPositions.isEmpty()) {
                 int value = verticalScrollBar()->value();
                 if (value >= d->staticListView->flowPositions.count()) {
-                    qWarning("QListView: Vertical scroll bar is out of bounds");
+                    //qWarning("QListView: Vertical scroll bar is out of bounds");
                     return 0;
                 }
                 return d->staticListView->flowPositions.at(value) - d->spacing();
