@@ -399,8 +399,10 @@ void tst_QFiledialog::selectFiles()
     QVERIFY(listView);
     for (int i = 0; i < list.count(); ++i) {
         fd.selectFile(fd.directory().path() + "/" + list.at(i));
-        toSelect.append(listView->currentIndex());
+        toSelect.append(listView->selectionModel()->selectedRows().last());
     }
+
+    listView->selectionModel()->clear();
 
     // select the indexes
     for (int i = 0; i < toSelect.count(); ++i) {
