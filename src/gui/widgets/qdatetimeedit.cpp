@@ -897,7 +897,7 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *event)
     switch (event->key()) {
 #ifdef QT_KEYPAD_NAVIGATION
     case Qt::Key_NumberSign:    //shortcut to popup calendar
-        if (QApplication::keypadNavigationEnabled() && d->calendarPopup) {
+        if (QApplication::keypadNavigationEnabled() && d->showCalendarPopup()) {
             d->initCalendarPopup();
             d->positionCalendarPopup();
             d->monthCalendar->show();
@@ -986,7 +986,7 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *event)
                 newSection = forward ? 0 : d->sectionNodes.size() - 1;
                 d->focusOnButton = false;
                 update();
-            } else if (newSection < 0 && select && d->calendarPopup) {
+            } else if (newSection < 0 && select && d->showCalendarPopup()) {
                 setSelectedSection(NoSection);
                 d->focusOnButton = true;
                 update();
