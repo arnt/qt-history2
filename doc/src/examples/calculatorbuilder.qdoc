@@ -19,7 +19,7 @@
     file created in the previous example, but it could be stored on disk instead.
 
     To generate a form at run time, we need to link the example against the
-    \c libQtDesigner library. The project file we use contains all the
+    \c QtUiTools module library. The project file we use contains all the
     necessary information to do this:
 
     \quotefromfile designer/calculatorbuilder/calculatorbuilder.pro
@@ -51,7 +51,7 @@
 
     \quotefromfile designer/calculatorbuilder/calculatorform.cpp
     \skipto QtUiTools
-    \printline
+    \printuntil QtUiTools
 
     The constructor uses a form loader object to construct the user
     interface that we retrieve, via a QFile object, from the example's
