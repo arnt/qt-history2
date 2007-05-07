@@ -262,18 +262,18 @@
   </customwidget>
  </customwidgets>
  <tabstops>
-  <tabstop>fileNameEdit</tabstop>
-  <tabstop>fileTypeCombo</tabstop>
-  <tabstop>buttonBox</tabstop>
   <tabstop>lookInCombo</tabstop>
   <tabstop>backButton</tabstop>
   <tabstop>forwardButton</tabstop>
   <tabstop>toParentButton</tabstop>
   <tabstop>newFolderButton</tabstop>
-  <tabstop>detailModeButton</tabstop>
   <tabstop>listModeButton</tabstop>
+  <tabstop>detailModeButton</tabstop>
   <tabstop>sidebar</tabstop>
   <tabstop>listView</tabstop>
+  <tabstop>fileNameEdit</tabstop>
+  <tabstop>fileTypeCombo</tabstop>
+  <tabstop>buttonBox</tabstop>
   <tabstop>treeView</tabstop>
  </tabstops>
  <resources/>
