@@ -44,6 +44,7 @@ int Colors::contentHeight = 510;
 
 // Properties:
 bool Colors::noOpenGl = false;
+bool Colors::noDirect3d = false;
 bool Colors::noTicker = false;
 bool Colors::noRescale = false;
 bool Colors::noAnimations = false;
@@ -174,6 +175,8 @@ void Colors::parseArgs(int argc, char *argv[])
         QString s(argv[i]);
         if (s == "-no-opengl")
             Colors::noOpenGl = true;
+        else if (s == "-no-direct3d")
+            Colors::noDirect3d = true;
         else if (s == "-no-ticker")
             Colors::noTicker = true;
         else if (s == "-no-rescale")
@@ -218,7 +221,7 @@ void Colors::parseArgs(int argc, char *argv[])
             Colors::fps = int(parseFloat(s, "-fps"));
         else if (s.startsWith("-h") || s.startsWith("-help")){
             QMessageBox::warning(0, "Arguments",
-                                 QString("Usage: qtdemo [-no-adapt] [-no-opengl] [-no-ticker] [-no-rescale] ")
+                                 QString("Usage: qtdemo [-no-adapt] [-no-opengl] [-no-direct3d] [-no-ticker] [-no-rescale] ")
                                  + "[-no-animations] [-no-blending] [-no-sync] [-verbose] [-use-timer-update[0|1]] [-use-window-mask] [-fullscreen] "
                                  + "[-use-pixmaps] [-show-fps] [-show-br] [-use-8bit] [-use-loop] [-use-balls] [-animation-speed<float>] [-fps<int>] "
                                  + "[-low] [-ticker-letters<int>] [-ticker-speed<float>] [-no-ticker-morph] "

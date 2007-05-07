@@ -52,6 +52,7 @@ public:
 
     // properties:
     static bool noOpenGl;
+    static bool noDirect3d;
     static bool noAdapt;
     static bool noTicker;
     static bool noRescale;

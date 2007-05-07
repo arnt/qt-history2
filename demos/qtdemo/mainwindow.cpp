@@ -60,16 +60,26 @@ void MainWindow::setupWidget()
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setFrameStyle(QFrame::NoFrame);
-    this->useOpenGl(true);
+    this->useHardwareAcceleration(true);
     connect(&this->updateTimer, SIGNAL(timeout()), this, SLOT(tick()));
 }
 
-void MainWindow::useOpenGl(bool useOgl)
+void MainWindow::useHardwareAcceleration(bool use)
 {
-    QWidget *viewport = new QWidget;  
+    QWidget *viewport = new QWidget;
+    setCacheMode(QGraphicsView::CacheBackground);
+    
+#ifdef Q_OS_WIN32
+    if (use && !Colors::noDirect3d){
+        viewport->setAttribute(Qt::WA_MSWindowsUseDirect3D);
+        setCacheMode(QGraphicsView::CacheNone);
+        if (Colors::verbose)
+            qDebug() << "- using Direct3D";
+    }
+#endif
+
 #ifndef QT_NO_OPENGL    
-    if (useOgl && !Colors::noOpenGl){
-        // Use OpenGL
+    if (use && !Colors::noOpenGl){
         QGLWidget *glw = new QGLWidget(QGLFormat(QGL::SampleBuffers));
         if (Colors::noScreenSync)
             glw->format().setSwapInterval(0);
@@ -77,15 +87,13 @@ void MainWindow::useOpenGl(bool useOgl)
 
         delete viewport;
         viewport = glw;
+        setCacheMode(QGraphicsView::CacheNone);
+        if (Colors::verbose)
+            qDebug() << "- using OpenGL";
     }
 #endif
 
     setViewport(viewport);
-    return;
-    if (!useOgl || Colors::noOpenGl)
-        setCacheMode(QGraphicsView::CacheBackground);
-    else
-        setCacheMode(QGraphicsView::CacheNone);
 }
 
 void MainWindow::startLoop()
