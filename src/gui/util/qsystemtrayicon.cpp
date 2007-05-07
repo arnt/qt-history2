@@ -157,10 +157,6 @@ QMenu* QSystemTrayIcon::contextMenu() const
 
     On Windows, the system tray icon size is 16x16; on X11, the preferred size is
     22x22. The icon will be scaled to the appropriate size as necessary.
-
-    On X11, due to a limitation in the system tray specification, mouse clicks
-    on transparent areas in the icon are propagated to the system tray. If this
-    behavior is unacceptable, we suggest using an icon with no transparency.
 */
 void QSystemTrayIcon::setIcon(const QIcon &icon)
 {

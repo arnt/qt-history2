@@ -133,7 +133,6 @@ protected:
 
 private:
     QSystemTrayIcon *q;
-    QPixmap cachedPixmap;
 };
 #endif // Q_WS_X11
 
