@@ -3178,7 +3178,7 @@ void QTreeViewPrivate::rowsRemoved(const QModelIndex &parent,
 
         const uint childLevel = (parentItem == -1)
                                 ? uint(0) : viewItems.at(parentItem).level + 1;
-        Q_UNUSED(childLevel);
+
         const int firstChildItem = parentItem + 1;
         int lastChildItem = firstChildItem + ((parentItem == -1)
                                               ? viewItems.count()
@@ -3189,7 +3189,7 @@ void QTreeViewPrivate::rowsRemoved(const QModelIndex &parent,
         for (int item = firstChildItem; item <= lastChildItem; ) {
             Q_ASSERT(viewItems.at(item).level == childLevel);
             const QModelIndex modelIndex = viewItems.at(item).index;
-            Q_ASSERT(modelIndex.parent() == parent);
+            //Q_ASSERT(modelIndex.parent() == parent);
             const int count = viewItems.at(item).total + 1;
             if (modelIndex.row() < start) {
                 // not affected by the removal
