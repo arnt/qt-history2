@@ -1461,7 +1461,7 @@ QString QFileDialogPrivate::workingDirectory(const QString &path)
             return info.absoluteFilePath();
         return info.absolutePath();
     }
-    return QString();
+    return QDir::currentPath();
 }
 
 /*
@@ -1618,17 +1618,14 @@ void QFileDialogPrivate::init(const QString &directory, const QString &nameFilte
 #ifndef QT_NO_SETTINGS
     QSettings settings(QSettings::UserScope, QLatin1String("Trolltech"));
     settings.beginGroup(QLatin1String("Qt"));
-    if (!q->restoreState(settings.value(QLatin1String("filedialog")).toByteArray())) {
-        q->setDirectory(QDir::currentPath());
-    }
+    q->restoreState(settings.value(QLatin1String("filedialog")).toByteArray());
 #endif
 
     // Default case
     if (!nameFilter.isEmpty())
         q->setFilter(nameFilter);
     q->setAcceptMode(QFileDialog::AcceptOpen);
-    if (!directory.isEmpty())
-        q->setDirectory(workingDirectory(directory));
+    q->setDirectory(workingDirectory(directory));
     q->selectFile(initialSelection(directory));
 
     qFileDialogUi->fileNameEdit->setFocus();
