@@ -532,19 +532,27 @@ void tst_QMdiSubWindow::showShaded()
     QVERIFY(minimumSizeHint.height() < 300);
     const int maxHeightDiff = 300 - minimumSizeHint.height();
 
-    // Calculate mouse position for bottom edge and simulate a
+    // Calculate mouse position for bottom right corner and simulate a
     // vertical resize with the mouse.
     int offset = window->style()->pixelMetric(QStyle::PM_MDIFrameWidth) / 2;
-    QPoint mousePosition(window->width() / 2, window->height() - qMax(offset, 2));
-    sendMouseMove(window, mousePosition, Qt::NoButton);
-    sendMousePress(window, mousePosition);
+    QPoint mousePosition(window->width() - qMax(offset, 2), window->height() - qMax(offset, 2));
+    QWidget *mouseReceiver = 0;
+#ifdef Q_WS_MAC
+    if (qobject_cast<QMacStyle*>(window->style()))
+        mouseReceiver = qFindChild<QSizeGrip *>(window);
+    else
+#endif
+        mouseReceiver = window;
+    QVERIFY(mouseReceiver);
+    sendMouseMove(mouseReceiver, mousePosition, Qt::NoButton);
+    sendMousePress(mouseReceiver, mousePosition);
 
     for (int i = 0; i < maxHeightDiff + 20; ++i) {
         --mousePosition.ry();
-        sendMouseMove(window, mousePosition);
+        sendMouseMove(mouseReceiver, mousePosition);
     }
 
-    sendMouseRelease(window, mousePosition);
+    sendMouseRelease(mouseReceiver, mousePosition);
     // Make sure we respect the minimumSizeHint!
     QCOMPARE(window->height(), minimumSizeHint.height());
 
