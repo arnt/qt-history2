@@ -25,6 +25,16 @@
 #include <qsortfilterproxymodel.h>
 #include <qlineedit.h>
 
+// Will try to wait for the condition while allowing event processing
+// for a maximum of 2 seconds.
+#define WAIT_FOR_CONDITION(expr, expected) \
+    do { \
+        const int step = 100; \
+        for (int i = 0; i < 2000 && expr != expected; i+=step) { \
+            QTest::qWait(step); \
+        } \
+    } while(0)
+
 //TESTED_CLASS=
 //TESTED_FILES=qfiledialog.h
 
@@ -469,6 +479,7 @@ void tst_QFiledialog::focus()
     QList<QWidget*> treeView = fd.findChildren<QWidget*>("fileNameEdit");
     QCOMPARE(treeView.count(), 1);
     QVERIFY(treeView.at(0));
+    WAIT_FOR_CONDITION(treeView.at(0)->hasFocus(), true);
     QCOMPARE(treeView.at(0)->hasFocus(), true);
 }
 
