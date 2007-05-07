@@ -94,3 +94,8 @@ void ColorItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
     drag->exec();
     setCursor(Qt::OpenHandCursor);
 }
+
+void ColorItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *)
+{
+    setCursor(Qt::OpenHandCursor);
+}
