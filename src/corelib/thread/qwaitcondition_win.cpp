@@ -14,12 +14,14 @@
 #include "qwaitcondition.h"
 #include "qnamespace.h"
 #include "qmutex.h"
+#include "qreadwritelock.h"
 #include "qlist.h"
 #include "qalgorithms.h"
 #include "qt_windows.h"
 
 #define Q_MUTEX_T void*
 #include <private/qmutex_p.h>
+#include <private/qreadwritelock_p.h>
 
 //***********************************************************************
 // QWaitConditionPrivate
@@ -51,9 +53,9 @@ public:
     EventQueue queue;
     EventQueue freeQueue;
 
-    void pre();
-    bool wait(QMutex *mutex, unsigned long time);
-    void post();
+    QWaitConditionEvent *pre();
+    bool wait(QWaitConditionEvent *wce, unsigned long time);
+    void post(QWaitConditionEvent *wce, bool ret);
 };
 
 QWaitConditionEvent *QWaitConditionPrivate::pre()
@@ -91,7 +93,7 @@ bool QWaitConditionPrivate::wait(QWaitConditionEvent *wce, unsigned long time)
     return ret;
 }
 
-void QWaitConditionEvent::post(QWaitConditionEvent *wce)
+void QWaitConditionPrivate::post(QWaitConditionEvent *wce, bool ret)
 {
     mtx.lock();
 
@@ -145,7 +147,7 @@ bool QWaitCondition::wait(QMutex *mutex, unsigned long time)
     bool returnValue = d->wait(wce, time);
 
     mutex->lock();
-    d->post(wce);
+    d->post(wce, returnValue);
 
     return returnValue;
 }
@@ -163,13 +165,13 @@ bool QWaitCondition::wait(QReadWriteLock *readWriteLock, unsigned long time)
     int previousAccessCount = readWriteLock->d->accessCount;
     readWriteLock->unlock();
 
-    bool returnValue = d>wait(wce, time);
+    bool returnValue = d->wait(wce, time);
 
     if (previousAccessCount < 0)
         readWriteLock->lockForWrite();
     else
         readWriteLock->lockForRead();
-    d->post(wce);
+    d->post(wce, returnValue);
 
     return returnValue;
 }
