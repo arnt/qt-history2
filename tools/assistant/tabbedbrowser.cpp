@@ -455,6 +455,10 @@ void TabbedBrowser::openTabMenu(const QPoint& pos)
     QAction *new_action = m->addAction(tr("New Tab"));
     QAction *close_action = m->addAction(tr("Close Tab"));
     QAction *close_others_action = m->addAction(tr("Close Other Tabs"));
+    if (tabBar->count() < 2) {
+        close_action->setEnabled(false);
+        close_others_action->setEnabled(false);
+    }
     QAction *action_picked = m->exec(tabBar->mapToGlobal(pos));
     if (action_picked) {
         if (action_picked == new_action) {
