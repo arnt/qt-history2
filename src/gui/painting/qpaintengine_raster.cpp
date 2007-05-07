@@ -1183,10 +1183,10 @@ void QRasterPaintEngine::updateState(const QPaintEngineState &state)
         update_fast_pen = true;
         updateMatrix(state.transform());
 
-		// the cliprect set on the dash stroker needs to be updated when the 
+		// the cliprect set on the dash stroker needs to be updated when the
 		// transform changes, if we have a pen that needs stroking
 		Qt::PenStyle pen_style = d->pen.style();
-		if (d->dashStroker && pen_style != Qt::SolidLine && 
+		if (d->dashStroker && pen_style != Qt::SolidLine &&
 			pen_style != Qt::NoPen && d->pen.widthF() != 0.0f) {
             QRectF clipRect = d->matrix.inverted().mapRect(QRectF(d->deviceRect));
             d->dashStroker->setClipRect(clipRect);
@@ -1613,6 +1613,9 @@ void QRasterPaintEngine::drawRects(const QRect *rects, int rectCount)
     }
 }
 
+/*!
+    \internal
+*/
 void QRasterPaintEngine::fastFillRect(const QRect &rect, const QBrush &brush)
 {
     Q_D(QRasterPaintEngine);
