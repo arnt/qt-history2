@@ -942,6 +942,7 @@ bool QFontEngineMulti::stringToCMap(const QChar *str, int len,
         bool surrogate = (str[i].unicode() >= 0xd800 && str[i].unicode() < 0xdc00 && i < len-1
                           && str[i+1].unicode() >= 0xdc00 && str[i+1].unicode() < 0xe000);
         if (glyphs[glyph_pos].glyph == 0) {
+            QGlyphLayout tmp = glyphs[glyph_pos];
             for (int x = 1; x < engines.size(); ++x) {
                 QFontEngine *engine = engines.at(x);
                 if (!engine) {
@@ -961,6 +962,9 @@ bool QFontEngineMulti::stringToCMap(const QChar *str, int len,
                     break;
                 }
             }
+            // ensure we use metrics from the 1st font when we use the fallback image.
+            if (!glyphs[glyph_pos].glyph)
+                glyphs[glyph_pos] = tmp;
         }
         if (surrogate)
             ++i;
