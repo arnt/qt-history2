@@ -643,10 +643,18 @@ float PaintCommands::convertToFloat(const QString &str)
 double PaintCommands::convertToDouble(const QString &str)
 {
     static QRegExp re("cp([0-9])([xy])");
-    if (str.toLower() == "width")
-        return m_painter->window().width();
-    if (str.toLower() == "height")
-        return m_painter->window().height();
+    if (str.toLower() == "width") {
+        if (m_painter->device()->devType() == Qt::Widget)
+            return m_painter->window().width();
+        else
+            return 800;
+    }
+    if (str.toLower() == "height") {
+        if (m_painter->device()->devType() == Qt::Widget)
+            return m_painter->window().height();
+        else
+            return 800;
+    }
     if (re.indexIn(str) >= 0) {
         int index = re.cap(1).toInt();
         bool is_it_x = re.cap(2) == "x";
