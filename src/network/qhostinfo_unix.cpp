@@ -66,7 +66,9 @@ QHostInfo QHostInfoAgent::fromName(const QString &hostName)
     // Load res_init on demand.
     static volatile bool triedResolve = false;
     if (!triedResolve) {
+#ifndef QT_NO_THREAD
         QMutexLocker locker(QMutexPool::globalInstanceGet(&local_res_init));
+#endif
         if (!triedResolve) {
             resolveLibrary();
             triedResolve = true;
@@ -104,12 +106,12 @@ QHostInfo QHostInfoAgent::fromName(const QString &hostName)
             memcpy(sa6.sin6_addr.s6_addr, address.toIPv6Address().c, sizeof(sa6.sin6_addr.s6_addr));
         }
 #endif
-        
+
         char hbuf[NI_MAXHOST];
         if (!sa || getnameinfo(sa, saSize, hbuf, sizeof(hbuf), 0, 0, 0) != 0) {
             results.setError(QHostInfo::HostNotFound);
             results.setErrorString(tr("Host not found"));
-            return results;            
+            return results;
         }
         results.setHostName(QString::fromLatin1(hbuf));
 #else
@@ -118,12 +120,12 @@ QHostInfo QHostInfoAgent::fromName(const QString &hostName)
         if (!ent) {
             results.setError(QHostInfo::HostNotFound);
             results.setErrorString(tr("Host not found"));
-            return results;            
+            return results;
         }
         results.setHostName(QString::fromLatin1(ent->h_name));
 #endif
     }
-    
+
 #if !defined (QT_NO_GETADDRINFO)
     // Call getaddrinfo, and place all IPv4 addresses at the start and
     // the IPv6 addresses at the end of the address list in results.
@@ -160,7 +162,7 @@ QHostInfo QHostInfoAgent::fromName(const QString &hostName)
         }
         results.setAddresses(addresses);
         freeaddrinfo(res);
-    } else if (result == EAI_NONAME 
+    } else if (result == EAI_NONAME
                || result ==  EAI_FAIL
                || result ==  EAI_FAIL
 #ifdef EAI_NODATA
