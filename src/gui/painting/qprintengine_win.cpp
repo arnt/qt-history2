@@ -188,7 +188,6 @@ void QAlphaPaintEngine::updateState(const QPaintEngineState &state)
     if (flags & QPaintEngine::DirtyTransform) {
         d->m_transform = state.transform();
         d->m_complexTransform = (d->m_transform.type() > QTransform::TxScale);
-
     }
     if (flags & QPaintEngine::DirtyPen) {
         d->m_pen = state.pen();
@@ -1001,7 +1000,7 @@ void QWin32PrintEngine::drawPixmap(const QRectF &targetRect,
     QTransform scaleMatrix;
     scaleMatrix.scale(r.width() / pixmap.width(), r.height() / pixmap.height());
     QTransform adapted = QPixmap::trueMatrix(d->painterMatrix * scaleMatrix,
-        pixmap.width(), pixmap.height());
+                                             pixmap.width(), pixmap.height());
 
     qreal xform_offset_x = adapted.dx();
     qreal xform_offset_y = adapted.dy();
@@ -1018,8 +1017,8 @@ void QWin32PrintEngine::drawPixmap(const QRectF &targetRect,
     QPointF topLeft = r.topLeft() * d->painterMatrix;
     int tx = int(topLeft.x() * d->stretch_x + d->origin_x);
     int ty = int(topLeft.y() * d->stretch_y + d->origin_y);
-    int tw = int(pixmap.width() * scaleX);
-    int th = int(pixmap.height() * scaleY);
+    int tw = qAbs(int(pixmap.width() * scaleX));
+    int th = qAbs(int(pixmap.height() * scaleY));
 
     xform_offset_x *= d->stretch_x;
     xform_offset_y *= d->stretch_y;
