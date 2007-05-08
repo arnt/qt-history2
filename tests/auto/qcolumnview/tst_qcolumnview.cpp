@@ -463,7 +463,9 @@ void tst_QColumnView::swapPreview()
 {
     // swap the preview widget in updatePreviewWidget
     QColumnView view;
-    QStringListModel model(QStringList(QLatin1String("test")));
+    QStringList sl;
+    sl << QLatin1String("test");
+    QStringListModel model(sl);
     view.setModel(&model);
     view.setCurrentIndex(view.indexAt(QPoint(1, 1)));
     connect(&view, SIGNAL(updatePreviewWidget(const QModelIndex &)),
