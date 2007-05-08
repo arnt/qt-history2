@@ -654,14 +654,9 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
             }
             break;
         case QPicturePrivate::PdcDrawText2Formatted:
-            qDebug() << "PdcDrawText2Formatted";
-            qDebug() << s.device()->pos();
             s >> ir;
-            qDebug() << s.device()->pos();
             s >> i_16;
-            qDebug() << s.device()->pos();
             s >> str;
-            qDebug() << s.device()->pos();
             painter->drawText(ir, i_16, str);
             break;
         case QPicturePrivate::PdcDrawTextItem: {
