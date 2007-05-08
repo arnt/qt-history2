@@ -67,7 +67,7 @@ void QBufferPrivate::_q_emitSignals()
     \quotefromfile snippets/buffer/buffer.cpp
     \skipto main_snippet
     \skipto QBuffer buffer
-    \printto /^\}$/
+    \printto /^\}/
 
     By default, an internal QByteArray buffer is created for you when
     you create a QBuffer. You can access this buffer directly by
@@ -87,14 +87,14 @@ void QBufferPrivate::_q_emitSignals()
 
     \skipto write_datastream_snippet
     \skipto QByteArray
-    \printto /^\}$/
+    \printto /^\}/
 
     Effectively, we convert the application's QPalette into a byte
     array. Here's how to read the data from the QByteArray:
 
     \skipto read_datastream_snippet
     \skipto QPalette
-    \printto /^\}$/
+    \printto /^\}/
 
     QTextStream and QDataStream also provide convenience constructors
     that take a QByteArray and that create a QBuffer behind the
