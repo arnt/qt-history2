@@ -156,7 +156,7 @@
     bottom(). Another solution is to use QRectF: The QRectF class
     defines a rectangle in the plane using floating point accuracy for
     coordinates, and the QRectF::right() and QRectF::bottom()
-    functions \e do return the true bottom-right corner.
+    functions \e do return the right and bottom coordinates.
 
     It is also possible to add offsets to this rectangle's coordinates
     using the adjust() function, as well as retrieve a new rectangle
