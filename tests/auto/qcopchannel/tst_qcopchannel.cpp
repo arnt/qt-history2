@@ -114,19 +114,18 @@ void tst_QCopChannel::sendreceivesp()
 
 void tst_QCopChannel::testSend( const QString& channel, const QString& msg, const QByteArray& data )
 {
-    QProcess* proc = new QProcess;
+    QProcess proc;
     QStringList args;
     args << channel << msg;
     if( !data.isEmpty() )
 	args << data;
-    proc->start( "testSend/testSend", args );
+    proc.start( "testSend/testSend", args );
 
     QTest::qWait(100);
 
-    QVERIFY(proc->state() == QProcess::NotRunning || proc->waitForFinished());
-    QCOMPARE(proc->exitStatus(), QProcess::NormalExit);
-    QVERIFY(proc->readAll() == "done"); // sanity check
-    delete proc;
+    QVERIFY(proc.state() == QProcess::NotRunning || proc.waitForFinished());
+    QCOMPARE(proc.exitStatus(), QProcess::NormalExit);
+    QVERIFY(proc.readAll() == "done"); // sanity check
 }
 
 QTEST_MAIN(tst_QCopChannel)
