@@ -19,7 +19,7 @@
 //  -------------
 //
 // This file is not part of the Qt API.  It exists for the convenience
-// of the QGLWindowSurface class.  This header file may change from
+// of the QWSGLWindowSurface class.  This header file may change from
 // version to version without notice, or even be removed.
 //
 // We mean it.
@@ -36,21 +36,22 @@ class QSize;
 class QWidget;
 class QGLContext;
 
-class QGLWindowSurfacePrivate;
+class QWSGLWindowSurfacePrivate;
 
-class QGLWindowSurface : public QWSWindowSurface
+class QWSGLWindowSurface : public QWSWindowSurface
 {
-    Q_DECLARE_PRIVATE(QGLWindowSurface)
+    Q_DECLARE_PRIVATE(QWSGLWindowSurface)
+
 public:
-    QGLWindowSurface(QWidget *widget);
-    QGLWindowSurface();
-    ~QGLWindowSurface();
+    QWSGLWindowSurface(QWidget *widget);
+    QWSGLWindowSurface();
+    ~QWSGLWindowSurface();
 
     QGLContext *context() const;
     void setContext(QGLContext *context);
 
 private:
-    QGLWindowSurfacePrivate *d_ptr;
+    QWSGLWindowSurfacePrivate *d_ptr;
 };
 
 

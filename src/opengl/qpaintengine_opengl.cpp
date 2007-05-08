@@ -171,7 +171,7 @@ private:
     QGLPixelBuffer *buffer;
     QGLFramebufferObject *fbo;
 #ifdef Q_WS_QWS
-    QGLWindowSurface *wsurf;
+    QWSGLWindowSurface *wsurf;
 #endif
 };
 
@@ -191,7 +191,7 @@ void QGLDrawable::setDevice(QPaintDevice *pdev)
         fbo = static_cast<QGLFramebufferObject *>(pdev);
 #ifdef Q_WS_QWS
     else if (pdev->devType() == QInternal::UnknownDevice)
-        wsurf = static_cast<QGLPaintDevice*>(pdev)->windowSurface();
+        wsurf = static_cast<QWSGLPaintDevice*>(pdev)->windowSurface();
 #endif
 }
 

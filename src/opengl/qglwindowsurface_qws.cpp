@@ -18,61 +18,13 @@
 #include "private/qglpaintdevice_qws_p.h"
 #include "private/qpaintengine_opengl_p.h"
 
-class QMetricAccessor : public QWidget {
-public:
-    int metric(PaintDeviceMetric m) {
-        return QWidget::metric(m);
-    }
-};
-
-// from the qpaintengine_opengl.cpp:
-QOpenGLPaintEngine* qt_qgl_paint_engine();
-
-class QGLPaintDevicePrivate
-{
-public:
-    QWidget *widget;
-};
-
-QGLPaintDevice::QGLPaintDevice(QWidget *widget) :
-    d_ptr(new QGLPaintDevicePrivate)
-{
-    Q_D(QGLPaintDevice);
-    d->widget = widget;
-}
-
-QGLPaintDevice::~QGLPaintDevice()
-{
-    Q_D(QGLPaintDevice);
-    delete d;
-}
-
-QPaintEngine *QGLPaintDevice::paintEngine() const
-{
-    return qt_qgl_paint_engine();
-}
-
-int QGLPaintDevice::metric(PaintDeviceMetric m) const
-{
-    Q_D(const QGLPaintDevice);
-    Q_ASSERT(d->widget);
-
-    return ((QMetricAccessor *) d->widget)->metric(m);
-}
-
-QGLWindowSurface *QGLPaintDevice::windowSurface() const
-{
-     Q_D(const QGLPaintDevice);
-     return static_cast<QGLWindowSurface*>(d->widget->windowSurface());
-}
-
 /*!
-    \class QGLWindowSurface
+    \class QWSGLWindowSurface
     \since 4.3
     \ingroup qws
     \preliminary
 
-    \brief The QGLWindowSurface class provides the drawing area for top-level
+    \brief The QWSGLWindowSurface class provides the drawing area for top-level
     windows in Qtopia Core on EGL/OpenGLES. It also provides the drawing area for
     QGLWidgets whether they are top-level windows or child widget of another QWidget.
 
@@ -81,10 +33,10 @@ QGLWindowSurface *QGLPaintDevice::windowSurface() const
 
 */
 
-class QGLWindowSurfacePrivate
+class QWSGLWindowSurfacePrivate
 {
 public:
-    QGLWindowSurfacePrivate() :
+    QWSGLWindowSurfacePrivate() :
         qglContext(0), ownsContext(false) {}
 
     QGLContext *qglContext;
@@ -94,29 +46,29 @@ public:
 /*!
     \since 4.3
 
-    Constructs an empty QGLWindowSurface for the given top-level \a window.
+    Constructs an empty QWSGLWindowSurface for the given top-level \a window.
     The window surface is later initialized from chooseContext() and resources for it
     is typically allocated in setGeometry().
 */
-QGLWindowSurface::QGLWindowSurface(QWidget *window)
+QWSGLWindowSurface::QWSGLWindowSurface(QWidget *window)
     : QWSWindowSurface(window),
-      d_ptr(new QGLWindowSurfacePrivate)
+      d_ptr(new QWSGLWindowSurfacePrivate)
 {
 }
 
 /*!
     \since 4.3
 
-    Constructs an empty QGLWindowSurface.
+    Constructs an empty QWSGLWindowSurface.
 */
-QGLWindowSurface::QGLWindowSurface()
-    : d_ptr(new QGLWindowSurfacePrivate)
+QWSGLWindowSurface::QWSGLWindowSurface()
+    : d_ptr(new QWSGLWindowSurfacePrivate)
 {
 }
 
-QGLWindowSurface::~QGLWindowSurface()
+QWSGLWindowSurface::~QWSGLWindowSurface()
 {
-    Q_D(QGLWindowSurface);
+    Q_D(QWSGLWindowSurface);
     if (d->ownsContext)
         delete d->qglContext;
     delete d;
@@ -127,11 +79,11 @@ QGLWindowSurface::~QGLWindowSurface()
 
     Returns the QGLContext of the window surface.
 */
-QGLContext *QGLWindowSurface::context() const
+QGLContext *QWSGLWindowSurface::context() const
 {
-    Q_D(const QGLWindowSurface);
+    Q_D(const QWSGLWindowSurface);
     if (!d->qglContext) {
-        QGLWindowSurface *that = const_cast<QGLWindowSurface*>(this);
+        QWSGLWindowSurface *that = const_cast<QWSGLWindowSurface*>(this);
         that->setContext(new QGLContext(QGLFormat::defaultFormat()));
         that->d_func()->ownsContext = true;
     }
@@ -143,9 +95,9 @@ QGLContext *QGLWindowSurface::context() const
 
     Sets the QGLContext for this window surface.
 */
-void QGLWindowSurface::setContext(QGLContext *context)
+void QWSGLWindowSurface::setContext(QGLContext *context)
 {
-    Q_D(QGLWindowSurface);
+    Q_D(QWSGLWindowSurface);
     if (d->ownsContext) {
         delete d->qglContext;
         d->ownsContext = false;

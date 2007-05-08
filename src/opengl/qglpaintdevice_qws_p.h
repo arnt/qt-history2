@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QGLPAINTDEVICE_GL_P_H
-#define QGLPAINTDEVICE_GL_P_H
+#ifndef QWSGLPAINTDEVICE_GL_P_H
+#define QWSGLPAINTDEVICE_GL_P_H
 
 //
 //  W A R N I N G
@@ -28,26 +28,26 @@
 #include <QPaintDevice>
 
 class QWidget;
-class QGLWindowSurface;
-class QGLPaintDevicePrivate;
+class QWSGLWindowSurface;
+class QWSGLPaintDevicePrivate;
 
-class QGLPaintDevice : public QPaintDevice
+class QWSGLPaintDevice : public QPaintDevice
 {
-    Q_DECLARE_PRIVATE(QGLPaintDevice)
+    Q_DECLARE_PRIVATE(QWSGLPaintDevice)
 public:
-    QGLPaintDevice(QWidget *widget);
-    ~QGLPaintDevice();
+    QWSGLPaintDevice(QWidget *widget);
+    ~QWSGLPaintDevice();
 
     QPaintEngine *paintEngine() const;
 
     int metric(PaintDeviceMetric m) const;
 
-    QGLWindowSurface *windowSurface() const;
+    QWSGLWindowSurface *windowSurface() const;
 
 private:
-    friend class QGLWindowSurface;
-    QGLPaintDevicePrivate *d_ptr;
+    friend class QWSGLWindowSurface;
+    QWSGLPaintDevicePrivate *d_ptr;
 };
 
 
-#endif // QGLPAINTDEVICE_GL_P_H
+#endif // QWSGLPAINTDEVICE_GL_P_H

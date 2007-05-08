@@ -49,9 +49,9 @@ bool QGLScreen::chooseContext(QGLContext *context, const QGLContext *shareContex
 {
     Q_UNUSED(shareContext);
 
-    QGLWidget *widget = static_cast<QGLWidget*>(context->device());
     if (context->device()->devType() == QInternal::Widget) {
-        QGLWindowSurface *surface = static_cast<QGLWindowSurface*>(widget->windowSurface());
+        QGLWidget *widget = static_cast<QGLWidget*>(context->device());
+        QWSGLWindowSurface *surface = static_cast<QWSGLWindowSurface*>(widget->windowSurface());
         surface->setContext(context);
         return true;
     }

@@ -639,7 +639,7 @@ void QGLWidgetPrivate::init(QGLContext *context, const QGLWidget* shareWidget)
     directPainter = 0;
 
 #ifdef Q_USE_EGLWINDOWSURFACE
-    wsurf = static_cast<QGLWindowSurface*>(QScreen::instance()->createSurface(q));
+    wsurf = static_cast<QWSGLWindowSurface*>(QScreen::instance()->createSurface(q));
     q->setWindowSurface(wsurf);
 #endif
 

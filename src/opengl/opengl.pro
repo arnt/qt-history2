@@ -47,6 +47,7 @@ win32 {
 embedded {
     SOURCES += qegl_qws.cpp \
                qgl_qws.cpp \
+               qglpaintdevice_qws.cpp \
                qglpixelbuffer_qws.cpp \
                qglscreen_qws.cpp \
                qglwindowsurface_qws.cpp
