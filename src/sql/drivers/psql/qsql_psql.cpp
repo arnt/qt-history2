@@ -887,7 +887,7 @@ QString QPSQLDriver::formatValue(const QSqlField &field, bool trimStrings) const
         case QVariant::ByteArray: {
             QByteArray ba(field.value().toByteArray());
             size_t len;
-            unsigned char *data = PQescapeBytea((unsigned char*)ba.constData(), ba.size(), &len);
+            unsigned char *data = PQescapeByteaConn(d->connection, (unsigned char*)ba.constData(), ba.size(), &len);
             r += QLatin1Char('\'');
             r += QLatin1String((const char*)data);
             r += QLatin1Char('\'');
