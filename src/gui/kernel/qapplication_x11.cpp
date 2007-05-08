@@ -3204,6 +3204,12 @@ int QApplication::x11ProcessEvent(XEvent* event)
     Return false for normal event dispatching. The default
     implementation returns false.
 
+    It is only the directly addressed messages that are filtered.
+    You must install an event filter directly on the event
+    dispatcher, which is returned by
+    QAbstractEventDispatcher::instance(), to handle system wide
+    messages.
+
     \sa x11ProcessEvent()
 */
 
