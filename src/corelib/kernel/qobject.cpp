@@ -2954,7 +2954,7 @@ static void queued_activate(QObject *sender, const QConnection &c, void **argv, 
 
 static void blocking_activate(QObject *sender, const QConnection &c, void **argv, int idFrom, int idTo)
 {
-    if (sender->thread() == c.receiver->thread()) {
+    if (QThread::currentThread() == c.receiver->thread()) {
         qWarning("Qt: Dead lock detected while activating a BlockingQueuedConnection: "
                  "Sender is %s(%p), receiver is %s(%p)",
                  sender->metaObject()->className(), sender,
