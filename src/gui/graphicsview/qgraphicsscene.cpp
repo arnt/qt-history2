@@ -204,6 +204,19 @@ static const int QGRAPHICSSCENE_INDEXTIMER_TIMEOUT = 2000;
 #include <math.h>
 #include <qdebug.h>
 
+// QRectF::intersects() returns false always if either the source or target
+// rectangle's width or height are 0. This works around that problem.
+static QRectF _q_adjustedRect(const QRectF &rect)
+{
+    static const qreal p = 0.00001;
+    QRectF r = rect;
+    if (!r.width())
+        r.adjust(-p, 0, p, 0);
+    if (!r.height())
+        r.adjust(0, -p, 0, p);
+    return r;
+}
+
 /*!
     \internal
 */
@@ -247,14 +260,7 @@ QList<QGraphicsItem *> QGraphicsScenePrivate::estimateItemsInRect(const QRectF &
         // Fill in with any unindexed items
         for (int i = 0; i < unindexedItems.size(); ++i) {
             if (QGraphicsItem *item = unindexedItems.at(i)) {
-                QRectF boundingRect = item->sceneBoundingRect();
-                if (!boundingRect.width() || !boundingRect.height()) {
-                    // QRectF::intersects() returns false always if either the
-                    // source or target rectangle's width or height are
-                    // 0. This works around that problem.
-                    const qreal p = 0.00001;
-                    boundingRect.adjust(-p, -p, p, p);
-                }
+                QRectF boundingRect = _q_adjustedRect(item->sceneBoundingRect());
                 if (!item->d_ptr->itemDiscovered && item->isVisible()
                     && (boundingRect.intersects(rect) || boundingRect.contains(rect))) {
                     item->d_ptr->itemDiscovered = 1;
@@ -1326,7 +1332,7 @@ static void _qt_pathIntersectsItem(const QPainterPath &selectionPath, QGraphicsI
     if (mode == Qt::ContainsItemShape || mode == Qt::IntersectsItemShape) {
         path = item->mapToScene(item->shape());
     } else {
-        path.addPolygon(item->mapToScene(item->boundingRect()));
+        path.addPolygon(_q_adjustedRect(item->sceneBoundingRect()));
     }
 
     if (path.isEmpty())
@@ -1407,7 +1413,7 @@ QList<QGraphicsItem *> QGraphicsScene::items(const QPolygonF &polygon, Qt::ItemS
             && polygon.containsPoint(item->mapToScene(item->boundingRect().topLeft()),
                                      Qt::OddEvenFill)) {
             itemsInPolygon << item;
-        } else if (polyRect.intersects(item->sceneBoundingRect())) {
+        } else if (polyRect.intersects(_q_adjustedRect(item->sceneBoundingRect()))) {
             _qt_pathIntersectsItem(polyPath, item, mode, &itemsInPolygon);
         }
     }

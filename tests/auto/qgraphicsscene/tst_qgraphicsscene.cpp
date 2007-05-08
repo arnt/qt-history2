@@ -272,22 +272,33 @@ void tst_QGraphicsScene::bspTreeDepth()
 
 void tst_QGraphicsScene::items()
 {
-    QGraphicsScene scene;
+    {
+        QGraphicsScene scene;
 
-    QList<QGraphicsItem *> items;
-    for (int y = -1000; y < 2000; y += 100) {
-        for (int x = -1000; x < 2000; x += 100)
-            items << scene.addRect(QRectF(0, 0, 10, 10));
+        QList<QGraphicsItem *> items;
+        for (int y = -1000; y < 2000; y += 100) {
+            for (int x = -1000; x < 2000; x += 100)
+                items << scene.addRect(QRectF(0, 0, 10, 10));
+        }
+
+        QCOMPARE(scene.items(), items);
+        scene.itemAt(0, 0); // trigger indexing
+
+        scene.removeItem(items.at(5));
+        delete items.at(5);
+        QVERIFY(!scene.items().contains(0));
+        delete items.at(7);
+        QVERIFY(!scene.items().contains(0));
     }
-
-    QCOMPARE(scene.items(), items);
-    scene.itemAt(0, 0); // trigger indexing
-
-    scene.removeItem(items.at(5));
-    delete items.at(5);
-    QVERIFY(!scene.items().contains(0));
-    delete items.at(7);
-    QVERIFY(!scene.items().contains(0));
+    {
+        QGraphicsScene scene;
+        QGraphicsLineItem *l1 = scene.addLine(-5, 0, 5, 0);
+        QGraphicsLineItem *l2 = scene.addLine(0, -5, 0, 5);
+        QVERIFY(!l1->sceneBoundingRect().intersects(l2->sceneBoundingRect()));
+        QVERIFY(!l2->sceneBoundingRect().intersects(l1->sceneBoundingRect()));
+        QVERIFY(scene.items(-1, -1, 2, 2).contains(l1));
+        QVERIFY(scene.items(-1, -1, 2, 2).contains(l2));
+    }
 }
 
 void tst_QGraphicsScene::itemsBoundingRect_data()
