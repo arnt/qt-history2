@@ -229,6 +229,7 @@ void tst_QDialogButtonBox::addButton1()
     QTEST(buttonBox.buttons().count(), "totalCount");
     QList<QAbstractButton *> children = qFindChildren<QAbstractButton *>(&buttonBox);
     QTEST(children.count(), "totalCount");
+    delete button;
 }
 
 void tst_QDialogButtonBox::addButton2_data()
@@ -326,6 +327,7 @@ void tst_QDialogButtonBox::removeButton()
 
     buttonBox.removeButton(button);
     QCOMPARE(buttonBox.buttons().count(), 0);
+    delete button;
 }
 
 void tst_QDialogButtonBox::testDelete()
@@ -644,6 +646,7 @@ void tst_QDialogButtonBox::testRemove()
     button->animateClick(0);
     QTest::qWait(100);
     QCOMPARE(clicked.count(), 0);
+    delete button;
 }
 
 void tst_QDialogButtonBox::testDefaultButton_data()
