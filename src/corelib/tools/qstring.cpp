@@ -466,7 +466,7 @@ const QString::Null QString::null = QString::Null();
        to ASCII.
     \endlist
 
-    One way to define these prepocessor symbols globally for your
+    One way to define these preprocessor symbols globally for your
     application is to add the following entry to your
     \l{qmake Project Files}{qmake project file}:
 
@@ -1075,7 +1075,7 @@ QString &QString::operator=(const QString &other)
     You can disable this operator by defining \c
     QT_NO_CAST_FROM_ASCII when you compile your applications. This
     can be useful if you want to ensure that all user-visible strings
-    go through QObject::tr(), for exaple.
+    go through QObject::tr(), for example.
 */
 
 /*! \fn QString &QString::operator=(const char *str)
@@ -1277,7 +1277,7 @@ QString &QString::append(const QLatin1String &str)
 
     \overload
 
-    Appends the string \a str to this string. the given const char
+    Appends the string \a str to this string. The given const char
     pointer is converted to Unicode using the fromAscii() function.
 
     You can disable this function by defining \c QT_NO_CAST_FROM_ASCII
