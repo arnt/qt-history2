@@ -247,6 +247,25 @@ QLinkedListData QLinkedListData::shared_null = {
     \sa insert()
 */
 
+/*! \fn bool QLinkedList::removeOne(const T &value)
+
+    Removes the first occurrences of \a value in the list. Returns true on
+    success; otherwise returns false.
+
+    Example:
+    \code
+        QList<QString> list;
+        list << "sun" << "cloud" << "sun" << "rain";
+        list.removeOne("sun");
+        // list: ["cloud", "sun", "rain"]
+    \endcode
+
+    This function requires the value type to have an implementation of
+    \c operator==().
+
+    \sa insert()
+*/
+
 /*! \fn bool QLinkedList::contains(const T &value) const
 
     Returns true if the list contains an occurrence of \a value;

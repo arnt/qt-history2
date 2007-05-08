@@ -104,6 +104,7 @@ public:
     void replace(int i, const T &t);
     void removeAt(int i);
     int removeAll(const T &t);
+    bool removeOne(const T &t);
     T takeAt(int i);
     T takeFirst();
     T takeLast();
@@ -555,6 +556,18 @@ Q_OUTOFLINE_TEMPLATE int QList<T>::removeAll(const T &_t)
             ++i;
         }
     return removedCount;
+}
+
+template <typename T>
+Q_OUTOFLINE_TEMPLATE bool QList<T>::removeOne(const T &_t)
+{
+    detach();
+    int index = indexOf(_t);
+    if (index != -1) {
+        removeAt(index);
+        return true;
+    }
+    return false;
 }
 
 template <typename T>

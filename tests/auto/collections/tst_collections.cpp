@@ -425,6 +425,23 @@ void tst_Collections::list()
             while (!list.isEmpty())
                 list.removeAll(list.first());
         }
+        {
+            QList<QString> list;
+            list << "one" << "two" << "one" << "two";
+            QVERIFY(!list.removeOne("three"));
+            QVERIFY(list.removeOne("two"));
+            QCOMPARE(list, QList<QString>() << "one" << "one" << "two");;
+            QVERIFY(list.removeOne("two"));
+            QCOMPARE(list, QList<QString>() << "one" << "one");
+            QVERIFY(!list.removeOne("two"));
+            QCOMPARE(list, QList<QString>() << "one" << "one");
+            QVERIFY(list.removeOne("one"));
+            QCOMPARE(list, QList<QString>() << "one");
+            QVERIFY(list.removeOne("one"));
+            QVERIFY(list.isEmpty());
+            QVERIFY(!list.removeOne("one"));
+            QVERIFY(list.isEmpty());
+        }
 	{
 	    QList<int> copy = list;
 	    list << 8;
@@ -875,6 +892,23 @@ void tst_Collections::linkedList()
             list << "one" << "two" << "three" << "four" << "five" << "six";
             while (!list.isEmpty())
                 list.removeAll(list.first());
+        }
+        {
+            QLinkedList<QString> list;
+            list << "one" << "two" << "one" << "two";
+            QVERIFY(!list.removeOne("three"));
+            QVERIFY(list.removeOne("two"));
+            QCOMPARE(list, QLinkedList<QString>() << "one" << "one" << "two");;
+            QVERIFY(list.removeOne("two"));
+            QCOMPARE(list, QLinkedList<QString>() << "one" << "one");
+            QVERIFY(!list.removeOne("two"));
+            QCOMPARE(list, QLinkedList<QString>() << "one" << "one");
+            QVERIFY(list.removeOne("one"));
+            QCOMPARE(list, QLinkedList<QString>() << "one");
+            QVERIFY(list.removeOne("one"));
+            QVERIFY(list.isEmpty());
+            QVERIFY(!list.removeOne("one"));
+            QVERIFY(list.isEmpty());
         }
         {
 	    list.clear();

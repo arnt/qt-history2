@@ -638,7 +638,27 @@ void **QListData::erase(void **xi)
     This function requires the value type to have an implementation of
     \c operator==().
 
-    \sa removeAt(), takeAt(), replace()
+    \sa removeOne(), removeAt(), takeAt(), replace()
+*/
+
+/*!
+    \fn bool QList::removeOne(const T &value)
+
+    Removes the first occurrence of \a value in the list and returns true on
+    success; otherwise returns false.
+
+    Example:
+    \code
+        QList<QString> list;
+        list << "sun" << "cloud" << "sun" << "rain";
+        list.removeOne("sun");
+        // list: ["cloud", ,"sun", "rain"]
+    \endcode
+
+    This function requires the value type to have an implementation of
+    \c operator==().
+
+    \sa removeAll(), removeAt(), takeAt(), replace()
 */
 
 /*! \fn void QList::removeAt(int i)
@@ -648,7 +668,7 @@ void **QListData::erase(void **xi)
     \a i must be a valid index position in the list (i.e., 0 <= \a
     i < size()).
 
-    \sa takeAt(), removeFirst(), removeLast()
+    \sa takeAt(), removeFirst(), removeLast(), removeOne()
 */
 
 /*! \fn T QList::takeAt(int i)

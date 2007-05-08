@@ -73,6 +73,7 @@ public:
     T takeFirst();
     T takeLast();
     int removeAll(const T &t);
+    bool removeOne(const T &t);
     bool contains(const T &t) const;
     int count(const T &t) const;
 
@@ -345,6 +346,18 @@ int QLinkedList<T>::removeAll(const T &_t)
     }
     d->size-=c;
     return c;
+}
+
+template <typename T>
+bool QLinkedList<T>::removeOne(const T &_t)
+{
+    detach();
+    iterator it = qFind(begin(), end(), _t);
+    if (it != end()) {
+        erase(it);
+        return true;
+    }
+    return false;
 }
 
 template <typename T>
