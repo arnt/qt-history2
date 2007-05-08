@@ -96,7 +96,7 @@ public:
     QPen m_pen;
 
     void addAlphaRect(const QRectF &rect);
-    QRectF addPenWidth(const QRectF &rect);
+    QRectF addPenWidth(const QPainterPath &path);
     void drawAlphaImage(const QRectF &rect);
     QRect toRect(const QRectF &rect) const;
     bool fullyContained(const QRectF &rect) const;
@@ -181,7 +181,7 @@ public:
     */
     void initialize();
 
-    /* Initializes data in the print engine whenever the HDC has been renewed 
+    /* Initializes data in the print engine whenever the HDC has been renewed
     */
     void initHDC();
 
@@ -231,7 +231,7 @@ public:
     void initDevRects();
     void setPageMargins(int margin_left, int margin_top, int margin_right, int margin_bottom);
     QRect getPageMargins();
-    
+
     // Windows GDI printer references.
     HANDLE hPrinter;
 

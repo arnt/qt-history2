@@ -190,6 +190,16 @@ void QAlphaPaintEngine::updateState(const QPaintEngineState &state)
         d->m_complexTransform = (d->m_transform.type() > QTransform::TxScale);
 
     }
+    if (flags & QPaintEngine::DirtyPen) {
+        d->m_pen = state.pen();
+        if (d->m_pen.style() == Qt::NoPen) {
+            d->m_advancedPen = false;
+            d->m_alphaPen = false;
+        } else {
+            d->m_advancedPen = (d->m_pen.brush().style() != Qt::SolidPattern);
+            d->m_alphaPen = !d->m_pen.brush().isOpaque();
+        }
+    }
 
     if (d->m_pass != 0) {
         d->m_continueCall = true;
@@ -211,17 +221,6 @@ void QAlphaPaintEngine::updateState(const QPaintEngineState &state)
         }
     }
 
-    if (flags & QPaintEngine::DirtyPen) {
-        d->m_pen = state.pen();
-        if (d->m_pen.style() == Qt::NoPen) {
-            d->m_advancedPen = false;
-            d->m_alphaPen = false;
-        } else {
-            d->m_advancedPen = (d->m_pen.brush().style() != Qt::SolidPattern);
-            d->m_alphaPen = !d->m_pen.brush().isOpaque();
-        }
-    }
-
 
     d->m_hasalpha = d->m_alphaOpacity || d->m_alphaBrush || d->m_alphaPen;
 
@@ -233,8 +232,7 @@ void QAlphaPaintEngine::drawPath(const QPainterPath &path)
 {
     Q_D(QAlphaPaintEngine);
 
-    QRectF tr = d->addPenWidth(path.controlPointRect());
-    tr = d->m_transform.mapRect(tr);
+    QRectF tr = d->addPenWidth(path);
 
     if (d->m_pass == 0) {
         d->m_continueCall = false;
@@ -255,8 +253,10 @@ void QAlphaPaintEngine::drawPolygon(const QPointF *points, int pointCount, Polyg
     QPolygonF poly;
     for (int i=0; i<pointCount; ++i)
         poly.append(points[i]);
-    QRectF tr = d->addPenWidth(poly.boundingRect());
-    tr = d->m_transform.mapRect(tr);
+
+    QPainterPath path;
+    path.addPolygon(poly);
+    QRectF tr = d->addPenWidth(path);
 
     if (d->m_pass == 0) {
         d->m_continueCall = false;
@@ -349,7 +349,7 @@ void QAlphaPaintEngine::flushAndInit(bool init)
         d->m_picpainter->end();
 
         // set clip region
-		d->m_alphargn = d->m_alphargn.intersected(QRect(0, 0, d->m_pdev->width(), d->m_pdev->height()));
+        d->m_alphargn = d->m_alphargn.intersected(QRect(0, 0, d->m_pdev->width(), d->m_pdev->height()));
         d->m_cliprgn = d->m_alphargn;
 
         // now replay the QPicture
@@ -363,7 +363,7 @@ void QAlphaPaintEngine::flushAndInit(bool init)
         // make sure the output from QPicture is unscaled
         QTransform mtx = painter()->transform();
         mtx.scale(1.0f / (qreal(d->m_pdev->logicalDpiX()) / qreal(qt_defaultDpi())),
-                          1.0f / (qreal(d->m_pdev->logicalDpiY()) / qreal(qt_defaultDpi())));
+                  1.0f / (qreal(d->m_pdev->logicalDpiY()) / qreal(qt_defaultDpi())));
         painter()->setTransform(mtx);
         painter()->drawPicture(0, 0, *d->m_pic);
 
@@ -423,15 +423,27 @@ QAlphaPaintEnginePrivate::~QAlphaPaintEnginePrivate()
     delete m_pic;
 }
 
-QRectF QAlphaPaintEnginePrivate::addPenWidth(const QRectF &rect)
+QRectF QAlphaPaintEnginePrivate::addPenWidth(const QPainterPath &path)
 {
-    QRectF br = rect;
-    if (m_pen.style() != Qt::NoPen) {
-        int w2 = m_pen.width() / 2;
-        br.setCoords(br.left() - w2, br.top() - w2,
-                    br.right() + w2, br.bottom() + w2);
-    }
-    return br;
+    QPainterPath tmp = path;
+
+    if (m_pen.style() == Qt::NoPen)
+        return (path.controlPointRect() * m_transform).boundingRect();
+    if (m_pen.isCosmetic())
+        tmp = path * m_transform;
+
+    QPainterPathStroker stroker;
+    if (m_pen.widthF() == 0.0f)
+        stroker.setWidth(1.0);
+    else
+        stroker.setWidth(m_pen.widthF());
+    stroker.setJoinStyle(m_pen.joinStyle());
+    stroker.setCapStyle(m_pen.capStyle());
+    tmp = stroker.createStroke(tmp);
+    if (m_pen.isCosmetic())
+        return tmp.controlPointRect();
+
+    return (tmp.controlPointRect() * m_transform).boundingRect();
 }
 
 QRect QAlphaPaintEnginePrivate::toRect(const QRectF &rect) const
