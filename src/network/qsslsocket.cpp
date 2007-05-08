@@ -350,6 +350,11 @@ bool QSslSocket::setSocketDescriptor(int socketDescriptor, SocketState state, Op
     setSocketError(d->plainSocket->error());
     setSocketState(state);
     setOpenMode(openMode);
+    setLocalPort(d->plainSocket->localPort());
+    setLocalAddress(d->plainSocket->localAddress());
+    setPeerPort(d->plainSocket->peerPort());
+    setPeerAddress(d->plainSocket->peerAddress());
+    setPeerName(d->plainSocket->peerName());
     return retVal;
 }
 

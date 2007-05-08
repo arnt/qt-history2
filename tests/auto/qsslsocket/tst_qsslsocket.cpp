@@ -72,6 +72,7 @@ private slots:
     void setProtocol();
     void setSocketDescriptor();
     void waitForEncrypted();
+    void waitForConnectedEncryptedReadyRead();
     void startClientEncryption();
     void startServerEncryption();
     void addDefaultCaCertificate();
@@ -486,6 +487,11 @@ protected:
         socket->setLocalCertificate(localCert.first());
 
         QVERIFY(socket->setSocketDescriptor(socketDescriptor, QAbstractSocket::ConnectedState));
+        QVERIFY(!socket->peerAddress().isNull());
+        QVERIFY(socket->peerPort() != 0);
+        QVERIFY(!socket->localAddress().isNull());
+        QVERIFY(socket->localPort() != 0);
+
         socket->startServerEncryption();
     }
 
@@ -518,6 +524,10 @@ void tst_QSslSocket::setSocketDescriptor()
 
     QCOMPARE(client->state(), QAbstractSocket::ConnectedState);
     QVERIFY(client->isEncrypted());
+    QVERIFY(!client->peerAddress().isNull());
+    QVERIFY(client->peerPort() != 0);
+    QVERIFY(!client->localAddress().isNull());
+    QVERIFY(client->localPort() != 0);
 }
 
 void tst_QSslSocket::waitForEncrypted()
@@ -529,9 +539,27 @@ void tst_QSslSocket::waitForEncrypted()
     this->socket = &socket;
 
     connect(&socket, SIGNAL(sslErrors(const QList<QSslError> &)), this, SLOT(ignoreErrorSlot()));
-    socket.connectToHostEncrypted("imap.troll.no", 993);
+    socket.connectToHostEncrypted("fluke.troll.no", 993);
 
     QVERIFY(socket.waitForEncrypted(10000));
+}
+
+void tst_QSslSocket::waitForConnectedEncryptedReadyRead()
+{
+    if (!QSslSocket::supportsSsl())
+        return;
+
+    QSslSocket socket;
+    this->socket = &socket;
+
+    connect(&socket, SIGNAL(sslErrors(const QList<QSslError> &)), this, SLOT(ignoreErrorSlot()));
+    socket.connectToHostEncrypted("fluke.troll.no", 993);
+
+    QVERIFY(socket.waitForConnected(10000));
+    QVERIFY(socket.waitForEncrypted(10000));
+    QVERIFY(socket.waitForReadyRead(10000));
+    QVERIFY(!socket.peerCertificate().isNull());
+    QVERIFY(!socket.peerCertificateChain().isEmpty());
 }
 
 void tst_QSslSocket::startClientEncryption()
