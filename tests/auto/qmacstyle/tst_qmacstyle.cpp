@@ -118,7 +118,7 @@ void tst_QMacStyle::sizeHints()
     QComboBox comboBox2(&w);
     comboBox2.setEditable(true);
     comboBox2.addItem("Foo");
-    QCOMPARE(sh(&comboBox1).height(), SIZE(20, 17, 15));
+    QCOMPARE(sh(&comboBox2).height(), SIZE(20, 17, 15));
 
     QSlider slider1(Qt::Horizontal, &w);
     QCOMPARE(sh(&slider1).height(), SIZE(15, 12, 10));
