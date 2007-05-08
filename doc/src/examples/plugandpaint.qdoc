@@ -146,7 +146,7 @@
     this file is usually located in a subdirectory, so we need to
     take this into account.
 
-    \printline foreach
+    \skipto foreach (
     \printuntil pluginFileNames +=
     \printline }
     \printline }
@@ -162,15 +162,15 @@
 
     If QPluginLoader::instance() is non-null, we add it to the menus.
 
-    \printline brushMenu->setEnabled
-    \printuntil /^\}$/
+    \skipto brushMenu->setEnabled
+    \printuntil /^\}/
 
     At the end, we enable or disable the \gui{Brush}, \gui{Shapes},
     and \gui{Filters} menus based on whether they contain any items.
 
     \quotefromfile tools/plugandpaint/mainwindow.cpp
     \skipto ::populateMenus(
-    \printuntil /^\}$/
+    \printuntil /^\}/
 
     For each plugin (static or dynamic), we check which interfaces it
     implements using \l qobject_cast(). First, we try to cast the
@@ -181,7 +181,7 @@
 
     \quotefromfile tools/plugandpaint/mainwindow.cpp
     \skipto ::aboutPlugins()
-    \printuntil /^\}$/
+    \printuntil /^\}/
 
     The \c aboutPlugins() slot is called on startup and can be
     invoked at any time through the \gui{About Plugins} action. It
@@ -200,7 +200,7 @@
 
     \quotefromfile tools/plugandpaint/mainwindow.cpp
     \skipto ::changeBrush
-    \printuntil /^\}$/
+    \printuntil /^\}/
 
     The \c changeBrush() slot is invoked when the user chooses one of
     the brushes from the \gui{Brush} menu. We start by finding out
@@ -212,7 +212,7 @@
     area, \c PaintArea will use this brush.
 
     \skipto ::insertShape
-    \printuntil /^\}$/
+    \printuntil /^\}/
 
     The \c insertShape() is invoked when the use chooses one of the
     shapes from the \gui{Shapes} menu. We retrieve the QAction that
@@ -221,7 +221,7 @@
     to obtain a QPainterPath.
 
     \skipto ::applyFilter
-    \printuntil /^\}$/
+    \printuntil /^\}/
 
     The \c applyFilter() slot is similar: We retrieve the QAction
     that invoked the slot, then the \c FilterInterface associated to
@@ -236,13 +236,13 @@
 
     \quotefromfile tools/plugandpaint/paintarea.cpp
     \skipto ::setBrush(
-    \printuntil /^\}$/
+    \printuntil /^\}/
 
     In \c setBrush(), we simply store the \c BrushInterface and the
     brush that are given to us by \c MainWindow.
 
     \skipto ::mouseMoveEvent
-    \printuntil /^\}$/
+    \printuntil /^\}/
 
     In the \l{QWidget::mouseMoveEvent()}{mouse move event handler},
     we call the \c BrushInterface::mouseMove() function on the
@@ -258,7 +258,7 @@
 
     \quotefromfile tools/plugandpaint/plugindialog.cpp
     \skipto ::findPlugins
-    \printuntil /^\}$/
+    \printuntil /^\}/
 
     The \c findPlugins() is very similar to \c
     MainWindow::loadPlugins(). It uses QPluginLoader to access the
@@ -267,7 +267,7 @@
     interfaces are implemented by the plugins:
 
     \skipto ::populateTreeWidget
-    \printuntil /^\}$/
+    \printuntil /^\}/
 
     \section1 Importing Static Plugins
 
@@ -282,7 +282,7 @@
 
     \quotefromfile tools/plugandpaint/main.cpp
     \skipto #include
-    \printuntil /^\}$/
+    \printuntil /^\}/
 
     The argument to Q_IMPORT_PLUGIN() is the plugin's name, as
     specified with Q_EXPORT_PLUGIN2() in the \l{Exporting the
@@ -348,7 +348,7 @@
     \l qobject_cast() in the \l{tools/plugandpaint}{Plug & Paint}
     application to detect interfaces.
 
-    \printline public:
+    \skipto public:
     \printuntil };
 
     In the \c public section of the class, we declare all the
@@ -361,14 +361,14 @@
 
     \quotefromfile tools/plugandpaintplugins/basictools/basictoolsplugin.cpp
     \skipto ::brushes
-    \printuntil /^\}$/
+    \printuntil /^\}/
 
     The \c brushes() function returns a list of brushes provided by
     this plugin. We provide three brushes: \gui{Pencil}, \gui{Air
     Brush}, and \gui{Random Letters}.
 
     \skipto ::mousePress
-    \printuntil /^\}$/
+    \printuntil /^\}/
 
     On a mouse press event, we just call \c mouseMove() to draw the
     spot where the event occurred.
@@ -379,7 +379,7 @@
     In \c mouseMove(), we start by saving the state of the QPainter
     and we compute a few variables that we'll need later.
 
-    \printuntil /^\}$/
+    \printuntil /^\}/
 
     Then comes the brush-dependent part of the code:
 
@@ -401,16 +401,16 @@
     At the end, we restore the painter state to what it was upon
     entering the function and we return the bounding rectangle.
 
-    \printline ::mouseRelease
-    \printuntil /^\}$/
+    \skipto QRect BasicToolsPlugin::mouseRelease
+    \printuntil /^\}/
 
     When the user releases the mouse, we do nothing and return an
     empty QRect.
 
     \section1 Implementation of the Shape Interface
 
-    \printline ::shapes()
-    \printuntil /^\}$/
+    \skipto QStringList BasicToolsPlugin::shapes() const
+    \printuntil /^\}/
 
     The plugin provides three shapes: \gui{Circle}, \gui{Star}, and
     \gui{Text...}. The three dots after \gui{Text} are there because
@@ -422,8 +422,8 @@
     distinguish between the internal shape name and the name used in
     the user interface.
 
-    \printline ::generateShape
-    \printuntil /^\}$/
+    \skipto  QPainterPath BasicToolsPlugin::generateShape
+    \printuntil /^\}/
 
     The \c generateShape() creates a QPainterPath for the specified
     shape. If the shape is \gui{Text}, we pop up a QInputDialog to
@@ -431,13 +431,13 @@
 
     \section1 Implementation of the Filter Interface
 
-    \printline ::filters
-    \printuntil /^\}$/
+    \skipto QStringList BasicToolsPlugin::filters() const
+    \printuntil /^\}/
 
     The plugin provides three filters: \gui{Invert Pixels}, \gui{Swap
     RGB}, and \gui{Grayscale}.
 
-    \printline ::filterImage
+    \skipto QImage BasicToolsPlugin::filterImage(
     \printuntil /^\}/
 
     The \c filterImage() function takes a filter name and a QImage as
@@ -456,7 +456,8 @@
     Q_EXPORT_PLUGIN2() macro to specify which class provides the
     plugin:
 
-    \printline Q_EXPORT_PLUGIN2
+    \skipto Q_EXPORT_PLUGIN2
+    \printuntil )
 
     This line may appear in any \c .cpp file that is part of the
     plugin's source code.
