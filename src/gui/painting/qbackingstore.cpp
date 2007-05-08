@@ -392,8 +392,8 @@ QWidgetBackingStore::QWidgetBackingStore(QWidget *t) : tlw(t)
 
 QWidgetBackingStore::~QWidgetBackingStore()
 {
-//     if (!tlw->windowSurface())
-//         delete windowSurface;
+    delete windowSurface;
+    windowSurface = 0;
 }
 
 /*
