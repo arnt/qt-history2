@@ -3389,7 +3389,7 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const 
 
     case PM_ScrollBarSliderMin:
         if (hasStyleRule(w, PseudoElement_ScrollBarSlider)) {
-            subRule = renderRule(w, PseudoElement_ScrollBarSlider);
+            subRule = renderRule(w, opt, PseudoElement_ScrollBarSlider);
             QSize msz = subRule.minimumSize();
             if (const QStyleOptionSlider *sb = qstyleoption_cast<const QStyleOptionSlider *>(opt))
                 return sb->orientation == Qt::Horizontal ? msz.width() : msz.height();
@@ -3442,10 +3442,10 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const 
     case PM_SliderControlThickness:
     case PM_SliderThickness: // horizontal slider's height (sizeHint)
     case PM_SliderLength:  { // minimum length of slider
-        QRenderRule subRule = renderRule(w, PseudoElement_SliderGroove);
+        QRenderRule subRule = renderRule(w, opt, PseudoElement_SliderGroove);
         if (!subRule.hasDrawable())
             break;
-        QRenderRule subRule2 = renderRule(w, PseudoElement_SliderHandle);
+        QRenderRule subRule2 = renderRule(w, opt, PseudoElement_SliderHandle);
         bool horizontal = opt->state & QStyle::State_Horizontal;
         if (m == PM_SliderThickness) {
             return horizontal ? subRule.size().height() : subRule.size().width();
@@ -3843,14 +3843,9 @@ QRect QStyleSheetStyle::subControlRect(ComplexControl cc, const QStyleOptionComp
                     if (sc == SC_ScrollBarSlider) {
                         return sr;
                     } else if (sc == SC_ScrollBarSubPage) {
-                        return QRect(cr.topLeft(), sb->orientation == Qt::Horizontal
-                                                    ? QPoint(sr.x()+sr.width()/2, cr.y()+cr.height())
-                                                    : QPoint(cr.x()+cr.width(), sr.y()+sr.height()/2));
+                        return QRect(cr.topLeft(), sb->orientation == Qt::Horizontal ? sr.bottomLeft() : sr.topRight());
                     } else { // SC_ScrollBarAddPage
-                        return QRect(sb->orientation == Qt::Horizontal
-                                         ? QPoint(sr.x()+sr.width()/2+1, cr.y())
-                                         : QPoint(cr.x(), sr.y()+sr.height()/2+1),
-                                     cr.bottomRight());
+                        return QRect(sb->orientation == Qt::Horizontal ? sr.topRight() : sr.bottomLeft(), cr.bottomRight());
                     }
                     break;
                 }
