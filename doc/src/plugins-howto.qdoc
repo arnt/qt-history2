@@ -43,28 +43,30 @@
     \section1 The Higher-Level API: Writing Qt Extensions
 
     Writing a plugin that extends Qt itself is achieved by
-    subclassing the appropriate plugin base clase, implementing a few
+    subclassing the appropriate plugin base class, implementing a few
     functions, and adding a macro.
 
     There are several plugin base classes. Derived plugins are stored
-    by default in the standard plugin directory.
+    by default in sub-directories of the standard plugin directory. Qt
+    will not find plugins if they are not stored in the right
+    directory.
 
     \table
-    \header \o Base Class              \o Default Path                \o Key Case Sensitivity
-    \row    \o QAccessibleBridgePlugin \o \c plugins/accessiblebridge \o Case Sensitive
-    \row    \o QAccessiblePlugin       \o \c plugins/accessible       \o Case Sensitive
-    \row    \o QDecorationPlugin       \o \c plugins/decorations      \o Case Sensitive
-    \row    \o QIconEnginePlugin       \o \c plugins/iconengines      \o Case Insensitive
-    \row    \o QImageIOPlugin          \o \c plugins/imageformats     \o Case Sensitive
-    \row    \o QInputContextPlugin     \o \c plugins/inputmethods     \o Case Sensitive
-    \row    \o QKbdDriverPlugin        \o \c plugins/kbddrivers       \o Case Sensitive
-    \row    \o QMouseDriverPlugin      \o \c plugins/mousedrivers     \o Case Sensitive
-    \row    \o QPictureFormatPlugin    \o \c plugins/pictureformats   \o Case Sensitive
-    \row    \o QScreenDriverPlugin     \o \c plugins/gfxdrivers       \o Case Sensitive
-    \row    \o QScriptExtensionPlugin  \o \c plugins/script           \o Case Sensitive
-    \row    \o QSqlDriverPlugin        \o \c plugins/sqldrivers       \o Case Sensitive
-    \row    \o QStylePlugin            \o \c plugins/styles           \o Case Insensitive
-    \row    \o QTextCodecPlugin        \o \c plugins/codecs           \o Case Sensitive
+    \header \o Base Class              \o Directory Name                \o Key Case Sensitivity
+    \row    \o QAccessibleBridgePlugin \o \c accessiblebridge \o Case Sensitive
+    \row    \o QAccessiblePlugin       \o \c accessible       \o Case Sensitive
+    \row    \o QDecorationPlugin       \o \c decorations      \o Case Sensitive
+    \row    \o QIconEnginePlugin       \o \c iconengines      \o Case Insensitive
+    \row    \o QImageIOPlugin          \o \c imageformats     \o Case Sensitive
+    \row    \o QInputContextPlugin     \o \c inputmethods     \o Case Sensitive
+    \row    \o QKbdDriverPlugin        \o \c kbddrivers       \o Case Sensitive
+    \row    \o QMouseDriverPlugin      \o \c mousedrivers     \o Case Sensitive
+    \row    \o QPictureFormatPlugin    \o \c pictureformats   \o Case Sensitive
+    \row    \o QScreenDriverPlugin     \o \c gfxdrivers       \o Case Sensitive
+    \row    \o QScriptExtensionPlugin  \o \c script           \o Case Sensitive
+    \row    \o QSqlDriverPlugin        \o \c sqldrivers       \o Case Sensitive
+    \row    \o QStylePlugin            \o \c styles           \o Case Insensitive
+    \row    \o QTextCodecPlugin        \o \c codecs           \o Case Sensitive
     \endtable
 
     But where is the \c{plugins} directory? When the application
@@ -168,6 +170,9 @@
     plugin in that directory. For more information about deployment,
     see the \l {Deploying Qt Applications} documentation.
 
+    The \l{Style Plugin Example} shows how to implement a plugin
+    that extends the QStylePlugin base class.
+
     \section1 The Lower-Level API: Extending Qt Applications
 
     Not only Qt itself but also Qt application can be extended
@@ -219,7 +224,9 @@
     The \l{tools/plugandpaint}{Plug & Paint} example documentation
     explains this process in detail. See also
     \l{Creating Custom Widgets for Qt Designer} for information about issues
-    that are specific to \QD.
+    that are specific to \QD. You can also take a look at the
+    \l{Echo Plugin Example} is a more trivial example on how to
+    implement a plugin that extends Qt applications.
 
     \section1 Loading and Verifying Plugins Dynamically
 
