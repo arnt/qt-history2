@@ -206,8 +206,7 @@ void QAlphaPaintEngine::updateState(const QPaintEngineState &state)
             d->m_advancedBrush = false;
             d->m_alphaBrush = false;
         } else {
-            d->m_advancedBrush = (state.brush().style() != Qt::SolidPattern)
-                || (state.renderHints() & QPainter::Antialiasing);
+            d->m_advancedBrush = (state.brush().style() != Qt::SolidPattern);
             d->m_alphaBrush = !state.brush().isOpaque();
         }
     }
@@ -218,8 +217,7 @@ void QAlphaPaintEngine::updateState(const QPaintEngineState &state)
             d->m_advancedPen = false;
             d->m_alphaPen = false;
         } else {
-            d->m_advancedPen = (d->m_pen.brush().style() != Qt::SolidPattern)
-                || (state.renderHints() & QPainter::Antialiasing);
+            d->m_advancedPen = (d->m_pen.brush().style() != Qt::SolidPattern);
             d->m_alphaPen = !d->m_pen.brush().isOpaque();
         }
     }
