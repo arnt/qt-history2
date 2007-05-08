@@ -853,9 +853,9 @@ void QMacStylePrivate::initComboboxBdi(const QStyleOptionComboBox *combo, HIThem
         // an extra check here before using the mini and small buttons.
         int h = combo->rect.size().height();
         if (combo->editable){
-            if (h < 25)
+            if (h < 21)
                 bdi->kind = kThemeComboBoxMini;
-            else if (h < 28)
+            else if (h < 26)
                 bdi->kind = kThemeComboBoxSmall;
             else
                 bdi->kind = kThemeComboBox;
@@ -867,7 +867,7 @@ void QMacStylePrivate::initComboboxBdi(const QStyleOptionComboBox *combo, HIThem
             // the use of LargeButtons explicit.
             if (h < 21)
                 bdi->kind = kThemePopupButtonMini;
-            else if (h < 27)
+            else if (h < 26)
                 bdi->kind = kThemePopupButtonSmall;
             else
                 bdi->kind = kThemePopupButton;
@@ -891,7 +891,7 @@ HIRect QMacStylePrivate::comboboxInnerBounds(const HIRect &outerBounds, int butt
         innerBounds.origin.x += 2;
         innerBounds.origin.y += 3;
         innerBounds.size.width -= 5;
-        innerBounds.size.height -= 7;
+        innerBounds.size.height -= 6;
         break;
     case kThemePopupButtonSmall:
         innerBounds.origin.x += 3;
