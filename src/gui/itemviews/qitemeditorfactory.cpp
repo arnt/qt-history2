@@ -68,11 +68,18 @@ public:
     \since 4.2
     \ingroup model-view
 
-    When editing the data shown by an item delegate, the
-    QItemDelegate responsible requests an editor widget from its item
-    editor factory by calling the createEditor() function. The default
-    factory is provided by this class, but it is possible to implement
-    subclasses that provide editors for certain types of data.
+    When editing data in an item view, editors are created and
+    displayed by a delegate. QItemDelegate, which is the delegate by
+    default installed on Qt's item views, uses a QItemEditorFactory to
+    create editors for it. A default unique instance provided by
+    QItemEditorFactory is used by all item delegates.  If you set a
+    new default factory with setDefaultFactory(), the new factory will
+    be used by existing and new delegates.
+
+    A factory keeps a collection of QItemEditorCreatorBase
+    instances, which are specialized editors that produce editors
+    for one particular QVariant data type (All Qt models store
+    their data in \l{QVariant}s).
 
     \section1 Standard Editing Widgets
 
@@ -94,10 +101,9 @@ public:
     \row    \o QTime \o QTimeEdit
     \endtable
 
-    Additional editors can be registered for use with both standard and custom
-    delegates with the registerEditor() function.
+    Additional editors can be registered with the registerEditor() function. 
 
-    \sa QItemDelegate, {Model/View Programming}
+    \sa QItemDelegate, {Model/View Programming}, {Color Editor Factory Example}
 */
 
 /*!
@@ -293,15 +299,32 @@ void QItemEditorFactory::setDefaultFactory(QItemEditorFactory *factory)
     \since 4.2
     \ingroup model-view
 
-    Item editor creators are specialized widget factories that provide editor widgets
-    for specific types of item data. QItemEditorFactory finds the appropriate factory
-    for editors using a QVariant-based scheme to associate data types with editor
-    creators.
+    \l{QItemEditorCreatorBase}s are specialized widget factories that
+    provide editor widgets for one particular QVariant data type. They
+    are used by QItemEditorFactory to create editors for
+    \l{QItemDelegate}s. Creator bases must be registered with
+    QItemEditorFactory::registerEditor().
+
+    An editor should provide a user property for the data it edits.
+    QItemDelagates can then access the property using Qt's
+    \l{Meta-Object System}{meta-object system} to set and retrieve the
+    editing data. A property is set as the user property with the USER
+    keyword:
+
+    \code
+        Q_PROPERTY(QColor color READ color WRITE setColor USER true)
+    \endcode
+
+    If the editor does not provide a user property, it must return the
+    name of the property from valuePropertyName(); delegates will then
+    use the name to access the property. If a user property exists,
+    item delegates will not call valuePropertyName().
 
     QStandardItemEditorCreator is a convenience template class that can be used
     to register widgets without the need to subclass QItemEditorCreatorBase.
 
-    \sa QStandardItemEditorCreator, QItemEditorFactory, {Model/View Programming}
+    \sa QStandardItemEditorCreator, QItemEditorFactory,
+    {Model/View Programming}, {Color Editor Factory Example}
 */
 
 /*!
@@ -362,10 +385,12 @@ void QItemEditorFactory::setDefaultFactory(QItemEditorFactory *factory)
     QItemEditorFactory *factory = new QItemEditorFactory;
     \endcode
 
-    Only use this class if your editor does not define a user
-    property (using the USER keyword in the Q_PROPERTY macro).  If the
-    widget has a user property, you should use
-    QStandardItemEditorCreator in stead.
+    The constructor takes the name of the property that contains the
+    editing data. QItemDelegate can then access the property by name
+    when it sets and retrieves editing data. Only use this class if
+    your editor does not define a user property (using the USER
+    keyword in the Q_PROPERTY macro).  If the widget has a user
+    property, you should use QStandardItemEditorCreator instead.
 
     \sa QItemEditorCreatorBase, QStandardItemEditorCreator,
 	QItemEditorFactory, {Color Editor Factory Example}
@@ -417,6 +442,16 @@ void QItemEditorFactory::setDefaultFactory(QItemEditorFactory *factory)
     Setting the \c editorFactory created above in an item delegate via
     QItemDelegate::setItemEditorFactory() makes sure that all values of type
     QVariant::DateTime will be edited in \c{MyFancyDateTimeEdit}.
+
+    The editor must provide a user property that will contain the
+    editing data. The property is used by \l{QItemDelegate}s to set
+    and retrieve the data (using Qt's \l{Meta-Object
+    System}{meta-object system}). You set the user property with
+    the USER keyword:
+
+    \code
+	Q_PROPERTY(QColor color READ color WRITE setColor USER true)	
+    \endcode
 
     \sa QItemEditorCreatorBase, QItemEditorCreator,
 	QItemEditorFactory, QItemDelegate, {Color Editor Factory Example}

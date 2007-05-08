@@ -168,19 +168,21 @@ QSizeF QItemDelegatePrivate::doTextLayout(int lineWidth) const
     the default delegate can provide.
 
     This class provides default implementations of the functions for
-    painting item data in a view, and editing data obtained from a model.
-    Default implementations of the paint() and sizeHint() virtual functions,
-    defined in QAbstractItemDelegate, are provided to ensure that the
-    delegate implements the correct basic behavior expected by views. You
-    can reimplement these functions in subclasses to customize the
-    appearance of items.
+    painting item data in a view and editing data from item models.
+    Default implementations of the paint() and sizeHint() virtual
+    functions, defined in QAbstractItemDelegate, are provided to
+    ensure that the delegate implements the correct basic behavior
+    expected by views. You can reimplement these functions in
+    subclasses to customize the appearance of items.
 
-    Delegates can be used to manipulate item data in two complementary ways:
-    by processing events in the normal manner, or by implementing a
-    custom editor widget. The item delegate takes the approach of providing
-    a widget for editing purposes that can be supplied to
-    QAbstractItemView::setItemDelegate() or the equivalent function in
-    subclasses of QAbstractItemView.
+    When editing data in an item view, QItemDelegate provides an
+    editor widget, which is a widget that is placed on top of the view
+    while editing takes place. Editors are created with a
+    QItemEditorFactory; a default static instance provided by
+    QItemEditorFactory is installed on all item delagates. You can set
+    a custom factory using setItemEditorFactory() or set a new default
+    factory with QItemEditorFactory::setDefaultFactory(). It is the
+    data stored in the item model with the Qt::EditRole that is edited.
 
     Only the standard editing functions for widget-based delegates are
     reimplemented here: 
@@ -241,11 +243,14 @@ QSizeF QItemDelegatePrivate::doTextLayout(int lineWidth) const
     render items suitably for all the required states; e.g. selected,
     disabled, checked. The documentation for the paint() function contains
     some hints to show how this can be achieved.
-
-    Custom editing features for can be added by subclassing QItemDelegate and
-    reimplementing createEditor(), setEditorData(), setModelData(), and
-    updateEditorGeometry(). This process is described in the
-    \l{Spin Box Delegate example}.
+   
+    You can provide custom editors by using a QItemEditorFactory. The
+    \l{Color Editor Factory Example} shows how a custom editor can be
+    made available to \l{QItemDelegate}s with the default item editor
+    factory. This way, there is no need to subclass QItemDelegate.  An
+    alternative is to reimplement createEditor(), setEditorData(),
+    setModelData(), and updateEditorGeometry(). This process is
+    described in the \l{Spin Box Delegate example}.
 
     \sa {Delegate Classes}, QAbstractItemDelegate, {Spin Box Delegate Example},
         {Settings Editor Example}, {Icons Example}
