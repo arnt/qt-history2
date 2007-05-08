@@ -171,34 +171,18 @@ QScriptValueImpl Function::method_void(QScriptContextPrivate *, QScriptEnginePri
 QScriptValueImpl Function::method_disconnect(QScriptContextPrivate *context, QScriptEnginePrivate *eng, QScriptClassInfo *)
 {
 #ifndef QT_NO_QOBJECT
-    if (context->argumentCount() == 0)
-        return QScriptValueImpl(eng, false);
+    if (context->argumentCount() == 0) {
+        return context->throwError(
+            QLatin1String("Function.prototype.disconnect: no arguments given"));
+    }
 
     QScriptValueImpl self = context->thisObject();
     QScriptFunction *fun = self.toFunction();
-    if ((fun == 0) || (fun->type() != QScriptFunction::Qt))
-        return context->throwError(QScriptContext::TypeError,
-                                   QLatin1String("Function.prototype.disconnect"));
-
-    QScriptValueImpl receiver;
-    QScriptValueImpl slot;
-    QScriptValueImpl arg0 = context->argument(0);
-    if (context->argumentCount() < 2) {
-        receiver = self;
-        slot = arg0;
-    } else {
-        receiver = arg0;
-        QScriptValueImpl arg1 = context->argument(1);
-        if (arg1.isFunction())
-            slot = arg1;
-        else
-            slot = receiver.property(arg1.toString(), QScriptValue::ResolvePrototype);
+    if ((fun == 0) || (fun->type() != QScriptFunction::Qt)) {
+        return context->throwError(
+            QScriptContext::TypeError,
+            QLatin1String("Function.prototype.disconnect: this object is not a signal"));
     }
-
-    QScriptFunction *otherFun = slot.toFunction();
-    if (otherFun == 0)
-        return context->throwError(QScriptContext::TypeError,
-                                   QLatin1String("Function.prototype.disconnect"));
 
     QtFunction *qtSignal = static_cast<QtFunction*>(fun);
 
@@ -210,8 +194,36 @@ QScriptValueImpl Function::method_disconnect(QScriptContextPrivate *context, QSc
             .arg(QLatin1String(sig.signature())));
     }
 
+    QScriptValueImpl receiver;
+    QScriptValueImpl slot;
+    QScriptValueImpl arg0 = context->argument(0);
+    if (context->argumentCount() < 2) {
+        receiver = self;
+        slot = arg0;
+    } else {
+        receiver = arg0;
+        QScriptValueImpl arg1 = context->argument(1);
+        if (arg1.isFunction())
+            slot = arg1;
+        else
+            slot = receiver.property(arg1.toString(), QScriptValue::ResolvePrototype);
+    }
+
+    QScriptFunction *otherFun = slot.toFunction();
+    if (otherFun == 0) {
+        return context->throwError(
+            QScriptContext::TypeError,
+            QLatin1String("Function.prototype.disconnect: target is not a function"));
+    }
+
     bool ok = qtSignal->destroyConnection(self, receiver, slot);
-    return QScriptValueImpl(eng, ok);
+    if (!ok) {
+        return context->throwError(
+            QString::fromLatin1("Function.prototype.disconnect: failed to disconnect from %0::%1")
+            .arg(QLatin1String(qtSignal->metaObject()->className()))
+            .arg(QLatin1String(sig.signature())));
+    }
+    return eng->undefinedValue();
 #else
     return context->throwError(QScriptContext::TypeError,
                                QLatin1String("Function.prototype.disconnect"));
@@ -223,14 +235,28 @@ QScriptValueImpl Function::method_connect(QScriptContextPrivate *context, QScrip
     Q_UNUSED(classInfo);
 
 #ifndef QT_NO_QOBJECT
-    if (context->argumentCount() == 0)
-        return QScriptValueImpl(eng, false);
+    if (context->argumentCount() == 0) {
+        return context->throwError(
+            QLatin1String("Function.prototype.connect: no arguments given"));
+    }
 
     QScriptValueImpl self = context->thisObject();
     QScriptFunction *fun = self.toFunction();
-    if ((fun == 0) || (fun->type() != QScriptFunction::Qt))
+    if ((fun == 0) || (fun->type() != QScriptFunction::Qt)) {
+        return context->throwError(
+            QScriptContext::TypeError,
+            QLatin1String("Function.prototype.connect: this object is not a signal"));
+    }
+
+    QtFunction *qtSignal = static_cast<QtFunction*>(fun);
+
+    QMetaMethod sig = qtSignal->metaObject()->method(qtSignal->initialIndex());
+    if (sig.methodType() != QMetaMethod::Signal) {
         return context->throwError(QScriptContext::TypeError,
-                                   QLatin1String("Function.prototype.connect"));
+            QString::fromLatin1("Function.prototype.connect: %0::%1 is not a signal")
+            .arg(QLatin1String(qtSignal->metaObject()->className()))
+            .arg(QLatin1String(sig.signature())));
+    }
 
     QScriptValueImpl receiver;
     QScriptValueImpl slot;
@@ -248,22 +274,20 @@ QScriptValueImpl Function::method_connect(QScriptContextPrivate *context, QScrip
     }
 
     QScriptFunction *otherFun = slot.toFunction();
-    if (otherFun == 0)
-        return context->throwError(QScriptContext::TypeError,
-                                   QLatin1String("Function.prototype.connect"));
-
-    QtFunction *qtSignal = static_cast<QtFunction*>(fun);
-
-    QMetaMethod sig = qtSignal->metaObject()->method(qtSignal->initialIndex());
-    if (sig.methodType() != QMetaMethod::Signal) {
-        return context->throwError(QScriptContext::TypeError,
-            QString::fromLatin1("Function.prototype.connect: %0::%1 is not a signal")
-            .arg(QLatin1String(qtSignal->metaObject()->className()))
-            .arg(QLatin1String(sig.signature())));
+    if (otherFun == 0) {
+        return context->throwError(
+            QScriptContext::TypeError,
+            QLatin1String("Function.prototype.connect: target is not a function"));
     }
 
     bool ok = qtSignal->createConnection(self, receiver, slot);
-    return QScriptValueImpl(eng, ok);
+    if (!ok) {
+        return context->throwError(
+            QString::fromLatin1("Function.prototype.connect: failed to connect to %0::%1")
+            .arg(QLatin1String(qtSignal->metaObject()->className()))
+            .arg(QLatin1String(sig.signature())));
+    }
+    return eng->undefinedValue();
 #else
     Q_UNUSED(eng);
     Q_UNUSED(classInfo);

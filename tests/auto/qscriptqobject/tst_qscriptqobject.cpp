@@ -910,7 +910,7 @@ void tst_QScriptExtQObject::connectAndDisconnect()
     QCOMPARE(m_engine->evaluate("myObject.mySignal.connect(123)").isError(), true);
 
     m_engine->evaluate("myHandler = function() { global.gotSignal = true; global.signalArgs = arguments; global.slotThisObject = this; global.signalSender = this.sender; }");
-    QCOMPARE(m_engine->evaluate("myObject.mySignal.connect(myHandler)").toBoolean(), true);
+    QVERIFY(m_engine->evaluate("myObject.mySignal.connect(myHandler)").isUndefined());
 
     m_engine->evaluate("gotSignal = false");
     m_engine->evaluate("myObject.mySignal()");
@@ -924,7 +924,7 @@ void tst_QScriptExtQObject::connectAndDisconnect()
     QCOMPARE(m_engine->evaluate("gotSignal").toBoolean(), true);
     QCOMPARE(m_engine->evaluate("signalArgs.length").toNumber(), 0.0);
 
-    QCOMPARE(m_engine->evaluate("myObject.mySignalWithIntArg.connect(myHandler)").toBoolean(), true);
+    QVERIFY(m_engine->evaluate("myObject.mySignalWithIntArg.connect(myHandler)").isUndefined());
 
     m_engine->evaluate("gotSignal = false");
     m_myObject->emitMySignalWithIntArg(123);
@@ -932,10 +932,10 @@ void tst_QScriptExtQObject::connectAndDisconnect()
     QCOMPARE(m_engine->evaluate("signalArgs.length").toNumber(), 1.0);
     QCOMPARE(m_engine->evaluate("signalArgs[0]").toNumber(), 123.0);
 
-    QCOMPARE(m_engine->evaluate("myObject.mySignal.disconnect(myHandler)").toBoolean(), true);
-    QCOMPARE(m_engine->evaluate("myObject.mySignal.disconnect(myHandler)").toBoolean(), false);
+    QVERIFY(m_engine->evaluate("myObject.mySignal.disconnect(myHandler)").isUndefined());
+    QVERIFY(m_engine->evaluate("myObject.mySignal.disconnect(myHandler)").isError());
 
-    QCOMPARE(m_engine->evaluate("myObject.mySignal2.connect(myHandler)").toBoolean(), true);
+    QVERIFY(m_engine->evaluate("myObject.mySignal2.connect(myHandler)").isUndefined());
 
     m_engine->evaluate("gotSignal = false");
     m_myObject->emitMySignal2(false);
@@ -944,13 +944,13 @@ void tst_QScriptExtQObject::connectAndDisconnect()
     QCOMPARE(m_engine->evaluate("signalArgs[0]").toBoolean(), false);
 
     m_engine->evaluate("gotSignal = false");
-    QCOMPARE(m_engine->evaluate("myObject.mySignal2.connect(myHandler)").toBoolean(), true);
+    QVERIFY(m_engine->evaluate("myObject.mySignal2.connect(myHandler)").isUndefined());
     m_myObject->emitMySignal2(true);
     QCOMPARE(m_engine->evaluate("gotSignal").toBoolean(), true);
     QCOMPARE(m_engine->evaluate("signalArgs.length").toNumber(), 1.0);
     QCOMPARE(m_engine->evaluate("signalArgs[0]").toBoolean(), true);
 
-    QCOMPARE(m_engine->evaluate("myObject.mySignal2.disconnect(myHandler)").toBoolean(), true);
+    QVERIFY(m_engine->evaluate("myObject.mySignal2.disconnect(myHandler)").isUndefined());
 
     QCOMPARE(m_engine->evaluate("myObject.['mySignal2()'].connect(myHandler)").toBoolean(), true);
 
@@ -962,98 +962,183 @@ void tst_QScriptExtQObject::connectAndDisconnect()
 
     // connect(object, function)
     m_engine->evaluate("otherObject = { name:'foo' }");
-    QCOMPARE(m_engine->evaluate("myObject.mySignal.connect(otherObject, myHandler)").toBoolean(), true);
-    QCOMPARE(m_engine->evaluate("myObject.mySignal.disconnect(otherObject, myHandler)").toBoolean(), true);
+    QVERIFY(m_engine->evaluate("myObject.mySignal.connect(otherObject, myHandler)").isUndefined());
+    QVERIFY(m_engine->evaluate("myObject.mySignal.disconnect(otherObject, myHandler)").isUndefined());
     m_engine->evaluate("gotSignal = false");
     m_myObject->emitMySignal();
     QCOMPARE(m_engine->evaluate("gotSignal").toBoolean(), false);
 
-    QCOMPARE(m_engine->evaluate("myObject.mySignal.disconnect(otherObject, myHandler)").toBoolean(), false);
+    QVERIFY(m_engine->evaluate("myObject.mySignal.disconnect(otherObject, myHandler)").isError());
 
-    QCOMPARE(m_engine->evaluate("myObject.mySignal.connect(otherObject, myHandler)").toBoolean(), true);
+    QVERIFY(m_engine->evaluate("myObject.mySignal.connect(otherObject, myHandler)").isUndefined());
     m_engine->evaluate("gotSignal = false");
     m_myObject->emitMySignal();
     QCOMPARE(m_engine->evaluate("gotSignal").toBoolean(), true);
     QCOMPARE(m_engine->evaluate("signalArgs.length").toNumber(), 0.0);
     QCOMPARE(m_engine->evaluate("signalSender").toQObject(), (QObject *)m_myObject);
     QCOMPARE(m_engine->evaluate("slotThisObject").property("name").toString(), QLatin1String("foo"));
-    QCOMPARE(m_engine->evaluate("myObject.mySignal.disconnect(otherObject, myHandler)").toBoolean(), true);
+    QVERIFY(m_engine->evaluate("myObject.mySignal.disconnect(otherObject, myHandler)").isUndefined());
 
     m_engine->evaluate("yetAnotherObject = { name:'bar', func : function() { } }");
-    QCOMPARE(m_engine->evaluate("myObject.mySignal2.connect(yetAnotherObject, myHandler)").toBoolean(), true);
+    QVERIFY(m_engine->evaluate("myObject.mySignal2.connect(yetAnotherObject, myHandler)").isUndefined());
     m_engine->evaluate("gotSignal = false");
     m_myObject->emitMySignal2(true);
     QCOMPARE(m_engine->evaluate("gotSignal").toBoolean(), true);
     QCOMPARE(m_engine->evaluate("signalArgs.length").toNumber(), 1.0);
     QCOMPARE(m_engine->evaluate("signalSender").toQObject(), (QObject *)m_myObject);
     QCOMPARE(m_engine->evaluate("slotThisObject").property("name").toString(), QLatin1String("bar"));
-    QCOMPARE(m_engine->evaluate("myObject.mySignal2.disconnect(yetAnotherObject, myHandler)").toBoolean(), true);
+    QVERIFY(m_engine->evaluate("myObject.mySignal2.disconnect(yetAnotherObject, myHandler)").isUndefined());
 
-    QCOMPARE(m_engine->evaluate("myObject.mySignal2.connect(myObject, myHandler)").toBoolean(), true);
+    QVERIFY(m_engine->evaluate("myObject.mySignal2.connect(myObject, myHandler)").isUndefined());
     m_engine->evaluate("gotSignal = false");
     m_myObject->emitMySignal2(true);
     QCOMPARE(m_engine->evaluate("gotSignal").toBoolean(), true);
     QCOMPARE(m_engine->evaluate("signalArgs.length").toNumber(), 1.0);
     QCOMPARE(m_engine->evaluate("signalSender").toQObject(), (QObject *)m_myObject);
     QCOMPARE(m_engine->evaluate("slotThisObject").toQObject(), (QObject *)m_myObject);
-    QCOMPARE(m_engine->evaluate("myObject.mySignal2.disconnect(myObject, myHandler)").toBoolean(), true);
+    QVERIFY(m_engine->evaluate("myObject.mySignal2.disconnect(myObject, myHandler)").isUndefined());
 
     // connect(obj, string)
-    QCOMPARE(m_engine->evaluate("myObject.mySignal.connect(yetAnotherObject, 'func')").toBoolean(), true);
-    QCOMPARE(m_engine->evaluate("myObject.mySignal.connect(myObject, 'mySlot')").toBoolean(), true);
-    QCOMPARE(m_engine->evaluate("myObject.mySignal.disconnect(yetAnotherObject, 'func')").toBoolean(), true);
-    QCOMPARE(m_engine->evaluate("myObject.mySignal.disconnect(myObject, 'mySlot')").toBoolean(), true);
+    QVERIFY(m_engine->evaluate("myObject.mySignal.connect(yetAnotherObject, 'func')").isUndefined());
+    QVERIFY(m_engine->evaluate("myObject.mySignal.connect(myObject, 'mySlot')").isUndefined());
+    QVERIFY(m_engine->evaluate("myObject.mySignal.disconnect(yetAnotherObject, 'func')").isUndefined());
+    QVERIFY(m_engine->evaluate("myObject.mySignal.disconnect(myObject, 'mySlot')").isUndefined());
 
     // check that emitting signals from script works
 
     // no arguments
-    QCOMPARE(m_engine->evaluate("myObject.mySignal.connect(myObject.mySlot)").toBoolean(), true);
+    QVERIFY(m_engine->evaluate("myObject.mySignal.connect(myObject.mySlot)").isUndefined());
     m_myObject->resetQtFunctionInvoked();
     QCOMPARE(m_engine->evaluate("myObject.mySignal()").isUndefined(), true);
     QCOMPARE(m_myObject->qtFunctionInvoked(), 20);
-    QCOMPARE(m_engine->evaluate("myObject.mySignal.disconnect(myObject.mySlot)").toBoolean(), true);
+    QVERIFY(m_engine->evaluate("myObject.mySignal.disconnect(myObject.mySlot)").isUndefined());
 
     // one argument
-    QCOMPARE(m_engine->evaluate("myObject.mySignalWithIntArg.connect(myObject.mySlotWithIntArg)").toBoolean(), true);
+    QVERIFY(m_engine->evaluate("myObject.mySignalWithIntArg.connect(myObject.mySlotWithIntArg)").isUndefined());
     m_myObject->resetQtFunctionInvoked();
     QCOMPARE(m_engine->evaluate("myObject.mySignalWithIntArg(123)").isUndefined(), true);
     QCOMPARE(m_myObject->qtFunctionInvoked(), 21);
     QCOMPARE(m_myObject->qtFunctionActuals().size(), 1);
     QCOMPARE(m_myObject->qtFunctionActuals().at(0).toInt(), 123);
-    QCOMPARE(m_engine->evaluate("myObject.mySignalWithIntArg.disconnect(myObject.mySlotWithIntArg)").toBoolean(), true);
+    QVERIFY(m_engine->evaluate("myObject.mySignalWithIntArg.disconnect(myObject.mySlotWithIntArg)").isUndefined());
 
-    QCOMPARE(m_engine->evaluate("myObject.mySignalWithIntArg.connect(myObject.mySlotWithDoubleArg)").toBoolean(), true);
+    QVERIFY(m_engine->evaluate("myObject.mySignalWithIntArg.connect(myObject.mySlotWithDoubleArg)").isUndefined());
     m_myObject->resetQtFunctionInvoked();
     QCOMPARE(m_engine->evaluate("myObject.mySignalWithIntArg(123)").isUndefined(), true);
     QCOMPARE(m_myObject->qtFunctionInvoked(), 22);
     QCOMPARE(m_myObject->qtFunctionActuals().size(), 1);
     QCOMPARE(m_myObject->qtFunctionActuals().at(0).toDouble(), 123.0);
-    QCOMPARE(m_engine->evaluate("myObject.mySignalWithIntArg.disconnect(myObject.mySlotWithDoubleArg)").toBoolean(), true);
+    QVERIFY(m_engine->evaluate("myObject.mySignalWithIntArg.disconnect(myObject.mySlotWithDoubleArg)").isUndefined());
 
-    QCOMPARE(m_engine->evaluate("myObject.mySignalWithIntArg.connect(myObject.mySlotWithStringArg)").toBoolean(), true);
+    QVERIFY(m_engine->evaluate("myObject.mySignalWithIntArg.connect(myObject.mySlotWithStringArg)").isUndefined());
     m_myObject->resetQtFunctionInvoked();
     QCOMPARE(m_engine->evaluate("myObject.mySignalWithIntArg(123)").isUndefined(), true);
     QCOMPARE(m_myObject->qtFunctionInvoked(), 23);
     QCOMPARE(m_myObject->qtFunctionActuals().size(), 1);
     QCOMPARE(m_myObject->qtFunctionActuals().at(0).toString(), QLatin1String("123"));
-    QCOMPARE(m_engine->evaluate("myObject.mySignalWithIntArg.disconnect(myObject.mySlotWithStringArg)").toBoolean(), true);
+    QVERIFY(m_engine->evaluate("myObject.mySignalWithIntArg.disconnect(myObject.mySlotWithStringArg)").isUndefined());
 
     // connecting to overloaded slot
-    QVERIFY(m_engine->evaluate("myObject.mySignalWithIntArg.connect(myObject.myOverloadedSlot)").toBoolean());
+    QVERIFY(m_engine->evaluate("myObject.mySignalWithIntArg.connect(myObject.myOverloadedSlot)").isUndefined());
     m_myObject->resetQtFunctionInvoked();
     QCOMPARE(m_engine->evaluate("myObject.mySignalWithIntArg(123)").isUndefined(), true);
     QCOMPARE(m_myObject->qtFunctionInvoked(), 26); // double overload
     QCOMPARE(m_myObject->qtFunctionActuals().size(), 1);
     QCOMPARE(m_myObject->qtFunctionActuals().at(0).toInt(), 123);
-    QVERIFY(m_engine->evaluate("myObject.mySignalWithIntArg.disconnect(myObject.myOverloadedSlot)").toBoolean());
+    QVERIFY(m_engine->evaluate("myObject.mySignalWithIntArg.disconnect(myObject.myOverloadedSlot)").isUndefined());
 
-    QVERIFY(m_engine->evaluate("myObject.mySignalWithIntArg.connect(myObject['myOverloadedSlot(int)'])").toBoolean());
+    QVERIFY(m_engine->evaluate("myObject.mySignalWithIntArg.connect(myObject['myOverloadedSlot(int)'])").isUndefined());
     m_myObject->resetQtFunctionInvoked();
     QCOMPARE(m_engine->evaluate("myObject.mySignalWithIntArg(456)").isUndefined(), true);
     QCOMPARE(m_myObject->qtFunctionInvoked(), 28); // int overload
     QCOMPARE(m_myObject->qtFunctionActuals().size(), 1);
     QCOMPARE(m_myObject->qtFunctionActuals().at(0).toInt(), 456);
-    QVERIFY(m_engine->evaluate("myObject.mySignalWithIntArg.disconnect(myObject['myOverloadedSlot(int)'])").toBoolean());
+    QVERIFY(m_engine->evaluate("myObject.mySignalWithIntArg.disconnect(myObject['myOverloadedSlot(int)'])").isUndefined());
+
+    // erroneous input
+    {
+        QScriptValue ret = m_engine->evaluate("(function() { }).connect()");
+        QVERIFY(ret.isError());
+        QCOMPARE(ret.toString(), QLatin1String("Error: Function.prototype.connect: no arguments given"));
+    }
+    {
+        QScriptValue ret = m_engine->evaluate("var o = { }; o.connect = Function.prototype.connect;  o.connect()");
+        QVERIFY(ret.isError());
+        QCOMPARE(ret.toString(), QLatin1String("Error: Function.prototype.connect: no arguments given"));
+    }
+
+    {
+        QScriptValue ret = m_engine->evaluate("(function() { }).connect(123)");
+        QVERIFY(ret.isError());
+        QCOMPARE(ret.toString(), QLatin1String("TypeError: Function.prototype.connect: this object is not a signal"));
+    }
+    {
+        QScriptValue ret = m_engine->evaluate("var o = { }; o.connect = Function.prototype.connect;  o.connect(123)");
+        QVERIFY(ret.isError());
+        QCOMPARE(ret.toString(), QLatin1String("TypeError: Function.prototype.connect: this object is not a signal"));
+    }
+
+    {
+        QScriptValue ret = m_engine->evaluate("myObject.myInvokable.connect(123)");
+        QVERIFY(ret.isError());
+        QCOMPARE(ret.toString(), QLatin1String("TypeError: Function.prototype.connect: MyQObject::myInvokable() is not a signal"));
+    }
+    {
+        QScriptValue ret = m_engine->evaluate("myObject.myInvokable.connect(function() { })");
+        QVERIFY(ret.isError());
+        QCOMPARE(ret.toString(), QLatin1String("TypeError: Function.prototype.connect: MyQObject::myInvokable() is not a signal"));
+    }
+
+    {
+        QScriptValue ret = m_engine->evaluate("myObject.mySignal.connect(123)");
+        QVERIFY(ret.isError());
+        QCOMPARE(ret.toString(), QLatin1String("TypeError: Function.prototype.connect: target is not a function"));
+    }
+
+    {
+        QScriptValue ret = m_engine->evaluate("(function() { }).disconnect()");
+        QVERIFY(ret.isError());
+        QCOMPARE(ret.toString(), QLatin1String("Error: Function.prototype.disconnect: no arguments given"));
+    }
+    {
+        QScriptValue ret = m_engine->evaluate("var o = { }; o.disconnect = Function.prototype.disconnect;  o.disconnect()");
+        QVERIFY(ret.isError());
+        QCOMPARE(ret.toString(), QLatin1String("Error: Function.prototype.disconnect: no arguments given"));
+    }
+
+    {
+        QScriptValue ret = m_engine->evaluate("(function() { }).disconnect(123)");
+        QVERIFY(ret.isError());
+        QCOMPARE(ret.toString(), QLatin1String("TypeError: Function.prototype.disconnect: this object is not a signal"));
+    }
+    {
+        QScriptValue ret = m_engine->evaluate("var o = { }; o.disconnect = Function.prototype.disconnect;  o.disconnect(123)");
+        QVERIFY(ret.isError());
+        QCOMPARE(ret.toString(), QLatin1String("TypeError: Function.prototype.disconnect: this object is not a signal"));
+    }
+
+    {
+        QScriptValue ret = m_engine->evaluate("myObject.myInvokable.disconnect(123)");
+        QVERIFY(ret.isError());
+        QCOMPARE(ret.toString(), QLatin1String("TypeError: Function.prototype.disconnect: MyQObject::myInvokable() is not a signal"));
+    }
+    {
+        QScriptValue ret = m_engine->evaluate("myObject.myInvokable.disconnect(function() { })");
+        QVERIFY(ret.isError());
+        QCOMPARE(ret.toString(), QLatin1String("TypeError: Function.prototype.disconnect: MyQObject::myInvokable() is not a signal"));
+    }
+
+    {
+        QScriptValue ret = m_engine->evaluate("myObject.mySignal.disconnect(123)");
+        QVERIFY(ret.isError());
+        QCOMPARE(ret.toString(), QLatin1String("TypeError: Function.prototype.disconnect: target is not a function"));
+    }
+
+    {
+        QScriptValue ret = m_engine->evaluate("myObject.mySignal.disconnect(function() { })");
+        QVERIFY(ret.isError());
+        QCOMPARE(ret.toString(), QLatin1String("Error: Function.prototype.disconnect: failed to disconnect from MyQObject::mySignal()"));
+    }
 }
 
 void tst_QScriptExtQObject::classEnums()

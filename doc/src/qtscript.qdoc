@@ -92,8 +92,13 @@
 
   \section2 Using Signals and Slots
 
-  To connect to a signal, you invoke the \c{connect()} function of
-  the signal from script code. There are three overloads of \c{connect()}.
+  QtScript uses a different syntax for connecting to and disconnecting
+  from signals than what you're familiar with from C++ (i.e. QObject::connect()).
+  To connect to a signal, you reference the relevant signal as a property
+  of the sender object, and invoke its \c{connect()} function. There
+  are three overloads of \c{connect()}, each with a corresponding
+  \c{disconnect()} overload. The following subsections describe these
+  three forms.
 
   \section3 Signal to Function Connections
 
@@ -183,6 +188,21 @@
   myQObject.somethingChanged.disconnect(obj, "fun");
   \endcode
 
+  \section3 Error Handling
+
+  When \c{connect()} or \c{disconnect()} succeeds, the function will
+  return \c{undefined}; otherwise, it will throw a script exception.
+  You can obtain an error message from the resulting \c{Error} object.
+  Example:
+
+  \code
+  try {
+      myQObject.somethingChanged.connect(myQObject, "slotThatDoesntExist");
+  } catch (e) {
+      print(e);
+  }
+  \endcode
+
   \section3 Emitting Signals from Scripts
 
   To emit a signal from script code, you simply invoke the signal
@@ -244,15 +264,16 @@
 
   Every named child of the QObject is by default available as
   a property of the corresponding Qt Script object. For example,
-  if you have a QDialog whose \c{objectName()} is \c{"okButton"},
-  you can access this object in script code through the expression
+  if you have a QDialog with a child widget whose \c{objectName()} is
+  \c{"okButton"}, you can access this object in script code through
+  the expression
 
   \code
   myDialog.okButton
   \endcode
 
-  Since \c{objectName} is itself a Q_PROPERTY, you can manipulate
-  the name in script code:
+  Since \c{objectName} is itself a Q_PROPERTY, you can by default
+  manipulate the name in script code:
 
   \code
   myDialog.okButton.objectName = "cancelButton";
@@ -335,9 +356,10 @@
 
   QtScript will perform type conversion when a value needs to be
   converted from the script side to the C++ side or vice versa; for
-  instance, when a C++ signal triggers a script function, or when
+  instance, when a C++ signal triggers a script function, when
+  you access a QObject property in script code, or when
   you call QScriptEngine::toScriptValue() or
-  QScriptEngine::fromScriptValue(). QtScript provides default
+  QScriptEngine::fromScriptValue() in C++. QtScript provides default
   conversion for many of the built-in Qt types. You can change the
   conversion for a type by registering your own
   conversion functions with qScriptRegisterMetaType().

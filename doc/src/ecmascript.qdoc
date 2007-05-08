@@ -4,6 +4,9 @@
     \ingroup scripting
     \brief A list of objects, functions and properties supported by QtScript.
 
+    This reference contains a list of objects, functions and
+    properties supported by QtScript.
+
     \tableofcontents
 
     \section1 The Global Object
@@ -253,14 +256,14 @@
 
     \section2 Error Prototype Object
 
-    \section2 Value Properties
+    \section3 Value Properties
 
     \list
     \o name
     \o message
     \endlist
 
-    \section2 Function Properties
+    \section3 Function Properties
 
     \list
     \o toString()
