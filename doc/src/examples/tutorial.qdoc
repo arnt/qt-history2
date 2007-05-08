@@ -110,8 +110,8 @@
     color), as well as the widget's content. A QPushButton can show
     either a text or a QIcon.
 
-    \printline main
-    \printline {
+    \skipto main
+    \printuntil {
 
     The \c main() function is the entry point to the program. Almost
     always when using Qt, \c main() only needs to perform some kind
@@ -135,7 +135,8 @@
     The QApplication object must be created before any GUI-related
     features of Qt are used.
 
-    \printline QPushButton
+    \skipto QPushButton hello(
+    \printuntil );
 
     Here, after the QApplication, comes the first GUI-related code: A
     push button is created.
@@ -145,7 +146,8 @@
     QPushButton constructor), the button will be a window of its own,
     with its own window frame and title bar.
 
-    \printline resize
+    \skipto hello.resize(
+    \printuntil );
 
     The button is set up to be 100 pixels wide and 30 pixels high
     (excluding the window frame, which is provided by the windowing
@@ -153,13 +155,14 @@
     screen position to the widget, but instead we let the windowing
     system choose a position.
 
-    \printline show
+    \skipto hello.show(
+    \printuntil );
 
     A widget is never visible when you create it. You must call
     QWidget::show() to make it visible.
 
-    \printline exec
-    \printline }
+    \skipto return
+    \printuntil /^\}/
 
     This is where \c main() passes control to Qt.
     QCoreApplication::exec() will return when the application exits.
@@ -254,7 +257,8 @@
     from the Times family. It is also possible to change the default
     font for the entire application, using QApplication::setFont().
 
-    \printline connect
+    \skipto QObject::connect(
+    \printuntil );
 
     QObject::connect() is perhaps \e the most central feature of Qt.
     Note that \l{QObject::connect()}{connect()} is a static function
@@ -344,7 +348,8 @@
     We set the window's width to 200 pixels and its height to 120
     pixels.
 
-    \printline quit
+    \skipto QPushButton quit(
+    \printuntil );
 
     A child is born. This QPushButton is created with a parent widget
     (\c window). A child widget is always displayed within its
@@ -422,8 +427,8 @@
     you specify a null pointer as the parent. As you can see, this
     widget defaults to be a top-level window.
 
-    \printline MyWidget
-    \printline QWidget
+    \skipto MyWidget::MyWidget(
+    \printuntil )
 
     The implementation of the constructor starts here. Like most
     widgets, it just passes on the \c parent to the QWidget
@@ -435,6 +440,7 @@
     its size. In the next chapter, we will show how a widget can
     respond to resize event from the user.
 
+    \skipto QPushButton *quit
     \printuntil setFont
 
     Here we create and set up a child widget of this widget (the new
@@ -459,15 +465,15 @@
     position and the size. It is equivalent to calling
     QWidget::move() followed by QWidget::resize().
 
-    \printline qApp
-    \printline }
+    \skipto connect(quit
+    \printuntil /^\}/
 
     The \c qApp pointer is a global variable declared in the \c
     <QApplication> header file. It points to the application's unique
     QApplication instance.
 
-    \printline int main
-    \printuntil }
+    \skipto int main(
+    \printuntil /^\}/
 
     Here we instantiate our new child, show it, and execute the
     application.
@@ -512,7 +518,7 @@
     \skipto MyWidget
     \printuntil }
 
-    \target constructor
+    \skipto MyWidget::MyWidget
     \printuntil lcd->setSegmentStyle
 
     \c lcd is a QLCDNumber, a widget that displays numbers in an
@@ -527,9 +533,14 @@
     QLCDNumber to display the score, was also written around that
     time.
 
-    \printline QSlider
-    \printline slider
-    \printline slider
+    \skipto QSlider *slider
+    \printuntil );
+
+    \skipto slider->setRange(
+    \printuntil );
+
+    \skipto slider->setValue(
+    \printuntil );
 
     The user can use the QSlider widget to adjust an integer value in
     a range. Here we create a horizontal one, set its minimum value
@@ -553,7 +564,7 @@
     Slots are otherwise normal C++ member functions and follow the
     normal C++ access rules.
 
-    \printline layout
+    \skipto QVBoxLayout
     \printuntil setLayout
 
     \c MyWidget now uses a QVBoxLayout to manage the geometry of its
@@ -634,25 +645,27 @@
     constructor. This sort of widget is not very useful, so we'll add
     some API later.
 
-    \printuntil }
+    \skipto LCDRange::LCDRange(
+    \printuntil /^\}/
 
     This is lifted straight from the \c MyWidget constructor in
     Chapter 5. The only differences are that the \gui{Quit} button is
     left out and the class is renamed.
 
-    \printline MyWidget
-    \printuntil }
+    \skipto class MyWidget
+    \printuntil };
 
     \c MyWidget, too, contains no API except a constructor.
 
-    \printline MyWidget
-    \printuntil connect
+    \skipto MyWidget::MyWidget(
+    \printuntil quit()));
 
     The push button that used to be in what is now \c LCDRange has been
     separated so that we can have one \gui{Quit} button and many \c LCDRange
     objects.
 
-    \printline grid
+    \skipto QGridLayout *grid
+    \printuntil ;
 
     We create a QWidget with a QGridLayout that will contain three
     columns.
@@ -726,14 +739,16 @@
     happens to be included more than once. If you don't use it
     already, it is a very good habit to develop.
 
-    \printline include
+    \skipto #include <
+    \printuntil >
 
     \c <QWidget> is included since our \c LCDRange class inherits
     QWidget. The header file of a parent class must always be included
     - we cheated a bit in the previous chapters, and we let \c
     <QWidget> be included indirectly via other header files.
 
-    \printline QSlider
+    \skipto class QSlider
+    \printuntil ;
 
     This is another classic trick, but one that's much less used
     often. Because we don't need QSlider in the interface of the
@@ -754,8 +769,8 @@
     defines the functions that are implemented in the \l{Meta-Object
     System}{meta-object file}.
 
-    \printline value
-    \printuntil valueChanged
+    \skipto int value()
+    \printuntil (int newValue);
 
     These three members make up an interface between this widget and
     other components in a program. Until now, \c LCDRange didn't
@@ -817,7 +832,7 @@
     The implementation of \c value() is straightforward. It simply
     returns the slider's value.
 
-    \printline setValue
+    \skipto void LCDRange::setValue(
     \printuntil }
 
     The implementation of \c setValue() is equally straightforward.
@@ -949,8 +964,8 @@
     for which we provide an interface using the same idiom as for
     value in \c LCDRange.
 
-    \printline protected
-    \printline paintEvent
+    \skipto protected:
+    \printuntil );
 
     This is the second of the many event handlers in QWidget that we
     encounter. This virtual function is called by Qt whenever a widget needs
@@ -1039,15 +1054,21 @@
 
     In the constructor, we create and set up the \c LCDRange widget.
 
-    \printline setRange
+    \skipto angle->setRange
+    \printuntil angle->setRange(5, 70);
 
     We set the \c LCDRange to accept angles from 5 to 70 degrees.
 
-    \printline cannonField
+    \skipto CannonField *cannonField
+    \printuntil ;
 
     We create our \c CannonField widget.
 
-    \printuntil setValue
+    \skipto connect(angle,
+    \printuntil ;
+
+    \skipto connect(cannonField,
+    \printuntil ;
 
     Here we connect the \c valueChanged() signal of the \c LCDRange
     to the \c setAngle() slot of the \c CannonField. This will update
@@ -1069,7 +1090,8 @@
     entered an infinite loop upon the first change of one of the
     values.
 
-    \printline QGridLayout
+    \skipto QGridLayout *gridLayout
+    \printuntil ;
 
     So far, we have used QVBoxLayout for geometry management. Now,
     however, we want to have a little more control over the layout,
@@ -1091,20 +1113,24 @@
     left side shows a schematic view of the layout; the right side is
     an actual screenshot of the program.
 
-    \printline addWidget
+    \skipto gridLayout->addWidget(quit,
+    \printuntil );
 
     We add the \gui{Quit} button in the top-left cell of the grid,
     i.e., the cell with coordinates (0, 0).
 
-    \printline addWidget
+    \skipto gridLayout->addWidget(angle,
+    \printuntil );
 
     We put the angle \c LCDRange cell (1, 0).
 
-    \printline addWidget
+    \skipto gridLayout->addWidget(cannonField,
+    \printuntil );
 
     We let the \c CannonField object occupy cells (1, 1) and (2, 1).
 
-    \printline setColumnStretch
+    \skipto gridLayout->setColumnStretch(
+    \printuntil );
 
     We tell QGridLayout that the right column (column 1) is
     stretchable, with a stretch factor of 10. Because the left column
@@ -1199,13 +1225,15 @@
     We'll now start to use QPainter in earnest. We create a painter that
     operates on this widget.
 
-    \printline setPen
+    \skipto painter.setPen(
+    \printuntil );
 
     The edges of what QPainter draws are drawn using the pen. Here we
     set it to Qt::NoPen, meaning that there will be no special edge
     when we draw something.
 
-    \printline setBrush
+    \skipto painter.setBrush(
+    \printuntil );
 
     When QPainter fills a rectangle, a circle, or whatever, it fills
     the shape using its brush. Here we set it to use a solid blue
@@ -1379,16 +1407,14 @@
     We connect the \c force widget and the \c cannonField widget, just like
     we did for the \c angle widget.
 
-    \skipto QVBoxLayout
-    \printline QVBoxLayout
-    \printline addWidget
-    \printline addWidget
+    \skipto QVBoxLayout *leftLayout
+    \printuntil );
 
-    \printline QGridLayout
-    \printline addWidget
-    \printline addLayout
-    \printline addWidget
-    \printline setColumnStretch
+    \skipto leftLayout->addWidget(force);
+    \printuntil );
+
+    \skipto QGridLayout *gridLayout
+    \printuntil (1, 10);
 
     In Chapter 9, we put \c angle in the lower-left cell of the
     layout. Now we want to have two widgets in that cell, so we make
@@ -1442,8 +1468,8 @@
 
     Calling this slot will make the cannon shoot if a shot is not in the air.
 
-    \printline private
-    \printline moveShot
+    \skipto private slots:
+    \printuntil );
 
     This private slot is used to move the shot while it is in the air,
     using a QTimer.
