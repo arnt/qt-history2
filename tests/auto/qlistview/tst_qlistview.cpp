@@ -1017,29 +1017,29 @@ void tst_QListView::scrollTo()
 
 void tst_QListView::scrollBarRanges()
 {
-    // test if the scrollbar range cooperates well with a gridSize different to itemSize
+    const int rowCount = 10;
+    const int rowHeight = 20;
+
     QListView lv;
     QStringListModel model(&lv);
     QStringList list;
-    for (int i = 0; i < 10; ++i) {
+    for (int i = 0; i < rowCount; ++i)
         list << QString::fromAscii("Item %1").arg(i);   
-    }
+
     model.setStringList(list);
     lv.setModel(&model);
-    lv.resize(250, 151);
-    lv.setGridSize(QSize(200, 50));
-    TestDelegate *delegat = new TestDelegate(&lv);
-    delegat->m_sizeHint = QSize(200, 20);
-    lv.setItemDelegate(delegat);
-
+    lv.resize(250, 130);
+    TestDelegate *delegate = new TestDelegate(&lv);
+    delegate->m_sizeHint = QSize(100, rowHeight);
+    lv.setItemDelegate(delegate);
     lv.show();
 
-    for (int h = 130; h <= 180; ++h) {
+    for (int h = 10; h <= 210; ++h) {
         lv.resize(250, h);
-        // wait for the layout to be done
-        QTest::qWait(100);
-        QCOMPARE(lv.verticalScrollBar()->maximum(), lv.viewport()->size().height() < 170 ? 7 : 6);
-        if (h < 165 || h > 176) h+=2;  // jump over some pixels in the uninteresting area as a speedup
+        QTest::qWait(100); // wait for the layout to be done
+        int visibleRowCount = lv.viewport()->size().height() / rowHeight;
+        int invisibleRowCount = rowCount - visibleRowCount;
+        QCOMPARE(lv.verticalScrollBar()->maximum(), invisibleRowCount);
     }
 }
 
