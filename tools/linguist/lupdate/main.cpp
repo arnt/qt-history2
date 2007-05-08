@@ -276,6 +276,7 @@ int main( int argc, char **argv )
             QStringList tmp = variables.value("CODECFORTR");
             if (!tmp.isEmpty()) {
                 codecForTr = tmp.first().toAscii();
+                fetchedTor.setCodecForTr(codecForTr.constData());
             }
             tmp = variables.value("CODECFORSRC");
             if (!tmp.isEmpty()) {
