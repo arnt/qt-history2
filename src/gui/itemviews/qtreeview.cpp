@@ -3178,6 +3178,7 @@ void QTreeViewPrivate::rowsRemoved(const QModelIndex &parent,
 
         const uint childLevel = (parentItem == -1)
                                 ? uint(0) : viewItems.at(parentItem).level + 1;
+        Q_UNUSED(childLevel); // unused in release mode, used in assert below
 
         const int firstChildItem = parentItem + 1;
         int lastChildItem = firstChildItem + ((parentItem == -1)
