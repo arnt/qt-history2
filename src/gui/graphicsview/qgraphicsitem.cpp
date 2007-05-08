@@ -410,6 +410,29 @@ static void qt_graphicsItem_fullUpdate(QGraphicsItem *item)
 /*!
     \internal
 
+    Removes the first instance of \a child from \a children. This is a
+    heuristic approach that assumes that it's common to remove items from the
+    start or end of the list.
+*/
+static void qt_graphicsitem_removeChild(QGraphicsItem *child, QList<QGraphicsItem *> *children)
+{
+    const int n = children->size();
+    for (int i = 0; i < (n + 1) / 2; ++i) {
+        if (children->at(i) == child) {
+            children->removeAt(i);
+            return;
+        }
+        int j = n - i - 1;
+        if (children->at(j) == child) {
+            children->removeAt(j);
+            return;
+        }
+    }
+}
+
+/*!
+    \internal
+
     Returns a QPainterPath of \a path when stroked with the \a pen.
     Ignoring dash pattern.
 */
@@ -653,7 +676,7 @@ QGraphicsItem::~QGraphicsItem()
     if (QGraphicsItem *parent = parentItem()) {
         qVariantSetValue<QGraphicsItem *>(variant, this);
         parent->itemChange(ItemChildRemovedChange, variant);
-        parent->d_func()->children.removeAll(this);
+        qt_graphicsitem_removeChild(this, &parent->d_func()->children);
     }
     if (d_ptr->scene)
         d_ptr->scene->d_func()->_q_removeItemLater(this);
@@ -763,7 +786,7 @@ void QGraphicsItem::setParentItem(QGraphicsItem *parent)
 
     if (d_ptr->parent) {
         // Remove from current parent
-        d_ptr->parent->d_func()->children.removeAll(this);
+        qt_graphicsitem_removeChild(this, &d_ptr->parent->d_func()->children);
         qVariantSetValue<QGraphicsItem *>(variant, this);
         d_ptr->parent->itemChange(ItemChildRemovedChange, variant);
     }
