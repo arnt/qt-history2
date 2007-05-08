@@ -993,11 +993,16 @@ void PrettyPretty::endVisit(AST::ThrowStatement *node)
 
 bool PrettyPretty::visit(AST::TryStatement *node)
 {
-    out << "try";
-    pushIndentLevel();
-    newlineAndIndent();
+    out << "try ";
     accept(node->statement);
-    out << "catch (...)"; // ### TODO
+    if (node->catchExpression) {
+        out << " catch (" << eng->toString(node->catchExpression->name) << ") ";
+        node->catchExpression->statement->accept(this);
+    }
+    if (node->finallyExpression) {
+        out << " finally ";
+        node->finallyExpression->statement->accept(this);
+    }
     return false;
 }
 
