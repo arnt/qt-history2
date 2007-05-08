@@ -156,11 +156,15 @@
 
     A modal dialog:
 
-    \quotefunction snippets/dialogs/dialogs.cpp void EditorWindow::countWords()
+    \quotefromfile snippets/dialogs/dialogs.cpp
+    \skipto void EditorWindow::countWords()
+    \printuntil /^\}/
 
     A modeless dialog:
 
-    \quotefunction snippets/dialogs/dialogs.cpp void EditorWindow::find()
+    \quotefromfile snippets/dialogs/dialogs.cpp
+    \skipto void EditorWindow::find()
+    \printuntil /^\}/
 
     \sa QDialogButtonBox, QTabDialog, QWidget, QProgressDialog,
         {fowler}{GUI Design Handbook: Dialogs, Standard}, {Extension Example},
