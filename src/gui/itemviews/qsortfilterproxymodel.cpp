@@ -1188,7 +1188,7 @@ void QSortFilterProxyModelPrivate::_q_sourceColumnsRemoved(
 
     \quotefromfile itemviews/customsortfiltermodel/mysortfilterproxymodel.cpp
     \skipto ::lessThan
-    \printuntil /^\}$/
+    \printuntil /^\}/
 
     (This code snippet comes from the
     \l{itemviews/customsortfiltermodel}{Custom Sort/Filter Model}
@@ -1234,7 +1234,7 @@ void QSortFilterProxyModelPrivate::_q_sourceColumnsRemoved(
 
     \quotefromfile itemviews/customsortfiltermodel/mysortfilterproxymodel.cpp
     \skipto ::filterAcceptsRow
-    \printuntil /^\}$/
+    \printuntil /^\}/
 
     (This code snippet comes from the
     \l{itemviews/customsortfiltermodel}{Custom Sort/Filter Model}
