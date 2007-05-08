@@ -1790,7 +1790,6 @@ Examples
     * [129473] Fixed bug with handling default tab order
     * [131994] Setting tab order for checkable QGroupBox enabled
     * New cursor shapes added
-    * [91139] Additional Escape shortcut for "Edit Widgets" action
     * [137879] Better editor for key sequence properties
     * [150634] Improved refreshing of all properties after property change
     * [147655] Fixed shadow build of designer

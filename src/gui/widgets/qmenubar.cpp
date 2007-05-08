@@ -1309,14 +1309,6 @@ bool QMenuBar::event(QEvent *e)
 #endif
         d->updateGeometries();
     break;
-    case QEvent::ShortcutOverride: {
-        QKeyEvent *kev = static_cast<QKeyEvent*>(e);
-        if (kev->key() == Qt::Key_Escape) {
-            e->accept();
-            return true;
-        }
-    }
-    break;
 
 #ifdef QT3_SUPPORT
     case QEvent::Hide: {

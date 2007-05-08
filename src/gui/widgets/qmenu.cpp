@@ -2009,8 +2009,7 @@ QMenu::event(QEvent *e)
             QKeyEvent *kev = static_cast<QKeyEvent*>(e);
             if (kev->key() == Qt::Key_Up || kev->key() == Qt::Key_Down
                 || kev->key() == Qt::Key_Left || kev->key() == Qt::Key_Right
-                || kev->key() == Qt::Key_Enter || kev->key() == Qt::Key_Return
-                || kev->key() == Qt::Key_Escape) {
+                || kev->key() == Qt::Key_Enter || kev->key() == Qt::Key_Return) {
                 e->accept();
                 return true;
             }
