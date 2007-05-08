@@ -37,8 +37,8 @@
 #include "util/fragmentprograms_p.h"
 
 #ifdef Q_WS_QWS
-#include "private/qpaintdevice_gl_p.h"
-#include "private/qwindowsurface_gl_p.h"
+#include "private/qglpaintdevice_qws_p.h"
+#include "private/qglwindowsurface_qws_p.h"
 #include "qwsmanager_qws.h"
 #include "private/qwsmanager_p.h"
 #endif
@@ -1066,12 +1066,15 @@ void QGLGradientCache::generateGradientColorTable(const QGradientStops& s, uint 
         colorTable[pos] = colors[s.size() - 1];
 }
 
-
+#ifndef Q_WS_QWS
 Q_GLOBAL_STATIC(QGLGradientCache, qt_opengl_gradient_cache)
+#endif
 
 void QOpenGLPaintEnginePrivate::createGradientPaletteTexture(const QGradient& g)
 {
-#ifndef Q_WS_QWS //###
+#ifdef Q_WS_QWS //###
+    Q_UNUSED(g);
+#else
     GLuint texId = qt_opengl_gradient_cache()->getBuffer(g.stops(), opacity, drawable.context());
     glBindTexture(GL_TEXTURE_1D, texId);
     grad_palette = texId;
@@ -1143,6 +1146,7 @@ QOpenGLPaintEngine::~QOpenGLPaintEngine()
 {
 }
 
+#ifndef Q_WS_QWS
 static bool qt_createFragmentProgram(QGLContext *ctx, GLuint &program, const char *shader_src)
 {
 #ifndef Q_WS_WIN
@@ -1156,6 +1160,7 @@ static bool qt_createFragmentProgram(QGLContext *ctx, GLuint &program, const cha
 
     return glGetError() == GL_NO_ERROR;
 }
+#endif // !Q_WS_QWS
 
 bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
 {
@@ -1426,7 +1431,10 @@ void QOpenGLPaintEnginePrivate::setInvMatrixData(const QTransform &inv_matrix)
 
 void QOpenGLPaintEnginePrivate::updateGradient(const QBrush &brush, const QRectF &bounds)
 {
-#ifndef Q_WS_QWS
+#ifdef Q_WS_QWS
+    Q_UNUSED(brush);
+    Q_UNUSED(bounds);
+#else
     bool has_mirrored_repeat = QGLExtensions::glExtensions & QGLExtensions::MirroredRepeat;
     Qt::BrushStyle style = brush.style();
 
@@ -1626,9 +1634,9 @@ void QOpenGLImmediateModeTessellator::addTrap(const Trapezoid &trap)
     trapezoids.append(toGLTrapezoid(trap));
 }
 
+#ifndef Q_WS_QWS
 static void drawTrapezoid(const QGLTrapezoid &trap, const qreal offscreenHeight, QGLContext *ctx)
 {
-#ifndef Q_WS_QWS
     qreal minX = qMin(trap.topLeftX, trap.bottomLeftX);
     qreal maxX = qMax(trap.topRightX, trap.bottomRightX);
 
@@ -1683,8 +1691,8 @@ static void drawTrapezoid(const QGLTrapezoid &trap, const qreal offscreenHeight,
     glVertex2d(bounds_bottomLeftX - left_padding, bottomY);
 
     glTexCoord4f(0.0f, 0.0f, 0.0f, 1.0f);
-#endif
 }
+#endif // !Q_WS_QWS
 
 class QOpenGLTrapezoidToArrayTessellator : public QOpenGLTessellator
 {
@@ -2890,7 +2898,9 @@ QGLTrapezoidMaskGenerator::QGLTrapezoidMaskGenerator(const QPainterPath &path, c
 
 void QGLTrapezoidMaskGenerator::drawMask(const QRect &rect)
 {
-#ifndef Q_WS_QWS
+#ifdef Q_WS_QWS
+    Q_UNUSED(rect);
+#else
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
     glLoadIdentity();
@@ -3106,7 +3116,9 @@ QRect QGLEllipseMaskGenerator::screenRect()
 
 void QGLEllipseMaskGenerator::drawMask(const QRect &rect)
 {
-#ifndef Q_WS_QWS
+#ifdef Q_WS_QWS
+    Q_UNUSED(rect);
+#else
     QGLContext *ctx = offscreen->context();
     offscreen->bind();
 
@@ -3153,7 +3165,9 @@ void QGLEllipseMaskGenerator::drawMask(const QRect &rect)
 
 void QOpenGLPaintEnginePrivate::drawOffscreenPath(const QPainterPath &path)
 {
-#ifndef Q_WS_QWS
+#ifdef Q_WS_QWS
+    Q_UNUSED(path);
+#else
     DEBUG_ONCE_STR("QOpenGLPaintEnginePrivate::drawOffscreenPath()");
 
     if (has_clipping)
@@ -4388,7 +4402,9 @@ void QOpenGLPaintEngine::drawEllipse(const QRectF &rect)
 
 void QOpenGLPaintEnginePrivate::updateFragmentProgramData(int locations[])
 {
-#ifndef Q_WS_QWS
+#ifdef Q_WS_QWS
+    Q_UNUSED(locations);
+#else
     QGL_FUNC_CONTEXT;
 
     QSize sz = offscreen.offscreenSize();
@@ -4475,7 +4491,9 @@ void QOpenGLPaintEnginePrivate::updateFragmentProgramData(int locations[])
 
 void QOpenGLPaintEnginePrivate::copyDrawable(const QRectF &rect)
 {
-#ifndef Q_WS_QWS
+#ifdef Q_WS_QWS
+    Q_UNUSED(rect);
+#else
     DEBUG_ONCE qDebug() << "Refreshing drawable_texture for rectangle" << rect;
     QRectF screen_rect = rect.adjusted(-1, -1, 1, 1);
 
@@ -4493,7 +4511,10 @@ void QOpenGLPaintEnginePrivate::copyDrawable(const QRectF &rect)
 
 void QOpenGLPaintEnginePrivate::composite(const QRectF &rect, const QPoint &maskOffset)
 {
-#ifndef Q_WS_QWS
+#ifdef Q_WS_QWS
+    Q_UNUSED(rect);
+    Q_UNUSED(maskOffset);
+#else
     float vertexArray[8];
     qt_add_rect_to_array(rect, vertexArray);
 
@@ -4504,7 +4525,12 @@ void QOpenGLPaintEnginePrivate::composite(const QRectF &rect, const QPoint &mask
 
 void QOpenGLPaintEnginePrivate::composite(GLuint primitive, const float *vertexArray, int vertexCount, const QPoint &maskOffset)
 {
-#ifndef Q_WS_QWS
+#ifdef Q_WS_QWS
+    Q_UNUSED(primitive);
+    Q_UNUSED(vertexArray);
+    Q_UNUSED(vertexCount);
+    Q_UNUSED(maskOffset);
+#else
     Q_Q(QOpenGLPaintEngine);
     QGL_FUNC_CONTEXT;
 

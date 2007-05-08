@@ -18,8 +18,8 @@
 #include <GLES/gl.h>
 #include <qdirectpainter_qws.h>
 
-#include <qscreengl_p.h>
-#include <private/qwindowsurface_qws_p.h>
+#include <qglscreen_qws.h>
+#include <private/qglwindowsurface_qws_p.h>
 
 #endif
 #include <private/qbackingstore_p.h>
@@ -45,7 +45,7 @@
 #include "qegl_qws_p.h"
 
 #ifdef Q_USE_EGLWINDOWSURFACE
-#include "private/qwindowsurface_gl_p.h"
+#include "private/qglwindowsurface_qws_p.h"
 #endif
 #endif
 
@@ -69,24 +69,25 @@ bool QGLFormat::hasOpenGLOverlays()
 #endif
 }
 
-#define QT_EGL_CHECK(x) \
-    if (!(x)) { \
-        EGLint err = eglGetError(); \
+#define QT_EGL_CHECK(x)                          \
+    if (!(x)) {                                  \
+        EGLint err = eglGetError();              \
         printf("egl " #x " failure %x!\n", err); \
-    } \
+    }                                            \
 
-#define QT_EGL_ERR(txt) \
-    do { \
-        EGLint err = eglGetError(); \
-        if (err != EGL_SUCCESS) \
+#define QT_EGL_ERR(txt)                         \
+    do {                                        \
+        EGLint err = eglGetError();             \
+        if (err != EGL_SUCCESS)                 \
             printf( txt " failure %x!\n", err); \
     } while (0)
 
 
 #define QT_EGL_CHECK_ATTR(attr, val)     success = eglGetConfigAttrib(dpy, config, attr, &value); \
-    if (!success || value != val) \
+    if (!success || value != val)                                       \
         return false
 
+#if defined(Q_USE_QEGL) && !defined(Q_USE_EGLWINDOWSURFACE)
 static bool checkConfig(EGLDisplay dpy, EGLConfig config, int r, int g, int b, int a)
 {
     EGLint value;
@@ -97,6 +98,7 @@ static bool checkConfig(EGLDisplay dpy, EGLConfig config, int r, int g, int b, i
     QT_EGL_CHECK_ATTR(EGL_ALPHA_SIZE, a);
     return true;
 }
+#endif
 
 bool QGLContext::chooseContext(const QGLContext* shareContext)
 {
@@ -397,14 +399,17 @@ QColor QGLContext::overlayTransparentColor() const
     return QColor(0, 0, 0);                // Invalid color
 }
 
-uint QGLContext::colorIndex(const QColor&c) const
+uint QGLContext::colorIndex(const QColor &c) const
 {
     //### color index doesn't work on egl
+    Q_UNUSED(c);
     return 0;
 }
 
 void QGLContext::generateFontDisplayLists(const QFont & fnt, int listBase)
 {
+    Q_UNUSED(fnt);
+    Q_UNUSED(listBase);
 }
 
 void *QGLContext::getProcAddress(const QString &proc) const

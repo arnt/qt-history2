@@ -14,9 +14,8 @@
 #include <QtGui/QPaintDevice>
 #include <QtGui/QWidget>
 #include <QtOpenGL/QGLWidget>
-#include "private/qwindowsurface_gl_p.h"
-#include "private/qpaintdevice_gl_p.h"
-
+#include "private/qglwindowsurface_qws_p.h"
+#include "private/qglpaintdevice_qws_p.h"
 #include "private/qpaintengine_opengl_p.h"
 
 class QMetricAccessor : public QWidget {

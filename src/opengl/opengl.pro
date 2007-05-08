@@ -45,20 +45,22 @@ win32 {
 }
 
 embedded {
-    SOURCES += qgl_qws.cpp \
+    SOURCES += qegl_qws.cpp \
+               qgl_qws.cpp \
                qglpixelbuffer_qws.cpp \
-               qwindowsurface_gl.cpp \
-               qscreengl.cpp
-     	contains(QT_CONFIG, fontconfig) {
- 		include($$QT_SOURCE_TREE/config.tests/unix/freetype/freetype.pri)
-	} else {
-	    DEFINES *= QT_NO_FREETYPE
- 	}
+               qglscreen_qws.cpp \
+               qglwindowsurface_qws.cpp
 
-       SOURCES += qegl_qws.cpp
-       HEADERS += qegl_qws_p.h \
-                  qwindowsurface_gl_p.h \
-                  qscreengl_p.h
+    HEADERS += qegl_qws_p.h \
+               qglpaintdevice_qws_p.h \
+               qglscreen_qws.h \
+               qglwindowsurface_qws_p.h
+
+    contains(QT_CONFIG, fontconfig) {
+        include($$QT_SOURCE_TREE/config.tests/unix/freetype/freetype.pri)
+    } else {
+       DEFINES *= QT_NO_FREETYPE
+    }
 }
 
 QMAKE_LIBS += $$QMAKE_LIBS_OPENGL

@@ -11,10 +11,10 @@
 **
 ****************************************************************************/
 
-#include "private/qscreengl_p.h"
+#include <QGLScreen>
 #include <QGLContext>
 #include <QGLWidget>
-#include "private/qwindowsurface_gl_p.h"
+#include "private/qglwindowsurface_qws_p.h"
 
 class QGLScreenPrivate
 {
@@ -47,6 +47,8 @@ QGLScreen::~QGLScreen()
 */
 bool QGLScreen::chooseContext(QGLContext *context, const QGLContext *shareContext)
 {
+    Q_UNUSED(shareContext);
+
     QGLWidget *widget = static_cast<QGLWidget*>(context->device());
     if (context->device()->devType() == QInternal::Widget) {
         QGLWindowSurface *surface = static_cast<QGLWindowSurface*>(widget->windowSurface());
