@@ -459,23 +459,23 @@ typedef QList<QPoint> PointList;
 Q_DECLARE_METATYPE(PointList)
 
 
-class SizeHinterFrame : public QFrame
+class SizeHinterFrame : public QLabel
 {
 public:
     SizeHinterFrame(QWidget *parent = 0)
-    : QFrame(parent)
+    : QLabel(parent)
     {
         init(-1);
     }
 
     SizeHinterFrame(const QSize &s, int numPixels = -1)
-    : QFrame(0), sh(s) {
+    : QLabel(0), sh(s) {
         init(numPixels);
     }
 
 
     SizeHinterFrame(int w, int h)
-    : QFrame(0), sh(QSize(w,h))
+    : QLabel(0), sh(QSize(w,h))
     {
         init(-1);
     }
@@ -495,6 +495,7 @@ public:
     }
 private:
     void init(int numPixels = -1){
+        setText(QString::fromAscii("(%1,%2)").arg(sh.width()).arg(sh.height()));
         setFrameStyle(QFrame::Box | QFrame::Plain);
         setNumberOfPixels(numPixels);
     }
@@ -674,12 +675,23 @@ struct SizeInfo {
         hfwNumPixels = numPixelsToCover;
     }
 
+    SizeInfo(const QRect &expected, const QSize &sh, const QSize &minimumSize = QSize(),
+             const QSize &maximumSize = QSize(), int numPixelsToCover = -1)
+    {
+        expectedPos = expected.topLeft();
+        expectedSize = expected.size();
+        sizeHint = sh;
+        minSize = minimumSize;
+        maxSize = maximumSize;
+        hfwNumPixels = numPixelsToCover;
+    }
     SizeInfo(const SizeInfo& other) {
         (*this)=other;
     }
 
     SizeInfo &operator=(const SizeInfo& other) {
         expectedPos = other.expectedPos;
+        expectedSize = other.expectedSize;
         sizeHint = other.sizeHint;
         minSize = other.minSize;
         maxSize = other.maxSize;
@@ -688,6 +700,7 @@ struct SizeInfo {
     }
 
     QPoint expectedPos;
+    QSize expectedSize;
     QSize sizeHint;
     QSize minSize;
     QSize maxSize;
@@ -705,41 +718,59 @@ void tst_QGridLayout::minMaxSize_data()
     QTest::addColumn<QString>("stylename");
     QTest::addColumn<int>("columns");
     QTest::addColumn<int>("rows");
+    QTest::addColumn<int>("sizePolicy");
+    QTest::addColumn<QSize>("fixedSize");
     //input and expected output
     QTest::addColumn<SizeInfoList>("sizeinfos");
+    
+    QTest::newRow("3x1 grid, extend to minimumSize") << QString() << 3 << 1 
+                << int(QSizePolicy::Minimum) << QSize(152, 50) << (SizeInfoList()
+                << SizeInfo(QRect(10, 10, 43, 30), QSize( 75, 75), QSize(0,0))
+                << SizeInfo(QRect(10 + 45, 10, 43, 30), QSize(75, 75), QSize( 0, 0))
+                << SizeInfo(QRect(10 + 45 + 44, 10, 42, 30), QSize(75, 75), QSize( 0, 0))
+                );
 
-    QTest::newRow("1x1 grid, extend to minimumSize") << QString() << 1 << 1 << (SizeInfoList()
+    QTest::newRow("1x1 grid, extend to minimumSize") << QString() << 1 << 1
+                << int(QSizePolicy::Preferred) << QSize() << (SizeInfoList()
                 << SizeInfo(QPoint(10, 10), QSize( 90, 90), QSize(100,100))
                 );
-    QTest::newRow("2x1 grid, extend to minimumSize") << QString() << 2 << 1 << (SizeInfoList()
+    QTest::newRow("2x1 grid, extend to minimumSize") << QString() << 2 << 1
+                << int(QSizePolicy::Preferred) << QSize() << (SizeInfoList()
                 << SizeInfo(QPoint(10, 10), QSize( 90, 90), QSize(100,100))
                 << SizeInfo(QPoint(10 + 100 + 1, 10), QSize( 90, 90))
                 );
-    QTest::newRow("1x2 grid, extend to minimumSize") << QString() << 1 << 2 << (SizeInfoList()
+    QTest::newRow("1x2 grid, extend to minimumSize") << QString() << 1 << 2
+                << int(QSizePolicy::Preferred) << QSize() << (SizeInfoList()
                 << SizeInfo(QPoint(10, 10), QSize( 90, 90), QSize(100,100))
                 << SizeInfo(QPoint(10, 10 + 100 + 1), QSize( 90, 90))
                 );
-    QTest::newRow("2x1 grid, crop to maximumSize") << QString() << 2 << 1 << (SizeInfoList()
+    QTest::newRow("2x1 grid, crop to maximumSize") << QString() << 2 << 1
+                << int(QSizePolicy::Preferred) << QSize() << (SizeInfoList()
             << SizeInfo(QPoint(10, 10), QSize(110,110), QSize(), QSize(100, 100))
             << SizeInfo(QPoint(10 + 100 + 1, 10), QSize( 90, 90))
             );
-    QTest::newRow("1x2 grid, crop to maximumSize") << QString() << 1 << 2 << (SizeInfoList()
+    QTest::newRow("1x2 grid, crop to maximumSize") << QString() << 1 << 2
+                << int(QSizePolicy::Preferred) << QSize() << (SizeInfoList()
             << SizeInfo(QPoint(10, 10), QSize(110,110), QSize(), QSize(100, 100))
             << SizeInfo(QPoint(10, 10 + 100 + 1), QSize( 90, 90))
             );
-    QTest::newRow("1x3 grid, heightForWidth") << QString() << 1 << 3 << (SizeInfoList()
+    QTest::newRow("1x3 grid, heightForWidth") << QString() << 1 << 3
+                << int(QSizePolicy::Preferred) << QSize() << (SizeInfoList()
             << SizeInfo(QPoint(10, 10), QSize(), QSize(200,100), QSize())
             << SizeInfo(QPoint(10, 10 + 100 + 1), QSize(100,100), QSize(), QSize(), 100*100)
             << SizeInfo(QPoint(10, 10 + 100 + 1 + 50 + 1), QSize(100,100), QSize(), QSize(100, 100))
             );
-    QTest::newRow("2x1 grid, extend to minimumSize") << QString::fromAscii("motif") << 2 << 1 << (SizeInfoList()
+    QTest::newRow("2x1 grid, extend to minimumSize") << QString::fromAscii("motif") << 2 << 1
+                << int(QSizePolicy::Preferred) << QSize() << (SizeInfoList()
                 << SizeInfo(QPoint(11, 11), QSize( 90, 90), QSize(100,100))
                 << SizeInfo(QPoint(11 + 100 + 6, 11), QSize( 90, 90))
                 );
-    QTest::newRow("2x1 grid, extend to minimumSize") << QString::fromAscii("windows") << 2 << 1 << (SizeInfoList()
+    QTest::newRow("2x1 grid, extend to minimumSize") << QString::fromAscii("windows") << 2 << 1
+                << int(QSizePolicy::Preferred) << QSize() << (SizeInfoList()
                 << SizeInfo(QPoint(11, 11), QSize( 90, 90), QSize(100,100))
                 << SizeInfo(QPoint(11 + 100 + 6, 11), QSize( 90, 90))
                 );
+
 }
 
 void tst_QGridLayout::minMaxSize()
@@ -751,6 +782,8 @@ void tst_QGridLayout::minMaxSize()
     QFETCH(QString, stylename);
     QFETCH(int, columns);
     QFETCH(int, rows);
+    QFETCH(int, sizePolicy);
+    QFETCH(QSize, fixedSize);
     //input and expected output
     QFETCH(SizeInfoList, sizeinfos);
 
@@ -769,7 +802,12 @@ void tst_QGridLayout::minMaxSize()
         m_grid = new QGridLayout();
     if (!m_toplevel)
         m_toplevel = new QWidget();
-
+    if (fixedSize.isValid()) {
+        m_toplevel->setFixedSize(fixedSize);
+    } else {
+        m_toplevel->setMinimumSize(QSize(0,0));
+        m_toplevel->setMaximumSize(QSize(QWIDGETSIZE_MAX,QWIDGETSIZE_MAX));
+    }
     // Do a two-pass one using the real testdata, the other pass enables heightForWidth
     // on the widget, but the heightForWidth() function just return sizeHint().width()
     for (int pass = 0; pass < 2; ++pass) {
@@ -793,6 +831,9 @@ void tst_QGridLayout::minMaxSize()
                 if (pass == 1 && numpixels == -1)
                     numpixels = -2; //### yuk, (and don't fake it if it already tests sizehint)
                 SizeHinterFrame *sh = new SizeHinterFrame(si.sizeHint, numpixels);
+                QSizePolicy sp = sh->sizePolicy();
+                sp.setHorizontalPolicy((QSizePolicy::Policy)sizePolicy);
+                sh->setSizePolicy(sp);
                 sh->setParent(m_toplevel);
                 if (si.minSize.isValid())
                     sh->setMinimumSize(si.minSize);
@@ -811,7 +852,9 @@ void tst_QGridLayout::minMaxSize()
         QTest::qWait(200);                              // wait for the implicit adjustSize
         // If the following fails we might have to wait longer.
         // If that does not help there is likely a problem with the implicit adjustSize in show()
-        QCOMPARE(m_toplevel->size(), m_toplevel->sizeHint());
+        if (!fixedSize.isValid()) {
+            QCOMPARE(m_toplevel->size(), m_toplevel->sizeHint());
+        }
         // We are relying on the order here...
         for (int pi = 0; pi < sizehinters.count(); ++pi) {
             QPoint pt = sizehinters.at(pi)->mapTo(m_toplevel, QPoint(0, 0));
