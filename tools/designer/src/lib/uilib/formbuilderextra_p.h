@@ -59,6 +59,9 @@ public:
     QString customWidgetScript(const QString &className) const;
 #endif
 
+    void setProcessingLayoutWidget(bool processing);
+    bool processingLayoutWidget() const;
+
     static QFormBuilderExtra *instance(const QAbstractFormBuilder *afb);
     static void removeInstance(const QAbstractFormBuilder *afb);
 
@@ -74,6 +77,8 @@ private:
     typedef QHash<QString, QString> CustomWidgetScriptHash;
     CustomWidgetScriptHash m_customWidgetScriptHash;
 #endif
+
+    bool m_layoutWidget;
 
     QPointer<QWidget> m_rootWidget;
 };

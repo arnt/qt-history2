@@ -93,7 +93,7 @@ namespace QFormInternal {
     Constructs a new form builder.
 */
 
-QFormBuilder::QFormBuilder()
+QFormBuilder::QFormBuilder() : QAbstractFormBuilder()
 {
 }
 
@@ -109,6 +109,10 @@ QFormBuilder::~QFormBuilder()
 */
 QWidget *QFormBuilder::create(DomWidget *ui_widget, QWidget *parentWidget)
 {
+    QFormBuilderExtra::instance(this)->setProcessingLayoutWidget(false);
+    if (ui_widget->attributeClass() == QLatin1String("QWidget") && !ui_widget->hasAttributeNative()
+            && parentWidget && !qobject_cast<QMainWindow *>(parentWidget))
+        QFormBuilderExtra::instance(this)->setProcessingLayoutWidget(true);
     return QAbstractFormBuilder::create(ui_widget, parentWidget);
 }
 
@@ -301,7 +305,29 @@ QWidget *QFormBuilder::create(DomUI *ui, QWidget *parentWidget)
 */
 QLayout *QFormBuilder::create(DomLayout *ui_layout, QLayout *layout, QWidget *parentWidget)
 {
-    return QAbstractFormBuilder::create(ui_layout, layout, parentWidget);
+    bool layoutWidget = QFormBuilderExtra::instance(this)->processingLayoutWidget();
+    QLayout *l = QAbstractFormBuilder::create(ui_layout, layout, parentWidget);
+    if (layoutWidget) {
+        int left, top, right, bottom;
+        left = top = right = bottom = 0;
+        const DomPropertyHash properties = propertyMap(ui_layout->elementProperty());
+
+        if (DomProperty *prop = properties.value(QLatin1String("leftMargin")))
+            left = prop->elementNumber();
+
+        if (DomProperty *prop = properties.value(QLatin1String("topMargin")))
+            top = prop->elementNumber();
+
+        if (DomProperty *prop = properties.value(QLatin1String("rightMargin")))
+            right = prop->elementNumber();
+
+        if (DomProperty *prop = properties.value(QLatin1String("bottomMargin")))
+            bottom = prop->elementNumber();
+
+        l->setContentsMargins(left, top, right, bottom);
+        QFormBuilderExtra::instance(this)->setProcessingLayoutWidget(false);
+    }
+    return l;
 }
 
 /*!

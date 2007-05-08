@@ -29,7 +29,7 @@ void uiLibWarning(const QString &message) {
 }
 
 QFormBuilderExtra::QFormBuilderExtra() :
-    m_buddyPropertyName(QLatin1String("buddy"))
+    m_buddyPropertyName(QLatin1String("buddy")), m_layoutWidget(false)
 {
 }
 void QFormBuilderExtra::clear()
@@ -146,7 +146,15 @@ void QFormBuilderExtra::removeInstance(const QAbstractFormBuilder *afb)
     }
 }
 
+void QFormBuilderExtra::setProcessingLayoutWidget(bool processing)
+{
+    m_layoutWidget = processing;
+}
 
+bool QFormBuilderExtra::processingLayoutWidget() const
+{
+    return m_layoutWidget;
+}
 
 #ifdef QFORMINTERNAL_NAMESPACE
 } // namespace QFormInternal

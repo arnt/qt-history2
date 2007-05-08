@@ -318,7 +318,7 @@ WriteInitialization::WriteInitialization(Uic *uic, bool activateScripts) :
       m_delayedOut(&m_delayedInitialization, QIODevice::WriteOnly),
       m_refreshOut(&m_refreshInitialization, QIODevice::WriteOnly),
       m_actionOut(&m_delayedActionInitialization, QIODevice::WriteOnly),
-      m_activateScripts(activateScripts)
+      m_activateScripts(activateScripts), m_layoutWidget(false)
 {
 }
 
@@ -491,11 +491,17 @@ void WriteInitialization::acceptWidget(DomWidget *node)
     if (node->elementLayout().isEmpty())
         m_layoutChain.push(0);
 
+    m_layoutWidget = false;
+    if (className == QLatin1String("QWidget") && !node->hasAttributeNative()) {
+        if (m_widgetChain.top() && m_widgetChain.top()->attributeClass() != "QMainWindow")
+            m_layoutWidget = true;
+    }
     m_widgetChain.push(node);
     m_layoutChain.push(0);
     TreeWalker::acceptWidget(node);
     m_layoutChain.pop();
     m_widgetChain.pop();
+    m_layoutWidget = false;
 
     const DomPropertyMap attributes = propertyMap(node->elementAttribute());
 
@@ -665,7 +671,50 @@ void WriteInitialization::acceptLayout(DomLayout *node)
 
     m_layoutMarginType = SubLayoutMargin;
 
-    writeProperties(varName, className, node->elementProperty(), WritePropertyIgnoreMargin|WritePropertyIgnoreSpacing);
+    DomPropertyList propList = node->elementProperty();
+    if (m_layoutWidget) {
+        bool left, top, right, bottom;
+        left = top = right = bottom = false;
+        for (int i = 0; i < propList.size(); ++i) {
+            const DomProperty *p = propList.at(i);
+            const QString propertyName = p->attributeName();
+            if (propertyName == QLatin1String("leftMargin") && p->kind() == DomProperty::Number)
+                left = true;
+            else if (propertyName == QLatin1String("topMargin") && p->kind() == DomProperty::Number)
+                top = true;
+            else if (propertyName == QLatin1String("rightMargin") && p->kind() == DomProperty::Number)
+                right = true;
+            else if (propertyName == QLatin1String("bottomMargin") && p->kind() == DomProperty::Number)
+                bottom = true;
+        }
+        if (!left) {
+            DomProperty *p = new DomProperty();
+            p->setAttributeName(QLatin1String("leftMargin"));
+            p->setElementNumber(0);
+            propList.append(p);
+        }
+        if (!top) {
+            DomProperty *p = new DomProperty();
+            p->setAttributeName(QLatin1String("topMargin"));
+            p->setElementNumber(0);
+            propList.append(p);
+        }
+        if (!right) {
+            DomProperty *p = new DomProperty();
+            p->setAttributeName(QLatin1String("rightMargin"));
+            p->setElementNumber(0);
+            propList.append(p);
+        }
+        if (!bottom) {
+            DomProperty *p = new DomProperty();
+            p->setAttributeName(QLatin1String("bottomMargin"));
+            p->setElementNumber(0);
+            propList.append(p);
+        }
+        m_layoutWidget = false;
+    }
+
+    writeProperties(varName, className, propList, WritePropertyIgnoreMargin|WritePropertyIgnoreSpacing);
 
     m_layoutChain.push(node);
     TreeWalker::acceptLayout(node);

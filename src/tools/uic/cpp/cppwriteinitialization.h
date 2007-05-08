@@ -240,6 +240,8 @@ private:
     QString m_delayedActionInitialization;
     QTextStream m_actionOut;
     const bool m_activateScripts;
+
+    bool m_layoutWidget;
 };
 
 } // namespace CPP
