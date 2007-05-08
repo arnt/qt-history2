@@ -909,7 +909,7 @@ HIRect QMacStylePrivate::comboboxInnerBounds(const HIRect &outerBounds, int butt
         innerBounds.origin.x += 3;
         innerBounds.origin.y += 3;
         innerBounds.size.width -= 6;
-        innerBounds.size.height -= 8;
+        innerBounds.size.height -= 6;
         break;
     case kThemeComboBoxSmall:
         innerBounds.origin.x += 3;
@@ -938,7 +938,7 @@ QRect QMacStylePrivate::comboboxEditBounds(const QRect &outerBounds, const HIThe
     QRect ret = outerBounds;
     switch (bdi.kind){
     case kThemeComboBox:
-        ret.adjust(4, 5, -20, -4);
+        ret.adjust(5, 8, -21, -4);
         break;
     case kThemeComboBoxSmall:
         ret.adjust(4, 5, -18, 0);
