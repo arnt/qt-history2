@@ -190,7 +190,7 @@ QDBusAbstractInterface::QDBusAbstractInterface(QDBusAbstractInterfacePrivate &d,
     : QObject(d, parent)
 {
     // keep track of the service owner
-    if (d_func()->connection.isConnected())
+    if (d_func()->isValid)
         QObject::connect(d_func()->connectionPrivate(), SIGNAL(serviceOwnerChanged(QString,QString,QString)),
                          this, SLOT(_q_serviceOwnerChanged(QString,QString,QString)));
 }
