@@ -351,6 +351,7 @@ void QAlphaPaintEngine::flushAndInit(bool init)
         d->m_picpainter->end();
 
         // set clip region
+		d->m_alphargn = d->m_alphargn.intersected(QRect(0, 0, d->m_pdev->width(), d->m_pdev->height()));
         d->m_cliprgn = d->m_alphargn;
 
         // now replay the QPicture
