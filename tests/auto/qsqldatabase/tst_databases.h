@@ -137,8 +137,8 @@ public:
 //	addDb( "QMYSQL3", "testdb", "troll", "trond", "horsehead.troll.no", 3309 ); // MySQL 5.0.18 Linux
 //	addDb( "QMYSQL3", "testdb", "troll", "trond", "iceblink.troll.no"); // MySQL 5.0.13 Windows
 
-//	addDb( "QPSQL7", "testdb", "troll", "trond", "horsehead.troll.no" );
-//	addDb( "QPSQL7", "testdb", "troll", "trond", "horsehead.troll.no", 5434 ); // multi-byte
+//	addDb( "QPSQL7", "testdb", "troll", "trond", "horsehead.troll.no" ); // V7.2 NOT SUPPORTED!
+//	addDb( "QPSQL7", "testdb", "troll", "trond", "horsehead.troll.no", 5434 ); // V7.2 NOT SUPPORTED! Multi-byte
 //	addDb( "QPSQL7", "testdb", "troll", "trond", "horsehead.troll.no", 5435 ); // V7.3
 //	addDb( "QPSQL7", "testdb", "troll", "trond", "horsehead.troll.no", 5436 ); // V7.4
 //	addDb( "QPSQL7", "testdb", "troll", "trond", "horsehead.troll.no", 5437 ); // V8.0.3

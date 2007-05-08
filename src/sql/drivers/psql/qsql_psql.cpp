@@ -411,6 +411,7 @@ static void setDatestyle(PGconn* connection)
 
 static QPSQLDriver::Protocol getPSQLVersion(PGconn* connection)
 {
+    QPSQLDriver::Protocol serverVersion = QPSQLDriver::Version6;
     PGresult* result = PQexec(connection, "select version()");
     int status =  PQresultStatus(result);
     if (status == PGRES_COMMAND_OK || status == PGRES_TUPLES_OK) {
@@ -421,25 +422,22 @@ static QPSQLDriver::Protocol getPSQLVersion(PGconn* connection)
         if (rx.indexIn(val) != -1) {
             int vMaj = rx.cap(1).toInt();
             int vMin = rx.cap(2).toInt();
-            if (vMaj < 6) {
-                qWarning("This version of PostgreSQL is not supported and may not work.");
-                return QPSQLDriver::Version6;
-            }
-            if (vMaj == 6) {
-                return QPSQLDriver::Version6;
-            } else if (vMaj == 7) {
+            if (vMaj == 7) {
                 if (vMin < 1)
-                    return QPSQLDriver::Version7;
+                    serverVersion = QPSQLDriver::Version7;
                 else if (vMin < 3)
-                    return QPSQLDriver::Version71;
-            }
-            return QPSQLDriver::Version73;
+                    serverVersion = QPSQLDriver::Version71;
+                else
+                    serverVersion = QPSQLDriver::Version73;
+            } else if (vMaj > 7)
+                serverVersion = QPSQLDriver::Version73;
         }
-    } else {
-        qWarning("This version of PostgreSQL is not supported and may not work.");
     }
 
-    return QPSQLDriver::Version6;
+    if (serverVersion < QPSQLDriver::Version73)
+        qWarning("This version of PostgreSQL is not supported and may not work.");
+
+    return serverVersion;
 }
 
 QPSQLDriver::QPSQLDriver(QObject *parent)
