@@ -33,6 +33,8 @@ private slots:
     void layoutSpacing();
 #endif
     void qproperty();
+    void palettePropagation();
+    void fontPropagation();
 private:
     QColor COLOR(const QWidget& w) {
         w.ensurePolished();
@@ -50,7 +52,13 @@ private:
         w.ensurePolished();
         return qApp->palette(&w).color(w.backgroundRole());
     }
-
+    int FONTSIZE(const QWidget &w) {
+        w.ensurePolished();
+        return w.font().pointSize();
+    }
+    int APPFONTSIZE() {
+        return qApp->font().pointSize();
+    }
 };
 
 tst_QStyleSheetStyle::tst_QStyleSheetStyle()
@@ -562,6 +570,39 @@ void tst_QStyleSheetStyle::namespaces()
     QVERIFY(BACKGROUND(pb2) == QColor("white"));
     qApp->setStyleSheet(".PushButtonDuo { background: red; }");
     QVERIFY(BACKGROUND(pb2) == QColor("red"));
+}
+
+void tst_QStyleSheetStyle::palettePropagation()
+{
+    qApp->setStyleSheet("");
+    QGroupBox gb;
+    QPushButton *push = new QPushButton(&gb);
+    QPushButton &pb = *push;
+
+    gb.setStyleSheet("color: red");
+    QVERIFY(COLOR(gb) == Qt::red);
+    QVERIFY(COLOR(pb) == APPCOLOR(pb)); // palette shouldn't propagate
+
+    QComboBox *combo = new QComboBox(&gb);
+    QComboBox &cb = *combo;
+    QVERIFY(COLOR(cb) == APPCOLOR(cb));
+    QAbstractItemView &view = *(cb.view());
+    QVERIFY(COLOR(view) == APPCOLOR(view));
+}
+
+void tst_QStyleSheetStyle::fontPropagation()
+{
+    qApp->setStyleSheet("");
+    QGroupBox gb;
+    QPushButton *push = new QPushButton(&gb);
+    QPushButton &pb = *push;
+
+    gb.setStyleSheet("font-size: 20pt");
+    QVERIFY(FONTSIZE(gb) == 20);
+    QVERIFY(FONTSIZE(pb) == 20); // font propagates
+    pb.setParent(0);
+    QVERIFY(APPFONTSIZE() != FONTSIZE(gb));
+    QVERIFY(APPFONTSIZE() == FONTSIZE(pb)); // font restored
 }
 
 QTEST_MAIN(tst_QStyleSheetStyle)
