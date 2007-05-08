@@ -211,7 +211,7 @@ class QTextItemInt : public QTextItem
 {
 public:
     inline QTextItemInt()
-        : underlineStyle(QTextCharFormat::NoUnderline), num_chars(0), chars(0),
+        : justified(false), underlineStyle(QTextCharFormat::NoUnderline), num_chars(0), chars(0),
           logClusters(0), f(0), glyphs(0), num_glyphs(0), fontEngine(0)
     {}
     QTextItemInt(const QScriptItem &si, QFont *font, const QTextCharFormat &format = QTextCharFormat());
@@ -221,6 +221,7 @@ public:
     QFixed width;
 
     RenderFlags flags;
+    bool justified;
     QTextCharFormat::UnderlineStyle underlineStyle;
     int num_chars;
     const QChar *chars;
@@ -570,6 +571,7 @@ public:
     uint ignoreBidi : 1;
     uint cacheGlyphs : 1;
     uint stackEngine : 1;
+    uint forceJustification : 1;
 
     int *underlinePositions;
 

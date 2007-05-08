@@ -6055,6 +6055,8 @@ void qt_format_text(const QFont &fnt, const QRectF &_r,
     engine.option.setTextDirection(layout_direction);
     if (tf & Qt::TextWrapAnywhere)
         engine.option.setWrapMode(QTextOption::WrapAnywhere);
+    if (tf & Qt::TextJustificationForced)
+        engine.forceJustification = true;
     QTextLayout textLayout(&engine);
     textLayout.setCacheEnabled(true);
     textLayout.engine()->underlinePositions = underlinePositions;
@@ -6064,7 +6066,9 @@ void qt_format_text(const QFont &fnt, const QRectF &_r,
         width = 0;
         tf |= Qt::TextDontPrint;
     } else {
-        qreal lineWidth = wordwrap ? qMax<qreal>(0, r.width()) : 0x01000000;
+        qreal lineWidth = 0x01000000;
+        if (wordwrap || (tf & Qt::TextJustificationForced))
+            lineWidth = qMax<qreal>(0, r.width());
         if(!wordwrap)
             tf |= Qt::TextIncludeTrailingSpaces;
         textLayout.engine()->ignoreBidi = (tf & Qt::TextDontPrint);

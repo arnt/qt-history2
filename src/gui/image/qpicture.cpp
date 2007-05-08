@@ -30,7 +30,7 @@
 #include "qdebug.h"
 
 void qt_format_text(const QFont &fnt, const QRectF &_r,
-                    int tf, const QString& str, QRectF *brect,
+                    int tf, const QTextOption *opt, const QString& str, QRectF *brect,
                     int tabstops, int *, int tabarraylen,
                     QPainter *painter);
 
@@ -673,12 +673,27 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
                     fnt = QFont(font, &fake);
                 }
 
+                qreal justificationWidth;
+                s >> justificationWidth;
+
+                int flags = Qt::TextSingleLine | Qt::TextDontClip;
+
+                QTextOption opt;
+                opt.setTextDirection(painter->layoutDirection());
+
+                QSizeF size(1, 1);
+                if (justificationWidth > 0) {
+                    size.setWidth(justificationWidth);
+                    flags |= Qt::TextJustificationForced;
+                    opt.setAlignment(Qt::AlignJustify);
+                }
+
                 QFontMetrics fm(fnt);
                 QPointF pt(p.x(), p.y() - fm.ascent());
-                qt_format_text(fnt, QRectF(pt, QSizeF(1, 1)), Qt::TextSingleLine | Qt::TextDontClip,
+                qt_format_text(fnt, QRectF(pt, size), flags, &opt,
                                str, /*brect=*/0, /*tabstops=*/0, /*...*/0, /*tabarraylen=*/0, painter);
             } else {
-                qt_format_text(font, QRectF(p, QSizeF(1, 1)), Qt::TextSingleLine | Qt::TextDontClip,
+                qt_format_text(font, QRectF(p, QSizeF(1, 1)), Qt::TextSingleLine | Qt::TextDontClip, /*opt*/0,
                                str, /*brect=*/0, /*tabstops=*/0, /*...*/0, /*tabarraylen=*/0, painter);
             }
 

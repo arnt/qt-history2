@@ -875,6 +875,7 @@ static void init(QTextEngine *e)
 #endif
     e->ignoreBidi = false;
     e->cacheGlyphs = false;
+    e->forceJustification = false;
 
     e->layoutData = 0;
 
@@ -1321,8 +1322,8 @@ void QTextEngine::justify(const QScriptLine &line)
 
     itemize();
 
-    if (line.from + (int)line.length == layoutData->string.length()
-        || layoutData->string.at(line.from + line.length - 1) == QChar::LineSeparator)
+    if (!forceJustification && (line.from + (int)line.length == layoutData->string.length()
+        || layoutData->string.at(line.from + line.length - 1) == QChar::LineSeparator))
         return;
 
     // justify line
@@ -1459,6 +1460,7 @@ void QTextEngine::justify(const QScriptLine &line)
                 ++n;
         }
 //          qDebug("number of points for justification type %d: %d", type, n);
+
 
         if (!n)
             continue;
@@ -1955,7 +1957,7 @@ QStackTextEngine::QStackTextEngine(const QString &string, const QFont &f)
 }
 
 QTextItemInt::QTextItemInt(const QScriptItem &si, QFont *font, const QTextCharFormat &format)
-    : underlineStyle(QTextCharFormat::NoUnderline), num_chars(0), chars(0),
+    : justified(false), underlineStyle(QTextCharFormat::NoUnderline), num_chars(0), chars(0),
       logClusters(0), f(0), glyphs(0), num_glyphs(0), fontEngine(0)
 {
     // explicitly initialize flags so that initFontAttributes can be called

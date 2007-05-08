@@ -25,6 +25,7 @@
 #include "qpicture.h"
 #include "qpolygon.h"
 #include "qrect.h"
+#include <private/qtextengine_p.h>
 
 //#define QT_PICTURE_DEBUG
 #include <qdebug.h>
@@ -400,13 +401,19 @@ void QPicturePaintEngine::drawTextItem(const QPointF &p , const QTextItem &ti)
 #endif
 
     if (d->pic_d->formatMajor >= 9) {
+        const QTextItemInt &si = static_cast<const QTextItemInt &>(ti);
         int pos;
         SERIALIZE_CMD(QPicturePrivate::PdcDrawTextItem);
         QFont fnt = ti.font();
         fnt.setUnderline(false);
         fnt.setStrikeOut(false);
         fnt.setOverline(false);
-        d->s << p << ti.text() << fnt << ti.renderFlags() << double(fnt.d->dpi)/qt_defaultDpi();
+
+        qreal justificationWidth = 0;
+        if (si.justified)
+            justificationWidth = si.width.toReal();
+
+        d->s << p << ti.text() << fnt << ti.renderFlags() << double(fnt.d->dpi)/qt_defaultDpi() << justificationWidth;
         writeCmdLength(pos, /*brect=*/QRectF(), /*corr=*/false);
     } else if (d->pic_d->formatMajor >= 8) {
         // old old (buggy) format

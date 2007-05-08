@@ -176,7 +176,8 @@ public:
         TextWrapAnywhere = 0x2000,
         TextDontPrint = 0x4000,
         TextIncludeTrailingSpaces = 0x08000000,
-        TextHideMnemonic = 0x8000
+        TextHideMnemonic = 0x8000,
+        TextJustificationForced = 0x10000
 
 #if defined(QT3_SUPPORT) && !defined(Q_MOC_RUN)
         ,SingleLine = TextSingleLine,

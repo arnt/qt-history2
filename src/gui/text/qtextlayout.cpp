@@ -1929,6 +1929,7 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatR
         gf.logClusters = logClusters + iterator.itemStart - si.position;
         gf.num_chars = iterator.itemEnd - iterator.itemStart;
         gf.width = iterator.itemWidth;
+        gf.justified = line.justified;
 
         Q_ASSERT(gf.fontEngine);
 
