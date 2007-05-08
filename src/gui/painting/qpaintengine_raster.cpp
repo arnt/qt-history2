@@ -1287,14 +1287,22 @@ void QRasterPaintEngine::updateState(const QPaintEngineState &state)
             if (!state.isClipEnabled()) { // save current clip for later
                 Q_ASSERT(!d->rasterBuffer->disabled_clip);
                 d->rasterBuffer->disabled_clip = d->rasterBuffer->clip;
+                d->rasterBuffer->disabledClipRegion = d->rasterBuffer->clipRegion;
+                d->rasterBuffer->disabledClipRect = d->rasterBuffer->clipRect;
                 d->rasterBuffer->clip = 0;
+                d->rasterBuffer->clipRegion = QRegion();
+                d->rasterBuffer->clipRect = QRect();
                 d->disabledClipRegion = d->clipRegion;
                 updateClipRegion(QRegion(), Qt::NoClip);
             } else { // re-enable old clip
                 Q_ASSERT(d->rasterBuffer->disabled_clip);
                 d->rasterBuffer->resetClip();
                 d->rasterBuffer->clip = d->rasterBuffer->disabled_clip;
+                d->rasterBuffer->clipRegion = d->rasterBuffer->disabledClipRegion;
+                d->rasterBuffer->clipRect = d->rasterBuffer->disabledClipRect;
                 d->rasterBuffer->disabled_clip = 0;
+                d->rasterBuffer->disabledClipRegion = QRegion();
+                d->rasterBuffer->disabledClipRect = QRect();
                 d->clipRegion = d->disabledClipRegion;
                 d->disabledClipRegion = QRegion();
             }

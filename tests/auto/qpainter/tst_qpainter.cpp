@@ -85,6 +85,7 @@ private slots:
     void combinedMatrix();
     void renderHints();
 
+    void disableEnableClipping();
     void setClipRect();
     void setEqualClipRegionAndPath_data();
     void setEqualClipRegionAndPath();
@@ -1229,6 +1230,68 @@ void tst_QPainter::renderHints()
 
     p.setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform, false);
     QVERIFY(!(p.renderHints() & (QPainter::Antialiasing | QPainter::SmoothPixmapTransform)));
+}
+
+int countPixels(const QImage &img, const QRgb &color)
+{
+    int count = 0;
+    for (int y = 0; y < img.height(); ++y) {
+        for (int x = 0; x < img.width(); ++x) {
+            count += ((img.pixel(x, y) & 0xffffff) == color);
+        }
+    }
+    return count;
+}
+
+template <typename T>
+void testClipping(QImage &img)
+{
+    img.fill(0x0);
+    QPainterPath a, b;
+    a.addRect(QRect(2, 2, 4, 4));
+    b.addRect(QRect(4, 4, 4, 4));
+
+    QPainter p(&img);
+    p.setClipPath(a);
+    p.setClipPath(b, Qt::UniteClip);
+
+    p.setClipping(false);
+    p.setPen(Qt::NoPen);
+    p.setBrush(QColor(0xff0000));
+    p.drawRect(T(0, 0, 10, 10));
+
+    p.setClipping(true);
+    p.setBrush(QColor(0x00ff00));
+    p.drawRect(T(0, 0, 10, 10));
+
+    QCOMPARE(countPixels(img, 0xff0000), 72);
+    QCOMPARE(countPixels(img, 0x00ff00), 28);
+
+    p.end();
+    img.fill(0x0);
+    p.begin(&img);
+    p.setClipPath(a);
+    p.setClipPath(b, Qt::IntersectClip);
+
+    p.setClipping(false);
+    p.setPen(Qt::NoPen);
+    p.setBrush(QColor(0xff0000));
+    p.drawRect(T(0, 0, 10, 10));
+
+    p.setClipping(true);
+    p.setBrush(QColor(0x00ff00));
+    p.drawRect(T(0, 0, 10, 10));
+
+    QCOMPARE(countPixels(img, 0xff0000), 96);
+    QCOMPARE(countPixels(img, 0x00ff00), 4);
+}
+
+void tst_QPainter::disableEnableClipping()
+{
+    QImage img(10, 10, QImage::Format_RGB32);
+
+    testClipping<QRectF>(img);
+    testClipping<QRect>(img);
 }
 
 void tst_QPainter::setClipRect()

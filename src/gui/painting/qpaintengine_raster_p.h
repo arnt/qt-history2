@@ -373,7 +373,9 @@ void prepare(QCustomRasterPaintDevice *device);
     uchar *buffer() const { return m_buffer; }
 
     QRect clipRect;
+    QRect disabledClipRect;
     QRegion clipRegion;
+    QRegion disabledClipRegion;
     QClipData *clip;
     QClipData *disabled_clip;
     bool clipEnabled;
