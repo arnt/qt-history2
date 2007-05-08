@@ -1494,6 +1494,7 @@ X11
       correct position.
     * [155083] Don't use legacy xlfd fonts if we have fontconfig available on Solaris.
     * [150348] Fixed bug where setCursor() would not work properly after setParent().
+    * Made Plastique the default style on X11.
 
 Windows
 -------

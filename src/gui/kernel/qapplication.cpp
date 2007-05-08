@@ -1149,14 +1149,10 @@ QStyle *QApplication::style()
             style = QLatin1String("CDE");                        // default style for X11 on Solaris
 #elif defined(Q_WS_X11) && defined(Q_OS_IRIX)
             style = QLatin1String("SGI");                        // default style for X11 on IRIX
-#elif defined(Q_WS_X11) && defined(Q_OS_MAC)
-            style = QLatin1String("Plastique");                  // default style for X11 on Darwin
-#elif defined(Q_WS_X11)
-                style = QLatin1String("Motif");                  // default style for X11
+#elif defined(Q_WS_X11) || defined(Q_WS_QWS)
+            style = QLatin1String("Plastique");                  // default style for X11 and small devices
 #elif defined(Q_WS_MAC)
                 style = QLatin1String("Macintosh");              // default style for all Mac's
-#elif defined(Q_WS_QWS)
-            style = QLatin1String("Plastique");                  // default style for small devices
 #endif
         }
 
