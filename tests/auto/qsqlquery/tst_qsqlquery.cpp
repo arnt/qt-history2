@@ -2204,10 +2204,12 @@ void tst_QSqlQuery::bindWithDoubleColonCastOperator()
 void tst_QSqlQuery::queryOnInvalidDatabase()
 {
     {
+        QTest::ignoreMessage(QtWarningMsg, "QSqlDatabase: INVALID driver not loaded");
         QSqlDatabase db = QSqlDatabase::addDatabase("INVALID", "invalidConnection");
         QVERIFY2(db.lastError().isValid(),
             qPrintable(QString("db.lastError().isValid() should be true!")));
 
+        QTest::ignoreMessage(QtWarningMsg, "QSqlQuery::exec: database not open");
         QSqlQuery query("SELECT 1 AS ID", db);
         QVERIFY2(query.lastError().isValid(),
             qPrintable(QString("query.lastError().isValid() should be true!")));
@@ -2216,6 +2218,7 @@ void tst_QSqlQuery::queryOnInvalidDatabase()
     
     {
     QSqlDatabase db = QSqlDatabase::database ("this connection does not exist");
+    QTest::ignoreMessage(QtWarningMsg, "QSqlQuery::exec: database not open");
     QSqlQuery query ("SELECT 1 AS ID", db);
     QVERIFY2(query.lastError().isValid(),
         qPrintable(QString("query.lastError().isValid() should be true!")));

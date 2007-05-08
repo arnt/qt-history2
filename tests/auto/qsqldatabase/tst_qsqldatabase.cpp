@@ -1874,6 +1874,8 @@ void tst_QSqlDatabase::getConnectionName()
     QCOMPARE(db.connectionName(), dbName);
     QSqlDatabase clone = QSqlDatabase::cloneDatabase(db, "clonedDatabase");
     QCOMPARE(clone.connectionName(), QString("clonedDatabase"));
+    QTest::ignoreMessage(QtWarningMsg, "QSqlDatabasePrivate::removeDatabase: "
+        "connection 'clonedDatabase' is still in use, all queries will cease to work.");
     QSqlDatabase::removeDatabase("clonedDatabase");
     QCOMPARE(clone.connectionName(), QString());
     QCOMPARE(db.connectionName(), dbName);
