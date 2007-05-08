@@ -435,10 +435,10 @@ QByteArray QSslCertificate::toDer() const
 }
 
 /*!
-    Searches all files in the \a path for all certificates encoded in
-    the \a format and returns them in a list of certificates. \a path
-    can be the path of an explicit file, or it can contain wildcards
-    in the format specified by \a syntax.
+    Searches all files in the \a path for certificates encoded in
+    the specified \a format and returns them in a list. \a path can
+    be for an explicit file, or it can contain wildcards in the format
+    specified by \a syntax.
 
     \sa fromData()
 */
@@ -470,8 +470,9 @@ QSslCertificate::fromPath(const QString &path,
 }
 
 /*!
-    Searches for and parses all certificates in \a device using \a format
-    encoding, and returns the list of certificates.
+    Searches for and parses all certificates in \a device that are
+    encoded in the specified \a format and returns them in a list of
+    certificates.
 
     \sa fromData()
 */
@@ -482,8 +483,9 @@ QSslCertificate::fromDevice(QIODevice *device, QSsl::EncodingFormat format)
 }
 
 /*!
-    Searches for and parses all certificates in \a data using \a format
-    encoding, and returns the list of certificates.
+    Searches for and parses all certificates in \a data that are
+    encoded in the specified \a format and returns them in a list of
+    certificates.
 
     \sa fromDevice()
 */

@@ -136,12 +136,20 @@
             qDebug() << socket.readAll().data();
     \endcode
 
-    QSslSocket provides an extensive, easy-to-use API for handling SSL
-    certificates, ciphers, and for managing errors. You can customize
-    the socket's cryptographic cipher suite and CA database by calling
-    setCiphers() or setCaCertificates(). For more information about
-    ciphers, refer to QSslCipher's documentation. You can read about
-    SSL certificates in the class documentation for QSslCertificate.
+    QSslSocket provides an extensive, easy-to-use API for handling
+    cryptographic ciphers, private keys, and local, peer, and
+    Certification Authority (CA) certificates. It also provides an API
+    for handling errors that occur during the handshake phase.
+
+    Customize the socket's cryptographic cipher suite before the
+    handshake phase with setCiphers() and setDefaultCiphers().
+    Customize the socket's local certificate and private key before
+    the handshake phase with setLocalCertificate() and setPrivateKey.
+    Customize the CA certificate database with addCaCertificate(),
+    addCaCertificates(), setCaCertificates(), addDefaultCaCertificate(),
+    addDefaultCaCertificates(), and setDefaultCaCertificates(). For more
+    information about ciphers and certificates, refer to QSslCipher and
+    QSslCertificate.
     
     This product includes software developed by the OpenSSL Project
     for use in the OpenSSL Toolkit (http://www.openssl.org/).
@@ -543,12 +551,13 @@ void QSslSocket::setLocalCertificate(const QSslCertificate &certificate)
 /*!
     \overload
 
-    Sets the socket's local certificate to a QSslCertificate
-    constructed from the first certificate found in the file
-    at \a path, which is expected to be encoded in the
+    Sets the socket's local \l {QSslCertificate} {certificate} to the
+    first one found in file \a path, which is parsed according to the 
     specified \a format.
 */
-void QSslSocket::setLocalCertificate(const QString &path, QSsl::EncodingFormat format)
+void
+QSslSocket::setLocalCertificate(const QString &path,
+				QSsl::EncodingFormat format)
 {
     Q_D(QSslSocket);
     QFile file(path);
@@ -557,8 +566,8 @@ void QSslSocket::setLocalCertificate(const QString &path, QSsl::EncodingFormat f
 }
 
 /*!
-    Returns the socket's local certificate, or an empty certificate if no
-    local certificate has been assigned.
+    Returns the socket's local \l {QSslCertificate} {certificate}, or
+    an empty certificate if no local certificate has been assigned.
 
     \sa setLocalCertificate(), privateKey()
 */
@@ -571,7 +580,7 @@ QSslCertificate QSslSocket::localCertificate() const
 /*!
     Returns the peer's digital certificate (i.e., the immediate
     certificate of the host you are connected to), or a null
-    certificate.
+    certificate, if the peer has not assigned a certificate.
     
     The peer certificate is checked automatically during the
     handshake phase, so this function is normally used to fetch
@@ -580,9 +589,9 @@ QSslCertificate QSslSocket::localCertificate() const
     its host name, the certificate issuer, and the peer's public
     key.
 
-    The peer certificate is set during the handshake phase, so it's
-    safe to check this certificate from inside a slot connected to the
-    sslErrors() or encrypted() signals.
+    Because the peer certificate is set during the handshake phase, it
+    is safe to access the peer certificate from a slot connected to
+    the sslErrors() signal or the encrypted() signal.
 
     If a null certificate is returned, it can mean the SSL handshake
     failed, or it can mean the host you are connected to doesn't have
@@ -603,15 +612,15 @@ QSslCertificate QSslSocket::peerCertificate() const
     Returns the peer's chain of digital certificates, or an empty list
     of certificates.
 
-    Peer certificates are checked automatically during the handshake.
-    This function is normally only used to fetch certificates for
+    Peer certificates are checked automatically during the handshake
+    phase. This function is normally used to fetch certificates for
     display, or for performing connection diagnostics. Certificates
     contain information about the peer and the certificate issuers,
     including host name, issuer names, and issuer public keys.
 
     The peer certificates are set in QSslSocket during the handshake
-    phase, so it's safe to check the certificate chain from inside a
-    slot connected to the encrypted() or the sslErrors() signal.
+    phase, so it is safe to call this function from a slot connected
+    to the sslErrors() signal or the encrypted() signal.
 
     If an empty list is returned, it can mean the SSL handshake
     failed, or it can mean the host you are connected to doesn't have
@@ -631,14 +640,13 @@ QList<QSslCertificate> QSslSocket::peerCertificateChain() const
 /*!
     Returns the socket's cryptographic \l {QSslCipher} {cipher}, or a
     null cipher if the connection isn't encrypted. The socket's cipher
-    for the session is set during the handshake. It is used to encrypt
-    and decrypt all data transmitted through the socket.
+    for the session is set during the handshake phase. The cipher is
+    used to encrypt and decrypt data transmitted through the socket.
 
     QSslSocket also provides functions for setting the ordered list of
-    ciphers from which the handshake will select the cipher that will
-    be the session cipher for encrypting and decrypting data. The
-    cipher list must be set before the handshake chooses the session
-    cipher.
+    ciphers from which the handshake phase will eventually select the
+    session cipher. This ordered list must be in place before the
+    handshake phase begins.
 
     \sa ciphers(), setCiphers(), setDefaultCiphers(), defaultCiphers(),
     supportedCiphers()
@@ -842,22 +850,26 @@ QList<QSslCipher> QSslSocket::supportedCiphers()
 }
 
 /*!
-    Adds all CA certificates in \a path using \a format encoding,
-    which may be a file, or a directory with \a syntax formatted
-    wildcards. Returns true on success; otherwise returns false.
+  Searches all files in the \a path for certificates encoded in the
+  specified \a format and adds them to this socket's CA certificate
+  database. \a path can be explicit, or it can contain wildcards in
+  the format specified by \a syntax. Returns true if one or more
+  certificates are added to the socket's CA certificate database;
+  otherwise returns false.
 
-    For more fine grained control, you can call addCaCertificate()
-    instead.
+  The CA certificate database is used by the socket during the
+  handshake phase to validate the peer's certificate.
 
-    \sa addCaCertificate()
+  For more precise control, use addCaCertificate().
+
+  \sa addCaCertificate(), QSslCertificate::fromPath()
 */
 bool QSslSocket::addCaCertificates(const QString &path,
 				   QSsl::EncodingFormat format,
                                    QRegExp::PatternSyntax syntax)
 {
     Q_D(QSslSocket);
-    QList<QSslCertificate> certs =
-	QSslCertificate::fromPath(path, format, syntax);
+    QList<QSslCertificate> certs = QSslCertificate::fromPath(path,format,syntax);
     if (certs.isEmpty())
         return false;
 
@@ -866,9 +878,13 @@ bool QSslSocket::addCaCertificates(const QString &path,
 }
 
 /*!
-    Adds \a certificate to this socket's CA certificate database.
+  Adds the \a certificate to this socket's CA certificate database.
+  The CA certificate database is used by the socket during the
+  handshake phase to validate the peer's certificate.
 
-    \sa caCertificates(), addDefaultCaCertificate()
+  To add multiple certificates, use addCaCertificates().
+
+  \sa caCertificates(), setCaCertificates()
 */
 void QSslSocket::addCaCertificate(const QSslCertificate &certificate)
 {
@@ -877,9 +893,13 @@ void QSslSocket::addCaCertificate(const QSslCertificate &certificate)
 }
 
 /*!
-    Adds \a certificates to this socket's CA certificate database.
+  Adds the \a certificates to this socket's CA certificate database.
+  The CA certificate database is used by the socket during the
+  handshake phase to validate the peer's certificate.
 
-    \sa caCertificates(), addDefaultCaCertificate()
+  For more precise control, use addCaCertificate().
+
+  \sa caCertificates(), addDefaultCaCertificate()
 */
 void QSslSocket::addCaCertificates(const QList<QSslCertificate> &certificates)
 {
@@ -888,13 +908,16 @@ void QSslSocket::addCaCertificates(const QList<QSslCertificate> &certificates)
 }
 
 /*!
-    Sets \a certificates to be this socket's CA certificate database. Any
-    global CA certificates are ignored.
+  Sets this socket's CA certificate database to be \a certificates.
+  The certificate database must be set prior to the SSL handshake.
+  The CA certificate database is used by the socket during the
+  handshake phase to validate the peer's certificate.
 
-    You can later call setCaCertificates() to restore the global CA
-    certificate defaults.
+  The CA certificate database can be reset to the current default CA
+  certificate database by calling setCaCertificates() with the list
+  of CA certificates returned by defaultCaCertificates().
 
-    \sa caCertificates(), addDefaultCaCertificate()
+  \sa setCaCertificates(), defaultCaCertificate()
 */
 void QSslSocket::setCaCertificates(const QList<QSslCertificate> &certificates)
 {
@@ -904,9 +927,13 @@ void QSslSocket::setCaCertificates(const QList<QSslCertificate> &certificates)
 }
 
 /*!
-    Returns this socket's CA certificate database.
+  Returns this socket's CA certificate database. The CA certificate
+  database is used by the socket during the handshake phase to
+  validate the peer's certificate. It can be moodified prior to the
+  handshake with addCaCertificate(), addCACertificates(), and
+  setCaCertificates().
 
-    \sa addCaCertificates(), defaultCaCertificates()
+  \sa addCaCertificate(), addCaCertificates(), setCaCertificates()
 */
 QList<QSslCertificate> QSslSocket::caCertificates() const
 {
@@ -917,10 +944,14 @@ QList<QSslCertificate> QSslSocket::caCertificates() const
 }
 
 /*!
-    Adds all CA certificates in \a path, using \a encoding, to the global CA
-    certificate database.  \a path can be a file, or a directory with \a
-    syntax formatted wildcards. Returns true on success; otherwise returns
-    false.
+    Searches all files in the \a path for certificates with the
+    specified \a encoding and adds them to the default CA certificate
+    database. \a path can be an explicit file, or it can contain
+    wildcards in the format specified by \a syntax. Returns true if
+    any CA certificates are added to the default database.
+
+    Each SSL socket's CA certificate database is initialized to the
+    default CA certificate database.
 
     \sa defaultCaCertificates(), addCaCertificates(), addDefaultCaCertificate()
 */
@@ -932,7 +963,9 @@ bool QSslSocket::addDefaultCaCertificates(const QString &path,
 }
 
 /*!
-    Adds \a certificate to the global CA certificate database.
+    Adds \a certificate to the default CA certificate database.  Each
+    SSL socket's CA certificate database is initialized to the default
+    CA certificate database.
 
     \sa defaultCaCertificates(), addCaCertificates()
 */
@@ -942,29 +975,46 @@ void QSslSocket::addDefaultCaCertificate(const QSslCertificate &certificate)
 }
 
 /*!
-    Adds \a certificates to the global CA certificate database.
+    Adds \a certificates to the default CA certificate database.  Each
+    SSL socket's CA certificate database is initialized to the default
+    CA certificate database.
 
     \sa defaultCaCertificates(), addCaCertificates()
 */
-void QSslSocket::addDefaultCaCertificates(const QList<QSslCertificate> &certificates)
+void
+QSslSocket::addDefaultCaCertificates(const QList<QSslCertificate> &certificates)
 {
     QSslSocketPrivate::addDefaultCaCertificates(certificates);
 }
 
 /*!
-    Sets \a certificates to be QSslSocket's global CA certificate database.
+    Sets the default CA certificate database to \a certificates. The
+    default CA certificate database is originally set to your system's
+    default CA certificate database. If no system default database is
+    found, Qt will provide its own default database. You can override
+    the default CA certificate database with your own CA certificate
+    database using this function.
+
+    Each SSL socket's CA certificate database is initialized to the
+    default CA certificate database.
 
     \sa addDefaultCaCertificate()
 */
-void QSslSocket::setDefaultCaCertificates(const QList<QSslCertificate> &certificates)
+void
+QSslSocket::setDefaultCaCertificates(const QList<QSslCertificate> &certificates)
 {
-    // ### Document exactly hos this works.
-    // ### We might need a setter, and perhaps a ban'er.
     QSslSocketPrivate::setDefaultCaCertificates(certificates);
 }
 
 /*!
-    Returns the global CA certificate database.
+    Returns the current default CA certificate database. This database
+    is originally set to your system's default CA certificate database.
+    If no system default database is found, Qt will provide its own
+    default database. You can override the default CA certificate database
+    with your own CA certificate database using setDefaultCaCertificates().
+
+    Each SSL socket's CA certificate database is initialized to the
+    default CA certificate database.
 
     \sa caCertificates()
 */
@@ -974,9 +1024,15 @@ QList<QSslCertificate> QSslSocket::defaultCaCertificates()
 }
 
 /*!
-    Returns the default CA certificate database for the system.
+    Returns the system default CA certificate database for your
+    system. This database is normally found in a standard place for
+    your system. If it is not found there, Qt will provide its own
+    default CA certificate database. The CA certificate database
+    returned by this function is used to initialize the database
+    returned by defaultCaCertificates(). You can replace that database
+    with your own with setDefaultCaCertificates().
 
-    \sa caCertificates()
+    \sa caCertificates(), defaultCaCertificates(), setDefaultCaCertificates()
 */
 QList<QSslCertificate> QSslSocket::systemCaCertificates()
 {
@@ -985,9 +1041,9 @@ QList<QSslCertificate> QSslSocket::systemCaCertificates()
 }
 
 /*!
-    Waits until the socket is connected, up to \a msecs
-    milliseconds. If the connection has been established, this
-    function returns true; otherwise it returns false.
+    Waits until the socket is connected, or \a msecs milliseconds,
+    whichever happens first. If the connection has been established,
+    this function returns true; otherwise it returns false.
 
     \sa QAbstractSocket::waitForConnected()
 */
@@ -1006,10 +1062,11 @@ bool QSslSocket::waitForConnected(int msecs)
 }
 
 /*!
-    Waits until the socket has completed the SSL handshake and has emitted
-    encrypted(), up to \a msecs milliseconds. If encrypted() has been emitted,
-    this function returns true; otherwise (e.g., the socket is disconnected,
-    or the SSL handshake fails), false is returned.
+    Waits until the socket has completed the SSL handshake and has
+    emitted encrypted(), or \a msecs milliseconds, whichever comes
+    first. If encrypted() has been emitted, this function returns
+    true; otherwise (e.g., the socket is disconnected, or the SSL
+    handshake fails), false is returned.
 
     The following example waits up to one second for the socket to be
     encrypted:
@@ -1108,9 +1165,9 @@ bool QSslSocket::waitForBytesWritten(int msecs)
 }
 
 /*!
-    Waits until the socket has disconnected, up to \a msecs
-    milliseconds. If the connection has been disconnected, this
-    function returns true; otherwise it returns false.
+    Waits until the socket has disconnected or \a msecs milliseconds,
+    whichever comes first. If the connection has been disconnected,
+    this function returns true; otherwise it returns false.
 
     \sa QAbstractSocket::waitForDisconnected()
 */
@@ -1136,9 +1193,10 @@ bool QSslSocket::waitForDisconnected(int msecs)
 }
 
 /*!
-    Returns a list of the last SSL errors that occurred. This is the same list
-    as QSslSocket passes via the sslErrors() signal. If the connection has
-    been encrypted with no errors, this function will return an empty list.
+    Returns a list of the last SSL errors that occurred. This is the
+    same list as QSslSocket passes via the sslErrors() signal. If the
+    connection has been encrypted with no errors, this function will
+    return an empty list.
 
     \sa connectToHostEncrypted()
 */
@@ -1149,10 +1207,9 @@ QList<QSslError> QSslSocket::sslErrors() const
 }
 
 /*!
-    Returns true if this platform supports SSL; otherwise, returns false.
-
-    If the platform doesn't support SSL, the socket will fail in the
-    connection phase.
+    Returns true if this platform supports SSL; otherwise, returns
+    false. If the platform doesn't support SSL, the socket will fail
+    in the connection phase.
 */
 bool QSslSocket::supportsSsl()
 {
@@ -1160,13 +1217,15 @@ bool QSslSocket::supportsSsl()
 }
 
 /*!
-    Starts a delayed SSL handshake for a client connection. This function must
-    be called when the socket is in \l UnencryptedMode, and \l ConnectedState;
-    otherwise, it has no effect.
+    Starts a delayed SSL handshake for a client connection. This
+    function can be called when the socket is in the \l ConnectedState
+    but still in the \l UnencryptedMode. If it is not yet connected,
+    or if it is already encrypted, this function has no effect.
 
-    Clients that implement STARTTLS functionality often make use of delayed
-    SSL handshakes; most other clients can avoid calling this function
-    directly by using connectToHostEncrypted() instead.
+    Clients that implement STARTTLS functionality often make use of
+    delayed SSL handshakes. Most other clients can avoid calling this
+    function directly by using connectToHostEncrypted() instead, which
+    automatically performs the handshake.
 
     \sa connectToHostEncrypted(), startServerEncryption()
 */
@@ -1186,19 +1245,22 @@ void QSslSocket::startClientEncryption()
 }
 
 /*!
-    Starts a delayed SSL handshake for a server connection. This function must
-    be called when the socket is in \l UnencryptedMode, and \l ConnectedState;
-    otherwise, it has no effect.
+    Starts a delayed SSL handshake for a server connection. This
+    function can be called when the socket is in the \l ConnectedState
+    but still in \l UnencryptedMode. If it is not connected or it is
+    already encrypted, the function has no effect.
 
-    For server sockets, calling this function is the only way to initiate the
-    SSL handshake. Most servers will call this function immediately upon
-    receiving a connection, or as a result of having received a
-    protocol-specific command to enter SSL mode (e.g, the server may respond
-    to receiving the string "STARTTLS\r\n" by calling this function).
+    For server sockets, calling this function is the only way to
+    initiate the SSL handshake. Most servers will call this function
+    immediately upon receiving a connection, or as a result of having
+    received a protocol-specific command to enter SSL mode (e.g, the
+    server may respond to receiving the string "STARTTLS\r\n" by
+    calling this function).
 
-    The most common way to implement SSL servers is to create a subclass of
-    QTcpServer, and reimplement QTcpServer::incomingConnection(). The provided
-    socket descriptor is then passed to QSslSocket::setSocketDescriptor().
+    The most common way to implement an SSL server is to create a
+    subclass of QTcpServer and reimplement
+    QTcpServer::incomingConnection(). The returned socket descriptor
+    is then passed to QSslSocket::setSocketDescriptor().
     
     \sa connectToHostEncrypted(), startClientEncryption()
 */
@@ -1219,22 +1281,22 @@ void QSslSocket::startServerEncryption()
 
 /*!
     This slot tells QSslSocket to ignore errors during QSslSocket's
-    handshake phase and continue connecting. If an error occurs during
-    the handshake phase, but you want to continue with the connection
-    anyway, then you must call this slot, either from a slot connected
-    to sslErrors(), or before the attempt to enter encrypted mode. If
-    you don't call this slot, either in response to errors or before
-    connecting, the connection will be dropped after the sslErrors()
-    signal has been emitted.
+    handshake phase and continue connecting. If you want to continue
+    with the connection even if errors occur during the handshake
+    phase, then you must call this slot, either from a slot connected
+    to sslErrors(), or before the handshake phase. If you don't call
+    this slot, either in response to errors or before the handshake,
+    the connection will be dropped after the sslErrors() signal has
+    been emitted.
 
     If there are no errors during the SSL handshake phase (i.e., the
     identity of the peer is established with no problems), QSslSocket
     will not emit the sslErrors() signal, and it is unnecessary to
     call this function.
 
-    Ignoring errors during an SSL handshake should be used with
-    caution, since a fundamental characteristic of secure connections
-    is that they should be established with a successful handshake.
+    Ignoring errors that occur during an SSL handshake should be done
+    with caution. A fundamental characteristic of secure connections
+    is that they should be established with an error free handshake.
 
     \sa sslErrors()
 */
@@ -1247,7 +1309,8 @@ void QSslSocket::ignoreSslErrors()
 /*!
     \internal
 */
-void QSslSocket::connectToHostImplementation(const QString &hostName, quint16 port,
+void QSslSocket::connectToHostImplementation(const QString &hostName,
+					     quint16 port,
                                              OpenMode openMode)
 {
     Q_D(QSslSocket);
