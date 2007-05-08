@@ -122,11 +122,25 @@ void qGeomCalc(QVector<QLayoutStruct> &chain, int start, int count,
         int deficit = space_used - space_left;
 
         int items = count - idx;
-        int maxval = current - deficit/items;
+        /*
+         * If we truncate all items to "current", we would get "deficit" too many pixels. Therefore, we have to remove
+         * deficit/items from each item bigger than maxval. The actual value to remove is deficitPerItem + remainder/items
+         * "rest" is the accumulated error from using integer arithmetic.
+        */
+        int deficitPerItem = deficit/items;
+        int remainder = deficit % items;
+        int maxval = current - deficitPerItem;
 
+        int rest = 0;
         for (i = start; i < start + count; i++) {
+            int maxv = maxval;
+            rest += remainder;
+            if (rest >= items) {
+                maxv--;
+                rest-=items;
+            }
             QLayoutStruct *data = &chain[i];
-            data->size = qMin(data->minimumSize, maxval);
+            data->size = qMin(data->minimumSize, maxv);
             data->done = true;
         }
     } else if (space < cHint + sumSpacing) {
