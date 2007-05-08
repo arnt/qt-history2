@@ -1930,7 +1930,8 @@ void QConfFileSettingsPrivate::ensureSectionParsed(QConfFile *confFile,
     \printline setOrganizationDomain
     \printline setApplicationName
     \dots
-    \printline QSettings settings;
+    \skipto QSettings settings;
+    \printuntil QSettings
 
     (Here, we also specify the organization's Internet domain. When
     the Internet domain is set, it is used on Mac OS X instead of the
@@ -1944,6 +1945,7 @@ void QConfFileSettingsPrivate::ensureSectionParsed(QConfFile *confFile,
     that stores the data associated with the key. To write a setting,
     use setValue(). For example:
 
+    \skipto setValue(
     \printline setValue(
 
     If there already exists a setting with the same key, the existing
@@ -2022,18 +2024,24 @@ void QConfFileSettingsPrivate::ensureSectionParsed(QConfFile *confFile,
     You can form hierarchical keys using the '/' character as a
     separator, similar to Unix file paths. For example:
 
-    \printline setValue
-    \printline setValue
-    \printline setValue
+    \skipto settings.setValue("mainwindow/size", win->size());
+    \printuntil settings.setValue(
+
+    \skipto settings.setValue("mainwindow/fullScreen", win->isFullScreen());
+    \printuntil settings.setValue(
+
+    \skipto settings.setValue("outputpanel/visible", panel->isVisible());
+    \printuntil settings.setValue(
 
     If you want to save or restore many settings with the same
     prefix, you can specify the prefix using beginGroup() and call
     endGroup() at the end. Here's the same example again, but this
     time using the group mechanism:
 
-    \printline beginGroup
+    \skipto settings.beginGroup("mainwindow");
     \printuntil endGroup
-    \printline beginGroup
+
+    \skipto settings.beginGroup("outputpanel");
     \printuntil endGroup
 
     If a group is set using beginGroup(), the behavior of most
@@ -2103,9 +2111,8 @@ void QConfFileSettingsPrivate::ensureSectionParsed(QConfFile *confFile,
     argument to the QSettings constructor, followed by the scope, the
     organization name, and the application name:
 
-    \skipline {
-    \printline /settings\(.*,$/
-    \printline );
+    \skipto QSettings settings(
+    \printuntil );
 
     The \l{tools/settingseditor}{Settings Editor} example lets you
     experiment with different settings location and with fallbacks
@@ -2119,9 +2126,9 @@ void QConfFileSettingsPrivate::ensureSectionParsed(QConfFile *confFile,
     application's main window.
 
     \skipto ::writeSettings
-    \printuntil /^\}$/
+    \printuntil /^\}/
     \skipto ::readSettings
-    \printuntil /^\}$/
+    \printuntil /^\}/
 
     See \l{Window Geometry} for a discussion on why it is better to
     call QWidget::resize() and QWidget::move() rather than QWidget::setGeometry()
