@@ -1133,7 +1133,7 @@ QDataStream &operator>>(QDataStream &s, QBrush &b)
     \internal
 */
 QGradient::QGradient()
-    : dummy(0)
+    : m_type(NoGradient), dummy(0)
 {
 }
 
