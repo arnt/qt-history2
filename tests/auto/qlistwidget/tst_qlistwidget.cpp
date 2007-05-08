@@ -14,6 +14,10 @@
 
 #include <qlistwidget.h>
 
+#ifdef Q_WS_X11
+extern void qt_x11_wait_for_window_manager(QWidget *);
+#endif
+
 //TESTED_CLASS=
 //TESTED_FILES=gui/itemviews/qlistwidget.h gui/itemviews/qlistwidget.cpp
 
@@ -1304,6 +1308,9 @@ void tst_QListWidget::fastScroll()
         widget.addItem(QString("Item %1").arg(i));
 
     widget.show();
+#ifdef Q_WS_X11
+    qt_x11_wait_for_window_manager(&widget);
+#endif
     QApplication::processEvents();
 
     QSize itemSize = widget.visualItemRect(widget.item(0)).size();
