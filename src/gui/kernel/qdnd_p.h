@@ -127,6 +127,7 @@ public:
     void updatePixmap();
     QWidget *source() const { return object ? object->d_func()->source : 0; }
     QDragPrivate *dragPrivate() const { return object ? object->d_func() : 0; }
+    static QDragPrivate *dragPrivate(QDrag *drag) { return drag ? drag->d_func() : 0; }
 
     static QDragManager *self();
     Qt::DropAction defaultAction(Qt::DropActions possibleActions,

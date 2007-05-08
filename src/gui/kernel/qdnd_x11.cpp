@@ -1068,7 +1068,17 @@ void QX11Data::xdndHandleDrop(QWidget *, const XEvent * xe, bool passive)
     }
 
     if (!passive) {
-        QMimeData *dropData = (manager->object) ? manager->dragPrivate()->data : manager->dropData;
+        // this could be a same-application drop, just proxied due to
+        // some XEMBEDding, so try to find the real QMimeData used
+        // based on the timestamp for this drop.
+        QMimeData *dropData = 0;
+        int at = findXdndDropTransactionByTime(qt_xdnd_target_current_time);
+        if (at != -1)
+            dropData = QDragManager::dragPrivate(X11->dndDropTransactions.at(at).object)->data;
+        // if we can't find it, then use the data in the drag manager
+        if (!dropData)
+            dropData = (manager->object) ? manager->dragPrivate()->data : manager->dropData;
+
         QDropEvent de(qt_xdnd_current_position, possible_actions, dropData,
                       QApplication::mouseButtons(), QApplication::keyboardModifiers());
         QApplication::sendEvent(qt_xdnd_current_widget, &de);
