@@ -111,7 +111,7 @@ static gboolean timerSourcePrepare(GSource *source, gint *timeout)
     else
         *timeout = -1;
 
-    return false;
+    return (*timeout == 0);
 }
 
 static gboolean timerSourceCheck(GSource *source)
