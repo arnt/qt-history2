@@ -173,6 +173,9 @@ QDesignerMimeData::QDesignerMimeData(const QDesignerDnDItems &items, QDrag *drag
 
 QDesignerMimeData::~QDesignerMimeData()
 {
+    const QDesignerDnDItems::const_iterator cend = m_items.constEnd();
+    for (QDesignerDnDItems::const_iterator it = m_items.constBegin(); it != cend; ++it )
+        delete *it;
 }
 
 Qt::DropAction QDesignerMimeData::proposedDropAction() const
@@ -187,22 +190,24 @@ bool QDesignerMimeData::execDrag(const QDesignerDnDItems &items, QWidget * dragS
 
     QDrag *drag = new QDrag(dragSource);
     QDesignerMimeData *mimeData = new QDesignerMimeData(items, drag);
+
+    // Store pointers to widgets that are to be re-shown if a move operation is canceled
+    QWidgetList reshowWidgets;
+    const QDesignerDnDItems::const_iterator cend = items.constEnd();
+    for (QDesignerDnDItems::const_iterator it = items.constBegin(); it != cend; ++it )
+        if (QWidget *w = (*it)->widget())
+            if ((*it)->type() ==  QDesignerDnDItemInterface::MoveDrop)
+                reshowWidgets.push_back(w);
+
     const Qt::DropAction executedAction = drag->exec(Qt::CopyAction|Qt::MoveAction, mimeData->proposedDropAction());
-    cleanupDrag(items, executedAction);
+
+    if (executedAction == Qt::IgnoreAction && !reshowWidgets.empty())
+        foreach (QWidget *w, reshowWidgets)
+            w->show();
+
     return executedAction != Qt::IgnoreAction;
 }
 
-void QDesignerMimeData::cleanupDrag(const QDesignerDnDItems &items, Qt::DropAction executedAction)
-{
-    const QDesignerDnDItems::const_iterator cend = items.constEnd();
-    for (QDesignerDnDItems::const_iterator it = items.constBegin(); it != cend; ++it ) {
-        // reshow hidden moved/dragged form items
-        if ((*it)->type() ==  QDesignerDnDItemInterface::MoveDrop && executedAction == Qt::IgnoreAction)
-            if (QWidget *w = (*it)->widget())
-                w->show();
-        delete *it;
-    }
-}
 
 void QDesignerMimeData::moveDecoration(const QPoint &globalPos) const
 {

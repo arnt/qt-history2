@@ -103,7 +103,6 @@ private:
     QDesignerMimeData(const QDesignerDnDItems &items, QDrag *drag);
     Qt::DropAction proposedDropAction() const;
 
-    static void cleanupDrag(const QDesignerDnDItems &item, Qt::DropAction action);
     static void setImageTransparency(QImage &image, int alpha);
 
     const QDesignerDnDItems m_items;
