@@ -122,13 +122,12 @@ void QThreadPrivate::createEventDispatcher(QThreadData *data)
 {
 #if !defined(QT_NO_GLIB)
     if (qgetenv("QT_NO_GLIB").isEmpty()
-        && qgetenv("QT_NO_THREADED_GLIB").isEmpty()) {
+        && qgetenv("QT_NO_THREADED_GLIB").isEmpty()
+        && QEventDispatcherGlib::versionSupported())
         data->eventDispatcher = new QEventDispatcherGlib;
-    } else
+    else
 #endif
-        {
-            data->eventDispatcher = new QEventDispatcherUNIX;
-        }
+        data->eventDispatcher = new QEventDispatcherUNIX;
     data->eventDispatcher->startingUp();
 }
 
