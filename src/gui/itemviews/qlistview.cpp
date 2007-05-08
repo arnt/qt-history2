@@ -741,7 +741,7 @@ void QListView::mouseMoveEvent(QMouseEvent *e)
     Q_D(QListView);
     QAbstractItemView::mouseMoveEvent(e);
     if (state() == DragSelectingState
-        && d->showElasticBand 
+        && d->showElasticBand
         && d->selectionMode != SingleSelection
         && d->selectionMode != NoSelection) {
         QRect rect(d->pressedPosition, e->pos() + QPoint(horizontalOffset(), verticalOffset()));
@@ -1356,7 +1356,7 @@ void QListView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFl
     // if we are wrapping, we can only selecte inside the contents rectangle
     if (d->wrap && !QRect(QPoint(0, 0), d->contentsSize()).intersects(rect))
         return;
-    
+
     QItemSelection selection;
 
     if (rect.width() == 1 && rect.height() == 1) {
@@ -1410,7 +1410,7 @@ void QListView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFl
                         bottom.setLeft(top.right());
                     else
                         bottom.setRight(top.left());
-                    
+
                 }
                 // middle rectangle
                 QRect middle;
@@ -1420,7 +1420,7 @@ void QListView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFl
                     middle.setBottom(bottom.top() - 1);
                     middle.setRight(qMax(top.right(), bottom.right()));
                 }
- 
+
                 // do the selections
                 QItemSelection topSelection = d->selection(top);
                 QItemSelection middleSelection = d->selection(middle);
@@ -1515,7 +1515,7 @@ void QListView::updateGeometries()
     if (d->model->rowCount(d->root) <= 0 || d->model->columnCount(d->root) <= 0) {
         horizontalScrollBar()->setRange(0, 0);
         verticalScrollBar()->setRange(0, 0);
-    } else {    
+    } else {
         QModelIndex index = d->model->index(0, d->column, d->root);
         QStyleOptionViewItemV3 option = d->viewOptionsV3();
         QSize step = d->itemSize(option, index);
@@ -1536,8 +1536,8 @@ void QListView::updateGeometries()
         if (d->flow == TopToBottom) {
             if (horizontal && d->isWrapping() && d->viewMode == ListMode) {
                 const QVector<int> segmentPositions = d->staticListView->segmentPositions;
-                int steps = segmentPositions.count();
-                if (steps > 0) {
+                const int steps = segmentPositions.count();
+                if (steps > 1) {
                     int lastSegmentWidth = segmentPositions.at(steps - 1) - segmentPositions.at(steps - 2);
                     int pageSteps = d->staticListView->perItemScrollingPageSteps(vsize.width(),
                                                                                  csize.width(),
@@ -1554,8 +1554,8 @@ void QListView::updateGeometries()
             }
             if (vertical && !d->isWrapping() && d->viewMode == ListMode) {
                 const QVector<int> flowPositions = d->staticListView->flowPositions;
-                int steps = flowPositions.count();
-                if (steps > 0) {
+                const int steps = flowPositions.count();
+                if (steps > 1) {
                     int lastFlowWidth = flowPositions.at(steps - 1) - flowPositions.at(steps - 2);
                     int pageSteps = d->staticListView->perItemScrollingPageSteps(vsize.height(),
                                                                                  csize.height(),
@@ -1574,7 +1574,7 @@ void QListView::updateGeometries()
             }
         } else { // LeftToRight
             if (horizontal && !d->isWrapping() && d->viewMode == ListMode) {
-                const QVector<int> flowPositions = d->staticListView->flowPositions; 
+                const QVector<int> flowPositions = d->staticListView->flowPositions;
                 int steps = flowPositions.count();
                 if (steps > 0) {
                     int lastFlowWidth = flowPositions.at(steps - 1) - flowPositions.at(steps - 2);
@@ -2298,7 +2298,7 @@ int QStaticListViewBase::perItemScrollToValue(int index, int scrollValue, int vi
         const int bottomIndex = topIndex;
         const int bottomCoordinate = flowPositions.at(index);
 
-        while (topIndex > 0 && 
+        while (topIndex > 0 &&
             (bottomCoordinate - flowPositions.at(topIndex-1) + itemExtent) <= (viewportSize)) {
             topIndex--;
         }
@@ -2326,7 +2326,7 @@ int QStaticListViewBase::perItemScrollToValue(int index, int scrollValue, int vi
             const int rightSegment = leftSegment;
             const int bottomCoordinate = segmentPositions.at(segment);
 
-            while (leftSegment > scrollValue && 
+            while (leftSegment > scrollValue &&
                 (bottomCoordinate - segmentPositions.at(leftSegment-1) + itemExtent) <= (viewportSize)) {
                     leftSegment--;
             }
@@ -2676,7 +2676,7 @@ void QDynamicListViewBase::moveItem(int index, const QPoint &dest)
 
     // resize the contents area
     contentsSize = (QRect(QPoint(0, 0), contentsSize)|QRect(dest, rect.size())).size();
-    
+
     // mark the item as moved
     if (moved.count() != items.count())
         moved.resize(items.count());
