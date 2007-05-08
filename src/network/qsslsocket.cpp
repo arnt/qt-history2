@@ -914,10 +914,10 @@ void QSslSocket::addCaCertificates(const QList<QSslCertificate> &certificates)
   handshake phase to validate the peer's certificate.
 
   The CA certificate database can be reset to the current default CA
-  certificate database by calling setCaCertificates() with the list
-  of CA certificates returned by defaultCaCertificates().
+  certificate database by calling this function with the list of CA
+  certificates returned by defaultCaCertificates().
 
-  \sa setCaCertificates(), defaultCaCertificate()
+  \sa defaultCaCertificates()
 */
 void QSslSocket::setCaCertificates(const QList<QSslCertificate> &certificates)
 {
