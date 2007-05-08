@@ -26,11 +26,10 @@ namespace qdesigner_internal {
     m_parentWidget(parentWidget),
     m_noChildEvent(m_parentWidget->testAttribute(Qt::WA_NoChildEventsForParent))
     {
-        (void) new QShortcut(Qt::Key_Escape, m_editorWidget, SLOT(close()));
-
         m_editorWidget->setAttribute(Qt::WA_DeleteOnClose);
         m_editorWidget->setParent(m_parentWidget->window());
         m_parentWidget->installEventFilter(this);
+        m_editorWidget->installEventFilter(this);
         connect(m_editorWidget, SIGNAL(destroyed()), fw->mainContainer(), SLOT(setFocus()));
     }
 
@@ -53,12 +52,22 @@ namespace qdesigner_internal {
 
     bool InPlaceWidgetHelper::eventFilter(QObject *object, QEvent *e)
     {
-        Q_ASSERT(object == m_parentWidget);
-        Q_UNUSED(object);
-
-        if (e->type() == QEvent::Resize) {
+        if (object == m_parentWidget && e->type() == QEvent::Resize) {
             const QResizeEvent *event = static_cast<const QResizeEvent*>(e);
             m_editorWidget->resize(event->size().width() - 2, m_editorWidget->height());
+        } else if (object == m_editorWidget) {
+            if (e->type() == QEvent::ShortcutOverride) {
+                if (static_cast<QKeyEvent*>(e)->key() == Qt::Key_Escape) {
+                    e->accept();
+                    return false;
+                }
+            } else if (e->type() == QEvent::KeyPress) {
+                if (static_cast<QKeyEvent*>(e)->key() == Qt::Key_Escape) {
+                    e->accept();
+                    m_editorWidget->close();
+                    return true;
+                }
+            }
         }
 
 
