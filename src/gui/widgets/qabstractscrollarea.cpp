@@ -302,11 +302,11 @@ void QAbstractScrollAreaPrivate::layoutChildren()
         hasMacReverseSizeGrip = (hasMacSizeGrip == false && (offset.manhattanLength() < hsbExt));
     }
 
-    // Use small scroll bars for tool windows, if the window has a native size grip.
+    // Use small scroll bars for tool windows, to match the native size grip.
     const QMacStyle::WidgetSizePolicy hpolicy = QMacStyle::widgetSizePolicy(hbar);
     const QMacStyle::WidgetSizePolicy vpolicy = QMacStyle::widgetSizePolicy(vbar);
     const Qt::WindowType windowType = window->windowType();
-    if (windowType == Qt::Tool && (hasMacSizeGrip || hasMacReverseSizeGrip)) {
+    if (windowType == Qt::Tool) {
         if (hpolicy != QMacStyle::SizeSmall)
             QMacStyle::setWidgetSizePolicy(hbar, QMacStyle::SizeSmall);
         if (vpolicy != QMacStyle::SizeSmall)
