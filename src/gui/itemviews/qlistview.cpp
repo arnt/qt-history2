@@ -645,14 +645,12 @@ void QListView::scrollContentsBy(int dx, int dy)
 {
     Q_D(QListView);
 
-    dx = isRightToLeft() ? -dx : dx;
-
     if (d->viewMode == ListMode)
         d->staticListView->scrollContentsBy(dx, dy);
     else if (state() == DragSelectingState)
-        d->scrollElasticBandBy(dx, dy);
+        d->scrollElasticBandBy(isRightToLeft() ? -dx : dx, dy);
 
-    d->scrollContentsBy(dx, dy);
+    d->scrollContentsBy(isRightToLeft() ? -dx : dx, dy);
 
     // update the dragged items
     if (d->viewMode == IconMode) // ### move to dynamic class
@@ -1129,12 +1127,11 @@ int QListView::horizontalOffset() const
     if (horizontalScrollMode() == QAbstractItemView::ScrollPerItem && d->viewMode == ListMode) {
         if (d->isWrapping()) {
             if (d->flow == TopToBottom && !d->staticListView->segmentPositions.isEmpty()) {
-                //const int max = d->staticListView->segmentPositions.count() - 1;
-                int currentValue = /*qBound(0,*/ horizontalScrollBar()->value()/*, max)*/;
+                const int max = d->staticListView->segmentPositions.count() - 1;
+                int currentValue = qBound(0, horizontalScrollBar()->value(), max);
                 int position = d->staticListView->segmentPositions.at(currentValue);
-                int maximumValue = /*qBound(0,*/ horizontalScrollBar()->maximum()/*, max)*/;
+                int maximumValue = qBound(0, horizontalScrollBar()->maximum(), max);
                 int maximum = d->staticListView->segmentPositions.at(maximumValue);
-                //qDebug() << "position" << position << "maximum" << maximum << "bar" << horizontalScrollBar()->maximum();
                 return (isRightToLeft() ? maximum - position : position);
             }
             //return 0;
