@@ -26,10 +26,10 @@ static void dfs(QScriptObject *instance, QHash<QScriptObject*, int> &dfn, int n)
     if (found)
         return;
     
-    if (instance->m_prototype.isValid() && instance->m_prototype.isObject())
+    if (instance->m_prototype.isObject())
         dfs (instance->m_prototype.m_object_value, dfn, n + 1);
     
-    if (instance->m_scope.isValid() && instance->m_scope.isObject())
+    if (instance->m_scope.isObject())
         dfs (instance->m_scope.m_object_value, dfn, n + 1);
 }
 
@@ -38,12 +38,12 @@ static bool checkCycle(QScriptObject *instance, const QHash<QScriptObject*, int>
 {
     int n = dfn.value(instance);
 
-    if (instance->m_prototype.isValid() && instance->m_prototype.isObject()) {
+    if (instance->m_prototype.isObject()) {
         if (n >= dfn.value(instance->m_prototype.m_object_value))
             return true;
     }
 
-    if (instance->m_scope.isValid() && instance->m_scope.isObject()) {
+    if (instance->m_scope.isObject()) {
         if (n >= dfn.value(instance->m_scope.m_object_value))
             return true;
     }
@@ -75,7 +75,7 @@ bool QScriptValueImpl::instanceOf(const QScriptValueImpl &ctorValue) const
         
         const QScriptValueImpl &proto = instance->m_prototype;
         
-        if (! proto.isValid() || ! proto.isObject())
+        if (! proto.isObject())
             break;
         
         instance = proto.m_object_value;
@@ -127,7 +127,7 @@ bool QScriptValueImpl::resolve_helper(QScriptNameIdImpl *nameId, QScript::Member
         // For values and other non object based types, search in class's prototype
         const QScriptValueImpl &proto = object_data->m_prototype;
         
-        if (proto.isValid() && proto.isObject()
+        if (proto.isObject()
             && proto.resolve(nameId, member, object, mode)) {
             return true;
         }
