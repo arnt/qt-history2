@@ -2292,7 +2292,7 @@ QNetworkProxy QAbstractSocket::proxy() const
 */
 #endif // QT3_SUPPORT
 
-#ifndef QT_NO_DEBUG
+#ifndef QT_NO_DEBUG_STREAM
 Q_NETWORK_EXPORT QDebug operator<<(QDebug debug, QAbstractSocket::SocketError error)
 {
     switch (error) {

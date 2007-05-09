@@ -191,7 +191,7 @@ Q_SIGNALS:
 #endif
 };
 
-#ifndef QT_NO_DEBUG
+#ifndef QT_NO_DEBUG_STREAM
 #include <QtCore/qdebug.h>
 Q_NETWORK_EXPORT QDebug operator<<(QDebug, QAbstractSocket::SocketError);
 Q_NETWORK_EXPORT QDebug operator<<(QDebug, QAbstractSocket::SocketState);
