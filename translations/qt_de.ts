@@ -309,7 +309,7 @@
     <message>
         <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="4270"/>
         <source>&amp;No</source>
-        <translation>N&amp;ein</translation>
+        <translation>&amp;Nein</translation>
     </message>
     <message>
         <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="4306"/>
@@ -1039,7 +1039,7 @@ nach
     <message>
         <location filename="../src/gui/widgets/qdialogbuttonbox.cpp" line="564"/>
         <source>&amp;No</source>
-        <translation>N&amp;ein</translation>
+        <translation>&amp;Nein</translation>
     </message>
     <message>
         <location filename="../src/gui/widgets/qdialogbuttonbox.cpp" line="567"/>
