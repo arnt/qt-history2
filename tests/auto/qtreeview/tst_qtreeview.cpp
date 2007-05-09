@@ -21,10 +21,8 @@ Q_DECLARE_METATYPE(QAbstractItemView::DragDropMode)
 Q_DECLARE_METATYPE(QAbstractItemView::EditTriggers)
 Q_DECLARE_METATYPE(QAbstractItemView::EditTrigger)
 
-static QStandardItemModel *newStandardTreeModel()
+static void initStandardTreeModel(QStandardItemModel *model)
 {
-    QStandardItemModel *model = new QStandardItemModel;
-
     QStandardItem *item;
     item = new QStandardItem(QLatin1String("Row 1 Item"));
     model->insertRow(0, item);
@@ -39,8 +37,6 @@ static QStandardItemModel *newStandardTreeModel()
     item = new QStandardItem(QLatin1String("Row 3 Item"));
     item->setIcon(QIcon());
     model->insertRow(2, item);
-
-    return model;
 }
 
 struct PublicView : public QTreeView
@@ -64,7 +60,7 @@ struct PublicView : public QTreeView
     inline QModelIndex moveCursor(PublicCursorAction ca, Qt::KeyboardModifiers kbm)
     { return QTreeView::moveCursor((CursorAction)ca, kbm); }
 
-    inline void setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command) 
+    inline void setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command)
     {
         QTreeView::setSelection(rect, command);
     }
@@ -487,7 +483,9 @@ void tst_QTreeView::currentIndex()
     QFETCH(int, parentIndexColumn);
 
     QTreeView view;
-    view.setModel(newStandardTreeModel());
+    QStandardItemModel treeModel;
+    initStandardTreeModel(&treeModel);
+    view.setModel(&treeModel);
 
     QCOMPARE(view.currentIndex(), QModelIndex());
     view.setCurrentIndex(view.model()->index(row, column));
@@ -517,7 +515,7 @@ void tst_QTreeView::dragDropMode()
     QFETCH(QAbstractItemView::DragDropMode, dragDropMode);
     QFETCH(bool, acceptDrops);
     QFETCH(bool, dragEnabled);
-    
+
     QTreeView view;
     QCOMPARE(view.dragDropMode(), QAbstractItemView::NoDragDrop);
     QVERIFY(!view.acceptDrops());
@@ -574,10 +572,10 @@ void tst_QTreeView::dragDropModeFromDragEnabledAndAcceptDrops()
 
     QTreeView view;
     QCOMPARE(view.dragDropMode(), QAbstractItemView::NoDragDrop);
-    
+
     if (setBehavior != QAbstractItemView::DragDropMode(-1))
         view.setDragDropMode(setBehavior);
-        
+
     view.setAcceptDrops(acceptDrops);
     view.setDragEnabled(dragEnabled);
     QCOMPARE(view.dragDropMode(), dragDropMode);
@@ -674,7 +672,9 @@ void tst_QTreeView::editTriggers()
     QFETCH(bool, editorOpened);
 
     QTreeView view;
-    view.setModel(newStandardTreeModel());
+    QStandardItemModel treeModel;
+    initStandardTreeModel(&treeModel);
+    view.setModel(&treeModel);
     view.show();
 
     QCOMPARE(view.editTriggers(), QAbstractItemView::EditKeyPressed | QAbstractItemView::DoubleClicked);
@@ -787,7 +787,9 @@ void tst_QTreeView::iconSize()
     RepaintTreeView view;
     QCOMPARE(view.iconSize(), QSize());
 
-    view.setModel(newStandardTreeModel());
+    QStandardItemModel treeModel;
+    initStandardTreeModel(&treeModel);
+    view.setModel(&treeModel);
     QCOMPARE(view.iconSize(), QSize());
     QVERIFY(!view.repainted);
 
@@ -853,7 +855,9 @@ void tst_QTreeView::indexAt()
 void tst_QTreeView::indexWidget()
 {
     QTreeView view;
-    view.setModel(newStandardTreeModel());
+    QStandardItemModel treeModel;
+    initStandardTreeModel(&treeModel);
+    view.setModel(&treeModel);
 
     QVERIFY(!view.indexWidget(QModelIndex()));
     QVERIFY(!view.indexWidget(view.model()->index(0, 0)));
@@ -876,18 +880,18 @@ void tst_QTreeView::itemDelegate()
         QTreeView view;
         QVERIFY(qobject_cast<QItemDelegate *>(view.itemDelegate()));
         QPointer<QAbstractItemDelegate> oldDelegate = view.itemDelegate();
-        
+
         otherItemDelegate = new QItemDelegate;
         view.setItemDelegate(otherItemDelegate);
         QVERIFY(!otherItemDelegate->parent());
         QVERIFY(oldDelegate);
-        
+
         QCOMPARE(view.itemDelegate(), (QAbstractItemDelegate *)otherItemDelegate);
-        
+
         view.setItemDelegate(0);
         QVERIFY(!view.itemDelegate()); // <- view does its own drawing?
         QVERIFY(otherItemDelegate);
-        
+
         view.show();
         qApp->processEvents();
     }
@@ -988,7 +992,7 @@ void tst_QTreeView::keyboardSearch()
 
     // Wait a bit.
     QTest::qWait(QApplication::keyboardInputInterval() * 2);
-    
+
     // The item that starts with B is selected.
     view.keyboardSearch(QLatin1String("B"));
     QVERIFY(view.selectionModel()->isSelected(model.index(1, 0)));
@@ -1035,7 +1039,9 @@ void tst_QTreeView::setModel()
 void tst_QTreeView::openPersistentEditor()
 {
     QTreeView view;
-    view.setModel(newStandardTreeModel());
+    QStandardItemModel treeModel;
+    initStandardTreeModel(&treeModel);
+    view.setModel(&treeModel);
     view.show();
 
     QVERIFY(!qFindChild<QLineEdit *>(view.viewport()));
@@ -1053,7 +1059,9 @@ void tst_QTreeView::rootIndex()
 {
     QTreeView view;
     QCOMPARE(view.rootIndex(), QModelIndex());
-    view.setModel(newStandardTreeModel());
+    QStandardItemModel treeModel;
+    initStandardTreeModel(&treeModel);
+    view.setModel(&treeModel);
     QCOMPARE(view.rootIndex(), QModelIndex());
 
     view.setRootIndex(view.model()->index(1, 0));
@@ -1551,36 +1559,36 @@ void tst_QTreeView::setSelection_data()
     QTest::addColumn<int>("verticalOffset");
 
 
-    QTest::newRow("(0,0,50,20),rows") << QRect(0,0,50,20) 
+    QTest::newRow("(0,0,50,20),rows") << QRect(0,0,50,20)
                                  << int(QAbstractItemView::SingleSelection)
                                  << int(QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows)
-                                 << (PointList() 
+                                 << (PointList()
                                     << QPoint(0,0) << QPoint(1,0) << QPoint(2,0) << QPoint(3,0) << QPoint(4,0)
                                     )
                                  << 0;
 
-    QTest::newRow("(0,0,50,90),rows") << QRect(0,0,50,90) 
+    QTest::newRow("(0,0,50,90),rows") << QRect(0,0,50,90)
                                  << int(QAbstractItemView::ExtendedSelection)
                                  << int(QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows)
-                                 << (PointList() 
+                                 << (PointList()
                                     << QPoint(0,0) << QPoint(1,0) << QPoint(2,0) << QPoint(3,0) << QPoint(4,0)
                                     << QPoint(0,1) << QPoint(1,1) << QPoint(2,1) << QPoint(3,1) << QPoint(4,1)
                                     )
                                  << 0;
 
-    QTest::newRow("(50,0,0,90),rows,invalid rect") << QRect(QPoint(50, 0), QPoint(0, 90)) 
+    QTest::newRow("(50,0,0,90),rows,invalid rect") << QRect(QPoint(50, 0), QPoint(0, 90))
                                  << int(QAbstractItemView::ExtendedSelection)
                                  << int(QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows)
-                                 << (PointList() 
+                                 << (PointList()
                                     << QPoint(0,0) << QPoint(1,0) << QPoint(2,0) << QPoint(3,0) << QPoint(4,0)
                                     << QPoint(0,1) << QPoint(1,1) << QPoint(2,1) << QPoint(3,1) << QPoint(4,1)
                                     )
                                  << 0;
-    
+
     QTest::newRow("(0,-20,20,50),rows") << QRect(0,-20,20,50)
                                  << int(QAbstractItemView::ExtendedSelection)
                                  << int(QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows)
-                                 << (PointList() 
+                                 << (PointList()
                                     << QPoint(0,0) << QPoint(1,0) << QPoint(2,0) << QPoint(3,0) << QPoint(4,0)
                                     << QPoint(0,1) << QPoint(1,1) << QPoint(2,1) << QPoint(3,1) << QPoint(4,1)
                                     )
@@ -1588,7 +1596,7 @@ void tst_QTreeView::setSelection_data()
     QTest::newRow("(0,-50,20,90),rows") << QRect(0,-50,20,90)
                                  << int(QAbstractItemView::ExtendedSelection)
                                  << int(QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows)
-                                 << (PointList() 
+                                 << (PointList()
                                     << QPoint(0,0) << QPoint(1,0) << QPoint(2,0) << QPoint(3,0) << QPoint(4,0)
                                     << QPoint(0,1) << QPoint(1,1) << QPoint(2,1) << QPoint(3,1) << QPoint(4,1)
                                     )
@@ -2084,7 +2092,7 @@ void tst_QTreeView::selectionWithHiddenItems()
     QCOMPARE(view.selectionModel()->selection().count(), 2);
     QCOMPARE(view.selectionModel()->selectedRows().count(), 5); //everything is selected
     view.clearSelection();
-    
+
     //we hide the node with a child (there should then be 3 items selected in 2 ranges)
     view.setRowHidden(1, QModelIndex(), true);
     qApp->processEvents();
@@ -2131,7 +2139,7 @@ void tst_QTreeView::rowSizeHint()
 }
 
 
-//From task 155449 (QTreeWidget has a large width for the first section when sorting 
+//From task 155449 (QTreeWidget has a large width for the first section when sorting
 //is turned on before items are added)
 void tst_QTreeView::setSortingEnabled()
 {
@@ -2189,7 +2197,7 @@ void tst_QTreeView::removeAndInsertExpandedCol0()
 
 // Task 160990
 void tst_QTreeView::proxyRowsRemoved()
-{   
+{
     QDirModel model;
     QSortFilterProxyModel proxy;
     proxy.setSourceModel(&model);
