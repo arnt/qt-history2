@@ -85,8 +85,8 @@ void QGroupBox::initStyleOption(QStyleOptionGroupBox *option) const
     if (d->checkable) {
         option->subControls |= QStyle::SC_GroupBoxCheckBox;
         option->state |= (d->checked ? QStyle::State_On : QStyle::State_Off);
-        if (d->pressedControl == QStyle::SC_GroupBoxCheckBox
-                || d->pressedControl == QStyle::SC_GroupBoxLabel)
+        if ((d->pressedControl == QStyle::SC_GroupBoxCheckBox
+            || d->pressedControl == QStyle::SC_GroupBoxLabel) && d->hover)
             option->state |= QStyle::State_Sunken;
     }
 
@@ -697,16 +697,20 @@ void QGroupBox::mouseMoveEvent(QMouseEvent *event)
 }
 
 /*! \reimp */
-void QGroupBox::mouseReleaseEvent(QMouseEvent *)
+void QGroupBox::mouseReleaseEvent(QMouseEvent *event)
 {
     Q_D(QGroupBox);
     QStyleOptionGroupBox box;
     initStyleOption(&box);
-    bool toggle = d->checkable && (d->pressedControl == QStyle::SC_GroupBoxLabel
-                   || d->pressedControl == QStyle::SC_GroupBoxCheckBox);
+    QStyle::SubControl released = style()->hitTestComplexControl(QStyle::CC_GroupBox, &box,
+                                                                 event->pos(), this);
+    bool toggle = d->checkable && (released == QStyle::SC_GroupBoxLabel
+                                   || released == QStyle::SC_GroupBoxCheckBox);
     d->pressedControl = QStyle::SC_None;
     if (toggle)
         d->click();
+    else
+        update(style()->subControlRect(QStyle::CC_GroupBox, &box, QStyle::SC_GroupBoxCheckBox, this));
 }
 
 #ifdef QT3_SUPPORT
