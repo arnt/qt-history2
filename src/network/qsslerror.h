@@ -82,7 +82,7 @@ private:
     QSslErrorPrivate *d;
 };
 
-#ifndef QT_NO_DEBUG
+#ifndef QT_NO_DEBUG_STREAM
 class QDebug;
 Q_NETWORK_EXPORT QDebug operator<<(QDebug debug, const QSslError &error);
 Q_NETWORK_EXPORT QDebug operator<<(QDebug debug, const QSslError::SslError &error);

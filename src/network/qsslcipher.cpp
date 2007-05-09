@@ -215,7 +215,7 @@ QSslCipher::Protocol QSslCipher::protocol() const
     return d->protocol;
 }
 
-#ifndef QT_NO_DEBUG
+#ifndef QT_NO_DEBUG_STREAM
 QDebug operator<<(QDebug debug, const QSslCipher &cipher)
 {
     debug << "QSslCipher(name=" << qPrintable(cipher.name())

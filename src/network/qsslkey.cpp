@@ -438,7 +438,7 @@ bool QSslKey::operator==(const QSslKey &other) const
     Returns true if this key is not equal to key \a other; otherwise returns false.
 */
 
-#ifndef QT_NO_DEBUG
+#ifndef QT_NO_DEBUG_STREAM
 class QDebug;
 QDebug operator<<(QDebug debug, const QSslKey &key)
 {

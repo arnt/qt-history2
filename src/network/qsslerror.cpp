@@ -76,7 +76,7 @@
 */
 
 #include "qsslerror.h"
-#ifndef QT_NO_DEBUG
+#ifndef QT_NO_DEBUG_STREAM
 #include <QtCore/qdebug.h>
 #endif
 
@@ -229,7 +229,7 @@ QSslCertificate QSslError::certificate() const
     return d->certificate;
 }
 
-#ifndef QT_NO_DEBUG
+#ifndef QT_NO_DEBUG_STREAM
 //class QDebug;
 QDebug operator<<(QDebug debug, const QSslError &error)
 {

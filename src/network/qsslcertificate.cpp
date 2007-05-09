@@ -666,7 +666,7 @@ QList<QSslCertificate> QSslCertificatePrivate::certificatesFromDer(
     return certificates;
 }
 
-#ifndef QT_NO_DEBUG
+#ifndef QT_NO_DEBUG_STREAM
 QDebug operator<<(QDebug debug, const QSslCertificate &certificate)
 {
     debug << "QSslCertificate("

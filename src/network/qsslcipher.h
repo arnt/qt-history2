@@ -72,7 +72,7 @@ private:
     friend class QSslSocketBackendPrivate;
 };
 
-#ifndef QT_NO_DEBUG
+#ifndef QT_NO_DEBUG_STREAM
 class QDebug;
 Q_NETWORK_EXPORT QDebug operator<<(QDebug debug, const QSslCipher &cipher);
 #endif
