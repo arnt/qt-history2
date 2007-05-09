@@ -31,6 +31,7 @@
 #include <QAbstractScrollArea>
 #include <QScrollArea>
 #include <QScrollBar>
+#include <QDebug>
 
 #ifndef QT_NO_ACCESSIBILITY
 
@@ -600,6 +601,9 @@ int QAccessibleItemView::navigate(RelationFlag relation, int index,
                 *iface = new QAccessibleItemRow(itemView(), idx);
                 return 0;
             }
+        } else if (relation == Sibling && index >= 1) {
+            QAccessibleInterface *parent = new QAccessibleItemView(itemView());
+            return parent->navigate(Child, index, iface);
         }
         *iface = 0;
         return -1;
@@ -1403,30 +1407,11 @@ int QAccessibleAbstractScrollArea::navigate(RelationFlag relation, int entry, QA
         if (entry < 0 || entry > children.count())
             return -1;
 
-        if (entry == 0) {
+        if (entry == Self)
             entryWidget = abstractScrollArea();
-        } else if (entry > 0)
+        else
             entryWidget = children.at(entry - 1);
         AbstractScrollAreaElement entryElement = elementType(entryWidget);
-
-
-        // Widgets to the left for the horizontal scrollBar.
-        QWidgetList leftScrollBarWidgets = abstractScrollArea()
-            ->scrollBarWidgets(isLeftToRight() ? Qt::AlignLeft : Qt::AlignRight);
-        removeInvisibleWidgetsFromList(&leftScrollBarWidgets);
-
-        // Widgets to the right for the horizontal scrollBar.
-        QWidgetList rightScrollBarWidgets = abstractScrollArea()
-            ->scrollBarWidgets(isLeftToRight() ? Qt::AlignRight : Qt::AlignLeft);
-        removeInvisibleWidgetsFromList(&rightScrollBarWidgets);
-
-        // Widgets above the vertical scrollBar.
-        QWidgetList topScrollBarWidgets = abstractScrollArea()->scrollBarWidgets(Qt::AlignTop);
-        removeInvisibleWidgetsFromList(&topScrollBarWidgets);
-
-        // Widgets below the vertical scrollBar.
-        QWidgetList bottomScrollBarWidgets = abstractScrollArea()->scrollBarWidgets(Qt::AlignBottom);
-        removeInvisibleWidgetsFromList(&bottomScrollBarWidgets);
 
         // Not one of the most beautiful switches I've ever seen, but I believe it has
         // to be like this since each case need special handling.
@@ -1445,41 +1430,18 @@ int QAccessibleAbstractScrollArea::navigate(RelationFlag relation, int entry, QA
                 if (!isLeftToRight())
                     targetWidget = abstractScrollArea()->verticalScrollBar();
                 break;
-            case HorizontalScrollBar:
-                if (leftScrollBarWidgets.count() >= 1)
-                    targetWidget = leftScrollBarWidgets.back();
-                else if (!isLeftToRight())
+            case HorizontalContainer:
+                if (!isLeftToRight())
                     targetWidget = abstractScrollArea()->cornerWidget();
                 break;
-            case VerticalScrollBar:
-            case VerticalScrollBarWidget:
+            case VerticalContainer:
                 if (isLeftToRight())
                     targetWidget = abstractScrollArea()->viewport();
                 break;
             case CornerWidget:
-                if (!isLeftToRight())
-                    break;
-                if (rightScrollBarWidgets.count() >= 1)
-                    targetWidget = rightScrollBarWidgets.back();
-                else
+                if (isLeftToRight())
                     targetWidget = abstractScrollArea()->horizontalScrollBar();
                 break;
-            case HorizontalScrollBarWidget: {
-                int index = leftScrollBarWidgets.indexOf(entryWidget);
-                if (index != -1) {
-                    if (index > 0)
-                        targetWidget = leftScrollBarWidgets.at(index - 1);
-                    else if (!isLeftToRight())
-                        targetWidget = abstractScrollArea()->cornerWidget();
-                    break;
-                }
-                index = rightScrollBarWidgets.indexOf(entryWidget);
-                if (index > 0)
-                    targetWidget = rightScrollBarWidgets.at(index - 1);
-                else
-                    targetWidget = abstractScrollArea()->horizontalScrollBar();
-                break;
-            }
             default:
                 break;
             }
@@ -1492,41 +1454,17 @@ int QAccessibleAbstractScrollArea::navigate(RelationFlag relation, int entry, QA
                 if (isLeftToRight())
                     targetWidget = abstractScrollArea()->verticalScrollBar();
                 break;
-            case HorizontalScrollBar:
-                if (rightScrollBarWidgets.count() >= 1)
-                    targetWidget = rightScrollBarWidgets.at(0);
-                else
-                    targetWidget = abstractScrollArea()->cornerWidget();
+            case HorizontalContainer:
+                targetWidget = abstractScrollArea()->cornerWidget();
                 break;
-            case VerticalScrollBar:
-            case VerticalScrollBarWidget:
+            case VerticalContainer:
                 if (!isLeftToRight())
                     targetWidget = abstractScrollArea()->viewport();
                 break;
             case CornerWidget:
-                if (isLeftToRight())
-                    break;
-                if (leftScrollBarWidgets.count() >= 1)
-                    targetWidget = rightScrollBarWidgets.at(0);
-                else
+                if (!isLeftToRight())
                     targetWidget = abstractScrollArea()->horizontalScrollBar();
                 break;
-            case HorizontalScrollBarWidget: {
-                int index = leftScrollBarWidgets.indexOf(entryWidget);
-                if (index != -1) {
-                    if (index < leftScrollBarWidgets.count() - 1)
-                        targetWidget = leftScrollBarWidgets.at(index + 1);
-                    break;
-                }
-                index = rightScrollBarWidgets.indexOf(entryWidget);
-                if (index != -1 && index < rightScrollBarWidgets.count() - 1) {
-                    targetWidget = rightScrollBarWidgets.at(index + 1);
-                    break;
-                }
-                if (isLeftToRight())
-                    targetWidget = abstractScrollArea()->cornerWidget();
-                break;
-            }
             default:
                 break;
             }
@@ -1535,33 +1473,11 @@ int QAccessibleAbstractScrollArea::navigate(RelationFlag relation, int entry, QA
             if (entry < 1)
                 break;
             switch (entryElement) {
-            case HorizontalScrollBar:
-            case HorizontalScrollBarWidget:
+            case HorizontalContainer:
                 targetWidget = abstractScrollArea()->viewport();
                 break;
-            case VerticalScrollBar: {
-                if (topScrollBarWidgets.count() >= 1)
-                    targetWidget = topScrollBarWidgets.back();
-                break;
-            }
-            case VerticalScrollBarWidget: {
-                int index = topScrollBarWidgets.indexOf(entryWidget);
-                if (index != -1) {
-                    if (index > 0)
-                        targetWidget = topScrollBarWidgets.at(index - 1);
-                    break;
-                }
-                index = bottomScrollBarWidgets.indexOf(entryWidget);
-                if (index > 0) {
-                    targetWidget = bottomScrollBarWidgets.at(index - 1);
-                    break;
-                }
-                targetWidget = abstractScrollArea()->verticalScrollBar();
-                break;
-            }
             case CornerWidget:
-                if (bottomScrollBarWidgets.count() >= 1)
-                    targetWidget = bottomScrollBarWidgets.back();
+                targetWidget = abstractScrollArea()->verticalScrollBar();
                 break;
             default:
                 break;
@@ -1574,28 +1490,9 @@ int QAccessibleAbstractScrollArea::navigate(RelationFlag relation, int entry, QA
             case Viewport:
                 targetWidget = abstractScrollArea()->horizontalScrollBar();
                 break;
-            case VerticalScrollBar:
-                if (bottomScrollBarWidgets.count() >= 1)
-                    targetWidget = bottomScrollBarWidgets.at(0);
-                break;
-            case VerticalScrollBarWidget: {
-                int index = topScrollBarWidgets.indexOf(entryWidget);
-                if (index != -1) {
-                    if (index < topScrollBarWidgets.count() - 1)
-                        targetWidget = topScrollBarWidgets.at(index + 1);
-                    else
-                        targetWidget = abstractScrollArea()->verticalScrollBar();
-                    break;
-                }
-                index = bottomScrollBarWidgets.indexOf(entryWidget);
-                if (index != -1) {
-                    if (index < bottomScrollBarWidgets.count() - 1)
-                        targetWidget = bottomScrollBarWidgets.at(index + 1);
-                    break;
-                }
+            case VerticalContainer:
                 targetWidget = abstractScrollArea()->cornerWidget();
                 break;
-            }
             default:
                 break;
             }
@@ -1607,6 +1504,8 @@ int QAccessibleAbstractScrollArea::navigate(RelationFlag relation, int entry, QA
         return QAccessibleWidgetEx::navigate(relation, entry, target);
     }
 
+    if (qobject_cast<QScrollBar *>(targetWidget))
+        targetWidget = targetWidget->parentWidget();
     *target = QAccessible::queryAccessibleInterface(targetWidget);
     return *target ? 0: -1;
 }
@@ -1658,26 +1557,16 @@ QWidgetList QAccessibleAbstractScrollArea::accessibleChildren() const
     if (viewport)
         children.append(viewport);
 
-    // Horizontal scrollBar and all its scrollWidgets.
+    // Horizontal scrollBar container.
     QScrollBar *horizontalScrollBar = abstractScrollArea()->horizontalScrollBar();
     if (horizontalScrollBar && horizontalScrollBar->isVisible()) {
-        children.append(horizontalScrollBar);
-        QWidgetList scrollWidgets = abstractScrollArea()->scrollBarWidgets(Qt::AlignLeft | Qt::AlignRight);
-        foreach (QWidget *widget, scrollWidgets) {
-            if (widget->isVisible())
-                children.append(widget);
-        }
+        children.append(horizontalScrollBar->parentWidget());
     }
 
-    // Vertical scrollBar and all its scrollWidgets.
+    // Vertical scrollBar container.
     QScrollBar *verticalScrollBar = abstractScrollArea()->verticalScrollBar();
     if (verticalScrollBar && verticalScrollBar->isVisible()) {
-        children.append(verticalScrollBar);
-        QWidgetList scrollWidgets = abstractScrollArea()->scrollBarWidgets(Qt::AlignTop | Qt::AlignBottom);
-        foreach (QWidget *widget, scrollWidgets) {
-            if (widget->isVisible())
-                children.append(widget);
-        }
+        children.append(verticalScrollBar->parentWidget());
     }
 
     // CornerWidget.
@@ -1698,26 +1587,12 @@ QAccessibleAbstractScrollArea::elementType(QWidget *widget) const
         return Self;
     if (widget == abstractScrollArea()->viewport())
         return Viewport;
-    if (widget == abstractScrollArea()->horizontalScrollBar())
-        return HorizontalScrollBar;
-    if (widget == abstractScrollArea()->verticalScrollBar())
-        return VerticalScrollBar;
+    if (widget->objectName() == QLatin1String("qt_scrollarea_hcontainer"))
+        return HorizontalContainer;
+    if (widget->objectName() == QLatin1String("qt_scrollarea_vcontainer"))
+        return VerticalContainer;
     if (widget == abstractScrollArea()->cornerWidget())
         return CornerWidget;
-
-    // Check horizontal scrollBar widgets.
-    QWidgetList list = abstractScrollArea()->scrollBarWidgets(Qt::AlignLeft | Qt::AlignRight);
-    foreach (QWidget *candidate, list) {
-        if (widget == candidate)
-            return HorizontalScrollBarWidget;
-    }
-
-    // Check vertical scrollBar widgets.
-    list = abstractScrollArea()->scrollBarWidgets(Qt::AlignTop | Qt::AlignBottom);
-    foreach (QWidget *candidate, list) {
-        if (widget == candidate)
-            return VerticalScrollBarWidget;
-    }
 
     return Undefined;
 }

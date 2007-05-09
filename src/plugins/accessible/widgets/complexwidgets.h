@@ -38,11 +38,9 @@ public:
     enum AbstractScrollAreaElement {
         Self = 0,
         Viewport,
-        HorizontalScrollBar,
-        VerticalScrollBar,
+        HorizontalContainer,
+        VerticalContainer,
         CornerWidget,
-        HorizontalScrollBarWidget,
-        VerticalScrollBarWidget,
         Undefined
     };
 
