@@ -1705,6 +1705,12 @@ void QGraphicsScene::destroyItemGroup(QGraphicsItemGroup *group)
     If the item is already in a different scene, it will first be removed from
     its old scene, and then added to this scene as a top-level.
 
+    QGraphicsScene will send ItemSceneChange notifications to \a item while
+    it is added to the scene. If item does not currently belong to a scene, only one
+    notification is sent. If it does belong to scene already (i.e., it is
+    moved to this scene), QGraphicsScene will send an addition notification as
+    the item is removed from its previous scene.
+
     \sa removeItem(), addEllipse(), addLine(), addPath(), addPixmap(),
     addRect(), addText()
 */
@@ -1728,6 +1734,16 @@ void QGraphicsScene::addItem(QGraphicsItem *item)
     if (item->d_func()->scene)
         item->d_func()->scene->removeItem(item);
 
+    // Notify the item that its scene is changing, and allow the item to
+    // react.
+    QGraphicsScene *targetScene = qVariantValue<QGraphicsScene *>(item->itemChange(QGraphicsItem::ItemSceneChange,
+                                                                                   qVariantFromValue<QGraphicsScene *>(this)));
+    if (targetScene != this) {
+        if (targetScene)
+            targetScene->addItem(item);
+        return;
+    }
+
     // Detach this item from its parent if the parent's scene is different
     // from this scene.
     if (QGraphicsItem *itemParent = item->parentItem()) {
@@ -1741,8 +1757,7 @@ void QGraphicsScene::addItem(QGraphicsItem *item)
     }
 
     // Add the item to this scene
-    item->d_func()->scene = qVariantValue<QGraphicsScene *>(item->itemChange(QGraphicsItem::ItemSceneChange,
-                                                                             qVariantFromValue<QGraphicsScene *>(this)));
+    item->d_func()->scene = targetScene;
     if (d->indexMethod != QGraphicsScene::NoIndex) {
         // Indexing requires sceneBoundingRect(), but because \a item might
         // not be completely constructed at this point, we need to store it in
@@ -2014,6 +2029,15 @@ void QGraphicsScene::removeItem(QGraphicsItem *item)
         return;
     }
 
+    // Notify the item that it's scene is changing to 0, allowing the item to
+    // react.
+    QGraphicsScene *targetScene = qVariantValue<QGraphicsScene *>(item->itemChange(QGraphicsItem::ItemSceneChange,
+                                                                                   qVariantFromValue<QGraphicsScene *>(0)));
+    if (targetScene != 0) {
+        targetScene->addItem(item);
+        return;
+    }
+
     // Clear its background
     item->update();
 
@@ -2023,8 +2047,7 @@ void QGraphicsScene::removeItem(QGraphicsItem *item)
     d->removeFromIndex(item);
 
     // Set the item's scene ptr to 0.
-    item->d_func()->scene = qVariantValue<QGraphicsScene *>(item->itemChange(QGraphicsItem::ItemSceneChange,
-                                                                             qVariantFromValue<QGraphicsScene *>(0)));
+    item->d_func()->scene = 0;
 
     // Detach the item from its parent.
     if (QGraphicsItem *parentItem = item->parentItem()) {

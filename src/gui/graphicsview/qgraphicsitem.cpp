@@ -347,7 +347,8 @@
     pointer), or a null pointer if the item is removed from a scene. Do not
     override this change by passing this item to QGraphicsScene::addItem() as
     this notification is delivered; instead, you can return the new scene from
-    itemChange().
+    itemChange(). Use this feature with caution; objecting to a scene change can
+    quickly lead to unwanted recursion.
 */
 
 /*!
