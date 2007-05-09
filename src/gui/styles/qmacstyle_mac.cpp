@@ -216,7 +216,7 @@ public:
     static QRect comboboxEditBounds(const QRect &outerBounds, const HIThemeButtonDrawInfo &bdi);
 
     static void drawCombobox(const HIRect &outerBounds, const HIThemeButtonDrawInfo &bdi, QPainter *p);
-    static void drawTableHeader(const HIRect &outerBounds, const HIThemeButtonDrawInfo &bdi, QPainter *p);
+    static void drawTableHeader(const HIRect &outerBounds, const Qt::Orientation &orientation, const HIThemeButtonDrawInfo &bdi, QPainter *p);
         
     bool contentFitsInPushButton(const QStyleOptionButton *btn, HIThemeButtonDrawInfo *bdi,
                                  ThemeButtonKind buttonKindToCheck) const;
@@ -1019,7 +1019,8 @@ void QMacStylePrivate::drawCombobox(const HIRect &outerBounds, const HIThemeButt
     Carbon tableheaders don't scale (sight). So create it manually by drawing a small Carbon header
     onto a pixmap (use pixmap cache), chop it up, and copy it back onto the widget.
 */
-void QMacStylePrivate::drawTableHeader(const HIRect &outerBounds, const HIThemeButtonDrawInfo &bdi, QPainter *p)
+void QMacStylePrivate::drawTableHeader(const HIRect &outerBounds,
+        const Qt::Orientation &orientation, const HIThemeButtonDrawInfo &bdi, QPainter *p)
 {
     static SInt32 headerHeight = 0;
     static OSStatus err = GetThemeMetric(kThemeMetricListHeaderHeight, &headerHeight);
@@ -1028,7 +1029,7 @@ void QMacStylePrivate::drawTableHeader(const HIRect &outerBounds, const HIThemeB
     QPixmap buffer;
     QString key = QString("$qt_tableh%1-%2-%3").arg(int(bdi.state)).arg(int(bdi.adornment)).arg(int(bdi.value));
     if (!QPixmapCache::find(key, buffer)) {
-        HIRect headerNormalRect = {{0, 0}, {50, headerHeight}};
+        HIRect headerNormalRect = {{0, 0}, {16, headerHeight}};
         buffer = QPixmap(headerNormalRect.size.width, headerNormalRect.size.height);
         buffer.fill(Qt::transparent);
         QPainter buffPainter(&buffer);
@@ -1043,9 +1044,12 @@ void QMacStylePrivate::drawTableHeader(const HIRect &outerBounds, const HIThemeB
     const int frameh_n = 4;
     const int frameh_s = 3;
     const int transh = buffer.height() - frameh_n - frameh_s;
-    const int skipTopLine = 0; // set to 0 if the top blue line should show
     int center = buttonh - frameh_s - int(transh / 2.0f) + 1; // Align bottom;
-    
+
+    int skipTopLine = 0; // set to 0 if the top line should show, otherwise -1.
+    if (orientation == Qt::Vertical)
+        skipTopLine = 1;
+        
     p->translate(outerBounds.origin.x, outerBounds.origin.y);
     
     // Draw upper and lower border
@@ -2975,24 +2979,37 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
         if (const QStyleOptionHeader *header = qstyleoption_cast<const QStyleOptionHeader *>(opt)) {
             HIThemeButtonDrawInfo bdi;
             bdi.version = qt_mac_hitheme_version;
-            bdi.state = kThemeStateActive;
             State flags = header->state;
             QRect ir = header->rect;            
             bdi.kind = kThemeListHeaderButton;
-            
-            switch (header->position) {
-            case QStyleOptionHeader::Beginning:
-                break;
-            case QStyleOptionHeader::Middle:
-            case QStyleOptionHeader::End:
-                ir.adjust(-1, 0, 0, 0);
-                break;
-            default:
-                break;
+            bdi.adornment = kThemeAdornmentNone;            
+            bdi.state = kThemeStateActive;
+
+            if (flags & State_On)
+                bdi.value = kThemeButtonOn;
+            else
+                bdi.value = kThemeButtonOff;
+
+            if (header->orientation == Qt::Horizontal){
+                switch (header->position) {
+                case QStyleOptionHeader::Beginning:
+                    break;
+                case QStyleOptionHeader::Middle:
+                case QStyleOptionHeader::End:
+                    ir.adjust(-1, 0, 0, 0);
+                    break;
+                default:
+                    break;
+                }
+
+                if (header->position != QStyleOptionHeader::Beginning
+                    && header->position != QStyleOptionHeader::OnlyOneSection) {
+                    bdi.adornment = header->direction == Qt::LeftToRight
+                        ? kThemeAdornmentHeaderButtonLeftNeighborSelected
+                        : kThemeAdornmentHeaderButtonRightNeighborSelected;
+                }
             }
             
-            ir = visualRect(header->direction, header->rect, ir);
-
             if (flags & State_Active) {
                 if (!(flags & State_Enabled))
                     bdi.state = kThemeStateUnavailable;
@@ -3005,34 +3022,18 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
                     bdi.state = kThemeStateUnavailableInactive;
             }
 
-            if (flags & State_On)
-                bdi.value = kThemeButtonOn;
-            else
-                bdi.value = kThemeButtonOff;
-
-            bdi.adornment = kThemeAdornmentNone;
-            if (bdi.kind == kThemeListHeaderButton && header->position != QStyleOptionHeader::Beginning) {
-                // This code doesn't work at the moment.
-//                && header->selectedPosition != QStyleOptionHeader::NotAdjacent) {
-//                if (header->selectedPosition == QStyleOptionHeader::PreviousIsSelected)
-//                    bdi.adornment = kThemeAdornmentHeaderButtonRightNeighborSelected;
-//                else if (header->selectedPosition == QStyleOptionHeader::PreviousIsSelected)
-                bdi.adornment = header->direction == Qt::LeftToRight
-                                        ? kThemeAdornmentHeaderButtonLeftNeighborSelected
-                                        : kThemeAdornmentHeaderButtonRightNeighborSelected;
-            }
-
             if (header->sortIndicator != QStyleOptionHeader::None) {
                 bdi.value = kThemeButtonOn;
                 if (header->sortIndicator == QStyleOptionHeader::SortDown)
                     bdi.adornment = kThemeAdornmentHeaderButtonSortUp;
             }
-            
+                        
             if (flags & State_HasFocus && QMacStyle::focusRectPolicy(w) != QMacStyle::FocusDisabled)
                 bdi.adornment = kThemeAdornmentFocus;
 
+            ir = visualRect(header->direction, header->rect, ir);
             HIRect bounds = qt_hirectForQRect(ir);
-            d->drawTableHeader(bounds, bdi, p);
+            d->drawTableHeader(bounds, header->orientation, bdi, p);
         }
         break;
     case CE_HeaderLabel:
