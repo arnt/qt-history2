@@ -251,15 +251,6 @@ public:
         return read(0, length);
     }
 
-    inline int write(const char *data, int maxLength) {
-        memcpy(reserve(maxLength), data, maxLength);
-        return maxLength;
-    }
-
-    inline int write(const QByteArray &data) {
-        return write(data.constData(), data.size());
-    }
-
     inline int readLine(char *data, int maxLength) {
         int index = indexOf('\n');
         if (index == -1)

@@ -1388,7 +1388,8 @@ qint64 QSslSocket::writeData(const char *data, qint64 len)
     if (d->mode == UnencryptedMode && !d->autoStartHandshake)
         return d->plainSocket->write(data, len);
 
-    d->writeBuffer.write(data, len);
+    char *writePtr = d->writeBuffer.reserve(len);
+    ::memcpy(writePtr, data, len);
 
     if (d->connectionEncrypted)
         d->transmit();
