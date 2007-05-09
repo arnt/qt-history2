@@ -16,6 +16,7 @@
 #include <QtGui/QFrame>
 #include <QtGui/QWindowsStyle>
 #include <QtGui/QSizePolicy>
+#include <QPushButton>
 #include <private/qlayoutengine_p.h>
 
 //TESTED_CLASS=
@@ -33,6 +34,7 @@ private slots:
     void getSetCheck();
     void geometry();
     void smartMaxSize();
+    void setLayoutBugs();
 };
 
 tst_QLayout::tst_QLayout()
@@ -159,6 +161,25 @@ void tst_QLayout::smartMaxSize()
         }
     }
     QCOMPARE(regressionCount, 0);
+}
+
+void tst_QLayout::setLayoutBugs()
+{
+    QWidget widget(0);
+    QHBoxLayout *hBoxLayout = new QHBoxLayout(&widget);
+
+    for(int i = 0; i < 6; ++i) {
+        QPushButton *pushButton = new QPushButton("Press me!", &widget);
+        hBoxLayout->addWidget(pushButton);
+    }
+
+    widget.setLayout(hBoxLayout);
+    QVERIFY(widget.layout() == hBoxLayout);
+
+    QWidget containerWidget(0);
+    containerWidget.setLayout(widget.layout());
+    QVERIFY(widget.layout() == hBoxLayout);
+    QVERIFY(containerWidget.layout() == 0);
 }
 
 QTEST_MAIN(tst_QLayout)

@@ -7229,14 +7229,23 @@ void QWidget::setLayout(QLayout *l)
     }
     if (layout()) {
         if (layout() != l)
-            qWarning("QWidget::setLayout: Attempting to add QLayout \"%s\" to %s \"%s\", which already has a"
+            qWarning("QWidget::setLayout: Attempting to set QLayout \"%s\" on %s \"%s\", which already has a"
                      " layout", l->objectName().toLocal8Bit().data(), metaObject()->className(),
                      objectName().toLocal8Bit().data());
         return;
     }
+
+    QObject *oldParent = l->parent();
+    if (oldParent && oldParent != this) {
+        qWarning("QWidget::setLayout: Attempting to set QLayout \"%s\" on %s \"%s\", when the QLayout already has a parent",
+                 l->objectName().toLocal8Bit().data(), metaObject()->className(),
+                 objectName().toLocal8Bit().data());
+        return;
+    }
+
     l->d_func()->topLevel = true;
     d_func()->layout = l;
-    if (l->parent() != this) {
+    if (oldParent != this) {
         l->setParent(this);
         l->d_func()->reparentChildWidgets(this);
         l->invalidate();
