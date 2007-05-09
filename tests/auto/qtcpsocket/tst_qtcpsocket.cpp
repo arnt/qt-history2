@@ -1437,9 +1437,11 @@ void tst_QTcpSocket::localAddressEmptyOnBSD()
     QTcpServer server;
     QVERIFY(server.listen(QHostAddress::LocalHost));
 
+    QTcpSocket *tcpSocket = 0;
     // we try 10 times, but note that this doesn't always provoke the bug
     for (int i = 0; i < 10; ++i) {
-        QTcpSocket *tcpSocket = newSocket();
+        delete tcpSocket;
+        tcpSocket = newSocket();
         tcpSocket->connectToHost(QHostAddress::LocalHost, server.serverPort());
         if (!tcpSocket->waitForConnected(0)) {
             // to provoke the bug, we need a local socket that connects immediately
@@ -1451,6 +1453,7 @@ void tst_QTcpSocket::localAddressEmptyOnBSD()
         }
         QCOMPARE(tcpSocket->localAddress(), QHostAddress(QHostAddress::LocalHost));
     }
+    delete tcpSocket;
 }
 
 //----------------------------------------------------------------------------------
