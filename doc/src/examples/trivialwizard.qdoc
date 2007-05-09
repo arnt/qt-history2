@@ -3,8 +3,8 @@
     \title Trivial Wizard Example
 
     The Trivial Wizard example illustrates how to create a linear three-page
-    registration wizard using three instances of QWizardPage an instance of
-    QWizard.
+    registration wizard using three instances of QWizardPage and one instance
+    of QWizard.
 
     \image trivialwizard-example-flow.png
 
@@ -14,9 +14,9 @@
 
     The introduction page is created with the \c createIntroPage()
     function where a QWizardPage is created and its title is set to
-    "Introduction". A QLabel, with word-wrap enabled, is used to hold the
-    description of \c page. A QVBoxLayout is used to hold the \c label. This
-    \c page is returned when the \c createIntroPage() function is called.
+    "Introduction". A QLabel is used to hold the description of \c page.
+    A QVBoxLayout is used to hold the \c label. This \c page is returned
+    when the \c createIntroPage() function is called.
 
     \quotefromfile dialogs/trivialwizard/trivialwizard.cpp
     \skipto QWizardPage *createIntroPage()
