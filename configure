@@ -515,7 +515,7 @@ CFG_BUILD_PARTS=""
 CFG_NOBUILD_PARTS=""
 CFG_RELEASE_QMAKE=no
 
-CFG_GFX_AVAILABLE="linuxfb transformed qvfb vnc multiscreen"
+CFG_GFX_AVAILABLE="linuxfb transformed qvfb vnc multiscreen ahi"
 CFG_GFX_ON="linuxfb multiscreen"
 CFG_GFX_PLUGIN_AVAILABLE=
 CFG_GFX_PLUGIN=
@@ -4252,6 +4252,19 @@ if [ "$PLATFORM_QWS" = "yes" ]; then
 	
     fi
 
+    # screen drivers
+    for screen in ${CFG_GFX_ON} ${CFG_GFX_PLUGIN}; do
+       if [ "${screen}" = "ahi" ] && [ "${CFG_CONFIGURE_EXIT_ON_ERROR}" = "yes" ]; then
+           if ! "$unixtests/compile.test" "$XQMAKESPEC" "$QMAKE_CONFIG" $OPT_VERBOSE "$relpath" "$outpath" config.tests/qws/ahi "Ahi" $L_FLAGS $I_FLAGS $l_FLAGS; then
+               echo "The Ahi screen driver functionality test failed!"
+               echo " You might need to modify the include and library search paths by editing"
+               echo " QMAKE_INCDIR and QMAKE_LIBDIR in"
+               echo " ${XQMAKESPEC}."
+               exit 1
+           fi
+       fi
+    done
+ 
     # mouse drivers
     for mouse in ${CFG_MOUSE_ON} ${CFG_MOUSE_PLUGIN}; do
 	if [ "${mouse}" = "tslib" ] && [ "${CFG_CONFIGURE_EXIT_ON_ERROR}" = "yes" ]; then

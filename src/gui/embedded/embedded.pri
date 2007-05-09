@@ -122,6 +122,12 @@ embedded {
 		SOURCES += embedded/qscreentransformed_qws.cpp
 	}
 
+	contains( gfx-drivers, ahi ) {
+		HEADERS += embedded/qscreenahi_qws.h
+		SOURCES += embedded/qscreenahi_qws.cpp
+		LIBS += -lahi -lahioem
+	}
+
 #
 # Keyboard drivers
 #

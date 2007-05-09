@@ -20,6 +20,7 @@
 #include "qscreenvfb_qws.h"
 #include "qscreenvnc_qws.h"
 #include "qscreenmulti_qws_p.h"
+#include "qscreenahi_qws.h"
 #include <stdlib.h>
 #include "private/qfactoryloader_p.h"
 #include "qscreendriverplugin_qws.h"
@@ -92,6 +93,10 @@ QScreen *QScreenDriverFactory::create(const QString& key, int displayId)
     if (driver == QLatin1String("multi"))
         return new QMultiScreen(displayId);
 #endif
+#ifndef QT_NO_QWS_AHI
+    if (driver == QLatin1String("ahi"))
+        return new QAhiScreen(displayId);
+#endif
 
 #if !defined(Q_OS_WIN32) || defined(QT_MAKEDLL)
 #ifndef QT_NO_LIBRARY
@@ -127,6 +132,9 @@ QStringList QScreenDriverFactory::keys()
 #endif
 #ifndef QT_NO_QWS_MULTISCREEN
     list << QLatin1String("Multi");
+#endif
+#ifndef QT_NO_QWS_AHI
+    list << QLatin1String("Ahi");
 #endif
 
 #if !defined(Q_OS_WIN32) || defined(QT_MAKEDLL)
