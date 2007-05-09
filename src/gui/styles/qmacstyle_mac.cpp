@@ -56,6 +56,7 @@
 #include <qtoolbar.h>
 #include <qtoolbutton.h>
 #include <qtreeview.h>
+#include <qtableview.h>
 #include <qwizard.h>
 #include <qdebug.h>
 
@@ -3037,10 +3038,16 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
 
             ir = visualRect(header->direction, header->rect, ir);
             HIRect bounds = qt_hirectForQRect(ir);
+            
+            bool noVerticalHeader = true;
+            if (w)
+                if (const QTableView *table = qobject_cast<const QTableView *>(w->parentWidget()))
+                    noVerticalHeader = !table->verticalHeader()->isVisible();
+
             bool drawTopBorder = header->orientation == Qt::Horizontal;
             bool drawLeftBorder = header->orientation == Qt::Vertical
                 || header->position == QStyleOptionHeader::OnlyOneSection
-                || (header->position == QStyleOptionHeader::Beginning && isTreeView(w));
+                || (header->position == QStyleOptionHeader::Beginning && noVerticalHeader);
             d->drawTableHeader(bounds, drawTopBorder, drawLeftBorder, bdi, p);
         }
         break;
