@@ -28,6 +28,10 @@
 #include <QScreen>
 #include <QtOpenGL/qgl.h>
 
+QT_BEGIN_HEADER
+
+QT_MODULE(OpenGL)
+
 class QGLScreenPrivate;
 
 class QGLScreen : public QScreen
@@ -42,5 +46,7 @@ public:
 private:
     QGLScreenPrivate *d_ptr;
 };
+
+QT_END_HEADER
 
 #endif // QSCREENEGL_P_H
