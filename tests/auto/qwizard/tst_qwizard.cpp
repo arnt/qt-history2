@@ -18,6 +18,7 @@
 #include <QVBoxLayout>
 #include <QWizard>
 #include <QStyle>
+#include <QPlastiqueStyle>
 
 //TESTED_CLASS=QWizard
 //TESTED_FILES=gui/dialogs/qwizard.h gui/dialogs/qwizard.cpp
@@ -68,6 +69,9 @@ private slots:
     void setButtonText();
     void setCommitPage();
     void setWizardStyle();
+
+    // task specific tests:
+    void task161660_buttonSpacing();
 
     /*
         Things that could be added:
@@ -2133,6 +2137,21 @@ void tst_QWizard::setWizardStyle()
         wizard.setWizardStyle((QWizard::WizardStyle)wstyle);
         QCOMPARE((int)wizard.wizardStyle(), wstyle);
     }
+}
+
+void tst_QWizard::task161660_buttonSpacing()
+{
+    QString origStyle = QApplication::style()->objectName();
+    QApplication::setStyle(new QPlastiqueStyle);
+    QWizard wizard;
+    wizard.show();
+    const QAbstractButton *backButton = wizard.button(QWizard::BackButton);
+    const QAbstractButton *cancelButton = wizard.button(QWizard::CancelButton);
+    const int spacing =
+        cancelButton->frameGeometry().left() - backButton->frameGeometry().right() - 1;
+    QApplication::setStyle(origStyle);
+    QCOMPARE(spacing, wizard.style()->layoutSpacing(
+                 QSizePolicy::PushButton, QSizePolicy::PushButton, Qt::Horizontal));
 }
 
 QTEST_MAIN(tst_QWizard)
