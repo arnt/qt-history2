@@ -187,6 +187,8 @@ void tst_QMessageBox::defaultButton()
     msgBox.setDefaultButton(QMessageBox::Yes); // its not in there!
     QVERIFY(msgBox.defaultButton() == okButton);
     msgBox.removeButton(okButton);
+    delete okButton;
+    okButton = 0;
     QVERIFY(msgBox.defaultButton() == 0);
     msgBox.setDefaultButton(QMessageBox::Ok);
     QVERIFY(msgBox.defaultButton() == 0);
@@ -228,6 +230,8 @@ void tst_QMessageBox::escapeButton()
     msgBox.setEscapeButton(QMessageBox::Yes); // its not in there!
     QVERIFY(msgBox.escapeButton() == okButton);
     msgBox.removeButton(okButton);
+    delete okButton;
+    okButton = 0;
     QVERIFY(msgBox.escapeButton() == 0);
     msgBox.setEscapeButton(QMessageBox::Ok);
     QVERIFY(msgBox.escapeButton() == 0);
