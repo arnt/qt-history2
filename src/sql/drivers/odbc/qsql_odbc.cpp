@@ -60,7 +60,7 @@ class QODBCDriverPrivate
 {
 public:
     QODBCDriverPrivate()
-    : hEnv(0), hDbc(0), useSchema(false), disconnectCount(0)
+    : hEnv(0), hDbc(0), useSchema(false), disconnectCount(0), isMySqlServer(false)
     {
         sql_char_type = sql_varchar_type = sql_longvarchar_type = QVariant::ByteArray;
         unicode = false;
@@ -75,9 +75,11 @@ public:
     QVariant::Type sql_varchar_type;
     QVariant::Type sql_longvarchar_type;
     int disconnectCount;
+    bool isMySqlServer;
 
     bool checkDriver() const;
     void checkUnicode();
+    void checkMySqlServer();
     void checkSchemaUsage();
     bool setConnectionOptions(const QString& connOpts);
     void splitTableQualifier(const QString &qualifier, QString &catalog,
@@ -1530,6 +1532,7 @@ bool QODBCDriver::open(const QString & db,
 
     d->checkUnicode();
     d->checkSchemaUsage();
+    d->checkMySqlServer();
 
     setOpen(true);
     setOpenError(false);
@@ -1687,6 +1690,25 @@ void QODBCDriverPrivate::checkSchemaUsage()
                    NULL);
     if (r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO)
         useSchema = (val != 0);
+}
+
+void QODBCDriverPrivate::checkMySqlServer()
+{
+    SQLRETURN   r;
+    char serverString[20];
+    SQLSMALLINT t;
+
+    r = SQLGetInfo(hDbc,
+                   SQL_DBMS_NAME,
+                   serverString,
+                   sizeof(serverString),
+                   &t);
+    if (r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO)
+#ifdef UNICODE
+        isMySqlServer = QString(reinterpret_cast<const QChar*>(serverString), t).contains(QLatin1String("mysql"), Qt::CaseInsensitive);
+#else
+        isMySqlServer = QString::fromLocal8Bit(serverString, t).contains(QLatin1String("mysql"), Qt::CaseInsensitive);
+#endif
 }
 
 QSqlResult *QODBCDriver::createResult() const
@@ -2032,6 +2054,9 @@ QVariant QODBCDriver::handle() const
 
 QString QODBCDriver::escapeIdentifier(const QString &identifier, IdentifierType) const
 {
+    if (d->isMySqlServer)
+        return identifier;
+
     QString res = identifier;
     res.replace(QLatin1Char('"'), QLatin1String("\"\""));
     res.prepend(QLatin1Char('"')).append(QLatin1Char('"'));
