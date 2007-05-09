@@ -2147,11 +2147,10 @@ void tst_QWizard::task161660_buttonSpacing()
     wizard.show();
     const QAbstractButton *backButton = wizard.button(QWizard::BackButton);
     const QAbstractButton *cancelButton = wizard.button(QWizard::CancelButton);
-    const int spacing =
-        cancelButton->frameGeometry().left() - backButton->frameGeometry().right() - 1;
-    QApplication::setStyle(origStyle);
+    const int spacing = cancelButton->geometry().left() - backButton->geometry().right() - 1;
     QCOMPARE(spacing, wizard.style()->layoutSpacing(
                  QSizePolicy::PushButton, QSizePolicy::PushButton, Qt::Horizontal));
+    QApplication::setStyle(origStyle);
 }
 
 QTEST_MAIN(tst_QWizard)
