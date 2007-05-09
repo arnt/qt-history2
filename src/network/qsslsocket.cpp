@@ -1364,11 +1364,11 @@ qint64 QSslSocket::readData(char *data, qint64 maxlen)
     } else {
         do {
             const char *readPtr = d->readBuffer.readPointer();
-            int bytesToRead = qMin<int>(maxlen, d->readBuffer.nextDataBlockSize());
+            int bytesToRead = qMin<int>(maxlen - readBytes, d->readBuffer.nextDataBlockSize());
             ::memcpy(data + readBytes, readPtr, bytesToRead);
             readBytes += bytesToRead;
             d->readBuffer.free(bytesToRead);
-        } while (!d->readBuffer.isEmpty());
+        } while (!d->readBuffer.isEmpty() && readBytes < maxlen);
     }
 #ifdef QSSLSOCKET_DEBUG
     qDebug() << "QSslSocket::readData(" << (void *)data << "," << maxlen << ") ==" << readBytes;
