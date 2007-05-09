@@ -42,7 +42,7 @@
 
     \quotefromfile snippets/moc/myclass1.h
     \skipto class
-    \printuntil /^\};$/
+    \printuntil /^\};/
 
     In addition to the signals and slots shown above, \c moc also
     implements object properties as in the next example. The
@@ -58,7 +58,7 @@
 
     \quotefromfile snippets/moc/myclass2.h
     \skipto class
-    \printuntil /^\};$/
+    \printuntil /^\};/
 
     The Q_FLAGS() macro declares enums that are to be used
     as flags, i.e. OR'd together. Another macro, Q_CLASSINFO(),
@@ -67,7 +67,7 @@
 
     \quotefromfile snippets/moc/myclass3.h
     \skipto class
-    \printuntil /^\};$/
+    \printuntil /^\};/
 
     The output produced by \c moc must be compiled and linked, just
     like the other C++ code in your program; otherwise, the build
