@@ -2643,9 +2643,9 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPai
             matrix.rotate(-90);
             break;
         }
-        path.moveTo(0, 4);
-        path.lineTo(-4, -4);
-        path.lineTo(4, -4);
+        path.moveTo(0, 5);
+        path.lineTo(-4, -3);
+        path.lineTo(4, -3);
         p->setMatrix(matrix);
         p->setPen(Qt::NoPen);
         p->setBrush(QColor(0, 0, 0, 135));
