@@ -2,6 +2,7 @@ TEMPLATE      = subdirs
 SUBDIRS       = dombookmarks \
                 rsslisting \
                 saxbookmarks \
+                streambookmarks \
                 xmlstreamlint
 
 # install

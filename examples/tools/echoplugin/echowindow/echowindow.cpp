@@ -57,7 +57,7 @@ void EchoWindow::createGUI()
 
 bool EchoWindow::loadPlugin()
 {
-    QDir pluginDirectory(qApp->applicationDirPath() + "/../plugin/");
+    QDir pluginDirectory(qApp->applicationDirPath() + "/plugin/");
     QString fileName = pluginDirectory.entryList(
         QStringList() << "libechoplugin*").first();
 

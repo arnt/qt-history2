@@ -1,9 +1,8 @@
 TEMPLATE      = subdirs
 SUBDIRS       = analogclock \
                 calculator \
-		calendarwidget \
+                calendarwidget \
                 charactermap \
-		dialogbuttonbox \
                 digitalclock \
                 groupbox \
                 icons \
@@ -16,7 +15,7 @@ SUBDIRS       = analogclock \
                 spinboxes \
                 styles \
                 stylesheet \
-		tablet \
+                tablet \
                 tetrix \
                 tooltips \
                 wiggly \

@@ -1,11 +1,11 @@
-TEMPLATE	= lib
-CONFIG	       += plugin
-HEADERS		= simplestyle.h \
-		  simplestyleplugin.h
-SOURCES		= simplestyle.cpp \
-		  simplestyleplugin.cpp
-TARGET		= simplestyleplugin
-DESTDIR         = ../stylewindow/styles/
+TEMPLATE    = lib
+CONFIG     += plugin
+HEADERS     = simplestyle.h \
+              simplestyleplugin.h
+SOURCES     = simplestyle.cpp \
+              simplestyleplugin.cpp
+TARGET      = simplestyleplugin
+DESTDIR     = ../styles/
 
 # install
 target.path = $$[QT_INSTALL_EXAMPLES]/tools/styleplugin/stylewindow/styles

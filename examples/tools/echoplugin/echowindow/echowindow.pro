@@ -1,7 +1,9 @@
-HEADERS	    =	echowindow.h \
-		echointerface.h
-SOURCES	    =	echowindow.cpp \
-		main.cpp
+HEADERS    = echowindow.h \
+             echointerface.h
+SOURCES    = echowindow.cpp \
+             main.cpp
+
+TARGET     = ../echoplugin
 
 # install
 target.path = $$[QT_INSTALL_EXAMPLES]/tools/echoplugin/echowindow
