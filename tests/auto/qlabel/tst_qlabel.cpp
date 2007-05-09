@@ -125,6 +125,8 @@ void tst_QLabel::cleanupTestCase()
 {
     delete testWidget;
     testWidget = 0;
+    if (test_box)
+        delete test_box;
 }
 
 void tst_QLabel::init()
@@ -328,6 +330,7 @@ void tst_QLabel::focusPolicy()
     test_label->setFocusPolicy(Qt::StrongFocus);
     test_label->setTextInteractionFlags(Qt::NoTextInteraction);
     QCOMPARE(test_label->focusPolicy(), Qt::StrongFocus); // is not touched since value didn't change
+    delete test_label;
 }
 
 QTEST_MAIN(tst_QLabel)
