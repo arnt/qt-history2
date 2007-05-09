@@ -1625,14 +1625,14 @@ static void qt_gl_image_cleanup(qint64 key)
 QImage QGLContextPrivate::convertToGLFormat(const QImage &image, bool force_premul,
                                             GLenum texture_format)
 {
+    QImage img = image;
+    if ((force_premul && image.format() != QImage::Format_ARGB32_Premultiplied)
+        || (!force_premul && image.format() != QImage::Format_ARGB32_Premultiplied
+            && image.format() != QImage::Format_ARGB32))
+    {
+        img = image.convertToFormat(QImage::Format_ARGB32_Premultiplied);
+    }
     if (texture_format == GL_BGRA) {
-        QImage img = image;
-        if ((force_premul && image.format() != QImage::Format_ARGB32_Premultiplied)
-            || (!force_premul && image.format() != QImage::Format_ARGB32_Premultiplied
-                && image.format() != QImage::Format_ARGB32)) {
-            img = image.convertToFormat(QImage::Format_ARGB32_Premultiplied);
-        }
-
         if (QSysInfo::ByteOrder == QSysInfo::BigEndian) {
             // mirror + swizzle
             QImage res = img.copy();
@@ -1654,7 +1654,20 @@ QImage QGLContextPrivate::convertToGLFormat(const QImage &image, bool force_prem
             return img.mirrored();
         }
     } else {
-        return QGLWidget::convertToGLFormat(image);
+        img = img.mirrored();
+        if (QSysInfo::ByteOrder == QSysInfo::BigEndian) {
+            for (int i=0; i < img.height(); i++) {
+                uint *p = (uint*)img.scanLine(i);
+                uint *end = p + img.width();
+                while (p < end) {
+                    *p = (*p << 8) | ((*p >> 24) & 0xFF);
+                    p++;
+                }
+            }
+        } else {
+            img = img.rgbSwapped();
+        }
+        return img;
     }
 }
 
