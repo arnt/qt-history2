@@ -684,7 +684,7 @@ QObject::QObject(QObject *parent)
 {
     Q_D(QObject);
     ::qt_addObject(d_ptr->q_ptr = this);
-    d->threadData = QThreadData::current();
+    d->threadData = (parent && !parent->thread()) ? parent->d_func()->threadData : QThreadData::current();
     d->threadData->ref();
     if (!check_parent_thread(parent, parent ? parent->d_func()->threadData : 0, d->threadData))
         parent = 0;
@@ -703,7 +703,7 @@ QObject::QObject(QObject *parent, const char *name)
 {
     Q_D(QObject);
     ::qt_addObject(d_ptr->q_ptr = this);
-    d->threadData = QThreadData::current();
+    d->threadData = (parent && !parent->thread()) ? parent->d_func()->threadData : QThreadData::current();
     d->threadData->ref();
     if (!check_parent_thread(parent, parent ? parent->d_func()->threadData : 0, d->threadData))
         parent = 0;
@@ -719,7 +719,7 @@ QObject::QObject(QObjectPrivate &dd, QObject *parent)
 {
     Q_D(QObject);
     ::qt_addObject(d_ptr->q_ptr = this);
-    d->threadData = QThreadData::current();
+    d->threadData = (parent && !parent->thread()) ? parent->d_func()->threadData : QThreadData::current();
     d->threadData->ref();
     if (!check_parent_thread(parent, parent ? parent->d_func()->threadData : 0, d->threadData))
         parent = 0;

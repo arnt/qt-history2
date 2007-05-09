@@ -49,19 +49,26 @@ bool QHttpSocketEngine::initialize(QAbstractSocket::SocketType type, QAbstractSo
 
     // Intercept all the signals.
     connect(d->socket, SIGNAL(connected()),
-            this, SLOT(slotSocketConnected()));
+            this, SLOT(slotSocketConnected()),
+            Qt::DirectConnection);
     connect(d->socket, SIGNAL(disconnected()),
-            this, SLOT(slotSocketDisconnected()));
+            this, SLOT(slotSocketDisconnected()),
+            Qt::DirectConnection);
     connect(d->socket, SIGNAL(readyRead()),
-            this, SLOT(slotSocketReadNotification()));
+            this, SLOT(slotSocketReadNotification()),
+            Qt::DirectConnection);
     connect(d->socket, SIGNAL(readyRead()),
-            this, SLOT(slotSocketReadNotification()));
-    connect(d->socket, SIGNAL(bytesWritten(qint64)),
-            this, SLOT(slotSocketBytesWritten()));
+            this, SLOT(slotSocketReadNotification()),
+            Qt::DirectConnection);
+   connect(d->socket, SIGNAL(bytesWritten(qint64)),
+            this, SLOT(slotSocketBytesWritten()),
+            Qt::DirectConnection);
     connect(d->socket, SIGNAL(error(QAbstractSocket::SocketError)),
-            this, SLOT(slotSocketError(QAbstractSocket::SocketError)));
+            this, SLOT(slotSocketError(QAbstractSocket::SocketError)),
+            Qt::DirectConnection);
     connect(d->socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)),
-            this, SLOT(slotSocketStateChanged(QAbstractSocket::SocketState)));
+            this, SLOT(slotSocketStateChanged(QAbstractSocket::SocketState)),
+            Qt::DirectConnection);
 
     return true;
 }

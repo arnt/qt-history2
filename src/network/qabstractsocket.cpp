@@ -815,7 +815,8 @@ void QAbstractSocketPrivate::_q_connectToNextAddress()
             if (!connectTimer) {
                 connectTimer = new QTimer(q);
                 QObject::connect(connectTimer, SIGNAL(timeout()),
-                                 q, SLOT(_q_abortConnectionAttempt()));
+                                 q, SLOT(_q_abortConnectionAttempt()),
+                                 Qt::DirectConnection);
             }
             connectTimer->start(QT_CONNECT_TIMEOUT);
         }
@@ -1070,6 +1071,7 @@ void QAbstractSocket::connectToHost(const QString &hostName, quint16 port,
                                     OpenMode openMode)
 {
     QMetaObject::invokeMethod(this, "connectToHostImplementation",
+                              Qt::DirectConnection,
                               Q_ARG(QString, hostName),
                               Q_ARG(quint16, port),
                               Q_ARG(OpenMode, openMode));
@@ -2003,7 +2005,8 @@ void QAbstractSocket::close()
 */
 void QAbstractSocket::disconnectFromHost()
 {
-    QMetaObject::invokeMethod(this, "disconnectFromHostImplementation");
+    QMetaObject::invokeMethod(this, "disconnectFromHostImplementation",
+                              Qt::DirectConnection);
 }
 
 /*!

@@ -63,6 +63,7 @@ private slots:
     void namespaces();
     void threadSignalEmissionCrash();
     void thread();
+    void thread0();
     void moveToThread();
     void sender();
     void declareInterface();
@@ -1233,6 +1234,24 @@ public:
     void run()
     { (void) exec(); }
 };
+
+void tst_QObject::thread0()
+{
+    QObject *object = new QObject;
+    object->moveToThread(0);
+    QObject *child = new QObject(object);
+    QCOMPARE(child->parent(), object);
+    QCOMPARE(child->thread(), (QThread *)0);
+#if 0
+    // We don't support moving children into a parent that has no thread
+    // affinity (yet?).
+    QObject *child2 = new QObject;
+    child2->moveToThread(0);
+    child2->setParent(object);
+    QCOMPARE(child2->parent(), object);
+    QCOMPARE(child2->thread(), (QThread *)0);
+#endif
+}
 
 void tst_QObject::moveToThread()
 {

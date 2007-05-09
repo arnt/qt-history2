@@ -528,7 +528,9 @@ void QSocks5SocketEnginePrivate::initialize(Socks5Mode socks5Mode)
         QNetworkProxy proxy;
         proxy.setType(QNetworkProxy::NoProxy);
         udpData->udpSocket->setProxy(proxy);
-        QObject::connect(udpData->udpSocket, SIGNAL(readyRead()), q, SLOT(_q_udpSocketReadNotification()));
+        QObject::connect(udpData->udpSocket, SIGNAL(readyRead()),
+                         q, SLOT(_q_udpSocketReadNotification()),
+                         Qt::DirectConnection);
 #endif // QT_NO_UDPSOCKET
     } else if (mode == BindMode) {
         bindData = new QSocks5BindData;
@@ -539,14 +541,20 @@ void QSocks5SocketEnginePrivate::initialize(Socks5Mode socks5Mode)
     QNetworkProxy proxy;
     proxy.setType(QNetworkProxy::NoProxy);
     data->controlSocket->setProxy(proxy);
-    QObject::connect(data->controlSocket, SIGNAL(connected()), q, SLOT(_q_controlSocketConnected()));
-    QObject::connect(data->controlSocket, SIGNAL(readyRead()), q, SLOT(_q_controlSocketReadNotification()));
-    QObject::connect(data->controlSocket, SIGNAL(bytesWritten(qint64)), q, SLOT(_q_controlSocketBytesWritten()));
+    QObject::connect(data->controlSocket, SIGNAL(connected()), q, SLOT(_q_controlSocketConnected()),
+                     Qt::DirectConnection);
+    QObject::connect(data->controlSocket, SIGNAL(readyRead()), q, SLOT(_q_controlSocketReadNotification()),
+                     Qt::DirectConnection);
+    QObject::connect(data->controlSocket, SIGNAL(bytesWritten(qint64)), q, SLOT(_q_controlSocketBytesWritten()),
+                     Qt::DirectConnection);
     QObject::connect(data->controlSocket, SIGNAL(error(QAbstractSocket::SocketError)),
-                     q, SLOT(_q_controlSocketError(QAbstractSocket::SocketError)));
-    QObject::connect(data->controlSocket, SIGNAL(disconnected()), q, SLOT(_q_controlSocketDisconnected()));
+                     q, SLOT(_q_controlSocketError(QAbstractSocket::SocketError)),
+                     Qt::DirectConnection);
+    QObject::connect(data->controlSocket, SIGNAL(disconnected()), q, SLOT(_q_controlSocketDisconnected()),
+                     Qt::DirectConnection);
     QObject::connect(data->controlSocket, SIGNAL(stateChanged(QAbstractSocket::SocketState)),
-                     q, SLOT(_q_controlSocketStateChanged(QAbstractSocket::SocketState)));
+                     q, SLOT(_q_controlSocketStateChanged(QAbstractSocket::SocketState)),
+                     Qt::DirectConnection);
     //### this should be some where else when authentication methods are public
     if (!proxyInfo.user().isEmpty() || !proxyInfo.password().isEmpty()) {
         data->authenticator = new QSocks5PasswordAuthenticator(proxyInfo.user(), proxyInfo.password());
@@ -889,13 +897,19 @@ bool QSocks5SocketEngine::initialize(int socketDescriptor, QAbstractSocket::Sock
         d->peerAddress = bindData->peerAddress;
         delete bindData;
 
-        QObject::connect(d->data->controlSocket, SIGNAL(connected()), this, SLOT(_q_controlSocketConnected()));
-        QObject::connect(d->data->controlSocket, SIGNAL(readyRead()), this, SLOT(_q_controlSocketReadNotification()));
-        QObject::connect(d->data->controlSocket, SIGNAL(bytesWritten(qint64)), this, SLOT(_q_controlSocketBytesWritten()));
-        QObject::connect(d->data->controlSocket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(_q_controlSocketError(QAbstractSocket::SocketError)));
-        QObject::connect(d->data->controlSocket, SIGNAL(disconnected()), this, SLOT(_q_controlSocketDisconnected()));
+        QObject::connect(d->data->controlSocket, SIGNAL(connected()), this, SLOT(_q_controlSocketConnected()),
+                         Qt::DirectConnection);
+        QObject::connect(d->data->controlSocket, SIGNAL(readyRead()), this, SLOT(_q_controlSocketReadNotification()),
+                         Qt::DirectConnection);
+        QObject::connect(d->data->controlSocket, SIGNAL(bytesWritten(qint64)), this, SLOT(_q_controlSocketBytesWritten()),
+                         Qt::DirectConnection);
+        QObject::connect(d->data->controlSocket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(_q_controlSocketError(QAbstractSocket::SocketError)),
+                         Qt::DirectConnection);
+        QObject::connect(d->data->controlSocket, SIGNAL(disconnected()), this, SLOT(_q_controlSocketDisconnected()),
+                         Qt::DirectConnection);
         QObject::connect(d->data->controlSocket, SIGNAL(stateChanged(QAbstractSocket::SocketState)),
-                         this, SLOT(_q_controlSocketStateChanged(QAbstractSocket::SocketState)));
+                         this, SLOT(_q_controlSocketStateChanged(QAbstractSocket::SocketState)),
+                         Qt::DirectConnection);
 
         d->socks5State = QSocks5SocketEnginePrivate::Connected;
 

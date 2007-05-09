@@ -139,6 +139,7 @@ private slots:
     void suddenRemoteDisconnect_data();
     void suddenRemoteDisconnect();
     void connectToMultiIP();
+    void moveToThread0();
 
 protected slots:
     void nonBlockingIMAP_hostFound();
@@ -1595,6 +1596,51 @@ void tst_QTcpSocket::connectToMultiIP()
     QCOMPARE(socket->error(), QAbstractSocket::SocketTimeoutError);
 
     delete socket;
+}
+
+//----------------------------------------------------------------------------------
+void tst_QTcpSocket::moveToThread0()
+{
+    {
+        // Case 1: Moved after connecting, before waiting for connection.
+        QTcpSocket socket;
+        socket.connectToHost("fluke.troll.no", 143);
+        socket.moveToThread(0);
+        QVERIFY(socket.waitForConnected(1000));
+        socket.write("XXX LOGOUT\r\n");
+        QVERIFY(socket.waitForBytesWritten(5000));
+        QVERIFY(socket.waitForDisconnected());
+    }
+    {
+        // Case 2: Moved before connecting
+        QTcpSocket socket;
+        socket.moveToThread(0);
+        socket.connectToHost("fluke.troll.no", 143);
+        QVERIFY(socket.waitForConnected(1000));
+        socket.write("XXX LOGOUT\r\n");
+        QVERIFY(socket.waitForBytesWritten(5000));
+        QVERIFY(socket.waitForDisconnected());
+    }
+    {
+        // Case 3: Moved after writing, while waiting for bytes to be written.
+        QTcpSocket socket;
+        socket.connectToHost("fluke.troll.no", 143);
+        QVERIFY(socket.waitForConnected(1000));
+        socket.write("XXX LOGOUT\r\n");
+        socket.moveToThread(0);
+        QVERIFY(socket.waitForBytesWritten(5000));
+        QVERIFY(socket.waitForDisconnected());
+    }
+    {
+        // Case 4: Moved after writing, while waiting for response.
+        QTcpSocket socket;
+        socket.connectToHost("fluke.troll.no", 143);
+        QVERIFY(socket.waitForConnected(1000));
+        socket.write("XXX LOGOUT\r\n");
+        QVERIFY(socket.waitForBytesWritten(5000));
+        socket.moveToThread(0);
+        QVERIFY(socket.waitForDisconnected());
+    }
 }
 
 QTEST_MAIN(tst_QTcpSocket)

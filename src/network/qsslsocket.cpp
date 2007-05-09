@@ -1543,19 +1543,26 @@ void QSslSocketPrivate::createPlainSocket(QIODevice::OpenMode openMode)
 
     plainSocket = new QTcpSocket(q);
     q->connect(plainSocket, SIGNAL(connected()),
-               q, SLOT(_q_connectedSlot()));
+               q, SLOT(_q_connectedSlot()),
+               Qt::DirectConnection);
     q->connect(plainSocket, SIGNAL(hostFound()),
-               q, SLOT(_q_hostFoundSlot()));
+               q, SLOT(_q_hostFoundSlot()),
+               Qt::DirectConnection);
     q->connect(plainSocket, SIGNAL(disconnected()),
-               q, SLOT(_q_disconnectedSlot()));
+               q, SLOT(_q_disconnectedSlot()),
+               Qt::DirectConnection);
     q->connect(plainSocket, SIGNAL(stateChanged(QAbstractSocket::SocketState)),
-               q, SLOT(_q_stateChangedSlot(QAbstractSocket::SocketState)));
+               q, SLOT(_q_stateChangedSlot(QAbstractSocket::SocketState)),
+               Qt::DirectConnection);
     q->connect(plainSocket, SIGNAL(error(QAbstractSocket::SocketError)),
-               q, SLOT(_q_errorSlot(QAbstractSocket::SocketError)));
+               q, SLOT(_q_errorSlot(QAbstractSocket::SocketError)),
+               Qt::DirectConnection);
     q->connect(plainSocket, SIGNAL(readyRead()),
-               q, SLOT(_q_readyReadSlot()));
+               q, SLOT(_q_readyReadSlot()),
+               Qt::DirectConnection);
     q->connect(plainSocket, SIGNAL(bytesWritten(qint64)),
-               q, SLOT(_q_bytesWrittenSlot(qint64)));
+               q, SLOT(_q_bytesWrittenSlot(qint64)),
+               Qt::DirectConnection);
     
     readBuffer.clear();
     writeBuffer.clear();
