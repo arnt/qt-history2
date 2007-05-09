@@ -1188,7 +1188,7 @@ bool QODBCResult::exec()
                                       i + 1,
                                       qParamType[(QFlag)(bindValueType(i)) & QSql::InOut],
                                       SQL_C_ULONG,
-                                      SQL_INTEGER,
+                                      SQL_NUMERIC,
                                       0,
                                       0,
                                       (void *) val.constData(),
