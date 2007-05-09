@@ -1685,15 +1685,12 @@ QWidget::macQDHandle() const
 }
 
 /*!
-    Returns the CoreGraphics handle of the widget. Use of this function is
-    not portable. This function will return 0 if no painter context can be
-    established, or if the handle could not be created.
+  Returns the CoreGraphics handle of the widget. Use of this function is
+  not portable. This function will return 0 if no painter context can be
+  established, or if the handle could not be created.
 
-    \warning This function is only available on Mac OS X.
-
-    \sa handle()
+  \warning This function is only available on Mac OS X.
 */
-
 Qt::HANDLE
 QWidget::macCGHandle() const
 {

@@ -599,7 +599,17 @@ QBoxLayout::~QBoxLayout()
     d->deleteAll(); // must do it before QObject deletes children, so can't be in ~QBoxLayoutPrivate
 }
 
+/*!
+  Reimplements QLayout::spacing(). If the spacing property is
+  valid, that value is returned. Otherwise, a value for the spacing
+  property is computed and returned. Since layout spacing in a widget
+  is style dependent, if the parent is a widget, it queries the style
+  for the (horizontal or vertical) spacing of the layout. Otherwise,
+  the parent is a layout, and it queries the parent layout for the
+  spacing().
 
+  \sa QLayout::spacing(), setSpacing()
+ */
 int QBoxLayout::spacing() const
 {
     Q_D(const QBoxLayout);
@@ -612,6 +622,12 @@ int QBoxLayout::spacing() const
     }
 }
 
+/*!
+  Reimplements QLayout::setSpacing(). Sets the spacing
+  property to \a spacing. 
+
+  \sa QLayout::setSpacing(), spacing()
+ */
 void QBoxLayout::setSpacing(int spacing)
 {
     Q_D(QBoxLayout);

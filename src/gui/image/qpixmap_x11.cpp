@@ -1809,26 +1809,20 @@ QPixmap QPixmap::grabWindow(WId window, int x, int y, int w, int h)
     \sa trueMatrix(), {QPixmap#Pixmap Transformations}{Pixmap
     Transformations}
 */
-
-QPixmap QPixmap::transformed(const QMatrix &matrix, Qt::TransformationMode mode) const
+QPixmap QPixmap::transformed(const QTransform &matrix, Qt::TransformationMode mode) const
 {
-    return transformed(QTransform(matrix), mode);
-}
-
-QPixmap QPixmap::transformed(const QTransform &matrix, Qt::TransformationMode mode ) const
-{
-    uint          w = 0;
-    uint          h = 0;                                // size of target pixmap
-    uint          ws, hs;                                // size of source pixmap
+    uint   w = 0;
+    uint   h = 0;                               // size of target pixmap
+    uint   ws, hs;                              // size of source pixmap
     uchar *dptr;                                // data in target pixmap
-    uint          dbpl, dbytes;                        // bytes per line/bytes total
+    uint   dbpl, dbytes;                        // bytes per line/bytes total
     uchar *sptr;                                // data in original pixmap
-    int           sbpl;                                // bytes per line in original
-    int           bpp;                                        // bits per pixel
+    int    sbpl;                                // bytes per line in original
+    int    bpp;                                 // bits per pixel
     bool   depth1 = depth() == 1;
     Display *dpy = X11->display;
 
-    if (isNull())                                // this is a null pixmap
+    if (isNull()) 
         return copy();
 
     ws = width();
@@ -1862,10 +1856,11 @@ QPixmap QPixmap::transformed(const QTransform &matrix, Qt::TransformationMode mo
 
 
     bool invertible;
-    mat = mat.inverted(&invertible);                // invert matrix
+    mat = mat.inverted(&invertible);  // invert matrix
 
     if (h == 0 || w == 0 || !invertible
-        || qAbs(scaledWidth) >= 32768 || qAbs(scaledHeight) >= 32768 )	// error, return null pixmap
+        || qAbs(scaledWidth) >= 32768 || qAbs(scaledHeight) >= 32768 )
+	// error, return null pixmap
         return QPixmap();
 
     if (mode == Qt::SmoothTransformation) {
@@ -2010,6 +2005,18 @@ QPixmap QPixmap::transformed(const QTransform &matrix, Qt::TransformationMode mo
         return pm;
     }
 }
+
+/*!
+  \overload
+
+  This convenience function loads the \a matrix into a
+  QTransform and calls the overloaded function.
+ */
+QPixmap QPixmap::transformed(const QMatrix &matrix, Qt::TransformationMode mode) const
+{
+    return transformed(QTransform(matrix), mode);
+}
+
 
 /*!
   \internal

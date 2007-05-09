@@ -313,7 +313,7 @@ QPixmap::operator QVariant() const
 */
 
 /*!
-    \fn QMatrix QPixmap::trueMatrix(const QMatrix &matrix, int width, int height)
+    \fn QMatrix QPixmap::trueMatrix(const QTransform &matrix, int width, int height)
 
     Returns the actual matrix used for transforming a pixmap with the
     given \a width, \a height and \a matrix.
@@ -328,14 +328,21 @@ QPixmap::operator QVariant() const
     \sa transformed(), {QPixmap#Pixmap Transformations}{Pixmap
     Transformations}
 */
-QMatrix QPixmap::trueMatrix(const QMatrix &m, int w, int h)
-{
-    return trueMatrix(QTransform(m), w, h).toAffine();
-}
-
 QTransform QPixmap::trueMatrix(const QTransform &m, int w, int h)
 {
     return QImage::trueMatrix(m, w, h);
+}
+
+/*!
+  \overload
+
+  This convenience function loads the matrix \a m into a
+  QTransform and calls the overloaded function wih the
+  QTransform and the width \a w and the height \a h.
+ */
+QMatrix QPixmap::trueMatrix(const QMatrix &m, int w, int h)
+{
+    return trueMatrix(QTransform(m), w, h).toAffine();
 }
 
 

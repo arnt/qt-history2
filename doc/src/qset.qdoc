@@ -467,9 +467,9 @@
 /*!
     \fn bool QSet::empty() const
 
-    This function is provided for STL compatibility. It is equivalent
-    to isEmpty().
-*/
+    Returns true if the set is empty. This function is provided for
+    STL compatibility. It is equivalent to isEmpty().
+ */
 
 /*!
     \fn bool QSet::count() const
