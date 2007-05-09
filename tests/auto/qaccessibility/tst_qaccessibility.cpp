@@ -3128,179 +3128,130 @@ void tst_QAccessibility::abstractScrollAreaTest()
     abstractScrollArea.setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     QCOMPARE(interface->childCount(), 2);
     QWidget *horizontalScrollBar = abstractScrollArea.horizontalScrollBar();
-    QVERIFY(verifyChild(horizontalScrollBar, interface, 2, globalGeometry));
+    QWidget *horizontalScrollBarContainer = horizontalScrollBar->parentWidget();
+    QVERIFY(verifyChild(horizontalScrollBarContainer, interface, 2, globalGeometry));
 
     // Horizontal scrollBar widgets.
     QLabel *secondLeftLabel = new QLabel(QLatin1String("L2"));
     abstractScrollArea.addScrollBarWidget(secondLeftLabel, Qt::AlignLeft);
-    QCOMPARE(interface->childCount(), 3);
-    QVERIFY(verifyChild(secondLeftLabel, interface, 3, globalGeometry));
+    QCOMPARE(interface->childCount(), 2);
 
     QLabel *firstLeftLabel = new QLabel(QLatin1String("L1"));
     abstractScrollArea.addScrollBarWidget(firstLeftLabel, Qt::AlignLeft);
-    QCOMPARE(interface->childCount(), 4);
-    // NB! index = 2 because firstLeftLabel is the first left label.
-    QVERIFY(verifyChild(firstLeftLabel, interface, 3, globalGeometry));
+    QCOMPARE(interface->childCount(), 2);
 
     QLabel *secondRightLabel = new QLabel(QLatin1String("R2"));
     abstractScrollArea.addScrollBarWidget(secondRightLabel, Qt::AlignRight);
-    QCOMPARE(interface->childCount(), 5);
-    QVERIFY(verifyChild(secondRightLabel, interface, 5, globalGeometry));
+    QCOMPARE(interface->childCount(), 2);
 
     QLabel *firstRightLabel = new QLabel(QLatin1String("R1"));
     abstractScrollArea.addScrollBarWidget(firstRightLabel, Qt::AlignRight);
-    QCOMPARE(interface->childCount(), 6);
-    QVERIFY(verifyChild(secondRightLabel, interface, 6, globalGeometry));
+    QCOMPARE(interface->childCount(), 2);
 
     // Vertical scrollBar.
     abstractScrollArea.setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-    QCOMPARE(interface->childCount(), 7);
+    QCOMPARE(interface->childCount(), 3);
     QWidget *verticalScrollBar = abstractScrollArea.verticalScrollBar();
-    QVERIFY(verifyChild(verticalScrollBar, interface, 7, globalGeometry));
+    QWidget *verticalScrollBarContainer = verticalScrollBar->parentWidget();
+    QVERIFY(verifyChild(verticalScrollBarContainer, interface, 3, globalGeometry));
 
     // Vertical scrollBar widgets.
     QLabel *secondTopLabel = new QLabel(QLatin1String("T2"));
     abstractScrollArea.addScrollBarWidget(secondTopLabel, Qt::AlignTop);
-    QCOMPARE(interface->childCount(), 8);
-    QVERIFY(verifyChild(secondTopLabel, interface, 8, globalGeometry));
+    QCOMPARE(interface->childCount(), 3);
 
     QLabel *firstTopLabel = new QLabel(QLatin1String("T1"));
     abstractScrollArea.addScrollBarWidget(firstTopLabel, Qt::AlignTop);
-    QCOMPARE(interface->childCount(), 9);
-    // NB! index = 8 because firstTopLabel is the first top label.
-    QVERIFY(verifyChild(firstTopLabel, interface, 8, globalGeometry));
+    QCOMPARE(interface->childCount(), 3);
 
     QLabel *secondBottomLabel = new QLabel(QLatin1String("B2"));
     abstractScrollArea.addScrollBarWidget(secondBottomLabel, Qt::AlignBottom);
-    QCOMPARE(interface->childCount(), 10);
-    QVERIFY(verifyChild(secondBottomLabel, interface, 10, globalGeometry));
+    QCOMPARE(interface->childCount(), 3);
 
     QLabel *firstBottomLabel = new QLabel(QLatin1String("B1"));
     abstractScrollArea.addScrollBarWidget(firstBottomLabel, Qt::AlignBottom);
-    QCOMPARE(interface->childCount(), 11);
-    // NB! index = 10 because firstBottomLabel is the first bottom label.
-    QVERIFY(verifyChild(firstBottomLabel, interface, 10, globalGeometry));
+    QCOMPARE(interface->childCount(), 3);
 
     // CornerWidget.
     abstractScrollArea.setCornerWidget(new QLabel(QLatin1String("C")));
-    QCOMPARE(interface->childCount(), 12);
+    QCOMPARE(interface->childCount(), 4);
     QWidget *cornerWidget = abstractScrollArea.cornerWidget();
-    QVERIFY(verifyChild(cornerWidget, interface, 12, globalGeometry));
+    QVERIFY(verifyChild(cornerWidget, interface, 4, globalGeometry));
 
     // Test navigate.
     QAccessibleInterface *target = 0;
-    // viewport -> Down -> horizontalScrollBar
+
+    // viewport -> Up -> NOTHING
     const int viewportIndex = indexOfChild(interface, viewport);
     QVERIFY(viewportIndex != -1);
-    const int horizontalScrollBarIndex = indexOfChild(interface, horizontalScrollBar);
-    QVERIFY(horizontalScrollBarIndex != -1);
+    QCOMPARE(interface->navigate(QAccessible::Up, viewportIndex, &target), -1);
+    QVERIFY(!target);
+
+    // viewport -> Left -> NOTHING
+    QCOMPARE(interface->navigate(QAccessible::Left, viewportIndex, &target), -1);
+    QVERIFY(!target);
+
+    // viewport -> Down -> horizontalScrollBarContainer
+    const int horizontalScrollBarContainerIndex = indexOfChild(interface, horizontalScrollBarContainer);
+    QVERIFY(horizontalScrollBarContainerIndex != -1);
     QCOMPARE(interface->navigate(QAccessible::Down, viewportIndex, &target), 0);
     QVERIFY(target);
-    QCOMPARE(target->object(), (QObject*)horizontalScrollBar);
+    QCOMPARE(target->object(), static_cast<QObject *>(horizontalScrollBarContainer));
     delete target;
     target = 0;
 
-    // horizontalScrollBar -> Right -> firstRightLabel
-    const int firstRightLabelIndex = indexOfChild(interface, firstRightLabel);
-    QVERIFY(firstRightLabelIndex != -1);
-    QCOMPARE(interface->navigate(QAccessible::Right, horizontalScrollBarIndex, &target), 0);
-    QVERIFY(target);
-    QCOMPARE(target->object(), (QObject*)firstRightLabel);
-    delete target;
-    target = 0;
+    // horizontalScrollBarContainer -> Left -> NOTHING
+    QCOMPARE(interface->navigate(QAccessible::Left, horizontalScrollBarContainerIndex, &target), -1);
+    QVERIFY(!target);
 
-    // firstRightLabel -> Right -> secondRightLagel
-    const int secondRightLabelIndex = indexOfChild(interface, secondRightLabel);
-    QVERIFY(secondRightLabelIndex != -1);
-    QCOMPARE(interface->navigate(QAccessible::Right, firstRightLabelIndex, &target), 0);
-    QVERIFY(target);
-    QCOMPARE(target->object(), (QObject*)secondRightLabel);
-    delete target;
-    target = 0;
+    // horizontalScrollBarContainer -> Down -> NOTHING
+    QVERIFY(horizontalScrollBarContainerIndex != -1);
+    QCOMPARE(interface->navigate(QAccessible::Down, horizontalScrollBarContainerIndex, &target), -1);
+    QVERIFY(!target);
 
-    // secondRightLabel -> Right -> cornerWidget
+    // horizontalScrollBarContainer -> Right -> cornerWidget
     const int cornerWidgetIndex = indexOfChild(interface, cornerWidget);
     QVERIFY(cornerWidgetIndex != -1);
-    QCOMPARE(interface->navigate(QAccessible::Right, secondRightLabelIndex, &target), 0);
+    QCOMPARE(interface->navigate(QAccessible::Right, horizontalScrollBarContainerIndex, &target), 0);
     QVERIFY(target);
-    QCOMPARE(target->object(), (QObject*)cornerWidget);
+    QCOMPARE(target->object(), static_cast<QObject *>(cornerWidget));
     delete target;
     target = 0;
+
+    // cornerWidget -> Down -> NOTHING
+    QCOMPARE(interface->navigate(QAccessible::Down, cornerWidgetIndex, &target), -1);
+    QVERIFY(!target);
 
     // cornerWidget -> Right -> NOTHING
     QVERIFY(cornerWidgetIndex != -1);
     QCOMPARE(interface->navigate(QAccessible::Right, cornerWidgetIndex, &target), -1);
     QVERIFY(!target);
 
-    // cornerWidget -> Up -> secondBottomLabel
-    const int secondBottomLabelIndex = indexOfChild(interface, secondBottomLabel);
-    QVERIFY(secondBottomLabelIndex != -1);
+    // cornerWidget -> Up ->  verticalScrollBarContainer
+    const int verticalScrollBarContainerIndex = indexOfChild(interface, verticalScrollBarContainer);
+    QVERIFY(verticalScrollBarContainerIndex != -1);
     QCOMPARE(interface->navigate(QAccessible::Up, cornerWidgetIndex, &target), 0);
     QVERIFY(target);
-    QCOMPARE(target->object(), (QObject*)secondBottomLabel);
+    QCOMPARE(target->object(), static_cast<QObject *>(verticalScrollBarContainer));
     delete target;
     target = 0;
 
-    // secondBottomLabel -> Up -> firstBottomLabel
-    const int firstBottomLabelIndex = indexOfChild(interface, firstBottomLabel);
-    QVERIFY(firstBottomLabelIndex != -1);
-    QCOMPARE(interface->navigate(QAccessible::Up, secondBottomLabelIndex, &target), 0);
-    QVERIFY(target);
-    QCOMPARE(target->object(), (QObject*)firstBottomLabel);
-    delete target;
-    target = 0;
-
-    // firstBottomLabel -> Up -> verticalScrollBar
-    const int verticalScrollBarIndex = indexOfChild(interface, verticalScrollBar);
-    QVERIFY(verticalScrollBarIndex != -1);
-    QCOMPARE(interface->navigate(QAccessible::Up, firstBottomLabelIndex, &target), 0);
-    QVERIFY(target);
-    QCOMPARE(target->object(), (QObject*)verticalScrollBar);
-    delete target;
-    target = 0;
-
-    // verticalScrollBar -> Up -> secondTopLabel
-    const int secondTopLabelIndex = indexOfChild(interface, secondTopLabel);
-    QVERIFY(secondTopLabelIndex != -1);
-    QCOMPARE(interface->navigate(QAccessible::Up, verticalScrollBarIndex, &target), 0);
-    QVERIFY(target);
-    QCOMPARE(target->object(), (QObject*)secondTopLabel);
-    delete target;
-    target = 0;
-
-    // secondTopLabel -> Up -> firstTopLabel
-    const int firstTopLabelIndex = indexOfChild(interface, firstTopLabel);
-    QVERIFY(firstTopLabelIndex != -1);
-    QCOMPARE(interface->navigate(QAccessible::Up, secondTopLabelIndex, &target), 0);
-    QVERIFY(target);
-    QCOMPARE(target->object(), (QObject*)firstTopLabel);
-    delete target;
-    target = 0;
-
-    // firstTopLabel -> Up -> NOTHING
-    QCOMPARE(interface->navigate(QAccessible::Up, firstTopLabelIndex, &target), -1);
+    // verticalScrollBarContainer -> Right -> NOTHING
+    QCOMPARE(interface->navigate(QAccessible::Right, verticalScrollBarContainerIndex, &target), -1);
     QVERIFY(!target);
 
-    // firstTopLabel -> Left -> viewport
-    QCOMPARE(interface->navigate(QAccessible::Left, firstTopLabelIndex, &target), 0);
+    // verticalScrollBarContainer -> Up -> NOTHING
+    QCOMPARE(interface->navigate(QAccessible::Up, verticalScrollBarContainerIndex, &target), -1);
+    QVERIFY(!target);
+
+    // verticalScrollBarContainer -> Left -> viewport
+    QCOMPARE(interface->navigate(QAccessible::Left, verticalScrollBarContainerIndex, &target), 0);
     QVERIFY(target);
-    QCOMPARE(target->object(), (QObject*)viewport);
+    QCOMPARE(target->object(), static_cast<QObject *>(viewport));
     delete target;
     target = 0;
 
-    // firstRightLabel -> Left -> horizontalScrollBar
-    QCOMPARE(interface->navigate(QAccessible::Left, firstRightLabelIndex, &target), 0);
-    QVERIFY(target);
-    QCOMPARE(target->object(), (QObject*)horizontalScrollBar);
-    delete target;
-    target = 0;
-
-    // secondTopLabel -> Down -> verticalScrollBar
-    QCOMPARE(interface->navigate(QAccessible::Down, secondTopLabelIndex, &target), 0);
-    QVERIFY(target);
-    QCOMPARE(target->object(), (QObject*)verticalScrollBar);
-    delete target;
-    target = 0;
+    QCOMPARE(verifyHierarchy(interface), 0);
 
     delete interface;
     }
@@ -3785,7 +3736,6 @@ void tst_QAccessibility::treeWidgetTest()
     QAccessibleInterface *accViewport = 0;
     int entry = acc->navigate(QAccessible::Child, 1, &accViewport);
     QVERIFY(accViewport);
-    //QEXPECT_FAIL("", "QAccessibleAbstractScrollArea::navigate must be fixed", Continue);
     QCOMPARE(entry, 0);
     QAccessibleInterface *accTreeItem = 0;
     entry = accViewport->navigate(QAccessible::Child, 1, &accTreeItem);
