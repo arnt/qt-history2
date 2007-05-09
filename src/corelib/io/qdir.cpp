@@ -14,7 +14,7 @@
 #include "qplatformdefs.h"
 #include "qdir.h"
 #include "qabstractfileengine.h"
-#ifndef QT_NO_DEBUG
+#ifndef QT_NO_DEBUG_STREAM
 #include "qdebug.h"
 #endif
 #include "qfsfileengine.h"
@@ -2396,7 +2396,7 @@ void QDir::setNameFilter(const QString &nameFilter)
     Use QDir::SortFlags instead.
 */
 
-#ifndef QT_NO_DEBUG
+#ifndef QT_NO_DEBUG_STREAM
 QDebug operator<<(QDebug debug, QDir::Filters filters)
 {
     QStringList flags;
