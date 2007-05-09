@@ -125,6 +125,8 @@ private slots:
     void odbc_reopenDatabase();
     void odbc_uniqueidentifier_data() { generic_data(); }
     void odbc_uniqueidentifier(); // For task 141822
+    void odbc_uintfield_data() { generic_data(); }
+    void odbc_uintfield();
 
     void oci_serverDetach_data() { generic_data(); }
     void oci_serverDetach(); // For task 154518
@@ -1880,6 +1882,33 @@ void tst_QSqlDatabase::getConnectionName()
     QCOMPARE(clone.connectionName(), QString());
     QCOMPARE(db.connectionName(), dbName);
 }
+
+void tst_QSqlDatabase::odbc_uintfield()
+{
+    QFETCH(QString, dbName);
+    QSqlDatabase db = QSqlDatabase::database(dbName);
+    CHECK_DATABASE(db);
+
+    if (!db.driverName().startsWith("QODBC")) {
+        QSKIP("ODBC server specific test", SkipSingle);
+        return;
+    }
+
+    QString tableName = qTableName("uint_table");
+    unsigned int val = 4294967295;
+
+    QSqlQuery q(db);
+    q.exec(QString("CREATE TABLE %1(num numeric(10))").arg(tableName));
+    q.prepare(QString("INSERT INTO %1 VALUES(?)").arg(tableName));
+    q.addBindValue(val);
+    QVERIFY2(q.exec(), q.lastError().text());
+
+    q.exec(QString("SELECT num FROM %1").arg(tableName));
+    if (q.next())
+        QCOMPARE(q.value(0).toUInt(), val);
+    q.exec(QString("DROP TABLE %1").arg(tableName));
+}
+
 
 QTEST_MAIN(tst_QSqlDatabase)
 #include "tst_qsqldatabase.moc"
