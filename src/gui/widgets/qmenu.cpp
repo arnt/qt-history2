@@ -924,9 +924,11 @@ void QMenuPrivate::activateAction(QAction *action, QAction::ActionEvent action_e
 
     if (action_e == QAction::Hover) {
 #ifndef QT_NO_ACCESSIBILITY
-        int actionID = indexOf(action);
-        QAccessible::updateAccessibility(q, actionID, QAccessible::Focus);
-        QAccessible::updateAccessibility(q, actionID, QAccessible::Selection);
+        if (QAccessible::isActive()) {
+            int actionIndex = indexOf(action) + 1;
+            QAccessible::updateAccessibility(q, actionIndex, QAccessible::Focus);
+            QAccessible::updateAccessibility(q, actionIndex, QAccessible::Selection);
+        }
 #endif
         QWidget *w = causedPopup.widget;
         while (QMenu *m = qobject_cast<QMenu*>(w))
