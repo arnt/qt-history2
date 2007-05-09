@@ -596,6 +596,10 @@ void QToolBar::setIconSize(const QSize &iconSize)
     \property QToolBar::toolButtonStyle
     \brief the style of toolbar buttons
 
+    This property defines the style of all tool buttons that are added
+    as \l{QAction}s. Note that if you add a QToolButton with the
+    addWidget() method, it will not get this button style.
+
     The default is Qt::ToolButtonIconOnly.
 */
 
@@ -715,6 +719,9 @@ QAction *QToolBar::insertSeparator(QAction *before)
 /*!
     Adds the given \a widget to the toolbar as the toolbar's last
     item.
+
+    If you add a QToolButton with this method, the tools bar's
+    Qt::ToolButtonStyle will not be respected.
 
     Note: You should use QAction::setVisible() to change the
     visibility of the widget. Using QWidget::setVisible(),
