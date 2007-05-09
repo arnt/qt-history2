@@ -80,6 +80,7 @@ tst_QGridLayout::tst_QGridLayout()
 
 tst_QGridLayout::~tst_QGridLayout()
 {
+    delete m_toplevel;
 }
 
 void tst_QGridLayout::initTestCase()
@@ -344,9 +345,9 @@ void tst_QGridLayout::setMinAndMaxSize()
 class SizeHinter : public QWidget
 {
 public:
-    SizeHinter(const QSize &s, QWidget *parent = 0) 
+    SizeHinter(const QSize &s, QWidget *parent = 0)
         : QWidget(parent), sh(s) { }
-    SizeHinter(int w, int h, QWidget *parent = 0) 
+    SizeHinter(int w, int h, QWidget *parent = 0)
         : QWidget(parent), sh(QSize(w,h)) {}
     void setSizeHint(QSize s) { sh = s; }
     QSize sizeHint() const { return sh; }
@@ -510,7 +511,7 @@ int SizeHinterFrame::heightForWidth(int width) const
     // Special hack if m_numPixels == -2 then we report that we are heightForWidth aware, but we
     // return sizeHint().width() so that it should be laid out as if we had't any hfw.
     // This enables us to run the tests twice and to see if we get the same results with hfw as without hfw.
-    if (m_numPixels == -2) {    
+    if (m_numPixels == -2) {
         return sizeHint().height();
     }
     if (m_numPixels == -1 || width == 0) return -1;
@@ -1042,7 +1043,7 @@ void tst_QGridLayout::layoutSpacingImplementation_data()
 
     CustomLayoutStyle *style = new CustomLayoutStyle();
     {
-        // If the layoutSpacing is negative, the layouting code will call 
+        // If the layoutSpacing is negative, the layouting code will call
         // layoutSpacingImplementation()
         style->hspacing = -1;
         style->vspacing = -1;
@@ -1237,9 +1238,9 @@ void tst_QGridLayout::layoutSpacingImplementation_data()
 
         QPushButton *pb3 = new QPushButton(QLatin1String("Push 3"), w);
 
-        pb1->setAttribute(Qt::WA_LayoutUsesWidgetRect, true); 
-        g1->setAttribute(Qt::WA_LayoutUsesWidgetRect, true); 
-        pb3->setAttribute(Qt::WA_LayoutUsesWidgetRect, true); 
+        pb1->setAttribute(Qt::WA_LayoutUsesWidgetRect, true);
+        g1->setAttribute(Qt::WA_LayoutUsesWidgetRect, true);
+        pb3->setAttribute(Qt::WA_LayoutUsesWidgetRect, true);
         layout->addWidget(pb1);
         layout->addWidget(g1 );
         layout->addWidget(pb3);
@@ -1276,9 +1277,9 @@ void tst_QGridLayout::layoutSpacingImplementation_data()
 
         QPushButton *pb3 = new QPushButton(QLatin1String("Push 3"), w);
 
-        pb1->setAttribute(Qt::WA_LayoutUsesWidgetRect, false); 
-        g1->setAttribute(Qt::WA_LayoutUsesWidgetRect, false); 
-        pb3->setAttribute(Qt::WA_LayoutUsesWidgetRect, false); 
+        pb1->setAttribute(Qt::WA_LayoutUsesWidgetRect, false);
+        g1->setAttribute(Qt::WA_LayoutUsesWidgetRect, false);
+        pb3->setAttribute(Qt::WA_LayoutUsesWidgetRect, false);
         layout->addWidget(pb1);
         layout->addWidget(g1 );
         layout->addWidget(pb3);
@@ -1495,7 +1496,7 @@ void tst_QGridLayout::spacerWithSpacing()
          10,// -s-
         100,// --w
          10,// --s
-        000 // ---  
+        000 // ---
         };
     int ii = 0;
     for (int i = 0; i < 3; ++i) {
@@ -1532,9 +1533,9 @@ void tst_QGridLayout::contentsRect()
     int l, t, r, b;
     grid.getContentsMargins(&l, &t, &r, &b);
     QRect geom = grid.geometry();
-    
+
     QCOMPARE(geom.adjusted(+l, +t, -r, -b), grid.contentsRect());
-    
+
 }
 
 void tst_QGridLayout::distributeMultiCell()
