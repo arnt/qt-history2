@@ -628,8 +628,10 @@ void tst_QApplication::postEventRace()
     (void) app.exec();
 
     QVERIFY(threads[0]->wait(10000));
-    for (int i = 1; i < ThreadCount; ++i)
+    for (int i = 1; i < ThreadCount; ++i) {
         QVERIFY(threads[i]->wait(10000));
+        delete threads[i];
+    }
 }
 
 void tst_QApplication::thread()
