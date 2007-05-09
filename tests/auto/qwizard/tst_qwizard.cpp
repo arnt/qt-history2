@@ -446,15 +446,15 @@ class MyPage1 : public QWizardPage
 {
 public:
     MyPage1() {
-        edit1 = new QLineEdit("Bla 1");
+        edit1 = new QLineEdit("Bla 1", this);
 
-        edit2 = new QLineEdit("Bla 2");
+        edit2 = new QLineEdit("Bla 2", this);
         edit2->setInputMask("Mask");
 
-        edit3 = new QLineEdit("Bla 3");
+        edit3 = new QLineEdit("Bla 3", this);
         edit3->setMaxLength(25);
 
-        edit4 = new QLineEdit("Bla 4");
+        edit4 = new QLineEdit("Bla 4", this);
     }
 
     void registerField(const QString &name, QWidget *widget,
@@ -550,6 +550,7 @@ void tst_QWizard::addPage()
     QCOMPARE(wizard.addPage(new QWizardPage), N + 52);
 
     wizard.addPage(0); // generates a warning
+    delete parent;
 }
 
 #define CHECK_VISITED(wizard, list) \
@@ -696,6 +697,7 @@ void tst_QWizard::setPage()
         QCOMPARE(wizard.nextId(), -2);
         CHECK_VISITED(wizard, QList<int>() << -3);
     }
+    delete parent;
 }
 
 void tst_QWizard::setStartId()
@@ -1552,7 +1554,7 @@ public:
 };
 
 QString SetOption::describe() const
-{ 
+{
     return QString("set opt %1 %2").arg(OptionInfo::instance().tag(option)).arg(on);
 }
 
