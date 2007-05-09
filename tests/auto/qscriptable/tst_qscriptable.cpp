@@ -302,16 +302,14 @@ void tst_QScriptable::thisObject()
     {
         {
             QScriptValue ret = m_engine.evaluate("scriptable.sig.connect(o, scriptable.setX)");
-            QVERIFY(ret.isBoolean());
-            QVERIFY(ret.toBoolean());
+            QVERIFY(ret.isUndefined());
         }
         QVERIFY(m_engine.evaluate("o.x").strictEqualTo(QScriptValue(&m_engine, 456)));
         m_scriptable.emitSig(654321);
         QVERIFY(m_engine.evaluate("o.x").strictEqualTo(QScriptValue(&m_engine, 654321)));
         {
             QScriptValue ret = m_engine.evaluate("scriptable.sig.disconnect(o, scriptable.setX)");
-            QVERIFY(ret.isBoolean());
-            QVERIFY(ret.toBoolean());
+            QVERIFY(ret.isUndefined());
         }
     }
 
