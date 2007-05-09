@@ -216,6 +216,7 @@ public:
     static QRect comboboxEditBounds(const QRect &outerBounds, const HIThemeButtonDrawInfo &bdi);
 
     static void drawCombobox(const HIRect &outerBounds, const HIThemeButtonDrawInfo &bdi, QPainter *p);
+    static void drawTableHeader(const HIRect &outerBounds, const HIThemeButtonDrawInfo &bdi, QPainter *p);
         
     bool contentFitsInPushButton(const QStyleOptionButton *btn, HIThemeButtonDrawInfo *bdi,
                                  ThemeButtonKind buttonKindToCheck) const;
@@ -965,7 +966,7 @@ QRect QMacStylePrivate::comboboxEditBounds(const QRect &outerBounds, const HIThe
 /**
     Carbon comboboxes don't scale (sight). If the size of the combo suggest a scaled version,
     create it manually by drawing a small Carbon combo onto a pixmap (use pixmap cache), chop
-    it up, and copy it back onto the widget. Othervise, draw then combobox supplied by Carbon directly.
+    it up, and copy it back onto the widget. Othervise, draw the combobox supplied by Carbon directly.
 */
 void QMacStylePrivate::drawCombobox(const HIRect &outerBounds, const HIThemeButtonDrawInfo &bdi, QPainter *p)
 {
@@ -1012,6 +1013,66 @@ void QMacStylePrivate::drawCombobox(const HIRect &outerBounds, const HIThemeButt
         p->drawPixmap(0, flower, fwidth, fheight, buffer, 0, buffer.height() - fheight, fwidth, fheight);
         p->drawPixmap(bstart, h - blower, bwidth, blower, buffer, buffer.width() - bwidth, buffer.height() - blower, bwidth, blower);
     }
+}
+
+/**
+    Carbon tableheaders don't scale (sight). So create it manually by drawing a small Carbon header
+    onto a pixmap (use pixmap cache), chop it up, and copy it back onto the widget.
+*/
+void QMacStylePrivate::drawTableHeader(const HIRect &outerBounds, const HIThemeButtonDrawInfo &bdi, QPainter *p)
+{
+    static SInt32 headerHeight = 0;
+    static OSStatus err = GetThemeMetric(kThemeMetricListHeaderHeight, &headerHeight);
+    Q_UNUSED(err);
+
+    QPixmap buffer;
+    QString key = QString("$qt_tableh%1-%2-%3").arg(int(bdi.state)).arg(int(bdi.adornment)).arg(int(bdi.value));
+    if (!QPixmapCache::find(key, buffer)) {
+        HIRect headerNormalRect = {{0, 0}, {50, headerHeight}};
+        buffer = QPixmap(headerNormalRect.size.width, headerNormalRect.size.height);
+        buffer.fill(Qt::transparent);
+        QPainter buffPainter(&buffer);
+        HIThemeDrawButton(&headerNormalRect, &bdi, QMacCGContext(&buffPainter), kHIThemeOrientationNormal, 0);
+        buffPainter.end();
+        QPixmapCache::insert(key, buffer);
+    }
+    
+    const int buttonw = qRound(outerBounds.size.width);
+    const int buttonh = qRound(outerBounds.size.height);
+    const int framew = 1;
+    const int frameh_n = 4;
+    const int frameh_s = 3;
+    const int transh = buffer.height() - frameh_n - frameh_s;
+    const int skipTopLine = 0; // set to 0 if the top blue line should show
+    int center = buttonh - frameh_s - int(transh / 2.0f) + 1; // Align bottom;
+    
+    p->translate(outerBounds.origin.x, outerBounds.origin.y);
+    
+    // Draw upper and lower border
+    p->drawPixmap(framew, -skipTopLine, buttonw - (framew * 2), frameh_n, buffer, framew, 0, 1, frameh_n);
+    p->drawPixmap(framew, buttonh - frameh_s, buttonw - (framew * 2), frameh_s, buffer, framew, buffer.height() - frameh_s, 1, frameh_s);       
+    // Draw upper and lower center blocks
+    p->drawPixmap(framew, frameh_n - skipTopLine, buttonw - (framew * 2), center - frameh_n + skipTopLine, buffer, framew, frameh_n, 1, 1);
+    p->drawPixmap(framew, center, buttonw - (framew * 2), buttonh - center - frameh_s, buffer, framew, buffer.height() - frameh_s, 1, 1);       
+    // Draw left center block borders
+    p->drawPixmap(0, frameh_n - skipTopLine, framew, center - frameh_n + skipTopLine, buffer, 0, frameh_n, framew, 1);
+    p->drawPixmap(0, center, framew, buttonh - center - 1, buffer, 0, buffer.height() - frameh_s, framew, 1);       
+    // Draw right center block borders
+    p->drawPixmap(buttonw - framew, frameh_n - skipTopLine, framew, center - frameh_n, buffer, buffer.width() - framew, frameh_n, framew, 1);
+    p->drawPixmap(buttonw - framew, center, framew, buttonh - center - 1, buffer, buffer.width() - framew, buffer.height() - frameh_s, framew, 1);
+    // Draw left corners
+    p->drawPixmap(0, -skipTopLine, framew, frameh_n, buffer, 0, 0, framew, frameh_n);
+    p->drawPixmap(0, buttonh - frameh_s, framew, frameh_s, buffer, 0, buffer.height() - frameh_s, framew, frameh_s);       
+    // Draw right corners
+    p->drawPixmap(buttonw - framew, -skipTopLine, framew, frameh_n, buffer, buffer.width() - framew, 0, framew, frameh_n);
+    p->drawPixmap(buttonw - framew, buttonh - frameh_s, framew, frameh_s, buffer, buffer.width() - framew, buffer.height() - frameh_s, framew, frameh_s);       
+    // Draw center transition block
+    p->drawPixmap(framew, center - qRound(transh / 2.0f), buttonw - (framew * 2), buffer.height() - frameh_n - frameh_s, buffer, framew, frameh_n + 1, 1, transh);
+    // Draw center transition block borders
+    p->drawPixmap(0, center - qRound(transh / 2.0f), framew, buffer.height() - frameh_n - frameh_s, buffer, 0, frameh_n + 1, framew, transh);
+    p->drawPixmap(buttonw - framew, center - qRound(transh / 2.0f), framew, buffer.height() - frameh_n - frameh_s, buffer, buffer.width() - framew, frameh_n + 1, framew, transh);
+    
+    p->translate(-outerBounds.origin.x, -outerBounds.origin.y);
 }
 
 /*
@@ -2702,12 +2763,10 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPai
         }
     case PE_IndicatorHeaderArrow:
         if (const QStyleOptionHeader *header = qstyleoption_cast<const QStyleOptionHeader *>(opt)) {
-            if (isTreeView(w) || header->sortIndicator == QStyleOptionHeader::None)
-                break; // ListView-type header is taken care of.
-            drawPrimitive((header->sortIndicator
-                               == QStyleOptionHeader::SortUp) ? PE_IndicatorArrowUp
-                                                              : PE_IndicatorArrowDown,
-                                                              header, p, w);
+            if (header->sortIndicator != QStyleOptionHeader::None)
+                drawPrimitive(
+                    (header->sortIndicator == QStyleOptionHeader::SortUp) ?
+                    PE_IndicatorArrowUp : PE_IndicatorArrowDown, header, p, w);
         }
         break;
     case PE_IndicatorViewItemCheck:
@@ -2914,36 +2973,25 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
     switch (ce) {
     case CE_HeaderSection:
         if (const QStyleOptionHeader *header = qstyleoption_cast<const QStyleOptionHeader *>(opt)) {
-            bool scaleHeader = false;
-            SInt32 headerHeight = 0;
             HIThemeButtonDrawInfo bdi;
             bdi.version = qt_mac_hitheme_version;
             bdi.state = kThemeStateActive;
             State flags = header->state;
-            QRect ir = header->rect;
-            if (isTreeView(w)) {
-                bdi.kind = kThemeListHeaderButton;
-                GetThemeMetric(kThemeMetricListHeaderHeight, &headerHeight);
-                if (ir.height() > headerHeight)
-                    scaleHeader = true;
-                switch (header->position) {
-                case QStyleOptionHeader::Beginning:
-                    break;
-                case QStyleOptionHeader::Middle:
-                case QStyleOptionHeader::End:
-                    ir.adjust(-1, 0, 0, 0);
-                    break;
-                default:
-                    break;
-                }
-                ir = visualRect(header->direction, header->rect, ir);
-            } else {
-                bdi.kind = kThemeBevelButton;
-                if (p->font().bold())
-                    flags |= State_On;
-                else
-                    flags &= ~State_On;
+            QRect ir = header->rect;            
+            bdi.kind = kThemeListHeaderButton;
+            
+            switch (header->position) {
+            case QStyleOptionHeader::Beginning:
+                break;
+            case QStyleOptionHeader::Middle:
+            case QStyleOptionHeader::End:
+                ir.adjust(-1, 0, 0, 0);
+                break;
+            default:
+                break;
             }
+            
+            ir = visualRect(header->direction, header->rect, ir);
 
             if (flags & State_Active) {
                 if (!(flags & State_Enabled))
@@ -2979,22 +3027,12 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
                 if (header->sortIndicator == QStyleOptionHeader::SortDown)
                     bdi.adornment = kThemeAdornmentHeaderButtonSortUp;
             }
+            
             if (flags & State_HasFocus && QMacStyle::focusRectPolicy(w) != QMacStyle::FocusDisabled)
                 bdi.adornment = kThemeAdornmentFocus;
-            // The ListViewHeader button is only drawn one size, so draw into a pixmap and scale it
-            // Otherwise just draw it normally.
-            if (scaleHeader) {
-                QPixmap headerPix(ir.width(), headerHeight);
-                headerPix.fill(QColor(0, 0, 0, 0));
-                QPainter pixPainter(&headerPix);
-                QMacCGContext pixCG(&pixPainter);
-                HIRect pixRect = CGRectMake(0, 0, ir.width(), headerHeight);
-                HIThemeDrawButton(&pixRect, &bdi, pixCG, kHIThemeOrientationNormal, 0);
-                p->drawPixmap(ir, headerPix);
-            } else {
-                HIRect hirect = qt_hirectForQRect(ir);
-                HIThemeDrawButton(&hirect, &bdi, cg, kHIThemeOrientationNormal, 0);
-            }
+
+            HIRect bounds = qt_hirectForQRect(ir);
+            d->drawTableHeader(bounds, bdi, p);
         }
         break;
     case CE_HeaderLabel:
