@@ -216,7 +216,8 @@ public:
     static QRect comboboxEditBounds(const QRect &outerBounds, const HIThemeButtonDrawInfo &bdi);
 
     static void drawCombobox(const HIRect &outerBounds, const HIThemeButtonDrawInfo &bdi, QPainter *p);
-    static void drawTableHeader(const HIRect &outerBounds, const Qt::Orientation &orientation, const HIThemeButtonDrawInfo &bdi, QPainter *p);
+    static void drawTableHeader(const HIRect &outerBounds, bool drawTopBorder, bool drawLeftBorder,
+                                    const HIThemeButtonDrawInfo &bdi, QPainter *p);
         
     bool contentFitsInPushButton(const QStyleOptionButton *btn, HIThemeButtonDrawInfo *bdi,
                                  ThemeButtonKind buttonKindToCheck) const;
@@ -1020,7 +1021,7 @@ void QMacStylePrivate::drawCombobox(const HIRect &outerBounds, const HIThemeButt
     onto a pixmap (use pixmap cache), chop it up, and copy it back onto the widget.
 */
 void QMacStylePrivate::drawTableHeader(const HIRect &outerBounds,
-        const Qt::Orientation &orientation, const HIThemeButtonDrawInfo &bdi, QPainter *p)
+    bool drawTopBorder, bool drawLeftBorder, const HIThemeButtonDrawInfo &bdi, QPainter *p)
 {
     static SInt32 headerHeight = 0;
     static OSStatus err = GetThemeMetric(kThemeMetricListHeaderHeight, &headerHeight);
@@ -1046,36 +1047,39 @@ void QMacStylePrivate::drawTableHeader(const HIRect &outerBounds,
     const int transh = buffer.height() - frameh_n - frameh_s;
     int center = buttonh - frameh_s - int(transh / 2.0f) + 1; // Align bottom;
 
-    int skipTopLine = 0; // set to 0 if the top line should show, otherwise -1.
-    if (orientation == Qt::Vertical)
-        skipTopLine = 1;
+    int skipTopBorder = 0;
+    if (!drawTopBorder)
+        skipTopBorder = 1;
         
     p->translate(outerBounds.origin.x, outerBounds.origin.y);
     
     // Draw upper and lower border
-    p->drawPixmap(framew, -skipTopLine, buttonw - (framew * 2), frameh_n, buffer, framew, 0, 1, frameh_n);
-    p->drawPixmap(framew, buttonh - frameh_s, buttonw - (framew * 2), frameh_s, buffer, framew, buffer.height() - frameh_s, 1, frameh_s);       
+    p->drawPixmap(0, -skipTopBorder, buttonw - framew , frameh_n, buffer, framew, 0, 1, frameh_n);
+    p->drawPixmap(0, buttonh - frameh_s, buttonw - framew, frameh_s, buffer, framew, buffer.height() - frameh_s, 1, frameh_s);
     // Draw upper and lower center blocks
-    p->drawPixmap(framew, frameh_n - skipTopLine, buttonw - (framew * 2), center - frameh_n + skipTopLine, buffer, framew, frameh_n, 1, 1);
-    p->drawPixmap(framew, center, buttonw - (framew * 2), buttonh - center - frameh_s, buffer, framew, buffer.height() - frameh_s, 1, 1);       
-    // Draw left center block borders
-    p->drawPixmap(0, frameh_n - skipTopLine, framew, center - frameh_n + skipTopLine, buffer, 0, frameh_n, framew, 1);
-    p->drawPixmap(0, center, framew, buttonh - center - 1, buffer, 0, buffer.height() - frameh_s, framew, 1);       
+    p->drawPixmap(0, frameh_n - skipTopBorder, buttonw - framew, center - frameh_n + skipTopBorder, buffer, framew, frameh_n, 1, 1);
+    p->drawPixmap(0, center, buttonw - framew, buttonh - center - frameh_s, buffer, framew, buffer.height() - frameh_s, 1, 1); 
     // Draw right center block borders
-    p->drawPixmap(buttonw - framew, frameh_n - skipTopLine, framew, center - frameh_n, buffer, buffer.width() - framew, frameh_n, framew, 1);
+    p->drawPixmap(buttonw - framew, frameh_n - skipTopBorder, framew, center - frameh_n, buffer, buffer.width() - framew, frameh_n, framew, 1);
     p->drawPixmap(buttonw - framew, center, framew, buttonh - center - 1, buffer, buffer.width() - framew, buffer.height() - frameh_s, framew, 1);
-    // Draw left corners
-    p->drawPixmap(0, -skipTopLine, framew, frameh_n, buffer, 0, 0, framew, frameh_n);
-    p->drawPixmap(0, buttonh - frameh_s, framew, frameh_s, buffer, 0, buffer.height() - frameh_s, framew, frameh_s);       
     // Draw right corners
-    p->drawPixmap(buttonw - framew, -skipTopLine, framew, frameh_n, buffer, buffer.width() - framew, 0, framew, frameh_n);
-    p->drawPixmap(buttonw - framew, buttonh - frameh_s, framew, frameh_s, buffer, buffer.width() - framew, buffer.height() - frameh_s, framew, frameh_s);       
+    p->drawPixmap(buttonw - framew, -skipTopBorder, framew, frameh_n, buffer, buffer.width() - framew, 0, framew, frameh_n);
+    p->drawPixmap(buttonw - framew, buttonh - frameh_s, framew, frameh_s, buffer, buffer.width() - framew, buffer.height() - frameh_s, framew, frameh_s);
     // Draw center transition block
-    p->drawPixmap(framew, center - qRound(transh / 2.0f), buttonw - (framew * 2), buffer.height() - frameh_n - frameh_s, buffer, framew, frameh_n + 1, 1, transh);
-    // Draw center transition block borders
-    p->drawPixmap(0, center - qRound(transh / 2.0f), framew, buffer.height() - frameh_n - frameh_s, buffer, 0, frameh_n + 1, framew, transh);
+    p->drawPixmap(0, center - qRound(transh / 2.0f), buttonw - framew, buffer.height() - frameh_n - frameh_s, buffer, framew, frameh_n + 1, 1, transh);
+    // Draw right center transition block border
     p->drawPixmap(buttonw - framew, center - qRound(transh / 2.0f), framew, buffer.height() - frameh_n - frameh_s, buffer, buffer.width() - framew, frameh_n + 1, framew, transh);
-    
+    if (drawLeftBorder){
+        // Draw left center block borders
+        p->drawPixmap(0, frameh_n - skipTopBorder, framew, center - frameh_n + skipTopBorder, buffer, 0, frameh_n, framew, 1);
+        p->drawPixmap(0, center, framew, buttonh - center - 1, buffer, 0, buffer.height() - frameh_s, framew, 1);
+        // Draw left corners
+        p->drawPixmap(0, -skipTopBorder, framew, frameh_n, buffer, 0, 0, framew, frameh_n);
+        p->drawPixmap(0, buttonh - frameh_s, framew, frameh_s, buffer, 0, buffer.height() - frameh_s, framew, frameh_s);
+        // Draw left center transition block border
+        p->drawPixmap(0, center - qRound(transh / 2.0f), framew, buffer.height() - frameh_n - frameh_s, buffer, 0, frameh_n + 1, framew, transh);
+    }
+
     p->translate(-outerBounds.origin.x, -outerBounds.origin.y);
 }
 
@@ -3033,7 +3037,11 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
 
             ir = visualRect(header->direction, header->rect, ir);
             HIRect bounds = qt_hirectForQRect(ir);
-            d->drawTableHeader(bounds, header->orientation, bdi, p);
+            bool drawTopBorder = header->orientation == Qt::Horizontal;
+            bool drawLeftBorder = header->orientation == Qt::Vertical
+                || header->position == QStyleOptionHeader::OnlyOneSection
+                || (header->position == QStyleOptionHeader::Beginning && isTreeView(w));
+            d->drawTableHeader(bounds, drawTopBorder, drawLeftBorder, bdi, p);
         }
         break;
     case CE_HeaderLabel:
