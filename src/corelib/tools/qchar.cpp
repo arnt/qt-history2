@@ -152,6 +152,8 @@
     \value Unicode_3_1  Version 3.1.
     \value Unicode_3_2  Version 3.2.
     \value Unicode_4_0  Version 4.0.
+    \value Unicode_4_1  Version 4.1.
+    \value Unicode_5_0  Version 5.0.
     \value Unicode_Unassigned  The value is not assigned to any character
         in version 4.0 of Unicode.
 
@@ -629,15 +631,16 @@ bool QChar::isSymbol() const
 /*!
   \fn static uint QChar::surrogateToUcs4(ushort high, ushort low)
 
-  Converts a utf16 surrogate pair to it's ucs4 code point.
+  Converts a utf16 surrogate pair (\a high, \a low) to it's ucs4
+  code point.
 */
 
 /*!
   \fn static uint QChar::surrogateToUcs4(QChar high, QChar low)
 
-  Converts a utf16 surrogate pair to it's ucs4 code point.
+  Converts a utf16 surrogate pair (\a high, \a low) to it's ucs4 code
+  point.
 */
-
 
 /*!
   \fn static ushort QChar::highSurrogate(uint ucs4)

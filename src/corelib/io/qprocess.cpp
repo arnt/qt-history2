@@ -1673,13 +1673,18 @@ int QProcess::execute(const QString &program)
 
     The process will be started in the directory \a workingDirectory.
 
-    If the function is successful then *pid is set to the process identifier
-    of the started process.
+    If the function is successful then *\a pid is set to the process
+    identifier of the started process.
 */
-bool QProcess::startDetached(const QString &program, const QStringList &arguments, const QString &workingDirectory,
+bool QProcess::startDetached(const QString &program,
+			     const QStringList &arguments,
+			     const QString &workingDirectory,
                              qint64 *pid)
 {
-    return QProcessPrivate::startDetached(program, arguments, workingDirectory, pid);
+    return QProcessPrivate::startDetached(program,
+					  arguments,
+					  workingDirectory,
+					  pid);
 }
 
 /*!
@@ -1694,7 +1699,8 @@ bool QProcess::startDetached(const QString &program, const QStringList &argument
 
     On Windows, arguments that contain spaces are wrapped in quotes.
 */
-bool QProcess::startDetached(const QString &program, const QStringList &arguments)
+bool QProcess::startDetached(const QString &program,
+			     const QStringList &arguments)
 {
     return QProcessPrivate::startDetached(program, arguments);
 }
