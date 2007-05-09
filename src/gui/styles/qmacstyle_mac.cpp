@@ -2643,12 +2643,12 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPai
             matrix.rotate(-90);
             break;
         }
-        path.moveTo(0, 5);
-        path.lineTo(-5, -5);
-        path.lineTo(5, -5);
+        path.moveTo(0, 4);
+        path.lineTo(-4, -4);
+        path.lineTo(4, -4);
         p->setMatrix(matrix);
         p->setPen(Qt::NoPen);
-        p->setBrush(opt->palette.brush(QPalette::WindowText));
+        p->setBrush(QColor(0, 0, 0, 135));
         p->drawPath(path);
         p->restore();
         break; }
