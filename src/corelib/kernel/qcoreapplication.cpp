@@ -736,16 +736,17 @@ int QCoreApplication::exec()
 /*!
   Tells the application to exit with a return code.
 
-  After this function has been called, the application leaves the main
-  event loop and returns from the call to exec(). The exec() function
-  returns \a returnCode.
+    After this function has been called, the application leaves the
+    main event loop and returns from the call to exec(). The exec()
+    function returns \a returnCode. If the event loop is not running,
+    this function does nothing.
 
   By convention, a \a returnCode of 0 means success, and any non-zero
   value indicates an error.
 
   Note that unlike the C library function of the same name, this
   function \e does return to the caller -- it is event processing that
-  stops.
+  stops. 
 
   \sa quit(), exec()
 */
