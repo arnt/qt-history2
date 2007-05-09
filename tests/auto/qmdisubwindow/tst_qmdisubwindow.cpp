@@ -487,8 +487,7 @@ void tst_QMdiSubWindow::emittingOfSignals()
 void tst_QMdiSubWindow::showShaded()
 {
     QMdiArea workspace;
-    QMdiSubWindow *window = new QMdiSubWindow;
-    window = workspace.addSubWindow(new QLineEdit);
+    QMdiSubWindow *window = workspace.addSubWindow(new QLineEdit);
     window->resize(300, 300);
     qApp->processEvents();
     workspace.show();
