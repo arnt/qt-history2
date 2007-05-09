@@ -137,7 +137,7 @@ static int verifyHierarchy(QAccessibleInterface *iface)
             entry = if2->navigate(QAccessible::Ancestor, 1, &parent);
             EXPECT(entry == 0 && iface->object() == parent->object());
             delete parent;
-            
+
             // navigate Sibling...
             if (middleChild) {
                 entry = if2->navigate(QAccessible::Sibling, middle, &if3);
@@ -1404,7 +1404,7 @@ void tst_QAccessibility::navigateLabels()
 static QWidget *createWidgets()
 {
     QWidget *w = new QWidget();
-    
+
     QHBoxLayout *box = new QHBoxLayout(w);
 
     int i = 0;
@@ -1441,10 +1441,10 @@ static QWidget *createWidgets()
 
     /* Not in the list
      * QAbstractItemView, QGraphicsView, QScrollArea,
-     * QToolButton, QDockWidget, QFocusFrame, QMainWindow, QMenu, QMenuBar, QSizeGrip, QSplashScreen, QSplitterHandle, 
+     * QToolButton, QDockWidget, QFocusFrame, QMainWindow, QMenu, QMenuBar, QSizeGrip, QSplashScreen, QSplitterHandle,
      * QStatusBar, QSvgWidget, QTabBar, QToolBar, QWorkspace, QSplitter
      */
-    return w; 
+    return w;
 }
 
 void tst_QAccessibility::accessibleName()
@@ -2443,7 +2443,7 @@ void tst_QAccessibility::menuTest()
     QCOMPARE(entry, 0);
     QVERIFY(iface);
     QCOMPARE(iface->role(0), QAccessible::MenuItem);
-    
+
     // Traverse to the menubar.
     QAccessibleInterface *ifaceMenuBar = 0;
     entry = iface->navigate(QAccessible::Ancestor, 5, &ifaceMenuBar);
@@ -3736,7 +3736,7 @@ void tst_QAccessibility::comboBoxTest()
     delete acc;
 
     acc = QAccessible::queryAccessibleInterface(cb);
-    
+
     QRect accRect = acc->rect(0);
     for (int i = 1; i < acc->childCount(); ++i) {
         QVERIFY(accRect.contains(acc->rect(i)));
@@ -3750,7 +3750,7 @@ void tst_QAccessibility::comboBoxTest()
     entry = accList->navigate(QAccessible::Ancestor, 1, &acc2);
     QCOMPARE(entry, 0);
     delete acc2;
-    
+
     delete accList;
     delete acc;
     delete w;
@@ -3765,12 +3765,13 @@ void tst_QAccessibility::comboBoxTest()
 void tst_QAccessibility::treeWidgetTest()
 {
 #ifdef QTEST_ACCESSIBILITY
-    QWidget *w = new QWidget();
+    QWidget topWidget;
+    QWidget *w = &topWidget;
     QTreeWidget *tree = new QTreeWidget(w);
     QHBoxLayout *l = new QHBoxLayout(w);
     l->addWidget(tree);
     for (int i = 0; i < 10; ++i) {
-        QStringList strings = QStringList() << QString::fromAscii("row: %1").arg(i) 
+        QStringList strings = QStringList() << QString::fromAscii("row: %1").arg(i)
                                             << QString("column 1") << QString("column 2");
 
         tree->addTopLevelItem(new QTreeWidgetItem(strings));
