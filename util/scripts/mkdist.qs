@@ -171,6 +171,11 @@ platformRemove["core"] = [ new RegExp("^LICENSE.QPL"),
 platformRemove["all"] = [  new RegExp("^doc/src"),
                            new RegExp("_qnx4"),
                            new RegExp("_qnx6"),
+                           new RegExp("_qws"),
+                           new RegExp("^src/plugins/decorations"),
+                           new RegExp("^src/plugins/gfxdrivers"),
+                           new RegExp("^src/plugins/mousedrivers"),
+                           new RegExp("^src/gui/embedded"),
                            new RegExp("_wce") ];
 
 var licenseRemove = new Array();
@@ -653,9 +658,11 @@ function compress(platform, packageDir, packageName)
 function getFileList(rootDir)
 {
     var dir = new Dir(rootDir);
+    var result = new Array();
+    if (!dir.exists)
+        return result;
     dir.setCurrent();
     var rootLength = dir.absPath.length + 1; // +1 because "/" is not included in absPath
-    var result = new Array();
 
     // add files to result
     var files = dir.entryList("*", Dir.Files | Dir.Hidden | Dir.System, Dir.Name);
