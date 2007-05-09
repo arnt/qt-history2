@@ -270,6 +270,9 @@ void QErrorMessage::showMessage(const QString &message)
         show();
 }
 
+/*!
+    \reimp
+*/
 void QErrorMessage::changeEvent(QEvent *e)
 {
     Q_D(QErrorMessage);

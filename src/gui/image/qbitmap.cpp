@@ -326,23 +326,27 @@ QBitmap QBitmap::fromData(const QSize &size, const uchar *bits, QImage::Format m
     return QBitmap::fromImage(image);
 }
 
-
 /*!
     Returns a copy of this bitmap, transformed according to the given
     \a matrix.
 
     \sa QPixmap::transformed()
-*/
-
-QBitmap QBitmap::transformed(const QMatrix &matrix) const
-{
-    return transformed(QTransform(matrix));
-}
-
+ */
 QBitmap QBitmap::transformed(const QTransform &matrix) const
 {
     QBitmap bm = QPixmap::transformed(matrix);
     return bm;
+}
+
+/*!
+  \overload
+
+  This convenience function converts the \a matrix to a QTransform
+  and calls the overloaded function.
+*/
+QBitmap QBitmap::transformed(const QMatrix &matrix) const
+{
+    return transformed(QTransform(matrix));
 }
 
 #ifdef QT3_SUPPORT

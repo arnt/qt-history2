@@ -793,6 +793,10 @@ void QFontDialogPrivate::retranslateStrings()
     writingSystemAccel->setText(QFontDialog::tr("Wr&iting System"));
 }
 
+
+/*!
+    \reimp
+*/
 void QFontDialog::changeEvent(QEvent *e)
 {
     Q_D(QFontDialog);

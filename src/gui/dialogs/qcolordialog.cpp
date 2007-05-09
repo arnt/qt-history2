@@ -1588,6 +1588,10 @@ QColorDialog::~QColorDialog()
 #endif
 }
 
+
+/*!
+    \reimp
+*/
 void QColorDialog::changeEvent(QEvent *e)
 {
     Q_D(QColorDialog);
