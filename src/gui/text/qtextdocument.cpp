@@ -253,6 +253,15 @@ QTextCodec *Qt::codecForHtml(const QByteArray &ba)
 */
 
 /*!
+    \property QTextDocument::defaultTextOption
+    \brief the default text option will be set on all \l{QTextLayout}s in the document.
+
+    When \l{QTextBlock}s are created, the defaultTextOption is set on their
+    QTextLayout. This allows setting global properties for the document such as the
+    default word wrap mode. 
+ */
+
+/*!
     Constructs an empty QTextDocument with the given \a parent.
 */
 QTextDocument::QTextDocument(QObject *parent)
@@ -473,6 +482,11 @@ QTextOption QTextDocument::defaultTextOption() const
     return d->defaultTextOption;
 }
 
+/*!
+    \since 4.3
+
+    Sets the default text option.
+*/
 void QTextDocument::setDefaultTextOption(const QTextOption &option)
 {
     Q_D(QTextDocument);
