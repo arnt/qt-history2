@@ -744,11 +744,17 @@ QWizardLayoutInfo QWizardPrivate::layoutInfoForCurrentPage()
 
     QWizardLayoutInfo info;
 
+    const int layoutHorizontalSpacing = style->pixelMetric(QStyle::PM_LayoutHorizontalSpacing);
     info.topLevelMargin = style->pixelMetric(QStyle::PM_LayoutBottomMargin, 0, q);
     info.childMargin = style->pixelMetric(QStyle::PM_LayoutLeftMargin, 0, titleLabel);
-    info.hspacing = style->pixelMetric(QStyle::PM_LayoutHorizontalSpacing);
+    info.hspacing = (layoutHorizontalSpacing == -1)
+        ? style->layoutSpacing(QSizePolicy::DefaultType, QSizePolicy::DefaultType, Qt::Horizontal)
+        : layoutHorizontalSpacing;
     info.vspacing = style->pixelMetric(QStyle::PM_LayoutVerticalSpacing);
-    info.buttonSpacing = info.hspacing;
+    info.buttonSpacing = (layoutHorizontalSpacing == -1)
+        ? style->layoutSpacing(QSizePolicy::PushButton, QSizePolicy::PushButton, Qt::Horizontal)
+        : layoutHorizontalSpacing;
+
 #ifdef Q_WS_MAC
     if (qobject_cast<QMacStyle *>(style))
         info.buttonSpacing = 12;
