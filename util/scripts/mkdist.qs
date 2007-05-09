@@ -9,7 +9,7 @@ const qdocCommand = qdocDir + "/qdoc3";
 
 const outputDir = System.getenv("PWD");
 
-const validPlatforms = ["win", "x11", "mac", "core", "all"];
+const validPlatforms = ["win", "x11", "mac", "core", "all"]; // all - everything but qtopia core
 const validLicenses = ["opensource", "commercial", "eval"];
 const validSwitches = ["gzip", "bzip", "zip", "snapshots", "preview"]; // these are either true or false, set by -do-foo/-no-foo
 const validVars = ["branch", "version", "label"]; // variables with arbitrary values, set by -foo value
@@ -605,7 +605,7 @@ function compress(platform, packageDir, packageName)
     dir.cdUp();
     dir.setCurrent();
 
-    if (platform == "win") {
+    if (platform == "win" || platform == "all") {
         if (options["zip"]) {
             var files = getFileList(packageDir);
             var binaryFiles = new Array();
@@ -634,7 +634,9 @@ function compress(platform, packageDir, packageName)
             if (textFiles.length > 0)
                 execute(["zip", "-l9q", zipFile, "-@"], textFiles.join("\n"));
         }
-    } else {
+    } 
+    
+    if (platform != "win" || platform == "all") {
         var tarFile = outputDir + "/" + packageName + ".tar";
         execute(["tar", "-cf", tarFile, packageDirName]);
         if (!File.exists(tarFile))
@@ -874,7 +876,7 @@ function qdoc(packageDir, platform, license)
     dir.setCurrent();
     System.setenv("QTDIR", packageDir);
     var qdocConfigFile = qdocDir;
-    if (platform == "mac")
+    if (platform == "mac" || platform == "all")
         qdocConfigFile += "/test/qt-with-xcode.qdocconf";
     else
         qdocConfigFile += "/test/qt.qdocconf";
