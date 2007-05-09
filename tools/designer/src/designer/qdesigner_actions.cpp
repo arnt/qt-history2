@@ -203,6 +203,7 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
     m_fileActions->addAction(createSeparator(this));
 
     m_quitAction->setShortcut(tr("CTRL+Q"));
+    m_quitAction->setMenuRole(QAction::QuitRole);
     connect(m_quitAction, SIGNAL(triggered()), this, SLOT(shutdown()));
     m_fileActions->addAction(m_quitAction);
 
@@ -262,7 +263,8 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
         }
     }
 
-    connect(m_preferencesAction, SIGNAL(triggered()), this, SLOT(showPreferencesDialog()));
+    connect(m_preferencesAction, SIGNAL(triggered()),  this, SLOT(showPreferencesDialog()));
+    m_preferencesAction->setMenuRole(QAction::PreferencesRole);
 //
 // form actions
 //
@@ -312,6 +314,8 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
     m_windowActions->addAction(m_bringAllToFrontAction);
     m_windowActions->addAction(m_windowListSeparatorAction);
 
+    setWindowListSeparatorVisible(false);
+
 //
 // connections
 //
@@ -353,11 +357,13 @@ QActionGroup *QDesignerActions::createHelpActions()
     helpActions->addAction(aboutPluginsAction);
 
     QAction *aboutDesignerAction = new QAction(tr("About Qt Designer"), this);
+    aboutDesignerAction->setMenuRole(QAction::AboutRole);
     aboutDesignerAction->setObjectName(QLatin1String("__qt_about_designer_action"));
     connect(aboutDesignerAction, SIGNAL(triggered()), this, SLOT(aboutDesigner()));
     helpActions->addAction(aboutDesignerAction);
 
     QAction *aboutQtAction = new QAction(tr("About Qt"), this);
+    aboutQtAction->setMenuRole(QAction::AboutQtRole);
     aboutQtAction->setObjectName(QLatin1String("__qt_about_qt_action"));
     connect(aboutQtAction, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
     helpActions->addAction(aboutQtAction);

@@ -68,7 +68,6 @@ public:
     QDesignerFormWindow *openForm(const QString &fileName, QString *errorMessage);
     QDesignerFormWindow *openTemplate(const QString &templateFileName,
                                       const QString &editorFileName,
-                                      const QString &title,
                                       QString *errorMessage);
 
     int toolWindowCount() const;

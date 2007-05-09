@@ -927,14 +927,21 @@ void QDesignerWorkbench::setUIMode(UIMode mode)
 
 void QDesignerWorkbench::updateWindowMenu(QDesignerFormWindowInterface *fwi)
 {
-    if (!fwi)
-        return;
-    QDesignerFormWindow *fw = qobject_cast<QDesignerFormWindow *>(fwi->parentWidget());
-    if (!fw)
-        return;
+    bool minimizeChecked = false;
+    bool minimizeEnabled = false;
+    do {
+        if (!fwi)
+        break;
+        QDesignerFormWindow *fw = qobject_cast<QDesignerFormWindow *>(fwi->parentWidget());
+        if (!fw)
+            break;
 
-    fw->action()->setChecked(true);
-    m_actionManager->minimizeAction()->setChecked(isFormWindowMinimized(fw));
+        minimizeEnabled = true;
+        minimizeChecked = isFormWindowMinimized(fw);
+    } while (false) ;
+
+    m_actionManager->minimizeAction()->setEnabled(minimizeEnabled);
+    m_actionManager->minimizeAction()->setChecked(minimizeChecked);
 }
 
 void QDesignerWorkbench::formWindowActionTriggered(QAction *a)
@@ -1109,17 +1116,14 @@ QDesignerFormWindow * QDesignerWorkbench::openForm(const QString &fileName, QStr
     if (!rc)
         return 0;
 
-    rc->updateWindowTitle(fileName);
     if (!uic3Converted)
         rc->editor()->setFileName(fileName);
-
-    rc->show();
+    rc->firstShow();
     return rc;
 }
 
 QDesignerFormWindow * QDesignerWorkbench::openTemplate(const QString &templateFileName,
                                                        const QString &editorFileName,
-                                                       const QString &title,
                                                        QString *errorMessage)
 {
     bool uic3Converted;
@@ -1127,12 +1131,12 @@ QDesignerFormWindow * QDesignerWorkbench::openTemplate(const QString &templateFi
     if (!rc)
         return 0;
 
-    rc->setWindowTitle(title);
     if (!uic3Converted)
         rc->editor()->setFileName(editorFileName);
+
     if (qdesigner_internal::FormWindowBase *fw = qobject_cast<qdesigner_internal::FormWindowBase *>(rc->editor()))
         fw->setDesignerGrid(qdesigner_internal::FormWindowBase::defaultDesignerGrid());
-    rc->show();
+    rc->firstShow();
     return rc;
 }
 

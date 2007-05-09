@@ -284,68 +284,11 @@ void NewForm::on_treeWidget_itemPressed(QTreeWidgetItem *item)
         ui.treeWidget->setItemExpanded(item, !ui.treeWidget->isItemExpanded(item));
 }
 
-// Figure out a title for a new file.
-QString NewForm::newUntitledTitle() const
-{
-    int maxUntitled = 0;
-    const int totalWindows = m_workbench->formWindowCount();
-    // This will cause some problems with i18n, but for now I need the string to be "static"
-    QRegExp rx(QLatin1String("untitled( (\\d+))?"));
-    for (int i = 0; i < totalWindows; ++i) {
-        QString title = m_workbench->formWindow(i)->windowTitle();
-        title.remove(QLatin1String("[*]"));
-        if (rx.indexIn(title) != 1) {
-            if (maxUntitled == 0)
-                ++maxUntitled;
-            if (rx.numCaptures() > 1)
-                maxUntitled = qMax(rx.cap(2).toInt(), maxUntitled);
-        }
-    }
-
-    QString newTitle = QLatin1String("untitled");
-
-    if (maxUntitled) {
-        newTitle += QLatin1Char(' ');
-        newTitle += QString::number(maxUntitled + 1);
-    }
-
-    newTitle.append(QLatin1String("[*]"));
-    return newTitle;
-}
-
-
-// Figure out a title for a new file.
-QString NewForm::newFileTitle(QString &fileName) const
-{
-    int maxUntitled = 0;
-    const int totalWindows = m_workbench->formWindowCount();
-
-    for (int i = 0; i < totalWindows; ++i) {
-        if (fileName == m_workbench->formWindow(i)->editor()->fileName())
-            ++maxUntitled;
-    }
-
-    const QString baseName  = QFileInfo(fileName).fileName();
-    QString newTitle = baseName;
-
-    if (maxUntitled) {
-        newTitle += QLatin1Char(' ');
-        newTitle += QString::number(maxUntitled + 1);
-        fileName.replace(baseName, newTitle);
-    }
-
-    newTitle.append(QLatin1String("[*]"));
-    return newTitle;
-}
-
 bool NewForm::openTemplate(const QString &templateFileName)
 {
-
-    const QString  newTitle = m_fileName.isEmpty() ? newUntitledTitle() : newFileTitle(m_fileName);
     QString errorMessage;
     if (!workbench()->openTemplate(templateFileName,
                                    m_fileName,
-                                   newTitle,
                                    &errorMessage)) {
         QMessageBox::warning(this, tr("Read error"), errorMessage);
         return false;

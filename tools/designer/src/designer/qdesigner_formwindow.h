@@ -27,6 +27,8 @@ public:
     QDesignerFormWindow(QDesignerFormWindowInterface *formWindow, QDesignerWorkbench *workbench,
                         QWidget *parent = 0, Qt::WindowFlags flags = 0);
 
+    void firstShow();
+
     virtual ~QDesignerFormWindow();
 
     QAction *action() const;
@@ -36,25 +38,29 @@ public:
     QRect geometryHint() const;
 
 public slots:
-    void updateWindowTitle(const QString &fileName);
     void updateChanged();
+
+private slots:
+    void updateWindowTitle(const QString &fileName);
     void geometryChanged();
     void widgetActivated(QWidget *widget);
 
 signals:
     void minimizationStateChanged(QDesignerFormWindowInterface *formWindow, bool minimized);
     void triggerAction();
-    
+
 protected:
     virtual void changeEvent(QEvent *e);
     virtual void closeEvent(QCloseEvent *ev);
     virtual void resizeEvent(QResizeEvent* rev);
 
 private:
+    int getNumberOfUntitledWindows() const;
     QPointer<QDesignerFormWindowInterface> m_editor;
     QPointer<QDesignerWorkbench> m_workbench;
     QAction *m_action;
     bool m_initialized;
+    bool m_windowTitleInitialized;
 };
 
 #endif // QDESIGNER_FORMWINDOW_H

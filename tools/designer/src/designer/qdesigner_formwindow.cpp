@@ -43,7 +43,8 @@ QDesignerFormWindow::QDesignerFormWindow(QDesignerFormWindowInterface *editor, Q
       m_editor(editor),
       m_workbench(workbench),
       m_action(new QAction(this)),
-      m_initialized(false)
+      m_initialized(false),
+      m_windowTitleInitialized(false)
 {
     Q_ASSERT(workbench);
 
@@ -62,7 +63,6 @@ QDesignerFormWindow::QDesignerFormWindow(QDesignerFormWindowInterface *editor, Q
     m_action->setCheckable(true);
 
     connect(m_editor->commandHistory(), SIGNAL(indexChanged(int)), this, SLOT(updateChanged()));
-    connect(m_editor, SIGNAL(fileNameChanged(QString)), this, SLOT(updateWindowTitle(QString)));
     connect(m_editor, SIGNAL(geometryChanged()), this, SLOT(geometryChanged()));
     connect(m_editor, SIGNAL(activated(QWidget *)), this, SLOT(widgetActivated(QWidget *)));
 }
@@ -112,7 +112,7 @@ void QDesignerFormWindow::changeEvent(QEvent *e)
         const  QWindowStateChangeEvent *wsce =  static_cast<const QWindowStateChangeEvent *>(e);
         const bool wasMinimized = Qt::WindowMinimized & wsce->oldState();
         const bool isMinimizedNow = isMinimized();
-        if (wasMinimized != isMinimizedNow ) 
+        if (wasMinimized != isMinimizedNow )
             emit minimizationStateChanged(m_editor, isMinimizedNow);
     }
         break;
@@ -143,26 +143,72 @@ QDesignerWorkbench *QDesignerFormWindow::workbench() const
     return m_workbench;
 }
 
-void QDesignerFormWindow::updateWindowTitle(const QString &fileName)
-{    
-    QString fn = QFileInfo(fileName).fileName();
-
-    if (fn.isEmpty()) {
-        // Try to preserve its "untitled" number.
-        QRegExp rx(QLatin1String("unnamed( (\\d+))?"));
-
-        if (rx.indexIn(windowTitle()) != -1) {
-            fn = rx.cap(0);
-        } else {
-            fn = QLatin1String("untitled");
+void QDesignerFormWindow::firstShow()
+{
+    // Set up handling of file name changes and set initial title.
+    if (!m_windowTitleInitialized) {
+        m_windowTitleInitialized = true;
+        if (m_editor) {
+            connect(m_editor, SIGNAL(fileNameChanged(QString)), this, SLOT(updateWindowTitle(QString)));
+            updateWindowTitle(m_editor->fileName());
         }
+    }
+    show();
+}
+
+int QDesignerFormWindow::getNumberOfUntitledWindows() const
+{
+    const int totalWindows = m_workbench->formWindowCount();
+    if (!totalWindows)
+        return 0;
+
+    int maxUntitled = 0;
+    // Find the number of untitled windows excluding ourselves.
+    // Do not fall for 'untitled.ui', match with modified place holder.
+    // This will cause some problems with i18n, but for now I need the string to be "static"
+    QRegExp rx(QLatin1String("untitled( (\\d+))?\\[\\*\\]"));
+    for (int i = 0; i < totalWindows; ++i) {
+        QDesignerFormWindow *fw =  m_workbench->formWindow(i);
+        if (fw != this) {
+            const QString title = m_workbench->formWindow(i)->windowTitle();
+            if (rx.indexIn(title) != -1) {
+                if (maxUntitled == 0)
+                    ++maxUntitled;
+                if (rx.numCaptures() > 1) {
+                    const QString numberCapture = rx.cap(2);
+                    if (!numberCapture.isEmpty())
+                        maxUntitled = qMax(numberCapture.toInt(), maxUntitled);
+                }
+            }
+        }
+    }
+    return maxUntitled;
+}
+
+void QDesignerFormWindow::updateWindowTitle(const QString &fileName)
+{
+    if (!m_windowTitleInitialized) {
+        m_windowTitleInitialized = true;
+        if (m_editor)
+            connect(m_editor, SIGNAL(fileNameChanged(QString)), this, SLOT(updateWindowTitle(QString)));
+    }
+
+    QString fileNameTitle;
+    if (fileName.isEmpty()) {
+        fileNameTitle = QLatin1String("untitled");
+        if (const int maxUntitled = getNumberOfUntitledWindows()) {
+            fileNameTitle += QLatin1Char(' ');
+            fileNameTitle += QString::number(maxUntitled + 1);
+        }
+    } else {
+        fileNameTitle = QFileInfo(fileName).fileName();
     }
 
     if (const QWidget *mc = m_editor->mainContainer()) {
         setWindowIcon(mc->windowIcon());
-        setWindowTitle(tr("%1 - %2[*]").arg(mc->windowTitle()).arg(fn));
+        setWindowTitle(tr("%1 - %2[*]").arg(mc->windowTitle()).arg(fileNameTitle));
     } else {
-        setWindowTitle(fn);
+        setWindowTitle(fileNameTitle);
     }
 }
 
@@ -201,7 +247,7 @@ void QDesignerFormWindow::updateChanged()
     if (m_editor) {
         setWindowModified(m_editor->isDirty());
         updateWindowTitle(m_editor->fileName());
-    }    
+    }
 }
 
 void QDesignerFormWindow::resizeEvent(QResizeEvent *rev)
@@ -222,7 +268,7 @@ void QDesignerFormWindow::resizeEvent(QResizeEvent *rev)
 void QDesignerFormWindow::geometryChanged()
 {
     if(QObject *object = m_editor->core()->propertyEditor()->object()) {
-        QDesignerPropertySheetExtension *sheet = 
+        QDesignerPropertySheetExtension *sheet =
             qt_extension<QDesignerPropertySheetExtension*>(m_editor->core()->extensionManager(), object);
         m_editor->core()->propertyEditor()->setPropertyValue(QLatin1String("geometry"), sheet->property(sheet->indexOf(QLatin1String("geometry"))));
     }
