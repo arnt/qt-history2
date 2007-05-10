@@ -28,7 +28,6 @@
 
 #include "qscriptengine.h"
 #include "qscriptrepository_p.h"
-#include "qscriptmemorypool_p.h"
 #include "qscriptgc_p.h"
 #include "qscriptobjectfwd_p.h"
 #include "qscriptclassinfo_p.h"
@@ -78,6 +77,7 @@ class Lexer;
 class Code;
 class CompilationUnit;
 class IdTable;
+class MemoryPool;
 
 class IdTable
 {
@@ -152,9 +152,6 @@ public:
     inline QScript::Lexer *lexer();
     inline QScriptObject *allocObject();
 
-    inline QScript::Code *compiledCode(QScript::AST::Node *node);
-    inline QScript::Code *createCompiledCode(QScript::AST::Node *node, const QScript::CompilationUnit &compilation);
-
     inline void maybeGC();
 
     void maybeGC_helper(bool do_string_gc);
@@ -176,9 +173,9 @@ public:
 
     void evaluate(QScriptContextPrivate *context, const QString &contents, int lineNumber);
 
-    inline QScript::Code *findCode(QScript::AST::Node *node) const;
-
     inline void setLexer(QScript::Lexer *lexer);
+
+    inline void setNodePool(QScript::MemoryPool *pool);
 
     inline QScriptClassInfo *registerClass(const QString &pname, QScript::Type type);
 
@@ -336,7 +333,7 @@ public: // attributes
     QString m_errorMessage;
     QScript::AST::Node *m_abstractSyntaxTree;
     QScript::Lexer *m_lexer;
-    QScript::MemoryPool m_pool;
+    QScript::MemoryPool *m_pool;
 
     QScript::Ecma::Object *objectConstructor;
     QScript::Ecma::Number *numberConstructor;
@@ -354,7 +351,6 @@ public: // attributes
 
     QHash<int, QScriptCustomTypeInfo> m_customTypes;
 
-    QHash<QScript::AST::Node*, QScript::Code*> m_codeCache;
     QScriptFunction *m_evalFunction;
 
     QList<QScriptClassInfo*> m_allocated_classes;

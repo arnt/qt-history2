@@ -66,7 +66,6 @@ inline void QScriptContextPrivate::init(QScriptContext *parent)
     previous = parent;
     args = 0;
     argc = 0;
-    abstractSyntaxTree = 0;
     iPtr = firstInstruction = lastInstruction = 0;
     stackPtr = tempStack = (parent != 0) ? parent->d_func()->stackPtr : 0;
     m_activation.invalidate();

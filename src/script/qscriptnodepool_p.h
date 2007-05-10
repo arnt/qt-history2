@@ -25,11 +25,19 @@
 // We mean it.
 //
 
+#include <QtCore/QHash>
 #include <QtCore/QString>
 
 #include "qscriptmemorypool_p.h"
 
 namespace QScript {
+
+namespace AST {
+class Node;
+} // namespace AST
+
+class Code;
+class CompilationUnit;
 
 template <typename NodeType>
 inline NodeType *makeAstNode(MemoryPool *storage)
@@ -65,6 +73,21 @@ inline NodeType *makeAstNode(MemoryPool *storage, Arg1 arg1, Arg2 arg2, Arg3 arg
     NodeType *node = new (storage->allocate(sizeof(NodeType))) NodeType(arg1, arg2, arg3, arg4);
     return node;
 }
+
+class NodePool : public MemoryPool
+{
+public:
+    NodePool() { }
+    virtual ~NodePool();
+
+    Code *createCompiledCode(AST::Node *node, CompilationUnit &compilation);
+    
+private:
+    QHash<AST::Node*, Code*> m_codeCache;
+
+private:
+    Q_DISABLE_COPY(NodePool)
+};
 
 } // namespace QScript
 

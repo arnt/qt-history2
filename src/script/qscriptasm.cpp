@@ -57,7 +57,7 @@ Code::~Code()
     delete[] firstInstruction;
 }
 
-void Code::init(const QScript::CompilationUnit &compilation)
+void Code::init(const CompilationUnit &compilation, NodePool *pool)
 {
     optimized = false;
     const QVector<QScriptInstruction> ilist = compilation.instructions();
@@ -65,7 +65,7 @@ void Code::init(const QScript::CompilationUnit &compilation)
     lastInstruction = firstInstruction + ilist.count();
     qCopy(ilist.begin(), ilist.end(), firstInstruction);
     exceptionHandlers = compilation.exceptionHandlers();
-    value.invalidate();
+    astPool = pool;
 }
 
 } // namespace QScript

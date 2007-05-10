@@ -364,7 +364,12 @@ inline QScript::AST::Node *QScriptEnginePrivate::abstractSyntaxTree() const
 
 inline QScript::MemoryPool *QScriptEnginePrivate::nodePool()
 {
-    return &m_pool;
+    return m_pool;
+}
+
+inline void QScriptEnginePrivate::setNodePool(QScript::MemoryPool *pool)
+{
+    m_pool = pool;
 }
 
 inline QScript::Lexer *QScriptEnginePrivate::lexer()
@@ -419,30 +424,6 @@ inline void QScriptEnginePrivate::popContext()
     m_frameRepository.release(context);
 }
 
-inline QScript::Code *QScriptEnginePrivate::compiledCode(QScript::AST::Node *node)
-{
-    QHash<QScript::AST::Node*, QScript::Code*>::iterator it = m_codeCache.find(node);
-    if (it == m_codeCache.end())
-        return 0;
-
-    return it.value();
-}
-
-inline QScript::Code *QScriptEnginePrivate::createCompiledCode(QScript::AST::Node *node, const QScript::CompilationUnit &compilation)
-{
-    Q_ASSERT(compilation.isValid());
-
-    QHash<QScript::AST::Node*, QScript::Code*>::iterator it = m_codeCache.find(node);
-    if (it != m_codeCache.end())
-        return it.value();
-
-    QScript::Code *code = new QScript::Code();
-    code->init(compilation);
-
-    m_codeCache.insert(node, code);
-    return code;
-}
-
 inline void QScriptEnginePrivate::maybeGC()
 {
     if (objectAllocator.blocked())
@@ -493,11 +474,6 @@ inline QScriptValueImpl QScriptEnginePrivate::newArray(uint length)
     a.resize(length);
     newArray(&v, a);
     return v;
-}
-
-inline QScript::Code *QScriptEnginePrivate::findCode(QScript::AST::Node *node) const
-{
-    return m_codeCache.value(node);
 }
 
 inline QScriptClassInfo *QScriptEnginePrivate::registerClass(const QString &pname, QScript::Type type)

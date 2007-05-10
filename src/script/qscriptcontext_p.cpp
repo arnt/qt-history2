@@ -20,6 +20,7 @@
 #include "qscriptobject_p.h"
 #include "qscriptprettypretty_p.h"
 #include "qscriptast_p.h"
+#include "qscriptnodepool_p.h"
 #include "qscriptcompiler_p.h"
 #include "qscriptextenumeration_p.h"
 
@@ -252,8 +253,8 @@ namespace QScript {
 class ScriptFunction: public QScriptFunction
 {
 public:
-    ScriptFunction(QScript::AST::Node *functionBody):
-        m_functionBody(functionBody), m_compiledCode(0) {}
+    ScriptFunction(AST::Node *functionBody, NodePool *astPool):
+        m_functionBody(functionBody), m_astPool(astPool), m_compiledCode(0) {}
 
     virtual ~ScriptFunction() {}
 
@@ -270,7 +271,7 @@ public:
             out << QScriptEnginePrivate::get(eng)->toString(formals.at(i));
         }
         out << QLatin1String(")") << endl << QLatin1String("{");
-        QScript::PrettyPretty pp(eng, out);
+        PrettyPretty pp(eng, out);
         pp(m_functionBody, /*indent=*/ 1);
         out << endl << QLatin1String("}") << endl;
         return str;
@@ -280,25 +281,24 @@ public:
     { return QScriptFunction::Script; }
 
 private:
-    QScript::AST::Node *m_functionBody;
-    QScript::Code *m_compiledCode;
+    AST::Node *m_functionBody;
+    QExplicitlySharedDataPointer<NodePool> m_astPool;
+    Code *m_compiledCode;
 };
 
 void ScriptFunction::execute(QScriptContextPrivate *context)
 {
     if (! m_compiledCode) {
         QScriptEngine *eng = context->engine();
-        QScript::Compiler compiler(eng);
+        Compiler compiler(eng);
 
-        QScript::CompilationUnit unit = compiler.compile(m_functionBody, formals);
+        CompilationUnit unit = compiler.compile(m_functionBody, formals);
         if (! unit.isValid()) {
             context->throwError(unit.errorMessage());
             return;
         }
 
-        m_compiledCode = QScriptEnginePrivate::get(eng)->createCompiledCode(m_functionBody, unit);
-        m_compiledCode->value = context->callee();
-        context->abstractSyntaxTree = m_functionBody;
+        m_compiledCode = m_astPool->createCompiledCode(m_functionBody, unit);
     }
 
     context->execute(m_compiledCode);
@@ -1390,7 +1390,7 @@ Ltop:
         }
 #endif
 
-        QScript::ScriptFunction *function = new QScript::ScriptFunction(functionBody); // ### add the AST
+        QScript::ScriptFunction *function = new QScript::ScriptFunction(functionBody, code->astPool);
 
         // update the formals
         for (QScript::AST::FormalParameterList *it = formals; it != 0; it = it->next) {

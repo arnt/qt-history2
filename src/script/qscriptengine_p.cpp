@@ -17,6 +17,7 @@
 #include "qscriptmember_p.h"
 #include "qscriptobject_p.h"
 #include "qscriptlexer_p.h"
+#include "qscriptnodepool_p.h"
 #include "qscriptparser_p.h"
 #include "qscriptcompiler_p.h"
 #include "qscriptvalueiterator.h"
@@ -50,6 +51,25 @@ Q_DECLARE_METATYPE(QList<int>)
 
 namespace QScript {
 
+NodePool::~NodePool()
+{
+    qDeleteAll(m_codeCache);
+    m_codeCache.clear();
+}
+
+Code *NodePool::createCompiledCode(AST::Node *node, CompilationUnit &compilation)
+{
+    QHash<AST::Node*, Code*>::const_iterator it = m_codeCache.constFind(node);
+    if (it != m_codeCache.constEnd())
+        return it.value();
+
+    Code *code = new Code();
+    code->init(compilation, this);
+
+    m_codeCache.insert(node, code);
+    return code;
+}
+
 class EvalFunction : public QScriptFunction
 {
 public:
@@ -64,7 +84,13 @@ public:
         QScriptEngine *engine = context->engine();
         QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(engine);
 
-        QScript::AST::Node *program = eng_p->createAbstractSyntaxTree(contents, lineNo);
+        QExplicitlySharedDataPointer<NodePool> pool;
+        pool = new NodePool();
+        eng_p->setNodePool(pool);
+
+        AST::Node *program = eng_p->createAbstractSyntaxTree(contents, lineNo);
+
+        eng_p->setNodePool(0);
 
         if (! program) {
             context->errorLineNumber = lineNo;
@@ -73,15 +99,15 @@ public:
             return;
         }
 
-        QScript::Compiler compiler(engine);
+        Compiler compiler(engine);
         compiler.setTopLevelCompiler(true);
-        QScript::CompilationUnit compilation = compiler.compile(program);
+        CompilationUnit compilation = compiler.compile(program);
         if (! compilation.isValid()) {
             context->throwError(compilation.errorMessage());
             return;
         }
 
-        QScript::Code *code = eng_p->createCompiledCode(program, compilation);
+        Code *code = pool->createCompiledCode(program, compilation);
 
         if (calledFromScript) {
             if (QScriptContext *parentContext = context->parentContext()) {
@@ -248,8 +274,6 @@ QScriptEnginePrivate::~QScriptEnginePrivate()
     qDeleteAll(m_stringRepository);
     qDeleteAll(m_tempStringRepository);
 
-    qDeleteAll(m_codeCache);
-    m_codeCache.clear();
     delete[] tempStackBegin;
 
 #ifndef QT_NO_QOBJECT
@@ -484,21 +508,6 @@ void QScriptEnginePrivate::maybeGC_helper(bool do_string_gc)
         while (current != 0) {
             markFrame (QScriptContextPrivate::get(current), generation);
             current = current->parentContext();
-        }
-    }
-
-    {
-        QHashIterator<QScript::AST::Node*, QScript::Code*> it(m_codeCache);
-        while (it.hasNext()) {
-            it.next();
-            QScriptValueImpl v = it.value()->value;
-            if (v.isValid()) {
-                QScriptObject *o = v.objectValue();
-                QScript::GCBlock *block = QScript::GCBlock::get(o);
-
-                if (block->generation != generation)
-                    it.value()->value.invalidate();
-            }
         }
     }
 

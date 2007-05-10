@@ -56,6 +56,8 @@ public:
 
 namespace QScript {
 
+class NodePool;
+
 class ExceptionHandlerDescriptor
 {
 public:
@@ -97,16 +99,16 @@ public:
     void setInstructions(const QVector<QScriptInstruction> &instructions)
         { m_instructions = instructions; }
 
-    QVector<QScript::ExceptionHandlerDescriptor> exceptionHandlers() const
+    QVector<ExceptionHandlerDescriptor> exceptionHandlers() const
         { return m_exceptionHandlers; }
-    void setExceptionHandlers(const QVector<QScript::ExceptionHandlerDescriptor> &exceptionHandlers)
+    void setExceptionHandlers(const QVector<ExceptionHandlerDescriptor> &exceptionHandlers)
         { m_exceptionHandlers = exceptionHandlers; }
 
 private:
     bool m_valid;
     QString m_errorMessage;
     QVector<QScriptInstruction> m_instructions;
-    QVector<QScript::ExceptionHandlerDescriptor> m_exceptionHandlers;
+    QVector<ExceptionHandlerDescriptor> m_exceptionHandlers;
 };
 
 class Code
@@ -115,14 +117,14 @@ public:
     Code();
     ~Code();
 
-    void init(const QScript::CompilationUnit &compilation);
+    void init(const CompilationUnit &compilation, NodePool *astPool);
 
 public: // attributes
     bool optimized;
     QScriptInstruction *firstInstruction;
     QScriptInstruction *lastInstruction;
     QVector<ExceptionHandlerDescriptor> exceptionHandlers;
-    QScriptValueImpl value;
+    NodePool *astPool;
 
 private:
     Q_DISABLE_COPY(Code)

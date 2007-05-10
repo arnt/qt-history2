@@ -171,7 +171,6 @@ public:
     QScriptValueImpl m_callee;
     QScriptValueImpl m_arguments;
 
-    QScript::AST::Node *abstractSyntaxTree;
     QScriptValueImpl *args;
     QScriptValueImpl *tempStack;
     QScriptValueImpl *stackPtr;

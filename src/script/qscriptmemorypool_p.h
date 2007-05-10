@@ -26,11 +26,12 @@
 //
 
 #include <QtCore/qglobal.h>
+#include <QtCore/qshareddata.h>
 #include <string.h>
 
 namespace QScript {
 
-class MemoryPool
+class MemoryPool : public QSharedData
 {
 public:
     enum { maxBlockCount = -1 };
@@ -43,7 +44,7 @@ public:
         m_currentBlock = 0;
     }
 
-    ~MemoryPool() {
+    virtual ~MemoryPool() {
         for (int index = 0; index < m_blockIndex + 1; ++index)
             qFree(m_storage[index]);
 
