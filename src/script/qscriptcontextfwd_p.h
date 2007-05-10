@@ -186,7 +186,6 @@ public:
 
     int errorLineNumber;
 
-    QScriptNameIdImpl *m_functionNameId;
     bool catching;
     bool m_calledAsConstructor;
 

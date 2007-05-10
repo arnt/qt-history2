@@ -654,7 +654,6 @@ Ltop:
         QScriptContextPrivate *nested_data = nested->d_func();
         nested_data->m_thisObject = base;
         nested_data->m_callee = callee;
-        nested_data->m_functionNameId = 0; //member.nameId(); ### fixme
 
         // create the activation
         eng->newActivation(&nested_data->m_activation);
@@ -814,7 +813,6 @@ Ltop:
         QScriptContext *nested = eng->pushContext();
         QScriptContextPrivate *nested_data = nested->d_func();
         nested_data->m_callee = callee;
-        nested_data->m_functionNameId = 0; //member.nameId(); ### FIXME
         nested_data->m_calledAsConstructor = true;
 
         // create the activation

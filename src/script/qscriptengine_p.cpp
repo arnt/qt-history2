@@ -411,9 +411,6 @@ void QScriptEnginePrivate::markFrame(QScriptContextPrivate *context, int generat
     QScriptValueImpl callee = context->m_callee;
     QScriptValueImpl arguments = context->m_arguments;
 
-    if (context->m_functionNameId)
-        markString(context->m_functionNameId, generation);
-
     if (activation.isObject())
         markObject(activation, generation);
 
@@ -959,7 +956,6 @@ QScriptValueImpl QScriptEnginePrivate::call(const QScriptValueImpl &callee,
     else
         nested->m_thisObject = m_globalObject;
     nested->m_callee = callee;
-    nested->m_functionNameId = 0; // ### fixme
     nested->m_calledAsConstructor = asConstructor;
 
     newUndefined(&nested->m_result);

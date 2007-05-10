@@ -79,7 +79,6 @@ inline void QScriptContextPrivate::init(QScriptContext *parent)
     currentLine = 0;
     currentColumn = 0;
     errorLineNumber = 0;
-    m_functionNameId = 0;
     m_calledAsConstructor = false;
 }
 
