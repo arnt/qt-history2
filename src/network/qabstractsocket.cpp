@@ -973,6 +973,7 @@ void QAbstractSocketPrivate::fetchConnectionParameters()
         peerPort = socketEngine->peerPort();
         localAddress = socketEngine->localAddress();
         peerAddress = socketEngine->peerAddress();
+        cachedSocketDescriptor = socketEngine->socketDescriptor();
     }
 
     state = QAbstractSocket::ConnectedState;

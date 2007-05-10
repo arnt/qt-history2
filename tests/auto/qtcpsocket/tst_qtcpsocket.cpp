@@ -96,6 +96,7 @@ private slots:
     void constructing();
     void setInvalidSocketDescriptor();
     void setSocketDescriptor();
+    void socketDescriptor();
     void blockingIMAP();
     void nonBlockingIMAP();
     void hostNotFound();
@@ -322,6 +323,21 @@ void tst_QTcpSocket::setSocketDescriptor()
 #ifdef Q_OS_WIN
     delete dummy;
 #endif
+}
+
+//----------------------------------------------------------------------------------
+
+void tst_QTcpSocket::socketDescriptor()
+{
+    QTcpSocket *socket = newSocket();
+
+    QCOMPARE(socket->socketDescriptor(), -1);
+    socket->connectToHost("fluke.troll.no", 143);
+    QCOMPARE(socket->socketDescriptor(), -1);
+    QVERIFY(socket->waitForConnected(10000));
+    QVERIFY(socket->socketDescriptor() != -1);
+    
+    delete socket;
 }
 
 //----------------------------------------------------------------------------------

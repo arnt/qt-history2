@@ -1584,6 +1584,8 @@ void QSslSocketPrivate::_q_connectedSlot()
     q->setPeerPort(plainSocket->peerPort());
     q->setPeerAddress(plainSocket->peerAddress());
     q->setPeerName(plainSocket->peerName());
+    cachedSocketDescriptor = plainSocket->socketDescriptor();
+
 #ifdef QSSLSOCKET_DEBUG
     qDebug() << "QSslSocket::_q_connectedSlot()";
     qDebug() << "\tstate =" << q->state();
