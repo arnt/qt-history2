@@ -378,7 +378,8 @@ public:
 
     inline void setCosmeticPen(bool enabled);
     inline void setBrushMode(int mode);
-    inline void setTexture(LPDIRECT3DBASETEXTURE9 pTexture, QGradient::Spread spread = QGradient::PadSpread);
+    inline void setTexture(LPDIRECT3DBASETEXTURE9 pTexture);
+    inline void setTexture(LPDIRECT3DBASETEXTURE9 pTexture, QGradient::Spread spread);
     inline void setTransformation(const QTransform *matrix = 0);
     inline void setProjection(const D3DXMATRIX *pMatrix);
     inline void setMaskChannel(int channel);
@@ -1029,8 +1030,10 @@ void QD3DStateManager::reset()
     m_vertexshader = 0;
     m_pixelshader = 0;
 
-    m_isIdentity = false;
+    m_isIdentity = true;
     m_transformation = QTransform();
+    m_effect->SetMatrix("g_mTransformation", &m_d3dIdentityMatrix);
+
     ZeroMemory(&m_projection, sizeof(D3DMATRIX));
     ZeroMemory(m_textures, sizeof(LPDIRECT3DBASETEXTURE9) * D3D_STAGE_COUNT);
     FillMemory(m_samplerstates, sizeof(DWORD) * D3D_SAMPLE_STATES * D3D_STAGE_COUNT, 0xFFFFFFFE);
@@ -1074,6 +1077,18 @@ inline void QD3DStateManager::setBrushMode(int mode)
     if (mode != m_brushmode) {
         m_effect->SetInt("g_mBrushMode", mode);
         m_brushmode = mode;
+        m_changed = true;
+    }
+}
+
+inline void QD3DStateManager::setTexture(LPDIRECT3DBASETEXTURE9 pTexture)
+{
+    SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_BORDER);
+    SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_BORDER);
+
+    if (pTexture != m_texture) {
+        m_texture = pTexture;
+        m_effect->SetTexture("g_mTexture", pTexture);
         m_changed = true;
     }
 }
@@ -3601,7 +3616,7 @@ void QDirect3DPaintEnginePrivate::prepareItem(QD3DBatchItem *item) {
         IDirect3DTexture9 *tex = (item->m_info & QD3DBatchItem::BI_PIXMAP) ?
                                  item->m_pixmap.data->texture : item->m_texture;
         m_statemanager->setTexture(tex);
-        brushmode = 1;
+        brushmode = 5;
     }
 
     if (item->m_info & QD3DBatchItem::BI_AA) {
@@ -3964,24 +3979,20 @@ void QDirect3DPaintEngine::drawImage(const QRectF &r, const QImage &image, const
 #ifdef QT_DEBUG_D3D_CALLS
     qDebug() << "QDirect3DPaintEngine::drawImage";
 #endif
-     //drawPixmap(r, QPixmap::fromImage(image, flags), sr);
-     //return;
 
     Q_D(QDirect3DPaintEngine);
     int width = image.width();
     int height = image.height();
 
     // transform rectangle
-    QPolygonF txrect(QRectF((sr.left() + 0.5f) / width, (sr.top() + 0.5f) / height,
-                            sr.width() / width, sr.height() / height));
+    QPolygonF txrect(QRectF(sr.left() / width, sr.top() / height,
+        sr.width() / width, sr.height() / height));
 
     QD3DBatchItem *item = d->nextBatchItem();
     item->m_info = QD3DBatchItem::BI_IMAGE | QD3DBatchItem::BI_TRANSFORM;
     item->m_texture = qd3d_image_cache()->lookup(d->m_d3d_device, image);
     item->m_matrix = d->m_matrix;
-    d->m_draw_helper->queueRect(r, item, d->m_opacity_color, txrect);
-
-    //drawPixmap(rectangle, QPixmap::fromImage(image, flags), sr);
+    d->m_draw_helper->queueRect(r.adjusted(-0.5f,-0.5f,-0.5f,-0.5f), item, d->m_opacity_color, txrect);
 }
 
 void QDirect3DPaintEngine::drawLines(const QLineF *lines, int lineCount)
@@ -4091,20 +4102,21 @@ void QDirect3DPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const 
     if (d->m_draw_helper->needsFlushing())
         d->flushBatch();
 
-    d->verifyTexture(pm);
-
     int width = pm.width();
     int height = pm.height();
 
     // transform rectangle
-    QPolygonF txrect(QRectF((sr.left() + 0.5f) / width, (sr.top() + 0.5f) / height,
+    QPolygonF txrect(QRectF(sr.left() / width, sr.top() / height,
         sr.width() / width, sr.height() / height));
 
     QD3DBatchItem *item = d->nextBatchItem();
     item->m_info = QD3DBatchItem::BI_PIXMAP|QD3DBatchItem::BI_TRANSFORM;
+
     item->m_pixmap = pm;
+    d->verifyTexture(item->m_pixmap);
+
     item->m_matrix = d->m_matrix;
-    d->m_draw_helper->queueRect(r, item, d->m_opacity_color, txrect);
+    d->m_draw_helper->queueRect(r.adjusted(-0.5f,-0.5f,-0.5f,-0.5f), item, d->m_opacity_color, txrect);
 }
 
 void QDirect3DPaintEngine::drawPoints(const QPointF *points, int pointCount)

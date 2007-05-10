@@ -554,6 +554,12 @@ extern _qt_pixmap_cleanup_hook_64 qt_pixmap_cleanup_hook_64;
 
 void QPixmap::detach()
 {
+#if !defined(QT_NO_DIRECT3D) && defined(Q_WS_WIN)
+    if (data->texture)
+        data->texture->Release();
+    data->texture = 0;
+#endif
+
     if (qt_pixmap_cleanup_hook_64 && data->count == 1)
         qt_pixmap_cleanup_hook_64(cacheKey());
 
@@ -666,6 +672,7 @@ void QPixmap::deref()
 #if !defined(QT_NO_DIRECT3D) && defined(Q_WS_WIN)
         if (data->texture)
             data->texture->Release();
+        data->texture = 0;
 #endif
         if (qt_pixmap_cleanup_hook_64)
             qt_pixmap_cleanup_hook_64(cacheKey());

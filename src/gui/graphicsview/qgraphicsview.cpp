@@ -2932,21 +2932,23 @@ void QGraphicsView::paintEvent(QPaintEvent *event)
         }
 
         // Redraw exposed areas
-        QPainter backgroundPainter(&d->backgroundPixmap);
-        backgroundPainter.setTransform(viewportTransform());
-        foreach (QRect rect, d->backgroundPixmapExposed.rects()) {
-            if (!(d->optimizationFlags & DontSavePainterState))
-                backgroundPainter.save();
+        if (!d->backgroundPixmapExposed.isEmpty()) {
+            QPainter backgroundPainter(&d->backgroundPixmap);
+            backgroundPainter.setTransform(viewportTransform());
+            foreach (QRect rect, d->backgroundPixmapExposed.rects()) {
+                if (!(d->optimizationFlags & DontSavePainterState))
+                    backgroundPainter.save();
 
-            QRectF exposedSceneRect = mapToScene(rect.adjusted(-1, -1, 1, 1)).boundingRect();
-            if (!(d->optimizationFlags & DontClipPainter))
-                backgroundPainter.setClipRect(exposedSceneRect.adjusted(-1, -1, 1, 1));
-            drawBackground(&backgroundPainter, exposedSceneRect);
+                QRectF exposedSceneRect = mapToScene(rect.adjusted(-1, -1, 1, 1)).boundingRect();
+                if (!(d->optimizationFlags & DontClipPainter))
+                    backgroundPainter.setClipRect(exposedSceneRect.adjusted(-1, -1, 1, 1));
+                drawBackground(&backgroundPainter, exposedSceneRect);
 
-            if (!(d->optimizationFlags & DontSavePainterState))
-                backgroundPainter.restore();
+                if (!(d->optimizationFlags & DontSavePainterState))
+                    backgroundPainter.restore();
+            }
+            d->backgroundPixmapExposed = QRegion();
         }
-        d->backgroundPixmapExposed = QRegion();
 
         // Blit the background from the background pixmap
         QTransform oldMatrix = painter.transform();
