@@ -114,6 +114,7 @@ private slots:
     void currentCharFormatChanged();
     void textObscuredByScrollbars();
     void setTextPreservesUndoRedoEnabled();
+    void wordWrapProperty();
 
 private:
     void createSelection();
@@ -1580,6 +1581,24 @@ void tst_QTextEdit::setTextPreservesUndoRedoEnabled()
 
     ed->setHtml("<p>hello");
     QVERIFY(!ed->isUndoRedoEnabled());
+}
+
+void tst_QTextEdit::wordWrapProperty()
+{
+    {
+        QTextEdit edit;
+        QTextDocument *doc = new QTextDocument(&edit);
+        edit.setDocument(doc);
+        edit.setWordWrapMode(QTextOption::NoWrap);
+        QVERIFY(doc->defaultTextOption().wrapMode() == QTextOption::NoWrap);
+    }
+    {
+        QTextEdit edit;
+        QTextDocument *doc = new QTextDocument(&edit);
+        edit.setWordWrapMode(QTextOption::NoWrap);
+        edit.setDocument(doc);
+        QVERIFY(doc->defaultTextOption().wrapMode() == QTextOption::NoWrap);
+    }
 }
 
 QTEST_MAIN(tst_QTextEdit)

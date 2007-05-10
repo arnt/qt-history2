@@ -80,6 +80,7 @@ public:
 
     QTextEdit::LineWrapMode lineWrap;
     int lineWrapColumnOrWidth;
+    QTextOption::WrapMode wordWrap;
 
     uint ignoreAutomaticScrollbarAdjustment : 1;
     uint preferRichText : 1;

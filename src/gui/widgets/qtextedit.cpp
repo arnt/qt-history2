@@ -95,7 +95,7 @@ QTextEditPrivate::QTextEditPrivate()
     : control(0),
       autoFormatting(QTextEdit::AutoNone), tabChangesFocus(false),
       lineWrap(QTextEdit::WidgetWidth), lineWrapColumnOrWidth(0),
-      textFormat(Qt::AutoText)
+      wordWrap(QTextOption::WrapAtWordBoundaryOrAnywhere), textFormat(Qt::AutoText)
 {
     ignoreAutomaticScrollbarAdjustment = false;
     preferRichText = false;
@@ -725,6 +725,12 @@ void QTextEdit::setDocument(QTextDocument *document)
 {
     Q_D(QTextEdit);
     d->control->setDocument(document);
+
+    document = d->control->document();
+    QTextOption opt = document->defaultTextOption();
+    opt.setWrapMode(d->wordWrap);
+    document->setDefaultTextOption(opt);
+
     d->relayoutDocument();
 }
 
@@ -2179,15 +2185,16 @@ void QTextEdit::setLineWrapColumnOrWidth(int w)
 QTextOption::WrapMode QTextEdit::wordWrapMode() const
 {
     Q_D(const QTextEdit);
-    return d->control->document()->defaultTextOption().wrapMode();
+    return d->wordWrap;
 }
 
 void QTextEdit::setWordWrapMode(QTextOption::WrapMode mode)
 {
     Q_D(QTextEdit);
-    QTextOption opt = d->control->document()->defaultTextOption();
-    if (mode == opt.wrapMode())
+    if (mode == d->wordWrap)
         return;
+    d->wordWrap = mode;
+    QTextOption opt = d->control->document()->defaultTextOption();
     opt.setWrapMode(mode);
     d->control->document()->setDefaultTextOption(opt);
 }
