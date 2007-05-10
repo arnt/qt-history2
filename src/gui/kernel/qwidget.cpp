@@ -312,6 +312,10 @@ void QWidget::setEditFocus(bool on)
     unless the WA_OpaquePaintEvent or WA_NoSystemBackground
     attributes are set.
 
+    \warning Do not set this property when using \l{Qt Style Sheets}.
+    When using style sheets, the widget is always filled with the "background"
+    property. The "border-radius" property may be used to clip the background.
+
     \sa Qt::WA_OpaquePaintEvent, Qt::WA_NoSystemBackground
 */
 bool QWidget::autoFillBackground() const
@@ -3587,6 +3591,11 @@ void QWidget::setForegroundRole(QPalette::ColorRole role)
     the appearance of the widget if the \l autoFillBackground property is
     set.
 
+    \warning Do not use this function in conjunction with \l{Qt Style Sheets}.
+    When using style sheets, the palette of a widget can be customized using the "color",
+    "background-color", "selection-color", "selection-background-color" and
+    "alternate-background-color".
+
     \sa QApplication::palette()
 */
 const QPalette &QWidget::palette() const
@@ -3668,6 +3677,9 @@ void QWidgetPrivate::setPalette_helper(const QPalette &palette)
 
     In addition to setting the font, setFont() informs all children
     about the change.
+
+    \warning Do not use this function in conjunction with \l{Qt Style Sheets}.
+    The font of a widget can be customized using the "font" style sheet property.
 
     \sa fontInfo() fontMetrics()
 */

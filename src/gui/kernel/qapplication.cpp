@@ -1551,6 +1551,11 @@ void QApplicationPrivate::setPalette_helper(const QPalette &palette, const char*
   The palette may be changed according to the current GUI style in
   QStyle::polish().
 
+  \warning Do not use this function in conjunction with \l{Qt Style Sheets}.
+  When using style sheets, the palette of a widget can be customized using the "color",
+  "background-color", "selection-color", "selection-background-color" and
+  "alternate-background-color".
+
   \sa QWidget::setPalette(), palette(), QStyle::polish()
 */
 
@@ -1655,6 +1660,11 @@ QFont QApplication::font(const char *className)
     the locale. This function lets you override the default font; but
     overriding may be a bad idea because, for example, some locales need
     extra large fonts to support their special characters.
+
+    \warning Do not use this function in conjunction with \l{Qt Style Sheets}.
+    The font of an application can be customized using the "font" style sheet
+    property. To set a bold font for all QPushButtons, set the application
+    styleSheet() as "QPushButton { font: bold }"
 
     \sa font(), fontMetrics(), QWidget::setFont()
 */
