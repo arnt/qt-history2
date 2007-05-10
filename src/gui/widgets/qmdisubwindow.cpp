@@ -129,11 +129,6 @@
 #include <QDebug>
 #if defined(Q_WS_MAC) && !defined(QT_NO_STYLE_MAC)
 #include <QMacStyle>
-#elif defined(Q_WS_WIN) && !defined(QT_NO_STYLE_WINDOWSXP)
-#include <QWindowsXPStyle>
-#endif
-#if !defined(QT_NO_STYLE_CLEANLOOKS)
-#include <QCleanlooksStyle>
 #endif
 
 static const QStyle::SubControl SubControls[] =
@@ -2878,19 +2873,8 @@ void QMdiSubWindow::paintEvent(QPaintEvent *paintEvent)
         frameOptions.state &= ~QStyle::State_Active;
     }
 
-
-    // Cleanlooks and XP draws PE_FrameWindow differently so they need a clip rect.
-    bool setClipRect = false;
-#if !defined(QT_NO_STYLE_CLEANLOOKS)
-    if (qobject_cast<QCleanlooksStyle *>(style()))
-        setClipRect = true;
-#endif
-#if defined(Q_WS_WIN) && !defined(QT_NO_STYLE_WINDOWSXP)
-    if (!setClipRect && qobject_cast<QWindowsXPStyle *>(style()))
-        setClipRect = true;
-#endif
-
-    if (setClipRect && !isMinimized() && !d->hasBorder(d->cachedStyleOptions))
+    // ### Ensure that we do not require setting the cliprect for 4.4
+    if (!isMinimized() && !d->hasBorder(d->cachedStyleOptions))
         painter.setClipRect(rect().adjusted(0, d->titleBarHeight(d->cachedStyleOptions), 0, 0));
     if (!isMinimized() || d->hasBorder(d->cachedStyleOptions))
         painter.drawPrimitive(QStyle::PE_FrameWindow, frameOptions);
