@@ -2527,8 +2527,9 @@ void tst_QDateTimeEdit::calendarPopup()
     QCOMPARE(testWidget->calendarPopup(), true);
     QStyle *style = testWidget->style();
     QStyleOptionComboBox opt;
-    opt.initFrom(testWidget);
-    opt.subControls = QStyle::SC_ComboBoxArrow;
+	opt.initFrom(testWidget);
+    opt.editable = true;
+	opt.subControls = QStyle::SC_ComboBoxArrow;
     QRect rect = style->subControlRect(QStyle::CC_ComboBox, &opt, QStyle::SC_ComboBoxArrow, testWidget);
     QTest::mouseClick(testWidget, Qt::LeftButton, 0, QPoint(rect.left()+rect.width()/2, rect.top()+rect.height()/2));
     QWidget *wid = testWidget->findChild<QWidget *>("qt_datetimedit_calendar");
