@@ -2412,7 +2412,7 @@ bool QXmlStreamReader::isStandaloneDocument() const
 
   Element tags are opened with writeStartElement() followed by
   writeAttribute() or writeAttributes(), element content, and then
-  writeEndDocument(). A shorter form writeEmptyElement() can be used
+  writeEndElement(). A shorter form writeEmptyElement() can be used
   to write empty elements.
 
   Element content consists of either characters, entity references or
