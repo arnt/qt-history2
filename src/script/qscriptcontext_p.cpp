@@ -2100,9 +2100,30 @@ QScriptValueImpl QScriptContextPrivate::throwError(QScriptContext::Error error, 
     default:
         ctor->newError(&m_result, text);
     }
+    setDebugInformation(&m_result);
     m_state = QScriptContext::ExceptionState;
-    m_result.setProperty(QLatin1String("lineNumber"), QScriptValueImpl(eng_p, currentLine));
     return m_result;
+}
+
+void QScriptContextPrivate::setDebugInformation(QScriptValueImpl *error) const
+{
+    QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(engine());
+    error->setProperty(QLatin1String("lineNumber"), QScriptValueImpl(eng_p, currentLine));
+
+    if (m_callee.isValid()) {
+        QScriptFunction *currentFunction = m_callee.toFunction();
+        error->setProperty(QLatin1String("fileName"), QScriptValueImpl(eng_p, currentFunction->fileName()));
+    }
+
+    const QScriptContext *ctx = q_func();
+    QScriptValueImpl stackArray = eng_p->newArray();
+    int i = 0;
+    while (ctx) {
+        stackArray.setProperty(i, QScriptValuePrivate::valueOf(ctx->activationObject()));
+        ctx = ctx->parentContext();
+        ++i;
+    }
+    error->setProperty(QLatin1String("stack"), stackArray);
 }
 
 QScriptValueImpl QScriptContextPrivate::throwError(const QString &text)

@@ -118,6 +118,10 @@ void Error::execute(QScriptContextPrivate *context)
 
     QScriptValueImpl result;
     newError(&result, publicPrototype, message);
+
+    if (context->previous)
+        QScriptContextPrivate::get(context->previous)->setDebugInformation(&result);
+
     context->setReturnValue(result);
 }
 
@@ -159,8 +163,10 @@ void Error::newURIError(QScriptValueImpl *result, const QString &message)
 void Error::newError(QScriptValueImpl *result, const QScriptValueImpl &proto,
                      const QString &message)
 {
-    engine()->newObject(result, proto, classInfo());
-    result->setProperty(QLatin1String("message"), QScriptValueImpl(engine(), message));
+    QScriptEnginePrivate *eng_p = engine();
+
+    eng_p->newObject(result, proto, classInfo());
+    result->setProperty(QLatin1String("message"), QScriptValueImpl(eng_p, message));
 }
 
 void Error::newErrorPrototype(QScriptValueImpl *result, const QScriptValueImpl &proto,

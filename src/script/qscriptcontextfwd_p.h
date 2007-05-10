@@ -132,6 +132,8 @@ public:
     QScriptValueImpl throwError(QScriptContext::Error error, const QString &text);
     QScriptValueImpl throwError(const QString &text);
 
+    void setDebugInformation(QScriptValueImpl *error) const;
+
     QScriptValueImpl throwNotImplemented(const QString &name);
     QScriptValueImpl throwNotDefined(const QString &name);
     QScriptValueImpl throwNotDefined(QScriptNameIdImpl *nameId);

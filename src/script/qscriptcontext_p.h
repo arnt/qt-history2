@@ -37,7 +37,9 @@ inline QScriptContextPrivate::QScriptContextPrivate()
 
 inline QScriptContextPrivate *QScriptContextPrivate::get(QScriptContext *q)
 {
-    return q->d_func();
+    if (q)
+        return q->d_func();
+    return 0;
 }
 
 inline QScriptContext *QScriptContextPrivate::create()

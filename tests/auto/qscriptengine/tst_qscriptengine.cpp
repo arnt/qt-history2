@@ -10,6 +10,7 @@
 #include <QtTest/QtTest>
 
 #include <qscriptengine.h>
+#include <qscriptvalueiterator.h>
 #include <qgraphicsitem.h>
 #include <qstandarditemmodel.h>
 
@@ -51,6 +52,7 @@ private slots:
     void gc();
     void gcWithNestedDataStructure();
     void processEventsWhileRunning();
+    void stacktrace();
 };
 
 tst_QScriptEngine::tst_QScriptEngine()
@@ -974,6 +976,49 @@ void tst_QScriptEngine::processEventsWhileRunning()
     eng.evaluate(script);
     QVERIFY(!eng.hasUncaughtException());
     QVERIFY(receiver.received);
+}
+
+void tst_QScriptEngine::stacktrace()
+{
+    QString script = QString::fromLatin1(
+        "function foo(counter) {\n"
+        "    if (counter > 4)\n"
+        "        throw new Error('blah');\n"
+        "    foo(counter + 1);\n"
+        "}\n"
+        "foo(0);");
+
+    const QString fileName("testfile");
+
+    QScriptEngine eng;
+    QScriptValue result = eng.evaluate(script, /*lineNumber*/1, fileName);
+    QVERIFY(eng.hasUncaughtException());
+    QVERIFY(result.isError());
+
+    QCOMPARE(result.property("fileName").toString(), fileName);
+    QCOMPARE(result.property("lineNumber").toInt32(), 3);
+
+    QScriptValue stack = result.property("stack");
+    QVERIFY(stack.isArray());
+
+    QCOMPARE(stack.property("length").toInt32(), 7);
+
+    QScriptValueIterator it(stack);
+    int counter = 5;
+    while (it.hasNext()) {
+        it.next();
+        QScriptValue frame = it.value();
+
+        if (counter >= 0) {
+            QScriptValue callee = frame.property("arguments").property("callee");
+            QVERIFY(callee.strictEqualTo(eng.globalObject().property("foo")));
+            QCOMPARE(callee.property("__fileName__").toString(), fileName);
+        } else {
+            QVERIFY(frame.strictEqualTo(eng.globalObject()));
+        }
+
+        --counter;
+    }
 }
 
 QTEST_MAIN(tst_QScriptEngine)

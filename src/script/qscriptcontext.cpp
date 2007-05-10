@@ -281,6 +281,10 @@ void QScriptContext::setReturnValue(const QScriptValue &result)
 QScriptValue QScriptContext::activationObject() const
 {
     Q_D(const QScriptContext);
+    if (d->previous && !d->m_activation.property(QLatin1String("arguments")).isValid()) {
+        QScriptContextPrivate *dd = const_cast<QScriptContextPrivate*>(d);
+        dd->m_activation.setProperty(QLatin1String("arguments"), QScriptValuePrivate::valueOf(argumentsObject()));
+    }
     return d->m_activation;
 }
 
