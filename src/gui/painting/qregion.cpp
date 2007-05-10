@@ -420,16 +420,14 @@ QRegion& QRegion::operator|=(const QRegion &r)
     { return *this = *this | r; }
 
 /*!
+    \fn QRegion& QRegion::operator+=(const QRegion &r)
+
     Applies the united() function to this region and \a r and assigns
     the result to this region. \c r1+=r2 is equivalent to \c
     {r1 = r1.united(r2)}.
 
     \sa intersected()
 */
-#if defined(Q_WS_WIN)
-QRegion& QRegion::operator+=(const QRegion &r)
-    { return *this = *this + r; }
-#endif
 
 /*!
     Applies the intersected() function to this region and \a r and
@@ -438,8 +436,10 @@ QRegion& QRegion::operator+=(const QRegion &r)
 
     \sa intersected()
 */
+#ifndef Q_WS_WIN
 QRegion& QRegion::operator&=(const QRegion &r)
     { return *this = *this & r; }
+#endif
 
 /*!
     Applies the subtracted() function to this region and \a r and
@@ -448,8 +448,10 @@ QRegion& QRegion::operator&=(const QRegion &r)
 
     \sa subtracted()
 */
+#ifndef Q_WS_WIN
 QRegion& QRegion::operator-=(const QRegion &r)
     { return *this = *this - r; }
+#endif
 
 /*!
     Applies the xored() function to this region and \a r and

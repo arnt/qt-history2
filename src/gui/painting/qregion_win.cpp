@@ -388,6 +388,61 @@ bool QRegion::operator==(const QRegion &r) const
                        : EqualRgn(d->rgn, r.d->rgn); // both non-empty
 }
 
+QRegion& QRegion::operator+=(const QRegion &r)
+{
+    if (!r.d->rgn)
+        return *this;
+
+    if (!d->rgn) {
+        *this = r;
+        return *this;
+    }
+
+    detach();
+
+    int result;
+    result = CombineRgn(d->rgn, d->rgn, r.d->rgn, RGN_OR);
+    if (result == NULLREGION || result == ERROR)
+        *this = QRegion();
+
+    return *this;
+}
+
+QRegion& QRegion::operator-=(const QRegion &r)
+{
+    if (!r.d->rgn || !d->rgn)
+        return *this;
+
+    detach();
+
+    int result;
+    result = CombineRgn(d->rgn, d->rgn, r.d->rgn, RGN_DIFF);
+    if (result == NULLREGION || result == ERROR)
+        *this = QRegion();
+
+    return *this;
+}
+
+QRegion& QRegion::operator&=(const QRegion &r)
+{
+    if (!d->rgn)
+        return *this;
+
+    if (!r.d->rgn) {
+        *this = QRegion();
+        return *this;
+    }
+
+    detach();
+
+    int result;
+    result = CombineRgn(d->rgn, d->rgn, r.d->rgn, RGN_AND);
+    if (result == NULLREGION || result == ERROR)
+        *this = QRegion();
+
+    return *this;
+}
+
 bool qt_region_strictContains(const QRegion &region, const QRect &rect)
 {
     Q_UNUSED(region);
