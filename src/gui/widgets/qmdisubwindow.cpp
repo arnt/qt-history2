@@ -187,16 +187,6 @@ static inline int getResizeDeltaComponent(uint cflags, uint resizeFlag,
     return 0;
 }
 
-static inline bool isChildOf(const QWidget *child, QWidget *parent)
-{
-    if (!parent || !child)
-        return false;
-    const QWidget *widget = child;
-    while(widget && widget != parent)
-        widget = widget->parentWidget();
-    return widget != 0;
-}
-
 static inline bool isChildOfQMdiSubWindow(const QWidget *child)
 {
     Q_ASSERT(child);
@@ -1447,8 +1437,7 @@ QStyleOptionTitleBar QMdiSubWindowPrivate::titleBarOptions() const
     titleBarOptions.palette = titleBarPalette;
     titleBarOptions.icon = menuIcon;
 
-    if (titleBarOptions.titleBarState & Qt::WindowActive
-            && isChildOf(q, QApplication::activeWindow())) {
+    if (titleBarOptions.titleBarState & Qt::WindowActive) {
         titleBarOptions.state |= QStyle::State_Active;
         titleBarOptions.titleBarState |= QStyle::State_Active;
         titleBarOptions.palette.setCurrentColorGroup(QPalette::Active);
@@ -2866,12 +2855,10 @@ void QMdiSubWindow::paintEvent(QPaintEvent *paintEvent)
     frameOptions.initFrom(this);
     frameOptions.lineWidth = style()->pixelMetric(QStyle::PM_MDIFrameWidth, 0, this);
     frameOptions.midLineWidth = 1;
-    if (d->cachedStyleOptions.titleBarState & Qt::WindowActive
-            && isChildOf(this, QApplication::activeWindow())) {
+    if (d->cachedStyleOptions.titleBarState & Qt::WindowActive)
         frameOptions.state |= QStyle::State_Active;
-    } else {
+    else
         frameOptions.state &= ~QStyle::State_Active;
-    }
 
     // ### Ensure that we do not require setting the cliprect for 4.4
     if (!isMinimized() && !d->hasBorder(d->cachedStyleOptions))
