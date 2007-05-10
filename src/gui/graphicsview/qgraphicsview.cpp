@@ -384,8 +384,8 @@ void QGraphicsViewPrivate::recalculateContentSize()
     // Adjust the maximum width and height of the viewport based on the width
     // of visible scroll bars.
     int scrollBarExtent = q->style()->pixelMetric(QStyle::PM_ScrollBarExtent, 0, q);
-    bool useHorizontalScrollBar = (viewRect.width() > maxSize.width());
-    bool useVerticalScrollBar = (viewRect.height() > maxSize.height());
+    bool useHorizontalScrollBar = (viewRect.width() > maxSize.width()) && hbarpolicy != Qt::ScrollBarAlwaysOff;
+    bool useVerticalScrollBar = (viewRect.height() > maxSize.height()) && vbarpolicy != Qt::ScrollBarAlwaysOff;
     if (useHorizontalScrollBar && !useVerticalScrollBar) {
         if (viewRect.height() > maxSize.height() - scrollBarExtent)
             useVerticalScrollBar = true;
