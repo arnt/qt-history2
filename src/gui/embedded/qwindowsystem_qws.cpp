@@ -913,6 +913,9 @@ void QWSClient::sendEmbedEvent(int windowid, QWSEmbedEvent::Type type,
     class yourself. Use the instance() function to retrieve a pointer
     to the server object.
 
+    Note that the static functions of the QWSServer class can only be
+    used in the server process.
+
     \tableofcontents
 
     \section1 Client Administration
@@ -1984,6 +1987,8 @@ void QWSServer::refresh(QRegion & r)
     Sets the maximum area of the screen that \l {Qtopia Core}
     applications can use, to be the given \a rectangle.
 
+    Note that this function can only be used in the server process.
+
     \sa QWidget::showMaximized()
 */
 void QWSServer::setMaxWindowRect(const QRect &rect)
@@ -2023,7 +2028,9 @@ void QWSServerPrivate::sendMaxWindowRectEvents(const QRect &rect)
     environment variable is not defined, to be the given \a
     mouseDriver.
 
-    Note that the default is platform-dependent.
+    Note that the default is platform-dependent. This function can
+    only be used in the server process.
+
 
     \sa setMouseHandler(), {Qtopia Core Pointer Handling}
 */
@@ -2039,7 +2046,8 @@ void QWSServer::setDefaultMouse(const char *m)
     environment variable is not defined, to be the given \a
     keyboardDriver.
 
-    Note that the default is platform-dependent.
+    Note that the default is platform-dependent. This function can
+    only be used in the server process.
 
     \sa setKeyboardHandler(), {Qtopia Core Character Input}
 */
@@ -2196,6 +2204,8 @@ void QWSServerPrivate::sendMouseEventUnfiltered(const QPoint &pos, int state, in
 /*!
     Returns the primary mouse driver.
 
+    Note that this function can only be used in the server process.
+
     \sa setMouseHandler(), openMouse(), closeMouse()
 */
 QWSMouseHandler *QWSServer::mouseHandler()
@@ -2215,6 +2225,8 @@ QWSMouseHandler *QWSServer::mouseHandler()
     custom drivers are typically added using Qt's plugin
     mechanism. See the \l {Qtopia Core Pointer Handling} documentation
     for details.
+
+    Note that this function can only be used in the server process.
 
     \sa mouseHandler(), setDefaultMouse()
 */
@@ -2340,6 +2352,8 @@ static int keyUnicode(int keycode)
     event is caused by an auto-repeat mechanism and not an actual key
     press.
 
+    Note that this function can only be used in the server process.
+
     \sa processKeyEvent(), {Qtopia Core Character Input}
 */
 void QWSServer::sendKeyEvent(int unicode, int keycode, Qt::KeyboardModifiers modifiers,
@@ -2442,6 +2456,8 @@ void QWSServerPrivate::resetEngine()
     Shows the cursor if \a visible is true: otherwise the cursor is
     hidden.
 
+    Note that this function can only be used in the server process.
+
     \sa isCursorVisible()
 */
 void QWSServer::setCursorVisible(bool vis)
@@ -2456,6 +2472,8 @@ void QWSServer::setCursorVisible(bool vis)
 
 /*!
     Returns true if the cursor is visible; otherwise returns false.
+
+    Note that this function can only be used in the server process.
 
     \sa setCursorVisible()
 */
@@ -2553,6 +2571,8 @@ void QWSServer::sendIMQuery(int property)
     \fn void QWSServer::setCurrentInputMethod(QWSInputMethod *method)
 
     Sets the current input method to be the given \a method.
+
+    Note that this function can only be used in the server process.
 
     \sa sendIMQuery(), sendIMEvent()
 */
@@ -3462,6 +3482,8 @@ void QWSServer::closeKeyboard()
 /*!
     Returns the primary keyboard driver.
 
+    Note that this function can only be used in the server process.
+
     \sa setKeyboardHandler(), openKeyboard(), closeKeyboard()
 */
 QWSKeyboardHandler* QWSServer::keyboardHandler()
@@ -3478,6 +3500,8 @@ QWSKeyboardHandler* QWSServer::keyboardHandler()
     custom drivers are typically added using Qt's plugin
     mechanism. See the \l {Qtopia Core Character Input} documentation
     for details.
+
+    Note that this function can only be used in the server process.
 
     \sa keyboardHandler(), setDefaultKeyboard()
 */
@@ -3710,6 +3734,8 @@ const QBrush &QWSServer::backgroundBrush() const
     Sets the brush used as background in the absence of obscuring
     windows, to be the given \a brush.
 
+    Note that this function can only be used in the server process.
+
     \sa backgroundBrush()
 */
 void QWSServer::setBackground(const QBrush &brush)
@@ -3819,6 +3845,7 @@ static QList<QWSServer::KeyboardFilter*> *keyFilters = 0;
     press.
 
     This function is typically called internally by keyboard drivers.
+    Note that this function can only be used in the server process.
 
     \sa sendKeyEvent(), {Qtopia Core Character Input}
 */
@@ -3864,6 +3891,8 @@ void QWSServer::processKeyEvent(int unicode, int keycode, Qt::KeyboardModifiers 
     virtual keyboard drivers (i.e., events sent using the
     sendKeyEvent() function).
 
+    Note that this function can only be used in the server process.
+
     \sa removeKeyboardFilter()
 */
 void QWSServer::addKeyboardFilter(KeyboardFilter *f)
@@ -3891,6 +3920,8 @@ void QWSServer::addKeyboardFilter(KeyboardFilter *f)
     Note that the programmer is responsible for removing each added
     keyboard filter.
 
+    Note that this function can only be used in the server process.
+
     \sa addKeyboardFilter()
 */
 void QWSServer::removeKeyboardFilter()
@@ -3916,6 +3947,7 @@ void QWSServer::removeKeyboardFilter()
 
     Note that an interval of 0 milliseconds will turn off the
     screensaver, and that the \a intervals array must be 0-terminated.
+    This function can only be used in the server process.
 
     \sa setScreenSaverInterval(), setScreenSaverBlockLevel()
 */
@@ -3952,6 +3984,8 @@ void QWSServer::setScreenSaverIntervals(int* ms)
     Sets the timeout interval for the screensaver to the specified \a
     milliseconds. To turn off the screensaver, set the timout interval
     to 0.
+
+    Note that this function can only be used in the server process.
 
     \sa setScreenSaverIntervals(), setScreenSaverBlockLevel()
 */
@@ -4021,6 +4055,8 @@ void QWSServer::setScreenSaverInterval(int ms)
     QWSServer::setScreenSaverBlockLevel( blocklevel );
   \endcode
 
+    Note that this function can only be used in the server process.
+
   \sa setScreenSaverIntervals(), setScreenSaverInterval()
 */
 void QWSServer::setScreenSaverBlockLevel(int eventBlockLevel)
@@ -4072,6 +4108,8 @@ void QWSServerPrivate::_q_screenSaverSleep()
 
     Installs the given \a screenSaver, deleting the current screen
     saver.
+
+    Note that this function can only be used in the server process.
 
     \sa screenSaverActivate(), setScreenSaverInterval(), setScreenSaverIntervals(), setScreenSaverBlockLevel()
 */
@@ -4130,6 +4168,8 @@ void QWSServerPrivate::_q_screenSaverTimeout()
     Returns true if the screen saver is active; otherwise returns
     false.
 
+    Note that this function can only be used in the server process.
+
     \sa screenSaverActivate()
 */
 bool QWSServer::screenSaverActive()
@@ -4141,6 +4181,8 @@ bool QWSServer::screenSaverActive()
 /*!
     Activates the screen saver if \a activate is true; otherwise it is
     deactivated.
+
+    Note that this function can only be used in the server process.
 
     \sa screenSaverActive(), setScreenSaver()
 */
