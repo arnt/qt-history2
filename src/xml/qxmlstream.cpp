@@ -2416,9 +2416,9 @@ bool QXmlStreamReader::isStandaloneDocument() const
   to write empty elements.
 
   Element content consists of either characters, entity references or
-  nested elements. It is written with writeCharacters() - which also
+  nested elements. It is written with writeCharacters(), which also
   takes care of escaping all forbidden characters and character
-  sequences -, writeEntityReference(), or subsequent calls to
+  sequences, writeEntityReference(), or subsequent calls to
   writeStartElement(). A convenience method writeTextElement() can be
   used for writing terminal elements that contain nothing but text.
 
