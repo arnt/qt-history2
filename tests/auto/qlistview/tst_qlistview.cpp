@@ -1034,7 +1034,7 @@ void tst_QListView::scrollBarRanges()
     lv.setItemDelegate(delegate);
     lv.show();
 
-    for (int h = 10; h <= 210; ++h) {
+    for (int h = 30; h <= 210; ++h) {
         lv.resize(250, h);
         QTest::qWait(100); // wait for the layout to be done
         int visibleRowCount = lv.viewport()->size().height() / rowHeight;
