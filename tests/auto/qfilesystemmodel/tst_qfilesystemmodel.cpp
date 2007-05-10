@@ -108,6 +108,9 @@ tst_QFileSystemModel::tst_QFileSystemModel() : model(0)
 
 tst_QFileSystemModel::~tst_QFileSystemModel()
 {
+    QString tmp = QDir::temp().path() + QDir::separator() + QString("flatdirtest");
+    QDir dir(tmp);
+	QVERIFY(dir.rmdir(tmp));
 }
 
 void tst_QFileSystemModel::init()
@@ -134,7 +137,6 @@ void tst_QFileSystemModel::cleanup()
         }
         list = dir.entryList(QDir::AllEntries | QDir::System | QDir::Hidden | QDir::NoDotAndDotDot);
         QVERIFY(list.count() == 0);
-        QVERIFY(dir.rmdir(tmp));
     }
 }
 
