@@ -267,34 +267,6 @@ static inline qint32 toArrayIndex(const QScriptValueImpl &v)
 
 namespace QScript {
 
-class ScriptFunction: public QScriptFunction
-{
-public:
-    ScriptFunction(AST::FunctionExpression *definition, NodePool *astPool):
-        m_definition(definition), m_astPool(astPool), m_compiledCode(0) {}
-
-    virtual ~ScriptFunction() {}
-
-    virtual void execute(QScriptContextPrivate *context);
-
-    virtual QString toString(QScriptContextPrivate *context) const {
-        QScriptEngine *eng = context->engine();
-        QString str;
-        QTextStream out(&str, QIODevice::WriteOnly);
-        PrettyPretty pp(eng, out);
-        pp(m_definition, /*indent=*/ 1);
-        return str;
-    }
-
-    virtual Type type() const
-    { return QScriptFunction::Script; }
-
-private:
-    AST::FunctionExpression *m_definition;
-    QExplicitlySharedDataPointer<NodePool> m_astPool;
-    Code *m_compiledCode;
-};
-
 void ScriptFunction::execute(QScriptContextPrivate *context)
 {
     if (! m_compiledCode) {
@@ -311,6 +283,21 @@ void ScriptFunction::execute(QScriptContextPrivate *context)
     }
 
     context->execute(m_compiledCode);
+}
+
+QString ScriptFunction::toString(QScriptContextPrivate *context) const
+{
+    QScriptEngine *eng = context->engine();
+    QString str;
+    QTextStream out(&str, QIODevice::WriteOnly);
+    PrettyPretty pp(eng, out);
+    pp(m_definition, /*indent=*/ 1);
+    return str;
+}
+
+QString ScriptFunction::fileName() const
+{
+    return m_astPool->fileName();
 }
 
 } // namespace QScript

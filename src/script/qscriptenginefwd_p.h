@@ -97,6 +97,7 @@ public:
     QScriptNameIdImpl *id_length;
     QScriptNameIdImpl *id_callee;
     QScriptNameIdImpl *id___proto__;
+    QScriptNameIdImpl *id___fileName__;
 };
 
 } // namespace QScript
@@ -171,7 +172,7 @@ public:
     inline QScriptValueImpl newArray(const QScript::Array &value);
     inline QScriptValueImpl newArray(uint length = 0);
 
-    void evaluate(QScriptContextPrivate *context, const QString &contents, int lineNumber);
+    void evaluate(QScriptContextPrivate *context, const QString &contents, int lineNumber, const QString &fileName = QString());
 
     inline void setLexer(QScript::Lexer *lexer);
 

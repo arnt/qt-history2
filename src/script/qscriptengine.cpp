@@ -715,28 +715,18 @@ bool QScriptEngine::canEvaluate(const QString &program) const
   lineNumber plus one. When no starting line number is specified, line
   numbers will be 1-based.
 
+  \a fileName is used for error reporting. For example in error objects
+  the file name is accessible through the "fileName" property if it's
+  provided with this function.
+
   \sa canEvaluate(), hasUncaughtException()
 */
-QScriptValue QScriptEngine::evaluate(const QString &program, int lineNumber)
+QScriptValue QScriptEngine::evaluate(const QString &program, int lineNumber, const QString &fileName)
 {
     Q_D(QScriptEngine);
     QScriptContextPrivate *ctx_p = QScriptContextPrivate::get(d->currentContext());
-    d->evaluate(ctx_p, program, lineNumber);
+    d->evaluate(ctx_p, program, lineNumber, fileName);
     return ctx_p->m_result;
-}
-
-/*!
-  \overload
-
-  Evaluates \a program and returns the result of the evaluation.
-
-  The script code will be evaluated in the current context.
-
-  \sa canEvaluate(), hasUncaughtException()
-*/
-QScriptValue QScriptEngine::evaluate(const QString &program)
-{
-    return evaluate(program, /*lineNumber=*/1);
 }
 
 /*!

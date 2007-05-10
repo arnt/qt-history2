@@ -79,13 +79,13 @@ public:
     virtual ~EvalFunction() {}
 
     void evaluate(QScriptContextPrivate *context, const QString &contents,
-                  int lineNo, bool calledFromScript)
+                  int lineNo, const QString &fileName, bool calledFromScript)
     {
         QScriptEngine *engine = context->engine();
         QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(engine);
 
         QExplicitlySharedDataPointer<NodePool> pool;
-        pool = new NodePool();
+        pool = new NodePool(fileName);
         eng_p->setNodePool(pool);
 
         AST::Node *program = eng_p->createAbstractSyntaxTree(contents, lineNo);
@@ -126,6 +126,7 @@ public:
     {
         QScriptEnginePrivate *eng = QScriptEnginePrivate::get(context->engine());
         int lineNo = context->currentLine;
+        QString fileName; // don't set this for now, we don't want to change the official eval() for now.
 
         if (context->argumentCount() == 0) {
             context->setReturnValue(eng->undefinedValue());
@@ -133,7 +134,7 @@ public:
             QScriptValueImpl arg = context->argument(0);
             if (arg.isString()) {
                 QString contents = arg.toString();
-                evaluate(context, contents, lineNo, /*calledFromScript=*/true);
+                evaluate(context, contents, lineNo, fileName, /*calledFromScript=*/true);
             } else {
                 context->setReturnValue(arg);
             }
@@ -580,11 +581,11 @@ void QScriptEnginePrivate::maybeGC_helper(bool do_string_gc)
     m_oldTempStringRepositorySize = m_tempStringRepository.size();
 }
 
-void QScriptEnginePrivate::evaluate(QScriptContextPrivate *context, const QString &contents, int lineNumber)
+void QScriptEnginePrivate::evaluate(QScriptContextPrivate *context, const QString &contents, int lineNumber, const QString &fileName)
 {
     // ### try to remove cast
     QScript::EvalFunction *evalFunction = static_cast<QScript::EvalFunction*>(m_evalFunction);
-    evalFunction->evaluate(context, contents, lineNumber, /*calledFromScript=*/ false);
+    evalFunction->evaluate(context, contents, lineNumber, fileName, /*calledFromScript=*/ false);
 }
 
 qsreal QScriptEnginePrivate::convertToNativeDouble_helper(const QScriptValueImpl &object)
@@ -1449,6 +1450,7 @@ void QScriptEnginePrivate::init()
     m_id_table.id_length      = nameId(QLatin1String("length"), true);
     m_id_table.id_callee      = nameId(QLatin1String("callee"), true);
     m_id_table.id___proto__   = nameId(QLatin1String("__proto__"), true);
+    m_id_table.id___fileName__ = nameId(QLatin1String("__fileName__"), true);
 
     const int TEMP_STACK_SIZE = 10 * 1024;
     tempStackBegin = new QScriptValueImpl[TEMP_STACK_SIZE];
@@ -1630,12 +1632,14 @@ QScriptValueImpl QScriptEnginePrivate::importExtension(const QString &extension)
             for (int k = 0; dirExists && (k <= i); ++k)
                 dirExists = dirdir.cd(pathComponents.at(k));
             QString initjsContents;
+            QString initjsFileName;
             if (dirExists && dirdir.exists(initDotJs)) {
                 QFile file(dirdir.canonicalPath()
                            + QDir::separator() + initDotJs);
                 if (file.open(QIODevice::ReadOnly)) {
                     QTextStream ts(&file);
                     initjsContents = ts.readAll();
+                    initjsFileName = file.fileName();
                     file.close();
                 }
             }
@@ -1669,7 +1673,7 @@ QScriptValueImpl QScriptEnginePrivate::importExtension(const QString &extension)
             
             // the script is evaluated first
             if (!initjsContents.isEmpty()) {
-                evaluate(ctx_p, initjsContents, 0);
+                evaluate(ctx_p, initjsContents, 0, initjsFileName);
                 if (hasUncaughtException()) {
                     QScriptValueImpl r = ctx_p->returnValue();
                     popContext();

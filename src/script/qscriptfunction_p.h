@@ -27,6 +27,8 @@
 
 #include "qscriptobjectdata_p.h"
 #include "qscriptglobals_p.h"
+#include "qscriptcontext_p.h"
+#include "qscriptnodepool_p.h"
 
 #include <QtCore/QList>
 #ifndef QT_NO_QOBJECT
@@ -58,6 +60,9 @@ public:
     virtual QString toString(QScriptContextPrivate *context) const;
 
     virtual Type type() const { return Unknown; }
+
+    // name of the file the function is defined in
+    virtual QString fileName() const;
 
 public: // ### private
     int length;
@@ -103,6 +108,34 @@ public:
 private:
     QScriptInternalFunctionSignature m_funPtr;
     QScriptClassInfo *m_classInfo;
+};
+
+namespace AST {
+    class FunctionExpression;
+}
+
+// implemented in qscriptcontext_p.cpp
+class ScriptFunction: public QScriptFunction
+{
+public:
+    ScriptFunction(AST::FunctionExpression *definition, NodePool *astPool):
+        m_definition(definition), m_astPool(astPool), m_compiledCode(0) {}
+
+    virtual ~ScriptFunction() {}
+
+    virtual void execute(QScriptContextPrivate *context);
+
+    virtual QString toString(QScriptContextPrivate *context) const;
+
+    virtual Type type() const
+    { return QScriptFunction::Script; }
+
+    virtual QString fileName() const;
+
+private:
+    AST::FunctionExpression *m_definition;
+    QExplicitlySharedDataPointer<NodePool> m_astPool;
+    Code *m_compiledCode;
 };
 
 } // namespace QScript
