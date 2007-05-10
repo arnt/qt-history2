@@ -2417,7 +2417,7 @@ bool QXmlStreamReader::isStandaloneDocument() const
 
   Element content consists of either characters, entity references or
   nested elements. It is written with writeCharacters() - which also
-  takes care of excaping all forbidden characters and character
+  takes care of escaping all forbidden characters and character
   sequences -, writeEntityReference(), or subsequent calls to
   writeStartElement(). A convenience method writeTextElement() can be
   used for writing terminal elements that contain nothing but text.
@@ -2445,7 +2445,7 @@ bool QXmlStreamReader::isStandaloneDocument() const
   By default, QXmlStreamWriter encodes XML in UTF-8. Different
   encodings can be enforced using setCodec().
 
-  The \l{QXmlStream Bookmarks Example} illustrates how to use the a
+  The \l{QXmlStream Bookmarks Example} illustrates how to use a
   subclassed stream writer to write an XML bookmark file (XBEL) that
   was previously read in by a QXmlStreamReader.
 
