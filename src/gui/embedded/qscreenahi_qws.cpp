@@ -134,7 +134,7 @@ bool QAhiScreen::initDevice()
 {
     QScreenCursor::initSoftwareCursor();
 
-    status = AhiDispState(context, AhiDispStateOn, 0);
+    AhiSts_t status = AhiDispState(context, AhiDispStateOn, 0);
     if (status != AhiStsOk) {
         qCritical("QAhiScreen::connect(): AhiDispState failed: %x", status);
         return false;
