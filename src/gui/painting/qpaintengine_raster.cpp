@@ -1826,6 +1826,9 @@ static bool splitPolygon(const QPointF *points, int pointCount, QVector<QPointF>
     return upper->size() < pointCount && lower->size() < pointCount;
 }
 
+/*!
+  \internal
+ */
 void QRasterPaintEngine::fillPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode)
 {
     Q_D(QRasterPaintEngine);
