@@ -1978,6 +1978,11 @@ void QStyleSheetStyle::unsetPalette(QWidget *w)
 static void updateWidgets(const QList<const QWidget *>& widgets)
 {
     for (int i = 0; i < widgets.size(); ++i) {
+        const QWidget *widget = widgets.at(i);
+        styleRulesCache->remove(widget);
+        renderRulesCache->remove(widget);
+    }
+    for (int i = 0; i < widgets.size(); ++i) {
         QWidget *widget = const_cast<QWidget *>(widgets.at(i));
         widget->style()->polish(widget);
         QEvent event(QEvent::StyleChange);
@@ -2119,6 +2124,7 @@ void QStyleSheetStyle::repolish(QWidget *w)
 {
     QList<const QWidget *> children = qFindChildren<const QWidget *>(w, QString());
     children.append(w);
+    styleSheetCache->remove(w);
     updateWidgets(children);
 }
 

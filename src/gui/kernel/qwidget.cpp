@@ -1935,14 +1935,6 @@ void QWidgetPrivate::setStyle_helper(QStyle *newStyle, bool propagate, bool
 #endif
     extra->style = newStyle;
 
-    if (propagate) {
-        for (int i = 0; i < children.size(); ++i) {
-            QWidget *c = qobject_cast<QWidget*>(children.at(i));
-            if (c)
-                c->d_func()->inheritStyle();
-        }
-    }
-
     // repolish
     if (q->windowType() != Qt::Desktop) {
         if (polished) {
@@ -1958,6 +1950,15 @@ void QWidgetPrivate::setStyle_helper(QStyle *newStyle, bool propagate, bool
 #endif
         }
     }
+
+    if (propagate) {
+        for (int i = 0; i < children.size(); ++i) {
+            QWidget *c = qobject_cast<QWidget*>(children.at(i));
+            if (c)
+                c->d_func()->inheritStyle();
+        }
+    }
+
     QEvent e(QEvent::StyleChange);
     QApplication::sendEvent(q, &e);
 #ifdef QT3_SUPPORT
