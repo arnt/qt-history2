@@ -914,6 +914,20 @@ void tst_QScriptValue::getSetProperty()
     QCOMPARE(array.property("length").toUInt32(), quint32(1));
     QCOMPARE(array.property(1).isValid(), false);
 
+    // task 162051 -- detecting whether the property is an array index or not
+    QVERIFY(eng.evaluate("a = []; a['00'] = 123; a['00']").strictEqualTo(QScriptValue(&eng, 123)));
+    QVERIFY(eng.evaluate("a.length").strictEqualTo(QScriptValue(&eng, 0)));
+    QVERIFY(eng.evaluate("a.hasOwnProperty('00')").strictEqualTo(QScriptValue(&eng, true)));
+    QEXPECT_FAIL("", "hasOwnProperty() is buggy for Array objects", Continue);
+    QVERIFY(eng.evaluate("a.hasOwnProperty('0')").strictEqualTo(QScriptValue(&eng, false)));
+    QVERIFY(eng.evaluate("a[0]").isUndefined());
+    QVERIFY(eng.evaluate("a[0.5] = 456; a[0.5]").strictEqualTo(QScriptValue(&eng, 456)));
+    QVERIFY(eng.evaluate("a.length").strictEqualTo(QScriptValue(&eng, 0)));
+    QVERIFY(eng.evaluate("a.hasOwnProperty('0.5')").strictEqualTo(QScriptValue(&eng, true)));
+    QVERIFY(eng.evaluate("a[0]").isUndefined());
+    QVERIFY(eng.evaluate("a[0] = 789; a[0]").strictEqualTo(QScriptValue(&eng, 789)));
+    QVERIFY(eng.evaluate("a.length").strictEqualTo(QScriptValue(&eng, 1)));
+
     QScriptEngine otherEngine;
     QScriptValue otherNum = QScriptValue(&otherEngine, 123);
     QTest::ignoreMessage(QtWarningMsg, "QScriptValue::setProperty(oof) failed: cannot set value created in a different engine");

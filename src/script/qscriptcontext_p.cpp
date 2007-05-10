@@ -72,6 +72,23 @@ static inline void qscript_uint_to_string(qsreal i, QString &s)
     qscript_uint_to_string_helper(uint(i), s);
 }
 
+static inline qint32 toArrayIndex(const QScriptValueImpl &v)
+{
+    if (v.isNumber()) {
+        if (floor(v.m_number_value) == v.m_number_value)
+            return v.toUInt32();
+    } else if (v.isString()) {
+        QByteArray bytes = v.m_string_value->s.toUtf8();
+        char *eptr;
+        quint32 pos = strtoul(bytes.constData(), &eptr, 10);
+        if ((eptr == bytes.constData() + bytes.size())
+            && (QByteArray::number(pos) == bytes)) {
+            return pos;
+        }
+    }
+    return -1;
+}
+
 #define CREATE_MEMBER(__obj__, __name__, __member__, __flags__) do { \
     (__obj__).createMember(__name__, __member__, __flags__); \
     eng->adjustBytesAllocated(sizeof(QScript::Member) + sizeof(QScriptValueImpl)); \
@@ -328,19 +345,7 @@ bool QScriptContextPrivate::resolveField(QScriptEnginePrivate *eng,
         return false;
 
     if (QScript::Ecma::Array::Instance *arrayInstance = eng->arrayConstructor->get(object)) {
-        qint32 pos = -1;
-
-        if (m.isNumber())
-            pos = eng->convertToNativeInt32(m);
-
-        else if (m.isString()) {
-            QByteArray bytes = m.m_string_value->s.toUtf8();
-            char *eptr;
-            pos = strtoul(bytes.constData(), &eptr, 10);
-            if (eptr != bytes.constData() + bytes.size())
-                pos = -1;
-        }
-
+        qint32 pos = toArrayIndex(m);
         if (pos != -1) {
             *value = arrayInstance->value.at(pos);
 
@@ -915,19 +920,8 @@ Ltop:
             arrayInstance = static_cast<QScript::Ecma::Array::Instance *> (object.m_object_value->m_data.data());
 
         if (arrayInstance) {
-            qint32 pos = -1;
-            bool ok = m.isNumber();
-
-            if (ok)
-                pos = QScriptEnginePrivate::toUint32(eng->convertToNativeDouble(m));
-            else if (m.isString()) {
-                QByteArray bytes = m.m_string_value->s.toUtf8();
-                char *eptr;
-                pos = strtoul(bytes.constData(), &eptr, 10);
-                ok = (eptr == bytes.constData() + bytes.size());
-            }
-
-            if (ok) {
+            qint32 pos = toArrayIndex(m);
+            if (pos != -1) {
                 *--stackPtr = arrayInstance->value.at(pos);
 
                 if (! stackPtr->isValid())
@@ -1043,13 +1037,12 @@ Ltop:
         qint32 pos = -1;
 
         QScript::Ecma::Array::Instance *arrayInstance = eng->arrayConstructor->get(object);
-        if (arrayInstance && isNumerical(m)) {
-            pos = eng->convertToNativeInt32(m);
-        }
+        if (arrayInstance)
+            pos = toArrayIndex(m);
 
         stackPtr -= 3;
 
-        if (pos >= 0)
+        if (pos != -1)
             arrayInstance->value.assign(pos, value);
 
         else {
