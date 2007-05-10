@@ -1122,6 +1122,9 @@ void QGLWidget::setContext(QGLContext *context,
     QGLContext* oldcx = d->glcx;
     d->glcx = context;
 
+    if (parentWidget() && parentWidget()->x11Info().screen() != x11Info().screen())
+        d_func()->xinfo = parentWidget()->d_func()->xinfo;
+
     bool createFailed = false;
     if (!d->glcx->isValid()) {
         if (!d->glcx->create(shareContext ? shareContext : oldcx))

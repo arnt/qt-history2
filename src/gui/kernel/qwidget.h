@@ -659,6 +659,7 @@ private:
     friend class QLayout;
     friend class QWidgetItem;
     friend class QGLContext;
+    friend class QGLWidget;
     friend class QX11PaintEngine;
     friend class QWin32PaintEngine;
     friend class QShortcutPrivate;
