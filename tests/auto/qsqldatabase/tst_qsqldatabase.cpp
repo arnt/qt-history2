@@ -130,6 +130,8 @@ private slots:
 
     void oci_serverDetach_data() { generic_data(); }
     void oci_serverDetach(); // For task 154518
+    void oci_xmltypeSupport_data() { generic_data(); }
+    void oci_xmltypeSupport();
 
 private:
     void createTestTables(QSqlDatabase db);
@@ -269,6 +271,7 @@ void tst_QSqlDatabase::dropTestTables(QSqlDatabase db)
     tst_Databases::safeDropTable(db, qTableName("qtestalter"));
     tst_Databases::safeDropTable(db, qTableName("qtest_temp"));
     tst_Databases::safeDropTable(db, qTableName("qtest_bigint"));
+    tst_Databases::safeDropTable(db, qTableName("qtest_xmltype"));
     
     QSqlQuery q(0, db);
     if (db.driverName().startsWith("QPSQL")) {
@@ -865,18 +868,18 @@ void tst_QSqlDatabase::recordOCI()
     }
 
     const FieldDef fieldDefs[] = {
-	FieldDef("char(20)", QVariant::String,	    QString("blah1")),
-	FieldDef("varchar(20)", QVariant::String,  QString("blah2")),
-	FieldDef("nchar(20)", QVariant::String,    QString("blah3")),
-	FieldDef("nvarchar2(20)", QVariant::String,QString("blah4")),
-	FieldDef("number(10,5)", QVariant::Double, 1.1234567),
-	FieldDef("date", QVariant::DateTime,	    dt),
-//X?	FieldDef("long raw", QVariant::ByteArray,  QByteArray(Q3CString("blah5"))),
-	FieldDef("raw(2000)", QVariant::ByteArray, QByteArray(Q3CString("blah6")), FALSE),
-	FieldDef("blob", QVariant::ByteArray,	    QByteArray(Q3CString("blah7"))),
-//FIXME	FieldDef("clob", QVariant::CString,	    Q3CString("blah8")),
-//FIXME	FieldDef("nclob", QVariant::CString,	    Q3CString("blah9")),
-//X	FieldDef("bfile", QVariant::ByteArray,	    QByteArray(Q3CString("blah10"))),
+        FieldDef("char(20)", QVariant::String,          QString("blah1")),
+        FieldDef("varchar(20)", QVariant::String,       QString("blah2")),
+        FieldDef("nchar(20)", QVariant::String,         QString("blah3")),
+        FieldDef("nvarchar2(20)", QVariant::String,     QString("blah4")),
+        FieldDef("number(10,5)", QVariant::Double,      1.1234567),
+        FieldDef("date", QVariant::DateTime,            dt),
+//X?    FieldDef("long raw", QVariant::ByteArray,       QByteArray(Q3CString("blah5"))),
+        FieldDef("raw(2000)", QVariant::ByteArray,      QByteArray(Q3CString("blah6")), FALSE),
+        FieldDef("blob", QVariant::ByteArray,           QByteArray(Q3CString("blah7"))),
+//FIXME FieldDef("clob", QVariant::CString,             Q3CString("blah8")),
+//FIXME FieldDef("nclob", QVariant::CString,            Q3CString("blah9")),
+//X     FieldDef("bfile", QVariant::ByteArray,          QByteArray(Q3CString("blah10"))),
 
 	intytm,
 	intdts,
@@ -1827,6 +1830,37 @@ void tst_QSqlDatabase::oci_serverDetach()
             QFAIL(QString("Can't open database: " + db.lastError().text()));
         }
     }
+}
+
+void tst_QSqlDatabase::oci_xmltypeSupport()
+{
+    QFETCH(QString, dbName);
+    QSqlDatabase db = QSqlDatabase::database(dbName);
+    CHECK_DATABASE(db);
+
+    if (!db.driverName().startsWith("QOCI")) {
+        QSKIP("Oracle server specific test", SkipSingle);
+        return;
+    }
+
+    QString tableName = qTableName("qtest_xmltype");
+    QString xml("<?xml version=\"1.0\"?><TABLE_NAME>MY_TABLE</TABLE_NAME>");
+    QSqlQuery q(db);
+
+    // Embedding the XML in the statement
+    q.exec(QString("CREATE TABLE %1(xmldata xmltype)").arg(tableName));
+    QVERIFY2(q.exec(QString("INSERT INTO %1 values('%2')").arg(tableName).arg(xml)), q.lastError().text());
+    QVERIFY2(q.exec(QString("SELECT a.xmldata.getStringVal() FROM %1 a").arg(tableName)), q.lastError().text());
+    QVERIFY2(q.last(), q.lastError().text());
+    QCOMPARE(q.value(0).toString(), xml);
+
+    // Binding the XML with a prepared statement
+    QVERIFY2(q.prepare(QString("INSERT INTO %1 values(?)").arg(tableName)), q.lastError().text());
+    q.addBindValue(xml);
+    QVERIFY2(q.exec(), q.lastError().text());
+    QVERIFY2(q.exec(QString("SELECT a.xmldata.getStringVal() FROM %1 a").arg(tableName)), q.lastError().text());
+    QVERIFY2(q.last(), q.lastError().text());
+    QCOMPARE(q.value(0).toString(), xml);
 }
 
 // This test isn't really necessary as SQL_GUID / uniqueidentifier is
