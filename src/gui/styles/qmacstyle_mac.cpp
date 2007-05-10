@@ -723,10 +723,11 @@ HIRect QMacStylePrivate::pushButtonContentBounds(const QStyleOptionButton *btn,
 */
 QSize QMacStylePrivate::pushButtonSizeFromContents(const QStyleOptionButton *btn) const
 {
-    QSize csz;
-    QSize iconSize = btn->icon.isNull() ? QSize()
-                                        : (btn->iconSize + QSize(PushButtonContentPadding, 0));
-    QRect textRect = btn->fontMetrics.boundingRect(QRect(), Qt::AlignCenter, btn->text);
+    QSize csz(0, 0);
+    QSize iconSize = btn->icon.isNull() ? QSize(0, 0)
+                : (btn->iconSize + QSize(PushButtonContentPadding, 0));
+    QRect textRect = btn->text.isEmpty() ? QRect(0, 0, 1, 1)
+                : btn->fontMetrics.boundingRect(QRect(), Qt::AlignCenter, btn->text);
     csz.setWidth(iconSize.width() + textRect.width()
              + ((btn->features & QStyleOptionButton::HasMenu)
                             ? q->pixelMetric(QStyle::PM_MenuButtonIndicator, btn, 0) : 0));
