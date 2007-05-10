@@ -280,7 +280,7 @@
     \table
     \header \o Qt 3 type \o Qt 4 equivalent
     \row \o Qt::WShowModal \o Use QWidget::setWindowModality(Qt::ApplicationModal) instead.
-    \row \o Qt::WGroupLeader \o Use QWidget::setWindowModality(Qt::WindowModel)
+    \row \o Qt::WGroupLeader \o Use QWidget::setWindowModality(Qt::WindowModal)
          for each child dialog of the group leader, but do not change the modality
          of the group leader itself.
     \endtable
