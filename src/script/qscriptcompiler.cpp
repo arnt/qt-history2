@@ -443,7 +443,7 @@ bool Compiler::visit(AST::IdentifierExpression *node)
 bool Compiler::visit(AST::FunctionDeclaration *node)
 {
     iResolve(node->name);
-    iNewClosure(node->formals, node->body);
+    iNewClosure(node);
     iPutField();
     return false;
 }
@@ -452,10 +452,10 @@ bool Compiler::visit(AST::FunctionExpression *node)
 {
     if (node->name) {
         iResolve(node->name);
-        iNewClosure(node->formals, node->body);
+        iNewClosure(node);
         iAssign();
     } else {
-        iNewClosure(node->formals, node->body);
+        iNewClosure(node);
     }
     return false;
 }
@@ -1719,15 +1719,12 @@ void Compiler::iBranchTrue(int index)
     pushInstruction(QScriptInstruction::OP_BranchTrue, arg0);
 }
 
-void Compiler::iNewClosure(AST::FormalParameterList *formals, AST::Node *body)
+void Compiler::iNewClosure(AST::FunctionExpression *expr)
 {
     QScriptValueImpl arg0;
-    m_eng->newPointer(&arg0, formals);
+    m_eng->newPointer(&arg0, expr);
 
-    QScriptValueImpl arg1;
-    m_eng->newPointer(&arg1, body);
-
-    pushInstruction(QScriptInstruction::OP_NewClosure, arg0, arg1);
+    pushInstruction(QScriptInstruction::OP_NewClosure, arg0);
 }
 
 void Compiler::iIncr()

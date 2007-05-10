@@ -1290,23 +1290,6 @@ public:
     Statement *statement;
 };
 
-class FunctionDeclaration: public Node
-{
-public:
-    FunctionDeclaration(QScriptNameIdImpl *n, FormalParameterList *f, FunctionBody *b):
-        name (n), formals (f), body (b)
-        { kind = Kind_FunctionDeclaration; }
-
-    virtual ~FunctionDeclaration() {}
-
-    virtual void accept0(Visitor *visitor);
-
-// attributes
-    QScriptNameIdImpl *name;
-    FormalParameterList *formals;
-    FunctionBody *body;
-};
-
 class FunctionExpression: public ExpressionNode
 {
 public:
@@ -1322,6 +1305,18 @@ public:
     QScriptNameIdImpl *name;
     FormalParameterList *formals;
     FunctionBody *body;
+};
+
+class FunctionDeclaration: public FunctionExpression
+{
+public:
+    FunctionDeclaration(QScriptNameIdImpl *n, FormalParameterList *f, FunctionBody *b):
+        FunctionExpression(n, f, b)
+        { kind = Kind_FunctionDeclaration; }
+
+    virtual ~FunctionDeclaration() {}
+
+    virtual void accept0(Visitor *visitor);
 };
 
 class FormalParameterList: public Node

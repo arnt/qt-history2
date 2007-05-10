@@ -109,7 +109,7 @@ public:
     void iUnaryMinus();
     void iNew(int argc);
     void iNewArray();
-    void iNewClosure(AST::FormalParameterList *formals, AST::Node *body);
+    void iNewClosure(AST::FunctionExpression *expr);
     void iNewObject();
     void iNewRegExp(QScriptNameIdImpl *pattern);
     void iNewRegExp(QScriptNameIdImpl *pattern, QScriptNameIdImpl *flags);

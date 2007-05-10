@@ -32,7 +32,7 @@
 
 #define CHECK_TEMPSTACK(needed) do { \
     if (stackPtr + needed >= eng->tempStackEnd) { \
-        q->throwError(QLatin1String("out of memory")); \
+        throwError(QLatin1String("out of memory")); \
         HandleException(); \
     } \
 } while (0)
@@ -121,7 +121,7 @@ static inline qint32 toArrayIndex(const QScriptValueImpl &v)
                 getter = value; \
                 if (!member.isSetter() && !base.m_object_value->findSetter(&member)) { \
                     stackPtr -= 2; \
-                    q->throwError(QLatin1String("No setter defined")); \
+                    throwError(QLatin1String("No setter defined")); \
                     HandleException(); \
                 } \
                 base.get(member, &setter); \
@@ -130,7 +130,7 @@ static inline qint32 toArrayIndex(const QScriptValueImpl &v)
                 QScript::Member tmp = member; \
                 if (!base.m_object_value->findGetter(&member)) { \
                     stackPtr -= 2; \
-                    q->throwError(QLatin1String("No getter defined")); \
+                    throwError(QLatin1String("No getter defined")); \
                     HandleException(); \
                 } \
                 base.get(member, &getter); \
@@ -211,7 +211,7 @@ static inline qint32 toArrayIndex(const QScriptValueImpl &v)
                 getter = lhs; \
                 if (!member.isSetter() && !base.m_object_value->findSetter(&member)) { \
                     stackPtr -= 4; \
-                    q->throwError(QLatin1String("No setter defined")); \
+                    throwError(QLatin1String("No setter defined")); \
                     HandleException(); \
                 } \
                 base.get(member, &setter); \
@@ -220,7 +220,7 @@ static inline qint32 toArrayIndex(const QScriptValueImpl &v)
                 QScript::Member tmp = member; \
                 if (!base.m_object_value->findGetter(&member)) { \
                     stackPtr -= 4; \
-                    q->throwError(QLatin1String("No getter defined")); \
+                    throwError(QLatin1String("No getter defined")); \
                     HandleException(); \
                 } \
                 base.get(member, &getter); \
@@ -270,8 +270,8 @@ namespace QScript {
 class ScriptFunction: public QScriptFunction
 {
 public:
-    ScriptFunction(AST::Node *functionBody, NodePool *astPool):
-        m_functionBody(functionBody), m_astPool(astPool), m_compiledCode(0) {}
+    ScriptFunction(AST::FunctionExpression *definition, NodePool *astPool):
+        m_definition(definition), m_astPool(astPool), m_compiledCode(0) {}
 
     virtual ~ScriptFunction() {}
 
@@ -281,16 +281,8 @@ public:
         QScriptEngine *eng = context->engine();
         QString str;
         QTextStream out(&str, QIODevice::WriteOnly);
-        out << QLatin1String("function (");
-        for (int i = 0; i < formals.count(); ++i) {
-            if (i != 0)
-                out << QLatin1String(", ");
-            out << QScriptEnginePrivate::get(eng)->toString(formals.at(i));
-        }
-        out << QLatin1String(")") << endl << QLatin1String("{");
         PrettyPretty pp(eng, out);
-        pp(m_functionBody, /*indent=*/ 1);
-        out << endl << QLatin1String("}") << endl;
+        pp(m_definition, /*indent=*/ 1);
         return str;
     }
 
@@ -298,7 +290,7 @@ public:
     { return QScriptFunction::Script; }
 
 private:
-    AST::Node *m_functionBody;
+    AST::FunctionExpression *m_definition;
     QExplicitlySharedDataPointer<NodePool> m_astPool;
     Code *m_compiledCode;
 };
@@ -309,13 +301,13 @@ void ScriptFunction::execute(QScriptContextPrivate *context)
         QScriptEngine *eng = context->engine();
         Compiler compiler(eng);
 
-        CompilationUnit unit = compiler.compile(m_functionBody, formals);
+        CompilationUnit unit = compiler.compile(m_definition->body, formals);
         if (! unit.isValid()) {
             context->throwError(unit.errorMessage());
             return;
         }
 
-        m_compiledCode = m_astPool->createCompiledCode(m_functionBody, unit);
+        m_compiledCode = m_astPool->createCompiledCode(m_definition->body, unit);
     }
 
     context->execute(m_compiledCode);
@@ -379,7 +371,6 @@ bool QScriptContextPrivate::resolveField(QScriptEnginePrivate *eng,
 
 void QScriptContextPrivate::execute(QScript::Code *code)
 {
-    Q_Q(QScriptContext);
 #ifndef Q_SCRIPT_NO_PRINT_GENERATED_CODE
     qout << QLatin1String("function:") << endl;
     for (QScriptInstruction *current = code->firstInstruction; current != code->lastInstruction; ++current) {
@@ -526,7 +517,7 @@ Ltop:
         int n = iPtr->operand[0].m_int_value;
 
         if (n >= argc) {
-            q->throwError(QLatin1String("invalid argument"));
+            throwError(QLatin1String("invalid argument"));
             HandleException();
         }
 
@@ -562,7 +553,7 @@ Ltop:
                     } else {
                         if (!base.m_object_value->findGetter(&member)) {
                             stackPtr -= 1;
-                            q->throwError(QLatin1String("No getter defined"));
+                            throwError(QLatin1String("No getter defined"));
                             HandleException();
                         }
                         base.get(member, &getter);
@@ -962,7 +953,7 @@ Ltop:
                 } else {
                     if (!base.m_object_value->findGetter(&member)) {
                         stackPtr -= 1;
-                        q->throwError(QLatin1String("No getter defined"));
+                        throwError(QLatin1String("No getter defined"));
                         HandleException();
                     }
                     base.get(member, &getter);
@@ -1076,7 +1067,7 @@ Ltop:
                 if (!member.isSetter()) {
                     if (!base.m_object_value->findSetter(&member)) {
                         stackPtr -= 1;
-                        q->throwError(QLatin1String("no setter defined"));
+                        throwError(QLatin1String("no setter defined"));
                         HandleException();
                     }
                 }
@@ -1362,8 +1353,7 @@ Ltop:
     {
         CHECK_TEMPSTACK(1);
 
-        QScript::AST::FormalParameterList *formals = static_cast<QScript::AST::FormalParameterList *> (iPtr->operand[0].m_ptr_value);
-        QScript::AST::Node *functionBody = static_cast<QScript::AST::Node*> (iPtr->operand[1].m_ptr_value);
+        QScript::AST::FunctionExpression *expr = static_cast<QScript::AST::FunctionExpression *> (iPtr->operand[0].m_ptr_value);
 
 #ifndef Q_SCRIPT_NO_JOINED_FUNCTION
         if (QScript::Code *code = eng->findCode(functionBody)) {
@@ -1383,10 +1373,10 @@ Ltop:
         }
 #endif
 
-        QScript::ScriptFunction *function = new QScript::ScriptFunction(functionBody, code->astPool);
+        QScript::ScriptFunction *function = new QScript::ScriptFunction(expr, code->astPool);
 
         // update the formals
-        for (QScript::AST::FormalParameterList *it = formals; it != 0; it = it->next) {
+        for (QScript::AST::FormalParameterList *it = expr->formals; it != 0; it = it->next) {
             function->formals.append(it->name);
         }
         function->length = function->formals.count();
@@ -1505,7 +1495,7 @@ Ltop:
                 getter = value;
                 if (!member.isSetter() && !base.m_object_value->findSetter(&member)) {
                     stackPtr -= 2;
-                    q->throwError(QLatin1String("No setter defined"));
+                    throwError(QLatin1String("No setter defined"));
                     HandleException();
                 }
                 base.get(member, &setter);
@@ -1514,7 +1504,7 @@ Ltop:
                 QScript::Member tmp = member;
                 if (!base.m_object_value->findGetter(&member)) {
                     stackPtr -= 2;
-                    q->throwError(QLatin1String("No getter defined"));
+                    throwError(QLatin1String("No getter defined"));
                     HandleException();
                 }
                 base.get(member, &getter);
@@ -1615,7 +1605,7 @@ Ltop:
                 getter = value;
                 if (!member.isSetter() && !base.m_object_value->findSetter(&member)) {
                     stackPtr -= 2;
-                    q->throwError(QLatin1String("No setter defined"));
+                    throwError(QLatin1String("No setter defined"));
                     HandleException();
                 }
                 base.get(member, &setter);
@@ -1624,7 +1614,7 @@ Ltop:
                 QScript::Member tmp = member;
                 if (!base.m_object_value->findGetter(&member)) {
                     stackPtr -= 2;
-                    q->throwError(QLatin1String("No getter defined"));
+                    throwError(QLatin1String("No getter defined"));
                     HandleException();
                 }
                 base.get(member, &getter);
@@ -2130,10 +2120,7 @@ QScriptValueImpl QScriptContextPrivate::throwError(QScriptContext::Error error, 
 
 QScriptValueImpl QScriptContextPrivate::throwError(const QString &text)
 {
-    QScript::Ecma::Error *ctor = QScriptEnginePrivate::get(engine())->errorConstructor;
-    ctor->newError(&m_result, text);
-    m_state = QScriptContext::ExceptionState;
-    return m_result;
+    return throwError(QScriptContext::UnknownError, text);
 }
 
 QScriptValueImpl QScriptContextPrivate::throwNotImplemented(const QString &name)
