@@ -3066,12 +3066,18 @@ int QApplication::x11ProcessEvent(XEvent* event)
     case ClientMessage:                        // client message
         return x11ClientMessage(widget,event,False);
 
-    case ReparentNotify:                        // window manager reparents
+    case ReparentNotify: {                      // window manager reparents
+        // compress old reparent events to self
+        XEvent ev;
         while (XCheckTypedWindowEvent(X11->display,
                                       widget->internalWinId(),
                                       ReparentNotify,
-                                      event))
-            ;        // skip old reparent events
+                                      &ev)) {
+            if (ev.xreparent.window != ev.xreparent.event) {
+                XPutBackEvent(X11->display, &ev);
+                break;
+            }
+        }
         if (widget->isWindow()) {
             QTLWExtra *topData = widget->d_func()->topData();
 
@@ -3107,7 +3113,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
             }
         }
         break;
-
+    }
     case SelectionRequest: {
         XSelectionRequestEvent *req = &event->xselectionrequest;
         if (! req)
