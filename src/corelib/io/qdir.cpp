@@ -765,8 +765,8 @@ QString QDir::absoluteFilePath(const QString &fileName) const
         QDir dir("/home/bob");
         QString s;
 
-        s = dir.relativePath("images/file.jpg");     // s is "images/file.jpg"
-        s = dir.relativePath("/home/mary/file.txt"); // s is "../mary/file.txt"
+        s = dir.relativeFilePath("images/file.jpg");     // s is "images/file.jpg"
+        s = dir.relativeFilePath("/home/mary/file.txt"); // s is "../mary/file.txt"
     \endcode
 
     \sa absoluteFilePath() filePath() canonicalPath()
