@@ -57,6 +57,17 @@
     provided with Xcode 1.5 is known to generate bad code, use the November
     2004 GCC 3.3 updater \l{http://connect.apple.com}{available from Apple}.
 
+    \section2 gcc (GCC) 3.4.6 (Debian 3.4.6-5) on AMD64 (x86_64)
+
+    This compiler is known to miscompile some parts of Qt when doing a
+    release build. There are several workarounds:
+
+    \list 1
+    \o Use a debug build instead.
+    \o For each miscompilation encountered, recompile the file, removing the -O2 option.
+    \o Add -fno-gcse to the QMAKE_CXXFLAGS_RELEASE.
+    \endlist
+
     \section1 HP aC++ (HP-UX)
 
     If you are using an aCC earlier then aCC 3.3x you have to change the
