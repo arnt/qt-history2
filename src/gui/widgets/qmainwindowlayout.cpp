@@ -1073,12 +1073,16 @@ void QMainWindowLayout::getStyleOptionInfo(QStyleOptionToolBar *option, QToolBar
 void QMainWindowLayout::toggleToolBarsVisible()
 {
     layoutState.toolBarAreaLayout.visible = !layoutState.toolBarAreaLayout.visible;
-
-    QRect r = parentWidget()->geometry();
-    r = layoutState.toolBarAreaLayout.rectHint(r);
-
-//    widgetAnimator->animate(parentWidget(), r, true);
-    parentWidget()->setGeometry(r);
+    if (!layoutState.mainWindow->isMaximized()){
+        QPoint topLeft = parentWidget()->geometry().topLeft();
+        QRect r = parentWidget()->geometry();
+        r = layoutState.toolBarAreaLayout.rectHint(r);
+        r.moveTo(topLeft);
+        parentWidget()->setGeometry(r);
+//      widgetAnimator->animate(parentWidget(), r, true);
+    } else{
+        update();
+    }
 }
 
 #endif // QT_NO_TOOLBAR
