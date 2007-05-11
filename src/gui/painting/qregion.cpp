@@ -429,26 +429,30 @@ QRegion& QRegion::operator|=(const QRegion &r)
     \sa intersected()
 */
 
-#ifndef Q_WS_WIN
 /*!
-    Applies the intersected() function to this region and \a r and
-    assigns the result to this region. \c r1&=r2 is equivalent to \c
-    r1 = r1.intersected(r2).
+  \fn QRegion& QRegion::operator&=(const QRegion &r)
 
-    \sa intersected()
+  Applies the intersected() function to this region and \a r and
+  assigns the result to this region. \c r1&=r2 is equivalent to \c
+  r1 = r1.intersected(r2).
+  
+  \sa intersected()
 */
+#ifndef Q_WS_WIN
 QRegion& QRegion::operator&=(const QRegion &r)
     { return *this = *this & r; }
 #endif
 
-#ifndef Q_WS_WIN
 /*!
-    Applies the subtracted() function to this region and \a r and
-    assigns the result to this region. \c r1-=r2 is equivalent to \c
-    {r1 = r1.subtracted(r2)}.
-
-    \sa subtracted()
+  \fn QRegion& QRegion::operator-=(const QRegion &r)
+  
+  Applies the subtracted() function to this region and \a r and
+  assigns the result to this region. \c r1-=r2 is equivalent to \c
+  {r1 = r1.subtracted(r2)}.
+  
+  \sa subtracted()
 */
+#ifndef Q_WS_WIN
 QRegion& QRegion::operator-=(const QRegion &r)
     { return *this = *this - r; }
 #endif

@@ -355,6 +355,12 @@ QDBusMessage QDBusMessage::createError(const QString &name, const QString &msg)
     Constructs a new DBus message representing the given \a error.
 */
 
+/*!
+  \fn QDBusMessage QDBusMessage::createError(QDBusError::ErrorType type, const QString &msg)
+
+  Constructs a new DBus message for the error type \a type using
+  the message \a msg. Returns the DBus message.
+*/
 
 /*!
     \fn QDBusMessage QDBusMessage::createReply(const QList<QVariant> &arguments) const
@@ -410,6 +416,13 @@ QDBusMessage QDBusMessage::createErrorReply(const QString name, const QString &m
 
     Constructs a new DBus message representing an error reply message,
     from the given \a error object.
+*/
+
+/*!
+  \fn QDBusMessage QDBusMessage::createErrorReply(QDBusError::ErrorType type, const QString &msg) const
+
+  Constructs a new DBus reply message for the error type \a type using
+  the message \a msg. Returns the DBus message.
 */
 
 /*!

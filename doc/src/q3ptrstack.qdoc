@@ -133,7 +133,8 @@
   \fn void Q3PtrStack::setAutoDelete(bool enable) 
 
   Defines whether this stack auto-deletes its contents. The same as
-  Q3PtrCollection::setAutoDelete().
+  Q3PtrCollection::setAutoDelete(). If \a enable is true, auto-delete
+  is turned on.
 
   If auto-deleting is turned on, all the items in the stack are
   deleted when the stack itself is deleted. This is convenient if

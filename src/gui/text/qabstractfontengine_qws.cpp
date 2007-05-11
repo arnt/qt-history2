@@ -182,7 +182,7 @@ class QFontEnginePluginPrivate : public QObjectPrivate
 /*!
     \class QFontEnginePlugin
     \preliminary
-    \brief QFontEnginePlugin is the base class for font engine factory plugins in Qtopia Core.
+    \brief The QFontEnginePlugin class is the base class for font engine factory plugins in Qtopia Core.
     \since 4.3
     \ingroup qws
 
@@ -244,10 +244,11 @@ class QAbstractFontEnginePrivate : public QObjectPrivate
 public:
 };
 
+//The <classname> class is|provides|contains|specifies...
 /*!
     \class QAbstractFontEngine
     \preliminary
-    \brief QAbstractFontEngine is the base class for font engine plugins in Qtopia Core.
+    \brief The QAbstractFontEngine class is the base class for font engine plugins in Qtopia Core.
     \since 4.3
     \ingroup qws
 

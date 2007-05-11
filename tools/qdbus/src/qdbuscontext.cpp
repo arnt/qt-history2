@@ -101,11 +101,17 @@ QDBusContextPrivate *QDBusContextPrivate::set(QObject *obj, QDBusContextPrivate 
     QObject::parent().
 */
 
+/*!
+  Constructs an empty QDBusContext.
+ */
 QDBusContext::QDBusContext()
     : d_ptr(0)
 {
 }
 
+/*!
+  An empty destructor.
+ */
 QDBusContext::~QDBusContext()
 {
 }
@@ -142,7 +148,7 @@ const QDBusMessage &QDBusContext::message() const
 /*!
     Returns true if this call will have a delayed reply.
 
-    \sa setDelayedReply
+    \sa setDelayedReply()
 */
 bool QDBusContext::isDelayedReply() const
 {
