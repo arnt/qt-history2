@@ -1,6 +1,5 @@
-include(../extensionpluginbase.pri)
-
 TARGET  = qtscriptgui
+include(../../qpluginbase.pri)
 QT = core gui script
 
 SOURCES += main.cpp \
@@ -40,5 +39,6 @@ SOURCES += graphicsitem.cpp \
 	   graphicsscene.cpp \
 	   graphicsview.cpp
 
+QTDIR_build:DESTDIR = $$QT_BUILD_TREE/plugins/script
 target.path += $$[QT_INSTALL_PLUGINS]/script
 INSTALLS += target

@@ -1,6 +1,5 @@
-include(../extensionpluginbase.pri)
-
 TARGET = qtscriptcore
+include(../../qpluginbase.pri)
 QT = core script
 
 SOURCES += main.cpp \
@@ -17,5 +16,6 @@ SOURCES += main.cpp \
 	   timer.cpp \
 	   string.cpp
 
+QTDIR_build:DESTDIR = $$QT_BUILD_TREE/plugins/script
 target.path += $$[QT_INSTALL_PLUGINS]/script
 INSTALLS += target
