@@ -346,6 +346,9 @@ void QMutex::unlock()
                 d->wakeUp();
         }
     } else {
+#ifndef QT_NO_DEBUG
+        d->owner = 0;
+#endif
         if (!d->contenders.testAndSetRelease(1, 0))
             d->wakeUp();
     }
