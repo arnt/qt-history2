@@ -578,31 +578,49 @@ void tst_QStyleSheetStyle::palettePropagation()
     QGroupBox gb;
     QPushButton *push = new QPushButton(&gb);
     QPushButton &pb = *push;
+    push->setText("AsdF");
 
-    gb.setStyleSheet("color: red");
+    gb.setStyleSheet("QGroupBox { color: red }");
     QVERIFY(COLOR(gb) == Qt::red);
     QVERIFY(COLOR(pb) == APPCOLOR(pb)); // palette shouldn't propagate
+    gb.setStyleSheet("QGroupBox * { color: red }");
+    QVERIFY(COLOR(pb) == Qt::red);
+    QVERIFY(COLOR(gb) == APPCOLOR(pb));
 
-    QComboBox *combo = new QComboBox(&gb);
-    QComboBox &cb = *combo;
-    QVERIFY(COLOR(cb) == APPCOLOR(cb));
-    QAbstractItemView &view = *(cb.view());
-    QVERIFY(COLOR(view) == APPCOLOR(view));
+    QWidget window;
+    window.setStyleSheet("* { color: white; }");
+    pb.setParent(&window);
+    QVERIFY(COLOR(pb) == Qt::white);
 }
 
 void tst_QStyleSheetStyle::fontPropagation()
 {
     qApp->setStyleSheet("");
+    QComboBox cb;
+    cb.addItem("item1");
+    cb.addItem("item2");
+    cb.setStyleSheet("QComboBox { font-size: 20pt; }");
+    QVERIFY(FONTSIZE(cb) == 20);
+    QAbstractItemView *popup = cb.view();
+    QVERIFY(FONTSIZE(*popup) == APPFONTSIZE());
+
     QGroupBox gb;
     QPushButton *push = new QPushButton(&gb);
     QPushButton &pb = *push;
 
-    gb.setStyleSheet("font-size: 20pt");
+    gb.setStyleSheet("QGroupBox { font-size: 20pt }");
     QVERIFY(FONTSIZE(gb) == 20);
-    QVERIFY(FONTSIZE(pb) == 20); // font propagates
-    pb.setParent(0);
-    QVERIFY(APPFONTSIZE() != FONTSIZE(gb));
-    QVERIFY(APPFONTSIZE() == FONTSIZE(pb)); // font restored
+    QVERIFY(FONTSIZE(pb) == APPFONTSIZE()); // font does not propagate
+    gb.setStyleSheet("QGroupBox * { font-size: 20pt; }");
+    QVERIFY(FONTSIZE(gb) == APPFONTSIZE());
+    QVERIFY(FONTSIZE(pb) == 20);
+
+    QWidget window;
+    window.setStyleSheet("* { font-size: 10pt }");
+    pb.setParent(&window);
+    QCOMPARE(FONTSIZE(pb), 10);
+    window.setStyleSheet("");
+    QVERIFY(FONTSIZE(pb) == APPFONTSIZE());
 }
 
 QTEST_MAIN(tst_QStyleSheetStyle)
