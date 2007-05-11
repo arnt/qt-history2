@@ -167,6 +167,7 @@ public:
     bool isShadeRequestFromMinimizeMode;
     bool isMaximizeMode;
     bool isWidgetHiddenByUs;
+    bool isActive;
     int keyboardSingleStep;
     int keyboardPageStep;
     int resizeTimerId;

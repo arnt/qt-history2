@@ -133,7 +133,7 @@ public:
     int resizeTimerId;
 
     // Slots.
-    void _q_deactivateAllWindows();
+    void _q_deactivateAllWindows(QMdiSubWindow *aboutToActivate = 0);
     void _q_processWindowStateChanged(Qt::WindowStates oldState, Qt::WindowStates newState);
 
     // Functions.

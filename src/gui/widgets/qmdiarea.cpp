@@ -468,15 +468,16 @@ QMdiAreaPrivate::QMdiAreaPrivate()
 /*!
     \internal
 */
-void QMdiAreaPrivate::_q_deactivateAllWindows()
+void QMdiAreaPrivate::_q_deactivateAllWindows(QMdiSubWindow *aboutToActivate)
 {
     if (ignoreWindowStateChange)
         return;
 
-    aboutToBecomeActive = qobject_cast<QMdiSubWindow *>(q_func()->sender());
+    if (!aboutToActivate)
+        aboutToBecomeActive = qobject_cast<QMdiSubWindow *>(q_func()->sender());
+    else
+        aboutToBecomeActive = aboutToActivate;
     Q_ASSERT(aboutToBecomeActive);
-    if (childWindows.isEmpty())
-        return;
 
     foreach (QMdiSubWindow *child, childWindows) {
         if (!sanityCheck(child, "QMdiArea::deactivateAllWindows") || aboutToBecomeActive == child)
@@ -490,10 +491,7 @@ void QMdiAreaPrivate::_q_deactivateAllWindows()
         if (child->isMinimized() && !child->isShaded() && !windowStaysOnTop(child))
             child->lower();
         ignoreWindowStateChange = false;
-        if (child->windowState() & Qt::WindowActive) {
-            QEvent windowDeactivate(QEvent::WindowDeactivate);
-            QApplication::sendEvent(child, &windowDeactivate);
-        }
+        child->d_func()->setActive(false);
     }
 }
 
@@ -540,7 +538,6 @@ void QMdiAreaPrivate::appendChild(QMdiSubWindow *child)
 {
     Q_Q(QMdiArea);
     Q_ASSERT(child && childWindows.indexOf(child) == -1);
-    Q_ASSERT(child->sizeHint().isValid());
 
     if (child->parent() != q->viewport())
         child->setParent(q->viewport(), child->windowFlags());
@@ -697,9 +694,8 @@ void QMdiAreaPrivate::activateWindow(QMdiSubWindow *child)
 
     if (!child) {
         if (active) {
-            Q_ASSERT(active->windowState() & Qt::WindowActive);
-            QEvent windowDeactivate(QEvent::WindowDeactivate);
-            QApplication::sendEvent(active, &windowDeactivate);
+            Q_ASSERT(active->d_func()->isActive);
+            active->d_func()->setActive(false);
             resetActiveWindow();
         }
         return;
@@ -707,10 +703,7 @@ void QMdiAreaPrivate::activateWindow(QMdiSubWindow *child)
 
     if (child->isHidden() || child == active)
         return;
-
-    Q_ASSERT(!(child->windowState() & Qt::WindowActive));
-    QEvent windowActivate(QEvent::WindowActivate);
-    QApplication::sendEvent(child, &windowActivate);
+    child->d_func()->setActive(true);
 }
 
 /*!
@@ -722,7 +715,11 @@ void QMdiAreaPrivate::emitWindowActivated(QMdiSubWindow *activeWindow)
     Q_ASSERT(activeWindow);
     if (activeWindow == active)
         return;
-    Q_ASSERT(activeWindow->windowState() & Qt::WindowActive);
+    Q_ASSERT(activeWindow->d_func()->isActive);
+
+    if (!aboutToBecomeActive)
+        _q_deactivateAllWindows(activeWindow);
+    Q_ASSERT(aboutToBecomeActive);
 
     // This is true only if 'DontMaximizeSubWindowOnActivation' is disabled
     // and the previous active window was maximized.
@@ -746,7 +743,7 @@ void QMdiAreaPrivate::emitWindowActivated(QMdiSubWindow *activeWindow)
     Q_ASSERT(aboutToBecomeActive == activeWindow);
     active = activeWindow;
     aboutToBecomeActive = 0;
-    Q_ASSERT(active->windowState() & Qt::WindowActive);
+    Q_ASSERT(active->d_func()->isActive);
     emit q->subWindowActivated(active);
 }
 

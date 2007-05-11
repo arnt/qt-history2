@@ -710,6 +710,7 @@ QMdiSubWindowPrivate::QMdiSubWindowPrivate()
       isShadeRequestFromMinimizeMode(false),
       isMaximizeMode(false),
       isWidgetHiddenByUs(false),
+      isActive(false),
       keyboardSingleStep(5),
       keyboardPageStep(20),
       resizeTimerId(-1),
@@ -791,7 +792,6 @@ void QMdiSubWindowPrivate::_q_enterInteractiveMode()
 void QMdiSubWindowPrivate::_q_processFocusChanged(QWidget *old, QWidget *now)
 {
     Q_UNUSED(old);
-
     Q_Q(QMdiSubWindow);
     if (now && (now == q || q->isAncestorOf(now))) {
         if (now == q && !isInInteractiveMode)
@@ -1224,7 +1224,8 @@ void QMdiSubWindowPrivate::setActive(bool activate)
     if (!q->parent())
         return;
 
-    if (activate && !(q->windowState() & Qt::WindowActive) && q->isEnabled()) {
+    if (activate && !isActive && q->isEnabled()) {
+        isActive = true;
         Qt::WindowStates oldWindowState = q->windowState();
         ensureWindowState(Qt::WindowActive);
         emit q->aboutToActivate();
@@ -1239,11 +1240,10 @@ void QMdiSubWindowPrivate::setActive(bool activate)
             }
 #endif // QT_NO_MAINWINDOW
         }
-        if (!q->hasFocus() && !q->isAncestorOf(QApplication::focusWidget()))
-            setFocusWidget();
-        Q_ASSERT(q->windowState() & Qt::WindowActive);
+        Q_ASSERT(isActive);
         emit q->windowStateChanged(oldWindowState, q->windowState());
-    } else if (!activate && q->windowState() & Qt::WindowActive) {
+    } else if (!activate && isActive) {
+        isActive = false;
         Qt::WindowStates oldWindowState = q->windowState();
         q->overrideWindowState(q->windowState() & ~Qt::WindowActive);
         QWidget *focusWidget = QApplication::focusWidget();
@@ -1251,8 +1251,14 @@ void QMdiSubWindowPrivate::setActive(bool activate)
             focusWidget->clearFocus();
         if (baseWidget)
             baseWidget->overrideWindowState(baseWidget->windowState() & ~Qt::WindowActive);
-        Q_ASSERT(!(q->windowState() & Qt::WindowActive));
+        Q_ASSERT(!isActive);
         emit q->windowStateChanged(oldWindowState, q->windowState());
+    }
+
+    if (activate && isActive && q->isEnabled() && !q->hasFocus()
+            && !q->isAncestorOf(QApplication::focusWidget())) {
+        setFocusWidget();
+        ensureWindowState(Qt::WindowActive);
     }
 
     int frameWidth = q->style()->pixelMetric(QStyle::PM_MDIFrameWidth);
@@ -1437,7 +1443,7 @@ QStyleOptionTitleBar QMdiSubWindowPrivate::titleBarOptions() const
     titleBarOptions.palette = titleBarPalette;
     titleBarOptions.icon = menuIcon;
 
-    if (titleBarOptions.titleBarState & Qt::WindowActive) {
+    if (isActive) {
         titleBarOptions.state |= QStyle::State_Active;
         titleBarOptions.titleBarState |= QStyle::State_Active;
         titleBarOptions.palette.setCurrentColorGroup(QPalette::Active);
@@ -2713,6 +2719,8 @@ void QMdiSubWindow::changeEvent(QEvent *changeEvent)
     else if (!(newState & (Qt::WindowMaximized | Qt::WindowMinimized)))
         d->setNormalMode();
 
+    if (d->isActive)
+        d->ensureWindowState(Qt::WindowActive);
     emit windowStateChanged(oldState, windowState());
 }
 
@@ -2855,7 +2863,7 @@ void QMdiSubWindow::paintEvent(QPaintEvent *paintEvent)
     frameOptions.initFrom(this);
     frameOptions.lineWidth = style()->pixelMetric(QStyle::PM_MDIFrameWidth, 0, this);
     frameOptions.midLineWidth = 1;
-    if (d->cachedStyleOptions.titleBarState & Qt::WindowActive)
+    if (d->isActive)
         frameOptions.state |= QStyle::State_Active;
     else
         frameOptions.state &= ~QStyle::State_Active;
