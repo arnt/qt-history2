@@ -64,7 +64,7 @@ private:
     bool measureFps();
     void forceFpsMedianCalculation();
     void checkAdapt();
-    void useHardwareAcceleration(bool use);
+    void setRenderingSystem();
     
     QTimer updateTimer;
     QTime demoStartTime;

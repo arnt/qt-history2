@@ -58,38 +58,38 @@ void MainWindow::setupWidget()
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setFrameStyle(QFrame::NoFrame);
-    this->useHardwareAcceleration(true);
+    this->setRenderingSystem();
     connect(&this->updateTimer, SIGNAL(timeout()), this, SLOT(tick()));
 }
 
-void MainWindow::useHardwareAcceleration(bool use)
+void MainWindow::setRenderingSystem()
 {
-    QWidget *viewport = new QWidget;
-    setCacheMode(QGraphicsView::CacheBackground);
+    QWidget *viewport = 0;
     
-#ifdef Q_OS_WIN32
-    if (use && !Colors::noDirect3d){
+    if (Colors::direct3dRendering){
         viewport->setAttribute(Qt::WA_MSWindowsUseDirect3D);
         setCacheMode(QGraphicsView::CacheNone);
         if (Colors::verbose)
             qDebug() << "- using Direct3D";
     }
-#endif
-
 #ifndef QT_NO_OPENGL    
-    if (use && !Colors::noOpenGl){
+    else if (Colors::openGlRendering){
         QGLWidget *glw = new QGLWidget(QGLFormat(QGL::SampleBuffers));
         if (Colors::noScreenSync)
             glw->format().setSwapInterval(0);
         glw->setAutoFillBackground(false);
-
-        delete viewport;
         viewport = glw;
         setCacheMode(QGraphicsView::CacheNone);
         if (Colors::verbose)
             qDebug() << "- using OpenGL";
     }
 #endif
+    else{ // software rendering
+        viewport = new QWidget;
+        setCacheMode(QGraphicsView::CacheBackground);
+        if (Colors::verbose)
+            qDebug() << "- using software rendering";
+    }
 
     setViewport(viewport);
 }
@@ -163,12 +163,13 @@ void MainWindow::switchTimerOnOff(bool on)
     else{
         this->useTimer = false;
         this->updateTimer.stop();
-        if (Colors::low)
-            this->setViewportUpdateMode(QGraphicsView::MinimalViewportUpdate);
-        else if (!Colors::noOpenGl)
-            this->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
+        if (Colors::softwareRendering)
+            if (Colors::noTicker)
+                this->setViewportUpdateMode(QGraphicsView::MinimalViewportUpdate);
+            else
+                this->setViewportUpdateMode(QGraphicsView::SmartViewportUpdate);
         else
-            this->setViewportUpdateMode(QGraphicsView::SmartViewportUpdate);
+            this->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
     }
 }	
 
@@ -344,14 +345,20 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
     }
     else if (event->key() == Qt::Key_1){
             QString s("");
-            s += "Adapt: ";
+            s += "Rendering system: ";
+            if (Colors::openGlRendering)
+                s += "OpenGL";
+            else if (Colors::direct3dRendering)
+                s += "Direct3D";
+            else
+                s += "software";
+                
+            s += "\nAdapt: ";
             s += Colors::noAdapt ? "off" : "on";
             s += "\nAdaption occured: ";
             s += Colors::adapted ? "yes" : "no";
             s += "\nLow settings: ";
             s += Colors::low ? "yes" : "no";
-            s += "\nOpenGL: ";
-            s += Colors::noOpenGl ? "off" : "on";
             s += "\nOpenGL version: ";
             s += Colors::glVersion;
             QWidget w;

@@ -24,8 +24,9 @@ private:
 
 public:
     static void parseArgs(int argc, char *argv[]);
-    static void adaptAccordingToEnvironment();
-
+    static void detectSystemResources();
+    static void postConfigure();
+    
     // Colors:
     static QColor sceneBg1;
     static QColor sceneBg2;
@@ -51,8 +52,13 @@ public:
     static int contentHeight;
 
     // properties:
-    static bool noOpenGl;
-    static bool noDirect3d;
+    static bool openGlRendering;
+    static bool direct3dRendering;
+    static bool softwareRendering;
+    static bool openGlAwailable;
+    static bool direct3dAwailable;
+    static bool xRenderPresent;
+    static bool low;
     static bool noAdapt;
     static bool noTicker;
     static bool noRescale;
@@ -66,7 +72,6 @@ public:
     static bool fullscreen;
     static bool showBoundingRect;
     static bool showFps;
-    static bool low;
     static bool noTimerUpdate;
     static bool noTickerMorph;
     static bool useButtonBalls;

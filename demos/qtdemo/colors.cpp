@@ -43,8 +43,13 @@ int Colors::contentStartY = 22;
 int Colors::contentHeight = 510;
 
 // Properties:
-bool Colors::noOpenGl = false;
-bool Colors::noDirect3d = false;
+bool Colors::openGlRendering = false;
+bool Colors::direct3dRendering = false;
+bool Colors::softwareRendering = false;
+bool Colors::openGlAwailable = true;
+bool Colors::direct3dAwailable = true;
+bool Colors::xRenderPresent = true;
+
 bool Colors::noTicker = false;
 bool Colors::noRescale = false;
 bool Colors::noAnimations = false;
@@ -159,26 +164,30 @@ void Colors::parseArgs(int argc, char *argv[])
     // others. Handle them now:
     for (int i=1; i<argc; i++){
         QString s(argv[i]);
-        if (s == "-no-adapt")
-             Colors::noAdapt = true;
-        else if (s == "-low")
-             Colors::low = true;
-        else if (s == "-verbose")
+        if (s == "-verbose")
             Colors::verbose = true;
     }
 
-    Colors::adaptAccordingToEnvironment();
+    Colors::detectSystemResources();
 
     // Handle the rest of the arguments. They may
     // override attributes already set:
     for (int i=1; i<argc; i++){
         QString s(argv[i]);
-        if (s == "-no-opengl")
-            Colors::noOpenGl = true;
-        else if (s == "-no-direct3d")
-            Colors::noDirect3d = true;
+        if (s == "-opengl")
+            Colors::openGlRendering = true;
+        else if (s == "-direct3d")
+            Colors::direct3dRendering = true;
+        else if (s == "-software")
+            Colors::softwareRendering = true;
+        else if (s == "-no-opengl") // support old style
+            Colors::softwareRendering = true;
         else if (s == "-no-ticker")
             Colors::noTicker = true;
+        else if (s == "-no-adapt")
+            Colors::noAdapt = true;
+        else if (s == "-low")
+            Colors::low = true;
         else if (s == "-no-rescale")
             Colors::noRescale = true;
         else if (s == "-use-pixmaps")
@@ -221,16 +230,21 @@ void Colors::parseArgs(int argc, char *argv[])
             Colors::fps = int(parseFloat(s, "-fps"));
         else if (s.startsWith("-h") || s.startsWith("-help")){
             QMessageBox::warning(0, "Arguments",
-                                 QString("Usage: qtdemo [-no-adapt] [-no-opengl] [-no-direct3d] [-no-ticker] [-no-rescale] ")
-                                 + "[-no-animations] [-no-blending] [-no-sync] [-verbose] [-use-timer-update[0|1]] [-use-window-mask] [-fullscreen] "
+                                 QString("Usage: qtdemo [-verbose] [-no-adapt] [-opengl] [-direct3d] [-software] [-fullscreen] [-no-ticker] ")
+                                 + "[-no-animations] [-no-blending] [-no-sync] [-use-timer-update[0|1]] [-use-window-mask] [-no-rescale] "
                                  + "[-use-pixmaps] [-show-fps] [-show-br] [-use-8bit] [-use-loop] [-use-balls] [-animation-speed<float>] [-fps<int>] "
                                  + "[-low] [-ticker-letters<int>] [-ticker-speed<float>] [-no-ticker-morph] "
                                  + "[-ticker-morph-speed<float>] [-ticker-text<string>]");
             exit(0);
         }   
     }
+    
+    Colors::postConfigure();
+}
 
-#ifndef QT_NO_OPENGL
+void Colors::detectSystemResources()
+{
+#ifndef QT_NO_OPENGL    
     if (QGLFormat::openGLVersionFlags() & QGLFormat::OpenGL_Version_2_0)
         Colors::glVersion = "2.0 or higher";
     else if (QGLFormat::openGLVersionFlags() & QGLFormat::OpenGL_Version_1_5)
@@ -239,70 +253,101 @@ void Colors::parseArgs(int argc, char *argv[])
         Colors::glVersion = "1.4";
     else if (QGLFormat::openGLVersionFlags() & QGLFormat::OpenGL_Version_1_3)
         Colors::glVersion = "1.3 or lower";
+    if (Colors::verbose)
+        qDebug() << "- OpenGL version:" << Colors::glVersion;
+    
+    QGLWidget glw;
+    if (!QGLFormat::hasOpenGL()
+        || !glw.format().directRendering()
+        || !(QGLFormat::openGLVersionFlags() & QGLFormat::OpenGL_Version_1_5)
+        || glw.depth() < 24
+    )
+#else
+    if (Colors::verbose)
+        qDebug() << "- OpenGL not supported by current build of Qt";
+#endif    
+    {
+        Colors::openGlAwailable = false;
+        if (Colors::verbose)
+            qDebug("- OpenGL not recommended on this system");
+    }
 
-    if (!QGLFormat::hasOpenGL())
-#endif        
-        Colors::noOpenGl = true;
-}
-
-void Colors::adaptAccordingToEnvironment()
-{
-    if (Colors::noAdapt)
-        return;
+#if defined(Q_WS_WIN)
+    Colors::direct3dAwailable = false; // for now.
+#endif
 
 #if defined(Q_WS_X11)
     // check if X render is present:
     QPixmap tmp(1, 1);
     if (!tmp.x11PictureHandle()){
-        Colors::low = true;
-        Colors::useEightBitPalette = true;
-        Colors::adapted = true;
+        Colors::xRenderPresent = false;
         if (Colors::verbose)
-            qDebug("- Adapt: X render not present.");
+            qDebug("- X render not present");
+    }
+
+#endif
+    
+    QWidget w;
+    if (Colors::verbose)
+        qDebug() << "- Color depth: " << QString::number(w.depth());       
+}
+
+void Colors::postConfigure()
+{
+    if (Colors::noAdapt){
+        Colors::noTicker = false;
+	    Colors::noTimerUpdate = false;
+	    Colors::fps = 100;
+        Colors::usePixmaps = false;
+        Colors::noAnimations = false;
+        Colors::noBlending = false;
+        Colors::useEightBitPalette = false;
+        if (Colors::verbose)
+            qDebug("- Adapt: 'No adaption' set. Switching all effects on");
+    } else {
+        QWidget w;
+        if (w.depth() < 16){
+            Colors::useEightBitPalette = true;
+            Colors::adapted = true;
+            if (Colors::verbose)
+                qDebug() << "- Adapt: Using 8 bit palette";
+        }
+        
+        if (Colors::low || !Colors::xRenderPresent){
+            Colors::adapted = true;
+            Colors::openGlRendering = false;
+            Colors::direct3dRendering = false;
+            Colors::softwareRendering = true;
+            Colors::noTicker = true;
+            Colors::noTimerUpdate = true;
+            Colors::fps = 30;
+            Colors::usePixmaps = true;
+            Colors::noAnimations = true;
+            Colors::noBlending = true;
+            if (Colors::verbose)
+                qDebug() << "- Adapt: Using low settings";
+        }    
+    }
+
+#if !defined(Q_WS_WIN)
+    if (Colors::direct3dRendering){
+        Colors::direct3dRendering = false;
+            qDebug() << "- WARNING: Direct3D specified, but not supported on this platform";
     }
 #endif
 
-#ifndef QT_NO_OPENGL    
-    QGLWidget glw;
-    if (Colors::low
-        || !QGLFormat::hasOpenGL()
-        || !glw.format().directRendering()
-        || !(QGLFormat::openGLVersionFlags() & QGLFormat::OpenGL_Version_1_5)
-        || glw.depth() < 24
-    )
-#endif    
-    {
-        // Since we are not going to use OpenGL,
-        // turn off the most requiering stuff:
-        Colors::noOpenGl = true;
-        Colors::noTicker = true;
-	    Colors::fps = 50;
-        Colors::usePixmaps = true;
-        Colors::adapted = true;
-        if (Colors::verbose)
-            qDebug("- Adapt: not using OpenGL.");
-    }
-
-    if (Colors::low){
-        Colors::noOpenGl = true;
-        Colors::noTicker = true;
-	    Colors::noTimerUpdate = true;
-	    Colors::fps = 30;
-        Colors::usePixmaps = true;
-        Colors::noAnimations = true;
-        Colors::noBlending = true;
-        Colors::low = true;
-        Colors::adapted = true;
-        if (Colors::verbose)
-            qDebug("- Adapt: using setting 'low'.");
-    }
-
-    QWidget w;
-    if (w.depth() < 16){
-        Colors::useEightBitPalette = true;
-        Colors::adapted = true;
-        if (Colors::verbose)
-            qDebug("- Adapt: color depth < 16. Using 8 bit palette.");
-    }
+    if (!Colors::openGlRendering && !Colors::direct3dRendering && !Colors::softwareRendering){
+        // The user has not decided rendering system. So we do it instead:
+#if defined(Q_WS_WIN)
+        if (Colors::direct3dAwailable)
+            Colors::direct3dRendering = true;
+        else
+#endif
+        if (Colors::openGlAwailable)
+            Colors::openGlRendering = true;
+        else
+            Colors::softwareRendering = true;
+    }   
 }
+
 
