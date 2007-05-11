@@ -17,6 +17,7 @@
 #include <QtCore/QFile>
 #include <QtCore/QTextStream>
 #include <QtCore/QStringList>
+#include <QtGui/QApplication>
 
 #if defined(WITH_DBUS)
 #include "qdbusbinding.h"
@@ -65,10 +66,31 @@ static void interactive(QScriptEngine &eng)
     }
 }
 
-int main(int, char *argv[])
+static QScriptValue importExtension(QScriptContext *context, QScriptEngine *engine)
 {
+    return engine->importExtension(context->argument(0).toString());
+}
+
+int main(int argc, char *argv[])
+{
+    QApplication *app;
+    if (argc >= 2 && !qstrcmp(argv[1], "-tty"))
+        app = new QApplication(argc, argv, QApplication::Tty);
+    else
+        app = new QApplication(argc, argv);
+
     QScriptEngine eng;
+
+    eng.importExtension("qt.core");
+    eng.importExtension("qt.gui");
+
     QScriptValue globalObject = eng.globalObject();
+
+    {
+        QScriptValue qscript = eng.newObject();
+        qscript.setProperty("importExtension", eng.newFunction(importExtension));
+        globalObject.property("qt").setProperty("script", qscript);
+    }
 
 #if defined(WITH_DBUS)
     registerDBusBindings(&eng);
@@ -115,6 +137,8 @@ int main(int, char *argv[])
             return EXIT_FAILURE;
         }
     }
+
+    delete app;
 
     return EXIT_SUCCESS;
 }
