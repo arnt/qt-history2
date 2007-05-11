@@ -186,7 +186,7 @@ QSizeF QItemDelegatePrivate::doTextLayout(int lineWidth) const
 
     Only the standard editing functions for widget-based delegates are
     reimplemented here: 
-    
+
     \list
         \o createEditor() returns the widget used to change data from the model
            and can be reimplemented to customize editing behavior.
@@ -195,7 +195,7 @@ QSizeF QItemDelegatePrivate::doTextLayout(int lineWidth) const
            with respect to the item view.
         \o setModelData() returns updated data to the model.
     \endlist
-    
+
     The closeEditor() signal indicates that the user has completed editing the data,
     and that the editor widget can be destroyed.
 
@@ -243,10 +243,10 @@ QSizeF QItemDelegatePrivate::doTextLayout(int lineWidth) const
     render items suitably for all the required states; e.g. selected,
     disabled, checked. The documentation for the paint() function contains
     some hints to show how this can be achieved.
-   
+
     You can provide custom editors by using a QItemEditorFactory. The
     \l{Color Editor Factory Example} shows how a custom editor can be
-    made available to \l{QItemDelegate}s with the default item editor
+    made available to delegates with the default item editor
     factory. This way, there is no need to subclass QItemDelegate.  An
     alternative is to reimplement createEditor(), setEditorData(),
     setModelData(), and updateEditorGeometry(). This process is

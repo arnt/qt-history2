@@ -299,7 +299,7 @@ void QItemEditorFactory::setDefaultFactory(QItemEditorFactory *factory)
     \since 4.2
     \ingroup model-view
 
-    \l{QItemEditorCreatorBase}s are specialized widget factories that
+    QItemEditorCreatorBase objects are specialized widget factories that
     provide editor widgets for one particular QVariant data type. They
     are used by QItemEditorFactory to create editors for
     \l{QItemDelegate}s. Creator bases must be registered with
