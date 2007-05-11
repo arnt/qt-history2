@@ -1078,6 +1078,8 @@ QScriptValueImpl QScriptEnginePrivate::create(int type, const void *ptr)
 #if defined(Q_OS_WIN) && defined(_MSC_FULL_VER) && _MSC_FULL_VER <= 12008804
 #pragma message("** NOTE: You need the Visual Studio Processor Pack to compile support for 64bit unsigned integers.")
             result = QScriptValueImpl(this, qsreal((qlonglong)*reinterpret_cast<const qulonglong*>(ptr)));
+#elif defined(Q_CC_MSVC) && !defined(Q_CC_MSVC_NET)
+            result = QScriptValueImpl(this, qsreal((qlonglong)*reinterpret_cast<const qulonglong*>(ptr)));
 #else
             result = QScriptValueImpl(this, qsreal(*reinterpret_cast<const qulonglong*>(ptr)));
 #endif
