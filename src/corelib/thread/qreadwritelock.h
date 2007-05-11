@@ -89,7 +89,11 @@ private:
 
 inline QReadLocker::QReadLocker(QReadWriteLock *areadWriteLock)
     : q_lock(areadWriteLock)
-{ relock(); }
+{
+    Q_ASSERT_X((q_val & quintptr(1u)) == quintptr(0),
+               "QReadLocker", "QReadWriteLock pointer is misaligned");
+    relock();
+}
 
 class Q_CORE_EXPORT QWriteLocker
 {
@@ -132,7 +136,11 @@ private:
 
 inline QWriteLocker::QWriteLocker(QReadWriteLock *areadWriteLock)
     : q_lock(areadWriteLock)
-{ relock(); }
+{
+    Q_ASSERT_X((q_val & quintptr(1u)) == quintptr(0),
+               "QWriteLocker", "QReadWriteLock pointer is misaligned");
+    relock();
+}
 
 #else // QT_NO_THREAD
 

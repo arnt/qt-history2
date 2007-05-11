@@ -64,7 +64,13 @@ private:
 class Q_CORE_EXPORT QMutexLocker
 {
 public:
-    inline explicit QMutexLocker(QMutex *m) : mtx(m) { relock(); }
+    inline explicit QMutexLocker(QMutex *m)
+        : mtx(m)
+    {
+        Q_ASSERT_X((val & quintptr(1u)) == quintptr(0),
+                   "QMutexLocker", "QMutex pointer is misaligned");
+        relock();
+    }
     inline ~QMutexLocker() { unlock(); }
 
     inline void unlock()
