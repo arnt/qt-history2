@@ -79,6 +79,7 @@
     \value ChildRemoved                     An object loses a child (QChildEvent).
     \value Clipboard                        The clipboard contents have changed (QClipboardEvent).
     \value Close                            Widget was closed (QCloseEvent).
+    \value ContentsRectChange               The margins of the widget's content rect changed.
     \value ContextMenu                      Context popup menu (QContextMenuEvent).
     \value DeferredDelete                   The object will be deleted after it has cleaned up.
     \value DragEnter                        The cursor enters a widget during a drag and drop operation (QDragEnterEvent).
@@ -124,6 +125,11 @@
     \value LeaveEditFocus                   An editor widget loses focus for editing.
     \value LeaveWhatsThisMode               Send to toplevel widgets when the application leaves "What's This?" mode.
     \value LocaleChange                     The system locale has changed.
+    \value NonClientAreaMouseButtonDblClick A mouse double click occurred outside the client area.
+    \value NonClientAreaMouseButtonPress    A mouse button press occurred outside the client area.
+    \value NonClientAreaMouseButtonRelease  A mouse button release occurred outside the client area.
+    \value NonClientAreaMouseMove           A mouse move occurred outside the client area.
+    \value MacSizeChange                    The user changed his widget sizes (Mac OS X only).
     \value MenubarUpdated                   The window's menu bar has been updated.
     \value MetaCall                         An asynchronous method invocation via QMetaObject::invokeMethod().
     \value ModifiedChange                   Widgets modification state has been changed.
