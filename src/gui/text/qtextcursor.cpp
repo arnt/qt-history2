@@ -1363,6 +1363,12 @@ QString QTextCursor::selectedText() const
     Returns the current selection (which may be empty) with all its
     formatting information. If you just want the selected text (i.e.
     plain text) use selectedText() instead.
+
+    Note that contrary to QTextDocumentFragment::toPlainText(),
+    selectedText() may include special unicode characters such as
+    QChar::ParagraphSeparator.
+
+    \sa QTextDocumentFragment::toPlainText()
 */
 QTextDocumentFragment QTextCursor::selection() const
 {
