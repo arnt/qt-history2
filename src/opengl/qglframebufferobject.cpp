@@ -132,7 +132,7 @@ void QGLFramebufferObjectPrivate::init(const QSize &sz, QGLFramebufferObject::At
     valid = checkFramebufferStatus();
 
     if (attachments == QGLFramebufferObject::DepthStencil
-        && QGLExtensions::glExtensions & QGLExtensions::PackedDepthStencil) {
+        && (QGLExtensions::glExtensions & QGLExtensions::PackedDepthStencil)) {
         // depth and stencil buffer needs another extension
         glGenRenderbuffersEXT(1, &depth_stencil_buffer);
         Q_ASSERT(!glIsRenderbufferEXT(depth_stencil_buffer));
@@ -248,7 +248,7 @@ void QGLFramebufferObjectPrivate::init(const QSize &sz, QGLFramebufferObject::At
 
     \value NoDepthStencil  No depth or stencil buffers are attached. Note that the OpenGL depth and
                            stencil tests won't work when rendering to a framebuffer object without
-                           any depth or stencil buffers.
+                           any depth or stencil buffers. This is the default value.
 
     \value DepthStencil    If the \c GL_EXT_packed_depth_stencil is present, a depth and stencil
                            buffer is attached, otherwise only a depth buffer is attached.
@@ -270,10 +270,8 @@ void QGLFramebufferObjectPrivate::init(const QSize &sz, QGLFramebufferObject::At
     \c GL_TEXTURE_2D textures must have a power of 2 width and height
     (e.g. 256x512), unless you are using OpenGL 2.0 or higher.
 
-    By default, if the \c GL_EXT_packed_depth_stencil extension is
-    present, a depth and stencil buffer is attached. If not, only a
-    depth buffer is attached. This behavior can be toggled using one
-    of the overloaded constructors.
+    By default, no depth and stencil buffers are attached. This behavior
+    can be toggled using one of the overloaded constructors.
 
     The default internal texture format is \c GL_RGBA8.
 
@@ -294,7 +292,7 @@ QGLFramebufferObject::QGLFramebufferObject(const QSize &size, GLenum target)
     : d_ptr(new QGLFramebufferObjectPrivate)
 {
     Q_D(QGLFramebufferObject);
-    d->init(size, DepthStencil, target, DEFAULT_FORMAT);
+    d->init(size, NoDepthStencil, target, DEFAULT_FORMAT);
 }
 
 
@@ -309,7 +307,7 @@ QGLFramebufferObject::QGLFramebufferObject(int width, int height, GLenum target)
     : d_ptr(new QGLFramebufferObjectPrivate)
 {
     Q_D(QGLFramebufferObject);
-    d->init(QSize(width, height), DepthStencil, target, DEFAULT_FORMAT);
+    d->init(QSize(width, height), NoDepthStencil, target, DEFAULT_FORMAT);
 }
 
 /*! \overload
