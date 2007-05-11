@@ -63,6 +63,7 @@ Q_SIGNALS:
     void messageChanged(const QString &text);
 
 protected:
+    void showEvent(QShowEvent *);
     void paintEvent(QPaintEvent *);
     void resizeEvent(QResizeEvent *);
 

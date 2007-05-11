@@ -48,6 +48,7 @@ public:
 
 #ifndef QT_NO_SIZEGRIP
     QSizeGrip * resizer;
+    bool showSizeGrip;
 #endif
 
     int savedStrut;
@@ -62,6 +63,20 @@ public:
         }
         return i;
     }
+
+#ifndef QT_NO_SIZEGRIP
+    void tryToShowSizeGrip()
+    {
+        if (!showSizeGrip)
+            return;
+        showSizeGrip = false;
+        if (!resizer || resizer->isVisible())
+            return;
+        resizer->setAttribute(Qt::WA_WState_ExplicitShowHide, false);
+        QMetaObject::invokeMethod(resizer, "_q_showIfNotHidden", Qt::DirectConnection);
+        resizer->setAttribute(Qt::WA_WState_ExplicitShowHide, false);
+    }
+#endif
 };
 
 /*!
@@ -159,6 +174,7 @@ QStatusBar::QStatusBar(QWidget * parent, const char *name)
 
 #ifndef QT_NO_SIZEGRIP
     d->resizer = 0;
+    d->showSizeGrip = false;
     setSizeGripEnabled(true); // causes reformat()
 #else
     reformat();
@@ -406,13 +422,17 @@ void QStatusBar::setSizeGripEnabled(bool enabled)
     if (!enabled != !d->resizer) {
         if (enabled) {
             d->resizer = new QSizeGrip(this);
+            d->resizer->hide();
+            d->resizer->installEventFilter(this);
+            d->showSizeGrip = true;
         } else {
             delete d->resizer;
             d->resizer = 0;
+            d->showSizeGrip = false;
         }
         reformat();
         if (d->resizer && isVisible())
-            d->resizer->show();
+            d->tryToShowSizeGrip();
     }
 #endif
 }
@@ -593,6 +613,15 @@ void QStatusBar::hideOrShow()
 
     emit messageChanged(d->tempItem);
     repaint();
+}
+
+void QStatusBar::showEvent(QShowEvent *)
+{
+#ifndef QT_NO_SIZEGRIP
+    Q_D(QStatusBar);
+    if (d->resizer && d->showSizeGrip)
+        d->tryToShowSizeGrip();
+#endif
 }
 
 
