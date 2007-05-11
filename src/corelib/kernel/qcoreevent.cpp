@@ -15,6 +15,9 @@
 #include "qcoreapplication.h"
 #include "qcoreapplication_p.h"
 
+#include "qmutex.h"
+#include "qset.h"
+
 /*!
     \class QEvent
     \brief The QEvent class is the base class of all
@@ -184,6 +187,12 @@
     \value User                             User-defined event.
     \value MaxUser                          Last user event ID.
 
+    For convenience, you can use the registerEventType() function to
+    register and reserve a custom event type for your
+    application. Doing so will allow you to avoid accidentally
+    re-using a custom event type already in use elsewhere in your
+    application.
+
     \omitvalue Accel
     \omitvalue AccelAvailable
     \omitvalue AccelOverride
@@ -286,6 +295,48 @@ QEvent::~QEvent()
     The return value of this function is not defined for paint events.
 */
 
+class QEventUserEventRegistration
+{
+public:
+    QMutex mutex;
+    QSet<int> set;
+};
+Q_GLOBAL_STATIC(QEventUserEventRegistration, userEventRegistration)
+
+/*!
+    \since 4.4
+    \threadsafe
+
+    Registers and returns a custom event type. The \a hint provided
+    will be used if it is available, otherwise it will return a value
+    between QEvent::User and QEvent::MaxUser that has not yet been
+    registered. The \a hint is ignored if its value it not between
+    QEvent::User and QEvent::MaxUser.
+*/
+int QEvent::registerEventType(int hint)
+{
+    QEventUserEventRegistration *userEventRegistration = ::userEventRegistration();
+    if (!userEventRegistration)
+        return -1;
+
+    QMutexLocker locker(&userEventRegistration->mutex);
+
+    // if the type hint hasn't been registered yet, take it
+    if (hint >= QEvent::User && hint <= QEvent::MaxUser && !userEventRegistration->set.contains(hint)) {
+        userEventRegistration->set.insert(hint);
+        return hint;
+    }
+
+    // find a free event type, starting at MaxUser and decreasing
+    int id = QEvent::MaxUser;
+    while (userEventRegistration->set.contains(id) && id >= QEvent::User)
+        --id;
+    if (id >= QEvent::User) {
+        userEventRegistration->set.insert(id);
+        return id;
+    }
+    return -1;
+}
 
 /*!
     \class QTimerEvent qcoreevent.h

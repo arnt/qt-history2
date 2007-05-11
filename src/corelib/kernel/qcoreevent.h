@@ -212,7 +212,7 @@ public:
         NonClientAreaMouseButtonDblClick = 176,
 
         MacSizeChange = 177,                    // when the Qt::WA_Mac{Normal,Small,Mini}Size changes
-        
+
         ContentsRectChange = 178,               // sent by QWidget::setContentsMargins (internal)
 
         User = 1000,                            // first user event id
@@ -229,6 +229,8 @@ public:
 
     inline void accept() { m_accept = true; }
     inline void ignore() { m_accept = false; }
+
+    static int registerEventType(int hint = -1);
 
 protected:
     QEventPrivate *d;
