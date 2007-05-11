@@ -777,16 +777,17 @@ void Q3DataBrowser::del()
 }
 
 /*!
-    Moves the default cursor to the record specified by the index \a i
-    and refreshes the default form to display this record. If there is
-    no default form or no default cursor, nothing happens. If \a
-    relative is true (the default is false), the cursor is moved
-    relative to its current position. If the data browser successfully
-    navigated to the desired record, the default cursor is primed for
-    update and the primeUpdate() signal is emitted.
-
-    If the browser is already positioned on the desired record nothing
-    happens.
+  Moves the default cursor to the record specified by index \a i
+  and refreshes the default form to display that record. If there is
+  no default form or no default cursor, nothing happens. If
+  \a relative is true (the default is false), the cursor is moved
+  relative to its current position. If the data browser successfully
+  navigated to the desired record, the default cursor is primed for
+  update and the primeUpdate() signal is emitted.
+  
+  If the browser is already positioned on the desired record nothing
+  happens. Returns false if there is no cursor. Otherwise returns
+  true.
 */
 
 bool Q3DataBrowser::seek(int i, bool relative)

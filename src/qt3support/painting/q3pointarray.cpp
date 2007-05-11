@@ -123,7 +123,7 @@ void Q3PointArray::makeArc(int x, int y, int w, int h, int a1, int a2, const QMa
 /*!
     \fn bool Q3PointArray::isNull()
 
-    Same as isEmpty().
+    Returns isEmpty(). Use isEmpty() instead.
 */
 
 /*!

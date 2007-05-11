@@ -176,6 +176,9 @@ bool Q3Picture::save(const QString &fileName, const char *format)
     \fn bool Q3Picture::save(QIODevice *device, const char *format)
 
     Saves the picture in the specified \a format to the given \a device.
+    Returns true if the save is successful. Returns false if, for
+    example, the picture is still being painted, i.e., QPainter::end()
+    has not yet been called.
 
     Note that when using the save() function to save SVG files, the
     format must be specified. For example:

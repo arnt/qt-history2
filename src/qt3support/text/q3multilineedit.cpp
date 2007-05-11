@@ -57,36 +57,38 @@
 */
 
 /*!
-    \fn bool Q3MultiLineEdit::autoUpdate() const
+  \fn bool Q3MultiLineEdit::autoUpdate() const
+
+  This function is a noop that always returns true.
 */
 
 /*!
-    \fn virtual void Q3MultiLineEdit::setAutoUpdate(bool b)
+  \fn virtual void Q3MultiLineEdit::setAutoUpdate(bool b)
 
-    \internal
+  \internal
 */
 
 /*!
-    \fn int Q3MultiLineEdit::totalWidth() const
+  \fn int Q3MultiLineEdit::totalWidth() const
 */
 
 /*!
-    \fn int Q3MultiLineEdit::totalHeight() const
+  \fn int Q3MultiLineEdit::totalHeight() const
 */
 
 /*!
-    \fn int Q3MultiLineEdit::maxLines() const
+  \fn int Q3MultiLineEdit::maxLines() const
 */
 
 /*!
-    \fn void Q3MultiLineEdit::setMaxLines(int max)
+  \fn void Q3MultiLineEdit::setMaxLines(int max)
 
-    Sets the maximum number of lines this Q3MultiLineEdit will hold to
-    \a max.
+  Sets the maximum number of lines this Q3MultiLineEdit will hold to
+  \a max.
 */
 
 /*!
-    \fn void Q3MultiLineEdit::deselect()
+  \fn void Q3MultiLineEdit::deselect()
 */
 
 

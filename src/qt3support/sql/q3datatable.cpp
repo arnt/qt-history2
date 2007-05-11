@@ -905,8 +905,7 @@ void Q3DataTable::endInsert()
 }
 
 /*! \internal
-*/
-
+ */
 void Q3DataTable::endUpdate()
 {
     d->dat.setMode( QSql::None );
@@ -918,18 +917,18 @@ void Q3DataTable::endUpdate()
 }
 
 /*!
-    Protected virtual function called when editing is about to begin
-    on a new record. If the table is read-only, or if there's no
-    cursor or the cursor does not allow inserts, nothing happens.
-
-    Editing takes place using the cursor's edit buffer(see
-    Q3SqlCursor::editBuffer()).
-
-    When editing begins, a new row is created in the table marked with
-    an asterisk '*' in the row's vertical header column, i.e. at the
-    left of the row.
+  Protected virtual function called when editing is about to begin
+  on a new record. If the table is read-only, or if there's no cursor
+  or the cursor does not allow inserts, nothing happens and false
+  is returned. Otherwise returns true.
+  
+  Editing takes place using the cursor's edit buffer(see
+  Q3SqlCursor::editBuffer()).
+  
+  When editing begins, a new row is created in the table marked with
+  an asterisk '*' in the row's vertical header column, i.e. at the
+  left of the row.
 */
-
 bool Q3DataTable::beginInsert()
 {
     if ( !sqlCursor() || isReadOnly() || !numCols() )
