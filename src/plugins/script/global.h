@@ -54,7 +54,7 @@ public:
     }
 };
 
-template <typename T, class Finalizer = Finalizer<T> >
+template <typename T, class FinalizerT = Finalizer<T> >
 class Wrapper : public QSharedData
 {
 public:
@@ -63,7 +63,7 @@ public:
 
     virtual ~Wrapper()
     {
-        Finalizer f;
+        FinalizerT f;
         f.finalize(m_value, m_flags);
     }
 
