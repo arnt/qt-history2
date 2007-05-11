@@ -465,6 +465,7 @@ UINT    GlobalFlags(HGLOBAL hMem);
 
 #endif // Q_OS_TEMP
 
+#include <QtCore/qglobal.h>
 // silence syncqt
 QT_BEGIN_HEADER
 QT_MODULE(Gui)
