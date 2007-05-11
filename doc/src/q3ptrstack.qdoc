@@ -1,164 +1,175 @@
 /*!
-    \class Q3PtrStack
-    \brief The Q3PtrStack class is a template class that provides a stack.
-    \compat
+  \class Q3PtrStack
+  \brief The Q3PtrStack class is a template class that provides a stack.
+  \compat
 
-    Q3ValueStack is an STL-compatible alternative to this class.
+  Q3ValueStack is an STL-compatible alternative to this class.
 
-    Define a template instance Q3PtrStack\<X\> to create a stack that
-    operates on pointers to X, (X*). 
+  Define a template instance Q3PtrStack\<X\> to create a stack that
+  operates on pointers to X, (X*). 
 
-    A stack is a last in, first out (LIFO) structure. Items are added
-    to the top of the stack with push() and retrieved from the top
-    with pop(). Use top() to get a reference to the top element
-    without changing the stack.
+  A stack is a last in, first out (LIFO) structure. Items are added
+  to the top of the stack with push() and retrieved from the top
+  with pop(). Use top() to get a reference to the top element
+  without changing the stack.
 
-    You can control the stack's deletion policy with setAutoDelete().
+  You can control the stack's deletion policy with setAutoDelete().
 
-    For compatibility with the Q3PtrCollection classes current() and
-    remove() are provided; they both operate on the top().
+  For compatibility with the Q3PtrCollection classes current() and
+  remove() are provided; they both operate on the top().
 
-    \sa Q3PtrList Q3PtrQueue
+  \sa Q3PtrList Q3PtrQueue
 */
 
 /*!
-    \fn Q3PtrStack::Q3PtrStack () 
+  \fn Q3PtrStack::Q3PtrStack () 
 
-    Creates an empty stack.
+  Creates an empty stack.
 */
 
 /*!
-    \fn Q3PtrStack::Q3PtrStack (const Q3PtrStack<type>& s) 
+  \fn Q3PtrStack::Q3PtrStack (const Q3PtrStack<type>& s) 
 
-    Creates a stack by making a shallow copy of another stack \a s.
+  Creates a stack by making a shallow copy of another stack \a s.
 */
 
 /*!
-    \fn Q3PtrStack::~Q3PtrStack () 
+  \fn Q3PtrStack::~Q3PtrStack () 
 
-    Destroys the stack. All items will be deleted if autoDelete() is
-    TRUE.
+  Destroys the stack. All items will be deleted if autoDelete() is
+  true.
 */
 
 /*!
-    \fn Q3PtrStack<type>& Q3PtrStack::operator= (const Q3PtrStack<type>& s) 
+  \fn Q3PtrStack<type>& Q3PtrStack::operator= (const Q3PtrStack<type>& s) 
 
-    Sets the contents of this stack by making a shallow copy of
-    another stack \a s. Elements currently in this stack will be
-    deleted if autoDelete() is TRUE.
+  Sets the contents of this stack by making a shallow copy of
+  another stack \a s. Elements currently in this stack will be
+  deleted if autoDelete() is true.
 */
 
 /*!
-    \fn bool Q3PtrStack::isEmpty () const 
+  \fn bool Q3PtrStack::isEmpty () const 
 
-    Returns TRUE if the stack contains no elements; otherwise returns
-    FALSE.
+  Returns true if the stack contains no elements; otherwise returns
+  false.
 */
 
 /*!
-    \fn void Q3PtrStack::push (const type* d) 
+  \fn void Q3PtrStack::push (const type* d) 
 
-    Adds an element \a d to the top of the stack. Last in, first out.
+  Adds an element \a d to the top of the stack. Last in, first out.
 */
 
 /*!
-    \fn type* Q3PtrStack::pop () 
+  \fn type* Q3PtrStack::pop () 
 
-    Removes the top item from the stack and returns it. The stack must
-    not be empty.
+  Removes the top item from the stack and returns it. The stack must
+  not be empty.
 */
 
 /*!
-    \fn bool Q3PtrStack::remove () 
+  \fn bool Q3PtrStack::remove () 
 
-    Removes the top item from the stack and deletes it if autoDelete()
-    is TRUE. Returns TRUE if there was an item to pop; otherwise
-    returns FALSE.
+  Removes the top item from the stack and deletes it if autoDelete()
+  is true. Returns true if there was an item to pop; otherwise
+  returns false.
 
-    \sa clear()
+  \sa clear()
 */
 
 /*!
-    \fn void Q3PtrStack::clear()
+  \fn void Q3PtrStack::clear()
 
-    Removes all items from the stack, deleting them if autoDelete() is
-    TRUE.
+  Removes all items from the stack, deleting them if autoDelete() is
+  true.
 
-    \sa remove()
+  \sa remove()
 */
 
 /*!
-    \fn uint Q3PtrStack::count() const
+  \fn uint Q3PtrStack::count() const
 
-    Returns the number of items in the stack.
+  Returns the number of items in the stack.
 
-    \sa isEmpty()
+  \sa isEmpty()
 */
 
 /*!
-    \fn type* Q3PtrStack::top () const 
+  \fn type* Q3PtrStack::top () const 
 
-    Returns a pointer to the top item on the stack (most recently
-    pushed). The stack is not changed. Returns 0 if the stack is
-    empty.
+  Returns a pointer to the top item on the stack (most recently
+  pushed). The stack is not changed. Returns 0 if the stack is
+  empty.
 */
 
 /*!
-    \fn Q3PtrStack::operator type* ()const 
+  \fn Q3PtrStack::operator type* ()const 
 
-    Returns a pointer to the top item on the stack (most recently
-    pushed). The stack is not changed. Returns 0 if the stack is
-    empty.
+  Returns a pointer to the top item on the stack (most recently
+  pushed). The stack is not changed. Returns 0 if the stack is
+  empty.
 */
 
 /*!
-    \fn type* Q3PtrStack::current () const 
+  \fn type* Q3PtrStack::current () const 
 
-    Returns a pointer to the top item on the stack (most recently
-    pushed). The stack is not changed. Returns 0 if the stack is
-    empty.
+  Returns a pointer to the top item on the stack (most recently
+  pushed). The stack is not changed. Returns 0 if the stack is
+  empty.
 */
 
 /*!
-    \fn bool Q3PtrStack::autoDelete() const
+  \fn bool Q3PtrStack::autoDelete() const
 
-    The same as Q3PtrCollection::autoDelete().
+  The same as Q3PtrCollection::autoDelete(). Returns true if 
+  the auto-delete option is set. If the option is set, the 
+  stack auto-deletes its contents. 
 
-    \sa setAutoDelete()
+  \sa setAutoDelete()
 */
 
 /*!
-    \fn void Q3PtrStack::setAutoDelete( bool enable ) 
+  \fn void Q3PtrStack::setAutoDelete(bool enable) 
 
-    Defines whether this stack auto-deletes its contents. The same as
-    Q3PtrCollection::setAutoDelete().
+  Defines whether this stack auto-deletes its contents. The same as
+  Q3PtrCollection::setAutoDelete().
 
-    If \a enable is TRUE the stack auto-deletes its contents; if \a
-    enable is FALSE the stack does not delete its contents.
-    
-    \sa autoDelete()
+  If auto-deleting is turned on, all the items in the stack are
+  deleted when the stack itself is deleted. This is convenient if
+  the stack has the only pointers to the items.
+
+  The default setting is false, for safety. If you turn it on, be
+  careful about copying the stack, or you might find yourself with
+  two stacks deleting the same items.
+
+  Note that the auto-delete setting may also affect other functions in
+  subclasses. For example, a subclass that has a remove() function
+  will remove the item from its data structure, and if auto-delete is
+  enabled, will also delete the item.
+  
+  \sa autoDelete()
 */
 
 /*!
-    \fn QDataStream& Q3PtrStack::read( QDataStream& s,
-					Q3PtrCollection::Item& item )
+  \fn QDataStream& Q3PtrStack::read(QDataStream& s, Q3PtrCollection::Item& item)
 
-    Reads a stack item, \a item, from the stream \a s and returns a
-    reference to the stream.
+  Reads a stack item, \a item, from the stream \a s and returns a
+  reference to the stream.
 
-    The default implementation sets \a item to 0.
+  The default implementation sets \a item to 0.
 
-    \sa write()
+  \sa write()
 */
 
 /*!
-    \fn QDataStream& Q3PtrStack::write( QDataStream& s,
-					Q3PtrCollection::Item item ) const
+  \fn QDataStream& Q3PtrStack::write(QDataStream& s,
+				     Q3PtrCollection::Item item) const
 
-    Writes a stack item, \a item, to the stream \a s and returns a
-    reference to the stream.
+  Writes a stack item, \a item, to the stream \a s and returns a
+  reference to the stream.
 
-    The default implementation does nothing.
+  The default implementation does nothing.
 
-    \sa read()
+  \sa read()
 */

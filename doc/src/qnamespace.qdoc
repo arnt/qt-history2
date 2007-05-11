@@ -416,6 +416,7 @@
     it.
     \value TextIncludeTrailingSpaces Don't automatically delete
     trailing whitespace.
+    \value TextJustificationForced Ensures that text lines are justified.
 
     \omitvalue BreakAnywhere
     \omitvalue DontClip
@@ -726,11 +727,10 @@
 
     \keyword widget attributes
 
-    This enum type is used to specify various widget
-    attributes. Attributes are set and cleared with
-    QWidget::setAttribute(), and queried with QWidget::testAttribute(),
-    although some have special convenience functions which are
-    mentioned below.
+    This enum type is used to specify various widget attributes.
+    Attributes are set and cleared with QWidget::setAttribute(), and
+    queried with QWidget::testAttribute(), although some have special
+    convenience functions which are mentioned below.
 
     \value WA_AcceptDrops Allows data from drag and drop operations
     to be dropped onto the widget (see QWidget::setAcceptDrops()).
@@ -812,35 +812,46 @@
     when laying out this widget with QLayout. This makes a difference in
     QMacStyle and QPlastiqueStyle for some widgets.
 
-    \value WA_MacMetalStyle Indicates the the widget should be
-    drawn in metal style as supported by the windowing system (only
-    meaningful on Mac OS X). 
-
-    \value WA_MacNoClickThrough Indicates that the window is only activated
-    when clicked. 
-
-    \value WA_MacNoHideWindowOnSuspend Indicates that the window (only
-    meaning ful on Mac OS X with Qt::Tool windows) does not automatically
-    hide itself upon application deactivation. 
+    \value WA_MacNoClickThrough Indicates that the window is only
+    activated when clicked.
 
     \value WA_MacOpaqueSizeGrip Indicates that the native Carbon size grip
     should be opaque instead of transparent (the default). This attribute
-    is only meaningful on Mac OS X and is set by the widget's author.
+    is only applicable to Mac OS X and is set by the widget's author.
 
     \value WA_MacShowFocusRect Indicates that this widget should get a
-    QFocusFrame around it. Some widgets draw their own focus halo regardless of
-    this attribute. Not that the QWidget::focusPolicy also plays the main role
-    in whether something is given focus or not, this only controls whether or
-    not this gets the focus frame. This attribute only does something on Mac OS X.
+    QFocusFrame around it. Some widgets draw their own focus halo
+    regardless of this attribute. Not that the QWidget::focusPolicy
+    also plays the main role in whether something is given focus or
+    not, this only controls whether or not this gets the focus
+    frame. This attribute is only applicable to Mac OS X.
 
+    \value WA_MacNormalSize Indicates the widget should have the
+    normal size for widgets in Mac OS X. This attribute is only
+    applicable to Mac OS X.
+
+    \value WA_MacSmallSize Indicates the widget should have the small
+    size for widgets in Mac OS X. This attribute is only applicable to
+    Mac OS X.
+
+    \value WA_MacMiniSize Indicates the widget should have the mini
+    size for widgets in Mac OS X. This attribute is only applicable to
+    Mac OS X.
+
+    \value WA_MacBrushedMetal Indicates the widget should be drawn in
+    the brushed metal style as supported by the windowing system. This
+    attribute is only applicable to Mac OS X.
+
+    \omitvalue WA_MacMetalStyle 
+    
     \value WA_Mapped Indicates that the widget is mapped on screen.
     This is set/cleared by the Qt kernel.
 
-    \value WA_MouseNoMask Makes the widget receive mouse events for the entire
-    widget regardless of the currently set mask.
+    \value WA_MouseNoMask Makes the widget receive mouse events for
+    the entire widget regardless of the currently set mask.
 
-    \value WA_MouseTracking Indicates that the widget has mouse tracking
-    enabled. See QWidget::mouseTracking.
+    \value WA_MouseTracking Indicates that the widget has mouse
+    tracking enabled. See QWidget::mouseTracking.
 
     \value WA_Moved Indicates that the widget has an explicit
     position. This is set/cleared by QWidget::move() and
@@ -978,10 +989,18 @@
     (including Mac OS X and Windows) the window will take a modified
     appearance. This is set/cleared by QWidget::setWindowModified().
 
-    \value WA_WindowPropagation Makes a toplevel window inherit font and palette from its parent.
+    \value WA_WindowPropagation Makes a toplevel window inherit font
+    and palette from its parent.
 
-    \value WA_MacAlwaysShowToolWindow On Mac OS X, show the tool window even when the application is not active.
-    By default, all tool windows are hidden when the application is active.
+    \value WA_MacAlwaysShowToolWindow On Mac OS X, show the tool
+    window even when the application is not active.  By default, all
+    tool windows are hidden when the application is active.
+
+    \value WA_SetLocale Indicates the local should be taken into
+    consideration in the widget.
+
+    \value WA_StyledBackground Indicates the widget should be drawn
+    using a styled background.
 
     \omitvalue WA_SetLayoutDirection
     \omitvalue WA_InputMethodTransparent
