@@ -4279,9 +4279,10 @@ if [ "$PLATFORM_QWS" = "yes" ]; then
     for mouse in ${CFG_MOUSE_ON} ${CFG_MOUSE_PLUGIN}; do
 	if [ "${mouse}" = "tslib" ] && [ "${CFG_CONFIGURE_EXIT_ON_ERROR}" = "yes" ]; then
 	    if ! "$unixtests/compile.test" "$XQMAKESPEC" "$QMAKE_CONFIG" $OPT_VERBOSE "$relpath" "$outpath" config.tests/unix/tslib "tslib" $L_FLAGS $I_FLAGS $l_FLAGS; then
-		echo "The tslib functionality test failed!"
-		echo " You might need to add additional include and library search paths"
-		echo " by passing the -I and -L switches to $0."
+               echo "The tslib functionality test failed!"
+               echo " You might need to modify the include and library search paths by editing"
+               echo " QMAKE_INCDIR and QMAKE_LIBDIR in"
+               echo " ${XQMAKESPEC}."
 		exit 1
 	    fi
 	fi
