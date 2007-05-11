@@ -754,8 +754,9 @@ QString QTextDocument::defaultStyleSheet() const
     \fn QTextDocument::blockCountChanged(int newBlockCount);
     \since 4.3
 
-    This signal is emitted the total number of text blocks in the
-    document changes.
+    This signal is emitted when the total number of text blocks in the
+    document changes. The value passed in \a newBlockCount is the new
+    total.
 */
 
 /*!
