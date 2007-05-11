@@ -28,7 +28,9 @@
 
     Starting with \l {Qtopia Core} 4.2, it is possible to add an
     accelerated graphics driver to take advantage of available
-    hardware resources, using the following approach:
+    hardware resources. This is described in detail in the 
+    \l {Accelerated Screen Driver Example} which uses the following 
+    approach:
 
     \tableofcontents
 
