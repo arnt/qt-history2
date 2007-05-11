@@ -300,6 +300,13 @@ QString ScriptFunction::fileName() const
     return m_astPool->fileName();
 }
 
+QString ScriptFunction::functionName() const
+{
+    if (!m_definition->name)
+        return QLatin1String("<anonymous>");
+    return m_definition->name->s;
+}
+
 } // namespace QScript
 
 /*!
@@ -358,6 +365,9 @@ bool QScriptContextPrivate::resolveField(QScriptEnginePrivate *eng,
 
 void QScriptContextPrivate::execute(QScript::Code *code)
 {
+    QScript::Code *oldCode = m_code;
+    m_code = code;
+
 #ifndef Q_SCRIPT_NO_PRINT_GENERATED_CODE
     qout << QLatin1String("function:") << endl;
     for (QScriptInstruction *current = code->firstInstruction; current != code->lastInstruction; ++current) {
@@ -2072,6 +2082,8 @@ Ldone:
     }
 
     eng->maybeGC();
+
+    m_code = oldCode;
 }
 
 QScriptValueImpl QScriptContextPrivate::throwError(QScriptContext::Error error, const QString &text)
@@ -2107,17 +2119,25 @@ void QScriptContextPrivate::setDebugInformation(QScriptValueImpl *error) const
 {
     QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(engine());
     error->setProperty(QLatin1String("lineNumber"), QScriptValueImpl(eng_p, currentLine));
-
-    if (m_callee.isValid()) {
-        QScriptFunction *currentFunction = m_callee.toFunction();
-        error->setProperty(QLatin1String("fileName"), QScriptValueImpl(eng_p, currentFunction->fileName()));
-    }
+    if (m_code)
+        error->setProperty(QLatin1String("fileName"), QScriptValueImpl(eng_p, m_code->astPool->fileName()));
 
     const QScriptContext *ctx = q_func();
     QScriptValueImpl stackArray = eng_p->newArray();
     int i = 0;
     while (ctx) {
-        stackArray.setProperty(i, QScriptValuePrivate::valueOf(ctx->activationObject()));
+        QScriptValueImpl obj = eng_p->newObject();
+        obj.setProperty(QLatin1String("frame"), QScriptValuePrivate::valueOf(ctx->activationObject()));
+        const QScriptContextPrivate *ctx_p = QScriptContextPrivate::get(ctx);
+        obj.setProperty(QLatin1String("lineNumber"), QScriptValueImpl(eng_p, ctx_p->currentLine));
+        if (ctx_p->m_code)
+            obj.setProperty(QLatin1String("fileName"), QScriptValueImpl(eng_p, ctx_p->m_code->astPool->fileName()));
+        if (ctx_p->m_callee.isValid()) {
+            QScriptFunction *fun = ctx_p->m_callee.toFunction();
+            Q_ASSERT(fun);
+            obj.setProperty(QLatin1String("functionName"), QScriptValueImpl(eng_p, fun->functionName()));
+        }
+        stackArray.setProperty(i, obj);
         ctx = ctx->parentContext();
         ++i;
     }

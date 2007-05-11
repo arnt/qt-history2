@@ -504,11 +504,11 @@ inline void QScriptValueImpl::get_helper(const QScript::Member &member, QScriptV
         eng->newNumber(obj, foo->length);
     } else if (member.nameId() == eng->idTable()->id_arguments) {
         eng->newNull(obj);
-    } else if (member.nameId() == eng->idTable()->id___fileName__) {
+    }/* else if (member.nameId() == eng->idTable()->id___fileName__) {
         QScriptFunction *foo = eng->convertToNativeFunction(*this);
         Q_ASSERT(foo != 0);
         return eng->newString(obj, foo->fileName());
-    }
+    }*/
 }
 
 inline void QScriptValueImpl::put(const QScript::Member &member, const QScriptValueImpl &object)

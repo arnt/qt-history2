@@ -34,6 +34,11 @@ QString QScriptFunction::fileName() const
     return QString();
 }
 
+QString QScriptFunction::functionName() const
+{
+    return QString();
+}
+
 // public API function
 void QScript::CFunction::execute(QScriptContextPrivate *context)
 {

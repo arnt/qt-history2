@@ -64,6 +64,8 @@ public:
     // name of the file the function is defined in
     virtual QString fileName() const;
 
+    virtual QString functionName() const;
+
 public: // ### private
     int length;
     QList<QScriptNameIdImpl*> formals; // ### mark the formals
@@ -131,6 +133,8 @@ public:
     { return QScriptFunction::Script; }
 
     virtual QString fileName() const;
+
+    virtual QString functionName() const;
 
 private:
     AST::FunctionExpression *m_definition;

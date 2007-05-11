@@ -44,6 +44,7 @@ public:
     inline QScriptContextPrivate();
 
     static inline QScriptContextPrivate *get(QScriptContext *q);
+    static inline const QScriptContextPrivate *get(const QScriptContext *q);
 
     static inline QScriptContext *create();
 
@@ -177,6 +178,7 @@ public:
     QScriptValueImpl *tempStack;
     QScriptValueImpl *stackPtr;
 
+    QScript::Code *m_code;
     const QScriptInstruction *iPtr;
     const QScriptInstruction *firstInstruction;
     const QScriptInstruction *lastInstruction;

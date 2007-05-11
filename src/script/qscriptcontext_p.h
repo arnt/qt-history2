@@ -42,6 +42,13 @@ inline QScriptContextPrivate *QScriptContextPrivate::get(QScriptContext *q)
     return 0;
 }
 
+inline const QScriptContextPrivate *QScriptContextPrivate::get(const QScriptContext *q)
+{
+    if (q)
+        return q->d_func();
+    return 0;
+}
+
 inline QScriptContext *QScriptContextPrivate::create()
 {
     return new QScriptContext;
@@ -68,6 +75,7 @@ inline void QScriptContextPrivate::init(QScriptContext *parent)
     previous = parent;
     args = 0;
     argc = 0;
+    m_code = 0;
     iPtr = firstInstruction = lastInstruction = 0;
     stackPtr = tempStack = (parent != 0) ? parent->d_func()->stackPtr : 0;
     m_activation.invalidate();

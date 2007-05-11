@@ -1007,14 +1007,22 @@ void tst_QScriptEngine::stacktrace()
     int counter = 5;
     while (it.hasNext()) {
         it.next();
-        QScriptValue frame = it.value();
+        QScriptValue obj = it.value();
+        QScriptValue frame = obj.property("frame");
 
+        QCOMPARE(obj.property("fileName").toString(), fileName);
         if (counter >= 0) {
             QScriptValue callee = frame.property("arguments").property("callee");
             QVERIFY(callee.strictEqualTo(eng.globalObject().property("foo")));
-            QCOMPARE(callee.property("__fileName__").toString(), fileName);
+            QCOMPARE(obj.property("functionName").toString(), QString("foo"));
+            int line = obj.property("lineNumber").toInt32();
+            if (counter == 5)
+                QCOMPARE(line, 3);
+            else
+                QCOMPARE(line, 4);
         } else {
             QVERIFY(frame.strictEqualTo(eng.globalObject()));
+            QVERIFY(obj.property("functionName").toString().isEmpty());
         }
 
         --counter;

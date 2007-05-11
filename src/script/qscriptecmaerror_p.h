@@ -70,6 +70,7 @@ public:
 
 protected:
     static QScriptValueImpl method_toString(QScriptContextPrivate *context, QScriptEnginePrivate *eng, QScriptClassInfo *classInfo);
+    static QScriptValueImpl method_backtrace(QScriptContextPrivate *context, QScriptEnginePrivate *eng, QScriptClassInfo *classInfo);
 
     QScriptClassInfo *m_objectClass;
 

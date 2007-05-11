@@ -16,6 +16,7 @@
 
 #include <QtCore/QFile>
 #include <QtCore/QTextStream>
+#include <QtCore/QStringList>
 
 #if defined(WITH_DBUS)
 #include "qdbusbinding.h"
@@ -108,8 +109,9 @@ int main(int, char *argv[])
 
         QScriptValue r = eng.evaluate(contents, /*lineNumber*/1, fn);
         if (eng.hasUncaughtException()) {
-            int line = eng.uncaughtExceptionLineNumber();
-            fprintf (stderr, "%d: %s\n\t%s\n\n", line, qPrintable(fn), qPrintable(r.toString()));
+            QStringList backtrace = qscriptvalue_cast<QStringList>(r.property("backtrace").call(r));
+            fprintf (stderr, "    %s\n%s\n\n", qPrintable(r.toString()),
+                     qPrintable(backtrace.join("\n")));
             return EXIT_FAILURE;
         }
     }
