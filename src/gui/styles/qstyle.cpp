@@ -322,6 +322,11 @@ void QStyle::polish(QWidget * /* widget */)
     the former style has to unpolish its settings before the new style
     can polish them again.
 
+    Note that unpolish() will only be called if the widget is
+    destroyed.  This can cause problems in some cases, e.g, if you
+    remove a widget from the UI, cache it, and then reinsert it after
+    the style has changed; some of Qt's classes cache their widgets.
+
     \sa polish()
 */
 void QStyle::unpolish(QWidget * /* widget */)
