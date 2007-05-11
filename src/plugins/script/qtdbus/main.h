@@ -26,7 +26,7 @@ class QDBusConnectionPrototype : public QObject,
     Q_PROPERTY(QScriptValue systemBus READ systemBus)
 
 public:
-    QDBusConnectionPrototype(QScriptEngine *engine);
+    QDBusConnectionPrototype(QScriptEngine *engine, QScriptValue extensionObject);
 
     QScriptValue sessionBus() const;
     QScriptValue systemBus() const;
@@ -104,7 +104,7 @@ class QScriptDBusInterfacePrototype : public QObject,
 {
     Q_OBJECT
 public:
-    QScriptDBusInterfacePrototype(QScriptEngine *engine);
+    QScriptDBusInterfacePrototype(QScriptEngine *engine, QScriptValue extensionObject);
 
 public Q_SLOTS:
     QScriptValue qscript_call(const QString &service, const QString &path, const QString &interface = QString(),
@@ -126,7 +126,7 @@ public:
         SignalMessage = QDBusMessage::SignalMessage
     };
 
-    QScriptDBusMessagePrototype(QScriptEngine *engine);
+    QScriptDBusMessagePrototype(QScriptEngine *engine, QScriptValue extensionObject);
 
     QScriptValue protoType() const { return proto; }
 
@@ -142,7 +142,5 @@ public:
 private:
     QScriptValue proto;
 };
-
-void registerDBusBindings(QScriptEngine *engine);
 
 #endif // QDBUSBINDING_H

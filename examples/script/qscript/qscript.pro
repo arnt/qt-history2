@@ -5,13 +5,6 @@ mac:CONFIG -= app_bundle
 
 SOURCES += main.cpp
 
-contains(QT_CONFIG, qdbus) {
-    SOURCES += qdbusbinding.cpp
-    HEADERS += qdbusbinding.h
-    DEFINES += WITH_DBUS
-    CONFIG += qdbus
-}
-
 # install
 target.path = $$[QT_INSTALL_EXAMPLES]/script/qscript
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS qscript.pro

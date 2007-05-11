@@ -11,9 +11,10 @@
 **
 ****************************************************************************/
 
-#include "qdbusbinding.h"
+#include "main.h"
 #include <QDebug>
 #include <QMetaMethod>
+#include <QScriptExtensionPlugin>
 
 static QScriptValue setupDBusInterface(QScriptEngine *engine, QDBusAbstractInterface *iface);
 
@@ -103,13 +104,13 @@ static QScriptValue setupDBusInterface(QScriptEngine *engine, QDBusAbstractInter
     return v;
 }
 
-QDBusConnectionPrototype::QDBusConnectionPrototype(QScriptEngine *engine)
+QDBusConnectionPrototype::QDBusConnectionPrototype(QScriptEngine *engine, QScriptValue extensionObject)
     : QObject(engine)
 {
     QScriptValue ctorValue = engine->newQObject(this);
     QScriptValue proto = engine->newQMetaObject(&QDBusConnection::staticMetaObject, ctorValue);
 
-    engine->globalObject().setProperty("QDBusConnection", proto);
+    extensionObject.setProperty("Connection", proto);
 }
 
 QScriptValue QDBusConnectionPrototype::sessionBus() const
@@ -143,11 +144,11 @@ QScriptValue QScriptDBusConnection::interface() const
     return setupDBusInterface(engine(), iface);
 }
 
-QScriptDBusInterfacePrototype::QScriptDBusInterfacePrototype(QScriptEngine *engine)
+QScriptDBusInterfacePrototype::QScriptDBusInterfacePrototype(QScriptEngine *engine, QScriptValue extensionObject)
 {
     QScriptValue ctorValue = engine->newQObject(this);
     QScriptValue klass = engine->newQMetaObject(metaObject(), ctorValue);
-    engine->globalObject().setProperty("QDBusInterface", klass);
+    extensionObject.setProperty("Interface", klass);
 }
 
 QScriptValue QScriptDBusInterfacePrototype::qscript_call(const QString &service, const QString &path, const QString &interface,
@@ -162,7 +163,7 @@ QScriptValue QScriptDBusInterfacePrototype::qscript_call(const QString &service,
     return setupDBusInterface(engine(), new QDBusInterface(service, path, interface, connection, engine()));
 }
 
-QScriptDBusMessagePrototype::QScriptDBusMessagePrototype(QScriptEngine *engine)
+QScriptDBusMessagePrototype::QScriptDBusMessagePrototype(QScriptEngine *engine, QScriptValue extensionObject)
     : QObject(engine)
 {
     proto = engine->newQMetaObject(metaObject(), engine->newQObject(this));
@@ -170,7 +171,7 @@ QScriptDBusMessagePrototype::QScriptDBusMessagePrototype(QScriptEngine *engine)
     proto.setProperty("createReply", engine->newFunction(createReply));
     proto.setProperty("createErrorReply", engine->newFunction(createErrorReply));
 
-    engine->globalObject().setProperty("QDBusMessage", proto);
+    extensionObject.setProperty("Message", proto);
     engine->setDefaultPrototype(qMetaTypeId<QDBusMessage>(), proto);
 }
 
@@ -300,8 +301,27 @@ Q_DECLARE_METATYPE(QDBusReply<bool>)
 Q_DECLARE_METATYPE(QDBusReply<QDBusConnectionInterface::RegisterServiceReply>)
 Q_DECLARE_METATYPE(QDBusError)
 
-void registerDBusBindings(QScriptEngine *engine)
+class QtDBusScriptPlugin : public QScriptExtensionPlugin
 {
+public:
+    QStringList keys() const;
+    void initialize(const QString &key, QScriptEngine *engine);
+};
+
+QStringList QtDBusScriptPlugin::keys() const
+{
+    return QStringList() << "qt.dbus";
+}
+
+void QtDBusScriptPlugin::initialize(const QString &key, QScriptEngine *engine)
+{
+    if (key != QLatin1String("qt.dbus")) {
+        Q_ASSERT_X(false, "initialize", qPrintable(key));
+        return;
+    }
+
+    QScriptValue extensionObject = setupPackage("qt.dbus", engine);
+
     qScriptRegisterMetaType<QDBusReply<QString> >(engine, qDBusReplyToScriptValue, qDBusReplyFromScriptValue);
     qScriptRegisterMetaType<QDBusReply<QStringList> >(engine, qDBusReplyToScriptValue, qDBusReplyFromScriptValue);
     qScriptRegisterMetaType<QDBusReply<uint> >(engine, qDBusReplyToScriptValue, qDBusReplyFromScriptValue);
@@ -311,17 +331,18 @@ void registerDBusBindings(QScriptEngine *engine)
     qScriptRegisterMetaType<QDBusError>(engine, qDBusErrorToScriptValue, scriptValueToQDBusError);
 
     QScriptValue connIfaceProto = engine->newQMetaObject(&QDBusConnectionInterface::staticMetaObject, engine->nullValue());
-    engine->globalObject().setProperty("QDBusConnectionInterface", connIfaceProto);
+    extensionObject.setProperty("ConnectionInterface", connIfaceProto);
 
     QScriptValue qdbus = engine->newObject();
-    qdbus.setProperty("NoBlock", QScriptValue(engine, QDBus::NoBlock));
-    qdbus.setProperty("Block", QScriptValue(engine, QDBus::Block));
-    qdbus.setProperty("BlockWithGui", QScriptValue(engine, QDBus::BlockWithGui));
-    qdbus.setProperty("AutoDetect", QScriptValue(engine, QDBus::AutoDetect));
-    engine->globalObject().setProperty("QDBus", qdbus);
+    extensionObject.setProperty("NoBlock", QScriptValue(engine, QDBus::NoBlock));
+    extensionObject.setProperty("Block", QScriptValue(engine, QDBus::Block));
+    extensionObject.setProperty("BlockWithGui", QScriptValue(engine, QDBus::BlockWithGui));
+    extensionObject.setProperty("AutoDetect", QScriptValue(engine, QDBus::AutoDetect));
 
-    (void)new QDBusConnectionPrototype(engine);
-    (void)new QScriptDBusInterfacePrototype(engine);
-    (void)new QScriptDBusMessagePrototype(engine);
+    (void)new QDBusConnectionPrototype(engine, extensionObject);
+    (void)new QScriptDBusInterfacePrototype(engine, extensionObject);
+    (void)new QScriptDBusMessagePrototype(engine, extensionObject);
 }
 
+Q_EXPORT_STATIC_PLUGIN(QtDBusScriptPlugin)
+Q_EXPORT_PLUGIN2(qtscriptdbus, QtDBusScriptPlugin)

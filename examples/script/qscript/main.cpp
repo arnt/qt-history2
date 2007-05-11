@@ -19,10 +19,6 @@
 #include <QtCore/QStringList>
 #include <QtGui/QApplication>
 
-#if defined(WITH_DBUS)
-#include "qdbusbinding.h"
-#endif
-
 #include <stdlib.h>
 
 static void interactive(QScriptEngine &eng)
@@ -91,10 +87,6 @@ int main(int argc, char *argv[])
         qscript.setProperty("importExtension", eng.newFunction(importExtension));
         globalObject.property("qt").setProperty("script", qscript);
     }
-
-#if defined(WITH_DBUS)
-    registerDBusBindings(&eng);
-#endif
 
     if (! *++argv) {
         interactive(eng);
