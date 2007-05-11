@@ -255,6 +255,10 @@ QWidget *Q3DragObject::target()
     \c DragMove mode. Be sure to read the constraints described in
     drag().
 
+    Returns true if the data was dragged as a \e move, indicating that
+    the caller should remove the original source of the data (the drag
+    object must continue to have a copy); otherwise returns false.
+
     \sa drag() dragCopy() dragLink()
 */
 bool Q3DragObject::dragMove()
@@ -1517,7 +1521,9 @@ bool Q3ColorDrag::canDecode(QMimeSource *e)
     \fn bool Q3ColorDrag::decode(QMimeSource *source, QColor &color)
 
     Decodes the MIME \a source, and sets the decoded values to the
-    given \a color.
+    given \a color. Returns true if the decoding is successful.
+    Returns false if the size of the encoded data is not the
+    expected size.
 */
 
 bool Q3ColorDrag::decode(QMimeSource *e, QColor &col)

@@ -4442,7 +4442,7 @@ int Q3ListBoxItem::rtti() const
 /*!
     \fn bool Q3ListBox::autoScroll() const
 
-    Use dragAutoScroll() instead;
+    Use dragAutoScroll() instead. This function always returns true.
 */
 
 /*!
@@ -4454,7 +4454,8 @@ int Q3ListBoxItem::rtti() const
 /*!
     \fn bool Q3ListBox::autoScrollBar() const
 
-    Use vScrollBarMode() instead.
+    Use vScrollBarMode() instead. Returns true if the vertical
+    scrollbar mode is \c Auto.
 */
 
 /*!
@@ -4469,7 +4470,8 @@ int Q3ListBoxItem::rtti() const
 /*!
     \fn bool Q3ListBox::scrollBar() const
 
-    Use vScrollBarMode() instead.
+    Use vScrollBarMode() instead. Returns true if the vertical
+    scrollbar mode is not \c AlwaysOff.
 */
 
 /*!
@@ -4484,7 +4486,8 @@ int Q3ListBoxItem::rtti() const
 /*!
     \fn bool Q3ListBox::autoBottomScrollBar() const
 
-    Use hScrollBarMode() instead.
+    Use hScrollBarMode() instead. Returns true if the horizontal
+    scrollbar mode is set to \c Auto.
 */
 
 /*!
@@ -4499,7 +4502,8 @@ int Q3ListBoxItem::rtti() const
 /*!
     \fn bool Q3ListBox::bottomScrollBar() const
 
-    Use hScrollBarMode() instead.
+    Use hScrollBarMode() instead. Returns true if the horizontal
+    scrollbar mode is not \c AlwaysOff.
 */
 
 /*!
@@ -4600,15 +4604,16 @@ int Q3ListBoxItem::rtti() const
 /*!
     \fn bool Q3ListBoxItem::selected() const
 
-    Use isSelected() instead.
+    Use isSelected() instead. Returns true if isSelected()
+    returns true.
 */
 
 /*!
     \fn bool Q3ListBoxItem::current() const
 
-    Use isCurrent() instead.
+    Use isCurrent() instead. Returns true if isCurrent()
+    returns true.
 */
-
 
 /*!
     \enum Q3ListBox::StringComparisonMode

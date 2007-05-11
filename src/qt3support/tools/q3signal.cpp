@@ -111,6 +111,7 @@ static inline bool intSignature(const char *member)
 #endif
 /*!
     Connects the signal to \a member in object \a receiver.
+    Returns true if the connection is successful.
 
     \sa disconnect(), QObject::connect()
 */
@@ -129,6 +130,8 @@ bool Q3Signal::connect(const QObject *receiver, const char *member)
 
 /*!
     Disonnects the signal from \a member in object \a receiver.
+    Returns true if the connection existed and the disconnect
+    was successful.
 
     \sa connect(), QObject::disconnect()
 */

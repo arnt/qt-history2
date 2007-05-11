@@ -1428,7 +1428,8 @@ void Q3IconViewItem::repaint()
 
 /*!
     Moves the item to position (\a x, \a y) in the icon view (these
-    are contents coordinates).
+    are contents coordinates). Returns true if the item is moved.
+    Returns false if the item is already at the specified position.
 */
 
 bool Q3IconViewItem::move(int x, int y)

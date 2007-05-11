@@ -770,7 +770,7 @@ void Q3Accel::setItemEnabled(int id, bool enable)
 
 /*!
     Connects the accelerator item \a id to the slot \a member of \a
-    receiver.
+    receiver. Returns true if the connection is successful.
 
     \code
         a->connectItem(201, mainView, SLOT(quit()));
@@ -785,7 +785,7 @@ void Q3Accel::setItemEnabled(int id, bool enable)
     emitted if the associated key sequence is pressed but no \c
     activated(int id) signal is emitted.
 
-    \sa disconnectItem()
+    \sa disconnectItem(), QObject::connect()
 */
 
 bool Q3Accel::connectItem(int id, const QObject *receiver, const char *member)
@@ -802,10 +802,12 @@ bool Q3Accel::connectItem(int id, const QObject *receiver, const char *member)
 }
 
 /*!
-    Disconnects an accelerator item with id \a id from the function
-    called \a member in the \a receiver object.
+    Disconnects the accelerator item identified by \a id from
+    the function called \a member in the \a receiver object.
+    Returns true if the connection existed and the disconnect
+    was successful.
 
-    \sa connectItem()
+    \sa connectItem(), QObject::disconnect()
 */
 
 bool Q3Accel::disconnectItem(int id, const QObject *receiver,
