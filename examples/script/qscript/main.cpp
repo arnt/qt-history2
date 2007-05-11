@@ -102,6 +102,7 @@ int main(int argc, char *argv[])
         }
 
         QString contents;
+        int lineNumber = 1;
 
         if (fn == QLatin1String("-")) {
             QTextStream stream(stdin, QFile::ReadOnly);
@@ -115,13 +116,19 @@ int main(int argc, char *argv[])
                 QTextStream stream(&file);
                 contents = stream.readAll();
                 file.close();
+
+                // strip off #!/usr/bin/env qscript line
+                if (contents.startsWith("#!")) {
+                    contents.remove(0, contents.indexOf("\n"));
+                    ++lineNumber;
+                }
             }
         }
 
         if (contents.isEmpty())
             continue;
 
-        QScriptValue r = eng.evaluate(contents, /*lineNumber*/1, fn);
+        QScriptValue r = eng.evaluate(contents, lineNumber, fn);
         if (eng.hasUncaughtException()) {
             QStringList backtrace = qscriptvalue_cast<QStringList>(r.property("backtrace").call(r));
             fprintf (stderr, "    %s\n%s\n\n", qPrintable(r.toString()),
