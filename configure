@@ -4263,8 +4263,18 @@ if [ "$PLATFORM_QWS" = "yes" ]; then
                exit 1
            fi
        fi
+
+       if [ "${screen}" = "svgalib" ] && [ "${CFG_CONFIGURE_EXIT_ON_ERROR}" = "yes" ]; then
+           if ! "$unixtests/compile.test" "$XQMAKESPEC" "$QMAKE_CONFIG" $OPT_VERBOSE "$relpath" "$outpath" config.tests/qws/svgalib "SVGAlib" $L_FLAGS $I_FLAGS $l_FLAGS; then
+               echo "The SVGAlib screen driver functionality test failed!"
+               echo " You might need to modify the include and library search paths by editing"
+               echo " QMAKE_INCDIR and QMAKE_LIBDIR in"
+               echo " ${XQMAKESPEC}."
+               exit 1
+           fi
+       fi
     done
- 
+
     # mouse drivers
     for mouse in ${CFG_MOUSE_ON} ${CFG_MOUSE_PLUGIN}; do
 	if [ "${mouse}" = "tslib" ] && [ "${CFG_CONFIGURE_EXIT_ON_ERROR}" = "yes" ]; then
