@@ -210,7 +210,6 @@ void QMutex::lock()
 #ifndef QT_NO_DEBUG
     d->owner = self;
 #endif
-    Q_ASSERT_X(d->count != 0, "QMutex::lock", "Overflow in recursion counter");
 }
 
 /*!
