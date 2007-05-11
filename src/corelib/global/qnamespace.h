@@ -388,6 +388,8 @@ public:
 
         WA_MacAlwaysShowToolWindow = 96, // Mac only
 
+        WA_StyleSheet = 97, // internal
+
         // Add new attributes before this line
         WA_AttributeCount
     };

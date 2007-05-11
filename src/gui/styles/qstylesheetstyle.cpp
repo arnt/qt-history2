@@ -62,7 +62,6 @@ static QHash<const QWidget *, QVector<StyleRule> > *styleRulesCache = 0;
 typedef QHash<QString, QHash<int, QRenderRule> > QRenderRules;
 static QHash<const QWidget *, QRenderRules> *renderRulesCache = 0;
 static QHash<const QWidget *, int> *customPaletteWidgets = 0; // widgets whose palette we tampered
-static QHash<const QWidget *, int> *customFontWidgets = 0; // widgets whose font we tampered
 static QHash<const void *, StyleSheet> *styleSheetCache = 0; // parsed style sheets
 static QSet<const QWidget *> *autoFillDisabledWidgets = 0;
 
@@ -1930,10 +1929,7 @@ void QStyleSheetStyle::setPalette(QWidget *w)
     for (int i = 0; i < 3; i++) {
         QRenderRule rule = renderRule(w, PseudoElement_None, map[i].state);
         if (i == 0) {
-            if (rule.hasFont) {
-                customFontWidgets->insert(w, rule.font.resolve() & ~w->font().resolve());
-                w->setFont(rule.font);
-            }
+            w->setFont(rule.font);
 
             if (ew->autoFillBackground() &&
                 (rule.hasBackground()
@@ -1947,28 +1943,19 @@ void QStyleSheetStyle::setPalette(QWidget *w)
         rule.configurePalette(&p, map[i].group, ew, ew != w);
     }
 
-    if (w->palette() != p) {
-        customPaletteWidgets->insert(w, p.resolve() & ~w->palette().resolve());
-        w->setPalette(p);
-    }
+    customPaletteWidgets->insert(w, w->palette().resolve());
+    w->setPalette(p);
 }
 
 void QStyleSheetStyle::unsetPalette(QWidget *w)
 {
     if (customPaletteWidgets->contains(w)) {
-        QPalette p = QApplication::palette(w);
+        QPalette p = w->palette();
         p.resolve(customPaletteWidgets->value(w));
-        p.resolve(w->palette());
         w->setPalette(p);
         customPaletteWidgets->remove(w);
     }
-    if (customFontWidgets->contains(w)) {
-        QFont f = QApplication::font();
-        f.resolve(customFontWidgets->value(w));
-        f.resolve(w->font());
-        w->setFont(f);
-        customFontWidgets->remove(w);
-    }
+    w->setFont(QFont());
     if (autoFillDisabledWidgets->contains(w)) {
         embeddedWidget(w)->setAutoFillBackground(true);
         autoFillDisabledWidgets->remove(w);
@@ -2004,7 +1991,6 @@ QStyleSheetStyle::QStyleSheetStyle(QStyle *base)
         styleRulesCache = new QHash<const QWidget *, QVector<StyleRule> >;
         renderRulesCache = new QHash<const QWidget *, QRenderRules>;
         customPaletteWidgets = new QHash<const QWidget *, int>;
-        customFontWidgets = new QHash<const QWidget *, int>;
         styleSheetCache = new QHash<const void *, StyleSheet>;
         autoFillDisabledWidgets = new QSet<const QWidget *>;
     }
@@ -2020,8 +2006,6 @@ QStyleSheetStyle::~QStyleSheetStyle()
         renderRulesCache = 0;
         delete customPaletteWidgets;
         customPaletteWidgets = 0;
-        delete customFontWidgets;
-        customFontWidgets = 0;
         delete styleSheetCache;
         styleSheetCache = 0;
         delete autoFillDisabledWidgets;
@@ -2042,7 +2026,6 @@ void QStyleSheetStyle::widgetDestroyed(QObject *o)
     styleRulesCache->remove((const QWidget *)o);
     renderRulesCache->remove((const QWidget *)o);
     customPaletteWidgets->remove((const QWidget *)o);
-    customFontWidgets->remove((const QWidget *)o);
     styleSheetCache->remove((const QWidget *)o);
     autoFillDisabledWidgets->remove((const QWidget *)o);
 }
@@ -2050,6 +2033,8 @@ void QStyleSheetStyle::widgetDestroyed(QObject *o)
 void QStyleSheetStyle::polish(QWidget *w)
 {
     baseStyle()->polish(w);
+
+    w->setAttribute(Qt::WA_StyleSheet, !unstylable(w));
 
     if (styleSheetCache->contains(w)) {
         // the widget accessed its style pointer before polish (or repolish)
@@ -2141,6 +2126,7 @@ void QStyleSheetStyle::unpolish(QWidget *w)
     styleSheetCache->remove(w);
     baseStyle()->unpolish(w);
     unsetPalette(w);
+    w->setAttribute(Qt::WA_StyleSheet, false);
     QObject::disconnect(w, SIGNAL(destroyed(QObject*)),
                       this, SLOT(widgetDestroyed(QObject*)));
 #ifndef QT_NO_SCROLLAREA
