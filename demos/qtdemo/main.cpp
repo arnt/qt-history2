@@ -30,7 +30,9 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
     Colors::parseArgs(argc, argv);
     MainWindow mainWindow;
+    MenuManager::instance()->init(&mainWindow);
     mainWindow.setFocus();
+
     if (Colors::fullscreen)
         mainWindow.showFullScreen();
     else {
@@ -38,12 +40,7 @@ int main(int argc, char *argv[])
         mainWindow.show();
     }
 
-    MenuManager::instance()->init(&mainWindow);
     artisticSleep(500);
-    MenuManager::instance()->itemSelected(MenuManager::ROOT);
-    if (Colors::useLoop){
-        mainWindow.startLoop();
-        return 0;
-    } else
-        return app.exec();
+    mainWindow.start();
+    return app.exec();
 }

@@ -31,7 +31,7 @@ public:
     void toggleFullscreen();
     int performBenchmark();    
     void switchTimerOnOff(bool on);
-    void startLoop();
+    void start();
     
     QGraphicsScene *scene;
     bool loop;

@@ -40,8 +40,6 @@ MainWindow::MainWindow(QWidget *parent) : QGraphicsView(parent), updateTimer(thi
     this->setupScene();
     this->setupSceneItems();
     this->drawBackgroundToPixmap();
-    this->switchTimerOnOff(true);
-    this->demoStartTime.restart();
 }
 
 MainWindow::~MainWindow()
@@ -96,19 +94,13 @@ void MainWindow::useHardwareAcceleration(bool use)
     setViewport(viewport);
 }
 
-void MainWindow::startLoop()
-{/*
-    this->loop = true;
-    this->updateTimer.stop();
-    QTime time;
-    float msPerFrame = 1000.0f / float(Colors::fps);
-     
-    while (this->loop){
-        time.restart();
-        this->tick();
-        while (msPerFrame - time.elapsed() > 0)
-            QCoreApplication::processEvents(QEventLoop::AllEvents);
-    }*/
+void MainWindow::start()
+{
+    this->switchTimerOnOff(true);
+    this->demoStartTime.restart();        
+    MenuManager::instance()->itemSelected(MenuManager::ROOT);
+    if (Colors::verbose)
+        qDebug("- starting demo");
 }
 
 void MainWindow::enableMask(bool enable)
@@ -259,7 +251,7 @@ void MainWindow::checkAdapt()
 {
     if (this->doneAdapt
         || Colors::noTimerUpdate
-        || this->demoStartTime.elapsed() < 3300)
+        || this->demoStartTime.elapsed() < 2200)
        return;
 
     this->doneAdapt = true;
