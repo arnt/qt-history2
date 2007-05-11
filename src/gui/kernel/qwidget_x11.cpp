@@ -274,7 +274,8 @@ Q_GUI_EXPORT void qt_x11_wait_for_window_manager(QWidget* w)
     XEvent ev;
     QTime t;
     t.start();
-    Q_ASSERT(w->testAttribute(Qt::WA_WState_Created));
+    if (!w->testAttribute(Qt::WA_WState_Created))
+        return;
     while (!XCheckTypedWindowEvent(X11->display, w->internalWinId(), ReparentNotify, &ev)) {
         if (XCheckTypedWindowEvent(X11->display, w->internalWinId(), MapNotify, &ev))
             break;
