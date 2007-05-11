@@ -1994,6 +1994,7 @@ void QAbstractSocket::close()
     d->localAddress.clear();
     d->peerAddress.clear();
     d->peerName.clear();
+    d->cachedSocketDescriptor = -1;
 }
 
 /*!
