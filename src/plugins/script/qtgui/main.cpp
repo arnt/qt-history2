@@ -14,6 +14,7 @@
 #include <QtScript/QScriptExtensionPlugin>
 #include <QtScript/QScriptValue>
 #include <QtScript/QScriptEngine>
+#include <QtGui/QApplication>
 #include <qdebug.h>
 
 QScriptValue constructBrushClass(QScriptEngine *engine);
@@ -82,9 +83,7 @@ void QtGuiScriptPlugin::initialize(const QString &key,
         extensionObject.setProperty("LinearGradient", constructLinearGradientClass(engine));
         extensionObject.setProperty("KeyEvent", constructKeyEventClass(engine));
         extensionObject.setProperty("Matrix", constructMatrixClass(engine));
-        extensionObject.setProperty("MouseEvent", constructMouseEventClass(engine));
         extensionObject.setProperty("Pen", constructPenClass(engine));
-        extensionObject.setProperty("Pixmap", constructPixmapClass(engine));
         extensionObject.setProperty("Polygon", constructPolygonClass(engine));
         extensionObject.setProperty("Painter", constructPainterClass(engine));
         extensionObject.setProperty("PainterPath", constructPainterPathClass(engine));
@@ -100,13 +99,18 @@ void QtGuiScriptPlugin::initialize(const QString &key,
         extensionObject.setProperty("GraphicsEllipseItem", constructGraphicsEllipseItemClass(engine));
         extensionObject.setProperty("GraphicsLineItem", constructGraphicsLineItemClass(engine));
         extensionObject.setProperty("GraphicsPathItem", constructGraphicsPathItemClass(engine));
-        extensionObject.setProperty("GraphicsPixmapItem", constructGraphicsPixmapItemClass(engine));
         extensionObject.setProperty("GraphicsPolygonItem", constructGraphicsPolygonItemClass(engine));
         extensionObject.setProperty("GraphicsRectItem", constructGraphicsRectItemClass(engine));
         extensionObject.setProperty("GraphicsSimpleTextItem", constructGraphicsSimpleTextItemClass(engine));
         extensionObject.setProperty("GraphicsTextItem", constructGraphicsTextItemClass(engine));
         extensionObject.setProperty("GraphicsScene", constructGraphicsSceneClass(engine));
-        extensionObject.setProperty("GraphicsView", constructGraphicsViewClass(engine));
+
+        if (QApplication::type() != QApplication::Tty) {
+            extensionObject.setProperty("MouseEvent", constructMouseEventClass(engine));
+            extensionObject.setProperty("Pixmap", constructPixmapClass(engine));
+            extensionObject.setProperty("GraphicsPixmapItem", constructGraphicsPixmapItemClass(engine));
+            extensionObject.setProperty("GraphicsView", constructGraphicsViewClass(engine));
+        }
     } else {
         Q_ASSERT_X(false, "initialize", qPrintable(key));
     }
