@@ -473,7 +473,7 @@ bool QMimeData::hasImage() const
 
     A QVariant is used because QMimeData belongs to the \l QtCore
     library, whereas QColor belongs to \l QtGui. To convert the
-    QVariant to a QImage, simply use qvariant_cast(). For example:
+    QVariant to a QColor, simply use qvariant_cast(). For example:
 
     \code
         if (event->mimeData()->hasColor()) {
