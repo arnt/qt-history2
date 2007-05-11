@@ -12,7 +12,12 @@
 
 #include <qstatusbar.h>
 #include <QLabel>
+#include <QMainWindow>
+#include <QSizeGrip>
 
+#ifdef Q_WS_X11
+extern void qt_x11_wait_for_window_manager(QWidget *);
+#endif
 
 //TESTED_CLASS=
 //TESTED_FILES=gui/widgets/qstatusbar.h gui/widgets/qstatusbar.cpp
@@ -39,6 +44,7 @@ private slots:
     void tempMessage();
     void insertWidget();
     void insertPermanentWidget();
+    void setSizeGripEnabled();
 
 private:
     QStatusBar *testWidget;
@@ -129,6 +135,67 @@ void tst_QStatusBar::insertPermanentWidget()
     QCOMPARE(sb.insertWidget(1, new QLabel("foo")), 1);
     QTest::ignoreMessage(QtWarningMsg, "QStatusBar::insertPermanentWidget: Index out of range (1), appending widget");
     QCOMPARE(sb.insertPermanentWidget(1, new QLabel("foo")), 6);
+}
+
+void tst_QStatusBar::setSizeGripEnabled()
+{
+    QMainWindow mainWindow;
+    QPointer<QStatusBar> statusBar = mainWindow.statusBar();
+    QVERIFY(statusBar);
+    mainWindow.show();
+#ifdef Q_WS_X11
+    qt_x11_wait_for_window_manager(&mainWindow);
+#endif
+
+    QVERIFY(statusBar->isVisible());
+    QPointer<QSizeGrip> sizeGrip = qFindChild<QSizeGrip *>(statusBar);
+    QVERIFY(sizeGrip);
+    QVERIFY(sizeGrip->isVisible());
+
+    statusBar->setSizeGripEnabled(true);
+    QVERIFY(sizeGrip);
+    QVERIFY(sizeGrip->isVisible());
+
+    statusBar->hide();
+    QVERIFY(!sizeGrip->isVisible());
+    statusBar->show();
+    QVERIFY(sizeGrip->isVisible());
+
+    sizeGrip->setVisible(false);
+    QVERIFY(!sizeGrip->isVisible());
+    statusBar->hide();
+    statusBar->show();
+    QVERIFY(!sizeGrip->isVisible());
+
+    statusBar->setSizeGripEnabled(false);
+    QVERIFY(!sizeGrip);
+
+    qApp->processEvents();
+    mainWindow.showFullScreen();
+#ifdef Q_WS_X11
+    qt_x11_wait_for_window_manager(&mainWindow);
+#endif
+    qApp->processEvents();
+
+    mainWindow.setStatusBar(new QStatusBar(&mainWindow));
+    QVERIFY(!statusBar);
+    statusBar = mainWindow.statusBar();
+    QVERIFY(statusBar);
+
+    sizeGrip = qFindChild<QSizeGrip *>(statusBar);
+    QVERIFY(sizeGrip);
+    QVERIFY(!sizeGrip->isVisible());
+
+    statusBar->setSizeGripEnabled(true);
+    QVERIFY(!sizeGrip->isVisible());
+
+    qApp->processEvents();
+    mainWindow.showNormal();
+#ifdef Q_WS_X11
+    qt_x11_wait_for_window_manager(&mainWindow);
+#endif
+    qApp->processEvents();
+    QVERIFY(sizeGrip->isVisible());
 }
 
 

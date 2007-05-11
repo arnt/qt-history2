@@ -14,6 +14,7 @@
 #include <qlineedit.h>
 #include <qpushbutton.h>
 #include <qstyle.h>
+#include <QSizeGrip>
 
 Q_DECLARE_METATYPE(QSize)
 
@@ -206,14 +207,21 @@ void tst_QDialog::defaultButtons()
 void tst_QDialog::showMaximized()
 {
     QDialog dialog(0);
+    dialog.setSizeGripEnabled(true);
+    QSizeGrip *sizeGrip = qFindChild<QSizeGrip *>(&dialog);
+    QVERIFY(sizeGrip);
 
     dialog.showMaximized();
     QVERIFY(dialog.isMaximized());
     QVERIFY(dialog.isVisible());
+#ifndef Q_WS_MAC
+    QVERIFY(!sizeGrip->isVisible());
+#endif
 
     dialog.showNormal();
     QVERIFY(!dialog.isMaximized());
     QVERIFY(dialog.isVisible());
+    QVERIFY(sizeGrip->isVisible());
 
     dialog.showMaximized();
     QVERIFY(dialog.isMaximized());
@@ -272,16 +280,21 @@ void tst_QDialog::showMinimized()
 void tst_QDialog::showFullScreen()
 {
     QDialog dialog(0, Qt::X11BypassWindowManagerHint);
+    dialog.setSizeGripEnabled(true);
+    QSizeGrip *sizeGrip = qFindChild<QSizeGrip *>(&dialog);
+    QVERIFY(sizeGrip);
 
     qApp->syncX();
     dialog.showFullScreen();
     QVERIFY(dialog.isFullScreen());
     QVERIFY(dialog.isVisible());
+    QVERIFY(!sizeGrip->isVisible());
 
     qApp->syncX();
     dialog.showNormal();
     QVERIFY(!dialog.isFullScreen());
     QVERIFY(dialog.isVisible());
+    QVERIFY(sizeGrip->isVisible());
 
     qApp->syncX();
     dialog.showFullScreen();
@@ -378,6 +391,9 @@ void tst_QDialog::showSizeGrip()
     QVERIFY(!dialog.isSizeGripEnabled());
 
     dialog.setSizeGripEnabled(true);
+    QPointer<QSizeGrip> sizeGrip = qFindChild<QSizeGrip *>(&dialog);
+    QVERIFY(sizeGrip);
+    QVERIFY(sizeGrip->isVisible());
     QVERIFY(dialog.isSizeGripEnabled());
 
     dialog.setExtension(ext);
@@ -388,15 +404,20 @@ void tst_QDialog::showSizeGrip()
     dialog.showExtension(true);
     QVERIFY(dialog.extension() && dialog.extension()->isVisible());
     QVERIFY(!dialog.isSizeGripEnabled());
+    QVERIFY(!sizeGrip);
 
     dialog.showExtension(false);
     QVERIFY(dialog.extension() && !dialog.extension()->isVisible());
     QVERIFY(dialog.isSizeGripEnabled());
+    sizeGrip = qFindChild<QSizeGrip *>(&dialog);
+    QVERIFY(sizeGrip);
+    QVERIFY(sizeGrip->isVisible());
 
     // show/hide sequence with interleaved size grip update
     dialog.showExtension(true);
     QVERIFY(dialog.extension() && dialog.extension()->isVisible());
     QVERIFY(!dialog.isSizeGripEnabled());
+    QVERIFY(!sizeGrip);
 
     dialog.setSizeGripEnabled(false);
     QVERIFY(!dialog.isSizeGripEnabled());
@@ -404,6 +425,15 @@ void tst_QDialog::showSizeGrip()
     dialog.showExtension(false);
     QVERIFY(dialog.extension() && !dialog.extension()->isVisible());
     QVERIFY(!dialog.isSizeGripEnabled());
+
+    dialog.setSizeGripEnabled(true);
+    sizeGrip = qFindChild<QSizeGrip *>(&dialog);
+    QVERIFY(sizeGrip);
+    QVERIFY(sizeGrip->isVisible());
+    sizeGrip->hide();
+    dialog.hide();
+    dialog.show();
+    QVERIFY(!sizeGrip->isVisible());
 #endif
 }
 
