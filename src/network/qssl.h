@@ -29,6 +29,8 @@
 #ifndef QSSL_H
 #define QSSL_H
 
+#include <QtCore/qglobal.h>
+
 QT_BEGIN_HEADER
 
 QT_MODULE(Network)
