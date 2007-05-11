@@ -251,7 +251,7 @@ void MainWindow::checkAdapt()
 {
     if (this->doneAdapt
         || Colors::noTimerUpdate
-        || this->demoStartTime.elapsed() < 2200)
+        || this->demoStartTime.elapsed() < 2000)
        return;
 
     this->doneAdapt = true;
