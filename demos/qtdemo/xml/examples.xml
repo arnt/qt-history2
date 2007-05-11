@@ -57,7 +57,7 @@
     <example filename="basicsortfiltermodel" name="Basic Sort/Filter Model" />
     <example filename="chart" name="Chart" />
     <example filename="customsortfiltermodel" name="Custom Sort/Filter Model" />
-    <example filename="coloreditorfactory" name="Color Editor Factory Example" />
+    <example filename="coloreditorfactory" name="Color Editor Factory" />
     <example filename="dirview" name="Directory View" />
     <example filename="pixelator" name="Pixelator" />
     <example filename="puzzle" name="Puzzle " />

@@ -98,6 +98,9 @@ TextButton::TextButton(const QString &text, ALIGNMENT align, int userCode, QGrap
     this->alignment = align;
     this->buttonType = type;
     this->userCode = userCode;
+    
+    this->checkable = true;
+    this->state = OFF;
 
     this->setAcceptsHoverEvents(true);
     this->setCursor(Qt::PointingHandCursor);
@@ -162,80 +165,76 @@ void TextButton::setupScanItem()
     }
 }
 
-void TextButton::setupButtonBg()
+void TextButton::setState(STATE state)
 {
-    this->bgOff = new ButtonBackground(this->buttonType, false, false, this->scene(), this);
-    this->bgOn = new ButtonBackground(this->buttonType, true, false, this->scene(), this);
-    this->bgPressed = new ButtonBackground(this->buttonType, true, true, this->scene(), this);
-    this->bgOn->setRecursiveVisible(false);
-    this->bgPressed->setRecursiveVisible(false);    
-    this->bgOff->setRecursiveVisible(true);
+    this->state = state;
+    this->bgOn->setRecursiveVisible(state == ON);
+    this->bgOff->setRecursiveVisible(state == OFF);
+    this->bgHighlight->setRecursiveVisible(state == HIGHLIGHT);    
 }
 
-void TextButton::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
+void TextButton::setupButtonBg()
 {
-    Q_UNUSED(event);
+    this->bgOn = new ButtonBackground(this->buttonType, true, true, this->scene(), this);
+    this->bgOff = new ButtonBackground(this->buttonType, false, false, this->scene(), this);
+    this->bgHighlight = new ButtonBackground(this->buttonType, true, false, this->scene(), this);
+    this->setState(OFF);
+}
 
+void TextButton::hoverEnterEvent(QGraphicsSceneHoverEvent *)
+{
     if (this->locked)
         return;
 
-    if (Colors::noAnimations && Colors::useButtonBalls){
-        // wait a bit in the beginning
-        // to enhance the effect. Have to this here
-        // so that the adaption can be dynamic
-        this->scanAnim->setDuration(1000);
-        this->scanAnim->setPosAt(0.2, this->scanAnim->posAt(0));
+    if (this->state == OFF){
+        this->setState(HIGHLIGHT);
+        
+        if (Colors::noAnimations && Colors::useButtonBalls){
+            // wait a bit in the beginning
+            // to enhance the effect. Have to this here
+            // so that the adaption can be dynamic
+            this->scanAnim->setDuration(1000);
+            this->scanAnim->setPosAt(0.2, this->scanAnim->posAt(0));
+        }
+        
+        if (MenuManager::instance()->window->fpsMedian > 10
+            || Colors::noAdapt
+            || Colors::noTimerUpdate){
+            if (Colors::useButtonBalls)
+                this->scanAnim->play(true, true);
+        }
     }
-
-    if (MenuManager::instance()->window->fpsMedian > 10
-        || Colors::noAdapt
-        || Colors::noTimerUpdate){
-        if (Colors::useButtonBalls)
-            this->scanAnim->play(true, true);
-    }
-   this->bgOn->setRecursiveVisible(true);
-   this->bgOff->setRecursiveVisible(false);
-   this->bgPressed->setRecursiveVisible(false);
 }
 
 void TextButton::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 {
     Q_UNUSED(event);
 
+    this->setState(OFF);
+
     if (Colors::noAnimations && Colors::useButtonBalls)
         this->scanAnim->stop();
-    this->bgOn->setRecursiveVisible(false);
-    this->bgOff->setRecursiveVisible(true);
-    this->bgPressed->setRecursiveVisible(false);
 }
 
-void TextButton::mousePressEvent(QGraphicsSceneMouseEvent *event)
+void TextButton::mousePressEvent(QGraphicsSceneMouseEvent *)
 {
-    Q_UNUSED(event);
-
-    this->bgPressed->setRecursiveVisible(true);
-    this->bgOn->setRecursiveVisible(false);
-    this->bgOff->setRecursiveVisible(false);
+    if (this->state == HIGHLIGHT || this->state == OFF);
+        this->setState(ON);
 }
 
 void TextButton::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
-    Q_UNUSED(event);
-
-    this->bgPressed->setRecursiveVisible(false);
-    this->bgOn->setRecursiveVisible(false);
-    this->bgOff->setRecursiveVisible(true);
-
-    if (!this->locked && this->boundingRect().contains(event->pos())){
-        MenuManager::instance()->itemSelected(this->userCode, this->menuName);
+    if (this->state == ON){
+        this->setState(OFF);
+        if (!this->locked && this->boundingRect().contains(event->pos())){
+            MenuManager::instance()->itemSelected(this->userCode, this->menuName);
+        }
     }
 }
 
 void TextButton::animationStarted(int)
 {
-    this->bgOn->setRecursiveVisible(false);
-    this->bgPressed->setRecursiveVisible(false);    
-    this->bgOff->setRecursiveVisible(true);
+    this->setState(OFF);
 }
 
 

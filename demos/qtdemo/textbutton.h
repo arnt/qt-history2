@@ -26,6 +26,7 @@ class TextButton : public DemoItem
 public:
     enum ALIGNMENT {LEFT, RIGHT};
     enum BUTTONTYPE {SIDEBAR, PANEL};
+    enum STATE {ON, OFF, HIGHLIGHT};
     
     TextButton(const QString &text, ALIGNMENT align = LEFT, int userCode = 0, QGraphicsScene *scene = 0, QGraphicsItem *parent = 0, BUTTONTYPE color = SIDEBAR);
     virtual ~TextButton();
@@ -40,7 +41,8 @@ public:
 
     void animationStarted(int id = 0);
     void prepare();
-
+    void setState(STATE state);
+    
 private:
     void setupButtonBg();
     void setupScanItem();
@@ -49,12 +51,15 @@ private:
     DemoItemAnimation *scanAnim;
     DemoItem *bgOn;
     DemoItem *bgOff;
-    DemoItem *bgPressed;
+    DemoItem *bgHighlight;
     
     BUTTONTYPE buttonType;
     ALIGNMENT alignment;
     QString menuName;
     int userCode;
+    
+    bool checkable;
+    bool state;
 };
 
 #endif // TEXT_BUTTON_H
