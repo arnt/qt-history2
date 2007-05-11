@@ -1172,7 +1172,16 @@ QTextBlock QTextDocument::begin() const
 }
 
 /*!
-    Returns the document's last text block.
+    This function returns a block to test for the end of the document
+    while iterating over it.
+
+    \quotefromfile snippets/textdocumentendsnippet.cpp
+    \skipto for
+    \printuntil cout
+
+    The block returned is invalid and represents the block after the
+    last block in the document.
+
 */
 QTextBlock QTextDocument::end() const
 {
