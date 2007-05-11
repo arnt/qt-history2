@@ -321,19 +321,20 @@ void QPrinterPrivate::createDefaultEngines()
 
   \warning This is currently only implemented for Windows.
 
-  \value OnlyOne
-  \value Lower
-  \value Middle
-  \value Manual
+  \value Auto
+  \value Cassette
   \value Envelope
   \value EnvelopeManual
-  \value Auto
+  \value FormSource
+  \value LargeCapacity
+  \value LargeFormat
+  \value Lower
+  \value MaxPageSource
+  \value Middle
+  \value Manual
+  \value OnlyOne
   \value Tractor
   \value SmallFormat
-  \value LargeFormat
-  \value LargeCapacity
-  \value Cassette
-  \value FormSource
 */
 
 /*
@@ -1664,6 +1665,8 @@ bool QPrinter::isOptionEnabled( PrinterOption option ) const
     \value PPK_PaperRect A QRect specifying the paper rectangle.
 
     \value PPK_PaperSource Specifies a QPrinter::PaperSource value.
+
+    \value PPK_PaperSources Specifies more than one QPrinter::PaperSource value.
 
     \value PPK_PrinterName A string specifying the name of the printer.
 

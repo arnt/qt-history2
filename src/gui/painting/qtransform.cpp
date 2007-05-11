@@ -556,6 +556,38 @@ QTransform QTransform::operator*(const QTransform &m) const
 }
 
 /*!
+    \fn QTransform & QTransform::operator*=(qreal scalar)
+    \overload
+
+    Returns the result of performing an element-wise multiplication of this
+    matrix with the given \a scalar.
+*/
+
+/*!
+    \fn QTransform & QTransform::operator/=(qreal scalar)
+    \overload
+
+    Returns the result of performing an element-wise division of this
+    matrix by the given \a scalar.
+*/
+
+/*!
+    \fn QTransform & QTransform::operator+=(qreal scalar)
+    \overload
+
+    Returns the matrix obtained by adding the given \a scalar to each
+    element of this matrix.
+*/
+
+/*!
+    \fn QTransform & QTransform::operator-=(qreal scalar)
+    \overload
+
+    Returns the matrix obtained by subtracting the given \a scalar from each
+    element of this matrix.
+*/
+
+/*!
     Assigns the given \a matrix's values to this matrix.
 */
 QTransform & QTransform::operator=(const QTransform &matrix)
@@ -1002,12 +1034,11 @@ QPolygon QTransform::mapToPolygon(const QRect &rect) const
 }
 
 /*!
-
     Creates a transformation matrix, \a trans, that maps a unit square
     to a four-sided polygon, \a quad. Returns true if the transformation
     is constructed or false if such a transformation does not exist.
 
-    \sa squareToQuad()
+    \sa quadToSquare(), quadToQuad()
 */
 bool QTransform::squareToQuad(const QPolygonF &quad, QTransform &trans)
 {
@@ -1086,9 +1117,10 @@ bool QTransform::quadToSquare(const QPolygonF &quad, QTransform &trans)
 }
 
 /*!
-    Creates a transformation matrix, \a trans, that maps a
-    four-sided polygon, \a one, to another four-sided
-    polygon, \a two.
+    Creates a transformation matrix, \a trans, that maps a four-sided
+    polygon, \a one, to another four-sided polygon, \a two.
+    Returns true if the transformation is possible; otherwise returns
+    false.
 
     This is a convenience method combining quadToSquare() and
     squareToQuad() methods. It allows the input quad to be

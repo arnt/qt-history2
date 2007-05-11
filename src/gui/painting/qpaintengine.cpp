@@ -107,34 +107,37 @@ QFont QTextItem::font() const
   means and pass on an alpha blended QImage to the engine with the
   emulated results. Some features cannot be emulated: AlphaBlend and PorterDuff.
 
-  \value PrimitiveTransform The engine has support for transforming
-                            drawing primitives.
-  \value PatternTransform   The engine has support for transforming brush
-                            patterns.
-  \value PixmapTransform    The engine can transform pixmaps, including
-                            rotation and shearing.
-  \value PatternBrush       The engine is capable of rendering brushes with
-                            the brush patterns specified in Qt::BrushStyle.
-  \value LinearGradientFill The engine supports linear gradient fills.
-  \value RadialGradientFill The engine supports radial gradient fills.
-  \value ConicalGradientFill The engine supports conical gradient fills.
   \value AlphaBlend         The engine can alpha blend primitives.
-  \value PorterDuff         The engine supports Porter-Duff operations
-  \value PainterPaths       The engine has path support.
   \value Antialiasing       The engine can use antialising to improve the appearance
                             of rendered primitives.
+  \value BlendModes         The engine supports blending modes.
   \value BrushStroke        The engine supports drawing strokes that
                             contain brushes as fills, not just solid
                             colors (e.g. a dashed gradient line of
                             width 2).
+  \value ConicalGradientFill The engine supports conical gradient fills.
   \value ConstantOpacity    The engine supports the feature provided by
                             QPainter::setOpacity().
+  \value LinearGradientFill The engine supports linear gradient fills.
   \value MaskedBrush        The engine is capable of rendering brushes that has a
                             texture with an alpha channel or a mask.
-
+  \value PainterPaths       The engine has path support.
   \value PaintOutsidePaintEvent The engine is capable of painting outside of
                                 paint events.
-  \value AllFeatures
+  \value PatternBrush       The engine is capable of rendering brushes with
+                            the brush patterns specified in Qt::BrushStyle.
+  \value PatternTransform   The engine has support for transforming brush
+                            patterns.
+  \value PerspectiveTransform The engine has support for performing perspective
+                            transformations on primitives.
+  \value PixmapTransform    The engine can transform pixmaps, including
+                            rotation and shearing.
+  \value PorterDuff         The engine supports Porter-Duff operations
+  \value PrimitiveTransform The engine has support for transforming
+                            drawing primitives.
+  \value RadialGradientFill The engine supports radial gradient fills.
+  \value AllFeatures        All of the above features. This enum value is usually
+                            used as a bit mask.
 */
 
 /*!
