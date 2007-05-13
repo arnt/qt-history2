@@ -133,6 +133,16 @@ void QDBusConnectionPrototype::disconnectFromBus(const QString &name)
     QDBusConnection::disconnectFromBus(name);
 }
 
+QDBusConnection QDBusConnectionPrototype::connectToBus(const QString &address, const QString &name)
+{
+    return QDBusConnection::connectToBus(address, name);
+}
+
+QDBusConnection QDBusConnectionPrototype::connectToBus(QDBusConnection::BusType type, const QString &name)
+{
+    return QDBusConnection::connectToBus(type, name);
+}
+
 QScriptDBusConnection::QScriptDBusConnection(const QDBusConnection &conn, QObject *parent)
     : QObject(parent), connection(conn)
 {

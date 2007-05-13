@@ -35,6 +35,8 @@ public Q_SLOTS:
     QObject *qscript_call(const QString &name);
 
     void disconnectFromBus(const QString &name);
+    QDBusConnection connectToBus(const QString &address, const QString &name);
+    QDBusConnection connectToBus(QDBusConnection::BusType type, const QString &name);
 };
 
 class QScriptDBusConnection : public QObject,
