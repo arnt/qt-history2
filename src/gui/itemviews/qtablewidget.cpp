@@ -2599,7 +2599,7 @@ QTableWidgetItem *QTableWidget::itemFromIndex(const QModelIndex &index) const
 */
 void QTableWidget::setModel(QAbstractItemModel * /*model*/)
 {
-    qFatal("QTableWidget::setModel() - Changing the model of the QTableWidget is not allowed.");
+    Q_ASSERT("QTableWidget::setModel() - Changing the model of the QTableWidget is not allowed.");
 }
 
 /*! \reimp */

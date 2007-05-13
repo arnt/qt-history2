@@ -1118,8 +1118,10 @@ QStyle *QApplication::style()
 {
     if (QApplicationPrivate::app_style)
         return QApplicationPrivate::app_style;
-    if (!qt_is_gui_used)
-        qFatal("No style available in non-gui applications!");
+    if (!qt_is_gui_used) {
+        Q_ASSERT("No style available in non-gui applications!");
+	return 0;
+    }
 
 #if defined(Q_WS_X11)
     if(!QApplicationPrivate::styleOverride)
@@ -1165,8 +1167,10 @@ QStyle *QApplication::style()
                     break;
             }
         }
-        if (!app_style)
-            qFatal("No styles available!");
+        if (!app_style) {
+            Q_ASSERT("No styles available!");
+            return 0;
+        }
     }
     // take ownership of the style
     QApplicationPrivate::app_style->setParent(qApp);
