@@ -252,7 +252,7 @@ PathVertex::Direction PathVertex::eat()
 PathVertex::Direction PathVertex::forwardEat(PathVertex *prev)
 {
     if (prev == 0)
-        qFatal("clip_vertex::forward_eat: is this state possible?");
+        Q_ASSERT("clip_vertex::forward_eat: is this state possible?");
 
     switch (code) {
     case TEnEx :
@@ -281,7 +281,7 @@ PathVertex::Direction PathVertex::forwardEat(PathVertex *prev)
         break;
 
     case TNone :
-        qFatal("PathVertex::forwardEat: is this state possible?");
+        Q_ASSERT("PathVertex::forwardEat: is this state possible?");
     }
 
     if (cross_transfer)
@@ -294,7 +294,7 @@ PathVertex::Direction PathVertex::forwardEat(PathVertex *prev)
 PathVertex::Direction PathVertex::backwardEat(PathVertex *prev)
 {
     if (prev == 0)
-        qFatal("PathVertex::backward_eat: is this state possible?");
+        Q_ASSERT("PathVertex::backward_eat: is this state possible?");
 
     switch (code) {
     case TEnEx :
@@ -321,7 +321,7 @@ PathVertex::Direction PathVertex::backwardEat(PathVertex *prev)
         setCode(TNone);
         break;
     case TNone:
-        qFatal("PathVertex::backward_eat: is this state possible?");;
+        Q_ASSERT("PathVertex::backward_eat: is this state possible?");;
     }
     if (cross_transfer)
         return ForwardTurn;
@@ -349,10 +349,8 @@ PathVertex::Direction PathVertex::turnForwardEat()
         setCode(TNone);
         return BackwardGo;
     case TNone :
-        qFatal("PathVertex::turnForwardEat: is this state possible?");
+        Q_ASSERT("PathVertex::turnForwardEat: is this state possible?");
     }
-
-    qFatal("Should never get here");
     return ForwardGo;
 }
 
@@ -376,10 +374,8 @@ PathVertex::Direction PathVertex::turnBackwardEat()
         setCode(TNone);
         return BackwardGo;
     case TNone :
-        qFatal("PathVertex::turnBackwardEat: is this state possible?");
+        Q_ASSERT("PathVertex::turnBackwardEat: is this state possible?");
     }
-
-    qFatal("Should never get here");
     return ForwardGo;
 }
 
@@ -429,7 +425,7 @@ public:
 	if (a)
             current_node = a;
 	else
-            qFatal("VertexList:: will crash!");
+            Q_ASSERT("VertexList:: will crash!");
     }
 
     void reset()
@@ -926,7 +922,7 @@ public:
                 prev_code_owner = current;
                 break;
             default:
-                qFatal("PathClipper::walkPat: unexpected state!!");
+                Q_ASSERT("PathClipper::walkPat: unexpected state!!");
             }
         }
 
@@ -1000,7 +996,7 @@ public:
             else
                 return LIn;
         }
-        qFatal("Should never get here!");
+        Q_ASSERT("Should never get here!");
         return LOut;
     }
 
@@ -1632,13 +1628,11 @@ public:
             }
                 break;
             case PathVertex::MoveLineTo:
-                qFatal("unhandled element");
-                break;
             case PathVertex::MoveCurveTo:
-                qFatal("unhandled element");
+                Q_ASSERT("Unhandled element");
                 break;
             default:
-                qFatal("Unrecognized Vertex type");
+                Q_ASSERT("Unrecognized Vertex type");
             }
             prev = v;
         }
