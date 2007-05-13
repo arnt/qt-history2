@@ -104,41 +104,44 @@ static QScriptValue setupDBusInterface(QScriptEngine *engine, QDBusAbstractInter
     return v;
 }
 
-QDBusConnectionPrototype::QDBusConnectionPrototype(QScriptEngine *engine, QScriptValue extensionObject)
+QDBusConnectionConstructor::QDBusConnectionConstructor(QScriptEngine *engine, QScriptValue extensionObject)
     : QObject(engine)
 {
-    QScriptValue ctorValue = engine->newQObject(this);
-    QScriptValue proto = engine->newQMetaObject(&QDBusConnection::staticMetaObject, ctorValue);
+    QScriptValue ctor = engine->newQObject(this);
 
-    extensionObject.setProperty("Connection", proto);
+    QScriptValue proto = engine->newQMetaObject(&QDBusConnection::staticMetaObject);
+    proto.setPrototype(engine->globalObject().property("Function").property("prototype"));
+    ctor.setProperty("prototype", proto);
+
+    extensionObject.setProperty("Connection", ctor);
 }
 
-QScriptValue QDBusConnectionPrototype::sessionBus() const
+QScriptValue QDBusConnectionConstructor::sessionBus() const
 {
     return engine()->newQObject(new QScriptDBusConnection(QDBusConnection::sessionBus(), engine()));
 }
 
-QScriptValue QDBusConnectionPrototype::systemBus() const
+QScriptValue QDBusConnectionConstructor::systemBus() const
 {
     return engine()->newQObject(new QScriptDBusConnection(QDBusConnection::systemBus(), engine()));
 }
 
-QObject *QDBusConnectionPrototype::qscript_call(const QString &name)
+QObject *QDBusConnectionConstructor::qscript_call(const QString &name)
 {
     return new QScriptDBusConnection(QDBusConnection(name), this);
 }
 
-void QDBusConnectionPrototype::disconnectFromBus(const QString &name)
+void QDBusConnectionConstructor::disconnectFromBus(const QString &name)
 {
     QDBusConnection::disconnectFromBus(name);
 }
 
-QDBusConnection QDBusConnectionPrototype::connectToBus(const QString &address, const QString &name)
+QDBusConnection QDBusConnectionConstructor::connectToBus(const QString &address, const QString &name)
 {
     return QDBusConnection::connectToBus(address, name);
 }
 
-QDBusConnection QDBusConnectionPrototype::connectToBus(QDBusConnection::BusType type, const QString &name)
+QDBusConnection QDBusConnectionConstructor::connectToBus(QDBusConnection::BusType type, const QString &name)
 {
     return QDBusConnection::connectToBus(type, name);
 }
@@ -148,7 +151,7 @@ QScriptDBusConnection::QScriptDBusConnection(const QDBusConnection &conn, QObjec
 {
 }
 
-QScriptValue QScriptDBusConnection::interface() const
+QScriptValue QScriptDBusConnection::dbusInterface() const
 {
     QDBusConnectionInterface *iface = connection.interface();
     if (!iface)
@@ -156,15 +159,15 @@ QScriptValue QScriptDBusConnection::interface() const
     return setupDBusInterface(engine(), iface);
 }
 
-QScriptDBusInterfacePrototype::QScriptDBusInterfacePrototype(QScriptEngine *engine, QScriptValue extensionObject)
+QScriptDBusInterfaceConstructor::QScriptDBusInterfaceConstructor(QScriptEngine *engine, QScriptValue extensionObject)
 {
     QScriptValue ctorValue = engine->newQObject(this);
     QScriptValue klass = engine->newQMetaObject(metaObject(), ctorValue);
     extensionObject.setProperty("Interface", klass);
 }
 
-QScriptValue QScriptDBusInterfacePrototype::qscript_call(const QString &service, const QString &path, const QString &interface,
-                                                         const QScriptValue &conn)
+QScriptValue QScriptDBusInterfaceConstructor::qscript_call(const QString &service, const QString &path, const QString &interface,
+                                                           const QScriptValue &conn)
 {
     QDBusConnection connection = QDBusConnection::sessionBus();
 
@@ -175,7 +178,7 @@ QScriptValue QScriptDBusInterfacePrototype::qscript_call(const QString &service,
     return setupDBusInterface(engine(), new QDBusInterface(service, path, interface, connection, engine()));
 }
 
-QScriptDBusMessagePrototype::QScriptDBusMessagePrototype(QScriptEngine *engine, QScriptValue extensionObject)
+QScriptDBusMessageConstructor::QScriptDBusMessageConstructor(QScriptEngine *engine, QScriptValue extensionObject)
     : QObject(engine)
 {
     proto = engine->newQMetaObject(metaObject(), engine->newQObject(this));
@@ -187,17 +190,17 @@ QScriptDBusMessagePrototype::QScriptDBusMessagePrototype(QScriptEngine *engine, 
     engine->setDefaultPrototype(qMetaTypeId<QDBusMessage>(), proto);
 }
 
-QDBusMessage QScriptDBusMessagePrototype::createSignal(const QString &path, const QString &interface, const QString &name)
+QDBusMessage QScriptDBusMessageConstructor::createSignal(const QString &path, const QString &interface, const QString &name)
 {
     return QDBusMessage::createSignal(path, interface, name);
 }
 
-QDBusMessage QScriptDBusMessagePrototype::createMethodCall(const QString &destination, const QString &path, const QString &interface, const QString &method)
+QDBusMessage QScriptDBusMessageConstructor::createMethodCall(const QString &destination, const QString &path, const QString &interface, const QString &method)
 {
     return QDBusMessage::createMethodCall(destination, path, interface, method);
 }
 
-QDBusMessage QScriptDBusMessagePrototype::createError(const QString &name, const QString &msg)
+QDBusMessage QScriptDBusMessageConstructor::createError(const QString &name, const QString &msg)
 {
     return QDBusMessage::createError(name, msg);
 }
@@ -240,7 +243,7 @@ static void scriptValueToMessage(const QScriptValue &value, QDBusMessage &messag
     message.setArguments(args);
 }
 
-QScriptValue QScriptDBusMessagePrototype::createReply(QScriptContext *context, QScriptEngine *engine)
+QScriptValue QScriptDBusMessageConstructor::createReply(QScriptContext *context, QScriptEngine *engine)
 {
     QDBusMessage msg;
     scriptValueToMessage(context->thisObject(), msg);
@@ -254,7 +257,7 @@ QScriptValue QScriptDBusMessagePrototype::createReply(QScriptContext *context, Q
     return messageToScriptValue(engine, msg.createReply(args));
 }
 
-QScriptValue QScriptDBusMessagePrototype::createErrorReply(QScriptContext *context, QScriptEngine *engine)
+QScriptValue QScriptDBusMessageConstructor::createErrorReply(QScriptContext *context, QScriptEngine *engine)
 {
     if (context->argumentCount() != 2)
         return engine->nullValue();
@@ -351,9 +354,9 @@ void QtDBusScriptPlugin::initialize(const QString &key, QScriptEngine *engine)
     extensionObject.setProperty("BlockWithGui", QScriptValue(engine, QDBus::BlockWithGui));
     extensionObject.setProperty("AutoDetect", QScriptValue(engine, QDBus::AutoDetect));
 
-    (void)new QDBusConnectionPrototype(engine, extensionObject);
-    (void)new QScriptDBusInterfacePrototype(engine, extensionObject);
-    (void)new QScriptDBusMessagePrototype(engine, extensionObject);
+    (void)new QDBusConnectionConstructor(engine, extensionObject);
+    (void)new QScriptDBusInterfaceConstructor(engine, extensionObject);
+    (void)new QScriptDBusMessageConstructor(engine, extensionObject);
 }
 
 Q_EXPORT_STATIC_PLUGIN(QtDBusScriptPlugin)

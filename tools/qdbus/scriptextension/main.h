@@ -18,15 +18,15 @@
 #include <QtScript/qscriptable.h>
 #include <QtScript/qscriptengine.h>
 
-class QDBusConnectionPrototype : public QObject,
-                                 public QScriptable
+class QDBusConnectionConstructor : public QObject,
+                                   public QScriptable
 {
     Q_OBJECT
     Q_PROPERTY(QScriptValue sessionBus READ sessionBus)
     Q_PROPERTY(QScriptValue systemBus READ systemBus)
 
 public:
-    QDBusConnectionPrototype(QScriptEngine *engine, QScriptValue extensionObject);
+    QDBusConnectionConstructor(QScriptEngine *engine, QScriptValue extensionObject);
 
     QScriptValue sessionBus() const;
     QScriptValue systemBus() const;
@@ -45,13 +45,13 @@ class QScriptDBusConnection : public QObject,
     Q_OBJECT
     Q_PROPERTY(QString baseService READ baseService)
     Q_PROPERTY(bool isConnected READ isConnected)
-    Q_PROPERTY(QScriptValue interface READ interface)
+    Q_PROPERTY(QScriptValue dbusInterface READ dbusInterface)
 public:
     QScriptDBusConnection(const QDBusConnection &conn, QObject *parent);
 
     inline QString baseService() const { return connection.baseService(); }
     inline bool isConnected() const { return connection.isConnected(); }
-    QScriptValue interface() const;
+    QScriptValue dbusInterface() const;
 
     inline QDBusConnection dbusConnection() const { return connection; }
 
@@ -101,12 +101,12 @@ private:
 
 Q_DECLARE_METATYPE(QScriptDBusConnection*)
 
-class QScriptDBusInterfacePrototype : public QObject,
-                                      public QScriptable
+class QScriptDBusInterfaceConstructor : public QObject,
+                                        public QScriptable
 {
     Q_OBJECT
 public:
-    QScriptDBusInterfacePrototype(QScriptEngine *engine, QScriptValue extensionObject);
+    QScriptDBusInterfaceConstructor(QScriptEngine *engine, QScriptValue extensionObject);
 
 public Q_SLOTS:
     QScriptValue qscript_call(const QString &service, const QString &path, const QString &interface = QString(),
@@ -115,7 +115,7 @@ public Q_SLOTS:
 
 Q_DECLARE_METATYPE(QDBusMessage)
 
-class QScriptDBusMessagePrototype : public QObject, public QScriptable
+class QScriptDBusMessageConstructor : public QObject, public QScriptable
 {
     Q_OBJECT
     Q_ENUMS(MessageType)
@@ -128,7 +128,7 @@ public:
         SignalMessage = QDBusMessage::SignalMessage
     };
 
-    QScriptDBusMessagePrototype(QScriptEngine *engine, QScriptValue extensionObject);
+    QScriptDBusMessageConstructor(QScriptEngine *engine, QScriptValue extensionObject);
 
     QScriptValue protoType() const { return proto; }
 
