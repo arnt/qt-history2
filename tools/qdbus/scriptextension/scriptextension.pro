@@ -1,5 +1,5 @@
 TARGET  = qtscriptdbus
-include(../../qpluginbase.pri)
+include(../../../src/plugins/qpluginbase.pri)
 QT = core gui script
 CONFIG += qdbus
 

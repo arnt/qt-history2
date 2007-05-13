@@ -1,4 +1,4 @@
 TEMPLATE = subdirs
 CONFIG += ordered
-SUBDIRS = src tools 
+SUBDIRS = src tools scriptextension
 
