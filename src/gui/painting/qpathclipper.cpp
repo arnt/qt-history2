@@ -243,10 +243,8 @@ PathVertex::Direction PathVertex::eat()
         setCode(TNone);
         return BackwardGo;
     case TNone :
-        qFatal("PathVertex::eat: is this state possible?");
+        Q_ASSERT("PathVertex::eat: is this state possible?");
     }
-
-    qFatal("Should never get here");
     return ForwardGo;
 }
 
