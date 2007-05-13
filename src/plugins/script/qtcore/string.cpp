@@ -13,6 +13,12 @@ static QScriptValue toUtf8(QScriptContext *ctx, QScriptEngine *eng)
     return eng->toScriptValue<QByteArray>(str.toUtf8());
 }
 
+static QScriptValue fromUtf8(QScriptContext *ctx, QScriptEngine *eng)
+{
+    QByteArray array = qscriptvalue_cast<QByteArray>(ctx->argument(0));
+    return QScriptValue(eng, QString::fromUtf8(array));
+}
+
 static QScriptValue startsWith(QScriptContext *ctx, QScriptEngine *eng)
 {
     QString str = ctx->thisObject().toString();
@@ -72,5 +78,6 @@ void extendStringPrototype(QScriptEngine *eng)
     ADD_PROTO_FUNCTION(proto, mid);
     ADD_PROTO_FUNCTION(proto, simplified);
     ADD_PROTO_FUNCTION(proto, trimmed);
+    eng->globalObject().property("String").setProperty("fromUtf8", eng->newFunction(fromUtf8));
 }
 
