@@ -141,6 +141,8 @@ QScriptDBusConnection::QScriptDBusConnection(const QDBusConnection &conn, QObjec
 QScriptValue QScriptDBusConnection::interface() const
 {
     QDBusConnectionInterface *iface = connection.interface();
+    if (!iface)
+        return engine()->nullValue();
     return setupDBusInterface(engine(), iface);
 }
 
