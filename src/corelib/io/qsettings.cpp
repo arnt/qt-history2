@@ -441,7 +441,7 @@ QString QSettingsPrivate::variantToString(const QVariant &v)
             result += QString::fromLatin1(a.constData(), a.size());
             result += QLatin1Char(')');
 #else
-            Q_ASSERT("QSettings: Cannot save custom types without QDataStream support");
+            Q_ASSERT(!"QSettings: Cannot save custom types without QDataStream support");
 #endif
             break;
         }
@@ -466,7 +466,7 @@ QVariant QSettingsPrivate::stringToVariant(const QString &s)
                 stream >> result;
                 return result;
 #else
-                Q_ASSERT("QSettings: Cannot load custom types without QDataStream support");
+                Q_ASSERT(!"QSettings: Cannot load custom types without QDataStream support");
 #endif
 #ifndef QT_NO_GEOM_VARIANT
             } else if (s.startsWith(QLatin1String("@Rect("))) {

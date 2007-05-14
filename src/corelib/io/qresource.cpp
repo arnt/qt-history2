@@ -1152,7 +1152,7 @@ QResourceFileEngine::QResourceFileEngine(const QString &file) :
 #ifndef QT_NO_COMPRESS
         d->uncompressed = qUncompress(d->resource.data(), d->resource.size());
 #else
-        Q_ASSERT("QResourceFileEngine::open: Qt built without support for compression");
+        Q_ASSERT(!"QResourceFileEngine::open: Qt built without support for compression");
 #endif
     }
 }

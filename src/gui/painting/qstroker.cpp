@@ -557,7 +557,7 @@ void QStroker::joinPoints(qfixed focal_x, qfixed focal_y, const QLineF &nextLine
                 emitLineTo(qt_real_to_fixed(nextLine.x1()), qt_real_to_fixed(nextLine.y1()));
             }
         } else {
-            Q_ASSERT("QStroker::joinPoints(), bad join style...");
+            Q_ASSERT(!"QStroker::joinPoints(), bad join style...");
         }
     }
 }

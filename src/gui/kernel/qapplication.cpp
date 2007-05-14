@@ -1119,7 +1119,7 @@ QStyle *QApplication::style()
     if (QApplicationPrivate::app_style)
         return QApplicationPrivate::app_style;
     if (!qt_is_gui_used) {
-        Q_ASSERT("No style available in non-gui applications!");
+        Q_ASSERT(!"No style available in non-gui applications!");
 	return 0;
     }
 
@@ -1168,7 +1168,7 @@ QStyle *QApplication::style()
             }
         }
         if (!app_style) {
-            Q_ASSERT("No styles available!");
+            Q_ASSERT(!"No styles available!");
             return 0;
         }
     }

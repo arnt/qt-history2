@@ -1808,7 +1808,7 @@ QListWidgetItem *QListWidget::itemFromIndex(const QModelIndex &index) const
 */
 void QListWidget::setModel(QAbstractItemModel * /*model*/)
 {
-    Q_ASSERT("QListWidget::setModel() - Changing the model of the QListWidget is not allowed.");
+    Q_ASSERT(!"QListWidget::setModel() - Changing the model of the QListWidget is not allowed.");
 }
 
 /*!
