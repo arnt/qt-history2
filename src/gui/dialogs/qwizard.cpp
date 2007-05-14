@@ -2443,6 +2443,10 @@ void QWizard::setButton(WizardButton which, QAbstractButton *button)
 QAbstractButton *QWizard::button(WizardButton which) const
 {
     Q_D(const QWizard);
+#if !defined(QT_NO_STYLE_WINDOWSVISTA)
+    if (d->wizStyle == AeroStyle && which == BackButton)
+        return d->vistaHelper->backButton();
+#endif
     if (!d->ensureButton(which))
         return 0;
     return d->btns[which];
