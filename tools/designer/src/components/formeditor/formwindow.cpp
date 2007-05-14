@@ -1801,16 +1801,15 @@ QMenu *FormWindow::createPopupMenu(QWidget *w)
     const bool isFormWindow = qobject_cast<const FormWindow*>(w);
 
     // Check for special containers and obtain the page menu from them to add layout actions.
-    QMenu *layoutMenu =0;
     if (!isFormWindow) {
         if (QDesignerStackedWidget *stackedWidget  = qobject_cast<QDesignerStackedWidget*>(w)) {
-            layoutMenu = stackedWidget->addContextMenuActions(popup);
+            stackedWidget->addContextMenuActions(popup);
         } else {
             if (QDesignerTabWidget *tabWidget = qobject_cast<QDesignerTabWidget*>(w)) {
-                layoutMenu = tabWidget->addContextMenuActions(popup);
+                tabWidget->addContextMenuActions(popup);
             }  else {
                 if (QDesignerToolBox *toolBox = qobject_cast<QDesignerToolBox*>(w)) {
-                    layoutMenu = toolBox->addContextMenuActions(popup);
+                    toolBox->addContextMenuActions(popup);
                 }
             }
         }
@@ -1826,15 +1825,8 @@ QMenu *FormWindow::createPopupMenu(QWidget *w)
         popup->addAction(manager->actionDelete());
     }
 
-    // Layout on new submenu or use page menu
-    if (!layoutMenu) {
-        popup->addSeparator();
-        layoutMenu = popup->addMenu(tr("Lay out"));
-    }
-
-    if (!layoutMenu->isEmpty())
-        layoutMenu->addSeparator();
-
+    popup->addSeparator();
+    QMenu *layoutMenu = popup->addMenu(tr("Lay out"));
     layoutMenu->addAction(manager->actionAdjustSize());
     layoutMenu->addAction(manager->actionHorizontalLayout());
     layoutMenu->addAction(manager->actionVerticalLayout());
