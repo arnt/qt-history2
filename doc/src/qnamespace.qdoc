@@ -1027,6 +1027,7 @@
     \omitvalue WA_X11OpenGLOverlay
     \omitvalue WA_CanHostQMdiSubWindowTitleBar
     \omitvalue WA_AttributeCount
+    \omitvalue WA_StyleSheet
 */
 
 /*! \typedef Qt::HANDLE
