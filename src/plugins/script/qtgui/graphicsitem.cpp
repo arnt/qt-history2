@@ -9,7 +9,9 @@
 Q_DECLARE_METATYPE(QScript::Wrapper<QGraphicsItem*>::pointer_type)
 Q_DECLARE_METATYPE(QList<QGraphicsItem*>)
 Q_DECLARE_METATYPE(QPainterPath)
+#ifndef QT_NO_CURSOR
 Q_DECLARE_METATYPE(QCursor)
+#endif
 Q_DECLARE_METATYPE(QGraphicsItemGroup*)
 Q_DECLARE_METATYPE(QPainter*)
 Q_DECLARE_METATYPE(QStyleOptionGraphicsItem*)
@@ -147,8 +149,14 @@ static QScriptValue contains(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue cursor(QScriptContext *ctx, QScriptEngine *eng)
 {
+#ifndef QT_NO_CURSOR
     DECLARE_SELF(GraphicsItem, cursor);
     return eng->toScriptValue(self->cursor());
+#else
+    Q_UNUSED(ctx);
+    Q_UNUSED(eng);
+    return eng->undefinedValue();
+#endif
 }
 
 /////////////////////////////////////////////////////////////
@@ -195,8 +203,14 @@ static QScriptValue handlesChildEvents(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue hasCursor(QScriptContext *ctx, QScriptEngine *eng)
 {
+#ifndef QT_NO_CURSOR
     DECLARE_SELF(GraphicsItem, hasCursor);
     return QScriptValue(eng, self->hasCursor());
+#else
+    Q_UNUSED(ctx);
+    Q_UNUSED(eng);
+    return eng->undefinedValue();
+#endif
 }
 
 /////////////////////////////////////////////////////////////
@@ -507,9 +521,15 @@ static QScriptValue setAcceptsHoverEvents(QScriptContext *ctx, QScriptEngine *en
 
 static QScriptValue setCursor(QScriptContext *ctx, QScriptEngine *eng)
 {
+#ifndef QT_NO_CURSOR
     DECLARE_SELF(GraphicsItem, setCursor);
     self->setCursor(qscriptvalue_cast<QCursor>(ctx->argument(0)));
     return eng->undefinedValue();
+#else
+    Q_UNUSED(ctx);
+    Q_UNUSED(eng);
+    return eng->undefinedValue();
+#endif
 }
 
 /////////////////////////////////////////////////////////////
@@ -622,9 +642,15 @@ static QScriptValue setSelected(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setToolTip(QScriptContext *ctx, QScriptEngine *eng)
 {
+#ifndef QT_NO_TOOLTIP
     DECLARE_SELF(GraphicsItem, setToolTip);
     self->setToolTip(ctx->argument(0).toString());
     return eng->undefinedValue();
+#else
+    Q_UNUSED(ctx);
+    Q_UNUSED(eng);
+    return eng->undefinedValue();
+#endif
 }
 
 /////////////////////////////////////////////////////////////
@@ -685,8 +711,14 @@ static QScriptValue show(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue toolTip(QScriptContext *ctx, QScriptEngine *eng)
 {
+#ifndef QT_NO_TOOLTIP
     DECLARE_SELF(GraphicsItem, toolTip);
     return QScriptValue(eng, self->toolTip());
+#else
+    Q_UNUSED(ctx);
+    Q_UNUSED(eng);
+    return eng->undefinedValue();
+#endif
 }
 
 /////////////////////////////////////////////////////////////
@@ -726,9 +758,15 @@ static QScriptValue type(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue unsetCursor(QScriptContext *ctx, QScriptEngine *eng)
 {
+#ifndef QT_NO_CURSOR
     DECLARE_SELF(GraphicsItem, unsetCursor);
     self->unsetCursor();
     return eng->undefinedValue();
+#else
+    Q_UNUSED(ctx);
+    Q_UNUSED(eng);
+    return eng->undefinedValue();
+#endif
 }
 
 /////////////////////////////////////////////////////////////

@@ -439,8 +439,10 @@ static QScriptValue setPixel(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setText(QScriptContext *ctx, QScriptEngine *eng)
 {
+#ifndef QT_NO_IMAGE_TEXT
     DECLARE_SELF(Image, setText);
     self->setText(ctx->argument(0).toString(), ctx->argument(1).toString());
+#endif
     return eng->undefinedValue();
 }
 
@@ -456,18 +458,30 @@ static QScriptValue size(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue text(QScriptContext *ctx, QScriptEngine *eng)
 {
+#ifndef QT_NO_IMAGE_TEXT
     DECLARE_SELF(Image, text);
     if (ctx->argumentCount() == 0)
         return QScriptValue(eng, self->text());
     return QScriptValue(eng, self->text(ctx->argument(0).toString()));
+#else
+    Q_UNUSED(ctx);
+    Q_UNUSED(eng);
+    return eng->undefinedValue();
+#endif
 }
 
 /////////////////////////////////////////////////////////////
 
 static QScriptValue textKeys(QScriptContext *ctx, QScriptEngine *eng)
 {
+#ifndef QT_NO_IMAGE_TEXT
     DECLARE_SELF(Image, textKeys);
     return eng->toScriptValue(self->textKeys());
+#else
+    Q_UNUSED(ctx);
+    Q_UNUSED(eng);
+    return eng->undefinedValue();
+#endif
 }
 
 /////////////////////////////////////////////////////////////
