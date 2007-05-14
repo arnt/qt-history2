@@ -66,6 +66,10 @@ QWSGLWindowSurface::QWSGLWindowSurface()
 {
 }
 
+/*!
+  Destroys the QWSGLWindowSurface object and frees any
+  allocated resources.
+ */
 QWSGLWindowSurface::~QWSGLWindowSurface()
 {
     Q_D(QWSGLWindowSurface);
@@ -93,7 +97,7 @@ QGLContext *QWSGLWindowSurface::context() const
 /*!
     \since 4.3
 
-    Sets the QGLContext for this window surface.
+    Sets the QGLContext for this window surface to \a context.
 */
 void QWSGLWindowSurface::setContext(QGLContext *context)
 {
