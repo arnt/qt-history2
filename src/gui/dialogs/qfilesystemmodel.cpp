@@ -554,7 +554,8 @@ bool QFileSystemModel::setData(const QModelIndex &index, const QVariant &value, 
     if (newName == index.data().toString())
         return true;
 
-    if (newName.contains(QDir::separator())
+    if (newName.isEmpty()
+        || newName.contains(QDir::separator())
         || !d->rootDir.rename(index.data().toString(), newName)) {
 #ifndef QT_NO_MESSAGEBOX
         QMessageBox::information(0, QFileSystemModel::tr("Invalid filename"),
