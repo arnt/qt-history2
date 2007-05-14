@@ -57,14 +57,15 @@
     \since 4.3
     \ingroup multimedia
 
-    A transformation specifies how to translate, scale, shear, rotate or project
-    the coordinate system, and is typically used when rendering graphics.
+    A transformation specifies how to translate, scale, shear, rotate
+    or project the coordinate system, and is typically used when
+    rendering graphics.
 
-    QTransform differs from QMatrix in that it is a true 3x3 matrix, allowing
-    perpective transformations. QTransform's toAffine() method allows
-    casting QTransform to QMatrix. If a perspective transformation has been
-    specified on the matrix, then the conversion to an affine QMatrix
-    will cause loss of data.
+    QTransform differs from QMatrix in that it is a true 3x3 matrix,
+    allowing perpective transformations. QTransform's toAffine()
+    method allows casting QTransform to QMatrix. If a perspective
+    transformation has been specified on the matrix, then the
+    conversion to an affine QMatrix will cause loss of data.
 
     QTransform is the recommended transformation class in Qt.
 
@@ -1336,6 +1337,9 @@ void QTransform::map(int x, int y, int *tx, int *ty) const
     MAPINT(x, y, *tx, *ty);
 }
 
+/*!
+  Returns the QTransform cast to a QMatrix.
+ */
 const QMatrix &QTransform::toAffine() const
 {
     return affine;

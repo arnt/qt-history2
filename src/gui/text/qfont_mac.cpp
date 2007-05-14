@@ -63,7 +63,9 @@ void QFont::cleanup()
     delete QFontCache::instance;
 }
 
-// Returns an ATSUFontID
+/*!
+  Returns an ATSUFontID
+*/
 quint32 QFont::macFontID() const
 {
 #if 1

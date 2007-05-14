@@ -464,6 +464,12 @@ bool QToolBar::isMovable() const
     return d->movable;
 }
 
+/*!
+    \property QToolBar::floatable
+    \brief whether the toolbar can be dragged and dropped as an independent window.
+
+    The default is true.
+*/
 bool QToolBar::isFloatable() const
 {
     Q_D(const QToolBar);
@@ -476,6 +482,12 @@ void QToolBar::setFloatable(bool floatable)
     d->floatable = floatable;
 }
 
+/*!
+    \property QToolBar::floating
+    \brief whether the toolbar is an independent window.
+
+    \sa QWidget::isWindow()
+*/
 bool QToolBar::isFloating() const
 {
     return isWindow();
