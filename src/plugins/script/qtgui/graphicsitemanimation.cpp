@@ -62,7 +62,7 @@ static QScriptValue posAt(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue posList(QScriptContext *ctx, QScriptEngine *)
 {
     DECLARE_SELF(GraphicsItemAnimation, posList);
-    return ctx->throwError("GraphicsItemAnimation.prototype.posList is not implemented");
+    return ctx->throwError("QGraphicsItemAnimation.prototype.posList is not implemented");
 }
 
 static QScriptValue rotationAt(QScriptContext *ctx, QScriptEngine *eng)
@@ -74,13 +74,13 @@ static QScriptValue rotationAt(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue rotationList(QScriptContext *ctx, QScriptEngine *)
 {
     DECLARE_SELF(GraphicsItemAnimation, rotationList);
-    return ctx->throwError("GraphicsItemAnimation.prototype.rotationList is not implemented");
+    return ctx->throwError("QGraphicsItemAnimation.prototype.rotationList is not implemented");
 }
 
 static QScriptValue scaleList(QScriptContext *ctx, QScriptEngine *)
 {
     DECLARE_SELF(GraphicsItemAnimation, scaleList);
-    return ctx->throwError("GraphicsItemAnimation.prototype.scaleList is not implemented");
+    return ctx->throwError("QGraphicsItemAnimation.prototype.scaleList is not implemented");
 }
 
 static QScriptValue setItem(QScriptContext *ctx, QScriptEngine *eng)
@@ -143,7 +143,7 @@ static QScriptValue setTranslationAt(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue shearList(QScriptContext *ctx, QScriptEngine *)
 {
     DECLARE_SELF(GraphicsItemAnimation, shearList);
-    return ctx->throwError("GraphicsItemAnimation.prototype.shearList is not implemented");
+    return ctx->throwError("QGraphicsItemAnimation.prototype.shearList is not implemented");
 }
 
 static QScriptValue timeLine(QScriptContext *ctx, QScriptEngine *eng)
@@ -155,7 +155,7 @@ static QScriptValue timeLine(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue translationList(QScriptContext *ctx, QScriptEngine *)
 {
     DECLARE_SELF(GraphicsItemAnimation, translationList);
-    return ctx->throwError("GraphicsItemAnimation.prototype.translationList is not implemented");
+    return ctx->throwError("QGraphicsItemAnimation.prototype.translationList is not implemented");
 }
 
 static QScriptValue verticalScaleAt(QScriptContext *ctx, QScriptEngine *eng)
@@ -185,7 +185,7 @@ static QScriptValue yTranslationAt(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(GraphicsItemAnimation, toString);
-    return QScriptValue(eng, QString::fromLatin1("GraphicsItemAnimation"));
+    return QScriptValue(eng, QString::fromLatin1("QGraphicsItemAnimation"));
 }
 
 QScriptValue constructGraphicsItemAnimationClass(QScriptEngine *eng)

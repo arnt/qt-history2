@@ -29,7 +29,7 @@ Q_DECLARE_METATYPE(QGraphicsSimpleTextItem*)
 
 static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *)
 {
-    return ctx->throwError("GraphicsItem cannot be instantiated");
+    return ctx->throwError("QGraphicsItem cannot be instantiated");
 }
 
 /////////////////////////////////////////////////////////////
@@ -106,7 +106,7 @@ static QScriptValue collidesWithItem(QScriptContext *ctx, QScriptEngine *eng)
     QGraphicsItem *other = qscriptvalue_cast<QGraphicsItem*>(ctx->argument(0));
     if (!other) {
         return ctx->throwError(QScriptContext::TypeError,
-                               "GraphicsItem.prototype.collidesWithItem: argument is not a GraphicsItem");
+                               "QGraphicsItem.prototype.collidesWithItem: argument is not a GraphicsItem");
     }
     if (ctx->argument(1).isUndefined())
         return QScriptValue(eng, self->collidesWithItem(other));
@@ -172,7 +172,7 @@ static QScriptValue data(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue ensureVisible(QScriptContext *ctx, QScriptEngine *)
 {
     DECLARE_SELF(GraphicsItem, ensureVisible);
-    return ctx->throwError("GraphicsItem.prototype.ensureVisible is not implemented");
+    return ctx->throwError("QGraphicsItem.prototype.ensureVisible is not implemented");
 }
 
 /////////////////////////////////////////////////////////////
@@ -299,7 +299,7 @@ static QScriptValue isVisible(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue mapFromItem(QScriptContext *ctx, QScriptEngine *)
 {
     DECLARE_SELF(GraphicsItem, mapFromItem);
-    return ctx->throwError("GraphicsItem.prototype.mapFromItem is not implemented");
+    return ctx->throwError("QGraphicsItem.prototype.mapFromItem is not implemented");
 }
 
 /////////////////////////////////////////////////////////////
@@ -307,7 +307,7 @@ static QScriptValue mapFromItem(QScriptContext *ctx, QScriptEngine *)
 static QScriptValue mapFromParent(QScriptContext *ctx, QScriptEngine *)
 {
     DECLARE_SELF(GraphicsItem, mapFromParent);
-    return ctx->throwError("GraphicsItem.prototype.mapFromParent is not implemented");
+    return ctx->throwError("QGraphicsItem.prototype.mapFromParent is not implemented");
 }
 
 /////////////////////////////////////////////////////////////
@@ -315,7 +315,7 @@ static QScriptValue mapFromParent(QScriptContext *ctx, QScriptEngine *)
 static QScriptValue mapFromScene(QScriptContext *ctx, QScriptEngine *)
 {
     DECLARE_SELF(GraphicsItem, mapFromScene);
-    return ctx->throwError("GraphicsItem.prototype.mapFromScene is not implemented");
+    return ctx->throwError("QGraphicsItem.prototype.mapFromScene is not implemented");
 }
 
 /////////////////////////////////////////////////////////////
@@ -323,7 +323,7 @@ static QScriptValue mapFromScene(QScriptContext *ctx, QScriptEngine *)
 static QScriptValue mapToItem(QScriptContext *ctx, QScriptEngine *)
 {
     DECLARE_SELF(GraphicsItem, mapToItem);
-    return ctx->throwError("GraphicsItem.prototype.mapToItem is not implemented");
+    return ctx->throwError("QGraphicsItem.prototype.mapToItem is not implemented");
 }
 
 /////////////////////////////////////////////////////////////
@@ -331,7 +331,7 @@ static QScriptValue mapToItem(QScriptContext *ctx, QScriptEngine *)
 static QScriptValue mapToParent(QScriptContext *ctx, QScriptEngine *)
 {
     DECLARE_SELF(GraphicsItem, mapToParent);
-    return ctx->throwError("GraphicsItem.prototype.mapToParent is not implemented");
+    return ctx->throwError("QGraphicsItem.prototype.mapToParent is not implemented");
 }
 
 /////////////////////////////////////////////////////////////
@@ -339,7 +339,7 @@ static QScriptValue mapToParent(QScriptContext *ctx, QScriptEngine *)
 static QScriptValue mapToScene(QScriptContext *ctx, QScriptEngine *)
 {
     DECLARE_SELF(GraphicsItem, mapToScene);
-    return ctx->throwError("GraphicsItem.prototype.mapToScene is not implemented");
+    return ctx->throwError("QGraphicsItem.prototype.mapToScene is not implemented");
 }
 
 /////////////////////////////////////////////////////////////
@@ -814,7 +814,7 @@ static QScriptValue zValue(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(GraphicsItem, toString);
-    return QScriptValue(eng, "GraphicsItem");
+    return QScriptValue(eng, "QGraphicsItem");
 }
 
 /////////////////////////////////////////////////////////////

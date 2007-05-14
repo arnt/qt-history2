@@ -52,7 +52,7 @@ static QScriptValue addPath(QScriptContext *ctx, QScriptEngine *)
     QPainterPath *other = qscriptvalue_cast<QPainterPath*>(ctx->argument(0));
     if (!other) {
         return ctx->throwError(QScriptContext::TypeError,
-                               "PainterPath.prototype.addEllipse: argument is not a PainterPath");
+                               "QPainterPath.prototype.addEllipse: argument is not a PainterPath");
     }
     self->addPath(*other);
     return ctx->thisObject();
@@ -202,7 +202,7 @@ static QScriptValue connectPath(QScriptContext *ctx, QScriptEngine *)
     QPainterPath *other = qscriptvalue_cast<QPainterPath*>(ctx->argument(0));
     if (!other) {
         return ctx->throwError(QScriptContext::TypeError,
-                               "PainterPath.prototype.connectPath: argument is not a PainterPath");
+                               "QPainterPath.prototype.connectPath: argument is not a PainterPath");
     }
     self->connectPath(*other);
     return ctx->thisObject();
@@ -286,7 +286,7 @@ static QScriptValue intersected(QScriptContext *ctx, QScriptEngine *eng)
     QPainterPath *other = qscriptvalue_cast<QPainterPath*>(ctx->argument(0));
     if (!other) {
         return ctx->throwError(QScriptContext::TypeError,
-                               "PainterPath.prototype.intersected: argument is not a PainterPath");
+                               "QPainterPath.prototype.intersected: argument is not a PainterPath");
     }
     return newPainterPath(eng, self->intersected(*other));
 }
@@ -414,7 +414,7 @@ static QScriptValue subtracted(QScriptContext *ctx, QScriptEngine *eng)
     QPainterPath *other = qscriptvalue_cast<QPainterPath*>(ctx->argument(0));
     if (!other) {
         return ctx->throwError(QScriptContext::TypeError,
-                               "PainterPath.prototype.subtracted: argument is not a PainterPath");
+                               "QPainterPath.prototype.subtracted: argument is not a PainterPath");
     }
     return newPainterPath(eng, self->subtracted(*other));
 }
@@ -427,7 +427,7 @@ static QScriptValue subtractedInverted(QScriptContext *ctx, QScriptEngine *eng)
     QPainterPath *other = qscriptvalue_cast<QPainterPath*>(ctx->argument(0));
     if (!other) {
         return ctx->throwError(QScriptContext::TypeError,
-                               "PainterPath.prototype.subtractedInverted: argument is not a PainterPath");
+                               "QPainterPath.prototype.subtractedInverted: argument is not a PainterPath");
     }
     return newPainterPath(eng, self->subtractedInverted(*other));
 }
@@ -478,7 +478,7 @@ static QScriptValue united(QScriptContext *ctx, QScriptEngine *eng)
     QPainterPath *other = qscriptvalue_cast<QPainterPath*>(ctx->argument(0));
     if (!other) {
         return ctx->throwError(QScriptContext::TypeError,
-                               "PainterPath.prototype.united: argument is not a PainterPath");
+                               "QPainterPath.prototype.united: argument is not a PainterPath");
     }
     return newPainterPath(eng, self->united(*other));
 }
@@ -487,7 +487,7 @@ static QScriptValue united(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue toString(QScriptContext *, QScriptEngine *eng)
 {
-    return QScriptValue(eng, "PainterPath");
+    return QScriptValue(eng, "QPainterPath");
 }
 
 /////////////////////////////////////////////////////////////

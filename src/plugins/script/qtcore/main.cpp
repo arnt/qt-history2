@@ -42,7 +42,7 @@ void extendStringPrototype(QScriptEngine *eng);
 
 static QScriptValue scriptValueFromQPoint(QScriptEngine *engine, const QPoint &point)
 {
-    return engine->evaluate(QString::fromLatin1("new qt.core.Point(%0, %1)")
+    return engine->evaluate(QString::fromLatin1("new QPoint(%0, %1)")
                             .arg(point.x()).arg(point.y()));
 }
 
@@ -54,7 +54,7 @@ static void scriptValueToQPoint(const QScriptValue &value, QPoint &point)
 
 static QScriptValue scriptValueFromQPointF(QScriptEngine *engine, const QPointF &point)
 {
-    return engine->evaluate(QString::fromLatin1("new qt.core.Point(%0, %1)")
+    return engine->evaluate(QString::fromLatin1("new QPoint(%0, %1)")
                             .arg(point.x()).arg(point.y()));
 }
 
@@ -66,7 +66,7 @@ static void scriptValueToQPointF(const QScriptValue &value, QPointF &point)
 
 static QScriptValue scriptValueFromQSize(QScriptEngine *engine, const QSize &size)
 {
-    return engine->evaluate(QString::fromLatin1("new qt.core.Size(%0, %1)")
+    return engine->evaluate(QString::fromLatin1("new QSize(%0, %1)")
                             .arg(size.width()).arg(size.height()));
 }
 
@@ -78,7 +78,7 @@ static void scriptValueToQSize(const QScriptValue &value, QSize &size)
 
 static QScriptValue scriptValueFromQSizeF(QScriptEngine *engine, const QSizeF &size)
 {
-    return engine->evaluate(QString::fromLatin1("new qt.core.Size(%0, %1)")
+    return engine->evaluate(QString::fromLatin1("new QSize(%0, %1)")
                             .arg(size.width()).arg(size.height()));
 }
 
@@ -90,7 +90,7 @@ static void scriptValueToQSizeF(const QScriptValue &value, QSizeF &size)
 
 static QScriptValue scriptValueFromQLine(QScriptEngine *engine, const QLine &line)
 {
-    return engine->evaluate(QString::fromLatin1("new qt.core.Line(%0, %1, %2, %3)")
+    return engine->evaluate(QString::fromLatin1("new QLine(%0, %1, %2, %3)")
                             .arg(line.x1()).arg(line.y1())
                             .arg(line.x2()).arg(line.y2()));
 }
@@ -106,7 +106,7 @@ static void scriptValueToQLine(const QScriptValue &value, QLine &line)
 
 static QScriptValue scriptValueFromQLineF(QScriptEngine *engine, const QLineF &line)
 {
-    return engine->evaluate(QString::fromLatin1("new qt.core.Line(%0, %1, %2, %3)")
+    return engine->evaluate(QString::fromLatin1("new QLine(%0, %1, %2, %3)")
                             .arg(line.x1()).arg(line.y1())
                             .arg(line.x2()).arg(line.y2()));
 }
@@ -122,7 +122,7 @@ static void scriptValueToQLineF(const QScriptValue &value, QLineF &line)
 
 static QScriptValue scriptValueFromQRect(QScriptEngine *engine, const QRect &rect)
 {
-    return engine->evaluate(QString::fromLatin1("new qt.core.Rect(%0, %1, %2, %3)")
+    return engine->evaluate(QString::fromLatin1("new QRect(%0, %1, %2, %3)")
                             .arg(rect.x()).arg(rect.y())
                             .arg(rect.width()).arg(rect.height()));
 }
@@ -137,7 +137,7 @@ static void scriptValueToQRect(const QScriptValue &value, QRect &rect)
 
 static QScriptValue scriptValueFromQRectF(QScriptEngine *engine, const QRectF &rect)
 {
-    return engine->evaluate(QString::fromLatin1("new qt.core.Rect(%0, %1, %2, %3)")
+    return engine->evaluate(QString::fromLatin1("new QRect(%0, %1, %2, %3)")
                             .arg(rect.x()).arg(rect.y())
                             .arg(rect.width()).arg(rect.height()));
 }
@@ -181,7 +181,7 @@ void QtCoreScriptPlugin::initialize(const QString &key, QScriptEngine *engine)
         ADD_ENUM_VALUE(qt, Qt, SmoothTransformation);
         engine->globalObject().setProperty("qt", qt);
     } else if (key == QLatin1String("qt.core")) {
-        QScriptValue extensionObject = setupPackage("qt.core", engine);
+        QScriptValue extensionObject = engine->globalObject();
 
         qScriptRegisterMetaType<QPoint>(engine, scriptValueFromQPoint, scriptValueToQPoint);
         qScriptRegisterMetaType<QPointF>(engine, scriptValueFromQPointF, scriptValueToQPointF);
@@ -195,17 +195,17 @@ void QtCoreScriptPlugin::initialize(const QString &key, QScriptEngine *engine)
         qScriptRegisterMetaType<QRect>(engine, scriptValueFromQRect, scriptValueToQRect);
         qScriptRegisterMetaType<QRectF>(engine, scriptValueFromQRectF, scriptValueToQRectF);
 
-        extensionObject.setProperty("ByteArray", constructByteArrayClass(engine));
-        extensionObject.setProperty("Dir", constructDirClass(engine));
-        extensionObject.setProperty("Event", constructEventClass(engine));
-        extensionObject.setProperty("IODevice", constructIODeviceClass(engine));
-        extensionObject.setProperty("File", constructFileClass(engine));
-        extensionObject.setProperty("FileInfo", constructFileInfoClass(engine));
-        extensionObject.setProperty("ModelIndex", constructModelIndexClass(engine));
-        extensionObject.setProperty("Process", constructProcessClass(engine));
-        extensionObject.setProperty("TextStream", constructTextStreamClass(engine));
-        extensionObject.setProperty("TimeLine", constructTimeLineClass(engine));
-        extensionObject.setProperty("Timer", constructTimerClass(engine));
+        extensionObject.setProperty("QByteArray", constructByteArrayClass(engine));
+        extensionObject.setProperty("QDir", constructDirClass(engine));
+        extensionObject.setProperty("QEvent", constructEventClass(engine));
+        extensionObject.setProperty("QIODevice", constructIODeviceClass(engine));
+        extensionObject.setProperty("QFile", constructFileClass(engine));
+        extensionObject.setProperty("QFileInfo", constructFileInfoClass(engine));
+        extensionObject.setProperty("QModelIndex", constructModelIndexClass(engine));
+        extensionObject.setProperty("QProcess", constructProcessClass(engine));
+        extensionObject.setProperty("QTextStream", constructTextStreamClass(engine));
+        extensionObject.setProperty("QTimeLine", constructTimeLineClass(engine));
+        extensionObject.setProperty("QTimer", constructTimerClass(engine));
         extendStringPrototype(engine);
     } else {
         Q_ASSERT_X(false, "initialize", qPrintable(key));

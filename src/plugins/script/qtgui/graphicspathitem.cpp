@@ -45,7 +45,7 @@ static QScriptValue setPath(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(GraphicsPathItem, toString);
-    return QScriptValue(eng, "GraphicsPathItem");
+    return QScriptValue(eng, "QGraphicsPathItem");
 }
 
 /////////////////////////////////////////////////////////////

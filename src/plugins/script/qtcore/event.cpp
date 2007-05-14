@@ -77,7 +77,7 @@ static QScriptValue type(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(Event, toString);
-    return QScriptValue(eng, QString::fromLatin1("Event"));
+    return QScriptValue(eng, QString::fromLatin1("QEvent"));
 }
 
 /////////////////////////////////////////////////////////////

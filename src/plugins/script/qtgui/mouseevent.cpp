@@ -105,7 +105,7 @@ static QScriptValue y(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(MouseEvent, toString);
-    return QScriptValue(eng, QString::fromLatin1("MouseEvent"));
+    return QScriptValue(eng, QString::fromLatin1("QMouseEvent"));
 }
 
 /////////////////////////////////////////////////////////////

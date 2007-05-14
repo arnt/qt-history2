@@ -63,7 +63,7 @@ static QScriptValue setRect(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(GraphicsRectItem, toString);
-    return QScriptValue(eng, "GraphicsRectItem");
+    return QScriptValue(eng, "QGraphicsRectItem");
 }
 
 /////////////////////////////////////////////////////////////

@@ -23,7 +23,7 @@ static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
         else if (arg.isNumber())
             return newColor(eng, Qt::GlobalColor(arg.toInt32()));
         return ctx->throwError(
-            QString::fromLatin1("Color constructor: "
+            QString::fromLatin1("QColor constructor: "
                                 "don't know how to construct a color from `%0'")
             .arg(arg.toString()));
     }
@@ -74,7 +74,7 @@ static QScriptValue blueF(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue convertTo(QScriptContext *ctx, QScriptEngine *)
 {
-    return ctx->throwError("Color.prototype.convertTo is not implemented");
+    return ctx->throwError("QColor.prototype.convertTo is not implemented");
 }
 
 static QScriptValue cyan(QScriptContext *ctx, QScriptEngine *eng)
@@ -353,12 +353,12 @@ static QScriptValue setRgbF(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setRgba(QScriptContext *ctx, QScriptEngine *)
 {
-    return ctx->throwError("Color.prototype.setRgba is not implemented");
+    return ctx->throwError("QColor.prototype.setRgba is not implemented");
 }
 
 static QScriptValue spec(QScriptContext *ctx, QScriptEngine *)
 {
-    return ctx->throwError("Color.prototype.spec is not implemented");
+    return ctx->throwError("QColor.prototype.spec is not implemented");
 }
 
 static QScriptValue toCmyk(QScriptContext *ctx, QScriptEngine *eng)
@@ -406,7 +406,7 @@ static QScriptValue yellowF(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(Color, toString);
-    return QScriptValue(eng, QString("Color(%0)").arg(self->name()));
+    return QScriptValue(eng, QString("QColor(%0)").arg(self->name()));
 }
 
 QScriptValue constructColorClass(QScriptEngine *eng)

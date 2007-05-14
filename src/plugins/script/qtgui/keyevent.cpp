@@ -110,7 +110,7 @@ static QScriptValue text(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(KeyEvent, toString);
-    return QScriptValue(eng, QString::fromLatin1("KeyEvent"));
+    return QScriptValue(eng, QString::fromLatin1("QKeyEvent"));
 }
 
 /////////////////////////////////////////////////////////////

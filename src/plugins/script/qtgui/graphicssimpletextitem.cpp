@@ -62,7 +62,7 @@ static QScriptValue text(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(GraphicsSimpleTextItem, toString);
-    return QScriptValue(eng, "GraphicsSimpleTextItem");
+    return QScriptValue(eng, "QGraphicsSimpleTextItem");
 }
 
 /////////////////////////////////////////////////////////////

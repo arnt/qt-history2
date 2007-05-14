@@ -39,7 +39,7 @@ static QScriptValue removeFromGroup(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(GraphicsItemGroup, toString);
-    return QScriptValue(eng, "GraphicsItemGroup");
+    return QScriptValue(eng, "QGraphicsItemGroup");
 }
 
 /////////////////////////////////////////////////////////////

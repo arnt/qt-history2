@@ -502,7 +502,7 @@ static QScriptValue width(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(GraphicsScene, toString);
-    return QScriptValue(eng, "GraphicsScene");
+    return QScriptValue(eng, "QGraphicsScene");
 }
 
 /////////////////////////////////////////////////////////////

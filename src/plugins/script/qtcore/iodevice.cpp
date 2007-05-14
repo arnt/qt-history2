@@ -36,7 +36,7 @@ public:
 public Q_SLOTS:
     QString toString() const
     {
-        return QLatin1String("IODevice() { [native code] }");
+        return QLatin1String("QIODevice() { [native code] }");
     }
 };
 
@@ -188,7 +188,7 @@ public Q_SLOTS:
     QString toString() const
     {
         DECLARE_SELF2(IODevice, toString, QString());
-        return QString::fromLatin1("IODevice");
+        return QString::fromLatin1("QIODevice");
     }
 
 protected:

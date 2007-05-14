@@ -101,7 +101,7 @@ public Q_SLOTS:
     { return QFile::symLinkTarget(fileName); }
     QString toString() const
     {
-        return QLatin1String("File() { [native code] }");
+        return QLatin1String("QFile() { [native code] }");
     }
 };
 
@@ -211,7 +211,7 @@ public Q_SLOTS:
     QString toString() const
     {
         DECLARE_SELF2(File, toString, QString());
-        return QString::fromLatin1("File(%0)")
+        return QString::fromLatin1("QFile(%0)")
             .arg(self->fileName());
     }
 };

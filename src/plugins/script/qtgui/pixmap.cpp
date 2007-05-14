@@ -68,7 +68,7 @@ static QScriptValue copy(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue createHeuristicMask(QScriptContext *ctx, QScriptEngine *)
 {
     DECLARE_SELF(Pixmap, createHeuristicMask);
-    return ctx->throwError("Pixmap.prototype.createHeuristicMask is not implemented");
+    return ctx->throwError("QPixmap.prototype.createHeuristicMask is not implemented");
 }
 
 /////////////////////////////////////////////////////////////
@@ -76,7 +76,7 @@ static QScriptValue createHeuristicMask(QScriptContext *ctx, QScriptEngine *)
 static QScriptValue createMaskFromColor(QScriptContext *ctx, QScriptEngine *)
 {
     DECLARE_SELF(Pixmap, createMaskFromColor);
-    return ctx->throwError("Pixmap.prototype.createMaskFromColor is not implemented");
+    return ctx->throwError("QPixmap.prototype.createMaskFromColor is not implemented");
 }
 
 /////////////////////////////////////////////////////////////
@@ -125,7 +125,7 @@ static QScriptValue fill(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue handle(QScriptContext *ctx, QScriptEngine *)
 {
     DECLARE_SELF(Pixmap, handle);
-    return ctx->throwError("Pixmap.prototype.handle is not implemented");
+    return ctx->throwError("QPixmap.prototype.handle is not implemented");
 }
 
 /////////////////////////////////////////////////////////////
@@ -181,7 +181,7 @@ static QScriptValue load(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue loadFromData(QScriptContext *ctx, QScriptEngine *)
 {
     DECLARE_SELF(Pixmap, loadFromData);
-    return ctx->throwError("Pixmap.prototype.loadFromData is not implemented");
+    return ctx->throwError("QPixmap.prototype.loadFromData is not implemented");
 }
 
 /////////////////////////////////////////////////////////////
@@ -213,7 +213,7 @@ static QScriptValue save(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue scaled(QScriptContext *ctx, QScriptEngine *)
 {
     DECLARE_SELF(Pixmap, scaled);
-    return ctx->throwError("Pixmap.prototype.scaled is not implemented");
+    return ctx->throwError("QPixmap.prototype.scaled is not implemented");
 }
 
 /////////////////////////////////////////////////////////////
@@ -221,7 +221,7 @@ static QScriptValue scaled(QScriptContext *ctx, QScriptEngine *)
 static QScriptValue scaledToHeight(QScriptContext *ctx, QScriptEngine *)
 {
     DECLARE_SELF(Pixmap, scaledToHeight);
-    return ctx->throwError("Pixmap.prototype.scaledToHeight is not implemented");
+    return ctx->throwError("QPixmap.prototype.scaledToHeight is not implemented");
 }
 
 /////////////////////////////////////////////////////////////
@@ -229,7 +229,7 @@ static QScriptValue scaledToHeight(QScriptContext *ctx, QScriptEngine *)
 static QScriptValue scaledToWidth(QScriptContext *ctx, QScriptEngine *)
 {
     DECLARE_SELF(Pixmap, scaledToWidth);
-    return ctx->throwError("Pixmap.prototype.scaledToWidth is not implemented");
+    return ctx->throwError("QPixmap.prototype.scaledToWidth is not implemented");
 }
 
 /////////////////////////////////////////////////////////////
@@ -271,7 +271,7 @@ static QScriptValue toImage(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue toMacCGImageRef(QScriptContext *ctx, QScriptEngine *)
 {
     DECLARE_SELF(Pixmap, toMacCGImageRef);
-    return ctx->throwError("Pixmap.prototype.toMacCGImageRef is not implemented");
+    return ctx->throwError("QPixmap.prototype.toMacCGImageRef is not implemented");
 }
 
 /////////////////////////////////////////////////////////////
@@ -279,7 +279,7 @@ static QScriptValue toMacCGImageRef(QScriptContext *ctx, QScriptEngine *)
 static QScriptValue toWinHBITMAP(QScriptContext *ctx, QScriptEngine *)
 {
     DECLARE_SELF(Pixmap, toWinHBITMAP);
-    return ctx->throwError("Pixmap.prototype.toWinHBITMAP is not implemented");
+    return ctx->throwError("QPixmap.prototype.toWinHBITMAP is not implemented");
 }
 
 /////////////////////////////////////////////////////////////
@@ -287,7 +287,7 @@ static QScriptValue toWinHBITMAP(QScriptContext *ctx, QScriptEngine *)
 static QScriptValue transformed(QScriptContext *ctx, QScriptEngine *)
 {
     DECLARE_SELF(Pixmap, transformed);
-    return ctx->throwError("Pixmap.prototype.transformed is not implemented");
+    return ctx->throwError("QPixmap.prototype.transformed is not implemented");
 }
 
 /////////////////////////////////////////////////////////////
@@ -303,7 +303,7 @@ static QScriptValue width(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue x11Info(QScriptContext *ctx, QScriptEngine *)
 {
     DECLARE_SELF(Pixmap, x11Info);
-    return ctx->throwError("Pixmap.prototype.x11Info is not implemented");
+    return ctx->throwError("QPixmap.prototype.x11Info is not implemented");
 }
 
 /////////////////////////////////////////////////////////////
@@ -311,7 +311,7 @@ static QScriptValue x11Info(QScriptContext *ctx, QScriptEngine *)
 static QScriptValue x11PictureHandle(QScriptContext *ctx, QScriptEngine *)
 {
     DECLARE_SELF(Pixmap, x11PictureHandle);
-    return ctx->throwError("Pixmap.prototype.x11PictureHandle is not implemented");
+    return ctx->throwError("QPixmap.prototype.x11PictureHandle is not implemented");
 }
 
 /////////////////////////////////////////////////////////////
@@ -320,9 +320,9 @@ static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(Pixmap, toString);
     if (self->isNull()) {
-        return QScriptValue(eng, QString::fromLatin1("Pixmap(null)"));
+        return QScriptValue(eng, QString::fromLatin1("QPixmap(null)"));
     } else {
-        return QScriptValue(eng, QString::fromLatin1("Pixmap(width=%0,height=%1)")
+        return QScriptValue(eng, QString::fromLatin1("QPixmap(width=%0,height=%1)")
                             .arg(self->width()).arg(self->height()));
     }
 }

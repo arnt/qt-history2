@@ -30,7 +30,7 @@ static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
                                  ctx->argument(2).toNumber(),
                                  ctx->argument(3).toNumber()));
     }
-    return ctx->throwError("LinearGradient: invalid number of arguments");
+    return ctx->throwError("QLinearGradient: invalid number of arguments");
 }
 
 static QScriptValue finalStop(QScriptContext *ctx, QScriptEngine *eng)
@@ -72,7 +72,7 @@ static QScriptValue start(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(LinearGradient, toString);
-    return QScriptValue(eng, "LinearGradient");
+    return QScriptValue(eng, "QLinearGradient");
 }
 
 /////////////////////////////////////////////////////////////

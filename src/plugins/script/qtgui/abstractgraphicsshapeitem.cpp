@@ -18,7 +18,7 @@ static inline QScriptValue newAbstractGraphicsShapeItem(QScriptEngine *eng, QAbs
 
 static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *)
 {
-    return ctx->throwError("AbstractGraphicsShapeItem cannot be instantiated");
+    return ctx->throwError("QAbstractGraphicsShapeItem cannot be instantiated");
 }
 
 /////////////////////////////////////////////////////////////
@@ -60,7 +60,7 @@ static QScriptValue setPen(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(AbstractGraphicsShapeItem, toString);
-    return QScriptValue(eng, "AbstractGraphicsShapeItem");
+    return QScriptValue(eng, "QAbstractGraphicsShapeItem");
 }
 
 /////////////////////////////////////////////////////////////

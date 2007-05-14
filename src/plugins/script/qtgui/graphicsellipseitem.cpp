@@ -85,7 +85,7 @@ static QScriptValue startAngle(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(GraphicsEllipseItem, toString);
-    return QScriptValue(eng, "GraphicsEllipseItem");
+    return QScriptValue(eng, "QGraphicsEllipseItem");
 }
 
 /////////////////////////////////////////////////////////////

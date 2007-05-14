@@ -26,7 +26,7 @@ static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
     if (QBitmap *bitmap = qscriptvalue_cast<QBitmap*>(ctx->argument(0)))
         return newRegion(eng, QRegion(*bitmap));
     // ### other constructors
-    return ctx->throwError("Region constructor");
+    return ctx->throwError("QRegion constructor");
 }
 
 /////////////////////////////////////////////////////////////
@@ -54,7 +54,7 @@ static QScriptValue contains(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue handle(QScriptContext *ctx, QScriptEngine *)
 {
     DECLARE_SELF(Region, handle);
-    return ctx->throwError("Region.prototype.handle is not implemented");
+    return ctx->throwError("QRegion.prototype.handle is not implemented");
 }
 
 /////////////////////////////////////////////////////////////
@@ -163,7 +163,7 @@ static QScriptValue xored(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(Region, toString);
-    return QScriptValue(eng, "Region");
+    return QScriptValue(eng, "QRegion");
 }
 
 /////////////////////////////////////////////////////////////

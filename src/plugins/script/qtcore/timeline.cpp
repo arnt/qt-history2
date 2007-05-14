@@ -89,7 +89,7 @@ static QScriptValue state(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(TimeLine, toString);
-    return QScriptValue(eng, QString::fromLatin1("TimeLine(duration=%0)")
+    return QScriptValue(eng, QString::fromLatin1("QTimeLine(duration=%0)")
                         .arg(self->duration()));
 }
 

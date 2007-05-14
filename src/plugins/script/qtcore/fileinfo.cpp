@@ -385,7 +385,7 @@ static QScriptValue symLinkTarget(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(FileInfo, toString);
-    return QScriptValue(eng, QString::fromLatin1("FileInfo(%0)").arg(self->filePath()));
+    return QScriptValue(eng, QString::fromLatin1("QFileInfo(%0)").arg(self->filePath()));
 }
 
 /////////////////////////////////////////////////////////////

@@ -101,7 +101,7 @@ static QScriptValue transformationMode(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(GraphicsPixmapItem, toString);
-    return QScriptValue(eng, "GraphicsPixmapItem");
+    return QScriptValue(eng, "QGraphicsPixmapItem");
 }
 
 /////////////////////////////////////////////////////////////

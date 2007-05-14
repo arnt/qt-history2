@@ -72,7 +72,7 @@ static QScriptValue type(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(Gradient, toString);
-    return QScriptValue(eng, "Gradient");
+    return QScriptValue(eng, "QGradient");
 }
 
 /////////////////////////////////////////////////////////////

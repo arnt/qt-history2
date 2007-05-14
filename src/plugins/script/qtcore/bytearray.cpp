@@ -122,7 +122,7 @@ static QScriptValue count(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue data(QScriptContext *ctx, QScriptEngine *)
 {
     DECLARE_SELF(ByteArray, data);
-    return ctx->throwError("ByteArray.prototype.data is not implemented");
+    return ctx->throwError("QByteArray.prototype.data is not implemented");
 }
 
 /////////////////////////////////////////////////////////////
@@ -233,7 +233,7 @@ static QScriptValue left(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue leftJustified(QScriptContext *ctx, QScriptEngine *)
 {
     DECLARE_SELF(ByteArray, leftJustified);
-    return ctx->throwError("ByteArray.prototype.leftJustified is not implemented");
+    return ctx->throwError("QByteArray.prototype.leftJustified is not implemented");
 }
 
 /////////////////////////////////////////////////////////////
@@ -315,7 +315,7 @@ static QScriptValue remove(QScriptContext *ctx, QScriptEngine *)
 static QScriptValue replace(QScriptContext *ctx, QScriptEngine *)
 {
     DECLARE_SELF(ByteArray, replace);
-    return ctx->throwError("ByteArray.prototype.replace is not implemented");
+    return ctx->throwError("QByteArray.prototype.replace is not implemented");
 }
 
 /////////////////////////////////////////////////////////////
@@ -349,7 +349,7 @@ static QScriptValue right(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue rightJustified(QScriptContext *ctx, QScriptEngine *)
 {
     DECLARE_SELF(ByteArray, rightJustified);
-    return ctx->throwError("ByteArray.prototype.rightJustified is not implemented");
+    return ctx->throwError("QByteArray.prototype.rightJustified is not implemented");
 }
 
 /////////////////////////////////////////////////////////////
@@ -357,7 +357,7 @@ static QScriptValue rightJustified(QScriptContext *ctx, QScriptEngine *)
 static QScriptValue setNum(QScriptContext *ctx, QScriptEngine *)
 {
     DECLARE_SELF(ByteArray, setNum);
-    return ctx->throwError("ByteArray.prototype.setNum is not implemented");
+    return ctx->throwError("QByteArray.prototype.setNum is not implemented");
 }
 
 /////////////////////////////////////////////////////////////
@@ -486,7 +486,7 @@ static QScriptValue toUInt(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue toULong(QScriptContext *ctx, QScriptEngine *)
 {
     DECLARE_SELF(ByteArray, toULong);
-    return ctx->throwError("ByteArray.prototype.toULong is not implemented");
+    return ctx->throwError("QByteArray.prototype.toULong is not implemented");
 }
 
 /////////////////////////////////////////////////////////////
@@ -537,7 +537,7 @@ static QScriptValue truncate(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(ByteArray, toString);
-    return QScriptValue(eng, "ByteArray");
+    return QScriptValue(eng, "QByteArray");
 }
 
 /////////////////////////////////////////////////////////////

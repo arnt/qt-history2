@@ -55,7 +55,7 @@ static QScriptValue alphaChannel(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue bits(QScriptContext *ctx, QScriptEngine *)
 {
     DECLARE_SELF(Image, bits);
-    return ctx->throwError("Image.prototype.bits is not implemented");
+    return ctx->throwError("QImage.prototype.bits is not implemented");
 }
 
 /////////////////////////////////////////////////////////////
@@ -122,7 +122,7 @@ static QScriptValue copy(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue createAlphaMask(QScriptContext *ctx, QScriptEngine *)
 {
     DECLARE_SELF(Image, createAlphaMask);
-    return ctx->throwError("Image.prototype.createAlphaMask is not implemented");
+    return ctx->throwError("QImage.prototype.createAlphaMask is not implemented");
 }
 
 /////////////////////////////////////////////////////////////
@@ -130,7 +130,7 @@ static QScriptValue createAlphaMask(QScriptContext *ctx, QScriptEngine *)
 static QScriptValue createHeuristicMask(QScriptContext *ctx, QScriptEngine *)
 {
     DECLARE_SELF(Image, createHeuristicMask);
-    return ctx->throwError("Image.prototype.createHeuristicMask is not implemented");
+    return ctx->throwError("QImage.prototype.createHeuristicMask is not implemented");
 }
 
 /////////////////////////////////////////////////////////////
@@ -138,7 +138,7 @@ static QScriptValue createHeuristicMask(QScriptContext *ctx, QScriptEngine *)
 static QScriptValue createMaskFromColor(QScriptContext *ctx, QScriptEngine *)
 {
     DECLARE_SELF(Image, createMaskFromColor);
-    return ctx->throwError("Image.prototype.createMaskFromColor is not implemented");
+    return ctx->throwError("QImage.prototype.createMaskFromColor is not implemented");
 }
 
 /////////////////////////////////////////////////////////////
@@ -239,7 +239,7 @@ static QScriptValue load(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue loadFromData(QScriptContext *ctx, QScriptEngine *)
 {
     DECLARE_SELF(Image, loadFromData);
-    return ctx->throwError("Image.prototype.loadFromData is not implemented");
+    return ctx->throwError("QImage.prototype.loadFromData is not implemented");
 }
 
 /////////////////////////////////////////////////////////////
@@ -247,7 +247,7 @@ static QScriptValue loadFromData(QScriptContext *ctx, QScriptEngine *)
 static QScriptValue mirrored(QScriptContext *ctx, QScriptEngine *)
 {
     DECLARE_SELF(Image, mirrored);
-    return ctx->throwError("Image.prototype.mirrored is not implemented");
+    return ctx->throwError("QImage.prototype.mirrored is not implemented");
 }
 
 /////////////////////////////////////////////////////////////
@@ -329,7 +329,7 @@ static QScriptValue save(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue scaled(QScriptContext *ctx, QScriptEngine *)
 {
     DECLARE_SELF(Image, scaled);
-    return ctx->throwError("Image.prototype.scaled is not implemented");
+    return ctx->throwError("QImage.prototype.scaled is not implemented");
 }
 
 /////////////////////////////////////////////////////////////
@@ -337,7 +337,7 @@ static QScriptValue scaled(QScriptContext *ctx, QScriptEngine *)
 static QScriptValue scaledToHeight(QScriptContext *ctx, QScriptEngine *)
 {
     DECLARE_SELF(Image, scaledToHeight);
-    return ctx->throwError("Image.prototype.scaledToHeight is not implemented");
+    return ctx->throwError("QImage.prototype.scaledToHeight is not implemented");
 }
 
 /////////////////////////////////////////////////////////////
@@ -345,7 +345,7 @@ static QScriptValue scaledToHeight(QScriptContext *ctx, QScriptEngine *)
 static QScriptValue scaledToWidth(QScriptContext *ctx, QScriptEngine *)
 {
     DECLARE_SELF(Image, scaledToWidth);
-    return ctx->throwError("Image.prototype.scaledToWidth is not implemented");
+    return ctx->throwError("QImage.prototype.scaledToWidth is not implemented");
 }
 
 /////////////////////////////////////////////////////////////
@@ -353,7 +353,7 @@ static QScriptValue scaledToWidth(QScriptContext *ctx, QScriptEngine *)
 static QScriptValue scanLine(QScriptContext *ctx, QScriptEngine *)
 {
     DECLARE_SELF(Image, scanLine);
-    return ctx->throwError("Image.prototype.scanLine is not implemented");
+    return ctx->throwError("QImage.prototype.scanLine is not implemented");
 }
 
 /////////////////////////////////////////////////////////////
@@ -489,7 +489,7 @@ static QScriptValue textKeys(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue transformed(QScriptContext *ctx, QScriptEngine *)
 {
     DECLARE_SELF(Image, transformed);
-    return ctx->throwError("Image.prototype.transformed is not implemented");
+    return ctx->throwError("QImage.prototype.transformed is not implemented");
 }
 
 /////////////////////////////////////////////////////////////
@@ -518,7 +518,7 @@ static QScriptValue width(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(Image, toString);
-    return QScriptValue(eng, "Image");
+    return QScriptValue(eng, "QImage");
 }
 
 /////////////////////////////////////////////////////////////

@@ -29,7 +29,7 @@ static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
         qreal angle = qscriptvalue_cast<qreal>(ctx->argument(2));
         return newConicalGradient(eng, QConicalGradient(cx, cy, angle));
     }
-    return ctx->throwError("ConicalGradient: invalid number of arguments");
+    return ctx->throwError("QConicalGradient: invalid number of arguments");
 }
 
 static QScriptValue angle(QScriptContext *ctx, QScriptEngine *eng)
@@ -66,7 +66,7 @@ static QScriptValue setCenter(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(ConicalGradient, toString);
-    return QScriptValue(eng, "ConicalGradient");
+    return QScriptValue(eng, "QConicalGradient");
 }
 
 /////////////////////////////////////////////////////////////

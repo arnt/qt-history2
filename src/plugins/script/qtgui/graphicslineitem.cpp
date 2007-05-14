@@ -75,7 +75,7 @@ static QScriptValue setPen(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(GraphicsLineItem, toString);
-    return QScriptValue(eng, "GraphicsLineItem");
+    return QScriptValue(eng, "QGraphicsLineItem");
 }
 
 /////////////////////////////////////////////////////////////

@@ -34,7 +34,7 @@ static QScriptValue setScene(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(GraphicsView, toString);
-    return QScriptValue(eng, "GraphicsView");
+    return QScriptValue(eng, "QGraphicsView");
 }
 
 /////////////////////////////////////////////////////////////

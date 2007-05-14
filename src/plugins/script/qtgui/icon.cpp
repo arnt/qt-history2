@@ -119,7 +119,7 @@ static QScriptValue paint(QScriptContext *ctx, QScriptEngine *eng)
     QPainter *painter = qscriptvalue_cast<QPainter*>(ctx->argument(0));
     if (!painter) {
         return ctx->throwError(QScriptContext::TypeError,
-                               "Icon.prototype.paint: argument is not a Painter");
+                               "QIcon.prototype.paint: argument is not a Painter");
     }
     QRect rect = qscriptvalue_cast<QRect>(ctx->argument(1));
     if (ctx->argumentCount() >= 5) {
@@ -155,7 +155,7 @@ static QScriptValue pixmap(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(Icon, toString);
-    return QScriptValue(eng, "Icon");
+    return QScriptValue(eng, "QIcon");
 }
 
 /////////////////////////////////////////////////////////////

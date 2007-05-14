@@ -20,7 +20,7 @@ static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(Timer, toString);
-    return QScriptValue(eng, QString::fromLatin1("Timer(interval=%0)")
+    return QScriptValue(eng, QString::fromLatin1("QTimer(interval=%0)")
                         .arg(self->interval()));
 }
 

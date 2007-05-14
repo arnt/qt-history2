@@ -324,7 +324,7 @@ static QScriptValue sorting(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(Dir, toString);
-    return QScriptValue(eng, QString::fromLatin1("Dir(%0)").arg(self->path()));
+    return QScriptValue(eng, QString::fromLatin1("QDir(%0)").arg(self->path()));
 }
 
 /////////////////////////////////////////////////////////////

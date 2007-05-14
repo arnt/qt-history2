@@ -43,7 +43,7 @@ static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
                                      ctx->argument(2).toNumber()));
         }
     }
-    return ctx->throwError("RadialGradient: invalid number of arguments");
+    return ctx->throwError("QRadialGradient: invalid number of arguments");
 }
 
 static QScriptValue center(QScriptContext *ctx, QScriptEngine *eng)
@@ -98,7 +98,7 @@ static QScriptValue setRadius(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(RadialGradient, toString);
-    return QScriptValue(eng, "RadialGradient");
+    return QScriptValue(eng, "QRadialGradient");
 }
 
 /////////////////////////////////////////////////////////////

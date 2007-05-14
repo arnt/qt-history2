@@ -69,7 +69,7 @@ public Q_SLOTS:
     // ### add rest of ctor overloads
     QString toString() const
     {
-        return QLatin1String("TextStream() { [native code] }");
+        return QLatin1String("QTextStream() { [native code] }");
     }
 };
 
@@ -250,7 +250,7 @@ public Q_SLOTS:
     QString toString() const
     {
         DECLARE_SELF2(TextStream, toString, QString());
-        return QString::fromLatin1("TextStream");
+        return QString::fromLatin1("QTextStream");
     }
 };
 

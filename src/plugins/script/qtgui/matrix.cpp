@@ -212,7 +212,7 @@ static QScriptValue translate(QScriptContext *ctx, QScriptEngine *)
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(Matrix, toString);
-    return QScriptValue(eng, "Matrix");
+    return QScriptValue(eng, "QMatrix");
 }
 
 /////////////////////////////////////////////////////////////

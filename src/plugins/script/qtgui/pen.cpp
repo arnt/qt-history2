@@ -34,7 +34,7 @@ static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
     } else if (QPen *other = qscriptvalue_cast<QPen*>(arg)) {
         return newPen(eng, QPen(*other));
     }
-    return ctx->throwError("Pen constructor: invalid argument(s)");
+    return ctx->throwError("QPen constructor: invalid argument(s)");
 }
 
 /////////////////////////////////////////////////////////////
@@ -212,7 +212,7 @@ static QScriptValue style(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(Pen, toString);
-    return QScriptValue(eng, QString::fromLatin1("Pen(width=%0)")
+    return QScriptValue(eng, QString::fromLatin1("QPen(width=%0)")
                         .arg(self->width()));
 }
 

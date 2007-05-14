@@ -20,7 +20,7 @@ static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
         return newPalette(eng, QPalette());
     if (QPalette *other = qscriptvalue_cast<QPalette*>(ctx->argument(0)))
         return newPalette(eng, QPalette(*other));
-    return ctx->throwError("Palette constructor");
+    return ctx->throwError("QPalette constructor");
 }
 
 /////////////////////////////////////////////////////////////
@@ -303,7 +303,7 @@ static QScriptValue windowText(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(Palette, toString);
-    return QScriptValue(eng, "Palette");
+    return QScriptValue(eng, "QPalette");
 }
 
 /////////////////////////////////////////////////////////////

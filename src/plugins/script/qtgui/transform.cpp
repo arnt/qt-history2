@@ -365,7 +365,7 @@ static QScriptValue type(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(Transform, toString);
-    return QScriptValue(eng, "Transform");
+    return QScriptValue(eng, "QTransform");
 }
 
 /////////////////////////////////////////////////////////////

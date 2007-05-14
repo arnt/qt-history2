@@ -41,7 +41,7 @@ static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
     } else if (QGradient *gradient = qscriptvalue_cast<QGradient*>(arg)) {
         return newBrush(eng, QBrush(*gradient));
     }
-    return ctx->throwError("Brush constructor: invalid argument");
+    return ctx->throwError("QBrush constructor: invalid argument");
 }
 
 /////////////////////////////////////////////////////////////
@@ -151,7 +151,7 @@ static QScriptValue texture(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(Brush, toString);
-    return QScriptValue(eng, "Brush");
+    return QScriptValue(eng, "QBrush");
 }
 
 /////////////////////////////////////////////////////////////

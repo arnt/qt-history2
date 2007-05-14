@@ -67,7 +67,7 @@ static QScriptValue setPolygon(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(GraphicsPolygonItem, toString);
-    return QScriptValue(eng, "GraphicsPolygonItem");
+    return QScriptValue(eng, "QGraphicsPolygonItem");
 }
 
 /////////////////////////////////////////////////////////////

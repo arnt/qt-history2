@@ -72,7 +72,7 @@ public Q_SLOTS:
     QStringList systemEnvironment()
     { return QProcess::systemEnvironment(); }
     QString toString() const
-    { return QLatin1String("Process() { [native code] }"); }
+    { return QLatin1String("QProcess() { [native code] }"); }
 };
 
 class ProcessPrototype : public QProcess,
@@ -211,7 +211,7 @@ public Q_SLOTS:
     QString toString() const
     {
         DECLARE_SELF2(Process, toString, QString());
-        return QString::fromLatin1("Process");
+        return QString::fromLatin1("QProcess");
     }
 };
 

@@ -65,7 +65,7 @@ static QScriptValue fromString(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue handle(QScriptContext *ctx, QScriptEngine *)
 {
-    return ctx->throwError("Font.prototype.handle is not implemented");
+    return ctx->throwError("QFont.prototype.handle is not implemented");
 }
 
 static QScriptValue isCopyOf(QScriptContext *ctx, QScriptEngine *eng)
@@ -74,7 +74,7 @@ static QScriptValue isCopyOf(QScriptContext *ctx, QScriptEngine *eng)
     QFont *other = qscriptvalue_cast<QFont*>(ctx->argument(0));
     if (!other) {
         return ctx->throwError(QScriptContext::TypeError,
-                               "Font.prototype.isCopyOf: argument is not a Font");
+                               "QFont.prototype.isCopyOf: argument is not a Font");
     }
     return QScriptValue(eng, self->isCopyOf(*other));
 }
@@ -151,7 +151,7 @@ static QScriptValue resolve(QScriptContext *ctx, QScriptEngine *eng)
     QFont *other = qscriptvalue_cast<QFont*>(ctx->argument(0));
     if (!other) {
         return ctx->throwError(QScriptContext::TypeError,
-                               "Font.prototype.isCopyOf: argument is not a Font");
+                               "QFont.prototype.isCopyOf: argument is not a Font");
     }
     return qScriptValueFromValue(eng, self->resolve(*other));
 }
@@ -305,17 +305,17 @@ static QScriptValue strikeOut(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue style(QScriptContext *ctx, QScriptEngine *)
 {
-    return ctx->throwError("Font.prototype.style is not implemented");
+    return ctx->throwError("QFont.prototype.style is not implemented");
 }
 
 static QScriptValue styleHint(QScriptContext *ctx, QScriptEngine *)
 {
-    return ctx->throwError("Font.prototype.styleHint is not implemented");
+    return ctx->throwError("QFont.prototype.styleHint is not implemented");
 }
 
 static QScriptValue styleStrategy(QScriptContext *ctx, QScriptEngine *)
 {
-    return ctx->throwError("Font.prototype.styleStrategy is not implemented");
+    return ctx->throwError("QFont.prototype.styleStrategy is not implemented");
 }
 
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)

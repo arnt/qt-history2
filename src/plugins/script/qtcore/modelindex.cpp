@@ -119,7 +119,7 @@ static QScriptValue sibling(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(ModelIndex, toString);
-    return QScriptValue(eng, QString::fromLatin1("ModelIndex(%0,%1)")
+    return QScriptValue(eng, QString::fromLatin1("QModelIndex(%0,%1)")
         .arg(self->row()).arg(self->column()));
 }
 

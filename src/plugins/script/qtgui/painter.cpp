@@ -63,7 +63,7 @@ static QScriptValue begin(QScriptContext *ctx, QScriptEngine *eng)
     QWidget *device = qscriptvalue_cast<QWidget*>(ctx->argument(0));
     if (!device) {
         return ctx->throwError(QScriptContext::TypeError,
-                               "Painter.prototype.begin: argument is not a QWidget");
+                               "QPainter.prototype.begin: argument is not a QWidget");
     }
     return QScriptValue(eng, self->begin(device));
 }
@@ -285,7 +285,7 @@ static QScriptValue drawLine(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue drawLines(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(Painter, drawLines);
-    return ctx->throwError("Painter.prototype.drawLines is not implemented");
+    return ctx->throwError("QPainter.prototype.drawLines is not implemented");
 //    self->drawLines(qscriptvalue_cast<QVector<QLineF> >(ctx->argument(0)));
     return eng->undefinedValue();
 }
@@ -521,7 +521,7 @@ static QScriptValue fillPath(QScriptContext *ctx, QScriptEngine *eng)
     QPainterPath *path = qscriptvalue_cast<QPainterPath*>(ctx->argument(0));
     if (!path) {
         return ctx->throwError(QScriptContext::TypeError,
-                               "Painter.prototype.fillPath: argument is not a PainterPath");
+                               "QPainter.prototype.fillPath: argument is not a PainterPath");
     }
     self->fillPath(*path, qscriptvalue_cast<QBrush>(ctx->argument(1)));
     return eng->undefinedValue();
@@ -560,7 +560,7 @@ static QScriptValue font(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue fontInfo(QScriptContext *ctx, QScriptEngine *)
 {
     DECLARE_SELF(Painter, fontInfo);
-    return ctx->throwError("Painter.prototype.fontInfo is not implemented");
+    return ctx->throwError("QPainter.prototype.fontInfo is not implemented");
 }
 
 /////////////////////////////////////////////////////////////
@@ -568,7 +568,7 @@ static QScriptValue fontInfo(QScriptContext *ctx, QScriptEngine *)
 static QScriptValue fontMetrics(QScriptContext *ctx, QScriptEngine *)
 {
     DECLARE_SELF(Painter, fontMetrics);
-    return ctx->throwError("Painter.prototype.fontMetrics is not implemented");
+    return ctx->throwError("QPainter.prototype.fontMetrics is not implemented");
 }
 
 /////////////////////////////////////////////////////////////
@@ -587,7 +587,7 @@ static QScriptValue initFrom(QScriptContext *ctx, QScriptEngine *eng)
     QWidget *widget = qscriptvalue_cast<QWidget*>(ctx->argument(0));
     if (!widget) {
         return ctx->throwError(QScriptContext::TypeError,
-                               "Painter.prototype.initFrom: argument is not a Widget");
+                               "QPainter.prototype.initFrom: argument is not a Widget");
     }
     self->initFrom(widget);
     return eng->undefinedValue();
@@ -946,7 +946,7 @@ static QScriptValue strokePath(QScriptContext *ctx, QScriptEngine *eng)
     QPainterPath *path = qscriptvalue_cast<QPainterPath*>(ctx->argument(0));
     if (!path) {
         return ctx->throwError(QScriptContext::TypeError,
-                               "Painter.prototype.strokePath: argument is not a PainterPath");
+                               "QPainter.prototype.strokePath: argument is not a PainterPath");
     }
     self->strokePath(*path, qscriptvalue_cast<QPen>(ctx->argument(1)));
     return eng->undefinedValue();
@@ -1037,7 +1037,7 @@ static QScriptValue worldTransform(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(Painter, toString);
-    return QScriptValue(eng, "Painter");
+    return QScriptValue(eng, "QPainter");
 }
 
 /////////////////////////////////////////////////////////////
