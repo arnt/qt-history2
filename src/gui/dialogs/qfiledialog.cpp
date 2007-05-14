@@ -468,15 +468,8 @@ void QFileDialogPrivate::_q_goToUrl(const QUrl &url)
 void QFileDialog::setDirectory(const QString &directory)
 {
     Q_D(QFileDialog);
-
-    QString path = d->model->filePath(d->rootIndex());
-    if (!(
-       (!d->forwardHistory.isEmpty() && d->forwardHistory.last() == path)
-     ||(!d->backHistory.isEmpty()    && d->backHistory.last() == path)
-         ) && isVisible()) {
-        d->backHistory.push_back(d->model->filePath(d->rootIndex()));
-    }
-
+    if (d->rootPath() == directory)
+        return;
     QModelIndex root = d->model->setRootPath(directory);
     d->qFileDialogUi->newFolderButton->setEnabled(d->model->flags(root) & Qt::ItemIsDropEnabled);
     d->setRootIndex(root);
@@ -1933,10 +1926,18 @@ void QFileDialogPrivate::_q_pathChanged(const QString &newPath)
     Q_Q(QFileDialog);
     QDir dir(model->rootDirectory());
     qFileDialogUi->toParentButton->setEnabled(dir.exists());
-    qFileDialogUi->backButton->setEnabled(!backHistory.isEmpty());
-    qFileDialogUi->forwardButton->setEnabled(!forwardHistory.isEmpty());
     qFileDialogUi->sidebar->selectUrl(QUrl::fromLocalFile(newPath));
     q->setHistory(history);
+
+    if (currentHistoryLocation < 0 || currentHistory.value(currentHistoryLocation) != newPath) {
+        while (currentHistoryLocation >= 0 && currentHistoryLocation + 1 < currentHistory.count()) {
+            currentHistory.removeLast();
+        }
+        currentHistory.append(newPath);
+        ++currentHistoryLocation;
+    }
+    qFileDialogUi->forwardButton->setEnabled(currentHistory.size() - currentHistoryLocation > 1);
+    qFileDialogUi->backButton->setEnabled(currentHistoryLocation > 0);
 }
 
 /*!
@@ -1947,10 +1948,10 @@ void QFileDialogPrivate::_q_pathChanged(const QString &newPath)
 void QFileDialogPrivate::_q_navigateBackward()
 {
     Q_Q(QFileDialog);
-    if (!backHistory.isEmpty()) {
-        QString lastDirectory = backHistory.takeLast();
-        forwardHistory.append(rootPath());
-        q->setDirectory(lastDirectory);
+    if (!currentHistory.isEmpty() && currentHistoryLocation > 0) {
+        --currentHistoryLocation;
+        QString previousHistory = currentHistory.at(currentHistoryLocation);
+        q->setDirectory(previousHistory);
     }
 }
 
@@ -1962,8 +1963,11 @@ void QFileDialogPrivate::_q_navigateBackward()
 void QFileDialogPrivate::_q_navigateForward()
 {
     Q_Q(QFileDialog);
-    if (!forwardHistory.isEmpty())
-        q->setDirectory(forwardHistory.takeLast());
+    if (!currentHistory.isEmpty() && currentHistoryLocation < currentHistory.size()) {
+        ++currentHistoryLocation;
+        QString nextHistory = currentHistory.at(currentHistoryLocation);
+        q->setDirectory(nextHistory);
+    }
 }
 
 /*!

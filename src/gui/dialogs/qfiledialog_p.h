@@ -89,6 +89,7 @@ public:
     fileMode(QFileDialog::AnyFile),
     acceptMode(QFileDialog::AcceptOpen),
     confirmOverwrite(true),
+    currentHistoryLocation(-1),
     renameAction(0),
     deleteAction(0),
     showHiddenAction(0),
@@ -206,8 +207,9 @@ public:
     QString defaultSuffix;
 
     QStringList history;
-    QStringList backHistory;
-    QStringList forwardHistory;
+
+    QStringList currentHistory;
+    int currentHistoryLocation;
 
     QAction *renameAction;
     QAction *deleteAction;
