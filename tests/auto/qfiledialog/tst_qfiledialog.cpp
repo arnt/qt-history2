@@ -73,6 +73,9 @@ private slots:
     void setFilter();
     void focus();
 
+    void historyBack();
+    void historyForward();
+
     void disableSaveButton_data();
     void disableSaveButton();
 
@@ -483,6 +486,114 @@ void tst_QFiledialog::focus()
     QVERIFY(treeView.at(0));
     WAIT_FOR_CONDITION(treeView.at(0)->hasFocus(), true);
     QCOMPARE(treeView.at(0)->hasFocus(), true);
+}
+
+#include "../../../src/gui/dialogs/qfilesystemmodel_p.h"
+
+void tst_QFiledialog::historyBack()
+{
+    QFileDialog fd;
+    QToolButton *backButton = fd.findChild<QToolButton*>("backButton");
+    QVERIFY(backButton);
+    QToolButton *forwardButton = fd.findChild<QToolButton*>("forwardButton");
+    QVERIFY(forwardButton);
+
+    QFileSystemModel *model = fd.findChild<QFileSystemModel*>("qt_filesystem_model");
+    QVERIFY(model);
+    QSignalSpy spy(model, SIGNAL(rootPathChanged(const QString &)));
+
+    QString home = fd.directory().absolutePath();
+    QString desktop = QDir::homePath();
+    QString temp = QDir::tempPath();
+
+    QCOMPARE(backButton->isEnabled(), false);
+    QCOMPARE(forwardButton->isEnabled(), false);
+    fd.setDirectory(temp);
+    qApp->processEvents();
+    QCOMPARE(backButton->isEnabled(), true);
+    QCOMPARE(forwardButton->isEnabled(), false);
+    fd.setDirectory(desktop);
+    QCOMPARE(spy.count(), 2);
+
+    backButton->click();
+    qApp->processEvents();
+    QCOMPARE(backButton->isEnabled(), true);
+    QCOMPARE(forwardButton->isEnabled(), true);
+    QCOMPARE(spy.count(), 3);
+    QString currentPath = (spy.last().first()).value<QString>();
+    QCOMPARE(currentPath, temp);
+
+    backButton->click();
+    currentPath = (spy.last().first()).value<QString>();
+    QCOMPARE(currentPath, home);
+    QCOMPARE(backButton->isEnabled(), false);
+    QCOMPARE(forwardButton->isEnabled(), true);
+    QCOMPARE(spy.count(), 4);
+
+    // nothing should change at this point
+    backButton->click();
+    QCOMPARE(spy.count(), 4);
+    QCOMPARE(backButton->isEnabled(), false);
+    QCOMPARE(forwardButton->isEnabled(), true);
+}
+
+void tst_QFiledialog::historyForward()
+{
+    QFileDialog fd;
+    QToolButton *backButton = fd.findChild<QToolButton*>("backButton");
+    QVERIFY(backButton);
+    QToolButton *forwardButton = fd.findChild<QToolButton*>("forwardButton");
+    QVERIFY(forwardButton);
+
+    QFileSystemModel *model = fd.findChild<QFileSystemModel*>("qt_filesystem_model");
+    QVERIFY(model);
+    QSignalSpy spy(model, SIGNAL(rootPathChanged(const QString &)));
+
+    QString home = fd.directory().absolutePath();
+    QString desktop = QDir::homePath();
+    QString temp = QDir::tempPath();
+
+    fd.setDirectory(home);
+    fd.setDirectory(temp);
+    fd.setDirectory(desktop);
+
+    backButton->click();
+    QCOMPARE(forwardButton->isEnabled(), true);
+    QCOMPARE((spy.last().first()).value<QString>(), temp);
+
+    forwardButton->click();
+    QCOMPARE((spy.last().first()).value<QString>(), desktop);
+    QCOMPARE(backButton->isEnabled(), true);
+    QCOMPARE(forwardButton->isEnabled(), false);
+    QCOMPARE(spy.count(), 4);
+
+    backButton->click();
+    QCOMPARE((spy.last().first()).value<QString>(), temp);
+    QCOMPARE(backButton->isEnabled(), true);
+
+    backButton->click();
+    QCOMPARE((spy.last().first()).value<QString>(), home);
+    QCOMPARE(backButton->isEnabled(), false);
+    QCOMPARE(forwardButton->isEnabled(), true);
+    QCOMPARE(spy.count(), 6);
+
+    forwardButton->click();
+    QCOMPARE((spy.last().first()).value<QString>(), temp);
+    backButton->click();
+    QCOMPARE((spy.last().first()).value<QString>(), home);
+    QCOMPARE(spy.count(), 8);
+
+    forwardButton->click();
+    QCOMPARE((spy.last().first()).value<QString>(), temp);
+    forwardButton->click();
+    QCOMPARE((spy.last().first()).value<QString>(), desktop);
+
+    backButton->click();
+    QCOMPARE((spy.last().first()).value<QString>(), temp);
+    backButton->click();
+    QCOMPARE((spy.last().first()).value<QString>(), home);
+    fd.setDirectory(desktop);
+    QCOMPARE(forwardButton->isEnabled(), false);
 }
 
 void tst_QFiledialog::disableSaveButton_data()
