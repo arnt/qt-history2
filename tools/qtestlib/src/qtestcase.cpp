@@ -582,6 +582,15 @@
 */
 
 /*!
+    \fn char *QTest::toString(const QByteArray &ba)
+    \overload
+
+    Returns a textual representation of the byte array \a ba.
+
+    \sa QTest::toHexRepresentation()
+*/
+
+/*!
     \fn char *QTest::toString(const QTime &time)
     \overload
 
@@ -1043,12 +1052,15 @@ void *fetchData(QTestData *data, const char *tagName, int typeId)
     return data->data(idx);
 }
 
-/*! \internal
+/*!
+  \fn char* QTest::toHexRepresentation(const char *ba, int length)
+  
+  Returns a pointer to a string that is the string \a ba represented
+  as a space-separated sequence of hex characters. If the input is
+  considered too long, it is truncated. A trucation is indicated in
+  the returned string as an ellipsis at the end.
 
- Returns a pointer to a string which is \a ba represented as a
- space separated sequence of hex characters. If the input is considered too long,
- it is truncated, which is signalled by an ending ellipsis.
-
+  \a length is the length of the string \a ba. 
  */
 char *toHexRepresentation(const char *ba, int length)
 {

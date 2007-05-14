@@ -46,7 +46,6 @@ template<> inline char *toString(const QString &str)
 
 template<> inline char *toString(const QByteArray &ba)
 {
-    /* This function is implemented in qtestdata.cpp. */
     return QTest::toHexRepresentation(ba.constData(), ba.length());
 }
 
