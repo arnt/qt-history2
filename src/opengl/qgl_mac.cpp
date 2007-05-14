@@ -301,7 +301,7 @@ void QGLContext::reset()
     Q_D(QGLContext);
     if(!d->valid)
         return;
-    doneCurrent();    
+    doneCurrent();
     if(d->cx)
         aglDestroyContext((AGLContext)d->cx);
     d->cx = 0;
@@ -365,7 +365,9 @@ void QGLContext::updatePaintDevice()
             aglSetFullScreen((AGLContext)d->cx, w->width(), w->height(), 0, QApplication::desktop()->screenNumber(w));
             w->hide();
         } else {
-            aglSetDrawable((AGLContext)d->cx, GetWindowPort(window));
+            AGLDrawable old_draw = aglGetDrawable((AGLContext)d->cx), new_draw = GetWindowPort(window);
+            if(old_draw != new_draw)
+                aglSetDrawable((AGLContext)d->cx, new_draw);
         }
 
         if(!w->isWindow()) {
@@ -718,7 +720,7 @@ void QGLWidgetPrivate::init(QGLContext *context, const QGLWidget* shareWidget)
             glcx->d_func()->glFormat.setOverlay(false);
         }
     }
-    updatePaintDevice();
+    //updatePaintDevice();
 }
 
 bool QGLWidgetPrivate::renderCxPm(QPixmap*)
