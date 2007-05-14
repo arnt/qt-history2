@@ -109,10 +109,11 @@ public:
     bool hasChildren(const QModelIndex &parent = QModelIndex()) const;
 
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-    bool setData(const QModelIndex &index, const QVariant &value, int role);
+    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
 
-    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
-    bool setHeaderData(int section, Qt::Orientation orientation, const QVariant &value, int role);
+    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::EditRole) const;
+    bool setHeaderData(int section, Qt::Orientation orientation,
+            const QVariant &value, int role = Qt::EditRole);
 
     QMimeData *mimeData(const QModelIndexList &indexes) const;
     bool dropMimeData(const QMimeData *data, Qt::DropAction action,
