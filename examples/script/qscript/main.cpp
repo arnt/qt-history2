@@ -51,7 +51,7 @@ static void interactive(QScriptEngine &eng)
             prompt = dot_prompt;
 
         } else {
-            QScriptValue result = eng.evaluate(code, /*lineNumber*/1, /*fileName*/QLatin1String("typein"));
+            QScriptValue result = eng.evaluate(code, QLatin1String("typein"));
 
             code.clear();
             prompt = qscript_prompt;
@@ -128,7 +128,7 @@ int main(int argc, char *argv[])
         if (contents.isEmpty())
             continue;
 
-        QScriptValue r = eng.evaluate(contents, lineNumber, fn);
+        QScriptValue r = eng.evaluate(contents, fn, lineNumber);
         if (eng.hasUncaughtException()) {
             QStringList backtrace = qscriptvalue_cast<QStringList>(r.property("backtrace").call(r));
             fprintf (stderr, "    %s\n%s\n\n", qPrintable(r.toString()),

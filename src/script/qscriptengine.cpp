@@ -721,7 +721,7 @@ bool QScriptEngine::canEvaluate(const QString &program) const
 
   \sa canEvaluate(), hasUncaughtException()
 */
-QScriptValue QScriptEngine::evaluate(const QString &program, int lineNumber, const QString &fileName)
+QScriptValue QScriptEngine::evaluate(const QString &program, const QString &fileName, int lineNumber)
 {
     Q_D(QScriptEngine);
     QScriptContextPrivate *ctx_p = QScriptContextPrivate::get(d->currentContext());

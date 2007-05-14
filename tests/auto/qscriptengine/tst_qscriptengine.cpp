@@ -424,7 +424,7 @@ void tst_QScriptEngine::evaluate()
     QScriptEngine eng;
     QScriptValue ret;
     if (lineNumber != -1)
-        ret = eng.evaluate(code, lineNumber);
+        ret = eng.evaluate(code, /*fileName =*/QString(), lineNumber);
     else
         ret = eng.evaluate(code);
     QCOMPARE(eng.hasUncaughtException(), expectHadError);
@@ -458,7 +458,7 @@ void tst_QScriptEngine::uncaughtException()
     QScriptEngine eng;
     for (int x = 0; x < 2; ++x) {
         {
-            QScriptValue ret = eng.evaluate("a = 10;\nb = 20;\n0 = 0;\n", /*lineNumber=*/x);
+            QScriptValue ret = eng.evaluate("a = 10;\nb = 20;\n0 = 0;\n", /*fileName=*/QString(), /*lineNumber=*/x);
             QVERIFY(eng.hasUncaughtException());
             QCOMPARE(eng.uncaughtExceptionLineNumber(), x+2);
             QVERIFY(eng.uncaughtException().strictEqualTo(ret));
@@ -991,7 +991,7 @@ void tst_QScriptEngine::stacktrace()
     const QString fileName("testfile");
 
     QScriptEngine eng;
-    QScriptValue result = eng.evaluate(script, /*lineNumber*/1, fileName);
+    QScriptValue result = eng.evaluate(script, fileName);
     QVERIFY(eng.hasUncaughtException());
     QVERIFY(result.isError());
 

@@ -97,7 +97,7 @@ public:
 
     bool canEvaluate(const QString &program) const;
 
-    QScriptValue evaluate(const QString &program, int lineNumber = 1, const QString &fileName = QString());
+    QScriptValue evaluate(const QString &program, const QString &fileName = QString(), int lineNumber = 1);
 
     bool hasUncaughtException() const;
     QScriptValue uncaughtException() const;
