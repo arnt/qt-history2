@@ -1,7 +1,7 @@
 TEMPLATE = lib
 CONFIG += static
 
-contains(QT_CONFIG, opengl) {
+!embedded:contains(QT_CONFIG, opengl) {
 	DEFINES += QT_OPENGL_SUPPORT
 	QT += opengl
 }
