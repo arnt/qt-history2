@@ -49,8 +49,8 @@ public:
     ~QCoreApplication();
 
 #ifdef QT_DEPRECATED
-    static int argc() QT_DEPRECATED;
-    static char **argv() QT_DEPRECATED;
+    QT_DEPRECATED static int argc();
+    QT_DEPRECATED static char **argv();
 #endif
     static QStringList arguments();
 
