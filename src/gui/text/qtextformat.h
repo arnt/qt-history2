@@ -419,6 +419,10 @@ public:
     inline void setTableCellColumnSpan(int tableCellColumnSpan);
     inline int tableCellColumnSpan() const
     { int s = intProperty(TableCellColumnSpan); if (s == 0) s = 1; return s; }
+
+protected:
+    explicit QTextCharFormat(const QTextFormat &fmt);
+    friend class QTextFormat;
 };
 
 inline void QTextCharFormat::setTableCellRowSpan(int atableCellRowSpan)
@@ -484,6 +488,10 @@ public:
     { setProperty(PageBreakPolicy, int(flags)); }
     inline PageBreakFlags pageBreakPolicy() const
     { return PageBreakFlags(intProperty(PageBreakPolicy)); }
+
+protected:
+    explicit QTextBlockFormat(const QTextFormat &fmt);
+    friend class QTextFormat;
 };
 
 inline void QTextBlockFormat::setAlignment(Qt::Alignment aalignment)
@@ -517,6 +525,9 @@ public:
     inline int indent() const
     { return intProperty(ListIndent); }
 
+protected:
+    explicit QTextListFormat(const QTextFormat &fmt);
+    friend class QTextFormat;
 };
 
 inline void QTextListFormat::setStyle(Style astyle)
@@ -543,6 +554,10 @@ public:
     inline void setHeight(qreal height);
     inline qreal height() const
     { return doubleProperty(ImageHeight); }
+
+protected:
+    explicit QTextImageFormat(const QTextFormat &format);
+    friend class QTextFormat;
 };
 
 inline void QTextImageFormat::setName(const QString &aname)
@@ -637,6 +652,10 @@ public:
     { setProperty(PageBreakPolicy, int(flags)); }
     inline PageBreakFlags pageBreakPolicy() const
     { return PageBreakFlags(intProperty(PageBreakPolicy)); }
+
+protected:
+    explicit QTextFrameFormat(const QTextFormat &fmt);
+    friend class QTextFormat;
 };
 
 inline void QTextFrameFormat::setBorder(qreal aborder)
@@ -702,6 +721,10 @@ public:
     { setProperty(TableHeaderRowCount, count); }
     inline int headerRowCount() const
     { return intProperty(TableHeaderRowCount); }
+
+protected:
+    explicit QTextTableFormat(const QTextFormat &fmt);
+    friend class QTextFormat;
 };
 
 inline void QTextTableFormat::setColumns(int acolumns)

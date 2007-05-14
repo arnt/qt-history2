@@ -25,6 +25,7 @@ private slots:
     void getSetCheck();
     void defaultAlignment();
     void testQTextCharFormat() const;
+    void toFormat();
 };
 
 /*! \internal
@@ -62,6 +63,35 @@ void tst_QTextFormat::defaultAlignment()
     QVERIFY(!fmt.hasProperty(QTextFormat::BlockAlignment));
     QCOMPARE(fmt.intProperty(QTextFormat::BlockAlignment), 0);
     QVERIFY(fmt.alignment() == Qt::AlignLeft);
+}
+
+void tst_QTextFormat::toFormat()
+{
+    {
+        QTextFormat fmt = QTextFrameFormat();
+        QCOMPARE(fmt.toFrameFormat().type(), int(QTextFormat::FrameFormat));
+    }
+
+    {
+        QTextFormat fmt = QTextTableFormat();
+        QCOMPARE(fmt.toTableFormat().type(), int(QTextFormat::FrameFormat));
+        QCOMPARE(fmt.toTableFormat().objectType(), int(QTextFormat::TableObject));
+    }
+
+    {
+        QTextFormat fmt = QTextBlockFormat();
+        QCOMPARE(fmt.toBlockFormat().type(), int(QTextFormat::BlockFormat));
+    }
+
+    {
+        QTextFormat fmt = QTextCharFormat();
+        QCOMPARE(fmt.toCharFormat().type(), int(QTextFormat::CharFormat));
+    }
+
+    {
+        QTextFormat fmt = QTextListFormat();
+        QCOMPARE(fmt.toListFormat().type(), int(QTextFormat::ListFormat));
+    }
 }
 
 QTEST_MAIN(tst_QTextFormat)

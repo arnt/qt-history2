@@ -672,9 +672,7 @@ int QTextFormat::type() const
 */
 QTextBlockFormat QTextFormat::toBlockFormat() const
 {
-    QTextBlockFormat f;
-    f.QTextFormat::operator=(*this);
-    return f;
+    return QTextBlockFormat(*this);
 }
 
 /*!
@@ -682,9 +680,7 @@ QTextBlockFormat QTextFormat::toBlockFormat() const
 */
 QTextCharFormat QTextFormat::toCharFormat() const
 {
-    QTextCharFormat f;
-    f.QTextFormat::operator=(*this);
-    return f;
+    return QTextCharFormat(*this);
 }
 
 /*!
@@ -692,9 +688,7 @@ QTextCharFormat QTextFormat::toCharFormat() const
 */
 QTextListFormat QTextFormat::toListFormat() const
 {
-    QTextListFormat f;
-    f.QTextFormat::operator=(*this);
-    return f;
+    return QTextListFormat(*this);
 }
 
 /*!
@@ -702,9 +696,7 @@ QTextListFormat QTextFormat::toListFormat() const
 */
 QTextTableFormat QTextFormat::toTableFormat() const
 {
-    QTextTableFormat f;
-    f.QTextFormat::operator=(*this);
-    return f;
+    return QTextTableFormat(*this);
 }
 
 /*!
@@ -712,9 +704,7 @@ QTextTableFormat QTextFormat::toTableFormat() const
 */
 QTextFrameFormat QTextFormat::toFrameFormat() const
 {
-    QTextFrameFormat f;
-    f.QTextFormat::operator=(*this);
-    return f;
+    return QTextFrameFormat(*this);
 }
 
 /*!
@@ -722,9 +712,7 @@ QTextFrameFormat QTextFormat::toFrameFormat() const
 */
 QTextImageFormat QTextFormat::toImageFormat() const
 {
-    QTextImageFormat f;
-    f.QTextFormat::operator=(*this);
-    return f;
+    return QTextImageFormat(*this);
 }
 
 /*!
@@ -1123,6 +1111,17 @@ bool QTextFormat::operator==(const QTextFormat &rhs) const
 */
 QTextCharFormat::QTextCharFormat() : QTextFormat(CharFormat) {}
 
+/*!
+    \internal
+    \fn QTextCharFormat::QTextCharFormat(const QTextFormat &other)
+
+    Creates a new character format with the same attributes as the \a given
+    text format.
+*/
+QTextCharFormat::QTextCharFormat(const QTextFormat &fmt)
+ : QTextFormat(fmt)
+{
+}
 
 /*!
     \fn bool QTextCharFormat::isValid() const
@@ -1619,6 +1618,18 @@ QFont QTextCharFormat::font() const
 QTextBlockFormat::QTextBlockFormat() : QTextFormat(BlockFormat) {}
 
 /*!
+    \internal
+    \fn QTextBlockFormat::QTextBlockFormat(const QTextFormat &other)
+
+    Creates a new block format with the same attributes as the \a given
+    text format.
+*/
+QTextBlockFormat::QTextBlockFormat(const QTextFormat &fmt)
+ : QTextFormat(fmt)
+{
+}
+
+/*!
     \fn QTextBlockFormat::isValid() const
 
     Returns true if this block format is valid; otherwise returns
@@ -1860,6 +1871,18 @@ QTextListFormat::QTextListFormat()
 }
 
 /*!
+    \internal
+    \fn QTextListFormat::QTextListFormat(const QTextFormat &other)
+
+    Creates a new list format with the same attributes as the \a given
+    text format.
+*/
+QTextListFormat::QTextListFormat(const QTextFormat &fmt)
+ : QTextFormat(fmt)
+{
+}
+
+/*!
     \fn bool QTextListFormat::isValid() const
 
     Returns true if this list format is valid; otherwise
@@ -1968,6 +1991,18 @@ QTextFrameFormat::QTextFrameFormat() : QTextFormat(FrameFormat)
 {
     setBorderStyle(BorderStyle_Outset);
     setBorderBrush(Qt::darkGray);
+}
+
+/*!
+    \internal
+    \fn QTextFrameFormat::QTextFrameFormat(const QTextFormat &other)
+
+    Creates a new frame format with the same attributes as the \a given
+    text format.
+*/
+QTextFrameFormat::QTextFrameFormat(const QTextFormat &fmt)
+ : QTextFormat(fmt)
+{
 }
 
 /*!
@@ -2261,6 +2296,17 @@ QTextTableFormat::QTextTableFormat()
     setBorder(1);
 }
 
+/*!
+    \internal
+    \fn QTextTableFormat::QTextTableFormat(const QTextFormat &other)
+
+    Creates a new table format with the same attributes as the \a given
+    text format.
+*/
+QTextTableFormat::QTextTableFormat(const QTextFormat &fmt)
+ : QTextFrameFormat(fmt)
+{
+}
 
 /*!
     \fn bool QTextTableFormat::isValid() const
@@ -2421,6 +2467,17 @@ QTextTableFormat::QTextTableFormat()
 */
 QTextImageFormat::QTextImageFormat() : QTextCharFormat() { setObjectType(ImageObject); }
 
+/*!
+    \internal
+    \fn QTextImageFormat::QTextImageFormat(const QTextFormat &other)
+
+    Creates a new image format with the same attributes as the \a given
+    text format.
+*/
+QTextImageFormat::QTextImageFormat(const QTextFormat &fmt)
+ : QTextCharFormat(fmt)
+{
+}
 
 /*!
     \fn bool QTextImageFormat::isValid() const
