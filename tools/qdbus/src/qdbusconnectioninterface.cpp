@@ -157,7 +157,10 @@ QDBusReply<QString> QDBusConnectionInterface::serviceOwner(const QString &name) 
 }
 
 /*!
-    Lists all names currently registered on the bus.
+  \property QDBusConnectionInterface::registeredServiceNames
+  \brief holds the registered service names
+
+  Lists all names currently registered on the bus.
 */
 QDBusReply<QStringList> QDBusConnectionInterface::registeredServiceNames() const
 {
@@ -327,27 +330,41 @@ void QDBusConnectionInterface::disconnectNotify(const char *signalName)
 /*!
     \fn QDBusConnectionInterface::serviceRegistered(const QString &serviceName)
 
-    This signal is emitted by the D-BUS server when the bus service name (unique connection name
-    or well-known service name) given by \a serviceName is acquired by this application.
+    This signal is emitted by the D-BUS server when the bus service
+    name (unique connection name or well-known service name) given by
+    \a serviceName is acquired by this application.
 
-    Acquisition happens after the application requested a name using registerService().
+    Acquisition happens after the application requested a name using
+    registerService().
 */
 
 /*!
     \fn QDBusConnectionInterface::serviceUnregistered(const QString &serviceName)
 
-    This signal is emitted by the D-BUS server when the application loses ownership of the bus
-    service name given by \a serviceName.
+    This signal is emitted by the D-BUS server when the application
+    loses ownership of the bus service name given by \a serviceName.
 */
 
 /*!
     \fn QDBusConnectionInterface::serviceOwnerChanged(const QString &name, const QString &oldOwner, const QString &newOwner)
 
-    This signal is emitted by the D-BUS server whenever a service ownership change happens in the
-    bus, including apparition and disparition of names.
+    This signal is emitted by the D-BUS server whenever a service
+    ownership change happens in the bus, including apparition and
+    disparition of names.
 
-    This signal means the application \a oldOwner lost ownership of bus name \a name to application
-    \a newOwner. If \a oldOwner is an empty string, it means the name \a name has just been created;
-    if \a newOwner is empty, the name \a name has no current owner and is no longer available.
+    This signal means the application \a oldOwner lost ownership of
+    bus name \a name to application \a newOwner. If \a oldOwner is an
+    empty string, it means the name \a name has just been created; if
+    \a newOwner is empty, the name \a name has no current owner and is
+    no longer available.
 */
 
+/*!
+  \fn void QDBusConnectionInterface::callWithCallbackFailed(const QDBusError &error, const QDBusMessage &call)
+
+  This signal is emitted when there is an error during a
+  QDBusConnection::callWithCallback(). \a error specifies the error.
+  \a call is the message that couldn't be delivered.
+
+  \sa QDBusConnection::callWithCallback()
+ */

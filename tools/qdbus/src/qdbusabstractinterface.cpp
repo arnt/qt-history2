@@ -173,13 +173,15 @@ void QDBusAbstractInterfacePrivate::_q_serviceOwnerChanged(const QString &name,
 
     \brief The QDBusAbstractInterface class is the base class for all D-Bus interfaces in the QtDBus binding, allowing access to remote interfaces
 
-    Generated-code classes also derive from QDBusAbstractInterface, all methods described here are also
-    valid for generated-code classes. In addition to those described here, generated-code classes
-    provide member functions for the remote methods, which allow for compile-time checking of the
-    correct parameters and return values, as well as property type-matching and signal
+    Generated-code classes also derive from QDBusAbstractInterface,
+    all methods described here are also valid for generated-code
+    classes. In addition to those described here, generated-code
+    classes provide member functions for the remote methods, which
+    allow for compile-time checking of the correct parameters and
+    return values, as well as property type-matching and signal
     parameter-matching.
 
-    \sa {dbusxml2cpp.html}{The dbusxml2cpp compiler}, QDBusInterface
+    \sa {qdbusxml2cpp.html}{The QDBus compiler}, QDBusInterface
 */
 
 /*!
@@ -349,10 +351,10 @@ QDBusMessage QDBusAbstractInterface::callWithArgumentList(QDBus::CallMode mode,
     not indicate that the executed call succeeded. If it fails,
     the \a errorMethod is called.
  
-    The \a returnMember member must have as its parameters the
-    types returned by the function call. Optionally, it may have
-    a QDBusMessage parameter as its last or as its only parameter.
-    The \a errorMethod must have a QDBusError as its only parameter.
+    The \a returnMethod must have as its parameters the types returned
+    by the function call. Optionally, it may have a QDBusMessage
+    parameter as its last or only parameter.  The \a errorMethod must
+    have a QDBusError as its only parameter.
 
     \since 4.3
     \sa QDBusError, QDBusMessage
