@@ -219,10 +219,12 @@ bool QLinuxFbScreen::connect(const QString &displaySpec)
     if (args.indexOf(ttyRegExp) != -1)
         d_ptr->ttyDevice = ttyRegExp.cap(1);
 
+#if Q_BYTE_ORDER == Q_BIG_ENDIAN
 #ifndef QT_QWS_FRAMEBUFFER_LITTLE_ENDIAN
     if (args.contains(QLatin1String("littleendian")))
 #endif
         QScreen::setFrameBufferLittleEndian(true);
+#endif
 
     // Check for explicitly specified device
     const int len = 8; // "/dev/fbx"
