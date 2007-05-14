@@ -651,7 +651,7 @@ void QWSWindowSurface::flush(QWidget *widget, const QRegion &region,
 
     \sa isBuffered()
 */
-bool QWSWindowSurface::move(const QPoint offset)
+bool QWSWindowSurface::move(const QPoint &offset)
 {
     QWindowSurface::setGeometry(geometry().translated(offset));
     return isBuffered();
@@ -671,7 +671,7 @@ bool QWSWindowSurface::move(const QPoint offset)
 
     This function is called by the window system on the server instance.
 */
-QRegion QWSWindowSurface::move(const QPoint offset, const QRegion &newClip)
+QRegion QWSWindowSurface::move(const QPoint &offset, const QRegion &newClip)
 {
     QWindowSurface::setGeometry(geometry().translated(offset));
     return newClip + geometry();

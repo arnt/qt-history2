@@ -47,8 +47,8 @@ public:
     virtual void flush(QWidget *widget, const QRegion &region,
                        const QPoint &offset);
 
-    virtual bool move(const QPoint offset);
-    virtual QRegion move(const QPoint offset, const QRegion &newClip);
+    virtual bool move(const QPoint &offset);
+    virtual QRegion move(const QPoint &offset, const QRegion &newClip);
 
     virtual QPoint painterOffset() const; // remove!!!
 
