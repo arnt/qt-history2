@@ -285,7 +285,8 @@ void QTextEditPrivate::_q_adjustScrollbars()
 void QTextEditPrivate::_q_ensureVisible(const QRectF &_rect)
 {
     const QRect rect = _rect.toRect();
-    if (vbar->maximum() < rect.bottom() || hbar->maximum() < rect.right())
+    if ((vbar->isVisible() && vbar->maximum() < rect.bottom())
+        || (hbar->isVisible() && hbar->maximum() < rect.right()))
         _q_adjustScrollbars();
     const int visibleWidth = viewport->width();
     const int visibleHeight = viewport->height();
