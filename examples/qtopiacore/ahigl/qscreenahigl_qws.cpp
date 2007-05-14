@@ -540,10 +540,14 @@ void QAhiGLScreen::redrawScreen()
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
+    // Fill background color
+
     QColor bgColor = QWSServer::instance()->backgroundBrush().color();
     glClearColor(bgColor.redF(), bgColor.greenF(),
                  bgColor.blueF(), bgColor.alphaF());
     glClear(GL_COLOR_BUFFER_BIT);
+
+    // Draw all windows
 
     glDisable(GL_CULL_FACE);
     glDisable(GL_DEPTH_TEST);
@@ -552,8 +556,6 @@ void QAhiGLScreen::redrawScreen()
     glBlendFunc(GL_ONE, GL_ZERO);
     glDisable(GL_ALPHA_TEST);
     glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-
-    // Draw all windows
 
     QList<QWSWindow*> windows = QWSServer::instance()->clientWindows();
     for (int i = windows.size() - 1; i >= 0; --i) {
