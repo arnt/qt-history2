@@ -37,6 +37,8 @@ namespace QScript {
 class Code;
 }
 
+class QScriptInstruction;
+
 class QScriptContextPrivate
 {
     Q_DECLARE_PUBLIC(QScriptContext)

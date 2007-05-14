@@ -22,8 +22,6 @@ QT_BEGIN_HEADER
 
 QT_MODULE(Script)
 
-class QScriptInstruction;
-
 class QScriptContextPrivate;
 
 class Q_SCRIPT_EXPORT QScriptContext
@@ -66,17 +64,9 @@ public:
 
     bool calledAsConstructor() const;
 
-    const QScriptInstruction *instructionPointer() const;
-    void setInstructionPointer(const QScriptInstruction *instructionPointer);
-
-    const QScriptInstruction *firstInstruction() const;
-    const QScriptInstruction *lastInstruction() const;
-
     QScriptValue throwValue(const QScriptValue &value);
     QScriptValue throwError(Error error, const QString &text);
     QScriptValue throwError(const QString &text);
-
-    int errorLineNumber() const;
 
 private:
     QScriptContext();

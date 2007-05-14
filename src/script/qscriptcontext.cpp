@@ -318,55 +318,10 @@ void QScriptContext::setThisObject(const QScriptValue &thisObject)
 }
 
 /*!
-  \internal
-*/
-const QScriptInstruction *QScriptContext::instructionPointer() const
-{
-    Q_D(const QScriptContext);
-    return d->iPtr;
-}
-
-/*!
-  \internal
-*/
-void QScriptContext::setInstructionPointer(const QScriptInstruction *instructionPointer)
-{
-    Q_D(QScriptContext);
-    d->iPtr = instructionPointer;
-}
-
-/*!
-  \internal
-*/
-const QScriptInstruction *QScriptContext::firstInstruction() const
-{
-    Q_D(const QScriptContext);
-    return d->firstInstruction;
-}
-
-/*!
-  \internal
-*/
-const QScriptInstruction *QScriptContext::lastInstruction() const
-{
-    Q_D(const QScriptContext);
-    return d->lastInstruction;
-}
-
-/*!
   Returns the execution state of this QScriptContext.
 */
 QScriptContext::ExecutionState QScriptContext::state() const
 {
     Q_D(const QScriptContext);
     return d->m_state;
-}
-
-/*!
-  \internal
-*/
-int QScriptContext::errorLineNumber() const
-{
-    Q_D(const QScriptContext);
-    return d->errorLineNumber;
 }
