@@ -1,0 +1,206 @@
+/*!
+    \example qtopiacore/ahigl
+    \title OpenGL ES Screen Driver Example
+
+    The OpenGL ES Screen Driver example shows how to use the \l {Qtopia Core} 
+    screen driver framework to write an OpenGL ES integration. The
+    example assumes basic knowledge about the screen driver framework on 
+    as discussed in the \l {Accelerated Screen Driver Example}.
+
+    In \l {Qtopia Core} there's several ways to make use of OpenGL ES.
+    One is to use OpenGL ES to do compositioning between top level windows
+    and possibly create transition effects for instance when a new window is
+    shown. A second use is to enable QGLWidget and a third use-case is to 
+    make use of OpenGL ES to accelerate painting of widgets. This example
+    will discuss how to implement all of these.
+
+    This example is written using an OpenGL ES implementation from 
+    \l {http://ati.amd.com}{ATI} for the 
+    \l {http://ati.amd.com/products/imageon238x/}{Imageon 2380}. 
+    The OpenGL ES and EGL libraries are necessary to be able to compile and
+    run the example. If you're targeting a different device you'll also have
+    to modify the use of EGL to your library.
+
+    After compiling the example code, you should install the screen
+    driver plugin with the command \c {make install}. To start an
+    application using the example's screen driver, you can either set
+    the environment variable \l QWS_DISPLAY or start the program using
+    the \c -display switch:
+
+    \code
+        myApplication -qws -display ahigl
+    \endcode
+
+    To enable the transition effect when showing new windows, run with
+    \c {-display ahigl:effects} instead.
+
+    \section1 QAhiGLScreen Class Definition
+
+    \quotefromfile qtopiacore/ahigl/qscreenahigl_qws.h
+    \skipto class
+    \printuntil };
+
+    The screen driver is created by deriving from the QGLScreen
+    class. This is not really necessary if you only want to do top level
+    compositioning but it is a requirement if you want to enable use of 
+    QGLWidget.
+
+    \l {QScreen::}{exposeRegion()} is the function responsible for the actual
+    compositioning. The three first private functions are helper functions 
+    used in the compositioning. The three last private functions are used
+    to create a small animation when a window is first shown.
+
+    \quotefromfile qtopiacore/ahigl/qscreenahigl_qws.cpp
+    \skipto class ShowAnimation
+    \printuntil /^\}/
+
+    The transition effect is supported by the class ShowAnimation which
+    subclasses QTimeLine and reimplements \l {QTimeLine::}{valueforTime()}.
+
+    \skipto struct WindowInfo
+    \printuntil windowMap;
+
+    Top-level windows not drawn using OpenGL is rendered the normal way into
+    a shared memory segment. The driver supports this by creating a GL 
+    texture of the memory segment and drawing it to the screen. The texure id
+    as well as a pointer to the active \c ShowAnimation class is kept in
+    the \c WindowInfo struct. All the WindowInfo objects are kept in a global
+    map, \c windowMap.
+
+    \skipto class QAhiGLScreenPrivate
+    \printuntil /^\}/
+
+    The QAhiGLScreenPrivate class keeps the necessary GL context variables used
+    by QAhiGLScreen when compositioning the windows to the screen. In addition
+    it subclasses QObject to enable use of the signal/slot mechanism. This is
+    needed to be able to connect to the \l QWSServer::windowEvent() signal
+    which will trigger the transition effect. QAhiGLScreenPrivate also contains
+    a timer used for limiting the number of screen updates per seconds.
+
+    \section1 QAhiGLScreen Class Implementation
+
+    The \l {QScreen::}{connect()} function is the first function that
+    is called after the constructor returns. This implementation just
+    initializes the QScreen variables to some hardcoded values. A better
+    implementation would query the hardware for it's current state.
+
+    At the end of the function we check if the driver has been started with
+    the \c effects argument which should trigger use of transition effects.
+
+    \quotefromfile qtopiacore/ahigl/qscreenahigl_qws.cpp
+    \skipto QAhiGLScreen::connect
+    \printuntil /^\}/
+
+    The \l {QScreen::}{initDevice()} function is called on the server process
+    and is responsible for initializing the hardware. This implementation
+    use the EGL library to achieve this. Note that some of the data structures
+    used in this API are specific to the current EGL implementation, as for
+    instance the DummyScreen structure.
+
+    In this function we also connects to the QWSServer::windowEvent() signal
+    if the transition effect is to be enabled.
+
+    \skipto initDevice
+    \printuntil /^\}/
+
+    Before the application exists, the {QScreen::}{shutdownDevice()} is called
+    in the server process to release the hardware resources. This 
+    implementation again use the EGL library to achieve this.
+
+    \skipto shutdownDevice
+    \printuntil /^\}/
+
+    Whenever an area on the screen needs to be updated the function 
+    \l {QScreen::}{exposeRegion()} is called by the window system. This
+    implementation doesn't actually redraw the screen, but starts a timer
+    to redraw at a later time.
+
+    \skipto exposeRegion
+    \printuntil /^\}/
+
+    We won't go through the \c updateTexture() function but only mention that
+    it uses the EGL functions \c glTexImage2D() and \c glTexSubImage2D()
+    to copy the memory image of the widget into a OpenGL texture if
+    necessary.
+
+    The actual window compositioning happens in the redrawScreen() function.
+    It starts by using standard OpenGL to fill the screen with the background
+    color.
+
+    \quotefromfile qtopiacore/ahigl/qscreenahigl_qws.cpp
+    \skipto void QAhiGLScreen::redrawScreen()
+    \printuntil glClear(GL_COLOR_BUFFER_BIT);
+
+    Next it iterates over all the windows and use the helper function
+    \c drawWindow() to draw each of them as a OpenGL texture to the screen.
+    The texture id is either taken from the \c WindowInfo struct or from the
+    window surface if it is a surface that's being painted using OpenGL, i.e
+    a \c QAhiGLWindowSurface. We'll discuss this class shortly.
+
+    \c drawWindow() takes a \c progress parameter that is used to create an
+    animation effect if it's less than 1.0. We won't discuss the 
+    \c drawWindow() function any further in this text, but point to the source
+    code for more details.
+
+    \skipto QAhiGLScreen::createSurface
+    \printuntil /^\}/
+    \skipto QAhiGLScreen::createSurface
+    \printuntil /^\}/
+
+    The two \l {QScreen::}{createSurface()} functions decides when  
+    instantiate a QAhiGLWindowSurface. We do this whenever we create a
+    QGLWidget and also for top-level windows that are under a certain size.
+    The size contraint is a necessary for this particular OpenGL ES 
+    implementation. Additionly this driver only supports use of
+    OpenGL in the server process.
+
+    \section1 QAhiGLWindowSurface Class Definition
+
+    To be able to support QGlWidget or use of OpenGL when using QPainter on
+    a normal widget we need to create a subclass of QWSGLWindowSurface. In
+    addition to reimplementing the standard functionality needed when 
+    subclassing a QWSWindowSurface, the QAhiGLWindowSurface also contains
+    the \c textureId() function used by QAhiGLScreen.
+
+    \quotefromfile qtopiacore/ahigl/qwindowsurface_ahigl_p.h
+    \skipto class QAhiGLWindowSurface
+    \printuntil /^\}/
+
+    \section1 QAhiGLWindowSurface Class Implementation
+
+    The implementation of OpenGL ES tested with this example only supports
+    one OpenGL context. This context is therefore shared between QAhiGLScreen
+    and all instances QAhiGLWindowSurface and passed in the constructor.
+
+    \quotefromfile qtopiacore/ahigl/qwindowsurface_ahigl.cpp
+    \skipto QAhiGLWindowSurface::QAhiGLWindowSurface
+    \printuntil /^\}/
+
+    The constructor also creates an instance of \c QWSGLPaintDevice which is 
+    returned in the \l {QWSWindowSurface::}{paintDevice()} function. This
+    ensures that all \l {QPainter}s used on this surface will use an
+    OpenGL enabled QPaintEngine.
+
+    This example makes use of the OpenGL FrameBufferObject extension. All 
+    painting is performed into a framebuffer object which is later
+    compositioned onto the screen by QAhiGLScreen. Allocateding the framebuffer
+    object is done in \l {QWindowSurface::}{setGeometry()}.
+
+    \skipto QAhiGLWindowSurface::setGeometry
+    \printuntil /^\}/
+
+    Since there can be several instances of the QAhiGLWindowSurface, we need
+    to make sure that the correct framebuffer object is active before painting.
+    This is done by reimplementing \l QWindowSurface::beginPaint():
+
+    \skipto QAhiGLWindowSurface::beginPaint
+    \printuntil /^\}/
+
+    Finally we need to make sure that whenever a widget grows beyond the size
+    supported by this driver (256 x 256), the surface is deleted and a new
+    standard surface is created instead. This is handled by reimplementing
+    \l QWSWindowSurface::isValid():    
+
+    \skipto QAhiGLWindowSurface::isValid
+    \printuntil /^\}/
+*/
