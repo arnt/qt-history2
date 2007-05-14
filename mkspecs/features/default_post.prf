@@ -5,3 +5,6 @@ incredibuild_xge {
     CONFIG -= incredibuild_xge
     CONFIG = incredibuild_xge $$CONFIG
 }
+
+QMAKE_INCDIR += $$QMAKE_INCDIR_POST
+QMAKE_LIBDIR += $$QMAKE_LIBDIR_POST

@@ -1846,9 +1846,10 @@ void Configure::generateOutputVars()
         QString includepath = qgetenv("INCLUDE");
         bool hasSh = Environment::detectExecutable("sh.exe");
         QChar separator = (!includepath.contains(":\\") && hasSh ? QChar(':') : QChar(';'));
-        qmakeVars += QString("ENVINCPATH      = $$(INCLUDE)");
-        qmakeVars += QString("ENVINCPATH      = $$split(ENVINCPATH,\"%1\")").arg(separator);
-        qmakeVars += QString("INCLUDEPATH    += $$ENVINCPATH");
+        qmakeVars += QString("TMPPATH            = $$quote($$(INCLUDE))");
+        qmakeVars += QString("QMAKE_INCDIR_POST += $$split(TMPPATH,\"%1\")").arg(separator);
+        qmakeVars += QString("TMPPATH            = $$quote($$(LIB))");
+        qmakeVars += QString("QMAKE_LIBDIR_POST += $$split(TMPPATH,\"%1\")").arg(separator);
     }
 
     if( !dictionary[ "QMAKESPEC" ].length() ) {
