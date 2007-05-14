@@ -2231,6 +2231,9 @@ void QFileDialogPrivate::_q_enterDirectory(const QModelIndex &index)
     if (path.isEmpty() || model->isDir(sourceIndex)) {
         q->setDirectory(path);
         emit q->dirEntered(path);
+        // ### find out why you have to do both of these.
+        lineEdit()->setText(QString());
+        lineEdit()->clear();
     } else {
         q->accept();
     }
