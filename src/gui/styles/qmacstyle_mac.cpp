@@ -208,18 +208,15 @@ public:
 
     HIRect pushButtonContentBounds(const QStyleOptionButton *btn,
                                    const HIThemeButtonDrawInfo *bdi) const;
-    
-    static void initComboboxBdi(const QStyleOptionComboBox *combo, HIThemeButtonDrawInfo *bdi, 
+
+    static void initComboboxBdi(const QStyleOptionComboBox *combo, HIThemeButtonDrawInfo *bdi,
                         const QWidget *widget, const ThemeDrawState &tds);
-                        
+
     static HIRect comboboxInnerBounds(const HIRect &outerBounds, int buttonKind);
 
     static QRect comboboxEditBounds(const QRect &outerBounds, const HIThemeButtonDrawInfo &bdi);
 
     static void drawCombobox(const HIRect &outerBounds, const HIThemeButtonDrawInfo &bdi, QPainter *p);
-    static void drawTableHeader(const HIRect &outerBounds, bool drawTopBorder, bool drawLeftBorder,
-                                    const HIThemeButtonDrawInfo &bdi, QPainter *p);
-        
     bool contentFitsInPushButton(const QStyleOptionButton *btn, HIThemeButtonDrawInfo *bdi,
                                  ThemeButtonKind buttonKindToCheck) const;
     void initHIThemePushButton(const QStyleOptionButton *btn, const QWidget *widget,
@@ -371,7 +368,7 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
     switch (ct) {
     case QStyle::CT_PushButton: {
         const QPushButton *psh = static_cast<const QPushButton *>(widg);
-        QString buttonText = removeMnemonics(psh->text());            
+        QString buttonText = removeMnemonics(psh->text());
         if (buttonText.contains(QLatin1Char('\n')))
             ret = QSize(-1, -1);
         else if (sz == QAquaSizeLarge)
@@ -383,7 +380,7 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
 
         if (!psh->icon().isNull()){
             // If the button got an icon, and the icon is larger than the
-            // button, we can't decide on a default size 
+            // button, we can't decide on a default size
             ret.setWidth(-1);
             if (ret.height() < psh->iconSize().height())
                 ret.setHeight(-1);
@@ -793,13 +790,13 @@ void QMacStylePrivate::initHIThemePushButton(const QStyleOptionButton *btn,
             break;
         case QAquaSizeLarge:
             // ... We should honour if the user is explicit about using the
-            // large button. But right now Qt will specify the large button 
+            // large button. But right now Qt will specify the large button
             // as default rather than QAquaSizeUnknown.
             // So we treat it like QAquaSizeUnknown
             // to get the dynamic choosing of button kind.
         case QAquaSizeUnknown:
             // Choose the button kind that closest match the button rect, but at the
-            // same time displays the button contents without clipping.         
+            // same time displays the button contents without clipping.
 
             bdi->kind = kThemeBevelButton;
             if (btn->rect.width() > BevelButtonW && btn->rect.height() > BevelButtonH){
@@ -1558,7 +1555,7 @@ bool QMacStylePrivate::eventFilter(QObject *o, QEvent *e)
         bginfo.state = kThemeStateActive;
         bginfo.kind = kThemeBackgroundMetal;
         HIRect rect = CGRectMake(0, 0, widget->width(), widget->height());
-        HIThemeApplyBackground(&rect, &bginfo, QCFType<CGContextRef>(qt_mac_cg_context(widget)),
+        HIThemeDrawBackground(&rect, &bginfo, QCFType<CGContextRef>(qt_mac_cg_context(widget)),
                                kHIThemeOrientationNormal);
     }
     return false;
@@ -4824,7 +4821,7 @@ QRect QMacStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *op
             ret = qt_qrectForHIRect(macRect);
 
             // Tweak: the dark line between the sub/add line buttons belong to only one of the buttons
-            // when doing hit-testing, but both of them have to repaint it. Extend the rect to cover 
+            // when doing hit-testing, but both of them have to repaint it. Extend the rect to cover
             // the line in the cases where HIThemeGetTrackPartBounds returns a rect that doesn't.
             if (slider->orientation == Qt::Horizontal) {
                 if (slider->direction == Qt::LeftToRight && sc == SC_ScrollBarSubLine)
@@ -5244,7 +5241,7 @@ QSize QMacStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
         if (macsz.height() != -1)
             sz.setHeight(macsz.height());
     }
-    
+
     // Adjust size to within Aqua guidelines
     if (const QStyleOptionComboBox *combo = qstyleoption_cast<const QStyleOptionComboBox *>(opt)){
         QAquaWidgetSize widgetSize = qt_aqua_size_constrain(widget);
@@ -5265,9 +5262,9 @@ QSize QMacStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
         HIRect diffRect = QMacStylePrivate::comboboxInnerBounds(tmpRect, bkind);
         sz.rwidth() -= qRound(diffRect.size.width);
         sz.rheight() -= qRound(diffRect.size.height);
-    } else if (ct == CT_PushButton || ct == CT_ToolButton){           
+    } else if (ct == CT_PushButton || ct == CT_ToolButton){
         ThemeButtonKind bkind;
-        QAquaWidgetSize widgetSize = qt_aqua_size_constrain(widget);          
+        QAquaWidgetSize widgetSize = qt_aqua_size_constrain(widget);
         switch (ct) {
         default:
         case CT_PushButton:
@@ -5296,7 +5293,7 @@ QSize QMacStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
             }
             break;
         }
-        
+
         HIThemeButtonDrawInfo bdi;
         bdi.version = qt_mac_hitheme_version;
         bdi.state = kThemeStateActive;
@@ -5308,7 +5305,7 @@ QSize QMacStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
         HIThemeGetButtonBackgroundBounds(&myRect, &bdi, &macRect);
         sz.setWidth(sz.width() + int(macRect.size.width - myRect.size.width));
         sz.setHeight(sz.height() + int(macRect.size.height - myRect.size.height));
-    } 
+    }
     return sz;
 }
 
@@ -5529,7 +5526,7 @@ int QMacStyle::layoutSpacingImplementation(QSizePolicy::ControlType control1,
     }
 
     if ((control1 | control2) & ButtonMask)
-        return_SIZE(12, 10, 8);     // AHIG 
+        return_SIZE(12, 10, 8);     // AHIG
 
     switch (CT2(control1, control2)) {
     case CT1(QSizePolicy::Label):                             // guess
