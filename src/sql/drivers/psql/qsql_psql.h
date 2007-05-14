@@ -41,6 +41,7 @@ public:
     ~QPSQLResult();
 
     QVariant handle() const;
+    void QPSQLResult::virtual_hook(int id, void *data);
 
 protected:
     void cleanup();

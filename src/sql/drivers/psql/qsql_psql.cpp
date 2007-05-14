@@ -101,12 +101,13 @@ void QPSQLDriverPrivate::appendTables(QStringList &tl, QSqlQuery &t, QChar type)
 class QPSQLResultPrivate
 {
 public:
-    QPSQLResultPrivate(QPSQLResult *qq): q(qq), driver(0), result(0), currentSize(-1) {}
+    QPSQLResultPrivate(QPSQLResult *qq): q(qq), driver(0), result(0), currentSize(-1), precisionPolicy(QSql::HighPrecision) {}
 
     QPSQLResult *q;
     const QPSQLDriverPrivate *driver;
     PGresult *result;
     int currentSize;
+    QSql::NumericalPrecisionPolicy precisionPolicy;
 
     bool processResults();
 };
@@ -263,8 +264,22 @@ QVariant QPSQLResult::data(int i)
     case QVariant::Int:
         return atoi(val);
     case QVariant::Double:
-        if (ptype == QNUMERICOID)
+        if (ptype == QNUMERICOID) {
+            if (d->precisionPolicy != QSql::HighPrecision) {
+                QVariant retval;
+                bool convert;
+                if (d->precisionPolicy == QSql::LowPrecisionInt64)
+                    retval = QString::fromAscii(val).toLongLong(&convert);
+                else if (d->precisionPolicy == QSql::LowPrecisionInt32)
+                    retval = QString::fromAscii(val).toInt(&convert);
+                else if (d->precisionPolicy == QSql::LowPrecisionDouble)
+                    retval = QString::fromAscii(val).toDouble(&convert);
+                if (!convert)
+                    return QVariant();
+                return retval;
+            }
             return QString::fromAscii(val);
+        }
         return strtod(val, 0);
     case QVariant::Date:
         if (val[0] == '\0') {
@@ -390,6 +405,19 @@ QSqlRecord QPSQLResult::record() const
     return info;
 }
 
+void QPSQLResult::virtual_hook(int id, void *data)
+{
+    Q_ASSERT(data);
+
+    switch (id) {
+    case QSqlResult::SetNumericalPrecision:
+        d->precisionPolicy = *reinterpret_cast<QSql::NumericalPrecisionPolicy *>(data);
+        break;
+    default:
+        Q_ASSERT(false);
+    }
+}
+
 ///////////////////////////////////////////////////////////////////
 
 static bool setEncodingUtf8(PGconn* connection)
@@ -481,13 +509,13 @@ bool QPSQLDriver::hasFeature(DriverFeature f) const
     case Transactions:
     case QuerySize:
     case LastInsertId:
+    case LowPrecisionNumbers:
         return true;
     case BatchOperations:
     case PreparedQueries:
     case NamedPlaceholders:
     case PositionalPlaceholders:
     case SimpleLocking:
-    case LowPrecisionNumbers:
         return false;
     case BLOB:
         return d->pro >= QPSQLDriver::Version71;

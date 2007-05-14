@@ -93,6 +93,10 @@ private slots:
     void recordNonSelect();
     void caseSensivity_data() { generic_data(); }
     void caseSensivity();
+    void whitespaceInIdentifiers_data() { generic_data(); }
+    void whitespaceInIdentifiers();
+    void formatValueTrimStrings_data() { generic_data(); }
+    void formatValueTrimStrings();
 
     void psql_schemas_data();
     void psql_schemas();
@@ -100,9 +104,8 @@ private slots:
     void psql_escapedIdentifiers();
     void psql_escapeBytea_data() { generic_data(); }
     void psql_escapeBytea();
-
-    void whitespaceInIdentifiers_data() { generic_data(); }
-    void whitespaceInIdentifiers();
+    void psql_precisionPolicy_data() { generic_data(); }
+    void psql_precisionPolicy();
 
     void mysqlOdbc_unsignedIntegers_data() { generic_data(); }
     void mysqlOdbc_unsignedIntegers();
@@ -119,8 +122,6 @@ private slots:
     void ibase_useCustomCharset_data() { generic_data(); }
     void ibase_useCustomCharset(); // For task 134608
 
-    void formatValueTrimStrings_data() { generic_data(); }
-    void formatValueTrimStrings();
     void odbc_reopenDatabase_data() { generic_data(); }
     void odbc_reopenDatabase();
     void odbc_uniqueidentifier_data() { generic_data(); }
@@ -1506,6 +1507,84 @@ void tst_QSqlDatabase::psql_escapeBytea()
     QCOMPARE(i, 4);
 
     QVERIFY2(q.exec(QString("DROP TABLE %1").arg(tableName)), q.lastError().text());
+}
+
+// This test should be rewritten to work with Oracle as well - or the Oracle driver
+// should be fixed to make this test pass (handle overflows)
+void tst_QSqlDatabase::psql_precisionPolicy()
+{
+    QFETCH(QString, dbName);
+    QSqlDatabase db = QSqlDatabase::database(dbName);
+    CHECK_DATABASE(db);
+
+    QSqlQuery q(db);
+    QString tableName = qTableName("qtest_precisionpolicy");
+
+    if (!db.driverName().startsWith("QPSQL")) {
+	QSKIP("PostgreSQL server specific test", SkipSingle);
+        return;
+    }
+
+    QVERIFY(db.driver()->hasFeature(QSqlDriver::LowPrecisionNumbers));
+
+    // Create a test table with some data
+    q.exec(QString("DROP TABLE %1").arg(tableName));
+    QVERIFY2(q.exec(QString("CREATE TABLE %1 (id smallint, num numeric(20,0))").arg(tableName)), q.lastError().text());
+    QVERIFY2(q.prepare(QString("INSERT INTO %1 VALUES (?, ?)").arg(tableName)), q.lastError().text());
+    q.bindValue(0, 1);
+    q.bindValue(1, 123);
+    QVERIFY2(q.exec(), q.lastError().text());
+    q.bindValue(0, 2);
+    q.bindValue(1, QString("18500000000000000000"));
+    QVERIFY2(q.exec(), q.lastError().text());
+
+    // These are expected to pass
+    QString query = QString("SELECT num FROM %1 WHERE id = 1").arg(tableName);
+    QVERIFY2(q.exec(query), q.lastError().text());
+    QVERIFY2(q.next(), q.lastError().text());
+    QCOMPARE(q.value(0).type(), QVariant::String);
+    
+    q.setNumericalPrecisionPolicy(QSql::LowPrecisionInt64);
+    QVERIFY2(q.exec(query), q.lastError().text());
+    QVERIFY2(q.next(), q.lastError().text());
+    QCOMPARE(q.value(0).type(), QVariant::LongLong);
+    QCOMPARE(q.value(0).toLongLong(), (qlonglong)123);
+
+    q.setNumericalPrecisionPolicy(QSql::LowPrecisionInt32);
+    QVERIFY2(q.exec(query), q.lastError().text());
+    QVERIFY2(q.next(), q.lastError().text());
+    QCOMPARE(q.value(0).type(), QVariant::Int);
+    QCOMPARE(q.value(0).toInt(), 123);
+
+    q.setNumericalPrecisionPolicy(QSql::LowPrecisionDouble);
+    QVERIFY2(q.exec(query), q.lastError().text());
+    QVERIFY2(q.next(), q.lastError().text());
+    QCOMPARE(q.value(0).type(), QVariant::Double);
+    QCOMPARE(q.value(0).toDouble(), (double)123);
+
+    query = QString("SELECT num FROM %1 WHERE id = 2").arg(tableName);
+    QVERIFY2(q.exec(query), q.lastError().text());
+    QVERIFY2(q.next(), q.lastError().text());
+    QCOMPARE(q.value(0).type(), QVariant::Double);
+    QCOMPARE(q.value(0).toDouble(), QString("18500000000000000000").toDouble());
+
+    // Postgres returns invalid QVariants on overflow
+    q.setNumericalPrecisionPolicy(QSql::HighPrecision);
+    QVERIFY2(q.exec(query), q.lastError().text());
+    QVERIFY2(q.next(), q.lastError().text());
+    QCOMPARE(q.value(0).type(), QVariant::String);
+    
+    q.setNumericalPrecisionPolicy(QSql::LowPrecisionInt64);
+    QVERIFY2(q.exec(query), q.lastError().text());
+    QVERIFY2(q.next(), q.lastError().text());
+    QCOMPARE(q.value(0).type(), QVariant::Invalid);
+
+    q.setNumericalPrecisionPolicy(QSql::LowPrecisionInt32);
+    QVERIFY2(q.exec(query), q.lastError().text());
+    QVERIFY2(q.next(), q.lastError().text());
+    QCOMPARE(q.value(0).type(), QVariant::Invalid);
+
+    q.exec(QString("DROP TABLE %1").arg(tableName));
 }
 
 // This test needs a ODBC data source containing MYSQL in it's name
