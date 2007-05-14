@@ -19,9 +19,10 @@ SUBDIRS       = analogclock \
                 tetrix \
                 tooltips \
                 wiggly \
-                windowflags \
-                validators
+                windowflags
 
+# uic hangs in this example for some crosscompilers, task 158836
+!cross_compile: SUBDIRS += validators
 
 # install
 target.path = $$[QT_INSTALL_EXAMPLES]/widgets
