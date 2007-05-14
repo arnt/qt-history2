@@ -320,7 +320,6 @@ static const char *knownStyleHints[] = {
     "spinbox-click-autorepeat-rate",
     "spincontrol-disable-on-bounds",
     "tabbar-alignment",
-    "tabbar-base-overlap",
     "tabbar-elide-mode",
     "tabbar-prefer-no-arrows",
     "toolbox-selected-page-title-bold",
@@ -1243,6 +1242,10 @@ enum PseudoElement {
     PseudoElement_SliderAddPage,
     PseudoElement_SliderSubPage,
     PseudoElement_SliderTickmark,
+    PseudoElement_TabWidgetPane,
+    PseudoElement_TabWidgetTabBar,
+    PseudoElement_TabWidgetLeftCorner,
+    PseudoElement_TabWidgetRightCorner,
     NumPseudoElements
 };
 
@@ -1302,7 +1305,11 @@ static PseudoElementInfo knownPseudoElements[NumPseudoElements] = {
     { QStyle::SC_SliderHandle, "handle" },
     { QStyle::SC_None, "add-page" },
     { QStyle::SC_None, "sub-page"},
-    { QStyle::SC_SliderTickmarks, "tick-mark" }
+    { QStyle::SC_SliderTickmarks, "tick-mark" },
+    { QStyle::SC_None, "pane" },
+    { QStyle::SC_None, "tab-bar" },
+    { QStyle::SC_None, "left-corner" },
+    { QStyle::SC_None, "right-corner" }
 };
 
 QVector<Declaration> declarations(const QVector<StyleRule> &styleRules, const QString &part, int pseudoClass = PseudoClass_Unspecified)
@@ -1810,18 +1817,17 @@ static PositionMode defaultPositionMode(int pe)
     case PseudoElement_ScrollBarSlider:
     case PseudoElement_TabBarTab:
     case PseudoElement_SliderGroove:
+    case PseudoElement_TabWidgetPane:
         return PositionMode_Absolute;
     default:
         return PositionMode_Static;
     }
 }
 
-QRect QStyleSheetStyle::positionRect(const QWidget *w, const QRenderRule& rule1, const QRenderRule& rule2, int pe,
-                                     const QRect& rect, Qt::LayoutDirection dir) const
+QRect QStyleSheetStyle::positionRect(const QWidget *w, const QRenderRule &rule2, int pe,
+                                     const QRect &originRect, Qt::LayoutDirection dir) const
 {
     const QStyleSheetPositionData *p = rule2.position();
-    Origin origin = (p && p->origin != Origin_Unknown) ? p->origin : defaultOrigin(pe);
-    QRect originRect = rule1.originRect(rect, origin);
     PositionMode mode = (p && p->mode != PositionMode_Unknown) ? p->mode : defaultPositionMode(pe);
     Qt::Alignment position = (p && p->position != 0) ? p->position : defaultPosition(pe);
     QRect r;
@@ -1847,6 +1853,15 @@ QRect QStyleSheetStyle::positionRect(const QWidget *w, const QRenderRule& rule1,
         }
     }
     return r;
+}
+
+QRect QStyleSheetStyle::positionRect(const QWidget *w, const QRenderRule& rule1, const QRenderRule& rule2, int pe,
+                                     const QRect& rect, Qt::LayoutDirection dir) const
+{
+    const QStyleSheetPositionData *p = rule2.position();
+    Origin origin = (p && p->origin != Origin_Unknown) ? p->origin : defaultOrigin(pe);
+    QRect originRect = rule1.originRect(rect, origin);
+    return positionRect(w, rule2, pe, originRect, dir);
 }
 
 static QWidget *embeddedWidget(QWidget *w)
@@ -2914,11 +2929,8 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
 
 #ifndef QT_NO_TABBAR
     case CE_TabBarTab:
-        if (const QStyleOptionTab *tab = qstyleoption_cast<const QStyleOptionTab *>(opt)) {
-            QStyleOptionTab tabCopy(*tab);
-            QRenderRule subRule = renderRule(w, opt, PseudoElement_TabBarTab);
-            tabCopy.rect = positionRect(w, subRule, subRule, PseudoElement_TabBarTab, opt->rect, opt->direction);
-            QWindowsStyle::drawControl(ce, &tabCopy, p, w);
+        if (hasStyleRule(w, PseudoElement_TabBarTab)) {
+            QWindowsStyle::drawControl(ce, opt, p, w);
             return;
         }
         break;
@@ -2928,8 +2940,9 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
         if (const QStyleOptionTab *tab = qstyleoption_cast<const QStyleOptionTab *>(opt)) {
             QStyleOptionTab tabCopy(*tab);
             QRenderRule subRule = renderRule(w, opt, PseudoElement_TabBarTab);
+            QRect r = positionRect(w, subRule, PseudoElement_TabBarTab, opt->rect, opt->direction);
             if (ce == CE_TabBarTabShape && subRule.hasDrawable()) {
-                subRule.drawRule(p, opt->rect);
+                subRule.drawRule(p, r);
                 return;
             }
             subRule.configurePalette(&tabCopy.palette, QPalette::WindowText, QPalette::Window);
@@ -2937,8 +2950,8 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
             if (subRule.hasFont)
                 p->setFont(subRule.font);
             if (subRule.hasBox()) {
-                tabCopy.rect = ce == CE_TabBarTabShape ? subRule.borderRect(opt->rect)
-                                                           : subRule.contentsRect(opt->rect);
+                tabCopy.rect = ce == CE_TabBarTabShape ? subRule.borderRect(r)
+                                                       : subRule.contentsRect(r);
                 QWindowsStyle::drawControl(ce, &tabCopy, p, w);
             } else {
                 baseStyle()->drawControl(ce, &tabCopy, p, w);
@@ -3171,12 +3184,13 @@ void QStyleSheetStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *op
         rule.drawBorder(p, opt->rect);
         return;
 
-    case PE_FrameTabBarBase:
-    case PE_FrameTabWidget:
-        if (rule.nativeBorder())
+    case PE_FrameTabWidget: {
+        QRenderRule subRule = renderRule(w, opt, PseudoElement_TabWidgetPane);
+        if (subRule.nativeBorder())
             break;
-        rule.drawBorder(p, rule.borderRect(opt->rect));
+        subRule.drawBorder(p, opt->rect);
         return;
+                            }
 
     case PE_IndicatorProgressChunk:
         pseudoElement = PseudoElement_ProgressBarChunk;
@@ -3424,12 +3438,10 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const 
         break;
 
     case PM_TabBarBaseOverlap:
-        if (rule.styleHints.contains(QLatin1String("tabbar-base-overlap"))) {
-            return rule.styleHints[QLatin1String("tabbar-base-overlap")];
+        if (hasStyleRule(w->parentWidget(), PseudoElement_TabWidgetPane)) {
+            return 0;
         }
         break;
-
-    //case PM_TabBarBaseHeight:  return 100;
 
     case PM_SliderControlThickness:
     case PM_SliderThickness: // horizontal slider's height (sizeHint)
@@ -3555,6 +3567,7 @@ QSize QStyleSheetStyle::sizeFromContents(ContentsType ct, const QStyleOption *op
 
     case CT_TabBarTab: {
         QRenderRule subRule = renderRule(w, PseudoElement_TabBarTab, PseudoClass_Enabled);
+        sz = sz.expandedTo(subRule.minimumContentsSize());
         if (subRule.hasBox() || subRule.hasBorder())
             return subRule.boxSize(sz, Margin | Border);
         break;
@@ -3911,7 +3924,7 @@ QRect QStyleSheetStyle::subControlRect(ComplexControl cc, const QStyleOptionComp
 QRect QStyleSheetStyle::subElementRect(SubElement se, const QStyleOption *opt, const QWidget *w) const
 {
     QRenderRule rule = renderRule(w, opt);
-    QRenderRule subRule;
+    int pe = PseudoElement_None;
 
     switch (se) {
     case SE_PushButtonContents:
@@ -4021,14 +4034,31 @@ QRect QStyleSheetStyle::subElementRect(SubElement se, const QStyleOption *opt, c
         break;
 
 #ifndef QT_NO_TABBAR
+    case SE_TabWidgetLeftCorner:
+        pe = PseudoElement_TabWidgetLeftCorner;
+        // intentionally falls through
+    case SE_TabWidgetRightCorner:
+        if (pe == PseudoElement_None)
+            pe = PseudoElement_TabWidgetRightCorner;
+        // intentionally falls through
     case SE_TabWidgetTabBar:
+        if (pe == PseudoElement_None)
+            pe = PseudoElement_TabWidgetTabBar;
+        // intentionally falls through
     case SE_TabWidgetTabPane:
     case SE_TabWidgetTabContents:
-    case SE_TabWidgetLeftCorner:
-    case SE_TabWidgetRightCorner:
-        if (rule.styleHints.contains(QLatin1String("tabbar-base-overlap")))
-            return QWindowsStyle::subElementRect(se, opt, w);
-       break;
+        if (pe == PseudoElement_None)
+            pe = PseudoElement_TabWidgetPane;
+
+        if (hasStyleRule(w, pe)) {
+            QRect r = QWindowsStyle::subElementRect(pe == PseudoElement_TabWidgetPane ? SE_TabWidgetTabPane : se, opt, w);
+            QRenderRule subRule = renderRule(w, opt, pe);
+            r = positionRect(w, subRule, pe, r, opt->direction);
+            if (se == SE_TabWidgetTabContents)
+                r = subRule.contentsRect(r);
+            return r;
+        }
+        break;
 
     case SE_TabBarTearIndicator: {
         QRenderRule subRule = renderRule(w, PseudoElement_TabBarTear);

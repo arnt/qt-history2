@@ -119,6 +119,8 @@ private:
     QSize defaultSize(const QWidget *, QSize, const QRect&, int) const;
     QRect positionRect(const QWidget *, const QRenderRule&, const QRenderRule&, int,
                        const QRect&, Qt::LayoutDirection) const;
+    QRect positionRect(const QWidget *w, const QRenderRule &rule2, int pe,
+                       const QRect &originRect, Qt::LayoutDirection dir) const;
 
     void setPalette(QWidget *);
     void unsetPalette(QWidget *);
