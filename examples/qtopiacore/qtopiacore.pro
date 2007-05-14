@@ -1,5 +1,5 @@
 TEMPLATE      = subdirs
-SUBDIRS       = mousecalibration 
+SUBDIRS       = framebuffer mousecalibration 
 
 # install
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS README *.pro

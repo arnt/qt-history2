@@ -111,7 +111,7 @@ long switchToGraphicsMode()
     ioctl(ttyFd, KDGETMODE, &oldMode);
     if (oldMode == KD_GRAPHICS) {
         printf("Was in graphics mode already. Skipping\n");
-        return;
+        return oldMode;
     }
     int ret = ioctl(ttyFd, KDSETMODE, KD_GRAPHICS);
     if (ret == -1)
@@ -190,7 +190,6 @@ void drawRect(int x0, int y0, int width, int height, int color)
 int main(int argc, char **argv)
 {
     long int screensize = 0;
-    long int location = 0;
     int doGraphicsMode = 1;
     long oldKdMode = KD_TEXT;
     char *devfile = "/dev/fb0";
