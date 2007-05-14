@@ -24,6 +24,8 @@
 #include <QDockWidget>
 #include <QScrollBar>
 
+#include <windows.h>
+
 #if defined(Q_WS_X11)
 extern void qt_x11_wait_for_window_manager(QWidget *w);
 #endif
@@ -1235,7 +1237,7 @@ void tst_QMdiArea::tileSubWindows()
 
     // Verify that we try to resize the area such that all sub-windows are visible.
     // It's important that tiled windows are NOT overlapping.
-    workspace.resize(50, 50);
+    workspace.resize(150, 150);
 #ifdef Q_WS_X11
     qt_x11_wait_for_window_manager(&workspace);
 #endif
@@ -1244,7 +1246,7 @@ void tst_QMdiArea::tileSubWindows()
     foreach (QMdiSubWindow *subWindow, workspace.subWindowList())
         subWindow->setMinimumSize(100, 100);
 
-    QCOMPARE(workspace.size(), QSize(50, 50));
+    QCOMPARE(workspace.size(), QSize(150, 150));
     workspace.tileSubWindows();
     int frameWidth = 0;
     if (workspace.style()->styleHint(QStyle::SH_ScrollView_FrameOnlyAroundContents, 0, &workspace))
@@ -1252,12 +1254,12 @@ void tst_QMdiArea::tileSubWindows()
     QCOMPARE(workspace.viewport()->rect().size(), QSize(302 + 2 * frameWidth, 302 + 2 * frameWidth));
 
     // Not enough space for all sub-windows to be visible -> provide scroll bars.
-    workspace.resize(100, 100);
+    workspace.resize(150, 150);
 #ifdef Q_WS_X11
     qt_x11_wait_for_window_manager(&workspace);
 #endif
     qApp->processEvents();
-    QCOMPARE(workspace.size(), QSize(100, 100));
+    QCOMPARE(workspace.size(), QSize(150, 150));
 
     // Horizontal scroll bar.
     QScrollBar *hBar = workspace.horizontalScrollBar();
@@ -1279,7 +1281,7 @@ void tst_QMdiArea::tileSubWindows()
 #endif
     qApp->processEvents();
 
-    QVERIFY(workspace.size() != QSize(100, 100));
+    QVERIFY(workspace.size() != QSize(150, 150));
     QVERIFY(!vBar->isVisible());
     QVERIFY(!hBar->isVisible());
 }
