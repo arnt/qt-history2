@@ -485,6 +485,10 @@ public:
         data = ((v & 0xff00) >> 8) | ((v & 0x00ff) << 8);
     }
 
+    inline quint16LE(int v) {
+        data = ((v & 0xff00) >> 8) | ((v & 0x00ff) << 8);
+    }
+
     inline quint16LE(quint16 v) {
         data = ((v & 0xff00) >> 8) | ((v & 0x00ff) << 8);
     }
@@ -689,7 +693,7 @@ QScreenPrivate::QScreenPrivate(QScreen *parent)
     solidFill = qt_solidFill_setup;
     blit = qt_blit_setup;
 #if Q_BYTE_ORDER == Q_BIG_ENDIAN
-    fb_is_littleEndian = true;
+    fb_is_littleEndian = false;
 #endif
 }
 
