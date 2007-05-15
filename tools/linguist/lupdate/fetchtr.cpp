@@ -612,23 +612,30 @@ static bool matchExpression()
     return true;
 }
 
-static QByteArray getFullyQualifiedClassName(const QList<QByteArray> &classes, const QStringList &namespaces, const QByteArray &ident)
+static QByteArray getFullyQualifiedClassName(const QList<QByteArray> &classes, const QStringList &namespaces, 
+                                             const QByteArray &ident, bool hasPrefix = false)
 {
     QByteArray context = ident;
-    for (int n = namespaces.count() - 1; n >= 0; --n) {
-        QByteArray ns;
-        for (int i = 0; i <= n; ++i) {
-            ns+=namespaces[i].toAscii() + "::";
+    if (context.endsWith("::"))
+        context.chop(2);
+    int n = namespaces.count() - 1; 
+    if (!context.startsWith("::")) {
+        for ( ; n >= 0; --n) {
+            QByteArray ns;
+            for (int i = 0; i <= n; ++i) {
+                ns+=namespaces[i].toAscii() + "::";
+            }
+            if (classes.indexOf(ns + context) != -1) {
+                context = ns + context;
+                break;
+            }
         }
-        if (classes.indexOf(ns + context) != -1) {
-            context = ns + context;
-            break;
+        if (!hasPrefix && n == -1 && namespaces.count()) {
+            context = namespaces.join(QLatin1String("::")).toLatin1() + "::" + context;
         }
+    } else {
+        context.remove(0, 2);
     }
-    if (context == ident && namespaces.count()) {
-        context = namespaces.join(QLatin1String("::")).toLatin1() + "::" + context;
-    }
-
     return context;
 }
 
@@ -732,7 +739,7 @@ static void parse( MetaTranslator *tor, const char *initialContext, const char *
                                   className.constData(), functionName.constData() );
                     }
 #endif
-                    context = getFullyQualifiedClassName(classes, namespaces, prefix);
+                    context = getFullyQualifiedClassName(classes, namespaces, prefix, true);
                 }
                 prefix = (const char *) 0;
                 if ( qualifiedContexts.contains(context) )
@@ -798,8 +805,6 @@ static void parse( MetaTranslator *tor, const char *initialContext, const char *
             yyTok = getToken();
             break;
         case Tok_Ident:
-            if ( !prefix.isNull() )
-                prefix += "::";
             prefix += yyIdent;
             yyTok = getToken();
             if ( yyTok != Tok_Gulbrandsen )
@@ -840,6 +845,7 @@ static void parse( MetaTranslator *tor, const char *initialContext, const char *
             break;
         case Tok_Gulbrandsen:
             // at top level?
+            prefix+="::";
             if ( yyBraceDepth == (int) namespaces.count() && yyParenDepth == 0 )
                 functionContext = ::getFullyQualifiedClassName(classes, namespaces, prefix);
             yyTok = getToken();
