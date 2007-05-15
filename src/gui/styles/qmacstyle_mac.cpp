@@ -2799,7 +2799,6 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPai
             p->setPen(QPen(QColor(100, 100, 100), 3));
         p->save();
         p->setRenderHint(QPainter::Antialiasing);
-        p->fillRect(opt->rect, Qt::red);
         p->drawLines(a);
         p->restore();
         break; }
