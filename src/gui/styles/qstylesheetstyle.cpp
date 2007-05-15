@@ -269,10 +269,18 @@ public:
     QSize contentsSize() const
     { return geo ? QSize(geo->width, geo->height)
                  : ((img && img->size.isValid()) ? img->size : QSize()); }
+    QSize contentsSize(const QSize &sz) const
+    {
+        QSize csz = contentsSize();
+        if (csz.width() == -1) csz.setWidth(sz.width());
+        if (csz.height() == -1) csz.setHeight(sz.height());
+        return csz;
+    }
     bool hasContentsSize() const
     { return (geo && (geo->width != -1 || geo->height != -1)) || (img && img->size.isValid()); }
 
     QSize size() const { return boxSize(contentsSize()); }
+    QSize size(const QSize &sz) const { return boxSize(contentsSize(sz)); }
 
     int features;
     QBrush defaultBackground;
@@ -297,6 +305,7 @@ public:
 ///////////////////////////////////////////////////////////////////////////////////////////
 static const char *knownStyleHints[] = {
     "activate-on-singleclick",
+    "alignment",
     "button-layout",
     "combobox-list-mousetracking",
     "combobox-popup",
@@ -319,7 +328,6 @@ static const char *knownStyleHints[] = {
     "show-decoration-selected",
     "spinbox-click-autorepeat-rate",
     "spincontrol-disable-on-bounds",
-    "tabbar-alignment",
     "tabbar-elide-mode",
     "tabbar-prefer-no-arrows",
     "toolbox-selected-page-title-bold",
@@ -426,10 +434,14 @@ QRenderRule::QRenderRule(const QVector<Declaration> &declarations, const QWidget
         } else if (decl.propertyId == UnknownProperty) {
             bool knownStyleHint = false;
             for (int i = 0; i < numKnownStyleHints; i++) {
-                const char *styleHint = knownStyleHints[i];
-                if (decl.property.compare(QLatin1String(styleHint)) == 0) {
+                QLatin1String styleHint(knownStyleHints[i]);
+                if (decl.property.compare(styleHint) == 0) {
                    int hint;
-                   decl.intValue(&hint);
+                   if (QString(styleHint).endsWith(QLatin1String("alignment"))) {
+                       hint = (int) decl.alignmentValue();
+                   } else {
+                       decl.intValue(&hint);
+                   }
                    styleHints[decl.property] = hint;
                    knownStyleHint = true;
                    break;
@@ -1815,7 +1827,6 @@ static PositionMode defaultPositionMode(int pe)
     case PseudoElement_ScrollBarAddPage:
     case PseudoElement_ScrollBarSubPage:
     case PseudoElement_ScrollBarSlider:
-    case PseudoElement_TabBarTab:
     case PseudoElement_SliderGroove:
     case PseudoElement_TabWidgetPane:
         return PositionMode_Absolute;
@@ -2773,9 +2784,9 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
                 QTransform m;
                 QRect rect = pb->rect;
                 if (vertical) {
-                    rect = QRect(rect.left(), rect.top(), rect.height(), rect.width());
-                    m.translate(rect.height(), 0);
+                    rect = QRect(rect.y(), rect.x(), rect.height(), rect.width());
                     m.rotate(90);
+                    m.translate(0, -(rect.height() + rect.y()*2));
                 }
 
                 bool reverse = ((!vertical && (pb->direction == Qt::RightToLeft)) || vertical);
@@ -2798,7 +2809,7 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
                     int x = reverse ? r.left() + r.width() - offset - chunkWidth : r.x() + offset;
                     while (chunkCount > 0) {
                         r.setRect(x, rect.y(), chunkWidth, rect.height());
-                        r = m.mapRect(r);
+                        r = m.mapRect(QRectF(r)).toRect();
                         subRule.drawRule(p, r);
                         x += reverse ? -chunkWidth : chunkWidth;
                         if (reverse ? x < rect.left() : x > rect.right())
@@ -2811,7 +2822,7 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
                                 : r.left() + (x - r.right() - chunkWidth);
                     while (chunkCount > 0) {
                         r.setRect(x, rect.y(), chunkWidth, rect.height());
-                        r = m.mapRect(r);
+                        r = m.mapRect(QRectF(r)).toRect();
                         subRule.drawRule(p, r);
                         x += reverse ? -chunkWidth : chunkWidth;
                         --chunkCount;
@@ -2821,7 +2832,7 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
 
                     for (int i = 0; i < ceil(qreal(fillWidth)/chunkWidth); ++i) {
                         r.setRect(x, rect.y(), chunkWidth, rect.height());
-                        r = m.mapRect(r);
+                        r = m.mapRect(QRectF(r)).toRect();
                         subRule.drawRule(p, r);
                         x += reverse ? -chunkWidth : chunkWidth;
                     }
@@ -3553,14 +3564,14 @@ QSize QStyleSheetStyle::sizeFromContents(ContentsType ct, const QStyleOption *op
         break;
                         }
 
+    case CT_ProgressBar:
     case CT_SizeGrip:
         return (rule.hasContentsSize())
-            ? rule.size()
+            ? rule.size(sz)
             : rule.boxSize(baseStyle()->sizeFromContents(ct, opt, sz, w));
         break;
 
     case CT_Slider:
-    case CT_ProgressBar:
         if (rule.hasBorder() || rule.hasBox())
             return rule.boxSize(sz);
         break;
@@ -3657,7 +3668,14 @@ int QStyleSheetStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWi
         case SH_ScrollBar_MiddleClickAbsolutePosition: s = QLatin1String("scrollbar-middleclick-absolute-position"); break;
         case SH_ScrollBar_RollBetweenButtons: s = QLatin1String("scrollbar-roll-between-buttons"); break;
         case SH_ScrollBar_ScrollWhenPointerLeavesControl: s = QLatin1String("scrollbar-scroll-when-pointer-leaves-control"); break;
-        case SH_TabBar_Alignment: s = QLatin1String("tabbar-alignment"); break;
+        case SH_TabBar_Alignment:
+#ifndef QT_NO_TABWIDGET
+            if (qobject_cast<const QTabWidget *>(w)) {
+                rule = renderRule(w, PseudoElement_TabWidgetTabBar);
+            }
+#endif // QT_NO_TABWIDGET
+            s = QLatin1String("alignment");
+            break;
         case SH_TabBar_ElideMode: s = QLatin1String("tabbar-elide-mode"); break;
         case SH_TabBar_PreferNoArrows: s = QLatin1String("tabbar-prefer-no-arrows"); break;
         default: break;
