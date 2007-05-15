@@ -45,7 +45,7 @@ void Chip::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
     QColor fillColor = (option->state & QStyle::State_Selected) ? color.dark(150) : color;
     if (option->state & QStyle::State_MouseOver)
         fillColor = fillColor.light(125);
-    
+
     if (option->levelOfDetail < 0.2) {
         if (option->levelOfDetail < 0.125) {
             painter->fillRect(QRectF(0, 0, 110, 70), fillColor);
@@ -74,13 +74,12 @@ void Chip::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
         painter->drawLine(94, 53, 94, 15);
         painter->setPen(QPen(Qt::black, 0));
     }
-    
+
     // Draw text
     if (option->levelOfDetail >= 2) {
         QFont font("Times", 10);
         font.setStyleStrategy(QFont::ForceOutline);
         painter->setFont(font);
-        painter->setRenderHint(QPainter::TextAntialiasing, false);
         painter->save();
         painter->scale(0.1, 0.1);
         painter->drawText(170, 180, QString("Model: VSC-2000 (Very Small Chip) at %1x%2").arg(x).arg(y));
