@@ -2778,6 +2778,26 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPai
                     PE_IndicatorArrowUp : PE_IndicatorArrowDown, header, p, w);
         }
         break;
+    case PE_IndicatorMenuCheckMark: {
+        const int x1 = opt->rect.x();
+        const int y1 = opt->rect.y() + 4;
+        const int x2 = opt->rect.x() + 2;
+        const int y2 = opt->rect.y() + 7;
+        const int x3 = opt->rect.x() + 8;
+        const int y3 = opt->rect.y();
+
+        QVector<QLineF> a(3);
+        a << QLineF(x1, y1, x2, y2);
+        a << QLineF(x2, y2, x3, y3);
+        if (opt->palette.currentColorGroup() == QPalette::Active)
+            p->setPen(QPen(Qt::white, 3));
+        else
+            p->setPen(QPen(QColor(100, 100, 100), 3));
+        p->save();
+        p->setRenderHint(QPainter::Antialiasing);
+        p->drawLines(a);
+        p->restore();
+        break; }
     case PE_IndicatorViewItemCheck:
     case PE_Q3CheckListExclusiveIndicator:
     case PE_Q3CheckListIndicator:
