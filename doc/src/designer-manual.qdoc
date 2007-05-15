@@ -2001,8 +2001,7 @@ without having to write code themselves.
          \o A description of the widget's properties, such as its object
             name, size hint, and other standard QWidget properties.
     \row \o \c codeTemplate()
-         \o An optional \l{QtScript}{Qt Script} snippet to be executed when loading the
-            form.
+         \o This function is reserved for future use by \QD.
     \endtable
 
     Two other virtual functions can also be reimplemented:
@@ -2104,6 +2103,7 @@ without having to write code themselves.
     See QCoreApplication::libraryPaths() for more information about customizing
     paths for libraries and plugins with Qt applications.
 
+    \omit
     \section1 Using Qt Script to Aid in Building Forms
 
     Starting with Qt 4.3, \c .ui files may contain
@@ -2164,6 +2164,7 @@ without having to write code themselves.
             \endcode
             and preview the form.
     \endtable
+    \endomit
 
     \section1 Related Examples
 

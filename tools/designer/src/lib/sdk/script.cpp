@@ -19,6 +19,7 @@
     per-widget \l{QtScript} {Qt Script} snippet to be executed while
     building the form.
 
+    \internal
     \inmodule QtDesigner
     \since 4.3
 

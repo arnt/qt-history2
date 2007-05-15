@@ -608,11 +608,13 @@
   Improved selection behaviour in the signal slot editor, transparent
   connection labels and preference of widgets over connection labels
 
+  \omit
   Integration with the QtScript module enables the widget construction process
   to be extended using QtScript, making it possible for designers to produce
   appearance and style-related customizations to forms. Developers can also
   take advantage of this feature to set up widgets for use in \QD and
   other situations.
+  \endomit
 
   Improved handling of promoted widgets makes it easier and more convenient
   to work with placeholders for custom widgets; promotion candidates are now
