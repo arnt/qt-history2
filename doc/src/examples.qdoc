@@ -283,7 +283,7 @@
 
     \list
     \o \l{activeqt/comapp}{COM App}\raisedaster
-    \o \l{activeqt/dotnet}{Dot Net}\raisedaster
+    \o \l{Dot Net Example (ActiveQt)}{Dot Net}\raisedaster
     \o \l{activeqt/hierarchy}{Hierarchy}\raisedaster
     \o \l{activeqt/menus}{Menus}\raisedaster
     \o \l{activeqt/multiple}{Multiple}\raisedaster
