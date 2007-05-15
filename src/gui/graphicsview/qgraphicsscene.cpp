@@ -493,12 +493,16 @@ void QGraphicsScenePrivate::_q_removeItemLater(QGraphicsItem *item)
         // Important: The index is useless until purgeRemovedItems() is
         // called.
         indexedItems[index] = (QGraphicsItem *)0;
-        purgePending = true;
+        if (!purgePending) {
+            purgePending = true;
+            q->update();
+        }
         removedItems << item;
     } else {
         // Recently added items are purged immediately. unindexedItems() never
         // contains stale items.
         unindexedItems.removeAll(item);
+        q->update();
     }
 
     // Reset the mouse grabber and focus item data.
