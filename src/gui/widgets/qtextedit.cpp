@@ -1015,6 +1015,10 @@ void QTextEdit::timerEvent(QTimerEvent *e)
         const QPoint pos = d->viewport->mapFromGlobal(globalPos);
         QMouseEvent ev(QEvent::MouseMove, pos, globalPos, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
         mouseMoveEvent(&ev);
+        if (d->control->textInteractionFlags() & Qt::TextEditable)
+            ensureCursorVisible();
+        else
+            emit d->_q_ensureVisible(QRectF(d->mapToContents(pos), QSizeF(1, 1)));
     }
 #ifdef QT_KEYPAD_NAVIGATION
     else if (e->timerId() == d->deleteAllTimer.timerId()) {

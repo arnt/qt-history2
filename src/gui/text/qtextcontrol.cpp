@@ -1500,12 +1500,14 @@ void QTextControlPrivate::mouseMoveEvent(Qt::MouseButtons buttons, const QPointF
         setCursorPosition(newCursorPos, QTextCursor::KeepAnchor);
 
     if (interactionFlags & Qt::TextEditable) {
-        q->ensureCursorVisible();
+        // don't call ensureVisible for the visible cursor to avoid jumping
+        // scrollbars. the autoscrolling ensures smooth scrolling if necessary.
+        //q->ensureCursorVisible();
         if (cursor.position() != oldCursorPos)
             emit q->cursorPositionChanged();
         _q_updateCurrentCharFormatAndSelection();
     } else {
-        emit q->visibilityRequest(QRectF(mousePos, QSizeF(1, 1)));
+        //emit q->visibilityRequest(QRectF(mousePos, QSizeF(1, 1)));
         if (cursor.position() != oldCursorPos)
             emit q->cursorPositionChanged();
         selectionChanged();
