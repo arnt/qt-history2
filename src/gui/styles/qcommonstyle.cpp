@@ -1779,7 +1779,7 @@ QRect QCommonStyle::subElementRect(SubElement sr, const QStyleOption *opt,
             QRect ir = visualRect(opt->direction, opt->rect,
                                   subElementRect(SE_RadioButtonIndicator, opt, widget));
             int spacing = pixelMetric(PM_RadioButtonLabelSpacing, opt, widget);
-            r.setRect(ir.right() + spacing, opt->rect.y(), opt->rect.width() - ir.width() - spacing,
+            r.setRect(ir.left() + ir.width() + spacing, opt->rect.y(), opt->rect.width() - ir.width() - spacing,
                       opt->rect.height());
             r = visualRect(opt->direction, opt->rect, r);
             break;
@@ -3939,9 +3939,9 @@ QSize QCommonStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
     case CT_CheckBox:
         if (const QStyleOptionButton *btn = qstyleoption_cast<const QStyleOptionButton *>(opt)) {
             bool isRadio = (ct == CT_RadioButton);
-            QRect irect = visualRect(btn->direction, btn->rect,
-                                     subElementRect(isRadio ? SE_RadioButtonIndicator
-                                                            : SE_CheckBoxIndicator, btn, widget));
+            
+            int w = pixelMetric(isRadio ? PM_ExclusiveIndicatorWidth
+                                        : PM_IndicatorWidth, btn, widget);
             int h = pixelMetric(isRadio ? PM_ExclusiveIndicatorHeight
                                         : PM_IndicatorHeight, btn, widget);
 
@@ -3950,7 +3950,7 @@ QSize QCommonStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
             if (btn->icon.isNull() || !btn->text.isEmpty())
                 margins = 4 + pixelMetric(isRadio ? PM_RadioButtonLabelSpacing
                                                   : PM_CheckBoxLabelSpacing, opt, widget);
-            sz += QSize(irect.right() + margins, 4);
+            sz += QSize(w + margins, 4);
             sz.setHeight(qMax(sz.height(), h));
         }
         break;
