@@ -43,18 +43,9 @@ unix {
 }
 
 win32 {
-   LIBS += -lws2_32 -ladvapi32 -lnetapi32
+   LIBS += -lws2_32 -ladvapi32 -lnetapi32 -luser32
    CONFIG(debug, debug|release):LIBS += -ldbus-1d
    else:LIBS += -ldbus-1
-   
-   DBUS_INSTALL_DIR=$$(DBUSDIR)   
-   isEmpty(DBUS_INSTALL_DIR) {
-      DBUS_INSTALL_DIR = "$$(PROGRAMFILES)/dbus"
-      message("DBUSDIR not specified. Using $$DBUS_INSTALL_DIR")
-   }
-
-   INCLUDEPATH += $$DBUS_INSTALL_DIR/include
-   LIBS += -L\"$$DBUS_INSTALL_DIR/lib\" -luser32
 }
 
 #load up the headers info
