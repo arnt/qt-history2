@@ -122,7 +122,11 @@ INSTALLS += qmake
 #mkspecs
 mkspecs.path=$$[QT_INSTALL_DATA]/mkspecs
 mkspecs.files=$$QT_BUILD_TREE/mkspecs/qconfig.pri $$QT_SOURCE_TREE/mkspecs/*
-unix:mkspecs.commands = $(DEL_FILE) $(INSTALL_ROOT)$$mkspecs.path/default; $(SYMLINK) $$basename(QMAKESPEC) $(INSTALL_ROOT)$$mkspecs.path/default
+unix { 
+   DEFAULT_QMAKESPEC = $$QMAKESPEC
+   DEFAULT_QMAKESPEC ~= s,^.*mkspecs/,,g
+   mkspecs.commands += $(DEL_FILE) $(INSTALL_ROOT)$$mkspecs.path/default; $(SYMLINK) $$DEFAULT_QMAKESPEC $(INSTALL_ROOT)$$mkspecs.path/default
+}
 INSTALLS += mkspecs
 
 false:macx { #mac install location
