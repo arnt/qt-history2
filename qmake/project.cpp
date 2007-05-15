@@ -2043,7 +2043,7 @@ QMakeProject::doProjectExpand(QString func, QList<QStringList> args_list,
                 after = args[3];
             const QStringList &var = values(args.first(), place);
             if(!var.isEmpty())
-                ret = QStringList(before + var.join(glue) + after);
+                ret = split_value_list(before + var.join(glue) + after);
         }
         break; }
     case E_SPLIT: {
