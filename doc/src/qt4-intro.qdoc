@@ -43,8 +43,7 @@
     \o \l{Desktop Integration}{Desktop integration} facilities for applications.
     \o \l{Qt Style Sheets} enable easy, yet powerful customization of
     user interfaces.
-    \o Support for the \l{D-Bus} Inter-Process Communication (IPC) and Remote
-    Procedure Calling (RPC) mechanism.
+    \o Support for the \l{intro-to-dbus.html}{D-Bus} Inter-Process Communication (IPC) and Remote Procedure Calling (RPC) mechanism.
     \o An \l{Undo Framework}{Undo framework} based on the
     \l{Books about GUI Design#Design Patterns}{Command pattern}.
     \o Support for model-based \l{QCompleter}{text completion} in standard and
