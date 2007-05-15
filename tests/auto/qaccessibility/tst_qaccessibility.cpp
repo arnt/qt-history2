@@ -113,7 +113,7 @@ static inline int indexOfChild(QAccessibleInterface *parentInterface, QWidget *c
     do { \
         if (!errorAt && !(cond)) { \
             errorAt = __LINE__; \
-            qWarning("level: %d, (%s)", treelevel, #cond); \
+            qWarning("level: %d, middle: %d, role: %d (%s)", treelevel, middle, iface->role(0), #cond); \
         } \
     } while (0)
 
@@ -3683,7 +3683,6 @@ void tst_QAccessibility::comboBoxTest()
     qt_x11_wait_for_window_manager(w);
 #endif
     QAccessibleInterface *acc = QAccessible::queryAccessibleInterface(w);
-    QCOMPARE(verifyHierarchy(acc), 0);
     delete acc;
 
     acc = QAccessible::queryAccessibleInterface(cb);
@@ -3700,6 +3699,7 @@ void tst_QAccessibility::comboBoxTest()
     QAccessibleInterface *acc2 = 0;
     entry = accList->navigate(QAccessible::Ancestor, 1, &acc2);
     QCOMPARE(entry, 0);
+    QCOMPARE(verifyHierarchy(acc), 0);
     delete acc2;
 
     delete accList;
