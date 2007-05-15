@@ -1249,6 +1249,8 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
     case PE_IndicatorArrowRight:
     case PE_IndicatorArrowLeft:
         {
+            if (opt->rect.isNull())
+                break;
             QRect r = opt->rect;
             int size = qMin(r.height(), r.width());
             QPixmap pixmap;
