@@ -2998,15 +2998,15 @@ void QTreeWidget::setItemExpanded(const QTreeWidgetItem *item, bool expand)
   Returns true if the given \a item is set to show only one section over all columns;
   otherwise returns false.
 
-  \sa setItemSpanning()
+  \sa setFirstItemColumnSpanned()
 */
-bool QTreeWidget::isItemSpanning(const QTreeWidgetItem *item) const
+bool QTreeWidget::isFirstItemColumnSpanned(const QTreeWidgetItem *item) const
 {
     Q_D(const QTreeWidget);
     if (item == d->model()->headerItem)
         return false; // We can't set the header items to spanning
     const QModelIndex index = d->index(item);
-    return isRowSpanning(index.row(), index.parent());
+    return isFirstColumnSpanned(index.row(), index.parent());
 }
 
 /*!
@@ -3015,15 +3015,15 @@ bool QTreeWidget::isItemSpanning(const QTreeWidgetItem *item) const
   Sets the given \a item to only show one section for all columns if \a span is true;
   otherwise the item will show one section per column.
 
-  \sa itemChanged()
+  \sa isFirstItemColumnSpanned()
 */
-void QTreeWidget::setItemSpanning(const QTreeWidgetItem *item, bool span)
+void QTreeWidget::setFirstItemColumnSpanned(const QTreeWidgetItem *item, bool span)
 {
     Q_D(QTreeWidget);
     if (item == d->model()->headerItem)
         return; // We can't set header items to spanning
     const QModelIndex index = d->index(item);
-    setRowSpanning(index.row(), index.parent(), span);
+    setFirstColumnSpanned(index.row(), index.parent(), span);
 }
 
 /*!

@@ -62,8 +62,8 @@ public:
     inline void setExpanded(bool expand);
     inline bool isExpanded() const;
 
-    inline void setSpanning(bool span);
-    inline bool isSpanning() const;
+    inline void setFirstColumnSpanned(bool span);
+    inline bool isFirstColumnSpanned() const;
 
     inline void setDisabled(bool disabled);
     inline bool isDisabled() const;
@@ -287,8 +287,8 @@ public:
     bool isItemExpanded(const QTreeWidgetItem *item) const;
     void setItemExpanded(const QTreeWidgetItem *item, bool expand);
 
-    bool isItemSpanning(const QTreeWidgetItem *item) const;
-    void setItemSpanning(const QTreeWidgetItem *item, bool span);
+    bool isFirstItemColumnSpanned(const QTreeWidgetItem *item) const;
+    void setFirstItemColumnSpanned(const QTreeWidgetItem *item, bool span);
 
     QTreeWidgetItem *itemAbove(const QTreeWidgetItem *item) const;
     QTreeWidgetItem *itemBelow(const QTreeWidgetItem *item) const;
@@ -372,11 +372,11 @@ inline void QTreeWidgetItem::setExpanded(bool aexpand)
 inline bool QTreeWidgetItem::isExpanded() const
 { return (view ? view->isItemExpanded(this) : false); }
 
-inline void QTreeWidgetItem::setSpanning(bool aspan)
-{ if (view) view->setItemSpanning(this, aspan); }
+inline void QTreeWidgetItem::setFirstColumnSpanned(bool aspan)
+{ if (view) view->setFirstItemColumnSpanned(this, aspan); }
 
-inline bool QTreeWidgetItem::isSpanning() const
-{ return (view ? view->isItemSpanning(this) : false); }
+inline bool QTreeWidgetItem::isFirstColumnSpanned() const
+{ return (view ? view->isFirstItemColumnSpanned(this) : false); }
 
 inline void QTreeWidgetItem::setDisabled(bool disabled)
 { setFlags(disabled ? (flags() & ~Qt::ItemIsEnabled) : flags() | Qt::ItemIsEnabled); }

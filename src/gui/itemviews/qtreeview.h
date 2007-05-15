@@ -75,9 +75,9 @@ public:
     bool isRowHidden(int row, const QModelIndex &parent) const;
     void setRowHidden(int row, const QModelIndex &parent, bool hide);
 
-    bool isRowSpanning(int row, const QModelIndex &parent) const;
-    void setRowSpanning(int row, const QModelIndex &parent, bool span);
-
+    bool isFirstColumnSpanned(int row, const QModelIndex &parent) const;
+    void setFirstColumnSpanned(int row, const QModelIndex &parent, bool span);
+ 
     bool isExpanded(const QModelIndex &index) const;
     void setExpanded(const QModelIndex &index, bool expand);
 

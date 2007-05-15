@@ -551,9 +551,9 @@ void QTreeView::setRowHidden(int row, const QModelIndex &parent, bool hide)
   Returns true if the item in first column in the given \a row
   of the \a parent is spanning all the columns; otherwise returns false.
 
-  \sa setRowSpanning()
+  \sa setFirstColumnSpanned()
 */
-bool QTreeView::isRowSpanning(int row, const QModelIndex &parent) const
+bool QTreeView::isFirstColumnSpanned(int row, const QModelIndex &parent) const
 {
     Q_D(const QTreeView);
     if (d->spanningIndexes.isEmpty() || !d->model)
@@ -572,9 +572,9 @@ bool QTreeView::isRowSpanning(int row, const QModelIndex &parent) const
   with the given \a parent is set to span all columns, otherwise all items
   on the \a row are shown.
 
-  \sa isRowSpanning()
+  \sa isFirstColumnSpanned()
 */
-void QTreeView::setRowSpanning(int row, const QModelIndex &parent, bool span)
+void QTreeView::setFirstColumnSpanned(int row, const QModelIndex &parent, bool span)
 {
     Q_D(QTreeView);
     if (!d->model)
@@ -2686,7 +2686,7 @@ void QTreeViewPrivate::layout(int i)
             last = j - hidden;
             viewItems[last].index = current;
             viewItems[last].level = level;
-            viewItems[last].spanning = q->isRowSpanning(current.row(), parent);
+            viewItems[last].spanning = q->isFirstColumnSpanned(current.row(), parent);
         }
     }
 
@@ -3187,6 +3187,7 @@ void QTreeViewPrivate::rowsRemoved(const QModelIndex &parent,
         int lastChildItem = firstChildItem + ((parentItem == -1)
                                               ? viewItems.count()
                                               : viewItems.at(parentItem).total) - 1;
+         
         const int delta = end - start + 1;
 
         int removedCount = 0;
