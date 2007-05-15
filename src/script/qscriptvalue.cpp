@@ -85,19 +85,6 @@
 */
 
 /*!
-    \enum QScriptValue::TypeHint
-
-    This enum is used to provide toPrimitive() with the desired type
-    of the return value.
-
-    \value NoTypeHint No hint.
-
-    \value NumberTypeHint A number value is desired.
-
-    \value StringTypeHint A string value is desired.
-*/
-
-/*!
     \enum QScriptValue::PropertyFlag
 
     This enum describes the attributes of a property.
@@ -440,8 +427,9 @@ bool QScriptValue::instanceOf(const QScriptValue &ctorValue) const
 
   Note that if this QScriptValue or the \a other value are objects,
   calling this function has side effects on the script engine, since
-  toPrimitive() will be called on each object-based operand (possibly
-  resulting in an uncaught script exception).
+  the engine will call the object's valueOf() function (and possibly
+  toString()) in an attempt to convert the object to a primitive value
+  (possibly resulting in an uncaught script exception).
 
   \sa equalTo()
 */
@@ -464,8 +452,9 @@ bool QScriptValue::lessThan(const QScriptValue &other) const
 
   Note that if this QScriptValue or the \a other value are objects,
   calling this function has side effects on the script engine, since
-  toPrimitive() will be called on each object-based operand (possibly
-  resulting in an uncaught script exception).
+  the engine will call the object's valueOf() function (and possibly
+  toString()) in an attempt to convert the object to a primitive value
+  (possibly resulting in an uncaught script exception).
 
   \sa strictEqualTo(), lessThan()
 */
@@ -504,9 +493,10 @@ bool QScriptValue::strictEqualTo(const QScriptValue &other) const
   \l{ECMA-262} section 9.8, "ToString".
 
   Note that if this QScriptValue is an object, calling this function
-  has side-effects on the script engine, since toPrimitive() will be
-  called on the object (possibly resulting in an uncaught script
-  exception).
+  has side effects on the script engine, since the engine will call
+  the object's toString() function (and possibly valueOf()) in an
+  attempt to convert the object to a primitive value (possibly
+  resulting in an uncaught script exception).
 
   \sa isString()
 */
@@ -517,12 +507,13 @@ QString QScriptValue::toString() const
 
 /*!
   Returns the number value of this QScriptValue, as defined in
-  \l{ECMA-262} section 9.3, "ToString".
+  \l{ECMA-262} section 9.3, "ToNumber".
 
   Note that if this QScriptValue is an object, calling this function
-  has side-effects on the script engine, since toPrimitive() will be
-  called on the object (possibly resulting in an uncaught script
-  exception).
+  has side effects on the script engine, since the engine will call
+  the object's valueOf() function (and possibly toString()) in an
+  attempt to convert the object to a primitive value (possibly
+  resulting in an uncaught script exception).
 
   \sa isNumber(), toInteger(), toInt32(), toUInt32(), toUInt16()
 */
@@ -536,9 +527,10 @@ qsreal QScriptValue::toNumber() const
   rules described in \l{ECMA-262} section 9.2, "ToBoolean".
 
   Note that if this QScriptValue is an object, calling this function
-  has side-effects on the script engine, since toPrimitive() will be
-  called on the object (possibly resulting in an uncaught script
-  exception).
+  has side effects on the script engine, since the engine will call
+  the object's valueOf() function (and possibly toString()) in an
+  attempt to convert the object to a primitive value (possibly
+  resulting in an uncaught script exception).
 
   \sa isBoolean()
 */
@@ -552,9 +544,10 @@ bool QScriptValue::toBoolean() const
   the conversion rules described in \l{ECMA-262} section 9.5, "ToInt32".
 
   Note that if this QScriptValue is an object, calling this function
-  has side-effects on the script engine, since toPrimitive() will be
-  called on the object (possibly resulting in an uncaught script
-  exception).
+  has side effects on the script engine, since the engine will call
+  the object's valueOf() function (and possibly toString()) in an
+  attempt to convert the object to a primitive value (possibly
+  resulting in an uncaught script exception).
 
   \sa toNumber(), toUInt32()
 */
@@ -568,9 +561,10 @@ qint32 QScriptValue::toInt32() const
   the conversion rules described in \l{ECMA-262} section 9.6, "ToUint32".
 
   Note that if this QScriptValue is an object, calling this function
-  has side-effects on the script engine, since toPrimitive() will be
-  called on the object (possibly resulting in an uncaught script
-  exception).
+  has side effects on the script engine, since the engine will call
+  the object's valueOf() function (and possibly toString()) in an
+  attempt to convert the object to a primitive value (possibly
+  resulting in an uncaught script exception).
 
   \sa toNumber(), toInt32()
 */
@@ -584,9 +578,10 @@ quint32 QScriptValue::toUInt32() const
   the conversion rules described in \l{ECMA-262} section 9.7, "ToUint16".
 
   Note that if this QScriptValue is an object, calling this function
-  has side-effects on the script engine, since toPrimitive() will be
-  called on the object (possibly resulting in an uncaught script
-  exception).
+  has side effects on the script engine, since the engine will call
+  the object's valueOf() function (and possibly toString()) in an
+  attempt to convert the object to a primitive value (possibly
+  resulting in an uncaught script exception).
 
   \sa toNumber()
 */
@@ -600,9 +595,10 @@ quint16 QScriptValue::toUInt16() const
   rules described in \l{ECMA-262} section 9.4, "ToInteger".
 
   Note that if this QScriptValue is an object, calling this function
-  has side-effects on the script engine, since toPrimitive() will be
-  called on the object (possibly resulting in an uncaught script
-  exception).
+  has side effects on the script engine, since the engine will call
+  the object's valueOf() function (and possibly toString()) in an
+  attempt to convert the object to a primitive value (possibly
+  resulting in an uncaught script exception).
 
   \sa toNumber()
 */
@@ -686,32 +682,6 @@ QRegExp QScriptValue::toRegExp() const
     return QScriptValuePrivate::valueOf(*this).toRegExp();
 }
 #endif // QT_NO_REGEXP
-
-/*!
-  Returns the primitive value of this QScriptValue, if it can be
-  converted to a primitive value; otherwise returns this QScriptValue.
-  The conversion is performed according to the following table:
-
-    \table
-    \header \o Input Type \o Result
-    \row    \o Undefined  \o The value itself (no conversion).
-    \row    \o Null       \o The value itself (no conversion).
-    \row    \o Boolean    \o The value itself (no conversion).
-    \row    \o Number     \o The value itself (no conversion).
-    \row    \o String     \o The value itself (no conversion).
-    \row    \o Object     \o The given \a hint can be used to indicate the desired primitive type.
-    \endtable
-
-  If this QScriptValue is an object, calling this function has
-  side-effects on the script engine, since e.g. toString() can be
-  called on the object (possibly resulting in an uncaught script
-  exception). If an exception occurred, toPrimitive() returns the
-  value that was thrown (typically an \c{Error} object).
-*/
-QScriptValue QScriptValue::toPrimitive(TypeHint hint) const
-{
-    return QScriptValuePrivate::valueOf(*this).toPrimitive(hint);
-}
 
 /*!
   If this QScriptValue is a QObject, returns the QObject pointer

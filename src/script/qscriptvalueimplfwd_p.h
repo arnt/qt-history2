@@ -44,6 +44,12 @@ class QScriptFunction;
 class QScriptValueImpl
 {
 public:
+    enum TypeHint {
+        NoTypeHint,
+        NumberTypeHint,
+        StringTypeHint
+    };
+
     inline QScriptValueImpl();
     inline QScriptValueImpl(QScriptEnginePrivate *engine, QScriptValue::SpecialValue val);
     inline QScriptValueImpl(QScriptEnginePrivate *engine, bool val);
@@ -96,7 +102,7 @@ public:
 #ifndef QT_NO_REGEXP
     inline QRegExp toRegExp() const;
 #endif
-    inline QScriptValueImpl toPrimitive(QScriptValue::TypeHint hint = QScriptValue::NoTypeHint) const;
+    inline QScriptValueImpl toPrimitive(TypeHint hint = NoTypeHint) const;
 
     inline QVariant &variantValue() const;
     inline void setVariantValue(const QVariant &v);

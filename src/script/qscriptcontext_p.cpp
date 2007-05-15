@@ -1213,8 +1213,8 @@ Ltop:
 
     I(Add):
     {
-        QScriptValueImpl lhs = eng->toPrimitive(stackPtr[-1], QScriptValue::NoTypeHint);
-        QScriptValueImpl rhs = eng->toPrimitive(stackPtr[0], QScriptValue::NoTypeHint);
+        QScriptValueImpl lhs = eng->toPrimitive(stackPtr[-1], QScriptValueImpl::NoTypeHint);
+        QScriptValueImpl rhs = eng->toPrimitive(stackPtr[0], QScriptValueImpl::NoTypeHint);
 
         if (lhs.isString() || rhs.isString()) {
             QString tmp = eng->convertToNativeString(lhs);
@@ -2230,10 +2230,10 @@ bool QScriptContextPrivate::lt_cmp_helper(QScriptValueImpl lhs, QScriptValueImpl
     QScriptEnginePrivate *eng = enginePrivate();
 
     if (lhs.isObject())
-        lhs = eng->toPrimitive(lhs, QScriptValue::NumberTypeHint);
+        lhs = eng->toPrimitive(lhs, QScriptValueImpl::NumberTypeHint);
 
     if (rhs.isObject())
-        rhs = eng->toPrimitive(rhs, QScriptValue::NumberTypeHint);
+        rhs = eng->toPrimitive(rhs, QScriptValueImpl::NumberTypeHint);
 
     if (lhs.isString() && rhs.isString())
         return eng->convertToNativeString(lhs) < eng->convertToNativeString(rhs);
@@ -2251,10 +2251,10 @@ bool QScriptContextPrivate::le_cmp_helper(QScriptValueImpl lhs, QScriptValueImpl
     QScriptEnginePrivate *eng = enginePrivate();
 
     if (lhs.isObject())
-        lhs = eng->toPrimitive(lhs, QScriptValue::NumberTypeHint);
+        lhs = eng->toPrimitive(lhs, QScriptValueImpl::NumberTypeHint);
 
     if (rhs.isObject())
-        rhs = eng->toPrimitive(rhs, QScriptValue::NumberTypeHint);
+        rhs = eng->toPrimitive(rhs, QScriptValueImpl::NumberTypeHint);
 
     if (lhs.isString() && rhs.isString())
         return eng->convertToNativeString(lhs) <= eng->convertToNativeString(rhs);

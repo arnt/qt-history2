@@ -38,7 +38,6 @@ private slots:
     void toVariant();
     void toQObject();
     void toObject();
-    void toPrimitive();
     void instanceOf();
     void getSetPrototype();
     void getSetScope();
@@ -642,198 +641,6 @@ void tst_QScriptValue::toObject()
 
     QScriptValue inv;
     QCOMPARE(inv.toObject().isValid(), false);
-}
-
-void tst_QScriptValue::toPrimitive()
-{
-    QScriptEngine eng;
-
-    QScriptValue undefined = eng.undefinedValue();
-    {
-        QScriptValue tmp;
-        tmp = undefined.toPrimitive(QScriptValue::NoTypeHint);
-        QCOMPARE(tmp.isUndefined(), true);
-        tmp = undefined.toPrimitive(QScriptValue::NumberTypeHint);
-        QCOMPARE(tmp.isUndefined(), true);
-        tmp = undefined.toPrimitive(QScriptValue::StringTypeHint);
-        QCOMPARE(tmp.isUndefined(), true);
-    }
-
-    QScriptValue null = eng.nullValue();
-    {
-        QScriptValue tmp;
-        tmp = null.toPrimitive(QScriptValue::NoTypeHint);
-        QCOMPARE(tmp.isNull(), true);
-        tmp = null.toPrimitive(QScriptValue::NumberTypeHint);
-        QCOMPARE(tmp.isNull(), true);
-        tmp = null.toPrimitive(QScriptValue::StringTypeHint);
-        QCOMPARE(tmp.isNull(), true);
-    }
-
-    QScriptValue number = QScriptValue(&eng, 123.0);
-    {
-        QScriptValue tmp;
-        tmp = number.toPrimitive(QScriptValue::NoTypeHint);
-        QCOMPARE(tmp.isNumber(), true);
-        QCOMPARE(tmp.toNumber(), number.toNumber());
-        tmp = number.toPrimitive(QScriptValue::NumberTypeHint);
-        QCOMPARE(tmp.isNumber(), true);
-        QCOMPARE(tmp.toNumber(), number.toNumber());
-        tmp = number.toPrimitive(QScriptValue::StringTypeHint);
-        QCOMPARE(tmp.isNumber(), true);
-        QCOMPARE(tmp.toNumber(), number.toNumber());
-    }
-
-    QScriptValue falskt = QScriptValue(&eng, false);
-    {
-        QScriptValue tmp;
-        tmp = falskt.toPrimitive(QScriptValue::NoTypeHint);
-        QCOMPARE(tmp.isBoolean(), true);
-        QCOMPARE(tmp.toBoolean(), false);
-        tmp = falskt.toPrimitive(QScriptValue::NumberTypeHint);
-        QCOMPARE(tmp.isBoolean(), true);
-        QCOMPARE(tmp.toBoolean(), false);
-        tmp = falskt.toPrimitive(QScriptValue::StringTypeHint);
-        QCOMPARE(tmp.isBoolean(), true);
-        QCOMPARE(tmp.toBoolean(), false);
-    }
-
-    QScriptValue sant = QScriptValue(&eng, true);
-    {
-        QScriptValue tmp;
-        tmp = sant.toPrimitive(QScriptValue::NoTypeHint);
-        QCOMPARE(tmp.isBoolean(), true);
-        QCOMPARE(tmp.toBoolean(), true);
-        tmp = sant.toPrimitive(QScriptValue::NumberTypeHint);
-        QCOMPARE(tmp.isBoolean(), true);
-        QCOMPARE(tmp.toBoolean(), true);
-        tmp = sant.toPrimitive(QScriptValue::StringTypeHint);
-        QCOMPARE(tmp.isBoolean(), true);
-        QCOMPARE(tmp.toBoolean(), true);
-    }
-
-    QScriptValue str = QScriptValue(&eng, QString("ciao"));
-    {
-        QScriptValue tmp;
-        tmp = str.toPrimitive(QScriptValue::NoTypeHint);
-        QCOMPARE(tmp.isString(), true);
-        QCOMPARE(tmp.toString(), str.toString());
-        tmp = str.toPrimitive(QScriptValue::NumberTypeHint);
-        QCOMPARE(tmp.isString(), true);
-        QCOMPARE(tmp.toString(), str.toString());
-        tmp = str.toPrimitive(QScriptValue::StringTypeHint);
-        QCOMPARE(tmp.isString(), true);
-        QCOMPARE(tmp.toString(), str.toString());
-    }
-
-    QScriptValue numberObject = eng.evaluate("new Number(123)");
-    QCOMPARE(numberObject.isObject(), true);
-    {
-        QScriptValue tmp;
-        tmp = numberObject.toPrimitive(QScriptValue::NoTypeHint);
-        QCOMPARE(tmp.isNumber(), true);
-        QCOMPARE(tmp.toNumber(), number.toNumber());
-        tmp = numberObject.toPrimitive(QScriptValue::NumberTypeHint);
-        QCOMPARE(tmp.isNumber(), true);
-        QCOMPARE(tmp.toNumber(), number.toNumber());
-        tmp = numberObject.toPrimitive(QScriptValue::StringTypeHint);
-        QCOMPARE(tmp.isString(), true);
-        QCOMPARE(tmp.toString(), QString("123"));
-    }
-
-    QScriptValue booleanObject = eng.evaluate("new Boolean(false)");
-    QCOMPARE(booleanObject.isObject(), true);
-    {
-        QScriptValue tmp;
-        tmp = booleanObject.toPrimitive(QScriptValue::NoTypeHint);
-        QCOMPARE(tmp.isBoolean(), true);
-        QCOMPARE(tmp.toBoolean(), false);
-        tmp = booleanObject.toPrimitive(QScriptValue::NumberTypeHint);
-        QCOMPARE(tmp.isBoolean(), true);
-        QCOMPARE(tmp.toBoolean(), false);
-        tmp = booleanObject.toPrimitive(QScriptValue::StringTypeHint);
-        QCOMPARE(tmp.isString(), true);
-        QCOMPARE(tmp.toString(), QString("false"));
-    }
-
-    QScriptValue stringObject = eng.evaluate("new String(\"ciao\")");
-    QCOMPARE(stringObject.isObject(), true);
-    {
-        QScriptValue tmp;
-        tmp = stringObject.toPrimitive(QScriptValue::NoTypeHint);
-        QCOMPARE(tmp.isString(), true);
-        QCOMPARE(tmp.toString(), str.toString());
-        tmp = stringObject.toPrimitive(QScriptValue::NumberTypeHint);
-        QCOMPARE(tmp.isString(), true);
-        QCOMPARE(tmp.toString(), str.toString());
-        tmp = stringObject.toPrimitive(QScriptValue::StringTypeHint);
-        QCOMPARE(tmp.isString(), true);
-        QCOMPARE(tmp.toString(), str.toString());
-    }
-
-    {
-        QScriptValue objectObject = eng.newObject();
-        QScriptValue tmp;
-        tmp = objectObject.toPrimitive(QScriptValue::NoTypeHint);
-        QVERIFY(tmp.isString());
-        QCOMPARE(tmp.toString(), QLatin1String("[object Object]"));
-        tmp = objectObject.toPrimitive(QScriptValue::NumberTypeHint);
-        QVERIFY(tmp.isString());
-        QCOMPARE(tmp.toString(), QLatin1String("[object Object]"));
-        tmp = objectObject.toPrimitive(QScriptValue::StringTypeHint);
-        QVERIFY(tmp.isString());
-        QCOMPARE(tmp.toString(), QLatin1String("[object Object]"));
-    }
-
-    // custom toString() and valueOf()
-    {
-        QScriptValue objectObject = eng.evaluate("(function(){"
-                                                 "  o = { };"
-                                                 "  o.toString = function() { return 'ciao'; };"
-                                                 "  o.valueOf = function() { return 123; };"
-                                                 "  return o;"
-                                                 "})()");
-        QScriptValue tmp;
-        tmp = objectObject.toPrimitive(QScriptValue::NoTypeHint);
-        QVERIFY(tmp.isNumber());
-        QCOMPARE(tmp.toNumber(), 123.0);
-        tmp = objectObject.toPrimitive(QScriptValue::NumberTypeHint);
-        QVERIFY(tmp.isNumber());
-        QCOMPARE(tmp.toNumber(), 123.0);
-        tmp = objectObject.toPrimitive(QScriptValue::StringTypeHint);
-        QVERIFY(tmp.isString());
-        QCOMPARE(tmp.toString(), QLatin1String("ciao"));
-    }
-
-    // custom toString() and valueOf() that throw exceptions
-    {
-        QScriptValue objectObject = eng.evaluate(
-            "(function(){"
-            "  o = { };"
-            "  o.toString = function() { throw new Error('toString'); };"
-            "  o.valueOf = function() { throw new Error('valueOf'); };"
-            "  return o;"
-            "})()");
-        QScriptValue tmp;
-        tmp = objectObject.toPrimitive(QScriptValue::NoTypeHint);
-        QVERIFY(eng.hasUncaughtException());
-        QVERIFY(tmp.isError());
-        QVERIFY(tmp.strictEqualTo(eng.uncaughtException()));
-        QCOMPARE(tmp.property("message").toString(), QLatin1String("valueOf"));
-        tmp = objectObject.toPrimitive(QScriptValue::NumberTypeHint);
-        QVERIFY(eng.hasUncaughtException());
-        QVERIFY(tmp.isError());
-        QVERIFY(tmp.strictEqualTo(eng.uncaughtException()));
-        QCOMPARE(tmp.property("message").toString(), QLatin1String("valueOf"));
-        tmp = objectObject.toPrimitive(QScriptValue::StringTypeHint);
-        QVERIFY(eng.hasUncaughtException());
-        QVERIFY(tmp.isError());
-        QVERIFY(tmp.strictEqualTo(eng.uncaughtException()));
-        QCOMPARE(tmp.property("message").toString(), QLatin1String("toString"));
-    }
-
-    QScriptValue inv;
-    QCOMPARE(inv.toPrimitive().isValid(), false);
 }
 
 void tst_QScriptValue::instanceOf()
@@ -1488,7 +1295,7 @@ void tst_QScriptValue::construct()
         args << QScriptValue(&eng, 123);
         QScriptValue ret = Number.construct(args);
         QCOMPARE(ret.isObject(), true);
-        QCOMPARE(ret.toPrimitive().strictEqualTo(args.at(0)), true);
+        QCOMPARE(ret.toNumber(), args.at(0).toNumber());
     }
 
     // test that internal prototype is set correctly

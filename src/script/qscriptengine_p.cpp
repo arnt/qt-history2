@@ -613,7 +613,7 @@ qsreal QScriptEnginePrivate::convertToNativeDouble_helper(const QScriptValueImpl
         return toNumber(toString(object.m_string_value));
 
     default: {
-        QScriptValueImpl p = toPrimitive(object, QScriptValue::NumberTypeHint);
+        QScriptValueImpl p = toPrimitive(object, QScriptValueImpl::NumberTypeHint);
         if (! p.isValid() || p.isObject())
             break;
 
@@ -656,7 +656,7 @@ bool QScriptEnginePrivate::convertToNativeBoolean_helper(const QScriptValueImpl 
         return toString(object.m_string_value).length() != 0;
 
     case QScript::VariantType: {
-        QScriptValueImpl p = toPrimitive(object, QScriptValue::NumberTypeHint);
+        QScriptValueImpl p = toPrimitive(object, QScriptValueImpl::NumberTypeHint);
         if (! p.isValid() || p.isObject())
             break;
 
@@ -704,7 +704,7 @@ QString QScriptEnginePrivate::convertToNativeString_helper(const QScriptValueImp
         return toString(object.m_string_value);
 
     default: {
-        QScriptValueImpl p = toPrimitive(object, QScriptValue::StringTypeHint);
+        QScriptValueImpl p = toPrimitive(object, QScriptValueImpl::StringTypeHint);
 
         if (! p.isValid() || p.isObject())
             return klass->name();
@@ -746,12 +746,12 @@ QScriptValueImpl QScriptEnginePrivate::toObject_helper(const QScriptValueImpl &v
 
 // [[defaultValue]]
 QScriptValueImpl QScriptEnginePrivate::toPrimitive_helper(const QScriptValueImpl &object,
-                                                      QScriptValue::TypeHint hint)
+                                                          QScriptValueImpl::TypeHint hint)
 {
     QScriptNameIdImpl *functionIds[2];
 
-    if ((hint == QScriptValue::NumberTypeHint)
-        || (hint == QScriptValue::NoTypeHint
+    if ((hint == QScriptValueImpl::NumberTypeHint)
+        || (hint == QScriptValueImpl::NoTypeHint
             && object.m_class != dateConstructor->classInfo())) { // ### date?
         functionIds[0] = idTable()->id_valueOf;
         functionIds[1] = idTable()->id_toString;

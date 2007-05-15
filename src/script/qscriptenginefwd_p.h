@@ -228,9 +228,9 @@ public:
     QScriptValueImpl toObject_helper(const QScriptValueImpl &value);
 
     inline QScriptValueImpl toPrimitive(const QScriptValueImpl &object,
-                                        QScriptValue::TypeHint hint = QScriptValue::NoTypeHint);
+                                        QScriptValueImpl::TypeHint hint = QScriptValueImpl::NoTypeHint);
     QScriptValueImpl toPrimitive_helper(const QScriptValueImpl &object,
-                                               QScriptValue::TypeHint hint);
+                                        QScriptValueImpl::TypeHint hint);
 
     static const qsreal D16;
     static const qsreal D32;

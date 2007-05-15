@@ -561,7 +561,7 @@ inline QScriptValueImpl QScriptEnginePrivate::toObject(const QScriptValueImpl &v
 }
 
 inline QScriptValueImpl QScriptEnginePrivate::toPrimitive(const QScriptValueImpl &object,
-                                        QScriptValue::TypeHint hint)
+                                                          QScriptValueImpl::TypeHint hint)
 {
     Q_ASSERT(object.isValid());
 

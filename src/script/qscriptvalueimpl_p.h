@@ -360,7 +360,7 @@ inline QRegExp QScriptValueImpl::toRegExp() const
 }
 #endif // QT_NO_REGEXP
 
-inline QScriptValueImpl QScriptValueImpl::toPrimitive(QScriptValue::TypeHint hint) const
+inline QScriptValueImpl QScriptValueImpl::toPrimitive(TypeHint hint) const
 {
     if (!isValid())
         return QScriptValueImpl();

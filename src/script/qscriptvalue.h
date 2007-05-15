@@ -39,12 +39,6 @@ class QScriptValuePrivate;
 class Q_SCRIPT_EXPORT QScriptValue
 {
 public:
-    enum TypeHint {
-        NoTypeHint,
-        NumberTypeHint,
-        StringTypeHint
-    };
-
     enum ResolveFlag {
         ResolveLocal        = 0x00,
         ResolvePrototype    = 0x01,
@@ -125,7 +119,6 @@ public:
 #ifndef QT_NO_REGEXP
     QRegExp toRegExp() const;
 #endif
-    QScriptValue toPrimitive(TypeHint hint = NoTypeHint) const;
 
     bool instanceOf(const QScriptValue &ctor) const;
 
