@@ -97,6 +97,7 @@ private slots:
     void itemData();
     void setDisabled();
     void removeSelectedItem();
+    void removeCurrentItem();
 
 private:
     QTreeWidget *testWidget;
@@ -2503,6 +2504,25 @@ void tst_QTreeWidget::removeSelectedItem()
 
     delete w;
 
+}
+
+class AnotherTreeWidget : public QTreeWidget
+{
+    Q_OBJECT
+public:
+    AnotherTreeWidget(QWidget *parent = 0) : QTreeWidget(parent) {}
+    void deleteCurrent() { if (currentItem()) delete currentItem(); }
+};
+
+void tst_QTreeWidget::removeCurrentItem()
+{
+    AnotherTreeWidget widget;
+    QObject::connect(widget.selectionModel(),
+                     SIGNAL(currentChanged(QModelIndex,QModelIndex)),
+                     &widget, SLOT(clear()));
+    QTreeWidgetItem *item = new QTreeWidgetItem(&widget);
+    widget.setCurrentItem(item);
+    widget.deleteCurrent();
 }
 
 QTEST_MAIN(tst_QTreeWidget)
