@@ -6209,6 +6209,7 @@ void QPainterState::init(QPainter *p) {
     clipRegion = QRegion();
     clipPath = QPainterPath();
     clipOperation = Qt::NoClip;
+    clipInfo.clear();
     worldMatrix.reset();
     matrix.reset();
     txop = 0;
