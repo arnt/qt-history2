@@ -1228,7 +1228,7 @@ void QX11EmbedContainer::embedClient(WId id)
     data.rootWindow = attrib.root;
     data.clearedWmState = false;
     data.reparentedToRoot = false;
-    
+
     do {
 	if (t.elapsed() > 500) // time-out after 500 ms
 	    break;
@@ -1239,7 +1239,7 @@ void QX11EmbedContainer::embedClient(WId id)
             usleep(50000);
 	    continue;
 	}
-        
+
         qApp->x11ProcessEvent(&event);
     } while (!data.clearedWmState || !data.reparentedToRoot);
 
@@ -1689,8 +1689,10 @@ void QX11EmbedContainerPrivate::acceptClient(WId window)
     XMapWindow(q->x11Info().display(), client);
 
     // Resize it, but no smaller than its minimum size hint.
-    XResizeWindow(q->x11Info().display(), client,
-                  qMax(q->width(), size.min_width), qMax(q->height(), size.min_height));
+    XResizeWindow(q->x11Info().display(),
+                  client,
+                  qMax(q->width(), wmMinimumSizeHint.width()),
+                  qMax(q->height(), wmMinimumSizeHint.height()));
     q->update();
 
     // Not mentioned in the protocol is that if the container
