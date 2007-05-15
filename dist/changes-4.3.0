@@ -52,7 +52,7 @@ Third party components
 
 - Updated Qt's FreeType version to 2.3.4.
 
-- Updated Qt's libpng version to 1.2.16.
+- Updated Qt's libpng version to 1.2.17.
 
 - Added libtiff version 3.8.2 for the tiff plugin.
 
