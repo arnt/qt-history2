@@ -1409,17 +1409,28 @@ QTreeWidgetItem::~QTreeWidgetItem()
     QTreeModel *model = (view ? ::qobject_cast<QTreeModel*>(view->model()) : 0);
     if (par) {
         int i = par->children.indexOf(this);
-        if (model) model->beginRemoveItems(par, i, 1);
-        par->children.takeAt(i);
-        if (model) model->endRemoveItems();
+        if (i >= 0) {
+            if (model) model->beginRemoveItems(par, i, 1);
+            // users _could_ do changes when connected to rowsAboutToBeRemoved,
+            // so we check again to make sure 'i' is valid
+            if (par->children.count() > 1 && par->children.at(i) == this)
+                par->children.takeAt(i);
+            if (model) model->endRemoveItems();
+        }
     } else if (model) {
         if (this == model->headerItem) {
             model->headerItem = 0;
         } else {
             int i = model->rootItem->children.indexOf(this);
-            model->beginRemoveItems(0, i, 1);
-            model->rootItem->children.takeAt(i);
-            model->endRemoveItems();
+            if (i >= 0) {
+                model->beginRemoveItems(0, i, 1);
+                // users _could_ do changes when connected to rowsAboutToBeRemoved,
+                // so we check again to make sure 'i' is valid
+                if (model->rootItem->children.count() > 1
+                    && model->rootItem->children.at(i) == this)
+                    model->rootItem->children.takeAt(i);
+                model->endRemoveItems();
+            }
         }
     }
     // at this point the persistent indexes for the children should also be invalidated
