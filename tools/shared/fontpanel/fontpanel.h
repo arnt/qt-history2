@@ -48,7 +48,7 @@ public:
 
 private slots:
     void slotWritingSystemChanged(int);
-    void slotFamilyChanged(int);
+    void slotFamilyChanged(const QFont &);
     void slotStyleChanged(int);
     void slotPointSizeChanged(int);
     void slotUpdatePreviewFont();

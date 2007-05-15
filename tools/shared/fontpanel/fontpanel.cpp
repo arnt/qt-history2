@@ -55,7 +55,7 @@ FontPanel::FontPanel(QWidget *parentWidget) :
     connect(m_writingSystemComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(slotWritingSystemChanged(int)));
     addGridRow(tr("&Writing system"), gridLayout, m_writingSystemComboBox, row);
 
-    connect(m_familyComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(slotFamilyChanged(int)));
+    connect(m_familyComboBox, SIGNAL( currentFontChanged(QFont)), this, SLOT(slotFamilyChanged(QFont)));
     addGridRow(tr("&Family"), gridLayout, m_familyComboBox, row);
 
     m_styleComboBox->setEditable(false);
@@ -153,7 +153,7 @@ void FontPanel::slotWritingSystemChanged(int)
     delayedPreviewFontUpdate();
 }
 
-void FontPanel::slotFamilyChanged(int)
+void FontPanel::slotFamilyChanged(const QFont &)
 {
     updateFamily(family());
     delayedPreviewFontUpdate();
@@ -245,9 +245,11 @@ void FontPanel::updatePointSizes(const QString &family, const QString &styleStri
 {
     const int oldPointSize = pointSize();
 
-    const QList<int> pointSizes =  m_fontDatabase.pointSizes(family, styleString);
-    const bool hasSizes = !pointSizes.empty();
+    QList<int> pointSizes =  m_fontDatabase.pointSizes(family, styleString);
+    if (pointSizes.empty())
+        pointSizes = QFontDatabase::standardSizes();
 
+    const bool hasSizes = !pointSizes.empty();
     m_pointSizeComboBox->clear();
     m_pointSizeComboBox->setEnabled(hasSizes);
     m_pointSizeComboBox->setCurrentIndex(-1);
