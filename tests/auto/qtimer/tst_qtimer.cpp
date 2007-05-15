@@ -266,19 +266,25 @@ Q_OBJECT
 public:
     int times;
     int target;
+    bool recurse;
 
     RecurringTimerObject(int target)
-        : times(0), target(target) { }
+        : times(0), target(target), recurse(false)
+    { }
 
     void timerEvent(QTimerEvent *timerEvent)
     {
         if (++times == target) {
             killTimer(timerEvent->timerId());
             emit done();
+        } if (recurse) {
+            QEventLoop eventLoop;
+            QTimer::singleShot(100, &eventLoop, SLOT(quit()));
+            eventLoop.exec();
         }
     }
 
-    signals:
+signals:
     void done();
 };
 
@@ -293,12 +299,27 @@ void tst_QTimer::recurringTimer()
 {
     const int target = 5;
     QFETCH(int, interval);
-    RecurringTimerObject object(target);
-    QObject::connect(&object, SIGNAL(done()), &QTestEventLoop::instance(), SLOT(exitLoop()));
-    (void) object.startTimer(interval);
-    QTestEventLoop::instance().enterLoop(5);
 
-    QCOMPARE(object.times, target);
+    {
+        RecurringTimerObject object(target);
+        QObject::connect(&object, SIGNAL(done()), &QTestEventLoop::instance(), SLOT(exitLoop()));
+        (void) object.startTimer(interval);
+        QTestEventLoop::instance().enterLoop(5);
+
+        QCOMPARE(object.times, target);
+    }
+
+    {
+        // make sure that eventloop recursion doesn't effect timer recurrance
+        RecurringTimerObject object(target);
+        object.recurse = true;
+
+        QObject::connect(&object, SIGNAL(done()), &QTestEventLoop::instance(), SLOT(exitLoop()));
+        (void) object.startTimer(interval);
+        QTestEventLoop::instance().enterLoop(5);
+
+        QCOMPARE(object.times, target);
+    }
 }
 
 void tst_QTimer::deleteLaterOnQTimer()

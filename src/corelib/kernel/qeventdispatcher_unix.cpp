@@ -99,7 +99,7 @@ int QEventDispatcherUNIXPrivate::doSelect(QEventLoop::ProcessEventsFlags flags, 
 {
     Q_Q(QEventDispatcherUNIX);
 
-    // needed in QEventDispatcherUNIX::select() 
+    // needed in QEventDispatcherUNIX::select()
     timerList.updateCurrentTime();
 
     int nsel;
@@ -482,6 +482,8 @@ int QTimerInfoList::activateTimers()
     timeval currentTime;
     int n_act = 0, maxCount = count();
 
+    QTimerInfo *saveFirstTimerInfo = firstTimerInfo;
+    QTimerInfo *saveCurrentTimerInfo = currentTimerInfo;
     firstTimerInfo = currentTimerInfo = 0;
 
     while (maxCount--) {
@@ -533,7 +535,8 @@ int QTimerInfoList::activateTimers()
         }
     }
 
-    firstTimerInfo = currentTimerInfo = 0;
+    firstTimerInfo = saveFirstTimerInfo;
+    currentTimerInfo = saveCurrentTimerInfo;
 
     return n_act;
 }
@@ -587,7 +590,7 @@ void QEventDispatcherUNIX::registerTimer(int timerId, int interval, QObject *obj
         return;
     }
 #endif
-    
+
     Q_D(QEventDispatcherUNIX);
     d->timerList.registerTimer(timerId, interval, obj);
 }
@@ -606,7 +609,7 @@ bool QEventDispatcherUNIX::unregisterTimer(int timerId)
         return false;
     }
 #endif
-    
+
     Q_D(QEventDispatcherUNIX);
     return d->timerList.unregisterTimer(timerId);
 }
@@ -625,7 +628,7 @@ bool QEventDispatcherUNIX::unregisterTimers(QObject *object)
         return false;
     }
 #endif
-    
+
     Q_D(QEventDispatcherUNIX);
     return d->timerList.unregisterTimers(object);
 }
@@ -678,7 +681,7 @@ void QEventDispatcherUNIX::registerSocketNotifier(QSocketNotifier *notifier)
         return;
     }
 #endif
-    
+
     Q_D(QEventDispatcherUNIX);
     QSockNotType::List &list = d->sn_vec[type].list;
     fd_set *fds  = &d->sn_vec[type].enabled_fds;
