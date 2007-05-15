@@ -1594,6 +1594,25 @@ int QAccessibleMainWindow::navigate(RelationFlag relation, int entry, QAccessibl
     return QAccessibleWidgetEx::navigate(relation, entry, iface);
 }
 
+int QAccessibleMainWindow::childAt(int x, int y) const
+{
+    QWidget *w = widget();
+    if (!w->isVisible())
+        return -1;
+    QPoint gp = w->mapToGlobal(QPoint(0, 0));
+    if (!QRect(gp.x(), gp.y(), w->width(), w->height()).contains(x, y))
+        return -1;
+
+    QWidgetList kids = childWidgets(mainWindow(), true);
+    QPoint rp = mainWindow()->mapFromGlobal(QPoint(x, y));
+    for (int i = 0; i < kids.size(); ++i) {
+        QWidget *child = kids.at(i);
+        if (!child->isWindow() && !child->isHidden() && child->geometry().contains(rp)) {
+            return i + 1;
+        }
+    }
+    return 0;
+}
 
 QMainWindow *QAccessibleMainWindow::mainWindow() const
 {

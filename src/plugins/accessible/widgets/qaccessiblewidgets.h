@@ -275,6 +275,7 @@ public:
     int childCount() const;
     int navigate(RelationFlag relation, int entry, QAccessibleInterface **iface) const;
     int indexOfChild(const QAccessibleInterface *iface) const;
+    int childAt(int x, int y) const;
     QMainWindow *mainWindow() const;
 
 };

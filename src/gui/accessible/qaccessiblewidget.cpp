@@ -22,6 +22,7 @@
 #include "qtooltip.h"
 #include "qwhatsthis.h"
 #include "qwidget.h"
+#include "qdebug.h"
 #include "private/qmath_p.h"
 #include <QRubberBand>
 #include <QtGui/QFocusFrame>
@@ -191,6 +192,9 @@ QObject *QAccessibleWidget::parentObject() const
 /*! \reimp */
 int QAccessibleWidget::childAt(int x, int y) const
 {
+    qDebug() << "akkar";
+
+
     QWidget *w = widget();
     if (!w->isVisible())
         return -1;
@@ -200,6 +204,8 @@ int QAccessibleWidget::childAt(int x, int y) const
 
     QWidgetList list = childWidgets(w);
     int ccount = childCount();
+
+    qDebug() << "child at" << list.count() << childCount();
 
     // a complex child
     if (list.size() < ccount) {
