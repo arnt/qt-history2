@@ -37,8 +37,8 @@
     \section1 AIX - 5.1 or later
 
     Qt has been built on a range of versions from 5.1 upwards, using both
-    \l{/developer/compilers/xlc.html}{xlC} and
-    \l{/developer/compilers/gcc.html}{GCC}.
+    \l{compiler-notes.html}{xlC} and
+    \l{compiler-notes.html}{GCC}.
 
     \table
     \header \o Compiler \o Notes
@@ -201,7 +201,7 @@
 
     \section2 CC on Solaris
 
-    Be sure to check our \l{Compiler Notes#Sun Studio Compiler}{Forte Developer / Sun Studio}
+    Be sure to check our \l{Compiler Notes#Sun Studio}{Forte Developer / Sun Studio}
     notes.
     
     \section2 GCC on Solaris

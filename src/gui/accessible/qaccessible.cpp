@@ -357,27 +357,6 @@
     \internal
 */
 
-/*!
-    \fn static void QAccessible::updateAccessibility(QObject *object, int child, Event reason)
-
-    Notifies accessibility clients about a change in \a object's
-    accessibility information.
-
-    \a reason specifies the cause of the change, for example,
-    \c ValueChange when the position of a slider has been changed. \a
-    child is the (1-based) index of the child element that has changed.
-    When \a child is 0, the object itself has changed.
-
-    Call this function whenever the state of your accessible object or
-    one of its sub-elements has been changed either programmatically
-    (e.g. by calling QLabel::setText()) or by user interaction.
-
-    If there are no accessibility tools listening to this event, the
-    performance penalty for calling this function is small, but if determining
-    the parameters of the call is expensive you can test isActive() to
-    avoid unnecessary computations.
-*/
-
 #ifndef QT_NO_LIBRARY
 Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
     (QAccessibleFactoryInterface_iid, QCoreApplication::libraryPaths(), QLatin1String("/accessible")))
@@ -554,22 +533,41 @@ bool QAccessible::isActive()
 }
 
 /*!
-    \internal
+  \fn void QAccessible::setRootObject(QObject *object)
 
-    \fn void QAccessible::setRootObject(QObject *object)
+  Sets the root accessible object of this application to \a object.
+  All other accessible objects in the application can be reached by the
+  client using object navigation.
 
-    Sets the root accessible object of this application to \a object.
-    All other accessible objects in the application can be reached by the
-    client using object navigation.
+  You should never need to call this function. Qt sets the QApplication
+  object as the root object immediately before the event loop is entered
+  in QApplication::exec().
 
-    You should never need to call this function. Qt sets the QApplication
-    object as the root object immediately before the event loop is entered
-    in QApplication::exec().
+  Use QAccessible::installRootObjectHandler() to redirect the function
+  call to a customized handler function.
 
-    Use installRootObjectHandler() to redirect the function call to a
-    customized handler function.
+  \sa queryAccessibleInterface()
+*/
 
-    \sa RootObjectHandler, queryAccessibleInterface()
+/*!
+  \fn void QAccessible::updateAccessibility(QObject *object, int child, Event reason)
+
+  Notifies accessibility clients about a change in \a object's
+  accessibility information.
+
+  \a reason specifies the cause of the change, for example,
+  \c ValueChange when the position of a slider has been changed. \a
+  child is the (1-based) index of the child element that has changed.
+  When \a child is 0, the object itself has changed.
+  
+  Call this function whenever the state of your accessible object or
+  one of its sub-elements has been changed either programmatically
+  (e.g. by calling QLabel::setText()) or by user interaction.
+  
+  If there are no accessibility tools listening to this event, the
+  performance penalty for calling this function is small, but if determining
+  the parameters of the call is expensive you can test isActive() to
+  avoid unnecessary computations.
 */
 
 

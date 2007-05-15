@@ -65,7 +65,7 @@
     can be widgets or widget parts (such as scroll bar handles). We
     examine the tree in detail in the next section.
 
-    Servers notify clients through QAccessible::updateAccessibility()
+    Servers notify clients through \l{QAccessible::}{updateAccessibility()}
     about changes in objects by sending events, and the clients
     register to receive the events. The available events are defined
     by the QAccessible::Event enum. The clients may then query for
@@ -184,11 +184,11 @@
     the QApplication instance is instantiated and you should not have
     to do this yourself.
 
-    When a QObject calls QAccessible::updateAccessibility(), clients
-    that are listening to events are notified of the change. The
-    function is used to post events to the assistive technology, and
-    accessible \l{QAccessible::Event}{events} are posted by
-    \l{QAccessible::}{updateAccessibility()}.    
+    When a QObject calls \l{QAccessible::}{updateAccessibility()},
+    clients that are listening to events are notified of the
+    change. The function is used to post events to the assistive
+    technology, and accessible \l{QAccessible::Event}{events} are
+    posted by \l{QAccessible::}{updateAccessibility()}.
 
     \l{QAccessible::}{queryAccessibleInterface()} returns accessible
     interfaces for \l{QObject}s. All widgets in Qt provide interfaces;
@@ -488,7 +488,7 @@
     is, we create and return an interface for it. Note that \c object
     will always be an instance of \c classname. You must return 0 if
     you do not support the class.
-    \l{QAccessibility::}{updateAccessibility()} checks with the
+    \l{QAccessible::}{updateAccessibility()} checks with the
     available accessibility plugins until it finds one that does not
     return 0.
 
@@ -555,7 +555,7 @@
 
     Event notification is sent through
     \l{QAccessibleBridge::}{notifyAccessibilityUpdate()}. This
-    function is called by QAccessible::updateAccessibility(). Even
+    function is called by \l{QAccessible::}{updateAccessibility()}. Even
     though the bridge needs only to implement these two functions, it
     must be able to communicate the entire QAccessibleInterface to the
     underlying technology. How this is achieved is, naturally, up to
