@@ -25,6 +25,9 @@
 #include <qscrollbar.h>
 #include <qabstractbutton.h>
 #include <private/qtableview_p.h>
+#ifndef QT_NO_ACCESSIBILITY
+#include <qaccessible.h>
+#endif
 
 class QTableCornerButton : public QAbstractButton
 {
@@ -2285,6 +2288,47 @@ void QTableViewPrivate::selectColumn(int column, bool anchor)
             selectionModel->select(QItemSelection(tl, br), command);
     }
 }
+
+void QTableView::currentChanged(const QModelIndex &current, const QModelIndex &previous)
+{
+#ifndef QT_NO_ACCESSIBILITY
+    if (QAccessible::isActive()) {
+        if (current.isValid()) {
+            int entry = visualIndex(current) + 1;
+            QAccessible::updateAccessibility(viewport(), entry, QAccessible::Focus);
+        }
+    }
+#endif
+    QAbstractItemView::currentChanged(current, previous);
+}
+
+void QTableView::selectionChanged(const QItemSelection &selected,
+                                  const QItemSelection &deselected)
+{
+#ifndef QT_NO_ACCESSIBILITY
+    if (QAccessible::isActive()) {
+        // ### does not work properly for selection ranges.
+        QModelIndex sel = selected.indexes().value(0);
+        if (sel.isValid()) {
+            int entry = visualIndex(sel);
+            QAccessible::updateAccessibility(viewport(), entry, QAccessible::Selection);
+        }
+        QModelIndex desel = deselected.indexes().value(0);
+        if (desel.isValid()) {
+            int entry = visualIndex(sel);
+            QAccessible::updateAccessibility(viewport(), entry, QAccessible::SelectionRemove);
+        }
+    }
+#endif
+    QAbstractItemView::selectionChanged(selected, deselected);
+}
+
+int QTableView::visualIndex(const QModelIndex &index) const
+{
+    Q_D(const QTableView);
+    return index.row();
+}
+
 
 #include "qtableview.moc"
 #include "moc_qtableview.cpp"

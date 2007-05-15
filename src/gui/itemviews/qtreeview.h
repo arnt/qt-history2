@@ -174,8 +174,14 @@ protected:
     void horizontalScrollbarAction(int action);
 
     bool isIndexHidden(const QModelIndex &index) const;
+    void selectionChanged(const QItemSelection &selected,
+                          const QItemSelection &deselected);
+    void currentChanged(const QModelIndex &current, const QModelIndex &previous);
 
 private:
+    friend class QAccessibleItemView;
+    int visualIndex(const QModelIndex &index) const;
+
     Q_DECLARE_PRIVATE(QTreeView)
     Q_DISABLE_COPY(QTreeView)
     Q_PRIVATE_SLOT(d_func(), void _q_endAnimatedOperation())

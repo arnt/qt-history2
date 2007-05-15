@@ -332,6 +332,11 @@ QAccessible::State QAccessibleItemRow::state(int child) const
             }
 
         } else {
+            Qt::ItemFlags flags = row.flags();
+            if (flags & Qt::ItemIsSelectable) {
+                st |= Selectable;
+                st |= Focusable;
+            }
             if (view->selectionModel()->isRowSelected(row.row(), row.parent()))
                 st |= Selected;
         }
@@ -401,10 +406,70 @@ bool QAccessibleItemRow::doAction(int action, int child, const QVariantList & /*
     return true;
 }
 
+class ModelIndexIterator
+{
+public:
+    ModelIndexIterator(QAbstractItemView *view, const QModelIndex &start = QModelIndex()) : m_view(view)
+    {
+        if (start.isValid()) {
+            m_current = start;
+        } else if (m_view && m_view->model()) {
+            m_current = view->model()->index(0, 0);
+        }
+    }
+
+    bool next(int count = 1) {
+        for (int i = 0; i < count; ++i) {
+            do {
+                if (m_current.isValid()) {
+                    const QAbstractItemModel *m = m_current.model();
+                    QTreeView *tree = qobject_cast<QTreeView*>(m_view);
+
+                    if (m_current.model()->hasChildren(m_current) && tree && tree->isExpanded(m_current)) {
+                        m_current = m_current.child(0, 0);
+                    } else {
+                        int row = m_current.row();
+                        QModelIndex par = m_current.parent();
+                        while (row == m->rowCount(par) - 1) {
+                            m_current = par;
+                            row = m_current.row();
+                            par = m_current.parent();
+                        }
+
+                        if (m_current.isValid())
+                            m_current = m_current.sibling(row + 1, 0);
+                    }
+                }
+            } while (isHidden());
+        }
+        return m_current.isValid();
+    }
+
+    bool isHidden() const {
+        if (QListView *list = qobject_cast<QListView*>(m_view)) {
+            return list->isRowHidden(m_current.row());
+        } else if (QTreeView *tree = qobject_cast<QTreeView*>(m_view)) {
+            return tree->isRowHidden(m_current.row(), m_current.parent());
+        } else if (QTableView *table = qobject_cast<QTableView*>(m_view)) {
+            return table->isRowHidden(m_current.row());
+        }
+        return false;
+    }
+
+    QModelIndex current() const {
+        return m_current;
+    }
+
+private:
+    QModelIndex m_current;
+    QAbstractItemView *m_view;
+};
+
 QAccessibleItemView::QAccessibleItemView(QWidget *w)
     : QAccessibleAbstractScrollArea(w->objectName() == QLatin1String("qt_scrollarea_viewport") ? w->parentWidget() : w)
 {
     atVP = w->objectName() == QLatin1String("qt_scrollarea_viewport");
+
 }
 
 QAccessible::Role QAccessibleItemView::expectedRoleOfChildren() const
@@ -463,7 +528,7 @@ int QAccessibleItemView::indexOfChild(const QAccessibleInterface *iface) const
         if (!idx.isValid())
             return -1;
 
-        return idx.row() + 1;
+        return entryFromIndex(idx);
     } else {
         return QAccessibleAbstractScrollArea::indexOfChild(iface);
     }
@@ -473,7 +538,22 @@ QModelIndex QAccessibleItemView::childIndex(int child) const
 {
     if (!atViewport())
         return QModelIndex();
-    return itemView()->model()->index(child - 1, 0);
+    ModelIndexIterator it(itemView());
+    it.next(child - 1);
+    return it.current();
+}
+
+int QAccessibleItemView::entryFromIndex(const QModelIndex &index) const
+{
+    int entry = -1;
+    if (QTreeView *tree = qobject_cast<QTreeView*>(itemView())) {
+        entry = tree->visualIndex(index) + 1;
+    } else if (QListView *list = qobject_cast<QListView*>(itemView())) {
+        entry = list->visualIndex(index) + 1;
+    } else if (QTableView *table = qobject_cast<QTableView*>(itemView())) {
+        entry = table->visualIndex(index) + 1;
+    }
+    return entry;
 }
 
 int QAccessibleItemView::childCount() const
@@ -481,7 +561,16 @@ int QAccessibleItemView::childCount() const
     if (atViewport()) {
         if (itemView()->model() == 0)
             return 0;
-        return itemView()->model()->rowCount();
+        QAbstractItemModel *m = itemView()->model();
+        QModelIndex idx = m->index(0,0);
+        if (!idx.isValid())
+            return 0;
+        ModelIndexIterator it(itemView());
+        int count = 1;
+        while (it.next()) {
+            ++count;
+        }
+        return count;
     } else {
         return QAccessibleAbstractScrollArea::childCount();
     }
@@ -540,7 +629,11 @@ int QAccessibleItemView::childAt(int x, int y) const
     if (atViewport()) {
         QPoint localPos = itemView()->viewport()->mapFromGlobal(QPoint(x, y));
         QModelIndex idx = itemView()->indexAt(localPos);
-        return idx.row() + 1;
+        idx = idx.sibling(idx.row(), 0);
+        int entry = entryFromIndex(idx);
+        if (entry == -1 && rect(0).contains(QPoint(x,y)))
+            entry = 0;
+        return entry;
     } else {
         return QAccessibleAbstractScrollArea::childAt(x, y);
     }

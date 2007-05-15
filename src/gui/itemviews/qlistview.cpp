@@ -25,6 +25,9 @@
 #include <qrubberband.h>
 #include <private/qlistview_p.h>
 #include <qdebug.h>
+#ifndef QT_NO_ACCESSIBILITY
+#include <qaccessible.h>
+#endif
 
 /*!
     \class QListView
@@ -2728,4 +2731,44 @@ void QDynamicListViewBase::clear()
     batchSavedDeltaSeg = 0;
 }
 
+void QListView::currentChanged(const QModelIndex &current, const QModelIndex &previous)
+{
+#ifndef QT_NO_ACCESSIBILITY
+    if (QAccessible::isActive()) {
+        if (current.isValid()) {
+            int entry = visualIndex(current) + 1;
+            QAccessible::updateAccessibility(viewport(), entry, QAccessible::Focus);
+        }
+    }
+#endif
+    QAbstractItemView::currentChanged(current, previous);
+}
+
+void QListView::selectionChanged(const QItemSelection &selected,
+                                 const QItemSelection &deselected)
+{
+#ifndef QT_NO_ACCESSIBILITY
+    if (QAccessible::isActive()) {
+        // ### does not work properly for selection ranges.
+        QModelIndex sel = selected.indexes().value(0);
+        if (sel.isValid()) {
+            int entry = visualIndex(sel) + 1;
+            QAccessible::updateAccessibility(viewport(), entry, QAccessible::Selection);
+        }
+        QModelIndex desel = deselected.indexes().value(0);
+        if (desel.isValid()) {
+            int entry = visualIndex(desel) + 1;
+            QAccessible::updateAccessibility(viewport(), entry, QAccessible::SelectionRemove);
+        }
+    }
+#endif
+    QAbstractItemView::selectionChanged(selected, deselected);
+}
+
+int QListView::visualIndex(const QModelIndex &index) const
+{
+    Q_D(const QListView);
+    QListViewItem itm = d->indexToListViewItem(index);
+    return d->itemIndex(itm);
+}
 #endif // QT_NO_LISTVIEW

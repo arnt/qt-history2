@@ -24,6 +24,9 @@
 #include <qevent.h>
 #include <qpen.h>
 #include <qdebug.h>
+#ifndef QT_NO_ACCESSIBILITY
+#include <qaccessible.h>
+#endif
 
 #include <private/qtreeview_p.h>
 
@@ -3235,6 +3238,44 @@ void QTreeViewPrivate::updateChildCount(const int parentItem, const int delta)
             --level;
         } while (level >= 0);
     }
+}
+
+void QTreeView::currentChanged(const QModelIndex &current, const QModelIndex &previous)
+{
+#ifndef QT_NO_ACCESSIBILITY
+    if (QAccessible::isActive()) {
+        int entry = visualIndex(current) + 1;
+        QAccessible::updateAccessibility(viewport(), entry, QAccessible::Focus);
+    }
+#endif
+    QAbstractItemView::currentChanged(current, previous);
+}
+
+void QTreeView::selectionChanged(const QItemSelection &selected,
+                                 const QItemSelection &deselected)
+{
+#ifndef QT_NO_ACCESSIBILITY
+    if (QAccessible::isActive()) {
+        // ### does not work properly for selection ranges.
+        QModelIndex sel = selected.indexes().value(0);
+        if (sel.isValid()) {
+            int entry = visualIndex(sel) + 1;
+            QAccessible::updateAccessibility(viewport(), entry, QAccessible::Selection);
+        }
+        QModelIndex desel = deselected.indexes().value(0);
+        if (desel.isValid()) {
+            int entry = visualIndex(desel) + 1;
+            QAccessible::updateAccessibility(viewport(), entry, QAccessible::SelectionRemove);
+        }
+    }
+#endif
+    QAbstractItemView::selectionChanged(selected, deselected);
+}
+
+int QTreeView::visualIndex(const QModelIndex &index) const
+{
+    Q_D(const QTreeView);
+    return d->viewIndex(index);
 }
 
 #include "moc_qtreeview.cpp"

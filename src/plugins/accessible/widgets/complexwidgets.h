@@ -138,6 +138,7 @@ public:
     int indexOfChild(const QAccessibleInterface *iface) const;
 
     QModelIndex childIndex(int child) const;
+    int entryFromIndex(const QModelIndex &index) const;
     int navigate(RelationFlag relation, int index, QAccessibleInterface **iface) const;
 
     QAccessibleInterface *accessibleAt(int row, int column);
