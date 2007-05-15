@@ -330,9 +330,9 @@
     \printuntil };
 
     We can implement most of the pure virtual functions inherited from
-    QWSWindowSurface as trivial inline functions, except the \l
-    {QWSWindowSurface::}{scroll()} function that actually makes use of
-    some hardware acceleration:
+    QWSWindowSurface as trivial inline functions, except the 
+    \l {QWindowSurface::}{scroll()} function that actually makes use
+    of some hardware acceleration:
 
     \quotefromfile qtopiacore/svgalib/svgalibsurface.cpp
     \skipto SvgalibSurface::scroll

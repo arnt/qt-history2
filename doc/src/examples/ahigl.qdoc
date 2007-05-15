@@ -55,7 +55,7 @@
     \printuntil /^\}/
 
     The transition effect is supported by the class ShowAnimation which
-    subclasses QTimeLine and reimplements \l {QTimeLine::}{valueforTime()}.
+    subclasses QTimeLine and reimplements \l {QTimeLine::}{valueForTime()}.
 
     \skipto struct WindowInfo
     \printuntil windowMap;
