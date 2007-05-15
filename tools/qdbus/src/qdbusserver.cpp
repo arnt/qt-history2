@@ -78,3 +78,9 @@ QString QDBusServer::address() const
     return addr;
 }
 
+/*!
+  \fn void QDBusServer::newConnection(const QDBusConnection &connection)
+
+  This signal is currently not used, but if and when it is
+  used, \a connection will be the new connection. 
+ */

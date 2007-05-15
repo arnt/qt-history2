@@ -15,8 +15,9 @@
 
 /*!
     \class QDesignerScriptExtension
-    \brief The QDesignerScriptExtension allows you to generate a per-widget
-    \l{QtScript} {Qt Script} snippet to be executed while building the form.
+    \brief The QDesignerScriptExtension class allows you to generate a
+    per-widget \l{QtScript} {Qt Script} snippet to be executed while
+    building the form.
 
     \inmodule QtDesigner
     \since 4.3

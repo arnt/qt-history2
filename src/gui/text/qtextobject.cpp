@@ -567,7 +567,7 @@ void QTextFramePrivate::remove_me()
 
 /*!
     \class QTextFrame::iterator
-    \brief The QTextFrame::iterator class provides an iterator for reading
+    \brief The iterator class provides an iterator for reading
     the contents of a QTextFrame.
 
     \ingroup text
