@@ -29,7 +29,6 @@ public:
     \class QWindowSurface
     \since 4.3
     \preliminary
-    \internal
 
     \brief The QWindowSurface class provides the drawing area for top-level
     windows.
@@ -62,16 +61,12 @@ public:
     screen.
 
     Note that the \a offset parameter is currently unused.
-
-    \sa painterOffset()
 */
 
 /*!
     \fn QPaintDevice* QWindowSurface::paintDevice()
 
     Implement this function to return the appropriate paint device.
-
-    \sa painterOffset()
 */
 
 /*!
@@ -97,8 +92,6 @@ QWindowSurface::~QWindowSurface()
 /*!
     Returns a pointer to the top-level window associated with this
     surface.
-
-    \sa isValid(), key()
 */
 QWidget* QWindowSurface::window() const
 {
@@ -115,7 +108,7 @@ void QWindowSurface::endPaint(const QRegion &)
 }
 
 /*!
-    Sets the currently allocated area to be the given \a rectangle.
+    Sets the currently allocated area to be the given \a rect.
 
     This function is called whenever area covered by the top-level
     window changes.
@@ -136,7 +129,7 @@ QRect QWindowSurface::geometry() const
 }
 
 /*!
-    Scrolls the given \a region \a dx pixels to the right and \a dy
+    Scrolls the given \a area \a dx pixels to the right and \a dy
     downward; both \a dx and \a dy may be negative.
 
     Returns true if the area was scrolled successfully; false otherwise.
@@ -204,7 +197,10 @@ QPixmap QWindowSurface::grabWidget(const QWidget *widget, const QRect &rectangle
     return QPixmap();
 }
 
-
+/*!
+  Returns the offset of \a widget in the coordinates of this
+  window surface.
+ */
 QPoint QWindowSurface::offset(const QWidget *widget) const
 {
     QWidget *window = d_ptr->window;
@@ -215,3 +211,9 @@ QPoint QWindowSurface::offset(const QWidget *widget) const
     return offset;
 }
 
+/*!
+  \fn QRect QWindowSurface::rect(const QWidget *widget) const
+
+  Returns the rectangle for \a widget in the coordinates of this
+  window surface.
+*/
