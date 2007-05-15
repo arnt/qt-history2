@@ -423,11 +423,14 @@ public:
             do {
                 if (m_current.isValid()) {
                     const QAbstractItemModel *m = m_current.model();
+#ifndef QT_NO_TREEVIEW
                     QTreeView *tree = qobject_cast<QTreeView*>(m_view);
 
                     if (m_current.model()->hasChildren(m_current) && tree && tree->isExpanded(m_current)) {
                         m_current = m_current.child(0, 0);
-                    } else {
+                    } else
+#endif
+                    {
                         int row = m_current.row();
                         QModelIndex par = m_current.parent();
                         while (row == m->rowCount(par) - 1) {
@@ -446,12 +449,19 @@ public:
     }
 
     bool isHidden() const {
-        if (QListView *list = qobject_cast<QListView*>(m_view)) {
+        if (false) {
+#ifndef QT_NO_LISTVIEW
+        } else if (QListView *list = qobject_cast<QListView*>(m_view)) {
             return list->isRowHidden(m_current.row());
+#endif
+#ifndef QT_NO_TREEVIEW
         } else if (QTreeView *tree = qobject_cast<QTreeView*>(m_view)) {
             return tree->isRowHidden(m_current.row(), m_current.parent());
+#endif
+#ifndef QT_NO_TABLEVIEW
         } else if (QTableView *table = qobject_cast<QTableView*>(m_view)) {
             return table->isRowHidden(m_current.row());
+#endif
         }
         return false;
     }
@@ -546,12 +556,19 @@ QModelIndex QAccessibleItemView::childIndex(int child) const
 int QAccessibleItemView::entryFromIndex(const QModelIndex &index) const
 {
     int entry = -1;
-    if (QTreeView *tree = qobject_cast<QTreeView*>(itemView())) {
+    if (false) {
+#ifndef QT_NO_TREEVIEW
+    } else if (QTreeView *tree = qobject_cast<QTreeView*>(itemView())) {
         entry = tree->visualIndex(index) + 1;
+#endif
+#ifndef QT_NO_LISTVIEW
     } else if (QListView *list = qobject_cast<QListView*>(itemView())) {
         entry = list->visualIndex(index) + 1;
+#endif
+#ifndef QT_NO_TABLEVIEW
     } else if (QTableView *table = qobject_cast<QTableView*>(itemView())) {
         entry = table->visualIndex(index) + 1;
+#endif
     }
     return entry;
 }
