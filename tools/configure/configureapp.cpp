@@ -2140,8 +2140,10 @@ void Configure::generateConfigfiles()
     // Generate the new qconfig.cpp file
     QDir(buildPath).mkpath("src/corelib/global");
     outName = buildPath + "/src/corelib/global/qconfig.cpp";
-    if (tmpFile.open()) {
-        tmpStream.setDevice(&tmpFile);
+
+    QTemporaryFile tmpFile2;
+    if (tmpFile2.open()) {
+        tmpStream.setDevice(&tmpFile2);
 
         tmpStream << "/* Licensed */" << endl
                   << "static const char qt_configure_licensee_str          [512 + 12] = \"qt_lcnsuser=" << licenseInfo["LICENSEE"] << "\";" << endl
@@ -2174,13 +2176,13 @@ void Configure::generateConfigfiles()
                   << endl;
 
         tmpStream.flush();
-        tmpFile.flush();
-        if(!QFile::exists(outName) || filesDiffer(tmpFile.fileName(), outName)) {
+        tmpFile2.flush();
+        if(!QFile::exists(outName) || filesDiffer(tmpFile2.fileName(), outName)) {
             ::SetFileAttributesA(outName.toLocal8Bit(), FILE_ATTRIBUTE_NORMAL );
             QFile::remove( outName );
-            tmpFile.copy(outName);
+            tmpFile2.copy(outName);
         }
-        tmpFile.close();
+        tmpFile2.close();
     }
 }
 #endif
