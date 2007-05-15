@@ -342,7 +342,7 @@
         <translation>Priečinok:</translation>
     </message>
     <message>
-        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="5721"/>
+        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="5716"/>
         <source>Error</source>
         <translation>Chyba</translation>
     </message>
@@ -711,7 +711,7 @@ na
 <context>
     <name>QApplication</name>
     <message>
-        <location filename="../src/gui/kernel/qapplication.cpp" line="2006"/>
+        <location filename="../src/gui/kernel/qapplication.cpp" line="2012"/>
         <source>QT_LAYOUT_DIRECTION</source>
         <comment>Translate this string to the string &apos;LTR&apos; in left-to-right languages or to &apos;RTL&apos; in right-to-left languages (such as Hebrew and Arabic) to get proper widget layout.</comment>
         <translation>LTR</translation>
@@ -740,22 +740,22 @@ na
 <context>
     <name>QAxSelect</name>
     <message>
-        <location filename="../src/activeqt/container/qaxselect.ui" line="28"/>
+        <location filename="../src/activeqt/container/ui_qaxselect.h" line="123"/>
         <source>Select ActiveX Control</source>
         <translation>Vyberte ActiveX Control</translation>
     </message>
     <message>
-        <location filename="../src/activeqt/container/qaxselect.ui" line="60"/>
+        <location filename="../src/activeqt/container/ui_qaxselect.h" line="124"/>
         <source>OK</source>
         <translation>OK</translation>
     </message>
     <message>
-        <location filename="../src/activeqt/container/qaxselect.ui" line="76"/>
+        <location filename="../src/activeqt/container/ui_qaxselect.h" line="125"/>
         <source>&amp;Cancel</source>
         <translation>S&amp;torno</translation>
     </message>
     <message>
-        <location filename="../src/activeqt/container/qaxselect.ui" line="125"/>
+        <location filename="../src/activeqt/container/ui_qaxselect.h" line="126"/>
         <source>COM &amp;Object:</source>
         <translation>COM &amp;objekt:</translation>
     </message>
@@ -854,22 +854,22 @@ na
 <context>
     <name>QComboBox</name>
     <message>
-        <location filename="../src/plugins/accessible/widgets/complexwidgets.cpp" line="1282"/>
+        <location filename="../src/plugins/accessible/widgets/complexwidgets.cpp" line="1394"/>
         <source>Open</source>
         <translation>Otvoriť</translation>
     </message>
     <message>
-        <location filename="../src/gui/itemviews/qitemeditorfactory.cpp" line="480"/>
+        <location filename="../src/gui/itemviews/qitemeditorfactory.cpp" line="515"/>
         <source>False</source>
         <translation>Nepravda</translation>
     </message>
     <message>
-        <location filename="../src/gui/itemviews/qitemeditorfactory.cpp" line="481"/>
+        <location filename="../src/gui/itemviews/qitemeditorfactory.cpp" line="516"/>
         <source>True</source>
         <translation>Pravda</translation>
     </message>
     <message>
-        <location filename="../src/plugins/accessible/widgets/complexwidgets.cpp" line="1282"/>
+        <location filename="../src/plugins/accessible/widgets/complexwidgets.cpp" line="1394"/>
         <source>Close</source>
         <translation>Zavrieť</translation>
     </message>
@@ -974,7 +974,7 @@ na
 <context>
     <name>QDialog</name>
     <message>
-        <location filename="../src/gui/dialogs/qdialog.cpp" line="486"/>
+        <location filename="../src/gui/dialogs/qdialog.cpp" line="490"/>
         <source>What&apos;s This?</source>
         <translation>Čo je to?</translation>
     </message>
@@ -1146,12 +1146,12 @@ na
 <context>
     <name>QErrorMessage</name>
     <message>
-        <location filename="../src/gui/dialogs/qerrormessage.cpp" line="284"/>
+        <location filename="../src/gui/dialogs/qerrormessage.cpp" line="287"/>
         <source>&amp;Show this message again</source>
         <translation>&amp;Zobraziť túto správu aj nabudúce</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qerrormessage.cpp" line="285"/>
+        <location filename="../src/gui/dialogs/qerrormessage.cpp" line="288"/>
         <source>&amp;OK</source>
         <translation>&amp;OK</translation>
     </message>
@@ -1179,22 +1179,22 @@ na
         <translation>Všetky súbory (*)</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.ui" line="50"/>
+        <location filename="../src/gui/ui_qfiledialog.h" line="257"/>
         <source>Back</source>
         <translation>Späť</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.ui" line="71"/>
+        <location filename="../src/gui/ui_qfiledialog.h" line="260"/>
         <source>Create New Folder</source>
         <translation>Vytvoriť nový priečinok</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.ui" line="78"/>
+        <location filename="../src/gui/ui_qfiledialog.h" line="261"/>
         <source>List View</source>
         <translation>Zoznam</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.ui" line="85"/>
+        <location filename="../src/gui/ui_qfiledialog.h" line="262"/>
         <source>Detail View</source>
         <translation>Detaily</translation>
     </message>
@@ -1204,12 +1204,12 @@ na
         <translation>Otvoriť</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="788"/>
+        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="784"/>
         <source>&amp;Open</source>
         <translation>&amp;Otvoriť</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="788"/>
+        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="784"/>
         <source>&amp;Save</source>
         <translation>&amp;Uložiť</translation>
     </message>
@@ -1229,19 +1229,19 @@ na
         <translation>Zobraziť &amp;skryté súbory</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="751"/>
+        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="747"/>
         <source>Directories</source>
         <translation>Priečinky</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="1561"/>
+        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="1557"/>
         <source>%1 already exists.
 Do you want to replace it?</source>
         <translation>%1 už existuje. 
 Chcete ho nahradiť?</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="1579"/>
+        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="1575"/>
         <source>%1
 File not found.
 Please verify the correct file name was given.</source>
@@ -1255,27 +1255,27 @@ Prosím overte správnosť zadaného mena súboru.</translation>
         <translation>Môj počítač</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.ui" line="64"/>
+        <location filename="../src/gui/ui_qfiledialog.h" line="259"/>
         <source>Parent Directory</source>
         <translation>Rodičovský priečinok</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.ui" line="31"/>
+        <location filename="../src/gui/ui_qfiledialog.h" line="256"/>
         <source>Look in:</source>
         <translation>Hľadať v:</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.ui" line="226"/>
+        <location filename="../src/gui/ui_qfiledialog.h" line="263"/>
         <source>Files of type:</source>
         <translation>Súbory typu:</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="753"/>
+        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="749"/>
         <source>Directory:</source>
         <translation>Priečinok:</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="1522"/>
+        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="1518"/>
         <source>
 File not found.
 Please verify the correct file name was given</source>
@@ -1293,19 +1293,19 @@ Priečinok nenájdený.
 Prosím overte správnosť zadaného mena priečinku.</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="2111"/>
+        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="2104"/>
         <source>&apos;%1&apos; is write protected.
 Do you want to delete it anyway?</source>
         <translation>&apos;%1&apos; je chránený proti zápisu.
 Chcete ho aj tak zmazať?</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="2116"/>
+        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="2109"/>
         <source>Are sure you want to delete &apos;%1&apos;?</source>
         <translation>Naozaj chcete zmazať &apos;%1&apos;?</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="2127"/>
+        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="2120"/>
         <source>Could not delete directory.</source>
         <translation>Priečinok sa nedá zmazať.</translation>
     </message>
@@ -1320,17 +1320,17 @@ Chcete ho aj tak zmazať?</translation>
         <translation>Uložiť ako</translation>
     </message>
     <message>
-        <location filename="../src/gui/itemviews/qfileiconprovider.cpp" line="328"/>
+        <location filename="../src/gui/itemviews/qfileiconprovider.cpp" line="332"/>
         <source>Drive</source>
         <translation>Oddiel</translation>
     </message>
     <message>
-        <location filename="../src/gui/itemviews/qfileiconprovider.cpp" line="332"/>
+        <location filename="../src/gui/itemviews/qfileiconprovider.cpp" line="336"/>
         <source>File</source>
         <translation>Súbor</translation>
     </message>
     <message>
-        <location filename="../src/gui/itemviews/qfileiconprovider.cpp" line="361"/>
+        <location filename="../src/gui/itemviews/qfileiconprovider.cpp" line="365"/>
         <source>Unknown</source>
         <translation>Neznáme</translation>
     </message>
@@ -1350,22 +1350,22 @@ Chcete ho aj tak zmazať?</translation>
         <translation>&amp;Nový priečinok</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="786"/>
+        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="782"/>
         <source>&amp;Choose</source>
         <translation>&amp;Zvoliť</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="756"/>
+        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="752"/>
         <source>File &amp;name:</source>
         <translation>Me&amp;no súboru:</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="2004"/>
+        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="1997"/>
         <source>New Folder</source>
         <translation>Nový priečinok</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.ui" line="57"/>
+        <location filename="../src/gui/ui_qfiledialog.h" line="258"/>
         <source>Forward</source>
         <translation>Dopredu</translation>
     </message>
@@ -1378,74 +1378,74 @@ Chcete ho aj tak zmazať?</translation>
 <context>
     <name>QFileSystemModel</name>
     <message>
-        <location filename="../src/gui/dialogs/qfilesystemmodel.cpp" line="473"/>
+        <location filename="../src/gui/dialogs/qfilesystemmodel.cpp" line="479"/>
         <source>%1 TB</source>
         <translation>%1 TB</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfilesystemmodel.cpp" line="475"/>
+        <location filename="../src/gui/dialogs/qfilesystemmodel.cpp" line="481"/>
         <source>%1 GB</source>
         <translation>%1 GB</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfilesystemmodel.cpp" line="477"/>
+        <location filename="../src/gui/dialogs/qfilesystemmodel.cpp" line="483"/>
         <source>%1 MB</source>
         <translation>%1 MB</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfilesystemmodel.cpp" line="479"/>
+        <location filename="../src/gui/dialogs/qfilesystemmodel.cpp" line="485"/>
         <source>%1 KB</source>
         <translation>%1 KB</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfilesystemmodel.cpp" line="480"/>
+        <location filename="../src/gui/dialogs/qfilesystemmodel.cpp" line="486"/>
         <source>%1 bytes</source>
         <translation>%1 bajtov</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfilesystemmodel.cpp" line="554"/>
+        <location filename="../src/gui/dialogs/qfilesystemmodel.cpp" line="560"/>
         <source>Invalid filename</source>
         <translation>Neplatné meno súboru</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfilesystemmodel.cpp" line="556"/>
+        <location filename="../src/gui/dialogs/qfilesystemmodel.cpp" line="562"/>
         <source>&lt;b&gt;The name &quot;%1&quot; can not be used.&lt;/b&gt;&lt;p&gt;Try using another name, with fewer characters or no punctuations marks.</source>
         <translation>&lt;b&gt;Meno &quot;%1&quot; sa nedá použiť.&lt;/b&gt;&lt;p&gt;Skúste použiť iné meno s menej písmenami alebo bez interpunkčných znamienok.</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfilesystemmodel.cpp" line="601"/>
+        <location filename="../src/gui/dialogs/qfilesystemmodel.cpp" line="607"/>
         <source>Name</source>
         <translation>Meno</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfilesystemmodel.cpp" line="603"/>
+        <location filename="../src/gui/dialogs/qfilesystemmodel.cpp" line="609"/>
         <source>Size</source>
         <translation>Veľkosť</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfilesystemmodel.cpp" line="607"/>
+        <location filename="../src/gui/dialogs/qfilesystemmodel.cpp" line="613"/>
         <source>Kind</source>
         <comment>Match OS X Finder</comment>
         <translation>Druh</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfilesystemmodel.cpp" line="609"/>
+        <location filename="../src/gui/dialogs/qfilesystemmodel.cpp" line="615"/>
         <source>Type</source>
         <comment>All other platforms</comment>
         <translation>Typ</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfilesystemmodel.cpp" line="616"/>
+        <location filename="../src/gui/dialogs/qfilesystemmodel.cpp" line="622"/>
         <source>Date Modified</source>
         <translation>Dátum zmeny</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfilesystemmodel_p.h" line="264"/>
+        <location filename="../src/gui/dialogs/qfilesystemmodel_p.h" line="261"/>
         <source>My Computer</source>
         <translation>Môj počítač</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfilesystemmodel_p.h" line="266"/>
+        <location filename="../src/gui/dialogs/qfilesystemmodel_p.h" line="263"/>
         <source>Computer</source>
         <translation>Počítač</translation>
     </message>
@@ -2237,7 +2237,7 @@ Chcete ho aj tak zmazať?</translation>
         <translation>Informácie o Qt</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qdialog.cpp" line="581"/>
+        <location filename="../src/gui/dialogs/qdialog.cpp" line="585"/>
         <source>Help</source>
         <translation>Pomocník</translation>
     </message>
@@ -3844,12 +3844,12 @@ Prosím zvoľte iné meno súboru.</translation>
 <context>
     <name>QTabBar</name>
     <message>
-        <location filename="../src/plugins/accessible/widgets/complexwidgets.cpp" line="956"/>
+        <location filename="../src/plugins/accessible/widgets/complexwidgets.cpp" line="1068"/>
         <source>Scroll Left</source>
         <translation>Posunúť vľavo</translation>
     </message>
     <message>
-        <location filename="../src/plugins/accessible/widgets/complexwidgets.cpp" line="956"/>
+        <location filename="../src/plugins/accessible/widgets/complexwidgets.cpp" line="1068"/>
         <source>Scroll Right</source>
         <translation>Posunúť vpravo</translation>
     </message>
@@ -4029,7 +4029,7 @@ Prosím zvoľte iné meno súboru.</translation>
 <context>
     <name>QWidget</name>
     <message>
-        <location filename="../src/gui/kernel/qwidget.cpp" line="4119"/>
+        <location filename="../src/gui/kernel/qwidget.cpp" line="4131"/>
         <source>*</source>
         <translation>*</translation>
     </message>
@@ -4276,112 +4276,112 @@ Prosím zvoľte iné meno súboru.</translation>
 <context>
     <name>QXmlStream</name>
     <message>
-        <location filename="../src/xml/qxmlstream_p.h" line="1683"/>
+        <location filename="../src/xml/qxmlstream_p.h" line="1687"/>
         <source>Extra content at end of document.</source>
         <translation>Obsah naviac na konci dokumentu.</translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream.cpp" line="600"/>
+        <location filename="../src/xml/qxmlstream.cpp" line="613"/>
         <source>Invalid entity value.</source>
         <translation>Neplatná hodnota entity.</translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream.cpp" line="705"/>
+        <location filename="../src/xml/qxmlstream.cpp" line="720"/>
         <source>Invalid XML character.</source>
         <translation>Neplatný XML znak.</translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream.cpp" line="963"/>
+        <location filename="../src/xml/qxmlstream.cpp" line="978"/>
         <source>Sequence &apos;]]&gt;&apos; not allowed in content.</source>
         <translation>Postupnosť &apos;]]&gt;&apos; nie je v obsahu prípustná.</translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream_p.h" line="1008"/>
+        <location filename="../src/xml/qxmlstream_p.h" line="1011"/>
         <source>Encountered incorrectly encoded content.</source>
         <translation>Nájdený nesprávne kódovaný obsah.</translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream.cpp" line="1265"/>
+        <location filename="../src/xml/qxmlstream.cpp" line="1286"/>
         <source>Namespace prefix &apos;%1&apos; not declared</source>
         <translation>Predpona &apos;%1&apos; priestoru mien nie je deklarovaná</translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream.cpp" line="1303"/>
+        <location filename="../src/xml/qxmlstream.cpp" line="1324"/>
         <source>Attribute redefined.</source>
         <translation>Atribút predefinovaný.</translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream.cpp" line="1415"/>
+        <location filename="../src/xml/qxmlstream.cpp" line="1436"/>
         <source>Unexpected character &apos;%1&apos; in public id literal.</source>
         <translation>Neočakávaný znak &apos;%1&apos; vo verejnom literálnom id.</translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream.cpp" line="1443"/>
+        <location filename="../src/xml/qxmlstream.cpp" line="1464"/>
         <source>Invalid XML version string.</source>
         <translation>Neplatný reťazec verzie XML.</translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream.cpp" line="1445"/>
+        <location filename="../src/xml/qxmlstream.cpp" line="1466"/>
         <source>Unsupported XML version.</source>
         <translation>Nepodporovaná XML veriza.</translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream.cpp" line="1466"/>
+        <location filename="../src/xml/qxmlstream.cpp" line="1487"/>
         <source>The standalone pseudo attribute must appear after the encoding.</source>
         <translation>Samostatný pseudo atribút sa musí objaviť za kódovaním.</translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream.cpp" line="1468"/>
+        <location filename="../src/xml/qxmlstream.cpp" line="1489"/>
         <source>%1 is an invalid encoding name.</source>
         <translation>%1 je neplatné meno kódovania.</translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream.cpp" line="1472"/>
+        <location filename="../src/xml/qxmlstream.cpp" line="1496"/>
         <source>Encoding %1 is unsupported</source>
         <translation>Kódovanie %1 nie podporované</translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream.cpp" line="1474"/>
+        <location filename="../src/xml/qxmlstream.cpp" line="1498"/>
         <source>Invalid XML encoding name.</source>
         <translation>Neplatné meno XML kódovania.</translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream.cpp" line="1489"/>
+        <location filename="../src/xml/qxmlstream.cpp" line="1514"/>
         <source>Standalone accepts only yes or no.</source>
         <translation>Samostatný pripúšťa iba áno alebo nie.</translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream.cpp" line="1491"/>
+        <location filename="../src/xml/qxmlstream.cpp" line="1516"/>
         <source>Invalid attribute in XML declaration.</source>
         <translation>Neplatný atribút v XML deklarácii.</translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream.cpp" line="1507"/>
+        <location filename="../src/xml/qxmlstream.cpp" line="1532"/>
         <source>Premature end of document.</source>
         <translation>Predčasný koniec dokumentu.</translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream.cpp" line="1509"/>
+        <location filename="../src/xml/qxmlstream.cpp" line="1534"/>
         <source>Invalid document.</source>
         <translation>Neplatný dokument.</translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream.cpp" line="1549"/>
+        <location filename="../src/xml/qxmlstream.cpp" line="1574"/>
         <source>Expected </source>
         <translation>Očakávalo sa</translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream.cpp" line="1560"/>
+        <location filename="../src/xml/qxmlstream.cpp" line="1585"/>
         <source>, but got &apos;</source>
         <translation>, ale prišlo &apos;</translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream.cpp" line="1564"/>
+        <location filename="../src/xml/qxmlstream.cpp" line="1589"/>
         <source>Unexpected &apos;</source>
         <translation>Neočákavané &apos;</translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream.cpp" line="1694"/>
+        <location filename="../src/xml/qxmlstream.cpp" line="1719"/>
         <source>Expected character data.</source>
         <translation>Očakávané znakové dáta.</translation>
     </message>
@@ -4391,67 +4391,67 @@ Prosím zvoľte iné meno súboru.</translation>
         <translation>Zistené rekurzívne entity.</translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream_p.h" line="1219"/>
+        <location filename="../src/xml/qxmlstream_p.h" line="1223"/>
         <source>Start tag expected.</source>
         <translation>Očakáva sa štartovacia značka.</translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream_p.h" line="1399"/>
+        <location filename="../src/xml/qxmlstream_p.h" line="1403"/>
         <source>NDATA in parameter entity declaration.</source>
         <translation>NDATA v deklarácii parametra entity.</translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream_p.h" line="1430"/>
+        <location filename="../src/xml/qxmlstream_p.h" line="1434"/>
         <source>XML declaration not at start of document.</source>
         <translation>XML dekláracia nie je na začiatku dokumentu.</translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream_p.h" line="1433"/>
+        <location filename="../src/xml/qxmlstream_p.h" line="1437"/>
         <source>%1 is an invalid processing instruction name.</source>
         <translation>%1 je neplatné meno výkonnej inštrukcie.</translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream_p.h" line="1444"/>
+        <location filename="../src/xml/qxmlstream_p.h" line="1448"/>
         <source>Invalid processing instruction name.</source>
         <translation>Neplatné meno výkonnej inštrukcie.</translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream_p.h" line="1554"/>
+        <location filename="../src/xml/qxmlstream_p.h" line="1558"/>
         <source>%1 is an invalid PUBLIC identifier.</source>
         <translation>%1 je neplatný PUBLIC identifikátor.</translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream_p.h" line="1657"/>
+        <location filename="../src/xml/qxmlstream_p.h" line="1661"/>
         <source>Illegal namespace declaration.</source>
         <translation>Neprípustná deklarácia priestoru mien.</translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream_p.h" line="1672"/>
+        <location filename="../src/xml/qxmlstream_p.h" line="1676"/>
         <source>Invalid XML name.</source>
         <translation>Neplatné XML meno.</translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream_p.h" line="1695"/>
+        <location filename="../src/xml/qxmlstream_p.h" line="1699"/>
         <source>Opening and ending tag mismatch.</source>
         <translation>Nesúhlasia otváracia a koncová značka.</translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream_p.h" line="1704"/>
+        <location filename="../src/xml/qxmlstream_p.h" line="1708"/>
         <source>Reference to unparsed entity &apos;%1&apos;.</source>
         <translation>Odkaz na nespracovanú entitu &apos;%1&apos;.</translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream_p.h" line="1770"/>
+        <location filename="../src/xml/qxmlstream_p.h" line="1774"/>
         <source>Entity &apos;%1&apos; not declared.</source>
         <translation>Entita &apos;%1&apos; nie je deklarovaná.</translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream_p.h" line="1756"/>
+        <location filename="../src/xml/qxmlstream_p.h" line="1760"/>
         <source>Reference to external entity &apos;%1&apos; in attribute value.</source>
         <translation>Odkaz na externú entitu &apos;%1&apos; v hodnote atribútu.</translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream_p.h" line="1784"/>
+        <location filename="../src/xml/qxmlstream_p.h" line="1788"/>
         <source>Invalid character reference.</source>
         <translation>Neplatný znak odkazu.</translation>
     </message>

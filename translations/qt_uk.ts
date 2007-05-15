@@ -3,12 +3,12 @@
 <context>
     <name>PPDOptionsModel</name>
     <message>
-        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="1589"/>
+        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="1595"/>
         <source>Name</source>
         <translation>Ім&apos;я</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="1591"/>
+        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="1597"/>
         <source>Value</source>
         <translation>Значення</translation>
     </message>
@@ -342,7 +342,7 @@
         <translation>Каталог:</translation>
     </message>
     <message>
-        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="5721"/>
+        <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="5716"/>
         <source>Error</source>
         <translation>Помилка</translation>
     </message>
@@ -692,17 +692,17 @@ to
 <context>
     <name>QAbstractSpinBox</name>
     <message>
-        <location filename="../src/gui/widgets/qabstractspinbox.cpp" line="1116"/>
+        <location filename="../src/gui/widgets/qabstractspinbox.cpp" line="1148"/>
         <source>&amp;Step up</source>
         <translation>&amp;Крок вгору</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qabstractspinbox.cpp" line="1118"/>
+        <location filename="../src/gui/widgets/qabstractspinbox.cpp" line="1150"/>
         <source>Step &amp;down</source>
         <translation>Крок &amp;додолу</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qabstractspinbox.cpp" line="1110"/>
+        <location filename="../src/gui/widgets/qabstractspinbox.cpp" line="1142"/>
         <source>&amp;Select All</source>
         <translation>&amp;Вибрати все</translation>
     </message>
@@ -725,7 +725,7 @@ to
         <translation>Помилка несумісності бібліотеки Qt</translation>
     </message>
     <message>
-        <location filename="../src/gui/kernel/qapplication.cpp" line="2003"/>
+        <location filename="../src/gui/kernel/qapplication.cpp" line="2012"/>
         <source>QT_LAYOUT_DIRECTION</source>
         <comment>Translate this string to the string &apos;LTR&apos; in left-to-right languages or to &apos;RTL&apos; in right-to-left languages (such as Hebrew and Arabic) to get proper widget layout.</comment>
         <translation>LTR</translation>
@@ -739,22 +739,22 @@ to
 <context>
     <name>QAxSelect</name>
     <message>
-        <location filename="../src/activeqt/container/qaxselect.ui" line="28"/>
+        <location filename="../src/activeqt/container/ui_qaxselect.h" line="123"/>
         <source>Select ActiveX Control</source>
         <translation>Виберіть елемент ActiveX</translation>
     </message>
     <message>
-        <location filename="../src/activeqt/container/qaxselect.ui" line="60"/>
+        <location filename="../src/activeqt/container/ui_qaxselect.h" line="124"/>
         <source>OK</source>
         <translation>Гаразд</translation>
     </message>
     <message>
-        <location filename="../src/activeqt/container/qaxselect.ui" line="76"/>
+        <location filename="../src/activeqt/container/ui_qaxselect.h" line="125"/>
         <source>&amp;Cancel</source>
         <translation>&amp;Скасувати</translation>
     </message>
     <message>
-        <location filename="../src/activeqt/container/qaxselect.ui" line="125"/>
+        <location filename="../src/activeqt/container/ui_qaxselect.h" line="126"/>
         <source>COM &amp;Object:</source>
         <translation>&amp;Об&apos;єкт COM:</translation>
     </message>
@@ -853,22 +853,22 @@ to
 <context>
     <name>QComboBox</name>
     <message>
-        <location filename="../src/plugins/accessible/widgets/complexwidgets.cpp" line="1245"/>
+        <location filename="../src/plugins/accessible/widgets/complexwidgets.cpp" line="1394"/>
         <source>Open</source>
         <translation>Відкрити</translation>
     </message>
     <message>
-        <location filename="../src/gui/itemviews/qitemeditorfactory.cpp" line="480"/>
+        <location filename="../src/gui/itemviews/qitemeditorfactory.cpp" line="515"/>
         <source>False</source>
         <translation>Ні</translation>
     </message>
     <message>
-        <location filename="../src/gui/itemviews/qitemeditorfactory.cpp" line="481"/>
+        <location filename="../src/gui/itemviews/qitemeditorfactory.cpp" line="516"/>
         <source>True</source>
         <translation>Так</translation>
     </message>
     <message>
-        <location filename="../src/plugins/accessible/widgets/complexwidgets.cpp" line="1245"/>
+        <location filename="../src/plugins/accessible/widgets/complexwidgets.cpp" line="1394"/>
         <source>Close</source>
         <translation>Закрити</translation>
     </message>
@@ -955,17 +955,17 @@ to
 <context>
     <name>QDial</name>
     <message>
-        <location filename="../src/plugins/accessible/widgets/rangecontrols.cpp" line="918"/>
+        <location filename="../src/plugins/accessible/widgets/rangecontrols.cpp" line="920"/>
         <source>QDial</source>
         <translation>QDial</translation>
     </message>
     <message>
-        <location filename="../src/plugins/accessible/widgets/rangecontrols.cpp" line="920"/>
+        <location filename="../src/plugins/accessible/widgets/rangecontrols.cpp" line="922"/>
         <source>SpeedoMeter</source>
         <translation>Спідометр</translation>
     </message>
     <message>
-        <location filename="../src/plugins/accessible/widgets/rangecontrols.cpp" line="922"/>
+        <location filename="../src/plugins/accessible/widgets/rangecontrols.cpp" line="924"/>
         <source>SliderHandle</source>
         <translation>ДержакПовзунка</translation>
     </message>
@@ -973,7 +973,7 @@ to
 <context>
     <name>QDialog</name>
     <message>
-        <location filename="../src/gui/dialogs/qdialog.cpp" line="486"/>
+        <location filename="../src/gui/dialogs/qdialog.cpp" line="490"/>
         <source>What&apos;s This?</source>
         <translation>Що це?</translation>
     </message>
@@ -1114,17 +1114,17 @@ to
 <context>
     <name>QDockWidget</name>
     <message>
-        <location filename="../src/plugins/accessible/widgets/qaccessiblewidgets.cpp" line="1195"/>
+        <location filename="../src/plugins/accessible/widgets/qaccessiblewidgets.cpp" line="1198"/>
         <source>Close</source>
         <translation>Закрити</translation>
     </message>
     <message>
-        <location filename="../src/plugins/accessible/widgets/qaccessiblewidgets.cpp" line="1198"/>
+        <location filename="../src/plugins/accessible/widgets/qaccessiblewidgets.cpp" line="1201"/>
         <source>Dock</source>
         <translation>Пришвартувати</translation>
     </message>
     <message>
-        <location filename="../src/plugins/accessible/widgets/qaccessiblewidgets.cpp" line="1198"/>
+        <location filename="../src/plugins/accessible/widgets/qaccessiblewidgets.cpp" line="1201"/>
         <source>Float</source>
         <translation>Відшвартувати</translation>
     </message>
@@ -1160,12 +1160,12 @@ to
         <translation>Фатальна помилка:</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qerrormessage.cpp" line="284"/>
+        <location filename="../src/gui/dialogs/qerrormessage.cpp" line="287"/>
         <source>&amp;Show this message again</source>
         <translation>&amp;Показувати це повідомлення знову</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qerrormessage.cpp" line="285"/>
+        <location filename="../src/gui/dialogs/qerrormessage.cpp" line="288"/>
         <source>&amp;OK</source>
         <translation>&amp;Гаразд</translation>
     </message>
@@ -1178,17 +1178,17 @@ to
         <translation>Всі файли (*)</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="751"/>
+        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="747"/>
         <source>Directories</source>
         <translation>Каталоги</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="788"/>
+        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="784"/>
         <source>&amp;Open</source>
         <translation>&amp;Відкрити</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="788"/>
+        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="784"/>
         <source>&amp;Save</source>
         <translation>&amp;Зберегти</translation>
     </message>
@@ -1198,14 +1198,14 @@ to
         <translation>Відкрити</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="1561"/>
+        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="1557"/>
         <source>%1 already exists.
 Do you want to replace it?</source>
         <translation>%1 вже існує.
 Перезаписати?</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="1579"/>
+        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="1575"/>
         <source>%1
 File not found.
 Please verify the correct file name was given.</source>
@@ -1234,37 +1234,37 @@ Please verify the correct file name was given.</source>
         <translation>Показати &amp;приховані файли</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.ui" line="50"/>
+        <location filename="../src/gui/ui_qfiledialog.h" line="257"/>
         <source>Back</source>
         <translation>Назад</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.ui" line="64"/>
+        <location filename="../src/gui/ui_qfiledialog.h" line="259"/>
         <source>Parent Directory</source>
         <translation>Батьківський каталог</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.ui" line="78"/>
+        <location filename="../src/gui/ui_qfiledialog.h" line="261"/>
         <source>List View</source>
         <translation>Вигляд списком</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.ui" line="85"/>
+        <location filename="../src/gui/ui_qfiledialog.h" line="262"/>
         <source>Detail View</source>
         <translation>Вигляд з подробицями</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.ui" line="226"/>
+        <location filename="../src/gui/ui_qfiledialog.h" line="263"/>
         <source>Files of type:</source>
         <translation>Тип файлів:</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="753"/>
+        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="749"/>
         <source>Directory:</source>
         <translation>Каталог:</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="1522"/>
+        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="1518"/>
         <source>
 File not found.
 Please verify the correct file name was given</source>
@@ -1282,19 +1282,19 @@ Please verify the correct directory name was given.</source>
 Переконайтеся, що введено правильне ім&apos;я каталогу.</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="2111"/>
+        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="2104"/>
         <source>&apos;%1&apos; is write protected.
 Do you want to delete it anyway?</source>
         <translation>&quot;%1&quot; захищено від запису.
 Дійсно вилучити?</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="2116"/>
+        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="2109"/>
         <source>Are sure you want to delete &apos;%1&apos;?</source>
         <translation>Дійсно вилучити &quot;%1&quot;?</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="2127"/>
+        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="2120"/>
         <source>Could not delete directory.</source>
         <translation>Неможливо вилучити каталог.</translation>
     </message>
@@ -1309,17 +1309,17 @@ Do you want to delete it anyway?</source>
         <translation>Зберегти, як</translation>
     </message>
     <message>
-        <location filename="../src/gui/itemviews/qfileiconprovider.cpp" line="328"/>
+        <location filename="../src/gui/itemviews/qfileiconprovider.cpp" line="332"/>
         <source>Drive</source>
         <translation>Диск</translation>
     </message>
     <message>
-        <location filename="../src/gui/itemviews/qfileiconprovider.cpp" line="332"/>
+        <location filename="../src/gui/itemviews/qfileiconprovider.cpp" line="336"/>
         <source>File</source>
         <translation>Файл</translation>
     </message>
     <message>
-        <location filename="../src/gui/itemviews/qfileiconprovider.cpp" line="361"/>
+        <location filename="../src/gui/itemviews/qfileiconprovider.cpp" line="365"/>
         <source>Unknown</source>
         <translation>Невідомо</translation>
     </message>
@@ -1339,12 +1339,12 @@ Do you want to delete it anyway?</source>
         <translation>Показати </translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.ui" line="57"/>
+        <location filename="../src/gui/ui_qfiledialog.h" line="258"/>
         <source>Forward</source>
         <translation>Вперед</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="2004"/>
+        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="1997"/>
         <source>New Folder</source>
         <translation>Нова тека</translation>
     </message>
@@ -1354,7 +1354,7 @@ Do you want to delete it anyway?</source>
         <translation>&amp;Нова тека</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="786"/>
+        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="782"/>
         <source>&amp;Choose</source>
         <translation>&amp;Вибрати</translation>
     </message>
@@ -1369,17 +1369,17 @@ Do you want to delete it anyway?</source>
         <translation>Вилучити</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="756"/>
+        <location filename="../src/gui/dialogs/qfiledialog.cpp" line="752"/>
         <source>File &amp;name:</source>
         <translation>&amp;Ім&apos;я файлу:</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.ui" line="31"/>
+        <location filename="../src/gui/ui_qfiledialog.h" line="256"/>
         <source>Look in:</source>
         <translation>Пошук в:</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.ui" line="71"/>
+        <location filename="../src/gui/ui_qfiledialog.h" line="260"/>
         <source>Create New Folder</source>
         <translation>Створити нову теку</translation>
     </message>
@@ -1387,74 +1387,74 @@ Do you want to delete it anyway?</source>
 <context>
     <name>QFileSystemModel</name>
     <message>
-        <location filename="../src/gui/dialogs/qfilesystemmodel.cpp" line="554"/>
+        <location filename="../src/gui/dialogs/qfilesystemmodel.cpp" line="560"/>
         <source>Invalid filename</source>
         <translation>Неправильне ім&apos;я файлу</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfilesystemmodel.cpp" line="556"/>
+        <location filename="../src/gui/dialogs/qfilesystemmodel.cpp" line="562"/>
         <source>&lt;b&gt;The name &quot;%1&quot; can not be used.&lt;/b&gt;&lt;p&gt;Try using another name, with fewer characters or no punctuations marks.</source>
         <translation>&lt;b&gt;Неможливо використати ім&apos;я &quot;%1&quot;.&lt;/b&gt;&lt;p&gt;Спробуйте інше ім&apos;я, меншої довжини або без знаків пунктуації.</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfilesystemmodel.cpp" line="601"/>
+        <location filename="../src/gui/dialogs/qfilesystemmodel.cpp" line="607"/>
         <source>Name</source>
         <translation>Ім&apos;я</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfilesystemmodel.cpp" line="603"/>
+        <location filename="../src/gui/dialogs/qfilesystemmodel.cpp" line="609"/>
         <source>Size</source>
         <translation>Розмір</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfilesystemmodel.cpp" line="607"/>
+        <location filename="../src/gui/dialogs/qfilesystemmodel.cpp" line="613"/>
         <source>Kind</source>
         <comment>Match OS X Finder</comment>
         <translation>Тип</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfilesystemmodel.cpp" line="609"/>
+        <location filename="../src/gui/dialogs/qfilesystemmodel.cpp" line="615"/>
         <source>Type</source>
         <comment>All other platforms</comment>
         <translation>Тип</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfilesystemmodel.cpp" line="616"/>
+        <location filename="../src/gui/dialogs/qfilesystemmodel.cpp" line="622"/>
         <source>Date Modified</source>
         <translation>Дата зміни</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfilesystemmodel_p.h" line="264"/>
+        <location filename="../src/gui/dialogs/qfilesystemmodel_p.h" line="261"/>
         <source>My Computer</source>
         <translation>Мій комп&apos;ютер</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfilesystemmodel_p.h" line="266"/>
+        <location filename="../src/gui/dialogs/qfilesystemmodel_p.h" line="263"/>
         <source>Computer</source>
         <translation>Комп&apos;ютер</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfilesystemmodel.cpp" line="473"/>
+        <location filename="../src/gui/dialogs/qfilesystemmodel.cpp" line="479"/>
         <source>%1 TB</source>
         <translation>%1 ТБ</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfilesystemmodel.cpp" line="475"/>
+        <location filename="../src/gui/dialogs/qfilesystemmodel.cpp" line="481"/>
         <source>%1 GB</source>
         <translation>%1 ГБ</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfilesystemmodel.cpp" line="477"/>
+        <location filename="../src/gui/dialogs/qfilesystemmodel.cpp" line="483"/>
         <source>%1 MB</source>
         <translation>%1 МБ</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfilesystemmodel.cpp" line="479"/>
+        <location filename="../src/gui/dialogs/qfilesystemmodel.cpp" line="485"/>
         <source>%1 KB</source>
         <translation>%1 КБ</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfilesystemmodel.cpp" line="480"/>
+        <location filename="../src/gui/dialogs/qfilesystemmodel.cpp" line="486"/>
         <source>%1 bytes</source>
         <translation>%1 байтів</translation>
     </message>
@@ -2114,37 +2114,37 @@ Do you want to delete it anyway?</source>
         <translation>Відновити додолу</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="889"/>
+        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="893"/>
         <source>&amp;Restore</source>
         <translation>&amp;Відновити</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="892"/>
+        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="896"/>
         <source>&amp;Move</source>
         <translation>&amp;Пересунути</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="893"/>
+        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="897"/>
         <source>&amp;Size</source>
         <translation>&amp;Розмір</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="894"/>
+        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="898"/>
         <source>Mi&amp;nimize</source>
         <translation>Мі&amp;німізувати</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="896"/>
+        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="900"/>
         <source>Ma&amp;ximize</source>
         <translation>Ма&amp;ксимізувати</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="898"/>
+        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="902"/>
         <source>Stay on &amp;Top</source>
         <translation>Лишатися над &amp;іншими</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="901"/>
+        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="905"/>
         <source>&amp;Close</source>
         <translation>&amp;Закрити</translation>
     </message>
@@ -2233,7 +2233,7 @@ Do you want to delete it anyway?</source>
 <context>
     <name>QMessageBox</name>
     <message>
-        <location filename="../src/gui/dialogs/qdialog.cpp" line="581"/>
+        <location filename="../src/gui/dialogs/qdialog.cpp" line="585"/>
         <source>Help</source>
         <translation>Довідка</translation>
     </message>
@@ -2243,32 +2243,32 @@ Do you want to delete it anyway?</source>
         <translation>Гаразд</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qmessagebox.cpp" line="1454"/>
+        <location filename="../src/gui/dialogs/qmessagebox.cpp" line="1456"/>
         <source>About Qt</source>
         <translation>Про Qt</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qmessagebox.cpp" line="1634"/>
+        <location filename="../src/gui/dialogs/qmessagebox.cpp" line="1636"/>
         <source>&lt;p&gt;This program uses Qt version %1.&lt;/p&gt;</source>
         <translation>&lt;p&gt;Ця програма використовує Qt версії %1.&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qmessagebox.cpp" line="1633"/>
+        <location filename="../src/gui/dialogs/qmessagebox.cpp" line="1635"/>
         <source>&lt;h3&gt;About Qt&lt;/h3&gt;%1&lt;p&gt;Qt is a C++ toolkit for cross-platform application development.&lt;/p&gt;&lt;p&gt;Qt provides single-source portability across MS&amp;nbsp;Windows, Mac&amp;nbsp;OS&amp;nbsp;X, Linux, and all major commercial Unix variants. Qt is also available for embedded devices as Qtopia Core.&lt;/p&gt;&lt;p&gt;Qt is a Trolltech product. See &lt;a href=&quot;http://www.trolltech.com/qt/&quot;&gt;www.trolltech.com/qt/&lt;/a&gt; for more information.&lt;/p&gt;</source>
         <translation>&lt;h3&gt;Про Qt&lt;/h3&gt;%1&lt;p&gt;Qt - це інструментарій C++ для міжплатформової розробки.&lt;/p&gt;&lt;p&gt;Qt забезпечує мобільність єдиних джерельних текстів між MS&amp;nbsp;Windows, Mac&amp;nbsp;OS&amp;nbsp;X, Linux та всіма основними комерційними версіями Unix. Qt існує також для вбудованих пристроїв, таких, як Qtopia Core.&lt;/p&gt;&lt;p&gt;Qt - це продукт компанії Trolltech. Більше інформації можна знайти на &lt;a href=&quot;http://www.trolltech.com/qt/&quot;&gt;www.trolltech.com/qt/&lt;/a&gt;.&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qmessagebox.cpp" line="81"/>
+        <location filename="../src/gui/dialogs/qmessagebox.cpp" line="83"/>
         <source>Show Details...</source>
         <translation>Показати подробиці...</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qmessagebox.cpp" line="81"/>
+        <location filename="../src/gui/dialogs/qmessagebox.cpp" line="83"/>
         <source>Hide Details...</source>
         <translation>Сховати подробиці...</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qmessagebox.cpp" line="1642"/>
+        <location filename="../src/gui/dialogs/qmessagebox.cpp" line="1644"/>
         <source>&lt;p&gt;This program uses Qt Open Source Edition version %1.&lt;/p&gt;&lt;p&gt;Qt Open Source Edition is intended for the development of Open Source applications. You need a commercial Qt license for development of proprietary (closed source) applications.&lt;/p&gt;&lt;p&gt;Please see &lt;a href=&quot;http://www.trolltech.com/company/model/&quot;&gt;www.trolltech.com/company/model/&lt;/a&gt; for an overview of Qt licensing.&lt;/p&gt;</source>
         <translation>&lt;p&gt;Ця програма використовує Qt Open Source Edition версії %1.&lt;/p&gt;&lt;p&gt;Qt Open Source Edition призначено для розробки відкритих програмних засобів. Для розробки власницьких (закритих) програм вам потрібна комерційна ліцензія для Qt.&lt;/p&gt;&lt;p&gt;Перегляньте &lt;a href=&quot;http://www.trolltech.com/company/model/&quot;&gt;www.trolltech.com/company/model/&lt;/a&gt; щодо огляду ліцензій Qt.&lt;/p&gt;</translation>
     </message>
@@ -2610,12 +2610,12 @@ Do you want to delete it anyway?</source>
         <translation>невідомо</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="945"/>
+        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="947"/>
         <source>Portrait</source>
         <translation>Книжкове</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="946"/>
+        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="948"/>
         <source>Landscape</source>
         <translation>Альбомне</translation>
     </message>
@@ -2795,22 +2795,22 @@ Do you want to delete it anyway?</source>
         <translation>Джерело паперу:</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="949"/>
+        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="951"/>
         <source>Print</source>
         <translation>Друкувати</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="1023"/>
+        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="1025"/>
         <source>File</source>
         <translation>Файл</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="1046"/>
+        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="1050"/>
         <source>Printer</source>
         <translation>Принтер</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="1130"/>
+        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="1136"/>
         <source>Print To File ...</source>
         <translation>Друкувати в файл...</translation>
     </message>
@@ -2910,14 +2910,14 @@ Do you want to delete it anyway?</source>
         <translation>Двосторонній друк</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="1172"/>
+        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="1178"/>
         <source>File %1 is not writable.
 Please choose a different file name.</source>
         <translation>Файл %1 не дозволяє запис.
 Будь ласка, виберіть інше ім&apos;я файлу.</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="1176"/>
+        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="1182"/>
         <source>%1 already exists.
 Do you want to overwrite it?</source>
         <translation>%1 вже існує.Перезаписати?</translation>
@@ -2938,7 +2938,7 @@ Do you want to overwrite it?</source>
         <translation>Друкувати вибране</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="1168"/>
+        <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="1174"/>
         <source>%1 is a directory.
 Please choose a different file name.</source>
         <translation>%1 є каталогом.
@@ -3849,12 +3849,12 @@ Please choose a different file name.</source>
 <context>
     <name>QTabBar</name>
     <message>
-        <location filename="../src/plugins/accessible/widgets/complexwidgets.cpp" line="919"/>
+        <location filename="../src/plugins/accessible/widgets/complexwidgets.cpp" line="1068"/>
         <source>Scroll Left</source>
         <translation>Прокрутити ліворуч</translation>
     </message>
     <message>
-        <location filename="../src/plugins/accessible/widgets/complexwidgets.cpp" line="919"/>
+        <location filename="../src/plugins/accessible/widgets/complexwidgets.cpp" line="1068"/>
         <source>Scroll Right</source>
         <translation>Прокрутити праворуч</translation>
     </message>
@@ -3870,42 +3870,42 @@ Please choose a different file name.</source>
 <context>
     <name>QTextControl</name>
     <message>
-        <location filename="../src/gui/text/qtextcontrol.cpp" line="1860"/>
+        <location filename="../src/gui/text/qtextcontrol.cpp" line="1861"/>
         <source>&amp;Undo</source>
         <translation>&amp;Повернути</translation>
     </message>
     <message>
-        <location filename="../src/gui/text/qtextcontrol.cpp" line="1862"/>
+        <location filename="../src/gui/text/qtextcontrol.cpp" line="1863"/>
         <source>&amp;Redo</source>
         <translation>П&amp;овторити</translation>
     </message>
     <message>
-        <location filename="../src/gui/text/qtextcontrol.cpp" line="1866"/>
+        <location filename="../src/gui/text/qtextcontrol.cpp" line="1867"/>
         <source>Cu&amp;t</source>
         <translation>Ви&amp;різати</translation>
     </message>
     <message>
-        <location filename="../src/gui/text/qtextcontrol.cpp" line="1871"/>
+        <location filename="../src/gui/text/qtextcontrol.cpp" line="1872"/>
         <source>&amp;Copy</source>
         <translation>&amp;Копіювати</translation>
     </message>
     <message>
-        <location filename="../src/gui/text/qtextcontrol.cpp" line="1878"/>
+        <location filename="../src/gui/text/qtextcontrol.cpp" line="1879"/>
         <source>Copy &amp;Link Location</source>
         <translation>Копіювати адресу &amp;посилання</translation>
     </message>
     <message>
-        <location filename="../src/gui/text/qtextcontrol.cpp" line="1884"/>
+        <location filename="../src/gui/text/qtextcontrol.cpp" line="1885"/>
         <source>&amp;Paste</source>
         <translation>&amp;Вставити</translation>
     </message>
     <message>
-        <location filename="../src/gui/text/qtextcontrol.cpp" line="1887"/>
+        <location filename="../src/gui/text/qtextcontrol.cpp" line="1888"/>
         <source>Delete</source>
         <translation>Вилучити</translation>
     </message>
     <message>
-        <location filename="../src/gui/text/qtextcontrol.cpp" line="1894"/>
+        <location filename="../src/gui/text/qtextcontrol.cpp" line="1895"/>
         <source>Select All</source>
         <translation>Вибрати все</translation>
     </message>
@@ -3913,12 +3913,12 @@ Please choose a different file name.</source>
 <context>
     <name>QToolButton</name>
     <message>
-        <location filename="../src/plugins/accessible/widgets/simplewidgets.cpp" line="350"/>
+        <location filename="../src/plugins/accessible/widgets/simplewidgets.cpp" line="352"/>
         <source>Press</source>
         <translation>Натиснути</translation>
     </message>
     <message>
-        <location filename="../src/plugins/accessible/widgets/simplewidgets.cpp" line="354"/>
+        <location filename="../src/plugins/accessible/widgets/simplewidgets.cpp" line="356"/>
         <source>Open</source>
         <translation>Відкрити</translation>
     </message>
@@ -4034,7 +4034,7 @@ Please choose a different file name.</source>
 <context>
     <name>QWidget</name>
     <message>
-        <location filename="../src/gui/kernel/qwidget.cpp" line="4119"/>
+        <location filename="../src/gui/kernel/qwidget.cpp" line="4131"/>
         <source>*</source>
         <translation>*</translation>
     </message>
@@ -4281,102 +4281,102 @@ Please choose a different file name.</source>
 <context>
     <name>QXmlStream</name>
     <message>
-        <location filename="../src/xml/qxmlstream_p.h" line="1683"/>
+        <location filename="../src/xml/qxmlstream_p.h" line="1687"/>
         <source>Extra content at end of document.</source>
         <translation>Надлишковий вміст в кінці документу.</translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream.cpp" line="600"/>
+        <location filename="../src/xml/qxmlstream.cpp" line="613"/>
         <source>Invalid entity value.</source>
         <translation>Неправильне значення елементу.</translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream.cpp" line="705"/>
+        <location filename="../src/xml/qxmlstream.cpp" line="720"/>
         <source>Invalid XML character.</source>
         <translation>Неправильний символ XML.</translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream.cpp" line="963"/>
+        <location filename="../src/xml/qxmlstream.cpp" line="978"/>
         <source>Sequence &apos;]]&gt;&apos; not allowed in content.</source>
         <translation>Послідовність &quot;]]&gt;&quot; в вмісті є недозволеною.</translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream.cpp" line="1265"/>
+        <location filename="../src/xml/qxmlstream.cpp" line="1286"/>
         <source>Namespace prefix &apos;%1&apos; not declared</source>
         <translation>Префікс простору імен &quot;%1&quot; не оголошено</translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream.cpp" line="1303"/>
+        <location filename="../src/xml/qxmlstream.cpp" line="1324"/>
         <source>Attribute redefined.</source>
         <translation>Нове оголошення атрибуту.</translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream.cpp" line="1415"/>
+        <location filename="../src/xml/qxmlstream.cpp" line="1436"/>
         <source>Unexpected character &apos;%1&apos; in public id literal.</source>
         <translation>Неочікуваний символ &quot;%1&quot; в ідентифікаторі публічного літерала.</translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream.cpp" line="1443"/>
+        <location filename="../src/xml/qxmlstream.cpp" line="1464"/>
         <source>Invalid XML version string.</source>
         <translation>Неправильний рядок версії XML.</translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream.cpp" line="1445"/>
+        <location filename="../src/xml/qxmlstream.cpp" line="1466"/>
         <source>Unsupported XML version.</source>
         <translation>Непідтримувана версія XML.</translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream.cpp" line="1468"/>
+        <location filename="../src/xml/qxmlstream.cpp" line="1489"/>
         <source>%1 is an invalid encoding name.</source>
         <translation>%1 є неправильним ім&apos;ям кодування.</translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream.cpp" line="1472"/>
+        <location filename="../src/xml/qxmlstream.cpp" line="1496"/>
         <source>Encoding %1 is unsupported</source>
         <translation>Кодування %1 не підтримується</translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream.cpp" line="1474"/>
+        <location filename="../src/xml/qxmlstream.cpp" line="1498"/>
         <source>Invalid XML encoding name.</source>
         <translation>Неправильне ім&apos;я кодування XML.</translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream.cpp" line="1489"/>
+        <location filename="../src/xml/qxmlstream.cpp" line="1514"/>
         <source>Standalone accepts only yes or no.</source>
         <translation>Автономний приймає лише &quot;так&quot; чи &quot;ні&quot;.</translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream.cpp" line="1491"/>
+        <location filename="../src/xml/qxmlstream.cpp" line="1516"/>
         <source>Invalid attribute in XML declaration.</source>
         <translation>Неправильний атрибут в оголошенні XML.</translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream.cpp" line="1507"/>
+        <location filename="../src/xml/qxmlstream.cpp" line="1532"/>
         <source>Premature end of document.</source>
         <translation>Передчасний кінець документа.</translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream.cpp" line="1509"/>
+        <location filename="../src/xml/qxmlstream.cpp" line="1534"/>
         <source>Invalid document.</source>
         <translation>Неправильно сформований документ.</translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream.cpp" line="1549"/>
+        <location filename="../src/xml/qxmlstream.cpp" line="1574"/>
         <source>Expected </source>
         <translation>Очікувався </translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream.cpp" line="1560"/>
+        <location filename="../src/xml/qxmlstream.cpp" line="1585"/>
         <source>, but got &apos;</source>
         <translation>, але отримано &quot;</translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream.cpp" line="1564"/>
+        <location filename="../src/xml/qxmlstream.cpp" line="1589"/>
         <source>Unexpected &apos;</source>
         <translation>Неочікуваний &quot;</translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream.cpp" line="1694"/>
+        <location filename="../src/xml/qxmlstream.cpp" line="1719"/>
         <source>Expected character data.</source>
         <translation>Очікувались символьні дані.</translation>
     </message>
@@ -4386,17 +4386,17 @@ Please choose a different file name.</source>
         <translation>Знайдено рекурсивний елемент.</translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream_p.h" line="1219"/>
+        <location filename="../src/xml/qxmlstream_p.h" line="1223"/>
         <source>Start tag expected.</source>
         <translation>Очікувався початковий теґ.</translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream_p.h" line="1430"/>
+        <location filename="../src/xml/qxmlstream_p.h" line="1434"/>
         <source>XML declaration not at start of document.</source>
         <translation>Оголошення XML не на початку документа.</translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream_p.h" line="1399"/>
+        <location filename="../src/xml/qxmlstream_p.h" line="1403"/>
         <source>NDATA in parameter entity declaration.</source>
         <translation>NDATA в оголошенні порожнього параметра.</translation>
     </message>
@@ -4406,62 +4406,62 @@ Please choose a different file name.</source>
         <translation type="obsolete">xml не є дозволеною назвою інструкції обробляння.</translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream_p.h" line="1433"/>
+        <location filename="../src/xml/qxmlstream_p.h" line="1437"/>
         <source>%1 is an invalid processing instruction name.</source>
         <translation>%1 не є дозволеною назвою інструкції обробляння.</translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream_p.h" line="1444"/>
+        <location filename="../src/xml/qxmlstream_p.h" line="1448"/>
         <source>Invalid processing instruction name.</source>
         <translation>Неправильне ім&apos;я команди обробляння.</translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream_p.h" line="1657"/>
+        <location filename="../src/xml/qxmlstream_p.h" line="1661"/>
         <source>Illegal namespace declaration.</source>
         <translation>Неправильне оголошення простору імен.</translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream_p.h" line="1672"/>
+        <location filename="../src/xml/qxmlstream_p.h" line="1676"/>
         <source>Invalid XML name.</source>
         <translation>Неправильне ім&apos;я XML.</translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream_p.h" line="1695"/>
+        <location filename="../src/xml/qxmlstream_p.h" line="1699"/>
         <source>Opening and ending tag mismatch.</source>
         <translation>Не збігаються відкривні й закривні теґи.</translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream_p.h" line="1704"/>
+        <location filename="../src/xml/qxmlstream_p.h" line="1708"/>
         <source>Reference to unparsed entity &apos;%1&apos;.</source>
         <translation>Посилання на необроблений елемент &quot;%1&quot;.</translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream_p.h" line="1770"/>
+        <location filename="../src/xml/qxmlstream_p.h" line="1774"/>
         <source>Entity &apos;%1&apos; not declared.</source>
         <translation>Відсутнє оголошення елемента &quot;%1&quot;.</translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream_p.h" line="1756"/>
+        <location filename="../src/xml/qxmlstream_p.h" line="1760"/>
         <source>Reference to external entity &apos;%1&apos; in attribute value.</source>
         <translation>Посилання на зовнішній елемент &quot;%1&quot; в значенні атрибута.</translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream_p.h" line="1784"/>
+        <location filename="../src/xml/qxmlstream_p.h" line="1788"/>
         <source>Invalid character reference.</source>
         <translation>Неправильне символьне посилання.</translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream_p.h" line="1008"/>
+        <location filename="../src/xml/qxmlstream_p.h" line="1011"/>
         <source>Encountered incorrectly encoded content.</source>
         <translation>Знайдено невірно закодований вміст.</translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream.cpp" line="1466"/>
+        <location filename="../src/xml/qxmlstream.cpp" line="1487"/>
         <source>The standalone pseudo attribute must appear after the encoding.</source>
         <translation>Окремий псевдо-атрибут має бути присутній після кодування.</translation>
     </message>
     <message>
-        <location filename="../src/xml/qxmlstream_p.h" line="1554"/>
+        <location filename="../src/xml/qxmlstream_p.h" line="1558"/>
         <source>%1 is an invalid PUBLIC identifier.</source>
         <translation>%1 є неприпустимим публічним іденифікатором.</translation>
     </message>

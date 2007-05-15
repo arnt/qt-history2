@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS><TS version="1.1" language="pl">
-<defaultcodec></defaultcodec>
 <context>
     <name>PPDOptionsModel</name>
     <message>
@@ -681,12 +680,12 @@ na
         <translation>Host nie znaleziony</translation>
     </message>
     <message>
-        <location filename="../src/network/qabstractsocket.cpp" line="1832"/>
+        <location filename="../src/network/qabstractsocket.cpp" line="1831"/>
         <source>Socket is not connected</source>
         <translation>Gniazdo nie jest podłączone</translation>
     </message>
     <message>
-        <location filename="../src/network/qabstractsocket.cpp" line="1450"/>
+        <location filename="../src/network/qabstractsocket.cpp" line="1449"/>
         <source>Socket operation timed out</source>
         <translation>Przekroczony czas operacji gniazda</translation>
     </message>
@@ -741,22 +740,22 @@ na
 <context>
     <name>QAxSelect</name>
     <message>
-        <location filename="../src/activeqt/container/qaxselect.ui" line="28"/>
+        <location filename="../src/activeqt/container/ui_qaxselect.h" line="123"/>
         <source>Select ActiveX Control</source>
         <translation>Wybierz kontrolkę ActiveX</translation>
     </message>
     <message>
-        <location filename="../src/activeqt/container/qaxselect.ui" line="60"/>
+        <location filename="../src/activeqt/container/ui_qaxselect.h" line="124"/>
         <source>OK</source>
         <translation>OK</translation>
     </message>
     <message>
-        <location filename="../src/activeqt/container/qaxselect.ui" line="76"/>
+        <location filename="../src/activeqt/container/ui_qaxselect.h" line="125"/>
         <source>&amp;Cancel</source>
         <translation>&amp;Anuluj</translation>
     </message>
     <message>
-        <location filename="../src/activeqt/container/qaxselect.ui" line="125"/>
+        <location filename="../src/activeqt/container/ui_qaxselect.h" line="126"/>
         <source>COM &amp;Object:</source>
         <translation>&amp;Obiekt COM:</translation>
     </message>
@@ -855,7 +854,7 @@ na
 <context>
     <name>QComboBox</name>
     <message>
-        <location filename="../src/plugins/accessible/widgets/complexwidgets.cpp" line="1301"/>
+        <location filename="../src/plugins/accessible/widgets/complexwidgets.cpp" line="1394"/>
         <source>Open</source>
         <translation>Otwórz</translation>
     </message>
@@ -870,7 +869,7 @@ na
         <translation>Prawda</translation>
     </message>
     <message>
-        <location filename="../src/plugins/accessible/widgets/complexwidgets.cpp" line="1301"/>
+        <location filename="../src/plugins/accessible/widgets/complexwidgets.cpp" line="1394"/>
         <source>Close</source>
         <translation>Zamknij</translation>
     </message>
@@ -1221,7 +1220,7 @@ Proszę o sprawdzenie podanej nazwy pliku.</translation>
         <translation>Czy na pewno chcesz skasować &apos;%1&apos;?</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.ui" line="50"/>
+        <location filename="../src/gui/ui_qfiledialog.h" line="257"/>
         <source>Back</source>
         <translation>Powrót</translation>
     </message>
@@ -1236,7 +1235,7 @@ Proszę o sprawdzenie podanej nazwy pliku.</translation>
         <translation>&amp;Skasuj</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.ui" line="85"/>
+        <location filename="../src/gui/ui_qfiledialog.h" line="262"/>
         <source>Detail View</source>
         <translation>Szczegóły</translation>
     </message>
@@ -1261,12 +1260,12 @@ Proszę o sprawdzenie podanej nazwy pliku.</translation>
         <translation>Plik</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.ui" line="226"/>
+        <location filename="../src/gui/ui_qfiledialog.h" line="263"/>
         <source>Files of type:</source>
         <translation>Pliki rodzaju:</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.ui" line="78"/>
+        <location filename="../src/gui/ui_qfiledialog.h" line="261"/>
         <source>List View</source>
         <translation>Lista</translation>
     </message>
@@ -1281,7 +1280,7 @@ Proszę o sprawdzenie podanej nazwy pliku.</translation>
         <translation>&amp;Otwórz</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.ui" line="64"/>
+        <location filename="../src/gui/ui_qfiledialog.h" line="259"/>
         <source>Parent Directory</source>
         <translation>Katalog domowy</translation>
     </message>
@@ -1336,7 +1335,7 @@ Proszę o sprawdzenie podanej nazwy pliku.</translation>
         <translation>Pokaż </translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.ui" line="57"/>
+        <location filename="../src/gui/ui_qfiledialog.h" line="258"/>
         <source>Forward</source>
         <translation>Do przodu</translation>
     </message>
@@ -1376,12 +1375,12 @@ Proszę o sprawdzenie podanej nazwy pliku.</translation>
         <translation type="unfinished">Nazwa &amp;pliku:</translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.ui" line="31"/>
+        <location filename="../src/gui/ui_qfiledialog.h" line="256"/>
         <source>Look in:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gui/dialogs/qfiledialog.ui" line="71"/>
+        <location filename="../src/gui/ui_qfiledialog.h" line="260"/>
         <source>Create New Folder</source>
         <translation type="unfinished">Utwórz nowy katalog</translation>
     </message>
@@ -2099,57 +2098,57 @@ Proszę o sprawdzenie podanej nazwy pliku.</translation>
 <context>
     <name>QMdiSubWindow</name>
     <message>
-        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="240"/>
+        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="255"/>
         <source>%1 - [%2]</source>
         <translation>%1 - [%2]</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="532"/>
+        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="547"/>
         <source>Close</source>
         <translation>Zamknij</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="535"/>
+        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="550"/>
         <source>Minimize</source>
         <translation>Minimalizuj</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="538"/>
+        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="553"/>
         <source>Restore Down</source>
         <translation>Przywróć pod spód</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="878"/>
+        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="893"/>
         <source>&amp;Restore</source>
         <translation>&amp;Przywróć</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="881"/>
+        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="896"/>
         <source>&amp;Move</source>
         <translation>&amp;Przenieś</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="882"/>
+        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="897"/>
         <source>&amp;Size</source>
         <translation>&amp;Rozmiar</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="883"/>
+        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="898"/>
         <source>Mi&amp;nimize</source>
         <translation>Mi&amp;nimalizuj</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="885"/>
+        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="900"/>
         <source>Ma&amp;ximize</source>
         <translation>Ma&amp;ksymalizuj</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="887"/>
+        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="902"/>
         <source>Stay on &amp;Top</source>
         <translation>Pozostaw na &amp;wierzchu</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="890"/>
+        <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="905"/>
         <source>&amp;Close</source>
         <translation>&amp;Zamknij</translation>
     </message>
@@ -2487,32 +2486,32 @@ Proszę o sprawdzenie podanej nazwy pliku.</translation>
 <context>
     <name>QODBCDriver</name>
     <message>
-        <location filename="../src/sql/drivers/odbc/qsql_odbc.cpp" line="1747"/>
+        <location filename="../src/sql/drivers/odbc/qsql_odbc.cpp" line="1725"/>
         <source>Unable to commit transaction</source>
         <translation>Nie można potwierdzić transakcji</translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/odbc/qsql_odbc.cpp" line="1520"/>
+        <location filename="../src/sql/drivers/odbc/qsql_odbc.cpp" line="1518"/>
         <source>Unable to connect</source>
         <translation>Nie można nawiązać połączenia</translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/odbc/qsql_odbc.cpp" line="1527"/>
+        <location filename="../src/sql/drivers/odbc/qsql_odbc.cpp" line="1525"/>
         <source>Unable to connect - Driver doesn&apos;t support all needed functionality</source>
         <translation>Nie można nawiązać połączenia - sterownik nie obsługuje wszystkich potrzebnych funkcji</translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/odbc/qsql_odbc.cpp" line="1730"/>
+        <location filename="../src/sql/drivers/odbc/qsql_odbc.cpp" line="1708"/>
         <source>Unable to disable autocommit</source>
         <translation>Nie można wyłączyć trybu autocommit</translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/odbc/qsql_odbc.cpp" line="1779"/>
+        <location filename="../src/sql/drivers/odbc/qsql_odbc.cpp" line="1757"/>
         <source>Unable to enable autocommit</source>
         <translation>Nie można ustawić trybu autocommit</translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/odbc/qsql_odbc.cpp" line="1764"/>
+        <location filename="../src/sql/drivers/odbc/qsql_odbc.cpp" line="1742"/>
         <source>Unable to rollback transaction</source>
         <translation>Nie można odwołać transakcji</translation>
     </message>
@@ -2520,27 +2519,27 @@ Proszę o sprawdzenie podanej nazwy pliku.</translation>
 <context>
     <name>QODBCResult</name>
     <message>
-        <location filename="../src/sql/drivers/odbc/qsql_odbc.cpp" line="1058"/>
+        <location filename="../src/sql/drivers/odbc/qsql_odbc.cpp" line="1056"/>
         <source>QODBCResult::reset: Unable to set &apos;SQL_CURSOR_STATIC&apos; as statement attribute. Please check your ODBC driver configuration</source>
         <translation>QODBCResult::reset: Nie można ustawić &apos;SQL_CURSOR_STATIC&apos; jako atrybutu polecenia. Proszę sprawdzić konfiguracje sterownika ODBC</translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/odbc/qsql_odbc.cpp" line="1310"/>
+        <location filename="../src/sql/drivers/odbc/qsql_odbc.cpp" line="1308"/>
         <source>Unable to bind variable</source>
         <translation>Nie można przypisać zmiennej</translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/odbc/qsql_odbc.cpp" line="1319"/>
+        <location filename="../src/sql/drivers/odbc/qsql_odbc.cpp" line="1317"/>
         <source>Unable to execute statement</source>
         <translation>Nie można wykonać polecenia</translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/odbc/qsql_odbc.cpp" line="822"/>
+        <location filename="../src/sql/drivers/odbc/qsql_odbc.cpp" line="820"/>
         <source>Unable to fetch next</source>
         <translation>Nie można pobrać kolejnego wiersza danych</translation>
     </message>
     <message>
-        <location filename="../src/sql/drivers/odbc/qsql_odbc.cpp" line="1075"/>
+        <location filename="../src/sql/drivers/odbc/qsql_odbc.cpp" line="1073"/>
         <source>Unable to prepare statement</source>
         <translation>Nie można przygotować polecenia</translation>
     </message>
@@ -3855,12 +3854,12 @@ Proszę wybrać inną nazwę pliku.</translation>
 <context>
     <name>QTabBar</name>
     <message>
-        <location filename="../src/plugins/accessible/widgets/complexwidgets.cpp" line="975"/>
+        <location filename="../src/plugins/accessible/widgets/complexwidgets.cpp" line="1068"/>
         <source>Scroll Left</source>
         <translation>Przewiń w lewo</translation>
     </message>
     <message>
-        <location filename="../src/plugins/accessible/widgets/complexwidgets.cpp" line="975"/>
+        <location filename="../src/plugins/accessible/widgets/complexwidgets.cpp" line="1068"/>
         <source>Scroll Right</source>
         <translation>Przewiń w prawo</translation>
     </message>
@@ -3974,57 +3973,57 @@ Proszę wybrać inną nazwę pliku.</translation>
 <context>
     <name>QUnicodeControlCharacterMenu</name>
     <message>
-        <location filename="../src/gui/widgets/qtextedit.cpp" line="2608"/>
+        <location filename="../src/gui/widgets/qtextedit.cpp" line="2601"/>
         <source>Insert Unicode control character</source>
         <translation>Wstaw znak </translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qtextedit.cpp" line="2598"/>
+        <location filename="../src/gui/widgets/qtextedit.cpp" line="2591"/>
         <source>LRE Start of left-to-right embedding</source>
         <translation>LRE Początek osadzania od lewej do prawej</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qtextedit.cpp" line="2593"/>
+        <location filename="../src/gui/widgets/qtextedit.cpp" line="2586"/>
         <source>LRM Left-to-right mark</source>
         <translation>LRM znacznik od prawej do lewej </translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qtextedit.cpp" line="2600"/>
+        <location filename="../src/gui/widgets/qtextedit.cpp" line="2593"/>
         <source>LRO Start of left-to-right override</source>
         <translation>LRO Początek nadpisania od lewej do prawej</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qtextedit.cpp" line="2602"/>
+        <location filename="../src/gui/widgets/qtextedit.cpp" line="2595"/>
         <source>PDF Pop directional formatting</source>
         <translation>PDF Formatowanie kierunkowe pop</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qtextedit.cpp" line="2599"/>
+        <location filename="../src/gui/widgets/qtextedit.cpp" line="2592"/>
         <source>RLE Start of right-to-left embedding</source>
         <translation>RLE Początek osadzania od prawej do lewej</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qtextedit.cpp" line="2594"/>
+        <location filename="../src/gui/widgets/qtextedit.cpp" line="2587"/>
         <source>RLM Right-to-left mark</source>
         <translation>RLM Znacznik od prawej do lewej</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qtextedit.cpp" line="2601"/>
+        <location filename="../src/gui/widgets/qtextedit.cpp" line="2594"/>
         <source>RLO Start of right-to-left override</source>
         <translation>RLO Początek nadpisania od prawej do lewej</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qtextedit.cpp" line="2595"/>
+        <location filename="../src/gui/widgets/qtextedit.cpp" line="2588"/>
         <source>ZWJ Zero width joiner</source>
         <translation>ZWJ Łącznik zerowej długości</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qtextedit.cpp" line="2596"/>
+        <location filename="../src/gui/widgets/qtextedit.cpp" line="2589"/>
         <source>ZWNJ Zero width non-joiner</source>
         <translation>ZWNJ Rozdzielnik zerowej długości</translation>
     </message>
     <message>
-        <location filename="../src/gui/widgets/qtextedit.cpp" line="2597"/>
+        <location filename="../src/gui/widgets/qtextedit.cpp" line="2590"/>
         <source>ZWSP Zero width space</source>
         <translation>ZWSP Obszar zerowej długości</translation>
     </message>
@@ -4040,7 +4039,7 @@ Proszę wybrać inną nazwę pliku.</translation>
 <context>
     <name>QWidget</name>
     <message>
-        <location filename="../src/gui/kernel/qwidget.cpp" line="4132"/>
+        <location filename="../src/gui/kernel/qwidget.cpp" line="4131"/>
         <source>*</source>
         <translation>*</translation>
     </message>
