@@ -2780,11 +2780,11 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPai
         break;
     case PE_IndicatorMenuCheckMark: {
         const int checkw = 8;
-        const int checkh = 7;
+        const int checkh = 8;
         const int xoff = qMax(0, (opt->rect.width() - checkw) / 2);
         const int yoff = qMax(0, (opt->rect.width() - checkh) / 2);
         const int x1 = xoff + opt->rect.x();
-        const int y1 = yoff + opt->rect.y() + checkw/2 + 1;
+        const int y1 = yoff + opt->rect.y() + checkw/2;
         const int x2 = xoff + opt->rect.x() + checkw/4;
         const int y2 = yoff + opt->rect.y() + checkh;
         const int x3 = xoff + opt->rect.x() + checkw;
