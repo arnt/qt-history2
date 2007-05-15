@@ -37,8 +37,8 @@
     \section1 AIX - 5.1 or later
 
     Qt has been built on a range of versions from 5.1 upwards, using both
-    \l{compiler-notes.html}{xlC} and
-    \l{compiler-notes.html}{GCC}.
+    the \l{compiler-notes.html#xlC}{AIX} and 
+    \l{compiler-notes.html#GCC}{GCC} compilers.
 
     \table
     \header \o Compiler \o Notes
