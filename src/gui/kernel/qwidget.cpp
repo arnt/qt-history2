@@ -2736,12 +2736,13 @@ QPoint QWidget::pos() const
     visible, it is guaranteed to receive an event before it is shown.
 
     The size is adjusted if it lies outside the range defined by
-    minimumSize() and maximumSize(). For windows, the minimum size
-    is always at least QSize(1, 1), and it might be larger, depending on
-    the window manager.
+    minimumSize() and maximumSize().
 
     \warning Calling resize() or setGeometry() inside resizeEvent() can
     lead to infinite recursion.
+
+    Note that setting size to QSize(0, 0) will cause the widget to not
+    appear on screen. This also applies to windo
 
     \sa pos, geometry, minimumSize, maximumSize, resizeEvent()
 */
