@@ -4201,26 +4201,27 @@ void QGLGlyphCache::cacheGlyphs(QGLContext *context, const QTextItemInt &ti,
                 }
             }
 
+            QImage glyph_im(ti.fontEngine->alphaMapForGlyph(glyphs[i]).convertToFormat(QImage::Format_Indexed8));
+            glyph_width = glyph_im.width();
+            // pad the glyph width to an even number
+            if (glyph_width%2 != 0)
+                ++glyph_width;
+
             QGLGlyphCoord *qgl_glyph = new QGLGlyphCoord;
             qgl_glyph->x = qreal(font_tex->x_offset) / font_tex->width;
             qgl_glyph->y = qreal(font_tex->y_offset) / font_tex->height;
             qgl_glyph->width = qreal(glyph_width) / font_tex->width;
             qgl_glyph->height = qreal(glyph_height) / font_tex->height;
-            qgl_glyph->log_width = qgl_glyph->width * font_tex->width;
+            qgl_glyph->log_width = qreal(glyph_width);
             qgl_glyph->log_height = qgl_glyph->height * font_tex->height;
             qgl_glyph->x_offset = -metrics.x;
             qgl_glyph->y_offset = metrics.y;
 
-            QImage glyph_im(ti.fontEngine->alphaMapForGlyph(glyphs[i]).convertToFormat(QImage::Format_Indexed8));
-
             if (!glyph_im.isNull()) {
-                int padded_width = glyph_im.width();
-                if (padded_width%2 != 0)
-                    ++padded_width;
 
                 int idx = 0;
-                uchar *tex_data = (uchar *) malloc(padded_width*glyph_im.height()*2);
-                memset(tex_data, 0, padded_width*glyph_im.height()*2);
+                uchar *tex_data = (uchar *) malloc(glyph_width*glyph_im.height()*2);
+                memset(tex_data, 0, glyph_width*glyph_im.height()*2);
 
                 for (int y=0; y<glyph_im.height(); ++y) {
                     uchar *s = (uchar *) glyph_im.scanLine(y);
@@ -4234,7 +4235,7 @@ void QGLGlyphCache::cacheGlyphs(QGLContext *context, const QTextItemInt &ti,
                         idx += 2;
                 }
                 glTexSubImage2D(GL_TEXTURE_2D, 0, font_tex->x_offset, font_tex->y_offset,
-                                padded_width, glyph_im.height(),
+                                glyph_width, glyph_im.height(),
                                 GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, tex_data);
                 free(tex_data);
             }

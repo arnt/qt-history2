@@ -397,8 +397,8 @@ QImage QFontEngine::alphaMapForGlyph(glyph_t glyph)
     glyph_metrics_t gm = boundingBox(glyph);
     int glyph_x = qFloor(gm.x.toReal());
     int glyph_y = qFloor(gm.y.toReal());
-    int glyph_width = qCeil((gm.x + gm.width).toReal()) -  glyph_x + 2;
-    int glyph_height = qCeil((gm.y + gm.height).toReal()) - glyph_y + 2;
+    int glyph_width = qCeil((gm.x + gm.width).toReal()) -  glyph_x;
+    int glyph_height = qCeil((gm.y + gm.height).toReal()) - glyph_y;
 
     if (glyph_width <= 0 || glyph_height <= 0)
         return QImage();
@@ -406,7 +406,7 @@ QImage QFontEngine::alphaMapForGlyph(glyph_t glyph)
     pt.x = 0;
     pt.y = -glyph_y; // the baseline
     QPainterPath path;
-    QImage im(glyph_width + glyph_x, glyph_height, QImage::Format_ARGB32_Premultiplied);
+    QImage im(glyph_width + qAbs(glyph_x) + 4, glyph_height, QImage::Format_ARGB32_Premultiplied);
     im.fill(Qt::transparent);
     QPainter p(&im);
     p.setRenderHint(QPainter::Antialiasing);
@@ -656,7 +656,7 @@ const uchar *QFontEngine::getCMap(const uchar *table, uint tableSize, bool *isSy
     if(tableToUse < 0)
         return 0;
     *isSymbolFont = (score == 1);
-    
+
     unsigned int unicode_table = qFromBigEndian<quint32>(maps + 8*tableToUse + 4);
 
     if (!unicode_table || unicode_table + 8 > tableSize)
