@@ -427,9 +427,9 @@ void tst_QTreeView::construction()
     QVERIFY(!view.isRowHidden(-1, QModelIndex()));
     QVERIFY(!view.isRowHidden(0, QModelIndex()));
     QVERIFY(!view.isRowHidden(1, QModelIndex()));
-    QVERIFY(!view.isRowSpanning(-1, QModelIndex()));
-    QVERIFY(!view.isRowSpanning(0, QModelIndex()));
-    QVERIFY(!view.isRowSpanning(1, QModelIndex()));
+    QVERIFY(!view.isFirstColumnSpanned(-1, QModelIndex()));
+    QVERIFY(!view.isFirstColumnSpanned(0, QModelIndex()));
+    QVERIFY(!view.isFirstColumnSpanned(1, QModelIndex()));
     QVERIFY(!view.isSortingEnabled());
     QVERIFY(view.itemsExpandable());
     QVERIFY(view.rootIsDecorated());
@@ -2008,7 +2008,7 @@ void tst_QTreeView::spanningItems()
 
     // every second row is spanning
     for (int i = 1; i < model.rowCount(QModelIndex()); i += 2)
-        view.setRowSpanning(i , QModelIndex(), true);
+        view.setFirstColumnSpanned(i , QModelIndex(), true);
 
     // non-spanning item
     QPoint p(itemWidth / 2, itemHeight / 2); // column 0, row 0
