@@ -1865,7 +1865,6 @@ void QHeaderView::paintEvent(QPaintEvent *e)
     int logical;
     const int width = d->viewport->width();
     const int height = d->viewport->height();
-    const bool active = isActiveWindow();
     for (int i = start; i <= end; ++i) {
         if (d->isVisualIndexHidden(i))
             continue;
@@ -1874,11 +1873,11 @@ void QHeaderView::paintEvent(QPaintEvent *e)
         bool highlight = false;
         if (d->orientation == Qt::Horizontal) {
             currentSectionRect.setRect(sectionViewportPosition(logical), 0, sectionSize(logical), height);
-            if (d->highlightSelected && active)
+            if (d->highlightSelected)
                 highlight = d->columnIntersectsSelection(logical);
         } else {
             currentSectionRect.setRect(0, sectionViewportPosition(logical), width, sectionSize(logical));
-            if (d->highlightSelected && active)
+            if (d->highlightSelected)
                 highlight = d->rowIntersectsSelection(logical);
         }
         currentSectionRect.translate(offset);
