@@ -79,6 +79,8 @@ private slots:
     void disableSaveButton_data();
     void disableSaveButton();
 
+    void clearLineEdit();
+
 private:
     QByteArray userSettings;
 };
@@ -619,6 +621,46 @@ void tst_QFiledialog::disableSaveButton()
     QPushButton *button = buttonBox->button(QDialogButtonBox::Save);
     QVERIFY(button);
     QCOMPARE(button->isEnabled(), isEnabled);
+}
+
+void tst_QFiledialog::clearLineEdit()
+{
+    QFileDialog fd(0, "caption", "foo");
+    fd.setFileMode(QFileDialog::AnyFile);
+    fd.show();
+
+    QLineEdit *lineEdit = fd.findChild<QLineEdit*>("fileNameEdit");
+    QVERIFY(lineEdit);
+    QVERIFY(lineEdit->text() == "foo");
+    fd.setDirectory(QDir::home());
+
+    QTest::qWait(200);
+
+    QListView* list = fd.findChild<QListView*>("listView");
+    QVERIFY(list);
+    QModelIndex root = list->rootIndex();
+    QModelIndex subdir;
+    for (int i = 0; i < list->model()->rowCount(root); ++i)
+        if (list->model()->hasChildren(list->model()->index(i, 0, root)))
+                subdir = list->model()->index(i, 0, root);
+    QVERIFY(subdir.isValid());
+
+    // saving a file the text shouldn't be cleared
+    fd.setDirectory(QDir::home());
+    QTest::mouseDClick(list->viewport(), Qt::LeftButton, 0, list->visualRect(subdir).center());
+    QTest::mouseDClick(list->viewport(), Qt::LeftButton, 0, list->visualRect(subdir).center());
+    QVERIFY(fd.directory().absolutePath() != QDir::home().absolutePath());
+    QVERIFY(!lineEdit->text().isEmpty());
+
+    // selecting a dir the text should be cleared so one can just hit ok
+    // and it selects that directory
+    fd.setFileMode(QFileDialog::Directory);
+    fd.setDirectory(QDir::home());
+    QTest::qWait(100);
+    QTest::mouseDClick(list->viewport(), Qt::LeftButton, 0, list->visualRect(subdir).center());
+    QTest::mouseDClick(list->viewport(), Qt::LeftButton, 0, list->visualRect(subdir).center());
+    QVERIFY(fd.directory().absolutePath() != QDir::home().absolutePath());
+    QVERIFY(lineEdit->text().isEmpty());
 }
 
 QTEST_MAIN(tst_QFiledialog)
