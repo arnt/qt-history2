@@ -1413,7 +1413,7 @@ QTreeWidgetItem::~QTreeWidgetItem()
             if (model) model->beginRemoveItems(par, i, 1);
             // users _could_ do changes when connected to rowsAboutToBeRemoved,
             // so we check again to make sure 'i' is valid
-            if (par->children.count() > 1 && par->children.at(i) == this)
+            if (!par->children.isEmpty() && par->children.at(i) == this)
                 par->children.takeAt(i);
             if (model) model->endRemoveItems();
         }
@@ -1426,8 +1426,7 @@ QTreeWidgetItem::~QTreeWidgetItem()
                 model->beginRemoveItems(0, i, 1);
                 // users _could_ do changes when connected to rowsAboutToBeRemoved,
                 // so we check again to make sure 'i' is valid
-                if (model->rootItem->children.count() > 1
-                    && model->rootItem->children.at(i) == this)
+                if (!model->rootItem->children.isEmpty() && model->rootItem->children.at(i) == this)
                     model->rootItem->children.takeAt(i);
                 model->endRemoveItems();
             }
