@@ -3212,6 +3212,10 @@ void tst_QUrl::setAuthority_data()
     QTest::newRow("Auth with empty port") << QString("62.70.27.22:") << QString("//62.70.27.22:");
     QTest::newRow("Yet another plain auth") << QString("192.168.1.1:21") << QString("//192.168.1.1:21");
     QTest::newRow("Auth without port") << QString("192.168.1.1") << QString("//192.168.1.1");
+    QTest::newRow("Auth w/full hostname without port") << QString("shusaku.troll.no") << QString("//shusaku.troll.no");
+    QTest::newRow("Auth w/hostname without port") << QString("shusaku") << QString("//shusaku");
+    QTest::newRow("Auth w/full hostname that ends with number, without port") << QString("shusaku.troll.no.2") << QString("//shusaku.troll.no.2");
+    QTest::newRow("Auth w/hostname that ends with number, without port") << QString("shusaku2") << QString("//shusaku2");
     QTest::newRow("Empty auth") << QString() << QString();
     QTest::newRow("Single") << QString(":") << QString("//:");
 }

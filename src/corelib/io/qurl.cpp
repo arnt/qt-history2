@@ -3082,17 +3082,18 @@ void QUrlPrivate::setAuthority(const QString &auth)
     if (portIndex == 0) {
         portIndex = -1;
     } else {
-        short c = auth.at(portIndex).unicode();
+        short c = auth.at(portIndex--).unicode();
         if (c < '0' || c > '9') {
             portIndex = -1;
-        } else while (portIndex > 0) {
-            c = auth.at(--portIndex).unicode();
+        } else while (portIndex >= 0) {
+            c = auth.at(portIndex).unicode();
             if (c == ':') {
                 break;
             } else if (c == '.') {
                 portIndex = -1;
                 break;
             }
+            --portIndex;
         }
     }
 
