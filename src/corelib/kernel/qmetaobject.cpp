@@ -1477,6 +1477,10 @@ QByteArray QMetaEnum::valueToKeys(int value) const
     return keys;
 }
 
+static QByteArray qualifiedName(const QMetaEnum &e)
+{
+    return QByteArray(e.scope()) + "::" + e.name();
+}
 
 /*!
     \class QMetaProperty
@@ -1568,8 +1572,11 @@ QVariant::Type QMetaProperty::type() const
         type = QVariant::LastType;
     if (type)
         return QVariant::Type(type);
-    if (isEnumType())
-        return QVariant::Int;
+    if (isEnumType()) {
+        int enumMetaTypeId = QMetaType::type(qualifiedName(menum));
+        if (enumMetaTypeId == 0)
+            return QVariant::Int;
+    }
 
     return QVariant::UserType;
 }
@@ -1588,6 +1595,10 @@ int QMetaProperty::userType() const
     QVariant::Type tp = type();
     if (tp != QVariant::UserType)
         return tp;
+    if (isEnumType()) {
+        int enumMetaTypeId = QMetaType::type(qualifiedName(menum));
+        return enumMetaTypeId;
+    }
     return QMetaType::type(typeName());
 }
 
@@ -1662,7 +1673,16 @@ QVariant QMetaProperty::read(const QObject *object) const
         return QVariant();
 
     uint t = QVariant::Int;
-    if (!isEnumType()) {
+    if (isEnumType()) {
+        /*
+          try to create a QVariant that can be converted to this enum
+          type (only works if the enum has already been registered
+          with QMetaType)
+        */
+        int enumMetaTypeId = QMetaType::type(qualifiedName(menum));
+        if (enumMetaTypeId != 0)
+            t = enumMetaTypeId;
+    } else {
         int handle = priv(mobj->d.data)->propertyData + 3*idx;
         uint flags = mobj->d.data[handle + 2];
         const char *typeName = mobj->d.stringdata + mobj->d.data[handle + 1];

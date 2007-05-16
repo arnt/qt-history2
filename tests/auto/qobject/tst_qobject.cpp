@@ -1045,9 +1045,10 @@ void tst_QObject::streamCustomTypes()
 class PropertyObject : public QObject
 {
     Q_OBJECT
-    Q_ENUMS(Alpha)
+    Q_ENUMS(Alpha Priority)
 
     Q_PROPERTY(Alpha alpha READ alpha WRITE setAlpha)
+    Q_PROPERTY(Priority priority READ priority WRITE setPriority)
     Q_PROPERTY(int number READ number WRITE setNumber)
     Q_PROPERTY(QString string READ string WRITE setString)
     Q_PROPERTY(QVariant variant READ variant WRITE setVariant)
@@ -1061,12 +1062,17 @@ public:
         Alpha2
     };
 
+    enum Priority { High, Low, VeryHigh, VeryLow };
+
     PropertyObject()
-        : m_alpha(Alpha0), m_number(0), m_custom(0), m_float(42)
+        : m_alpha(Alpha0), m_priority(High), m_number(0), m_custom(0), m_float(42)
     {}
 
     Alpha alpha() const { return m_alpha; }
     void setAlpha(Alpha alpha) { m_alpha = alpha; }
+
+    Priority priority() const { return m_priority; }
+    void setPriority(Priority priority) { m_priority = priority; }
 
     int number() const { return m_number; }
     void setNumber(int number) { m_number = number; }
@@ -1085,12 +1091,15 @@ public:
 
 private:
     Alpha m_alpha;
+    Priority m_priority;
     int m_number;
     QString m_string;
     QVariant m_variant;
     CustomType *m_custom;
     float m_float;
 };
+
+Q_DECLARE_METATYPE(PropertyObject::Priority)
 
 void tst_QObject::threadSignalEmissionCrash()
 {
@@ -1477,6 +1486,46 @@ void tst_QObject::property()
     customVariant = object.property("custom");
     customPointer = qVariantValue<CustomType *>(customVariant);
     QCOMPARE(object.custom(), customPointer);
+
+    // this enum property has a meta type, but it's not yet registered, so we know this fails
+    QVERIFY(mo->indexOfProperty("priority") != -1);
+    property = mo->property(mo->indexOfProperty("priority"));
+    QVERIFY(property.isEnumType());
+    QCOMPARE(property.typeName(), "Priority");
+    QCOMPARE(property.type(), QVariant::Int);
+
+    var = object.property("priority");
+    QVERIFY(!var.isNull());
+    QCOMPARE(var.toInt(), int(PropertyObject::High));
+    object.setPriority(PropertyObject::Low);
+    QCOMPARE(object.property("priority").toInt(), int(PropertyObject::Low));
+    QVERIFY(object.setProperty("priority", PropertyObject::VeryHigh));
+    QCOMPARE(object.property("priority").toInt(), int(PropertyObject::VeryHigh));
+    QVERIFY(object.setProperty("priority", "High"));
+    QCOMPARE(object.property("priority").toInt(), int(PropertyObject::High));
+    QVERIFY(!object.setProperty("priority", QVariant()));
+
+    // now it's registered, so it works as expected
+    int priorityMetaTypeId = qRegisterMetaType<PropertyObject::Priority>("PropertyObject::Priority");
+
+    QVERIFY(mo->indexOfProperty("priority") != -1);
+    property = mo->property(mo->indexOfProperty("priority"));
+    QVERIFY(property.isEnumType());
+    QCOMPARE(property.typeName(), "Priority");
+    QCOMPARE(property.type(), QVariant::UserType);
+    QCOMPARE(property.userType(), priorityMetaTypeId);
+
+    var = object.property("priority");
+    QVERIFY(!var.isNull());
+    QVERIFY(qVariantCanConvert<PropertyObject::Priority>(var));
+    QCOMPARE(qVariantValue<PropertyObject::Priority>(var), PropertyObject::High);
+    object.setPriority(PropertyObject::Low);
+    QCOMPARE(qVariantValue<PropertyObject::Priority>(object.property("priority")), PropertyObject::Low);
+    QVERIFY(object.setProperty("priority", PropertyObject::VeryHigh));
+    QCOMPARE(qVariantValue<PropertyObject::Priority>(object.property("priority")), PropertyObject::VeryHigh);
+    QVERIFY(object.setProperty("priority", "High"));
+    QCOMPARE(qVariantValue<PropertyObject::Priority>(object.property("priority")), PropertyObject::High);
+    QVERIFY(!object.setProperty("priority", QVariant()));
 }
 
 void tst_QObject::metamethod()
