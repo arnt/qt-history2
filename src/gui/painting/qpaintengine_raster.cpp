@@ -1110,7 +1110,7 @@ void QRasterPaintEngine::updateMatrix(const QTransform &matrix)
     if (d->txop < QTransform::TxScale) {
         d->tx_noshear = true;
     } else if (d->txop < QTransform::TxRotate) {
-        d->tx_noshear = qFuzzyCompare(d->matrix.m11(), d->matrix.m22());
+        d->tx_noshear = qFuzzyCompare(qAbs(d->matrix.m11()), qAbs(d->matrix.m22()));
     } else if (d->txop < QTransform::TxShear) {
         const qreal xAxis = d->matrix.m11() * d->matrix.m11() +
                             d->matrix.m12() * d->matrix.m12();
@@ -2235,7 +2235,7 @@ void QRasterPaintEngine::drawImage(const QRectF &r, const QImage &img, const QRe
             if (d->tx_noshear)
                 d->rasterizer.rasterizeLine(a, b, rect.height() / rect.width());
             else
-                d->rasterizer.rasterizeLine(a, b, (d->matrix.m22() * rect.height()) / (d->matrix.m11() * rect.width()));
+                d->rasterizer.rasterizeLine(a, b, qAbs((d->matrix.m22() * rect.height()) / (d->matrix.m11() * rect.width())));
 
             return;
         }
@@ -2295,7 +2295,7 @@ void QRasterPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap,
             if (d->tx_noshear)
                 d->rasterizer.rasterizeLine(a, b, rect.height() / rect.width());
             else
-                d->rasterizer.rasterizeLine(a, b, (d->matrix.m22() * rect.height()) / (d->matrix.m11() * rect.width()));
+                d->rasterizer.rasterizeLine(a, b, qAbs((d->matrix.m22() * rect.height()) / (d->matrix.m11() * rect.width())));
             return;
         }
 #endif
