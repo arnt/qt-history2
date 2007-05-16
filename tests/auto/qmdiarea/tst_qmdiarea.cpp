@@ -1599,6 +1599,7 @@ void tst_QMdiArea::resizeTimer()
     mdiArea.tileSubWindows();
     QCOMPARE(timerEventSpy.count(), 0);
 
+    QTest::qWait(250);
     mdiArea.resize(mdiArea.size() + QSize(2, 2));
     qApp->processEvents();
 
