@@ -537,7 +537,7 @@ static QScriptValue truncate(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(ByteArray, toString);
-    return QScriptValue(eng, "QByteArray");
+    return QScriptValue(eng, QString::fromLocal8Bit(self->constData(), self->size()));
 }
 
 /////////////////////////////////////////////////////////////
