@@ -402,7 +402,7 @@ QWidgetBackingStore::~QWidgetBackingStore()
   rect must be valid
   doesn't generate any updates
 */
-void QWidgetBackingStore::bltRect(const QRect &rect, int dx, int dy, QWidget *widget)
+bool QWidgetBackingStore::bltRect(const QRect &rect, int dx, int dy, QWidget *widget)
 {
     QPoint pos(widget->mapTo(tlw, rect.topLeft()));
 
@@ -410,7 +410,7 @@ void QWidgetBackingStore::bltRect(const QRect &rect, int dx, int dy, QWidget *wi
     pos += topLevelOffset();
 #endif
 
-    windowSurface->scroll(QRect(pos, rect.size()), dx, dy);
+    return windowSurface->scroll(QRect(pos, rect.size()), dx, dy);
 }
 
 
@@ -455,13 +455,15 @@ void QWidgetPrivate::moveRect(const QRect &rect, int dx, int dy)
         pd->invalidateBuffer(parentR);
         invalidateBuffer((newRect & clipR).translated(-data.crect.topLeft()));
     } else {
-        QWidgetBackingStore *wbs = x->backingStore;
-        if (sourceRect.isValid())
-            wbs->bltRect(sourceRect, dx, dy, pw);
-
 
         QRegion childExpose = newRect & clipR;
-        childExpose -= destRect;
+        QWidgetBackingStore *wbs = x->backingStore;
+
+        if (sourceRect.isValid()) {
+            if (wbs->bltRect(sourceRect, dx, dy, pw))
+                childExpose -= destRect;
+        }
+
 
         QPoint toplevelOffset = pw->mapTo(tlw, QPoint());
 #ifdef Q_WS_QWS
@@ -550,13 +552,12 @@ void QWidgetPrivate::scrollRect(const QRect &rect, int dx, int dy)
 #endif
         QRect sourceRect = destRect.translated(-dx, -dy);
 
-
-
-        if (sourceRect.isValid())
-            wbs->bltRect(sourceRect, dx, dy, q);
-
         QRegion childExpose = scrollRect;
-        childExpose -= destRect;
+        if (sourceRect.isValid()) {
+            if (wbs->bltRect(sourceRect, dx, dy, q))
+                childExpose -= destRect;
+        }
+
 //        childExpose += (wbs->dirty & sourceRect.translated(toplevelOffset)).boundingRect().translated(QPoint(dx,dy) - toplevelOffset);
 #ifdef Q_WS_QWS
         QRegion dirty = sourceRect.translated(toplevelOffset);

@@ -35,7 +35,7 @@ class Q_AUTOTEST_EXPORT QWidgetBackingStore
 public:
     QWidgetBackingStore(QWidget *t);
     ~QWidgetBackingStore();
-    void bltRect(const QRect &rect, int dx, int dy, QWidget *widget);
+    bool bltRect(const QRect &rect, int dx, int dy, QWidget *widget);
     void dirtyRegion(const QRegion &rgn, QWidget *widget=0);
     void cleanRegion(const QRegion &rgn, QWidget *widget=0, bool recursiveCopyToScreen = true);
 #if defined (Q_WS_QWS) || defined (Q_WS_WIN)
