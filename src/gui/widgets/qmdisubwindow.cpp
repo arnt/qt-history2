@@ -1272,6 +1272,7 @@ void QMdiSubWindowPrivate::setActive(bool activate)
     if (resizeTimerId != -1) {
         q->killTimer(resizeTimerId);
         resizeTimerId = -1;
+        updateDirtyRegions();
     }
 
     q->update(windowDecoration);
