@@ -1266,6 +1266,14 @@ void QMdiSubWindowPrivate::setActive(bool activate)
     QRegion windowDecoration = QRegion(0, 0, q->width(), q->height());
     windowDecoration -= QRegion(frameWidth, titleBarHeight, q->width() - 2 * frameWidth,
                                 q->height() - titleBarHeight - frameWidth);
+
+    // Make sure we don't use cached style options if we get
+    // resize events right before activation/deactivation.
+    if (resizeTimerId != -1) {
+        q->killTimer(resizeTimerId);
+        resizeTimerId = -1;
+    }
+
     q->update(windowDecoration);
 }
 
