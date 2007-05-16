@@ -2215,12 +2215,6 @@ void QGraphicsView::setupViewport(QWidget *widget)
 
     // autoFillBackground enables scroll acceleration.
     widget->setAutoFillBackground(true);
-
-    if (d->scene) {
-        d->recalculateContentSize();
-        d->centerView(d->transformationAnchor);
-    }
-
     widget->setMouseTracking(true);
     widget->setAcceptDrops(acceptDrops());
 }
