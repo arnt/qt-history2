@@ -1543,13 +1543,15 @@ Ltop:
 
     I(PostDecr):
     {
+        // ### most of the code is duplicated from PostIncr -- try to merge
         if (! stackPtr[0].isReference()) {
             stackPtr -= 1;
             throwSyntaxError(QLatin1String("invalid decrement operand"));
             HandleException();
         }
 
-        QScriptValue::ResolveFlags mode = QScriptValue::ResolveFlags(stackPtr[0].m_int_value);
+        QScriptValue::ResolveFlags mode = QScriptValue::ResolveFlags(stackPtr[0].m_int_value)
+                                          | QScriptValue::ResolvePrototype;
 
         --stackPtr;
 
@@ -1576,17 +1578,15 @@ Ltop:
                 }
             }
             base = object;
-        } else {
-            if (! object.resolve_helper(memberName, &member, &base, mode)) {
-                if (!isMemberAssignment) {
-                    stackPtr -= 2;
-                    throwNotDefined(memberName);
-                    HandleException();
-                }
-                base = object;
-                CREATE_MEMBER(base, memberName, &member, /*flags=*/0);
-                base.put(member, undefined);
+        } else if (! object.resolve_helper(memberName, &member, &base, mode)) {
+            if (!isMemberAssignment) {
+                stackPtr -= 2;
+                throwNotDefined(memberName);
+                HandleException();
             }
+            base = object;
+            CREATE_MEMBER(base, memberName, &member, /*flags=*/0);
+            base.put(member, undefined);
         }
 
         QScriptValueImpl getter;
