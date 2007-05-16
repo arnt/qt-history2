@@ -519,7 +519,7 @@ bool QSQLiteDriver::rollbackTransaction()
 
     QSqlQuery q(createResult());
     if (!q.exec(QLatin1String("ROLLBACK"))) {
-        setLastError(QSqlError(tr("Unable to roll back transaction"),
+        setLastError(QSqlError(tr("Unable to rollback transaction"),
                                q.lastError().databaseText(), QSqlError::TransactionError));
         return false;
     }
