@@ -80,7 +80,6 @@ void printVariableInfo()
 	   "\tvsync_len:    %d\n"
 	   "\tsync:         %d\n"
 	   "\tvmode:        %d\n"
-	   "\trotate:       %d\n"
 	   "\n",
 	   vinfo.xres, vinfo.yres, vinfo.xres_virtual, vinfo.yres_virtual,
 	   vinfo.xoffset, vinfo.yoffset, vinfo.bits_per_pixel, vinfo.grayscale,
@@ -91,8 +90,7 @@ void printVariableInfo()
 	   vinfo.nonstd, vinfo.activate, vinfo.height, vinfo.width,
 	   vinfo.accel_flags, vinfo.pixclock, vinfo.left_margin,
 	   vinfo.right_margin, vinfo.upper_margin, vinfo.lower_margin,
-	   vinfo.hsync_len, vinfo.vsync_len, vinfo.sync, vinfo.vmode,
-	   vinfo.rotate);
+	   vinfo.hsync_len, vinfo.vsync_len, vinfo.sync, vinfo.vmode);
 }
 
 long switchToGraphicsMode()
