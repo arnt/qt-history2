@@ -17,6 +17,7 @@
 #include "qt_windows.h"
 #include <private/qapplication_p.h>
 
+#include <qlibrary.h>
 #include <qpaintdevice.h>
 #include <qpainter.h>
 #include <limits.h>
@@ -437,12 +438,16 @@ glyph_metrics_t QFontEngineWin::boundingBox(const QGlyphLayout *glyphs, int numG
     QFixed w = 0;
     const QGlyphLayout *end = glyphs + numGlyphs;
     while(end > glyphs) {
-		--end;
+                --end;
         w += (end->advance.x + end->space_18d6) * !end->attributes.dontPrint;
-	}
+        }
 
     return glyph_metrics_t(0, -tm.w.tmAscent, w, tm.w.tmHeight, w, 0);
 }
+
+
+typedef HRESULT (WINAPI *pGetCharABCWidthsFloat)(HDC, UINT, UINT, LPABCFLOAT);
+static pGetCharABCWidthsFloat qt_GetCharABCWidthsFloat = 0;
 
 glyph_metrics_t QFontEngineWin::boundingBox(glyph_t glyph)
 {
@@ -454,10 +459,24 @@ glyph_metrics_t QFontEngineWin::boundingBox(glyph_t glyph)
     if(!ttf) {
         SIZE s = {0, 0};
         WCHAR ch = glyph;
-        BOOL res = GetTextExtentPoint32W(hdc, &ch, 1, &s);
-        Q_UNUSED(res);
-        int overhang = (QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based) ? tm.a.tmOverhang : 0;
-        return glyph_metrics_t(0, -tm.a.tmAscent, s.cx, tm.a.tmHeight, s.cx-overhang, 0);
+        int width;
+        int overhang = 0;
+        static bool resolved = false;
+        if (!resolved) {
+            QLibrary lib(QLatin1String("gdi32"));
+            qt_GetCharABCWidthsFloat = (pGetCharABCWidthsFloat) lib.resolve("GetCharABCWidthsFloatW");
+            resolved = true;
+        }
+        if (qt_GetCharABCWidthsFloat) {
+            ABCFLOAT abc;
+            qt_GetCharABCWidthsFloat(hdc, ch, ch, &abc);
+            width = qRound(abc.abcfB);
+        } else {
+            GetTextExtentPoint32W(hdc, &ch, 1, &s);
+            overhang = (QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based) ? tm.a.tmOverhang : 0;
+            width = s.cx;
+        }
+        return glyph_metrics_t(0, -tm.a.tmAscent, width, tm.a.tmHeight, width-overhang, 0);
     } else {
         DWORD res = 0;
         MAT2 mat;
@@ -941,8 +960,8 @@ QImage QFontEngineWin::alphaMapForGlyph(glyph_t glyph)
     glyph_metrics_t gm = boundingBox(glyph);
     int glyph_x = qFloor(gm.x.toReal());
     int glyph_y = qFloor(gm.y.toReal());
-    int glyph_width = qCeil((gm.x + gm.width).toReal()) -  glyph_x + 5;
-    int glyph_height = qCeil((gm.y + gm.height).toReal()) - glyph_y + 5;
+    int glyph_width = qCeil((gm.x + gm.width).toReal()) -  glyph_x;
+    int glyph_height = qCeil((gm.y + gm.height).toReal()) - glyph_y;
 
     if (glyph_width + glyph_x <= 0 || glyph_height <= 0)
         return QImage();
