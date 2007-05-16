@@ -486,7 +486,7 @@ QDir QFileDialog::directory() const
 }
 
 /*!
-    Selects the given \a filename in both the file dialog.
+    Selects the given \a filename in the file dialog.
 
     \sa selectedFiles()
 */
