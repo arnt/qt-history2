@@ -726,7 +726,7 @@ QSize QGraphicsView::sizeHint() const
 {
     Q_D(const QGraphicsView);
     if (d->scene) {
-        QSizeF baseSize = d->matrix.inverted().mapRect(sceneRect()).size();
+        QSizeF baseSize = d->matrix.mapRect(sceneRect()).size();
         baseSize += QSizeF(d->frameWidth * 2, d->frameWidth * 2);
         return baseSize.boundedTo((3 * QApplication::desktop()->size()) / 4).toSize();
     }
