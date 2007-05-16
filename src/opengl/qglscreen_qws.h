@@ -25,7 +25,7 @@
 // We mean it.
 //
 
-#include <QScreen>
+#include <QtGui/QScreen>
 #include <QtOpenGL/qgl.h>
 
 QT_BEGIN_HEADER
