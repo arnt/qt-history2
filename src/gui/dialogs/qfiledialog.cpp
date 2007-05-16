@@ -496,16 +496,19 @@ void QFileDialog::selectFile(const QString &filename)
     if (filename.isEmpty())
         return;
 
-    QString text = filename;
-    if (QFileInfo(filename).isAbsolute()) {
-        QString current = d->rootPath();
-        text.remove(current);
-    }
     QModelIndex index = d->select(d->model->index(filename));
     if (!index.isValid()) {
-        d->qFileDialogUi->listView->selectionModel()->clear();
+        // save as dialog where we want to input a default value
+        QString text = filename;
+        if (QFileInfo(filename).isAbsolute()) {
+            QString current = d->rootPath();
+            text.remove(current);
+        }
         if (!d->lineEdit()->hasFocus())
             d->lineEdit()->setText(text);
+    } else {
+        if (!d->lineEdit()->hasFocus())
+            d->lineEdit()->setText(index.data().toString());
     }
 }
 
@@ -818,7 +821,7 @@ QModelIndex QFileDialogPrivate::select(const QModelIndex &index) const {
     Q_ASSERT(index.isValid() ? index.model() == model : true);
     QModelIndex idx = mapFromSource(index);
     if (idx.isValid())
-    qFileDialogUi->listView->selectionModel()->select(idx,
+        qFileDialogUi->listView->selectionModel()->select(idx,
             QItemSelectionModel::Select | QItemSelectionModel::Rows);
     return idx;
 }
@@ -2235,9 +2238,12 @@ void QFileDialogPrivate::_q_enterDirectory(const QModelIndex &index)
     if (path.isEmpty() || model->isDir(sourceIndex)) {
         q->setDirectory(path);
         emit q->dirEntered(path);
-        // ### find out why you have to do both of these.
-        lineEdit()->setText(QString());
-        lineEdit()->clear();
+        if (fileMode == QFileDialog::Directory
+            || fileMode == QFileDialog::DirectoryOnly) {
+            // ### find out why you have to do both of these.
+            lineEdit()->setText(QString());
+            lineEdit()->clear();
+        }
     } else {
         q->accept();
     }
