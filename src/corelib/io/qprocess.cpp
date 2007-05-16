@@ -387,7 +387,7 @@ QProcessPrivate::~QProcessPrivate()
 */
 void QProcessPrivate::cleanup()
 {
-    processState = QProcess::NotRunning;
+    q_func()->setProcessState(QProcess::NotRunning);
 #ifdef Q_OS_WIN
     if (pid) {
         CloseHandle(pid->hThread);
@@ -642,8 +642,6 @@ bool QProcessPrivate::_q_processDied()
 
     cleanup();
 
-    processState = QProcess::NotRunning;
-    emit q->stateChanged(processState);
     if (wasRunning) {
         emit q->finished(exitCode);
         emit q->finished(exitCode, exitStatus);
@@ -666,12 +664,12 @@ bool QProcessPrivate::_q_startupNotification()
     if (startupSocketNotifier)
         startupSocketNotifier->setEnabled(false);
     if (processStarted()) {
-        processState = QProcess::Running;
+        q->setProcessState(QProcess::Running);
         emit q->started();
         return true;
     }
 
-    processState = QProcess::NotRunning;
+    q->setProcessState(QProcess::NotRunning);
     processError = QProcess::FailedToStart;
     emit q->error(processError);
 #ifdef Q_OS_UNIX
@@ -1184,7 +1182,7 @@ bool QProcess::waitForStarted(int msecs)
     if (d->processState == QProcess::Starting) {
         if (!d->waitForStarted(msecs))
             return false;
-        d->processState = QProcess::Running;
+        setProcessState(QProcess::Running);
         emit started();
     }
     return d->processState == QProcess::Running;
@@ -1269,7 +1267,10 @@ bool QProcess::waitForFinished(int msecs)
 void QProcess::setProcessState(ProcessState state)
 {
     Q_D(QProcess);
+    if (d->processState == state)
+        return;
     d->processState = state;
+    emit stateChanged(state);
 }
 
 /*!

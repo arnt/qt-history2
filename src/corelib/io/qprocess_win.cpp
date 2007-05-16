@@ -506,8 +506,7 @@ void QProcessPrivate::startProcess()
     pid = new PROCESS_INFORMATION;
     memset(pid, 0, sizeof(PROCESS_INFORMATION));
 
-    processState = QProcess::Starting;
-    emit q->stateChanged(processState);
+    q->setProcessState(QProcess::Starting);
 
     if (!createChannel(stdinChannel) ||
         !createChannel(stdoutChannel) ||
@@ -585,12 +584,11 @@ void QProcessPrivate::startProcess()
         processError = QProcess::FailedToStart;
         q->setErrorString(QLatin1String(QT_TRANSLATE_NOOP(QProcess, "Process failed to start")));
         emit q->error(processError);
-        processState = QProcess::NotRunning;
-        emit q->stateChanged(processState);
+        q->setProcessState(QProcess::NotRunning);
         return;
     }
 
-    processState = QProcess::Running;
+    q->setProcessState(QProcess::Running);
 
     if (threadData->eventDispatcher) {
         processFinishedNotifier = new QWinEventNotifier(pid->hProcess, q);

@@ -26,6 +26,7 @@
 
 Q_DECLARE_METATYPE(QList<QProcess::ExitStatus>);
 Q_DECLARE_METATYPE(QProcess::ExitStatus);
+Q_DECLARE_METATYPE(QProcess::ProcessState);
 
 #define QPROCESS_VERIFY(Process, Fn) \
 { \
@@ -189,6 +190,8 @@ void tst_QProcess::constructing()
 
 void tst_QProcess::simpleStart()
 {
+    qRegisterMetaType<QProcess::ProcessState>("QProcess::ProcessState");
+
 #ifdef Q_OS_UNIX
     QString path = "PATH=";
     path += ::getenv("PATH");
@@ -196,6 +199,7 @@ void tst_QProcess::simpleStart()
     ::putenv(strdup(path.toLatin1()));
 #endif
     process = new QProcess;
+    QSignalSpy spy(process, SIGNAL(stateChanged(QProcess::ProcessState)));
     connect(process, SIGNAL(readyRead()), this, SLOT(readFromProcess()));
 
     process->start("ping");
@@ -209,6 +213,11 @@ void tst_QProcess::simpleStart()
 
     delete process;
     process = 0;
+
+    QCOMPARE(spy.count(), 3);
+    QCOMPARE(qVariantValue<QProcess::ProcessState>(spy.at(0).at(0)), QProcess::Starting);
+    QCOMPARE(qVariantValue<QProcess::ProcessState>(spy.at(1).at(0)), QProcess::Running);
+    QCOMPARE(qVariantValue<QProcess::ProcessState>(spy.at(2).at(0)), QProcess::NotRunning);
 }
 //-----------------------------------------------------------------------------
 void tst_QProcess::startDetached()
@@ -234,10 +243,12 @@ void tst_QProcess::readFromProcess()
 //-----------------------------------------------------------------------------
 void tst_QProcess::crashTest()
 {
+    qRegisterMetaType<QProcess::ProcessState>("QProcess::ProcessState");
 #ifdef Q_OS_WIN
     QSKIP("This test opens a crash dialog on Windows", SkipSingle);
 #endif
     process = new QProcess;
+    QSignalSpy stateSpy(process, SIGNAL(stateChanged(QProcess::ProcessState)));
     process->start("testProcessCrash/testProcessCrash");
     QVERIFY(process->waitForStarted(5000));
 
@@ -259,6 +270,11 @@ void tst_QProcess::crashTest()
 
     delete process;
     process = 0;
+
+    QCOMPARE(stateSpy.count(), 3);
+    QCOMPARE(qVariantValue<QProcess::ProcessState>(stateSpy.at(0).at(0)), QProcess::Starting);
+    QCOMPARE(qVariantValue<QProcess::ProcessState>(stateSpy.at(1).at(0)), QProcess::Running);
+    QCOMPARE(qVariantValue<QProcess::ProcessState>(stateSpy.at(2).at(0)), QProcess::NotRunning);
 }
 
 //-----------------------------------------------------------------------------
@@ -1309,8 +1325,10 @@ void tst_QProcess::failToStart()
 {
     qRegisterMetaType<QProcess::ProcessError>("QProcess::ProcessError");
     qRegisterMetaType<QProcess::ExitStatus>("QProcess::ExitStatus");
+    qRegisterMetaType<QProcess::ProcessState>("QProcess::ProcessState");
 
     QProcess process;
+    QSignalSpy stateSpy(&process, SIGNAL(stateChanged(QProcess::ProcessState)));
     QSignalSpy errorSpy(&process, SIGNAL(error(QProcess::ProcessError)));
     QSignalSpy finishedSpy(&process, SIGNAL(finished(int)));
     QSignalSpy finishedSpy2(&process, SIGNAL(finished(int, QProcess::ExitStatus)));
@@ -1354,6 +1372,12 @@ void tst_QProcess::failToStart()
             QCOMPARE(errorSpy.count(), j * attempts + i + 1);
             QCOMPARE(finishedSpy.count(), 0);
             QCOMPARE(finishedSpy2.count(), 0);
+
+            int it = j * attempts + i + 1;
+            
+            QCOMPARE(stateSpy.count(), it * 2);
+            QCOMPARE(qVariantValue<QProcess::ProcessState>(stateSpy.at(it * 2 - 2).at(0)), QProcess::Starting);
+            QCOMPARE(qVariantValue<QProcess::ProcessState>(stateSpy.at(it * 2 - 1).at(0)), QProcess::NotRunning);
         }
     }
 }

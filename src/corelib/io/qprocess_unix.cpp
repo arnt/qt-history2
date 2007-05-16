@@ -568,8 +568,7 @@ void QProcessPrivate::startProcess()
         return;
 
     // Start the process (platform dependent)
-    processState = QProcess::Starting;
-    emit q->stateChanged(processState);
+    q->setProcessState(QProcess::Starting);
 
     // Create argument list with right number of elements, and set the final
     // one to 0.
@@ -663,8 +662,7 @@ void QProcessPrivate::startProcess()
     if (childPid < 0) {
         // Cleanup, report error and return
         processManager()->unlock();
-        processState = QProcess::NotRunning;
-        emit q->stateChanged(processState);
+        q->setProcessState(QProcess::NotRunning);
         processError = QProcess::FailedToStart;
         q->setErrorString(QLatin1String(QT_TRANSLATE_NOOP(QProcess, "Resource error (fork failure)")));
         emit q->error(processError);
