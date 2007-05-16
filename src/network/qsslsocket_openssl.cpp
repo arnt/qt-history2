@@ -279,7 +279,7 @@ bool QSslSocketBackendPrivate::initSslContext()
 
         // Check if the certificate matches the private key.
         if (!q_SSL_CTX_check_private_key(ctx)) {
-            q->setErrorString(QSslSocket::tr("Private key do not certificate public key, %1").arg(SSL_ERRORSTR()));
+            q->setErrorString(QSslSocket::tr("Private key does not certificate public key, %1").arg(SSL_ERRORSTR()));
             emit q->error(QAbstractSocket::UnknownSocketError);
             return false;
         }
