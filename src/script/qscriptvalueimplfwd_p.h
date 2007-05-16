@@ -161,10 +161,10 @@ public:
                  QScriptValueImpl *object, QScriptValue::ResolveFlags mode) const;
     bool resolve_helper(QScriptNameIdImpl *nameId, QScript::Member *member,
                         QScriptValueImpl *object, QScriptValue::ResolveFlags mode) const;
-    inline void get(const QScript::Member &member, QScriptValueImpl *obj) const;
-    inline void get_helper(const QScript::Member &member, QScriptValueImpl *obj) const;
+    inline void get(const QScript::Member &member, QScriptValueImpl *out) const;
+    inline void get_helper(const QScript::Member &member, QScriptValueImpl *out) const;
     inline void get(QScriptNameIdImpl *nameId, QScriptValueImpl *out);
-    inline void put(const QScript::Member &member, const QScriptValueImpl &object);
+    inline void put(const QScript::Member &member, const QScriptValueImpl &value);
     inline void removeMember(const QScript::Member &member);
    
     inline QScriptValueImpl scope() const;

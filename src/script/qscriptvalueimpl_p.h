@@ -447,14 +447,14 @@ inline bool QScriptValueImpl::resolve(QScriptNameIdImpl *nameId, QScript::Member
     return resolve_helper(nameId, member, object, mode);
 }
 
-inline void QScriptValueImpl::get(const QScript::Member &member, QScriptValueImpl *obj) const
+inline void QScriptValueImpl::get(const QScript::Member &member, QScriptValueImpl *out) const
 {
-    Q_ASSERT(obj);
+    Q_ASSERT(out);
     Q_ASSERT(isObject());
     Q_ASSERT(member.isValid());
     
     if (! member.isObjectProperty()) {
-        get_helper(member, obj);
+        get_helper(member, out);
         return;
     }
 
@@ -463,7 +463,7 @@ inline void QScriptValueImpl::get(const QScript::Member &member, QScriptValueImp
     Q_ASSERT(member.nameId());
     Q_ASSERT(member.nameId()->unique);
 
-    m_object_value->get(member, obj);
+    m_object_value->get(member, out);
 }
 
 inline void QScriptValueImpl::get(QScriptNameIdImpl *nameId, QScriptValueImpl *out)
@@ -476,42 +476,42 @@ inline void QScriptValueImpl::get(QScriptNameIdImpl *nameId, QScriptValueImpl *o
         QScriptEnginePrivate::get(engine())->newUndefined(out);
 }
 
-inline void QScriptValueImpl::get_helper(const QScript::Member &member, QScriptValueImpl *obj) const
+inline void QScriptValueImpl::get_helper(const QScript::Member &member, QScriptValueImpl *out) const
 {
     QScriptEnginePrivate *eng = QScriptEnginePrivate::get(engine());
 
     if (member.nameId() == eng->idTable()->id___proto__) {
-        *obj = prototype();
+        *out = prototype();
 
-        if (!obj->isValid())
-            eng->newUndefined(obj);
+        if (!out->isValid())
+            eng->newUndefined(out);
 
         return;
     }
 
     if (QScriptClassData *data = classInfo()->data()) {
-        if (data->get(*this, member, obj))
+        if (data->get(*this, member, out))
             return;
     }
 
-    obj->invalidate();
+    out->invalidate();
 
     if (! isFunction()) {
         return;
     } else if (member.nameId() == eng->idTable()->id_length) {
         QScriptFunction *foo = eng->convertToNativeFunction(*this);
         Q_ASSERT(foo != 0);
-        eng->newNumber(obj, foo->length);
+        eng->newNumber(out, foo->length);
     } else if (member.nameId() == eng->idTable()->id_arguments) {
-        eng->newNull(obj);
+        eng->newNull(out);
     }/* else if (member.nameId() == eng->idTable()->id___fileName__) {
         QScriptFunction *foo = eng->convertToNativeFunction(*this);
         Q_ASSERT(foo != 0);
-        return eng->newString(obj, foo->fileName());
+        return eng->newString(out, foo->fileName());
     }*/
 }
 
-inline void QScriptValueImpl::put(const QScript::Member &member, const QScriptValueImpl &object)
+inline void QScriptValueImpl::put(const QScript::Member &member, const QScriptValueImpl &value)
 {
     Q_ASSERT(isObject());
     Q_ASSERT(member.isValid());
@@ -523,15 +523,15 @@ inline void QScriptValueImpl::put(const QScript::Member &member, const QScriptVa
         Q_ASSERT(member.nameId()->unique);
         Q_ASSERT(member.id() >= 0);
         Q_ASSERT(member.id() < m_object_value->memberCount());
-        m_object_value->put(member, object);
+        m_object_value->put(member, value);
     }
 
     else if (member.nameId() == eng_p->idTable()->id___proto__) {
-        if (object.isNull()) // only Object.prototype.__proto__ can be null
+        if (value.isNull()) // only Object.prototype.__proto__ can be null
             setPrototype(eng_p->undefinedValue());
         else {
             QScriptValueImpl was = prototype();
-            setPrototype(object);
+            setPrototype(value);
             if (detectedCycle()) {
                 eng_p->currentContext()->throwError(QLatin1String("cycle in prototype chain"));
                 setPrototype(was);
@@ -541,7 +541,7 @@ inline void QScriptValueImpl::put(const QScript::Member &member, const QScriptVa
 
     else {
         Q_ASSERT(classInfo()->data());
-        classInfo()->data()->put(this, member, object);
+        classInfo()->data()->put(this, member, value);
     }
 }
 
