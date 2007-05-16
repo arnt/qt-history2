@@ -11,6 +11,7 @@ SOURCES += main.cpp \
 	   iodevice.cpp \
 	   modelindex.cpp \
 	   process.cpp \
+	   stringref.cpp \
 	   textstream.cpp \
 	   timeline.cpp \
 	   timer.cpp \

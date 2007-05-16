@@ -35,6 +35,7 @@ QScriptValue constructFileInfoClass(QScriptEngine *eng);
 QScriptValue constructIODeviceClass(QScriptEngine *eng);
 QScriptValue constructModelIndexClass(QScriptEngine *eng);
 QScriptValue constructProcessClass(QScriptEngine *eng);
+QScriptValue constructStringRefClass(QScriptEngine *eng);
 QScriptValue constructTextStreamClass(QScriptEngine *eng);
 QScriptValue constructTimeLineClass(QScriptEngine *eng);
 QScriptValue constructTimerClass(QScriptEngine *eng);
@@ -203,6 +204,7 @@ void QtCoreScriptPlugin::initialize(const QString &key, QScriptEngine *engine)
         extensionObject.setProperty("QFileInfo", constructFileInfoClass(engine));
         extensionObject.setProperty("QModelIndex", constructModelIndexClass(engine));
         extensionObject.setProperty("QProcess", constructProcessClass(engine));
+        extensionObject.setProperty("QStringRef", constructStringRefClass(engine));
         extensionObject.setProperty("QTextStream", constructTextStreamClass(engine));
         extensionObject.setProperty("QTimeLine", constructTimeLineClass(engine));
         extensionObject.setProperty("QTimer", constructTimerClass(engine));

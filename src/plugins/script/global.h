@@ -195,6 +195,7 @@ inline void maybeTakeOwnership(const QScriptValue &value)
     }
 }
 
+// for QGraphicsItem classes
 template <class T>
 QScriptValue construct(QScriptEngine *eng, T *item)
 {
