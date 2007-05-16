@@ -445,7 +445,8 @@ void qt_mac_update_os_settings()
     qDebug("qt-internal: Font for Application [%s::%d::%d::%d]",
            fnt.family().toLatin1().constData(), fnt.pointSize(), fnt.bold(), fnt.italic());
 #endif
-    QApplicationPrivate::setSystemFont(fnt);
+    if (QApplicationPrivate::sys_font && *QApplicationPrivate::sys_font != fnt)
+        QApplicationPrivate::setSystemFont(fnt);
 
     { //setup the fonts
         struct FontMap {
