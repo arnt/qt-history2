@@ -35,9 +35,10 @@
     \ingroup io
     \module network
 
-    QSslCipher stores information about one cryptographic cipher. It is most
-    commonly used together with QSslSocket to either configure what ciphers to
-    use, or to display cipher information to the user.
+    QSslCipher stores information about one cryptographic cipher. It
+    is most commonly used with QSslSocket, either for configuring
+    which ciphers the socket can use, or for displaying the socket's
+    ciphers to the user.
 
     \sa QSslSocket, QSslKey
 */
@@ -70,13 +71,14 @@ QSslCipher::QSslCipher()
 }
 
 /*!
-    Constructs a QSslCipher object. The cipher is determined by its \a name
-    and \a protocol. QSslCipher only accepts supported ciphers (i.e., the
-    cipher name and protocol must be in the list returned by
+    Constructs a QSslCipher object for the cipher determined by \a
+    name and \a protocol. The constructor accepts only supported
+    ciphers (i.e., the \a name and \a protocol must identify a cipher
+    in the list of ciphers returned by
     QSslSocket::supportedCiphers()).
 
-    You can call isNull() later to check if \a name and \a protocol correctly
-    identifies a supported cipher.
+    You can call isNull() after construction to check if \a name and
+    \a protocol correctly identified a supported cipher.
 */
 QSslCipher::QSslCipher(const QString &name, Protocol protocol)
 {
@@ -89,7 +91,7 @@ QSslCipher::QSslCipher(const QString &name, Protocol protocol)
 }
 
 /*!
-    Constructs an identical copy of \a other.
+    Constructs an identical copy of the \a other cipher.
 */
 QSslCipher::QSslCipher(const QSslCipher &other)
     : d(new QSslCipherPrivate)
@@ -106,8 +108,8 @@ QSslCipher::~QSslCipher()
 }
 
 /*!
-    Copies the contents of \a other into this cipher, making the two ciphers
-    identical.
+    Copies the contents of \a other into this cipher, making the two
+    ciphers identical.
 */
 QSslCipher &QSslCipher::operator=(const QSslCipher &other)
 {
@@ -116,8 +118,8 @@ QSslCipher &QSslCipher::operator=(const QSslCipher &other)
 }
 
 /*!
-    Returns true if this cipher is the same as \a other; otherwise, false is
-    returned.
+    Returns true if this cipher is the same as \a other; otherwise,
+    false is returned.
 */
 bool QSslCipher::operator==(const QSslCipher &other) const
 {
@@ -127,8 +129,8 @@ bool QSslCipher::operator==(const QSslCipher &other) const
 /*!
     \fn bool QSslCipher::operator!=(const QSslCipher &other) const
 
-    Returns true if this cipher is not the same as \a other; otherwise, false
-    is returned.
+    Returns true if this cipher is not the same as \a other;
+    otherwise, false is returned.
 */
 
 /*!
@@ -205,10 +207,11 @@ QString QSslCipher::protocolString() const
 }
 
 /*!
-    Returns the cipher's protocol type, or \l Unknown if QSslCipher is unable
-    to determine the protocol (protocolString() may contain more information).
+  Returns the cipher's protocol type, or \l Unknown if QSslCipher is
+  unable to determine the protocol (protocolString() may contain
+  more information).
 
-    \sa protocolString()
+  \sa protocolString()
 */
 QSslCipher::Protocol QSslCipher::protocol() const
 {
