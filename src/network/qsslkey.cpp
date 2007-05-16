@@ -285,7 +285,7 @@ QSslKey &QSslKey::operator=(const QSslKey &other)
 }
 
 /*!
-    Returns true if this is a null key; otherwise, false is returned.
+    Returns true if this is a null key; otherwise false.
 
     \sa clear()
 */
@@ -335,8 +335,9 @@ QSsl::Algorithm QSslKey::algorithm() const
 }
 
 /*!
-    Returns the key in DER encoding. The result is encrypted with \a passPhrase
-    if the key is a private key and \a passPhrase is non-empty.
+  Returns the key in DER encoding. The result is encrypted with
+  \a passPhrase if the key is a private key and \a passPhrase is
+  non-empty.
 */
 // ### autotest failure for non-empty passPhrase and private key
 QByteArray QSslKey::toDer(const QByteArray &passPhrase) const
@@ -347,8 +348,9 @@ QByteArray QSslKey::toDer(const QByteArray &passPhrase) const
 }
 
 /*!
-    Returns the key in PEM encoding. The result is encrypted with \a passPhrase
-    if the key is a private key and \a passPhrase is non-empty.
+  Returns the key in PEM encoding. The result is encrypted with
+  \a passPhrase if the key is a private key and \a passPhrase is
+  non-empty.
 */
 QByteArray QSslKey::toPem(const QByteArray &passPhrase) const
 {
@@ -400,15 +402,15 @@ QByteArray QSslKey::toPem(const QByteArray &passPhrase) const
 }
 
 /*!
-    Returns a pointer to the native key handle, if this is available;
+    Returns a pointer to the native key handle, if it is available;
     otherwise a null pointer is returned.
 
-    You can use this handle together with native API to access extended
-    information about the key.
+    You can use this handle together with the native API to access
+    extended information about the key.
 
     \warning Use of this function has a high probability of being
-    non-portable, and its return value may vary between platforms, and between
-    minor Qt releases.
+    non-portable, and its return value may vary across platforms, and
+    between minor Qt releases.
 */
 Qt::HANDLE QSslKey::handle() const
 {
@@ -435,7 +437,8 @@ bool QSslKey::operator==(const QSslKey &other) const
 
 /*! \fn bool QSslKey::operator!=(const QSslKey &other) const
 
-    Returns true if this key is not equal to key \a other; otherwise returns false.
+  Returns true if this key is not equal to key \a other; otherwise
+  returns false.
 */
 
 #ifndef QT_NO_DEBUG_STREAM
