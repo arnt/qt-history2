@@ -1062,6 +1062,11 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                 else
                     rect.setRight(rect.right() - pixw - 2);
             }
+            if (header->state & QStyle::State_On) {
+                QFont fnt = p->font();
+                fnt.setBold(true);
+                p->setFont(fnt);
+            }
             drawItemText(p, rect, header->textAlignment, header->palette,
                          (header->state & State_Enabled), header->text, QPalette::ButtonText);
         }

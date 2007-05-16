@@ -88,6 +88,10 @@ public:
         return (selectionModel ? selectionModel->columnIntersectsSelection(column, root) : false);
     }
 
+    inline bool sectionIntersectsSelection(int logical) const {
+        return (orientation == Qt::Horizontal ? columnIntersectsSelection(logical) : rowIntersectsSelection(logical));
+    }
+
     inline bool isRowSelected(int row) const {
         return (selectionModel ? selectionModel->isRowSelected(row, root) : false);
     }

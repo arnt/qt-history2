@@ -1870,15 +1870,10 @@ void QHeaderView::paintEvent(QPaintEvent *e)
             continue;
         painter.save();
         logical = logicalIndex(i);
-        bool highlight = false;
         if (d->orientation == Qt::Horizontal) {
             currentSectionRect.setRect(sectionViewportPosition(logical), 0, sectionSize(logical), height);
-            if (d->highlightSelected)
-                highlight = d->columnIntersectsSelection(logical);
         } else {
             currentSectionRect.setRect(0, sectionViewportPosition(logical), width, sectionSize(logical));
-            if (d->highlightSelected)
-                highlight = d->rowIntersectsSelection(logical);
         }
         currentSectionRect.translate(offset);
 
@@ -1886,12 +1881,6 @@ void QHeaderView::paintEvent(QPaintEvent *e)
                                                 Qt::FontRole);
         if (variant.isValid() && qVariantCanConvert<QFont>(variant)) {
             QFont sectionFont = qvariant_cast<QFont>(variant);
-            if (highlight)
-                sectionFont.setBold(true);
-            painter.setFont(sectionFont);
-        } else if (highlight) {
-            QFont sectionFont = font();
-            sectionFont.setBold(true);
             painter.setFont(sectionFont);
         }
         paintSection(&painter, currentSectionRect, logical);
@@ -2224,8 +2213,13 @@ void QHeaderView::paintSection(QPainter *painter, const QRect &rect, int logical
             state |= QStyle::State_MouseOver;
         if (logicalIndex == d->pressed)
             state |= QStyle::State_Sunken;
-        else if (d->highlightSelected && d->isSectionSelected(logicalIndex))
-            state |= QStyle::State_On | QStyle::State_Sunken;
+        else if (d->highlightSelected) {
+            if (d->sectionIntersectsSelection(logicalIndex))
+                state |= QStyle::State_On;
+            if (d->isSectionSelected(logicalIndex))
+                state |= QStyle::State_Sunken;
+        }
+
     }
     if (isSortIndicatorShown() && sortIndicatorSection() == logicalIndex)
         opt.sortIndicator = (sortIndicatorOrder() == Qt::AscendingOrder)
