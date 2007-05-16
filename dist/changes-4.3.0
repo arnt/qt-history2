@@ -1826,7 +1826,6 @@ Examples
                Made 'Bring to front' deiconify windows.
     * [146629] Fixed never ending loop on Linux triggered by scrolling fast through the pages
                of a QStackedWidget.
-    * [133687] Added Qt Script support to aid in building forms.
     * [145806] Enabled KDialog to be used as a template.
     * [142723] Enabled pages of QStackedWidget, QTabWidget and QToolBox to be promoted.
     * [105916] Enabled QMenuBar to be promoted.
