@@ -47,7 +47,7 @@ Window::Window(QWidget *parent)
 
 void Window::selectScript(QListWidgetItem *item)
 {
-    QFile file(scriptsDir() + QDir::separator() + item->text());
+    QFile file(scriptsDir() + "/" + item->text());
     file.open(QIODevice::ReadOnly);
     QString contents = file.readAll();
     file.close();
