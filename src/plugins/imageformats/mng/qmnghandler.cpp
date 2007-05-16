@@ -220,6 +220,7 @@ mng_bool QMngHandlerPrivate::processHeader(mng_uint32 iWidth, mng_uint32 iHeight
     if (mng_set_canvasstyle(hMNG, iStyle) != MNG_NOERROR)
         return MNG_FALSE;
     image = QImage(iWidth, iHeight, QImage::Format_ARGB32);
+    image.fill(0);
     return MNG_TRUE;
 }
 
@@ -234,6 +235,7 @@ bool QMngHandlerPrivate::getNextImage(QImage *result)
     }
     if ((MNG_NOERROR == ret) || (MNG_NEEDTIMERWAIT == ret)) {
         *result = image;
+        image.fill(0);
         frameIndex = nextIndex++;
         if (haveReadAll && (frameCount == 0))
             frameCount = nextIndex;
