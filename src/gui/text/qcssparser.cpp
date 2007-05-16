@@ -122,7 +122,7 @@ static const QCssKnownValue properties[NumProperties - 1] = {
     { "font-weight", FontWeight },
     { "height", Height },
     { "image", QtImage },
-    { "image-alignment", QtImageAlignment },
+    { "image-position", QtImageAlignment },
     { "left", Left },
     { "list-style", ListStyle },
     { "list-style-type", ListStyleType },

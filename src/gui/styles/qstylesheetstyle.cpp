@@ -3672,6 +3672,8 @@ int QStyleSheetStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWi
 #ifndef QT_NO_TABWIDGET
             if (qobject_cast<const QTabWidget *>(w)) {
                 rule = renderRule(w, PseudoElement_TabWidgetTabBar);
+                if (rule.hasPosition())
+                    return rule.position()->position;
             }
 #endif // QT_NO_TABWIDGET
             s = QLatin1String("alignment");
