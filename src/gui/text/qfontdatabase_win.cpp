@@ -297,31 +297,31 @@ void addFontToDatabase(QString familyName, const QString &scriptName,
 
         QtFontFoundry *foundry = family->foundry(foundryName, true);
         QtFontStyle *style = foundry->style(styleKey, true);
-	style->smoothScalable = scalable;
-	style->pixelSize( size, TRUE);
+        style->smoothScalable = scalable;
+        style->pixelSize( size, TRUE);
 
         // add fonts windows can generate for us:
         if (styleKey.weight <= QFont::DemiBold) {
             QtFontStyle::Key key(styleKey);
             key.weight = QFont::Bold;
             QtFontStyle *style = foundry->style(key, true);
-	    style->smoothScalable = scalable;
-	    style->pixelSize( size, TRUE);
+            style->smoothScalable = scalable;
+            style->pixelSize( size, TRUE);
         }
         if (styleKey.style != QFont::StyleItalic) {
             QtFontStyle::Key key(styleKey);
             key.style = QFont::StyleItalic;
             QtFontStyle *style = foundry->style(key, true);
-	    style->smoothScalable = scalable;
-	    style->pixelSize( size, TRUE);
+            style->smoothScalable = scalable;
+            style->pixelSize( size, TRUE);
         }
         if (styleKey.weight <= QFont::DemiBold && styleKey.style != QFont::StyleItalic) {
             QtFontStyle::Key key(styleKey);
             key.weight = QFont::Bold;
             key.style = QFont::StyleItalic;
             QtFontStyle *style = foundry->style(key, true);
-	    style->smoothScalable = scalable;
-	    style->pixelSize( size, TRUE);
+            style->smoothScalable = scalable;
+            style->pixelSize( size, TRUE);
         }
 
         family->fixedPitch = fixed;
@@ -526,14 +526,14 @@ static void initializeDb()
             qDebug("        %s", foundry->name.latin1());
             for (int s = 0; s < foundry->count; s++) {
                 QtFontStyle *style = foundry->styles[s];
-		qDebug("            style: style=%d weight=%d smooth=%d",  style->key.style,
-		       style->key.weight, style->smoothScalable );
-		if(!style->smoothScalable) {
-		    for(int i = 0; i < style->count; ++i) {
-			qDebug("                %d", style->pixelSizes[i].pixelSize);
-		    }
-		}
-	    }
+                qDebug("            style: style=%d weight=%d smooth=%d",  style->key.style,
+                       style->key.weight, style->smoothScalable );
+                if(!style->smoothScalable) {
+                    for(int i = 0; i < style->count; ++i) {
+                        qDebug("                %d", style->pixelSizes[i].pixelSize);
+                    }
+                }
+            }
         }
 #endif
     }
@@ -647,7 +647,7 @@ static inline HFONT systemFont()
 
 static
 QFontEngine *loadEngine(int script, const QFontPrivate *fp, const QFontDef &request, const QtFontDesc *desc,
-			const QStringList &family_list)
+                        const QStringList &family_list)
 {
     LOGFONT lf;
     memset(&lf, 0, sizeof(LOGFONT));
@@ -781,8 +781,8 @@ QFontEngine *loadEngine(int script, const QFontPrivate *fp, const QFontDef &requ
 
         QString fam = font_name;
 
-	if(fam.isEmpty())
-	    fam = QLatin1String("MS Sans Serif");
+        if(fam.isEmpty())
+            fam = QLatin1String("MS Sans Serif");
 
         if ((fam == QLatin1String("MS Sans Serif"))
             && (request.style == QFont::StyleItalic || (-lf.lfHeight > 18 && -lf.lfHeight != 24))) {
@@ -805,26 +805,27 @@ QFontEngine *loadEngine(int script, const QFontPrivate *fp, const QFontDef &requ
             qErrnoWarning("QFontEngine::loadEngine: CreateFontIndirect failed");
 
         stockFont = (hfont == 0);
+        bool ttf = false;
+        int avWidth = 0;
+        BOOL res;
+        HGDIOBJ oldObj = SelectObject(hdc, hfont);
+        QT_WA({
+            TEXTMETRICW tm;
+            res = GetTextMetricsW(hdc, &tm);
+            avWidth = tm.tmAveCharWidth;
+            ttf = tm.tmPitchAndFamily & TMPF_TRUETYPE;
+        } , {
+            TEXTMETRICA tm;
+            res = GetTextMetricsA(hdc, &tm);
+            avWidth = tm.tmAveCharWidth;
+            ttf = tm.tmPitchAndFamily & TMPF_TRUETYPE;
+        });
+        SelectObject(hdc, oldObj);
 
-        if (hfont && request.stretch != 100) {
-            HGDIOBJ oldObj = SelectObject(hdc, hfont);
-            BOOL res;
-            int avWidth = 0;
-            QT_WA({
-                TEXTMETRICW tm;
-                res = GetTextMetricsW(hdc, &tm);
-                avWidth = tm.tmAveCharWidth;
-            } , {
-                TEXTMETRICA tm;
-                res = GetTextMetricsA(hdc, &tm);
-                avWidth = tm.tmAveCharWidth;
-            });
+        if (hfont && (!ttf || request.stretch != 100)) {
+            DeleteObject(hfont);
             if (!res)
                 qErrnoWarning("QFontEngine::loadEngine: GetTextMetrics failed");
-
-            SelectObject(hdc, oldObj);
-            DeleteObject(hfont);
-
             lf.lfWidth = avWidth * request.stretch/100;
             QT_WA({
                 hfont = CreateFontIndirect(&lf);
@@ -849,24 +850,24 @@ QFontEngine *loadEngine(int script, const QFontPrivate *fp, const QFontDef &requ
        && !(request.styleStrategy & QFont::NoFontMerging)
        && !(desc->family->writingSystems[QFontDatabase::Symbol] & QtFontFamily::Supported)) {
         if(!tryFonts) {
-	    LANGID lid = GetUserDefaultLangID();
-	    switch( lid&0xff ) {
-	    case LANG_CHINESE: // Chinese (Taiwan)
-	        if ( lid == 0x0804 ) // Taiwan
-		    tryFonts = ch_TW_tryFonts;
-	        else
-	    	    tryFonts = ch_CN_tryFonts;
-	        break;
-	    case LANG_JAPANESE:
-	    	tryFonts = jp_tryFonts;
+            LANGID lid = GetUserDefaultLangID();
+            switch( lid&0xff ) {
+            case LANG_CHINESE: // Chinese (Taiwan)
+                if ( lid == 0x0804 ) // Taiwan
+                    tryFonts = ch_TW_tryFonts;
+                else
+                    tryFonts = ch_CN_tryFonts;
+                break;
+            case LANG_JAPANESE:
+                tryFonts = jp_tryFonts;
                 break;
             case LANG_KOREAN:
                 tryFonts = kr_tryFonts;
                 break;
-	    default:
+            default:
                 tryFonts = other_tryFonts;
-	        break;
-	    }
+                break;
+            }
         }
         QStringList fm = QFontDatabase().families();
         QStringList list = family_list;
@@ -985,7 +986,7 @@ void QFontDatabase::load(const QFontPrivate *d, int script)
         if (qt_enable_test_font && req.family == QLatin1String("__Qt__Box__Engine__")) {
             fe = new QTestFontEngine(req.pixelSize);
             fe->fontDef = req;
-	} else {
+        } else {
             fe = loadWin(d, script, req);
         }
         if (!fe) {
