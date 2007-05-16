@@ -440,11 +440,6 @@ bool QFSFileEnginePrivate::nativeOpen(QIODevice::OpenMode openMode)
 
     SECURITY_ATTRIBUTES securityAtts = { sizeof(SECURITY_ATTRIBUTES), NULL, FALSE };
 
-    // Regular file mode. In Unbuffered mode, pass the no-buffering flag.
-    DWORD flagsAndAtts = FILE_ATTRIBUTE_NORMAL;
-    if (openMode & QIODevice::Unbuffered)
-        flagsAndAtts |= FILE_FLAG_NO_BUFFERING;
-
     // WriteOnly can create files, ReadOnly cannot.
     DWORD creationDisp = (openMode & QIODevice::WriteOnly)
                          ? OPEN_ALWAYS : OPEN_EXISTING;
@@ -456,7 +451,7 @@ bool QFSFileEnginePrivate::nativeOpen(QIODevice::OpenMode openMode)
                                  shareMode,
                                  &securityAtts,
                                  creationDisp,
-                                 flagsAndAtts,
+                                 FILE_ATTRIBUTE_NORMAL,
                                  NULL);
     }, {
         fileHandle = CreateFileA(nativeFilePath.constData(),
@@ -464,7 +459,7 @@ bool QFSFileEnginePrivate::nativeOpen(QIODevice::OpenMode openMode)
                                  shareMode,
                                  &securityAtts,
                                  creationDisp,
-                                 flagsAndAtts,
+                                 FILE_ATTRIBUTE_NORMAL,
                                  NULL);
     });
 

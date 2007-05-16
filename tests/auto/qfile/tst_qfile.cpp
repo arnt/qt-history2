@@ -63,6 +63,7 @@ private slots:
     void exists();
     void open_data();
     void open();
+    void openUnbuffered();
     void size_data();
     void size();
     void seek();
@@ -307,6 +308,36 @@ void tst_QFile::open()
     QCOMPARE(f.open( QIODevice::OpenMode(mode) ), ok);
 
     QTEST( f.error(), "status" );
+}
+
+void tst_QFile::openUnbuffered()
+{
+    QFile file("testfile.txt");
+    QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Unbuffered));
+    char c = '\0';
+    QVERIFY(file.seek(1));
+    QCOMPARE(file.pos(), qint64(1));
+    QVERIFY(file.getChar(&c));
+    QCOMPARE(file.pos(), qint64(2));
+    char d = '\0';
+    QVERIFY(file.seek(3));
+    QCOMPARE(file.pos(), qint64(3));
+    QVERIFY(file.getChar(&d));
+    QCOMPARE(file.pos(), qint64(4));
+    QVERIFY(file.seek(1));
+    QCOMPARE(file.pos(), qint64(1));
+    char c2 = '\0';
+    QVERIFY(file.getChar(&c2));
+    QCOMPARE(file.pos(), qint64(2));
+    QVERIFY(file.seek(3));
+    QCOMPARE(file.pos(), qint64(3));
+    char d2 = '\0';
+    QVERIFY(file.getChar(&d2));
+    QCOMPARE(file.pos(), qint64(4));
+    QCOMPARE(c, c2);
+    QCOMPARE(d, d2);
+    QCOMPARE(c, '-');
+    QCOMPARE(d, '-');
 }
 
 void tst_QFile::size_data()

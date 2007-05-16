@@ -879,6 +879,9 @@ bool QFile::isSequential() const
     mode, if the relevant file does not already exist, this function
     will try to create a new file before opening it.
 
+    \note Because of limitations in the native API, QFile ignores the
+    Unbuffered flag on Windows.
+
     \sa QIODevice::OpenMode, setFileName()
 */
 bool QFile::open(OpenMode mode)
