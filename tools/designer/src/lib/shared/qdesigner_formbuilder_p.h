@@ -44,9 +44,13 @@ class QDESIGNER_SHARED_EXPORT QDesignerFormBuilder: public QFormBuilder
 public:
     enum Mode {
         // Use container extension to populate containers. Disable scripts.
-        UseContainerExtension,
-        // Run scripts, do not use container extension to populate containers.
-        RunScripts };
+        DisableScripts,
+        // Use container extension to populate containers as well as scripts
+        UseScriptAndContainerExtension,
+        // Experimental: Use scripts to populate the container
+        UseScriptForContainerExtension
+    };
+
     QDesignerFormBuilder(QDesignerFormEditorInterface *core, Mode mode);
 
     QWidget *createWidgetFromContents(const QString &contents, QWidget *parentWidget = 0);
@@ -59,6 +63,7 @@ public:
 
     typedef QFormScriptRunner::Errors ScriptErrors;
     // Create a preview widget (for integrations) or return 0. The widget has to be embedded into a main window.
+    // Experimental, depending on script support.
     static QWidget *createPreview(const QDesignerFormWindowInterface *fw, const QString &styleName /* ="" */,
                                   ScriptErrors *scriptErrors, QString *errorMessage);
     // Convenience that pops up message boxes in case of failures.

@@ -21,7 +21,7 @@
 #include <QtDesigner/QDesignerFormEditorInterface>
 #include <QtDesigner/QDesignerLanguageExtension>
 #include <QtDesigner/QDesignerIconCacheInterface>
-#include <QtDesigner/QDesignerScriptExtension>
+#include <script_p.h>
 #include <QtDesigner/QExtensionManager>
 #include <QtDesigner/QDesignerCustomWidgetInterface>
 #include <QtDesigner/extrainfo.h>

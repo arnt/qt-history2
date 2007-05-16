@@ -39,7 +39,7 @@ protected:
 };
 
 WidgetBoxResource::WidgetBoxResource(QDesignerFormEditorInterface *core) :
-    QDesignerFormBuilder(core, UseContainerExtension)
+    QDesignerFormBuilder(core, DisableScripts)
 {
 }
 

@@ -35,8 +35,6 @@ public:
 
     bool run(const QString &script, QWidget *widget, const WidgetList &children, QString *errorMessage);
 
-
-
     static void initializeEngine(QWidget *w, const WidgetList &children, QScriptEngine &scriptEngine);
     static QString engineError(QScriptEngine &scriptEngine);
 
@@ -55,10 +53,6 @@ bool QFormScriptRunner::QFormScriptRunnerPrivate::run(const QString &script, QWi
     initializeEngine(widget, children, m_scriptEngine);
 
     do {
-        if (!m_scriptEngine.canEvaluate(script)) {
-            *errorMessage = QCoreApplication::tr("Syntax error.");
-            break;
-        }
         m_scriptEngine.evaluate(script);
         if (m_scriptEngine.hasUncaughtException ()) {
             *errorMessage = QCoreApplication::tr("Exception at line %1: %2").arg(m_scriptEngine.uncaughtExceptionLineNumber()).arg(engineError(m_scriptEngine));
@@ -66,6 +60,8 @@ bool QFormScriptRunner::QFormScriptRunnerPrivate::run(const QString &script, QWi
         }
         rc = true;
     } while (false);
+    m_scriptEngine.popContext();
+
     if (!rc) {
         Error error;
         error.objectName = widget->objectName();
@@ -77,7 +73,8 @@ bool QFormScriptRunner::QFormScriptRunnerPrivate::run(const QString &script, QWi
 }
 
 void QFormScriptRunner::QFormScriptRunnerPrivate::initializeEngine(QWidget *w, const WidgetList &children, QScriptEngine &scriptEngine) {
-    // Populate the script variables.
+    // Populate the script variables. This pushes a context which must be popped.
+    QScriptContext *ctx = scriptEngine.pushContext();
     QScriptValue widgetObject =  scriptEngine.newQObject(w);
     QScriptValue childrenArray = scriptEngine.newArray (children.size());
 
@@ -85,8 +82,8 @@ void QFormScriptRunner::QFormScriptRunnerPrivate::initializeEngine(QWidget *w, c
         childrenArray.setProperty(i, scriptEngine.newQObject(children[i]));
     }
 
-    scriptEngine.globalObject().setProperty(QLatin1String("widget"),   widgetObject);
-    scriptEngine.globalObject().setProperty(QLatin1String("childWidgets"), childrenArray);
+    ctx ->activationObject().setProperty(QLatin1String("widget"),   widgetObject);
+    ctx ->activationObject().setProperty(QLatin1String("childWidgets"), childrenArray);
 }
 
 QString QFormScriptRunner::QFormScriptRunnerPrivate::engineError(QScriptEngine &scriptEngine) {

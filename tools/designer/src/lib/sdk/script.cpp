@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "script.h"
+#include "script_p.h"
 
 /*!
     \class QDesignerScriptExtension

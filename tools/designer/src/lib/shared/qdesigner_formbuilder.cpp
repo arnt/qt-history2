@@ -68,10 +68,11 @@ QDesignerFormBuilder::QDesignerFormBuilder(QDesignerFormEditorInterface *core, M
     // Disable scripting in the editors.
     QFormScriptRunner::Options options = formScriptRunner()->options();
     switch (m_mode) {
-    case UseContainerExtension:
+    case DisableScripts:
         options |= QFormScriptRunner::DisableScripts;
         break;
-    case RunScripts:
+    case UseScriptAndContainerExtension:
+    case UseScriptForContainerExtension:
         options |= QFormScriptRunner::DisableWarnings;
         options &= ~QFormScriptRunner::DisableScripts;
         break;
@@ -136,7 +137,7 @@ bool QDesignerFormBuilder::addItem(DomWidget *ui_widget, QWidget *widget, QWidge
         return addItemContainerExtension(widget, parentWidget);
 
     // Assume the script populates the container
-    if (m_mode ==  RunScripts && m_customWidgetsWithScript.contains(parentWidget))
+    if (m_mode == UseScriptForContainerExtension && m_customWidgetsWithScript.contains(parentWidget))
          return true;
 
     return addItemContainerExtension(widget, parentWidget);;
@@ -224,7 +225,7 @@ QWidget *QDesignerFormBuilder::create(DomWidget *ui_widget, QWidget *parentWidge
 {
     QWidget *widget = QFormBuilder::create(ui_widget, parentWidget);
     // Do not apply state if scripts are to be run in preview mode
-    QSimpleResource::applyExtensionDataFromDOM(this, m_core, ui_widget, widget, m_mode != RunScripts);
+    QSimpleResource::applyExtensionDataFromDOM(this, m_core, ui_widget, widget, m_mode == DisableScripts);
     return widget;
 }
 
@@ -255,7 +256,7 @@ QWidget *QDesignerFormBuilder::createPreview(const QDesignerFormWindowInterface 
     }
 
     // load
-    QDesignerFormBuilder builder(fw->core(), RunScripts);
+    QDesignerFormBuilder builder(fw->core(), UseScriptAndContainerExtension);
     builder.setWorkingDirectory(fw->absoluteDir());
 
     QByteArray bytes = fw->contents().toUtf8();

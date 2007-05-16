@@ -149,7 +149,7 @@ QPixmap NewForm::formPreviewPixmap(const QString &fileName)
     if (!f.open(QFile::ReadOnly))
         return QPixmap();
 
-    qdesigner_internal::QDesignerFormBuilder formBuilder(workbench()->core(), qdesigner_internal::QDesignerFormBuilder::UseContainerExtension);
+    qdesigner_internal::QDesignerFormBuilder formBuilder(workbench()->core(), qdesigner_internal::QDesignerFormBuilder::DisableScripts);
 
     QWidget *widget = formBuilder.load(&f, 0);
     f.close();

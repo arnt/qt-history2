@@ -2189,6 +2189,7 @@ QFormScriptRunner *QAbstractFormBuilder::formScriptRunner() const
 /*!
     Sets whether the execution of scripts is enabled to \a enabled.
     \since 4.3
+    \internal
 */
 
 void QAbstractFormBuilder::setScriptingEnabled(bool enabled)
@@ -2210,6 +2211,7 @@ void QAbstractFormBuilder::setScriptingEnabled(bool enabled)
     Returns whether the execution of scripts is enabled.
     \sa setScriptingEnabled()
     \since 4.3
+    \internal
 */
 
 bool QAbstractFormBuilder::isScriptingEnabled() const

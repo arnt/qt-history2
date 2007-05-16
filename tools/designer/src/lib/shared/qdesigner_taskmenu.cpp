@@ -257,10 +257,12 @@ QList<QAction*> QDesignerTaskMenu::taskActions() const
 
     m_promotionTaskMenu->addActions(formWindow, PromotionTaskMenu::LeadingSeparator, actions);
 
+#ifdef WANT_SCRIPT_OPTION
     if (!isMainContainer) {
         actions.append(m_separator4);
         actions.append(m_changeScript);
     }
+#endif
     return actions;
 }
 

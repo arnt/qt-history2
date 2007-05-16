@@ -134,12 +134,4 @@ void MultiPageWidgetPlugin::pageTitleChanged(const QString &title)
     }
 }
 
-QString MultiPageWidgetPlugin::codeTemplate() const
-{
-    return QLatin1String("\
-    var i;\n\
-    for (i = 0; i < childWidgets.length ; i++)\n\
-        widget.addPage(childWidgets[i]);\n");
-}
-
 Q_EXPORT_PLUGIN2(containerextension, MultiPageWidgetPlugin)
