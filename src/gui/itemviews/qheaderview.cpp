@@ -1587,6 +1587,15 @@ void QHeaderView::sectionsInserted(const QModelIndex &parent,
 
     resizeSections();
     emit sectionCountChanged(oldCount, count());
+
+    // if the new sections were not updated by resizing, we need to update now
+    if (!d->hasAutoResizeSections()) {
+        if (insertCount < 10) // ### heuristic
+            for (int i = logicalFirst; i <= logicalLast; ++i)
+                updateSection(i);
+        else
+            d->viewport->update();
+    }
 }
 
 /*!
