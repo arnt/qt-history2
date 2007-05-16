@@ -1,5 +1,3 @@
-__setupPackage__("qt.core");
-
 //if (__cppPlugin__ == undefined) {
 //    print("Warning: qt.core.geom: C++ plugin not found; C++ <--> script value conversion won't work");
 //}
@@ -346,7 +344,7 @@ QRect.prototype.__defineGetter__(
 QRect.prototype.__defineGetter__(
     "size",
     function() {
-        return new qt.core.Size(this.width, this.height);
+        return new QSize(this.width, this.height);
     } );
 
 QRect.prototype.__defineSetter__(
