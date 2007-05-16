@@ -407,20 +407,10 @@ void QWidgetBackingStore::bltRect(const QRect &rect, int dx, int dy, QWidget *wi
     QPoint pos(widget->mapTo(tlw, rect.topLeft()));
 
 #ifdef Q_WS_QWS
-    QWSWindowSurface *surface = static_cast<QWSWindowSurface*>(windowSurface);
-    if (!surface)
-        return;
-
-    // clip to surface region
-    const QRegion clip = surface->clipRegion();
-    QRegion r = QRect(pos, rect.size());
-    r = (r & clip).translated(dx, dy) & clip;
-    r.translate(-dx, -dy);
-
-    windowSurface->scroll(r.translated(topLevelOffset()), dx, dy);
-#else
-    windowSurface->scroll(QRect(pos, rect.size()), dx, dy);
+    pos += topLevelOffset();
 #endif
+
+    windowSurface->scroll(QRect(pos, rect.size()), dx, dy);
 }
 
 
@@ -543,12 +533,23 @@ void QWidgetPrivate::scrollRect(const QRect &rect, int dx, int dy)
     if (!accelerateScroll) {
         invalidateBuffer(rect);
     } else {
+        const QPoint toplevelOffset = q->mapTo(tlw, QPoint());
+#ifdef Q_WS_QWS
+        QWSWindowSurface *surface = static_cast<QWSWindowSurface*>(wbs->windowSurface);
+        const QRegion clip = surface->clipRegion().translated(-toplevelOffset)
+                             & clipRect();
+        const QRect scrollRect = rect & clip.boundingRect();
+        const QRect destRect = scrollRect.translated(dx, dy)
+                               & scrollRect
+                               &  clip.boundingRect();
+#else
         QRect scrollRect = rect & clipRect();
 
         QRect destRect = scrollRect.isValid() ? scrollRect.translated(dx,dy).intersected(scrollRect) : QRect();
+
+#endif
         QRect sourceRect = destRect.translated(-dx, -dy);
 
-        QPoint toplevelOffset = q->mapTo(tlw, QPoint());
 
 
         if (sourceRect.isValid())
@@ -558,7 +559,6 @@ void QWidgetPrivate::scrollRect(const QRect &rect, int dx, int dy)
         childExpose -= destRect;
 //        childExpose += (wbs->dirty & sourceRect.translated(toplevelOffset)).boundingRect().translated(QPoint(dx,dy) - toplevelOffset);
 #ifdef Q_WS_QWS
-        QWSWindowSurface *surface = static_cast<QWSWindowSurface*>(wbs->windowSurface);
         QRegion dirty = sourceRect.translated(toplevelOffset);
         if (surface)
             dirty &= surface->dirtyRegion();
