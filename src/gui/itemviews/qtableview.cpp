@@ -2325,7 +2325,6 @@ void QTableView::selectionChanged(const QItemSelection &selected,
 
 int QTableView::visualIndex(const QModelIndex &index) const
 {
-    Q_D(const QTableView);
     return index.row();
 }
 
