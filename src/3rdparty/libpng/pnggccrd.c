@@ -349,35 +349,6 @@ static int          _pbtemp;
 static int          _pctemp;
 #endif
 
-void /* PRIVATE */
-png_squelch_warnings(void)
-{
-#ifdef PNG_THREAD_UNSAFE_OK
-   _dif = _dif;
-   _patemp = _patemp;
-   _pbtemp = _pbtemp;
-   _pctemp = _pctemp;
-   _MMXLength = _MMXLength;
-#endif
-   _const4  = _const4;
-   _const6  = _const6;
-   _mask8_0  = _mask8_0;
-   _mask16_1 = _mask16_1;
-   _mask16_0 = _mask16_0;
-   _mask24_2 = _mask24_2;
-   _mask24_1 = _mask24_1;
-   _mask24_0 = _mask24_0;
-   _mask32_3 = _mask32_3;
-   _mask32_2 = _mask32_2;
-   _mask32_1 = _mask32_1;
-   _mask32_0 = _mask32_0;
-   _mask48_5 = _mask48_5;
-   _mask48_4 = _mask48_4;
-   _mask48_3 = _mask48_3;
-   _mask48_2 = _mask48_2;
-   _mask48_1 = _mask48_1;
-   _mask48_0 = _mask48_0;
-}
 #endif /* PNG_MMX_CODE_SUPPORTED */
 
 
