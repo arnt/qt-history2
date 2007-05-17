@@ -27,6 +27,8 @@
 
 #include "qscriptecmacore_p.h"
 
+#ifndef QT_NO_SCRIPT
+
 namespace QScript { namespace Ecma {
 
 class Boolean: public Core
@@ -54,5 +56,6 @@ protected:
 
 } } // namespace QScript::Ecma
 
+#endif // QT_NO_SCRIPT
 #endif
 

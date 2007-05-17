@@ -26,6 +26,9 @@
 //
 
 #include "qscriptfunction_p.h"
+
+#ifndef QT_NO_SCRIPT
+
 #include "qscriptvalueimplfwd_p.h"
 
 namespace QScript { namespace Ecma {
@@ -49,5 +52,6 @@ private:
 
 } } // namespace QScript::Ecma
 
+#endif // QT_NO_SCRIPT
 #endif
 

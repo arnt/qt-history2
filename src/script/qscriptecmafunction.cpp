@@ -12,6 +12,9 @@
 ****************************************************************************/
 
 #include "qscriptecmafunction_p.h"
+
+#ifndef QT_NO_SCRIPT
+
 #include "qscriptengine_p.h"
 #include "qscriptvalueimpl_p.h"
 #include "qscriptcontext_p.h"
@@ -297,3 +300,5 @@ QScriptValueImpl Function::method_connect(QScriptContextPrivate *context, QScrip
 }
 
 } } // namespace QScript::Ecma
+
+#endif // QT_NO_SCRIPT

@@ -12,6 +12,9 @@
 ****************************************************************************/
 
 #include "qscriptextqobject_p.h"
+
+#ifndef QT_NO_SCRIPT
+
 #include "qscriptengine_p.h"
 #include "qscriptvalueimpl_p.h"
 #include "qscriptcontext_p.h"
@@ -873,12 +876,12 @@ void QScript::QtPropertyFunction::execute(QScriptContextPrivate *context)
                 oldEngine = QScriptablePrivate::get(scriptable)->engine;
                 QScriptablePrivate::get(scriptable)->engine = eng;
             }
-            
+
             QVariant v = prop.read(qobject);
-            
+
             if (scriptable)
                 QScriptablePrivate::get(scriptable)->engine = oldEngine;
-            
+
             result = eng_p->valueFromVariant(v);
         }
     } else {
@@ -1051,9 +1054,9 @@ void QScript::QtFunction::execute(QScriptContextPrivate *context)
             QScriptMetaType argType = mtd.argumentType(i);
             int tid = argType.typeId();
             QVariant v(tid, (void *)0);
-                
+
             converted = eng_p->convert(actual, tid, v.data());
-                
+
             if (!converted) {
                 if (actual.isVariant()) {
                     QVariant &vv = actual.variantValue();
@@ -1502,3 +1505,5 @@ QScriptValueImpl QScript::ExtQMetaObject::method_className(QScriptContextPrivate
 }
 
 #include "qscriptextqobject.moc"
+
+#endif // QT_NO_SCRIPT

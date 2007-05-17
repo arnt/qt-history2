@@ -12,6 +12,9 @@
 ****************************************************************************/
 
 #include "qscriptengine_p.h"
+
+#ifndef QT_NO_SCRIPT
+
 #include "qscriptvalueimpl_p.h"
 #include "qscriptcontext_p.h"
 #include "qscriptmember_p.h"
@@ -1652,7 +1655,7 @@ QScriptValueImpl QScriptEnginePrivate::importExtension(const QString &extension)
             newActivation(&ctx_p->m_activation);
             QScriptObject *activation_data = ctx_p->m_activation.m_object_value;
             activation_data->m_scope = globalObject();
-            
+
             activation_data->m_members.resize(4);
             activation_data->m_objects.resize(4);
             activation_data->m_members[0].object(
@@ -1668,7 +1671,7 @@ QScriptValueImpl QScriptEnginePrivate::importExtension(const QString &extension)
             activation_data->m_members[3].object(
                 nameId(QLatin1String("__postInit__")), 3, 0);
             activation_data->m_objects[3] = undefinedValue();
-            
+
             // the script is evaluated first
             if (!initjsContents.isEmpty()) {
                 evaluate(ctx_p, initjsContents, 0, initjsFileName);
@@ -1678,7 +1681,7 @@ QScriptValueImpl QScriptEnginePrivate::importExtension(const QString &extension)
                     return r;
                 }
             }
-            
+
             // next, the C++ plugin is called
             if (iface) {
                 iface->initialize(ext, q);
@@ -1688,7 +1691,7 @@ QScriptValueImpl QScriptEnginePrivate::importExtension(const QString &extension)
                     return r;
                 }
             }
-            
+
             // if the __postInit__ function has been set, we call it
             QScriptValueImpl postInit = ctx_p->m_activation.property(QLatin1String("__postInit__"));
             if (postInit.isFunction()) {
@@ -1699,9 +1702,9 @@ QScriptValueImpl QScriptEnginePrivate::importExtension(const QString &extension)
                     return r;
                 }
             }
-            
+
             popContext();
-            
+
             m_importedExtensions.insert(ext);
             m_extensionsBeingImported.remove(ext);
             loaded = true;
@@ -1749,3 +1752,5 @@ void QScriptEnginePrivate::setupProcessEvents()
         m_processEventTracker.restart();
     }
 }
+
+#endif // QT_NO_SCRIPT

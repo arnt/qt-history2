@@ -12,6 +12,9 @@
 ****************************************************************************/
 
 #include "qscriptecmaarray_p.h"
+
+#ifndef QT_NO_SCRIPT
+
 #include "qscriptengine_p.h"
 #include "qscriptvalueimpl_p.h"
 #include "qscriptcontext_p.h"
@@ -588,8 +591,10 @@ Array::Instance *Array::Instance::get(const QScriptValueImpl &object, QScriptCla
 {
     if (! klass || klass == object.classInfo())
         return static_cast<Instance*> (object.objectData().data());
-    
+
     return 0;
 }
 
 } } // namespace QScript::Ecma
+
+#endif // QT_NO_SCRIPT

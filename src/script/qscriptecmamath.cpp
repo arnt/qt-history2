@@ -12,6 +12,9 @@
 ****************************************************************************/
 
 #include "qscriptecmamath_p.h"
+
+#ifndef QT_NO_SCRIPT
+
 #include "qscriptengine_p.h"
 #include "qscriptvalueimpl_p.h"
 #include "qscriptcontext_p.h"
@@ -281,3 +284,5 @@ QScriptValueImpl Math::method_tan(QScriptContextPrivate *context,
 }
 
 } } // namespace QScript::Ecma
+
+#endif // QT_NO_SCRIPT

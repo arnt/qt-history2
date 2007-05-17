@@ -26,6 +26,9 @@
 //
 
 #include <QtCore/qglobal.h>
+
+#ifndef QT_NO_SCRIPT
+
 #include "qscriptgrammar_p.h"
 
 class QScriptEngine;
@@ -64,5 +67,6 @@ inline void SyntaxChecker::reallocateStack()
 
 } // namespace QScript
 
+#endif // QT_NO_SCRIPT
 #endif
 

@@ -26,6 +26,9 @@
 //
 
 #include <QtCore/qglobal.h>
+
+#ifndef QT_NO_SCRIPT
+
 #include <QtCore/QtDebug>
 #include <new>
 
@@ -241,4 +244,5 @@ private:
 
 } // namespace QScript
 
+#endif // QT_NO_SCRIPT
 #endif // QSCRIPT_GC_H

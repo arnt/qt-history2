@@ -15,6 +15,9 @@
 #define QSCRIPTVALUE_H
 
 #include <QtCore/qstring.h>
+
+#ifndef QT_NO_SCRIPT
+
 #include <QtCore/qlist.h>
 
 QT_BEGIN_HEADER
@@ -163,4 +166,5 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(QScriptValue::PropertyFlags)
 
 QT_END_HEADER
 
+#endif // QT_NO_SCRIPT
 #endif

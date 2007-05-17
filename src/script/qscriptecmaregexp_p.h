@@ -27,6 +27,8 @@
 
 #include <QtCore/QRegExp>
 
+#ifndef QT_NO_SCRIPT
+
 #include "qscriptecmacore_p.h"
 
 namespace QScript { namespace Ecma {
@@ -92,4 +94,5 @@ private:
 
 } } // namespace QScript::Ecma
 
+#endif // QT_NO_SCRIPT
 #endif // QSCRIPTECMAREGEXP_P_H

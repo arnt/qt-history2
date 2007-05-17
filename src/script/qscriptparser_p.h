@@ -26,6 +26,9 @@
 #define QSCRIPTPARSER_P_H
 
 #include "qscriptgrammar_p.h"
+
+#ifndef QT_NO_SCRIPT
+
 #include "qscriptastfwd_p.h"
 
 class QString;
@@ -115,5 +118,6 @@ inline void QScriptParser::reallocateStack()
     location_stack = reinterpret_cast<Location*> (qRealloc(location_stack, stack_size * sizeof(Location)));
 }
 
+#endif // QT_NO_SCRIPT
 #endif // QSCRIPTPARSER_P_H
 

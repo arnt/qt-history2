@@ -17,6 +17,9 @@
 #ifndef QT_NO_QOBJECT
 #include "private/qobject_p.h"
 #endif
+
+#ifndef QT_NO_SCRIPT
+
 #include <QtCore/qobjectdefs.h>
 
 #include <QtCore/QHash>
@@ -404,4 +407,5 @@ public: // attributes
 #endif
 };
 
+#endif // QT_NO_SCRIPT
 #endif

@@ -26,6 +26,9 @@
 //
 
 #include <QtCore/QMap>
+
+#ifndef QT_NO_SCRIPT
+
 #include <QtCore/QVector>
 
 #include "qscriptastvisitor_p.h"
@@ -331,5 +334,6 @@ private:
 
 } // namespace QScript
 
+#endif // QT_NO_SCRIPT
 #endif
 

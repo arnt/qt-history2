@@ -27,6 +27,8 @@
 
 #include "qscriptecmacore_p.h"
 
+#ifndef QT_NO_SCRIPT
+
 namespace QScript { namespace Ecma {
 
 class Global: public QScriptObjectData
@@ -91,5 +93,6 @@ inline QScriptEnginePrivate *Global::engine() const
 
 } } // namespace QScript::Ecma
 
+#endif // QT_NO_SCRIPT
 #endif
 

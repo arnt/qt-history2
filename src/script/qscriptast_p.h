@@ -27,6 +27,8 @@
 
 #include <QtCore/QString>
 
+#ifndef QT_NO_SCRIPT
+
 #include "qscriptastfwd_p.h"
 #include "qscriptastvisitor_p.h"
 
@@ -1452,6 +1454,6 @@ public:
 
 } } // namespace AST
 
-
+#endif // QT_NO_SCRIPT
 #endif
 

@@ -14,6 +14,8 @@
 
 #include <QtCore/QtDebug>
 
+#ifndef QT_NO_SCRIPT
+
 #include <string.h>
 
 #include "qscriptengine.h"
@@ -1032,3 +1034,4 @@ case 228: {
     return false;
 }
 
+#endif // QT_NO_SCRIPT

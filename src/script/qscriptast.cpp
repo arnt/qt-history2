@@ -12,6 +12,9 @@
 ****************************************************************************/
 
 #include "qscriptast_p.h"
+
+#ifndef QT_NO_SCRIPT
+
 #include "qscriptastvisitor_p.h"
 
 namespace QScript { namespace AST {
@@ -742,3 +745,5 @@ void StatementSourceElement::accept0(Visitor *visitor)
 }
 
 } } // namespace QScript::AST
+
+#endif // QT_NO_SCRIPT

@@ -12,6 +12,9 @@
 ****************************************************************************/
 
 #include "qscriptengine.h"
+
+#ifndef QT_NO_SCRIPT
+
 #include "qscriptengine_p.h"
 #include "qscriptvalueimpl_p.h"
 #include "qscriptcontext_p.h"
@@ -57,7 +60,7 @@
   can be used to determine whether code can usefully be passed to
   evaluate(). This can be useful when implementing tools that allow
   code to be written incrementally, such as command line interpreters.
-  
+
   Use newObject() to create a standard Qt Script object. You can use
   the object-specific functionality in QScriptValue to manipulate the
   script object (e.g. QScriptValue::setProperty()). Use newArray() to
@@ -940,7 +943,7 @@ QScriptValue QScriptEngine::importExtension(const QString &extension)
 
     See \l{Conversion Between QtScript and C++ Types} for a
     description of the built-in type conversion provided by
-    QtScript. 
+    QtScript.
 
     \warning This function is not available with MSVC 6. Use
     qScriptValueToValue() or qscriptvalue_cast() instead if you need
@@ -1199,3 +1202,5 @@ int QScriptEngine::processEventsInterval() const
     Q_D(const QScriptEngine);
     return d->m_processEventsInterval;
 }
+
+#endif // QT_NO_SCRIPT

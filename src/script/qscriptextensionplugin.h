@@ -15,6 +15,9 @@
 #define QSCRIPTEXTENSIONPLUGIN_H
 
 #include <QtCore/qplugin.h>
+
+#ifndef QT_NO_SCRIPT
+
 #include <QtScript/qscriptextensioninterface.h>
 
 QT_BEGIN_HEADER
@@ -40,4 +43,5 @@ public:
 
 QT_END_HEADER
 
+#endif // QT_NO_SCRIPT
 #endif // QSCRIPTEXTENSIONPLUGIN_H

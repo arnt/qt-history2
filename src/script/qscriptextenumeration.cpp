@@ -12,6 +12,9 @@
 ****************************************************************************/
 
 #include "qscriptextenumeration_p.h"
+
+#ifndef QT_NO_SCRIPT
+
 #include "qscriptengine_p.h"
 #include "qscriptvalueimpl_p.h"
 #include "qscriptcontext_p.h"
@@ -73,7 +76,7 @@ Enumeration::Instance *Enumeration::Instance::get(const QScriptValueImpl &object
 {
     if (! klass || klass == object.classInfo())
         return static_cast<Instance*> (object.objectData().data());
-    
+
     return 0;
 }
 
@@ -193,3 +196,5 @@ void Enumeration::Instance::next(QScriptContextPrivate *context, QScriptValueImp
 }
 
 } } // namespace QScript::Ext
+
+#endif // QT_NO_SCRIPT

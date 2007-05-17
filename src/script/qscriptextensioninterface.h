@@ -15,6 +15,9 @@
 #define QSCRIPTEXTENSIONINTERFACE_H
 
 #include <QtCore/qfactoryinterface.h>
+
+#ifndef QT_NO_SCRIPT
+
 #include <QtCore/qobject.h>
 
 QT_BEGIN_HEADER
@@ -33,4 +36,5 @@ Q_DECLARE_INTERFACE(QScriptExtensionInterface, "com.trolltech.Qt.QScriptExtensio
 
 QT_END_HEADER
 
+#endif // QT_NO_SCRIPT
 #endif // QSCRIPTEXTENSIONINTERFACE_H

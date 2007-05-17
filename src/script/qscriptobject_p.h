@@ -16,6 +16,8 @@
 
 #include "qscriptobjectfwd_p.h"
 
+#ifndef QT_NO_SCRIPT
+
 //
 //  W A R N I N G
 //  -------------
@@ -135,4 +137,5 @@ inline void QScriptObject::reset()
     m_data = 0;
 }
 
+#endif // QT_NO_SCRIPT
 #endif

@@ -26,6 +26,9 @@
 //
 
 #include "qscriptecmacore_p.h"
+
+#ifndef QT_NO_SCRIPT
+
 class QDate;
 class QDateTime;
 
@@ -199,5 +202,6 @@ private:
 
 } } // namespace QScript::Ecma
 
+#endif // QT_NO_SCRIPT
 #endif
 

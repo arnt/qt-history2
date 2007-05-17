@@ -16,6 +16,8 @@
 
 #include "qscriptmemberfwd_p.h"
 
+#ifndef QT_NO_SCRIPT
+
 //
 //  W A R N I N G
 //  -------------
@@ -152,4 +154,5 @@ inline bool QScript::Member::operator!=(const QScript::Member &other) const
     return m_nameId != other.m_nameId;
 }
 
+#endif // QT_NO_SCRIPT
 #endif

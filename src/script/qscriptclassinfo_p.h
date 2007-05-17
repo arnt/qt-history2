@@ -27,6 +27,9 @@
 
 class QScriptEngine;
 #include "qscriptglobals_p.h"
+
+#ifndef QT_NO_SCRIPT
+
 #include "qscriptclassdata_p.h"
 #include <QtCore/qstring.h>
 #include <QtCore/qshareddata.h>
@@ -60,4 +63,5 @@ private:
     Q_DISABLE_COPY(QScriptClassInfo)
 };
 
+#endif // QT_NO_SCRIPT
 #endif // QSCRIPTCLASSINFO_P_H

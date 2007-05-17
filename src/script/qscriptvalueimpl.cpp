@@ -12,6 +12,9 @@
 ****************************************************************************/
 
 #include "qscriptvalueimpl_p.h"
+
+#ifndef QT_NO_SCRIPT
+
 #include "qscriptengine_p.h"
 #include "qscriptvalueimpl_p.h"
 #include "qscriptcontext_p.h"
@@ -25,10 +28,10 @@ static void dfs(QScriptObject *instance, QHash<QScriptObject*, int> &dfn, int n)
 
     if (found)
         return;
-    
+
     if (instance->m_prototype.isObject())
         dfs (instance->m_prototype.m_object_value, dfn, n + 1);
-    
+
     if (instance->m_scope.isObject())
         dfs (instance->m_scope.m_object_value, dfn, n + 1);
 }
@@ -62,25 +65,25 @@ bool QScriptValueImpl::instanceOf(const QScriptValueImpl &ctorValue) const
 {
     if (! isObject() || ! ctorValue.isObject())
         return false;
-    
+
     QScriptObject *instance = m_object_value;
     QScriptObject *ctor = ctorValue.m_object_value;
-    
+
     if (instance == ctor)
         return false;
-    
+
     while (instance != 0) {
         if (instance == ctor)
             return true;
-        
+
         const QScriptValueImpl &proto = instance->m_prototype;
-        
+
         if (! proto.isObject())
             break;
-        
+
         instance = proto.m_object_value;
     }
-    
+
     return false;
 }
 
@@ -88,23 +91,23 @@ bool QScriptValueImpl::resolve_helper(QScriptNameIdImpl *nameId, QScript::Member
                                       QScriptValueImpl *object, QScriptValue::ResolveFlags mode) const
 {
     QScriptObject *object_data = m_object_value;
-    
+
     QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(engine());
-    
+
     if (nameId == eng_p->idTable()->id___proto__) {
         member->native(nameId, /*id=*/0, QScriptValue::Undeletable);
         *object = *this;
         return true;
     }
-    
+
     // If not found anywhere else, search in the extra members.
     if (QScriptClassData *odata = classInfo()->data()) {
         *object = *this;
-        
+
         if (odata->resolve(*this, nameId, member, object))
             return true;
     }
-    
+
     if (isFunction()) {
         if (nameId == eng_p->idTable()->id_length) {
             member->native(nameId, 0,
@@ -132,20 +135,20 @@ bool QScriptValueImpl::resolve_helper(QScriptNameIdImpl *nameId, QScript::Member
             return true;
         }*/
     }
-    
+
     if (mode & QScriptValue::ResolvePrototype) {
         // For values and other non object based types, search in class's prototype
         const QScriptValueImpl &proto = object_data->m_prototype;
-        
+
         if (proto.isObject()
             && proto.resolve(nameId, member, object, mode)) {
             return true;
         }
     }
-    
+
     if ((mode & QScriptValue::ResolveScope) && object_data->m_scope.isValid())
         return object_data->m_scope.resolve(nameId, member, object, mode);
-    
+
     return false;
 }
 
@@ -334,3 +337,5 @@ QDebug &operator<<(QDebug &d, const QScriptValueImpl &object)
     d << ")";
     return d;
 }
+
+#endif // QT_NO_SCRIPT

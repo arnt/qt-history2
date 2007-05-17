@@ -28,6 +28,9 @@
 #ifndef QT_NO_QOBJECT
 
 #include "qscriptecmacore_p.h"
+
+#ifndef QT_NO_SCRIPT
+
 #include "qscriptclassdata_p.h"
 #include "qscriptfunction_p.h"
 #include "qscriptengine.h"
@@ -377,4 +380,5 @@ private:
 
 #endif // QT_NO_QOBJECT
 
+#endif // QT_NO_SCRIPT
 #endif // QSCRIPTEXTQOBJECT_P_H

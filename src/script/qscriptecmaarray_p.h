@@ -26,6 +26,9 @@
 //
 
 #include "qscriptarray_p.h"
+
+#ifndef QT_NO_SCRIPT
+
 #include "qscriptecmacore_p.h"
 #include "qscriptclassdata_p.h"
 
@@ -128,5 +131,6 @@ protected:
 
 } } // namespace QScript::Ecma
 
+#endif // QT_NO_SCRIPT
 #endif
 

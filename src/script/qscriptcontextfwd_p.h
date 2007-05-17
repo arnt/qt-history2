@@ -26,6 +26,9 @@
 //
 
 #include "qscriptvalueimplfwd_p.h"
+
+#ifndef QT_NO_SCRIPT
+
 #include "qscriptcontext.h"
 
 #include <QtCore/qobjectdefs.h>
@@ -196,4 +199,5 @@ public:
     QScriptContext *q_ptr;
 };
 
+#endif // QT_NO_SCRIPT
 #endif

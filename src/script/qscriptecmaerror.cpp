@@ -12,6 +12,9 @@
 ****************************************************************************/
 
 #include "qscriptecmaerror_p.h"
+
+#ifndef QT_NO_SCRIPT
+
 #include "qscriptengine_p.h"
 #include "qscriptvalueimpl_p.h"
 #include "qscriptcontext_p.h"
@@ -271,3 +274,5 @@ QScriptValueImpl Error::method_backtrace(QScriptContextPrivate *context, QScript
 }
 
 } } // namespace QSA::Ecma
+
+#endif // QT_NO_SCRIPT

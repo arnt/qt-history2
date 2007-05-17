@@ -16,6 +16,8 @@
 
 #include "qscriptvaluefwd_p.h"
 
+#ifndef QT_NO_SCRIPT
+
 //
 //  W A R N I N G
 //  -------------
@@ -66,4 +68,5 @@ inline QScriptValueImplList QScriptValuePrivate::toImplList(const QScriptValueLi
     return result;
 }
 
+#endif // QT_NO_SCRIPT
 #endif

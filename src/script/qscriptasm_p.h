@@ -26,6 +26,9 @@
 //
 
 #include <QtCore/qglobal.h>
+
+#ifndef QT_NO_SCRIPT
+
 #include <QtCore/qvector.h>
 
 #include "qscriptvalueimplfwd_p.h"
@@ -133,4 +136,5 @@ private:
 
 } // namespace QScript
 
+#endif // QT_NO_SCRIPT
 #endif

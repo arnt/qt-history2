@@ -14,6 +14,8 @@
 // for strtoll
 #include <qplatformdefs.h>
 
+#ifndef QT_NO_SCRIPT
+
 #include "qscriptecmaglobal_p.h"
 #include "qscriptengine_p.h"
 #include "qscriptvalueimpl_p.h"
@@ -569,3 +571,4 @@ QScriptValueImpl Global::method_gc(QScriptContextPrivate *,
 
 } } // namespace QScript::Ecma
 
+#endif // QT_NO_SCRIPT

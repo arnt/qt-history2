@@ -16,6 +16,8 @@
 
 #include <QtCore/qshareddata.h>
 
+#ifndef QT_NO_SCRIPT
+
 //
 //  W A R N I N G
 //  -------------
@@ -39,4 +41,5 @@ private:
     Q_DISABLE_COPY(QScriptObjectData)
 };
 
+#endif // QT_NO_SCRIPT
 #endif

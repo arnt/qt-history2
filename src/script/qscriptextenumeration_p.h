@@ -26,6 +26,9 @@
 //
 
 #include "qscriptecmacore_p.h"
+
+#ifndef QT_NO_SCRIPT
+
 #include <QtCore/QSet>
 
 namespace QScript { namespace Ext {
@@ -94,4 +97,5 @@ private:
 
 } } // namespace QScript::Ext
 
+#endif // QT_NO_SCRIPT
 #endif

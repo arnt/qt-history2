@@ -25,6 +25,10 @@
 // We mean it.
 //
 
+#include <QtCore/qglobal.h>
+
+#ifndef QT_NO_SCRIPT
+
 class QScriptNameIdImpl;
 
 namespace QScript {
@@ -83,4 +87,5 @@ namespace QScript {
 
 } // namespace QScript
 
+#endif // QT_NO_SCRIPT
 #endif

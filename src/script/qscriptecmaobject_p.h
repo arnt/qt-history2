@@ -27,6 +27,8 @@
 
 #include "qscriptecmacore_p.h"
 
+#ifndef QT_NO_SCRIPT
+
 namespace QScript { namespace Ecma {
 
 class Object: public Core
@@ -75,5 +77,6 @@ private:
 
 } } // namespace QScript::Ecma
 
+#endif // QT_NO_SCRIPT
 #endif
 

@@ -14,6 +14,9 @@
 #ifndef QT_NO_QOBJECT
 
 #include "qscriptable.h"
+
+#ifndef QT_NO_SCRIPT
+
 #include "qscriptable_p.h"
 
 #include "qscriptengine.h"
@@ -130,7 +133,7 @@ QScriptContext *QScriptable::context() const
 {
     if (QScriptEngine *e = engine())
         return e->currentContext();
-    
+
     return 0;
 }
 
@@ -144,7 +147,7 @@ QScriptValue QScriptable::thisObject() const
 {
     if (QScriptContext *c = context())
         return c->thisObject();
-    
+
     return QScriptValue();
 }
 
@@ -159,7 +162,7 @@ int QScriptable::argumentCount() const
 {
     if (QScriptContext *c = context())
         return c->argumentCount();
-    
+
     return -1;
 }
 
@@ -173,8 +176,9 @@ QScriptValue QScriptable::argument(int index) const
 {
     if (QScriptContext *c = context())
         return c->argument(index);
-    
+
     return QScriptValue();
 }
 
+#endif // QT_NO_SCRIPT
 #endif // QT_NO_QOBJECT

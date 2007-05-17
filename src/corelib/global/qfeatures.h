@@ -312,6 +312,11 @@
 #define QT_NO_QWS_QPF2
 #endif
 
+// QtScript
+#if !defined(QT_NO_SCRIPT) && (defined(QT_NO_TEXTDATE))
+#define QT_NO_SCRIPT
+#endif
+
 // QScrollBar
 #if !defined(QT_NO_SCROLLBAR) && (defined(QT_NO_SLIDER))
 #define QT_NO_SCROLLBAR

@@ -27,6 +27,8 @@
 
 #include <QtCore/QString>
 
+#ifndef QT_NO_SCRIPT
+
 class QScriptEngine;
 class QScriptEnginePrivate;
 class QScriptNameIdImpl;
@@ -174,6 +176,7 @@ private:
 
 } // namespace QScript
 
+#endif // QT_NO_SCRIPT
 #endif
 
 

@@ -16,6 +16,8 @@
 
 #include "qscriptenginefwd_p.h"
 
+#ifndef QT_NO_SCRIPT
+
 #include <QtCore/QDateTime>
 #include <QtCore/QMutex>
 #include <QtCore/QLinkedList>
@@ -800,4 +802,5 @@ inline void QScriptEnginePrivate::maybeProcessEvents()
     }
 }
 
+#endif // QT_NO_SCRIPT
 #endif

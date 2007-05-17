@@ -13,6 +13,8 @@
 
 #include <QtCore/QTextStream>
 
+#ifndef QT_NO_SCRIPT
+
 #include "qscriptasm_p.h"
 #include "qscriptvalueimpl_p.h"
 #include "qscriptengine_p.h"
@@ -69,3 +71,5 @@ void Code::init(const CompilationUnit &compilation, NodePool *pool)
 }
 
 } // namespace QScript
+
+#endif // QT_NO_SCRIPT

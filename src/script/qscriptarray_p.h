@@ -26,6 +26,9 @@
 //
 
 #include <QtCore/QMap>
+
+#ifndef QT_NO_SCRIPT
+
 #include <QtCore/QVector>
 
 #include "qscriptvalueimplfwd_p.h"
@@ -212,7 +215,7 @@ inline void QScript::Array::assign(uint index, const QScriptValueImpl &v)
 inline void QScript::Array::clear()
 {
     m_instances = 0;
-    
+
     if (m_mode == VectorMode)
         to_vector->clear();
 
@@ -224,7 +227,7 @@ inline void QScript::Array::mark(int generation)
 {
     if (! m_instances)
         return;
-        
+
     if (m_mode == VectorMode) {
         for (int i = 0; i < to_vector->size(); ++i)
             to_vector->at(i).mark(generation);
@@ -379,5 +382,6 @@ inline void QScript::Array::splice(qsreal start, qsreal deleteCount,
     }
 }
 
+#endif // QT_NO_SCRIPT
 #endif // QSCRIPTARRAY_P_H
 

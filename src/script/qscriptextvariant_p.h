@@ -29,6 +29,8 @@
 
 #include "qscriptecmacore_p.h"
 
+#ifndef QT_NO_SCRIPT
+
 namespace QScript { namespace Ext {
 
 class Instance;
@@ -72,4 +74,5 @@ protected:
 
 } } // namespace QScript::Ext
 
+#endif // QT_NO_SCRIPT
 #endif // QSCRIPTEXTVARIANT_P_H

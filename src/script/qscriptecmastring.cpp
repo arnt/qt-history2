@@ -12,6 +12,9 @@
 ****************************************************************************/
 
 #include "qscriptecmastring_p.h"
+
+#ifndef QT_NO_SCRIPT
+
 #include "qscriptengine_p.h"
 #include "qscriptvalueimpl_p.h"
 #include "qscriptcontext_p.h"
@@ -636,3 +639,5 @@ QScriptValueImpl String::method_fromCharCode(QScriptContextPrivate *context, QSc
 }
 
 } } // namespace QScript::Ecma
+
+#endif // QT_NO_SCRIPT

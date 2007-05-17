@@ -12,6 +12,9 @@
 ****************************************************************************/
 
 #include "qscriptextensionplugin.h"
+
+#ifndef QT_NO_SCRIPT
+
 #include "qscriptvalue.h"
 #include "qscriptengine.h"
 
@@ -108,3 +111,5 @@ QScriptValue QScriptExtensionPlugin::setupPackage(
     }
     return o;
 }
+
+#endif // QT_NO_SCRIPT

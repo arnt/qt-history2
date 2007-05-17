@@ -15,6 +15,9 @@
 #define QSCRIPTVALUEIMPLFWD_P_H
 
 #include "qscriptclassinfo_p.h"
+
+#ifndef QT_NO_SCRIPT
+
 #include "qscriptvalue.h"
 
 #include <QtCore/qstring.h>
@@ -166,7 +169,7 @@ public:
     inline void get(QScriptNameIdImpl *nameId, QScriptValueImpl *out);
     inline void put(const QScript::Member &member, const QScriptValueImpl &value);
     inline void removeMember(const QScript::Member &member);
-   
+
     inline QScriptValueImpl scope() const;
     inline void setScope(const QScriptValueImpl &scope);
 
@@ -189,4 +192,5 @@ public:
     QScriptClassInfo *m_class;
 };
 
+#endif // QT_NO_SCRIPT
 #endif

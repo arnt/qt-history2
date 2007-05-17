@@ -12,6 +12,9 @@
 ****************************************************************************/
 
 #include "qscriptprettypretty_p.h"
+
+#ifndef QT_NO_SCRIPT
+
 #include "qscriptengine_p.h"
 #include "qscriptvalueimpl_p.h"
 #include "qscriptcontext_p.h"
@@ -1191,3 +1194,5 @@ bool PrettyPretty::preVisit(AST::Node *node)
     Q_UNUSED(node);
     return true;
 }
+
+#endif // QT_NO_SCRIPT

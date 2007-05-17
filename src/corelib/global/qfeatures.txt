@@ -1016,6 +1016,13 @@ Requires: UNDOSTACK LISTVIEW
 Name: QUndoView
 SeeAlso: ???
 
+Feature: SCRIPT
+Description: Provides support for the QtScript module
+Section: Utilities
+Requires: TEXTDATE
+Name: QtScript
+SeeAlso: ???
+
 # Qtopia Core
 
 Feature: QWS_SOUNDSERVER

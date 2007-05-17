@@ -16,6 +16,8 @@
 
 #include <QtScript/qscriptvalue.h>
 
+#ifndef QT_NO_SCRIPT
+
 QT_BEGIN_HEADER
 
 QT_MODULE(Script)
@@ -58,4 +60,5 @@ private:
 
 QT_END_HEADER
 
+#endif // QT_NO_SCRIPT
 #endif // QSCRIPTVALUEITERATOR_H

@@ -12,6 +12,9 @@
 ****************************************************************************/
 
 #include "qscriptecmaregexp_p.h"
+
+#ifndef QT_NO_SCRIPT
+
 #include "qscriptengine_p.h"
 #include "qscriptvalueimpl_p.h"
 #include "qscriptcontext_p.h"
@@ -52,7 +55,7 @@ RegExp::Instance *RegExp::Instance::get(const QScriptValueImpl &object, QScriptC
 {
     if (! klass || klass == object.classInfo())
         return QExplicitlySharedDataPointer<Instance> (static_cast<Instance*> (object.objectData().data()));
-    
+
     return 0;
 }
 
@@ -227,3 +230,5 @@ QScriptValueImpl RegExp::method_toString(QScriptContextPrivate *context, QScript
 }
 
 } } // namespace QScript::Ecma
+
+#endif // QT_NO_SCRIPT

@@ -12,6 +12,9 @@
 ****************************************************************************/
 
 #include "qscriptvalue.h"
+
+#ifndef QT_NO_SCRIPT
+
 #include "qscriptvalue_p.h"
 #include "qscriptengine_p.h"
 #include "qscriptvalueimpl_p.h"
@@ -1064,3 +1067,5 @@ bool QScriptValue::isValid() const
 {
     return QScriptValuePrivate::valueOf(*this).isValid();
 }
+
+#endif // QT_NO_SCRIPT

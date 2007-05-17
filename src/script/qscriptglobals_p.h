@@ -27,6 +27,8 @@
 
 #include <QtCore/qglobal.h>
 
+#ifndef QT_NO_SCRIPT
+
 class QScriptValue;
 class QScriptValueImpl;
 class QScriptClassInfo;
@@ -74,4 +76,5 @@ enum Type {
 
 } // namespace QScript
 
+#endif // QT_NO_SCRIPT
 #endif

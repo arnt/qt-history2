@@ -12,6 +12,9 @@
 ****************************************************************************/
 
 #include "qscriptextvariant_p.h"
+
+#ifndef QT_NO_SCRIPT
+
 #include "qscriptengine_p.h"
 #include "qscriptvalueimpl_p.h"
 #include "qscriptcontext_p.h"
@@ -116,3 +119,5 @@ QScriptValueImpl Variant::method_valueOf(QScriptContextPrivate *context, QScript
 }
 
 } } // namespace QScript::Ecma
+
+#endif // QT_NO_SCRIPT

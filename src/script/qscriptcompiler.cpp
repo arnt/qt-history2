@@ -12,6 +12,9 @@
 ****************************************************************************/
 
 #include "qscriptcompiler_p.h"
+
+#ifndef QT_NO_SCRIPT
+
 #include "qscriptast_p.h"
 #include "qscriptengine_p.h"
 #include "qscriptvalueimpl_p.h"
@@ -2011,3 +2014,5 @@ Compiler::Loop *Compiler::findLoop(QScriptNameIdImpl *name)
 
 
 } // namespace QScript
+
+#endif // QT_NO_SCRIPT

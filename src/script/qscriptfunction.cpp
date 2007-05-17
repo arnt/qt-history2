@@ -12,6 +12,9 @@
 ****************************************************************************/
 
 #include "qscriptfunction_p.h"
+
+#ifndef QT_NO_SCRIPT
+
 #include "qscriptengine_p.h"
 #include "qscriptvalueimpl_p.h"
 #include "qscriptcontext_p.h"
@@ -63,3 +66,5 @@ void QScript::C2Function::execute(QScriptContextPrivate *context)
     Q_ASSERT(context->m_result.isValid());
     eng_p->blockGC(blocked);
 }
+
+#endif // QT_NO_SCRIPT

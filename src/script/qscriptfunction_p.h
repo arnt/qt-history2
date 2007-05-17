@@ -26,6 +26,9 @@
 //
 
 #include "qscriptobjectdata_p.h"
+
+#ifndef QT_NO_SCRIPT
+
 #include "qscriptglobals_p.h"
 #include "qscriptcontext_p.h"
 #include "qscriptnodepool_p.h"
@@ -144,5 +147,6 @@ private:
 
 } // namespace QScript
 
+#endif // QT_NO_SCRIPT
 #endif
 

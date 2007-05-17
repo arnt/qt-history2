@@ -12,6 +12,9 @@
 ****************************************************************************/
 
 #include "qscriptvalueiterator.h"
+
+#ifndef QT_NO_SCRIPT
+
 #include "qscriptvalueiterator_p.h"
 #include "qscriptengine_p.h"
 #include "qscriptvalueimpl_p.h"
@@ -197,7 +200,7 @@ bool QScriptValueIterator::hasPrevious() const
         that->nextIndex = -1;
         return false;
     }
-    
+
 }
 
 /*!
@@ -362,3 +365,5 @@ QScriptValueIterator& QScriptValueIterator::operator=(QScriptValue &object)
     d->nextIndex = -1;
     return *this;
 }
+
+#endif // QT_NO_SCRIPT

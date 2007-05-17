@@ -15,6 +15,9 @@
 #define QSCRIPTENGINE_H
 
 #include <QtCore/qmetatype.h>
+
+#ifndef QT_NO_SCRIPT
+
 #include <QtCore/qvariant.h>
 
 #ifndef QT_NO_QOBJECT
@@ -336,4 +339,5 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(QScriptEngine::QObjectWrapOptions)
 
 QT_END_HEADER
 
+#endif // QT_NO_SCRIPT
 #endif // QSCRIPTENGINE_H

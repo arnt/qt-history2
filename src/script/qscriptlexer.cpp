@@ -16,6 +16,9 @@
 #endif
 
 #include "qscriptengine_p.h"
+
+#ifndef QT_NO_SCRIPT
+
 #include "qscriptvalueimpl_p.h"
 #include "qscriptcontext_p.h"
 #include "qscriptmember_p.h"
@@ -1019,5 +1022,6 @@ bool QScript::Lexer::scanRegExp()
     return true;
 }
 
+#endif // QT_NO_SCRIPT
 
 

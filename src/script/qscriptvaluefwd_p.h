@@ -15,6 +15,9 @@
 #define QSCRIPTVALUEFWD_P_H
 
 #include <QtCore/qatomic.h>
+
+#ifndef QT_NO_SCRIPT
+
 #include "qscriptvalueimplfwd_p.h"
 
 //
@@ -47,4 +50,5 @@ public:
     QBasicAtomic ref;
 };
 
+#endif // QT_NO_SCRIPT
 #endif

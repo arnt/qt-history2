@@ -12,6 +12,9 @@
 ****************************************************************************/
 
 #include "qscriptcontext.h"
+
+#ifndef QT_NO_SCRIPT
+
 #include "qscriptengine_p.h"
 #include "qscriptvalueimpl_p.h"
 #include "qscriptcontext_p.h"
@@ -325,3 +328,5 @@ QScriptContext::ExecutionState QScriptContext::state() const
     Q_D(const QScriptContext);
     return d->m_state;
 }
+
+#endif // QT_NO_SCRIPT

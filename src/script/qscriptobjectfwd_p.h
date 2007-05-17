@@ -27,6 +27,8 @@
 
 #include <QtCore/qshareddata.h>
 
+#ifndef QT_NO_SCRIPT
+
 #include "qscriptobjectdata_p.h"
 #include "qscriptbuffer_p.h"
 #include "qscriptmemberfwd_p.h"
@@ -68,4 +70,5 @@ public:
     QScript::Buffer<QScriptValueImpl> m_objects;
 };
 
+#endif // QT_NO_SCRIPT
 #endif

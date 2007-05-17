@@ -13,6 +13,8 @@
 
 #include <QtCore/QtDebug>
 
+#ifndef QT_NO_SCRIPT
+
 #include "qscriptcontext_p.h"
 #include "qscriptengine_p.h"
 #include "qscriptvalueimpl_p.h"
@@ -2206,16 +2208,16 @@ bool QScriptContextPrivate::lt_cmp(QScriptValueImpl lhs, QScriptValueImpl rhs)
         case QScript::UndefinedType:
         case QScript::NullType:
             return false;
-            
+
         case QScript::NumberType:
             return lhs.m_number_value < rhs.m_number_value;
-            
+
         case QScript::IntegerType:
             return lhs.m_int_value < rhs.m_int_value;
-            
+
         case QScript::BooleanType:
             return lhs.m_bool_value < rhs.m_bool_value;
-            
+
         default:
             break;
         } // switch
@@ -2263,3 +2265,5 @@ bool QScriptContextPrivate::le_cmp_helper(QScriptValueImpl lhs, QScriptValueImpl
     qsreal n2 = eng->convertToNativeDouble(rhs);
     return n1 <= n2;
 }
+
+#endif // QT_NO_SCRIPT

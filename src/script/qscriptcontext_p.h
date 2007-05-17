@@ -15,6 +15,9 @@
 #define QSCRIPTCONTEXT_P_H
 
 #include "qscriptcontextfwd_p.h"
+
+#ifndef QT_NO_SCRIPT
+
 #include "qscriptenginefwd_p.h"
 #include "qscriptnameid_p.h"
 
@@ -283,4 +286,5 @@ inline QScriptContext::ExecutionState QScriptContextPrivate::state() const
     return m_state;
 }
 
+#endif // QT_NO_SCRIPT
 #endif

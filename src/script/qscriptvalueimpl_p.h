@@ -15,6 +15,9 @@
 #define QSCRIPTVALUEIMPL_P_H
 
 #include "qscriptvalueimplfwd_p.h"
+
+#ifndef QT_NO_SCRIPT
+
 #include "qscriptecmaarray_p.h"
 #include "qscriptecmadate_p.h"
 #include "qscriptecmaerror_p.h"
@@ -433,17 +436,17 @@ inline bool QScriptValueImpl::resolve(QScriptNameIdImpl *nameId, QScript::Member
     Q_ASSERT(isObject());
     Q_ASSERT(member);
     Q_ASSERT(object);
-    
+
     Q_ASSERT(nameId->unique);
-    
+
     QScriptObject *object_data = m_object_value;
-    
+
     // Search in properties...
     if (object_data->findMember(nameId, member)) {
         *object = *this;
         return true;
     }
-    
+
     return resolve_helper(nameId, member, object, mode);
 }
 
@@ -452,7 +455,7 @@ inline void QScriptValueImpl::get(const QScript::Member &member, QScriptValueImp
     Q_ASSERT(out);
     Q_ASSERT(isObject());
     Q_ASSERT(member.isValid());
-    
+
     if (! member.isObjectProperty()) {
         get_helper(member, out);
         return;
@@ -614,7 +617,7 @@ inline void QScriptValueImpl::createMember(QScriptNameIdImpl *nameId,
                                     QScript::Member *member, uint flags)
 {
     Q_ASSERT(isObject());
-    
+
     QScriptObject *object_data = m_object_value;
     object_data->createMember(nameId, member, flags);
     Q_ASSERT(member->isObjectProperty());
@@ -637,10 +640,10 @@ inline int QScriptValueImpl::memberCount() const
     Q_ASSERT(isObject());
 
     int count = m_object_value->memberCount();
-    
+
     if (m_class->data())
         count += m_class->data()->extraMemberCount(*this);
-    
+
     return count;
 }
 
@@ -656,7 +659,7 @@ inline void QScriptValueImpl::member(int index, QScript::Member *member) const
         }
         index -= extra;
     }
-    
+
     m_object_value->member(index, member);
 }
 
@@ -871,9 +874,10 @@ inline bool QScriptValueImpl::strictEqualTo(const QScriptValueImpl &other) const
 {
     if (!isValid() || !other.isValid())
         return isValid() == other.isValid();
-    
+
     QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(engine());
     return eng_p->strictEqualTo(*this, other);
 }
 
+#endif // QT_NO_SCRIPT
 #endif

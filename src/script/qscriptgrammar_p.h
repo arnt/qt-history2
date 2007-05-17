@@ -14,6 +14,10 @@
 #ifndef QSCRIPTGRAMMAR_P_H
 #define QSCRIPTGRAMMAR_P_H
 
+#include <QtCore/qglobal.h>
+
+#ifndef QT_NO_SCRIPT
+
 class QScriptGrammar
 {
 public:
@@ -153,6 +157,6 @@ public:
   }
 };
 
-
+#endif // QT_NO_SCRIPT
 #endif // QSCRIPTGRAMMAR_P_H
 

@@ -12,6 +12,9 @@
 ****************************************************************************/
 
 #include "qscriptsyntaxchecker_p.h"
+
+#ifndef QT_NO_SCRIPT
+
 #include "qscriptlexer_p.h"
 
 namespace QScript {
@@ -105,3 +108,4 @@ bool SyntaxChecker::parse(const QString &code)
 
 } // namespace QScript
 
+#endif // QT_NO_SCRIPT
