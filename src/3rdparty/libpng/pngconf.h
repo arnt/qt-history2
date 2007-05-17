@@ -35,6 +35,10 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+#else
+#ifndef __i386__ /* change this if MMX/SSE become supported on x86_64! */
+#define PNG_NO_ASSEMBLER_CODE
+#endif
 #endif
 
 /*
@@ -424,17 +428,6 @@
 #endif
 
 #endif /* PNG_INTERNAL */
-
-/* The following uses const char * instead of char * for error
- * and warning message functions, so some compilers won't complain.
- * If you do not want to use const, define PNG_NO_CONST here.
- */
-
-#ifndef PNG_NO_CONST
-#  define PNG_CONST const
-#else
-#  define PNG_CONST
-#endif
 
 /* The following defines give you the ability to remove code from the
  * library that you will not be using.  I wish I could figure out how to
@@ -1179,7 +1172,7 @@ typedef png_uint_32     FAR * png_uint_32p;
 typedef png_int_32      FAR * png_int_32p;
 typedef png_uint_16     FAR * png_uint_16p;
 typedef png_int_16      FAR * png_int_16p;
-typedef PNG_CONST char  FAR * png_const_charp;
+typedef const char      FAR * png_const_charp;
 typedef char            FAR * png_charp;
 typedef png_fixed_point FAR * png_fixed_point_p;
 
@@ -1201,7 +1194,7 @@ typedef png_uint_32     FAR * FAR * png_uint_32pp;
 typedef png_int_32      FAR * FAR * png_int_32pp;
 typedef png_uint_16     FAR * FAR * png_uint_16pp;
 typedef png_int_16      FAR * FAR * png_int_16pp;
-typedef PNG_CONST char  FAR * FAR * png_const_charpp;
+typedef const char      FAR * FAR * png_const_charpp;
 typedef char            FAR * FAR * png_charpp;
 typedef png_fixed_point FAR * FAR * png_fixed_point_pp;
 #ifdef PNG_FLOATING_POINT_SUPPORTED
@@ -1293,6 +1286,12 @@ typedef z_stream FAR *  png_zstreamp;
  * convention in your compiler to match your PNGAPI, and you must build
  * zlib and your applications the same way you build libpng.
  */
+
+#if defined(__MINGW32__) && !defined(PNG_MODULEDEF)
+#  ifndef PNG_NO_MODULEDEF
+#    define PNG_NO_MODULEDEF
+#  endif
+#endif
 
 #if defined(__MINGW32__) && !defined(PNG_MODULEDEF)
 #  ifndef PNG_NO_MODULEDEF

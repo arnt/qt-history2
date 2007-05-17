@@ -649,7 +649,7 @@ png_init_io(png_structp png_ptr, png_FILE_p fp)
 png_charp PNGAPI
 png_convert_to_rfc1123(png_structp png_ptr, png_timep ptime)
 {
-   static PNG_CONST char short_months[12][4] =
+   static const char short_months[12][4] =
         {"Jan", "Feb", "Mar", "Apr", "May", "Jun",
          "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 
