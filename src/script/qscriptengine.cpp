@@ -46,7 +46,8 @@
   evaluation caused an exception by calling hasUncaughtException(). In
   that case, you can call toString() on the error object to obtain an
   error message. The current uncaught exception is also available
-  through uncaughtException().
+  through uncaughtException(). You can obtain a human-readable
+  backtrace of the exception with uncaughtExceptionBacktrace().
 
   \code
     QScriptValue result = myEngine.evaluate(...);
@@ -777,7 +778,8 @@ void QScriptEngine::popContext()
   The exception state is cleared every time a script function call is
   done in the engine, or when evaluate() is called.
 
-  \sa uncaughtException(), uncaughtExceptionLineNumber()
+  \sa uncaughtException(), uncaughtExceptionLineNumber(),
+      uncaughtExceptionBacktrace()
 */
 bool QScriptEngine::hasUncaughtException() const
 {
@@ -793,7 +795,8 @@ bool QScriptEngine::hasUncaughtException() const
   you can call toString() on the return value to obtain an error
   message.
 
-  \sa uncaughtExceptionLineNumber(), hasUncaughtException()
+  \sa hasUncaughtException(), uncaughtExceptionLineNumber(),
+      uncaughtExceptionBacktrace()
 */
 QScriptValue QScriptEngine::uncaughtException() const
 {
@@ -807,11 +810,24 @@ QScriptValue QScriptEngine::uncaughtException() const
   Line numbers are 1-based, unless a different base was specified as
   the second argument to evaluate().
 
-  \sa hasUncaughtException()
+  \sa hasUncaughtException(), uncaughtExceptionBacktrace()
 */
 int QScriptEngine::uncaughtExceptionLineNumber() const
 {
     return QScriptContextPrivate::get(currentContext())->errorLineNumber;
+}
+
+/*!
+  Returns a human-readable backtrace of the last uncaught exception.
+
+  Each line is of the form \c{<function-name>(<arguments>)@<file-name>:<line-number>}.
+
+  \sa uncaughtException()
+*/
+QStringList QScriptEngine::uncaughtExceptionBacktrace() const
+{
+    Q_D(const QScriptEngine);
+    return d->uncaughtExceptionBacktrace();
 }
 
 /*!

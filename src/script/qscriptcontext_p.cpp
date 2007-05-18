@@ -2117,12 +2117,28 @@ QScriptValueImpl QScriptContextPrivate::throwError(QScriptContext::Error error, 
     return m_result;
 }
 
+QString QScriptContextPrivate::fileName() const
+{
+    if (!m_code)
+        return QString();
+    return m_code->astPool->fileName();
+}
+
+QString QScriptContextPrivate::functionName() const
+{
+    if (!m_callee.isValid())
+        return QString();
+    QScriptFunction *fun = m_callee.toFunction();
+    Q_ASSERT(fun);
+    return fun->functionName();
+}
+
 void QScriptContextPrivate::setDebugInformation(QScriptValueImpl *error) const
 {
     QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(engine());
     error->setProperty(QLatin1String("lineNumber"), QScriptValueImpl(eng_p, currentLine));
-    if (m_code)
-        error->setProperty(QLatin1String("fileName"), QScriptValueImpl(eng_p, m_code->astPool->fileName()));
+    if (!fileName().isEmpty())
+        error->setProperty(QLatin1String("fileName"), QScriptValueImpl(eng_p, fileName()));
 
     const QScriptContext *ctx = q_func();
     QScriptValueImpl stackArray = eng_p->newArray();
@@ -2132,18 +2148,46 @@ void QScriptContextPrivate::setDebugInformation(QScriptValueImpl *error) const
         obj.setProperty(QLatin1String("frame"), QScriptValuePrivate::valueOf(ctx->activationObject()));
         const QScriptContextPrivate *ctx_p = QScriptContextPrivate::get(ctx);
         obj.setProperty(QLatin1String("lineNumber"), QScriptValueImpl(eng_p, ctx_p->currentLine));
-        if (ctx_p->m_code)
-            obj.setProperty(QLatin1String("fileName"), QScriptValueImpl(eng_p, ctx_p->m_code->astPool->fileName()));
-        if (ctx_p->m_callee.isValid()) {
-            QScriptFunction *fun = ctx_p->m_callee.toFunction();
-            Q_ASSERT(fun);
-            obj.setProperty(QLatin1String("functionName"), QScriptValueImpl(eng_p, fun->functionName()));
-        }
+        if (!ctx_p->fileName().isEmpty())
+            obj.setProperty(QLatin1String("fileName"), QScriptValueImpl(eng_p, ctx_p->fileName()));
+        if (!ctx_p->functionName().isEmpty())
+            obj.setProperty(QLatin1String("functionName"), QScriptValueImpl(eng_p, ctx_p->functionName()));
         stackArray.setProperty(i, obj);
         ctx = ctx->parentContext();
         ++i;
     }
     error->setProperty(QLatin1String("stack"), stackArray);
+}
+
+QStringList QScriptContextPrivate::backtrace() const
+{
+    QStringList result;
+    const QScriptContext *ctx = q_func();
+    while (ctx) {
+        const QScriptContextPrivate *ctx_p = QScriptContextPrivate::get(ctx);
+        QString s;
+        QString functionName = ctx_p->functionName();
+        if (!functionName.isEmpty())
+            s += functionName;
+        else
+            s += QLatin1String("<global>");
+        s += QLatin1String("(");
+        for (int i = 0; i < ctx_p->argc; ++i) {
+            if (i > 0)
+                s += QLatin1String(",");
+            QScriptValueImpl arg = ctx_p->args[i];
+            if (arg.isObject())
+                s += QLatin1String("[object Object]"); // don't do a function call
+            else
+                s += arg.toString();
+        }
+        s += QLatin1String(")@");
+        s += ctx_p->fileName();
+        s += QString::fromLatin1(":%0").arg(ctx_p->currentLine);
+        result.append(s);
+        ctx = ctx->parentContext();
+    }
+    return result;
 }
 
 QScriptValueImpl QScriptContextPrivate::throwError(const QString &text)

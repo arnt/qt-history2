@@ -56,6 +56,8 @@ public:
     bool isTypeError(const QScriptValueImpl &value) const;
     bool isURIError(const QScriptValueImpl &value) const;
 
+    static QStringList backtrace(const QScriptValueImpl &error);
+
     QScriptValueImpl evalErrorCtor;
     QScriptValueImpl rangeErrorCtor;
     QScriptValueImpl referenceErrorCtor;

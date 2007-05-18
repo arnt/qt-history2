@@ -105,6 +105,7 @@ public:
     bool hasUncaughtException() const;
     QScriptValue uncaughtException() const;
     int uncaughtExceptionLineNumber() const;
+    QStringList uncaughtExceptionBacktrace() const;
 
     QScriptValue nullValue();
     QScriptValue undefinedValue();

@@ -219,6 +219,37 @@ bool Error::isURIError(const QScriptValueImpl &value) const
     return value.instanceOf(uriErrorPrototype);
 }
 
+QStringList Error::backtrace(const QScriptValueImpl &error)
+{
+    QStringList result;
+    QScriptValueImpl stack = error.property(QLatin1String("stack"));
+    int frameCount = stack.property(QLatin1String("length")).toInt32();
+    for (int i = 0; i < frameCount; ++i) {
+        QScriptValueImpl o = stack.property(i);
+        QScriptValueImpl frame = o.property(QLatin1String("frame"));
+        QString s;
+        QString functionName = o.property(QLatin1String("functionName")).toString();
+        if (functionName.isEmpty())
+            s += QLatin1String("<global>");
+        else
+            s += functionName;
+        s += QLatin1String("(");
+        QScriptValueImpl arguments = frame.property(QLatin1String("arguments"));
+        if (arguments.isObject()) {
+            int argCount = arguments.property(QLatin1String("length")).toInt32();
+            for (int j = 0; j < argCount; ++j) {
+                if (j > 0)
+                    s += QLatin1String(",");
+                s += arguments.property(j).toString();
+            }
+        }
+        s += QLatin1String(")@") + o.property(QLatin1String("fileName")).toString()
+             + QLatin1String(":") + o.property(QLatin1String("lineNumber")).toString();
+        result.append(s);
+    }
+    return result;
+}
+
 QScriptValueImpl Error::method_toString(QScriptContextPrivate *context, QScriptEnginePrivate *eng, QScriptClassInfo *)
 {
     QScriptValueImpl name = context->thisObject().property(QLatin1String("name"),
@@ -242,35 +273,9 @@ QScriptValueImpl Error::method_toString(QScriptContextPrivate *context, QScriptE
 QScriptValueImpl Error::method_backtrace(QScriptContextPrivate *context, QScriptEnginePrivate *eng, QScriptClassInfo *)
 {
     QScriptValueImpl self = context->thisObject();
-    QScriptValueImpl list = eng->newArray();
-    QScriptValueImpl stack = self.property(QLatin1String("stack"));
-    if (!stack.isArray())
+    if (!self.isError())
         return eng->undefinedValue();
-    int frameCount = stack.property(QLatin1String("length")).toInt32();
-    for (int i = 0; i < frameCount; ++i) {
-        QScriptValueImpl o = stack.property(i);
-        QScriptValueImpl frame = o.property(QLatin1String("frame"));
-        QString s;
-        QString functionName = o.property(QLatin1String("functionName")).toString();
-        if (functionName.isEmpty())
-            s += QLatin1String("<global>");
-        else
-            s += functionName;
-        s += QLatin1String("(");
-        QScriptValueImpl arguments = frame.property(QLatin1String("arguments"));
-        if (arguments.isObject()) {
-            int argCount = arguments.property(QLatin1String("length")).toInt32();
-            for (int j = 0; j < argCount; ++j) {
-                if (j > 0)
-                    s += QLatin1String(",");
-                s += arguments.property(j).toString();
-            }
-        }
-        s += QLatin1String(")@") + o.property(QLatin1String("fileName")).toString()
-             + QLatin1String(":") + o.property(QLatin1String("lineNumber")).toString();
-        list.setProperty(i, QScriptValueImpl(eng, s));
-    }
-    return list;
+    return eng->arrayFromStringList(backtrace(self));
 }
 
 } } // namespace QSA::Ecma

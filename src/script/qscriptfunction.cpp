@@ -55,6 +55,11 @@ void QScript::CFunction::execute(QScriptContextPrivate *context)
         context->m_result = result;
 }
 
+QString QScript::CFunction::functionName() const
+{
+    return QLatin1String("<native>");
+}
+
 // internal API function
 void QScript::C2Function::execute(QScriptContextPrivate *context)
 {
@@ -65,6 +70,11 @@ void QScript::C2Function::execute(QScriptContextPrivate *context)
     context->m_result = (*m_funPtr)(context, eng_p, m_classInfo);
     Q_ASSERT(context->m_result.isValid());
     eng_p->blockGC(blocked);
+}
+
+QString QScript::C2Function::functionName() const
+{
+    return QLatin1String("<native>");
 }
 
 #endif // QT_NO_SCRIPT

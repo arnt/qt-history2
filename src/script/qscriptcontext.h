@@ -70,6 +70,8 @@ public:
     QScriptValue throwError(Error error, const QString &text);
     QScriptValue throwError(const QString &text);
 
+    QStringList backtrace() const;
+
 private:
     QScriptContext();
 

@@ -147,6 +147,7 @@ public:
     inline QString errorMessage() const;
     inline bool hasUncaughtException() const;
     inline QScriptValueImpl uncaughtException() const;
+    QStringList uncaughtExceptionBacktrace() const;
 
     inline QScriptContext *currentContext() const;
     inline QScriptContext *pushContext();

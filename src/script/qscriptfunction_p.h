@@ -90,6 +90,8 @@ public:
 
     virtual Type type() const { return QScriptFunction::C; }
 
+    virtual QString functionName() const;
+
 private:
     QScriptFunctionSignature m_funPtr;
 };
@@ -109,6 +111,8 @@ public:
     virtual void execute(QScriptContextPrivate *context);
 
     virtual Type type() const { return QScriptFunction::C2; }
+
+    virtual QString functionName() const;
 
 private:
     QScriptInternalFunctionSignature m_funPtr;

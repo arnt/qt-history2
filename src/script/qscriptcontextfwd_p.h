@@ -60,9 +60,11 @@ public:
     inline void init(QScriptContext *parent);
     inline QScriptValueImpl argument(int index) const;
     inline int argumentCount() const;
+
     inline void throwException();
     inline bool hasUncaughtException() const;
     inline void recover();
+    QStringList backtrace() const;
 
     inline bool isNumerical(const QScriptValueImpl &v) const;
 
@@ -138,6 +140,8 @@ public:
     QScriptValueImpl throwError(QScriptContext::Error error, const QString &text);
     QScriptValueImpl throwError(const QString &text);
 
+    QString fileName() const;
+    QString functionName() const;
     void setDebugInformation(QScriptValueImpl *error) const;
 
     QScriptValueImpl throwNotImplemented(const QString &name);

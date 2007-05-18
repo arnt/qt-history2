@@ -66,6 +66,10 @@
   Use engine() to obtain a pointer to the QScriptEngine that this context
   resides in.
 
+  Use backtrace() to get a human-readable backtrace associated with this
+  context. This can be useful for debugging purposes when implementing
+  native functions.
+
   \sa QScriptEngine::newFunction(), QScriptable
 */
 
@@ -327,6 +331,19 @@ QScriptContext::ExecutionState QScriptContext::state() const
 {
     Q_D(const QScriptContext);
     return d->m_state;
+}
+
+/*!
+  Returns a human-readable backtrace of this QScriptContext.
+
+  Each line is of the form \c{<function-name>(<arguments>)@<file-name>:<line-number>}.
+
+  \sa QScriptEngine::uncaughtExceptionBacktrace()
+*/
+QStringList QScriptContext::backtrace() const
+{
+    Q_D(const QScriptContext);
+    return d->backtrace();
 }
 
 #endif // QT_NO_SCRIPT

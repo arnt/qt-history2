@@ -33,6 +33,7 @@ private slots:
     void evaluateInFunction();
     void pushAndPopContext();
     void lineNumber();
+    void backtrace();
 };
 
 tst_QScriptContext::tst_QScriptContext()
@@ -355,6 +356,33 @@ void tst_QScriptContext::lineNumber()
     QVERIFY(eng.hasUncaughtException());
     QCOMPARE(eng.uncaughtExceptionLineNumber(), 3);
     QCOMPARE(result.property("lineNumber").toInt32(), 3);
+}
+
+static QScriptValue getBacktrace(QScriptContext *ctx, QScriptEngine *eng)
+{
+    return eng->toScriptValue(ctx->backtrace());
+}
+
+void tst_QScriptContext::backtrace()
+{
+    QScriptEngine eng;
+    eng.globalObject().setProperty("bt", eng.newFunction(getBacktrace));
+
+    QString fileName = "testfile";
+    QStringList expected;
+    expected << "<native>(123)@:0"
+             << "foo(hello,[object Object])@testfile:2"
+             << "<global>()@testfile:4";
+
+    QScriptValue ret = eng.evaluate(
+        "function foo() {\n"
+        "  return bt(123);\n"
+        "}\n"
+        "foo('hello', { })", fileName);
+
+    QVERIFY(ret.isArray());
+    QStringList slist = qscriptvalue_cast<QStringList>(ret);
+    QCOMPARE(slist, expected);
 }
 
 QTEST_MAIN(tst_QScriptContext)

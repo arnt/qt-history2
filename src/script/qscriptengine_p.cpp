@@ -1734,6 +1734,13 @@ void QScriptEnginePrivate::gc()
     }
 }
 
+QStringList QScriptEnginePrivate::uncaughtExceptionBacktrace() const
+{
+    QScriptValueImpl value = uncaughtException();
+    if (!value.isError())
+        return QStringList();
+    return QScript::Ecma::Error::backtrace(value);
+}
 
 void QScriptEnginePrivate::processEvents()
 {

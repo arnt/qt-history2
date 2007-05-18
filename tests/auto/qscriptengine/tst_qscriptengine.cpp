@@ -431,6 +431,8 @@ void tst_QScriptEngine::evaluate()
     QCOMPARE(eng.uncaughtExceptionLineNumber(), expectErrorLineNumber);
     if (eng.hasUncaughtException() && ret.isError())
         QVERIFY(ret.property("lineNumber").strictEqualTo(QScriptValue(&eng, expectErrorLineNumber)));
+    else
+        QVERIFY(eng.uncaughtExceptionBacktrace().isEmpty());
 }
 
 static QScriptValue eval_nested(QScriptContext *ctx, QScriptEngine *eng)
@@ -982,21 +984,38 @@ void tst_QScriptEngine::stacktrace()
 {
     QString script = QString::fromLatin1(
         "function foo(counter) {\n"
-        "    if (counter > 4)\n"
+        "    switch (counter) {\n"
+        "        case 0: foo(counter+1); break;\n"
+        "        case 1: foo(counter+1); break;\n"
+        "        case 2: foo(counter+1); break;\n"
+        "        case 3: foo(counter+1); break;\n"
+        "        case 4: foo(counter+1); break;\n"
+        "        default:\n"
         "        throw new Error('blah');\n"
-        "    foo(counter + 1);\n"
+        "    }\n"
         "}\n"
         "foo(0);");
 
     const QString fileName("testfile");
+
+    QStringList backtrace;
+    backtrace << "foo(5)@testfile:9"
+              << "foo(4)@testfile:7"
+              << "foo(3)@testfile:6"
+              << "foo(2)@testfile:5"
+              << "foo(1)@testfile:4"
+              << "foo(0)@testfile:3"
+              << "<global>()@testfile:12";
 
     QScriptEngine eng;
     QScriptValue result = eng.evaluate(script, fileName);
     QVERIFY(eng.hasUncaughtException());
     QVERIFY(result.isError());
 
+    QCOMPARE(eng.uncaughtExceptionBacktrace(), backtrace);
+
     QCOMPARE(result.property("fileName").toString(), fileName);
-    QCOMPARE(result.property("lineNumber").toInt32(), 3);
+    QCOMPARE(result.property("lineNumber").toInt32(), 9);
 
     QScriptValue stack = result.property("stack");
     QVERIFY(stack.isArray());
@@ -1017,15 +1036,20 @@ void tst_QScriptEngine::stacktrace()
             QCOMPARE(obj.property("functionName").toString(), QString("foo"));
             int line = obj.property("lineNumber").toInt32();
             if (counter == 5)
-                QCOMPARE(line, 3);
+                QCOMPARE(line, 9);
             else
-                QCOMPARE(line, 4);
+                QCOMPARE(line, 3 + counter);
         } else {
             QVERIFY(frame.strictEqualTo(eng.globalObject()));
             QVERIFY(obj.property("functionName").toString().isEmpty());
         }
 
         --counter;
+    }
+
+    {
+        QScriptValue bt = result.property("backtrace").call(result);
+        QCOMPARE(qscriptvalue_cast<QStringList>(bt), backtrace);
     }
 }
 
