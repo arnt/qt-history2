@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS><TS version="1.1" language="pl">
-<defaultcodec></defaultcodec>
 <context>
     <name></name>
     <message>
@@ -857,6 +856,68 @@ Nie ma już nic więcej. Powinieneś zabrać się do pracy.</numerusform>
         <source>%1 is not a promoted class.</source>
         <translation>%1 nie jest klasą pochodną.</translation>
     </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_promotion.cpp" line="120"/>
+        <source>The base class %1 is invalid.</source>
+        <translation>Klasa podstawowa %1 jest niewłaściwa.</translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_promotion.cpp" line="127"/>
+        <source>The class %1 already exists.</source>
+        <translation>Klasa %1 już istnieje.</translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_promotion.cpp" line="136"/>
+        <source>Promoted Widgets</source>
+        <translation>Pochodne widżety</translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_promotion.cpp" line="262"/>
+        <source>The class %1 cannot be removed</source>
+        <translation>Nie można usunąć klasy %1</translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_promotion.cpp" line="271"/>
+        <source>The class %1 cannot be removed because it is still referenced.</source>
+        <translation>Nie można usunąć klasy %1 ponieważ w dalszym ciągu są do niej odwołania.</translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_promotion.cpp" line="281"/>
+        <source>The class %1 cannot be renamed</source>
+        <translation>Nie można zmienić nazwy klasy %1</translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_promotion.cpp" line="288"/>
+        <source>The class %1 cannot be renamed to an empty name.</source>
+        <translation>Nie można zmienić nazwy klasy %1 na pustą nazwę.</translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_promotion.cpp" line="293"/>
+        <source>There is already a class named %1.</source>
+        <translation>Istnieje już klasa o nazwie %1.</translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_promotion.cpp" line="322"/>
+        <source>Cannot set an empty include file.</source>
+        <translation>Nie można ustawić pustego pliku nagłówkowego.</translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/uilib/formscriptrunner.cpp" line="58"/>
+        <source>Exception at line %1: %2</source>
+        <translation>Wyjątek w linii %1: %2</translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/uilib/formscriptrunner.cpp" line="93"/>
+        <source>Unknown error</source>
+        <translation>Nieznany błąd</translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/uilib/formscriptrunner.cpp" line="144"/>
+        <source>An error occurred while running the script for %1: %2
+Script: %3</source>
+        <translation>Wystąpił błąd podczas uruchamiana skryptu dla %1: %2
+Skrypt: %3</translation>
+    </message>
 </context>
 <context>
     <name>QDesigner</name>
@@ -1585,23 +1646,23 @@ Czy chcesz spróbować ponownie?</translation>
     <message>
         <location filename="../tools/designer/src/lib/uilib/formscriptrunner.cpp" line="59"/>
         <source>Syntax error.</source>
-        <translation>Błąd składni.</translation>
+        <translation type="obsolete">Błąd składni.</translation>
     </message>
     <message>
         <location filename="../tools/designer/src/lib/uilib/formscriptrunner.cpp" line="64"/>
         <source>Exception at line %1: %2</source>
-        <translation>Wyjątek w linii %1: %2</translation>
+        <translation type="obsolete">Wyjątek w linii %1: %2</translation>
     </message>
     <message>
         <location filename="../tools/designer/src/lib/uilib/formscriptrunner.cpp" line="96"/>
         <source>Unknown error</source>
-        <translation>Nieznany błąd</translation>
+        <translation type="obsolete">Nieznany błąd</translation>
     </message>
     <message>
         <location filename="../tools/designer/src/lib/uilib/formscriptrunner.cpp" line="147"/>
         <source>An error occurred while running the script for %1: %2
 Script: %3</source>
-        <translation>Wystąpił błąd podczas uruchamiana skryptu dla %1: %2
+        <translation type="obsolete">Wystąpił błąd podczas uruchamiana skryptu dla %1: %2
 Skrypt: %3</translation>
     </message>
 </context>
@@ -1610,32 +1671,32 @@ Skrypt: %3</translation>
     <message>
         <location filename="../tools/designer/src/lib/uilib/formbuilder.cpp" line="157"/>
         <source>QFormBuilder was unable to create a widget of the class &apos;%1&apos;.</source>
-        <translation>QFormBuilder nie mógł utworzyć widżetu klasy &apos;%1&apos;.</translation>
+        <translation type="obsolete">QFormBuilder nie mógł utworzyć widżetu klasy &apos;%1&apos;.</translation>
     </message>
     <message>
         <location filename="../tools/designer/src/lib/uilib/formbuilder.cpp" line="222"/>
         <source>The layout type `%1&apos; is not supported.</source>
-        <translation>Typ układu &apos;%1&apos; nie jest obsługiwany.</translation>
+        <translation type="obsolete">Typ układu &apos;%1&apos; nie jest obsługiwany.</translation>
     </message>
     <message>
         <location filename="../tools/designer/src/lib/uilib/properties.cpp" line="84"/>
         <source>The set-type property %1 could not be read.</source>
-        <translation>Nie można odczytać właściwości %1 typu zbiór.</translation>
+        <translation type="obsolete">Nie można odczytać właściwości %1 typu zbiór.</translation>
     </message>
     <message>
         <location filename="../tools/designer/src/lib/uilib/properties.cpp" line="102"/>
         <source>The enumeration-type property %1 could not be read.</source>
-        <translation>Nie można odczytać właściwości %1 typu wyliczeniowego.</translation>
+        <translation type="obsolete">Nie można odczytać właściwości %1 typu wyliczeniowego.</translation>
     </message>
     <message>
         <location filename="../tools/designer/src/lib/uilib/properties.cpp" line="282"/>
         <source>Reading properties of the type %1 is not supported yet.</source>
-        <translation>Odczytywanie właściwości typu %1 nie jest jeszcze obsługiwane.</translation>
+        <translation type="obsolete">Odczytywanie właściwości typu %1 nie jest jeszcze obsługiwane.</translation>
     </message>
     <message>
         <location filename="../tools/designer/src/lib/uilib/properties.cpp" line="544"/>
         <source>The property %1 could not be written. The type %2 is not supported yet.</source>
-        <translation>Nie można zapisać właściwości %1. Typ %2 nie jest jeszcze obsługiwany.</translation>
+        <translation type="obsolete">Nie można zapisać właściwości %1. Typ %2 nie jest jeszcze obsługiwany.</translation>
     </message>
 </context>
 <context>
@@ -1712,7 +1773,7 @@ Skrypt: %3</translation>
         <translation>Podczas przypisywania kolejności tabulacji: widżet &apos;%1&apos; nie został znaleziony.</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/uilib/abstractformbuilder.cpp" line="2195"/>
+        <location filename="../tools/designer/src/lib/uilib/abstractformbuilder.cpp" line="2196"/>
         <source>This version of the uitools library is linked without script support.</source>
         <translation>Ta wersja biblioteki uitools nie zawiera obsługi skryptów.</translation>
     </message>
@@ -1740,6 +1801,111 @@ Skrypt: %3</translation>
         <location filename="../tools/designer/src/lib/shared/qdesigner_taskmenu.cpp" line="89"/>
         <source>Object Name</source>
         <translation>Nazwa obiektu</translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/formeditor/iconcache.h" line="71"/>
+        <source>The icon specified by %1 could not be opened: %2</source>
+        <translation>Nie można otworzyć ikony określonej przez %1: %2</translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/widgetbox/widgetbox.cpp" line="467"/>
+        <source>The widgetbox could not load the file %1.</source>
+        <translation>Panel widżetów nie mógł wczytać pliku %1.</translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/widgetbox/widgetbox.cpp" line="482"/>
+        <source>The widgetbox could not parse the file %1. An error occurred at line %2: %3</source>
+        <translation>Panel widżetów nie może przetworzyć pliku %1. Wystąpił błąd w linii %2: %3</translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/widgetbox/widgetbox.cpp" line="574"/>
+        <source>The file %1 does not appear to be a widgetbox file.</source>
+        <translation>Plik %1 nie wygląda jak plik panela widżetów.</translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/widgetbox/widgetbox.cpp" line="582"/>
+        <source>An error occurred while parsing the file %1: %2 is not a valid child of the root element.</source>
+        <translation>Podczas przetwarzania pliku %1 wystąpił błąd: %2 nie jest poprawnym dzieckiem węzła głównego.</translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/widgetbox/widgetbox.cpp" line="1020"/>
+        <source>The class attribute for the class %1 does not match the class name %2.</source>
+        <translation>Atrybut &quot;class&quot; dla klasy %1 nie odpowiada nazwie klasy %2.</translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/widgetbox/widgetbox.cpp" line="1022"/>
+        <source>The class attribute for the class %1 is missing.</source>
+        <translation>Atrybut &quot;class&quot; dla klasy %1 nie istnieje.</translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_formbuilder.cpp" line="253"/>
+        <source>The style %1 could not be loaded.</source>
+        <translation>Nie można wczytać stylu %1.</translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_formbuilder.cpp" line="267"/>
+        <source>The preview failed to build.</source>
+        <translation>Nie można utworzyć podglądu.</translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_formbuilder.cpp" line="289"/>
+        <source>%1 - [Preview]</source>
+        <translation>%1 - [Podgląd]</translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_formbuilder.cpp" line="302"/>
+        <source>Designer</source>
+        <translation>Projektant</translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/scriptcommand.cpp" line="23"/>
+        <source>Change script</source>
+        <translation>Zmień skrypt</translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/widgetdatabase.cpp" line="326"/>
+        <source>A custom widget plugin whose class name (%1) matches that of an existing class has been found.</source>
+        <translation>Została znaleziona wtyczka widżeta, w której nazwa klasy (%1) odpowiada istniejącej już klasie.</translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/widgetfactory.cpp" line="103"/>
+        <source>The custom widget factory registered for widgets of class %1 returned 0.</source>
+        <translation>Fabryka widżetów użytkownika zarejestrowana dla widżetów klasy %1 zwróciła 0.</translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/widgetfactory.cpp" line="122"/>
+        <source>A class name mismatch occurred when creating a widget using the custom widget factory registered for widgets of class %1. It returned a widget of class %2.</source>
+        <translation>Wystąpiła niezgodność nazwy klasy podczas tworzenia widżeta przy pomocy fabryki widżetów użytkownika zarejestrowanej dla klasy %1. Zwrócony został widżet klasy %2.</translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/uilib/formbuilder.cpp" line="157"/>
+        <source>QFormBuilder was unable to create a widget of the class &apos;%1&apos;.</source>
+        <translation>QFormBuilder nie mógł utworzyć widżetu klasy &apos;%1&apos;.</translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/uilib/formbuilder.cpp" line="222"/>
+        <source>The layout type `%1&apos; is not supported.</source>
+        <translation>Typ układu &apos;%1&apos; nie jest obsługiwany.</translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/uilib/properties.cpp" line="84"/>
+        <source>The set-type property %1 could not be read.</source>
+        <translation>Nie można odczytać właściwości %1 typu zbiór.</translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/uilib/properties.cpp" line="102"/>
+        <source>The enumeration-type property %1 could not be read.</source>
+        <translation>Nie można odczytać właściwości %1 typu wyliczeniowego.</translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/uilib/properties.cpp" line="282"/>
+        <source>Reading properties of the type %1 is not supported yet.</source>
+        <translation>Odczytywanie właściwości typu %1 nie jest jeszcze obsługiwane.</translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/uilib/properties.cpp" line="544"/>
+        <source>The property %1 could not be written. The type %2 is not supported yet.</source>
+        <translation>Nie można zapisać właściwości %1. Typ %2 nie jest jeszcze obsługiwany.</translation>
     </message>
 </context>
 <context>
@@ -2267,12 +2433,12 @@ do którego chcesz wkleić a następnie wybierz ten kontener i wklej ponownie.</
         <translation>Usuń układ</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="1824"/>
+        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="1821"/>
         <source>Lay out</source>
         <translation>Ułóż</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="2202"/>
+        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="2194"/>
         <source>Drop widget</source>
         <translation>Upuść widżet</translation>
     </message>
@@ -3137,47 +3303,47 @@ Proszę wybrać inną nazwę.</translation>
     <message>
         <location filename="../tools/designer/src/lib/shared/qdesigner_promotion.cpp" line="120"/>
         <source>The base class %1 is invalid.</source>
-        <translation>Klasa podstawowa %1 jest niewłaściwa.</translation>
+        <translation type="obsolete">Klasa podstawowa %1 jest niewłaściwa.</translation>
     </message>
     <message>
         <location filename="../tools/designer/src/lib/shared/qdesigner_promotion.cpp" line="127"/>
         <source>The class %1 already exists.</source>
-        <translation>Klasa %1 już istnieje.</translation>
+        <translation type="obsolete">Klasa %1 już istnieje.</translation>
     </message>
     <message>
         <location filename="../tools/designer/src/lib/shared/qdesigner_promotion.cpp" line="136"/>
         <source>Promoted Widgets</source>
-        <translation>Pochodne widżety</translation>
+        <translation type="obsolete">Pochodne widżety</translation>
     </message>
     <message>
         <location filename="../tools/designer/src/lib/shared/qdesigner_promotion.cpp" line="262"/>
         <source>The class %1 cannot be removed</source>
-        <translation>Nie można usunąć klasy %1</translation>
+        <translation type="obsolete">Nie można usunąć klasy %1</translation>
     </message>
     <message>
         <location filename="../tools/designer/src/lib/shared/qdesigner_promotion.cpp" line="271"/>
         <source>The class %1 cannot be removed because it is still referenced.</source>
-        <translation>Nie można usunąć klasy %1 ponieważ w dalszym ciągu są do niej odwołania.</translation>
+        <translation type="obsolete">Nie można usunąć klasy %1 ponieważ w dalszym ciągu są do niej odwołania.</translation>
     </message>
     <message>
         <location filename="../tools/designer/src/lib/shared/qdesigner_promotion.cpp" line="281"/>
         <source>The class %1 cannot be renamed</source>
-        <translation>Nie można zmienić nazwy klasy %1</translation>
+        <translation type="obsolete">Nie można zmienić nazwy klasy %1</translation>
     </message>
     <message>
         <location filename="../tools/designer/src/lib/shared/qdesigner_promotion.cpp" line="288"/>
         <source>The class %1 cannot be renamed to an empty name.</source>
-        <translation>Nie można zmienić nazwy klasy %1 na pustą nazwę.</translation>
+        <translation type="obsolete">Nie można zmienić nazwy klasy %1 na pustą nazwę.</translation>
     </message>
     <message>
         <location filename="../tools/designer/src/lib/shared/qdesigner_promotion.cpp" line="293"/>
         <source>There is already a class named %1.</source>
-        <translation>Istnieje już klasa o nazwie %1.</translation>
+        <translation type="obsolete">Istnieje już klasa o nazwie %1.</translation>
     </message>
     <message>
         <location filename="../tools/designer/src/lib/shared/qdesigner_promotion.cpp" line="322"/>
         <source>Cannot set an empty include file.</source>
-        <translation>Nie można ustawić pustego pliku nagłówkowego.</translation>
+        <translation type="obsolete">Nie można ustawić pustego pliku nagłówkowego.</translation>
     </message>
 </context>
 <context>
@@ -3289,77 +3455,77 @@ Proszę wybrać inną nazwę.</translation>
     <message>
         <location filename="../tools/designer/src/components/formeditor/iconcache.h" line="71"/>
         <source>The icon specified by %1 could not be opened: %2</source>
-        <translation>Nie można otworzyć ikony określonej przez %1: %2</translation>
+        <translation type="obsolete">Nie można otworzyć ikony określonej przez %1: %2</translation>
     </message>
     <message>
         <location filename="../tools/designer/src/components/widgetbox/widgetbox.cpp" line="482"/>
         <source>The widgetbox could not parse the file %1. An error occurred at line %2: %3</source>
-        <translation>Panel widżetów nie może przetworzyć pliku %1. Wystąpił błąd w linii %2: %3</translation>
+        <translation type="obsolete">Panel widżetów nie może przetworzyć pliku %1. Wystąpił błąd w linii %2: %3</translation>
     </message>
     <message>
         <location filename="../tools/designer/src/components/widgetbox/widgetbox.cpp" line="574"/>
         <source>The file %1 does not appear to be a widgetbox file.</source>
-        <translation>Plik %1 nie wygląda jak plik panela widżetów.</translation>
+        <translation type="obsolete">Plik %1 nie wygląda jak plik panela widżetów.</translation>
     </message>
     <message>
         <location filename="../tools/designer/src/components/widgetbox/widgetbox.cpp" line="582"/>
         <source>An error occurred while parsing the file %1: %2 is not a valid child of the root element.</source>
-        <translation>Podczas przetwarzania pliku %1 wystąpił błąd: %2 nie jest poprawnym dzieckiem węzła głównego.</translation>
+        <translation type="obsolete">Podczas przetwarzania pliku %1 wystąpił błąd: %2 nie jest poprawnym dzieckiem węzła głównego.</translation>
     </message>
     <message>
         <location filename="../tools/designer/src/components/widgetbox/widgetbox.cpp" line="1020"/>
         <source>The class attribute for the class %1 does not match the class name %2.</source>
-        <translation>Atrybut &quot;class&quot; dla klasy %1 nie odpowiada nazwie klasy %2.</translation>
+        <translation type="obsolete">Atrybut &quot;class&quot; dla klasy %1 nie odpowiada nazwie klasy %2.</translation>
     </message>
     <message>
         <location filename="../tools/designer/src/components/widgetbox/widgetbox.cpp" line="1022"/>
         <source>The class attribute for the class %1 is missing.</source>
-        <translation>Atrybut &quot;class&quot; dla klasy %1 nie istnieje.</translation>
+        <translation type="obsolete">Atrybut &quot;class&quot; dla klasy %1 nie istnieje.</translation>
     </message>
     <message>
         <location filename="../tools/designer/src/lib/shared/qdesigner_formbuilder.cpp" line="252"/>
         <source>The style %1 could not be loaded.</source>
-        <translation>Nie można wczytać stylu %1.</translation>
+        <translation type="obsolete">Nie można wczytać stylu %1.</translation>
     </message>
     <message>
         <location filename="../tools/designer/src/lib/shared/qdesigner_formbuilder.cpp" line="266"/>
         <source>The preview failed to build.</source>
-        <translation>Nie można utworzyć podglądu.</translation>
+        <translation type="obsolete">Nie można utworzyć podglądu.</translation>
     </message>
     <message>
         <location filename="../tools/designer/src/lib/shared/qdesigner_formbuilder.cpp" line="288"/>
         <source>%1 - [Preview]</source>
-        <translation>%1 - [Podgląd]</translation>
+        <translation type="obsolete">%1 - [Podgląd]</translation>
     </message>
     <message>
         <location filename="../tools/designer/src/lib/shared/qdesigner_formbuilder.cpp" line="301"/>
         <source>Designer</source>
-        <translation>Projektant</translation>
+        <translation type="obsolete">Projektant</translation>
     </message>
     <message>
         <location filename="../tools/designer/src/lib/shared/scriptcommand.cpp" line="23"/>
         <source>Change script</source>
-        <translation>Zmień skrypt</translation>
+        <translation type="obsolete">Zmień skrypt</translation>
     </message>
     <message>
         <location filename="../tools/designer/src/lib/shared/widgetdatabase.cpp" line="326"/>
         <source>A custom widget plugin whose class name (%1) matches that of an existing class has been found.</source>
-        <translation>Została znaleziona wtyczka widżeta, w której nazwa klasy (%1) odpowiada istniejącej już klasie.</translation>
+        <translation type="obsolete">Została znaleziona wtyczka widżeta, w której nazwa klasy (%1) odpowiada istniejącej już klasie.</translation>
     </message>
     <message>
         <location filename="../tools/designer/src/lib/shared/widgetfactory.cpp" line="102"/>
         <source>The custom widget factory registered for widgets of class %1 returned 0.</source>
-        <translation>Fabryka widżetów użytkownika zarejestrowana dla widżetów klasy %1 zwróciła 0.</translation>
+        <translation type="obsolete">Fabryka widżetów użytkownika zarejestrowana dla widżetów klasy %1 zwróciła 0.</translation>
     </message>
     <message>
         <location filename="../tools/designer/src/lib/shared/widgetfactory.cpp" line="112"/>
         <source>A class name mismatch occurred when creating a widget using the custom widget factory registered for widgets of class %1. It returned a widget of class %2.</source>
-        <translation>Wystąpiła niezgodność nazwy klasy podczas tworzenia widżeta przy pomocy fabryki widżetów użytkownika zarejestrowanej dla klasy %1. Zwrócony został widżet klasy %2.</translation>
+        <translation type="obsolete">Wystąpiła niezgodność nazwy klasy podczas tworzenia widżeta przy pomocy fabryki widżetów użytkownika zarejestrowanej dla klasy %1. Zwrócony został widżet klasy %2.</translation>
     </message>
     <message>
         <location filename="../tools/designer/src/components/widgetbox/widgetbox.cpp" line="467"/>
         <source>The widgetbox could not load the file %1.</source>
-        <translation>Panel widżetów nie mógł wczytać pliku %1.</translation>
+        <translation type="obsolete">Panel widżetów nie mógł wczytać pliku %1.</translation>
     </message>
 </context>
 <context>
@@ -4571,7 +4737,7 @@ Proszę wybrać inną nazwę.</translation>
 <context>
     <name>qdesigner_internal::WidgetFactory</name>
     <message>
-        <location filename="../tools/designer/src/lib/shared/widgetfactory.cpp" line="184"/>
+        <location filename="../tools/designer/src/lib/shared/widgetfactory.cpp" line="194"/>
         <source>%1 Widget</source>
         <translation>Widżet %1</translation>
     </message>
