@@ -2088,6 +2088,19 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
                     XMoveResizeWindow(dpy, data.winid, q->pos().x(), q->pos().y(), w, h);
                 }
             } else if (isResize) {
+                if (!q->isVisible()
+                    && topData()->validWMState
+                    && !q->testAttribute(Qt::WA_PendingMoveEvent)) {
+                    /*
+                       even though we've not visible, we could be in a
+                       race w/ the window manager, and it may ignore
+                       our ConfigureRequest. setting posFromMove to
+                       false makes sure that doDeferredMap() in
+                       qapplication_x11.cpp keeps the window in the
+                       right place
+                    */
+                    topData()->posFromMove = false;
+                }
                 XResizeWindow(dpy, data.winid, w, h);
             }
         }

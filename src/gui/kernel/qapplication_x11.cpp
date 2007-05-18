@@ -360,6 +360,23 @@ public:
             adjustSize();
             setAttribute(Qt::WA_Resized, false);
         }
+
+        /*
+          workaround for WM's that throw away ConfigureRequests from the following:
+
+          window->hide();
+          window->move(x, y); // could also be resize(), move()+resize(), or setGeometry()
+          window->show();
+        */
+        QPoint p = d_func()->topData()->posFromMove ? pos() : geometry().topLeft();
+        QSize s = size();
+        XMoveResizeWindow(X11->display,
+                          internalWinId(),
+                          p.x(),
+                          p.y(),
+                          s.width(),
+                          s.height());
+
         setAttribute(Qt::WA_Mapped);
         d_func()->topData()->waitingForMapNotify = 1;
         XMapWindow(X11->display, internalWinId());
