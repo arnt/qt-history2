@@ -107,7 +107,7 @@ INSTALLS += htmldocs
 
 #translations
 translations.path=$$[QT_INSTALL_TRANSLATIONS]
-translations.files = $$QT_BUILD_TREE/translations/*.qm
+translations.files = $$QT_SOURCE_TREE/translations/*.qm
 INSTALLS += translations
 
 #qmake
