@@ -1405,25 +1405,31 @@ void QDockAreaLayoutInfo::apply(bool animate)
 
     for (int i = 0; i < item_list.size(); ++i) {
         QDockAreaLayoutItem &item = item_list[i];
-        if (item.gap || item.skip())
-            continue;
-        if (item.subinfo) {
-            item.subinfo->apply(animate);
-        } else {
-            Q_ASSERT(item.widgetItem);
-            QRect r = itemRect(i);
-            QWidget *w = item.widgetItem->widget();
 
-            QRect geo = w->geometry();
-            widgetAnimator->animate(w, r, animate);
-            if (w->isVisible()) {
-                QDockWidget *dw = qobject_cast<QDockWidget*>(w);
-                if (!r.isValid() && geo.right() >= 0 && geo.bottom() >= 0) {
-                    emit dw->visibilityChanged(false);
-                } else if (r.isValid()
-                            && (geo.right() < 0 || geo.bottom() < 0)) {
-                    emit dw->visibilityChanged(true);
-                }
+        if (item.gap)
+            continue;
+
+        if (item.subinfo != 0) {
+            item.subinfo->apply(animate);
+            continue;
+        }
+
+        if (item.skip())
+            continue;
+
+        Q_ASSERT(item.widgetItem);
+        QRect r = itemRect(i);
+        QWidget *w = item.widgetItem->widget();
+
+        QRect geo = w->geometry();
+        widgetAnimator->animate(w, r, animate);
+        if (w->isVisible()) {
+            QDockWidget *dw = qobject_cast<QDockWidget*>(w);
+            if (!r.isValid() && geo.right() >= 0 && geo.bottom() >= 0) {
+                emit dw->visibilityChanged(false);
+            } else if (r.isValid()
+                        && (geo.right() < 0 || geo.bottom() < 0)) {
+                emit dw->visibilityChanged(true);
             }
         }
     }
