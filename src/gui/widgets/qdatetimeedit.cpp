@@ -228,6 +228,10 @@ QDateTimeEdit::QDateTimeEdit(const QDate &date, QWidget *parent)
     d->value = QVariant(QDateTime(date.isValid() ? date : QDATETIMEEDIT_DATE_INITIAL, QDATETIMEEDIT_TIME_MIN));
     setDisplayFormat(d->defaultDateFormat);
     d->init();
+#ifdef QT_KEYPAD_NAVIGATION
+    if (QApplication::keypadNavigationEnabled())
+        setCalendarPopup(true);
+#endif
 }
 
 /*!
