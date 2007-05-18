@@ -93,7 +93,7 @@ Sprawdź ścieżkę i nazwę pliku.</translation>
     <message>
         <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="834"/>
         <source>Copy or Move a File</source>
-        <translation>Kopiuj lub przenieś plik</translation>
+        <translation>Skopiuj lub przenieś plik</translation>
     </message>
     <message>
         <location filename="../src/qt3support/dialogs/q3filedialog.cpp" line="2531"/>
@@ -430,7 +430,7 @@ na
     <message>
         <location filename="../src/qt3support/widgets/q3mainwindow.cpp" line="2050"/>
         <source>Line up</source>
-        <translation>Linia w górę</translation>
+        <translation>Wyrównaj położenie</translation>
     </message>
 </context>
 <context>
@@ -487,12 +487,12 @@ na
     <message>
         <location filename="../src/qt3support/text/q3textedit.cpp" line="5431"/>
         <source>&amp;Copy</source>
-        <translation>&amp;Kopiuj</translation>
+        <translation>S&amp;kopiuj</translation>
     </message>
     <message>
         <location filename="../src/qt3support/text/q3textedit.cpp" line="5430"/>
         <source>Cu&amp;t</source>
-        <translation>&amp;Wytnij</translation>
+        <translation>W&amp;ytnij</translation>
     </message>
     <message>
         <location filename="../src/qt3support/text/q3textedit.cpp" line="5433"/>
@@ -695,12 +695,12 @@ na
     <message>
         <location filename="../src/gui/widgets/qabstractspinbox.cpp" line="1150"/>
         <source>Step &amp;down</source>
-        <translation>W &amp;dół</translation>
+        <translation>Krok w &amp;dół</translation>
     </message>
     <message>
         <location filename="../src/gui/widgets/qabstractspinbox.cpp" line="1148"/>
         <source>&amp;Step up</source>
-        <translation>&amp;Do góry</translation>
+        <translation>Krok do &amp;góry</translation>
     </message>
     <message>
         <location filename="../src/gui/widgets/qabstractspinbox.cpp" line="1142"/>
@@ -713,22 +713,22 @@ na
     <message>
         <location filename="../src/gui/accessible/qaccessibleobject.cpp" line="346"/>
         <source>Activate</source>
-        <translation>Uruchomienie</translation>
+        <translation>Uaktywnij</translation>
     </message>
     <message>
         <location filename="../src/gui/accessible/qaccessibleobject.cpp" line="348"/>
         <source>Activates the program&apos;s main window</source>
-        <translation>Uruchamia główne okno programu</translation>
+        <translation>Uaktywnia główne okno programu</translation>
     </message>
     <message>
         <location filename="../src/gui/dialogs/qmessagebox.h" line="308"/>
         <source>Executable &apos;%1&apos; requires Qt %2, found Qt %3.</source>
-        <translation>Plik &apos;%1&apos; wymaga do uruchomienia Qt %2, znaleziono Qt %3.</translation>
+        <translation>Program &apos;%1&apos; wymaga do uruchomienia Qt %2, znaleziono Qt %3.</translation>
     </message>
     <message>
         <location filename="../src/gui/dialogs/qmessagebox.h" line="310"/>
         <source>Incompatible Qt Library Error</source>
-        <translation>Błąd biblioteki Qt</translation>
+        <translation>Niekompatybilność biblioteki Qt</translation>
     </message>
     <message>
         <location filename="../src/gui/kernel/qapplication.cpp" line="2012"/>
@@ -783,7 +783,7 @@ na
     <message>
         <location filename="../src/gui/dialogs/qcolordialog.cpp" line="1413"/>
         <source>&amp;Add to Custom Colors</source>
-        <translation>&amp;Dodaj do kolorów użytkownika</translation>
+        <translation>&amp;Dodaj do własnych kolorów</translation>
     </message>
     <message>
         <location filename="../src/gui/dialogs/qcolordialog.cpp" line="1210"/>
@@ -798,7 +798,7 @@ na
     <message>
         <location filename="../src/gui/dialogs/qcolordialog.cpp" line="1209"/>
         <source>Bl&amp;ue:</source>
-        <translation>&amp;Niebieski:</translation>
+        <translation>Błęki&amp;t:</translation>
     </message>
     <message>
         <location filename="../src/gui/dialogs/qcolordialog.cpp" line="1416"/>
@@ -808,7 +808,7 @@ na
     <message>
         <location filename="../src/gui/dialogs/qcolordialog.cpp" line="1411"/>
         <source>&amp;Custom colors</source>
-        <translation>Kolory &amp;użytkownika</translation>
+        <translation>Własne ko&amp;lory</translation>
     </message>
     <message>
         <location filename="../src/gui/dialogs/qcolordialog.cpp" line="1412"/>
@@ -818,7 +818,7 @@ na
     <message>
         <location filename="../src/gui/dialogs/qcolordialog.cpp" line="1208"/>
         <source>&amp;Green:</source>
-        <translation>&amp;Zielony:</translation>
+        <translation>&amp;Zieleń:</translation>
     </message>
     <message>
         <location filename="../src/gui/dialogs/qcolordialog.cpp" line="1204"/>
@@ -833,7 +833,7 @@ na
     <message>
         <location filename="../src/gui/dialogs/qcolordialog.cpp" line="1207"/>
         <source>&amp;Red:</source>
-        <translation>&amp;Czerwony:</translation>
+        <translation>&amp;Czerwień:</translation>
     </message>
     <message>
         <location filename="../src/gui/dialogs/qcolordialog.cpp" line="1205"/>
@@ -884,17 +884,17 @@ na
     <message>
         <location filename="../src/sql/drivers/db2/qsql_db2.cpp" line="1414"/>
         <source>Unable to commit transaction</source>
-        <translation>Nie można potwierdzić transakcji</translation>
+        <translation>Nie można dokonać transakcji</translation>
     </message>
     <message>
         <location filename="../src/sql/drivers/db2/qsql_db2.cpp" line="1431"/>
         <source>Unable to rollback transaction</source>
-        <translation>Nie można odwołać transakcji</translation>
+        <translation>Nie można cofnąć transakcji</translation>
     </message>
     <message>
         <location filename="../src/sql/drivers/db2/qsql_db2.cpp" line="1446"/>
         <source>Unable to set autocommit</source>
-        <translation>Nie można ustawić trybu autocommit</translation>
+        <translation>Nie można ustawić trybu automatycznego dokonywania transakcji</translation>
     </message>
 </context>
 <context>
@@ -912,7 +912,7 @@ na
     <message>
         <location filename="../src/sql/drivers/db2/qsql_db2.cpp" line="758"/>
         <source>Unable to bind variable</source>
-        <translation>Nie można przypisać zmiennej</translation>
+        <translation>Nie można powiązać zmiennej</translation>
     </message>
     <message>
         <location filename="../src/sql/drivers/db2/qsql_db2.cpp" line="849"/>
@@ -989,7 +989,7 @@ na
     <message>
         <location filename="../src/gui/widgets/qdialogbuttonbox.cpp" line="540"/>
         <source>Apply</source>
-        <translation>Zatwierdź</translation>
+        <translation>Zastosuj</translation>
     </message>
     <message>
         <location filename="../src/gui/widgets/qdialogbuttonbox.cpp" line="534"/>
@@ -1034,7 +1034,7 @@ na
     <message>
         <location filename="../src/gui/widgets/qdialogbuttonbox.cpp" line="566"/>
         <source>N&amp;o to All</source>
-        <translation>&amp;Nie na wszystko</translation>
+        <translation>Ni&amp;e dla wszystkich</translation>
     </message>
     <message>
         <location filename="../src/gui/widgets/qdialogbuttonbox.cpp" line="525"/>
@@ -1079,7 +1079,7 @@ na
     <message>
         <location filename="../src/gui/widgets/qdialogbuttonbox.cpp" line="560"/>
         <source>Yes to &amp;All</source>
-        <translation>Tak na &amp;wszystko</translation>
+        <translation>Ta&amp;k dla wszystkich</translation>
     </message>
 </context>
 <context>
@@ -1282,7 +1282,7 @@ Proszę o sprawdzenie podanej nazwy pliku.</translation>
     <message>
         <location filename="../src/gui/ui_qfiledialog.h" line="259"/>
         <source>Parent Directory</source>
-        <translation>Katalog domowy</translation>
+        <translation>Katalog wyżej</translation>
     </message>
     <message>
         <location filename="../src/gui/dialogs/qfiledialog.cpp" line="442"/>
@@ -1372,17 +1372,17 @@ Proszę o sprawdzenie podanej nazwy pliku.</translation>
     <message>
         <location filename="../src/gui/dialogs/qfiledialog.cpp" line="752"/>
         <source>File &amp;name:</source>
-        <translation type="unfinished">Nazwa &amp;pliku:</translation>
+        <translation>Nazwa &amp;pliku:</translation>
     </message>
     <message>
         <location filename="../src/gui/ui_qfiledialog.h" line="256"/>
         <source>Look in:</source>
-        <translation type="unfinished"></translation>
+        <translation>Szukaj w:</translation>
     </message>
     <message>
         <location filename="../src/gui/ui_qfiledialog.h" line="260"/>
         <source>Create New Folder</source>
-        <translation type="unfinished">Utwórz nowy katalog</translation>
+        <translation>Utwórz nowy katalog</translation>
     </message>
 </context>
 <context>
@@ -1495,7 +1495,7 @@ Proszę o sprawdzenie podanej nazwy pliku.</translation>
     <message>
         <location filename="../src/gui/dialogs/qfontdialog.cpp" line="790"/>
         <source>Stri&amp;keout</source>
-        <translation>&amp;Przekreślenie</translation>
+        <translation>Pr&amp;zekreślenie</translation>
     </message>
     <message>
         <location filename="../src/gui/dialogs/qfontdialog.cpp" line="791"/>
@@ -1537,7 +1537,7 @@ Proszę o sprawdzenie podanej nazwy pliku.</translation>
     <message>
         <location filename="../src/qt3support/network/q3ftp.cpp" line="2336"/>
         <source>Connection closed</source>
-        <translation>Połączenie zakończone</translation>
+        <translation>Połączenie zamknięte</translation>
     </message>
     <message>
         <location filename="../src/qt3support/network/q3ftp.cpp" line="985"/>
@@ -1547,7 +1547,7 @@ Proszę o sprawdzenie podanej nazwy pliku.</translation>
     <message>
         <location filename="../src/qt3support/network/q3ftp.cpp" line="722"/>
         <source>Connection refused to host %1</source>
-        <translation>Podłączenie do hosta %1 odrzucone</translation>
+        <translation>Połączenie do hosta %1 odrzucone</translation>
     </message>
     <message>
         <location filename="../src/qt3support/network/q3ftp.cpp" line="2329"/>
@@ -1680,7 +1680,7 @@ Proszę o sprawdzenie podanej nazwy pliku.</translation>
     <message>
         <location filename="../src/qt3support/network/q3http.cpp" line="2320"/>
         <source>Connection to %1 closed</source>
-        <translation>Połączenie do %1 zakończone</translation>
+        <translation>Połączenie do %1 zamknięte</translation>
     </message>
     <message>
         <location filename="../src/qt3support/network/q3http.cpp" line="2314"/>
@@ -1700,7 +1700,7 @@ Proszę o sprawdzenie podanej nazwy pliku.</translation>
     <message>
         <location filename="../src/qt3support/network/q3http.cpp" line="1864"/>
         <source>HTTP request failed</source>
-        <translation>Żadanie HTTP błędne</translation>
+        <translation>Komenda HTTP zakończona błędem</translation>
     </message>
     <message>
         <location filename="../src/qt3support/network/q3http.cpp" line="2020"/>
@@ -1720,12 +1720,12 @@ Proszę o sprawdzenie podanej nazwy pliku.</translation>
     <message>
         <location filename="../src/qt3support/network/q3http.cpp" line="1379"/>
         <source>Request aborted</source>
-        <translation>Żądanie przerwane</translation>
+        <translation>Komenda przerwana</translation>
     </message>
     <message>
         <location filename="../src/qt3support/network/q3http.cpp" line="1820"/>
         <source>Server closed connection unexpectedly</source>
-        <translation>Serwer zakończył połączenie niespodziewanie</translation>
+        <translation>Serwer niespodziewanie zakończył połączenie</translation>
     </message>
     <message>
         <location filename="../src/qt3support/network/q3http.cpp" line="1749"/>
@@ -1735,17 +1735,17 @@ Proszę o sprawdzenie podanej nazwy pliku.</translation>
     <message>
         <location filename="../src/qt3support/network/q3http.cpp" line="1816"/>
         <source>Wrong content length</source>
-        <translation>Błędna długość nagłówka</translation>
+        <translation>Błędna długość zawartości</translation>
     </message>
     <message>
         <location filename="../src/network/qhttp.cpp" line="2652"/>
         <source>Proxy authentication required</source>
-        <translation>Żądanie autoryzacji proxy</translation>
+        <translation>Wymagana autoryzacja pośrednika</translation>
     </message>
     <message>
         <location filename="../src/network/qhttp.cpp" line="2656"/>
         <source>Authentication required</source>
-        <translation>Żądanie autoryzacji</translation>
+        <translation>Autoryzacja wymagana</translation>
     </message>
 </context>
 <context>
@@ -1753,7 +1753,7 @@ Proszę o sprawdzenie podanej nazwy pliku.</translation>
     <message>
         <location filename="../src/network/qhttpsocketengine.cpp" line="492"/>
         <source>Authentication required</source>
-        <translation>Żądanie autoryzacji</translation>
+        <translation>Autoryzacja wymagana</translation>
     </message>
 </context>
 <context>
@@ -1761,7 +1761,7 @@ Proszę o sprawdzenie podanej nazwy pliku.</translation>
     <message>
         <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="1377"/>
         <source>Could not start transaction</source>
-        <translation>Nie można uruchomić transakcji</translation>
+        <translation>Nie można rozpocząć transakcji</translation>
     </message>
     <message>
         <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="1344"/>
@@ -1771,12 +1771,12 @@ Proszę o sprawdzenie podanej nazwy pliku.</translation>
     <message>
         <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="1390"/>
         <source>Unable to commit transaction</source>
-        <translation>Nie można potwierdzić transakcji</translation>
+        <translation>Nie można dokonać transakcji</translation>
     </message>
     <message>
         <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="1403"/>
         <source>Unable to rollback transaction</source>
-        <translation>Nie można odwołać transakcji</translation>
+        <translation>Nie można cofnąć transakcji</translation>
     </message>
 </context>
 <context>
@@ -1799,7 +1799,7 @@ Proszę o sprawdzenie podanej nazwy pliku.</translation>
     <message>
         <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="1022"/>
         <source>Could not fetch next item</source>
-        <translation>Nie można pobrać kolejnego wpisu</translation>
+        <translation>Nie można pobrać kolejnego elementu</translation>
     </message>
     <message>
         <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="703"/>
@@ -1809,7 +1809,7 @@ Proszę o sprawdzenie podanej nazwy pliku.</translation>
     <message>
         <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="546"/>
         <source>Could not get array data</source>
-        <translation>Nie można pobrać tablicy z danymi</translation>
+        <translation>Nie można pobrać danych z tablicy</translation>
     </message>
     <message>
         <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="758"/>
@@ -1829,7 +1829,7 @@ Proszę o sprawdzenie podanej nazwy pliku.</translation>
     <message>
         <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="778"/>
         <source>Could not start transaction</source>
-        <translation>Nie można uruchomić transakcji</translation>
+        <translation>Nie można rozpocząć transakcji</translation>
     </message>
     <message>
         <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="972"/>
@@ -1839,12 +1839,12 @@ Proszę o sprawdzenie podanej nazwy pliku.</translation>
     <message>
         <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="797"/>
         <source>Unable to commit transaction</source>
-        <translation>Nie można potwierdzić transakcji</translation>
+        <translation>Nie można dokonać transakcji</translation>
     </message>
     <message>
         <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="353"/>
         <source>Unable to create BLOB</source>
-        <translation>Nie można utworzyć danej typu BLOB</translation>
+        <translation>Nie można utworzyć obiektu typu BLOB</translation>
     </message>
     <message>
         <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="980"/>
@@ -1854,17 +1854,17 @@ Proszę o sprawdzenie podanej nazwy pliku.</translation>
     <message>
         <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="373"/>
         <source>Unable to open BLOB</source>
-        <translation>Nie można otworzyć danej typu BLOB</translation>
+        <translation>Nie można otworzyć obiektu typu BLOB</translation>
     </message>
     <message>
         <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="391"/>
         <source>Unable to read BLOB</source>
-        <translation>Nie można odczytać danej typu BLOB</translation>
+        <translation>Nie można odczytać obiektu typu BLOB</translation>
     </message>
     <message>
         <location filename="../src/sql/drivers/ibase/qsql_ibase.cpp" line="359"/>
         <source>Unable to write BLOB</source>
-        <translation>Nie można zapisać danej typu BLOB</translation>
+        <translation>Nie można zapisać obiektu typu BLOB</translation>
     </message>
 </context>
 <context>
@@ -1986,17 +1986,17 @@ Proszę o sprawdzenie podanej nazwy pliku.</translation>
     <message>
         <location filename="../src/gui/widgets/qlineedit.cpp" line="2497"/>
         <source>&amp;Copy</source>
-        <translation>&amp;Kopiuj</translation>
+        <translation>S&amp;kopiuj</translation>
     </message>
     <message>
         <location filename="../src/gui/widgets/qlineedit.cpp" line="2495"/>
         <source>Cu&amp;t</source>
-        <translation>&amp;Wytnij</translation>
+        <translation>W&amp;ytnij</translation>
     </message>
     <message>
         <location filename="../src/gui/widgets/qlineedit.cpp" line="2502"/>
         <source>Delete</source>
-        <translation>Skasuj</translation>
+        <translation>Usuń</translation>
     </message>
     <message>
         <location filename="../src/gui/widgets/qlineedit.cpp" line="2499"/>
@@ -2044,7 +2044,7 @@ Proszę o sprawdzenie podanej nazwy pliku.</translation>
     <message>
         <location filename="../src/sql/drivers/mysql/qsql_mysql.cpp" line="1238"/>
         <source>Unable to rollback transaction</source>
-        <translation>Nie można odwołać transakcji</translation>
+        <translation>Nie można cofnąć transakcji</translation>
     </message>
 </context>
 <context>
@@ -2057,7 +2057,7 @@ Proszę o sprawdzenie podanej nazwy pliku.</translation>
     <message>
         <location filename="../src/sql/drivers/mysql/qsql_mysql.cpp" line="849"/>
         <source>Unable to bind value</source>
-        <translation>Nie można przypisać wartości</translation>
+        <translation>Nie można powiązać wartości</translation>
     </message>
     <message>
         <location filename="../src/sql/drivers/mysql/qsql_mysql.cpp" line="594"/>
@@ -2082,7 +2082,7 @@ Proszę o sprawdzenie podanej nazwy pliku.</translation>
     <message>
         <location filename="../src/sql/drivers/mysql/qsql_mysql.cpp" line="762"/>
         <source>Unable to reset statement</source>
-        <translation>Nie można wyczyścić polecenia</translation>
+        <translation>Nie można skasować polecenia</translation>
     </message>
     <message>
         <location filename="../src/sql/drivers/mysql/qsql_mysql.cpp" line="600"/>
@@ -2125,7 +2125,7 @@ Proszę o sprawdzenie podanej nazwy pliku.</translation>
     <message>
         <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="896"/>
         <source>&amp;Move</source>
-        <translation>&amp;Przenieś</translation>
+        <translation>Prze&amp;nieś</translation>
     </message>
     <message>
         <location filename="../src/gui/widgets/qmdisubwindow.cpp" line="897"/>
@@ -2186,7 +2186,7 @@ Proszę o sprawdzenie podanej nazwy pliku.</translation>
     <message>
         <location filename="../src/gui/widgets/qmenu_mac.cpp" line="315"/>
         <source>Preference</source>
-        <translation>Wyróżnienie</translation>
+        <translation>Preferencja</translation>
     </message>
     <message>
         <location filename="../src/gui/widgets/qmenu_mac.cpp" line="316"/>
@@ -2226,7 +2226,7 @@ Proszę o sprawdzenie podanej nazwy pliku.</translation>
     <message>
         <location filename="../src/gui/widgets/qmenu_mac.cpp" line="360"/>
         <source>Preferences</source>
-        <translation>Wyróżnienia</translation>
+        <translation>Preferencje</translation>
     </message>
     <message>
         <location filename="../src/gui/widgets/qmenu_mac.cpp" line="362"/>
@@ -2239,12 +2239,12 @@ Proszę o sprawdzenie podanej nazwy pliku.</translation>
     <message>
         <location filename="../src/gui/dialogs/qmessagebox.cpp" line="1635"/>
         <source>&lt;h3&gt;About Qt&lt;/h3&gt;%1&lt;p&gt;Qt is a C++ toolkit for cross-platform application development.&lt;/p&gt;&lt;p&gt;Qt provides single-source portability across MS&amp;nbsp;Windows, Mac&amp;nbsp;OS&amp;nbsp;X, Linux, and all major commercial Unix variants. Qt is also available for embedded devices as Qtopia Core.&lt;/p&gt;&lt;p&gt;Qt is a Trolltech product. See &lt;a href=&quot;http://www.trolltech.com/qt/&quot;&gt;www.trolltech.com/qt/&lt;/a&gt; for more information.&lt;/p&gt;</source>
-        <translation>&lt;h3&gt;Informacje o Qt&lt;/h3&gt;%1&lt;p&gt;Qt jest biblioteką C++ dla tworzenia oprogramowania multi-platformowego.&lt;/p&gt;&lt;p&gt;Qt pozwala wykorzystywać jeden kod zarówno dla MS&amp;nbsp;Windows, Mac&amp;nbsp;OS&amp;nbsp;X, Linux oraz pozostałych wersji komercyjnych Unix&apos;ów. Qt jest również dostępne dla urządzeń wbudowanych jako Qtopia Core.&lt;/p&gt;&lt;p&gt;Qt jest produktem Trolltech&apos;a. Sprawdź &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt; aby dowiedzieć się więcej.&lt;/p&gt;</translation>
+        <translation>&lt;h3&gt;Informacje o Qt&lt;/h3&gt;%1&lt;p&gt;Qt jest biblioteką C++ dla tworzenia oprogramowania multi-platformowego.&lt;/p&gt;&lt;p&gt;Qt pozwala na pisanie przenośnego kodu zarówno dla MS&amp;nbsp;Windows, Mac&amp;nbsp;OS&amp;nbsp;X, Linux oraz pozostałych wersji komercyjnych Unix&apos;ów. Qt jest również dostępne dla urządzeń specjalizowanych i przenośnych jako Qtopia Core.&lt;/p&gt;&lt;p&gt;Qt jest produktem Trolltech&apos;a. Sprawdź &lt;a href=&quot;http://www.trolltech.com/qt/&quot;&gt;www.trolltech.com/qt/&lt;/a&gt; aby dowiedzieć się więcej.&lt;/p&gt;</translation>
     </message>
     <message>
         <location filename="../src/gui/dialogs/qmessagebox.cpp" line="1644"/>
         <source>&lt;p&gt;This program uses Qt Open Source Edition version %1.&lt;/p&gt;&lt;p&gt;Qt Open Source Edition is intended for the development of Open Source applications. You need a commercial Qt license for development of proprietary (closed source) applications.&lt;/p&gt;&lt;p&gt;Please see &lt;a href=&quot;http://www.trolltech.com/company/model/&quot;&gt;www.trolltech.com/company/model/&lt;/a&gt; for an overview of Qt licensing.&lt;/p&gt;</source>
-        <translation>&lt;p&gt; Ten program używa QT Open Source Edition wersja %1.&lt;/p&gt;&lt;p&gt;Qt Open Source Edition jest przeznaczone dla pisania aplikacji open source&apos;owych. W przypadku aplikacji zamkniętych (bez kodu źródłowego) wymagane jest licencja komercyjna Qt.&lt;/p&gt;&lt;p&gt;Sprawdź  &lt;a href=&quot;http://www.trolltech.com/company/model/&quot;&gt;www.trolltech.com/company/model/&lt;/a&gt; opisujący sposób licencjonowania Qt.&lt;/p&gt;</translation>
+        <translation type="unfinished">&lt;p&gt; Ten program używa QT Open Source Edition wersja %1.&lt;/p&gt;&lt;p&gt;Qt Open Source Edition jest przeznaczone dla pisania aplikacji open source&apos;owych. W przypadku aplikacji zamkniętych (bez kodu źródłowego) wymagane jest licencja komercyjna Qt.&lt;/p&gt;&lt;p&gt;Sprawdź  &lt;a href=&quot;http://www.trolltech.com/company/model/&quot;&gt;www.trolltech.com/company/model/&lt;/a&gt; opisujący sposób licencjonowania Qt.&lt;/p&gt;</translation>
     </message>
     <message>
         <location filename="../src/gui/dialogs/qmessagebox.cpp" line="1636"/>
@@ -2282,7 +2282,7 @@ Proszę o sprawdzenie podanej nazwy pliku.</translation>
     <message>
         <location filename="../src/plugins/inputmethods/imsw-multi/qmultiinputcontext.cpp" line="55"/>
         <source>Select IM</source>
-        <translation>Wybierz IM</translation>
+        <translation>Wybierz metodę wprowadzania</translation>
     </message>
 </context>
 <context>
@@ -2290,12 +2290,12 @@ Proszę o sprawdzenie podanej nazwy pliku.</translation>
     <message>
         <location filename="../src/plugins/inputmethods/imsw-multi/qmultiinputcontextplugin.cpp" line="66"/>
         <source>Multiple input method switcher</source>
-        <translation>Przełącznik trybu wielo - wejścia</translation>
+        <translation>Przełącznik metody wprowadzania</translation>
     </message>
     <message>
         <location filename="../src/plugins/inputmethods/imsw-multi/qmultiinputcontextplugin.cpp" line="73"/>
         <source>Multiple input method switcher that uses the context menu of the text widgets</source>
-        <translation>Przełącznik trybu wielo - wejścia, który używa menu kontekstowego wigetów tekstowych</translation>
+        <translation>Przełącznik metody wprowadzania który używa menu podręcznego w widżetach tekstowych</translation>
     </message>
 </context>
 <context>
@@ -2445,7 +2445,7 @@ Proszę o sprawdzenie podanej nazwy pliku.</translation>
     <message>
         <location filename="../src/sql/drivers/oci/qsql_oci.cpp" line="1283"/>
         <source>Unable to bind column for batch execute</source>
-        <translation>Nie można powiązać kolumny w trybie wsadowym</translation>
+        <translation>Nie można powiązać kolumny dla wykonania zestawu poleceń</translation>
     </message>
     <message>
         <location filename="../src/sql/drivers/oci/qsql_oci.cpp" line="1297"/>
@@ -2470,7 +2470,7 @@ Proszę o sprawdzenie podanej nazwy pliku.</translation>
     <message>
         <location filename="../src/sql/drivers/oci/qsql_oci.cpp" line="1664"/>
         <source>Unable to bind value</source>
-        <translation>Nie można przypisać wartości</translation>
+        <translation>Nie można powiązać wartości</translation>
     </message>
     <message>
         <location filename="../src/sql/drivers/oci/qsql_oci.cpp" line="1689"/>
@@ -2498,22 +2498,22 @@ Proszę o sprawdzenie podanej nazwy pliku.</translation>
     <message>
         <location filename="../src/sql/drivers/odbc/qsql_odbc.cpp" line="1525"/>
         <source>Unable to connect - Driver doesn&apos;t support all needed functionality</source>
-        <translation>Nie można nawiązać połączenia - sterownik nie obsługuje wszystkich potrzebnych funkcji</translation>
+        <translation>Nie można nawiązać połączenia - sterownik nie obsługuje całej potrzebnej funkcjonalności</translation>
     </message>
     <message>
         <location filename="../src/sql/drivers/odbc/qsql_odbc.cpp" line="1708"/>
         <source>Unable to disable autocommit</source>
-        <translation>Nie można wyłączyć trybu autocommit</translation>
+        <translation>Nie można wyłączyć trybu automatycznego dokonywania transakcji</translation>
     </message>
     <message>
         <location filename="../src/sql/drivers/odbc/qsql_odbc.cpp" line="1757"/>
         <source>Unable to enable autocommit</source>
-        <translation>Nie można ustawić trybu autocommit</translation>
+        <translation>Nie można włączyć trybu automatycznego dokonywania transakcji</translation>
     </message>
     <message>
         <location filename="../src/sql/drivers/odbc/qsql_odbc.cpp" line="1742"/>
         <source>Unable to rollback transaction</source>
-        <translation>Nie można odwołać transakcji</translation>
+        <translation>Nie można cofnąć transakcji</translation>
     </message>
 </context>
 <context>
@@ -2526,7 +2526,7 @@ Proszę o sprawdzenie podanej nazwy pliku.</translation>
     <message>
         <location filename="../src/sql/drivers/odbc/qsql_odbc.cpp" line="1308"/>
         <source>Unable to bind variable</source>
-        <translation>Nie można przypisać zmiennej</translation>
+        <translation>Nie można powiązać zmiennej</translation>
     </message>
     <message>
         <location filename="../src/sql/drivers/odbc/qsql_odbc.cpp" line="1317"/>
@@ -2536,7 +2536,7 @@ Proszę o sprawdzenie podanej nazwy pliku.</translation>
     <message>
         <location filename="../src/sql/drivers/odbc/qsql_odbc.cpp" line="820"/>
         <source>Unable to fetch next</source>
-        <translation>Nie można pobrać kolejnego wiersza danych</translation>
+        <translation>Nie można pobrać kolejnych danych</translation>
     </message>
     <message>
         <location filename="../src/sql/drivers/odbc/qsql_odbc.cpp" line="1073"/>
@@ -2549,7 +2549,7 @@ Proszę o sprawdzenie podanej nazwy pliku.</translation>
     <message>
         <location filename="../src/gui/util/qdesktopservices_mac.cpp" line="147"/>
         <source>Home</source>
-        <translation>Strona startowa</translation>
+        <translation>Strona domowa</translation>
     </message>
 </context>
 <context>
@@ -2567,7 +2567,7 @@ Proszę o sprawdzenie podanej nazwy pliku.</translation>
     <message>
         <location filename="../src/sql/drivers/psql/qsql_psql.cpp" line="620"/>
         <source>Could not rollback transaction</source>
-        <translation>Nie można odwołać transakcji</translation>
+        <translation>Nie można cofnąć transakcji</translation>
     </message>
     <message>
         <location filename="../src/sql/drivers/psql/qsql_psql.cpp" line="548"/>
@@ -2925,7 +2925,7 @@ Proszę wybrać inną nazwę pliku.</translation>
         <source>%1 already exists.
 Do you want to overwrite it?</source>
         <translation>%1 już istnieje.
-Czy chcesz zamienić?</translation>
+Czy chcesz nadpisać?</translation>
     </message>
     <message>
         <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="1174"/>
@@ -2937,17 +2937,17 @@ Proszę wybrać inną nazwę pliku.</translation>
     <message>
         <location filename="../src/gui/dialogs/qprintdialog_qws.cpp" line="118"/>
         <source>File exists</source>
-        <translation type="unfinished"></translation>
+        <translation>Plik istnieje</translation>
     </message>
     <message>
         <location filename="../src/gui/dialogs/qprintdialog_qws.cpp" line="119"/>
         <source>&lt;qt&gt;Do you want to overwrite it?&lt;/qt&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;qt&gt;Czy chcesz nadpisać?&lt;/qt&gt;</translation>
     </message>
     <message>
         <location filename="../src/gui/dialogs/qprintdialog_qws.cpp" line="346"/>
         <source>Print selection</source>
-        <translation type="unfinished"></translation>
+        <translation>Wydrukuj zaznaczone</translation>
     </message>
 </context>
 <context>
@@ -2997,12 +2997,12 @@ Proszę wybrać inną nazwę pliku.</translation>
     <message>
         <location filename="../src/corelib/tools/qregexp.cpp" line="33"/>
         <source>bad char class syntax</source>
-        <translation>niepoprawny znak składni klasy</translation>
+        <translation type="unfinished">niepoprawny znak składni klasy</translation>
     </message>
     <message>
         <location filename="../src/corelib/tools/qregexp.cpp" line="34"/>
         <source>bad lookahead syntax</source>
-        <translation>niepoprawna składnia widoku</translation>
+        <translation type="unfinished">niepoprawna składnia widoku</translation>
     </message>
     <message>
         <location filename="../src/corelib/tools/qregexp.cpp" line="35"/>
@@ -3045,7 +3045,7 @@ Proszę wybrać inną nazwę pliku.</translation>
     <message>
         <location filename="../src/sql/drivers/sqlite2/qsql_sqlite2.cpp" line="346"/>
         <source>Error to open database</source>
-        <translation>Nie można utworzyć bazy danych</translation>
+        <translation>Nie można otworzyć bazy danych</translation>
     </message>
     <message>
         <location filename="../src/sql/drivers/sqlite2/qsql_sqlite2.cpp" line="387"/>
@@ -3055,12 +3055,12 @@ Proszę wybrać inną nazwę pliku.</translation>
     <message>
         <location filename="../src/sql/drivers/sqlite2/qsql_sqlite2.cpp" line="404"/>
         <source>Unable to commit transaction</source>
-        <translation>Nie można potwierdzić transakcji</translation>
+        <translation>Nie można dokonać transakcji</translation>
     </message>
     <message>
         <location filename="../src/sql/drivers/sqlite2/qsql_sqlite2.cpp" line="421"/>
         <source>Unable to rollback Transaction</source>
-        <translation>Nie można odwołać transakcji</translation>
+        <translation>Nie można cofnąć transakcji</translation>
     </message>
 </context>
 <context>
@@ -3096,12 +3096,12 @@ Proszę wybrać inną nazwę pliku.</translation>
     <message>
         <location filename="../src/sql/drivers/sqlite/qsql_sqlite.cpp" line="507"/>
         <source>Unable to commit transaction</source>
-        <translation>Nie można potwierdzić transakcji</translation>
+        <translation>Nie można dokonać transakcji</translation>
     </message>
     <message>
         <location filename="../src/sql/drivers/sqlite/qsql_sqlite.cpp" line="522"/>
         <source>Unable to roll back transaction</source>
-        <translation>Nie można odwołać transakcji</translation>
+        <translation>Nie można cofnąć transakcji</translation>
     </message>
 </context>
 <context>
@@ -3129,7 +3129,7 @@ Proszę wybrać inną nazwę pliku.</translation>
     <message>
         <location filename="../src/sql/drivers/sqlite/qsql_sqlite.cpp" line="284"/>
         <source>Unable to reset statement</source>
-        <translation>Nie można wyczyścić polecenia</translation>
+        <translation>Nie można skasować polecenia</translation>
     </message>
 </context>
 <context>
@@ -3137,7 +3137,7 @@ Proszę wybrać inną nazwę pliku.</translation>
     <message>
         <location filename="../src/gui/widgets/qscrollbar.cpp" line="401"/>
         <source>Bottom</source>
-        <translation>Dół</translation>
+        <translation>W dół</translation>
     </message>
     <message>
         <location filename="../src/gui/widgets/qscrollbar.cpp" line="399"/>
@@ -3465,7 +3465,7 @@ Proszę wybrać inną nazwę pliku.</translation>
     <message>
         <location filename="../src/gui/kernel/qkeysequence.cpp" line="337"/>
         <source>Launch Mail</source>
-        <translation>Wyślij email</translation>
+        <translation>Uruchom email</translation>
     </message>
     <message>
         <location filename="../src/gui/kernel/qkeysequence.cpp" line="338"/>
@@ -3480,7 +3480,7 @@ Proszę wybrać inną nazwę pliku.</translation>
     <message>
         <location filename="../src/gui/kernel/qkeysequence.cpp" line="330"/>
         <source>Media Next</source>
-        <translation>Następne ścieżka </translation>
+        <translation>Następna ścieżka </translation>
     </message>
     <message>
         <location filename="../src/gui/kernel/qkeysequence.cpp" line="327"/>
@@ -3670,7 +3670,7 @@ Proszę wybrać inną nazwę pliku.</translation>
     <message>
         <location filename="../src/gui/kernel/qkeysequence.cpp" line="321"/>
         <source>Volume Up</source>
-        <translation>Podgłoś</translation>
+        <translation>Podgłośnij</translation>
     </message>
     <message>
         <location filename="../src/gui/kernel/qkeysequence.cpp" line="373"/>
@@ -3795,7 +3795,7 @@ Proszę wybrać inną nazwę pliku.</translation>
     <message>
         <location filename="../src/network/qsslsocket_openssl.cpp" line="582"/>
         <source>Error during SSL handshake: %1</source>
-        <translation>Błąd podczas wymiany (handshake) SSL: %1</translation>
+        <translation>Błąd podczas uzgadniania SSL: %1</translation>
     </message>
     <message>
         <location filename="../src/network/qsslsocket_openssl.cpp" line="218"/>
@@ -3820,22 +3820,22 @@ Proszę wybrać inną nazwę pliku.</translation>
     <message>
         <location filename="../src/network/qsslsocket_openssl.cpp" line="256"/>
         <source>Cannot provide a certificate with no key, %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można dostarczyć certyfikatu bez klucza, %1</translation>
     </message>
     <message>
         <location filename="../src/network/qsslsocket_openssl.cpp" line="263"/>
         <source>Error loading local certificate, %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd ładowania lokalnego certyfikatu, %1</translation>
     </message>
     <message>
         <location filename="../src/network/qsslsocket_openssl.cpp" line="275"/>
         <source>Error loading private key, %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd ładowania prywatnego klucza, %1</translation>
     </message>
     <message>
         <location filename="../src/network/qsslsocket_openssl.cpp" line="282"/>
         <source>Private key do not certificate public key, %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Prywatny klucz nie zgadza się z publicznym, %1</translation>
     </message>
 </context>
 <context>
@@ -3877,12 +3877,12 @@ Proszę wybrać inną nazwę pliku.</translation>
     <message>
         <location filename="../src/gui/text/qtextcontrol.cpp" line="1872"/>
         <source>&amp;Copy</source>
-        <translation>&amp;Kopiuj</translation>
+        <translation>S&amp;kopiuj</translation>
     </message>
     <message>
         <location filename="../src/gui/text/qtextcontrol.cpp" line="1879"/>
         <source>Copy &amp;Link Location</source>
-        <translation>Kopiuj &amp;adres</translation>
+        <translation>Skopiuj &amp;adres</translation>
     </message>
     <message>
         <location filename="../src/gui/text/qtextcontrol.cpp" line="1867"/>
@@ -3933,7 +3933,7 @@ Proszę wybrać inną nazwę pliku.</translation>
     <message>
         <location filename="../src/network/qudpsocket.cpp" line="132"/>
         <source>This platform does not support IPv6</source>
-        <translation>Ta platforma nie wspomaga IPv6</translation>
+        <translation>Ta platforma nie wspiera IPv6</translation>
     </message>
 </context>
 <context>
@@ -3946,7 +3946,7 @@ Proszę wybrać inną nazwę pliku.</translation>
     <message>
         <location filename="../src/gui/util/qundogroup.cpp" line="341"/>
         <source>Undo</source>
-        <translation>Przywróć</translation>
+        <translation>Cofnij</translation>
     </message>
 </context>
 <context>
@@ -3967,7 +3967,7 @@ Proszę wybrać inną nazwę pliku.</translation>
     <message>
         <location filename="../src/gui/util/qundostack.cpp" line="816"/>
         <source>Undo</source>
-        <translation>Przywróć</translation>
+        <translation>Cofnij</translation>
     </message>
 </context>
 <context>
@@ -4025,7 +4025,7 @@ Proszę wybrać inną nazwę pliku.</translation>
     <message>
         <location filename="../src/gui/widgets/qtextedit.cpp" line="2590"/>
         <source>ZWSP Zero width space</source>
-        <translation>ZWSP Obszar zerowej długości</translation>
+        <translation>ZWSP Przerwa zerowej długości</translation>
     </message>
 </context>
 <context>
@@ -4059,7 +4059,7 @@ Proszę wybrać inną nazwę pliku.</translation>
     <message>
         <location filename="../src/gui/dialogs/qwizard.cpp" line="565"/>
         <source>Commit</source>
-        <translation>Zatwierdź</translation>
+        <translation>Dokonaj</translation>
     </message>
     <message>
         <location filename="../src/gui/dialogs/qwizard.cpp" line="557"/>
@@ -4170,12 +4170,12 @@ Proszę wybrać inną nazwę pliku.</translation>
     <message>
         <location filename="../src/xml/qxml.cpp" line="42"/>
         <source>encoding declaration or standalone declaration expected while reading the XML declaration</source>
-        <translation>oczekiwano deklaracja encoding lub standalone podczas odczytywania deklaracji XML</translation>
+        <translation>oczekiwano deklaracji &quot;encoding&quot; lub &quot;standalone&quot; podczas odczytywania deklaracji XML</translation>
     </message>
     <message>
         <location filename="../src/xml/qxml.cpp" line="55"/>
         <source>error in the text declaration of an external entity</source>
-        <translation>bład w deklaracji text zewnętrznej jednostki</translation>
+        <translation>bład w deklaracji &quot;text&quot; zewnętrznej jednostki</translation>
     </message>
     <message>
         <location filename="../src/xml/qxml.cpp" line="46"/>
@@ -4210,17 +4210,17 @@ Proszę wybrać inną nazwę pliku.</translation>
     <message>
         <location filename="../src/xml/qxml.cpp" line="49"/>
         <source>external parsed general entity reference not allowed in attribute value</source>
-        <translation>zewnętrzne odwołanie do jednostki parsowalnej nie dozwolone ja wartość atrybutu </translation>
+        <translation>odwołanie do jednostki ogólnej zewnętrznie przetworzonej nie dozwolone dla wartości atrybutu </translation>
     </message>
     <message>
         <location filename="../src/xml/qxml.cpp" line="50"/>
         <source>external parsed general entity reference not allowed in DTD</source>
-        <translation>zewnętrzne odwołanie do jednostki parsowalnej nie dozwolone w DTD</translation>
+        <translation>odwołanie do jednostki ogólnej zewnętrznie przetworzonej nie dozwolone w DTD</translation>
     </message>
     <message>
         <location filename="../src/xml/qxml.cpp" line="48"/>
         <source>internal general entity reference not allowed in DTD</source>
-        <translation>wewnętrzne odwołanie do jednostki ogólnej nie dozwolone w DTD</translation>
+        <translation>odwołanie do jednostki ogólnej wewnętrznej nie dozwolone w DTD</translation>
     </message>
     <message>
         <location filename="../src/xml/qxml.cpp" line="39"/>
@@ -4235,7 +4235,7 @@ Proszę wybrać inną nazwę pliku.</translation>
     <message>
         <location filename="../src/xml/qxml.cpp" line="34"/>
         <source>more than one document type definition</source>
-        <translation>więcej niż jedna definicja rodzaju dokumentu</translation>
+        <translation>więcej niż jedna definicja typu dokumentu</translation>
     </message>
     <message>
         <location filename="../src/xml/qxml.cpp" line="31"/>
@@ -4250,7 +4250,7 @@ Proszę wybrać inną nazwę pliku.</translation>
     <message>
         <location filename="../src/xml/qxml.cpp" line="43"/>
         <source>standalone declaration expected while reading the XML declaration</source>
-        <translation>pojedyncza deklaracja oczekiwana podczas czytania deklaracji XML</translation>
+        <translation>deklaracja &quot;standalone&quot; oczekiwana podczas czytania deklaracji XML</translation>
     </message>
     <message>
         <location filename="../src/xml/qxml.cpp" line="36"/>
@@ -4270,7 +4270,7 @@ Proszę wybrać inną nazwę pliku.</translation>
     <message>
         <location filename="../src/xml/qxml.cpp" line="51"/>
         <source>unparsed entity reference in wrong context</source>
-        <translation>odwołanie jednostki nieparsowalnej w złym kontekście</translation>
+        <translation>odwołanie do jednostki nieprzetworzonej w złym kontekście</translation>
     </message>
     <message>
         <location filename="../src/xml/qxml.cpp" line="40"/>
@@ -4280,7 +4280,7 @@ Proszę wybrać inną nazwę pliku.</translation>
     <message>
         <location filename="../src/xml/qxml.cpp" line="41"/>
         <source>wrong value for standalone declaration</source>
-        <translation>błędna wartość dla pojedynczej deklaracji</translation>
+        <translation>błędna wartość dla deklaracji &quot;standalone&quot;</translation>
     </message>
 </context>
 <context>
@@ -4293,7 +4293,7 @@ Proszę wybrać inną nazwę pliku.</translation>
     <message>
         <location filename="../src/xml/qxmlstream.cpp" line="613"/>
         <source>Invalid entity value.</source>
-        <translation>Niepoprawna wartość wpisu.</translation>
+        <translation>Niepoprawna wartość jednostki.</translation>
     </message>
     <message>
         <location filename="../src/xml/qxmlstream.cpp" line="720"/>
@@ -4313,7 +4313,7 @@ Proszę wybrać inną nazwę pliku.</translation>
     <message>
         <location filename="../src/xml/qxmlstream.cpp" line="1324"/>
         <source>Attribute redefined.</source>
-        <translation>Atrybut powtórzony.</translation>
+        <translation>Atrybut zdefiniowany wielokrotnie.</translation>
     </message>
     <message>
         <location filename="../src/xml/qxmlstream.cpp" line="1436"/>
@@ -4348,7 +4348,7 @@ Proszę wybrać inną nazwę pliku.</translation>
     <message>
         <location filename="../src/xml/qxmlstream.cpp" line="1514"/>
         <source>Standalone accepts only yes or no.</source>
-        <translation>Tylko pojedyncze potwierdzenia tak lub nie.</translation>
+        <translation>Tylko wartości &quot;tak&quot; lub &quot;nie&quot; są akceptowane przez &quot;standalone&quot;.</translation>
     </message>
     <message>
         <location filename="../src/xml/qxmlstream.cpp" line="1516"/>
@@ -4373,7 +4373,7 @@ Proszę wybrać inną nazwę pliku.</translation>
     <message>
         <location filename="../src/xml/qxmlstream.cpp" line="1585"/>
         <source>, but got &apos;</source>
-        <translation>, ale jest &apos;</translation>
+        <translation>, ale otrzymano &apos;</translation>
     </message>
     <message>
         <location filename="../src/xml/qxmlstream.cpp" line="1589"/>
@@ -4383,12 +4383,12 @@ Proszę wybrać inną nazwę pliku.</translation>
     <message>
         <location filename="../src/xml/qxmlstream.cpp" line="1719"/>
         <source>Expected character data.</source>
-        <translation>Oczekiwana dana tekstowa.</translation>
+        <translation>Oczekiwana dana znakowa.</translation>
     </message>
     <message>
         <location filename="../src/xml/qxmlstream_p.h" line="718"/>
         <source>Recursive entity detected.</source>
-        <translation>Wykryto obiekt zapętlający.</translation>
+        <translation>Wykryto jednostkę rekursywną.</translation>
     </message>
     <message>
         <location filename="../src/xml/qxmlstream_p.h" line="1223"/>
@@ -4438,37 +4438,37 @@ Proszę wybrać inną nazwę pliku.</translation>
     <message>
         <location filename="../src/xml/qxmlstream_p.h" line="1708"/>
         <source>Reference to unparsed entity &apos;%1&apos;.</source>
-        <translation>Odwołanie do nieprzetworzonego obiektu &apos;%1&apos;.</translation>
+        <translation>Odwołanie do nieprzetworzonej jednostki &apos;%1&apos;.</translation>
     </message>
     <message>
         <location filename="../src/xml/qxmlstream_p.h" line="1774"/>
         <source>Entity &apos;%1&apos; not declared.</source>
-        <translation>Obiekt &apos;%1&apos; nie zadeklarowany.</translation>
+        <translation>Jednostkat &apos;%1&apos; nie zadeklarowana.</translation>
     </message>
     <message>
         <location filename="../src/xml/qxmlstream_p.h" line="1760"/>
         <source>Reference to external entity &apos;%1&apos; in attribute value.</source>
-        <translation>Odwołanie do zewnętrznego obiektu &apos;%1&apos; w wartości atrybutu.</translation>
+        <translation>Odwołanie do zewnętrznej jednostki &apos;%1&apos; jako wartość atrybutu.</translation>
     </message>
     <message>
         <location filename="../src/xml/qxmlstream_p.h" line="1788"/>
         <source>Invalid character reference.</source>
-        <translation>Niepoprawny znak w odwołaniu.</translation>
+        <translation>Niepoprawny znak odwołania.</translation>
     </message>
     <message>
         <location filename="../src/xml/qxmlstream_p.h" line="1011"/>
         <source>Encountered incorrectly encoded content.</source>
-        <translation type="unfinished"></translation>
+        <translation>Natrafiono na niepoprawnie zakodowaną treść.</translation>
     </message>
     <message>
         <location filename="../src/xml/qxmlstream.cpp" line="1487"/>
         <source>The standalone pseudo attribute must appear after the encoding.</source>
-        <translation type="unfinished"></translation>
+        <translation>Pseudo atrybut &quot;standalone&quot; musi pojawić sie po &quot;encoding&quot;.</translation>
     </message>
     <message>
         <location filename="../src/xml/qxmlstream_p.h" line="1558"/>
         <source>%1 is an invalid PUBLIC identifier.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 jest niepoprawnym publicznym identyfikatorem.</translation>
     </message>
 </context>
 </TS>
