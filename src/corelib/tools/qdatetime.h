@@ -136,8 +136,8 @@ public:
     static QTime currentTime();
 #ifndef QT_NO_DATESTRING
     static QTime fromString(const QString &s, Qt::DateFormat f = Qt::TextDate);
-#endif
     static QTime fromString(const QString &s, const QString &format);
+#endif
     static bool isValid(int h, int m, int s, int ms = 0);
 
 #ifdef QT3_SUPPORT
@@ -210,8 +210,8 @@ public:
     static QDateTime currentDateTime();
 #ifndef QT_NO_DATESTRING
     static QDateTime fromString(const QString &s, Qt::DateFormat f = Qt::TextDate);
-#endif
     static QDateTime fromString(const QString &s, const QString &format);
+#endif
     static QDateTime fromTime_t(uint secsSince1Jan1970UTC);
 
 #ifdef QT3_SUPPORT

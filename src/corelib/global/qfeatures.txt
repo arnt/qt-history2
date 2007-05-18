@@ -1019,7 +1019,7 @@ SeeAlso: ???
 Feature: SCRIPT
 Description: Provides support for the QtScript module
 Section: Utilities
-Requires: TEXTDATE
+Requires: TEXTDATE DATESTRING
 Name: QtScript
 SeeAlso: ???
 

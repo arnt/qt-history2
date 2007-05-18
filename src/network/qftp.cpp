@@ -480,9 +480,11 @@ static void _q_parseUnixDir(const QStringList &tokens, const QString &userName, 
     // Resolve the modification date by parsing all possible formats
     QDateTime dateTime;
     int n = 0;
+#ifndef QT_NO_DATESTRING
     do {
         dateTime = QDateTime::fromString(dateString, formats.at(n++));
     }  while (n < formats.size() && (!dateTime.isValid()));
+#endif
 
     if (n == 2 || n == 4) {
         // Guess the year.
@@ -552,12 +554,15 @@ static void _q_parseDosDir(const QStringList &tokens, const QString &userName, Q
     info->setReadable(true);
     info->setWritable(info->isFile());
 
-    QDateTime dateTime = QDateTime::fromString(tokens.at(1), QLatin1String("MM-dd-yy  hh:mmAP"));
+    QDateTime dateTime;
+#ifndef QT_NO_DATESTRING
+    dateTime = QDateTime::fromString(tokens.at(1), QLatin1String("MM-dd-yy  hh:mmAP"));
     if (dateTime.date().year() < 1971) {
         dateTime.setDate(QDate(dateTime.date().year() + 100,
                                dateTime.date().month(),
                                dateTime.date().day()));
     }
+#endif
 
     info->setLastModified(dateTime);
 
