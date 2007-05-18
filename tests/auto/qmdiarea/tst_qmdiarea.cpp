@@ -63,6 +63,7 @@ private slots:
     void sizeHint();
     void setActiveSubWindow();
     void activeSubWindow();
+    void currentSubWindow();
     void addAndRemoveWindows();
     void addAndRemoveWindowsWithReparenting();
     void closeWindows();
@@ -714,6 +715,79 @@ void tst_QMdiArea::activeSubWindow()
 
     qApp->setActiveWindow(&mainWindow);
     QCOMPARE(mdiArea->activeSubWindow(), subWindow);
+}
+
+void tst_QMdiArea::currentSubWindow()
+{
+    QMdiArea mdiArea;
+    mdiArea.show();
+#ifdef Q_WS_X11
+    qt_x11_wait_for_window_manager(&mdiArea);
+#endif
+
+    for (int i = 0; i < 5; ++i)
+        mdiArea.addSubWindow(new QLineEdit)->show();
+
+    qApp->setActiveWindow(&mdiArea);
+    QCOMPARE(qApp->activeWindow(), &mdiArea);
+
+    // Check that the last added window is the active and the current.
+    QMdiSubWindow *active = mdiArea.activeSubWindow();
+    QVERIFY(active);
+    QCOMPARE(mdiArea.subWindowList().back(), active);
+    QCOMPARE(mdiArea.currentSubWindow(), active);
+
+    QLineEdit dummyTopLevel;
+    dummyTopLevel.show();
+#ifdef Q_WS_X11
+    qt_x11_wait_for_window_manager(&dummyTopLevel);
+#endif
+
+    // Move focus to another top-level and check that we don't have
+    // an active window anymore.
+    qApp->setActiveWindow(&dummyTopLevel);
+    QCOMPARE(qApp->activeWindow(), &dummyTopLevel);
+    QVERIFY(!mdiArea.activeSubWindow());
+
+    // ...but currentSubWindow() should still return a valid sub-window.
+    QCOMPARE(mdiArea.currentSubWindow(), active);
+
+    delete active;
+    active = 0;
+
+    // We just deleted the current sub-window -> current should then
+    // be the next in list (which in this case is the first sub-window).
+    QVERIFY(mdiArea.currentSubWindow());
+    QCOMPARE(mdiArea.currentSubWindow(), mdiArea.subWindowList().front());
+
+    // Activate mdi area and check that active == current.
+    qApp->setActiveWindow(&mdiArea);
+    active = mdiArea.activeSubWindow();
+    QVERIFY(active);
+    QCOMPARE(mdiArea.activeSubWindow(), mdiArea.subWindowList().front());
+
+    active->hide();
+    QCOMPARE(mdiArea.activeSubWindow(), active);
+    QCOMPARE(mdiArea.currentSubWindow(), active);
+
+    qApp->setActiveWindow(&dummyTopLevel);
+    QVERIFY(!mdiArea.activeSubWindow());
+    QCOMPARE(mdiArea.currentSubWindow(), active);
+
+    qApp->setActiveWindow(&mdiArea);
+    active->show();
+    QCOMPARE(mdiArea.activeSubWindow(), active);
+
+    mdiArea.setActiveSubWindow(0);
+    QVERIFY(!mdiArea.activeSubWindow());
+    QVERIFY(!mdiArea.currentSubWindow());
+
+    mdiArea.setActiveSubWindow(active);
+    QCOMPARE(mdiArea.activeSubWindow(), active);
+    QEvent windowDeactivate(QEvent::WindowDeactivate);
+    qApp->sendEvent(active, &windowDeactivate);
+    QVERIFY(!mdiArea.activeSubWindow());
+    QVERIFY(!mdiArea.currentSubWindow());
 }
 
 void tst_QMdiArea::addAndRemoveWindows()
