@@ -741,6 +741,24 @@
     representation of a QObject.
 
   \i \c{gc}: This function invokes the garbage collector.
+
+  \i \c{Error.prototype.backtrace}: This function returns a human-readable
+    backtrace, in the form of an array of strings.
+
+  \i Error objects have the following additional properties:
+    \list
+    \i \c{lineNumber}: The line number where the error occurred.
+    \i \c{fileName}: The file name where the error occurred (if a file name
+    was passed to QScriptEngine::evaluate()).
+    \i \c{stack}: An array of objects describing the stack. Each object has
+      the following properties:
+      \list
+      \i \c{functionName}: The function name, if available.
+      \i \c{fileName}: The file name, if available.
+      \i \c{lineNumber}: The line number, if available.
+      \endlist
+    \endlist
+
   \endlist
 
  */
