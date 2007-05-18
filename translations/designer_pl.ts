@@ -87,7 +87,7 @@ w Szczebrzeszynie.</translation>
         <translation>zmień &apos;%1&apos; w &apos;%2&apos;</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_propertycommand.cpp" line="964"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_propertycommand.cpp" line="965"/>
         <source>reset &apos;%1&apos; of &apos;%2&apos;</source>
         <translation>przywróć domyślną wartość &apos;%1&apos; w &apos;%2&apos;</translation>
     </message>
@@ -271,45 +271,65 @@ w Szczebrzeszynie.</translation>
         <source>Delete Tool Bar</source>
         <translation>Usuń pasek narzędzi</translation>
     </message>
-    <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_propertycommand.cpp" line="888"/>
+    <message numerus="yes">
+        <location filename="../tools/designer/src/lib/shared/qdesigner_propertycommand.cpp" line="889"/>
         <source>changed &apos;%1&apos; of %2 objects</source>
-        <translation>zmieniono &apos;%1&apos; w %2 obiektów</translation>
+        <translation>
+            <numerusform>zmieniono &apos;%1&apos; w %2 obiekcie</numerusform>
+            <numerusform>zmieniono &apos;%1&apos; w %2 obiekach</numerusform>
+            <numerusform>zmieniono &apos;%1&apos; w %2 obiekach</numerusform>
+        </translation>
     </message>
-    <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_propertycommand.cpp" line="966"/>
+    <message numerus="yes">
+        <location filename="../tools/designer/src/lib/shared/qdesigner_propertycommand.cpp" line="968"/>
         <source>reset &apos;%1&apos; of %2 objects</source>
-        <translation>przywrócono domyślne wartości &apos;%1&apos; w &apos;%2&apos; obiektach</translation>
-    </message>
-    <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_propertycommand.cpp" line="1055"/>
-        <source>add dynamic property &apos;%1&apos; to &apos;%2&apos;</source>
-        <translation>dodaj dynamiczną właściwość &apos;%1&apos; do &apos;%2&apos;</translation>
+        <translation>
+            <numerusform>przywrócono domyślne wartości &apos;%1&apos; w &apos;%2&apos; obiekcie</numerusform>
+            <numerusform>przywrócono domyślne wartości &apos;%1&apos; w &apos;%2&apos; obiektach</numerusform>
+            <numerusform>przywrócono domyślne wartości &apos;%1&apos; w &apos;%2&apos; obiektach</numerusform>
+        </translation>
     </message>
     <message>
         <location filename="../tools/designer/src/lib/shared/qdesigner_propertycommand.cpp" line="1057"/>
+        <source>add dynamic property &apos;%1&apos; to &apos;%2&apos;</source>
+        <translation>dodaj dynamiczną właściwość &apos;%1&apos; do &apos;%2&apos;</translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../tools/designer/src/lib/shared/qdesigner_propertycommand.cpp" line="1060"/>
         <source>add dynamic property &apos;%1&apos; to %2 objects</source>
-        <translation>dodaj dynamiczną właściwość &apos;%1&apos; do %2 obiektów</translation>
+        <translation>
+            <numerusform>dodaj dynamiczną właściwość &apos;%1&apos; do %2 obiektu</numerusform>
+            <numerusform>dodaj dynamiczną właściwość &apos;%1&apos; do %2 obiektów</numerusform>
+            <numerusform>dodaj dynamiczną właściwość &apos;%1&apos; do %2 obiektów</numerusform>
+        </translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_propertycommand.cpp" line="1143"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_propertycommand.cpp" line="1146"/>
         <source>remove dynamic property &apos;%1&apos; from &apos;%2&apos;</source>
         <translation>usuń dynamiczną właściwość &apos;%1&apos; z &apos;%2&apos;</translation>
     </message>
-    <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_propertycommand.cpp" line="1145"/>
+    <message numerus="yes">
+        <location filename="../tools/designer/src/lib/shared/qdesigner_propertycommand.cpp" line="1149"/>
         <source>remove dynamic property &apos;%1&apos; from %2 objects</source>
-        <translation>usuń dynamiczną właściwość &apos;%1&apos; z %2 obiektów</translation>
+        <translation>
+            <numerusform>usuń dynamiczną właściwość &apos;%1&apos; z %2 obiektu</numerusform>
+            <numerusform>usuń dynamiczną właściwość &apos;%1&apos; z %2 obiektów</numerusform>
+            <numerusform>usuń dynamiczną właściwość &apos;%1&apos; z %2 obiektów</numerusform>
+        </translation>
     </message>
     <message>
         <location filename="../tools/designer/src/lib/shared/qdesigner_propertycommentcommand.cpp" line="56"/>
         <source>changed comment of &apos;%1&apos; of &apos;%2&apos;</source>
         <translation>zmieniono komentarz &apos;%1&apos; w &apos;%2&apos;</translation>
     </message>
-    <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_propertycommentcommand.cpp" line="58"/>
+    <message numerus="yes">
+        <location filename="../tools/designer/src/lib/shared/qdesigner_propertycommentcommand.cpp" line="59"/>
         <source>changed comment of &apos;%1&apos; of %2 objects</source>
-        <translation>zmieniono komentarz &apos;%1&apos; w %2 obiektach</translation>
+        <translation>
+            <numerusform>zmieniono komentarz &apos;%1&apos; w %2 obiekcie</numerusform>
+            <numerusform>zmieniono komentarz &apos;%1&apos; w %2 obiektach</numerusform>
+            <numerusform>zmieniono komentarz &apos;%1&apos; w %2 obiektach</numerusform>
+        </translation>
     </message>
     <message>
         <location filename="../tools/designer/src/lib/shared/qdesigner_menu.cpp" line="1139"/>
@@ -434,7 +454,35 @@ Stara wersja pliku została nienaruszona, a aktualną bedziesz musiał zapisać 
     <message>
         <location filename="../tools/designer/src/designer/templates/forms/Dialog_without_Buttons.ui" line="13"/>
         <source>Dialog</source>
-        <translation>Okno dialogowe</translation>
+        <translation type="obsolete">Okno dialogowe</translation>
+    </message>
+</context>
+<context>
+    <name>FontPanel</name>
+    <message>
+        <location filename="../tools/shared/fontpanel/fontpanel.cpp" line="43"/>
+        <source>Font</source>
+        <translation>Czcionka</translation>
+    </message>
+    <message>
+        <location filename="../tools/shared/fontpanel/fontpanel.cpp" line="56"/>
+        <source>&amp;Writing system</source>
+        <translation>System &amp;pisania</translation>
+    </message>
+    <message>
+        <location filename="../tools/shared/fontpanel/fontpanel.cpp" line="59"/>
+        <source>&amp;Family</source>
+        <translation>&amp;Rodzina</translation>
+    </message>
+    <message>
+        <location filename="../tools/shared/fontpanel/fontpanel.cpp" line="63"/>
+        <source>&amp;Style</source>
+        <translation>&amp;Style</translation>
+    </message>
+    <message>
+        <location filename="../tools/shared/fontpanel/fontpanel.cpp" line="67"/>
+        <source>&amp;Point size</source>
+        <translation>&amp;Wielkość punktu</translation>
     </message>
 </context>
 <context>
@@ -442,7 +490,7 @@ Stara wersja pliku została nienaruszona, a aktualną bedziesz musiał zapisać 
     <message>
         <location filename="../tools/designer/src/designer/templates/forms/Widget.ui" line="19"/>
         <source>Form</source>
-        <translation>Forma</translation>
+        <translation type="obsolete">Forma</translation>
     </message>
 </context>
 <context>
@@ -524,7 +572,7 @@ Stara wersja pliku została nienaruszona, a aktualną bedziesz musiał zapisać 
     <message>
         <location filename="../tools/designer/src/designer/templates/forms/Main_Window.ui" line="19"/>
         <source>MainWindow</source>
-        <translation>Główne okno</translation>
+        <translation type="obsolete">Główne okno</translation>
     </message>
 </context>
 <context>
@@ -597,30 +645,34 @@ Stara wersja pliku została nienaruszona, a aktualną bedziesz musiał zapisać 
         <source>You have &lt;B&gt;No&lt;/B&gt; Items</source>
         <translation>Nie masz &lt;B&gt;ŻADNYCH&lt;/B&gt; elementów</translation>
     </message>
-    <message>
-        <location filename="../tools/designer/src/designer/extra/oubliette.cpp" line="229"/>
+    <message numerus="yes">
+        <location filename="../tools/designer/src/designer/extra/oubliette.cpp" line="228"/>
         <source>You have %1 of %2 items</source>
-        <translation>Masz %1 z %2 elementów</translation>
+        <translation>
+            <numerusform>Masz %1 z %2 elementu</numerusform>
+            <numerusform>Masz %1 z %2 elementów</numerusform>
+            <numerusform>Masz %1 z %2 elementów</numerusform>
+        </translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/extra/oubliette.cpp" line="232"/>
+        <location filename="../tools/designer/src/designer/extra/oubliette.cpp" line="231"/>
         <source>OK</source>
         <translation>OK</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/extra/oubliette.cpp" line="324"/>
+        <location filename="../tools/designer/src/designer/extra/oubliette.cpp" line="323"/>
         <source>Easter Egg Found</source>
         <translation>Znaleziono Jajo</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/extra/oubliette.cpp" line="327"/>
+        <location filename="../tools/designer/src/designer/extra/oubliette.cpp" line="326"/>
         <source>Welcome to the Trolltech Business Card Hunt
 Use the direction keys to move around and find the business cards for all the trolls.</source>
         <translation>Witamy w pościgu za wizytówkami Trolltech&apos;a.
 Użyj klawiszy kierunkowych aby przemieszczać się i znaleźć wizytówki wszystkich troli.</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/extra/oubliette.cpp" line="332"/>
+        <location filename="../tools/designer/src/designer/extra/oubliette.cpp" line="331"/>
         <source>You Did It!</source>
         <translation>Zrobiłeś to!</translation>
     </message>
@@ -628,18 +680,31 @@ Użyj klawiszy kierunkowych aby przemieszczać się i znaleźć wizytówki wszys
         <location filename="../tools/designer/src/designer/extra/oubliette.cpp" line="334"/>
         <source>You&apos;ve collected all the Trolltech cards. It took you %1 steps.
 There&apos;s nothing more here. You should get back to work.</source>
-        <translation>Zebrałeś wszystkie wizytówki Trolltech&apos;a. Zabrało to Tobie %1 kroki/ów.
+        <translation type="obsolete">Zebrałeś wszystkie wizytówki Trolltech&apos;a. Zabrało to Tobie %1 kroki/ów.
 Nie ma już nic więcej. Powinieneś zabrać się do pracy.</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/extra/oubliette.cpp" line="335"/>
+        <location filename="../tools/designer/src/designer/extra/oubliette.cpp" line="334"/>
         <source>That&apos;s rather anti-climatic</source>
         <translation>To raczej anty-klimatyczne</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/extra/oubliette.cpp" line="335"/>
+        <location filename="../tools/designer/src/designer/extra/oubliette.cpp" line="334"/>
         <source>Quit</source>
         <translation>Zakończ</translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../tools/designer/src/designer/extra/oubliette.cpp" line="333"/>
+        <source>You&apos;ve collected all the Trolltech cards. It took you %n steps.
+There&apos;s nothing more here. You should get back to work.</source>
+        <translation>
+            <numerusform>Zebrałeś wszystkie wizytówki Trolltech&apos;a. Zabrało to Tobie %n krok.
+Nie ma już nic więcej. Powinieneś zabrać się do pracy.</numerusform>
+            <numerusform>Zebrałeś wszystkie wizytówki Trolltech&apos;a. Zabrało to Tobie %n kroki.
+Nie ma już nic więcej. Powinieneś zabrać się do pracy.</numerusform>
+            <numerusform>Zebrałeś wszystkie wizytówki Trolltech&apos;a. Zabrało to Tobie %n kroków.
+Nie ma już nic więcej. Powinieneś zabrać się do pracy.</numerusform>
+        </translation>
     </message>
 </context>
 <context>
@@ -1119,7 +1184,7 @@ Czy chcesz spróbować ponownie?</translation>
     <message>
         <location filename="../tools/designer/src/designer/qdesigner_formwindow.cpp" line="223"/>
         <source>If you don&apos;t save, your changes will be lost.</source>
-        <translation>Jeśli nie zapiszesz, Twoje zmiany zostaną stracone.</translation>
+        <translation>Jeśli nie zapiszesz, Twoje zmiany zostaną utracone.</translation>
     </message>
 </context>
 <context>
@@ -1446,14 +1511,14 @@ Czy chcesz spróbować ponownie?</translation>
         <translation>Qt Designer</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="857"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="858"/>
         <source>Save Forms?</source>
         <translation>Zapisać formy?</translation>
     </message>
     <message>
         <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="860"/>
         <source>There are %1 forms with unsaved changes. Do you want to review these changes before quitting?</source>
-        <translation>Jest %1 form z niezapisanymi zmianami. Czy chcesz przejrzeć zmiany przed wyjściem z programu?</translation>
+        <translation type="obsolete">Jest %1 form z niezapisanymi zmianami. Czy chcesz przejrzeć zmiany przed wyjściem z programu?</translation>
     </message>
     <message>
         <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="865"/>
@@ -1504,6 +1569,15 @@ Czy chcesz spróbować ponownie?</translation>
         <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="353"/>
         <source>File</source>
         <translation>Plik</translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="860"/>
+        <source>There are %n forms with unsaved changes. Do you want to review these changes before quitting?</source>
+        <translation>
+            <numerusform>Jest %n forma z niezapisanymi zmianami. Czy chcesz przejrzeć zmiany przed wyjściem z programu?</numerusform>
+            <numerusform>Są %n formy z niezapisanymi zmianami. Czy chcesz przejrzeć zmiany przed wyjściem z programu?</numerusform>
+            <numerusform>Jest %n form z niezapisanymi zmianami. Czy chcesz przejrzeć zmiany przed wyjściem z programu?</numerusform>
+        </translation>
     </message>
 </context>
 <context>
@@ -1673,7 +1747,7 @@ Skrypt: %3</translation>
     <message>
         <location filename="../tools/designer/src/plugins/tools/view3d/view3d_plugin.cpp" line="35"/>
         <source>3D View</source>
-        <translation>Podgląd 3D</translation>
+        <translation type="obsolete">Podgląd 3D</translation>
     </message>
 </context>
 <context>
@@ -1681,7 +1755,7 @@ Skrypt: %3</translation>
     <message>
         <location filename="../tools/designer/src/plugins/tools/view3d/view3d_tool.cpp" line="20"/>
         <source>3DView</source>
-        <translation>3DView</translation>
+        <translation type="obsolete">3DView</translation>
     </message>
 </context>
 <context>
@@ -2115,22 +2189,22 @@ Czy chcesz nadpisać szablon?</translation>
 <context>
     <name>qdesigner_internal::FindIconDialog</name>
     <message>
-        <location filename="../tools/designer/src/lib/shared/ui_findicondialog.h" line="185"/>
+        <location filename="../tools/designer/src/lib/shared/findicondialog.ui" line="25"/>
         <source>Find Icon</source>
         <translation>Znajdź ikonę</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/ui_findicondialog.h" line="187"/>
+        <location filename="../tools/designer/src/lib/shared/findicondialog.ui" line="55"/>
         <source>Specify image file</source>
         <translation>Określ plik z grafiką</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/ui_findicondialog.h" line="186"/>
+        <location filename="../tools/designer/src/lib/shared/findicondialog.ui" line="45"/>
         <source>Specify resource</source>
         <translation>Określ zasób</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/ui_findicondialog.h" line="188"/>
+        <location filename="../tools/designer/src/lib/shared/findicondialog.ui" line="106"/>
         <source>Parent directory</source>
         <translation>Katalog domowy</translation>
     </message>
@@ -2563,27 +2637,27 @@ do którego chcesz wkleić a następnie wybierz ten kontener i wklej ponownie.</
 <context>
     <name>qdesigner_internal::NewActionDialog</name>
     <message>
-        <location filename="../tools/designer/src/lib/shared/ui_newactiondialog.h" line="167"/>
+        <location filename="../tools/designer/src/lib/shared/newactiondialog.ui" line="25"/>
         <source>New Action...</source>
         <translation>Nowa akcja...</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/ui_newactiondialog.h" line="168"/>
+        <location filename="../tools/designer/src/lib/shared/newactiondialog.ui" line="48"/>
         <source>&amp;Text:</source>
         <translation>&amp;Tekst:</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/ui_newactiondialog.h" line="170"/>
+        <location filename="../tools/designer/src/lib/shared/newactiondialog.ui" line="73"/>
         <source>...</source>
         <translation>...</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/ui_newactiondialog.h" line="171"/>
+        <location filename="../tools/designer/src/lib/shared/newactiondialog.ui" line="98"/>
         <source>&amp;Icon:</source>
         <translation>&amp;Ikona:</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/ui_newactiondialog.h" line="172"/>
+        <location filename="../tools/designer/src/lib/shared/newactiondialog.ui" line="108"/>
         <source>Object &amp;name:</source>
         <translation>&amp;Nazwa obiektu:</translation>
     </message>
@@ -2834,22 +2908,22 @@ Proszę wybrać inną nazwę.</translation>
         <translation>Indeks %1 (%2)</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/ui_orderdialog.h" line="126"/>
+        <location filename="../tools/designer/src/lib/shared/orderdialog.ui" line="25"/>
         <source>Change Page Order</source>
         <translation>Zmień porządek stron</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/ui_orderdialog.h" line="127"/>
+        <location filename="../tools/designer/src/lib/shared/orderdialog.ui" line="37"/>
         <source>Page Order</source>
         <translation>Porządek stron</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/ui_orderdialog.h" line="128"/>
+        <location filename="../tools/designer/src/lib/shared/orderdialog.ui" line="60"/>
         <source>Up</source>
         <translation>Do góry</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/ui_orderdialog.h" line="129"/>
+        <location filename="../tools/designer/src/lib/shared/orderdialog.ui" line="67"/>
         <source>Down</source>
         <translation>W dół</translation>
     </message>
@@ -3828,32 +3902,32 @@ Proszę wybrać inną nazwę.</translation>
         <translation>Edytor zasobów</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/ui_resourceeditor.h" line="145"/>
+        <location filename="../tools/designer/src/lib/shared/resourceeditor.ui" line="25"/>
         <source>Resource editor</source>
         <translation>Edytor zasobów</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/ui_resourceeditor.h" line="146"/>
+        <location filename="../tools/designer/src/lib/shared/resourceeditor.ui" line="37"/>
         <source>Current Resource:</source>
         <translation>Bieżące zasoby:</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/ui_resourceeditor.h" line="147"/>
+        <location filename="../tools/designer/src/lib/shared/resourceeditor.ui" line="67"/>
         <source>...</source>
         <translation>...</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/ui_resourceeditor.h" line="148"/>
+        <location filename="../tools/designer/src/lib/shared/resourceeditor.ui" line="104"/>
         <source>+</source>
         <translation>+</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/ui_resourceeditor.h" line="149"/>
+        <location filename="../tools/designer/src/lib/shared/resourceeditor.ui" line="111"/>
         <source>-</source>
         <translation>-</translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/ui_resourceeditor.h" line="150"/>
+        <location filename="../tools/designer/src/lib/shared/resourceeditor.ui" line="118"/>
         <source>&amp;Add Files...</source>
         <translation>&amp;Dodaj pliki...</translation>
     </message>

@@ -225,9 +225,8 @@ void Oubliette::showInventory()
         connect(lw, SIGNAL(itemActivated(QListWidgetItem*)),
                 this, SLOT(showInventoryItem(QListWidgetItem*)));
     }
-    label = new QLabel(tr("You have %1 of %2 items")
-                      .arg(items.size())
-                      .arg(m_oubliettePlan.level(m_currentLevel)->totalItems()), d);
+    label = new QLabel(tr("You have %1 of %2 items", "", m_oubliettePlan.level(m_currentLevel)->totalItems())
+                      .arg(items.size()), d);
     gl->addWidget(label, 1, 1, 1, 1);
     QPushButton *btn = new QPushButton(tr("OK"), d);
     btn->setDefault(true);
@@ -330,8 +329,8 @@ void Oubliette::showInstructions()
 void Oubliette::showVictory()
 {
     int value = QMessageBox::information(window(), tr("You Did It!"),
-            tr("You've collected all the Trolltech cards. It took you %1 steps.\n"
-               "There's nothing more here. You should get back to work.").arg(m_character.totalSteps()),
+            tr("You've collected all the Trolltech cards. It took you %n steps.\n"
+               "There's nothing more here. You should get back to work.", "", m_character.totalSteps()),
             tr("That's rather anti-climatic"), tr("Quit"));
     if (value == 1)
         QApplication::instance()->quit();

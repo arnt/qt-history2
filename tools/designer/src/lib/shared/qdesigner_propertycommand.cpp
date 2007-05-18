@@ -885,7 +885,8 @@ void SetPropertyCommand::setDescription()
     if (propertyHelperList().size() == 1) {
         setText(QApplication::translate("Command", "changed '%1' of '%2'").arg(propertyName()).arg(propertyHelperList()[0].object()->objectName()));
     } else {
-        setText(QApplication::translate("Command", "changed '%1' of %2 objects").arg(propertyName()).arg(propertyHelperList().size()));
+        int count = propertyHelperList().size();
+        setText(QApplication::translate("Command", "changed '%1' of %2 objects", "", QCoreApplication::UnicodeUTF8, count).arg(propertyName()).arg(count));
     }
 }
 
@@ -963,7 +964,8 @@ void ResetPropertyCommand::setDescription()
     if (propertyHelperList().size() == 1) {
         setText(QApplication::translate("Command", "reset '%1' of '%2'").arg(propertyName()).arg(propertyHelperList()[0].object()->objectName()));
     } else {
-        setText(QApplication::translate("Command", "reset '%1' of %2 objects").arg(propertyName()).arg(propertyHelperList().size()));
+        int count = propertyHelperList().size();
+        setText(QApplication::translate("Command", "reset '%1' of %2 objects", "", QCoreApplication::UnicodeUTF8, count).arg(propertyName()).arg(count));
     }
 }
 
@@ -1054,7 +1056,8 @@ void AddDynamicPropertyCommand::setDescription()
     if (m_selection.size() == 1) {
         setText(QApplication::translate("Command", "add dynamic property '%1' to '%2'").arg(m_propertyName).arg(m_selection.first()->objectName()));
     } else {
-        setText(QApplication::translate("Command", "add dynamic property '%1' to %2 objects").arg(m_propertyName).arg(m_selection.size()));
+        int count = m_selection.size();
+        setText(QApplication::translate("Command", "add dynamic property '%1' to %2 objects", "", QCoreApplication::UnicodeUTF8, count).arg(m_propertyName).arg(count));
     }
 }
 
@@ -1142,7 +1145,8 @@ void RemoveDynamicPropertyCommand::setDescription()
     if (m_objectToValueAndChanged.size() == 1) {
         setText(QApplication::translate("Command", "remove dynamic property '%1' from '%2'").arg(m_propertyName).arg(m_objectToValueAndChanged.constBegin().key()->objectName()));
     } else {
-        setText(QApplication::translate("Command", "remove dynamic property '%1' from %2 objects").arg(m_propertyName).arg(m_objectToValueAndChanged.size()));
+        int count = m_objectToValueAndChanged.size();
+        setText(QApplication::translate("Command", "remove dynamic property '%1' from %2 objects", "", QCoreApplication::UnicodeUTF8, count).arg(m_propertyName).arg(count));
     }
 }
 

@@ -55,7 +55,8 @@ void SetPropertyCommentCommand::setDescription()
     if (m_Entries.size() == 1) {
         setText(QApplication::translate("Command", "changed comment of '%1' of '%2'").arg(m_propertyName).arg(m_Entries[0].m_object->objectName()));
     } else {
-        setText(QApplication::translate("Command", "changed comment of '%1' of %2 objects").arg(m_propertyName).arg(m_Entries.size()));
+        int count = m_Entries.size();
+        setText(QApplication::translate("Command", "changed comment of '%1' of %2 objects", "", QCoreApplication::UnicodeUTF8, count).arg(m_propertyName).arg(count));
     }
 }
 

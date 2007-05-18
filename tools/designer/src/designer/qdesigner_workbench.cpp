@@ -865,10 +865,10 @@ bool QDesignerWorkbench::handleClose()
                 return false;
             }
         } else {
+            int count = dirtyForms.size();
             QMessageBox box(QMessageBox::Warning, tr("Save Forms?"),
-                    tr("There are %1 forms with unsaved changes."
-                        " Do you want to review these changes before quitting?")
-                    .arg(dirtyForms.size()),
+                    tr("There are %n forms with unsaved changes."
+                        " Do you want to review these changes before quitting?", "", count),
                     QMessageBox::Cancel | QMessageBox::Discard | QMessageBox::Save);
             box.setInformativeText(tr("If you don't review your documents, all your changes will be lost."));
             box.button(QMessageBox::Discard)->setText(tr("Discard Changes"));
