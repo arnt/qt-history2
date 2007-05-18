@@ -379,6 +379,7 @@ public:
     QSvgPaintEngine *engine;
 
     uint owns_iodevice : 1;
+    QString fileName;
 };
 
 /*!
@@ -454,6 +455,7 @@ void QSvgGenerator::setFileName(const QString &fileName)
 
     d->owns_iodevice = true;
 
+    d->fileName = fileName;
     QFile *file = new QFile(fileName);
     d->engine->setOutputDevice(file);
 }
@@ -482,6 +484,7 @@ void QSvgGenerator::setOutputDevice(QIODevice *outputDevice)
     }
     d->owns_iodevice = false;
     d->engine->setOutputDevice(outputDevice);
+    d->fileName = QString();
 }
 
 /*!
@@ -534,14 +537,34 @@ int QSvgGenerator::metric(QPaintDevice::PaintDeviceMetric metric) const
     Returns the name of the file to be created by the generator.
 */
 
+QString QSvgGenerator::fileName() const
+{
+    Q_D(const QSvgGenerator);
+    return d->fileName;
+}
+
 /*!
     \fn void QSvgGenerator::setResolution(int resolution)
 
-    Sets the \a resolution of the generated output to the value specified
-    in dots per inch.
+    Sets the resolution of the generated output to \a dpi. The argument is
+    specified in dots per inch.
 
     The resolution is used to calculate the physical size of an SVG drawing.
 */
+void QSvgGenerator::setResolution(int dpi)
+{
+    Q_D(QSvgGenerator);
+    d->engine->setResolution(dpi);
+}
+
+/*!
+    Returns the resolution of the generated output in dots per inch.
+*/
+int QSvgGenerator::resolution() const
+{
+    Q_D(const QSvgGenerator);
+    return d->engine->resolution();
+}
 
 /*****************************************************************************
  * class QSvgPaintEngine

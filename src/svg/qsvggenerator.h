@@ -41,10 +41,10 @@ public:
     QIODevice *outputDevice() const;
     void setOutputDevice(QIODevice *outputDevice);
 
-    void setResolution(int resolution);
-
+    void setResolution(int dpi);
+    int resolution() const;
 protected:
-    QPaintEngine *paintEngine() const;  
+    QPaintEngine *paintEngine() const;
     int metric(QPaintDevice::PaintDeviceMetric metric) const;
 
 private:
