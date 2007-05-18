@@ -81,6 +81,7 @@ static const QCssKnownValue properties[NumProperties - 1] = {
     { "alternate-background-color", QtAlternateBackground },
     { "background", Background },
     { "background-attachment", BackgroundAttachment },
+    { "background-clip", BackgroundClip },
     { "background-color", BackgroundColor },
     { "background-image", BackgroundImage },
     { "background-origin", BackgroundOrigin },
@@ -798,7 +799,8 @@ static void parseShorthandBackgroundProperty(const QVector<Value> &values, QBrus
 }
 
 bool ValueExtractor::extractBackground(QBrush *brush, QString *image, Repeat *repeat,
-                                       Qt::Alignment *alignment, Origin *origin, Attachment *attachment)
+                                       Qt::Alignment *alignment, Origin *origin, Attachment *attachment,
+                                       Origin *clip)
 {
     bool hit = false;
     for (int i = 0; i < declarations.count(); ++i) {
@@ -823,6 +825,9 @@ bool ValueExtractor::extractBackground(QBrush *brush, QString *image, Repeat *re
                 break;
             case BackgroundOrigin:
                 *origin = decl.originValue();
+                break;
+            case BackgroundClip:
+                *clip = decl.originValue();
                 break;
             case Background:
                 parseShorthandBackgroundProperty(decl.values, brush, image, repeat, alignment, pal);

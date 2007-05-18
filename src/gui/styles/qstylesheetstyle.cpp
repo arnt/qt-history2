@@ -88,8 +88,8 @@ struct QStyleSheetBorderImageData : public QSharedData
 struct QStyleSheetBackgroundData : public QSharedData
 {
     QStyleSheetBackgroundData(const QBrush& b, const QPixmap& p, QCss::Repeat r,
-                              Qt::Alignment a, QCss::Origin o, Attachment t)
-        : brush(b), pixmap(p), repeat(r), position(a), origin(o), attachment(t) { }
+                              Qt::Alignment a, QCss::Origin o, Attachment t, QCss::Origin c)
+        : brush(b), pixmap(p), repeat(r), position(a), origin(o), attachment(t), clip(c) { }
 
     bool isTransparent() const {
         if (brush.style() != Qt::NoBrush)
@@ -102,6 +102,7 @@ struct QStyleSheetBackgroundData : public QSharedData
     Qt::Alignment position;
     QCss::Origin origin;
     QCss::Attachment attachment;
+    QCss::Origin clip;
 };
 
 struct QStyleSheetBorderData : public QSharedData
@@ -211,7 +212,7 @@ public:
     QRect originRect(const QRect &rect, Origin origin) const;
 
     bool paintsOver(Edge e1, Edge e2);
-    QPainterPath setClip(QPainter *, QRect rect);
+    QPainterPath borderClip(QRect rect);
     void drawBorder(QPainter *, const QRect&);
     void drawBorderImage(QPainter *, const QRect&);
     void drawBackground(QPainter *, const QRect&, const QPoint& = QPoint(0, 0));
@@ -378,8 +379,9 @@ QRenderRule::QRenderRule(const QVector<Declaration> &declarations, const QWidget
     Qt::Alignment alignment = Qt::AlignTop | Qt::AlignLeft;
     Attachment attachment = Attachment_Scroll;
     origin = Origin_Padding;
-    if (v.extractBackground(&brush, &uri, &repeat, &alignment, &origin, &attachment))
-        bg = new QStyleSheetBackgroundData(brush, QPixmap(uri), repeat, alignment, origin, attachment);
+    Origin clip = Origin_Border;
+    if (v.extractBackground(&brush, &uri, &repeat, &alignment, &origin, &attachment, &clip))
+        bg = new QStyleSheetBackgroundData(brush, QPixmap(uri), repeat, alignment, origin, attachment, clip);
 
     QBrush sfg, fg;
     QBrush sbg, abg;
@@ -761,8 +763,13 @@ void QRenderRule::drawBackgroundImage(QPainter *p, const QRect &rect, QPoint off
         return;
 
     QPainterPath clipPath;
-    if (clip)
-        clipPath = setClip(p, rect);
+    if (clip) {
+        clipPath = borderClip(rect);
+        if (!clipPath.isEmpty()) {
+            p->save();
+            p->setClipPath(clipPath);
+        }
+    }
 
     if (background()->attachment == Attachment_Fixed)
         off = QPoint(0, 0);
@@ -889,7 +896,7 @@ void QRenderRule::drawBorder(QPainter *p, const QRect& rect)
     p->setRenderHints(oldHints);
 }
 
-QPainterPath QRenderRule::setClip(QPainter *p, QRect r)
+QPainterPath QRenderRule::borderClip(QRect r)
 {
     if (!hasBorder())
         return QPainterPath();
@@ -924,21 +931,25 @@ QPainterPath QRenderRule::setClip(QPainter *p, QRect r)
                tlr.width()*2 - borders[LeftEdge], tlr.height()*2 - borders[TopEdge], 180, -90);
 
     path.closeSubpath();
-
-    p->save();
-    p->setClipPath(path);
     return path;
 }
 
 void QRenderRule::drawBackground(QPainter *p, const QRect& rect, const QPoint& off)
 {
-    QPainterPath clip = setClip(p, borderRect(rect));
+    QPainterPath clip = borderClip(borderRect(rect));
+    if (!clip.isEmpty()) {
+        p->save();
+        p->setClipPath(clip);
+    }
     QBrush brush = hasBackground() ? background()->brush : QBrush();
     if (brush.style() == Qt::NoBrush)
         brush = defaultBackground;
 
-    if (brush.style() != Qt::NoBrush)
-        p->fillRect(borderRect(rect), brush);
+    if (brush.style() != Qt::NoBrush) {
+        Origin origin = hasBackground() ? background()->clip : Origin_Border;
+        // ### fix for  gradients
+        p->fillRect(originRect(rect, origin), brush);
+    }
 
     drawBackgroundImage(p, rect, off, false);
     if (!clip.isEmpty())

@@ -99,6 +99,7 @@ enum Property {
     BorderRadius,
     Background,
     BackgroundOrigin,
+    BackgroundClip,
     BackgroundRepeat,
     BackgroundPosition,
     BackgroundAttachment,
@@ -445,7 +446,8 @@ struct Q_GUI_EXPORT ValueExtractor
     ValueExtractor(const QVector<Declaration> &declarations, const QPalette & = QPalette());
 
     bool extractFont(QFont *font, int *fontSizeAdjustment);
-    bool extractBackground(QBrush *, QString *, Repeat *, Qt::Alignment *, QCss::Origin *, QCss::Attachment *);
+    bool extractBackground(QBrush *, QString *, Repeat *, Qt::Alignment *, QCss::Origin *, QCss::Attachment *,
+                           QCss::Origin *);
     bool extractGeometry(int *w, int *h, int *mw, int *mh);
     bool extractPosition(int *l, int *t, int *r, int *b, QCss::Origin *, Qt::Alignment *,
                          QCss::PositionMode *);
