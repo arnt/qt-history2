@@ -1014,6 +1014,36 @@ QSize QMdiArea::minimumSizeHint() const
 }
 
 /*!
+    Returns a pointer to the current subwindow, or 0 if there is
+    no current subwindow.
+
+    This function will return the same as activeSubWindow() if
+    the top-level window containing the QMdiArea is the
+    application's active window.
+
+    \sa activeSubWindow(), QApplication::activeWindow()
+*/
+QMdiSubWindow *QMdiArea::currentSubWindow() const
+{
+    Q_D(const QMdiArea);
+    if (d->childWindows.isEmpty())
+        return 0;
+
+    if (d->active)
+        return d->active;
+
+    if (d->isActivated)
+        return 0;
+
+    Q_ASSERT(d->indicesToStackedChildren.count() > 0);
+    int index = d->indicesToStackedChildren.at(0);
+    Q_ASSERT(index >= 0 && index < d->childWindows.size());
+    QMdiSubWindow *current = d->childWindows.at(index);
+    Q_ASSERT(current);
+    return current;
+}
+
+/*!
     Returns a pointer to the current active subwindow. If no
     window is currently active, 0 is returned.
 

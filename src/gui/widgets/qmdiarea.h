@@ -47,6 +47,7 @@ public:
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
 
+    QMdiSubWindow *currentSubWindow() const;
     QMdiSubWindow *activeSubWindow() const;
     QList<QMdiSubWindow *> subWindowList(WindowOrder order = CreationOrder) const;
 
