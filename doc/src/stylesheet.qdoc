@@ -44,6 +44,15 @@
     platforms' guidelines and (on Windows XP and Mac OS X) by the
     native theme engine.
 
+    In Qt 4.3 and later, the QApplication::setStyleSheet() and the
+    QWidget::setStyleSheet() functions accept a path as an argument,
+    relative to the stylesheet. For example:
+
+    \code
+        QApplication::setStyleSheet(":/resources/aqua.qss");
+        QWidget::setStyleSheet(":/images/bluesky.png");
+    \endcode
+
     Style sheets let you perform all kinds of customizations that are
     difficult or impossible to perform using QPalette alone. If you
     want yellow backgrounds for mandatory fields, red text for
@@ -83,9 +92,19 @@
     drawing operations to the underlying, platform-specific style
     (e.g., QWindowsXPStyle on Windows XP).
 
+    In Qt 4.3 and later, all Qt programs support the \c -stylesheet
+    argument, allowing you to specify a style sheet file (\c {.qss})
+    or a style sheet itself. For example:
+
+    \code
+        designer -stylesheet aqua.qss
+        designer -stylesheet QMenu::item{background-color:transparent;}
+        assistant -stylesheet QPushButton{color:red;}
+    \endcode
+
     \warning Qt style sheets are currently not supported for
     QMacStyle (the default style on Mac OS X). We plan to address
-    this in Qt 4.4.
+    this in in some future release.
 
     \section1 The Style Sheet Syntax
 
@@ -574,7 +593,10 @@
     \row
         \o QWidget
         \o Supports only the \l{#background-prop}{background} and
-           \l{#background-origin-prop}{background-origin} properties.
+           \l{#background-origin-prop}{background-origin} properties. In
+           Qt 4.3 and later, the \l{#qproperty}{qproperty} feature is
+           available, allowing QWidget properties to be set using
+           style sheets.
 
     \endtable
 
@@ -584,8 +606,8 @@
     Sheets. Which values can be given to an property depend on the
     \l{List of Property Types}{property's type}. Unless otherwise
     specified, properties below apply to all widgets. Properties
-    marked with an asterisk (*) are specific to Qt and have no
-    equivalent in CSS2 or CSS3.
+    marked with an asterisk * are specific to Qt and have no equivalent
+    in CSS2 or CSS3.
 
     \table 100%
     \header
@@ -596,7 +618,7 @@
     \row
         \o \bold{\c alternate-background} \target alternate-background-prop
         \omit ### or alternate-background-color? \endomit
-        \o \l{#Color}{Color}
+        \o \l{#Color}{Color} \BR | \l{#Gradient}{Gradient}
         \o The \l{QAbstractItemView::alternatingRowColors}{alternate
            background color} used in QAbstractItemView subclasses.
 
@@ -648,8 +670,24 @@
            and \l{#alternate-background-prop}{alternate-background}.
 
     \row
+        \o \c background-attachment
+        \o \l{#Attachment}{Attachment}
+        \o Determines whether the background-image is scrolled or fixed.
+           The default value is scrolled.
+
+           Example:
+
+           \code
+        QTextEdit{
+            background-image: url(C:/Documents and Settings/user/Desktop
+                                    /Screenshots/leaves.png);
+            background-attachment: fixed;
+        }
+           \endcode
+
+    \row
         \o \c background-color
-        \o \l{#Color}{Color}
+        \o \l{#Color}{Color} \BR | \l{#Gradient}{Gradient}
         \o The background color used for the widget.
 
            Examples:
@@ -817,22 +855,22 @@
 
     \row
         \o \c border-top-color
-        \o \l{#Color}{Color}
+        \o \l{#Color}{Color} \BR | \l{#Gradient}{Gradient}
         \o The color of the border's top edge.
 
     \row
         \o \c border-right-color
-        \o \l{#Color}{Color}
+        \o \l{#Color}{Color} \BR | \l{#Gradient}{Gradient}
         \o The color of the border's right edge.
 
     \row
         \o \c border-bottom-color
-        \o \l{#Color}{Color}
+        \o \l{#Color}{Color} \BR | \l{#Gradient}{Gradient}
         \o The color of the border's bottom edge.
 
     \row
         \o \c border-left-color
-        \o \l{#Color}{Color}
+        \o \l{#Color}{Color} \BR | \l{#Gradient}{Gradient}
         \o The color of the border's left edge.
 
     \row
@@ -1024,7 +1062,7 @@
            \l{#top-prop}{top}.
 
     \row
-        \o \bold{\c button-layout}* \target button-layout-prop
+        \o \bold{\c button-layout} \target button-layout-prop
         \o \l{#Number}{Number}
         \o The layout of buttons in a QDialogButtonBox or
            a QMessageBox. The possible values are 0
@@ -1045,7 +1083,7 @@
 
     \row
         \o \bold{\c color} \target color-prop
-        \o \l{#Color}{Color}
+        \o \l{#Color}{Color} \BR | \l{#Gradient}{Gradient}
         \o The color used to render text.
 
            This property is supported by all widgets that respect
@@ -1138,7 +1176,7 @@
 
     \row
         \o \bold{\c gridline-color}* \target gridline-color-prop
-        \o \l{#Color}{Color}
+        \o \l{#Color}{Color} \BR | \l{#Gradient}{Gradient}
         \o The color of the grid line in a QTableView.
 
            If this property is not specified, it defaults to the
@@ -1171,12 +1209,22 @@
         \o \bold{\c image}* \target image-prop
         \o \l{#Url}{Url}
         \o The image that is drawn at the center of a \l{subcontrol}.
+           In Qt 4.3 and later, the image property accepts a list of
+           \l{#Url}{Url}s or an \c{svg}.
 
            Example:
 
            \code
         QSpinBox::down-button { image: url(:/images/spindown.png) }
+        QTextEdit { background-image: url(x1.png) url(x2.png) }
+        QTextEdit { background-image: url(pic1.svg) }
            \endcode
+
+    \row
+        \o \bold{\c image-position}
+        \o \l{#position-prop}{position}
+        \o In Qt 4.3 and later, the image's position can be specified
+           using relative or absolute position.
 
     \row
         \o \bold{\c left} \target left-prop
@@ -1396,6 +1444,18 @@
            relative.
 
     \row
+        \o \bold{\c qproperty} \target qproperty
+        \o All QWidget properties: \BR
+           e.g., \c toolTip
+        \o To set a QWidget's property, use: qproperty-<property name> \BR
+           Example:
+
+           \code
+        QPushButton { qproperty-toolTip: "this is a tip"; }
+        QWidget { qproperty-windowTitle: "Main Window"; }
+           \endcode
+
+    \row
         \o \bold{\c right} \target right-prop
         \o \l{#Length}{Length}
         \o If \l{#position-prop}{position} is \c relative (the
@@ -1419,7 +1479,7 @@
 
     \row
         \o \bold{\c selection-background-color}* \target selection-background-color-prop
-        \o \l{#Color}{Color}
+        \o \l{#Color}{Color} \BR | \l{#Gradient}{Gradient}
         \o The background of selected text or items.
 
            This property is supported by all widgets that respect
@@ -1440,7 +1500,7 @@
 
     \row
         \o \bold{\c selection-color}* \target selection-color-prop
-        \o \l{#Color}{Color}
+        \o \l{#Color}{Color} \BR | \l{#Gradient}{Gradient}
         \o The foreground of selected text or items.
 
            This property is supported by all widgets that respect
@@ -1592,7 +1652,7 @@
     \header
         \o Type
         \o Syntax
-        \o Desciption
+        \o Description
 
     \row
         \o \bold Alignment \target Alignment
@@ -1608,6 +1668,12 @@
     \code
         QTextEdit { background-position: bottom center }
     \endcode
+
+    \row
+        \o \bold Attachment \target Attachment
+        \o \{ \c scroll \BR
+           | \c fixed \}*
+        \o Scroll or fixed attachment.
 
     \row
         \o \bold Background \target Background
@@ -1679,7 +1745,7 @@
            right, bottom, and left edges of a box, respectively. If
            the left color is not specified, it is taken to be the
            same as the right color. If the bottom color is not
-           specified, is it taken to be the same as the top color. If
+           specified, it is taken to be the same as the top color. If
            the right color is not specified, it is taken to be the
            same as the top color.
 
@@ -1718,11 +1784,15 @@
         \o \tt{rgb(\e{r}, \e{g}, \e{b})} \BR
            | \tt{rgba(\e{r}, \e{g}, \e{b}, \e{a})} \BR
            | \tt{#\e{rrggbb}} \BR
-           | \l{QColor::setNamedColor()}{Color Name}
+           | \l{QColor::setNamedColor()}{Color Name} \BR
+           | \l{#Gradient}{Gradient}
         \o Specifies a color as RGB (red, green, blue) or RGBA
            (red, green, blue, alpha). The \c rgb() or \c rgba() syntax can be
            used with integer values between 0 and 255, or with
            percentages.
+           
+           In Qt 4.3 and later, the Color property takes any of the three
+           gradients as well.
 
            Examples:
 
@@ -1765,6 +1835,41 @@
         \o The weight of a font.
 
     \row
+        \o \bold Gradient \target Gradient
+        \o \c qlineargradient \BR
+           | \c qradialgradient \BR
+           | \c qconicalgradient
+        \o Specifies gradient fills. There are three types of gradient fills:
+
+           \list
+           \o \e{Linear} gradients interpolate colors between start and
+              end points.
+           \o \e{Radial} gradients interpolate colors between a focal
+              point and end points on a circle surrounding it.
+           \o \e{Conical} gradients interpolate colors around a center
+              point.
+           \endlist
+
+        Examples:
+
+    \code
+        QTextEdit {
+            background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                        stop:0 white, stop:1 green)
+        } / * linear gradient from white to green * /
+
+        QTextEdit {
+            background: qconicalgradient(cx:0, cy:0, angle:30,
+                        stop:0 white, stop:1 green)
+        } / * conical gradient from white to green * /
+
+        QTextEdit {
+            background: qradialgradient(cx:2, cy:1, radius: 2, 
+                        fx:0.5, fy:0, stop:0 white, stop:1 green)
+        } / * radial gradient from white to green * /
+    \endcode
+
+    \row
         \o \bold Length \target Length
         \o \l{#Number}{Number} (\c px | \c em | \c ex)?
         \o A number followed by a measurement unit. The supported
@@ -1798,7 +1903,7 @@
            \o \c content: The content rectangle. This specifies where
                           the actual contents go, excluding any
                           padding, border, or margin.
-           \endlist                          
+           \endlist
 
            See also \l{The Box Model}.
 
@@ -1982,9 +2087,18 @@
     \section1 Examples
 
     In this section, we will see examples of how to style widgets
-    using style sheets. \l{Qt Designer}{Qt Designer} is an excellent tool to
-    preview style sheets. Just right-click anywhere on the form
-    you're designing and click \gui{Edit styleSheet}.
+    using style sheets. \l{Qt Designer}{Qt Designer} is an excellent tool
+    to preview style sheets. Just right-click anywhere on the form
+    you're designing and click \bold{Change styleSheet}.
+
+    \image stylesheet-designer-options.png
+
+    In Qt 4.3 and later, \l{Qt Designer}{Qt Designer} also includes a
+    style sheet syntax highlighter and validator. The validator indicates
+    if the syntax is valid or invalid, at the bottom left of the Edit
+    Style Sheet dialog.
+
+    \image designer-validator-highlighter.png
 
     \section2 Customizing the Foreground and Background Colors
 
