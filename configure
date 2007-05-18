@@ -2709,8 +2709,8 @@ Third Party Libraries:
  +  -system-zlib ....... Use zlib from the operating system.
                          See http://www.gzip.org/zlib
 
- *  -no-gif ............ Do not compile the plugin for GIF reading support.
-    -qt-gif ............ Compile the plugin for GIF reading support.
+    -no-gif ............ Do not compile the plugin for GIF reading support.
+ *  -qt-gif ............ Compile the plugin for GIF reading support.
                          See also src/plugins/imageformats/gif/qgifhandler.h
 
     -no-libtiff ........ Do not compile the plugin for TIFF support.
