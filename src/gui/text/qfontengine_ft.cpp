@@ -1252,6 +1252,10 @@ bool QFontEngineFT::stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs
     }
 
     *nglyphs = glyph_pos;
+
+    if (flags & QTextEngine::GlyphIndicesOnly)
+        return true;
+
     recalcAdvances(*nglyphs, glyphs, flags);
 
     return true;
