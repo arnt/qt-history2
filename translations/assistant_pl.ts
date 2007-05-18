@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS><TS version="1.1" language="pl">
+<defaultcodec></defaultcodec>
 <context>
     <name>AssistantServer</name>
     <message>
@@ -18,27 +19,27 @@
     <message>
         <location filename="../tools/assistant/fontsettingsdialog.cpp" line="33"/>
         <source>Font Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Ustawienia czcionki</translation>
     </message>
     <message>
         <location filename="../tools/assistant/fontsettingsdialog.cpp" line="40"/>
         <source>Font settings for:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ustawienia czcionki dla:</translation>
     </message>
     <message>
         <location filename="../tools/assistant/fontsettingsdialog.cpp" line="44"/>
         <source>Browser</source>
-        <translation type="unfinished"></translation>
+        <translation>Przeglądarka</translation>
     </message>
     <message>
         <location filename="../tools/assistant/fontsettingsdialog.cpp" line="45"/>
         <source>Application</source>
-        <translation type="unfinished"></translation>
+        <translation>Aplikacja</translation>
     </message>
     <message>
         <location filename="../tools/assistant/fontsettingsdialog.cpp" line="51"/>
         <source>Use custom settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Użyj własnych ustawień</translation>
     </message>
 </context>
 <context>
@@ -46,7 +47,7 @@
     <message>
         <location filename="../tools/assistant/helpdialog.cpp" line="247"/>
         <source>Open Link in Current Tab</source>
-        <translation>Otwórz link w bierzącej zakładce</translation>
+        <translation>Otwórz link w bieżącej karcie</translation>
     </message>
     <message>
         <location filename="../tools/assistant/helpdialog.cpp" line="250"/>
@@ -56,7 +57,7 @@
     <message>
         <location filename="../tools/assistant/helpdialog.cpp" line="253"/>
         <source>Open Link in New Tab</source>
-        <translation>Otwórz link w nowej zakładce</translation>
+        <translation>Otwórz link w nowej karcie</translation>
     </message>
     <message>
         <location filename="../tools/assistant/helpdialog.cpp" line="408"/>
@@ -72,13 +73,13 @@
         <location filename="../tools/assistant/helpdialog.cpp" line="345"/>
         <source>Failed to load keyword index file
 Assistant will not work!</source>
-        <translation>Nie można wczytać pliku indeksowego słów kluczowych
-Assistant nie będzie uruchomiony!</translation>
+        <translation>Nie można wczytać indeksu słów kluczowych
+Assistant nie będzie działał!</translation>
     </message>
     <message>
         <location filename="../tools/assistant/helpdialog.cpp" line="361"/>
         <source>Cannot open the index file %1</source>
-        <translation>Nie można otworzyć pliku indeksowego %1</translation>
+        <translation>Nie można otworzyć indeksu %1</translation>
     </message>
     <message>
         <location filename="../tools/assistant/helpdialog.cpp" line="551"/>
@@ -90,7 +91,7 @@ Assistant nie będzie uruchomiony!</translation>
         <source>Documentation file %1 does not exist!
 Skipping file.</source>
         <translation>Plik dokumentacji %1 nie istnieje!
-Pomijanie pliku.</translation>
+Plik zostaje pominięty.</translation>
     </message>
     <message>
         <location filename="../tools/assistant/helpdialog.cpp" line="565"/>
@@ -102,7 +103,7 @@ Pomijanie pliku.</translation>
         <source>Documentation file %1 is not compatible!
 Skipping file.</source>
         <translation>Plik dokumentacji %1 jest nieodpowiedni!
-Pomijanie pliku.</translation>
+Plik zostaje pominięty.</translation>
     </message>
     <message>
         <location filename="../tools/assistant/helpdialog.cpp" line="1067"/>
@@ -113,8 +114,8 @@ Pomijanie pliku.</translation>
         <location filename="../tools/assistant/helpdialog.cpp" line="1021"/>
         <source>Failed to save fulltext search index
 Assistant will not work!</source>
-        <translation>Nie można zapisać pliku indeksowego dla przeszukiwania całego tekstu
-Assistant nie będzie uruchomiony!</translation>
+        <translation>Nie można zapisać indeksu dla pełnego wyszukiwania
+Assistant nie będzie działał!</translation>
     </message>
     <message>
         <location filename="../tools/assistant/helpdialog.cpp" line="1049"/>
@@ -129,17 +130,17 @@ Assistant nie będzie uruchomiony!</translation>
     <message>
         <location filename="../tools/assistant/helpdialog.cpp" line="1119"/>
         <source>Full Text Search</source>
-        <translation>Szukanie w treści tekstu</translation>
+        <translation>Pełne wyszukiwanie</translation>
     </message>
     <message>
         <location filename="../tools/assistant/helpdialog.cpp" line="1111"/>
         <source>Using a wildcard within phrases is not allowed.</source>
-        <translation>Używanie znaku zastępczego w wyrażeniu nie jest dozwolone.</translation>
+        <translation>Używanie znacznika w wyrażeniu nie jest dozwolone.</translation>
     </message>
     <message>
         <location filename="../tools/assistant/helpdialog.cpp" line="1120"/>
         <source>The closing quotation mark is missing.</source>
-        <translation>Brakuje kończącego znaku cydzysłowu.</translation>
+        <translation>Brakuje kończącego znaku cudzysłowia.</translation>
     </message>
     <message>
         <location filename="../tools/assistant/helpdialog.ui" line="27"/>
@@ -149,12 +150,12 @@ Assistant nie będzie uruchomiony!</translation>
     <message>
         <location filename="../tools/assistant/helpdialog.ui" line="30"/>
         <source>&lt;b&gt;Help&lt;/b&gt;&lt;p&gt;Choose the topic you want help on from the contents list, or search the index for keywords.&lt;/p&gt;</source>
-        <translation>&lt;b&gt;Pomoc&lt;/b&gt;&lt;p&gt;Wybierz temat pomocy z listy dostępnych tematów bądź przeszukaj indeks w kontekście wpisanego wyrażenia.&lt;/p&gt;</translation>
+        <translation>&lt;b&gt;Pomoc&lt;/b&gt;&lt;p&gt;Wybierz temat pomocy z listy dostępnych tematów bądź poszukaj słowa kluczowego w indeksie.&lt;/p&gt;</translation>
     </message>
     <message>
         <location filename="../tools/assistant/helpdialog.ui" line="42"/>
         <source>Displays help topics organized by category, index or bookmarks. Another tab inherits the full text search.</source>
-        <translation>Pokazuje listę tematów pomocy podzieloną na kategorie, indeks lub zakładki. Kolejna zakładka pozwala wyszukiwać bezpośrednio w tekście.</translation>
+        <translation>Pokazuje listę tematów pomocy zorganizowaną w kategorie, indeks lub zakładki. Kolejna karta pozwala na pełne wyszukiwanie.</translation>
     </message>
     <message>
         <location filename="../tools/assistant/helpdialog.ui" line="46"/>
@@ -164,7 +165,7 @@ Assistant nie będzie uruchomiony!</translation>
     <message>
         <location filename="../tools/assistant/helpdialog.ui" line="61"/>
         <source>&lt;b&gt;Help topics organized by category.&lt;/b&gt;&lt;p&gt;Double-click an item to see the topics in that category. To view a topic, just double-click it.&lt;/p&gt;</source>
-        <translation>&lt;b&gt;Tematy pomocy podzielone na kategorie.&lt;/b&gt;&lt;p&gt;Kliknij dwa razy na określoną kategorię aby otworzyć listę jej tematów. Aby wczytać temat kliknij podwójnie na jego nazwie.&lt;/p&gt;</translation>
+        <translation>&lt;b&gt;Tematy pomocy zorganizowane w kategorie.&lt;/b&gt;&lt;p&gt;Kliknij dwukrotnie na wybraną kategorię aby otworzyć listę jej tematów. Aby obejrzeć temat dwukrotnie kliknij go.&lt;/p&gt;</translation>
     </message>
     <message>
         <location filename="../tools/assistant/helpdialog.ui" line="145"/>
@@ -184,17 +185,17 @@ Assistant nie będzie uruchomiony!</translation>
     <message>
         <location filename="../tools/assistant/helpdialog.ui" line="102"/>
         <source>Enter keyword</source>
-        <translation>Wprowadź słowo do wyszukania</translation>
+        <translation>Wprowadź słowo kluczowe</translation>
     </message>
     <message>
         <location filename="../tools/assistant/helpdialog.ui" line="105"/>
         <source>&lt;b&gt;Enter a keyword.&lt;/b&gt;&lt;p&gt;The list will select an item that matches the entered string best.&lt;/p&gt;</source>
-        <translation>&lt;b&gt;Wprowadź słowo do wyszukania.&lt;/b&gt;&lt;p&gt;Na liście pozostaną tematy odpowiadające szukanemu wyrażeniu.&lt;/p&gt;</translation>
+        <translation>&lt;b&gt;Wprowadź słowo kluczowe.&lt;/b&gt;&lt;p&gt;Lista wybierze temat który najbardziej odpowiada szukanemu wyrażeniu.&lt;/p&gt;</translation>
     </message>
     <message>
         <location filename="../tools/assistant/helpdialog.ui" line="115"/>
         <source>&lt;b&gt;List of available help topics.&lt;/b&gt;&lt;p&gt;Double-click on an item to open its help page. If more than one is found, you must specify which page you want.&lt;/p&gt;</source>
-        <translation>&lt;b&gt;Lista dostępnych tematów pomocy&lt;/b&gt;&lt;p&gt;Kliknij dwa razy na określonym temacie na liście aby otworzyć jego zawartość. Jeśli temat występuje w więcej niż jednym miejscu, konieczne jest dodatkowe wybranie strony do pokazania.&lt;/p&gt;</translation>
+        <translation>&lt;b&gt;Lista dostępnych tematów pomocy&lt;/b&gt;&lt;p&gt;Kliknij dwukrotnie na wybranym temacie aby otworzyć jego treść. Jeśli temat występuje w kilku kontekstach, dodatkowo nalezy wybrać kontekst z listy.&lt;/p&gt;</translation>
     </message>
     <message>
         <location filename="../tools/assistant/helpdialog.ui" line="123"/>
@@ -229,7 +230,7 @@ Assistant nie będzie uruchomiony!</translation>
     <message>
         <location filename="../tools/assistant/helpdialog.ui" line="193"/>
         <source>Delete the selected bookmark.</source>
-        <translation>Usuń bieżącą zakładkę.</translation>
+        <translation>Usuń zaznaczoną zakładkę.</translation>
     </message>
     <message>
         <location filename="../tools/assistant/helpdialog.ui" line="196"/>
@@ -244,7 +245,7 @@ Assistant nie będzie uruchomiony!</translation>
     <message>
         <location filename="../tools/assistant/helpdialog.ui" line="234"/>
         <source>Searching f&amp;or:</source>
-        <translation>Szukaj &amp;wyrażenia:</translation>
+        <translation>&amp;Szukanie:</translation>
     </message>
     <message>
         <location filename="../tools/assistant/helpdialog.ui" line="244"/>
@@ -254,12 +255,12 @@ Assistant nie będzie uruchomiony!</translation>
     <message>
         <location filename="../tools/assistant/helpdialog.ui" line="247"/>
         <source>&lt;b&gt;Enter search word(s).&lt;/b&gt;&lt;p&gt;Enter here the word(s) you are looking for. The words may contain wildcards (*). For a sequence of words quote them.&lt;/p&gt;</source>
-        <translation>&lt;b&gt;Wprowadź wyrażenie(a) do szukania.&lt;b&gt;&lt;p&gt;Wprowadź w tym okienku wyrażenia, których szukasz.  Wyrażenia mogą zawierać takie znaki jak (*). Dla wyszukania ciągu wyrażeń umieść całość w cudzysłowach.&lt;/p&gt;</translation>
+        <translation>&lt;b&gt;Wprowadź wyrażenie(a) do szukania.&lt;b&gt;&lt;p&gt;Wprowadź w tym okienku wyrażenia, których szukasz. Wyrażenia mogą zawierać znaczniki (*). Dla wyszukania ciągu wyrażeń umieść całość w cudzysłowie.&lt;/p&gt;</translation>
     </message>
     <message>
         <location filename="../tools/assistant/helpdialog.ui" line="257"/>
         <source>&lt;b&gt;Found documents&lt;/b&gt;&lt;p&gt;This list contains all found documents from the last search. The documents are ordered, i.e. the first document has the most matches.&lt;/p&gt;</source>
-        <translation>&lt;b&gt;Znalezione dokumenty&lt;/b&gt;&lt;p&gt;Lista zawiera wszystkie znalezione dokumenty związane z szukaniem wyrażenia. Dokumenty są posortowane pod względem ilości trafień szukanego wyrażenia.&lt;/p&gt;</translation>
+        <translation>&lt;b&gt;Znalezione dokumenty&lt;/b&gt;&lt;p&gt;Lista zawiera wszystkie znalezione dokumenty związane z ostatnim wyszukiwaniem. Dokumenty są poukładane w kolejności pod względem ilości trafień szukanego wyrażenia.&lt;/p&gt;</translation>
     </message>
     <message>
         <location filename="../tools/assistant/helpdialog.ui" line="264"/>
@@ -274,7 +275,7 @@ Assistant nie będzie uruchomiony!</translation>
     <message>
         <location filename="../tools/assistant/helpdialog.ui" line="285"/>
         <source>Display the help page for the full text search.</source>
-        <translation>Pokaż stronę pomocy dla szukanie w treści tekstu.</translation>
+        <translation>Pokaż stronę pomocy dla pełnego wyszukiwania.</translation>
     </message>
     <message>
         <location filename="../tools/assistant/helpdialog.ui" line="288"/>
@@ -284,12 +285,12 @@ Assistant nie będzie uruchomiony!</translation>
     <message>
         <location filename="../tools/assistant/helpdialog.ui" line="311"/>
         <source>Start searching.</source>
-        <translation>Uruchom szukanie.</translation>
+        <translation>Rozpocznij wyszukiwanie.</translation>
     </message>
     <message>
         <location filename="../tools/assistant/helpdialog.ui" line="314"/>
         <source>Pressing this button starts the search.</source>
-        <translation>Naciśnięcie tego przycisku powoduje uruchomienie szukania.</translation>
+        <translation>Naciśnięcie tego przycisku powoduje rozpoczęcie wyszukiwania.</translation>
     </message>
     <message>
         <location filename="../tools/assistant/helpdialog.ui" line="348"/>
@@ -314,7 +315,7 @@ Assistant nie będzie uruchomiony!</translation>
     <message>
         <location filename="../tools/assistant/helpwindow.cpp" line="92"/>
         <source>Failed to open link: &apos;%1&apos;</source>
-        <translation>Nie można otworzyć dowiązania: &apos;%1&apos;</translation>
+        <translation>Nie można otworzyć odnośnika: &apos;%1&apos;</translation>
     </message>
     <message>
         <location filename="../tools/assistant/helpwindow.cpp" line="94"/>
@@ -334,7 +335,7 @@ Assistant nie będzie uruchomiony!</translation>
     <message>
         <location filename="../tools/assistant/helpwindow.cpp" line="147"/>
         <source>Open Link in New Tab</source>
-        <translation>Otwórz odnośnik w nowej zakładce</translation>
+        <translation>Otwórz odnośnik w nowej karcie</translation>
     </message>
     <message>
         <location filename="../tools/assistant/helpwindow.cpp" line="65"/>
@@ -375,7 +376,7 @@ Assistant nie będzie uruchomiony!</translation>
     <message>
         <location filename="../tools/assistant/mainwindow.cpp" line="127"/>
         <source>Initializing Qt Assistant...</source>
-        <translation>Uruchamianie Qt Assistant...</translation>
+        <translation>Inicjalizowanie Qt Assistant...</translation>
     </message>
     <message>
         <location filename="../tools/assistant/mainwindow.cpp" line="153"/>
@@ -425,7 +426,7 @@ Assistant nie będzie uruchomiony!</translation>
     <message>
         <location filename="../tools/assistant/mainwindow.cpp" line="249"/>
         <source>Displays the main page of a specific documentation set.</source>
-        <translation>Pokazuje główną stronę dokumentacji.</translation>
+        <translation>Pokazuje główną stronę wybranego zestawu dokumentacji.</translation>
     </message>
     <message>
         <location filename="../tools/assistant/mainwindow.cpp" line="284"/>
@@ -440,12 +441,12 @@ Assistant nie będzie uruchomiony!</translation>
     <message>
         <location filename="../tools/assistant/mainwindow.cpp" line="291"/>
         <source>You need a commercial Qt license for development of proprietary (closed source) applications. Please see &lt;a href=&quot;http://www.trolltech.com/company/model.html&quot;&gt;www.trolltech.com/company/model.html&lt;/a&gt; for an overview of Qt licensing.</source>
-        <translation>Aby móc sprzedawać aplikację utworzone przy pomocy Qt potrzebujesz wersji komercyjnej. Proszę sprawdzić &lt;a href=&quot;http://www.trolltech.com/company/model.html&quot;&gt;www.trolltech.com/company/model.html&lt;/a&gt; dla poznania sposobu licencjonowania Qt.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../tools/assistant/mainwindow.cpp" line="297"/>
         <source>This program is licensed to you under the terms of the Qt Commercial License Agreement. For details, see the file LICENSE that came with this software distribution.</source>
-        <translation>Ten program wydany jest na licencji Qt Commercial. Aby sprawdzić szczegóły licencji, proszę sprawdzić plik LICENSE, który dołączany jest do pakietu Qt.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../tools/assistant/mainwindow.cpp" line="311"/>
@@ -455,7 +456,7 @@ Assistant nie będzie uruchomiony!</translation>
     <message>
         <location filename="../tools/assistant/mainwindow.cpp" line="330"/>
         <source>Failed to open about application contents in file: &apos;%1&apos;</source>
-        <translation>Nie można otworzyć wpisu z informacjami o aplikacji w pliku: &apos;%1&apos;</translation>
+        <translation>Nie można otworzyć pliku: &apos;%1&apos; z informacjami o aplikacji</translation>
     </message>
     <message>
         <location filename="../tools/assistant/mainwindow.cpp" line="467"/>
@@ -475,7 +476,7 @@ Assistant nie będzie uruchomiony!</translation>
     <message>
         <location filename="../tools/assistant/mainwindow.ui" line="25"/>
         <source>Qt Assistant by Trolltech</source>
-        <translation>Qt Assistant by Trolltech</translation>
+        <translation>Qt Assistant stworzony przez Trolltech</translation>
     </message>
     <message>
         <location filename="../tools/assistant/mainwindow.ui" line="30"/>
@@ -550,12 +551,12 @@ Assistant nie będzie uruchomiony!</translation>
     <message>
         <location filename="../tools/assistant/mainwindow.ui" line="176"/>
         <source>&amp;Copy</source>
-        <translation>&amp;Kopiuj</translation>
+        <translation>S&amp;kopiuj</translation>
     </message>
     <message>
         <location filename="../tools/assistant/mainwindow.ui" line="179"/>
         <source>Copy the selected text to the clipboard.</source>
-        <translation>Kopiuj wybrany tekst do schowka.</translation>
+        <translation>Skopiuj wybrany tekst do schowka.</translation>
     </message>
     <message>
         <location filename="../tools/assistant/mainwindow.ui" line="182"/>
@@ -570,7 +571,7 @@ Assistant nie będzie uruchomiony!</translation>
     <message>
         <location filename="../tools/assistant/mainwindow.ui" line="193"/>
         <source>Open the Find dialog. Qt Assistant will search the currently displayed page for the text you enter.</source>
-        <translation>Otwórz okno szukania. Qt Assistant będzie przeszukiwał bieżącą stronę w kontekście wprowadzonych danych.</translation>
+        <translation>Otwórz okno szukania. Qt Assistant będzie przeszukiwał bieżącą stronę dla tekstu ktory podasz.</translation>
     </message>
     <message>
         <location filename="../tools/assistant/mainwindow.ui" line="196"/>
@@ -600,12 +601,12 @@ Assistant nie będzie uruchomiony!</translation>
     <message>
         <location filename="../tools/assistant/mainwindow.ui" line="220"/>
         <source>&amp;Home</source>
-        <translation>&amp;Strona startowa</translation>
+        <translation>&amp;Strona domowa</translation>
     </message>
     <message>
         <location filename="../tools/assistant/mainwindow.ui" line="223"/>
         <source>Go to the home page. Qt Assistant&apos;s home page is the Qt Reference Documentation.</source>
-        <translation>Przejdź do strony startowej. Strona startowa Qt Assistant jest główną stroną dokumentacji Qt.</translation>
+        <translation>Przejdź do strony domowej. Strona domowa Qt Assistant jest główną stroną dokumentacji Qt.</translation>
     </message>
     <message>
         <location filename="../tools/assistant/mainwindow.ui" line="226"/>
@@ -660,12 +661,12 @@ Assistant nie będzie uruchomiony!</translation>
     <message>
         <location filename="../tools/assistant/mainwindow.ui" line="275"/>
         <source>Zoom &amp;in</source>
-        <translation>&amp;Zwiększ</translation>
+        <translation>Po&amp;większ</translation>
     </message>
     <message>
         <location filename="../tools/assistant/mainwindow.ui" line="278"/>
         <source>Zoom in on the document, i.e. increase the font size.</source>
-        <translation>Zwiększ rozmiar czcionek w dokumencie.</translation>
+        <translation>Powiększ rozmiar czcionek w dokumencie.</translation>
     </message>
     <message>
         <location filename="../tools/assistant/mainwindow.ui" line="281"/>
@@ -705,7 +706,7 @@ Assistant nie będzie uruchomiony!</translation>
     <message>
         <location filename="../tools/assistant/mainwindow.ui" line="311"/>
         <source>&amp;Close</source>
-        <translation>&amp;Zamknij</translation>
+        <translation type="unfinished">Za&amp;mknij</translation>
     </message>
     <message>
         <location filename="../tools/assistant/mainwindow.ui" line="314"/>
@@ -740,7 +741,7 @@ Assistant nie będzie uruchomiony!</translation>
     <message>
         <location filename="../tools/assistant/mainwindow.ui" line="344"/>
         <source>Add Tab</source>
-        <translation>Dodaj zakładkę</translation>
+        <translation>Dodaj kartę</translation>
     </message>
     <message>
         <location filename="../tools/assistant/mainwindow.ui" line="347"/>
@@ -750,7 +751,7 @@ Assistant nie będzie uruchomiony!</translation>
     <message>
         <location filename="../tools/assistant/mainwindow.ui" line="352"/>
         <source>Next Tab</source>
-        <translation>Następna zakładka</translation>
+        <translation>Następna karta</translation>
     </message>
     <message>
         <location filename="../tools/assistant/mainwindow.ui" line="355"/>
@@ -760,7 +761,7 @@ Assistant nie będzie uruchomiony!</translation>
     <message>
         <location filename="../tools/assistant/mainwindow.ui" line="360"/>
         <source>Previous Tab</source>
-        <translation>Poprzednia zakładka</translation>
+        <translation>Poprzedniakarta</translation>
     </message>
     <message>
         <location filename="../tools/assistant/mainwindow.ui" line="363"/>
@@ -770,7 +771,7 @@ Assistant nie będzie uruchomiony!</translation>
     <message>
         <location filename="../tools/assistant/mainwindow.ui" line="368"/>
         <source>Close Tab</source>
-        <translation>Zamknij zakładkę</translation>
+        <translation>Zamknij kartę</translation>
     </message>
     <message>
         <location filename="../tools/assistant/mainwindow.ui" line="371"/>
@@ -800,17 +801,17 @@ Assistant nie będzie uruchomiony!</translation>
     <message>
         <location filename="../tools/assistant/mainwindow.ui" line="398"/>
         <source>Sync with Table of Contents</source>
-        <translation>Synchronizuj z listą tematów</translation>
+        <translation>Synchronizuj ze spisem treści</translation>
     </message>
     <message>
         <location filename="../tools/assistant/mainwindow.ui" line="401"/>
         <source>Select the page in contents tab.</source>
-        <translation>Wybierz stronę w zakładce tematów.</translation>
+        <translation>Wybierz stronę w karcie ze spisem.</translation>
     </message>
     <message>
         <location filename="../tools/assistant/mainwindow.ui" line="406"/>
         <source>Font Settings...</source>
-        <translation type="unfinished"></translation>
+        <translation>Ustawienia czcionki...</translation>
     </message>
 </context>
 <context>
@@ -823,7 +824,7 @@ Assistant nie będzie uruchomiony!</translation>
     <message>
         <location filename="../tools/assistant/lib/qassistantclient.cpp" line="265"/>
         <source>Qt Assistant crashed.</source>
-        <translation>Qt Assistant zakończył się błędem.</translation>
+        <translation>Qt Assistant zawiesił sie.</translation>
     </message>
     <message>
         <location filename="../tools/assistant/lib/qassistantclient.cpp" line="268"/>
@@ -843,7 +844,7 @@ Assistant nie będzie uruchomiony!</translation>
     <message>
         <location filename="../tools/assistant/lib/qassistantclient.cpp" line="362"/>
         <source>Could not connect to Assistant: Host not found</source>
-        <translation>Nie można podłączyć się do Assistant: Komputer nie znaleziony</translation>
+        <translation>Nie można podłączyć się do Assistant: Host nie znaleziony</translation>
     </message>
     <message>
         <location filename="../tools/assistant/lib/qassistantclient.cpp" line="364"/>
@@ -856,7 +857,7 @@ Assistant nie będzie uruchomiony!</translation>
     <message>
         <location filename="../tools/assistant/config.cpp" line="321"/>
         <source>Qt Assistant by Trolltech</source>
-        <translation>Qt Assistant by Trolltech</translation>
+        <translation>Qt Assistant stworzony przez Trolltech</translation>
     </message>
 </context>
 <context>
@@ -869,17 +870,17 @@ Assistant nie będzie uruchomiony!</translation>
     <message>
         <location filename="../tools/assistant/tabbedbrowser.cpp" line="205"/>
         <source>Add page</source>
-        <translation>Dodaj stronę</translation>
+        <translation>Dodaj kartę</translation>
     </message>
     <message>
         <location filename="../tools/assistant/tabbedbrowser.cpp" line="214"/>
         <source>Close page</source>
-        <translation>Zamknij stronę</translation>
+        <translation>Zamknij kartę</translation>
     </message>
     <message>
         <location filename="../tools/assistant/tabbedbrowser.ui" line="27"/>
         <source>TabbedBrowser</source>
-        <translation>Przeglądarka zakładkowa</translation>
+        <translation>Przeglądarka z kartami</translation>
     </message>
     <message>
         <location filename="../tools/assistant/tabbedbrowser.ui" line="40"/>
@@ -914,17 +915,17 @@ Assistant nie będzie uruchomiony!</translation>
     <message>
         <location filename="../tools/assistant/tabbedbrowser.cpp" line="455"/>
         <source>New Tab</source>
-        <translation>Nowa zakładka</translation>
+        <translation>Nowa karta</translation>
     </message>
     <message>
         <location filename="../tools/assistant/tabbedbrowser.cpp" line="456"/>
         <source>Close Tab</source>
-        <translation>Zamknij zakładkę</translation>
+        <translation>Zamknij kartę</translation>
     </message>
     <message>
         <location filename="../tools/assistant/tabbedbrowser.cpp" line="457"/>
         <source>Close Other Tabs</source>
-        <translation>Zamknij pozostałe zakładki</translation>
+        <translation>Zamknij pozostałe karty</translation>
     </message>
 </context>
 <context>
@@ -942,12 +943,12 @@ Assistant nie będzie uruchomiony!</translation>
     <message>
         <location filename="../tools/assistant/topicchooser.ui" line="34"/>
         <source>Select a topic from the list and click the &lt;b&gt;Display&lt;/b&gt;-button to open the online help.</source>
-        <translation>Wybierz temat z listy i kliknij przycisk &lt;b&gt;Pokaż/b&gt; aby otworzyć pomoc.</translation>
+        <translation>Wybierz temat z listy i kliknij przycisk &lt;b&gt;Pokaż&lt;/b&gt; aby otworzyć pomoc (online).</translation>
     </message>
     <message>
         <location filename="../tools/assistant/topicchooser.ui" line="52"/>
         <source>&amp;Topics</source>
-        <translation>&amp;Temat</translation>
+        <translation>&amp;Tematy</translation>
     </message>
     <message>
         <location filename="../tools/assistant/topicchooser.ui" line="65"/>
@@ -967,7 +968,7 @@ Assistant nie będzie uruchomiony!</translation>
     <message>
         <location filename="../tools/assistant/topicchooser.ui" line="125"/>
         <source>&amp;Close</source>
-        <translation>&amp;Zamknij</translation>
+        <translation type="unfinished">Za&amp;mknij</translation>
     </message>
     <message>
         <location filename="../tools/assistant/topicchooser.ui" line="131"/>

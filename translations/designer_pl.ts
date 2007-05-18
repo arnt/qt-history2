@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS><TS version="1.1" language="pl">
+<defaultcodec></defaultcodec>
 <context>
     <name></name>
     <message>
@@ -609,7 +610,7 @@ Stara wersja pliku została nienaruszona, a aktualną bedziesz musiał zapisać 
     <message>
         <location filename="../tools/designer/src/designer/newform.cpp" line="56"/>
         <source>&amp;Close</source>
-        <translation>&amp;Zamknij</translation>
+        <translation>Za&amp;mknij</translation>
     </message>
     <message>
         <location filename="../tools/designer/src/designer/newform.ui" line="104"/>
@@ -1142,7 +1143,7 @@ Czy chcesz go zastąpić?</translation>
     <message>
         <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="1098"/>
         <source>&amp;Close Preview</source>
-        <translation>&amp;Zamknij podgląd</translation>
+        <translation>Za&amp;mknij podgląd</translation>
     </message>
     <message>
         <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="114"/>

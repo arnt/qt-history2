@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS><TS version="1.1" language="pl">
+<defaultcodec></defaultcodec>
 <context>
     <name>PPDOptionsModel</name>
     <message>
@@ -616,7 +617,7 @@ na
     <message>
         <location filename="../src/qt3support/network/q3urloperator.cpp" line="364"/>
         <source>The protocol `%1&apos; does not support listing directories</source>
-        <translation>Protokół &apos;%1&apos; nie obsłguje pokazywania katalogów</translation>
+        <translation>Protokół &apos;%1&apos; nie obsługuje pokazywania katalogów</translation>
     </message>
     <message>
         <location filename="../src/qt3support/network/q3urloperator.cpp" line="379"/>
@@ -3933,7 +3934,7 @@ Proszę wybrać inną nazwę pliku.</translation>
     <message>
         <location filename="../src/network/qudpsocket.cpp" line="132"/>
         <source>This platform does not support IPv6</source>
-        <translation>Ta platforma nie wspiera IPv6</translation>
+        <translation>Ta platforma nie obsługuje IPv6</translation>
     </message>
 </context>
 <context>
