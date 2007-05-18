@@ -781,7 +781,7 @@ void QSvgPaintEngine::drawPolygon(const QPointF *points, int pointCount,
         path.lineTo(points[i]);
 
     if (mode == PolylineMode) {
-        stream() << "<polyline points=\"";
+        stream() << "<polyline fill=\"none\" points=\"";
         for (int i = 0; i < pointCount; ++i) {
             const QPointF &pt = points[i];
             stream() << pt.x() << "," << pt.y() << " ";
