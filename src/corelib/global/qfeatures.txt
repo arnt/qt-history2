@@ -1019,8 +1019,15 @@ SeeAlso: ???
 Feature: SCRIPT
 Description: Provides support for the QtScript module
 Section: Utilities
-Requires: TEXTDATE DATESTRING
+Requires: TEXTDATE DATESTRING PROPERTIES
 Name: QtScript
+SeeAlso: ???
+
+Feature: ACCESSIBILITY
+Description: Provides accessibility support.
+Section: Utilities
+Requires: PROPERTIES
+Name: Accessibility
 SeeAlso: ???
 
 # Qtopia Core

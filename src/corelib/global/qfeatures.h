@@ -227,6 +227,11 @@
 // QWheelEvent
 //#define QT_NO_WHEELEVENT
 
+// Accessibility
+#if !defined(QT_NO_ACCESSIBILITY) && (defined(QT_NO_PROPERTIES))
+#define QT_NO_ACCESSIBILITY
+#endif
+
 // QButtonGroup
 #if !defined(QT_NO_BUTTONGROUP) && (defined(QT_NO_GROUPBOX))
 #define QT_NO_BUTTONGROUP
@@ -417,11 +422,6 @@
 #define QT_NO_MDIAREA
 #endif
 
-// QtScript
-#if !defined(QT_NO_SCRIPT) && (defined(QT_NO_TEXTDATE) || defined(QT_NO_DATESTRING))
-#define QT_NO_SCRIPT
-#endif
-
 // QSpinBox
 #if !defined(QT_NO_SPINBOX) && (defined(QT_NO_SPINWIDGET) || defined(QT_NO_LINEEDIT) || defined(QT_NO_VALIDATOR))
 #define QT_NO_SPINBOX
@@ -470,6 +470,11 @@
 // Sound Server
 #if !defined(QT_NO_QWS_SOUNDSERVER) && (defined(QT_NO_SOUND) || defined(QT_NO_HOSTINFO) || defined(QT_NO_QWS_MULTIPROCESS))
 #define QT_NO_QWS_SOUNDSERVER
+#endif
+
+// QtScript
+#if !defined(QT_NO_SCRIPT) && (defined(QT_NO_TEXTDATE) || defined(QT_NO_DATESTRING) || defined(QT_NO_PROPERTIES))
+#define QT_NO_SCRIPT
 #endif
 
 // QSyntaxHighlighter

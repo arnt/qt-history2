@@ -26,10 +26,10 @@
 #include <qstyle.h>
 #include <qstyleoption.h>
 
+#ifndef QT_NO_ACCESSIBILITY
+
 using namespace QAccessible2;
 extern QList<QWidget*> childWidgets(const QWidget *widget, bool includeTopLevel = false);
-
-#ifndef QT_NO_ACCESSIBILITY
 
 #ifdef Q_OS_MAC
 #include <qfocusframe.h>
