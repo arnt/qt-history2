@@ -318,10 +318,17 @@ void tst_QScriptEngine::newQMetaObject()
     QScriptValue instance3 = qclass.construct(args);
     QCOMPARE(instance3.isQObject(), true);
     QCOMPARE(instance3.toQObject()->parent(), instance.toQObject());
+    args.clear();
 
-    // ### must explicitly delete these, since the engine will not
-    delete instance.toQObject();
-    delete instance2.toQObject();
+    // verify that AutoOwnership is in effect
+    instance = QScriptValue();
+    eng.gc();
+    QVERIFY(instance.toQObject() == 0);
+    QVERIFY(instance3.toQObject() == 0); // was child of instance
+    QVERIFY(instance2.toQObject() != 0);
+    instance2 = QScriptValue();
+    eng.gc();
+    QVERIFY(instance2.toQObject() == 0);
 }
 
 void tst_QScriptEngine::newActivationObject()

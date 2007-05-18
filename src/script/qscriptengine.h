@@ -216,7 +216,7 @@ inline QScriptValue qScriptValueFromQMetaObject(
 template<> inline QScriptValue qscriptQMetaObjectConstructor<T>(QScriptContext *ctx, QScriptEngine *eng) \
 { \
     _Arg1 arg1 = qscriptvalue_cast<_Arg1> (ctx->argument(0)); \
-    return eng->newQObject(new T(arg1)); \
+    return eng->newQObject(new T(arg1), QScriptEngine::AutoOwnership); \
 }
 
 #endif // QT_NO_QOBJECT
