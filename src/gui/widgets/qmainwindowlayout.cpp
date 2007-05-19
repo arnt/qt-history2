@@ -115,10 +115,7 @@ void dumpLayout(const QDockAreaLayout &layout, QString indent)
 // we deal with all the #ifndefferry here so QMainWindowLayout code is clean
 
 QMainWindowLayoutState::QMainWindowLayoutState(QMainWindow *win)
-
-#if !defined(QT_NO_DOCKWIDGET) || !defined(QT_NO_TOOLBAR)
     :
-#endif
 #ifndef QT_NO_TOOLBAR
     toolBarAreaLayout(win),
 #endif
