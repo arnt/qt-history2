@@ -771,6 +771,13 @@ void QRenderRule::drawBackgroundImage(QPainter *p, const QRect &rect, QPoint off
         }
     }
 
+    if (background()->origin != background()->clip) {
+        if (clipPath.isEmpty())
+            p->save();
+        clipPath.addRect(originRect(rect, background()->clip));
+        p->setClipPath(clipPath);
+    }
+
     if (background()->attachment == Attachment_Fixed)
         off = QPoint(0, 0);
 
@@ -1456,7 +1463,7 @@ QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QStyleOption *o
             QStyle::SubControl subControl = knownPseudoElements[pseudoElement].subControl;
 
             if (!(complex->activeSubControls & subControl))
-                state = QStyle::State(state & QStyle::State_Enabled);
+                state = QStyle::State(state & (QStyle::State_Enabled | QStyle::State_Horizontal));
         }
 
         switch (pseudoElement) {
@@ -1491,6 +1498,9 @@ QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QStyleOption *o
             if (complex->state & QStyle::State_Sunken ||
                 complex->activeSubControls & QStyle::SC_ToolButtonMenu)
                 state |= QStyle::State_Sunken;
+            break;
+        case PseudoElement_SliderGroove:
+            state |= complex->state & QStyle::State_MouseOver;
             break;
         default:
             break;
@@ -1843,6 +1853,7 @@ static PositionMode defaultPositionMode(int pe)
     case PseudoElement_ScrollBarSubPage:
     case PseudoElement_ScrollBarSlider:
     case PseudoElement_SliderGroove:
+    case PseudoElement_SliderHandle:
     case PseudoElement_TabWidgetPane:
         return PositionMode_Absolute;
     default:
@@ -3469,23 +3480,27 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const 
         }
         break;
 
-    case PM_SliderControlThickness:
     case PM_SliderThickness: // horizontal slider's height (sizeHint)
-    case PM_SliderLength:  { // minimum length of slider
-        QRenderRule subRule = renderRule(w, opt, PseudoElement_SliderGroove);
-        if (!subRule.hasDrawable())
-            break;
-        QRenderRule subRule2 = renderRule(w, opt, PseudoElement_SliderHandle);
-        bool horizontal = opt->state & QStyle::State_Horizontal;
-        if (m == PM_SliderThickness) {
-            return horizontal ? subRule.size().height() : subRule.size().width();
-        } else if (m == PM_SliderControlThickness || m == PM_SliderLength) {
-            QRenderRule subRule2 = renderRule(w, opt, PseudoElement_SliderHandle);
-            QSize size = subRule2.size();
-            return horizontal && m == PM_SliderControlThickness ? size.width() : size.height();
+    case PM_SliderLength: // minimum length of slider
+        if (rule.hasContentsSize()) {
+            bool horizontal = opt->state & QStyle::State_Horizontal;
+            if (m == PM_SliderThickness) {
+                QSize sz = rule.size();
+                return horizontal ? sz.height() : sz.width();
+            } else {
+                QSize msz = rule.minimumContentsSize();
+                return horizontal ? msz.width() : msz.height();
+            }
         }
         break;
-                            }
+
+    case PM_SliderControlThickness: {
+        QRenderRule subRule = renderRule(w, opt, PseudoElement_SliderHandle);
+        if (!subRule.hasContentsSize())
+            break;
+        QSize size = subRule.size();
+        return (opt->state & QStyle::State_Horizontal) ? size.height() : size.width();
+                                    }
 
     default:
         break;
@@ -3587,7 +3602,7 @@ QSize QStyleSheetStyle::sizeFromContents(ContentsType ct, const QStyleOption *op
         break;
 
     case CT_Slider:
-        if (rule.hasBorder() || rule.hasBox())
+        if (rule.hasBorder() || rule.hasBox() || rule.hasGeometry())
             return rule.boxSize(sz);
         break;
 
@@ -3921,24 +3936,24 @@ QRect QStyleSheetStyle::subControlRect(ComplexControl cc, const QStyleOptionComp
             QRenderRule subRule = renderRule(w, opt, PseudoElement_SliderGroove);
             if (!subRule.hasDrawable())
                 break;
+            subRule.img = 0;
             QRect gr = positionRect(w, rule, subRule, PseudoElement_SliderGroove, opt->rect, opt->direction);
             switch (sc) {
             case SC_SliderGroove:
                 return gr;
             case SC_SliderHandle: {
+                bool horizontal = opt->state & Qt::Horizontal;
+                QRect cr = subRule.contentsRect(gr);
                 QRenderRule subRule2 = renderRule(w, opt, PseudoElement_SliderHandle);
-                Origin origin = subRule2.hasPosition() ? subRule2.position()->origin : defaultOrigin(PseudoElement_SliderHandle);
-                QRect cr = subRule.originRect(gr, origin);
+                int len = horizontal ? subRule2.size().width() : subRule2.size().height();
+                subRule2.img = 0;
+                cr = positionRect(w, subRule2, PseudoElement_SliderHandle, cr, opt->direction);
                 int sliderPos = 0;
                 int thickness = pixelMetric(PM_SliderControlThickness, slider, w);
-                int len = pixelMetric(PM_SliderLength, slider, w);
-                bool horizontal = slider->orientation == Qt::Horizontal;
                 sliderPos = sliderPositionFromValue(slider->minimum, slider->maximum, slider->sliderPosition,
                                                     (horizontal ? cr.width() : cr.height()) - len, slider->upsideDown);
-                if (horizontal)
-                    return QRect(cr.x() + sliderPos, cr.y(), len, thickness);
-                else
-                    return QRect(cr.x(), cr.y() + sliderPos, thickness, len);
+                return horizontal ? QRect(cr.x() + sliderPos, cr.y(), len, thickness)
+                                  : QRect(cr.x(), cr.y() + sliderPos, thickness, len);
                 break; }
             case SC_SliderTickmarks:
                 // TODO...
@@ -4013,6 +4028,11 @@ QRect QStyleSheetStyle::subElementRect(SubElement se, const QStyleOption *opt, c
 
     case SE_RadioButtonFocusRect:
     case SE_RadioButtonClickRect: // focusrect | indicator
+        if (rule.hasBox() || rule.hasBorder() || hasStyleRule(w, PseudoElement_Indicator)) {
+            return opt->rect;
+        }
+        break;
+
     case SE_CheckBoxFocusRect:
     case SE_CheckBoxClickRect: // relies on indicator and contents
         return ParentStyle::subElementRect(se, opt, w);
