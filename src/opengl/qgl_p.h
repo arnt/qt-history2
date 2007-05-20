@@ -308,6 +308,7 @@ private:
 extern QGLShareRegister* qgl_share_reg();
 
 #ifdef Q_WS_QWS
+class QOpenGLPaintEngine;
 extern QOpenGLPaintEngine* qt_qgl_paint_engine();
 #endif
 #endif // QGL_P_H
