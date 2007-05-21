@@ -36,7 +36,7 @@
 
 namespace QScript {
 
-class Array // ### private
+class Array
 {
 public:
     inline Array();
@@ -83,9 +83,9 @@ public:
 
     inline bool operator()(const QScriptValueImpl &v1, const QScriptValueImpl &v2) const
     {
-        if (v1.isUndefined())
+        if (!v1.isValid() || v1.isUndefined())
             return false;
-        if (v2.isUndefined())
+        if (!v2.isValid() || v2.isUndefined())
             return true;
         if (!m_comparefn.isUndefined()) {
             ArrayElementLessThan *that = const_cast<ArrayElementLessThan*>(this);
@@ -167,7 +167,7 @@ inline uint QScript::Array::size() const
     if (to_map->isEmpty())
         return 0;
 
-    return (--to_map->end()).key();
+    return (--to_map->constEnd()).key();
 }
 
 inline uint QScript::Array::count() const
@@ -177,19 +177,13 @@ inline uint QScript::Array::count() const
 
 inline QScriptValueImpl QScript::Array::at(uint index) const
 {
-    QScriptValueImpl v;
-
     if (m_mode == VectorMode) {
         if (index < uint(to_vector->size()))
-            v = to_vector->at(index);
-        else
-            v.invalidate();
+            return to_vector->at(index);
+        return QScriptValueImpl();
+    } else {
+        return to_map->value(index, QScriptValueImpl());
     }
-
-    else
-        v = to_map->value(index, QScriptValueImpl());
-
-    return v;
 }
 
 inline void QScript::Array::assign(uint index, const QScriptValueImpl &v)
@@ -202,14 +196,21 @@ inline void QScript::Array::assign(uint index, const QScriptValueImpl &v)
         }
     }
 
+    const QScriptValueImpl &oldv = at(index);
+    if (oldv.isValid() && (oldv.isObject() || oldv.isString()))
+        --m_instances;
+
     if (v.isValid() && (v.isObject() || v.isString()))
         ++m_instances;
 
-    if (m_mode == VectorMode)
+    if (m_mode == VectorMode) {
         to_vector->replace(index, v);
-
-    else
-        to_map->insert(index, v);
+    } else {
+        if (!v.isValid())
+            to_map->remove(index);
+        else
+            to_map->insert(index, v);
+    }
 }
 
 inline void QScript::Array::clear()
@@ -240,22 +241,22 @@ inline void QScript::Array::mark(int generation)
 
 inline void QScript::Array::resize(uint s)
 {
+    const uint oldSize = size();
+    if (oldSize == s)
+        return;
+
     const uint N = 10 * 1024;
 
     if (m_mode == VectorMode) {
         if (s < N) {
-            int oldSize = to_vector->size();
             to_vector->resize (s);
-            if (oldSize < to_vector->size()) {
-                for (int i = oldSize; i < to_vector->size(); ++i)
-                    (*to_vector)[i].invalidate();
-            }
-        }
-
-        else {
+        } else {
+            // switch to MapMode
             QMap<uint, QScriptValueImpl> *m = new QMap<uint, QScriptValueImpl>();
-            for (uint i = 0; i < uint(to_vector->size()); ++i)
-                m->insert(i, to_vector->at(i));
+            for (uint i = 0; i < oldSize; ++i) {
+                if (to_vector->at(i).isValid())
+                    m->insert(i, to_vector->at(i));
+            }
             m->insert(s, QScriptValueImpl());
             delete to_vector;
             to_map = m;
@@ -265,33 +266,37 @@ inline void QScript::Array::resize(uint s)
 
     else {
         if (s < N) {
-            QVector<QScriptValueImpl> *v = new QVector<QScriptValueImpl> ();
-            v->fill(QScriptValueImpl(), s);
+            // switch to VectorMode
+            QVector<QScriptValueImpl> *v = new QVector<QScriptValueImpl> (s);
             QMap<uint, QScriptValueImpl>::const_iterator it = to_map->constBegin();
-            uint i = 0;
-            for (; i < s && it != to_map->constEnd(); ++it, ++i)
-                (*v) [i] = it.value();
+            for ( ; (it != to_map->constEnd()) && (it.key() < s); ++it)
+                (*v) [it.key()] = it.value();
             delete to_map;
             to_vector = v;
             m_mode = VectorMode;
-            return;
-        }
-
-        if (! to_map->isEmpty()) {
-            QMap<uint, QScriptValueImpl>::iterator it = to_map->insert(s, QScriptValueImpl());
-            for (++it; it != to_map->end(); )
-                it = to_map->erase(it);
-            to_map->insert(s, QScriptValueImpl()); // ### hmm
+        } else {
+            if (!to_map->isEmpty()) {
+                QMap<uint, QScriptValueImpl>::iterator it = --to_map->end();
+                if (oldSize > s) {
+                    // shrink
+                    while ((it != to_map->end()) && (it.key() >= s)) {
+                        it = to_map->erase(it);
+                        --it;
+                    }
+                } else {
+                    if ((it.key() == oldSize) && !it.value().isValid())
+                        to_map->erase(it);
+                }
+            }
+            to_map->insert(s, QScriptValueImpl());
         }
     }
 }
 
 inline void QScript::Array::concat(const QScript::Array &other)
 {
-    int k = size();
+    uint k = size();
     resize (k + other.size());
-    QScriptValueImpl def;
-    def.invalidate();
     for (uint i = 0; i < other.size(); ++i) {
         QScriptValueImpl v = other.at(i);
         if (! v.isValid())
@@ -310,7 +315,6 @@ inline QScriptValueImpl QScript::Array::pop()
 
     if (m_mode == VectorMode)
         v = to_vector->last();
-
     else
         v = *--to_map->end();
 
@@ -327,8 +331,8 @@ inline void QScript::Array::sort(const QScriptValueImpl &comparefn)
     } else {
         QList<uint> keys = to_map->keys();
         QList<QScriptValueImpl> values = to_map->values();
-        qSort(values.begin(), values.end(), lessThan);
-        const uint len = size();
+        qStableSort(values.begin(), values.end(), lessThan);
+        const uint len = keys.size();
         for (uint i = 0; i < len; ++i)
             to_map->insert(keys.at(i), values.at(i));
     }
@@ -343,42 +347,36 @@ inline void QScript::Array::splice(qsreal start, qsreal deleteCount,
         start = qMax(len + start, qsreal(0));
     else if (start > len)
         start = len;
-    deleteCount = qMax(qMin(deleteCount, len), qsreal(0));
+    deleteCount = qMax(qMin(deleteCount, len - start), qsreal(0));
 
     const uint st = uint(start);
     const uint dc = uint(deleteCount);
     other.resize(dc);
 
+    const uint itemsSize = uint(items.size());
+
     if (m_mode == VectorMode) {
-
-        for (uint i = 0; i < dc; ++i) {
-            QScriptValueImpl v = to_vector->at(st + i);
-            other.assign(i, v);
-            if (i < uint(items.size()))
-                to_vector->replace(st + i, items.at(i));
-        }
-        to_vector->remove(st + items.size(), dc - items.size());
-
+        for (uint i = 0; i < dc; ++i)
+            other.assign(i, to_vector->at(st + i));
+        if (itemsSize > dc)
+            to_vector->insert(st + itemsSize, itemsSize - dc, QScriptValueImpl());
+        else if (itemsSize < dc)
+            to_vector->remove(st + itemsSize, dc - itemsSize);
+        for (uint i = 0; i < itemsSize; ++i)
+            to_vector->replace(st + i, items.at(i));
     } else {
-
-        for (uint i = 0; i < dc; ++i) {
-            QScriptValueImpl v = to_map->value(st + i, QScriptValueImpl());
-            other.assign(i, v);
-            if (i < uint(items.size()))
-                to_map->insert(st + i, items.at(i));
-        }
-
-        uint del = dc - items.size();
+        for (uint i = 0; i < dc; ++i)
+            other.assign(i, to_map->take(st + i));
+        uint del = itemsSize - dc;
         if (del != 0) {
-            for (uint j = st + items.size(); j < uint(len); ++j) {
-                if (to_map->contains(j)) {
-                    QScriptValueImpl v = to_map->take(j);
-                    to_map->insert(j - del, v);
-                }
+            for (uint i = st; i < uint(len); ++i) {
+                if (to_map->contains(i))
+                    to_map->insert(i + del, to_map->take(i));
             }
-            resize(uint(len) - del);
+            resize(uint(len) + del);
         }
-
+        for (uint i = 0; i < itemsSize; ++i)
+            to_map->insert(st + i, items.at(i));
     }
 }
 
