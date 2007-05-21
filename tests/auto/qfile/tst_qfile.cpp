@@ -75,6 +75,7 @@ private slots:
     void readLineNullInLine();
     void readAllStdin();
     void readLineStdin();
+    void readLineStdin_lineByLine();
     void text();
     void missingEndOfLine();
     void readBlock();
@@ -536,26 +537,49 @@ void tst_QFile::readLineStdin()
             lotsOfData[i] = char('0' + i % 32);
     }
 
-    QProcess process;
-    process.start("stdinprocess/stdinprocess line", QIODevice::Text | QIODevice::ReadWrite);
-    for (int i = 0; i < 5; ++i) {
-        QTest::qWait(1000);
-        process.write(lotsOfData);
-        while (process.bytesToWrite() > 0) {
-            QVERIFY(process.waitForBytesWritten());
+    for (int i = 0; i < 2; ++i) {
+        QProcess process;
+        process.start(QString("stdinprocess/stdinprocess line %1").arg(i), QIODevice::Text | QIODevice::ReadWrite);
+        for (int i = 0; i < 5; ++i) {
+            QTest::qWait(1000);
+            process.write(lotsOfData);
+            while (process.bytesToWrite() > 0) {
+                QVERIFY(process.waitForBytesWritten());
+            }
+        }
+
+        process.closeWriteChannel();
+        QVERIFY(process.waitForFinished(5000));
+
+        QByteArray array = process.readAll();
+        QCOMPARE(array.size(), lotsOfData.size() * 5);
+        for (int i = 0; i < array.size(); ++i) {
+            if ((i % 32) == 31)
+                QCOMPARE(char(array[i]), '\n');
+            else
+                QCOMPARE(char(array[i]), char('0' + i % 32));
         }
     }
+}
 
-    process.closeWriteChannel();
-    QVERIFY(process.waitForFinished(5000));
+void tst_QFile::readLineStdin_lineByLine()
+{
+    for (int i = 0; i < 2; ++i) {
+        QProcess process;
+        process.start(QString("stdinprocess/stdinprocess line %1").arg(i), QIODevice::Text | QIODevice::ReadWrite);
+        QVERIFY(process.waitForStarted());
 
-    QByteArray array = process.readAll();
-    QCOMPARE(array.size(), lotsOfData.size() * 5);
-    for (int i = 0; i < array.size(); ++i) {
-        if ((i % 32) == 31)
-            QCOMPARE(char(array[i]), '\n');
-        else
-            QCOMPARE(char(array[i]), char('0' + i % 32));
+        for (int j = 0; j < 3; ++j) {
+            QByteArray line = "line " + QByteArray::number(j) + "\n";
+            QCOMPARE(process.write(line), qint64(line.size()));
+            QVERIFY(process.waitForBytesWritten(2000));
+            if (process.bytesAvailable() == 0)
+                QVERIFY(process.waitForReadyRead(2000));
+            QCOMPARE(process.readAll(), line);
+        }
+
+        process.closeWriteChannel();
+        QVERIFY(process.waitForFinished(5000));
     }
 }
 
