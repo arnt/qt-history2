@@ -391,6 +391,12 @@ Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loaderV2,
     button->setIcon(QIcon("open.xpm"));
   \endcode
 
+  To undo a QIcon, simply set a null icon in its place:
+  
+  \code
+   button->setIcon(QIcon());
+  \endcode
+  
   Use the QImageReader::supportedImageFormats() and
   QImageWriter::supportedImageFormats() functions to retrieve a
   complete list of the supported file formats.
