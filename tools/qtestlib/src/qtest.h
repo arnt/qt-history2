@@ -23,6 +23,7 @@
 #include <QtCore/qstringlist.h>
 #include <QtCore/qdatetime.h>
 #include <QtCore/qobject.h>
+#include <QtCore/qurl.h>
 
 #include <QtCore/qpoint.h>
 #include <QtCore/qsize.h>
@@ -104,6 +105,11 @@ template<> inline char *toString(const QSizeF &s)
 template<> inline char *toString(const QRectF &s)
 {
     return qstrdup(QString::fromLatin1("QRectF(%1,%2 %5x%6) (bottomright %3,%4)").arg(s.left()).arg(s.top()).arg(s.right()).arg(s.bottom()).arg(s.width()).arg(s.height()).toLatin1().constData());
+}
+
+template<> inline char *toString(const QUrl &uri)
+{
+    return qstrdup(uri.toEncoded().constData());
 }
 
 #ifndef QTEST_NO_SPECIALIZATIONS
