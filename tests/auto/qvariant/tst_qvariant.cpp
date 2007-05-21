@@ -205,6 +205,8 @@ private slots:
     void comparePointers() const;
     void voidStar() const;
     void dataStar() const;
+    void canConvertQStringList() const;
+    void canConvertQStringList_data() const;
 };
 
 Q_DECLARE_METATYPE(QDate)
@@ -435,7 +437,7 @@ void tst_QVariant::canConvert_data()
     var = QVariant(QString());
     QTest::newRow("String")
 	<< var << N << N << Y << N << Y << Y << Y << N << N << Y << Y << Y << Y << N << N << Y << N << Y << N << Y << N << N << N << N << N << N << N << N << N << N << Y << Y << Y << Y << Y;
-   var = QVariant(QStringList());
+   var = QVariant(QStringList("entry"));
     QTest::newRow("StringList")
 	<< var << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << Y << N << N << N << N << N << N << N << N << N << N << N << Y << Y << N << N << N;
     var = QVariant(QTime());
@@ -2295,6 +2297,37 @@ void tst_QVariant::dataStar() const
 
     v2 = qVariantFromValue(p1);
     QVERIFY(v1 == v2);
+}
+
+void tst_QVariant::canConvertQStringList() const
+{
+    QFETCH(bool, canConvert);
+    QFETCH(QStringList, input);
+    QFETCH(QString, result);
+
+    QVariant v(input);
+
+    QCOMPARE(v.canConvert(QVariant::String), canConvert);
+    QCOMPARE(v.toString(), result);
+}
+
+void tst_QVariant::canConvertQStringList_data() const
+{
+    QTest::addColumn<bool>("canConvert");
+    QTest::addColumn<QStringList>("input");
+    QTest::addColumn<QString>("result");
+
+    QTest::newRow("An empty list") << false << QStringList() << QString();
+    QTest::newRow("A single item") << true << QStringList(QLatin1String("foo")) << QString::fromLatin1("foo");
+    QTest::newRow("A single, but empty item") << true << QStringList(QString()) << QString();
+
+    QStringList l;
+    l << "a" << "b";
+
+    QTest::newRow("Two items") << false << l << QString();
+
+    l << "c";
+    QTest::newRow("Three items") << false << l << QString();
 }
 
 QTEST_MAIN(tst_QVariant)

@@ -2471,7 +2471,10 @@ bool QVariant::canConvert(Type t) const
         }
     }
 
-    return qCanConvertMatrix[t] & (1 << d.type);
+    if(t == String && d.type == StringList)
+        return v_cast<QStringList>(&d)->count() == 1;
+    else
+        return qCanConvertMatrix[t] & (1 << d.type);
 }
 
 /*!
