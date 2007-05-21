@@ -1,18 +1,20 @@
 /*!
     \example qtopiacore/ahigl
-    \title OpenGL ES Screen Driver Example
+    \title OpenGL for Embedded Systems Example
 
-    The OpenGL ES Screen Driver example shows how to use the \l {Qtopia Core} 
-    screen driver framework to write an OpenGL ES integration. The
-    example assumes basic knowledge about the screen driver framework on 
-    as discussed in the \l {Accelerated Screen Driver Example}.
+    The OpenGL for Embedded Systems (ES) screen driver example shows
+    how to use the \l {Qtopia Core} screen driver framework to write
+    an OpenGL ES integration. The example assumes basic knowledge
+    about the screen driver framework as discussed in the 
+    \l {Accelerated Screen Driver Example}.
 
-    In \l {Qtopia Core} there's several ways to make use of OpenGL ES.
-    One is to use OpenGL ES to do compositioning between top level windows
-    and possibly create transition effects for instance when a new window is
-    shown. A second use is to enable QGLWidget and a third use-case is to 
-    make use of OpenGL ES to accelerate painting of widgets. This example
-    will discuss how to implement all of these.
+    In \l {Qtopia Core} there are different ways OpenGL ES can be
+    used.  One is to use OpenGL ES to do compositioning between top
+    level windows and possibly create transition effects for instance
+    when a new window is shown. A second use is to enable QGLWidget
+    and a third use-case is to make use of OpenGL ES to accelerate
+    painting of widgets. This example will discuss how to implement
+    all of these.
 
     This example is written using an OpenGL ES implementation from 
     \l {http://ati.amd.com}{ATI} for the 

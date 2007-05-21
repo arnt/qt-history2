@@ -72,8 +72,10 @@
     \section1 Full Integration
 
     It is also possible to do a full integration, taking the advantage
-    of accelerated hardware. This requires creating a custom driver using
-    the screen driver framework. See the \l {Accelerated Screen Driver Example}
-    for more information on the screen driver framework and the
-    \l {OpenGL ES Screen Driver Example} for an example OpenGL ES integration.
-*/
+    of accelerated hardware. This requires creating a custom driver
+    using the screen driver framework. See the 
+    \l {Accelerated Screen Driver Example} for more information on the 
+    screen driver framework, and see the 
+    \l {OpenGL for Embedded Systems Example} for an example OpenGL ES 
+    integration.
+ */
