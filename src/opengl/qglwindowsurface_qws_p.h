@@ -38,7 +38,7 @@ class QGLContext;
 
 class QWSGLWindowSurfacePrivate;
 
-class QWSGLWindowSurface : public QWSWindowSurface
+class Q_OPENGL_EXPORT QWSGLWindowSurface : public QWSWindowSurface
 {
     Q_DECLARE_PRIVATE(QWSGLWindowSurface)
 

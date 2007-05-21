@@ -31,7 +31,7 @@ class QWidget;
 class QWSGLWindowSurface;
 class QWSGLPaintDevicePrivate;
 
-class QWSGLPaintDevice : public QPaintDevice
+class Q_OPENGL_EXPORT QWSGLPaintDevice : public QPaintDevice
 {
     Q_DECLARE_PRIVATE(QWSGLPaintDevice)
 public:
