@@ -72,8 +72,8 @@
     \section1 Full Integration
 
     It is also possible to do a full integration, taking the advantage
-    of accelerated hardware, but this requires a custom \l
-    {http://www.khronos.org/egl/}{EGL} implementation that is tailored
-    for the given platform. Please contact \l
-    {mailto:qtbugs@trolltech.com}{Trolltech} for more information.
+    of accelerated hardware. This requires creating a custom driver using
+    the screen driver framework. See the \l {Accelerated Screen Driver Example}
+    for more information on the screen driver framework and the
+    \l {OpenGL ES Screen Driver Example} for an example OpenGL ES integration.
 */

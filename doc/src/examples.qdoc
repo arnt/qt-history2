@@ -299,5 +299,6 @@
     \list
     \o \l{qtopiacore/mousecalibration}{Mouse Calibration}\raisedaster
     \o \l{qtopiacore/svgalib}{Accelerated Screen Driver}\raisedaster
+    \o \l{qtopiacore/ahigl}{OpenGL ES Screen Driver}\raisedaster
     \endlist
 */
