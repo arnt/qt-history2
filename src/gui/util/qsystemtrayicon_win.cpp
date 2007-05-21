@@ -547,9 +547,9 @@ void QSystemTrayIconPrivate::showMessage_sys(const QString &title, const QString
         });
     } else {
         //use fallbacks
-        QPoint iconPos = sys->findIconGeometry(0).center();
-        if(iconPos != QPoint(-1, -1)) {
-            QBalloonTip::showBalloon(type, title, message, sys->q, iconPos, uSecs, true);
+        QRect iconPos = sys->findIconGeometry(0);
+        if (iconPos.isValid()) {
+            QBalloonTip::showBalloon(type, title, message, sys->q, iconPos.center(), uSecs, true);
         } else {
             QRect trayRect = sys->findTrayGeometry();
             QBalloonTip::showBalloon(type, title, message, sys->q, QPoint(trayRect.left(),
