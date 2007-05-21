@@ -185,7 +185,7 @@ QSizeF QItemDelegatePrivate::doTextLayout(int lineWidth) const
     data stored in the item model with the Qt::EditRole that is edited.
 
     Only the standard editing functions for widget-based delegates are
-    reimplemented here: 
+    reimplemented here:
 
     \list
         \o createEditor() returns the widget used to change data from the model
@@ -726,6 +726,7 @@ void QItemDelegate::drawFocus(QPainter *painter,
     o.QStyleOption::operator=(option);
     o.rect = rect;
     o.state |= QStyle::State_KeyboardFocusChange;
+    o.state |= QStyle::State_Item;
     QPalette::ColorGroup cg = (option.state & QStyle::State_Enabled)
                               ? QPalette::Normal : QPalette::Disabled;
     o.backgroundColor = option.palette.color(cg, (option.state & QStyle::State_Selected)
@@ -1045,7 +1046,7 @@ QRect QItemDelegate::rect(const QStyleOptionViewItem &option,
   and the application is building in debug mode, the check(assertion) will conflict
   with QItemDelegate::check.
 
-  To avoid this problem, add 
+  To avoid this problem, add
 
   #ifdef check
 	#undef check

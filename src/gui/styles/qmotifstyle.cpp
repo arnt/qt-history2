@@ -354,7 +354,8 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
         break;
     case PE_FrameFocusRect:
         if (const QStyleOptionFocusRect *fropt = qstyleoption_cast<const QStyleOptionFocusRect *>(opt)) {
-            if ((fropt->state & State_HasFocus) && focus && focus->isVisible())
+            if ((fropt->state & State_HasFocus) && focus && focus->isVisible()
+                    && !(fropt->state & QStyle::State_Item))
                 break;
             QCommonStyle::drawPrimitive(pe, opt, p, w);
         }
