@@ -44,15 +44,6 @@
     platforms' guidelines and (on Windows XP and Mac OS X) by the
     native theme engine.
 
-    In Qt 4.3 and later, the QApplication::setStyleSheet() and the
-    QWidget::setStyleSheet() functions accept a path as an argument,
-    relative to the stylesheet. For example:
-
-    \code
-        QApplication::setStyleSheet(":/resources/aqua.qss");
-        QWidget::setStyleSheet(":/images/bluesky.png");
-    \endcode
-
     Style sheets let you perform all kinds of customizations that are
     difficult or impossible to perform using QPalette alone. If you
     want yellow backgrounds for mandatory fields, red text for
@@ -91,16 +82,6 @@
     active style sheet is respected and otherwise forwards the
     drawing operations to the underlying, platform-specific style
     (e.g., QWindowsXPStyle on Windows XP).
-
-    In Qt 4.3 and later, all Qt programs support the \c -stylesheet
-    argument, allowing you to specify a style sheet file (\c {.qss})
-    or a style sheet itself. For example:
-
-    \code
-        designer -stylesheet aqua.qss
-        designer -stylesheet QMenu::item{background-color:transparent;}
-        assistant -stylesheet QPushButton{color:red;}
-    \endcode
 
     \warning Qt style sheets are currently not supported for
     QMacStyle (the default style on Mac OS X). We plan to address
@@ -270,6 +251,14 @@
         QPushButton:hover { color: white }
     \endcode
 
+    Pseudo-states can be negated using the exclamation operator. For
+    example, the following rule applies when the mouse does not hover
+    over a QRadioButton:
+
+    \code
+        QRadioButton:!hover { color: red }
+    \endcode
+
     Pseudo-states can be chained, in which case a logical AND is
     implied. For example, the following rule applies to when the
     mouse hovers over a checked QCheckBox:
@@ -278,10 +267,18 @@
         QCheckBox:hover:checked { color: white }
     \endcode
 
+    Negated Pseudo-states may appear in Pseudo-state chains. For example,
+    the following rule applies when the mouse hovers over a QPushButton
+    that is not pressed:
+
+    \code
+        QPushButton:hover:!pressed { color: blue; }
+    \endcode
+
     If needed, logical OR can be expressed using the comma operator:
 
     \code
-        QCheckBox:hover, QCheckBox::checked { color: white }
+        QCheckBox:hover, QCheckBox:checked { color: white }
     \endcode
 
     Pseudo-states can appear in combination with subcontrols. For
@@ -616,9 +613,8 @@
         \o Description
 
     \row
-        \o \bold{\c alternate-background} \target alternate-background-prop
-        \omit ### or alternate-background-color? \endomit
-        \o \l{#Color}{Color} \BR | \l{#Gradient}{Gradient}
+        \o \bold{\c alternate-background-color} \target alternate-background-prop
+        \o \l{#Brush}{Brush} \BR
         \o The \l{QAbstractItemView::alternatingRowColors}{alternate
            background color} used in QAbstractItemView subclasses.
 
@@ -629,10 +625,10 @@
            Example:
 
            \code
-        QTreeView {
-            alternate-background: blue;
-            background: yellow;
-        }
+                QTreeView {
+                    alternate-background: blue;
+                    background: yellow;
+                }
            \endcode
 
            See also \l{#background-prop}{background} and
@@ -656,45 +652,28 @@
            otherwise, the \c background property will not be
            respected.
 
-           QAbstractItemView, QLineEdit, QMenu, QMenuBar, and
-           QTextEdit don't support background images.
-
            Example:
 
            \code
-        QTextEdit { background: yellow }
+                QTextEdit { background: yellow }
            \endcode
 
            See also \l{#background-origin-prop}{background-origin},
            \l{#selection-background-color-prop}{selection-background-color},
+           \l{#background-clip-prop}{background-clip},
+           \l{#background-attachment-prop}{background-attachment}
            and \l{#alternate-background-prop}{alternate-background}.
 
     \row
-        \o \c background-attachment
-        \o \l{#Attachment}{Attachment}
-        \o Determines whether the background-image is scrolled or fixed.
-           The default value is scrolled.
-
-           Example:
-
-           \code
-        QTextEdit{
-            background-image: url(C:/Documents and Settings/user/Desktop
-                                    /Screenshots/leaves.png);
-            background-attachment: fixed;
-        }
-           \endcode
-
-    \row
         \o \c background-color
-        \o \l{#Color}{Color} \BR | \l{#Gradient}{Gradient}
+        \o \l{#Brush}{Brush} \BR
         \o The background color used for the widget.
 
            Examples:
 
            \code
-        QLabel { background-color: yellow }
-        QLineEdit { background-color: rgb(255, 0, 0) }
+               QLabel { background-color: yellow }
+               QLineEdit { background-color: rgb(255, 0, 0) }
            \endcode
 
     \row
@@ -707,7 +686,7 @@
            Example:
 
            \code
-        QFrame { background-image: url(:/images/hydro.png) }
+               QFrame { background-image: url(:/images/hydro.png) }
            \endcode
 
     \row
@@ -722,11 +701,11 @@
            Example:
 
            \code
-        QFrame {
-            background: white url(:/images/ring.png);
-            background-repeat: repeat-y;
-            background-position: left;
-        }
+                QFrame {
+                    background: white url(:/images/ring.png);
+                    background-repeat: repeat-y;
+                    background-position: left;
+                }
            \endcode
 
     \row
@@ -741,11 +720,60 @@
            Example:
 
            \code
-        QFrame {
-            background: url(:/images/footer.png);
-            background-position: bottom left;
-        }
+                QFrame {
+                    background: url(:/images/footer.png);
+                    background-position: bottom left;
+                }
            \endcode
+
+    \row
+        \o \bold{\c background-attachment} \target background-attachment-prop
+        \o \l{#Attachment}{Attachment}
+        \o Determines whether the background-image in a QAbstractScrollArea
+           is scrolled or fixed with respect to the viewport.
+           By default, the background-image scrolls with the viewport.
+
+           Example:
+
+           \code
+                QTextEdit {
+                    background-image: url("leaves.png");
+                    background-attachment: fixed;
+                }
+           \endcode
+
+        See also \l{#background-prop}{background}
+
+    \row
+        \o \bold{\c background-clip} \target background-clip-prop
+        \o \l{#Origin}{Origin}
+        \o The widget's rectangle, in which the \c background is drawn.
+
+           This property specifies the rectangle to which the \c background-color
+           and \c background-image are clipped.
+
+           This property is supported by QAbstractItemView
+           subclasses, QAbstractSpinBox subclasses, QCheckBox,
+           QComboBox, QDialog, QFrame, QGroupBox, QLabel,
+           QPushButton, QRadioButton, QSplitter, QTextEdit, QToolTip,
+           and plain \l{QWidget}s.
+
+           If this property is not specified, the default is \c
+           border.
+
+           Example:
+
+           \code
+                QFrame {
+                    background-image: url(:/images/header.png);
+                    background-position: top left;
+                    background-origin: content;
+                    background-clip: padding;
+                }
+           \endcode
+
+           See also \l{#background-prop}{background}, 
+           \l{#background-origin-prop}{background-origin} and \l{The Box Model}.
 
     \row
         \o \bold{\c background-origin} \target background-origin-prop
@@ -765,11 +793,11 @@
            Example:
 
            \code
-        QFrame {
-            background-image: url(:/images/header.png);
-            background-position: top left;
-            background-origin: content;
-        }
+                QFrame {
+                    background-image: url(:/images/header.png);
+                    background-position: top left;
+                    background-origin: content;
+                }
            \endcode
 
            See also \l{#background-prop}{background} and \l{The Box Model}.
@@ -790,7 +818,7 @@
            Example:
 
            \code
-        QLineEdit { border: 1px solid white }
+                QLineEdit { border: 1px solid white }
            \endcode
 
     \row
@@ -842,11 +870,11 @@
            Example:
 
            \code
-        QLineEdit {
-            border-width: 1px;
-            border-style: solid;
-            border-color: white;
-        }
+                QLineEdit {
+                    border-width: 1px;
+                    border-style: solid;
+                    border-color: white;
+                }
            \endcode
 
            See also \l{#border-style-prop}{border-style},
@@ -855,22 +883,22 @@
 
     \row
         \o \c border-top-color
-        \o \l{#Color}{Color} \BR | \l{#Gradient}{Gradient}
+        \o \l{#Brush}{Brush} \BR
         \o The color of the border's top edge.
 
     \row
         \o \c border-right-color
-        \o \l{#Color}{Color} \BR | \l{#Gradient}{Gradient}
+        \o \l{#Brush}{Brush} \BR
         \o The color of the border's right edge.
 
     \row
         \o \c border-bottom-color
-        \o \l{#Color}{Color} \BR | \l{#Gradient}{Gradient}
+        \o \l{#Brush}{Brush} \BR
         \o The color of the border's bottom edge.
 
     \row
         \o \c border-left-color
-        \o \l{#Color}{Color} \BR | \l{#Gradient}{Gradient}
+        \o \l{#Brush}{Brush} \BR
         \o The color of the border's left edge.
 
     \row
@@ -899,6 +927,9 @@
            border-top-right-radius, \c border-bottom-right-radius,
            and \c border-bottom-left-radius.
 
+           The border-radius clips the element's 
+           \l{#background-prop}{background}.
+
            This property is supported by QAbstractItemView
            subclasses, QAbstractSpinBox subclasses, QCheckBox,
            QComboBox, QFrame, QGroupBox, QLabel, QLineEdit, QMenu,
@@ -910,11 +941,11 @@
            Example:
 
            \code
-        QLineEdit {
-            border-width: 1px;
-            border-style: solid;
-            border-radius: 4px;
-        }
+                QLineEdit {
+                    border-width: 1px;
+                    border-style: solid;
+                    border-radius: 4px;
+                }
            \endcode
 
            See also \l{#border-width-prop}{border-width} and
@@ -959,11 +990,11 @@
            Example:
 
            \code
-        QLineEdit {
-            border-width: 1px;
-            border-style: solid;
-            border-color: blue;
-        }
+                QLineEdit {
+                    border-width: 1px;
+                    border-style: solid;
+                    border-color: blue;
+                }
            \endcode
 
            See also \l{#border-color-prop}{border-color},
@@ -1006,11 +1037,11 @@
            Example:
 
            \code
-        QLineEdit {
-            border-width: 2px;
-            border-style: solid;
-            border-color: darkblue;
-        }
+                QLineEdit {
+                    border-width: 2px;
+                    border-style: solid;
+                    border-color: darkblue;
+                }
            \endcode
 
            See also \l{#border-color-prop}{border-color},
@@ -1055,7 +1086,7 @@
            Example:
 
            \code
-        QSpinBox::down-button { bottom: 2px }
+                QSpinBox::down-button { bottom: 2px }
            \endcode
 
            See also \l{#left-prop}{left}, \l{#right-prop}{right}, and
@@ -1078,12 +1109,12 @@
            Example:
 
            \code
-        * { button-layout: 2px }
+                * { button-layout: 2px }
            \endcode
 
     \row
         \o \bold{\c color} \target color-prop
-        \o \l{#Color}{Color} \BR | \l{#Gradient}{Gradient}
+        \o \l{#Brush}{Brush} \BR 
         \o The color used to render text.
 
            This property is supported by all widgets that respect
@@ -1096,7 +1127,7 @@
            Example:
 
            \code
-        QPushButton { color: red }
+                QPushButton { color: red }
            \endcode
 
            See also \l{#background-prop}{background} and
@@ -1114,7 +1145,7 @@
            Example:
 
            \code
-        * { etch-disabled-text: 1px }
+                * { etch-disabled-text: 1px }
            \endcode
 
     \row
@@ -1133,7 +1164,7 @@
            Example:
 
            \code
-        QCheckBox { font: bold italic large "Times New Roman" }
+                QCheckBox { font: bold italic large "Times New Roman" }
            \endcode
 
     \row
@@ -1144,7 +1175,7 @@
            Example:
 
            \code
-        QCheckBox { font-family: "New Century Schoolbook" }
+                QCheckBox { font-family: "New Century Schoolbook" }
            \endcode
 
     \row
@@ -1155,7 +1186,7 @@
            Example:
 
            \code
-        QTextEdit { font-size: 12px }
+                QTextEdit { font-size: 12px }
            \endcode
 
     \row
@@ -1166,7 +1197,7 @@
            Example:
 
            \code
-        QTextEdit { font-style: italic }
+                QTextEdit { font-style: italic }
            \endcode
 
     \row
@@ -1176,7 +1207,7 @@
 
     \row
         \o \bold{\c gridline-color}* \target gridline-color-prop
-        \o \l{#Color}{Color} \BR | \l{#Gradient}{Gradient}
+        \o \l{#Color}{Color} \BR
         \o The color of the grid line in a QTableView.
 
            If this property is not specified, it defaults to the
@@ -1186,7 +1217,7 @@
            Example:
 
            \code
-        * { gridline-color: gray }
+                * { gridline-color: gray }
            \endcode
 
     \row
@@ -1200,7 +1231,7 @@
            Example:
 
            \code
-        QSpinBox::down-button { height: 10px }
+                QSpinBox::down-button { height: 10px }
            \endcode
 
            See also \l{#width-prop}{width}.
@@ -1215,9 +1246,9 @@
            Example:
 
            \code
-        QSpinBox::down-button { image: url(:/images/spindown.png) }
-        QTextEdit { background-image: url(x1.png) url(x2.png) }
-        QTextEdit { background-image: url(pic1.svg) }
+            QSpinBox::down-button { image: url(:/images/spindown.png) }
+            QTextEdit { background-image: url(x1.png) url(x2.png) }
+            QTextEdit { background-image: url(pic1.svg) }
            \endcode
 
     \row
@@ -1243,7 +1274,7 @@
            Example:
 
            \code
-        QSpinBox::down-button { left: 2px }
+                QSpinBox::down-button { left: 2px }
            \endcode
 
            See also \l{#right-prop}{right}, \l{#top-prop}{top}, and
@@ -1261,7 +1292,7 @@
            Example:
 
            \code
-        * { lineedit-password-character: 9679 }
+                * { lineedit-password-character: 9679 }
            \endcode
 
     \row
@@ -1282,7 +1313,7 @@
            Example:
 
            \code
-        QLineEdit { margin: 2px }
+                QLineEdit { margin: 2px }
            \endcode
 
            See also \l{#padding-prop}{padding},
@@ -1323,7 +1354,7 @@
            Example:
 
            \code
-        QMessageBox { messagebox-text-interaction-flags: 5 }
+                QMessageBox { messagebox-text-interaction-flags: 5 }
            \endcode
 
     \row
@@ -1343,7 +1374,7 @@
            Example:
 
            \code
-        QComboBox { min-height: 24px }
+                QComboBox { min-height: 24px }
            \endcode
 
            See also \l{#min-width-prop}{min-width}.
@@ -1365,7 +1396,7 @@
            Example:
 
            \code
-        QComboBox { min-width: 72px }
+                QComboBox { min-width: 72px }
            \endcode
 
            See also \l{#min-height-prop}{min-height}.
@@ -1384,7 +1415,7 @@
            Example:
 
            \code
-        QToolTip { opacity: 223 }
+                QToolTip { opacity: 223 }
            \endcode
 
     \row
@@ -1405,7 +1436,7 @@
            Example:
 
            \code
-        QLineEdit { padding: 3px }
+                QLineEdit { padding: 3px }
            \endcode
 
            See also \l{#margin-prop}{margin},
@@ -1451,8 +1482,8 @@
            Example:
 
            \code
-        QPushButton { qproperty-toolTip: "this is a tip"; }
-        QWidget { qproperty-windowTitle: "Main Window"; }
+                QPushButton { qproperty-toolTip: "this is a tip"; }
+                QWidget { qproperty-windowTitle: "Main Window"; }
            \endcode
 
     \row
@@ -1471,7 +1502,7 @@
            Example:
 
            \code
-        QSpinBox::down-button { right: 2px }
+                QSpinBox::down-button { right: 2px }
            \endcode
 
            See also \l{#left-prop}{left}, \l{#top-prop}{top}, and
@@ -1479,7 +1510,7 @@
 
     \row
         \o \bold{\c selection-background-color}* \target selection-background-color-prop
-        \o \l{#Color}{Color} \BR | \l{#Gradient}{Gradient}
+        \o \l{#Brush}{Brush} \BR
         \o The background of selected text or items.
 
            This property is supported by all widgets that respect
@@ -1492,7 +1523,7 @@
            Example:
 
            \code
-        QTextEdit { selection-background-color: darkblue }
+                QTextEdit { selection-background-color: darkblue }
            \endcode
 
            See also \l{#selection-color-prop}{selection-color} and
@@ -1500,7 +1531,7 @@
 
     \row
         \o \bold{\c selection-color}* \target selection-color-prop
-        \o \l{#Color}{Color} \BR | \l{#Gradient}{Gradient}
+        \o \l{#Brush}{Brush} \BR
         \o The foreground of selected text or items.
 
            This property is supported by all widgets that respect
@@ -1513,7 +1544,7 @@
            Example:
 
            \code
-        QTextEdit { selection-color: white }
+                QTextEdit { selection-color: white }
            \endcode
 
            See also
@@ -1535,7 +1566,7 @@
            Example:
 
            \code
-        * { show-decoration-selected: 1 }
+                * { show-decoration-selected: 1 }
            \endcode
 
     \row
@@ -1552,7 +1583,7 @@
            Example:
 
            \code
-        QMenuBar { spacing: 10 }
+                QMenuBar { spacing: 10 }
            \endcode
 
            See also \l{#padding-prop}{padding} and
@@ -1570,11 +1601,11 @@
            Example:
 
            \code
-        QSpinBox::up-button {
-            image: url(:/images/spinup.png);
-            subcontrol-origin: content;
-            subcontrol-position: right top;
-        }
+                QSpinBox::up-button {
+                    image: url(:/images/spinup.png);
+                    subcontrol-origin: content;
+                    subcontrol-position: right top;
+                }
            \endcode
 
            See also
@@ -1592,11 +1623,11 @@
            Example:
 
            \code
-        QSpinBox::down-button {
-            image: url(:/images/spindown.png);
-            subcontrol-origin: padding;
-            subcontrol-position: right bottom;
-        }
+                QSpinBox::down-button {
+                    image: url(:/images/spindown.png);
+                    subcontrol-origin: padding;
+                    subcontrol-position: right bottom;
+                }
            \endcode
 
            See also
@@ -1619,7 +1650,7 @@
            Example:
 
            \code
-        QSpinBox::up-button { top: 2px }
+                QSpinBox::up-button { top: 2px }
            \endcode
 
            See also \l{#left-prop}{left}, \l{#right-prop}{right}, and
@@ -1636,7 +1667,7 @@
            Example:
 
            \code
-        QSpinBox::up-button { width: 12px }
+                QSpinBox::up-button { width: 12px }
            \endcode
 
            See also \l{#height-prop}{height}.
@@ -1677,11 +1708,11 @@
 
     \row
         \o \bold Background \target Background
-        \o \{ \l{#Color}{Color} \BR
+        \o \{ \l{#Brush}{Brush} \BR
            | \l{#Url}{Url} \BR
            | \l{#Repeat}{Repeat} \BR
            | \l{#Alignment}{Alignment} \}*
-        \o A sequence of zero or more occurrences of \l{#Color}{Color}, \l{#Url}{Url},
+        \o A sequence of \l{#Brush}{Brush}, \l{#Url}{Url},
            \l{#Repeat}{Repeat}, and \l{#Alignment}{Alignment}.
 
     \row
@@ -1699,7 +1730,7 @@
         \o \bold Border \target Border
         \o \{ \l{#Border Style}{Border Style} \BR
            | \l{#Length}{Length} \BR
-           | \l{#Color}{Color} \}*
+           | \l{#Brush}{Brush} \}*
         \o Shorthand border property.
 
     \row
@@ -1740,8 +1771,8 @@
     \row
         \o \bold{Box \target Box Colors
            Colors}
-        \o \l{#Color}{Color}\{1,4\}
-        \o One to four occurrences of \l{#Color}{Color}, specifying the top,
+        \o \l{#Brush}{Brush}\{1,4\}
+        \o One to four occurrences of \l{#Brush}{Brush}, specifying the top,
            right, bottom, and left edges of a box, respectively. If
            the left color is not specified, it is taken to be the
            same as the right color. If the bottom color is not
@@ -1752,10 +1783,12 @@
            Example:
 
            \code
-        QLabel { border-color: red }                    / * red red red red * /
-        QLabel { border-color: red blue }               / * red blue red blue * /
-        QLabel { border-color: red blue green }         / * red blue green blue * /
-        QLabel { border-color: red blue green yellow }  / * red blue green yellow * /
+                QLabel { border-color: red }   / * red red red red   * /
+                QLabel { border-color: red blue } / * red blue red blue * /
+                QLabel { border-color: red blue green } / * red blue green blue
+* /
+                QLabel { border-color: red blue green yellow }  / * red
+blue green yellow * /
            \endcode
 
     \row
@@ -1780,20 +1813,23 @@
            \endcode
 
     \row
+        \o \bold Brush \target Brush
+        \o \l{Color} \BR
+           | \l{Gradient} \BR
+           | \l{PaletteRole}
+        \o Specifies a Color or a Gradient or an entry in the Palette.
+
+    \row
         \o \bold Color \target Color
         \o \tt{rgb(\e{r}, \e{g}, \e{b})} \BR
            | \tt{rgba(\e{r}, \e{g}, \e{b}, \e{a})} \BR
            | \tt{#\e{rrggbb}} \BR
            | \l{QColor::setNamedColor()}{Color Name} \BR
-           | \l{#Gradient}{Gradient}
         \o Specifies a color as RGB (red, green, blue) or RGBA
            (red, green, blue, alpha). The \c rgb() or \c rgba() syntax can be
            used with integer values between 0 and 255, or with
            percentages.
            
-           In Qt 4.3 and later, the Color property takes any of the three
-           gradients as well.
-
            Examples:
 
     \code
@@ -1850,24 +1886,38 @@
               point.
            \endlist
 
+        Gradients are specified in Object Bounding Mode. Imagine the box 
+        in which the gradient is rendered, to have its top left corner at (0, 0)
+        and its bottom right corner at (1, 1). Gradient parameters are
+        then specified as percentages from 0 to 1. These values are 
+        extrapolated to actual box coordinates at runtime. It is possible
+        specify values that lie outside the bounding box (-0.6 or 1.8, for
+        instance).
+
+        \warning The colors specified in for stops must either be color names 
+        or have the #rrggbb format i.e one cannot use the rgb or rgba notation.
+
         Examples:
 
-    \code
-        QTextEdit {
-            background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
-                        stop:0 white, stop:1 green)
-        } / * linear gradient from white to green * /
+        \code
+            / * linear gradient from white to green * /
+            QTextEdit {
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                            stop:0 white, stop:1 green)
+            }
 
-        QTextEdit {
-            background: qconicalgradient(cx:0, cy:0, angle:30,
-                        stop:0 white, stop:1 green)
-        } / * conical gradient from white to green * /
+            / * conical gradient from white to green * /
+            QTextEdit {
+                background: qconicalgradient(cx:0.5, cy:0.5, angle:30,
+                            stop:0 white, stop:1 #00FF00)
+            }
 
-        QTextEdit {
-            background: qradialgradient(cx:2, cy:1, radius: 2, 
-                        fx:0.5, fy:0, stop:0 white, stop:1 green)
-        } / * radial gradient from white to green * /
-    \endcode
+            / * radial gradient from white to green * /
+            QTextEdit {
+                background: qradialgradient(cx:0, cy:0, radius: 1, 
+                            fx:0.5, fy:0.5, stop:0 white, stop:1 green)
+            } 
+        \endcode
 
     \row
         \o \bold Length \target Length
@@ -1906,6 +1956,33 @@
            \endlist
 
            See also \l{The Box Model}.
+
+    \row
+        \o \bold PaletteRole \target PaletteRole
+        \o \c alternate-base \BR
+              | \c base \BR
+              | \c bright-text \BR
+              | \c button \BR
+              | \c button-text \BR
+              | \c dark \BR
+              | \c highlight \BR
+              | \c highlighted-text \BR
+              | \c light \BR
+              | \c link \BR
+              | \c link-visited \BR
+              | \c mid \BR
+              | \c mid-light \BR
+              | \c shadow \BR
+              | \c text \BR
+              | \c window \BR
+              | \c window-text \BR
+        \o These values correspond the \l{QPalette::ColorRole}{Color roles} 
+           in the widget's QPalette.
+
+            For example,
+            \code
+                QPushButton { color: palette(dark); }
+            \endcode
 
     \row
         \o \bold Radius \target Radius
@@ -1967,6 +2044,10 @@
         \o The widget has \l{QWidget::hasFocus()}{input focus}.
 
     \row
+        \o \c :horizontal \target horizontal-ps
+        \o The widget has horizontal orientation
+
+    \row
         \o \c :hover \target hover-ps
         \o The mouse is hovering over the widget.
 
@@ -1993,10 +2074,18 @@
         \o \c :pressed \target pressed-ps
         \o The widget is being pressed using the mouse.
 
+    \row 
+        \o \c :selected \target selected-ps
+        \o 
+
     \row
         \o \c :unchecked \target unchecked-ps
         \o The button widget is
            \l{QAbstractButton::checked}{unchecked}.
+
+    \row
+        \o \c :vertical \target vertical-ps
+        \o The widget has vertical orientation
 
     \endtable
 
@@ -2084,12 +2173,11 @@
     only for the area inside the border. This can be changed using
     the \l{#background-origin-prop}{background-origin} property.
 
-    \section1 Examples
+    \section1 Designer Integration
 
-    In this section, we will see examples of how to style widgets
-    using style sheets. \l{Qt Designer}{Qt Designer} is an excellent tool
+    \l{Qt Designer}{Qt Designer} is an excellent tool
     to preview style sheets. Just right-click anywhere on the form
-    you're designing and click \bold{Change styleSheet}.
+    you're designing and click \bold{Change styleSheet...}.
 
     \image stylesheet-designer-options.png
 
@@ -2099,6 +2187,11 @@
     Style Sheet dialog.
 
     \image designer-validator-highlighter.png
+
+    \section1 Examples
+
+    In this section, we will see examples of how to style widgets
+    using style sheets. 
 
     \section2 Customizing the Foreground and Background Colors
 

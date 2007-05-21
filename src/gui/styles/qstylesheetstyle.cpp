@@ -1178,7 +1178,7 @@ QVector<QCss::StyleRule> QStyleSheetStyle::styleRules(const QWidget *w) const
         if (!styleSheetCache->contains(qApp)) {
             QString ss = qApp->styleSheet();
             if (ss.startsWith(QLatin1String("file:///")))
-                ss = ss.remove(0, 8);
+                ss.remove(0, 8);
             Parser parser1(ss, qApp->styleSheet() != ss);
             if (!parser1.parse(&appSs))
                 qWarning("Could not parse application stylesheet");
@@ -1933,7 +1933,7 @@ void QStyleSheetStyle::setProperties(QWidget *w)
         QString property = decl.property;
         if (!property.startsWith(QLatin1String("qproperty-"), Qt::CaseInsensitive))
             continue;
-        property = property.remove(0, 10); // strip "qproperty-"
+        property.remove(0, 10); // strip "qproperty-"
         const QVariant value = w->property(property.toLatin1()); // takes care of dynamic properties too
         if (!value.isValid()) {
             qWarning() << w << " does not have a property named " << property;

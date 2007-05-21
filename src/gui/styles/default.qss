@@ -36,7 +36,7 @@ QPushButton, QToolButton {
 QPushButton[style="QPlastiqueStyle"],
 QToolButton[style="QPlastiqueStyle"]
 {
-    -qt-style-features: background-color background-gradient;
+    -qt-style-features: background-color;
 }
 
 QPushButton[style="QWindowsXPStyle"],
@@ -47,7 +47,7 @@ QPushButton[style="QWindowsVistaStyle"]
     
 QComboBox {
     border: native;
-    -qt-style-features: background-color background-gradient;
+    -qt-style-features: background-color;
     -qt-background-role: base;
 }
 
@@ -59,7 +59,7 @@ QComboBox[style="QCleanlooksStyle"][readOnly="true"]
 
 QAbstractSpinBox {
     border: native;
-    -qt-style-features: background-color background-gradient;
+    -qt-style-features: background-color;
     -qt-background-role: base;
 }
 
