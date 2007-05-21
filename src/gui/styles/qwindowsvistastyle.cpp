@@ -936,22 +936,23 @@ void QWindowsVistaStyle::drawControl(ControlElement element, const QStyleOption 
 
                 if (Animation *a = d->widgetAnimation(widget)) {
                     QTime current = QTime::currentTime();
-                    int timeDiff = a->startTime().msecsTo(current);
+                    int animOffset = a->startTime().msecsTo(current) / 4;
                     theme.partId = vertical ? PP_MOVEOVERLAYVERT : PP_MOVEOVERLAY;
-
-                    int loopTime = 1600;
-                    float ps = (timeDiff%loopTime)/(float)loopTime;
+                    int glowSize = 140;
+                    int animationWidth = glowSize * 2 + (vertical ? theme.rect.height() : theme.rect.width());
+                    if (animOffset > animationWidth)
+                        a->setStartTime(QTime::currentTime());
                     painter->save();
                     painter->setClipRect(theme.rect);
                     if (vertical) {
                         theme.rect = QRect(theme.rect.left(),
-                                           inverted ? theme.rect.top() - theme.rect.height() + (int)(3*ps*theme.rect.height()) :
-                                                     theme.rect.top() + theme.rect.height() - (int)(3*ps*theme.rect.height()),
-                                           theme.rect.width(), theme.rect.height());
+                                           inverted ? rect.top() - glowSize + animOffset :
+                                                      rect.bottom() + glowSize - animOffset,
+                                           rect.width(), glowSize);
                     } else {
-                        theme.rect = QRect(reverse ? theme.rect.left() + theme.rect.width() - (int)(3*ps*theme.rect.width()):
-                                           theme.rect.left() - theme.rect.width() + (int)(3*ps*theme.rect.width()),
-                                           theme.rect.top(), theme.rect.width(), theme.rect.height());
+                        theme.rect = QRect(reverse ? rect.right() + glowSize - animOffset:
+                                                     rect.left() - glowSize + animOffset,
+                                           rect.top(), glowSize, rect.height());
                     }
                     d->drawBackground(theme);
                     painter->restore();
@@ -2218,7 +2219,7 @@ void QWindowsVistaStylePrivate::startAnimation(Animation *t)
     }
     animations.append(t);
     if (animations.size() > 0 && !animationTimer.isActive()) {
-        animationTimer.start(60, q);
+        animationTimer.start(45, q);
     }
 }
 
