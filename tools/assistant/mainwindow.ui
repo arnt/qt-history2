@@ -72,7 +72,7 @@
      <x>0</x>
      <y>0</y>
      <width>949</width>
-     <height>21</height>
+     <height>29</height>
     </rect>
    </property>
    <widget class="QMenu" name="helpMenu" >
@@ -166,6 +166,9 @@
    </property>
    <property name="shortcut" >
     <string>Ctrl+Q</string>
+   </property>
+   <property name="menuRole" >
+    <enum>QAction::QuitRole</enum>
    </property>
   </action>
   <action name="actionEditCopy" >
@@ -261,10 +264,16 @@
    <property name="whatsThis" >
     <string>Display further information about Qt Assistant.</string>
    </property>
+   <property name="menuRole" >
+    <enum>QAction::AboutRole</enum>
+   </property>
   </action>
   <action name="actionAboutApplication" >
    <property name="text" >
     <string>About Qt</string>
+   </property>
+   <property name="menuRole" >
+    <enum>QAction::AboutQtRole</enum>
    </property>
   </action>
   <action name="actionZoomIn" >
@@ -404,6 +413,9 @@
   <action name="actionEditFont_Settings" >
    <property name="text" >
     <string>Font Settings...</string>
+   </property>
+   <property name="menuRole" >
+    <enum>QAction::PreferencesRole</enum>
    </property>
   </action>
  </widget>
