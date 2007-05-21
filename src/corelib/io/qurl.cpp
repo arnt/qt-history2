@@ -3552,7 +3552,7 @@ QString QUrlPrivate::createErrorString()
 
     \code
         QUrl url("http://www.example.com/List of holidays.xml");
-        // url.toEncoded() == "http://www.example.com/List of holidays.xml"
+        // url.toEncoded() == "http://www.example.com/List%20of%20holidays.xml"
     \endcode
 
     To construct a URL from an encoded string, call fromEncoded():
