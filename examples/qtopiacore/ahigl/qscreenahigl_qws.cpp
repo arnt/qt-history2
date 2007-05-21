@@ -98,7 +98,8 @@ void QAhiGLScreenPrivate::windowEvent(QWSWindow *window,
         windowMap[window] = new WindowInfo;
         break;
     case QWSServer::Show:
-        windowMap[window]->animation = new ShowAnimation(this);
+        if (doEffects)
+            windowMap[window]->animation = new ShowAnimation(this);
         break;
     case QWSServer::Destroy:
         delete windowMap[window];
@@ -197,11 +198,9 @@ bool QAhiGLScreen::initDevice()
         return false;
     }
 
-    if (d_ptr->doEffects) {
-        d_ptr->connect(QWSServer::instance(),
-                       SIGNAL(windowEvent(QWSWindow*, QWSServer::WindowEvent)),
-                       SLOT(windowEvent(QWSWindow*, QWSServer::WindowEvent)));
-    }
+    d_ptr->connect(QWSServer::instance(),
+                   SIGNAL(windowEvent(QWSWindow*, QWSServer::WindowEvent)),
+                   SLOT(windowEvent(QWSWindow*, QWSServer::WindowEvent)));
     QScreenCursor::initSoftwareCursor();
 
     return true;
