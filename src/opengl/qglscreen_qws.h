@@ -34,7 +34,7 @@ QT_MODULE(OpenGL)
 
 class QGLScreenPrivate;
 
-class QGLScreen : public QScreen
+class Q_OPENGL_EXPORT QGLScreen : public QScreen
 {
     Q_DECLARE_PRIVATE(QGLScreen)
 public:
