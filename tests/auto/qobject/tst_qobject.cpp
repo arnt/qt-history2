@@ -1251,6 +1251,7 @@ void tst_QObject::thread0()
     QObject *child = new QObject(object);
     QCOMPARE(child->parent(), object);
     QCOMPARE(child->thread(), (QThread *)0);
+
 #if 0
     // We don't support moving children into a parent that has no thread
     // affinity (yet?).
@@ -1260,6 +1261,8 @@ void tst_QObject::thread0()
     QCOMPARE(child2->parent(), object);
     QCOMPARE(child2->thread(), (QThread *)0);
 #endif
+
+    delete object;
 }
 
 void tst_QObject::moveToThread()
