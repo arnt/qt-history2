@@ -239,7 +239,7 @@ void tst_QIODevice::unget()
             QVERIFY(socket.waitForReadyRead());
             dev = &socket;
             result = QByteArray("HTTP");
-            lineResult = "Date";
+            lineResult = "Cont";
 	}
 	char ch, ch2;
 	dev->seek(0);
