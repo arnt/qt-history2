@@ -499,7 +499,15 @@ void QAhiGLScreen::drawWindow(QWSWindow *win, qreal progress)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
 
+    QWSWindowSurface *surface = win->windowSurface();
+    if (!surface)
+        return;
+
     if (progress >= 1.0) {
+        if (surface->key() == QLatin1String("ahigl")) {
+            drawRect.setCoords(drawRect.left(), drawRect.bottom(),
+                               drawRect.right(), drawRect.top());
+        }
         drawQuad(win->requestedRegion().boundingRect(), screenRect, drawRect);
         return;
     }
@@ -509,15 +517,10 @@ void QAhiGLScreen::drawWindow(QWSWindow *win, qreal progress)
 
     drawRect.adjust(dx, dy, -dx, -dy);
 
-    QWSWindowSurface *surface = win->windowSurface();
-    if (!surface)
-        return;
     if (surface->key() != QLatin1String("ahigl")) {
-        // must invert the y-coordinates of FBO's
         drawRect.setCoords(drawRect.left(), drawRect.bottom(),
                            drawRect.right(), drawRect.top());
     }
-
 
     drawQuadWavyFlag(win->requestedRegion().boundingRect(), screenRect,
                      drawRect, progress);
