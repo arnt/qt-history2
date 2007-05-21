@@ -2802,7 +2802,7 @@ Proszę o sprawdzenie podanej nazwy pliku.</translation>
     <message>
         <location filename="../src/gui/dialogs/qprintdialog_qws.cpp" line="345"/>
         <source>Print all</source>
-        <translation>Drukuj wszystko</translation>
+        <translation>Wydrukuj wszystko</translation>
     </message>
     <message>
         <location filename="../src/gui/dialogs/qprintdialog.ui" line="25"/>
@@ -2812,22 +2812,22 @@ Proszę o sprawdzenie podanej nazwy pliku.</translation>
     <message>
         <location filename="../src/gui/dialogs/qprintdialog.ui" line="460"/>
         <source>Print in color if available</source>
-        <translation>Drukuj w kolorze jeśli dostępny</translation>
+        <translation>Wydrukuj w kolorze jeśli dostępny</translation>
     </message>
     <message>
         <location filename="../src/gui/dialogs/qprintdialog.ui" line="430"/>
         <source>Print last page first</source>
-        <translation>Drukuj ostatnią stronę jako pierwszą</translation>
+        <translation>Wydrukuj ostatnią stronę jako pierwszą</translation>
     </message>
     <message>
         <location filename="../src/gui/dialogs/qprintdialog_qws.cpp" line="347"/>
         <source>Print range</source>
-        <translation>Drukuj zakres</translation>
+        <translation>Wydrukuj zakres</translation>
     </message>
     <message>
         <location filename="../src/gui/dialogs/qprintdialog.ui" line="259"/>
         <source>Print to file</source>
-        <translation>Drukuj do pliku</translation>
+        <translation>Wydrukuj do pliku</translation>
     </message>
     <message>
         <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="1050"/>
@@ -2902,7 +2902,7 @@ Proszę o sprawdzenie podanej nazwy pliku.</translation>
     <message>
         <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="951"/>
         <source>Print</source>
-        <translation>Drukuj</translation>
+        <translation>Wydrukuj</translation>
     </message>
     <message>
         <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="1025"/>
@@ -2912,7 +2912,7 @@ Proszę o sprawdzenie podanej nazwy pliku.</translation>
     <message>
         <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="1136"/>
         <source>Print To File ...</source>
-        <translation>Drukuj do pliku ...</translation>
+        <translation>Wydrukuj do pliku ...</translation>
     </message>
     <message>
         <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="1178"/>
@@ -3571,7 +3571,7 @@ Proszę wybrać inną nazwę pliku.</translation>
     <message>
         <location filename="../src/gui/kernel/qkeysequence.cpp" line="358"/>
         <source>Print Screen</source>
-        <translation>Drukuj zawartość ekranu</translation>
+        <translation>Wydrukuj zawartość ekranu</translation>
     </message>
     <message>
         <location filename="../src/gui/kernel/qkeysequence.cpp" line="318"/>

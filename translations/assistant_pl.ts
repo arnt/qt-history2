@@ -140,7 +140,7 @@ Assistant nie będzie działał!</translation>
     <message>
         <location filename="../tools/assistant/helpdialog.cpp" line="1120"/>
         <source>The closing quotation mark is missing.</source>
-        <translation>Brakuje kończącego znaku cudzysłowia.</translation>
+        <translation>Brakuje kończącego znaku cudzysłowu.</translation>
     </message>
     <message>
         <location filename="../tools/assistant/helpdialog.ui" line="27"/>
@@ -521,12 +521,12 @@ Assistant nie będzie działał!</translation>
     <message>
         <location filename="../tools/assistant/mainwindow.ui" line="151"/>
         <source>&amp;Print...</source>
-        <translation>&amp;Drukuj...</translation>
+        <translation>Wy&amp;drukuj...</translation>
     </message>
     <message>
         <location filename="../tools/assistant/mainwindow.ui" line="154"/>
         <source>Print the currently displayed page.</source>
-        <translation>Drukuj bieżącą stronę.</translation>
+        <translation>Wydrukuj bieżącą stronę.</translation>
     </message>
     <message>
         <location filename="../tools/assistant/mainwindow.ui" line="157"/>

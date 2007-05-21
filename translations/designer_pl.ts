@@ -625,7 +625,7 @@ Stara wersja pliku została nienaruszona, a aktualną bedziesz musiał zapisać 
     <message>
         <location filename="../tools/designer/src/designer/newform.cpp" line="63"/>
         <source>&amp;Recent Forms</source>
-        <translation>&amp;Ostatnio edytowane formy</translation>
+        <translation>O&amp;statnio edytowane formy</translation>
     </message>
     <message>
         <location filename="../tools/designer/src/designer/newform.cpp" line="293"/>
@@ -1510,7 +1510,7 @@ Czy chcesz spróbować ponownie?</translation>
     <message>
         <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="282"/>
         <source>&amp;Recent Forms</source>
-        <translation>Ostatnio &amp;edytowane formy</translation>
+        <translation>O&amp;statnio edytowane formy</translation>
     </message>
     <message>
         <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="289"/>
@@ -2457,7 +2457,7 @@ do którego chcesz wkleić a następnie wybierz ten kontener i wklej ponownie.</
     <message>
         <location filename="../tools/designer/src/components/formeditor/formwindowmanager.cpp" line="251"/>
         <source>Cu&amp;t</source>
-        <translation>W&amp;ytnij</translation>
+        <translation>Wy&amp;tnij</translation>
     </message>
     <message>
         <location filename="../tools/designer/src/components/formeditor/formwindowmanager.cpp" line="253"/>
@@ -2477,7 +2477,7 @@ do którego chcesz wkleić a następnie wybierz ten kontener i wklej ponownie.</
     <message>
         <location filename="../tools/designer/src/components/formeditor/formwindowmanager.cpp" line="265"/>
         <source>&amp;Paste</source>
-        <translation>&amp;Wklej</translation>
+        <translation>Wk&amp;lej</translation>
     </message>
     <message>
         <location filename="../tools/designer/src/components/formeditor/formwindowmanager.cpp" line="267"/>
@@ -2497,7 +2497,7 @@ do którego chcesz wkleić a następnie wybierz ten kontener i wklej ponownie.</
     <message>
         <location filename="../tools/designer/src/components/formeditor/formwindowmanager.cpp" line="278"/>
         <source>Select &amp;All</source>
-        <translation>&amp;Zaznacz wszystko</translation>
+        <translation>Zaznacz &amp;wszystko</translation>
     </message>
     <message>
         <location filename="../tools/designer/src/components/formeditor/formwindowmanager.cpp" line="280"/>
