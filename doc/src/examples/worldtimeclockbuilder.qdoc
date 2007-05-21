@@ -49,7 +49,7 @@
 
   \quotefromfile designer/worldtimeclockbuilder/main.cpp
   \skipto <QtUiTools>
-  \printline
+  \printuntil >
 
   The main function initializes the resource system with the Q_INIT_RESOURCE()
   macro and constructs an QApplication instance in the usual way:
