@@ -1084,6 +1084,9 @@ QX11EmbedContainer::QX11EmbedContainer(QWidget *parent)
                  | StructureNotifyMask
                  | SubstructureNotifyMask);
 
+    // Make sure our new event mask takes effect as soon as possible.
+    XFlush(x11Info().display());
+    
     // Move input to our focusProxy if this widget is active, and not
     // shaded by a modal dialog (in which case isActiveWindow() would
     // still return true, but where we must not move input focus).
