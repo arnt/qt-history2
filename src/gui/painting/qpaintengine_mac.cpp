@@ -1278,13 +1278,7 @@ void QCoreGraphicsPaintEnginePrivate::drawPath(uchar ops, CGMutablePathRef path)
     if(ops & (CGEOFill | CGFill)) {
         CGContextBeginPath(hd);
         CGContextAddPath(hd, path);
-        if(current.brush.style() == Qt::SolidPattern && current.brush.color() == Qt::transparent) {
-            CGContextSaveGState(hd);
-            CGContextClip(hd);
-            CGContextClearRect(hd, CGPathGetBoundingBox(path));
-            CGContextRestoreGState(hd);
-            ops &= ~CGStroke;
-        } else if (ops & CGEOFill) {
+        if (ops & CGEOFill) {
             CGContextEOFillPath(hd);
         } else {
             CGContextFillPath(hd);
