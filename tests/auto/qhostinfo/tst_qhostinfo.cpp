@@ -392,7 +392,7 @@ protected:
     inline void run()
     {
          QHostInfo info = QHostInfo::fromName("www.trolltech.com");
-         QCOMPARE(info.addresses().at(0).toString(), QString("62.70.27.70"));
+         QCOMPARE(info.addresses().at(0).toString(), QString("62.70.27.147"));
     }
 };
 
