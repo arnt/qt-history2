@@ -111,7 +111,11 @@ QWidget *QFormBuilder::create(DomWidget *ui_widget, QWidget *parentWidget)
 {
     QFormBuilderExtra::instance(this)->setProcessingLayoutWidget(false);
     if (ui_widget->attributeClass() == QLatin1String("QWidget") && !ui_widget->hasAttributeNative()
-            && parentWidget && !qobject_cast<QMainWindow *>(parentWidget))
+            && parentWidget &&
+            !qobject_cast<QMainWindow *>(parentWidget) &&
+            !qobject_cast<QToolBox *>(parentWidget) &&
+            !qobject_cast<QStackedWidget *>(parentWidget) &&
+            !qobject_cast<QTabWidget *>(parentWidget))
         QFormBuilderExtra::instance(this)->setProcessingLayoutWidget(true);
     return QAbstractFormBuilder::create(ui_widget, parentWidget);
 }
