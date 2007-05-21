@@ -65,6 +65,8 @@ public:
                          QScriptValueImpl *out_value);
         virtual bool put(QScriptValueImpl *object, const Member &member,
                          const QScriptValueImpl &value);
+        virtual bool removeMember(const QScriptValueImpl &object,
+                                  const QScript::Member &member);
         virtual int extraMemberCount(const QScriptValueImpl &object);
         virtual bool extraMember(const QScriptValueImpl &object,
                                  int index, Member *member);

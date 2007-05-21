@@ -64,7 +64,7 @@ bool Array::ArrayClassData::resolve(const QScriptValueImpl &object,
         quint32 pos = propertyName.toUInt(&isNumber);
 
         if (isNumber && (QScriptValue(eng, pos).toString() == propertyName)) { // ### improve me
-            member->native(0, pos, QScriptValue::Undeletable);
+            member->native(0, pos, /*flags=*/0);
             *base = object;
             return true;
         }
@@ -133,6 +133,22 @@ bool Array::ArrayClassData::put(QScriptValueImpl *object,
     return true;
 }
 
+bool Array::ArrayClassData::removeMember(const QScriptValueImpl &object,
+                                         const QScript::Member &member)
+{
+    if (!member.isNativeProperty() || !member.isDeletable() || (member.nameId() != 0))
+        return false;
+
+    Instance *instance = Instance::get(object, classInfo());
+    if (! instance)
+        return false;
+
+    quint32 pos = quint32 (member.id());
+    if (instance->value.at(pos).isValid())
+        instance->value.assign(pos, QScriptValueImpl());
+    return true;
+}
+
 int Array::ArrayClassData::extraMemberCount(const QScriptValueImpl &object)
 {
     if (Instance *instance = Instance::get(object, classInfo())) {
@@ -145,7 +161,7 @@ bool Array::ArrayClassData::extraMember(const QScriptValueImpl &object,
                                         int index, QScript::Member *member)
 {
     if (Instance::get(object, classInfo())) {
-        member->native(/*nameId=*/ 0, index, QScriptValue::Undeletable);
+        member->native(/*nameId=*/ 0, index, /*flags=*/0);
         return true;
     }
 
