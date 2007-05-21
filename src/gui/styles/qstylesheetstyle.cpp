@@ -1163,11 +1163,7 @@ QVector<QCss::StyleRule> QStyleSheetStyle::styleRules(const QWidget *w) const
 
     StyleSheet defaultSs;
     if (!styleSheetCache->contains(0)) {
-        QFile defaultQss(QLatin1String(":/trolltech/stylesheet/default.qss"));
-        if (!defaultQss.open(QFile::ReadOnly))
-            qWarning("could not open defaut stylesheet");
-        QString data = QString::fromLatin1(defaultQss.readAll());
-        Parser parser(data);
+        Parser parser(QLatin1String(":/trolltech/stylesheet/default.qss"), true);
         if (!parser.parse(&defaultSs))
             qWarning("Could not parse default stylesheet");
         defaultSs.origin = StyleSheetOrigin_UserAgent;
@@ -1180,7 +1176,10 @@ QVector<QCss::StyleRule> QStyleSheetStyle::styleRules(const QWidget *w) const
     if (!qApp->styleSheet().isEmpty()) {
         StyleSheet appSs;
         if (!styleSheetCache->contains(qApp)) {
-            Parser parser1(qApp->styleSheet());
+            QString ss = qApp->styleSheet();
+            if (ss.startsWith(QLatin1String("file:///")))
+                ss = ss.remove(0, 8);
+            Parser parser1(ss, qApp->styleSheet() != ss);
             if (!parser1.parse(&appSs))
                 qWarning("Could not parse application stylesheet");
             appSs.origin = StyleSheetOrigin_Inline;
@@ -1934,7 +1933,7 @@ void QStyleSheetStyle::setProperties(QWidget *w)
         QString property = decl.property;
         if (!property.startsWith(QLatin1String("qproperty-"), Qt::CaseInsensitive))
             continue;
-        property = property.mid(10); // strip "qproperty-"
+        property = property.remove(0, 10); // strip "qproperty-"
         const QVariant value = w->property(property.toLatin1()); // takes care of dynamic properties too
         if (!value.isValid()) {
             qWarning() << w << " does not have a property named " << property;

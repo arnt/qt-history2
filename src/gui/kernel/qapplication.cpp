@@ -462,9 +462,11 @@ void QApplicationPrivate::process_cmdline()
 #endif
 #ifndef QT_NO_STYLE_STYLESHEET
         } else if (arg == "-stylesheet" && i < argc -1) {
-            styleSheet = QString::fromLocal8Bit(argv[++i]);
+            styleSheet = QLatin1String("file:///");
+            styleSheet.append(QString::fromLocal8Bit(argv[++i]));
         } else if (arg.indexOf("-stylesheet=") != -1) {
-            styleSheet = QString::fromLocal8Bit(arg.right(arg.length() - 12));
+            styleSheet = QLatin1String("file:///");
+            styleSheet.append(QString::fromLocal8Bit(arg.right(arg.length() - 12)));
 #endif
         } else if (qstrcmp(arg, "-reverse") == 0) {
             force_reverse = true;
@@ -530,7 +532,8 @@ void QApplicationPrivate::process_cmdline()
        will be available to the \c -style command line option.
   \o -style \e style, is the same as listed above.
   \o -stylesheet= \e stylesheet, sets the application \l styleSheet. The value
-       may be a file name which contains the style sheet or the style sheet itself.
+       must be a path to a file that contains the Style Sheet. Note that relative URLs
+       in the Style Sheet file are relative to the Style Sheet file's path.
   \o -stylesheet \e stylesheet, is the same as listed above.
   \o -session= \e session, restores the application from an earlier
        \link session.html session \endlink.

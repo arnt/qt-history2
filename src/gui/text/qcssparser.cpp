@@ -1608,18 +1608,20 @@ QString Symbol::lexem() const
     return result;
 }
 
-Parser::Parser(const QString &css)
+Parser::Parser(QString css, bool isFile)
 {
-    QString ss = css;
-    if (!ss.isEmpty()) {
+    if (isFile) {
         QFile file(css);
         if (file.open(QFile::ReadOnly)) {
             sourcePath = QFileInfo(css).absolutePath() + QLatin1String("/");
             QTextStream stream(&file);
-            ss = stream.readAll();
+            css = stream.readAll();
+        } else {
+            qWarning() << "QCss::Parser - Failed to load file " << css;
+            css.clear();
         }
     }
-    init(ss);
+    init(css);
 }
 
 Parser::Parser()

@@ -618,7 +618,7 @@ class Q_GUI_EXPORT Parser
 {
 public:
     Parser();
-    explicit Parser(const QString &css);
+    Parser(QString css, bool file = false);
 
     void init(const QString &css);
     bool parse(StyleSheet *styleSheet);
