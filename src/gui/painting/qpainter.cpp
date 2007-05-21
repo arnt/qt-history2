@@ -4381,7 +4381,8 @@ void QPainter::drawImage(const QRectF &targetRect, const QImage &image, const QR
 
     if (((d->state->txop > QTransform::TxTranslate || (sw != w || sh != h))
          && !d->engine->hasFeature(QPaintEngine::PixmapTransform))
-        || (!d->state->matrix.isAffine() && !d->engine->hasFeature(QPaintEngine::PerspectiveTransform)))
+        || (!d->state->matrix.isAffine() && !d->engine->hasFeature(QPaintEngine::PerspectiveTransform))
+        || (d->state->opacity != 1.0 && !d->engine->hasFeature(QPaintEngine::ConstantOpacity)))
     {
         save();
         translate(x, y);
