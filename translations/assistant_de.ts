@@ -881,7 +881,7 @@ Bitte überprüfen Sie, das dieser an der angegeben Stelle existiert.</translati
     <message>
         <location filename="../tools/assistant/mainwindow.ui" line="275"/>
         <source>Zoom &amp;in</source>
-        <translation type="unfinished">Verkleinern</translation>
+        <translation>Vergrößern</translation>
     </message>
     <message>
         <location filename="../tools/assistant/mainwindow.ui" line="289"/>
