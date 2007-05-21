@@ -721,6 +721,13 @@ void WriteInitialization::acceptLayout(DomLayout *node)
     m_layoutChain.pop();
 }
 
+void WriteInitialization::acceptSpacer(DomSpacer *node)
+{
+    m_output << m_option.indent << m_driver->findOrInsertSpacer(node) << " = ";
+    writeSpacerItem(node, m_output);
+    m_output << ";\n";
+}
+
 void WriteInitialization::acceptLayoutItem(DomLayoutItem *node)
 {
     TreeWalker::acceptLayoutItem(node);
@@ -730,7 +737,6 @@ void WriteInitialization::acceptLayoutItem(DomLayoutItem *node)
     if (!layout)
         return;
 
-    const QString varName = m_driver->findOrInsertLayoutItem(node);
     const QString layoutName = m_driver->findOrInsertLayout(layout);
 
     QString opt;
@@ -758,8 +764,7 @@ void WriteInitialization::acceptLayoutItem(DomLayoutItem *node)
         m_output << "addLayout" <<  '(' << m_driver->findOrInsertLayoutItem(node);
         break;
     case DomLayoutItem::Spacer:
-        m_output << "addItem" << '(';
-        writeSpacerItem(node->elementSpacer(), m_output);
+        m_output << "addItem" << '(' << m_driver->findOrInsertLayoutItem(node);
         break;
     case DomLayoutItem::Unknown:
         Q_ASSERT( 0 );

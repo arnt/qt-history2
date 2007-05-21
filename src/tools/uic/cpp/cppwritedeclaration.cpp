@@ -190,6 +190,12 @@ void WriteDeclaration::acceptWidget(DomWidget *node)
     TreeWalker::acceptWidget(node);
 }
 
+void WriteDeclaration::acceptSpacer(DomSpacer *node)
+{
+     m_output << m_option.indent << "QSpacerItem *" << m_driver->findOrInsertSpacer(node) << ";\n";
+     TreeWalker::acceptSpacer(node);
+}
+
 void WriteDeclaration::acceptLayout(DomLayout *node)
 {
     QString className = QLatin1String("QLayout");
