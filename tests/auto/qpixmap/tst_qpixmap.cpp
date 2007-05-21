@@ -95,8 +95,8 @@ void tst_QPixmap::convertFromImage_data()
     {
         QImage img1;
         QImage img2;
-	QVERIFY(img1.load("convertFromImage/task31722_0/img1.png"));
-	QVERIFY(img2.load("convertFromImage/task31722_0/img2.png"));
+	QVERIFY(img1.load(prefix + "/task31722_0/img1.png"));
+	QVERIFY(img2.load(prefix + "/task31722_0/img2.png"));
 	QVERIFY(img1.load(prefix + "/task31722_0/img1.png"));
 	QVERIFY(img2.load(prefix + "/task31722_0/img2.png"));
         QTest::newRow("Task 31722 0") << img1 << img2;
