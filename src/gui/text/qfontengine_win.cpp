@@ -467,7 +467,7 @@ glyph_metrics_t QFontEngineWin::boundingBox(glyph_t glyph)
             qt_GetCharABCWidthsFloat = (pGetCharABCWidthsFloat) lib.resolve("GetCharABCWidthsFloatW");
             resolved = true;
         }
-        if (qt_GetCharABCWidthsFloat) {
+        if (QT_WA_INLINE(true, false) && qt_GetCharABCWidthsFloat) {
             ABCFLOAT abc;
             qt_GetCharABCWidthsFloat(hdc, ch, ch, &abc);
             width = qRound(abc.abcfB);
