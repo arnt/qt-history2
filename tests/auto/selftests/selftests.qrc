@@ -25,5 +25,6 @@
         <file>expected_fatal.txt</file>
         <file>expected_waitwithoutgui.txt</file>
         <file>expected_differentexec.txt</file>
+        <file>expected_qexecstringlist.txt</file>
     </qresource>
 </RCC>

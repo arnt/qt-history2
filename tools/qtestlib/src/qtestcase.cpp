@@ -14,8 +14,11 @@
 #include "QtTest/qtestcase.h"
 #include "QtTest/qtestassert.h"
 
-#include <QtCore/qobject.h>
+#include <QtCore/qbytearray.h>
 #include <QtCore/qmetaobject.h>
+#include <QtCore/qobject.h>
+#include <QtCore/qstringlist.h>
+#include <QtCore/qvector.h>
 
 #include "QtTest/private/qtestlog_p.h"
 #include "QtTest/private/qtesttable_p.h"
@@ -1148,6 +1151,10 @@ char *toHexRepresentation(const char *ba, int length)
     test that was executed with qExec() can't run another test via qExec() and
     threads are not allowed to call qExec() simultaneously.
 
+    If you have programatically created the arguments, as opposed to getting them
+    from the arguments in \c main(), it is likely of interest to use
+    QTest::qExec(QObject *, const QStringList &) since it is Unicode safe.
+
     \sa QTEST_MAIN()
 */
 int QTest::qExec(QObject *testObject, int argc, char **argv)
@@ -1239,6 +1246,28 @@ int QTest::qExec(QObject *testObject, int argc, char **argv)
 #else
     return QTestResult::failCount();
 #endif
+}
+
+/*!
+  \overload
+
+  Behaves identically to qExec(QObject *, int,  char**) but takes a QStringList instead.
+ */
+int QTest::qExec(QObject *testObject, const QStringList &arguments)
+{
+    const int argc = arguments.count();
+    char *argv[argc];
+
+    QVector<QByteArray> args;
+    args.reserve(argc);
+
+    for(int i = 0; i < argc; ++i)
+    {
+        args.append(arguments.at(i).toLocal8Bit().constData());
+        argv[i] = args.last().data();
+    }
+
+    return qExec(testObject, argc, argv);
 }
 
 /*! \internal

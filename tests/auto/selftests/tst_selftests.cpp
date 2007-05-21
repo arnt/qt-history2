@@ -70,6 +70,7 @@ void tst_Selftests::runSubTest_data()
 
     QTest::newRow("waitwithoutgui") << "waitwithoutgui";
     QTest::newRow("differentexec") << "differentexec";
+    QTest::newRow("qexecstringlist") << "qexecstringlist";
 }
 
 void tst_Selftests::runSubTest()
@@ -137,6 +138,12 @@ void tst_Selftests::initTestCase()
 {
     m_checkXMLBlacklist.append("crashes"); // This test crashes
     m_checkXMLBlacklist.append("waitwithoutgui"); // This test is not a QTestLib test.
+
+    /* Output from several tests is broken with the XML output method,
+     * and it's quite heavy in the design. See task 155001. */
+    m_checkXMLBlacklist.append("multiexec");
+    m_checkXMLBlacklist.append("differentexec");
+    m_checkXMLBlacklist.append("qexecstringlist");
 }
 
 void tst_Selftests::checkXML() const
@@ -160,10 +167,6 @@ void tst_Selftests::checkXML() const
 
     while(!reader.atEnd())
         reader.readNext();
-
-    QEXPECT_FAIL("multiexec", "Output from several tests is broken with the XML output method, "
-                              "and it's quite heavy in the design. See task 155001.", Continue);
-    QEXPECT_FAIL("differentexec", "Output from several tests is broken with the XML output method.", Continue);
 
     QVERIFY(!reader.error());
 }
