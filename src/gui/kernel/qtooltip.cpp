@@ -88,7 +88,7 @@ public:
 
     void reuseTip(const QString &text);
     void hideTip();
-    void hideTipImmediatly();
+    void hideTipImmediately();
     void setTipRect(QWidget *w, const QRect &r);
     void restartHideTimer();
     bool tipChanged(const QPoint &pos, const QString &text, QObject *o);
@@ -190,7 +190,7 @@ void QTipLabel::hideTip()
     hideTimer.start(300, this);
 }
 
-void QTipLabel::hideTipImmediatly()
+void QTipLabel::hideTipImmediately()
 {
     close(); // to trigger QEvent::Close which stops the animation
     deleteLater();
@@ -219,9 +219,9 @@ void QTipLabel::timerEvent(QTimerEvent *e)
             QTipLabel::instance->fadingOut = true; // will never be false again.
         }
         else
-            hideTipImmediatly();
+            hideTipImmediately();
 #else
-        hideTipImmediatly();
+        hideTipImmediately();
 #endif
     }
 }
@@ -250,7 +250,7 @@ bool QTipLabel::eventFilter(QObject *o, QEvent *e)
     case QEvent::FocusIn:
     case QEvent::FocusOut:
     case QEvent::Wheel:
-        hideTipImmediatly();
+        hideTipImmediately();
         break;
 
     case QEvent::MouseMove:
