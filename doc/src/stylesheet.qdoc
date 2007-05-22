@@ -443,6 +443,63 @@
     Specification} for the gory details. Be aware that Qt currently
     doesn't implement \c{!important}.
 
+    \section2 Inheritance
+
+    In classic CSS, when font and color of an item is not explicitly set,
+    it gets automatically inherited from the parent. When using Qt Style Sheets,
+    a widget does \bold{not} automatically inherit its font and color setting
+    from its parent widget.
+
+    For example, consider a QPushButton inside a QGroupBox:
+
+    \code
+        qApp->setStyleSheet("QGroupBox { color: red; } ");
+    \endcode
+
+    The QPushButton does not have an explcit color set. Hence, instead
+    of inheriting color of its parent QGroupBox, it has the sytem color.
+    If we want to set the color on a QGroupBox and its children, 
+    we can write:
+
+    \code
+        qApp->setStyleSheet("QGroupBox, QGroupBox * { color: red; }");
+    \endcode
+
+    In contrast, setting a font and propagate using QWidget::setFont() and
+    QWidget::setPalette() propagates to child widgets.
+
+    \section2 Widgets inside C++ namespaces
+    
+    The Type Selector can be used to style widgets of a particular type. For
+    example,
+
+    \code
+        class MyPushButton : public QPushButton {
+            // ...
+        }
+
+        // ...
+        qApp->setStyleSheet("QPushButton { background: yellow; }");
+    \endcode
+
+    Qt Style Sheets uses QObject::className() of the widget to determine
+    when to apply the Type Selector. When custom widgets are inside namespaces, 
+    the QObject::className() returns <namespace>::<classname>. This conflicts
+    with the syntax for \l{Sub-Controls}. To overcome this problem, 
+    when using the Type Selector for widgets inside namespaces, we must
+    replace the "::" with "--". For example,
+
+    \code
+        namespace ns {
+            class MyPushButton : public QPushButton {
+                // ...
+            }
+        }
+
+        // ...
+        qApp->setSytleSheet("ns--MyPushButton { background: yellow; }");
+    \endcode
+
     \section1 Customizing Qt Widgets Using Style Sheets
 
     Qt Style Sheets support various properties, pseudo-states, and
@@ -615,8 +672,8 @@
     \row
         \o \bold{\c alternate-background-color} \target alternate-background-prop
         \o \l{#Brush}{Brush} \BR
-        \o The \l{QAbstractItemView::alternatingRowColors}{alternate
-           background color} used in QAbstractItemView subclasses.
+        \o The \l{QAbstractItemView::alternatingRowColors}
+           {alternate background color} used in QAbstractItemView subclasses.
 
            If this property is not set, the default value is
            whatever is set for the palette's
@@ -1238,23 +1295,36 @@
 
     \row
         \o \bold{\c image}* \target image-prop
-        \o \l{#Url}{Url}
-        \o The image that is drawn at the center of a \l{subcontrol}.
-           In Qt 4.3 and later, the image property accepts a list of
-           \l{#Url}{Url}s or an \c{svg}.
+        \o \l{#Url}{Url}+
+        \o The image that is drawn in the contents rectangle of a 
+           \l{subcontrol}. 
+           
+           The image property accepts a list of \l{#Url}{Url}s or 
+           an \c{svg}. The actual image that is drawn is determined
+           using the same algorithm as QIcon. If a \c{svg} is specified,
+           the image is scaled to the size of the contents rectangle.
+
+           Setting the image property on sub controls implicitly sets the 
+           width and height of the sub-control (unless the image in a SVG).
+
+           In Qt 4.3 and later, the alignment of the
+           image within the rectangle can be specified using 
+           \l{image-position-prop}{image-position}.
 
            Example:
 
            \code
+            / * implicitly sets the size of down-button to the size of spindown.png * /
             QSpinBox::down-button { image: url(:/images/spindown.png) }
-            QTextEdit { background-image: url(x1.png) url(x2.png) }
-            QTextEdit { background-image: url(pic1.svg) }
+
+            QTextEdit { image: url(x1.png) url(x2.png) }
+            QTextEdit { image: url(pic1.svg) }
            \endcode
 
     \row
-        \o \bold{\c image-position}
-        \o \l{#position-prop}{position}
-        \o In Qt 4.3 and later, the image's position can be specified
+        \o \bold{\c image-position} \target image-position-prop
+        \o \l{#Alignment}{alignment}
+        \o In Qt 4.3 and later, the alignment of the image image's position can be specified
            using relative or absolute position.
 
     \row
@@ -2171,7 +2241,7 @@ blue green yellow * /
 
     If a background is specified for a widget, by default it is drawn
     only for the area inside the border. This can be changed using
-    the \l{#background-origin-prop}{background-origin} property.
+    the \l{#background-clip-prop}{background-clip} property.
 
     \section1 Designer Integration
 
