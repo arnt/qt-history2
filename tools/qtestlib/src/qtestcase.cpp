@@ -19,6 +19,7 @@
 #include <QtCore/qobject.h>
 #include <QtCore/qstringlist.h>
 #include <QtCore/qvector.h>
+#include <QtCore/qvarlengtharray.h>
 
 #include "QtTest/private/qtestlog_p.h"
 #include "QtTest/private/qtesttable_p.h"
@@ -1256,7 +1257,7 @@ int QTest::qExec(QObject *testObject, int argc, char **argv)
 int QTest::qExec(QObject *testObject, const QStringList &arguments)
 {
     const int argc = arguments.count();
-    char *argv[argc];
+    QVarLengthArray<char *> argv(argc);
 
     QVector<QByteArray> args;
     args.reserve(argc);
@@ -1267,7 +1268,7 @@ int QTest::qExec(QObject *testObject, const QStringList &arguments)
         argv[i] = args.last().data();
     }
 
-    return qExec(testObject, argc, argv);
+    return qExec(testObject, argc, argv.data());
 }
 
 /*! \internal
