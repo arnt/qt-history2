@@ -488,10 +488,14 @@ OSStatus QWidgetPrivate::qt_window_event(EventHandlerCallRef er, EventRef event,
             QApplication::sendSpontaneousEvent(widget, &ev);
             HIToolbarRef toolbar;
             if (GetWindowToolbar(wid, &toolbar) == noErr) {
-                if (toolbar)
-                    CallNextEventHandler(er, event); // Let HIToolbar do its thang.
+                if (toolbar) {
+                    // Let HIToolbar do its thang, but things like the OpenGL context
+                    // needs to know about it.
+                    CallNextEventHandler(er, event);
+                    qt_event_request_window_change();
+                    widget->data->fstrut_dirty = true;
+                }
             }
-
         } else if(ekind == kEventWindowGetRegion) {
             WindowRef window;
             GetEventParameter(event, kEventParamDirectObject, typeWindowRef, 0,
