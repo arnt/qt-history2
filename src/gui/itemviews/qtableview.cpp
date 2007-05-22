@@ -369,8 +369,14 @@ void QTableViewPrivate::drawCell(QPainter *painter, const QStyleOptionViewItemV3
     if (opt.features & QStyleOptionViewItemV2::Alternate)
         painter->fillRect(opt.rect, opt.palette.brush(QPalette::AlternateBase));
 
-    if (!q->indexWidget(index))
+    if (const QWidget *widget = editorForIndex(index)) {
+        painter->save();
+        painter->setClipRect(widget->geometry());
         q->itemDelegate(index)->paint(painter, opt, index);
+        painter->restore();
+    } else {
+        q->itemDelegate(index)->paint(painter, opt, index);
+    }
 }
 
 /*!
