@@ -338,80 +338,84 @@ void QGLContext::updatePaintDevice()
     Q_D(QGLContext);
     d->update = false;
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
-    if(d->paintDevice->devType() == QInternal::Widget) {
-        QWidget *w = (QWidget *)d->paintDevice;
-        aglSetHIViewRef((AGLContext)d->cx, (HIViewRef)w->winId());
-    } else if(d->paintDevice->devType() == QInternal::Pixmap) {
-        QPixmap *pm = (QPixmap *)d->paintDevice;
-        aglSetOffScreen((AGLContext)d->cx, pm->width(), pm->height(),
-                        qt_mac_pixmap_get_bytes_per_line(pm), qt_mac_pixmap_get_base(pm));
-    }
-#else
-    if(d->paintDevice->devType() == QInternal::Widget) {
-        //get control information
-        QWidget *w = (QWidget *)d->paintDevice;
-        HIViewRef hiview = (HIViewRef)w->winId();
-        WindowPtr window = qt_mac_window_for(hiview);
-#ifdef DEBUG_OPENGL_REGION_UPDATE
-        static int serial_no_gl = 0;
-        qDebug("[%d] %p setting on %s::%s %p/%p [%s]", ++serial_no_gl, w,
-               w->metaObject()->className(), w->objectName().toLatin1().constData(),
-               hiview, window, w->handle() ? "Inside" : "Outside");
-#endif
-
-        //update drawable
-        if(0 && w->isWindow() && w->isFullScreen()) {
-            aglSetDrawable((AGLContext)d->cx, 0);
-            aglSetFullScreen((AGLContext)d->cx, w->width(), w->height(), 0, QApplication::desktop()->screenNumber(w));
-            w->hide();
+    if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_5) {
+        if(d->paintDevice->devType() == QInternal::Widget) {
+            QWidget *w = (QWidget *)d->paintDevice;
+            aglSetHIViewRef((AGLContext)d->cx, (HIViewRef)w->winId());
+        } else if(d->paintDevice->devType() == QInternal::Pixmap) {
+            QPixmap *pm = (QPixmap *)d->paintDevice;
+            aglSetOffScreen((AGLContext)d->cx, pm->width(), pm->height(),
+                            qt_mac_pixmap_get_bytes_per_line(pm), qt_mac_pixmap_get_base(pm));
         } else {
-            AGLDrawable old_draw = aglGetDrawable((AGLContext)d->cx), new_draw = GetWindowPort(window);
-            if(old_draw != new_draw)
-                aglSetDrawable((AGLContext)d->cx, new_draw);
+            qWarning("QGLContext::updatePaintDevice(): Not sure how to render OpenGL on this device!");
         }
+    } else
+#endif
+    {
+        if(d->paintDevice->devType() == QInternal::Widget) {
+            //get control information
+            QWidget *w = (QWidget *)d->paintDevice;
+            HIViewRef hiview = (HIViewRef)w->winId();
+            WindowPtr window = qt_mac_window_for(hiview);
+#ifdef DEBUG_OPENGL_REGION_UPDATE
+            static int serial_no_gl = 0;
+            qDebug("[%d] %p setting on %s::%s %p/%p [%s]", ++serial_no_gl, w,
+                   w->metaObject()->className(), w->objectName().toLatin1().constData(),
+                   hiview, window, w->handle() ? "Inside" : "Outside");
+#endif
 
-        if(!w->isWindow()) {
-            QRegion clp = qt_mac_get_widget_rgn(w); //get drawable area
+            //update drawable
+            if(0 && w->isWindow() && w->isFullScreen()) {
+                aglSetDrawable((AGLContext)d->cx, 0);
+                aglSetFullScreen((AGLContext)d->cx, w->width(), w->height(), 0, QApplication::desktop()->screenNumber(w));
+                w->hide();
+            } else {
+                AGLDrawable old_draw = aglGetDrawable((AGLContext)d->cx), new_draw = GetWindowPort(window);
+                if(old_draw != new_draw)
+                    aglSetDrawable((AGLContext)d->cx, new_draw);
+            }
+
+            if(!w->isWindow()) {
+                QRegion clp = qt_mac_get_widget_rgn(w); //get drawable area
 
 #ifdef DEBUG_OPENGL_REGION_UPDATE
-            if(clp.isEmpty()) {
-                qDebug("  Empty area!");
-            } else {
-                QVector<QRect> rs = clp.rects();
-                for(int i = 0; i < rs.count(); i++)
-                    qDebug("  %d %d %d %d", rs[i].x(), rs[i].y(), rs[i].width(), rs[i].height());
-            }
+                if(clp.isEmpty()) {
+                    qDebug("  Empty area!");
+                } else {
+                    QVector<QRect> rs = clp.rects();
+                    for(int i = 0; i < rs.count(); i++)
+                        qDebug("  %d %d %d %d", rs[i].x(), rs[i].y(), rs[i].width(), rs[i].height());
+                }
 #endif
-            //update the clip
-            if(!aglIsEnabled((AGLContext)d->cx, AGL_BUFFER_RECT))
-                aglEnable((AGLContext)d->cx, AGL_BUFFER_RECT);
-            if(clp.isEmpty()) {
-                GLint offs[4] = { 0, 0, 0, 0 };
-                aglSetInteger((AGLContext)d->cx, AGL_BUFFER_RECT, offs);
-                if(aglIsEnabled((AGLContext)d->cx, AGL_CLIP_REGION))
-                    aglDisable((AGLContext)d->cx, AGL_CLIP_REGION);
-            } else {
-                HIPoint origin = { 0., 0. };
-                HIViewConvertPoint(&origin, HIViewRef(w->winId()), 0);
-                const GLint offs[4] = { qRound(origin.x),
-                                        w->window()->frameGeometry().height()
-                                                - (qRound(origin.y) + w->height()),
-                                        w->width(), w->height() };
-                aglSetInteger((AGLContext)d->cx, AGL_BUFFER_RECT, offs);
-                aglSetInteger((AGLContext)d->cx, AGL_CLIP_REGION, (const GLint *)clp.handle(true));
-                if(!aglIsEnabled((AGLContext)d->cx, AGL_CLIP_REGION))
-                    aglEnable((AGLContext)d->cx, AGL_CLIP_REGION);
+                //update the clip
+                if(!aglIsEnabled((AGLContext)d->cx, AGL_BUFFER_RECT))
+                    aglEnable((AGLContext)d->cx, AGL_BUFFER_RECT);
+                if(clp.isEmpty()) {
+                    GLint offs[4] = { 0, 0, 0, 0 };
+                    aglSetInteger((AGLContext)d->cx, AGL_BUFFER_RECT, offs);
+                    if(aglIsEnabled((AGLContext)d->cx, AGL_CLIP_REGION))
+                        aglDisable((AGLContext)d->cx, AGL_CLIP_REGION);
+                } else {
+                    HIPoint origin = { 0., 0. };
+                    HIViewConvertPoint(&origin, HIViewRef(w->winId()), 0);
+                    const GLint offs[4] = { qRound(origin.x),
+                                            w->window()->frameGeometry().height()
+                                                    - (qRound(origin.y) + w->height()),
+                                            w->width(), w->height() };
+                    aglSetInteger((AGLContext)d->cx, AGL_BUFFER_RECT, offs);
+                    aglSetInteger((AGLContext)d->cx, AGL_CLIP_REGION, (const GLint *)clp.handle(true));
+                    if(!aglIsEnabled((AGLContext)d->cx, AGL_CLIP_REGION))
+                        aglEnable((AGLContext)d->cx, AGL_CLIP_REGION);
+                }
             }
+        } else if(d->paintDevice->devType() == QInternal::Pixmap) {
+            QPixmap *pm = (QPixmap *)d->paintDevice;
+            PixMapHandle mac_pm = GetGWorldPixMap((GWorldPtr)pm->macQDHandle());
+            aglSetOffScreen((AGLContext)d->cx, pm->width(), pm->height(),
+                            GetPixRowBytes(mac_pm), GetPixBaseAddr(mac_pm));
+        } else {
+            qWarning("QGLContext::updatePaintDevice(): Not sure how to render OpenGL on this device!");
         }
-    } else if(d->paintDevice->devType() == QInternal::Pixmap) {
-        QPixmap *pm = (QPixmap *)d->paintDevice;
-        PixMapHandle mac_pm = GetGWorldPixMap((GWorldPtr)pm->macQDHandle());
-        aglSetOffScreen((AGLContext)d->cx, pm->width(), pm->height(),
-                        GetPixRowBytes(mac_pm), GetPixBaseAddr(mac_pm));
-    }
-#endif
-    else {
-        qWarning("QGLContext::updatePaintDevice(): Not sure how to render OpenGL on this device!");
     }
     aglUpdateContext((AGLContext)d->cx);
 }
@@ -603,6 +607,16 @@ QRegion qt_mac_get_widget_rgn(const QWidget *widget)
             if(QWidget *child = qobject_cast<QWidget*>(children.at(i))) {
                 if(child == last_clip)
                     break;
+
+                // This check may seem weird, but when we are using a unified toolbar
+                // The widget is actually being owned by that toolbar and not by Qt.
+                // This means that the geometry it reports will be wrong
+                // and will accidentally cause problems when calculating the region
+                // So, it is better to skip these widgets since they aren't the hierarchy
+                // anyway.
+                if (HIViewGetSuperview(HIViewRef(child->winId())) != HIViewRef(clip->winId()))
+                    continue;
+
                 if(child->isVisible() && !child->isMinimized() && !child->isTopLevel()) {
                     const QRect childRect = QRect(clip_pos+child->pos(), child->size());
                     if(childRect.isValid() && wrect.intersects(childRect)) {
