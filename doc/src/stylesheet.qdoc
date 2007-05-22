@@ -2170,29 +2170,104 @@ blue green yellow * /
         \o Description
 
     \row
+        \o \c ::add-line \target add-line-sub
+        \o The button to add a line of a QScrollBar
+
+    \row
+        \o \c ::add-page \target add-page-sub
+        \o The region between the handle (slider) and the \l{#add-line-sub}{add-line}
+           of a QScrollBar
+
+    \row
+        \o \c ::branch \target branch-sub
+        \o The branch indicator of a QTreeView.
+
+    \row
+        \o \c ::chunk \target chunk-sub
+        \o The progress chunk of a QProgressBar
+
+    \row
         \o \c ::down-arrow \target down-arrow-sub
-        \o The down arrow of a QComboBox or a QSpinBox.
+        \o The down arrow of a QComboBox, QHeaderView (sort indicator),
+           QScrollBar or QSpinBox.
 
     \row
         \o \c ::down-button \target down-button-sub
-        \o  The down button of a QSpinBox.
+        \o  The down button of a QScrollBar or a QSpinBox.
 
     \row
         \o \c ::drop-down \target drop-down-sub
-        \o The drop-down arrow of a QComboBox.
+        \o The drop-down button of a QComboBox.
+
+    \row
+        \o \c ::groove \target groove-sub
+        \o The groove of a QSlider
 
     \row
         \o \c ::indicator \target indicator-sub
-        \o The indicator of a QCheckBox, a QRadioButton, or a
-           checkable QGroupBox.
+        \o The indicator of a QCheckBox, a QRadioButton, a checkable
+            QMenu item or a checkable QGroupBox.
+
+    \row
+        \o \c ::handle \target handle-sub
+        \o The handle (slider) of a QScrollBar or a QSlider
 
     \row
         \o \c ::item \target item-sub
         \o An item of a QMenuBar, a QMenu, or a QStatusBar.
 
     \row
+        \o \c ::label \target label-sub
+        \o The label of a QProgressBar
+
+    \row
+        \o \c ::left-arrow \target left-arrow-sub
+        \o The left arrow of a QScrollBar
+
+    \row
+        \o \c ::menu-arrow \target menu-arrow-sub
+        \o The arrow of a QToolButton with a menu
+
+    \row
+        \o \c ::menu-button \target menu-button-sub
+        \o The menu button of a QToolButton
+
+    \row
         \o \c ::menu-indicator \target menu-indicator-sub
         \o The menu indicator of a QPushButton.
+
+    \row
+        \o \c ::right-arrow \target right-arrow-sub
+        \o The right arrow of a QMenu or a QScrollBar
+
+    \row
+        \o \c ::scroller \target scroller-sub
+        \o The scroller of a QMenu or QTabBar
+
+    \row
+        \o \c ::section \target section-sub
+        \o The section of a QHeaderView
+
+    \row
+        \o \c ::separator \target separator-sub
+        \o The separator of a QMenu
+
+    \row
+        \o \c ::sub-line \target sub-line-sub
+        \o The button to subtract a line of a QScrollBar
+
+    \row
+        \o \c ::sub-page \target sub-page-sub
+        \o The region between the handle (slider) and the \l{#sub-line-sub}{sub-line}
+           of a QScrollBar
+
+    \row
+        \o \c ::tab \target tab-sub
+        \o The tab of a QTabBar or QToolBox
+
+    \row
+        \o \c ::tear-off \target tear-off-sub
+        \o The tear off indicator of a QTabBar
 
     \row
         \o \c ::title \target title-sub
@@ -2200,7 +2275,8 @@ blue green yellow * /
 
     \row
         \o \c ::up-arrow \target up-arrow-sub
-        \o The up arrow of a QSpinBox.
+        \o The up arrow of a QHeaderView (sort indicator), QScrollBar 
+           or a QSpinBox.
 
     \row
         \o \c ::up-button \target up-button-sub
