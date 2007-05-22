@@ -59,6 +59,7 @@ QDesigner::QDesigner(int &argc, char **argv)
       m_client(0),
       m_workbench(0), m_suppressNewFormShow(false)
 {
+    qInstallMsgHandler (designerMessageHandler);
     setOrganizationName(QLatin1String("Trolltech"));
     setApplicationName(QLatin1String(designerApplicationName));
     QDesignerComponents::initializeResources();
@@ -200,7 +201,6 @@ void QDesigner::initialize()
         showErrorMessageBox(m_initializationErrors);
         m_initializationErrors.clear();
     }
-    qInstallMsgHandler (designerMessageHandler);
 }
 
 bool QDesigner::event(QEvent *ev)
