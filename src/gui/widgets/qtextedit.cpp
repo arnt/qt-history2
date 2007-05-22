@@ -2391,10 +2391,15 @@ Qt::TextFormat QTextEdit::textFormat() const
 
 #endif // QT3_SUPPORT
 
-
 /*!
     Appends a new paragraph with \a text to the end of the text edit.
+    
+    \note The new paragraph appended will have the same character format and
+    block format as the current paragraph, determined by the position of the cursor.
+    
+    \sa currentCharFormat(), QTextCursor::blockFormat()
 */
+
 void QTextEdit::append(const QString &text)
 {
     Q_D(QTextEdit);
