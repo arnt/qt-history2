@@ -1455,12 +1455,22 @@ void QStandardItem::insertColumns(int column, int count)
 
 /*!
     \fn bool QStandardItemModel::insertRow(int row, const QModelIndex &parent)
-    \internal
+
+    Inserts a single row before the given \a row in the child items of the
+    \a parent specified. Returns true if the row is inserted; otherwise
+    returns false.
+
+    \sa insertRows(), insertColumn(), removeRow()
 */
 
 /*!
     \fn bool QStandardItemModel::insertColumn(int column, const QModelIndex &parent)
-    \internal
+
+    Inserts a single column before the given \a column in the child items of
+    the \a parent specified. Returns true if the column is inserted; otherwise
+    returns false.
+
+    \sa insertColumns(), insertRow(), removeColumn()
 */
 
 /*!
@@ -2417,7 +2427,7 @@ void QStandardItemModel::insertRow(int row, const QList<QStandardItem*> &items)
 /*!
     \since 4.2
 
-    \fn QStandardItemModel::insertRow(int row, QStandardItem *item)
+    \fn void QStandardItemModel::insertRow(int row, QStandardItem *item)
     \overload
 
     Inserts a row at \a row containing \a item.
