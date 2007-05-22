@@ -155,8 +155,10 @@ public:
 #endif
         ToolBarChange = 120,                    // toolbar visibility toggled
 
-        ApplicationActivated = 121,             // application has been changed to active
-        ApplicationDeactivated = 122,           // application has been changed to inactive
+        ApplicationActivate = 121,              // application has been changed to active
+        ApplicationActivated = ApplicationActivate, // deprecated
+        ApplicationDeactivate = 122,            // application has been changed to inactive
+        ApplicationDeactivated = ApplicationDeactivate, // deprecated
 
         QueryWhatsThis = 123,                   // query what's this widget help
         EnterWhatsThisMode = 124,

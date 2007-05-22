@@ -1212,8 +1212,8 @@ static bool qt_try_modal(QWidget *widget, EventRef event)
     // INVARIANT: widget is modally shaddowed within its
     // window, and should therefore not handle the event.
     // However, if the window is not active, the event
-    // might suggest that we should bring it to front:   
-    
+    // might suggest that we should bring it to front:
+
     bool block_event = false;
 
     switch (GetEventClass(event)) {
@@ -1967,7 +1967,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                 QApplication::sendSpontaneousEvent(qt_clipboard, &ev);
             }
             if(app) {
-                QEvent ev(QEvent::ApplicationActivated);
+                QEvent ev(QEvent::ApplicationActivate);
                 QApplication::sendSpontaneousEvent(app, &ev);
             }
             if(!app->activeWindow()) {
@@ -1981,7 +1981,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             while(app->d_func()->inPopupMode())
                 app->activePopupWidget()->close();
             if(app) {
-                QEvent ev(QEvent::ApplicationDeactivated);
+                QEvent ev(QEvent::ApplicationDeactivate);
                 QApplication::sendSpontaneousEvent(app, &ev);
             }
             app->setActiveWindow(0);

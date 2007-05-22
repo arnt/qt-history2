@@ -71,8 +71,8 @@
     \value ActionChanged                    An action has been changed (QActionEvent).
     \value ActionRemoved                    An action has been removed (QActionEvent).
     \value ActivationChange                 A widget's top-level window activation state has changed.
-    \value ApplicationActivated             The application has been made available to the user.
-    \value ApplicationDeactivated           The application has been suspended, and is unavailable to the user.
+    \value ApplicationActivate              The application has been made available to the user.
+    \value ApplicationDeactivate            The application has been suspended, and is unavailable to the user.
     \value ApplicationFontChange            The default application font has changed.
     \value ApplicationLayoutDirectionChange The default application layout direction has changed.
     \value ApplicationPaletteChange         The default application palette has changed.
@@ -217,6 +217,8 @@
     \omitvalue Style
     \omitvalue ThreadChange
     \omitvalue ZeroTimerEvent
+    \omitvalue ApplicationActivated
+    \omitvalue ApplicationDeactivated
 */
 
 /*!

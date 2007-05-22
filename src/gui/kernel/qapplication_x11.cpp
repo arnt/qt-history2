@@ -2953,8 +2953,28 @@ int QApplication::x11ProcessEvent(XEvent* event)
             event->xfocus.detail != NotifyNonlinearVirtual &&
             event->xfocus.detail != NotifyNonlinear)
             break;
-        if (!d->inPopupMode() && widget == QApplicationPrivate::active_window)
-            setActiveWindow(0);
+        if (!d->inPopupMode() && widget == QApplicationPrivate::active_window) {
+            XEvent ev;
+            bool focus_will_change = false;
+            if (XCheckTypedEvent(X11->display, XFocusIn, &ev)) {
+                // we're about to get an XFocusIn, if we know we will
+                // get a new active window, we don't want to set the
+                // active window to 0 now
+                QWidget *w2 = QWidget::find(ev.xany.window);
+                if (w2
+                    && w2->windowType() != Qt::Desktop
+                    && !d->inPopupMode() // some delayed focus event to ignore
+                    && w2->isWindow()
+                    && (ev.xfocus.detail == NotifyAncestor
+                        || ev.xfocus.detail == NotifyInferior
+                        || ev.xfocus.detail == NotifyNonlinear))
+                    focus_will_change = true;
+
+                XPutBackEvent(X11->display, &ev);
+            }
+            if (!focus_will_change)
+                setActiveWindow(0);
+        }
         break;
 
     case EnterNotify: {                        // enter window

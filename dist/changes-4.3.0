@@ -122,6 +122,10 @@ Third party components
     * [157667] Fixed widgets with Qt::WA_DeleteOnClose to be properly
       deleted when they are closed in the dropEvent() handler when the
       drag was started in the same application.
+    * [156410] Implement QEvent::ApplicationActivate and
+      QEvent::ApplicationDeactivate on all platforms. Note the
+      deprecation of QEvent::ApplicationActivated and
+      QEvent::ApplicationDeactivated.
 
 - QAtomic
     * [126321] Fixed several flaws in the inline assembler implementations
