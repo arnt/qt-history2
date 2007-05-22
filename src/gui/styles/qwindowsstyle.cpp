@@ -2881,10 +2881,8 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
             if ((cmb->subControls & SC_ComboBoxFrame)) {
                 if (cmb->frame) {
                     QPalette shadePal = opt->palette;
-#ifdef Q_WS_WIN
                     if (use2000style)
-                        shadePal.setColor(QPalette::Midlight, Qt::transparent);
-#endif
+                        shadePal.setColor(QPalette::Midlight, shadePal.button().color());
                     qDrawWinPanel(p, opt->rect, shadePal, true, &editBrush);
                 }
                 else {
@@ -2959,10 +2957,8 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
             if (sb->frame && (sb->subControls & SC_SpinBoxFrame)) {
                 QRect r = subControlRect(CC_SpinBox, sb, SC_SpinBoxFrame, widget);
                 QPalette shadePal = sb->palette;
-#ifdef Q_WS_WIN
                 if (use2000style)
-                    shadePal.setColor(QPalette::Midlight, Qt::transparent);
-#endif
+                    shadePal.setColor(QPalette::Midlight, shadePal.button().color());
                 qDrawWinPanel(p, r, shadePal, true);
             }
 
