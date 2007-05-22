@@ -227,7 +227,7 @@ void QWindowsXPStylePrivate::cleanup(bool force)
 
     use_xp = false;
     cleanupHandleMap();
-    delete limboWidget;
+    limboWidget->deleteLater();
     delete tabbody;
     limboWidget = 0;
     tabbody = 0;
