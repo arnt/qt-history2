@@ -30,6 +30,9 @@ public:
     static void showText(const QPoint &pos, const QString &text, QWidget *w, const QRect &rect);
     static inline void hideText() { showText(QPoint(), QString()); }
 
+    static bool isVisible();
+    static QString text();
+
     static QPalette palette();
     static void setPalette(const QPalette &);
     static QFont font();

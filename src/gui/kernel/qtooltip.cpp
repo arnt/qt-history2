@@ -66,7 +66,9 @@
     function instead.
 
     The default tooltip color and font can be customized with
-    setPalette() and setFont().
+    setPalette() and setFont(). When a tooltip is currently on
+    display, isVisble() returns true and text() the currently visible
+    text.
 
     \sa QWidget::toolTip, QAction::toolTip, {Tooltips Example}
 */
@@ -86,7 +88,7 @@ public:
 
     void reuseTip(const QString &text);
     void hideTip();
-    void hideTipImmidiatly();
+    void hideTipImmediatly();
     void setTipRect(QWidget *w, const QRect &r);
     void restartHideTimer();
     bool tipChanged(const QPoint &pos, const QString &text, QObject *o);
@@ -188,7 +190,7 @@ void QTipLabel::hideTip()
     hideTimer.start(300, this);
 }
 
-void QTipLabel::hideTipImmidiatly()
+void QTipLabel::hideTipImmediatly()
 {
     close(); // to trigger QEvent::Close which stops the animation
     deleteLater();
@@ -217,9 +219,9 @@ void QTipLabel::timerEvent(QTimerEvent *e)
             QTipLabel::instance->fadingOut = true; // will never be false again.
         }
         else
-            hideTipImmidiatly();
+            hideTipImmediatly();
 #else
-        hideTipImmidiatly();
+        hideTipImmediatly();
 #endif
     }
 }
@@ -248,7 +250,7 @@ bool QTipLabel::eventFilter(QObject *o, QEvent *e)
     case QEvent::FocusIn:
     case QEvent::FocusOut:
     case QEvent::Wheel:
-        hideTipImmidiatly();
+        hideTipImmediatly();
         break;
 
     case QEvent::MouseMove:
@@ -388,6 +390,27 @@ void QToolTip::showText(const QPoint &pos, const QString &text, QWidget *w)
 
     \sa showText()
 */
+
+
+/*!
+  Returns true if a tooltip is currently shown; otherwise returns false.
+
+  \sa isVisible(), showText()
+ */
+bool QToolTip::isVisible()
+{
+    return (QTipLabel::instance != 0);
+}
+
+/*!  Returns the currently visible text; or an empty string if no
+  tooltip is currently visible.
+ */
+QString QToolTip::text()
+{
+    if (QTipLabel::instance)
+        return QTipLabel::instance->text();
+    return QString();
+}
 
 
 Q_GLOBAL_STATIC_WITH_ARGS(QPalette, tooltip_palette, (Qt::black, QColor(255,255,220),
