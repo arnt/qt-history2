@@ -979,14 +979,13 @@ protected:
     GLuint addCacheElement(quint64 hash_val, const QGradientStops &stops, qreal opacity) {
         if (cache.size() == maxCacheSize()) {
             int elem_to_remove = qrand() % maxCacheSize();
-            uint key = cache.keys()[elem_to_remove];
+            quint64 key = cache.keys()[elem_to_remove];
 
             // need to call glDeleteTextures on each removed cache entry:
             QGLGradientColorTableHash::const_iterator it = cache.constFind(key);
             do {
                 glDeleteTextures(1, &it.value().texId);
             } while (++it != cache.constEnd() && it.key() == key);
-
             cache.remove(key); // may remove more than 1, but OK
         }
         CacheInfo cache_entry(stops, opacity);
