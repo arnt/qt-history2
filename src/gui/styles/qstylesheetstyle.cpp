@@ -1254,6 +1254,8 @@ enum PseudoElement {
     PseudoElement_ScrollBarLast,
     PseudoElement_ScrollBarUpArrow,
     PseudoElement_ScrollBarDownArrow,
+    PseudoElement_ScrollBarLeftArrow,
+    PseudoElement_ScrollBarRightArrow,
     PseudoElement_SplitterHandle,
     PseudoElement_ToolBarHandle,
     PseudoElement_ToolBarSeparator,
@@ -1318,6 +1320,8 @@ static PseudoElementInfo knownPseudoElements[NumPseudoElements] = {
     { QStyle::SC_ScrollBarLast, "last" },
     { QStyle::SC_ScrollBarSubLine, "up-arrow" },
     { QStyle::SC_ScrollBarAddLine, "down-arrow" },
+    { QStyle::SC_ScrollBarSubLine, "left-arrow" },
+    { QStyle::SC_ScrollBarAddLine, "right-arrow" },
     { QStyle::SC_None, "handle" },
     { QStyle::SC_None, "handle" },
     { QStyle::SC_None, "separator" },
@@ -1687,6 +1691,8 @@ static Origin defaultOrigin(int pe)
     case PseudoElement_ScrollBarSlider:
     case PseudoElement_ScrollBarUpArrow:
     case PseudoElement_ScrollBarDownArrow:
+    case PseudoElement_ScrollBarLeftArrow:
+    case PseudoElement_ScrollBarRightArrow:
     case PseudoElement_SpinBoxUpArrow:
     case PseudoElement_SpinBoxDownArrow:
     case PseudoElement_ToolButtonMenuArrow:
@@ -1726,6 +1732,8 @@ static Qt::Alignment defaultPosition(int pe)
 
     case PseudoElement_ScrollBarUpArrow:
     case PseudoElement_ScrollBarDownArrow:
+    case PseudoElement_ScrollBarLeftArrow:
+    case PseudoElement_ScrollBarRightArrow:
     case PseudoElement_SpinBoxUpArrow:
     case PseudoElement_SpinBoxDownArrow:
     case PseudoElement_ComboBoxArrow:
@@ -2657,7 +2665,7 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
                 p->setFont(subRule.font.resolve(p->font()));
 
             if (subRule.hasDrawable()
-                || (mi.menuItemType == QStyleOptionMenuItem::SubMenu && hasStyleRule(w, PseudoElement_LeftArrow))
+                || (mi.menuItemType == QStyleOptionMenuItem::SubMenu && hasStyleRule(w, PseudoElement_RightArrow))
                 || (mi.checkType != QStyleOptionMenuItem::NotCheckable && hasStyleRule(w, PseudoElement_MenuCheckMark))) {
                 subRule.drawRule(p, opt->rect);
                 if (mi.menuItemType != QStyleOptionMenuItem::Separator) {
@@ -2940,13 +2948,13 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
 
     case CE_ScrollBarAddLine:
         pe1 = PseudoElement_ScrollBarAddLine;
-        pe2 = PseudoElement_ScrollBarDownArrow;
+        pe2 = (opt->state & QStyle::State_Horizontal) ? PseudoElement_ScrollBarRightArrow : PseudoElement_ScrollBarDownArrow;
         fallback = true;
         break;
 
     case CE_ScrollBarSubLine:
         pe1 = PseudoElement_ScrollBarSubLine;
-        pe2 = PseudoElement_ScrollBarUpArrow;
+        pe2 = (opt->state & QStyle::State_Horizontal) ? PseudoElement_ScrollBarLeftArrow : PseudoElement_ScrollBarUpArrow;
         fallback = true;
         break;
 
