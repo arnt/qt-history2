@@ -774,9 +774,9 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                 int labelWidth = pixmap.width();
                 int labelHeight = pixmap.height();
                 int iconSpacing = 4;//### 4 is currently hardcoded in QPushButton::sizeHint()
-
+                int textWidth = button->fontMetrics.boundingRect(opt->rect, tf, button->text).width();
                 if (!button->text.isEmpty())
-                    labelWidth += button->fontMetrics.width(button->text) + iconSpacing;
+                    labelWidth += (textWidth + iconSpacing);
 
                 iconRect = QRect(textRect.x() + (textRect.width() - labelWidth) / 2,
                                  textRect.y() + (textRect.height() - labelHeight) / 2,
