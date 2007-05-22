@@ -1,3 +1,23 @@
+Qt 4.3 introduces many new features as well as many improvements and
+bugfixes over the 4.2.x series. For more details, see the online
+documentation which is included in this distribution. The
+documentation is also available at http://doc.trolltech.com/4.3
+
+The Qt version 4.3 series is binary compatible with the 4.2.x series.
+Applications compiled for 4.2 will continue to run with 4.3.
+
+The Qtopia Core version 4.3 series is binary compatible with the 4.2.x
+series except for some parts of the device handling API, as detailed
+in Platform Specific Changes below.
+
+Some of the changes listed in this file include issue tracking numbers
+corresponding to tasks in the Task Tracker:
+
+  http://www.trolltech.com/developer/task-tracker
+
+Each of these identifiers can be entered in the task tracker to obtain
+more information about a particular change.
+
 ****************************************************************************
 *                           General                                        *
 ****************************************************************************
@@ -18,10 +38,12 @@ General Improvements
     * Added an Accessibility overview document.
 
 - Translations
-    * [129392] Added a Slovak translation of Qt courtesy of Richard Fric.
-    * [154260] Added a Ukranian translation of Qt courtesy of Andriy Rysin.
+    * Added a Slovak translation of Qt courtesy of Richard Fric.
+    * Added a Ukrainian translation of Qt courtesy of Andriy Rysin.
+    * Added a Polish translation of the Qt libraries and tools courtesy of
+      Marcin Giedz, who also provided a Polish phrasebook for Qt Linguist.
 
-- Added support for CP949 Korean Codec
+- Added support for the CP949 Korean Codec.
 
 - [138140] The whole Qt source compiles with the QT_NO_CAST_FROM_ASCII
   and QT_NO_CAST_TO_ASCII defines and therefore is more robust when
@@ -29,21 +51,21 @@ General Improvements
 
 - Added support for HP-UX 11i (Itanium) with the aCC compiler
 
-- Changed dialogs to respond much better to the LanguageChange event. (i.e. run-time translation
-  now works much better.)
+- Changed dialogs to respond much better to the LanguageChange event.
+  (i.e. run-time translation now works much better.)
 
 - Signals and slots
-    * [61295] Added Qt::BlockingQueuedConnection connection type,
-      which waits for all slots to be called before continuing.
-    * [128646] Ignore optional keywords specified in SIGNAL() and
-      SLOT() signatures (struct, class, and enum).
+    * [61295] Added Qt::BlockingQueuedConnection connection type, which
+      waits for all slots to be called before continuing.
+    * [128646] Ignore optional keywords specified in SIGNAL() and SLOT()
+      signatures (struct, class, and enum).
     * Optimize emitting signals that do not have anything connected to them.
 
-- [121629] Added support for Mingw/MSYS platform
+- [121629] Added support for the MinGW/MSYS platform.
 
-- [102293] Added Search path functionality (QDir::addSearchPath)
+- [102293] Added search path functionality (QDir::addSearchPath)
 
-- Almost all widgets are now styleable using Qt Style Sheets
+- Almost all widgets are now styleable using Qt Style Sheets.
 
 Third party components
 ----------------------
@@ -54,78 +76,98 @@ Third party components
 
 - Updated Qt's libpng version to 1.2.16.
 
-- Added libtiff version 3.8.2 for the tiff plugin.
+- Added libtiff version 3.8.2 for the TIFF plugin.
 
 ****************************************************************************
 *                          Library                                         *
 ****************************************************************************
 
 - QAbstractButton
-    * [138210] Ensure strictly alternating ordering of signals resulting from
-      autorepeating shortcut. Also fix repeat timer infinite retriggering bug.
-    * [150995] Fixed bug where non-checkable buttons take focus when activating 
-      shortcuts
-    * [120409] Fixed bug where the button was set to unpressed when the right mouse button was released.
+    * [138210] Ensured strictly alternating ordering of signals resulting
+      from auto-repeating shortcuts. Fixed a repeat timer bug that cause
+      cause infinite retriggering to occur.
+    * [150995] Fixed bug where non-checkable buttons take focus when
+      activating shortcuts.
+    * [120409] Fixed bug where the button was set to unpressed when the
+      right mouse button was released.
 
 - QAbstractItemView
-    * [111503] Give the focus back to the view when the tab key is pressed
-      while inside an editor.
-    * [156290] When the ScrollMode is set to ScrollPerItem, scroll slower.
-    * When displaying dates and numbers, the item view classes use their locale
-      property, allowing easy customization.
-    * Fix a repaint issue with the focus rect if selection mode is NoSelection
+    * [111503] Ensured that focus is given back to the view when the Tab key
+      is pressed while inside an editor.
+    * [156290] Use slower scrolling when the ScrollMode is set to
+      ScrollPerItem.
+    * Ensured that the item view classes use the locale property when
+      displaying dates and numbers to allow easy customization.
+    * Fixed a repaint issue with the focus rectangle in cases where
+      selection mode is NoSelection.
     * [147422] Detect when persistent editors take/lose focus and update the
       view accordingly.
-    * [146292] items are now updated even if they contain an editor.
-    * [130168] auto-scrolling when clicking is now delayed to allow double-clicking
-      to happen.
-    * [139247] click on a partially visible item was triggering a scroll and the
-      wrong item was then clicked.
-    * [137729] Use dropAction() instead of proposedAction() in QAbstractItemView::dropEvent().
-    * Fix a bug that keyboardSearch() was not ignoring disabled items.
-    * [151491] Make sure we pass a proper mouseButtonPressEvent in QAbstractItemView::mouseDoubleClickEvent().
-    * [147990] Make sure that double-clicking does not opens editor when edit trigger is SelectedClicked.
-    * [144095] Make sure sizeHintForIndex uses the correct item delegate.
-    * [140180] Clicking a selected item when the view has ExtendedSelection and SelectedClicked as an edit trigger now clears the selections.
-    * [130168] Fixed bug where double clicking on partially visible items would not activate them.
-    * [139342] Allow editing to be started programatically, even if there are no edit triggers.
-    * [130135] Added public slot updateIndex(const QModelIndex &index).
+    * [146292] Items are now updated even if they contain an editor.
+    * [130168] Auto-scrolling when clicking is now delayed to allow
+      double-clicking to happen.
+    * [139247] Fixed bug where clicking on a partially visible item was
+      triggering a scroll and the wrong item was then clicked.
+    * [137729] Use dropAction() instead of proposedAction() in
+      QAbstractItemView::dropEvent().
+    * Fixed a bug that prevented keyboardSearch() from ignoring disabled
+      items.
+    * [151491] Ensured that we pass a proper MouseButtonPress event in
+      QAbstractItemView::mouseDoubleClickEvent().
+    * [147990] Ensured that double-clicking does not open an editor when
+      the edit trigger is set to SelectedClicked.
+    * [144095] Ensured that sizeHintForIndex() uses the correct item
+      delegate.
+    * [140180] Ensured that clicking a selected item clears all old
+      selections when the view is using the ExtendedSelection selection mode
+      and SelectedClicked as an edit trigger.
+    * [130168] Fixed bug where double clicking on partially visible items
+      would not activate them.
+    * [139342] Allow editing to be started programatically, even if there
+      are no edit triggers.
+    * [130135] Added public slot, updateIndex(const QModelIndex &index).
+
+- QAbstractProxyModel
+    * [154393] QAbstractProxyModel now reimplements itemData().
 
 - QAbstractSlider
-    * [76155] Fixed bug where the slider handle did not stop under the mouse.
+    * [76155] Fixed bug where the slider handle did not stop under the
+      mouse.
 
 - QAbstractSocket
     * [128546] Fixed bug where an error was emitted with the wrong type.
 
 - QAccessible
-    * Added preliminary support for the upcomming IAccessible2 standard
-    * Improvements to most of the accessible interfaces.
-    * [154534] Make sure that our accessible interfaces honour QWidget::setAccessibleName() and
-               QWidget::setAccessibleDescription() better.
-    * Avoid crash if QAccessibleInterface::object() returns 0. (it is absolutely legal)
+    * Added preliminary support for the upcoming IAccessible2 standard.
+    * Made improvements to most of the accessible interfaces.
+    * [154534] Ensured that our accessible interfaces honour
+      QWidget::setAccessibleName() and QWidget::setAccessibleDescription().
+    * Avoid crash if QAccessibleInterface::object() returns 0.
+      (It is absolutely legal to return a null value.)
 
 - QApplication
-    * Add a flash() method for marking windows that need attention.
+    * Added a flash() method for marking windows that need attention.
     * [86725] Allow the -style command line argument to override a
-      style set (with QApplication::setStyle()) before QApplication
+      style set with QApplication::setStyle() before QApplication
       construction.
     * [111892] Fixed a bug that caused Qt to steal all input when
       connecting the QAction::hovered() signal to a slot that called
       QMainWindow::setEnabled(false).
     * [148512] Fixed QApplication::keyboardModifiers() to update
-      correctly when minimizing the window when Qt::MetaModifier is held.
-    * [148796] Fixed a bug that prevented Qt from detecting system font changes.
+      correctly when minimizing the window when Qt::MetaModifier is held
+      down.
+    * [148796] Fixed a bug that prevented Qt from detecting system font
+      changes.
     * [154727] Prevent a crash when a widget deletes itself in an key
-      event handler without accepting event.
-    * [156484] Fixed lastWindowClosed() being emited for each top
-      level window when calling QApplication::closeAllWindows().
-    * [157667] Fixed widgets with Qt::WA_DeleteOnClose to be properly
-      deleted when they are closed in the dropEvent() handler when the
-      drag was started in the same application.
-    * [156410] Implement QEvent::ApplicationActivate and
-      QEvent::ApplicationDeactivate on all platforms. Note the
-      deprecation of QEvent::ApplicationActivated and
-      QEvent::ApplicationDeactivated.
+      event handler without accepting the event.
+    * [156484] Fixed a bug where lastWindowClosed() was emitted for each
+      top-level window when calling QApplication::closeAllWindows().
+    * [157667] Ensured that widgets with the Qt::WA_DeleteOnClose property
+      set are properly deleted when they are closed in the dropEvent()
+      handler following a drag that was started in the same application.
+    * [156410] Implemented QEvent::ApplicationActivate and
+      QEvent::ApplicationDeactivate on all platforms. Note that
+      QEvent::ApplicationActivated and QEvent::ApplicationDeactivated are
+      now deprecated.
 
 - QAtomic
     * [126321] Fixed several flaws in the inline assembler implementations
@@ -134,409 +176,437 @@ Third party components
 
 - QAuthenticator
     * New Class. Needed for authentication support in the Network module.
-      Currently supports the Basic, Digest-Md5 and Ntlm authentication mechanisms.
+      Currently supports the Basic, Digest-MD5 and NTLM authentication
+      mechanisms.
 
 - QBitArray
-    * [158816] Fix crash in operator~()
-
-- QAuthenticator
-    * New class; added support for complex authenticators.
+    * [158816] Fixed crash in operator~().
 
 - QCalendarWidget
-    * Don't set maximum width for month/year buttons
-    * Use QPalette::Text role for default text
-    * date edit feature added, dateEditEnabled and dateEditAcceptDelay properties added
-    * [137031] Grid lines are drawn properly when headers are not visible.
-    * [151828] the language can be set with QCalendarWidget::setLocale()
-
-- QColorDialog
-    * [131160] The color dialog now on Mac OS X can now get an alpha color as well.
+    * Don't set maximum width for month/year buttons.
+    * Ensured that the QPalette::Text role is used for default text.
+    * Added a date editor which can be configured with the dateEditEnabled
+      and dateEditAcceptDelay properties.
+    * [137031] Ensured that grid lines are drawn properly when headers are
+      not visible.
+    * [151828] Ensured that the language can be set with
+      QCalendarWidget::setLocale().
 
 - QChar
-    * Updated the Unicode tables to Unicode 5.0
+    * Updated the Unicode tables to Unicode 5.0.
     * Added foldCase() and toTitleCase() methods.
     * Added public API to handle the full Unicode range.
 
-
 - QColor
-    * [140150] Fixed bug where QColor::isValid() would return true for certain
-      invalid color strings.
-    * [120367] Added QColor::setAllowX11ColorNames(bool), which allows
+    * [140150] Fixed bug where QColor::isValid() would return true for
+      certain invalid color strings.
+    * [120367] Added QColor::setAllowX11ColorNames(bool), which enables
       applications to use X11 color names.
-    * Fixed internal errors in toHsv() due to inexact float comparisions.
+    * Fixed internal errors in toHsv() due to inexact floating point
+      comparisions.
+
+- QColorDialog
+    * [131160] Enabled the color dialog to be used to specify an alpha color
+      on Mac OS X.
 
 - QCoreApplication
     * Added support for posted event priorities.
-    * [34019] Added QCoreApplication::removePostedEvents() overload
+    * [34019] Added the QCoreApplication::removePostedEvents() overload
       for removing events of a specific type.
-    * Document QCoreApplication::processEvents() as thread-safe;
+    * Documented QCoreApplication::processEvents() as thread-safe;
       calling it will process events for the calling thread.
     * Optimized delivery of QEvent::ChildInserted compatibility events.
-    * [154727] Compress posted QEvent::DeferredDelete events (used by
-      QObject::deleteLater()) to prevent objects from being delete
-      unexpectedly when many such events are postred.
-    * avoid duplicate entries in libpaths.
+    * [154727] Enabled compression of posted QEvent::DeferredDelete events
+      (used by QObject::deleteLater()) to prevent objects from being deleted
+      unexpectedly when many such events are posted.
+    * Ensured that duplicate entries in library paths are ignored.
 
 - QCleanlooksStyle
-    [129506] * Sliders now looks and acts correct with both reversed and inverted slider appearance.
-    [131490] * Group boxes no longer reserves space for title when no title is set.
-    [134344] * A sunken frame is now used to indicate checked menu items with icons.
-    [133691] * Improved appearance of spin box and buttons when used against dark backgrounds.
-    [154499] * Fixed a rendering issue with disabled checked push buttons.
-    [154862] * Fixed an issue causing combo box to sometimes show text clipped.
-    * Slider appearance is now based on Clearlooks Cairo and the performance on X11 has been improved.
-    * The appearance of tab bars when used with Qt::RightToLeft layout direction has been improved.
-    * Dock widget title is now elided when the text is too long.
+    * [129506] Sliders now look and behave correctly in both reversed and
+      inverted appearance modes.
+    * [131490] Group boxes no longer reserve space for their titles when no
+      title is set.
+    * [134344] A sunken frame is now used to indicate checked menu items
+      with icons.
+    * [133691] Improved the appearance of spin boxes and buttons when used
+      against dark backgrounds.
+    * [154499] Fixed a rendering issue with disabled, checked push buttons.
+    * [154862] Fixed an issue causing combo boxes to sometimes show clipped
+      text.
+    * Slider appearance is now based on Clearlooks Cairo and the performance
+      on X11 has been improved.
+    * The appearance of tab bars when used with Qt::RightToLeft layout
+      direction has been improved.
+    * Dock widget titles are now elided if they are too long to fit in the
+      available space.
 
 - QColumnView
-    * A new widget that provide a column based implementation of QAbstractItemView
+    * A new widget that provide a column-based implementation of
+      QAbstractItemView.
 
 - QComboBox
-    * Significantly reduced the construction time.
-    * [155614] Speedup addItem() and addItems()
-    * [155614] Speedup addItem() and addItems()
-    * [150768] inserting items doesn't change the current text on editable comboboxes.
-    * [150902] The only button on the mouse that can open the popup list is left one.
-    * [150735] Fixed pop-up hiding behind top-level windows on Mac.
-    * [156700] Fixed bug where the popup was closed when pressing the scroll arrows.
+    * Significantly reduced the construction time of this widget.
+    * [155614] Speeded up addItem() and addItems().
+    * [150768] Ensured that inserting items doesn't change the current text
+      on editable combo boxes.
+    * [150902] Ensured that only the left mouse button can be used to open
+      the popup list.
+    * [150735] Fixed pop-up hiding behind top-level windows on Mac OS X.
+    * [156700] Fixed bug where the popup could be closed when pressing the
+      scroll arrows.
     * [133328] Fixed bug where disabled entries were not grayed out.
-    * [134085] Fixed bug where QComboBox::AdjustToContents had no effect.
-    * [152840] Fixed bug where QComboBox does not automatically scroll to the current item
-    * [90172] Fixed bug where sizeHint iterated over all icons to detect availability.
-
-- QCryptographicHash
-    * New Class. Implements support for the Md4, Md5 and Sha1 hash functions.
-
-- QFont
-    * X11: Add a method to retrieve the freetype handle from the QFont.
-
-- QFontComboBox
-    * [132826] QFontComboBox popup could be shown off-screen.
-    * [155614] Speedup addItem() and addItems().
-    * [160110] Fixed crash when setting a QFont with pixel size
-
-- QFontMetrics
-    * [152013] Fixed bug where boundingRect() gave too big a size using Visual Studio 6.
-    * [145980] Added tightBoundingBox() method.
+    * [134085] Fixed bug where the AdjustToContents size policy had no
+      effect.
+    * [152840] Fixed bug where QComboBox would not automatically scroll to
+      the current item.
+    * [90172] Fixed bug where the sizeHint() implementation iterated over
+      all icons to detect their availability.
 
 - QCompleter
-    * Significantly reduced the construction time.
-    * Added support for lazy populated models.
-    * [135735] Make QCompleter work in a QLineEdit with a QValidator
-    * Added property wrapAround to wrap around completions in popup mode
-    * The same QCompleter object can now be set on multiple widgets
-    * [143441] Added support for models that sorted in descending order
+    * Significantly reduced the construction time of this widget.
+    * Added support for lazily-populated models.
+    * [135735] Made QCompleter work when used in a QLineEdit with a
+      QValidator.
+    * Added the wrapAround property to allow the list of completions to
+      wrap around in popup mode.
+    * Added support for sharing of completers, making it possible for the
+      same QCompleter object to be set on multiple widgets.
+    * [143441] Added support for models that sort their items in descending
+      order.
+
+- QCryptographicHash
+    * New Class. Provides support for the MD4, MD5 and SHA1 hash functions.
 
 - QCursor
-    * [154593] Fixed hotspot bug for cursors on Mac.
-    * [153381] Fixed crash in QCursor assignment operator when the
-      cursor was created before QApplication.
+    * [154593] Fixed hotspot bug for cursors on Mac OS X.
+    * [153381] Fixed crash in the assignment operator in cases where the
+      cursor was created before a QApplication instance.
+
+- QDataWidgetMapper
+    * [125493] Added addMapping(QWidget *, int, const QByteArray &) and
+      mappedPropertyName(QWidget *) functions.
 
 - QDateTime
-    * [151789] Allow passing of date only format to QDateTime::fromString() (according to ISO 8601)
-    * Remove legacy behavior which assumed that a year between 0 and 99 was meant 1900 + year in
-      QDateTime
-    * [153114, 145167] Fix bugs in parsing strings into dates.
-    * [122047] 0 to 99 are no longer interepreted as 1900 to 1999.
+    * [151789] Allow passing of date-only format to QDateTime::fromString()
+      (according to ISO 8601).
+    * [153114, 145167] Fixed bugs that could occur when parsing strings to
+      create dates.
+    * [122047] Removed legacy behavior which assumed that a year between 0
+      and 99 meant a year between 1900 and 1999.
     * [136043] Fixed the USER properties.
+
+- QDateTimeEdit
+    * [111557, 141266] Improved the behavior of the widget with regard to
+      two-digit years. Made stepping work properly.
+    * [110034] Don't change current section when a WheelEvent is received.
+    * [152622] Don't switch section when a FocusInEvent is received if the
+      reason is Popup.
+    * Fixed a bug that would cause problems with formats like dd.MMMM.yyyy.
+    * [148522] Ensured that the dateRange is valid for editors that only
+      show the time.
+    * [148725] Fixed a bug with wrapping and months with fewer than 31 days.
+    * [149097] Ensured that dateTimeChanged() is emitted, even if only date
+      or time is shown.
+    * [108572] Fixed the behavior to ensure that typing 2 into a zzz field
+      results in a value of 200 rather than 002.
+    * Ensured that the next field is entered when a separator is typed.
+    * [141703] Allow empty input when only one section is displayed.
+    * [134392] Added a sectionCount property.
+    * [134392] Added sectionAt(), currentSectionIndex(), and
+      setCurrentSectionIndex() functions.
+    * Added a NoButtons value for the buttonSymbols property.
+
+- QDesktopWidget
+    * [135002] Ensured that the resized() signal is emitted after the
+      desktop is resized on Mac OS X.
+
+- QDial
+    * [151897] Ensured that, even with tracking disabled, the signal
+      sliderMoved() is always emitted.
+    * [70209] Added support for the inverted appearance property.
+
+- QDialog
+    * [131396] Fixed a crash in QDialog::exec() that could occur when the
+      dialog was deleted from an event handler.
+    * [124269] Ensured that the size grip is hidden for extended dialogs.
+    * [151328] Allow the use of buttons on the title bar to be explicitly
+      specified on Mac OS X.
+
+- QDialogButtonBox
+    * [154493] Moved the Action role before the Reject role on Windows to
+      conform with platform guidelines.
 
 - QDir
     * [136380] QDir's permission filters on Unix now behave the same as on
       Windows (previously the filters' behavior was reversed on Unix).
     * [158610] Passing QDir::Unsorted now properly bypasses sorting.
-    * [136989] Report removed dirs as non-existent.
-    * [129488] Fixed cleanPath for paths with "foo/../bar" pattern.
-
-- QFocusFrame
-    * [128713, 129126] Make the QFocusFrame visible in more situations on Mac OS X.
-
-- QFrame
-    * [156112] Fixed bug where the default frame was not correct when created without a parent and
-      reparented afterwards.
-    * [150995] Fixed bug where setting frameStyle did not invalidate the sizeHint
-
-- QDial
-    * [151897] Even With tracking disabled, the signal sliderMoved() is emitted
-    * [70209] Support the inverted appearance property.
-
-- QDialog
-    * [131396] Fixed a crash in QDialog::exec() when the dialog was
-      deleted from an event handler.
-    * [124269] Hide size grip for extended dialogs.
+    * [136989] Ensured that removed dirs are reported as non-existent.
+    * [129488] Fixed cleanPath() for paths with  the "foo/../bar" pattern.
 
 - QDirIterator
-    * New class
-
-- QDialogButtonBox
-    * [154493] Action role was moved before Reject role on Windows to conform with platform guidelines.
-
-- QDrag
-    * [124962] Added QDrag::exec() to allow changing the default proposed action.
-
-- QDialog
-    * [151328] The user can explicit specify the use of buttons on the title bar on Mac.
-
-- QImage
-    * [157549] Fixed crash when calling QImage::copy with negative coordinates.
-    * Added cacheKey() as a replacement for serialNumber().
-    * [131852] Optimized 90 and 270 degrees rotation.
-    * [158986] Fixed painting onto a QImage with format QImage::Format_RGB16.
-    * Fixed 90 and 270 degrees rotation for QImage::Format_RGB16.
-    * [152850] Fixed bug in QImage::text()/setText().
-    * don't crash when passing a 0 pointer to the constructor from a xpm.
-    * [150746] Added a constructor taking an existing memory buffer with non-default stride (bytes per line).
-
-- QImageReader
-    * [141781] Fixed support for doublebyte PPM files (>256 colors).
-
-- QImageWriter
-    * Added support to enable compression if plugin supports it.
-
-- QIcon
-    * Added cacheKey() as a replacement for serialNumber().
-    * Fixed QIcon streaming operators.
-
-- QInputDialog
-    * [115565] Disable OK button for non-acceptable text (getInteger() and getDouble()).
-    * [90535]  Input dialogs now have a size grip
-
-- QIntValidator, QDoubleValidator
-    * Validators recognise numbers formatted in various locales, depending on their "locale"
-      property.
-
-- QItemDelegate
-    * [145142] It could happen that text was drawn out of the bounds of a cell.
-    * [137198] Setting the decoration position to be bottom will cause the text to be incorrectly positioned.
-    * [142593] Take wordwrap into account when calculating the item sizehint.
-    * [139160] Show the focus rectangle, even for empty cells.
-
-- QVariant
-    * [127225] Unloading a GUI plugin will no longer cause crash in
-      QVariant in QtCore application.
-
-- QDesktopWidget
-    * [135002] emit signal after resize takes place on Mac OS X.
-
-- QDateTimeEdit
-    * [111557, 141266] Improvements with regards to two-digit years in a QDateTimeEdit. Make stepping work properly.
-    * [110034] Don't change current section on wheelEvent.
-    * [152622] Don't switch section on focusInEvent if the reason is Popup.
-    * Fix a bug that would cause problems with formats like dd.MMMM.yyyy.
-    * [148522] Make sure the dateRange is valid for QDateTimeEdits that only shows time.
-    * [148725] Fix a bug with wrapping and months with fewer than 31 days.
-    * [149097] Emit dateTimeChanged even if only date or time is shown.
-    * [108572] Make typing 2 into a zzz field turn into 200 rather than 002.
-    * Skip to the next field when separator is typed.
-    * [141703] Allow empty input when only one section is displayed.
-    * [134392] Add a sectionCount property.
-    * [134392] Add sectionAt()/currentSectionIndex()/setCurrentSectionIndex() to QDateTimeEdit.
-    * Add a NoButtons value for the buttonSymbols property.
+    * New class. Introduced to provide a convenient way to examine the
+      contents of directories.
 
 - QDockWidget
-    * [130773] QDockWidgets remember their undocked positions and sizes.
-    * Added support for vertical title bars, which can save space in a QMainWindow.
-    * Added support for setting an arbitrary widget as a custom dock widget title bar.
-    * [141792] added the visibilityChanged() signal which is emitted when QDockWidgets
-      change visibility due to show or hide events, or being selected/deselected in a
-      tabbed dock area.
-    * added the dockLocationChanged() signal, emitted when dock widgets are moved around
+    * [130773] Ensure that dock widgets remember their undocked positions
+      and sizes.
+    * Added support for vertical title bars, which can be used to save space
       in a QMainWindow.
+    * Added support for setting an arbitrary widget as a custom dock widget
+      title bar.
+    * [141792] Added the visibilityChanged() signal which is emitted when
+      dock widgets change visibility due to show or hide events, or when
+      being selected or deselected in a tabbed dock area.
+    * Added the dockLocationChanged() signal which is emitted when dock
+      widgets are moved around in a QMainWindow.
     * [135878] Titlebars now support mnemonics properly.
-    * [138995] QDockWidget titlebars now correctly indicate their activation state.
-    * [145798] Make sure setWindowTitle from a nested docked QDockWidget updates the title in the tab bar. 
-
-- QGridLayout
-    * [156497] Fix a one-off error in that caused the bottom button in a QDialogButtonBox to be
-               cropped off with one pixel.
-- QSettings
-    * [153758] Fixed various bugs when writing and reading from Windows registry.
-
-- QSocketNotifier
-    * [148472] Mac OS X now prevented from closing the file descriptor when
-      the QSocketNotifier is deregistered.
-    * [140018] Mac OS X will now invalidate the backing native socket
-      notifier upon deregistration.
-    * Optimise performance by avoiding some debugging code in release builds.
-
-- QSslCertificate
-- QSslCipher
-- QSslError
-- QSslKey
-- QSslSocket
-    * New classes; added support for SSL to QtNetwork.
-
-- QTcpSocket
-    * Several fixes for improved connection reliability on Windows.
-    * Several optimizations.
-    * Improved detection of ConnectionRefusedError on Windows and older Unixes.
-    * Added support for proxy authentication.
-
-- QTemporaryFile
-    * [150770] Fixed large file support on Unix.
-
-- QLineEdit
-    * [156104] Disable input methods when not in the "Normal" edit mode.
-    * [157355] Fixed drag-n-drop bug on Mac when dragging inside the widget.
-    * [151328] Removed caret when text is selected on Mac.
-    * [136919] Replace fewer non-printable characters with spaces.
+    * [138995] Dock widget titlebars now correctly indicate their activation
+      state.
+    * [145798] Ensured that calling setWindowTitle() on a nested, docked
+      dock widget causes the title in the tab bar to be updated.
 
 - QDoubleSpinBox
-    * [99254] Allow higher settings for decimals
+    * [99254] Allow higher settings for decimals.
+
+- QDrag
+    * [124962] Added QDrag::exec() to allow the default proposed action to
+      be changed.
 
 - QFile
-    * [128352] A backend refactoring on Windows with major performance
-      improvements; in particular line and character reading is much
-      faster now.
+    * [128352] Refactored the backend on Windows with major performance
+      improvements; in particular line and character reading is now much
+      faster.
     * [146693] Fixed a lock-up in copy().
-    * [148447] QFile now supports large files when available on Windows.
-    * General improved support for stdin.
+    * [148447] QFile now supports large files on Windows where support is
+      available.
+    * Generally improved support for stdin.
     * Byte writing performance has improved on all platforms.
-    * [151898] Support reading lines with an embedded '\0' character.
+    * [151898] Added support for reading lines with an embedded '\0'
+      character.
 
 - QFileDialog
-    * Updated file dialog with native icons, faster performance and a sidebar to
-      remember commonly used folders.
-    * [134557] Add the ability to set a proxy model.
-    * Added dirEntered() and filterSelected() signals which existed in
-      Qt3's file dialog.
-    * [130353] Fixed Qt/Mac native filedialog pattern splitting
-    * [140332] Make QFileDialog respond much better to the LanguageChange event.
-    * [154173] Fix a memory deallocation error.
-    * Make the selected filter argument work for native Mac OS X file dialogs.
+    * Updated the dialog to use native icons.
+    * Made general improvements to the dialog's performance.
+    * Added a sidebar to show commonly used folders.
+    * [134557] Added the ability to use a proxy model.
+    * Added dirEntered() and filterSelected() signals, previously found in
+      Qt 3's file dialog.
+    * [130353] Fixed Qt/Mac native file dialog pattern splitting
+    * [140332] Made the dialog respond much better to the LanguageChange
+      event.
+    * [154173] Fixed a memory deallocation error.
+    * Made the selected filter argument work for native Mac OS X file
+      dialogs.
 
 - QFileInfo
-    * Do not follow symbolic link for Mac FS hidden flag detection.
+    * Ensured that Mac FS hidden flag detection does not follow symbolic
+      links.
     * [128604] Introduced isBundle() for Mac OS X bundle types.
-    * [139106] No longer reports drives as hidden on Windows.
+    * [139106] Fixed bug that could cause drives to be reported as hidden
+      on Windows.
 
 - QFileSystemWatcher
     * [155548] Reliability fixes.
-    * When in polling mode, send change notification when file permissions change.
+    * When in polling mode, send change notification when file permissions
+      change.
     * [144049, 149637] Fixed a bug that prevented watching a directory
       for notification on Windows.
+    * [143381] Fixed bug that caused addPath() and removePath() to fail when
+      passing an empty string.
+
+- QFocusFrame
+    * [128713, 129126] Made the focus frame visible in more situations on
+      Mac OS X.
+
+- QFont
+    * X11: Add a method to retrieve the FreeType handle from the QFont.
+
+- QFontComboBox
+    * [132826] Fixed a bug that could cause the popup list to be shown
+      off-screen.
+    * [155614] Speeded up addItem() and addItems().
+    * [160110] Fixed crash that could occur when setting a pixel size for
+      the fonts.
+
+- QFontMetrics
+    * [152013] Fixed bug where boundingRect() gave sizes that were too large
+      when compiled using Visual Studio 6.
+    * [145980] Added tightBoundingBox() method.
+
+- QFrame
+    * [156112] Fixed bug where the default frame was not correct when
+      created without a parent and reparented afterwards.
+    * [150995] Fixed bug where setting the frame style did not invalidate
+      the size hint
+
+- QFSFileEngine
+    * Fixed bug in fileTime() on Win98 and WinME
+    * Ensured that the working directory of a Windows shortcut is set when
+      a link is created.
+    * Improved the reliability of buffered reads on platforms that cache
+      their EOF status.
 
 - QFtp
     * [107381] Greatly improved LIST support; QFtp now supports more server
-    types.
+      types.
     * [136008] Improved tolerance for servers with no EPRT/EPSV support.
     * [150607] Fixed a race condition when using ActiveMode for uploading.
 
-- QFSFileEngine
-    * Fix bug in fileTime() on Win98 and WinME
-    * Make sure we set the working directory of a windows shortcut when a link is created.
-    * Improve reliability of buffered reads on platforms that cache their EOF status.
-
-- QGraphicsView
-    * [149317] Added 'NoViewportUpdate' to the set of modes for updating a view.
-
-- QGraphicsItem
-    * [151271] Fixed crash when calling update on items that are not fully constructed.
-
-- QFileSystemWatcher
-    * [143381] Fixed bug where addPath/removePath would fail when passing an empty string.
-
 - QGraphicsItemAnimation
     * [140522] Fixed special case interpolation bug.
-    * [140079] Fixed multiple insertations for the same step.
+    * [140079] Fixed ambiguity in the position of insertions when multiple
+      items are inserted for the same step in an animation.
+
+- QGridLayout
+    * [156497] Fix a one-off error that could cause the bottom button in
+      a QDialogButtonBox to be cropped.
+
+- QImage
+    * [157549] Fixed a crash that could occur when calling copy() with
+      negative coordinates.
+    * Added cacheKey() as a replacement for serialNumber().
+    * [131852] Optimized rotations by 90 and 270 degrees.
+    * [158986] Fixed painting onto an images with the Format_RGB16 image
+      format.
+    * Fixed rotations by 90 and 270 degrees for images with the Format_RGB16
+      image format.
+    * [152850] Fixed bugs in text() and setText().
+    * Fixed a crash that could occur when passing a 0 pointer to the
+      constructor that accepts XPM format image data.
+    * [150746] Added a constructor that accepts an existing memory buffer
+      with non-default stride (bytes per line).
+
+- QImageReader
+    * [141781] Fixed support for double byte PPM files (>256 colors).
+
+- QImageWriter
+    * Added support to enable compression if a plugin supports it.
+
+- QIcon
+    * Added cacheKey() as a replacement for serialNumber().
+    * Fixed the streaming operators.
+
+- QInputDialog
+    * [115565] Disabled OK button for non-acceptable text (getInteger() and
+      getDouble()).
+    * [90535] Input dialogs now have a size grip
+
+- QIntValidator, QDoubleValidator
+    * Validators now use the "locale" property to recognize numbers
+      formatted for various locales.
+
+- QItemDelegate
+    * [145142] Ensured that text is not drawn outside the bounds of a cell.
+    * [137198] Fixed handling of cases where the decoration position is set
+      to be at the bottom of an item to prevent the text from being
+      incorrectly positioned.
+    * [142593] Take word wrap into account when calculating an item's size
+      hint.
+    * [139160] Ensured that the focus rectangle is shown, even for empty
+      cells.
+
+- QGraphicsItem
+    * [151271] Fixed crash that could occur when calling update on items
+      that are not fully constructed.
+
+- QGraphicsView
+    * [149317] Added NoViewportUpdate to the set of modes that can be set
+      for updating a view.
 
 - QHeaderView
-    * Now uses Qt::NoFocus for its default focus policy
-    * [99569] Speedups providing up to a 2X speed increase for some cases
-    * [146292] It was under certain circumstances impossible to resize the last section.
-    * [144452] setDefaultAlignment had no effect.
-    * [156453] Fixed resizing of columns causing branches to be drawn in the next column.
-    * [142640] Use the Qt::SizeHintRole when available.
-    * [142994] Hidden items are now restored to their original size when shown.
+    * This widget now uses Qt::NoFocus as its default focus policy.
+    * [99569] Improved performance, providing up to a 2x speed increase for
+      some cases.
+    * [146292] Fixed bug that made it impossible to resize the last section
+      under certain circumstances.
+    * [144452] Fixed bug that caused setDefaultAlignment() to have no
+      effect.
+    * [156453] Fixed column resizing bug that could cause branches in one
+      column to be drawn in the next.
+    * [142640] Ensured that the Qt::SizeHintRole is used when available.
+    * [142994] Hidden items are now restored to their original size when
+      shown.
     * [127430] Added saveState() and restoreState().
     * [105635] Added support for drag selecting.
 
 - QHostInfo
-    * [141946] No longer stops working after destroying QCoreApplication.
+    * [141946] No longer stops working after QCoreApplication is destroyed.
     * [152805] Now periodically reinitializes DNS settings on Unix.
 
 - QHttp
     * [139575] Fixed state for servers that use the "100 Continue" response.
-    * Added support for the https protocol.
+    * Added support for the HTTPS protocol.
     * Improved proxy support.
     * Added support for server and proxy authentication.
 
-- QModelIndex
-    * [144919] If the internal pointers are equal, compare the model pointers.
-
 - QItemSelectionModel
-    * Optimizations for some common cases.
-    * [143383] hasSelection was not always giving good results.
-
-- QAbstractProxyModel
-    * [154393] QAbstractProxyModel now reimplements itemData().
-
-- QSortFilterProxyModel
-    * [151352] QSortFilterProxyModel didn't emit dataChanged() signal when sorting.
-    * [154075] Handle inserting of rows in the source model.
-    * [140152] Added a property for forcing QSortFilterProxyModel to use QString's local aware compare method.
-
-- QDataWidgetMapper
-    * [125493] Added addMapping(QWidget *widget, int section, const QByteArray &propertyName)
-               and mappedPropertyName(QWidget *widget).
+    * Made optimizations for some common cases.
+    * [143383] Fixed incorrect behavior of hasSelection().
 
 - QLayout
-    * New features to Qt's layout system:
+    * Added new features to Qt's layout system:
       - Can specify independent values of all of the four margins.
-      - Can specify horizontalSpacing and verticalSpacing in QGridLayout.
+      - Can specify horizontal spacing and vertical spacing in QGridLayout.
       - The spacing between layout items can now be different.
       - Layout items can now occupy parts of the margin or spacing.
 
 - QLibrary
-    * QLibrary::load() would discard the real error message if the error was something else than
-      ERROR_MOD_NOT_FOUND. (Win32)
-    * QLibrary::load() would not load a library with no suffix. (because LoadLibrary automagically
-      appended the .dll suffix on Win32)
-    * If we loaded a library without specifying a suffix, and the file found had the .dll suffix,
-      fileName() would not return the fileName found, but the fileName searched for.
-    * [156276] Fix behaviour of unload() to return true only if the library could be *unloaded*.
+    * Fixed bug that caused QLibrary::load() to discard the real error
+      message if the error was something else than ERROR_MOD_NOT_FOUND.
+      (Win32)
+    * Fixed bug that prevented QLibrary::load() from loading a library with
+      no suffix (because LoadLibrary automagically appended the .dll suffix
+      on Win32).
+    * Corrected behavior of fileName() to ensure that, if we loaded a
+      library without specifying a suffix and the file found had the .dll
+      suffix, the fileName found is returned instead of the fileName
+      searched for (as was previously the case).
+    * [156276] Fixed behavior of unload() to return true only if the library
+      could be unloaded.
+
+- QLineEdit
+    * [156104] Ensured that input methods are disabled when not in the
+      Normal edit mode.
+    * [157355] Fixed drag and drop bug on Mac OS X that could occur when
+      dragging inside the widget.
+    * [151328] Ensured that the caret is removed when text is selected on
+      Mac OS X.
+    * [136919] Ensured that fewer non-printable characters are replaced
+      with spaces.
 
 - QList
     * Fixed a race-condition in QList::detach() which could cause an
       assertion in debug mode.
 
 - QListView
-    * [136614] Batched mode did not display the last item of the batch.
-    * Fix some issues with jerky scrolling in ScrollPerItem mode if the gridsize was different
-      from the delegates size hint.
-    * [113437] Avoid some very noticeable flicker on slow systems in Batched mode. (The first batch
-      is laid out immediately; no need to wait for the timer).
-    * [114473] Added new property to QListView: selectionRectVisible
-    * Fix a bug where too many items was selected.
-    * [136614] QListView::Batched did not display the last item when number of items was a multiple
-      of batchSize.
-    * If we had a gridSize different from itemSize we could some times end up with wrong scrollbar
-      range.
-    * [144378] Better navigation when an item is taller than the viewport.
-    * [148846] Scroll bars would not be updated correctly when items were moved programmatically.
-    * [143306] Improved keyboard navigation and selection.
-    * [137917] Shift-click extended mode selection in icon mode now selects the correct items.
-    * [138411] Fixed bug where hidden items would cause drawing problems when pressing Ctrl+ A.
+    * [136614] Fixed the behavior of Batched mode to ensure that the last
+      item of the batch is displayed.
+    * Fixed some issues with jerky scrolling in ScrollPerItem mode if the
+      grid size was different to the delegate's size hint.
+    * [113437] Prevent noticeable flicker on slow systems in Batched mode
+      by laying out the first batch immediately.
+    * [114473] Added a new property to QListView: selectionRectVisible.
+    * Fixed a bug that could cause too many items to be selected.
+    * Fixed issue that could cause list views to have incorrect scroll bar
+      ranges if their grid sizes differed from their item sizes.
+    * [144378] Improved navigation for cases where an item is taller than
+      the viewport.
+    * [148846] Fixed an issue that prevented scroll bars from being updated
+      correctly when items were moved programmatically.
+    * [143306] Improved support for keyboard navigation and selection.
+    * [137917] Shift-click extended mode selection in icon mode now selects
+      the correct items.
+    * [138411] Fixed bug where hidden items would cause drawing problems
+      when pressing Ctrl+A.
 
--QListWidget
-    * [146284] SingleSelection is also taken into account when calling setSelected on items.
-    * [151211] Add removeCellWidget() and removeItemWidget().
+- QListWidget
+    * [146284] Ensured that the effect of SingleSelection mode is also taken
+      into account when setSelected() is called on items.
+    * [151211] Added removeCellWidget() and removeItemWidget() functions.
 
 - QLocale
-    * Locale database updated to CLDR 1.4: more locales supported, numerous
-      fixes to existing locales.
-
-- QNetworkInterface
-    * [146834] Now properly generates broadcast addresses on Windows XP.
-
-- QNetworkProxy
-    * Added support for transparent HTTP CONNECT client proxying.
-    * Added support for complex authenticators through QAuthenticator.
-
-- QRectF
-    * [143550] Added QRectF(topRight,bottomLeft) constructor.
-
-- QResource
-    * [129429] Allow a QByteArray for runtime resource registration.
+    * Updated the locale database to CLDR 1.4: more locales supported;
+      numerous fixes to existing locales.
 
 - QMainWindow
     * [145493] Fix a crash with QMainWindow:setMainWindow(0); on X11
@@ -551,18 +621,6 @@ Third party components
     * Fixed bugs in saving and restoring QMainWindow state.
     * [143026] Fixed support for hiding/showing toolbars on Mac.
     * [131695] Add unified toolbar support on Mac OS X.
-
-- QMdiArea
-- QMdiSubWindow
-    * New classes. Replacement for QWorkspace.
-
-- QClipboard
-    * Make sure that clear() on the Mac OS X clipboard really clears its data.
-    * [143927] Don't drop alpha channel information on when pasting pixmaps on Mac OS X.
-    * The Mac OS X clipboard now understands tiff information and exports images as tiff as well.
-    * [145437] Fixed crash when calling QClipboard::setMimeData()
-      twice with the same data.
-    * QMacMime now does correct normalization of file names in a URL list from foreign applications.
 
 - QMenu
     * the addAction() overloads that take a slot argument now honor the slot's bool
@@ -624,6 +682,13 @@ Third party components
       second time; the menu will now close in the sam way that native
       Motif do.
 
+- QMdiArea
+- QMdiSubWindow
+    * New classes. Replacement for QWorkspace.
+
+- QModelIndex
+    * [144919] If the internal pointers are equal, compare the model pointers.
+
 - QMutex
     * [106089] Added QMutex::tryLock(int timeout), which allows a
       thread to specify the maximum amount of time to wait for the
@@ -632,6 +697,27 @@ Third party components
     * Optimize recursive locking to avoid 2 unnecessary atomic
       operations when the current thread already owns the lock.
     * Optimise non recursive mutexes by avoiding call to pthread_self() on Unix.
+
+- QNetworkInterface
+    * [146834] Now properly generates broadcast addresses on Windows XP.
+
+- QNetworkProxy
+    * Added support for transparent HTTP CONNECT client proxying.
+    * Added support for complex authenticators through QAuthenticator.
+
+- QRectF
+    * [143550] Added QRectF(topRight,bottomLeft) constructor.
+
+- QResource
+    * [129429] Allow a QByteArray for runtime resource registration.
+
+- QClipboard
+    * Make sure that clear() on the Mac OS X clipboard really clears its data.
+    * [143927] Don't drop alpha channel information on when pasting pixmaps on Mac OS X.
+    * The Mac OS X clipboard now understands TIFF information and exports images as TIFF as well.
+    * [145437] Fixed crash when calling QClipboard::setMimeData()
+      twice with the same data.
+    * QMacMime now does correct normalization of file names in a URL list from foreign applications.
 
 - QObject
     * Added a compile time check to ensure that the objects passed to
@@ -716,7 +802,7 @@ Third party components
 
 - QGraphicView
     * [136173] Hit-tests are now greatly improved for thin items.
-    * [133680] The scrollbars now max out instead of overflowing when the
+    * [133680] The scroll bars now max out instead of overflowing when the
       transformed scene is larger than INT_MIN - INT_MAX.
     * [129946] Changing the viewport no longer resets the acceptsDrops()
     property.
@@ -729,7 +815,7 @@ Third party components
     * Several convenience functions have been added.
     * [146517] Added rubberBandSelectionMode(), for controlling how items are
       selected with the rubber band.
-    * [150344] Fixed the scrollbar ranges to avoid the scrollbars from hiding
+    * [150344] Fixed the scroll bar ranges to avoid the scroll bars from hiding
       parts of the scene.
     * [150321] Added new optimizationFlags() property for disabling individual
       features to speed up rendering.
@@ -906,6 +992,39 @@ Third party components
       thread to specify the maximum amount of time to wait for the
       semaphore to become available.
 
+- QSettings
+    * [153758] Fixed various bugs when writing and reading from Windows registry.
+
+- QSocketNotifier
+    * [148472] Mac OS X now prevented from closing the file descriptor when
+      the QSocketNotifier is deregistered.
+    * [140018] Mac OS X will now invalidate the backing native socket
+      notifier upon deregistration.
+    * Optimise performance by avoiding some debugging code in release builds.
+
+- QSortFilterProxyModel
+    * [151352] Ensured that dataChanged() signal is emitted when sorting.
+    * [154075] Added support to handle the insertion of rows in the source
+      model.
+    * [140152] Added a property to force the proxy model to use QString's
+      locale-aware compare method.
+
+- QSslCertificate
+- QSslCipher
+- QSslError
+- QSslKey
+- QSslSocket
+    * New classes; added support for SSL to QtNetwork.
+
+- QTcpSocket
+    * Several fixes for improved connection reliability on Windows.
+    * Several optimizations.
+    * Improved detection of ConnectionRefusedError on Windows and older Unixes.
+    * Added support for proxy authentication.
+
+- QTemporaryFile
+    * [150770] Fixed large file support on Unix.
+
 - QSlider
     * Prevent QSlider from getting in an infinite loops when extreme values were used.
 
@@ -1057,7 +1176,7 @@ Third party components
     * [126422] Fixed bug in copy/paste which could cause the background color of pasted
       text to differ from that of the copied text.
     * [147603] Fixed various cases where parts of a text document would be
-      inaccessible or hidden by the scrollbars.
+      inaccessible or hidden by the scroll bars.
     * [148739] Fixed bug where ensureCursorVisible would not result in a visible cursor.
     * [152065] Fixed cases where currentCharFormatChanged would not be emitted.
     * [154151] The undoAvailable and redoAvailable signals are no longer emitted too many
@@ -1152,6 +1271,10 @@ Third party components
 - QValidator
     * [34933] Added support for scientific notation.
 
+- QVariant
+    * [127225] Unloading a GUI plugin will no longer cause crash in
+      QVariant in QtCore application.
+
 - QWaitCondition
     * [126007] Made QWaitCondition::wakeOne() behavior consistent
       between Windows and UNIX when calling wakeOne() twice when
@@ -1177,7 +1300,7 @@ Third party components
     * [129486] Make setLayout() on visible widget show children, to be consistent with QXxxxLayout::addWidget()
 
 - QWindowsStyle
-    * [110784] Scrollbar and spinbox arrows now scale with the widget size.
+    * [110784] Scrollbar and spin box arrows now scale with the widget size.
     * More native appearance for certain panel and button frames.
 
 - QWindowsXPStyle
@@ -1300,7 +1423,7 @@ Third party components
     * Fixes to Qt's layout system that enables more native looking forms.
     * [151739] Buttons with an icon are now centered correct.
     * [142672] Fixed font size bug on the drop down box for QComboBox on Mac.
-    * [148832] The button on a combobox is now showing as pressed when the combo is open.
+    * [148832] The button on a combo box is now showing as pressed when the combo is open.
     * [147377] QComboBox now scales correctly on Mac.
     * [143901] Fixed highlight color for e.g. QComboBox so that it follows the system settings on Mac.
     * [151852] Fixed size calculation for QPushButton with an icon.
@@ -1977,5 +2100,6 @@ Examples
 ****************************************************************************
 *                          Plugins                                         *
 ****************************************************************************
+
 - QTiffPlugin
     * [93364] Added support for TIFF imageformat.
