@@ -42,6 +42,7 @@
 
 #include <QtCore/qcache.h>
 
+#define BUF_SIZE 512
 
 /*!
   \internal
@@ -1087,8 +1088,28 @@ bool QAuthDevice::authorizeMessage()
         qWarning( "%s - denied: for Program Id %u [PID %d]"
                 , qPrintable(request), d->progId, d->processId );
         msgQueue = msgQueue.mid( analyzer->bytesAnalyzed() );
-        syslog( LOG_ERR | LOG_LOCAL6, "%s %u %s",
-               "_SXE_", d->processId, qPrintable(request) );
+
+        char linkTarget[BUF_SIZE];
+        char exeLink[BUF_SIZE];
+        QString appIdentifier;
+        memset( linkTarget, 0, sizeof( char )*BUF_SIZE );
+        memset( exeLink, 0, sizeof( char )*BUF_SIZE );
+        snprintf( exeLink, BUF_SIZE, "/proc/%d/exe", d->processId );
+        int rc = ::readlink( exeLink, linkTarget, BUF_SIZE );
+        
+        if ( rc == -1 )
+        {
+            syslog( LOG_ERR | LOG_LOCAL6, "SXE:- Error encountered in retrieving exe for pid %u : %s", 
+                d->processId, strerror(errno) );
+            appIdentifier = "Unknown";
+        }
+        else
+        {
+            appIdentifier = QString::fromLatin1( linkTarget ); 
+        }
+    
+        syslog( LOG_ERR | LOG_LOCAL6, "%s PID:%u ProgId:%u Request:%s Exe:%s",
+                "<SXE Breach>", d->processId, d->progId, qPrintable(request), qPrintable(appIdentifier));
     }
     return true;
 }
@@ -1407,7 +1428,7 @@ static int hmac_md5(
 
 const int GAREnforcer::minutelyRate = 30; //allowed number of authentication attempts per minute
 const QString GAREnforcer::GARMessage = "GAR_Exceeded";
-const QString GAREnforcer::SxeTag = "_SXE_";
+const QString GAREnforcer::SxeTag = "<SXE Breach>";
 const int GAREnforcer::minute = 60;
 
 GAREnforcer::GAREnforcer():authAttempts()
@@ -1430,8 +1451,8 @@ void GAREnforcer::logAuthAttempt( QDateTime time )
     authAttempts.append( time );
     if ( dt.secsTo( authAttempts.last() ) <= minute )
     {
-        syslog( LOG_ERR | LOG_LOCAL6, "%s %u %s",
-                qPrintable( GAREnforcer::SxeTag ), getpid(), 
+        syslog( LOG_ERR | LOG_LOCAL6, "%s %s",
+                qPrintable( GAREnforcer::SxeTag ), 
                 qPrintable( GAREnforcer::GARMessage ) );
         reset();
     }
