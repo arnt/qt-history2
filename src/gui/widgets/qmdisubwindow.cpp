@@ -2531,7 +2531,7 @@ bool QMdiSubWindow::event(QEvent *event)
         if (wasMinimized || wasMaximized || wasShaded)
             showNormal();
         d->updateGeometryConstraints();
-        resize(d->internalMinimumSize);
+        resize(d->internalMinimumSize.expandedTo(size()));
         d->updateMask();
         d->updateDirtyRegions();
         if (wasShaded)
