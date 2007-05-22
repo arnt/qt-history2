@@ -10,7 +10,6 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
-
 #include "context2d.h"
 
 #include "qcontext2dcanvas.h"
@@ -568,7 +567,8 @@ Context2D::Context2D(QContext2DCanvas *parent)
 
 const QImage &Context2D::end()
 {
-    m_painter.end();
+    if (m_painter.isActive())
+        m_painter.end();
     m_state.creatingShape = false;
     return m_cache;
 }

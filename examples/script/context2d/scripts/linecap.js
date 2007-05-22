@@ -2,6 +2,7 @@ var ctx = document.getElementById('tutorial').getContext('2d');
   var lineCap = ['butt','round','square'];
 
   // Draw guides
+  ctx.save();
   ctx.strokeStyle = '#09f';
   ctx.beginPath();
   ctx.moveTo(10,10);
@@ -20,3 +21,4 @@ var ctx = document.getElementById('tutorial').getContext('2d');
     ctx.lineTo(25+i*50,140);
     ctx.stroke();
   }
+  ctx.restore();
