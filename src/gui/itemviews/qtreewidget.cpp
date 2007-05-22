@@ -961,22 +961,22 @@ void QTreeModel::sortItems(QList<QTreeWidgetItem*> *items, int column, Qt::SortO
 */
 
 /*!
-  \fn void QTreeWidgetItem::setSpanning(bool span)
+  \fn void QTreeWidgetItem::setFirstColumnSpanned(bool span)
   \since 4.3
 
   Sets the first section to span all columns if \a span is true,
   otherwise all item sections are shown.
 
-  \sa isExpanded()
+  \sa isFirstColumnSpanned()
 */
 
 /*!
-  \fn bool QTreeWidgetItem::isSpanning() const
+  \fn bool QTreeWidgetItem::isFirstColumnSpanned() const
   \since 4.3
 
   Returns true if the item is spanning, otherwise returns false.
 
-  \sa setExpanded()
+  \sa setFirstColumnSpanned()
 */
 
 /*!
