@@ -16,6 +16,7 @@ static inline QScriptValue newXmlStreamWriter(QScriptEngine *eng, QXmlStreamWrit
 
 static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
 {
+    return eng->undefinedValue();
 }
 
 /////////////////////////////////////////////////////////////
