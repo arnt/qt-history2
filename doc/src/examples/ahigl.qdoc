@@ -3,31 +3,33 @@
     \title OpenGL for Embedded Systems Example
 
     The OpenGL for Embedded Systems (ES) screen driver example shows
-    how to use the \l {Qtopia Core} screen driver framework to write
-    an OpenGL ES integration. The example assumes basic knowledge
-    about the screen driver framework as discussed in the 
-    \l {Accelerated Screen Driver Example}.
+    how to use the \l {Graphics Driver Framework} in \l {Qtopia Core}
+    to write an OpenGL ES integration. The example assumes basic
+    knowledge of the graphics driver framework as discussed in the \l
+    {Accelerated Screen Driver Example}.
 
-    In \l {Qtopia Core} there are different ways OpenGL ES can be
-    used.  One is to use OpenGL ES to do compositioning between top
-    level windows and possibly create transition effects for instance
-    when a new window is shown. A second use is to enable QGLWidget
-    and a third use-case is to make use of OpenGL ES to accelerate
-    painting of widgets. This example will discuss how to implement
-    all of these.
+    In \l {Qtopia Core}, OpenGL ES can be used in different ways. It
+    can be used to display a composition of overlapping windows, where
+    the top-most window is not opaque but allows features of the
+    underlying windows to show through. Or it can be used to animate a
+    transition from an existing window to a newly created one. A third
+    use is to access special hardware features to accelerate widget
+    painting, and a fourth use is simply to enable access to the class
+    QGLWidget. This example shows how to implement all of these.
 
-    This example is written using an OpenGL ES implementation from 
+    The example uses an OpenGL ES implementation from 
     \l {http://ati.amd.com}{ATI} for the 
-    \l {http://ati.amd.com/products/imageon238x/}{Imageon 2380}. 
-    The OpenGL ES and EGL libraries are necessary to be able to compile and
-    run the example. If you're targeting a different device you'll also have
-    to modify the use of EGL to your library.
+    \l {http://ati.amd.com/products/imageon238x/}{Imageon 2380}. The
+    OpenGL ES and EGL libraries are required for compiling and linking
+    the example. If your target device is different, you must supply
+    the corresponding libraries, and you also might have to modify the
+    example source code to match any API signature differences in your 
+    EGL library.
 
-    After compiling the example code, you should install the screen
-    driver plugin with the command \c {make install}. To start an
-    application using the example's screen driver, you can either set
-    the environment variable \l QWS_DISPLAY or start the program using
-    the \c -display switch:
+    After compiling the example code, install the screen driver plugin
+    with the command \c {make install}. To start an application using
+    the example's screen driver, either set the environment variable
+    \l QWS_DISPLAY or start the program using the \c -display switch:
 
     \code
         myApplication -qws -display ahigl
@@ -39,35 +41,43 @@
     \section1 QAhiGLScreen Class Definition
 
     \quotefromfile qtopiacore/ahigl/qscreenahigl_qws.h
-    \skipto class
+    \skipto include
     \printuntil };
 
-    The screen driver is created by deriving from the QGLScreen
-    class. This is not really necessary if you only want to do top level
-    compositioning but it is a requirement if you want to enable use of 
-    QGLWidget.
+    The example screen driver class is created by deriving from class
+    QGLScreen. If you only intend to use OpenGL ES for constructing
+    simple, window compositions, you can derive your screen driver
+    class directly from class QScreen. Otherwise you must derive from
+    QGLScreen.
 
-    \l {QScreen::}{exposeRegion()} is the function responsible for the actual
-    compositioning. The three first private functions are helper functions 
-    used in the compositioning. The three last private functions are used
-    to create a small animation when a window is first shown.
+    Note that class QGLScreen is not shown in the Qt documentation
+    because it is not part of the published Qt API. However, QGLScreen
+    is derived from QScreen, which is shown in the Qt documentation.
+
+    \l {QScreen::}{exposeRegion()} is the function used for composing
+    displays. The private functions updateTexture(), redrawScreen(),
+    and drawWindow() are helper functions for composing displays. The
+    private functions drawQuad(), drawQuadInverseY(), and
+    drawQuadWavyFlag() are used to create a small animation when a
+    window is first shown.
 
     \quotefromfile qtopiacore/ahigl/qscreenahigl_qws.cpp
     \skipto class ShowAnimation
     \printuntil /^\}/
 
-    The transition effect is supported by the class ShowAnimation which
-    subclasses QTimeLine and reimplements \l {QTimeLine::}{valueForTime()}.
+    The animated window transition effect is supported by the class
+    ShowAnimation, which is derived from class QTimeLine and
+    reimplements its \l {QTimeLine::}{valueForTime()} function.
 
     \skipto struct WindowInfo
     \printuntil windowMap;
 
-    Top-level windows not drawn using OpenGL is rendered the normal way into
-    a shared memory segment. The driver supports this by creating a GL 
-    texture of the memory segment and drawing it to the screen. The texure id
-    as well as a pointer to the active \c ShowAnimation class is kept in
-    the \c WindowInfo struct. All the WindowInfo objects are kept in a global
-    map, \c windowMap.
+    Top-level windows that are not drawn using OpenGL are rendered the
+    normal way into a shared memory segment. The driver supports this
+    by creating a GL texture of the memory segment and drawing it to
+    the screen. The \c texture identifier and a pointer to the active
+    \c animation are held in an instance of \c struct \c WindowInfo.
+    The instances of WindowInfo are held in a global map, \c windowMap.
 
     \skipto class QAhiGLScreenPrivate
     \printuntil /^\}/

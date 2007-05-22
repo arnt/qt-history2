@@ -14,6 +14,8 @@
 /*!
     \page qtopiacore-accel.html
 
+    \target Graphics Driver Framework
+
     \title Adding an Accelerated Graphics Driver in Qtopia Core
     \ingroup qtopiacore
 
