@@ -2204,6 +2204,12 @@ else
     	fi
     	ARCH=s390
     	;;
+    *:*:arm*)
+        if [ "$OPT_VERBOSE" = "yes" ]; then
+            echo "    ARM (arm)"
+        fi
+        ARCH=arm
+        ;;
     *:*:*)
         if [ "$OPT_VERBOSE" = "yes" ]; then
             echo "    Trying '$UNAME_MACHINE'..."
