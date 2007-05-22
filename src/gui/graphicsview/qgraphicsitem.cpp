@@ -447,7 +447,10 @@ static QPainterPath qt_graphicsItem_shapeFromPath(const QPainterPath &path, cons
         return path;
     QPainterPathStroker ps;
     ps.setCapStyle(pen.capStyle());
-    ps.setWidth(pen.widthF() <= 0.0 ? penWidthZero : pen.widthF());
+    if (pen.widthF() <= 0.0)
+        ps.setWidth(penWidthZero);
+    else
+        ps.setWidth(pen.widthF());
     ps.setJoinStyle(pen.joinStyle());
     ps.setMiterLimit(pen.miterLimit());
     QPainterPath p = ps.createStroke(path);
@@ -590,7 +593,9 @@ QPointF QGraphicsItemPrivate::genericMapFromScene(const QPointF &pos,
     Q_Q(const QGraphicsItem);
     if (!itemIsUntransformable())
         return q->mapFromScene(pos);
-    QGraphicsView *view = !viewport ? 0 : qobject_cast<QGraphicsView *>(viewport->parentWidget());
+    QGraphicsView *view = 0;
+    if (viewport)
+        view = qobject_cast<QGraphicsView *>(viewport->parentWidget());
     if (!view)
         return q->mapFromScene(pos);
     // ### More ping pong than needed.
@@ -1633,8 +1638,11 @@ void QGraphicsItem::setPos(const QPointF &pos)
 void QGraphicsItem::ensureVisible(const QRectF &rect, int xmargin, int ymargin)
 {
     if (d_ptr->scene) {
-        QRectF sceneRect = !rect.isNull() ? sceneTransform().mapRect(rect)
-                           : sceneBoundingRect();
+        QRectF sceneRect;
+        if (!rect.isNull())
+            sceneRect = sceneTransform().mapRect(rect);
+        else
+            sceneRect = sceneBoundingRect();
         foreach (QGraphicsView *view, d_ptr->scene->d_func()->views)
             view->ensureVisible(sceneRect, xmargin, ymargin);
     }
@@ -1721,7 +1729,9 @@ QMatrix QGraphicsItem::sceneMatrix() const
 QTransform QGraphicsItem::sceneTransform() const
 {
     QTransform m = transform() * QTransform().translate(d_ptr->pos.x(), d_ptr->pos.y());
-    return d_ptr->parent ? m * d_ptr->parent->sceneTransform() : m;
+    if (d_ptr->parent)
+        return m * d_ptr->parent->sceneTransform();
+    return m;
 }
 
 /*!
@@ -2228,7 +2238,9 @@ bool QGraphicsItem::collidesWithPath(const QPainterPath &path, Qt::ItemSelection
 */
 QList<QGraphicsItem *> QGraphicsItem::collidingItems(Qt::ItemSelectionMode mode) const
 {
-    return d_ptr->scene ? d_ptr->scene->collidingItems(this, mode) : QList<QGraphicsItem *>();
+    if (d_ptr->scene)
+        return d_ptr->scene->collidingItems(this, mode);
+    return QList<QGraphicsItem *>();
 }
 
 /*!
@@ -2402,7 +2414,9 @@ void QGraphicsItem::update(const QRectF &rect)
 */
 QPointF QGraphicsItem::mapToItem(const QGraphicsItem *item, const QPointF &point) const
 {
-    return item ? item->mapFromScene(mapToScene(point)) : mapToScene(point);
+    if (item)
+        return item->mapFromScene(mapToScene(point));
+    return mapToScene(point);
 }
 
 /*!
@@ -2443,7 +2457,9 @@ QPointF QGraphicsItem::mapToParent(const QPointF &point) const
 */
 QPointF QGraphicsItem::mapToScene(const QPointF &point) const
 {
-    return d_ptr->parent ? d_ptr->parent->mapToScene(mapToParent(point)) : mapToParent(point);
+    if (d_ptr->parent)
+        return d_ptr->parent->mapToScene(mapToParent(point));
+    return mapToParent(point);
 }
 
 /*!
@@ -2465,7 +2481,9 @@ QPointF QGraphicsItem::mapToScene(const QPointF &point) const
 */
 QPolygonF QGraphicsItem::mapToItem(const QGraphicsItem *item, const QRectF &rect) const
 {
-    return item ? item->mapFromScene(mapToScene(rect)) : mapToScene(rect);
+    if (item)
+        return item->mapFromScene(mapToScene(rect));
+    return mapToScene(rect);
 }
 
 /*!
@@ -2526,7 +2544,9 @@ QPolygonF QGraphicsItem::mapToScene(const QRectF &rect) const
 */
 QPolygonF QGraphicsItem::mapToItem(const QGraphicsItem *item, const QPolygonF &polygon) const
 {
-    return item ? item->mapFromScene(mapToScene(polygon)) : mapToScene(polygon);
+    if (item)
+        return item->mapFromScene(mapToScene(polygon));
+    return mapToScene(polygon);
 }
 
 /*!
@@ -2566,7 +2586,9 @@ QPolygonF QGraphicsItem::mapToScene(const QPolygonF &polygon) const
 */
 QPainterPath QGraphicsItem::mapToItem(const QGraphicsItem *item, const QPainterPath &path) const
 {
-    return item ? item->mapFromScene(mapToScene(path)) : mapToScene(path);
+    if (item)
+        return item->mapFromScene(mapToScene(path));
+    return mapToScene(path);
 }
 
 /*!
@@ -2606,7 +2628,9 @@ QPainterPath QGraphicsItem::mapToScene(const QPainterPath &path) const
 */
 QPointF QGraphicsItem::mapFromItem(const QGraphicsItem *item, const QPointF &point) const
 {
-    return item ? mapFromScene(item->mapToScene(point)) : mapFromScene(point);
+    if (item)
+        return mapFromScene(item->mapToScene(point));
+    return mapFromScene(point);
 }
 
 /*!
@@ -2648,7 +2672,9 @@ QPointF QGraphicsItem::mapFromParent(const QPointF &point) const
 */
 QPointF QGraphicsItem::mapFromScene(const QPointF &point) const
 {
-    return d_ptr->parent ? mapFromParent(d_ptr->parent->mapFromScene(point)) : mapFromParent(point);
+    if (d_ptr->parent)
+        return mapFromParent(d_ptr->parent->mapFromScene(point));
+    return mapFromParent(point);
 }
 
 /*!
@@ -2671,7 +2697,9 @@ QPointF QGraphicsItem::mapFromScene(const QPointF &point) const
 */
 QPolygonF QGraphicsItem::mapFromItem(const QGraphicsItem *item, const QRectF &rect) const
 {
-    return mapFromScene(item ? item->mapToScene(rect) : rect);
+    if (item)
+        return mapFromScene(item->mapToScene(rect));
+    return mapFromScene(rect);
 }
 
 /*!
@@ -2732,7 +2760,9 @@ QPolygonF QGraphicsItem::mapFromScene(const QRectF &rect) const
 */
 QPolygonF QGraphicsItem::mapFromItem(const QGraphicsItem *item, const QPolygonF &polygon) const
 {
-    return mapFromScene(item ? item->mapToScene(polygon) : polygon);
+    if (item)
+        return mapFromScene(item->mapToScene(polygon));
+    return mapFromScene(polygon);
 }
 
 /*!
@@ -2770,7 +2800,9 @@ QPolygonF QGraphicsItem::mapFromScene(const QPolygonF &polygon) const
 */
 QPainterPath QGraphicsItem::mapFromItem(const QGraphicsItem *item, const QPainterPath &path) const
 {
-    return mapFromScene(item ? item->mapToScene(path) : path);
+    if (item)
+        return mapFromScene(item->mapToScene(path));
+    return mapFromScene(path);
 }
 
 /*!
@@ -3374,7 +3406,9 @@ void QGraphicsItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
             selectedItems << this;
 
         // Find the active view.
-        QGraphicsView *view = qobject_cast<QGraphicsView *>(event->widget() ? event->widget()->parentWidget() : 0);
+        QGraphicsView *view = 0;
+        if (event->widget())
+            view = qobject_cast<QGraphicsView *>(event->widget()->parentWidget());
 
         // Move all selected items
         foreach (QGraphicsItem *item, selectedItems) {
@@ -3971,7 +4005,10 @@ QRectF QGraphicsPathItem::boundingRect() const
     Q_D(const QGraphicsPathItem);
     if (d->boundingRect.isNull()) {
         qreal pw = pen().widthF();
-        d->boundingRect = (pw == 0.0) ? d->path.controlPointRect() : shape().controlPointRect().adjusted(-pw/2, -pw/2, pw, pw);
+        if (pw == 0.0)
+            d->boundingRect = d->path.controlPointRect();
+        else
+            d->boundingRect = shape().controlPointRect().adjusted(-pw/2, -pw/2, pw, pw);
     }
     return d->boundingRect;
 }
@@ -4204,7 +4241,10 @@ QRectF QGraphicsRectItem::boundingRect() const
     Q_D(const QGraphicsRectItem);
     if (d->boundingRect.isNull()) {
         qreal pw = pen().widthF();
-        d->boundingRect = (pw == 0.0) ? d->rect : shape().controlPointRect().adjusted(-pw/2, -pw/2, pw, pw);
+        if (pw == 0.0)
+            d->boundingRect = d->rect;
+        else
+            d->boundingRect = shape().controlPointRect().adjusted(-pw/2, -pw/2, pw, pw);
     }
     return d->boundingRect;
 }
@@ -4501,7 +4541,10 @@ QRectF QGraphicsEllipseItem::boundingRect() const
     Q_D(const QGraphicsEllipseItem);
     if (d->boundingRect.isNull()) {
         qreal pw = pen().widthF();
-        d->boundingRect = (pw == 0.0) ? d->rect : shape().controlPointRect().adjusted(-pw/2, -pw/2, pw, pw);
+        if (pw == 0.0)
+            d->boundingRect = d->rect;
+        else
+            d->boundingRect = shape().controlPointRect().adjusted(-pw/2, -pw/2, pw, pw);
     }
     return d->boundingRect;
 }
@@ -4744,8 +4787,10 @@ QRectF QGraphicsPolygonItem::boundingRect() const
     Q_D(const QGraphicsPolygonItem);
     if (d->boundingRect.isNull()) {
         qreal pw = pen().widthF();
-        d->boundingRect = (pw == 0.0) ? d->polygon.boundingRect()
-                          : shape().controlPointRect().adjusted(-pw/2, -pw/2, pw, pw);
+        if (pw == 0.0)
+            d->boundingRect = d->polygon.boundingRect();
+        else
+            d->boundingRect = shape().controlPointRect().adjusted(-pw/2, -pw/2, pw, pw);
     }
     return d->boundingRect;
 }
@@ -5334,8 +5379,9 @@ QRectF QGraphicsPixmapItem::boundingRect() const
 {
     Q_D(const QGraphicsPixmapItem);
     qreal pw = 1.0;
-    return d->pixmap.isNull() ? QRectF() : QRectF(d->offset, d->pixmap.size())
-        .adjusted(-pw/2, -pw/2, pw, pw);
+    if (d->pixmap.isNull())
+        return QRectF();
+    return QRectF(d->offset, d->pixmap.size()).adjusted(-pw/2, -pw/2, pw, pw);
 }
 
 /*!
@@ -5557,9 +5603,9 @@ QGraphicsTextItem::~QGraphicsTextItem()
 */
 QString QGraphicsTextItem::toHtml() const
 {
-    return dd->control
-        ? dd->control->toHtml()
-        : QString();
+    if (dd->control)
+        return dd->control->toHtml();
+    return QString();
 }
 
 /*!
@@ -5581,9 +5627,9 @@ void QGraphicsTextItem::setHtml(const QString &text)
 */
 QString QGraphicsTextItem::toPlainText() const
 {
-    return dd->control
-        ? dd->control->toPlainText()
-        : QString();
+    if (dd->control)
+        return dd->control->toPlainText();
+    return QString();
 }
 
 /*!
