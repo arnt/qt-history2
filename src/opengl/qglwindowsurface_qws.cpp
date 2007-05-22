@@ -30,7 +30,6 @@
 
     Note that this class is only available in Qtopia Core and only available if
     Qt is configured with OpenGL support.
-
 */
 
 class QWSGLWindowSurfacePrivate
@@ -44,8 +43,6 @@ public:
 };
 
 /*!
-    \since 4.3
-
     Constructs an empty QWSGLWindowSurface for the given top-level \a window.
     The window surface is later initialized from chooseContext() and resources for it
     is typically allocated in setGeometry().
@@ -57,8 +54,6 @@ QWSGLWindowSurface::QWSGLWindowSurface(QWidget *window)
 }
 
 /*!
-    \since 4.3
-
     Constructs an empty QWSGLWindowSurface.
 */
 QWSGLWindowSurface::QWSGLWindowSurface()
@@ -67,8 +62,8 @@ QWSGLWindowSurface::QWSGLWindowSurface()
 }
 
 /*!
-  Destroys the QWSGLWindowSurface object and frees any
-  allocated resources.
+    Destroys the QWSGLWindowSurface object and frees any
+    allocated resources.
  */
 QWSGLWindowSurface::~QWSGLWindowSurface()
 {
@@ -79,8 +74,6 @@ QWSGLWindowSurface::~QWSGLWindowSurface()
 }
 
 /*!
-    \since 4.3
-
     Returns the QGLContext of the window surface.
 */
 QGLContext *QWSGLWindowSurface::context() const
@@ -95,8 +88,6 @@ QGLContext *QWSGLWindowSurface::context() const
 }
 
 /*!
-    \since 4.3
-
     Sets the QGLContext for this window surface to \a context.
 */
 void QWSGLWindowSurface::setContext(QGLContext *context)
