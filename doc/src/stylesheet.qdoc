@@ -85,7 +85,7 @@
 
     \warning Qt style sheets are currently not supported for
     QMacStyle (the default style on Mac OS X). We plan to address
-    this in in some future release.
+    this in some future release.
 
     \section1 The Style Sheet Syntax
 
@@ -2097,65 +2097,163 @@ blue green yellow * /
         \o Description
 
     \row
+        \o \c :bottom \target bottom-ps
+        \o The item is positioned at the bottom. For example, a QTabBar
+           that has its tabs positioned at the bottom.
+
+    \row
         \o \c :checked \target checked-ps
-        \o The button widget is
-           \l{QAbstractButton::checked}{checked}.
+        \o The item is checked. For example, the 
+            \l{QAbstractButton::checked}{checked} state of QAbstractButton.
+
+    \row
+        \o \c :closed \target closed-ps
+        \o The item is in the closed state. For example, an non-expanded 
+           item in a QTreeView
+           
+    \row
+        \o \c :default \target default-ps
+        \o The item is the default. For example, a 
+           \l{QPushButton::default}{default} QPushButton or a default action
+           in a QMenu.
 
     \row
         \o \c :disabled \target disabled-ps
-        \o The widget is \l{QWidget::enabled}{disabled}.
+        \o The item is \l{QWidget::enabled}{disabled}.
 
     \row
         \o \c :enabled \target enabled-ps
-        \o The widget is \l{QWidget::enabled}{enabled}.
+        \o The item is \l{QWidget::enabled}{enabled}.
 
     \row
-        \o \c :focus \target focus-ps
-        \o The widget has \l{QWidget::hasFocus()}{input focus}.
+        \o \c :exclusive \target exclusive-ps
+        \o The item is part of an exclusive item group. For example, a menu
+           item in a exclusive QActionGroup.
+
+    \row
+        \o \c :first \target first-ps
+        \o The item is the first (in a list). For example, the first
+           tab in a QTabBar.
+
+    \row
+        \o \c :flat \target flat-ps
+        \o The item desires to be rendered flat. For example, a
+           \l{QPushButton::flat}{flat} QPushButton.
+
+    \row
+        \o \c :focus
+        \o The item has \l{QWidget::hasFocus()}{input focus}.
+
+    \row
+        \o \c :has-children
+        \o The item has children. For example, an item in a
+           QTreeView that has child items.
+
+    \row
+        \o \c :has-siblings
+        \o The item has siblings. For example, an item in a
+           QTreeView that siblings.
 
     \row
         \o \c :horizontal \target horizontal-ps
-        \o The widget has horizontal orientation
+        \o The item has horizontal orientation
 
     \row
         \o \c :hover \target hover-ps
-        \o The mouse is hovering over the widget.
+        \o The mouse is hovering over the item.
 
     \row
         \o \c :indeterminate \target indeterminate-ps
-        \o The QCheckBox or QRadioButton is
-           \l{Qt::PartiallyChecked}{partially checked}.
+        \o The item has indeterminate state. For example, a QCheckBox 
+           or QRadioButton is \l{Qt::PartiallyChecked}{partially checked}.
 
     \row
+        \o \c :last \target last-ps
+        \o The item is the last (in a list). For example, the last
+           tab in a QTabBar.
+
+    \row
+        \o \c :left \target left-ps
+        \o The item is positioned at the left. For example, a QTabBar
+           that has its tabs positioned at the left.
+
+    \row
+        \o \c :middle \target middle-ps
+        \o The item is in the middle (in a list). For example, a tab
+           that is not in the beginning or the end in a QTabBar.
+
+    \row
+        \o \c :no-frame \target no-frame-ps
+        \o The item has no frame. For example, a frameless QSpinBox
+           or QLineEdit.
+
+    \row
+        \o \c :non-exclusive \target non-exclusive-ps
+        \o The item is part of a non-exclusive item group. For example, a menu
+           item in a non-exclusive QActionGroup.
+    \row
         \o \c :off \target off-ps
-        \o For widgets that can be toggled, this applies to widgets
-           in the "off" state. This also applies to \l{QComboBox}es
-           that have their list open, and to \l{QMenuBar}s that have
-           one of their menus open.
+        \o For item that can be toggled, this applies to items
+           in the "off" state.
 
     \row
         \o \c :on \target on-ps
-        \o For widgets that can be toggled, this applies to widgets
-           in the "on" state. This also applies to \l{QComboBox}es
-           that have their list open, and to \l{QMenuBar}s that have
-           one of their menus open.
+        \o For items that can be toggled, this applies to widgets
+           in the "on" state. 
+
+    \row
+        \o \c :only-one \target only-one-ps
+        \o The item is the only one (in a list). For example, a lone tab
+           in a QTabBar.
+
+    \row
+        \o \c :open \target open-ps
+        \o The item is in the open state. For example, an expanded 
+           item in a QTreeView, or a QComboBox or QPushButton with
+           an open menu.
+
+    \row
+        \o \c :next-selected \target next-selected
+        \o The next item (in a list) is selected. For example, the
+           selected tab of a QTabBar is next to this item.
 
     \row
         \o \c :pressed \target pressed-ps
-        \o The widget is being pressed using the mouse.
+        \o The item is being pressed using the mouse.
+
+    \row
+        \o \c :previous-selected \target previous-selected-ps
+        \o The previous item (in a list) is selected. For example, a
+           tab in a QTabBar that is next to the selected tab.
+
+    \row
+        \o \c :read-only \target read-only-ps
+        \o The item is marked read only or non-editable. For example,
+           a read only QLineEdit or a non-editable QComboBox.
+
+    \row
+        \o \c :right \target right-ps
+        \o The item is positioned at the right. For example, a QTabBar
+           that has its tabs positioned at the right.
 
     \row 
         \o \c :selected \target selected-ps
-        \o 
+        \o The item is selected. For example, the selected tab in
+           a QTabBar or the selected item in a QMenu.
+
+    \row
+        \o \c :top \target top-ps
+        \o The item is positioned at the top. For example, a QTabBar
+           that has its tabs positioned at the top.
 
     \row
         \o \c :unchecked \target unchecked-ps
-        \o The button widget is
+        \o The item is
            \l{QAbstractButton::checked}{unchecked}.
 
     \row
         \o \c :vertical \target vertical-ps
-        \o The widget has vertical orientation
+        \o The item has vertical orientation
 
     \endtable
 
