@@ -1091,6 +1091,9 @@ void QWizardPrivate::updateMinMaxSizes(const QWizardLayoutInfo &info)
 {
     Q_Q(QWizard);
     q->setMinimumSize(mainLayout->totalMinimumSize());
+#if defined(Q_WS_WIN)
+    if (QSysInfo::WindowsVersion > QSysInfo::WV_98)
+#endif
     q->setMaximumSize(mainLayout->totalMaximumSize());
     if (info.header && headerWidget->maximumWidth() != QWIDGETSIZE_MAX)
         q->setFixedWidth(headerWidget->maximumWidth());
