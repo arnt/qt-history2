@@ -138,6 +138,7 @@
     <example filename="querymodel" name="Query Model" />
     <example filename="relationaltablemodel" name="Relational Table Model" />
     <example filename="tablemodel" name="Table Model" />
+    <example filename="masterdetail" name="Music Archive" />
   </category>
   <category dirname="threads" name="Threading">
     <example filename="mandelbrot" name="Mandelbrot" />
