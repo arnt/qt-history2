@@ -71,13 +71,8 @@
     This enum describes options that customize the behavior
     of QMdiSubWindow.
 
-    \value AllowOutsideArea If you enable this option, QMdiArea
-    will allow the subwindow to be moved partially or fully outside the
-    workspace area with the mouse, making it possible to place it in an
-    inaccessible location. Even when this option is disabled, the window
-    may still be placed outside the area programmatically or when the
-    area is resized.
-    By default, this option is disabled.
+    \omitvalue AllowOutsideAreaHorizontally
+    \omitvalue AllowOutsideAreaVertically
 
     \value RubberBandResize If you enable this option, a rubber band
     control is used to represent the subwindow's outline, and the user
@@ -996,24 +991,32 @@ void QMdiSubWindowPrivate::setNewGeometry(const QPoint &pos)
     int posX = pos.x();
     int posY = pos.y();
 
-    if (!q->testOption(QMdiSubWindow::AllowOutsideArea)) {
+    const bool restrictHorizontal = !q->testOption(QMdiSubWindow::AllowOutsideAreaHorizontally);
+    const bool restrictVertical = !q->testOption(QMdiSubWindow::AllowOutsideAreaVertically);
+
+    if (restrictHorizontal || restrictVertical) {
         QRect parentRect = q->parentWidget()->rect();
-        if (cflags & VResizeReverse || currentOperation == Move) {
+        if (restrictVertical && (cflags & VResizeReverse || currentOperation == Move)) {
             posY = qMin(qMax(mousePressPosition.y() - oldGeometry.y(), posY),
                         parentRect.height() - BoundaryMargin);
         }
         if (currentOperation == Move) {
-            posX = qMin(qMax(BoundaryMargin, posX), parentRect.width() - BoundaryMargin);
-            posY = qMin(posY, parentRect.height() - BoundaryMargin);
+            if (restrictHorizontal)
+                posX = qMin(qMax(BoundaryMargin, posX), parentRect.width() - BoundaryMargin);
+            if (restrictVertical)
+                posY = qMin(posY, parentRect.height() - BoundaryMargin);
         } else {
-            if (cflags & HResizeReverse)
-                posX = qMax(mousePressPosition.x() - oldGeometry.x(), posX);
-            else
-                posX = qMin(parentRect.width() - (oldGeometry.x() + oldGeometry.width()
-                                                  - mousePressPosition.x()), posX);
-            if (!(cflags & VResizeReverse))
+            if (restrictHorizontal) {
+                if (cflags & HResizeReverse)
+                    posX = qMax(mousePressPosition.x() - oldGeometry.x(), posX);
+                else
+                    posX = qMin(parentRect.width() - (oldGeometry.x() + oldGeometry.width()
+                                                      - mousePressPosition.x()), posX);
+            }
+            if (restrictVertical && !(cflags & VResizeReverse)) {
                 posY = qMin(parentRect.height() - (oldGeometry.y() + oldGeometry.height()
                                                    - mousePressPosition.y()), posY);
+            }
         }
     }
 

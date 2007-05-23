@@ -1044,7 +1044,8 @@ void tst_QMdiSubWindow::restoreFocus()
     for (int i = 0; i < 4; ++i)
         nestedWorkspace->addSubWindow(new QTextEdit)->show();
     qApp->processEvents();
-    nestedWorkspace->setScrollBarsEnabled(true);
+    nestedWorkspace->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    nestedWorkspace->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     box4->layout()->addWidget(nestedWorkspace);
 
     QGridLayout *layout = new QGridLayout;

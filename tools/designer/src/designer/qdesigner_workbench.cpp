@@ -510,7 +510,8 @@ void QDesignerWorkbench::switchToDockedMode()
     m_mdiArea = new QMdiArea(mw);
     m_mdiArea->setAcceptDrops(true);
     m_mdiArea->installEventFilter(this);
-    m_mdiArea->setScrollBarsEnabled(true);
+    m_mdiArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    m_mdiArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     connect(m_mdiArea, SIGNAL(subWindowActivated(QMdiSubWindow*)),
             this, SLOT(activateMdiAreaChildWindow(QMdiSubWindow*)));
     mw->setCentralWidget(m_mdiArea);

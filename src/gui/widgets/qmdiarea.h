@@ -28,7 +28,6 @@ class QMdiAreaPrivate;
 class Q_GUI_EXPORT QMdiArea : public QAbstractScrollArea
 {
     Q_OBJECT
-    Q_PROPERTY(bool scrollBarsEnabled READ scrollBarsEnabled WRITE setScrollBarsEnabled)
     Q_PROPERTY(QBrush background READ background WRITE setBackground)
 public:
     enum AreaOption {
@@ -53,9 +52,6 @@ public:
 
     QMdiSubWindow *addSubWindow(QWidget *widget, Qt::WindowFlags flags = 0);
     void removeSubWindow(QWidget *widget);
-
-    bool scrollBarsEnabled() const;
-    void setScrollBarsEnabled(bool enable);
 
     QBrush background() const;
     void setBackground(const QBrush &background);

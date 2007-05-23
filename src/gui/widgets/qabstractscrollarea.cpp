@@ -405,6 +405,9 @@ void QAbstractScrollAreaPrivate::layoutChildren()
     viewport->setGeometry(QStyle::visualRect(opt.direction, opt.rect, viewportRect)); // resize the viewport last
 }
 
+// ### Fix for 4.4, talk to Bjoern E or Girish.
+void QAbstractScrollAreaPrivate::scrollBarPolicyChanged(Qt::Orientation, Qt::ScrollBarPolicy) {}
+
 /*!
     \internal
 
@@ -522,9 +525,12 @@ Qt::ScrollBarPolicy QAbstractScrollArea::verticalScrollBarPolicy() const
 void QAbstractScrollArea::setVerticalScrollBarPolicy(Qt::ScrollBarPolicy policy)
 {
     Q_D(QAbstractScrollArea);
+    const Qt::ScrollBarPolicy oldPolicy = d->vbarpolicy;
     d->vbarpolicy = policy;
     if (isVisible())
         d->layoutChildren();
+    if (oldPolicy != d->vbarpolicy)
+        d->scrollBarPolicyChanged(Qt::Vertical, d->vbarpolicy);
 }
 
 
@@ -580,9 +586,12 @@ Qt::ScrollBarPolicy QAbstractScrollArea::horizontalScrollBarPolicy() const
 void QAbstractScrollArea::setHorizontalScrollBarPolicy(Qt::ScrollBarPolicy policy)
 {
     Q_D(QAbstractScrollArea);
+    const Qt::ScrollBarPolicy oldPolicy = d->hbarpolicy;
     d->hbarpolicy = policy;
     if (isVisible())
         d->layoutChildren();
+    if (oldPolicy != d->hbarpolicy)
+        d->scrollBarPolicyChanged(Qt::Horizontal, d->hbarpolicy);
 }
 
 /*!

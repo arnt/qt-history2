@@ -552,10 +552,15 @@ void QMdiAreaPrivate::appendChild(QMdiSubWindow *child)
         placer = new MinOverlapPlacer;
     place(placer, child);
 
-    if (q->scrollBarsEnabled())
-        child->setOption(QMdiSubWindow::AllowOutsideArea, true);
+    if (q->horizontalScrollBarPolicy() != Qt::ScrollBarAlwaysOff)
+        child->setOption(QMdiSubWindow::AllowOutsideAreaHorizontally, true);
     else
-        child->setOption(QMdiSubWindow::AllowOutsideArea, false);
+        child->setOption(QMdiSubWindow::AllowOutsideAreaHorizontally, false);
+
+    if (q->verticalScrollBarPolicy() != Qt::ScrollBarAlwaysOff)
+        child->setOption(QMdiSubWindow::AllowOutsideAreaVertically, true);
+    else
+        child->setOption(QMdiSubWindow::AllowOutsideAreaVertically, false);
 
     internalRaise(child);
     indicesToStackedChildren.prepend(childWindows.size() - 1);
@@ -936,6 +941,36 @@ QRect QMdiAreaPrivate::resizeToMinimumTileSize(const QSize &minSubWindowSize, in
 }
 
 /*!
+    \internal
+*/
+bool QMdiAreaPrivate::scrollBarsEnabled() const
+{
+    Q_Q(const QMdiArea);
+    return (q->horizontalScrollBarPolicy() != Qt::ScrollBarAlwaysOff)
+           && (q->verticalScrollBarPolicy() != Qt::ScrollBarAlwaysOff);
+}
+
+/*!
+    \internal
+    \reimp
+*/
+void QMdiAreaPrivate::scrollBarPolicyChanged(Qt::Orientation orientation, Qt::ScrollBarPolicy policy)
+{
+    if (childWindows.isEmpty())
+        return;
+
+    const QMdiSubWindow::SubWindowOption option = orientation == Qt::Horizontal ?
+        QMdiSubWindow::AllowOutsideAreaHorizontally : QMdiSubWindow::AllowOutsideAreaVertically;
+    const bool enable = policy != Qt::ScrollBarAlwaysOff;
+    foreach (QMdiSubWindow *child, childWindows) {
+        if (!sanityCheck(child, "QMdiArea::scrollBarPolicyChanged"))
+            continue;
+        child->setOption(option, enable);
+    }
+    updateScrollBars();
+}
+
+/*!
     Constructs an empty mdi area. \a parent is passed to QWidget's
     constructor.
 */
@@ -945,7 +980,8 @@ QMdiArea::QMdiArea(QWidget *parent)
     setBackgroundRole(QPalette::Dark);
     setBackground(palette().brush(QPalette::Dark));
     setFrameStyle(QFrame::NoFrame);
-    setScrollBarsEnabled(false);
+    setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setViewport(0);
     setFocusPolicy(Qt::NoFocus);
 }
@@ -1000,11 +1036,12 @@ QSize QMdiArea::sizeHint() const
 */
 QSize QMdiArea::minimumSizeHint() const
 {
+    Q_D(const QMdiArea);
     QSize size(style()->pixelMetric(QStyle::PM_MDIMinimizedWidth),
                style()->pixelMetric(QStyle::PM_TitleBarHeight));
     size = size.expandedTo(QAbstractScrollArea::minimumSizeHint());
-    if (!scrollBarsEnabled()) {
-        foreach (QMdiSubWindow *child, d_func()->childWindows) {
+    if (!d->scrollBarsEnabled()) {
+        foreach (QMdiSubWindow *child, d->childWindows) {
             if (!sanityCheck(child, "QMdiArea::sizeHint"))
                 continue;
             size = size.expandedTo(child->minimumSizeHint());
@@ -1332,48 +1369,6 @@ void QMdiArea::removeSubWindow(QWidget *widget)
 
     if (!found)
         qWarning("QMdiArea::removeSubWindow: widget is not child of any window inside QMdiArea");
-}
-
-bool QMdiArea::scrollBarsEnabled() const
-{
-    return (horizontalScrollBarPolicy() != Qt::ScrollBarAlwaysOff)
-           && (verticalScrollBarPolicy() != Qt::ScrollBarAlwaysOff);
-}
-
-/*!
-    \property QMdiArea::scrollBarsEnabled
-    \brief whether the workspace provides scroll bars
-
-    If this property is true, the MDI area will provide scroll
-    bars if any of the subwindows extend beyond the edges of the MDI
-    area. The scroll bar policy is Qt::ScrollBarAsNeeded.
-
-    When subwindows are resized the MDI area will increase in size
-    to contain the subwindows. If this property is false (the
-    default), resizing child windows out of the visible area of the
-    workspace is not permitted, although it is still possible to
-    position them partially outside the visible area. Unless the
-    \l{QMdiSubWindow::}{AllowOutsideArea} subwindow option is enabled,
-    it is not possible to place the windows so that they can not be
-    handled by the mouse.
-
-    \sa QAbstractScrollArea::horizontalScrollBar(),
-    QAbstractScrollArea::verticalScrollBar(),
-    QMdiSubWindow::SubWindowOption
-*/
-void QMdiArea::setScrollBarsEnabled(bool enable)
-{
-    Q_D(QMdiArea);
-    Qt::ScrollBarPolicy policy = enable ? Qt::ScrollBarAsNeeded : Qt::ScrollBarAlwaysOff;
-    setHorizontalScrollBarPolicy(policy);
-    setVerticalScrollBarPolicy(policy);
-
-    foreach (QMdiSubWindow *child, d->childWindows) {
-        if (!sanityCheck(child, "QMdiArea::setScrollBarsEnabled"))
-            continue;
-        child->setOption(QMdiSubWindow::AllowOutsideArea, enable);
-    }
-    d->updateScrollBars();
 }
 
 /*!

@@ -51,7 +51,8 @@ PreviewFrame::PreviewFrame(QWidget *parent) :
     QFrame(parent),
     m_mdiArea(new PreviewMdiArea(this))
 {
-    m_mdiArea->setScrollBarsEnabled(true);
+    m_mdiArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    m_mdiArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
     setLineWidth(1);
 

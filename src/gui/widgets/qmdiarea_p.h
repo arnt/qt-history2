@@ -147,7 +147,11 @@ public:
     void updateActiveWindow(int removedIndex);
     void updateScrollBars();
     void internalRaise(QMdiSubWindow *child) const;
+    bool scrollBarsEnabled() const;
     QRect resizeToMinimumTileSize(const QSize &minSubWindowSize, int subWindowCount);
+
+    // Reimp
+    void scrollBarPolicyChanged(Qt::Orientation, Qt::ScrollBarPolicy);
 
     inline void startResizeTimer()
     {

@@ -32,9 +32,10 @@ class Q_GUI_EXPORT QMdiSubWindow : public QWidget
     Q_PROPERTY(int keyboardPageStep READ keyboardPageStep WRITE setKeyboardPageStep)
 public:
     enum SubWindowOption {
-        AllowOutsideArea = 0x1,
-        RubberBandResize = 0x2,
-        RubberBandMove = 0x4
+        AllowOutsideAreaHorizontally = 0x1, // internal
+        AllowOutsideAreaVertically = 0x2, // internal
+        RubberBandResize = 0x4,
+        RubberBandMove = 0x8
     };
     Q_DECLARE_FLAGS(SubWindowOptions, SubWindowOption)
 

@@ -70,7 +70,6 @@ private slots:
     void activateNextAndPreviousWindow();
     void subWindowList_data();
     void subWindowList();
-    void setScrollBarsEnabled();
     void setBackground();
     void setViewport();
     void tileSubWindows();
@@ -597,7 +596,8 @@ void tst_QMdiArea::minimumSizeHint()
     subWindow->show();
     QCOMPARE(workspace.minimumSizeHint(), expectedSize.expandedTo(subWindow->minimumSizeHint()));
 
-    workspace.setScrollBarsEnabled(true);
+    workspace.setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    workspace.setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     QCOMPARE(workspace.minimumSizeHint(), expectedSize);
 }
 
@@ -1111,26 +1111,6 @@ void tst_QMdiArea::subWindowList()
     QCOMPARE(widgets.at(widgets.count() - 2), windows[staysOnTop1]);
     QCOMPARE(widgets.at(widgets.count() - 3), windows[activeSubWindow]);
     }
-}
-
-void tst_QMdiArea::setScrollBarsEnabled()
-{
-    QMdiArea workspace;
-
-    QVERIFY(!workspace.scrollBarsEnabled());
-    QCOMPARE(workspace.verticalScrollBarPolicy(), Qt::ScrollBarAlwaysOff);
-    QCOMPARE(workspace.horizontalScrollBarPolicy(), Qt::ScrollBarAlwaysOff);
-
-    workspace.setScrollBarsEnabled(true);
-    QVERIFY(workspace.scrollBarsEnabled());
-    QCOMPARE(workspace.verticalScrollBarPolicy(), Qt::ScrollBarAsNeeded);
-    QCOMPARE(workspace.horizontalScrollBarPolicy(), Qt::ScrollBarAsNeeded);
-
-    workspace.setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    QVERIFY(!workspace.scrollBarsEnabled());
-    workspace.setScrollBarsEnabled(true);
-    workspace.setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    QVERIFY(!workspace.scrollBarsEnabled());
 }
 
 void tst_QMdiArea::setBackground()
