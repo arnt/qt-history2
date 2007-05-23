@@ -250,9 +250,14 @@ static void qt_mac_release_stays_on_top_group(WindowGroupRef group)
     }
 }
 
+static bool qt_isGenuineQWidget(HIViewRef ref) 
+{
+    return HIObjectIsOfClass(HIObjectRef(ref), kObjectQWidget);
+}
+
 static bool qt_isGenuineQWidget(const QWidget *window)
 {
-    return window && HIObjectIsOfClass(HIObjectRef(window->winId()), kObjectQWidget);
+    return window && qt_isGenuineQWidget(HIViewRef(window->winId()));
 }
 
 /* Use this function instead of ReleaseWindowGroup, this will be sure to release the
@@ -731,7 +736,7 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef er, EventRef event,
                              0, sizeof(hiview), 0, &hiview) == noErr)
             widget = QWidget::find((WId)hiview);
         if(ekind == kEventControlDraw) {
-            if(widget) {
+            if(widget && qt_isGenuineQWidget(hiview)) {
                 QMacWindowChangeEvent::exec(true);
 
                 //requested rgn
