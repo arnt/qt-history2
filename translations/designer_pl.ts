@@ -477,7 +477,7 @@ Stara wersja pliku została nienaruszona, a aktualną bedziesz musiał zapisać 
     <message>
         <location filename="../tools/shared/fontpanel/fontpanel.cpp" line="63"/>
         <source>&amp;Style</source>
-        <translation>&amp;Style</translation>
+        <translation>&amp;Styl</translation>
     </message>
     <message>
         <location filename="../tools/shared/fontpanel/fontpanel.cpp" line="67"/>
