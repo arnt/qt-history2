@@ -1037,7 +1037,7 @@ QSize QMdiArea::sizeHint() const
 QSize QMdiArea::minimumSizeHint() const
 {
     Q_D(const QMdiArea);
-    QSize size(style()->pixelMetric(QStyle::PM_MDIMinimizedWidth),
+    QSize size(style()->pixelMetric(QStyle::PM_MdiSubWindowMinimizedWidth),
                style()->pixelMetric(QStyle::PM_TitleBarHeight));
     size = size.expandedTo(QAbstractScrollArea::minimumSizeHint());
     if (!d->scrollBarsEnabled()) {

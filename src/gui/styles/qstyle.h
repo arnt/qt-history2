@@ -335,7 +335,7 @@ public:
         CC_Q3ListView,
         CC_Dial,
         CC_GroupBox,
-        CC_MDIControls,
+        CC_MdiControls,
 
         // do not add any values below/greater than this
         CC_CustomBase = 0xf0000000
@@ -393,9 +393,9 @@ public:
         SC_GroupBoxContents =      0x00000004,
         SC_GroupBoxFrame =         0x00000008,
         
-        SC_MDIMinButton     =      0x00000001,
-        SC_MDINormalButton  =      0x00000002,
-        SC_MDICloseButton   =      0x00000004,
+        SC_MdiMinButton     =      0x00000001,
+        SC_MdiNormalButton  =      0x00000002,
+        SC_MdiCloseButton   =      0x00000004,
 
         SC_All =                   0xffffffff
     };
@@ -472,8 +472,11 @@ public:
         PM_DialogButtonsButtonWidth,
         PM_DialogButtonsButtonHeight,
 
-        PM_MDIFrameWidth,
-        PM_MDIMinimizedWidth,
+        PM_MdiSubWindowFrameWidth,
+        PM_MDIFrameWidth = PM_MdiSubWindowFrameWidth,            //obsolete
+        PM_MdiSubWindowMinimizedWidth,
+        PM_MDIMinimizedWidth = PM_MdiSubWindowMinimizedWidth,    //obsolete
+
         PM_HeaderMargin,
         PM_HeaderMarkSize,
         PM_HeaderGripMargin,
@@ -552,7 +555,7 @@ public:
         CT_DialogButtons,
         CT_HeaderSection,
         CT_GroupBox,
-        CT_MDIControls,
+        CT_MdiControls,
         // do not add any values below/greater than this
         CT_CustomBase = 0xf0000000
     };

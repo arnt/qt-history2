@@ -2144,7 +2144,7 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QStyleOption *opt, const QW
         const QSize size = qt_aqua_get_known_size(CT_SizeGrip, widget, QSize(), aSize);
         ret = size.width();
         break; }
-    case PM_MDIFrameWidth:
+    case PM_MdiSubWindowFrameWidth:
         ret = 1;
         break;
     case PM_DockWidgetFrameWidth:

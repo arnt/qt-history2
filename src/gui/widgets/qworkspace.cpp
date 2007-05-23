@@ -77,13 +77,13 @@ bool QMDIControl::event(QEvent *event)
         initStyleOption(&opt);
 #ifndef QT_NO_TOOLTIP
         QHelpEvent *helpEvent = static_cast<QHelpEvent *>(event);
-        QStyle::SubControl ctrl = style()->hitTestComplexControl(QStyle::CC_MDIControls, &opt,
+        QStyle::SubControl ctrl = style()->hitTestComplexControl(QStyle::CC_MdiControls, &opt,
                                                                  helpEvent->pos(), this);
-        if (ctrl == QStyle::SC_MDICloseButton)
+        if (ctrl == QStyle::SC_MdiCloseButton)
             QToolTip::showText(helpEvent->globalPos(), QWorkspace::tr("Close"));
-        else if (ctrl == QStyle::SC_MDIMinButton)
+        else if (ctrl == QStyle::SC_MdiMinButton)
             QToolTip::showText(helpEvent->globalPos(), QWorkspace::tr("Minimize"));
-        else if (ctrl == QStyle::SC_MDINormalButton)
+        else if (ctrl == QStyle::SC_MdiNormalButton)
             QToolTip::showText(helpEvent->globalPos(), QWorkspace::tr("Restore Down"));
         else
             QToolTip::hideText();
@@ -115,7 +115,7 @@ QSize QMDIControl::sizeHint() const
     QStyleOptionComplex opt;
     initStyleOption(&opt);
     QSize size(48, 16);
-    return style()->sizeFromContents(QStyle::CT_MDIControls, &opt, size, this);
+    return style()->sizeFromContents(QStyle::CT_MdiControls, &opt, size, this);
 }
 
 void QMDIControl::mousePressEvent(QMouseEvent *event)
@@ -126,7 +126,7 @@ void QMDIControl::mousePressEvent(QMouseEvent *event)
     }
     QStyleOptionComplex opt;
     initStyleOption(&opt);
-    QStyle::SubControl ctrl = style()->hitTestComplexControl(QStyle::CC_MDIControls, &opt,
+    QStyle::SubControl ctrl = style()->hitTestComplexControl(QStyle::CC_MdiControls, &opt,
                                                              event->pos(), this);
     activeControl = ctrl;
     update();
@@ -140,17 +140,17 @@ void QMDIControl::mouseReleaseEvent(QMouseEvent *event)
     }
     QStyleOptionTitleBar opt;
     initStyleOption(&opt);
-    QStyle::SubControl under_mouse = style()->hitTestComplexControl(QStyle::CC_MDIControls, &opt,
+    QStyle::SubControl under_mouse = style()->hitTestComplexControl(QStyle::CC_MdiControls, &opt,
                                                                     event->pos(), this);
     if (under_mouse == activeControl) {
         switch (activeControl) {
-        case QStyle::SC_MDICloseButton:
+        case QStyle::SC_MdiCloseButton:
             emit _q_close();
             break;
-        case QStyle::SC_MDINormalButton:
+        case QStyle::SC_MdiNormalButton:
             emit _q_restore();
             break;
-        case QStyle::SC_MDIMinButton:
+        case QStyle::SC_MdiMinButton:
             emit _q_minimize();
             break;
         default:
@@ -171,7 +171,7 @@ void QMDIControl::mouseMoveEvent(QMouseEvent *event)
 {
     QStyleOptionTitleBar opt;
     initStyleOption(&opt);
-    QStyle::SubControl under_mouse = style()->hitTestComplexControl(QStyle::CC_MDIControls, &opt,
+    QStyle::SubControl under_mouse = style()->hitTestComplexControl(QStyle::CC_MdiControls, &opt,
                                                                     event->pos(), this);
     //test if hover state changes
     if (hoverControl != under_mouse) {
@@ -192,7 +192,7 @@ void QMDIControl::paintEvent(QPaintEvent *)
         opt.activeSubControls = hoverControl;
         opt.state |= QStyle::State_MouseOver;
     }
-    style()->drawComplexControl(QStyle::CC_MDIControls, &opt, &p, this);
+    style()->drawComplexControl(QStyle::CC_MdiControls, &opt, &p, this);
 }
 
 class QWorkspaceTitleBar : public QWidget
@@ -2524,7 +2524,7 @@ QWorkspaceChild::QWorkspaceChild(QWidget* window, QWorkspace *parent, Qt::Window
     }
 
     setMinimumSize(128, 0);
-    int fw =  style()->pixelMetric(QStyle::PM_MDIFrameWidth, 0, this);
+    int fw =  style()->pixelMetric(QStyle::PM_MdiSubWindowFrameWidth, 0, this);
     setContentsMargins(fw, fw, fw, fw);
 
     childWidget = window;
@@ -2847,7 +2847,7 @@ void QWorkspaceChild::paintEvent(QPaintEvent *)
     opt.rect = rect();
     opt.palette = palette();
     opt.state = QStyle::State_None;
-    opt.lineWidth = style()->pixelMetric(QStyle::PM_MDIFrameWidth, 0, this);
+    opt.lineWidth = style()->pixelMetric(QStyle::PM_MdiSubWindowFrameWidth, 0, this);
     opt.midLineWidth = 1;
 
     if (titlebar && titlebar->isActive() && isActiveWindow())
@@ -2985,7 +2985,7 @@ QWidget* QWorkspaceChild::iconWidget() const
         QStyleOptionTitleBar opt;
         tb->initStyleOption(&opt);
         int th = style()->pixelMetric(QStyle::PM_TitleBarHeight, &opt, tb);
-        int iconSize = style()->pixelMetric(QStyle::PM_MDIMinimizedWidth, 0, this);
+        int iconSize = style()->pixelMetric(QStyle::PM_MdiSubWindowMinimizedWidth, 0, this);
         if (!style()->styleHint(QStyle::SH_TitleBar_NoBorder, 0, titlebar)) {
             frame->setFrameStyle(QFrame::StyledPanel | QFrame::Raised);
             frame->resize(iconSize+2*frame->frameWidth(), th+2*frame->frameWidth());
@@ -3084,7 +3084,7 @@ void QWorkspaceChild::adjustToFullscreen()
     if(!((QWorkspace*)parentWidget())->d_func()->maxmenubar || style()->styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, 0, this)) {
         setGeometry(parentWidget()->rect());
     } else {
-        int fw =  style()->pixelMetric(QStyle::PM_MDIFrameWidth, 0, this);
+        int fw =  style()->pixelMetric(QStyle::PM_MdiSubWindowFrameWidth, 0, this);
         bool noBorder = style()->styleHint(QStyle::SH_TitleBar_NoBorder, 0, titlebar);
         int th = titlebar ? titlebar->sizeHint().height() : 0;
         int w = parentWidget()->width() + 2*fw;

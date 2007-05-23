@@ -473,7 +473,7 @@ int QWindowsStyle::pixelMetric(PixelMetric pm, const QStyleOption *opt, const QW
         break;
 
 #if defined(Q_WS_WIN)
-    case PM_MDIFrameWidth:
+    case PM_MdiSubWindowFrameWidth:
         ret = GetSystemMetrics(SM_CYFRAME);
         break;
 #endif

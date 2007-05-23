@@ -398,7 +398,7 @@ private:
     {
         QStyleOptionComplex opt;
         initStyleOption(&opt);
-        return style()->hitTestComplexControl(QStyle::CC_MDIControls, &opt, pos, this);
+        return style()->hitTestComplexControl(QStyle::CC_MdiControls, &opt, pos, this);
     }
 };
 
@@ -424,7 +424,7 @@ QSize ControllerWidget::sizeHint() const
     QStyleOptionComplex opt;
     initStyleOption(&opt);
     QSize size(48, 16);
-    return style()->sizeFromContents(QStyle::CT_MDIControls, &opt, size, this);
+    return style()->sizeFromContents(QStyle::CT_MdiControls, &opt, size, this);
 }
 
 /*
@@ -442,7 +442,7 @@ void ControllerWidget::paintEvent(QPaintEvent * /*paintEvent*/)
         opt.state |= QStyle::State_MouseOver;
     }
     QPainter painter(this);
-    style()->drawComplexControl(QStyle::CC_MDIControls, &opt, &painter, this);
+    style()->drawComplexControl(QStyle::CC_MdiControls, &opt, &painter, this);
 }
 
 /*
@@ -471,13 +471,13 @@ void ControllerWidget::mouseReleaseEvent(QMouseEvent *event)
     QStyle::SubControl under_mouse = getSubControl(event->pos());
     if (under_mouse == activeControl) {
         switch (activeControl) {
-        case QStyle::SC_MDICloseButton:
+        case QStyle::SC_MdiCloseButton:
             emit _q_close();
             break;
-        case QStyle::SC_MDINormalButton:
+        case QStyle::SC_MdiNormalButton:
             emit _q_restore();
             break;
-        case QStyle::SC_MDIMinButton:
+        case QStyle::SC_MdiMinButton:
             emit _q_minimize();
             break;
         default:
@@ -523,13 +523,13 @@ bool ControllerWidget::event(QEvent *event)
     QHelpEvent *helpEvent = static_cast<QHelpEvent *>(event);
     QStyle::SubControl subControl = getSubControl(helpEvent->pos());
     switch (subControl) {
-    case QStyle::SC_MDICloseButton:
+    case QStyle::SC_MdiCloseButton:
         QToolTip::showText(helpEvent->globalPos(), QMdiSubWindow::tr("Close"));
         break;
-    case QStyle::SC_MDIMinButton:
+    case QStyle::SC_MdiMinButton:
         QToolTip::showText(helpEvent->globalPos(), QMdiSubWindow::tr("Minimize"));
         break;
-    case QStyle::SC_MDINormalButton:
+    case QStyle::SC_MdiNormalButton:
         QToolTip::showText(helpEvent->globalPos(), QMdiSubWindow::tr("Restore Down"));
         break;
     default:
@@ -753,7 +753,7 @@ void QMdiSubWindowPrivate::_q_enterInteractiveMode()
         pressPos = QPoint(q->width() / 2, titleBarHeight() - 1);
     } else if (actions[ResizeAction] && actions[ResizeAction] == action) {
         currentOperation = q->isLeftToRight() ? BottomRightResize : BottomLeftResize;
-        int offset = q->style()->pixelMetric(QStyle::PM_MDIFrameWidth) / 2;
+        int offset = q->style()->pixelMetric(QStyle::PM_MdiSubWindowFrameWidth) / 2;
         int x = q->isLeftToRight() ? q->width() - offset : offset;
         pressPos = QPoint(x, q->height() - offset);
     } else {
@@ -1264,7 +1264,7 @@ void QMdiSubWindowPrivate::setActive(bool activate)
         ensureWindowState(Qt::WindowActive);
     }
 
-    int frameWidth = q->style()->pixelMetric(QStyle::PM_MDIFrameWidth);
+    int frameWidth = q->style()->pixelMetric(QStyle::PM_MdiSubWindowFrameWidth);
     int titleBarHeight = this->titleBarHeight();
     QRegion windowDecoration = QRegion(0, 0, q->width(), q->height());
     windowDecoration -= QRegion(frameWidth, titleBarHeight, q->width() - 2 * frameWidth,
@@ -1353,7 +1353,7 @@ QRegion QMdiSubWindowPrivate::getRegion(Operation operation) const
     int width = q->width();
     int height = q->height();
     int titleBarHeight = this->titleBarHeight();
-    int frameWidth = q->style()->pixelMetric(QStyle::PM_MDIFrameWidth);
+    int frameWidth = q->style()->pixelMetric(QStyle::PM_MdiSubWindowFrameWidth);
     int cornerConst = titleBarHeight - frameWidth;
     int titleBarConst = 2 * titleBarHeight;
 
@@ -1549,7 +1549,7 @@ void QMdiSubWindowPrivate::sizeParameters(int *margin, int *minWidth) const
         return;
     }
 
-    *margin = q->style()->pixelMetric(QStyle::PM_MDIFrameWidth);
+    *margin = q->style()->pixelMetric(QStyle::PM_MdiSubWindowFrameWidth);
 
     QStyleOptionTitleBar opt = this->titleBarOptions();
     int tempWidth = 0;
@@ -1937,7 +1937,7 @@ QSize QMdiSubWindowPrivate::iconSize() const
     Q_Q(const QMdiSubWindow);
     if (!q->parent() || q->windowFlags() & Qt::FramelessWindowHint)
         return QSize(-1, -1);
-    return QSize(q->style()->pixelMetric(QStyle::PM_MDIMinimizedWidth), titleBarHeight());
+    return QSize(q->style()->pixelMetric(QStyle::PM_MdiSubWindowMinimizedWidth), titleBarHeight());
 }
 
 #ifndef QT_NO_SIZEGRIP
@@ -2873,7 +2873,7 @@ void QMdiSubWindow::paintEvent(QPaintEvent *paintEvent)
 
     QStyleOptionFrame frameOptions;
     frameOptions.initFrom(this);
-    frameOptions.lineWidth = style()->pixelMetric(QStyle::PM_MDIFrameWidth, 0, this);
+    frameOptions.lineWidth = style()->pixelMetric(QStyle::PM_MdiSubWindowFrameWidth, 0, this);
     frameOptions.midLineWidth = 1;
     if (d->isActive)
         frameOptions.state |= QStyle::State_Active;

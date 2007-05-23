@@ -990,7 +990,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value CC_Q3ListView        Used for drawing the Q3ListView class.
     \value CC_GroupBox          A group box, like QGroupBox.
     \value CC_Dial              A dial, like QDial.
-    \value CC_MDIControls       The minimize, close, and normal
+    \value CC_MdiControls       The minimize, close, and normal
                                 button in the menu bar for a
                                 maximized MDI subwindow.
 
@@ -1061,11 +1061,11 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value SC_GroupBoxCheckBox The optional check box of a group box.
     \value SC_GroupBoxContents The group box contents.
 
-    \value SC_MDINormalButton The normal button for a MDI
+    \value SC_MdiNormalButton The normal button for a MDI
                               subwindow in the menu bar.
-    \value SC_MDIMinButton The minimize button for a MDI 
+    \value SC_MdiMinButton The minimize button for a MDI 
                            subwindow in the menu bar.
-    \value SC_MDICloseButton The close button for a MDI subwindow
+    \value SC_MdiCloseButton The close button for a MDI subwindow
                              in the menu bar.    
 
     \value SC_All  Special value that matches all sub-controls.
@@ -1205,8 +1205,11 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value PM_DefaultFrameWidth  Default frame width (usually 2).
     \value PM_SpinBoxFrameWidth  Frame width of a spin box, defaults to PM_DefaultFrameWidth.
     \value PM_ComboBoxFrameWidth Frame width of a combo box, defaults to PM_DefaultFrameWidth.
-    \value PM_MDIFrameWidth  Frame width of an MDI window.
-    \value PM_MDIMinimizedWidth  Width of a minimized MDI window.
+
+    \value PM_MDIFrameWidth  Obsolete. Use PM_MdiSubWindowFrameWidth instead.
+    \value PM_MdiSubWindowFrameWidth  Frame width of an MDI window.
+    \value PM_MDIMinimizedWidth  Obsolete. Use PM_MdiSubWindowMinimizedWidth instead.
+    \value PM_MdiSubWindowMinimizedWidth  Width of a minimized MDI window.
 
     \value PM_LayoutLeftMargin  Default \l{QLayout::setContentsMargins()}{left margin} for a
                                 QLayout.
@@ -1410,7 +1413,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value CT_CustomBase  Base value for custom contents types.
     Custom values must be greater than this value.
 
-    \value CT_MDIControls The minimize, normal, and close button
+    \value CT_MdiControls The minimize, normal, and close button
                           in the menu bar for a maximized MDI
                           subwindow.
 
