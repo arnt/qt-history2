@@ -4,19 +4,14 @@
 #include <QtGui/QGraphicsItemGroup>
 #include "../global.h"
 
-Q_DECLARE_METATYPE(QGraphicsItemGroup*)
-Q_DECLARE_METATYPE(QScript::Wrapper<QGraphicsItemGroup*>::pointer_type)
-
-/////////////////////////////////////////////////////////////
+DECLARE_POINTER_METATYPE(QGraphicsItemGroup)
 
 static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
 {
-    return QScript::construct<QGraphicsItemGroup>(
+    return QScript::wrapGVPointer(
         eng, new QGraphicsItemGroup(
             qscriptvalue_cast<QGraphicsItem*>(ctx->argument(0))));
 }
-
-/////////////////////////////////////////////////////////////
 
 static QScriptValue addToGroup(QScriptContext *ctx, QScriptEngine *eng)
 {
@@ -25,8 +20,6 @@ static QScriptValue addToGroup(QScriptContext *ctx, QScriptEngine *eng)
     return eng->undefinedValue();
 }
 
-/////////////////////////////////////////////////////////////
-
 static QScriptValue removeFromGroup(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(GraphicsItemGroup, removeFromGroup);
@@ -34,26 +27,22 @@ static QScriptValue removeFromGroup(QScriptContext *ctx, QScriptEngine *eng)
     return eng->undefinedValue();
 }
 
-/////////////////////////////////////////////////////////////
-
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(GraphicsItemGroup, toString);
     return QScriptValue(eng, "QGraphicsItemGroup");
 }
 
-/////////////////////////////////////////////////////////////
-
 QScriptValue constructGraphicsItemGroupClass(QScriptEngine *eng)
 {
-    QScriptValue proto = QScript::construct<QGraphicsItemGroup>(eng, new QGraphicsItemGroup());
+    QScriptValue proto = QScript::wrapGVPointer(eng, new QGraphicsItemGroup());
     proto.setPrototype(eng->defaultPrototype(qMetaTypeId<QGraphicsItem*>()));
 
     ADD_PROTO_FUNCTION(proto, addToGroup);
     ADD_PROTO_FUNCTION(proto, removeFromGroup);
     ADD_PROTO_FUNCTION(proto, toString);
 
-    QScript::registerMetaTypeWrapper<QScript::Wrapper<QGraphicsItemGroup*> >(eng, proto);
+    QScript::registerPointerMetaType<QGraphicsItemGroup>(eng, proto);
 
     return eng->newFunction(ctor, proto);
 }

@@ -6,12 +6,11 @@
 #include "../global.h"
 
 Q_DECLARE_METATYPE(QEvent*)
-Q_DECLARE_METATYPE(QMouseEvent*)
-Q_DECLARE_METATYPE(QScript::Wrapper<QMouseEvent*>::pointer_type)
+DECLARE_POINTER_METATYPE(QMouseEvent)
 
-static QScriptValue newMouseEvent(QScriptEngine *eng, QMouseEvent *e)
+static QScriptValue newMouseEvent(QScriptEngine *eng, QMouseEvent *me)
 {
-    return eng->newVariant(qVariantFromValue(QScript::Wrapper<QMouseEvent*>::wrap(e)));
+    return QScript::wrapPointer(eng, me);
 }
 
 /////////////////////////////////////////////////////////////
@@ -128,7 +127,7 @@ QScriptValue constructMouseEventClass(QScriptEngine *eng)
     ADD_PROTO_FUNCTION(proto, y);
     ADD_PROTO_FUNCTION(proto, toString);
 
-    QScript::registerMetaTypeWrapper<QScript::Wrapper<QMouseEvent*> >(eng, proto);
+    QScript::registerPointerMetaType<QMouseEvent>(eng, proto);
 
     QScriptValue ctorFun = eng->newFunction(ctor, proto);
 

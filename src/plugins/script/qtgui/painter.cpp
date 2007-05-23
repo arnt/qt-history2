@@ -16,15 +16,14 @@ Q_DECLARE_METATYPE(QPainterPath)
 Q_DECLARE_METATYPE(QPainterPath*)
 Q_DECLARE_METATYPE(QPicture)
 Q_DECLARE_METATYPE(QVector<QRectF>)
-Q_DECLARE_METATYPE(QPainter*)
 Q_DECLARE_METATYPE(QPaintDevice*)
 Q_DECLARE_METATYPE(QPaintEngine*)
 
-Q_DECLARE_METATYPE(QScript::Wrapper<QPainter*>::pointer_type)
+DECLARE_POINTER_METATYPE(QPainter)
 
 static QScriptValue newPainter(QScriptEngine *eng, QPainter *p)
 {
-    return eng->newVariant(qVariantFromValue(QScript::Wrapper<QPainter*>::wrap(p)));
+    return QScript::wrapPointer(eng, p);
 }
 
 /////////////////////////////////////////////////////////////
@@ -1135,7 +1134,7 @@ QScriptValue constructPainterClass(QScriptEngine *eng)
     ADD_PROTO_FUNCTION(proto, worldMatrixEnabled);
     ADD_PROTO_FUNCTION(proto, worldTransform);
 
-    QScript::registerMetaTypeWrapper<QScript::Wrapper<QPainter*> >(eng, proto);
+    QScript::registerPointerMetaType<QPainter>(eng, proto);
 
     qScriptRegisterSequenceMetaType<QVector<QRectF> >(eng);
 

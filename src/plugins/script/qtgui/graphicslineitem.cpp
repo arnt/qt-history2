@@ -5,31 +5,26 @@
 #include <QtGui/QPen>
 #include "../global.h"
 
-Q_DECLARE_METATYPE(QGraphicsLineItem*)
-Q_DECLARE_METATYPE(QScript::Wrapper<QGraphicsLineItem*>::pointer_type)
-
-/////////////////////////////////////////////////////////////
+DECLARE_POINTER_METATYPE(QGraphicsLineItem)
 
 static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
 {
     if (ctx->argumentCount() >= 4) {
-        return QScript::construct<QGraphicsLineItem>(
+        return QScript::wrapGVPointer(
             eng, new QGraphicsLineItem(ctx->argument(0).toNumber(),
                                        ctx->argument(1).toNumber(),
                                        ctx->argument(2).toNumber(),
                                        ctx->argument(3).toNumber(),
                                        qscriptvalue_cast<QGraphicsItem*>(ctx->argument(4))));
     } else if (ctx->argumentCount() > 1) {
-        return QScript::construct<QGraphicsLineItem>(
+        return QScript::wrapGVPointer(
             eng, new QGraphicsLineItem(qscriptvalue_cast<QLineF>(ctx->argument(0)),
                                        qscriptvalue_cast<QGraphicsItem*>(ctx->argument(1))));
     } else {
-        return QScript::construct<QGraphicsLineItem>(
+        return QScript::wrapGVPointer(
             eng, new QGraphicsLineItem(qscriptvalue_cast<QGraphicsItem*>(ctx->argument(0))));
     }
 }
-
-/////////////////////////////////////////////////////////////
 
 static QScriptValue line(QScriptContext *ctx, QScriptEngine *eng)
 {
@@ -37,15 +32,11 @@ static QScriptValue line(QScriptContext *ctx, QScriptEngine *eng)
     return eng->toScriptValue(self->line());
 }
 
-/////////////////////////////////////////////////////////////
-
 static QScriptValue pen(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(GraphicsLineItem, pen);
     return eng->toScriptValue(self->pen());
 }
-
-/////////////////////////////////////////////////////////////
 
 static QScriptValue setLine(QScriptContext *ctx, QScriptEngine *eng)
 {
@@ -61,8 +52,6 @@ static QScriptValue setLine(QScriptContext *ctx, QScriptEngine *eng)
     return eng->undefinedValue();
 }
 
-/////////////////////////////////////////////////////////////
-
 static QScriptValue setPen(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(GraphicsLineItem, setPen);
@@ -70,19 +59,15 @@ static QScriptValue setPen(QScriptContext *ctx, QScriptEngine *eng)
     return eng->undefinedValue();
 }
 
-/////////////////////////////////////////////////////////////
-
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(GraphicsLineItem, toString);
     return QScriptValue(eng, "QGraphicsLineItem");
 }
 
-/////////////////////////////////////////////////////////////
-
 QScriptValue constructGraphicsLineItemClass(QScriptEngine *eng)
 {
-    QScriptValue proto = QScript::construct<QGraphicsLineItem>(eng, new QGraphicsLineItem());
+    QScriptValue proto = QScript::wrapGVPointer(eng, new QGraphicsLineItem());
     proto.setPrototype(eng->defaultPrototype(qMetaTypeId<QGraphicsItem*>()));
 
     ADD_PROTO_FUNCTION(proto, line);
@@ -91,7 +76,7 @@ QScriptValue constructGraphicsLineItemClass(QScriptEngine *eng)
     ADD_PROTO_FUNCTION(proto, setPen);
     ADD_PROTO_FUNCTION(proto, toString);
 
-    QScript::registerMetaTypeWrapper<QScript::Wrapper<QGraphicsLineItem*> >(eng, proto);
+    QScript::registerPointerMetaType<QGraphicsLineItem>(eng, proto);
 
     return eng->newFunction(ctor, proto);
 }

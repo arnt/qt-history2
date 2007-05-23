@@ -40,6 +40,10 @@
 #define ADD_ENUM_VALUE(__c__, __ns__, __v__) \
     __c__.setProperty(#__v__, QScriptValue(__c__.engine(), __ns__::__v__))
 
+#define DECLARE_POINTER_METATYPE(T) \
+    Q_DECLARE_METATYPE(T*); \
+    Q_DECLARE_METATYPE(QScript::Pointer<T>::wrapped_pointer_type);
+
 namespace QScript
 {
 
@@ -48,82 +52,63 @@ enum {
 };
 
 template <typename T>
-class Finalizer
+class Pointer : public QSharedData
 {
 public:
-    void finalize(T &, uint)
-    { /* do nothing */ }
-};
+    typedef T* pointer_type;
+    typedef QExplicitlySharedDataPointer<Pointer<T> > wrapped_pointer_type;
 
-template <typename T>
-class Finalizer<T *>
-{
-public:
-    void finalize(T *ptr, uint flags)
+    ~Pointer()
     {
-        if (!(flags & UserOwnership))
-            delete ptr;
-    }
-};
-
-template <typename T, class FinalizerT = Finalizer<T> >
-class Wrapper : public QSharedData
-{
-public:
-    typedef T value_type;
-    typedef QExplicitlySharedDataPointer<Wrapper<T> > pointer_type;
-
-    virtual ~Wrapper()
-    {
-        FinalizerT f;
-        f.finalize(m_value, m_flags);
+        if (!(m_flags & UserOwnership))
+            delete m_value;
     }
 
-    T &value()
+    operator T*()
     {
         return m_value;
     }
 
-    operator T()
+    operator const T*() const
     {
         return m_value;
     }
 
-    static pointer_type wrap(const T &value, uint flags = 0)
+    static wrapped_pointer_type create(T *value, uint flags = 0)
     {
-        return pointer_type(new Wrapper(value, flags));
+        return wrapped_pointer_type(new Pointer(value, flags));
     }
 
-    static QScriptValue toScriptValue(QScriptEngine *engine, T const &source)
+    static QScriptValue toScriptValue(QScriptEngine *engine, T* const &source)
     {
         if (!source)
             return engine->nullValue();
         return engine->newVariant(qVariantFromValue(source));
     }
 
-    static void fromScriptValue(const QScriptValue &value, T &target)
+    static void fromScriptValue(const QScriptValue &value, T* &target)
     {
         if (value.isVariant()) {
             QVariant var = value.toVariant();
-            if (qVariantCanConvert<T>(var)) {
-                target = qvariant_cast<T>(var);
-            } else if (qVariantCanConvert<pointer_type>(var)) {
-                target = qvariant_cast<pointer_type>(var)->operator T();
+            if (qVariantCanConvert<T*>(var)) {
+                target = qvariant_cast<T*>(var);
+            } else if (qVariantCanConvert<wrapped_pointer_type>(var)) {
+                target = qvariant_cast<wrapped_pointer_type>(var)->operator T*();
             } else {
                 // look in prototype chain
                 target = 0;
-                int type = qMetaTypeId<T>();
-                int pointerType = qMetaTypeId<pointer_type>();
+                int type = qMetaTypeId<T*>();
+                int pointerType = qMetaTypeId<wrapped_pointer_type>();
                 QScriptValue proto = value.prototype();
                 while (proto.isObject() && proto.isVariant()) {
                     int protoType = proto.toVariant().userType();
                     if ((type == protoType) || (pointerType == protoType)) {
                         QByteArray name = QMetaType::typeName(var.userType());
-                        if (name.startsWith("QScript::Wrapper<")) {
-                            target = (*reinterpret_cast<pointer_type*>(var.data()))->operator T();
+                        if (name.startsWith("QScript::Pointer<")) {
+                            target = (*reinterpret_cast<wrapped_pointer_type*>(var.data()))->operator T*();
                             break;
                         } else {
-                            target = static_cast<T>(var.data());
+                            target = static_cast<T*>(var.data());
                             break;
                         }
                     }
@@ -132,8 +117,8 @@ public:
             }
         } else if (value.isQObject()) {
             QObject *qobj = value.toQObject();
-            QByteArray typeName = QMetaType::typeName(qMetaTypeId<T>());
-            target = reinterpret_cast<T>(qobj->qt_metacast(typeName.left(typeName.size()-1)));
+            QByteArray typeName = QMetaType::typeName(qMetaTypeId<T*>());
+            target = reinterpret_cast<T*>(qobj->qt_metacast(typeName.left(typeName.size()-1)));
         } else {
             target = 0;
         }
@@ -147,31 +132,30 @@ public:
     { m_flags &= ~flags; }
 
 protected:
-    Wrapper(const T &value, uint flags)
+    Pointer(T* value, uint flags)
         : m_flags(flags), m_value(value)
-    {
-    }
+    {}
 
 private:
     uint m_flags;
-    T m_value;
+    T* m_value;
 };
 
-template <typename W>
-int registerMetaTypeWrapper(
+template <typename T>
+int registerPointerMetaType(
     QScriptEngine *eng,
     const QScriptValue &prototype = QScriptValue(),
-    typename W::value_type * /* dummy */ = 0
+    T * /* dummy */ = 0
 )
 {
-    QScriptValue (*mf)(QScriptEngine *, typename W::value_type const &) = W::toScriptValue;
-    void (*df)(const QScriptValue &, typename W::value_type &) = W::fromScriptValue;
-    const int id = qMetaTypeId<typename W::value_type>();
+    QScriptValue (*mf)(QScriptEngine *, T* const &) = Pointer<T>::toScriptValue;
+    void (*df)(const QScriptValue &, T* &) = Pointer<T>::fromScriptValue;
+    const int id = qMetaTypeId<T*>();
     qScriptRegisterMetaType_helper(
         eng, id, reinterpret_cast<QScriptEngine::MarshalFunction>(mf),
         reinterpret_cast<QScriptEngine::DemarshalFunction>(df),
         prototype);
-    eng->setDefaultPrototype(qMetaTypeId<typename W::pointer_type>(), prototype);
+    eng->setDefaultPrototype(qMetaTypeId<typename Pointer<T>::wrapped_pointer_type>(), prototype);
     return id;
 }
 
@@ -180,8 +164,8 @@ inline void maybeReleaseOwnership(const QScriptValue &value)
     if (value.isVariant()) {
         QVariant var = value.toVariant();
         QByteArray name = QMetaType::typeName(var.userType());
-        if (name.startsWith("QScript::Wrapper<"))
-            (*reinterpret_cast<QScript::Wrapper<void*>::pointer_type *>(var.data()))->setFlags(UserOwnership);
+        if (name.startsWith("QScript::Pointer<"))
+            (*reinterpret_cast<Pointer<void*>::wrapped_pointer_type *>(var.data()))->setFlags(UserOwnership);
     }
 }
 
@@ -190,19 +174,32 @@ inline void maybeTakeOwnership(const QScriptValue &value)
     if (value.isVariant()) {
         QVariant var = value.toVariant();
         QByteArray name = QMetaType::typeName(var.userType());
-        if (name.startsWith("QScript::Wrapper<"))
-            (*reinterpret_cast<QScript::Wrapper<void*>::pointer_type *>(var.data()))->unsetFlags(UserOwnership);
+        if (name.startsWith("QScript::Pointer<"))
+            (*reinterpret_cast<Pointer<void*>::wrapped_pointer_type *>(var.data()))->unsetFlags(UserOwnership);
     }
 }
 
-// for QGraphicsItem classes
 template <class T>
-QScriptValue construct(QScriptEngine *eng, T *item)
+inline QScriptValue wrapPointer(QScriptEngine *eng, T *ptr, uint flags = 0)
 {
-    uint flags = item->parentItem() ? UserOwnership : 0;
-    return eng->newVariant(qVariantFromValue(QScript::Wrapper<T*>::wrap(item, flags)));
+    return eng->newVariant(qVariantFromValue(Pointer<T>::create(ptr, flags)));
 }
 
 } // namespace QScript
 
-#endif
+#ifdef QGRAPHICSITEM_H
+
+namespace QScript {
+
+template <class T>
+inline QScriptValue wrapGVPointer(QScriptEngine *eng, T *item)
+{
+    uint flags = item->parentItem() ? UserOwnership : 0;
+    return wrapPointer<T>(eng, item, flags);
+}
+
+} // namespace QScript
+
+#endif // QGRAPHICSITEM_H
+
+#endif // QTSCRIPTEXTENSIONS_GLOBAL_H

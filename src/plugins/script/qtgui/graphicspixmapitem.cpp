@@ -4,26 +4,21 @@
 #include <QtGui/QGraphicsPixmapItem>
 #include "../global.h"
 
-Q_DECLARE_METATYPE(QGraphicsPixmapItem*)
-Q_DECLARE_METATYPE(QScript::Wrapper<QGraphicsPixmapItem*>::pointer_type)
+DECLARE_POINTER_METATYPE(QGraphicsPixmapItem)
 Q_DECLARE_METATYPE(QPixmap*)
-
-/////////////////////////////////////////////////////////////
 
 static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
 {
     QScriptValue arg = ctx->argument(0);
     if (QPixmap *pixmap = qscriptvalue_cast<QPixmap*>(arg)) {
-        return QScript::construct<QGraphicsPixmapItem>(
+        return QScript::wrapGVPointer(
             eng, new QGraphicsPixmapItem(*pixmap,
                                          qscriptvalue_cast<QGraphicsItem*>(ctx->argument(1))));
     } else {
-        return QScript::construct<QGraphicsPixmapItem>(
+        return QScript::wrapGVPointer(
             eng, new QGraphicsPixmapItem(qscriptvalue_cast<QGraphicsItem*>(arg)));
     }
 }
-
-/////////////////////////////////////////////////////////////
 
 static QScriptValue offset(QScriptContext *ctx, QScriptEngine *eng)
 {
@@ -31,15 +26,11 @@ static QScriptValue offset(QScriptContext *ctx, QScriptEngine *eng)
     return eng->toScriptValue(self->offset());
 }
 
-/////////////////////////////////////////////////////////////
-
 static QScriptValue pixmap(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(GraphicsPixmapItem, pixmap);
     return eng->toScriptValue(self->pixmap());
 }
-
-/////////////////////////////////////////////////////////////
 
 static QScriptValue setOffset(QScriptContext *ctx, QScriptEngine *eng)
 {
@@ -53,16 +44,12 @@ static QScriptValue setOffset(QScriptContext *ctx, QScriptEngine *eng)
     return eng->undefinedValue();
 }
 
-/////////////////////////////////////////////////////////////
-
 static QScriptValue setPixmap(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(GraphicsPixmapItem, setPixmap);
     self->setPixmap(qscriptvalue_cast<QPixmap>(ctx->argument(0)));
     return eng->undefinedValue();
 }
-
-/////////////////////////////////////////////////////////////
 
 static QScriptValue setShapeMode(QScriptContext *ctx, QScriptEngine *eng)
 {
@@ -71,8 +58,6 @@ static QScriptValue setShapeMode(QScriptContext *ctx, QScriptEngine *eng)
     return eng->undefinedValue();
 }
 
-/////////////////////////////////////////////////////////////
-
 static QScriptValue setTransformationMode(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(GraphicsPixmapItem, setTransformationMode);
@@ -80,15 +65,11 @@ static QScriptValue setTransformationMode(QScriptContext *ctx, QScriptEngine *en
     return eng->undefinedValue();
 }
 
-/////////////////////////////////////////////////////////////
-
 static QScriptValue shapeMode(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(GraphicsPixmapItem, shapeMode);
     return QScriptValue(eng, static_cast<int>(self->shapeMode()));
 }
-
-/////////////////////////////////////////////////////////////
 
 static QScriptValue transformationMode(QScriptContext *ctx, QScriptEngine *eng)
 {
@@ -96,19 +77,15 @@ static QScriptValue transformationMode(QScriptContext *ctx, QScriptEngine *eng)
     return QScriptValue(eng, static_cast<int>(self->transformationMode()));
 }
 
-/////////////////////////////////////////////////////////////
-
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(GraphicsPixmapItem, toString);
     return QScriptValue(eng, "QGraphicsPixmapItem");
 }
 
-/////////////////////////////////////////////////////////////
-
 QScriptValue constructGraphicsPixmapItemClass(QScriptEngine *eng)
 {
-    QScriptValue proto = QScript::construct<QGraphicsPixmapItem>(eng, new QGraphicsPixmapItem());
+    QScriptValue proto = QScript::wrapGVPointer(eng, new QGraphicsPixmapItem());
     proto.setPrototype(eng->defaultPrototype(qMetaTypeId<QGraphicsItem*>()));
 
     ADD_PROTO_FUNCTION(proto, offset);
@@ -121,7 +98,7 @@ QScriptValue constructGraphicsPixmapItemClass(QScriptEngine *eng)
     ADD_PROTO_FUNCTION(proto, toString);
     ADD_PROTO_FUNCTION(proto, transformationMode);
 
-    QScript::registerMetaTypeWrapper<QScript::Wrapper<QGraphicsPixmapItem*> >(eng, proto);
+    QScript::registerPointerMetaType<QGraphicsPixmapItem>(eng, proto);
 
     QScriptValue ctorFun = eng->newFunction(ctor, proto);
     ADD_ENUM_VALUE(ctorFun, QGraphicsPixmapItem, MaskShape);

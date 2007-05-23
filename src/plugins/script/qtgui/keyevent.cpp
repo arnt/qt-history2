@@ -6,12 +6,11 @@
 #include "../global.h"
 
 Q_DECLARE_METATYPE(QEvent*)
-Q_DECLARE_METATYPE(QKeyEvent*)
-Q_DECLARE_METATYPE(QScript::Wrapper<QKeyEvent*>::pointer_type)
+DECLARE_POINTER_METATYPE(QKeyEvent)
 
-static QScriptValue newKeyEvent(QScriptEngine *eng, QKeyEvent *e)
+static QScriptValue newKeyEvent(QScriptEngine *eng, QKeyEvent *ke)
 {
-    return eng->newVariant(qVariantFromValue(QScript::Wrapper<QKeyEvent*>::wrap(e)));
+    return QScript::wrapPointer(eng, ke);
 }
 
 /////////////////////////////////////////////////////////////
@@ -130,7 +129,7 @@ QScriptValue constructKeyEventClass(QScriptEngine *eng)
     ADD_PROTO_FUNCTION(proto, text);
     ADD_PROTO_FUNCTION(proto, toString);
 
-    QScript::registerMetaTypeWrapper<QScript::Wrapper<QKeyEvent*> >(eng, proto);
+    QScript::registerPointerMetaType<QKeyEvent>(eng, proto);
 
     QScriptValue ctorFun = eng->newFunction(ctor, proto);
 

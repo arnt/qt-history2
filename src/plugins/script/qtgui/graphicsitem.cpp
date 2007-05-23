@@ -6,7 +6,7 @@
 #include <QtGui/QGraphicsScene>
 #include "../global.h"
 
-Q_DECLARE_METATYPE(QScript::Wrapper<QGraphicsItem*>::pointer_type)
+Q_DECLARE_METATYPE(QScript::Pointer<QGraphicsItem>::wrapped_pointer_type)
 Q_DECLARE_METATYPE(QList<QGraphicsItem*>)
 Q_DECLARE_METATYPE(QPainterPath)
 #ifndef QT_NO_CURSOR
@@ -832,7 +832,7 @@ public:
 
 QScriptValue constructGraphicsItemClass(QScriptEngine *eng)
 {
-    QScriptValue proto = QScript::construct<QGraphicsItem>(eng, new PrototypeGraphicsItem());
+    QScriptValue proto = QScript::wrapGVPointer<QGraphicsItem>(eng, new PrototypeGraphicsItem());
     ADD_PROTO_FUNCTION(proto, acceptDrops);
     ADD_PROTO_FUNCTION(proto, acceptedMouseButtons);
     ADD_PROTO_FUNCTION(proto, acceptsHoverEvents);
@@ -913,7 +913,7 @@ QScriptValue constructGraphicsItemClass(QScriptEngine *eng)
     ADD_PROTO_FUNCTION(proto, y);
     ADD_PROTO_FUNCTION(proto, zValue);
 
-    QScript::registerMetaTypeWrapper<QScript::Wrapper<QGraphicsItem*> >(eng, proto);
+    QScript::registerPointerMetaType<QGraphicsItem>(eng, proto);
 
     QScriptValue ctorFun = eng->newFunction(ctor, proto);
     ADD_ENUM_VALUE(ctorFun, QGraphicsItem, ItemIsMovable);

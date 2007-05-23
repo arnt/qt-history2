@@ -5,8 +5,7 @@
 #include <QtCore/QVector>
 #include "../global.h"
 
-Q_DECLARE_METATYPE(QXmlStreamReader*)
-Q_DECLARE_METATYPE(QScript::Wrapper<QXmlStreamReader*>::pointer_type)
+DECLARE_POINTER_METATYPE(QXmlStreamReader)
 Q_DECLARE_METATYPE(QIODevice*)
 Q_DECLARE_METATYPE(QByteArray*)
 Q_DECLARE_METATYPE(QXmlStreamAttribute)
@@ -21,7 +20,7 @@ Q_DECLARE_METATYPE(QStringRef)
 
 static inline QScriptValue newXmlStreamReader(QScriptEngine *eng, QXmlStreamReader *reader)
 {
-    return eng->newVariant(qVariantFromValue(QScript::Wrapper<QXmlStreamReader*>::wrap(reader)));
+    return QScript::wrapPointer(eng, reader);
 }
 
 static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
@@ -337,7 +336,7 @@ QScriptValue constructXmlStreamReaderClass(QScriptEngine *eng)
     ADD_PROTO_FUNCTION(proto, tokenType);
     ADD_PROTO_FUNCTION(proto, toString);
 
-    QScript::registerMetaTypeWrapper<QScript::Wrapper<QXmlStreamReader*> >(eng, proto);
+    QScript::registerPointerMetaType<QXmlStreamReader>(eng, proto);
     qScriptRegisterSequenceMetaType<QVector<QXmlStreamAttribute> >(eng);
     qScriptRegisterSequenceMetaType<QVector<QXmlStreamEntityDeclaration> >(eng);
 

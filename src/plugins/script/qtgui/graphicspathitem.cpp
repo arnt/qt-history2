@@ -4,34 +4,27 @@
 #include <QtGui/QGraphicsPathItem>
 #include "../global.h"
 
-Q_DECLARE_METATYPE(QGraphicsPathItem*)
-Q_DECLARE_METATYPE(QScript::Wrapper<QGraphicsPathItem*>::pointer_type)
+DECLARE_POINTER_METATYPE(QGraphicsPathItem)
 Q_DECLARE_METATYPE(QAbstractGraphicsShapeItem*)
 Q_DECLARE_METATYPE(QPainterPath)
-
-/////////////////////////////////////////////////////////////
 
 static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
 {
     if (ctx->argumentCount() > 1) {
-        return QScript::construct<QGraphicsPathItem>(
+        return QScript::wrapGVPointer(
             eng, new QGraphicsPathItem(qscriptvalue_cast<QPainterPath>(ctx->argument(0)),
                                        qscriptvalue_cast<QGraphicsItem*>(ctx->argument(1))));
     } else {
-        return QScript::construct<QGraphicsPathItem>(
+        return QScript::wrapGVPointer(
             eng, new QGraphicsPathItem(qscriptvalue_cast<QGraphicsItem*>(ctx->argument(0))));
     }
 }
-
-/////////////////////////////////////////////////////////////
 
 static QScriptValue path(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(GraphicsPathItem, path);
     return eng->toScriptValue(self->path());
 }
-
-/////////////////////////////////////////////////////////////
 
 static QScriptValue setPath(QScriptContext *ctx, QScriptEngine *eng)
 {
@@ -40,26 +33,22 @@ static QScriptValue setPath(QScriptContext *ctx, QScriptEngine *eng)
     return eng->undefinedValue();
 }
 
-/////////////////////////////////////////////////////////////
-
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(GraphicsPathItem, toString);
     return QScriptValue(eng, "QGraphicsPathItem");
 }
 
-/////////////////////////////////////////////////////////////
-
 QScriptValue constructGraphicsPathItemClass(QScriptEngine *eng)
 {
-    QScriptValue proto = QScript::construct<QGraphicsPathItem>(eng, new QGraphicsPathItem());
+    QScriptValue proto = QScript::wrapGVPointer(eng, new QGraphicsPathItem());
     proto.setPrototype(eng->defaultPrototype(qMetaTypeId<QAbstractGraphicsShapeItem*>()));
 
     ADD_PROTO_FUNCTION(proto, path);
     ADD_PROTO_FUNCTION(proto, setPath);
     ADD_PROTO_FUNCTION(proto, toString);
 
-    QScript::registerMetaTypeWrapper<QScript::Wrapper<QGraphicsPathItem*> >(eng, proto);
+    QScript::registerPointerMetaType<QGraphicsPathItem>(eng, proto);
 
     return eng->newFunction(ctor, proto);
 }

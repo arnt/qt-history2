@@ -5,12 +5,11 @@
 #include <QtCore/QTextStream>
 #include "../global.h"
 
-Q_DECLARE_METATYPE(QTextStream*)
-Q_DECLARE_METATYPE(QScript::Wrapper<QTextStream*>::pointer_type)
+DECLARE_POINTER_METATYPE(QTextStream)
 
 static QScriptValue newTextStream(QScriptEngine *eng, QTextStream *ts)
 {
-    return eng->newVariant(qVariantFromValue(QScript::Wrapper<QTextStream*>::wrap(ts)));
+    return QScript::wrapPointer(eng, ts);
 }
 
 class TextStreamConstructor : public QObject,
@@ -261,7 +260,7 @@ QScriptValue constructTextStreamClass(QScriptEngine *eng)
     TextStreamPrototype *textStreamProtoObject = new TextStreamPrototype();
     QScriptValue proto = eng->newQObject(textStreamProtoObject, QScriptEngine::ScriptOwnership);
     proto.setPrototype(eng->globalObject().property("Object").property("prototype"));
-    QScript::registerMetaTypeWrapper<QScript::Wrapper<QTextStream*> >(eng, proto);
+    QScript::registerPointerMetaType<QTextStream>(eng, proto);
 
     TextStreamConstructor *textStreamCtorObject = new TextStreamConstructor();
     QScriptValue ctor = eng->newQObject(textStreamCtorObject, QScriptEngine::ScriptOwnership);

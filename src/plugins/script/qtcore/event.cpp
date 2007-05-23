@@ -5,12 +5,11 @@
 #include <QtCore/QEvent>
 #include "../global.h"
 
-Q_DECLARE_METATYPE(QEvent*)
-Q_DECLARE_METATYPE(QScript::Wrapper<QEvent*>::pointer_type)
+DECLARE_POINTER_METATYPE(QEvent)
 
 static QScriptValue newEvent(QScriptEngine *eng, QEvent *e)
 {
-    return eng->newVariant(qVariantFromValue(QScript::Wrapper<QEvent*>::wrap(e)));
+    return QScript::wrapPointer(eng, e);
 }
 
 /////////////////////////////////////////////////////////////
@@ -93,7 +92,7 @@ QScriptValue constructEventClass(QScriptEngine *eng)
     ADD_PROTO_FUNCTION(proto, type);
     ADD_PROTO_FUNCTION(proto, toString);
 
-    QScript::registerMetaTypeWrapper<QScript::Wrapper<QEvent*> >(eng, proto);
+    QScript::registerPointerMetaType<QEvent>(eng, proto);
 
     QScriptValue ctorFun = eng->newFunction(ctor, proto);
     ADD_ENUM_VALUE(ctorFun, QEvent, None);

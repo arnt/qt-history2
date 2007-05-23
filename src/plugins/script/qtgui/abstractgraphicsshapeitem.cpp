@@ -6,22 +6,17 @@
 #include <QtGui/QPen>
 #include "../global.h"
 
-Q_DECLARE_METATYPE(QAbstractGraphicsShapeItem*)
-Q_DECLARE_METATYPE(QScript::Wrapper<QAbstractGraphicsShapeItem*>::pointer_type)
+DECLARE_POINTER_METATYPE(QAbstractGraphicsShapeItem)
 
 static inline QScriptValue newAbstractGraphicsShapeItem(QScriptEngine *eng, QAbstractGraphicsShapeItem *item)
 {
-    return eng->newVariant(qVariantFromValue(QScript::Wrapper<QAbstractGraphicsShapeItem*>::wrap(item)));
+    return QScript::wrapGVPointer(eng, item);
 }
-
-/////////////////////////////////////////////////////////////
 
 static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *)
 {
     return ctx->throwError("QAbstractGraphicsShapeItem cannot be instantiated");
 }
-
-/////////////////////////////////////////////////////////////
 
 static QScriptValue brush(QScriptContext *ctx, QScriptEngine *eng)
 {
@@ -29,15 +24,11 @@ static QScriptValue brush(QScriptContext *ctx, QScriptEngine *eng)
     return eng->toScriptValue(self->brush());
 }
 
-/////////////////////////////////////////////////////////////
-
 static QScriptValue pen(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(AbstractGraphicsShapeItem, pen);
     return eng->toScriptValue(self->pen());
 }
-
-/////////////////////////////////////////////////////////////
 
 static QScriptValue setBrush(QScriptContext *ctx, QScriptEngine *eng)
 {
@@ -46,8 +37,6 @@ static QScriptValue setBrush(QScriptContext *ctx, QScriptEngine *eng)
     return eng->undefinedValue();
 }
 
-/////////////////////////////////////////////////////////////
-
 static QScriptValue setPen(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(AbstractGraphicsShapeItem, setPen);
@@ -55,15 +44,11 @@ static QScriptValue setPen(QScriptContext *ctx, QScriptEngine *eng)
     return eng->undefinedValue();
 }
 
-/////////////////////////////////////////////////////////////
-
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(AbstractGraphicsShapeItem, toString);
     return QScriptValue(eng, "QAbstractGraphicsShapeItem");
 }
-
-/////////////////////////////////////////////////////////////
 
 class PrototypeAbstractGraphicsShapeItem : public QAbstractGraphicsShapeItem
 {
@@ -87,7 +72,7 @@ QScriptValue constructAbstractGraphicsShapeItemClass(QScriptEngine *eng)
     ADD_PROTO_FUNCTION(proto, setPen);
     ADD_PROTO_FUNCTION(proto, toString);
 
-    QScript::registerMetaTypeWrapper<QScript::Wrapper<QAbstractGraphicsShapeItem*> >(eng, proto);
+    QScript::registerPointerMetaType<QAbstractGraphicsShapeItem>(eng, proto);
 
     QScriptValue ctorFun = eng->newFunction(ctor, proto);
 
