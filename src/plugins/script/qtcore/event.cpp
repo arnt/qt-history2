@@ -24,7 +24,7 @@ static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue accept(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Event, accept);
+    DECLARE_SELF(QEvent, accept);
     self->accept();
     return eng->undefinedValue();
 }
@@ -33,7 +33,7 @@ static QScriptValue accept(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue ignore(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Event, ignore);
+    DECLARE_SELF(QEvent, ignore);
     self->ignore();
     return eng->undefinedValue();
 }
@@ -42,7 +42,7 @@ static QScriptValue ignore(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue isAccepted(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Event, isAccepted);
+    DECLARE_SELF(QEvent, isAccepted);
     return QScriptValue(eng, self->isAccepted());
 }
 
@@ -50,7 +50,7 @@ static QScriptValue isAccepted(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setAccepted(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Event, setAccepted);
+    DECLARE_SELF(QEvent, setAccepted);
     self->setAccepted(ctx->argument(0).toBoolean());
     return eng->undefinedValue();
 }
@@ -59,7 +59,7 @@ static QScriptValue setAccepted(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue spontaneous(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Event, spontaneous);
+    DECLARE_SELF(QEvent, spontaneous);
     return QScriptValue(eng, self->spontaneous());
 }
 
@@ -67,7 +67,7 @@ static QScriptValue spontaneous(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue type(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Event, type);
+    DECLARE_SELF(QEvent, type);
     return QScriptValue(eng, self->type());
 }
 
@@ -75,7 +75,7 @@ static QScriptValue type(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Event, toString);
+    DECLARE_SELF(QEvent, toString);
     return QScriptValue(eng, QString::fromLatin1("QEvent"));
 }
 
@@ -84,13 +84,13 @@ static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 QScriptValue constructEventClass(QScriptEngine *eng)
 {
     QScriptValue proto = newEvent(eng, new QEvent(QEvent::None));
-    ADD_PROTO_FUNCTION(proto, accept);
-    ADD_PROTO_FUNCTION(proto, ignore);
-    ADD_PROTO_FUNCTION(proto, isAccepted);
-    ADD_PROTO_FUNCTION(proto, setAccepted);
-    ADD_PROTO_FUNCTION(proto, spontaneous);
-    ADD_PROTO_FUNCTION(proto, type);
-    ADD_PROTO_FUNCTION(proto, toString);
+    ADD_METHOD(proto, accept);
+    ADD_METHOD(proto, ignore);
+    ADD_METHOD(proto, isAccepted);
+    ADD_METHOD(proto, setAccepted);
+    ADD_METHOD(proto, spontaneous);
+    ADD_METHOD(proto, type);
+    ADD_METHOD(proto, toString);
 
     QScript::registerPointerMetaType<QEvent>(eng, proto);
 

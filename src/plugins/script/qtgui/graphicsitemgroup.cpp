@@ -15,21 +15,21 @@ static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue addToGroup(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsItemGroup, addToGroup);
+    DECLARE_SELF(QGraphicsItemGroup, addToGroup);
     self->addToGroup(qscriptvalue_cast<QGraphicsItem*>(ctx->argument(0)));
     return eng->undefinedValue();
 }
 
 static QScriptValue removeFromGroup(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsItemGroup, removeFromGroup);
+    DECLARE_SELF(QGraphicsItemGroup, removeFromGroup);
     self->removeFromGroup(qscriptvalue_cast<QGraphicsItem*>(ctx->argument(0)));
     return eng->undefinedValue();
 }
 
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsItemGroup, toString);
+    DECLARE_SELF(QGraphicsItemGroup, toString);
     return QScriptValue(eng, "QGraphicsItemGroup");
 }
 
@@ -38,9 +38,9 @@ QScriptValue constructGraphicsItemGroupClass(QScriptEngine *eng)
     QScriptValue proto = QScript::wrapGVPointer(eng, new QGraphicsItemGroup());
     proto.setPrototype(eng->defaultPrototype(qMetaTypeId<QGraphicsItem*>()));
 
-    ADD_PROTO_FUNCTION(proto, addToGroup);
-    ADD_PROTO_FUNCTION(proto, removeFromGroup);
-    ADD_PROTO_FUNCTION(proto, toString);
+    ADD_METHOD(proto, addToGroup);
+    ADD_METHOD(proto, removeFromGroup);
+    ADD_METHOD(proto, toString);
 
     QScript::registerPointerMetaType<QGraphicsItemGroup>(eng, proto);
 

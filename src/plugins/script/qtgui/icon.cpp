@@ -38,7 +38,7 @@ static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue actualSize(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Icon, actualSize);
+    DECLARE_SELF(QIcon, actualSize);
     QSize size = qscriptvalue_cast<QSize>(ctx->argument(0));
     if (ctx->argumentCount() >= 3) {
         QIcon::Mode mode = static_cast<QIcon::Mode>(ctx->argument(1).toInt32());
@@ -56,7 +56,7 @@ static QScriptValue actualSize(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue addFile(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Icon, addFile);
+    DECLARE_SELF(QIcon, addFile);
     QString fileName = ctx->argument(0).toString();
     if (ctx->argumentCount() >= 4) {
         QSize size = qscriptvalue_cast<QSize>(ctx->argument(1));
@@ -80,7 +80,7 @@ static QScriptValue addFile(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue addPixmap(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Icon, addPixmap);
+    DECLARE_SELF(QIcon, addPixmap);
     QPixmap pixmap = qscriptvalue_cast<QPixmap>(ctx->argument(0));
     if (ctx->argumentCount() >= 3) {
         QIcon::Mode mode = static_cast<QIcon::Mode>(ctx->argument(1).toInt32());
@@ -99,7 +99,7 @@ static QScriptValue addPixmap(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue cacheKey(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Icon, cacheKey);
+    DECLARE_SELF(QIcon, cacheKey);
     return eng->toScriptValue(self->cacheKey());
 }
 
@@ -107,7 +107,7 @@ static QScriptValue cacheKey(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue isNull(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Icon, isNull);
+    DECLARE_SELF(QIcon, isNull);
     return QScriptValue(eng, self->isNull());
 }
 
@@ -115,7 +115,7 @@ static QScriptValue isNull(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue paint(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Icon, paint);
+    DECLARE_SELF(QIcon, paint);
     QPainter *painter = qscriptvalue_cast<QPainter*>(ctx->argument(0));
     if (!painter) {
         return ctx->throwError(QScriptContext::TypeError,
@@ -144,7 +144,7 @@ static QScriptValue paint(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue pixmap(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Icon, pixmap);
+    DECLARE_SELF(QIcon, pixmap);
     QSize size = qscriptvalue_cast<QSize>(ctx->argument(0));
     // ### overloads
     return eng->toScriptValue(self->pixmap(size));
@@ -154,7 +154,7 @@ static QScriptValue pixmap(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Icon, toString);
+    DECLARE_SELF(QIcon, toString);
     return QScriptValue(eng, "QIcon");
 }
 
@@ -163,14 +163,14 @@ static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 QScriptValue constructIconClass(QScriptEngine *eng)
 {
     QScriptValue proto = newIcon(eng, QIcon());
-    ADD_PROTO_FUNCTION(proto, actualSize);
-    ADD_PROTO_FUNCTION(proto, addFile);
-    ADD_PROTO_FUNCTION(proto, addPixmap);
-    ADD_PROTO_FUNCTION(proto, cacheKey);
-    ADD_PROTO_FUNCTION(proto, isNull);
-    ADD_PROTO_FUNCTION(proto, paint);
-    ADD_PROTO_FUNCTION(proto, pixmap);
-    ADD_PROTO_FUNCTION(proto, toString);
+    ADD_METHOD(proto, actualSize);
+    ADD_METHOD(proto, addFile);
+    ADD_METHOD(proto, addPixmap);
+    ADD_METHOD(proto, cacheKey);
+    ADD_METHOD(proto, isNull);
+    ADD_METHOD(proto, paint);
+    ADD_METHOD(proto, pixmap);
+    ADD_METHOD(proto, toString);
 
     eng->setDefaultPrototype(qMetaTypeId<QIcon>(), proto);
     eng->setDefaultPrototype(qMetaTypeId<QIcon*>(), proto);

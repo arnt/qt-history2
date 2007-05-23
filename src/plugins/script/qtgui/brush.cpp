@@ -48,7 +48,7 @@ static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue color(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Brush, color);
+    DECLARE_SELF(QBrush, color);
     return eng->toScriptValue(self->color());
 }
 
@@ -56,7 +56,7 @@ static QScriptValue color(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue gradient(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Brush, gradient);
+    DECLARE_SELF(QBrush, gradient);
     return eng->toScriptValue(const_cast<QGradient*>(self->gradient()));
 }
 
@@ -64,7 +64,7 @@ static QScriptValue gradient(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue isOpaque(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Brush, isOpaque);
+    DECLARE_SELF(QBrush, isOpaque);
     return QScriptValue(eng, self->isOpaque());
 }
 
@@ -72,7 +72,7 @@ static QScriptValue isOpaque(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue matrix(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Brush, matrix);
+    DECLARE_SELF(QBrush, matrix);
     return eng->toScriptValue(self->matrix());
 }
 
@@ -80,7 +80,7 @@ static QScriptValue matrix(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setColor(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Brush, setColor);
+    DECLARE_SELF(QBrush, setColor);
     self->setColor(qscriptvalue_cast<QColor>(ctx->argument(0)));
     return eng->undefinedValue();
 }
@@ -89,7 +89,7 @@ static QScriptValue setColor(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setMatrix(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Brush, setMatrix);
+    DECLARE_SELF(QBrush, setMatrix);
     self->setMatrix(qscriptvalue_cast<QMatrix>(ctx->argument(0)));
     return eng->undefinedValue();
 }
@@ -98,7 +98,7 @@ static QScriptValue setMatrix(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setStyle(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Brush, setStyle);
+    DECLARE_SELF(QBrush, setStyle);
     self->setStyle(static_cast<Qt::BrushStyle>(ctx->argument(0).toInt32()));
     return eng->undefinedValue();
 }
@@ -107,7 +107,7 @@ static QScriptValue setStyle(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setTexture(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Brush, setTexture);
+    DECLARE_SELF(QBrush, setTexture);
     self->setTexture(qscriptvalue_cast<QPixmap>(ctx->argument(0)));
     return eng->undefinedValue();
 }
@@ -116,7 +116,7 @@ static QScriptValue setTexture(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setTextureImage(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Brush, setTextureImage);
+    DECLARE_SELF(QBrush, setTextureImage);
     self->setTextureImage(qscriptvalue_cast<QImage>(ctx->argument(0)));
     return eng->undefinedValue();
 }
@@ -125,7 +125,7 @@ static QScriptValue setTextureImage(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setTransform(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Brush, setTransform);
+    DECLARE_SELF(QBrush, setTransform);
     self->setTransform(qscriptvalue_cast<QTransform>(ctx->argument(0)));
     return eng->undefinedValue();
 }
@@ -134,7 +134,7 @@ static QScriptValue setTransform(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue style(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Brush, style);
+    DECLARE_SELF(QBrush, style);
     return QScriptValue(eng, static_cast<int>(self->style()));
 }
 
@@ -142,7 +142,7 @@ static QScriptValue style(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue texture(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Brush, texture);
+    DECLARE_SELF(QBrush, texture);
     return eng->toScriptValue(self->texture());
 }
 
@@ -150,7 +150,7 @@ static QScriptValue texture(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Brush, toString);
+    DECLARE_SELF(QBrush, toString);
     return QScriptValue(eng, "QBrush");
 }
 
@@ -158,7 +158,7 @@ static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue textureImage(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Brush, textureImage);
+    DECLARE_SELF(QBrush, textureImage);
     return eng->toScriptValue(self->textureImage());
 }
 
@@ -166,7 +166,7 @@ static QScriptValue textureImage(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue transform(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Brush, transform);
+    DECLARE_SELF(QBrush, transform);
     return eng->toScriptValue(self->transform());
 }
 
@@ -211,21 +211,21 @@ static void brushFromScriptValue(const QScriptValue &value, QBrush &brush)
 QScriptValue constructBrushClass(QScriptEngine *eng)
 {
     QScriptValue proto = newBrush(eng, QBrush());
-    ADD_PROTO_FUNCTION(proto, color);
-    ADD_PROTO_FUNCTION(proto, gradient);
-    ADD_PROTO_FUNCTION(proto, isOpaque);
-    ADD_PROTO_FUNCTION(proto, matrix);
-    ADD_PROTO_FUNCTION(proto, setColor);
-    ADD_PROTO_FUNCTION(proto, setMatrix);
-    ADD_PROTO_FUNCTION(proto, setStyle);
-    ADD_PROTO_FUNCTION(proto, setTexture);
-    ADD_PROTO_FUNCTION(proto, setTextureImage);
-    ADD_PROTO_FUNCTION(proto, setTransform);
-    ADD_PROTO_FUNCTION(proto, style);
-    ADD_PROTO_FUNCTION(proto, texture);
-    ADD_PROTO_FUNCTION(proto, textureImage);
-    ADD_PROTO_FUNCTION(proto, toString);
-    ADD_PROTO_FUNCTION(proto, transform);
+    ADD_METHOD(proto, color);
+    ADD_METHOD(proto, gradient);
+    ADD_METHOD(proto, isOpaque);
+    ADD_METHOD(proto, matrix);
+    ADD_METHOD(proto, setColor);
+    ADD_METHOD(proto, setMatrix);
+    ADD_METHOD(proto, setStyle);
+    ADD_METHOD(proto, setTexture);
+    ADD_METHOD(proto, setTextureImage);
+    ADD_METHOD(proto, setTransform);
+    ADD_METHOD(proto, style);
+    ADD_METHOD(proto, texture);
+    ADD_METHOD(proto, textureImage);
+    ADD_METHOD(proto, toString);
+    ADD_METHOD(proto, transform);
 
     qScriptRegisterMetaType<QBrush>(eng, brushToScriptValue, brushFromScriptValue, proto);
     eng->setDefaultPrototype(qMetaTypeId<QBrush*>(), proto);

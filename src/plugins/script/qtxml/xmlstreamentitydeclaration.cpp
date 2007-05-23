@@ -25,7 +25,7 @@ static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue equals(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(XmlStreamEntityDeclaration, equals);
+    DECLARE_SELF(QXmlStreamEntityDeclaration, equals);
     if (QXmlStreamEntityDeclaration *other = qscriptvalue_cast<QXmlStreamEntityDeclaration*>(ctx->argument(0)))
         return QScriptValue(eng, *self == *other);
     return QScriptValue(eng, false);
@@ -33,50 +33,50 @@ static QScriptValue equals(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue name(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(XmlStreamEntityDeclaration, name);
+    DECLARE_SELF(QXmlStreamEntityDeclaration, name);
     return eng->toScriptValue(self->name());
 }
 
 static QScriptValue notationName(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(XmlStreamEntityDeclaration, notationName);
+    DECLARE_SELF(QXmlStreamEntityDeclaration, notationName);
     return eng->toScriptValue(self->notationName());
 }
 
 static QScriptValue publicId(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(XmlStreamEntityDeclaration, publicId);
+    DECLARE_SELF(QXmlStreamEntityDeclaration, publicId);
     return eng->toScriptValue(self->publicId());
 }
 
 static QScriptValue systemId(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(XmlStreamEntityDeclaration, systemId);
+    DECLARE_SELF(QXmlStreamEntityDeclaration, systemId);
     return eng->toScriptValue(self->systemId());
 }
 
 static QScriptValue value(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(XmlStreamEntityDeclaration, value);
+    DECLARE_SELF(QXmlStreamEntityDeclaration, value);
     return eng->toScriptValue(self->value());
 }
 
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(XmlStreamEntityDeclaration, toString);
+    DECLARE_SELF(QXmlStreamEntityDeclaration, toString);
     return QScriptValue(eng, QLatin1String("QXmlStreamEntityDeclaration"));
 }
 
 QScriptValue constructXmlStreamEntityDeclarationClass(QScriptEngine *eng)
 {
     QScriptValue proto = newXmlStreamEntityDeclaration(eng, QXmlStreamEntityDeclaration());
-    ADD_PROTO_FUNCTION(proto, equals);
-    ADD_PROTO_FUNCTION(proto, name);
-    ADD_PROTO_FUNCTION(proto, notationName);
-    ADD_PROTO_FUNCTION(proto, publicId);
-    ADD_PROTO_FUNCTION(proto, systemId);
-    ADD_PROTO_FUNCTION(proto, value);
-    ADD_PROTO_FUNCTION(proto, toString);
+    ADD_METHOD(proto, equals);
+    ADD_METHOD(proto, name);
+    ADD_METHOD(proto, notationName);
+    ADD_METHOD(proto, publicId);
+    ADD_METHOD(proto, systemId);
+    ADD_METHOD(proto, value);
+    ADD_METHOD(proto, toString);
 
     eng->setDefaultPrototype(qMetaTypeId<QXmlStreamEntityDeclaration>(), proto);
     eng->setDefaultPrototype(qMetaTypeId<QXmlStreamEntityDeclaration*>(), proto);

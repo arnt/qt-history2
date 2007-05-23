@@ -24,71 +24,71 @@ static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue currentFrame(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(TimeLine, currentFrame);
+    DECLARE_SELF(QTimeLine, currentFrame);
     return QScriptValue(eng, self->currentFrame());
 }
 
 static QScriptValue currentValue(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(TimeLine, currentValue);
+    DECLARE_SELF(QTimeLine, currentValue);
     return QScriptValue(eng, self->currentValue());
 }
 
 static QScriptValue endFrame(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(TimeLine, endFrame);
+    DECLARE_SELF(QTimeLine, endFrame);
     return QScriptValue(eng, self->endFrame());
 }
 
 static QScriptValue frameForTime(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(TimeLine, frameForTime);
+    DECLARE_SELF(QTimeLine, frameForTime);
     return QScriptValue(eng, self->frameForTime(ctx->argument(0).toInt32()));
 }
 
 static QScriptValue setCurveShape(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(TimeLine, setCurveShape);
+    DECLARE_SELF(QTimeLine, setCurveShape);
     self->setCurveShape(QTimeLine::CurveShape(ctx->argument(0).toInt32()));
     return eng->undefinedValue();
 }
 
 static QScriptValue setEndFrame(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(TimeLine, setEndFrame);
+    DECLARE_SELF(QTimeLine, setEndFrame);
     self->setEndFrame(ctx->argument(0).toInt32());
     return eng->undefinedValue();
 }
 
 static QScriptValue setFrameRange(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(TimeLine, setFrameRange);
+    DECLARE_SELF(QTimeLine, setFrameRange);
     self->setFrameRange(ctx->argument(0).toInt32(), ctx->argument(1).toInt32());
     return eng->undefinedValue();
 }
 
 static QScriptValue setStartFrame(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(TimeLine, setStartFrame);
+    DECLARE_SELF(QTimeLine, setStartFrame);
     self->setStartFrame(ctx->argument(0).toInt32());
     return eng->undefinedValue();
 }
 
 static QScriptValue startFrame(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(TimeLine, startFrame);
+    DECLARE_SELF(QTimeLine, startFrame);
     return QScriptValue(eng, self->startFrame());
 }
 
 static QScriptValue state(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(TimeLine, state);
+    DECLARE_SELF(QTimeLine, state);
     return QScriptValue(eng, self->state());
 }
 
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(TimeLine, toString);
+    DECLARE_SELF(QTimeLine, toString);
     return QScriptValue(eng, QString::fromLatin1("QTimeLine(duration=%0)")
                         .arg(self->duration()));
 }
@@ -96,17 +96,17 @@ static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 QScriptValue constructTimeLineClass(QScriptEngine *eng)
 {
     QScriptValue proto = newTimeLine(eng, new QTimeLine());
-    ADD_PROTO_FUNCTION(proto, currentFrame); 
-    ADD_PROTO_FUNCTION(proto, currentValue); 
-    ADD_PROTO_FUNCTION(proto, endFrame); 
-    ADD_PROTO_FUNCTION(proto, frameForTime);
-    ADD_PROTO_FUNCTION(proto, setCurveShape);
-    ADD_PROTO_FUNCTION(proto, setEndFrame);
-    ADD_PROTO_FUNCTION(proto, setFrameRange);
-    ADD_PROTO_FUNCTION(proto, setStartFrame);
-    ADD_PROTO_FUNCTION(proto, startFrame);
-    ADD_PROTO_FUNCTION(proto, state);
-    ADD_PROTO_FUNCTION(proto, toString);
+    ADD_METHOD(proto, currentFrame); 
+    ADD_METHOD(proto, currentValue); 
+    ADD_METHOD(proto, endFrame); 
+    ADD_METHOD(proto, frameForTime);
+    ADD_METHOD(proto, setCurveShape);
+    ADD_METHOD(proto, setEndFrame);
+    ADD_METHOD(proto, setFrameRange);
+    ADD_METHOD(proto, setStartFrame);
+    ADD_METHOD(proto, startFrame);
+    ADD_METHOD(proto, state);
+    ADD_METHOD(proto, toString);
     eng->setDefaultPrototype(qMetaTypeId<QTimeLine*>(), proto);
 
     QScriptValue ctorFun = eng->newFunction(ctor, proto);

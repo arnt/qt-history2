@@ -33,13 +33,13 @@ static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue rect(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsRectItem, rect);
+    DECLARE_SELF(QGraphicsRectItem, rect);
     return eng->toScriptValue(self->rect());
 }
 
 static QScriptValue setRect(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsRectItem, setRect);
+    DECLARE_SELF(QGraphicsRectItem, setRect);
     if (ctx->argumentCount() > 1) {
         self->setRect(ctx->argument(0).toNumber(),
                       ctx->argument(1).toNumber(),
@@ -53,7 +53,7 @@ static QScriptValue setRect(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsRectItem, toString);
+    DECLARE_SELF(QGraphicsRectItem, toString);
     return QScriptValue(eng, "QGraphicsRectItem");
 }
 
@@ -62,9 +62,9 @@ QScriptValue constructGraphicsRectItemClass(QScriptEngine *eng)
     QScriptValue proto = QScript::wrapGVPointer(eng, new QGraphicsRectItem());
     proto.setPrototype(eng->defaultPrototype(qMetaTypeId<QAbstractGraphicsShapeItem*>()));
 
-    ADD_PROTO_FUNCTION(proto, rect);
-    ADD_PROTO_FUNCTION(proto, setRect);
-    ADD_PROTO_FUNCTION(proto, toString);
+    ADD_METHOD(proto, rect);
+    ADD_METHOD(proto, setRect);
+    ADD_METHOD(proto, toString);
 
     QScript::registerPointerMetaType<QGraphicsRectItem>(eng, proto);
 

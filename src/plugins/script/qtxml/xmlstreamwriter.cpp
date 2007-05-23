@@ -18,14 +18,14 @@ static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(XmlStreamWriter, toString);
+    DECLARE_SELF(QXmlStreamWriter, toString);
     return QScriptValue(eng, QLatin1String("QXmlStreamWriter"));
 }
 
 QScriptValue constructXmlStreamWriterClass(QScriptEngine *eng)
 {
     QScriptValue proto = newXmlStreamWriter(eng, new QXmlStreamWriter());
-    ADD_PROTO_FUNCTION(proto, toString);
+    ADD_METHOD(proto, toString);
 
     QScript::registerPointerMetaType<QXmlStreamWriter>(eng, proto);
 

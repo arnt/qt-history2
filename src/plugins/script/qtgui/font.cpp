@@ -29,37 +29,37 @@ static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue bold(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Font, bold);
+    DECLARE_SELF(QFont, bold);
     return QScriptValue(eng, self->bold());
 }
 
 static QScriptValue defaultFamily(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Font, defaultFamily);
+    DECLARE_SELF(QFont, defaultFamily);
     return QScriptValue(eng, self->defaultFamily());
 }
 
 static QScriptValue exactMatch(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Font, exactMatch);
+    DECLARE_SELF(QFont, exactMatch);
     return QScriptValue(eng, self->exactMatch());
 }
 
 static QScriptValue family(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Font, family);
+    DECLARE_SELF(QFont, family);
     return QScriptValue(eng, self->family());
 }
 
 static QScriptValue fixedPitch(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Font, fixedPitch);
+    DECLARE_SELF(QFont, fixedPitch);
     return QScriptValue(eng, self->fixedPitch());
 }
 
 static QScriptValue fromString(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Font, fromString);
+    DECLARE_SELF(QFont, fromString);
     return QScriptValue(eng, self->fromString(ctx->argument(0).toString()));
 }
 
@@ -70,7 +70,7 @@ static QScriptValue handle(QScriptContext *ctx, QScriptEngine *)
 
 static QScriptValue isCopyOf(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Font, isCopyOf);
+    DECLARE_SELF(QFont, isCopyOf);
     QFont *other = qscriptvalue_cast<QFont*>(ctx->argument(0));
     if (!other) {
         return ctx->throwError(QScriptContext::TypeError,
@@ -81,73 +81,73 @@ static QScriptValue isCopyOf(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue italic(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Font, italic);
+    DECLARE_SELF(QFont, italic);
     return QScriptValue(eng, self->italic());
 }
 
 static QScriptValue kerning(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Font, kerning);
+    DECLARE_SELF(QFont, kerning);
     return QScriptValue(eng, self->kerning());
 }
 
 static QScriptValue key(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Font, key);
+    DECLARE_SELF(QFont, key);
     return QScriptValue(eng, self->key());
 }
 
 static QScriptValue lastResortFamily(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Font, lastResortFamily);
+    DECLARE_SELF(QFont, lastResortFamily);
     return QScriptValue(eng, self->lastResortFamily());
 }
 
 static QScriptValue lastResortFont(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Font, lastResortFont);
+    DECLARE_SELF(QFont, lastResortFont);
     return QScriptValue(eng, self->lastResortFont());
 }
 
 static QScriptValue overline(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Font, overline);
+    DECLARE_SELF(QFont, overline);
     return QScriptValue(eng, self->overline());
 }
 
 static QScriptValue pixelSize(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Font, pixelSize);
+    DECLARE_SELF(QFont, pixelSize);
     return QScriptValue(eng, self->pixelSize());
 }
 
 static QScriptValue pointSize(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Font, pointSize);
+    DECLARE_SELF(QFont, pointSize);
     return QScriptValue(eng, self->pointSize());
 }
 
 static QScriptValue pointSizeF(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Font, pointSizeF);
+    DECLARE_SELF(QFont, pointSizeF);
     return QScriptValue(eng, self->pointSizeF());
 }
 
 static QScriptValue rawMode(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Font, rawMode);
+    DECLARE_SELF(QFont, rawMode);
     return QScriptValue(eng, self->rawMode());
 }
 
 static QScriptValue rawName(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Font, rawName);
+    DECLARE_SELF(QFont, rawName);
     return QScriptValue(eng, self->rawName());
 }
 
 static QScriptValue resolve(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Font, resolve);
+    DECLARE_SELF(QFont, resolve);
     QFont *other = qscriptvalue_cast<QFont*>(ctx->argument(0));
     if (!other) {
         return ctx->throwError(QScriptContext::TypeError,
@@ -158,7 +158,7 @@ static QScriptValue resolve(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setBold(QScriptContext *ctx, QScriptEngine *)
 {
-    DECLARE_SELF(Font, setBold);
+    DECLARE_SELF(QFont, setBold);
     QScriptValue arg = ctx->argument(0);
     self->setBold(arg.toBoolean());
     return arg;
@@ -166,7 +166,7 @@ static QScriptValue setBold(QScriptContext *ctx, QScriptEngine *)
 
 static QScriptValue setFamily(QScriptContext *ctx, QScriptEngine *)
 {
-    DECLARE_SELF(Font, setFamily);
+    DECLARE_SELF(QFont, setFamily);
     QScriptValue arg = ctx->argument(0);
     self->setFamily(arg.toString());
     return arg;
@@ -174,7 +174,7 @@ static QScriptValue setFamily(QScriptContext *ctx, QScriptEngine *)
 
 static QScriptValue setFixedPitch(QScriptContext *ctx, QScriptEngine *)
 {
-    DECLARE_SELF(Font, setFixedPitch);
+    DECLARE_SELF(QFont, setFixedPitch);
     QScriptValue arg = ctx->argument(0);
     self->setFixedPitch(arg.toBoolean());
     return arg;
@@ -182,7 +182,7 @@ static QScriptValue setFixedPitch(QScriptContext *ctx, QScriptEngine *)
 
 static QScriptValue setItalic(QScriptContext *ctx, QScriptEngine *)
 {
-    DECLARE_SELF(Font, setItalic);
+    DECLARE_SELF(QFont, setItalic);
     QScriptValue arg = ctx->argument(0);
     self->setItalic(arg.toBoolean());
     return arg;
@@ -190,7 +190,7 @@ static QScriptValue setItalic(QScriptContext *ctx, QScriptEngine *)
 
 static QScriptValue setKerning(QScriptContext *ctx, QScriptEngine *)
 {
-    DECLARE_SELF(Font, setKerning);
+    DECLARE_SELF(QFont, setKerning);
     QScriptValue arg = ctx->argument(0);
     self->setKerning(arg.toBoolean());
     return arg;
@@ -198,7 +198,7 @@ static QScriptValue setKerning(QScriptContext *ctx, QScriptEngine *)
 
 static QScriptValue setOverline(QScriptContext *ctx, QScriptEngine *)
 {
-    DECLARE_SELF(Font, setOverline);
+    DECLARE_SELF(QFont, setOverline);
     QScriptValue arg = ctx->argument(0);
     self->setOverline(arg.toBoolean());
     return arg;
@@ -206,7 +206,7 @@ static QScriptValue setOverline(QScriptContext *ctx, QScriptEngine *)
 
 static QScriptValue setPixelSize(QScriptContext *ctx, QScriptEngine *)
 {
-    DECLARE_SELF(Font, setPixelSize);
+    DECLARE_SELF(QFont, setPixelSize);
     QScriptValue arg = ctx->argument(0);
     self->setPixelSize(arg.toInt32());
     return arg;
@@ -214,7 +214,7 @@ static QScriptValue setPixelSize(QScriptContext *ctx, QScriptEngine *)
 
 static QScriptValue setPointSize(QScriptContext *ctx, QScriptEngine *)
 {
-    DECLARE_SELF(Font, setPointSize);
+    DECLARE_SELF(QFont, setPointSize);
     QScriptValue arg = ctx->argument(0);
     self->setPointSize(arg.toInt32());
     return arg;
@@ -222,7 +222,7 @@ static QScriptValue setPointSize(QScriptContext *ctx, QScriptEngine *)
 
 static QScriptValue setPointSizeF(QScriptContext *ctx, QScriptEngine *)
 {
-    DECLARE_SELF(Font, setPointSizeF);
+    DECLARE_SELF(QFont, setPointSizeF);
     QScriptValue arg = ctx->argument(0);
     self->setPointSizeF(arg.toNumber());
     return arg;
@@ -230,7 +230,7 @@ static QScriptValue setPointSizeF(QScriptContext *ctx, QScriptEngine *)
 
 static QScriptValue setRawMode(QScriptContext *ctx, QScriptEngine *)
 {
-    DECLARE_SELF(Font, setRawMode);
+    DECLARE_SELF(QFont, setRawMode);
     QScriptValue arg = ctx->argument(0);
     self->setRawMode(arg.toBoolean());
     return arg;
@@ -238,7 +238,7 @@ static QScriptValue setRawMode(QScriptContext *ctx, QScriptEngine *)
 
 static QScriptValue setRawName(QScriptContext *ctx, QScriptEngine *)
 {
-    DECLARE_SELF(Font, setRawName);
+    DECLARE_SELF(QFont, setRawName);
     QScriptValue arg = ctx->argument(0);
     self->setRawName(arg.toString());
     return arg;
@@ -246,7 +246,7 @@ static QScriptValue setRawName(QScriptContext *ctx, QScriptEngine *)
 
 static QScriptValue setStretch(QScriptContext *ctx, QScriptEngine *)
 {
-    DECLARE_SELF(Font, setStretch);
+    DECLARE_SELF(QFont, setStretch);
     QScriptValue arg = ctx->argument(0);
     self->setStretch(arg.toInt32());
     return arg;
@@ -254,7 +254,7 @@ static QScriptValue setStretch(QScriptContext *ctx, QScriptEngine *)
 
 static QScriptValue setStrikeOut(QScriptContext *ctx, QScriptEngine *)
 {
-    DECLARE_SELF(Font, setStrikeOut);
+    DECLARE_SELF(QFont, setStrikeOut);
     QScriptValue arg = ctx->argument(0);
     self->setStrikeOut(arg.toBoolean());
     return arg;
@@ -277,7 +277,7 @@ static QScriptValue setStyleStrategy(QScriptContext *ctx, QScriptEngine *)
 
 static QScriptValue setUnderline(QScriptContext *ctx, QScriptEngine *)
 {
-    DECLARE_SELF(Font, setUnderline);
+    DECLARE_SELF(QFont, setUnderline);
     QScriptValue arg = ctx->argument(0);
     self->setUnderline(arg.toBoolean());
     return arg;
@@ -285,7 +285,7 @@ static QScriptValue setUnderline(QScriptContext *ctx, QScriptEngine *)
 
 static QScriptValue setWeight(QScriptContext *ctx, QScriptEngine *)
 {
-    DECLARE_SELF(Font, setWeight);
+    DECLARE_SELF(QFont, setWeight);
     QScriptValue arg = ctx->argument(0);
     self->setWeight(arg.toInt32());
     return arg;
@@ -293,13 +293,13 @@ static QScriptValue setWeight(QScriptContext *ctx, QScriptEngine *)
 
 static QScriptValue stretch(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Font, stretch);
+    DECLARE_SELF(QFont, stretch);
     return QScriptValue(eng, self->stretch());
 }
 
 static QScriptValue strikeOut(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Font, strikeOut);
+    DECLARE_SELF(QFont, strikeOut);
     return QScriptValue(eng, self->strikeOut());
 }
 
@@ -320,19 +320,19 @@ static QScriptValue styleStrategy(QScriptContext *ctx, QScriptEngine *)
 
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Font, toString);
+    DECLARE_SELF(QFont, toString);
     return QScriptValue(eng, self->toString());
 }
 
 static QScriptValue underline(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Font, underline);
+    DECLARE_SELF(QFont, underline);
     return QScriptValue(eng, self->underline());
 }
 
 static QScriptValue weight(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Font, weight);
+    DECLARE_SELF(QFont, weight);
     return QScriptValue(eng, self->weight());
 }
 

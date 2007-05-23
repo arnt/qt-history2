@@ -7,6 +7,10 @@
 DECLARE_POINTER_METATYPE(QGraphicsEllipseItem)
 Q_DECLARE_METATYPE(QAbstractGraphicsShapeItem*)
 
+DECLARE_GET_SET_METHODS(QGraphicsEllipseItem, QRectF, rect, setRect)
+DECLARE_INT_GET_SET_METHODS(QGraphicsEllipseItem, spanAngle, setSpanAngle)
+DECLARE_INT_GET_SET_METHODS(QGraphicsEllipseItem, startAngle, setStartAngle)
+
 static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
 {
     if (ctx->argumentCount() >= 4) {
@@ -26,63 +30,19 @@ static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
     }
 }
 
-static QScriptValue rect(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsEllipseItem, rect);
-    return eng->toScriptValue(self->rect());
-}
-
-static QScriptValue setRect(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsEllipseItem, setRect);
-    self->setRect(qscriptvalue_cast<QRectF>(ctx->argument(0)));
-    return eng->undefinedValue();
-}
-
-static QScriptValue setSpanAngle(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsEllipseItem, setSpanAngle);
-    self->setSpanAngle(ctx->argument(0).toInt32());
-    return eng->undefinedValue();
-}
-
-static QScriptValue setStartAngle(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsEllipseItem, setStartAngle);
-    self->setStartAngle(ctx->argument(0).toInt32());
-    return eng->undefinedValue();
-}
-
-static QScriptValue spanAngle(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsEllipseItem, spanAngle);
-    return QScriptValue(eng, self->spanAngle());
-}
-
-static QScriptValue startAngle(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsEllipseItem, startAngle);
-    return QScriptValue(eng, self->startAngle());
-}
-
-static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsEllipseItem, toString);
+BEGIN_DECLARE_METHOD(QGraphicsEllipseItem, toString) {
     return QScriptValue(eng, "QGraphicsEllipseItem");
-}
+} END_DECLARE_METHOD
 
 QScriptValue constructGraphicsEllipseItemClass(QScriptEngine *eng)
 {
     QScriptValue proto = QScript::wrapGVPointer(eng, new QGraphicsEllipseItem());
     proto.setPrototype(eng->defaultPrototype(qMetaTypeId<QAbstractGraphicsShapeItem*>()));
 
-    ADD_PROTO_FUNCTION(proto, rect);
-    ADD_PROTO_FUNCTION(proto, setRect);
-    ADD_PROTO_FUNCTION(proto, setSpanAngle);
-    ADD_PROTO_FUNCTION(proto, setStartAngle);
-    ADD_PROTO_FUNCTION(proto, spanAngle);
-    ADD_PROTO_FUNCTION(proto, startAngle);
-    ADD_PROTO_FUNCTION(proto, toString);
+    ADD_GET_SET_METHODS(proto, rect, setRect);
+    ADD_GET_SET_METHODS(proto, spanAngle, setSpanAngle);
+    ADD_GET_SET_METHODS(proto, startAngle, setStartAngle);
+    ADD_METHOD(proto, toString);
 
     QScript::registerPointerMetaType<QGraphicsEllipseItem>(eng, proto);
 

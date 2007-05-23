@@ -33,7 +33,7 @@ static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue equals(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(XmlStreamAttribute, equals);
+    DECLARE_SELF(QXmlStreamAttribute, equals);
     if (QXmlStreamAttribute *other = qscriptvalue_cast<QXmlStreamAttribute*>(ctx->argument(0)))
         return QScriptValue(eng, *self == *other);
     return QScriptValue(eng, false);
@@ -41,50 +41,50 @@ static QScriptValue equals(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue isDefault(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(XmlStreamAttribute, isDefault);
+    DECLARE_SELF(QXmlStreamAttribute, isDefault);
     return QScriptValue(eng, self->isDefault());
 }
 
 static QScriptValue name(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(XmlStreamAttribute, name);
+    DECLARE_SELF(QXmlStreamAttribute, name);
     return eng->toScriptValue(self->name());
 }
 
 static QScriptValue namespaceUri(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(XmlStreamAttribute, namespaceUri);
+    DECLARE_SELF(QXmlStreamAttribute, namespaceUri);
     return eng->toScriptValue(self->namespaceUri());
 }
 
 static QScriptValue qualifiedName(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(XmlStreamAttribute, qualifiedName);
+    DECLARE_SELF(QXmlStreamAttribute, qualifiedName);
     return eng->toScriptValue(self->qualifiedName());
 }
 
 static QScriptValue value(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(XmlStreamAttribute, value);
+    DECLARE_SELF(QXmlStreamAttribute, value);
     return eng->toScriptValue(self->value());
 }
 
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(XmlStreamAttribute, toString);
+    DECLARE_SELF(QXmlStreamAttribute, toString);
     return QScriptValue(eng, QLatin1String("QXmlStreamAttribute"));
 }
 
 QScriptValue constructXmlStreamAttributeClass(QScriptEngine *eng)
 {
     QScriptValue proto = newXmlStreamAttribute(eng, QXmlStreamAttribute());
-    ADD_PROTO_FUNCTION(proto, equals);
-    ADD_PROTO_FUNCTION(proto, isDefault);
-    ADD_PROTO_FUNCTION(proto, name);
-    ADD_PROTO_FUNCTION(proto, namespaceUri);
-    ADD_PROTO_FUNCTION(proto, qualifiedName);
-    ADD_PROTO_FUNCTION(proto, value);
-    ADD_PROTO_FUNCTION(proto, toString);
+    ADD_METHOD(proto, equals);
+    ADD_METHOD(proto, isDefault);
+    ADD_METHOD(proto, name);
+    ADD_METHOD(proto, namespaceUri);
+    ADD_METHOD(proto, qualifiedName);
+    ADD_METHOD(proto, value);
+    ADD_METHOD(proto, toString);
 
     eng->setDefaultPrototype(qMetaTypeId<QXmlStreamAttribute>(), proto);
     eng->setDefaultPrototype(qMetaTypeId<QXmlStreamAttribute*>(), proto);

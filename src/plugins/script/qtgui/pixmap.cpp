@@ -36,7 +36,7 @@ static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue alphaChannel(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Pixmap, alphaChannel);
+    DECLARE_SELF(QPixmap, alphaChannel);
     return newPixmap(eng, self->alphaChannel());
 }
 
@@ -44,7 +44,7 @@ static QScriptValue alphaChannel(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue cacheKey(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Pixmap, cacheKey);
+    DECLARE_SELF(QPixmap, cacheKey);
     return eng->toScriptValue(self->cacheKey());
 }
 
@@ -52,7 +52,7 @@ static QScriptValue cacheKey(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue copy(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Pixmap, copy);
+    DECLARE_SELF(QPixmap, copy);
     if (ctx->argumentCount() == 0)
         return newPixmap(eng, self->copy());
     else if (ctx->argumentCount() == 1)
@@ -67,7 +67,7 @@ static QScriptValue copy(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue createHeuristicMask(QScriptContext *ctx, QScriptEngine *)
 {
-    DECLARE_SELF(Pixmap, createHeuristicMask);
+    DECLARE_SELF(QPixmap, createHeuristicMask);
     return ctx->throwError("QPixmap.prototype.createHeuristicMask is not implemented");
 }
 
@@ -75,7 +75,7 @@ static QScriptValue createHeuristicMask(QScriptContext *ctx, QScriptEngine *)
 
 static QScriptValue createMaskFromColor(QScriptContext *ctx, QScriptEngine *)
 {
-    DECLARE_SELF(Pixmap, createMaskFromColor);
+    DECLARE_SELF(QPixmap, createMaskFromColor);
     return ctx->throwError("QPixmap.prototype.createMaskFromColor is not implemented");
 }
 
@@ -83,7 +83,7 @@ static QScriptValue createMaskFromColor(QScriptContext *ctx, QScriptEngine *)
 
 static QScriptValue depth(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Pixmap, depth);
+    DECLARE_SELF(QPixmap, depth);
     return QScriptValue(eng, self->depth());
 }
 
@@ -91,7 +91,7 @@ static QScriptValue depth(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue detach(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Pixmap, detach);
+    DECLARE_SELF(QPixmap, detach);
     self->detach();
     return eng->undefinedValue();
 }
@@ -100,7 +100,7 @@ static QScriptValue detach(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue fill(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Pixmap, fill);
+    DECLARE_SELF(QPixmap, fill);
     if (ctx->argumentCount() == 0) {
         self->fill();
     } else {
@@ -124,7 +124,7 @@ static QScriptValue fill(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue handle(QScriptContext *ctx, QScriptEngine *)
 {
-    DECLARE_SELF(Pixmap, handle);
+    DECLARE_SELF(QPixmap, handle);
     return ctx->throwError("QPixmap.prototype.handle is not implemented");
 }
 
@@ -132,7 +132,7 @@ static QScriptValue handle(QScriptContext *ctx, QScriptEngine *)
 
 static QScriptValue hasAlpha(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Pixmap, hasAlpha);
+    DECLARE_SELF(QPixmap, hasAlpha);
     return QScriptValue(eng, self->hasAlpha());
 }
 
@@ -140,7 +140,7 @@ static QScriptValue hasAlpha(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue hasAlphaChannel(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Pixmap, hasAlphaChannel);
+    DECLARE_SELF(QPixmap, hasAlphaChannel);
     return QScriptValue(eng, self->hasAlphaChannel());
 }
 
@@ -148,7 +148,7 @@ static QScriptValue hasAlphaChannel(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue height(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Pixmap, height);
+    DECLARE_SELF(QPixmap, height);
     return QScriptValue(eng, self->height());
 }
 
@@ -156,7 +156,7 @@ static QScriptValue height(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue isNull(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Pixmap, isNull);
+    DECLARE_SELF(QPixmap, isNull);
     return QScriptValue(eng, self->isNull());
 }
 
@@ -164,7 +164,7 @@ static QScriptValue isNull(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue isQBitmap(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Pixmap, isQBitmap);
+    DECLARE_SELF(QPixmap, isQBitmap);
     return QScriptValue(eng, self->isQBitmap());
 }
 
@@ -172,7 +172,7 @@ static QScriptValue isQBitmap(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue load(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Pixmap, load);
+    DECLARE_SELF(QPixmap, load);
     return QScriptValue(eng, self->load(ctx->argument(0).toString()));
 }
 
@@ -180,7 +180,7 @@ static QScriptValue load(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue loadFromData(QScriptContext *ctx, QScriptEngine *)
 {
-    DECLARE_SELF(Pixmap, loadFromData);
+    DECLARE_SELF(QPixmap, loadFromData);
     return ctx->throwError("QPixmap.prototype.loadFromData is not implemented");
 }
 
@@ -188,7 +188,7 @@ static QScriptValue loadFromData(QScriptContext *ctx, QScriptEngine *)
 
 static QScriptValue mask(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Pixmap, mask);
+    DECLARE_SELF(QPixmap, mask);
     return eng->toScriptValue(self->mask());
 }
 
@@ -196,7 +196,7 @@ static QScriptValue mask(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue rect(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Pixmap, rect);
+    DECLARE_SELF(QPixmap, rect);
     return eng->toScriptValue(self->rect());
 }
 
@@ -204,7 +204,7 @@ static QScriptValue rect(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue save(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Pixmap, save);
+    DECLARE_SELF(QPixmap, save);
     return QScriptValue(eng, self->save(ctx->argument(0).toString()));
 }
 
@@ -212,7 +212,7 @@ static QScriptValue save(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue scaled(QScriptContext *ctx, QScriptEngine *)
 {
-    DECLARE_SELF(Pixmap, scaled);
+    DECLARE_SELF(QPixmap, scaled);
     return ctx->throwError("QPixmap.prototype.scaled is not implemented");
 }
 
@@ -220,7 +220,7 @@ static QScriptValue scaled(QScriptContext *ctx, QScriptEngine *)
 
 static QScriptValue scaledToHeight(QScriptContext *ctx, QScriptEngine *)
 {
-    DECLARE_SELF(Pixmap, scaledToHeight);
+    DECLARE_SELF(QPixmap, scaledToHeight);
     return ctx->throwError("QPixmap.prototype.scaledToHeight is not implemented");
 }
 
@@ -228,7 +228,7 @@ static QScriptValue scaledToHeight(QScriptContext *ctx, QScriptEngine *)
 
 static QScriptValue scaledToWidth(QScriptContext *ctx, QScriptEngine *)
 {
-    DECLARE_SELF(Pixmap, scaledToWidth);
+    DECLARE_SELF(QPixmap, scaledToWidth);
     return ctx->throwError("QPixmap.prototype.scaledToWidth is not implemented");
 }
 
@@ -236,7 +236,7 @@ static QScriptValue scaledToWidth(QScriptContext *ctx, QScriptEngine *)
 
 static QScriptValue setAlphaChannel(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Pixmap, setAlphaChannel);
+    DECLARE_SELF(QPixmap, setAlphaChannel);
     self->setAlphaChannel(qscriptvalue_cast<QPixmap>(ctx->argument(0)));
     return eng->undefinedValue();
 }
@@ -245,7 +245,7 @@ static QScriptValue setAlphaChannel(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setMask(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Pixmap, setMask);
+    DECLARE_SELF(QPixmap, setMask);
     self->setMask(qscriptvalue_cast<QBitmap>(ctx->argument(0)));
     return eng->undefinedValue();
 }
@@ -254,7 +254,7 @@ static QScriptValue setMask(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue size(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Pixmap, size);
+    DECLARE_SELF(QPixmap, size);
     return eng->toScriptValue(self->size());
 }
 
@@ -262,7 +262,7 @@ static QScriptValue size(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue toImage(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Pixmap, toImage);
+    DECLARE_SELF(QPixmap, toImage);
     return eng->toScriptValue(self->toImage());
 }
 
@@ -270,7 +270,7 @@ static QScriptValue toImage(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue toMacCGImageRef(QScriptContext *ctx, QScriptEngine *)
 {
-    DECLARE_SELF(Pixmap, toMacCGImageRef);
+    DECLARE_SELF(QPixmap, toMacCGImageRef);
     return ctx->throwError("QPixmap.prototype.toMacCGImageRef is not implemented");
 }
 
@@ -278,7 +278,7 @@ static QScriptValue toMacCGImageRef(QScriptContext *ctx, QScriptEngine *)
 
 static QScriptValue toWinHBITMAP(QScriptContext *ctx, QScriptEngine *)
 {
-    DECLARE_SELF(Pixmap, toWinHBITMAP);
+    DECLARE_SELF(QPixmap, toWinHBITMAP);
     return ctx->throwError("QPixmap.prototype.toWinHBITMAP is not implemented");
 }
 
@@ -286,7 +286,7 @@ static QScriptValue toWinHBITMAP(QScriptContext *ctx, QScriptEngine *)
 
 static QScriptValue transformed(QScriptContext *ctx, QScriptEngine *)
 {
-    DECLARE_SELF(Pixmap, transformed);
+    DECLARE_SELF(QPixmap, transformed);
     return ctx->throwError("QPixmap.prototype.transformed is not implemented");
 }
 
@@ -294,7 +294,7 @@ static QScriptValue transformed(QScriptContext *ctx, QScriptEngine *)
 
 static QScriptValue width(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Pixmap, width);
+    DECLARE_SELF(QPixmap, width);
     return QScriptValue(eng, self->width());
 }
 
@@ -302,7 +302,7 @@ static QScriptValue width(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue x11Info(QScriptContext *ctx, QScriptEngine *)
 {
-    DECLARE_SELF(Pixmap, x11Info);
+    DECLARE_SELF(QPixmap, x11Info);
     return ctx->throwError("QPixmap.prototype.x11Info is not implemented");
 }
 
@@ -310,7 +310,7 @@ static QScriptValue x11Info(QScriptContext *ctx, QScriptEngine *)
 
 static QScriptValue x11PictureHandle(QScriptContext *ctx, QScriptEngine *)
 {
-    DECLARE_SELF(Pixmap, x11PictureHandle);
+    DECLARE_SELF(QPixmap, x11PictureHandle);
     return ctx->throwError("QPixmap.prototype.x11PictureHandle is not implemented");
 }
 
@@ -318,7 +318,7 @@ static QScriptValue x11PictureHandle(QScriptContext *ctx, QScriptEngine *)
 
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Pixmap, toString);
+    DECLARE_SELF(QPixmap, toString);
     if (self->isNull()) {
         return QScriptValue(eng, QString::fromLatin1("QPixmap(null)"));
     } else {
@@ -332,39 +332,39 @@ static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 QScriptValue constructPixmapClass(QScriptEngine *eng)
 {
     QScriptValue proto = newPixmap(eng, QPixmap());
-    ADD_PROTO_FUNCTION(proto, alphaChannel);
-    ADD_PROTO_FUNCTION(proto, cacheKey);
-    ADD_PROTO_FUNCTION(proto, copy);
-    ADD_PROTO_FUNCTION(proto, createHeuristicMask);
-    ADD_PROTO_FUNCTION(proto, createMaskFromColor);
-    ADD_PROTO_FUNCTION(proto, depth);
-    ADD_PROTO_FUNCTION(proto, detach);
-    ADD_PROTO_FUNCTION(proto, fill);
-    ADD_PROTO_FUNCTION(proto, handle);
-    ADD_PROTO_FUNCTION(proto, hasAlpha);
-    ADD_PROTO_FUNCTION(proto, hasAlphaChannel);
-    ADD_PROTO_FUNCTION(proto, height);
-    ADD_PROTO_FUNCTION(proto, isNull);
-    ADD_PROTO_FUNCTION(proto, isQBitmap);
-    ADD_PROTO_FUNCTION(proto, load);
-    ADD_PROTO_FUNCTION(proto, loadFromData);
-    ADD_PROTO_FUNCTION(proto, mask);
-    ADD_PROTO_FUNCTION(proto, rect);
-    ADD_PROTO_FUNCTION(proto, save);
-    ADD_PROTO_FUNCTION(proto, scaled);
-    ADD_PROTO_FUNCTION(proto, scaledToHeight);
-    ADD_PROTO_FUNCTION(proto, scaledToWidth);
-    ADD_PROTO_FUNCTION(proto, setAlphaChannel);
-    ADD_PROTO_FUNCTION(proto, setMask);
-    ADD_PROTO_FUNCTION(proto, size);
-    ADD_PROTO_FUNCTION(proto, toImage);
-    ADD_PROTO_FUNCTION(proto, toMacCGImageRef);
-    ADD_PROTO_FUNCTION(proto, toString);
-    ADD_PROTO_FUNCTION(proto, toWinHBITMAP);
-    ADD_PROTO_FUNCTION(proto, transformed);
-    ADD_PROTO_FUNCTION(proto, width);
-    ADD_PROTO_FUNCTION(proto, x11Info);
-    ADD_PROTO_FUNCTION(proto, x11PictureHandle);
+    ADD_METHOD(proto, alphaChannel);
+    ADD_METHOD(proto, cacheKey);
+    ADD_METHOD(proto, copy);
+    ADD_METHOD(proto, createHeuristicMask);
+    ADD_METHOD(proto, createMaskFromColor);
+    ADD_METHOD(proto, depth);
+    ADD_METHOD(proto, detach);
+    ADD_METHOD(proto, fill);
+    ADD_METHOD(proto, handle);
+    ADD_METHOD(proto, hasAlpha);
+    ADD_METHOD(proto, hasAlphaChannel);
+    ADD_METHOD(proto, height);
+    ADD_METHOD(proto, isNull);
+    ADD_METHOD(proto, isQBitmap);
+    ADD_METHOD(proto, load);
+    ADD_METHOD(proto, loadFromData);
+    ADD_METHOD(proto, mask);
+    ADD_METHOD(proto, rect);
+    ADD_METHOD(proto, save);
+    ADD_METHOD(proto, scaled);
+    ADD_METHOD(proto, scaledToHeight);
+    ADD_METHOD(proto, scaledToWidth);
+    ADD_METHOD(proto, setAlphaChannel);
+    ADD_METHOD(proto, setMask);
+    ADD_METHOD(proto, size);
+    ADD_METHOD(proto, toImage);
+    ADD_METHOD(proto, toMacCGImageRef);
+    ADD_METHOD(proto, toString);
+    ADD_METHOD(proto, toWinHBITMAP);
+    ADD_METHOD(proto, transformed);
+    ADD_METHOD(proto, width);
+    ADD_METHOD(proto, x11Info);
+    ADD_METHOD(proto, x11PictureHandle);
 
     eng->setDefaultPrototype(qMetaTypeId<QPixmap>(), proto);
     eng->setDefaultPrototype(qMetaTypeId<QPixmap*>(), proto);

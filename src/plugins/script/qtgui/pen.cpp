@@ -41,7 +41,7 @@ static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue brush(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Pen, brush);
+    DECLARE_SELF(QPen, brush);
     return eng->toScriptValue(self->brush());
 }
 
@@ -49,7 +49,7 @@ static QScriptValue brush(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue capStyle(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Pen, capStyle);
+    DECLARE_SELF(QPen, capStyle);
     return QScriptValue(eng, static_cast<int>(self->capStyle()));
 }
 
@@ -57,7 +57,7 @@ static QScriptValue capStyle(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue color(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Pen, color);
+    DECLARE_SELF(QPen, color);
     return eng->toScriptValue(self->color());
 }
 
@@ -65,7 +65,7 @@ static QScriptValue color(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue dashOffset(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Pen, dashOffset);
+    DECLARE_SELF(QPen, dashOffset);
     return QScriptValue(eng, self->dashOffset());
 }
 
@@ -73,7 +73,7 @@ static QScriptValue dashOffset(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue dashPattern(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Pen, dashPattern);
+    DECLARE_SELF(QPen, dashPattern);
     return eng->toScriptValue(self->dashPattern());
 }
 
@@ -81,7 +81,7 @@ static QScriptValue dashPattern(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue isCosmetic(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Pen, isCosmetic);
+    DECLARE_SELF(QPen, isCosmetic);
     return QScriptValue(eng, self->isCosmetic());
 }
 
@@ -89,7 +89,7 @@ static QScriptValue isCosmetic(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue isSolid(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Pen, isSolid);
+    DECLARE_SELF(QPen, isSolid);
     return QScriptValue(eng, self->isSolid());
 }
 
@@ -97,7 +97,7 @@ static QScriptValue isSolid(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue joinStyle(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Pen, joinStyle);
+    DECLARE_SELF(QPen, joinStyle);
     return QScriptValue(eng, static_cast<int>(self->joinStyle()));
 }
 
@@ -105,7 +105,7 @@ static QScriptValue joinStyle(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue miterLimit(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Pen, miterLimit);
+    DECLARE_SELF(QPen, miterLimit);
     return QScriptValue(eng, self->miterLimit());
 }
 
@@ -113,7 +113,7 @@ static QScriptValue miterLimit(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setBrush(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Pen, setBrush);
+    DECLARE_SELF(QPen, setBrush);
     self->setBrush(qscriptvalue_cast<QBrush>(ctx->argument(0)));
     return eng->undefinedValue();
 }
@@ -122,7 +122,7 @@ static QScriptValue setBrush(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setCapStyle(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Pen, setCapStyle);
+    DECLARE_SELF(QPen, setCapStyle);
     self->setCapStyle(static_cast<Qt::PenCapStyle>(ctx->argument(0).toInt32()));
     return eng->undefinedValue();
 }
@@ -131,7 +131,7 @@ static QScriptValue setCapStyle(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setColor(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Pen, setColor);
+    DECLARE_SELF(QPen, setColor);
     self->setBrush(qscriptvalue_cast<QColor>(ctx->argument(0)));
     return eng->undefinedValue();
 }
@@ -140,7 +140,7 @@ static QScriptValue setColor(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setCosmetic(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Pen, setCosmetic);
+    DECLARE_SELF(QPen, setCosmetic);
     self->setCosmetic(ctx->argument(0).toBoolean());
     return eng->undefinedValue();
 }
@@ -149,7 +149,7 @@ static QScriptValue setCosmetic(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setDashOffset(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Pen, setDashOffset);
+    DECLARE_SELF(QPen, setDashOffset);
     self->setDashOffset(ctx->argument(0).toNumber());
     return eng->undefinedValue();
 }
@@ -158,7 +158,7 @@ static QScriptValue setDashOffset(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setDashPattern(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Pen, setDashPattern);
+    DECLARE_SELF(QPen, setDashPattern);
     self->setDashPattern(qscriptvalue_cast<QVector<qreal> >(ctx->argument(0)));
     return eng->undefinedValue();
 }
@@ -167,7 +167,7 @@ static QScriptValue setDashPattern(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setJoinStyle(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Pen, setJoinStyle);
+    DECLARE_SELF(QPen, setJoinStyle);
     self->setJoinStyle(static_cast<Qt::PenJoinStyle>(ctx->argument(0).toInt32()));
     return eng->undefinedValue();
 }
@@ -176,7 +176,7 @@ static QScriptValue setJoinStyle(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setMiterLimit(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Pen, setMiterLimit);
+    DECLARE_SELF(QPen, setMiterLimit);
     self->setMiterLimit(ctx->argument(0).toNumber());
     return eng->undefinedValue();
 }
@@ -185,7 +185,7 @@ static QScriptValue setMiterLimit(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setStyle(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Pen, setStyle);
+    DECLARE_SELF(QPen, setStyle);
     self->setStyle(static_cast<Qt::PenStyle>(ctx->argument(0).toInt32()));
     return eng->undefinedValue();
 }
@@ -194,7 +194,7 @@ static QScriptValue setStyle(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setWidth(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Pen, setWidth);
+    DECLARE_SELF(QPen, setWidth);
     self->setWidthF(ctx->argument(0).toNumber());
     return eng->undefinedValue();
 }
@@ -203,7 +203,7 @@ static QScriptValue setWidth(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue style(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Pen, style);
+    DECLARE_SELF(QPen, style);
     return QScriptValue(eng, static_cast<int>(self->style()));
 }
 
@@ -211,7 +211,7 @@ static QScriptValue style(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Pen, toString);
+    DECLARE_SELF(QPen, toString);
     return QScriptValue(eng, QString::fromLatin1("QPen(width=%0)")
                         .arg(self->width()));
 }
@@ -220,7 +220,7 @@ static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue width(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Pen, width);
+    DECLARE_SELF(QPen, width);
     return QScriptValue(eng, self->widthF());
 }
 
@@ -253,28 +253,28 @@ static void penFromScriptValue(const QScriptValue &value, QPen &pen)
 QScriptValue constructPenClass(QScriptEngine *eng)
 {
     QScriptValue proto = newPen(eng, QPen());
-    ADD_PROTO_FUNCTION(proto, brush);
-    ADD_PROTO_FUNCTION(proto, capStyle);
-    ADD_PROTO_FUNCTION(proto, color);
-    ADD_PROTO_FUNCTION(proto, dashOffset);
-    ADD_PROTO_FUNCTION(proto, dashPattern);
-    ADD_PROTO_FUNCTION(proto, isCosmetic);
-    ADD_PROTO_FUNCTION(proto, isSolid);
-    ADD_PROTO_FUNCTION(proto, joinStyle);
-    ADD_PROTO_FUNCTION(proto, miterLimit);
-    ADD_PROTO_FUNCTION(proto, setBrush);
-    ADD_PROTO_FUNCTION(proto, setCapStyle);
-    ADD_PROTO_FUNCTION(proto, setColor);
-    ADD_PROTO_FUNCTION(proto, setCosmetic);
-    ADD_PROTO_FUNCTION(proto, setDashOffset);
-    ADD_PROTO_FUNCTION(proto, setDashPattern);
-    ADD_PROTO_FUNCTION(proto, setJoinStyle);
-    ADD_PROTO_FUNCTION(proto, setMiterLimit);
-    ADD_PROTO_FUNCTION(proto, setStyle);
-    ADD_PROTO_FUNCTION(proto, setWidth);
-    ADD_PROTO_FUNCTION(proto, style);
-    ADD_PROTO_FUNCTION(proto, toString);
-    ADD_PROTO_FUNCTION(proto, width);
+    ADD_METHOD(proto, brush);
+    ADD_METHOD(proto, capStyle);
+    ADD_METHOD(proto, color);
+    ADD_METHOD(proto, dashOffset);
+    ADD_METHOD(proto, dashPattern);
+    ADD_METHOD(proto, isCosmetic);
+    ADD_METHOD(proto, isSolid);
+    ADD_METHOD(proto, joinStyle);
+    ADD_METHOD(proto, miterLimit);
+    ADD_METHOD(proto, setBrush);
+    ADD_METHOD(proto, setCapStyle);
+    ADD_METHOD(proto, setColor);
+    ADD_METHOD(proto, setCosmetic);
+    ADD_METHOD(proto, setDashOffset);
+    ADD_METHOD(proto, setDashPattern);
+    ADD_METHOD(proto, setJoinStyle);
+    ADD_METHOD(proto, setMiterLimit);
+    ADD_METHOD(proto, setStyle);
+    ADD_METHOD(proto, setWidth);
+    ADD_METHOD(proto, style);
+    ADD_METHOD(proto, toString);
+    ADD_METHOD(proto, width);
 
     qScriptRegisterMetaType<QPen>(eng, penToScriptValue, penFromScriptValue, proto);
     eng->setDefaultPrototype(qMetaTypeId<QPen*>(), proto);

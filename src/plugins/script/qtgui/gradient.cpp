@@ -19,7 +19,7 @@ static QScriptValue ctor(QScriptContext *, QScriptEngine *eng)
 
 static QScriptValue setColorAt(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Gradient, setColorAt);
+    DECLARE_SELF(QGradient, setColorAt);
     self->setColorAt(qscriptvalue_cast<qreal>(ctx->argument(0)),
                      qscriptvalue_cast<QColor>(ctx->argument(1)));
     return eng->undefinedValue();
@@ -29,7 +29,7 @@ static QScriptValue setColorAt(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setSpread(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Gradient, setSpread);
+    DECLARE_SELF(QGradient, setSpread);
     self->setSpread(static_cast<QGradient::Spread>(ctx->argument(0).toInt32()));
     return eng->undefinedValue();
 }
@@ -38,7 +38,7 @@ static QScriptValue setSpread(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setStops(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Gradient, setStops);
+    DECLARE_SELF(QGradient, setStops);
     self->setStops(qscriptvalue_cast<QGradientStops>(ctx->argument(0)));
     return eng->undefinedValue();
 }
@@ -47,7 +47,7 @@ static QScriptValue setStops(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue spread(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Gradient, spread);
+    DECLARE_SELF(QGradient, spread);
     return QScriptValue(eng, static_cast<int>(self->spread()));
 }
 
@@ -55,7 +55,7 @@ static QScriptValue spread(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue stops(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Gradient, stops);
+    DECLARE_SELF(QGradient, stops);
     return eng->toScriptValue(self->stops());
 }
 
@@ -63,7 +63,7 @@ static QScriptValue stops(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue type(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Gradient, type);
+    DECLARE_SELF(QGradient, type);
     return QScriptValue(eng, static_cast<int>(self->type()));
 }
 
@@ -71,7 +71,7 @@ static QScriptValue type(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Gradient, toString);
+    DECLARE_SELF(QGradient, toString);
     return QScriptValue(eng, "QGradient");
 }
 
@@ -80,13 +80,13 @@ static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 QScriptValue constructGradientClass(QScriptEngine *eng)
 {
     QScriptValue proto = eng->newVariant(qVariantFromValue(QGradient()));
-    ADD_PROTO_FUNCTION(proto, setColorAt);
-    ADD_PROTO_FUNCTION(proto, setSpread);
-    ADD_PROTO_FUNCTION(proto, setStops);
-    ADD_PROTO_FUNCTION(proto, spread);
-    ADD_PROTO_FUNCTION(proto, stops);
-    ADD_PROTO_FUNCTION(proto, toString);
-    ADD_PROTO_FUNCTION(proto, type);
+    ADD_METHOD(proto, setColorAt);
+    ADD_METHOD(proto, setSpread);
+    ADD_METHOD(proto, setStops);
+    ADD_METHOD(proto, spread);
+    ADD_METHOD(proto, stops);
+    ADD_METHOD(proto, toString);
+    ADD_METHOD(proto, type);
 
     eng->setDefaultPrototype(qMetaTypeId<QGradient>(), proto);
     eng->setDefaultPrototype(qMetaTypeId<QGradient*>(), proto);

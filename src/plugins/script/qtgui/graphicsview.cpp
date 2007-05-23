@@ -24,7 +24,7 @@ static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setScene(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsView, setScene);
+    DECLARE_SELF(QGraphicsView, setScene);
     self->setScene(qscriptvalue_cast<QGraphicsScene*>(ctx->argument(0)));
     return eng->undefinedValue();
 }
@@ -33,7 +33,7 @@ static QScriptValue setScene(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsView, toString);
+    DECLARE_SELF(QGraphicsView, toString);
     return QScriptValue(eng, "QGraphicsView");
 }
 
@@ -42,8 +42,8 @@ static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 QScriptValue constructGraphicsViewClass(QScriptEngine *eng)
 {
     QScriptValue proto = eng->newQObject(new QGraphicsView(), QScriptEngine::AutoOwnership);
-    ADD_PROTO_FUNCTION(proto, setScene);
-    ADD_PROTO_FUNCTION(proto, toString);
+    ADD_METHOD(proto, setScene);
+    ADD_METHOD(proto, toString);
 
     eng->setDefaultPrototype(qMetaTypeId<QGraphicsView*>(), proto);
 

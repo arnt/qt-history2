@@ -32,7 +32,7 @@ static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue addEllipse(QScriptContext *ctx, QScriptEngine *)
 {
-    DECLARE_SELF(PainterPath, addEllipse);
+    DECLARE_SELF(QPainterPath, addEllipse);
     if (ctx->argumentCount() == 1) {
         self->addEllipse(qscriptvalue_cast<QRectF>(ctx->argument(0)));
     } else if (ctx->argumentCount() == 4) {
@@ -48,7 +48,7 @@ static QScriptValue addEllipse(QScriptContext *ctx, QScriptEngine *)
 
 static QScriptValue addPath(QScriptContext *ctx, QScriptEngine *)
 {
-    DECLARE_SELF(PainterPath, addPath);
+    DECLARE_SELF(QPainterPath, addPath);
     QPainterPath *other = qscriptvalue_cast<QPainterPath*>(ctx->argument(0));
     if (!other) {
         return ctx->throwError(QScriptContext::TypeError,
@@ -62,7 +62,7 @@ static QScriptValue addPath(QScriptContext *ctx, QScriptEngine *)
 
 static QScriptValue addPolygon(QScriptContext *ctx, QScriptEngine *)
 {
-    DECLARE_SELF(PainterPath, addPolygon);
+    DECLARE_SELF(QPainterPath, addPolygon);
     self->addPolygon(qscriptvalue_cast<QPolygonF>(ctx->argument(0)));
     return ctx->thisObject();
 }
@@ -71,7 +71,7 @@ static QScriptValue addPolygon(QScriptContext *ctx, QScriptEngine *)
 
 static QScriptValue addRect(QScriptContext *ctx, QScriptEngine *)
 {
-    DECLARE_SELF(PainterPath, addRect);
+    DECLARE_SELF(QPainterPath, addRect);
     if (ctx->argumentCount() == 1) {
         self->addRect(qscriptvalue_cast<QRectF>(ctx->argument(0)));
     } else if (ctx->argumentCount() == 4) {
@@ -87,7 +87,7 @@ static QScriptValue addRect(QScriptContext *ctx, QScriptEngine *)
 
 static QScriptValue addRegion(QScriptContext *ctx, QScriptEngine *)
 {
-    DECLARE_SELF(PainterPath, addRegion);
+    DECLARE_SELF(QPainterPath, addRegion);
     self->addRegion(qscriptvalue_cast<QRegion>(ctx->argument(0)));
     return ctx->thisObject();
 }
@@ -96,7 +96,7 @@ static QScriptValue addRegion(QScriptContext *ctx, QScriptEngine *)
 
 static QScriptValue addRoundRect(QScriptContext *ctx, QScriptEngine *)
 {
-    DECLARE_SELF(PainterPath, addRoundRect);
+    DECLARE_SELF(QPainterPath, addRoundRect);
     if (ctx->argumentCount() == 3) {
         self->addRoundRect(qscriptvalue_cast<QRectF>(ctx->argument(0)),
                            ctx->argument(1).toInt32(),
@@ -116,7 +116,7 @@ static QScriptValue addRoundRect(QScriptContext *ctx, QScriptEngine *)
 
 static QScriptValue addText(QScriptContext *ctx, QScriptEngine *)
 {
-    DECLARE_SELF(PainterPath, addText);
+    DECLARE_SELF(QPainterPath, addText);
     if (ctx->argumentCount() == 3) {
         self->addText(qscriptvalue_cast<QPointF>(ctx->argument(0)),
                       qscriptvalue_cast<QFont>(ctx->argument(1)),
@@ -134,7 +134,7 @@ static QScriptValue addText(QScriptContext *ctx, QScriptEngine *)
 
 static QScriptValue angleAtPercent(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(PainterPath, angleAtPercent);
+    DECLARE_SELF(QPainterPath, angleAtPercent);
     qreal t = ctx->argument(0).toNumber();
     return QScriptValue(eng, self->angleAtPercent(t));
 }
@@ -143,7 +143,7 @@ static QScriptValue angleAtPercent(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue arcMoveTo(QScriptContext *ctx, QScriptEngine *)
 {
-    DECLARE_SELF(PainterPath, arcMoveTo);
+    DECLARE_SELF(QPainterPath, arcMoveTo);
     if (ctx->argumentCount() == 2) {
         self->arcMoveTo(qscriptvalue_cast<QRectF>(ctx->argument(0)),
                         ctx->argument(1).toNumber());
@@ -161,7 +161,7 @@ static QScriptValue arcMoveTo(QScriptContext *ctx, QScriptEngine *)
 
 static QScriptValue arcTo(QScriptContext *ctx, QScriptEngine *)
 {
-    DECLARE_SELF(PainterPath, arcTo);
+    DECLARE_SELF(QPainterPath, arcTo);
     if (ctx->argumentCount() == 3) {
         self->arcTo(qscriptvalue_cast<QRectF>(ctx->argument(0)),
                     ctx->argument(1).toNumber(),
@@ -181,7 +181,7 @@ static QScriptValue arcTo(QScriptContext *ctx, QScriptEngine *)
 
 static QScriptValue boundingRect(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(PainterPath, boundingRect);
+    DECLARE_SELF(QPainterPath, boundingRect);
     return eng->toScriptValue(self->boundingRect());
 }
 
@@ -189,7 +189,7 @@ static QScriptValue boundingRect(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue closeSubpath(QScriptContext *ctx, QScriptEngine *)
 {
-    DECLARE_SELF(PainterPath, closeSubpath);
+    DECLARE_SELF(QPainterPath, closeSubpath);
     self->closeSubpath();
     return ctx->thisObject();
 }
@@ -198,7 +198,7 @@ static QScriptValue closeSubpath(QScriptContext *ctx, QScriptEngine *)
 
 static QScriptValue connectPath(QScriptContext *ctx, QScriptEngine *)
 {
-    DECLARE_SELF(PainterPath, connectPath);
+    DECLARE_SELF(QPainterPath, connectPath);
     QPainterPath *other = qscriptvalue_cast<QPainterPath*>(ctx->argument(0));
     if (!other) {
         return ctx->throwError(QScriptContext::TypeError,
@@ -212,7 +212,7 @@ static QScriptValue connectPath(QScriptContext *ctx, QScriptEngine *)
 
 static QScriptValue contains(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(PainterPath, contains);
+    DECLARE_SELF(QPainterPath, contains);
     bool result = false;
     QScriptValue arg = ctx->argument(0);
     QPainterPath *other = qscriptvalue_cast<QPainterPath*>(arg);
@@ -233,7 +233,7 @@ static QScriptValue contains(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue controlPointRect(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(PainterPath, controlPointRect);
+    DECLARE_SELF(QPainterPath, controlPointRect);
     return eng->toScriptValue(self->controlPointRect());
 }
 
@@ -241,7 +241,7 @@ static QScriptValue controlPointRect(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue cubicTo(QScriptContext *ctx, QScriptEngine *)
 {
-    DECLARE_SELF(PainterPath, cubicTo);
+    DECLARE_SELF(QPainterPath, cubicTo);
     if (ctx->argumentCount() == 3) {
         self->cubicTo(qscriptvalue_cast<QPointF>(ctx->argument(0)),
                       qscriptvalue_cast<QPointF>(ctx->argument(1)),
@@ -261,7 +261,7 @@ static QScriptValue cubicTo(QScriptContext *ctx, QScriptEngine *)
 
 static QScriptValue currentPosition(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(PainterPath, currentPosition);
+    DECLARE_SELF(QPainterPath, currentPosition);
     return eng->toScriptValue(self->currentPosition());
 }
 
@@ -274,7 +274,7 @@ static QScriptValue currentPosition(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue fillRule(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(PainterPath, fillRule);
+    DECLARE_SELF(QPainterPath, fillRule);
     return eng->toScriptValue(static_cast<int>(self->fillRule()));
 }
 
@@ -282,7 +282,7 @@ static QScriptValue fillRule(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue intersected(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(PainterPath, intersected);
+    DECLARE_SELF(QPainterPath, intersected);
     QPainterPath *other = qscriptvalue_cast<QPainterPath*>(ctx->argument(0));
     if (!other) {
         return ctx->throwError(QScriptContext::TypeError,
@@ -295,7 +295,7 @@ static QScriptValue intersected(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue intersects(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(PainterPath, intersects);
+    DECLARE_SELF(QPainterPath, intersects);
     QScriptValue arg = ctx->argument(0);
     QPainterPath *other = qscriptvalue_cast<QPainterPath*>(arg);
     bool result = false;
@@ -311,7 +311,7 @@ static QScriptValue intersects(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue isEmpty(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(PainterPath, isEmpty);
+    DECLARE_SELF(QPainterPath, isEmpty);
     return QScriptValue(eng, self->isEmpty());
 }
 
@@ -319,7 +319,7 @@ static QScriptValue isEmpty(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue length(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(PainterPath, length);
+    DECLARE_SELF(QPainterPath, length);
     return QScriptValue(eng, self->length());
 }
 
@@ -327,7 +327,7 @@ static QScriptValue length(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue lineTo(QScriptContext *ctx, QScriptEngine *)
 {
-    DECLARE_SELF(PainterPath, lineTo);
+    DECLARE_SELF(QPainterPath, lineTo);
     if (ctx->argumentCount() == 1) {
         self->lineTo(qscriptvalue_cast<QPointF>(ctx->argument(0)));
     } else if (ctx->argumentCount() == 2) {
@@ -341,7 +341,7 @@ static QScriptValue lineTo(QScriptContext *ctx, QScriptEngine *)
 
 static QScriptValue moveTo(QScriptContext *ctx, QScriptEngine *)
 {
-    DECLARE_SELF(PainterPath, moveTo);
+    DECLARE_SELF(QPainterPath, moveTo);
     if (ctx->argumentCount() == 1) {
         self->moveTo(qscriptvalue_cast<QPointF>(ctx->argument(0)));
     } else if (ctx->argumentCount() == 2) {
@@ -355,7 +355,7 @@ static QScriptValue moveTo(QScriptContext *ctx, QScriptEngine *)
 
 static QScriptValue percentAtLength(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(PainterPath, percentAtLength);
+    DECLARE_SELF(QPainterPath, percentAtLength);
     qreal len = ctx->argument(0).toNumber();
     return QScriptValue(eng, self->percentAtLength(len));
 }
@@ -364,7 +364,7 @@ static QScriptValue percentAtLength(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue pointAtPercent(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(PainterPath, pointAtPercent);
+    DECLARE_SELF(QPainterPath, pointAtPercent);
     qreal t = ctx->argument(0).toNumber();
     return eng->toScriptValue(self->pointAtPercent(t));
 }
@@ -373,7 +373,7 @@ static QScriptValue pointAtPercent(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue quadTo(QScriptContext *ctx, QScriptEngine *)
 {
-    DECLARE_SELF(PainterPath, quadTo);
+    DECLARE_SELF(QPainterPath, quadTo);
     if (ctx->argumentCount() == 2) {
         self->quadTo(qscriptvalue_cast<QPointF>(ctx->argument(0)),
                      qscriptvalue_cast<QPointF>(ctx->argument(1)));
@@ -392,7 +392,7 @@ static QScriptValue quadTo(QScriptContext *ctx, QScriptEngine *)
 
 static QScriptValue setFillRule(QScriptContext *ctx, QScriptEngine *)
 {
-    DECLARE_SELF(PainterPath, setFillRule);
+    DECLARE_SELF(QPainterPath, setFillRule);
     self->setFillRule(static_cast<Qt::FillRule>(ctx->argument(0).toInt32()));
     return ctx->thisObject();
 }
@@ -401,7 +401,7 @@ static QScriptValue setFillRule(QScriptContext *ctx, QScriptEngine *)
 
 static QScriptValue slopeAtPercent(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(PainterPath, slopeAtPercent);
+    DECLARE_SELF(QPainterPath, slopeAtPercent);
     qreal t = ctx->argument(0).toNumber();
     return QScriptValue(eng, self->slopeAtPercent(t));
 }
@@ -410,7 +410,7 @@ static QScriptValue slopeAtPercent(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue subtracted(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(PainterPath, subtracted);
+    DECLARE_SELF(QPainterPath, subtracted);
     QPainterPath *other = qscriptvalue_cast<QPainterPath*>(ctx->argument(0));
     if (!other) {
         return ctx->throwError(QScriptContext::TypeError,
@@ -423,7 +423,7 @@ static QScriptValue subtracted(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue subtractedInverted(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(PainterPath, subtractedInverted);
+    DECLARE_SELF(QPainterPath, subtractedInverted);
     QPainterPath *other = qscriptvalue_cast<QPainterPath*>(ctx->argument(0));
     if (!other) {
         return ctx->throwError(QScriptContext::TypeError,
@@ -436,7 +436,7 @@ static QScriptValue subtractedInverted(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue toFillPolygon(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(PainterPath, toFillPolygon);
+    DECLARE_SELF(QPainterPath, toFillPolygon);
     // ### QTransform overload
     QMatrix matrix = qscriptvalue_cast<QMatrix>(ctx->argument(0));
     return eng->toScriptValue(self->toFillPolygon(matrix));
@@ -446,7 +446,7 @@ static QScriptValue toFillPolygon(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue toFillPolygons(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(PainterPath, toFillPolygons);
+    DECLARE_SELF(QPainterPath, toFillPolygons);
     // ### QTransform overload
     QMatrix matrix = qscriptvalue_cast<QMatrix>(ctx->argument(0));
     return eng->toScriptValue(self->toFillPolygons(matrix));
@@ -456,7 +456,7 @@ static QScriptValue toFillPolygons(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue toReversed(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(PainterPath, toReversed);
+    DECLARE_SELF(QPainterPath, toReversed);
     return newPainterPath(eng, self->toReversed());
 }
 
@@ -464,7 +464,7 @@ static QScriptValue toReversed(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue toSubpathPolygons(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(PainterPath, toSubpathPolygons);
+    DECLARE_SELF(QPainterPath, toSubpathPolygons);
     // ### QTransform overload
     QMatrix matrix = qscriptvalue_cast<QMatrix>(ctx->argument(0));
     return eng->toScriptValue(self->toSubpathPolygons(matrix));
@@ -474,7 +474,7 @@ static QScriptValue toSubpathPolygons(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue united(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(PainterPath, united);
+    DECLARE_SELF(QPainterPath, united);
     QPainterPath *other = qscriptvalue_cast<QPainterPath*>(ctx->argument(0));
     if (!other) {
         return ctx->throwError(QScriptContext::TypeError,
@@ -495,43 +495,43 @@ static QScriptValue toString(QScriptContext *, QScriptEngine *eng)
 QScriptValue constructPainterPathClass(QScriptEngine *eng)
 {
     QScriptValue proto = qScriptValueFromValue(eng, QPainterPath());
-    ADD_PROTO_FUNCTION(proto, addEllipse);
-    ADD_PROTO_FUNCTION(proto, addPath);
-    ADD_PROTO_FUNCTION(proto, addPolygon);
-    ADD_PROTO_FUNCTION(proto, addRect);
-    ADD_PROTO_FUNCTION(proto, addRegion);
-    ADD_PROTO_FUNCTION(proto, addRoundRect);
-    ADD_PROTO_FUNCTION(proto, addText);
-    ADD_PROTO_FUNCTION(proto, angleAtPercent);
-    ADD_PROTO_FUNCTION(proto, arcMoveTo);
-    ADD_PROTO_FUNCTION(proto, arcTo);
-    ADD_PROTO_FUNCTION(proto, boundingRect);
-    ADD_PROTO_FUNCTION(proto, closeSubpath);
-    ADD_PROTO_FUNCTION(proto, connectPath);
-    ADD_PROTO_FUNCTION(proto, contains);
-    ADD_PROTO_FUNCTION(proto, controlPointRect);
-    ADD_PROTO_FUNCTION(proto, cubicTo);
-    ADD_PROTO_FUNCTION(proto, currentPosition);
-    ADD_PROTO_FUNCTION(proto, fillRule);
-    ADD_PROTO_FUNCTION(proto, intersected);
-    ADD_PROTO_FUNCTION(proto, intersects);
-    ADD_PROTO_FUNCTION(proto, isEmpty);
-    ADD_PROTO_FUNCTION(proto, length);
-    ADD_PROTO_FUNCTION(proto, lineTo);
-    ADD_PROTO_FUNCTION(proto, moveTo);
-    ADD_PROTO_FUNCTION(proto, percentAtLength);
-    ADD_PROTO_FUNCTION(proto, pointAtPercent);
-    ADD_PROTO_FUNCTION(proto, quadTo);
-    ADD_PROTO_FUNCTION(proto, setFillRule);
-    ADD_PROTO_FUNCTION(proto, slopeAtPercent);
-    ADD_PROTO_FUNCTION(proto, subtracted);
-    ADD_PROTO_FUNCTION(proto, subtractedInverted);
-    ADD_PROTO_FUNCTION(proto, toFillPolygon);
-    ADD_PROTO_FUNCTION(proto, toFillPolygons);
-    ADD_PROTO_FUNCTION(proto, toReversed);
-    ADD_PROTO_FUNCTION(proto, toSubpathPolygons);
-    ADD_PROTO_FUNCTION(proto, united);
-    ADD_PROTO_FUNCTION(proto, toString);
+    ADD_METHOD(proto, addEllipse);
+    ADD_METHOD(proto, addPath);
+    ADD_METHOD(proto, addPolygon);
+    ADD_METHOD(proto, addRect);
+    ADD_METHOD(proto, addRegion);
+    ADD_METHOD(proto, addRoundRect);
+    ADD_METHOD(proto, addText);
+    ADD_METHOD(proto, angleAtPercent);
+    ADD_METHOD(proto, arcMoveTo);
+    ADD_METHOD(proto, arcTo);
+    ADD_METHOD(proto, boundingRect);
+    ADD_METHOD(proto, closeSubpath);
+    ADD_METHOD(proto, connectPath);
+    ADD_METHOD(proto, contains);
+    ADD_METHOD(proto, controlPointRect);
+    ADD_METHOD(proto, cubicTo);
+    ADD_METHOD(proto, currentPosition);
+    ADD_METHOD(proto, fillRule);
+    ADD_METHOD(proto, intersected);
+    ADD_METHOD(proto, intersects);
+    ADD_METHOD(proto, isEmpty);
+    ADD_METHOD(proto, length);
+    ADD_METHOD(proto, lineTo);
+    ADD_METHOD(proto, moveTo);
+    ADD_METHOD(proto, percentAtLength);
+    ADD_METHOD(proto, pointAtPercent);
+    ADD_METHOD(proto, quadTo);
+    ADD_METHOD(proto, setFillRule);
+    ADD_METHOD(proto, slopeAtPercent);
+    ADD_METHOD(proto, subtracted);
+    ADD_METHOD(proto, subtractedInverted);
+    ADD_METHOD(proto, toFillPolygon);
+    ADD_METHOD(proto, toFillPolygons);
+    ADD_METHOD(proto, toReversed);
+    ADD_METHOD(proto, toSubpathPolygons);
+    ADD_METHOD(proto, united);
+    ADD_METHOD(proto, toString);
 
     eng->setDefaultPrototype(qMetaTypeId<QPainterPath>(), proto);
 

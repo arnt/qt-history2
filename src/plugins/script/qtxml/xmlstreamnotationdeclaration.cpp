@@ -25,7 +25,7 @@ static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue equals(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(XmlStreamNotationDeclaration, equals);
+    DECLARE_SELF(QXmlStreamNotationDeclaration, equals);
     if (QXmlStreamNotationDeclaration *other = qscriptvalue_cast<QXmlStreamNotationDeclaration*>(ctx->argument(0)))
         return QScriptValue(eng, *self == *other);
     return QScriptValue(eng, false);
@@ -33,36 +33,36 @@ static QScriptValue equals(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue name(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(XmlStreamNotationDeclaration, name);
+    DECLARE_SELF(QXmlStreamNotationDeclaration, name);
     return eng->toScriptValue(self->name());
 }
 
 static QScriptValue publicId(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(XmlStreamNotationDeclaration, publicId);
+    DECLARE_SELF(QXmlStreamNotationDeclaration, publicId);
     return eng->toScriptValue(self->publicId());
 }
 
 static QScriptValue systemId(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(XmlStreamNotationDeclaration, systemId);
+    DECLARE_SELF(QXmlStreamNotationDeclaration, systemId);
     return eng->toScriptValue(self->systemId());
 }
 
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(XmlStreamNotationDeclaration, toString);
+    DECLARE_SELF(QXmlStreamNotationDeclaration, toString);
     return QScriptValue(eng, QLatin1String("QXmlStreamNotationDeclaration"));
 }
 
 QScriptValue constructXmlStreamNotationDeclarationClass(QScriptEngine *eng)
 {
     QScriptValue proto = newXmlStreamNotationDeclaration(eng, QXmlStreamNotationDeclaration());
-    ADD_PROTO_FUNCTION(proto, equals);
-    ADD_PROTO_FUNCTION(proto, name);
-    ADD_PROTO_FUNCTION(proto, publicId);
-    ADD_PROTO_FUNCTION(proto, systemId);
-    ADD_PROTO_FUNCTION(proto, toString);
+    ADD_METHOD(proto, equals);
+    ADD_METHOD(proto, name);
+    ADD_METHOD(proto, publicId);
+    ADD_METHOD(proto, systemId);
+    ADD_METHOD(proto, toString);
 
     eng->setDefaultPrototype(qMetaTypeId<QXmlStreamNotationDeclaration>(), proto);
     eng->setDefaultPrototype(qMetaTypeId<QXmlStreamNotationDeclaration*>(), proto);

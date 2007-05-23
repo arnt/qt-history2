@@ -39,7 +39,7 @@ static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue addData(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(XmlStreamReader, addData);
+    DECLARE_SELF(QXmlStreamReader, addData);
     QScriptValue arg = ctx->argument(0);
     if (QByteArray *ba = qscriptvalue_cast<QByteArray*>(arg))
         self->addData(*ba);
@@ -50,291 +50,291 @@ static QScriptValue addData(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue atEnd(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(XmlStreamReader, atEnd);
+    DECLARE_SELF(QXmlStreamReader, atEnd);
     return QScriptValue(eng, self->atEnd());
 }
 
 static QScriptValue attributes(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(XmlStreamReader, attributes);
+    DECLARE_SELF(QXmlStreamReader, attributes);
     return eng->toScriptValue(static_cast<QVector<QXmlStreamAttribute> >(self->attributes()));
 }
 
 static QScriptValue characterOffset(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(XmlStreamReader, characterOffset);
+    DECLARE_SELF(QXmlStreamReader, characterOffset);
     return QScriptValue(eng, qsreal(self->characterOffset()));
 }
 
 static QScriptValue clear(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(XmlStreamReader, clear);
+    DECLARE_SELF(QXmlStreamReader, clear);
     self->clear();
     return eng->undefinedValue();
 }
 
 static QScriptValue columnNumber(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(XmlStreamReader, columnNumber);
+    DECLARE_SELF(QXmlStreamReader, columnNumber);
     return QScriptValue(eng, qsreal(self->columnNumber()));
 }
 
 static QScriptValue device(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(XmlStreamReader, device);
+    DECLARE_SELF(QXmlStreamReader, device);
     return eng->toScriptValue(self->device());
 }
 
 static QScriptValue entityDeclarations(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(XmlStreamReader, entityDeclarations);
+    DECLARE_SELF(QXmlStreamReader, entityDeclarations);
     return eng->toScriptValue(self->entityDeclarations());
 }
 
 static QScriptValue error(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(XmlStreamReader, error);
+    DECLARE_SELF(QXmlStreamReader, error);
     return QScriptValue(eng, self->error());
 }
 
 static QScriptValue errorString(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(XmlStreamReader, errorString);
+    DECLARE_SELF(QXmlStreamReader, errorString);
     return QScriptValue(eng, self->errorString());
 }
 
 static QScriptValue hasError(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(XmlStreamReader, hasError);
+    DECLARE_SELF(QXmlStreamReader, hasError);
     return QScriptValue(eng, self->hasError());
 }
 
 static QScriptValue isCDATA(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(XmlStreamReader, isCDATA);
+    DECLARE_SELF(QXmlStreamReader, isCDATA);
     return QScriptValue(eng, self->isCDATA());
 }
 
 static QScriptValue isCharacters(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(XmlStreamReader, isCharacters);
+    DECLARE_SELF(QXmlStreamReader, isCharacters);
     return QScriptValue(eng, self->isCharacters());
 }
 
 static QScriptValue isComment(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(XmlStreamReader, isComment);
+    DECLARE_SELF(QXmlStreamReader, isComment);
     return QScriptValue(eng, self->isComment());
 }
 
 static QScriptValue isDTD(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(XmlStreamReader, isDTD);
+    DECLARE_SELF(QXmlStreamReader, isDTD);
     return QScriptValue(eng, self->isDTD());
 }
 
 static QScriptValue isEndDocument(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(XmlStreamReader, isEndDocument);
+    DECLARE_SELF(QXmlStreamReader, isEndDocument);
     return QScriptValue(eng, self->isEndDocument());
 }
 
 static QScriptValue isEndElement(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(XmlStreamReader, isEndElement);
+    DECLARE_SELF(QXmlStreamReader, isEndElement);
     return QScriptValue(eng, self->isEndElement());
 }
 
 static QScriptValue isEntityReference(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(XmlStreamReader, isEntityReference);
+    DECLARE_SELF(QXmlStreamReader, isEntityReference);
     return QScriptValue(eng, self->isEntityReference());
 }
 
 static QScriptValue isProcessingInstruction(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(XmlStreamReader, isProcessingInstruction);
+    DECLARE_SELF(QXmlStreamReader, isProcessingInstruction);
     return QScriptValue(eng, self->isProcessingInstruction());
 }
 
 static QScriptValue isStandaloneDocument(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(XmlStreamReader, isStandaloneDocument);
+    DECLARE_SELF(QXmlStreamReader, isStandaloneDocument);
     return QScriptValue(eng, self->isStandaloneDocument());
 }
 
 static QScriptValue isStartDocument(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(XmlStreamReader, isStartDocument);
+    DECLARE_SELF(QXmlStreamReader, isStartDocument);
     return QScriptValue(eng, self->isStartDocument());
 }
 
 static QScriptValue isStartElement(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(XmlStreamReader, isStartElement);
+    DECLARE_SELF(QXmlStreamReader, isStartElement);
     return QScriptValue(eng, self->isStartElement());
 }
 
 static QScriptValue isWhitespace(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(XmlStreamReader, isWhitespace);
+    DECLARE_SELF(QXmlStreamReader, isWhitespace);
     return QScriptValue(eng, self->isWhitespace());
 }
 
 static QScriptValue lineNumber(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(XmlStreamReader, lineNumber);
+    DECLARE_SELF(QXmlStreamReader, lineNumber);
     return QScriptValue(eng, qsreal(self->lineNumber()));
 }
 
 static QScriptValue name(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(XmlStreamReader, name);
+    DECLARE_SELF(QXmlStreamReader, name);
     return eng->toScriptValue(self->name());
 }
 
 static QScriptValue namespaceDeclarations(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(XmlStreamReader, namespaceDeclarations);
+    DECLARE_SELF(QXmlStreamReader, namespaceDeclarations);
     return eng->toScriptValue(self->namespaceDeclarations());
 }
 
 static QScriptValue namespaceProcessing(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(XmlStreamReader, namespaceProcessing);
+    DECLARE_SELF(QXmlStreamReader, namespaceProcessing);
     return eng->toScriptValue(self->namespaceProcessing());
 }
 
 static QScriptValue namespaceUri(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(XmlStreamReader, namespaceUri);
+    DECLARE_SELF(QXmlStreamReader, namespaceUri);
     return eng->toScriptValue(self->namespaceUri());
 }
 
 static QScriptValue notationDeclarations(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(XmlStreamReader, notationDeclarations);
+    DECLARE_SELF(QXmlStreamReader, notationDeclarations);
     return eng->toScriptValue(self->notationDeclarations());
 }
 
 static QScriptValue processingInstructionData(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(XmlStreamReader, processingInstructionData);
+    DECLARE_SELF(QXmlStreamReader, processingInstructionData);
     return eng->toScriptValue(self->processingInstructionData());
 }
 
 static QScriptValue processingInstructionTarget(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(XmlStreamReader, processingInstructionTarget);
+    DECLARE_SELF(QXmlStreamReader, processingInstructionTarget);
     return eng->toScriptValue(self->processingInstructionTarget());
 }
 
 static QScriptValue qualifiedName(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(XmlStreamReader, qualifiedName);
+    DECLARE_SELF(QXmlStreamReader, qualifiedName);
     return eng->toScriptValue(self->qualifiedName());
 }
 
 static QScriptValue raiseError(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(XmlStreamReader, raiseError);
+    DECLARE_SELF(QXmlStreamReader, raiseError);
     self->raiseError(ctx->argument(0).toString());
     return eng->undefinedValue();
 }
 
 static QScriptValue readElementText(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(XmlStreamReader, readElementText);
+    DECLARE_SELF(QXmlStreamReader, readElementText);
     return QScriptValue(eng, self->readElementText());
 }
 
 static QScriptValue readNext(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(XmlStreamReader, readNext);
+    DECLARE_SELF(QXmlStreamReader, readNext);
     return QScriptValue(eng, self->readNext());
 }
 
 static QScriptValue setDevice(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(XmlStreamReader, setDevice);
+    DECLARE_SELF(QXmlStreamReader, setDevice);
     self->setDevice(qscriptvalue_cast<QIODevice*>(ctx->argument(0)));
     return eng->undefinedValue();
 }
 
 static QScriptValue setNamespaceProcessing(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(XmlStreamReader, setNamespaceProcessing);
+    DECLARE_SELF(QXmlStreamReader, setNamespaceProcessing);
     self->setNamespaceProcessing(ctx->argument(0).toBoolean());
     return eng->undefinedValue();
 }
 
 static QScriptValue text(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(XmlStreamReader, text);
+    DECLARE_SELF(QXmlStreamReader, text);
     return eng->toScriptValue(self->text());
 }
 
 static QScriptValue tokenString(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(XmlStreamReader, tokenString);
+    DECLARE_SELF(QXmlStreamReader, tokenString);
     return QScriptValue(eng, self->tokenString());
 }
 
 static QScriptValue tokenType(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(XmlStreamReader, tokenType);
+    DECLARE_SELF(QXmlStreamReader, tokenType);
     return QScriptValue(eng, self->tokenType());
 }
 
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(XmlStreamReader, toString);
+    DECLARE_SELF(QXmlStreamReader, toString);
     return QScriptValue(eng, QLatin1String("QXmlStreamReader"));
 }
 
 QScriptValue constructXmlStreamReaderClass(QScriptEngine *eng)
 {
     QScriptValue proto = newXmlStreamReader(eng, new QXmlStreamReader());
-    ADD_PROTO_FUNCTION(proto, addData);
-    ADD_PROTO_FUNCTION(proto, atEnd);
-    ADD_PROTO_FUNCTION(proto, attributes);
-    ADD_PROTO_FUNCTION(proto, characterOffset);
-    ADD_PROTO_FUNCTION(proto, clear);
-    ADD_PROTO_FUNCTION(proto, columnNumber);
-    ADD_PROTO_FUNCTION(proto, device);
-    ADD_PROTO_FUNCTION(proto, entityDeclarations);
-    ADD_PROTO_FUNCTION(proto, error);
-    ADD_PROTO_FUNCTION(proto, errorString);
-    ADD_PROTO_FUNCTION(proto, hasError);
-    ADD_PROTO_FUNCTION(proto, isCDATA);
-    ADD_PROTO_FUNCTION(proto, isCharacters);
-    ADD_PROTO_FUNCTION(proto, isComment);
-    ADD_PROTO_FUNCTION(proto, isDTD);
-    ADD_PROTO_FUNCTION(proto, isEndDocument);
-    ADD_PROTO_FUNCTION(proto, isEndElement);
-    ADD_PROTO_FUNCTION(proto, isEntityReference);
-    ADD_PROTO_FUNCTION(proto, isProcessingInstruction);
-    ADD_PROTO_FUNCTION(proto, isStandaloneDocument);
-    ADD_PROTO_FUNCTION(proto, isStartElement);
-    ADD_PROTO_FUNCTION(proto, isWhitespace);
-    ADD_PROTO_FUNCTION(proto, lineNumber);
-    ADD_PROTO_FUNCTION(proto, name);
-    ADD_PROTO_FUNCTION(proto, namespaceDeclarations);
-    ADD_PROTO_FUNCTION(proto, namespaceProcessing);
-    ADD_PROTO_FUNCTION(proto, namespaceUri);
-    ADD_PROTO_FUNCTION(proto, notationDeclarations);
-    ADD_PROTO_FUNCTION(proto, processingInstructionData);
-    ADD_PROTO_FUNCTION(proto, processingInstructionTarget);
-    ADD_PROTO_FUNCTION(proto, qualifiedName);
-    ADD_PROTO_FUNCTION(proto, raiseError);
-    ADD_PROTO_FUNCTION(proto, readElementText);
-    ADD_PROTO_FUNCTION(proto, readNext);
-    ADD_PROTO_FUNCTION(proto, setDevice);
-    ADD_PROTO_FUNCTION(proto, setNamespaceProcessing);
-    ADD_PROTO_FUNCTION(proto, text);
-    ADD_PROTO_FUNCTION(proto, tokenString);
-    ADD_PROTO_FUNCTION(proto, tokenType);
-    ADD_PROTO_FUNCTION(proto, toString);
+    ADD_METHOD(proto, addData);
+    ADD_METHOD(proto, atEnd);
+    ADD_METHOD(proto, attributes);
+    ADD_METHOD(proto, characterOffset);
+    ADD_METHOD(proto, clear);
+    ADD_METHOD(proto, columnNumber);
+    ADD_METHOD(proto, device);
+    ADD_METHOD(proto, entityDeclarations);
+    ADD_METHOD(proto, error);
+    ADD_METHOD(proto, errorString);
+    ADD_METHOD(proto, hasError);
+    ADD_METHOD(proto, isCDATA);
+    ADD_METHOD(proto, isCharacters);
+    ADD_METHOD(proto, isComment);
+    ADD_METHOD(proto, isDTD);
+    ADD_METHOD(proto, isEndDocument);
+    ADD_METHOD(proto, isEndElement);
+    ADD_METHOD(proto, isEntityReference);
+    ADD_METHOD(proto, isProcessingInstruction);
+    ADD_METHOD(proto, isStandaloneDocument);
+    ADD_METHOD(proto, isStartElement);
+    ADD_METHOD(proto, isWhitespace);
+    ADD_METHOD(proto, lineNumber);
+    ADD_METHOD(proto, name);
+    ADD_METHOD(proto, namespaceDeclarations);
+    ADD_METHOD(proto, namespaceProcessing);
+    ADD_METHOD(proto, namespaceUri);
+    ADD_METHOD(proto, notationDeclarations);
+    ADD_METHOD(proto, processingInstructionData);
+    ADD_METHOD(proto, processingInstructionTarget);
+    ADD_METHOD(proto, qualifiedName);
+    ADD_METHOD(proto, raiseError);
+    ADD_METHOD(proto, readElementText);
+    ADD_METHOD(proto, readNext);
+    ADD_METHOD(proto, setDevice);
+    ADD_METHOD(proto, setNamespaceProcessing);
+    ADD_METHOD(proto, text);
+    ADD_METHOD(proto, tokenString);
+    ADD_METHOD(proto, tokenType);
+    ADD_METHOD(proto, toString);
 
     QScript::registerPointerMetaType<QXmlStreamReader>(eng, proto);
     qScriptRegisterSequenceMetaType<QVector<QXmlStreamAttribute> >(eng);

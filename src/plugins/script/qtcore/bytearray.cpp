@@ -32,7 +32,7 @@ static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue append(QScriptContext *ctx, QScriptEngine *)
 {
-    DECLARE_SELF(ByteArray, append);
+    DECLARE_SELF(QByteArray, append);
     QScriptValue arg = ctx->argument(0);
     if (arg.isNumber())
         self->append(arg.toInt32());
@@ -49,7 +49,7 @@ static QScriptValue append(QScriptContext *ctx, QScriptEngine *)
 
 static QScriptValue at(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(ByteArray, at);
+    DECLARE_SELF(QByteArray, at);
     return QScriptValue(eng, self->at(ctx->argument(0).toInt32()));
 }
 
@@ -57,7 +57,7 @@ static QScriptValue at(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue capacity(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(ByteArray, capacity);
+    DECLARE_SELF(QByteArray, capacity);
     return QScriptValue(eng, self->capacity());
 }
 
@@ -65,7 +65,7 @@ static QScriptValue capacity(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue chop(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(ByteArray, chop);
+    DECLARE_SELF(QByteArray, chop);
     self->chop(ctx->argument(0).toInt32());
     return eng->undefinedValue();
 }
@@ -74,7 +74,7 @@ static QScriptValue chop(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue clear(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(ByteArray, clear);
+    DECLARE_SELF(QByteArray, clear);
     self->clear();
     return eng->undefinedValue();
 }
@@ -83,7 +83,7 @@ static QScriptValue clear(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue constData(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(ByteArray, constData);
+    DECLARE_SELF(QByteArray, constData);
     return eng->toScriptValue(self->constData());
 }
 
@@ -91,7 +91,7 @@ static QScriptValue constData(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue contains(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(ByteArray, contains);
+    DECLARE_SELF(QByteArray, contains);
     QScriptValue arg = ctx->argument(0);
     if (QByteArray *other = qscriptvalue_cast<QByteArray*>(arg))
         return QScriptValue(eng, self->contains(*other));
@@ -105,7 +105,7 @@ static QScriptValue contains(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue count(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(ByteArray, count);
+    DECLARE_SELF(QByteArray, count);
     QScriptValue arg = ctx->argument(0);
     if (arg.isUndefined())
         return QScriptValue(eng, self->count());
@@ -121,7 +121,7 @@ static QScriptValue count(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue data(QScriptContext *ctx, QScriptEngine *)
 {
-    DECLARE_SELF(ByteArray, data);
+    DECLARE_SELF(QByteArray, data);
     return ctx->throwError("QByteArray.prototype.data is not implemented");
 }
 
@@ -129,7 +129,7 @@ static QScriptValue data(QScriptContext *ctx, QScriptEngine *)
 
 static QScriptValue endsWith(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(ByteArray, endsWith);
+    DECLARE_SELF(QByteArray, endsWith);
     QScriptValue arg = ctx->argument(0);
     if (QByteArray *other = qscriptvalue_cast<QByteArray*>(arg))
         return QScriptValue(eng, self->endsWith(*other));
@@ -143,7 +143,7 @@ static QScriptValue endsWith(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue fill(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(ByteArray, fill);
+    DECLARE_SELF(QByteArray, fill);
     char ch = ctx->argument(0).toInt32();
     if (ctx->argumentCount() > 0)
         self->fill(ch, ctx->argument(1).toInt32());
@@ -156,7 +156,7 @@ static QScriptValue fill(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue indexOf(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(ByteArray, indexOf);
+    DECLARE_SELF(QByteArray, indexOf);
     int from = ctx->argument(1).toInt32();
     QScriptValue arg = ctx->argument(0);
     if (QByteArray *other = qscriptvalue_cast<QByteArray*>(arg))
@@ -173,7 +173,7 @@ static QScriptValue indexOf(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue insert(QScriptContext *ctx, QScriptEngine *)
 {
-    DECLARE_SELF(ByteArray, insert);
+    DECLARE_SELF(QByteArray, insert);
     int i = ctx->argument(0).toInt32();
     QScriptValue arg = ctx->argument(1);
     if (QByteArray *other = qscriptvalue_cast<QByteArray*>(arg))
@@ -191,7 +191,7 @@ static QScriptValue insert(QScriptContext *ctx, QScriptEngine *)
 
 static QScriptValue isEmpty(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(ByteArray, isEmpty);
+    DECLARE_SELF(QByteArray, isEmpty);
     return QScriptValue(eng, self->isEmpty());
 }
 
@@ -199,7 +199,7 @@ static QScriptValue isEmpty(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue isNull(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(ByteArray, isNull);
+    DECLARE_SELF(QByteArray, isNull);
     return QScriptValue(eng, self->isNull());
 }
 
@@ -207,7 +207,7 @@ static QScriptValue isNull(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue lastIndexOf(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(ByteArray, lastIndexOf);
+    DECLARE_SELF(QByteArray, lastIndexOf);
     int from = ctx->argument(1).isUndefined() ? -1 : ctx->argument(1).toInt32();
     QScriptValue arg = ctx->argument(0);
     if (QByteArray *other = qscriptvalue_cast<QByteArray*>(arg))
@@ -224,7 +224,7 @@ static QScriptValue lastIndexOf(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue left(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(ByteArray, left);
+    DECLARE_SELF(QByteArray, left);
     return newByteArray(eng, self->left(ctx->argument(0).toInt32()));
 }
 
@@ -232,7 +232,7 @@ static QScriptValue left(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue leftJustified(QScriptContext *ctx, QScriptEngine *)
 {
-    DECLARE_SELF(ByteArray, leftJustified);
+    DECLARE_SELF(QByteArray, leftJustified);
     return ctx->throwError("QByteArray.prototype.leftJustified is not implemented");
 }
 
@@ -240,7 +240,7 @@ static QScriptValue leftJustified(QScriptContext *ctx, QScriptEngine *)
 
 static QScriptValue length(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(ByteArray, length);
+    DECLARE_SELF(QByteArray, length);
     return QScriptValue(eng, self->length());
 }
 
@@ -248,7 +248,7 @@ static QScriptValue length(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue mid(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(ByteArray, mid);
+    DECLARE_SELF(QByteArray, mid);
     int pos = ctx->argument(0).toInt32();
     if (ctx->argument(1).isUndefined())
         return newByteArray(eng, self->mid(pos));
@@ -260,7 +260,7 @@ static QScriptValue mid(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue prepend(QScriptContext *ctx, QScriptEngine *)
 {
-    DECLARE_SELF(ByteArray, prepend);
+    DECLARE_SELF(QByteArray, prepend);
     QScriptValue arg = ctx->argument(0);
     if (QByteArray *other = qscriptvalue_cast<QByteArray*>(arg))
         self->prepend(*other);
@@ -275,7 +275,7 @@ static QScriptValue prepend(QScriptContext *ctx, QScriptEngine *)
 
 static QScriptValue push_back(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(ByteArray, push_back);
+    DECLARE_SELF(QByteArray, push_back);
     QScriptValue arg = ctx->argument(0);
     if (QByteArray *other = qscriptvalue_cast<QByteArray*>(arg))
         self->push_back(*other);
@@ -290,7 +290,7 @@ static QScriptValue push_back(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue push_front(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(ByteArray, push_front);
+    DECLARE_SELF(QByteArray, push_front);
     QScriptValue arg = ctx->argument(0);
     if (QByteArray *other = qscriptvalue_cast<QByteArray*>(arg))
         self->push_front(*other);
@@ -305,7 +305,7 @@ static QScriptValue push_front(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue remove(QScriptContext *ctx, QScriptEngine *)
 {
-    DECLARE_SELF(ByteArray, remove);
+    DECLARE_SELF(QByteArray, remove);
     self->remove(ctx->argument(0).toInt32(), ctx->argument(1).toInt32());
     return ctx->thisObject();
 }
@@ -314,7 +314,7 @@ static QScriptValue remove(QScriptContext *ctx, QScriptEngine *)
 
 static QScriptValue replace(QScriptContext *ctx, QScriptEngine *)
 {
-    DECLARE_SELF(ByteArray, replace);
+    DECLARE_SELF(QByteArray, replace);
     return ctx->throwError("QByteArray.prototype.replace is not implemented");
 }
 
@@ -322,7 +322,7 @@ static QScriptValue replace(QScriptContext *ctx, QScriptEngine *)
 
 static QScriptValue reserve(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(ByteArray, reserve);
+    DECLARE_SELF(QByteArray, reserve);
     self->reserve(ctx->argument(0).toInt32());
     return eng->undefinedValue();
 }
@@ -331,7 +331,7 @@ static QScriptValue reserve(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue resize(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(ByteArray, resize);
+    DECLARE_SELF(QByteArray, resize);
     self->resize(ctx->argument(0).toInt32());
     return eng->undefinedValue();
 }
@@ -340,7 +340,7 @@ static QScriptValue resize(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue right(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(ByteArray, right);
+    DECLARE_SELF(QByteArray, right);
     return newByteArray(eng, self->right(ctx->argument(0).toInt32()));
 }
 
@@ -348,7 +348,7 @@ static QScriptValue right(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue rightJustified(QScriptContext *ctx, QScriptEngine *)
 {
-    DECLARE_SELF(ByteArray, rightJustified);
+    DECLARE_SELF(QByteArray, rightJustified);
     return ctx->throwError("QByteArray.prototype.rightJustified is not implemented");
 }
 
@@ -356,7 +356,7 @@ static QScriptValue rightJustified(QScriptContext *ctx, QScriptEngine *)
 
 static QScriptValue setNum(QScriptContext *ctx, QScriptEngine *)
 {
-    DECLARE_SELF(ByteArray, setNum);
+    DECLARE_SELF(QByteArray, setNum);
     return ctx->throwError("QByteArray.prototype.setNum is not implemented");
 }
 
@@ -364,7 +364,7 @@ static QScriptValue setNum(QScriptContext *ctx, QScriptEngine *)
 
 static QScriptValue simplified(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(ByteArray, simplified);
+    DECLARE_SELF(QByteArray, simplified);
     return newByteArray(eng, self->simplified());
 }
 
@@ -372,7 +372,7 @@ static QScriptValue simplified(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue size(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(ByteArray, size);
+    DECLARE_SELF(QByteArray, size);
     return QScriptValue(eng, self->size());
 }
 
@@ -380,7 +380,7 @@ static QScriptValue size(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue split(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(ByteArray, split);
+    DECLARE_SELF(QByteArray, split);
     return eng->toScriptValue(self->split(ctx->argument(0).toInt32()));
 }
 
@@ -388,7 +388,7 @@ static QScriptValue split(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue squeeze(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(ByteArray, squeeze);
+    DECLARE_SELF(QByteArray, squeeze);
     self->squeeze();
     return eng->undefinedValue();
 }
@@ -397,7 +397,7 @@ static QScriptValue squeeze(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue startsWith(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(ByteArray, startsWith);
+    DECLARE_SELF(QByteArray, startsWith);
     QScriptValue arg = ctx->argument(0);
     if (QByteArray *other = qscriptvalue_cast<QByteArray*>(arg))
         return QScriptValue(eng, self->startsWith(*other));
@@ -411,7 +411,7 @@ static QScriptValue startsWith(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue toBase64(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(ByteArray, toBase64);
+    DECLARE_SELF(QByteArray, toBase64);
     return newByteArray(eng, self->toBase64());
 }
 
@@ -419,7 +419,7 @@ static QScriptValue toBase64(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue toDouble(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(ByteArray, toDouble);
+    DECLARE_SELF(QByteArray, toDouble);
     return QScriptValue(eng, self->toDouble());
 }
 
@@ -427,7 +427,7 @@ static QScriptValue toDouble(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue toFloat(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(ByteArray, toFloat);
+    DECLARE_SELF(QByteArray, toFloat);
     return QScriptValue(eng, self->toFloat());
 }
 
@@ -435,7 +435,7 @@ static QScriptValue toFloat(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue toHex(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(ByteArray, toHex);
+    DECLARE_SELF(QByteArray, toHex);
     return newByteArray(eng, self->toHex());
 }
 
@@ -443,7 +443,7 @@ static QScriptValue toHex(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue toInt(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(ByteArray, toInt);
+    DECLARE_SELF(QByteArray, toInt);
     return QScriptValue(eng, self->toInt());
 }
 
@@ -452,7 +452,7 @@ static QScriptValue toInt(QScriptContext *ctx, QScriptEngine *eng)
 #if 0
 static QScriptValue toLongLong(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(ByteArray, toLongLong);
+    DECLARE_SELF(QByteArray, toLongLong);
     return QScriptValue(eng, self->toLongLong());
 }
 #endif
@@ -461,7 +461,7 @@ static QScriptValue toLongLong(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue toLower(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(ByteArray, toLower);
+    DECLARE_SELF(QByteArray, toLower);
     return newByteArray(eng, self->toLower());
 }
 
@@ -469,7 +469,7 @@ static QScriptValue toLower(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue toShort(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(ByteArray, toShort);
+    DECLARE_SELF(QByteArray, toShort);
     return QScriptValue(eng, self->toShort());
 }
 
@@ -477,7 +477,7 @@ static QScriptValue toShort(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue toUInt(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(ByteArray, toUInt);
+    DECLARE_SELF(QByteArray, toUInt);
     return QScriptValue(eng, self->toUInt());
 }
 
@@ -485,7 +485,7 @@ static QScriptValue toUInt(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue toULong(QScriptContext *ctx, QScriptEngine *)
 {
-    DECLARE_SELF(ByteArray, toULong);
+    DECLARE_SELF(QByteArray, toULong);
     return ctx->throwError("QByteArray.prototype.toULong is not implemented");
 }
 
@@ -494,7 +494,7 @@ static QScriptValue toULong(QScriptContext *ctx, QScriptEngine *)
 #if 0
 static QScriptValue toULongLong(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(ByteArray, toULongLong);
+    DECLARE_SELF(QByteArray, toULongLong);
     return QScriptValue(eng, self->toULongLong());
 }
 #endif
@@ -503,7 +503,7 @@ static QScriptValue toULongLong(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue toUShort(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(ByteArray, toUShort);
+    DECLARE_SELF(QByteArray, toUShort);
     return QScriptValue(eng, self->toUShort());
 }
 
@@ -511,7 +511,7 @@ static QScriptValue toUShort(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue toUpper(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(ByteArray, toUpper);
+    DECLARE_SELF(QByteArray, toUpper);
     return newByteArray(eng, self->toUpper());    
 }
 
@@ -519,7 +519,7 @@ static QScriptValue toUpper(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue trimmed(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(ByteArray, trimmed);
+    DECLARE_SELF(QByteArray, trimmed);
     return newByteArray(eng, self->trimmed());
 }
 
@@ -527,7 +527,7 @@ static QScriptValue trimmed(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue truncate(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(ByteArray, truncate);
+    DECLARE_SELF(QByteArray, truncate);
     self->truncate(ctx->argument(0).toInt32());
     return eng->undefinedValue();
 }
@@ -536,7 +536,7 @@ static QScriptValue truncate(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(ByteArray, toString);
+    DECLARE_SELF(QByteArray, toString);
     return QScriptValue(eng, QString::fromLocal8Bit(self->constData(), self->size()));
 }
 
@@ -545,57 +545,57 @@ static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 QScriptValue constructByteArrayClass(QScriptEngine *eng)
 {
     QScriptValue proto = newByteArray(eng, QByteArray());
-    ADD_PROTO_FUNCTION(proto, append);
-    ADD_PROTO_FUNCTION(proto, at);
-    ADD_PROTO_FUNCTION(proto, capacity);
-    ADD_PROTO_FUNCTION(proto, chop);
-    ADD_PROTO_FUNCTION(proto, clear);
-    ADD_PROTO_FUNCTION(proto, constData);
-    ADD_PROTO_FUNCTION(proto, contains);
-    ADD_PROTO_FUNCTION(proto, count);
-    ADD_PROTO_FUNCTION(proto, data);
-    ADD_PROTO_FUNCTION(proto, endsWith);
-    ADD_PROTO_FUNCTION(proto, fill);
-    ADD_PROTO_FUNCTION(proto, indexOf);
-    ADD_PROTO_FUNCTION(proto, insert);
-    ADD_PROTO_FUNCTION(proto, isEmpty);
-    ADD_PROTO_FUNCTION(proto, isNull);
-    ADD_PROTO_FUNCTION(proto, lastIndexOf);
-    ADD_PROTO_FUNCTION(proto, left);
-    ADD_PROTO_FUNCTION(proto, leftJustified);
-    ADD_PROTO_FUNCTION(proto, length);
-    ADD_PROTO_FUNCTION(proto, mid);
-    ADD_PROTO_FUNCTION(proto, prepend);
-    ADD_PROTO_FUNCTION(proto, push_back);
-    ADD_PROTO_FUNCTION(proto, push_front);
-    ADD_PROTO_FUNCTION(proto, remove);
-    ADD_PROTO_FUNCTION(proto, replace);
-    ADD_PROTO_FUNCTION(proto, reserve);
-    ADD_PROTO_FUNCTION(proto, resize);
-    ADD_PROTO_FUNCTION(proto, right);
-    ADD_PROTO_FUNCTION(proto, rightJustified);
-    ADD_PROTO_FUNCTION(proto, setNum);
-    ADD_PROTO_FUNCTION(proto, simplified);
-    ADD_PROTO_FUNCTION(proto, size);
-    ADD_PROTO_FUNCTION(proto, split);
-    ADD_PROTO_FUNCTION(proto, squeeze);
-    ADD_PROTO_FUNCTION(proto, startsWith);
-    ADD_PROTO_FUNCTION(proto, toBase64);
-    ADD_PROTO_FUNCTION(proto, toDouble);
-    ADD_PROTO_FUNCTION(proto, toFloat);
-    ADD_PROTO_FUNCTION(proto, toHex);
-    ADD_PROTO_FUNCTION(proto, toInt);
-    //ADD_PROTO_FUNCTION(proto, toLongLong);
-    ADD_PROTO_FUNCTION(proto, toLower);
-    ADD_PROTO_FUNCTION(proto, toShort);
-    ADD_PROTO_FUNCTION(proto, toUInt);
-    ADD_PROTO_FUNCTION(proto, toULong);
-    //ADD_PROTO_FUNCTION(proto, toULongLong);
-    ADD_PROTO_FUNCTION(proto, toUShort);
-    ADD_PROTO_FUNCTION(proto, toUpper);
-    ADD_PROTO_FUNCTION(proto, trimmed);
-    ADD_PROTO_FUNCTION(proto, truncate);
-    ADD_PROTO_FUNCTION(proto, toString);
+    ADD_METHOD(proto, append);
+    ADD_METHOD(proto, at);
+    ADD_METHOD(proto, capacity);
+    ADD_METHOD(proto, chop);
+    ADD_METHOD(proto, clear);
+    ADD_METHOD(proto, constData);
+    ADD_METHOD(proto, contains);
+    ADD_METHOD(proto, count);
+    ADD_METHOD(proto, data);
+    ADD_METHOD(proto, endsWith);
+    ADD_METHOD(proto, fill);
+    ADD_METHOD(proto, indexOf);
+    ADD_METHOD(proto, insert);
+    ADD_METHOD(proto, isEmpty);
+    ADD_METHOD(proto, isNull);
+    ADD_METHOD(proto, lastIndexOf);
+    ADD_METHOD(proto, left);
+    ADD_METHOD(proto, leftJustified);
+    ADD_METHOD(proto, length);
+    ADD_METHOD(proto, mid);
+    ADD_METHOD(proto, prepend);
+    ADD_METHOD(proto, push_back);
+    ADD_METHOD(proto, push_front);
+    ADD_METHOD(proto, remove);
+    ADD_METHOD(proto, replace);
+    ADD_METHOD(proto, reserve);
+    ADD_METHOD(proto, resize);
+    ADD_METHOD(proto, right);
+    ADD_METHOD(proto, rightJustified);
+    ADD_METHOD(proto, setNum);
+    ADD_METHOD(proto, simplified);
+    ADD_METHOD(proto, size);
+    ADD_METHOD(proto, split);
+    ADD_METHOD(proto, squeeze);
+    ADD_METHOD(proto, startsWith);
+    ADD_METHOD(proto, toBase64);
+    ADD_METHOD(proto, toDouble);
+    ADD_METHOD(proto, toFloat);
+    ADD_METHOD(proto, toHex);
+    ADD_METHOD(proto, toInt);
+    //ADD_METHOD(proto, toLongLong);
+    ADD_METHOD(proto, toLower);
+    ADD_METHOD(proto, toShort);
+    ADD_METHOD(proto, toUInt);
+    ADD_METHOD(proto, toULong);
+    //ADD_METHOD(proto, toULongLong);
+    ADD_METHOD(proto, toUShort);
+    ADD_METHOD(proto, toUpper);
+    ADD_METHOD(proto, trimmed);
+    ADD_METHOD(proto, truncate);
+    ADD_METHOD(proto, toString);
 
     eng->setDefaultPrototype(qMetaTypeId<QByteArray>(), proto);
     eng->setDefaultPrototype(qMetaTypeId<QByteArray*>(), proto);

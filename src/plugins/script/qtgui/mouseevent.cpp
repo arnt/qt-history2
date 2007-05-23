@@ -39,7 +39,7 @@ static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue button(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(MouseEvent, button);
+    DECLARE_SELF(QMouseEvent, button);
     return QScriptValue(eng, self->button());
 }
 
@@ -47,7 +47,7 @@ static QScriptValue button(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue buttons(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(MouseEvent, buttons);
+    DECLARE_SELF(QMouseEvent, buttons);
     return QScriptValue(eng, self->buttons());
 }
 
@@ -55,7 +55,7 @@ static QScriptValue buttons(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue globalPos(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(MouseEvent, globalPos);
+    DECLARE_SELF(QMouseEvent, globalPos);
     return eng->toScriptValue(self->globalPos());
 }
 
@@ -63,7 +63,7 @@ static QScriptValue globalPos(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue globalX(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(MouseEvent, globalX);
+    DECLARE_SELF(QMouseEvent, globalX);
     return QScriptValue(eng, self->globalX());
 }
 
@@ -71,7 +71,7 @@ static QScriptValue globalX(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue globalY(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(MouseEvent, globalY);
+    DECLARE_SELF(QMouseEvent, globalY);
     return QScriptValue(eng, self->globalY());
 }
 
@@ -79,7 +79,7 @@ static QScriptValue globalY(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue pos(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(MouseEvent, pos);
+    DECLARE_SELF(QMouseEvent, pos);
     return eng->toScriptValue(self->pos());
 }
 
@@ -87,7 +87,7 @@ static QScriptValue pos(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue x(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(MouseEvent, x);
+    DECLARE_SELF(QMouseEvent, x);
     return QScriptValue(eng, self->x());
 }
 
@@ -95,7 +95,7 @@ static QScriptValue x(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue y(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(MouseEvent, y);
+    DECLARE_SELF(QMouseEvent, y);
     return QScriptValue(eng, self->y());
 }
 
@@ -103,7 +103,7 @@ static QScriptValue y(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(MouseEvent, toString);
+    DECLARE_SELF(QMouseEvent, toString);
     return QScriptValue(eng, QString::fromLatin1("QMouseEvent"));
 }
 
@@ -117,15 +117,15 @@ QScriptValue constructMouseEventClass(QScriptEngine *eng)
                                                             Qt::NoButton,
                                                             Qt::NoModifier));
     proto.setPrototype(eng->defaultPrototype(qMetaTypeId<QEvent*>())); /// ### QInputEvent
-    ADD_PROTO_FUNCTION(proto, button);
-    ADD_PROTO_FUNCTION(proto, buttons);
-    ADD_PROTO_FUNCTION(proto, globalPos);
-    ADD_PROTO_FUNCTION(proto, globalX);
-    ADD_PROTO_FUNCTION(proto, globalY);
-    ADD_PROTO_FUNCTION(proto, pos);
-    ADD_PROTO_FUNCTION(proto, x);
-    ADD_PROTO_FUNCTION(proto, y);
-    ADD_PROTO_FUNCTION(proto, toString);
+    ADD_METHOD(proto, button);
+    ADD_METHOD(proto, buttons);
+    ADD_METHOD(proto, globalPos);
+    ADD_METHOD(proto, globalX);
+    ADD_METHOD(proto, globalY);
+    ADD_METHOD(proto, pos);
+    ADD_METHOD(proto, x);
+    ADD_METHOD(proto, y);
+    ADD_METHOD(proto, toString);
 
     QScript::registerPointerMetaType<QMouseEvent>(eng, proto);
 

@@ -70,14 +70,14 @@ void extendStringPrototype(QScriptEngine *eng)
 {
     QScriptValue proto = eng->globalObject().property("String").property("prototype");
     Q_ASSERT(proto.isValid());
-    ADD_PROTO_FUNCTION(proto, toUtf8);
-    ADD_PROTO_FUNCTION(proto, startsWith);
-    ADD_PROTO_FUNCTION(proto, endsWith);
-    ADD_PROTO_FUNCTION(proto, left);
-    ADD_PROTO_FUNCTION(proto, right);
-    ADD_PROTO_FUNCTION(proto, mid);
-    ADD_PROTO_FUNCTION(proto, simplified);
-    ADD_PROTO_FUNCTION(proto, trimmed);
+    ADD_METHOD(proto, toUtf8);
+    ADD_METHOD(proto, startsWith);
+    ADD_METHOD(proto, endsWith);
+    ADD_METHOD(proto, left);
+    ADD_METHOD(proto, right);
+    ADD_METHOD(proto, mid);
+    ADD_METHOD(proto, simplified);
+    ADD_METHOD(proto, trimmed);
     eng->globalObject().property("String").setProperty("fromUtf8", eng->newFunction(fromUtf8));
 }
 

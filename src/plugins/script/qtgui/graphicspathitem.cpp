@@ -22,20 +22,20 @@ static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue path(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsPathItem, path);
+    DECLARE_SELF(QGraphicsPathItem, path);
     return eng->toScriptValue(self->path());
 }
 
 static QScriptValue setPath(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsPathItem, setPath);
+    DECLARE_SELF(QGraphicsPathItem, setPath);
     self->setPath(qscriptvalue_cast<QPainterPath>(ctx->argument(0)));
     return eng->undefinedValue();
 }
 
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsPathItem, toString);
+    DECLARE_SELF(QGraphicsPathItem, toString);
     return QScriptValue(eng, "QGraphicsPathItem");
 }
 
@@ -44,9 +44,9 @@ QScriptValue constructGraphicsPathItemClass(QScriptEngine *eng)
     QScriptValue proto = QScript::wrapGVPointer(eng, new QGraphicsPathItem());
     proto.setPrototype(eng->defaultPrototype(qMetaTypeId<QAbstractGraphicsShapeItem*>()));
 
-    ADD_PROTO_FUNCTION(proto, path);
-    ADD_PROTO_FUNCTION(proto, setPath);
-    ADD_PROTO_FUNCTION(proto, toString);
+    ADD_METHOD(proto, path);
+    ADD_METHOD(proto, setPath);
+    ADD_METHOD(proto, toString);
 
     QScript::registerPointerMetaType<QGraphicsPathItem>(eng, proto);
 

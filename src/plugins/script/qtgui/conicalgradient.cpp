@@ -34,26 +34,26 @@ static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue angle(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(ConicalGradient, angle);
+    DECLARE_SELF(QConicalGradient, angle);
     return QScriptValue(eng, self->angle());
 }
 
 static QScriptValue center(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(ConicalGradient, center);
+    DECLARE_SELF(QConicalGradient, center);
     return eng->toScriptValue(self->center());
 }
 
 static QScriptValue setAngle(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(ConicalGradient, setAngle);
+    DECLARE_SELF(QConicalGradient, setAngle);
     self->setAngle(qscriptvalue_cast<qreal>(ctx->argument(0)));
     return eng->undefinedValue();
 }
 
 static QScriptValue setCenter(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(ConicalGradient, setAngle);
+    DECLARE_SELF(QConicalGradient, setAngle);
     if (ctx->argumentCount() == 2) {
         self->setCenter(qscriptvalue_cast<qreal>(ctx->argument(0)),
                         qscriptvalue_cast<qreal>(ctx->argument(1)));
@@ -65,7 +65,7 @@ static QScriptValue setCenter(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(ConicalGradient, toString);
+    DECLARE_SELF(QConicalGradient, toString);
     return QScriptValue(eng, "QConicalGradient");
 }
 
@@ -75,11 +75,11 @@ QScriptValue constructConicalGradientClass(QScriptEngine *eng)
 {
     QScriptValue proto = newConicalGradient(eng, QConicalGradient());
     proto.setPrototype(eng->defaultPrototype(qMetaTypeId<QGradient>()));
-    ADD_PROTO_FUNCTION(proto, angle);
-    ADD_PROTO_FUNCTION(proto, center);
-    ADD_PROTO_FUNCTION(proto, setAngle);
-    ADD_PROTO_FUNCTION(proto, setCenter);
-    ADD_PROTO_FUNCTION(proto, toString);
+    ADD_METHOD(proto, angle);
+    ADD_METHOD(proto, center);
+    ADD_METHOD(proto, setAngle);
+    ADD_METHOD(proto, setCenter);
+    ADD_METHOD(proto, toString);
 
     eng->setDefaultPrototype(qMetaTypeId<QConicalGradient>(), proto);
     eng->setDefaultPrototype(qMetaTypeId<QConicalGradient*>(), proto);

@@ -22,33 +22,33 @@ static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue font(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsSimpleTextItem, font);
+    DECLARE_SELF(QGraphicsSimpleTextItem, font);
     return eng->toScriptValue(self->font());
 }
 
 static QScriptValue setFont(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsSimpleTextItem, setFont);
+    DECLARE_SELF(QGraphicsSimpleTextItem, setFont);
     self->setFont(qscriptvalue_cast<QFont>(ctx->argument(0)));
     return eng->undefinedValue();
 }
 
 static QScriptValue setText(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsSimpleTextItem, setText);
+    DECLARE_SELF(QGraphicsSimpleTextItem, setText);
     self->setText(ctx->argument(0).toString());
     return eng->undefinedValue();
 }
 
 static QScriptValue text(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsSimpleTextItem, text);
+    DECLARE_SELF(QGraphicsSimpleTextItem, text);
     return QScriptValue(eng, self->text());
 }
 
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsSimpleTextItem, toString);
+    DECLARE_SELF(QGraphicsSimpleTextItem, toString);
     return QScriptValue(eng, "QGraphicsSimpleTextItem");
 }
 
@@ -57,11 +57,11 @@ QScriptValue constructGraphicsSimpleTextItemClass(QScriptEngine *eng)
     QScriptValue proto = QScript::wrapGVPointer(eng, new QGraphicsSimpleTextItem());
     proto.setPrototype(eng->defaultPrototype(qMetaTypeId<QAbstractGraphicsShapeItem*>()));
 
-    ADD_PROTO_FUNCTION(proto, font);
-    ADD_PROTO_FUNCTION(proto, setFont);
-    ADD_PROTO_FUNCTION(proto, setText);
-    ADD_PROTO_FUNCTION(proto, text);
-    ADD_PROTO_FUNCTION(proto, toString);
+    ADD_METHOD(proto, font);
+    ADD_METHOD(proto, setFont);
+    ADD_METHOD(proto, setText);
+    ADD_METHOD(proto, text);
+    ADD_METHOD(proto, toString);
 
     QScript::registerPointerMetaType<QGraphicsSimpleTextItem>(eng, proto);
 

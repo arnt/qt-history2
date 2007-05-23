@@ -25,7 +25,7 @@ static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue child(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(ModelIndex, child);
+    DECLARE_SELF(QModelIndex, child);
     return newModelIndex(eng, self->child(ctx->argument(0).toInt32(),
                                           ctx->argument(1).toInt32()));
 }
@@ -34,7 +34,7 @@ static QScriptValue child(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue column(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(ModelIndex, column);
+    DECLARE_SELF(QModelIndex, column);
     return QScriptValue(eng, self->column());
 }
 
@@ -42,7 +42,7 @@ static QScriptValue column(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue data(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(ModelIndex, data);
+    DECLARE_SELF(QModelIndex, data);
     if (ctx->argumentCount() == 0)
         return eng->newVariant(self->data());
     else
@@ -53,7 +53,7 @@ static QScriptValue data(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue flags(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(ModelIndex, flags);
+    DECLARE_SELF(QModelIndex, flags);
     return QScriptValue(eng, static_cast<int>(self->flags()));
 }
 
@@ -61,7 +61,7 @@ static QScriptValue flags(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue internalId(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(ModelIndex, internalId);
+    DECLARE_SELF(QModelIndex, internalId);
     return eng->toScriptValue(self->internalId());
 }
 
@@ -69,7 +69,7 @@ static QScriptValue internalId(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue internalPointer(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(ModelIndex, internalPointer);
+    DECLARE_SELF(QModelIndex, internalPointer);
     return eng->toScriptValue(self->internalPointer());
 }
 
@@ -77,7 +77,7 @@ static QScriptValue internalPointer(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue isValid(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(ModelIndex, isValid);
+    DECLARE_SELF(QModelIndex, isValid);
     return QScriptValue(eng, self->isValid());
 }
 
@@ -85,7 +85,7 @@ static QScriptValue isValid(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue model(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(ModelIndex, model);
+    DECLARE_SELF(QModelIndex, model);
     return eng->newQObject(const_cast<QAbstractItemModel*>(self->model()));
 }
 
@@ -93,7 +93,7 @@ static QScriptValue model(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue parent(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(ModelIndex, parent);
+    DECLARE_SELF(QModelIndex, parent);
     return newModelIndex(eng, self->parent());
 }
 
@@ -101,7 +101,7 @@ static QScriptValue parent(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue row(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(ModelIndex, row);
+    DECLARE_SELF(QModelIndex, row);
     return QScriptValue(eng, self->row());
 }
 
@@ -109,7 +109,7 @@ static QScriptValue row(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue sibling(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(ModelIndex, sibling);
+    DECLARE_SELF(QModelIndex, sibling);
     return newModelIndex(eng, self->sibling(ctx->argument(0).toInt32(),
                                             ctx->argument(1).toInt32()));
 }
@@ -118,7 +118,7 @@ static QScriptValue sibling(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(ModelIndex, toString);
+    DECLARE_SELF(QModelIndex, toString);
     return QScriptValue(eng, QString::fromLatin1("QModelIndex(%0,%1)")
         .arg(self->row()).arg(self->column()));
 }
@@ -128,18 +128,18 @@ static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 QScriptValue constructModelIndexClass(QScriptEngine *eng)
 {
     QScriptValue proto = newModelIndex(eng, QModelIndex());
-    ADD_PROTO_FUNCTION(proto, child);
-    ADD_PROTO_FUNCTION(proto, column);
-    ADD_PROTO_FUNCTION(proto, data);
-    ADD_PROTO_FUNCTION(proto, flags);
-    ADD_PROTO_FUNCTION(proto, internalId);
-    ADD_PROTO_FUNCTION(proto, internalPointer);
-    ADD_PROTO_FUNCTION(proto, isValid);
-    ADD_PROTO_FUNCTION(proto, model);
-    ADD_PROTO_FUNCTION(proto, parent);
-    ADD_PROTO_FUNCTION(proto, row);
-    ADD_PROTO_FUNCTION(proto, sibling);
-    ADD_PROTO_FUNCTION(proto, toString);
+    ADD_METHOD(proto, child);
+    ADD_METHOD(proto, column);
+    ADD_METHOD(proto, data);
+    ADD_METHOD(proto, flags);
+    ADD_METHOD(proto, internalId);
+    ADD_METHOD(proto, internalPointer);
+    ADD_METHOD(proto, isValid);
+    ADD_METHOD(proto, model);
+    ADD_METHOD(proto, parent);
+    ADD_METHOD(proto, row);
+    ADD_METHOD(proto, sibling);
+    ADD_METHOD(proto, toString);
 
     eng->setDefaultPrototype(qMetaTypeId<QModelIndex>(), proto);
     eng->setDefaultPrototype(qMetaTypeId<QModelIndex*>(), proto);

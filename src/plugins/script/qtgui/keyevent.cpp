@@ -36,7 +36,7 @@ static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue count(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(KeyEvent, count);
+    DECLARE_SELF(QKeyEvent, count);
     return QScriptValue(eng, self->count());
 }
 
@@ -44,7 +44,7 @@ static QScriptValue count(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue isAutoRepeat(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(KeyEvent, isAutoRepeat);
+    DECLARE_SELF(QKeyEvent, isAutoRepeat);
     return QScriptValue(eng, self->isAutoRepeat());
 }
 
@@ -52,7 +52,7 @@ static QScriptValue isAutoRepeat(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue key(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(KeyEvent, key);
+    DECLARE_SELF(QKeyEvent, key);
     return QScriptValue(eng, self->key());
 }
 
@@ -60,7 +60,7 @@ static QScriptValue key(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue matches(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(KeyEvent, matches);
+    DECLARE_SELF(QKeyEvent, matches);
     return QScriptValue(eng, self->matches(QKeySequence::StandardKey(ctx->argument(0).toInt32())));
 }
 
@@ -68,7 +68,7 @@ static QScriptValue matches(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue modifiers(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(KeyEvent, modifiers);
+    DECLARE_SELF(QKeyEvent, modifiers);
     return QScriptValue(eng, self->modifiers());
 }
 
@@ -76,7 +76,7 @@ static QScriptValue modifiers(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue nativeModifiers(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(KeyEvent, nativeModifiers);
+    DECLARE_SELF(QKeyEvent, nativeModifiers);
     return QScriptValue(eng, self->nativeModifiers());
 }
 
@@ -84,7 +84,7 @@ static QScriptValue nativeModifiers(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue nativeScanCode(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(KeyEvent, nativeScanCode);
+    DECLARE_SELF(QKeyEvent, nativeScanCode);
     return QScriptValue(eng, self->nativeScanCode());
 }
 
@@ -92,7 +92,7 @@ static QScriptValue nativeScanCode(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue nativeVirtualKey(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(KeyEvent, nativeVirtualKey);
+    DECLARE_SELF(QKeyEvent, nativeVirtualKey);
     return QScriptValue(eng, self->nativeVirtualKey());
 }
 
@@ -100,7 +100,7 @@ static QScriptValue nativeVirtualKey(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue text(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(KeyEvent, text);
+    DECLARE_SELF(QKeyEvent, text);
     return QScriptValue(eng, self->text());
 }
 
@@ -108,7 +108,7 @@ static QScriptValue text(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(KeyEvent, toString);
+    DECLARE_SELF(QKeyEvent, toString);
     return QScriptValue(eng, QString::fromLatin1("QKeyEvent"));
 }
 
@@ -118,16 +118,16 @@ QScriptValue constructKeyEventClass(QScriptEngine *eng)
 {
     QScriptValue proto = newKeyEvent(eng, new QKeyEvent(QEvent::KeyPress, Qt::Key_Dead_Grave, Qt::NoModifier));
     proto.setPrototype(eng->defaultPrototype(qMetaTypeId<QEvent*>())); /// ### QInputEvent
-    ADD_PROTO_FUNCTION(proto, count);
-    ADD_PROTO_FUNCTION(proto, isAutoRepeat);
-    ADD_PROTO_FUNCTION(proto, key);
-    ADD_PROTO_FUNCTION(proto, matches);
-    ADD_PROTO_FUNCTION(proto, modifiers);
-    ADD_PROTO_FUNCTION(proto, nativeModifiers);
-    ADD_PROTO_FUNCTION(proto, nativeScanCode);
-    ADD_PROTO_FUNCTION(proto, nativeVirtualKey);
-    ADD_PROTO_FUNCTION(proto, text);
-    ADD_PROTO_FUNCTION(proto, toString);
+    ADD_METHOD(proto, count);
+    ADD_METHOD(proto, isAutoRepeat);
+    ADD_METHOD(proto, key);
+    ADD_METHOD(proto, matches);
+    ADD_METHOD(proto, modifiers);
+    ADD_METHOD(proto, nativeModifiers);
+    ADD_METHOD(proto, nativeScanCode);
+    ADD_METHOD(proto, nativeVirtualKey);
+    ADD_METHOD(proto, text);
+    ADD_METHOD(proto, toString);
 
     QScript::registerPointerMetaType<QKeyEvent>(eng, proto);
 

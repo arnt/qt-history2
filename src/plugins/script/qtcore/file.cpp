@@ -120,97 +120,97 @@ public:
 public Q_SLOTS:
     bool copy(const QString &newName)
     {
-        DECLARE_SELF2(File, copy, false);
+        DECLARE_SELF2(QFile, copy, false);
         return self->copy(newName);
     }
     QFile::FileError error() const
     {
-        DECLARE_SELF2(File, error, QFile::UnspecifiedError);
+        DECLARE_SELF2(QFile, error, QFile::UnspecifiedError);
         return self->error();
     }
     bool exists() const
     {
-        DECLARE_SELF2(File, exists, false);
+        DECLARE_SELF2(QFile, exists, false);
         return self->exists();
     }
     QString fileName() const
     {
-        DECLARE_SELF2(File, fileName, QString());
+        DECLARE_SELF2(QFile, fileName, QString());
         return self->fileName();
     }
     bool flush()
     {
-        DECLARE_SELF2(File, flush, false);
+        DECLARE_SELF2(QFile, flush, false);
         return self->flush();
     }
     int handle() const
     {
-        DECLARE_SELF2(File, handle, -1);
+        DECLARE_SELF2(QFile, handle, -1);
         return self->handle();
     }
     bool link(const QString &linkName)
     {
-        DECLARE_SELF2(File, link, false);
+        DECLARE_SELF2(QFile, link, false);
         return self->link(linkName);
     }
     bool open(FILE *fh, OpenMode mode)
     {
-        DECLARE_SELF2(File, open, false);
+        DECLARE_SELF2(QFile, open, false);
         return self->open(fh, mode);
     }
     bool open(int fd, OpenMode mode)
     {
-        DECLARE_SELF2(File, open, false);
+        DECLARE_SELF2(QFile, open, false);
         return self->open(fd, mode);
     }
     bool open(int mode)
     {
-        DECLARE_SELF2(File, open, false);
+        DECLARE_SELF2(QFile, open, false);
         return self->open(QIODevice::OpenMode(mode));
     }
     QFile::Permissions permissions() const
     {
-        DECLARE_SELF2(File, permissions, QFile::Permissions(0));
+        DECLARE_SELF2(QFile, permissions, QFile::Permissions(0));
         return self->permissions();
     }
     bool remove()
     {
-        DECLARE_SELF2(File, remove, false);
+        DECLARE_SELF2(QFile, remove, false);
         return self->remove();
     }
     bool rename(const QString &newName)
     {
-        DECLARE_SELF2(File, rename, false);
+        DECLARE_SELF2(QFile, rename, false);
         return self->rename(newName);
     }
     bool resize(qint64 sz)
     {
-        DECLARE_SELF2(File, resize, false);
+        DECLARE_SELF2(QFile, resize, false);
         return self->resize(sz);
     }
     void setFileName(const QString &name)
     {
-        DECLARE_SELF2(File, setFileName, );
+        DECLARE_SELF2(QFile, setFileName, );
         self->setFileName(name);
     }
     bool setPermissions(QFile::Permissions permissions)
     {
-        DECLARE_SELF2(File, setPermissions, false);
+        DECLARE_SELF2(QFile, setPermissions, false);
         return self->setPermissions(permissions);
     }
     QString symLinkTarget() const
     {
-        DECLARE_SELF2(File, symLinkTarget, QString());
+        DECLARE_SELF2(QFile, symLinkTarget, QString());
         return self->symLinkTarget();
     }
     void unsetError()
     {
-        DECLARE_SELF2(File, unsetError, );
+        DECLARE_SELF2(QFile, unsetError, );
         self->unsetError();
     }
     QString toString() const
     {
-        DECLARE_SELF2(File, toString, QString());
+        DECLARE_SELF2(QFile, toString, QString());
         return QString::fromLatin1("QFile(%0)")
             .arg(self->fileName());
     }

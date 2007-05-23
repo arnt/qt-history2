@@ -28,19 +28,19 @@ static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue line(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsLineItem, line);
+    DECLARE_SELF(QGraphicsLineItem, line);
     return eng->toScriptValue(self->line());
 }
 
 static QScriptValue pen(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsLineItem, pen);
+    DECLARE_SELF(QGraphicsLineItem, pen);
     return eng->toScriptValue(self->pen());
 }
 
 static QScriptValue setLine(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsLineItem, setLine);
+    DECLARE_SELF(QGraphicsLineItem, setLine);
     if (ctx->argumentCount() > 1) {
         self->setLine(ctx->argument(0).toNumber(),
                       ctx->argument(1).toNumber(),
@@ -54,14 +54,14 @@ static QScriptValue setLine(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setPen(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsLineItem, setPen);
+    DECLARE_SELF(QGraphicsLineItem, setPen);
     self->setPen(qscriptvalue_cast<QPen>(ctx->argument(0)));
     return eng->undefinedValue();
 }
 
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsLineItem, toString);
+    DECLARE_SELF(QGraphicsLineItem, toString);
     return QScriptValue(eng, "QGraphicsLineItem");
 }
 
@@ -70,11 +70,11 @@ QScriptValue constructGraphicsLineItemClass(QScriptEngine *eng)
     QScriptValue proto = QScript::wrapGVPointer(eng, new QGraphicsLineItem());
     proto.setPrototype(eng->defaultPrototype(qMetaTypeId<QGraphicsItem*>()));
 
-    ADD_PROTO_FUNCTION(proto, line);
-    ADD_PROTO_FUNCTION(proto, pen);
-    ADD_PROTO_FUNCTION(proto, setLine);
-    ADD_PROTO_FUNCTION(proto, setPen);
-    ADD_PROTO_FUNCTION(proto, toString);
+    ADD_METHOD(proto, line);
+    ADD_METHOD(proto, pen);
+    ADD_METHOD(proto, setLine);
+    ADD_METHOD(proto, setPen);
+    ADD_METHOD(proto, toString);
 
     QScript::registerPointerMetaType<QGraphicsLineItem>(eng, proto);
 

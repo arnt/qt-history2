@@ -19,7 +19,7 @@ static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Timer, toString);
+    DECLARE_SELF(QTimer, toString);
     return QScriptValue(eng, QString::fromLatin1("QTimer(interval=%0)")
                         .arg(self->interval()));
 }
@@ -27,7 +27,7 @@ static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 QScriptValue constructTimerClass(QScriptEngine *eng)
 {
     QScriptValue proto = newTimer(eng, new QTimer());
-    ADD_PROTO_FUNCTION(proto, toString);
+    ADD_METHOD(proto, toString);
     eng->setDefaultPrototype(qMetaTypeId<QTimer*>(), proto);
 
     return eng->newFunction(ctor, proto);

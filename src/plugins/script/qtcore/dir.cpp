@@ -29,7 +29,7 @@ static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue absoluteFilePath(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Dir, absoluteFilePath);
+    DECLARE_SELF(QDir, absoluteFilePath);
     return QScriptValue(eng, self->absoluteFilePath(ctx->argument(0).toString()));
 }
 
@@ -37,7 +37,7 @@ static QScriptValue absoluteFilePath(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue absolutePath(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Dir, absolutePath);
+    DECLARE_SELF(QDir, absolutePath);
     return QScriptValue(eng, self->absolutePath());
 }
 
@@ -45,7 +45,7 @@ static QScriptValue absolutePath(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue canonicalPath(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Dir, canonicalPath);
+    DECLARE_SELF(QDir, canonicalPath);
     return QScriptValue(eng, self->canonicalPath());
 }
 
@@ -53,7 +53,7 @@ static QScriptValue canonicalPath(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue cd(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Dir, cd);
+    DECLARE_SELF(QDir, cd);
     return QScriptValue(eng, self->cd(ctx->argument(0).toString()));
 }
 
@@ -61,7 +61,7 @@ static QScriptValue cd(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue cdUp(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Dir, cdUp);
+    DECLARE_SELF(QDir, cdUp);
     return QScriptValue(eng, self->cdUp());
 }
 
@@ -69,7 +69,7 @@ static QScriptValue cdUp(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue count(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Dir, count);
+    DECLARE_SELF(QDir, count);
     return QScriptValue(eng, self->count());
 }
 
@@ -77,7 +77,7 @@ static QScriptValue count(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue dirName(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Dir, dirName);
+    DECLARE_SELF(QDir, dirName);
     return QScriptValue(eng, self->dirName());
 }
 
@@ -85,7 +85,7 @@ static QScriptValue dirName(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue entryInfoList(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Dir, entryInfoList);
+    DECLARE_SELF(QDir, entryInfoList);
     QDir::Filters filters = QDir::NoFilter;
     QDir::SortFlags sort = QDir::NoSort;
     if (ctx->argument(0).isArray()) {
@@ -108,7 +108,7 @@ static QScriptValue entryInfoList(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue entryList(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Dir, entryList);
+    DECLARE_SELF(QDir, entryList);
     QDir::Filters filters = QDir::NoFilter;
     QDir::SortFlags sort = QDir::NoSort;
     if (ctx->argument(0).isArray()) {
@@ -131,7 +131,7 @@ static QScriptValue entryList(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue exists(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Dir, exists);
+    DECLARE_SELF(QDir, exists);
     if (ctx->argumentCount() == 0)
         return QScriptValue(eng, self->exists());
     return QScriptValue(eng, self->exists(ctx->argument(0).toString()));
@@ -141,7 +141,7 @@ static QScriptValue exists(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue filePath(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Dir, filePath);
+    DECLARE_SELF(QDir, filePath);
     return QScriptValue(eng, self->filePath(ctx->argument(0).toString()));
 }
 
@@ -149,7 +149,7 @@ static QScriptValue filePath(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue filter(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Dir, filter);
+    DECLARE_SELF(QDir, filter);
     return QScriptValue(eng, self->filter());
 }
 
@@ -157,7 +157,7 @@ static QScriptValue filter(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue isAbsolute(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Dir, isAbsolute);
+    DECLARE_SELF(QDir, isAbsolute);
     return QScriptValue(eng, self->isAbsolute());
 }
 
@@ -165,7 +165,7 @@ static QScriptValue isAbsolute(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue isReadable(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Dir, isReadable);
+    DECLARE_SELF(QDir, isReadable);
     return QScriptValue(eng, self->isReadable());
 }
 
@@ -173,7 +173,7 @@ static QScriptValue isReadable(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue isRelative(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Dir, isRelative);
+    DECLARE_SELF(QDir, isRelative);
     return QScriptValue(eng, self->isRelative());
 }
 
@@ -181,7 +181,7 @@ static QScriptValue isRelative(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue isRoot(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Dir, isRoot);
+    DECLARE_SELF(QDir, isRoot);
     return QScriptValue(eng, self->isRoot());
 }
 
@@ -189,7 +189,7 @@ static QScriptValue isRoot(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue makeAbsolute(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Dir, makeAbsolute);
+    DECLARE_SELF(QDir, makeAbsolute);
     return QScriptValue(eng, self->makeAbsolute());
 }
 
@@ -197,7 +197,7 @@ static QScriptValue makeAbsolute(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue mkdir(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Dir, mkdir);
+    DECLARE_SELF(QDir, mkdir);
     return QScriptValue(eng, self->mkdir(ctx->argument(0).toString()));
 }
 
@@ -205,7 +205,7 @@ static QScriptValue mkdir(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue mkpath(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Dir, mkpath);
+    DECLARE_SELF(QDir, mkpath);
     return QScriptValue(eng, self->mkpath(ctx->argument(0).toString()));
 }
 
@@ -213,7 +213,7 @@ static QScriptValue mkpath(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue nameFilters(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Dir, nameFilters);
+    DECLARE_SELF(QDir, nameFilters);
     return eng->toScriptValue(self->nameFilters());
 }
 
@@ -221,7 +221,7 @@ static QScriptValue nameFilters(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue path(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Dir, path);
+    DECLARE_SELF(QDir, path);
     return QScriptValue(eng, self->path());
 }
 
@@ -229,7 +229,7 @@ static QScriptValue path(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue refresh(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Dir, refresh);
+    DECLARE_SELF(QDir, refresh);
     self->refresh();
     return eng->undefinedValue();
 }
@@ -238,7 +238,7 @@ static QScriptValue refresh(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue relativeFilePath(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Dir, relativeFilePath);
+    DECLARE_SELF(QDir, relativeFilePath);
     return QScriptValue(eng, self->relativeFilePath(ctx->argument(0).toString()));
 }
 
@@ -246,7 +246,7 @@ static QScriptValue relativeFilePath(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue remove(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Dir, remove);
+    DECLARE_SELF(QDir, remove);
     return QScriptValue(eng, self->remove(ctx->argument(0).toString()));
 }
 
@@ -254,7 +254,7 @@ static QScriptValue remove(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue rename(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Dir, rename);
+    DECLARE_SELF(QDir, rename);
     return QScriptValue(eng, self->rename(ctx->argument(0).toString(),
                                           ctx->argument(1).toString()));
 }
@@ -263,7 +263,7 @@ static QScriptValue rename(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue rmdir(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Dir, rmdir);
+    DECLARE_SELF(QDir, rmdir);
     return QScriptValue(eng, self->rmdir(ctx->argument(0).toString()));
 }
 
@@ -271,7 +271,7 @@ static QScriptValue rmdir(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue rmpath(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Dir, rmpath);
+    DECLARE_SELF(QDir, rmpath);
     return QScriptValue(eng, self->rmpath(ctx->argument(0).toString()));
 }
 
@@ -279,7 +279,7 @@ static QScriptValue rmpath(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setFilter(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Dir, setFilter);
+    DECLARE_SELF(QDir, setFilter);
     self->setFilter(QDir::Filters(ctx->argument(0).toInt32()));
     return eng->undefinedValue();
 }
@@ -288,7 +288,7 @@ static QScriptValue setFilter(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setNameFilters(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Dir, setNameFilters);
+    DECLARE_SELF(QDir, setNameFilters);
     self->setNameFilters(qscriptvalue_cast<QStringList>(ctx->argument(0)));
     return eng->undefinedValue();
 }
@@ -297,7 +297,7 @@ static QScriptValue setNameFilters(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setPath(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Dir, setPath);
+    DECLARE_SELF(QDir, setPath);
     self->setPath(ctx->argument(0).toString());
     return eng->undefinedValue();
 }
@@ -306,7 +306,7 @@ static QScriptValue setPath(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setSorting(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Dir, setSorting);
+    DECLARE_SELF(QDir, setSorting);
     self->setSorting(QDir::SortFlags(ctx->argument(0).toInt32()));
     return eng->undefinedValue();
 }
@@ -315,7 +315,7 @@ static QScriptValue setSorting(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue sorting(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Dir, sorting);
+    DECLARE_SELF(QDir, sorting);
     return QScriptValue(eng, static_cast<int>(self->sorting()));
 }
 
@@ -323,7 +323,7 @@ static QScriptValue sorting(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Dir, toString);
+    DECLARE_SELF(QDir, toString);
     return QScriptValue(eng, QString::fromLatin1("QDir(%0)").arg(self->path()));
 }
 
@@ -481,39 +481,39 @@ static QScriptValue toNativeSeparators(QScriptContext *ctx, QScriptEngine *eng)
 QScriptValue constructDirClass(QScriptEngine *eng)
 {
     QScriptValue proto = newDir(eng, QDir());
-    ADD_PROTO_FUNCTION(proto, absoluteFilePath);
-    ADD_PROTO_FUNCTION(proto, absolutePath);
-    ADD_PROTO_FUNCTION(proto, canonicalPath);
-    ADD_PROTO_FUNCTION(proto, cd);
-    ADD_PROTO_FUNCTION(proto, cdUp);
-    ADD_PROTO_FUNCTION(proto, count);
-    ADD_PROTO_FUNCTION(proto, dirName);
-    ADD_PROTO_FUNCTION(proto, entryInfoList);
-    ADD_PROTO_FUNCTION(proto, entryList);
-    ADD_PROTO_FUNCTION(proto, exists);
-    ADD_PROTO_FUNCTION(proto, filePath);
-    ADD_PROTO_FUNCTION(proto, filter);
-    ADD_PROTO_FUNCTION(proto, isAbsolute);
-    ADD_PROTO_FUNCTION(proto, isReadable);
-    ADD_PROTO_FUNCTION(proto, isRelative);
-    ADD_PROTO_FUNCTION(proto, isRoot);
-    ADD_PROTO_FUNCTION(proto, makeAbsolute);
-    ADD_PROTO_FUNCTION(proto, mkdir);
-    ADD_PROTO_FUNCTION(proto, mkpath);
-    ADD_PROTO_FUNCTION(proto, nameFilters);
-    ADD_PROTO_FUNCTION(proto, path);
-    ADD_PROTO_FUNCTION(proto, refresh);
-    ADD_PROTO_FUNCTION(proto, relativeFilePath);
-    ADD_PROTO_FUNCTION(proto, remove);
-    ADD_PROTO_FUNCTION(proto, rename);
-    ADD_PROTO_FUNCTION(proto, rmdir);
-    ADD_PROTO_FUNCTION(proto, rmpath);
-    ADD_PROTO_FUNCTION(proto, setFilter);
-    ADD_PROTO_FUNCTION(proto, setNameFilters);
-    ADD_PROTO_FUNCTION(proto, setPath);
-    ADD_PROTO_FUNCTION(proto, setSorting);
-    ADD_PROTO_FUNCTION(proto, sorting);
-    ADD_PROTO_FUNCTION(proto, toString);
+    ADD_METHOD(proto, absoluteFilePath);
+    ADD_METHOD(proto, absolutePath);
+    ADD_METHOD(proto, canonicalPath);
+    ADD_METHOD(proto, cd);
+    ADD_METHOD(proto, cdUp);
+    ADD_METHOD(proto, count);
+    ADD_METHOD(proto, dirName);
+    ADD_METHOD(proto, entryInfoList);
+    ADD_METHOD(proto, entryList);
+    ADD_METHOD(proto, exists);
+    ADD_METHOD(proto, filePath);
+    ADD_METHOD(proto, filter);
+    ADD_METHOD(proto, isAbsolute);
+    ADD_METHOD(proto, isReadable);
+    ADD_METHOD(proto, isRelative);
+    ADD_METHOD(proto, isRoot);
+    ADD_METHOD(proto, makeAbsolute);
+    ADD_METHOD(proto, mkdir);
+    ADD_METHOD(proto, mkpath);
+    ADD_METHOD(proto, nameFilters);
+    ADD_METHOD(proto, path);
+    ADD_METHOD(proto, refresh);
+    ADD_METHOD(proto, relativeFilePath);
+    ADD_METHOD(proto, remove);
+    ADD_METHOD(proto, rename);
+    ADD_METHOD(proto, rmdir);
+    ADD_METHOD(proto, rmpath);
+    ADD_METHOD(proto, setFilter);
+    ADD_METHOD(proto, setNameFilters);
+    ADD_METHOD(proto, setPath);
+    ADD_METHOD(proto, setSorting);
+    ADD_METHOD(proto, sorting);
+    ADD_METHOD(proto, toString);
 
     eng->setDefaultPrototype(qMetaTypeId<QDir>(), proto);
     eng->setDefaultPrototype(qMetaTypeId<QDir*>(), proto);

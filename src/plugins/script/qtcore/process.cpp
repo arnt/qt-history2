@@ -85,132 +85,132 @@ public:
 public Q_SLOTS:
     void closeReadChannel(int channel)
     {
-        DECLARE_SELF2(Process, closeReadChannel, );
+        DECLARE_SELF2(QProcess, closeReadChannel, );
         self->closeReadChannel(QProcess::ProcessChannel(channel));
     }
     void closeWriteChannel()
     {
-        DECLARE_SELF2(Process, closeWriteChannel, );
+        DECLARE_SELF2(QProcess, closeWriteChannel, );
         self->closeWriteChannel();
     }
     QStringList environment() const
     {
-        DECLARE_SELF2(Process, environment, QStringList());
+        DECLARE_SELF2(QProcess, environment, QStringList());
         return self->environment();
     }
     int error() const
     {
-        DECLARE_SELF2(Process, error, QProcess::UnknownError);
+        DECLARE_SELF2(QProcess, error, QProcess::UnknownError);
         return self->error();
     }
     int exitCode() const
     {
-        DECLARE_SELF2(Process, exitCode, -1);
+        DECLARE_SELF2(QProcess, exitCode, -1);
         return self->exitCode();
     }
     int exitStatus() const
     {
-        DECLARE_SELF2(Process, exitStatus, QProcess::NormalExit);
+        DECLARE_SELF2(QProcess, exitStatus, QProcess::NormalExit);
         return self->exitStatus();
     }
     Q_PID pid() const
     {
-        DECLARE_SELF2(Process, pid, 0);
+        DECLARE_SELF2(QProcess, pid, 0);
         return self->pid();
     }
     int processChannelMode() const
     {
-        DECLARE_SELF2(Process, processChannelMode, QProcess::SeparateChannels);
+        DECLARE_SELF2(QProcess, processChannelMode, QProcess::SeparateChannels);
         return self->processChannelMode();
     }
     QByteArray readAllStandardError()
     {
-        DECLARE_SELF2(Process, readAllStandardError, QByteArray());
+        DECLARE_SELF2(QProcess, readAllStandardError, QByteArray());
         return self->readAllStandardError();
     }
     QByteArray readAllStandardOutput()
     {
-        DECLARE_SELF2(Process, readAllStandardOutput, QByteArray());
+        DECLARE_SELF2(QProcess, readAllStandardOutput, QByteArray());
         return self->readAllStandardOutput();
     }
     int readChannel() const
     {
-        DECLARE_SELF2(Process, readChannel, QProcess::StandardOutput);
+        DECLARE_SELF2(QProcess, readChannel, QProcess::StandardOutput);
         return self->readChannel();
     }
     void setEnvironment(const QStringList &environment)
     {
-        DECLARE_SELF2(Process, setEnvironment, );
+        DECLARE_SELF2(QProcess, setEnvironment, );
         self->setEnvironment(environment);
     }
     void setProcessChannelMode(int mode)
     {
-        DECLARE_SELF2(Process, setProcessChannelMode, );
+        DECLARE_SELF2(QProcess, setProcessChannelMode, );
         self->setProcessChannelMode(QProcess::ProcessChannelMode(mode));
     }
     void setReadChannel(int channel)
     {
-        DECLARE_SELF2(Process, setReadChannel, );
+        DECLARE_SELF2(QProcess, setReadChannel, );
         self->setReadChannel(QProcess::ProcessChannel(channel));
     }
     void setStandardErrorFile(const QString &fileName, int mode = QIODevice::Truncate)
     {
-        DECLARE_SELF2(Process, setStandardErrorFile, );
+        DECLARE_SELF2(QProcess, setStandardErrorFile, );
         self->setStandardErrorFile(fileName, QIODevice::OpenMode(mode));
     }
     void setStandardInputFile(const QString &fileName)
     {
-        DECLARE_SELF2(Process, setStandardInputFile, );
+        DECLARE_SELF2(QProcess, setStandardInputFile, );
         self->setStandardInputFile(fileName);
     }
     void setStandardOutputFile(const QString &fileName, int mode = QIODevice::Truncate)
     {
-        DECLARE_SELF2(Process, setStandardOutputFile, );
+        DECLARE_SELF2(QProcess, setStandardOutputFile, );
         self->setStandardOutputFile(fileName, QIODevice::OpenMode(mode));
     }
     void setStandardOutputProcess(QProcess *destination)
     {
-        DECLARE_SELF2(Process, setStandardOutputProcess, );
+        DECLARE_SELF2(QProcess, setStandardOutputProcess, );
         self->setStandardOutputProcess(destination);
     }
     void setWorkingDirectory(const QString &dir)
     {
-        DECLARE_SELF2(Process, setWorkingDirectory, );
+        DECLARE_SELF2(QProcess, setWorkingDirectory, );
         self->setWorkingDirectory(dir);
     }
     void start(const QString &program, const QStringList &arguments, int mode = QIODevice::ReadWrite)
     {
-        DECLARE_SELF2(Process, start, );
+        DECLARE_SELF2(QProcess, start, );
         self->start(program, arguments, QIODevice::OpenMode(mode));
     }
     void start(const QString &program, int mode = QIODevice::ReadWrite)
     {
-        DECLARE_SELF2(Process, start, );
+        DECLARE_SELF2(QProcess, start, );
         self->start(program, QIODevice::OpenMode(mode));
     }
     int state() const
     {
-        DECLARE_SELF2(Process, state, QProcess::NotRunning);
+        DECLARE_SELF2(QProcess, state, QProcess::NotRunning);
         return self->state();
     }
     bool waitForFinished(int msecs = 30000)
     {
-        DECLARE_SELF2(Process, waitForFinished, false);
+        DECLARE_SELF2(QProcess, waitForFinished, false);
         return self->waitForFinished(msecs);
     }
     bool waitForStarted(int msecs = 30000)
     {
-        DECLARE_SELF2(Process, waitForStarted, false);
+        DECLARE_SELF2(QProcess, waitForStarted, false);
         return self->waitForStarted(msecs);
     }
     QString workingDirectory() const
     {
-        DECLARE_SELF2(Process, workingDirectory, QString());
+        DECLARE_SELF2(QProcess, workingDirectory, QString());
         return self->workingDirectory();
     }
     QString toString() const
     {
-        DECLARE_SELF2(Process, toString, QString());
+        DECLARE_SELF2(QProcess, toString, QString());
         return QString::fromLatin1("QProcess");
     }
 };

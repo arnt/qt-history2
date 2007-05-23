@@ -83,172 +83,172 @@ public:
 public Q_SLOTS:
     bool atEnd() const
     {
-        DECLARE_SELF2(TextStream, atEnd, true);
+        DECLARE_SELF2(QTextStream, atEnd, true);
         return self->atEnd();
     }
     bool autoDetectUnicode() const
     {
-        DECLARE_SELF2(TextStream, autoDetectUnicode, false);
+        DECLARE_SELF2(QTextStream, autoDetectUnicode, false);
         return self->autoDetectUnicode();
     }
     QTextCodec *codec() const
     {
-        DECLARE_SELF2(TextStream, codec, 0);
+        DECLARE_SELF2(QTextStream, codec, 0);
         return self->codec();
     }
     QIODevice *device() const
     {
-        DECLARE_SELF2(TextStream, device, 0);
+        DECLARE_SELF2(QTextStream, device, 0);
         return self->device();
     }
     int fieldAlignment() const
     {
-        DECLARE_SELF2(TextStream, fieldAlignment, 0);
+        DECLARE_SELF2(QTextStream, fieldAlignment, 0);
         return self->fieldAlignment();
     }
     int fieldWidth() const
     {
-        DECLARE_SELF2(TextStream, fieldWidth, 0);
+        DECLARE_SELF2(QTextStream, fieldWidth, 0);
         return self->fieldWidth();
     }
     void flush()
     {
-        DECLARE_SELF2(TextStream, flush, );
+        DECLARE_SELF2(QTextStream, flush, );
         self->flush();
     }
     bool generateByteOrderMark() const
     {
-        DECLARE_SELF2(TextStream, generateByteOrderMark, false);
+        DECLARE_SELF2(QTextStream, generateByteOrderMark, false);
         return self->generateByteOrderMark();
     }
     int integerBase() const
     {
-        DECLARE_SELF2(TextStream, integerBase, 0);
+        DECLARE_SELF2(QTextStream, integerBase, 0);
         return self->integerBase();
     }
     int numberFlags() const
     {
-        DECLARE_SELF2(TextStream, numberFlags, 0);
+        DECLARE_SELF2(QTextStream, numberFlags, 0);
         return self->numberFlags();
     }
     QChar padChar() const
     {
-        DECLARE_SELF2(TextStream, padChar, QChar());
+        DECLARE_SELF2(QTextStream, padChar, QChar());
         return self->padChar();
     }
     qint64 pos() const
     {
-        DECLARE_SELF2(TextStream, pos, -1);
+        DECLARE_SELF2(QTextStream, pos, -1);
         return self->pos();
     }
     QString read(qint64 maxlen)
     {
-        DECLARE_SELF2(TextStream, read, QString());
+        DECLARE_SELF2(QTextStream, read, QString());
         return self->read(maxlen);
     }
     QString readAll()
     {
-        DECLARE_SELF2(TextStream, readAll, QString());
+        DECLARE_SELF2(QTextStream, readAll, QString());
         return self->readAll();
     }
     QString readLine(qint64 maxlen = 0)
     {
-        DECLARE_SELF2(TextStream, readLine, QString());
+        DECLARE_SELF2(QTextStream, readLine, QString());
         return self->readLine(maxlen);
     }
     int realNumberNotation() const
     {
-        DECLARE_SELF2(TextStream, realNumberNotation, 0);
+        DECLARE_SELF2(QTextStream, realNumberNotation, 0);
         return self->realNumberNotation();
     }
     void reset()
     {
-        DECLARE_SELF2(TextStream, reset, );
+        DECLARE_SELF2(QTextStream, reset, );
         self->reset();
     }
     void resetStatus()
     {
-        DECLARE_SELF2(TextStream, resetStatus, );
+        DECLARE_SELF2(QTextStream, resetStatus, );
         self->resetStatus();
     }
     bool seek(qint64 pos)
     {
-        DECLARE_SELF2(TextStream, seek, false);
+        DECLARE_SELF2(QTextStream, seek, false);
         return self->seek(pos);
     }
     void setAutoDetectUnicode(bool enabled)
     {
-        DECLARE_SELF2(TextStream, setAutoDetectUnicode, );
+        DECLARE_SELF2(QTextStream, setAutoDetectUnicode, );
         self->setAutoDetectUnicode(enabled);
     }
     void setCodec(QTextCodec *codec)
     {
-        DECLARE_SELF2(TextStream, setCodec, );
+        DECLARE_SELF2(QTextStream, setCodec, );
         self->setCodec(codec);
     }
     void setDevice(QIODevice *device)
     {
-        DECLARE_SELF2(TextStream, setDevice, );
+        DECLARE_SELF2(QTextStream, setDevice, );
         self->setDevice(device);
     }
     void setFieldAlignment(int mode)
     {
-        DECLARE_SELF2(TextStream, setFieldAlignment, );
+        DECLARE_SELF2(QTextStream, setFieldAlignment, );
         self->setFieldAlignment(QTextStream::FieldAlignment(mode));
     }
     void setFieldWidth(int width)
     {
-        DECLARE_SELF2(TextStream, setFieldWidth, );
+        DECLARE_SELF2(QTextStream, setFieldWidth, );
         self->setFieldWidth(width);
     }
     void setGenerateByteOrderMark(bool generate)
     {
-        DECLARE_SELF2(TextStream, setGenerateByteOrderMark, );
+        DECLARE_SELF2(QTextStream, setGenerateByteOrderMark, );
         self->setGenerateByteOrderMark(generate);
     }
     void setIntegerBase(int base)
     {
-        DECLARE_SELF2(TextStream, setIntegerBase, );
+        DECLARE_SELF2(QTextStream, setIntegerBase, );
         self->setIntegerBase(base);
     }
     void setNumberFlags(int flags)
     {
-        DECLARE_SELF2(TextStream, setNumberFlags, );
+        DECLARE_SELF2(QTextStream, setNumberFlags, );
         self->setNumberFlags(QTextStream::NumberFlags(flags));
     }
     void setPadChar(QChar ch)
     {
-        DECLARE_SELF2(TextStream, setPadChar, );
+        DECLARE_SELF2(QTextStream, setPadChar, );
         self->setPadChar(ch);
     }
     void setRealNumberNotation(int notation)
     {
-        DECLARE_SELF2(TextStream, setRealNumberNotation, );
+        DECLARE_SELF2(QTextStream, setRealNumberNotation, );
         self->setRealNumberNotation(QTextStream::RealNumberNotation(notation));
     }
     void setRealNumberPrecision(int precision)
     {
-        DECLARE_SELF2(TextStream, setRealNumberPrecision, );
+        DECLARE_SELF2(QTextStream, setRealNumberPrecision, );
         self->setRealNumberPrecision(precision);
     }
     void setStatus(int status)
     {
-        DECLARE_SELF2(TextStream, setStatus, );
+        DECLARE_SELF2(QTextStream, setStatus, );
         self->setStatus(QTextStream::Status(status));
     }
     void skipWhiteSpace()
     {
-        DECLARE_SELF2(TextStream, skipWhiteSpace, );
+        DECLARE_SELF2(QTextStream, skipWhiteSpace, );
         self->skipWhiteSpace();
     }
     int status() const
     {
-        DECLARE_SELF2(TextStream, status, 0);
+        DECLARE_SELF2(QTextStream, status, 0);
         return self->status();
     }
     QString toString() const
     {
-        DECLARE_SELF2(TextStream, toString, QString());
+        DECLARE_SELF2(QTextStream, toString, QString());
         return QString::fromLatin1("QTextStream");
     }
 };

@@ -42,7 +42,7 @@ static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue background(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, background);
+    DECLARE_SELF(QPainter, background);
     return eng->toScriptValue(self->background());
 }
 
@@ -50,7 +50,7 @@ static QScriptValue background(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue backgroundMode(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, backgroundMode);
+    DECLARE_SELF(QPainter, backgroundMode);
     return QScriptValue(eng, static_cast<int>(self->backgroundMode()));
 }
 
@@ -58,7 +58,7 @@ static QScriptValue backgroundMode(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue begin(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, begin);
+    DECLARE_SELF(QPainter, begin);
     QWidget *device = qscriptvalue_cast<QWidget*>(ctx->argument(0));
     if (!device) {
         return ctx->throwError(QScriptContext::TypeError,
@@ -71,7 +71,7 @@ static QScriptValue begin(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue boundingRect(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, boundingRect);
+    DECLARE_SELF(QPainter, boundingRect);
     QRect result;
     if (ctx->argumentCount() == 3) {
         result = self->boundingRect(qscriptvalue_cast<QRect>(ctx->argument(0)),
@@ -92,7 +92,7 @@ static QScriptValue boundingRect(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue brush(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, brush);
+    DECLARE_SELF(QPainter, brush);
     return eng->toScriptValue(self->brush());
 }
 
@@ -100,7 +100,7 @@ static QScriptValue brush(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue brushOrigin(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, brushOrigin);
+    DECLARE_SELF(QPainter, brushOrigin);
     return eng->toScriptValue(self->brushOrigin());
 }
 
@@ -108,7 +108,7 @@ static QScriptValue brushOrigin(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue clipPath(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, clipPath);
+    DECLARE_SELF(QPainter, clipPath);
     return eng->toScriptValue(self->clipPath());
 }
 
@@ -116,7 +116,7 @@ static QScriptValue clipPath(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue clipRegion(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, clipRegion);
+    DECLARE_SELF(QPainter, clipRegion);
     return eng->toScriptValue(self->clipRegion());
 }
 
@@ -124,7 +124,7 @@ static QScriptValue clipRegion(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue combinedMatrix(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, combinedMatrix);
+    DECLARE_SELF(QPainter, combinedMatrix);
     return eng->toScriptValue(self->combinedMatrix());
 }
 
@@ -132,7 +132,7 @@ static QScriptValue combinedMatrix(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue combinedTransform(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, combinedTransform);
+    DECLARE_SELF(QPainter, combinedTransform);
     return eng->toScriptValue(self->combinedTransform());
 }
 
@@ -140,7 +140,7 @@ static QScriptValue combinedTransform(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue compositionMode(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, compositionMode);
+    DECLARE_SELF(QPainter, compositionMode);
     return QScriptValue(eng, static_cast<int>(self->compositionMode()));
 }
 
@@ -148,7 +148,7 @@ static QScriptValue compositionMode(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue device(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, device);
+    DECLARE_SELF(QPainter, device);
     return eng->toScriptValue(self->device());
 }
 
@@ -156,7 +156,7 @@ static QScriptValue device(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue deviceMatrix(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, deviceMatrix);
+    DECLARE_SELF(QPainter, deviceMatrix);
     return eng->toScriptValue(self->deviceMatrix());
 }
 
@@ -164,7 +164,7 @@ static QScriptValue deviceMatrix(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue deviceTransform(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, deviceTransform);
+    DECLARE_SELF(QPainter, deviceTransform);
     return eng->toScriptValue(self->deviceTransform());
 }
 
@@ -172,7 +172,7 @@ static QScriptValue deviceTransform(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue drawArc(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, drawArc);
+    DECLARE_SELF(QPainter, drawArc);
     if (ctx->argumentCount() == 6) {
         // drawArc(x, y, height, width, startAngle, spanAngle)
         self->drawArc(ctx->argument(0).toInt32(),
@@ -194,7 +194,7 @@ static QScriptValue drawArc(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue drawChord(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, drawChord);
+    DECLARE_SELF(QPainter, drawChord);
     if (ctx->argumentCount() == 6) {
         // x, y, height, width, startAngle, spanAngle
         self->drawChord(ctx->argument(0).toInt32(),
@@ -216,7 +216,7 @@ static QScriptValue drawChord(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue drawConvexPolygon(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, drawConvexPolygon);
+    DECLARE_SELF(QPainter, drawConvexPolygon);
     self->drawConvexPolygon(qscriptvalue_cast<QPolygonF>(ctx->argument(0)));
     return eng->undefinedValue();
 }
@@ -225,7 +225,7 @@ static QScriptValue drawConvexPolygon(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue drawEllipse(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, drawEllipse);
+    DECLARE_SELF(QPainter, drawEllipse);
     if (ctx->argumentCount() == 4) {
         // drawEllipse(x, y, width, height)
         self->drawEllipse(ctx->argument(0).toInt32(),
@@ -243,7 +243,7 @@ static QScriptValue drawEllipse(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue drawImage(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, drawImage);
+    DECLARE_SELF(QPainter, drawImage);
     if (ctx->argumentCount() == 2) {
         // target, image
         QScriptValue arg0 = ctx->argument(0);
@@ -261,7 +261,7 @@ static QScriptValue drawImage(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue drawLine(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, drawLine);
+    DECLARE_SELF(QPainter, drawLine);
     if (ctx->argumentCount() == 4) {
         // x1, y1, x2, y2
         self->drawLine(ctx->argument(0).toInt32(),
@@ -283,7 +283,7 @@ static QScriptValue drawLine(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue drawLines(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, drawLines);
+    DECLARE_SELF(QPainter, drawLines);
     return ctx->throwError("QPainter.prototype.drawLines is not implemented");
 //    self->drawLines(qscriptvalue_cast<QVector<QLineF> >(ctx->argument(0)));
     return eng->undefinedValue();
@@ -293,7 +293,7 @@ static QScriptValue drawLines(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue drawPath(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, drawPath);
+    DECLARE_SELF(QPainter, drawPath);
     self->drawPath(qscriptvalue_cast<QPainterPath>(ctx->argument(0)));
     return eng->undefinedValue();
 }
@@ -302,7 +302,7 @@ static QScriptValue drawPath(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue drawPicture(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, drawPicture);
+    DECLARE_SELF(QPainter, drawPicture);
     if (ctx->argumentCount() == 2) {
         self->drawPicture(qscriptvalue_cast<QPointF>(ctx->argument(0)),
                           qscriptvalue_cast<QPicture>(ctx->argument(1)));
@@ -318,7 +318,7 @@ static QScriptValue drawPicture(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue drawPie(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, drawPie);
+    DECLARE_SELF(QPainter, drawPie);
     if (ctx->argumentCount() == 6) {
         // x, y, height, width, startAngle, spanAngle
         self->drawPie(ctx->argument(0).toInt32(),
@@ -340,7 +340,7 @@ static QScriptValue drawPie(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue drawPixmap(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, drawPixmap);
+    DECLARE_SELF(QPainter, drawPixmap);
     if (ctx->argumentCount() == 5) {
         // x, y, width, height, pixmap
         self->drawPixmap(ctx->argument(0).toInt32(),
@@ -356,7 +356,7 @@ static QScriptValue drawPixmap(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue drawPoint(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, drawPoint);
+    DECLARE_SELF(QPainter, drawPoint);
     if (ctx->argumentCount() == 2) {
         // drawPoint(x, y)
         self->drawPoint(ctx->argument(0).toInt32(),
@@ -372,7 +372,7 @@ static QScriptValue drawPoint(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue drawPoints(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, drawPoints);
+    DECLARE_SELF(QPainter, drawPoints);
     self->drawPoints(qscriptvalue_cast<QPolygonF>(ctx->argument(0)));
     return eng->undefinedValue();
 }
@@ -381,7 +381,7 @@ static QScriptValue drawPoints(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue drawPolygon(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, drawPolygon);
+    DECLARE_SELF(QPainter, drawPolygon);
     // ### fillRule (2nd argument)
     self->drawPolygon(qscriptvalue_cast<QPolygonF>(ctx->argument(0)));
     return eng->undefinedValue();
@@ -391,7 +391,7 @@ static QScriptValue drawPolygon(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue drawPolyline(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, drawPolyline);
+    DECLARE_SELF(QPainter, drawPolyline);
     self->drawPolyline(qscriptvalue_cast<QPolygonF>(ctx->argument(0)));
     return eng->undefinedValue();
 }
@@ -400,7 +400,7 @@ static QScriptValue drawPolyline(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue drawRect(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, drawRect);
+    DECLARE_SELF(QPainter, drawRect);
     if (ctx->argumentCount() == 4) {
         // x, y, width, height
         self->drawRect(ctx->argument(0).toInt32(),
@@ -418,7 +418,7 @@ static QScriptValue drawRect(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue drawRects(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, drawRects);
+    DECLARE_SELF(QPainter, drawRects);
     self->drawRects(qscriptvalue_cast<QVector<QRectF> >(ctx->argument(0)));
     return eng->undefinedValue();
 }
@@ -427,7 +427,7 @@ static QScriptValue drawRects(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue drawRoundRect(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, drawRoundRect);
+    DECLARE_SELF(QPainter, drawRoundRect);
     // ### xRnd, yRnd
     if (ctx->argumentCount() >= 4) {
         self->drawRoundRect(ctx->argument(0).toInt32(),
@@ -444,7 +444,7 @@ static QScriptValue drawRoundRect(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue drawText(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, drawText);
+    DECLARE_SELF(QPainter, drawText);
     if (ctx->argumentCount() == 3) {
         // x, y, text
         self->drawText(ctx->argument(0).toInt32(),
@@ -467,7 +467,7 @@ static QScriptValue drawText(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue drawTiledPixmap(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, drawTiledPixmap);
+    DECLARE_SELF(QPainter, drawTiledPixmap);
     if (ctx->argumentCount() >= 5) {
         // x, y, width, height, pixmap, sx, sy
         self->drawTiledPixmap(ctx->argument(0).toInt32(),
@@ -490,7 +490,7 @@ static QScriptValue drawTiledPixmap(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue end(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, end);
+    DECLARE_SELF(QPainter, end);
     return QScriptValue(eng, self->end());
 }
 
@@ -498,7 +498,7 @@ static QScriptValue end(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue eraseRect(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, eraseRect);
+    DECLARE_SELF(QPainter, eraseRect);
     if (ctx->argumentCount() == 4) {
         // x, y, width, height
         self->eraseRect(ctx->argument(0).toInt32(),
@@ -516,7 +516,7 @@ static QScriptValue eraseRect(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue fillPath(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, fillPath);
+    DECLARE_SELF(QPainter, fillPath);
     QPainterPath *path = qscriptvalue_cast<QPainterPath*>(ctx->argument(0));
     if (!path) {
         return ctx->throwError(QScriptContext::TypeError,
@@ -530,7 +530,7 @@ static QScriptValue fillPath(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue fillRect(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, fillRect);
+    DECLARE_SELF(QPainter, fillRect);
     if (ctx->argumentCount() == 4) {
         // x, y, width, height, brush
         self->fillRect(ctx->argument(0).toInt32(),
@@ -550,7 +550,7 @@ static QScriptValue fillRect(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue font(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, font);
+    DECLARE_SELF(QPainter, font);
     return qScriptValueFromValue(eng, self->font());
 }
 
@@ -558,7 +558,7 @@ static QScriptValue font(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue fontInfo(QScriptContext *ctx, QScriptEngine *)
 {
-    DECLARE_SELF(Painter, fontInfo);
+    DECLARE_SELF(QPainter, fontInfo);
     return ctx->throwError("QPainter.prototype.fontInfo is not implemented");
 }
 
@@ -566,7 +566,7 @@ static QScriptValue fontInfo(QScriptContext *ctx, QScriptEngine *)
 
 static QScriptValue fontMetrics(QScriptContext *ctx, QScriptEngine *)
 {
-    DECLARE_SELF(Painter, fontMetrics);
+    DECLARE_SELF(QPainter, fontMetrics);
     return ctx->throwError("QPainter.prototype.fontMetrics is not implemented");
 }
 
@@ -574,7 +574,7 @@ static QScriptValue fontMetrics(QScriptContext *ctx, QScriptEngine *)
 
 static QScriptValue hasClipping(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, hasClipping);
+    DECLARE_SELF(QPainter, hasClipping);
     return QScriptValue(eng, self->hasClipping());
 }
 
@@ -582,7 +582,7 @@ static QScriptValue hasClipping(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue initFrom(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, initFrom);
+    DECLARE_SELF(QPainter, initFrom);
     QWidget *widget = qscriptvalue_cast<QWidget*>(ctx->argument(0));
     if (!widget) {
         return ctx->throwError(QScriptContext::TypeError,
@@ -596,7 +596,7 @@ static QScriptValue initFrom(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue isActive(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, isActive);
+    DECLARE_SELF(QPainter, isActive);
     return QScriptValue(eng, self->isActive());
 }
 
@@ -604,7 +604,7 @@ static QScriptValue isActive(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue layoutDirection(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, layoutDirection);
+    DECLARE_SELF(QPainter, layoutDirection);
     return QScriptValue(eng, static_cast<int>(self->layoutDirection()));
 }
 
@@ -612,7 +612,7 @@ static QScriptValue layoutDirection(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue opacity(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, opacity);
+    DECLARE_SELF(QPainter, opacity);
     return QScriptValue(eng, self->opacity());
 }
 
@@ -620,7 +620,7 @@ static QScriptValue opacity(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue paintEngine(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, paintEngine);
+    DECLARE_SELF(QPainter, paintEngine);
     return eng->toScriptValue(self->paintEngine());
 }
 
@@ -628,7 +628,7 @@ static QScriptValue paintEngine(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue pen(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, pen);
+    DECLARE_SELF(QPainter, pen);
     return eng->toScriptValue(self->pen());
 }
 
@@ -636,7 +636,7 @@ static QScriptValue pen(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue renderHints(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, renderHints);
+    DECLARE_SELF(QPainter, renderHints);
     return QScriptValue(eng, static_cast<int>(self->renderHints()));
 }
 
@@ -644,7 +644,7 @@ static QScriptValue renderHints(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue resetMatrix(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, resetMatrix);
+    DECLARE_SELF(QPainter, resetMatrix);
     self->resetMatrix();
     return eng->undefinedValue();
 }
@@ -653,7 +653,7 @@ static QScriptValue resetMatrix(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue resetTransform(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, resetTransform);
+    DECLARE_SELF(QPainter, resetTransform);
     self->resetTransform();
     return eng->undefinedValue();
 }
@@ -662,7 +662,7 @@ static QScriptValue resetTransform(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue restore(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, restore);
+    DECLARE_SELF(QPainter, restore);
     self->restore();
     return eng->undefinedValue();
 }
@@ -671,7 +671,7 @@ static QScriptValue restore(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue rotate(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, rotate);
+    DECLARE_SELF(QPainter, rotate);
     self->rotate(ctx->argument(0).toNumber());
     return eng->undefinedValue();
 }
@@ -680,7 +680,7 @@ static QScriptValue rotate(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue save(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, save);
+    DECLARE_SELF(QPainter, save);
     self->save();
     return eng->undefinedValue();
 }
@@ -689,7 +689,7 @@ static QScriptValue save(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue scale(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, scale);
+    DECLARE_SELF(QPainter, scale);
     self->scale(ctx->argument(0).toNumber(),
                 ctx->argument(1).toNumber());
     return eng->undefinedValue();
@@ -699,7 +699,7 @@ static QScriptValue scale(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setBackground(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, setBackground);
+    DECLARE_SELF(QPainter, setBackground);
     self->setBackground(qscriptvalue_cast<QBrush>(ctx->argument(0)));
     return eng->undefinedValue();
 }
@@ -708,7 +708,7 @@ static QScriptValue setBackground(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setBackgroundMode(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, setBackgroundMode);
+    DECLARE_SELF(QPainter, setBackgroundMode);
     self->setBackgroundMode(static_cast<Qt::BGMode>(ctx->argument(0).toInt32()));
     return eng->undefinedValue();
 }
@@ -717,7 +717,7 @@ static QScriptValue setBackgroundMode(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setBrush(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, setBrush);
+    DECLARE_SELF(QPainter, setBrush);
     self->setBrush(qscriptvalue_cast<QBrush>(ctx->argument(0)));
     return eng->undefinedValue();
 }
@@ -726,7 +726,7 @@ static QScriptValue setBrush(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setBrushOrigin(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, setBrushOrigin);
+    DECLARE_SELF(QPainter, setBrushOrigin);
     self->setBrushOrigin(qscriptvalue_cast<QPointF>(ctx->argument(0)));
     return eng->undefinedValue();
 }
@@ -735,7 +735,7 @@ static QScriptValue setBrushOrigin(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setClipPath(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, setClipPath);
+    DECLARE_SELF(QPainter, setClipPath);
     // ### ClipOperation
     self->setClipPath(qscriptvalue_cast<QPainterPath>(ctx->argument(0)));
     return eng->undefinedValue();
@@ -745,7 +745,7 @@ static QScriptValue setClipPath(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setClipRect(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, setClipRect);
+    DECLARE_SELF(QPainter, setClipRect);
     // ### ClipOperation
     if (ctx->argumentCount() >= 4) {
         // x, y, width, height [, operation]
@@ -764,7 +764,7 @@ static QScriptValue setClipRect(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setClipRegion(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, setClipRegion);
+    DECLARE_SELF(QPainter, setClipRegion);
     // ### ClipOperation
     self->setClipRegion(qscriptvalue_cast<QRegion>(ctx->argument(0)));
     return eng->undefinedValue();
@@ -774,7 +774,7 @@ static QScriptValue setClipRegion(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setClipping(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, setClipping);
+    DECLARE_SELF(QPainter, setClipping);
     self->setClipping(ctx->argument(0).toBoolean());
     return eng->undefinedValue();
 }
@@ -783,7 +783,7 @@ static QScriptValue setClipping(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setCompositionMode(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, setCompositionMode);
+    DECLARE_SELF(QPainter, setCompositionMode);
     self->setCompositionMode(static_cast<QPainter::CompositionMode>(ctx->argument(0).toInt32()));
     return eng->undefinedValue();
 }
@@ -792,7 +792,7 @@ static QScriptValue setCompositionMode(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setFont(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, setFont);
+    DECLARE_SELF(QPainter, setFont);
     self->setFont(qscriptvalue_cast<QFont>(ctx->argument(0)));
     return eng->undefinedValue();
 }
@@ -801,7 +801,7 @@ static QScriptValue setFont(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setLayoutDirection(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, setLayoutDirection);
+    DECLARE_SELF(QPainter, setLayoutDirection);
     self->setLayoutDirection(static_cast<Qt::LayoutDirection>(ctx->argument(0).toInt32()));
     return eng->undefinedValue();
 }
@@ -810,7 +810,7 @@ static QScriptValue setLayoutDirection(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setOpacity(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, setOpacity);
+    DECLARE_SELF(QPainter, setOpacity);
     self->setOpacity(ctx->argument(0).toNumber());
     return eng->undefinedValue();
 }
@@ -819,7 +819,7 @@ static QScriptValue setOpacity(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setPen(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, setPen);
+    DECLARE_SELF(QPainter, setPen);
     self->setPen(qscriptvalue_cast<QPen>(ctx->argument(0)));
     return eng->undefinedValue();
 }
@@ -828,7 +828,7 @@ static QScriptValue setPen(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setRenderHint(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, setRenderHint);
+    DECLARE_SELF(QPainter, setRenderHint);
     self->setRenderHint(static_cast<QPainter::RenderHint>(ctx->argument(0).toInt32()),
                         ctx->argument(1).toBoolean());
     return eng->undefinedValue();
@@ -838,7 +838,7 @@ static QScriptValue setRenderHint(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setRenderHints(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, setRenderHints);
+    DECLARE_SELF(QPainter, setRenderHints);
     self->setRenderHints(static_cast<QPainter::RenderHints>(ctx->argument(0).toInt32()),
                          ctx->argument(1).toBoolean());
     return eng->undefinedValue();
@@ -848,7 +848,7 @@ static QScriptValue setRenderHints(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setTransform(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, setTransform);
+    DECLARE_SELF(QPainter, setTransform);
     self->setTransform(qscriptvalue_cast<QTransform>(ctx->argument(0)));
     return eng->undefinedValue();
 }
@@ -857,7 +857,7 @@ static QScriptValue setTransform(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setViewTransformEnabled(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, setViewTransformEnabled);
+    DECLARE_SELF(QPainter, setViewTransformEnabled);
     self->setViewTransformEnabled(ctx->argument(0).toBoolean());
     return eng->undefinedValue();
 }
@@ -866,7 +866,7 @@ static QScriptValue setViewTransformEnabled(QScriptContext *ctx, QScriptEngine *
 
 static QScriptValue setViewport(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, setViewport);
+    DECLARE_SELF(QPainter, setViewport);
     if (ctx->argumentCount() == 4) {
         // x, y, width, height
         self->setViewport(ctx->argument(0).toInt32(),
@@ -884,7 +884,7 @@ static QScriptValue setViewport(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setWindow(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, setWindow);
+    DECLARE_SELF(QPainter, setWindow);
     if (ctx->argumentCount() == 4) {
         // x, y, width, height
         self->setWindow(ctx->argument(0).toInt32(),
@@ -902,7 +902,7 @@ static QScriptValue setWindow(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setWorldMatrix(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, setWorldMatrix);
+    DECLARE_SELF(QPainter, setWorldMatrix);
     self->setWorldMatrix(qscriptvalue_cast<QMatrix>(ctx->argument(0)),
                          ctx->argument(1).toBoolean());
     return eng->undefinedValue();
@@ -912,7 +912,7 @@ static QScriptValue setWorldMatrix(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setWorldMatrixEnabled(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, setWorldMatrixEnabled);
+    DECLARE_SELF(QPainter, setWorldMatrixEnabled);
     self->setWorldMatrixEnabled(ctx->argument(0).toBoolean());
     return eng->undefinedValue();
 }
@@ -921,7 +921,7 @@ static QScriptValue setWorldMatrixEnabled(QScriptContext *ctx, QScriptEngine *en
 
 static QScriptValue setWorldTransform(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, setWorldTransform);
+    DECLARE_SELF(QPainter, setWorldTransform);
     self->setWorldTransform(qscriptvalue_cast<QTransform>(ctx->argument(0)),
                             ctx->argument(1).toBoolean());
     return eng->undefinedValue();
@@ -931,7 +931,7 @@ static QScriptValue setWorldTransform(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue shear(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, shear);
+    DECLARE_SELF(QPainter, shear);
     self->shear(ctx->argument(0).toNumber(),
                      ctx->argument(1).toNumber());
     return eng->undefinedValue();
@@ -941,7 +941,7 @@ static QScriptValue shear(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue strokePath(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, strokePath);
+    DECLARE_SELF(QPainter, strokePath);
     QPainterPath *path = qscriptvalue_cast<QPainterPath*>(ctx->argument(0));
     if (!path) {
         return ctx->throwError(QScriptContext::TypeError,
@@ -955,7 +955,7 @@ static QScriptValue strokePath(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue testRenderHint(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, testRenderHint);
+    DECLARE_SELF(QPainter, testRenderHint);
     return QScriptValue(eng, self->testRenderHint(static_cast<QPainter::RenderHint>(ctx->argument(0).toInt32())));
 }
 
@@ -963,7 +963,7 @@ static QScriptValue testRenderHint(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue transform(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, transform);
+    DECLARE_SELF(QPainter, transform);
     return eng->toScriptValue(self->transform());
 }
 
@@ -971,7 +971,7 @@ static QScriptValue transform(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue translate(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, translate);
+    DECLARE_SELF(QPainter, translate);
     if (ctx->argumentCount() == 2) {
         // dx, dy
         self->translate(ctx->argument(0).toNumber(),
@@ -987,7 +987,7 @@ static QScriptValue translate(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue viewTransformEnabled(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, viewTransformEnabled);
+    DECLARE_SELF(QPainter, viewTransformEnabled);
     return QScriptValue(eng, self->viewTransformEnabled());
 }
 
@@ -995,7 +995,7 @@ static QScriptValue viewTransformEnabled(QScriptContext *ctx, QScriptEngine *eng
 
 static QScriptValue viewport(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, viewport);
+    DECLARE_SELF(QPainter, viewport);
     return eng->toScriptValue(self->viewport());
 }
 
@@ -1003,7 +1003,7 @@ static QScriptValue viewport(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue window(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, window);
+    DECLARE_SELF(QPainter, window);
     return eng->toScriptValue(self->window());
 }
 
@@ -1011,7 +1011,7 @@ static QScriptValue window(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue worldMatrix(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, worldMatrix);
+    DECLARE_SELF(QPainter, worldMatrix);
     return eng->toScriptValue(self->worldMatrix());
 }
 
@@ -1019,7 +1019,7 @@ static QScriptValue worldMatrix(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue worldMatrixEnabled(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, worldMatrixEnabled);
+    DECLARE_SELF(QPainter, worldMatrixEnabled);
     return QScriptValue(eng, self->worldMatrixEnabled());
 }
 
@@ -1027,7 +1027,7 @@ static QScriptValue worldMatrixEnabled(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue worldTransform(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, worldTransform);
+    DECLARE_SELF(QPainter, worldTransform);
     return eng->toScriptValue(self->worldTransform());
 }
 
@@ -1035,7 +1035,7 @@ static QScriptValue worldTransform(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Painter, toString);
+    DECLARE_SELF(QPainter, toString);
     return QScriptValue(eng, "QPainter");
 }
 
@@ -1044,95 +1044,95 @@ static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 QScriptValue constructPainterClass(QScriptEngine *eng)
 {
     QScriptValue proto = newPainter(eng, new QPainter());
-    ADD_PROTO_FUNCTION(proto, background);
-    ADD_PROTO_FUNCTION(proto, backgroundMode);
-    ADD_PROTO_FUNCTION(proto, begin);
-    ADD_PROTO_FUNCTION(proto, boundingRect);
-    ADD_PROTO_FUNCTION(proto, brush);
-    ADD_PROTO_FUNCTION(proto, brushOrigin);
-    ADD_PROTO_FUNCTION(proto, clipPath);
-    ADD_PROTO_FUNCTION(proto, clipRegion);
-    ADD_PROTO_FUNCTION(proto, combinedMatrix);
-    ADD_PROTO_FUNCTION(proto, combinedTransform);
-    ADD_PROTO_FUNCTION(proto, compositionMode);
-    ADD_PROTO_FUNCTION(proto, device);
-    ADD_PROTO_FUNCTION(proto, deviceMatrix);
-    ADD_PROTO_FUNCTION(proto, deviceTransform);
-    ADD_PROTO_FUNCTION(proto, drawChord);
-    ADD_PROTO_FUNCTION(proto, drawConvexPolygon);
-    ADD_PROTO_FUNCTION(proto, drawArc);
-    ADD_PROTO_FUNCTION(proto, drawEllipse);
-    ADD_PROTO_FUNCTION(proto, drawImage);
-    ADD_PROTO_FUNCTION(proto, drawLine);
-    ADD_PROTO_FUNCTION(proto, drawLines);
-    ADD_PROTO_FUNCTION(proto, drawPath);
-    ADD_PROTO_FUNCTION(proto, drawPicture);
-    ADD_PROTO_FUNCTION(proto, drawPie);
-    ADD_PROTO_FUNCTION(proto, drawPixmap);
-    ADD_PROTO_FUNCTION(proto, drawPoint);
-    ADD_PROTO_FUNCTION(proto, drawPoints);
-    ADD_PROTO_FUNCTION(proto, drawPolygon);
-    ADD_PROTO_FUNCTION(proto, drawPolyline);
-    ADD_PROTO_FUNCTION(proto, drawRect);
-    ADD_PROTO_FUNCTION(proto, drawRects);
-    ADD_PROTO_FUNCTION(proto, drawRoundRect);
-    ADD_PROTO_FUNCTION(proto, drawText);
-    ADD_PROTO_FUNCTION(proto, drawTiledPixmap);
-    ADD_PROTO_FUNCTION(proto, end);
-    ADD_PROTO_FUNCTION(proto, eraseRect);
-    ADD_PROTO_FUNCTION(proto, fillPath);
-    ADD_PROTO_FUNCTION(proto, fillRect);
-    ADD_PROTO_FUNCTION(proto, font);
-    ADD_PROTO_FUNCTION(proto, fontInfo);
-    ADD_PROTO_FUNCTION(proto, fontMetrics);
-    ADD_PROTO_FUNCTION(proto, hasClipping);
-    ADD_PROTO_FUNCTION(proto, initFrom);
-    ADD_PROTO_FUNCTION(proto, isActive);
-    ADD_PROTO_FUNCTION(proto, layoutDirection);
-    ADD_PROTO_FUNCTION(proto, opacity);
-    ADD_PROTO_FUNCTION(proto, paintEngine);
-    ADD_PROTO_FUNCTION(proto, pen);
-    ADD_PROTO_FUNCTION(proto, renderHints);
-    ADD_PROTO_FUNCTION(proto, resetMatrix);
-    ADD_PROTO_FUNCTION(proto, resetTransform);
-    ADD_PROTO_FUNCTION(proto, restore);
-    ADD_PROTO_FUNCTION(proto, rotate);
-    ADD_PROTO_FUNCTION(proto, save);
-    ADD_PROTO_FUNCTION(proto, scale);
-    ADD_PROTO_FUNCTION(proto, setBackground);
-    ADD_PROTO_FUNCTION(proto, setBackgroundMode);
-    ADD_PROTO_FUNCTION(proto, setBrush);
-    ADD_PROTO_FUNCTION(proto, setBrushOrigin);
-    ADD_PROTO_FUNCTION(proto, setClipPath);
-    ADD_PROTO_FUNCTION(proto, setClipRect);
-    ADD_PROTO_FUNCTION(proto, setClipRegion);
-    ADD_PROTO_FUNCTION(proto, setClipping);
-    ADD_PROTO_FUNCTION(proto, setCompositionMode);
-    ADD_PROTO_FUNCTION(proto, setFont);
-    ADD_PROTO_FUNCTION(proto, setLayoutDirection);
-    ADD_PROTO_FUNCTION(proto, setOpacity);
-    ADD_PROTO_FUNCTION(proto, setPen);
-    ADD_PROTO_FUNCTION(proto, setRenderHint);
-    ADD_PROTO_FUNCTION(proto, setRenderHints);
-    ADD_PROTO_FUNCTION(proto, setTransform);
-    ADD_PROTO_FUNCTION(proto, setViewTransformEnabled);
-    ADD_PROTO_FUNCTION(proto, setViewport);
-    ADD_PROTO_FUNCTION(proto, setWindow);
-    ADD_PROTO_FUNCTION(proto, setWorldMatrix);
-    ADD_PROTO_FUNCTION(proto, setWorldMatrixEnabled);
-    ADD_PROTO_FUNCTION(proto, setWorldTransform);
-    ADD_PROTO_FUNCTION(proto, shear);
-    ADD_PROTO_FUNCTION(proto, strokePath);
-    ADD_PROTO_FUNCTION(proto, testRenderHint);
-    ADD_PROTO_FUNCTION(proto, toString);
-    ADD_PROTO_FUNCTION(proto, transform);
-    ADD_PROTO_FUNCTION(proto, translate);
-    ADD_PROTO_FUNCTION(proto, viewTransformEnabled);
-    ADD_PROTO_FUNCTION(proto, viewport);
-    ADD_PROTO_FUNCTION(proto, window);
-    ADD_PROTO_FUNCTION(proto, worldMatrix);
-    ADD_PROTO_FUNCTION(proto, worldMatrixEnabled);
-    ADD_PROTO_FUNCTION(proto, worldTransform);
+    ADD_METHOD(proto, background);
+    ADD_METHOD(proto, backgroundMode);
+    ADD_METHOD(proto, begin);
+    ADD_METHOD(proto, boundingRect);
+    ADD_METHOD(proto, brush);
+    ADD_METHOD(proto, brushOrigin);
+    ADD_METHOD(proto, clipPath);
+    ADD_METHOD(proto, clipRegion);
+    ADD_METHOD(proto, combinedMatrix);
+    ADD_METHOD(proto, combinedTransform);
+    ADD_METHOD(proto, compositionMode);
+    ADD_METHOD(proto, device);
+    ADD_METHOD(proto, deviceMatrix);
+    ADD_METHOD(proto, deviceTransform);
+    ADD_METHOD(proto, drawChord);
+    ADD_METHOD(proto, drawConvexPolygon);
+    ADD_METHOD(proto, drawArc);
+    ADD_METHOD(proto, drawEllipse);
+    ADD_METHOD(proto, drawImage);
+    ADD_METHOD(proto, drawLine);
+    ADD_METHOD(proto, drawLines);
+    ADD_METHOD(proto, drawPath);
+    ADD_METHOD(proto, drawPicture);
+    ADD_METHOD(proto, drawPie);
+    ADD_METHOD(proto, drawPixmap);
+    ADD_METHOD(proto, drawPoint);
+    ADD_METHOD(proto, drawPoints);
+    ADD_METHOD(proto, drawPolygon);
+    ADD_METHOD(proto, drawPolyline);
+    ADD_METHOD(proto, drawRect);
+    ADD_METHOD(proto, drawRects);
+    ADD_METHOD(proto, drawRoundRect);
+    ADD_METHOD(proto, drawText);
+    ADD_METHOD(proto, drawTiledPixmap);
+    ADD_METHOD(proto, end);
+    ADD_METHOD(proto, eraseRect);
+    ADD_METHOD(proto, fillPath);
+    ADD_METHOD(proto, fillRect);
+    ADD_METHOD(proto, font);
+    ADD_METHOD(proto, fontInfo);
+    ADD_METHOD(proto, fontMetrics);
+    ADD_METHOD(proto, hasClipping);
+    ADD_METHOD(proto, initFrom);
+    ADD_METHOD(proto, isActive);
+    ADD_METHOD(proto, layoutDirection);
+    ADD_METHOD(proto, opacity);
+    ADD_METHOD(proto, paintEngine);
+    ADD_METHOD(proto, pen);
+    ADD_METHOD(proto, renderHints);
+    ADD_METHOD(proto, resetMatrix);
+    ADD_METHOD(proto, resetTransform);
+    ADD_METHOD(proto, restore);
+    ADD_METHOD(proto, rotate);
+    ADD_METHOD(proto, save);
+    ADD_METHOD(proto, scale);
+    ADD_METHOD(proto, setBackground);
+    ADD_METHOD(proto, setBackgroundMode);
+    ADD_METHOD(proto, setBrush);
+    ADD_METHOD(proto, setBrushOrigin);
+    ADD_METHOD(proto, setClipPath);
+    ADD_METHOD(proto, setClipRect);
+    ADD_METHOD(proto, setClipRegion);
+    ADD_METHOD(proto, setClipping);
+    ADD_METHOD(proto, setCompositionMode);
+    ADD_METHOD(proto, setFont);
+    ADD_METHOD(proto, setLayoutDirection);
+    ADD_METHOD(proto, setOpacity);
+    ADD_METHOD(proto, setPen);
+    ADD_METHOD(proto, setRenderHint);
+    ADD_METHOD(proto, setRenderHints);
+    ADD_METHOD(proto, setTransform);
+    ADD_METHOD(proto, setViewTransformEnabled);
+    ADD_METHOD(proto, setViewport);
+    ADD_METHOD(proto, setWindow);
+    ADD_METHOD(proto, setWorldMatrix);
+    ADD_METHOD(proto, setWorldMatrixEnabled);
+    ADD_METHOD(proto, setWorldTransform);
+    ADD_METHOD(proto, shear);
+    ADD_METHOD(proto, strokePath);
+    ADD_METHOD(proto, testRenderHint);
+    ADD_METHOD(proto, toString);
+    ADD_METHOD(proto, transform);
+    ADD_METHOD(proto, translate);
+    ADD_METHOD(proto, viewTransformEnabled);
+    ADD_METHOD(proto, viewport);
+    ADD_METHOD(proto, window);
+    ADD_METHOD(proto, worldMatrix);
+    ADD_METHOD(proto, worldMatrixEnabled);
+    ADD_METHOD(proto, worldTransform);
 
     QScript::registerPointerMetaType<QPainter>(eng, proto);
 

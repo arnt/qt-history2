@@ -55,7 +55,7 @@ static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue m11(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Transform, m11);
+    DECLARE_SELF(QTransform, m11);
     return QScriptValue(eng, self->m11());
 }
 
@@ -63,7 +63,7 @@ static QScriptValue m11(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue m12(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Transform, m12);
+    DECLARE_SELF(QTransform, m12);
     return QScriptValue(eng, self->m12());
 }
 
@@ -71,7 +71,7 @@ static QScriptValue m12(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue m13(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Transform, m13);
+    DECLARE_SELF(QTransform, m13);
     return QScriptValue(eng, self->m13());
 }
 
@@ -79,7 +79,7 @@ static QScriptValue m13(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue m21(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Transform, m21);
+    DECLARE_SELF(QTransform, m21);
     return QScriptValue(eng, self->m21());
 }
 
@@ -87,7 +87,7 @@ static QScriptValue m21(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue m22(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Transform, m22);
+    DECLARE_SELF(QTransform, m22);
     return QScriptValue(eng, self->m22());
 }
 
@@ -95,7 +95,7 @@ static QScriptValue m22(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue m23(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Transform, m23);
+    DECLARE_SELF(QTransform, m23);
     return QScriptValue(eng, self->m23());
 }
 
@@ -103,7 +103,7 @@ static QScriptValue m23(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue m31(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Transform, m31);
+    DECLARE_SELF(QTransform, m31);
     return QScriptValue(eng, self->m31());
 }
 
@@ -111,7 +111,7 @@ static QScriptValue m31(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue m32(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Transform, m32);
+    DECLARE_SELF(QTransform, m32);
     return QScriptValue(eng, self->m32());
 }
 
@@ -119,7 +119,7 @@ static QScriptValue m32(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue m33(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Transform, m33);
+    DECLARE_SELF(QTransform, m33);
     return QScriptValue(eng, self->m33());
 }
 
@@ -127,7 +127,7 @@ static QScriptValue m33(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue adjoint(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Transform, adjoint);
+    DECLARE_SELF(QTransform, adjoint);
     return newTransform(eng, self->adjoint());
 }
 
@@ -135,7 +135,7 @@ static QScriptValue adjoint(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue det(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Transform, det);
+    DECLARE_SELF(QTransform, det);
     return QScriptValue(eng, self->det());
 }
 
@@ -143,7 +143,7 @@ static QScriptValue det(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue determinant(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Transform, determinant);
+    DECLARE_SELF(QTransform, determinant);
     return QScriptValue(eng, self->determinant());
 }
 
@@ -151,7 +151,7 @@ static QScriptValue determinant(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue dx(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Transform, dx);
+    DECLARE_SELF(QTransform, dx);
     return QScriptValue(eng, self->dx());
 }
 
@@ -159,7 +159,7 @@ static QScriptValue dx(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue dy(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Transform, dy);
+    DECLARE_SELF(QTransform, dy);
     return QScriptValue(eng, self->dy());
 }
 
@@ -167,7 +167,7 @@ static QScriptValue dy(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue inverted(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Transform, inverted);
+    DECLARE_SELF(QTransform, inverted);
     return newTransform(eng, self->inverted());
 }
 
@@ -175,7 +175,7 @@ static QScriptValue inverted(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue isAffine(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Transform, isAffine);
+    DECLARE_SELF(QTransform, isAffine);
     return QScriptValue(eng, self->isAffine());
 }
 
@@ -183,7 +183,7 @@ static QScriptValue isAffine(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue isIdentity(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Transform, isIdentity);
+    DECLARE_SELF(QTransform, isIdentity);
     return QScriptValue(eng, self->isIdentity());
 }
 
@@ -191,7 +191,7 @@ static QScriptValue isIdentity(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue isInvertible(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Transform, isInvertible);
+    DECLARE_SELF(QTransform, isInvertible);
     return QScriptValue(eng, self->isInvertible());
 }
 
@@ -199,7 +199,7 @@ static QScriptValue isInvertible(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue isRotating(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Transform, isRotating);
+    DECLARE_SELF(QTransform, isRotating);
     return QScriptValue(eng, self->isRotating());
 }
 
@@ -207,7 +207,7 @@ static QScriptValue isRotating(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue isScaling(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Transform, isScaling);
+    DECLARE_SELF(QTransform, isScaling);
     return QScriptValue(eng, self->isScaling());
 }
 
@@ -215,7 +215,7 @@ static QScriptValue isScaling(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue isTranslating(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Transform, isTranslating);
+    DECLARE_SELF(QTransform, isTranslating);
     return QScriptValue(eng, self->isTranslating());
 }
 
@@ -223,7 +223,7 @@ static QScriptValue isTranslating(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue map(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Transform, map);
+    DECLARE_SELF(QTransform, map);
     QScriptValue arg = ctx->argument(0);
     if (QPainterPath *path = qscriptvalue_cast<QPainterPath*>(arg)) {
         return eng->toScriptValue(self->map(*path));
@@ -238,7 +238,7 @@ static QScriptValue map(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue mapRect(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Transform, mapRect);
+    DECLARE_SELF(QTransform, mapRect);
     return eng->toScriptValue(self->mapRect(qscriptvalue_cast<QRectF>(ctx->argument(0))));
 }
 
@@ -246,7 +246,7 @@ static QScriptValue mapRect(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue mapToPolygon(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Transform, mapToPolygon);
+    DECLARE_SELF(QTransform, mapToPolygon);
     return eng->toScriptValue(self->mapToPolygon(qscriptvalue_cast<QRect>(ctx->argument(0))));
 }
 
@@ -254,7 +254,7 @@ static QScriptValue mapToPolygon(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue reset(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Transform, reset);
+    DECLARE_SELF(QTransform, reset);
     self->reset();
     return eng->undefinedValue();
 }
@@ -263,7 +263,7 @@ static QScriptValue reset(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue rotate(QScriptContext *ctx, QScriptEngine *)
 {
-    DECLARE_SELF(Transform, rotate);
+    DECLARE_SELF(QTransform, rotate);
     qreal a = ctx->argument(0).toNumber();
     if (ctx->argumentCount() > 1) {
         Qt::Axis axis = static_cast<Qt::Axis>(ctx->argument(1).toInt32());
@@ -278,7 +278,7 @@ static QScriptValue rotate(QScriptContext *ctx, QScriptEngine *)
 
 static QScriptValue rotateRadians(QScriptContext *ctx, QScriptEngine *)
 {
-    DECLARE_SELF(Transform, rotateRadians);
+    DECLARE_SELF(QTransform, rotateRadians);
     qreal a = ctx->argument(0).toNumber();
     if (ctx->argumentCount() > 1) {
         Qt::Axis axis = static_cast<Qt::Axis>(ctx->argument(1).toInt32());
@@ -293,7 +293,7 @@ static QScriptValue rotateRadians(QScriptContext *ctx, QScriptEngine *)
 
 static QScriptValue scale(QScriptContext *ctx, QScriptEngine *)
 {
-    DECLARE_SELF(Transform, scale);
+    DECLARE_SELF(QTransform, scale);
     self->scale(ctx->argument(0).toNumber(),
                 ctx->argument(1).toNumber());
     return ctx->thisObject();
@@ -303,7 +303,7 @@ static QScriptValue scale(QScriptContext *ctx, QScriptEngine *)
 
 static QScriptValue setMatrix(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Transform, setMatrix);
+    DECLARE_SELF(QTransform, setMatrix);
     self->setMatrix(ctx->argument(0).toNumber(),
                     ctx->argument(1).toNumber(),
                     ctx->argument(2).toNumber(),
@@ -320,7 +320,7 @@ static QScriptValue setMatrix(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue shear(QScriptContext *ctx, QScriptEngine *)
 {
-    DECLARE_SELF(Transform, shear);
+    DECLARE_SELF(QTransform, shear);
     self->shear(ctx->argument(0).toNumber(),
                 ctx->argument(1).toNumber());
     return ctx->thisObject();
@@ -330,7 +330,7 @@ static QScriptValue shear(QScriptContext *ctx, QScriptEngine *)
 
 static QScriptValue toAffine(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Transform, toAffine);
+    DECLARE_SELF(QTransform, toAffine);
     return eng->toScriptValue(self->toAffine());
 }
 
@@ -338,7 +338,7 @@ static QScriptValue toAffine(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue translate(QScriptContext *ctx, QScriptEngine *)
 {
-    DECLARE_SELF(Transform, translate);
+    DECLARE_SELF(QTransform, translate);
     self->translate(ctx->argument(0).toNumber(),
                     ctx->argument(1).toNumber());
     return ctx->thisObject();
@@ -348,7 +348,7 @@ static QScriptValue translate(QScriptContext *ctx, QScriptEngine *)
 
 static QScriptValue transposed(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Transform, transposed);
+    DECLARE_SELF(QTransform, transposed);
     return newTransform(eng, self->transposed());
 }
 
@@ -356,7 +356,7 @@ static QScriptValue transposed(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue type(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Transform, type);
+    DECLARE_SELF(QTransform, type);
     return QScriptValue(eng, self->type());
 }
 
@@ -364,7 +364,7 @@ static QScriptValue type(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Transform, toString);
+    DECLARE_SELF(QTransform, toString);
     return QScriptValue(eng, "QTransform");
 }
 
@@ -373,41 +373,41 @@ static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 QScriptValue constructTransformClass(QScriptEngine *eng)
 {
     QScriptValue proto = newTransform(eng, QTransform());
-    ADD_PROTO_FUNCTION(proto, m11);
-    ADD_PROTO_FUNCTION(proto, m12);
-    ADD_PROTO_FUNCTION(proto, m13);
-    ADD_PROTO_FUNCTION(proto, m21);
-    ADD_PROTO_FUNCTION(proto, m22);
-    ADD_PROTO_FUNCTION(proto, m23);
-    ADD_PROTO_FUNCTION(proto, m31);
-    ADD_PROTO_FUNCTION(proto, m32);
-    ADD_PROTO_FUNCTION(proto, m33);
-    ADD_PROTO_FUNCTION(proto, adjoint);
-    ADD_PROTO_FUNCTION(proto, det);
-    ADD_PROTO_FUNCTION(proto, determinant);
-    ADD_PROTO_FUNCTION(proto, dx);
-    ADD_PROTO_FUNCTION(proto, dy);
-    ADD_PROTO_FUNCTION(proto, inverted);
-    ADD_PROTO_FUNCTION(proto, isAffine);
-    ADD_PROTO_FUNCTION(proto, isIdentity);
-    ADD_PROTO_FUNCTION(proto, isInvertible);
-    ADD_PROTO_FUNCTION(proto, isRotating);
-    ADD_PROTO_FUNCTION(proto, isScaling);
-    ADD_PROTO_FUNCTION(proto, isTranslating);
-    ADD_PROTO_FUNCTION(proto, map);
-    ADD_PROTO_FUNCTION(proto, mapRect);
-    ADD_PROTO_FUNCTION(proto, mapToPolygon);
-    ADD_PROTO_FUNCTION(proto, reset);
-    ADD_PROTO_FUNCTION(proto, rotate);
-    ADD_PROTO_FUNCTION(proto, rotateRadians);
-    ADD_PROTO_FUNCTION(proto, scale);
-    ADD_PROTO_FUNCTION(proto, setMatrix);
-    ADD_PROTO_FUNCTION(proto, shear);
-    ADD_PROTO_FUNCTION(proto, toAffine);
-    ADD_PROTO_FUNCTION(proto, translate);
-    ADD_PROTO_FUNCTION(proto, transposed);
-    ADD_PROTO_FUNCTION(proto, type);
-    ADD_PROTO_FUNCTION(proto, toString);
+    ADD_METHOD(proto, m11);
+    ADD_METHOD(proto, m12);
+    ADD_METHOD(proto, m13);
+    ADD_METHOD(proto, m21);
+    ADD_METHOD(proto, m22);
+    ADD_METHOD(proto, m23);
+    ADD_METHOD(proto, m31);
+    ADD_METHOD(proto, m32);
+    ADD_METHOD(proto, m33);
+    ADD_METHOD(proto, adjoint);
+    ADD_METHOD(proto, det);
+    ADD_METHOD(proto, determinant);
+    ADD_METHOD(proto, dx);
+    ADD_METHOD(proto, dy);
+    ADD_METHOD(proto, inverted);
+    ADD_METHOD(proto, isAffine);
+    ADD_METHOD(proto, isIdentity);
+    ADD_METHOD(proto, isInvertible);
+    ADD_METHOD(proto, isRotating);
+    ADD_METHOD(proto, isScaling);
+    ADD_METHOD(proto, isTranslating);
+    ADD_METHOD(proto, map);
+    ADD_METHOD(proto, mapRect);
+    ADD_METHOD(proto, mapToPolygon);
+    ADD_METHOD(proto, reset);
+    ADD_METHOD(proto, rotate);
+    ADD_METHOD(proto, rotateRadians);
+    ADD_METHOD(proto, scale);
+    ADD_METHOD(proto, setMatrix);
+    ADD_METHOD(proto, shear);
+    ADD_METHOD(proto, toAffine);
+    ADD_METHOD(proto, translate);
+    ADD_METHOD(proto, transposed);
+    ADD_METHOD(proto, type);
+    ADD_METHOD(proto, toString);
 
     eng->setDefaultPrototype(qMetaTypeId<QTransform>(), proto);
     eng->setDefaultPrototype(qMetaTypeId<QTransform*>(), proto);

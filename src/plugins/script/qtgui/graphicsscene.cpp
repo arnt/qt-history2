@@ -48,7 +48,7 @@ static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue addEllipse(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsScene, addEllipse);
+    DECLARE_SELF(QGraphicsScene, addEllipse);
     if (ctx->argumentCount() >= 4) {
         return eng->toScriptValue(self->addEllipse(ctx->argument(0).toNumber(),
                                                    ctx->argument(1).toNumber(),
@@ -67,7 +67,7 @@ static QScriptValue addEllipse(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue addItem(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsScene, addItem);
+    DECLARE_SELF(QGraphicsScene, addItem);
     QScriptValue arg = ctx->argument(0);
     QGraphicsItem *item = qscriptvalue_cast<QGraphicsItem*>(arg);
     self->addItem(item);
@@ -80,7 +80,7 @@ static QScriptValue addItem(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue addLine(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsScene, addLine);
+    DECLARE_SELF(QGraphicsScene, addLine);
     if (ctx->argumentCount() >= 4) {
         return eng->toScriptValue(self->addLine(ctx->argument(0).toNumber(),
                                                 ctx->argument(1).toNumber(),
@@ -97,7 +97,7 @@ static QScriptValue addLine(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue addPath(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsScene, addPath);
+    DECLARE_SELF(QGraphicsScene, addPath);
     return eng->toScriptValue(self->addPath(qscriptvalue_cast<QPainterPath>(ctx->argument(0)),
                                             qscriptvalue_cast<QPen>(ctx->argument(1)),
                                             qscriptvalue_cast<QBrush>(ctx->argument(2))));
@@ -108,7 +108,7 @@ static QScriptValue addPath(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue addPixmap(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsScene, addPixmap);
+    DECLARE_SELF(QGraphicsScene, addPixmap);
     return eng->toScriptValue(self->addPixmap(qscriptvalue_cast<QPixmap>(ctx->argument(0))));
 }
 
@@ -116,7 +116,7 @@ static QScriptValue addPixmap(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue addPolygon(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsScene, addPolygon);
+    DECLARE_SELF(QGraphicsScene, addPolygon);
     return eng->toScriptValue(self->addPolygon(qscriptvalue_cast<QPolygonF>(ctx->argument(0)),
                                                qscriptvalue_cast<QPen>(ctx->argument(1)),
                                                qscriptvalue_cast<QBrush>(ctx->argument(2))));
@@ -126,7 +126,7 @@ static QScriptValue addPolygon(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue addRect(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsScene, addRect);
+    DECLARE_SELF(QGraphicsScene, addRect);
     if (ctx->argumentCount() >= 4) {
         return eng->toScriptValue(self->addRect(ctx->argument(0).toNumber(),
                                                 ctx->argument(1).toNumber(),
@@ -145,7 +145,7 @@ static QScriptValue addRect(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue addSimpleText(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsScene, addSimpleText);
+    DECLARE_SELF(QGraphicsScene, addSimpleText);
     return eng->toScriptValue(self->addSimpleText(ctx->argument(0).toString(),
                                                   qscriptvalue_cast<QFont>(ctx->argument(1))));
 }
@@ -154,7 +154,7 @@ static QScriptValue addSimpleText(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue addText(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsScene, addText);
+    DECLARE_SELF(QGraphicsScene, addText);
     return eng->toScriptValue(self->addText(ctx->argument(0).toString(),
                                             qscriptvalue_cast<QFont>(ctx->argument(1))));
 }
@@ -163,7 +163,7 @@ static QScriptValue addText(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue backgroundBrush(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsScene, backgroundBrush);
+    DECLARE_SELF(QGraphicsScene, backgroundBrush);
     return eng->toScriptValue(self->backgroundBrush());
 }
 
@@ -171,7 +171,7 @@ static QScriptValue backgroundBrush(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue bspTreeDepth(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsScene, bspTreeDepth);
+    DECLARE_SELF(QGraphicsScene, bspTreeDepth);
     return QScriptValue(eng, self->bspTreeDepth());
 }
 
@@ -179,7 +179,7 @@ static QScriptValue bspTreeDepth(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue clearFocus(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsScene, clearFocus);
+    DECLARE_SELF(QGraphicsScene, clearFocus);
     self->clearFocus();
     return eng->undefinedValue();
 }
@@ -188,7 +188,7 @@ static QScriptValue clearFocus(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue clearSelection(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsScene, clearSelection);
+    DECLARE_SELF(QGraphicsScene, clearSelection);
     self->clearSelection();
     return eng->undefinedValue();
 }
@@ -197,7 +197,7 @@ static QScriptValue clearSelection(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue collidingItems(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsScene, collidingItems);
+    DECLARE_SELF(QGraphicsScene, collidingItems);
     QGraphicsItem *item = qscriptvalue_cast<QGraphicsItem*>(ctx->argument(0));
     if (ctx->argument(1).isUndefined()) {
         return eng->toScriptValue(self->collidingItems(item));
@@ -210,7 +210,7 @@ static QScriptValue collidingItems(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue createItemGroup(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsScene, createItemGroup);
+    DECLARE_SELF(QGraphicsScene, createItemGroup);
     return eng->toScriptValue(self->createItemGroup(qscriptvalue_cast<QList<QGraphicsItem*> >(ctx->argument(0))));
 }
 
@@ -218,7 +218,7 @@ static QScriptValue createItemGroup(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue destroyItemGroup(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsScene, destroyItemGroup);
+    DECLARE_SELF(QGraphicsScene, destroyItemGroup);
     self->destroyItemGroup(qscriptvalue_cast<QGraphicsItemGroup*>(ctx->argument(0)));
     return eng->undefinedValue();
 }
@@ -227,7 +227,7 @@ static QScriptValue destroyItemGroup(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue focusItem(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsScene, focusItem);
+    DECLARE_SELF(QGraphicsScene, focusItem);
     return eng->toScriptValue(self->focusItem());
 }
 
@@ -235,7 +235,7 @@ static QScriptValue focusItem(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue foregroundBrush(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsScene, foregroundBrush);
+    DECLARE_SELF(QGraphicsScene, foregroundBrush);
     return eng->toScriptValue(self->foregroundBrush());
 }
 
@@ -243,7 +243,7 @@ static QScriptValue foregroundBrush(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue hasFocus(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsScene, hasFocus);
+    DECLARE_SELF(QGraphicsScene, hasFocus);
     return QScriptValue(eng, self->hasFocus());
 }
 
@@ -251,7 +251,7 @@ static QScriptValue hasFocus(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue height(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsScene, height);
+    DECLARE_SELF(QGraphicsScene, height);
     return QScriptValue(eng, self->height());
 }
 
@@ -259,7 +259,7 @@ static QScriptValue height(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue inputMethodQuery(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsScene, inputMethodQuery);
+    DECLARE_SELF(QGraphicsScene, inputMethodQuery);
     return eng->newVariant(self->inputMethodQuery(static_cast<Qt::InputMethodQuery>(ctx->argument(0).toInt32())));
 }
 
@@ -267,7 +267,7 @@ static QScriptValue inputMethodQuery(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue invalidate(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsScene, invalidate);
+    DECLARE_SELF(QGraphicsScene, invalidate);
     if (ctx->argumentCount() > 4) {
         self->invalidate(ctx->argument(0).toNumber(),
                          ctx->argument(1).toNumber(),
@@ -287,7 +287,7 @@ static QScriptValue invalidate(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue itemAt(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsScene, itemAt);
+    DECLARE_SELF(QGraphicsScene, itemAt);
     if (ctx->argumentCount() > 1) {
         return eng->toScriptValue(self->itemAt(ctx->argument(0).toNumber(),
                                                ctx->argument(1).toNumber()));
@@ -300,7 +300,7 @@ static QScriptValue itemAt(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue itemIndexMethod(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsScene, itemIndexMethod);
+    DECLARE_SELF(QGraphicsScene, itemIndexMethod);
     return QScriptValue(eng, static_cast<int>(self->itemIndexMethod()));
 }
 
@@ -308,7 +308,7 @@ static QScriptValue itemIndexMethod(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue items(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsScene, items);
+    DECLARE_SELF(QGraphicsScene, items);
     // ### overloads
     return eng->toScriptValue(self->items());
 }
@@ -317,7 +317,7 @@ static QScriptValue items(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue itemsBoundingRect(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsScene, itemsBoundingRect);
+    DECLARE_SELF(QGraphicsScene, itemsBoundingRect);
     return eng->toScriptValue(self->itemsBoundingRect());
 }
 
@@ -325,7 +325,7 @@ static QScriptValue itemsBoundingRect(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue mouseGrabberItem(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsScene, mouseGrabberItem);
+    DECLARE_SELF(QGraphicsScene, mouseGrabberItem);
     return eng->toScriptValue(self->mouseGrabberItem());
 }
 
@@ -333,7 +333,7 @@ static QScriptValue mouseGrabberItem(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue removeItem(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsScene, removeItem);
+    DECLARE_SELF(QGraphicsScene, removeItem);
     QScriptValue arg = ctx->argument(0);
     QGraphicsItem *item = qscriptvalue_cast<QGraphicsItem*>(arg);
     self->removeItem(item);
@@ -346,7 +346,7 @@ static QScriptValue removeItem(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue render(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsScene, render);
+    DECLARE_SELF(QGraphicsScene, render);
     // ### AspectRadioMode
     self->render(qscriptvalue_cast<QPainter*>(ctx->argument(0)),
                  qscriptvalue_cast<QRectF>(ctx->argument(1)),
@@ -358,7 +358,7 @@ static QScriptValue render(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue sceneRect(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsScene, sceneRect);
+    DECLARE_SELF(QGraphicsScene, sceneRect);
     return eng->toScriptValue(self->sceneRect());
 }
 
@@ -366,7 +366,7 @@ static QScriptValue sceneRect(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue selectedItems(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsScene, selectedItems);
+    DECLARE_SELF(QGraphicsScene, selectedItems);
     return eng->toScriptValue(self->selectedItems());
 }
 
@@ -374,7 +374,7 @@ static QScriptValue selectedItems(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue selectionArea(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsScene, selectionArea);
+    DECLARE_SELF(QGraphicsScene, selectionArea);
     return eng->toScriptValue(self->selectionArea());
 }
 
@@ -382,7 +382,7 @@ static QScriptValue selectionArea(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setBackgroundBrush(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsScene, setBackgroundBrush);
+    DECLARE_SELF(QGraphicsScene, setBackgroundBrush);
     self->setBackgroundBrush(qscriptvalue_cast<QBrush>(ctx->argument(0)));
     return eng->undefinedValue();
 }
@@ -391,7 +391,7 @@ static QScriptValue setBackgroundBrush(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setBspTreeDepth(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsScene, setBspTreeDepth);
+    DECLARE_SELF(QGraphicsScene, setBspTreeDepth);
     self->setBspTreeDepth(ctx->argument(0).toInt32());
     return eng->undefinedValue();
 }
@@ -400,7 +400,7 @@ static QScriptValue setBspTreeDepth(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setFocus(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsScene, setFocus);
+    DECLARE_SELF(QGraphicsScene, setFocus);
     if (ctx->argument(0).isUndefined())
         self->setFocus();
     else
@@ -412,7 +412,7 @@ static QScriptValue setFocus(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setFocusItem(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsScene, setFocusItem);
+    DECLARE_SELF(QGraphicsScene, setFocusItem);
     QGraphicsItem *item = qscriptvalue_cast<QGraphicsItem*>(ctx->argument(0));
     if (ctx->argument(1).isUndefined())
         self->setFocusItem(item);
@@ -425,7 +425,7 @@ static QScriptValue setFocusItem(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setForegroundBrush(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsScene, setForegroundBrush);
+    DECLARE_SELF(QGraphicsScene, setForegroundBrush);
     self->setForegroundBrush(qscriptvalue_cast<QBrush>(ctx->argument(0)));
     return eng->undefinedValue();
 }
@@ -434,7 +434,7 @@ static QScriptValue setForegroundBrush(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setItemIndexMethod(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsScene, setItemIndexMethod);
+    DECLARE_SELF(QGraphicsScene, setItemIndexMethod);
     self->setItemIndexMethod(static_cast<QGraphicsScene::ItemIndexMethod>(ctx->argument(0).toInt32()));
     return eng->undefinedValue();
 }
@@ -443,7 +443,7 @@ static QScriptValue setItemIndexMethod(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setSceneRect(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsScene, setSceneRect);
+    DECLARE_SELF(QGraphicsScene, setSceneRect);
     if (ctx->argumentCount() > 1) {
         self->setSceneRect(ctx->argument(0).toNumber(),
                            ctx->argument(1).toNumber(),
@@ -459,7 +459,7 @@ static QScriptValue setSceneRect(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setSelectionArea(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsScene, setSelectionArea);
+    DECLARE_SELF(QGraphicsScene, setSelectionArea);
     if (ctx->argument(1).isUndefined()) {
         self->setSelectionArea(qscriptvalue_cast<QPainterPath>(ctx->argument(0)));
     } else {
@@ -473,7 +473,7 @@ static QScriptValue setSelectionArea(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue update(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsScene, update);
+    DECLARE_SELF(QGraphicsScene, update);
     self->update(ctx->argument(0).toNumber(),
                  ctx->argument(1).toNumber(),
                  ctx->argument(2).toNumber(),
@@ -485,7 +485,7 @@ static QScriptValue update(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue views(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsScene, views);
+    DECLARE_SELF(QGraphicsScene, views);
     return eng->toScriptValue(self->views());
 }
 
@@ -493,7 +493,7 @@ static QScriptValue views(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue width(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsScene, width);
+    DECLARE_SELF(QGraphicsScene, width);
     return QScriptValue(eng, self->width());
 }
 
@@ -501,7 +501,7 @@ static QScriptValue width(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsScene, toString);
+    DECLARE_SELF(QGraphicsScene, toString);
     return QScriptValue(eng, "QGraphicsScene");
 }
 
@@ -510,50 +510,50 @@ static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 QScriptValue constructGraphicsSceneClass(QScriptEngine *eng)
 {
     QScriptValue proto = eng->newQObject(new QGraphicsScene(), QScriptEngine::AutoOwnership);
-    ADD_PROTO_FUNCTION(proto, addEllipse);
-    ADD_PROTO_FUNCTION(proto, addItem);
-    ADD_PROTO_FUNCTION(proto, addLine);
-    ADD_PROTO_FUNCTION(proto, addPath);
-    ADD_PROTO_FUNCTION(proto, addPixmap);
-    ADD_PROTO_FUNCTION(proto, addPolygon);
-    ADD_PROTO_FUNCTION(proto, addRect);
-    ADD_PROTO_FUNCTION(proto, addSimpleText);
-    ADD_PROTO_FUNCTION(proto, addText);
-    ADD_PROTO_FUNCTION(proto, backgroundBrush);
-    ADD_PROTO_FUNCTION(proto, bspTreeDepth);
-    ADD_PROTO_FUNCTION(proto, clearFocus);
-    ADD_PROTO_FUNCTION(proto, clearSelection);
-    ADD_PROTO_FUNCTION(proto, collidingItems);
-    ADD_PROTO_FUNCTION(proto, createItemGroup);
-    ADD_PROTO_FUNCTION(proto, destroyItemGroup);
-    ADD_PROTO_FUNCTION(proto, focusItem);
-    ADD_PROTO_FUNCTION(proto, foregroundBrush);
-    ADD_PROTO_FUNCTION(proto, hasFocus);
-    ADD_PROTO_FUNCTION(proto, height);
-    ADD_PROTO_FUNCTION(proto, inputMethodQuery);
-    ADD_PROTO_FUNCTION(proto, invalidate);
-    ADD_PROTO_FUNCTION(proto, itemAt);
-    ADD_PROTO_FUNCTION(proto, itemIndexMethod);
-    ADD_PROTO_FUNCTION(proto, items);
-    ADD_PROTO_FUNCTION(proto, itemsBoundingRect);
-    ADD_PROTO_FUNCTION(proto, mouseGrabberItem);
-    ADD_PROTO_FUNCTION(proto, removeItem);
-    ADD_PROTO_FUNCTION(proto, render);
-    ADD_PROTO_FUNCTION(proto, sceneRect);
-    ADD_PROTO_FUNCTION(proto, selectedItems);
-    ADD_PROTO_FUNCTION(proto, selectionArea);
-    ADD_PROTO_FUNCTION(proto, setBackgroundBrush);
-    ADD_PROTO_FUNCTION(proto, setBspTreeDepth);
-    ADD_PROTO_FUNCTION(proto, setFocus);
-    ADD_PROTO_FUNCTION(proto, setFocusItem);
-    ADD_PROTO_FUNCTION(proto, setForegroundBrush);
-    ADD_PROTO_FUNCTION(proto, setItemIndexMethod);
-    ADD_PROTO_FUNCTION(proto, setSceneRect);
-    ADD_PROTO_FUNCTION(proto, setSelectionArea);
-    ADD_PROTO_FUNCTION(proto, toString);
-    ADD_PROTO_FUNCTION(proto, update);
-    ADD_PROTO_FUNCTION(proto, views);
-    ADD_PROTO_FUNCTION(proto, width);
+    ADD_METHOD(proto, addEllipse);
+    ADD_METHOD(proto, addItem);
+    ADD_METHOD(proto, addLine);
+    ADD_METHOD(proto, addPath);
+    ADD_METHOD(proto, addPixmap);
+    ADD_METHOD(proto, addPolygon);
+    ADD_METHOD(proto, addRect);
+    ADD_METHOD(proto, addSimpleText);
+    ADD_METHOD(proto, addText);
+    ADD_METHOD(proto, backgroundBrush);
+    ADD_METHOD(proto, bspTreeDepth);
+    ADD_METHOD(proto, clearFocus);
+    ADD_METHOD(proto, clearSelection);
+    ADD_METHOD(proto, collidingItems);
+    ADD_METHOD(proto, createItemGroup);
+    ADD_METHOD(proto, destroyItemGroup);
+    ADD_METHOD(proto, focusItem);
+    ADD_METHOD(proto, foregroundBrush);
+    ADD_METHOD(proto, hasFocus);
+    ADD_METHOD(proto, height);
+    ADD_METHOD(proto, inputMethodQuery);
+    ADD_METHOD(proto, invalidate);
+    ADD_METHOD(proto, itemAt);
+    ADD_METHOD(proto, itemIndexMethod);
+    ADD_METHOD(proto, items);
+    ADD_METHOD(proto, itemsBoundingRect);
+    ADD_METHOD(proto, mouseGrabberItem);
+    ADD_METHOD(proto, removeItem);
+    ADD_METHOD(proto, render);
+    ADD_METHOD(proto, sceneRect);
+    ADD_METHOD(proto, selectedItems);
+    ADD_METHOD(proto, selectionArea);
+    ADD_METHOD(proto, setBackgroundBrush);
+    ADD_METHOD(proto, setBspTreeDepth);
+    ADD_METHOD(proto, setFocus);
+    ADD_METHOD(proto, setFocusItem);
+    ADD_METHOD(proto, setForegroundBrush);
+    ADD_METHOD(proto, setItemIndexMethod);
+    ADD_METHOD(proto, setSceneRect);
+    ADD_METHOD(proto, setSelectionArea);
+    ADD_METHOD(proto, toString);
+    ADD_METHOD(proto, update);
+    ADD_METHOD(proto, views);
+    ADD_METHOD(proto, width);
 
     eng->setDefaultPrototype(qMetaTypeId<QGraphicsScene*>(), proto);
 

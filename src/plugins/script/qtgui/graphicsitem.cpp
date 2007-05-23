@@ -25,6 +25,56 @@ Q_DECLARE_METATYPE(QGraphicsPixmapItem*)
 Q_DECLARE_METATYPE(QGraphicsTextItem*)
 Q_DECLARE_METATYPE(QGraphicsSimpleTextItem*)
 
+DECLARE_BOOLEAN_GET_SET_METHODS(QGraphicsItem, acceptDrops, setAcceptDrops)
+DECLARE_BOOLEAN_GET_SET_METHODS(QGraphicsItem, acceptsHoverEvents, setAcceptsHoverEvents)
+DECLARE_GET_METHOD(QGraphicsItem, boundingRect)
+DECLARE_GET_METHOD(QGraphicsItem, children)
+DECLARE_GET_METHOD(QGraphicsItem, childrenBoundingRect)
+#ifndef QT_NO_CURSOR
+DECLARE_GET_SET_METHODS(QGraphicsItem, QCursor, cursor, setCursor)
+DECLARE_BOOLEAN_GET_METHOD(QGraphicsItem, hasCursor)
+#endif
+DECLARE_GET_SET_METHODS(QGraphicsItem, QGraphicsItemGroup*, group, setGroup)
+DECLARE_BOOLEAN_GET_SET_METHODS(QGraphicsItem, handlesChildEvents, setHandlesChildEvents)
+DECLARE_BOOLEAN_GET_METHOD(QGraphicsItem, hasFocus)
+DECLARE_BOOLEAN_GET_SET_METHODS(QGraphicsItem, isEnabled, setEnabled)
+DECLARE_BOOLEAN_GET_SET_METHODS(QGraphicsItem, isSelected, setSelected)
+DECLARE_BOOLEAN_GET_SET_METHODS(QGraphicsItem, isVisible, setVisible)
+DECLARE_GET_METHOD(QGraphicsItem, opaqueArea)
+DECLARE_GET_METHOD(QGraphicsItem, pos)
+DECLARE_QOBJECT_GET_METHOD(QGraphicsItem, scene)
+DECLARE_GET_METHOD(QGraphicsItem, sceneBoundingRect)
+DECLARE_GET_METHOD(QGraphicsItem, scenePos)
+DECLARE_GET_METHOD(QGraphicsItem, sceneTransform)
+DECLARE_GET_METHOD(QGraphicsItem, shape)
+#ifndef QT_NO_TOOLTIP
+DECLARE_STRING_GET_SET_METHODS(QGraphicsItem, toolTip, setToolTip)
+#endif
+DECLARE_GET_METHOD(QGraphicsItem, topLevelItem)
+DECLARE_GET_SET_METHODS(QGraphicsItem, QTransform, transform, setTransform)
+DECLARE_NUMBER_GET_METHOD(QGraphicsItem, type)
+DECLARE_NUMBER_GET_METHOD(QGraphicsItem, x)
+DECLARE_NUMBER_GET_METHOD(QGraphicsItem, y)
+DECLARE_NUMBER_GET_SET_METHODS(QGraphicsItem, zValue, setZValue)
+
+DECLARE_BOOLEAN_1ARG_METHOD(QGraphicsItem, QPointF, contains)
+DECLARE_VOID_METHOD(QGraphicsItem, clearFocus)
+DECLARE_VOID_METHOD(QGraphicsItem, hide)
+DECLARE_BOOLEAN_1ARG_METHOD(QGraphicsItem, QGraphicsItem*, isAncestorOf)
+DECLARE_BOOLEAN_1ARG_METHOD(QGraphicsItem, QGraphicsItem*, isObscuredBy)
+DECLARE_VOID_NUMBER_NUMBER_METHOD(QGraphicsItem, moveBy)
+DECLARE_VOID_METHOD(QGraphicsItem, resetTransform)
+#ifndef QT_NO_CURSOR
+DECLARE_VOID_METHOD(QGraphicsItem, unsetCursor)
+#endif
+DECLARE_VOID_METHOD(QGraphicsItem, show)
+DECLARE_VOID_NUMBER_NUMBER_METHOD(QGraphicsItem, translate)
+DECLARE_VOID_NUMBER_NUMBER_METHOD(QGraphicsItem, scale)
+DECLARE_VOID_NUMBER_NUMBER_METHOD(QGraphicsItem, shear)
+DECLARE_VOID_1ARG_METHOD(QGraphicsItem, QGraphicsItem*, installSceneEventFilter)
+DECLARE_VOID_1ARG_METHOD(QGraphicsItem, QGraphicsItem*, removeSceneEventFilter)
+DECLARE_VOID_NUMBER_METHOD(QGraphicsItem, rotate)
+
 /////////////////////////////////////////////////////////////
 
 static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *)
@@ -32,77 +82,16 @@ static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *)
     return ctx->throwError("QGraphicsItem cannot be instantiated");
 }
 
-/////////////////////////////////////////////////////////////
-
-static QScriptValue acceptDrops(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsItem, acceptDrops);
-    return QScriptValue(eng, self->acceptDrops());
-}
-
-/////////////////////////////////////////////////////////////
-
-static QScriptValue acceptedMouseButtons(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsItem, acceptedMouseButtons);
+BEGIN_DECLARE_METHOD(QGraphicsItem, acceptedMouseButtons) {
     return QScriptValue(eng, static_cast<int>(self->acceptedMouseButtons()));
-}
+} END_DECLARE_METHOD
 
-/////////////////////////////////////////////////////////////
-
-static QScriptValue acceptsHoverEvents(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsItem, acceptsHoverEvents);
-    return QScriptValue(eng, self->acceptsHoverEvents());
-}
-
-/////////////////////////////////////////////////////////////
-
-static QScriptValue advance(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsItem, advance);
+BEGIN_DECLARE_METHOD(QGraphicsItem, advance) {
     self->advance(ctx->argument(0).toInt32());
     return eng->undefinedValue();
-}
+} END_DECLARE_METHOD
 
-/////////////////////////////////////////////////////////////
-
-static QScriptValue boundingRect(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsItem, boundingRect);
-    return eng->toScriptValue(self->boundingRect());
-}
-
-/////////////////////////////////////////////////////////////
-
-static QScriptValue children(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsItem, children);
-    return eng->toScriptValue(self->children());
-}
-
-/////////////////////////////////////////////////////////////
-
-static QScriptValue childrenBoundingRect(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsItem, childrenBoundingRect);
-    return eng->toScriptValue(self->childrenBoundingRect());
-}
-
-/////////////////////////////////////////////////////////////
-
-static QScriptValue clearFocus(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsItem, clearFocus);
-    self->clearFocus();
-    return eng->undefinedValue();
-}
-
-/////////////////////////////////////////////////////////////
-
-static QScriptValue collidesWithItem(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsItem, collidesWithItem);
+BEGIN_DECLARE_METHOD(QGraphicsItem, collidesWithItem) {
     QGraphicsItem *other = qscriptvalue_cast<QGraphicsItem*>(ctx->argument(0));
     if (!other) {
         return ctx->throwError(QScriptContext::TypeError,
@@ -112,155 +101,40 @@ static QScriptValue collidesWithItem(QScriptContext *ctx, QScriptEngine *eng)
         return QScriptValue(eng, self->collidesWithItem(other));
     else
         return QScriptValue(eng, self->collidesWithItem(other, static_cast<Qt::ItemSelectionMode>(ctx->argument(1).toInt32())));
-}
+} END_DECLARE_METHOD
 
-/////////////////////////////////////////////////////////////
-
-static QScriptValue collidesWithPath(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsItem, collidesWithPath);
+BEGIN_DECLARE_METHOD(QGraphicsItem, collidesWithPath) {
     QPainterPath path = qscriptvalue_cast<QPainterPath>(ctx->argument(0));
     if (ctx->argument(1).isUndefined())
         return QScriptValue(eng, self->collidesWithPath(path));
     else
         return QScriptValue(eng, self->collidesWithPath(path, static_cast<Qt::ItemSelectionMode>(ctx->argument(1).toInt32())));
-}
+} END_DECLARE_METHOD
 
-/////////////////////////////////////////////////////////////
-
-static QScriptValue collidingItems(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsItem, collidingItems);
+BEGIN_DECLARE_METHOD(QGraphicsItem, collidingItems) {
     if (ctx->argument(0).isUndefined())
         return eng->toScriptValue(self->collidingItems());
     else
         return eng->toScriptValue(self->collidingItems(static_cast<Qt::ItemSelectionMode>(ctx->argument(0).toInt32())));
-}
+} END_DECLARE_METHOD
 
-/////////////////////////////////////////////////////////////
-
-static QScriptValue contains(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsItem, contains);
-    return QScriptValue(eng, self->contains(qscriptvalue_cast<QPointF>(ctx->argument(0))));
-}
-
-/////////////////////////////////////////////////////////////
-
-static QScriptValue cursor(QScriptContext *ctx, QScriptEngine *eng)
-{
-#ifndef QT_NO_CURSOR
-    DECLARE_SELF(GraphicsItem, cursor);
-    return eng->toScriptValue(self->cursor());
-#else
-    Q_UNUSED(ctx);
-    Q_UNUSED(eng);
-    return eng->undefinedValue();
-#endif
-}
-
-/////////////////////////////////////////////////////////////
-
-static QScriptValue data(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsItem, data);
+BEGIN_DECLARE_METHOD(QGraphicsItem, data) {
     return eng->newVariant(self->data(ctx->argument(0).toInt32()));
-}
+} END_DECLARE_METHOD
 
-/////////////////////////////////////////////////////////////
-
-static QScriptValue ensureVisible(QScriptContext *ctx, QScriptEngine *)
-{
-    DECLARE_SELF(GraphicsItem, ensureVisible);
-    return ctx->throwError("QGraphicsItem.prototype.ensureVisible is not implemented");
-}
-
-/////////////////////////////////////////////////////////////
-
-static QScriptValue flags(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsItem, flags);
-    return QScriptValue(eng, static_cast<int>(self->flags()));
-}
-
-/////////////////////////////////////////////////////////////
-
-static QScriptValue group(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsItem, group);
-    return eng->toScriptValue(self->group());
-}
-
-/////////////////////////////////////////////////////////////
-
-static QScriptValue handlesChildEvents(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsItem, handlesChildEvents);
-    return QScriptValue(eng, self->handlesChildEvents());
-}
-
-/////////////////////////////////////////////////////////////
-
-static QScriptValue hasCursor(QScriptContext *ctx, QScriptEngine *eng)
-{
-#ifndef QT_NO_CURSOR
-    DECLARE_SELF(GraphicsItem, hasCursor);
-    return QScriptValue(eng, self->hasCursor());
-#else
-    Q_UNUSED(ctx);
+BEGIN_DECLARE_METHOD(QGraphicsItem, ensureVisible) {
     Q_UNUSED(eng);
-    return eng->undefinedValue();
-#endif
-}
+    return ctx->throwError("QGraphicsItem.prototype.ensureVisible is not implemented");
+} END_DECLARE_METHOD
 
-/////////////////////////////////////////////////////////////
+BEGIN_DECLARE_METHOD(QGraphicsItem, flags) {
+    return QScriptValue(eng, static_cast<int>(self->flags()));
+} END_DECLARE_METHOD
 
-static QScriptValue hasFocus(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsItem, hasFocus);
-    return QScriptValue(eng, self->hasFocus());
-}
-
-/////////////////////////////////////////////////////////////
-
-static QScriptValue hide(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsItem, hide);
-    self->hide();
-    return eng->undefinedValue();
-}
-
-/////////////////////////////////////////////////////////////
-
-static QScriptValue installSceneEventFilter(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsItem, installSceneEventFilter);
-    self->installSceneEventFilter(qscriptvalue_cast<QGraphicsItem*>(ctx->argument(0)));
-    return eng->undefinedValue();
-}
-
-/////////////////////////////////////////////////////////////
-
-static QScriptValue isAncestorOf(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsItem, isAncestorOf);
-    return QScriptValue(eng, self->isAncestorOf(qscriptvalue_cast<QGraphicsItem*>(ctx->argument(0))));
-}
-
-/////////////////////////////////////////////////////////////
-
-static QScriptValue isEnabled(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsItem, isEnabled);
-    return QScriptValue(eng, self->isEnabled());
-}
-
-/////////////////////////////////////////////////////////////
-
-static QScriptValue isObscured(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsItem, isObscured);
-    if (ctx->argumentCount() > 1) {
+BEGIN_DECLARE_METHOD(QGraphicsItem, isObscured) {
+    if (ctx->argumentCount() == 0) {
+        return QScriptValue(eng, self->isObscured());
+    } else if (ctx->argumentCount() > 1) {
         return QScriptValue(eng, self->isObscured(ctx->argument(0).toInt32(),
                                                   ctx->argument(1).toInt32(),
                                                   ctx->argument(2).toInt32(),
@@ -268,113 +142,46 @@ static QScriptValue isObscured(QScriptContext *ctx, QScriptEngine *eng)
     } else {
         return QScriptValue(eng, self->isObscured(qscriptvalue_cast<QRectF>(ctx->argument(0))));
     }
-}
+} END_DECLARE_METHOD
 
-/////////////////////////////////////////////////////////////
-
-static QScriptValue isObscuredBy(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsItem, isObscuredBy);
-    return QScriptValue(eng, self->isObscuredBy(qscriptvalue_cast<QGraphicsItem*>(ctx->argument(0))));
-}
-
-/////////////////////////////////////////////////////////////
-
-static QScriptValue isSelected(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsItem, isSelected);
-    return QScriptValue(eng, self->isSelected());
-}
-
-/////////////////////////////////////////////////////////////
-
-static QScriptValue isVisible(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsItem, isVisible);
-    return QScriptValue(eng, self->isVisible());
-}
-
-/////////////////////////////////////////////////////////////
-
-static QScriptValue mapFromItem(QScriptContext *ctx, QScriptEngine *)
-{
-    DECLARE_SELF(GraphicsItem, mapFromItem);
+BEGIN_DECLARE_METHOD(QGraphicsItem, mapFromItem) {
+    Q_UNUSED(eng);
     return ctx->throwError("QGraphicsItem.prototype.mapFromItem is not implemented");
-}
+} END_DECLARE_METHOD
 
-/////////////////////////////////////////////////////////////
-
-static QScriptValue mapFromParent(QScriptContext *ctx, QScriptEngine *)
-{
-    DECLARE_SELF(GraphicsItem, mapFromParent);
+BEGIN_DECLARE_METHOD(QGraphicsItem, mapFromParent) {
+    Q_UNUSED(eng);
     return ctx->throwError("QGraphicsItem.prototype.mapFromParent is not implemented");
-}
+} END_DECLARE_METHOD
 
-/////////////////////////////////////////////////////////////
-
-static QScriptValue mapFromScene(QScriptContext *ctx, QScriptEngine *)
-{
-    DECLARE_SELF(GraphicsItem, mapFromScene);
+BEGIN_DECLARE_METHOD(QGraphicsItem, mapFromScene) {
+    Q_UNUSED(eng);
     return ctx->throwError("QGraphicsItem.prototype.mapFromScene is not implemented");
-}
+} END_DECLARE_METHOD
 
-/////////////////////////////////////////////////////////////
-
-static QScriptValue mapToItem(QScriptContext *ctx, QScriptEngine *)
-{
-    DECLARE_SELF(GraphicsItem, mapToItem);
+BEGIN_DECLARE_METHOD(QGraphicsItem, mapToItem) {
+    Q_UNUSED(eng);
     return ctx->throwError("QGraphicsItem.prototype.mapToItem is not implemented");
-}
+} END_DECLARE_METHOD
 
-/////////////////////////////////////////////////////////////
-
-static QScriptValue mapToParent(QScriptContext *ctx, QScriptEngine *)
-{
-    DECLARE_SELF(GraphicsItem, mapToParent);
+BEGIN_DECLARE_METHOD(QGraphicsItem, mapToParent) {
+    Q_UNUSED(eng);
     return ctx->throwError("QGraphicsItem.prototype.mapToParent is not implemented");
-}
+} END_DECLARE_METHOD
 
-/////////////////////////////////////////////////////////////
-
-static QScriptValue mapToScene(QScriptContext *ctx, QScriptEngine *)
-{
-    DECLARE_SELF(GraphicsItem, mapToScene);
+BEGIN_DECLARE_METHOD(QGraphicsItem, mapToScene) {
+    Q_UNUSED(eng);
     return ctx->throwError("QGraphicsItem.prototype.mapToScene is not implemented");
-}
+} END_DECLARE_METHOD
 
-/////////////////////////////////////////////////////////////
-
-static QScriptValue moveBy(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsItem, moveBy);
-    self->moveBy(ctx->argument(0).toNumber(), ctx->argument(1).toNumber());
-    return eng->undefinedValue();
-}
-
-/////////////////////////////////////////////////////////////
-
-static QScriptValue opaqueArea(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsItem, opaqueArea);
-    return eng->toScriptValue(self->opaqueArea());
-}
-
-/////////////////////////////////////////////////////////////
-
-static QScriptValue paint(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsItem, paint);
+BEGIN_DECLARE_METHOD(QGraphicsItem, paint) {
     self->paint(qscriptvalue_cast<QPainter*>(ctx->argument(0)),
                 qscriptvalue_cast<QStyleOptionGraphicsItem*>(ctx->argument(1)),
                 qscriptvalue_cast<QWidget*>(ctx->argument(2)));
     return eng->undefinedValue();
-}
+} END_DECLARE_METHOD
 
-/////////////////////////////////////////////////////////////
-
-static QScriptValue parentItem(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsItem, parentItem);
+BEGIN_DECLARE_METHOD(QGraphicsItem, parentItem) {
     QGraphicsItem *parent = self->parentItem();
     if (!parent)
         return eng->nullValue();
@@ -412,201 +219,41 @@ static QScriptValue parentItem(QScriptContext *ctx, QScriptEngine *eng)
     if (proto.isValid())
         ret.setPrototype(proto);
     return ret;
-}
+} END_DECLARE_METHOD
 
-/////////////////////////////////////////////////////////////
-
-static QScriptValue pos(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsItem, pos);
-    return eng->toScriptValue(self->pos());
-}
-
-/////////////////////////////////////////////////////////////
-
-static QScriptValue removeSceneEventFilter(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsItem, removeSceneEventFilter);
-    self->removeSceneEventFilter(qscriptvalue_cast<QGraphicsItem*>(ctx->argument(0)));
-    return eng->undefinedValue();
-}
-
-/////////////////////////////////////////////////////////////
-
-static QScriptValue resetTransform(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsItem, resetTransform);
-    self->resetTransform();
-    return eng->undefinedValue();
-}
-
-/////////////////////////////////////////////////////////////
-
-static QScriptValue rotate(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsItem, rotate);
-    self->rotate(ctx->argument(0).toNumber());
-    return eng->undefinedValue();
-}
-
-/////////////////////////////////////////////////////////////
-
-static QScriptValue scale(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsItem, scale);
-    self->scale(ctx->argument(0).toNumber(), ctx->argument(1).toNumber());
-    return eng->undefinedValue();
-}
-
-/////////////////////////////////////////////////////////////
-
-static QScriptValue scene(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsItem, scene);
-    return eng->newQObject(self->scene());
-}
-
-/////////////////////////////////////////////////////////////
-
-static QScriptValue sceneBoundingRect(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsItem, sceneBoundingRect);
-    return eng->toScriptValue(self->sceneBoundingRect());
-}
-
-/////////////////////////////////////////////////////////////
-
-static QScriptValue scenePos(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsItem, scenePos);
-    return eng->toScriptValue(self->scenePos());
-}
-
-/////////////////////////////////////////////////////////////
-
-static QScriptValue sceneTransform(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsItem, sceneTransform);
-    return eng->toScriptValue(self->sceneTransform());
-}
-
-/////////////////////////////////////////////////////////////
-
-static QScriptValue setAcceptDrops(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsItem, setAcceptDrops);
-    self->setAcceptDrops(ctx->argument(0).toBoolean());
-    return eng->undefinedValue();
-}
-
-/////////////////////////////////////////////////////////////
-
-static QScriptValue setAcceptedMouseButtons(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsItem, setAcceptedMouseButtons);
+BEGIN_DECLARE_METHOD(QGraphicsItem, setAcceptedMouseButtons) {
     self->setAcceptedMouseButtons(static_cast<Qt::MouseButtons>(ctx->argument(0).toInt32()));
     return eng->undefinedValue();
-}
+} END_DECLARE_METHOD
 
-/////////////////////////////////////////////////////////////
-
-static QScriptValue setAcceptsHoverEvents(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsItem, setAcceptsHoverEvents);
-    self->setAcceptsHoverEvents(ctx->argument(0).toBoolean());
-    return eng->undefinedValue();
-}
-
-/////////////////////////////////////////////////////////////
-
-static QScriptValue setCursor(QScriptContext *ctx, QScriptEngine *eng)
-{
-#ifndef QT_NO_CURSOR
-    DECLARE_SELF(GraphicsItem, setCursor);
-    self->setCursor(qscriptvalue_cast<QCursor>(ctx->argument(0)));
-    return eng->undefinedValue();
-#else
-    Q_UNUSED(ctx);
-    Q_UNUSED(eng);
-    return eng->undefinedValue();
-#endif
-}
-
-/////////////////////////////////////////////////////////////
-
-static QScriptValue setData(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsItem, setData);
+BEGIN_DECLARE_METHOD(QGraphicsItem, setData) {
     self->setData(ctx->argument(0).toInt32(), ctx->argument(1).toVariant());
     return eng->undefinedValue();
-}
+} END_DECLARE_METHOD
 
-/////////////////////////////////////////////////////////////
-
-static QScriptValue setEnabled(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsItem, setEnabled);
-    self->setEnabled(ctx->argument(0).toBoolean());
-    return eng->undefinedValue();
-}
-
-/////////////////////////////////////////////////////////////
-
-static QScriptValue setFlag(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsItem, setFlag);
+BEGIN_DECLARE_METHOD(QGraphicsItem, setFlag) {
     QGraphicsItem::GraphicsItemFlag flag = static_cast<QGraphicsItem::GraphicsItemFlag>(ctx->argument(0).toInt32());
     if (ctx->argument(1).isUndefined())
         self->setFlag(flag);
     else
         self->setFlag(flag, ctx->argument(1).toBoolean());
     return eng->undefinedValue();
-}
+} END_DECLARE_METHOD
 
-/////////////////////////////////////////////////////////////
-
-static QScriptValue setFlags(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsItem, setFlags);
+BEGIN_DECLARE_METHOD(QGraphicsItem, setFlags) {
     self->setFlags(static_cast<QGraphicsItem::GraphicsItemFlags>(ctx->argument(0).toInt32()));
     return eng->undefinedValue();
-}
+} END_DECLARE_METHOD
 
-/////////////////////////////////////////////////////////////
-
-static QScriptValue setFocus(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsItem, setFocus);
+BEGIN_DECLARE_METHOD(QGraphicsItem, setFocus) {
     if (ctx->argument(0).isUndefined())
         self->setFocus();
     else
         self->setFocus(static_cast<Qt::FocusReason>(ctx->argument(0).toInt32()));
     return eng->undefinedValue();
-}
+} END_DECLARE_METHOD
 
-/////////////////////////////////////////////////////////////
-
-static QScriptValue setGroup(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsItem, setGroup);
-    self->setGroup(qscriptvalue_cast<QGraphicsItemGroup*>(ctx->argument(0)));
-    return eng->undefinedValue();
-}
-
-/////////////////////////////////////////////////////////////
-
-static QScriptValue setHandlesChildEvents(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsItem, setHandlesChildEvents);
-    self->setHandlesChildEvents(ctx->argument(0).toBoolean());
-    return eng->undefinedValue();
-}
-
-/////////////////////////////////////////////////////////////
-
-static QScriptValue setParentItem(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsItem, setParentItem);
+BEGIN_DECLARE_METHOD(QGraphicsItem, setParentItem) {
     QScriptValue arg = ctx->argument(0);
     QGraphicsItem *item = qscriptvalue_cast<QGraphicsItem*>(arg);
     self->setParentItem(item);
@@ -615,165 +262,17 @@ static QScriptValue setParentItem(QScriptContext *ctx, QScriptEngine *eng)
     else if (!self->scene())
         QScript::maybeTakeOwnership(ctx->thisObject());
     return eng->undefinedValue();
-}
+} END_DECLARE_METHOD
 
-/////////////////////////////////////////////////////////////
-
-static QScriptValue setPos(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsItem, setPos);
+BEGIN_DECLARE_METHOD(QGraphicsItem, setPos) {
     if (ctx->argumentCount() > 1)
         self->setPos(ctx->argument(0).toNumber(), ctx->argument(1).toNumber());
     else
         self->setPos(qscriptvalue_cast<QPointF>(ctx->argument(0)));
     return eng->undefinedValue();
-}
+} END_DECLARE_METHOD
 
-/////////////////////////////////////////////////////////////
-
-static QScriptValue setSelected(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsItem, setSelected);
-    self->setSelected(ctx->argument(0).toBoolean());
-    return eng->undefinedValue();
-}
-
-/////////////////////////////////////////////////////////////
-
-static QScriptValue setToolTip(QScriptContext *ctx, QScriptEngine *eng)
-{
-#ifndef QT_NO_TOOLTIP
-    DECLARE_SELF(GraphicsItem, setToolTip);
-    self->setToolTip(ctx->argument(0).toString());
-    return eng->undefinedValue();
-#else
-    Q_UNUSED(ctx);
-    Q_UNUSED(eng);
-    return eng->undefinedValue();
-#endif
-}
-
-/////////////////////////////////////////////////////////////
-
-static QScriptValue setTransform(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsItem, setTransform);
-    self->setTransform(qscriptvalue_cast<QTransform>(ctx->argument(0)),
-                       ctx->argument(1).toBoolean());
-    return eng->undefinedValue();
-}
-
-/////////////////////////////////////////////////////////////
-
-static QScriptValue setVisible(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsItem, setVisible);
-    self->setVisible(ctx->argument(0).toBoolean());
-    return eng->undefinedValue();
-}
-
-/////////////////////////////////////////////////////////////
-
-static QScriptValue setZValue(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsItem, setZValue);
-    self->setZValue(ctx->argument(0).toNumber());
-    return eng->undefinedValue();
-}
-
-/////////////////////////////////////////////////////////////
-
-static QScriptValue shape(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsItem, shape);
-    return eng->toScriptValue(self->shape());
-}
-
-/////////////////////////////////////////////////////////////
-
-static QScriptValue shear(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsItem, shear);
-    self->shear(ctx->argument(0).toNumber(), ctx->argument(1).toNumber());
-    return eng->undefinedValue();
-}
-
-/////////////////////////////////////////////////////////////
-
-static QScriptValue show(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsItem, show);
-    self->show();
-    return eng->undefinedValue();
-}
-
-/////////////////////////////////////////////////////////////
-
-static QScriptValue toolTip(QScriptContext *ctx, QScriptEngine *eng)
-{
-#ifndef QT_NO_TOOLTIP
-    DECLARE_SELF(GraphicsItem, toolTip);
-    return QScriptValue(eng, self->toolTip());
-#else
-    Q_UNUSED(ctx);
-    Q_UNUSED(eng);
-    return eng->undefinedValue();
-#endif
-}
-
-/////////////////////////////////////////////////////////////
-
-static QScriptValue topLevelItem(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsItem, topLevelItem);
-    return eng->toScriptValue(self->topLevelItem());
-}
-
-/////////////////////////////////////////////////////////////
-
-static QScriptValue transform(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsItem, transform);
-    return eng->toScriptValue(self->transform());
-}
-
-/////////////////////////////////////////////////////////////
-
-static QScriptValue translate(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsItem, translate);
-    self->translate(ctx->argument(0).toNumber(), ctx->argument(1).toNumber());
-    return eng->undefinedValue();
-}
-
-/////////////////////////////////////////////////////////////
-
-static QScriptValue type(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsItem, type);
-    return QScriptValue(eng, self->type());
-}
-
-/////////////////////////////////////////////////////////////
-
-static QScriptValue unsetCursor(QScriptContext *ctx, QScriptEngine *eng)
-{
-#ifndef QT_NO_CURSOR
-    DECLARE_SELF(GraphicsItem, unsetCursor);
-    self->unsetCursor();
-    return eng->undefinedValue();
-#else
-    Q_UNUSED(ctx);
-    Q_UNUSED(eng);
-    return eng->undefinedValue();
-#endif
-}
-
-/////////////////////////////////////////////////////////////
-
-static QScriptValue update(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsItem, update);
+BEGIN_DECLARE_METHOD(QGraphicsItem, update) {
     if (ctx->argumentCount() > 1) {
         self->update(ctx->argument(0).toNumber(),
                      ctx->argument(1).toNumber(),
@@ -783,39 +282,11 @@ static QScriptValue update(QScriptContext *ctx, QScriptEngine *eng)
         self->update(qscriptvalue_cast<QRectF>(ctx->argument(0)));
     }
     return eng->undefinedValue();
-}
+} END_DECLARE_METHOD
 
-/////////////////////////////////////////////////////////////
-
-static QScriptValue x(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsItem, x);
-    return QScriptValue(eng, self->x());
-}
-
-/////////////////////////////////////////////////////////////
-
-static QScriptValue y(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsItem, y);
-    return QScriptValue(eng, self->y());
-}
-
-/////////////////////////////////////////////////////////////
-
-static QScriptValue zValue(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsItem, zValue);
-    return QScriptValue(eng, self->zValue());
-}
-
-/////////////////////////////////////////////////////////////
-
-static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
-{
-    DECLARE_SELF(GraphicsItem, toString);
+BEGIN_DECLARE_METHOD(QGraphicsItem, toString) {
     return QScriptValue(eng, "QGraphicsItem");
-}
+} END_DECLARE_METHOD
 
 /////////////////////////////////////////////////////////////
 
@@ -833,85 +304,81 @@ public:
 QScriptValue constructGraphicsItemClass(QScriptEngine *eng)
 {
     QScriptValue proto = QScript::wrapGVPointer<QGraphicsItem>(eng, new PrototypeGraphicsItem());
-    ADD_PROTO_FUNCTION(proto, acceptDrops);
-    ADD_PROTO_FUNCTION(proto, acceptedMouseButtons);
-    ADD_PROTO_FUNCTION(proto, acceptsHoverEvents);
-    ADD_PROTO_FUNCTION(proto, advance);
-    ADD_PROTO_FUNCTION(proto, boundingRect);
-    ADD_PROTO_FUNCTION(proto, children);
-    ADD_PROTO_FUNCTION(proto, childrenBoundingRect);
-    ADD_PROTO_FUNCTION(proto, clearFocus);
-    ADD_PROTO_FUNCTION(proto, collidesWithItem);
-    ADD_PROTO_FUNCTION(proto, collidesWithPath);
-    ADD_PROTO_FUNCTION(proto, collidingItems);
-    ADD_PROTO_FUNCTION(proto, contains);
-    ADD_PROTO_FUNCTION(proto, cursor);
-    ADD_PROTO_FUNCTION(proto, data);
-    ADD_PROTO_FUNCTION(proto, ensureVisible);
-    ADD_PROTO_FUNCTION(proto, flags);
-    ADD_PROTO_FUNCTION(proto, group);
-    ADD_PROTO_FUNCTION(proto, handlesChildEvents);
-    ADD_PROTO_FUNCTION(proto, hasCursor);
-    ADD_PROTO_FUNCTION(proto, hasFocus);
-    ADD_PROTO_FUNCTION(proto, hide);
-    ADD_PROTO_FUNCTION(proto, installSceneEventFilter);
-    ADD_PROTO_FUNCTION(proto, isAncestorOf);
-    ADD_PROTO_FUNCTION(proto, isEnabled);
-    ADD_PROTO_FUNCTION(proto, isObscured);
-    ADD_PROTO_FUNCTION(proto, isObscuredBy);
-    ADD_PROTO_FUNCTION(proto, isSelected);
-    ADD_PROTO_FUNCTION(proto, isVisible);
-    ADD_PROTO_FUNCTION(proto, mapFromItem);
-    ADD_PROTO_FUNCTION(proto, mapFromParent);
-    ADD_PROTO_FUNCTION(proto, mapFromScene);
-    ADD_PROTO_FUNCTION(proto, mapToItem);
-    ADD_PROTO_FUNCTION(proto, mapToParent);
-    ADD_PROTO_FUNCTION(proto, mapToScene);
-    ADD_PROTO_FUNCTION(proto, moveBy);
-    ADD_PROTO_FUNCTION(proto, opaqueArea);
-    ADD_PROTO_FUNCTION(proto, paint);
-    ADD_PROTO_FUNCTION(proto, parentItem);
-    ADD_PROTO_FUNCTION(proto, pos);
-    ADD_PROTO_FUNCTION(proto, removeSceneEventFilter);
-    ADD_PROTO_FUNCTION(proto, resetTransform);
-    ADD_PROTO_FUNCTION(proto, rotate);
-    ADD_PROTO_FUNCTION(proto, scale);
-    ADD_PROTO_FUNCTION(proto, scene);
-    ADD_PROTO_FUNCTION(proto, sceneBoundingRect);
-    ADD_PROTO_FUNCTION(proto, scenePos);
-    ADD_PROTO_FUNCTION(proto, sceneTransform);
-    ADD_PROTO_FUNCTION(proto, setAcceptDrops);
-    ADD_PROTO_FUNCTION(proto, setAcceptedMouseButtons);
-    ADD_PROTO_FUNCTION(proto, setAcceptsHoverEvents);
-    ADD_PROTO_FUNCTION(proto, setCursor);
-    ADD_PROTO_FUNCTION(proto, setData);
-    ADD_PROTO_FUNCTION(proto, setEnabled);
-    ADD_PROTO_FUNCTION(proto, setFlag);
-    ADD_PROTO_FUNCTION(proto, setFlags);
-    ADD_PROTO_FUNCTION(proto, setFocus);
-    ADD_PROTO_FUNCTION(proto, setGroup);
-    ADD_PROTO_FUNCTION(proto, setHandlesChildEvents);
-    ADD_PROTO_FUNCTION(proto, setParentItem);
-    ADD_PROTO_FUNCTION(proto, setPos);
-    ADD_PROTO_FUNCTION(proto, setSelected);
-    ADD_PROTO_FUNCTION(proto, setToolTip);
-    ADD_PROTO_FUNCTION(proto, setTransform);
-    ADD_PROTO_FUNCTION(proto, setVisible);
-    ADD_PROTO_FUNCTION(proto, setZValue);
-    ADD_PROTO_FUNCTION(proto, shape);
-    ADD_PROTO_FUNCTION(proto, shear);
-    ADD_PROTO_FUNCTION(proto, show);
-    ADD_PROTO_FUNCTION(proto, toolTip);
-    ADD_PROTO_FUNCTION(proto, topLevelItem);
-    ADD_PROTO_FUNCTION(proto, toString);
-    ADD_PROTO_FUNCTION(proto, transform);
-    ADD_PROTO_FUNCTION(proto, translate);
-    ADD_PROTO_FUNCTION(proto, type);
-    ADD_PROTO_FUNCTION(proto, unsetCursor);
-    ADD_PROTO_FUNCTION(proto, update);
-    ADD_PROTO_FUNCTION(proto, x);
-    ADD_PROTO_FUNCTION(proto, y);
-    ADD_PROTO_FUNCTION(proto, zValue);
+    ADD_GET_SET_METHODS(proto, acceptDrops, setAcceptDrops);
+    ADD_GET_SET_METHODS(proto, acceptsHoverEvents, setAcceptsHoverEvents);
+    ADD_GET_METHOD(proto, boundingRect);
+    ADD_GET_METHOD(proto, children);
+    ADD_GET_METHOD(proto, childrenBoundingRect);
+#ifndef QT_NO_CURSOR
+    ADD_GET_SET_METHODS(proto, cursor, setCursor);
+    ADD_GET_METHOD(proto, hasCursor);
+#endif
+    ADD_GET_SET_METHODS(proto, group, setGroup);
+    ADD_GET_SET_METHODS(proto, handlesChildEvents, setHandlesChildEvents);
+    ADD_GET_METHOD(proto, hasFocus);
+    ADD_GET_SET_METHODS(proto, isEnabled, setEnabled);
+    ADD_GET_SET_METHODS(proto, isSelected, setSelected);
+    ADD_GET_SET_METHODS(proto, isVisible, setVisible);
+    ADD_GET_METHOD(proto, opaqueArea);
+    ADD_GET_METHOD(proto, pos);
+    ADD_GET_METHOD(proto, scene);
+    ADD_GET_METHOD(proto, sceneBoundingRect);
+    ADD_GET_METHOD(proto, scenePos);
+    ADD_GET_METHOD(proto, sceneTransform);
+    ADD_GET_METHOD(proto, shape);
+#ifndef QT_NO_TOOLTIP
+    ADD_GET_SET_METHODS(proto, toolTip, setToolTip);
+#endif
+    ADD_GET_METHOD(proto, topLevelItem);
+    ADD_GET_SET_METHODS(proto, transform, setTransform);
+    ADD_GET_METHOD(proto, type);
+    ADD_GET_METHOD(proto, x);
+    ADD_GET_METHOD(proto, y);
+    ADD_GET_SET_METHODS(proto, zValue, setZValue);
+
+    ADD_METHOD(proto, acceptedMouseButtons);
+    ADD_METHOD(proto, advance);
+    ADD_METHOD(proto, clearFocus);
+    ADD_METHOD(proto, collidesWithItem);
+    ADD_METHOD(proto, collidesWithPath);
+    ADD_METHOD(proto, collidingItems);
+    ADD_METHOD(proto, contains);
+    ADD_METHOD(proto, data);
+    ADD_METHOD(proto, ensureVisible);
+    ADD_METHOD(proto, flags);
+    ADD_METHOD(proto, hide);
+    ADD_METHOD(proto, installSceneEventFilter);
+    ADD_METHOD(proto, isAncestorOf);
+    ADD_METHOD(proto, isObscured);
+    ADD_METHOD(proto, isObscuredBy);
+    ADD_METHOD(proto, mapFromItem);
+    ADD_METHOD(proto, mapFromParent);
+    ADD_METHOD(proto, mapFromScene);
+    ADD_METHOD(proto, mapToItem);
+    ADD_METHOD(proto, mapToParent);
+    ADD_METHOD(proto, mapToScene);
+    ADD_METHOD(proto, moveBy);
+    ADD_METHOD(proto, paint);
+    ADD_METHOD(proto, parentItem);
+    ADD_METHOD(proto, removeSceneEventFilter);
+    ADD_METHOD(proto, resetTransform);
+    ADD_METHOD(proto, rotate);
+    ADD_METHOD(proto, scale);
+    ADD_METHOD(proto, setAcceptedMouseButtons);
+    ADD_METHOD(proto, setData);
+    ADD_METHOD(proto, setFlag);
+    ADD_METHOD(proto, setFlags);
+    ADD_METHOD(proto, setFocus);
+    ADD_METHOD(proto, setParentItem);
+    ADD_METHOD(proto, setPos);
+    ADD_METHOD(proto, shear);
+    ADD_METHOD(proto, show);
+    ADD_METHOD(proto, toString);
+    ADD_METHOD(proto, translate);
+#ifndef QT_NO_CURSOR
+    ADD_METHOD(proto, unsetCursor);
+#endif
+    ADD_METHOD(proto, update);
 
     QScript::registerPointerMetaType<QGraphicsItem>(eng, proto);
 

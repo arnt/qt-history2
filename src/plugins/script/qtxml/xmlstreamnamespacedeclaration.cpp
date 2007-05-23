@@ -25,7 +25,7 @@ static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue equals(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(XmlStreamNamespaceDeclaration, equals);
+    DECLARE_SELF(QXmlStreamNamespaceDeclaration, equals);
     if (QXmlStreamNamespaceDeclaration *other = qscriptvalue_cast<QXmlStreamNamespaceDeclaration*>(ctx->argument(0)))
         return QScriptValue(eng, *self == *other);
     return QScriptValue(eng, false);
@@ -33,29 +33,29 @@ static QScriptValue equals(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue namespaceUri(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(XmlStreamNamespaceDeclaration, namespaceUri);
+    DECLARE_SELF(QXmlStreamNamespaceDeclaration, namespaceUri);
     return eng->toScriptValue(self->namespaceUri());
 }
 
 static QScriptValue prefix(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(XmlStreamNamespaceDeclaration, prefix);
+    DECLARE_SELF(QXmlStreamNamespaceDeclaration, prefix);
     return eng->toScriptValue(self->prefix());
 }
 
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(XmlStreamNamespaceDeclaration, toString);
+    DECLARE_SELF(QXmlStreamNamespaceDeclaration, toString);
     return QScriptValue(eng, QLatin1String("QXmlStreamNamespaceDeclaration"));
 }
 
 QScriptValue constructXmlStreamNamespaceDeclarationClass(QScriptEngine *eng)
 {
     QScriptValue proto = newXmlStreamNamespaceDeclaration(eng, QXmlStreamNamespaceDeclaration());
-    ADD_PROTO_FUNCTION(proto, equals);
-    ADD_PROTO_FUNCTION(proto, namespaceUri);
-    ADD_PROTO_FUNCTION(proto, prefix);
-    ADD_PROTO_FUNCTION(proto, toString);
+    ADD_METHOD(proto, equals);
+    ADD_METHOD(proto, namespaceUri);
+    ADD_METHOD(proto, prefix);
+    ADD_METHOD(proto, toString);
 
     eng->setDefaultPrototype(qMetaTypeId<QXmlStreamNamespaceDeclaration>(), proto);
     eng->setDefaultPrototype(qMetaTypeId<QXmlStreamNamespaceDeclaration*>(), proto);

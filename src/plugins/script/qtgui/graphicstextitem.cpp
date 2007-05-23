@@ -35,7 +35,7 @@ static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue adjustSize(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsTextItem, adjustSize);
+    DECLARE_SELF(QGraphicsTextItem, adjustSize);
     self->adjustSize();
     return eng->undefinedValue();
 }
@@ -44,7 +44,7 @@ static QScriptValue adjustSize(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue defaultTextColor(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsTextItem, defaultTextColor);
+    DECLARE_SELF(QGraphicsTextItem, defaultTextColor);
     return eng->toScriptValue(self->defaultTextColor());
 }
 
@@ -52,7 +52,7 @@ static QScriptValue defaultTextColor(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue document(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsTextItem, document);
+    DECLARE_SELF(QGraphicsTextItem, document);
     return eng->toScriptValue(self->document());
 }
 
@@ -60,7 +60,7 @@ static QScriptValue document(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue font(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsTextItem, font);
+    DECLARE_SELF(QGraphicsTextItem, font);
     return eng->toScriptValue(self->font());
 }
 
@@ -68,7 +68,7 @@ static QScriptValue font(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue openExternalLinks(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsTextItem, openExternalLinks);
+    DECLARE_SELF(QGraphicsTextItem, openExternalLinks);
     return QScriptValue(eng, self->openExternalLinks());
 }
 
@@ -76,7 +76,7 @@ static QScriptValue openExternalLinks(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setDefaultTextColor(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsTextItem, setDefaultTextColor);
+    DECLARE_SELF(QGraphicsTextItem, setDefaultTextColor);
     self->setDefaultTextColor(qscriptvalue_cast<QColor>(ctx->argument(0)));
     return eng->undefinedValue();
 }
@@ -85,7 +85,7 @@ static QScriptValue setDefaultTextColor(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setDocument(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsTextItem, setDocument);
+    DECLARE_SELF(QGraphicsTextItem, setDocument);
     self->setDocument(qscriptvalue_cast<QTextDocument*>(ctx->argument(0)));
     return eng->undefinedValue();
 }
@@ -94,7 +94,7 @@ static QScriptValue setDocument(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setFont(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsTextItem, setFont);
+    DECLARE_SELF(QGraphicsTextItem, setFont);
     self->setFont(qscriptvalue_cast<QFont>(ctx->argument(0)));
     return eng->undefinedValue();
 }
@@ -103,7 +103,7 @@ static QScriptValue setFont(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setHtml(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsTextItem, setHtml);
+    DECLARE_SELF(QGraphicsTextItem, setHtml);
     self->setHtml(ctx->argument(0).toString());
     return eng->undefinedValue();
 }
@@ -112,7 +112,7 @@ static QScriptValue setHtml(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setOpenExternalLinks(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsTextItem, setOpenExternalLinks);
+    DECLARE_SELF(QGraphicsTextItem, setOpenExternalLinks);
     self->setOpenExternalLinks(ctx->argument(0).toBoolean());
     return eng->undefinedValue();
 }
@@ -121,7 +121,7 @@ static QScriptValue setOpenExternalLinks(QScriptContext *ctx, QScriptEngine *eng
 
 static QScriptValue setPlainText(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsTextItem, setPlainText);
+    DECLARE_SELF(QGraphicsTextItem, setPlainText);
     self->setPlainText(ctx->argument(0).toString());
     return eng->undefinedValue();
 }
@@ -130,7 +130,7 @@ static QScriptValue setPlainText(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setTextCursor(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsTextItem, setTextCursor);
+    DECLARE_SELF(QGraphicsTextItem, setTextCursor);
     self->setTextCursor(qscriptvalue_cast<QTextCursor>(ctx->argument(0)));
     return eng->undefinedValue();
 }
@@ -139,7 +139,7 @@ static QScriptValue setTextCursor(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setTextInteractionFlags(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsTextItem, setTextInteractionFlags);
+    DECLARE_SELF(QGraphicsTextItem, setTextInteractionFlags);
     self->setTextInteractionFlags(static_cast<Qt::TextInteractionFlags>(ctx->argument(0).toInt32()));
     return eng->undefinedValue();
 }
@@ -148,7 +148,7 @@ static QScriptValue setTextInteractionFlags(QScriptContext *ctx, QScriptEngine *
 
 static QScriptValue setTextWidth(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsTextItem, setTextWidth);
+    DECLARE_SELF(QGraphicsTextItem, setTextWidth);
     self->setTextWidth(ctx->argument(0).toNumber());
     return eng->undefinedValue();
 }
@@ -157,7 +157,7 @@ static QScriptValue setTextWidth(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue textCursor(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsTextItem, textCursor);
+    DECLARE_SELF(QGraphicsTextItem, textCursor);
     return eng->toScriptValue(self->textCursor());
 }
 
@@ -165,7 +165,7 @@ static QScriptValue textCursor(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue textInteractionFlags(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsTextItem, textInteractionFlags);
+    DECLARE_SELF(QGraphicsTextItem, textInteractionFlags);
     return QScriptValue(eng, static_cast<int>(self->textInteractionFlags()));
 }
 
@@ -173,7 +173,7 @@ static QScriptValue textInteractionFlags(QScriptContext *ctx, QScriptEngine *eng
 
 static QScriptValue textWidth(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsTextItem, textWidth);
+    DECLARE_SELF(QGraphicsTextItem, textWidth);
     return QScriptValue(eng, self->textWidth());
 }
 
@@ -181,7 +181,7 @@ static QScriptValue textWidth(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue toHtml(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsTextItem, toHtml);
+    DECLARE_SELF(QGraphicsTextItem, toHtml);
     return QScriptValue(eng, self->toHtml());
 }
 
@@ -189,7 +189,7 @@ static QScriptValue toHtml(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue toPlainText(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsTextItem, toPlainText);
+    DECLARE_SELF(QGraphicsTextItem, toPlainText);
     return QScriptValue(eng, self->toPlainText());
 }
 
@@ -197,7 +197,7 @@ static QScriptValue toPlainText(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(GraphicsTextItem, toString);
+    DECLARE_SELF(QGraphicsTextItem, toString);
     return QScriptValue(eng, "QGraphicsTextItem");
 }
 
@@ -215,26 +215,26 @@ QScriptValue constructGraphicsTextItemClass(QScriptEngine *eng)
         proto.setProperty(it.name(), it.value());
     }
 
-    ADD_PROTO_FUNCTION(proto, adjustSize);
-    ADD_PROTO_FUNCTION(proto, defaultTextColor);
-    ADD_PROTO_FUNCTION(proto, document);
-    ADD_PROTO_FUNCTION(proto, font);
-    ADD_PROTO_FUNCTION(proto, openExternalLinks);
-    ADD_PROTO_FUNCTION(proto, setDefaultTextColor);
-    ADD_PROTO_FUNCTION(proto, setDocument);
-    ADD_PROTO_FUNCTION(proto, setFont);
-    ADD_PROTO_FUNCTION(proto, setHtml);
-    ADD_PROTO_FUNCTION(proto, setOpenExternalLinks);
-    ADD_PROTO_FUNCTION(proto, setPlainText);
-    ADD_PROTO_FUNCTION(proto, setTextCursor);
-    ADD_PROTO_FUNCTION(proto, setTextInteractionFlags);
-    ADD_PROTO_FUNCTION(proto, setTextWidth);
-    ADD_PROTO_FUNCTION(proto, textCursor);
-    ADD_PROTO_FUNCTION(proto, textInteractionFlags);
-    ADD_PROTO_FUNCTION(proto, textWidth);
-    ADD_PROTO_FUNCTION(proto, toHtml);
-    ADD_PROTO_FUNCTION(proto, toPlainText);
-    ADD_PROTO_FUNCTION(proto, toString);
+    ADD_METHOD(proto, adjustSize);
+    ADD_METHOD(proto, defaultTextColor);
+    ADD_METHOD(proto, document);
+    ADD_METHOD(proto, font);
+    ADD_METHOD(proto, openExternalLinks);
+    ADD_METHOD(proto, setDefaultTextColor);
+    ADD_METHOD(proto, setDocument);
+    ADD_METHOD(proto, setFont);
+    ADD_METHOD(proto, setHtml);
+    ADD_METHOD(proto, setOpenExternalLinks);
+    ADD_METHOD(proto, setPlainText);
+    ADD_METHOD(proto, setTextCursor);
+    ADD_METHOD(proto, setTextInteractionFlags);
+    ADD_METHOD(proto, setTextWidth);
+    ADD_METHOD(proto, textCursor);
+    ADD_METHOD(proto, textInteractionFlags);
+    ADD_METHOD(proto, textWidth);
+    ADD_METHOD(proto, toHtml);
+    ADD_METHOD(proto, toPlainText);
+    ADD_METHOD(proto, toString);
 
     eng->setDefaultPrototype(qMetaTypeId<QGraphicsTextItem*>(), proto);
 

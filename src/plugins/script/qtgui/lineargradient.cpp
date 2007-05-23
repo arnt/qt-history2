@@ -35,13 +35,13 @@ static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue finalStop(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(LinearGradient, finalStop);
+    DECLARE_SELF(QLinearGradient, finalStop);
     return eng->toScriptValue(self->finalStop());
 }
 
 static QScriptValue setFinalStop(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(LinearGradient, setFinalStop);
+    DECLARE_SELF(QLinearGradient, setFinalStop);
     if (ctx->argumentCount() > 1) {
         self->setFinalStop(ctx->argument(0).toNumber(),
                            ctx->argument(1).toNumber());
@@ -53,7 +53,7 @@ static QScriptValue setFinalStop(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setStart(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(LinearGradient, setStart);
+    DECLARE_SELF(QLinearGradient, setStart);
     if (ctx->argumentCount() > 1) {
         self->setStart(ctx->argument(0).toNumber(),
                        ctx->argument(1).toNumber());
@@ -65,13 +65,13 @@ static QScriptValue setStart(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue start(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(LinearGradient, start);
+    DECLARE_SELF(QLinearGradient, start);
     return eng->toScriptValue(self->start());
 }
 
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(LinearGradient, toString);
+    DECLARE_SELF(QLinearGradient, toString);
     return QScriptValue(eng, "QLinearGradient");
 }
 
@@ -81,11 +81,11 @@ QScriptValue constructLinearGradientClass(QScriptEngine *eng)
 {
     QScriptValue proto = newLinearGradient(eng, QLinearGradient());
     proto.setPrototype(eng->defaultPrototype(qMetaTypeId<QGradient>()));
-    ADD_PROTO_FUNCTION(proto, finalStop);
-    ADD_PROTO_FUNCTION(proto, setFinalStop);
-    ADD_PROTO_FUNCTION(proto, setStart);
-    ADD_PROTO_FUNCTION(proto, start);
-    ADD_PROTO_FUNCTION(proto, toString);
+    ADD_METHOD(proto, finalStop);
+    ADD_METHOD(proto, setFinalStop);
+    ADD_METHOD(proto, setStart);
+    ADD_METHOD(proto, start);
+    ADD_METHOD(proto, toString);
 
     eng->setDefaultPrototype(qMetaTypeId<QLinearGradient>(), proto);
     eng->setDefaultPrototype(qMetaTypeId<QLinearGradient*>(), proto);

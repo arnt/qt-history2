@@ -48,25 +48,25 @@ static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue center(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(RadialGradient, center);
+    DECLARE_SELF(QRadialGradient, center);
     return eng->toScriptValue(self->center());
 }
 
 static QScriptValue focalPoint(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(RadialGradient, focalPoint);
+    DECLARE_SELF(QRadialGradient, focalPoint);
     return eng->toScriptValue(self->focalPoint());
 }
 
 static QScriptValue radius(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(RadialGradient, radius);
+    DECLARE_SELF(QRadialGradient, radius);
     return QScriptValue(eng, self->radius());
 }
 
 static QScriptValue setCenter(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(RadialGradient, setCenter);
+    DECLARE_SELF(QRadialGradient, setCenter);
     if (ctx->argumentCount() > 1) {
         self->setCenter(ctx->argument(0).toNumber(),
                         ctx->argument(1).toNumber());
@@ -78,7 +78,7 @@ static QScriptValue setCenter(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setFocalPoint(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(RadialGradient, setFocalPoint);
+    DECLARE_SELF(QRadialGradient, setFocalPoint);
     if (ctx->argumentCount() > 1) {
         self->setFocalPoint(ctx->argument(0).toNumber(),
                             ctx->argument(1).toNumber());
@@ -90,14 +90,14 @@ static QScriptValue setFocalPoint(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setRadius(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(RadialGradient, setRadius);
+    DECLARE_SELF(QRadialGradient, setRadius);
     self->setRadius(ctx->argument(0).toNumber());
     return eng->undefinedValue();
 }
 
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(RadialGradient, toString);
+    DECLARE_SELF(QRadialGradient, toString);
     return QScriptValue(eng, "QRadialGradient");
 }
 
@@ -107,13 +107,13 @@ QScriptValue constructRadialGradientClass(QScriptEngine *eng)
 {
     QScriptValue proto = newRadialGradient(eng, QRadialGradient());
     proto.setPrototype(eng->defaultPrototype(qMetaTypeId<QGradient>()));
-    ADD_PROTO_FUNCTION(proto, center);
-    ADD_PROTO_FUNCTION(proto, focalPoint);
-    ADD_PROTO_FUNCTION(proto, radius);
-    ADD_PROTO_FUNCTION(proto, setCenter);
-    ADD_PROTO_FUNCTION(proto, setFocalPoint);
-    ADD_PROTO_FUNCTION(proto, setRadius);
-    ADD_PROTO_FUNCTION(proto, toString);
+    ADD_METHOD(proto, center);
+    ADD_METHOD(proto, focalPoint);
+    ADD_METHOD(proto, radius);
+    ADD_METHOD(proto, setCenter);
+    ADD_METHOD(proto, setFocalPoint);
+    ADD_METHOD(proto, setRadius);
+    ADD_METHOD(proto, toString);
 
     eng->setDefaultPrototype(qMetaTypeId<QRadialGradient>(), proto);
     eng->setDefaultPrototype(qMetaTypeId<QRadialGradient*>(), proto);

@@ -33,7 +33,7 @@ static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue boundingRect(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Region, boundingRect);
+    DECLARE_SELF(QRegion, boundingRect);
     return eng->toScriptValue(self->boundingRect());
 }
 
@@ -41,7 +41,7 @@ static QScriptValue boundingRect(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue contains(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Region, contains);
+    DECLARE_SELF(QRegion, contains);
     QRect r = qscriptvalue_cast<QRect>(ctx->argument(0));
     if (r.isValid())
         return QScriptValue(eng, self->contains(r));
@@ -53,7 +53,7 @@ static QScriptValue contains(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue handle(QScriptContext *ctx, QScriptEngine *)
 {
-    DECLARE_SELF(Region, handle);
+    DECLARE_SELF(QRegion, handle);
     return ctx->throwError("QRegion.prototype.handle is not implemented");
 }
 
@@ -61,7 +61,7 @@ static QScriptValue handle(QScriptContext *ctx, QScriptEngine *)
 
 static QScriptValue intersected(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Region, intersected);
+    DECLARE_SELF(QRegion, intersected);
     QRegion r = qscriptvalue_cast<QRegion>(ctx->argument(0));
     return newRegion(eng, self->intersected(r));
 }
@@ -70,7 +70,7 @@ static QScriptValue intersected(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue intersects(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Region, intersects);
+    DECLARE_SELF(QRegion, intersects);
     QRect r = qscriptvalue_cast<QRect>(ctx->argument(0));
     if (r.isValid())
         return QScriptValue(eng, self->intersects(r));
@@ -81,7 +81,7 @@ static QScriptValue intersects(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue isEmpty(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Region, isEmpty);
+    DECLARE_SELF(QRegion, isEmpty);
     return QScriptValue(eng, self->isEmpty());
 }
 
@@ -89,7 +89,7 @@ static QScriptValue isEmpty(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue rects(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Region, rects);
+    DECLARE_SELF(QRegion, rects);
     return eng->toScriptValue(self->rects());
 }
 
@@ -97,7 +97,7 @@ static QScriptValue rects(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue setRects(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Region, setRects);
+    DECLARE_SELF(QRegion, setRects);
     QVector<QRect> rects = qscriptvalue_cast<QVector<QRect> >(ctx->argument(0));
     const QRect* rectsData = reinterpret_cast<const QRect*>(rects.constData());
     self->setRects(rectsData, rects.size());
@@ -108,7 +108,7 @@ static QScriptValue setRects(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue subtracted(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Region, subtracted);
+    DECLARE_SELF(QRegion, subtracted);
     QRegion r = qscriptvalue_cast<QRegion>(ctx->argument(0));
     return newRegion(eng, self->subtracted(r));
 }
@@ -117,7 +117,7 @@ static QScriptValue subtracted(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue translate(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Region, translate);
+    DECLARE_SELF(QRegion, translate);
     if (ctx->argumentCount() == 2) {
         self->translate(ctx->argument(0).toInt32(),
                         ctx->argument(1).toInt32());
@@ -131,7 +131,7 @@ static QScriptValue translate(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue translated(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Region, translated);
+    DECLARE_SELF(QRegion, translated);
     if (ctx->argumentCount() == 2) {
         return newRegion(eng, self->translated(ctx->argument(0).toInt32(),
                                                ctx->argument(1).toInt32()));
@@ -144,7 +144,7 @@ static QScriptValue translated(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue united(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Region, united);
+    DECLARE_SELF(QRegion, united);
     QRegion r = qscriptvalue_cast<QRegion>(ctx->argument(0));
     return newRegion(eng, self->united(r));
 }
@@ -153,7 +153,7 @@ static QScriptValue united(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue xored(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Region, xored);
+    DECLARE_SELF(QRegion, xored);
     QRegion r = qscriptvalue_cast<QRegion>(ctx->argument(0));
     return newRegion(eng, self->xored(r));
 }
@@ -162,7 +162,7 @@ static QScriptValue xored(QScriptContext *ctx, QScriptEngine *eng)
 
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 {
-    DECLARE_SELF(Region, toString);
+    DECLARE_SELF(QRegion, toString);
     return QScriptValue(eng, "QRegion");
 }
 
@@ -171,20 +171,20 @@ static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 QScriptValue constructRegionClass(QScriptEngine *eng)
 {
     QScriptValue proto = newRegion(eng, QRegion());
-    ADD_PROTO_FUNCTION(proto, boundingRect);
-    ADD_PROTO_FUNCTION(proto, contains);
-    ADD_PROTO_FUNCTION(proto, handle);
-    ADD_PROTO_FUNCTION(proto, intersected);
-    ADD_PROTO_FUNCTION(proto, intersects);
-    ADD_PROTO_FUNCTION(proto, isEmpty);
-    ADD_PROTO_FUNCTION(proto, rects);
-    ADD_PROTO_FUNCTION(proto, setRects);
-    ADD_PROTO_FUNCTION(proto, subtracted);
-    ADD_PROTO_FUNCTION(proto, toString);
-    ADD_PROTO_FUNCTION(proto, translate);
-    ADD_PROTO_FUNCTION(proto, translated);
-    ADD_PROTO_FUNCTION(proto, united);
-    ADD_PROTO_FUNCTION(proto, xored);
+    ADD_METHOD(proto, boundingRect);
+    ADD_METHOD(proto, contains);
+    ADD_METHOD(proto, handle);
+    ADD_METHOD(proto, intersected);
+    ADD_METHOD(proto, intersects);
+    ADD_METHOD(proto, isEmpty);
+    ADD_METHOD(proto, rects);
+    ADD_METHOD(proto, setRects);
+    ADD_METHOD(proto, subtracted);
+    ADD_METHOD(proto, toString);
+    ADD_METHOD(proto, translate);
+    ADD_METHOD(proto, translated);
+    ADD_METHOD(proto, united);
+    ADD_METHOD(proto, xored);
 
     eng->setDefaultPrototype(qMetaTypeId<QRegion>(), proto);
     eng->setDefaultPrototype(qMetaTypeId<QRegion*>(), proto);

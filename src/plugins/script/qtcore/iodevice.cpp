@@ -50,144 +50,144 @@ public:
 public Q_SLOTS:
     bool atEnd() const
     {
-        DECLARE_SELF2(IODevice, atEnd, true);
+        DECLARE_SELF2(QIODevice, atEnd, true);
         return self->atEnd();
     }
     qint64 bytesAvailable() const
     {
-        DECLARE_SELF2(IODevice, bytesAvailable, 0);
+        DECLARE_SELF2(QIODevice, bytesAvailable, 0);
         return self->bytesAvailable();
     }
     qint64 bytesToWrite() const
     {
-        DECLARE_SELF2(IODevice, bytesToWrite, 0);
+        DECLARE_SELF2(QIODevice, bytesToWrite, 0);
         return self->bytesToWrite();
     }
     bool canReadLine() const
     {
-        DECLARE_SELF2(IODevice, canReadLine, false);
+        DECLARE_SELF2(QIODevice, canReadLine, false);
         return self->canReadLine();
     }
     void close()
     {
-        DECLARE_SELF2(IODevice, close, );
+        DECLARE_SELF2(QIODevice, close, );
         self->close();
     }
     QString errorString() const
     {
-        DECLARE_SELF2(IODevice, errorString, QString());
+        DECLARE_SELF2(QIODevice, errorString, QString());
         return self->errorString();
     }
     // ### getChar(): can't bind it since it takes * argument
     // Use exceptions instead?
     bool isOpen() const
     {
-        DECLARE_SELF2(IODevice, isOpen, false);
+        DECLARE_SELF2(QIODevice, isOpen, false);
         return self->isOpen();
     }
     bool isReadable() const
     {
-        DECLARE_SELF2(IODevice, isReadable, false);
+        DECLARE_SELF2(QIODevice, isReadable, false);
         return self->isReadable();
     }
     bool isSequential() const
     {
-        DECLARE_SELF2(IODevice, isSequential, false);
+        DECLARE_SELF2(QIODevice, isSequential, false);
         return self->isSequential();
     }
     bool isTextModeEnabled() const
     {
-        DECLARE_SELF2(IODevice, isTextModeEnabled, false);
+        DECLARE_SELF2(QIODevice, isTextModeEnabled, false);
         return self->isTextModeEnabled();
     }
     bool isWritable() const
     {
-        DECLARE_SELF2(IODevice, isWritable, false);
+        DECLARE_SELF2(QIODevice, isWritable, false);
         return self->isWritable();
     }
     bool open(QIODevice::OpenMode mode)
     {
-        DECLARE_SELF2(IODevice, open, false);
+        DECLARE_SELF2(QIODevice, open, false);
         return self->open(mode);
     }
     QIODevice::OpenMode openMode() const
     {
-        DECLARE_SELF2(IODevice, openMode, QIODevice::NotOpen);
+        DECLARE_SELF2(QIODevice, openMode, QIODevice::NotOpen);
         return self->openMode();
     }
     QByteArray peek(qint64 maxSize)
     {
-        DECLARE_SELF2(IODevice, peek, QByteArray());
+        DECLARE_SELF2(QIODevice, peek, QByteArray());
         return self->peek(maxSize);
     }
     qint64 pos() const
     {
-        DECLARE_SELF2(IODevice, pos, 0);
+        DECLARE_SELF2(QIODevice, pos, 0);
         return self->pos();
     }
     bool putChar(char c)
     {
-        DECLARE_SELF2(IODevice, putChar, false);
+        DECLARE_SELF2(QIODevice, putChar, false);
         return self->putChar(c);
     }
     QByteArray read(qint64 maxSize)
     {
-        DECLARE_SELF2(IODevice, read, QByteArray());
+        DECLARE_SELF2(QIODevice, read, QByteArray());
         return self->read(maxSize);
     }
     QByteArray readAll()
     {
-        DECLARE_SELF2(IODevice, readAll, QByteArray());
+        DECLARE_SELF2(QIODevice, readAll, QByteArray());
         return self->readAll();
     }
     QByteArray readLine(qint64 maxSize = 0)
     {
-        DECLARE_SELF2(IODevice, readLine, QByteArray());
+        DECLARE_SELF2(QIODevice, readLine, QByteArray());
         return self->readLine(maxSize);
     }
     bool reset()
     {
-        DECLARE_SELF2(IODevice, reset, false);
+        DECLARE_SELF2(QIODevice, reset, false);
         return self->reset();
     }
     bool seek(qint64 pos)
     {
-        DECLARE_SELF2(IODevice, seek, false);
+        DECLARE_SELF2(QIODevice, seek, false);
         return self->seek(pos);
     }
     void setTextModeEnabled(bool enabled)
     {
-        DECLARE_SELF2(IODevice, setTextModeEnabled, );
+        DECLARE_SELF2(QIODevice, setTextModeEnabled, );
         self->setTextModeEnabled(enabled);
     }
     qint64 size() const
     {
-        DECLARE_SELF2(IODevice, size, 0);
+        DECLARE_SELF2(QIODevice, size, 0);
         return self->size();
     }
     void ungetChar(char c)
     {
-        DECLARE_SELF2(IODevice, ungetChar, );
+        DECLARE_SELF2(QIODevice, ungetChar, );
         self->ungetChar(c);
     }
     bool waitForBytesWritten(int msecs)
     {
-        DECLARE_SELF2(IODevice, waitForBytesWritten, false);
+        DECLARE_SELF2(QIODevice, waitForBytesWritten, false);
         return self->waitForBytesWritten(msecs);
     }
     bool waitForReadyRead(int msecs)
     {
-        DECLARE_SELF2(IODevice, waitForReadyRead, false);
+        DECLARE_SELF2(QIODevice, waitForReadyRead, false);
         return self->waitForReadyRead(msecs);
     }
     qint64 write(const QByteArray &byteArray)
     {
-        DECLARE_SELF2(IODevice, write, -1);
+        DECLARE_SELF2(QIODevice, write, -1);
         return self->write(byteArray);
     }
     QString toString() const
     {
-        DECLARE_SELF2(IODevice, toString, QString());
+        DECLARE_SELF2(QIODevice, toString, QString());
         return QString::fromLatin1("QIODevice");
     }
 
