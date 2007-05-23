@@ -55,7 +55,7 @@ void Boolean::execute(QScriptContextPrivate *context)
         value = false;
 
     QScriptValueImpl boolean(engine(), value);
-    if (!context->calledAsConstructor()) {
+    if (!context->isCalledAsConstructor()) {
         context->setReturnValue(boolean);
     } else {
         QScriptValueImpl &obj = context->m_thisObject;

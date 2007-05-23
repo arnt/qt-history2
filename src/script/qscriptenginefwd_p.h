@@ -303,8 +303,8 @@ public:
     QVariantMap variantMapFromObject(const QScriptValueImpl &obj);
 
     inline bool lessThan(const QScriptValueImpl &lhs, const QScriptValueImpl &rhs) const;
-    inline bool equalTo(const QScriptValueImpl &lhs, const QScriptValueImpl &rhs) const;
-    inline bool strictEqualTo(const QScriptValueImpl &lhs, const QScriptValueImpl &rhs) const;
+    inline bool equals(const QScriptValueImpl &lhs, const QScriptValueImpl &rhs) const;
+    inline bool strictlyEquals(const QScriptValueImpl &lhs, const QScriptValueImpl &rhs) const;
 
     QScriptValuePrivate *registerValue(const QScriptValueImpl &value);
 

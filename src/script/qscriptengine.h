@@ -167,7 +167,7 @@ public:
 
     QScriptValue importExtension(const QString &extension);
 
-    void gc();
+    void collectGarbage();
 
     void setProcessEventsInterval(int interval);
     int processEventsInterval() const;

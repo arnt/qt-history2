@@ -178,7 +178,7 @@ void String::execute(QScriptContextPrivate *context)
         value = context->argument(0).toString();
 
     QScriptValueImpl str(engine(), value);
-    if (!context->calledAsConstructor()) {
+    if (!context->isCalledAsConstructor()) {
         context->setReturnValue(str);
     } else {
         QScriptValueImpl &obj = context->m_thisObject;

@@ -46,10 +46,9 @@
   }
   \endcode
 
-  The next() function returns the name of the next property and
-  advances the iterator. The name(), value() and flags() functions
-  return the name, value and flags of the last item that was jumped
-  over.
+  The next() advances the iterator. The name(), value() and flags()
+  functions return the name, value and flags of the last item that was
+  jumped over.
 
   If you want to remove properties as you iterate over the
   QScriptValue, use remove(). If you want to modify the value of a
@@ -141,20 +140,17 @@ bool QScriptValueIterator::hasNext() const
 }
 
 /*!
-  Returns the name of the next property and advances the iterator by
-  one position.
+  Advances the iterator by one position.
 
-  \sa hasNext(), previous()
+  \sa hasNext(), previous(), name()
 */
-QString QScriptValueIterator::next()
+void QScriptValueIterator::next()
 {
     Q_D(QScriptValueIterator);
     (void)hasNext();
 
     d->index = d->nextIndex;
     d->nextIndex = -1;
-
-    return name();
 }
 
 /*!
@@ -204,20 +200,17 @@ bool QScriptValueIterator::hasPrevious() const
 }
 
 /*!
-  Returns the name of the previous property and moves the iterator
-  back by one position.
+  Moves the iterator back by one position.
 
-  \sa hasPrevious(), next()
+  \sa hasPrevious(), next(), name()
 */
-QString QScriptValueIterator::previous()
+void QScriptValueIterator::previous()
 {
     Q_D(QScriptValueIterator);
     (void)hasPrevious();
 
     d->index = d->nextIndex;
     d->nextIndex = -1;
-
-    return name();
 }
 
 /*!

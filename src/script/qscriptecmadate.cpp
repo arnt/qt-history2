@@ -524,7 +524,7 @@ Date::~Date()
 
 void Date::execute(QScriptContextPrivate *context)
 {
-    if (!context->calledAsConstructor()) {
+    if (!context->isCalledAsConstructor()) {
         double t = currentTime();
         context->setReturnValue(QScriptValueImpl(engine(), ToString(t)));
         return;

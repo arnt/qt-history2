@@ -32,10 +32,10 @@ public:
     ~QScriptValueIterator();
 
     bool hasNext() const;
-    QString next();
+    void next();
 
     bool hasPrevious() const;
-    QString previous();
+    void previous();
 
     QString name() const;
 

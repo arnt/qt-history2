@@ -176,8 +176,8 @@ public:
     inline QScriptFunction *toFunction() const;
 
     inline bool lessThan(const QScriptValueImpl &other) const;
-    inline bool equalTo(const QScriptValueImpl &other) const;
-    inline bool strictEqualTo(const QScriptValueImpl &other) const;
+    inline bool equals(const QScriptValueImpl &other) const;
+    inline bool strictlyEquals(const QScriptValueImpl &other) const;
 
     bool detectedCycle() const;
 

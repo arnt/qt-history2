@@ -236,7 +236,7 @@ inline QScriptValueImpl QScriptContextPrivate::callee() const
     return m_callee;
 }
 
-inline bool QScriptContextPrivate::calledAsConstructor() const
+inline bool QScriptContextPrivate::isCalledAsConstructor() const
 {
     return m_calledAsConstructor;
 }

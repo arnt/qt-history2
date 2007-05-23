@@ -49,7 +49,7 @@ private slots:
     void infiniteRecursion();
     void castWithPrototypeChain();
     void castWithMultipleInheritance();
-    void gc();
+    void collectGarbage();
     void gcWithNestedDataStructure();
     void processEventsWhileRunning();
     void stacktrace();
@@ -86,7 +86,7 @@ void tst_QScriptEngine::newFunction()
         // prototype should be Function.prototype
         QCOMPARE(fun.prototype().isValid(), true);
         QCOMPARE(fun.prototype().isFunction(), true);
-        QCOMPARE(fun.prototype().strictEqualTo(eng.evaluate("Function.prototype")), true);
+        QCOMPARE(fun.prototype().strictlyEquals(eng.evaluate("Function.prototype")), true);
         
         QCOMPARE(fun.call().isNull(), true);
         QCOMPARE(fun.construct().isObject(), true);
@@ -102,11 +102,11 @@ void tst_QScriptEngine::newFunction()
         // internal prototype should be Function.prototype
         QCOMPARE(fun.prototype().isValid(), true);
         QCOMPARE(fun.prototype().isFunction(), true);
-        QCOMPARE(fun.prototype().strictEqualTo(eng.evaluate("Function.prototype")), true);
+        QCOMPARE(fun.prototype().strictlyEquals(eng.evaluate("Function.prototype")), true);
         // public prototype should be the one we passed
-        QCOMPARE(fun.property("prototype").strictEqualTo(proto), true);
+        QCOMPARE(fun.property("prototype").strictlyEquals(proto), true);
         QCOMPARE(fun.propertyFlags("prototype"), QScriptValue::Undeletable);
-        QCOMPARE(proto.property("constructor").strictEqualTo(fun), true);
+        QCOMPARE(proto.property("constructor").strictlyEquals(fun), true);
         QCOMPARE(proto.propertyFlags("constructor"),
                  QScriptValue::Undeletable | QScriptValue::SkipInEnumeration);
 
@@ -125,7 +125,7 @@ void tst_QScriptEngine::newObject()
     // prototype should be Object.prototype
     QCOMPARE(object.prototype().isValid(), true);
     QCOMPARE(object.prototype().isObject(), true);
-    QCOMPARE(object.prototype().strictEqualTo(eng.evaluate("Object.prototype")), true);
+    QCOMPARE(object.prototype().strictlyEquals(eng.evaluate("Object.prototype")), true);
 }
 
 void tst_QScriptEngine::newArray()
@@ -138,7 +138,7 @@ void tst_QScriptEngine::newArray()
     // prototype should be Array.prototype
     QCOMPARE(array.prototype().isValid(), true);
     QCOMPARE(array.prototype().isArray(), true);
-    QCOMPARE(array.prototype().strictEqualTo(eng.evaluate("Array.prototype")), true);
+    QCOMPARE(array.prototype().strictlyEquals(eng.evaluate("Array.prototype")), true);
 }
 
 void tst_QScriptEngine::newVariant()
@@ -167,7 +167,7 @@ void tst_QScriptEngine::newRegExp()
         // prototype should be RegExp.prototype
         QCOMPARE(rexp.prototype().isValid(), true);
         QCOMPARE(rexp.prototype().isRegExp(), true);
-        QCOMPARE(rexp.prototype().strictEqualTo(eng.evaluate("RegExp.prototype")), true);
+        QCOMPARE(rexp.prototype().strictlyEquals(eng.evaluate("RegExp.prototype")), true);
 
         QCOMPARE(rexp.toRegExp().pattern(), QRegExp("foo").pattern());
     }
@@ -185,7 +185,7 @@ void tst_QScriptEngine::newDate()
         // prototype should be Date.prototype
         QCOMPARE(date.prototype().isValid(), true);
         QCOMPARE(date.prototype().isDate(), true);
-        QCOMPARE(date.prototype().strictEqualTo(eng.evaluate("Date.prototype")), true);
+        QCOMPARE(date.prototype().strictlyEquals(eng.evaluate("Date.prototype")), true);
     }
 
     {
@@ -197,7 +197,7 @@ void tst_QScriptEngine::newDate()
         // prototype should be Date.prototype
         QCOMPARE(date.prototype().isValid(), true);
         QCOMPARE(date.prototype().isDate(), true);
-        QCOMPARE(date.prototype().strictEqualTo(eng.evaluate("Date.prototype")), true);
+        QCOMPARE(date.prototype().strictlyEquals(eng.evaluate("Date.prototype")), true);
 
         QCOMPARE(date.toDateTime(), dt);
     }
@@ -322,12 +322,12 @@ void tst_QScriptEngine::newQMetaObject()
 
     // verify that AutoOwnership is in effect
     instance = QScriptValue();
-    eng.gc();
+    eng.collectGarbage();
     QVERIFY(instance.toQObject() == 0);
     QVERIFY(instance3.toQObject() == 0); // was child of instance
     QVERIFY(instance2.toQObject() != 0);
     instance2 = QScriptValue();
-    eng.gc();
+    eng.collectGarbage();
     QVERIFY(instance2.toQObject() == 0);
 }
 
@@ -339,7 +339,7 @@ void tst_QScriptEngine::newActivationObject()
     QCOMPARE(act.isObject(), true);
     QScriptValue v(&eng, 123);
     act.setProperty("prop", v);
-    QCOMPARE(act.property("prop").strictEqualTo(v), true);
+    QCOMPARE(act.property("prop").strictlyEquals(v), true);
     QCOMPARE(act.scope().isValid(), false);
 }
 
@@ -352,7 +352,7 @@ void tst_QScriptEngine::globalObject()
     // prototype should be Object.prototype
     QCOMPARE(glob.prototype().isValid(), true);
     QCOMPARE(glob.prototype().isObject(), true);
-    QCOMPARE(glob.prototype().strictEqualTo(eng.evaluate("Object.prototype")), true);
+    QCOMPARE(glob.prototype().strictlyEquals(eng.evaluate("Object.prototype")), true);
 }
 
 void tst_QScriptEngine::canEvaluate_data()
@@ -437,7 +437,7 @@ void tst_QScriptEngine::evaluate()
     QCOMPARE(eng.hasUncaughtException(), expectHadError);
     QCOMPARE(eng.uncaughtExceptionLineNumber(), expectErrorLineNumber);
     if (eng.hasUncaughtException() && ret.isError())
-        QVERIFY(ret.property("lineNumber").strictEqualTo(QScriptValue(&eng, expectErrorLineNumber)));
+        QVERIFY(ret.property("lineNumber").strictlyEquals(QScriptValue(&eng, expectErrorLineNumber)));
     else
         QVERIFY(eng.uncaughtExceptionBacktrace().isEmpty());
 }
@@ -470,7 +470,7 @@ void tst_QScriptEngine::uncaughtException()
             QScriptValue ret = eng.evaluate("a = 10;\nb = 20;\n0 = 0;\n", /*fileName=*/QString(), /*lineNumber=*/x);
             QVERIFY(eng.hasUncaughtException());
             QCOMPARE(eng.uncaughtExceptionLineNumber(), x+2);
-            QVERIFY(eng.uncaughtException().strictEqualTo(ret));
+            QVERIFY(eng.uncaughtException().strictlyEquals(ret));
             (void)ret.toString();
             QVERIFY(!eng.hasUncaughtException());
             QCOMPARE(eng.uncaughtExceptionLineNumber(), x+2);
@@ -500,29 +500,29 @@ void tst_QScriptEngine::getSetDefaultPrototype()
         QScriptValue object = eng.newObject();
         QCOMPARE(eng.defaultPrototype(qMetaTypeId<int>()).isValid(), false);
         eng.setDefaultPrototype(qMetaTypeId<int>(), object);
-        QCOMPARE(eng.defaultPrototype(qMetaTypeId<int>()).strictEqualTo(object), true);
+        QCOMPARE(eng.defaultPrototype(qMetaTypeId<int>()).strictlyEquals(object), true);
         QScriptValue value = eng.newVariant(int(123));
         QCOMPARE(value.prototype().isObject(), true);
-        QCOMPARE(value.prototype().strictEqualTo(object), true);
+        QCOMPARE(value.prototype().strictlyEquals(object), true);
 
         eng.setDefaultPrototype(qMetaTypeId<int>(), QScriptValue());
         QCOMPARE(eng.defaultPrototype(qMetaTypeId<int>()).isValid(), false);
         QScriptValue value2 = eng.newVariant(int(123));
-        QCOMPARE(value2.prototype().strictEqualTo(object), false);
+        QCOMPARE(value2.prototype().strictlyEquals(object), false);
     }
     {
         QScriptValue object = eng.newObject();
         QCOMPARE(eng.defaultPrototype(qMetaTypeId<Foo>()).isValid(), false);
         eng.setDefaultPrototype(qMetaTypeId<Foo>(), object);
-        QCOMPARE(eng.defaultPrototype(qMetaTypeId<Foo>()).strictEqualTo(object), true);
+        QCOMPARE(eng.defaultPrototype(qMetaTypeId<Foo>()).strictlyEquals(object), true);
         QScriptValue value = eng.newVariant(qVariantFromValue(Foo()));
         QCOMPARE(value.prototype().isObject(), true);
-        QCOMPARE(value.prototype().strictEqualTo(object), true);
+        QCOMPARE(value.prototype().strictlyEquals(object), true);
 
         eng.setDefaultPrototype(qMetaTypeId<Foo>(), QScriptValue());
         QCOMPARE(eng.defaultPrototype(qMetaTypeId<Foo>()).isValid(), false);
         QScriptValue value2 = eng.newVariant(qVariantFromValue(Foo()));
-        QCOMPARE(value2.prototype().strictEqualTo(object), false);
+        QCOMPARE(value2.prototype().strictlyEquals(object), false);
     }
 }
 
@@ -553,7 +553,7 @@ void tst_QScriptEngine::valueConversion()
     {
         QScriptValue num = qScriptValueFromValue(&eng, 123);
         QCOMPARE(num.isNumber(), true);
-        QCOMPARE(num.strictEqualTo(QScriptValue(&eng, 123)), true);
+        QCOMPARE(num.strictlyEquals(QScriptValue(&eng, 123)), true);
 
         int inum = qScriptValueToValue<int>(num);
         QCOMPARE(inum, 123);
@@ -565,7 +565,7 @@ void tst_QScriptEngine::valueConversion()
     {
         QScriptValue num = eng.toScriptValue(123);
         QCOMPARE(num.isNumber(), true);
-        QCOMPARE(num.strictEqualTo(QScriptValue(&eng, 123)), true);
+        QCOMPARE(num.strictlyEquals(QScriptValue(&eng, 123)), true);
 
         int inum = eng.fromScriptValue<int>(num);
         QCOMPARE(inum, 123);
@@ -629,8 +629,8 @@ void tst_QScriptEngine::valueConversion()
         foo.y = 34;
         QScriptValue fooVal = qScriptValueFromValue(&eng, foo);
         QCOMPARE(fooVal.isObject(), true);
-        QCOMPARE(fooVal.property("x").strictEqualTo(QScriptValue(&eng, 12)), true);
-        QCOMPARE(fooVal.property("y").strictEqualTo(QScriptValue(&eng, 34)), true);
+        QCOMPARE(fooVal.property("x").strictlyEquals(QScriptValue(&eng, 12)), true);
+        QCOMPARE(fooVal.property("y").strictlyEquals(QScriptValue(&eng, 34)), true);
         fooVal.setProperty("x", QScriptValue(&eng, 56));
         fooVal.setProperty("y", QScriptValue(&eng, 78));
 
@@ -724,20 +724,20 @@ void tst_QScriptEngine::importExtension()
             QScriptValue com = eng.globalObject().property("com");
             QCOMPARE(com.isObject(), true);
             QCOMPARE(com.property("wasDefinedAlready")
-                     .strictEqualTo(QScriptValue(&eng, false)), true);
+                     .strictlyEquals(QScriptValue(&eng, false)), true);
             QCOMPARE(com.property("name")
-                     .strictEqualTo(QScriptValue(&eng, "com")), true);
+                     .strictlyEquals(QScriptValue(&eng, "com")), true);
             QCOMPARE(com.property("level")
-                     .strictEqualTo(QScriptValue(&eng, 1)), true);
+                     .strictlyEquals(QScriptValue(&eng, 1)), true);
 
             QScriptValue trolltech = com.property("trolltech");
             QCOMPARE(trolltech.isObject(), true);
             QCOMPARE(trolltech.property("wasDefinedAlready")
-                     .strictEqualTo(QScriptValue(&eng, false)), true);
+                     .strictlyEquals(QScriptValue(&eng, false)), true);
             QCOMPARE(trolltech.property("name")
-                     .strictEqualTo(QScriptValue(&eng, "com.trolltech")), true);
+                     .strictlyEquals(QScriptValue(&eng, "com.trolltech")), true);
             QCOMPARE(trolltech.property("level")
-                     .strictEqualTo(QScriptValue(&eng, 2)), true);
+                     .strictlyEquals(QScriptValue(&eng, 2)), true);
         }
     }
 
@@ -902,7 +902,7 @@ void tst_QScriptEngine::castWithMultipleInheritance()
     QCOMPARE(qscriptvalue_cast<QGraphicsItem*>(v), (QGraphicsItem *)&klz);
 }
 
-void tst_QScriptEngine::gc()
+void tst_QScriptEngine::collectGarbage()
 {
     QScriptEngine eng;
     eng.evaluate("a = new Object(); a = new Object(); a = new Object()");
@@ -914,7 +914,7 @@ void tst_QScriptEngine::gc()
     {
         QScriptValue v = eng.newQObject(ptr, QScriptEngine::ScriptOwnership);
     }
-    eng.gc();
+    eng.collectGarbage();
     QVERIFY(ptr == 0);
 }
 
@@ -1039,7 +1039,7 @@ void tst_QScriptEngine::stacktrace()
         QCOMPARE(obj.property("fileName").toString(), fileName);
         if (counter >= 0) {
             QScriptValue callee = frame.property("arguments").property("callee");
-            QVERIFY(callee.strictEqualTo(eng.globalObject().property("foo")));
+            QVERIFY(callee.strictlyEquals(eng.globalObject().property("foo")));
             QCOMPARE(obj.property("functionName").toString(), QString("foo"));
             int line = obj.property("lineNumber").toInt32();
             if (counter == 5)
@@ -1047,7 +1047,7 @@ void tst_QScriptEngine::stacktrace()
             else
                 QCOMPARE(line, 3 + counter);
         } else {
-            QVERIFY(frame.strictEqualTo(eng.globalObject()));
+            QVERIFY(frame.strictlyEquals(eng.globalObject()));
             QVERIFY(obj.property("functionName").toString().isEmpty());
         }
 

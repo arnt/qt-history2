@@ -52,7 +52,7 @@
   Use thisObject() to get the `this' object associated with the function call,
   and setThisObject() to set the `this' object.
 
-  Use calledAsConstructor() to determine if the function was called as a
+  Use isCalledAsConstructor() to determine if the function was called as a
   constructor (e.g. \c{"new foo()"} (as constructor) or just \c{"foo()"}).
 
   Use throwValue() or throwError() to throw an exception.
@@ -229,7 +229,7 @@ QScriptValue QScriptContext::argumentsObject() const
   When a function is called as constructor, the thisObject()
   contains the newly constructed object to be initialized.
 */
-bool QScriptContext::calledAsConstructor() const
+bool QScriptContext::isCalledAsConstructor() const
 {
     Q_D(const QScriptContext);
     return d->m_calledAsConstructor;

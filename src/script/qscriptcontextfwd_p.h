@@ -155,7 +155,7 @@ public:
     inline void setThisObject(const QScriptValueImpl &object);
 
     inline QScriptValueImpl callee() const;
-    inline bool calledAsConstructor() const;
+    inline bool isCalledAsConstructor() const;
 
     inline QScriptValueImpl returnValue() const;
     inline void setReturnValue(const QScriptValueImpl &value);

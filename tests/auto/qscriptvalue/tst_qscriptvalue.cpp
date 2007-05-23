@@ -45,8 +45,8 @@ private slots:
     void call();
     void construct();
     void lessThan();
-    void equalTo();
-    void strictEqualTo();
+    void equals();
+    void strictlyEquals();
     void castToPointer();
 };
 
@@ -124,26 +124,26 @@ void tst_QScriptValue::ctor()
     {
         QScriptValue v(&eng, 1.0);
         QScriptValue v2(v);
-        QCOMPARE(v2.strictEqualTo(v), true);
+        QCOMPARE(v2.strictlyEquals(v), true);
 
         QScriptValue v3(v);
-        QCOMPARE(v3.strictEqualTo(v), true);
-        QCOMPARE(v3.strictEqualTo(v2), true);
+        QCOMPARE(v3.strictlyEquals(v), true);
+        QCOMPARE(v3.strictlyEquals(v2), true);
 
         QScriptValue v4(&eng, 2.0);
-        QCOMPARE(v4.strictEqualTo(v), false);
+        QCOMPARE(v4.strictlyEquals(v), false);
         v3 = v4;
-        QCOMPARE(v3.strictEqualTo(v), false);
-        QCOMPARE(v3.strictEqualTo(v4), true);
+        QCOMPARE(v3.strictlyEquals(v), false);
+        QCOMPARE(v3.strictlyEquals(v4), true);
 
         v2 = QScriptValue();
-        QCOMPARE(v2.strictEqualTo(v), false);
+        QCOMPARE(v2.strictlyEquals(v), false);
         QCOMPARE(v.toNumber(), 1.0);
 
         QScriptValue v5(v);
-        QCOMPARE(v5.strictEqualTo(v), true);
+        QCOMPARE(v5.strictlyEquals(v), true);
         v = QScriptValue();
-        QCOMPARE(v5.strictEqualTo(v), false);
+        QCOMPARE(v5.strictlyEquals(v), false);
         QCOMPARE(v5.toNumber(), 1.0);
     }
 }
@@ -722,18 +722,18 @@ void tst_QScriptValue::getSetProperty()
     QCOMPARE(array.property(1).isValid(), false);
 
     // task 162051 -- detecting whether the property is an array index or not
-    QVERIFY(eng.evaluate("a = []; a['00'] = 123; a['00']").strictEqualTo(QScriptValue(&eng, 123)));
-    QVERIFY(eng.evaluate("a.length").strictEqualTo(QScriptValue(&eng, 0)));
-    QVERIFY(eng.evaluate("a.hasOwnProperty('00')").strictEqualTo(QScriptValue(&eng, true)));
+    QVERIFY(eng.evaluate("a = []; a['00'] = 123; a['00']").strictlyEquals(QScriptValue(&eng, 123)));
+    QVERIFY(eng.evaluate("a.length").strictlyEquals(QScriptValue(&eng, 0)));
+    QVERIFY(eng.evaluate("a.hasOwnProperty('00')").strictlyEquals(QScriptValue(&eng, true)));
     QEXPECT_FAIL("", "hasOwnProperty() is buggy for Array objects", Continue);
-    QVERIFY(eng.evaluate("a.hasOwnProperty('0')").strictEqualTo(QScriptValue(&eng, false)));
+    QVERIFY(eng.evaluate("a.hasOwnProperty('0')").strictlyEquals(QScriptValue(&eng, false)));
     QVERIFY(eng.evaluate("a[0]").isUndefined());
-    QVERIFY(eng.evaluate("a[0.5] = 456; a[0.5]").strictEqualTo(QScriptValue(&eng, 456)));
-    QVERIFY(eng.evaluate("a.length").strictEqualTo(QScriptValue(&eng, 0)));
-    QVERIFY(eng.evaluate("a.hasOwnProperty('0.5')").strictEqualTo(QScriptValue(&eng, true)));
+    QVERIFY(eng.evaluate("a[0.5] = 456; a[0.5]").strictlyEquals(QScriptValue(&eng, 456)));
+    QVERIFY(eng.evaluate("a.length").strictlyEquals(QScriptValue(&eng, 0)));
+    QVERIFY(eng.evaluate("a.hasOwnProperty('0.5')").strictlyEquals(QScriptValue(&eng, true)));
     QVERIFY(eng.evaluate("a[0]").isUndefined());
-    QVERIFY(eng.evaluate("a[0] = 789; a[0]").strictEqualTo(QScriptValue(&eng, 789)));
-    QVERIFY(eng.evaluate("a.length").strictEqualTo(QScriptValue(&eng, 1)));
+    QVERIFY(eng.evaluate("a[0] = 789; a[0]").strictlyEquals(QScriptValue(&eng, 789)));
+    QVERIFY(eng.evaluate("a.length").strictlyEquals(QScriptValue(&eng, 1)));
 
     QScriptEngine otherEngine;
     QScriptValue otherNum = QScriptValue(&otherEngine, 123);
@@ -748,43 +748,43 @@ void tst_QScriptValue::getSetProperty()
     object2.setProperty("propertyInPrototype", num2);
     // default is ResolvePrototype
     QCOMPARE(object.property("propertyInPrototype")
-             .strictEqualTo(num2), true);
+             .strictlyEquals(num2), true);
     QCOMPARE(object.property("propertyInPrototype", QScriptValue::ResolvePrototype)
-             .strictEqualTo(num2), true);
+             .strictlyEquals(num2), true);
     QCOMPARE(object.property("propertyInPrototype", QScriptValue::ResolveLocal)
              .isValid(), false);
     QCOMPARE(object.property("propertyInPrototype", QScriptValue::ResolveScope)
-             .strictEqualTo(num2), false);
+             .strictlyEquals(num2), false);
     QCOMPARE(object.property("propertyInPrototype", QScriptValue::ResolveFull)
-             .strictEqualTo(num2), true);
+             .strictlyEquals(num2), true);
 
     // test property removal (setProperty(QScriptValue()))
     QScriptValue object3 = eng.newObject();
     object3.setProperty("foo", num);
-    QCOMPARE(object3.property("foo").strictEqualTo(num), true);
+    QCOMPARE(object3.property("foo").strictlyEquals(num), true);
     object3.setProperty("bar", str);
-    QCOMPARE(object3.property("bar").strictEqualTo(str), true);
+    QCOMPARE(object3.property("bar").strictlyEquals(str), true);
     object3.setProperty("foo", QScriptValue());
     QCOMPARE(object3.property("foo").isValid(), false);
-    QCOMPARE(object3.property("bar").strictEqualTo(str), true);
+    QCOMPARE(object3.property("bar").strictlyEquals(str), true);
     object3.setProperty("foo", num);
-    QCOMPARE(object3.property("foo").strictEqualTo(num), true);
-    QCOMPARE(object3.property("bar").strictEqualTo(str), true);
+    QCOMPARE(object3.property("foo").strictlyEquals(num), true);
+    QCOMPARE(object3.property("bar").strictlyEquals(str), true);
     object3.setProperty("bar", QScriptValue());
     QCOMPARE(object3.property("bar").isValid(), false);
-    QCOMPARE(object3.property("foo").strictEqualTo(num), true);
+    QCOMPARE(object3.property("foo").strictlyEquals(num), true);
     object3.setProperty("foo", QScriptValue());
     object3.setProperty("foo", QScriptValue());
 
     eng.globalObject().setProperty("object3", object3);
     QCOMPARE(eng.evaluate("object3.hasOwnProperty('foo')")
-             .strictEqualTo(QScriptValue(&eng, false)), true);
+             .strictlyEquals(QScriptValue(&eng, false)), true);
     object3.setProperty("foo", num);
     QCOMPARE(eng.evaluate("object3.hasOwnProperty('foo')")
-             .strictEqualTo(QScriptValue(&eng, true)), true);
+             .strictlyEquals(QScriptValue(&eng, true)), true);
     eng.globalObject().setProperty("object3", QScriptValue());
     QCOMPARE(eng.evaluate("this.hasOwnProperty('object3')")
-             .strictEqualTo(QScriptValue(&eng, false)), true);
+             .strictlyEquals(QScriptValue(&eng, false)), true);
 
     // getters and setters
     {
@@ -797,7 +797,7 @@ void tst_QScriptValue::getSetProperty()
             QCOMPARE(object4.propertyFlags("foo"),
                      QScriptValue::PropertyGetter | QScriptValue::UserRange);
             object4.setProperty("x", num);
-            QCOMPARE(object4.property("foo").strictEqualTo(num), true);
+            QCOMPARE(object4.property("foo").strictlyEquals(num), true);
             
             // setter() sets this.x
             object4.setProperty("foo", eng.newFunction(setter),
@@ -805,8 +805,8 @@ void tst_QScriptValue::getSetProperty()
             QCOMPARE(object4.propertyFlags("foo"),
                      QScriptValue::PropertySetter | QScriptValue::UserRange);
             object4.setProperty("foo", str);
-            QCOMPARE(object4.property("x").strictEqualTo(str), true);
-            QCOMPARE(object4.property("foo").strictEqualTo(str), true);
+            QCOMPARE(object4.property("x").strictlyEquals(str), true);
+            QCOMPARE(object4.property("foo").strictlyEquals(str), true);
             
             // kill the getter
             object4.setProperty("foo", QScriptValue(), QScriptValue::PropertyGetter);
@@ -814,14 +814,14 @@ void tst_QScriptValue::getSetProperty()
             
             // setter should still work
             object4.setProperty("foo", num);
-            QCOMPARE(object4.property("x").strictEqualTo(num), true);
+            QCOMPARE(object4.property("x").strictlyEquals(num), true);
             
             // kill the setter too
             object4.setProperty("foo", QScriptValue(), QScriptValue::PropertySetter);
             // now foo is just a regular property
             object4.setProperty("foo", str);
-            QCOMPARE(object4.property("x").strictEqualTo(num), true);
-            QCOMPARE(object4.property("foo").strictEqualTo(str), true);
+            QCOMPARE(object4.property("x").strictlyEquals(num), true);
+            QCOMPARE(object4.property("foo").strictlyEquals(str), true);
         }
 
         for (int x = 0; x < 2; ++x) {
@@ -829,13 +829,13 @@ void tst_QScriptValue::getSetProperty()
             // setter() sets this.x
             object4.setProperty("foo", eng.newFunction(setter), QScriptValue::PropertySetter);
             object4.setProperty("foo", str);
-            QCOMPARE(object4.property("x").strictEqualTo(str), true);
+            QCOMPARE(object4.property("x").strictlyEquals(str), true);
             QCOMPARE(object4.property("foo").isValid(), false);
             
             // getter() returns this.x
             object4.setProperty("foo", eng.newFunction(getter), QScriptValue::PropertyGetter);
             object4.setProperty("x", num);
-            QCOMPARE(object4.property("foo").strictEqualTo(num), true);
+            QCOMPARE(object4.property("foo").strictlyEquals(num), true);
             
             // kill the setter
             object4.setProperty("foo", QScriptValue(), QScriptValue::PropertySetter);
@@ -843,14 +843,14 @@ void tst_QScriptValue::getSetProperty()
             object4.setProperty("foo", str);
             
             // getter should still work
-            QCOMPARE(object4.property("foo").strictEqualTo(num), true);
+            QCOMPARE(object4.property("foo").strictlyEquals(num), true);
             
             // kill the getter too
             object4.setProperty("foo", QScriptValue(), QScriptValue::PropertyGetter);
             // now foo is just a regular property
             object4.setProperty("foo", str);
-            QCOMPARE(object4.property("x").strictEqualTo(num), true);
-            QCOMPARE(object4.property("foo").strictEqualTo(str), true);
+            QCOMPARE(object4.property("x").strictlyEquals(num), true);
+            QCOMPARE(object4.property("foo").strictlyEquals(str), true);
         }
 
         // use a single function as both getter and setter
@@ -862,15 +862,15 @@ void tst_QScriptValue::getSetProperty()
                  QScriptValue::PropertyGetter | QScriptValue::PropertySetter
                  | QScriptValue::UserRange);
         object4.setProperty("x", num);
-        QCOMPARE(object4.property("foo").strictEqualTo(num), true);
+        QCOMPARE(object4.property("foo").strictlyEquals(num), true);
 
         // killing the getter will also kill the setter, since they are the same function
         object4.setProperty("foo", QScriptValue(), QScriptValue::PropertyGetter);
         QCOMPARE(object4.property("foo").isValid(), false);
         // now foo is just a regular property
         object4.setProperty("foo", str);
-        QCOMPARE(object4.property("x").strictEqualTo(num), true);
-        QCOMPARE(object4.property("foo").strictEqualTo(str), true);
+        QCOMPARE(object4.property("x").strictlyEquals(num), true);
+        QCOMPARE(object4.property("foo").strictlyEquals(str), true);
 
         // getter/setter that throws an error
         {
@@ -881,7 +881,7 @@ void tst_QScriptValue::getSetProperty()
             QScriptValue ret = object5.property("foo");
             QVERIFY(ret.isError());
             QVERIFY(eng.hasUncaughtException());
-            QVERIFY(ret.strictEqualTo(eng.uncaughtException()));
+            QVERIFY(ret.strictlyEquals(eng.uncaughtException()));
             eng.evaluate("Object"); // clear exception state...
             QVERIFY(!eng.hasUncaughtException());
             object5.setProperty("foo", str);
@@ -892,7 +892,7 @@ void tst_QScriptValue::getSetProperty()
         // attempt to install getter+setter on built-in (native) property
         {
             QScriptValue object6 = eng.newObject();
-            QVERIFY(object6.property("__proto__").strictEqualTo(object6.prototype()));
+            QVERIFY(object6.property("__proto__").strictlyEquals(object6.prototype()));
 
             QScriptValue fun = eng.newFunction(getSet__proto__);
             fun.setProperty("value", QScriptValue(&eng, "boo"));
@@ -902,11 +902,11 @@ void tst_QScriptValue::getSetProperty()
             object6.setProperty("__proto__", fun,
                                 QScriptValue::PropertyGetter | QScriptValue::PropertySetter
                                 | QScriptValue::UserRange);
-            QVERIFY(object6.property("__proto__").strictEqualTo(object6.prototype()));
+            QVERIFY(object6.property("__proto__").strictlyEquals(object6.prototype()));
 
             object6.setProperty("__proto__", QScriptValue(),
                                 QScriptValue::PropertyGetter | QScriptValue::PropertySetter);
-            QVERIFY(object6.property("__proto__").strictEqualTo(object6.prototype()));
+            QVERIFY(object6.property("__proto__").strictlyEquals(object6.prototype()));
         }
     }
 
@@ -915,9 +915,9 @@ void tst_QScriptValue::getSetProperty()
   // ReadOnly
     object.setProperty("readOnlyProperty", num, QScriptValue::ReadOnly);
     QCOMPARE(object.propertyFlags("readOnlyProperty"), QScriptValue::ReadOnly);
-    QCOMPARE(object.property("readOnlyProperty").strictEqualTo(num), true);
+    QCOMPARE(object.property("readOnlyProperty").strictlyEquals(num), true);
     eng.evaluate("object.readOnlyProperty = !object.readOnlyProperty");
-    QCOMPARE(object.property("readOnlyProperty").strictEqualTo(num), true);
+    QCOMPARE(object.property("readOnlyProperty").strictlyEquals(num), true);
     // should still be part of enumeration
     {
         QScriptValue ret = eng.evaluate(
@@ -927,23 +927,23 @@ void tst_QScriptValue::getSetProperty()
             "    found = true; break;"
             "  }"
             "} found");
-        QCOMPARE(ret.strictEqualTo(QScriptValue(&eng, true)), true);
+        QCOMPARE(ret.strictlyEquals(QScriptValue(&eng, true)), true);
     }
     // should still be deletable
     {
         QScriptValue ret = eng.evaluate("delete object.readOnlyProperty");
-        QCOMPARE(ret.strictEqualTo(QScriptValue(&eng, true)), true);
+        QCOMPARE(ret.strictlyEquals(QScriptValue(&eng, true)), true);
         QCOMPARE(object.property("readOnlyProperty").isValid(), false);
     }
 
   // Undeletable
     object.setProperty("undeletableProperty", num, QScriptValue::Undeletable);
     QCOMPARE(object.propertyFlags("undeletableProperty"), QScriptValue::Undeletable);
-    QCOMPARE(object.property("undeletableProperty").strictEqualTo(num), true);
+    QCOMPARE(object.property("undeletableProperty").strictlyEquals(num), true);
     {
         QScriptValue ret = eng.evaluate("delete object.undeletableProperty");
-        QCOMPARE(ret.strictEqualTo(QScriptValue(&eng, true)), false);
-        QCOMPARE(object.property("undeletableProperty").strictEqualTo(num), true);
+        QCOMPARE(ret.strictlyEquals(QScriptValue(&eng, true)), false);
+        QCOMPARE(object.property("undeletableProperty").strictlyEquals(num), true);
     }
     // should still be writable
     eng.evaluate("object.undeletableProperty = object.undeletableProperty + 1");
@@ -957,13 +957,13 @@ void tst_QScriptValue::getSetProperty()
             "    found = true; break;"
             "  }"
             "} found");
-        QCOMPARE(ret.strictEqualTo(QScriptValue(&eng, true)), true);
+        QCOMPARE(ret.strictlyEquals(QScriptValue(&eng, true)), true);
     }
 
   // SkipInEnumeration
     object.setProperty("dontEnumProperty", num, QScriptValue::SkipInEnumeration);
     QCOMPARE(object.propertyFlags("dontEnumProperty"), QScriptValue::SkipInEnumeration);
-    QCOMPARE(object.property("dontEnumProperty").strictEqualTo(num), true);
+    QCOMPARE(object.property("dontEnumProperty").strictlyEquals(num), true);
     // should not be part of enumeration
     {
         QScriptValue ret = eng.evaluate(
@@ -973,7 +973,7 @@ void tst_QScriptValue::getSetProperty()
             "    found = true; break;"
             "  }"
             "} found");
-        QCOMPARE(ret.strictEqualTo(QScriptValue(&eng, false)), true);
+        QCOMPARE(ret.strictlyEquals(QScriptValue(&eng, false)), true);
     }
     // should still be writable
     eng.evaluate("object.dontEnumProperty = object.dontEnumProperty + 1");
@@ -981,7 +981,7 @@ void tst_QScriptValue::getSetProperty()
     // should still be deletable
     {
         QScriptValue ret = eng.evaluate("delete object.dontEnumProperty");
-        QCOMPARE(ret.strictEqualTo(QScriptValue(&eng, true)), true);
+        QCOMPARE(ret.strictlyEquals(QScriptValue(&eng, true)), true);
         QCOMPARE(object.property("dontEnumProperty").isValid(), false);
     }
 
@@ -1011,7 +1011,7 @@ void tst_QScriptValue::getSetPrototype()
     QScriptValue object2 = eng.newObject();
     object2.setPrototype(object);
 
-    QCOMPARE(object2.prototype().strictEqualTo(object), true);
+    QCOMPARE(object2.prototype().strictlyEquals(object), true);
 
     QScriptValue inv;
     inv.setPrototype(object);
@@ -1021,23 +1021,23 @@ void tst_QScriptValue::getSetPrototype()
     QScriptValue object3 = otherEngine.newObject();
     QTest::ignoreMessage(QtWarningMsg, "QScriptValue::setPrototype() failed: cannot set a prototype created in a different engine");
     object2.setPrototype(object3);
-    QCOMPARE(object2.prototype().strictEqualTo(object), true);
+    QCOMPARE(object2.prototype().strictlyEquals(object), true);
 
     // cyclic prototypes
     QScriptValue old = object.prototype();
     QTest::ignoreMessage(QtWarningMsg, "QScriptValue::setPrototype() failed: cyclic prototype value");
     object.setPrototype(object);
-    QCOMPARE(object.prototype().strictEqualTo(old), true);
+    QCOMPARE(object.prototype().strictlyEquals(old), true);
 
     object2.setPrototype(object);
     QTest::ignoreMessage(QtWarningMsg, "QScriptValue::setPrototype() failed: cyclic prototype value");
     object.setPrototype(object2);
-    QCOMPARE(object.prototype().strictEqualTo(old), true);
+    QCOMPARE(object.prototype().strictlyEquals(old), true);
 
     {
         QScriptValue ret = eng.evaluate("o = { }; p = { }; o.__proto__ = p; p.__proto__ = o");
         QCOMPARE(eng.hasUncaughtException(), true);
-        QVERIFY(ret.strictEqualTo(eng.uncaughtException()));
+        QVERIFY(ret.strictlyEquals(eng.uncaughtException()));
         QCOMPARE(ret.isError(), true);
         QCOMPARE(ret.toString(), QLatin1String("Error: cycle in prototype chain"));
     }
@@ -1058,7 +1058,7 @@ void tst_QScriptValue::getSetScope()
     QScriptValue object2 = eng.newObject();
     object2.setScope(object);
 
-    QCOMPARE(object2.scope().strictEqualTo(object), true);
+    QCOMPARE(object2.scope().strictlyEquals(object), true);
 
     QScriptValue inv;
     inv.setScope(object);
@@ -1068,7 +1068,7 @@ void tst_QScriptValue::getSetScope()
     QScriptValue object3 = otherEngine.newObject();
     QTest::ignoreMessage(QtWarningMsg, "QScriptValue::setScope() failed: cannot set a scope object created in a different engine");
     object2.setScope(object3);
-    QCOMPARE(object2.scope().strictEqualTo(object), true);
+    QCOMPARE(object2.scope().strictlyEquals(object), true);
 }
 
 static QScriptValue getArg(QScriptContext *ctx, QScriptEngine *)
@@ -1109,7 +1109,7 @@ void tst_QScriptValue::call()
         QScriptValueList args;
         args << QScriptValue(&eng, 123);
         QScriptValue result = Number.call(Object, args);
-        QCOMPARE(result.strictEqualTo(args.at(0)), true);
+        QCOMPARE(result.strictlyEquals(args.at(0)), true);
     }
 
     // test that correct "this" object is used
@@ -1165,7 +1165,7 @@ void tst_QScriptValue::call()
             QScriptValue result = fun.call();
             QCOMPARE(result.isError(), true);
             QCOMPARE(eng.hasUncaughtException(), true);
-            QVERIFY(result.strictEqualTo(eng.uncaughtException()));
+            QVERIFY(result.strictlyEquals(eng.uncaughtException()));
         }
     }
 
@@ -1259,15 +1259,15 @@ void tst_QScriptValue::call()
         // call with single array object as arguments
         QScriptValue ret = fun.call(QScriptValue(), array);
         QCOMPARE(ret.isError(), false);
-        QCOMPARE(ret.property(0).strictEqualTo(array.property(0)), true);
-        QCOMPARE(ret.property(1).strictEqualTo(array.property(1)), true);
-        QCOMPARE(ret.property(2).strictEqualTo(array.property(2)), true);
+        QCOMPARE(ret.property(0).strictlyEquals(array.property(0)), true);
+        QCOMPARE(ret.property(1).strictlyEquals(array.property(1)), true);
+        QCOMPARE(ret.property(2).strictlyEquals(array.property(2)), true);
         // call with arguments object as arguments
         QScriptValue ret2 = fun.call(QScriptValue(), ret);
         QCOMPARE(ret2.isError(), false);
-        QCOMPARE(ret2.property(0).strictEqualTo(ret.property(0)), true);
-        QCOMPARE(ret2.property(1).strictEqualTo(ret.property(1)), true);
-        QCOMPARE(ret2.property(2).strictEqualTo(ret.property(2)), true);
+        QCOMPARE(ret2.property(0).strictlyEquals(ret.property(0)), true);
+        QCOMPARE(ret2.property(1).strictlyEquals(ret.property(1)), true);
+        QCOMPARE(ret2.property(2).strictlyEquals(ret.property(2)), true);
         // call with null as arguments
         QScriptValue ret3 = fun.call(QScriptValue(), eng.nullValue());
         QCOMPARE(ret3.isError(), false);
@@ -1304,7 +1304,7 @@ void tst_QScriptValue::construct()
         QCOMPARE(fun.isFunction(), true);
         QCOMPARE(fun.property("prototype").isObject(), true);
         QScriptValue ret = fun.construct();
-        QCOMPARE(fun.property("prototype").strictEqualTo(ret), true);
+        QCOMPARE(fun.property("prototype").strictlyEquals(ret), true);
     }
 
     // test that we return the new object even if a non-object value is returned from the function
@@ -1321,7 +1321,7 @@ void tst_QScriptValue::construct()
         QScriptValue ret = fun.construct();
         QCOMPARE(ret.isError(), true);
         QCOMPARE(eng.hasUncaughtException(), true);
-        QVERIFY(ret.strictEqualTo(eng.uncaughtException()));
+        QVERIFY(ret.strictlyEquals(eng.uncaughtException()));
     }
 
     QScriptValue inv;
@@ -1335,14 +1335,14 @@ void tst_QScriptValue::construct()
         array.setProperty(2, QScriptValue(&eng, 789.0));
         // construct with single array object as arguments
         QScriptValue ret = fun.construct(array);
-        QCOMPARE(ret.property(0).strictEqualTo(array.property(0)), true);
-        QCOMPARE(ret.property(1).strictEqualTo(array.property(1)), true);
-        QCOMPARE(ret.property(2).strictEqualTo(array.property(2)), true);
+        QCOMPARE(ret.property(0).strictlyEquals(array.property(0)), true);
+        QCOMPARE(ret.property(1).strictlyEquals(array.property(1)), true);
+        QCOMPARE(ret.property(2).strictlyEquals(array.property(2)), true);
         // construct with arguments object as arguments
         QScriptValue ret2 = fun.construct(ret);
-        QCOMPARE(ret2.property(0).strictEqualTo(ret.property(0)), true);
-        QCOMPARE(ret2.property(1).strictEqualTo(ret.property(1)), true);
-        QCOMPARE(ret2.property(2).strictEqualTo(ret.property(2)), true);
+        QCOMPARE(ret2.property(0).strictlyEquals(ret.property(0)), true);
+        QCOMPARE(ret2.property(1).strictlyEquals(ret.property(1)), true);
+        QCOMPARE(ret2.property(2).strictlyEquals(ret.property(2)), true);
         // construct with null as arguments
         QScriptValue ret3 = fun.construct(eng.nullValue());
         QCOMPARE(ret3.isError(), false);
@@ -1427,110 +1427,110 @@ void tst_QScriptValue::lessThan()
     QCOMPARE(date1.lessThan(QScriptValue(&otherEngine, 123)), false);
 }
 
-void tst_QScriptValue::equalTo()
+void tst_QScriptValue::equals()
 {
     QScriptEngine eng;
 
     QScriptValue num = QScriptValue(&eng, 123);
-    QCOMPARE(num.equalTo(QScriptValue(&eng, 123)), true);
-    QCOMPARE(num.equalTo(QScriptValue(&eng, 321)), false);
-    QCOMPARE(num.equalTo(QScriptValue(&eng, "123")), true);
-    QCOMPARE(num.equalTo(QScriptValue(&eng, "321")), false);
-    QCOMPARE(num.equalTo(QScriptValue(&eng, 123).toObject()), true);
-    QCOMPARE(num.equalTo(QScriptValue(&eng, 321).toObject()), false);
-    QCOMPARE(num.equalTo(QScriptValue(&eng, "123").toObject()), true);
-    QCOMPARE(num.equalTo(QScriptValue(&eng, "321").toObject()), false);
-    QCOMPARE(num.equalTo(QScriptValue()), false);
+    QCOMPARE(num.equals(QScriptValue(&eng, 123)), true);
+    QCOMPARE(num.equals(QScriptValue(&eng, 321)), false);
+    QCOMPARE(num.equals(QScriptValue(&eng, "123")), true);
+    QCOMPARE(num.equals(QScriptValue(&eng, "321")), false);
+    QCOMPARE(num.equals(QScriptValue(&eng, 123).toObject()), true);
+    QCOMPARE(num.equals(QScriptValue(&eng, 321).toObject()), false);
+    QCOMPARE(num.equals(QScriptValue(&eng, "123").toObject()), true);
+    QCOMPARE(num.equals(QScriptValue(&eng, "321").toObject()), false);
+    QCOMPARE(num.equals(QScriptValue()), false);
 
     QScriptValue str = QScriptValue(&eng, "123");
-    QCOMPARE(str.equalTo(QScriptValue(&eng, "123")), true);
-    QCOMPARE(str.equalTo(QScriptValue(&eng, "321")), false);
-    QCOMPARE(str.equalTo(QScriptValue(&eng, 123)), true);
-    QCOMPARE(str.equalTo(QScriptValue(&eng, 321)), false);
-    QCOMPARE(str.equalTo(QScriptValue(&eng, "123").toObject()), true);
-    QCOMPARE(str.equalTo(QScriptValue(&eng, "321").toObject()), false);
-    QCOMPARE(str.equalTo(QScriptValue(&eng, 123).toObject()), true);
-    QCOMPARE(str.equalTo(QScriptValue(&eng, 321).toObject()), false);
-    QCOMPARE(str.equalTo(QScriptValue()), false);
+    QCOMPARE(str.equals(QScriptValue(&eng, "123")), true);
+    QCOMPARE(str.equals(QScriptValue(&eng, "321")), false);
+    QCOMPARE(str.equals(QScriptValue(&eng, 123)), true);
+    QCOMPARE(str.equals(QScriptValue(&eng, 321)), false);
+    QCOMPARE(str.equals(QScriptValue(&eng, "123").toObject()), true);
+    QCOMPARE(str.equals(QScriptValue(&eng, "321").toObject()), false);
+    QCOMPARE(str.equals(QScriptValue(&eng, 123).toObject()), true);
+    QCOMPARE(str.equals(QScriptValue(&eng, 321).toObject()), false);
+    QCOMPARE(str.equals(QScriptValue()), false);
 
     QScriptValue date1 = eng.newDate(QDateTime(QDate(2000, 1, 1)));
     QScriptValue date2 = eng.newDate(QDateTime(QDate(1999, 1, 1)));
-    QCOMPARE(date1.equalTo(date2), false);
-    QCOMPARE(date1.equalTo(date1), true);
-    QCOMPARE(date2.equalTo(date2), true);
+    QCOMPARE(date1.equals(date2), false);
+    QCOMPARE(date1.equals(date1), true);
+    QCOMPARE(date2.equals(date2), true);
 
     QScriptValue undefined = eng.undefinedValue();
     QScriptValue null = eng.nullValue();
-    QCOMPARE(undefined.equalTo(undefined), true);
-    QCOMPARE(null.equalTo(null), true);
-    QCOMPARE(undefined.equalTo(null), true);
-    QCOMPARE(null.equalTo(undefined), true);
-    QCOMPARE(undefined.equalTo(QScriptValue()), false);
-    QCOMPARE(null.equalTo(QScriptValue()), false);
+    QCOMPARE(undefined.equals(undefined), true);
+    QCOMPARE(null.equals(null), true);
+    QCOMPARE(undefined.equals(null), true);
+    QCOMPARE(null.equals(undefined), true);
+    QCOMPARE(undefined.equals(QScriptValue()), false);
+    QCOMPARE(null.equals(QScriptValue()), false);
 
     QScriptValue obj1 = eng.newObject();
     QScriptValue obj2 = eng.newObject();
-    QCOMPARE(obj1.equalTo(obj2), false);
-    QCOMPARE(obj2.equalTo(obj1), false);
-    QCOMPARE(obj1.equalTo(obj1), true);
-    QCOMPARE(obj2.equalTo(obj2), true);
+    QCOMPARE(obj1.equals(obj2), false);
+    QCOMPARE(obj2.equals(obj1), false);
+    QCOMPARE(obj1.equals(obj1), true);
+    QCOMPARE(obj2.equals(obj2), true);
 
     QScriptEngine otherEngine;
-    QTest::ignoreMessage(QtWarningMsg, "QScriptValue::equalTo: "
+    QTest::ignoreMessage(QtWarningMsg, "QScriptValue::equals: "
                          "cannot compare to a value created in "
                          "a different engine");
-    QCOMPARE(date1.equalTo(QScriptValue(&otherEngine, 123)), false);
+    QCOMPARE(date1.equals(QScriptValue(&otherEngine, 123)), false);
 }
 
-void tst_QScriptValue::strictEqualTo()
+void tst_QScriptValue::strictlyEquals()
 {
     QScriptEngine eng;
 
     QScriptValue num = QScriptValue(&eng, 123);
-    QCOMPARE(num.strictEqualTo(QScriptValue(&eng, 123)), true);
-    QCOMPARE(num.strictEqualTo(QScriptValue(&eng, 321)), false);
-    QCOMPARE(num.strictEqualTo(QScriptValue(&eng, "123")), false);
-    QCOMPARE(num.strictEqualTo(QScriptValue(&eng, "321")), false);
-    QCOMPARE(num.strictEqualTo(QScriptValue(&eng, 123).toObject()), false);
-    QCOMPARE(num.strictEqualTo(QScriptValue(&eng, 321).toObject()), false);
-    QCOMPARE(num.strictEqualTo(QScriptValue(&eng, "123").toObject()), false);
-    QCOMPARE(num.strictEqualTo(QScriptValue(&eng, "321").toObject()), false);
+    QCOMPARE(num.strictlyEquals(QScriptValue(&eng, 123)), true);
+    QCOMPARE(num.strictlyEquals(QScriptValue(&eng, 321)), false);
+    QCOMPARE(num.strictlyEquals(QScriptValue(&eng, "123")), false);
+    QCOMPARE(num.strictlyEquals(QScriptValue(&eng, "321")), false);
+    QCOMPARE(num.strictlyEquals(QScriptValue(&eng, 123).toObject()), false);
+    QCOMPARE(num.strictlyEquals(QScriptValue(&eng, 321).toObject()), false);
+    QCOMPARE(num.strictlyEquals(QScriptValue(&eng, "123").toObject()), false);
+    QCOMPARE(num.strictlyEquals(QScriptValue(&eng, "321").toObject()), false);
 
     QScriptValue str = QScriptValue(&eng, "123");
-    QCOMPARE(str.strictEqualTo(QScriptValue(&eng, "123")), true);
-    QCOMPARE(str.strictEqualTo(QScriptValue(&eng, "321")), false);
-    QCOMPARE(str.strictEqualTo(QScriptValue(&eng, 123)), false);
-    QCOMPARE(str.strictEqualTo(QScriptValue(&eng, 321)), false);
-    QCOMPARE(str.strictEqualTo(QScriptValue(&eng, "123").toObject()), false);
-    QCOMPARE(str.strictEqualTo(QScriptValue(&eng, "321").toObject()), false);
-    QCOMPARE(str.strictEqualTo(QScriptValue(&eng, 123).toObject()), false);
-    QCOMPARE(str.strictEqualTo(QScriptValue(&eng, 321).toObject()), false);
+    QCOMPARE(str.strictlyEquals(QScriptValue(&eng, "123")), true);
+    QCOMPARE(str.strictlyEquals(QScriptValue(&eng, "321")), false);
+    QCOMPARE(str.strictlyEquals(QScriptValue(&eng, 123)), false);
+    QCOMPARE(str.strictlyEquals(QScriptValue(&eng, 321)), false);
+    QCOMPARE(str.strictlyEquals(QScriptValue(&eng, "123").toObject()), false);
+    QCOMPARE(str.strictlyEquals(QScriptValue(&eng, "321").toObject()), false);
+    QCOMPARE(str.strictlyEquals(QScriptValue(&eng, 123).toObject()), false);
+    QCOMPARE(str.strictlyEquals(QScriptValue(&eng, 321).toObject()), false);
 
     QScriptValue date1 = eng.newDate(QDateTime(QDate(2000, 1, 1)));
     QScriptValue date2 = eng.newDate(QDateTime(QDate(1999, 1, 1)));
-    QCOMPARE(date1.strictEqualTo(date2), false);
-    QCOMPARE(date1.strictEqualTo(date1), true);
-    QCOMPARE(date2.strictEqualTo(date2), true);
+    QCOMPARE(date1.strictlyEquals(date2), false);
+    QCOMPARE(date1.strictlyEquals(date1), true);
+    QCOMPARE(date2.strictlyEquals(date2), true);
 
     QScriptValue undefined = eng.undefinedValue();
     QScriptValue null = eng.nullValue();
-    QCOMPARE(undefined.strictEqualTo(undefined), true);
-    QCOMPARE(null.strictEqualTo(null), true);
-    QCOMPARE(undefined.strictEqualTo(null), false);
-    QCOMPARE(null.strictEqualTo(undefined), false);
+    QCOMPARE(undefined.strictlyEquals(undefined), true);
+    QCOMPARE(null.strictlyEquals(null), true);
+    QCOMPARE(undefined.strictlyEquals(null), false);
+    QCOMPARE(null.strictlyEquals(undefined), false);
 
     QScriptValue obj1 = eng.newObject();
     QScriptValue obj2 = eng.newObject();
-    QCOMPARE(obj1.strictEqualTo(obj2), false);
-    QCOMPARE(obj2.strictEqualTo(obj1), false);
-    QCOMPARE(obj1.strictEqualTo(obj1), true);
-    QCOMPARE(obj2.strictEqualTo(obj2), true);
+    QCOMPARE(obj1.strictlyEquals(obj2), false);
+    QCOMPARE(obj2.strictlyEquals(obj1), false);
+    QCOMPARE(obj1.strictlyEquals(obj1), true);
+    QCOMPARE(obj2.strictlyEquals(obj2), true);
 
     QScriptEngine otherEngine;
-    QTest::ignoreMessage(QtWarningMsg, "QScriptValue::strictEqualTo: "
+    QTest::ignoreMessage(QtWarningMsg, "QScriptValue::strictlyEquals: "
                          "cannot compare to a value created in "
                          "a different engine");
-    QCOMPARE(date1.strictEqualTo(QScriptValue(&otherEngine, 123)), false);
+    QCOMPARE(date1.strictlyEquals(QScriptValue(&otherEngine, 123)), false);
 }
 
 Q_DECLARE_METATYPE(int*)

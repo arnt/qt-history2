@@ -749,12 +749,12 @@ inline bool QScriptEnginePrivate::lessThan(const QScriptValueImpl &lhs, const QS
     return QScriptContextPrivate::get(currentContext())->lt_cmp(lhs, rhs);
 }
 
-inline bool QScriptEnginePrivate::equalTo(const QScriptValueImpl &lhs, const QScriptValueImpl &rhs) const
+inline bool QScriptEnginePrivate::equals(const QScriptValueImpl &lhs, const QScriptValueImpl &rhs) const
 {
     return QScriptContextPrivate::get(currentContext())->eq_cmp(lhs, rhs);
 }
 
-inline bool QScriptEnginePrivate::strictEqualTo(const QScriptValueImpl &lhs, const QScriptValueImpl &rhs) const
+inline bool QScriptEnginePrivate::strictlyEquals(const QScriptValueImpl &lhs, const QScriptValueImpl &rhs) const
 {
     return QScriptContextPrivate::strict_eq_cmp(lhs, rhs);
 }

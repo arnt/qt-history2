@@ -86,7 +86,7 @@ void Number::execute(QScriptContextPrivate *context)
         value = 0;
 
     QScriptValueImpl num(engine(), value);
-    if (!context->calledAsConstructor()) {
+    if (!context->isCalledAsConstructor()) {
         context->setReturnValue(num);
     } else {
         QScriptValueImpl &obj = context->m_thisObject;

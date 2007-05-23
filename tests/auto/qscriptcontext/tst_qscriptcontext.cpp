@@ -121,7 +121,7 @@ void tst_QScriptContext::arguments()
         QScriptValue result = eng.evaluate("get_argumentsObject()");
         QCOMPARE(result.isArray(), false);
         QCOMPARE(result.property("length").toUInt32(), quint32(0));
-        QCOMPARE(result.property("callee").strictEqualTo(fun), true);
+        QCOMPARE(result.property("callee").strictlyEquals(fun), true);
     }
 
     {
@@ -321,13 +321,13 @@ void tst_QScriptContext::pushAndPopContext()
     QCOMPARE(eng.currentContext(), ctx);
     QCOMPARE(ctx->engine(), &eng);
     QCOMPARE(ctx->state(), QScriptContext::NormalState);
-    QCOMPARE(ctx->calledAsConstructor(), false);
+    QCOMPARE(ctx->isCalledAsConstructor(), false);
     QCOMPARE(ctx->argumentCount(), 0);
     QCOMPARE(ctx->argument(0).isUndefined(), true);
     QCOMPARE(ctx->argumentsObject().isObject(), true);
     QCOMPARE(ctx->activationObject().isObject(), true);
     QCOMPARE(ctx->callee().isValid(), false);
-    QCOMPARE(ctx->thisObject().strictEqualTo(eng.globalObject()), true);
+    QCOMPARE(ctx->thisObject().strictlyEquals(eng.globalObject()), true);
 
     QScriptContext *ctx2 = eng.pushContext();
     QCOMPARE(ctx2->parentContext(), ctx);

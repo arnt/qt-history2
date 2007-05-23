@@ -1178,7 +1178,7 @@ QScriptValue QScriptEngine::importExtension(const QString &extension)
   request that garbage collection should be performed as soon as
   possible.
 */
-void QScriptEngine::gc()
+void QScriptEngine::collectGarbage()
 {
     Q_D(QScriptEngine);
     d->gc();

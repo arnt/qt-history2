@@ -1358,7 +1358,7 @@ QScriptValuePrivate *QScriptEnginePrivate::registerValue(const QScriptValueImpl 
 
     QVector<QScriptValuePrivate*>::const_iterator it;
     for (it = m_otherHandles.constBegin(); it != m_otherHandles.constEnd(); ++it) {
-        if ((*it)->value.strictEqualTo(value))
+        if ((*it)->value.strictlyEquals(value))
             return *it;
     }
 

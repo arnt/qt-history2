@@ -71,7 +71,7 @@
   be invoked by calling call(). Constructor functions can be used to
   construct new objects by calling construct().
 
-  Use equalTo(), strictEqualTo() and lessThan() to compare a QScriptValue
+  Use equals(), strictlyEquals() and lessThan() to compare a QScriptValue
   to another.
 
   \sa QScriptEngine, QScriptValueIterator
@@ -434,7 +434,7 @@ bool QScriptValue::instanceOf(const QScriptValue &ctorValue) const
   toString()) in an attempt to convert the object to a primitive value
   (possibly resulting in an uncaught script exception).
 
-  \sa equalTo()
+  \sa equals()
 */
 bool QScriptValue::lessThan(const QScriptValue &other) const
 {
@@ -459,17 +459,17 @@ bool QScriptValue::lessThan(const QScriptValue &other) const
   toString()) in an attempt to convert the object to a primitive value
   (possibly resulting in an uncaught script exception).
 
-  \sa strictEqualTo(), lessThan()
+  \sa strictlyEquals(), lessThan()
 */
-bool QScriptValue::equalTo(const QScriptValue &other) const
+bool QScriptValue::equals(const QScriptValue &other) const
 {
     if (isValid() && other.isValid() && (other.engine() != engine())) {
-        qWarning("QScriptValue::equalTo: "
+        qWarning("QScriptValue::equals: "
                  "cannot compare to a value created in "
                  "a different engine");
         return false;
     }
-    return QScriptValuePrivate::valueOf(*this).equalTo(QScriptValuePrivate::valueOf(other));
+    return QScriptValuePrivate::valueOf(*this).equals(QScriptValuePrivate::valueOf(other));
 }
 
 /*!
@@ -478,17 +478,17 @@ bool QScriptValue::equalTo(const QScriptValue &other) const
   follows the behavior described in \l{ECMA-262} section 11.9.6, "The
   Strict Equality Comparison Algorithm".
 
-  \sa equalTo()
+  \sa equals()
 */
-bool QScriptValue::strictEqualTo(const QScriptValue &other) const
+bool QScriptValue::strictlyEquals(const QScriptValue &other) const
 {
     if (isValid() && other.isValid() && (other.engine() != engine())) {
-        qWarning("QScriptValue::strictEqualTo: "
+        qWarning("QScriptValue::strictlyEquals: "
                  "cannot compare to a value created in "
                  "a different engine");
         return false;
     }
-    return QScriptValuePrivate::valueOf(*this).strictEqualTo(QScriptValuePrivate::valueOf(other));
+    return QScriptValuePrivate::valueOf(*this).strictlyEquals(QScriptValuePrivate::valueOf(other));
 }
 
 /*!

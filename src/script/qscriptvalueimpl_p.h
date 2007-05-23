@@ -861,22 +861,22 @@ inline bool QScriptValueImpl::lessThan(const QScriptValueImpl &other) const
     return eng_p->lessThan(*this, other);
 }
 
-inline bool QScriptValueImpl::equalTo(const QScriptValueImpl &other) const
+inline bool QScriptValueImpl::equals(const QScriptValueImpl &other) const
 {
     if (!isValid() || !other.isValid())
         return isValid() == other.isValid();
 
     QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(engine());
-    return eng_p->equalTo(*this, other);
+    return eng_p->equals(*this, other);
 }
 
-inline bool QScriptValueImpl::strictEqualTo(const QScriptValueImpl &other) const
+inline bool QScriptValueImpl::strictlyEquals(const QScriptValueImpl &other) const
 {
     if (!isValid() || !other.isValid())
         return isValid() == other.isValid();
 
     QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(engine());
-    return eng_p->strictEqualTo(*this, other);
+    return eng_p->strictlyEquals(*this, other);
 }
 
 #endif // QT_NO_SCRIPT

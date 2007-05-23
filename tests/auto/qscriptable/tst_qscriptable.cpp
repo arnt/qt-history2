@@ -196,12 +196,12 @@ void tst_QScriptable::engine()
     // reading property
     {
         QScriptValue ret = m_engine.evaluate("scriptable.baz");
-        QCOMPARE(ret.strictEqualTo(QScriptValue(&m_engine, 123)), true);
+        QCOMPARE(ret.strictlyEquals(QScriptValue(&m_engine, 123)), true);
     }
     QCOMPARE(m_scriptable.lastEngine(), &m_engine);
     {
         QScriptValue ret = m_engine.evaluate("scriptable[0]");
-        QCOMPARE(ret.strictEqualTo(QScriptValue(&m_engine, 123)), true);
+        QCOMPARE(ret.strictlyEquals(QScriptValue(&m_engine, 123)), true);
     }
     QCOMPARE(m_scriptable.lastEngine(), &m_engine);
     // when reading from C++, engine() should be 0
@@ -218,7 +218,7 @@ void tst_QScriptable::engine()
     m_engine.evaluate("scriptable.setX(123)");
     QCOMPARE(m_scriptable.lastEngine(), &m_engine);
     QCOMPARE(m_engine.evaluate("scriptable.x")
-             .strictEqualTo(QScriptValue(&m_engine, 123)), true);
+             .strictlyEquals(QScriptValue(&m_engine, 123)), true);
     (void)m_scriptable.setProperty("baz", 123);
     QCOMPARE(m_scriptable.lastEngine(), (QScriptEngine *)0);
 
@@ -226,7 +226,7 @@ void tst_QScriptable::engine()
     m_engine.evaluate("scriptable.setX('123')");
     QCOMPARE(m_scriptable.lastEngine(), &m_engine);
     QCOMPARE(m_engine.evaluate("scriptable.x")
-             .strictEqualTo(QScriptValue(&m_engine, QLatin1String("123"))), true);
+             .strictlyEquals(QScriptValue(&m_engine, QLatin1String("123"))), true);
 
     // calling a slot from another slot
     m_engine.evaluate("scriptable.evalIsBar()");
@@ -248,23 +248,23 @@ void tst_QScriptable::thisObject()
                                              "o.setX(123);"
                                              "o.__proto__ = Object.prototype;"
                                              "o.x");
-        QCOMPARE(ret.strictEqualTo(QScriptValue(&m_engine, 123)), true);
+        QCOMPARE(ret.strictlyEquals(QScriptValue(&m_engine, 123)), true);
     }
     {
         QScriptValue ret = m_engine.evaluate("o.__proto__ = scriptable;"
                                              "o.setX2(456);"
                                              "o.__proto__ = Object.prototype;"
                                              "o.x");
-        QCOMPARE(ret.strictEqualTo(QScriptValue(&m_engine, 456)), true);
+        QCOMPARE(ret.strictlyEquals(QScriptValue(&m_engine, 456)), true);
     }
     m_engine.evaluate("o.__proto__ = scriptable");
     {
         QScriptValue ret = m_engine.evaluate("o.isBar()");
-        QCOMPARE(ret.strictEqualTo(QScriptValue(&m_engine, false)), true);
+        QCOMPARE(ret.strictlyEquals(QScriptValue(&m_engine, false)), true);
     }
     {
         QScriptValue ret = m_engine.evaluate("o.toString = function() { return 'foo@bar'; }; o.isBar()");
-        QCOMPARE(ret.strictEqualTo(QScriptValue(&m_engine, true)), true);
+        QCOMPARE(ret.strictlyEquals(QScriptValue(&m_engine, true)), true);
     }
 
     // property getter
@@ -291,11 +291,11 @@ void tst_QScriptable::thisObject()
     {
         QVERIFY(!m_scriptable.oofThisObject().isValid());
         m_engine.evaluate("o.oof = 123");
-        QVERIFY(m_scriptable.oofThisObject().strictEqualTo(m_engine.evaluate("o")));
+        QVERIFY(m_scriptable.oofThisObject().strictlyEquals(m_engine.evaluate("o")));
     }
     {
         m_engine.evaluate("scriptable.oof = 123");
-        QVERIFY(m_scriptable.oofThisObject().strictEqualTo(m_engine.evaluate("scriptable")));
+        QVERIFY(m_scriptable.oofThisObject().strictlyEquals(m_engine.evaluate("scriptable")));
     }
 
     // target of signal
@@ -304,9 +304,9 @@ void tst_QScriptable::thisObject()
             QScriptValue ret = m_engine.evaluate("scriptable.sig.connect(o, scriptable.setX)");
             QVERIFY(ret.isUndefined());
         }
-        QVERIFY(m_engine.evaluate("o.x").strictEqualTo(QScriptValue(&m_engine, 456)));
+        QVERIFY(m_engine.evaluate("o.x").strictlyEquals(QScriptValue(&m_engine, 456)));
         m_scriptable.emitSig(654321);
-        QVERIFY(m_engine.evaluate("o.x").strictEqualTo(QScriptValue(&m_engine, 654321)));
+        QVERIFY(m_engine.evaluate("o.x").strictlyEquals(QScriptValue(&m_engine, 654321)));
         {
             QScriptValue ret = m_engine.evaluate("scriptable.sig.disconnect(o, scriptable.setX)");
             QVERIFY(ret.isUndefined());
@@ -322,11 +322,11 @@ void tst_QScriptable::arguments()
     // still be invoked; the arguments should be accessible through
     // the QScriptable API
     QScriptValue args = m_engine.evaluate("scriptable.getArguments(10, 20, 30, 'hi')");
-    QVERIFY(args.property("length").strictEqualTo(QScriptValue(&m_engine, 4)));
-    QVERIFY(args.property("0").strictEqualTo(QScriptValue(&m_engine, 10)));
-    QVERIFY(args.property("1").strictEqualTo(QScriptValue(&m_engine, 20)));
-    QVERIFY(args.property("2").strictEqualTo(QScriptValue(&m_engine, 30)));
-    QVERIFY(args.property("3").strictEqualTo(QScriptValue(&m_engine, "hi")));
+    QVERIFY(args.property("length").strictlyEquals(QScriptValue(&m_engine, 4)));
+    QVERIFY(args.property("0").strictlyEquals(QScriptValue(&m_engine, 10)));
+    QVERIFY(args.property("1").strictlyEquals(QScriptValue(&m_engine, 20)));
+    QVERIFY(args.property("2").strictlyEquals(QScriptValue(&m_engine, 30)));
+    QVERIFY(args.property("3").strictlyEquals(QScriptValue(&m_engine, "hi")));
 }
 
 void tst_QScriptable::throwError()

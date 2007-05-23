@@ -64,7 +64,7 @@ public:
     QScriptValue thisObject() const;
     void setThisObject(const QScriptValue &thisObject);
 
-    bool calledAsConstructor() const;
+    bool isCalledAsConstructor() const;
 
     QScriptValue throwValue(const QScriptValue &value);
     QScriptValue throwError(Error error, const QString &text);

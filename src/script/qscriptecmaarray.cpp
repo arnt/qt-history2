@@ -430,20 +430,20 @@ QScriptValueImpl Array::method_reverse(QScriptContextPrivate *context,
 
             if (!jok) {
                 if (iok) {
-                    if (ibase.strictEqualTo(self))
+                    if (ibase.strictlyEquals(self))
                         ibase.removeMember(imember);
                     self.setProperty(jid, ival);
                 }
             } else if (!iok) {
                 self.setProperty(iid, jval);
-                if (jbase.strictEqualTo(self))
+                if (jbase.strictlyEquals(self))
                     jbase.removeMember(jmember);
             } else {
-                if (self.strictEqualTo(ibase))
+                if (self.strictlyEquals(ibase))
                     self.put(imember, jval);
                 else
                     self.setProperty(iid, jval);
-                if (self.strictEqualTo(jbase))
+                if (self.strictlyEquals(jbase))
                     self.put(jmember, ival);
                 else
                     self.setProperty(jid, ival);
