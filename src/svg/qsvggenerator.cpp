@@ -546,10 +546,11 @@ QString QSvgGenerator::fileName() const
 /*!
     \fn void QSvgGenerator::setResolution(int resolution)
 
-    Sets the resolution of the generated output to \a dpi. The argument is
-    specified in dots per inch.
+    Sets the resolution of the generated output to \a resolution.
+    The argument is specified in dots per inch.
 
-    The resolution is used to calculate the physical size of an SVG drawing.
+    The resolution is used to calculate the physical size of
+    an SVG drawing.
 */
 void QSvgGenerator::setResolution(int dpi)
 {

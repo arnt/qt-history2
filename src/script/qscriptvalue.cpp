@@ -626,7 +626,7 @@ qsreal QScriptValue::toInteger() const
     \row    \o QObject Object \o A QVariant containing a pointer to the QObject.
     \row    \o Date Object \o A QVariant containing the date value (toDateTime()).
     \row    \o RegExp Object \o A QVariant containing the regular expression value (toRegExp()).
-    \row    \o Object     \o If toPrimitive() returns a primitive value, then the result is converted to a QVariant according to the above rules; otherwise, an invalid QVariant is returned.
+    \row    \o Object     \o If the value is primitive, then the result is converted to a QVariant according to the above rules; otherwise, an invalid QVariant is returned.
     \endtable
 
   \sa isVariant()
@@ -1013,10 +1013,10 @@ bool QScriptValue::isUndefined() const
   Returns true if this QScriptValue is of the Object type; otherwise
   returns false.
 
-  Note that function values, variant values and QObject values are
-  objects, so this function will return true for such values.
+  Note that function values, variant values, and QObject values are
+  objects, so this function returns true for such values.
 
-  \sa toObject(), toPrimitive(), QScriptEngine::newObject()
+  \sa toObject(), QScriptEngine::newObject()
 */
 bool QScriptValue::isObject() const
 {
