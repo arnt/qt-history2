@@ -635,7 +635,10 @@ void QGraphicsViewPrivate::_q_unsetViewportCursor()
 
     // Restore the original viewport cursor.
     hasStoredOriginalCursor = false;
-    q->viewport()->setCursor(originalCursor);
+    if (dragMode == QGraphicsView::ScrollHandDrag)
+        q->viewport()->setCursor(Qt::OpenHandCursor);
+    else
+        q->viewport()->setCursor(originalCursor);
 }
 #endif
 
