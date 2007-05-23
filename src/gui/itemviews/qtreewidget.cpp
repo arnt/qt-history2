@@ -54,8 +54,8 @@ public:
     \since 4.3
 
     \value ShowIndicator
-    \value HideIndicator
-    \value ShowForChildren
+    \value DontShowIndicator
+    \value DontShowIndicatorWhenChildless
 */
 
 /*!
@@ -298,9 +298,9 @@ bool QTreeModel::hasChildren(const QModelIndex &parent) const
     switch (itm->d->policy) {
     case QTreeWidgetItem::ShowIndicator:
         return true;
-    case QTreeWidgetItem::HideIndicator:
+    case QTreeWidgetItem::DontShowIndicator:
         return false;
-    case QTreeWidgetItem::ShowForChildren:
+    case QTreeWidgetItem::DontShowIndicatorWhenChildless:
         return (itm->childCount() > 0);
     }
     return false;

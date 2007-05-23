@@ -68,7 +68,7 @@ public:
     inline void setDisabled(bool disabled);
     inline bool isDisabled() const;
 
-    enum ChildIndicatorPolicy { ShowIndicator, HideIndicator, ShowForChildren };
+    enum ChildIndicatorPolicy { ShowIndicator, DontShowIndicator, DontShowIndicatorWhenChildless };
     void setChildIndicatorPolicy(QTreeWidgetItem::ChildIndicatorPolicy policy);
     QTreeWidgetItem::ChildIndicatorPolicy childIndicatorPolicy() const;
 

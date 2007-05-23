@@ -90,7 +90,7 @@ public:
     Qt::SortOrder sort_order;
     Qt::CaseSensitivity sort_casesensitivity;
     int sort_role;
-    bool sort_localaware;
+    bool sort_localeaware;
 
     int filter_column;
     QRegExp filter_regexp;
@@ -1277,7 +1277,7 @@ QSortFilterProxyModel::QSortFilterProxyModel(QObject *parent)
     d->sort_order = Qt::AscendingOrder;
     d->sort_casesensitivity = Qt::CaseSensitive;
     d->sort_role = Qt::DisplayRole;
-    d->sort_localaware = false;
+    d->sort_localeaware = false;
     d->filter_column = 0;
     d->filter_role = Qt::DisplayRole;
     d->dynamic_sortfilter = false;
@@ -1873,26 +1873,26 @@ void QSortFilterProxyModel::setSortCaseSensitivity(Qt::CaseSensitivity cs)
 
 /*!
     \since 4.3
-    \property QSortFilterProxyModel::sortLocalAware
+    \property QSortFilterProxyModel::isSortLocaleAware
     \brief the local aware setting used for comparing strings when sorting
 
     By default, sorting is not local aware.
 
     \sa sortCaseSensitivity, lessThan()
 */
-bool QSortFilterProxyModel::sortLocalAware() const
+bool QSortFilterProxyModel::isSortLocaleAware() const
 {
     Q_D(const QSortFilterProxyModel);
-    return d->sort_localaware;
+    return d->sort_localeaware;
 }
 
-void QSortFilterProxyModel::setSortLocalAware(bool on)
+void QSortFilterProxyModel::setSortLocaleAware(bool on)
 {
     Q_D(QSortFilterProxyModel);
-    if (d->sort_localaware == on)
+    if (d->sort_localeaware == on)
         return;
 
-    d->sort_localaware = on;
+    d->sort_localeaware = on;
     d->sort();
 }
 
@@ -2124,7 +2124,7 @@ bool QSortFilterProxyModel::lessThan(const QModelIndex &left, const QModelIndex 
         return l.toDateTime() < r.toDateTime();
     case QVariant::String:
     default:
-        if (d->sort_localaware)
+        if (d->sort_localeaware)
             return l.toString().localeAwareCompare(r.toString()) < 0;
         else
             return l.toString().compare(r.toString(), d->sort_casesensitivity) < 0;
