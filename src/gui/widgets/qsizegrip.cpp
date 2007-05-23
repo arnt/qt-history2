@@ -492,13 +492,15 @@ bool QSizeGrip::winEvent( MSG *m, long *result )
         return QWidget::winEvent(m, result);
 
     Q_D(QSizeGrip);
-    if (d->atBottom()) {
-        PostMessage(w->winId(), WM_SYSCOMMAND, d->atLeft() ? SZ_SIZEBOTTOMLEFT
-                                                           : SZ_SIZEBOTTOMRIGHT, 0);
-    } else {
-        PostMessage(w->winId(), WM_SYSCOMMAND, d->atLeft() ? SZ_SIZETOPLEFT
-                                                           : SZ_SIZETOPRIGHT, 0);
-    }
+    uint orientation = 0;
+    if (d->atBottom())
+        orientation = d->atLeft() ? SZ_SIZEBOTTOMLEFT : SZ_SIZEBOTTOMRIGHT;
+    else
+        orientation = d->atLeft() ? SZ_SIZETOPLEFT : SZ_SIZETOPRIGHT;
+
+    QT_WA_INLINE(PostMessageW(w->winId(), WM_SYSCOMMAND, orientation, 0),
+                 PostMessageA(w->winId(), WM_SYSCOMMAND, orientation, 0));
+
     return true;
 }
 #endif
