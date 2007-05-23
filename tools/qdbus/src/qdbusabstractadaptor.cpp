@@ -234,7 +234,7 @@ void QDBusAdaptorConnector::polish()
 void QDBusAdaptorConnector::relaySlot(void **argv)
 {
     QObjectPrivate *d = static_cast<QObjectPrivate *>(d_ptr);
-    relay(d->currentSender, d->currentSenderSignalIdStart, argv);
+    relay(d->currentSender, d->currentSenderSignal, argv);
 }
 
 void QDBusAdaptorConnector::relay(QObject *senderObj, int lastSignalIdx, void **argv)

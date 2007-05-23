@@ -97,7 +97,7 @@ class CallDeliveryEvent: public QMetaCallEvent
 public:
     CallDeliveryEvent(const QDBusConnection &c, int id, QObject *sender,
                       const QDBusMessage &msg, const QList<int> &types, int f = 0)
-        : QMetaCallEvent(id, sender), connection(c), message(msg), metaTypes(types), flags(f)
+        : QMetaCallEvent(id, sender, -1), connection(c), message(msg), metaTypes(types), flags(f)
         { }
 
     int placeMetaCall(QObject *object)
@@ -119,7 +119,7 @@ public:
     ActivateObjectEvent(const QDBusConnection &c, QObject *sender,
                         const QDBusConnectionPrivate::ObjectTreeNode &n,
                         int p, const QDBusMessage &m, QSemaphore *s = 0)
-        : QMetaCallEvent(-1, sender, 0, 0, 0, s), connection(c), node(n),
+        : QMetaCallEvent(-1, sender, -1, 0, 0, 0, s), connection(c), node(n),
           pathStartPos(p), message(m), handled(false)
         { }
     ~ActivateObjectEvent();

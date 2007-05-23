@@ -35,6 +35,7 @@
 
 class QVariant;
 class QThreadData;
+class QObjectConnectionListVector;
 
 /* mirrored in QtTestLib, DON'T CHANGE without prior warning */
 struct QSignalSpyCallbackSet
@@ -64,6 +65,8 @@ public:
     // note: must lockForRead() before calling isValidObject()
     static bool isValidObject(QObject *object);
 
+    static QReadWriteLock *signalSlotLock();
+
     QObjectPrivate(int version = QObjectPrivateVersion);
     virtual ~QObjectPrivate();
 
@@ -87,8 +90,7 @@ public:
         QObject *currentSender;
         QObject *currentChildBeingDeleted;
     };
-    int currentSenderSignalIdStart;
-    int currentSenderSignalIdEnd;
+    int currentSenderSignal;
 
     bool isSender(const QObject *receiver, const char *signal) const;
     QObjectList receiverList(const char *signal) const;
@@ -114,22 +116,48 @@ public:
     mutable quint32 connectedSignals;
 
     QString objectName;
+
+    // Note: you must hold the signalSlotLock() before accessing the lists below or calling the functions
+    struct Connection
+    {
+        QObject *receiver;
+        int method;
+        uint connectionType : 3; // 0 == auto, 1 == direct, 2 == queued, 4 == blocking
+        int *argumentTypes;
+    };
+    typedef QList<Connection> ConnectionList;
+
+    QObjectConnectionListVector *connectionLists;
+    void addConnection(int signal, Connection *c);
+    void removeReceiver(int signal, QObject *receiver);
+
+    struct Sender
+    {
+        QObject *sender;
+        int signal;
+        int ref;
+    };
+
+    QList<Sender> senders;
+    void refSender(QObject *sender, int signal);
+    void derefSender(QObject *sender, int signal);
+    void removeSender(QObject *sender, int signal);
 };
+
+Q_DECLARE_TYPEINFO(QObjectPrivate::Connection, Q_MOVABLE_TYPE);
+Q_DECLARE_TYPEINFO(QObjectPrivate::Sender, Q_MOVABLE_TYPE);
 
 class QSemaphore;
 class Q_CORE_EXPORT QMetaCallEvent : public QEvent
 {
 public:
-    QMetaCallEvent(int id, const QObject *sender = 0,
-                   int nargs = 0, int *types = 0, void **args = 0, QSemaphore *semaphore = 0);
-    QMetaCallEvent(int id, const QObject *sender, int idFrom, int idTo,
+    QMetaCallEvent(int id, const QObject *sender, int signalId,
                    int nargs = 0, int *types = 0, void **args = 0, QSemaphore *semaphore = 0);
     ~QMetaCallEvent();
 
     inline int id() const { return id_; }
     inline const QObject *sender() const { return sender_; }
-    inline int signalIdStart() const { return idFrom_; }
-    inline int signalIdEnd() const { return idTo_; }
+    inline int signalId() const { return signalId_; }
     inline void **args() const { return args_; }
 
     virtual int placeMetaCall(QObject *object);
@@ -137,8 +165,7 @@ public:
 private:
     int id_;
     const QObject *sender_;
-    int idFrom_;
-    int idTo_;
+    int signalId_;
     int nargs_;
     int *types_;
     void **args_;
