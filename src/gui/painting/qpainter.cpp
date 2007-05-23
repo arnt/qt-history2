@@ -2061,7 +2061,7 @@ void QPainter::setWorldMatrix(const QMatrix &matrix, bool combine)
 
     It is advisable to use worldTransform() because worldMatrix() does not
     preserve the properties of perspective transformations.
-    
+
     \sa {QPainter#Coordinate Transformations}{Coordinate Transformations},
     {The Coordinate System}
 */
@@ -5092,8 +5092,9 @@ void QPainter::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPo
         fillRect(r, d->state->bgBrush);
 
     d->updateState(d->state);
-    if (d->state->txop > QTransform::TxTranslate
+    if ((d->state->txop > QTransform::TxTranslate
         && !d->engine->hasFeature(QPaintEngine::PixmapTransform))
+        || (d->state->opacity != 1.0 && !d->engine->hasFeature(QPaintEngine::ConstantOpacity)))
     {
         save();
         setBackgroundMode(Qt::TransparentMode);
@@ -6896,7 +6897,7 @@ qreal QPaintEngineState::opacity() const
     If \a combine is true, the specified \a transform is combined with
     the current matrix; otherwise it replaces the current matrix.
 
-    This function has been added for compatibility with setMatrix(), 
+    This function has been added for compatibility with setMatrix(),
     but as with setMatrix() the preferred method of setting a
     transformation on the painter is through setWorldTransform().
 
