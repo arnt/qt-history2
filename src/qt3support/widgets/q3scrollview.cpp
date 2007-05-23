@@ -356,23 +356,27 @@ void Q3ScrollViewData::viewportResized(int w, int h)
     viewport() of the scrollview and be added with addChild():
     \code
         Q3ScrollView* sv = new Q3ScrollView(...);
-        QVBoxWidget* big_box = new QVBoxWidget(sv->viewport());
-        sv->addChild(big_box);
+        QWidget *widget = new QWidget(sv->viewport());
+        QVBoxLayout *layout = new QVBoxLayout(widget);
+        addChild(widget);
     \endcode
     You can go on to add arbitrary child widgets to the single child
     in the scrollview as you would with any widget:
     \code
-        QLabel* child1 = new QLabel("CHILD", big_box);
-        QLabel* child2 = new QLabel("CHILD", big_box);
-        QLabel* child3 = new QLabel("CHILD", big_box);
+        QLabel* child1 = new QLabel("CHILD", widget);
+        QLabel* child2 = new QLabel("CHILD", widget);
+        QLabel* child3 = new QLabel("CHILD", widget);
+        layout->addWidget(child1);
+        layout->addWidget(child2);
+        layout->addWidget(child3);
         ...
     \endcode
 
     Here the Q3ScrollView has four children: the viewport(), the
     verticalScrollBar(), the horizontalScrollBar() and a small
-    cornerWidget(). The viewport() has one child: the big QVBoxWidget. The
-    QVBoxWidget has the three QLabel objects as child widgets. When the view
-    is scrolled, the QVBoxWidget is moved; its children move with it as
+    cornerWidget(). The viewport() has one child: the QWidget. The
+    QWidget has the three QLabel objects as child widgets. When the view
+    is scrolled, the QWidget is moved; its children move with it as
     child widgets normally do.
 
     \section1 Using a Very Big View with Some Widgets
