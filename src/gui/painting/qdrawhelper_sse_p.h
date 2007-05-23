@@ -46,10 +46,6 @@ struct QSSEIntrinsics : public QMMXIntrinsics
         m64 t = _mm_unpacklo_pi8(_mm_cvtsi32_si64(x), mmx_0x0000);
         return _mm_shuffle_pi16 (t, _MM_SHUFFLE(0, 0, 0, 0));
     }
-
-    static inline m64 load_alpha(uint x) {
-        return _load_alpha(x, _mm_setzero_si64());
-    }
 };
 
 template <class MM>

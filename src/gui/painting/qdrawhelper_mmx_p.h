@@ -32,6 +32,10 @@
 #include <mmintrin.h>
 #endif
 
+#define C_FF const m64 mmx_0x00ff = _mm_set1_pi16(0xff)
+#define C_80 const m64 mmx_0x0080 = _mm_set1_pi16(0x80)
+#define C_00 const m64 mmx_0x0000 = _mm_setzero_si64()
+
 #if defined(Q_OS_WIN)
 #  pragma warning(disable: 4799) // No EMMS at end of function
 #endif
@@ -50,10 +54,6 @@ struct QMMXCommonIntrinsics
         return _mm_xor_si64(x, mmx_0x00ff);
     }
 
-    static inline m64 negate(const m64 &x) {
-        return _negate(x, _mm_set1_pi16(0xff));
-    };
-
     static inline m64 add(const m64 &a, const m64 &b) {
         return  _mm_adds_pu16 (a, b);
     }
@@ -65,10 +65,6 @@ struct QMMXCommonIntrinsics
         res = _mm_adds_pu16(res, mmx_0x0080);
         res = _mm_adds_pu16(res, _mm_srli_pi16 (res, 8));
         return _mm_srli_pi16(res, 8);
-    }
-
-    static inline m64 byte_mul(const m64 &a, const m64 &b) {
-        return _byte_mul(a, b, _mm_set1_pi16(0x80));
     }
 
     static inline m64 interpolate_pixel_256(const m64 &x, const m64 &a,
@@ -88,27 +84,13 @@ struct QMMXCommonIntrinsics
         return _mm_srli_pi16(res, 8);
     }
 
-    static inline m64 interpolate_pixel_255(const m64 &x, const m64 &a,
-                                            const m64 &y, const m64 &b)
-    {
-        return _interpolate_pixel_255(x, a, y, b, _mm_set1_pi16(0x80));
-    }
-
     static inline m64 _premul(m64 x, const m64 &mmx_0x0080) {
         m64 a = alpha(x);
         return _byte_mul(x, a, mmx_0x0080);
     }
 
-    static inline m64 premul(const m64 &x) {
-        return _premul(x, _mm_set1_pi16(0x80));
-    }
-
     static inline m64 _load(uint x, const m64 &mmx_0x0000) {
         return _mm_unpacklo_pi8(_mm_cvtsi32_si64(x), mmx_0x0000);
-    }
-
-    static inline m64 load(uint x) {
-        return _load(x, _mm_setzero_si64());
     }
 
     static inline m64 _load_alpha(uint x, const m64 &mmx_0x0000) {
@@ -118,18 +100,18 @@ struct QMMXCommonIntrinsics
         return t;
     }
 
-    static inline m64 load_alpha(uint x) {
-        return _load_alpha(x, _mm_setzero_si64());
-    }
-
     static inline uint _store(const m64 &x, const m64 &mmx_0x0000) {
         return _mm_cvtsi64_si32(_mm_packs_pu16(x, mmx_0x0000));
     }
-
-    static inline uint store(const m64 &x) {
-        return _store(x, _mm_setzero_si64());
-    }
 };
+
+#define negate(x) _negate(x, mmx_0x00ff)
+#define byte_mul(a, b) _byte_mul(a, b, mmx_0x0080)
+#define interpolate_pixel_255(x, a, y, b) _interpolate_pixel_255(x, a, y, b, mmx_0x0080)
+#define premul(x) _premul(x, mmx_0x0080)
+#define load(x) _load(x, mmx_0x0000)
+#define load_alpha(x) _load_alpha(x, mmx_0x0000)
+#define store(x) _store(x, mmx_0x0000)
 
 /*
   result = 0
@@ -144,6 +126,7 @@ static void QT_FASTCALL comp_func_solid_Clear(uint *dest, int length, uint, uint
     if (const_alpha == 255) {
         QT_MEMFILL_UINT(dest, length, 0);
     } else {
+        C_FF; C_80; C_00;
         m64 ia = MM::negate(MM::load_alpha(const_alpha));
         for (int i = 0; i < length; ++i) {
             dest[i] = MM::store(MM::byte_mul(MM::load(dest[i]), ia));
@@ -158,6 +141,7 @@ static void QT_FASTCALL comp_func_Clear(uint *dest, const uint *, int length, ui
     if (const_alpha == 255) {
         QT_MEMFILL_UINT(dest, length, 0);
     } else {
+        C_FF; C_80; C_00;
         m64 ia = MM::negate(MM::load_alpha(const_alpha));
         for (int i = 0; i < length; ++i)
             dest[i] = MM::store(MM::byte_mul(MM::load(dest[i]), ia));
@@ -175,6 +159,7 @@ static void QT_FASTCALL comp_func_solid_Source(uint *dest, int length, uint src,
     if (const_alpha == 255) {
         QT_MEMFILL_UINT(dest, length, src);
     } else {
+        C_FF; C_80; C_00;
         const m64 a = MM::load_alpha(const_alpha);
         const m64 ia = MM::negate(a);
         const m64 s = MM::byte_mul(MM::load(src), a);
@@ -191,6 +176,7 @@ static void QT_FASTCALL comp_func_Source(uint *dest, const uint *src, int length
     if (const_alpha == 255) {
         ::memcpy(dest, src, length * sizeof(uint));
     } else {
+        C_FF; C_80; C_00;
         const m64 a = MM::load_alpha(const_alpha);
         const m64 ia = MM::negate(a);
         for (int i = 0; i < length; ++i)
@@ -212,6 +198,7 @@ static void QT_FASTCALL comp_func_solid_SourceOver(uint *dest, int length, uint 
     if ((const_alpha & qAlpha(src)) == 255) {
         QT_MEMFILL_UINT(dest, length, src);
     } else {
+        C_FF; C_80; C_00;
         m64 s = MM::load(src);
         if (const_alpha != 255) {
             m64 ca = MM::load_alpha(const_alpha);
@@ -227,6 +214,7 @@ static void QT_FASTCALL comp_func_solid_SourceOver(uint *dest, int length, uint 
 template <class MM>
 static void QT_FASTCALL comp_func_SourceOver(uint *dest, const uint *src, int length, uint const_alpha)
 {
+    C_FF; C_80; C_00;
     if (const_alpha == 255) {
         for (int i = 0; i < length; ++i) {
             m64 s = MM::load(src[i]);
@@ -252,6 +240,7 @@ static void QT_FASTCALL comp_func_SourceOver(uint *dest, const uint *src, int le
 template <class MM>
 static void QT_FASTCALL comp_func_solid_DestinationOver(uint *dest, int length, uint src, uint const_alpha)
 {
+    C_FF; C_80; C_00;
     m64 s = MM::load(src);
     if (const_alpha != 255)
         s = MM::byte_mul(s, MM::load_alpha(const_alpha));
@@ -267,6 +256,7 @@ static void QT_FASTCALL comp_func_solid_DestinationOver(uint *dest, int length, 
 template <class MM>
 static void QT_FASTCALL comp_func_DestinationOver(uint *dest, const uint *src, int length, uint const_alpha)
 {
+    C_FF; C_80; C_00;
     if (const_alpha == 255) {
         for (int i = 0; i < length; ++i) {
             m64 d = MM::load(dest[i]);
@@ -292,6 +282,7 @@ static void QT_FASTCALL comp_func_DestinationOver(uint *dest, const uint *src, i
 template <class MM>
 static void QT_FASTCALL comp_func_solid_SourceIn(uint *dest, int length, uint src, uint const_alpha)
 {
+    C_80; C_00;
     if (const_alpha == 255) {
         m64 s = MM::load(src);
         for (int i = 0; i < length; ++i) {
@@ -299,6 +290,7 @@ static void QT_FASTCALL comp_func_solid_SourceIn(uint *dest, int length, uint sr
             dest[i] = MM::store(MM::byte_mul(s, da));
         }
     } else {
+        C_FF;
         m64 s = MM::load(src);
         m64 ca = MM::load_alpha(const_alpha);
         s = MM::byte_mul(s, ca);
@@ -314,6 +306,7 @@ static void QT_FASTCALL comp_func_solid_SourceIn(uint *dest, int length, uint sr
 template <class MM>
 static void QT_FASTCALL comp_func_SourceIn(uint *dest, const uint *src, int length, uint const_alpha)
 {
+    C_FF; C_80; C_00;
     if (const_alpha == 255) {
         for (int i = 0; i < length; ++i) {
             m64 a = MM::alpha(MM::load(dest[i]));
@@ -340,8 +333,10 @@ static void QT_FASTCALL comp_func_SourceIn(uint *dest, const uint *src, int leng
 template <class MM>
 static void QT_FASTCALL comp_func_solid_DestinationIn(uint *dest, int length, uint src, uint const_alpha)
 {
+    C_80; C_00;
     m64 a = MM::alpha(MM::load(src));
     if (const_alpha != 255) {
+        C_FF;
         m64 ca = MM::load_alpha(const_alpha);
         m64 cia = MM::negate(ca);
         a = MM::byte_mul(a, ca);
@@ -355,6 +350,7 @@ static void QT_FASTCALL comp_func_solid_DestinationIn(uint *dest, int length, ui
 template <class MM>
 static void QT_FASTCALL comp_func_DestinationIn(uint *dest, const uint *src, int length, uint const_alpha)
 {
+    C_FF; C_80; C_00;
     if (const_alpha == 255) {
         for (int i = 0; i < length; ++i) {
             m64 a = MM::alpha(MM::load(src[i]));
@@ -381,6 +377,7 @@ static void QT_FASTCALL comp_func_DestinationIn(uint *dest, const uint *src, int
 template <class MM>
 static void QT_FASTCALL comp_func_solid_SourceOut(uint *dest, int length, uint src, uint const_alpha)
 {
+    C_FF; C_80; C_00;
     m64 s = MM::load(src);
     if (const_alpha == 255) {
         for (int i = 0; i < length; ++i) {
@@ -402,6 +399,7 @@ static void QT_FASTCALL comp_func_solid_SourceOut(uint *dest, int length, uint s
 template <class MM>
 static void QT_FASTCALL comp_func_SourceOut(uint *dest, const uint *src, int length, uint const_alpha)
 {
+    C_FF; C_80; C_00;
     if (const_alpha == 255) {
         for (int i = 0; i < length; ++i) {
             m64 ia = MM::negate(MM::alpha(MM::load(dest[i])));
@@ -427,6 +425,7 @@ static void QT_FASTCALL comp_func_SourceOut(uint *dest, const uint *src, int len
 template <class MM>
 static void QT_FASTCALL comp_func_solid_DestinationOut(uint *dest, int length, uint src, uint const_alpha)
 {
+    C_FF; C_80; C_00;
     m64 a = MM::negate(MM::alpha(MM::load(src)));
     if (const_alpha != 255) {
         m64 ca = MM::load_alpha(const_alpha);
@@ -441,6 +440,7 @@ static void QT_FASTCALL comp_func_solid_DestinationOut(uint *dest, int length, u
 template <class MM>
 static void QT_FASTCALL comp_func_DestinationOut(uint *dest, const uint *src, int length, uint const_alpha)
 {
+    C_FF; C_80; C_00;
     if (const_alpha == 255) {
         for (int i = 0; i < length; ++i) {
             m64 a = MM::negate(MM::alpha(MM::load(src[i])));
@@ -469,6 +469,7 @@ static void QT_FASTCALL comp_func_DestinationOut(uint *dest, const uint *src, in
 template <class MM>
 static void QT_FASTCALL comp_func_solid_SourceAtop(uint *dest, int length, uint src, uint const_alpha)
 {
+    C_FF; C_80; C_00;
     m64 s = MM::load(src);
     if (const_alpha != 255) {
         m64 ca = MM::load_alpha(const_alpha);
@@ -485,6 +486,7 @@ static void QT_FASTCALL comp_func_solid_SourceAtop(uint *dest, int length, uint 
 template <class MM>
 static void QT_FASTCALL comp_func_SourceAtop(uint *dest, const uint *src, int length, uint const_alpha)
 {
+    C_FF; C_80; C_00;
     if (const_alpha == 255) {
         for (int i = 0; i < length; ++i) {
             m64 s = MM::load(src[i]);
@@ -513,6 +515,7 @@ static void QT_FASTCALL comp_func_SourceAtop(uint *dest, const uint *src, int le
 template <class MM>
 static void QT_FASTCALL comp_func_solid_DestinationAtop(uint *dest, int length, uint src, uint const_alpha)
 {
+    C_FF; C_80; C_00;
     m64 s = MM::load(src);
     m64 a = MM::alpha(s);
     if (const_alpha != 255) {
@@ -531,6 +534,7 @@ static void QT_FASTCALL comp_func_solid_DestinationAtop(uint *dest, int length, 
 template <class MM>
 static void QT_FASTCALL comp_func_DestinationAtop(uint *dest, const uint *src, int length, uint const_alpha)
 {
+    C_FF; C_80; C_00;
     if (const_alpha == 255) {
         for (int i = 0; i < length; ++i) {
             m64 s = MM::load(src[i]);
@@ -562,6 +566,7 @@ static void QT_FASTCALL comp_func_DestinationAtop(uint *dest, const uint *src, i
 template <class MM>
 static void QT_FASTCALL comp_func_solid_XOR(uint *dest, int length, uint src, uint const_alpha)
 {
+    C_FF; C_80; C_00;
     m64 s = MM::load(src);
     if (const_alpha != 255) {
         m64 ca = MM::load_alpha(const_alpha);
@@ -579,6 +584,7 @@ static void QT_FASTCALL comp_func_solid_XOR(uint *dest, int length, uint src, ui
 template <class MM>
 static void QT_FASTCALL comp_func_XOR(uint *dest, const uint *src, int length, uint const_alpha)
 {
+    C_FF; C_80; C_00;
     if (const_alpha == 255) {
         for (int i = 0; i < length; ++i) {
             m64 s = MM::load(src[i]);
@@ -609,6 +615,7 @@ static inline void qt_blend_color_argb_x86(int count, const QSpan *spans,
         || (data->rasterBuffer->compositionMode == QPainter::CompositionMode_SourceOver
             && qAlpha(data->solid.color) == 255)) {
         // inline for performance
+        C_FF; C_80; C_00;
         while (count--) {
             uint *target = ((uint *)data->rasterBuffer->scanLine(spans->y)) + spans->x;
             if (spans->coverage == 255) {

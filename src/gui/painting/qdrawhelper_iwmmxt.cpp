@@ -32,10 +32,6 @@ struct QIWMMXTIntrinsics : public QMMXCommonIntrinsics
         return _mm_shuffle_pi16(t, _MM_SHUFFLE(0, 0, 0, 0));
     }
 
-    static inline m64 load_alpha(uint x) {
-        return _load_alpha(x, _mm_setzero_si64());
-    }
-
     static inline void end() {
     }
 };
