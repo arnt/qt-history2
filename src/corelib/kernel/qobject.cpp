@@ -3056,20 +3056,27 @@ void QMetaObject::activate(QObject *sender, int from_signal_index, int to_signal
             try {
                 c->receiver->qt_metacall(QMetaObject::InvokeMetaMethod, method, argv ? argv : empty_argv);
             } catch (...) {
+                locker.relock();
+
+                c = &(*connectionLists)[signal][i];
                 if (c->receiver) {
                     c->receiver->d_func()->currentSender = previousSender;
                     c->receiver->d_func()->currentSenderSignal = previousSenderSignal;
                 }
+
+                connectionLists->activating = wasActivating;
+                if (connectionLists->orphaned)
+                    delete connectionLists;
                 throw;
             }
 #endif
 
+            locker.relock();
             c = &(*connectionLists)[signal][i];
 
             if (qt_signal_spy_callback_set.slot_end_callback != 0)
                 qt_signal_spy_callback_set.slot_end_callback(c->receiver, method);
 
-            locker.relock();
             if (c->receiver) {
                 c->receiver->d_func()->currentSender = previousSender;
                 c->receiver->d_func()->currentSenderSignal = previousSenderSignal;
