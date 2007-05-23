@@ -1600,13 +1600,13 @@ void tst_QTcpSocket::connectToMultiIP()
     // 30s*2 = 60s.
     QTime stopWatch;
     stopWatch.start();
-    socket->connectToHost("multi.andreas.hanssen.name", 80);
+    socket->connectToHost("multi.dev.troll.no", 80);
     QVERIFY(socket->waitForConnected(60000));
     QVERIFY(stopWatch.elapsed() < 70000);
     socket->abort();
 
     stopWatch.restart();
-    socket->connectToHost("multi.andreas.hanssen.name", 81);
+    socket->connectToHost("multi.dev.troll.no", 81);
     QVERIFY(!socket->waitForConnected(1000));
     QVERIFY(stopWatch.elapsed() < 2000);
     QCOMPARE(socket->error(), QAbstractSocket::SocketTimeoutError);
