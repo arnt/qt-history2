@@ -479,10 +479,10 @@
         }
 
         // ...
-        qApp->setStyleSheet("QPushButton { background: yellow; }");
+        qApp->setStyleSheet("MyPushButton { background: yellow; }");
     \endcode
 
-    Qt Style Sheets uses QObject::className() of the widget to determine
+    Qt Style Sheet uses QObject::className() of the widget to determine
     when to apply the Type Selector. When custom widgets are inside namespaces, 
     the QObject::className() returns <namespace>::<classname>. This conflicts
     with the syntax for \l{Sub-Controls}. To overcome this problem, 
@@ -499,6 +499,19 @@
         // ...
         qApp->setSytleSheet("ns--MyPushButton { background: yellow; }");
     \endcode
+
+    \omit ### Maybe this wasn't a good idea after all?
+    \section2 Setting QObject properties
+    
+    From 4.3 and above, the Q_PROPERTY of any QWidget maybe set using
+    the qproperty-<property name> syntax. For example,
+
+    \code
+        QPushButton { qproperty-toolTip: "this is a tip"; }
+        QWidget { qproperty-windowTitle: "Main Window"; }
+    \endcode
+
+    \endomit
 
     \section1 Customizing Qt Widgets Using Style Sheets
 
@@ -517,7 +530,7 @@
         \o How to Style
 
     \row
-        \o QCheckBox
+        \o QCheckBox \target qcheckbox-widget
         \o Supports the \l{box model}. The check indicator can be
            styled using the \l{#indicator-sub}{::indicator}
            subcontrol. The \l{#spacing-prop}{spacing} property
@@ -525,7 +538,14 @@
            the text.
 
     \row
-        \o QComboBox
+        \o QColumnView \target qcolumnview-widget
+        \o The grip can be styled be using the \l{image-prop}{image} property.
+           The arrow indicators can by styled using the 
+           \l{left-arrow-sub}{::left-arrow} subcontrol and the 
+           \l{right-arrow-sub}{::right-arrow} subcontrol.
+
+    \row
+        \o QComboBox \target qcombobox-widget
         \o The frame around the combobox can be styled using the 
            \l{box model}. The drop-down button can be styled using
            the \l{#drop-down-sub}{::drop-down} subcontrol. The arrow
@@ -533,58 +553,89 @@
            \l{#down-arrow-sub}{::down-arrow} subcontrol.
 
     \row
-        \o QDialogButtonBox
+        \o QDateEdit \target qdateedit-widget
+        \o See \l{#qspinbox-widget}{QSpinBox}.
+
+    \row
+        \o QDateTimeEdit \target qdatetimeedit-widget
+        \o See \l{#qspinbox-widget}{QSpinBox}.
+
+    \row
+        \o QDialog \target qdialog-widget
+        \o Supports only the \l{#background-prop}{background} and
+           \l{#background-origin-prop}{background-origin} properties.
+
+    \row
+        \o QDialogButtonBox \target qdialogbuttonbox-widget
         \o The layout of buttons can be altered using the
            \l{#button-layout-prop}{button-layout} property.
 
     \row
-        \o QFrame
+        \o QDoubleSpinBox \target qdoublespinbox-widget
+        \o See \l{#qspinbox-widget}{QSpinBox}.
+
+    \row
+        \o QFrame \target qframe-widget
         \o Supports the \l{box model}. Does not support the
            \l{#hover-ps}{:hover} pseudo-state. For QFrame and its subclasses, 
            you must set the QFrame::frameStyle property to QFrame::StyledPanel; 
            otherwise, the background and border attributes will not be respected.
 
     \row
-        \o QGroupBox
+        \o QGroupBox \target qgroupbox-widget
         \o Supports the \l{box model}. The title can be styled using the
            \l{#title-sub}{::title} subcontrol. The indicator of checkable
            group boxes can be styled using the \l{#indicator-sub}{::indicator}
            subcontrol.
 
     \row
-        \o QLabel
+        \o QHeaderView \target qheaderview-widget
+        \o Supports the \l{box model}. The sections of the header view are
+           styled using the \l{#section-sub}{::section} sub control.
+
+    \row
+        \o QLabel \target qlabel-widget
         \o Supports the \l{box model}. Does not support the
            \l{#hover-ps}{:hover} pseudo-state.
 
     \row
-        \o QLineEdit
+        \o QLineEdit \target qlineedit-widget
         \o Support the \l{box model}.
 
     \row
-        \o QListView        
+        \o QListView \target qlistview-widget
         \o Supports the \l{box model}. The selection behavior is
            controlled by the \l{#show-decoration-selected-prop}
            property.
 
     \row
-        \o QMenu
+        \o QListWidget \target qlistwidget-widget
+        \o See \l{#qlistview-widget}{QListWidget}.
+
+    \row
+        \o QMenu \target qmenu-widget
         \o Supports the \l{box model}. Individual items are styled
            using the \l{#item-sub}{::item} subcontrol.
 
     \row
-        \o QMenuBar
+        \o QMenuBar \target qmenubar-widget
         \o Supports the \l{box model}. The \l{#spacing-prop}{spacing}
            property specifies the spacing between menu items.
            Individual items are styled using the \l{#item-sub}{::item}
            subcontrol.
 
     \row
-        \o QMessageBox
+        \o QMessageBox \target qmessagebox-widget
         \o The \l{#messagebox-text-interaction-flags-prop}{messagebox-text-interaction-flags}
            property can be used to alter the interaction with text in the message box.
 
     \row
-        \o QPushButton
+        \o QProgressBar \target qprogressbar-widget
+        \o Supports the \l{box model}. The chunks of the progress bar
+           can be styled using the \l{#chunk-sub}{::chunk} subcontrol.
+
+    \row
+        \o QPushButton \target qpushbutton-widget
         \o Supports the \l{box model}. The menu indicator is styled
            using the \l{#menu-indicator-sub}{::menu-indicator}
            subcontrol. Appearance of checkable push buttons can be
@@ -592,7 +643,7 @@
            pseudo-states.
 
     \row
-        \o QRadioButton
+        \o QRadioButton \target qradiobutton-widget
         \o Supports the \l{box model}. The radio indicator can be
            styled using the \{#indicator-sub}{::indicator}
            subcontrol. The \l{#spacing-prop}{spacing} property
@@ -600,13 +651,21 @@
            text.
 
     \row
-        \o QSizeGrip
+        \o QScrollBar \target qscrollbar-widget
+        \o Supports the \l{box model}.
+
+    \row
+        \o QSizeGrip \target qsizegrip-widget
         \o Supports the \l{#width-prop}{width},
            \l{#height-prop}{height}, and \l{#image-prop}{image}
            properties.
 
     \row
-        \o QSpinBox
+        \o QSlider \target qslider-widget
+        \o Supports the \l{box model}.
+
+    \row
+        \o QSpinBox \target qspinbox-widget
         \o The frame of the spin box can be styled using the \l{box
            model}. The up button and arrow can be styled using the 
            \l{#up-button-sub}{::up-button} and
@@ -616,41 +675,79 @@
            \l{#down-arrow-sub}{::down-arrow} subcontrols.
 
     \row
-        \o QSplitter
+        \o QSplitter \target qsplitter-widget
         \o Supports the \l{box model} and the \l{#image-prop}{image}
-           property.
+           property. The handle of the splitter is styled using the
+           \l{#handle-sub}{::handle} subcontrol.
 
     \row
-        \o QStatusBar
+        \o QStatusBar \target qstatusbar-widget
         \o The frame for individual items can be style using the
-           \l{#item-sub}{item} subcontrol.
+           \l{#item-sub}{::item} subcontrol.
 
     \row
-        \o QTableView
+        \o QTabBar \target qtabbar-widget
+        \o Individual tabs may be styled using the \l{#tab-sub}{::tab}
+           subcontrol.
+
+    \row
+        \o QTabWidget \target qtabwidget-widget
+        \o The frame of the tab widget is styled using the 
+           \l{#pane-sub}{::pane} subcontrol. The left and right
+           corners are styled using the \l{#left-corner-sub}{::left-corner}
+           and \l{#right-corner-sub}{::right-corner} respectively.
+           The position of the the tab bar is controlled using the
+           \l{#tab-bar-sub}{::tab-bar} subcontrol.
+
+    \row
+        \o QTableView \target qtableview-widget
         \o Supports the \l{box model}. The color of the grid can be
            specified using the
            \l{#gridline-color-prop}{gridline-color} property.
 
     \row
-        \o QTextEdit
+        \o QTableWidget \target qtablewidget-widget
+        \o See \{#qtableview-widget}{QTableView}.
+
+    \row
+        \o QTextEdit \target qtextedit-widget
         \o Supports the \l{box model}.
 
     \row
-        \o QToolTip
+        \o QTimeEdit \target qtimeedit-widget
+        \o See \l{#qspinbox-widget}{QSpinBox}.
+
+    \row
+        \o QToolBar \target qtoolbar-widget
+        \o Supports the \l{box model}.
+
+    \row
+        \o QToolButton \target qtoolbutton-widget
+        \o Supports the \l{box model}.
+
+    \row
+        \o QToolBox \target qtoolbox-widget
+        \o Supports the \l{box model}. The individual tabs can by styled
+           using the \l{#tab-sub}{::tab} subcontrol.
+
+    \row
+        \o QToolTip \target qtooltip-widget
         \o Supports the \l{box model}. The \l{#opacity-prop}{opacity}
            property controls the opacity of the tooltip.
 
     \row
-        \o QTreeView
-        \o Supports the \l{box model}.
+        \o QTreeView \target qtreeview-widget
+        \o Supports the \l{box model}. The branches of the tree view can
+           be styled using the \l{#branch-sub}{::branch} subcontrol.
 
     \row
-        \o QWidget
+        \o QTreeWidget \target qtreewidget-widget
+        \o See \l{#qtreeview-widget}{QTreeView}.
+
+    \row
+        \o QWidget \target qwidget-widget
         \o Supports only the \l{#background-prop}{background} and
-           \l{#background-origin-prop}{background-origin} properties. In
-           Qt 4.3 and later, the \l{#qproperty}{qproperty} feature is
-           available, allowing QWidget properties to be set using
-           style sheets.
+           \l{#background-origin-prop}{background-origin} properties.
 
     \endtable
 
@@ -1545,18 +1642,6 @@
            relative.
 
     \row
-        \o \bold{\c qproperty} \target qproperty
-        \o All QWidget properties: \BR
-           e.g., \c toolTip
-        \o To set a QWidget's property, use: qproperty-<property name> \BR
-           Example:
-
-           \code
-                QPushButton { qproperty-toolTip: "this is a tip"; }
-                QWidget { qproperty-windowTitle: "Main Window"; }
-           \endcode
-
-    \row
         \o \bold{\c right} \target right-prop
         \o \l{#Length}{Length}
         \o If \l{#position-prop}{position} is \c relative (the
@@ -2193,7 +2278,7 @@ blue green yellow * /
            item in a non-exclusive QActionGroup.
     \row
         \o \c :off \target off-ps
-        \o For item that can be toggled, this applies to items
+        \o For items that can be toggled, this applies to items
            in the "off" state.
 
     \row
@@ -2323,6 +2408,11 @@ blue green yellow * /
         \o The left arrow of a QScrollBar
 
     \row
+        \o \c ::left-corner \target left-corner-sub
+        \o The left corner of a QTabWidget. For example, this control can be
+           used to control position the left corner widget in a QTabWidget.
+
+    \row
         \o \c ::menu-arrow \target menu-arrow-sub
         \o The arrow of a QToolButton with a menu
 
@@ -2337,6 +2427,15 @@ blue green yellow * /
     \row
         \o \c ::right-arrow \target right-arrow-sub
         \o The right arrow of a QMenu or a QScrollBar
+
+    \row
+        \o \c ::pane \target pane-sub
+        \o The pane (frame) of a QTabWidget
+
+    \row
+        \o \c ::right-corner \target right-corner-sub
+        \o The right corner of a QTabWidget. For example, this control can be
+           used to control the position the right corner widget in a QTabWidget.
 
     \row
         \o \c ::scroller \target scroller-sub
@@ -2362,6 +2461,12 @@ blue green yellow * /
     \row
         \o \c ::tab \target tab-sub
         \o The tab of a QTabBar or QToolBox
+
+    \row
+        \o \c ::tab-bar \target tab-bar-sub
+        \o The tab bar of a QTabWidget. This subcontrol exists only to
+           control the position of the QTabBar inside the QTabWidget. To
+           style the tabs using the \l{#tab-sub}{::tab} subcontrol.
 
     \row
         \o \c ::tear-off \target tear-off-sub
