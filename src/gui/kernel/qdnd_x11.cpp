@@ -437,7 +437,7 @@ bool QX11Data::xdndMimeDataForAtom(Atom a, QMimeData *mimeData, QByteArray *data
         ret = true;
     } else {
         if ((a == ATOM(UTF8_STRING) || a == XA_STRING
-            || a == ATOM(TEXT) || a == ATOM(COMPOUND_TEXT))
+             || a == ATOM(TEXT) || a == ATOM(COMPOUND_TEXT))
             && QInternalMimeData::hasFormatHelper(QLatin1String("text/plain"), mimeData)) {
             if (a == ATOM(UTF8_STRING)){
                 *data = QInternalMimeData::renderDataHelper(QLatin1String("text/plain"), mimeData);
@@ -601,18 +601,14 @@ QByteArray QX11Data::xdndMimeConvertToFormat(Atom a, const QByteArray &data, con
 //$$$ middle of xdndObtainData
 Atom QX11Data::xdndMimeAtomForFormat(const QString &format, const QList<Atom> &atoms)
 {
-    Atom a = xdndMimeStringToAtom(format);
-    if (a && atoms.contains(a))
-        return a;
-
     // find matches for string types
     if (format == QLatin1String("text/plain")) {
         if (atoms.contains(ATOM(UTF8_STRING)))
             return ATOM(UTF8_STRING);
         if (atoms.contains(ATOM(COMPOUND_TEXT)))
-            return XA_STRING;
+            return ATOM(COMPOUND_TEXT);
         if (atoms.contains(ATOM(TEXT)))
-            return XA_STRING;
+            return ATOM(TEXT);
         if (atoms.contains(XA_STRING))
             return XA_STRING;
     }
@@ -629,6 +625,10 @@ Atom QX11Data::xdndMimeAtomForFormat(const QString &format, const QList<Atom> &a
         if (atoms.contains(XA_PIXMAP))
             return XA_PIXMAP;
     }
+
+    Atom a = xdndMimeStringToAtom(format);
+    if (a && atoms.contains(a))
+        return a;
 
     return 0;
 }
