@@ -110,9 +110,9 @@
     QPushButton and its subclasses (e.g., \c MyPushButton) should use
     red as their foreground color.
 
-    Qt Style Sheet is generally case insensitive (i.e., \c color, \c
-    Color, \c COLOR, and \c cOloR refer to the same property). The
-    only exceptions are class names,
+    Qt Style Sheet is generally case insensitive (i.e., \c color, 
+    \c Color, \c COLOR, and \c cOloR refer to the same property). 
+    The only exceptions are class names,
     \l{QObject::setObjectName()}{object names}, and Qt property
     names, which are case sensitive.
 
@@ -1924,8 +1924,8 @@
            {CSS3 Draft Specification} for details.
 
     \row
-        \o \bold{Box \target Box Colors
-           Colors}
+        \o \bold{Box \target Box Colors 
+	Colors}
         \o \l{#Brush}{Brush}\{1,4\}
         \o One to four occurrences of \l{#Brush}{Brush}, specifying the top,
            right, bottom, and left edges of a box, respectively. If
@@ -1969,7 +1969,7 @@ blue green yellow * /
 
     \row
         \o \bold Brush \target Brush
-        \o \l{Color} \BR
+        \o \l{#Color}{Color} \BR
            | \l{Gradient} \BR
            | \l{PaletteRole}
         \o Specifies a Color or a Gradient or an entry in the Palette.
