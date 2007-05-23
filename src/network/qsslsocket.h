@@ -58,13 +58,6 @@ public:
         SslServerMode
     };
 
-    enum Protocol {
-        SslV3,
-        SslV2,
-        TlsV1,
-        AnyProtocol
-    };
-
     QSslSocket(QObject *parent = 0);
     ~QSslSocket();
 
@@ -76,8 +69,8 @@ public:
     SslMode mode() const;
     bool isEncrypted() const;
 
-    Protocol protocol() const;
-    void setProtocol(Protocol protocol);
+    QSsl::SslProtocol protocol() const;
+    void setProtocol(QSsl::SslProtocol protocol);
 
     // From QIODevice
     qint64 bytesAvailable() const;
@@ -98,7 +91,7 @@ public:
 
     // Private keys, for server sockets.
     void setPrivateKey(const QSslKey &key);
-    void setPrivateKey(const QString &fileName, QSsl::Algorithm algorithm = QSsl::Rsa,
+    void setPrivateKey(const QString &fileName, QSsl::KeyAlgorithm algorithm = QSsl::Rsa,
                        QSsl::EncodingFormat format = QSsl::Pem,
                        const QByteArray &passPhrase = QByteArray());
     QSslKey privateKey() const;

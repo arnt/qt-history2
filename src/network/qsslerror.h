@@ -44,8 +44,8 @@ class Q_NETWORK_EXPORT QSslError
 public:
     enum SslError {
         NoError,
-        UnableToGetIssuerCert,
-        UnableToDecryptCertSignature,
+        UnableToGetIssuerCertificate,
+        UnableToDecryptCertificateSignature,
         UnableToDecodeIssuerPublicKey,
         CertificateSignatureFailed,
         CertificateNotYetValid,

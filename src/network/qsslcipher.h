@@ -30,6 +30,7 @@
 #define QSSLCIPHER_H
 
 #include <QtCore/qstring.h>
+#include <QtNetwork/qssl.h>
 
 QT_BEGIN_HEADER
 
@@ -41,15 +42,8 @@ class QSslCipherPrivate;
 class Q_NETWORK_EXPORT QSslCipher
 {
 public:
-    enum Protocol {
-        SslV3,
-        SslV2,
-        TlsV1,
-        Unknown
-    };
-
     QSslCipher();
-    QSslCipher(const QString &name, Protocol protocol);
+    QSslCipher(const QString &name, QSsl::SslProtocol protocol);
     QSslCipher(const QSslCipher &other);
     ~QSslCipher();
     QSslCipher &operator=(const QSslCipher &other);
@@ -65,7 +59,7 @@ public:
     QString authenticationMethod() const;
     QString encryptionMethod() const;
     QString protocolString() const;
-    Protocol protocol() const;
+    QSsl::SslProtocol protocol() const;
 
 private:
     QSslCipherPrivate *d;

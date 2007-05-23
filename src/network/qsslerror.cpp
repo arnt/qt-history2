@@ -47,8 +47,8 @@
     Describes all recognized errors that can occur during an SSL handshake.
     
     \value NoError
-    \value UnableToGetIssuerCert
-    \value UnableToDecryptCertSignature
+    \value UnableToGetIssuerCertificate
+    \value UnableToDecryptCertificateSignature
     \value UnableToDecodeIssuerPublicKey
     \value CertificateSignatureFailed
     \value CertificateNotYetValid
@@ -139,10 +139,10 @@ QString QSslError::errorString() const
     case NoError:
         errStr = QObject::tr(QT_TRANSLATE_NOOP(QSslError, "No error"));
         break;
-    case UnableToGetIssuerCert:
+    case UnableToGetIssuerCertificate:
         errStr = QObject::tr(QT_TRANSLATE_NOOP(QSslError, "The issuer certificate could not be found"));
         break;
-    case UnableToDecryptCertSignature:
+    case UnableToDecryptCertificateSignature:
         errStr = QObject::tr(QT_TRANSLATE_NOOP(QSslError, "The certificate signature could not be decrypted"));
         break;
     case UnableToDecodeIssuerPublicKey:

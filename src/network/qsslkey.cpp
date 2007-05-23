@@ -218,7 +218,7 @@ QByteArray QSslKeyPrivate::derFromPem(const QByteArray &pem) const
     a valid key.
 */
 QSslKey::QSslKey(const QByteArray &encoded,
-		 QSsl::Algorithm algorithm,
+		 QSsl::KeyAlgorithm algorithm,
                  QSsl::EncodingFormat encoding,
 		 QSsl::KeyType type,
 		 const QByteArray &passPhrase)
@@ -240,7 +240,7 @@ QSslKey::QSslKey(const QByteArray &encoded,
     a valid key.
 */
 QSslKey::QSslKey(QIODevice *device,
-		 QSsl::Algorithm algorithm,
+		 QSsl::KeyAlgorithm algorithm,
                  QSsl::EncodingFormat encoding,
 		 QSsl::KeyType type,
 		 const QByteArray &passPhrase)
@@ -329,7 +329,7 @@ QSsl::KeyType QSslKey::type() const
 /*!
     Returns the key algorithm.
 */
-QSsl::Algorithm QSslKey::algorithm() const
+QSsl::KeyAlgorithm QSslKey::algorithm() const
 {
     return d->algorithm;
 }

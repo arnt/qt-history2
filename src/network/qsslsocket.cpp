@@ -175,17 +175,6 @@
 */
 
 /*!
-    \enum QSslSocket::Protocol
-
-    Describes the protocols avaialable for the connection.
-    
-    \value SslV3 SSLv3
-    \value SslV2 SSLv2
-    \value TlsV1 TLSv1
-    \value AnyProtocol The socket understands SSLv2, SSLv3 and TLSv1.
-*/
-
-/*!
     \fn QSslSocket::encrypted()
 
     This signal is emitted when QSslSocket enters encrypted mode. After this
@@ -404,11 +393,11 @@ bool QSslSocket::isEncrypted() const
 }
 
 /*!
-    Returns the socket's SSL protocol. By default, \l SslV3 is used.
+    Returns the socket's SSL protocol. By default, \l QSsl::SslV3 is used.
 
     \value setProtocol()
 */
-QSslSocket::Protocol QSslSocket::protocol() const
+QSsl::SslProtocol QSslSocket::protocol() const
 {
     Q_D(const QSslSocket);
     return d->protocol;
@@ -419,7 +408,7 @@ QSslSocket::Protocol QSslSocket::protocol() const
     initiated handshake; calling this function on an already-encrypted socket
     will not affect the socket's protocol.
 */
-void QSslSocket::setProtocol(Protocol protocol)
+void QSslSocket::setProtocol(QSsl::SslProtocol protocol)
 {
     Q_D(QSslSocket);
     d->protocol = protocol;
@@ -697,7 +686,7 @@ void QSslSocket::setPrivateKey(const QSslKey &key)
     \sa privateKey(), setLocalCertificate()
 */
 void QSslSocket::setPrivateKey(const QString &fileName,
-			       QSsl::Algorithm algorithm,
+			       QSsl::KeyAlgorithm algorithm,
                                QSsl::EncodingFormat format,
                                const QByteArray &passPhrase)
 {
@@ -795,7 +784,7 @@ void QSslSocket::setCiphers(const QString &ciphers)
 	     ciphers.split(QLatin1String(":"),QString::SkipEmptyParts)) {
         for (int i = 0; i < 3; ++i) {
             // ### Crude
-            QSslCipher cipher(cipherName, QSslCipher::Protocol(i));
+            QSslCipher cipher(cipherName, QSsl::SslProtocol(i));
             if (!cipher.isNull())
                 d->ciphers << cipher;
         }
@@ -1421,7 +1410,7 @@ void QSslSocketPrivate::init()
     autoStartHandshake = false;
     connectionEncrypted = false;
     ignoreSslErrors = false;
-    protocol = QSslSocket::SslV3;
+    protocol = QSsl::SslV3;
     useLocalCaCertificatesOnly = false;
 
     readBuffer.clear();

@@ -43,7 +43,7 @@ class QSslCipherPrivate
 public:
     QSslCipherPrivate()
         : isNull(true), supportedBits(0), bits(0),
-          exportable(false), protocol(QSslCipher::Unknown)
+          exportable(false), protocol(QSsl::UnknownProtocol)
     {
     }
 
@@ -56,5 +56,5 @@ public:
     QString encryptionMethod;
     bool exportable;
     QString protocolString;
-    QSslCipher::Protocol protocol;
+    QSsl::SslProtocol protocol;
 };

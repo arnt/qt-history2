@@ -155,13 +155,13 @@ QSslCipher QSslSocketBackendPrivate::QSslCipher_from_SSL_CIPHER(SSL_CIPHER *ciph
 
         QString protoString = descriptionList.at(1);
         ciph.d->protocolString = protoString;
-        ciph.d->protocol = QSslCipher::Unknown;
+        ciph.d->protocol = QSsl::UnknownProtocol;
         if (protoString == QLatin1String("SSLv3"))
-            ciph.d->protocol = QSslCipher::SslV3;
+            ciph.d->protocol = QSsl::SslV3;
         else if (protoString == QLatin1String("SSLv2"))
-            ciph.d->protocol = QSslCipher::SslV2;
+            ciph.d->protocol = QSsl::SslV2;
         else if (protoString == QLatin1String("TLSv1"))
-            ciph.d->protocol = QSslCipher::TlsV1;
+            ciph.d->protocol = QSsl::TlsV1;
         
         if (descriptionList.at(2).startsWith(QLatin1String("Kx=")))
             ciph.d->keyExchangeMethod = descriptionList.at(2).mid(3);
@@ -200,16 +200,17 @@ bool QSslSocketBackendPrivate::initSslContext()
     // Create and initialize SSL context. Accept SSLv2, SSLv3 and TLSv1.
     bool client = (mode == QSslSocket::SslClientMode);
     switch (protocol) {
-    case QSslSocket::SslV2:
+    case QSsl::SslV2:
         ctx = q_SSL_CTX_new(client ? q_SSLv2_client_method() : q_SSLv2_server_method());
         break;
-    case QSslSocket::SslV3:
+    case QSsl::SslV3:
         ctx = q_SSL_CTX_new(client ? q_SSLv3_client_method() : q_SSLv3_server_method());
         break;
-    case QSslSocket::AnyProtocol:
+    case QSsl::AnyProtocol:
+    default:
         ctx = q_SSL_CTX_new(client ? q_SSLv23_client_method() : q_SSLv23_server_method());
         break;
-    case QSslSocket::TlsV1:
+    case QSsl::TlsV1:
         ctx = q_SSL_CTX_new(client ? q_TLSv1_client_method() : q_TLSv1_server_method());
         break;
     }
@@ -601,9 +602,9 @@ bool QSslSocketBackendPrivate::testConnection()
     // Check all certificates in the certificate chain.
     foreach (QSslCertificate cert, peerCertificateChain) {
         // Check for certificate validity
-        if (cert.notValidBefore() >= now) {
+        if (cert.effectiveDate() >= now) {
             errors << QSslError(QSslError::CertificateNotYetValid);
-        } else if (cert.notValidAfter() <= now) {
+        } else if (cert.expiryDate() <= now) {
             errors << QSslError(QSslError::CertificateExpired);
         }
     }
@@ -631,9 +632,9 @@ bool QSslSocketBackendPrivate::testConnection()
             // X509_V_OK is also reported if the peer had no certificate.
             break;
         case X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT:
-            errors << QSslError(QSslError::UnableToGetIssuerCert); break;
+            errors << QSslError(QSslError::UnableToGetIssuerCertificate); break;
         case X509_V_ERR_UNABLE_TO_DECRYPT_CERT_SIGNATURE:
-            errors << QSslError(QSslError::UnableToDecryptCertSignature); break;
+            errors << QSslError(QSslError::UnableToDecryptCertificateSignature); break;
         case X509_V_ERR_UNABLE_TO_DECODE_ISSUER_PUBLIC_KEY:
             errors << QSslError(QSslError::UnableToDecodeIssuerPublicKey); break;
         case X509_V_ERR_CERT_SIGNATURE_FAILURE:

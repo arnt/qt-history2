@@ -201,7 +201,7 @@ void tst_QSslSocket::constructing()
     QVERIFY(!socket.waitForConnected(10));
     QTest::ignoreMessage(QtWarningMsg, "QSslSocket::waitForDisconnected() is not allowed in UnconnectedState");
     QVERIFY(!socket.waitForDisconnected(10));
-    QCOMPARE(socket.protocol(), QSslSocket::SslV3);
+    QCOMPARE(socket.protocol(), QSsl::SslV3);
 }
 
 void tst_QSslSocket::simpleConnect()
@@ -411,27 +411,27 @@ void tst_QSslSocket::protocol()
         return;
 
     QSslSocket socket;
-    QCOMPARE(socket.protocol(), QSslSocket::SslV3);
+    QCOMPARE(socket.protocol(), QSsl::SslV3);
     {
         // Fluke allows TLSV1.
-        socket.setProtocol(QSslSocket::TlsV1);
-        QCOMPARE(socket.protocol(), QSslSocket::TlsV1);
+        socket.setProtocol(QSsl::TlsV1);
+        QCOMPARE(socket.protocol(), QSsl::TlsV1);
         socket.connectToHostEncrypted(QLatin1String("fluke.troll.no"), 443);
         QVERIFY2(socket.waitForEncrypted(), qPrintable(socket.errorString()));
         socket.abort();
     }
     {
         // Fluke allows SSLV2.
-        socket.setProtocol(QSslSocket::SslV2);
-        QCOMPARE(socket.protocol(), QSslSocket::SslV2);
+        socket.setProtocol(QSsl::SslV2);
+        QCOMPARE(socket.protocol(), QSsl::SslV2);
         socket.connectToHostEncrypted(QLatin1String("fluke.troll.no"), 443);
         QVERIFY(socket.waitForEncrypted());
         socket.abort();
     }
     {
         // Fluke allows SSLV3, so it allows AnyProtocol.
-        socket.setProtocol(QSslSocket::AnyProtocol);
-        QCOMPARE(socket.protocol(), QSslSocket::AnyProtocol);
+        socket.setProtocol(QSsl::AnyProtocol);
+        QCOMPARE(socket.protocol(), QSsl::AnyProtocol);
         socket.connectToHostEncrypted(QLatin1String("fluke.troll.no"), 443);
         QVERIFY(socket.waitForEncrypted());
     }

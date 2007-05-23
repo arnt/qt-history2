@@ -59,7 +59,7 @@ public:
     void init();
 
     QSslSocket::SslMode mode;
-    QSslSocket::Protocol protocol;
+    QSsl::SslProtocol protocol;
     bool autoStartHandshake;
     bool connectionEncrypted;
     bool ignoreSslErrors;

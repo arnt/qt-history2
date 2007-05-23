@@ -70,7 +70,7 @@ public:
 
     bool isNull;
     QSsl::KeyType type;
-    QSsl::Algorithm algorithm;
+    QSsl::KeyAlgorithm algorithm;
     RSA *rsa;
     DSA *dsa;
 

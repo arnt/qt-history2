@@ -20,12 +20,12 @@ class tst_QSslKey : public QObject
 
     struct KeyInfo {
         QFileInfo fileInfo;
-        QSsl::Algorithm algorithm;
+        QSsl::KeyAlgorithm algorithm;
         QSsl::KeyType type;
         int length;
         QSsl::EncodingFormat format;
         KeyInfo(
-            const QFileInfo &fileInfo, QSsl::Algorithm algorithm, QSsl::KeyType type,
+            const QFileInfo &fileInfo, QSsl::KeyAlgorithm algorithm, QSsl::KeyType type,
             int length, QSsl::EncodingFormat format)
             : fileInfo(fileInfo), algorithm(algorithm), type(type), length(length)
             , format(format) {}
@@ -125,14 +125,14 @@ void tst_QSslKey::emptyConstructor()
     QCOMPARE(key, key2);
 }
 
-Q_DECLARE_METATYPE(QSsl::Algorithm);
+Q_DECLARE_METATYPE(QSsl::KeyAlgorithm);
 Q_DECLARE_METATYPE(QSsl::KeyType);
 Q_DECLARE_METATYPE(QSsl::EncodingFormat);
 
 void tst_QSslKey::createPlainTestRows()
 {
     QTest::addColumn<QString>("absFilePath");
-    QTest::addColumn<QSsl::Algorithm>("algorithm");
+    QTest::addColumn<QSsl::KeyAlgorithm>("algorithm");
     QTest::addColumn<QSsl::KeyType>("type");
     QTest::addColumn<int>("length");
     QTest::addColumn<QSsl::EncodingFormat>("format");
@@ -154,7 +154,7 @@ void tst_QSslKey::constructor()
         return;
 
     QFETCH(QString, absFilePath);
-    QFETCH(QSsl::Algorithm, algorithm);
+    QFETCH(QSsl::KeyAlgorithm, algorithm);
     QFETCH(QSsl::KeyType, type);
     QFETCH(QSsl::EncodingFormat, format);
 
@@ -174,7 +174,7 @@ void tst_QSslKey::copyAndAssign()
         return;
 
     QFETCH(QString, absFilePath);
-    QFETCH(QSsl::Algorithm, algorithm);
+    QFETCH(QSsl::KeyAlgorithm, algorithm);
     QFETCH(QSsl::KeyType, type);
     QFETCH(QSsl::EncodingFormat, format);
 
@@ -214,7 +214,7 @@ void tst_QSslKey::length()
         return;
 
     QFETCH(QString, absFilePath);
-    QFETCH(QSsl::Algorithm, algorithm);
+    QFETCH(QSsl::KeyAlgorithm, algorithm);
     QFETCH(QSsl::KeyType, type);
     QFETCH(int, length);
     QFETCH(QSsl::EncodingFormat, format);
@@ -236,7 +236,7 @@ void tst_QSslKey::toPemOrDer()
         return;
 
     QFETCH(QString, absFilePath);
-    QFETCH(QSsl::Algorithm, algorithm);
+    QFETCH(QSsl::KeyAlgorithm, algorithm);
     QFETCH(QSsl::KeyType, type);
     QFETCH(QSsl::EncodingFormat, format);
 
@@ -249,7 +249,7 @@ void tst_QSslKey::toPemOrDer()
 void tst_QSslKey::toEncryptedPemOrDer_data()
 {
     QTest::addColumn<QString>("absFilePath");
-    QTest::addColumn<QSsl::Algorithm>("algorithm");
+    QTest::addColumn<QSsl::KeyAlgorithm>("algorithm");
     QTest::addColumn<QSsl::KeyType>("type");
     QTest::addColumn<QSsl::EncodingFormat>("format");
     QTest::addColumn<QString>("password");
@@ -276,7 +276,7 @@ void tst_QSslKey::toEncryptedPemOrDer()
         return;
 
     QFETCH(QString, absFilePath);
-    QFETCH(QSsl::Algorithm, algorithm);
+    QFETCH(QSsl::KeyAlgorithm, algorithm);
     QFETCH(QSsl::KeyType, type);
     QFETCH(QSsl::EncodingFormat, format);
     QFETCH(QString, password);

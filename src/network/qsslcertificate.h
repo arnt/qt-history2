@@ -83,9 +83,9 @@ public:
     QString issuerInfo(const QByteArray &tag) const;
     QString subjectInfo(SubjectInfo info) const;
     QString subjectInfo(const QByteArray &tag) const;
-    QMultiMap<QSsl::AlternateNameEntry, QString> alternateSubjectNames() const;
-    QDateTime notValidBefore() const;
-    QDateTime notValidAfter() const;
+    QMultiMap<QSsl::AlternateNameEntryType, QString> alternateSubjectNames() const;
+    QDateTime effectiveDate() const;
+    QDateTime expiryDate() const;
     QSslKey publicKey() const;
 
     QByteArray toPem() const;

@@ -198,8 +198,8 @@ void tst_QSslCertificate::compareCertificates(
         QCOMPARE(cert1.subjectInfo(subjectInfo), cert2.subjectInfo(subjectInfo));
     }
     QCOMPARE(cert1.alternateSubjectNames(), cert2.alternateSubjectNames());
-    QCOMPARE(cert1.notValidBefore(), cert2.notValidBefore());
-    QCOMPARE(cert1.notValidAfter(), cert2.notValidAfter());
+    QCOMPARE(cert1.effectiveDate(), cert2.effectiveDate());
+    QCOMPARE(cert1.expiryDate(), cert2.expiryDate());
     // ### add more functions here ...
 }
 
@@ -304,11 +304,11 @@ void tst_QSslCertificate::alternateSubjectNames()
 
     QByteArray fileContents = readFile(subjAltNameFilePath);
 
-    const QMultiMap<QSsl::AlternateNameEntry, QString> altSubjectNames =
+    const QMultiMap<QSsl::AlternateNameEntryType, QString> altSubjectNames =
         certificate.alternateSubjectNames();
 
     // verify that each entry in subjAltNames is present in fileContents
-    QMapIterator<QSsl::AlternateNameEntry, QString> it(altSubjectNames);
+    QMapIterator<QSsl::AlternateNameEntryType, QString> it(altSubjectNames);
     while (it.hasNext()) {
         it.next();
         QString type;
@@ -325,7 +325,7 @@ void tst_QSslCertificate::alternateSubjectNames()
     // verify that each entry in fileContents is present in subjAltNames
     QRegExp rx(QLatin1String("(email|DNS):([^,\\n]+)"));
     for (int pos = 0; (pos = rx.indexIn(fileContents, pos)) != -1; pos += rx.matchedLength()) {
-        QSsl::AlternateNameEntry key;
+        QSsl::AlternateNameEntryType key;
         if (rx.cap(1) == QLatin1String("email"))
             key = QSsl::EmailEntry;
         else if (rx.cap(1) == QLatin1String("DNS"))

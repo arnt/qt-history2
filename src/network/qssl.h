@@ -46,14 +46,22 @@ namespace QSsl {
         Der
     };
 
-    enum Algorithm {
+    enum KeyAlgorithm {
         Rsa,
         Dsa
     };
 
-    enum AlternateNameEntry {
+    enum AlternateNameEntryType {
         EmailEntry,
         DnsEntry
+    };
+
+    enum SslProtocol {
+        SslV3,
+        SslV2,
+        TlsV1,
+        AnyProtocol,
+        UnknownProtocol = -1
     };
 }
 

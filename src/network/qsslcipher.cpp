@@ -43,17 +43,6 @@
     \sa QSslSocket, QSslKey
 */
 
-/*!
-    \enum QSslCipher::Protocol
-
-    Describes the protocol of the cipher.
-
-    \value SslV3 SSLv3 - the default protocol.
-    \value SslV2 SSLv2
-    \value TlsV1 TLSv1
-    \value Unknown The cipher's protocol cannot be determined.
-*/
-
 #include "qsslcipher.h"
 #include "qsslcipher_p.h"
 #include "qsslsocket.h"
@@ -80,7 +69,7 @@ QSslCipher::QSslCipher()
     You can call isNull() after construction to check if \a name and
     \a protocol correctly identified a supported cipher.
 */
-QSslCipher::QSslCipher(const QString &name, Protocol protocol)
+QSslCipher::QSslCipher(const QString &name, QSsl::SslProtocol protocol)
 {
     foreach (const QSslCipher &cipher, QSslSocket::supportedCiphers()) {
         if (cipher.name() == name && cipher.protocol() == protocol) {
@@ -207,13 +196,13 @@ QString QSslCipher::protocolString() const
 }
 
 /*!
-  Returns the cipher's protocol type, or \l Unknown if QSslCipher is
-  unable to determine the protocol (protocolString() may contain
-  more information).
+    Returns the cipher's protocol type, or \l QSsl::UnknownProtocol if
+    QSslCipher is unable to determine the protocol (protocolString() may
+    contain more information).
 
-  \sa protocolString()
+    \sa protocolString()
 */
-QSslCipher::Protocol QSslCipher::protocol() const
+QSsl::SslProtocol QSslCipher::protocol() const
 {
     return d->protocol;
 }

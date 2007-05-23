@@ -48,11 +48,11 @@ class Q_NETWORK_EXPORT QSslKey
 {
 public:
     QSslKey();
-    QSslKey(const QByteArray &encoded, QSsl::Algorithm algorithm,
+    QSslKey(const QByteArray &encoded, QSsl::KeyAlgorithm algorithm,
             QSsl::EncodingFormat format = QSsl::Pem,
             QSsl::KeyType type = QSsl::PrivateKey,
             const QByteArray &passPhrase = QByteArray());
-    QSslKey(QIODevice *device, QSsl::Algorithm algorithm,
+    QSslKey(QIODevice *device, QSsl::KeyAlgorithm algorithm,
             QSsl::EncodingFormat format = QSsl::Pem,
             QSsl::KeyType type = QSsl::PrivateKey,
             const QByteArray &passPhrase = QByteArray());
@@ -65,7 +65,7 @@ public:
 
     int length() const;
     QSsl::KeyType type() const;
-    QSsl::Algorithm algorithm() const;
+    QSsl::KeyAlgorithm algorithm() const;
 
     QByteArray toPem(const QByteArray &passPhrase = QByteArray()) const;
     QByteArray toDer(const QByteArray &passPhrase = QByteArray()) const;

@@ -336,10 +336,10 @@ QString QSslCertificate::subjectInfo(const QByteArray &tag) const
   
   \sa subjectInfo()
 */
-QMultiMap<QSsl::AlternateNameEntry, QString>
+QMultiMap<QSsl::AlternateNameEntryType, QString>
 QSslCertificate::alternateSubjectNames() const
 {
-    QMultiMap<QSsl::AlternateNameEntry, QString> result;
+    QMultiMap<QSsl::AlternateNameEntryType, QString> result;
 
     STACK *altNames = (STACK *)q_X509_get_ext_d2i(d->x509, NID_subject_alt_name, 0, 0);
 
@@ -364,9 +364,9 @@ QSslCertificate::alternateSubjectNames() const
   Returns the date-time that the certificate becomes valid, or an
   empty QDateTime if this is a null certificate.
 
-  \sa notValidAfter()
+  \sa expiryDate()
 */
-QDateTime QSslCertificate::notValidBefore() const
+QDateTime QSslCertificate::effectiveDate() const
 {
     return d->notValidBefore;
 }
@@ -375,9 +375,9 @@ QDateTime QSslCertificate::notValidBefore() const
   Returns the date-time that the certificate expires, or an empty
   QDateTime if this is a null certificate.
 
-    \sa notValidBefore()
+    \sa effectiveDate()
 */
-QDateTime QSslCertificate::notValidAfter() const
+QDateTime QSslCertificate::expiryDate() const
 {
     return d->notValidAfter;
 }
@@ -696,8 +696,8 @@ QDebug operator<<(QDebug debug, const QSslCertificate &certificate)
           << "," << certificate.subjectInfo(QSslCertificate::Organization)
           << "," << certificate.alternateSubjectNames()
 #ifndef QT_NO_TEXTSTREAM
-          << "," << certificate.notValidBefore()
-          << "," << certificate.notValidAfter()
+          << "," << certificate.effectiveDate()
+          << "," << certificate.expiryDate()
 #endif
           << ")";
     return debug;

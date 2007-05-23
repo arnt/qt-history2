@@ -47,7 +47,7 @@
 */
 
 /*!
-    \enum QSsl::Algorithm
+    \enum QSsl::KeyAlgorithm
 
     Describes the different key algorithms supported by QSslKey.
 
@@ -65,7 +65,7 @@
 */
 
 /*!
-    \enum QSsl::AlternateNameEntry
+    \enum QSsl::AlternateNameEntryType
 
     Describes the key types for alternate name entries in QSslCertificate.
 
@@ -77,4 +77,17 @@
 
     \sa QSslCertificate::alternateSubjectNames()
 
+*/
+
+/*!
+    \enum QSsl::SslProtocol
+
+    Describes the protocol of the cipher.
+
+    \value SslV3 SSLv3 - the default protocol.
+    \value SslV2 SSLv2
+    \value TlsV1 TLSv1
+    \value UnknownProtocol The cipher's protocol cannot be determined.
+    \value AnyProtocol The socket understands SSLv2, SSLv3, and TLSv1. This
+    value is used by QSslSocket only.
 */
