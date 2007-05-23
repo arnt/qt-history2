@@ -55,7 +55,14 @@
 #include <QtGui/QMessageBox>
 #include <QtGui/QPushButton>
 #include <QtGui/QIcon>
+#include <QtGui/QImage>
+#include <QtGui/QPixmap>
 #include <QtGui/QMdiSubWindow>
+#include <QtGui/QPrintDialog>
+#include <QtGui/QPainter>
+#include <QtGui/QTransform>
+#include <QtGui/QCursor>
+#include <QtCore/QSizeF>
 
 #include <QtCore/QLibraryInfo>
 #include <QtCore/QBuffer>
@@ -93,6 +100,38 @@ static QActionGroup *createActionGroup(QObject *parent, bool exclusive = false) 
     return rc;
 }
 
+// Prompt for a file and make sure an extension is added
+// unless the user explicitly specifies another one.
+
+static QString getSaveFileNameWithExtension(QWidget *parent, const QString &title, QString dir, const QString &filter, const QString &extension)
+{
+    const QChar dot = QLatin1Char('.');
+
+    QString saveFile;
+    while (true) {
+        saveFile = QFileDialog::getSaveFileName(parent, title, dir, filter, 0, QFileDialog::DontConfirmOverwrite);
+        if (saveFile.isEmpty())
+            return saveFile;
+
+        const QFileInfo fInfo(saveFile);
+        if (fInfo.suffix().isEmpty() && !fInfo.fileName().endsWith(dot)) {
+            saveFile += dot;
+            saveFile += extension;
+        }
+
+        const QFileInfo fi(saveFile);
+        if (!fi.exists())
+            break;
+
+        const QString prompt = QDesignerActions::tr("%1 already exists.\nDo you want to replace it?").arg(fi.fileName());
+        if (QMessageBox::warning(parent, title, prompt, QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
+            break;
+
+        dir = saveFile;
+    }
+    return saveFile;
+}
+
 QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
     : QObject(workbench),
       m_workbench(workbench),
@@ -114,6 +153,8 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
       m_saveAllFormsAction(new QAction(tr("Save A&ll Forms"), this)),
       m_saveFormAsTemplateAction(new QAction(tr("Save Form As &Template..."), this)),
       m_closeFormAction(new QAction(tr("&Close Form"), this)),
+      m_savePreviewImageAction(new QAction(tr("Save &Image..."), this)),
+      m_printPreviewAction(new QAction(tr("&Print..."), this)),
       m_quitAction(new QAction(tr("&Quit"), this)),
       m_previewFormAction(new QAction(tr("&Preview"), this)),
       m_formSettings(new QAction(tr("Form &Settings..."), this)),
@@ -121,7 +162,8 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
       m_bringAllToFrontSeparator(createSeparator(this)),
       m_bringAllToFrontAction(new QAction(tr("Bring All to Front"), this)),
       m_windowListSeparatorAction(createSeparator(this)),
-      m_preferencesAction(new QAction(tr("Preferences..."), this))
+      m_preferencesAction(new QAction(tr("Preferences..."), this)),
+      m_printer(QPrinter::HighResolution)
 {
     Q_ASSERT(m_workbench != 0);
 
@@ -193,6 +235,15 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
     connect(m_saveFormAsTemplateAction, SIGNAL(triggered()), this, SLOT(saveFormAsTemplate()));
     m_fileActions->addAction(m_saveFormAsTemplateAction);
 
+    m_fileActions->addAction(createSeparator(this));
+
+    connect(m_printPreviewAction,  SIGNAL(triggered()), this, SLOT(printPreviewImage()));
+    m_fileActions->addAction(m_printPreviewAction);
+    m_printPreviewAction->setObjectName(QLatin1String("__qt_print_action"));
+
+    connect(m_savePreviewImageAction,  SIGNAL(triggered()), this, SLOT(savePreviewImage()));
+    m_savePreviewImageAction->setObjectName(QLatin1String("__qt_saveimage_action"));
+    m_fileActions->addAction(m_savePreviewImageAction);
     m_fileActions->addAction(createSeparator(this));
 
     m_closeFormAction->setShortcut(tr("CTRL+W"));
@@ -402,7 +453,6 @@ QActionGroup *QDesignerActions::helpActions() const
 QActionGroup *QDesignerActions::styleActions() const
 { return m_styleActions; }
 
-
 QAction *QDesignerActions::previewFormAction() const
 { return m_previewFormAction; }
 
@@ -483,28 +533,9 @@ bool QDesignerActions::saveFormAs(QDesignerFormWindowInterface *fw)
         dir += extension;
     }
 
-    QString saveFile;
-    while (1) {
-        saveFile = QFileDialog::getSaveFileName(fw, tr("Save form as"),
-                dir,
-                tr("Designer UI files (*.%1);;All Files (*)").arg(extension), 0, QFileDialog::DontConfirmOverwrite);
-        if (saveFile.isEmpty())
-            return false;
-
-        const QFileInfo fInfo(saveFile);
-        if (fInfo.suffix().isEmpty() && !fInfo.fileName().endsWith(QLatin1Char('.')))
-            saveFile.append(QLatin1Char('.')).append(extension);
-
-        const QFileInfo fi(saveFile);
-        if (!fi.exists())
-            break;
-
-        if (QMessageBox::warning(fw, tr("Save"), tr("%1 already exists.\nDo you want to replace it?")
-                    .arg(fi.fileName()), QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
-            break;
-
-        dir = saveFile;
-    }
+    const  QString saveFile = getSaveFileNameWithExtension(fw, tr("Save form as"), dir, tr("Designer UI files (*.%1);;All Files (*)").arg(extension), extension);
+    if (saveFile.isEmpty())
+        return false;
 
     fw->setFileName(saveFile);
     return writeOutForm(fw, saveFile);
@@ -514,7 +545,7 @@ void QDesignerActions::saveForm()
 {
     if (QDesignerFormWindowInterface *fw = core()->formWindowManager()->activeFormWindow()) {
         if (saveForm(fw))
-            showStatusBarMessage(tr("Form %1 successful saved...").arg(fw->fileName()));
+            showStatusBarMessage(tr("Form %1 successful saved...").arg(QFileInfo(fw->fileName()).fileName()));
     }
 }
 
@@ -625,9 +656,13 @@ void QDesignerActions::previewForm(QAction *action)
         if (data.type() == QVariant::String)
             styleName = data.toString();
     }
+    // check the preferences
+    QDesignerSettings settings;
+    if (styleName.isEmpty())
+        styleName = settings.style();
 
     // create and have form builder display errors.
-    QWidget *widget =  qdesigner_internal::QDesignerFormBuilder::createPreview(fw, styleName);
+    QWidget *widget =  qdesigner_internal::QDesignerFormBuilder::createPreview(fw, styleName,  settings.appStyleSheet());
     if (!widget)
         return;
 
@@ -868,7 +903,8 @@ void QDesignerActions::activeFormWindowChanged(QDesignerFormWindowInterface *for
     m_saveAllFormsAction->setEnabled(enable);
     m_saveFormAsTemplateAction->setEnabled(enable);
     m_closeFormAction->setEnabled(enable);
-    m_closeFormAction->setEnabled(enable);
+    m_savePreviewImageAction->setEnabled(enable);
+    m_printPreviewAction->setEnabled(enable);
 
     m_editWidgetsAction->setEnabled(enable);
     m_formSettings->setEnabled(enable);
@@ -1315,4 +1351,104 @@ void QDesignerActions::showPreferencesDialog()
 
     settings.setPreferences(preferences);
     m_workbench->applyPreferences(preferences);
+}
+
+QPixmap QDesignerActions::createPreviewPixmap(QDesignerFormWindowInterface *fw)
+{
+    const QCursor oldCursor = core()->topLevel()->cursor();
+    core()->topLevel()->setCursor(Qt::WaitCursor);
+    QDesignerSettings settings;
+    const QPixmap pixmap = qdesigner_internal::QDesignerFormBuilder::createPreviewPixmap(fw, settings.style(), settings.appStyleSheet());
+    core()->topLevel()->setCursor( oldCursor);
+    return pixmap;
+}
+
+void QDesignerActions::savePreviewImage()
+{
+    const char *format = "png";
+
+    QDesignerFormWindowInterface *fw = core()->formWindowManager()->activeFormWindow();
+    if (!fw)
+        return;
+
+    QImage image;
+    const QString extension = QString::fromAscii(format);
+    const QString filter = tr("Image files (*.%1)").arg(extension);
+
+    QString suggestion = fw->fileName();
+    if (!suggestion.isEmpty()) {
+        suggestion = QFileInfo(suggestion).baseName();
+        suggestion += QLatin1Char('.');
+        suggestion += extension;
+    }
+    do {
+        const QString fileName  = getSaveFileNameWithExtension(fw, tr("Save Image"), suggestion, filter, extension);
+        if (fileName.isEmpty())
+            break;
+
+        if (image.isNull()) {
+            const QPixmap pixmap = createPreviewPixmap(fw);
+            if (pixmap.isNull())
+                break;
+
+            image = pixmap.toImage();
+        }
+
+        if (image.save(fileName, format)) {
+            showStatusBarMessage(tr("Saved image %1...").arg(QFileInfo(fileName).fileName()));
+            break;
+        }
+
+        QMessageBox box(QMessageBox::Warning, tr("Save Image"),
+                        tr("The file %1 could not be written.").arg( fileName),
+                        QMessageBox::Retry|QMessageBox::Cancel, fw);
+        if (box.exec() == QMessageBox::Cancel)
+            break;
+    } while (true);
+}
+
+void QDesignerActions::printPreviewImage()
+{
+    QDesignerFormWindowInterface *fw = core()->formWindowManager()->activeFormWindow();
+    if (!fw)
+        return;
+
+    m_printer.setFullPage(false);
+
+    // Grab the image to be able to a suggest suitable orientation
+    const QPixmap pixmap = createPreviewPixmap(fw);
+    if (pixmap.isNull())
+        return;
+
+    const QSizeF pixmapSize = pixmap.size();
+    m_printer.setOrientation( pixmapSize.width() > pixmapSize.height() ?  QPrinter::Landscape :  QPrinter::Portrait);
+
+    // Printer parameters
+    QPrintDialog dialog(&m_printer, fw);
+    if (!dialog.exec())
+        return;
+
+    const QCursor oldCursor = core()->topLevel()->cursor();
+    core()->topLevel()->setCursor(Qt::WaitCursor);
+    // Estimate of required scaling to make form look the same on screen and printer.
+    const double suggestedScaling = static_cast<double>(m_printer.physicalDpiX()) /  static_cast<double>(fw->physicalDpiX());
+
+    QPainter painter(&m_printer);
+    painter.setRenderHint(QPainter::SmoothPixmapTransform);
+
+    // Clamp to page
+    const QRectF page =  painter.viewport();
+    const double maxScaling = qMin(page.size().width() / pixmapSize.width(), page.size().height() / pixmapSize.height());
+    const double scaling = qMin(suggestedScaling, maxScaling);
+
+    const double xOffset = page.left() + qMax(0.0, (page.size().width()  - scaling * pixmapSize.width())  / 2.0);
+    const double yOffset = page.top()  + qMax(0.0, (page.size().height() - scaling * pixmapSize.height()) / 2.0);
+
+    // Draw.
+    painter.translate(xOffset, yOffset);
+    painter.scale(scaling, scaling);
+    painter.drawPixmap(0, 0, pixmap);
+    core()->topLevel()->setCursor(oldCursor);
+
+    showStatusBarMessage(tr("Printed %1...").arg(QFileInfo(fw->fileName()).fileName()));
 }

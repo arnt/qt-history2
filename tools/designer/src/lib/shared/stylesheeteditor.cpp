@@ -30,6 +30,8 @@ TRANSLATOR qdesigner_internal::StyleSheetEditorDialog
 #include <QtGui/QMessageBox>
 #include "private/qcssparser_p.h"
 
+static const char *styleSheetProperty = "styleSheet";
+
 namespace qdesigner_internal {
 
 StyleSheetEditor::StyleSheetEditor(QWidget *parent)
@@ -38,49 +40,45 @@ StyleSheetEditor::StyleSheetEditor(QWidget *parent)
     setTabStopWidth(fontMetrics().width(QLatin1Char(' '))*4);
 }
 
-StyleSheetEditorDialog::StyleSheetEditorDialog(QWidget *fw, QWidget *widget)
-    : QDialog(fw), m_widget(widget)
+// --- StyleSheetEditorDialog
+StyleSheetEditorDialog::StyleSheetEditorDialog(QWidget *parent):
+    QDialog(parent),
+    m_buttonBox(new QDialogButtonBox),
+    m_editor(new StyleSheetEditor),
+    m_validityLabel(new QLabel(tr("Valid Style Sheet")))
 {
-    m_fw = qobject_cast<QDesignerFormWindowInterface *>(fw);
-    Q_ASSERT(m_fw != 0);
     setWindowTitle(tr("Edit Style Sheet"));
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     QGridLayout *layout = new QGridLayout;
-    m_editor = new StyleSheetEditor;
     new CssHighlighter(m_editor->document());
-    QDialogButtonBox *buttonBox = new QDialogButtonBox;
-    buttonBox->setStandardButtons(QDialogButtonBox::Ok | QDialogButtonBox::Cancel | QDialogButtonBox::Apply);
-    QObject::connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
-    QObject::connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
-    QPushButton *apply = buttonBox->button(QDialogButtonBox::Apply);
-    QObject::connect((const QObject *)apply, SIGNAL(clicked()), this, SLOT(applyStyleSheet()));
-    QObject::connect(buttonBox, SIGNAL(accepted()), this, SLOT(applyStyleSheet()));
+    m_buttonBox->setStandardButtons(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+    QObject::connect(m_buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
+    QObject::connect(m_buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
 
-    validityLabel = new QLabel(tr("Valid Style Sheet"));
     QObject::connect(m_editor, SIGNAL(textChanged()), this, SLOT(validateStyleSheet()));
 
     layout->addWidget(m_editor, 0, 0, 1, 2);;
-    layout->addWidget(validityLabel, 1, 0, 1, 1);
-    layout->addWidget(buttonBox, 1, 1, 1, 1);
+    layout->addWidget(m_validityLabel, 1, 0, 1, 1);
+    layout->addWidget(m_buttonBox, 1, 1, 1, 1);
     setLayout(layout);
-
-    QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(m_fw->core()->extensionManager(), m_widget);
-    Q_ASSERT(sheet != 0);
-    m_editor->setText(sheet->property(sheet->indexOf(QLatin1String("styleSheet"))).toString());
 
     m_editor->setFocus();
     resize(430, 330);
 }
 
-StyleSheetEditor *StyleSheetEditorDialog::editor() const
+QDialogButtonBox * StyleSheetEditorDialog::buttonBox() const
 {
-    return m_editor;
+   return m_buttonBox;
 }
 
-void StyleSheetEditorDialog::applyStyleSheet()
+QString StyleSheetEditorDialog::text() const
 {
-    QString text = m_editor->toPlainText();
-    m_fw->cursor()->setWidgetProperty(m_widget, QLatin1String("styleSheet"), QVariant(text));
+    return m_editor->toPlainText();
+}
+
+void StyleSheetEditorDialog::setText(const QString &t)
+{
+    m_editor->setText(t);
 }
 
 bool StyleSheetEditorDialog::isStyleSheetValid(const QString &styleSheet)
@@ -98,14 +96,37 @@ bool StyleSheetEditorDialog::isStyleSheetValid(const QString &styleSheet)
 
 void StyleSheetEditorDialog::validateStyleSheet()
 {
-    QString text = m_editor->toPlainText();
+    const QString text = m_editor->toPlainText();
     if (!isStyleSheetValid(text)) {
-        validityLabel->setText(tr("Invalid Style Sheet"));
-        validityLabel->setStyleSheet(QLatin1String("color: red"));
+        m_validityLabel->setText(tr("Invalid Style Sheet"));
+        m_validityLabel->setStyleSheet(QLatin1String("color: red"));
     } else {
-        validityLabel->setText(tr("Valid Style Sheet"));
-        validityLabel->setStyleSheet(QLatin1String("color: green"));
+        m_validityLabel->setText(tr("Valid Style Sheet"));
+        m_validityLabel->setStyleSheet(QLatin1String("color: green"));
     }
+}
+// --- StyleSheetPropertyEditorDialog
+StyleSheetPropertyEditorDialog::StyleSheetPropertyEditorDialog(QWidget *parent,
+                                               QDesignerFormWindowInterface *fw,
+                                               QWidget *widget):
+    StyleSheetEditorDialog(parent),
+    m_fw(fw),
+    m_widget(widget)
+{
+    Q_ASSERT(m_fw != 0);
+
+    QPushButton *apply = buttonBox()->addButton(QDialogButtonBox::Apply);
+    QObject::connect(apply, SIGNAL(clicked()), this, SLOT(applyStyleSheet()));
+    QObject::connect(buttonBox(), SIGNAL(accepted()), this, SLOT(applyStyleSheet()));
+
+    QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(m_fw->core()->extensionManager(), m_widget);
+    Q_ASSERT(sheet != 0);
+    setText(sheet->property(sheet->indexOf(QLatin1String(styleSheetProperty))).toString());
+}
+
+void StyleSheetPropertyEditorDialog::applyStyleSheet()
+{
+    m_fw->cursor()->setWidgetProperty(m_widget, QLatin1String(styleSheetProperty), QVariant(text()));
 }
 
 } // namespace qdesigner_internal

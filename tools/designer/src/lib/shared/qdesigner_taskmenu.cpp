@@ -79,8 +79,8 @@ class ObjectNameDialog : public QDialog
 
 ObjectNameDialog::ObjectNameDialog(QWidget *parent, const QString &oldName)
     : QDialog(parent),
-      m_editor( new qdesigner_internal::TextPropertyEditor(qdesigner_internal::TextPropertyEditor::EmbeddingNone,
-                                                           qdesigner_internal::ValidationObjectName, this))
+      m_editor( new qdesigner_internal::TextPropertyEditor(this, qdesigner_internal::TextPropertyEditor::EmbeddingNone,
+                                                           qdesigner_internal::ValidationObjectName))
 {
     setWindowTitle(QObject::tr("Change Object Name"));
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
@@ -341,7 +341,7 @@ void QDesignerTaskMenu::changeWhatsThis()
 void QDesignerTaskMenu::changeStyleSheet()
 {
     if (QDesignerFormWindowInterface *fw = formWindow()) {
-        StyleSheetEditorDialog dlg(fw, m_widget);
+        StyleSheetPropertyEditorDialog dlg(fw, fw, m_widget);
         dlg.exec();
     }
 }

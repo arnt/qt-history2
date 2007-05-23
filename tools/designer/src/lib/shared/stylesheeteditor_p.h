@@ -32,6 +32,8 @@
 
 class QDesignerFormWindowInterface;
 
+class QDialogButtonBox;
+
 namespace qdesigner_internal {
 
 class QDESIGNER_SHARED_EXPORT StyleSheetEditor : public QTextEdit
@@ -41,24 +43,46 @@ public:
     StyleSheetEditor(QWidget *parent = 0);
 };
 
+// Edit a style sheet.
 class QDESIGNER_SHARED_EXPORT StyleSheetEditorDialog : public QDialog
 {
     Q_OBJECT
 public:
-    StyleSheetEditorDialog(QWidget *parent, QWidget *widget);
-    StyleSheetEditor *editor() const;
+    StyleSheetEditorDialog(QWidget *parent);
+    QString text() const;
+    void setText(const QString &t);
+
+    static bool isStyleSheetValid(const QString &styleSheet);
+
+private slots:
+    void validateStyleSheet();
+
+protected:
+    QDialogButtonBox *buttonBox() const;
+
+private:
+    QDialogButtonBox *m_buttonBox;
+    StyleSheetEditor *m_editor;
+    QLabel *m_validityLabel;
+};
+
+// Edit the style sheet property of the designer selection.
+// Provides an "Apply" button.
+
+class QDESIGNER_SHARED_EXPORT StyleSheetPropertyEditorDialog : public StyleSheetEditorDialog
+{
+    Q_OBJECT
+public:
+    StyleSheetPropertyEditorDialog(QWidget *parent, QDesignerFormWindowInterface *fw, QWidget *widget);
 
     static bool isStyleSheetValid(const QString &styleSheet);
 
 private slots:
     void applyStyleSheet();
-    void validateStyleSheet();
 
 private:
-    StyleSheetEditor *m_editor;
     QDesignerFormWindowInterface *m_fw;
     QWidget *m_widget;
-    QLabel *validityLabel;
 };
 
 } // namespace qdesigner_internal

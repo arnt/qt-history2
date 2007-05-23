@@ -32,6 +32,8 @@ struct Preferences
     bool m_useFont;
     QStringList m_additionalTemplatePaths;
     qdesigner_internal::Grid m_defaultGrid;
+    QString m_style;
+    QString m_appStyleSheet;
 };
 
 #endif // QDESIGNER_PREFERENCES_H

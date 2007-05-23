@@ -21,7 +21,7 @@ InPlaceEditor::InPlaceEditor(QWidget *widget,
                              QDesignerFormWindowInterface *fw,
                              const QString& text,
                              const QRect& r) :
-    TextPropertyEditor(EmbeddingInPlace, validationMode, widget),
+    TextPropertyEditor(widget, EmbeddingInPlace, validationMode),
     m_InPlaceWidgetHelper(this, widget, fw)
 {
     setAlignment(m_InPlaceWidgetHelper.alignment());

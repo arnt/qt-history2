@@ -18,8 +18,8 @@
 #include <QtGui/QMenu>
 
 namespace qdesigner_internal {
-    PropertyLineEdit::PropertyLineEdit(QWidget *parent, bool wantNewLine) :
-        QLineEdit(parent), m_wantNewLine(wantNewLine)
+    PropertyLineEdit::PropertyLineEdit(QWidget *parent) :
+        QLineEdit(parent), m_wantNewLine(false)
     {
     }
 

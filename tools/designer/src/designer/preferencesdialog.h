@@ -37,6 +37,7 @@ private slots:
     void addTemplatePath();
     void removeTemplatePath();
     void templatePathSelectionChanged();
+    void editAppStyleSheet();
 
 private:
     void setPreferences(const Preferences &p);

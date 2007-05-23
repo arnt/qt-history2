@@ -16,6 +16,7 @@
 
 #include <QtCore/QObject>
 #include <QtCore/QPointer>
+#include <QtGui/QPrinter>
 
 class QDesignerWorkbench;
 
@@ -28,6 +29,7 @@ class QDesignerFormWindowInterface;
 class QAssistantClient;
 class QRect;
 class QWidget;
+class QPixmap;
 
 class QDesignerActions: public QObject
 {
@@ -53,7 +55,6 @@ public:
     QActionGroup *uiMode() const;
     QAction *preferencesAction() const;
     QActionGroup *styleActions() const;
-
     // window actions
     QAction *minimizeAction() const;
     // edit mode actions
@@ -98,6 +99,8 @@ private slots:
     void backupForms();
     void showNewFormDialog(const QString &fileName);
     void showPreferencesDialog();
+    void savePreviewImage();
+    void printPreviewImage();
 
 private:
     bool saveFormAs(QDesignerFormWindowInterface *fw);
@@ -112,6 +115,7 @@ private:
     void showStatusBarMessage(const QString &message) const;
     QActionGroup *createHelpActions();
     bool ensureBackupDirectories();
+    QPixmap createPreviewPixmap(QDesignerFormWindowInterface *fw);
 
     enum { MaxRecentFiles = 10 };
     QDesignerWorkbench *m_workbench;
@@ -144,6 +148,8 @@ private:
     QAction *m_saveAllFormsAction;
     QAction *m_saveFormAsTemplateAction;
     QAction *m_closeFormAction;
+    QAction *m_savePreviewImageAction;
+    QAction *m_printPreviewAction;
 
     QAction *m_quitAction;
 
@@ -158,6 +164,7 @@ private:
     QAction *m_preferencesAction;
 
     QPointer<QWidget> m_previewWidget;
+    QPrinter m_printer;
 };
 
 #endif // QDESIGNER_ACTIONS_H

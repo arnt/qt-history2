@@ -82,12 +82,12 @@ namespace {
 
 namespace qdesigner_internal {
     // TextPropertyEditor
-    TextPropertyEditor::TextPropertyEditor(EmbeddingMode embeddingMode,
-                                           TextPropertyValidationMode validationMode,
-                                           QWidget *parent) :
+    TextPropertyEditor::TextPropertyEditor(QWidget *parent,
+                                           EmbeddingMode embeddingMode,
+                                           TextPropertyValidationMode validationMode) :
         QWidget(parent),
-        m_ValidationMode(validationMode),
-        m_lineEdit(new PropertyLineEdit(this, validationMode == ValidationMultiLine))
+        m_validationMode(ValidationSingleLine),
+        m_lineEdit(new PropertyLineEdit(this))
     {
         switch ( embeddingMode) {
         case EmbeddingNone:
@@ -102,7 +102,18 @@ namespace qdesigner_internal {
             break;
         }
 
-        switch (m_ValidationMode) {
+        setFocusProxy(m_lineEdit);
+
+        connect(m_lineEdit,SIGNAL(editingFinished()),this,SIGNAL(editingFinished()));
+        connect(m_lineEdit,SIGNAL(textChanged(QString)),this,SLOT(slotTextChanged(QString)));
+
+        setTextPropertyValidationMode(validationMode);
+    }
+
+    void TextPropertyEditor::setTextPropertyValidationMode(TextPropertyValidationMode vm) {
+        m_validationMode = vm;
+        m_lineEdit->setWantNewLine(m_validationMode == ValidationMultiLine);
+        switch (m_validationMode) {
         case ValidationStyleSheet:
             m_lineEdit->setValidator(new  StyleSheetValidator(m_lineEdit));
             break;
@@ -145,16 +156,20 @@ namespace qdesigner_internal {
     void TextPropertyEditor::setText(const QString &text)
     {
         m_cachedText = text;
-        m_lineEdit->setText(stringToEditorString(text, m_ValidationMode));
+        m_lineEdit->setText(stringToEditorString(text, m_validationMode));
     }
 
     void  TextPropertyEditor::slotTextChanged(const QString &text) {
-        m_cachedText = editorStringToString(text, m_ValidationMode);
+        m_cachedText = editorStringToString(text, m_validationMode);
         emit textChanged(m_cachedText);
     }
 
     void TextPropertyEditor::selectAll() {
         m_lineEdit->selectAll();
+    }
+
+    void TextPropertyEditor::clear() {
+        m_lineEdit->clear();
     }
 
     void TextPropertyEditor::setAlignment(Qt::Alignment alignment) {

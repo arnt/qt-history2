@@ -39,7 +39,7 @@ public:
 
     void setShowNewFormOnStartup(bool showIt);
     bool showNewFormOnStartup() const;
-    
+
     void setPreferences(const Preferences&);
     Preferences preferences() const;
 
@@ -55,8 +55,15 @@ public:
     void clearBackup();
     void setBackup(const QMap<QString, QString> &map);
     QMap<QString, QString> backup() const;
-    
+
     static const QStringList &defaultFormTemplatePaths();
+
+    QString style() const;
+    void setStyle(const QString &style);
+    
+    QString appStyleSheet() const;
+    void setAppStyleSheet(const QString &styleSheet);
+
 private:
     void setGeometryHelper(QWidget *w, const QString &key, const QRect &fallBack) const;
     void saveGeometryHelper(const QWidget *w, const QString &key);

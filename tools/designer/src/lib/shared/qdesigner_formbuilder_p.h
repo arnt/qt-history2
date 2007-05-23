@@ -36,6 +36,8 @@
 class QDesignerFormEditorInterface;
 class QDesignerFormWindowInterface;
 
+class QPixmap;
+
 namespace qdesigner_internal {
 
 // Form builder used for previewing forms
@@ -65,9 +67,18 @@ public:
     // Create a preview widget (for integrations) or return 0. The widget has to be embedded into a main window.
     // Experimental, depending on script support.
     static QWidget *createPreview(const QDesignerFormWindowInterface *fw, const QString &styleName /* ="" */,
+                                  const QString &appStyleSheet  /* ="" */,
                                   ScriptErrors *scriptErrors, QString *errorMessage);
     // Convenience that pops up message boxes in case of failures.
     static QWidget *createPreview(const QDesignerFormWindowInterface *fw, const QString &styleName = QString());
+    // Convenience that pops up message boxes in case of failures.
+    static QWidget *createPreview(const QDesignerFormWindowInterface *fw, const QString &styleName, const QString &appStyleSheet);
+
+    // Grab a preview image from a widget
+    static QPixmap grabPreviewPixmap(QWidget *w);
+
+    // Create a preview image
+    static QPixmap createPreviewPixmap(const QDesignerFormWindowInterface *fw, const QString &styleName = QString(), const QString &appStyleSheet = QString());
 
 protected:
     using QFormBuilder::createDom;
@@ -93,7 +104,7 @@ private:
     bool addItemContainerExtension(QWidget *widget, QWidget *parentWidget);
     QDesignerFormEditorInterface *m_core;
     const Mode m_mode;
-    
+
     typedef QSet<QWidget *> WidgetSet;
     WidgetSet m_customWidgetsWithScript;
 };

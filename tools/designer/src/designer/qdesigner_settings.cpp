@@ -30,6 +30,17 @@
 #include <QtCore/qdebug.h>
 
 static const char *designerPath = "/.designer";
+static const char *newFormShowKey = "newFormDialog/ShowOnStartup";
+static const char *mainWindowStateKey = "MainWindowState";
+static const char *toolBoxStateKey = "ToolBoxState";
+static const char *toolBarsStateKey = "ToolBarsState";
+static const char *backupOrgListKey = "backup/fileListOrg";
+static const char *backupBakListKey = "backup/fileListBak";
+static const char *styleKey = "style";
+static const char *appStyleSheetKey = "AppStyleSheet";
+static const char *defaultGridKey = "defaultGrid";
+static const char *formTemplatePathsKey = "FormTemplatePaths";
+static const char *recentFilesListKey = "recentFilesList";
 
 static bool checkTemplatePath(const QString &path, bool create)
 {
@@ -75,12 +86,12 @@ const QStringList &QDesignerSettings::defaultFormTemplatePaths()
 
 QStringList QDesignerSettings::formTemplatePaths() const
 {
-    return value(QLatin1String("FormTemplatePaths"),defaultFormTemplatePaths()).toStringList();
+    return value(QLatin1String(formTemplatePathsKey),defaultFormTemplatePaths()).toStringList();
 }
 
 void QDesignerSettings::setFormTemplatePaths(const QStringList &paths)
 {
-    setValue(QLatin1String("FormTemplatePaths"), paths);
+    setValue(QLatin1String(formTemplatePathsKey), paths);
 }
 
 QString QDesignerSettings::defaultUserWidgetBoxXml() const
@@ -130,58 +141,58 @@ void QDesignerSettings::setGeometryHelper(QWidget *w, const QString &key,
 
 QStringList QDesignerSettings::recentFilesList() const
 {
-    return value(QLatin1String("recentFilesList")).toStringList();
+    return value(QLatin1String(recentFilesListKey)).toStringList();
 }
 
 void QDesignerSettings::setRecentFilesList(const QStringList &sl)
 {
-    setValue(QLatin1String("recentFilesList"), sl);
+    setValue(QLatin1String(recentFilesListKey), sl);
 }
 
 void QDesignerSettings::setShowNewFormOnStartup(bool showIt)
 {
-    setValue(QLatin1String("newFormDialog/ShowOnStartup"), showIt);
+    setValue(QLatin1String(newFormShowKey), showIt);
 }
 
 bool QDesignerSettings::showNewFormOnStartup() const
 {
-    return value(QLatin1String("newFormDialog/ShowOnStartup"), true).toBool();
+    return value(QLatin1String(newFormShowKey), true).toBool();
 }
 
 QByteArray QDesignerSettings::mainWindowState() const
 {
-    return value(QLatin1String("MainWindowState")).toByteArray();
+    return value(QLatin1String(mainWindowStateKey)).toByteArray();
 }
 
 void QDesignerSettings::setMainWindowState(const QByteArray &mainWindowState)
 {
-    setValue(QLatin1String("MainWindowState"), mainWindowState);
+    setValue(QLatin1String(mainWindowStateKey), mainWindowState);
 }
 
 QByteArray QDesignerSettings::toolBoxState() const
 {
-    return value(QLatin1String("ToolBoxState")).toByteArray();
+    return value(QLatin1String(toolBoxStateKey)).toByteArray();
 }
 
 void QDesignerSettings::setToolBoxState(const QByteArray &state)
 {
-    setValue(QLatin1String("ToolBoxState"), state);
+    setValue(QLatin1String(toolBoxStateKey), state);
 }
 
 QByteArray QDesignerSettings::toolBarsState() const
 {
-    return value(QLatin1String("ToolBarsState")).toByteArray();
+    return value(QLatin1String(toolBarsStateKey)).toByteArray();
 }
 
 void QDesignerSettings::setToolBarsState(const QByteArray &toolBarsState)
 {
-    setValue(QLatin1String("ToolBarsState"), toolBarsState);
+    setValue(QLatin1String(toolBarsStateKey), toolBarsState);
 }
 
 void QDesignerSettings::clearBackup()
 {
-    remove(QLatin1String("backup/fileListOrg"));
-    remove(QLatin1String("backup/fileListBak"));
+    remove(QLatin1String(backupOrgListKey));
+    remove(QLatin1String(backupBakListKey));
 }
 
 void QDesignerSettings::setBackup(const QMap<QString, QString> &map)
@@ -189,20 +200,40 @@ void QDesignerSettings::setBackup(const QMap<QString, QString> &map)
     const QStringList org = map.keys();
     const QStringList bak = map.values();
 
-    setValue(QLatin1String("backup/fileListOrg"), org);
-    setValue(QLatin1String("backup/fileListBak"), bak);
+    setValue(QLatin1String(backupOrgListKey), org);
+    setValue(QLatin1String(backupBakListKey), bak);
 }
 
 QMap<QString, QString> QDesignerSettings::backup() const
 {
-    const QStringList org = value(QLatin1String("backup/fileListOrg"), QStringList()).toStringList();
-    const QStringList bak = value(QLatin1String("backup/fileListBak"), QStringList()).toStringList();
+    const QStringList org = value(QLatin1String(backupOrgListKey), QStringList()).toStringList();
+    const QStringList bak = value(QLatin1String(backupBakListKey), QStringList()).toStringList();
 
     QMap<QString, QString> map;
     for (int i = 0; i < org.count(); ++i)
         map.insert(org.at(i), bak.at(i));
 
     return map;
+}
+
+QString QDesignerSettings::style() const
+{
+    return value(QLatin1String(styleKey), QString()).toString();
+}
+
+void QDesignerSettings::setStyle(const QString &style)
+{
+    setValue(QLatin1String(styleKey), style);
+}
+
+QString QDesignerSettings::appStyleSheet() const
+{
+    return value(QLatin1String(appStyleSheetKey), QString()).toString();
+}
+
+void QDesignerSettings::setAppStyleSheet(const QString &styleSheet)
+{
+     setValue(QLatin1String(appStyleSheetKey), styleSheet);
 }
 
 void QDesignerSettings::setPreferences(const Preferences& p)
@@ -214,7 +245,9 @@ void QDesignerSettings::setPreferences(const Preferences& p)
     setValue(QLatin1String("writingSystem"), p.m_writingSystem);
     endGroup();
     // grid
-    setValue(QLatin1String("defaultGrid"), p.m_defaultGrid.toVariantMap());
+    setValue(QLatin1String(defaultGridKey), p.m_defaultGrid.toVariantMap());
+    setStyle(p.m_style);
+    setAppStyleSheet(p.m_appStyleSheet);
     // merge template paths
     QStringList templatePaths = defaultFormTemplatePaths();
     templatePaths += p.m_additionalTemplatePaths;
@@ -233,10 +266,12 @@ Preferences QDesignerSettings::preferences() const
     rc.m_writingSystem = static_cast<QFontDatabase::WritingSystem>(value(QLatin1String("UI/writingSystem"), QFontDatabase::Any).toInt());
     rc.m_font = qVariantValue<QFont>(value(QLatin1String("UI/font")));
     rc.m_useFont = value(QLatin1String("UI/useFont"), QVariant(false)).toBool();
-    const QVariantMap defaultGridMap = value(QLatin1String("defaultGrid"), QVariantMap()).toMap();
+    const QVariantMap defaultGridMap = value(QLatin1String(defaultGridKey), QVariantMap()).toMap();
     if (!defaultGridMap.empty())
         rc.m_defaultGrid.fromVariantMap(defaultGridMap);
     rc.m_additionalTemplatePaths = additionalFormTemplatePaths();
+    rc.m_style = style();
+    rc.m_appStyleSheet = appStyleSheet();
     return rc;
 }
 

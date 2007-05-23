@@ -337,7 +337,7 @@ bool StringProperty::hasEditor() const
 
 QWidget *StringProperty::createEditor(QWidget *parent, const QObject *target, const char *receiver) const
 {
-    TextPropertyEditor* textEditor = new TextPropertyEditor(TextPropertyEditor::EmbeddingTreeView, m_validationMode, parent);
+    TextPropertyEditor* textEditor = new TextPropertyEditor(parent, TextPropertyEditor::EmbeddingTreeView, m_validationMode);
 
     QObject::connect(textEditor, SIGNAL(textChanged(QString)), target, receiver);
     return textEditor;

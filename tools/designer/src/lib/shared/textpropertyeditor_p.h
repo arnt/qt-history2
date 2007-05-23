@@ -53,7 +53,10 @@ namespace qdesigner_internal {
                 EmbeddingInPlace
         };
 
-        TextPropertyEditor(EmbeddingMode embeddingMode = EmbeddingNone, TextPropertyValidationMode validationMode = ValidationMultiLine, QWidget *parent = 0);
+        TextPropertyEditor(QWidget *parent = 0, EmbeddingMode embeddingMode = EmbeddingNone, TextPropertyValidationMode validationMode = ValidationMultiLine);
+
+        TextPropertyValidationMode textPropertyValidationMode() const { return m_validationMode; }
+        void setTextPropertyValidationMode(TextPropertyValidationMode vm);
 
         QString text() const;
 
@@ -81,6 +84,7 @@ namespace qdesigner_internal {
     public slots:
         void setText(const QString &text);
         void selectAll();
+        void clear();
 
     protected:
         void resizeEvent (QResizeEvent * event );
@@ -90,7 +94,7 @@ namespace qdesigner_internal {
     private:
         void setRegExpValidator(const QString &pattern);
 
-        const TextPropertyValidationMode m_ValidationMode;
+        TextPropertyValidationMode m_validationMode;
         PropertyLineEdit* m_lineEdit;
 
         // Cached text containing real newline characters.

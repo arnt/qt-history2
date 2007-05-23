@@ -35,7 +35,10 @@ namespace qdesigner_internal {
     class PropertyLineEdit : public QLineEdit {
         Q_OBJECT
     public:
-        PropertyLineEdit(QWidget *parent, bool wantNewLine);
+        PropertyLineEdit(QWidget *parent);
+        void setWantNewLine(bool nl) {  m_wantNewLine = nl; }
+        bool wantNewLine() const { return m_wantNewLine; }
+
         bool event(QEvent *e);
     protected:
         void contextMenuEvent (QContextMenuEvent *event );
@@ -43,7 +46,7 @@ namespace qdesigner_internal {
         void insertNewLine();
     private:
         void insertText(const QString &);
-        const bool m_wantNewLine;
+        bool m_wantNewLine;
     };
 }
 

@@ -42,6 +42,7 @@
 #include <QtGui/QApplication>
 #include <QtGui/QAbstractScrollArea>
 #include <QtGui/QMessageBox>
+#include <QtGui/QPixmap>
 
 #include <QtCore/QBuffer>
 #include <QtCore/qdebug.h>
@@ -241,6 +242,7 @@ void QDesignerFormBuilder::loadExtraInfo(DomWidget *ui_widget, QWidget *widget, 
 
 QWidget *QDesignerFormBuilder::createPreview(const QDesignerFormWindowInterface *fw,
                                              const QString &styleName,
+                                             const QString &appStyleSheet,
                                              ScriptErrors *scriptErrors, 
                                              QString *errorMessage)
 {
@@ -281,20 +283,34 @@ QWidget *QDesignerFormBuilder::createPreview(const QDesignerFormWindowInterface 
         widget->setStyle(style);
         if (style->metaObject()->className() != QApplication::style()->metaObject()->className())
             widget->setPalette(style->standardPalette());
-        
+
         const QList<QWidget*> lst = qFindChildren<QWidget*>(widget);
         foreach (QWidget *w, lst)
             w->setStyle(style);
     }
+    // Fake application style sheet by prepending. (If this doesn't work, fake by nesting
+    // into parent widget).
+    if (!appStyleSheet.isEmpty()) {
+        QString styleSheet = appStyleSheet;
+        styleSheet += QLatin1Char('\n');
+        styleSheet +=  widget->styleSheet();
+        widget->setStyleSheet(styleSheet);
+    }
+
     widget->setWindowTitle(QObject::tr("%1 - [Preview]").arg(widget->windowTitle()));
     return widget;
 }
-    
-QWidget *QDesignerFormBuilder::createPreview(const QDesignerFormWindowInterface *fw, const QString &styleName) 
+
+QWidget *QDesignerFormBuilder::createPreview(const QDesignerFormWindowInterface *fw, const QString &styleName)
+{
+    return createPreview(fw, styleName, QString());
+}
+
+QWidget *QDesignerFormBuilder::createPreview(const QDesignerFormWindowInterface *fw, const QString &styleName, const QString &appStyleSheet)
 {
     ScriptErrors scriptErrors;
     QString errorMessage;
-    QWidget *widget = createPreview(fw, styleName, &scriptErrors, &errorMessage);
+    QWidget *widget = createPreview(fw, styleName, appStyleSheet, &scriptErrors, &errorMessage);
     if (!widget) {
         // Display Script errors or message box
         QWidget *dialogParent = fw->core()->topLevel();
@@ -305,8 +321,33 @@ QWidget *QDesignerFormBuilder::createPreview(const QDesignerFormWindowInterface 
             scriptErrorDialog.exec();
         }
         return 0;
-    }    
+    }
     return widget;
+}
+
+QPixmap QDesignerFormBuilder::grabPreviewPixmap(QWidget *widget)
+{
+    // A little trick to make the widget think it is visible. This is required
+    // for example for tab widgets which otherwise don't draw their contents.
+    QWidget *fake = new QWidget(0);
+    fake->createWinId();
+    fake->setAttribute(Qt::WA_WState_Visible);
+    widget->setParent(fake, 0);
+    widget->show();
+    const QPixmap pixmap = QPixmap::grabWidget (widget);
+    fake->deleteLater();
+    return pixmap;
+}
+
+
+QPixmap QDesignerFormBuilder::createPreviewPixmap(const QDesignerFormWindowInterface *fw, const QString &styleName, const QString &appStyleSheet)
+{
+    QWidget *widget = createPreview(fw, styleName, appStyleSheet);
+
+    if (!widget)
+        return QPixmap();
+
+    return grabPreviewPixmap(widget);
 }
 
 } // namespace qdesigner_internal
