@@ -396,8 +396,7 @@ bool QDirModel::setData(const QModelIndex &index, const QVariant &value, int rol
         emit dataChanged(index, sibling);
 
         d->toBeRefreshed = index.parent();
-        int slot = metaObject()->indexOfSlot("_q_refresh()");
-        QApplication::postEvent(this, new QMetaCallEvent(slot));
+        QMetaObject::invokeMethod(this, "_q_refresh", Qt::QueuedConnection);
 
         return true;
     }
