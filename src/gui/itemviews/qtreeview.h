@@ -121,7 +121,7 @@ public Q_SLOTS:
     void selectAll();
     void expandAll();
     void collapseAll();
-    void expandTo(int depth);
+    void expandToDepth(int depth);
 
 protected Q_SLOTS:
     void columnResized(int column, int oldSize, int newSize);
@@ -169,7 +169,7 @@ protected:
 
     int sizeHintForColumn(int column) const;
     int indexRowSizeHint(const QModelIndex &index) const;
-    int indexRowHeight(const QModelIndex &index) const;
+    int rowHeight(const QModelIndex &index) const;
 
     void horizontalScrollbarAction(int action);
 

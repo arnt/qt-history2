@@ -2262,7 +2262,7 @@ void QTreeView::collapseAll()
 
   \sa expandAll() collapseAll() expand()  collapse() setExpanded()
 */
-void QTreeView::expandTo(int depth)
+void QTreeView::expandToDepth(int depth)
 {
     Q_D(QTreeView);
     d->viewItems.clear();
@@ -2414,7 +2414,7 @@ int QTreeView::indexRowSizeHint(const QModelIndex &index) const
     Returns the height of the row indicated by the given \a index.
     \sa indexRowSizeHint()
 */
-int QTreeView::indexRowHeight(const QModelIndex &index) const
+int QTreeView::rowHeight(const QModelIndex &index) const
 {
     Q_D(const QTreeView);
     int i = d->viewIndex(index);

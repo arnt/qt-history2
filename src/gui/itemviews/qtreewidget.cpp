@@ -1499,7 +1499,7 @@ void QTreeWidgetItem::setChildIndicatorPolicy(QTreeWidgetItem::ChildIndicatorPol
         return;
     d->policy = policy;
     if (QTreeModel *model = (view ? ::qobject_cast<QTreeModel*>(view->model()) : 0))
-        view->updateIndex(model->index(this, 0));
+        view->update(model->index(this, 0));
 }
 
 /*!

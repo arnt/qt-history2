@@ -126,8 +126,8 @@ public:
     bool sectionsHidden() const;
 
 #ifndef QT_NO_DATASTREAM
-    QByteArray saveState(int version = 0) const;
-    bool restoreState(const QByteArray &state, int version = 0);
+    QByteArray saveState() const;
+    bool restoreState(const QByteArray &state);
 #endif
 
     void reset();

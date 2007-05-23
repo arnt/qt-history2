@@ -1394,20 +1394,18 @@ bool QHeaderView::sectionsHidden() const
     \since 4.3
 
     Saves the current state of this header view.
-    The \a version number is stored as part of the data.
 
-    To restore the saved state, pass the return value and \a version
-    number to restoreState().
+    To restore the saved state, pass the return value to restoreState().
 
     \sa restoreState()
 */
-QByteArray QHeaderView::saveState(int version) const
+QByteArray QHeaderView::saveState() const
 {
     Q_D(const QHeaderView);
     QByteArray data;
     QDataStream stream(&data, QIODevice::WriteOnly);
     stream << QHeaderViewPrivate::VersionMarker;
-    stream << version;
+    stream << 0; // current version is 0
     d->write(stream);
     return data;
 }
@@ -1415,14 +1413,12 @@ QByteArray QHeaderView::saveState(int version) const
 /*!
     \since 4.3
     Restores the \a state of this header view.
-    The \a version number is compared with that stored in \a state.
-    If they do not match, the mainwindow's state is left unchanged,
-    and this function returns \c false; otherwise, the state
-    is restored, and this function returns \c true.
+    This function returns \c true if the state was
+    restored, otherwise returns false.
 
     \sa saveState()
 */
-bool QHeaderView::restoreState(const QByteArray &state, int version)
+bool QHeaderView::restoreState(const QByteArray &state)
 {
     Q_D(QHeaderView);
     if (state.isEmpty())
@@ -1435,7 +1431,7 @@ bool QHeaderView::restoreState(const QByteArray &state, int version)
     stream >> ver;
     if (stream.status() != QDataStream::Ok
         || marker != QHeaderViewPrivate::VersionMarker
-        || ver != version)
+        || ver != 0) // current version is 0
         return false;
     return d->read(stream);
 }

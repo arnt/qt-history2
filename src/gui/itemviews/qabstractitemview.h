@@ -187,6 +187,12 @@ public:
 
     virtual QVariant inputMethodQuery(Qt::InputMethodQuery query) const;
 
+#ifdef Q_NO_USING_KEYWORD
+    inline void update() { QAbstractScrollArea::update(); }
+#else
+    using QAbstractScrollArea::update;
+#endif
+    
 public Q_SLOTS:
     virtual void reset();
     virtual void setRootIndex(const QModelIndex &index);
@@ -197,7 +203,7 @@ public Q_SLOTS:
     void setCurrentIndex(const QModelIndex &index);
     void scrollToTop();
     void scrollToBottom();
-    void updateIndex(const QModelIndex &index);
+    void update(const QModelIndex &index);
 
 protected Q_SLOTS:
     virtual void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);

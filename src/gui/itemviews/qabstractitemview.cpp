@@ -2698,7 +2698,7 @@ void QAbstractItemView::scrollToBottom()
 
     \sa update()
 */
-void QAbstractItemView::updateIndex(const QModelIndex &index)
+void QAbstractItemView::update(const QModelIndex &index)
 {
     Q_D(QAbstractItemView);
     if (index.isValid())
