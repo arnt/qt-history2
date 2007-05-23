@@ -815,6 +815,8 @@ void QDockWidgetPrivate::nonClientAreaMouseEvent(QMouseEvent *event)
                 break;
             if (state != 0)
                 break;
+            if (qobject_cast<QMainWindow*>(q->parentWidget()) == 0)
+                break;
             initDrag(event->pos(), true);
             startDrag();
             break;
