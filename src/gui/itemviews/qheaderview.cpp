@@ -176,7 +176,7 @@ QDataStream &operator>>(QDataStream &in, QHeaderViewPrivate::SectionSpan &span)
 */
 
 /*!
-    \fn void QHeaderView::sectionTouched(int logicalIndex)
+    \fn void QHeaderView::sectionEntered(int logicalIndex)
     \since 4.3
 
     This signal is emitted when the cursor moves over the section and the
@@ -2017,7 +2017,7 @@ void QHeaderView::mouseMoveEvent(QMouseEvent *e)
                 updateSection(d->pressed);
             d->pressed = logical;
             if (d->clickableSections && logical != -1) {
-                emit sectionTouched(d->pressed);
+                emit sectionEntered(d->pressed);
                 updateSection(d->pressed);
             }
             return;

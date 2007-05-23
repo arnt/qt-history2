@@ -563,7 +563,7 @@ void QTableView::setHorizontalHeader(QHeaderView *header)
     connect(d->horizontalHeader, SIGNAL(sectionCountChanged(int,int)),
             this, SLOT(columnCountChanged(int,int)));
     connect(d->horizontalHeader, SIGNAL(sectionPressed(int)), this, SLOT(selectColumn(int)));
-    connect(d->horizontalHeader, SIGNAL(sectionTouched(int)), this, SLOT(_q_selectColumn(int)));
+    connect(d->horizontalHeader, SIGNAL(sectionEntered(int)), this, SLOT(_q_selectColumn(int)));
     connect(d->horizontalHeader, SIGNAL(sectionHandleDoubleClicked(int)),
             this, SLOT(resizeColumnToContents(int)));
     connect(d->horizontalHeader, SIGNAL(geometriesChanged()), this, SLOT(updateGeometries()));
@@ -597,7 +597,7 @@ void QTableView::setVerticalHeader(QHeaderView *header)
     connect(d->verticalHeader, SIGNAL(sectionCountChanged(int,int)),
             this, SLOT(rowCountChanged(int,int)));
     connect(d->verticalHeader, SIGNAL(sectionPressed(int)), this, SLOT(selectRow(int)));
-    connect(d->verticalHeader, SIGNAL(sectionTouched(int)), this, SLOT(_q_selectRow(int)));
+    connect(d->verticalHeader, SIGNAL(sectionEntered(int)), this, SLOT(_q_selectRow(int)));
     connect(d->verticalHeader, SIGNAL(sectionHandleDoubleClicked(int)),
             this, SLOT(resizeRowToContents(int)));
     connect(d->verticalHeader, SIGNAL(geometriesChanged()), this, SLOT(updateGeometries()));
@@ -1605,15 +1605,15 @@ void QTableView::setSortingEnabled(bool enable)
     d->sortingEnabled = enable;
     horizontalHeader()->setSortIndicatorShown(enable);
     if (enable) {
-        disconnect(d->horizontalHeader, SIGNAL(sectionTouched(int)),
+        disconnect(d->horizontalHeader, SIGNAL(sectionEntered(int)),
                    this, SLOT(_q_selectColumn(int)));
-        disconnect(horizontalHeader(), SIGNAL(sectionPressed(int)),
+        disconnect(horizontalHeader(), SIGNAL(sectionEntered(int)),
                    this, SLOT(selectColumn(int)));
         connect(horizontalHeader(), SIGNAL(sectionClicked(int)),
                 this, SLOT(sortByColumn(int)));
         sortByColumn(horizontalHeader()->sortIndicatorSection());
     } else {
-        connect(d->horizontalHeader, SIGNAL(sectionTouched(int)),
+        connect(d->horizontalHeader, SIGNAL(sectionEntered(int)),
                 this, SLOT(_q_selectColumn(int)));
         connect(horizontalHeader(), SIGNAL(sectionPressed(int)),
                 this, SLOT(selectColumn(int)));
