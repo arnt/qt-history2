@@ -1038,10 +1038,10 @@ void QDir::addResourceSearchPath(const QString &path)
         QFile file("docs:design.odf"); // will look in the :/embeddedDocuments resource path
     \endcode
 
-    File name prefix must be atleast 2 characters long to avoid conflicts with
+    File name prefix must be at least 2 characters long to avoid conflicts with
     Windows drive letters.
 
-    Search paths may contain paths to {The Qt Resource System}.
+    Search paths may contain paths to \l{The Qt Resource System}.
 */
 void QDir::setSearchPaths(const QString &prefix, const QStringList &searchPaths)
 {
