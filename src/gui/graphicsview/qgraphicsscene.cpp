@@ -3313,9 +3313,9 @@ void QGraphicsScene::drawItems(QPainter *painter,
 void QGraphicsScene::itemUpdated(QGraphicsItem *item, const QRectF &rect)
 {
     Q_D(QGraphicsScene);
-    QRectF boundingRect = item->boundingRect();
+    QRectF boundingRect = _q_adjustedRect(item->boundingRect());
     if (!rect.isNull())
-        boundingRect &= rect;
+        boundingRect &= _q_adjustedRect(rect);
 
     QRectF oldGrowingItemsBoundingRect = d->growingItemsBoundingRect;
 
