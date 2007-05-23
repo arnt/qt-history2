@@ -352,6 +352,7 @@ void QGLContext::updatePaintDevice()
     } else
 #endif
     {
+#ifndef Q_OS_MAC64
         if(d->paintDevice->devType() == QInternal::Widget) {
             //get control information
             QWidget *w = (QWidget *)d->paintDevice;
@@ -416,6 +417,7 @@ void QGLContext::updatePaintDevice()
         } else {
             qWarning("QGLContext::updatePaintDevice(): Not sure how to render OpenGL on this device!");
         }
+#endif // Q_OS_MAC64
     }
     aglUpdateContext((AGLContext)d->cx);
 }

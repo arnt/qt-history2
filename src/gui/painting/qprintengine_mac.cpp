@@ -60,8 +60,10 @@ bool QMacPrintEngine::begin(QPaintDevice *dev)
     } else
 #endif
     {
+#ifndef Q_OS_MAC64
         status = d->suppressStatus ? PMSessionBeginDocumentNoDialog(d->session, d->settings, d->format)
                                    : PMSessionBeginDocument(d->session, d->settings, d->format);
+#endif
     }
     if (status != noErr) {
         d->state = QPrinter::Error;
@@ -330,7 +332,9 @@ int QMacPrintEngine::metric(QPaintDevice::PaintDeviceMetric m) const
             } else
 #endif
             {
+#ifndef Q_OS_MAC64
                 PMPrinterGetPrinterResolution(printer, kPMCurrentValue, &resolution);
+#endif
             }
             val = (int)resolution.vRes;
             break;
@@ -464,8 +468,10 @@ bool QMacPrintEnginePrivate::newPage_helper()
     } else
 #endif
     {
+#ifndef Q_OS_MAC64
         err = PMSessionGetGraphicsContext(session, kPMGraphicsContextCoreGraphics,
                                           reinterpret_cast<void **>(&cgContext));
+#endif
     }
     if(err != noErr) {
         qWarning("QMacPrintEngine::newPage: Cannot retrieve CoreGraphics context: %ld", long(err));
@@ -633,7 +639,9 @@ void QMacPrintEngine::setProperty(PrintEnginePropertyKey key, const QVariant &va
         } else
 #endif
         {
+#ifndef Q_OS_MAC64
             status = PMSetJobNameCFString(d->settings, QCFString(value.toString()));
+#endif
         }
         if (status == noErr)
             qWarning("QMacPrintEngine::setPrinterName: Error setting printer: %ld", long(status));
