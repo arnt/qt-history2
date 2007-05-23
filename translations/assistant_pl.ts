@@ -476,7 +476,7 @@ Assistant nie będzie działał!</translation>
     <message>
         <location filename="../tools/assistant/mainwindow.ui" line="25"/>
         <source>Qt Assistant by Trolltech</source>
-        <translation>Qt Assistant stworzony przez Trolltech</translation>
+        <translation>Qt Assistant Trolltech&apos;a</translation>
     </message>
     <message>
         <location filename="../tools/assistant/mainwindow.ui" line="30"/>
@@ -486,7 +486,7 @@ Assistant nie będzie działał!</translation>
     <message>
         <location filename="../tools/assistant/mainwindow.ui" line="57"/>
         <source>Go</source>
-        <translation>Przejdź do</translation>
+        <translation>Przejdź</translation>
     </message>
     <message>
         <location filename="../tools/assistant/mainwindow.ui" line="80"/>
@@ -506,7 +506,7 @@ Assistant nie będzie działał!</translation>
     <message>
         <location filename="../tools/assistant/mainwindow.ui" line="111"/>
         <source>&amp;Go</source>
-        <translation>&amp;Przejdź do</translation>
+        <translation>&amp;Przejdź</translation>
     </message>
     <message>
         <location filename="../tools/assistant/mainwindow.ui" line="123"/>
@@ -601,7 +601,7 @@ Assistant nie będzie działał!</translation>
     <message>
         <location filename="../tools/assistant/mainwindow.ui" line="220"/>
         <source>&amp;Home</source>
-        <translation>&amp;Strona domowa</translation>
+        <translation>Do &amp;strony domowej</translation>
     </message>
     <message>
         <location filename="../tools/assistant/mainwindow.ui" line="223"/>
@@ -616,7 +616,7 @@ Assistant nie będzie działał!</translation>
     <message>
         <location filename="../tools/assistant/mainwindow.ui" line="234"/>
         <source>&amp;Previous</source>
-        <translation>&amp;Poprzednia</translation>
+        <translation>Do &amp;poprzedniej strony</translation>
     </message>
     <message>
         <location filename="../tools/assistant/mainwindow.ui" line="237"/>
@@ -631,7 +631,7 @@ Assistant nie będzie działał!</translation>
     <message>
         <location filename="../tools/assistant/mainwindow.ui" line="248"/>
         <source>&amp;Next</source>
-        <translation>&amp;Następna</translation>
+        <translation>Do &amp;następnej strony</translation>
     </message>
     <message>
         <location filename="../tools/assistant/mainwindow.ui" line="251"/>
@@ -706,7 +706,7 @@ Assistant nie będzie działał!</translation>
     <message>
         <location filename="../tools/assistant/mainwindow.ui" line="311"/>
         <source>&amp;Close</source>
-        <translation type="unfinished">Za&amp;mknij</translation>
+        <translation>Za&amp;mknij</translation>
     </message>
     <message>
         <location filename="../tools/assistant/mainwindow.ui" line="314"/>
@@ -751,7 +751,7 @@ Assistant nie będzie działał!</translation>
     <message>
         <location filename="../tools/assistant/mainwindow.ui" line="352"/>
         <source>Next Tab</source>
-        <translation>Następna karta</translation>
+        <translation>Do następnej karty</translation>
     </message>
     <message>
         <location filename="../tools/assistant/mainwindow.ui" line="355"/>
@@ -761,7 +761,7 @@ Assistant nie będzie działał!</translation>
     <message>
         <location filename="../tools/assistant/mainwindow.ui" line="360"/>
         <source>Previous Tab</source>
-        <translation>Poprzedniakarta</translation>
+        <translation>Do poprzedniej karty</translation>
     </message>
     <message>
         <location filename="../tools/assistant/mainwindow.ui" line="363"/>
@@ -857,7 +857,7 @@ Assistant nie będzie działał!</translation>
     <message>
         <location filename="../tools/assistant/config.cpp" line="321"/>
         <source>Qt Assistant by Trolltech</source>
-        <translation>Qt Assistant stworzony przez Trolltech</translation>
+        <translation>Qt Assistant Trolltech&apos;a</translation>
     </message>
 </context>
 <context>
@@ -968,7 +968,7 @@ Assistant nie będzie działał!</translation>
     <message>
         <location filename="../tools/assistant/topicchooser.ui" line="125"/>
         <source>&amp;Close</source>
-        <translation type="unfinished">Za&amp;mknij</translation>
+        <translation>Za&amp;mknij</translation>
     </message>
     <message>
         <location filename="../tools/assistant/topicchooser.ui" line="131"/>

@@ -809,12 +809,12 @@ na
     <message>
         <location filename="../src/gui/dialogs/qcolordialog.cpp" line="1411"/>
         <source>&amp;Custom colors</source>
-        <translation>Własne ko&amp;lory</translation>
+        <translation>Wła&amp;sne kolory</translation>
     </message>
     <message>
         <location filename="../src/gui/dialogs/qcolordialog.cpp" line="1412"/>
         <source>&amp;Define Custom Colors &gt;&gt;</source>
-        <translation>&amp;Definiuj własne kolory &gt;&gt;</translation>
+        <translation>De&amp;finiuj własne kolory &gt;&gt;</translation>
     </message>
     <message>
         <location filename="../src/gui/dialogs/qcolordialog.cpp" line="1208"/>

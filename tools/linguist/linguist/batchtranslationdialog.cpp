@@ -116,7 +116,7 @@ void BatchTranslationDialog::startTranslation()
     m_messagemodel->updateAll();
     emit finished();
     QMessageBox::information(this, tr("Linguist batch translator"), 
-        tr("Batch translated %1 entries", "", translatedcount), QMessageBox::Ok);
+        tr("Batch translated %n entries", "", translatedcount), QMessageBox::Ok);
 
     //### update stats
     //### update translationcount etc.

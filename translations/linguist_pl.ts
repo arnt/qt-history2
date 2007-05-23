@@ -21,11 +21,11 @@
     <name>BatchTranslationDialog</name>
     <message numerus="yes">
         <location filename="linguist/batchtranslationdialog.cpp" line="119"/>
-        <source>Batch translated %1 entries</source>
+        <source>Batch translated %n entries</source>
         <translation>
-            <numerusform>Automat przetłumaczył %1 wyrażenie</numerusform>
-            <numerusform>Automat przetłumaczył %1 wyrażenia</numerusform>
-            <numerusform>Automat przetłumaczył %1 wyrażeń</numerusform>
+            <numerusform>Automat przetłumaczył %n wyrażenie</numerusform>
+            <numerusform>Automat przetłumaczył %n wyrażenia</numerusform>
+            <numerusform>Automat przetłumaczył %n wyrażeń</numerusform>
         </translation>
     </message>
     <message>
@@ -161,6 +161,12 @@
         <location filename="linguist/finddialog.ui" line="76"/>
         <source>Type in the text to search for.</source>
         <translation>Wprowadź tekst do wyszukania.</translation>
+    </message>
+    <message>
+        <location filename="linguist/finddialog.cpp" line="14"/>
+        <source></source>
+        <comment>Choose Edit|Find from the menu bar or press Ctrl+F to pop up the Find dialog</comment>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -591,12 +597,12 @@
     <message>
         <location filename="linguist/mainwindow.ui" line="232"/>
         <source>&amp;Release</source>
-        <translation>O&amp;publikuj</translation>
+        <translation>Skom&amp;piluj</translation>
     </message>
     <message>
         <location filename="linguist/mainwindow.ui" line="675"/>
         <source>Release As...</source>
-        <translation>Opublikuj jako...</translation>
+        <translation>Skompiluj jako...</translation>
     </message>
     <message>
         <location filename="linguist/mainwindow.ui" line="656"/>
@@ -636,7 +642,7 @@
     <message>
         <location filename="linguist/mainwindow.ui" line="653"/>
         <source>&amp;Search And Translate</source>
-        <translation>&amp;Szukaj i tłumacz</translation>
+        <translation>Wy&amp;szukaj i przetłumacz</translation>
     </message>
     <message>
         <location filename="linguist/mainwindow.ui" line="362"/>
@@ -874,6 +880,15 @@
     </message>
 </context>
 <context>
+    <name>MsgEdit</name>
+    <message>
+        <location filename="linguist/msgedit.cpp" line="14"/>
+        <source></source>
+        <comment>This is the right panel of the main window.</comment>
+        <translation></translation>
+    </message>
+</context>
+<context>
     <name>PageCurl</name>
     <message>
         <location filename="linguist/msgedit.h" line="140"/>
@@ -977,6 +992,12 @@
         <location filename="linguist/phrasebookbox.ui" line="53"/>
         <source>&amp;Translation:</source>
         <translation>&amp;Tłumaczenie:</translation>
+    </message>
+    <message>
+        <location filename="linguist/phrasebookbox.cpp" line="14"/>
+        <source></source>
+        <comment>Go to Phrase &gt; Edit Phrase Book... The dialog that pops up is a PhraseBookBox.</comment>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -1178,7 +1199,7 @@
     <message>
         <location filename="linguist/previewtool/trpreviewtool.ui" line="143"/>
         <source>&amp;Close</source>
-        <translation>&amp;Zamknij</translation>
+        <translation>Za&amp;mknij</translation>
     </message>
     <message>
         <location filename="linguist/previewtool/trpreviewtool.ui" line="138"/>
@@ -1218,7 +1239,7 @@
     <message>
         <location filename="linguist/previewtool/trpreviewtool.ui" line="135"/>
         <source>&amp;Reload Translations</source>
-        <translation>&amp;Wczytaj ponowie tłumaczenia</translation>
+        <translation>Wczytaj &amp;ponownie tłumaczenia</translation>
     </message>
     <message>
         <location filename="linguist/previewtool/trpreviewtool.ui" line="41"/>
@@ -1470,7 +1491,7 @@
         <location filename="linguist/trwindow.cpp" line="371"/>
         <source>Qt message files for released applications (*.qm)
 All files (*)</source>
-        <translation>Gotowe pliki z tłumaczeniami (*.qm)
+        <translation>Skompilowane pliki z tłumaczeniami (*.qm)
 Wszystkie pliki (*)</translation>
     </message>
     <message>
@@ -1492,7 +1513,7 @@ Wszystkie pliki (*)</translation>
     <message>
         <location filename="linguist/trwindow.cpp" line="370"/>
         <source>Release</source>
-        <translation>Opublikuj</translation>
+        <translation>Skompiluj</translation>
     </message>
     <message>
         <location filename="linguist/trwindow.cpp" line="563"/>
@@ -1567,6 +1588,12 @@ Wszystkie pliki (*)</translation>
         <location filename="linguist/trwindow.cpp" line="1431"/>
         <source>&amp;Window</source>
         <translation>&amp;Okno</translation>
+    </message>
+    <message>
+        <location filename="linguist/trwindow.cpp" line="14"/>
+        <source></source>
+        <comment>This is the application&apos;s main window.</comment>
+        <translation></translation>
     </message>
 </context>
 <context>
