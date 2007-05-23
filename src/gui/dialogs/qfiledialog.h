@@ -128,7 +128,7 @@ public:
 Q_SIGNALS:
     void filesSelected(const QStringList &files);
     void currentChanged(const QString &path);
-    void dirEntered(const QString &directory);
+    void directoryEntered(const QString &directory);
     void filterSelected(const QString &filter);
 
 public:

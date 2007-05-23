@@ -209,7 +209,7 @@
 */
 
 /*!
-  \fn void QFileDialog::dirEntered(const QString &directory)
+  \fn void QFileDialog::directoryEntered(const QString &directory)
   \since 4.3
 
   This signal is emitted when the user enters a \a directory.
@@ -2237,7 +2237,7 @@ void QFileDialogPrivate::_q_enterDirectory(const QModelIndex &index)
     QString path = model->filePath(sourceIndex);
     if (path.isEmpty() || model->isDir(sourceIndex)) {
         q->setDirectory(path);
-        emit q->dirEntered(path);
+        emit q->directoryEntered(path);
         if (fileMode == QFileDialog::Directory
             || fileMode == QFileDialog::DirectoryOnly) {
             // ### find out why you have to do both of these.
