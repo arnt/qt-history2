@@ -3248,6 +3248,9 @@ void QTreeViewPrivate::updateChildCount(const int parentItem, const int delta)
     }
 }
 
+/*!
+  \reimp
+ */
 void QTreeView::currentChanged(const QModelIndex &current, const QModelIndex &previous)
 {
 #ifndef QT_NO_ACCESSIBILITY
@@ -3259,6 +3262,9 @@ void QTreeView::currentChanged(const QModelIndex &current, const QModelIndex &pr
     QAbstractItemView::currentChanged(current, previous);
 }
 
+/*!
+  \reimp
+ */
 void QTreeView::selectionChanged(const QItemSelection &selected,
                                  const QItemSelection &deselected)
 {

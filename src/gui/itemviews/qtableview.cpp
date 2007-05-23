@@ -2295,6 +2295,9 @@ void QTableViewPrivate::selectColumn(int column, bool anchor)
     }
 }
 
+/*!
+  \reimp
+ */
 void QTableView::currentChanged(const QModelIndex &current, const QModelIndex &previous)
 {
 #ifndef QT_NO_ACCESSIBILITY
@@ -2308,6 +2311,9 @@ void QTableView::currentChanged(const QModelIndex &current, const QModelIndex &p
     QAbstractItemView::currentChanged(current, previous);
 }
 
+/*!
+  \reimp
+ */
 void QTableView::selectionChanged(const QItemSelection &selected,
                                   const QItemSelection &deselected)
 {

@@ -9,13 +9,13 @@
     {Accelerated Screen Driver Example}.
 
     In \l {Qtopia Core}, OpenGL ES can be used in different ways. It
-    can be used to display a composition of overlapping windows, where
-    the top-most window is not opaque but allows features of the
+    can be used to compose displays of overlapping top-level windows,
+    where the top-most window is not opaque but allows features of the
     underlying windows to show through. Or it can be used to animate a
     transition from an existing window to a newly created one. A third
-    use is to access special hardware features to accelerate widget
-    painting, and a fourth use is simply to enable access to the class
-    QGLWidget. This example shows how to implement all of these.
+    use is to access hardware features of your device to accelerate
+    widget painting, and a fourth use is simply to enable access to
+    class QGLWidget. This example shows how to implement all of these.
 
     The example uses an OpenGL ES implementation from 
     \l {http://ati.amd.com}{ATI} for the 
@@ -29,7 +29,8 @@
     After compiling the example code, install the screen driver plugin
     with the command \c {make install}. To start an application using
     the example's screen driver, either set the environment variable
-    \l QWS_DISPLAY or start the program using the \c -display switch:
+    \l QWS_DISPLAY and start the program, or start the program using
+    the \c -display switch:
 
     \code
         myApplication -qws -display ahigl
@@ -44,15 +45,16 @@
     \skipto include
     \printuntil };
 
-    The example screen driver class is created by deriving from class
-    QGLScreen. If you only intend to use OpenGL ES for constructing
-    simple, window compositions, you can derive your screen driver
-    class directly from class QScreen. Otherwise you must derive from
-    QGLScreen.
+    The example screen driver class is derived from class QGLScreen,
+    which is derived from class QScreen. If you intend to use OpenGL
+    ES only for composing displays of top-level windows, you can
+    derive your screen driver class from QScreen directly. Otherwise
+    you must derive from QGLScreen.
 
     Note that class QGLScreen is not shown in the Qt documentation
-    because it is not part of the published Qt API. However, QGLScreen
-    is derived from QScreen, which is shown in the Qt documentation.
+    because it is not yet part of the published Qt API. However, class
+    QScreen is part of the published Qt API and is shown in the Qt
+    documentation.
 
     \l {QScreen::}{exposeRegion()} is the function used for composing
     displays. The private functions updateTexture(), redrawScreen(),

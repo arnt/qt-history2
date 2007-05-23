@@ -2737,6 +2737,9 @@ void QDynamicListViewBase::clear()
     batchSavedDeltaSeg = 0;
 }
 
+/*!
+  \reimp
+*/
 void QListView::currentChanged(const QModelIndex &current, const QModelIndex &previous)
 {
 #ifndef QT_NO_ACCESSIBILITY
@@ -2750,6 +2753,9 @@ void QListView::currentChanged(const QModelIndex &current, const QModelIndex &pr
     QAbstractItemView::currentChanged(current, previous);
 }
 
+/*!
+  \reimp
+*/
 void QListView::selectionChanged(const QItemSelection &selected,
                                  const QItemSelection &deselected)
 {
