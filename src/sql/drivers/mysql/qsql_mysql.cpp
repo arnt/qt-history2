@@ -904,30 +904,45 @@ bool QMYSQLResult::exec()
 #endif
 /////////////////////////////////////////////////////////
 
-static void qServerInit()
+static int qMySqlConnectionCount = 0;
+static bool qMySqlInitHandledByUser = false;
+
+static void qLibraryInit()
 {
 #ifndef Q_NO_MYSQL_EMBEDDED
 # if MYSQL_VERSION_ID >= 40000
-    static bool init = false;
-    if (init)
+    if (qMySqlInitHandledByUser || qMySqlConnectionCount > 1)
         return;
 
-    // this should only be called once
-    // has no effect on client/server library
-    // but is vital for the embedded lib
+# if (MYSQL_VERSION_ID >= 40110 && MYSQL_VERSION_ID < 50000) || MYSQL_VERSION_ID >= 50003
+    if (mysql_library_init(0, 0, 0)) {
+# else
     if (mysql_server_init(0, 0, 0)) {
+# endif
         qWarning("QMYSQLDriver::qServerInit: unable to start server.");
     }
-    init = true;
 # endif // MYSQL_VERSION_ID
 #endif // Q_NO_MYSQL_EMBEDDED
+}
+
+static void qLibraryEnd()
+{
+#ifndef Q_NO_MYSQL_EMBEDDED
+# if MYSQL_VERSION_ID > 40000
+#  if (MYSQL_VERSION_ID >= 40110 && MYSQL_VERSION_ID < 50000) || MYSQL_VERSION_ID >= 50003
+    mysql_library_end();
+#  else
+    mysql_server_end();
+#  endif
+# endif
+#endif
 }
 
 QMYSQLDriver::QMYSQLDriver(QObject * parent)
     : QSqlDriver(parent)
 {
     init();
-    qServerInit();
+    qLibraryInit();
 }
 
 /*!
@@ -946,8 +961,10 @@ QMYSQLDriver::QMYSQLDriver(MYSQL * con, QObject * parent)
 #endif
         setOpen(true);
         setOpenError(false);
+        if (qMySqlConnectionCount == 1)
+            qMySqlInitHandledByUser = true;
     } else {
-        qServerInit();
+        qLibraryInit();
     }
 }
 
@@ -955,16 +972,15 @@ void QMYSQLDriver::init()
 {
     d = new QMYSQLDriverPrivate();
     d->mysql = 0;
+    qMySqlConnectionCount++;
 }
 
 QMYSQLDriver::~QMYSQLDriver()
 {
+    qMySqlConnectionCount--;
+    if (qMySqlConnectionCount == 0 && !qMySqlInitHandledByUser)
+        qLibraryEnd();
     delete d;
-#ifndef Q_NO_MYSQL_EMBEDDED
-# if MYSQL_VERSION_ID > 40000
-    mysql_server_end();
-# endif
-#endif
 }
 
 bool QMYSQLDriver::hasFeature(DriverFeature f) const
