@@ -38,7 +38,7 @@ public:
     QGLFramebufferObjectPrivate() : depth_stencil_buffer(0), valid(false), ctx(0) {}
     ~QGLFramebufferObjectPrivate() {}
 
-    void init(const QSize& sz, QGLFramebufferObject::Attachments attachments,
+    void init(const QSize& sz, QGLFramebufferObject::Attachment attachment,
               GLenum internal_format, GLenum texture_target);
     bool checkFramebufferStatus() const;
     GLuint texture;
@@ -47,7 +47,7 @@ public:
     GLenum target;
     QSize size;
     uint valid : 1;
-    QGLFramebufferObject::Attachments fbo_attachments;
+    QGLFramebufferObject::Attachment fbo_attachment;
     QGLContext *ctx; // for Windows extension ptrs
 };
 
@@ -92,7 +92,7 @@ bool QGLFramebufferObjectPrivate::checkFramebufferStatus() const
     return false;
 }
 
-void QGLFramebufferObjectPrivate::init(const QSize &sz, QGLFramebufferObject::Attachments attachments,
+void QGLFramebufferObjectPrivate::init(const QSize &sz, QGLFramebufferObject::Attachment attachment,
                                        GLenum texture_target, GLenum internal_format)
 {
     ctx = const_cast<QGLContext *>(QGLContext::currentContext());
@@ -131,7 +131,7 @@ void QGLFramebufferObjectPrivate::init(const QSize &sz, QGLFramebufferObject::At
     QT_CHECK_GLERROR();
     valid = checkFramebufferStatus();
 
-    if (attachments == QGLFramebufferObject::DepthStencil
+    if (attachment == QGLFramebufferObject::CombinedDepthStencil
         && (QGLExtensions::glExtensions & QGLExtensions::PackedDepthStencil)) {
         // depth and stencil buffer needs another extension
         glGenRenderbuffersEXT(1, &depth_stencil_buffer);
@@ -145,12 +145,12 @@ void QGLFramebufferObjectPrivate::init(const QSize &sz, QGLFramebufferObject::At
                                      GL_RENDERBUFFER_EXT, depth_stencil_buffer);
         glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_STENCIL_ATTACHMENT_EXT,
                                      GL_RENDERBUFFER_EXT, depth_stencil_buffer);
-        fbo_attachments = QGLFramebufferObject::DepthStencil;
+        fbo_attachment = QGLFramebufferObject::CombinedDepthStencil;
         valid = checkFramebufferStatus();
         if (!valid)
             glDeleteRenderbuffersEXT(1, &depth_stencil_buffer);
-    } else if (attachments == QGLFramebufferObject::Depth
-               || attachments == QGLFramebufferObject::DepthStencil)
+    } else if (attachment == QGLFramebufferObject::Depth
+               || attachment == QGLFramebufferObject::CombinedDepthStencil)
     {
         glGenRenderbuffersEXT(1, &depth_stencil_buffer);
         Q_ASSERT(!glIsRenderbufferEXT(depth_stencil_buffer));
@@ -166,12 +166,12 @@ void QGLFramebufferObjectPrivate::init(const QSize &sz, QGLFramebufferObject::At
         glGetRenderbufferParameterivEXT(GL_RENDERBUFFER_EXT, GL_RENDERBUFFER_DEPTH_SIZE_EXT, &i);
         glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT,
                                      GL_RENDERBUFFER_EXT, depth_stencil_buffer);
-        fbo_attachments = QGLFramebufferObject::Depth;
+        fbo_attachment = QGLFramebufferObject::Depth;
         valid = checkFramebufferStatus();
         if (!valid)
             glDeleteRenderbuffersEXT(1, &depth_stencil_buffer);
     } else {
-        fbo_attachments = QGLFramebufferObject::NoDepthStencil;
+        fbo_attachment = QGLFramebufferObject::NoAttachment;
     }
 
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
@@ -240,22 +240,24 @@ void QGLFramebufferObjectPrivate::init(const QSize &sz, QGLFramebufferObject::At
 
 
 /*!
-    \enum QGLFramebufferObject::Attachments
+    \enum QGLFramebufferObject::Attachment
     \since 4.3
 
     This enum type is used to configure the depth and stencil buffers
     attached to the framebuffer object when it is created.
 
-    \value NoDepthStencil  No depth or stencil buffers are attached. Note that the OpenGL depth and
-                           stencil tests won't work when rendering to a framebuffer object without
-                           any depth or stencil buffers. This is the default value.
+    \value NoAttachment         No attachment is added to the framebuffer object. Note that the
+                                OpenGL depth and stencil tests won't work when rendering to a
+                                framebuffer object without any depth or stencil buffers.
+                                This is the default value.
 
-    \value DepthStencil    If the \c GL_EXT_packed_depth_stencil is present, a depth and stencil
-                           buffer is attached, otherwise only a depth buffer is attached.
+    \value CombinedDepthStencil If the \c GL_EXT_packed_depth_stencil extension is present,
+                                a combined depth and stencil buffer is attached.
+                                If the extension is not present, only a depth buffer is attached.
 
-    \value Depth           A depth buffer is attached to the framebuffer object.
+    \value Depth                A depth buffer is attached to the framebuffer object.
 
-    \sa attachments()
+    \sa attachment()
 */
 
 
@@ -279,7 +281,7 @@ void QGLFramebufferObjectPrivate::init(const QSize &sz, QGLFramebufferObject::At
     creating the QGLFramebufferObject, otherwise the initialization
     will fail.
 
-    \sa size(), texture(), attachments()
+    \sa size(), texture(), attachment()
 */
 
 #ifndef Q_WS_QWS
@@ -292,7 +294,7 @@ QGLFramebufferObject::QGLFramebufferObject(const QSize &size, GLenum target)
     : d_ptr(new QGLFramebufferObjectPrivate)
 {
     Q_D(QGLFramebufferObject);
-    d->init(size, NoDepthStencil, target, DEFAULT_FORMAT);
+    d->init(size, NoAttachment, target, DEFAULT_FORMAT);
 }
 
 
@@ -307,7 +309,7 @@ QGLFramebufferObject::QGLFramebufferObject(int width, int height, GLenum target)
     : d_ptr(new QGLFramebufferObjectPrivate)
 {
     Q_D(QGLFramebufferObject);
-    d->init(QSize(width, height), NoDepthStencil, target, DEFAULT_FORMAT);
+    d->init(QSize(width, height), NoAttachment, target, DEFAULT_FORMAT);
 }
 
 /*! \overload
@@ -315,19 +317,19 @@ QGLFramebufferObject::QGLFramebufferObject(int width, int height, GLenum target)
     Constructs an OpenGL framebuffer object and binds a texture to the
     buffer of the given \a width and \a height.
 
-    The \a attachments parameter describes the depth/stencil buffer
+    The \a attachment parameter describes the depth/stencil buffer
     configuration, \a target the texture target and \a internal_format
     the internal texture format. The default texture target is \c
     GL_TEXTURE_2D, while the default internal format is \c GL_RGBA8.
 
-    \sa size(), texture(), attachments()
+    \sa size(), texture(), attachment()
 */
-QGLFramebufferObject::QGLFramebufferObject(int width, int height, Attachments attachments,
+QGLFramebufferObject::QGLFramebufferObject(int width, int height, Attachment attachment,
                                            GLenum target, GLenum internal_format)
     : d_ptr(new QGLFramebufferObjectPrivate)
 {
     Q_D(QGLFramebufferObject);
-    d->init(QSize(width, height), attachments, target, internal_format);
+    d->init(QSize(width, height), attachment, target, internal_format);
 }
 
 /*! \overload
@@ -335,19 +337,19 @@ QGLFramebufferObject::QGLFramebufferObject(int width, int height, Attachments at
     Constructs an OpenGL framebuffer object and binds a texture to the
     buffer of the given \a size.
 
-    The \a attachments parameter describes the depth/stencil buffer
+    The \a attachment parameter describes the depth/stencil buffer
     configuration, \a target the texture target and \a internal_format
     the internal texture format. The default texture target is \c
     GL_TEXTURE_2D, while the default internal format is \c GL_RGBA8.
 
-    \sa size(), texture(), attachments()
+    \sa size(), texture(), attachment()
 */
-QGLFramebufferObject::QGLFramebufferObject(const QSize &size, Attachments attachments,
+QGLFramebufferObject::QGLFramebufferObject(const QSize &size, Attachment attachment,
                                            GLenum target, GLenum internal_format)
     : d_ptr(new QGLFramebufferObjectPrivate)
 {
     Q_D(QGLFramebufferObject);
-    d->init(size, attachments, target, internal_format);
+    d->init(size, attachment, target, internal_format);
 }
 
 
@@ -590,10 +592,10 @@ GLuint QGLFramebufferObject::handle() const
     this framebuffer object.
 */
 
-QGLFramebufferObject::Attachments QGLFramebufferObject::attachments() const
+QGLFramebufferObject::Attachment QGLFramebufferObject::attachment() const
 {
     Q_D(const QGLFramebufferObject);
     if (d->valid)
-        return d->fbo_attachments;
-    return NoDepthStencil;
+        return d->fbo_attachment;
+    return NoAttachment;
 }

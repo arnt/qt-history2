@@ -27,23 +27,23 @@ class Q_OPENGL_EXPORT QGLFramebufferObject : public QPaintDevice
 {
     Q_DECLARE_PRIVATE(QGLFramebufferObject)
 public:
-    enum Attachments {
-        NoDepthStencil,
-        DepthStencil,
+    enum Attachment {
+        NoAttachment,
+        CombinedDepthStencil,
         Depth
     };
 
     QGLFramebufferObject(const QSize &size, GLenum target = GL_TEXTURE_2D);
     QGLFramebufferObject(int width, int height, GLenum target = GL_TEXTURE_2D);
 #if !defined(Q_WS_QWS) || defined(Q_QDOC)
-    QGLFramebufferObject(const QSize &size, Attachments attachments,
+    QGLFramebufferObject(const QSize &size, Attachment attachment,
                          GLenum target = GL_TEXTURE_2D, GLenum internal_format = GL_RGBA8);
-    QGLFramebufferObject(int width, int height, Attachments attachments,
+    QGLFramebufferObject(int width, int height, Attachment attachment,
                          GLenum target = GL_TEXTURE_2D, GLenum internal_format = GL_RGBA8);
 #else
-    QGLFramebufferObject(const QSize &size, Attachments attachments,
+    QGLFramebufferObject(const QSize &size, Attachment attachment,
                          GLenum target = GL_TEXTURE_2D, GLenum internal_format = GL_RGBA);
-    QGLFramebufferObject(int width, int height, Attachments attachments,
+    QGLFramebufferObject(int width, int height, Attachment attachment,
                          GLenum target = GL_TEXTURE_2D, GLenum internal_format = GL_RGBA);
 #endif
 
@@ -55,7 +55,7 @@ public:
     GLuint texture() const;
     QSize size() const;
     QImage toImage() const;
-    Attachments attachments() const;
+    Attachment attachment() const;
 
     QPaintEngine *paintEngine() const;
     GLuint handle() const;

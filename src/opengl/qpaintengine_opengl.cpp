@@ -244,8 +244,8 @@ inline QGLFormat QGLDrawable::format() const
         return buffer->format();
     else if (fbo && QGLContext::currentContext()) {
         QGLFormat fmt = QGLContext::currentContext()->format();
-        fmt.setStencil(fbo->attachments() == QGLFramebufferObject::DepthStencil);
-        fmt.setDepth(fbo->attachments() != QGLFramebufferObject::NoDepthStencil);
+        fmt.setStencil(fbo->attachment() == QGLFramebufferObject::CombinedDepthStencil);
+        fmt.setDepth(fbo->attachment() != QGLFramebufferObject::NoAttachment);
         return fmt;
     }
 #ifdef Q_WS_QWS
