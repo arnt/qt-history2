@@ -15,12 +15,12 @@
 #include "qnumeric_p.h"
 
 Q_CORE_EXPORT bool qIsInf(double d) { return qt_is_inf(d); }
-Q_CORE_EXPORT bool qIsNan(double d) { return qt_is_nan(d); }
+Q_CORE_EXPORT bool qIsNaN(double d) { return qt_is_nan(d); }
 Q_CORE_EXPORT bool qIsFinite(double d) { return qt_is_finite(d); }
 Q_CORE_EXPORT bool qIsInf(float f) { return qt_is_inf(f); }
-Q_CORE_EXPORT bool qIsNan(float f) { return qt_is_nan(f); }
+Q_CORE_EXPORT bool qIsNaN(float f) { return qt_is_nan(f); }
 Q_CORE_EXPORT bool qIsFinite(float f) { return qt_is_finite(f); }
-Q_CORE_EXPORT double qSNan() { return qt_snan(); }
-Q_CORE_EXPORT double qQNan() { return qt_qnan(); }
+Q_CORE_EXPORT double qSNaN() { return qt_snan(); }
+Q_CORE_EXPORT double qQNaN() { return qt_qnan(); }
 Q_CORE_EXPORT double qInf() { return qt_inf(); }
 

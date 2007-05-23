@@ -173,7 +173,7 @@ static inline qsreal MonthFromTime(qsreal t)
     else if (d < 365.0 + l)
         return 11;
 
-    return qSNan(); // ### assert?
+    return qSNaN(); // ### assert?
 }
 
 static inline qsreal DateFromTime(qsreal t)
@@ -197,7 +197,7 @@ static inline qsreal DateFromTime(qsreal t)
     case 11: return d - 333.0 - l;
     }
 
-    return qSNan(); // ### assert
+    return qSNaN(); // ### assert
 }
 
 static inline qsreal WeekDay(qsreal t)
@@ -229,7 +229,7 @@ static inline qsreal DayFromMonth(qsreal month, qsreal leap)
     case 11: return 334.0 + leap;
     }
 
-    return qSNan(); // ### assert?
+    return qSNaN(); // ### assert?
 }
 
 static qsreal MakeDay(qsreal year, qsreal month, qsreal day)
@@ -301,7 +301,7 @@ static inline qsreal currentTime()
 static inline qsreal TimeClip(qsreal t)
 {
     if (! qIsFinite(t) || fabs(t) > 8.64e15)
-        return qSNan();
+        return qSNaN();
     return QScriptEnginePrivate::toInteger(t);
 }
 
@@ -321,7 +321,7 @@ static inline qsreal ParseString(const QString &s)
 
 static inline QDateTime ToDateTime(qsreal t)
 {
-    if (qIsNan(t))
+    if (qIsNaN(t))
         return QDateTime();
     int year = int(YearFromTime(t));
     int month = int(MonthFromTime(t) + 1);
@@ -418,7 +418,7 @@ Date::Date(QScriptEnginePrivate *eng):
     m_classInfo = eng->registerClass(QLatin1String("Date"));
 
     publicPrototype.invalidate();
-    newDate(&publicPrototype, qSNan());
+    newDate(&publicPrototype, qSNaN());
 
     const QScriptValue::PropertyFlags flags = QScriptValue::SkipInEnumeration;
 
@@ -702,7 +702,7 @@ QScriptValueImpl Date::method_getYear(QScriptContextPrivate *context, QScriptEng
     QScriptValueImpl self = context->thisObject();
     if (self.classInfo() == classInfo) {
         qsreal t = self.internalValue().toNumber();
-        if (! qIsNan(t))
+        if (! qIsNaN(t))
             t = YearFromTime(LocalTime(t)) - 1900;
         return QScriptValueImpl(eng, t);
     }
@@ -715,7 +715,7 @@ QScriptValueImpl Date::method_getFullYear(QScriptContextPrivate *context, QScrip
     QScriptValueImpl self = context->thisObject();
     if (self.classInfo() == classInfo) {
         qsreal t = self.internalValue().toNumber();
-        if (! qIsNan(t))
+        if (! qIsNaN(t))
             t = YearFromTime(LocalTime(t));
         return QScriptValueImpl(eng, t);
     }
@@ -728,7 +728,7 @@ QScriptValueImpl Date::method_getUTCFullYear(QScriptContextPrivate *context, QSc
     QScriptValueImpl self = context->thisObject();
     if (self.classInfo() == classInfo) {
         qsreal t = self.internalValue().toNumber();
-        if (! qIsNan(t))
+        if (! qIsNaN(t))
             t = YearFromTime(t);
         return QScriptValueImpl(eng, t);
     }
@@ -741,7 +741,7 @@ QScriptValueImpl Date::method_getMonth(QScriptContextPrivate *context, QScriptEn
     QScriptValueImpl self = context->thisObject();
     if (self.classInfo() == classInfo) {
         qsreal t = self.internalValue().toNumber();
-        if (! qIsNan(t))
+        if (! qIsNaN(t))
             t = MonthFromTime(LocalTime(t));
         return QScriptValueImpl(eng, t);
     }
@@ -754,7 +754,7 @@ QScriptValueImpl Date::method_getUTCMonth(QScriptContextPrivate *context, QScrip
     QScriptValueImpl self = context->thisObject();
     if (self.classInfo() == classInfo) {
         qsreal t = self.internalValue().toNumber();
-        if (! qIsNan(t))
+        if (! qIsNaN(t))
             t = MonthFromTime(t);
         return QScriptValueImpl(eng, t);
     }
@@ -767,7 +767,7 @@ QScriptValueImpl Date::method_getDate(QScriptContextPrivate *context, QScriptEng
     QScriptValueImpl self = context->thisObject();
     if (self.classInfo() == classInfo) {
         qsreal t = self.internalValue().toNumber();
-        if (! qIsNan(t))
+        if (! qIsNaN(t))
             t = DateFromTime(LocalTime(t));
         return QScriptValueImpl(eng, t);
     }
@@ -780,7 +780,7 @@ QScriptValueImpl Date::method_getUTCDate(QScriptContextPrivate *context, QScript
     QScriptValueImpl self = context->thisObject();
     if (self.classInfo() == classInfo) {
         qsreal t = self.internalValue().toNumber();
-        if (! qIsNan(t))
+        if (! qIsNaN(t))
             t = DateFromTime(t);
         return QScriptValueImpl(eng, t);
     }
@@ -792,7 +792,7 @@ QScriptValueImpl Date::method_getDay(QScriptContextPrivate *context, QScriptEngi
     QScriptValueImpl self = context->thisObject();
     if (self.classInfo() == classInfo) {
         qsreal t = self.internalValue().toNumber();
-        if (! qIsNan(t))
+        if (! qIsNaN(t))
             t = WeekDay(LocalTime(t));
         return QScriptValueImpl(eng, t);
     }
@@ -805,7 +805,7 @@ QScriptValueImpl Date::method_getUTCDay(QScriptContextPrivate *context, QScriptE
     QScriptValueImpl self = context->thisObject();
     if (self.classInfo() == classInfo) {
         qsreal t = self.internalValue().toNumber();
-        if (! qIsNan(t))
+        if (! qIsNaN(t))
             t = WeekDay(t);
         return QScriptValueImpl(eng, t);
     }
@@ -818,7 +818,7 @@ QScriptValueImpl Date::method_getHours(QScriptContextPrivate *context, QScriptEn
     QScriptValueImpl self = context->thisObject();
     if (self.classInfo() == classInfo) {
         qsreal t = self.internalValue().toNumber();
-        if (! qIsNan(t))
+        if (! qIsNaN(t))
             t = HourFromTime(LocalTime(t));
         return QScriptValueImpl(eng, t);
     }
@@ -831,7 +831,7 @@ QScriptValueImpl Date::method_getUTCHours(QScriptContextPrivate *context, QScrip
     QScriptValueImpl self = context->thisObject();
     if (self.classInfo() == classInfo) {
         qsreal t = self.internalValue().toNumber();
-        if (! qIsNan(t))
+        if (! qIsNaN(t))
             t = HourFromTime(t);
         return QScriptValueImpl(eng, t);
     }
@@ -844,7 +844,7 @@ QScriptValueImpl Date::method_getMinutes(QScriptContextPrivate *context, QScript
     QScriptValueImpl self = context->thisObject();
     if (self.classInfo() == classInfo) {
         qsreal t = self.internalValue().toNumber();
-        if (! qIsNan(t))
+        if (! qIsNaN(t))
             t = MinFromTime(LocalTime(t));
         return QScriptValueImpl(eng, t);
     }
@@ -857,7 +857,7 @@ QScriptValueImpl Date::method_getUTCMinutes(QScriptContextPrivate *context, QScr
     QScriptValueImpl self = context->thisObject();
     if (self.classInfo() == classInfo) {
         qsreal t = self.internalValue().toNumber();
-        if (! qIsNan(t))
+        if (! qIsNaN(t))
             t = MinFromTime(t);
         return QScriptValueImpl(eng, t);
     }
@@ -870,7 +870,7 @@ QScriptValueImpl Date::method_getSeconds(QScriptContextPrivate *context, QScript
     QScriptValueImpl self = context->thisObject();
     if (self.classInfo() == classInfo) {
         qsreal t = self.internalValue().toNumber();
-        if (! qIsNan(t))
+        if (! qIsNaN(t))
             t = SecFromTime(LocalTime(t));
         return QScriptValueImpl(eng, t);
     }
@@ -883,7 +883,7 @@ QScriptValueImpl Date::method_getUTCSeconds(QScriptContextPrivate *context, QScr
     QScriptValueImpl self = context->thisObject();
     if (self.classInfo() == classInfo) {
         qsreal t = self.internalValue().toNumber();
-        if (! qIsNan(t))
+        if (! qIsNaN(t))
             t = SecFromTime(t);
         return QScriptValueImpl(eng, t);
     }
@@ -896,7 +896,7 @@ QScriptValueImpl Date::method_getMilliseconds(QScriptContextPrivate *context, QS
     QScriptValueImpl self = context->thisObject();
     if (self.classInfo() == classInfo) {
         qsreal t = self.internalValue().toNumber();
-        if (! qIsNan(t))
+        if (! qIsNaN(t))
             t = msFromTime(LocalTime(t));
         return QScriptValueImpl(eng, t);
     }
@@ -909,7 +909,7 @@ QScriptValueImpl Date::method_getUTCMilliseconds(QScriptContextPrivate *context,
     QScriptValueImpl self = context->thisObject();
     if (self.classInfo() == classInfo) {
         qsreal t = self.internalValue().toNumber();
-        if (! qIsNan(t))
+        if (! qIsNaN(t))
             t = msFromTime(t);
         return QScriptValueImpl(eng, t);
     }
@@ -922,7 +922,7 @@ QScriptValueImpl Date::method_getTimezoneOffset(QScriptContextPrivate *context, 
     QScriptValueImpl self = context->thisObject();
     if (self.classInfo() == classInfo) {
         qsreal t = self.internalValue().toNumber();
-        if (! qIsNan(t))
+        if (! qIsNaN(t))
             t = (t - LocalTime(t)) / msPerMinute;
         return QScriptValueImpl(eng, t);
     }
@@ -1176,14 +1176,14 @@ QScriptValueImpl Date::method_setYear(QScriptContextPrivate *context, QScriptEng
     QScriptValueImpl self = context->thisObject();
     if (self.classInfo() == classInfo) {
         qsreal t = self.internalValue().toNumber();
-        if (qIsNan(t))
+        if (qIsNaN(t))
             t = 0;
         else
             t = LocalTime(t);
         qsreal year = context->argument(0).toNumber();
         qsreal r;
-        if (qIsNan(year)) {
-            r = qSNan();
+        if (qIsNaN(year)) {
+            r = qSNaN();
         } else {
             if ((eng->toInteger(year) >= 0) && (eng->toInteger(year) <= 99))
                 year += 1900;

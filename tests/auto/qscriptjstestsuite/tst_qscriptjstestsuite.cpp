@@ -128,7 +128,7 @@ int tst_Suite::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
                     if (actual.isNumber() && expect.isNumber()) {
                         qsreal n1 = actual.toNumber();
                         qsreal n2 = expect.toNumber();
-                        if (qIsNan(n1) && qIsNan(n2))
+                        if (qIsNaN(n1) && qIsNaN(n2))
                             equal = true;
                         else
                             equal = qFuzzyCompare(n1, n2);

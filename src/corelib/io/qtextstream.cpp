@@ -1920,7 +1920,7 @@ bool QTextStreamPrivate::getReal(double *f)
     if (c0 == 'i') {
         *f = sign ? qInf() : -qInf();
     } else if (c0 == 'n') {
-        *f = qQNan();
+        *f = qQNaN();
     } else {
         buf[i] = '\0';
         *f = strtod(buf, 0);
@@ -2394,7 +2394,7 @@ QTextStream &QTextStream::operator<<(double f)
         }
         return *this;
     }
-    if (qIsNan(f)) {
+    if (qIsNaN(f)) {
         operator<<(upperCaseDigits ? "NAN" : "nan");
         return *this;
     }

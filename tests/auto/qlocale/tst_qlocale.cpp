@@ -501,15 +501,15 @@ void tst_QLocale::testInfAndNan()
 #endif
 
     QVERIFY(qIsInf(-neginf));
-    QVERIFY(!qIsNan(-neginf));
+    QVERIFY(!qIsNaN(-neginf));
     QVERIFY(!qIsFinite(-neginf));
 
     QVERIFY(!qIsInf(nan));
-    QVERIFY(qIsNan(nan));
+    QVERIFY(qIsNaN(nan));
     QVERIFY(!qIsFinite(nan));
 
     QVERIFY(!qIsInf(1.234));
-    QVERIFY(!qIsNan(1.234));
+    QVERIFY(!qIsNaN(1.234));
     QVERIFY(qIsFinite(1.234));
 }
 

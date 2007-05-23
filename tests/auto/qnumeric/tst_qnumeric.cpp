@@ -62,7 +62,7 @@ void tst_QNumeric::qIsEqual()
 
 void tst_QNumeric::qNan()
 {
-    double nan = qQNan();
+    double nan = qQNaN();
 #if defined( __INTEL_COMPILER)
     QCOMPARE((0 > nan), false);
     QCOMPARE((0 < nan), false);
@@ -71,9 +71,9 @@ void tst_QNumeric::qNan()
     QVERIFY(!(0 > nan));
     QVERIFY(!(0 < nan));
 #endif
-    QVERIFY(qIsNan(nan));
-    QVERIFY(qIsNan(nan + 1));
-    QVERIFY(qIsNan(-nan));
+    QVERIFY(qIsNaN(nan));
+    QVERIFY(qIsNaN(nan + 1));
+    QVERIFY(qIsNaN(-nan));
     double inf = qInf();
     QVERIFY(inf > 0);
     QVERIFY(-inf < 0);
@@ -81,8 +81,8 @@ void tst_QNumeric::qNan()
     QVERIFY(qIsInf(-inf));
     QVERIFY(qIsInf(2*inf));
     QCOMPARE(1/inf, 0.0);
-    QVERIFY(qIsNan(0*nan));
-    QVERIFY(qIsNan(0*inf));
+    QVERIFY(qIsNaN(0*nan));
+    QVERIFY(qIsNaN(0*inf));
     QVERIFY(::qIsEqual(1/inf, 0.0));
 }
 

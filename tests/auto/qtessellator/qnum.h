@@ -73,7 +73,7 @@ static inline bool qIsInf(double d)
     }
 }
 
-static inline bool qIsNan(double d)
+static inline bool qIsNaN(double d)
 {
     uchar *ch = (uchar *)&d;
     if (QSysInfo::ByteOrder == QSysInfo::BigEndian) {
@@ -103,7 +103,7 @@ static inline bool qIsInf(float d)
     }
 }
 
-static inline bool qIsNan(float d)
+static inline bool qIsNaN(float d)
 {
     uchar *ch = (uchar *)&d;
     if (QSysInfo::ByteOrder == QSysInfo::BigEndian) {

@@ -236,7 +236,7 @@ QScriptValueImpl String::method_charCodeAt(QScriptContextPrivate *context, QScri
     if (context->argumentCount() > 0)
         pos = int (context->argument(0).toInteger());
 
-    qsreal result = qSNan();
+    qsreal result = qSNaN();
 
     if (pos >= 0 && pos < str.length())
         result = str.at(pos).unicode();
@@ -282,7 +282,7 @@ QScriptValueImpl String::method_lastIndexOf(QScriptContextPrivate *context, QScr
         searchString = context->argument(0).toString();
 
     qsreal position = context->argument(1).toNumber();
-    if (qIsNan(position))
+    if (qIsNaN(position))
         position = +qInf();
     else
         position = QScriptEnginePrivate::toInteger(position);
@@ -582,10 +582,10 @@ QScriptValueImpl String::method_substring(QScriptContextPrivate *context, QScrip
     if (context->argumentCount() > 1)
         end = context->argument(1).toInteger();
 
-    if (qIsNan(start) || start < 0)
+    if (qIsNaN(start) || start < 0)
         start = 0;
 
-    if (qIsNan(end) || end < 0)
+    if (qIsNaN(end) || end < 0)
         end = 0;
 
     if (start > length)

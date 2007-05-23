@@ -309,7 +309,7 @@ void Global::initialize(QScriptValueImpl *object, QScriptEnginePrivate *eng)
     const QScriptValue::PropertyFlags flags = QScriptValue::Undeletable
                                               | QScriptValue::SkipInEnumeration;
 
-    object->setProperty(QLatin1String("NaN"), QScriptValueImpl(eng, qSNan()), flags);
+    object->setProperty(QLatin1String("NaN"), QScriptValueImpl(eng, qSNaN()), flags);
     object->setProperty(QLatin1String("Infinity"), QScriptValueImpl(eng, qInf()), flags);
     object->setProperty(QLatin1String("undefined"), eng->undefinedValue(), flags);
 
@@ -347,13 +347,13 @@ QScriptValueImpl Global::method_parseInt(QScriptContextPrivate *context,
                                          QScriptClassInfo *)
 {
     if (context->argumentCount() == 0) {
-        return QScriptValueImpl(eng, qSNan());
+        return QScriptValueImpl(eng, qSNaN());
     }
     qsreal radix = 0;
     if (context->argumentCount() > 1) {
         radix = context->argument(1).toInteger();
-        if (qIsNan(radix) || (radix && (radix < 2 || radix > 36))) {
-            return QScriptValueImpl(eng, qSNan());
+        if (qIsNaN(radix) || (radix && (radix < 2 || radix > 36))) {
+            return QScriptValueImpl(eng, qSNaN());
         }
     }
     QString str = context->argument(0).toString().trimmed();
@@ -385,7 +385,7 @@ QScriptValueImpl Global::method_parseInt(QScriptContextPrivate *context,
 #endif
     if (startPtr == endPtr) {
         if (str.isEmpty())
-            result = qSNan();
+            result = qSNaN();
         else if (str == QLatin1String("Infinity"))
             result = +qInf();
         else if (str == QLatin1String("+Infinity"))
@@ -393,7 +393,7 @@ QScriptValueImpl Global::method_parseInt(QScriptContextPrivate *context,
         else if (str == QLatin1String("-Infinity"))
             result = -qInf();
         else
-            result = qSNan();
+            result = qSNaN();
     }
 
     return QScriptValueImpl(eng, result);
@@ -404,7 +404,7 @@ QScriptValueImpl Global::method_parseFloat(QScriptContextPrivate *context,
                                            QScriptClassInfo *)
 {
     if (context->argumentCount() == 0)
-        return QScriptValueImpl(eng, qSNan());
+        return QScriptValueImpl(eng, qSNaN());
 
     QString str = context->argument(0).toString().trimmed();
     bool ok = false;
@@ -417,11 +417,11 @@ QScriptValueImpl Global::method_parseFloat(QScriptContextPrivate *context,
         else if (str == QLatin1String("-Infinity"))
             result = -qInf();
         else if (str.isEmpty())
-            result = qSNan();
+            result = qSNaN();
         else if (str.at(0).isNumber())
             result = 0;
         else
-            result = qSNan();
+            result = qSNaN();
     }
 
     return QScriptValueImpl(eng, result);
@@ -431,10 +431,10 @@ QScriptValueImpl Global::method_isNaN(QScriptContextPrivate *context,
                                       QScriptEnginePrivate *eng,
                                       QScriptClassInfo *)
 {
-    qsreal v = qSNan();
+    qsreal v = qSNaN();
     if (context->argumentCount() > 0)
         v = context->argument(0).toNumber();
-    return (QScriptValueImpl(eng, qIsNan(v)));
+    return (QScriptValueImpl(eng, qIsNaN(v)));
 }
 
 QScriptValueImpl Global::method_isFinite(QScriptContextPrivate *context,

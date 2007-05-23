@@ -55,7 +55,7 @@ Number::Number(QScriptEnginePrivate *eng):
             | QScriptValue::ReadOnly
             | QScriptValue::SkipInEnumeration;
     ctor.setProperty(QLatin1String("NaN"),
-                     QScriptValueImpl(eng, qSNan()), flags);
+                     QScriptValueImpl(eng, qSNaN()), flags);
     ctor.setProperty(QLatin1String("NEGATIVE_INFINITY"),
                      QScriptValueImpl(eng, -qInf()), flags);
     ctor.setProperty(QLatin1String("POSITIVE_INFINITY"),
@@ -147,7 +147,7 @@ QScriptValueImpl Number::method_toFixed(QScriptContextPrivate *context, QScriptE
     if (context->argumentCount() > 0)
         fdigits = context->argument(0).toInteger();
 
-    if (qIsNan(fdigits))
+    if (qIsNaN(fdigits))
         fdigits = 0;
 
     qsreal v = self.internalValue().toNumber();

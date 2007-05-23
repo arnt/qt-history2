@@ -184,7 +184,7 @@ inline bool QScriptContextPrivate::strict_eq_cmp(const QScriptValueImpl &lhs, co
         return true;
 
     case QScript::NumberType:
-        if (qIsNan(lhs.m_number_value) || qIsNan(rhs.m_number_value))
+        if (qIsNaN(lhs.m_number_value) || qIsNaN(rhs.m_number_value))
             return false;
         return lhs.m_number_value == rhs.m_number_value;
 

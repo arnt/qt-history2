@@ -197,7 +197,7 @@ QScriptValueImpl Math::method_max(QScriptContextPrivate *context,
     qsreal mx = -qInf();
     for (int i = 0; i < context->argumentCount(); ++i) {
         qsreal x = context->argument(i).toNumber();
-        if (x > mx || qIsNan(x))
+        if (x > mx || qIsNaN(x))
             mx = x;
     }
     return (QScriptValueImpl(eng, mx));
@@ -223,7 +223,7 @@ QScriptValueImpl Math::method_min(QScriptContextPrivate *context,
     for (int i = 0; i < context->argumentCount(); ++i) {
         qsreal x = context->argument(i).toNumber();
         if ((x == 0 && mx == x && copySign(1.0, x) == -1.0)
-            || (x < mx) || qIsNan(x)) {
+            || (x < mx) || qIsNaN(x)) {
             mx = x;
         }
     }
@@ -236,10 +236,10 @@ QScriptValueImpl Math::method_pow(QScriptContextPrivate *context,
 {
     qsreal x = context->argument(0).toNumber();
     qsreal y = context->argument(1).toNumber();
-    if (qIsNan(y))
-        return QScriptValueImpl(eng, qSNan());
+    if (qIsNaN(y))
+        return QScriptValueImpl(eng, qSNaN());
     if (((x == 1) || (x == -1)) && qIsInf(y))
-        return QScriptValueImpl(eng, qSNan());
+        return QScriptValueImpl(eng, qSNaN());
     return (QScriptValueImpl(eng, ::pow(x, y)));
 }
 

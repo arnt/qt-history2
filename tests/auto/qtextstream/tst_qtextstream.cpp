@@ -1592,15 +1592,15 @@ void tst_QTextStream::nanInf()
     QTextStream stream(&str);
 
     double tmpD = 0;
-    stream >> tmpD; QVERIFY(qIsNan(tmpD)); tmpD = 0;
-    stream >> tmpD; QVERIFY(qIsNan(tmpD)); tmpD = 0;
-    stream >> tmpD; QVERIFY(qIsNan(tmpD)); tmpD = 0;
-    stream >> tmpD; QVERIFY(qIsNan(tmpD)); tmpD = 0;
-    stream >> tmpD; QVERIFY(qIsNan(tmpD)); tmpD = 0;
-    stream >> tmpD; QVERIFY(qIsNan(tmpD)); tmpD = 0;
-    stream >> tmpD; QVERIFY(qIsNan(tmpD)); tmpD = 0;
-    stream >> tmpD; QVERIFY(qIsNan(tmpD)); tmpD = 0;
-    stream >> tmpD; QVERIFY(qIsNan(tmpD)); tmpD = 0;
+    stream >> tmpD; QVERIFY(qIsNaN(tmpD)); tmpD = 0;
+    stream >> tmpD; QVERIFY(qIsNaN(tmpD)); tmpD = 0;
+    stream >> tmpD; QVERIFY(qIsNaN(tmpD)); tmpD = 0;
+    stream >> tmpD; QVERIFY(qIsNaN(tmpD)); tmpD = 0;
+    stream >> tmpD; QVERIFY(qIsNaN(tmpD)); tmpD = 0;
+    stream >> tmpD; QVERIFY(qIsNaN(tmpD)); tmpD = 0;
+    stream >> tmpD; QVERIFY(qIsNaN(tmpD)); tmpD = 0;
+    stream >> tmpD; QVERIFY(qIsNaN(tmpD)); tmpD = 0;
+    stream >> tmpD; QVERIFY(qIsNaN(tmpD)); tmpD = 0;
     stream >> tmpD; QVERIFY(qIsInf(tmpD)); QVERIFY(tmpD > 0); tmpD = 0;
     stream >> tmpD; QVERIFY(qIsInf(tmpD)); QVERIFY(tmpD > 0); tmpD = 0;
     stream >> tmpD; QVERIFY(qIsInf(tmpD)); QVERIFY(tmpD > 0); tmpD = 0;
@@ -1614,15 +1614,15 @@ void tst_QTextStream::nanInf()
     stream.seek(0);
 
     float tmpF = 0;
-    stream >> tmpF; QVERIFY(qIsNan(tmpF)); tmpD = 0;
-    stream >> tmpF; QVERIFY(qIsNan(tmpF)); tmpD = 0;
-    stream >> tmpF; QVERIFY(qIsNan(tmpF)); tmpD = 0;
-    stream >> tmpF; QVERIFY(qIsNan(tmpF)); tmpD = 0;
-    stream >> tmpF; QVERIFY(qIsNan(tmpF)); tmpD = 0;
-    stream >> tmpF; QVERIFY(qIsNan(tmpF)); tmpD = 0;
-    stream >> tmpF; QVERIFY(qIsNan(tmpF)); tmpD = 0;
-    stream >> tmpF; QVERIFY(qIsNan(tmpF)); tmpD = 0;
-    stream >> tmpF; QVERIFY(qIsNan(tmpF)); tmpD = 0;
+    stream >> tmpF; QVERIFY(qIsNaN(tmpF)); tmpD = 0;
+    stream >> tmpF; QVERIFY(qIsNaN(tmpF)); tmpD = 0;
+    stream >> tmpF; QVERIFY(qIsNaN(tmpF)); tmpD = 0;
+    stream >> tmpF; QVERIFY(qIsNaN(tmpF)); tmpD = 0;
+    stream >> tmpF; QVERIFY(qIsNaN(tmpF)); tmpD = 0;
+    stream >> tmpF; QVERIFY(qIsNaN(tmpF)); tmpD = 0;
+    stream >> tmpF; QVERIFY(qIsNaN(tmpF)); tmpD = 0;
+    stream >> tmpF; QVERIFY(qIsNaN(tmpF)); tmpD = 0;
+    stream >> tmpF; QVERIFY(qIsNaN(tmpF)); tmpD = 0;
     stream >> tmpF; QVERIFY(qIsInf(tmpF)); QVERIFY(tmpF > 0); tmpD = 0;
     stream >> tmpF; QVERIFY(qIsInf(tmpF)); QVERIFY(tmpF > 0); tmpD = 0;
     stream >> tmpF; QVERIFY(qIsInf(tmpF)); QVERIFY(tmpF > 0); tmpD = 0;
@@ -1635,9 +1635,9 @@ void tst_QTextStream::nanInf()
 
     QString s;
     QTextStream out(&s);
-    out << qInf() << " " << -qInf() << " " << qQNan()
+    out << qInf() << " " << -qInf() << " " << qQNaN()
         << uppercasedigits << " "
-        << qInf() << " " << -qInf() << " " << qQNan()
+        << qInf() << " " << -qInf() << " " << qQNaN()
         << flush;
 
     QCOMPARE(s, QString("inf -inf nan INF -INF NAN"));

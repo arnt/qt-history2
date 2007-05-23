@@ -271,13 +271,13 @@ inline qsreal QScriptEnginePrivate::Inf()
 // Signaling NAN
 inline qsreal QScriptEnginePrivate::SNaN()
 {
-    return qSNan();
+    return qSNaN();
 }
 
 // Quiet NAN
 inline qsreal QScriptEnginePrivate::QNaN()
 {
-    return qQNan();
+    return qQNaN();
 }
 
 inline bool QScriptEnginePrivate::isInf(qsreal d)
@@ -287,7 +287,7 @@ inline bool QScriptEnginePrivate::isInf(qsreal d)
 
 inline bool QScriptEnginePrivate::isNaN(qsreal d)
 {
-    return qIsNan(d);
+    return qIsNaN(d);
 }
 
 inline bool QScriptEnginePrivate::isFinite(qsreal d)

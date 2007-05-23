@@ -218,8 +218,8 @@ void tst_QScriptValue::toNumber()
     QScriptEngine eng;
 
     QScriptValue undefined = eng.undefinedValue();
-    QCOMPARE(qIsNan(undefined.toNumber()), true);
-    QCOMPARE(qIsNan(qscriptvalue_cast<qsreal>(undefined)), true);
+    QCOMPARE(qIsNaN(undefined.toNumber()), true);
+    QCOMPARE(qIsNaN(qscriptvalue_cast<qsreal>(undefined)), true);
 
     QScriptValue null = eng.nullValue();
     QCOMPARE(null.toNumber(), 0.0);
@@ -238,20 +238,20 @@ void tst_QScriptValue::toNumber()
     QCOMPARE(qscriptvalue_cast<qsreal>(number), 123.0);
 
     QScriptValue str = QScriptValue(&eng, QString("ciao"));
-    QCOMPARE(qIsNan(str.toNumber()), true);
-    QCOMPARE(qIsNan(qscriptvalue_cast<qsreal>(str)), true);
+    QCOMPARE(qIsNaN(str.toNumber()), true);
+    QCOMPARE(qIsNaN(qscriptvalue_cast<qsreal>(str)), true);
 
     QScriptValue str2 = QScriptValue(&eng, QString("123"));
     QCOMPARE(str2.toNumber(), 123.0);
     QCOMPARE(qscriptvalue_cast<qsreal>(str2), 123.0);
 
     QScriptValue object = eng.newObject();
-    QCOMPARE(qIsNan(object.toNumber()), true);
-    QCOMPARE(qIsNan(qscriptvalue_cast<qsreal>(object)), true);
+    QCOMPARE(qIsNaN(object.toNumber()), true);
+    QCOMPARE(qIsNaN(qscriptvalue_cast<qsreal>(object)), true);
 
     QScriptValue fun = eng.newFunction(myFunction);
-    QCOMPARE(qIsNan(fun.toNumber()), true);
-    QCOMPARE(qIsNan(qscriptvalue_cast<qsreal>(fun)), true);
+    QCOMPARE(qIsNaN(fun.toNumber()), true);
+    QCOMPARE(qIsNaN(qscriptvalue_cast<qsreal>(fun)), true);
 
     QScriptValue inv = QScriptValue();
     QCOMPARE(inv.toNumber(), 0.0);
@@ -282,7 +282,7 @@ void tst_QScriptValue::toBoolean()
     QCOMPARE(number.toBoolean(), false);
     QCOMPARE(qscriptvalue_cast<bool>(number), false);
 
-    QScriptValue number2 = QScriptValue(&eng, qSNan());
+    QScriptValue number2 = QScriptValue(&eng, qSNaN());
     QCOMPARE(number2.toBoolean(), false);
     QCOMPARE(qscriptvalue_cast<bool>(number2), false);
 
@@ -322,7 +322,7 @@ void tst_QScriptValue::toInteger()
     QScriptValue number = QScriptValue(&eng, 123.0);
     QCOMPARE(number.toInteger(), 123.0);
 
-    QScriptValue number2 = QScriptValue(&eng, qSNan());
+    QScriptValue number2 = QScriptValue(&eng, qSNaN());
     QCOMPARE(number2.toInteger(), 0.0);
 
     QScriptValue number3 = QScriptValue(&eng, qInf());
@@ -353,7 +353,7 @@ void tst_QScriptValue::toInt32()
     QCOMPARE(number.toInt32(), 123);
     QCOMPARE(qscriptvalue_cast<qint32>(number), 123);
 
-    QScriptValue number2 = QScriptValue(&eng, qSNan());
+    QScriptValue number2 = QScriptValue(&eng, qSNaN());
     QCOMPARE(number2.toInt32(), 0);
     QCOMPARE(qscriptvalue_cast<qint32>(number2), 0);
 
@@ -394,7 +394,7 @@ void tst_QScriptValue::toUInt32()
     QCOMPARE(number.toUInt32(), quint32(123));
     QCOMPARE(qscriptvalue_cast<quint32>(number), quint32(123));
 
-    QScriptValue number2 = QScriptValue(&eng, qSNan());
+    QScriptValue number2 = QScriptValue(&eng, qSNaN());
     QCOMPARE(number2.toUInt32(), quint32(0));
     QCOMPARE(qscriptvalue_cast<quint32>(number2), quint32(0));
 
@@ -433,7 +433,7 @@ void tst_QScriptValue::toUInt16()
     QCOMPARE(number.toUInt16(), quint16(123));
     QCOMPARE(qscriptvalue_cast<quint16>(number), quint16(123));
 
-    QScriptValue number2 = QScriptValue(&eng, qSNan());
+    QScriptValue number2 = QScriptValue(&eng, qSNaN());
     QCOMPARE(number2.toUInt16(), quint16(0));
     QCOMPARE(qscriptvalue_cast<quint16>(number2), quint16(0));
 
@@ -1223,7 +1223,7 @@ void tst_QScriptValue::call()
             QScriptValue ret = fun.call(QScriptValue(), args);
             QCOMPARE(ret.isValid(), true);
             QCOMPARE(ret.isNumber(), true);
-            QCOMPARE(qIsNan(ret.toNumber()), true);
+            QCOMPARE(qIsNaN(ret.toNumber()), true);
         }
     }
 
@@ -1234,7 +1234,7 @@ void tst_QScriptValue::call()
         QScriptValue ret = eng.evaluate("returnInvalidValue() + returnInvalidValue()");
         QCOMPARE(ret.isValid(), true);
         QCOMPARE(ret.isNumber(), true);
-        QCOMPARE(qIsNan(ret.toNumber()), true);
+        QCOMPARE(qIsNaN(ret.toNumber()), true);
     }
 
     {
@@ -1370,7 +1370,7 @@ void tst_QScriptValue::lessThan()
     QCOMPARE(num.lessThan(QScriptValue(&eng, "124")), true);
     QCOMPARE(num.lessThan(QScriptValue(&eng, "122")), false);
     QCOMPARE(num.lessThan(QScriptValue(&eng, "123")), false);
-    QCOMPARE(num.lessThan(QScriptValue(&eng, qSNan())), false);
+    QCOMPARE(num.lessThan(QScriptValue(&eng, qSNaN())), false);
     QCOMPARE(num.lessThan(QScriptValue(&eng, +qInf())), true);
     QCOMPARE(num.lessThan(QScriptValue(&eng, -qInf())), false);
     QCOMPARE(num.lessThan(num), false);
@@ -1380,7 +1380,7 @@ void tst_QScriptValue::lessThan()
     QCOMPARE(num.lessThan(QScriptValue(&eng, "124").toObject()), true);
     QCOMPARE(num.lessThan(QScriptValue(&eng, "122").toObject()), false);
     QCOMPARE(num.lessThan(QScriptValue(&eng, "123").toObject()), false);
-    QCOMPARE(num.lessThan(QScriptValue(&eng, qSNan()).toObject()), false);
+    QCOMPARE(num.lessThan(QScriptValue(&eng, qSNaN()).toObject()), false);
     QCOMPARE(num.lessThan(QScriptValue(&eng, +qInf()).toObject()), true);
     QCOMPARE(num.lessThan(QScriptValue(&eng, -qInf()).toObject()), false);
     QCOMPARE(num.lessThan(num.toObject()), false);
