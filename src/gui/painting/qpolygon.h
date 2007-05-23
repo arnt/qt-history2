@@ -53,7 +53,7 @@ public:
     void putPoints(int index, int nPoints, int firstx, int firsty, ...);
     void putPoints(int index, int nPoints, const QPolygon & from, int fromIndex=0);
 
-    bool containsPoint(const QPointF &pt, Qt::FillRule fillRule) const;
+    bool containsPoint(const QPoint &pt, Qt::FillRule fillRule) const;
 
     QPolygon united(const QPolygon &r) const;
     QPolygon intersected(const QPolygon &r) const;

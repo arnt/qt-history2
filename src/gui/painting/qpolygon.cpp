@@ -747,17 +747,17 @@ bool QPolygonF::containsPoint(const QPointF &pt, Qt::FillRule fillRule) const
     Returns true if the given \a point is inside the polygon according to
     the specified \a fillRule; otherwise returns false.
 */
-bool QPolygon::containsPoint(const QPointF &pt, Qt::FillRule fillRule) const
+bool QPolygon::containsPoint(const QPoint &pt, Qt::FillRule fillRule) const
 {
     if (isEmpty())
         return false;
 
     int winding_number = 0;
 
-    QPointF last_pt = at(0);
-    QPointF last_start = at(0);
+    QPoint last_pt = at(0);
+    QPoint last_start = at(0);
     for (int i = 1; i < size(); ++i) {
-        const QPointF &e = at(i);
+        const QPoint &e = at(i);
         qt_polygon_isect_line(last_pt, e, pt, &winding_number);
         last_pt = e;
     }
