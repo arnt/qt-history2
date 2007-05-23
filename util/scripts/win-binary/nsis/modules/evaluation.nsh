@@ -8,6 +8,10 @@
     !ifdef MODULE_MSVC
       !define MODULE_EVALUATION_QTDIR $MSVC_INSTDIR
     !endif
+    
+    !ifdef MODULE_QTJAMBI
+      !define MODULE_EVALUATION_QTDIR $QTJAMBI_INSTDIR
+    !endif
   !endif
 !macroend
 !macro EVALUATION_SECTIONS
@@ -41,7 +45,9 @@
 
     ErrorPatchingGUI:
     
-    CopyFiles /FILESONLY "${MODULE_EVALUATION_QTDIR}\include\Qt\qconfig.h" "${MODULE_EVALUATION_QTDIR}\include\QtCore"
+    IfFileExists "${MODULE_EVALUATION_QTDIR}\include\Qt\qconfig.h" 0 NoConfigFileFound
+        CopyFiles /FILESONLY "${MODULE_EVALUATION_QTDIR}\include\Qt\qconfig.h" "${MODULE_EVALUATION_QTDIR}\include\QtCore"
+    NoConfigFileFound:
 
     pop $1
     pop $0

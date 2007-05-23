@@ -141,7 +141,17 @@ goto :eof
 
   pushd %IWMAKE_TMP3%
 
-  echo set IWMAKE_TMP2=%%IWMAKE_TMP2:%CD%\=%% > "%IWMAKE_ROOT%\iwmake_tmp.bat"
+  echo set IWMAKE_TMP2=%%IWMAKE_TMP2:$0=$$0%%> "%IWMAKE_ROOT%\iwmake_tmp.bat"
+  echo set IWMAKE_TMP2=%%IWMAKE_TMP2:$1=$$1%%>> "%IWMAKE_ROOT%\iwmake_tmp.bat"
+  echo set IWMAKE_TMP2=%%IWMAKE_TMP2:$2=$$2%%>> "%IWMAKE_ROOT%\iwmake_tmp.bat"
+  echo set IWMAKE_TMP2=%%IWMAKE_TMP2:$3=$$3%%>> "%IWMAKE_ROOT%\iwmake_tmp.bat"
+  echo set IWMAKE_TMP2=%%IWMAKE_TMP2:$4=$$4%%>> "%IWMAKE_ROOT%\iwmake_tmp.bat"
+  echo set IWMAKE_TMP2=%%IWMAKE_TMP2:$5=$$5%%>> "%IWMAKE_ROOT%\iwmake_tmp.bat"
+  echo set IWMAKE_TMP2=%%IWMAKE_TMP2:$6=$$6%%>> "%IWMAKE_ROOT%\iwmake_tmp.bat"
+  echo set IWMAKE_TMP2=%%IWMAKE_TMP2:$7=$$7%%>> "%IWMAKE_ROOT%\iwmake_tmp.bat"
+  echo set IWMAKE_TMP2=%%IWMAKE_TMP2:$8=$$8%%>> "%IWMAKE_ROOT%\iwmake_tmp.bat"
+  echo set IWMAKE_TMP2=%%IWMAKE_TMP2:$9=$$9%%>> "%IWMAKE_ROOT%\iwmake_tmp.bat"
+  echo set IWMAKE_TMP2=%%IWMAKE_TMP2:%CD%\=%%>> "%IWMAKE_ROOT%\iwmake_tmp.bat"
 
   dir /AD /B /S | sort /R > "%IWMAKE_ROOT%\iwmake_tmp.txt"
   for /F "tokens=1" %%m in (%IWMAKE_ROOT%\iwmake_tmp.txt) do call :addInstallDirectory "%%m"
@@ -157,8 +167,6 @@ goto :eof
   echo !macro MODULE_%IWMAKE_TMP%_REMOVE removepath >> "%IWMAKE_NSISCONF%"
   echo     strcmp ${removepath} "" MODULE_%IWMAKE_TMP%_REMOVE_SAFETYLABEL >> "%IWMAKE_NSISCONF%"
   pushd %IWMAKE_TMP3%
-
-  echo set IWMAKE_TMP2=%%IWMAKE_TMP2:%CD%\=%% > "%IWMAKE_ROOT%\iwmake_tmp.bat"
 
   dir /A-D /B /S > "%IWMAKE_ROOT%\iwmake_tmp.txt"
   for /F "tokens=1" %%m in (%IWMAKE_ROOT%\iwmake_tmp.txt) do call :addRemoveFiles "%%m"

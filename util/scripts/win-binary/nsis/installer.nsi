@@ -18,6 +18,7 @@
 !include "modules\addin7x.nsh"
 !include "modules\qsa.nsh"
 !include "modules\addin60.nsh"
+!include "modules\qtjambi.nsh"
 !include "modules\debugext.nsh"
 !include "modules\license.nsh"
 !include "modules\vsip.nsh"
@@ -52,6 +53,7 @@
 !insertmacro MSVC_INITIALIZE
 !insertmacro ADDIN7X_INITIALIZE
 !insertmacro ADDIN60_INITIALIZE
+!insertmacro QTJAMBI_INITIALIZE
 !insertmacro DEBUGEXT_INITIALIZE
 !insertmacro HELP_INITIALIZE
 !insertmacro VSIP_INITIALIZE
@@ -138,6 +140,7 @@ SectionEnd
 !insertmacro OPENSOURCE_SECTIONS
 !insertmacro ADDIN7X_SECTIONS
 !insertmacro ADDIN60_SECTIONS
+!insertmacro QTJAMBI_SECTIONS
 !insertmacro VSIP_SECTIONS
 !insertmacro HELP_SECTIONS
 !insertmacro DEBUGEXT_SECTIONS
@@ -197,6 +200,7 @@ Function .onInit
   !insertmacro EVALUATION_STARTUP
   !insertmacro ADDIN7X_STARTUP
   !insertmacro ADDIN60_STARTUP
+  !insertmacro QTJAMBI_STARTUP
   !insertmacro DEBUGEXT_STARTUP
   !insertmacro VSIP_STARTUP
   !insertmacro HELP_STARTUP
@@ -214,6 +218,7 @@ Function .onInstSuccess
   !insertmacro EVALUATION_FINISH
   !insertmacro ADDIN7X_FINISH
   !insertmacro ADDIN60_FINISH
+  !insertmacro QTJAMBI_FINISH
   !insertmacro DEBUGEXT_FINISH
   !insertmacro VSIP_FINISH
   !insertmacro HELP_FINISH
@@ -231,6 +236,7 @@ Function un.onUninstSuccess
   !insertmacro EVALUATION_UNFINISH
   !insertmacro ADDIN7X_UNFINISH
   !insertmacro ADDIN60_UNFINISH
+  !insertmacro QTJAMBI_UNFINISH
   !insertmacro DEBUGEXT_UNFINISH
   !insertmacro VSIP_UNFINISH
   !insertmacro HELP_UNFINISH
@@ -294,6 +300,7 @@ Function un.onInit
   !insertmacro EVALUATION_UNSTARTUP
   !insertmacro ADDIN7X_UNSTARTUP
   !insertmacro ADDIN60_UNSTARTUP
+  !insertmacro QTJAMBI_UNSTARTUP
   !insertmacro DEBUGEXT_UNSTARTUP
   !insertmacro VSIP_UNSTARTUP
   !insertmacro HELP_UNSTARTUP
@@ -319,6 +326,7 @@ Section Uninstall
   !insertmacro LICENSECHECK_UNINSTALL
   !insertmacro ADDIN7X_UNINSTALL
   !insertmacro ADDIN60_UNINSTALL
+  !insertmacro QTJAMBI_UNINSTALL
   !insertmacro VSIP_UNINSTALL
 
   ; COMMON
@@ -384,6 +392,7 @@ FunctionEnd
   !insertmacro EVALUATION_DESCRIPTION
   !insertmacro ADDIN7X_DESCRIPTION
   !insertmacro ADDIN60_DESCRIPTION
+  !insertmacro QTJAMBI_DESCRIPTION
   !insertmacro DEBUGEXT_DESCRIPTION
   !insertmacro HELP_DESCRIPTION
   !insertmacro VSIP_DESCRIPTION
