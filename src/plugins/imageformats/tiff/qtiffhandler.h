@@ -35,7 +35,7 @@ public:
 
     enum Compression {
         NoCompression = 0,
-        LZWCompression = 1
+        LzwCompression = 1
     };
 private:
     void convert32BitOrder(const void *source, void *destination, int width);

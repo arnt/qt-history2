@@ -153,6 +153,8 @@ private:
     Q_DISABLE_COPY(QMainWindow)
 };
 
+Q_DECLARE_OPERATORS_FOR_FLAGS(QMainWindow::DockOptions)
+
 #endif // QT_NO_MAINWINDOW
 
 QT_END_HEADER
