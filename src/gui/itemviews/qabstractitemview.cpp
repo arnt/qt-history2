@@ -2696,7 +2696,6 @@ void QAbstractItemView::scrollToBottom()
 
     Updates the area occupied by the given \a index.
 
-    \sa update()
 */
 void QAbstractItemView::update(const QModelIndex &index)
 {
