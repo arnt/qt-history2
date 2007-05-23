@@ -743,7 +743,7 @@ bool QPolygonF::containsPoint(const QPointF &pt, Qt::FillRule fillRule) const
 /*!
     \since 4.3
 
-    \fn bool QPolygon::containsPoint(const QPointF &point, Qt::FillRule fillRule) const
+    \fn bool QPolygon::containsPoint(const QPoint &point, Qt::FillRule fillRule) const
     Returns true if the given \a point is inside the polygon according to
     the specified \a fillRule; otherwise returns false.
 */
