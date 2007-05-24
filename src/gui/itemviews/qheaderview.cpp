@@ -2605,10 +2605,16 @@ void QHeaderViewPrivate::setupSectionIndicator(int section, int position)
         h = q->sectionSize(section);
     }
     sectionIndicator->resize(w, h);
-    QPixmap pix = QPixmap::grabWidget(viewport, x, y, w, h);
-    sectionIndicator->setPixmap(pix);
-    sectionIndicatorOffset = position - qMax(p, 0);
 
+    QPixmap pm(w, h);
+    QRect rect(0, 0, w, h);
+
+    QPainter painter(&pm);
+    q->paintSection(&painter, rect, section);
+    painter.end();
+
+    sectionIndicator->setPixmap(pm);
+    sectionIndicatorOffset = position - qMax(p, 0);
 }
 
 void QHeaderViewPrivate::updateSectionIndicator(int section, int position)
