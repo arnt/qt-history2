@@ -408,12 +408,12 @@ void tst_QMetaObject::invokeMetaMember()
 
     QObject *ptr = 0;
     QVERIFY(QMetaObject::invokeMethod(&obj, "sl11", Q_RETURN_ARG(QObject*,ptr)));
-    QCOMPARE(ptr, &obj);
+    QCOMPARE(ptr, (QObject *)&obj);
     QCOMPARE(obj.slotResult, QString("sl11"));
     // try again with a space:
     ptr = 0;
     QVERIFY(QMetaObject::invokeMethod(&obj, "sl11", Q_RETURN_ARG(QObject * , ptr)));
-    QCOMPARE(ptr, &obj);
+    QCOMPARE(ptr, (QObject *)&obj);
     QCOMPARE(obj.slotResult, QString("sl11"));
 
     const char *ptr2 = 0;

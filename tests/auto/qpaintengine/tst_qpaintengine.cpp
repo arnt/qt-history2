@@ -56,7 +56,7 @@ void tst_QPaintEngine::getSetCheck()
     // void QPaintEngine::setPaintDevice(QPaintDevice *)
     QPixmap *var1 = new QPixmap;
     obj1.setPaintDevice(var1);
-    QCOMPARE(var1, obj1.paintDevice());
+    QCOMPARE((QPaintDevice *)var1, obj1.paintDevice());
     obj1.setPaintDevice((QPaintDevice *)0);
     QCOMPARE((QPaintDevice *)0, obj1.paintDevice());
     delete var1;

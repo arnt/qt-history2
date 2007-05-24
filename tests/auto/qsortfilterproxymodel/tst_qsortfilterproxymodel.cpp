@@ -106,7 +106,7 @@ private:
 void tst_QSortFilterProxyModel::getSetCheck()
 {
     QSortFilterProxyModel obj1;
-    QCOMPARE(obj1.sourceModel(), (const QAbstractItemModel *)0);
+    QCOMPARE(obj1.sourceModel(), (QAbstractItemModel *)0);
     // int QSortFilterProxyModel::filterKeyColumn()
     // void QSortFilterProxyModel::setFilterKeyColumn(int)
     obj1.setFilterKeyColumn(0);
@@ -1394,7 +1394,7 @@ void tst_QSortFilterProxyModel::insertAfterSelect()
     view.setModel(&filter);
     view.show();
     QModelIndex firstIndex = filter.mapFromSource(model.index(0, 0, QModelIndex()));
-    QCOMPARE(firstIndex.model(), view.model());
+    QCOMPARE(firstIndex.model(), (const QAbstractItemModel *)view.model());
     QVERIFY(firstIndex.isValid());
     int itemOffset = view.visualRect(firstIndex).width() / 2;
     QPoint p(itemOffset, 1);
@@ -1418,7 +1418,7 @@ void tst_QSortFilterProxyModel::removeAfterSelect()
     view.setModel(&filter);
     view.show();
     QModelIndex firstIndex = filter.mapFromSource(model.index(0, 0, QModelIndex()));
-    QCOMPARE(firstIndex.model(), view.model());
+    QCOMPARE(firstIndex.model(), (const QAbstractItemModel *)view.model());
     QVERIFY(firstIndex.isValid());
     int itemOffset = view.visualRect(firstIndex).width() / 2;
     QPoint p(itemOffset, 1);

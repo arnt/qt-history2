@@ -53,10 +53,10 @@ void tst_QWindowSurface::getSetWindowSurface()
 
     for (int i = 0; i < 2; ++i) {
         MyWindowSurface *surface = new MyWindowSurface(&w);
-        QCOMPARE(w.windowSurface(), surface);
+        QCOMPARE(w.windowSurface(), (QWindowSurface *)surface);
 
         w.setWindowSurface(surface);
-        QCOMPARE(w.windowSurface(), surface);
+        QCOMPARE(w.windowSurface(), (QWindowSurface *)surface);
     }
 }
 

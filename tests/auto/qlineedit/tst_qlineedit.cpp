@@ -238,9 +238,9 @@ void tst_QLineEdit::getSetCheck()
     // void QLineEdit::setValidator(const QValidator *)
     QIntValidator *var1 = new QIntValidator(0);
     obj1.setValidator(var1);
-    QCOMPARE(var1, obj1.validator());
+    QCOMPARE((const QValidator *)var1, obj1.validator());
     obj1.setValidator((QValidator *)0);
-    QCOMPARE((QValidator *)0, obj1.validator());
+    QCOMPARE((const QValidator *)0, obj1.validator());
     delete var1;
 
     // bool QLineEdit::dragEnabled()

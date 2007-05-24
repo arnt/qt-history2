@@ -688,21 +688,21 @@ void tst_QMdiArea::activeSubWindow()
 
     qApp->setActiveWindow(&mainWindow);
     QCOMPARE(mdiArea->activeSubWindow(), subWindow);
-    QCOMPARE(qApp->focusWidget(), subWindowLineEdit);
+    QCOMPARE(qApp->focusWidget(), (QWidget *)subWindowLineEdit);
 
     dockWidgetLineEdit->setFocus();
-    QCOMPARE(qApp->focusWidget(), dockWidgetLineEdit);
+    QCOMPARE(qApp->focusWidget(), (QWidget *)dockWidgetLineEdit);
     QCOMPARE(mdiArea->activeSubWindow(), subWindow);
 
     QEvent deactivateEvent(QEvent::WindowDeactivate);
     qApp->sendEvent(subWindow, &deactivateEvent);
     QVERIFY(!mdiArea->activeSubWindow());
-    QCOMPARE(qApp->focusWidget(), dockWidgetLineEdit);
+    QCOMPARE(qApp->focusWidget(), (QWidget *)dockWidgetLineEdit);
 
     QEvent activateEvent(QEvent::WindowActivate);
     qApp->sendEvent(subWindow, &activateEvent);
     QCOMPARE(mdiArea->activeSubWindow(), subWindow);
-    QCOMPARE(qApp->focusWidget(), subWindowLineEdit);
+    QCOMPARE(qApp->focusWidget(), (QWidget *)subWindowLineEdit);
 
     QLineEdit dummyTopLevel;
     dummyTopLevel.show();
@@ -729,7 +729,7 @@ void tst_QMdiArea::currentSubWindow()
         mdiArea.addSubWindow(new QLineEdit)->show();
 
     qApp->setActiveWindow(&mdiArea);
-    QCOMPARE(qApp->activeWindow(), &mdiArea);
+    QCOMPARE(qApp->activeWindow(), (QWidget *)&mdiArea);
 
     // Check that the last added window is the active and the current.
     QMdiSubWindow *active = mdiArea.activeSubWindow();
@@ -746,7 +746,7 @@ void tst_QMdiArea::currentSubWindow()
     // Move focus to another top-level and check that we don't have
     // an active window anymore.
     qApp->setActiveWindow(&dummyTopLevel);
-    QCOMPARE(qApp->activeWindow(), &dummyTopLevel);
+    QCOMPARE(qApp->activeWindow(), (QWidget *)&dummyTopLevel);
     QVERIFY(!mdiArea.activeSubWindow());
 
     // ...but currentSubWindow() should still return a valid sub-window.

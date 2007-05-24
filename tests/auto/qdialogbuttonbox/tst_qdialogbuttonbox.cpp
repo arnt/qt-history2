@@ -485,7 +485,7 @@ void tst_QDialogButtonBox::testSignals()
 
     QTEST(clicked2.count(), "clicked2Count");
     if (clicked2.count() > 0)
-        QCOMPARE(qvariant_cast<QAbstractButton *>(clicked2.at(0).at(0)), clickMe);
+        QCOMPARE(qvariant_cast<QAbstractButton *>(clicked2.at(0).at(0)), (QAbstractButton *)clickMe);
 
     QTEST(accept.count(), "acceptCount");
     QTEST(reject.count(), "rejectCount");

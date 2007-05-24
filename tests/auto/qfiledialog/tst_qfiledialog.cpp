@@ -127,7 +127,7 @@ void tst_QFiledialog::args()
     QString directory = QDir::tempPath();
     QString filter = "*.mp3";
     QFileDialog fd(parent, caption, directory, filter);
-    QCOMPARE(fd.parent(), parent);
+    QCOMPARE(fd.parent(), (QObject *)parent);
     QCOMPARE(fd.windowTitle(), caption);
     QCOMPARE(fd.directory(), QDir(directory));
     QCOMPARE(fd.filters(), QStringList(filter));
@@ -334,7 +334,7 @@ void tst_QFiledialog::itemDelegate()
     QVERIFY(fd.itemDelegate() != 0);
     QItemDelegate *id = new QItemDelegate(&fd);
     fd.setItemDelegate(id);
-    QCOMPARE(fd.itemDelegate(), id);
+    QCOMPARE(fd.itemDelegate(), (QAbstractItemDelegate *)id);
 }
 
 void tst_QFiledialog::labelText()
@@ -464,7 +464,7 @@ void tst_QFiledialog::proxymodel()
 
     QSortFilterProxyModel *proxyModel = new QSortFilterProxyModel(&fd);
     fd.setProxyModel(proxyModel);
-    QCOMPARE(fd.proxyModel(), proxyModel);
+    QCOMPARE(fd.proxyModel(), (QAbstractProxyModel *)proxyModel);
 
     fd.setProxyModel(0);
     QCOMPARE(fd.proxyModel(), (QAbstractProxyModel*)0);
@@ -522,11 +522,11 @@ void tst_QFiledialog::historyBack()
     QCOMPARE(backButton->isEnabled(), true);
     QCOMPARE(forwardButton->isEnabled(), true);
     QCOMPARE(spy.count(), 3);
-    QString currentPath = (spy.last().first()).value<QString>();
+    QString currentPath = qVariantValue<QString>(spy.last().first());
     QCOMPARE(currentPath, temp);
 
     backButton->click();
-    currentPath = (spy.last().first()).value<QString>();
+    currentPath = qVariantValue<QString>(spy.last().first());
     QCOMPARE(currentPath, home);
     QCOMPARE(backButton->isEnabled(), false);
     QCOMPARE(forwardButton->isEnabled(), true);
@@ -561,39 +561,39 @@ void tst_QFiledialog::historyForward()
 
     backButton->click();
     QCOMPARE(forwardButton->isEnabled(), true);
-    QCOMPARE((spy.last().first()).value<QString>(), temp);
+    QCOMPARE(qVariantValue<QString>(spy.last().first()), temp);
 
     forwardButton->click();
-    QCOMPARE((spy.last().first()).value<QString>(), desktop);
+    QCOMPARE(qVariantValue<QString>(spy.last().first()), desktop);
     QCOMPARE(backButton->isEnabled(), true);
     QCOMPARE(forwardButton->isEnabled(), false);
     QCOMPARE(spy.count(), 4);
 
     backButton->click();
-    QCOMPARE((spy.last().first()).value<QString>(), temp);
+    QCOMPARE(qVariantValue<QString>(spy.last().first()), temp);
     QCOMPARE(backButton->isEnabled(), true);
 
     backButton->click();
-    QCOMPARE((spy.last().first()).value<QString>(), home);
+    QCOMPARE(qVariantValue<QString>(spy.last().first()), home);
     QCOMPARE(backButton->isEnabled(), false);
     QCOMPARE(forwardButton->isEnabled(), true);
     QCOMPARE(spy.count(), 6);
 
     forwardButton->click();
-    QCOMPARE((spy.last().first()).value<QString>(), temp);
+    QCOMPARE(qVariantValue<QString>(spy.last().first()), temp);
     backButton->click();
-    QCOMPARE((spy.last().first()).value<QString>(), home);
+    QCOMPARE(qVariantValue<QString>(spy.last().first()), home);
     QCOMPARE(spy.count(), 8);
 
     forwardButton->click();
-    QCOMPARE((spy.last().first()).value<QString>(), temp);
+    QCOMPARE(qVariantValue<QString>(spy.last().first()), temp);
     forwardButton->click();
-    QCOMPARE((spy.last().first()).value<QString>(), desktop);
+    QCOMPARE(qVariantValue<QString>(spy.last().first()), desktop);
 
     backButton->click();
-    QCOMPARE((spy.last().first()).value<QString>(), temp);
+    QCOMPARE(qVariantValue<QString>(spy.last().first()), temp);
     backButton->click();
-    QCOMPARE((spy.last().first()).value<QString>(), home);
+    QCOMPARE(qVariantValue<QString>(spy.last().first()), home);
     fd.setDirectory(desktop);
     QCOMPARE(forwardButton->isEnabled(), false);
 }

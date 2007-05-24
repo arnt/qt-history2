@@ -529,7 +529,7 @@ void tst_QWizard::addPage()
     for (int i = 0; i < N; ++i) {
         pages[i] = new QWizardPage(parent);
         QCOMPARE(wizard.addPage(pages[i]), i);
-        QCOMPARE(pages[i]->window(), &wizard);
+        QCOMPARE(pages[i]->window(), (QWidget *)&wizard);
         QCOMPARE(wizard.startId(), 0);
     }
 
@@ -585,7 +585,7 @@ void tst_QWizard::setPage()
 
     page = new QWizardPage(parent);
     wizard.setPage(0, page);
-    QCOMPARE(page->window(), &wizard);
+    QCOMPARE(page->window(), (QWidget *)&wizard);
     QCOMPARE(wizard.page(0), page);
     QCOMPARE(wizard.startId(), 0);
     QCOMPARE(wizard.currentId(), -1);
@@ -595,7 +595,7 @@ void tst_QWizard::setPage()
 
     page = new QWizardPage(parent);
     wizard.setPage(-2, page);
-    QCOMPARE(page->window(), &wizard);
+    QCOMPARE(page->window(), (QWidget *)&wizard);
     QCOMPARE(wizard.page(-2), page);
     QCOMPARE(wizard.startId(), -2);
     QCOMPARE(wizard.currentId(), -1);

@@ -367,7 +367,7 @@ void tst_QTabWidget::cornerWidget()
 
     QWidget *w = new QWidget(0);
     tw->setCornerWidget(w, Qt::TopLeftCorner);
-    QCOMPARE(w->parent(), tw);
+    QCOMPARE(w->parent(), (QObject *)tw);
     QVERIFY(tw->cornerWidget(Qt::TopLeftCorner) == w);
     tw->setCornerWidget(w, Qt::TopRightCorner);
     QVERIFY(tw->cornerWidget(Qt::TopRightCorner) == w);

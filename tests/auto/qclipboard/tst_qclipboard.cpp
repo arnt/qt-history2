@@ -161,12 +161,12 @@ void tst_QClipboard::setMimeData()
     mimeData->setObjectName(TestName);
 
     QApplication::clipboard()->setMimeData(mimeData);
-    QCOMPARE(QApplication::clipboard()->mimeData(), mimeData);
+    QCOMPARE(QApplication::clipboard()->mimeData(), (const QMimeData *)mimeData);
     QCOMPARE(QApplication::clipboard()->mimeData()->objectName(), TestName);
 
     // set it to the same data again, it shouldn't delete mimeData (and crash as a result)
     QApplication::clipboard()->setMimeData(mimeData);
-    QCOMPARE(QApplication::clipboard()->mimeData(), mimeData);
+    QCOMPARE(QApplication::clipboard()->mimeData(), (const QMimeData *)mimeData);
     QCOMPARE(QApplication::clipboard()->mimeData()->objectName(), TestName);
     QApplication::clipboard()->clear();
     const QMimeData *appMimeData = QApplication::clipboard()->mimeData();
