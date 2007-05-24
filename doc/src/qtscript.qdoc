@@ -380,6 +380,7 @@
     \row    \o uchar \o unsigned char(QScriptValue::toInt32())
     \row    \o qlonglong \o qlonglong(QScriptValue::toInteger())
     \row    \o qulonglong \o qulonglong(QScriptValue::toInteger())
+    \row    \o QString \o QScriptValue::toString()
     \row    \o QDateTime \o QScriptValue::toDateTime()
     \row    \o QDate \o QScriptValue::toDateTime().date()
     \row    \o QRegExp \o QScriptValue::toRegExp()
@@ -417,6 +418,7 @@
     \row    \o ushort \o QScriptValue(engine, value)
     \row    \o char \o QScriptValue(engine, value)
     \row    \o uchar \o QScriptValue(engine, value)
+    \row    \o QString \o QScriptValue(engine, value)
     \row    \o qlonglong \o QScriptValue(engine, qsreal(value)). Note that the conversion may lead to loss of precision, since not all 64-bit integers can be represented as a qsreal.
     \row    \o qulonglong \o QScriptValue(engine, qsreal(value)). Note that the conversion may lead to loss of precision, since not all 64-bit unsigned integers can be represented as a qsreal.
     \row    \o QChar \o QScriptValue(this, value.unicode())
@@ -671,6 +673,221 @@
   objects simply calls the functions in the application which do the
   real work. So instead of making all your QObjects available to the
   scripting engine, just add the wrapper QObjects.
+
+  \section1 Making Use of Prototype-based Inheritance
+
+  In ECMAScript, inheritance is based on the concept of \bold{shared
+  prototype objects}; this is quite different from the class-based
+  inheritance familiar to C++ programmers. With QtScript, you can
+  associate a custom prototype object with a C++ type (using
+  QScriptEngine::setDefaultPrototype()); this is the key to providing
+  a script interface to that type. Since QtScript is built on top of
+  Qt's Meta-Type System, this can be done for any C++ type. This
+  section explains the underlying concepts of prototype-based
+  inheritance. Once these concepts are understood, the associated
+  practices can be applied through the QtScript API in order to create
+  well-behaved, consistent bindings to C++ that will fit nicely into
+  the ECMAScript universe.
+
+  When experimenting with QtScript objects and inheritance, it can be
+  helpful to use the interactive interpreter that's part of the QtScript
+  examples, located in \c{examples/script/qscript}.
+
+  \section2 Prototype Objects and Shared Properties
+
+  The purpose of a QtScript \bold{prototype object} is to define
+  behavior that should be shared by a set of other QtScript
+  objects. We say that objects that share the same prototype object
+  belong to the same \e{class} (again, on the technical side this
+  should not to be confused with the class constructs of languages
+  like C++ and Java; ECMAScript has no such construct).
+
+  The basic prototype-based inheritance mechanism works as follows: Each
+  QtScript object has an internal link to another object, its
+  \e{prototype}. When a property is looked up in an object, and the
+  object itself does not have the property, the property is looked up
+  in the prototype object instead; if the prototype has the property,
+  then that property is returned. Otherwise, the property is looked up
+  in the prototype of the prototype object, and so on; this chain of
+  objects constitute a \bold{prototype chain}. The chain of prototype
+  objects is followed until the property is found or the end of the
+  chain is reached.
+
+  For example, when you create a new object by the expression \c{new
+  Object()}, the resulting object will have as its prototype the
+  standard \c{Object} prototype, \c{Object.prototype}; through this
+  prototype relation, the new object inherits a set of properties,
+  including the \c{hasOwnProperty()} function and \c{toString()}
+  function:
+
+  \code
+  var o = new Object();
+  o.foo = 123;
+  print(o.hasOwnProperty('foo')); // true
+  print(o.hasOwnProperty('bar')); // false
+  print(o); // calls o.toString(), which returns "[object Object]"
+  \endcode
+
+  The \c{toString()} function itself is not defined in \c{o} (since we
+  did not assign anything to \c{o.toString}), so instead the
+  \c{toString()} function in the standard \c{Object} prototype is
+  called, which returns a highly generic string representation of
+  \c{o} ("[object Object]").
+
+  Note that the properties of the prototype object are not \e{copied} to
+  the new object; only a \e{link} from the new object to the prototype
+  object is maintained. This means that changes done to the prototype
+  object will immediately be reflected in the behavior of all objects
+  that have the modified object as their prototype.
+
+  \section2 Defining Classes in a Prototype-based Universe
+
+  In QtScript, a class is not defined explicitly; there is no
+  \c{class} keyword. Instead, you define a new class in two steps:
+
+  \list
+  \i Define a \bold{constructor function} that will initialize new objects; and
+  \i Set up a \bold{prototype object} that defines the class interface, and assign this object to the public \c{prototype} property of the constructor function.
+  \endlist
+
+  With this arrangement, the constructor's public \c{prototype}
+  property will automatically be set as the prototype of objects created
+  by applying the \c{new} operator to your constructor function;
+  e.g. the prototype of an object created by \c{new Foo()} will be the
+  value of \c{Foo.prototype}.
+
+  Functions that don't operate on the `this' object ("static" methods)
+  are typically stored as properties of the constructor function, not
+  as properties of the prototype object. The same is true for
+  constants, such as enum values.
+
+  The following code defines a simple constructor function for a class
+  called \c{Person}:
+
+  \code
+  function Person(name)
+  {
+    this.name = name;
+  }
+  \endcode
+
+  Next, you want to set up \c{Person.prototype} as your prototype
+  object, i.e. define the interface that should be common to all
+  \c{Person} objects. QtScript automatically creates a default
+  prototype object (by the expression \c{new Object()}) for every
+  script function; you can add properties to this object, or you can
+  assign your own custom object. (Generally speaking, any QtScript
+  object can act as prototype for any other object.)
+
+  Here's an example of how you might want to override the
+  \c{toString()} function that \c{Person.prototype} inherits from
+  \c{Object.prototype}, to give your \c{Person} objects a more
+  appropriate string representation:
+
+  \code
+  Person.prototype.toString = function() { return "Person(name: " + this.name + ")"; }
+  \endcode
+
+  This resembles reimplementing a virtual function in C++. Henceforth,
+  when the property named \c{toString} is looked up in a \c{Person}
+  object, it will be resolved in \c{Person.prototype}, not in
+  \c{Object.prototype} as before:
+
+  \code
+  var p1 = new Person("John Doe");
+  var p2 = new Person("G.I. Jane");
+  print(p1); // "Person(name: John Doe)"
+  print(p2); // "Person(name: G.I. Jane)"
+  \endcode
+
+  There's also some other interesting things we can learn about a
+  \c{Person} object:
+
+  \code
+  print(p1.hasOwnProperty('name')); // 'name' is an instance variable, so this returns true
+  print(p1.hasOwnProperty('toString')); // returns false; inherited from prototype
+  print(p1 instanceof Person); // true
+  print(p1 instanceof Object); // true
+  \endcode
+
+  The \c{hasOwnProperty()} function is not inherited from
+  \c{Person.prototype}, but rather from \c{Object.prototype}, which is
+  the prototype of \c{Person.prototype} itself; i.e. the prototype
+  chain of \c{Person} objects is \c{Person.prototype} followed by
+  \c{Object.prototype}. This prototype chain establishes a \e{class
+  hierarchy}, as demonstrated by applying the \c{instanceof} operator;
+  \c{instanceof} checks if the value of the public \c{prototype}
+  property of the constructor function on the right-hand side is
+  reached by following the prototype chain of the object on the
+  left-hand side.
+
+  When defining subclasses, there's a general pattern you can use. The
+  following example shows how one can create a subclass of \c{Person}
+  called \c{Employee}:
+
+  \code
+  function Employee(name, salary)
+  {
+    Person.call(this, name); // call base constructor
+
+    this.salary = salary;
+  }
+
+  // set the prototype to be an instance of the base class
+  Employee.prototype = new Person();
+
+  // initialize prototype
+  Employee.prototype.toString = function() { ... }
+  \endcode
+
+  Again, you can use the \c{instanceof} to verify that the
+  class relationship between \c{Employee} and \c{Person} has been
+  correctly established:
+
+  \code
+  var e = new Employee("Johnny Bravo", 5000000);
+  print(e instanceof Employee); // true
+  print(e instanceof Person);   // true
+  print(e instanceof Object);   // true
+  print(e instanceof Array);    // false
+  \endcode
+
+  This shows that the prototype chain of \c{Employee} objects is the
+  same as that of \c{Person} objects, but with \c{Employee.prototype}
+  added to the front of the chain.
+
+  \section2 Prototype-based Programming with the QtScript C++ API
+
+  You can use QScriptEngine::newFunction() to wrap
+  native functions. When implementing a constructor function,
+  you also pass the prototype object as argument to QScriptEngine::newFunction().
+  You can call QScriptValue::construct() to call a constructor
+  function, and use QScriptValue::call() from within a native constructor
+  function if you need to call a base class constructor.
+
+  The QScriptable class provides a convenient way to implement a
+  prototype object in terms of C++ slots and properties. Take a look
+  at the \l{Default Prototypes Example} to see how this is done.
+  Alternatively, the prototype functionality can be implemented in
+  terms of stand-alone native functions that you wrap with
+  QScriptEngine::newFunction() and set as properties of your prototype
+  object by calling QScriptValue::setProperty().
+
+  In the implementation of your prototype functions, you use
+  QScriptable::thisObject() (or QScriptContext::thisObject()) to
+  obtain a reference to the QScriptValue being operated upon; then you
+  call qscriptvalue_cast() to cast it to your C++ type, and perform
+  the relevant operations using the usual C++ API of the type.
+  
+  You associate a prototype object with a C++ type by calling
+  QScriptEngine::setDefaultPrototype(). Once this mapping is
+  established, QtScript will automatically assign the correct
+  prototype when a value of such a type is wrapped in a QScriptValue;
+  either when you explicitly call QScriptEngine::toScriptValue(), or
+  when a value of such a type is returned from a C++ slot and
+  internally passed back to script code by the engine. This means you
+  \e{don't} have to implement wrapper classes if you use this
+  approach.
 
   \section1 ECMAScript Compatibility
 

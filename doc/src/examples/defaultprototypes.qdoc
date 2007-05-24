@@ -5,4 +5,10 @@
     This QtScript example shows how to use default prototypes.
 
     \image defaultprototypes-example.png
+
+    With QScriptEngine::setDefaultPrototype() you can specify
+    a QtScript object that defines a scripting interface for
+    any C++ type. In this example, a simple scripting interface
+    for QListWidgetItem is defined, so that the text of items
+    can easily be accessed from script code.
 */

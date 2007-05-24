@@ -7,4 +7,22 @@
     functionality of a calculator widget.
 
     \image calculator-example.png
+
+    The program logic in this example is a fairly straight port of the logic in the C++ \l{Calculator Example}.
+    The graphical user interface is defined in a UI file.
+
+    The C++ part of the example consists of four steps:
+    \list
+    \i Evaluate the script code that defines the \c{Calculator} class;
+    \i Create a widget from the UI file using QUiLoader;
+    \i Call the Calculator constructor function to create a new \c{Calculator} script object, passing the widget as argument;
+    \i Show the widget and start the application event loop.
+    \endlist
+
+    On the script side, the \c{Calculator} constructor function
+    initializes the instance variables of the new \c{Calculator}
+    object, and connects the clicked() signal of the widget's buttons
+    to corresponding functions defined in the \c{Calculator} prototype
+    object, so that when a button is clicked, the proper script
+    function will be invoked to carry out the operation.
 */
