@@ -447,7 +447,7 @@ static void qt_set_windows_resources()
     QFont statusFont;
     QFont titleFont;
     QFont smallTitleFont;
-
+    QFont iconTitleFont;
     QT_WA({
         NONCLIENTMETRICS ncm;
         ncm.cbSize = FIELD_OFFSET(NONCLIENTMETRICS, lfMessageFont) + sizeof(LOGFONTW);
@@ -457,6 +457,9 @@ static void qt_set_windows_resources()
         statusFont = qt_LOGFONTtoQFont(ncm.lfStatusFont,true);
         titleFont = qt_LOGFONTtoQFont(ncm.lfCaptionFont,true);
         smallTitleFont = qt_LOGFONTtoQFont(ncm.lfSmCaptionFont,true);
+        LOGFONTW lfIconTitleFont;
+        SystemParametersInfoW(SPI_GETICONTITLELOGFONT, sizeof(lfIconTitleFont), &lfIconTitleFont, 0);
+        iconTitleFont = qt_LOGFONTtoQFont(lfIconTitleFont,true);
     } , {
         // A version
         NONCLIENTMETRICSA ncm;
@@ -467,8 +470,12 @@ static void qt_set_windows_resources()
         statusFont = qt_LOGFONTtoQFont((LOGFONT&)ncm.lfStatusFont,true);
         titleFont = qt_LOGFONTtoQFont((LOGFONT&)ncm.lfCaptionFont,true);
         smallTitleFont = qt_LOGFONTtoQFont((LOGFONT&)ncm.lfSmCaptionFont,true);
+        LOGFONTA lfIconTitleFont;
+        SystemParametersInfoA(SPI_GETICONTITLELOGFONT, sizeof(lfIconTitleFont), &lfIconTitleFont, 0);
+        iconTitleFont = qt_LOGFONTtoQFont((LOGFONT&)lfIconTitleFont,true);
     });
 
+    QApplication::setFont(iconTitleFont, "QAbstractItemView");
     QApplication::setFont(menuFont, "QMenu");
     QApplication::setFont(menuFont, "QMenuBar");
     QApplication::setFont(messageFont, "QMessageBox");
