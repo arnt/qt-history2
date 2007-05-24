@@ -102,7 +102,7 @@ static QStringList qt_win_make_filters_list(const QString &filter)
     QString f(filter);
 
     if (f.isEmpty())
-        f = QFileDialog::tr("All Files (*.*)");
+        f = QFileDialog::tr("All Files (*)");
 
     return qt_make_filter_list(f);
 }
@@ -402,7 +402,7 @@ QString qt_win_get_save_file_name(const QFileDialogArgs &args,
     // This block is used below for the lpstrDefExt member.
     // Note that the current MSDN docs document this member wrong.
     // It should rather be documented as "the default extension if no extension was given and if the
-    // current filter does not have a extension (e.g (*.*)). If the current filter have an extension, use
+    // current filter does not have a extension (e.g (*)). If the current filter have an extension, use
     // the extension of the current filter"
     QString defaultSaveExt;
     if (selectedFilter && !selectedFilter->isEmpty()) {

@@ -425,7 +425,7 @@ void QFileDialogPrivate::retranslateStrings()
     Q_Q(QFileDialog);
     /* WIDGETS */
     if (defaultFileTypes)
-        q->setFilter(QFileDialog::tr("All Files (*.*)"));
+        q->setFilter(QFileDialog::tr("All Files (*)"));
 
     QList<QAction*> actions = qFileDialogUi->treeView->header()->actions();
     QAbstractItemModel *abstractModel = model;
@@ -637,7 +637,7 @@ void QFileDialog::setFilter(const QString &filter)
 void QFileDialog::setFilters(const QStringList &filters)
 {
     Q_D(QFileDialog);
-    d->defaultFileTypes = (filters == QStringList(QFileDialog::tr("All Files (*.*)")));
+    d->defaultFileTypes = (filters == QStringList(QFileDialog::tr("All Files (*)")));
     d->qFileDialogUi->fileTypeCombo->clear();
     if (filters.isEmpty())
         return;
