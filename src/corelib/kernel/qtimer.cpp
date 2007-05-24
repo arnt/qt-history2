@@ -145,6 +145,7 @@ QTimer::~QTimer()
 
 /*!
     \property QTimer::active
+    \since 4.3
 
     This boolean property is true if the timer is running; otherwise
     false.
