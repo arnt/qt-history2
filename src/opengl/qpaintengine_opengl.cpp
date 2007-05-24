@@ -2050,7 +2050,9 @@ void QOpenGLPaintEngine::updatePen(const QPen &pen)
     d->has_pen = (pen_style != Qt::NoPen);
 
     if (pen.isCosmetic()) {
-        glLineWidth(pen.widthF());
+        GLfloat width = pen.widthF() == 0.0f ? 1.0f : pen.widthF();
+        glLineWidth(width);
+        glPointSize(width);
     }
 
     if (d->pen_brush_style >= Qt::LinearGradientPattern
@@ -3299,8 +3301,7 @@ void QOpenGLPaintEngine::drawPoints(const QPointF *points, int pointCount)
     Q_D(QOpenGLPaintEngine);
     d->setGradientOps(d->cpen.brush(), QRectF());
 
-    GLfloat pen_width = d->cpen.widthF();
-    if (pen_width > 1 || (pen_width > 0 && d->txop > QTransform::TxTranslate)) {
+    if (!d->cpen.isCosmetic() || d->high_quality_antialiasing) {
         QPaintEngine::drawPoints(points, pointCount);
         return;
     }

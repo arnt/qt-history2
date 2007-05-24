@@ -11,9 +11,10 @@ begin_block lines
     drawPolygon [12 0 20 0 15 10]
     drawPath path
     drawEllipse 32 0 8 8
+    drawPoint 36 4
 
     translate 100 0
-    save 
+    save
       scale 4 1
       drawLine 0 0 10 10
       drawLine 2 0 10 0
@@ -21,10 +22,11 @@ begin_block lines
       drawPolygon [12 0 20 0 15 10]
       drawPath path
       drawEllipse 32 0 8 8
+      drawPoint 36 4
     restore
 
     translate 200 0
-    save 
+    save
       scale 1 4
       drawLine 0 0 10 10
       drawLine 2 0 10 0
@@ -32,10 +34,11 @@ begin_block lines
       drawPolygon [12 0 20 0 15 10]
       drawPath path
       drawEllipse 32 0 8 8
+      drawPoint 36 4
     restore
 
     translate 100 0
-    save 
+    save
       scale 4 4
       drawLine 0 0 10 10
       drawLine 2 0 10 0
@@ -43,29 +46,30 @@ begin_block lines
       drawPolygon [12 0 20 0 15 10]
       drawPath path
       drawEllipse 32 0 8 8
+      drawPoint 36 4
     restore
   restore
 end_block
 
-drawText 580 15 "non-cosmetic, 0-width" 
+drawText 580 15 "non-cosmetic, 0-width"
 translate 0 50
 
 setPen black 2
 repeat_block lines
-drawText 580 15 "non-cosmetic, 2-width" 
+drawText 580 15 "non-cosmetic, 2-width"
 
 translate 0 20
 translate 0 50
 setPen black 0
 pen_setCosmetic true
 repeat_block lines
-drawText 580 15 "cosmetic, 0-width" 
+drawText 580 15 "cosmetic, 0-width"
 
 translate 0 50
 setPen black 2
 pen_setCosmetic true
 repeat_block lines
-drawText 580 15 "cosmetic, 2-width" 
+drawText 580 15 "cosmetic, 2-width"
 
 
 setRenderHint Antialiasing
@@ -74,26 +78,26 @@ translate 0 20
 translate 0 50
 setPen black 0
 repeat_block lines
-drawText 580 15 "non-cosmetic, 0-width" 
+drawText 580 15 "non-cosmetic, 0-width"
 
 translate 0 50
 
 setPen black 2
 repeat_block lines
-drawText 580 15 "non-cosmetic, 2-width" 
+drawText 580 15 "non-cosmetic, 2-width"
 
 translate 0 20
 translate 0 50
 setPen black 0
 pen_setCosmetic true
 repeat_block lines
-drawText 580 15 "cosmetic, 0-width" 
+drawText 580 15 "cosmetic, 0-width"
 
 translate 0 50
 setPen black 2
 pen_setCosmetic true
 repeat_block lines
-drawText 580 15 "cosmetic, 2-width" 
+drawText 580 15 "cosmetic, 2-width"
 
 
 translate 0 70
