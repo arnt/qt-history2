@@ -47,7 +47,7 @@
 #include "qsslcipher_p.h"
 #include "qsslsocket.h"
 
-#ifndef QT_NO_DEBUG
+#ifndef QT_NO_DEBUG_STREAM
 #include <QtCore/qdebug.h>
 #endif
 

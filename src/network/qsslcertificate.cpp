@@ -99,7 +99,7 @@
 
 #include <QtCore/qatomic.h>
 #include <QtCore/qdatetime.h>
-#ifndef QT_NO_DEBUG
+#ifndef QT_NO_DEBUG_STREAM
 #include <QtCore/qdebug.h>
 #endif
 #include <QtCore/qdir.h>
