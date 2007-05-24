@@ -46,6 +46,7 @@ private slots:
     void revert();
 
     void clearDisplayValuesCache();
+    void insertRecordDuplicateFieldNames();
 };
 
 
@@ -79,6 +80,20 @@ void tst_QSqlRelationalTableModel::recreateTestTables(QSqlDatabase db)
             q.lastError().text().toLatin1());
     QVERIFY2(q.exec("insert into " + qTableName("reltest2", db.driver()) + " values(1, 'herr')"), q.lastError().text().toLatin1());
     QVERIFY2(q.exec("insert into " + qTableName("reltest2", db.driver()) + " values(2, 'mister')"), q.lastError().text().toLatin1());
+
+    tst_Databases::safeDropTable(db, qTableName("reltest3"));
+    QVERIFY2(q.exec("create table " + qTableName("reltest3", 
+            db.driver()) + " (id int not null primary key, name varchar(20), city_key int)"),
+            q.lastError().text().toLatin1());
+    QVERIFY2(q.exec("insert into " + qTableName("reltest3", db.driver()) + " values(1, 'Gustav', 1)"), q.lastError().text().toLatin1());
+    QVERIFY2(q.exec("insert into " + qTableName("reltest3", db.driver()) + " values(2, 'Heidi', 2)"), q.lastError().text().toLatin1());
+
+    tst_Databases::safeDropTable(db, qTableName("reltest4"));
+    QVERIFY2(q.exec("create table " + qTableName("reltest4", 
+            db.driver()) + " (id int not null primary key, name varchar(20))"),
+            q.lastError().text().toLatin1());
+    QVERIFY2(q.exec("insert into " + qTableName("reltest4", db.driver()) + " values(1, 'Oslo')"), q.lastError().text().toLatin1());
+    QVERIFY2(q.exec("insert into " + qTableName("reltest4", db.driver()) + " values(2, 'Trondheim')"), q.lastError().text().toLatin1());
 }
 
 void tst_QSqlRelationalTableModel::initTestCase()
@@ -457,6 +472,36 @@ void tst_QSqlRelationalTableModel::clearDisplayValuesCache()
     QCOMPARE(model.data(model.index(4, 1)).toString(), QString("vohi"));
     QCOMPARE(model.data(model.index(4, 2)).toString(), QString("herr"));
     QCOMPARE(model.data(model.index(4, 3)).toString(), QString("mister"));
+}
+
+// For task 140782: If the main table and the the related tables uses the same
+// name for a column or display column then insertRecord() would return true 
+// though it actually failed.
+void tst_QSqlRelationalTableModel::insertRecordDuplicateFieldNames()
+{
+    QFETCH_GLOBAL(QString, dbName);
+    QSqlDatabase db = QSqlDatabase::database(dbName);
+    CHECK_DATABASE(db);
+
+    QSqlRelationalTableModel model(0, db);
+    model.setTable(qTableName("reltest3"));
+    model.setEditStrategy(QSqlTableModel::OnManualSubmit);
+    model.setRelation(2, QSqlRelation(qTableName("reltest4"), "id", "name"));
+    QVERIFY2(model.select(), model.lastError().text().toLatin1());
+
+    QSqlRecord rec = model.record();
+    rec.setValue(0, 3);
+    rec.setValue(1, "Berge");
+    // It's logical to insert the key value - which is 1 and not Oslo.
+    rec.setValue(2, 1);
+
+    // This isn't very nice! After the insert the key value is returned,
+    // but after the call to submitAll() the resolved value is returned.
+    // In both cases the resolved value should be returned, not the key.
+    QVERIFY(model.insertRecord(-1, rec));
+    QCOMPARE(model.data(model.index(2, 2)).toString(), QString("1"));
+    QVERIFY(model.submitAll());
+    QCOMPARE(model.data(model.index(2, 2)).toString(), QString("Oslo"));
 }
 
 QTEST_MAIN(tst_QSqlRelationalTableModel)

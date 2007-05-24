@@ -386,6 +386,7 @@ QString QSqlRelationalTableModel::selectStatement() const
         if (relation.isValid()) {
             QString relTableAlias = QString::fromLatin1("relTblAl_%1").arg(i);
             fList.append(d->escapedRelationField(relTableAlias, relation.displayColumn()));
+            fList.append(QString::fromLatin1(" %1_%2").arg(relTableAlias).arg(relation.displayColumn()));
             fList.append(QLatin1Char(','));
             if (!tables.contains(relation.tableName()))
                 tables.append(d->db.driver()->escapeIdentifier(relation.tableName(),
