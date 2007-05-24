@@ -214,8 +214,7 @@ void QPainterPrivate::draw_helper(const QPainterPath &originalPath, DrawOperatio
     p.end();
 
     q->save();
-    q->setViewTransformEnabled(false);
-    q->setTransform(QTransform(1, 0, 0, 1, -redirection_offset.x(), -redirection_offset.y()));
+    q->resetMatrix();
     updateState(state);
     engine->drawImage(absPathRect,
                  image,
