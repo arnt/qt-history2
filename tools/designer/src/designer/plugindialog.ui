@@ -51,7 +51,16 @@
     </widget>
    </item>
    <item>
-    <widget class="QTreeWidget" name="treeWidget" />
+    <widget class="QTreeWidget" name="treeWidget" >
+     <property name="textElideMode" >
+      <enum>Qt::ElideNone</enum>
+     </property>
+     <column>
+      <property name="text" >
+       <string>1</string>
+      </property>
+     </column>
+    </widget>
    </item>
    <item>
     <widget class="QLabel" name="message" >

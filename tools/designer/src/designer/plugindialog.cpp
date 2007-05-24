@@ -96,8 +96,9 @@ void PluginDialog::populateTreeWidget()
         QTreeWidgetItem *topLevelItem = setTopLevelItem(QLatin1String("Failed Plugins"));
         const QFont boldFont = topLevelItem->font(0);
         foreach (const QString plugin, notLoadedPlugins) {
+            const QString failureReason = pluginManager->failureReason(plugin);
             QTreeWidgetItem *pluginItem = setPluginItem(topLevelItem, plugin, boldFont);
-            setItem(pluginItem, pluginManager->failureReason(plugin), QString(), QString(), QIcon());
+            setItem(pluginItem, failureReason, failureReason, QString(), QIcon());
         }
     }
 

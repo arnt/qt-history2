@@ -188,7 +188,6 @@ void QDesignerPluginManager::registerPlugin(const QString &plugin)
 
     const QString errorMessage = loader.errorString();
     m_failedPlugins.insert(plugin, errorMessage);
-    qdesigner_internal::designerWarning(QObject::tr("The plugin '%1' failed to load: %2").arg(plugin).arg(errorMessage));
 }
 
 bool QDesignerPluginManager::syncSettings()
