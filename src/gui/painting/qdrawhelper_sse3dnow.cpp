@@ -13,89 +13,10 @@
 
 #include <private/qdrawhelper_x86_p.h>
 
-#ifdef QT_HAVE_3DNOW
+#if defined(QT_HAVE_3DNOW) && defined(QT_HAVE_SSE)
 
-#if defined(QT_HAVE_MMX) || !defined(QT_HAVE_SSE)
-#include <private/qdrawhelper_mmx_p.h>
-#endif
-#if defined(QT_HAVE_SSE)
 #include <private/qdrawhelper_sse_p.h>
-#endif
-
 #include <mm3dnow.h>
-
-#if defined(QT_HAVE_MMX) || !defined(QT_HAVE_SSE)
-
-struct QMMX3DNOWIntrinsics : public QMMXCommonIntrinsics
-{
-    static inline void end() {
-        _m_femms();
-    }
-};
-
-const CompositionFunctionSolid qt_functionForModeSolid_MMX3DNOW[] = {
-    comp_func_solid_SourceOver<QMMX3DNOWIntrinsics>,
-    comp_func_solid_DestinationOver<QMMX3DNOWIntrinsics>,
-    comp_func_solid_Clear<QMMX3DNOWIntrinsics>,
-    comp_func_solid_Source<QMMX3DNOWIntrinsics>,
-    0,
-    comp_func_solid_SourceIn<QMMX3DNOWIntrinsics>,
-    comp_func_solid_DestinationIn<QMMX3DNOWIntrinsics>,
-    comp_func_solid_SourceOut<QMMX3DNOWIntrinsics>,
-    comp_func_solid_DestinationOut<QMMX3DNOWIntrinsics>,
-    comp_func_solid_SourceAtop<QMMX3DNOWIntrinsics>,
-    comp_func_solid_DestinationAtop<QMMX3DNOWIntrinsics>,
-    comp_func_solid_XOR<QMMX3DNOWIntrinsics>,
-    comp_func_solid_Plus,
-    comp_func_solid_Multiply,
-    comp_func_solid_Screen,
-    comp_func_solid_Overlay,
-    comp_func_solid_Darken,
-    comp_func_solid_Lighten,
-    comp_func_solid_ColorDodge,
-    comp_func_solid_ColorBurn,
-    comp_func_solid_HardLight,
-    comp_func_solid_SoftLight,
-    comp_func_solid_Difference,
-    comp_func_solid_Exclusion
-};
-
-const CompositionFunction qt_functionForMode_MMX3DNOW[] = {
-    comp_func_SourceOver<QMMX3DNOWIntrinsics>,
-    comp_func_DestinationOver<QMMX3DNOWIntrinsics>,
-    comp_func_Clear<QMMX3DNOWIntrinsics>,
-    comp_func_Source<QMMX3DNOWIntrinsics>,
-    0,
-    comp_func_SourceIn<QMMX3DNOWIntrinsics>,
-    comp_func_DestinationIn<QMMX3DNOWIntrinsics>,
-    comp_func_SourceOut<QMMX3DNOWIntrinsics>,
-    comp_func_DestinationOut<QMMX3DNOWIntrinsics>,
-    comp_func_SourceAtop<QMMX3DNOWIntrinsics>,
-    comp_func_DestinationAtop<QMMX3DNOWIntrinsics>,
-    comp_func_XOR<QMMX3DNOWIntrinsics>,
-    comp_func_Plus,
-    comp_func_Multiply,
-    comp_func_Screen,
-    comp_func_Overlay,
-    comp_func_Darken,
-    comp_func_Lighten,
-    comp_func_ColorDodge,
-    comp_func_ColorBurn,
-    comp_func_HardLight,
-    comp_func_SoftLight,
-    comp_func_Difference,
-    comp_func_Exclusion
-};
-
-void qt_blend_color_argb_mmx3dnow(int count, const QSpan *spans, void *userData)
-{
-    qt_blend_color_argb_x86<QMMX3DNOWIntrinsics>(count, spans, userData,
-                                                 (CompositionFunctionSolid*)qt_functionForModeSolid_MMX3DNOW);
-}
-
-#endif // QT_HAVE_MMX
-
-#ifdef QT_HAVE_SSE
 
 struct QSSE3DNOWIntrinsics : public QSSEIntrinsics
 {
@@ -180,6 +101,4 @@ void qt_bitmapblit16_sse3dnow(QRasterBuffer *rasterBuffer, int x, int y,
                                                              height, stride);
 }
 
-#endif // QT_HAVE_SSE
-
-#endif // QT_HAVE_3DNOW
+#endif // QT_HAVE_3DNOW && QT_HAVE_SSE

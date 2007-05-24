@@ -160,7 +160,10 @@ mac {
     }
     3dnow { 
 	DEFINES += QT_HAVE_3DNOW
-	3DNOW_SOURCES += painting/qdrawhelper_3dnow.cpp
+	MMX3DNOW_SOURCES += painting/qdrawhelper_mmx3dnow.cpp
+	sse {
+	    SSE3DNOW_SOURCES += painting/qdrawhelper_sse3dnow.cpp
+	}
     }
     sse { 
 	DEFINES += QT_HAVE_SSE
@@ -194,18 +197,28 @@ mac {
             }
         }
         3dnow {
-            3dnow_compiler.commands = $$QMAKE_CXX -c
-            3dnow_compiler.commands += -m3dnow
-            mmx: 3dnow_compiler.commands += -mmmx
-            sse: 3dnow_compiler.commands += -msse
-            3dnow_compiler.commands += $(CXXFLAGS) $(INCPATH) ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
-            3dnow_compiler.dependency_type = TYPE_C
-            3dnow_compiler.output = ${QMAKE_VAR_OBJECTS_DIR}${QMAKE_FILE_BASE}$${first(QMAKE_EXT_OBJ)}
-            3dnow_compiler.input = 3DNOW_SOURCES
-            3dnow_compiler.variable_out = OBJECTS
-            3dnow_compiler.name = compiling[3dnow] ${QMAKE_FILE_IN}
-            silent:3dnow_compiler.commands = @echo compiling[3dnow] ${QMAKE_FILE_IN} && $$3dnow_compiler.commands
-            QMAKE_EXTRA_COMPILERS += 3dnow_compiler
+            mmx3dnow_compiler.commands = $$QMAKE_CXX -c
+            mmx3dnow_compiler.commands += -m3dnow -mmmx
+            mmx3dnow_compiler.commands += $(CXXFLAGS) $(INCPATH) ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
+            mmx3dnow_compiler.dependency_type = TYPE_C
+            mmx3dnow_compiler.output = ${QMAKE_VAR_OBJECTS_DIR}${QMAKE_FILE_BASE}$${first(QMAKE_EXT_OBJ)}
+            mmx3dnow_compiler.input = MMX3DNOW_SOURCES
+            mmx3dnow_compiler.variable_out = OBJECTS
+            mmx3dnow_compiler.name = compiling[mmx3dnow] ${QMAKE_FILE_IN}
+            silent:mmx3dnow_compiler.commands = @echo compiling[mmx3dnow] ${QMAKE_FILE_IN} && $$mmx3dnow_compiler.commands
+            QMAKE_EXTRA_COMPILERS += mmx3dnow_compiler
+	    sse {
+                sse3dnow_compiler.commands = $$QMAKE_CXX -c
+                sse3dnow_compiler.commands += -m3dnow -msse
+                sse3dnow_compiler.commands += $(CXXFLAGS) $(INCPATH) ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
+                sse3dnow_compiler.dependency_type = TYPE_C
+                sse3dnow_compiler.output = ${QMAKE_VAR_OBJECTS_DIR}${QMAKE_FILE_BASE}$${first(QMAKE_EXT_OBJ)}
+                sse3dnow_compiler.input = SSE3DNOW_SOURCES
+                sse3dnow_compiler.variable_out = OBJECTS
+                sse3dnow_compiler.name = compiling[sse3dnow] ${QMAKE_FILE_IN}
+                silent:sse3dnow_compiler.commands = @echo compiling[sse3dnow] ${QMAKE_FILE_IN} && $$sse3dnow_compiler.commands
+                QMAKE_EXTRA_COMPILERS += sse3dnow_compiler
+	    }
         }
         sse {
             sse_compiler.commands = $$QMAKE_CXX -c
@@ -245,7 +258,8 @@ mac {
         }
     } else {
         mmx: SOURCES += $$MMX_SOURCES
-        3dnow: SOURCES += $$3DNOW_SOURCES
+        3dnow: SOURCES += $$MMX3DNOW_SOURCES
+        3dnow:sse: SOURCES += $$SSE3DNOW_SOURCES
         sse: SOURCES += $$SSE_SOURCES
         sse2: SOURCES += $$SSE2_SOURCES
         iwmmxt: SOURCES += $$IWMMXT_SOURCES
