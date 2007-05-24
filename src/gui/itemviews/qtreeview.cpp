@@ -1229,7 +1229,7 @@ void QTreeView::drawTree(QPainter *painter, const QRegion &region) const
             d->spanning = viewItems.at(i).spanning;
             if (!multipleRects || !drawn.contains(i)) {
                 drawRow(painter, option, viewItems.at(i).index);
-                if (multipleRects)
+                if (multipleRects && area.contains(option.rect))
                     drawn.append(i);
             }
             y += itemHeight;
