@@ -93,11 +93,9 @@ struct QMMXCommonIntrinsics
         return _mm_unpacklo_pi8(_mm_cvtsi32_si64(x), mmx_0x0000);
     }
 
-    static inline m64 _load_alpha(uint x, const m64 &mmx_0x0000) {
-        m64 t = _mm_unpacklo_pi8(_mm_cvtsi32_si64(x), mmx_0x0000);
-        t = _mm_unpacklo_pi16(t, t);
-        t = _mm_unpacklo_pi16(t, t);
-        return t;
+    static inline m64 _load_alpha(uint x, const m64 &) {
+        x |= (x << 16);
+        return _mm_set1_pi32(x);
     }
 
     static inline uint _store(const m64 &x, const m64 &mmx_0x0000) {
