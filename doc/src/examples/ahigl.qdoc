@@ -46,7 +46,7 @@
     screen driver for other ATI handheld devices.
 
     \quotefromfile qtopiacore/ahigl/qscreenahigl_qws.h
-    \skipto include
+    \skipto class QAhiGLScreen :
     \printuntil };
 
     The screen driver class is derived from class QGLScreen, which is
