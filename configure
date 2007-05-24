@@ -3914,8 +3914,8 @@ for _SQLDR in $CFG_SQL_AVAILABLE; do
                     if "$unixtests/compile.test" "$XQMAKESPEC" "$QMAKE_CONFIG" $OPT_VERBOSE "$relpath" "$outpath" config.tests/unix/sqlite "SQLite" $QT_LFLAGS_SQLITE $L_FLAGS $QT_CFLAGS_SQLITE $I_FLAGS $l_FLAGS; then
                         if [ "$CFG_SQL_sqlite" = "auto" ]; then
                             CFG_SQL_sqlite=plugin
-                            QMAKE_CONFIG="$QMAKE_CONFIG system-sqlite"
                         fi
+                        QMAKE_CONFIG="$QMAKE_CONFIG system-sqlite"
                     else
                         SQLITE_AUTODETECT_FAILED="yes"
                         CFG_SQL_sqlite=no
