@@ -228,11 +228,60 @@
     \l{QComboBox}es. Although the double-colon (\c{::}) syntax is
     reminiscent of CSS3 Pseudo-Elements, Qt Sub-Controls differ
     conceptually from these and have different cascading semantics.
+   
+    Sub-controls are always positioned with respect to another element
+    (a reference element). This reference element could be the widget
+    or another Sub-control. For example, the \l{#drop-down-sub}{::drop-down}
+    of a QComboBox is placed, by default, in the top right corner of the 
+    Padding rectangle of the QComboBox. The \l{#down-arrow-sub}{::down-arrow}
+    is placed, by default, in the Center of the Contents rectangle of the
+    \l{#drop-down-sub}{::drop-down} Sub-control. See the
+    \l{List of Stylable Widgets} below for the Sub-controls to use to style a
+    widget and their default positions.
 
-    When customizing a subcontrol, we can either specify an image
-    (using the \l{#image-prop}{image} property) or set the
-    \l{#width-prop}{width} and \l{#height-prop}{weight} properties.
-    Otherwise, they are treated the same as widgets and can be styled
+    The origin rectangle to be used is changed using 
+    the \l{#subcontrol-origin-prop}{subcontrol-origin}
+    property. For example, if we want to place the drop-down in the
+    margin rectangle of the QComboBox instead of the default Padding
+    rectangle, we can specify:
+    
+    \code
+        QComboBox {
+            margin-right: 20px;
+        }
+        QComboBox::drop-down {
+            subcontrol-origin: margin;
+        }
+    \endcode
+    
+    The alignment of the drop-down within the Margin rectangle is changed 
+    using \l{#subcontrol-position-prop}{subcontrol-position} property.
+
+    The \l{#width-prop}{width} and \l{#height-prop}{height} properties
+    can be used to control the size of the Sub-control. Note that setting
+    a \l{#image-prop}{image} implicitly sets the size of a Sub-control.
+
+    The relative positioning scheme (\l{#position-prop}{position} : relative),
+    allows the position of the Sub-Control to be offset from its initial position.
+    For example, when the QComboBox's drop-down button is pressed, we may
+    desire the arrow inside to be offset to give a "pressed" effect. To achieve
+    this, we can specify:
+
+    \code
+        QComboBox::down-arrow {
+            image: url(down_arrow.png);
+        }
+        QComboBox::down-arrow:pressed {
+            position: relative;
+            top: 1px; left: 1px;
+        }
+    \endcode
+
+    The absolute positioning scheme (\l{#position-prop}{position} : absolute),
+    allows the position and size of the Sub-control to be changed with respect
+    to the reference element.
+
+    Once positioned, they are treated the same as widgets and can be styled
     using the the \l{box model}.
 
     See the \l{List of Sub-Controls} below for a list of supported
@@ -512,6 +561,21 @@
     \endcode
 
     \endomit
+
+    \section1 Designer Integration
+
+    \l{Qt Designer}{Qt Designer} is an excellent tool
+    to preview style sheets. Just right-click anywhere on the form
+    you're designing and click \bold{Change styleSheet...}.
+
+    \image stylesheet-designer-options.png
+
+    In Qt 4.3 and later, \l{Qt Designer}{Qt Designer} also includes a
+    style sheet syntax highlighter and validator. The validator indicates
+    if the syntax is valid or invalid, at the bottom left of the Edit
+    Style Sheet dialog.
+
+    \image designer-validator-highlighter.png
 
     \section1 Customizing Qt Widgets Using Style Sheets
 
@@ -1382,6 +1446,9 @@
            If this property is not specified, it defaults to a value
            that depends on the subcontrol and on the current style.
 
+           \warning Unless otherwise specified, this property applies 
+           only to subcontrols and not to widgets.
+
            Example:
 
            \code
@@ -1527,7 +1594,7 @@
     \row
         \o \bold{\c min-height} \target min-height-prop
         \o \l{#Length}{Length}
-        \o The widget's minimum height.
+        \o The widget's or a subcontrol's minimum height.
 
            This property is supported by QAbstractItemView
            subclasses, QAbstractSpinBox subclasses, QCheckBox,
@@ -1537,6 +1604,12 @@
 
            If this property is not specified, the minimum height is
            derived based on the widget's contents and the style.
+
+           \warning When used with widgets, this property affects 
+           only the QWidget::minimumSizeHint() of the element.
+           As a result, this does not work for widgets that are not in a
+           layout or do not use the QStyle::sizeFromContents() for size hint
+           computation.
 
            Example:
 
@@ -1559,6 +1632,12 @@
 
            If this property is not specified, the minimum width is
            derived based on the widget's contents and the style.
+
+           \warning When used with widgets, this property affects
+           only the QWidget::minimumSizeHint() of the element. 
+           As a result, this does not work for widgets that are not in a
+           layout or do not use the QStyle::sizeFromContents() for size hint
+           computation.
 
            Example:
 
@@ -1818,6 +1897,9 @@
 
            If this property is not specified, it defaults to a value
            that depends on the subcontrol and on the current style.
+
+           \warning Unless otherwise specified, this property applies 
+           only to subcontrols and not to widgets.
 
            Example:
 
@@ -2521,21 +2603,6 @@ blue green yellow * /
     If a background is specified for a widget, by default it is drawn
     only for the area inside the border. This can be changed using
     the \l{#background-clip-prop}{background-clip} property.
-
-    \section1 Designer Integration
-
-    \l{Qt Designer}{Qt Designer} is an excellent tool
-    to preview style sheets. Just right-click anywhere on the form
-    you're designing and click \bold{Change styleSheet...}.
-
-    \image stylesheet-designer-options.png
-
-    In Qt 4.3 and later, \l{Qt Designer}{Qt Designer} also includes a
-    style sheet syntax highlighter and validator. The validator indicates
-    if the syntax is valid or invalid, at the bottom left of the Edit
-    Style Sheet dialog.
-
-    \image designer-validator-highlighter.png
 
     \section1 Examples
 
