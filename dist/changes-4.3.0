@@ -31,17 +31,19 @@ General Improvements
 - Legal
     * Added information about the OpenSSL exception to the GPL.
 
-- Documentation
+- Documentation and Examples
     * Added information about the TS file format used in Linguist.
     * Moved platform and compiler support information from
       www.trolltech.com into the documentation.
     * Added an Accessibility overview document.
+    * Added new example to show usage of QCompleter with custom tree models.
 
 - Translations
     * Added a Slovak translation of Qt courtesy of Richard Fric.
     * Added a Ukrainian translation of Qt courtesy of Andriy Rysin.
     * Added a Polish translation of the Qt libraries and tools courtesy of
       Marcin Giedz, who also provided a Polish phrasebook for Qt Linguist.
+    * [155464] Added a German translation for Qt Designer.
 
 - Added support for the CP949 Korean Codec.
 
@@ -197,30 +199,6 @@ Third party components
     * Added foldCase() and toTitleCase() methods.
     * Added public API to handle the full Unicode range.
 
-- QColor
-    * [140150] Fixed bug where QColor::isValid() would return true for
-      certain invalid color strings.
-    * [120367] Added QColor::setAllowX11ColorNames(bool), which enables
-      applications to use X11 color names.
-    * Fixed internal errors in toHsv() due to inexact floating point
-      comparisions.
-
-- QColorDialog
-    * [131160] Enabled the color dialog to be used to specify an alpha color
-      on Mac OS X.
-
-- QCoreApplication
-    * Added support for posted event priorities.
-    * [34019] Added the QCoreApplication::removePostedEvents() overload
-      for removing events of a specific type.
-    * Documented QCoreApplication::processEvents() as thread-safe;
-      calling it will process events for the calling thread.
-    * Optimized delivery of QEvent::ChildInserted compatibility events.
-    * [154727] Enabled compression of posted QEvent::DeferredDelete events
-      (used by QObject::deleteLater()) to prevent objects from being deleted
-      unexpectedly when many such events are posted.
-    * Ensured that duplicate entries in library paths are ignored.
-
 - QCleanlooksStyle
     * [129506] Sliders now look and behave correctly in both reversed and
       inverted appearance modes.
@@ -251,6 +229,18 @@ Third party components
       with the same data.
     * QMacMime now does correct normalization of file names in a URL list
       from foreign applications.
+
+- QColor
+    * [140150] Fixed bug where QColor::isValid() would return true for
+      certain invalid color strings.
+    * [120367] Added QColor::setAllowX11ColorNames(bool), which enables
+      applications to use X11 color names.
+    * Fixed internal errors in toHsv() due to inexact floating point
+      comparisions.
+
+- QColorDialog
+    * [131160] Enabled the color dialog to be used to specify an alpha color
+      on Mac OS X.
 
 - QColumnView
     * A new widget that provide a column-based implementation of
@@ -285,6 +275,18 @@ Third party components
       same QCompleter object to be set on multiple widgets.
     * [143441] Added support for models that sort their items in descending
       order.
+
+- QCoreApplication
+    * Added support for posted event priorities.
+    * [34019] Added the QCoreApplication::removePostedEvents() overload
+      for removing events of a specific type.
+    * Documented QCoreApplication::processEvents() as thread-safe;
+      calling it will process events for the calling thread.
+    * Optimized delivery of QEvent::ChildInserted compatibility events.
+    * [154727] Enabled compression of posted QEvent::DeferredDelete events
+      (used by QObject::deleteLater()) to prevent objects from being deleted
+      unexpectedly when many such events are posted.
+    * Ensured that duplicate entries in library paths are ignored.
 
 - QCryptographicHash
     * New Class. Provides support for the MD4, MD5 and SHA1 hash functions.
@@ -376,6 +378,14 @@ Third party components
       state.
     * [145798] Ensured that calling setWindowTitle() on a nested, docked
       dock widget causes the title in the tab bar to be updated.
+
+- QDomDocument
+    * [128594] Ensured that comment nodes are indented correctly when
+      serializing a document to a string.
+    * [144781] Fixed crash that would occur when the owner document of new
+      attributes was not adjusted.
+    * [107123] Ensured that appendChild() does not erroneously add two
+      elements to document nodes in certain cases.
 
 - QDoubleSpinBox
     * [99254] Allow higher settings for decimals.
@@ -486,7 +496,7 @@ Third party components
 - QGraphicsItem
     * [151271] Fixed crash that could occur when calling update on items
       that are not fully constructed.
-    * [237041] Ensured that the selected state no longer changes state twice
+    * Ensured that the selected state no longer changes state twice
       for each mouse click.
     * [138576] setParent() now correctly adds the child to the parent's
       scene.
@@ -576,50 +586,6 @@ Third party components
     * [156497] Fix a one-off error that could cause the bottom button in
       a QDialogButtonBox to be cropped.
 
-- QImage
-    * [157549] Fixed a crash that could occur when calling copy() with
-      negative coordinates.
-    * Added cacheKey() as a replacement for serialNumber().
-    * [131852] Optimized rotations by 90 and 270 degrees.
-    * [158986] Fixed painting onto an images with the Format_RGB16 image
-      format.
-    * Fixed rotations by 90 and 270 degrees for images with the Format_RGB16
-      image format.
-    * [152850] Fixed bugs in text() and setText().
-    * Fixed a crash that could occur when passing a 0 pointer to the
-      constructor that accepts XPM format image data.
-    * [150746] Added a constructor that accepts an existing memory buffer
-      with non-default stride (bytes per line).
-
-- QImageReader
-    * [141781] Fixed support for double byte PPM files (>256 colors).
-
-- QImageWriter
-    * Added support to enable compression if a plugin supports it.
-
-- QIcon
-    * Added cacheKey() as a replacement for serialNumber().
-    * Fixed the streaming operators.
-
-- QInputDialog
-    * [115565] Disabled OK button for non-acceptable text (getInteger() and
-      getDouble()).
-    * [90535] Input dialogs now have a size grip
-
-- QIntValidator, QDoubleValidator
-    * Validators now use the "locale" property to recognize numbers
-      formatted for various locales.
-
-- QItemDelegate
-    * [145142] Ensured that text is not drawn outside the bounds of a cell.
-    * [137198] Fixed handling of cases where the decoration position is set
-      to be at the bottom of an item to prevent the text from being
-      incorrectly positioned.
-    * [142593] Take word wrap into account when calculating an item's size
-      hint.
-    * [139160] Ensured that the focus rectangle is shown, even for empty
-      cells.
-
 - QHeaderView
     * This widget now uses Qt::NoFocus as its default focus policy.
     * [99569] Improved performance, providing up to a 2x speed increase for
@@ -646,9 +612,63 @@ Third party components
     * Improved proxy support.
     * Added support for server and proxy authentication.
 
+- QIcon
+    * Added cacheKey() as a replacement for serialNumber().
+    * Fixed the streaming operators.
+
+- QImage
+    * [157549] Fixed a crash that could occur when calling copy() with
+      negative coordinates.
+    * Added cacheKey() as a replacement for serialNumber().
+    * [131852] Optimized rotations by 90 and 270 degrees.
+    * [158986] Fixed painting onto an images with the Format_RGB16 image
+      format.
+    * Fixed rotations by 90 and 270 degrees for images with the Format_RGB16
+      image format.
+    * [152850] Fixed bugs in text() and setText().
+    * Fixed a crash that could occur when passing a 0 pointer to the
+      constructor that accepts XPM format image data.
+    * [150746] Added a constructor that accepts an existing memory buffer
+      with non-default stride (bytes per line).
+
+- QImageReader
+    * [141781] Fixed support for double byte PPM files (>256 colors).
+
+- QImageWriter
+    * Added support to enable compression if a plugin supports it.
+
+- QInputDialog
+    * [115565] Disabled OK button for non-acceptable text (getInteger() and
+      getDouble()).
+    * [90535] Input dialogs now have a size grip
+
+- QIntValidator, QDoubleValidator
+    * Validators now use the locale property to recognize numbers
+      formatted for various locales.
+
+- QItemDelegate
+    * [145142] Ensured that text is not drawn outside the bounds of a cell.
+    * [137198] Fixed handling of cases where the decoration position is set
+      to be at the bottom of an item to prevent the text from being
+      incorrectly positioned.
+    * [142593] Take word wrap into account when calculating an item's size
+      hint.
+    * [139160] Ensured that the focus rectangle is shown, even for empty
+      cells.
+
 - QItemSelectionModel
     * Made optimizations for some common cases.
     * [143383] Fixed incorrect behavior of hasSelection().
+
+- QLabel
+    * [133589] Fixed performance problems with plain text labels.
+    * Fixed support for buddies with rich text labels.
+    * [136918] Fixed setText() to not turn off mouse tracking when the text
+      used is plain text.
+    * [143063] Ensured that the mouse cursor is reset when a link is
+      clicked.
+    * [156912] Fixed bug where the mouse cursor shape was changed to the
+      pointing hand cursor, but would not be correctly cleared afterwards.
 
 - QLayout
     * Added new features to Qt's layout system to enable:
@@ -715,6 +735,53 @@ Third party components
 - QLocale
     * Updated the locale database to CLDR 1.4: more locales supported;
       numerous fixes to existing locales.
+
+- QMacStyle
+    * [159270] Fixed drawing of icons on buttons with no text.
+    * [146364] Fixed drawing of multi-line text for items in a QToolBar.
+    * [145346] Removed unwanted wrapping of text in a QPushButton.
+    * Fixed drawing of "Flat" group boxes.
+    * [113472] Fixed drawing of text on vertical headers when resizing.
+    * [148509] Ensured that the correct font is used for buttons and labels
+      when the application is not configured to use the desktop settings.
+    * [106100] Improved the look of push buttons with menus.
+    * Made fixes to Qt's layout system that enable more native-looking
+      forms.
+    * [151739] Buttons with an icon are now centered correctly.
+    * [142672] Fixed font size bug on the drop down box for QComboBox.
+    * [148832] The button on a combo box is now showing as pressed when the
+      drop down menu is shown.
+    * [147377] Ensured that combo boxes now scale correctly on Mac OS X.
+    * [143901] Fixed the highlight color for widgets such as QComboBox so
+      that it follows the system settings on Mac OS X.
+    * [151852] Fixed size calculation for QPushButton with an icon.
+    * [133263] Removed the coupling of text size and button kind, enabling
+      them to be set independently.
+    * [133263] Ensured that QPushButton respects calls to setFont().
+    * [141980] Text with small font sizes is now centered vertically correct
+      inside push buttons.
+    * [149631] Ensure that beveled button types are chosen if text doesn't
+      fit inside a button instead of cutting the text.
+    * [151500] Fixed incorrect QPushButton text clipping behavior.
+    * [147653] Fixed bug that caused the sort indicator to be drawn on top
+      of the text in QHeaderView.
+    * [139149] Fixed issues with CE_SizeGrip in right-to-left mode.
+    * [139311] Improved drawing of the title in QGroupBox.
+    * [128713] Ensured that drawing of the focus frame now follows pixel
+      metrics.
+    * [142274] Made QSlider tickmark drawing more like Cocoa.
+    * focusRectPolicy() is now obsolete. This is now controlled by the
+      Qt::WA_MacShowFocusRect attribute.
+    * widgetSizePolicy() is now obsolete. This is now controlled by the
+      Qt::WA_Mac*Size attribute.
+    * [129503] Ensured that a group box without a title no longer allocates
+      space for it.
+    * Ensured that a more appropriate width is used for push buttons.
+    * [132674] Ensured that tab bar drawing is correct when the tab's font
+      isn't as tall as the default.
+    * [126214] Ensured that the QSizeGrip is drawn correctly in brushed
+      metal windows.
+    * Improved styling of docked QDockWidgets.
 
 - QMainWindow
     * [145493] Fixed a crash that could occur when calling setMainWindow(0)
@@ -807,13 +874,13 @@ Third party components
     * [143011] Fixed isRegistered() to return false when the type ID does
       not correspond to a user-registered type.
 
+- QModelIndex
+    * [144919] Added more rigorous identity tests for model indexes.
+
 - QMotifStyle
     * [38624] Fixed the behavior when clicking on a menu bar item a
       second time; the menu will now close in the same way that native
       Motif menus do.
-
-- QModelIndex
-    * [144919] Added more rigorous identity tests for model indexes.
 
 - QMutex
     * [106089] Added tryLock(int timeout), which allows a thread to specify
@@ -961,6 +1028,18 @@ Third party components
     * [143270] X11: Ensure that sigpipe is ignored when printing to an
       invalid printer using the PDF generator.
 
+- QProcess
+    * [97517] Added suport for specifying the working directory of detached
+      processes as well as retrieving the PID of such processes.
+    * [138770] Greatly improved the performance of stdin and stdout handling
+      on Windows.
+    * [154135] Fixed crashes and lock-ups due to use of non-signal-safe
+      functions on Unix.
+    * [144728] Fixed race conditions on Windows that would occur when
+      calling bytesWritten() while using the waitFor...() functions.
+    * [152838] Ensured that finished() is no longer emitted if a process
+      could not start.
+
 - QProgressBar
     * [146855] Ensured that setFormat() now calls update() if the format
       changes.
@@ -978,6 +1057,7 @@ Third party components
     * [114245] Fixed some styling issues for push buttons with popup menus.
     * [158951] Buttons with icons now center their content to be more
       consistent with buttons that do not have icons in most styles.
+    * [132211] Fixed setDefault() behavior.
 
 - QReadWriteLock
     * [106089] Added the tryLockForRead(int) and tryLockForWrite(int)
@@ -988,16 +1068,12 @@ Third party components
 - QRectF
     * [143550] Added the QRectF(topRight,bottomLeft) constructor.
 
-- QResource
-    * Allow a QByteArray to be used for run time resource registration.
-
 - QRegion
     * Added several optimizations for common operations on X11 and Qtopia
       Core.
 
-- QStatusbar
-    * [131558] Increased text margin and fixed a look and feel issue on
-      Windows.
+- QResource
+    * Allow a QByteArray to be used for run time resource registration.
 
 - QScrollArea
     * [140603] Fixed flickering when the scroll widget is right-aligned.
@@ -1010,6 +1086,12 @@ Third party components
 - QSettings
     * [153758] Fixed various bugs that could occur when writing to and
       reading from the Windows registry.
+
+- QSizeGrip
+    * Added support for size grips in TopLeftCorner/TopRightCorner on Windows.
+    * Added support for size grips on subwindows.
+    * [150109] Fixed bug where the position could change during resize.
+    * [156114] Fixed incorrect size grip orientation on X11.
 
 - QSlider
     * Prevent the widget from getting into infinite loops when extreme
@@ -1037,6 +1119,13 @@ Third party components
       send valueChanged() with every key press.
     * [143504] Made undo/redo work correctly.
     * [131165] Fixed highlighting according to the native look on Mac OS X.
+
+- QSplashScreen
+    * [38269] Added support for rich text.
+
+- QSplitter
+    * [139262] Fixed bug that caused the splitter to snap back and forth in
+      certain situations.
 
 - QSql
     * Added NumericalPrecisionPolicy to allow numbers to be retrieved as
@@ -1082,6 +1171,10 @@ Third party components
       flags.
     * [143073] Calling setItemData() now triggers the emission of the
       dataChanged() signal.
+
+- QStatusbar
+    * [131558] Increased text margin and fixed a look and feel issue on
+      Windows.
 
 - QString
     * fromUtf8() now discards UTF-8 encoded byte order marks just like the
@@ -1178,6 +1271,9 @@ Third party components
     * [124987] Ensured that a re-layout occurs when a corner widget is set.
     * [111672] Added the clear() function.
 
+- QtAlgorithms
+   * [140027] Improved the performance of qStableSort() on large data sets.
+
 - QTcpSocket
     * Added several fixes to improve connection reliability on Windows.
     * Made a number of optimizations.
@@ -1187,6 +1283,11 @@ Third party components
 
 - QTemporaryFile
     * [150770] Fixed large file support on Unix.
+
+- QTextBrowser
+    * [126914] Fixed drawing of the focus indicator when activating links.
+    * [82277] Added the openLinks property to prevent QTextBrowser from
+      automatically opening any links that are activated.
 
 - QTextCodec
     * Improved the UTF-8 codec's handling of large, rare codepoints.
@@ -1256,9 +1357,32 @@ Third party components
     * [137706] Made the semantics of the selectionChanged() signal more like
       QLineEdit::selectionChanged().
 
+- QTextFormat
+    * [156343] Fixed crash that could occur when streaming QTextFormat
+      instances.
+
+- QTextLayout
+    * Fixed support for justified Arabic text.
+    * [152248] Fixed assert in sub/superscript handling of fonts specified
+      in pixel sizes.
+    * Optimized text layout handling for pure Latin text.
+    * Ensured that OpenType processing is skipped altogether if a font does
+      not contain OpenType tables.
+    * Fixed some issues in the shaper for Indic languages.
+    * Upgraded the line breaking algorithm to the newest version
+      (http://www.unicode.org/reports/tr14/tr14-19.html).
+    * [140165] Changed boundingRect() to report the actual position of the
+      top left line instead of incorrectly reporting (0, 0) for the top-left
+      corner in every case.
+    * Fixed various problems with text kerning.
+
 - QTextStream
     * [141391] Fixed bug that could occur when reusing a text stream with
       the setString() method.
+    * [133063] atEnd() now works properly with stdin.
+    * [152819] Added support for reading and writing NaN and Inf.
+    * [125496] Ensured that uppercasebase and uppercasedigits work as
+      expected.
 
 - QTextTable
     * [138905] Fixed bug where merging cells in a QTextTable would cause
@@ -1276,11 +1400,20 @@ Third party components
     * [139052] Made sure that empty text table cells get a visible
       selection.
 
+- QtGlobal
+    * Added Q_FUNC_INFO, a macro that expands to a string describing the
+      function it is used in.
+    * [132145] Fixed Q_FOREACH to protect against for-scoping compiler bugs.
+    * Fixed a race condition in the internal Q_GLOBAL_STATIC() macro.
+    * [123910] Fixed crashes on some systems when passing 0 as the
+      message to qDebug(), qWarning(), and qFatal().
+
 - QThread
     * [140734] Fixed a bug that prevented exec() from being called more than
       once per thread.
-    * Added the idealThreadCount() function.
     * Optimized the currentThread() function on Unix.
+    * Added the idealThreadCount() function, which returns the ideal number
+      of threads that can be run on the system.
 
 - QThreadStorage
     * [131944] Refactored to allow an arbitrary number of instances to be
@@ -1304,6 +1437,9 @@ Third party components
     * [128156, 138908] Added an animation for the case where a tool bar is
       expanded to display all its actions when its extension button is
       pressed.
+
+- QToolBox
+    * [107787] Fixed rendering bugs in reversed mode.
 
 - QToolButton
     * [127814] Ensured that the popup delay respects style changes.
@@ -1337,249 +1473,162 @@ Third party components
       another location in the view was clicked.
     * Made it possible to create a selection with a rectangle of negative
       width or height.
-    * [153238] If a drop is done on the branch it should be dropped on the root node.
-    * [152868] Fix setSelection() so that it works with a negative y-coordinate.
-    * [156522] Fix repaint errors for selections in -reverse mode.
-    * [155449] Prevent to tree from having huge columns when setting the
+    * [153238] Ensured that drops on branches are interpreted as drops onto
+      the root node.
+    * [152868] Fixed setSelection() so that it works with negative
+      y-coordinates.
+    * [156522] Fixed repaint errors for selections in reversed mode.
+    * [155449] Prevented the tree from having huge columns when setting the
       alignment before it is shown.
     * [151686] Hidden rows are now filtered out of the user selection range.
-    * [146468] indexRowSizeHint might not be correct in case columns were moved.
-    * [138938] Fixed an infinite loop when calling expandAll with no column.
-    * [142074] Scrollbars are no more shown when there is no item.
-    * [143127] QTreeView would not emit the collapsed() signal when the animated
-      property was set to true.
-    * [145199] Fix crash when column 0 with expanded items was removed and inserted.
-    * [151165] Add indexRowHeight(const QModelIndex &index).
-    * [151156] Add support for hover appearence.
-    * [140377] Add expandTo(int depth).
-    * [243244] Clicking in the empty area no longer selects all items.
-    * [135727] Added wordWrap property.
-    * [121646] setSelection() now selects the item within the given rectangle.
-    * Added setRowSpanning(int row, const QModelIndex &parent) and
-      isRowSpanning(int row, const QModelIndex &parent).
+    * [146468] Fixed bug where the indexRowSizeHint could be incorrect in
+      the case where columns were moved.
+    * [138938] Fixed an infinite loop when calling expandAll() with no
+      column.
+    * [142074] Scroll bars are no longer shown when there are no items.
+    * [143127] Fixed bug that prevented the collapsed() signal from being
+      emitted when the animated property was set to true.
+    * [145199] Fixed crash that could occur when column 0 with expanded
+      items was removed and inserted.
+    * [151165] Added the indexRowHeight(const QModelIndex &index) function.
+    * [151156] Add support for hover appearance.
+    * [140377] Add the expandTo(int depth) function.
+    * Clicking in the empty area no longer selects all items.
+    * [135727] Added the wordWrap property.
+    * [121646] setSelection() now selects the item within the given
+      rectangle.
+    * Added the setRowSpanning(int row, const QModelIndex &parent) and
+      isRowSpanning(int row, const QModelIndex &parent) functions.
 
 - QTreeWidget
-    * [159078] Fixed drag-n-drop bug on Mac when dragging inside the widget.
-    * [159726] Fixed crash when dragging QTreeWidgetItem with an empty last column.
-    * [154092] Fixed case where the drag pixmap could get the wrong position when dragging many items fast.
-    * [152970] Hidden items are no longer returned as selected from the selectedItems().
-    * [151211] Add removeCellWidget() and removeItemWidget().
-    * [151149] Make the header text left aligned instead of center aligned by default.
-    * [131234] Make it possible to do lazy population by introducing QTreeWidgetItem::ChildIndicatorPolicy.
-    * [134194] Added itemAbove() and itemBelow(). 
-    * [128935] The disabled state of an item is now propagated to its children.
-    * [103421] Added QTreeWidgetItem::setExpandable().
-    * [134138] Added QTreeWidgetItem::removeChild().
-
-- QTextLayout
-    * Fixed support for justified arabic text.
-    * [152248] Fixed assert in sub/superscript handling of fonts specified in pixel sizes.
-    * Optimise text layouting for pure latin text.
-    * Skip opentype processing alltogether if the font doesn't contain open type tables.
-    * Fix some issues in the shaper for indic languages.
-    * Upgrade line breaking algorithm to the newest version (http://www.unicode.org/reports/tr14/tr14-19.html).
-
-- QTreeWidget
-    * [153361] Check that an item exists before emiting itemChanged().
-    * [155700] Fix a crash in QTreeWidget.
-
-- QToolBox
-    * [107787] Fixed rendering bugs in reverse mode.
+    * [159078] Fixed drag and drop bug on Mac OS X that could occur when
+      dragging inside the widget.
+    * [159726] Fixed crash that could occur when dragging a QTreeWidgetItem
+      object with an empty last column.
+    * [154092] Fixed case where the drag pixmap could get the wrong position
+      when dragging many items quickly.
+    * [152970] Hidden items are no longer returned as selected from the
+      selectedItems() function.
+    * [151211] Added the removeCellWidget() and removeItemWidget()
+      functions.
+    * [151149] Made the header text left-aligned instead of center-aligned
+      by default.
+    * [131234] Made it possible to do lazy population by introducing the
+      QTreeWidgetItem::ChildIndicatorPolicy enum.
+    * [134194] Added the itemAbove() and itemBelow() functions.
+    * [128935] The disabled state of an item is now propagated to its
+      children.
+    * [103421] Added the QTreeWidgetItem::setExpandable() function.
+    * [134138] Added the QTreeWidgetItem::removeChild() function.
+    * [153361] Ensured that items exist before emitting itemChanged().
+    * [155700] Fixed a crash in QTreeWidget where deleted items could still
+      be referenced by a selection model.
 
 - QUdpSocket
-    * [142853] Now continues to emit readyRead() also if the peer temporarily
+    * [142853] Now continues to emit readyRead() if the peer temporarily
       disappears.
-    * [154913] Now detects datagrams also when sender's port is invalid.
+    * [154913] Now detects datagrams even when the sender's port is invalid.
 
 - QUndoStack
-    * [142276] Added undoLimit proprerty which controls the maximum number
-      of commands on the stack.
+    * [142276] Added the undoLimit property which controls the maximum
+      number of commands on the stack.
+
+- QUrl
+    * [134604] Fixed the behavior of the obsolete dirPath() function on
+      Windows.
 
 - QValidator
     * [34933] Added support for scientific notation.
 
 - QVariant
-    * [127225] Unloading a GUI plugin will no longer cause crash in
-      QVariant in QtCore application.
+    * [127225] Unloading a GUI plugin will no longer cause a crash in
+      QVariant in a pure QtCore application.
 
 - QWaitCondition
-    * [126007] Made QWaitCondition::wakeOne() behavior consistent
-      between Windows and UNIX when calling wakeOne() twice when
-      exactly 2 threads are waiting (the correct behavior is to wake
-      up both threads).
+    * [126007] Made the behavior of wakeOne() consistent between Windows and
+      Unix in the case where wakeOne() is called twice when exactly 2
+      threads are waiting (the correct behavior is to wake up both threads).
 
 - QWidget
-    * [139359] "locale" property added, this makes it easy to customize
-      how individual widgets display dates and numbers.
-    * [155100] Fixed a regression causing Qt::FramelessWindowHint to be ignored for frameless windows.
-    * [137190] Setting a window mask is now rendered correct with respect to shadow on Mac.
-    * [139182] Added a new function, render(), that renders the widget into another QPaintDevice.
-    * [131917] Fixed bug where min/max sizes were not respected when using X11BypassWindowManagerHint.
-    * [117896] Fixed QWidget::setGeometry() to be more consistent
-      across Mac, Windows, X11 and Qtopia Core.
-    * [132827] Allow setting focus to a hidden widget; it will get
-      focus when shown.
-    * Reduced overhead when repainting a widget with lots of children.
-    * Clarified documentation for the Qt::WA_AlwaysShowToolTips widget attribute.
-    * [154634] Ensure that the Qt::WA_AlwaysShowToolTips widget
-      attribute is respected for all widgets.
-    * [151858] Improved the approximation returned by QWidget::visibleRegion().
-    * [129486] Make setLayout() on visible widget show children, to be consistent with QXxxxLayout::addWidget()
+    * [139359] Added the locale property to make it easy to customize how
+      individual widgets display dates and numbers.
+    * [155100] Fixed a regression that could cause Qt::FramelessWindowHint
+      to be ignored for frameless windows.
+    * [137190] Ensured that windows with masks are now rendered correctly
+      with respect to window shadows on Mac OS X.
+    * [139182] Added the render() function to allow the widget to be
+      rendered onto another QPaintDevice.
+    * [131917] Fixed bug where minimum and maximum sizes were not respected
+      when using X11BypassWindowManagerHint.
+    * [117896] Fixed setGeometry() to be more consistent across Mac OS X,
+      Windows, X11 and Qtopia Core.
+    * [132827] Allow the focus to be given to a hidden widget; it will
+      receive the focus when shown.
+    * Reduced the overhead of repainting a widget with lots of children.
+    * Clarified the documentation for the Qt::WA_AlwaysShowToolTips widget
+      attribute.
+    * [154634] Ensured that the Qt::WA_AlwaysShowToolTips widget attribute
+      is respected for all widgets.
+    * [151858] Improved the approximation returned by visibleRegion().
+    * [129486] Ensured that calling setLayout() on a visible widget causes
+      its children to be shown, making its behavior consistent with the
+      QLayout::addWidget() behavior.
 
 - QWindowsStyle
-    * [110784] Scrollbar and spin box arrows now scale with the widget size.
-    * More native appearance for certain panel and button frames.
+    * [110784] Scroll bar and spin box arrows now scale with the widget size.
+    * Given certain panel and button frames a more native appearance.
+    * [142599] Ensured that a QDockWidget subclass is not required when
+      using the style to draw a CE_DockWidgetTitle.
 
 - QWindowsXPStyle
-    * [150579] Fix the wrong background color for QSlider.
-    * [133517] Fixed styling of unused area in header sections.
+    * [150579] Fixed the use of the wrong background color for QSlider.
+    * [133517] Fixed styling of the unused area in header sections.
     * [48387] Fixed styling of MDI/Workspace controls.
-    * [109317] Fixed a rendering issue with tab widgets in the Silver color scheme.
-    * [114120] Respect the frame property for combo boxes.
-    * [138444] Fixed crash when passing 0 to drawComplexControl()'s widget argument.
-
-- QWindowsStyle:
-    * [142599] Drawing a CE_DockWidgetTitle by using the style doesn't require to have
-      a QDockWidget subclass.
+    * [109317] Fixed a rendering issue with tab widgets in the Silver color
+      scheme.
+    * [114120] Ensured that the frame property for combo boxes is respected.
+    * [138444] Fixed crash that could occur when passing 0 as the widget
+      argument to drawComplexControl().
 
 - QWizard
 - QWizardPage
-    * New classes. Based on QtWizard and QtWizardPage in Qt 4 Solutions. Redesign of QWizard from Qt 3.
-
-- QXmlSimpleReader
-    * QXmlSimpleReader no longer reads entire file into memory, allowing
-      it to handle large XML files.
+    * New classes. Based on QtWizard and QtWizardPage in Qt 4 Solutions.
+      Redesign of QWizard from Qt 3.
 
 - QXmlParseException
-    * [137998] SystemId/publicId was never reported.
+    * [137998] Fixed incorrect behavior where systemId/publicId was never
+      reported.
 
-- QDomDocument
-    * [128594] Indent comment nodes.
-    * [144781] Crash fix for not adjusting the ownerDocument of new attributes.
-    * [107123] Check that appendChild() doesn't add two elements to document nodes.
+- QXmlSimpleReader
+    * QXmlSimpleReader no longer reads entire files into memory, allowing
+      it to handle large XML files.
 
 - Q3DateEdit
-    * [131577] Fix a bug with typing in out-of-range years in a Q3DateEdit
+    * [131577] Fix a bug that could occur when entering out-of-range years
+      in a Q3DateEdit.
+
+- Q3DockWindow
+    * [125117] Fixed some style issues with Windows XP and Plastique styles.
+
+- Q3GroupBox
+    * Added FrameShape, FrameShadow, lineWidth, and midLineWidth properties.
 
 - Q3ListView
     * [150781] Fixed a crash in setOpen() (previously fixed in Qt 3).
 
-- Q3GroupBox
-    * Added FrameShape, FrameShadow, lineWidth, midLineWidth properties.
-
 - Q3ScrollView
-    * [125149] Mouse events should not be delivered if the Q3ScrollView is disabled.
-      This fixed the case where items was still selectable when Q3ListVies was disabled using
-      setEnabled() method.
+    * [125149] Mouse events should not be delivered if the Q3ScrollView is
+      disabled.
+      This fixed the case where items were still selectable when Q3ListView
+      was disabled using the setEnabled() function.
 
 - Q3SqlCursor
-    * [117996] Improved support for tables and views having fields with whitespaces
-      in their names.
+    * [117996] Improved support for tables and views that have fields with
+      whitespace in their names.
 
 - Q3TextEdit
-    * [136214] Fixed invalid memory reads when using undo/redo-functionality.
-
-- Q3DockWindow
-	* [125117] Fixed some style issues with Windows XP and Plastique styles.
-
-- QTextBrowser
-    * [126914] Fix drawing of focus indicator when activating links.
-    * [82277] Added openLinks property to prevent QTextBrowser from automatically
-      opening any links.
-
-- QProcess
-    * [97517] Added suport for specifying the working directory of detached
-      processes as well as retrieving the PID of such a process.
-    * [138770] Stdin/stdout performance on Windows has been greatly improved.
-    * [154135] Fixed crashes and lockups due to use of non-signalsafe
-      functions on Unix.
-    * [144728] Fixed race conditions on Windows when calling bytesWritten()
-      while using the waitFor... functions.
-    * [152838] No longer emits finished() if the process couldn't start.
-
-- QPushButton
-    * [132211] Fixed setDefault() behavior.
-
-- QLabel
-    * [133589] Fixed performance problems with plain text labels.
-    * Fixed support for buddies with richtext labels.
-    * [136918] Fixed setText() to not turn off mouse tracking when the text is plain.
-    * [143063] Reset mouse cursor upon clicking link.
-    * [156912] Fixes bug where the mouse cursor can be stuck on the pointing hand cursor
-
-- QTextFormat
-    * [156343] Fix crash when streaming QTextFormat instances.
-
-- QTextLayout
-    * [140165] Changed boundingRect() to not always report (0, 0) as top left corner but the actual position
-      of the top left line.
-    * Fixed various problems with text kerning.
-
-- QtGlobal
-    * Add Q_FUNC_INFO, a macro that expands to a string describing the function it is used in.
-    * [132145] Fix Q_FOREACH to protect against for-scoping compiler bugs.
-    * Fixed a race condition in the internal Q_GLOBAL_STATIC() macro.
-    * [123910] Fixed crashes on some systems when passing 0 as the
-      message to qDebug(), qWarning(), and qFatal().
-
-- QTextStream
-    * [133063] atEnd() now works properly with stdin.
-    * [152819] Added support for reading and writing NaN and INF.
-    * [125496] Ensure uppercasebase and uppercasedigits work as expected.
-
-- QSplashScreen
-    * [38269] Added support for rich text.
-
-- QSizeGrip
-    * Added support for having size grips in TopLeftCorner/TopRightCorner on Windows.
-    * Added support for having size grips on Qt::SubWindows.
-    * [150109] Fixed bug where the position (x,y) could change during resize.
-    * [156114] Fixed wrong size grip orientation on X11.
-
-- QSplitter
-    * [139262] Fixed bug where the splitter was snapping back and forth.
-
-- QMacStyle
-    * [159270] Fix icon drawing on buttons with no text.
-    * [146364] Fix drawing of multiline text for items in a QToolBar
-    * [145346] Remove unwanted wrapping of text in a QPushButton
-    * Fix drawing of "Flat" group boxes.
-    * [113472] Fix drawing of text on vertical headers when resizing.
-    * [148509] Draw with the correct font for buttons and labels when desktop settings aware is false.
-    * [106100] Improve the look of QPushButtons with menus.
-    * Fixes to Qt's layout system that enables more native looking forms.
-    * [151739] Buttons with an icon are now centered correct.
-    * [142672] Fixed font size bug on the drop down box for QComboBox on Mac.
-    * [148832] The button on a combo box is now showing as pressed when the combo is open.
-    * [147377] QComboBox now scales correctly on Mac.
-    * [143901] Fixed highlight color for e.g. QComboBox so that it follows the system settings on Mac.
-    * [151852] Fixed size calculation for QPushButton with an icon.
-    * [133263] Removed the coupling of text size and button kind. You can now set those independently.
-    * [133263] QPushButton now respects setFont.
-    * [141980] Text with small font sizes is now centered vertically correct inside pushbuttons.
-    * [149631] Choose beveled button types if the text doesn't fit rather than cutting the text.
-    * [151500] Fixed QPushButton text clipping.
-    * [147653] Sort indicator was drawn on top of the text in QHeaderView.
-    * [139149] Fixed issues with CE_SizeGrip in "right to left" mode.
-    * [139311] Improved drawing of the title in QGroupBox.
-    * [128713] Drawing the focus frame now follows pixel metrics.
-    * [142274] Make QSlider tickmark drawing more like Cocoa.
-    * focusRectPolicy() is now obsolete. This is now controlled by the Qt::WA_MacShowFocusRect attribute
-    * widgetSizePolicy() is now obsolete. This is now controlled by the Qt::WA_Mac*Size attribute
-    * [129503] A group box without a title no longer allocates space for it.
-    * Use a better width for QPushButtons.
-    * [132674] Ensure the tab bar drawing is correct when the tab's font isn't as tall as the default.
-    * [126214] Draw the QSizeGrip correctly in a brushed-metal window.
-    * Better styling of docked QDockWidgets.
-
-- QUrl
-    * [134604] Fixed the behavior dirPath() on Windows (obsolete member)
-
-- QThread
-    * Added QThread::idealThreadCount() which returns the ideal number of threads that can be run on the system.
-
-- QtAlgorithms
-   * [140027] Improve qStableSort performance on large data sets.
+    * [136214] Fixed invalid memory reads when using undo/redo
+      functionality.
 
 ****************************************************************************
 *                          Database Drivers                                *
@@ -1587,50 +1636,54 @@ Third party components
 
 - Interbase driver
 
-    * [127724] Support OUT values from stored procedures. (See SQL Database Drivers
-      documentation for details).
-    * [159123] Fixed crash when fetching data from Interbase 2007 databases.
-    * [143474] Added support for SQL security based roles.
-    * [134608] Fixed bug where queries in some cases returned empty VARCHAR fields
-      it they contained non-ascii characters.
-    * [143471] Fixed bug that caused fetching multisegment BLOB fields to fail
-      in some cases.
+    * [127724] Added support for OUT values from stored procedures. (See the
+      SQL Database Drivers documentation for details.)
+    * [159123] Fixed crash that could occur when fetching data from
+      Interbase 2007 databases.
+    * [143474] Added support for SQL security-based roles.
+    * [134608] Fixed bug where queries in some cases returned empty VARCHAR
+      fields if they contained non-ASCII characters.
+    * [143471] Fixed bug that caused fetching of multisegment BLOB fields to
+      fail in some cases.
     * [125053] Fixed bugs where NUMERIC fields were corrupted or returned as
-      wrong type in some cases.
+      the wrong type in some cases.
 
 - MySQL driver
-    * [156342] Fixed bug where BINARY and VARBINARY fields were returned as QString
-      instead of QByteArray.
-    * [144331] Fixed bug where a query would become unusable after executing a
-      stored procedure returning multiple result sets.
+    * [156342] Fixed bug where BINARY and VARBINARY fields were returned as
+      QString instead of QByteArray.
+    * [144331] Fixed bug where a query would become unusable after executing
+      a stored procedure that returns multiple result sets.
 
 - OCI driver
 
     * Added support for low-precision retrieval of floating point numbers.
-    * [124834] Fixed bug where the binding strings failed on certain setups.
-    * [154518] Fixed bug where connections were not properly terminated, which lead
-      to resource leaks and connection failures.
+    * [124834] Fixed bug where the binding strings failed on certain
+      configurations.
+    * [154518] Fixed bug where connections were not properly terminated,
+      which lead to resource leaks and connection failures.
 
 - ODBC driver
 
-    * Performance increase for iterating a query backwards.
-    * [89844] Added support for fetching multiple error messages from an ODBC driver.
-    * [114440] Fixed bug where binding strings longer that 127 characters failed
-      with MS Access databases.
+    * Increased performance for iterating a query backwards.
+    * [89844] Added support for fetching multiple error messages from an
+      ODBC driver.
+    * [114440] Fixed bug where binding strings longer that 127 characters
+      failed with Microsoft Access databases.
     * [139891] Fixed bug where unsigned ints were returned as ints.
 
 - SQLite driver
     * [130799] Improved support for attatched databases when used with
       QSqlTableModel.
-    * [142374] Improved error message if failing to fetching a row.
-    * [144572] Fixed the implementation of escapeIdentifier() to improve support for
-      identifiers containing whitespaces and reserved words when used with the model
-      classes.
+    * [142374] Improved error reporting in cases where fetching a row fails.
+    * [144572] Fixed the implementation of escapeIdentifier() to improve
+      support for identifiers containing whitespace and reserved words when
+      used with the model classes.
 
 - PostgreSQL driver
 
-    * [135403] Properly quote schemas in table names ("schema"."tablename")
-    * [138424] Fixed resource leak after failed connection attempts.
+    * [135403] Properly quote schemas in table names ("schema"."tablename").
+    * [138424] Fixed resource leak that occurred after failed connection
+      attempts.
 
 - DB2 driver
 
@@ -1643,12 +1696,13 @@ Third party components
 *                             QTestLib                                     *
 ****************************************************************************
 
-    * [138388] Floating point numbers are printed in printf's "%g" format.
-    * [145643] QEXPECT_FAIL does not copy or take ownership of "comment" pointer.
-    * [156346] Gracefully handle calls to qFatal().
-    * [154013] Don't count skips as passes.
-    * [145208] Display QByteArrays in convenient ways.
-    * Output well-formed XML.
+  * [138388] Floating point numbers are now printed in printf's "%g" format.
+  * [145643] QEXPECT_FAIL does not copy or take ownership of "comment"
+    pointer.
+  * [156346] Gracefully handle calls to qFatal().
+  * [154013] Don't count skips as passes.
+  * [145208] Display QByteArrays in convenient ways.
+  * Output well-formed XML.
 
 ****************************************************************************
 *                               QDBus                                      *
@@ -1656,30 +1710,32 @@ Third party components
 
 - Library
 
-    * Support QList<QDBusObjectPath> and QList<QDBusSignature> implicitely without
-      having to register the types.
+    * Added support for QList<QDBusObjectPath> and QList<QDBusSignature>
+      to allow them to be used without first having to register the types.
 
-    * Added support for using QtDBus from multiple threads
+    * Added support for using QtDBus from multiple threads.
 
-    * Make it possible to marshal custom types into QDBusArgument.
+    * Made it possible to marshal custom types into QDBusArgument.
 
     * qdbuscpp2xml:
-        * [153102] ignored Q_NOREPLY
-        * [144663] Fix running qdbuscpp2xml on Windows.
-        * Don't require moc being in the PATH environment variable.
+        * [153102] Ensure that Q_NOREPLY is ignored.
+        * [144663] Fixed problems with executing qdbuscpp2xml on Windows.
+        * Don't require moc to be on a path listed in the PATH environment
+          variable.
 
     * QDBusInterface:
-	* Change asserts in the QDBusInterface constructor to QDBusErrors.
+	* Changed asserts in the QDBusInterface constructor to QDBusErrors.
     * QDBusConnection:
-	* Added a separate slot for delivering errors when calling callWithCallback().
+	* Added a separate slot for delivering errors when calling
+          callWithCallback().
 
 
 - Viewer
 
     * Moved QDBusViewer from demos to QDBus tools.
-    * Added ability to set and get properties.
+    * Added ability to get and set properties.
     * Added support for demarshalling D-Bus variants.
-    * Added property dialog for entering arguments.
+    * Added a property dialog for entering arguments.
     * Made QDBusObjectPath clickable in the output pane.
 
 ****************************************************************************
@@ -1688,269 +1744,338 @@ Third party components
 
 X11
 ---
-    * [153346] Don't deliver tablet events while in Drag and Drop.
-    * [141756] Don't try to use the Plastique or Cleanlooks styles as the default
-	       style when there is no Xrender present.
-    * [139455] Fixed QX11EmbedContainer race causing sudden un-embedding of clients.
-    * [96507] Add support for using _POSIX_MONOTONIC_CLOCK as the
-      timer source (also effects Qtopia Core).
+    * [153346] Ensured that tablet events are not delivered while a drag and
+      drop operation is in progress.
+    * [141756] Ensured that the Plastique or Cleanlooks styles are not used
+      as default styles when Xrender is not available.
+    * [139455] Fixed QX11EmbedContainer race causing sudden unembedding of
+      clients.
+    * [96507] Added support for using _POSIX_MONOTONIC_CLOCK as the
+      timer source (also affects Qtopia Core).
     * [128118] Fixed garbage output when calling QPixmap::grabWindow()
       on a window on a non-default screen.
-    * [133119] Detect X11 color names in the RESOURCE_MANAGER property.
-    * [56319] Add support for _NET_WM_MOVERESIZE to QSizeGrip, which
+    * [133119] Ensured that X11 color names are detected in the
+      RESOURCE_MANAGER property.
+    * [56319] Added support for _NET_WM_MOVERESIZE to QSizeGrip, which
       cooperates with the window manager to do the resizing.
     * Fixed QWidget::isMaximized() to return false when the window is
       only maximized in a single direction.
-    * [67263] Fixed a bug that could cause applications to freeze
-      while querying the clipboard for data.
-    * [89224] Fixed minimized Qt applications to show the correct icon
-      (instead of the standard OpenWindows icon) on Solaris.
-    * [116080] Fixed setting of TIMESTAMP clipboard property to use
+    * [67263] Fixed a bug that could cause applications to freeze while
+      querying the clipboard for data.
+    * [89224] Fixed the behavior of minimized Qt applications to show the
+      correct icon (instead of the standard OpenWindows icon) on Solaris.
+    * [116080] Ensured that the TIMESTAMP clipboard property is set using
       XA_INTEGER (as defined in the ICCCM).
-    * [127556] Refactored timer accounting code to be more efficient
-      and less cumbersome to maintain.
-    * [132241] Add support for DirectColor visuals, Qt will
-      now create and initialize a colormap when using such visuals.
-    * [140737] Fixed QEventDispatcherGlib::versionSupported() to be
-      much simpler.
+    * [127556] Refactored timer accounting code to be more efficient and
+      less cumbersome to maintain.
+    * [132241] Add support for DirectColor visuals. Qt will now create and
+      initialize a colormap when using such visuals.
+    * [140737] Fixed QEventDispatcherGlib::versionSupported() to be much
+      simpler.
     * Fixed a bug where QWidget::windowFlags() would not include
-      Qt::X11BypassWindowManagerHint for Qt::ToolTip and Qt::Popuip
-      windows.
-    * [146472] Fixed a bug where QWidget::setWindowFlags() would
-      disable drag-and-drop from outside Qt applications.
+      Qt::X11BypassWindowManagerHint for Qt::ToolTip and Qt::Popup windows.
+    * [146472] Fixed a bug where QWidget::setWindowFlags() would disable
+      drag and drop operations from outside Qt applications.
     * [150352] Fixed painting errors after show(), hide(), then show()
       under GNOME.
-    * [150348] Fixed a bug that would incorrectly set the
-      Qt::WA_SetCursor attribute on top-level windows.
-    * [135054] Fixed system palette detection code to have contrast
+    * [150348] Fixed a bug that would incorrectly set the Qt::WA_SetCursor
+      attribute on top-level windows.
+    * [135054] Fixed system palette detection code to use contrast that is
       more similar to the desktop settings.
-    * [124689] Document potential QDrag::setHotSpot() inefficiency on X11.
-    * [121547] Fixed QWidget::underMouse() to be correctly updated
-      after the mouse button is released.
+    * [124689] Documented potential QDrag::setHotSpot() inefficiency on X11.
+    * [121547] Fixed QWidget::underMouse() to ensure that the value it
+      returns is correctly updated after the mouse button is released.
     * [151742] Improved robustness when executing in an X11-SECURITY
       reduced ssh-forwarded session.
-    * [142009] Fixed a bug that caused an application using the Qt
-      Motif Extension to freeze when trying to copy text to a
-      QTextEdit.
-    * [124723] Fixed PseudoColor detection to correctly handle cases
-      where the colormap is not sequential.
-    * [140484] Don't use GLib event dispatcher if GLib version is too old.
+    * [142009] Fixed a bug that caused an application using the Qt Motif
+      Extension to freeze when trying to copy text into a QTextEdit.
+    * [124723] Fixed PseudoColor detection to correctly handle cases where
+      the colormap is not sequential.
+    * [140484] Don't use the GLib event dispatcher if GLib version is too
+      old.
     * Fixed a bug where a window would get an incorrect size after the
       second call to show().
-    * [153379] Fixed shortcuts where the modifier also includes
-      Mode_switch in the modifier mask, for example Alt+F on HP-UX.
-    * [154369] Fixed drag and drop to work properly after re-creating
-      the window id.
+    * [153379] Fixed shortcuts where the modifier also includes Mode_switch
+      in the modifier mask; for example, Alt+F on HP-UX.
+    * [154369] Fixed drag and drop to work properly after re-creating a
+      window ID.
     * [151778] Fixed mouse enter/leave event platform inconsistencies.
-    * [153155] Added the QT_NO_THREADED_GLIB environment variable,
-      which tells Qt to use Glib only for the GUI thread.
-    * Fixed restoreGeometry() to move a full-screen window to the
-      correct position.
-    * [155083] Don't use legacy xlfd fonts if we have fontconfig available on Solaris.
-    * [150348] Fixed bug where setCursor() would not work properly after setParent().
+    * [153155] Added the QT_NO_THREADED_GLIB environment variable, which
+      tells Qt to use Glib only for the GUI thread.
+    * Fixed restoreGeometry() to ensure that full-screen windows are moved
+      to the correct position.
+    * [155083] Don't use legacy xlfd fonts if we have fontconfig available
+      on Solaris.
+    * [150348] Fixed bug where setCursor() would not work properly after a
+      setParent() call.
     * Made Plastique the default style on X11.
 
 Windows
 -------
-    * Added experimental DirectX based paint engine.
-    * [141503] When clicked inside the tool windows, it wont be activated if there
-      is no child widget to take focus.
-    * [153315] Better handling of Synaptic touchpad wheel messages.
-    * [150639] Support for CF_DIBV5 format and better support for transparent images
-      on clipboard.
-    * [146862] Improves readability of progress bar text when shown in Highlight color.
-    * [146928] Fixes shortcut events being discarded when AutoRepeat is turned off.
-    * [141079] wheelEvent now contains the button information.
-    * [149367] QMimeData::formats() returns all the available formats in the object.
-    * [135417] WM_SYSCOLORCHANGE will not trigger resetting of fonts.
-    * [137023] Fix the crash while translating mouse events.
-    * [138349] Fix wrong focus handling with multiple top levels.
-    * [111211] Tool windows won't steal focus from their parents while opening.
-    * [143812] Fix a bug which can break the widget's ability to maximize after
-      saving and restoring its state.
-    * [111501] SPI_SETWORKAREA message now triggers a triggers a workAreaResized().
-    * [141633] Fixed commandline parsing for GUI applications.
-    * [134984] SockAct events wont be triggered from processEvents(ExcludeSocketNotifiers).
-    * [134164] The toplevel widgets with MSWindowsFixedSizeDialogHint are centered properly.
+    * Added an experimental DirectX-based paint engine.
+    * [141503] Ensured that clicks inside tool windows won't cause them to
+      be activated if there is no child widget to take focus.
+    * [153315] Improved handling of Synaptic touchpad wheel messages.
+    * [150639] Added support for CF_DIBV5 format and improved support for
+      transparent images on the clipboard.
+    * [146862] Improved readability of progress bar text when shown in
+      the Highlight palette color.
+    * [146928] Fixed issue where shortcut events were discarded when auto-
+      repeat was disabled.
+    * [141079] Ensured that wheel events contain button information.
+    * [149367] Ensured that QMimeData::formats() returns all the available
+      formats in the object.
+    * [135417] Ensured that WM_SYSCOLORCHANGE does not trigger resetting of
+      fonts.
+    * [137023] Fixed a crash that could occur while translating mouse
+      events.
+    * [138349] Fixed incorrect focus handling with multiple top-level
+      widgets.
+    * [111211] Ensured that tool windows don't steal focus from their
+      parents while opening.
+    * [143812] Fixed a bug which can break the widget's ability to maximize
+      after saving and restoring its state.
+    * [111501] Ensured that SPI_SETWORKAREA messages trigger calls to
+      QDesktopWidget::workAreaResized().
+    * [141633] Fixed command line parsing for GUI applications.
+    * [134984] Ensured that SockAct events are not triggered from
+      processEvents(ExcludeSocketNotifiers).
+    * [134164] Ensured that top-level widgets configured with
+      MSWindowsFixedSizeDialogHint are centered properly.
     * [145270] Fixed mapFromGlobal() and mapToGlobal() for minimized or
       invisible widgets.
-    * [132695] Fixed a potential crash when changing the application style after
-      the system theme had been changed.
-    * [103739] Workspace title bars now respect custom titlebar heights on XP and style.
-    * [48770] Improved size grip behavior in toplevel windows.
-    * [113739] Fixed an issue when using QWidget::scroll() with onScreenPaint.
-    * [129589] Added support for moving the mouse cursor to the default button in dialogs.
-    * [139120] Added support for resolving native file icons through QFileIconProvider.
-    * [129927] Added QWindowsVista style.
-    * [106437] Removed WindowsXPStyle from QStyleFactory:keys() on platforms where it is not available.
+    * [132695] Fixed a potential crash that could occur when changing the
+      application style after the system theme had been changed.
+    * [103739] Workspace title bars now respect custom title bar heights in
+      the Windows XP style.
+    * [48770] Improved size grip behavior in top-level widgets.
+    * [113739] Fixed an issue that could occur when using QWidget::scroll()
+      with on-screen painting.
+    * [129589] Added support for moving the mouse cursor to the default
+      button in dialogs.
+    * [139120] Added support for resolving native file icons through
+      QFileIconProvider.
+    * [129927] Added the QWindowsVista style to support native look and feel
+      on Windows Vista.
+    * [106437] Removed the Windows XP style from the list of keys supplied
+      by QStyleFactory::keys() on platforms where it is not available.
     * [109814] Improved UNC path support.
-    * [157261] Fixed crash when using Alt keycodes with text handling widgets.
-    * [116307] Fixed QEvent::WindowActivate not being sent for Qt::Tool windows.
-    * [150346] Fixed a bug that would exit the application when the
+    * [157261] Fixed crash that could occur when using Alt keycodes with
+      text handling widgets.
+    * [116307] Ensured that QEvent::WindowActivate is sent for tool windows.
+    * [150346] Fixed a bug that would cause an application to exit when its
       last window (a modal dialog) was closed and a new window shown
-      immediately afterward.
-    * [90144] Fixed a bug that caused
-      QApplication::keyboardMotifiers() to return modifiers even after
-      they had been released.
-    * [142767] Fixed a bug that allowed a QPushButton to become
-      pressed even though the mousePressEvent() was never called.
-    * [151199] Usage of blocking QProcess API in a thread no longer
-      hangs the desktop.
-    * [144430] Make shortcut system distinguish Key_Return and Key_Enter
-    * [144663] Make sure qdbuscpp2xml on Windows can parse moc output.
-    * [126332] Nake QDBus compile on Windows platform.
-    * [133823, 160131] Fixed bug in QWidget::scroll() with a rectangle argument
+      immediately afterwards.
+    * [90144] Fixed a bug that caused QApplication::keyboardModifiers() to
+      return modifiers even after they had been released.
+    * [142767] Fixed a bug that allowed a QPushButton to become pressed even
+      though its mousePressEvent() handler function was never called.
+    * [151199] Usage of blocking QProcess API in a thread no longer hangs
+      the desktop.
+    * [144430] Made the shortcut system distinguish between Key_Return and
+      Key_Enter.
+    * [144663] Made sure qdbuscpp2xml can parse moc output on Windows.
+    * [126332] Made QDBus compile on Windows platforms.
+    * [133823, 160131] Fixed bug in the QWidget::scroll() overload that
+      accepts a rectangle argument.
 
 - ActiveQt
-    * When loading a typelib file to obtain information about a control it
-      now processes the typelib correctly.
-    * [158990] Ambient property change events are now emitted regardless of the
-      container state.
-    * [150327] ActiveQt based controls will now return the correct Extents depending
-      on the size restrictions set on the widget.
-    * [141296] Unloading of ActiveQt dll should be done from the same thread which
-      loaded it.
+    * Ensured that, when loading a typelib file to obtain information about
+      a control, the typelib is processed correctly.
+    * [158990] Ambient property change events are now emitted regardless of
+      the container's state.
+    * [150327] ActiveQt based controls will now return the correct Extents
+      depending on the size restrictions set on the widget.
+    * [141296] Ensured that the ActiveQt DLL is unloaded from the same
+      thread which loaded it.
 
 - Qt Style Sheets
-    * Added support for clipping background using border-radius
-    * Almost all widgets are now style sheet styleable
-    * Added support for -stylesheet command line argument to QApplication
-    * Added support for styling through SVG
-    * Added support to specify colors and brushes as gradients
+    * Added support for background clipping using the border-radius
+      property.
+    * Almost all widgets are now styleable using style sheets.
+    * Added support for the -stylesheet command line option to QApplication.
+    * Added support for styling through SVG.
+    * Added support to allow colors and brushes to be specified as
+      gradients.
 
 Mac OS X
 --------
 
-    * qtconfig is no longer available on Mac OS X. All settings are read from
-      the system's configuration.
-    * [156965] Always offers a 'TEXT' type flavor for non-Pasteboard aware
+    * qtconfig is no longer available on Mac OS X. All settings are read
+      from the system's configuration.
+    * [156965] Always offers a 'TEXT' type flavor for non-Pasteboard-aware
       Mac Application pastes.
-    * [158087] Mouse Event propagation bugs.
-    * Introduced Q_WS_MAC32/Q_WS_MAC64 for 64 vs 32 bit detection
-      at compile time.
-    * [156431] Introduced WA_MacAlwaysShowToolWindow to behave as a utility
-      window as opposed to a floating window.
+    * [158087] Fixed various mouse event propagation bugs.
+    * Introduced Q_WS_MAC32/Q_WS_MAC64 for 64 vs. 32-bit detection compile
+      time infrastructure.
+    * [156431] Introduced WA_MacAlwaysShowToolWindow to allow windows to
+      behave as utility windows as opposed to floating windows.
     * [155651] Qt will now follow the HIView focus chain to allow wrapped
-      HIViewRef's to take focus as appropriate.
+      HIViewRef's to take focus when appropriate.
     * [149753] Qt will not deliver mouse release events to widgets that do
-      not process mouse press events (including widgets with
-      WA_MacNoClickThrough).
-    * Introduce support for 64 bit Mac OS X builds--Only available on Mac OS X 10.5 (Leopard)
-    * [145166] CoreGraphics interpolation set to High quality when using
-      SmoothPixmapTransform.
-    * [134873] Will find a widget with a cursor by climbing the parent
-      heirarchy rather than looking at the front most widget.
-    * [132178] Double click detection requires the second click being near
-      the previous click to prevent false double click detection.
-    * [131327] Toplevel-window mouse propgation for with WA_MacNoClickThrough.
+      not process mouse press events (including widgets with the
+      WA_MacNoClickThrough attribute set).
+    * Introduced support for 64-bit Mac OS X builds. Only available on
+      Mac OS X 10.5 (Leopard).
+    * [145166] Ensured that CoreGraphics high quality interpolation is used
+      when using SmoothPixmapTransform.
+    * [134873] Ensured that the widget hierarchy is used to find a widget
+      with a cursor rather than using the frontmost widget.
+    * [132178] Enforced the requirement for double click detection that the
+      second click must be near the previous click to prevent false double
+      clicks being reported.
+    * [131327] Fixed mouse propagation for top-level widgets with the
+      WA_MacNoClickThrough attribute set.
     * Now entirely QuickDraw clean.
-    * [155540] Asymetic scales work with cosmetic pens.
-    * [141300] Fixed QFontDatabase/QFontDialog not showing all fonts installed on the system.
+    * [155540] Ensured that asymmetic scales work with cosmetic pens.
+    * [141300] Fixed an issue that prevented QFontDatabase/QFontDialog from
+      showing all fonts installed on the system.
     * Fixed writing system detection in QFontDatabase.
-    * [148876] Don't commit a character twice in the Chinese Input method.
-    * Remove an extra setFocus() in the event loop when a window is activated.
-    * [152224] Fix bug in QWidget's window state.
-    * [156431] Add the Qt::WA_MacAlwaysShowToolWindow to allow Mac users to create utility-windows-style applications.
-    * [144110] Fix resizing of sheets on Panther.
-    * [140014] Make it possible to drag QUrls on Panther.
-    * [155312] Fixed bug when dragging several URLs to e.g. Finder.
-    * [155244] Fixed bug when dragging a URL to Finder.
-    * [153413] Fixed bug when dragging URLs between Qt applications.
-    * [152450] Fixed bug when dragging URLs to e.g the trashcan.
-    * [151158] Fixed widgets not receiveing drag events if a move event is ignored.
-    * [145876] You now always receive a drag move event directly after a drag enter event (according to the doc).
-    * [156365] Fixed event bug when dragging URLs to reveivers that only points us to a drop location.
-    * [119251] Tooltips and dialogs now don't cause fullscreen windows to show their menubar and the dock.
-    * [147640] Fix scrolling when between 2^15 and 2^16 pixels.
-    * [158988] A mouse enter event is now sendt before a mouse press event upon window activation.
-    * [157313] Fixed hanging bug if the system clock is adjusted backwards while using sockets.
-    * [151411] Fixed window switching bug (Cmd + ~) when showing a modal dialog with a popup.
-    * Changing a shortcut containing a cursor movement key now works correctly.
-    * [158869] Fixed / removed showing of mnemonics.
-    * [143912] Fixed focus problem caused by mouse hovering over widgets with modal sheets.
-    * [141456] Fixed activation bug on minimized windows upon show.
-    * [155394] Fixed move and resize state not set correct upon widget initialization.
+    * [148876] Fixed bug that caused characters to be committed twice in the
+      Chinese Input method.
+    * Removed the use of an extra setFocus() in the event loop when a window
+      is activated.
+    * [152224] Fixed bug in QWidget's window state.
+    * [156431] Added the WA_MacAlwaysShowToolWindow widget attribute to
+      allow Mac users to create utility-window-style applications.
+    * [144110] Fixed resizing of sheets on Panther.
+    * [140014] Made it possible to drag QUrls on Panther.
+    * [155312] Fixed bug that could occur when dragging several URLs to
+      Finder and certain other applications.
+    * [155244] Fixed bug that could occur when dragging a URL to Finder.
+    * [153413] Fixed bug that could occur when dragging URLs between Qt applications.
+    * [152450] Fixed bug that could occur when dragging URLs to applications
+      such as the trash can.
+    * [151158] Fixed an issue that prevented widgets from receiving drag
+      events if a move event was ignored.
+    * [145876] Ensured that a drag move event is always received directly
+      after a drag enter event (according to the documentation).
+    * [156365] Fixed event bug when dragging URLs to receivers that only
+      refer to a drop location.
+    * [119251] Tool tips and dialogs no longer cause full-screen windows to
+      show their menu bar and the dock.
+    * [147640] Fixed QScrollArea scrolling behavior when showing regions
+      with dimensions between 2^15 and 2^16 pixels.
+    * [158988] Ensured that a mouse enter event is now sent before a mouse
+      press event upon window activation.
+    * [157313] Fixed hanging bug that could occur if the system clock was
+      adjusted backwards while using sockets.
+    * [151411] Fixed window switching bug (Cmd + ~) that could occur when
+      showing a modal dialog with a popup.
+    * Ensured that changing a shortcut containing a cursor movement key now
+      works correctly.
+    * [143912] Fixed focus problem caused by mouse hovering over widgets
+      with modal sheets.
+    * [141456] Fixed activation bug exhibited by minimized windows upon
+      being shown.
+    * [155394] Fixed issue where a widget's move and resize state were not
+      set correctly upon widget initialization.
     * [254325] Fixed sheet transparency bug.
-    * [152481] Fixed crash when clicking in a window when a modal pring dialog is showing.
+    * [152481] Fixed crash that could occur when clicking in a window when a
+      modal print dialog is showing.
     * [143835] Removed unnecessary window updates for active windows.
-    * [145552] A mouse up event is now sendt when a window drag has finished after a mouse press.
-    * [146443] If a window is moved before it's shown the first time, it is now placed correctly upon show.
-    * [141387] Fixed bug that two fast mouse presses on different widget is seen as a click.
-    * [139087] Fixed activation for some types of shortcuts (e.g. QKeySequence(Qt::CTRL | Qt::Key_Plus)).
-    * Only use Roman for determining with System Fonts, Mac OS X does the translation for us.
-    * In OpenGL, opt for the 32-bit accumulation buffer over the 64-bit accumulation by default.
-    * [123467] Fixed bug where the event loop would spin and not emit aboutToBlock when popup menus were shown.
-    * [137677] QString::localAwareCompare() now respects the sorting order set in the system preferences.
-    * [139658] Mac accessibility is no longer require that QApplication::exec() is called.
-    * [118814, 126253, 105525] Fixed several QCombobox look-and-feel issues.
-    * [145075] Fix aliased line drawing bug.
-    * [122826] Fix QScrollBar painting error.
-    * [131794] PixelTool and QWidget::grabWindow() now work on non-primary monitors.
-    * [160228] The Quartz 2D-based paint engine now respects the font style strategy.
-    * Miscellaneous changes to make wrapping non-Qt HIViews more painless.
-    * Qt is now built with MACOSX_DEPLOYMENT_TARGET set to 10.3 (since Qt can only be run on Mac OS X 10.3 and up).
-    * QSound now uses NSSound for its implementation instead of the deprecated C
-      QuickTime API. This means that the QtGui library is no longer dependant
-      on the QuickTime framework.
-    * Added a -dwarf-2 configure switch to allow people to turn on DWARF2 debugging symbols when that is not the default
-      The ability for DWARF2 debugging symbols was added in later version of the Xcode 2.x series.
+    * [145552] A mouse up event is now sent when a window drag has finished
+      after a mouse press.
+    * [146443] Ensure that, if a window is moved before it is shown for the
+      first time, it is placed correctly when it is shown.
+    * [141387] Fixed bug that caused two near-simultaneous mouse presses on
+      different widgets to be interpreted as a single click.
+    * [139087] Fixed activation for some types of shortcuts, such as
+      QKeySequence(Qt::CTRL | Qt::Key_Plus).
+    * Only use Roman for determining with System Fonts since Mac OS X will
+      perform the necessary translation.
+    * When using OpenGL, ensured that the 32-bit accumulation buffer is used
+      in preference to the 64-bit accumulation buffer by default.
+    * [123467] Fixed bug where the event loop would spin and not emit
+      aboutToBlock() when popup menus were shown.
+    * [137677] QString::localAwareCompare() now respects the sorting order
+      set in the system preferences.
+    * [139658] Mac OS X accessibility no longer requires that
+      QApplication::exec() is called.
+    * [118814, 126253, 105525] Fixed several QCombobox look and feel issues.
+    * [145075] Fixed aliased line drawing bug.
+    * [122826] Fixed QScrollBar painting error.
+    * [131794] PixelTool and QWidget::grabWindow() now work on non-primary
+      monitors.
+    * [160228] The Quartz 2D-based paint engine now respects the font style
+      strategy.
+    * Made miscellaneous changes to make wrapping non-Qt HIViews easier.
+    * Qt is now built with MACOSX_DEPLOYMENT_TARGET set to 10.3 (since Qt
+      can only be run on Mac OS X 10.3 and above).
+    * QSound now uses NSSound for its implementation instead of the
+      deprecated C QuickTime API. This means that the QtGui library is no
+      longer dependant on the QuickTime framework.
+    * Added a -dwarf-2 configure option to allow people to turn on DWARF2
+      debugging symbols when that is not the default.
+      The ability to use DWARF2 debugging symbols was added in later version
+      of the Xcode 2.x series.
     * Fixed many assertions when running against Carbon_debug.
-    * Renamed the Qt::WA_MacMetalStyle to the WA_MacBrushedMetal attribute.
-    * Changing the Qt::WA_MacBrushedMetal attribute will now emit a StyleChange event.
-    * The Qt translations and Qt Linguist phrase books have been added to the binary package.
-    * [134630] Fix loading of plugins when using universal plugins and accidentally
-      reading wrong architecture first and returning an architecture mismatch.
-    * QCursor now uses NSCursor internally instead of deprecated QuickDraw functions.
-    * Correct our encoding and decoding functions for QFile to handle different Unicode normalization forms.
+    * Renamed the Qt::WA_MacMetalStyle attribute to WA_MacBrushedMetal.
+    * Changing the Qt::WA_MacBrushedMetal attribute will now cause a
+      StyleChange event to be sent.
+    * The Qt translations and Qt Linguist phrase books have been added to
+      the binary package.
+    * [134630] Fixed loading of plugins in the case where universal plugins
+      are used but the wrong architecture is accidentally read first,
+      instead of returning an architecture mismatch.
+    * QCursor now uses NSCursor internally instead of the deprecated
+      QuickDraw functions.
+    * Corrected the encoding and decoding functions for QFile to handle
+      different Unicode normalization forms.
 
 Qtopia Core
 -----------
 
  - New font system
-    * A new font subsystem has been implemented that by default allows sharing
+    * A new font subsystem has been implemented that, by default, allows
       glyphs rendered at run time to be shared between applications. A new
-      pre-rendered font format (QPF2) has also been implemented together with
-      a new "makeqpf" tool to generate them.
+      pre-rendered font format (QPF2) has also been implemented together
+      with a new "makeqpf" tool to generate them.
     * Support for custom font engine plugins has been added through
       QAbstractFontEngine and QFontEnginePlugin.
-    * The default font has been changed to the DejaVu Sans family.
+    * The default font family has been changed to DejaVu Sans.
 
 - OpenGL ES
     * [126421, 126424] Added QGLWindowSurface and QGLScreen framework for
-      OpenGLES (and others) on Qtopia Core. Sample implementation found in examples/qtopiacore/.
+      OpenGLES (and others) on Qtopia Core. A sample implementation can be
+      found in the examples/qtopiacore directory.
 
  - Accelerated graphics API
     * [150564] API changes in QWSWindowSurface. New functions include
-      QWSWindowSurface::move() to enable acceleration move of top-level
+      QWSWindowSurface::move() to enable accelerated movement of top-level
       windows.
-    * [152755] API clarification: the windowIndex parameter to exposeRegion() now always refers
-      to the window that is being changed.
-    * [150569, 139550] API additions in QWSWindow to give QScreen information about the 
-      window state, window flags, and window dirty region
-    * [150746] Added QScreen::pixelFormat() and QScreen::setPixelFormat() to enable
-      drawing optimizations for some formats.
+    * [152755] API clarification: The windowIndex parameter to
+      exposeRegion() now always refers to the window that is being changed.
+    * [150569, 139550] Made API additions to QWSWindow to give QScreen
+      information about the window state, window flags, and window dirty
+      region
+    * [150746] Added QScreen::pixelFormat() and QScreen::setPixelFormat() to
+      enable drawing optimizations for some formats.
 
  - General fixes
-    * Better support for compiling a LSB (Linux Standard Base) compliant Qtopia Core library.
-    * [133365] Allow blocking the key/mouse event that stops the screen saver
-      at a particular level - QWSServer::setScreenSaverBlockLevel().
-    * Fixed QFontDatabase::addApplicationFont for Qtopia Core.
-    * [131714] Fixed performance problems with drag'n drop.
-    * [96507] Add support for using _POSIX_MONOTONIC_CLOCK as the
-      timer source (also effects Qt/X11).
-    * [132346] Fixed a performance bug causing unecessary screen copies when
-      using a hardware cursor.
-    * [121496] Lot's of performance improvements in the VNC driver.
-    * [138615] Fixed color conversion when VNC server is running on a
-      big-endian machine.
+    * Improved support for compiling a LSB (Linux Standard Base) compliant
+      Qtopia Core library.
+    * [133365] Added the QWSServer::setScreenSaverBlockLevel() function to
+      make it possible to block the key/mouse event that stops the screen
+      saver at a particular level.
+    * Fixed QFontDatabase::addApplicationFont() for Qtopia Core.
+    * [131714] Fixed performance problems with drag and drop operations.
+    * [96507] Added support for using _POSIX_MONOTONIC_CLOCK as the timer
+      source (also effects Qt/X11).
+    * [132346] Fixed a performance bug causing unnecessary screen copies
+      when using a hardware cursor.
+    * [121496] Made lots of performance improvements in the VNC driver.
+    * [138615] Fixed color conversion for cases where the VNC server is
+      running on a big-endian machine.
     * [131321] Optimized text drawing.
     * [136282] Fixed a bug preventing QWidget::setCursor() and
-      QWidget::unsetCursor() having effect immediately.
-    * [139318] Fixed a performance bug causing non-visible regions to receive
-      paint events.
+      QWidget::unsetCursor() from taking effect immediately.
+    * [139318] Fixed a performance bug that would cause non-visible regions
+      to receive paint events.
     * [139858] Implemented acceleration for the 'pc' mouse handler.
-    * [140705, 140760] Improved release of used resources (e.g shared memory
-      and hardware resources) when the application exits unexpectedly.
+    * [140705, 140760] Improved release of used resources (e.g, shared
+      memory and hardware resources) when the application exits
+      unexpectedly.
     * [144245] Fixed a problem with some cross-compilers triggered by using
       math.h functions taking a double argument when using float data.
     * Optimized QSocketNotifier activation.
@@ -1958,275 +2083,363 @@ Qtopia Core
       a QDirectPainter object behave as a QDirectPainter region allocated
       using the static functions.
     * [94856] Fixed console switching when using the Tty keyboard driver.
-    * [157705] Pass device parameters to keyboard and mouse plugins.
-    * [156704] Fixed QPixmap::grabWindow() for 18 and 24 bit screens.
-    * [154689] Fixed the -no-gfx-multiscreen parameter to configure.
+    * [157705] Ensured that device parameters are passed to keyboard and
+      mouse plugins.
+    * [156704] Fixed QPixmap::grabWindow() for 18 and 24-bit screens.
+    * [154689] Fixed the -no-gfx-multiscreen configure script option.
     * [160404] Fixed 4-bit grayscale support in QVFb and QScreen.
-    * Optimized QCop communication
+    * Optimized QCop communication.
     * Fixed bug in QWidget::setMask() for visible widgets.
-    * [152738] Allow transparent windows on top of unbuffered windows.
-    * [154244] Fixed bug where client process would not terminate when server closed.
-    * [152234] No longer send key events for one client to other client processes. (security/performance)
-    * [148996] Added checks in server to avoid buffer overruns if clients send malformed commands
-    * [154203] Fixed mouse calibration bug with mirrored/180-degree-rotated touch screen.
+    * [152738] Allow transparent windows to be shown on top of unbuffered
+      windows.
+    * [154244] Fixed bug where a client process would not terminate when
+      server closed.
+    * [152234] No longer send key events for one client to other client
+      processes for security and performance reasons.
+    * [148996] Added checks in the server to avoid buffer overruns if
+      clients send malformed commands
+    * [154203] Fixed mouse calibration bug with mirrored/180-degree-rotated
+      touch screens.
 
 ****************************************************************************
 *                      Compiler Specific Changes                           *
 ****************************************************************************
 
 - MinGW
-    * [119777] Removed dependancy on mingwm.dll when compiled with 
-      -no-exceptions
-
-****************************************************************************
-*                   Significant Documentation Changes                      *
-****************************************************************************
-
-Examples
---------
-    * Added new example to show usage of QCompleter with custom tree models
+    * [119777] Removed the dependency on mingwm.dll when compiled with the
+      -no-exceptions option.
 
 ****************************************************************************
 *                          Tools                                           *
 ****************************************************************************
 
 - Build System
-  * Autodetect Xoreax IncrediBuild with XGE technology, and enable distribution of MOC and UIC.
-  * Shadowbuilds are now supported by nmake/mingw-make of Qt buildsystem.
-  * [151184] Separate -make options for demos and examples
-  * [150610] fvisibility requires gcc on Unix builds.
-  * [77152] At "make install" time all meta information files will be
-    cleaned up to remove reference to source code path.
-  * [139399] Use environment CC/CXX on Unix when running the build tests.
-  * [145344] "make confclean" will remove all configure generated files as well.
-  * [145659] Added ability to disable SSE.
-  * Added dwarf2 detection and support into Qt build system for improved
-    debug library size.
-  * Added macx-g++-64 meta spec for Qt configure purposes.
-  * [127840] Our pkgconfig files (.pc) are placed into lib/pkgconfig now.
-  * [135547] Allow Windows line endings on UNIX and vice versa in
-    .qt-license files.
-  * [133068] GIF support is enabled by default now.
-  * [137728] Fixed failed build on Mac OS X and Solaris when
-    using -separate-debug-info.
-  * [137819] Added support for precompiled headers with the Intel C++
-    Compiler for Linux.
-  * Re-use qplatformdefs.h from linux-g++ in the linux-icc mkspec.
-  * [121633] Add linux-icc-64 mkspec, which is needed for building on
-    some 64-bit hosts.
-  * Remove cd_change_global from win32-msvc's qmake.conf
-  * [116532] Keep intermediate manifest file in object dir, instead of destination dir
-  * Add configuration type to qconfig.pri on Windows.
-  * Correct paths in Makefile generation when configuring with -fast option.
-  * Autodetect TIFF library.
-  * [152252] Fix autodetection of MSVC.NET 2005 Express Edition in configure.exe
-  * [151267] Ensure that the manifest tool does not get forward slahes in paths to manifest file.
-  * [153711] Ensure that directory separators in .qmake.cache is correct for normal MinGW and Cygwin MinGW.
-  * [154192] Fix configure.exe executing non-existing scripts.
-  * [128667] Add confclean target on Windows for top-level project file.
+    * Auto-detect Xoreax IncrediBuild with XGE technology, and enable
+      distribution of moc and uic.
+    * Shadow builds are now supported by nmake/mingw-make of the Qt build
+      system.
+    * [151184] Separated the -make options for demos and examples
+    * [150610] Fixed the build system to take into account that fvisibility
+      requires gcc on Unix builds.
+    * [77152] Ensured that, at "make install" time, all meta-information
+      files will be cleaned up to remove reference to source code path.
+    * [139399] Ensured that the environment CC/CXX on Unix are taken into
+      account when running the build tests.
+    * [145344] Ensured that "make confclean" will remove all files
+      generated by configure.
+    * [145659] Added ability to disable SSE.
+    * Added DWARF2 detection and support into the build system to reduce
+      the debug library size.
+    * Added macx-g++-64 meta-spec for Qt configuration purposes.
+    * [127840] The pkgconfig files (.pc) are now placed into lib/pkgconfig.
+    * [135547] Allow Windows line endings on UNIX and vice versa in
+      .qt-license files.
+    * [133068] GIF support is now enabled by default.
+    * [137728] Fixed failed build on Mac OS X and Solaris when using the
+      -separate-debug-info command line option for the configure script.
+    * [137819] Added support for precompiled headers with the Intel C++
+      Compiler for Linux.
+    * Re-used qplatformdefs.h from linux-g++ in the linux-icc mkspec.
+    * [121633] Added linux-icc-64 mkspec which is needed for building on
+      some 64-bit hosts.
+    * Removed cd_change_global from win32-msvc's qmake.conf file.
+    * [116532] Keep intermediate manifest file in object directory instead
+      of the destination directory.
+    * Added a configuration type to qconfig.pri on Windows.
+    * Corrected paths in Makefile generation when configuring with the
+      -fast command line option.
+    * Added tests to auto-detect a suitable TIFF library.
+    * [152252] Fixed auto-detection of MSVC.NET 2005 Express Edition in
+      configure.exe.
+    * [151267] Ensured that the manifest tool does not get forward slashes
+      when writing paths to manifest files.
+    * [153711] Ensured that the directory separators used in .qmake.cache
+      are correct for normal MinGW and Cygwin MinGW.
+    * [154192] Fixed a problem with configure.exe executing non-existing
+      scripts.
+    * [128667] Added a confclean build target on Windows for the top-level
+      project file.
 
 
 - Assistant
-  * [99923] Added a context menu for the tabs in tab bar. Right click on a tab to get a list
-            of common options.
- * Assistant now uses the "unified toolbar" look on Mac OS X
+    * [99923] Added a context menu for the tabs in the tab bar. Right click
+      on a tab to get a list of common options.
+    * Assistant now uses the "unified toolbar" look on Mac OS X.
 
 - Designer
-    * [151376] Context menu added to the tab order editor
-    * [39163] Tab Order Editor - Ctrl + LMB makes it possible to start ordering from selected widget
-    * [159129] Fixed Tab Order Editor crash
-    * Better snapping for multiselection, better snapping for negative positions
-    * [126671] Moving widget possible now with arrows without modifiers, Shift modifier enables resizing, Control modifier snaps
-    * [111093] File toolbar added
-    * [156225] Fixed delete widget command in case when deleted widget is a child of QSplitter
-    * [101420] Better WYSIWYG regarding background colors
-    * [112034] Ctrl + drag copies actions now in menus and toolbars
-    * [128334] Double clicking on widget invokes default action from task menu
-    * [129473] Fixed bug with handling default tab order
-    * [131994] Setting tab order for checkable QGroupBox enabled
-    * New cursor shapes added
-    * [137879] Better editor for key sequence properties
-    * [150634] Improved refreshing of all properties after property change
-    * [147655] Fixed shadow build of designer
-    * [151567, 149966] Ensure object names are unique
-    * [80270] Fixed saving icons taken from resources which are specified with alias
-    * [152417] Fixed loading/saving header labels of Q3Table
-    * QColumnView widget added to widget box
-    * New margin (left, top, right and bottom) and spacing (horizontal and vertical) properties of layout supported
-    * [146337] Dont's save margin and spacing if they have default value
+    * [151376] Added a context menu to the tab order editor.
+    * [39163] Added a tab order editor shortcut - using Ctrl with the left
+      mouse button makes it possible to start ordering from the selected
+      widget.
+    * [159129] Fixed a crash in the tab order editor.
+    * Improved snapping behavior for multi-selections and negative
+      positions.
+    * [126671] Made it possible to move widgets by using the cursor keys
+      without modifiers. The Shift modifier enables resizing, the Control
+      modifier enables snapping behavior.
+    * [111093] Added a file tool bar.
+    * [156225] Fixed the delete widget command for cases where the deleted
+      widget is a child of a QSplitter widget.
+    * [101420] Improved the WYSIWYG properties of forms with respect to the
+      background colors used.
+    * [112034] Enabled Ctrl + drag as a shortcut for copying actions in
+      menus and tool bars.
+    * [128334] Double clicking on a widget now invokes the default action
+      from its task menu.
+    * [129473] Fixed bug in the handling of default tab orders.
+    * [131994] Made it possible to set the tab order for checkable group
+      boxes.
+    * Added new cursor shapes.
+    * [137879] Improved the editor for key sequence properties.
+    * [150634] Improved refreshing behavior of all properties after property
+      changes.
+    * [147655] Fixed shadow build issues.
+    * [151567, 149966] Ensured that object names are unique.
+    * [80270] Fixed bug with saving icons taken from resources which are
+      specified with aliases.
+    * [152417] Fixed loading/saving of header labels of Q3Table widgets.
+    * Added the QColumnView widget to the widget box.
+    * Added support for new margin (left, top, right and bottom) and spacing
+      (horizontal and vertical) properties of the layout classes.
+    * [146337] Ensure that the margin and spacing properties are not saved
+      if they have the default values.
     * Fixed layout handling in Q3GroupBox
-    * [124680] Correct pages in QStackedWidget are displayed when selecting a page in the object inspector
-    * [88264] Breaking a nested layout doesn't break the parent container's layout anymore
-    * [129477] Support for dynamic properties added (context menu in property editor)
-    * [101166] "Add separator" action added to menu's context menu
-    * [132238] "Recent files" button added to new form dialog
-    * [107934] Anti-aliasing of font property is no more bool property, now it has 3 values
+    * [124680] Ensured that the correct pages are displayed when selecting a
+      QStackedWidget page in the object inspector.
+    * [88264] Ensured that breaking a nested layout doesn't break the parent
+      container's layout.
+    * [129477] Added support for dynamic properties via the context menu in
+      the property editor.
+    * [101166] Added an "Add separator" action to the standard context menu.
+    * [132238] Added a "Recent files" button to the New Form dialog.
+    * [107934] Updated the font anti-aliasing property from a boolean
+      property to a property with 3 values.
     * [155464] Added a German translation.
-    * [146953] Widgets can now be dragged onto the object inspector.
-    * [152475] The widget box now saves and restores its state.
-    * [111092] Added drag and drop of images from the resource editor to the action editor or icon properties.
-    * [111091] Icon dialogs now default to resource browser.
-    * [152475] Added button to load newly found custom widget plugin to plugin dialog.
-    * [151122] Added warnings for custom widget plugin issues (load failures, class name mismatches).
-    * [138645] Improved form preview on Mac, provided close button and menu entry.
-    * [103801] Made buddy editing possible for custom widgets derived from QLabel.
-    * [148677] Added font chooser for tool windows.
-    * [107233] Made grid customizable, provided default and per-form grid setting.
-    * [149325] Provided form editor context menu in object inspector.
-    * [147174] Changed elide mode and improved column resizing behaviour
-               of property editor and object inspector.
-    * [147317] Better handling of switching user interface modes (prevent form window
-               geometry from being changed).
-               Made 'Bring to front' deiconify windows.
-    * [146629] Fixed never ending loop on Linux triggered by scrolling fast through the pages
-               of a QStackedWidget.
+    * [146953] Enabled support to allow widgets to be dragged onto the
+      object inspector.
+    * [152475] Ensured that the widget box saves and restores its state.
+    * [111092] Added support to allow images to be dragged from the resource
+      editor and dropped onto the action editor or icon properties in the
+      property editor.
+    * [111091] By default, icon dialogs now open to show the resource
+      browser.
+    * [152475] Added a button to load newly found custom widget plugins to
+      the plugin dialog.
+    * [151122] Added warnings for custom widget plugin issues such as load
+      failures and class name mismatches.
+    * [138645] Improved the form preview on Mac OS X, provided a close
+      button and a menu entry.
+    * [103801] Made buddy editing possible for custom widgets derived from
+      QLabel.
+    * [148677] Added a font chooser for tool windows.
+    * [107233] Made the grid customizable, provided default and per-form
+      grid settings.
+    * [149325] Provided a form editor context menu in the object inspector.
+    * [147174] Changed the elide mode and improved column resizing behavior
+      of property editor and object inspector.
+    * [147317] Improved handling for switching user interface modes,
+      preventing the geometries of form window from being changed.
+      Made 'Bring to front' deiconify windows.
+    * [146629] Fixed never ending loop on Linux triggered by scrolling
+      quickly through the pages of a QStackedWidget.
     * [145806] Enabled KDialog to be used as a template.
-    * [142723] Enabled pages of QStackedWidget, QTabWidget and QToolBox to be promoted.
+    * [142723] Enabled the pages of QStackedWidget, QTabWidget and QToolBox
+      to be promoted.
     * [105916] Enabled QMenuBar to be promoted.
     * [147317] Improved the New Form dialog.
-    * [95038]  Fixed handling of layout defaults.
-    * [103326] Made connections to form signals possible.
-    * [145954] Added new dialog for promoted widgets with ability to specify global include files.
-               Added promotion candidates to context menu.
-    * [127232] Handle global include files returned by QDesignerCustomWidgetInterface::includeFile() correctly.
+    * [95038] Fixed handling of layout defaults.
+    * [103326] Made it possible to make connections to form signals.
+    * [145954] Added a new dialog for promoted widgets with the ability to
+      specify global include files.
+      Added promotion candidates to the form's context menu.
+    * [127232] Ensured that global include files returned by
+      QDesignerCustomWidgetInterface::includeFile() are handled correctly.
     * [139985] Improved handling of layouts for custom widgets.
-    * [99129]  Made custom implementations of QDesignerMemberSheetExtension work.
-    * [87181]  Added support for setting properties to a multiselection.
-               Added support for sub-properties (for example, changing the
-               font size of a multiselection does not overwrite other font settings).
-               Added undo-support for property comments.
-    * [135360] Added tooltips to property editor, action editor and object inspector.
-    * [103215] Added handling of escaped newline characters for text properties.
-               Added validator and syntax highlighting for style sheets.
-    * [135468] Added support for toolbar breaks.
-    * [135620] Fixed several issues concerning handling of properties of promoted widgets.
-    * [109077] Provided multiselection in the object inspector.
+    * [99129] Made custom implementations of QDesignerMemberSheetExtension
+      work correctly.
+    * [87181] Added support for setting properties on items in a multi-
+      selection.
+      Added support for sub-properties. For example, changing the font size
+      of a multi-selection does not overwrite other font settings.
+      Added undo-support for property comments.
+    * [135360] Added tooltips to the property editor, action editor and
+      object inspector.
+    * [103215] Added handling of escaped newline characters for text
+      properties.
+      Added support for validators and syntax highlighting for style sheets.
+    * [135468] Added support for tool bar breaks.
+    * [135620] Fixed several issues concerning handling of properties of
+      promoted widgets.
+    * [109077] Provided multi-selection support in the object inspector.
     * [133907] Made in-place editing of plain label texts possible.
     * [134657] Fixed table widget editor.
-    * [90085] Make the resource editor consume a little less horizontal real estate.
-    * [105671] Added support to maximize main windows while beeing previewed.
-    * Added style sheet editor
+    * [90085] Made the resource editor consume a little less horizontal
+      screen real estate.
+    * [105671] Added support to allow main windows to be maximized while
+      being previewed.
+    * Added a style sheet editor.
 
 - Linguist
-    * Translations can be exported and imported to XLIFF.
-    * [136633] Fixed "Find" so that it searched in comments.
-    * [129163] "Next Unifinished" did not work if we did not have a selected item.
-    * [125131] Make the translation loading behaviour consistent with Assistant and Qt Designer.
-    * [125130] Added the command-line argument -resourceDir (for consistency with Assistant and Qt Designer)
-               be able to specify path of translation files.
-    * [124932] Xml files (.ts and .xlf) are now written in platform-specific line endings.
-    * [128081] Don't shift focus away from the treeview if moving up or down with the keys.
-               Use Shift+Ctrl+{K,L} instead if you really want this behaviour.
-    * [139079] Add documentation of the TS file format. (DTD)
+    * Translations can be exported to and imported from XLIFF files.
+    * [136633] Fixed "Find" so that it searches in comments.
+    * [129163] Fixed bug that prevented "Next Unfinished" from working if
+      there was no selected item.
+    * [125131] Made the translation loading behavior consistent with
+      Assistant and Designer.
+    * [125130] Added the -resourceDir command line argument for consistency
+      with Assistant and Designer, to allow the path of translation files
+      to be specified.
+    * [124932] XML files (.ts and .xlf) are now written with platform-
+      specific line endings.
+    * [128081] Ensure that the tree view does not lose focus when the up
+      and down cursor keys are used for navigation.
+      Use Shift+Ctrl+K and Shift+Ctrl+L instead if you really want this
+      behavior.
+    * [139079] Added a DTD to document the TS file format.
 
 - lupdate
-    * Small improvements in lupdates pro parser.
-    * Pro parser: Fix bug in inclusion of relative pri files.
-    * [140581] Improve namespace/context parsing in lupdate.
-    * [142373] Running lupdate on a SUBDIRS pro file did not create any TS files.
-    * [135991] Handle pro-file comments within a list of several variable assignments.
-    * [154553] Fix bug with CODECFORTR that caused saving of incorrect characters.
-
-- lrelease
+    * Made some small improvements in lupdate's .pro file parser.
+      Fixed bug in inclusion of relative .pri files.
+    * [140581] Improved namespace/context parsing.
+    * [142373] Fixed bug when running lupdate on a SUBDIRS .pro file that
+      prevented TS files from being created.
+    * [135991] Ensure that .pro file comments are handled correctly when
+      they occur within a list of several variable assignments.
+    * [154553] Fixed bug with CODECFORTR that caused saving of incorrect
+      characters.
 
 - rcc
-    * [158522] Default compression set to zlib default (normally level 6).
-    * [133837] Allow absolute paths in .qrc files (accessible through
-    original filesystem path).
-    * [146958] No longer returns error when a .qrc is empty, simply
-    generates a (mostly) empty file.
+    * [158522] By default compression is now set to the zlib default
+      (normally level 6).
+    * [133837] Allow absolute paths in .qrc files (accessible through the
+      original filesystem path).
+    * [146958] No longer returns error when a .qrc is empty. A (mostly)
+      empty file is generated instead.
 
 - moc
-
     * [149054] Fixed parsing of old-style C enums.
-    * [145205] The moc now warns when subclassing a known interface (marked with Q_DECLARE_INTERFACE)
-      that is not mentioned in Q_INTERFACES.
-    * [97300] Allow @file as options input file, to handle command lines larger than allowed by OS.
+    * [145205] Ensured that a warning is given when a known interface
+      (marked with Q_DECLARE_INTERFACE) is subclassed that is not mentioned
+      in Q_INTERFACES.
+    * [97300] Allow @file to be given as the options input file to handle
+      command lines larger than allowed by the operating system.
 
 - uic
-    * [144383] Prevent uic-generated code from calling ensurePolished() before constructor is finished.
-    * [138949] Re-use font and size policy instances in uic-generated code.
-    * [141350] Re-use color brushes in generated code
+    * [144383] Added checks to prevent generated code from calling
+      ensurePolished() before each constructor is finished.
+    * [138949] Ensured that font and size policy instances are reused in
+      generated code.
+    * [141350] Ensured that color brushes are reused in generated code.
     * [141217] Improved handling of include files of Qt 3 classes.
-    * [144371] Don't set form's objectName in setupUi in case the name was already set
-    * QLocale property supported
-    * [141820] Fixed connection generation of the form
-    * [137520] Uic doesn't generate tooltip, statustip and whatsthis when relevant QT_NO_xxx is defined
-    * [128958] Get rid of static casts in generated code, ui format holds enum string instead of int in case of size policy and cursor
-    * [116280] qulonglong and uint supported
+    * [144371] Ensure that each form's objectName property is not set in
+      setupUi() to avoid problems in cases where the name was already set.
+    * Added support for the QWidget::locale property.
+    * [141820] Fixed generation of connections in the form.
+    * [137520] Ensured that code to set toolTip, statusTip and whatsThis
+      properties is not generated when the corresponding QT_NO_*
+      preprocessor macros are defined.
+    * [128958] Ensured that static casts are not used in generated code.
+    * [116280] Added support for qulonglong and uint types.
 
 -uic3
-    * [137915] Extract images functionality added, -extract option
-    * [129950] -wrap option added, it generates a wrapper class which is qt3 source compatible
+    * [137915] Added functionality to extract images via the -extract
+      command line option.
+    * [129950] Added the -wrap command line option which specifies that a
+      wrapper class which is Qt 3 source compatible should be generated.
 
 - qmake
-    * [121965] Implement DSW (Workspace files) generation for MSVC 6.0 users.
-    * [132154] Support for /bigobj option in the vcproj generator.
+    * [121965] Implemented DSW (Workspace files) generation for MSVC 6.0
+      users.
+    * [132154] Added support for /bigobj option in the vcproj generator.
     * Fixed crash with dependency analysis.
-    * Do not add cleanup rules for extra compilers with no inputs.
+    * Ensure that cleanup rules are not added for extra compilers with no
+      inputs.
     * LEX/YACC support has been moved into .prf files.
-    * [156793] Introduced PRECOMPILED_DIR for PCH output (defaults to OBJECTS_DIR).
+    * [156793] Introduced PRECOMPILED_DIR for PCH output (defaults to
+      OBJECTS_DIR).
     * [257985] Fixed qmake location detection bug.
-    * Strip out empty INCLUDEPATH.
-    * Allow QMAKE_UUID to override qmake deteremined UUID in
-      vcproj generator.
-    * [151332] Terminate .pc files with an extra carriage return.
-    * [148535] Introduced QMAKE_FRAMEWORKPATH and use it internally.
-    * [127415] Fix object_with_source.
-    * [127413] Introduce QMAKE_FILE_IN_PATH place holder for extra compilers.
-    * [95975]  Replace QMAKE_FILE_IN for custom buildsteps in DSP generator.
-    * [141749] Prevent cyclical dependencies.
-    * [146368] Remove GNUmake .d files upon distclean.
+    * Ensured that empty INCLUDEPATH definitions are stripped out.
+    * Allow QMAKE_UUID to override qmake deteremined UUID in the vcproj
+      generator.
+    * [151332] Ensured that .pc files are terminated with an extra carriage
+      return.
+    * [148535] Introduced QMAKE_FRAMEWORKPATH and used it internally.
+    * [127415] Fixed object_with_source.
+    * [127413] Introduced QMAKE_FILE_IN_PATH placeholder for extra
+      compilers.
+    * [95975] Replaced QMAKE_FILE_IN for custom build steps in DSP
+      generator.
+    * [141749] Added checks to prevent cyclical dependencies.
+    * [146368] Ensured that GNUmake .d files are removed upon distclean.
     * Improved extensibility of the precompiled header support to allow icc
       precompiled headers.
     * [147142] Short-circuit previously seen library paths to avoid
       cyclical .prl processing.
-    * [144492] Set INSTALL_PROGRAM for INSTALLS in macx-xcode projects.
-    * [143720] Extra compilers will now depend upon the input file automatically.
-    * Introduced QMAKE_DISTCLEAN for extra files to be removed upon "make distclean".
+    * [144492] Ensured that INSTALL_PROGRAM is set for INSTALLS in
+      macx-xcode projects.
+    * [143720] Extra compilers will now depend upon the input file
+      automatically.
+    * Introduced QMAKE_DISTCLEAN for extra files to be removed upon
+      invocation of "make distclean".
     * [133518] Reduced the noise created by qmake warnings.
-    * [108012] Bring macx-xcode into line with macx-g++ with regards to
-      custom bundle types
-    * [128759] Support spaces in paths to linked libraries.
-    * [83445] Make sure that "make distclean" in a library with a DESTDIR
+    * [108012] Brought macx-xcode into line with macx-g++ with regards to
+      custom bundle types.
+    * [128759] Added support for spaces in paths to linked libraries.
+    * [83445] Made sure that "make distclean" in a library with a DESTDIR
       really does remove the destination symbolic links.
-    * subdir generator will now use - to separate target words and _ to
+    * The subdir generator will now use - to separate target words and _ to
       separate internally appended words.
-    * [125557] Fix broken generation of dependencies for extra compilers.
-    * Give the QMAKE_QMAKE variable a reasonable default before
-      parsing and evaluating project files.
+    * [125557] Fixed broken generation of dependencies for extra compilers.
+    * Ensured that the QMAKE_QMAKE variable is given a reasonable default
+      before parsing and evaluating project files.
     * For Unix/Mac OS X, configure now has an -optimized-qmake option that
-      allows people to build qmake with optimizations
-      This is disabled by default as older versions of some compilers take a
-      long time to build an optimized qmake. qmake is already built optimized
-      on Windows.
-    * [130979] Make incremental link option case-insensitive.
-    * Ensure that paths for custom buildsteps in vcprojs have correct seperators.
+      allows people to build qmake with optimizations.
+      This is disabled by default as older versions of some compilers take
+      a long time to build an optimized qmake. qmake is already built with
+      optimizations on Windows.
+    * [130979] Made the incremental link option case-insensitive.
+    * Ensured that paths for custom build steps in vcproj files have the
+      correct seperators.
     * Avoid duplicate dependency paths, reduce file stats.
-    * [91313] Separate multiple commands in DSP generator with \n\t
-    * [108681] Avoid UIC3 files having dependencies on themselves.
-    * [130977] Support non-flat output for vcproj files with single configuration.
-    * [134971] Support more compiler and linker options for vcproj files, and add catch-all cases which adds options to AdditionalOptions variables.
-    * [140548] Fix escaping of custom buildstep for image collections.
-    * [114833] Ensure that paths in vcproj always have local OS separators.
-    * [144020] Only allow CONFIG+=staticlib for TEMPLATE==lib
-    * [97300] Handle large number of include paths on Windows for moc by using temporary file. (See moc changes)
-    * [150519] Compile qmake with correct mkspec on Windows.
-    * [148724] Added manifest files to project cleanup
-    * [123501] Add /LIBPATH to AdditionalLibraryPaths in vcprojs
-    * [80526] Make sure that extra compiler commands are not corrupted due to path separator fixing.
-    * [109322] Move hardcoded extra compilers, yacc and lex, into PRF system.
-    * [101783] Add _DEBUG to Resource Tool for debug builds on Windows
-    * [145074] Add custom build step on input files, for extra compiler files with built-in compilers for the output files.
-    * [150961] Support QMAKE_PRE_LINK in DSP and VCPROJ generators.
-    * Avoid double escaping of fil DESTDIR_TARGET in Windows Makefiles.
-    * Escape filepaths for COPY_FILE and QMAKE_BUNDLE
-    * [83765] Add input files instead of output files to extra compiler steps under certain conditions.
-    * [101482] Fix relative path for RC_FILE.
+    * [91313] Ensured that multiple commands in the DSP generator are
+      separated with \n\t characters.
+    * [108681] Added checks to avoid problems with uic3 files having
+      dependencies on themselves.
+    * [130977] Added support for non-flat output for vcproj files with
+      single configuration.
+    * [134971] Added support for more compiler and linker options for
+      vcproj files, and added catch-all cases which add options to
+      AdditionalOptions variables.
+    * [140548] Fixed escaping of the custom build step for image
+      collections.
+    * [114833] Ensured that paths in vcproj always have native filing
+      system separators.
+    * [144020] Only allow CONFIG+=staticlib for TEMPLATE==lib.
+    * [97300] Handle large number of include paths on Windows for moc by
+      using temporary files. (See moc changes.)
+    * [150519] Ensured that qmake is compiled with the correct mkspec on
+      Windows.
+    * [148724] Added manifest files to project clean up.
+    * [123501] Added /LIBPATH to AdditionalLibraryPaths in vcproj files.
+    * [80526] Made sure that extra compiler commands are not corrupted due
+      to path separator fixing.
+    * [109322] Moved hardcoded extra compilers, yacc and lex, into the PRF
+      (feature) system.
+    * [101783] Added a _DEBUG to Resource Tool for debug builds on Windows.
+    * [145074] Added a custom build step on input files, for extra compiler
+      files with built-in compilers for the output files.
+    * [150961] Added support for QMAKE_PRE_LINK in the DSP and VCPROJ
+      generators.
+    * Added checks to avoid double escaping of DESTDIR_TARGET file paths in
+      Windows Makefiles.
+    * Ensured that file paths for COPY_FILE and QMAKE_BUNDLE are escaped.
+    * [83765] Ensured that input files instead of output files are added to
+      extra compiler steps under certain conditions.
+    * [101482] Fixed relative path handling for RC_FILE.
 
 ****************************************************************************
 *                          Plugins                                         *
 ****************************************************************************
 
 - QTiffPlugin
-    * [93364] Added support for TIFF imageformat.
+    * [93364] Added support for the TIFF image format.
