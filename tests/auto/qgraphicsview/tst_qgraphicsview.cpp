@@ -21,6 +21,7 @@ QTEST_NOOP_MAIN
 #include <math.h>
 
 #include <QtGui/QLabel>
+#include <QtGui/QMotifStyle>
 #include <QtGui/QPainterPath>
 #include <QtGui/QRubberBand>
 #include <QtGui/QScrollBar>
@@ -35,6 +36,7 @@ Q_DECLARE_METATYPE(QMatrix)
 Q_DECLARE_METATYPE(QPainterPath)
 Q_DECLARE_METATYPE(QPointF)
 Q_DECLARE_METATYPE(QRectF)
+Q_DECLARE_METATYPE(Qt::ScrollBarPolicy)
 
 #ifdef Q_WS_X11
 extern void qt_x11_wait_for_window_manager(QWidget *);
@@ -111,6 +113,8 @@ private slots:
     void optimizationFlags();
     void levelOfDetail_data();
     void levelOfDetail();
+    void scrollBarRanges_data();
+    void scrollBarRanges();
 };
 
 void tst_QGraphicsView::construction()
@@ -2006,6 +2010,280 @@ void tst_QGraphicsView::levelOfDetail()
     qApp->processEvents();
 
     QCOMPARE(item->lastLod, lod);
+}
+
+void tst_QGraphicsView::scrollBarRanges_data()
+{
+    QTest::addColumn<QSize>("viewportSize");
+    QTest::addColumn<QRectF>("sceneRect");
+    QTest::addColumn<QTransform>("transform");
+    QTest::addColumn<Qt::ScrollBarPolicy>("hbarpolicy");
+    QTest::addColumn<Qt::ScrollBarPolicy>("vbarpolicy");
+    QTest::addColumn<int>("hmin");
+    QTest::addColumn<int>("hmax");
+    QTest::addColumn<int>("vmin");
+    QTest::addColumn<int>("vmax");
+
+    QTest::newRow("1") << QSize(100, 100) << QRectF(0, 0, 100, 100) << QTransform()
+                       << Qt::ScrollBarAsNeeded << Qt::ScrollBarAsNeeded
+                       << 0 << 0 << 0 << 0;
+    QTest::newRow("2") << QSize(100, 100) << QRectF(0, 0, 200, 100) << QTransform()
+                       << Qt::ScrollBarAsNeeded << Qt::ScrollBarAsNeeded
+                       << 0 << (100 + 16) << 0 << 16;
+    QTest::newRow("3") << QSize(100, 100) << QRectF(0, 0, 200, 200) << QTransform()
+                       << Qt::ScrollBarAsNeeded << Qt::ScrollBarAsNeeded
+                       << 0 << (100 + 16) << 0 << (100 + 16);
+    QTest::newRow("4") << QSize(100, 100) << QRectF(-100, -100, 100, 100) << QTransform()
+                       << Qt::ScrollBarAsNeeded << Qt::ScrollBarAsNeeded
+                       << 0 << 0 << 0 << 0;
+    QTest::newRow("5") << QSize(100, 100) << QRectF(-100, -100, 200, 100) << QTransform()
+                       << Qt::ScrollBarAsNeeded << Qt::ScrollBarAsNeeded
+                       << -100 << 16 << -100 << (-100 + 16);
+    QTest::newRow("6") << QSize(100, 100) << QRectF(-100, -100, 200, 200) << QTransform()
+                       << Qt::ScrollBarAsNeeded << Qt::ScrollBarAsNeeded
+                       << -100 << 16 << -100 << 16;
+    QTest::newRow("7") << QSize(100, 100) << QRectF(0, 0, 101, 101) << QTransform()
+                       << Qt::ScrollBarAsNeeded << Qt::ScrollBarAsNeeded
+                       << 0 << 17 << 0 << 17;
+    QTest::newRow("8") << QSize(100, 100) << QRectF(0, 0, 201, 101) << QTransform()
+                       << Qt::ScrollBarAsNeeded << Qt::ScrollBarAsNeeded
+                       << 0 << (100 + 17) << 0 << 17;
+    QTest::newRow("9") << QSize(100, 100) << QRectF(0, 0, 201, 201) << QTransform()
+                       << Qt::ScrollBarAsNeeded << Qt::ScrollBarAsNeeded
+                       << 0 << (100 + 17) << 0 << (100 + 17);
+    QTest::newRow("10") << QSize(100, 100) << QRectF(-101, -101, 101, 101) << QTransform()
+                        << Qt::ScrollBarAsNeeded << Qt::ScrollBarAsNeeded
+                        << -101 << (-100 + 16) << -101 << (-100 + 16);
+    QTest::newRow("11") << QSize(100, 100) << QRectF(-101, -101, 201, 101) << QTransform()
+                        << Qt::ScrollBarAsNeeded << Qt::ScrollBarAsNeeded
+                        << (-101) << 16 << -101 << (-100 + 16);
+    QTest::newRow("12") << QSize(100, 100) << QRectF(-101, -101, 201, 201) << QTransform()
+                        << Qt::ScrollBarAsNeeded << Qt::ScrollBarAsNeeded
+                        << (-101) << 16 << (-101) << 16;
+    QTest::newRow("13") << QSize(100, 100) << QRectF(0, 0, 116, 116) << QTransform()
+                        << Qt::ScrollBarAsNeeded << Qt::ScrollBarAsNeeded
+                        << 0 << (16 + 16) << 0 << (16 + 16);
+    QTest::newRow("14") << QSize(100, 100) << QRectF(0, 0, 216, 116) << QTransform()
+                        << Qt::ScrollBarAsNeeded << Qt::ScrollBarAsNeeded
+                        << 0 << (100 + 16 + 16) << 0 << (16 + 16);
+    QTest::newRow("15") << QSize(100, 100) << QRectF(0, 0, 216, 216) << QTransform()
+                        << Qt::ScrollBarAsNeeded << Qt::ScrollBarAsNeeded
+                        << 0 << (100 + 16 + 16) << 0 << (100 + 16 + 16);
+    QTest::newRow("16") << QSize(100, 100) << QRectF(-116, -116, 116, 116) << QTransform()
+                        << Qt::ScrollBarAsNeeded << Qt::ScrollBarAsNeeded
+                        << (-100 - 16) << (-100 + 16) << (-100 - 16) << (-100 + 16);
+    QTest::newRow("17") << QSize(100, 100) << QRectF(-116, -116, 216, 116) << QTransform()
+                        << Qt::ScrollBarAsNeeded << Qt::ScrollBarAsNeeded
+                        << (-100 - 16) << 16 << (-100 - 16) << (-100 + 16);
+    QTest::newRow("18") << QSize(100, 100) << QRectF(-116, -116, 216, 216) << QTransform()
+                        << Qt::ScrollBarAsNeeded << Qt::ScrollBarAsNeeded
+                        << (-100 - 16) << 16 << (-100 - 16) << 16;
+    QTest::newRow("1 x2") << QSize(100, 100) << QRectF(0, 0, 100, 100) << QTransform().scale(2, 2)
+                          << Qt::ScrollBarAsNeeded << Qt::ScrollBarAsNeeded
+                          << 0 << (100 + 16) << 0 << (100 + 16);
+    QTest::newRow("2 x2") << QSize(100, 100) << QRectF(0, 0, 200, 100) << QTransform().scale(2, 2)
+                          << Qt::ScrollBarAsNeeded << Qt::ScrollBarAsNeeded
+                          << 0 << (300 + 16) << 0 << (100 + 16);
+    QTest::newRow("3 x2") << QSize(100, 100) << QRectF(0, 0, 200, 200) << QTransform().scale(2, 2)
+                          << Qt::ScrollBarAsNeeded << Qt::ScrollBarAsNeeded
+                          << 0 << (300 + 16) << 0 << (300 + 16);
+    QTest::newRow("4 x2") << QSize(100, 100) << QRectF(-100, -100, 100, 100) << QTransform().scale(2, 2)
+                          << Qt::ScrollBarAsNeeded << Qt::ScrollBarAsNeeded
+                          << -200 << (-100 + 16) << -200 << (-100 + 16);
+    QTest::newRow("5 x2") << QSize(100, 100) << QRectF(-100, -100, 200, 100) << QTransform().scale(2, 2)
+                          << Qt::ScrollBarAsNeeded << Qt::ScrollBarAsNeeded
+                          << -200 << (100 + 16) << -200 << (-100 + 16);
+    QTest::newRow("6 x2") << QSize(100, 100) << QRectF(-100, -100, 200, 200) << QTransform().scale(2, 2)
+                          << Qt::ScrollBarAsNeeded << Qt::ScrollBarAsNeeded
+                          << -200 << (100 + 16) << -200 << (100 + 16);
+
+    QTest::newRow("1 No ScrollBars") << QSize(100, 100) << QRectF(0, 0, 100, 100) << QTransform()
+                                     << Qt::ScrollBarAlwaysOff << Qt::ScrollBarAlwaysOff
+                                     << 0 << 0 << 0 << 0;
+    QTest::newRow("2 No ScrollBars") << QSize(100, 100) << QRectF(0, 0, 200, 100) << QTransform()
+                                     << Qt::ScrollBarAlwaysOff << Qt::ScrollBarAlwaysOff
+                                     << 0 << 100 << 0 << 0;
+    QTest::newRow("3 No ScrollBars") << QSize(100, 100) << QRectF(0, 0, 200, 200) << QTransform()
+                                     << Qt::ScrollBarAlwaysOff << Qt::ScrollBarAlwaysOff
+                                     << 0 << 100 << 0 << 100;
+
+    QTest::newRow("4 No ScrollBars") << QSize(100, 100) << QRectF(-100, -100, 100, 100) << QTransform()
+                                     << Qt::ScrollBarAlwaysOff << Qt::ScrollBarAlwaysOff
+                                     << 0 << 0 << 0 << 0;
+
+    QTest::newRow("5 No ScrollBars") << QSize(100, 100) << QRectF(-100, -100, 200, 100) << QTransform()
+                                     << Qt::ScrollBarAlwaysOff << Qt::ScrollBarAlwaysOff
+                                     << -100 << 0 << 0 << 0;
+
+    QTest::newRow("6 No ScrollBars") << QSize(100, 100) << QRectF(-100, -100, 200, 200) << QTransform()
+                                     << Qt::ScrollBarAlwaysOff << Qt::ScrollBarAlwaysOff
+                                     << -100 << 0 << -100 << 0;
+    QTest::newRow("7 No ScrollBars") << QSize(100, 100) << QRectF(0, 0, 101, 101) << QTransform()
+                                     << Qt::ScrollBarAlwaysOff << Qt::ScrollBarAlwaysOff
+                                     << 0 << 1 << 0 << 1;
+    QTest::newRow("8 No ScrollBars") << QSize(100, 100) << QRectF(0, 0, 201, 101) << QTransform()
+                                     << Qt::ScrollBarAlwaysOff << Qt::ScrollBarAlwaysOff
+                                     << 0 << 101 << 0 << 1;
+    QTest::newRow("9 No ScrollBars") << QSize(100, 100) << QRectF(0, 0, 201, 201) << QTransform()
+                                     << Qt::ScrollBarAlwaysOff << Qt::ScrollBarAlwaysOff
+                                     << 0 << 101 << 0 << 101;
+    QTest::newRow("10 No ScrollBars") << QSize(100, 100) << QRectF(-101, -101, 101, 101) << QTransform()
+                                      << Qt::ScrollBarAlwaysOff << Qt::ScrollBarAlwaysOff
+                                      << -101 << -100 << -101 << -100;
+    QTest::newRow("11 No ScrollBars") << QSize(100, 100) << QRectF(-101, -101, 201, 101) << QTransform()
+                                      << Qt::ScrollBarAlwaysOff << Qt::ScrollBarAlwaysOff
+                                      << -101 << 0 << -101 << -100;
+    QTest::newRow("12 No ScrollBars") << QSize(100, 100) << QRectF(-101, -101, 201, 201) << QTransform()
+                                      << Qt::ScrollBarAlwaysOff << Qt::ScrollBarAlwaysOff
+                                      << -101 << 0 << -101 << 0;
+    QTest::newRow("13 No ScrollBars") << QSize(100, 100) << QRectF(0, 0, 116, 116) << QTransform()
+                                      << Qt::ScrollBarAlwaysOff << Qt::ScrollBarAlwaysOff
+                                      << 0 << 16 << 0 << 16;
+    QTest::newRow("14 No ScrollBars") << QSize(100, 100) << QRectF(0, 0, 216, 116) << QTransform()
+                                      << Qt::ScrollBarAlwaysOff << Qt::ScrollBarAlwaysOff
+                                      << 0 << (100 + 16) << 0 << 16;
+    QTest::newRow("15 No ScrollBars") << QSize(100, 100) << QRectF(0, 0, 216, 216) << QTransform()
+                                      << Qt::ScrollBarAlwaysOff << Qt::ScrollBarAlwaysOff
+                                      << 0 << (100 + 16) << 0 << (100 + 16);
+    QTest::newRow("16 No ScrollBars") << QSize(100, 100) << QRectF(-116, -116, 116, 116) << QTransform()
+                                      << Qt::ScrollBarAlwaysOff << Qt::ScrollBarAlwaysOff
+                                      << (-100 - 16) << -100 << (-100 - 16) << -100;
+    QTest::newRow("17 No ScrollBars") << QSize(100, 100) << QRectF(-116, -116, 216, 116) << QTransform()
+                                      << Qt::ScrollBarAlwaysOff << Qt::ScrollBarAlwaysOff
+                                      << (-100 - 16) << 0 << (-100 - 16) << -100;
+    QTest::newRow("18 No ScrollBars") << QSize(100, 100) << QRectF(-116, -116, 216, 216) << QTransform()
+                                      << Qt::ScrollBarAlwaysOff << Qt::ScrollBarAlwaysOff
+                                      << (-100 - 16) << 0 << (-100 - 16) << 0;
+    QTest::newRow("1 x2 No ScrollBars") << QSize(100, 100) << QRectF(0, 0, 100, 100) << QTransform().scale(2, 2)
+                                        << Qt::ScrollBarAlwaysOff << Qt::ScrollBarAlwaysOff
+                                        << 0 << 100 << 0 << 100;
+    QTest::newRow("2 x2 No ScrollBars") << QSize(100, 100) << QRectF(0, 0, 200, 100) << QTransform().scale(2, 2)
+                                        << Qt::ScrollBarAlwaysOff << Qt::ScrollBarAlwaysOff
+                                        << 0 << 300 << 0 << 100;
+    QTest::newRow("3 x2 No ScrollBars") << QSize(100, 100) << QRectF(0, 0, 200, 200) << QTransform().scale(2, 2)
+                                        << Qt::ScrollBarAlwaysOff << Qt::ScrollBarAlwaysOff
+                                        << 0 << 300 << 0 << 300;
+    QTest::newRow("4 x2 No ScrollBars") << QSize(100, 100) << QRectF(-100, -100, 100, 100) << QTransform().scale(2, 2)
+                                        << Qt::ScrollBarAlwaysOff << Qt::ScrollBarAlwaysOff
+                                        << -200 << -100 << -200 << -100;
+    QTest::newRow("5 x2 No ScrollBars") << QSize(100, 100) << QRectF(-100, -100, 200, 100) << QTransform().scale(2, 2)
+                                        << Qt::ScrollBarAlwaysOff << Qt::ScrollBarAlwaysOff
+                                        << -200 << 100 << -200 << -100;
+    QTest::newRow("6 x2 No ScrollBars") << QSize(100, 100) << QRectF(-100, -100, 200, 200) << QTransform().scale(2, 2)
+                                        << Qt::ScrollBarAlwaysOff << Qt::ScrollBarAlwaysOff
+                                        << -200 << 100 << -200 << 100;
+
+    QTest::newRow("1 Always ScrollBars") << QSize(100, 100) << QRectF(0, 0, 100, 100) << QTransform()
+                                     << Qt::ScrollBarAlwaysOn << Qt::ScrollBarAlwaysOn
+                                     << 0 << 16 << 0 << 16;
+    QTest::newRow("2 Always ScrollBars") << QSize(100, 100) << QRectF(0, 0, 200, 100) << QTransform()
+                                     << Qt::ScrollBarAlwaysOn << Qt::ScrollBarAlwaysOn
+                                     << 0 << (100 + 16) << 0 << 16;
+    QTest::newRow("3 Always ScrollBars") << QSize(100, 100) << QRectF(0, 0, 200, 200) << QTransform()
+                                     << Qt::ScrollBarAlwaysOn << Qt::ScrollBarAlwaysOn
+                                     << 0 << (100 + 16) << 0 << (100 + 16);
+    QTest::newRow("4 Always ScrollBars") << QSize(100, 100) << QRectF(-100, -100, 100, 100) << QTransform()
+                                     << Qt::ScrollBarAlwaysOn << Qt::ScrollBarAlwaysOn
+                                     << -100 << (-100 + 16) << -100 << (-100 + 16);
+    QTest::newRow("5 Always ScrollBars") << QSize(100, 100) << QRectF(-100, -100, 200, 100) << QTransform()
+                                     << Qt::ScrollBarAlwaysOn << Qt::ScrollBarAlwaysOn
+                                     << -100 << 16 << -100 << (-100 + 16);
+    QTest::newRow("6 Always ScrollBars") << QSize(100, 100) << QRectF(-100, -100, 200, 200) << QTransform()
+                                     << Qt::ScrollBarAlwaysOn << Qt::ScrollBarAlwaysOn
+                                     << -100 << 16 << -100 << 16;
+    QTest::newRow("7 Always ScrollBars") << QSize(100, 100) << QRectF(0, 0, 101, 101) << QTransform()
+                                     << Qt::ScrollBarAlwaysOn << Qt::ScrollBarAlwaysOn
+                                     << 0 << 17 << 0 << 17;
+    QTest::newRow("8 Always ScrollBars") << QSize(100, 100) << QRectF(0, 0, 201, 101) << QTransform()
+                                     << Qt::ScrollBarAlwaysOn << Qt::ScrollBarAlwaysOn
+                                     << 0 << 117 << 0 << 17;
+    QTest::newRow("9 Always ScrollBars") << QSize(100, 100) << QRectF(0, 0, 201, 201) << QTransform()
+                                     << Qt::ScrollBarAlwaysOn << Qt::ScrollBarAlwaysOn
+                                     << 0 << 117 << 0 << 117;
+    QTest::newRow("10 Always ScrollBars") << QSize(100, 100) << QRectF(-101, -101, 101, 101) << QTransform()
+                                      << Qt::ScrollBarAlwaysOn << Qt::ScrollBarAlwaysOn
+                                      << -101 << (-100 + 16) << -101 << (-100 + 16);
+    QTest::newRow("11 Always ScrollBars") << QSize(100, 100) << QRectF(-101, -101, 201, 101) << QTransform()
+                                      << Qt::ScrollBarAlwaysOn << Qt::ScrollBarAlwaysOn
+                                      << -101 << 16 << -101 << (-100 + 16);
+    QTest::newRow("12 Always ScrollBars") << QSize(100, 100) << QRectF(-101, -101, 201, 201) << QTransform()
+                                      << Qt::ScrollBarAlwaysOn << Qt::ScrollBarAlwaysOn
+                                      << -101 << 16 << -101 << 16;
+    QTest::newRow("13 Always ScrollBars") << QSize(100, 100) << QRectF(0, 0, 116, 116) << QTransform()
+                                      << Qt::ScrollBarAlwaysOn << Qt::ScrollBarAlwaysOn
+                                      << 0 << 32 << 0 << 32;
+    QTest::newRow("14 Always ScrollBars") << QSize(100, 100) << QRectF(0, 0, 216, 116) << QTransform()
+                                      << Qt::ScrollBarAlwaysOn << Qt::ScrollBarAlwaysOn
+                                      << 0 << (100 + 32) << 0 << 32;
+    QTest::newRow("15 Always ScrollBars") << QSize(100, 100) << QRectF(0, 0, 216, 216) << QTransform()
+                                      << Qt::ScrollBarAlwaysOn << Qt::ScrollBarAlwaysOn
+                                      << 0 << (100 + 32) << 0 << (100 + 32);
+    QTest::newRow("16 Always ScrollBars") << QSize(100, 100) << QRectF(-116, -116, 116, 116) << QTransform()
+                                      << Qt::ScrollBarAlwaysOn << Qt::ScrollBarAlwaysOn
+                                      << (-100 - 16) << (-100 + 16) << (-100 - 16) << (-100 + 16);
+    QTest::newRow("17 Always ScrollBars") << QSize(100, 100) << QRectF(-116, -116, 216, 116) << QTransform()
+                                      << Qt::ScrollBarAlwaysOn << Qt::ScrollBarAlwaysOn
+                                      << (-100 - 16) << 16 << (-100 - 16) << (-100 + 16);
+    QTest::newRow("18 Always ScrollBars") << QSize(100, 100) << QRectF(-116, -116, 216, 216) << QTransform()
+                                      << Qt::ScrollBarAlwaysOn << Qt::ScrollBarAlwaysOn
+                                      << (-100 - 16) << 16 << (-100 - 16) << 16;
+    QTest::newRow("1 x2 Always ScrollBars") << QSize(100, 100) << QRectF(0, 0, 100, 100) << QTransform().scale(2, 2)
+                                        << Qt::ScrollBarAlwaysOn << Qt::ScrollBarAlwaysOn
+                                        << 0 << (100 + 16) << 0 << (100 + 16);
+    QTest::newRow("2 x2 Always ScrollBars") << QSize(100, 100) << QRectF(0, 0, 200, 100) << QTransform().scale(2, 2)
+                                        << Qt::ScrollBarAlwaysOn << Qt::ScrollBarAlwaysOn
+                                        << 0 << (300 + 16) << 0 << (100 + 16);
+    QTest::newRow("3 x2 Always ScrollBars") << QSize(100, 100) << QRectF(0, 0, 200, 200) << QTransform().scale(2, 2)
+                                        << Qt::ScrollBarAlwaysOn << Qt::ScrollBarAlwaysOn
+                                        << 0 << (300 + 16) << 0 << (300 + 16);
+    QTest::newRow("4 x2 Always ScrollBars") << QSize(100, 100) << QRectF(-100, -100, 100, 100) << QTransform().scale(2, 2)
+                                        << Qt::ScrollBarAlwaysOn << Qt::ScrollBarAlwaysOn
+                                        << -200 << (-100 + 16) << -200 << (-100 + 16);
+    QTest::newRow("5 x2 Always ScrollBars") << QSize(100, 100) << QRectF(-100, -100, 200, 100) << QTransform().scale(2, 2)
+                                        << Qt::ScrollBarAlwaysOn << Qt::ScrollBarAlwaysOn
+                                        << -200 << (100 + 16) << -200 << (-100 + 16);
+    QTest::newRow("6 x2 Always ScrollBars") << QSize(100, 100) << QRectF(-100, -100, 200, 200) << QTransform().scale(2, 2)
+                                        << Qt::ScrollBarAlwaysOn << Qt::ScrollBarAlwaysOn
+                                        << -200 << (100 + 16) << -200 << (100 + 16);
+}
+
+void tst_QGraphicsView::scrollBarRanges()
+{
+    QFETCH(QSize, viewportSize);
+    QFETCH(QRectF, sceneRect);
+    QFETCH(QTransform, transform);
+    QFETCH(Qt::ScrollBarPolicy, hbarpolicy);
+    QFETCH(Qt::ScrollBarPolicy, vbarpolicy);
+    QFETCH(int, hmin);
+    QFETCH(int, hmax);
+    QFETCH(int, vmin);
+    QFETCH(int, vmax);
+
+    for (int i = 0; i < 2; ++i) {
+        for (int j = 0; j < 2; ++j) {
+            QGraphicsScene scene(sceneRect);
+            QGraphicsView view(&scene);
+            if (j)
+                view.setStyle(new QMotifStyle);
+            view.setTransform(transform);
+            view.setFrameStyle(i ? QFrame::StyledPanel : QFrame::NoFrame);
+
+            int adjust = 0;
+            if (i)
+                adjust = view.style()->pixelMetric(QStyle::PM_DefaultFrameWidth) * 2;
+            view.resize(viewportSize + QSize(adjust, adjust));
+
+            view.setHorizontalScrollBarPolicy(hbarpolicy);
+            view.setVerticalScrollBarPolicy(vbarpolicy);
+
+            view.show();
+
+            QCOMPARE(view.horizontalScrollBar()->minimum(), hmin);
+            QCOMPARE(view.horizontalScrollBar()->maximum(), hmax);
+            QCOMPARE(view.verticalScrollBar()->minimum(), vmin);
+            QCOMPARE(view.verticalScrollBar()->maximum(), vmax);
+        }
+    }
 }
 
 QTEST_MAIN(tst_QGraphicsView)

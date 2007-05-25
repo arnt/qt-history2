@@ -410,7 +410,9 @@ void QGraphicsViewPrivate::recalculateContentSize()
 
     // If the whole scene fits horizontally, we center the scene horizontally,
     // and ignore the horizontal scroll bars.
-    if (!useHorizontalScrollBar) {
+    int left = int(qMax<qreal>(viewRect.left(), INT_MIN));
+    int right = int(qMin<qreal>(viewRect.right() - width, INT_MAX));
+    if (left >= right) {
         q->horizontalScrollBar()->setRange(0, 0);
 
         switch (alignment & Qt::AlignHorizontal_Mask) {
@@ -426,17 +428,17 @@ void QGraphicsViewPrivate::recalculateContentSize()
             break;
         }
     } else {
-        int left = int(qMax<qreal>(viewRect.left(), INT_MIN));
-        int right = int(qMin<qreal>(viewRect.right() - width + 1, INT_MAX));
         q->horizontalScrollBar()->setRange(left, right);
         q->horizontalScrollBar()->setPageStep(width);
         q->horizontalScrollBar()->setSingleStep(width / 20);
         leftIndent = 0;
     }
 
-    // If the whole scene fits vertical, we center the scene vertically, and
+    // If the whole scene fits vertically, we center the scene vertically, and
     // ignore the vertical scroll bars.
-    if (!useVerticalScrollBar) {
+    int top = int(qMax<qreal>(viewRect.top(), INT_MIN));
+    int bottom = int(qMin<qreal>(viewRect.bottom() - height, INT_MAX));
+    if (top >= bottom) {
         q->verticalScrollBar()->setRange(0, 0);
 
         switch (alignment & Qt::AlignVertical_Mask) {
@@ -452,8 +454,6 @@ void QGraphicsViewPrivate::recalculateContentSize()
             break;
         }
     } else {
-        int top = int(qMax<qreal>(viewRect.top(), INT_MIN));
-        int bottom = int(qMin<qreal>(viewRect.bottom() - height + 1, INT_MAX));
         q->verticalScrollBar()->setRange(top, bottom);
         q->verticalScrollBar()->setPageStep(height);
         q->verticalScrollBar()->setSingleStep(height / 20);
