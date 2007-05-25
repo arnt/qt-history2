@@ -43,7 +43,7 @@
 
     The example screen driver class is called QAhiGLScreen. "Ahi"
     stands for ATI Handheld Interface. The class can be used as the
-    screen driver for other ATI handheld devices.
+    screen driver for other ATI handheld devices. 
 
     \quotefromfile qtopiacore/ahigl/qscreenahigl_qws.h
     \skipto class QAhiGLScreen :
@@ -56,24 +56,60 @@
     your screen driver class must be derived from QGLScreen.
 
     Note that class QGLScreen is not included in the Qt documentation.
-    The design of QGLScreen is still preliminary and so it is not yet
-    included in the published Qt API. However, class QScreen is
-    included in the Qt documentation.
+    The design of QGLScreen is still preliminary, so it is not yet
+    included in the published Qt API. Class QScreen, however, is in
+    the published API and is included in the Qt documentation.
 
-    \l {QScreen::}{exposeRegion()} is the function that does the
-    composition and displaying. The private functions updateTexture(),
-    redrawScreen(), and drawWindow() are helper functions used for
-    composing displays. The private functions drawQuad(),
-    drawQuadInverseY(), and drawQuadWavyFlag() are used for animating
-    the showing of new windows.
+    QAhiGLScreen's reimplementation of \l {QScreen::}{exposeRegion()}
+    is the function that does the composition and display of
+    windows. The QAhiGLScreen private functions updateTexture(),
+    redrawScreen(), and drawWindow() are helper functions for
+    composing and displaying windows. The private functions
+    drawQuad(), drawQuadInverseY(), and drawQuadWavyFlag() are used
+    for creating the transition effect displaying a new window or
+    reshowing a window that was mninimized.
+
+    The only data member in class QAhiGLScreen is the standard pointer
+    to a private implementation class QAhiGLScreenPrivate, where the 
+    screen driver's internal state variables are held. These variables
+    contain the data used for composing displays.
 
     \quotefromfile qtopiacore/ahigl/qscreenahigl_qws.cpp
+    \skipto class QAhiGLScreenPrivate
+    \printuntil /^\}/
+
+    Class QAhiGLScreenPrivate is derived from QObject so it can use
+    the Qt signal/slot mechanism to receive the window server's 
+    \l {QWSServer::windowEvent()} {window event signal} at its
+    \c QAhiGLScreenPrivate::windowEvent() slot. If the value of data 
+    member \c doEffects is true, this slot performs the transition
+    effect animation, whenever a new window is first shown, or when 
+    it is reshown after having been minimized. Note that \c doEffects
+    can be set to true at screen driver startup time by including the
+    \c {-display ahigl:effects} option on the command line.
+
+    To control animation of the window transition effect, an instance
+    of class ShowAnimation is created by the 
+    \c QAhiGLScreenPrivate::windowEvent() slot, when a 
+    \l {QWSServer::WindowEvent} {Show window event} is emitted by the
+    \l {QWSServer} {window server}. This happens when a window is 
+    first created and when it is reshown after having been minimized.
+
     \skipto class ShowAnimation
     \printuntil /^\}/
 
-    The animated window transition effect is supported by the class
-    ShowAnimation, which is derived from class QTimeLine and
-    reimplements its \l {QTimeLine::}{valueForTime()} function.
+    Class ShowAnimation is derived from the QTimeLine class for
+    controlling animations. The \c ShowAnimation() constructor
+    initializes the timeline, connecting its 
+    \l {QTimeLine::valueChanged()} {valueChanged()} signal to the 
+    screen driver's \c QAhiGLScreen::redrawScreen() slot, and 
+    connecting its \l {QTimeLine::finished()} {finished()} signal
+    to the QObject::deleteLater() slot. Finally, the constructor
+    tells the timeline to \l {QTimeLine::start()} {start} the 
+    animation. ShowAnimation reimplements the 
+    \l {QTimeLine::}{valueForTime()} function, which returns a 
+    value used for customizing the shape of the curve used for
+    the transition effect.
 
     \skipto struct WindowInfo
     \printuntil windowMap;
@@ -84,16 +120,6 @@
     the screen. The \c texture identifier and a pointer to the active
     \c animation are held in an instance of \c struct \c WindowInfo.
     The instances of WindowInfo are held in a global map, \c windowMap.
-
-    \skipto class QAhiGLScreenPrivate
-    \printuntil /^\}/
-
-    The QAhiGLScreenPrivate class keeps the necessary GL context variables used
-    by QAhiGLScreen when compositioning the windows to the screen. In addition
-    it subclasses QObject to enable use of the signal/slot mechanism. This is
-    needed to be able to connect to the \l QWSServer::windowEvent() signal
-    which will trigger the transition effect. QAhiGLScreenPrivate also contains
-    a timer used for limiting the number of screen updates per seconds.
 
     \section1 QAhiGLScreen Class Implementation
 

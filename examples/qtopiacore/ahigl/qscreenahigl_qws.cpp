@@ -30,23 +30,14 @@
 const int animationLength = 30;
 const int frameSpan = 20;
 
-class ShowAnimation : public QTimeLine
-{
-public:
-    ShowAnimation(QAhiGLScreenPrivate *screen);
-    qreal valueForTime(int msec);
-};
+/*!
+  QAhiGLScreenPrivate
+  The QAhiGLScreenPrivate contains state information for class QAhiGLScreen.
 
-struct WindowInfo
-{
-    WindowInfo() : texture(0), animation(0) {}
-
-    GLuint texture;
-    QPointer<ShowAnimation> animation;
-};
-
-static QMap<QWSWindow*, WindowInfo*> windowMap;
-
+  An instance of this class points to the owning instance of
+  class QAhiGLScreen. This class uses a QTimer to limit the
+  update frequency. 
+ */
 class QAhiGLScreenPrivate : public QObject
 {
     Q_OBJECT
@@ -69,6 +60,27 @@ public:
     bool doEffects;
 };
 
+class ShowAnimation : public QTimeLine
+{
+public:
+    ShowAnimation(QAhiGLScreenPrivate *screen);
+    qreal valueForTime(int msec);
+};
+
+struct WindowInfo
+{
+    WindowInfo() : texture(0), animation(0) {}
+
+    GLuint texture;
+    QPointer<ShowAnimation> animation;
+};
+
+static QMap<QWSWindow*, WindowInfo*> windowMap;
+
+/*!
+  Sets up the animation used for the transition effect used
+  when the window associated with \a screen is displayed.
+ */
 ShowAnimation::ShowAnimation(QAhiGLScreenPrivate *screen)
     : QTimeLine(4 * 1000)
 {
@@ -90,6 +102,24 @@ QAhiGLScreenPrivate::QAhiGLScreenPrivate(QAhiGLScreen *s)
     connect(&updateTimer, SIGNAL(timeout()), this, SLOT(redrawScreen()));
 }
 
+/*!
+  This slot handles the \a event when the \l {QWSServer}
+  {window server} emits a window event for the specified
+  \a window.
+
+  The \l {QWSServer::WindowEvent} {window events} handled
+  are \c Create, \c Destroy, and \c Show. The \c Create
+  event creates a new instance of \l {WindowInfo} and stores
+  it in a window map to mark the creation of a new window.
+  The \c Destroy event causes the \l {WindoInfo} instance
+  to be removed from the map and destroyed.
+
+  The \c Show event is the most interesting. If the user
+  has started the application with -display ahigl:effects,
+  then the \c Show event is handled by creating a small
+  \l {ShowAnimation} {animation} for use when the window
+  is first shown.
+ */
 void QAhiGLScreenPrivate::windowEvent(QWSWindow *window,
                                       QWSServer::WindowEvent event)
 {
