@@ -716,8 +716,10 @@ void tst_QMdiArea::activeSubWindow()
     qApp->setActiveWindow(&mainWindow);
     QCOMPARE(mdiArea->activeSubWindow(), subWindow);
 
+#if !defined(Q_WS_MAC) && !defined(Q_WS_WIN)
     qApp->setActiveWindow(0);
     QVERIFY(!mdiArea->activeSubWindow());
+#endif
 }
 
 void tst_QMdiArea::currentSubWindow()
@@ -794,9 +796,11 @@ void tst_QMdiArea::currentSubWindow()
     QVERIFY(mdiArea.activeSubWindow());
     QVERIFY(mdiArea.currentSubWindow());
 
+#if !defined(Q_WS_MAC) && !defined(Q_WS_WIN)
     qApp->setActiveWindow(0);
     QVERIFY(!mdiArea.activeSubWindow());
     QVERIFY(mdiArea.currentSubWindow());
+#endif
 }
 
 void tst_QMdiArea::addAndRemoveWindows()
