@@ -151,10 +151,10 @@ QPixmap QPixmap::fromWinHBITMAP(HBITMAP bitmap, HBitmapFormat format)
 
     int res;
     QT_WA({
-        res = GetObjectW(bitmap, sizeof(BITMAP), &bitmap_info);
-    } , {
-        res = GetObjectA(bitmap, sizeof(BITMAP), &bitmap_info);
-    });
+            res = GetObjectW(bitmap, sizeof(BITMAP), &bitmap_info);
+        } , {
+              res = GetObjectA(bitmap, sizeof(BITMAP), &bitmap_info);
+          });
 
     if (!res) {
         qErrnoWarning("QPixmap::fromWinHBITMAP(), failed to get bitmap info");
@@ -187,12 +187,14 @@ QPixmap QPixmap::fromWinHBITMAP(HBITMAP bitmap, HBitmapFormat format)
 
         // Create image and copy data into image.
         QImage image(w, h, imageFormat);
-        int bytes_per_line = w * sizeof(QRgb);
-        for (int y=0; y<h; ++y) {
-            QRgb *dest = (QRgb *) image.scanLine(y);
-            const QRgb *src = (const QRgb *) (data + y * bytes_per_line);
-            for (int x=0; x<w; ++x) {
-                dest[x] = src[x] | mask;
+        if (!image.isNull()) { // failed to alloc?
+            int bytes_per_line = w * sizeof(QRgb);
+            for (int y=0; y<h; ++y) {
+                QRgb *dest = (QRgb *) image.scanLine(y);
+                const QRgb *src = (const QRgb *) (data + y * bytes_per_line);
+                for (int x=0; x<w; ++x) {
+                    dest[x] = src[x] | mask;
+                }
             }
         }
         result = image;
