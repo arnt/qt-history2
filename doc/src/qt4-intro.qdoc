@@ -604,8 +604,9 @@
   A new preferences dialog introduces the ability to set tool window fonts
   (added at the request of Japanese customers).
 
-  Improved selection behaviour in the signal slot editor, transparent
-  connection labels and preference of widgets over connection labels
+  Improved selection behaviour in the signal slot editor by introducing
+  transparent connection labels and ensuring that widgets are selected
+  in preference to connection labels.
 
   \omit
   Integration with the QtScript module enables the widget construction process
