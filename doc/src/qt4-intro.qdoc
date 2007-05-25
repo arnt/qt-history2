@@ -411,12 +411,10 @@
   in the Qt 4 series. This documents covers the most important features in this
   release, separated by category.
 
-  \omit
   A comprehensive list of changes between Qt 4.2 and Qt 4.3 is included
   in the \c changes-4.3.0 file provided with Qt, and is also
   \l{http://www.trolltech.com/developer/notes/changes/changes-4.3.0}{available
   online}.
-  \endomit
 
   A list of other Qt 4 features can be found on the
   \bold{\l{What's New in Qt 4}} page.
@@ -569,6 +567,7 @@
 
   QWidget now provides a \l{QWidget::}{locale} property that can be used
   to give individual windows, dialogs and widgets different look and feel
+  different languages and regions.
 
   Almost all standard widgets can be styled with \l{Qt Style Sheets},
   making it easier to customize the appearance of applications.
@@ -665,7 +664,7 @@
 
   QDir has been enhanced with the \l{QDir::}{addSearchPath()} function to
   provide
-  an extensible mechanism, allowing search paths to be added at run-time
+  an extensible mechanism, allowing search paths to be added at run time
   to \l{The Qt Resource System}{Qt's resource system}.
 
   The new QDirIterator class provides a convenient and less resource-intensive
@@ -681,4 +680,12 @@
   performance are specific to Qtopia Core. These include general speed
   optimizations, accelerated graphics API improvements, and additional
   support for OpenGL ES.
+
+  A new font subsystem has been implemented that allows glyphs rendered at
+  run time to be shared between applications. A new pre-rendered font format
+  (QPF2) has also been implemented together with a new \c makeqpf tool to
+  generate them.
+
+  In addition, support for custom font engine plugins has been added through
+  the QAbstractFontEngine and QFontEnginePlugin classes.
 */
