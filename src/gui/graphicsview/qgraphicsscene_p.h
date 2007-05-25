@@ -72,6 +72,7 @@ public:
     QList<QGraphicsItem *> unindexedItems;
     QList<QGraphicsItem *> indexedItems;
     QList<QGraphicsItem *> pendingUpdateItems;
+    QMap<QGraphicsItem *, QPointF> movingItemsInitialPositions;
     void _q_updateLater();
 
     QList<int> freeItemIndexes;
