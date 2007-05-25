@@ -2407,7 +2407,7 @@ bool QXmlStreamReader::isStandaloneDocument() const
   specialised function.
 
   You start a document with writeStartDocument() and end it with
-  writeEndDocument(). This will implicitely close all remaining open
+  writeEndDocument(). This will implicitly close all remaining open
   tags.
 
   Element tags are opened with writeStartElement() followed by
