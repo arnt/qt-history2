@@ -45,6 +45,7 @@
 #include <qprogressbar.h>
 #include <private/qwindowsstyle_p.h>
 #include <qtabbar.h>
+#include <QMetaProperty>
 
 #include <limits.h>
 
@@ -1942,9 +1943,16 @@ void QStyleSheetStyle::setProperties(QWidget *w)
         if (!property.startsWith(QLatin1String("qproperty-"), Qt::CaseInsensitive))
             continue;
         property.remove(0, 10); // strip "qproperty-"
-        const QVariant value = w->property(property.toLatin1()); // takes care of dynamic properties too
-        if (!value.isValid()) {
+        const QVariant value = w->property(property.toLatin1());
+        const QMetaObject *metaObject = w->metaObject();
+        int index = metaObject->indexOfProperty(property.toLatin1());
+        if (index == -1) {
             qWarning() << w << " does not have a property named " << property;
+            continue;
+        }
+        QMetaProperty metaProperty = metaObject->property(index);
+        if (!metaProperty.isWritable() || !metaProperty.isDesignable()) {
+            qWarning() << w << " cannot design property named " << property;
             continue;
         }
         QVariant v;
