@@ -432,7 +432,7 @@
   Dock widgets occupying the same area can now be arranged in horizontal,
   vertical or collapsible tabs. Collapsible tabs are oriented according to
   the location of dock widgets around the main window's central area.
-  suitable 
+  suitable
 
   \raw HTML
   <table align="center" width="80%">
@@ -461,7 +461,7 @@
 
   \section1 QtScript - Application Scripting with ECMAScript
 
-  This release introduces the \l{QtScript}{QtScript module}, providing an
+  This release introduces the \l{QtScript}{QtScript module}, providing a
   script engine for the ECMAScript language, based on the \l{ECMA-262}
   standard, that is designed to enable easier integration of scripting
   facilities into end-user applications.
@@ -643,7 +643,7 @@
   The QtXml module has been expanded with classes to provide
   a streaming API for handling XML: QXmlStreamReader and
   QXmlStreamWriter complement Qt's existing range of SAX and DOM-based
-  classes. 
+  classes.
 
   Support for the MSYS environment for MinGW on Windows.
 
