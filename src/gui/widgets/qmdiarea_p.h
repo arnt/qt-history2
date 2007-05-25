@@ -33,6 +33,7 @@
 #include <QList>
 #include <QRect>
 #include <QPoint>
+#include <private/qmdisubwindow_p.h>
 #include <private/qabstractscrollarea_p.h>
 
 class Rearranger
@@ -148,6 +149,7 @@ public:
     void updateScrollBars();
     void internalRaise(QMdiSubWindow *child) const;
     bool scrollBarsEnabled() const;
+    bool lastWindowAboutToBeDestroyed() const;
     QRect resizeToMinimumTileSize(const QSize &minSubWindowSize, int subWindowCount);
 
     // Reimp
@@ -166,6 +168,19 @@ public:
         if (!subWindow)
             return false;
         return subWindow->windowFlags() & Qt::WindowStaysOnTopHint;
+    }
+
+    inline bool isExplicitlyDeactivated(QMdiSubWindow *subWindow) const
+    {
+        if (!subWindow)
+            return true;
+        return subWindow->d_func()->isExplicitlyDeactivated;
+    }
+
+    inline void setActive(QMdiSubWindow *subWindow, bool active = true) const
+    {
+        if (subWindow)
+            subWindow->d_func()->setActive(active);
     }
 };
 

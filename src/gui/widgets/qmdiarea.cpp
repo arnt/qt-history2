@@ -114,7 +114,6 @@
 
 #ifndef QT_NO_MDIAREA
 
-#include <private/qmdisubwindow_p.h>
 #include <QApplication>
 #include <QStyle>
 #if defined(Q_WS_MAC) && !defined(QT_NO_STYLE_MAC)
@@ -762,14 +761,17 @@ void QMdiAreaPrivate::resetActiveWindow(QMdiSubWindow *deactivatedWindow)
         if (deactivatedWindow != active)
             return;
         active = 0;
-        if (aboutToBecomeActive || isActivated)
+        if ((aboutToBecomeActive || isActivated || lastWindowAboutToBeDestroyed())
+                && !isExplicitlyDeactivated(deactivatedWindow)) {
             return;
+        }
         emit q->subWindowActivated(0);
         return;
     }
 
     if (aboutToBecomeActive)
         return;
+
     active = 0;
     emit q->subWindowActivated(0);
 }
@@ -952,6 +954,24 @@ bool QMdiAreaPrivate::scrollBarsEnabled() const
 
 /*!
     \internal
+*/
+bool QMdiAreaPrivate::lastWindowAboutToBeDestroyed() const
+{
+    if (childWindows.count() != 1)
+        return false;
+
+    QMdiSubWindow *last = childWindows.at(0);
+    if (!last)
+        return true;
+
+    if (!last->testAttribute(Qt::WA_DeleteOnClose))
+        return false;
+
+    return last->d_func()->data.is_closing;
+}
+
+/*!
+    \internal
     \reimp
 */
 void QMdiAreaPrivate::scrollBarPolicyChanged(Qt::Orientation orientation, Qt::ScrollBarPolicy policy)
@@ -984,6 +1004,7 @@ QMdiArea::QMdiArea(QWidget *parent)
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setViewport(0);
     setFocusPolicy(Qt::NoFocus);
+    QApplication::instance()->installEventFilter(this);
 }
 
 /*!
@@ -1055,8 +1076,7 @@ QSize QMdiArea::minimumSizeHint() const
     no current subwindow.
 
     This function will return the same as activeSubWindow() if
-    the top-level window containing the QMdiArea is the
-    application's active window.
+    the QApplication containing QMdiArea is active.
 
     \sa activeSubWindow(), QApplication::activeWindow()
 */
@@ -1095,9 +1115,7 @@ QMdiSubWindow *QMdiArea::currentSubWindow() const
 QMdiSubWindow *QMdiArea::activeSubWindow() const
 {
     Q_D(const QMdiArea);
-    if (d->active && d->isActivated)
-        return d->active;
-    return 0;
+    return d->active;
 }
 
 /*!
@@ -1135,7 +1153,7 @@ void QMdiArea::setActiveSubWindow(QMdiSubWindow *window)
 void QMdiArea::closeActiveSubWindow()
 {
     Q_D(QMdiArea);
-    if (d->active && d->active->isActiveWindow())
+    if (d->active)
         d->active->close();
 }
 
@@ -1624,16 +1642,18 @@ bool QMdiArea::event(QEvent *event)
 {
     Q_D(QMdiArea);
     switch (event->type()) {
-    case QEvent::WindowActivate:
+    case QEvent::WindowActivate: {
         d->isActivated = true;
         if (d->childWindows.isEmpty())
             break;
-        if (!d->active)
-            d->activateWindow(d->childWindows.at(d->indicesToStackedChildren.at(0)));
+        QMdiSubWindow *current = currentSubWindow();
+        if (!d->active && current && !d->isExplicitlyDeactivated(current))
+            d->activateWindow(current);
         return true;
+    }
     case QEvent::WindowDeactivate:
         d->isActivated = false;
-        break;
+        return true;
     case QEvent::StyleChange:
         // Re-tile the views if we're in tiled mode. Re-tile means we will change
         // the geometry of the children, which in turn means 'isSubWindowsTiled'
@@ -1661,6 +1681,19 @@ bool QMdiArea::event(QEvent *event)
 bool QMdiArea::eventFilter(QObject *object, QEvent *event)
 {
     Q_D(QMdiArea);
+    if (!qobject_cast<QMdiSubWindow *>(object)) {
+        // QApplication events:
+        if (event->type() == QEvent::ApplicationActivate && !d->active) {
+            QMdiSubWindow *current = currentSubWindow();
+            if (current && !d->isExplicitlyDeactivated(current))
+                d->setActive(current);
+        } else if (event->type() == QEvent::ApplicationDeactivate && d->active) {
+            d->setActive(d->active, false);
+        }
+        return QAbstractScrollArea::eventFilter(object, event);
+    }
+
+    // QMdiSubWindow events:
     switch (event->type()) {
     case QEvent::Move:
     case QEvent::Resize:

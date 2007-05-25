@@ -706,6 +706,7 @@ QMdiSubWindowPrivate::QMdiSubWindowPrivate()
       isMaximizeMode(false),
       isWidgetHiddenByUs(false),
       isActive(false),
+      isExplicitlyDeactivated(false),
       keyboardSingleStep(5),
       keyboardPageStep(20),
       resizeTimerId(-1),
@@ -1229,6 +1230,7 @@ void QMdiSubWindowPrivate::setActive(bool activate)
 
     if (activate && !isActive && q->isEnabled()) {
         isActive = true;
+        isExplicitlyDeactivated = false;
         Qt::WindowStates oldWindowState = q->windowState();
         ensureWindowState(Qt::WindowActive);
         emit q->aboutToActivate();
@@ -2586,9 +2588,11 @@ bool QMdiSubWindow::event(QEvent *event)
         break;
     }
     case QEvent::WindowActivate:
+        d->isExplicitlyDeactivated = false;
         d->setActive(true);
         break;
     case QEvent::WindowDeactivate:
+        d->isExplicitlyDeactivated = true;
         d->setActive(false);
         break;
     case QEvent::WindowTitleChange:

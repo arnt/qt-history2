@@ -168,6 +168,7 @@ public:
     bool isMaximizeMode;
     bool isWidgetHiddenByUs;
     bool isActive;
+    bool isExplicitlyDeactivated;
     int keyboardSingleStep;
     int keyboardPageStep;
     int resizeTimerId;
