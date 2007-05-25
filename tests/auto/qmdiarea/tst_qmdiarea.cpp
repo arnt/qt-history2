@@ -711,10 +711,13 @@ void tst_QMdiArea::activeSubWindow()
 #endif
 
     qApp->setActiveWindow(&dummyTopLevel);
-    QVERIFY(!mdiArea->activeSubWindow());
+    QCOMPARE(mdiArea->activeSubWindow(), subWindow);
 
     qApp->setActiveWindow(&mainWindow);
     QCOMPARE(mdiArea->activeSubWindow(), subWindow);
+
+    qApp->setActiveWindow(0);
+    QVERIFY(!mdiArea->activeSubWindow());
 }
 
 void tst_QMdiArea::currentSubWindow()
@@ -743,14 +746,11 @@ void tst_QMdiArea::currentSubWindow()
     qt_x11_wait_for_window_manager(&dummyTopLevel);
 #endif
 
-    // Move focus to another top-level and check that we don't have
-    // an active window anymore.
+    // Move focus to another top-level and check that we still
+    // have an active window.
     qApp->setActiveWindow(&dummyTopLevel);
     QCOMPARE(qApp->activeWindow(), (QWidget *)&dummyTopLevel);
-    QVERIFY(!mdiArea.activeSubWindow());
-
-    // ...but currentSubWindow() should still return a valid sub-window.
-    QCOMPARE(mdiArea.currentSubWindow(), active);
+    QVERIFY(mdiArea.activeSubWindow());
 
     delete active;
     active = 0;
@@ -771,7 +771,7 @@ void tst_QMdiArea::currentSubWindow()
     QCOMPARE(mdiArea.currentSubWindow(), active);
 
     qApp->setActiveWindow(&dummyTopLevel);
-    QVERIFY(!mdiArea.activeSubWindow());
+    QVERIFY(mdiArea.activeSubWindow());
     QCOMPARE(mdiArea.currentSubWindow(), active);
 
     qApp->setActiveWindow(&mdiArea);
@@ -788,6 +788,15 @@ void tst_QMdiArea::currentSubWindow()
     qApp->sendEvent(active, &windowDeactivate);
     QVERIFY(!mdiArea.activeSubWindow());
     QVERIFY(!mdiArea.currentSubWindow());
+
+    QEvent windowActivate(QEvent::WindowActivate);
+    qApp->sendEvent(active, &windowActivate);
+    QVERIFY(mdiArea.activeSubWindow());
+    QVERIFY(mdiArea.currentSubWindow());
+
+    qApp->setActiveWindow(0);
+    QVERIFY(!mdiArea.activeSubWindow());
+    QVERIFY(mdiArea.currentSubWindow());
 }
 
 void tst_QMdiArea::addAndRemoveWindows()
