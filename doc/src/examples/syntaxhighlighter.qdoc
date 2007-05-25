@@ -27,7 +27,7 @@
     \section1 Highlighter Class Definition
 
     \quotefromfile richtext/syntaxhighlighter/highlighter.h
-    \skipto class
+    \skipto class Highlighter
     \printuntil /^\};/
 
     To provide your own syntax highlighting, you must subclass
@@ -192,7 +192,7 @@
     upon which you want the highlighting to be applied.
 
     \quotefromfile richtext/syntaxhighlighter/mainwindow.h
-    \skipto class
+    \skipto class MainWindow
     \printuntil /^\};/
 
     In this example we declare a pointer to a \c Highlighter instance
