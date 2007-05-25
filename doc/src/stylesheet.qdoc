@@ -549,15 +549,17 @@
         qApp->setSytleSheet("ns--MyPushButton { background: yellow; }");
     \endcode
 
-    \omit ### Maybe this wasn't a good idea after all?
+    \omit
     \section2 Setting QObject properties
     
-    From 4.3 and above, the Q_PROPERTY of any QWidget maybe set using
-    the qproperty-<property name> syntax. For example,
-
+    From 4.3 and above, any \l{QMetaObject::designable()}{designable} Q_PROPERTY 
+    can be set using the qproperty-<property name> syntax. 
+    
+    For example,
     \code
-        QPushButton { qproperty-toolTip: "this is a tip"; }
-        QWidget { qproperty-windowTitle: "Main Window"; }
+        MyLabel { qproperty-pixmap: url(pixmap.png); }
+        MyGroupBox { qproperty-titleColor: rgb(100, 200, 100); }
+        QPushButton { qproperty-maximumSize: 50px 50px; }
     \endcode
 
     \endomit
@@ -594,10 +596,26 @@
         \o How to Style
 
     \row
+        \o QAbstractScrollArea \target qabstractscrollarea-widget
+        \o Supports the \l{box model}.
+
+           All derivatives of QAbstractScrollArea, including QTextEdit,
+           and QAbstractItemView (all item view classes), support
+           scrollable backgrounds using 
+           \l{#background-attachment-prop}{background-attachment}. Setting
+           the background-attachment to \c{fixed} provides a background-image
+           that does not scroll with the viewport. Setting the 
+           background-attachment to \c{scroll}, scrolls the background-image
+           when the scroll bars move.
+
+    \row
         \o QCheckBox \target qcheckbox-widget
         \o Supports the \l{box model}. The check indicator can be
            styled using the \l{#indicator-sub}{::indicator}
-           subcontrol. The \l{#spacing-prop}{spacing} property
+           subcontrol. By default, the indicator is placed in the Top
+           Left corner of the Contents rectangle of the widget.
+           
+           The \l{#spacing-prop}{spacing} property
            specifies the spacing between the check indicator and
            the text.
 
@@ -612,9 +630,12 @@
         \o QComboBox \target qcombobox-widget
         \o The frame around the combobox can be styled using the 
            \l{box model}. The drop-down button can be styled using
-           the \l{#drop-down-sub}{::drop-down} subcontrol. The arrow
-           mark inside the drop-down button can be styled using the
-           \l{#down-arrow-sub}{::down-arrow} subcontrol.
+           the \l{#drop-down-sub}{::drop-down} subcontrol. By default, the
+           drop-down button is placed in the top right corner of the padding
+           rectangle of the widget. The arrow mark inside the drop-down button 
+           can be styled using the \l{#down-arrow-sub}{::down-arrow} 
+           subcontrol. By default, the arrow is placed in the center of the 
+           contents rectangle of the drop-down subcontrol.
 
     \row
         \o QDateEdit \target qdateedit-widget
@@ -626,7 +647,8 @@
 
     \row
         \o QDialog \target qdialog-widget
-        \o Supports only the \l{#background-prop}{background} and
+        \o Supports only the \l{#background-prop}{background},
+           \l{#background-clip-prop}{background-clip} and
            \l{#background-origin-prop}{background-origin} properties.
 
     \row
@@ -641,36 +663,79 @@
     \row
         \o QFrame \target qframe-widget
         \o Supports the \l{box model}. Does not support the
-           \l{#hover-ps}{:hover} pseudo-state. For QFrame and its subclasses, 
-           you must set the QFrame::frameStyle property to QFrame::StyledPanel; 
-           otherwise, the background and border attributes will not be respected.
+           \l{#hover-ps}{:hover} pseudo-state. 
+           
+           \warning For QFrame and its subclasses, you must set the 
+           QFrame::frameStyle property to QFrame::StyledPanel; otherwise, 
+           the background and border attributes will not be respected.
 
     \row
         \o QGroupBox \target qgroupbox-widget
         \o Supports the \l{box model}. The title can be styled using the
-           \l{#title-sub}{::title} subcontrol. The indicator of checkable
-           group boxes can be styled using the \l{#indicator-sub}{::indicator}
-           subcontrol.
+           \l{#title-sub}{::title} subcontrol. By default, the title is placed
+           depending on QGroupBox::textAlignment.
+
+           In the case of a checkable QGroupBox, the title includes the
+           check indicator. The indicator is styled using the 
+           the \l{#indicator-sub}{::indicator} subcontrol. The 
+           \l{#spacing-prop}{spacing} property can be used to control
+           the spacing between the text and indicator.
 
     \row
         \o QHeaderView \target qheaderview-widget
         \o Supports the \l{box model}. The sections of the header view are
-           styled using the \l{#section-sub}{::section} sub control.
+           styled using the \l{#section-sub}{::section} sub control. The
+           \c{section} Sub-control supports the \l{#middle-ps}{:middle},
+           \l{#first-ps}{:first}, \l{#last-ps}{:last}, 
+           \l{#only-one-ps}{:only-one}, \l{#next-selected-ps}{:next-selected},
+           \l{#previous-selected-ps}{:previous-selected}, 
+           \l{#selected-ps}{:selected} pseudo states.
+
+           Sort indicator in can be styled using the 
+           \l{#up-arrow-sub}{::up-arrow} and the 
+           \l{#down-arrow-sub}{::down-arrow} Sub-control.
 
     \row
         \o QLabel \target qlabel-widget
         \o Supports the \l{box model}. Does not support the
-           \l{#hover-ps}{:hover} pseudo-state.
+           \l{#hover-ps}{:hover} pseudo-state. 
+           
+           \warning Since a QLabel is a QFrame, you must set the 
+           QFrame::frameStyle property to QFrame::StyledPanel; 
+           otherwise, the background and border attributes will 
+           not be respected.
 
     \row
         \o QLineEdit \target qlineedit-widget
         \o Support the \l{box model}.
 
+           The color and background of the selected item is styled using
+           \l{#selection-color-prop}{selection-color} and
+           \l{#selection-background-color-prop}{selection-background-color}
+           respectively.
+
+           The password character can be styled using the
+           \l{#lineedit-password-character-prop}{lineedit-password-character}
+           property.
+
     \row
         \o QListView \target qlistview-widget
-        \o Supports the \l{box model}. The selection behavior is
-           controlled by the \l{#show-decoration-selected-prop}
+        \o Supports the \l{box model}. When 
+           \l{QAbstractItemView::alternatingRowColors}{alternating row colors} 
+           is enabled, the alternating colors can be styled using the 
+           \l{#alternate-background-color-prop}{alternate-background-color}
            property.
+        
+           The color and background of the selected item is styled using
+           \l{#selection-color-prop}{selection-color} and
+           \l{#selection-background-color-prop}{selection-background-color}
+           respectively.
+
+           The selection behavior is controlled by the
+           \l{#show-decoration-selected-prop} property.
+
+           See \l{qabstractscrollarea-widget}{QAbsractScrollArea} to
+           style scrollable backgrounds.
 
     \row
         \o QListWidget \target qlistwidget-widget
@@ -678,8 +743,28 @@
 
     \row
         \o QMenu \target qmenu-widget
-        \o Supports the \l{box model}. Individual items are styled
-           using the \l{#item-sub}{::item} subcontrol.
+        \o Supports the \l{box model}. 
+        
+           Individual items are styled using the \l{#item-sub}{::item} 
+           subcontrol. In addition to the usually supported pseudo states,
+           \c{item} subcontrol supports the 
+           \l{#selected-ps}{:selected}, \l{#default-ps}{:default},
+           \l{#exclusive-ps}{:exclusive} and the 
+           \l{#non-exclusive-ps}{non-exclusive} pseudo states. 
+           
+           The indicator of checkable menu items is styled using the
+           \l{#indicator-sub}{::indicator} subcontrol.
+
+           The separator is styled using the \l{#separator-sub}{::separator}
+           subcontrol.
+
+           For items with a sub menu, the arrow marks are styled using the
+           \l{::right-arrow-sub}{right-arrow} and 
+           \l{::left-arrow-sub}{left-arrow}.
+
+            The scroller is styled using the \l{#scroller-sub}{::scroller}.
+
+            The tear-off is styled using the \l{#tear-off-sub}{::tear-off}.
 
     \row
         \o QMenuBar \target qmenubar-widget
@@ -691,7 +776,8 @@
     \row
         \o QMessageBox \target qmessagebox-widget
         \o The \l{#messagebox-text-interaction-flags-prop}{messagebox-text-interaction-flags}
-           property can be used to alter the interaction with text in the message box.
+           property can be used to alter the interaction with text in the 
+           message box.
 
     \row
         \o QProgressBar \target qprogressbar-widget
@@ -700,19 +786,25 @@
 
     \row
         \o QPushButton \target qpushbutton-widget
-        \o Supports the \l{box model}. The menu indicator is styled
+        \o Supports the \l{box model}. Supports the \l{#default-ps}{:default},
+           \l{#flat-ps}{:flat}, \l{#checked-ps}{:checked} pseudo states.
+        
+           For QPushButton with a menu, the menu indicator is styled
            using the \l{#menu-indicator-sub}{::menu-indicator}
            subcontrol. Appearance of checkable push buttons can be
-           customized using the \l{#on-ps}{:on} and \l{#off-ps}{:off}
-           pseudo-states.
+           customized using the \l{#open-ps}{:open} and 
+           \l{#closed-ps}{:closed} pseudo-states.
 
     \row
         \o QRadioButton \target qradiobutton-widget
-        \o Supports the \l{box model}. The radio indicator can be
-           styled using the \{#indicator-sub}{::indicator}
-           subcontrol. The \l{#spacing-prop}{spacing} property
-           controls the spacing between the radio indicator and the
-           text.
+        \o Supports the \l{box model}. The check indicator can be
+           styled using the \l{#indicator-sub}{::indicator}
+           subcontrol. By default, the indicator is placed in the Top
+           Left corner of the Contents rectangle of the widget.
+           
+           The \l{#spacing-prop}{spacing} property
+           specifies the spacing between the check indicator and
+           the text.
 
     \row
         \o QScrollBar \target qscrollbar-widget
@@ -731,28 +823,57 @@
     \row
         \o QSpinBox \target qspinbox-widget
         \o The frame of the spin box can be styled using the \l{box
-           model}. The up button and arrow can be styled using the 
+           model}. 
+           
+           The up button and arrow can be styled using the 
            \l{#up-button-sub}{::up-button} and
-           \l{#up-arrow-sub}{::up-arrow} subcontrols. The down
-           button and  arrow are styled using the
+           \l{#up-arrow-sub}{::up-arrow} subcontrols. By default,
+           the up-button is placed in the top right corner in the 
+           Padding rectangle of the widget. Without an explicit size,
+           it occupies half the height of its reference rectangle.
+           The up-arrow is placed in the center of the Contents
+           rectangle of the up-button.
+           
+           The down button and arrow can be styled using the 
            \l{#down-button-sub}{::down-button} and
-           \l{#down-arrow-sub}{::down-arrow} subcontrols.
-
+           \l{#down-arrow-sub}{::down-arrow} subcontrols. By default,
+           the down-button is placed in the bottom right corner in the 
+           Padding rectangle of the widget. Without an explicit size,
+           it occupies half the height of its reference rectangle.
+           The bottom-arrow is placed in the center of the Contents
+           rectangle of the bottom-button.
+ 
     \row
         \o QSplitter \target qsplitter-widget
-        \o Supports the \l{box model} and the \l{#image-prop}{image}
-           property. The handle of the splitter is styled using the
-           \l{#handle-sub}{::handle} subcontrol.
+        \o Supports the \l{box model}. The handle of the splitter 
+           is styled using the \l{#handle-sub}{::handle} subcontrol.
 
     \row
         \o QStatusBar \target qstatusbar-widget
-        \o The frame for individual items can be style using the
+        \o Supports only the \l{#background-prop}{background} property.
+           The frame for individual items can be style using the
            \l{#item-sub}{::item} subcontrol.
 
     \row
         \o QTabBar \target qtabbar-widget
         \o Individual tabs may be styled using the \l{#tab-sub}{::tab}
-           subcontrol.
+           subcontrol. The tabs support the
+           \l{#only-one-ps}{:only-one}, \l{#first-ps}{:first},
+           \l{#last-ps}{:last}, \l{#middle-ps}{:middle},
+           \l{#previous-selected-ps}{:previous--selected},
+           \l{#next-selected-ps}{:next-selected},
+           \l{#selected-ps}{:selected} pseudo states.
+
+            Overlapping tabs for the selected state are created by using
+            negative margins or using the \c{absolute} position scheme.
+
+            \omit ## undecided on property name alignment
+            The alignment of the tabs within the QTabBar is styled
+            using the \l{#alignment-prop}{alignment}. \warning 
+            \endomit
+
+            To change the position of the QTabBar withing a QTabWidget, use the
+            \l{#tab-bar-sub}{tab-bar} subcontrol (and set subcontrol-position).
 
     \row
         \o QTabWidget \target qtabwidget-widget
@@ -763,11 +884,28 @@
            The position of the the tab bar is controlled using the
            \l{#tab-bar-sub}{::tab-bar} subcontrol.
 
+           By default, the subcontrols have positions of a QTabWidget in 
+           the QWindowsStyle. To place the QTabBar in the center, set the
+           subcontrol-position of the tab-bar subcontrol.
+
     \row
         \o QTableView \target qtableview-widget
-        \o Supports the \l{box model}. The color of the grid can be
-           specified using the
+        \o Supports the \l{box model}. When
+           \l{QAbstractItemView::alternatingRowColors}{alternating row colors} 
+           is enabled, the alternating colors can be styled using the 
+           \l{#alternate-background-color-prop}{alternate-background-color}
+           property.
+        
+           The color and background of the selected item is styled using
+           \l{#selection-color-prop}{selection-color} and
+           \l{#selection-background-color-prop}{selection-background-color}
+           respectively.
+        
+           The color of the grid can be specified using the
            \l{#gridline-color-prop}{gridline-color} property.
+
+           See \l{qabstractscrollarea-widget}{QAbsractScrollArea} to
+           style scrollable backgrounds.
 
     \row
         \o QTableWidget \target qtablewidget-widget
@@ -776,6 +914,14 @@
     \row
         \o QTextEdit \target qtextedit-widget
         \o Supports the \l{box model}.
+
+           The color and background of selected text is styled using
+           \l{#selection-color-prop}{selection-color} and
+           \l{#selection-background-color-prop}{selection-background-color}
+           respectively.
+
+           See \l{qabstractscrollarea-widget}{QAbsractScrollArea} to
+           style scrollable backgrounds.
 
     \row
         \o QTimeEdit \target qtimeedit-widget
@@ -791,8 +937,15 @@
 
     \row
         \o QToolBox \target qtoolbox-widget
-        \o Supports the \l{box model}. The individual tabs can by styled
-           using the \l{#tab-sub}{::tab} subcontrol.
+        \o Supports the \l{box model}. 
+        
+           The individual tabs can by styled using the 
+           \l{#tab-sub}{::tab} subcontrol. The tabs support the
+           \l{#only-one-ps}{:only-one}, \l{#first-ps}{:first},
+           \l{#last-ps}{:last}, \l{#middle-ps}{:middle},
+           \l{#previous-selected-ps}{:previous-selected},
+           \l{#next-selected-ps}{:next-selected},
+           \l{#selected-ps}{:selected} pseudo states.
 
     \row
         \o QToolTip \target qtooltip-widget
@@ -801,8 +954,25 @@
 
     \row
         \o QTreeView \target qtreeview-widget
-        \o Supports the \l{box model}. The branches of the tree view can
-           be styled using the \l{#branch-sub}{::branch} subcontrol.
+        \o Supports the \l{box model}. When 
+           \l{QAbstractItemView::alternatingRowColors}{alternating row colors} 
+           is enabled, the alternating colors can be styled using the 
+           \l{#alternate-background-color-prop}{alternate-background-color}
+           property.
+        
+           The color and background of the selected item is styled using
+           \l{#selection-color-prop}{selection-color} and
+           \l{#selection-background-color-prop}{selection-background-color}
+           respectively.
+
+           The branches of the tree view can be styled using the 
+           \l{#branch-sub}{::branch} subcontrol. The
+           ::branch Sub-control supports the \l{open-ps}{:open},
+           \l{closed-ps}{:closed}, \l{has-siblings-ps}{:has-sibling} and
+           \l{has-children-ps}{:has-children} pseudo states. 
+
+           See \l{qabstractscrollarea-widget}{QAbsractScrollArea} to
+           style scrollable backgrounds.
 
     \row
         \o QTreeWidget \target qtreewidget-widget
@@ -810,7 +980,8 @@
 
     \row
         \o QWidget \target qwidget-widget
-        \o Supports only the \l{#background-prop}{background} and
+        \o Supports only the \l{#background-prop}{background},
+           \l{#background-clip-prop}{backgorund-clip} and
            \l{#background-origin-prop}{background-origin} properties.
 
     \endtable
@@ -831,7 +1002,7 @@
         \o Description
 
     \row
-        \o \bold{\c alternate-background-color} \target alternate-background-prop
+        \o \bold{\c alternate-background-color} \target alternate-background-color-prop
         \o \l{#Brush}{Brush} \BR
         \o The \l{QAbstractItemView::alternatingRowColors}
            {alternate background color} used in QAbstractItemView subclasses.
@@ -844,7 +1015,7 @@
 
            \code
                 QTreeView {
-                    alternate-background: blue;
+                    alternate-background-color: blue;
                     background: yellow;
                 }
            \endcode
@@ -880,7 +1051,7 @@
            \l{#selection-background-color-prop}{selection-background-color},
            \l{#background-clip-prop}{background-clip},
            \l{#background-attachment-prop}{background-attachment}
-           and \l{#alternate-background-prop}{alternate-background}.
+           and \l{#alternate-background-color-prop}{alternate-background-color}.
 
     \row
         \o \c background-color
@@ -1515,7 +1686,7 @@
            \l{#bottom-prop}{bottom}.
 
     \row
-        \o \bold{\c lineedit-password- \BR \c character}*
+        \o \bold{\c lineedit-password- \BR \c character}* \target lineedit-password-character-prop
         \o \l{#Number}{Number}
         \o The QLineEdit password character as a Unicode number.
 
@@ -2308,16 +2479,16 @@ blue green yellow * /
            \l{QPushButton::flat}{flat} QPushButton.
 
     \row
-        \o \c :focus
+        \o \c :focus \target focus-ps
         \o The item has \l{QWidget::hasFocus()}{input focus}.
 
     \row
-        \o \c :has-children
+        \o \c :has-children \target has-children-ps
         \o The item has children. For example, an item in a
            QTreeView that has child items.
 
     \row
-        \o \c :has-siblings
+        \o \c :has-siblings \target has-siblings-ps
         \o The item has siblings. For example, an item in a
            QTreeView that siblings.
 
@@ -2380,7 +2551,7 @@ blue green yellow * /
            an open menu.
 
     \row
-        \o \c :next-selected \target next-selected
+        \o \c :next-selected \target next-selected-ps
         \o The next item (in a list) is selected. For example, the
            selected tab of a QTabBar is next to this item.
 
