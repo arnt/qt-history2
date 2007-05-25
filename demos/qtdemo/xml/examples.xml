@@ -65,7 +65,7 @@
     <example filename="simpletreemodel" name="Simple Tree Model" />
     <example filename="simplewidgetmapper" name="Simple Widget Mapper" />
     <example filename="spinboxdelegate" name="Spin Box Delegate" />
-    <example filename="stardelegate" name="Star Delagate" />
+    <example filename="stardelegate" name="Star Delegate" />
   </category>
   <category dirname="layouts" name="Layouts">
     <example filename="basiclayouts" name="Basic Layouts" />
