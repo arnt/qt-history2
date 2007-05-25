@@ -94,6 +94,7 @@ void MainWindow::createLetter(const QString &name, const QString &address,
     cursor.insertText(tr("I would like to place an order for the following "
                          "items:"), textFormat);
     cursor.insertBlock();
+    cursor.insertBlock();
 
     QTextTableFormat orderTableFormat;
     orderTableFormat.setAlignment(Qt::AlignHCenter);
@@ -121,6 +122,7 @@ void MainWindow::createLetter(const QString &name, const QString &address,
 
     cursor.setPosition(topFrame->lastPosition());
 
+    cursor.insertBlock();
     cursor.insertText(tr("Please update my records to take account of the "
                          "following privacy information:"));
     cursor.insertBlock();
