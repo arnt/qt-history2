@@ -2434,8 +2434,8 @@ bool QXmlStreamReader::isStandaloneDocument() const
 
   The stream writer can automatically format the generated XML data by
   adding line-breaks and indentation to empty sections between
-  elements, somethign that makes the XML data more readable for humans
-  and easier to work with for most source code management systems. The
+  elements, making the XML data more readable for humans and easier to
+  work with for most source code management systems. The
   feature can be turned on with the \l autoFormatting property.
 
   Other functions are writeCDATA(), writeComment(),
