@@ -783,6 +783,13 @@
         \o QProgressBar \target qprogressbar-widget
         \o Supports the \l{box model}. The chunks of the progress bar
            can be styled using the \l{#chunk-sub}{::chunk} subcontrol.
+           The chunk is displayed on the Contents rectangle of the widget.
+
+           If the progress bar displays text, use the \l{label-sub}{::label}
+           subcontrol to position the text.
+
+           Indeterminate progress bars have the 
+           \l{#indeterminate-ps}{:indeterminate} pseudo state set.
 
     \row
         \o QPushButton \target qpushbutton-widget
@@ -808,7 +815,35 @@
 
     \row
         \o QScrollBar \target qscrollbar-widget
-        \o Supports the \l{box model}.
+        \o Supports the \l{box model}. The Contents rectangle of the widget
+           is considered to be the groove over which the slider moves. The extent
+           of the QScrolBar (i.e the width or the height depending on the orientation)
+           is set using the \l{#width-prop}{width} or \l{#height-prop}{height} property
+           respectively. To determine the orientation, use the 
+           \l{#horizontal-ps}{:horizontal} and the \l{vertical-ps}{:vertical}
+           pseudo states.
+
+           The slider can be styled using the \l{#handle-sub}{::handle} subcontrol.
+           Setting the \l{#min-width-prop}{min-width} or \l{#min-height-prop}{min-height}
+           provides size contraints for the slider depending on the orientation.
+
+           The \l{add-line-sub}{::add-line} subcontrol can be used to style the
+           button to add a line. By default, the add-line subcontrol is placed in 
+           top right corner of the Border rectangle of the widget. Depending on the
+           orientation the \l{#right-arrow-sub}{::right-arrow} or 
+           \l{#down-arrow-sub}{::down-arrow}. By default, the arrows are placed in 
+           the center of the Contents rectangle of the add-line subcontrol. 
+
+           The \l{sub-line-sub}{::sub-line} subcontrol can be used to style the
+           button to subtract a line. By default, the sub-line subcontrol is placed in 
+           bottom right corner of the Border rectangle of the widget. Depending on the
+           orientation the \l{#left-arrow-sub}{::left-arrow} or 
+           \l{#up-arrow-sub}{::up-arrow}. By default, the arrows are placed in 
+           the center of the Contents rectangle of the sub-line subcontrol. 
+
+           The \l{sub-page-sub}{::sub-page} subcontrol can be used to style the
+           region of the slider that subtracts a page. The \l{add-page-sub}{::add-page}
+           subcontrol can be used to style the region of the slider that adds a page.
 
     \row
         \o QSizeGrip \target qsizegrip-widget
@@ -818,7 +853,18 @@
 
     \row
         \o QSlider \target qslider-widget
-        \o Supports the \l{box model}.
+        \o Supports the \l{box model}. For horizontal slides, the 
+           \l{min-width-prop}{min-width} and \l{height-prop}{height}
+           properties must be provided. For vertical sliders, the 
+           \l{min-height-prop}{min-height} and \l{width-prop}{width}
+           properties must be provided.
+        
+           The groove of the slider is styled 
+           using the \l{#groove-sub}{::groove}. The groove is 
+           positioned by default in the Contents rectangle of the widget. 
+           The thumb of the slider is styled using \l{#handle-sub}{::handle}
+           subcontrol. The subcontrol moves in the Contents rectangle of
+           the groove subcontrol.
 
     \row
         \o QSpinBox \target qspinbox-widget
@@ -864,8 +910,20 @@
            \l{#next-selected-ps}{:next-selected},
            \l{#selected-ps}{:selected} pseudo states.
 
+            The \l{#top-ps}{:top}, \l{#left-ps}{:left}, \l{#right-ps}{:right},
+            \l{#bottom-ps}{:bottom} pseudo states depending on the orientation
+            of the tabs.
+
             Overlapping tabs for the selected state are created by using
             negative margins or using the \c{absolute} position scheme.
+
+            The tear indicator of the QTabBar is styled using the 
+            \l{#tear-sub}{::tear} subcontrol.
+
+            QTabBar used two QToolButtons for its scrollers that can be styled
+            using the \c{QTabBar QToolButton} selector. To specify the width
+            of the scroll button use the \l{#scroller-sub}{::scroller} 
+            subcontrol.
 
             \omit ## undecided on property name alignment
             The alignment of the tabs within the QTabBar is styled
@@ -887,6 +945,10 @@
            By default, the subcontrols have positions of a QTabWidget in 
            the QWindowsStyle. To place the QTabBar in the center, set the
            subcontrol-position of the tab-bar subcontrol.
+
+            The \l{#top-ps}{:top}, \l{#left-ps}{left-ps}, \l{#right-ps}{right},
+            \l{#bottom-ps}{:bottom} pseudo states depending on the orientation
+            of the tabs.
 
     \row
         \o QTableView \target qtableview-widget
@@ -929,11 +991,42 @@
 
     \row
         \o QToolBar \target qtoolbar-widget
-        \o Supports the \l{box model}.
+        \o Supports the \l{box model}. 
+        
+            The \l{#top-ps}{:top}, \l{#left-ps}{:left}, \l{#right-ps}{:right},
+            \l{#bottom-ps}{:bottom} pseudo states depending on the area in
+            which the tool bar is grouped.
+
+            The \l{#first-ps}{:first}, \l{#last-ps}{:last}, \l{#middle-ps}{:middle},
+            \l{#only-one-ps}{:only-one} pseudo states indicator the position
+            of the tool bar within a line group (See 
+            QStyleOptionToolBar::positionWithinLine).
+
+            The separator of a QToolBar is styled using the 
+            \l{#separator-sub}{::separator} subcontrol.
+
+            The handle (to move the toolbar) is styled using the
+            \l{#handle-sub}{::handle} subcontrol.
 
     \row
         \o QToolButton \target qtoolbutton-widget
-        \o Supports the \l{box model}.
+        \o Supports the \l{box model}. 
+        
+           If the QToolButton has a menu, is 
+           \l{#menu-indicator-sub}{::menu-indicator} subcontrol can be used to
+           style the indicator. By default, the menu-indicator is positioned
+           at the bottom right of the Padding rectangle of the widget.
+
+           If the QToolButton is in QToolButton::MenuButtonPopup mode,
+           the \l{#menu-button-sub}{::menu-button} subcontrol is used to draw the
+           menu button. \l{#menu-arrow-sub}{::menu-arrow} subcontrol is used to
+           draw the menu arrow inside the menu-button. By default, it is
+           positioned in the center of the Contents rectangle of the the
+           menu-button subcontrol.
+
+           When the QToolButton displays arrows, the \l{#up-arrow-sub}{::up-arrow},
+           \l{#down-arrow-sub}{::down-arrow}, \l{#left-arrow-sub}{::left-arrow}
+           and \l{#right-arrow-sub}{::right-arrow} subcontrols are used.
 
     \row
         \o QToolBox \target qtoolbox-widget
@@ -1645,6 +1738,8 @@
            In Qt 4.3 and later, the alignment of the
            image within the rectangle can be specified using 
            \l{image-position-prop}{image-position}.
+
+           \warning The QIcon SVG plugin is needed to render SVG images.
 
            Example:
 
@@ -2722,8 +2817,12 @@ blue green yellow * /
            style the tabs using the \l{#tab-sub}{::tab} subcontrol.
 
     \row
+        \o \c ::tear \target tear-sub
+        \o The tear indicator of a QTabBar
+
+    \row
         \o \c ::tear-off \target tear-off-sub
-        \o The tear off indicator of a QTabBar
+        \o The tear-off indicator of a QMenu
 
     \row
         \o \c ::title \target title-sub
