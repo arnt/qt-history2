@@ -2639,7 +2639,7 @@ static void blend_untransformed_argb_callback(int count, const QSpan *spans,
     QSpanData *data = reinterpret_cast<QSpanData *>(userData);
     if (data->texture.format != QImage::Format_ARGB32_Premultiplied
         && data->texture.format != QImage::Format_RGB32) {
-        blend_untransformed_generic(count, spans, userData);
+        blend_untransformed_generic_callback(count, spans, userData);
         return;
     }
 
