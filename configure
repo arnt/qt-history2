@@ -4548,6 +4548,9 @@ if [ "$CFG_QWS_DEPTHS" = "prompted" -a "$PLATFORM_QWS" = "yes" ]; then
     fi
 fi
 if [ -n "$CFG_QWS_DEPTHS" -a "$PLATFORM_QWS" = "yes" ]; then
+    if [ "$CFG_QWS_DEPTHS" = "all" ]; then
+        CFG_QWS_DEPTHS="4 8 16 18 24 32"
+    fi
     for D in `echo "$CFG_QWS_DEPTHS" | sed -e 's/,/ /g'`; do
 	case $D in
 	    4|8|16|18|24|32) QCONFIG_FLAGS="$QCONFIG_FLAGS QT_QWS_DEPTH_$D";;
