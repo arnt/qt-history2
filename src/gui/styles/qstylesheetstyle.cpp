@@ -1310,7 +1310,7 @@ static PseudoElementInfo knownPseudoElements[NumPseudoElements] = {
     { QStyle::SC_GroupBoxCheckBox, "indicator" },
     { QStyle::SC_ToolButtonMenu, "menu-button" },
     { QStyle::SC_ToolButtonMenu, "menu-arrow" },
-    { QStyle::SC_None, "menu-arrow" },
+    { QStyle::SC_None, "menu-indicator" },
     { QStyle::SC_None, "tab" },
     { QStyle::SC_ScrollBarSlider, "handle" },
     { QStyle::SC_ScrollBarAddPage, "add-page" },
@@ -4094,7 +4094,7 @@ QRect QStyleSheetStyle::subElementRect(SubElement se, const QStyleOption *opt, c
                     labelRule.geo->height = sz.height();
                 }
                 if (!labelRule.hasPosition()) {
-                    labelRule.p = new QStyleSheetPositionData(0, 0, 0, 0, defaultOrigin(PseudoElement_GroupBoxTitle),
+                    labelRule.p = new QStyleSheetPositionData(0, 0, 0, 0, defaultOrigin(PseudoElement_Label),
                                                               pb->textAlignment, PositionMode_Static);
                 }
 
