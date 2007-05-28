@@ -684,7 +684,7 @@ void qt_blit_setup(QScreen *screen, const QImage &image,
         screen->d_ptr->blit = 0;
         break;
     }
-    screen->blit(image, topLeft, region);
+    screen->d_ptr->blit(screen, image, topLeft, region);
 }
 
 QScreenPrivate::QScreenPrivate(QScreen *parent)
