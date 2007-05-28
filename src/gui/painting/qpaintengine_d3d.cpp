@@ -1688,7 +1688,7 @@ void QD3DSurfaceManager::init(LPDIRECT3D9 object)
                                0, 0, 1, 1,
                                0, 0, qWinAppInst(), 0);
     } , {
-        m_dummy = CreateWindowA(cname.latin1(), cname.toLatin1(), 0,
+        m_dummy = CreateWindowA(cname.toLatin1(), cname.toLatin1(), 0,
                                 0, 0, 1, 1,
                                 0, 0, qWinAppInst(), 0);
     });
@@ -3435,7 +3435,7 @@ QPixmap QDirect3DPaintEnginePrivate::getPattern(Qt::BrushStyle style) const
         p.setPen(Qt::NoPen);
         p.drawRect(0,0,16,16);
         p.end();
-        QPixmap pattern(img);
+        QPixmap pattern = QPixmap::fromImage(img);
         QDirect3DPaintEnginePrivate *ct = const_cast<QDirect3DPaintEnginePrivate *>(this);
         ct->verifyTexture(pattern);
         ct->m_patterns.insert(style, pattern);
