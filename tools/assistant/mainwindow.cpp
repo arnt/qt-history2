@@ -288,7 +288,7 @@ void MainWindow::about()
                       "development.");
     QString moreInfo = tr("You need a commercial Qt license for development of proprietary (closed "
                    "source) applications. Please see <a href=\"http://www.trolltech.com/company/model"
-                   ".html\">www.trolltech.com/company/model.html</a> for an overview of Qt licensing.");
+                   "\">www.trolltech.com/company/model</a> for an overview of Qt licensing.");
 #else 
     QString edition;
     QString info;
