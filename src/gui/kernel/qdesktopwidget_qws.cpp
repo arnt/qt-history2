@@ -93,6 +93,9 @@ const QRect QDesktopWidget::screenGeometry(int screenNo) const
 
 int QDesktopWidget::screenNumber(const QWidget *w) const
 {
+    if (!w)
+        return -1;
+
     QRect frame = w->frameGeometry();
     if (!w->isWindow())
         frame.moveTopLeft(w->mapToGlobal(QPoint(0, 0)));

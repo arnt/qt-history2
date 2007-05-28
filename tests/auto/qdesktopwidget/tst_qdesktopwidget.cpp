@@ -79,6 +79,8 @@ void tst_QDesktopWidget::screenNumberForQWidget()
 {
     QDesktopWidget desktop;
 
+    QCOMPARE(desktop.screenNumber(0), -1);
+
     QWidget widget;
     widget.show();
     QApplication::processEvents();
