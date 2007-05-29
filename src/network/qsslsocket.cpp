@@ -761,12 +761,12 @@ void QSslSocket::setCiphers(const QList<QSslCipher> &ciphers)
 
 /*!
     Sets the cryptographic cipher suite for this socket to \a ciphers, which
-    is a colon-separated list of cipher names. The ciphers are listed in order
-    of preference, starting with the most preferred cipher. For example:
+    is a colon-separated list of cipher suite names. The ciphers are listed in
+    order of preference, starting with the most preferred cipher. For example:
 
     \code
         QSslSocket socket;
-        socket.setCiphers("!ADH:RC4+RSA:HIGH:MEDIUM:LOW:EXP:+SSLv2:+EXP");
+        socket.setCiphers("DHE-RSA-AES256-SHA:DHE-DSS-AES256-SHA:AES256-SHA");
     \endcode
 
     Each cipher name in \a ciphers must be the name of a cipher in the

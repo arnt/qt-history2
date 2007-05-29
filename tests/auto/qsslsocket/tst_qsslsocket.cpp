@@ -330,6 +330,9 @@ void tst_QSslSocket::ciphers()
     QCOMPARE(socket.ciphers(), QSslSocket::supportedCiphers());
     socket.setCiphers(socket.defaultCiphers());
     QCOMPARE(socket.ciphers(), QSslSocket::supportedCiphers());
+
+    // Task 164356
+    socket.setCiphers("ALL:!ADH:!LOW:!EXP:!MD5:@STRENGTH");
 }
 
 void tst_QSslSocket::connectToHostEncrypted()

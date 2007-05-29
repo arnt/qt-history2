@@ -70,6 +70,7 @@ QSslCipher::QSslCipher()
     \a protocol correctly identified a supported cipher.
 */
 QSslCipher::QSslCipher(const QString &name, QSsl::SslProtocol protocol)
+    : d(new QSslCipherPrivate)
 {
     foreach (const QSslCipher &cipher, QSslSocket::supportedCiphers()) {
         if (cipher.name() == name && cipher.protocol() == protocol) {
