@@ -285,7 +285,7 @@
 
     \relates QTest
 
-    Implements a main() function that instanciates a QApplication object and
+    Implements a main() function that instantiates a QApplication object and
     the \a TestClass, and executes all tests in the order they were defined.
     Use this macro to build stand-alone executables.
 
@@ -304,7 +304,7 @@
 
     Implements a main() function that executes all tests in \a TestClass.
 
-    Behaves like \l QTEST_MAIN(), but doesn't instanciate a QApplication
+    Behaves like \l QTEST_MAIN(), but doesn't instantiate a QApplication
     object. Use this macro for really simple stand-alone non-GUI tests.
 
     \sa QTEST_MAIN()
