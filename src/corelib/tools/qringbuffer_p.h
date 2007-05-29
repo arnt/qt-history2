@@ -209,8 +209,8 @@ public:
             if (data)
                 memcpy(data + readSoFar, ptr, bytesToReadFromThisBlock);
             readSoFar += bytesToReadFromThisBlock;
+            free(bytesToReadFromThisBlock);
         }
-        free(readSoFar);
         return readSoFar;
     }
 
@@ -264,8 +264,8 @@ public:
             bytesToRead = qMin(bytesToRead, (maxLength - 1) - readSoFar);
             memcpy(data + readSoFar, readPointer(), bytesToRead);
             readSoFar += bytesToRead;
+            free(bytesToRead);
         }
-        free(readSoFar);
 
         // Terminate it.
         data[readSoFar] = '\0';
