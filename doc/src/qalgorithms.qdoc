@@ -51,13 +51,13 @@
         // list: [ "eleven", "six", "six" ]
     \endcode
 
-    The various algorithms have different requirements for the
-    iterators they accept. For example, qFill() accepts two \l {input
-    iterators}, the most minimal requirement for an iterator type. The
-    requirements are specified for every algorithm. If an iterator of
-    the wrong type is passed (for example, QList::ConstIterator is
-    passed as an \l{output iterator}), you will always get a
-    compiler error, although not necessarily a very informative one.
+    Different algorithms can have different requirements for the
+    iterators they accept. For example, qFill() accepts two 
+    \l {forward iterators}. The iterator types required are specified
+    for each algorithm. If an iterator of the wrong type is passed (for
+    example, if QList::ConstIterator is passed as an \l {output
+    iterator}), you will always get a compiler error, although not
+    necessarily a very informative one.
 
     Some algorithms have special requirements on the value type
     stored in the containers. For example, qEqual() requires that the
