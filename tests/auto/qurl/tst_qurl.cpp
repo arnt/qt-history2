@@ -141,6 +141,7 @@ private slots:
     void setAuthority_data();
     void setAuthority();
     void errorString();
+    void clear();
 
 #ifdef QT3_SUPPORT
     void dirPath();
@@ -3238,6 +3239,15 @@ void tst_QUrl::errorString()
 
     QUrl v;
     QCOMPARE(v.errorString(), QString::fromLatin1("Invalid URL \"\": "));
+}
+
+void tst_QUrl::clear()
+{
+    QUrl url("a");
+    QUrl url2("a");
+    QCOMPARE(url, url2);
+    url.clear();
+    QVERIFY(url != url2);
 }
 
 #ifdef QT3_SUPPORT

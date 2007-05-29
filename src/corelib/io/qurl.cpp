@@ -3412,6 +3412,7 @@ void QUrlPrivate::clear()
     fragment.clear();
 
     encodedOriginal.clear();
+    encodedNormalized.clear();
 
     isValid = false;
     hasQuery = false;
@@ -3420,7 +3421,7 @@ void QUrlPrivate::clear()
     valueDelimiter = '=';
     pairDelimiter = '&';
 
-    QURL_UNSETFLAG(stateFlags, Parsed | Validated);
+    QURL_UNSETFLAG(stateFlags, Parsed | Validated | Normalized);
 }
 
 QByteArray QUrlPrivate::toEncoded(QUrl::FormattingOptions options) const
