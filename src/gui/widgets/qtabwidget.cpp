@@ -430,7 +430,7 @@ void QTabWidget::setTabIcon(int index, const QIcon &icon)
 }
 
 /*!
-    Returns the label text for the tab on the page at position \a index.
+    Returns the icon for the tab on the page at position \a index.
 */
 
 QIcon QTabWidget::tabIcon(int index) const
