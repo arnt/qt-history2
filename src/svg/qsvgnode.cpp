@@ -260,7 +260,7 @@ QRectF QSvgNode::transformedBounds(const QMatrix &mat) const
     QRectF rect = bounds();
 
     rect = m.mapRect(rect);
-    
+
     return rect;
 }
 
@@ -282,4 +282,13 @@ void QSvgNode::setDisplayMode(DisplayMode mode)
 QSvgNode::DisplayMode QSvgNode::displayMode() const
 {
     return m_displayMode;
+}
+
+qreal QSvgNode::strokeWidth() const
+{
+    QSvgStrokeStyle *stroke = static_cast<QSvgStrokeStyle*>(
+        styleProperty(QSvgStyleProperty::STROKE));
+    if (!stroke)
+        return 0;
+    return stroke->qpen().widthF();
 }

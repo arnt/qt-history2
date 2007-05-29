@@ -125,6 +125,8 @@ public:
     void setXmlClass(const QString &str);
 protected:
     QSvgStyle   m_style;
+
+    qreal strokeWidth() const;
 private:
     QSvgNode   *m_parent;
     QHash<QString, QSvgRefCounter<QSvgStyleProperty> > m_styles;
