@@ -22,9 +22,13 @@
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-    app.setWindowIcon(QIcon(QLatin1String(":/trolltech/qdbusviewer/images/qdbusviewer.png")));
-
     QMainWindow mw;
+#ifndef Q_WS_MAC
+    app.setWindowIcon(QIcon(QLatin1String(":/trolltech/qdbusviewer/images/qdbusviewer.png")));
+#else
+    mw.setWindowTitle(qApp->translate("QtDBusViewer", "Qt D-Bus Viewer"));
+#endif
+
 
     QTabWidget *mainWidget = new QTabWidget;
     mw.setCentralWidget(mainWidget);

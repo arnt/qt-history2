@@ -20,3 +20,10 @@ QT += xml
 target.path=$$[QT_INSTALL_BINS]
 INSTALLS += target
 
+mac {
+    ICON = images/qdbusviewer.icns
+}
+
+win32 {
+    RC_FILE = qdbusviewer.rc
+}
