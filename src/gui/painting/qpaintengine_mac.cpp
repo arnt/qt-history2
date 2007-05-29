@@ -1298,7 +1298,10 @@ void QCoreGraphicsPaintEnginePrivate::drawPath(uchar ops, CGMutablePathRef path)
         // fills the right pixel. This is needed since the y xais
         // in the Quartz coordinate system is inverted compared to Qt.
         if (!(q->state->renderHints() & QPainter::Antialiasing))
-            CGContextTranslateCTM(hd, double(pixelSize.x()) * 0.25, double(pixelSize.y()) * 0.25);
+            if (current.pen.style() == Qt::SolidLine)
+                CGContextTranslateCTM(hd, double(pixelSize.x()) * 0.25, double(pixelSize.y()) * 0.25);
+            else
+                CGContextTranslateCTM(hd, 0, double(pixelSize.y()) * 0.1);
 
         if (cosmeticPen != QCoreGraphicsPaintEnginePrivate::CosmeticNone) {
             // If antialiazing is enabled, use the cosmetic pen size directly.
