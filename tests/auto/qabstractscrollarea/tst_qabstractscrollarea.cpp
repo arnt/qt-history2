@@ -31,6 +31,7 @@ public:
 private slots:
     void scrollBarWidgets();
     void setScrollBars();
+    void setScrollBars2();
     void objectNaming();
 };
 
@@ -175,6 +176,66 @@ void tst_QAbstractScrollArea::setScrollBars()
     QCOMPARE(scrollArea.horizontalScrollBar()->pageStep(), 42);
     QCOMPARE(scrollArea.horizontalScrollBar()->singleStep(), 3);
     QCOMPARE(scrollArea.horizontalScrollBar()->value(), 43);
+}
+
+void tst_QAbstractScrollArea::setScrollBars2()
+{
+    QAbstractScrollArea scrollArea;
+    scrollArea.resize(300, 300);
+
+    QScrollBar *hbar = new QScrollBar;
+    scrollArea.setHorizontalScrollBar(hbar);
+    qApp->processEvents();
+    QCOMPARE(scrollArea.horizontalScrollBar(), hbar);
+
+    QScrollBar *vbar = new QScrollBar;
+    scrollArea.setVerticalScrollBar(vbar);
+    qApp->processEvents();
+    QCOMPARE(scrollArea.verticalScrollBar(), vbar);
+
+    scrollArea.horizontalScrollBar()->setRange(0, 100);
+    scrollArea.verticalScrollBar()->setRange(0, 100);
+    scrollArea.show();
+
+    // Make sure scroll bars are not explicitly hidden by QAbstractScrollArea itself.
+    QVERIFY(hbar->isVisible());
+    QVERIFY(vbar->isVisible());
+
+    // Hide the OLD scroll bar and ensure that the NEW one is hidden.
+    hbar->hide();
+    scrollArea.setHorizontalScrollBar(new QScrollBar);
+    qApp->processEvents();
+    QVERIFY(!scrollArea.horizontalScrollBar()->isVisible());
+
+    vbar->hide();
+    scrollArea.setVerticalScrollBar(new QScrollBar);
+    qApp->processEvents();
+    QVERIFY(!scrollArea.verticalScrollBar()->isVisible());
+
+    scrollArea.verticalScrollBar()->show();
+    scrollArea.horizontalScrollBar()->show();
+
+    // Hide the NEW scroll bar and ensure that it's visible
+    // (because the OLD one is visible).
+    hbar = new QScrollBar;
+    hbar->hide();
+    scrollArea.setHorizontalScrollBar(hbar);
+    qApp->processEvents();
+    QVERIFY(hbar->isVisible());
+
+    vbar = new QScrollBar;
+    vbar->hide();
+    scrollArea.setVerticalScrollBar(vbar);
+    qApp->processEvents();
+    QVERIFY(vbar->isVisible());
+
+    vbar->setRange(0, 0);
+    qApp->processEvents();
+    QVERIFY(!vbar->isVisible());
+
+    hbar->setRange(0, 0);
+    qApp->processEvents();
+    QVERIFY(!hbar->isVisible());
 }
 
 // we need to make sure the viewport internal widget is named
