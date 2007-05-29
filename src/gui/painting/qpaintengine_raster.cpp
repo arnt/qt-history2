@@ -1113,8 +1113,8 @@ void QRasterPaintEngine::updateMatrix(const QTransform &matrix)
         d->tx_noshear = qFuzzyCompare(qAbs(d->matrix.m11()), qAbs(d->matrix.m22()));
     } else if (d->txop < QTransform::TxShear) {
         const qreal xAxis = d->matrix.m11() * d->matrix.m11() +
-                            d->matrix.m12() * d->matrix.m12();
-        const qreal yAxis = d->matrix.m21() * d->matrix.m21() +
+                            d->matrix.m21() * d->matrix.m21();
+        const qreal yAxis = d->matrix.m12() * d->matrix.m12() +
                             d->matrix.m22() * d->matrix.m22();
 
         d->tx_noshear = qFuzzyCompare(xAxis, yAxis);
