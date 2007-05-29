@@ -24,6 +24,10 @@
 Q_DECLARE_METATYPE(QAction*)
 Q_DECLARE_METATYPE(QListWidgetItem*)
 
+namespace {
+    enum { listModeIconSize = 16, iconModeIconSize = 24 };
+}
+
 static inline QAction *actionOfItem(const QListWidgetItem* item)
 {
     return qvariant_cast<QAction*>(item->data(qdesigner_internal::ActionRepository::ActionRole));
@@ -35,16 +39,33 @@ ActionRepository::ActionRepository(QWidget *parent)
     : QListWidget(parent)
 {
     setViewMode(IconMode);
-    setMovement(Static);
     setResizeMode(Adjust);
-    setIconSize(QSize(24, 24));
-    setSpacing(iconSize().width() / 3);
     setTextElideMode(Qt::ElideMiddle);
 
     setDragEnabled(true);
     setAcceptDrops(true);
     setDropIndicatorShown(true);
     setDragDropMode (DragDrop);
+}
+
+void ActionRepository::setViewMode(ViewMode mode)
+{
+    if (viewMode() == mode)
+        return;
+
+    switch(mode) {
+    case IconMode:
+        setMovement(Static);
+        setIconSize(QSize(iconModeIconSize, iconModeIconSize));
+        setGridSize(QSize(4 * iconModeIconSize, 2 *  iconModeIconSize));
+        break;
+    case ListMode:
+        setIconSize(QSize(listModeIconSize, listModeIconSize));
+        setGridSize(QSize());
+        setSpacing(1);
+        break;
+    }
+    QListWidget::setViewMode (mode);
 }
 
 void ActionRepository::startDrag(Qt::DropActions supportedActions)

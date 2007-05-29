@@ -46,6 +46,7 @@ TRANSLATOR qdesigner_internal::ActionEditor
 #include <QtGui/QLineEdit>
 #include <QtGui/QLabel>
 #include <QtGui/QPushButton>
+#include <QtGui/QContextMenuEvent>
 
 #include <QtCore/QRegExp>
 
@@ -84,6 +85,8 @@ public:
         m_button->setIconSize(QSize(16, 16));
         m_button->setFlat(true);
         l->addWidget(m_button);
+        l->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
+
         connect(m_button, SIGNAL(clicked()), m_editor, SLOT(clear()));
         connect(m_editor, SIGNAL(textChanged(QString)), this, SLOT(checkButton(QString)));
     }
@@ -119,9 +122,18 @@ public:
 };
 
 //--------  ActionEditor
-ActionEditor::ActionEditor(QDesignerFormEditorInterface *core, QWidget *parent, Qt::WindowFlags flags)
-    : QDesignerActionEditorInterface(parent, flags),
-      m_core(core)
+ActionEditor::ActionEditor(QDesignerFormEditorInterface *core, QWidget *parent, Qt::WindowFlags flags) :
+    QDesignerActionEditorInterface(parent, flags),
+    m_core(core),
+    m_actionGroups(0),
+    m_actionRepository(0),
+    m_actionNew(new QAction(tr("New..."), this)),
+    m_actionEdit(new QAction(tr("Edit..."), this)),
+    m_actionDelete(new QAction(tr("Delete"), this)),
+    m_viewModeGroup(new  QActionGroup(this)),
+    m_iconViewAction(0),
+    m_listViewAction(0),
+    m_filterWidget(0)
 {
     setWindowTitle(tr("Actions"));
 
@@ -130,25 +142,42 @@ ActionEditor::ActionEditor(QDesignerFormEditorInterface *core, QWidget *parent, 
     l->setSpacing(0);
 
     QToolBar *toolbar = new QToolBar(this);
-    toolbar->setIconSize(QSize(24, 24));
+    toolbar->setIconSize(QSize(22, 22));
     toolbar->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
     l->addWidget(toolbar);
-
-    m_actionNew = toolbar->addAction(tr("New..."));
+    // edit actions
     m_actionNew->setIcon(createIconSet(QLatin1String("filenew.png")));
     m_actionNew->setEnabled(false);
     connect(m_actionNew, SIGNAL(triggered()), this, SLOT(slotNewAction()));
+    toolbar->addAction(m_actionNew);
 
-    m_actionDelete = toolbar->addAction(tr("Delete"));
     m_actionDelete->setIcon(createIconSet(QLatin1String("editdelete.png")));
     m_actionDelete->setEnabled(false);
+    connect(m_actionDelete, SIGNAL(triggered()), this, SLOT(slotDeleteAction()));
+    toolbar->addAction(m_actionDelete);
 
+    m_actionEdit->setEnabled(false);
+    connect(m_actionEdit, SIGNAL(triggered()), this, SLOT(editCurrentAction()));
+    // filter
     m_filterWidget = new ActionFilterWidget(this, toolbar);
     m_filterWidget->setEnabled(false);
     toolbar->addWidget(m_filterWidget);
+    // Action group for detailed/icon view. Steal the icons from the file dialog.
+    m_viewModeGroup->setExclusive(true);
+    connect(m_viewModeGroup, SIGNAL(triggered(QAction*)), this, SLOT(slotViewMode(QAction*)));
 
-    connect(m_actionDelete, SIGNAL(triggered()), this, SLOT(slotDeleteAction()));
+    m_iconViewAction = m_viewModeGroup->addAction(tr("Icon View"));
+    m_iconViewAction->setData(QVariant(QListView::IconMode));
+    m_iconViewAction->setCheckable(true);
+    m_iconViewAction->setIcon(style()->standardIcon (QStyle::SP_FileDialogListView));
+    toolbar->addAction(m_iconViewAction);
 
+    m_listViewAction = m_viewModeGroup->addAction(tr("List View"));
+    m_listViewAction->setData(QVariant(QListView::ListMode));
+    m_listViewAction->setCheckable(true);
+    m_listViewAction->setIcon(style()->standardIcon (QStyle::SP_FileDialogDetailedView));
+    toolbar->addAction(m_listViewAction);
+    // main layout
     QSplitter *splitter = new QSplitter(Qt::Horizontal, this);
     splitter->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
@@ -177,9 +206,11 @@ ActionEditor::ActionEditor(QDesignerFormEditorInterface *core, QWidget *parent, 
     connect(m_actionRepository, SIGNAL(itemActivated(QListWidgetItem*)),
             this, SIGNAL(itemActivated(QListWidgetItem*)));
     connect(m_actionRepository, SIGNAL(contextMenuRequested(QContextMenuEvent*, QListWidgetItem*)),
-            this, SIGNAL(contextMenuRequested(QContextMenuEvent*, QListWidgetItem*)));
+            this, SLOT(slotContextMenuRequested(QContextMenuEvent*, QListWidgetItem*)));
     connect(this, SIGNAL(itemActivated(QListWidgetItem*)),
             this, SLOT(editAction(QListWidgetItem*)));
+
+    updateViewModeActions();
 }
 
 ActionEditor::~ActionEditor()
@@ -222,6 +253,7 @@ void ActionEditor::setFormWindow(QDesignerFormWindowInterface *formWindow)
 
     if (!formWindow || !formWindow->mainContainer()) {
         m_actionNew->setEnabled(false);
+        m_actionEdit->setEnabled(false);
         m_actionDelete->setEnabled(false);
         m_filterWidget->setEnabled(false);
         return;
@@ -275,9 +307,6 @@ QListWidgetItem *ActionEditor::createListWidgetItem(QAction *action)
         return 0;
 
     QListWidgetItem *item = new QListWidgetItem(m_actionRepository);
-    const QSize s = m_actionRepository->iconSize();
-    item->setSizeHint(QSize(s.width() * 3, s.height() * 2));
-
     setListWidgetItem(action, item);
 
     QVariant itemData;
@@ -297,7 +326,9 @@ void ActionEditor::slotItemChanged(QListWidgetItem *item)
     if (item)
         action = itemToAction(item);
 
-    m_actionDelete->setEnabled(action != 0);
+    const bool hasCurrentAction = action != 0;
+    m_actionEdit->setEnabled(hasCurrentAction);
+    m_actionDelete->setEnabled(hasCurrentAction);
 
     if (!action) {
         fw->clearSelection();
@@ -507,6 +538,12 @@ void ActionEditor::editAction(QListWidgetItem *item)
 
 }
 
+void ActionEditor::editCurrentAction()
+{
+    if (QListWidgetItem *item = m_actionRepository->currentItem())
+        editAction(item);
+}
+
 void ActionEditor::slotDeleteAction()
 {
     QListWidgetItem *item = m_actionRepository->currentItem();
@@ -563,6 +600,58 @@ void ActionEditor::mainContainerChanged()
     // Invalidate references to objects kept in model
     if (sender() == formWindow())
         setFormWindow(0);
+}
+
+int ActionEditor::viewMode() const
+{
+    return  m_actionRepository->viewMode();
+}
+
+void ActionEditor::setViewMode(int lm)
+{
+    switch (lm) {
+    case QListView::IconMode:
+    case QListView::ListMode:
+        m_actionRepository->setViewMode(static_cast<QListView::ViewMode>(lm));
+        updateViewModeActions();
+        break;
+    default:
+        break;
+    }
+}
+
+void ActionEditor::slotViewMode(QAction *a)
+{
+    setViewMode(a->data().toInt());
+}
+
+void ActionEditor::updateViewModeActions()
+{
+    switch (viewMode()) {
+    case QListView::IconMode:
+        m_iconViewAction->setChecked(true);
+        break;
+    case QListView::ListMode:
+        m_listViewAction->setChecked(true);
+        break;
+    }
+}
+
+void ActionEditor::slotContextMenuRequested(QContextMenuEvent *e, QListWidgetItem *item)
+{
+    QMenu menu(this);
+
+    menu.addAction(m_iconViewAction);
+    menu.addAction(m_listViewAction);
+    menu.addSeparator();
+    menu.addAction(m_actionNew);
+    menu.addAction(m_actionEdit);
+    menu.addAction(m_actionDelete);
+
+    emit contextMenuRequested(&menu, item);
+
+    menu.exec(e->globalPos());
+    e->accept();
 }
 } // namespace qdesigner_internal
 

@@ -43,6 +43,8 @@ public:
 
 public:
     ActionRepository(QWidget *parent = 0);
+    void setViewMode (ViewMode mode);
+
     bool event ( QEvent * event );
 
 signals:
@@ -75,7 +77,7 @@ public:
     virtual QStringList formats() const;
 
     static QPixmap actionDragPixmap(const QAction *action);
-    
+
     // Utility to accept with right action
     void accept(QDragMoveEvent *event) const;
 private:

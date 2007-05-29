@@ -60,9 +60,12 @@ public:
 
     QString style() const;
     void setStyle(const QString &style);
-    
+
     QString appStyleSheet() const;
     void setAppStyleSheet(const QString &styleSheet);
+
+    int actionEditorViewMode() const;
+    void setActionEditorViewMode(int vm);
 
 private:
     void setGeometryHelper(QWidget *w, const QString &key, const QRect &fallBack) const;

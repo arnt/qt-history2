@@ -37,6 +37,7 @@
 #include <QtDesigner/private/qdesigner_integration_p.h>
 #include <QtDesigner/private/pluginmanager_p.h>
 #include <QtDesigner/private/formwindowbase_p.h>
+#include <QtDesigner/private/actioneditor_p.h>
 
 #include <QtCore/QDir>
 #include <QtCore/QFile>
@@ -345,6 +346,9 @@ void QDesignerWorkbench::initialize()
     addToolWindow(tw);
     tw = new QDesignerActionEditor(this);
     tw->setObjectName(QLatin1String("qt_designer_actioneditor"));
+    if (qdesigner_internal::ActionEditor *ae = qobject_cast<qdesigner_internal::ActionEditor *>(core()->actionEditor()))
+        ae->setViewMode(settings.actionEditorViewMode());
+
     addToolWindow(tw);
 
     m_integration = new qdesigner_internal::QDesignerIntegration(core(), this);
@@ -813,6 +817,9 @@ void QDesignerWorkbench::saveSettings() const
             settings.saveGeometryFor(tw);
         }
     }
+
+    if (qdesigner_internal::ActionEditor *ae = qobject_cast<qdesigner_internal::ActionEditor *>(core()->actionEditor()))
+        settings.setActionEditorViewMode(ae->viewMode());
 }
 
 bool QDesignerWorkbench::readInForm(const QString &fileName) const

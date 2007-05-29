@@ -26,6 +26,7 @@
 
 #include <QtGui/QDesktopWidget>
 #include <QtGui/QStyle>
+#include <QtGui/QListView>
 
 #include <QtCore/qdebug.h>
 
@@ -41,6 +42,7 @@ static const char *appStyleSheetKey = "AppStyleSheet";
 static const char *defaultGridKey = "defaultGrid";
 static const char *formTemplatePathsKey = "FormTemplatePaths";
 static const char *recentFilesListKey = "recentFilesList";
+static const char *actionEditorViewModeKey = "ActionEditorViewMode";
 
 static bool checkTemplatePath(const QString &path, bool create)
 {
@@ -285,4 +287,14 @@ QStringList QDesignerSettings::additionalFormTemplatePaths() const
             rc.removeAt(index);
     }
     return rc;
+}
+
+int QDesignerSettings::actionEditorViewMode() const
+{
+    return value(QLatin1String(actionEditorViewModeKey), QListView::IconMode).toInt();
+}
+
+void QDesignerSettings::setActionEditorViewMode(int vm)
+{
+    setValue(QLatin1String(actionEditorViewModeKey), vm);
 }

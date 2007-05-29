@@ -33,6 +33,8 @@
 class QDesignerPropertyEditorInterface;
 class QListWidget;
 class QListWidgetItem;
+class QMenu;
+class QActionGroup;
 
 namespace qdesigner_internal {
 
@@ -64,6 +66,10 @@ public:
     QAction *itemToAction(QListWidgetItem *item) const;
     QListWidgetItem *actionToItem(QAction *action) const;
 
+    // View mode: QListView::ViewMode
+    int viewMode() const;
+    void setViewMode(int lm);
+
 public slots:
     void setFilter(const QString &filter);
     void mainContainerChanged();
@@ -71,17 +77,22 @@ public slots:
 private slots:
     void slotItemChanged(QListWidgetItem *item);
     void editAction(QListWidgetItem *item);
+    void editCurrentAction();
     void slotActionChanged();
     void slotNewAction();
     void slotDeleteAction();
     void slotNotImplemented();
     void resourceImageDropped(const ResourceMimeData &data, QAction *action);
-    
+    void slotContextMenuRequested(QContextMenuEvent *, QListWidgetItem *);
+    void slotViewMode(QAction *a);
+
 signals:
     void itemActivated(QListWidgetItem *item);
-    void contextMenuRequested(QContextMenuEvent*, QListWidgetItem *item);
+    // Context menu for item or global menu if item == 0.
+    void contextMenuRequested(QMenu *menu, QListWidgetItem *item);
 
 private:
+    void updateViewModeActions();
     QListWidgetItem *createListWidgetItem(QAction *action);
 
     QDesignerFormEditorInterface *m_core;
@@ -89,7 +100,13 @@ private:
     QListWidget *m_actionGroups;
     ActionRepository *m_actionRepository;
     QAction *m_actionNew;
+    QAction *m_actionEdit;
     QAction *m_actionDelete;
+
+    QActionGroup *m_viewModeGroup;
+    QAction *m_iconViewAction;
+    QAction *m_listViewAction;
+
     QString m_filter;
     QWidget *m_filterWidget;
 };
