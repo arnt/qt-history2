@@ -40,7 +40,7 @@ static QByteArray transformImageData(QString data)
         ba[i] = r;
     }
     QByteArray ret(reinterpret_cast<const char *>(ba), baSize);
-    delete ba;
+    delete [] ba;
     return ret;
 }
 
