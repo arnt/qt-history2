@@ -118,17 +118,17 @@ public:
     inline QScriptValueImpl property(QScriptNameIdImpl *nameId,
                                      const QScriptValue::ResolveFlags &mode = QScriptValue::ResolvePrototype) const;
     void setProperty(QScriptNameIdImpl *nameId, const QScriptValueImpl &value,
-                     const QScriptValue::PropertyFlags &flags = 0);
+                     const QScriptValue::PropertyFlags &flags = QScriptValue::KeepExistingFlags);
 
     inline QScriptValueImpl property(const QString &name,
                               const QScriptValue::ResolveFlags &mode = QScriptValue::ResolvePrototype) const;
     inline void setProperty(const QString &name, const QScriptValueImpl &value,
-                     const QScriptValue::PropertyFlags &flags = 0);
+                     const QScriptValue::PropertyFlags &flags = QScriptValue::KeepExistingFlags);
 
     inline QScriptValueImpl property(quint32 arrayIndex,
                               const QScriptValue::ResolveFlags &mode = QScriptValue::ResolvePrototype) const;
     inline void setProperty(quint32 arrayIndex, const QScriptValueImpl &value,
-                     const QScriptValue::PropertyFlags &flags = 0);
+                     const QScriptValue::PropertyFlags &flags = QScriptValue::KeepExistingFlags);
 
     inline QScriptValue::PropertyFlags propertyFlags(const QString &name,
                                                      const QScriptValue::ResolveFlags &mode = QScriptValue::ResolvePrototype) const;
