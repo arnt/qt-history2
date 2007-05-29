@@ -211,7 +211,7 @@ void QAbstractScrollAreaPrivate::replaceScrollBar(QScrollBar *scrollBar,
     container->scrollBar = scrollBar;
     container->layout->removeWidget(oldBar);
     container->layout->insertWidget(0, scrollBar);
-    scrollBar->setVisible(oldBar->isVisibleTo(oldBar->window()));
+    scrollBar->setVisible(oldBar->isVisibleTo(container));
     scrollBar->setInvertedAppearance(oldBar->invertedAppearance());
     scrollBar->setInvertedControls(oldBar->invertedControls());
     scrollBar->setRange(oldBar->minimum(), oldBar->maximum());
