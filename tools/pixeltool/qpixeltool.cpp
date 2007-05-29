@@ -390,6 +390,20 @@ void QPixelTool::grabScreen()
 
     m_buffer = QPixmap::grabWindow(qApp->desktop()->winId(), x, y, w, h);
 
+    QRegion geom(x, y, w, h);
+    QRect screenRect;
+    for (int i=0; i<qApp->desktop()->numScreens(); ++i)
+        screenRect |= qApp->desktop()->screenGeometry(i);
+    geom -= screenRect;
+    QVector<QRect> rects = geom.rects();
+    if (rects.size() > 0) {
+        QPainter p(&m_buffer);
+        p.translate(-x, -y);
+        p.setPen(Qt::NoPen);
+        p.setBrush(palette().color(QPalette::Dark));
+        p.drawRects(rects);
+    }
+
     update();
 
     m_lastMousePos = mousePos;
@@ -482,6 +496,6 @@ void QPixelTool::showHelp()
                 QLibraryInfo::location(QLibraryInfo::BinariesPath), this);
     QString filePath = QLibraryInfo::location(QLibraryInfo::DocumentationPath)
                        + QLatin1String("/html/pixeltool-manual.html");
-    
+
     m_assistantClient->showPage(filePath);
 }
