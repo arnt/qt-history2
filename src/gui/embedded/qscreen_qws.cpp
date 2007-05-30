@@ -609,7 +609,10 @@ static inline quint8 qt_convertToGray4(quint32 color)
 template <>
 static inline quint8 qt_convertToGray4(quint16 color)
 {
-    return (qGray(qt_colorConvert<quint32, quint16>(color, 0)) >> 4);
+    const int r = (color & 0xf800) >> 11;
+    const int g = (color & 0x07e0) >> 6; // only keep 5 bit
+    const int b = (color & 0x001f);
+    return (r * 11 + g * 16 + b * 5) >> 6;
 }
 
 template <typename SRC>
