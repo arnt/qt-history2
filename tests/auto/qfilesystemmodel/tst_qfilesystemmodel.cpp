@@ -110,7 +110,10 @@ tst_QFileSystemModel::~tst_QFileSystemModel()
 {
     QString tmp = QDir::temp().path() + QDir::separator() + QString("flatdirtest");
     QDir dir(tmp);
-	QVERIFY(dir.rmdir(tmp));
+    if (!dir.rmdir(tmp))
+        qWarning("failed to remove tmp dir");
+    // Cannot use QVERIFY as QTest::testLogger has been deleted already (#164634)
+	//QVERIFY(dir.rmdir(tmp));
 }
 
 void tst_QFileSystemModel::init()
