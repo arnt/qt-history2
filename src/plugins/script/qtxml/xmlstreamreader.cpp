@@ -165,6 +165,7 @@ static QScriptValue isStandaloneDocument(QScriptContext *ctx, QScriptEngine *eng
 
 static QScriptValue isStartDocument(QScriptContext *ctx, QScriptEngine *eng)
 {
+    Q_UNUSED(ctx);
     DECLARE_SELF(QXmlStreamReader, isStartDocument);
     return QScriptValue(eng, self->isStartDocument());
 }

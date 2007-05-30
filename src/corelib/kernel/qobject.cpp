@@ -260,7 +260,6 @@ QObjectList QObjectPrivate::receiverList(const char *signal) const
 
 QObjectList QObjectPrivate::senderList() const
 {
-    Q_Q(const QObject);
     QObjectList returnValue;
     QReadLocker locker(signalSlotLock());
     for (int i = 0; i < senders.count(); ++i)

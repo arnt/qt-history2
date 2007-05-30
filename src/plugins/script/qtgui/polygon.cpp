@@ -12,6 +12,7 @@ Q_DECLARE_METATYPE(QPolygonF)
 
 static QScriptValue ctor(QScriptContext *context, QScriptEngine *engine)
 {
+    Q_UNUSED(engine);
     return context->thisObject()
         .property("constructor", QScriptValue::ResolvePrototype)
         .property("prototype")
