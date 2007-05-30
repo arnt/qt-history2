@@ -2742,7 +2742,7 @@ QPoint QWidget::pos() const
     lead to infinite recursion.
 
     Note that setting size to QSize(0, 0) will cause the widget to not
-    appear on screen. This also applies to windo
+    appear on screen. This also applies to windows.
 
     \sa pos, geometry, minimumSize, maximumSize, resizeEvent()
 */
