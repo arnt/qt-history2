@@ -134,7 +134,7 @@ void EdgeItem::setToPoint( int x, int y )
 
 QVariant NodeItem::itemChange(GraphicsItemChange change, const QVariant &value)
 {
-    if (change == ItemPositionChange) {
+    if (change == ItemPositionHasChanged) {
         Q3PtrListIterator<EdgeItem> it1( inList );
         EdgeItem *edge;
         while (( edge = it1.current() )) {
