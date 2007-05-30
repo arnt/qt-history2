@@ -1278,7 +1278,6 @@ QImage::operator QVariant() const
 
     \sa copy(), isDetached(), {Implicit Data Sharing}
 */
-
 void QImage::detach()
 {
     if (d) {
@@ -1728,6 +1727,11 @@ const uchar *QImage::scanLine(int i) const
     Returns a pointer to the first pixel data. This is equivalent to
     scanLine(0).
 
+    Note that QImage uses \l{Implicit Data Sharing} {implicit data
+    sharing}. This function performs a deep copy of the shared pixel
+    data, thus ensuring that this QImage is the only one using the
+    current return value.
+
     \sa scanLine(), numBytes()
 */
 uchar *QImage::bits()
@@ -1740,6 +1744,10 @@ uchar *QImage::bits()
 
 /*!
     \overload
+
+    Note that QImage uses \l{Implicit Data Sharing} {implicit data
+    sharing}, but this function does \e not perform a deep copy of the
+    shared pixel data, because the returned data is const.
 */
 const uchar *QImage::bits() const
 {
