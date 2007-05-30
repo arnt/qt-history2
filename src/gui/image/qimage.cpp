@@ -600,7 +600,7 @@ QImageData::~QImageData()
     \o Resizes the color table. Only monochrome and 8-bit formats.
 
     \endtable
-    
+
     \section1 Legal Information
 
     For smooth scaling, the transformed() functions use code based on
@@ -5381,8 +5381,13 @@ QImage QImage::transformed(const QTransform &matrix, Qt::TransformationMode mode
         else if (mat.m11() == -1. && mat.m22() == -1.)
             return rotated180(*this);
 
-        hd = int(qAbs(mat.m22()) * hs + 0.9999);
-        wd = int(qAbs(mat.m11()) * ws + 0.9999);
+        if (mode == Qt::FastTransformation) {
+            hd = qRound(qAbs(mat.m22()) * hs);
+            wd = qRound(qAbs(mat.m11()) * ws);
+        } else {
+            hd = int(qAbs(mat.m22()) * hs + 0.9999);
+            wd = int(qAbs(mat.m11()) * ws + 0.9999);
+        }
         scale_xform = true;
     } else if (mat.m11() == 0. && mat.m22() == 0.
                && ((mat.m12() == 1. && mat.m21() == -1.)        // 90 degrees
