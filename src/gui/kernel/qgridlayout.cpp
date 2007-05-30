@@ -151,7 +151,7 @@ private:
                        Qt::Orientation orientation);
     void setupLayoutData(int hSpacing, int vSpacing);
     void setupHfwLayoutData();
-    int effectiveTopMargin() const;
+    void effectiveMargins(int *left, int *top, int *right, int *bottom) const;
 
     int rr;
     int cc;
@@ -184,47 +184,98 @@ private:
     uint addVertical : 1;
 };
 
-int QGridLayoutPrivate::effectiveTopMargin() const
+void QGridLayoutPrivate::effectiveMargins(int *left, int *top, int *right, int *bottom) const
 {
-    int margin = topMargin;
+    int l = leftMargin;
+    int t = topMargin;
+    int r = rightMargin;
+    int b = bottomMargin;
 #ifdef Q_WS_MAC
-    int topRow = vReversed ? 0 : INT_MAX;
+    int leftMost = INT_MAX;
+    int topMost = INT_MAX;
+    int rightMost = 0;
+    int bottomMost = 0;
+
+    QWidget *w = 0;
     for (int i = 0; i < things.count(); ++i) {
         QGridBox *box = things.at(i);
-        
-        bool adjustMargin = false;
-        if (vReversed) {
-            if (box->torow >= topRow) {
-                adjustMargin = true;
-                if (box->torow > topRow) {
+        QLayoutItem *itm = box->item();
+        w = itm->widget();
+        if (w) {
+            bool visualHReversed = hReversed != (w->layoutDirection() == Qt::RightToLeft);
+            QRect lir = itm->geometry();
+            QRect wr = w->geometry();
+            if (box->col <= leftMost) {
+                if (box->col < leftMost) {
                     // we found an item even closer to the margin, discard.
-                    topRow = box->torow;
-                    margin = topMargin;
+                    leftMost = box->col;
+                    if (visualHReversed)
+                        r = rightMargin;
+                    else
+                        l = leftMargin;
+                }
+                if (visualHReversed) {
+                    r = qMax(r, wr.right() - lir.right());
+                } else {
+                    l = qMax(l, lir.left() - wr.left());
                 }
             }
-        } else {
-            if (box->row <= topRow) {
-                adjustMargin = true;
-                if (box->row < topRow) {
+            if (box->row <= topMost) {
+                if (box->row < topMost) {
                     // we found an item even closer to the margin, discard.
-                    topRow = box->row;
-                    margin = topMargin;
+                    topMost = box->row;
+                    if (vReversed)
+                        b = bottomMargin;
+                    else
+                        t = topMargin;
                 }
+                if (vReversed)
+                    b = qMax(b, wr.bottom() - lir.bottom());
+                else
+                    t = qMax(t, lir.top() - wr.top());
             }
-        }
+            if (box->tocol >= rightMost) {
+                if (box->tocol > rightMost) {
+                    // we found an item even closer to the margin, discard.
+                    rightMost = box->tocol;
+                    if (visualHReversed)
+                        l = leftMargin;
+                    else
+                        r = rightMargin;
+                }
+                if (visualHReversed) {
+                    l = qMax(l, lir.left() - wr.left());
+                } else {
+                    r = qMax(r, wr.right() - lir.right());
+                }
 
-        if (adjustMargin) {
-            QLayoutItem *itm = box->item();
-            QWidget *w = itm->widget();
-            if (w) {
-                QRect lir = itm->geometry();
-                QRect wr = w->geometry();
-                margin = qMax(margin, lir.top() - wr.top());
+            }
+            if (box->torow >= bottomMost) {
+                if (box->torow > bottomMost) {
+                    // we found an item even closer to the margin, discard.
+                    bottomMost = box->torow;
+                    if (vReversed)
+                        t = topMargin;
+                    else
+                        b = bottomMargin;
+                }
+                if (vReversed)
+                    t = qMax(t, lir.top() - wr.top());
+                else
+                    b = qMax(b, wr.bottom() - lir.bottom());
             }
         }
     }
+
 #endif
-    return margin;
+    if (left)
+        *left = l;
+    if (top)
+        *top = t;
+    if (right)
+        *right = r;
+    if (bottom)
+        *bottom = b;
 }
 
 QGridLayoutPrivate::QGridLayoutPrivate()
@@ -303,18 +354,25 @@ int QGridLayoutPrivate::heightForWidth(int w, int hSpacing, int vSpacing)
     setupLayoutData(hSpacing, vSpacing);
     if (!has_hfw)
         return -1;
-    int hMargins = leftMargin + rightMargin;
+    int left, top, right, bottom;
+    effectiveMargins(&left, &top, &right, &bottom);
+
+    int hMargins = left + right;
     if (w + hMargins != hfw_width) {  // ### bug?
         qGeomCalc(colData, 0, cc, 0, w - hMargins);
         recalcHFW(w - hMargins);
     }
-    return hfw_height + effectiveTopMargin() + bottomMargin;
+    return hfw_height + top + bottom;
 }
 
 int QGridLayoutPrivate::minimumHeightForWidth(int w, int hSpacing, int vSpacing)
 {
     (void)heightForWidth(w, hSpacing, vSpacing);
-    return has_hfw ? (hfw_minheight + effectiveTopMargin() + bottomMargin) : -1;
+    if (!has_hfw)
+        return -1;
+    int top, bottom;
+    effectiveMargins(0, &top, 0, &bottom);
+    return hfw_minheight + top + bottom;
 }
 
 QSize QGridLayoutPrivate::findSize(int QLayoutStruct::*size, int hSpacing, int vSpacing) const
@@ -823,7 +881,9 @@ void QGridLayoutPrivate::distribute(QRect r, int hSpacing, int vSpacing)
 
     setupLayoutData(hSpacing, vSpacing);
 
-    r.adjust(+leftMargin, +effectiveTopMargin(), -rightMargin, -bottomMargin);
+    int left, top, right, bottom;
+    effectiveMargins(&left, &top, &right, &bottom);
+    r.adjust(+left, +top, -right, -bottom);
 
     qGeomCalc(colData, 0, cc, r.x(), r.width());
     QVector<QLayoutStruct> *rDataPtr;
@@ -1193,7 +1253,9 @@ QSize QGridLayout::sizeHint() const
 {
     Q_D(const QGridLayout);
     QSize result(d->sizeHint(horizontalSpacing(), verticalSpacing()));
-    result += QSize(d->leftMargin + d->rightMargin, d->effectiveTopMargin() + d->bottomMargin);
+    int left, top, right, bottom;
+    d->effectiveMargins(&left, &top, &right, &bottom);
+    result += QSize(left + right, top + bottom);
     return result;
 }
 
@@ -1204,7 +1266,9 @@ QSize QGridLayout::minimumSize() const
 {
     Q_D(const QGridLayout);
     QSize result(d->minimumSize(horizontalSpacing(), verticalSpacing()));
-    result += QSize(d->leftMargin + d->rightMargin, d->effectiveTopMargin() + d->bottomMargin);
+    int left, top, right, bottom;
+    d->effectiveMargins(&left, &top, &right, &bottom);
+    result += QSize(left + right, top + bottom);
     return result;
 }
 
@@ -1216,7 +1280,9 @@ QSize QGridLayout::maximumSize() const
     Q_D(const QGridLayout);
 
     QSize s = d->maximumSize(horizontalSpacing(), verticalSpacing());
-    s += QSize(d->leftMargin + d->rightMargin, d->effectiveTopMargin() + d->bottomMargin);
+    int left, top, right, bottom;
+    d->effectiveMargins(&left, &top, &right, &bottom);
+    s += QSize(left + right, top + bottom);
     s = s.boundedTo(QSize(QLAYOUTSIZE_MAX, QLAYOUTSIZE_MAX));
     if (alignment() & Qt::AlignHorizontal_Mask)
         s.setWidth(QLAYOUTSIZE_MAX);

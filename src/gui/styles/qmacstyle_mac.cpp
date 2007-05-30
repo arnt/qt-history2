@@ -3902,6 +3902,14 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
     }
 }
 
+static void setLayoutItemMargins(int left, int top, int right, int bottom, QRect *rect, Qt::LayoutDirection dir)
+{
+    if (dir == Qt::RightToLeft) {
+        rect->adjust(-right, top, -left, bottom);
+    } else {
+        rect->adjust(left, top, right, bottom);
+    }
+}
 /*! \reimp */
 QRect QMacStyle::subElementRect(SubElement sr, const QStyleOption *opt,
                                 const QWidget *widget) const
@@ -4025,11 +4033,11 @@ QRect QMacStyle::subElementRect(SubElement sr, const QStyleOption *opt,
     case SE_CheckBoxLayoutItem:
         rect = opt->rect;
         if (controlSize == QAquaSizeLarge) {
-            rect.adjust(+2, +3, -9, -4);
+            setLayoutItemMargins(+2, +3, -9, -4, &rect, opt->direction);
         } else if (controlSize == QAquaSizeSmall) {
-            rect.adjust(+1, +5, 0 /* fix */, -6);
+            setLayoutItemMargins(+1, +5, 0 /* fix */, -6, &rect, opt->direction);
         } else {
-            rect.adjust(0, +7, 0 /* fix */, -6);
+            setLayoutItemMargins(0, +7, 0 /* fix */, -6, &rect, opt->direction);
         }
         break;
     case SE_ComboBoxLayoutItem:
@@ -4037,14 +4045,14 @@ QRect QMacStyle::subElementRect(SubElement sr, const QStyleOption *opt,
         if (controlSize == QAquaSizeLarge) {
             rect.adjust(+3, +2, -3, -4);
         } else if (controlSize == QAquaSizeSmall) {
-            rect.adjust(+2, +1, -3, -4);
+            setLayoutItemMargins(+2, +1, -3, -4, &rect, opt->direction);
         } else {
-            rect.adjust(+1, 0, -2, 0);
+            setLayoutItemMargins(+1, 0, -2, 0, &rect, opt->direction);
         }
         break;
     case SE_LabelLayoutItem:
         rect = opt->rect;
-        rect.adjust(+1, -1, 0, -1);
+        setLayoutItemMargins(+1, -1, 0, -1, &rect, opt->direction);
         break;
     case SE_ProgressBarLayoutItem: {
         rect = opt->rect;
@@ -4052,7 +4060,7 @@ QRect QMacStyle::subElementRect(SubElement sr, const QStyleOption *opt,
         if (opt->state & State_Horizontal) {
             rect.adjust(0, +1, 0, -bottom);
         } else {
-            rect.adjust(+1, 0, -bottom, 0);
+            setLayoutItemMargins(+1, 0, -bottom, 0, &rect, opt->direction);
         }
         break;
     }
@@ -4074,7 +4082,7 @@ QRect QMacStyle::subElementRect(SubElement sr, const QStyleOption *opt,
     case SE_RadioButtonLayoutItem:
         rect = opt->rect;
         if (controlSize == QAquaSizeLarge) {
-            rect.adjust(+2, +3, -9, -3);
+            setLayoutItemMargins(+2, +3, -9, -3, &rect, opt->direction);
         } else if (controlSize == QAquaSizeSmall) {
             rect.adjust(0, +6, 0 /* fix */, -5);
         } else {
@@ -4091,7 +4099,7 @@ QRect QMacStyle::subElementRect(SubElement sr, const QStyleOption *opt,
                 if (sliderOpt->orientation == Qt::Horizontal) {
                     rect.adjust(0, +above, 0, -below);
                 } else {
-                    rect.adjust(+above, 0, -below, 0);
+                    rect.adjust(+above, 0, -below, 0);  //### Seems that QSlider flip the position of the ticks in reverse mode.
                 }
             } else if (sliderOpt->tickPosition == QSlider::TicksAbove) {
                 int below = SIZE(3, 2, 0);
