@@ -229,6 +229,8 @@ void MainWindow::tick()
         MenuManager::instance()->ticker->tick();
     
     this->viewport()->update();
+    if (Colors::noOpenGl)
+        QApplication::syncX();
 
     if (this->useTimer)
         this->updateTimer.start(int(1000 / Colors::fps));
