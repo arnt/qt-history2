@@ -1,4 +1,4 @@
-include(../../src/qsharedmemory.pri)
+include(../src/qsharedmemory.pri)
 
 QT = core script
 

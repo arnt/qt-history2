@@ -1,7 +1,7 @@
 CONFIG += qttest_p4
 #QT = core
 
-include(../../src/qsharedmemory.pri)
+include(../src/qsharedmemory.pri)
 win32: CONFIG += console
 mac:CONFIG -= app_bundle
 
