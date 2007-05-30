@@ -3749,6 +3749,12 @@ QSize QCleanlooksStyle::sizeFromContents(ContentsType type, const QStyleOption *
     case CT_MenuBarItem:
 	    newSize += QSize(0, 2);
 	break;
+    case CT_MenuItem:
+        if (const QStyleOptionMenuItem *menuItem = qstyleoption_cast<const QStyleOptionMenuItem *>(option)) {
+            if (menuItem->menuItemType == QStyleOptionMenuItem::Separator && !menuItem->text.isEmpty())
+                newSize.setHeight(menuItem->fontMetrics.lineSpacing());
+        }
+        break;
     case CT_SizeGrip:
 	    newSize += QSize(4, 4);
 	break;
