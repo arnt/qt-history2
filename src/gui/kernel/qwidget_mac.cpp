@@ -2220,7 +2220,16 @@ void QWidget::setWindowState(Qt::WindowStates newstate)
             (oldstate & Qt::WindowMaximized) != (newstate & Qt::WindowMaximized))) {
             if(newstate & Qt::WindowMaximized) {
                 Rect bounds;
+                HIToolbarRef toolbarRef;
                 data->fstrut_dirty = true;
+                if (GetWindowToolbar(window, &toolbarRef) == noErr && toolbarRef
+                        && !isVisible() && !IsWindowToolbarVisible(window)) {
+                    // HIToolbar, needs to be shown so that it's in the structure window
+                    // Typically this is part of a main window and will get shown
+                    // during the show, but it's will make the maximize all wrong.
+                    ShowHideWindowToolbar(window, true, false);
+                    d->updateFrameStrut();  // In theory the dirty would work, but it's optimized out if the window is not visible :(
+                }
                 QDesktopWidget *dsk = QApplication::desktop();
                 QRect avail = dsk->availableGeometry(dsk->screenNumber(this));
                 SetRect(&bounds, avail.x(), avail.y(), avail.x() + avail.width(), avail.y() + avail.height());
