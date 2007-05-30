@@ -31,6 +31,7 @@ private slots:
     void linearRotation();
     void checkReturnedLists();
     void overwriteValueForStep();
+    void setTimeLine();
 };
 
 void tst_QGraphicsItemAnimation::construction()
@@ -133,6 +134,30 @@ void tst_QGraphicsItemAnimation::overwriteValueForStep()
         QCOMPARE(animation.scaleList().size(), 1);
         QCOMPARE(animation.shearList().size(), 1);
     }
+}
+
+void tst_QGraphicsItemAnimation::setTimeLine()
+{
+    QGraphicsItemAnimation animation;
+    QCOMPARE(animation.timeLine(), (QTimeLine *)0);
+
+    QPointer<QTimeLine> line1 = new QTimeLine;
+    animation.setTimeLine(line1);
+    QCOMPARE(animation.timeLine(), (QTimeLine *)line1);
+    animation.setTimeLine(line1);
+    QVERIFY(line1);
+    QCOMPARE(animation.timeLine(), (QTimeLine *)line1);
+
+    animation.setTimeLine(0);
+    QCOMPARE(animation.timeLine(), (QTimeLine *)0);
+    QVERIFY(!line1);
+
+    QTimeLine *line2 = new QTimeLine;
+    animation.setTimeLine(line2);
+    QCOMPARE(animation.timeLine(), (QTimeLine *)line2);
+
+    delete line2;
+    QCOMPARE(animation.timeLine(), (QTimeLine *)0);
 }
 
 QTEST_MAIN(tst_QGraphicsItemAnimation)

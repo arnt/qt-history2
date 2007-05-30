@@ -61,6 +61,7 @@
 
 #include <QtCore/qtimeline.h>
 #include <QtCore/qpoint.h>
+#include <QtCore/qpointer.h>
 #include <QtCore/qpair.h>
 #include <QtGui/qmatrix.h>
 
@@ -73,7 +74,7 @@ public:
 
     QGraphicsItemAnimation *q;
 
-    QTimeLine *timeLine;
+    QPointer<QTimeLine> timeLine;
     QGraphicsItem *item;
 
     QPointF startPos;
@@ -209,6 +210,12 @@ QTimeLine *QGraphicsItemAnimation::timeLine() const
 */
 void QGraphicsItemAnimation::setTimeLine(QTimeLine *timeLine)
 {
+    if (d->timeLine == timeLine)
+        return;
+    if (d->timeLine)
+        delete d->timeLine;
+    if (!timeLine)
+        return;
     d->timeLine = timeLine;
     connect(timeLine, SIGNAL(valueChanged(qreal)), this, SLOT(setStep(qreal)));
 }
