@@ -1109,8 +1109,8 @@ void QDockWidget::setFloating(bool floating)
     if (floating && d->undockedGeometry.isNull()) {
         QDockWidgetLayout *layout = qobject_cast<QDockWidgetLayout*>(this->layout());
         QRect titleArea = layout->titleArea();
-
-        QPoint p = mapToGlobal(QPoint(titleArea.height(), titleArea.height()));
+        int h = layout->verticalTitleBar ? titleArea.width() : titleArea.height();
+        QPoint p = mapToGlobal(QPoint(h, h));
         d->undockedGeometry = QRect(p, size());
     }
 
