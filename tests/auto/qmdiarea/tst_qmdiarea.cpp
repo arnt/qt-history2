@@ -24,8 +24,6 @@
 #include <QDockWidget>
 #include <QScrollBar>
 
-#include <windows.h>
-
 #if defined(Q_WS_X11)
 extern void qt_x11_wait_for_window_manager(QWidget *w);
 #endif
