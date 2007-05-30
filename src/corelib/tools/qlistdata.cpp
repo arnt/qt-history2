@@ -281,16 +281,22 @@ void **QListData::erase(void **xi)
        use QVector.
     \endlist
 
+
     Internally, QList\<T\> is represented as an array of pointers to
-    items. (Exceptionally, if T is a pointer type, a basic type of
-    the size of a pointer, or one of Qt's \l{shared classes},
-    QList\<T\> stores the item directly in the pointer.) For lists
-    under a thousand items, this representation allows for very fast
-    insertions in the middle, in addition to instantaneous
-    index-based access. Furthermore, operations like prepend() and
-    append() are very fast, because QList preallocates memory on both
-    sides of its internal array. (See \l{Algorithmic Complexity}
-    for details.)
+    items. (Exceptionally, if T is itself a pointer type or a basic
+    type that is no larger than a pointer, or if T is one of Qt's
+    \l{shared classes}, then QList\<T\> stores the items directly in
+    the pointer array.) For lists under a thousand items, this
+    representation allows for very fast insertions in the middle, in
+    addition to instantaneous index-based access. Furthermore,
+    operations like prepend() and append() are very fast, because
+    QList preallocates memory at both ends of its internal array. (See
+    \l{Algorithmic Complexity} for details.) Note, however, that for
+    unshared list items that are larger than a pointer, each append or
+    insert of a new item requires allocating the new item on the heap,
+    and this per item allocation might make QVector a better choice in
+    cases that do lots of appending or inserting, since QVector
+    allocates memory for its items in a single heap allocation.
 
     Here's an example of a QList that stores integers and
     a QList that stores QDate values:

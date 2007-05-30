@@ -58,10 +58,12 @@ int QVectorData::grow(int sizeofTypedData, int size, int sizeofT, bool excessive
     \i If you need a real linked list, with guarantees of \l{constant
        time} insertions in the middle of the list and iterators to
        items rather than indexes, use QLinkedList.
-    \i If you want the items to occupy adjacent memory positions,
-       use QVector.
+    \i If you want the items to occupy adjacent memory positions, or
+       if your items are larger than a pointer and you want to avoid
+       the overhead of allocating them on the heap individually at
+       insertion time, then use QVector.
     \i If you want a low-level variable-size array, QVarLengthArray
-    may be sufficient.
+       may be sufficient.
     \endlist
 
     Here's an example of a QVector that stores integers and a QVector
