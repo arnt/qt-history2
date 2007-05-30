@@ -2705,20 +2705,9 @@ void QWidgetPrivate::updateFrameStrut()
     that->data.fstrut_dirty = false;
     QTLWExtra *top = that->topData();
 
-    WindowPtr window = qt_mac_window_for(q);
-    Rect window_r, content_r;
-    //get bounding rects
-    RgnHandle rgn = qt_mac_get_rgn();
-    GetWindowRegion(window, kWindowStructureRgn, rgn);
-    GetRegionBounds(rgn, &window_r);
-    GetWindowRegion(window, kWindowContentRgn, rgn);
-    GetRegionBounds(rgn, &content_r);
-    qt_mac_dispose_rgn(rgn);
-    //put into qt structure
-    top->frameStrut.setCoords(content_r.left - window_r.left,
-                              content_r.top - window_r.top,
-                              window_r.right - content_r.right,
-                              window_r.bottom - content_r.bottom);
+    Rect window_r;
+    GetWindowStructureWidths(qt_mac_window_for(q), &window_r);
+    top->frameStrut.setCoords(window_r.left, window_r.top, window_r.right, window_r.bottom);
 }
 
 void QWidgetPrivate::registerDropSite(bool on)
