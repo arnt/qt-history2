@@ -329,7 +329,7 @@ QImage QVFbView::getBuffer(const QRect &r, int &leading) const
 	    }
 
             if (doTail) {
-                quint8 c = (*sptr & 0xf0);
+                quint8 c = *sptr >> 4;
                 c |= (c << 4);
                 *dptr = qRgb(c, c, c);
             }
