@@ -16,6 +16,7 @@ SUBDIRS       = \
                 tools \
                 tutorial \
                 widgets \
+                uitools \
                 xml \
                 script
 
