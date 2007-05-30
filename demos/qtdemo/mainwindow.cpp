@@ -229,7 +229,7 @@ void MainWindow::tick()
         MenuManager::instance()->ticker->tick();
     
     this->viewport()->update();
-    if (Colors::noOpenGl)
+    if (Colors::softwareRendering)
         QApplication::syncX();
 
     if (this->useTimer)
