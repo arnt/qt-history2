@@ -58,7 +58,7 @@ tst_Bic::tst_Bic()
     bic.addBlacklistedClass(QLatin1String("QMetaTypeId<*>"));
     bic.addBlacklistedClass(QLatin1String("QVector<QGradientStop>*"));
 
-    /* this guy is never instanciated, just for compile-time checking */
+    /* this guy is never instantiated, just for compile-time checking */
     bic.addBlacklistedClass(QLatin1String("QMap<*>::PayloadNode"));
 
     /* QFileEngine was removed in 4.1 */
