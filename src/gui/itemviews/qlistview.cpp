@@ -1071,8 +1071,10 @@ void QListView::paintEvent(QPaintEvent *e)
         }
 
         if (const QWidget *widget = d->editorForIndex(*it)) {
+            QRegion itemGeometry(option.rect);
+            QRegion widgetGeometry(widget->geometry());
             painter.save();
-            painter.setClipRect(widget->geometry());
+            painter.setClipRegion(itemGeometry.subtracted(widgetGeometry));
             d->delegateForIndex(*it)->paint(&painter, option, *it);
             painter.restore();
         } else {
