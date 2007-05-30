@@ -398,6 +398,7 @@ QSizePolicy::ControlTypes QLayoutItem::controlTypes() const
         QSizePolicy::ControlTypes types;
         for (int i = layout->count() - 1; i >= 0; --i)
             types |= layout->itemAt(i)->controlTypes();
+        return types;
     }
     return QSizePolicy::DefaultType;
 }
