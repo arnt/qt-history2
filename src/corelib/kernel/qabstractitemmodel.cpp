@@ -1691,10 +1691,10 @@ QModelIndex QAbstractItemModel::buddy(const QModelIndex &index) const
 }
 
 /*!
-    Returns a list of indexes for the items where the data stored under
-    the given \a role matches the specified \a value. The way the search
-    is performed is defined by the \a flags given. The list that is
-    returned may be empty.
+    Returns a list of indexes for the items in the column of the \a
+    start index where the data stored under the given \a role matches
+    the specified \a value. The way the search is performed is defined
+    by the \a flags given. The list that is returned may be empty.
 
     The search starts from the \a start index, and continues until the
     number of matching data items equals \a hits, the search reaches
