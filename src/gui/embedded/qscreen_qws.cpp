@@ -872,10 +872,11 @@ QScreenPrivate::QScreenPrivate(QScreen *parent)
 
 QImage::Format QScreenPrivate::preferredImageFormat() const
 {
-    if (pixelFormat == QImage::Format_Invalid)
-        return QImage::Format_ARGB32_Premultiplied;
 
-    return pixelFormat;
+    if (q_ptr->depth() <= 16)
+        return QImage::Format_RGB16;
+    else
+        return pixelFormat;
 }
 
 /*!
