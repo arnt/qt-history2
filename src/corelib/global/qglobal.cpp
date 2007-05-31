@@ -2843,3 +2843,76 @@ bool QInternal::callFunction(InternalFunction func, void **args)
 
     return false;
 }
+
+/*!
+    \macro Q_BYTE_ORDER
+    \relates <QtGlobal>
+
+    This macro can be used to determine the byte order your system
+    uses for storing data in memory. i.e., whether your system is
+    little-endian or big-endian. It is set by Qt to one of the macros
+    Q_LITTLE_ENDIAN or Q_BIG_ENDIAN. You normally won't need to worry
+    about endian-ness, but you might, for example if you need to know
+    which byte of an integer or UTF-16 character is stored in the
+    lowest address. Endian-ness is important in networking, where
+    computers with different values for Q_BYTE_ORDER must pass data
+    back and forth.
+
+    Use this macro as in the following examples.
+
+    \code
+    #if Q_BYTE_ORDER == Q_BIG_ENDIAN
+    ...
+    #endif
+
+    or
+
+    #if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
+    ...
+    #endif
+    
+    \endcode
+
+    \sa Q_BIG_ENDIAN, Q_LITTLE_ENDIAN
+*/
+
+/*!
+    \macro Q_LITTLE_ENDIAN
+    \relates <QtGlobal>
+
+    This macro represents a value you can compare to the macro
+    Q_BYTE_ORDER to determine the endian-ness of your system.  In a
+    little-endian system, the least significant byte is stored at the
+    lowest address. The other bytes follow in increasing order of
+    significance.
+
+    \code
+
+    #if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
+    ...
+    #endif
+    
+    \endcode
+
+    \sa Q_BYTE_ORDER, Q_BIG_ENDIAN
+*/
+
+/*!
+    \macro Q_BIG_ENDIAN
+    \relates <QtGlobal>
+
+    This macro represents a value you can compare to the macro
+    Q_BYTE_ORDER to determine the endian-ness of your system.  In a
+    big-endian system, the most significant byte is stored at the
+    lowest address. The other bytes follow in decreasing order of
+    significance.
+
+    \code
+    #if Q_BYTE_ORDER == Q_BIG_ENDIAN
+    ...
+    #endif
+    
+    \endcode
+
+    \sa Q_BYTE_ORDER, Q_LITTLE_ENDIAN
+*/
