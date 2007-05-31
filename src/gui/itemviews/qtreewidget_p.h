@@ -139,11 +139,12 @@ class QTreeWidgetItemPrivate
 {
 public:
     QTreeWidgetItemPrivate(QTreeWidgetItem *item)
-        : q(item), disabled(false), policy(QTreeWidgetItem::DontShowIndicatorWhenChildless) {}
+        : q(item), disabled(false), selected(false), policy(QTreeWidgetItem::DontShowIndicatorWhenChildless) {}
     void propagateDisabled(QTreeWidgetItem *item);
     QTreeWidgetItem *q;
     QVariantList display;
     uint disabled : 1;
+    uint selected : 1;
     QTreeWidgetItem::ChildIndicatorPolicy policy;
 };
 

@@ -34,6 +34,7 @@ class Q_GUI_EXPORT QTreeWidgetItem
 {
     friend class QTreeModel;
     friend class QTreeWidget;
+    friend class QTreeWidgetPrivate;
     friend class QTreeWidgetItemIterator;
     friend class QTreeWidgetItemPrivate;
 public:
@@ -343,6 +344,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _q_sort())
     Q_PRIVATE_SLOT(d_func(), void _q_dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight))
     Q_PRIVATE_SLOT(d_func(), void _q_itemsSorted())
+    Q_PRIVATE_SLOT(d_func(), void _q_selectionChanged(const QItemSelection &selected, const QItemSelection &deselected))
 };
 
 inline void QTreeWidget::removeItemWidget(QTreeWidgetItem *item, int column)

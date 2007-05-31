@@ -2111,6 +2111,7 @@ public:
     void _q_sort();
     void _q_dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void _q_itemsSorted();
+    void _q_selectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
 };
 
 void QTreeWidgetPrivate::_q_emitItemPressed(const QModelIndex &index)
@@ -2180,6 +2181,24 @@ void QTreeWidgetPrivate::_q_sort()
         Qt::SortOrder order = q->header()->sortIndicatorOrder();
         model()->sort(column, order);
     }
+}
+
+void QTreeWidgetPrivate::_q_selectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
+{
+    QModelIndexList indices = selected.indexes();
+    int i;
+    QTreeModel *m = model();
+    for (i = 0; i < indices.count(); ++i) {
+        QTreeWidgetItem *item = m->item(indices.at(i));
+        item->d->selected = true;
+    }
+
+    indices = deselected.indexes();
+    for (i = 0; i < indices.count(); ++i) {
+        QTreeWidgetItem *item = m->item(indices.at(i));
+        item->d->selected = false;
+    }
+
 }
 
 void QTreeWidgetPrivate::_q_dataChanged(const QModelIndex &topLeft,
@@ -2410,6 +2429,9 @@ QTreeWidget::QTreeWidget(QWidget *parent)
     connect(model(), SIGNAL(columnsRemoved(QModelIndex,int,int)),
             this, SLOT(_q_sort()));
     connect(model(), SIGNAL(itemsSorted()), this, SLOT(_q_itemsSorted()));
+
+    connect(selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+            this, SLOT(_q_selectionChanged(QItemSelection,QItemSelection)));
 
     header()->setClickable(false);
 }
@@ -2864,9 +2886,7 @@ void QTreeWidget::setItemWidget(QTreeWidgetItem *item, int column, QWidget *widg
 */
 bool QTreeWidget::isItemSelected(const QTreeWidgetItem *item) const
 {
-    Q_D(const QTreeWidget);
-    return selectionModel()->isSelected(d->index(item));
-
+    return item->d->selected;
 }
 
 /*!
@@ -2885,6 +2905,7 @@ void QTreeWidget::setItemSelected(const QTreeWidgetItem *item, bool select)
     selectionModel()->select(d->index(item), (select ? QItemSelectionModel::Select
                                               : QItemSelectionModel::Deselect)
                              |QItemSelectionModel::Rows);
+    item->d->selected = select;
 }
 
 /*!
