@@ -150,10 +150,12 @@ void FormWindowBase::deleteWidgetList(const QWidgetList &widget_list)
     case 0:
         break;
     case 1: {
+        commandHistory()->beginMacro(tr("Delete '%1'").arg(widget_list.front()->objectName()));
         emit widgetRemoved(widget_list.front());
         DeleteWidgetCommand *cmd = new DeleteWidgetCommand(this);
         cmd->init(widget_list.front());
         commandHistory()->push(cmd);
+        commandHistory()->endMacro();
     }
         break;
     default:
