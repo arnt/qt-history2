@@ -27,8 +27,41 @@
 #include <GLES/gl.h>
 #include <math.h>
 
-const int animationLength = 30;
+const int animationLength = 1500;
 const int frameSpan = 20;
+
+static GLuint createTexture(const QImage &img);
+
+class QAhiGLCursor : public QScreenCursor
+{
+public:
+    QAhiGLCursor() : texture(0) {}
+    ~QAhiGLCursor();
+
+    void set(const QImage &image, int hotx, int hoty);
+
+    GLuint texture;
+};
+
+QAhiGLCursor::~QAhiGLCursor()
+{
+    if (texture)
+        glDeleteTextures(1, &texture);
+}
+
+void QAhiGLCursor::set(const QImage &image, int hotx, int hoty)
+{
+    if (texture)
+        glDeleteTextures(1, &texture);
+
+    if (image.isNull())
+        texture = 0;
+    else
+        texture = createTexture(image.convertToFormat(QImage::Format_ARGB32));
+
+    QScreenCursor::set(image, hotx, hoty);
+}
+
 
 /*!
   QAhiGLScreenPrivate
@@ -51,6 +84,7 @@ public slots:
 
 public:
     QAhiGLScreen *screen;
+    QAhiGLCursor *cursor;
 
     EGLContext eglContext;
     EGLDisplay eglDisplay;
@@ -82,7 +116,7 @@ static QMap<QWSWindow*, WindowInfo*> windowMap;
   when the window associated with \a screen is displayed.
  */
 ShowAnimation::ShowAnimation(QAhiGLScreenPrivate *screen)
-    : QTimeLine(4 * 1000)
+    : QTimeLine(animationLength)
 {
     setUpdateInterval(frameSpan);
     connect(this, SIGNAL(valueChanged(qreal)), screen, SLOT(redrawScreen()));
@@ -97,7 +131,7 @@ qreal ShowAnimation::valueForTime(int msec)
 }
 
 QAhiGLScreenPrivate::QAhiGLScreenPrivate(QAhiGLScreen *s)
-    : screen(s), doEffects(false)
+    : screen(s), cursor(0), doEffects(false)
 {
     connect(&updateTimer, SIGNAL(timeout()), this, SLOT(redrawScreen()));
 }
@@ -231,13 +265,19 @@ bool QAhiGLScreen::initDevice()
     d_ptr->connect(QWSServer::instance(),
                    SIGNAL(windowEvent(QWSWindow*, QWSServer::WindowEvent)),
                    SLOT(windowEvent(QWSWindow*, QWSServer::WindowEvent)));
-    QScreenCursor::initSoftwareCursor();
+
+    d_ptr->cursor = new QAhiGLCursor;
+    qt_screencursor = d_ptr->cursor;
 
     return true;
 }
 
 void QAhiGLScreen::shutdownDevice()
 {
+    delete d_ptr->cursor;
+    d_ptr->cursor = 0;
+    qt_screencursor = 0;
+
     eglMakeCurrent(EGL_NO_DISPLAY, EGL_NO_SURFACE,
                    EGL_NO_SURFACE, EGL_NO_CONTEXT);
     eglDestroyContext(d_ptr->eglDisplay, d_ptr->eglContext);
@@ -494,7 +534,7 @@ void QAhiGLScreen::drawQuadWavyFlag(const QRect &textureGeometry,
     drawQuad_helper(coords, texcoords, subdivisions*2, subdivisions);
 }
 
-void QAhiGLScreen::updateTexture(int windowIndex)
+void QAhiGLScreen::invalidateTexture(int windowIndex)
 {
     if (windowIndex < 0)
         return;
@@ -506,18 +546,12 @@ void QAhiGLScreen::updateTexture(int windowIndex)
     QWSWindow *win = windows.at(windowIndex);
     if (!win)
         return;
-    QWSWindowSurface *surface = win->windowSurface();
-    if (!surface)
-        return;
-    const QImage image = surface->image();
-    if (image.isNull())
-        return;
 
     WindowInfo *info = windowMap[win];
-    if (info->texture != 0)
+    if (info->texture) {
         glDeleteTextures(1, &info->texture);
-
-    info->texture = createTexture(image);
+        info->texture = 0;
+    }
 }
 
 void QAhiGLScreen::drawWindow(QWSWindow *win, qreal progress)
@@ -597,40 +631,31 @@ void QAhiGLScreen::redrawScreen()
             continue;
 
         WindowInfo *info = windowMap[win];
-        GLuint texture = info->texture;
-        qreal progress = 1.0;
 
-        if (surface->key() == QLatin1String("ahigl"))
-            texture = static_cast<QAhiGLWindowSurface*>(surface)->textureId();
+        if (!info->texture) {
+            if (surface->key() == QLatin1String("ahigl"))
+                info->texture = static_cast<QAhiGLWindowSurface*>(surface)->textureId();
+            else
+                info->texture = createTexture(surface->image());
+        }
+        qreal progress;
         if (info->animation)
             progress = info->animation->currentValue();
+        else
+            progress = 1.0;
 
-        glBindTexture(GL_TEXTURE_2D, texture);
+        glBindTexture(GL_TEXTURE_2D, info->texture);
         drawWindow(win, progress);
-        glBindTexture(GL_TEXTURE_2D, 0);
     }
 
     // Draw cursor
 
-    QScreenCursor *cursor = QScreenCursor::instance();
-    if (cursor && !cursor->isAccelerated()) {
-        QImage image = cursor->image();
-
-        if (!image.isNull()) {
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-            image = image.convertToFormat(QImage::Format_ARGB32);
-            GLuint tex = createTexture(image);
-
-            drawQuad(cursor->boundingRect(), cursor->boundingRect(),
-                     cursor->boundingRect());
-            glBindTexture(GL_TEXTURE_2D, 0);
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_ONE, GL_ZERO);
-
-            glDeleteTextures(1, &tex);
-        }
+    const QAhiGLCursor *cursor = d_ptr->cursor;
+    if (cursor->texture) {
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glBindTexture(GL_TEXTURE_2D, d_ptr->cursor->texture);
+        drawQuad(cursor->boundingRect(), cursor->boundingRect(),
+                 cursor->boundingRect());
     }
 
     glPopMatrix();
@@ -646,7 +671,7 @@ void QAhiGLScreen::exposeRegion(QRegion r, int windowIndex)
     if ((r & region()).isEmpty())
         return;
 
-    updateTexture(windowIndex);
+    invalidateTexture(windowIndex);
 
     if (!d_ptr->updateTimer.isActive())
         d_ptr->updateTimer.start(frameSpan);

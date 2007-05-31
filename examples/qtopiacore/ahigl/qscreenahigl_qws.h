@@ -41,7 +41,7 @@ public:
     bool hasOpenGL();
 
 private:
-    void updateTexture(int windowIndex);
+    void invalidateTexture(int windowIndex);
     void redrawScreen();
     void drawWindow(QWSWindow *win, qreal progress);
     void drawQuad(const QRect &textureGeometry,
