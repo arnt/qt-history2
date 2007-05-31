@@ -221,7 +221,7 @@ void tst_QSharedMemory::create_data()
         << false << QSharedMemory::LockError;
     QTest::newRow("-1 size") << QString("default") << -1
         << false << QSharedMemory::InvalidSize;
-    QTest::newRow("big size") << QString("default") << 999999999
+    QTest::newRow("big size") << QString("default") << INT_MAX
         << false << QSharedMemory::InvalidSize;
     QTest::newRow("nor size") << QString("default") << 1024
         << true << QSharedMemory::NoError;
