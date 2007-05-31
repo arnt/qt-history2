@@ -41,6 +41,7 @@ private slots:
     void readBufferSize();
     void connectionAttempts_data();
     void connectionAttempts();
+    void canReadLine();
 
 protected slots:
     void peerAddress_connected();
@@ -221,6 +222,29 @@ void tst_Q3Socket::connectionAttempts_connected()
 void tst_Q3Socket::connectionAttempts_error(int)
 {
     QTestEventLoop::instance().exitLoop();
+}
+
+void tst_Q3Socket::canReadLine()
+{
+    QEventLoop loop;
+
+    Q3Socket socket;
+    QVERIFY(!socket.canReadLine());
+    connect(&socket, SIGNAL(connected()), &loop, SLOT(quit()));
+    socket.connectToHost("fluke.troll.no", 143);
+
+    loop.exec();
+
+    QCOMPARE(socket.state(), Q3Socket::Connected);
+
+    while (!socket.canReadLine())
+        QVERIFY(socket.waitForMore(5000) > 0);
+
+    QVERIFY(socket.canReadLine());
+    socket.readLine();
+    QVERIFY(!socket.canReadLine());
+    socket.ungetChar('\n');
+    QVERIFY(socket.canReadLine());
 }
 
 QTEST_MAIN(tst_Q3Socket)

@@ -1109,7 +1109,7 @@ bool Q3Socket::canReadLine() const
     if ( ((Q3Socket*)this)->d->rba.scanNewline( 0 ) )
 	return true;
     return ( bytesAvailable() > 0 &&
-	     ((Q3Socket*)this)->d->rba.scanNewline( 0 ) );
+	     (((Q3Socket*)this)->d->rba.scanNewline( 0 ) || QIODevice::canReadLine()) );
 }
 
 /*!
