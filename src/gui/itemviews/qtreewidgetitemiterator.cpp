@@ -224,22 +224,15 @@ bool QTreeWidgetItemIterator::matchesFlags(const QTreeWidgetItem *item) const
     if ((flags & NoChildren) && item->childCount())
         return false;
 
-    {
-        QTreeWidget *widget = item->view;
-        Q_ASSERT(widget);
+    if ((flags & Hidden) && !item->isHidden())
+        return false;
+    if ((flags & NotHidden) && item->isHidden())
+        return false;
 
-        bool hidden = widget->isItemHidden(item);
-        if ((flags & Hidden) && !hidden)
-            return false;
-        if ((flags & NotHidden) && hidden)
-            return false;
-
-        bool selected = widget->isItemSelected(item);
-        if ((flags & Selected) && !selected)
-            return false;
-        if ((flags & Unselected) && selected)
-            return false;
-    }
+    if ((flags & Selected) && !item->isSelected())
+        return false;
+    if ((flags & Unselected) && item->isSelected())
+        return false;
 
     return true;
 }
