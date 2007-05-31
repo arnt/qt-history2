@@ -230,7 +230,7 @@ void TabbedBrowser::init()
 
 void TabbedBrowser::updateTitle(const QString &title)
 {
-    ui.tab->setTabText(ui.tab->indexOf(currentBrowser()), title);
+    ui.tab->setTabText(ui.tab->indexOf(currentBrowser()), title.trimmed());
 }
 
 void TabbedBrowser::newTab()
@@ -316,9 +316,10 @@ void TabbedBrowser::sourceChanged()
 
 void TabbedBrowser::setTitle(HelpWindow *win, const QString &title)
 {
-    ui.tab->setTabText(ui.tab->indexOf(win), title);
+    const QString tt = title.trimmed();
+    ui.tab->setTabText(ui.tab->indexOf(win), tt);
     if (win == currentBrowser())
-        mainWindow()->setWindowTitle(Config::configuration()->title() + QLatin1String(" - ") + title);
+        mainWindow()->setWindowTitle(Config::configuration()->title() + QLatin1String(" - ") + tt);
 }
 
 void TabbedBrowser::keyPressEvent(QKeyEvent *e)
