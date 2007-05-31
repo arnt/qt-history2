@@ -60,6 +60,7 @@ QString QSharedMemoryPrivate::makePlatformSafeKey(const QString &key, const QStr
       so if there is one QSharedMemory that is attached and the program crashes or
       the QSharedMemory is not destroyed the shared memory is not removed from
       the system.
+    * On HP-UX you can only attach once to a shared memory per process.
 
     ### Add code snippit after example is made.
 
