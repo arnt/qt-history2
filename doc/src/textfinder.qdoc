@@ -1,0 +1,140 @@
+/*!
+    \example uitools/textfinder
+    \title Text Finder Example
+
+    The Text Finder example demonstrates how to dynamically process forms
+    using the QtUiTools module. Dynamic form processing enables a form to
+    be processed at run-time only by changing the .ui file for the project.
+    The program allows the user to look up a particular word within the
+    contents of a text file. This text file is included in the project's
+    resource and is loaded into the display at startup.
+
+    \table
+    \row \o \inlineimage textfinder-example-find.png
+         \o \inlineimage textfinder-example-find2.png
+    \endtable
+
+    \section1 Setting Up The Resource File
+
+    The resources required for Text Finder are:
+    \list
+        \o \e{textfinder.ui} - the user interface file created in QtDesigner
+        \o \e{input.txt} - a text file containing some text to be displayed
+                           in the QTextEdit
+    \endlist
+
+    \e{textfinder.ui} contains all the necessary QWidget objects for the
+    Text Finder. A QLineEdit is used for the user input, a QTextEdit is
+    used to display the contents of \e{input.txt}, a QLabel is used to
+    display the text "Keyword", and a QPushButton is used for the "Find"
+    button. The screenshot below shows the preview obtained in QtDesigner.
+
+    \image textfinder-example-userinterface.png
+
+    A \e{textfinder.qrc} file is used to store both the \e{textfinder.ui}
+    and \e{input.txt} in the application's executable. The file contains 
+    the following code:
+
+    \quotefromfile uitools/textfinder/textfinder.qrc
+    \skipto <!DOCTYPE RCC>
+    \printuntil </RCC>
+
+    For more information on resource files, see \l{The Qt Resource System}.
+
+    To generate a form at run-time, the example is linked against the
+    QtUiTools module library. This is done in the \c{textfinder.pro} file
+    that contains the following lines:
+
+    \code
+    CONFIG      += uitools
+    HEADERS     = textfinder.h
+    RESOURCES   = textfinder.qrc
+    SOURCES     = textfinder.cpp main.cpp
+    \endcode
+
+    \section1 TextFinder Class Definition
+
+    The \c TextFinder class is a subclass of QWidget and it hosts the
+    \l{QWidget}s we need to access in the user interface. The QLabel in the
+    user interface is not declared here as we do not need to access it.
+
+    \quotefromfile uitools/textfinder/textfinder.h
+    \skipto class TextFinder
+    \printuntil };
+
+    The slot \c{on_find_Button_clicked()} is a slot named according to the
+    \l{AutomaticConnections} {Automatic Connection} naming convention required
+    by \c uic.
+
+    \section1 TextFinder Class Implementation
+
+    The \c TextFinder class's constructor calls the \c loadUiFile() function
+    and then uses \c qFindChild() to access the user interface's
+    \l{QWidget}s.
+
+    \quotefromfile uitools/textfinder/textfinder.cpp
+    \skipto TextFinder::TextFinder
+    \printuntil "lineEdit");
+
+    We then use Qt's meta-object system to enable signal and slot connections.
+
+    \quotefromfile uitools/textfinder/textfinder.cpp
+    \skipto QMetaObject
+    \printuntil );
+
+    The loadTextFile() function is called to load \e{input.txt} into
+    QTextEdit to displays its contents. The \c{TextFinder}'s layout and
+    window title is set and \c isFirstTime is set to true.
+
+    \quotefromfile uitools/textfinder/textfinder.cpp
+    \skipto loadTextFile();
+    \printuntil /^\}/
+
+    \c isFirstTime is used as a flag to indicate whether the search operation
+    has been performed more than once. This is further explained with the
+    \c{on_findButton_clicked()} function.
+
+    The \c{loadUiFile()} function is used to load the user interface file
+    previously created in QtDesigner. The QUiLoader class is instantiated
+    and its \c load() function is used to load the form into \c{formWidget}
+    that acts as a place holder for the user interface. The function then
+    returns \c{formWidget} to its caller.
+
+    \quotefromfile uitools/textfinder/textfinder.cpp
+    \skipto QWidget* TextFinder::loadUiFile()
+    \printuntil /^\}/
+
+    As mentioned earlier, the loadTextFile() function loads \e{input.txt}
+    into QTextEdit to display its contents. Data is read using QTextStream
+    into a QString object, \c line with the QTextStream::readAll() function.
+    The contents of \c line are then appended to \c{ui_textEdit}.
+
+    \quotefromfile uitools/textfinder/textfinder.cpp
+    \skipto void TextFinder::loadTextFile()
+    \printuntil /^\}/
+
+    The \c{on_findButton_clicked()} function is a slot that is connected to
+    \c{ui_findButton}'s \c clicked() signal. The \c searchString is extracted
+    from the \c ui_lineEdit and the \c document is extracted from \c textEdit.
+    We use two QTextCursor objects: one to traverse through the words in
+    \c line and another to keep track of the edit blocks.
+
+    \quotefromfile uitools/textfinder/textfinder.cpp
+    \skipto void TextFinder::on_findButton_clicked()
+    \printuntil /^\}/
+
+    The \c isFirstTime flag is set to false the moment \c findButton is
+    clicked. This is necessary to undo the previous text highlight before
+    highlighting the user's next search string.
+
+    \section1 \c main() Function
+
+    \quotefromfile uitools/textfinder/main.cpp
+    \skipto int main
+    \printuntil /^\}/
+
+    The \c main() function initialises the \e{textfinder.qrc} resource file
+    and instantiates as well as displays \c TextFinder.
+
+    \sa{Calculator Builder Example}, {World Time Clock Builder Example}
+    */
