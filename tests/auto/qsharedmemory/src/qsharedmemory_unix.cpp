@@ -23,6 +23,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <unistd.h>
 
 QSharedMemoryPrivate::QSharedMemoryPrivate() : QObjectPrivate(),
         memory(0), size(0), error(QSharedMemory::NoError), systemSemaphore(QString()), lockedByMe(false), unix_key(0)
