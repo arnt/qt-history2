@@ -144,15 +144,15 @@ bool QSystemSemaphorePrivate::modifySemaphore(int count)
     operation.sem_op = count;
     operation.sem_flg = SEM_UNDO;
     if (-1 == semop(semaphore, &operation, 1)) {
- #if defined QSYSTEMSEMAPHORE_DEBUG
-        qDebug() << QLatin1String("QSystemSempahore::modify failed") << count << semctl(semaphore, 0, GETVAL) << errno << EIDRM << EINVAL;
-#endif
         // If the semaphore was removed be nice and create it and then modifySemaphore again
         if (errno == EINVAL || errno == EIDRM) {
             cleanHandle();
             return modifySemaphore(count);
         }
-       return false;
+#if defined QSYSTEMSEMAPHORE_DEBUG
+        qDebug() << QLatin1String("QSystemSempahore::modify failed") << count << semctl(semaphore, 0, GETVAL) << errno << EIDRM << EINVAL;
+#endif
+        return false;
     }
 
     return true;
