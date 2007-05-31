@@ -1,4 +1,4 @@
-CONFIG += qttest_p4
+load(qttest_p4)
 
 include(../src/qsharedmemory.pri)
 CONFIG -= app_bundle
