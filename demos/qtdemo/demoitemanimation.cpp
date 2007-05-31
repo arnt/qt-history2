@@ -168,18 +168,17 @@ void DemoItemAnimation::setOpacity(qreal step)
 
 void DemoItemAnimation::afterAnimationStep(qreal step)
 {
-    Q_UNUSED(step);
-
-    if (Colors::noAnimations && !this->forcePlay){
-        this->timeline->setCurrentTime(1);
-        this->demoItem()->setPos(this->posAt(this->timeline->currentTime()));
-    }   
-     
-    // This only works if loopcount is either 1 or 0
-    if (this->timeLine()->currentFrame() == this->timeline->endFrame() && this->timeline->loopCount() > 0){
-        if (this->hideOnFinished)
-            this->demoItem()->setRecursiveVisible(false);
-        this->demoItem()->animationStopped(this->inOrOut);
+    if (step == 1.0f){
+        if (this->timeline->loopCount() > 0){
+            // animation finished.
+            if (this->hideOnFinished)
+                this->demoItem()->setRecursiveVisible(false);
+            this->demoItem()->animationStopped(this->inOrOut);
+        }
+    } else if (Colors::noAnimations && !this->forcePlay){
+        // The animation is not at end, but
+        // the animations should not play, so go to end.
+        this->setStep(1.0f); // will make this method being called recursive.
     }
 }
 
