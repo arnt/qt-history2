@@ -587,15 +587,17 @@ void QMdiAreaPrivate::place(Placer *placer, QMdiSubWindow *child)
         // The window is only laid out when it's added to QMdiArea,
         // so there's no need to check that we don't have it in the
         // list already. appendChild() ensures that.
-        pendingPlacements.prepend(child);
+        pendingPlacements.append(child);
         return;
     }
 
     QList<QRect> rects;
     QRect parentRect = q->rect();
     foreach (QMdiSubWindow *window, childWindows) {
-        if (!sanityCheck(window, "QMdiArea::place") || window == child || !window->isVisibleTo(q))
+        if (!sanityCheck(window, "QMdiArea::place") || window == child || !window->isVisibleTo(q)
+                || !window->testAttribute(Qt::WA_Moved)) {
             continue;
+        }
         QRect occupiedGeometry;
         if (window->isMaximized()) {
             occupiedGeometry = QRect(window->d_func()->oldGeometry.topLeft(),
