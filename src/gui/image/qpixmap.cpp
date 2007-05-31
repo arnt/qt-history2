@@ -776,7 +776,7 @@ int QPixmap::serialNumber() const
 */
 qint64 QPixmap::cacheKey() const
 {
-    return -(((qint64) data->ser_no) << 32) | ((qint64) (data->detach_no));
+    return (((qint64) data->ser_no) << 32) | ((qint64) (data->detach_no));
 }
 
 static void sendResizeEvents(QWidget *target)

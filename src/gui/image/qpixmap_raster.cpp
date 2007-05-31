@@ -475,7 +475,6 @@ bool QPixmap::load(const QString& fileName, const char *format, Qt::ImageConvers
                QLatin1Char('_')).append(QString::number(info.lastModified().toTime_t())).append(
                QLatin1Char('_')).append(QString::number(data->type));
 
-    detach();
     if (QPixmapCache::find(key, *this))
             return true;
     QImage image = QImageReader(fileName, format).read();
@@ -499,7 +498,6 @@ bool QPixmap::loadFromData(const uchar *buf, uint len, const char* format, Qt::I
     QBuffer b(&a);
     b.open(QIODevice::ReadOnly);
 
-    detach();
     QImage image = QImageReader(&b, format).read();
     if (!image.isNull()) {
         if (data->type == BitmapType)
@@ -535,12 +533,12 @@ qint64 QPixmap::cacheKey() const
 {
     // avoid exposing the internal QImageData structure..
 #if defined (Q_CC_MINGW) || (defined (_MSC_VER) && _MSC_VER >= 1310)
-    return -((data->image.cacheKey() & 0xffffffff00000000LL) | ((qint64) data->detach_no));
+    return ((data->image.cacheKey() & 0xffffffff00000000LL) | ((qint64) data->detach_no));
 #else
     // MSVC 6.0 can't handle 64 bit constants properly..
     qint64 mask = 0xffffffff;
     mask <<= 32;
-    return -((data->image.cacheKey() & mask) | ((qint64) data->detach_no));
+    return ((data->image.cacheKey() & mask) | ((qint64) data->detach_no));
 #endif
 }
 
