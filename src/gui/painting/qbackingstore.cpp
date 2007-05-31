@@ -432,8 +432,14 @@ void QWidgetPrivate::moveRect(const QRect &rect, int dx, int dy)
     }
 
     QWidget *pw = q->parentWidget();
+    QPoint toplevelOffset = pw->mapTo(tlw, QPoint());
     QWidgetPrivate *pd = pw->d_func();
     QRect clipR = pd->clipRect();
+#ifdef Q_WS_QWS
+    QWidgetBackingStore *wbs = x->backingStore;
+    QWSWindowSurface *surface = static_cast<QWSWindowSurface*>(wbs->windowSurface);
+    clipR = clipR.intersected(surface->clipRegion().translated(-toplevelOffset).boundingRect());
+#endif
     QRect newRect = rect.translated(dx,dy);
 
     QRect destRect = rect.intersected(clipR);
@@ -464,10 +470,7 @@ void QWidgetPrivate::moveRect(const QRect &rect, int dx, int dy)
                 childExpose -= destRect;
         }
 
-
-        QPoint toplevelOffset = pw->mapTo(tlw, QPoint());
 #ifdef Q_WS_QWS
-        QWSWindowSurface *surface = static_cast<QWSWindowSurface*>(wbs->windowSurface);
         QRegion dirty = sourceRect.translated(toplevelOffset);
         if (surface)
             dirty &= surface->dirtyRegion();
@@ -490,9 +493,8 @@ void QWidgetPrivate::moveRect(const QRect &rect, int dx, int dy)
         //QWS does not have native child widgets: copy everything to screen, just like scrollRect()
 //        pd->dirtyWidget_sys(QRegion(sourceRect)+destRect);
 
-        const QPoint offset = q->mapTo(tlw, QPoint());
-        wbs->dirtyOnScreen += sourceRect.translated(offset);
-        wbs->dirtyOnScreen += destRect.translated(offset);
+        wbs->dirtyOnScreen += sourceRect.translated(toplevelOffset);
+        wbs->dirtyOnScreen += destRect.translated(toplevelOffset);
 #endif
     }
 }
