@@ -265,6 +265,12 @@
     \o \l{designer/worldtimeclockplugin}{World Time Clock Plugin}\raisedaster
     \endlist
 
+    \section1 UiTools Examples
+
+    \list
+    \o \l{uitools/textfinder}{Text Finder}\raisedaster
+    \endlist
+
     \section1 Qt Linguist Examples
 
     \list
