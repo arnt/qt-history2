@@ -866,8 +866,9 @@ void QMdiAreaPrivate::internalRaise(QMdiSubWindow *mdiChild) const
 
     QMdiSubWindow *stackUnderChild = 0;
     if (!windowStaysOnTop(mdiChild)) {
-        foreach (QMdiSubWindow *child, childWindows) {
-            if (!sanityCheck(child, "QMdiArea::internalRaise"))
+        foreach (QObject *object, q_func()->viewport()->children()) {
+            QMdiSubWindow *child = qobject_cast<QMdiSubWindow *>(object);
+            if (!child || !childWindows.contains(child))
                 continue;
             if (!child->isHidden() && windowStaysOnTop(child)) {
                 if (stackUnderChild)
@@ -1179,22 +1180,11 @@ QList<QMdiSubWindow *> QMdiArea::subWindowList(WindowOrder order) const
                 continue;
             list.append(child);
         }
-    } else {
-        Q_ASSERT(d->indicesToStackedChildren.size() == d->childWindows.size());
+    } else { // StackingOrder
         QList<QMdiSubWindow *> staysOnTopChildren;
-        for (int i = d->indicesToStackedChildren.count() - 1; i >= 0; --i) {
-            QMdiSubWindow *child = d->childWindows.at(d->indicesToStackedChildren.at(i));
-            if (!sanityCheck(child, "QMdiArea::subWindowList"))
-                continue;
-            if (d->windowStaysOnTop(child))
-                staysOnTopChildren.append(child);
-            else
-                list.append(child);
-        }
-        // Append children with Qt::WindowStaysOnTopHint at end (stacked on top)
-        Q_ASSERT(staysOnTopChildren.count() + list.count() == d->childWindows.count());
-        if (!staysOnTopChildren.isEmpty()) {
-            foreach (QMdiSubWindow *child, staysOnTopChildren)
+        foreach (QObject *object, viewport()->children()) {
+            QMdiSubWindow *child = qobject_cast<QMdiSubWindow *>(object);
+            if (child && d->childWindows.contains(child))
                 list.append(child);
         }
     }
