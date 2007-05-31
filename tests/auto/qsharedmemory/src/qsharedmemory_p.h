@@ -22,6 +22,8 @@
 
 #ifdef Q_OS_WIN
 #include <qt_windows.h>
+#else
+#include <sys/sem.h>
 #endif
 
 /*!
