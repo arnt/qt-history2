@@ -1692,9 +1692,14 @@ With Qt's integrated build tools, \l{qmake-manual.html}{qmake} and
 with \QD is automatically generated when the rest of of your
 application is built. Forms can be included and used directly from
 your application, or you can use them to extend subclasses of
-standard widgets.
+standard widgets. These forms can be processed at compile time or
+at run time, depending on the approach used.
 
-There are three approaches to using a form in your application:
+\target CompileTimeFormProcessing
+\section1 Compile Time Form Processing
+
+A compile time processed form can be used in your application with
+any of the following approaches:
 
 \list
 \o In the direct approach, you simply construct a widget to use as a
@@ -1708,12 +1713,8 @@ widgets defined in the form to be used directly from within the scope of
 the subclass.
 \endlist
 
-Additionally, the signals and slots connections defined for the form
-can be set up manually, or you can take advantage of QMetaObject's
-ability to make connections between signals and suitably-named slots.
-
 \target TheDirectApproach
-\section1 The Direct Approach
+\section2 The Direct Approach
 
 To demonstrate how user interface components can be used straight from
 \QD, we take the dialog that we created in the chapter on
@@ -1760,7 +1761,7 @@ will need to be integrated more closely with the rest of the application
 code. To achieve this, we need to subclass a standard Qt widget.
 
 \target TheSingleInheritanceApproach
-\section1 The Single Inheritance Approach
+\section2 The Single Inheritance Approach
 
 In this approach, we use the \c{Ui::ImageDialog} object as we did in
 the simple case, but instead of setting up the dialog from the
@@ -1812,7 +1813,7 @@ and overlay (or "compose") them. This approach can be used to create
 individual tabs from existing forms, for example.
 
 \target TheMultipleInheritanceApproach
-\section1 The Multiple Inheritance Approach
+\section2 The Multiple Inheritance Approach
 
 Forms created with \QD can be subclassed along with a standard
 QWidget-based class. This approach makes all the user interface
@@ -1856,8 +1857,63 @@ to the contents of the form, is slightly cleaner than the single
 inheritance approach, but does not conveniently support composition of
 multiple user interfaces.
 
+\target RunTimeFormProcessing
+\section1 Run Time Form Processing
+
+Alternatively, forms can be processed at run time, producing
+dynamically-generated user interfaces. This can be done using the UiTools
+module, which provides the QUiLoader class to handle forms created with \QD.
+
+\section2 The UiTools Approach
+
+A resource file containing a \c{.ui} file is required to process forms at
+run time. Also, the application needs to be configured to use the
+QtUiTools module. This is done by including the following
+declaration in a qmake project file, ensuring that the application is
+compiled and linked appropriately.
+
+\code
+CONFIG += uitools
+\endcode
+
+The QUiLoader class provides a form loader object to construct the user
+interface. This user interface can be retrieved from any QIODevice
+(a QFile object for example) to obtain a form stored in a project's
+resources. The QUiLoader::load() function constructs the form widget using
+the user interface description contained in the file.
+
+The QtUiTools module classes can be included using the following directive:
+
+\code
+#include <QtUiTools>
+\endcode
+
+The QUiLoader::load() function is invoked as shown in this code from the
+\l{Text Finder Example}{Text Finder} example:
+
+\quotefromfile uitools/textfinder/textfinder.cpp
+\skipto QWidget* TextFinder::loadUiFile()
+\printuntil /^\}/
+
+In a class that uses QtUiTools to build its user interface at run time,
+we can locate objects in the form using qFindChild(). For example, in
+the following code, we locate some components based on their object
+names and widget types:
+
+\quotefromfile uitools/textfinder/textfinder.cpp
+\skipto ui_findButton
+\printuntil (this, "lineEdit");
+
+Processing forms at run-time gives the user the freedom to change a
+program's user interface, just by changing the \c{.ui} file. This is
+useful when customizing programs to suit various user needs.
+
 \target AutomaticConnections
 \section1 Automatic Connections
+
+The signals and slots connections defined for compile time or run time
+forms can either be set up manually or automatically, using QMetaObject's
+ability to make connections between signals and suitably-named slots.
 
 In the previous sections, we connected the \gui OK and \gui Cancel
 buttons in the form directly to the dialog's accept() and reject()
