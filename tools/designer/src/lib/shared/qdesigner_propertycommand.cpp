@@ -455,6 +455,12 @@ bool PropertyHelper::canMerge(const PropertyHelper &other) const
     return m_object == other.m_object &&  m_index == other.m_index;
 }
 
+void PropertyHelper::triggerActionChanged(QAction *a)
+{
+    a->setData(QVariant(true)); // this triggers signal "changed" in QAction
+    a->setData(QVariant(false));
+}
+
 // Update the object to reflect the changes
 void PropertyHelper::updateObject(QDesignerFormWindowInterface *fw, const QVariant &oldValue, const QVariant &newValue)
 {
@@ -473,11 +479,8 @@ void PropertyHelper::updateObject(QDesignerFormWindowInterface *fw, const QVaria
     } break;
     case OT_AssociatedAction:
     case OT_FreeAction:
-        if (m_specialProperty == SP_ObjectName) {
-            QAction *act = qobject_cast<QAction *>(m_object);
-            act->setData(QVariant(true)); // this triggers signal "changed" in QAction
-            act->setData(QVariant(false));
-        }
+        if (m_specialProperty == SP_ObjectName)
+            triggerActionChanged(qobject_cast<QAction *>(m_object));
         break;
     default:
         break;

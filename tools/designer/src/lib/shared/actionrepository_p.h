@@ -27,41 +27,168 @@
 
 #include "shared_global_p.h"
 #include <QtCore/QMimeData>
-#include <QtGui/QListWidget>
+#include <QtGui/QStandardItemModel>
+#include <QtGui/QTreeView>
+#include <QtGui/QListView>
+#include <QtGui/QStackedWidget>
 
 class QPixmap;
+
+class QDesignerFormEditorInterface;
 
 namespace qdesigner_internal {
 
 class ResourceMimeData;
 
-class QDESIGNER_SHARED_EXPORT ActionRepository: public QListWidget
+// Shared model of actions, to be used for several views (detailed/icon view).
+class QDESIGNER_SHARED_EXPORT ActionModel: public QStandardItemModel
 {
     Q_OBJECT
 public:
+    enum Columns { NameColumn, UsedColumn, TextColumn, ShortCutColumn, CheckedColumn, ToolTipColumn, NumColumns };
     enum   { ActionRole = Qt::UserRole + 1000 };
 
-public:
-    ActionRepository(QWidget *parent = 0);
-    void setViewMode (ViewMode mode);
+    ActionModel(QWidget *parent = 0);
+    void initialize(QDesignerFormEditorInterface *core) { m_core = core; }
 
-    bool event ( QEvent * event );
+    void clear();
+    QModelIndex addAction(QAction *a);
+    // remove row
+    void remove(int row);
+    // update the row from the underlying action
+    void update(int row);
+
+    // return row of action or -1.
+    int findAction(QAction *) const;
+
+    QString actionName(int row) const;
+    QAction *actionAt(const QModelIndex &index) const;
+
+    virtual QMimeData *mimeData(const QModelIndexList &indexes) const;
+    virtual QStringList mimeTypes() const;
+    virtual bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent);
+
+    // Find the associated menus and toolbars, ignore toolbuttons
+    static QWidgetList associatedWidgets(const QAction *action);
 
 signals:
-    void contextMenuRequested(QContextMenuEvent *event, QListWidgetItem *item);
     void resourceImageDropped(const ResourceMimeData &data, QAction *action);
+
+private:
+    void initializeHeaders();
+
+    typedef QList<QStandardItem *> QStandardItemList;
+    static void setItems(QDesignerFormEditorInterface *core, QAction *a, QStandardItemList &sl);
+
+    QDesignerFormEditorInterface *m_core;
+};
+
+// Internal class that provides the detailed view of actions.
+class  ActionTreeView: public QTreeView
+{
+    Q_OBJECT
+public:
+    ActionTreeView(ActionModel *model, QWidget *parent = 0);
+    QAction *currentAction() const;
 
 public slots:
     void filter(const QString &text);
 
+signals:
+    void contextMenuRequested(QContextMenuEvent *event, QAction *);
+    void currentChanged(QAction *action);
+    void activated(QAction *action);
+
+protected slots:
+    virtual void currentChanged(const QModelIndex &current, const QModelIndex &previous);
+
 protected:
     virtual void dragEnterEvent(QDragEnterEvent *event);
     virtual void dragMoveEvent(QDragMoveEvent *event);
-    virtual void startDrag(Qt::DropActions supportedActions);
-    virtual bool dropMimeData (int index, const QMimeData * data, Qt::DropAction action );
-    virtual QMimeData *mimeData(const QList<QListWidgetItem*> items) const;
+    virtual void dropEvent(QDropEvent *event);
     virtual void focusInEvent(QFocusEvent *event);
     virtual void contextMenuEvent(QContextMenuEvent *event);
+    virtual void startDrag(Qt::DropActions supportedActions);
+
+private slots:
+    void slotActivated(const QModelIndex &);
+
+private:
+    ActionModel *m_model;
+};
+
+// Internal class that provides the icon view of actions.
+class ActionListView: public QListView
+{
+    Q_OBJECT
+public:
+    ActionListView(ActionModel *model, QWidget *parent = 0);
+    QAction *currentAction() const;
+
+public slots:
+    void filter(const QString &text);
+
+signals:
+    void contextMenuRequested(QContextMenuEvent *event, QAction *);
+    void currentChanged(QAction *action);
+    void activated(QAction *action);
+
+protected slots:
+    virtual void currentChanged(const QModelIndex &current, const QModelIndex &previous);
+
+protected:
+    virtual void dragEnterEvent(QDragEnterEvent *event);
+    virtual void dragMoveEvent(QDragMoveEvent *event);
+    virtual void dropEvent(QDropEvent *event);
+    virtual void focusInEvent(QFocusEvent *event);
+    virtual void contextMenuEvent(QContextMenuEvent *event);
+    virtual void startDrag(Qt::DropActions supportedActions);
+
+private slots:
+    void slotActivated(const QModelIndex &);
+
+private:
+    ActionModel *m_model;
+};
+
+// Action View that can be switched between detailed and icon view
+// using a  QStackedWidget of  ActionListView / ActionTreeView
+// that share the item model and the selection model.
+
+class ActionView : public  QStackedWidget {
+    Q_OBJECT
+public:
+    // Separate initialize() function takes core argument to make this
+    // thing usable as promoted widget.
+    ActionView(QWidget *parent = 0);
+    void initialize(QDesignerFormEditorInterface *core) { m_model->initialize(core); }
+
+    // View mode
+    enum { DetailedView, IconView };
+    int viewMode() const;
+    void setViewMode(int lm);
+
+    ActionModel *model() const { return m_model; }
+
+    QAction *currentAction() const;
+    void setCurrentIndex(const QModelIndex &index);
+
+public slots:
+    void filter(const QString &text);
+
+signals:
+    void contextMenuRequested(QContextMenuEvent *event, QAction *);
+    void currentChanged(QAction *action);
+    void activated(QAction *action);
+    void resourceImageDropped(const ResourceMimeData &data, QAction *action);
+
+private slots:
+    void slotCurrentChanged(QAction *action);
+
+private:
+    ActionModel *m_model;
+    ActionTreeView *m_actionTreeView;
+    ActionListView *m_actionListView;
 };
 
 class QDESIGNER_SHARED_EXPORT ActionRepositoryMimeData: public QMimeData

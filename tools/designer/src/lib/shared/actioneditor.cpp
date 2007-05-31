@@ -36,7 +36,6 @@ TRANSLATOR qdesigner_internal::ActionEditor
 
 #include <QtGui/QMenu>
 #include <QtGui/QMessageBox>
-#include <QtGui/QListWidget>
 #include <QtGui/QToolBar>
 #include <QtGui/QSplitter>
 #include <QtGui/QAction>
@@ -49,11 +48,10 @@ TRANSLATOR qdesigner_internal::ActionEditor
 #include <QtGui/QContextMenuEvent>
 
 #include <QtCore/QRegExp>
-
-#include <qdebug.h>
+#include <QtCore/QDebug>
+#include <QtCore/QSignalMapper>
 
 Q_DECLARE_METATYPE(QAction*)
-Q_DECLARE_METATYPE(QListWidgetItem*)
 
 namespace qdesigner_internal {
 //-------- ActionFilterWidget
@@ -126,15 +124,17 @@ ActionEditor::ActionEditor(QDesignerFormEditorInterface *core, QWidget *parent, 
     QDesignerActionEditorInterface(parent, flags),
     m_core(core),
     m_actionGroups(0),
-    m_actionRepository(0),
+    m_actionView(new ActionView),
     m_actionNew(new QAction(tr("New..."), this)),
     m_actionEdit(new QAction(tr("Edit..."), this)),
     m_actionDelete(new QAction(tr("Delete"), this)),
     m_viewModeGroup(new  QActionGroup(this)),
     m_iconViewAction(0),
     m_listViewAction(0),
-    m_filterWidget(0)
+    m_filterWidget(0),
+    m_selectAssociatedWidgetsMapper(0)
 {
+    m_actionView->initialize(m_core);
     setWindowTitle(tr("Actions"));
 
     QVBoxLayout *l = new QVBoxLayout(this);
@@ -167,13 +167,13 @@ ActionEditor::ActionEditor(QDesignerFormEditorInterface *core, QWidget *parent, 
     connect(m_viewModeGroup, SIGNAL(triggered(QAction*)), this, SLOT(slotViewMode(QAction*)));
 
     m_iconViewAction = m_viewModeGroup->addAction(tr("Icon View"));
-    m_iconViewAction->setData(QVariant(QListView::IconMode));
+    m_iconViewAction->setData(QVariant(ActionView::IconView));
     m_iconViewAction->setCheckable(true);
     m_iconViewAction->setIcon(style()->standardIcon (QStyle::SP_FileDialogListView));
     toolbar->addAction(m_iconViewAction);
 
-    m_listViewAction = m_viewModeGroup->addAction(tr("List View"));
-    m_listViewAction->setData(QVariant(QListView::ListMode));
+    m_listViewAction = m_viewModeGroup->addAction(tr("Detailed View"));
+    m_listViewAction->setData(QVariant(ActionView::DetailedView));
     m_listViewAction->setCheckable(true);
     m_listViewAction->setIcon(style()->standardIcon (QStyle::SP_FileDialogDetailedView));
     toolbar->addAction(m_listViewAction);
@@ -181,6 +181,7 @@ ActionEditor::ActionEditor(QDesignerFormEditorInterface *core, QWidget *parent, 
     QSplitter *splitter = new QSplitter(Qt::Horizontal, this);
     splitter->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
+    splitter->addWidget(m_actionView);
     l->addWidget(splitter);
 
 #if 0 // ### implement me
@@ -195,20 +196,17 @@ ActionEditor::ActionEditor(QDesignerFormEditorInterface *core, QWidget *parent, 
     m_actionGroups->setWrapping(false);
 #endif
 
-    m_actionRepository = new ActionRepository(splitter);
-    connect(m_actionRepository, SIGNAL(resourceImageDropped(ResourceMimeData,QAction*)),
+    connect(m_actionView, SIGNAL(resourceImageDropped(ResourceMimeData,QAction*)),
             this, SLOT(resourceImageDropped(ResourceMimeData,QAction*)));
-    splitter->addWidget(m_actionRepository);
 
-    connect(m_actionRepository, SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)),
-            this, SLOT(slotItemChanged(QListWidgetItem*)));
+    connect(m_actionView, SIGNAL(currentChanged(QAction*)),this, SLOT(slotCurrentItemChanged(QAction*)));
     // make it possible for vs integration to reimplement edit action dialog
-    connect(m_actionRepository, SIGNAL(itemActivated(QListWidgetItem*)),
-            this, SIGNAL(itemActivated(QListWidgetItem*)));
-    connect(m_actionRepository, SIGNAL(contextMenuRequested(QContextMenuEvent*, QListWidgetItem*)),
-            this, SLOT(slotContextMenuRequested(QContextMenuEvent*, QListWidgetItem*)));
-    connect(this, SIGNAL(itemActivated(QListWidgetItem*)),
-            this, SLOT(editAction(QListWidgetItem*)));
+    connect(m_actionView, SIGNAL(activated(QAction*)), this, SIGNAL(itemActivated(QAction*)));
+
+    connect(m_actionView, SIGNAL(contextMenuRequested(QContextMenuEvent*, QAction*)),
+            this, SLOT(slotContextMenuRequested(QContextMenuEvent*, QAction*)));
+
+    connect(this, SIGNAL(itemActivated(QAction*)), this, SLOT(editAction(QAction*)));
 
     updateViewModeActions();
 }
@@ -249,7 +247,7 @@ void ActionEditor::setFormWindow(QDesignerFormWindowInterface *formWindow)
 
     m_formWindow = formWindow;
 
-    m_actionRepository->clear();
+    m_actionView->model()->clear();
 
     if (!formWindow || !formWindow->mainContainer()) {
         m_actionNew->setEnabled(false);
@@ -270,61 +268,18 @@ void ActionEditor::setFormWindow(QDesignerFormWindowInterface *formWindow)
             ) {
             continue;
         }
-
-        createListWidgetItem(action);
+        m_actionView->model()->addAction(action);
         connect(action, SIGNAL(changed()), this, SLOT(slotActionChanged()));
     }
 
     setFilter(m_filter);
 }
 
-static QIcon fixActionIcon(QIcon icon)
-{
-    if (icon.isNull())
-        return emptyIcon();
-    return icon;
-}
-
-// Set up list widget item, icon, tooltip
-static void setListWidgetItem(const QAction *action,  QListWidgetItem *item)
-{
-    item->setText(action->objectName());
-    item->setIcon(fixActionIcon(action->icon()));
-
-    QString tooltip = action->objectName();
-    const QString text = action->text();
-    if (!text.isEmpty()) {
-        tooltip += QLatin1Char('\n');
-        tooltip += text;
-    }
-    item->setToolTip(tooltip);
-    item->setWhatsThis(tooltip);
-}
-
-QListWidgetItem *ActionEditor::createListWidgetItem(QAction *action)
-{
-    if (action->menu())
-        return 0;
-
-    QListWidgetItem *item = new QListWidgetItem(m_actionRepository);
-    setListWidgetItem(action, item);
-
-    QVariant itemData;
-    qVariantSetValue(itemData, action);
-    item->setData(ActionRepository::ActionRole, itemData);
-    item->setFlags(item->flags() | Qt::ItemIsDropEnabled);
-    return item;
-}
-
-void ActionEditor::slotItemChanged(QListWidgetItem *item)
+void ActionEditor::slotCurrentItemChanged(QAction *action)
 {
     QDesignerFormWindowInterface *fw = formWindow();
     if (!fw)
         return;
-
-    QAction *action = 0;
-    if (item)
-        action = itemToAction(item);
 
     const bool hasCurrentAction = action != 0;
     m_actionEdit->setEnabled(hasCurrentAction);
@@ -349,36 +304,21 @@ void ActionEditor::slotItemChanged(QListWidgetItem *item)
     }
 }
 
-QListWidgetItem *ActionEditor::actionToItem(QAction *action) const
-{
-    const int cnt = m_actionRepository->count();
-    for (int i = 0; i < cnt; ++i) {
-        QListWidgetItem *item = m_actionRepository->item(i);
-        if (itemToAction(item) == action)
-            return item;
-    }
-    return 0;
-}
-
-QAction *ActionEditor::itemToAction(QListWidgetItem *item) const
-{
-    return qvariant_cast<QAction*>(item->data(ActionRepository::ActionRole));
-}
-
 void ActionEditor::slotActionChanged()
 {
     QAction *action = qobject_cast<QAction*>(sender());
     Q_ASSERT(action != 0);
 
-    QListWidgetItem *item = actionToItem(action);
-    if (item == 0) {
+    ActionModel *model = m_actionView->model();
+    const int row = model->findAction(action);
+    if (row == -1) {
         if (action->menu() == 0) // action got its menu deleted, create item
-            createListWidgetItem(action);
+            model->addAction(action);
     } else if (action->menu() != 0) { // action got its menu created, remove item
-        delete item;
+        model->removeRow(row);
     } else {
         // action text or icon changed, update item
-        setListWidgetItem(action, item);
+        model->update(row);
     }
 }
 
@@ -395,7 +335,7 @@ QString ActionEditor::filter() const
 void ActionEditor::setFilter(const QString &f)
 {
     m_filter = f;
-    m_actionRepository->filter(m_filter);
+    m_actionView->filter(m_filter);
 }
 
 // Set changed state of icon property,  reset when icon is cleared
@@ -417,9 +357,7 @@ void ActionEditor::manageAction(QAction *action)
     sheet->setChanged(sheet->indexOf(QLatin1String("text")), true);
     refreshIconPropertyChanged(action, sheet);
 
-    QListWidgetItem *item = createListWidgetItem(action);
-    m_actionRepository->setCurrentItem(item);
-
+    m_actionView->setCurrentIndex(m_actionView->model()->addAction(action));
     connect(action, SIGNAL(changed()), this, SLOT(slotActionChanged()));
 }
 
@@ -430,11 +368,9 @@ void ActionEditor::unmanageAction(QAction *action)
 
     disconnect(action, SIGNAL(changed()), this, SLOT(slotActionChanged()));
 
-    QListWidgetItem *item = actionToItem(action);
-    if (item == 0)
-        return;
-
-    delete item;
+    const int row = m_actionView->model()->findAction(action);
+    if (row != -1)
+        m_actionView->model()->remove(row);
 }
 
 void ActionEditor::slotNewAction()
@@ -486,13 +422,9 @@ static QDesignerFormWindowCommand *setTextPropertyCommand(const QString &propert
     return cmd;
 }
 
-void ActionEditor::editAction(QListWidgetItem *item)
+void ActionEditor::editAction(QAction *action)
 {
-    if (!item)
-        return;
-
-    QAction *action = itemToAction(item);
-    if (action == 0)
+    if (!action)
         return;
 
     NewActionDialog dlg(this);
@@ -540,18 +472,14 @@ void ActionEditor::editAction(QListWidgetItem *item)
 
 void ActionEditor::editCurrentAction()
 {
-    if (QListWidgetItem *item = m_actionRepository->currentItem())
-        editAction(item);
+    if (QAction *a = m_actionView->currentAction())
+        editAction(a);
 }
 
 void ActionEditor::slotDeleteAction()
 {
-    QListWidgetItem *item = m_actionRepository->currentItem();
-    if (item == 0)
-        return;
-
-    QAction *action = itemToAction(item);
-    if (action == 0)
+    QAction *action = m_actionView->currentAction();
+    if (!action)
         return;
 
     RemoveActionCommand *cmd = new RemoveActionCommand(formWindow());
@@ -604,20 +532,13 @@ void ActionEditor::mainContainerChanged()
 
 int ActionEditor::viewMode() const
 {
-    return  m_actionRepository->viewMode();
+    return m_actionView->viewMode();
 }
 
 void ActionEditor::setViewMode(int lm)
 {
-    switch (lm) {
-    case QListView::IconMode:
-    case QListView::ListMode:
-        m_actionRepository->setViewMode(static_cast<QListView::ViewMode>(lm));
-        updateViewModeActions();
-        break;
-    default:
-        break;
-    }
+    m_actionView->setViewMode(lm);
+    updateViewModeActions();
 }
 
 void ActionEditor::slotViewMode(QAction *a)
@@ -625,20 +546,42 @@ void ActionEditor::slotViewMode(QAction *a)
     setViewMode(a->data().toInt());
 }
 
+void ActionEditor::slotSelectAssociatedWidget(QWidget *w)
+{
+    QDesignerFormWindowInterface *fw = formWindow();
+    if (!fw )
+        return;
+
+    QDesignerObjectInspector *oi = qobject_cast<QDesignerObjectInspector *>(core()->objectInspector());
+    if (!oi)
+        return;
+
+    fw->clearSelection(); // Actually, there are no widgets selected due to focus in event handling. Just to be sure.
+    oi->selectObject(w);
+}
+
 void ActionEditor::updateViewModeActions()
 {
     switch (viewMode()) {
-    case QListView::IconMode:
+    case ActionView::IconView:
         m_iconViewAction->setChecked(true);
         break;
-    case QListView::ListMode:
+    case ActionView::DetailedView:
         m_listViewAction->setChecked(true);
         break;
     }
 }
 
-void ActionEditor::slotContextMenuRequested(QContextMenuEvent *e, QListWidgetItem *item)
+
+void ActionEditor::slotContextMenuRequested(QContextMenuEvent *e, QAction *item)
 {
+    // set up signal mapper
+    if (!m_selectAssociatedWidgetsMapper) {
+        m_selectAssociatedWidgetsMapper = new QSignalMapper(this);
+        connect(m_selectAssociatedWidgetsMapper, SIGNAL(mapped(QWidget*)), this, SLOT(slotSelectAssociatedWidget(QWidget*)));
+    }
+
+
     QMenu menu(this);
 
     menu.addAction(m_iconViewAction);
@@ -646,6 +589,20 @@ void ActionEditor::slotContextMenuRequested(QContextMenuEvent *e, QListWidgetIte
     menu.addSeparator();
     menu.addAction(m_actionNew);
     menu.addAction(m_actionEdit);
+
+    // Associated Widgets
+    if (QAction *action = m_actionView->currentAction()) {
+        const QWidgetList associatedWidgets = ActionModel::associatedWidgets(action);
+        if (!associatedWidgets.empty()) {
+            QMenu *associatedWidgetsSubMenu =  menu.addMenu(tr("Used In"));
+            foreach (QWidget *w, associatedWidgets) {
+                QAction *action = associatedWidgetsSubMenu->addAction(w->objectName());
+                m_selectAssociatedWidgetsMapper->setMapping(action, w);
+                connect(action, SIGNAL(triggered()), m_selectAssociatedWidgetsMapper, SLOT(map()));
+            }
+        }
+    }
+
     menu.addAction(m_actionDelete);
 
     emit contextMenuRequested(&menu, item);
@@ -653,6 +610,7 @@ void ActionEditor::slotContextMenuRequested(QContextMenuEvent *e, QListWidgetIte
     menu.exec(e->globalPos());
     e->accept();
 }
+
 } // namespace qdesigner_internal
 
 #include "actioneditor.moc"

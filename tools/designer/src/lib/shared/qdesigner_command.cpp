@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "qdesigner_command_p.h"
+#include "qdesigner_propertycommand_p.h"
 #include "qdesigner_utils_p.h"
 #include "layout_p.h"
 #include "qlayout_widget_p.h"
@@ -306,7 +307,7 @@ void DeleteWidgetCommand::undo()
 {
     QDesignerFormEditorInterface *core = formWindow()->core();
     formWindow()->clearSelection();
-    
+
     m_widget->setParent(m_parentWidget);
 
     if (QDesignerContainerExtension *c = qt_extension<QDesignerContainerExtension*>(core->extensionManager(), m_parentWidget)) {
@@ -2120,6 +2121,7 @@ void ActionInsertionCommand::insertAction()
             selectUnmanagedObject(menu);
         else
             selectUnmanagedObject(m_action);
+        PropertyHelper::triggerActionChanged(m_action); // Update Used column in action editor.
     }
 }
 void ActionInsertionCommand::removeAction()
@@ -2135,6 +2137,7 @@ void ActionInsertionCommand::removeAction()
     if (m_update) {
         cheapUpdate();
         selectUnmanagedObject(m_parentWidget);
+        PropertyHelper::triggerActionChanged(m_action); // Update Used column in action editor.
     }
 }
 

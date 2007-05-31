@@ -28,17 +28,18 @@
 #include "shared_global_p.h"
 #include <QtDesigner/QDesignerActionEditorInterface>
 
-#include <QPointer>
+#include <QtCore/QPointer>
 
 class QDesignerPropertyEditorInterface;
 class QListWidget;
 class QListWidgetItem;
 class QMenu;
 class QActionGroup;
+class QSignalMapper;
 
 namespace qdesigner_internal {
 
-class ActionRepository;
+class ActionView;
 class ResourceMimeData;
 
 class QDESIGNER_SHARED_EXPORT ActionEditor: public QDesignerActionEditorInterface
@@ -66,7 +67,7 @@ public:
     QAction *itemToAction(QListWidgetItem *item) const;
     QListWidgetItem *actionToItem(QAction *action) const;
 
-    // View mode: QListView::ViewMode
+    // ActionView::ViewMode
     int viewMode() const;
     void setViewMode(int lm);
 
@@ -75,30 +76,32 @@ public slots:
     void mainContainerChanged();
 
 private slots:
-    void slotItemChanged(QListWidgetItem *item);
-    void editAction(QListWidgetItem *item);
+    void slotCurrentItemChanged(QAction *item);
+    void editAction(QAction *item);
     void editCurrentAction();
     void slotActionChanged();
     void slotNewAction();
     void slotDeleteAction();
     void slotNotImplemented();
     void resourceImageDropped(const ResourceMimeData &data, QAction *action);
-    void slotContextMenuRequested(QContextMenuEvent *, QListWidgetItem *);
+    void slotContextMenuRequested(QContextMenuEvent *, QAction *);
     void slotViewMode(QAction *a);
+    void slotSelectAssociatedWidget(QWidget *w);
 
 signals:
-    void itemActivated(QListWidgetItem *item);
+    void itemActivated(QAction *item);
     // Context menu for item or global menu if item == 0.
-    void contextMenuRequested(QMenu *menu, QListWidgetItem *item);
+    void contextMenuRequested(QMenu *menu, QAction *item);
 
 private:
     void updateViewModeActions();
-    QListWidgetItem *createListWidgetItem(QAction *action);
 
     QDesignerFormEditorInterface *m_core;
     QPointer<QDesignerFormWindowInterface> m_formWindow;
     QListWidget *m_actionGroups;
-    ActionRepository *m_actionRepository;
+
+    ActionView *m_actionView;
+
     QAction *m_actionNew;
     QAction *m_actionEdit;
     QAction *m_actionDelete;
@@ -109,6 +112,7 @@ private:
 
     QString m_filter;
     QWidget *m_filterWidget;
+    QSignalMapper *m_selectAssociatedWidgetsMapper;
 };
 
 } // namespace qdesigner_internal

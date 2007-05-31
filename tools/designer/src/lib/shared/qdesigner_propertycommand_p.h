@@ -83,6 +83,9 @@ public:
 
     // can be merged into one command (that is, object and name match)
     bool canMerge(const PropertyHelper &other) const;
+
+    static void triggerActionChanged(QAction *a);
+
 private:
     // Apply the value and update. Returns corrected value
     Value applyValue(QDesignerFormWindowInterface *fw, const QVariant &oldValue, Value newValue);

@@ -291,7 +291,7 @@ QStringList QDesignerSettings::additionalFormTemplatePaths() const
 
 int QDesignerSettings::actionEditorViewMode() const
 {
-    return value(QLatin1String(actionEditorViewModeKey), QListView::IconMode).toInt();
+    return value(QLatin1String(actionEditorViewModeKey), 0).toInt();
 }
 
 void QDesignerSettings::setActionEditorViewMode(int vm)

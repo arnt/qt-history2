@@ -13,126 +13,234 @@
 
 #include "actionrepository_p.h"
 #include "resourcemimedata_p.h"
+#include "iconloader_p.h"
+
+#include <QtDesigner/QDesignerFormEditorInterface>
+#include <QtDesigner/QDesignerPropertySheetExtension>
+#include <QtDesigner/QExtensionManager>
 
 #include <QtGui/QDrag>
 #include <QtGui/QContextMenuEvent>
+#include <QtGui/QStandardItemModel>
 #include <QtGui/QToolButton>
 #include <QtGui/QPixmap>
 #include <QtGui/QAction>
+#include <QtGui/QHeaderView>
+#include <QtGui/QToolBar>
+#include <QtGui/QMenu>
 #include <QtGui/qevent.h>
+#include <QtCore/QSet>
+#include <QtCore/QDebug>
 
 Q_DECLARE_METATYPE(QAction*)
-Q_DECLARE_METATYPE(QListWidgetItem*)
 
 namespace {
     enum { listModeIconSize = 16, iconModeIconSize = 24 };
 }
 
-static inline QAction *actionOfItem(const QListWidgetItem* item)
+static const char *actionMimeType = "action-repository/actions";
+static const char *plainTextMimeType = "text/plain";
+
+static inline QAction *actionOfItem(const QStandardItem* item)
 {
-    return qvariant_cast<QAction*>(item->data(qdesigner_internal::ActionRepository::ActionRole));
+    return qvariant_cast<QAction*>(item->data(qdesigner_internal::ActionModel::ActionRole));
+}
+
+static QIcon fixActionIcon(QIcon icon)
+{
+    if (icon.isNull())
+        return qdesigner_internal::emptyIcon();
+    return icon;
 }
 
 namespace qdesigner_internal {
 
-ActionRepository::ActionRepository(QWidget *parent)
-    : QListWidget(parent)
+// ----------- ActionModel
+ActionModel::ActionModel(QWidget *parent ) :
+    QStandardItemModel(parent),
+    m_core(0)
 {
-    setViewMode(IconMode);
-    setResizeMode(Adjust);
-    setTextElideMode(Qt::ElideMiddle);
-
-    setDragEnabled(true);
-    setAcceptDrops(true);
-    setDropIndicatorShown(true);
-    setDragDropMode (DragDrop);
+    initializeHeaders();
 }
 
-void ActionRepository::setViewMode(ViewMode mode)
+void ActionModel::clear()
 {
-    if (viewMode() == mode)
-        return;
+    QStandardItemModel::clear();
+    initializeHeaders();
+}
 
-    switch(mode) {
-    case IconMode:
-        setMovement(Static);
-        setIconSize(QSize(iconModeIconSize, iconModeIconSize));
-        setGridSize(QSize(4 * iconModeIconSize, 2 *  iconModeIconSize));
-        break;
-    case ListMode:
-        setIconSize(QSize(listModeIconSize, listModeIconSize));
-        setGridSize(QSize());
-        setSpacing(1);
-        break;
+void ActionModel::initializeHeaders()
+{
+    setColumnCount(NumColumns);
+    static QStringList headers;
+    if (headers.empty()) {
+        headers += tr("Name");
+        headers += tr("Used");
+        headers += tr("Text");
+        headers += tr("Shortcut");
+        headers += tr("Checkable");
+        headers += tr("ToolTip");
     }
-    QListWidget::setViewMode (mode);
+    Q_ASSERT(NumColumns == headers.size());
+    setHorizontalHeaderLabels(headers);
 }
 
-void ActionRepository::startDrag(Qt::DropActions supportedActions)
+int ActionModel::findAction(QAction *action) const
 {
-    if (!selectionModel())
-        return;
+    const int rows = rowCount();
+    for (int i = 0; i < rows; i++)
+       if (action == actionOfItem(item(i)))
+           return i;
+    return -1;
+}
 
-    const QModelIndexList indexes = selectionModel()->selectedIndexes();
+void ActionModel::update(int row)
+{
+    Q_ASSERT(m_core);
+    // need to create the row list ... grrr..
+    if (row >= rowCount())
+       return;
 
-    if (indexes.count() > 0) {
-        QDrag *drag = new QDrag(this);
-        if (QListWidgetItem *litem = itemFromIndex(indexes.front()))
-            if (QAction *action = actionOfItem(litem))
-                 drag->setPixmap(ActionRepositoryMimeData::actionDragPixmap(action));
-        drag->setMimeData(model()->mimeData(indexes));
-        drag->start(supportedActions);
+    QStandardItemList list;
+    for (int i = 0; i < NumColumns; i++)
+       list += item(row, i);
+
+    setItems(m_core, actionOfItem(list.front()), list);
+}
+
+void ActionModel::remove(int row)
+{
+    qDeleteAll(takeRow(row));
+}
+
+QModelIndex ActionModel::addAction(QAction *action)
+{
+    Q_ASSERT(m_core);
+    QStandardItemList items;
+    const  Qt::ItemFlags flags = Qt::ItemIsSelectable|Qt::ItemIsDropEnabled|Qt::ItemIsDragEnabled|Qt::ItemIsEnabled;
+
+    QVariant itemData;
+    qVariantSetValue(itemData, action);
+
+    for (int i = 0; i < NumColumns; i++) {
+        QStandardItem *item = new QStandardItem;
+        item->setData(itemData, ActionRole);
+        item->setFlags(flags);
+        items.push_back(item);
     }
+    setItems(m_core, action, items);
+    appendRow(items);
+    return indexFromItem(items.front());
 }
 
-bool ActionRepository::event (QEvent * event )
+// Find the associated menus and toolbars, ignore toolbuttons
+QWidgetList ActionModel::associatedWidgets(const QAction *action)
 {
-    if (movement() != Static)
-        return  QListWidget::event(event);
+    QWidgetList rc = action->associatedWidgets();
+    for (QWidgetList::iterator it = rc.begin(); it != rc.end(); )
+        if (qobject_cast<const QMenu *>(*it) || qobject_cast<const QToolBar *>(*it)) {
+            ++it;
+        } else {
+            it = rc.erase(it);
+        }
+    return rc;
+}
 
-    // Static movement turns off drag handling, unfortunately.
-    // We need to dispatch ourselves.
-    switch (event->type()) {
-    case QEvent::DragEnter:
-        dragEnterEvent(static_cast<QDragEnterEvent *>(event));
-        return true;
-    case QEvent::DragMove:
-        dragMoveEvent(static_cast<QDragMoveEvent *>(event));
-        return true;
-    case QEvent::Drop:
-        dropEvent(static_cast<QDropEvent *>(event));
-        return true;
-    default:
-        break;
+// shortcut is a fake property, need to retrieve it via property sheet.
+static QString actionShortCut(QDesignerFormEditorInterface *core, QAction *action)
+{
+    QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(core->extensionManager(), action);
+    if (!sheet)
+        return QString();
+    const int index = sheet->indexOf(QLatin1String("shortcut"));
+    if (index == -1)
+        return QString();
+    const QKeySequence keysequence = qvariant_cast<QKeySequence>(sheet->property(index));
+    return keysequence.toString();
+}
+
+void  ActionModel::setItems(QDesignerFormEditorInterface *core, QAction *action, QStandardItemList &sl)
+{
+
+    // Tooltip, mostly for icon view mode
+    QString firstTooltip = action->objectName();
+    const QString text = action->text();
+    if (!text.isEmpty()) {
+        firstTooltip += QLatin1Char('\n');
+        firstTooltip += text;
     }
-    return QListWidget::event(event);
+
+    Q_ASSERT(sl.size() == NumColumns);
+
+    QStandardItem *item =  sl[NameColumn];
+    item->setText(action->objectName());
+    item->setIcon(fixActionIcon(action->icon()));
+    item->setToolTip(firstTooltip);
+    item->setWhatsThis(firstTooltip);
+    // Used
+    const QWidgetList associatedDesignerWidgets = associatedWidgets(action);
+    const bool used = !associatedDesignerWidgets.empty();
+    item = sl[UsedColumn];
+    item->setCheckState(used ? Qt::Checked : Qt::Unchecked);
+    if (used) {
+        QString usedToolTip;
+        const QString separator = QLatin1String(", ");
+        const int count = associatedDesignerWidgets.size();
+        for (int i = 0; i < count; i++) {
+            if (i)
+                usedToolTip += separator;
+            usedToolTip += associatedDesignerWidgets.at(i)->objectName();
+        }
+        item->setToolTip(usedToolTip);
+    } else {
+        item->setToolTip(QString());
+    }
+    // text
+    item = sl[TextColumn];
+    item->setText(action->text());
+    item->setToolTip(action->text());
+    // shortcut
+    const QString shortcut = actionShortCut(core, action);
+    item = sl[ShortCutColumn];
+    item->setText(shortcut);
+    item->setToolTip(shortcut);
+    // checkable
+    sl[CheckedColumn]->setCheckState(action->isCheckable() ?  Qt::Checked : Qt::Unchecked);
+    const QString toolTip = action->toolTip();
+    item = sl[ToolTipColumn];
+    item->setText(toolTip);
+    item->setToolTip(toolTip);
 }
 
-
-void ActionRepository::dragEnterEvent(QDragEnterEvent *event)
+QMimeData *ActionModel::mimeData(const QModelIndexList &indexes ) const
 {
-    // We can not override the mime types of the model,
-    // so we do our own checking
-    if (ResourceMimeData::isResourceMimeData(event->mimeData(), ResourceMimeData::Image))
-        event->acceptProposedAction();
-    else
-        event->ignore();
+    ActionRepositoryMimeData::ActionList actionList;
+
+    QSet<QAction*> actions;
+    foreach (const  QModelIndex &index, indexes)
+        if (QStandardItem *item = itemFromIndex(index))
+            if (QAction *action = actionOfItem(item))
+                actions.insert(action);
+    return new ActionRepositoryMimeData(actions.toList(), Qt::CopyAction);
 }
 
-void  ActionRepository::dragMoveEvent(QDragMoveEvent *event)
+// Resource images are plain text. The drag needs to be restricted, however.
+QStringList ActionModel::mimeTypes() const
 {
-    if (ResourceMimeData::isResourceMimeData(event->mimeData(), ResourceMimeData::Image))
-        event->acceptProposedAction();
-    else
-        event->ignore();
+    return QStringList(QLatin1String(plainTextMimeType));
 }
 
-bool ActionRepository::dropMimeData(int index, const QMimeData * data, Qt::DropAction action )
+QString ActionModel::actionName(int row) const
 {
-    if (action != Qt::CopyAction)
+    return item(row, NameColumn)->text();
+}
+
+bool ActionModel::dropMimeData(const QMimeData * data, Qt::DropAction action, int row, int column, const QModelIndex &)
+{
+  if (action != Qt::CopyAction)
         return false;
 
-    QListWidgetItem *droppedItem = item(index);
+    QStandardItem *droppedItem = item(row, column);
     if (!droppedItem)
         return false;
 
@@ -144,36 +252,292 @@ bool ActionRepository::dropMimeData(int index, const QMimeData * data, Qt::DropA
     return true;
 }
 
-QMimeData *ActionRepository::mimeData(const QList<QListWidgetItem*> items) const
+QAction *ActionModel::actionAt(const  QModelIndex &index) const
 {
-    ActionRepositoryMimeData::ActionList actionList;
-
-    foreach (QListWidgetItem *item, items)
-         actionList += actionOfItem(item);
-
-    return new ActionRepositoryMimeData(actionList, Qt::CopyAction);
+    if (!index.isValid())
+        return 0;
+    QStandardItem *i = itemFromIndex(index);
+    if (!i)
+        return 0;
+    return actionOfItem(i);
 }
 
-void ActionRepository::filter(const QString &text)
+// helpers
+
+static bool handleImageDragEnterMoveEvent(QDropEvent *event)
 {
-    const QSet<QListWidgetItem*> visibleItems = QSet<QListWidgetItem*>::fromList(findItems(text, Qt::MatchContains));
-    for (int index=0; index<count(); ++index) {
-        QListWidgetItem *i = item(index);
-        setItemHidden(i, !visibleItems.contains(i));
+    const bool rc = ResourceMimeData::isResourceMimeData(event->mimeData(), ResourceMimeData::Image);
+    if (rc)
+        event->acceptProposedAction();
+    else
+        event->ignore();
+    return rc;
+}
+
+static void handleImageDropEvent(const QAbstractItemView *iv, QDropEvent *event, ActionModel *am)
+{
+    const QModelIndex index = iv->indexAt(event->pos());
+    if (!index.isValid()) {
+        event->ignore();
+        return;
+    }
+
+    if (!handleImageDragEnterMoveEvent(event))
+        return;
+
+    am->dropMimeData(event->mimeData(),  event->proposedAction(), index.row(), 0, iv->rootIndex());
+}
+
+// Basically mimic  QAbstractItemView's startDrag routine, except that
+// another pixmap is used, we don't want the whole row.
+
+void startActionDrag(QWidget *dragParent, ActionModel *model, const QModelIndexList &indexes, Qt::DropActions supportedActions)
+{
+    if (indexes.empty())
+        return;
+
+    QDrag *drag = new QDrag(dragParent);
+    QMimeData *data = model->mimeData(indexes);
+    drag->setMimeData(data);
+    if (ActionRepositoryMimeData *actionMimeData = qobject_cast<ActionRepositoryMimeData *>(data))
+        drag->setPixmap(ActionRepositoryMimeData::actionDragPixmap(actionMimeData->actionList().front()));
+
+    drag->start(supportedActions);
+}
+
+// ---------------- ActionTreeView:
+ActionTreeView::ActionTreeView(ActionModel *model, QWidget *parent) :
+    QTreeView(parent),
+    m_model(model)
+{
+    setDragEnabled(true);
+    setAcceptDrops(true);
+    setDropIndicatorShown(true);
+    setDragDropMode(DragDrop);
+    setModel(model);
+    setRootIsDecorated(false);
+    setTextElideMode(Qt::ElideMiddle);
+
+    setModel(model);
+    connect(this, SIGNAL(activated(QModelIndex)), this, SLOT(slotActivated(QModelIndex)));
+    connect(header(), SIGNAL(sectionDoubleClicked(int)), this, SLOT(resizeColumnToContents(int)));
+
+    setIconSize(QSize(listModeIconSize, listModeIconSize));
+
+}
+
+QAction *ActionTreeView::currentAction() const
+{
+    return m_model->actionAt(currentIndex());
+}
+
+void ActionTreeView::filter(const QString &text)
+{
+    const int rowCount = m_model->rowCount();
+    const bool empty = text.isEmpty();
+    const QModelIndex parent = rootIndex();
+    for (int i = 0; i < rowCount; i++)
+        setRowHidden(i, parent, !empty && !m_model->actionName(i).contains(text));
+}
+
+void ActionTreeView::dragEnterEvent(QDragEnterEvent *event)
+{
+    handleImageDragEnterMoveEvent(event);
+}
+
+void ActionTreeView::dragMoveEvent(QDragMoveEvent *event)
+{
+    handleImageDragEnterMoveEvent(event);
+}
+
+void ActionTreeView::dropEvent(QDropEvent *event)
+{
+    handleImageDropEvent(this, event, m_model);
+}
+
+void ActionTreeView::focusInEvent(QFocusEvent *event)
+{
+    QTreeView::focusInEvent(event);
+    // Make property editor display current action
+    if (QAction *a = currentAction())
+       emit currentChanged(a);
+}
+
+void ActionTreeView::contextMenuEvent(QContextMenuEvent *event)
+{
+    emit contextMenuRequested(event, m_model->actionAt(indexAt(event->pos())));
+}
+
+void ActionTreeView::currentChanged(const QModelIndex &current, const QModelIndex &/*previous*/)
+{
+    emit currentChanged(m_model->actionAt(current));
+}
+
+void ActionTreeView::slotActivated(const QModelIndex &index)
+{
+    emit activated(m_model->actionAt(index));
+}
+
+void ActionTreeView::startDrag(Qt::DropActions supportedActions)
+{
+    startActionDrag(this, m_model, selectedIndexes(), supportedActions);
+}
+
+// ---------------- ActionListView:
+ActionListView::ActionListView(ActionModel *model, QWidget *parent) :
+    QListView(parent),
+    m_model(model)
+{
+    setDragEnabled(true);
+    setAcceptDrops(true);
+    setDropIndicatorShown(true);
+    setDragDropMode(DragDrop);
+    setModel(model);
+    setTextElideMode(Qt::ElideMiddle);
+    connect(this, SIGNAL(activated(QModelIndex)), this, SLOT(slotActivated(QModelIndex)));
+
+    // We actually want 'Static' as the user should be able to
+    // drag away actions only (not to rearrange icons).
+    // We emulate that by not accepting our own
+    // drag data. 'Static' causes the list view to disable drag and drop
+    // on the viewport.
+    setMovement(Snap);
+    setViewMode(IconMode);
+    setIconSize(QSize(iconModeIconSize, iconModeIconSize));
+    setGridSize(QSize(4 * iconModeIconSize, 2 *  iconModeIconSize));
+    setSpacing(iconModeIconSize / 3);
+}
+
+QAction *ActionListView::currentAction() const
+{
+    return m_model->actionAt(currentIndex());
+}
+
+void ActionListView::filter(const QString &text)
+{
+    const int rowCount = m_model->rowCount();
+    const bool empty = text.isEmpty();
+    for (int i = 0; i < rowCount; i++)
+        setRowHidden(i, !empty && !m_model->actionName(i).contains(text));
+}
+
+void ActionListView::dragEnterEvent(QDragEnterEvent *event)
+{
+    handleImageDragEnterMoveEvent(event);
+}
+
+void ActionListView::dragMoveEvent(QDragMoveEvent *event)
+{
+    handleImageDragEnterMoveEvent(event);
+}
+
+void ActionListView::dropEvent(QDropEvent *event)
+{
+    handleImageDropEvent(this, event, m_model);
+}
+
+void ActionListView::focusInEvent(QFocusEvent *event)
+{
+    QListView::focusInEvent(event);
+    // Make property editor display current action
+    if (QAction *a = currentAction())
+       emit currentChanged(a);
+}
+
+void ActionListView::contextMenuEvent(QContextMenuEvent *event)
+{
+    emit contextMenuRequested(event, m_model->actionAt(indexAt(event->pos())));
+}
+
+void ActionListView::currentChanged(const QModelIndex &current, const QModelIndex & /*previous*/)
+{
+    emit currentChanged(m_model->actionAt(current));
+}
+
+void ActionListView::slotActivated(const QModelIndex &index)
+{
+    emit activated(m_model->actionAt(index));
+}
+
+void ActionListView::startDrag(Qt::DropActions supportedActions)
+{
+    startActionDrag(this, m_model, selectedIndexes(), supportedActions);
+}
+
+//  ActionView
+ActionView::ActionView(QWidget *parent) :
+    QStackedWidget(parent),
+    m_model(new ActionModel(this)),
+    m_actionTreeView(new ActionTreeView(m_model)),
+    m_actionListView(new ActionListView(m_model))
+{
+    addWidget(m_actionListView);
+    addWidget(m_actionTreeView);
+    // Wire signals
+    connect(m_actionTreeView, SIGNAL(contextMenuRequested(QContextMenuEvent*, QAction*)),
+            this, SIGNAL(contextMenuRequested(QContextMenuEvent*, QAction*)));
+    connect(m_actionListView, SIGNAL(contextMenuRequested(QContextMenuEvent*, QAction*)),
+            this, SIGNAL(contextMenuRequested(QContextMenuEvent*, QAction*)));
+
+    // make it possible for vs integration to reimplement edit action dialog
+    // [which it shouldn't do actually]
+    connect(m_actionListView, SIGNAL(activated(QAction*)), this, SIGNAL(activated(QAction*)));
+    connect(m_actionTreeView, SIGNAL(activated(QAction*)), this, SIGNAL(activated(QAction*)));
+
+    connect(m_actionListView, SIGNAL(currentChanged(QAction*)),this, SLOT(slotCurrentChanged(QAction*)));
+    connect(m_actionTreeView, SIGNAL(currentChanged(QAction*)),this, SLOT(slotCurrentChanged(QAction*)));
+
+    connect(m_model, SIGNAL(resourceImageDropped(ResourceMimeData,QAction*)),
+            this, SIGNAL(resourceImageDropped(ResourceMimeData,QAction*)));
+
+    // sync selection models
+    m_actionListView->setSelectionModel(m_actionTreeView->selectionModel());
+}
+
+int ActionView::viewMode() const
+{
+    return currentWidget() == m_actionListView ? IconView : DetailedView;
+}
+
+void ActionView::setViewMode(int lm)
+{
+    if (viewMode() == lm)
+        return;
+
+    switch (lm) {
+    case IconView:
+        setCurrentWidget(m_actionListView);
+        break;
+    case DetailedView:
+        setCurrentWidget(m_actionTreeView);
+        break;
+    default:
+        break;
     }
 }
 
-void ActionRepository::focusInEvent(QFocusEvent *event)
+void ActionView::slotCurrentChanged(QAction *action)
 {
-    QListWidget::focusInEvent(event);
-    if (currentItem()) {
-        emit currentItemChanged(currentItem(), currentItem());
-    }
+    // emit only for currently visible
+    if (sender() == currentWidget())
+        emit currentChanged(action);
 }
 
-void ActionRepository::contextMenuEvent(QContextMenuEvent *event)
+void ActionView::filter(const QString &text)
 {
-    emit contextMenuRequested(event, itemAt(event->pos()));
+    m_actionTreeView->filter(text);
+    m_actionListView->filter(text);
+}
+
+void ActionView::setCurrentIndex(const QModelIndex &index)
+{
+    m_actionTreeView->setCurrentIndex(index);
+    m_actionListView->setCurrentIndex(index);
+}
+
+QAction *ActionView::currentAction() const
+{
+    return m_actionListView->currentAction();
 }
 
 // ----------     ActionRepositoryMimeData
@@ -191,7 +555,7 @@ ActionRepositoryMimeData::ActionRepositoryMimeData(const ActionList &al, Qt::Dro
 
 QStringList ActionRepositoryMimeData::formats() const
 {
-    return QStringList(QLatin1String("action-repository/actions"));
+    return QStringList(QLatin1String(actionMimeType));
 }
 
 QPixmap  ActionRepositoryMimeData::actionDragPixmap(const QAction *action)
@@ -210,7 +574,7 @@ QPixmap  ActionRepositoryMimeData::actionDragPixmap(const QAction *action)
     QToolButton *tb = new QToolButton;
     tb->setText(action->text());
     tb->adjustSize();
-    tb->setToolButtonStyle (Qt::ToolButtonTextOnly);
+    tb->setToolButtonStyle(Qt::ToolButtonTextOnly);
     const QPixmap rc = QPixmap::grabWidget(tb);
     tb->deleteLater();
     return rc;
