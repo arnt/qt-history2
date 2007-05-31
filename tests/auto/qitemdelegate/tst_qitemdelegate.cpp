@@ -390,7 +390,6 @@ void tst_QItemDelegate::font()
     QApplication::processEvents();
 
     QCOMPARE(delegate->displayText, item->text());
-    QCOMPARE(delegate->displayFont, item->font());
     if (properties.contains("italic")) {
         QCOMPARE(delegate->displayFont.italic(), item->font().italic());
     }
@@ -400,7 +399,6 @@ void tst_QItemDelegate::font()
     if (properties.contains("family")){
         QCOMPARE(delegate->displayFont.family(), item->font().family());
     }
-    QCOMPARE(delegate->displayFont, item->font());
 }
 
 //Testing the different QRect created by the doLayout function.
