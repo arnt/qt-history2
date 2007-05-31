@@ -1600,12 +1600,16 @@ void tst_QMdiArea::dontMaximizeSubWindowOnActivation()
 void tst_QMdiArea::delayedPlacement()
 {
     QMdiArea mdiArea;
+    mdiArea.resize(400, 400);
 
     QMdiSubWindow *window1 = mdiArea.addSubWindow(new QWidget);
     QCOMPARE(window1->geometry().topLeft(), QPoint(0, 0));
 
     QMdiSubWindow *window2 = mdiArea.addSubWindow(new QWidget);
     QCOMPARE(window2->geometry().topLeft(), QPoint(0, 0));
+
+    QMdiSubWindow *window3 = mdiArea.addSubWindow(new QWidget);
+    QCOMPARE(window3->geometry().topLeft(), QPoint(0, 0));
 
     mdiArea.show();
 #ifdef Q_WS_X11
@@ -1614,6 +1618,7 @@ void tst_QMdiArea::delayedPlacement()
 
     QCOMPARE(window1->geometry().topLeft(), QPoint(0, 0));
     QCOMPARE(window2->geometry().topLeft(), window1->geometry().topRight() + QPoint(1, 0));
+    QCOMPARE(window3->geometry().topLeft(), window2->geometry().topRight() + QPoint(1, 0));
 }
 
 void tst_QMdiArea::iconGeometryInMenuBar()
