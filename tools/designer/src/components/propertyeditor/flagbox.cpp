@@ -45,3 +45,9 @@ void FlagBox::slotActivated(int index)
     Qt::CheckState state = static_cast<Qt::CheckState>(value.toInt());
     setItemData(index, (state == Qt::Unchecked ? Qt::Checked : Qt::Unchecked), Qt::CheckStateRole);
 }
+
+void  FlagBox::hidePopup()
+{
+    if (!view()->underMouse())
+        QComboBox::hidePopup();
+}

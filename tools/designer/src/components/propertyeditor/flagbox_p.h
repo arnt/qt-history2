@@ -51,7 +51,7 @@ public:
     inline void setItems(const QList<FlagBoxModelItem> &items)
     { m_model->setItems(items); }
 
-    inline void hidePopup() {}
+    virtual void hidePopup();
 
 private slots:
     void slotActivated(int index);
