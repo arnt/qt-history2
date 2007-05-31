@@ -221,8 +221,12 @@ public Q_SLOTS:
 
     void myOverloadedSlot()
         { m_qtFunctionInvoked = 24; }
+    void myOverloadedSlot(QObject *arg)
+        { m_qtFunctionInvoked = 41; m_actuals << arg; }
     void myOverloadedSlot(bool arg)
         { m_qtFunctionInvoked = 25; m_actuals << arg; }
+    void myOverloadedSlot(const QStringList &arg)
+        { m_qtFunctionInvoked = 42; m_actuals << arg; }
     void myOverloadedSlot(double arg)
         { m_qtFunctionInvoked = 26; m_actuals << arg; }
     void myOverloadedSlot(float arg)
@@ -1407,6 +1411,21 @@ void tst_QScriptExtQObject::overloadedSlots()
     QScriptValue f = m_engine->evaluate("myObject.myOverloadedSlot");
     f.call(QScriptValue(), QScriptValueList() << m_engine->newVariant(QVariant("ciao")));
     QCOMPARE(m_myObject->qtFunctionInvoked(), 35);
+
+    // should pick myOverloadedSlot(QObject*)
+    m_myObject->resetQtFunctionInvoked();
+    m_engine->evaluate("myObject.myOverloadedSlot(myObject)");
+    QCOMPARE(m_myObject->qtFunctionInvoked(), 41);
+
+    // should pick myOverloadedSlot(QObject*)
+    m_myObject->resetQtFunctionInvoked();
+    m_engine->evaluate("myObject.myOverloadedSlot(null)");
+    QCOMPARE(m_myObject->qtFunctionInvoked(), 41);
+
+    // should pick myOverloadedSlot(QStringList)
+    m_myObject->resetQtFunctionInvoked();
+    m_engine->evaluate("myObject.myOverloadedSlot(['hello'])");
+    QCOMPARE(m_myObject->qtFunctionInvoked(), 42);
 }
 
 void tst_QScriptExtQObject::enumerate_data()

@@ -1179,6 +1179,38 @@ void QScript::QtFunction::execute(QScriptContextPrivate *context)
                     } else {
                         matchDistance += 10;
                     }
+                } else if (actual.isArray()) {
+                    switch (tid) {
+                    case QMetaType::QStringList:
+                    case QMetaType::QVariantList:
+                        matchDistance += 5;
+                        break;
+                    default:
+                        matchDistance += 10;
+                        break;
+                    }
+                } else if (actual.isQObject()) {
+                    switch (tid) {
+                    case QMetaType::QObjectStar:
+                    case QMetaType::QWidgetStar:
+                        // perfect
+                        break;
+                    default:
+                        matchDistance += 10;
+                        break;
+                    }
+                } else if (actual.isNull()) {
+                    switch (tid) {
+                    case QMetaType::VoidStar:
+                    case QMetaType::QObjectStar:
+                    case QMetaType::QWidgetStar:
+                        // perfect
+                        break;
+                    default:
+                        if (!argType.name().endsWith('*'))
+                            matchDistance += 10;
+                        break;
+                    }
                 }
             }
 
