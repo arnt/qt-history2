@@ -463,27 +463,28 @@ public:
             QTest::qWait(1);
         }
 
-        QVERIFY(consumer.lock());
         char *memory = (char*)consumer.data();
-        memory[1]++;
-        QVERIFY(consumer.unlock());
+        bool set = false;
 
         int i = 0;
         while (true) {
             QTest::qWait(1);
             QVERIFY(consumer.lock());
-            if (memory[0] == 'Q')
+            if (memory[0] == 'Q') {
                 memory[0] = ++i;
+                if (!set) {
+                    memory[1]++;
+                    set = true;
+                }
+            }
             if (memory[0] == 'E') {
+                if (set)
+                    --memory[1];
                 QVERIFY(consumer.unlock());
                 break;
             }
             QVERIFY(consumer.unlock());
         }
-
-        QVERIFY(consumer.lock());
-        --memory[1];
-        QVERIFY(consumer.unlock());
 
         QVERIFY(consumer.detach());
     }
@@ -528,13 +529,12 @@ public:
         // wait for the children to die
         while (true) {
             QVERIFY(producer.lock());
-            if ((int)put[1] == 1) {
+            if ((int)put[1] <= 1) {
                 QVERIFY(producer.unlock());
                 break;
             }
             QVERIFY(producer.unlock());
         }
-
     }
 private:
 
@@ -544,8 +544,7 @@ void tst_QSharedMemory::simpleThreadedProducerConsumer_data()
 {
     QTest::addColumn<bool>("producerIsThread");
     QTest::addColumn<int>("threads");
-
-    for (int i = 0; i < 20; ++i) {
+    for (int i = 0; i < 10; ++i) {
         QTest::newRow("1 consumer, producer is thread") << true << 1;
         QTest::newRow("1 consumer, producer is this") << false << 1;
         QTest::newRow("5 consumers, producer is thread") << true << 5;
@@ -562,16 +561,17 @@ void tst_QSharedMemory::simpleThreadedProducerConsumer()
     QFETCH(int, threads);
     rememberKey(QLatin1String("market"));
 
+    Producer p;
+    if (producerIsThread)
+        p.start();
+
     QList<Consumer*> consumers;
     for (int i = 0; i < threads; ++i) {
         consumers.append(new Consumer());
         consumers.last()->start();
     }
 
-    Producer p;
-    if (producerIsThread)
-        p.start();
-    else
+    if (!producerIsThread)
         p.run();
 
     p.wait();
