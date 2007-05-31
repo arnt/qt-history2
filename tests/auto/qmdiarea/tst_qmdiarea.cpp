@@ -1115,13 +1115,34 @@ void tst_QMdiArea::subWindowList()
     qApp->processEvents();
     QCOMPARE(workspace.activeSubWindow(), windows[activeSubWindow]);
 
-    {
     QList<QMdiSubWindow *> widgets = workspace.subWindowList(windowOrder);
     QCOMPARE(widgets.count(), windowCount);
     QCOMPARE(widgets.at(widgets.count() - 1), windows[staysOnTop2]);
     QCOMPARE(widgets.at(widgets.count() - 2), windows[staysOnTop1]);
     QCOMPARE(widgets.at(widgets.count() - 3), windows[activeSubWindow]);
-    }
+
+    windows[activeSubWindow]->raise();
+    windows[staysOnTop2]->lower();
+
+    widgets = workspace.subWindowList(windowOrder);
+    QCOMPARE(widgets.at(widgets.count() - 1), windows[activeSubWindow]);
+    QCOMPARE(widgets.at(widgets.count() - 2), windows[staysOnTop1]);
+    QCOMPARE(widgets.at(0), windows[staysOnTop2]);
+
+    windows[activeSubWindow]->stackUnder(windows[staysOnTop1]);
+    windows[staysOnTop2]->raise();
+
+    widgets = workspace.subWindowList(windowOrder);
+    QCOMPARE(widgets.at(widgets.count() - 1), windows[staysOnTop2]);
+    QCOMPARE(widgets.at(widgets.count() - 2), windows[staysOnTop1]);
+    QCOMPARE(widgets.at(widgets.count() - 3), windows[activeSubWindow]);
+
+    workspace.setActiveSubWindow(windows[staysOnTop1]);
+
+    widgets = workspace.subWindowList(windowOrder);
+    QCOMPARE(widgets.at(widgets.count() - 1), windows[staysOnTop1]);
+    QCOMPARE(widgets.at(widgets.count() - 2), windows[staysOnTop2]);
+    QCOMPARE(widgets.at(widgets.count() - 3), windows[activeSubWindow]);
 }
 
 void tst_QMdiArea::setBackground()
