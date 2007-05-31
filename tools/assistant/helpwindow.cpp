@@ -154,6 +154,16 @@ void HelpWindow::contextMenuEvent(QContextMenuEvent *e)
 
 void HelpWindow::mouseReleaseEvent(QMouseEvent *e)
 {
+    if (e->button() == Qt::XButton1) {
+        QTextBrowser::backward();
+        return;
+    } 
+    
+    if (e->button() == Qt::XButton2) {
+        QTextBrowser::forward();
+        return;
+    }
+
     if (e->button() == Qt::MidButton && hasAnchorAt(e->pos())) {
         openLinkInNewPage();
         return;
