@@ -335,6 +335,7 @@ void tst_QItemDelegate::editorKeyPress()
 void tst_QItemDelegate::font_data()
 {
     QTest::addColumn<QString>("itemText");
+    QTest::addColumn<QString>("properties");
     QTest::addColumn<QFont>("itemFont");
     QTest::addColumn<QFont>("viewFont");
 
@@ -344,15 +345,33 @@ void tst_QItemDelegate::font_data()
 
     QTest::newRow("foo italic")
         << QString("foo")
+        << QString("italic")
         << itemFont
         << viewFont;
-}
+
+    itemFont.setItalic(true);
+
+    QTest::newRow("foo bold")
+        << QString("foo")
+        << QString("bold")
+        << itemFont
+        << viewFont;
+        
+    itemFont.setFamily(itemFont.defaultFamily());
+
+    QTest::newRow("foo family")
+        << QString("foo")
+        << QString("family")
+        << itemFont
+        << viewFont;
+ }
 
 void tst_QItemDelegate::font()
 {
     Q_CHECK_PAINTEVENTS
 
     QFETCH(QString, itemText);
+    QFETCH(QString, properties);
     QFETCH(QFont, itemFont);
     QFETCH(QFont, viewFont);
 
@@ -371,6 +390,16 @@ void tst_QItemDelegate::font()
     QApplication::processEvents();
 
     QCOMPARE(delegate->displayText, item->text());
+    QCOMPARE(delegate->displayFont, item->font());
+    if (properties.contains("italic")) {
+        QCOMPARE(delegate->displayFont.italic(), item->font().italic());
+    }
+    if (properties.contains("bold")){
+        QCOMPARE(delegate->displayFont.bold(), item->font().bold());
+    }
+    if (properties.contains("family")){
+        QCOMPARE(delegate->displayFont.family(), item->font().family());
+    }
     QCOMPARE(delegate->displayFont, item->font());
 }
 
