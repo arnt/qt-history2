@@ -443,7 +443,7 @@ void tst_QSharedMemory::simpleProducerConsumer()
 
     char *put = (char*)producer.data();
     char *get = (char*)consumer.data();
-    QVERIFY((int)put != (int)get);
+    QVERIFY(put != get);
     for (int i = 0; i < size; ++i) {
         put[i] = 'Q';
         QCOMPARE(get[i], 'Q');
