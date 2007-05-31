@@ -257,8 +257,13 @@ bool QSQLiteResult::prepare(const QString &query)
 
     setSelect(false);
 
+#if (SQLITE_VERSION_NUMBER >= 3003011)
+    int res = sqlite3_prepare16_v2(d->access, query.constData(), (query.size() + 1) * sizeof(QChar),
+                                   &d->stmt, 0);
+#else
     int res = sqlite3_prepare16(d->access, query.constData(), (query.size() + 1) * sizeof(QChar),
                                 &d->stmt, 0);
+#endif
 
     if (res != SQLITE_OK) {
         setLastError(qMakeError(d->access, QCoreApplication::translate("QSQLiteResult",
