@@ -1,7 +1,7 @@
 function QVERIFY(x, debugInfo) {
     if (!(x)) {
         print(debugInfo);
-        throw(debugInfo + " " + x);
+        throw(debugInfo);
     }
 }
 
