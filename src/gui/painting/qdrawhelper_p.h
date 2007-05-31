@@ -263,9 +263,10 @@ template <>
 inline quint8 qt_colorConvert(quint32 color, quint8 dummy)
 {
     Q_UNUSED(dummy);
-    uchar r = (qRed(color) + 0x19) / 0x33;
-    uchar g = (qGreen(color) + 0x19) / 0x33;
-    uchar b = (qBlue(color) + 0x19) / 0x33;
+
+    uchar r = ((qRed(color) & 0xf8) + 0x19) / 0x33;
+    uchar g = ((qGreen(color) &0xf8) + 0x19) / 0x33;
+    uchar b = ((qBlue(color) &0xf8) + 0x19) / 0x33;
 
     return r*6*6 + g*6 + b;
 }
@@ -274,7 +275,16 @@ template <>
 inline quint8 qt_colorConvert(quint16 color, quint8 dummy)
 {
     Q_UNUSED(dummy);
-    return qt_colorConvert<quint8, quint32>(qt_conv16ToRgb(color), 0);
+
+    uchar r = (color & 0xf800) >> (11-3);
+    uchar g = (color & 0x07c0) >> (6-3);
+    uchar b = (color & 0x001f) << 3;
+
+    uchar tr = (r + 0x19) / 0x33;
+    uchar tg = (g + 0x19) / 0x33;
+    uchar tb = (b + 0x19) / 0x33;
+
+    return tr*6*6 + tg*6 + tb;
 }
 #endif // QT_QWS_DEPTH_8
 
