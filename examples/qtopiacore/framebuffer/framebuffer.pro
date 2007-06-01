@@ -1,5 +1,6 @@
 TEMPLATE = app
 TARGET = framebuffer
+CONFIG -= qt
 
 SOURCES += main.c
 

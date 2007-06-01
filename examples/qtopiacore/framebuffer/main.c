@@ -217,7 +217,7 @@ int main(int argc, char **argv)
 	exit(2);
     }
 
-    printFixedInfo(finfo);
+    printFixedInfo();
 
     /* Figure out the size of the screen in bytes */
     screensize = finfo.smem_len;
@@ -242,7 +242,7 @@ int main(int argc, char **argv)
 	exit(3);
     }
 
-    printVariableInfo(vinfo);
+    printVariableInfo();
 
     printf("Will draw 3 rectangles on the screen,\n"
            "they should be colored red, green and blue (in that order).\n");
