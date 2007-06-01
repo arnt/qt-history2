@@ -85,7 +85,7 @@ Q_GUI_EXPORT void *guaranteed_memset(void *v,int c,size_t n)
   QTransportAuth::Data *conData;
   QTransportAuth *a = QTransportAuth::getInstance();
 
-  conData = a->QTransportconnectTransport(
+  conData = a->connectTransport(
         QTransportAuth::Trusted | QTransportAuth::UnixStreamSock,
         socketDescriptor );
   \endcode
@@ -258,16 +258,9 @@ void QTransportAuth::registerPolicyReceiver( QObject *pr )
     d->policyReceivers.append(guard);
     // not every policy receiver needs setup - no error if this fails
     QMetaObject::invokeMethod( pr, "setupPolicyCheck" );
-    if ( d->buffers.count() > 0 )
-    {
-        QHash<QTransportAuth::Data*,QAuthDevice*>::iterator it = d->buffers.begin();
-        while ( it != d->buffers.end() )
-        {
-            connect( it.value(), SIGNAL(policyCheck(QTransportAuth::Data&,QString)),
-                pr, SLOT(policyCheck(QTransportAuth::Data&,QString)));
-            ++it;
-        }
-    }
+
+    connect( this, SIGNAL(policyCheck(QTransportAuth::Data&,QString)),
+             pr, SLOT(policyCheck(QTransportAuth::Data&,QString)), Qt::DirectConnection );
 }
 
 /*!
@@ -281,15 +274,8 @@ void QTransportAuth::unregisterPolicyReceiver( QObject *pr )
     if ( !d->policyReceivers.contains( guard ))
         return;
     d->policyReceivers.removeAll(guard);
-    if ( d->buffers.count() > 0 )
-    {
-        QHash<QTransportAuth::Data*,QAuthDevice*>::iterator it = d->buffers.begin();
-        while ( it != d->buffers.end() )
-        {
-            it.value()->disconnect( pr );
-            ++it;
-        }
-    }
+
+    disconnect( pr );
     // not every policy receiver needs tear down - no error if this fails
     QMetaObject::invokeMethod( pr, "teardownPolicyCheck" );
 }
@@ -482,11 +468,7 @@ QAuthDevice *QTransportAuth::recvBuf( QTransportAuth::Data *data, QIODevice *iod
     if (d->buffers.contains(data))
         return d->buffers[data];
     QAuthDevice *authBuf = new QAuthDevice( iod, data, QAuthDevice::Receive );
-    for ( int i = 0; i < d->policyReceivers.count(); ++i )
-    {
-        connect( authBuf, SIGNAL(policyCheck(QTransportAuth::Data&,QString)),
-                d->policyReceivers[i], SLOT(policyCheck(QTransportAuth::Data&,QString)));
-    }
+
     // qDebug( "created new authbuf %p", authBuf );
     d->buffers[data] = authBuf;
     return authBuf;
@@ -551,6 +533,65 @@ void QTransportAuth::bufferDestroyed( QObject *cli )
         // qDebug( "@@@@@@@ client %p removed @@@@@@@@@", cli );
     }
     // qDebug( "           client count %d", d->buffersByClient.count() );
+}
+
+bool QTransportAuth::authorizeRequest( QTransportAuth::Data &d, const QString &request )
+{
+    bool isAuthorized = true;
+
+    if ( !request.isEmpty() && request != "Unknown" )
+    {
+        d.status &= QTransportAuth::ErrMask;  // clear the status
+        emit policyCheck( d, request );
+        isAuthorized = (( d.status & QTransportAuth::StatusMask ) == QTransportAuth::Allow );
+    }
+#if defined(SXE_DISCOVERY)
+    if (isDiscoveryMode()) {
+#ifndef QT_NO_TEXTSTREAM
+        if (!logFilePath().isEmpty()) {
+            QFile log( logFilePath() );
+            if (!log.open(QIODevice::WriteOnly | QIODevice::Append)) {
+                qWarning("Could not write to log in discovery mode: %s",
+                         qPrintable(logFilePath()));
+            } else {
+                QTextStream ts( &log );
+                ts << d.progId << '\t' << ( isAuthorized ? "Allow" : "Deny" ) << '\t' << request << endl;
+            }
+        }
+#endif
+        isAuthorized = true;
+    }
+#endif
+    if ( !isAuthorized )
+    {
+        qWarning( "%s - denied: for Program Id %u [PID %d]"
+                , qPrintable(request), d.progId, d.processId );
+
+        char linkTarget[BUF_SIZE];
+        char exeLink[BUF_SIZE];
+        QString appIdentifier;
+        memset( linkTarget, 0, sizeof( char )*BUF_SIZE );
+        memset( exeLink, 0, sizeof( char )*BUF_SIZE );
+        snprintf( exeLink, BUF_SIZE, "/proc/%d/exe", d.processId );
+        int rc = ::readlink( exeLink, linkTarget, BUF_SIZE );
+
+        if ( rc == -1 )
+        {
+            syslog( LOG_ERR | LOG_LOCAL6, "SXE:- Error encountered in retrieving exe for pid %u : %s", 
+                d.processId, strerror(errno) );
+            appIdentifier = "Unknown";
+        }
+        else
+        {
+            appIdentifier = QString::fromLatin1( linkTarget ); 
+        }
+
+        syslog( LOG_ERR | LOG_LOCAL6, "%s PID:%u ProgId:%u Request:%s Exe:%s",
+                "<SXE Breach>", d.processId, d.progId, qPrintable(request), qPrintable(appIdentifier));
+
+    }
+
+    return isAuthorized;
 }
 
 inline bool __fileOpen( QFile *f )
@@ -886,7 +927,7 @@ qint64 QAuthDevice::writeData(const char *data, qint64 len)
     char header[QSXE_HEADER_LEN];
     ::memset( header, 0, QSXE_HEADER_LEN );
     qint64 bytes = 0;
-    if ( authToMessage( *d, header, data, len ))
+    if ( QTransportAuth::getInstance()->authToMessage( *d, header, data, len ))
     {
         m_target->write( header, QSXE_HEADER_LEN );
 #ifdef QTRANSPORTAUTH_DEBUG
@@ -985,7 +1026,7 @@ void QAuthDevice::recvReadyRead()
     while ( bufHasMessages )
     {
         unsigned char saveStatus = d->status;
-        if ( !authFromMessage( *d, msgQueue, msgQueue.size() ))
+        if ( !QTransportAuth::getInstance()->authFromMessage( *d, msgQueue, msgQueue.size() ))
         {
             // not all arrived yet?  come back later
             if (( d->status & QTransportAuth::ErrMask ) == QTransportAuth::TooSmall )
@@ -1049,30 +1090,12 @@ bool QAuthDevice::authorizeMessage()
     if ( analyzer->requireMoreData() )
         return false;
     bool isAuthorized = true;
-    QTransportAuth *auth = QTransportAuth::getInstance();
+
     if ( !request.isEmpty() && request != "Unknown" )
     {
-        d->status &= QTransportAuth::ErrMask;  // clear the status
-        emit policyCheck( *d, request );
-        isAuthorized = (( d->status & QTransportAuth::StatusMask ) == QTransportAuth::Allow );
+        isAuthorized = QTransportAuth::getInstance()->authorizeRequest( *d, request );
     }
-#if defined(SXE_DISCOVERY)
-    if (auth->isDiscoveryMode()) {
-#ifndef QT_NO_TEXTSTREAM
-        if (!auth->logFilePath().isEmpty()) {
-            QFile log( auth->logFilePath() );
-            if (!log.open(QIODevice::WriteOnly | QIODevice::Append)) {
-                qWarning("Could not write to log in discovery mode: %s",
-                         qPrintable(auth->logFilePath()));
-            } else {
-                QTextStream ts( &log );
-                ts << d->progId << '\t' << ( isAuthorized ? "Allow" : "Deny" ) << '\t' << request << endl;
-            }
-        }
-#endif
-        isAuthorized = true;
-    }
-#endif
+
     bool moreToProcess = ( msgQueue.size() - analyzer->bytesAnalyzed() ) > (int)sizeof(int);
     if ( isAuthorized )
     {
@@ -1085,32 +1108,9 @@ bool QAuthDevice::authorizeMessage()
     }
     else
     {
-        qWarning( "%s - denied: for Program Id %u [PID %d]"
-                , qPrintable(request), d->progId, d->processId );
         msgQueue = msgQueue.mid( analyzer->bytesAnalyzed() );
-
-        char linkTarget[BUF_SIZE];
-        char exeLink[BUF_SIZE];
-        QString appIdentifier;
-        memset( linkTarget, 0, sizeof( char )*BUF_SIZE );
-        memset( exeLink, 0, sizeof( char )*BUF_SIZE );
-        snprintf( exeLink, BUF_SIZE, "/proc/%d/exe", d->processId );
-        int rc = ::readlink( exeLink, linkTarget, BUF_SIZE );
-        
-        if ( rc == -1 )
-        {
-            syslog( LOG_ERR | LOG_LOCAL6, "SXE:- Error encountered in retrieving exe for pid %u : %s", 
-                d->processId, strerror(errno) );
-            appIdentifier = "Unknown";
-        }
-        else
-        {
-            appIdentifier = QString::fromLatin1( linkTarget ); 
-        }
-    
-        syslog( LOG_ERR | LOG_LOCAL6, "%s PID:%u ProgId:%u Request:%s Exe:%s",
-                "<SXE Breach>", d->processId, d->progId, qPrintable(request), qPrintable(appIdentifier));
     }
+
     return true;
 }
 
@@ -1138,17 +1138,16 @@ void QAuthDevice::setRequestAnalyzer( RequestAnalyzer *ra )
    Returns true if header successfully added.  Will fail if the
    per-process key has not yet been set with setProcessKey()
 */
-bool QAuthDevice::authToMessage( QTransportAuth::Data &d, char *hdr, const char *msg, int msgLen )
+bool QTransportAuth::authToMessage( QTransportAuth::Data &d, char *hdr, const char *msg, int msgLen )
 {
     // qDebug( "authToMessage(): prog id %u", d.progId );
-    QTransportAuth *a = QTransportAuth::getInstance();
     // only authorize connection oriented transports once, unless key has changed
-    if ( !a->d_func()->keyChanged && d.connection() &&
+    if ( !d_func()->keyChanged && d.connection() &&
             (( d.status & QTransportAuth::ErrMask ) != QTransportAuth::Pending ))
         return false;
-    a->d_func()->keyChanged = false;
+    d_func()->keyChanged = false;
     // If Unix socket credentials are being used the key wont be set
-    if ( ! a->d_func()->keyInitialised )
+    if ( !d_func()->keyInitialised )
         return false;
     unsigned char digest[QSXE_KEY_LEN];
     char *msgPtr = hdr;
@@ -1159,24 +1158,24 @@ bool QAuthDevice::authToMessage( QTransportAuth::Data &d, char *hdr, const char 
     if ( !d.trusted())
     {
         // Use HMAC
-        int rc = hmac_md5( (unsigned char *)msg, msgLen, a->d_func()->authKey.key, QSXE_KEY_LEN, digest );
+        int rc = hmac_md5( (unsigned char *)msg, msgLen, d_func()->authKey.key, QSXE_KEY_LEN, digest );
         if ( rc == -1 )
             return false;
         memcpy( hdr + QSXE_KEY_IDX, digest, QSXE_KEY_LEN );
     }
     else
     {
-        memcpy( hdr + QSXE_KEY_IDX, a->d_func()->authKey.key, QSXE_KEY_LEN );
+        memcpy( hdr + QSXE_KEY_IDX, d_func()->authKey.key, QSXE_KEY_LEN );
     }
 
-    hdr[ QSXE_PROG_IDX ] = a->d_func()->authKey.progId;
+    hdr[ QSXE_PROG_IDX ] = d_func()->authKey.progId;
 
 #ifdef QTRANSPORTAUTH_DEBUG
     char keydisplay[QSXE_KEY_LEN*2+1];
-    hexstring( keydisplay, a->d_func()->authKey.key, QSXE_KEY_LEN );
+    hexstring( keydisplay, d_func()->authKey.key, QSXE_KEY_LEN );
 
     qDebug( "%d CLIENT Auth to message %s against prog id %u and key %s\n",
-            getpid(), msg, a->d_func()->authKey.progId, keydisplay );
+            getpid(), msg, d_func()->authKey.progId, keydisplay );
 #endif
 
     // TODO implement sequence to prevent replay attack, not required
@@ -1237,7 +1236,7 @@ bool QAuthDevice::authToMessage( QTransportAuth::Data &d, char *hdr, const char 
       qWarning( "error: %s", QTransportAuth::errorStrings[r] );
   \endcode
 */
-bool QAuthDevice::authFromMessage( QTransportAuth::Data &d, const char *msg, int msgLen )
+bool QTransportAuth::authFromMessage( QTransportAuth::Data &d, const char *msg, int msgLen )
 {
     if ( msgLen < QSXE_MAGIC_BYTES )
     {
@@ -1255,7 +1254,7 @@ bool QAuthDevice::authFromMessage( QTransportAuth::Data &d, const char *msg, int
             return false;
         }
     }
-    QTransportAuth *a = QTransportAuth::getInstance();
+
     if ( msgLen < AUTH_SPACE(1) )
     {
         d.status = ( d.status & QTransportAuth::StatusMask ) | QTransportAuth::TooSmall;
@@ -1283,7 +1282,7 @@ bool QAuthDevice::authFromMessage( QTransportAuth::Data &d, const char *msg, int
         d.status = ( d.status & QTransportAuth::StatusMask ) | QTransportAuth::TooSmall;
         return false;
     }
-    const unsigned char *clientKey = a->d_func()->getClientKey( d.progId );
+    const unsigned char *clientKey = d_func()->getClientKey( d.progId );
     if ( clientKey == NULL )
     {
         d.status = ( d.status & QTransportAuth::StatusMask ) | QTransportAuth::NoSuchKey;

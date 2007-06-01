@@ -120,6 +120,14 @@ public:
     void registerPolicyReceiver( QObject * );
     void unregisterPolicyReceiver( QObject * );
 
+    bool authToMessage( QTransportAuth::Data &d, char *hdr, const char *msg, int msgLen );
+    bool authFromMessage( QTransportAuth::Data &d, const char *msg, int msgLen );
+
+    bool authorizeRequest( QTransportAuth::Data &d, const QString &request );
+
+signals:
+    void policyCheck( QTransportAuth::Data &, const QString & );
+    void authViolation( QTransportAuth::Data & );
 private slots:
     void bufferDestroyed( QObject * );
 

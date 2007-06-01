@@ -92,8 +92,6 @@ public:
     QIODevice *target() const { return m_target; }
     void setClient( QObject* );
     QObject *client() const;
-    bool authToMessage( QTransportAuth::Data &, char *, const char *, int );
-    bool authFromMessage( QTransportAuth::Data &, const char *, int );
     void setRequestAnalyzer( RequestAnalyzer * );
     bool isSequential() const;
     bool atEnd() const;
@@ -101,9 +99,7 @@ public:
     qint64 bytesToWrite() const;
     bool seek( qint64 );
     QByteArray & buffer();
-Q_SIGNALS:
-    void authViolation( QTransportAuth::Data & );
-    void policyCheck( QTransportAuth::Data &, const QString & );
+
 protected:
     qint64 readData( char *, qint64 );
     qint64 writeData(const char *, qint64 );
