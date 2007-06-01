@@ -24,19 +24,12 @@
 #include <sys/shm.h>
 
 #include <sys/sem.h>
-#if defined(__GNU_LIBRARY__) && !defined(_SEM_SEMUN_UNDEFINED) \
-    || defined(Q_OS_FREEBSD) || defined(Q_OS_OPENBSD) \
-    || defined(Q_OS_NETBSD) || defined(Q_OS_BSDI) \
-    || defined(Q_OS_DARWIN)
-// semun already defined in sem.h
-#else
-// define it ourselves
-union semun {
+// We have to define this as on some sem.h will have it
+union qt_semun {
     int val;                    /* value for SETVAL */
     struct semid_ds *buf;       /* buffer for IPC_STAT, IPC_SET */
     unsigned short *array;      /* array for GETALL, SETALL */
 };
-#endif
 
 #define tr(x) QT_TRANSLATE_NOOP(QLatin1String("QSystemLock"), (x))
 
@@ -108,7 +101,7 @@ key_t QSystemLockPrivate::handle()
     } else {
         // Created semaphore, initialize value.
         createdSemaphore = true;
-        semun init_op;
+        qt_semun init_op;
         init_op.val = MAX_LOCKS;
         if (-1 == semctl(semaphore, 0, SETVAL, init_op)) {
             setErrorString(QLatin1String("QSystemLock::handle semctl"));

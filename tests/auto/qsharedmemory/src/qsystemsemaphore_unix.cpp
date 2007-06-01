@@ -24,19 +24,12 @@
 #include <sys/shm.h>
 
 #include <sys/sem.h>
-#if defined(__GNU_LIBRARY__) && !defined(_SEM_SEMUN_UNDEFINED) \
-    || defined(Q_OS_FREEBSD) || defined(Q_OS_OPENBSD) \
-    || defined(Q_OS_NETBSD) || defined(Q_OS_BSDI) \
-    || defined(Q_OS_DARWIN)
-// semun already defined in sem.h
-#else
-// define it ourselves
-union semun {
+// We have to define this as on some sem.h will have it
+union qt_semun {
     int val;                    /* value for SETVAL */
     struct semid_ds *buf;       /* buffer for IPC_STAT, IPC_SET */
     unsigned short *array;      /* array for GETALL, SETALL */
 };
-#endif
 
 QSystemSemaphorePrivate::QSystemSemaphorePrivate() :
         semaphore(-1), createdFile(false), createdSemaphore(false), unix_key(-1)
@@ -91,7 +84,7 @@ key_t QSystemSemaphorePrivate::handle(QSystemSemaphore::OpenMode mode)
 
     // Created semaphore so initialize its value.
     if (createdSemaphore && initialValue >= 0) {
-        semun init_op;
+        qt_semun init_op;
         init_op.val = initialValue;
         if (-1 == semctl(semaphore, 0, SETVAL, init_op)) {
             cleanHandle();
