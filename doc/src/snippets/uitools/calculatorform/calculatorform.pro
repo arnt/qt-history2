@@ -1,3 +1,3 @@
-TEMPLATE = app
-FORMS = calculatorform.ui
-SOURCES = main.cpp
+TEMPLATE    = app
+FORMS       = calculatorform.ui
+SOURCES     = main.cpp
