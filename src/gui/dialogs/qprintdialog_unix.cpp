@@ -1255,7 +1255,10 @@ bool QPrintDialogPrivate::setupPrinter()
 void QPrintDialogPrivate::updateWidgets()
 {
     Q_Q(QPrintDialog);
-    ui.gbPrintRange->setEnabled(q->isOptionEnabled(QPrintDialog::PrintPageRange));
+    ui.gbPrintRange->setEnabled(q->isOptionEnabled(QPrintDialog::PrintPageRange) ||
+                                q->isOptionEnabled(QPrintDialog::PrintSelection));
+
+    ui.rbPrintRange->setEnabled(q->isOptionEnabled(QPrintDialog::PrintPageRange));
     ui.rbPrintSelection->setEnabled(q->isOptionEnabled(QPrintDialog::PrintSelection));
     ui.chbPrintToFile->setEnabled(q->isOptionEnabled(QPrintDialog::PrintToFile));
     ui.chbCollate->setEnabled(q->isOptionEnabled(QPrintDialog::PrintCollateCopies));
