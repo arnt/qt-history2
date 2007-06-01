@@ -24,30 +24,28 @@ QSharedMemoryPrivate::QSharedMemoryPrivate() : QObjectPrivate(),
 
 void QSharedMemoryPrivate::setErrorString(const QString &function)
 {
-    Q_Q(QSharedMemory);
     BOOL windowsError = GetLastError();
     if (windowsError == 0)
         return;
     switch (windowsError) {
     case ERROR_ALREADY_EXISTS:
         error = QSharedMemory::AlreadyExists;
-        errorString = function + QLatin1String(": ") + q->tr("already exists");
+        errorString = QSharedMemory::tr("%1: already exists").arg(function);
     break;
     case ERROR_FILE_NOT_FOUND:
         error = QSharedMemory::NotFound;
-        errorString = function + QLatin1String(": ") + q->tr("doesn't exists");
+        errorString = QSharedMemory::tr("%1: doesn't exists").arg(function);
         break;
     case ERROR_COMMITMENT_LIMIT:
         error = QSharedMemory::InvalidSize;
-        errorString = function + QLatin1String(": ") + q->tr("invalid size");
+        errorString = QSharedMemory::tr("%1: invalid size").arg(function);
         break;
     case ERROR_NOT_ENOUGH_MEMORY:
-        errorString = function + QLatin1String(": ") + q->tr("out of resources");
         error = QSharedMemory::OutOfResources;
+        errorString = QSharedMemory::tr("%1: out of resources").arg(function);
         break;
     default:
-        errorString = function + QLatin1String(": ") + q->tr("unknown error")
-            + QLatin1Char(' ') + windowsError;
+        errorString = QSharedMemory::tr("%1: unknown error %2").arg(function).arg(windowsError);
         error = QSharedMemory::UnknownError;
 #if defined QSHAREDMEMORY_DEBUG
         qDebug() << errorString << "key" << key;
@@ -62,12 +60,12 @@ void QSharedMemoryPrivate::setErrorString(const QString &function)
 */
 HANDLE QSharedMemoryPrivate::handle()
 {
-    Q_Q(QSharedMemory);
     if (!hand) {
+        QString function = QLatin1String("QSharedMemory::handle:");
         QString safeKey = makePlatformSafeKey(key);
         if (safeKey.isEmpty()) {
             error = QSharedMemory::KeyError;
-            errorString = QLatin1String("QSharedMemory::handle: ") + q->tr("unable to make key");
+            errorString = QSharedMemory::tr("%1: unable to make key").arg(function);
             return false;
         }
     QT_WA({
@@ -76,7 +74,7 @@ HANDLE QSharedMemoryPrivate::handle()
             hand = OpenFileMappingA(FILE_MAP_ALL_ACCESS, false, safeKey.toLocal8Bit().constData());
         });
         if (!hand) {
-            setErrorString(QLatin1String("QSharedMemory::handle"));
+            setErrorString(function);
             return false;
         }
     }
@@ -101,12 +99,12 @@ bool QSharedMemoryPrivate::cleanHandle()
 
 bool QSharedMemoryPrivate::create(int size)
 {
-    Q_Q(QSharedMemory);
     // Get a windows acceptable key
     QString safeKey = makePlatformSafeKey(key);
+    QString function = QLatin1String("QSharedMemory::create");
     if (safeKey.isEmpty()) {
         error = QSharedMemory::KeyError;
-        errorString = QLatin1String("QSharedMemory::create: ") + q->tr("key error");
+        errorString = QSharedMemory::tr("%1: key error").arg(function);
         return false;
     }
 
@@ -118,7 +116,7 @@ bool QSharedMemoryPrivate::create(int size)
         hand = CreateFileMappingA(INVALID_HANDLE_VALUE,
                0, PAGE_READWRITE, 0, size, safeKey.toLocal8Bit().constData());
     } );
-    setErrorString(QLatin1String("QSharedMemory::create"));
+    setErrorString(function);
 
     // hand is valid when it already exists unlike unix so explicitly check
     if (error == QSharedMemory::AlreadyExists || !hand)
@@ -129,7 +127,6 @@ bool QSharedMemoryPrivate::create(int size)
 
 bool QSharedMemoryPrivate::attach(QSharedMemory::OpenMode mode)
 {
-    Q_Q(QSharedMemory);
     // Grab a pointer to the memory block
     int permisions = (mode == QSharedMemory::ReadOnly ? FILE_MAP_READ : FILE_MAP_ALL_ACCESS);
     memory = (void *)MapViewOfFile(handle(), permisions, 0, 0, 0);
@@ -145,7 +142,7 @@ bool QSharedMemoryPrivate::attach(QSharedMemory::OpenMode mode)
         // Windows doesn't set an error code on this one,
         // it should only be a kernel memory error.
         error = QSharedMemory::UnknownError;
-        errorString = QLatin1String("QSharedMemory::attach: ") + q->tr("size query failed");
+        errorString = QSharedMemory::tr("%1: size query failed").arg("QSharedMemory::attach: ");
         return false;
     }
     size = info.RegionSize;

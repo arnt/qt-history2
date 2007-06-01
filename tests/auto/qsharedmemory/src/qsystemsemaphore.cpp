@@ -29,7 +29,7 @@
       the semaphore is not automatically removed.  When setting the key
       you can force QSystemSemaphore to take ownership if it already exists
       and reset the number of resources to the requested amount.
-    * On Unix once the process exists Unix will automatically undo any
+    * On Unix once the process exits Unix will automatically undo any
       operations that occurred. So if a process acquires and then exits Unix
       will automatically release one.
 
@@ -42,7 +42,7 @@
     A system semaphore needs a key that every process can use to access the same semaphore.
 
     Example:
-     QSemaphore sem(QLatin1String("market"), 3);      // semaphore available == 3
+     QSemaphore sem("market", 3);      // semaphore available == 3
 
      sem.acquire();         // semaphores available == 2
      sem.acquire();         // semaphores available == 1

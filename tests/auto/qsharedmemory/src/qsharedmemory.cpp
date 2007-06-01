@@ -145,12 +145,13 @@ bool QSharedMemory::create(int size, OpenMode mode)
 {
     Q_D(QSharedMemory);
     QSharedMemoryLocker lock(this);
-    if (!d->checkLocker(&lock, QLatin1String("QSharedMemory::create")))
+    QString function = QLatin1String("QSharedMemory::create");
+    if (!d->tryLocker(&lock, function))
         return false;
 
     if (size <= 0) {
         d->error = QSharedMemory::InvalidSize;
-        d->errorString = QLatin1String("QSharedMemory::create: ") + tr("create size is less then 0");
+        d->errorString = QSharedMemory::tr("%1: create size is less then 0").arg(function);
         return false;
     }
 
@@ -190,7 +191,7 @@ bool QSharedMemory::attach(OpenMode mode)
 {
     Q_D(QSharedMemory);
     QSharedMemoryLocker lock(this);
-    if (!d->checkLocker(&lock, QLatin1String("QSharedMemory::attach")))
+    if (!d->tryLocker(&lock, QLatin1String("QSharedMemory::attach")))
         return false;
 
     if (isAttached() || !d->handle())
@@ -224,7 +225,7 @@ bool QSharedMemory::detach()
         return false;
 
     QSharedMemoryLocker lock(this);
-    if (!d->checkLocker(&lock, QLatin1String("QSharedMemory::detach")))
+    if (!d->tryLocker(&lock, QLatin1String("QSharedMemory::detach")))
         return false;
 
     return d->detach();

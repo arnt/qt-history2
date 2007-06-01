@@ -86,10 +86,9 @@ public:
 
     void setErrorString(const QString &function);
 
-    bool checkLocker(QSharedMemoryLocker *locker, const QString function) {
-        Q_Q(QSharedMemory);
+    bool tryLocker(QSharedMemoryLocker *locker, const QString function) {
         if (!locker->lock()) {
-            errorString = function + QLatin1String(": ") + q->tr("unable to lock");
+            errorString = QSharedMemory::tr("%1: unable to lock").arg(function);
             error = QSharedMemory::LockError;
             return false;
         }
