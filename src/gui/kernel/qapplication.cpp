@@ -2126,7 +2126,9 @@ void QApplication::setActiveWindow(QWidget* act)
         }
     }
 
+#if !defined(Q_WS_MAC)
     QWidget *previousActiveWindow =  QApplicationPrivate::active_window;
+#endif
     QApplicationPrivate::active_window = window;
 
     if (QApplicationPrivate::active_window) {
