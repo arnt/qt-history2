@@ -2872,10 +2872,14 @@ void QAbstractItemViewPrivate::_q_modelDestroyed()
 void QAbstractItemViewPrivate::_q_layoutChanged()
 {
     Q_Q(QAbstractItemView);
-    if (q->isVisible())
+    if (q->isVisible()) {
         q->doItemsLayout();
-    else
+        const QModelIndex current = q->currentIndex();
+        if (current.isValid())
+            q->scrollTo(current);
+    } else {
         doDelayedItemsLayout();
+    }
 }
 
 /*!
