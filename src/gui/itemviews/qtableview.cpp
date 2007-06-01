@@ -1607,7 +1607,7 @@ void QTableView::setSortingEnabled(bool enable)
     if (enable) {
         disconnect(d->horizontalHeader, SIGNAL(sectionEntered(int)),
                    this, SLOT(_q_selectColumn(int)));
-        disconnect(horizontalHeader(), SIGNAL(sectionEntered(int)),
+        disconnect(horizontalHeader(), SIGNAL(sectionPressed(int)),
                    this, SLOT(selectColumn(int)));
         connect(horizontalHeader(), SIGNAL(sectionClicked(int)),
                 this, SLOT(sortByColumn(int)));
