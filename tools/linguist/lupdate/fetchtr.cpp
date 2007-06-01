@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
+#include "lupdate.h"
 #include <metatranslator.h>
-
 #include <QFile>
 #include <QRegExp>
 #include <QString>
@@ -282,10 +282,9 @@ static int getToken()
                     while ( !metAsterSlash ) {
                         yyCh = getChar();
                         if ( yyCh == EOF ) {
-                            fprintf( stderr,
-                                     "%s: Unterminated C++ comment starting at"
+                            qWarning( "%s: Unterminated C++ comment starting at"
                                      " line %d\n",
-                                     (const char *) yyFileName, yyLineNo );
+                                     yyFileName.constData(), yyLineNo );
                             yyComment[yyCommentLen] = '\0';
                             return Tok_Comment;
                         }
@@ -881,18 +880,16 @@ static void parse( MetaTranslator *tor, const char *initialContext, const char *
     }
 
     if ( yyBraceDepth != 0 )
-        fprintf( stderr,
-                 "%s:%d: Unbalanced braces in C++ code (or abuse of the C++"
+        qWarning( "%s:%d: Unbalanced braces in C++ code (or abuse of the C++"
                   " preprocessor)\n",
-                  (const char *)yyFileName, yyBraceLineNo );
+                  yyFileName.constData(), yyBraceLineNo );
     else if ( yyParenDepth != 0 )
-        fprintf( stderr,
-                 "%s:%d: Unbalanced parentheses in C++ code (or abuse of the C++"
+        qWarning( "%s:%d: Unbalanced parentheses in C++ code (or abuse of the C++"
                  " preprocessor)\n",
-                 (const char *)yyFileName, yyParenLineNo );
+                 yyFileName.constData(), yyParenLineNo );
 }
 
-void fetchtr_cpp( const char *fileName, MetaTranslator *tor,
+void lupdateApplication::fetchtr_cpp( const char *fileName, MetaTranslator *tor,
                   const char *defaultContext, bool mustExist, const QByteArray &codecForSource )
 {
 #if defined(_MSC_VER) && _MSC_VER >= 1400
@@ -900,16 +897,14 @@ void fetchtr_cpp( const char *fileName, MetaTranslator *tor,
 		if ( mustExist ) {
 			char buf[100];
 			strerror_s(buf, sizeof(buf), errno);
-			fprintf( stderr,
-                     "lupdate error: Cannot open C++ source file '%s': %s\n",
+			qWarning( "lupdate error: Cannot open C++ source file '%s': %s\n",
                      fileName, buf );
 		}
 #else
     yyInFile = fopen( fileName, "r" );
     if ( yyInFile == 0 ) {
         if ( mustExist )
-            fprintf( stderr,
-                     "lupdate error: Cannot open C++ source file '%s': %s\n",
+            qWarning( "lupdate error: Cannot open C++ source file '%s': %s\n",
                      fileName, strerror(errno) );
 #endif
         return;
@@ -1029,7 +1024,7 @@ bool UiHandler::fatalError( const QXmlParseException& exception )
     msg.sprintf( "Parse error at line %d, column %d (%s).",
                  exception.lineNumber(), exception.columnNumber(),
                  exception.message().toLatin1().data() );
-    fprintf( stderr, "XML error: %s\n", msg.toLatin1().data() );
+    qWarning( "XML error: %s\n", msg.toLatin1().data() );
     return false;
 }
 
@@ -1043,7 +1038,7 @@ void UiHandler::flush()
     comment.truncate( 0 );
 }
 
-void fetchtr_ui( const char *fileName, MetaTranslator *tor,
+void lupdateApplication::fetchtr_ui( const char *fileName, MetaTranslator *tor,
                  const char * /* defaultContext */, bool mustExist )
 {
     QFile f( QString::fromLatin1(fileName) );
@@ -1052,10 +1047,10 @@ void fetchtr_ui( const char *fileName, MetaTranslator *tor,
 #if defined(_MSC_VER) && _MSC_VER >= 1400
 			char buf[100];
 			strerror_s(buf, sizeof(buf), errno);
-			fprintf( stderr, "lupdate error: cannot open UI file '%s': %s\n",
+			qWarning( "lupdate error: cannot open UI file '%s': %s\n",
                      fileName, buf );
 #else
-            fprintf( stderr, "lupdate error: cannot open UI file '%s': %s\n",
+            qWarning( "lupdate error: cannot open UI file '%s': %s\n",
                      fileName, strerror(errno) );
 #endif
 		}
@@ -1073,7 +1068,7 @@ void fetchtr_ui( const char *fileName, MetaTranslator *tor,
     reader.setErrorHandler( hand );
 
     if ( !reader.parse(in) )
-        fprintf( stderr, "%s: Parse error in UI file\n", fileName );
+        qWarning( "%s: Parse error in UI file\n", fileName );
     reader.setContentHandler( 0 );
     reader.setErrorHandler( 0 );
     delete hand;

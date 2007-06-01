@@ -8,7 +8,8 @@ build_all:!build_pass {
 }
 
 
-HEADERS         = ../shared/metatranslator.h \
+HEADERS         = lupdate.h \
+                  ../shared/metatranslator.h \
                   ../shared/translator.h \
                   ../shared/proparser.h \
                   ../shared/profileevaluator.h \
@@ -16,7 +17,9 @@ HEADERS         = ../shared/metatranslator.h \
                   ../shared/simtexth.h \
                   ../shared/xliff.h
 
-SOURCES         = fetchtr.cpp \
+                  
+SOURCES         = lupdate.cpp \
+                  fetchtr.cpp \
                   fetchtrjava.cpp \
                   main.cpp \
                   merge.cpp \

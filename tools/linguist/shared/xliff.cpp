@@ -548,7 +548,7 @@ bool XLIFFHandler::fatalError( const QXmlParseException& exception )
                  exception.lineNumber(), exception.columnNumber(),
                  exception.message().toLatin1().data() );
     if ( qApp == 0 )
-        fprintf( stderr, "XML error: %s\n", msg.toLatin1().data() );
+        qWarning("XML error: %s\n", msg.toLatin1().data() );
     else
         QMessageBox::information(0,
                                   QObject::tr("Qt Linguist"), msg );

@@ -1126,22 +1126,22 @@ void ProFileEvaluator::logMessage(const ProFileEvaluator::LogMessage &msg)
     QByteArray text = msg.m_msg.toAscii();
     switch (msg.m_type) {
         case MT_DebugLevel3:
-            fprintf(stderr, "%s profileevaluator information:    %s", locstr.data(), text.data());
+            qWarning("%s profileevaluator information:    %s", locstr.data(), text.data());
             break;
         case MT_DebugLevel2:
-            fprintf(stderr, "%s profileevaluator warning:        %s", locstr.data(), text.data());
+            qWarning("%s profileevaluator warning:        %s", locstr.data(), text.data());
             break;
         case MT_DebugLevel1:
-            fprintf(stderr, "%s profileevaluator critical error: %s", locstr.data(), text.data());
+            qWarning("%s profileevaluator critical error: %s", locstr.data(), text.data());
             break;
         case MT_ProMessage:
-            fprintf(stderr, "%s Project MESSAGE: %s", locstr.data(), text.data());
+            qWarning("%s Project MESSAGE: %s", locstr.data(), text.data());
             break;
         case MT_ProError:
-            fprintf(stderr, "%s Project ERROR: %s", locstr.data(), text.data());
+            qWarning("%s Project ERROR: %s", locstr.data(), text.data());
             break;
         case MT_Error:
-            fprintf(stderr, "%s ERROR: %s", locstr.data(), text.data());
+            qWarning("%s ERROR: %s", locstr.data(), text.data());
             break;
     }
 }

@@ -11,6 +11,7 @@
 **
 ****************************************************************************/
 
+#include "lupdate.h"
 #include "metatranslator.h"
 #include "simtexth.h"
 #include <stdio.h>
@@ -30,7 +31,7 @@ typedef QList<MetaTranslatorMessage> TML;
   translation yet.
 */
 
-void merge( const MetaTranslator *tor, const MetaTranslator *virginTor, MetaTranslator *outTor, bool verbose, bool noObsolete )
+void lupdateApplication::merge( const MetaTranslator *tor, const MetaTranslator *virginTor, MetaTranslator *outTor, bool verbose, bool noObsolete )
 {
     int known = 0;
     int neww = 0;
@@ -156,32 +157,23 @@ void merge( const MetaTranslator *tor, const MetaTranslator *virginTor, MetaTran
 
     if ( verbose ) {
         int totalFound = neww + known;
-        fprintf( stderr, "    Found %d source text%s (%d new and %d already existing)\n",
-            totalFound, totalFound == 1 ? "" : "s", neww, known);
+        Console::out(tr("    Found %n source text(s) (%1 new and %2 already existing)\n", 0, totalFound).arg(neww).arg(known));
 
         if (obsoleted) {
             if (noObsolete) {
-                fprintf( stderr, "    Removed %d obsolete entr%s\n", 
-                obsoleted, obsoleted == 1 ? "y" : "ies" );
+                Console::out(tr("    Removed %n obsolete entries\n", 0, obsoleted));
             } else {
                 int total = obsoleted - UntranslatedObsoleted;
-                fprintf( stderr, "    Kept %d obsolete translation%s\n", 
-                total, total == 1 ? "" : "s" );
-
-                fprintf( stderr, "    Removed %d obsolete untranslated entr%s\n", 
-                UntranslatedObsoleted, UntranslatedObsoleted == 1 ? "y" : "ies" );
-
+                Console::out(tr("    Kept %n obsolete translation(s)\n", 0, total));
+                Console::out(tr("    Removed %n obsolete untranslated entries\n", 0, UntranslatedObsoleted));
             }
         }
 
         if (sameNumberHeuristicCount) 
-            fprintf( stderr, "    Number heuristic provided %d translation%s\n", 
-                     sameNumberHeuristicCount, sameNumberHeuristicCount == 1 ? "" : "s" );
+            Console::out(tr("    Number heuristic provided %n translation(s)\n", 0, sameNumberHeuristicCount));
         if (sameTextHeuristicCount) 
-            fprintf( stderr, "    Same-text heuristic provided %d translation%s\n", 
-                     sameTextHeuristicCount, sameTextHeuristicCount == 1 ? "" : "s" );
+            Console::out(tr("    Same-text heuristic provided %n translation(s)\n", 0, sameTextHeuristicCount));
         if (similarTextHeuristicCount)
-            fprintf( stderr, "    Similar-text heuristic provided %d translation%s\n", 
-                     similarTextHeuristicCount, similarTextHeuristicCount == 1 ? "" : "s" );
+            Console::out(tr("    Similar-text heuristic provided %n translation(s)\n", 0, similarTextHeuristicCount));
     }
 }

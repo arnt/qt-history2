@@ -11,6 +11,7 @@
 **
 ****************************************************************************/
 
+#include "lupdate.h"
 #include <metatranslator.h>
 
 #include <QFile>
@@ -553,7 +554,7 @@ static void parse( MetaTranslator *tor )
                  (const char *)yyFileName, yyParenLineNo );
 }
 
-void fetchtr_java( const char *fileName,  MetaTranslator *tor,
+void lupdateApplication::fetchtr_java( const char *fileName,  MetaTranslator *tor,
                    const char *defaultContext, bool mustExist, const QByteArray &codecForSource )
 {
     yyDefaultContext = defaultContext;   
