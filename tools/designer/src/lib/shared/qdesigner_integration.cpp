@@ -312,4 +312,10 @@ void QDesignerIntegration::updateCustomWidgetPlugins()
         wb->setLoadMode(oldLoadMode);
     }
 }
+
+void QDesignerIntegration::emitObjectNameChanged(QDesignerFormWindowInterface *formWindow, QObject *object, const QString &name)
+{
+    emit objectNameChanged(formWindow, object, name);
+}
+
 } // namespace qdesigner_internal

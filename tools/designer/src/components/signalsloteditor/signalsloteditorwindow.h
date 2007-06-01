@@ -42,6 +42,8 @@ private slots:
     void updateDialogSelection(Connection *con);
     void updateEditorSelection(const QModelIndex &index);
 
+    void objectNameChanged(QDesignerFormWindowInterface *formWindow, QObject *object, const QString &name);
+
     void addConnection();
     void removeConnection();
     void updateUi();
@@ -50,6 +52,7 @@ private:
     QTreeView *m_view;
     QPointer<SignalSlotEditor> m_editor;
     QToolButton *m_add_button, *m_remove_button;
+    QDesignerFormEditorInterface *m_core;
 
     bool m_handling_selection_change;
 };

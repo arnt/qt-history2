@@ -15,6 +15,7 @@
 #include "qdesigner_utils_p.h"
 #include "dynamicpropertysheet.h"
 #include "qdesigner_propertyeditor_p.h"
+#include "qdesigner_integration_p.h"
 
 #include <QtDesigner/QDesignerFormEditorInterface>
 #include <QtDesigner/QDesignerFormWindowInterface>
@@ -376,6 +377,11 @@ PropertyHelper::PropertyHelper(QObject* object,
         qDebug() << "PropertyHelper on " << m_object->objectName() << " index= " << m_index << " type = " << m_objectType;
 }
 
+QDesignerIntegration *PropertyHelper::integration(QDesignerFormWindowInterface *fw) const
+{
+    return qobject_cast<QDesignerIntegration *>(fw->core()->integration());
+}
+
 // Set widget value, apply corrections and checks in case of main window.
 void PropertyHelper::checkApplyWidgetValue(QDesignerFormWindowInterface *fw, QWidget* w,
                                       SpecialProperty specialProperty, QVariant &value)
@@ -486,6 +492,11 @@ void PropertyHelper::updateObject(QDesignerFormWindowInterface *fw, const QVaria
         break;
     }
 
+    if (m_specialProperty == SP_ObjectName) {
+        QDesignerIntegration *integr = integration(fw);
+        if (integr)
+            integr->emitObjectNameChanged(fw, m_object, newValue.toString());
+    }
 }
 
 PropertyHelper::Value PropertyHelper::setValue(QDesignerFormWindowInterface *fw, const QVariant &value, bool changed, unsigned subPropertyMask)

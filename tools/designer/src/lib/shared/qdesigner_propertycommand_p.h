@@ -36,6 +36,8 @@ class QDesignerPropertySheetExtension;
 
 namespace qdesigner_internal {
 
+class QDesignerIntegration;
+
 enum SpecialProperty {
         SP_None, SP_ObjectName, SP_WindowTitle,
         SP_MinimumSize, SP_MaximumSize, SP_Geometry, SP_Icon,SP_CurrentTabName,
@@ -83,6 +85,7 @@ public:
 
     // can be merged into one command (that is, object and name match)
     bool canMerge(const PropertyHelper &other) const;
+    QDesignerIntegration *integration(QDesignerFormWindowInterface *fw) const;
 
     static void triggerActionChanged(QAction *a);
 

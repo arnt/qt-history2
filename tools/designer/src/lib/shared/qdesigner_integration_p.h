@@ -52,9 +52,11 @@ public:
 
     // Load plugins into widget database and factory.
     static void initializePlugins(QDesignerFormEditorInterface *formEditor);
+    void emitObjectNameChanged(QDesignerFormWindowInterface *formWindow, QObject *object, const QString &name);
 
 signals:
     void propertyChanged(QDesignerFormWindowInterface *formWindow, const QString &name, const QVariant &value);
+    void objectNameChanged(QDesignerFormWindowInterface *formWindow, QObject *object, const QString &name);
 
 public slots:
     virtual void updateProperty(const QString &name, const QVariant &value);

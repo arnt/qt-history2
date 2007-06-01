@@ -95,6 +95,7 @@ public:
 
     QModelIndex connectionToIndex(Connection *con) const;
     Connection *indexToConnection(const QModelIndex &index) const;
+    void updateAll();
 
 private slots:
     void connectionAdded(Connection *con);
