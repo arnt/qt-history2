@@ -2008,6 +2008,9 @@ QModelIndexList QTreeView::selectedIndexes() const
 void QTreeView::scrollContentsBy(int dx, int dy)
 {
     Q_D(QTreeView);
+
+    d->delayedAutoScroll.stop(); // auto scroll was canceled by the user scrolling
+    
     dx = isRightToLeft() ? -dx : dx;
     if (dx) {
         if (horizontalScrollMode() == QAbstractItemView::ScrollPerItem) {

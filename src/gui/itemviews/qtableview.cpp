@@ -611,6 +611,9 @@ void QTableView::setVerticalHeader(QHeaderView *header)
 void QTableView::scrollContentsBy(int dx, int dy)
 {
     Q_D(QTableView);
+    
+    d->delayedAutoScroll.stop(); // auto scroll was canceled by the user scrolling
+
     dx = isRightToLeft() ? -dx : dx;
     if (dx) {
         if (horizontalScrollMode() == QAbstractItemView::ScrollPerItem) {

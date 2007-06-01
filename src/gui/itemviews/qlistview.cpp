@@ -650,6 +650,8 @@ void QListView::scrollContentsBy(int dx, int dy)
 {
     Q_D(QListView);
 
+    d->delayedAutoScroll.stop(); // auto scroll was canceled by the user scrolling
+
     if (d->viewMode == ListMode)
         d->staticListView->scrollContentsBy(dx, dy);
     else if (state() == DragSelectingState)
