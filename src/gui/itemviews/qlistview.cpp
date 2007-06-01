@@ -506,6 +506,8 @@ void QListView::setRowHidden(int row, bool hide)
             d->hiddenRows.remove(d->hiddenRows.indexOf(row));
             d->dynamicListView->insertItem(row);
         }
+        if (d->resizeMode == Adjust)
+            d->doDelayedItemsLayout();
         d->viewport->update();
     }
 }
