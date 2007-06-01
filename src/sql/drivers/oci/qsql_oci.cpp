@@ -1542,7 +1542,7 @@ void QOCICols::getValues(QVector<QVariant> &v, int index)
 }
 
 QOCIResultPrivate::QOCIResultPrivate(QOCIResult *result, const QOCIDriverPrivate *driver)
-    : cols(0), q(result), env(driver->env), err(0), svc(const_cast<OCISvcCtx*>(driver->svc)),
+    : cols(0), q(result), env(driver->env), err(0), svc(const_cast<OCISvcCtx*&>(driver->svc)),
       sql(0), transaction(driver->transaction), serverVersion(driver->serverVersion),
       prefetchRows(driver->prefetchRows), prefetchMem(driver->prefetchMem),
       precisionPolicy(driver->precisionPolicy)
