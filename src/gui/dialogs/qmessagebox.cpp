@@ -2211,6 +2211,7 @@ void QMessageBox::setWindowModality(Qt::WindowModality windowModality)
         setParent(parentWidget(), Qt::Sheet);
     else
         setParent(parentWidget(), Qt::Dialog);
+    setDefaultButton(d_func()->defaultButton);
 }
 
 #ifdef QT3_SUPPORT
