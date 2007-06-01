@@ -537,7 +537,7 @@ static bool matchEncoding( bool *utf8 )
         if (strcmp(yyIdent, "UnicodeUTF8") == 0) {
             *utf8 = true;
             yyTok = getToken();
-        } else if (strcmp(yyIdent, "DefaultCodec") == 0) {
+        } else if ((strcmp(yyIdent, "DefaultCodec") == 0) || (strcmp(yyIdent, "CodecForTr") == 0) ) {
             *utf8 = false;
             yyTok = getToken();
         } else {
