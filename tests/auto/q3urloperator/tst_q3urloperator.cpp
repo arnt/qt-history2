@@ -376,8 +376,6 @@ void tst_Q3UrlOperator::put()
 	if ( QTestEventLoop::instance().timeout() )
 	    QFAIL( "Network operation timed out" );
 
-	QEXPECT_FAIL("http00", "fluke.troll.no misconfiguration", Continue);
-        QEXPECT_FAIL("http01", "fluke.troll.no misconfiguration", Continue);
 	QTEST( baData, "putData" );
     }
     {
