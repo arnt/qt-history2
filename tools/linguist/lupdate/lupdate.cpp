@@ -85,7 +85,7 @@ void lupdateApplication::updateTsFiles( const MetaTranslator& fetchedTor,
                 qWarning("lupdate error: Cannot save '%s': %s\n",
                      fn.toLatin1().constData(), buf );
 #else
-            qWarning( stderr, "lupdate error: Cannot save '%s': %s\n",
+            qWarning( "lupdate error: Cannot save '%s': %s\n",
                      fn.toLatin1().constData(), strerror(errno) );
 #endif
             }
