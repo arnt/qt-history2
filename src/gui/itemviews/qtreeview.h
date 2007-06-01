@@ -37,6 +37,7 @@ class Q_GUI_EXPORT QTreeView : public QAbstractItemView
     Q_PROPERTY(bool animated READ isAnimated WRITE setAnimated)
     Q_PROPERTY(bool allColumnsShowFocus READ allColumnsShowFocus WRITE setAllColumnsShowFocus)
     Q_PROPERTY(bool wordWrap READ wordWrap WRITE setWordWrap)
+    Q_PROPERTY(bool headerHidden READ isHeaderHidden WRITE setHeaderHidden)
 
 public:
     explicit QTreeView(QWidget *parent = 0);
@@ -71,6 +72,9 @@ public:
 
     bool isColumnHidden(int column) const;
     void setColumnHidden(int column, bool hide);
+
+    bool isHeaderHidden() const;
+    void setHeaderHidden(bool hide);
 
     bool isRowHidden(int row, const QModelIndex &parent) const;
     void setRowHidden(int row, const QModelIndex &parent, bool hide);

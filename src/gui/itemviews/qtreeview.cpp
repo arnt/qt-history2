@@ -476,6 +476,32 @@ void QTreeView::setColumnHidden(int column, bool hide)
 }
 
 /*!
+    \since 4.4
+
+    Returns true if the \a header is hidden; otherwise returns false.
+
+    \sa setHeaderHidden()
+*/
+bool QTreeView::isHeaderHidden() const
+{
+    Q_D(const QTreeView);
+    return d->header->isHidden();
+}
+
+/*!
+    \since 4.4
+
+    If \a hide is true the \a header is hidden, otherwise the \a header is shown.
+
+    \sa isHeaderHidden()
+*/
+void QTreeView::setHeaderHidden(bool hide)
+{
+    Q_D(QTreeView);
+    d->header->setHidden(hide);
+}
+
+/*!
     Returns true if the item in the given \a row of the \a parent is hidden;
     otherwise returns false.
 
