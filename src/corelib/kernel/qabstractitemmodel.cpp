@@ -2283,6 +2283,7 @@ void QAbstractItemModel::changePersistentIndexList(const QModelIndexList &from,
             (*it)->index = to.at(i);
             toBeReinserted.append(*it);
             d->persistent.indexes.erase(it);
+            end = d->persistent.indexes.end();
         }
     }
     // then reinsert sorted
