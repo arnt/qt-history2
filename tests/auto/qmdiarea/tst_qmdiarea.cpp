@@ -34,6 +34,7 @@ static const Qt::WindowFlags DefaultWindowFlags
 
 Q_DECLARE_METATYPE(QMdiArea::WindowOrder)
 Q_DECLARE_METATYPE(QMdiSubWindow *)
+Q_DECLARE_METATYPE(QList<int>)
 
 //TESTED_CLASS=QMdiArea
 //TESTED_FILES=gui/widgets/qmdiarea.cpp gui/widgets/qmdiarea_p.h
@@ -79,6 +80,8 @@ private slots:
     void delayedPlacement();
     void iconGeometryInMenuBar();
     void resizeTimer();
+    void setActivationOrder_data();
+    void setActivationOrder();
 
 private:
     QMdiSubWindow *activeWindow;
@@ -1063,6 +1066,7 @@ void tst_QMdiArea::subWindowList_data()
 
     QTest::newRow("CreationOrder") << QMdiArea::CreationOrder << 10 << 4 << 8 << 5;
     QTest::newRow("StackingOrder") << QMdiArea::StackingOrder << 10 << 6 << 3 << 9;
+    QTest::newRow("ActivationHistoryOrder") << QMdiArea::ActivationHistoryOrder << 10 << 7 << 2 << 1;
 }
 void tst_QMdiArea::subWindowList()
 {
@@ -1076,10 +1080,12 @@ void tst_QMdiArea::subWindowList()
     workspace.show();
     qApp->setActiveWindow(&workspace);
 
+    QList<QMdiSubWindow *> activationOrder;
     QVector<QMdiSubWindow *> windows;
     for (int i = 0; i < windowCount; ++i) {
         windows.append(qobject_cast<QMdiSubWindow *>(workspace.addSubWindow(new QWidget)));
         windows[i]->show();
+        activationOrder.append(windows[i]);
     }
 
     {
@@ -1093,56 +1099,81 @@ void tst_QMdiArea::subWindowList()
     workspace.setActiveSubWindow(windows[activeSubWindow]);
     qApp->processEvents();
     QCOMPARE(workspace.activeSubWindow(), windows[activeSubWindow]);
+    activationOrder.move(activationOrder.indexOf(windows[activeSubWindow]), windowCount - 1);
 
-    {
     QList<QMdiSubWindow *> subWindows = workspace.subWindowList(windowOrder);
     if (windowOrder == QMdiArea::CreationOrder) {
         QCOMPARE(subWindows.at(activeSubWindow), windows[activeSubWindow]);
         QCOMPARE(subWindows.at(staysOnTop1), windows[staysOnTop1]);
+        for (int i = 0; i < windowCount; ++i)
+            QCOMPARE(subWindows.at(i), windows[i]);
         return;
     }
-    // StackingOrder
-    QCOMPARE(subWindows.at(subWindows.count() - 1), windows[staysOnTop1]);
-    QCOMPARE(subWindows.at(subWindows.count() - 2), windows[activeSubWindow]);
-    QCOMPARE(subWindows.count(), windowCount);
+
+    if (windowOrder == QMdiArea::StackingOrder) {
+        QCOMPARE(subWindows.at(subWindows.count() - 1), windows[staysOnTop1]);
+        QCOMPARE(subWindows.at(subWindows.count() - 2), windows[activeSubWindow]);
+        QCOMPARE(subWindows.count(), windowCount);
+    } else { // ActivationHistoryOrder
+        QCOMPARE(subWindows, activationOrder);
     }
 
     windows[staysOnTop2]->setWindowFlags(windows[staysOnTop2]->windowFlags() | Qt::WindowStaysOnTopHint);
     workspace.setActiveSubWindow(windows[staysOnTop2]);
     qApp->processEvents();
     QCOMPARE(workspace.activeSubWindow(), windows[staysOnTop2]);
+    activationOrder.move(activationOrder.indexOf(windows[staysOnTop2]), windowCount - 1);
+
     workspace.setActiveSubWindow(windows[activeSubWindow]);
     qApp->processEvents();
     QCOMPARE(workspace.activeSubWindow(), windows[activeSubWindow]);
+    activationOrder.move(activationOrder.indexOf(windows[activeSubWindow]), windowCount - 1);
 
     QList<QMdiSubWindow *> widgets = workspace.subWindowList(windowOrder);
     QCOMPARE(widgets.count(), windowCount);
-    QCOMPARE(widgets.at(widgets.count() - 1), windows[staysOnTop2]);
-    QCOMPARE(widgets.at(widgets.count() - 2), windows[staysOnTop1]);
-    QCOMPARE(widgets.at(widgets.count() - 3), windows[activeSubWindow]);
+    if (windowOrder == QMdiArea::StackingOrder) {
+        QCOMPARE(widgets.at(widgets.count() - 1), windows[staysOnTop2]);
+        QCOMPARE(widgets.at(widgets.count() - 2), windows[staysOnTop1]);
+        QCOMPARE(widgets.at(widgets.count() - 3), windows[activeSubWindow]);
+    } else { // ActivationHistory
+        QCOMPARE(widgets, activationOrder);
+    }
 
     windows[activeSubWindow]->raise();
     windows[staysOnTop2]->lower();
 
     widgets = workspace.subWindowList(windowOrder);
-    QCOMPARE(widgets.at(widgets.count() - 1), windows[activeSubWindow]);
-    QCOMPARE(widgets.at(widgets.count() - 2), windows[staysOnTop1]);
-    QCOMPARE(widgets.at(0), windows[staysOnTop2]);
+    if (windowOrder == QMdiArea::StackingOrder) {
+        QCOMPARE(widgets.at(widgets.count() - 1), windows[activeSubWindow]);
+        QCOMPARE(widgets.at(widgets.count() - 2), windows[staysOnTop1]);
+        QCOMPARE(widgets.at(0), windows[staysOnTop2]);
+    } else { // ActivationHistoryOrder
+        QCOMPARE(widgets, activationOrder);
+    }
 
     windows[activeSubWindow]->stackUnder(windows[staysOnTop1]);
     windows[staysOnTop2]->raise();
 
     widgets = workspace.subWindowList(windowOrder);
-    QCOMPARE(widgets.at(widgets.count() - 1), windows[staysOnTop2]);
-    QCOMPARE(widgets.at(widgets.count() - 2), windows[staysOnTop1]);
-    QCOMPARE(widgets.at(widgets.count() - 3), windows[activeSubWindow]);
+    if (windowOrder == QMdiArea::StackingOrder) {
+        QCOMPARE(widgets.at(widgets.count() - 1), windows[staysOnTop2]);
+        QCOMPARE(widgets.at(widgets.count() - 2), windows[staysOnTop1]);
+        QCOMPARE(widgets.at(widgets.count() - 3), windows[activeSubWindow]);
+    } else { // ActivationHistoryOrder
+        QCOMPARE(widgets, activationOrder);
+    }
 
     workspace.setActiveSubWindow(windows[staysOnTop1]);
+    activationOrder.move(activationOrder.indexOf(windows[staysOnTop1]), windowCount - 1);
 
     widgets = workspace.subWindowList(windowOrder);
-    QCOMPARE(widgets.at(widgets.count() - 1), windows[staysOnTop1]);
-    QCOMPARE(widgets.at(widgets.count() - 2), windows[staysOnTop2]);
-    QCOMPARE(widgets.at(widgets.count() - 3), windows[activeSubWindow]);
+    if (windowOrder == QMdiArea::StackingOrder) {
+        QCOMPARE(widgets.at(widgets.count() - 1), windows[staysOnTop1]);
+        QCOMPARE(widgets.at(widgets.count() - 2), windows[staysOnTop2]);
+        QCOMPARE(widgets.at(widgets.count() - 3), windows[activeSubWindow]);
+    } else { // ActivationHistoryOrder
+        QCOMPARE(widgets, activationOrder);
+    }
 }
 
 void tst_QMdiArea::setBackground()
@@ -1697,6 +1728,91 @@ void tst_QMdiArea::resizeTimer()
     QTest::qWait(500); // Wait for timer events to occur.
 
     QCOMPARE(timerEventSpy.count(), 1);
+}
+
+void tst_QMdiArea::setActivationOrder_data()
+{
+    QTest::addColumn<QMdiArea::WindowOrder>("activationOrder");
+    QTest::addColumn<int>("subWindowCount");
+    QTest::addColumn<int>("staysOnTopIndex");
+    QTest::addColumn<int>("firstActiveIndex");
+    QTest::addColumn<QList<int> >("expectedIndices");
+
+    QList<int> list;
+
+    list << 2 << 1 << 0 << 1 << 2 << 3 << 4;
+    QTest::newRow("CreationOrder") << QMdiArea::CreationOrder << 5 << 3 << 1 << list;
+
+    list = QList<int>();
+    list << 3 << 1 << 4 << 3 << 1 << 2 << 0;
+    QTest::newRow("StackingOrder") << QMdiArea::StackingOrder << 5 << 3 << 1 << list;
+
+    list = QList<int>();
+    list << 0 << 1 << 0 << 1 << 4 << 3 << 2;
+    QTest::newRow("ActivationHistoryOrder") << QMdiArea::ActivationHistoryOrder << 5 << 3 << 1<< list;
+}
+
+void tst_QMdiArea::setActivationOrder()
+{
+    QFETCH(QMdiArea::WindowOrder, activationOrder);
+    QFETCH(int, subWindowCount);
+    QFETCH(int, staysOnTopIndex);
+    QFETCH(int, firstActiveIndex);
+    QFETCH(QList<int>, expectedIndices);
+
+    // Default order.
+    QMdiArea mdiArea;
+    QCOMPARE(mdiArea.activationOrder(), QMdiArea::CreationOrder);
+
+    // New order.
+    mdiArea.setActivationOrder(activationOrder);
+    QCOMPARE(mdiArea.activationOrder(), activationOrder);
+
+    QList<QMdiSubWindow *> subWindows;
+    for (int i = 0; i < subWindowCount; ++i)
+        subWindows << mdiArea.addSubWindow(new QPushButton(tr("%1").arg(i)));
+    QCOMPARE(mdiArea.subWindowList(activationOrder), subWindows);
+
+    mdiArea.show();
+#ifdef Q_WS_X11
+    qt_x11_wait_for_window_manager(&mdiArea);
+#endif
+
+    for (int i = 0; i < subWindows.count(); ++i) {
+        mdiArea.activateNextSubWindow();
+        QCOMPARE(mdiArea.activeSubWindow(), subWindows.at(i));
+        qApp->processEvents();
+    }
+
+    QMdiSubWindow *staysOnTop = subWindows.at(staysOnTopIndex);
+    staysOnTop->setWindowFlags(staysOnTop->windowFlags() | Qt::WindowStaysOnTopHint);
+    staysOnTop->raise();
+
+    mdiArea.setActiveSubWindow(subWindows.at(firstActiveIndex));
+    QCOMPARE(mdiArea.activeSubWindow(), subWindows.at(firstActiveIndex));
+
+    mdiArea.activateNextSubWindow();
+    QCOMPARE(mdiArea.activeSubWindow(), subWindows.at(expectedIndices.takeFirst()));
+
+    mdiArea.activatePreviousSubWindow();
+    QCOMPARE(mdiArea.activeSubWindow(), subWindows.at(expectedIndices.takeFirst()));
+
+    mdiArea.activatePreviousSubWindow();
+    QCOMPARE(mdiArea.activeSubWindow(), subWindows.at(expectedIndices.takeFirst()));
+
+    for (int i = 0; i < subWindowCount; ++i) {
+        mdiArea.closeActiveSubWindow();
+        qApp->processEvents();
+        if (i == subWindowCount - 1) { // Last window closed.
+            QVERIFY(!mdiArea.activeSubWindow());
+            break;
+        }
+        QVERIFY(mdiArea.activeSubWindow());
+        QCOMPARE(mdiArea.activeSubWindow(), subWindows.at(expectedIndices.takeFirst()));
+    }
+
+    QVERIFY(mdiArea.subWindowList(activationOrder).isEmpty());
+    QVERIFY(expectedIndices.isEmpty());
 }
 
 QTEST_MAIN(tst_QMdiArea)
