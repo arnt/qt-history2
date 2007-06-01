@@ -181,8 +181,14 @@ void Colors::parseArgs(int argc, char *argv[])
             Colors::softwareRendering = true;
         else if (s == "-no-opengl") // support old style
             Colors::softwareRendering = true;
-        else if (s == "-no-ticker")
+        else if (s == "-no-ticker") // support old style
             Colors::noTicker = true;
+        else if (s.startsWith("-ticker"))
+            Colors::noTicker = !bool(parseFloat(s, "-ticker"));
+        else if (s == "-no-animations")
+            Colors::noAnimations = true; // support old style
+        else if (s.startsWith("-animations"))
+            Colors::noAnimations = !bool(parseFloat(s, "-animations"));
         else if (s == "-no-adapt")
             Colors::noAdapt = true;
         else if (s == "-low")
@@ -197,8 +203,6 @@ void Colors::parseArgs(int argc, char *argv[])
             Colors::showBoundingRect = true;
         else if (s == "-show-fps")
             Colors::showFps = true;
-        else if (s == "-no-animations")
-            Colors::noAnimations = true;
         else if (s == "-no-blending")
             Colors::noBlending = true;
         else if (s == "-no-sync")
@@ -213,6 +217,8 @@ void Colors::parseArgs(int argc, char *argv[])
             Colors::useLoop = true;
         else if (s == "-use-8bit")
             Colors::useEightBitPalette = true;
+        else if (s.startsWith("-8bit"))
+            Colors::useEightBitPalette = bool(parseFloat(s, "-8bit"));
         else if (s == "-use-balls")
             Colors::useButtonBalls = true;
         else if (s.startsWith("-ticker-letters"))
@@ -229,9 +235,9 @@ void Colors::parseArgs(int argc, char *argv[])
             Colors::fps = int(parseFloat(s, "-fps"));
         else if (s.startsWith("-h") || s.startsWith("-help")){
             QMessageBox::warning(0, "Arguments",
-                                 QString("Usage: qtdemo [-verbose] [-no-adapt] [-opengl] [-direct3d] [-software] [-fullscreen] [-no-ticker] ")
-                                 + "[-no-animations] [-no-blending] [-no-sync] [-use-timer-update[0|1]] [-use-window-mask] [-no-rescale] "
-                                 + "[-use-pixmaps] [-show-fps] [-show-br] [-use-8bit] [-use-loop] [-use-balls] [-animation-speed<float>] [-fps<int>] "
+                                 QString("Usage: qtdemo [-verbose] [-no-adapt] [-opengl] [-direct3d] [-software] [-fullscreen] [-ticker[0|1]] ")
+                                 + "[-animations[0|1]] [-no-blending] [-no-sync] [-use-timer-update[0|1]] [-use-window-mask] [-no-rescale] "
+                                 + "[-use-pixmaps] [-show-fps] [-show-br] [-8bit[0|1]] [-use-loop] [-use-balls] [-animation-speed<float>] [-fps<int>] "
                                  + "[-low] [-ticker-letters<int>] [-ticker-speed<float>] [-no-ticker-morph] "
                                  + "[-ticker-morph-speed<float>] [-ticker-text<string>]");
             exit(0);
