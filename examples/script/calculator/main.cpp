@@ -35,7 +35,7 @@ int main(int argc, char **argv)
     uiFile.close();
 
     QScriptValue ctor = engine.evaluate("Calculator");
-    QScriptValue scriptUi = engine.newQObject(ui);
+    QScriptValue scriptUi = engine.newQObject(ui, QScriptEngine::ScriptOwnership);
     QScriptValue calc = ctor.construct(QScriptValueList() << scriptUi);
 
     ui->show();

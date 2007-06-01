@@ -46,7 +46,7 @@ static QScriptValue evaluateFile(QScriptEngine &engine, const QString &fileName)
 {
     QFile file(fileName);
     file.open(QIODevice::ReadOnly);
-    return engine.evaluate(file.readAll());
+    return engine.evaluate(file.readAll(), fileName);
 }
 
 int main(int argc, char *argv[])
@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
     uiFile.close();
 
     QScriptValue ctor = engine.evaluate("TetrixWindow");
-    QScriptValue scriptUi = engine.newQObject(ui);
+    QScriptValue scriptUi = engine.newQObject(ui, QScriptEngine::ScriptOwnership);
     QScriptValue tetrix = ctor.construct(QScriptValueList() << scriptUi);
 
     ui->resize(550, 370);
