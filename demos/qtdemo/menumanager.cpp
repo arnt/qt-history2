@@ -161,13 +161,13 @@ void MenuManager::init(MainWindow *window)
     
     // Create first level menu:
     QDomElement rootElement = this->contentsDoc->documentElement();
-    this->createLeftMenu1(rootElement);
+    this->createRootMenu(rootElement);
     
     // Create second level menus:
     QDomNode level2MenuNode = rootElement.firstChild();
     while (!level2MenuNode.isNull()){
         QDomElement level2MenuElement = level2MenuNode.toElement();
-        this->createRightMenu1(level2MenuElement);
+        this->createSubMenu(level2MenuElement);
         
         // create leaf menu and example info:
         QDomNode exampleNode = level2MenuElement.firstChild();
@@ -256,24 +256,60 @@ QString MenuManager::resolveImgFile(const QDomElement &example)
             this->info[example.attribute("name")]["docfile"];
 }
 
-
-void MenuManager::createLeftMenu1(const QDomElement &el)
+void MenuManager::createRootMenu(const QDomElement &el)
 {
-    Movie *movie_in = new Movie();
-    Movie *movie_out = new Movie();
-    this->score->insertMovie(el.attribute("name"), movie_in);
-    this->score->insertMovie(el.attribute("name")+ " -out", movie_out);
+    Movie *movieIn = new Movie();
+    Movie *movieOut = new Movie();
     
+    this->score->insertMovie(el.attribute("name"), movieIn);
+    this->score->insertMovie(el.attribute("name")+ " -out", movieOut);
+
+    createMenu(el.firstChild().toElement(), MENU1, movieIn, movieOut, 0);
+    createLowLeftButton(QLatin1String("Quit"), QUIT, movieIn, movieOut, 0);
+    createLowRightButton("Toggle fullscreen", FULLSCREEN, movieIn, movieOut, 0);
+    createInfo(new MenuContentItem(el, this->window->scene, 0), el.attribute("name") + " -info");
+}
+
+void MenuManager::createSubMenu(const QDomElement &el)
+{
+    Movie *movieIn = new Movie();
+    Movie *movieOut = new Movie();
+    Movie *movieShake = new Movie();
+    
+    this->score->insertMovie(el.attribute("name"), movieIn);
+    this->score->insertMovie(el.attribute("name")+ " -out", movieOut);
+    this->score->insertMovie(el.attribute("name")+ " -shake", movieShake);
+
+    createMenu(el.firstChild().toElement(), MENU2, movieIn, movieOut, movieShake);
+    createLowLeftButton(QLatin1String("Main menu"), ROOT, movieIn, movieOut, 0);
+    createInfo(new MenuContentItem(el, this->window->scene, 0), el.attribute("name") + " -info");
+}
+
+void MenuManager::createLeafMenu(const QDomElement &el)
+{    
+    Movie *movieIn = new Movie();
+    Movie *movieOut = new Movie();
+    
+    this->score->insertMovie(el.attribute("name") + " -buttons", movieIn);
+    this->score->insertMovie(el.attribute("name") + " -buttons -out", movieOut);
+    
+    if (el.attribute("executable") != "false")
+        createLowRightLeafButton("Launch", 405, LAUNCH, movieIn, movieOut, 0);    
+    createLowRightLeafButton("Documentation", 600, DOCUMENTATION, movieIn, movieOut, 0);    
+    createInfo(new ExampleContent(el.attribute("name"), this->window->scene, 0), el.attribute("name"));
+}
+
+QDomElement MenuManager::createMenu(const QDomElement &firstExample, BUTTON_TYPE type, Movie *movieIn, Movie *movieOut, Movie *movieShake)
+{
     qreal sw = this->window->scene->sceneRect().width();
     int xOffset = 15;
     int yOffset = 10;
-    
-    QDomNode n = el.firstChild();
+    int maxExamples = 10;
+
+    QDomElement currentExample = firstExample;
     int i=0;
-    while (!n.isNull()){
-        QDomElement e = n.toElement();
-        
-        TextButton *item = new TextButton(e.attribute("name"), TextButton::LEFT, MENU1, this->window->scene, 0);
+    while (!currentExample.isNull() && i < maxExamples){
+        TextButton *item = new TextButton(currentExample.attribute("name"), TextButton::LEFT, type, this->window->scene, 0);
         item->setRecursiveVisible(false);
         item->setZValue(10);
         qreal ih = item->sceneBoundingRect().height();
@@ -291,7 +327,7 @@ void MenuManager::createLeftMenu1(const QDomElement &el)
         anim->setPosAt(0.80, QPointF(xOffset, (i * ihp) + yOffset + Colors::contentStartY));
         anim->setPosAt(0.90, QPointF(xOffset, (i * ihp) + yOffset + Colors::contentStartY + (2 * float(i / 4.0f))));
         anim->setPosAt(1.00, QPointF(xOffset, (i * ihp) + yOffset + Colors::contentStartY));
-        movie_in->append(anim);
+        movieIn->append(anim);
         
         // create out-animation:
         anim = new DemoItemAnimation(item, DemoItemAnimation::ANIM_OUT);
@@ -301,40 +337,61 @@ void MenuManager::createLeftMenu1(const QDomElement &el)
         anim->setPosAt(0.60, QPointF(xOffset, 600 - ih - ih));
         anim->setPosAt(0.65, QPointF(xOffset + 20, 600 - ih));
         anim->setPosAt(1.00, QPointF(sw + iw, 600 - ih));
-        movie_out->append(anim);
-        
-        i++;
-        n = n.nextSibling();
-    }
+        movieOut->append(anim);
 
-    // create quit button:
-    TextButton *backButton = new TextButton("Quit", TextButton::RIGHT, QUIT, this->window->scene, 0, TextButton::PANEL);
-    backButton->setRecursiveVisible(false);
-    backButton->setZValue(10);
-    qreal iw = backButton->sceneBoundingRect().width();
+        if (movieShake){
+            // create shake-animation:
+            anim = new DemoItemAnimation(item);
+            anim->setDuration(700 * Colors::animSpeedButtons);
+            anim->setStartPos(QPointF(xOffset, (i * ihp) + yOffset + Colors::contentStartY));
+            anim->setPosAt(0.55, QPointF(xOffset, (i * ihp) + yOffset + Colors::contentStartY - i*2.0));
+            anim->setPosAt(0.70, QPointF(xOffset - 10, (i * ihp) + yOffset + Colors::contentStartY - i*1.5));
+            anim->setPosAt(0.80, QPointF(xOffset, (i * ihp) + yOffset + Colors::contentStartY - i*1.0));
+            anim->setPosAt(0.90, QPointF(xOffset - 2, (i * ihp) + yOffset + Colors::contentStartY - i*0.5));
+            anim->setPosAt(1.00, QPointF(xOffset, (i * ihp) + yOffset + Colors::contentStartY));
+            movieShake->append(anim);
+        }
+        i++;
+        currentExample = currentExample.nextSibling().toElement();
+    }
+    return currentExample;
+}
+
+void MenuManager::createLowLeftButton(const QString label, BUTTON_TYPE type, Movie *movieIn, Movie *movieOut, Movie */*movieShake*/)
+{
+    TextButton *button = new TextButton(label, TextButton::RIGHT, type, this->window->scene, 0, TextButton::PANEL);
+    button->setRecursiveVisible(false);
+    button->setZValue(10);
+
+    qreal iw = button->sceneBoundingRect().width();
+    int xOffset = 15;
     
     // create in-animation:
-    DemoItemAnimation *BackButtonIn = new DemoItemAnimation(backButton, DemoItemAnimation::ANIM_IN);
-    BackButtonIn->setDuration(1800 * Colors::animSpeedButtons);
-    BackButtonIn->setStartPos(QPointF(-iw, Colors::contentStartY + Colors::contentHeight - 35));
-    BackButtonIn->setPosAt(0.5, QPointF(-iw, Colors::contentStartY + Colors::contentHeight - 35));
-    BackButtonIn->setPosAt(0.7, QPointF(xOffset, Colors::contentStartY + Colors::contentHeight - 35));
-    BackButtonIn->setPosAt(1.0, QPointF(xOffset, Colors::contentStartY + Colors::contentHeight - 26));
-    movie_in->append(BackButtonIn);
+    DemoItemAnimation *buttonIn = new DemoItemAnimation(button, DemoItemAnimation::ANIM_IN);
+    buttonIn->setDuration(1800 * Colors::animSpeedButtons);
+    buttonIn->setStartPos(QPointF(-iw, Colors::contentStartY + Colors::contentHeight - 35));
+    buttonIn->setPosAt(0.5, QPointF(-iw, Colors::contentStartY + Colors::contentHeight - 35));
+    buttonIn->setPosAt(0.7, QPointF(xOffset, Colors::contentStartY + Colors::contentHeight - 35));
+    buttonIn->setPosAt(1.0, QPointF(xOffset, Colors::contentStartY + Colors::contentHeight - 26));
+    movieIn->append(buttonIn);
     
     // create out-animation:
-    DemoItemAnimation *BackButtonOut = new DemoItemAnimation(backButton, DemoItemAnimation::ANIM_OUT);
-    BackButtonOut->hideOnFinished = true;
-    BackButtonOut->setDuration(400 * Colors::animSpeedButtons);
-    BackButtonOut->setStartPos(QPointF(xOffset, Colors::contentStartY + Colors::contentHeight - 26));
-    BackButtonOut->setPosAt(1.0, QPointF(-iw, Colors::contentStartY + Colors::contentHeight - 26));
-    movie_out->append(BackButtonOut);
+    DemoItemAnimation *buttonOut = new DemoItemAnimation(button, DemoItemAnimation::ANIM_OUT);
+    buttonOut->hideOnFinished = true;
+    buttonOut->setDuration(400 * Colors::animSpeedButtons);
+    buttonOut->setStartPos(QPointF(xOffset, Colors::contentStartY + Colors::contentHeight - 26));
+    buttonOut->setPosAt(1.0, QPointF(-iw, Colors::contentStartY + Colors::contentHeight - 26));
+    movieOut->append(buttonOut);
+}
 
-    // Create fullscreen button:
-    xOffset = 70;
-    TextButton *item = new TextButton("Toggle fullscreen", TextButton::RIGHT, FULLSCREEN, this->window->scene, 0, TextButton::PANEL);
+void MenuManager::createLowRightButton(const QString label, BUTTON_TYPE type, Movie *movieIn, Movie *movieOut, Movie */*movieShake*/)
+{
+    TextButton *item = new TextButton(label, TextButton::RIGHT, type, this->window->scene, 0, TextButton::PANEL);
     item->setRecursiveVisible(false);
     item->setZValue(10);
+
+    qreal sw = this->window->scene->sceneRect().width();
+    int xOffset = 70;
     
     // create in-animation:
     DemoItemAnimation *anim = new DemoItemAnimation(item, DemoItemAnimation::ANIM_IN);
@@ -343,7 +400,7 @@ void MenuManager::createLeftMenu1(const QDomElement &el)
     anim->setPosAt(0.5, QPointF(sw, Colors::contentStartY + Colors::contentHeight - 35));
     anim->setPosAt(0.7, QPointF(xOffset + 535, Colors::contentStartY + Colors::contentHeight - 35));
     anim->setPosAt(1.0, QPointF(xOffset + 535, Colors::contentStartY + Colors::contentHeight - 26));
-    movie_in->append(anim);
+    movieIn->append(anim);
     
     // create out-animation:
     anim = new DemoItemAnimation(item, DemoItemAnimation::ANIM_OUT);
@@ -351,168 +408,38 @@ void MenuManager::createLeftMenu1(const QDomElement &el)
     anim->setDuration(400 * Colors::animSpeedButtons);
     anim->setStartPos(QPointF(xOffset + 535, Colors::contentStartY + Colors::contentHeight - 26));
     anim->setPosAt(1.0, QPointF(sw, Colors::contentStartY + Colors::contentHeight - 26));
-    movie_out->append(anim);
-    
-    // Create menu content:
-    this->createInfo(new MenuContentItem(el, this->window->scene, 0), el.attribute("name") + " -info");
+    movieOut->append(anim);
 }
 
-void MenuManager::createRightMenu1(const QDomElement &el)
+void MenuManager::createLowRightLeafButton(const QString label, int xOffset, BUTTON_TYPE type, Movie *movieIn, Movie *movieOut, Movie */*movieShake*/)
 {
-    Movie *movie_in = new Movie();
-    Movie *movie_out = new Movie();
-    Movie *movie_shake = new Movie();
-    this->score->insertMovie(el.attribute("name"), movie_in);
-    this->score->insertMovie(el.attribute("name")+ " -out", movie_out);
-    this->score->insertMovie(el.attribute("name")+ " -shake", movie_shake);
-    
-    qreal sw = this->window->scene->sceneRect().width();
-    int xOffset = 15;
-    int yOffset = 10;
-    
-    QDomNode n = el.firstChild();
-    int i=0;
-    while (!n.isNull()){
-        QDomElement e = n.toElement();
-        
-        TextButton *item = new TextButton(e.attribute("name"), TextButton::LEFT, MENU2, this->window->scene, 0);
-        item->setRecursiveVisible(false);
-        item->setZValue(10);
-        qreal ih = item->sceneBoundingRect().height();
-        qreal iw = item->sceneBoundingRect().width();
-        qreal ihp = ih + 3;
-        
-        // create in-animation:
-        DemoItemAnimation *anim = new DemoItemAnimation(item, DemoItemAnimation::ANIM_IN);
-        anim->setDuration(float(1000 + (i * 20)) * Colors::animSpeedButtons);
-        anim->setStartPos(QPointF(xOffset, -ih));
-        anim->setPosAt(0.20, QPointF(xOffset, -ih));
-        anim->setPosAt(0.50, QPointF(xOffset, (i * ihp) + yOffset + Colors::contentStartY + (10 * float(i / 4.0f))));
-        anim->setPosAt(0.60, QPointF(xOffset, (i * ihp) + yOffset + Colors::contentStartY));
-        anim->setPosAt(0.70, QPointF(xOffset, (i * ihp) + yOffset + Colors::contentStartY + (5 * float(i / 4.0f))));
-        anim->setPosAt(0.80, QPointF(xOffset, (i * ihp) + yOffset + Colors::contentStartY));
-        anim->setPosAt(0.90, QPointF(xOffset, (i * ihp) + yOffset + Colors::contentStartY + (1 * float(i / 4.0f))));
-        anim->setPosAt(1.00, QPointF(xOffset, (i * ihp) + yOffset + Colors::contentStartY));
-        movie_in->append(anim);
-        
-        // create out-animation:
-        anim = new DemoItemAnimation(item, DemoItemAnimation::ANIM_OUT);
-        anim->hideOnFinished = true;
-        anim->setDuration((700 + (30 * i)) * Colors::animSpeedButtons);
-        anim->setStartPos(QPointF(xOffset, (i * ihp) + yOffset + Colors::contentStartY));
-        anim->setPosAt(0.60, QPointF(xOffset, 600 - ih - ih));
-        anim->setPosAt(0.65, QPointF(xOffset + 20, 600 - ih));
-        anim->setPosAt(1.00, QPointF(sw + iw, 600 - ih));
-        movie_out->append(anim);
-        
-        // create shake-animation:
-        anim = new DemoItemAnimation(item);
-        anim->setDuration(700 * Colors::animSpeedButtons);
-        anim->setStartPos(QPointF(xOffset, (i * ihp) + yOffset + Colors::contentStartY));
-        anim->setPosAt(0.55, QPointF(xOffset, (i * ihp) + yOffset + Colors::contentStartY - i*2.0));
-        anim->setPosAt(0.70, QPointF(xOffset - 10, (i * ihp) + yOffset + Colors::contentStartY - i*1.5));
-        anim->setPosAt(0.80, QPointF(xOffset, (i * ihp) + yOffset + Colors::contentStartY - i*1.0));
-        anim->setPosAt(0.90, QPointF(xOffset - 2, (i * ihp) + yOffset + Colors::contentStartY - i*0.5));
-        anim->setPosAt(1.00, QPointF(xOffset, (i * ihp) + yOffset + Colors::contentStartY));
-        movie_shake->append(anim);
-        
-        i++;
-        n = n.nextSibling();
-    }
-    
-    // create backbutton:
-    TextButton *backButton = new TextButton("Main menu", TextButton::RIGHT, ROOT, this->window->scene, 0, TextButton::PANEL);
-    backButton->setRecursiveVisible(false);
-    backButton->setZValue(10);
-    qreal iw = backButton->sceneBoundingRect().width();
-    
-    DemoItemAnimation *BackButtonIn = new DemoItemAnimation(backButton, DemoItemAnimation::ANIM_IN);
-    BackButtonIn->setDuration(1800 * Colors::animSpeedButtons);
-    BackButtonIn->setStartPos(QPointF(-iw, Colors::contentStartY + Colors::contentHeight - 35));
-    BackButtonIn->setPosAt(0.5, QPointF(-iw, Colors::contentStartY + Colors::contentHeight - 35));
-    BackButtonIn->setPosAt(0.7, QPointF(xOffset, Colors::contentStartY + Colors::contentHeight - 35));
-    BackButtonIn->setPosAt(1.0, QPointF(xOffset, Colors::contentStartY + Colors::contentHeight - 26));
-    movie_in->append(BackButtonIn);
-    
-    DemoItemAnimation *BackButtonOut = new DemoItemAnimation(backButton, DemoItemAnimation::ANIM_OUT);
-    BackButtonOut->hideOnFinished = true;
-    BackButtonOut->setDuration(400 * Colors::animSpeedButtons);
-    BackButtonOut->setStartPos(QPointF(xOffset, Colors::contentStartY + Colors::contentHeight - 26));
-    BackButtonOut->setPosAt(1.0, QPointF(-iw, Colors::contentStartY + Colors::contentHeight - 26));
-    movie_out->append(BackButtonOut);
-    
-    // create menu content text
-    this->createInfo(new MenuContentItem(el, this->window->scene, 0), el.attribute("name") + " -info");
-}
-
-void MenuManager::createLeafMenu(const QDomElement &el)
-{
-    QString name = el.attribute("name");
-    Movie *movie_in = new Movie();
-    Movie *movie_out = new Movie();
-    this->score->insertMovie(name + " -buttons", movie_in);
-    this->score->insertMovie(name + " -buttons -out", movie_out);
-    
-    qreal sw = this->window->scene->sceneRect().width();
-    qreal sh = this->window->scene->sceneRect().height();
-    int xOffset = 75;
-    
-    // Create launch button
-    if (el.attribute("executable") != "false"){
-        TextButton *item = new TextButton("Launch", TextButton::RIGHT, LAUNCH, this->window->scene, 0, TextButton::PANEL);
-        item->setRecursiveVisible(false);
-        item->setZValue(10);
-        
-        // create in-animation:
-        DemoItemAnimation *anim = new DemoItemAnimation(item, DemoItemAnimation::ANIM_IN);
-        anim->setDuration(1050 * Colors::animSpeedButtons);
-        anim->setStartPos(QPointF(sw, Colors::contentStartY + Colors::contentHeight - 35));
-        anim->setPosAt(0.10, QPointF(sw, Colors::contentStartY + Colors::contentHeight - 35));
-        anim->setPosAt(0.30, QPointF(xOffset + 330, Colors::contentStartY + Colors::contentHeight - 35));
-        anim->setPosAt(0.35, QPointF(xOffset + 350, Colors::contentStartY + Colors::contentHeight - 35));
-        anim->setPosAt(0.40, QPointF(xOffset + 330, Colors::contentStartY + Colors::contentHeight - 35));
-        anim->setPosAt(0.45, QPointF(xOffset + 335, Colors::contentStartY + Colors::contentHeight - 35));
-        anim->setPosAt(0.50, QPointF(xOffset + 330, Colors::contentStartY + Colors::contentHeight - 35));
-        anim->setPosAt(1.00, QPointF(xOffset + 330, Colors::contentStartY + Colors::contentHeight - 26));
-        movie_in->append(anim);
-        
-        // create out-animation:
-        anim = new DemoItemAnimation(item, DemoItemAnimation::ANIM_OUT);
-        anim->hideOnFinished = true;
-        anim->setDuration(300 * Colors::animSpeedButtons);
-        anim->setStartPos(QPointF(xOffset + 330, Colors::contentStartY + Colors::contentHeight - 26));
-        anim->setPosAt(1.0, QPointF(xOffset + 330, sh));
-        movie_out->append(anim);
-    }
-    
-    // Create documentation button:
-    TextButton *item = new TextButton("Documentation", TextButton::RIGHT, DOCUMENTATION, this->window->scene, 0, TextButton::PANEL);
+    TextButton *item = new TextButton(label, TextButton::RIGHT, type, this->window->scene, 0, TextButton::PANEL);
     item->setRecursiveVisible(false);
     item->setZValue(10);
+
+    qreal sw = this->window->scene->sceneRect().width();
+    qreal sh = this->window->scene->sceneRect().height();
     
     // create in-animation:
     DemoItemAnimation *anim = new DemoItemAnimation(item, DemoItemAnimation::ANIM_IN);
     anim->setDuration(1050 * Colors::animSpeedButtons);
     anim->setStartPos(QPointF(sw, Colors::contentStartY + Colors::contentHeight - 35));
     anim->setPosAt(0.10, QPointF(sw, Colors::contentStartY + Colors::contentHeight - 35));
-    anim->setPosAt(0.30, QPointF(xOffset + 530, Colors::contentStartY + Colors::contentHeight - 35));
-    anim->setPosAt(0.35, QPointF(xOffset + 560, Colors::contentStartY + Colors::contentHeight - 35));
-    anim->setPosAt(0.40, QPointF(xOffset + 530, Colors::contentStartY + Colors::contentHeight - 35));
-    anim->setPosAt(0.45, QPointF(xOffset + 535, Colors::contentStartY + Colors::contentHeight - 35));
-    anim->setPosAt(0.50, QPointF(xOffset + 530, Colors::contentStartY + Colors::contentHeight - 35));
-    anim->setPosAt(1.00, QPointF(xOffset + 530, Colors::contentStartY + Colors::contentHeight - 26));
-    movie_in->append(anim);
+    anim->setPosAt(0.30, QPointF(xOffset, Colors::contentStartY + Colors::contentHeight - 35));
+    anim->setPosAt(0.35, QPointF(xOffset + 30, Colors::contentStartY + Colors::contentHeight - 35));
+    anim->setPosAt(0.40, QPointF(xOffset, Colors::contentStartY + Colors::contentHeight - 35));
+    anim->setPosAt(0.45, QPointF(xOffset + 5, Colors::contentStartY + Colors::contentHeight - 35));
+    anim->setPosAt(0.50, QPointF(xOffset, Colors::contentStartY + Colors::contentHeight - 35));
+    anim->setPosAt(1.00, QPointF(xOffset, Colors::contentStartY + Colors::contentHeight - 26));
+    movieIn->append(anim);
     
     // create out-animation:
     anim = new DemoItemAnimation(item, DemoItemAnimation::ANIM_OUT);
     anim->hideOnFinished = true;
     anim->setDuration(300 * Colors::animSpeedButtons);
-    anim->setStartPos(QPointF(xOffset + 530, Colors::contentStartY + Colors::contentHeight - 26));
-    anim->setPosAt(1.0, QPointF(xOffset + 530, sh));
-    movie_out->append(anim);
-    
-    // Create info item:
-    this->createInfo(new ExampleContent(name, this->window->scene, 0), el.attribute("name"));
+    anim->setStartPos(QPointF(xOffset, Colors::contentStartY + Colors::contentHeight - 26));
+    anim->setPosAt(1.0, QPointF(xOffset, sh));
+    movieOut->append(anim);
 }
 
 void MenuManager::createInfo(DemoItem *item, const QString &name)

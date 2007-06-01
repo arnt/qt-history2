@@ -57,12 +57,17 @@ private:
     void readXmlDocument();
     void getDocumentationDir();
     void readInfoAboutExample(const QDomElement &example);
-    void createLeftMenu1(const QDomElement &el);
-    void createRightMenu1(const QDomElement &el);
+    void launchExample(const QString &uniqueName);
+    
+    QDomElement createMenu(const QDomElement &firstExample, BUTTON_TYPE type, Movie *movieIn, Movie *movieOut, Movie *movieShake);
+    void createLowLeftButton(const QString label, BUTTON_TYPE type, Movie *movieIn, Movie *movieOut, Movie *movieShake);
+    void createLowRightButton(const QString label, BUTTON_TYPE type, Movie *movieIn, Movie *movieOut, Movie *movieShake);
+    void createLowRightLeafButton(const QString label, int pos, BUTTON_TYPE type, Movie *movieIn, Movie *movieOut, Movie */*movieShake*/);
+    void createRootMenu(const QDomElement &el);
+    void createSubMenu(const QDomElement &el);
     void createLeafMenu(const QDomElement &el);
     void createInfo(DemoItem *item, const QString &name);
     void createTicker();
-    void launchExample(const QString &uniqueName);
     
     QString resolveExecutable(const QDomElement &example);
     QString resolveDocFile(const QDomElement &example);

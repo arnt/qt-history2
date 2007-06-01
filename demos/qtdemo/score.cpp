@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "score.h"
+#include "colors.h"
 
 Score::Score()
 {
@@ -70,12 +71,17 @@ void Score::playMovie(const QString &indexName, RUN_MODE runMode, LOCK_MODE lock
 void Score::queueMovie(const QString &indexName, RUN_MODE runMode, LOCK_MODE lockMode)
 {
     MovieIndex::iterator movieIterator = this->index.find(indexName);
-    if (movieIterator == this->index.end())
+    if (movieIterator == this->index.end()){
+        if (Colors::verbose)
+            qDebug() << "Queuing movie:" << indexName << "(does not exist)";
         return;
+    }
     
     Movie *movie = *movieIterator;
     this->prepare(movie, lockMode);
     this->playList.append(PlayListMember(movie, int(runMode)));
+    if (Colors::verbose)
+        qDebug() << "Queuing movie:" << indexName;
 }
 
 void Score::playQue()
@@ -83,6 +89,8 @@ void Score::playQue()
     for (int i=0; i<this->playList.size(); i++)
         this->play(this->playList.at(i).movie, RUN_MODE(this->playList.at(i).runMode));
     this->playList.clear();
+    if (Colors::verbose)
+        qDebug() << "********* Playing que *********";
 }
 
 void Score::insertMovie(const QString &indexName, Movie *movie)
