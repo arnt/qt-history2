@@ -2234,6 +2234,21 @@ int QTableView::columnSpan(int row, int column) const
     return d->columnSpan(row, column);
 }
 
+/*!
+  \since 4.4
+
+  Removes all row and column spanns in the table view.
+  
+  \sa setSpan()
+*/
+
+void QTableView::clearSpanns()
+{
+    Q_D(QTableView);
+    d->spans.clear();
+    d->viewport->update();
+}
+
 void QTableViewPrivate::_q_selectRow(int row)
 {
     selectRow(row, false);
