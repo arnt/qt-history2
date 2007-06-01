@@ -130,7 +130,7 @@ void Window::reformatCalendarPage()
     if (firstFridayCheckBox->isChecked())
         firstFridayFormat.setForeground(Qt::blue);
 
-    QDate date = calendar->selectedDate();
+    QDate date(calendar->yearShown(), calendar->monthShown(), 1); 
 
     calendar->setDateTextFormat(QDate(date.year(), 5, 1), mayFirstFormat);
 
