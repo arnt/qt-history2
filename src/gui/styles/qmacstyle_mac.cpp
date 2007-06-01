@@ -773,8 +773,7 @@ void QMacStylePrivate::initHIThemePushButton(const QStyleOptionButton *btn,
 
     if (drawColorless && tdsModified == kThemeStateInactive)
         bdi->state = kThemeStateActive;
-    if (btn->state & QStyle::State_HasFocus &&
-            QMacStyle::focusRectPolicy(widget) != QMacStyle::FocusDisabled)
+    if (btn->state & QStyle::State_HasFocus)
         bdi->adornment = kThemeAdornmentFocus;
     else
         bdi->adornment = kThemeAdornmentNone;
@@ -2815,8 +2814,7 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPai
         if (drawColorless && tds == kThemeStateInactive)
             bdi.state = kThemeStateActive;
         bdi.adornment = kThemeDrawIndicatorOnly;
-        if (opt->state & State_HasFocus
-                && QMacStyle::focusRectPolicy(w) != QMacStyle::FocusDisabled)
+        if (opt->state & State_HasFocus)
             bdi.adornment |= kThemeAdornmentFocus;
         bool isRadioButton = (pe == PE_Q3CheckListExclusiveIndicator
                               || pe == PE_IndicatorRadioButton);
@@ -3056,8 +3054,7 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
                 if (header->sortIndicator == QStyleOptionHeader::SortDown)
                     bdi.adornment = kThemeAdornmentHeaderButtonSortUp;
             }
-                        
-            if (flags & State_HasFocus && QMacStyle::focusRectPolicy(w) != QMacStyle::FocusDisabled)
+            if (flags & State_HasFocus)
                 bdi.adornment = kThemeAdornmentFocus;
 
             ir = visualRect(header->direction, header->rect, ir);
@@ -4616,8 +4613,7 @@ void QMacStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComplex 
                         bdi.adornment = kThemeAdornmentNone;
                         bdi.kind = bkind;
                         bdi.value = kThemeButtonOff;
-                        if (tb->state & State_HasFocus && QMacStyle::focusRectPolicy(widget)
-                                != QMacStyle::FocusDisabled)
+                        if (tb->state & State_HasFocus)
                             bdi.adornment = kThemeAdornmentFocus;
                         if (tb->state & State_Sunken)
                             bdi.state = kThemeStatePressed;
@@ -4646,8 +4642,7 @@ void QMacStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComplex 
                     bdi.value = kThemeButtonOff;
                     bdi.adornment = kThemeAdornmentNone;
                     bdi.kind = bkind;
-                    if (tb->state & State_HasFocus
-                            && QMacStyle::focusRectPolicy(widget) != QMacStyle::FocusDisabled)
+                    if (tb->state & State_HasFocus)
                         bdi.adornment = kThemeAdornmentFocus;
                     if (tb->state & (State_On | State_Sunken)
                                      || (tb->activeSubControls & SC_ToolButtonMenu))
