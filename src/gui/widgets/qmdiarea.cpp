@@ -169,13 +169,14 @@ static void setIndex(int *index, int candidate, int min, int max, bool isIncreas
         if (candidate > max)
             *index = min;
         else
-            *index = candidate;
+            *index = qMax(candidate, min);
     } else {
         if (candidate < min)
             *index = max;
         else
-            *index = candidate;
+            *index = qMin(candidate, max);
     }
+    Q_ASSERT(*index >= min && *index <= max);
 }
 
 /*!
@@ -452,14 +453,13 @@ QMdiAreaPrivate::QMdiAreaPrivate()
       regularTiler(0),
       iconTiler(0),
       placer(0),
+      activationOrder(QMdiArea::CreationOrder),
       ignoreGeometryChange(false),
       ignoreWindowStateChange(false),
       isActivated(false),
       isSubWindowsTiled(false),
       showActiveWindowMaximized(false),
       tileCalledFromResizeEvent(false),
-      indexToNextWindow(-1),
-      indexToPreviousWindow(-1),
       resizeTimerId(-1)
 {
 }
@@ -562,8 +562,8 @@ void QMdiAreaPrivate::appendChild(QMdiSubWindow *child)
         child->setOption(QMdiSubWindow::AllowOutsideAreaVertically, false);
 
     internalRaise(child);
-    indicesToStackedChildren.prepend(childWindows.size() - 1);
-    Q_ASSERT(indicesToStackedChildren.size() == childWindows.size());
+    indicesToActivatedChildren.prepend(childWindows.size() - 1);
+    Q_ASSERT(indicesToActivatedChildren.size() == childWindows.size());
 
     if (!(child->windowFlags() & Qt::SubWindow))
         child->setWindowFlags(Qt::SubWindow);
@@ -735,15 +735,12 @@ void QMdiAreaPrivate::emitWindowActivated(QMdiSubWindow *activeWindow)
         showActiveWindowMaximized = false;
     }
 
-    int indexToActiveWindow = childWindows.indexOf(activeWindow);
+    // Put in front to update activation order.
+    const int indexToActiveWindow = childWindows.indexOf(activeWindow);
     Q_ASSERT(indexToActiveWindow != -1);
-    setIndex(&indexToNextWindow, indexToActiveWindow + 1, 0, childWindows.size() - 1 , true);
-    setIndex(&indexToPreviousWindow, indexToActiveWindow - 1, 0, childWindows.size() - 1, false);
-
-    // Put in front to update stacking order
-    int index = indicesToStackedChildren.indexOf(indexToActiveWindow);
+    const int index = indicesToActivatedChildren.indexOf(indexToActiveWindow);
     Q_ASSERT(index != -1);
-    indicesToStackedChildren.move(index, 0);
+    indicesToActivatedChildren.move(index, 0);
     internalRaise(activeWindow);
 
     Q_ASSERT(aboutToBecomeActive == activeWindow);
@@ -781,45 +778,29 @@ void QMdiAreaPrivate::resetActiveWindow(QMdiSubWindow *deactivatedWindow)
 /*!
     \internal
 */
-void QMdiAreaPrivate::updateActiveWindow(int removedIndex)
+void QMdiAreaPrivate::updateActiveWindow(int removedIndex, bool activeRemoved)
 {
-    Q_ASSERT(indicesToStackedChildren.size() == childWindows.size());
+    Q_ASSERT(indicesToActivatedChildren.size() == childWindows.size());
     if (childWindows.isEmpty()) {
-        indexToNextWindow = -1;
-        indexToPreviousWindow = -1;
         showActiveWindowMaximized = false;
         resetActiveWindow();
         return;
     }
 
     // Update indices list
-    for (int i = 0; i < indicesToStackedChildren.size(); ++i) {
-        int *index = &indicesToStackedChildren[i];
+    for (int i = 0; i < indicesToActivatedChildren.size(); ++i) {
+        int *index = &indicesToActivatedChildren[i];
         if (*index > removedIndex)
             --*index;
     }
 
-    // This is -1 only if there's no active window
-    if (indexToNextWindow == -1) {
-        Q_ASSERT(!active);
+    if (!activeRemoved)
         return;
-    }
 
-    // Check if active window was removed
-    if (indexToNextWindow - 1 == removedIndex) {
-        activateWindow(childWindows.at(removedIndex));
-    } else if (indexToNextWindow == 0 && removedIndex == childWindows.size()) {
-        activateWindow(childWindows.at(0));
-    // Active window is still in charge, update next and previous indices
-    // if necessary.
-    } else if (indexToNextWindow > removedIndex) {
-        int nextCandidate = indexToNextWindow - 1;
-        int prevCandidate = indexToPreviousWindow;
-        if (indexToPreviousWindow >= removedIndex)
-            --prevCandidate;
-        setIndex(&indexToNextWindow, nextCandidate, 0, childWindows.size(), true);
-        setIndex(&indexToPreviousWindow, prevCandidate, 0, childWindows.size(), false);
-    }
+    // Activate next window.
+    QMdiSubWindow *next = nextVisibleSubWindow(0, removedIndex);
+    if (next)
+        activateWindow(next);
 }
 
 /*!
@@ -994,6 +975,52 @@ void QMdiAreaPrivate::scrollBarPolicyChanged(Qt::Orientation orientation, Qt::Sc
 }
 
 /*!
+    \internal
+*/
+QMdiSubWindow *QMdiAreaPrivate::nextVisibleSubWindow(int increaseFactor, int removedIndex) const
+{
+    if (childWindows.isEmpty())
+        return 0;
+
+    Q_Q(const QMdiArea);
+    const QList<QMdiSubWindow *> subWindows = q->subWindowList(activationOrder);
+    QMdiSubWindow *current = removedIndex >= 0 ? 0 : q->currentSubWindow();
+
+    // There's no current sub-window (removed or deactivated),
+    // so we have to pick the last active or the next in creation order.
+    if (!current) {
+        if (removedIndex >= 0 && activationOrder == QMdiArea::CreationOrder) {
+            int candidateIndex = -1;
+            setIndex(&candidateIndex, removedIndex, 0, subWindows.size() - 1, true);
+            current = childWindows.at(candidateIndex);
+        } else {
+            current = subWindows.back();
+        }
+    }
+    Q_ASSERT(current);
+
+    // Find the index for the current sub-window in the given activation order
+    const int indexToCurrent = subWindows.indexOf(current);
+    const bool increasing = increaseFactor > 0 ? true : false;
+
+    // and use that index + increseFactor as a candidate.
+    int index = -1;
+    setIndex(&index, indexToCurrent + increaseFactor, 0, subWindows.size() - 1, increasing);
+    Q_ASSERT(index != -1);
+
+    // Try to find another window if the candidate is hidden.
+    while (subWindows.at(index)->isHidden()) {
+        setIndex(&index, index + increaseFactor, 0, subWindows.size() - 1, increasing);
+        if (index == indexToCurrent)
+            break;
+    }
+
+    if (!subWindows.at(index)->isHidden())
+        return subWindows.at(index);
+    return 0;
+}
+
+/*!
     Constructs an empty mdi area. \a parent is passed to QWidget's
     constructor.
 */
@@ -1095,8 +1122,8 @@ QMdiSubWindow *QMdiArea::currentSubWindow() const
     if (d->isActivated)
         return 0;
 
-    Q_ASSERT(d->indicesToStackedChildren.count() > 0);
-    int index = d->indicesToStackedChildren.at(0);
+    Q_ASSERT(d->indicesToActivatedChildren.count() > 0);
+    int index = d->indicesToActivatedChildren.at(0);
     Q_ASSERT(index >= 0 && index < d->childWindows.size());
     QMdiSubWindow *current = d->childWindows.at(index);
     Q_ASSERT(current);
@@ -1182,12 +1209,20 @@ QList<QMdiSubWindow *> QMdiArea::subWindowList(WindowOrder order) const
                 continue;
             list.append(child);
         }
-    } else { // StackingOrder
+    } else if (order == StackingOrder) {
         QList<QMdiSubWindow *> staysOnTopChildren;
         foreach (QObject *object, viewport()->children()) {
             QMdiSubWindow *child = qobject_cast<QMdiSubWindow *>(object);
             if (child && d->childWindows.contains(child))
                 list.append(child);
+        }
+    } else { // ActivationHistoryOrder
+        Q_ASSERT(d->indicesToActivatedChildren.size() == d->childWindows.size());
+        for (int i = d->indicesToActivatedChildren.count() - 1; i >= 0; --i) {
+            QMdiSubWindow *child = d->childWindows.at(d->indicesToActivatedChildren.at(i));
+            if (!sanityCheck(child, "QMdiArea::subWindowList"))
+                continue;
+            list.append(child);
         }
     }
     return list;
@@ -1230,21 +1265,9 @@ void QMdiArea::activateNextSubWindow()
     if (d->childWindows.isEmpty())
         return;
 
-    int index = qMax(d->indexToNextWindow, 0);
-    Q_ASSERT(index >= 0 && index < d->childWindows.size());
-    if (!sanityCheck(d->childWindows.at(index), "QMdiArea::activateNextSubWindow"))
-        return;
-
-    int originalIndex = index;
-    while (d->childWindows.at(index)->isHidden()) {
-        setIndex(&index, index + 1, 0, d->childWindows.size() - 1, true);
-        Q_ASSERT(index >= 0 && index < d->childWindows.size());
-        if (index == originalIndex)
-            break;
-    }
-
-    if (!d->childWindows.at(index)->isHidden())
-        d->activateWindow(d->childWindows.at(index));
+    QMdiSubWindow *next = d->nextVisibleSubWindow(1);
+    if (next)
+        d->activateWindow(next);
 }
 
 /*!
@@ -1260,22 +1283,9 @@ void QMdiArea::activatePreviousSubWindow()
     if (d->childWindows.isEmpty())
         return;
 
-    int index = d->indexToPreviousWindow >= 0 ? d->indexToPreviousWindow
-                                              : d->childWindows.size() - 1;
-    Q_ASSERT(index >= 0 && index < d->childWindows.size());
-    if (!sanityCheck(d->childWindows.at(index), "QMdiArea::activatePreviousSubWindow"))
-        return;
-
-    int originalIndex = index;
-    while (d->childWindows.at(index)->isHidden()) {
-        setIndex(&index, index - 1, 0, d->childWindows.size() - 1, false);
-        Q_ASSERT(index >= 0 && index < d->childWindows.size());
-        if (index == originalIndex)
-            break;
-    }
-
-    if (!d->childWindows.at(index)->isHidden())
-        d->activateWindow(d->childWindows.at(index));
+    QMdiSubWindow *previous = d->nextVisibleSubWindow(-1);
+    if (previous)
+        d->activateWindow(previous);
 }
 
 /*!
@@ -1359,8 +1369,8 @@ void QMdiArea::removeSubWindow(QWidget *widget)
             return;
         }
         d->childWindows.removeAll(child);
-        d->indicesToStackedChildren.removeAll(index);
-        d->updateActiveWindow(index);
+        d->indicesToActivatedChildren.removeAll(index);
+        d->updateActiveWindow(index, d->active == child);
         child->setParent(0);
         return;
     }
@@ -1401,6 +1411,19 @@ void QMdiArea::setBackground(const QBrush &brush)
         d->background = brush;
         update();
     }
+}
+
+QMdiArea::WindowOrder QMdiArea::activationOrder() const
+{
+    Q_D(const QMdiArea);
+    return d->activationOrder;
+}
+
+void QMdiArea::setActivationOrder(WindowOrder order)
+{
+    Q_D(QMdiArea);
+    if (order != d->activationOrder)
+        d->activationOrder = order;
 }
 
 /*!
@@ -1562,9 +1585,10 @@ bool QMdiArea::viewportEvent(QEvent *event)
                     if (mdiChild && mdiChild->isMaximized())
                         d->showActiveWindowMaximized = true;
                 }
+                const bool activeRemoved = i == d->indicesToActivatedChildren.at(0);
                 d->childWindows.removeAt(i);
-                d->indicesToStackedChildren.removeAll(i);
-                d->updateActiveWindow(i);
+                d->indicesToActivatedChildren.removeAll(i);
+                d->updateActiveWindow(i, activeRemoved);
                 d->arrangeMinimizedSubWindows();
                 break;
             }
@@ -1574,8 +1598,6 @@ bool QMdiArea::viewportEvent(QEvent *event)
     }
     case QEvent::Destroy:
         d->isSubWindowsTiled = false;
-        d->indexToNextWindow = -1;
-        d->indexToPreviousWindow = -1;
         d->resetActiveWindow();
         d->childWindows.clear();
         qWarning("QMdiArea: Deleting the view port is undefined, use setViewport instead.");

@@ -118,10 +118,11 @@ public:
     QList<Rearranger *> pendingRearrangements;
     QList< QPointer<QMdiSubWindow> > pendingPlacements;
     QList< QPointer<QMdiSubWindow> > childWindows;
-    QList<int> indicesToStackedChildren;
+    QList<int> indicesToActivatedChildren;
     QPointer<QMdiSubWindow> active;
     QPointer<QMdiSubWindow> aboutToBecomeActive;
     QBrush background;
+    QMdiArea::WindowOrder activationOrder;
     QMdiArea::AreaOptions options;
     bool ignoreGeometryChange;
     bool ignoreWindowStateChange;
@@ -129,8 +130,6 @@ public:
     bool isSubWindowsTiled;
     bool showActiveWindowMaximized;
     bool tileCalledFromResizeEvent;
-    int indexToNextWindow;
-    int indexToPreviousWindow;
     int resizeTimerId;
 
     // Slots.
@@ -145,15 +144,14 @@ public:
     void activateWindow(QMdiSubWindow *child);
     void emitWindowActivated(QMdiSubWindow *child);
     void resetActiveWindow(QMdiSubWindow *child = 0);
-    void updateActiveWindow(int removedIndex);
+    void updateActiveWindow(int removedIndex, bool activeRemoved);
     void updateScrollBars();
     void internalRaise(QMdiSubWindow *child) const;
     bool scrollBarsEnabled() const;
     bool lastWindowAboutToBeDestroyed() const;
     QRect resizeToMinimumTileSize(const QSize &minSubWindowSize, int subWindowCount);
-
-    // Reimp
-    void scrollBarPolicyChanged(Qt::Orientation, Qt::ScrollBarPolicy);
+    void scrollBarPolicyChanged(Qt::Orientation, Qt::ScrollBarPolicy); // reimp
+    QMdiSubWindow *nextVisibleSubWindow(int increaseFactor, int removed = -1) const;
 
     inline void startResizeTimer()
     {

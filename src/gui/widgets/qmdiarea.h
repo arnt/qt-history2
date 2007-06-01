@@ -29,6 +29,7 @@ class Q_GUI_EXPORT QMdiArea : public QAbstractScrollArea
 {
     Q_OBJECT
     Q_PROPERTY(QBrush background READ background WRITE setBackground)
+    Q_PROPERTY(WindowOrder activationOrder READ activationOrder WRITE setActivationOrder)
 public:
     enum AreaOption {
         DontMaximizeSubWindowOnActivation = 0x1
@@ -37,7 +38,8 @@ public:
 
     enum WindowOrder {
         CreationOrder,
-        StackingOrder
+        StackingOrder,
+        ActivationHistoryOrder
     };
 
     QMdiArea(QWidget *parent = 0);
@@ -55,6 +57,9 @@ public:
 
     QBrush background() const;
     void setBackground(const QBrush &background);
+
+    WindowOrder activationOrder() const;
+    void setActivationOrder(WindowOrder order);
 
     void setOption(AreaOption option, bool on = true);
     bool testOption(AreaOption opton) const;
