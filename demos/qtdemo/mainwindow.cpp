@@ -261,7 +261,7 @@ void MainWindow::checkAdapt()
     this->forceFpsMedianCalculation();
     Colors::benchmarkFps = this->fpsMedian;
     if (Colors::verbose)
-        qDebug() << "- benchmark:" << QString::number(Colors::benchmarkFps);
+        qDebug() << "- benchmark:" << QString::number(Colors::benchmarkFps) << "FPS";
 
     if (Colors::noAdapt)
         return;
@@ -359,8 +359,6 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
             s += Colors::noAdapt ? "off" : "on";
             s += "\nAdaption occured: ";
             s += Colors::adapted ? "yes" : "no";
-            s += "\nLow settings: ";
-            s += Colors::low ? "yes" : "no";
             s += "\nOpenGL version: ";
             s += Colors::glVersion;
             QWidget w;

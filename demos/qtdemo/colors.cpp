@@ -63,7 +63,6 @@ bool Colors::showFps = false;
 bool Colors::noAdapt = false;
 bool Colors::noWindowMask = true;
 bool Colors::useButtonBalls = false;
-bool Colors::low = false;
 bool Colors::useEightBitPalette = false;
 bool Colors::noTimerUpdate = false;
 bool Colors::noTickerMorph = false;
@@ -187,7 +186,7 @@ void Colors::parseArgs(int argc, char *argv[])
         else if (s == "-no-adapt")
             Colors::noAdapt = true;
         else if (s == "-low")
-            Colors::low = true;
+            Colors::setLowSettings();
         else if (s == "-no-rescale")
             Colors::noRescale = true;
         else if (s == "-use-pixmaps")
@@ -242,6 +241,19 @@ void Colors::parseArgs(int argc, char *argv[])
     Colors::postConfigure();
 }
 
+void Colors::setLowSettings()
+{
+    Colors::openGlRendering = false;
+    Colors::direct3dRendering = false;
+    Colors::softwareRendering = true;
+    Colors::noTicker = true;
+    Colors::noTimerUpdate = true;
+    Colors::fps = 30;
+    Colors::usePixmaps = true;
+    Colors::noAnimations = true;
+    Colors::noBlending = true;
+}
+
 void Colors::detectSystemResources()
 {
 #ifndef QT_NO_OPENGL    
@@ -294,39 +306,21 @@ void Colors::detectSystemResources()
 
 void Colors::postConfigure()
 {
-    if (Colors::noAdapt){
-        Colors::noTicker = false;
-	    Colors::noTimerUpdate = false;
-	    Colors::fps = 100;
-        Colors::usePixmaps = false;
-        Colors::noAnimations = false;
-        Colors::noBlending = false;
-        Colors::useEightBitPalette = false;
-        if (Colors::verbose)
-            qDebug("- Adapt: 'No adaption' set. Switching all effects on");
-    } else {
+    if (!Colors::noAdapt){
         QWidget w;
         if (w.depth() < 16){
             Colors::useEightBitPalette = true;
             Colors::adapted = true;
             if (Colors::verbose)
-                qDebug() << "- Adapt: Using 8 bit palette";
+                qDebug() << "- Adapt: Color depth less than 16 bit. Using 8 bit palette";
         }
-        
-        if (Colors::low || !Colors::xRenderPresent){
+
+        if (!Colors::xRenderPresent){
+            Colors::setLowSettings();
             Colors::adapted = true;
-            Colors::openGlRendering = false;
-            Colors::direct3dRendering = false;
-            Colors::softwareRendering = true;
-            Colors::noTicker = true;
-            Colors::noTimerUpdate = true;
-            Colors::fps = 30;
-            Colors::usePixmaps = true;
-            Colors::noAnimations = true;
-            Colors::noBlending = true;
             if (Colors::verbose)
-                qDebug() << "- Adapt: Using low settings";
-        }    
+                qDebug() << "- Adapt: X renderer not present. Using low settings";
+        }
     }
 
 #if !defined(Q_WS_WIN)

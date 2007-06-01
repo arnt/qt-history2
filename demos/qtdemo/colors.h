@@ -26,6 +26,7 @@ public:
     static void parseArgs(int argc, char *argv[]);
     static void detectSystemResources();
     static void postConfigure();
+    static void setLowSettings();
     
     // Colors:
     static QColor sceneBg1;
@@ -58,7 +59,6 @@ public:
     static bool openGlAwailable;
     static bool direct3dAwailable;
     static bool xRenderPresent;
-    static bool low;
     static bool noAdapt;
     static bool noTicker;
     static bool noRescale;
