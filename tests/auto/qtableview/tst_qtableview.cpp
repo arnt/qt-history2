@@ -2502,7 +2502,9 @@ void tst_QTableView::span()
         QVERIFY(view.isIndexHidden(hidden));
     }
 
-    // a comment
+    view.clearSpanns();
+    QCOMPARE(view.rowSpan(row, column), 1);
+    QCOMPARE(view.columnSpan(row, column), 1);
 }
 
 
