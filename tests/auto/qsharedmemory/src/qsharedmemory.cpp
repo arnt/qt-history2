@@ -141,7 +141,7 @@ QString QSharedMemory::key() const
 
     \sa error()
  */
-bool QSharedMemory::create(int size, OpenMode mode)
+bool QSharedMemory::create(int size, AccessMode mode)
 {
     Q_D(QSharedMemory);
     QSharedMemoryLocker lock(this);
@@ -173,7 +173,7 @@ int QSharedMemory::size() const
 }
 
 /*!
-    \enum QSharedMemory::OpenMode
+    \enum QSharedMemory::AccessMode
 
     \value ReadOnly The shared memory can only be read from.  If an attempt is
                     made to write to the memory the program will segfault.
@@ -187,7 +187,7 @@ int QSharedMemory::size() const
 
     \sa isAttached(), detach(), create()
  */
-bool QSharedMemory::attach(OpenMode mode)
+bool QSharedMemory::attach(AccessMode mode)
 {
     Q_D(QSharedMemory);
     QSharedMemoryLocker lock(this);

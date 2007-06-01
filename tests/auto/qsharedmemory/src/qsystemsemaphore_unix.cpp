@@ -41,7 +41,7 @@ QSystemSemaphorePrivate::QSystemSemaphorePrivate() :
 
     Setup unix_key
  */
-key_t QSystemSemaphorePrivate::handle(QSystemSemaphore::OpenMode mode)
+key_t QSystemSemaphorePrivate::handle(QSystemSemaphore::AccessMode mode)
 {
     if (key.isEmpty())
         return -1;

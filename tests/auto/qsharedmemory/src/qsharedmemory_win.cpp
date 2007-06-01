@@ -125,7 +125,7 @@ bool QSharedMemoryPrivate::create(int size)
     return true;
 }
 
-bool QSharedMemoryPrivate::attach(QSharedMemory::OpenMode mode)
+bool QSharedMemoryPrivate::attach(QSharedMemory::AccessMode mode)
 {
     // Grab a pointer to the memory block
     int permisions = (mode == QSharedMemory::ReadOnly ? FILE_MAP_READ : FILE_MAP_ALL_ACCESS);

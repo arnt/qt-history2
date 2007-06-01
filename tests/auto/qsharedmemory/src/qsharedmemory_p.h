@@ -81,7 +81,7 @@ public:
 #endif
     bool cleanHandle();
     bool create(int size);
-    bool attach(QSharedMemory::OpenMode mode);
+    bool attach(QSharedMemory::AccessMode mode);
     bool detach();
 
     void setErrorString(const QString &function);

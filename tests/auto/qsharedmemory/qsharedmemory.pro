@@ -1,2 +1,2 @@
 TEMPLATE = subdirs
-SUBDIRS = lackey test qsystemlock qsystemsemaphore
+SUBDIRS = lackey test qsystemlock

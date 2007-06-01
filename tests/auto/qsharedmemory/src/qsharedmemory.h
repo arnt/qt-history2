@@ -29,7 +29,7 @@ class QSharedMemory : public QObject
     Q_DECLARE_PRIVATE(QSharedMemory)
 
 public:
-    enum OpenMode
+    enum AccessMode
     {
         ReadOnly,
         ReadWrite
@@ -55,10 +55,10 @@ public:
     void setKey(const QString &key);
     QString key() const;
 
-    bool create(int size, OpenMode mode = ReadWrite);
+    bool create(int size, AccessMode mode = ReadWrite);
     int size() const;
 
-    bool attach(OpenMode mode = ReadWrite);
+    bool attach(AccessMode mode = ReadWrite);
     bool isAttached() const;
     bool detach();
 

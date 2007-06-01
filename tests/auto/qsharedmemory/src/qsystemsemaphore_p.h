@@ -31,9 +31,9 @@ public:
     }
 
 #ifdef Q_OS_WIN
-    HANDLE handle(QSystemSemaphore::OpenMode mode = QSystemSemaphore::Open);
+    HANDLE handle(QSystemSemaphore::AccessMode mode = QSystemSemaphore::Open);
 #else
-    key_t handle(QSystemSemaphore::OpenMode mode = QSystemSemaphore::Open);
+    key_t handle(QSystemSemaphore::AccessMode mode = QSystemSemaphore::Open);
 #endif
     void cleanHandle();
     bool modifySemaphore(int count);

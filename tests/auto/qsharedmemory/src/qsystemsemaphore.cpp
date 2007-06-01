@@ -62,7 +62,7 @@
 
     \sa acquire(), key().
  */
-QSystemSemaphore::QSystemSemaphore(const QString &key, int initialValue, OpenMode mode)
+QSystemSemaphore::QSystemSemaphore(const QString &key, int initialValue, AccessMode mode)
 {
     d = new QSystemSemaphorePrivate;
     setKey(key, initialValue, mode);
@@ -82,7 +82,7 @@ QSystemSemaphore::~QSystemSemaphore()
 }
 
 /*!
-    \enum QSystemSemaphore::OpenMode
+    \enum QSystemSemaphore::AccessMode
 
     \value Open If the semaphore already exists initialValue is not set.
                 If the semaphore doesn't exists it will be created and the
@@ -108,7 +108,7 @@ QSystemSemaphore::~QSystemSemaphore()
 
     \sa key(), acquire()
  */
-void QSystemSemaphore::setKey(const QString &key, int initialValue, OpenMode mode)
+void QSystemSemaphore::setKey(const QString &key, int initialValue, AccessMode mode)
 {
     if (key == d->key && mode == Open)
         return;

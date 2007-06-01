@@ -25,7 +25,7 @@ QSystemSemaphorePrivate::QSystemSemaphorePrivate() :
 
     Setup the semaphore
  */
-HANDLE QSystemSemaphorePrivate::handle(QSystemSemaphore::OpenMode)
+HANDLE QSystemSemaphorePrivate::handle(QSystemSemaphore::AccessMode)
 {
     // don't allow making handles on empty keys
     if (key.isEmpty())

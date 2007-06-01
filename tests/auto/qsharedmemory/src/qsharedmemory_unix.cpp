@@ -174,7 +174,7 @@ bool QSharedMemoryPrivate::create(int size)
     return true;
 }
 
-bool QSharedMemoryPrivate::attach(QSharedMemory::OpenMode mode)
+bool QSharedMemoryPrivate::attach(QSharedMemory::AccessMode mode)
 {
     // grab the shared memory segment id
     int id = shmget(handle(), 0, (mode == QSharedMemory::ReadOnly ? 0444 : 0660));

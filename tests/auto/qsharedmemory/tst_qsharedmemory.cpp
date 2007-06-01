@@ -21,7 +21,7 @@
 #define EXISTING_SIZE 1024
 
 Q_DECLARE_METATYPE(QSharedMemory::SharedMemoryError);
-Q_DECLARE_METATYPE(QSharedMemory::OpenMode);
+Q_DECLARE_METATYPE(QSharedMemory::AccessMode);
 
 class tst_QSharedMemory : public QObject
 {
@@ -417,7 +417,7 @@ void tst_QSharedMemory::attachTooMuch()
 
 void tst_QSharedMemory::simpleProducerConsumer_data()
 {
-    QTest::addColumn<QSharedMemory::OpenMode>("mode");
+    QTest::addColumn<QSharedMemory::AccessMode>("mode");
 
     QTest::newRow("readonly") << QSharedMemory::ReadOnly;
     QTest::newRow("readwrite") << QSharedMemory::ReadWrite;
@@ -432,7 +432,7 @@ void tst_QSharedMemory::simpleProducerConsumer_data()
  */
 void tst_QSharedMemory::simpleProducerConsumer()
 {
-    QFETCH(QSharedMemory::OpenMode, mode);
+    QFETCH(QSharedMemory::AccessMode, mode);
 
     rememberKey(QLatin1String("market"));
     QSharedMemory producer(QLatin1String("market"));

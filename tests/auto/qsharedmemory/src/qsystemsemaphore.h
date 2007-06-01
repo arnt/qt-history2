@@ -26,16 +26,16 @@ class QSystemSemaphore
 {
 
 public:
-    enum OpenMode
+    enum AccessMode
     {
         Open,
         Create
     };
 
-    QSystemSemaphore(const QString &key, int initialValue = 0, OpenMode mode = Open);
+    QSystemSemaphore(const QString &key, int initialValue = 0, AccessMode mode = Open);
     ~QSystemSemaphore();
 
-    void setKey(const QString &key, int initialValue = 0, OpenMode mode = Open);
+    void setKey(const QString &key, int initialValue = 0, AccessMode mode = Open);
     QString key() const;
 
     bool acquire();
