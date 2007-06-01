@@ -275,6 +275,7 @@ void Window::createDatesGroupBox()
     datesGroupBox = new QGroupBox(tr("Dates"));
 
     minimumDateEdit = new QDateEdit;
+    minimumDateEdit->setDisplayFormat("MMM d yyyy");
     minimumDateEdit->setDateRange(calendar->minimumDate(),
                                   calendar->maximumDate());
     minimumDateEdit->setDate(calendar->minimumDate());
@@ -283,6 +284,7 @@ void Window::createDatesGroupBox()
     minimumDateLabel->setBuddy(minimumDateEdit);
 
     currentDateEdit = new QDateEdit;
+    currentDateEdit->setDisplayFormat("MMM d yyyy");
     currentDateEdit->setDate(calendar->selectedDate());
     currentDateEdit->setDateRange(calendar->minimumDate(),
                                   calendar->maximumDate());
@@ -291,6 +293,7 @@ void Window::createDatesGroupBox()
     currentDateLabel->setBuddy(currentDateEdit);
 
     maximumDateEdit = new QDateEdit;
+    maximumDateEdit->setDisplayFormat("MMM d yyyy");
     maximumDateEdit->setDateRange(calendar->minimumDate(),
                                   calendar->maximumDate());
     maximumDateEdit->setDate(calendar->maximumDate());
