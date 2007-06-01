@@ -146,6 +146,7 @@ private slots:
     void spanningItems();
     void rowSizeHint();
     void setSortingEnabled();
+    void headerHidden();
 
     void selection();
     void removeAndInsertExpandedCol0();
@@ -2170,6 +2171,17 @@ void tst_QTreeView::setSortingEnabled()
     }
 }
 
+void tst_QTreeView::headerHidden()
+{
+    QTreeView view;
+    QStandardItemModel model;
+    view.setModel(&model);
+    QCOMPARE(view.isHeaderHidden(), false);
+    QCOMPARE(view.header()->isHidden(), false);
+    view.setHeaderHidden(true);
+    QCOMPARE(view.isHeaderHidden(), true);
+    QCOMPARE(view.header()->isHidden(), true);
+}
 
 // From Task 145199 (crash when column 0 having at least one expanded item is removed and then
 // inserted). The test passes simply iff it doesn't crash, hence there are no calls
