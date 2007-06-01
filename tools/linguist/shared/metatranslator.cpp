@@ -14,6 +14,7 @@
 #include "metatranslator.h"
 #include "translator.h"
 #include "xliff.h"
+#include "qconsole.h"
 
 #include <QApplication>
 #include <QByteArray>
@@ -609,12 +610,12 @@ bool MetaTranslator::release( QIODevice *iod, bool verbose /*= false*/,
     bool saved = tor.save( iod, mode );
     if ( saved && verbose ) {
         int generatedCount = finished + unfinished;
-        fprintf( stderr,
-            "    Generated %d translation%s (%d finished and %d unfinished)\n",
-            generatedCount, generatedCount == 1 ? "" : "s", finished, unfinished);
+        Console::out( QCoreApplication::translate("LRelease", 
+            "    Generated %n translation(s) (%1 finished and %2 unfinished)\n", 0, 
+            QCoreApplication::CodecForTr, generatedCount).arg(finished).arg(unfinished));
         if (untranslated)
-            fprintf( stderr, "    Ignored %d untranslated source text%s\n", 
-                untranslated, untranslated == 1 ? "" : "s");
+            Console::out(QCoreApplication::translate("LRelease", 
+            "    Ignored %n untranslated source text(s)\n", 0, QCoreApplication::CodecForTr, untranslated));
     }
     return saved;
 }

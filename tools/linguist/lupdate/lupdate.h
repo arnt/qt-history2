@@ -1,4 +1,5 @@
 #include "metatranslator.h"
+#include "qconsole.h"
 #include <QtCore>
 #include <stdio.h>
 
@@ -36,13 +37,5 @@ public:
 private:
     const char *m_defaultExtensions;
 
-};
-
-
-struct Console {
-    static void out(const QString &message) {
-        QTextStream stream(stdout);
-        stream << message;
-    }
 };
 

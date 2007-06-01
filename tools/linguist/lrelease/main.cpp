@@ -13,6 +13,8 @@
 
 #include "metatranslator.h"
 #include "proparser.h"
+#include "qconsole.h"
+#include "lrelease.h"
 
 #include <QDir>
 #include <QFile>
@@ -20,15 +22,13 @@
 #include <QRegExp>
 #include <QString>
 #include <QStringList>
-#include <QTextStream>
-
 #include <errno.h>
 
 typedef QList<MetaTranslatorMessage> TML;
 
 static void printUsage()
 {
-    fprintf( stderr, "Usage:\n"
+    Console::out(LRelease::tr("Usage:\n"
               "    lrelease [options] project-file\n"
               "    lrelease [options] ts-files [-qm qm-file]\n"
               "Options:\n"
@@ -40,7 +40,7 @@ static void printUsage()
               "    -silent\n"
               "           Don't explain what is being done\n"
               "    -version\n"
-              "           Display the version of lrelease and exit\n" );
+              "           Display the version of lrelease and exit\n" ));
 }
 
 static bool loadTsFile( MetaTranslator& tor, const QString& tsFileName,
@@ -52,8 +52,7 @@ static bool loadTsFile( MetaTranslator& tor, const QString& tsFileName,
 
     bool ok = tor.load( tsFileName );
     if ( !ok )
-        fprintf( stderr,
-                 "lrelease warning: For some reason, I cannot load '%s'\n",
+        qWarning("lrelease warning: For some reason, I cannot load '%s'\n",
                  tsFileName.toLatin1().data() );
     return ok;
 }
@@ -63,12 +62,11 @@ static void releaseMetaTranslator( const MetaTranslator& tor,
                                    bool ignoreUnfinished, bool trimmed )
 {
     if ( verbose )
-        fprintf( stderr, "Updating '%s'...\n", qmFileName.toLatin1().constData() );
+        Console::out(LRelease::tr( "Updating '%1'...\n").arg(qmFileName));
     if ( !tor.release(qmFileName, verbose, ignoreUnfinished,
                       trimmed ? Translator::Stripped
                                : Translator::Everything) )
-        fprintf( stderr,
-                 "lrelease warning: For some reason, I cannot save '%s'\n",
+        qWarning("lrelease warning: For some reason, I cannot save '%s'\n",
                  qmFileName.toLatin1().constData() );
 }
 
@@ -87,6 +85,12 @@ static void releaseTsFile( const QString& tsFileName, bool verbose,
 
 int main( int argc, char **argv )
 {
+    LRelease app(argc, argv);
+    QStringList args = app.arguments();
+    QTranslator translator(0);
+    if (translator.load(QLatin1String("lrelease_") + QLocale::system().name()))
+        app.installTranslator(&translator);
+
     bool verbose = true; // the default is true starting with Qt 4.2
     bool ignoreUnfinished = false;
     bool trimmed = false; // the default is false starting with Qt 4.2
@@ -99,7 +103,7 @@ int main( int argc, char **argv )
         if ( qstrcmp(argv[i], "-compress") == 0 ) {
             trimmed = true;
             continue;
-	} if ( qstrcmp(argv[i], "-nocompress") == 0 ) {
+	    } if ( qstrcmp(argv[i], "-nocompress") == 0 ) {
             trimmed = false;
             continue;
         } else if ( qstrcmp(argv[i], "-nounfinished") == 0 ) {
@@ -112,7 +116,7 @@ int main( int argc, char **argv )
             verbose = true;
             continue;
         } else if ( qstrcmp(argv[i], "-version") == 0 ) {
-            fprintf( stderr, "lrelease version %s\n", QT_VERSION_STR );
+            Console::out(LRelease::tr( "lrelease version %1\n").arg(QT_VERSION_STR) );
             return 0;
         } else if ( qstrcmp(argv[i], "-qm") == 0 ) {
             if ( i == argc - 1 ) {
@@ -148,12 +152,10 @@ int main( int argc, char **argv )
 #if defined(_MSC_VER) && _MSC_VER >= 1400
 			char buf[100];
 			strerror_s(buf, sizeof(buf), errno);
-			fprintf( stderr,
-                     "lrelease error: Cannot open file '%s': %s\n", argv[i],
+			qWarning( "lrelease error: Cannot open file '%s': %s\n", argv[i],
                      buf );
 #else
-            fprintf( stderr,
-                     "lrelease error: Cannot open file '%s': %s\n", argv[i],
+            qWarning( "lrelease error: Cannot open file '%s': %s\n", argv[i],
                      strerror(errno) );
 #endif
             return 1;
@@ -179,8 +181,7 @@ int main( int argc, char **argv )
             if (ok) {
                 QStringList translations = varMap.value("TRANSLATIONS");
                 if (translations.isEmpty()) {
-                    fprintf( stderr,
-                             "lrelease warning: Met no 'TRANSLATIONS' entry in"
+                    qWarning("lrelease warning: Met no 'TRANSLATIONS' entry in"
                              " project file '%s'\n",
                              argv[i] );
                 } else {
@@ -191,7 +192,7 @@ int main( int argc, char **argv )
 
                 QDir::setCurrent( oldDir );
             } else {
-                fprintf( stderr, "error: lrelease encountered project file functionality that is currently not supported.\n"
+                qWarning("error: lrelease encountered project file functionality that is currently not supported.\n"
                     "You might want to consider using .ts files as input instead of a project file.\n"
                     "Try the following syntax:\n"
                     "    lrelease [options] ts-files [-qm qm-file]\n");
