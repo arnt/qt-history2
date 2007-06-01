@@ -968,6 +968,8 @@ void QScript::QtFunction::execute(QScriptContextPrivate *context)
     int chosenIndex = -1;
     QVarLengthArray<QVariant, 9> args;
     QVector<QScriptMetaArguments> candidates;
+    QVector<int> tooFewArgs;
+    QVector<int> conversionFailed;
     for (int index = m_initialIndex; index >= 0; --index) {
 #ifndef Q_SCRIPT_NO_QMETAOBJECT_CACHE
         QScriptMetaMethod mtd = metaCache->findMethod(index);
@@ -1030,8 +1032,10 @@ void QScript::QtFunction::execute(QScriptContextPrivate *context)
         else if (mtd.name() != funName)
             continue;
 
-        if (context->argumentCount() < mtd.argumentCount())
+        if (context->argumentCount() < mtd.argumentCount()) {
+            tooFewArgs.append(index);
             continue;
+        }
 
         if (!mtd.fullyResolved()) {
             // remember it so we can give an error message later, if necessary
@@ -1228,6 +1232,8 @@ void QScript::QtFunction::execute(QScriptContextPrivate *context)
             } else {
                 candidates.append(QScriptMetaArguments(matchDistance, index, mtd, args));
             }
+        } else {
+            conversionFailed.append(index);
         }
 
         if (!m_maybeOverloaded)
@@ -1235,12 +1241,22 @@ void QScript::QtFunction::execute(QScriptContextPrivate *context)
     }
 
     if ((chosenIndex == -1) && candidates.isEmpty()) {
-        // conversion failed, or incorrect number of arguments
-        result = context->throwError(
-            QScriptContext::SyntaxError,
-            QString::fromUtf8("incorrect number or type of arguments in call to %0::%1()")
-            .arg(QLatin1String(meta->className()))
-            .arg(QLatin1String(funName)));
+        if (!conversionFailed.isEmpty()) {
+            result = context->throwError(
+                QScriptContext::TypeError,
+                QString::fromUtf8("incompatible type of argument(s) in call to %0()")
+                .arg(QLatin1String(funName)));
+        } else {
+            QString message = QString::fromLatin1("too few arguments in call to %0(); candidates are\n")
+                              .arg(QLatin1String(funName));
+            for (int i = 0; i < tooFewArgs.size(); ++i) {
+                if (i > 0)
+                    message += QLatin1String("\n");
+                QMetaMethod mtd = meta->method(tooFewArgs.at(i));
+                message += QString::fromLatin1("    %0").arg(QString::fromLatin1(mtd.signature()));
+            }
+            result = context->throwError(QScriptContext::SyntaxError, message);
+        }
     } else {
         if (chosenIndex == -1) {
             // pick the best match
@@ -1313,8 +1329,7 @@ void QScript::QtFunction::execute(QScriptContextPrivate *context)
             QScriptMetaType unresolvedType = argsInstance.method.type(unresolvedIndex);
             result = context->throwError(
                 QScriptContext::TypeError,
-                QString::fromUtf8("cannot call %0::%1(): unknown type `%2'")
-                .arg(QLatin1String(meta->className()))
+                QString::fromLatin1("cannot call %0(): unknown type `%1'")
                 .arg(QString::fromLatin1(funName))
                 .arg(QLatin1String(unresolvedType.name())));
         }

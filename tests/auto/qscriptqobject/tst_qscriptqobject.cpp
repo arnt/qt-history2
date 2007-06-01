@@ -27,6 +27,7 @@ Q_DECLARE_METATYPE(CustomType)
 Q_DECLARE_METATYPE(QBrush*)
 Q_DECLARE_METATYPE(QObjectList)
 Q_DECLARE_METATYPE(QList<int>)
+Q_DECLARE_METATYPE(Qt::BrushStyle)
 
 class MyQObject : public QObject
 {
@@ -199,6 +200,8 @@ public:
         { m_qtFunctionInvoked = 18; m_actuals << qVariantFromValue(obj); return obj; }
     Q_INVOKABLE QBrush myInvokableWithQBrushArg(const QBrush &brush)
         { m_qtFunctionInvoked = 19; m_actuals << qVariantFromValue(brush); return brush; }
+    Q_INVOKABLE void myInvokableWithBrushStyleArg(Qt::BrushStyle style)
+        { m_qtFunctionInvoked = 43; m_actuals << qVariantFromValue(style); }
 
     void emitMySignal()
         { emit mySignal(); }
@@ -906,6 +909,31 @@ void tst_QScriptExtQObject::callQtInvokable()
     m_myObject->resetQtFunctionInvoked();
     m_engine->evaluate("myObject.myProtectedSlot()");
     QCOMPARE(m_myObject->qtFunctionInvoked(), 36);
+
+    // call with too few arguments
+    {
+        QScriptValue ret = m_engine->evaluate("myObject.myInvokableWithIntArg()");
+        QVERIFY(ret.isError());
+        QCOMPARE(ret.toString(), QLatin1String("SyntaxError: too few arguments in call to myInvokableWithIntArg(); candidates are\n    myInvokableWithIntArg(int,int)\n    myInvokableWithIntArg(int)"));
+    }
+
+    // call function where not all types have been registered
+    m_myObject->resetQtFunctionInvoked();
+    {
+        QScriptValue ret = m_engine->evaluate("myObject.myInvokableWithBrushStyleArg(0)");
+        QVERIFY(ret.isError());
+        QCOMPARE(ret.toString(), QLatin1String("TypeError: cannot call myInvokableWithBrushStyleArg(): unknown type `Qt::BrushStyle'"));
+        QCOMPARE(m_myObject->qtFunctionInvoked(), -1);
+    }
+
+    // call function with incompatible argument type
+    m_myObject->resetQtFunctionInvoked();
+    {
+        QScriptValue ret = m_engine->evaluate("myObject.myInvokableWithQBrushArg(null)");
+        QVERIFY(ret.isError());
+        QCOMPARE(ret.toString(), QLatin1String("TypeError: incompatible type of argument(s) in call to myInvokableWithQBrushArg()"));
+        QCOMPARE(m_myObject->qtFunctionInvoked(), -1);
+    }
 }
 
 void tst_QScriptExtQObject::connectAndDisconnect()
