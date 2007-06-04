@@ -112,8 +112,7 @@ void QSystemSemaphorePrivate::cleanHandle()
 
     if (createdSemaphore) {
         if (-1 != semaphore) {
-            struct shmid_ds shmid_ds;
-            if (-1 == semctl(semaphore, 0, IPC_RMID, shmid_ds)) {
+            if (-1 == semctl(semaphore, 0, IPC_RMID)) {
 #if defined QSYSTEMSEMAPHORE_DEBUG
                 qDebug() << QLatin1String("QSystemSemaphore::cleanHandle semctl failed.");
 #endif
