@@ -459,6 +459,8 @@ public:
     {
         QSharedMemory consumer(QLatin1String("market"));
         while (!consumer.attach()) {
+            if (consumer.error() != QSharedMemory::NotFound);
+                qDebug() << consumer.errorString();
             QVERIFY(consumer.error() == QSharedMemory::NotFound);
             QTest::qWait(1);
         }
