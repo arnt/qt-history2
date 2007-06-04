@@ -371,7 +371,7 @@ void tst_QSharedMemory::useTooMuchMemory()
         QSharedMemory *sm = new QSharedMemory(rememberKey(key));
         QVERIFY(sm);
         jail.append(sm);
-        success = sm->create(1024);
+        success = sm->create(32768);
         if (!success) {
             QVERIFY(!sm->isAttached());
             QCOMPARE(sm->key(), key);
@@ -460,7 +460,7 @@ public:
         QSharedMemory consumer(QLatin1String("market"));
         while (!consumer.attach()) {
             if (consumer.error() != QSharedMemory::NotFound);
-                qDebug() << consumer.errorString();
+                qDebug() << consumer.error() << consumer.errorString();
             QVERIFY(consumer.error() == QSharedMemory::NotFound);
             QTest::qWait(1);
         }
