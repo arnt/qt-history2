@@ -378,6 +378,8 @@ void tst_QSharedMemory::useTooMuchMemory()
             QCOMPARE(sm->size(), 0);
             QVERIFY(sm->data() == 0);
             // ### Linux wont return OutOfResources, but already exists
+            if (sm->error() != QSharedMemory::OutOfResources)
+                qDebug() << sm->error() << sm->errorString();
             QCOMPARE(sm->error(), QSharedMemory::OutOfResources);
             QVERIFY(sm->errorString() != QString());
             QVERIFY(!sm->attach());
@@ -470,7 +472,6 @@ public:
 
         int i = 0;
         while (true) {
-            QTest::qWait(1);
             QVERIFY(consumer.lock());
             if (memory[0] == 'Q') {
                 memory[0] = ++i;
@@ -486,6 +487,7 @@ public:
                 break;
             }
             QVERIFY(consumer.unlock());
+            QTest::qWait(1);
         }
 
         QVERIFY(consumer.detach());
@@ -512,7 +514,6 @@ public:
 
         int i = 0;
         while (i < 5) {
-            QTest::qWait(1);
             QVERIFY(producer.lock());
             if (put[0] == 'Q') {
                 QVERIFY(producer.unlock());
@@ -522,6 +523,7 @@ public:
             for (int j = 0; j < size; ++j)
                 put[j] = 'Q';
             QVERIFY(producer.unlock());
+            QTest::qWait(1);
         }
 
         QVERIFY(producer.lock());
