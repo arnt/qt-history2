@@ -4305,6 +4305,8 @@ static int qt_intersect_spans(QT_FT_Span *spans, int numSpans,
             spans[n].x = spans[i].x;
             spans[n].len = qMin(spans[i].len, ushort(maxx - spans[n].x + 1));
         }
+        if (spans[n].len == 0)
+            continue;
         spans[n].y = spans[i].y;
         spans[n].coverage = spans[i].coverage;
 
