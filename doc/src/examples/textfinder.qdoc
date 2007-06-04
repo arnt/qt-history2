@@ -76,7 +76,7 @@
     \skipto TextFinder::TextFinder
     \printuntil "lineEdit");
 
-    We then use Qt's meta-object system to enable signal and slot connections.
+    We then use QMetaObject's system to enable signal and slot connections.
 
     \quotefromfile uitools/textfinder/textfinder.cpp
     \skipto QMetaObject
