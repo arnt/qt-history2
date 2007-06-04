@@ -64,6 +64,8 @@ public:
     inline QTextBlockFormat blockFormat() const
         { return block().blockFormat(); }
 
+    QTextLayout *blockLayout(QTextBlock &block) const;
+
     QTextTable *complexSelectionTable() const;
     void selectedTableCells(int *firstRow, int *numRows, int *firstColumn, int *numColumns) const;
 

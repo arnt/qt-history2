@@ -20,6 +20,7 @@
 #include "qtexttable.h"
 #include "qtexttable_p.h"
 #include "qtextengine_p.h"
+#include "qabstracttextdocumentlayout.h"
 
 #include <qtextlayout.h>
 #include <qdebug.h>
@@ -93,8 +94,8 @@ QTextCursorPrivate::AdjustResult QTextCursorPrivate::adjustPosition(int position
 
 void QTextCursorPrivate::setX()
 {
-    QTextBlock block = priv->blocksFind(position);
-    const QTextLayout *layout = block.layout();
+    QTextBlock block = this->block();
+    const QTextLayout *layout = blockLayout(block);
     int pos = position - block.position();
 
     QTextLine line = layout->lineForTextPosition(pos);
@@ -683,6 +684,14 @@ void QTextCursorPrivate::setCharFormat(const QTextCharFormat &_format, QTextDocu
 
         priv->setCharFormat(pos1, pos2-pos1, format, changeMode);
     }
+}
+
+
+QTextLayout *QTextCursorPrivate::blockLayout(QTextBlock &block) const{
+    QTextLayout *tl = block.layout();
+    if (!tl->lineCount())
+        priv->layout()->blockBoundingRect(block);
+    return tl;
 }
 
 /*!
@@ -2153,8 +2162,7 @@ int QTextCursor::columnNumber() const
     if (!block.isValid())
         return 0;
 
-    const QTextLayout *layout = block.layout();
-    Q_ASSERT(layout); // can't happen
+    const QTextLayout *layout = d->blockLayout(block);
 
     const int relativePos = d->position - block.position();
 

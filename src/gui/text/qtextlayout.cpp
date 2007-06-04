@@ -602,6 +602,15 @@ void QTextLayout::endLayout()
         d->freeMemory();
 }
 
+/*!  Clears the line information in the layout. After having called
+  this function, lineCount() returns 0.
+ */
+void QTextLayout::clearLayout()
+{
+    d->invalidate();
+}
+
+
 /*!
     Returns the next valid cursor position after \a oldPos that
     respects the given cursor \a mode.

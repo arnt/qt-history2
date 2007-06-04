@@ -107,6 +107,7 @@ public:
 
     void beginLayout();
     void endLayout();
+    void clearLayout();
 
     QTextLine createLine();
 
