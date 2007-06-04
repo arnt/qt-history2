@@ -149,8 +149,9 @@ bool QLibraryPrivate::load_sys()
     }
 #endif
     QString attempt;
-    for(int prefix = 0; !pHnd && prefix < prefixes.size(); prefix++) {
-        for(int suffix = 0; !pHnd && suffix < suffixes.size(); suffix++) {
+    bool retry = true;
+    for(int prefix = 0; retry && !pHnd && prefix < prefixes.size(); prefix++) {
+        for(int suffix = 0; retry && !pHnd && suffix < suffixes.size(); suffix++) {
             if (!prefixes.at(prefix).isEmpty() && name.startsWith(prefixes.at(prefix)))
                 continue;
             if (!suffixes.at(suffix).isEmpty() && name.endsWith(suffixes.at(suffix)))
@@ -165,8 +166,16 @@ bool QLibraryPrivate::load_sys()
                 attempt = path + prefixes.at(prefix) + name + suffixes.at(suffix);
             }
             pHnd = dlopen(QFile::encodeName(attempt), dlFlags);
+            if (!pHnd && fileName.startsWith(QLatin1Char('/')) && QFile::exists(attempt)) {
+                // We only want to continue if dlopen failed due to that the shared library did not exist.
+                // However, we are only able to apply this check for absolute filenames (since they are
+                // not influenced by the content of LD_LIBRARY_PATH, /etc/ld.so.cache, DT_RPATH etc...)
+                // This is all because dlerror is flawed and cannot tell us the reason why it failed.
+                retry = false;
+            }
         }
     }
+
 #ifdef Q_OS_MAC
     if (!pHnd) {
         if (CFBundleRef bundle = CFBundleGetBundleWithIdentifier(QCFString(fileName))) {

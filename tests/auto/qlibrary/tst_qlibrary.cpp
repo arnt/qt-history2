@@ -327,7 +327,7 @@ void tst_QLibrary::errorString_data()
 #elif defined Q_OS_MAC
 
 #else
-
+    QTest::newRow("load invalid file") << (int)Load << currDir + "/library_path/invalid.so" << false << QString("QLibrary::load_sys: Cannot load.*file too short.*");
 #endif
 }
 
@@ -337,7 +337,6 @@ void tst_QLibrary::errorString()
     QFETCH(QString, fileName);
     QFETCH(bool, success);
     QFETCH(QString, errorString);
-
 
     QLibrary lib(fileName);
 
