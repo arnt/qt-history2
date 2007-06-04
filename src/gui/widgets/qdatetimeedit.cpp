@@ -772,8 +772,6 @@ void QDateTimeEdit::setDisplayFormat(const QString &format)
             d->value = QVariant(QDateTime(d->value.toDate(), QTime()));
         }
         d->updateEdit();
-        d->edit->setCursorPosition(0);
-        QDTEDEBUG << 0;
         d->_q_editorCursorPositionChanged(-1, 0);
     }
 }
