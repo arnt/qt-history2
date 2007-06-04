@@ -16,6 +16,7 @@ while(!consumer.attach()) {
         return;
     }
     ++tries;
+    consumer.sleep(1);
 }
 //print("consumer attached");
 
@@ -36,6 +37,7 @@ while(true) {
         break;
     }
     QVERIFY(consumer.unlock(), "unlock");
+    consumer.sleep(1);
 }
 
 QVERIFY(consumer.lock());

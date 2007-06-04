@@ -16,6 +16,7 @@
 
 #include <QtCore/QFile>
 #include <QtCore/QTextStream>
+#include <QTest>
 
 #include <qstringlist.h>
 #include <stdlib.h>
@@ -68,6 +69,7 @@ public:
     }
 
 public slots:
+
     bool lockReadOnly()
     {
         return sl.lock(QSystemLock::ReadOnly);
@@ -122,6 +124,11 @@ public:
     }
 
 public slots:
+    void sleep(int x) const
+    {
+        QTest::qSleep(x);
+    }
+
     bool create(int size)
     {
         return sm.create(size);

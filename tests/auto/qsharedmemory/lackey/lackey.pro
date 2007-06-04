@@ -2,6 +2,8 @@ include(../src/qsharedmemory.pri)
 
 QT = core script
 
+CONFIG += qtestlib
+
 DESTDIR = ./
 
 win32: CONFIG += console

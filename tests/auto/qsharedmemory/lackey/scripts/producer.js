@@ -30,6 +30,7 @@ while(i < 5) {
     for (var j = 0; j < size; ++j)
         producer.set(j, 'Q');
     QVERIFY(producer.unlock(), "unlock");
+    producer.sleep(1);
 }
 QVERIFY(producer.lock());
 producer.set(0, 'E');
