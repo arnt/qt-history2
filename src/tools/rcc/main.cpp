@@ -157,7 +157,7 @@ int main(int argc, char *argv[])
             }
         } else {
 			if(!QFile::exists(args[i])) {
-                qWarning("%s: File does not exist '%s'", args[0], args[i]);
+                qWarning("%s: File does not exist '%s'", qPrintable(args[0]), qPrintable(args[i]));
                 return 1;
             }
             files.append(args[i]);
