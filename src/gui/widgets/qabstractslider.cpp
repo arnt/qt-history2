@@ -343,7 +343,8 @@ int QAbstractSlider::maximum() const
 void QAbstractSlider::setSingleStep(int step)
 {
     Q_D(QAbstractSlider);
-    d->setSteps(step, d->pageStep);
+    if (step != d->singleStep)
+        d->setSteps(step, d->pageStep);
 }
 
 int QAbstractSlider::singleStep() const
@@ -366,7 +367,8 @@ int QAbstractSlider::singleStep() const
 void QAbstractSlider::setPageStep(int step)
 {
     Q_D(QAbstractSlider);
-    d->setSteps(d->singleStep, step);
+    if (step != d->pageStep)
+        d->setSteps(d->singleStep, step);
 }
 
 int QAbstractSlider::pageStep() const
@@ -805,7 +807,7 @@ bool QAbstractSlider::event(QEvent *e)
         break;
     }
 #endif
-    
+
     return QWidget::event(e);
 }
 
