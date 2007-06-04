@@ -713,7 +713,7 @@ QImage QPixmap::toImage() const
     int            h  = height();
     int            d  = depth();
     Visual *visual = (Visual *) data->xinfo.visual();
-    bool    trucol = (visual->c_class >= TrueColor) && d > 8;
+    bool    trucol = (visual->c_class >= TrueColor) && d > 1;
 
     QImage::Format format = QImage::Format_Mono;
     if (d > 1 && d <= 8) {
@@ -1822,7 +1822,7 @@ QPixmap QPixmap::transformed(const QTransform &matrix, Qt::TransformationMode mo
     bool   depth1 = depth() == 1;
     Display *dpy = X11->display;
 
-    if (isNull()) 
+    if (isNull())
         return copy();
 
     ws = width();
