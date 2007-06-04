@@ -800,11 +800,11 @@ void QMacStylePrivate::initHIThemePushButton(const QStyleOptionButton *btn,
             // same time displays the button contents without clipping.
 
             bdi->kind = kThemeBevelButton;
-            if (btn->rect.width() > BevelButtonW && btn->rect.height() > BevelButtonH){
-                if (btn->rect.height() < MiniButtonH){
+            if (btn->rect.width() >= BevelButtonW && btn->rect.height() >= BevelButtonH){
+                if (btn->rect.height() <= MiniButtonH){
                     if (contentFitsInPushButton(btn, bdi, kThemePushButtonMini))
                         bdi->kind = kThemePushButtonMini;
-                } else if (btn->rect.height() < SmallButtonH){
+                } else if (btn->rect.height() <= SmallButtonH){
                     if (contentFitsInPushButton(btn, bdi, kThemePushButtonSmall))
                         bdi->kind = kThemePushButtonSmall;
                 } else if (contentFitsInPushButton(btn, bdi, kThemePushButton))
