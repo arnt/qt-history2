@@ -1849,7 +1849,7 @@ bool QAbstractItemModel::setHeaderData(int section, Qt::Orientation orientation,
 
     Creates a model index for the given \a row and \a column with the internal pointer \a ptr.
 
-    Note that when you are using a QSortFilterProxyModel it's indexes have their own
+    Note that when you are using a QSortFilterProxyModel its indexes have their own
     internal pointer.  It is not advisable to access the internal pointer in the index
     outside of the model.  Use the data() function instead.
 
