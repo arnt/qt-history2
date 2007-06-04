@@ -180,6 +180,7 @@ private slots:
     void wheelEvent();
 
     void specialValueCornerCase();
+    void cursorPositionOnInit();
 
 private:
     EditorDateEdit* testWidget;
@@ -2754,6 +2755,26 @@ void tst_QDateTimeEdit::specialValueCornerCase()
     QCOMPARE(edit.text(), QString("foobar"));
 }
 
+void tst_QDateTimeEdit::cursorPositionOnInit()
+{
+    {
+        EditorDateEdit edit;
+        edit.setDisplayFormat("dd/MM");
+        edit.show();
+        QCOMPARE(edit.lineEdit()->cursorPosition(), 0);
+    }
+
+    {
+        EditorDateEdit edit;
+        edit.setDisplayFormat("dd/MM");
+        edit.setSpecialValueText("special");
+        edit.setMinimumDate(edit.date());
+        edit.show();
+        QCOMPARE(edit.lineEdit()->cursorPosition(), 7);
+        // ### legacy behavior. Keep it like this rather than changing
+        // ### but add a test none-the-less
+    }
+}
 
 QTEST_MAIN(tst_QDateTimeEdit)
 #include "tst_qdatetimeedit.moc"
