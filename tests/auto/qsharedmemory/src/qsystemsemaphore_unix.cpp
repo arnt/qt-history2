@@ -138,6 +138,7 @@ bool QSystemSemaphorePrivate::modifySemaphore(int count)
     if (-1 == semop(semaphore, &operation, 1)) {
         // If the semaphore was removed be nice and create it and then modifySemaphore again
         if (errno == EINVAL || errno == EIDRM) {
+            semaphore = -1;
             cleanHandle();
             return modifySemaphore(count);
         }
