@@ -48,6 +48,7 @@ public:
     inline void setTranslations(const QStringList &translations) { m.setTranslations(translations); }
 
     inline bool finished() const {return m.type() == MetaTranslatorMessage::Finished;}
+    inline bool obsolete() const { return m.type() == MetaTranslatorMessage::Obsolete; }
     inline MetaTranslatorMessage message() const {return m;}
     bool compare(const QString &findText, bool matchSubstring, Qt::CaseSensitivity cs)
     {

@@ -200,7 +200,6 @@ TrWindow::TrWindow()
     addDockWidget(Qt::LeftDockWidgetArea, dwScope);
 
     me = new MessageEditor(cmdl, this);
-    //setCentralWidget(me);
     ptv = me->phraseView();
     pmdl = qobject_cast<PhraseModel *>(ptv->model());
 
@@ -1193,7 +1192,9 @@ bool TrWindow::setNextMessage(QModelIndex *currentIndex, bool checkUnfinished)
         } else {
             idx = cmdl->index(row, 1, par);
         }
-        found = checkUnfinished ? !cmdl->finished(idx) : true;
+        MessageItem *m = cmdl->messageItem(idx);
+        if (m)
+            found = checkUnfinished ? !(m->finished() || m->obsolete()) : true;
         if (idx == *currentIndex) break;
     } while(!found);
 
@@ -1226,7 +1227,9 @@ bool TrWindow::setPrevMessage(QModelIndex *currentIndex, bool checkUnfinished)
         } else {
             idx = cmdl->index(row, 1, par);
         }
-        found = checkUnfinished ? !cmdl->finished(idx) : true;
+        MessageItem *m = cmdl->messageItem(idx);
+        if (m)
+            found = checkUnfinished ? !(m->finished() || m->obsolete()) : true;
         if (idx == *currentIndex) break;
     } while(!found);
 
