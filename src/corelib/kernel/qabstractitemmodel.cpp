@@ -1799,7 +1799,7 @@ bool QAbstractItemModel::submit()
 }
 
 /*!
-  Called to let the model know that it should discart whatever it has cached.
+  Called to let the model know that it should discard whatever it has cached.
   Typically used for row editing.
 */
 
