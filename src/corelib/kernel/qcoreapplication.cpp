@@ -17,6 +17,7 @@
 #include "qabstracteventdispatcher.h"
 #include "qcoreevent.h"
 #include "qeventloop.h"
+#include "qcorecmdlineargs_p.h"
 #include <qdatastream.h>
 #include <qdatetime.h>
 #include <qdebug.h>
@@ -1651,7 +1652,6 @@ QStringList QCoreApplication::arguments()
     }
 #ifdef Q_OS_WIN
     QString cmdline = QT_WA_INLINE(QString::fromUtf16((unsigned short *)GetCommandLineW()), QString::fromLocal8Bit(GetCommandLineA()));
-    extern QStringList qWinCmdArgs(QString cmdLine);
     list = qWinCmdArgs(cmdline);
     if (self->d_func()->application_type) { // GUI app? Skip known - see qapplication.cpp
         QStringList stripped;

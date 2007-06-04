@@ -7,6 +7,7 @@ HEADERS += \
 	kernel/qbasictimer.h \
 	kernel/qeventloop.h\
 	kernel/qpointer.h \
+	kernel/qcorecmdlineargs_p.h \
 	kernel/qcoreapplication.h \
 	kernel/qcoreevent.h \
 	kernel/qmetaobject.h \

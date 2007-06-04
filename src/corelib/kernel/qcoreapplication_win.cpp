@@ -17,6 +17,7 @@
 #include "qt_windows.h"
 #include "qvector.h"
 #include "qmutex.h"
+#include "qcorecmdlineargs_p.h"
 #include <private/qthread_p.h>
 #include <ctype.h>
 
@@ -117,81 +118,6 @@ Q_CORE_EXPORT void qWinMsgHandler(QtMsgType t, const char* str)
   qWinMain() - Initializes Windows. Called from WinMain() in qtmain_win.cpp
  *****************************************************************************/
 
-// template implementation of the parsing algorithm
-template<typename Char>
-static QVector<Char*> qWinCmdLine(Char *cmdParam, int length, int &argc)
-{
-    QVector<Char*> argv(8);
-    Char *p = cmdParam;
-    Char *p_end = p + length;
-
-    argc = 0;
-
-    while (*p && p < p_end) {                                // parse cmd line arguments
-        while (QChar::fromLatin1(*p).isSpace())                        // skip white space
-            p++;
-        if (*p && p < p_end) {                                // arg starts
-            int quote;
-            Char *start, *r;
-            if (*p == Char('\"') || *p == Char('\'')) {        // " or ' quote
-                quote = *p;
-                start = ++p;
-            } else {
-                quote = 0;
-                start = p;
-            }
-            r = start;
-            while (*p && p < p_end) {
-                if (quote) {
-                    if (*p == quote) {
-                        p++;
-                        if (QChar::fromLatin1(*p).isSpace())
-                            break;
-                        quote = 0;
-                    }
-                }
-                if (*p == '\\') {                // escape char?
-                    p++;
-                    if (*p == Char('\"') || *p == Char('\''))
-                        ;                        // yes
-                    else
-                        p--;                        // treat \ literally
-                } else {
-                    if (*p == Char('\"') || *p == Char('\'')) {        // " or ' quote
-                        quote = *p++;
-                        continue;
-                    } else if (QChar::fromLatin1(*p).isSpace() && !quote)
-                        break;
-                }
-                if (*p)
-                    *r++ = *p++;
-            }
-            if (*p && p < p_end)
-                p++;
-            *r = Char('\0');
-
-            if (argc >= (int)argv.size()-1)        // expand array
-                argv.resize(argv.size()*2);
-            argv[argc++] = start;
-        }
-    }
-    argv[argc] = 0;
-
-    return argv;
-}
-
-QStringList qWinCmdArgs(QString cmdLine) // not const-ref: this might be modified
-{
-    QStringList args;
-
-    int argc = 0;
-    QVector<ushort*> argv = qWinCmdLine<ushort>((ushort*)cmdLine.utf16(), cmdLine.length(), argc);
-    for (int a = 0; a < argc; ++a) {
-        args << QString::fromUtf16(argv[a]);
-    }
-
-    return args;
-}
 
 #if defined(Q_OS_TEMP)
 Q_CORE_EXPORT void __cdecl qWinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdParam,
@@ -240,14 +166,7 @@ void qWinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdParam,
     messages \a msg that are not processed by Qt. If you don't want
     the event to be processed by Qt, then return true and set \a result
     to the value that the window procedure should return. Otherwise
-    return false. 
-
-    It is only directly addressed messages that are filtered. To
-    handle system wide messages, such as messages from a registered
-    hot key, you need to install an event filter on the event
-    dispatcher, which is returned from
-    QAbstractEventDispatcher::instance().
-
+    return false.
 */
 bool QCoreApplication::winEventFilter(MSG *msg, long *result)        // Windows event filter
 {
