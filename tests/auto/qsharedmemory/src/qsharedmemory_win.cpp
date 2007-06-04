@@ -41,7 +41,6 @@ void QSharedMemoryPrivate::setErrorString(const QString &function)
         errorString = QSharedMemory::tr("%1: invalid size").arg(function);
         break;
     case ERROR_NO_SYSTEM_RESOURCES:
-    case ERROR_ACCESS_DENIED:
     case ERROR_NOT_ENOUGH_MEMORY:
         error = QSharedMemory::OutOfResources;
         errorString = QSharedMemory::tr("%1: out of resources").arg(function);
