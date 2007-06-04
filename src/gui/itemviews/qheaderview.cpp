@@ -527,6 +527,7 @@ int QHeaderView::visualIndexAt(int position) const
     Q_D(const QHeaderView);
     uint vposition = position;
     d->executePostedLayout();
+    d->executePostedResize();
     const int count = d->sectionCount;
     if (count < 1)
         return -1;
@@ -579,6 +580,7 @@ int QHeaderView::sectionSize(int logicalIndex) const
     int visual = visualIndex(logicalIndex);
     if (visual == -1)
         return 0;
+    d->executePostedResize();
     return d->headerSectionSize(visual);
 }
 
@@ -597,6 +599,7 @@ int QHeaderView::sectionPosition(int logicalIndex) const
     // before we have a chance to do the layout
     if (visual == -1)
         return -1;
+    d->executePostedResize();
     return d->headerSectionPosition(visual);
 }
 
@@ -728,7 +731,7 @@ void QHeaderView::moveSection(int from, int to)
     //Q_ASSERT(d->logicalIndices.count() == d->sectionCount);
 
     if (d->hasAutoResizeSections())
-        resizeSections();
+        d->doDelayedResizeSections();
     d->viewport->update();
 
     emit sectionMoved(logical, from, to);
@@ -800,15 +803,16 @@ void QHeaderView::resizeSection(int logical, int size)
         return;
     }
 
-    int oldSize = sectionSize(logical);
+    int visual = visualIndex(logical);
+    if (visual == -1)
+        return;
+
+    int oldSize = d->headerSectionSize(visual);
     if (oldSize == size)
         return;
 
     d->executePostedLayout();
     d->invalidateCachedSizeHint();
-
-    int visual = visualIndex(logical);
-    Q_ASSERT(visual != -1);
 
     if (stretchLastSection() && visual == d->lastVisibleVisualIndex())
         d->lastSectionSize = size;
@@ -829,7 +833,7 @@ void QHeaderView::resizeSection(int logical, int size)
         r.setRect(0, pos, w, h - pos);
 
     if (d->hasAutoResizeSections()) {
-        resizeSections();
+        d->doDelayedResizeSections();
         r = d->viewport->rect();
     }
     d->viewport->update(r.normalized());
@@ -913,7 +917,7 @@ void QHeaderView::setSectionHidden(int logicalIndex, bool hide)
     if (hide && d->isVisualIndexHidden(visual))
         return;
     if (hide) {
-        int size = sectionSize(logicalIndex);
+        int size = d->headerSectionSize(visual);
         if (!d->hasAutoResizeSections())
             resizeSection(logicalIndex, 0);
         d->hiddenSectionSize.insert(logicalIndex, size);
@@ -921,7 +925,7 @@ void QHeaderView::setSectionHidden(int logicalIndex, bool hide)
             d->sectionHidden.resize(count());
         d->sectionHidden.setBit(visual, true);
         if (d->hasAutoResizeSections())
-            resizeSections();
+            d->doDelayedResizeSections();
     } else if (d->isVisualIndexHidden(visual)) {
         int size = d->hiddenSectionSize.value(logicalIndex, d->defaultSectionSize);
         d->hiddenSectionSize.remove(logicalIndex);
@@ -1073,7 +1077,7 @@ void QHeaderView::setResizeMode(ResizeMode mode)
     d->contentsSections = (mode == ResizeToContents ? count() : 0);
     d->setGlobalHeaderResizeMode(mode);
     if (d->hasAutoResizeSections())
-        resizeSections(); // section sizes may change as a result of the new mode
+        d->doDelayedResizeSections(); // section sizes may change as a result of the new mode
 }
 
 /*!
@@ -1103,7 +1107,7 @@ void QHeaderView::setResizeMode(int logicalIndex, ResizeMode mode)
         --d->contentsSections;
 
     if (d->hasAutoResizeSections() && d->state == QHeaderViewPrivate::NoState)
-        resizeSections(); // section sizes may change as a result of the new mode
+        d->doDelayedResizeSections(); // section sizes may change as a result of the new mode
 }
 
 /*!
@@ -1581,7 +1585,7 @@ void QHeaderView::sectionsInserted(const QModelIndex &parent,
         }
     }
 
-    resizeSections();
+    d->doDelayedResizeSections();
     emit sectionCountChanged(oldCount, count());
 
     // if the new sections were not updated by resizing, we need to update now
@@ -1809,6 +1813,13 @@ bool QHeaderView::event(QEvent *e)
                 updateSection(oldHover);
             if (d->hover != -1)
                 updateSection(d->hover);
+        }
+        break; }
+    case QEvent::Timer: { // ### reimplement timerEvent() instead ?
+        QTimerEvent *te = static_cast<QTimerEvent*>(e);
+        if (te->timerId() == d->delayedResize.timerId()) {
+            d->delayedResize.stop();
+            resizeSections();
         }
         break; }
     default:
@@ -3123,7 +3134,7 @@ void QHeaderViewPrivate::cascadingResize(int visual, int newSize)
     }
 
     if (hasAutoResizeSections())
-        q->resizeSections();
+        doDelayedResizeSections();
 
     viewport->update();
 }
