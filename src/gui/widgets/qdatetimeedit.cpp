@@ -58,7 +58,7 @@ public:
 
     QVariant validateAndInterpret(QString &input, int &, QValidator::State &state, bool fixup = false) const;
     void clearSection(int index);
-    QString displayText() const { return edit->displayText(); }
+    virtual QString displayText() const { return edit->displayText(); } // this is from QDateTimeParser
 
     int absoluteIndex(QDateTimeEdit::Section s, int index) const;
     int absoluteIndex(const SectionNode &s) const;
