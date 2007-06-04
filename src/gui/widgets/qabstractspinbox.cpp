@@ -302,11 +302,11 @@ void QAbstractSpinBox::setReadOnly(bool enable)
     If keyboard tracking is enabled (the default), the spinbox
     emits the valueChanged() signal while the new value is being
     entered from the keyboard.
-    
+
     E.g. when the user enters the value 600 by typing 6, 0, and 0,
     the spinbox emits 3 signals with the values 6, 60, and 600
     respectively.
-    
+
     If keyboard tracking is disabled, the spinbox doesn't emit the
     valueChanged() signal while typing. It emits the signal later,
     when the return key is pressed, when keyboard focus is lost, or
@@ -1340,7 +1340,7 @@ void QAbstractSpinBoxPrivate::updateEditFieldGeometry()
 
 bool QAbstractSpinBoxPrivate::specialValue() const
 {
-    return (value == minimum && specialValueText.size() > 0);
+    return (value == minimum && !specialValueText.isEmpty());
 }
 
 /*!
@@ -1648,8 +1648,11 @@ void QAbstractSpinBoxPrivate::setRange(const QVariant &min, const QVariant &max)
     maximum = (variantCompare(min, max) < 0 ? max : min);
 
     reset();
-    if (!(bound(value) == value))
+    if (!(bound(value) == value)) {
         setValue(bound(value), EmitIfChanged);
+    } else if (value == minimum && !specialValueText.isEmpty()) {
+        updateEdit();
+    }
 }
 
 /*!

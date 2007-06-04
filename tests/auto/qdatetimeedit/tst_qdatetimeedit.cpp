@@ -178,6 +178,9 @@ private slots:
 
     void ddMMMMyyyy();
     void wheelEvent();
+
+    void specialValueCornerCase();
+
 private:
     EditorDateEdit* testWidget;
     QWidget *testFocusWidget;
@@ -816,18 +819,12 @@ void tst_QDateTimeEdit::enterKey()
     QTest::keyClick(testWidget, Qt::Key_Tab);
     QTest::keyClick(testWidget, Qt::Key_Enter);
     QCOMPARE(testWidget->lineEdit()->selectedText(), QString("11"));
-    //static int counter = 0;
-    //qDebug() << ++counter << testWidget->lineEdit()->cursorPosition();
     QTest::keyClick(testWidget, Qt::Key_1);
-    //qDebug() << ++counter << testWidget->lineEdit()->cursorPosition();
     QTest::keyClick(testWidget, Qt::Key_5);
-    //qDebug() << ++counter << testWidget->lineEdit()->cursorPosition();
     QTest::keyClick(testWidget, Qt::Key_Left);
     QTest::keyClick(testWidget, Qt::Key_Left);
 
-    //qDebug() << ++counter << testWidget->lineEdit()->cursorPosition();
     QTest::keyClick(testWidget, Qt::Key_Enter);
-    //qDebug() << ++counter << testWidget->lineEdit()->cursorPosition();
     QCOMPARE(testWidget->lineEdit()->selectedText(), QString("15"));
     QCOMPARE(testWidget->date(), QDate(2004, 5, 15));
 
@@ -2743,6 +2740,20 @@ void tst_QDateTimeEdit::wheelEvent()
     qApp->sendEvent(testWidget, &w);
     QCOMPARE(testWidget->date(), QDate(2000, 3, 22));
 }
+
+void tst_QDateTimeEdit::specialValueCornerCase()
+{
+    // if you set minimum to value it won't update since value won't
+    // be bounded to anything. If you have a specialValueText it needs
+    // to call updateEdit to make sure the text is changed
+
+    QDateTimeEdit edit;
+    edit.setSpecialValueText("foobar");
+    edit.setMinimumDate(edit.date());
+    QCOMPARE(edit.minimumDate(), edit.date());
+    QCOMPARE(edit.text(), QString("foobar"));
+}
+
 
 QTEST_MAIN(tst_QDateTimeEdit)
 #include "tst_qdatetimeedit.moc"
