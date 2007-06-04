@@ -381,17 +381,28 @@ void QGraphicsViewPrivate::recalculateContentSize()
     int height = maxSize.height();
     QRectF viewRect = matrix.mapRect(q->sceneRect());
 
+    bool frameOnlyAround = (q->style()->styleHint(QStyle::SH_ScrollView_FrameOnlyAroundContents, 0, q));
+    if (frameOnlyAround) {
+        if (hbarpolicy == Qt::ScrollBarAlwaysOn)
+            height -= frameWidth * 2;
+        if (vbarpolicy == Qt::ScrollBarAlwaysOn)
+            width -= frameWidth * 2;
+    }
+
     // Adjust the maximum width and height of the viewport based on the width
     // of visible scroll bars.
     int scrollBarExtent = q->style()->pixelMetric(QStyle::PM_ScrollBarExtent, 0, q);
-    bool useHorizontalScrollBar = (viewRect.width() > maxSize.width()) && hbarpolicy != Qt::ScrollBarAlwaysOff;
-    bool useVerticalScrollBar = (viewRect.height() > maxSize.height()) && vbarpolicy != Qt::ScrollBarAlwaysOff;
+    if (frameOnlyAround)
+        scrollBarExtent += frameWidth * 2;
+
+    bool useHorizontalScrollBar = (viewRect.width() > width) && hbarpolicy != Qt::ScrollBarAlwaysOff;
+    bool useVerticalScrollBar = (viewRect.height() > height) && vbarpolicy != Qt::ScrollBarAlwaysOff;
     if (useHorizontalScrollBar && !useVerticalScrollBar) {
-        if (viewRect.height() > maxSize.height() - scrollBarExtent)
+        if (viewRect.height() > height - scrollBarExtent)
             useVerticalScrollBar = true;
     }
     if (useVerticalScrollBar && !useHorizontalScrollBar) {
-        if (viewRect.width() > maxSize.width() - scrollBarExtent)
+        if (viewRect.width() > width - scrollBarExtent)
             useHorizontalScrollBar = true;
     }
     if (useHorizontalScrollBar && hbarpolicy != Qt::ScrollBarAlwaysOn)
