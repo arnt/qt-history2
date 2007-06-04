@@ -47,7 +47,9 @@ typedef GLfloat GLdouble;
 #endif
 #else
 # include <GL/gl.h>
-# include <GL/glu.h>
+# ifndef QT_LSB
+#   include <GL/glu.h>
+# endif
 #endif
 
 #if defined(Q_WS_WIN) || defined(Q_WS_MAC)
