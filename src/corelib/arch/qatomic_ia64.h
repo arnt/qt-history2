@@ -187,6 +187,8 @@ inline void *q_atomic_set_ptr(volatile void *ptr, void *newval)
     return expected;
 }
 
+#endif // Q_CC_INTEL
+
 inline int q_atomic_fetch_and_add_int(volatile int *ptr, int value)
 {
     register int originalValue;
@@ -219,8 +221,6 @@ inline int q_atomic_fetch_and_add_release_int(volatile int *ptr, int value)
     }
     return originalValue;
 }
-
-#endif // Q_CC_INTEL
 
 QT_END_HEADER
 
