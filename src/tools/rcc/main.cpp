@@ -12,6 +12,8 @@
 ****************************************************************************/
 
 #include "rcc.h"
+#include "../../corelib/kernel/qcorecmdlineargs_p.h"
+
 #include <QFile>
 #include <QDir>
 
@@ -48,7 +50,7 @@ bool processResourceFile(const QStringList &filenamesIn, const QString &filename
 #else
         if(!(out_fd = fopen(filenameOut.toLocal8Bit().constData(), writeBinary ? "wb": "w"))) {
 #endif
-            fprintf(stderr, "Unable to open %s for writing\n", filenameOut.toLatin1().constData());
+            fprintf(stderr, "Unable to open %s for writing\n", filenameOut.toLocal8Bit().constData());
             return false;
         }
     }
@@ -69,11 +71,11 @@ bool processResourceFile(const QStringList &filenamesIn, const QString &filename
     return ret;
 }
 
-int showHelp(const char *argv0, const QString &error)
+int showHelp(const QString &argv0, const QString &error)
 {
     fprintf(stderr, "Qt resource compiler\n");
     if (!error.isEmpty())
-        fprintf(stderr, "%s: %s\n", argv0, error.toLatin1().constData());
+        fprintf(stderr, "%s: %s\n", argv0.toLocal8Bit().constData(), error.toLocal8Bit().constData());
     fprintf(stderr, "Usage: %s  [options] <inputs>\n\n"
             "Options:\n"
             "  -o file           write output to file rather than stdout\n"
@@ -85,9 +87,10 @@ int showHelp(const char *argv0, const QString &error)
             "  -binary           output a binary file for use as a dynamic resource\n"
             "  -version          display version\n"
             "  -help             display this information\n",
-            argv0);
+            argv0.toLocal8Bit().constData());
     return 1;
 }
+
 
 int main(int argc, char *argv[])
 {
@@ -95,23 +98,27 @@ int main(int argc, char *argv[])
     bool helpRequested = false, list = false;
     QStringList files;
 
+	QStringList args = qCmdLineArgs(argc, argv);
+
     //parse options
     QString errorMsg;
-    for (int i = 1; i < argc && errorMsg.isEmpty(); i++) {
-        if (argv[i][0] == '-') {   // option
+    for (int i = 1; i < args.count() && errorMsg.isEmpty(); i++) {
+		if (args[i].isEmpty())
+			continue;
+        if (args[i][0] == '-') {   // option
             QByteArray opt = argv[i] + 1;
             if (opt == "o") {
                 if (!(i < argc-1)) {
                     errorMsg = QLatin1String("Missing output name");
                     break;
                 }
-                outFilename = QString::fromLocal8Bit(argv[++i]);
+                outFilename = args[++i];
             } else if(opt == "name") {
                 if (!(i < argc-1)) {
                     errorMsg = QLatin1String("Missing target name");
                     break;
                 }
-                initName = QString::fromLocal8Bit(argv[++i]);
+                initName = args[++i];
             } else if(opt == "root") {
                 if (!(i < argc-1)) {
                     errorMsg = QLatin1String("Missing root path");
@@ -125,7 +132,7 @@ int main(int argc, char *argv[])
                     errorMsg = QLatin1String("Missing compression level");
                     break;
                 }
-                compressLevel = QString::fromLocal8Bit(argv[++i]).toInt();
+                compressLevel = args[++i].toInt();
             } else if(opt == "threshold") {
                 if (!(i < argc-1)) {
                     errorMsg = QLatin1String("Missing compression threshold");
@@ -146,18 +153,18 @@ int main(int argc, char *argv[])
             } else if(opt == "no-compress") {
                 compressLevel = -2;
             } else {
-                errorMsg = QString::fromLatin1("Unknown option: '%1'").arg(QString::fromLocal8Bit(argv[i]));
+                errorMsg = QString::fromLatin1("Unknown option: '%1'").arg(args[i]);
             }
         } else {
-            if(!QFile::exists(QString::fromLocal8Bit(argv[i]))) {
-                qWarning("%s: File does not exist '%s'", argv[0], argv[i]);
+			if(!QFile::exists(args[i])) {
+                qWarning("%s: File does not exist '%s'", args[0], args[i]);
                 return 1;
             }
-            files.append(QString::fromLocal8Bit(argv[i]));
+            files.append(args[i]);
         }
     }
 
     if (!files.size() || !errorMsg.isEmpty() || helpRequested)
-        return showHelp(argv[0], errorMsg);
+        return showHelp(args[0], errorMsg);
     return int(!processResourceFile(files, outFilename, list));
 }
