@@ -611,7 +611,7 @@ void QTableView::setVerticalHeader(QHeaderView *header)
 void QTableView::scrollContentsBy(int dx, int dy)
 {
     Q_D(QTableView);
-    
+
     d->delayedAutoScroll.stop(); // auto scroll was canceled by the user scrolling
 
     dx = isRightToLeft() ? -dx : dx;
@@ -2241,11 +2241,11 @@ int QTableView::columnSpan(int row, int column) const
   \since 4.4
 
   Removes all row and column spanns in the table view.
-  
+
   \sa setSpan()
 */
 
-void QTableView::clearSpanns()
+void QTableView::clearSpans()
 {
     Q_D(QTableView);
     d->spans.clear();

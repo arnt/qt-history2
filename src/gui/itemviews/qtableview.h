@@ -75,7 +75,7 @@ public:
 
     void setWordWrap(bool on);
     bool wordWrap() const;
-    
+
     void setCornerButtonEnabled(bool enable);
     bool isCornerButtonEnabled() const;
 
@@ -86,7 +86,7 @@ public:
     void setSpan(int row, int column, int rowSpan, int columnSpan);
     int rowSpan(int row, int column) const;
     int columnSpan(int row, int column) const;
-    void clearSpanns();
+    void clearSpans();
 
     void sortByColumn(int column, Qt::SortOrder order);
 
