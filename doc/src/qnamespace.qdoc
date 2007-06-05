@@ -2082,7 +2082,7 @@
                           part of a canvas that the user can click and drag in
                           order to scroll around.
     \value ClosedHandCursor \inlineimage cursor-closedhand.png
-                          A cursor representing an open hand, typically used to
+                          A cursor representing a closed hand, typically used to
                           indicate that a dragging operation is in progress that
                           involves scrolling.
     \value WhatsThisCursor  \inlineimage cursor-whatsthis.png
