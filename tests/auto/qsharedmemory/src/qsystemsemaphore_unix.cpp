@@ -140,6 +140,7 @@ bool QSystemSemaphorePrivate::modifySemaphore(int count)
         if (errno == EINVAL || errno == EIDRM) {
             semaphore = -1;
             cleanHandle();
+            handle();
             return modifySemaphore(count);
         }
 #if defined QSYSTEMSEMAPHORE_DEBUG
