@@ -537,7 +537,7 @@ public:
         if (physicalIndex < meta->methodCount()) {
             QMetaMethod method = meta->method(physicalIndex);
             QScriptNameIdImpl *nameId = eng->nameId(QLatin1String(method.signature()));
-            member->native(nameId, index,
+            member->native(nameId, physicalIndex,
                            QScriptValue::QObjectMember
                            | METHOD_ID);
             return true;
