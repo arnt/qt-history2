@@ -230,9 +230,14 @@ void QDataWidgetMapperPrivate::_q_modelDestroyed()
     them to sections of an item model. A section is a column of a model
     if the orientation is horizontal (the default), otherwise a row.
 
-    Every time the current index changes, all widgets are updated
-    with the contents from the model. If the user edits the contents of
-    the widget, the changes are written back to the model.
+    Every time the current index changes, each widget is updated with data
+    from the model via the property specified when its mapping was made.
+    If the user edits the contents of a widget, the changes are read using
+    the same property and written back to the model.
+    By default, each widget's \l{Q_PROPERTY()}{user property} is used to
+    transfer data between the model and the widget. Since Qt 4.3, an
+    additional addMapping() function enables a named property to be used
+    instead of the default user property.
 
     It is possible to set an item delegate to support custom widgets. By default,
     a QItemDelegate is used to synchronize the model with the widgets.
