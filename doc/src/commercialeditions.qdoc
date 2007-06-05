@@ -44,14 +44,18 @@
     \row    \o \l{QtGui}{Qt GUI classes}     \o            \o \bold{X}         \o \bold{X}
     \row    \o \l{QtNetwork}{Networking}     \o \bold{X}   \o                  \o \bold{X}
     \row    \o \l{QtOpenGL}{OpenGL}          \o            \o                  \o \bold{X}
+    \row    \o \l{QtScript}{Scripting}       \o \bold{X}   \o                  \o \bold{X}
     \row    \o \l{QtSql}{Database/SQL}       \o \bold{X}   \o                  \o \bold{X}
     \row    \o \l{QtSvg}{SVG}                \o            \o                  \o \bold{X}
     \row    \o \l{QtXml}{XML}                \o \bold{X}   \o                  \o \bold{X}
     \row    \o \l{Qt3Support}{Qt 3 Support}  \o            \o \bold{(X)}       \o \bold{X}
-    \row    \o \l{QtDesigner}
-                 {\QD extension classes}     \o            \o                  \o \bold{X}
-    \row    \o \l{QtTest}
-                 {Unit testing framework}    \o \bold{X}   \o \bold{X}         \o \bold{X}
+    \row    \o \l{QtAssistant}{Help system}  \o            \o                  \o \bold{X}
+    \row    \o \l{QtDesigner}{\QD extension classes}
+                                             \o            \o                  \o \bold{X}
+    \row    \o \l{QtTest}{Unit testing framework}
+                                             \o \bold{X}   \o \bold{X}         \o \bold{X}
+    \row    \o \l{QtUiTools}{Run-time form handling}
+                                             \o            \o                  \o \bold{X}
     \row    \o \l{ActiveQt}                  \o            \o                  \o \bold{X}
     \endtable
 

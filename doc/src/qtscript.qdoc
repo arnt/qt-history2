@@ -6,6 +6,7 @@
   \previouspage QtSvg
   \nextpage QtXml
   \ingroup modules
+  \ingroup scripting
 
   \brief The QtScript module provides classes for making Qt applications scriptable.
 

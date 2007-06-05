@@ -72,7 +72,7 @@
     of the libraries used by the application.  Using static linking,
     however, the Qt run-time is compiled into the executable.
 
-    In particular you will need to deploy Qt plugins, like for example
+    In particular, you will need to deploy Qt plugins, such as
     JPEG support or SQL drivers. For more information about plugins,
     see the \l {plugins-howto.html}{How to Create Qt Plugins}
     documentation.
@@ -727,14 +727,29 @@
     You can find more information about manifest files and side-by-side
     assemblies at the \l {http://msdn.microsoft.com/library/default.asp?url=/library/en-us/sbscs/setup/side_by_side_assemblies_reference.asp}{MSDN website}.
 
-    We also need to include the runtime libraries. To do this, copy
-    the contents of
+    There are two ways to include the run time libraries: by bundling them
+    directly with your application or by installing them on the end-user's
+    system.
+
+    To bundle the run time libraries with your application, copy the directory
 
     \code
         <Visual Studio Install Path>\VC\redist\<Architecture>\Microsoft.VC80.CRT
     \endcode
 
-    into the folder where your executable is.
+    into the folder where your executable is, so that you are including a
+    \c Microsoft.VC80.CRT directory alongside your application's executable.
+
+    To install the run time libraries on the end-user's system, you need to
+    include the appropriate Visual C++ Redistributable Package (VCRedist)
+    executable with your application and ensure that it is executed when the
+    user installs your application.
+
+    For example, on an 32-bit x86-based system, you would include the
+    \l{http://www.microsoft.com/downloads/details.aspx?FamilyId=32BC1BEE-A3F9-4C13-9C99-220B62A191EE}{vcredist_x86.exe}
+    executable. The \l{http://www.microsoft.com/downloads/details.aspx?familyid=526BF4A7-44E6-4A91-B328-A4594ADB70E5}{vcredist_IA64.exe}
+    and \l{http://www.microsoft.com/downloads/details.aspx?familyid=90548130-4468-4BBC-9673-D6ACABD5D13B}{vcredist_x64.exe}
+    executables provide the appropriate libraries for the IA64 and 64-bit x86 architectures, respectively.
 
     \section1 Application Dependencies
 
@@ -799,11 +814,17 @@
 
     The search path for Qt plugins (as well as a few other paths) is
     hard-coded into the QtCore library. By default, the first plugin
-    search path will be hard-coded as \c C:\path\to\Qt\plugins. Using
-    pre-determined paths has certain disadvantages. For example, they
-    may not exist on the target machine. For that reason you need to
-    examine various alternatives to make sure that the Qt plugins are
-    found:
+    search path will be hard-coded to be a \c plugins subdirectory of
+    the Qt installation:
+
+    \code
+    C:<path to Qt>\plugins
+    \endcode
+
+    Pre-determined paths like this one have certain disadvantages.
+    For example, they may not exist on the target machine. For that
+    reason you need to examine various alternatives to make sure that
+    the Qt plugins are found:
 
     \list
 

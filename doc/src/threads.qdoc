@@ -152,6 +152,9 @@
     different instances of the class, and thread-safe if it even
     works if the different threads operate on the same instance.
 
+    Classes in the documentation will be documented as thread-safe only
+    if they are intended to be used by multiple threads.
+
     Note that the terminology in this domain isn't entirely
     standardized. POSIX uses a somewhat different definition of
     reentrancy and thread-safety for its C APIs. When dealing with an

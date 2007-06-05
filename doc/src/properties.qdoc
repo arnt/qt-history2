@@ -22,7 +22,7 @@
     ordinary data members:
 
     \list
-    \o A read function. This always exists.
+    \o A read function. This must always exist.
 
     \o A write function. This is optional; read-only properties like
     QWidget::isDesktop() do not have one.
@@ -148,7 +148,7 @@
     file should be included in the file containing the above property
     definition.
 
-    \section1 Using Enums and Flags in Properties
+    \section2 Using Enums and Flags in Properties
 
     Enumeration types are registered with the Q_ENUMS() macro. Here's the
     final class declaration including the property related declarations:
@@ -183,8 +183,13 @@
     accept \c{Read | Write}: such an enum is best handled with
     Q_FLAGS(), rather than Q_ENUMS().
 
-    The remaining keywords in the Q_PROPERTY() section are \c RESET, \c
-    DESIGNABLE, \c SCRIPTABLE, and \c STORED.
+    \section2 Property Types
+    \keyword designable
+    \keyword scriptable
+
+    In addition to the \c READ and \c WRITE keywords, each Q_PROPERTY()
+    declaration can contain additional keywords that supply information
+    about a property:
 
     \list
     \o  \c RESET names a function that will set the property to its default
@@ -196,6 +201,9 @@
         writable properties; otherwise false. Instead of true or
         false, you can specify a boolean member function.
 
+    \o  \c NOTIFY indicates which signal will be emitted when a writable
+        property is changed. Only one signal can be specified per property.
+
     \o  \c SCRIPTABLE declares whether this property is suited for access by a
         scripting engine. The default is true. Instead of true or false,
         you can specify a boolean member function.
@@ -206,6 +214,10 @@
         properties (like QPoint pos if QRect geometry is already a property)
         define this to be false.
 
+    \o  \c USER specifies that a particular property in a class (typically
+        a widget) contains user-facing information, and is the main property
+        that a user will modify via the GUI when using instances of the class in
+        an application.
     \endlist
 
     \section1 Adding Additional Information to a Class

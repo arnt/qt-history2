@@ -60,7 +60,7 @@
                     -xplatform qws/linux-preferredarchitecture-g++
     \endcode
 
-    If neither of the provided specifcations fits your taget device,
+    If neither of the provided specifications fits your target device,
     you can create your own.  To create a custom \c qmake.conf file,
     just copy and customize an already existing file. For example:
 
