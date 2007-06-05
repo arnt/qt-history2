@@ -1,5 +1,7 @@
 /*!
     \page stylesheet.html
+    \startpage index.html QtReference Documentation
+    \nextpage The Style Sheet Syntax
     \title Qt Style Sheets
     \ingroup architecture
     \brief How to use style sheets to customize the appearance of widgets.
@@ -16,8 +18,20 @@
 
     Topics:
 
-    \tableofcontents
+    \list
+    \i \l{The Style Sheet Syntax}
+     \tableofcontents{1 The Style Sheet Syntax}
+    \i \l{Qt Designer Integration}
+     \tableofcontents{1 Qt Designer Integration}
+    \i \l{Customizing Qt Widgets Using Style Sheets}
+     \tableofcontents{1 Customizing Qt Widgets Using Style Sheets}
+    \i \l{Qt Style Sheets Reference}
+     \tableofcontents{1 Qt Style Sheets Reference}
+    \i \l{Examples}
+     \tableofcontents{1 Examples}
+    \endlist
 
+    \target overview
     \section1 Overview
 
     Styles sheets are textual specifications that can be set on the
@@ -86,14 +100,20 @@
     \warning Qt style sheets are currently not supported for
     QMacStyle (the default style on Mac OS X). We plan to address
     this in some future release.
+    */
 
-    \section1 The Style Sheet Syntax
+    /*!
+    \page stylesheet-syntax.html
+    \contentspage {Qt Style Sheet}{Contents}
+    \previouspage Qt Style Sheet
+    \nextpage Qt Designer Integration
+    \title The Style Sheet Syntax
 
     Qt Style Sheet terminology and syntactic rules are almost
     identical to those of HTML CSS. If you already know CSS, you can
     probably skim quickly through this section.
 
-    \section2 Style Rules
+    \section1 Style Rules
 
     Style sheets consist of a sequence of style rules. A \e{style
     rule} is made up of a selector and a declaration. The
@@ -143,7 +163,7 @@
     See the \l{List of Properties} section below for the list of
     properties provided by Qt widgets.
 
-    \section2 Selector Types
+    \section1 Selector Types
 
     All the examples so far used the simplest type of selector, the
     Type Selector. Qt Style Sheets support all the
@@ -211,7 +231,7 @@
            children of a QDialog.
     \endtable
 
-    \section2 Sub-Controls
+    \section1 Sub-Controls
 
     For styling complex widgets, it is necessary to access
     subcontrols of the widget, such as the drop-down button of a
@@ -231,18 +251,19 @@
    
     Sub-controls are always positioned with respect to another element
     (a reference element). This reference element could be the widget
-    or another Sub-control. For example, the \l{#drop-down-sub}{::drop-down}
-    of a QComboBox is placed, by default, in the top right corner of the 
-    Padding rectangle of the QComboBox. The \l{#down-arrow-sub}{::down-arrow}
+    or another Sub-control. For example, the
+    \l{Qt Style Sheets Reference#drop-down-sub}{::drop-down} of a QComboBox is
+    placed, by default, in the top right corner of the Padding rectangle
+    of the QComboBox. The \l{Qt Style Sheets Reference#drop-down-sub}{::drop-down}
     is placed, by default, in the Center of the Contents rectangle of the
-    \l{#drop-down-sub}{::drop-down} Sub-control. See the
+    \l{Qt Style Sheets Reference#drop-down-sub}{::drop-down} Sub-control. See the
     \l{List of Stylable Widgets} below for the Sub-controls to use to style a
     widget and their default positions.
 
     The origin rectangle to be used is changed using 
-    the \l{#subcontrol-origin-prop}{subcontrol-origin}
-    property. For example, if we want to place the drop-down in the
-    margin rectangle of the QComboBox instead of the default Padding
+    the \l{Qt Style Sheets Reference#subcontrol-origin-prop}
+    {subcontrol-origin} property. For example, if we want to place the drop-down
+    in the margin rectangle of the QComboBox instead of the default Padding
     rectangle, we can specify:
     
     \code
@@ -255,17 +276,20 @@
     \endcode
     
     The alignment of the drop-down within the Margin rectangle is changed 
-    using \l{#subcontrol-position-prop}{subcontrol-position} property.
+    using \l{Qt Style Sheets Reference#subcontrol-position-prop}
+    {subcontrol-position} property.
 
-    The \l{#width-prop}{width} and \l{#height-prop}{height} properties
-    can be used to control the size of the Sub-control. Note that setting
-    a \l{#image-prop}{image} implicitly sets the size of a Sub-control.
+    The \l{Qt Style Sheets Reference#width-prop}{width} and
+    \l{Qt Style Sheets Reference#height-prop}{height} properties can be used to
+    control the size of the Sub-control. Note that setting a
+    \l{Qt Style Sheets Reference#image-prop}{image} implicitly sets the size of a
+    Sub-control.
 
-    The relative positioning scheme (\l{#position-prop}{position} : relative),
-    allows the position of the Sub-Control to be offset from its initial position.
-    For example, when the QComboBox's drop-down button is pressed, we may
-    desire the arrow inside to be offset to give a "pressed" effect. To achieve
-    this, we can specify:
+    The relative positioning scheme (\l{Qt Style Sheets Reference#position-prop}
+    {position} : relative), allows the position of the Sub-Control to be offset
+    from its initial position. For example, when the QComboBox's drop-down
+    button is pressed, we may desire the arrow inside to be offset to give a
+    "pressed" effect. To achieve this, we can specify:
 
     \code
         QComboBox::down-arrow {
@@ -277,9 +301,9 @@
         }
     \endcode
 
-    The absolute positioning scheme (\l{#position-prop}{position} : absolute),
-    allows the position and size of the Sub-control to be changed with respect
-    to the reference element.
+    The absolute positioning scheme (\l{Qt Style Sheets Reference#position-prop}
+    {position} : absolute), allows the position and size of the Sub-control
+    to be changed with respect to the reference element.
 
     Once positioned, they are treated the same as widgets and can be styled
     using the the \l{box model}.
@@ -288,7 +312,7 @@
     subcontrols, and \l{Customizing the QPushButton's Menu Indicator
     Sub-Control} for a realistic example.
 
-    \section2 Pseudo-States
+    \section1 Pseudo-States
 
     Selectors may contain \e{pseudo-states} that denote that restrict
     the application of the rule based on the widget's state.
@@ -340,7 +364,7 @@
     See the \l{List of Pseudo-States} section below for the list of
     pseudo-states provided by Qt widgets.
 
-    \section2 Conflict Resolution
+    \section1 Conflict Resolution
 
     Conflicts arise when several style rules specify the same
     properties with different values. Consider the following style
@@ -403,13 +427,13 @@
 
     Both rules apply to QPushButton instances (since QPushButton
     inherits QAbstractButton) and there is a conflict for the
-    \l{#color-prop}{color} property. Because QPushButton inherits
-    QAbstractButton, it might be tempting to assume that \c
-    QPushButton is more specific than \c QAbstractButton. However,
+    \l{Qt Style Sheets Reference#color-prop}{color} property. Because QPushButton
+    inherits QAbstractButton, it might be tempting to assume that
+    \c QPushButton is more specific than \c QAbstractButton. However,
     for style sheet computations, all Type Selectors have the same
     specificity, and the rule that appears last takes precedence. In
-    other words, \l{#color-prop}{color} is set to \c gray for all
-    \l{QAbstractButton}s, including \l{QPushButton}s. If we really
+    other words, \l{Qt Style Sheets Reference#color-prop}{color} is set to \c gray
+    for all \l{QAbstractButton}s, including \l{QPushButton}s. If we really
     want \l{QPushButton}s to have red text, we can always reorder the
     rules.
 
@@ -445,7 +469,7 @@
     \endcode
     \endquotation
 
-    \section2 Cascading
+    \section1 Cascading
 
     Style sheets can be set on the QApplication, on parent widgets,
     and on child widgets. An arbitrary widget's effective style sheet
@@ -492,7 +516,7 @@
     Specification} for the gory details. Be aware that Qt currently
     doesn't implement \c{!important}.
 
-    \section2 Inheritance
+    \section1 Inheritance
 
     In classic CSS, when font and color of an item is not explicitly set,
     it gets automatically inherited from the parent. When using Qt Style Sheets,
@@ -517,7 +541,7 @@
     In contrast, setting a font and propagate using QWidget::setFont() and
     QWidget::setPalette() propagates to child widgets.
 
-    \section2 Widgets inside C++ namespaces
+    \section1 Widgets inside C++ namespaces
     
     The Type Selector can be used to style widgets of a particular type. For
     example,
@@ -550,7 +574,7 @@
     \endcode
 
     \omit
-    \section2 Setting QObject properties
+    \section1 Setting QObject properties
     
     From 4.3 and above, any \l{QMetaObject::designable()}{designable} Q_PROPERTY 
     can be set using the qproperty-<property name> syntax. 
@@ -563,8 +587,14 @@
     \endcode
 
     \endomit
+    */
 
-    \section1 Designer Integration
+    /*!
+    \page stylesheet-designer.html
+    \contentspage {Qt Style Sheet}{Contents}
+    \previouspage The Style Sheet Syntax
+    \nextpage Customizing Qt Widgets Using Style Sheets
+    \title Qt Designer Integration
 
     \l{Qt Designer}{Qt Designer} is an excellent tool
     to preview style sheets. Just right-click anywhere on the form
@@ -578,14 +608,70 @@
     Style Sheet dialog.
 
     \image designer-validator-highlighter.png
+    */
 
-    \section1 Customizing Qt Widgets Using Style Sheets
+    /*!
+    \page stylesheet-customizing.html
+    \contentspage {Qt Style Sheet}{Contents}
+    \previouspage Qt Designer Integration
+    \nextpage Qt Style Sheets Reference
+    \title Customizing Qt Widgets Using Style Sheets
+
+    When using style sheets, every widget is treated as a box with four
+    concentric rectangles: the margin rectangle, the border rectangle, the
+    padding rectangle, and the content rectangle. The box model describes
+    this in further detail.
+
+    \target box model
+    \section1 The Box Model
+
+    Widgets and subcontrols that support the
+    \l{Qt Style Sheets Reference#background-prop}{background},
+    \l{Qt Style Sheets Reference#border-prop}{border},
+    \l{Qt Style Sheets Reference#margin-prop}{margin}, and
+    \l{Qt Style Sheets Reference#padding-prop}{padding}
+    properties follow the box model. The image below illustrates how
+    these properties relate to each other:
+
+    \image stylesheet-boxmodel.png
+
+    \list
+    \o The margin falls outside the border.
+    \o The border is drawn between the margin and the padding.
+    \o The padding falls inside the border, between the border and
+       the actual contents.
+    \o The content is what is left from the original widget or
+       subcontrol once we have removed the margin, the border, and
+       the padding.
+    \endlist
+
+    The \l{Qt Style Sheets Reference#margin-prop}{margin},
+    \l{Qt Style Sheets Reference#border-width-prop}
+    {border-width}, and
+    \l{Qt Style Sheets Reference#padding-prop}{padding}
+    properties all default to zero. In that case, all four rectangles
+    (\c margin, \c border, \c padding, and \c content) coincide exactly.
+
+    If a background is specified for a widget, by default it is drawn
+    only for the area inside the border. This can be changed using
+    the \l{Qt Style Sheets Reference#background-clip-prop}{background-clip}
+    property.
+    */
+
+    /*!
+    \page stylesheet-reference.html
+    \contentspage {Qt Style Sheet}{Contents}
+    \previouspage Customizing Qt Widgets Using Style Sheets
+    \nextpage Examples
+    \title Qt Style Sheets Reference
 
     Qt Style Sheets support various properties, pseudo-states, and
     subcontrols that make it possible to customize the look of
     widgets.
 
-    \section2 List of Stylable Widgets
+    \tableofcontents
+
+    \section1 List of Stylable Widgets
 
     The following table lists the Qt widgets that can be customized
     using style sheets:
@@ -602,11 +688,11 @@
            All derivatives of QAbstractScrollArea, including QTextEdit,
            and QAbstractItemView (all item view classes), support
            scrollable backgrounds using 
-           \l{#background-attachment-prop}{background-attachment}. Setting
-           the background-attachment to \c{fixed} provides a background-image
-           that does not scroll with the viewport. Setting the 
-           background-attachment to \c{scroll}, scrolls the background-image
-           when the scroll bars move.
+           \l{Qt Style Sheets Reference#background-attachment-prop}
+           {background-attachment}. Setting the background-attachment to
+           \c{fixed} provides a background-image that does not scroll with the
+           viewport. Setting the background-attachment to \c{scroll}, scrolls
+           the background-image when the scroll bars move.
 
     \row
         \o QCheckBox \target qcheckbox-widget
@@ -647,7 +733,7 @@
 
     \row
         \o QDialog \target qdialog-widget
-        \o Supports only the \l{#background-prop}{background},
+        \o Supports only the \l{Qt Style Sheets Reference#background-prop}{background},
            \l{#background-clip-prop}{background-clip} and
            \l{#background-origin-prop}{background-origin} properties.
 
@@ -775,9 +861,9 @@
 
     \row
         \o QMessageBox \target qmessagebox-widget
-        \o The \l{#messagebox-text-interaction-flags-prop}{messagebox-text-interaction-flags}
-           property can be used to alter the interaction with text in the 
-           message box.
+        \o The \l{#messagebox-text-interaction-flags-prop}
+           {messagebox-text-interaction-flags} property can be used to alter
+           the interaction with text in the message box.
 
     \row
         \o QProgressBar \target qprogressbar-widget
@@ -896,7 +982,8 @@
 
     \row
         \o QStatusBar \target qstatusbar-widget
-        \o Supports only the \l{#background-prop}{background} property.
+        \o Supports only the \l{Qt Style Sheets Reference#background-prop}
+           {background} property.
            The frame for individual items can be style using the
            \l{#item-sub}{::item} subcontrol.
 
@@ -1073,13 +1160,13 @@
 
     \row
         \o QWidget \target qwidget-widget
-        \o Supports only the \l{#background-prop}{background},
+        \o Supports only the \l{Qt Style Sheets Reference#background-prop}{background},
            \l{#background-clip-prop}{backgorund-clip} and
            \l{#background-origin-prop}{background-origin} properties.
 
     \endtable
 
-    \section2 List of Properties
+    \section1 List of Properties
 
     The table below lists all the properties supported by Qt Style
     Sheets. Which values can be given to an property depend on the
@@ -1113,7 +1200,7 @@
                 }
            \endcode
 
-           See also \l{#background-prop}{background} and
+           See also \l{Qt Style Sheets Reference#background-prop}{background} and
            \l{#selection-background-color-prop}{selection-background-color}.
 
     \row
@@ -1224,7 +1311,7 @@
                 }
            \endcode
 
-        See also \l{#background-prop}{background}
+        See also \l{Qt Style Sheets Reference#background-prop}{background}
 
     \row
         \o \bold{\c background-clip} \target background-clip-prop
@@ -1254,7 +1341,7 @@
                 }
            \endcode
 
-           See also \l{#background-prop}{background}, 
+           See also \l{Qt Style Sheets Reference#background-prop}{background}, 
            \l{#background-origin-prop}{background-origin} and \l{The Box Model}.
 
     \row
@@ -1282,7 +1369,8 @@
                 }
            \endcode
 
-           See also \l{#background-prop}{background} and \l{The Box Model}.
+           See also \l{Qt Style Sheets Reference#background-prop}{background} and
+           \l{The Box Model}.
 
     \row
         \o \bold{\c border} \target border-prop
@@ -1359,8 +1447,8 @@
                 }
            \endcode
 
-           See also \l{#border-style-prop}{border-style},
-           \l{#border-width-prop}{border-width},
+           See also \l{Qt Style Sheets Reference#border-style-prop}{border-style},
+           \l{Qt Style Sheets Reference#border-width-prop}{border-width},
            \l{#border-image-prop}{border-image}, and \l{The Box Model}.
 
     \row
@@ -1397,9 +1485,9 @@
            QTextEdit, QToolTip, and plain \l{QWidget}s.
 
            See also \l{#border-color-prop}{border-color},
-           \l{#border-style-prop}{border-style},
-           \l{#border-width-prop}{border-width}, and \l{The Box Model}.
-
+           \l{Qt Style Sheets Reference#border-style-prop}{border-style},
+           \l{Qt Style Sheets Reference#border-width-prop}{border-width}, and
+           \l{The Box Model}.
 
     \row
         \o \bold{\c border-radius} \target border-radius-prop
@@ -1410,7 +1498,7 @@
            and \c border-bottom-left-radius.
 
            The border-radius clips the element's 
-           \l{#background-prop}{background}.
+           \l{Qt Style Sheets Reference#background-prop}{background}.
 
            This property is supported by QAbstractItemView
            subclasses, QAbstractSpinBox subclasses, QCheckBox,
@@ -1430,7 +1518,7 @@
                 }
            \endcode
 
-           See also \l{#border-width-prop}{border-width} and
+           See also \l{Qt Style Sheets Reference#border-width-prop}{border-width} and
            \l{The Box Model}.
 
     \row
@@ -1480,7 +1568,7 @@
            \endcode
 
            See also \l{#border-color-prop}{border-color},
-           \l{#border-style-prop}{border-style},
+           \l{Qt Style Sheets Reference#border-style-prop}{border-style},
            \l{#border-image-prop}{border-image}, and \l{The Box Model}.
 
     \row
@@ -1528,7 +1616,7 @@
 
            See also \l{#border-color-prop}{border-color},
            \l{#border-radius-prop}{border-radius},
-           \l{#border-style-prop}{border-style},
+           \l{Qt Style Sheets Reference#border-style-prop}{border-style},
            \l{#border-image-prop}{border-image}, and
            \l{The Box Model}.
 
@@ -1558,12 +1646,13 @@
         \o If \l{#position-prop}{position} is \c relative (the
            default), moves a \l{subcontrol} by a certain offset up;
            specifying \tt{bottom: \e{y}} is then equivalent to
-           specifying \tt{\l{#top-prop}{top}: -\e{y}}.
+           specifying \tt{\l{Qt Style Sheets Reference#top-prop}{top}: -\e{y}}.
 
            If \l{#position-prop}{position} is \c absolute, the \c
            bottom property specifies the subcontrol's bottom edge
            in relation to the parent's bottom edge (see also
-           \l{#subcontrol-origin-prop}{subcontrol-origin}).
+           \l{Qt Style Sheets Reference#subcontrol-origin-prop}
+           {subcontrol-origin}).
 
            Example:
 
@@ -1571,8 +1660,8 @@
                 QSpinBox::down-button { bottom: 2px }
            \endcode
 
-           See also \l{#left-prop}{left}, \l{#right-prop}{right}, and
-           \l{#top-prop}{top}.
+           See also \l{Qt Style Sheets Reference#left-prop}{left}, \l{#right-prop}{right}, and
+           \l{Qt Style Sheets Reference#top-prop}{top}.
 
     \row
         \o \bold{\c button-layout} \target button-layout-prop
@@ -1612,7 +1701,7 @@
                 QPushButton { color: red }
            \endcode
 
-           See also \l{#background-prop}{background} and
+           See also \l{Qt Style Sheets Reference#background-prop}{background} and
            \l{#selection-color-prop}{selection-color}.
 
     \row
@@ -1767,7 +1856,7 @@
            If \l{#position-prop}{position} is \c absolute, the \c
            left property specifies the subcontrol's left edge in
            relation to the parent's left edge (see also
-           \l{#subcontrol-origin-prop}{subcontrol-origin}).
+           \l{Qt Style Sheets Reference#subcontrol-origin-prop}{subcontrol-origin}).
 
            If this property is not specified, it defaults to \c 0.
 
@@ -1777,7 +1866,7 @@
                 QSpinBox::down-button { left: 2px }
            \endcode
 
-           See also \l{#right-prop}{right}, \l{#top-prop}{top}, and
+           See also \l{#right-prop}{right}, \l{Qt Style Sheets Reference#top-prop}{top}, and
            \l{#bottom-prop}{bottom}.
 
     \row
@@ -1816,7 +1905,7 @@
                 QLineEdit { margin: 2px }
            \endcode
 
-           See also \l{#padding-prop}{padding},
+           See also \l{Qt Style Sheets Reference#padding-prop}{padding},
            \l{#spacing-prop}{spacing}, and \l{The Box Model}.
 
     \row
@@ -1978,8 +2067,8 @@
         \o \bold{\c position} \target position-prop
         \o \c relative \BR
            | \c absolute
-        \o Whether offsets specified using \l{#left-prop}{left},
-           \l{#right-prop}{right}, \l{#top-prop}{top}, and
+        \o Whether offsets specified using \l{Qt Style Sheets Reference#left-prop}{left},
+           \l{#right-prop}{right}, \l{Qt Style Sheets Reference#top-prop}{top}, and
            \l{#bottom-prop}{bottom} are relative or absolute
            coordinates.
 
@@ -1992,12 +2081,12 @@
         \o If \l{#position-prop}{position} is \c relative (the
            default), moves a \l{subcontrol} by a certain offset to
            the left; specifying \tt{right: \e{x}} is then equivalent
-           to specifying \tt{\l{#left-prop}{left}: -\e{x}}.
+           to specifying \tt{\l{Qt Style Sheets Reference#left-prop}{left}: -\e{x}}.
 
            If \l{#position-prop}{position} is \c absolute, the \c
            right property specifies the subcontrol's right edge in
            relation to the parent's right edge (see also
-           \l{#subcontrol-origin-prop}{subcontrol-origin}).
+           \l{Qt Style Sheets Reference#subcontrol-origin-prop}{subcontrol-origin}).
 
            Example:
 
@@ -2005,7 +2094,7 @@
                 QSpinBox::down-button { right: 2px }
            \endcode
 
-           See also \l{#left-prop}{left}, \l{#top-prop}{top}, and
+           See also \l{Qt Style Sheets Reference#left-prop}{left}, \l{Qt Style Sheets Reference#top-prop}{top}, and
            \l{#bottom-prop}{bottom}.
 
     \row
@@ -2027,7 +2116,7 @@
            \endcode
 
            See also \l{#selection-color-prop}{selection-color} and
-           \l{#background-prop}{background}.
+           \l{Qt Style Sheets Reference#background-prop}{background}.
 
     \row
         \o \bold{\c selection-color}* \target selection-color-prop
@@ -2086,7 +2175,7 @@
                 QMenuBar { spacing: 10 }
            \endcode
 
-           See also \l{#padding-prop}{padding} and
+           See also \l{Qt Style Sheets Reference#padding-prop}{padding} and
            \l{#margin-prop}{margin}.
 
     \row
@@ -2109,13 +2198,14 @@
            \endcode
 
            See also
-           \l{#subcontrol-position-prop}{subcontrol-position}.
+           \l{Qt Style Sheets Reference#subcontrol-position-prop}{subcontrol-position}.
 
     \row
         \o \bold{\c subcontrol-position}* \target subcontrol-position-prop
         \o \l{#Alignment}{Alignment}
         \o The alignment of the \l subcontrol within the origin
-           rectangle specified by \l{#subcontrol-origin-prop}{subcontrol-origin}.
+           rectangle specified by \l{Qt Style Sheets Reference#subcontrol-origin-prop}
+           {subcontrol-origin}.
 
            If this property is not specified, it defaults to a value
            that depends on the subcontrol.
@@ -2131,7 +2221,7 @@
            \endcode
 
            See also
-           \l{#subcontrol-origin-prop}{subcontrol-origin}.
+           \l{Qt Style Sheets Reference#subcontrol-origin-prop}{subcontrol-origin}.
 
     \row
         \o \bold{\c top} \target top-prop
@@ -2143,7 +2233,7 @@
            If \l{#position-prop}{position} is \c absolute, the \c top
            property specifies the subcontrol's top edge in relation
            to the parent's top edge (see also
-           \l{#subcontrol-origin-prop}{subcontrol-origin}).
+           \l{Qt Style Sheets Reference#subcontrol-origin-prop}{subcontrol-origin}).
 
            If this property is not specified, it defaults to \c 0.
 
@@ -2153,7 +2243,7 @@
                 QSpinBox::up-button { top: 2px }
            \endcode
 
-           See also \l{#left-prop}{left}, \l{#right-prop}{right}, and
+           See also \l{Qt Style Sheets Reference#left-prop}{left}, \l{#right-prop}{right}, and
            \l{#bottom-prop}{bottom}.
 
     \row
@@ -2177,7 +2267,7 @@
 
     \endtable
 
-    \section2 List of Property Types
+    \section1 List of Property Types
 
     The following table summarizes the syntax and meaning of the
     different property types.
@@ -2520,7 +2610,7 @@ blue green yellow * /
 
     \endtable
 
-    \section2 List of Pseudo-States
+    \section1 List of Pseudo-States
 
     The following pseudo-states are supported:
 
@@ -2691,7 +2781,7 @@ blue green yellow * /
     \endtable
 
     \target subcontrols
-    \section2 List of Sub-Controls
+    \section1 List of Sub-Controls
 
     The following subcontrols are available:
 
@@ -2841,45 +2931,20 @@ blue green yellow * /
 
     See \l{Customizing the QPushButton's Menu Indicator Sub-Control}
     for an example of how to customize a subcontrol.
+    */
 
-    \target box model
-
-    \section1 The Box Model
-
-    Widgets and subcontrols that support the
-    \l{#background-prop}{background}, \l{#border-prop}{border},
-    \l{#margin-prop}{margin}, and \l{#padding-prop}{padding}
-    properties follow the box model. The image below illustrates how
-    these properties relate to each other:
-
-    \image stylesheet-boxmodel.png
-
-    \list
-    \o The margin falls outside the border.
-    \o The border is drawn between the margin and the padding.
-    \o The padding falls inside the border, between the border and
-       the actual contents.
-    \o The content is what is left from the original widget or
-       subcontrol once we have removed the margin, the border, and
-       the padding.
-    \endlist
-
-    The \l{#margin-prop}{margin},
-    \l{#border-width-prop}{border-width}, and
-    \l{#padding-prop}{padding} properties all default to zero. In
-    that case, all four rectangles (\c margin, \c border, \c padding,
-    and \c content) coincide exactly.
-
-    If a background is specified for a widget, by default it is drawn
-    only for the area inside the border. This can be changed using
-    the \l{#background-clip-prop}{background-clip} property.
-
-    \section1 Examples
+    /*!
+    \page stylesheet-examples.html
+    \contentspage {Qt Style Sheet}{Contents}
+    \previouspage Qt Style Sheets Reference
+    \title Examples
 
     In this section, we will see examples of how to style widgets
-    using style sheets. 
+    using style sheets. The following are a list of examples available:
 
-    \section2 Customizing the Foreground and Background Colors
+    \tableofcontents
+
+    \section1 Customizing the Foreground and Background Colors
 
     Let's start by setting yellow as the background color of all
     \l{QLineEdit}s in an application. This could be achieved like
@@ -2906,7 +2971,7 @@ blue green yellow * /
     \endcode
 
     Alternatively, we can set the
-    \l{#background-prop}{background-color} property directly on the
+    \l{Qt Style Sheets Reference#background-prop}{background-color} property directly on the
     QLineEdit, omitting the selector:
 
     \code
@@ -2959,7 +3024,7 @@ blue green yellow * /
         ageSpinBox->setProperty("mandatoryField", true);
     \endcode
 
-    \section2 Customizing a QPushButton Using the Box Model
+    \section1 Customizing a QPushButton Using the Box Model
 
     This time, we will show how to create a red QPushButton. This
     QPushButton would presumably be connected to a very destructive
@@ -2983,8 +3048,8 @@ blue green yellow * /
        let us specify the background color of a button).
     \o Therefore, the button is rendered using style sheets.
     \o We haven't specified any values for
-       \l{#border-width-prop}{border-width} and
-       \l{#border-style-prop}{border-style}, so by default we obtain
+       \l{Qt Style Sheets Reference#border-width-prop}{border-width} and
+       \l{Qt Style Sheets Reference#border-style-prop}{border-style}, so by default we obtain
        a 0-pixel wide border of style \c none.
     \endlist
 
@@ -3003,7 +3068,7 @@ blue green yellow * /
 
     Things look already a lot better. But the button looks a bit
     cramped. Let's specify some spacing between the border and the
-    text using the \l{#padding-prop}{padding}. Additionally, we will
+    text using the \l{Qt Style Sheets Reference#padding-prop}{padding}. Additionally, we will
     enforce a minimum width, round the corners, and specify a larger
     font to make the button look nicer:
 
@@ -3043,7 +3108,7 @@ blue green yellow * /
         }
     \endcode
 
-    \section2 Customizing the QPushButton's Menu Indicator Sub-Control
+    \section1 Customizing the QPushButton's Menu Indicator Sub-Control
 
     Subcontrols give access to the sub-elements of a widget. For
     example, a QPushButton associated with a menu (using
@@ -3058,10 +3123,10 @@ blue green yellow * /
 
     By default, the menu indicator is located at the bottom-right
     corner of the padding rectangle. We can change this by specifying
-    \l{#subcontrol-position-prop}{subcontrol-position} and
-    \l{#subcontrol-origin-prop}{subcontrol-origin} to anchor the
-    indicator differently. We can also use \l{#top-prop}{top} and
-    \l{#left-prop}{left} to move the indicator by a few pixels. For
+    \l{Qt Style Sheets Reference#subcontrol-position-prop}{subcontrol-position} and
+    \l{Qt Style Sheets Reference#subcontrol-origin-prop}{subcontrol-origin} to anchor the
+    indicator differently. We can also use \l{Qt Style Sheets Reference#top-prop}{top} and
+    \l{Qt Style Sheets Reference#left-prop}{left} to move the indicator by a few pixels. For
     example:
 
     \code
@@ -3074,11 +3139,11 @@ blue green yellow * /
     \endcode
 
     This positions the \c myindicator.png to the center right of the
-    QPushButton's \l{#padding-prop}{padding} rectangle (see
-    \l{#subcontrol-origin-prop}{subcontrol-origin} for more
+    QPushButton's \l{Qt Style Sheets Reference#padding-prop}{padding} rectangle (see
+    \l{Qt Style Sheets Reference#subcontrol-origin-prop}{subcontrol-origin} for more
     information).
 
-    \section2 Complex Selector Example
+    \section1 Complex Selector Example
 
     Since red seems to be our favorite color, let's make the text in
     QLineEdit red by setting the following application-wide
@@ -3117,8 +3182,8 @@ blue green yellow * /
     \endcode
 
     Quiz: What happens if we have a read-only QLineEdit in a QDialog?
-    [Hint: The \l{#Conflict Resolution}{Conflict Resolution} section above explains
+    [Hint: The \l{The Style Sheet Syntax#Conflict Resolution}{Conflict Resolution} section above explains
     what happens in cases like this.]
 
     \sa {Style Sheet Example}, {Supported HTML Subset}, QStyle
-*/
+    */
