@@ -471,7 +471,8 @@ void QTextControlPrivate::startDrag()
 
 void QTextControlPrivate::setCursorPosition(const QPointF &pos)
 {
-    const int cursorPos = doc->documentLayout()->hitTest(pos, Qt::FuzzyHit);
+    Q_Q(QTextControl);
+    const int cursorPos = q->hitTest(pos, Qt::FuzzyHit);
     if (cursorPos == -1)
         return;
     cursor.setPosition(cursorPos);
@@ -590,7 +591,7 @@ void QTextControlPrivate::extendWordwiseSelection(int suggestedNewPosition, qrea
     const int wordStartPos = curs.position();
 
     const int blockPos = curs.block().position();
-    const QPointF blockCoordinates = doc->documentLayout()->blockBoundingRect(curs.block()).topLeft();
+    const QPointF blockCoordinates = q->blockBoundingRect(curs.block()).topLeft();
 
     QTextLine line = currentTextLine(curs);
     if (!line.isValid())
@@ -1199,12 +1200,13 @@ QVariant QTextControl::loadResource(int type, const QUrl &name)
 
 QRectF QTextControlPrivate::rectForPosition(int position) const
 {
+    Q_Q(const QTextControl);
     const QTextBlock block = doc->findBlock(position);
     if (!block.isValid())
         return QRectF();
     const QAbstractTextDocumentLayout *docLayout = doc->documentLayout();
     const QTextLayout *layout = block.layout();
-    const QPointF layoutPos = docLayout->blockBoundingRect(block).topLeft();
+    const QPointF layoutPos = q->blockBoundingRect(block).topLeft();
     int relativePos = position - block.position();
     if (preeditCursor != 0) {
         int preeditPos = layout->preeditAreaPosition();
@@ -1330,7 +1332,7 @@ QRectF QTextControl::selectionRect(const QTextCursor &cursor) const
             for (int i = firstLine; i <= lastLine; ++i) {
                 r |= layout->lineAt(i).rect();
             }
-            r.translate(d->doc->documentLayout()->blockBoundingRect(posBlock).topLeft());
+            r.translate(blockBoundingRect(posBlock).topLeft());
         } else {
             QRectF anchorRect = d->rectForPosition(cursor.selectionEnd());
             r |= anchorRect;
@@ -1391,7 +1393,7 @@ void QTextControlPrivate::mousePressEvent(Qt::MouseButton button, const QPointF 
 
         trippleClickTimer.stop();
     } else {
-        int cursorPos = doc->documentLayout()->hitTest(pos, Qt::FuzzyHit);
+        int cursorPos = q->hitTest(pos, Qt::FuzzyHit);
         if (cursorPos == -1)
             return;
 
@@ -1423,7 +1425,7 @@ void QTextControlPrivate::mousePressEvent(Qt::MouseButton button, const QPointF 
                 && !cursorIsFocusIndicator
                 && cursorPos >= cursor.selectionStart()
                 && cursorPos <= cursor.selectionEnd()
-                && doc->documentLayout()->hitTest(pos, Qt::ExactHit) != -1) {
+                && q->hitTest(pos, Qt::ExactHit) != -1) {
 #ifndef QT_NO_DRAGANDDROP
                 mightStartDrag = true;
                 dragStartPos = pos.toPoint();
@@ -1488,7 +1490,7 @@ void QTextControlPrivate::mouseMoveEvent(Qt::MouseButtons buttons, const QPointF
         return;
 #endif
 
-    int newCursorPos = doc->documentLayout()->hitTest(mousePos, Qt::FuzzyHit);
+    int newCursorPos = q->hitTest(mousePos, Qt::FuzzyHit);
     if (newCursorPos == -1)
         return;
 
@@ -1564,7 +1566,7 @@ void QTextControlPrivate::mouseReleaseEvent(Qt::MouseButton button, const QPoint
         if (!cursor.hasSelection()
             || (anchor == anchorOnMousePress && hadSelectionOnMousePress)) {
 
-            const int anchorPos = doc->documentLayout()->hitTest(pos, Qt::ExactHit);
+            const int anchorPos = q->hitTest(pos, Qt::ExactHit);
             if (anchorPos != -1) {
                 cursor.setPosition(anchorPos);
 
@@ -1661,7 +1663,7 @@ bool QTextControlPrivate::dragMoveEvent(QEvent *e, const QMimeData *mimeData, co
         return false;
     }
 
-    const int cursorPos = doc->documentLayout()->hitTest(pos, Qt::FuzzyHit);
+    const int cursorPos = q->hitTest(pos, Qt::FuzzyHit);
     if (cursorPos != -1) {
         QRectF crect = q->cursorRect(dndFeedbackCursor);
         if (crect.isValid())
@@ -1911,7 +1913,7 @@ QMenu *QTextControl::createStandardContextMenu(const QPointF &pos, QWidget *pare
 QTextCursor QTextControl::cursorForPosition(const QPointF &pos) const
 {
     Q_D(const QTextControl);
-    int cursorPos = d->doc->documentLayout()->hitTest(pos, Qt::FuzzyHit);
+    int cursorPos = hitTest(pos, Qt::FuzzyHit);
     if (cursorPos == -1)
         cursorPos = 0;
     QTextCursor c(d->doc);
@@ -2607,23 +2609,13 @@ void QTextControl::setPalette(const QPalette &pal)
     d->palette = pal;
 }
 
-void QTextControl::drawContents(QPainter *p, const QRectF &rect, QWidget *widget)
+QAbstractTextDocumentLayout::PaintContext QTextControl::getPaintContext(QWidget *widget) const
 {
-    Q_D(QTextControl);
-    p->save();
+    Q_D(const QTextControl);
+
     QAbstractTextDocumentLayout::PaintContext ctx;
-    if (rect.isValid())
-        p->setClipRect(rect);
-    ctx.clip = rect;
+
     ctx.selections = d->extraSelections;
-
-    for (int i = 0; i < ctx.selections.count(); ++i)
-        if (ctx.selections.at(i).format.boolProperty(QTextFormat::FullWidthSelection)) {
-            ctx.clip.setLeft(0);
-            ctx.clip.setWidth(INT_MAX);
-            break;
-        }
-
     ctx.palette = d->palette;
     if (d->cursorOn && d->isEnabled) {
         if (d->hideCursor)
@@ -2659,6 +2651,18 @@ void QTextControl::drawContents(QPainter *p, const QRectF &rect, QWidget *widget
         ctx.selections.append(selection);
     }
 
+    return ctx;
+}
+
+void QTextControl::drawContents(QPainter *p, const QRectF &rect, QWidget *widget)
+{
+    Q_D(QTextControl);
+    p->save();
+    QAbstractTextDocumentLayout::PaintContext ctx = getPaintContext(widget);
+    if (rect.isValid())
+        p->setClipRect(rect);
+    ctx.clip = rect;
+
     d->doc->documentLayout()->draw(p, ctx);
     p->restore();
 }
@@ -2671,6 +2675,19 @@ void QTextControlPrivate::_q_copyLink()
     QApplication::clipboard()->setMimeData(md);
 #endif
 }
+
+int QTextControl::hitTest(const QPointF &point, Qt::HitTestAccuracy accuracy) const
+{
+    Q_D(const QTextControl);
+    return d->doc->documentLayout()->hitTest(point, accuracy);
+}
+
+QRectF QTextControl::blockBoundingRect(const QTextBlock &block) const
+{
+    Q_D(const QTextControl);
+    return d->doc->documentLayout()->blockBoundingRect(block);
+}
+
 
 #include "moc_qtextcontrol_p.cpp"
 

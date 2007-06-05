@@ -31,6 +31,7 @@
 #include <QtGui/qtextformat.h>
 #include <QtGui/qtextedit.h>
 #include <QtCore/qrect.h>
+#include <QtGui/qabstracttextdocumentlayout.h>
 
 #ifdef QT3_SUPPORT
 #include <QtGui/qtextobject.h>
@@ -136,6 +137,12 @@ public:
 #ifndef QT_NO_PRINTER
     void print(QPrinter *printer) const;
 #endif
+
+    virtual int hitTest(const QPointF &point, Qt::HitTestAccuracy accuracy) const;
+    virtual QRectF blockBoundingRect(const QTextBlock &block) const;
+    QAbstractTextDocumentLayout::PaintContext getPaintContext(QWidget *widget) const;
+
+
 
 public Q_SLOTS:
     void setPlainText(const QString &text);
