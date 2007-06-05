@@ -706,8 +706,8 @@ int QDataWidgetMapper::currentIndex() const
     \c myTableView changes:
 
     \code
-    QDataWidgetMapper *mapper = new QDataWidgetMapper();
-    connect(myTableView->selectionModel(), SIGNAL(currentRowChanged(QModelIndex)),
+    QDataWidgetMapper *mapper = new QDataWidgetMapper(); 
+    connect(myTableView->selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
             mapper, SLOT(setCurrentModelIndex(QModelIndex)));
     \endcode
 
