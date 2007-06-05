@@ -130,7 +130,8 @@ QPluginLoader::~QPluginLoader()
     If the root component object was destroyed, calling this function
     creates a new instance.
 
-    The instance is not deleted when the QPluginLoader is destroyed.
+    The root component, returned by this function, is not deleted when
+    the QPluginLoader is destroyed.
 
     The component object is a QObject. Use qobject_cast() to access
     interfaces you are interested in.
@@ -181,6 +182,12 @@ bool QPluginLoader::load()
     If other instances of QPluginLoader are using the same plugin, the
     call will fail, and unloading will only happen when every instance
     has called unload().
+
+    \warning The root component of a plugin, returned by the instance()
+    function, becomes invalid once the plugin is unloaded. Delete the
+    root component before unloading the plugin. Attempting to access
+    members of invalid root components will in most cases result in a
+    segmentation fault.
 
     \sa instance(), load()
 */
@@ -289,7 +296,8 @@ void Q_CORE_EXPORT qRegisterStaticPluginInstanceFunction(QtPluginInstanceFunctio
 }
 
 /*!
-    Returns a list of static plugin instances held by the plugin loader.
+    Returns a list of static plugin instances (root components) held
+    by the plugin loader.
 */
 QObjectList QPluginLoader::staticInstances()
 {
