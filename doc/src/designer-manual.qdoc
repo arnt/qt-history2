@@ -1717,95 +1717,108 @@ the subclass.
 \section2 The Direct Approach
 
 To demonstrate how user interface components can be used straight from
-\QD, we take the dialog that we created in the chapter on
-\l{designer-designing-a-component.html}{Designing a Component}, and we
-create a simple application to display it.
+\QD, we create a simple Calculator Form application, based on the original
+\l{Calculator Form Example}{Calculator Form} example.
 
-The source of the application consists of two files: \c main.cpp and
-\c imagedialog.ui. We will use \c qmake to build the executable, so we
-need to write a \c .pro file:
+The application consists of one source file, \c main.cpp, and a \c{.ui} file.
 
-\quotefromfile snippets/designer/imagedialog/imagedialog.pro
+The \c{calculatorform.ui} file designed with \QD is shown below:
+
+\image directapproach-calculatorform.png
+
+We will use \c qmake to build the executable, so we need to write a \c .pro
+file:
+
+\quotefromfile snippets/uitools/calculatorform/calculatorform.pro
 \skipto TEMPLATE
 \printuntil SOURCES
 
 The special feature of this file is the \c FORMS declaration that tells
 \c qmake which files it needs to process with \c uic. In this case,
-the \c imagedialog.ui file is used to create a \c ui_imagedialog.h file
-that can be used by any files listed in the \c SOURCES declaration.
-To ensure that \c qmake generates the \c ui_imagedialog.h file, we need
+the \c calculatorform.ui file is used to create a \c ui_calculatorform.h
+file that can be used by any files listed in the \c SOURCES declaration.
+To ensure that \c qmake generates the \c ui_calculatorform.h file, we need
 to include it in a file listed in \c SOURCES. Since we only have
 \c main.cpp, we include it there:
 
-\quotefromfile snippets/designer/imagedialog/main.cpp
-\skipto #include "ui_imagedialog.h"
-\printuntil #include <QApplication>
+\quotefromfile snippets/uitools/calculatorform/main.cpp
+\skipto #include "ui_calculatorform.h"
+\printuntil #include "ui_calculatorform.h"
 
 This additional check ensures that we do not generate code for \e .ui
 files that are not used.
 
-The \c main function creates the image dialog by constructing a standard
-QDialog that we use to host the user interface described by the
-\c imagedialog.ui file.
+The \c main function creates the calculator widget by constructing a standard
+QWidget that we use to host the user interface described by the
+\c calculatorform.ui file.
 
 \skipto main
 \printuntil /^\}/
 
-In this case, the \c{Ui::ImageDialog} is an interface description object
-from the \c ui_imagedialog.h file that sets up all the dialog's widgets
+In this case, the \c{Ui::CalculatorForm} is an interface description object
+from the \c ui_calculatorform.h file that sets up all the dialog's widgets
 and the connections between its signals and slots.
 
 This approach provides a quick and easy way to use simple, self-contained
 components in your applications, but many components created with \QD
 will need to be integrated more closely with the rest of the application
-code. To achieve this, we need to subclass a standard Qt widget.
+code. For instance, the \c CalculatorForm code provided above will compile
+and run, but the QSpinBox objects will not interact with the QLabel as
+we require a custom slot to carry out the add operation and display the
+result in the QLabel. To achieve this, we need to subclass a standard
+Qt widget.
 
 \target TheSingleInheritanceApproach
 \section2 The Single Inheritance Approach
 
-In this approach, we use the \c{Ui::ImageDialog} object as we did in
-the simple case, but instead of setting up the dialog from the
-application's main function, we subclass QDialog and set up the
-user interface from within the constructor.
-Components used in this way expose the widgets and layouts used in the
-form to the QDialog subclass, and provide a standard system for
-making signal and slot connections between the user interface and other
-objects in your application.
+In this approach, we subclass a Qt widget and set up the user interface from
+within the constructor. Components used in this way expose the widgets and
+layouts used in the form to the Qt widget subclass, and provide a standard
+system for making signal and slot connections between the user interface and
+other objects in your application.
 
 This approach is used in the \l{Calculator Form Example}{Calculator Form}
 example.
 
 To ensure that we can use the user interface, we need to include the
-header file that \c uic generates before referring to \c{Ui::ImageDialog}:
+header file that \c uic generates before referring to \c{Ui::CalculatorForm}:
 
-\quotefromfile snippets/designer/singleinheritance/imagedialog.h
-\skipto #include "ui_imagedialog.h"
-\printuntil #include "ui_imagedialog.h"
+\quotefromfile examples/designer/calculatorform/calculatorform.h
+\skipto #include "ui_calculatorform.h"
+\printuntil #include "ui_calculatorform.h"
+
+This means that the \c{.pro} file must be updated to include
+\c{calculatorform.h}:
+
+\quotefromfile examples/designer/calculatorform/calculatorform.pro
+\skipto HEADERS
+\printuntil calculatorform.h
 
 The subclass is defined in the following way:
 
-\skipto class ImageDialog
+\quotefromfile examples/designer/calculatorform/calculatorform.h
+\skipto class CalculatorForm
 \printuntil /^\};/
 
-The important features of the class are the private \c ui object
+The important feature of the class is the private \c ui object
 which provides the code for setting up and managing the user
 interface.
 
 The constructor for the subclass constructs and configures all the
 widgets and layouts for the dialog just by calling the \c ui object's
-setupUi() function. Once this has been done, it is possible to modify
-the user interface and create items for the combobox:
+\c setupUi() function. Once this has been done, it is possible to modify
+the user interface as needed.
 
-\quotefromfile snippets/designer/singleinheritance/imagedialog.cpp
-\skipto ImageDialog::ImageDialog
+\quotefromfile examples/designer/calculatorform/calculatorform.cpp
+\skipto CalculatorForm::CalculatorForm
 \printuntil /^\}/
 
 We can connect signals from the user interface widgets to slots in the
-dialog in the usual way, taking care to prefix the \c ui object to
+widget in the usual way, taking care to prefix the \c ui object to
 each widget used.
 
 The main advantages of this approach are its simple use of inheritance
-to provide a QDialog-based interface, and its encapsulation of the
+to provide a QWidget-based interface, and its encapsulation of the
 user interface widget variables within the \c ui data member.
 We can use this method to define a number of user interfaces within the
 same widget, each of which is contained within its own namespace,
@@ -1821,21 +1834,24 @@ components defined in the form directly accessible within the scope of
 the subclass, and enables signal and slot connections to be made in
 the usual way with the \l{QObject::connect()}{connect()} function.
 
-As before, we need to include the header file that \c uic generates
-from the \c imagedialog.ui file:
+This approach is used in the \l{Multiple Inheritance Example}
+{Multiple Inheritance} example.
 
-\quotefromfile snippets/designer/multipleinheritance/imagedialog.h
-\skipto #include "ui_imagedialog.h"
-\printuntil #include "ui_imagedialog.h"
+We need to include the header file that \c uic generates from the
+\c calculatorform.ui file:
+
+\quotefromfile examples/uitools/multipleinheritance/calculatorform.h
+\skipto #include "ui_calculatorform.h"
+\printuntil #include "ui_calculatorform.h"
 
 The class is defined in a similar way to the one used in the private
-interface approach, except that this time we inherit from both QDialog
-and \c{Ui::ImageDialog}:
+interface approach, except that this time we inherit from both QWidget
+and \c{Ui::CalculatorForm}:
 
-\skipto class ImageDialog
+\skipto class CalculatorForm
 \printuntil /^\};/
 
-We inherit \c{Ui::ImageDialog} privately to ensure that the user
+We inherit \c{Ui::CalculatorForm} privately to ensure that the user
 interface objects are private in our subclass. We can also inherit
 it with the \c public or \c protected keywords in the same way that
 we could have made \c ui public or protected in the previous case.
@@ -1843,14 +1859,13 @@ we could have made \c ui public or protected in the previous case.
 The constructor for the subclass performs many of the same tasks as
 the constructor used in the private interface example:
 
-\quotefromfile snippets/designer/multipleinheritance/imagedialog.cpp
-\skipto ImageDialog::ImageDialog
+\quotefromfile examples/uitools/multipleinheritance/calculatorform.cpp
+\skipto CalculatorForm::CalculatorForm
 \printuntil /^\}/
 
-In this case, the interface can be set up using a member function,
-and the combobox is accessed in the same way as a widget created
-in code by hand. The push buttons are also referred to directly in
-the connect() function calls.
+In this case, the widgets used in the user interface can be accessed
+in the same way as a widget created in code by hand. We no longer require
+the \c{ui} prefix to access them.
 
 Subclassing using multiple inheritance gives us more direct access
 to the contents of the form, is slightly cleaner than the single
@@ -1861,7 +1876,7 @@ multiple user interfaces.
 \section1 Run Time Form Processing
 
 Alternatively, forms can be processed at run time, producing
-dynamically-generated user interfaces. This can be done using the UiTools
+dynamically-generated user interfaces. This can be done using the QtUiTools
 module, which provides the QUiLoader class to handle forms created with \QD.
 
 \section2 The UiTools Approach
@@ -1915,10 +1930,7 @@ The signals and slots connections defined for compile time or run time
 forms can either be set up manually or automatically, using QMetaObject's
 ability to make connections between signals and suitably-named slots.
 
-In the previous sections, we connected the \gui OK and \gui Cancel
-buttons in the form directly to the dialog's accept() and reject()
-slots because we did not need to perform any processing on the
-contents of the dialog. If we want to process the information entered
+Generally, in a QDialog, if we want to process the information entered
 by the user before accepting it, we need to connect the clicked()
 signal from the \gui OK button to a custom slot in our dialog.
 We will first show an example of the dialog in which the slot is
@@ -1939,10 +1951,10 @@ The \c checkValues() slot will be used to validate the values provided
 by the user.
 
 In the dialog's constructor we set up the widgets as before, and connect
-the \gui Cancel button's clicked() signal to the dialog's reject() slot.
-We also disable the \l{QPushButton::autoDefault}{autoDefault}
-property in both buttons to ensure that the dialog does not interfere
-with the way that the line edit handles return key events:
+the \gui Cancel button's \l{QPushButton::clicked()}{clicked()} signal to the
+dialog's reject() slot. We also disable the \l{QPushButton::autoDefault}
+{autoDefault} property in both buttons to ensure that the dialog does not
+interfere with the way that the line edit handles return key events:
 
 \quotefromfile snippets/designer/noautoconnection/imagedialog.cpp
 \skipto ImageDialog::ImageDialog
@@ -1951,8 +1963,8 @@ with the way that the line edit handles return key events:
 \skipto connect(okButton
 \printuntil /^\}/
 
-We connect the \gui OK button's clicked() signal to the dialog's
-checkValues() slot which we implement as follows:
+We connect the \gui OK button's \l{QPushButton::clicked()}{clicked()} signal
+to the dialog's checkValues() slot which we implement as follows:
 
 \skipto ImageDialog::checkValues()
 \printuntil /^\}/
@@ -1961,14 +1973,14 @@ This custom slot does the minimum necessary to ensure that the data
 entered by the user is valid - it only accepts the input if a name
 was given for the image.
 
-\target ADialogWithAutoConnect
-\section2 A Dialog With Auto-Connect
+\target WidgetsAndDialogsWithAutoConnect
+\section2 Widgets and Dialogs with Auto-Connect
 
 Although it is easy to implement a custom slot in the dialog and
 connect it in the constructor, we could instead use QMetaObject's
 auto-connection facilities to connect the \gui OK button's clicked()
 signal to a slot in our subclass. \c{uic} automatically generates
-code in the dialog's setupUi() function to do this, so we only need
+code in the dialog's \c setupUi() function to do this, so we only need
 to declare and implement a slot with a name that follows a standard
 convention:
 
@@ -1982,6 +1994,26 @@ to mouse clicks on the \gui OK button:
 \quotefromfile snippets/designer/autoconnection/imagedialog.h
 \skipto class
 \printuntil /^\};/
+
+Another example of automatic signal and slot connection would be the
+\l{Text Finder Example}{Text Finder} with its \c{on_findButton_clicked()}
+slot.
+
+We use QMetaObject's system to enable signal and slot connections:
+
+\quotefromfile uitools/textfinder/textfinder.cpp
+\skipto QMetaObject
+\printuntil (this);
+
+This enables us to implement the slot, as shown below:
+
+\skipto void TextFinder::on_findButton_clicked()
+\printuntil cursor.beginEditBlock()
+
+\dots
+
+\skipto cursor.endEditBlock();
+\printuntil /^\}/
 
 Automatic connection of signals and slots provides both a standard
 naming convention and an explicit interface for widget designers to
