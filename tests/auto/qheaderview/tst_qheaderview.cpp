@@ -104,6 +104,8 @@ private slots:
     void resizeHiddenSection();
     void resizeAndInsertSection_data();
     void resizeAndInsertSection();
+    void moveAndInsertSection_data();
+    void moveAndInsertSection();
     void highlightSections();
     void showSortIndicator();
     void removeAndInsertRow();
@@ -910,6 +912,35 @@ void tst_QHeaderView::resizeAndInsertSection()
     model->insertRow(insert);
     
     QCOMPARE(view->sectionSize(compare), expected);
+}
+
+void tst_QHeaderView::moveAndInsertSection_data()
+{
+    QTest::addColumn<int>("from");
+    QTest::addColumn<int>("to");
+    QTest::addColumn<int>("insert");
+    QTest::addColumn<QList<int> >("mapping");
+
+    QTest::newRow("move from 1 to 3, insert 0")
+        << 1 << 3 << 0 <<(QList<int>() << 0 << 1 << 3 << 4 << 2);
+
+}
+
+void tst_QHeaderView::moveAndInsertSection()
+{
+    QFETCH(int, from);
+    QFETCH(int, to);
+    QFETCH(int, insert);
+    QFETCH(QList<int>, mapping);
+
+    view->setStretchLastSection(false);
+    
+    view->moveSection(from, to);
+
+    model->insertRow(insert);
+
+    for (int i = 0; i < mapping.count(); ++i)
+        QCOMPARE(view->logicalIndex(i), mapping.at(i));
 }
 
 void tst_QHeaderView::resizeMode()
