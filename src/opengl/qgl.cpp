@@ -1369,19 +1369,14 @@ QGLShareRegister* qgl_share_reg()
 
     \ingroup multimedia
 
-    An OpenGL
-    \footnote
-        OpenGL is a trademark of Silicon Graphics, Inc. in the
-        United States and other countries.
-    \endfootnote
-    rendering context is a complete set of OpenGL state variables.
-
-    The context's \link QGL::FormatOption format\endlink is set in the
-    constructor or later with setFormat(). The format options that are
-    actually set are returned by format(); the options you asked for
-    are returned by requestedFormat(). Note that after a QGLContext
-    object has been constructed, the actual OpenGL context must be
-    created by explicitly calling the \link create() create()\endlink
+    An OpenGL rendering context is a complete set of OpenGL state
+    variables. The rendering context's \l {QGL::FormatOption} {format}
+    is set in the constructor, but it can also be set later with
+    setFormat(). The format options that are actually set are returned
+    by format(); the options you asked for are returned by
+    requestedFormat(). Note that after a QGLContext object has been
+    constructed, the actual OpenGL context must be created by
+    explicitly calling the \link create() create()\endlink
     function. The makeCurrent() function makes this context the
     current rendering context. You can make \e no context current
     using doneCurrent(). The reset() function will reset the context

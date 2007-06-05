@@ -3,28 +3,31 @@
     \title OpenGL for Embedded Systems Example
 
     The OpenGL for Embedded Systems (ES) screen driver example shows
-    how to use the \l {Graphics Driver Framework} in \l {Qtopia Core}
-    to write an OpenGL ES integration. The example assumes basic
-    knowledge of the graphics driver framework as discussed in the \l
-    {Accelerated Screen Driver Example}.
+    how the \l {Graphics Driver Framework} in \l {Qtopia Core} can be
+    used to create an OpenGL ES screen driver. The example assumes a
+    basic knowledge of the graphics driver framework as discussed in
+    the \l {Accelerated Screen Driver Example}.
 
-    In \l {Qtopia Core}, OpenGL ES can be used in different ways. It
-    can be used to compose displays of overlapping top-level windows,
-    where the top-most window is not opaque but allows features of the
-    underlying windows to show through. Or it can be used to animate a
-    transition from an existing window to a newly created one. A third
-    use is to access hardware features of your device to accelerate
-    widget painting, and a fourth use is simply to enable access to
-    class QGLWidget. This example shows how to implement all of these.
+    In \l {Qtopia Core}, OpenGL ES can be used in many ways. For
+    example, it can be used to compose displays of overlapping
+    top-level windows, where the top-most window is not opaque but
+    allows features of the underlying windows to show through. Or it
+    can be used to animate a transition from an existing window to a
+    newly created one. A third example is to access hardware features
+    of your device to accelerate widget painting, and a fourth example
+    is to simply enable access to class QGLWidget, the widget class
+    for rendering OpenGL graphics. This example shows how to implement
+    all of these.
 
-    The example uses an OpenGL ES implementation from 
+    The example uses an implementation of OpenGL ES from 
     \l {http://ati.amd.com}{ATI} for the 
     \l {http://ati.amd.com/products/imageon238x/}{Imageon 2380}. The
     OpenGL ES and EGL libraries are required for compiling and linking
     the example. If your target device is different, you must supply
     the corresponding libraries for that device, and you also might 
-    have to modify the example source code to match any API signature 
-    differences in your EGL library.
+    have to modify the example source code to account for differences
+    in API signatures between your EGL library and the one used for
+    this example.
 
     After compiling the example source, install the resulting screen
     driver plugin with the command \c {make install}. To start an
@@ -41,7 +44,7 @@
 
     \section1 QAhiGLScreen Class Definition
 
-    The example screen driver class is called QAhiGLScreen. "Ahi"
+    The example's screen driver class is called QAhiGLScreen. "Ahi"
     stands for ATI Handheld Interface. The class can be used as the
     screen driver for other ATI handheld devices. 
 
@@ -51,23 +54,47 @@
 
     The screen driver class is derived from class QGLScreen, which is
     itself derived from class QScreen. If you will only use OpenGL ES
-    for composing displays of top-level windows, you can create a
-    screen driver class by deriving from QScreen directly. Otherwise
-    your screen driver class must be derived from QGLScreen.
+    for composing displays of top-level windows, you can derive your
+    OpenGL ES screen driver class directly from QScreen. Otherwise it
+    must be derived from QGLScreen.
 
-    Note that class QGLScreen is not included in the Qt documentation.
+    Note that class QGLScreen is not part of the Qt documentation.
     The design of QGLScreen is still preliminary, so it is not yet
     included in the published Qt API. Class QScreen, however, is in
     the published API and is included in the Qt documentation.
 
-    QAhiGLScreen's reimplementation of \l {QScreen::}{exposeRegion()}
-    is the function that does the composition and display of
-    windows. The QAhiGLScreen private functions updateTexture(),
-    redrawScreen(), and drawWindow() are helper functions for
-    composing and displaying windows. The private functions
-    drawQuad(), drawQuadInverseY(), and drawQuadWavyFlag() are used
-    for creating the transition effect displaying a new window or
-    reshowing a window that was mninimized.
+    All the public functions in our example screen driver class
+    QAhiGLScreen are reimplementations of virtual or pure virtual
+    functions from its base classes. Except for function hasOpenGL(), 
+    which is declared in QGLScreen, the public functions are from 
+    QScreen.
+
+    \l {QScreen::}{exposeRegion()} is called by the Qtopia Core server
+    whenever a screen update is required. Its parameters are the
+    region on the screen to be updated and the index of the client 
+    window to be updated.
+
+    One of the two \l {QScreen::}{createSurface()} functions are
+    called by the server whenever it needs to create a new window,
+    e.g., when copying the contents of an area of memory to the
+    screen. You can either provide a widget, from which the correct
+    type of window surface is created automatically, or you can
+    provide a key string to specify which kind of window surface you
+    want.
+
+    The implementation of \l {QScreen::}{setMode()} is used to 
+    reset the frame buffer's resolution. The parameters are the
+    \e width, \e height, and the bit \e depth for the frame buffer's
+    new resolution. The function must notify other applications, when 
+    the resolution is changed, because the other applications must 
+    redraw their frame buffers with the new resolution.
+
+does the composition and display of windows. The
+    QAhiGLScreen private functions updateTexture(), redrawScreen(),
+    and drawWindow() are helper functions for composing and displaying
+    windows. The private functions drawQuad(), drawQuadInverseY(), and
+    drawQuadWavyFlag() are used for creating the transition effect
+    displaying a new window or reshowing a window that was mninimized.
 
     The only data member in class QAhiGLScreen is the standard pointer
     to a private implementation class QAhiGLScreenPrivate, where the 

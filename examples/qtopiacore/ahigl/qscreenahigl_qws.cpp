@@ -64,8 +64,8 @@ void QAhiGLCursor::set(const QImage &image, int hotx, int hoty)
 
 
 /*!
-  QAhiGLScreenPrivate
-  The QAhiGLScreenPrivate contains state information for class QAhiGLScreen.
+  \class QAhiGLScreenPrivate
+  The QAhiGLScreenPrivate class contains state information for class QAhiGLScreen.
 
   An instance of this class points to the owning instance of
   class QAhiGLScreen. This class uses a QTimer to limit the
@@ -112,7 +112,7 @@ struct WindowInfo
 static QMap<QWSWindow*, WindowInfo*> windowMap;
 
 /*!
-  Sets up the animation used for the transition effect used
+  Constructs the animation for the transition effect used
   when the window associated with \a screen is displayed.
  */
 ShowAnimation::ShowAnimation(QAhiGLScreenPrivate *screen)
@@ -180,6 +180,52 @@ void QAhiGLScreenPrivate::redrawScreen()
     screen->redrawScreen();
 }
 
+/*!
+  \class QAhiGLScreen
+
+  \brief The QAhiGLScreen class is the screen driver for the ATI handheld device interface.
+
+  QAhiGLScreen is implemented with the d-pointer pattern. That is,
+  the only data member the class contains is a pointer called d_ptr,
+  which means data pointer. It points to an instance of a private
+  class called QAhiGLScreenPrivate, where all the screen driver's
+  context data members are defined. The d-pointer pattern is used
+  so that changes can be made to the screen driver's context data
+  members without destroying the binary compatibility of the public
+  screen driver class.  
+
+  The pure virtual functions found in the base class QScreen are
+  listed below. All must have implementations in any screen driver
+  class derived from QScreen. All are impemented in this example,
+  except for setMode(), which has only been given a stub
+  implementation to satisfy the compiler.
+  
+  bool connect(const QString & displaySpec);
+  void disconnect();
+  bool initDevice();
+  void setMode(int width, int height, int depth);
+  
+  The stub implementation of setMode() is not meant to indicate
+  setMode() can be ignored in your own screen driver class. It was
+  simply decided not to provide a fully implemented screen driver
+  class for the example, which would normally be tailored to your
+  device's specific requirements.
+
+  The base class QGLScreen has only one pure virtual function,
+  hasOpenGL(), which must return true if your screen driver class
+  is supports OpenGL.
+
+  QWSWindowSurface * createSurface(const QString & key) const
+  QWSWindowSurface * createSurface(QWidget * widget) const
+  void exposeRegion(QRegion region, int windowIndex)
+
+ */
+
+/*!
+  Constructs a new, ATI handheld device screen driver.
+
+  The displayId identifies the Qtopia Core server to connect to.
+ */
 QAhiGLScreen::QAhiGLScreen(int displayId) : QGLScreen(displayId)
 {
     d_ptr = new QAhiGLScreenPrivate(this);
@@ -187,11 +233,17 @@ QAhiGLScreen::QAhiGLScreen(int displayId) : QGLScreen(displayId)
     d_ptr->eglSurface = EGL_NO_SURFACE;
 }
 
+/*!
+  Destroys this ATI handheld device screen driver.
+ */
 QAhiGLScreen::~QAhiGLScreen()
 {
     delete d_ptr;
 }
 
+/*!
+  \reimp
+ */
 bool QAhiGLScreen::connect(const QString &displaySpec)
 {
     // Hardcoded values for this device
@@ -211,6 +263,9 @@ bool QAhiGLScreen::connect(const QString &displaySpec)
     return true;
 }
 
+/*!
+  \reimp
+ */
 bool QAhiGLScreen::initDevice()
 {
     EGLint version, subversion;
@@ -272,6 +327,9 @@ bool QAhiGLScreen::initDevice()
     return true;
 }
 
+/*!
+  \reimp
+ */
 void QAhiGLScreen::shutdownDevice()
 {
     delete d_ptr->cursor;
@@ -285,10 +343,22 @@ void QAhiGLScreen::shutdownDevice()
     eglTerminate(d_ptr->eglDisplay);
 }
 
+/*!
+  \reimp
+
+  In this case, the reimplimentation does nothing. It is
+  required because the function is declared as pure virtual
+  in the base class QScreen.
+ */
 void QAhiGLScreen::disconnect()
 {
 }
 
+/*
+  This internal function rounds up to the next power of
+  two. If v is already a power of two, that same value is
+  returned.
+ */
 inline static uint nextPowerOfTwo(uint v)
 {
     v--;
@@ -301,6 +371,15 @@ inline static uint nextPowerOfTwo(uint v)
     return v;
 }
 
+/*
+  This internal function creates a texture from the image img
+  and returns its texture identifier.
+
+  The term "texture" is a graphics technology term that refers
+  to a pixmap constructed from an image by adding extra points
+  of contrast to the otherwise plain color image. The texture
+  has a, well, texture, that the original image doesn't have.
+ */
 static GLuint createTexture(const QImage &img)
 {
     if (img.isNull())
@@ -350,6 +429,9 @@ static GLuint createTexture(const QImage &img)
     return texture;
 }
 
+/*
+  A helper function used by QAhiGLScreen::drawQuad().
+ */
 static void drawQuad_helper(GLshort *coords, GLfloat *texCoords)
 {
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -363,6 +445,9 @@ static void drawQuad_helper(GLshort *coords, GLfloat *texCoords)
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 
+/*
+  A helper function used by QAhiGLScreen::drawQuadWavyFlag().
+ */
 static void drawQuad_helper(GLshort *coords, GLfloat *texCoords,
                             int arraySize, int numArrays)
 {
@@ -379,6 +464,9 @@ static void drawQuad_helper(GLshort *coords, GLfloat *texCoords,
     glDisable(GL_TEXTURE_2D);
 }
 
+/*
+  A convenience function used by QAhiGLScreen::drawQuad().
+ */
 static void setRectCoords(GLshort *coords, QRect rect)
 {
     coords[0] = GLshort(rect.left());
@@ -394,6 +482,10 @@ static void setRectCoords(GLshort *coords, QRect rect)
     coords[7] = GLshort(rect.bottom());
 }
 
+/*!
+  A helper function used by QAhiGLScreen::drawWindow() and
+  QAhiGLScreen::redrawScreen().
+ */
 void QAhiGLScreen::drawQuad(const QRect &textureGeometry,
                             const QRect &subGeometry,
                             const QRect &screenGeometry)
@@ -420,6 +512,9 @@ void QAhiGLScreen::drawQuad(const QRect &textureGeometry,
     drawQuad_helper(coords, texcoords);
 }
 
+/*
+  My own sine function.
+ */
 static qreal mySin(QFixed radians)
 {
     const QFixed twoPI = QFixed::fromReal(2*M_PI);
@@ -438,6 +533,9 @@ static qreal mySin(QFixed radians)
     return table[tableLookup.truncate()%tableSize]/16776960.0;
 }
 
+/*
+  My own cosine function.
+ */
 static qreal myCos(QFixed radians)
 {
     const int twoPI = qRound(2*M_PI);
@@ -459,8 +557,15 @@ static qreal myCos(QFixed radians)
 // number of grid cells in wavy flag tesselation in x- and y-direction
 const int subdivisions = 10;
 
-static void setFlagCoords(GLshort *coords, QRectF screenGeometry,
-                          int frameNum, qreal progress)
+/*
+  A helper function used by drawQuadWavyFlag(). It computes 
+  coordinates for grid cells for a wavy flag tesselation and
+  stores them in the array called coords.
+ */
+static void setFlagCoords(GLshort *coords,
+			  QRectF screenGeometry,
+                          int frameNum,
+			  qreal progress)
 {
     int coordIndex = 0;
     qreal waveHeight = 30.0*(1.0-progress);
@@ -666,6 +771,11 @@ void QAhiGLScreen::redrawScreen()
     eglSwapBuffers(d_ptr->eglDisplay, d_ptr->eglSurface);
 }
 
+/*!
+  \reimp
+
+  See QScreen::exposeRegion().
+ */
 void QAhiGLScreen::exposeRegion(QRegion r, int windowIndex)
 {
     if ((r & region()).isEmpty())
@@ -677,28 +787,49 @@ void QAhiGLScreen::exposeRegion(QRegion r, int windowIndex)
         d_ptr->updateTimer.start(frameSpan);
 }
 
+/*!
+  \reimp
+
+  If the \a key is "ahigl", create an instance of QAhiGLWindowSurface
+  and return it. Otherwise, call QScreen::createSurface() and return
+  the window surface it creates.
+
+  See QScreen::createSurface().
+ */
 QWSWindowSurface* QAhiGLScreen::createSurface(const QString &key) const
 {
     if (key == QLatin1String("ahigl")) {
-        return new QAhiGLWindowSurface(d_ptr->eglDisplay, d_ptr->eglSurface,
+        return new QAhiGLWindowSurface(d_ptr->eglDisplay,
+				       d_ptr->eglSurface,
                                        d_ptr->eglContext);
     }
 
     return QScreen::createSurface(key);
 }
 
+/*!
+  \reimp
+
+  If the \a widget is a QGLWidget, or if the widget's width and
+  height are both less than or equal to 256, create an instance
+  of QAhiGLWindowSurface and return it. Otherwise, call
+  QScreen::createSurface() and return the window surface it
+  creates.
+ */
 QWSWindowSurface* QAhiGLScreen::createSurface(QWidget *widget) const
 {
     if (QApplication::type() == QApplication::GuiServer) {
         if (qobject_cast<QGLWidget*>(widget)) {
-            return new QAhiGLWindowSurface(widget, d_ptr->eglDisplay,
+            return new QAhiGLWindowSurface(widget,
+					   d_ptr->eglDisplay,
                                            d_ptr->eglSurface,
                                            d_ptr->eglContext);
         }
 
         const QRect rect = widget->frameGeometry();
         if (rect.width() <= 256 && rect.height() <= 256) {
-            return new QAhiGLWindowSurface(widget, d_ptr->eglDisplay,
+            return new QAhiGLWindowSurface(widget,
+					   d_ptr->eglDisplay,
                                            d_ptr->eglSurface,
                                            d_ptr->eglContext);
         }
@@ -707,6 +838,19 @@ QWSWindowSurface* QAhiGLScreen::createSurface(QWidget *widget) const
     return QScreen::createSurface(widget);
 }
 
+/*!
+  This function would normally reset the frame buffer resolution
+  according to \a width, \a height, and the bit \a depth. It would
+  then notify other applications that their frame buffer size had
+  changed so they could redraw. The function is a no-op in this
+  example, which means the example screen driver can't change its
+  frame buffer resolution. There is no significance to that in the
+  example. You would normally implement setMode() in an OpenGL
+  screen driver. This no-op reimplementation is required here
+  because setMode() in QScreen is a pure virtual function.
+
+  See QScreen::setMode()
+ */
 void QAhiGLScreen::setMode(int width, int height, int depth)
 {
     Q_UNUSED(width);
@@ -714,11 +858,27 @@ void QAhiGLScreen::setMode(int width, int height, int depth)
     Q_UNUSED(depth);
 }
 
+/*!
+  This function would normally be reimplemented to prevent the
+  screen driver from updating the screen if \a on is true. It is a
+  no-op in this example, which means the screen driver can always
+  update the screen.
+
+  See QScreen::blank().
+ */
 void QAhiGLScreen::blank(bool on)
 {
     Q_UNUSED(on);
 }
 
+/*!
+  This function always returns true, since the purpose of
+  this screen driver class is to implement an OpenGL ES
+  screen driver. In some other class designed to handle both
+  OpenGL and non-OpenGL graphics, it might test the system to
+  determine whether OpenGL graphics are supported and return
+  true or false accordingly.
+ */
 bool QAhiGLScreen::hasOpenGL()
 {
     return true;

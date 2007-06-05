@@ -21,6 +21,14 @@ class QGLScreenPrivate
 
 };
 
+/*!
+  \internal
+  \preliminary
+  \class QGLScreen
+
+  \brief This class encapsulates an OpenGL screen driver.
+*/
+
 QGLScreen::QGLScreen(int displayId)
     : QScreen(displayId), d_ptr(new QGLScreenPrivate)
 {
@@ -34,24 +42,29 @@ QGLScreen::~QGLScreen()
 /*!
     \since 4.3
 
-    Initializes the \a context and sets up the QGLWindowSurface of the QWidget of \a context
-    based on the parameters of \a context and based on its own requirements.
-    The format() of \a context needs to be updated with the
-    actual parameters of the OpenGLES drawable that was set up.
+    Initializes the \a context and sets up the QGLWindowSurface of the
+    QWidget of \a context based on the parameters of \a context and
+    based on its own requirements.  The format() of \a context needs
+    to be updated with the actual parameters of the OpenGLES drawable
+    that was set up.
 
-    \a shareContext is used in the same way as for QGLContext. It is the context with which \a context
-    shares display lists and texture ids etc. The window surface must be set up so that this sharing works.
+    \a shareContext is used in the same way as for QGLContext. It is
+    the context with which \a context shares display lists and texture
+    ids etc. The window surface must be set up so that this sharing
+    works.
 
-    returns true in case of success and false if it is not possible to create the necessary OpenGLES
-    drawable/context.
+    Returns true in case of success and false if it is not possible to
+    create the necessary OpenGLES drawable/context.
 */
-bool QGLScreen::chooseContext(QGLContext *context, const QGLContext *shareContext)
+bool
+QGLScreen::chooseContext(QGLContext *context, const QGLContext *shareContext)
 {
     Q_UNUSED(shareContext);
 
     if (context->device()->devType() == QInternal::Widget) {
         QGLWidget *widget = static_cast<QGLWidget*>(context->device());
-        QWSGLWindowSurface *surface = static_cast<QWSGLWindowSurface*>(widget->windowSurface());
+        QWSGLWindowSurface *surface =
+	    static_cast<QWSGLWindowSurface*>(widget->windowSurface());
         surface->setContext(context);
         return true;
     }

@@ -1905,11 +1905,15 @@ void QScreen::solidFill(const QColor &color, const QRegion &region)
     \since 4.2
 
     Creates and returns a new window surface matching the given \a
-    key.
+    key. Possible keys include \e OnScreen for an on-screen
+    surface, \e mem for a surface constructed from local memory,
+    \e shm for a surface constructed from shared memory, \e Yellow
+    for a yellow surface, and \e DirectPainter for a direct painter
+    surface.
 
     The server application will call this function whenever it needs
     to create a server side representation of a window, e.g. when
-    copying the content of memory to the screeen using the screen
+    copying the content of memory to the screen using the screen
     driver.
 
     Note that this function must be reimplemented when adding an
