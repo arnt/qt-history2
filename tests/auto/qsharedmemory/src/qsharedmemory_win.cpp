@@ -45,6 +45,10 @@ void QSharedMemoryPrivate::setErrorString(const QString &function)
         error = QSharedMemory::OutOfResources;
         errorString = QSharedMemory::tr("%1: out of resources").arg(function);
         break;
+    case ERROR_ACCESS_DENIED:
+        error = QSharedMemory::PermissionDenied;
+        errorString = QSharedMemory::tr("%1: permission denied").arg(function);
+        break;
     default:
         errorString = QSharedMemory::tr("%1: unknown error %2").arg(function).arg(windowsError);
         error = QSharedMemory::UnknownError;
