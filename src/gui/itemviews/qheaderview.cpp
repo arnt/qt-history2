@@ -1542,14 +1542,14 @@ void QHeaderView::sectionsInserted(const QModelIndex &parent,
     if (d->sectionSpans.isEmpty() || insertAt >= d->sectionSpans.count()) {
         int insertLength = d->defaultSectionSize * insertCount;
         d->length += insertLength;
-        QHeaderViewPrivate::SectionSpan span(insertLength, insertCount, Interactive);
+        QHeaderViewPrivate::SectionSpan span(insertLength, insertCount, d->globalResizeMode);
         d->sectionSpans.append(span);
     } else {
         int insertLength = d->sectionSpans.at(insertAt).sectionSize() * insertCount;
         d->length += insertLength;
         d->sectionSpans[insertAt].size += insertLength;
         d->sectionSpans[insertAt].count += insertCount;
-        d->createSectionSpan(logicalFirst, logicalLast, d->defaultSectionSize * insertCount, Interactive);
+        d->createSectionSpan(logicalFirst, logicalLast, d->defaultSectionSize * insertCount, d->globalResizeMode);
     }
     
     // update resize mode section counts
