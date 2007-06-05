@@ -1904,10 +1904,8 @@ QRect QWindowsVistaStyle::subControlRect(ComplexControl control, const QStyleOpt
             const bool isToolTitle = false;
             const int height = tb->rect.height();
             const int width = tb->rect.width();
-            int buttonHeight = GetSystemMetrics(SM_CYSIZE) - 4;
             int buttonWidth = GetSystemMetrics(SM_CXSIZE) - 4;
 
-            int controlTop = option->rect.bottom() - buttonHeight - 3;
             const int frameWidth = pixelMetric(PM_MdiSubWindowFrameWidth, option, widget);
             const bool sysmenuHint  = (tb->titleBarFlags & Qt::WindowSystemMenuHint) != 0;
             const bool minimizeHint = (tb->titleBarFlags & Qt::WindowMinimizeButtonHint) != 0;
@@ -1941,35 +1939,6 @@ QRect QWindowsVistaStyle::subControlRect(ComplexControl control, const QStyleOpt
                 rect.translate(0, 2);
                 rect = visualRect(option->direction, option->rect, rect);
                 break;
-
-            case SC_TitleBarCloseButton:
-                rect = QRect(width - (buttonWidth + 2) - controlTop + 4, controlTop,
-                             buttonWidth, buttonHeight);
-                rect = visualRect(option->direction, option->rect, rect);
-                break;
-
-            case SC_TitleBarMaxButton:
-            case SC_TitleBarShadeButton:
-            case SC_TitleBarUnshadeButton:
-                rect = QRect(width - ((buttonWidth + 2) * 2) - controlTop + 4, controlTop,
-                             buttonWidth, buttonHeight);
-                rect = visualRect(option->direction, option->rect, rect);
-                break;
-
-            case SC_TitleBarMinButton:
-            case SC_TitleBarNormalButton:
-                {
-                    int offset = buttonWidth + 2;
-                    if (!maximizeHint)
-                        offset *= 2;
-                    else
-                        offset *= 3;
-                    rect = QRect(width - offset - controlTop + 4, controlTop,
-                                 buttonWidth, buttonHeight);
-                    rect = visualRect(option->direction, option->rect, rect);
-                }
-                break;
-
             case SC_TitleBarSysMenu:
                 {
                     const int controlTop = 6;

@@ -2942,6 +2942,24 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                     theme.stateId = stateId;
                     d->drawBackground(theme);
                 }
+                if (sub & SC_TitleBarContextHelpButton
+                    && tb->titleBarFlags & Qt::WindowContextHelpButtonHint) {
+                    theme.rect = subControlRect(CC_TitleBar, option, SC_TitleBarContextHelpButton, widget);
+                    partId = WP_HELPBUTTON;
+                    if (widget && !widget->isEnabled())
+                        stateId = MINBS_DISABLED;
+                    else if (option->activeSubControls == SC_TitleBarContextHelpButton && (option->state & State_Sunken))
+                        stateId = MINBS_PUSHED;
+                    else if (option->activeSubControls == SC_TitleBarContextHelpButton && (option->state & State_MouseOver))
+                        stateId = MINBS_HOT;
+                    else if (!isActive)
+                        stateId = MINBS_INACTIVE;
+                    else
+                        stateId = MINBS_NORMAL;
+                    theme.partId = partId;
+                    theme.stateId = stateId;
+                    d->drawBackground(theme);
+                }
                 bool drawNormalButton = (sub & SC_TitleBarNormalButton)
                                         && (((tb->titleBarFlags & Qt::WindowMinimizeButtonHint)
                                         && (tb->titleBarState & Qt::WindowMinimized))
@@ -3318,24 +3336,24 @@ static bool buttonVisible(const QStyle::SubControl sc, const QStyleOptionTitleBa
     \reimp
 */
 QRect QWindowsXPStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *option,
-                                      SubControl sc, const QWidget *widget) const
+                                      SubControl subControl, const QWidget *widget) const
 {
     if (!QWindowsXPStylePrivate::useXP())
-        return QWindowsStyle::subControlRect(cc, option, sc, widget);
+        return QWindowsStyle::subControlRect(cc, option, subControl, widget);
 
     QRect rect;
 
     switch (cc) {
     case CC_TitleBar:
         if (const QStyleOptionTitleBar *tb = qstyleoption_cast<const QStyleOptionTitleBar *>(option)) {
-            if (!buttonVisible(sc, tb))
+            if (!buttonVisible(subControl, tb))
                 return rect;
             const bool isToolTitle = false;
             const int height = tb->rect.height();
             const int width = tb->rect.width();
             int buttonHeight = GetSystemMetrics(SM_CYSIZE) - 4;
             int buttonWidth = GetSystemMetrics(SM_CXSIZE) - 4;
-
+            const int delta = buttonWidth + 2;
             int controlTop = option->rect.bottom() - buttonHeight - 2;
             const int frameWidth = pixelMetric(PM_MdiSubWindowFrameWidth, option, widget);
             const bool sysmenuHint  = (tb->titleBarFlags & Qt::WindowSystemMenuHint) != 0;
@@ -3343,8 +3361,11 @@ QRect QWindowsXPStyle::subControlRect(ComplexControl cc, const QStyleOptionCompl
             const bool maximizeHint = (tb->titleBarFlags & Qt::WindowMaximizeButtonHint) != 0;
             const bool contextHint = (tb->titleBarFlags & Qt::WindowContextHelpButtonHint) != 0;
             const bool shadeHint = (tb->titleBarFlags & Qt::WindowShadeButtonHint) != 0;
+            bool isMinimized = tb->titleBarState & Qt::WindowMinimized;
+            bool isMaximized = tb->titleBarState & Qt::WindowMaximized;
+            int offset = 0;
 
-            switch (sc) {
+            switch (subControl) {
             case SC_TitleBarLabel:
                 rect = QRect(frameWidth, 0, width - (buttonWidth + frameWidth + 10), height);
                 if (isToolTitle) {
@@ -3368,30 +3389,51 @@ QRect QWindowsXPStyle::subControlRect(ComplexControl cc, const QStyleOptionCompl
                         rect.adjust(0, 0, -buttonWidth - 2, 0);
                 }
                 break;
-
-            case SC_TitleBarCloseButton:
-                rect = QRect(width - (buttonWidth + 2) - controlTop + 1, controlTop,
-                             buttonWidth, buttonHeight);
-                break;
-
-            case SC_TitleBarMaxButton:
-            case SC_TitleBarShadeButton:
-            case SC_TitleBarUnshadeButton:
-                rect = QRect(width - ((buttonWidth + 2) * 2) - controlTop + 1, controlTop,
-                             buttonWidth, buttonHeight);
-                break;
-
+            
+            case SC_TitleBarContextHelpButton:
+                if (tb->titleBarFlags & Qt::WindowContextHelpButtonHint)
+                    offset += delta;
+                //fall through
             case SC_TitleBarMinButton:
+                if (!isMinimized && (tb->titleBarFlags & Qt::WindowMinimizeButtonHint))
+                    offset += delta;
+                else if (subControl == SC_TitleBarMinButton)
+                    break;
+                //fall through
             case SC_TitleBarNormalButton:
-                {
-                    int offset = buttonWidth + 2;
-                    if (!maximizeHint)
-                        offset *= 2;
-                    else
-                        offset *= 3;
-                    rect = QRect(width - offset - controlTop + 1, controlTop,
-                                 buttonWidth, buttonHeight);
-                }
+                if (isMinimized && (tb->titleBarFlags & Qt::WindowMinimizeButtonHint))
+                    offset += delta;
+                else if (isMaximized && (tb->titleBarFlags & Qt::WindowMaximizeButtonHint))
+                    offset += delta;
+                else if (subControl == SC_TitleBarNormalButton)
+                    break;
+                //fall through
+            case SC_TitleBarMaxButton:
+                if (!isMaximized && (tb->titleBarFlags & Qt::WindowMaximizeButtonHint))
+                    offset += delta;
+                else if (subControl == SC_TitleBarMaxButton)
+                    break;
+                //fall through
+            case SC_TitleBarShadeButton:
+                if (!isMinimized && (tb->titleBarFlags & Qt::WindowShadeButtonHint))
+                    offset += delta;
+                else if (subControl == SC_TitleBarShadeButton)
+                    break;
+                //fall through
+            case SC_TitleBarUnshadeButton:
+                if (isMinimized && (tb->titleBarFlags & Qt::WindowShadeButtonHint))
+                    offset += delta;
+                else if (subControl == SC_TitleBarUnshadeButton)
+                    break;
+                //fall through
+            case SC_TitleBarCloseButton:
+                if (tb->titleBarFlags & Qt::WindowSystemMenuHint)
+                    offset += delta;
+                else if (subControl == SC_TitleBarCloseButton)
+                    break;
+
+                rect.setRect(width - offset - controlTop + 1, controlTop,
+                             buttonWidth, buttonHeight);
                 break;
 
             case SC_TitleBarSysMenu:
@@ -3416,7 +3458,7 @@ QRect QWindowsXPStyle::subControlRect(ComplexControl cc, const QStyleOptionCompl
             int xpos = x;
             xpos += wi - 1 - 16;
 
-            switch (sc) {
+            switch (subControl) {
             case SC_ComboBoxFrame:
                 rect = cmb->rect;
                 break;
@@ -3440,7 +3482,7 @@ QRect QWindowsXPStyle::subControlRect(ComplexControl cc, const QStyleOptionCompl
     {
         int buttonWidth = option->rect.width()/3;
         int offset = 0;
-        switch (sc) {
+        switch (subControl) {
         case SC_MdiCloseButton:
             offset += buttonWidth;
             //FALL THROUGH
@@ -3459,7 +3501,7 @@ QRect QWindowsXPStyle::subControlRect(ComplexControl cc, const QStyleOptionCompl
 
     default:
         rect = visualRect(option->direction, option->rect,
-                          QWindowsStyle::subControlRect(cc, option, sc, widget));
+                          QWindowsStyle::subControlRect(cc, option, subControl, widget));
         break;
     }
     return visualRect(option->direction, option->rect, rect);
