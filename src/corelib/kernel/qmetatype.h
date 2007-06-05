@@ -48,7 +48,7 @@ public:
         QFont = 64, QPixmap = 65, QBrush = 66, QColor = 67, QPalette = 68,
         QIcon = 69, QImage = 70, QPolygon = 71, QRegion = 72, QBitmap = 73,
         QCursor = 74, QSizePolicy = 75, QKeySequence = 76, QPen = 77,
-        QTextLength = 78, QTextFormat = 79, QMatrix = 80, QTransform = 81, 
+        QTextLength = 78, QTextFormat = 79, QMatrix = 80, QTransform = 81,
         LastGuiType = 81 /* QTransform */,
 
         FirstCoreExtType = 128 /* VoidStar */,
@@ -189,10 +189,10 @@ struct QMetaTypeId< TYPE > \
     enum { Defined = 1 }; \
     static int qt_metatype_id() \
     { \
-        static QBasicAtomic id = Q_ATOMIC_INIT(0); \
-        if (!id) \
-           id = qRegisterMetaType< TYPE >(#TYPE); \
-       return id; \
+        static QBasicAtomic metatype_id = Q_ATOMIC_INIT(0);     \
+        if (!metatype_id)                                       \
+            metatype_id = qRegisterMetaType< TYPE >(#TYPE);     \
+        return metatype_id;                                     \
     } \
 };
 
@@ -286,7 +286,7 @@ Q_DECLARE_BUILTIN_METATYPE(QPointF, QPointF)
 #ifndef QT_NO_REGEXP
 Q_DECLARE_BUILTIN_METATYPE(QRegExp, QRegExp)
 #endif
-    
+
 #ifdef QT3_SUPPORT
 Q_DECLARE_BUILTIN_METATYPE(QColorGroup, QColorGroup)
 #endif
