@@ -93,6 +93,7 @@ private slots:
 #ifndef Q_WS_MAC
     void fastScroll();
 #endif
+    void insertUnchanged();
 
 protected slots:
     void rowsAboutToBeInserted(const QModelIndex &parent, int first, int last)
@@ -1325,6 +1326,14 @@ void tst_QListWidget::fastScroll()
     QCOMPARE(widget.painted.boundingRect().size(), itemSize);
 }
 #endif // Q_WS_MAC
+
+void tst_QListWidget::insertUnchanged()
+{
+    QListWidget w;
+    QSignalSpy itemChangedSpy(&w, SIGNAL(itemChanged(QListWidgetItem*)));
+    QListWidgetItem item("foo", &w);
+    QCOMPARE(itemChangedSpy.count(), 0);
+}
 
 QTEST_MAIN(tst_QListWidget)
 #include "tst_qlistwidget.moc"
