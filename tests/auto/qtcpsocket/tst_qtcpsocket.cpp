@@ -1550,6 +1550,9 @@ void tst_QTcpSocket::suddenRemoteDisconnect()
     QFETCH_GLOBAL(bool, setProxy);
     if (setProxy)
         return;
+    QFETCH_GLOBAL(bool, ssl);
+    if (ssl)
+        return;
 
     // Start server
     QProcess serverProcess;
@@ -1592,6 +1595,10 @@ void tst_QTcpSocket::suddenRemoteDisconnect()
 //----------------------------------------------------------------------------------
 void tst_QTcpSocket::connectToMultiIP()
 {
+    QFETCH_GLOBAL(bool, ssl);
+    if (ssl)
+        return;
+
     qDebug("Please wait, this test can take a while...");
 
     QTcpSocket *socket = newSocket();
