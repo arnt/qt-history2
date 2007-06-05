@@ -557,13 +557,14 @@ QListWidgetItem::QListWidgetItem(QListWidget *view, int type)
     \sa type()
 */
 QListWidgetItem::QListWidgetItem(const QString &text, QListWidget *view, int type)
-    : rtti(type), view(view), d(new QListWidgetItemPrivate(this)),
+    : rtti(type), view(0), d(new QListWidgetItemPrivate(this)),
       itemFlags(Qt::ItemIsSelectable
                 |Qt::ItemIsUserCheckable
                 |Qt::ItemIsEnabled
                 |Qt::ItemIsDragEnabled)
 {
     setData(Qt::DisplayRole, text);
+    this->view = view;
     if (QListModel *model = (view ? ::qobject_cast<QListModel*>(view->model()) : 0))
         model->insert(model->rowCount(), this);
 }
@@ -580,7 +581,7 @@ QListWidgetItem::QListWidgetItem(const QString &text, QListWidget *view, int typ
 */
 QListWidgetItem::QListWidgetItem(const QIcon &icon,const QString &text,
                                  QListWidget *view, int type)
-    : rtti(type), view(view), d(new QListWidgetItemPrivate(this)),
+    : rtti(type), view(0), d(new QListWidgetItemPrivate(this)),
       itemFlags(Qt::ItemIsSelectable
                 |Qt::ItemIsUserCheckable
                 |Qt::ItemIsEnabled
@@ -588,6 +589,7 @@ QListWidgetItem::QListWidgetItem(const QIcon &icon,const QString &text,
 {
     setData(Qt::DisplayRole, text);
     setData(Qt::DecorationRole, icon);
+    this->view = view;
     if (QListModel *model = (view ? ::qobject_cast<QListModel*>(view->model()) : 0))
         model->insert(model->rowCount(), this);
 }
