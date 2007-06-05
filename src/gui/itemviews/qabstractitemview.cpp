@@ -1487,7 +1487,7 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *event)
         setSelection(selectionRect, command);
 
         // set at the end because it might scroll the view
-        if (persistent.isValid())
+        if (persistent.isValid() && (persistent != d->selectionModel->currentIndex()))
             d->selectionModel->setCurrentIndex(persistent, QItemSelectionModel::NoUpdate);
     }
 }
