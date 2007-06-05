@@ -273,6 +273,9 @@ bool QSharedMemory::lock()
         d->lockedByMe = true;
         return true;
     }
+    QString function = QLatin1String("QSharedMemory::lock");
+    d->errorString = QSharedMemory::tr("%1: unable to lock").arg(function);
+    d->error = QSharedMemory::LockError;
     return false;
 }
 
@@ -287,7 +290,12 @@ bool QSharedMemory::unlock()
     if (!d->lockedByMe)
         return false;
     d->lockedByMe = false;
-    return d->systemSemaphore.release();
+    if (d->systemSemaphore.release())
+        return true;
+    QString function = QLatin1String("QSharedMemory::unlock");
+    d->errorString = QSharedMemory::tr("%1: unable to unlock").arg(function);
+    d->error = QSharedMemory::LockError;
+    return false;
 }
 
 /*! \enum QtSharedMemory::Error
