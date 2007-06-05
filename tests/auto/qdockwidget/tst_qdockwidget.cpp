@@ -14,6 +14,7 @@
 #include <qaction.h>
 #include <qdockwidget.h>
 #include <qmainwindow.h>
+#include <qlineedit.h>
 
 bool hasFeature(QDockWidget *dockwidget, QDockWidget::DockWidgetFeature feature)
 { return (dockwidget->features() & feature) == feature; }
@@ -49,6 +50,8 @@ private slots:
     void allowedAreasChanged();
     void visibilityChanged();
     void dockLocationChanged();
+    // task specific tests:
+    void task165177_deleteFocusWidget();
 };
 
 // Testing get/set functions
@@ -613,6 +616,25 @@ void tst_QDockWidget::topLevelChanged()
 
 void tst_QDockWidget::allowedAreasChanged()
 { DEPENDS_ON("allowedAreas()"); }
+
+void tst_QDockWidget::task165177_deleteFocusWidget()
+{
+    QMainWindow mw;
+    QDockWidget *dw = new QDockWidget(&mw);
+    mw.addDockWidget(Qt::LeftDockWidgetArea, dw);
+    QLineEdit *ledit = new QLineEdit;
+    dw->setWidget(ledit);
+    mw.show();
+#ifdef Q_WS_X11
+    extern void qt_x11_wait_for_window_manager(QWidget *);
+    qt_x11_wait_for_window_manager(&mw);
+#endif
+    qApp->processEvents();
+    dw->setFloating(true);
+    delete ledit;
+    QCOMPARE(mw.focusWidget(), (QWidget *)0);
+    QCOMPARE(dw->focusWidget(), (QWidget *)0);
+}
 
 QTEST_MAIN(tst_QDockWidget)
 #include "tst_qdockwidget.moc"
