@@ -125,6 +125,9 @@ private slots:
     void defaultAlignment_data();
     void defaultAlignment();
 
+    void globalResizeMode_data();
+    void globalResizeMode();
+
 protected:
     QHeaderView *view;
     QStandardItemModel *model;
@@ -1431,5 +1434,32 @@ void tst_QHeaderView::defaultAlignment()
 }
 
 
+void tst_QHeaderView::globalResizeMode_data()
+{
+    QTest::addColumn<int>("direction");
+    QTest::addColumn<int>("mode");
+    QTest::addColumn<int>("insert");
+
+    QTest::newRow("horizontal ResizeToContents 0")
+        << int(Qt::Horizontal)
+        << int(QHeaderView::ResizeToContents)
+        << 0;
+}
+
+void tst_QHeaderView::globalResizeMode()
+{
+    QFETCH(int, direction);
+    QFETCH(int, mode);
+    QFETCH(int, insert);
+    
+    QStandardItemModel m(4, 4);
+    QHeaderView h((Qt::Orientation)direction);
+    h.setModel(&m);
+
+    h.setResizeMode((QHeaderView::ResizeMode)mode);
+    m.insertRow(insert);
+    for (int i = 0; i < h.count(); ++i)
+        QCOMPARE(h.resizeMode(i), (QHeaderView::ResizeMode)mode);
+}
 QTEST_MAIN(tst_QHeaderView)
 #include "tst_qheaderview.moc"
