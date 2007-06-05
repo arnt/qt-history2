@@ -856,11 +856,11 @@ public:
     void setWeekNumbersShown(bool show);
 
     QTextCharFormat formatForCell(int row, int col) const;
-    int dayOfWeekForColumn(int section) const;
-    int columnForDayOfWeek(int day) const;
+    Qt::DayOfWeek dayOfWeekForColumn(int section) const;
+    int columnForDayOfWeek(Qt::DayOfWeek day) const;
     QDate dateForCell(int row, int column) const;
     void cellForDate(const QDate &date, int *row, int *column) const;
-    QString dayName(int day) const;
+    QString dayName(Qt::DayOfWeek day) const;
 
     void setView(QCalendarView *view)
         { m_view = view; }
@@ -931,18 +931,18 @@ QCalendarModel::QCalendarModel(QObject *parent)
     m_view = 0;
 }
 
-int QCalendarModel::dayOfWeekForColumn(int column) const
+Qt::DayOfWeek QCalendarModel::dayOfWeekForColumn(int column) const
 {
     int col = column - m_firstColumn;
     if (col < 0 || col > 6)
-        return 0;
+        return Qt::Sunday;
     int day = m_firstDay + col;
     if (day > 7)
         day -= 7;
     return Qt::DayOfWeek(day);
 }
 
-int QCalendarModel::columnForDayOfWeek(int day) const
+int QCalendarModel::columnForDayOfWeek(Qt::DayOfWeek day) const
 {
     if (day < 1 || day > 7)
         return -1;
@@ -961,7 +961,7 @@ QDate QCalendarModel::dateForCell(int row, int column) const
     if (!firstDate.isValid()) {
         return QDate();
     }
-    int columnForFirstOfShownMonth = columnForDayOfWeek(firstDate.dayOfWeek());
+    int columnForFirstOfShownMonth = columnForDayOfWeek(static_cast<Qt::DayOfWeek>(firstDate.dayOfWeek()));
     if (columnForFirstOfShownMonth - m_firstColumn < MinimumDayOffset)
         row -= 1;
     int daysInShownMonth = firstDate.daysInMonth();
@@ -989,7 +989,7 @@ void QCalendarModel::cellForDate(const QDate &date, int *row, int *column) const
 {
     int day = date.day();
     QDate firstDate(shownYear, shownMonth, 15);
-    int columnForFirstOfShownMonth = columnForDayOfWeek(firstDate.dayOfWeek());
+    int columnForFirstOfShownMonth = columnForDayOfWeek(static_cast<Qt::DayOfWeek>(firstDate.dayOfWeek()));
     int daysInShownMonth = firstDate.daysInMonth();
 
     QDate previousMonth = firstDate.addMonths(-1);
@@ -1027,7 +1027,7 @@ void QCalendarModel::cellForDate(const QDate &date, int *row, int *column) const
     *column += m_firstColumn;
 }
 
-QString QCalendarModel::dayName(int day) const
+QString QCalendarModel::dayName(Qt::DayOfWeek day) const
 {
     switch (horizontalHeaderFormat) {
         case QCalendarWidget::SingleLetterDayNames:
@@ -1065,7 +1065,7 @@ QTextCharFormat QCalendarModel::formatForCell(int row, int col) const
     }
 
     if (col >= m_firstColumn && col < m_firstColumn + ColumnCount) {
-        Qt::DayOfWeek dayOfWeek = Qt::DayOfWeek(dayOfWeekForColumn(col));
+        Qt::DayOfWeek dayOfWeek = dayOfWeekForColumn(col);
         if (m_dayFormats.contains(dayOfWeek))
             format.merge(m_dayFormats.value(dayOfWeek));
     }
@@ -1586,6 +1586,7 @@ public:
     QSpacerItem *spaceHolder;
 
     bool navBarVisible;
+    mutable QSize cachedSizeHint;
 };
 
 void QCalendarDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
@@ -1813,6 +1814,7 @@ void QCalendarWidgetPrivate::showMonth(int year, int month)
     updateNavigationBar();
     emit q->currentPageChanged(year, month);
     m_view->internalUpdate();
+    cachedSizeHint = QSize();
     update();
     updateMonthMenu();
 }
@@ -2043,6 +2045,8 @@ QSize QCalendarWidget::sizeHint() const
 QSize QCalendarWidget::minimumSizeHint() const
 {
     Q_D(const QCalendarWidget);
+    if (d->cachedSizeHint.isValid())
+        return d->cachedSizeHint;
 
     ensurePolished();
 
@@ -2063,7 +2067,7 @@ QSize QCalendarWidget::minimumSizeHint() const
     } else {
         for (int i = 1; i <= 7; i++) {
             QFontMetrics fm(d->m_model->formatForCell(0, i).font());
-            w = qMax(w, fm.width(d->m_model->dayName(i)) + marginH);
+            w = qMax(w, fm.width(d->m_model->dayName(d->m_model->dayOfWeekForColumn(i))) + marginH);
             h = qMax(h, fm.height());
         }
     }
@@ -2116,7 +2120,8 @@ QSize QCalendarWidget::minimumSizeHint() const
     w *= cols;
     w = qMax(headerSize.width(), w);
     h = (h * rows) + headerSize.height();
-    return QSize(w , h);
+    d->cachedSizeHint = QSize(w, h);
+    return d->cachedSizeHint;
 }
 
 /*!
@@ -2490,6 +2495,7 @@ void QCalendarWidget::setHorizontalHeaderFormat(QCalendarWidget::HorizontalHeade
         return;
 
     d->m_model->setHorizontalHeaderFormat(format);
+    d->cachedSizeHint = QSize();
     d->m_view->viewport()->update();
     d->m_view->updateGeometry();
 }
@@ -2536,6 +2542,7 @@ void QCalendarWidget::setVerticalHeaderFormat(QCalendarWidget::VerticalHeaderFor
     if (d->m_model->weekNumbersShown() == show)
         return;
     d->m_model->setWeekNumbersShown(show);
+    d->cachedSizeHint = QSize();
     d->m_view->viewport()->update();
     d->m_view->updateGeometry();
 }
@@ -2568,6 +2575,7 @@ void QCalendarWidget::setGridVisible(bool show)
 {
     Q_D(QCalendarWidget);
     d->m_view->setShowGrid(show);
+    d->cachedSizeHint = QSize();
     d->m_view->viewport()->update();
     d->m_view->updateGeometry();
 }
@@ -2643,6 +2651,7 @@ void QCalendarWidget::setHeaderTextFormat(const QTextCharFormat &format)
 {
     Q_D(QCalendarWidget);
     d->m_model->m_headerFormat = format;
+    d->cachedSizeHint = QSize();
     d->m_view->viewport()->update();
     d->m_view->updateGeometry();
 }
@@ -2669,6 +2678,7 @@ void QCalendarWidget::setWeekdayTextFormat(Qt::DayOfWeek dayOfWeek, const QTextC
 {
     Q_D(QCalendarWidget);
     d->m_model->m_dayFormats[dayOfWeek] = format;
+    d->cachedSizeHint = QSize();
     d->m_view->viewport()->update();
     d->m_view->updateGeometry();
 }
@@ -2860,6 +2870,7 @@ void QCalendarWidget::setNavigationBarVisible(bool visible)
 {
     Q_D(QCalendarWidget);
     d->navBarVisible = visible;
+    d->cachedSizeHint = QSize();
     d->navBarBackground->setVisible(visible);
     updateGeometry();
 }
@@ -2872,14 +2883,20 @@ bool QCalendarWidget::event(QEvent *event)
     Q_D(QCalendarWidget);
     switch (event->type()) {
         case QEvent::LocaleChange:
+            d->cachedSizeHint = QSize();
             d->m_navigator->setLocale(locale());
             d->updateMonthMenuNames();
-            // fallthrough intended
-        case QEvent::FontChange:
-        case QEvent::ApplicationFontChange:
             d->updateNavigationBar();
             d->m_view->updateGeometry();
             break;
+        case QEvent::FontChange:
+        case QEvent::ApplicationFontChange:
+            d->cachedSizeHint = QSize();
+            d->m_view->updateGeometry();
+            break;
+        case QEvent::StyleChange:
+            d->cachedSizeHint = QSize();
+            d->m_view->updateGeometry();
         default:
             break;
     }
