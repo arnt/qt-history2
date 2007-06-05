@@ -125,10 +125,10 @@ public:
 
     bool authorizeRequest( QTransportAuth::Data &d, const QString &request );
 
-signals:
+Q_SIGNALS:
     void policyCheck( QTransportAuth::Data &, const QString & );
     void authViolation( QTransportAuth::Data & );
-private slots:
+private Q_SLOTS:
     void bufferDestroyed( QObject * );
 
 private:
