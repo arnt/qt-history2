@@ -380,7 +380,8 @@ void tst_QSharedMemory::useTooMuchMemory()
             // ### Linux wont return OutOfResources, but already exists
             if (sm->error() != QSharedMemory::OutOfResources)
                 qDebug() << sm->error() << sm->errorString();
-            QCOMPARE(sm->error(), QSharedMemory::OutOfResources);
+            QVERIFY(sm->error() == QSharedMemory::OutOfResources
+                    || sm->error() == QSharedMemory::AlreadyExists);
             QVERIFY(sm->errorString() != QString());
             QVERIFY(!sm->attach());
             QVERIFY(!sm->detach());
