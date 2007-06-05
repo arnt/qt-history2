@@ -159,11 +159,11 @@ void JavadocGenerator::endText(const Node *relative, CodeMarker *marker)
         /*
             Need to escape XML metacharacters in .jdoc files.
         */
+        buffer.replace("*/", "*&lt;!-- noop --&gt;/");
         buffer.replace("&", "&amp;");
         buffer.replace("\"", "&quot;");
         buffer.replace("<", "&lt;");
         buffer.replace(">", "&gt;");
-        buffer.replace("*/", "*&amp;#47;"); 
         out() << buffer;
         buffer.clear();
     }
