@@ -1573,9 +1573,11 @@ void QHeaderView::sectionsInserted(const QModelIndex &parent,
 
     // update mapping
     if (!d->visualIndices.isEmpty() && !d->logicalIndices.isEmpty()) {
-        for (int i = 0; i < d->sectionCount; ++i) {
+        Q_ASSERT(d->visualIndices.count() == d->logicalIndices.count());
+        int mappingCount = d->visualIndices.count();
+        for (int i = 0; i < mappingCount; ++i) {
             if (d->visualIndices.at(i) >= logicalFirst)
-                d->visualIndices[i] += insertCount;
+               d->visualIndices[i] += insertCount;
             if (d->logicalIndices.at(i) >= logicalFirst)
                 d->logicalIndices[i] += insertCount;
         }
@@ -1589,13 +1591,8 @@ void QHeaderView::sectionsInserted(const QModelIndex &parent,
     emit sectionCountChanged(oldCount, count());
 
     // if the new sections were not updated by resizing, we need to update now
-    if (!d->hasAutoResizeSections()) {
-        if (insertCount < 10) // ### heuristic
-            for (int i = logicalFirst; i <= logicalLast; ++i)
-                updateSection(i);
-        else
-            d->viewport->update();
-    }
+    if (!d->hasAutoResizeSections())
+        d->viewport->update();
 }
 
 /*!
