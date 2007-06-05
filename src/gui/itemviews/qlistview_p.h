@@ -90,7 +90,7 @@ class QListViewPrivate;
 class QCommonListViewBase
 {
 public:
-    inline QCommonListViewBase(QListView *q, QListViewPrivate *d) { qq = q; dd = d; }
+    inline QCommonListViewBase(QListView *q, QListViewPrivate *d) : dd(d), qq(q) {}
 
     inline int spacing() const;
     inline bool isWrapping() const;

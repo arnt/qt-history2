@@ -192,7 +192,6 @@ void QListView::setMovement(Movement movement)
     setDragEnabled(movable);
     d->viewport->setAcceptDrops(movable);
 #endif
-
     d->doDelayedItemsLayout();
 }
 
@@ -692,7 +691,7 @@ QSize QListView::contentsSize() const
 void QListView::dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
 {
     Q_D(QListView);
-    if (d->movement != Static)
+    if (d->viewMode == IconMode)
         d->dynamicListView->dataChanged(topLeft, bottomRight);
     QAbstractItemView::dataChanged(topLeft, bottomRight);
 }
@@ -878,7 +877,7 @@ void QListView::dragLeaveEvent(QDragLeaveEvent *e)
 void QListView::dropEvent(QDropEvent *event)
 {
     Q_D(QListView);
-    if (event->source() == this && d->movement != Static)
+    if (event->source() == this && d->viewMode == IconMode)
         internalDrop(event); // ### move to dynamic
     else
         QAbstractItemView::dropEvent(event);
@@ -890,7 +889,7 @@ void QListView::dropEvent(QDropEvent *event)
 void QListView::startDrag(Qt::DropActions supportedActions)
 {
     Q_D(QListView);
-    if (d->movement != Static) // ### move to dynamic
+    if (d->viewMode == IconMode) // ### move to dynamic
         internalDrag(supportedActions);
     else
         QAbstractItemView::startDrag(supportedActions);
@@ -1466,7 +1465,7 @@ QRegion QListView::visualRegionForSelection(const QItemSelection &selection) con
         QModelIndex parent = selection.at(i).topLeft().parent();
         int t = selection.at(i).topLeft().row();
         int b = selection.at(i).bottomRight().row();
-        if (d->movement != Static || d->isWrapping()) { // in non-static mode, we have to go through all selected items
+        if (d->viewMode == IconMode || d->isWrapping()) { // in non-static mode, we have to go through all selected items
             for (int r = t; r <= b; ++r)
                 selectionRegion += QRegion(visualRect(d->model->index(r, c, parent)));
         } else { // in static mode, we can optimize a bit
