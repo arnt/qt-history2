@@ -220,8 +220,9 @@ bool RCCResourceLibrary::interpretResourceFile(QIODevice *inputDevice, QString f
         if(!document.setContent(inputDevice, &errorMsg, &errorLine, &errorColumn)) {
             if(ignoreErrors)
                 return true;
-            fprintf(stderr, "RCC Parse Error: '%s' Line:%d Column:%d [%s]\n", fname.toLocal8Bit().constData(),
-                    errorLine, errorColumn, errorMsg.toLatin1().constData());
+            fprintf(stderr, "RCC Parse Error: '%s' Line:%d Column:%d [%s]\n",
+                    qPrintable(fname), errorLine, errorColumn,
+                    qPrintable(errorMsg));
             return false;
         }
     }
@@ -293,7 +294,7 @@ bool RCCResourceLibrary::interpretResourceFile(QIODevice *inputDevice, QString f
                         if (!file.exists()) {
                             if(ignoreErrors)
                                 continue;
-                            fprintf(stderr, "RCC: Error: Cannot find file '%s'\n", fileName.toLocal8Bit().constData());
+                            fprintf(stderr, "RCC: Error: Cannot find file '%s'\n", qPrintable(fileName));
                             return false;
                         } else if (file.isFile()) {
                             addFile(alias, RCCFileInfo(alias.section(QLatin1Char('/'), -1), file, language, country,
@@ -334,7 +335,7 @@ bool RCCResourceLibrary::addFile(const QString &alias, const RCCFileInfo &file)
 {
     if (file.fileInfo.size() > 0xffffffff) {
         fprintf(stderr, "File too big: %s",
-                file.fileInfo.absoluteFilePath().toLocal8Bit().constData());
+                qPrintable(file.fileInfo.absoluteFilePath()));
         return false;
     }
     if(!root)
@@ -376,19 +377,19 @@ bool RCCResourceLibrary::readFiles(bool ignoreErrors)
             pwd = QDir::currentPath();
             fileIn.setFileName(fname);
             if (!fileIn.open(stdin, QIODevice::ReadOnly)) {
-                fprintf(stderr, "Unable to open file: %s\n", fname.toLocal8Bit().constData());
+                fprintf(stderr, "Unable to open file: %s\n", qPrintable(fname));
                 return false;
             }
         } else {
             pwd = QFileInfo(fname).path();
             fileIn.setFileName(fname);
             if (!fileIn.open(QIODevice::ReadOnly)) {
-                fprintf(stderr, "Unable to open file: %s\n", fname.toLocal8Bit().constData());
+                fprintf(stderr, "Unable to open file: %s\n", qPrintable(fname));
                 return false;
             }
         }
         if (mVerbose)
-            fprintf(stderr, "Interpreting %s\n", fname.toLocal8Bit().constData());
+            fprintf(stderr, "Interpreting %s\n", qPrintable(fname));
 
         if (!interpretResourceFile(&fileIn, fname, pwd, ignoreErrors))
             return false;
@@ -456,7 +457,7 @@ RCCResourceLibrary::writeHeader(FILE *out)
         fprintf(out, "/****************************************************************************\n");
         fprintf(out, "** Resource object code\n");
         fprintf(out, "**\n");
-        fprintf(out, "** Created: %s\n", QDateTime::currentDateTime().toString().toLocal8Bit().constData());
+        fprintf(out, "** Created: %s\n", qPrintable(QDateTime::currentDateTime().toString()));
         fprintf(out, "**      by: The Resource Compiler for Qt version %s\n", QT_VERSION_STR);
         fprintf(out, "**\n");
         fprintf(out, "** WARNING! All changes made in this file will be lost!\n");

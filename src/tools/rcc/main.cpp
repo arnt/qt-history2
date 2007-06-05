@@ -50,7 +50,7 @@ bool processResourceFile(const QStringList &filenamesIn, const QString &filename
 #else
         if(!(out_fd = fopen(filenameOut.toLocal8Bit().constData(), writeBinary ? "wb": "w"))) {
 #endif
-            fprintf(stderr, "Unable to open %s for writing\n", filenameOut.toLocal8Bit().constData());
+            fprintf(stderr, "Unable to open %s for writing\n", qPrintable(filenameOut));
             return false;
         }
     }
@@ -60,7 +60,7 @@ bool processResourceFile(const QStringList &filenamesIn, const QString &filename
     if(list) {
         const QStringList data = library.dataFiles();
         for(int i = 0; i < data.size(); ++i)
-            fprintf(out_fd, "%s\n", QDir::cleanPath(data.at(i)).toLatin1().constData());
+            fprintf(out_fd, "%s\n", qPrintable(QDir::cleanPath(data.at(i))));
     } else {
         ret = library.output(out_fd);
     }
@@ -98,65 +98,65 @@ int main(int argc, char *argv[])
     bool helpRequested = false, list = false;
     QStringList files;
 
-	QStringList args = qCmdLineArgs(argc, argv);
+    QStringList args = qCmdLineArgs(argc, argv);
 
     //parse options
     QString errorMsg;
     for (int i = 1; i < args.count() && errorMsg.isEmpty(); i++) {
-		if (args[i].isEmpty())
-			continue;
+         if (args[i].isEmpty())
+            continue;
         if (args[i][0] == '-') {   // option
-            QByteArray opt = argv[i] + 1;
-            if (opt == "o") {
+            QString opt = args[i];
+            if (opt == QLatin1String("-o")) {
                 if (!(i < argc-1)) {
                     errorMsg = QLatin1String("Missing output name");
                     break;
                 }
                 outFilename = args[++i];
-            } else if(opt == "name") {
+            } else if (opt == QLatin1String("-name")) {
                 if (!(i < argc-1)) {
                     errorMsg = QLatin1String("Missing target name");
                     break;
                 }
                 initName = args[++i];
-            } else if(opt == "root") {
+            } else if (opt == QLatin1String("-root")) {
                 if (!(i < argc-1)) {
                     errorMsg = QLatin1String("Missing root path");
                     break;
                 }
-                resourceRoot = QDir::cleanPath(QString::fromLocal8Bit(argv[++i]));
+                resourceRoot = QDir::cleanPath(args[++i]);
                 if(resourceRoot.isEmpty() || resourceRoot.at(0) != QLatin1Char('/'))
                     errorMsg = QLatin1String("Root must start with a /");
-            } else if(opt == "compress") {
+            } else if (opt == QLatin1String("-compress")) {
                 if (!(i < argc-1)) {
                     errorMsg = QLatin1String("Missing compression level");
                     break;
                 }
                 compressLevel = args[++i].toInt();
-            } else if(opt == "threshold") {
+            } else if (opt == QLatin1String("-threshold")) {
                 if (!(i < argc-1)) {
                     errorMsg = QLatin1String("Missing compression threshold");
                     break;
                 }
-                compressThreshold = QString::fromLocal8Bit(argv[++i]).toInt();
-            } else if(opt == "binary") {
+                compressThreshold = args[++i].toInt();
+            } else if (opt == QLatin1String("-binary")) {
                 writeBinary = true;
-            } else if(opt == "verbose") {
+            } else if (opt == QLatin1String("-verbose")) {
                 verbose = true;
-            } else if(opt == "list") {
+            } else if (opt == QLatin1String("-list")) {
                 list = true;
-            } else if(opt == "version" || opt == "v") {
+            } else if (opt == QLatin1String("-version") || opt == QLatin1String("-v")) {
                 fprintf(stderr, "Qt Resource Compiler version %s\n", QT_VERSION_STR);
                 return 1;
-            } else if(opt == "help" || opt == "h") {
+            } else if (opt == QLatin1String("-help") || opt == QLatin1String("-h")) {
                 helpRequested = true;
-            } else if(opt == "no-compress") {
+            } else if (opt == QLatin1String("-no-compress")) {
                 compressLevel = -2;
             } else {
                 errorMsg = QString::fromLatin1("Unknown option: '%1'").arg(args[i]);
             }
         } else {
-			if(!QFile::exists(args[i])) {
+            if (!QFile::exists(args[i])) {
                 qWarning("%s: File does not exist '%s'", qPrintable(args[0]), qPrintable(args[i]));
                 return 1;
             }
