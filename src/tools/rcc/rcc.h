@@ -72,7 +72,7 @@ public:
 
 private:
     RCCFileInfo *root;
-    bool addFile(const QString &alias, const RCCFileInfo &file, int line_no, bool ignoreErrors = false);
+    bool addFile(const QString &alias, const RCCFileInfo &file);
     bool interpretResourceFile(QIODevice *inputDevice, QString file, QString currentPath = QString(), bool ignoreErrors = false);
 
     bool writeHeader(FILE *out);
@@ -110,7 +110,7 @@ struct RCCFileInfo
     };
 
     inline RCCFileInfo(QString name = QString(), QFileInfo fileInfo = QFileInfo(),
-                       QLocale::Language language = QLocale::C,
+                       QLocale::Language language = QLocale::C, 
                        QLocale::Country country = QLocale::AnyCountry,
                        uint flags = NoFlags,
                        int compressLevel = CONSTANT_COMPRESSLEVEL_DEFAULT, int compressThreshold = CONSTANT_COMPRESSTHRESHOLD_DEFAULT);

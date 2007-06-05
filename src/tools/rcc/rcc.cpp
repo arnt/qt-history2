@@ -297,8 +297,7 @@ bool RCCResourceLibrary::interpretResourceFile(QIODevice *inputDevice, QString f
                             return false;
                         } else if (file.isFile()) {
                             addFile(alias, RCCFileInfo(alias.section(QLatin1Char('/'), -1), file, language, country,
-                                                       RCCFileInfo::NoFlags, compressLevel, compressThreshold),
-                                    res.lineNumber(), ignoreErrors);
+                                                       RCCFileInfo::NoFlags, compressLevel, compressThreshold));
                         } else {
                             QDir dir;
                             if(file.isDir()) {
@@ -318,8 +317,7 @@ bool RCCResourceLibrary::interpretResourceFile(QIODevice *inputDevice, QString f
                                 if(child.fileName() != QLatin1String(".") && child.fileName() != QLatin1String(".."))
                                     addFile(alias + child.fileName(),
                                             RCCFileInfo(child.fileName(), child, language, country,
-                                                        RCCFileInfo::NoFlags, compressLevel, compressThreshold),
-                                            res.lineNumber(), ignoreErrors);
+                                                        RCCFileInfo::NoFlags, compressLevel, compressThreshold));
                             }
                         }
                     }
@@ -332,7 +330,7 @@ bool RCCResourceLibrary::interpretResourceFile(QIODevice *inputDevice, QString f
     return true;
 }
 
-bool RCCResourceLibrary::addFile(const QString &alias, const RCCFileInfo &file, int line_no, bool ignoreErrors)
+bool RCCResourceLibrary::addFile(const QString &alias, const RCCFileInfo &file)
 {
     if (file.fileInfo.size() > 0xffffffff) {
         fprintf(stderr, "File too big: %s",
@@ -359,17 +357,9 @@ bool RCCResourceLibrary::addFile(const QString &alias, const RCCFileInfo &file, 
     }
 
     const QString filename = nodes.at(nodes.size()-1);
-    if(RCCFileInfo *prev = parent->children[filename]) {
-        if(!ignoreErrors) {
-            fprintf(stderr, "%d: Duplicate resource removed at %s kept (%s).\n", line_no,
-                    alias.toLocal8Bit().constData(), prev->fileInfo.filePath().toLocal8Bit().constData());
-            return false;
-        }
-    } else {
-        RCCFileInfo *node = new RCCFileInfo(file);
-        node->parent = parent;
-        parent->children.insert(filename, node);
-    }
+    RCCFileInfo *s = new RCCFileInfo(file);
+    s->parent = parent;
+    parent->children.insertMulti(filename, s);
     return true;
 }
 
