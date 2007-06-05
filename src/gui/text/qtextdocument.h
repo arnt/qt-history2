@@ -144,6 +144,7 @@ public:
     QTextObject *objectForFormat(const QTextFormat &) const;
 
     QTextBlock findBlock(int pos) const;
+    QTextBlock findBlockByNumber(int blockNumber) const;
     QTextBlock begin() const;
     QTextBlock end() const;
 

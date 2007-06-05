@@ -40,7 +40,6 @@ public:
     quint32 color : 1;
     quint32 size : 31;
     quint32 weight_left;
-    enum {weight = 1 };
 };
 
 class Q_AUTOTEST_EXPORT QFragmentMapData
@@ -114,7 +113,7 @@ public:
             uint p = f->parent;
             f = fragment(p);
             if (f->right == node)
-                offset += f->weight_left + f->weight;
+                offset += f->weight_left + 1;
             node = p;
         }
         return offset;
@@ -125,7 +124,7 @@ public:
         node = f->right;
         while (node) {
             f = fragment(node);
-            wr += f->weight_left + f->weight;
+            wr += f->weight_left + 1;
             node = f->right;
         }
         return wr;
@@ -135,6 +134,7 @@ public:
     }
 
     inline uint size(uint node) const { return fragment(node)->size; }
+
     inline void setSize(uint node, int new_size) {
         QFragment *f = fragment(node);
         int diff = new_size - f->size;
@@ -150,6 +150,7 @@ public:
 
 
     uint findNode(int k) const;
+    uint findNodeByIndex(int k) const;
 
     uint insert_single(int key, uint length);
     uint erase_single(uint f);
@@ -313,6 +314,7 @@ public:
     ConstIterator find(int k) const { return ConstIterator(this, data.findNode(k)); }
 
     uint findNode(int k) const { return data.findNode(k); }
+    uint findNodeByIndex(int k) const { return data.findNodeByIndex(k); }
 
     uint insert_single(int key, uint length)
     {

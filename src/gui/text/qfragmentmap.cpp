@@ -216,7 +216,7 @@ void QFragmentMapData::rotateLeft(uint x)
         P.right = y;
     X.parent = y;
     Y.size_left += X.size_left + X.size;
-    Y.weight_left += X.weight_left + X.weight;
+    Y.weight_left += X.weight_left + 1;
 
     inorder();
     check();
@@ -255,7 +255,7 @@ void QFragmentMapData::rotateRight(uint x)
         P.left = y;
     X.parent = y;
     X.size_left -= Y.size_left + Y.size;
-    X.weight_left -= Y.weight_left + Y.weight;
+    X.weight_left -= Y.weight_left + 1;
 
     inorder();
     check();
@@ -521,6 +521,24 @@ uint QFragmentMapData::findNode(int k) const
     return 0;
 }
 
+uint QFragmentMapData::findNodeByIndex(int k) const
+{
+    uint x = root();
+
+    uint s = k;
+    while (x) {
+        if (weightLeft(x) <= s) {
+            if (s <= weightLeft(x))
+                return x;
+            s -= weightLeft(x) + 1;
+            x = X.right;
+        } else {
+            x = X.left;
+        }
+    }
+    return 0;
+}
+
 uint QFragmentMapData::insert_single(int key, uint length)
 {
     Q_ASSERT(!findNode(key) || (int)this->position(findNode(key)) == key);
@@ -564,7 +582,7 @@ uint QFragmentMapData::insert_single(int key, uint length)
 //          PMDEBUG("inserting left");
         Y.left = z;
         Y.size_left = Z.size;
-        Y.weight_left = Z.weight;
+        Y.weight_left = 1;
     } else {
 //          PMDEBUG("inserting right");
         Y.right = z;
@@ -573,7 +591,7 @@ uint QFragmentMapData::insert_single(int key, uint length)
         uint p = Y.parent;
         if (P.left == y) {
             P.size_left += Z.size;
-            P.weight_left += Z.weight;
+            P.weight_left += 1;
         }
         y = p;
     }

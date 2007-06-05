@@ -258,7 +258,7 @@ QTextCodec *Qt::codecForHtml(const QByteArray &ba)
 
     When \l{QTextBlock}s are created, the defaultTextOption is set on their
     QTextLayout. This allows setting global properties for the document such as the
-    default word wrap mode. 
+    default word wrap mode.
  */
 
 /*!
@@ -1160,6 +1160,17 @@ QTextBlock QTextDocument::findBlock(int pos) const
 {
     Q_D(const QTextDocument);
     return QTextBlock(docHandle(), d->blockMap().findNode(pos));
+}
+
+/*!
+    Returns the text block with the specified \a blockNumber.
+
+    \sa QTextBlock::blockNumber()
+*/
+QTextBlock QTextDocument::findBlockByNumber(int blockNumber) const
+{
+    Q_D(const QTextDocument);
+    return QTextBlock(docHandle(), d->blockMap().findNodeByIndex(blockNumber));
 }
 
 /*!
