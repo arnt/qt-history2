@@ -517,6 +517,7 @@ public:
             QVERIFY(producer.lock());
             if (put[0] == 'Q') {
                 QVERIFY(producer.unlock());
+                QTest::qWait(1);
                 continue;
             }
             ++i;
@@ -580,7 +581,7 @@ void tst_QSharedMemory::simpleThreadedProducerConsumer()
 
     p.wait();
     while (!consumers.isEmpty()) {
-        consumers.first()->wait();
+        QVERIFY(consumers.first()->wait(10000));
         delete consumers.takeFirst();
     }
 }
@@ -619,7 +620,7 @@ void tst_QSharedMemory::simpleProcessProducerConsumer()
 
     producer.waitForFinished();
     while (!consumers.isEmpty()) {
-        consumers.first()->waitForFinished();
+        consumers.first()->waitForFinished(10000);
         QCOMPARE(consumers.first()->exitStatus(), QProcess::NormalExit);
         QCOMPARE(consumers.first()->exitCode(), 0);
         delete consumers.takeFirst();
