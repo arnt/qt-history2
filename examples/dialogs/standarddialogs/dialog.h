@@ -16,6 +16,7 @@
 
 #include <QDialog>
 
+class QCheckBox;
 class QLabel;
 class QErrorMessage;
 
@@ -44,6 +45,7 @@ private slots:
     void errorMessage();
 
 private:
+    QCheckBox *native;
     QLabel *integerLabel;
     QLabel *doubleLabel;
     QLabel *itemLabel;
