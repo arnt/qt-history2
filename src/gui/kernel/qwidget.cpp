@@ -4454,7 +4454,7 @@ void QWidget::clearFocus()
     QWidget *w = this;
     while (w && w->d_func()->focus_child == this) {
         w->d_func()->focus_child = 0;
-        w = w->isWindow() ? 0 : w->parentWidget();
+	w = w->parentWidget();
     }
     if (hasFocus()) {
         QApplicationPrivate::setFocusWidget(0, Qt::OtherFocusReason);
