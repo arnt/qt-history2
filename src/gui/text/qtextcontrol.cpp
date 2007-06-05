@@ -1789,7 +1789,7 @@ void QTextControlPrivate::focusEvent(QFocusEvent *e)
     } else {
         setBlinkingCursorEnabled(false);
 
-        if (interactionFlags & Qt::LinksAccessibleByKeyboard
+        if (cursorIsFocusIndicator
             && e->reason() != Qt::ActiveWindowFocusReason
             && e->reason() != Qt::PopupFocusReason
             && cursor.hasSelection()) {
