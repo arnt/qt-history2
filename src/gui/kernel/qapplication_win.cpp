@@ -1709,10 +1709,6 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
                 if (!QApplicationPrivate::tryModalHelper(widget, &top) && top && widget != top && top->isVisible())
                     top->activateWindow();
             }
-            if (LOWORD(wParam) == WA_INACTIVE){
-                // Ensure nothing gets consider an auto-repeat press later
-                qt_keymapper_private()->clearRecordedKeys();
-            }
             break;
 
 #ifndef Q_OS_TEMP
@@ -2791,7 +2787,7 @@ bool QETWidget::translateWheelEvent(const MSG &msg)
     int ret = 0;
     QWidget* w = QApplication::widgetAt(globalPos);
     if (!w || !qt_try_modal(w, (MSG*)&msg, ret)) {
-        //synaptics touchpad shows its own widget at this position 
+        //synaptics touchpad shows its own widget at this position
         //so widgetAt() will fail with that HWND, try child of this widget
         w = this->childAt(this->mapFromGlobal(globalPos));
         if (!w)
