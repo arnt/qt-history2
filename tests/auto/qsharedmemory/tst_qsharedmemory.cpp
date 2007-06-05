@@ -590,7 +590,11 @@ void tst_QSharedMemory::simpleThreadedProducerConsumer()
 void tst_QSharedMemory::simpleProcessProducerConsumer_data()
 {
     QTest::addColumn<int>("processes");
-    for (int i = 0; i < 20; ++i) {
+    int tries = 10;
+#ifdef Q_OS_WIN
+    tries = 5;
+#endif
+    for (int i = 0; i < tries; ++i) {
         QTest::newRow("1 process") << 1;
         QTest::newRow("5 processes") << 5;
     }
