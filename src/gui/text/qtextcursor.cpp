@@ -2126,7 +2126,7 @@ bool QTextCursor::isCopyOf(const QTextCursor &other) const
 
 /*!
     \since 4.2
-    Returns the number of the block the cursor is in.
+    Returns the number of the block the cursor is in, or 0 if the cursor is invalid.
 
     Note that this function only makes sense in documents without complex objects such
     as tables or frames.
@@ -2136,17 +2136,7 @@ int QTextCursor::blockNumber() const
     if (!d || !d->priv)
         return 0;
 
-    // ### naive implementation for now
-    QTextBlock currentBlock = d->block();
-    if (!currentBlock.isValid())
-        return 0;
-
-    int count = 0;
-    for (QTextBlock block = d->priv->blocksBegin();
-         block.isValid() && block != currentBlock;
-         block = block.next(), ++count) {
-    }
-    return count;
+    return d->block().blockNumber();
 }
 
 /*!

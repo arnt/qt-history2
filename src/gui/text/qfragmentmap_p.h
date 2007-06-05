@@ -39,6 +39,8 @@ public:
     quint32 right;
     quint32 color : 1;
     quint32 size : 31;
+    quint32 weight_left;
+    enum {weight = 1 };
 };
 
 class Q_AUTOTEST_EXPORT QFragmentMapData
@@ -103,6 +105,33 @@ public:
     }
     inline uint sizeLeft(uint node) const {
         return fragment(node)->size_left;
+    }
+
+    inline uint index(uint node) const {
+        const QFragment *f = fragment(node);
+        uint offset = f->weight_left;
+        while (f->parent) {
+            uint p = f->parent;
+            f = fragment(p);
+            if (f->right == node)
+                offset += f->weight_left + f->weight;
+            node = p;
+        }
+        return offset;
+    }
+    inline uint weightRight(uint node) const {
+        uint wr = 0;
+        const QFragment *f = fragment(node);
+        node = f->right;
+        while (node) {
+            f = fragment(node);
+            wr += f->weight_left + f->weight;
+            node = f->right;
+        }
+        return wr;
+    }
+    inline uint weightLeft(uint node) const {
+        return fragment(node)->weight_left;
     }
 
     inline uint size(uint node) const { return fragment(node)->size; }
@@ -314,6 +343,7 @@ public:
         return static_cast<const T *>(data.fragment(index));
     }
     inline uint position(uint node) const { return data.position(node); }
+    inline uint index(uint node) const { return data.index(node); }
     inline uint next(uint n) const { return data.next(n); }
     inline uint previous(uint n) const { return data.previous(n); }
     inline uint size(uint node) const { return data.size(node); }

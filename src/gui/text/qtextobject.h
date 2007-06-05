@@ -201,6 +201,8 @@ public:
     int userState() const;
     void setUserState(int state);
 
+    int blockNumber() const;
+
     class Q_GUI_EXPORT iterator {
         const QTextDocumentPrivate *p;
         int b;

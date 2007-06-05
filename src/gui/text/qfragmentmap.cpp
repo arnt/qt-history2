@@ -216,6 +216,7 @@ void QFragmentMapData::rotateLeft(uint x)
         P.right = y;
     X.parent = y;
     Y.size_left += X.size_left + X.size;
+    Y.weight_left += X.weight_left + X.weight;
 
     inorder();
     check();
@@ -254,6 +255,7 @@ void QFragmentMapData::rotateRight(uint x)
         P.left = y;
     X.parent = y;
     X.size_left -= Y.size_left + Y.size;
+    X.weight_left -= Y.weight_left + Y.weight;
 
     inorder();
     check();
@@ -343,6 +345,7 @@ uint QFragmentMapData::erase_single(uint z)
         F(Z.left).parent = y;
         Y.left = Z.left;
         Y.size_left = Z.size_left;
+        Y.weight_left = Z.weight_left;
         if (y != Z.right) {
             /*
                      z                y
@@ -528,6 +531,7 @@ uint QFragmentMapData::insert_single(int key, uint length)
     Z.left = 0;
     Z.right = 0;
     Z.size_left = 0;
+    Z.weight_left = 0;
 
     PMDEBUG("inserting with key %d", key);
     uint y = 0;
@@ -560,14 +564,17 @@ uint QFragmentMapData::insert_single(int key, uint length)
 //          PMDEBUG("inserting left");
         Y.left = z;
         Y.size_left = Z.size;
+        Y.weight_left = Z.weight;
     } else {
 //          PMDEBUG("inserting right");
         Y.right = z;
     }
     while (y && Y.parent) {
         uint p = Y.parent;
-        if (P.left == y)
+        if (P.left == y) {
             P.size_left += Z.size;
+            P.weight_left += Z.weight;
+        }
         y = p;
     }
 //     PMDEBUG("before rebalance");

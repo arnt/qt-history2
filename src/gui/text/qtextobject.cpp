@@ -1204,6 +1204,22 @@ void QTextBlock::setUserState(int state)
     b->userState = state;
 }
 
+
+/*!
+\since 4.4
+
+    Returns the number of this block, or -1 if the block is invalid.
+
+    \sa QTextCursor::blockNumber()
+
+*/
+int QTextBlock::blockNumber() const
+{
+    if (!p || !n)
+        return -1;
+    return p->blockMap().index(n);
+}
+
 /*!
     Returns a text block iterator pointing to the beginning of the
     text block.
