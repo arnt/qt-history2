@@ -1090,7 +1090,14 @@ void QWizardPrivate::updateLayout()
 void QWizardPrivate::updateMinMaxSizes(const QWizardLayoutInfo &info)
 {
     Q_Q(QWizard);
-    q->setMinimumSize(mainLayout->totalMinimumSize());
+
+    int extraHeight = 0;
+#if !defined(QT_NO_STYLE_WINDOWSVISTA)
+    if (wizStyle == QWizard::AeroStyle)
+        extraHeight = vistaHelper->titleBarSize() + vistaHelper->topOffset();
+#endif
+    q->setMinimumSize(mainLayout->totalMinimumSize() + QSize(0, extraHeight));
+
 #if defined(Q_WS_WIN)
     if (QSysInfo::WindowsVersion > QSysInfo::WV_98) // ### See Tasks 164078 and 161660
 #endif
