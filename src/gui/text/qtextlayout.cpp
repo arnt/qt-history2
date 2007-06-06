@@ -269,7 +269,7 @@ Qt::LayoutDirection QTextInlineObject::textDirection() const
     Here's some pseudo code that presents the layout phase:
     \code
         int leading = fontMetrics.leading();
-        int height = 0;
+        qreal height = 0;
         qreal widthUsed = 0;
         textLayout.beginLayout();
         while (1) {
@@ -279,7 +279,7 @@ Qt::LayoutDirection QTextInlineObject::textDirection() const
 
             line.setLineWidth(lineWidth);
             height += leading;
-            line.setPosition(QPoint(0, height));
+            line.setPosition(QPointF(0, height));
             height += line.height();
             widthUsed = qMax(widthUsed, line.naturalTextWidth());
         }
@@ -1400,7 +1400,17 @@ void QTextLine::setLineWidth(qreal width)
     line.width = QFixed::fromReal(width);
     line.length = 0;
     line.textWidth = 0;
+
     layout_helper(INT_MAX);
+
+    if (eng->option.wrapMode() == QTextOption::WrapAtWordBoundaryOrAnywhere
+        && line.textWidth.toReal() > width) {
+        eng->option.setWrapMode(QTextOption::WrapAnywhere);
+        line.length = 0;
+        line.textWidth = 0;
+        layout_helper(INT_MAX);
+        eng->option.setWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
+    }
 }
 
 /*!
