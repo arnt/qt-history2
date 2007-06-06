@@ -155,7 +155,7 @@ bool QSharedMemoryPrivate::create(int size)
         QString function = QLatin1String("QSharedMemory::create");
         switch (errno) {
         case EINVAL:
-            errorString = QSharedMemory::tr("%1: stem-imposed size restrictions").arg("QSharedMemory::handle:");
+            errorString = QSharedMemory::tr("%1: system-imposed size restrictions").arg("QSharedMemory::handle");
             error = QSharedMemory::InvalidSize;
             break;
         default:
