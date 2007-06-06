@@ -269,6 +269,7 @@
 
     \list
     \o \l{uitools/textfinder}{Text Finder}\raisedaster
+    \o \l{uitools/multipleinheritance}{Multiple Inheritance}\raisedaster
     \endlist
 
     \section1 Qt Linguist Examples
