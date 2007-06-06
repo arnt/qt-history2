@@ -178,6 +178,16 @@ FunctionEnd
 Function .onInit
   StrCpy $STARTMENU_STRING "${DEFAULT_STARTMENU_STRING}"
 
+!ifdef USE_UNINSTALL_PREVIOUS
+  push $0
+  call GetExistsPreviousInstallation
+  pop $0
+  StrCmp $0 true 0 +3
+  pop $0
+  MessageBox MB_OK|MB_ICONSTOP "A previous installation of ${PRODUCT_NAME} was detected.$\nPlease uninstall it before running this installer."
+  Abort
+!endif
+
   call SetAdminVar
   StrCmp "$RUNNING_AS_ADMIN" "false" 0 common_running_as_admin
 !ifdef USE_ADMIN_CHECK
@@ -358,6 +368,34 @@ Function un.UninstallerConfirmPage
   !insertmacro MUI_HEADER_TEXT "Confirm" "Confirm Uninstallation Directories"
   !insertmacro MUI_INSTALLOPTIONS_WRITE "${UNINSTALLER_CONFIRM_PAGE}" "Field 2" "Text" "$UninstallerConfirmProduct"
   !insertmacro MUI_INSTALLOPTIONS_DISPLAY "${UNINSTALLER_CONFIRM_PAGE}"
+FunctionEnd
+
+Function GetExistsPreviousInstallation
+  push $0
+  push $1
+  push $2
+
+  StrCpy $0 0
+  loop:
+    EnumRegKey $1 HKLM Software\Microsoft\Windows\CurrentVersion\Uninstall $0
+    StrCmp $1 "" no_reg_key_found
+    ${StrStr} $2 $1 "${PRODUCT_NAME}"
+    StrCmp $2 $1 reg_key_found
+    IntOp $0 $0 + 1
+    goto loop
+  
+  reg_key_found:
+  push true
+  goto done
+  
+  no_reg_key_found:
+  push false
+  
+  done:
+  exch 3
+  pop $2
+  pop $1
+  pop $0
 FunctionEnd
 
 ;sets $RUNNING_AS_ADMIN to "true" if Admin or Power user
