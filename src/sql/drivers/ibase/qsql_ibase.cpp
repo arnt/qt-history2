@@ -976,9 +976,13 @@ bool QIBaseResult::exec()
         if (d->queryType == isc_info_sql_stmt_exec_procedure)
             isc_dsql_execute2(d->status, &d->trans, &d->stmt, FBVERSION, d->inda, d->sqlda);
         else
-        isc_dsql_execute(d->status, &d->trans, &d->stmt, FBVERSION, d->inda);
+            isc_dsql_execute(d->status, &d->trans, &d->stmt, FBVERSION, d->inda);
         if (d->isError(QT_TRANSLATE_NOOP("QIBaseResult", "Unable to execute query")))
             return false;
+
+        // Not all stored procedures necessarily return values.
+        if (d->queryType == isc_info_sql_stmt_exec_procedure && colCount() == 0)
+            delDA(d->sqlda);
 
         if (d->sqlda)
             init(d->sqlda->sqld);

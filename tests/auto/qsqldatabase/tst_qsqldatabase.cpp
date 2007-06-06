@@ -121,6 +121,8 @@ private slots:
     void ibase_fetchBlobs(); // For task 143471
     void ibase_useCustomCharset_data() { generic_data(); }
     void ibase_useCustomCharset(); // For task 134608
+    void ibase_procWithoutReturnValues_data() { generic_data(); } // For task 165423
+    void ibase_procWithoutReturnValues();
 
     void odbc_reopenDatabase_data() { generic_data(); }
     void odbc_reopenDatabase();
@@ -1791,6 +1793,25 @@ void tst_QSqlDatabase::ibase_fetchBlobs()
 
     q.exec(QString("DROP TABLE %1").arg(tableName));
 
+}
+
+void tst_QSqlDatabase::ibase_procWithoutReturnValues()
+{
+    QFETCH(QString, dbName);
+    QSqlDatabase db = QSqlDatabase::database(dbName);
+    CHECK_DATABASE(db);
+
+    if (!db.driverName().startsWith("QIBASE")) {
+       QSKIP("InterBase specific test", SkipSingle);
+       return;
+    }
+
+    QSqlQuery q(db);
+    QString tableName = qTableName("qtest_procWithoutReturnValues");
+    q.exec(QString("drop procedure %1").arg(tableName));
+    QVERIFY2(q.exec(QString("CREATE PROCEDURE %1(str VARCHAR(10))\nAS BEGIN\nstr='test';\nEND;").arg(tableName)), q.lastError().text());
+    QVERIFY2(q.exec(QString("execute procedure %1('qtest')").arg(tableName)), q.lastError().text());
+    q.exec(QString("drop procedure %1").arg(tableName));
 }
 
 void tst_QSqlDatabase::formatValueTrimStrings()
