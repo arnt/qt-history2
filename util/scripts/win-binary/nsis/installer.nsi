@@ -183,9 +183,9 @@ Function .onInit
   call GetExistsPreviousInstallation
   pop $0
   StrCmp $0 true 0 +3
+    MessageBox MB_OK|MB_ICONSTOP "A previous installation of ${PRODUCT_NAME} was detected.$\nPlease uninstall it before running this installer."
+    Abort
   pop $0
-  MessageBox MB_OK|MB_ICONSTOP "A previous installation of ${PRODUCT_NAME} was detected.$\nPlease uninstall it before running this installer."
-  Abort
 !endif
 
   call SetAdminVar
