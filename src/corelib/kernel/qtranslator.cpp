@@ -720,6 +720,9 @@ void QTranslatorPrivate::clear()
     \a comment). If none is found, also tries (\a context, \a
     sourceText, ""). If that still fails, returns an empty string.
 
+    If you need to programatically insert translations in to a
+    QTranslator, this function can be reimplemented.
+
     \sa load()
 */
 QString QTranslator::translate(const char *context, const char *sourceText, const char *comment) const

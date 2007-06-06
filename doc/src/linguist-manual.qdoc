@@ -935,6 +935,9 @@
     If there is no translation file for the current locale the application
     will fall back to using the original source text.
 
+    Note that if you need to programatically add translations at
+    runtime, you can reimplement QTranslator::translate().
+
     \section2 Making the Application Translate User-Visible Strings
 
     User-visible strings are marked as translation targets by wrapping them
