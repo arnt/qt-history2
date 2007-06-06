@@ -121,7 +121,6 @@ void tst_QSystemSemaphore::basicProcesses()
 
     QStringList acquireArguments = QStringList() << LACKYLOC "/scripts/systemsemaphore_acquire.js";
     QProcess acquire;
-    qDebug() << acquireArguments;
     acquire.setProcessChannelMode(QProcess::ForwardedChannels);
 
     QStringList releaseArguments = QStringList() << LACKYLOC "/scripts/systemsemaphore_release.js";
