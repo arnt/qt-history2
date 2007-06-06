@@ -272,16 +272,21 @@ Function InsertAutoExp
   push $3 ;readline
   push $4 ;handle autoexp
   push $5 ;tmpfile handle
-  push $6 ;tmpfilename
+  push $6 ;tmp copy of autoexp.dat
   push $7
 
   ClearErrors
-  GetTempFileName $6
   IfErrors done
-  FileOpen $5 $6 w
+
+  StrCpy $6 "$1_tmp"
+  CopyFiles /FILESONLY "$1" "$6"
+  
+  FileOpen $5 $1 a
   IfErrors done
-  FileOpen $4 $1 r
+  
+  FileOpen $4 $6 r
   IfErrors done
+  
   FileOpen $2 $0 r
   IfErrors done
 
@@ -316,9 +321,8 @@ renameFile:
   FileClose $5
   FileClose $4
   FileClose $2
-  SetDetailsPrint none
-  Delete $1
-  Rename $6 $1
+  SetDetailsPrint none  
+  Delete $6
   SetDetailsPrint both
 
 done:
@@ -339,18 +343,20 @@ Function CleanAutoExp
   push $3 ;readline
   push $4 ;handle autoexp
   push $5 ;tmpfile handle
-  push $6 ;tmpfilename
+  push $6 ;tmp copy of autoexp.dat
   push $7
 
   ClearErrors
-  GetTempFileName $6
   IfErrors done
-  FileOpen $5 $6 w
-  IfErrors done
-  FileOpen $4 $1 r
-  IfErrors done
+  
+  StrCpy $6 "$1_tmp"
+  CopyFiles /FILESONLY "$1" "$6"
 
-  strcpy $8 "15"
+  FileOpen $5 $1 a
+  IfErrors done
+  
+  FileOpen $4 $6 r
+  IfErrors done
 
 nextline:
   FileRead $4 $3
@@ -380,8 +386,7 @@ renameFile:
   FileClose $5
   FileClose $4
   SetDetailsPrint none
-  Delete $1
-  Rename $6 $1
+  Delete $6
   SetDetailsPrint both
 
 done:
@@ -401,18 +406,20 @@ Function un.CleanAutoExp
   push $3 ;readline
   push $4 ;handle autoexp
   push $5 ;tmpfile handle
-  push $6 ;tmpfilename
+  push $6 ;tmp copy of autoexp.dat
   push $7
 
   ClearErrors
-  GetTempFileName $6
   IfErrors done
-  FileOpen $5 $6 w
-  IfErrors done
-  FileOpen $4 $1 r
-  IfErrors done
+  
+  StrCpy $6 "$1_tmp"
+  CopyFiles /FILESONLY "$1" "$6"
 
-  strcpy $8 "15"
+  FileOpen $5 $1 a
+  IfErrors done
+  
+  FileOpen $4 $6 r
+  IfErrors done
 
 nextline:
   FileRead $4 $3
@@ -442,8 +449,7 @@ renameFile:
   FileClose $5
   FileClose $4
   SetDetailsPrint none
-  Delete $1
-  Rename $6 $1
+  Delete $6
   SetDetailsPrint both
 
 done:
