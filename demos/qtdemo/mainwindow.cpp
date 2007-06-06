@@ -50,9 +50,14 @@ MainWindow::~MainWindow()
 
 void MainWindow::setupWidget()
 {
-    QRect rect(0, 0, 800, 600);
-    rect.moveCenter(QApplication::desktop()->screenGeometry(QApplication::desktop()->primaryScreen()).center());
-    this->setGeometry(rect);
+    QRect screenRect = QApplication::desktop()->screenGeometry(QApplication::desktop()->primaryScreen());
+    QRect windowRect(0, 0, 800, 600);
+    if (screenRect.width() < 800)
+        windowRect.setWidth(screenRect.width());
+    if (screenRect.height() < 600)
+        windowRect.setHeight(screenRect.height());    
+    windowRect.moveCenter(screenRect.center());
+    this->setGeometry(windowRect);
     this->setMinimumSize(80, 60);
     setWindowTitle(tr("Qt Examples and Demos"));
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -138,7 +143,7 @@ void MainWindow::enableMask(bool enable)
 void MainWindow::setupScene()
 {
     this->scene = new DemoScene(this);
-    this->scene->setSceneRect(0, 0, size().width(), size().height());
+    this->scene->setSceneRect(0, 0, 800, 600);
     setScene(this->scene);
     this->scene->setItemIndexMethod(QGraphicsScene::NoIndex);
 }
