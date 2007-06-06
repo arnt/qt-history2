@@ -13,7 +13,7 @@
 
 /*!
     \class QCompleter
-    \brief The QCompleter class provides completions based on a item model.
+    \brief The QCompleter class provides completions based on an item model.
     \since 4.2
 
     You can use QCompleter to provide auto completions in any Qt
