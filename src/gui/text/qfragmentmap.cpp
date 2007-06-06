@@ -367,6 +367,7 @@ uint QFragmentMapData::erase_single(uint z)
             uint n = p;
             while (n != y) {
                 N.size_left -= Y.size;
+                N.weight_left -= 1;
                 n = N.parent;
             }
         } else {
@@ -386,6 +387,7 @@ uint QFragmentMapData::erase_single(uint z)
         } else if (F(zp).left == z) {
             F(zp).left = y;
             F(zp).size_left -= Z.size;
+            F(zp).weight_left -= 1;
         } else {
             F(zp).right = y;
         }
@@ -412,6 +414,7 @@ uint QFragmentMapData::erase_single(uint z)
         } else if (P.left == z) {
             P.left = x;
             P.size_left -= Z.size;
+            P.weight_left -= 1;
         } else {
             P.right = x;
         }
@@ -422,6 +425,7 @@ uint QFragmentMapData::erase_single(uint z)
         if (P.left == n) {
             PMDEBUG("reducing size_left of %d by %d", N.parent, Z.size);
             P.size_left -= Z.size;
+            P.weight_left -= 1;
         }
         n = p;
     }
