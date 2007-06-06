@@ -165,7 +165,6 @@ SxeRegistryLocker::~SxeRegistryLocker()
 
 QTransportAuthPrivate::QTransportAuthPrivate()
     : keyInitialised(false)
-    , keyChanged(false)
     , m_packageRegistry( 0 )
 {
 }
@@ -216,7 +215,6 @@ void QTransportAuth::setProcessKey( const char *authdata )
 #endif
     }
     d->keyInitialised = true;
-    d->keyChanged = true;
 }
 
 
@@ -1142,10 +1140,10 @@ bool QTransportAuth::authToMessage( QTransportAuth::Data &d, char *hdr, const ch
 {
     // qDebug( "authToMessage(): prog id %u", d.progId );
     // only authorize connection oriented transports once, unless key has changed
-    if ( !d_func()->keyChanged && d.connection() &&
+    if ( d_func()->authKey.progId == d.progId && d.connection() &&
             (( d.status & QTransportAuth::ErrMask ) != QTransportAuth::Pending ))
         return false;
-    d_func()->keyChanged = false;
+    d.progId = d_func()->authKey.progId;
     // If Unix socket credentials are being used the key wont be set
     if ( !d_func()->keyInitialised )
         return false;

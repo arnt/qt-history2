@@ -319,7 +319,6 @@ public:
     void invalidateClientKeyCache();
 
     bool keyInitialised;
-    bool keyChanged;
     QString m_logFilePath;
     QString m_keyFilePath;
     QObject *m_packageRegistry;
