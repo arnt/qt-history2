@@ -372,17 +372,17 @@ void tst_QSharedMemory::useTooMuchMemory()
         QSharedMemory *sm = new QSharedMemory(rememberKey(key));
         QVERIFY(sm);
         jail.append(sm);
-        success = sm->create(32768);
+        success = sm->create(32768 * 1024);
         if (!success) {
             QVERIFY(!sm->isAttached());
             QCOMPARE(sm->key(), key);
             QCOMPARE(sm->size(), 0);
             QVERIFY(sm->data() == 0);
-            // ### Linux wont return OutOfResources, but already exists
             if (sm->error() != QSharedMemory::OutOfResources)
                 qDebug() << sm->error() << sm->errorString();
+            // ### Linux wont return OutOfResources if there are not enough semaphores to use.
             QVERIFY(sm->error() == QSharedMemory::OutOfResources
-                    || sm->error() == QSharedMemory::AlreadyExists);
+                    || sm->error() == QSharedMemory::LockError);
             QVERIFY(sm->errorString() != QString());
             QVERIFY(!sm->attach());
             QVERIFY(!sm->detach());
