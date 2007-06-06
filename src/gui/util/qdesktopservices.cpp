@@ -123,9 +123,10 @@ void QOpenUrlHandlerRegistry::handlerDestroyed(QObject *handler)
     QDesktopServices::setUrlHandler("help", helpInstance, "showHelp");
     \endcode
 
-    If inside the handler you decide that you can't open the requested URL, you can
-    just call QDesktopServices::openUrl() without arguments, and it will try to open
-    the URL using the appropriate mechanism for the user's desktop environment.
+    If inside the handler you decide that you can't open the requested
+    URL, you can just call QDesktopServices::openUrl() again with the
+    same argument, and it will try to open the URL using the
+    appropriate mechanism for the user's desktop environment.
 
     \sa QSystemTrayIcon, QProcess
 */
