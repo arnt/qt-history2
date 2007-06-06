@@ -8,16 +8,13 @@
     basic knowledge of the graphics driver framework as discussed in
     the \l {Accelerated Screen Driver Example}.
 
-    In \l {Qtopia Core}, OpenGL ES can be used in many ways. For
-    example, it can be used to compose displays of overlapping
-    top-level windows, where the top-most window is not opaque but
-    allows features of the underlying windows to show through. Or it
-    can be used to animate a transition from an existing window to a
-    newly created one. A third example is to access hardware features
-    of your device to accelerate widget painting, and a fourth example
-    is to simply enable access to class QGLWidget, the widget class
-    for rendering OpenGL graphics. This example shows how to implement
-    all of these.
+    In \l {Qtopia Core}, OpenGL ES can be used in three ways. First,
+    it can be used to do window composition and creation of graphical
+    effects including animation. A second use to access features of
+    your device that allow you to accelerate widget painting. A third
+    use is to simply provide access to class QGLWidget, the widget
+    class for rendering OpenGL graphics. This example shows how to
+    implement all of these.
 
     The example uses an implementation of OpenGL ES from 
     \l {http://ati.amd.com}{ATI} for the 

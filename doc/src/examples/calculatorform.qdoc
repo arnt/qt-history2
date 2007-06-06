@@ -2,11 +2,11 @@
     \example designer/calculatorform
     \title Calculator Form Example
 
-    The Calculator Form Example shows how to use a form created with \QD in an
-    application by using the user interface information from a QWidget subclass.
-    We use \l{Using a Component in Your Application#a-dialog-with-auto-connect}{uic's
-    auto-connection} feature to automatically connect signals from widgets on the
-    form to slots in our code.
+    The Calculator Form Example shows how to use a form created with
+    \QD in an application by using the user interface information from
+    a QWidget subclass.  We use \l{Using a Component in Your Application} 
+    {uic's auto-connection} feature to automatically connect signals 
+    from widgets on the form to slots in our code.
 
     \image calculatorform-example.png Screenshot of the Calculator Form example
 

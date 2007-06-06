@@ -541,7 +541,7 @@ int QMetaCallEvent::placeMetaCall(QObject *object)
     \l uic generates code that invokes this function to enable auto-connection
     to be performed between widgets on forms created with \QD. More information
     about using auto-connection with \QD is given in the
-    \l{Using a Component in Your Application#A Dialog With Auto-Connect}{Using a
+    \l{Using a Component in Your Application}{Using a
     Component in Your Application} section of the \QD manual.
 
     \section1 Dynamic Properties
