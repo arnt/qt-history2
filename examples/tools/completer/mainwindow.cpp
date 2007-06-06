@@ -45,11 +45,7 @@ MainWindow::MainWindow(QWidget *parent)
     caseCombo = new QComboBox;
     caseCombo->addItem(tr("Case Insensitive"));
     caseCombo->addItem(tr("Case Sensitive"));
-#ifdef Q_OS_WIN
     caseCombo->setCurrentIndex(0);
-#else
-    caseCombo->setCurrentIndex(1);
-#endif
 
     wrapCheckBox = new QCheckBox;
     wrapCheckBox->setText(tr("Wrap around completions"));
