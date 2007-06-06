@@ -1150,7 +1150,7 @@ static inline ushort foldCase(ushort ch)
 
 /*!
     Returns the case folded equivalent of the character. For most Unicode characters this
-    is the same as toLowerCase.
+    is the same as toLowerCase().
 */
 QChar QChar::toCaseFolded() const
 {

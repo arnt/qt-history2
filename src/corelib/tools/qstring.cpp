@@ -4422,6 +4422,8 @@ QString QString::toLower() const
 }
 
 /*!
+Returns the case folded equivalent of the string. For most Unicode characters this
+is the same as toLowerCase().
 */
 QString QString::toCaseFolded() const
 {
