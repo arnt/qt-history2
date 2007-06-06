@@ -51,7 +51,7 @@ Var ItemInstDir
   CreateDirectory "$WizardInstDir\${TT}\html\1031"
   SetOutPath "$WizardInstDir\${TT}\html\1031"
   SetOverwrite ifnewer
-  File "${SD}\html\1031\*"
+  File /nonfatal "${SD}\html\1031\*"
 !macroend
 
 !macro UnInstallProjectTemplate TT
