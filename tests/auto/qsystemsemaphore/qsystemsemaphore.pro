@@ -4,8 +4,6 @@ CONFIG += qttest_p4
 include(../qsharedmemory/src/qsharedmemory.pri)
 win32: CONFIG += console
 
-DESTDIR = ./
-
 DEFINES	+= QSHAREDMEMORY_DEBUG
 DEFINES	+= QSYSTEMSEMAPHORE_DEBUG
 
