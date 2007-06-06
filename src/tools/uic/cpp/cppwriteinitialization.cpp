@@ -874,16 +874,10 @@ void WriteInitialization::writeProperties(const QString &varName,
         const QString propertyName = p->attributeName();
         QString propertyValue;
 
-        // special case for the property `geometry'
+        // special case for the property `geometry': Do not use position
         if (isTopLevel && propertyName == QLatin1String("geometry") && p->elementRect()) {
             const DomRect *r = p->elementRect();
-            const int w = r->elementWidth();
-            const int h = r->elementHeight();
-            const QString tempName = m_driver->unique(QLatin1String("size"));
-            m_output << m_option.indent << "QSize " << tempName << '(' << w << ", " << h << ");\n"
-                      << m_option.indent << tempName << " = " << tempName << ".expandedTo("
-                      << varName << "->minimumSizeHint());\n"
-                      << m_option.indent << varName << "->resize(" << tempName << ");\n";
+            m_output << m_option.indent << varName << "->resize(" << r->elementWidth() << ", " << r->elementHeight() << ");\n";
             continue;
         } else if (propertyName == QLatin1String("buttonGroupId") && buttonGroupWidget) { // Q3ButtonGroup support
             m_output << m_option.indent << m_driver->findOrInsertWidget(buttonGroupWidget) << "->insert("
