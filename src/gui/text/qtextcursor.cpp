@@ -689,7 +689,7 @@ void QTextCursorPrivate::setCharFormat(const QTextCharFormat &_format, QTextDocu
 
 QTextLayout *QTextCursorPrivate::blockLayout(QTextBlock &block) const{
     QTextLayout *tl = block.layout();
-    if (!tl->lineCount())
+    if (!tl->lineCount() && priv->layout())
         priv->layout()->blockBoundingRect(block);
     return tl;
 }
