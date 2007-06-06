@@ -3,7 +3,6 @@ CONFIG += qttest_p4
 
 include(../qsharedmemory/src/qsharedmemory.pri)
 win32: CONFIG += console
-mac:CONFIG -= app_bundle
 
 DESTDIR = ./
 
