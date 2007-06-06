@@ -364,6 +364,7 @@ void tst_QSharedMemory::readOnly()
  */
 void tst_QSharedMemory::useTooMuchMemory()
 {
+#ifdef Q_OS_LINUX
     bool success = true;
     int count = 0;
     while (success) {
@@ -389,6 +390,7 @@ void tst_QSharedMemory::useTooMuchMemory()
             QVERIFY(sm->isAttached());
         }
     }
+#endif
 }
 
 /*!
