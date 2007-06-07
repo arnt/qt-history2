@@ -31,7 +31,7 @@
     Starting with \l {Qtopia Core} 4.2, it is possible to add an
     accelerated graphics driver to take advantage of available
     hardware resources. This is described in detail in the 
-    \l {Accelerated Screen Driver Example} which uses the following 
+    \l {Accelerated Graphics Driver Example} which uses the following 
     approach:
 
     \tableofcontents
@@ -104,7 +104,7 @@
     {QWSWindowSurface::}{paintDevice()} function. Make this function
     return a pointer to your custom raster paint device.
 
-    \section1 Step 5: Enable the Screen to Create an Instance of Your Window Surface
+    \section1 Step 5: Enable Creation of an Instance of Your Window Surface
 
     Finally, reimplement QScreen's \l {QScreen::}{createSurface()}
     function and make this function able to create an instance of your
