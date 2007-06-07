@@ -569,6 +569,10 @@ void tst_QSharedMemory::simpleThreadedProducerConsumer()
     QFETCH(int, threads);
     rememberKey(QLatin1String("market"));
 
+#if defined Q_OS_HPUX && defined __ia64
+    QFAIL("This test locks up on gravlaks.troll.no");
+#endif
+
     Producer p;
     if (producerIsThread)
         p.start();
