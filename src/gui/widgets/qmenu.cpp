@@ -1593,7 +1593,7 @@ void QMenu::popup(const QPoint &p, QAction *atAction)
         if (d->scroll) {
             d->scroll->scrollFlags |= uint(QMenuPrivate::QMenuScroller::ScrollDown);
             int y = qMax(screen.y(),pos.y());
-            size.setHeight(screen.height()-(desktopFrame*2)-y);
+            size.setHeight(screen.bottom()-(desktopFrame*2)-y);
         } else {
             // Too big for screen, bias to see bottom of menu (for some reason)
             pos.setY(screen.bottom()-size.height()+1);
