@@ -651,7 +651,7 @@ void QWidgetBackingStore::copyToScreen(const QRegion &rgn, QWidget *widget, cons
     if (!QWidgetBackingStore::paintOnScreen(widget)) {
         widget->d_func()->cleanWidget_sys(rgn);
 
-#ifndef QT_NO_FLUSH_UPDATE
+#ifndef QT_NO_PAINT_DEBUG
         qt_flushUpdate(widget, rgn);
 #endif
 
@@ -1219,7 +1219,9 @@ void QWidget::repaint(const QRegion& rgn)
     else {
         d->cleanWidget_sys(rgn);
         //     qDebug() << "QWidget::repaint paintOnScreen" << this << "region" << rgn;
-      qt_flushPaint(this, rgn);
+#ifndef QT_NO_PAINT_DEBUG
+        qt_flushPaint(this, rgn);
+#endif
 
         QPaintEngine *engine = paintEngine();
 
