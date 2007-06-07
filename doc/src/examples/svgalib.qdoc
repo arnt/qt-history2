@@ -1,28 +1,28 @@
 /*!
     \example qtopiacore/svgalib
-    \title Accelerated Screen Driver Example
+    \title Accelerated Graphics Driver Example
 
-    The Accelerated Screen Driver example shows how to write an
-    accelerated screen driver for \l {Qtopia Core}.
-
-    In \l {Qtopia Core}, painting is a pure software implementation
-    and is normally performed in two steps: The clients render each
-    window onto a corresponding surface (stored in memory) using a
-    paint engine, and then the server uses the screen driver to
-    compose the surface images and copy them to the screen. (See the
-    \l {Qtopia Core Architecture} documentation for details.)
+    The Accelerated Graphics Driver example shows how you can write
+    your own accelerated graphics driver and \l {add your graphics
+    driver to Qtopia Core}.  In \l {Qtopia Core}, painting is a pure
+    software implementation and is normally performed in two steps:
+    The clients render each window onto a corresponding surface
+    (stored in memory) using a paint engine, and then the server uses
+    the graphics driver to compose the surface images and copy them to
+    the screen. (See the \l {Qtopia Core Architecture} documentation
+    for details.)
 
     The rendering can be accelerated in two ways: Either by
     accelerating the copying of pixels to the screen, or by
     accelerating the explicit painting operations. The first is done
-    in the screen driver implementation, the latter is performed by
+    in the graphics driver implementation, the latter is performed by
     the paint engine implementation. Typically, both the pixel copying
     and the painting operations are accelerted using the following
     approach:
 
     \list 1
-        \o \l {Step 1: Creating a Custom Screen Driver}
-        {Creating a Custom Screen Driver}
+        \o \l {Step 1: Creating a Custom Graphics Driver}
+        {Creating a Custom Graphics Driver}
 
         \o \l {Step 2: Implementing a Custom Raster Paint Engine}
         {Implementing a Custom Paint Engine}
@@ -32,11 +32,11 @@
 
     \endlist
 
-    After compiling the example code, you should install the screen
-    driver plugin with the command \c {make install}. To start an
-    application using the example's screen driver, you can either set
-    the environment variable \l QWS_DISPLAY or start the program using
-    the \c -display switch:
+    After compiling the example code, install the graphics driver
+    plugin with the command \c {make install}. To start an application
+    using the graphics driver, you can either set the environment
+    variable \l QWS_DISPLAY and then run the application, or you can
+    just run the application using the \c -display switch:
 
     \code
         myApplication -qws -display svgalib
@@ -59,11 +59,11 @@
 
     \endtable
 
-    \section1 Step 1: Creating a Custom Screen Driver
+    \section1 Step 1: Creating a Custom Graphics Driver
 
-    The custom screen driver is created by deriving from the QScreen
-    class. QScreen is the base class for implementing screen drivers in
-    Qtopia Core.
+    The custom graphics driver is created by deriving from the QScreen
+    class. QScreen is the base class for implementing screen/graphics
+    drivers in Qtopia Core.
 
     \quotefromfile qtopiacore/svgalib/svgalibscreen.h
     \skipto class
@@ -143,10 +143,10 @@
     implementation of the latter function is trivial.
 
     Note that, provided that the \c QScreen::data variable points to a
-    valid linear framebuffer, the screen driver is fully functional at
-    this point. The rest of this example will show where to take
-    advantage of the accelerated capabilities available on the
-    hardware.
+    valid linear framebuffer, the graphics driver is fully functional
+    as a simple screen driver at this point. The rest of this example
+    will show where to take advantage of the accelerated capabilities
+    available on the hardware.
 
     \skipto exposeRegion
     \printuntil /^\}/
@@ -286,12 +286,12 @@
 
     To activate the custom paint engine, we also need to implement a
     corresponding paint device and window surface and make some minor
-    adjustments of the screen driver.
+    adjustments of the graphics driver.
 
     \list
         \o \l {Implementing a Custom Paint Device}
         \o \l {Implementing a Custom Window Surface}
-        \o \l {Adjusting the Screen Driver}
+        \o \l {Adjusting the Graphics Driver}
     \endlist
 
     \section2 Implementing a Custom Paint Device
@@ -312,7 +312,7 @@
     pointer to the buffer which should be used when drawing the
     widget.
 
-    Our example driver is rendering directly on the screen without any
+    Our example driver is rendering directly to the screen without any
     buffering, i.e., our custom pain device's \l
     {QCustomRasterPaintDevice::}{memory()} function returns a pointer
     to the framebuffer. For this reason, we must also reimplement the
@@ -338,9 +338,9 @@
     \skipto SvgalibSurface::scroll
     \printuntil /^\}/
 
-    \section2 Adjusting the Screen Driver
+    \section2 Adjusting the Graphics Driver
 
-    Finally, we enable the screen driver to recognize an instance of
+    Finally, we enable the graphics driver to recognize an instance of
     our custom window surface:
 
     \quotefromfile qtopiacore/svgalib/svgalibscreen.cpp

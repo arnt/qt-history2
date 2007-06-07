@@ -14,19 +14,19 @@
 /*!
     \page qtopiacore-accel.html
 
-    \target Graphics Driver Framework
+    \target add your graphics driver to Qtopia Core
 
     \title Adding an Accelerated Graphics Driver in Qtopia Core
     \ingroup qtopiacore
 
     In \l {Qtopia Core}, painting is a pure software implementation
-    and is normally performed in two steps: Each window is rendered
-    onto a QWSWindowSurface using QPaintEngine, and then the server
-    composes the surface images and copies them to the screen (see the
-    \l {Qtopia Core Architecture} documentation for details). \l
-    {Qtopia Core} uses QRasterPaintEngine (a raster-based
-    implementation of QPaintEngine) to implement painting operations
-    and QScreen to implement window composition.
+    normally performed in two steps. First, each window is rendered
+    onto a QWSWindowSurface using QPaintEngine. Second, the server
+    composes the surface images and copies the composition to the
+    screen (see \l {Qtopia Core Architecture} for details). \l {Qtopia
+    Core} uses QRasterPaintEngine (a raster-based implementation of
+    QPaintEngine) to implement painting operations, and uses QScreen
+    to implement window composition.
 
     Starting with \l {Qtopia Core} 4.2, it is possible to add an
     accelerated graphics driver to take advantage of available

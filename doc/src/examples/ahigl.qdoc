@@ -2,19 +2,28 @@
     \example qtopiacore/ahigl
     \title OpenGL for Embedded Systems Example
 
-    The OpenGL for Embedded Systems (ES) screen driver example shows
-    how the \l {Graphics Driver Framework} in \l {Qtopia Core} can be
-    used to create an OpenGL ES screen driver. The example assumes a
-    basic knowledge of the graphics driver framework as discussed in
-    the \l {Accelerated Screen Driver Example}.
+    This example demonstrates how you can use OpenGL for Embedded
+    Systems (ES) to create your own graphics driver and \l {add your
+    graphics driver to Qtopia Core}. In \l {Qtopia Core}, painting is
+    a pure software implementation and is normally performed in two
+    steps: The clients render each window onto a corresponding surface
+    (stored in memory) using a paint engine, and then the server uses
+    the graphics driver to compose the surface images and copy them to
+    the screen. (See the \l {Qtopia Core Architecture} documentation
+    for details.)
 
-    In \l {Qtopia Core}, OpenGL ES can be used in three ways. First,
-    it can be used to do window composition and creation of graphical
-    effects including animation. A second use to access features of
-    your device that allow you to accelerate widget painting. A third
-    use is to simply provide access to class QGLWidget, the widget
-    class for rendering OpenGL graphics. This example shows how to
-    implement all of these.
+    This example is not for the faint-hearted. It assumes the reader
+    is a competent user of both OpenGL ES and the graphics driver
+    framework demonstrated in the \l {Accelerated Graphics Driver
+    Example}.
+
+    In your OpenGL graphics driver, OpenGL ES can be used in three
+    ways. First, the server can use the graphics driver to compose
+    window images and show composed image on the screen. Second,
+    clients can use the graphics driver to accelerate painting
+    operations using the QOpenGLPaintEngine class. Finally, clients
+    can use the graphics driver to the QGLWidget class. This example
+    shows how to implement all of these.
 
     The example uses an implementation of OpenGL ES from 
     \l {http://ati.amd.com}{ATI} for the 
@@ -26,11 +35,11 @@
     in API signatures between your EGL library and the one used for
     this example.
 
-    After compiling the example source, install the resulting screen
+    After compiling the example source, install the compiled screen
     driver plugin with the command \c {make install}. To start an
-    application using the example's screen driver, either set the
-    environment variable \l QWS_DISPLAY and then start the program, or
-    start the program using the \c -display switch:
+    application using the plugin, either set the environment variable
+    \l QWS_DISPLAY and start the application, or just start the
+    application with the \c -display switch:
 
     \code
         myApplication -qws -display ahigl
