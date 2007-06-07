@@ -80,6 +80,7 @@ private slots:
     void appendShouldUseCurrentFormat();
     void appendShouldNotTouchTheSelection();
     void backspace();
+    void shiftBackspace();
     void undoRedo();
     void preserveCharFormatInAppend();
     void copyAndSelectAllInReadonly();
@@ -790,6 +791,30 @@ void tst_QTextEdit::backspace()
     QCOMPARE(ed->textCursor().blockFormat().indent(), 1);
     // outdent paragraph
     QTest::keyClick(ed, Qt::Key_Backspace);
+    QCOMPARE(ed->textCursor().blockFormat().indent(), 0);
+}
+
+void tst_QTextEdit::shiftBackspace()
+{
+    QTextCursor cursor = ed->textCursor();
+
+    QTextListFormat listFmt;
+    listFmt.setStyle(QTextListFormat::ListDisc);
+    listFmt.setIndent(1);
+    cursor.insertList(listFmt);
+    cursor.insertText("A");
+
+    ed->setTextCursor(cursor);
+
+    // delete 'A'
+    QTest::keyClick(ed, Qt::Key_Backspace, Qt::ShiftModifier);
+    QVERIFY(ed->textCursor().currentList());
+    // delete list
+    QTest::keyClick(ed, Qt::Key_Backspace, Qt::ShiftModifier);
+    QVERIFY(!ed->textCursor().currentList());
+    QCOMPARE(ed->textCursor().blockFormat().indent(), 1);
+    // outdent paragraph
+    QTest::keyClick(ed, Qt::Key_Backspace, Qt::ShiftModifier);
     QCOMPARE(ed->textCursor().blockFormat().indent(), 0);
 }
 
