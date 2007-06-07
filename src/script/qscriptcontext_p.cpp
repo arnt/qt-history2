@@ -2129,8 +2129,9 @@ QString QScriptContextPrivate::functionName() const
     if (!m_callee.isValid())
         return QString();
     QScriptFunction *fun = m_callee.toFunction();
-    Q_ASSERT(fun);
-    return fun->functionName();
+    if (fun)
+        return fun->functionName();
+    return QString();
 }
 
 void QScriptContextPrivate::setDebugInformation(QScriptValueImpl *error) const

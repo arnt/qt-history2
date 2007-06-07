@@ -753,10 +753,12 @@ QScriptContext *QScriptEngine::pushContext()
 {
     Q_D(QScriptEngine);
     QScriptContext *context = d->pushContext();
-    context->setThisObject(globalObject());
-    QScriptValue activation = newActivationObject();
-    activation.setScope(globalObject());
-    context->setActivationObject(activation);
+    QScriptContextPrivate *ctx_p = QScriptContextPrivate::get(context);
+    ctx_p->setThisObject(d->globalObject());
+    QScriptValueImpl activation;
+    d->newActivation(&activation);
+    activation.setScope(d->globalObject());
+    ctx_p->setActivationObject(activation);
     return context;
 }
 

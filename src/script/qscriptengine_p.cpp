@@ -227,7 +227,10 @@ bool ArgumentsClassData::get(const QScriptValueImpl &object, const QScript::Memb
         eng_p->newNumber(out_value, data->length);
         return true;
     } else if (member.nameId() == eng_p->idTable()->id_callee) {
-        *out_value = data->callee;
+        if (!data->callee.isValid())
+            *out_value = eng_p->undefinedValue();
+        else
+            *out_value = data->callee;
         return true;
     }
     return false;
