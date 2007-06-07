@@ -229,10 +229,14 @@ QStringList Error::backtrace(const QScriptValueImpl &error)
         QScriptValueImpl frame = o.property(QLatin1String("frame"));
         QString s;
         QString functionName = o.property(QLatin1String("functionName")).toString();
-        if (functionName.isEmpty())
-            s += QLatin1String("<global>");
-        else
+        if (functionName.isEmpty()) {
+            if (i == frameCount-1)
+                s += QLatin1String("<global>");
+            else
+                s += QLatin1String("<anonymous>");
+        } else {
             s += functionName;
+        }
         s += QLatin1String("(");
         QScriptValueImpl arguments = frame.property(QLatin1String("arguments"));
         if (arguments.isObject()) {
