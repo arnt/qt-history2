@@ -202,6 +202,12 @@ public:
         { m_qtFunctionInvoked = 19; m_actuals << qVariantFromValue(brush); return brush; }
     Q_INVOKABLE void myInvokableWithBrushStyleArg(Qt::BrushStyle style)
         { m_qtFunctionInvoked = 43; m_actuals << qVariantFromValue(style); }
+    Q_INVOKABLE void myInvokableWithVoidStarArg(void *arg)
+        { m_qtFunctionInvoked = 44; m_actuals << qVariantFromValue(arg); }
+    Q_INVOKABLE void myInvokableWithAmbigiousArg(int arg)
+        { m_qtFunctionInvoked = 45; m_actuals << qVariantFromValue(arg); }
+    Q_INVOKABLE void myInvokableWithAmbigiousArg(uint arg)
+        { m_qtFunctionInvoked = 46; m_actuals << qVariantFromValue(arg); }
 
     void emitMySignal()
         { emit mySignal(); }
@@ -773,6 +779,20 @@ void tst_QScriptExtQObject::callQtInvokable()
     QCOMPARE(m_myObject->qtFunctionActuals().at(0).toInt(), 123);
     QCOMPARE(m_myObject->qtFunctionActuals().at(1).toInt(), 456);
 
+    m_myObject->resetQtFunctionInvoked();
+    QVERIFY(m_engine->evaluate("myObject.myInvokableWithVoidStarArg(null)").isUndefined());
+    QCOMPARE(m_myObject->qtFunctionInvoked(), 44);
+    m_myObject->resetQtFunctionInvoked();
+    QVERIFY(m_engine->evaluate("myObject.myInvokableWithVoidStarArg(123)").isError());
+    QCOMPARE(m_myObject->qtFunctionInvoked(), -1);
+
+    m_myObject->resetQtFunctionInvoked();
+    {
+        QScriptValue ret = m_engine->evaluate("myObject.myInvokableWithAmbigiousArg(123)");
+        QVERIFY(ret.isError());
+        QCOMPARE(ret.toString(), QLatin1String("TypeError: ambiguous call of overloaded function myInvokableWithAmbigiousArg(); candidates were\n    myInvokableWithAmbigiousArg(int)\n    myInvokableWithAmbigiousArg(uint)"));
+    }
+
     // first time we expect failure because the metatype is not registered
     m_myObject->resetQtFunctionInvoked();
     QCOMPARE(m_engine->evaluate("myObject.myInvokableReturningVectorOfInt()").isError(), true);
@@ -931,7 +951,7 @@ void tst_QScriptExtQObject::callQtInvokable()
     {
         QScriptValue ret = m_engine->evaluate("myObject.myInvokableWithQBrushArg(null)");
         QVERIFY(ret.isError());
-        QCOMPARE(ret.toString(), QLatin1String("TypeError: incompatible type of argument(s) in call to myInvokableWithQBrushArg()"));
+        QCOMPARE(ret.toString(), QLatin1String("TypeError: incompatible type of argument(s) in call to myInvokableWithQBrushArg(); candidates were\n    myInvokableWithQBrushArg(QBrush)"));
         QCOMPARE(m_myObject->qtFunctionInvoked(), -1);
     }
 }

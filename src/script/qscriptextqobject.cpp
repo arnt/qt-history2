@@ -968,6 +968,7 @@ void QScript::QtFunction::execute(QScriptContextPrivate *context)
     int chosenIndex = -1;
     QVarLengthArray<QVariant, 9> args;
     QVector<QScriptMetaArguments> candidates;
+    QVector<QScriptMetaArguments> unresolved;
     QVector<int> tooFewArgs;
     QVector<int> conversionFailed;
     for (int index = m_initialIndex; index >= 0; --index) {
@@ -1039,7 +1040,7 @@ void QScript::QtFunction::execute(QScriptContextPrivate *context)
 
         if (!mtd.fullyResolved()) {
             // remember it so we can give an error message later, if necessary
-            candidates.append(QScriptMetaArguments(/*matchDistance=*/INT_MAX, index,
+            unresolved.append(QScriptMetaArguments(/*matchDistance=*/INT_MAX, index,
                                                    mtd, QVarLengthArray<QVariant, 9>()));
             continue;
         }
@@ -1070,7 +1071,7 @@ void QScript::QtFunction::execute(QScriptContextPrivate *context)
                     } else if (vv.canConvert(QVariant::Type(tid))) {
                         v = vv;
                         converted = v.convert(QVariant::Type(tid));
-                        if (converted)
+                        if (converted && (v.userType() != tid))
                             matchDistance += 10;
                     } else {
                         QByteArray vvTypeName = vv.typeName();
@@ -1177,7 +1178,7 @@ void QScript::QtFunction::execute(QScriptContextPrivate *context)
                         break;
                     }
                 } else if (actual.isVariant()) {
-                    if (actual.variantValue().userType()
+                    if ((actual.variantValue().userType() == tid)
                         || argType.name() == "QVariant") {
                         // perfect
                     } else {
@@ -1230,7 +1231,19 @@ void QScript::QtFunction::execute(QScriptContextPrivate *context)
                 chosenIndex = index;
                 break;
             } else {
-                candidates.append(QScriptMetaArguments(matchDistance, index, mtd, args));
+                QScriptMetaArguments metaArgs(matchDistance, index, mtd, args);
+                if (candidates.isEmpty()) {
+                    candidates.append(metaArgs);
+                } else {
+                    QScriptMetaArguments otherArgs = candidates.at(0);
+                    if ((args.count() > otherArgs.args.count())
+                        || ((args.count() == otherArgs.args.count())
+                            && (matchDistance <= otherArgs.matchDistance))) {
+                        candidates.prepend(metaArgs);
+                    } else {
+                        candidates.append(metaArgs);
+                    }
+                }
             }
         } else {
             conversionFailed.append(index);
@@ -1242,10 +1255,25 @@ void QScript::QtFunction::execute(QScriptContextPrivate *context)
 
     if ((chosenIndex == -1) && candidates.isEmpty()) {
         if (!conversionFailed.isEmpty()) {
+            QString message = QString::fromLatin1("incompatible type of argument(s) in call to %0(); candidates were\n")
+                              .arg(QLatin1String(funName));
+            for (int i = 0; i < conversionFailed.size(); ++i) {
+                if (i > 0)
+                    message += QLatin1String("\n");
+                QMetaMethod mtd = meta->method(conversionFailed.at(i));
+                message += QString::fromLatin1("    %0").arg(QString::fromLatin1(mtd.signature()));
+            }
+            result = context->throwError(QScriptContext::TypeError, message);
+        } else if (!unresolved.isEmpty()) {
+            QScriptMetaArguments argsInstance = unresolved.first();
+            int unresolvedIndex = argsInstance.method.firstUnresolvedIndex();
+            Q_ASSERT(unresolvedIndex != -1);
+            QScriptMetaType unresolvedType = argsInstance.method.type(unresolvedIndex);
             result = context->throwError(
                 QScriptContext::TypeError,
-                QString::fromUtf8("incompatible type of argument(s) in call to %0()")
-                .arg(QLatin1String(funName)));
+                QString::fromLatin1("cannot call %0(): unknown type `%1'")
+                .arg(QString::fromLatin1(funName))
+                .arg(QLatin1String(unresolvedType.name())));
         } else {
             QString message = QString::fromLatin1("too few arguments in call to %0(); candidates are\n")
                               .arg(QLatin1String(funName));
@@ -1259,20 +1287,23 @@ void QScript::QtFunction::execute(QScriptContextPrivate *context)
         }
     } else {
         if (chosenIndex == -1) {
-            // pick the best match
-            int dist = INT_MAX;
-            args.clear();
-            for (int i = 0; i < candidates.size(); ++i) {
-                QScriptMetaArguments cdt = candidates.at(i);
-                if (cdt.method.fullyResolved()
-                    && ((cdt.args.count() > args.count())
-                        || ((cdt.args.count() == args.count())
-                            && (cdt.matchDistance < dist)))) {
-                    dist = cdt.matchDistance;
-                    chosenMethod = cdt.method;
-                    chosenIndex = cdt.index;
-                    args = cdt.args;
+            QScriptMetaArguments metaArgs = candidates.at(0);
+            if ((candidates.size() > 1)
+                && (metaArgs.matchDistance == candidates.at(1).matchDistance)) {
+                // ambiguous call
+                QString message = QString::fromLatin1("ambiguous call of overloaded function %0(); candidates were\n")
+                                  .arg(QLatin1String(funName));
+                for (int i = 0; i < candidates.size(); ++i) {
+                    if (i > 0)
+                        message += QLatin1String("\n");
+                    QMetaMethod mtd = meta->method(candidates.at(i).index);
+                    message += QString::fromLatin1("    %0").arg(QString::fromLatin1(mtd.signature()));
                 }
+                result = context->throwError(QScriptContext::TypeError, message);
+            } else {
+                chosenMethod = metaArgs.method;
+                chosenIndex = metaArgs.index;
+                args = metaArgs.args;
             }
         }
 
@@ -1321,17 +1352,6 @@ void QScript::QtFunction::execute(QScriptContextPrivate *context)
                     result = eng_p->undefinedValue();
                 }
             }
-        } else {
-            // one or more types are unresolved
-            QScriptMetaArguments argsInstance = candidates.first();
-            int unresolvedIndex = argsInstance.method.firstUnresolvedIndex();
-            Q_ASSERT(unresolvedIndex != -1);
-            QScriptMetaType unresolvedType = argsInstance.method.type(unresolvedIndex);
-            result = context->throwError(
-                QScriptContext::TypeError,
-                QString::fromLatin1("cannot call %0(): unknown type `%1'")
-                .arg(QString::fromLatin1(funName))
-                .arg(QLatin1String(unresolvedType.name())));
         }
     }
 

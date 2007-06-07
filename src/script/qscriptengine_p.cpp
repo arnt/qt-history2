@@ -1276,10 +1276,11 @@ bool QScriptEnginePrivate::convert(const QScriptValueImpl &value,
 #ifndef QT_NO_QOBJECT
     if (value.isQObject() && name.endsWith('*')) {
         QByteArray className = name.left(name.size()-1);
-        QObject *qobject = value.toQObject();
-        if (void *instance = qobject->qt_metacast(className)) {
-            *reinterpret_cast<void* *>(ptr) = instance;
-            return true;
+        if (QObject *qobject = value.toQObject()) {
+            if (void *instance = qobject->qt_metacast(className)) {
+                *reinterpret_cast<void* *>(ptr) = instance;
+                return true;
+            }
         }
     }
 #endif
@@ -1292,9 +1293,17 @@ bool QScriptEnginePrivate::convert(const QScriptValueImpl &value,
         } else {
             // look in the prototype chain
             QScriptValueImpl proto = value.prototype();
-            while (proto.isObject() && proto.isVariant()) {
-                if ((type == proto.variantValue().userType())
-                    || (valueType && (valueType == proto.variantValue().userType()))) {
+            while (proto.isObject()) {
+                bool canCast = false;
+                if (proto.isVariant()) {
+                    canCast = (type == proto.variantValue().userType())
+                              || (valueType && (valueType == proto.variantValue().userType()));
+                } else if (proto.isQObject()) {
+                    QByteArray className = name.left(name.size()-1);
+                    if (QObject *qobject = proto.toQObject())
+                        canCast = qobject->qt_metacast(className) != 0;
+                }
+                if (canCast) {
                     QByteArray varTypeName = QMetaType::typeName(var.userType());
                     if (varTypeName.endsWith('*'))
                         *reinterpret_cast<void* *>(ptr) = *reinterpret_cast<void* *>(var.data());
@@ -1305,6 +1314,9 @@ bool QScriptEnginePrivate::convert(const QScriptValueImpl &value,
                 proto = proto.prototype();
             }
         }
+    } else if (value.isNull() && name.endsWith('*')) {
+        *reinterpret_cast<void* *>(ptr) = 0;
+        return true;
     } else if (type == qMetaTypeId<QScriptValue>()) {
         *reinterpret_cast<QScriptValue*>(ptr) = value;
         return true;
