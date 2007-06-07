@@ -16,7 +16,7 @@
 #include "mainwindow.h"
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent), completer(0), comboBox(0), lineEdit(0)
+    : QMainWindow(parent), completer(0), lineEdit(0)
 {
     createMenu();
 
@@ -60,9 +60,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     lineEdit = new QLineEdit;
     
-    comboBox = new QComboBox;
-    comboBox->setEditable(true);
-    
     QGridLayout *layout = new QGridLayout;
     layout->addWidget(modelLabel, 0, 0); layout->addWidget(modelCombo, 0, 1);
     layout->addWidget(modeLabel, 1, 0);  layout->addWidget(modeCombo, 1, 1);
@@ -70,7 +67,6 @@ MainWindow::MainWindow(QWidget *parent)
     layout->addWidget(wrapCheckBox, 3, 0);
     layout->addWidget(contentsLabel, 4, 0, 1, 2);
     layout->addWidget(lineEdit, 5, 0, 1, 2);
-    layout->addWidget(comboBox, 6, 0, 1, 2);
     centralWidget->setLayout(layout);
     setCentralWidget(centralWidget);
 
@@ -198,7 +194,6 @@ void MainWindow::changeModel()
     changeCase(caseCombo->currentIndex());
     completer->setWrapAround(wrapCheckBox->isChecked());
     lineEdit->setCompleter(completer);
-    comboBox->setCompleter(completer);
     connect(wrapCheckBox, SIGNAL(clicked(bool)), completer, SLOT(setWrapAround(bool)));
 }
 
