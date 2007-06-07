@@ -17,13 +17,13 @@
     framework demonstrated in the \l {Accelerated Graphics Driver
     Example}.
 
-    In your OpenGL graphics driver, OpenGL ES can be used in three
-    ways. First, the server can use the graphics driver to compose
-    window images and show composed image on the screen. Second,
-    clients can use the graphics driver to accelerate painting
-    operations using the QOpenGLPaintEngine class. Finally, clients
-    can use the graphics driver to the QGLWidget class. This example
-    shows how to implement all of these.
+    In your graphics driver, OpenGL ES can be used in three ways.
+    First, the server can use the graphics driver to compose window
+    images and copy the composed image to the screen. Second, clients
+    can use the graphics driver to accelerate painting operations
+    using the QOpenGLPaintEngine class. Finally, clients can use the
+    graphics driver to do OpenGL operations in the QGLWidget
+    class. This example implements all three cases.
 
     The example uses an implementation of OpenGL ES from 
     \l {http://ati.amd.com}{ATI} for the 
