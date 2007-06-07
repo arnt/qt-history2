@@ -125,6 +125,7 @@ enum Property {
     ListStyleType,
     ListStyle,
     QtImageAlignment,
+    TextAlignment,
     NumProperties
 };
 
@@ -450,7 +451,7 @@ struct Q_GUI_EXPORT ValueExtractor
                            QCss::Origin *);
     bool extractGeometry(int *w, int *h, int *mw, int *mh);
     bool extractPosition(int *l, int *t, int *r, int *b, QCss::Origin *, Qt::Alignment *,
-                         QCss::PositionMode *);
+                         QCss::PositionMode *, Qt::Alignment *);
     bool extractBox(int *margins, int *paddings, int *spacing = 0);
     bool extractBorder(int *borders, QBrush *colors, BorderStyle *Styles, QSize *radii);
     bool extractPalette(QBrush *fg, QBrush *sfg, QBrush *sbg, QBrush *abg);

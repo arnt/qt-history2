@@ -150,6 +150,7 @@ static const QCssKnownValue properties[NumProperties - 1] = {
     { "spacing", QtSpacing },
     { "subcontrol-origin", QtOrigin },
     { "subcontrol-position", QtPosition },
+    { "text-align", TextAlignment },
     { "text-decoration", TextDecoration },
     { "text-indent", TextIndent },
     { "text-underline-style", TextUnderlineStyle },
@@ -386,7 +387,7 @@ bool ValueExtractor::extractGeometry(int *w, int *h, int *mw, int *mh)
 }
 
 bool ValueExtractor::extractPosition(int *left, int *top, int *right, int *bottom, QCss::Origin *origin,
-                                     Qt::Alignment *position, QCss::PositionMode *mode)
+                                     Qt::Alignment *position, QCss::PositionMode *mode, Qt::Alignment *textAlignment)
 {
     extractFont();
     bool hit = false;
@@ -399,6 +400,7 @@ bool ValueExtractor::extractPosition(int *left, int *top, int *right, int *botto
         case Bottom: *bottom = lengthValue(decl); break;
         case QtOrigin: *origin = decl.originValue(); break;
         case QtPosition: *position = decl.alignmentValue(); break;
+        case TextAlignment: *textAlignment = decl.alignmentValue(); break;
         case Position: *mode = decl.positionValue(); break;
         default: continue;
         }

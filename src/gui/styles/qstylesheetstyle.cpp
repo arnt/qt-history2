@@ -177,13 +177,14 @@ struct QStyleSheetGeometryData : public QSharedData
 
 struct QStyleSheetPositionData : public QSharedData
 {
-    QStyleSheetPositionData(int l, int t, int r, int b, Origin o, Qt::Alignment p, QCss::PositionMode m)
-        : left(l), top(t), bottom(b), right(r), origin(o), position(p), mode(m) { }
+    QStyleSheetPositionData(int l, int t, int r, int b, Origin o, Qt::Alignment p, QCss::PositionMode m, Qt::Alignment a = 0)
+        : left(l), top(t), bottom(b), right(r), origin(o), position(p), mode(m), textAlignment(a) { }
 
     int left, top, bottom, right;
     Origin origin;
     Qt::Alignment position;
     QCss::PositionMode mode;
+    Qt::Alignment textAlignment;
 };
 
 struct QStyleSheetImageData : public QSharedData
@@ -354,8 +355,9 @@ QRenderRule::QRenderRule(const QVector<Declaration> &declarations, const QWidget
     Origin origin = Origin_Unknown;
     Qt::Alignment position = 0;
     QCss::PositionMode mode = PositionMode_Unknown;
-    if (v.extractPosition(&left, &top, &right, &bottom, &origin, &position, &mode))
-        p = new QStyleSheetPositionData(left, top, right, bottom, origin, position, mode);
+    Qt::Alignment textAlignment = 0;
+    if (v.extractPosition(&left, &top, &right, &bottom, &origin, &position, &mode, &textAlignment))
+        p = new QStyleSheetPositionData(left, top, right, bottom, origin, position, mode, textAlignment);
 
     int margins[4], paddings[4], spacing = -1;
     for (int i = 0; i < 4; i++)
@@ -2588,10 +2590,79 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
         return;
 
     case CE_PushButtonLabel:
-        if (const QStyleOptionButton *btn = qstyleoption_cast<const QStyleOptionButton *>(opt)) {
-            QStyleOptionButton butOpt(*btn);
+        if (const QStyleOptionButton *button = qstyleoption_cast<const QStyleOptionButton *>(opt)) {
+            QStyleOptionButton butOpt(*button);
             rule.configurePalette(&butOpt.palette, QPalette::ButtonText, QPalette::Button);
-            ParentStyle::drawControl(ce, &butOpt, p, w);
+            if (rule.hasPosition() && rule.position()->textAlignment != 0) {
+                Qt::Alignment textAlignment = rule.position()->textAlignment;
+                QRect textRect = button->rect;
+                uint tf = Qt::AlignVCenter | Qt::TextShowMnemonic;
+                if (!styleHint(SH_UnderlineShortcut, button, w))
+                    tf |= Qt::TextHideMnemonic;
+                if (!button->icon.isNull()) {
+                    //Group both icon and text
+                    QRect iconRect;
+                    QIcon::Mode mode = button->state & State_Enabled ? QIcon::Normal : QIcon::Disabled;
+                    if (mode == QIcon::Normal && button->state & State_HasFocus)
+                        mode = QIcon::Active;
+                    QIcon::State state = QIcon::Off;
+                    if (button->state & State_On)
+                        state = QIcon::On;
+
+                    QPixmap pixmap = button->icon.pixmap(button->iconSize, mode, state);
+                    int labelWidth = pixmap.width();
+                    int labelHeight = pixmap.height();
+                    int iconSpacing = 4;//### 4 is currently hardcoded in QPushButton::sizeHint()
+                    int textWidth = button->fontMetrics.boundingRect(opt->rect, tf, button->text).width();
+                    if (!button->text.isEmpty())
+                        labelWidth += (textWidth + iconSpacing);
+
+                    //Determine label alignment:
+                    if (textAlignment & Qt::AlignLeft) { /*left*/
+                        iconRect = QRect(textRect.x(), textRect.y() + (textRect.height() - labelHeight) / 2,
+                                         pixmap.width(), pixmap.height());
+                    } else if (textAlignment & Qt::AlignHCenter) { /* center */
+                        iconRect = QRect(textRect.x() + (textRect.width() - labelWidth) / 2,
+                                         textRect.y() + (textRect.height() - labelHeight) / 2,
+                                         pixmap.width(), pixmap.height());
+                    } else { /*right*/
+                        iconRect = QRect(textRect.x() + textRect.width() - labelWidth,
+                                         textRect.y() + (textRect.height() - labelHeight) / 2,
+                                         pixmap.width(), pixmap.height());
+                    }
+
+                    iconRect = visualRect(button->direction, textRect, iconRect);
+
+                    tf |= Qt::AlignLeft; //left align, we adjust the text-rect instead
+
+                    if (button->direction == Qt::RightToLeft)
+                        textRect.setRight(iconRect.left() - iconSpacing);
+                    else
+                        textRect.setLeft(iconRect.left() + iconRect.width() + iconSpacing);
+
+                    if (button->state & (State_On | State_Sunken))
+                        iconRect.translate(pixelMetric(PM_ButtonShiftHorizontal, opt, w),
+                                           pixelMetric(PM_ButtonShiftVertical, opt, w));
+                    p->drawPixmap(iconRect, pixmap);
+                } else {
+                    tf |= textAlignment;
+                }
+                if (button->state & (State_On | State_Sunken))
+                    textRect.translate(pixelMetric(PM_ButtonShiftHorizontal, opt, w),
+                                 pixelMetric(PM_ButtonShiftVertical, opt, w));
+
+                if (button->features & QStyleOptionButton::HasMenu) {
+                    int indicatorSize = pixelMetric(PM_MenuButtonIndicator, button, w);
+                    if (button->direction == Qt::LeftToRight)
+                        textRect = textRect.adjusted(0, 0, -indicatorSize, 0);
+                    else
+                        textRect = textRect.adjusted(indicatorSize, 0, 0, 0);
+                }
+                drawItemText(p, textRect, tf, button->palette, (button->state & State_Enabled),
+                             button->text, QPalette::ButtonText);
+            } else {
+                ParentStyle::drawControl(ce, &butOpt, p, w);
+            }
         }
         return;
 
