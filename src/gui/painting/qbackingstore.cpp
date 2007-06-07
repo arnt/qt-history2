@@ -661,7 +661,7 @@ void QWidgetBackingStore::copyToScreen(const QRegion &rgn, QWidget *widget, cons
 
 #ifdef Q_FLATTEN_EXPOSE
     Q_ASSERT(!recursive);
-    Q_ASSERT(widget->isWindow());
+    // Q_ASSERT(widget->isWindow());
 #endif
 
     if(recursive) {
@@ -954,7 +954,7 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool 
     }
 
 #ifdef Q_FLATTEN_EXPOSE
-    Q_ASSERT(widget->isWindow());
+    // Q_ASSERT(widget->isWindow());
     recursiveCopyToScreen = false;
 #endif
     if (recursiveCopyToScreen) {
