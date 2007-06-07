@@ -281,7 +281,9 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
         // if (!testAttribute(Qt::WA_PaintUnclipped))
         // ### Commented out for now as it causes some problems, but
         // this should be correct anyway, so dig some more into this
+#ifndef Q_FLATTEN_EXPOSE
         style |= WS_CLIPSIBLINGS | WS_CLIPCHILDREN ;
+#endif
         if (topLevel) {
             if ((type == Qt::Window || dialog || tool)) {
                 if (!(flags & Qt::FramelessWindowHint)) {
@@ -962,7 +964,11 @@ void QWidget::setWindowState(Qt::WindowStates newstate)
                 if (d->topData()->normalGeometry.width() < 0 && !(oldstate & Qt::WindowMaximized))
                     d->topData()->normalGeometry = geometry();
                 d->topData()->savedFlags = GetWindowLongA(internalWinId(), GWL_STYLE);
+#ifndef Q_FLATTEN_EXPOSE
                 UINT style = WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_POPUP;
+#else
+                UINT style = WS_POPUP;
+#endif
                 if (isVisible())
                     style |= WS_VISIBLE;
                 SetWindowLongA(internalWinId(), GWL_STYLE, style);

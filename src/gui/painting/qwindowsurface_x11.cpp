@@ -48,6 +48,8 @@ void QX11WindowSurface::flush(QWidget *widget, const QRegion &rgn, const QPoint 
 {
     if (d_ptr->device.isNull())
         return;
+
+#ifndef Q_FLATTEN_EXPOSE
     extern void *qt_getClipRects(const QRegion &r, int &num); // in qpaintengine_x11.cpp
     extern QWidgetData* qt_widget_data(QWidget *);
     QPoint wOffset = qt_qwidget_data(widget)->wrect.topLeft();
@@ -71,10 +73,22 @@ void QX11WindowSurface::flush(QWidget *widget, const QRegion &rgn, const QPoint 
 //         for  (int i = 0; i < num; ++i)
 //             qDebug() << " " << i << rects[i].x << rects[i].x << rects[i].y << rects[i].width << rects[i].height;
     XSetClipRectangles(X11->display, gc, 0, 0, rects, num, YXBanded);
+#else
+    Q_UNUSED(rgn);
+    XGCValues values;
+    values.subwindow_mode = IncludeInferiors;
+    GC gc = XCreateGC(X11->display, d_ptr->device.handle(), GCSubwindowMode, &values);
+#endif
     XSetGraphicsExposures(X11->display, gc, False);
 //         XFillRectangle(X11->display, widget->handle(), gc, 0, 0, widget->width(), widget->height());
+#ifndef Q_FLATTEN_EXPOSE
     XCopyArea(X11->display, d_ptr->device.handle(), widget->handle(), gc,
               br.x() + offset.x(), br.y() + offset.y(), br.width(), br.height(), wbr.x(), wbr.y());
+#else
+    Q_ASSERT(widget->isWindow());
+    XCopyArea(X11->display, d_ptr->device.handle(), widget->handle(), gc,
+              offset.x(), offset.y(), widget->width(), widget->height(), 0, 0);
+#endif
     XFreeGC(X11->display, gc);
 }
 

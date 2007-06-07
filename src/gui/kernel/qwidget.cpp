@@ -84,6 +84,9 @@ QWidgetPrivate::QWidgetPrivate(int version) :
         ,fg_role(QPalette::NoRole)
         ,bg_role(QPalette::NoRole)
         ,hd(0)
+#ifdef Q_RATE_LIMIT_PAINTING
+        ,timerId(-1)
+#endif
 #if defined(Q_WS_X11)
         ,picture(0)
 #endif
@@ -6004,6 +6007,21 @@ bool QWidget::event(QEvent *event)
         }
     }
     switch (event->type()) {
+#ifdef Q_RATE_LIMIT_PAINTING
+    case QEvent::Timer: {
+        QTimerEvent *timerEvent = static_cast<QTimerEvent *>(event);
+        if (timerEvent->timerId() == d->timerId) {
+            killTimer(d->timerId);
+            QWidgetBackingStore *bs = d->maybeBackingStore();
+            if (bs)
+                bs->updateDirtyTlwRegion();
+            d->timerId = -1;
+        } else {
+            this->timerEvent(timerEvent);
+        }
+        break;
+    }
+#endif
     case QEvent::MouseMove:
         mouseMoveEvent((QMouseEvent*)event);
         break;
@@ -7388,7 +7406,9 @@ QWidget *QWidget::childAt(const QPoint &p) const
 
 void QWidget::updateGeometry()
 {
-    if (!isWindow() && !isHidden() && parentWidget()) {
+    Q_D(QWidget);
+    if (!isWindow() && !isHidden() && parentWidget()
+        && (!d->extra || d->extra->minw != d->extra->maxw || d->extra->minh != d->extra->maxh)) {
         if (parentWidget()->d_func()->layout)
             parentWidget()->d_func()->layout->invalidate();
         else if (parentWidget()->isVisible())

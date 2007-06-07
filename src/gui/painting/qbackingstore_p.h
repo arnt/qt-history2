@@ -37,6 +37,9 @@ public:
     ~QWidgetBackingStore();
     bool bltRect(const QRect &rect, int dx, int dy, QWidget *widget);
     void dirtyRegion(const QRegion &rgn, QWidget *widget=0);
+#ifdef Q_RATE_LIMIT_PAINTING
+    void updateDirtyTlwRegion();
+#endif
     void cleanRegion(const QRegion &rgn, QWidget *widget=0, bool recursiveCopyToScreen = true);
 #if defined (Q_WS_QWS) || defined (Q_WS_WIN)
     void releaseBuffer();

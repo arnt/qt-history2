@@ -595,7 +595,12 @@ void QWidgetBackingStore::dirtyRegion(const QRegion &rgn, QWidget *widget)
         wrgn &= widget->mask();
 
 #ifndef Q_WS_QWS
+#ifdef Q_RATE_LIMIT_PAINTING
+    if (widget->d_func()->timerId == -1)
+        widget->d_func()->timerId = widget->startTimer(30);
+#else
     widget->d_func()->dirtyWidget_sys(wrgn);
+#endif // Q_RATE_LIMIT_PAINTING
 #endif
     wrgn.translate(widget->mapTo(tlw, QPoint(0, 0)));
 #ifndef Q_WS_QWS
@@ -605,6 +610,15 @@ void QWidgetBackingStore::dirtyRegion(const QRegion &rgn, QWidget *widget)
     tlw->d_func()->dirtyWidget_sys(wrgn); //optimization: don't translate twice
 #endif
 }
+
+#ifdef Q_RATE_LIMIT_PAINTING
+void QWidgetBackingStore::updateDirtyTlwRegion()
+{
+    Q_ASSERT(tlw);
+    if (!dirty.isEmpty() && tlw->isVisible() && tlw->updatesEnabled())
+        tlw->d_func()->dirtyWidget_sys(dirty);
+}
+#endif
 
 
 void QWidgetBackingStore::copyToScreen(QWidget *widget, const QRegion &rgn)
@@ -644,6 +658,11 @@ void QWidgetBackingStore::copyToScreen(const QRegion &rgn, QWidget *widget, cons
         QPoint wOffset = widget->data->wrect.topLeft();
         windowSurface->flush(widget, rgn, offset);
     }
+
+#ifdef Q_FLATTEN_EXPOSE
+    Q_ASSERT(!recursive);
+    Q_ASSERT(widget->isWindow());
+#endif
 
     if(recursive) {
         const QObjectList children = widget->children();
@@ -934,6 +953,10 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool 
         }
     }
 
+#ifdef Q_FLATTEN_EXPOSE
+    Q_ASSERT(widget->isWindow());
+    recursiveCopyToScreen = false;
+#endif
     if (recursiveCopyToScreen) {
         toFlush.translate(widget->mapTo(tlw, QPoint()));
         copyToScreen(toFlush, tlw, tlwOffset, recursiveCopyToScreen);
@@ -1055,8 +1078,10 @@ void QWidgetPrivate::drawWidget(QPaintDevice *pdev, const QRegion &rgn, const QP
     QRegion toBePainted = rgn;
     if (asRoot && !alsoInvisible)
         toBePainted &= clipRect(); //(rgn & visibleRegion());
+#ifndef Q_FLATTEN_EXPOSE
     if (!(flags & DontSubtractOpaqueChildren))
         subtractOpaqueChildren(toBePainted, q->rect(), QPoint());
+#endif
 
     if (!toBePainted.isEmpty()) {
         bool onScreen = QWidgetBackingStore::paintOnScreen(q);
@@ -1270,8 +1295,10 @@ void QWidgetBackingStore::updateWidget(QWidget *that, const QRegion &rgn)
         return;
 
     QRegion wrgn = rgn & d->clipRect();
+#ifndef Q_FLATTEN_EXPOSE
     d->subtractOpaqueSiblings(wrgn, QPoint());
     d->subtractOpaqueChildren(wrgn, that->rect(), QPoint());
+#endif
 
     if (wrgn.isEmpty())
         return;

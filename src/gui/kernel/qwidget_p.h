@@ -424,6 +424,9 @@ public:
     QPalette::ColorRole bg_role : 8;
     uint high_attributes[3]; // the low ones are in QWidget::widget_attributes
     Qt::HANDLE hd;
+#ifdef Q_RATE_LIMIT_PAINTING
+    int timerId;
+#endif
 #if defined(Q_WIDGET_USE_DIRTYLIST)
     QRegion dirty;
 #endif
