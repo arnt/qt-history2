@@ -47,7 +47,6 @@ private:
     QCheckBox *wrapCheckBox;
     QCompleter *completer;
     QLabel *contentsLabel;
-    QComboBox *comboBox;
     QLineEdit *lineEdit;
 };
 
