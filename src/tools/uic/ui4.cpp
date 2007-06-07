@@ -33,6 +33,7 @@ void DomUI::clear(bool clear_all)
     delete m_resources;
     delete m_connections;
     delete m_designerdata;
+    delete m_slots;
 
     if (clear_all) {
     m_text = QString();
@@ -53,6 +54,7 @@ void DomUI::clear(bool clear_all)
     m_resources = 0;
     m_connections = 0;
     m_designerdata = 0;
+    m_slots = 0;
 }
 
 DomUI::DomUI()
@@ -72,6 +74,7 @@ DomUI::DomUI()
     m_resources = 0;
     m_connections = 0;
     m_designerdata = 0;
+    m_slots = 0;
 }
 
 DomUI::~DomUI()
@@ -86,6 +89,7 @@ DomUI::~DomUI()
     delete m_resources;
     delete m_connections;
     delete m_designerdata;
+    delete m_slots;
 }
 
 void DomUI::read(const QDomElement &node)
@@ -182,6 +186,12 @@ void DomUI::read(const QDomElement &node)
             setElementDesignerdata(v);
             continue;
         }
+        if (tag == QLatin1String("slots")) {
+            DomSlots *v = new DomSlots();
+            v->read(e);
+            setElementSlots(v);
+            continue;
+        }
     }
 
     m_text.clear();
@@ -274,6 +284,10 @@ QDomElement DomUI::write(QDomDocument &doc, const QString &tagName) const
 
     if (m_children & Designerdata) {
         e.appendChild(m_designerdata->write(doc, QLatin1String("designerdata")));
+    }
+
+    if (m_children & Slots) {
+        e.appendChild(m_slots->write(doc, QLatin1String("slots")));
     }
 
     if (!m_text.isEmpty())
@@ -382,6 +396,13 @@ void DomUI::setElementDesignerdata(DomDesignerData* a)
     m_designerdata = a;
 }
 
+void DomUI::setElementSlots(DomSlots* a)
+{
+    delete m_slots;
+    m_children |= Slots;
+    m_slots = a;
+}
+
 void DomUI::clearElementAuthor()
 {
     m_children &= ~Author;
@@ -475,6 +496,13 @@ void DomUI::clearElementDesignerdata()
     delete m_designerdata;
     m_designerdata = 0;
     m_children &= ~Designerdata;
+}
+
+void DomUI::clearElementSlots()
+{
+    delete m_slots;
+    m_slots = 0;
+    m_children &= ~Slots;
 }
 
 void DomIncludes::clear(bool clear_all)
@@ -1365,6 +1393,7 @@ void DomCustomWidget::clear(bool clear_all)
     delete m_sizePolicy;
     delete m_script;
     delete m_properties;
+    delete m_slots;
 
     if (clear_all) {
     m_text = QString();
@@ -1377,6 +1406,7 @@ void DomCustomWidget::clear(bool clear_all)
     m_sizePolicy = 0;
     m_script = 0;
     m_properties = 0;
+    m_slots = 0;
 }
 
 DomCustomWidget::DomCustomWidget()
@@ -1388,6 +1418,7 @@ DomCustomWidget::DomCustomWidget()
     m_sizePolicy = 0;
     m_script = 0;
     m_properties = 0;
+    m_slots = 0;
 }
 
 DomCustomWidget::~DomCustomWidget()
@@ -1397,6 +1428,7 @@ DomCustomWidget::~DomCustomWidget()
     delete m_sizePolicy;
     delete m_script;
     delete m_properties;
+    delete m_slots;
 }
 
 void DomCustomWidget::read(const QDomElement &node)
@@ -1451,6 +1483,12 @@ void DomCustomWidget::read(const QDomElement &node)
             DomProperties *v = new DomProperties();
             v->read(e);
             setElementProperties(v);
+            continue;
+        }
+        if (tag == QLatin1String("slots")) {
+            DomSlots *v = new DomSlots();
+            v->read(e);
+            setElementSlots(v);
             continue;
         }
     }
@@ -1510,6 +1548,10 @@ QDomElement DomCustomWidget::write(QDomDocument &doc, const QString &tagName) co
 
     if (m_children & Properties) {
         e.appendChild(m_properties->write(doc, QLatin1String("properties")));
+    }
+
+    if (m_children & Slots) {
+        e.appendChild(m_slots->write(doc, QLatin1String("slots")));
     }
 
     if (!m_text.isEmpty())
@@ -1577,6 +1619,13 @@ void DomCustomWidget::setElementProperties(DomProperties* a)
     m_properties = a;
 }
 
+void DomCustomWidget::setElementSlots(DomSlots* a)
+{
+    delete m_slots;
+    m_children |= Slots;
+    m_slots = a;
+}
+
 void DomCustomWidget::clearElementClass()
 {
     m_children &= ~Class;
@@ -1630,6 +1679,13 @@ void DomCustomWidget::clearElementProperties()
     delete m_properties;
     m_properties = 0;
     m_children &= ~Properties;
+}
+
+void DomCustomWidget::clearElementSlots()
+{
+    delete m_slots;
+    m_slots = 0;
+    m_children &= ~Slots;
 }
 
 void DomProperties::clear(bool clear_all)
@@ -7096,6 +7152,86 @@ QDomElement DomDesignerData::write(QDomDocument &doc, const QString &tagName) co
 void DomDesignerData::setElementProperty(const QList<DomProperty*>& a)
 {
     m_property = a;
+}
+
+void DomSlots::clear(bool clear_all)
+{
+    m_slot.clear();
+    m_signal.clear();
+
+    if (clear_all) {
+    m_text = QString();
+    }
+
+}
+
+DomSlots::DomSlots()
+{
+}
+
+DomSlots::~DomSlots()
+{
+    m_slot.clear();
+    m_signal.clear();
+}
+
+void DomSlots::read(const QDomElement &node)
+{
+
+    for (QDomNode n = node.firstChild(); !n.isNull(); n = n.nextSibling()) {
+        if (!n.isElement())
+            continue;
+        QDomElement e = n.toElement();
+        QString tag = e.tagName().toLower();
+        if (tag == QLatin1String("slot")) {
+            m_slot.append(e.text());
+            continue;
+        }
+        if (tag == QLatin1String("signal")) {
+            m_signal.append(e.text());
+            continue;
+        }
+    }
+
+    m_text.clear();
+    for (QDomNode child = node.firstChild(); !child.isNull(); child = child.nextSibling()) {
+        if (child.isText())
+            m_text.append(child.nodeValue());
+    }
+}
+
+QDomElement DomSlots::write(QDomDocument &doc, const QString &tagName) const
+{
+    QDomElement e = doc.createElement(tagName.isEmpty() ? QString::fromUtf8("slots") : tagName.toLower());
+
+    QDomElement child;
+
+    for (int i = 0; i < m_slot.size(); ++i) {
+        QString v = m_slot[i];
+        QDomNode child = doc.createElement(QLatin1String("slot"));
+        child.appendChild(doc.createTextNode(v));
+        e.appendChild(child);
+    }
+    for (int i = 0; i < m_signal.size(); ++i) {
+        QString v = m_signal[i];
+        QDomNode child = doc.createElement(QLatin1String("signal"));
+        child.appendChild(doc.createTextNode(v));
+        e.appendChild(child);
+    }
+    if (!m_text.isEmpty())
+        e.appendChild(doc.createTextNode(m_text));
+
+    return e;
+}
+
+void DomSlots::setElementSlot(const QStringList& a)
+{
+    m_slot = a;
+}
+
+void DomSlots::setElementSignal(const QStringList& a)
+{
+    m_signal = a;
 }
 
 

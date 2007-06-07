@@ -23,6 +23,8 @@
 #include "metadatabase_p.h"
 #include "scriptdialog_p.h"
 #include "scriptcommand_p.h"
+#include "signalslotdialog_p.h"
+#include "qdesigner_membersheet_p.h"
 
 #include <shared_enums_p.h>
 
@@ -119,6 +121,7 @@ QDesignerTaskMenu::QDesignerTaskMenu(QWidget *widget, QObject *parent) :
     m_separator2(createSeparator()),
     m_separator3(createSeparator()),
     m_separator4(createSeparator()),
+    m_separator5(createSeparator()),
     m_changeObjectNameAction(new QAction(tr("Change objectName..."), this)),
     m_changeToolTip(new QAction(tr("Change toolTip..."), this)),
     m_changeWhatsThis(new QAction(tr("Change whatsThis..."), this)),
@@ -128,6 +131,7 @@ QDesignerTaskMenu::QDesignerTaskMenu(QWidget *widget, QObject *parent) :
     m_addStatusBar(new QAction(tr("Create Status Bar"), this)),
     m_removeStatusBar(new QAction(tr("Remove Status Bar"), this)),
     m_changeScript(new QAction(tr("Change script..."), this)),
+    m_containerFakeMethods(new QAction(tr("Change signals/slots..."), this)),
     m_promotionTaskMenu(new PromotionTaskMenu(widget, PromotionTaskMenu::ModeMultiSelection, this))
 {
     Q_ASSERT(qobject_cast<QDesignerFormWindowInterface*>(widget) == 0);
@@ -141,6 +145,7 @@ QDesignerTaskMenu::QDesignerTaskMenu(QWidget *widget, QObject *parent) :
     connect(m_addStatusBar, SIGNAL(triggered()), this, SLOT(createStatusBar()));
     connect(m_removeStatusBar, SIGNAL(triggered()), this, SLOT(removeStatusBar()));
     connect(m_changeScript, SIGNAL(triggered()), this, SLOT(changeScript()));
+    connect(m_containerFakeMethods, SIGNAL(triggered()), this, SLOT(containerFakeMethods()));
 }
 
 QDesignerTaskMenu::~QDesignerTaskMenu()
@@ -263,6 +268,10 @@ QList<QAction*> QDesignerTaskMenu::taskActions() const
         actions.append(m_changeScript);
     }
 #endif
+    if (isMainContainer && !qt_extension<QDesignerLanguageExtension*>(formWindow->core()->extensionManager(), formWindow->core())) {
+        actions.append(m_separator5);
+        actions.append(m_containerFakeMethods);
+    }
     return actions;
 }
 
@@ -362,11 +371,11 @@ void QDesignerTaskMenu::changeScript()
 
     const QString oldScript = item->script();
     QString newScript = oldScript;
-   
+
     ScriptDialog scriptDialog(fw);
     if (!scriptDialog.editScript(newScript))
         return;
-    
+
     // compile list of selected objects
     ScriptCommand::ObjectList objects;
     objects += (QWidget *)m_widget;
@@ -383,7 +392,16 @@ void QDesignerTaskMenu::changeScript()
         delete scriptCommand;
         return;
     }
-    
-    fw->commandHistory()->push(scriptCommand); 
+
+    fw->commandHistory()->push(scriptCommand);
 }
+
+void QDesignerTaskMenu::containerFakeMethods()
+{
+    QDesignerFormWindowInterface *fw = formWindow();
+    if (!fw)
+        return;
+    SignalSlotDialog::editMetaDataBase(fw, m_widget, fw);
+}
+
 } // namespace qdesigner_internal

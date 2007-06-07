@@ -21,6 +21,8 @@
 #include "qdesigner_dockwidget_p.h"
 #include "qdesigner_menu_p.h"
 #include "qdesigner_menubar_p.h"
+#include "qdesigner_membersheet_p.h"
+
 #include <ui4_p.h>
 #include <formbuilderextra_p.h>
 
@@ -228,6 +230,18 @@ void QDesignerResource::saveDom(DomUI *ui, QWidget *widget)
 
     if (QDesignerExtraInfoExtension *extra = qt_extension<QDesignerExtraInfoExtension*>(core()->extensionManager(), core()))
         extra->saveUiExtraInfo(ui);
+
+    if (MetaDataBase *metaDataBase = qobject_cast<MetaDataBase *>(core()->metaDataBase())) {
+        const MetaDataBaseItem *item = metaDataBase->metaDataBaseItem(m_formWindow->mainContainer());
+        const QStringList fakeSlots = item->fakeSlots();
+        const QStringList fakeSignals  =item->fakeSignals();
+        if (!fakeSlots.empty() || !fakeSignals.empty()) {
+            DomSlots *domSlots = new DomSlots();
+            domSlots->setElementSlot(fakeSlots);
+            domSlots->setElementSignal(fakeSignals);
+            ui->setElementSlots(domSlots);
+        }
+    }
 }
 
 namespace {
@@ -292,6 +306,27 @@ static LoadPreCheck loadPrecheck(QDesignerFormEditorInterface *core, DomUI *ui, 
         }
     }
     return LoadPreCheckOk;
+}
+
+
+static bool addFakeMethods(const DomSlots *domSlots, QStringList &fakeSlots, QStringList &fakeSignals)
+{
+    if (!domSlots)
+        return false;
+
+    bool rc = false;
+    foreach (const QString &fakeSlot, domSlots->elementSlot())
+        if (fakeSlots.indexOf(fakeSlot) == -1) {
+            fakeSlots += fakeSlot;
+            rc = true;
+        }
+
+    foreach (const QString &fakeSignal, domSlots->elementSignal())
+        if (fakeSignals.indexOf(fakeSignal) == -1) {
+            fakeSignals += fakeSignal;
+            rc = true;
+        }
+    return rc;
 }
 
 QWidget *QDesignerResource::create(DomUI *ui, QWidget *parentWidget)
@@ -402,6 +437,18 @@ QWidget *QDesignerResource::create(DomUI *ui, QWidget *parentWidget)
     }
 
     factory->currentFormWindow(previousFormWindow);
+
+    if (const DomSlots *domSlots = ui->elementSlots()) {
+        if (MetaDataBase *metaDataBase = qobject_cast<MetaDataBase *>(core()->metaDataBase())) {
+            QStringList fakeSlots;
+            QStringList fakeSignals;
+            if (addFakeMethods(domSlots, fakeSlots, fakeSignals)) {
+                MetaDataBaseItem *item = metaDataBase->metaDataBaseItem(mainWidget);
+                item->setFakeSlots(fakeSlots);
+                item->setFakeSignals(fakeSignals);
+            }
+        }
+    }
 
     return mainWidget;
 }
@@ -850,6 +897,21 @@ DomLayoutItem *QDesignerResource::createDom(QLayoutItem *item, DomLayout *ui_lay
     return ui_item;
 }
 
+static void addFakeMethodsToWidgetDataBase(const DomCustomWidget *domCustomWidget, WidgetDataBaseItem *item)
+{
+    const DomSlots *domSlots = domCustomWidget->elementSlots();
+    if (!domSlots)
+        return;
+
+    // Merge in new slots, signals
+    QStringList fakeSlots = item->fakeSlots();
+    QStringList fakeSignals = item->fakeSignals();
+    if (addFakeMethods(domSlots, fakeSlots, fakeSignals)) {
+        item->setFakeSlots(fakeSlots);
+        item->setFakeSignals(fakeSignals);
+    }
+}
+
 void QDesignerResource::addCustomWidgetsToWidgetDatabase(DomCustomWidgetList& custom_widget_list)
 {
     // Perform one iteration of adding the custom widgets to the database,
@@ -878,6 +940,7 @@ void QDesignerResource::addCustomWidgetsToWidgetDatabase(DomCustomWidgetList& cu
             item->setIncludeFile(buildIncludeFile(includeFile, includeType));
             item->setContainer(domIsContainer);
             item->setCustom(true);
+            addFakeMethodsToWidgetDataBase(custom_widget, item);
             db->append(item);
             custom_widget_list.removeAt(i);
             classInserted = true;
@@ -897,6 +960,8 @@ void QDesignerResource::addCustomWidgetsToWidgetDatabase(DomCustomWidgetList& cu
                 // QWidget-derived stacked pages.
                 if (domIsContainer)
                     item->setContainer(domIsContainer);
+
+                addFakeMethodsToWidgetDataBase(custom_widget, static_cast<WidgetDataBaseItem*>(item));
                 custom_widget_list.removeAt(i);
                 classInserted = true;
             }
@@ -927,7 +992,7 @@ void QDesignerResource::createCustomWidgets(DomCustomWidgets *dom_custom_widgets
         DomCustomWidget *custom_widget = custom_widget_list[i];
         const QString customClassName = custom_widget->elementClass();
         const QString base_class = custom_widget->elementExtends();
-        qDebug() << "** WARNING The base class " << base_class << " of the custom widget class " << customClassName 
+        qDebug() << "** WARNING The base class " << base_class << " of the custom widget class " << customClassName
             << " could not be found. Defaulting to " << fallBackBaseClass << '.';
         custom_widget->setElementExtends(fallBackBaseClass);
     }
@@ -1056,7 +1121,7 @@ DomWidget *QDesignerResource::saveWidget(QDesignerDockWidget *dockWidget, DomWid
 void QDesignerResource::fixIconPath(IconPaths &ip) const
 {
     // Real qrc, nothing to do
-    if (!ip.second.isEmpty()) 
+    if (!ip.second.isEmpty())
         return;
     
     QDesignerFormEditorInterface *core = m_formWindow->core();    
@@ -1368,6 +1433,7 @@ DomCustomWidgets *QDesignerResource::saveCustomWidgets()
     // to ensure that base classes come first (nice optics)
     QDesignerFormEditorInterface *core = m_formWindow->core();
     QDesignerWidgetDataBaseInterface *db = core->widgetDataBase();
+    const bool isInternalWidgetDataBase = qobject_cast<const WidgetDataBase *>(db);
     typedef QMap<int,DomCustomWidget*>  OrderedDBIndexDomCustomWidgetMap;
     OrderedDBIndexDomCustomWidgetMap orderedMap;
 
@@ -1390,6 +1456,19 @@ DomCustomWidgets *QDesignerResource::saveCustomWidgets()
             custom_widget->setElementHeader(header);
             custom_widget->setElementExtends(item->extends());
         }
+
+        if (isInternalWidgetDataBase) {
+            WidgetDataBaseItem *internalItem = static_cast<WidgetDataBaseItem *>(item);
+            const QStringList fakeSlots = internalItem->fakeSlots();
+            const QStringList fakeSignals = internalItem->fakeSignals();
+            if (!fakeSlots.empty() || !fakeSignals.empty()) {
+                DomSlots *domSlots = new DomSlots();
+                domSlots->setElementSlot(fakeSlots);
+                domSlots->setElementSignal(fakeSignals);
+                custom_widget->setElementSlots(domSlots);
+            }
+        }
+
         // Look up static per-class scripts of designer
         if (DomScript *domScript = createScript( customWidgetScript(core, name), ScriptCustomWidgetPlugin))
             custom_widget->setElementScript(domScript);

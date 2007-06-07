@@ -7,7 +7,8 @@ FORMS += $$PWD/findicondialog.ui \
     $$PWD/orderdialog.ui \
     $$PWD/newactiondialog.ui \
     $$PWD/resourceeditor.ui \
-    $$PWD/gridpanel.ui
+    $$PWD/gridpanel.ui \
+    $$PWD/signalslotdialog.ui 
 
 HEADERS += \
     $$PWD/shared_global_p.h \
@@ -73,7 +74,9 @@ HEADERS += \
     $$PWD/formwindowbase_p.h \
     $$PWD/qdesigner_utils_p.h \
     $$PWD/resourcemimedata_p.h \
-    $$PWD/qdesigner_widgetbox_p.h 
+    $$PWD/qdesigner_widgetbox_p.h \
+    $$PWD/qdesigner_widgetbox_p.h \
+    $$PWD/signalslotdialog_p.h
 
 SOURCES += \
     $$PWD/spacer_widget.cpp \
@@ -136,4 +139,5 @@ SOURCES += \
     $$PWD/qdesigner_utils.cpp \
     $$PWD/resourcemimedata.cpp \
     $$PWD/qdesigner_widgetbox.cpp \
-    $$PWD/iconloader.cpp
+    $$PWD/iconloader.cpp \
+    $$PWD/signalslotdialog.cpp

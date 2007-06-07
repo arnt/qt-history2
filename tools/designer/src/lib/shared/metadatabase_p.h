@@ -30,6 +30,7 @@
 #include <QtDesigner/QDesignerMetaDataBaseInterface>
 
 #include <QtCore/QHash>
+#include <QtCore/QStringList>
 #include <QtGui/QCursor>
 
 namespace qdesigner_internal {
@@ -63,6 +64,12 @@ public:
     QString script() const;
     void setScript(const QString &script);
 
+    QStringList fakeSlots() const;
+    void setFakeSlots(const QStringList &);
+
+    QStringList fakeSignals() const;
+    void setFakeSignals(const QStringList &);
+
 private:
     QObject *m_object;
     TabOrder m_tabOrder;
@@ -70,6 +77,8 @@ private:
     bool m_enabled;
     QString m_customClassName;
     QString m_script;
+    QStringList m_fakeSlots;
+    QStringList m_fakeSignals;
 };
 
 class QDESIGNER_SHARED_EXPORT MetaDataBase: public QDesignerMetaDataBaseInterface
@@ -98,7 +107,7 @@ private:
     typedef QHash<QObject *, MetaDataBaseItem*> ItemMap;
     ItemMap m_items;
 };
-    
+
     // promotion convenience
     QDESIGNER_SHARED_EXPORT bool promoteWidget(QDesignerFormEditorInterface *core,QWidget *widget,const QString &customClassName);
     QDESIGNER_SHARED_EXPORT void demoteWidget(QDesignerFormEditorInterface *core,QWidget *widget); 

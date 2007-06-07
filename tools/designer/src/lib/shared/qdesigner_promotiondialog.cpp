@@ -19,6 +19,7 @@ TRANSLATOR qdesigner_internal::QDesignerPromotionDialog
 #include "promotionmodel_p.h"
 #include "iconloader_p.h"
 #include "widgetdatabase_p.h"
+#include "signalslotdialog_p.h"
 
 #include <QtDesigner/QDesignerFormEditorInterface>
 #include <QtDesigner/QDesignerFormWindowInterface>
@@ -41,7 +42,8 @@ TRANSLATOR qdesigner_internal::QDesignerPromotionDialog
 #include <QtGui/QRegExpValidator>
 #include <QtGui/QLabel>
 #include <QtGui/QSpacerItem>
-
+#include <QtGui/QMenu>
+#include <QtGui/QAction>
 
 // Add a row consisting of widget and a description label to a grid.
 static void addGridRow(const QString &description, QGridLayout *gridLayout, QWidget *w, int &row) {
@@ -167,7 +169,7 @@ namespace qdesigner_internal {
             m_baseClassCombo->setCurrentIndex (index);
     }
 
-    // QDesignerPromotionDialog
+    // --------------- QDesignerPromotionDialog
     QDesignerPromotionDialog::QDesignerPromotionDialog(QDesignerFormEditorInterface *core,
                                                        QWidget *parent,
                                                        const QString &promotableWidgetClassName,
@@ -175,6 +177,7 @@ namespace qdesigner_internal {
         QDialog(parent),
         m_mode(promotableWidgetClassName.isEmpty() || promoteTo == 0 ? ModeEdit : ModeEditChooseClass),
         m_promotableWidgetClassName(promotableWidgetClassName),
+        m_core(core),
         m_promoteTo(promoteTo),
         m_promotion(core->promotion()),
         m_model(new PromotionModel(core)),
@@ -196,9 +199,13 @@ namespace qdesigner_internal {
         // tree view
         m_treeView->setModel (m_model);
         m_treeView->setMinimumWidth(450);
+        m_treeView->setContextMenuPolicy(Qt::CustomContextMenu);
 
         connect(m_treeView->selectionModel(), SIGNAL(selectionChanged(QItemSelection, QItemSelection)),
                 this, SLOT(slotSelectionChanged(QItemSelection, QItemSelection)));
+
+        connect(m_treeView, SIGNAL(customContextMenuRequested(QPoint)),
+                this, SLOT(slotTreeViewContextMenu(QPoint)));
 
         QHeaderView *headerView = m_treeView->header();
         headerView->setResizeMode(QHeaderView::ResizeToContents);
@@ -390,6 +397,28 @@ namespace qdesigner_internal {
             displayError(errorMessage);
             delayedUpdateFromWidgetDatabase();
         }
+    }
+
+    void QDesignerPromotionDialog::slotTreeViewContextMenu(const QPoint &pos) {
+        unsigned flags;
+        const QDesignerWidgetDataBaseItemInterface *dbItem = databaseItemAt(m_treeView->selectionModel()->selection(), flags);
+        if (!dbItem)
+            return;
+
+        QMenu menu;
+        QAction *signalSlotAction = menu.addAction(tr("Change signals/slots..."));
+        connect(signalSlotAction, SIGNAL(triggered()), this, SLOT(slotEditSignalsSlots()));
+
+        menu.exec(m_treeView->viewport()->mapToGlobal(pos));
+    }
+
+    void  QDesignerPromotionDialog::slotEditSignalsSlots() {
+        unsigned flags;
+        const QDesignerWidgetDataBaseItemInterface *dbItem = databaseItemAt(m_treeView->selectionModel()->selection(), flags);
+        if (!dbItem)
+            return;
+
+        SignalSlotDialog::editPromotedClass(m_core, dbItem->name(), this);
     }
 
     void QDesignerPromotionDialog::displayError(const QString &message) {

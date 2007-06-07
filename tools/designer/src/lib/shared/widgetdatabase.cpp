@@ -175,6 +175,26 @@ QList<QVariant> WidgetDataBaseItem::defaultPropertyValues() const
     return m_defaultPropertyValues;
 }
 
+QStringList WidgetDataBaseItem::fakeSlots() const
+{
+    return m_fakeSlots;
+}
+
+void WidgetDataBaseItem::setFakeSlots(const QStringList &fs)
+{
+    m_fakeSlots = fs;
+}
+
+QStringList WidgetDataBaseItem::fakeSignals() const
+{
+     return m_fakeSignals;
+}
+
+void WidgetDataBaseItem::setFakeSignals(const QStringList &fs)
+{
+    m_fakeSignals = fs;
+}
+
 WidgetDataBaseItem *WidgetDataBaseItem::clone(const QDesignerWidgetDataBaseItemInterface *item)
 {
     WidgetDataBaseItem *rc = new WidgetDataBaseItem(item->name(), item->group());
@@ -190,6 +210,7 @@ WidgetDataBaseItem *WidgetDataBaseItem::clone(const QDesignerWidgetDataBaseItemI
     rc->setPromoted(item->isPromoted());
     rc->setExtends(item->extends());
     rc->setDefaultPropertyValues(item->defaultPropertyValues());
+    // fake slots and signals ignored here.
 
     return rc;
 }

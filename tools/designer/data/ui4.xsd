@@ -20,6 +20,7 @@
                         <xs:element name="resources" type="Resources" />
                         <xs:element name="connections" type="Connections" />
                         <xs:element name="designerdata" type="DesignerData" />
+                        <xs:element name="slots" type="Slots" />
                 </xs:sequence>
                 <xs:attribute name="version" type="xs:string" />
                 <xs:attribute name="language" type="xs:string" />
@@ -123,6 +124,7 @@
                         <xs:element name="pixmap" type="xs:string" />
                         <xs:element name="script" type="Script" />
                         <xs:element name="properties" type="Properties" />
+                        <xs:element name="slots" type="Slots" />
                 </xs:sequence>
         </xs:complexType>
 
@@ -523,4 +525,14 @@
                 <xs:element name="property" type="Property" />
             </xs:sequence>
         </xs:complexType>
+        
+        <xs:complexType name="Slots">
+            <xs:sequence maxOccurs="unbounded">
+                    <xs:element name="slot" type="xs:string" />
+            </xs:sequence>
+            <xs:sequence maxOccurs="unbounded">
+                    <xs:element name="signal" type="xs:string" />
+            </xs:sequence>
+        </xs:complexType>
+
 </xs:schema>

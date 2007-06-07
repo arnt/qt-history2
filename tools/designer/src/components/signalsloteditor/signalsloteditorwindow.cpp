@@ -19,35 +19,97 @@ TRANSLATOR qdesigner_internal::ConnectionModel
 #include "signalsloteditor_p.h"
 #include "signalsloteditor.h"
 #include "qdesigner_integration_p.h"
+#include "signalslot_utils_p.h"
 
 #include <iconloader_p.h>
 #include <QtDesigner/QDesignerFormWindowInterface>
 #include <QtDesigner/QDesignerFormEditorInterface>
 #include <QtDesigner/QDesignerFormWindowManagerInterface>
+#include <QtDesigner/QExtensionManager>
+#include <QtDesigner/QDesignerContainerExtension>
+#include <QtDesigner/QDesignerMetaDataBaseInterface>
+#include <QtDesigner/QDesignerFormWindowCursorInterface>
 
 #include <QtCore/QAbstractItemModel>
 #include <QtCore/QDebug>
+#include <QtGui/QAction>
+#include <QtGui/QMenu>
 #include <QtGui/QStandardItemModel>
 #include <QtGui/QComboBox>
 #include <QtGui/QApplication>
 #include <QtGui/QItemDelegate>
 #include <QtGui/QItemEditorFactory>
 #include <QtGui/QTreeView>
+#include <QtGui/QHeaderView>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QToolButton>
 #include <QtGui/QMessageBox>
 
+template <typename T>
+static void merge(QDesignerFormWindowInterface *form, QStringList *lst, const QList<T> &elts)
+{
+    QDesignerMetaDataBaseInterface *db = form->core()->metaDataBase();
+
+    foreach (T e, elts) {
+        QAction *action = qobject_cast<QAction*>(e);
+
+        if (action && db->item(action->menu())) {
+            // good
+        } else if (!db->item(e)) {
+            // hmm, nothing to do
+            continue;
+        }
+
+        QString name = e->objectName();
+
+        if (action && action->menu())
+            name = action->menu()->objectName();
+
+        if (name.isEmpty())
+            continue;
+
+        lst->append(name);
+    }
+}
+
+static QStringList objectNameList(QDesignerFormWindowInterface *form)
+{
+    QStringList result;
+    if (form->mainContainer()) {
+        QDesignerContainerExtension *c = qt_extension<QDesignerContainerExtension *>(
+                    form->core()->extensionManager(), form->mainContainer());
+        if (c) {
+            const int count = c->count();
+            for (int i = 0 ; i < count; i++)
+                result.append(c->widget(i)->objectName().trimmed());
+        }
+    }
+
+    QDesignerFormWindowCursorInterface *cursor = form->cursor();
+    const int widgetCount = cursor->widgetCount();
+    for (int i = 0; i < widgetCount; ++i) {
+        const QString name = cursor->widget(i)->objectName().trimmed();
+        if (!name.isEmpty())
+            result.append(name);
+    }
+
+    if (form->mainContainer()) {
+        merge(form, &result, qFindChildren<QAction*>(form->mainContainer()));
+    }
+
+    result.sort();
+
+    return result;
+}
+
 namespace qdesigner_internal {
 
-/*******************************************************************************
-** ConnectionModel
-*/
+// ------------  ConnectionModel
 
-ConnectionModel::ConnectionModel(SignalSlotEditor *editor, QObject *parent)
-    : QAbstractItemModel(parent)
+ConnectionModel::ConnectionModel(SignalSlotEditor *editor, QObject *parent)  :
+    QAbstractItemModel(parent),
+    m_editor(editor)
 {
-    m_editor = editor;
-
     connect(m_editor, SIGNAL(connectionAdded(Connection*)),
             this, SLOT(connectionAdded(Connection*)));
     connect(m_editor, SIGNAL(connectionRemoved(int)),
@@ -185,30 +247,26 @@ bool ConnectionModel::setData(const QModelIndex &index, const QVariant &data, in
 
     QString s = data.toString();
     switch (index.column()) {
-        case 0: {
+        case 0:
             if (!s.isEmpty() && !objectNameList(form).contains(s))
                 s.clear();
             m_editor->setSource(con, s);
             break;
-        }
-        case 1: {
-            if (!memberList(form, con->object(CETypes::EndPoint::Source), SignalMember).contains(s))
+        case 1:
+            if (!memberFunctionListContains(form->core(), con->object(CETypes::EndPoint::Source), SignalMember, s))
                 s.clear();
             m_editor->setSignal(con, s);
             break;
-        }
-        case 2: {
+        case 2:
             if (!s.isEmpty() && !objectNameList(form).contains(s))
                 s.clear();
             m_editor->setTarget(con, s);
             break;
-        }
-        case 3: {
-            if (!memberList(form, con->object(CETypes::EndPoint::Target), SlotMember).contains(s))
+        case 3:
+            if (!memberFunctionListContains(form->core(), con->object(CETypes::EndPoint::Target), SlotMember, s))
                 s.clear();
             m_editor->setSlot(con, s);
             break;
-        }
     }
 
     return true;
@@ -252,11 +310,7 @@ void ConnectionModel::connectionChanged(Connection *con)
         if (c->sender() == changedCon->sender() && c->signal() == changedCon->signal()
             && c->receiver() == changedCon->receiver() && c->slot() == changedCon->slot()) {
                 QMessageBox::warning(m_editor->parentWidget(), tr("Signal and Slot Editor"),
-                    tr("The connection already exists!<br>SENDER(%1), SIGNAL(%2), RECEIVER(%3), SLOT(%4)")
-                    .arg(changedCon->sender())
-                    .arg(changedCon->signal())
-                    .arg(changedCon->receiver())
-                    .arg(changedCon->slot()));
+                    tr("The connection already exists!<br>%1</br>").arg(changedCon->toString()));
                 break;
         }
     }
@@ -267,17 +321,17 @@ void ConnectionModel::updateAll()
 {
     emit dataChanged(index(0, 0), index(rowCount(), columnCount()));
 }
+}
 
-/*******************************************************************************
-** InlineEditor
-*/
-
-#define TITLE_ITEM 1
+namespace {
+// ---------------------- InlineEditorModel
 
 class InlineEditorModel : public QStandardItemModel
 {
     Q_OBJECT
 public:
+    enum {  TitleItem = 1 };
+
     InlineEditorModel(int rows, int cols, QObject *parent = 0);
 
     void addTitle(const QString &title);
@@ -288,29 +342,6 @@ public:
     int findText(const QString &text) const;
 
     virtual Qt::ItemFlags flags(const QModelIndex &index) const;
-};
-
-class InlineEditor : public QComboBox
-{
-    Q_OBJECT
-    Q_PROPERTY(QString text READ text WRITE setText USER true)
-public:
-    InlineEditor(QWidget *parent = 0);
-    ~InlineEditor();
-
-    QString text() const;
-    void setText(const QString &text);
-
-    void addTitle(const QString &title);
-    void addText(const QString &text);
-    void addTextList(const QStringList &text_list);
-
-private slots:
-    void checkSelection(int idx);
-
-private:
-    InlineEditorModel *m_model;
-    int m_idx;
 };
 
 InlineEditorModel::InlineEditorModel(int rows, int cols, QObject *parent)
@@ -324,7 +355,7 @@ void InlineEditorModel::addTitle(const QString &title)
     insertRows(cnt, 1);
     QModelIndex cat_idx = index(cnt, 0);
     setData(cat_idx, title + QLatin1Char(':'), Qt::DisplayRole);
-    setData(cat_idx, TITLE_ITEM, Qt::UserRole);
+    setData(cat_idx, TitleItem, Qt::UserRole);
     QFont font = QApplication::font();
     font.setBold(true);
     setData(cat_idx, font, Qt::FontRole);
@@ -335,7 +366,7 @@ bool InlineEditorModel::isTitle(int idx) const
     if (idx == -1)
         return false;
 
-    return data(index(idx, 0), Qt::UserRole).toInt() == TITLE_ITEM;
+    return data(index(idx, 0), Qt::UserRole).toInt() == TitleItem;
 }
 
 void InlineEditorModel::addText(const QString &text)
@@ -349,8 +380,8 @@ void InlineEditorModel::addTextList(const QStringList &text_list)
 {
     int cnt = rowCount();
     insertRows(cnt, text_list.size());
-    foreach (QString text, text_list) {
-        QModelIndex text_idx = index(cnt++, 0);
+    foreach (const QString &text, text_list) {
+        const QModelIndex text_idx = index(cnt++, 0);
         setData(text_idx, text, Qt::DisplayRole);
     }
 }
@@ -367,8 +398,8 @@ int InlineEditorModel::findText(const QString &text) const
 {
     const int cnt = rowCount();
     for (int i = 0; i < cnt; ++i) {
-        QModelIndex idx = index(i, 0);
-        if (data(idx, Qt::UserRole).toInt() == TITLE_ITEM)
+        const QModelIndex idx = index(i, 0);
+        if (data(idx, Qt::UserRole).toInt() == TitleItem)
             continue;
         if (data(idx, Qt::DisplayRole).toString() == text)
             return i;
@@ -376,17 +407,37 @@ int InlineEditorModel::findText(const QString &text) const
     return -1;
 }
 
-InlineEditor::InlineEditor(QWidget *parent)
-    : QComboBox(parent)
+// ------------  InlineEditor
+class InlineEditor : public QComboBox
+{
+    Q_OBJECT
+    Q_PROPERTY(QString text READ text WRITE setText USER true)
+public:
+    InlineEditor(QWidget *parent = 0);
+
+    QString text() const;
+    void setText(const QString &text);
+
+    void addTitle(const QString &title);
+    void addText(const QString &text);
+    void addTextList(const QStringList &text_list);
+
+private slots:
+    void checkSelection(int idx);
+
+private:
+    InlineEditorModel *m_model;
+    int m_idx;
+};
+
+InlineEditor::InlineEditor(QWidget *parent) :
+    QComboBox(parent),
+    m_idx(-1)
 {
     setModel(m_model = new InlineEditorModel(0, 4, this));
     setFrame(false);
     m_idx = -1;
     connect(this, SIGNAL(activated(int)), this, SLOT(checkSelection(int)));
-}
-
-InlineEditor::~InlineEditor()
-{
 }
 
 void InlineEditor::checkSelection(int idx)
@@ -428,9 +479,7 @@ void InlineEditor::setText(const QString &text)
     setCurrentIndex(m_idx);
 }
 
-/*******************************************************************************
-** ConnectionDelegate
-*/
+// ------------------ ConnectionDelegate
 
 class ConnectionDelegate : public QItemDelegate
 {
@@ -484,26 +533,36 @@ QWidget *ConnectionDelegate::createEditor(QWidget *parent,
     Q_ASSERT(inline_editor != 0);
     const QAbstractItemModel *model = index.model();
 
-    QModelIndex obj_name_idx = model->index(index.row(), index.column() <= 1 ? 0 : 2);
-    QString obj_name = model->data(obj_name_idx, Qt::DisplayRole).toString();
+    const QModelIndex obj_name_idx = model->index(index.row(), index.column() <= 1 ? 0 : 2);
+    const QString obj_name = model->data(obj_name_idx, Qt::DisplayRole).toString();
 
-    if (index.column() == 0 || index.column() == 2) { // object names
+    switch (index.column()) {
+    case 0:
+    case 2:  { // object names
         QStringList obj_name_list = objectNameList(m_form);
         obj_name_list.prepend(tr("<object>"));
         inline_editor->addTextList(obj_name_list);
-    } else { // signals, slots
-        MemberType type = index.column() == 1 ? SignalMember : SlotMember;
-        QModelIndex peer_index = model->index(index.row(), type == SignalMember ? 3 : 1);
-        QString peer = model->data(peer_index, Qt::DisplayRole).toString();
-        ClassList class_list = classList(obj_name, type, peer, m_form);
+    }
+        break;
+    case 1:
+    case 3: { // signals, slots
+        const qdesigner_internal::MemberType type = index.column() == 1 ? qdesigner_internal::SignalMember : qdesigner_internal::SlotMember;
+        const QModelIndex peer_index = model->index(index.row(), type == qdesigner_internal::SignalMember ? 3 : 1);
+        const QString peer = model->data(peer_index, Qt::DisplayRole).toString();
 
-        inline_editor->addText(type == SignalMember ? tr("<signal>") : tr("<slot>"));
-        foreach (const ClassInfo &class_info, class_list) {
-            if (class_info.class_name.isEmpty() || class_info.member_list.isEmpty())
+        const qdesigner_internal::ClassesMemberFunctions class_list = qdesigner_internal::reverseClassesMemberFunctions(obj_name, type, peer, m_form);
+
+        inline_editor->addText(type == qdesigner_internal::SignalMember ? tr("<signal>") : tr("<slot>"));
+        foreach (const qdesigner_internal::ClassMemberFunctions &class_info, class_list) {
+            if (class_info.m_className.isEmpty() || class_info.m_memberList.isEmpty())
                 continue;
-            inline_editor->addTitle(class_info.class_name);
-            inline_editor->addTextList(class_info.member_list);
+            inline_editor->addTitle(class_info.m_className);
+            inline_editor->addTextList(class_info.m_memberList);
         }
+    }
+        break;
+    default:
+        break;
     }
 
     connect(inline_editor, SIGNAL(activated(int)), this, SLOT(emitCommitData()));
@@ -516,6 +575,10 @@ void ConnectionDelegate::emitCommitData()
     InlineEditor *editor = qobject_cast<InlineEditor*>(sender());
     emit commitData(editor);
 }
+
+}
+
+namespace qdesigner_internal {
 
 /*******************************************************************************
 ** SignalSlotEditorWindow
@@ -535,6 +598,7 @@ SignalSlotEditorWindow::SignalSlotEditorWindow(QDesignerFormEditorInterface *cor
     m_view->setRootIsDecorated(false);
     m_view->setTextElideMode (Qt::ElideMiddle);
     connect(m_view, SIGNAL(activated(QModelIndex)), this, SLOT(updateUi()));
+    connect(m_view->header(), SIGNAL(sectionDoubleClicked(int)), m_view, SLOT(resizeColumnToContents(int)));
 
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setMargin(0);

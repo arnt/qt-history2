@@ -117,6 +117,7 @@ class DomConnectionHint;
 class DomScript;
 class DomWidgetData;
 class DomDesignerData;
+class DomSlots;
 
 /*******************************************************************************
 ** Declarations
@@ -224,6 +225,11 @@ public:
     inline bool hasElementDesignerdata() const { return m_children & Designerdata; }
     void clearElementDesignerdata();
 
+    inline DomSlots* elementSlots() const { return m_slots; }
+    void setElementSlots(DomSlots* a);
+    inline bool hasElementSlots() const { return m_children & Slots; }
+    void clearElementSlots();
+
 private:
     QString m_text;
     void clear(bool clear_all = true);
@@ -255,6 +261,7 @@ private:
     DomResources* m_resources;
     DomConnections* m_connections;
     DomDesignerData* m_designerdata;
+    DomSlots* m_slots;
     enum Child {
         Author = 1,
         Comment = 2,
@@ -270,7 +277,8 @@ private:
         Includes = 2048,
         Resources = 4096,
         Connections = 8192,
-        Designerdata = 16384
+        Designerdata = 16384,
+        Slots = 32768
     };
 
     DomUI(const DomUI &other);
@@ -756,6 +764,11 @@ public:
     inline bool hasElementProperties() const { return m_children & Properties; }
     void clearElementProperties();
 
+    inline DomSlots* elementSlots() const { return m_slots; }
+    void setElementSlots(DomSlots* a);
+    inline bool hasElementSlots() const { return m_children & Slots; }
+    void clearElementSlots();
+
 private:
     QString m_text;
     void clear(bool clear_all = true);
@@ -772,6 +785,7 @@ private:
     QString m_pixmap;
     DomScript* m_script;
     DomProperties* m_properties;
+    DomSlots* m_slots;
     enum Child {
         Class = 1,
         Extends = 2,
@@ -781,7 +795,8 @@ private:
         SizePolicy = 32,
         Pixmap = 64,
         Script = 128,
-        Properties = 256
+        Properties = 256,
+        Slots = 512
     };
 
     DomCustomWidget(const DomCustomWidget &other);
@@ -2964,6 +2979,37 @@ private:
 
     DomDesignerData(const DomDesignerData &other);
     void operator = (const DomDesignerData&other);
+};
+
+class QDESIGNER_UILIB_EXPORT DomSlots {
+public:
+    DomSlots();
+    ~DomSlots();
+
+    void read(const QDomElement &node);
+    QDomElement write(QDomDocument &doc, const QString &tagName = QString()) const;
+    inline QString text() const { return m_text; }
+    inline void setText(const QString &s) { m_text = s; }
+
+    // attribute accessors
+    // child element accessors
+    inline QStringList elementSlot() const { return m_slot; }
+    void setElementSlot(const QStringList& a);
+
+    inline QStringList elementSignal() const { return m_signal; }
+    void setElementSignal(const QStringList& a);
+
+private:
+    QString m_text;
+    void clear(bool clear_all = true);
+
+    // attribute data
+    // child element data
+    QStringList m_slot;
+    QStringList m_signal;
+
+    DomSlots(const DomSlots &other);
+    void operator = (const DomSlots&other);
 };
 
 

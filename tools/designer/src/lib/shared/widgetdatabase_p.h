@@ -88,6 +88,12 @@ public:
 
     static WidgetDataBaseItem *clone(const QDesignerWidgetDataBaseItemInterface *item);
 
+    QStringList fakeSlots() const;
+    void setFakeSlots(const QStringList &);
+
+    QStringList fakeSignals() const;
+    void setFakeSignals(const QStringList &);
+    
 private:
     QString m_name;
     QString m_group;
@@ -103,6 +109,8 @@ private:
     uint m_custom: 1;
     uint m_promoted: 1;
     QList<QVariant> m_defaultPropertyValues;
+    QStringList m_fakeSlots;
+    QStringList m_fakeSignals;
 };
 
 enum IncludeType { IncludeLocal, IncludeGlobal  };

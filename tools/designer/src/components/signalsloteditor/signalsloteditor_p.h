@@ -33,27 +33,12 @@
 #include <connectionedit_p.h>
 
 class QDesignerFormWindowInterface;
+class QDesignerFormEditorInterface;
 class DomConnection;
 
 namespace qdesigner_internal {
 
 class SignalSlotEditor;
-
-struct ClassInfo
-{
-    ClassInfo(const QString &_class_name = QString(),
-              const QStringList &_member_list = QStringList())
-        : class_name(_class_name), member_list(_member_list) {}
-    QString class_name;
-    QStringList member_list;
-};
-typedef QList<ClassInfo> ClassList;
-enum MemberType { SignalMember, SlotMember };
-
-QStringList objectNameList(QDesignerFormWindowInterface *form);
-QStringList memberList(QDesignerFormWindowInterface *form, QObject *object, MemberType member_type);
-ClassList classList(const QString &obj_name, MemberType member_type,
-                            const QString &peer, QDesignerFormWindowInterface *form);
 
 class SignalSlotConnection : public Connection
 {
@@ -71,6 +56,12 @@ public:
     DomConnection *toUi() const;
 
     virtual void updateVisibility();
+
+    enum State { Valid, ObjectDeleted, InvalidMethod, NotAncestor };
+    State isValid(const QWidget *background) const;
+
+    // format for messages, etc.
+    QString toString() const;
 
 private:
     QString m_signal, m_slot;

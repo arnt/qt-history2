@@ -79,6 +79,7 @@ private slots:
     void slotDemoteFromCustomWidget();
     void slotEditPromotedWidgets();
     void slotEditPromoteTo();
+    void slotEditSignalsSlots();
 
 private:
     void promoteTo(QDesignerFormWindowInterface *fw, const QString &customClassName);
@@ -95,10 +96,12 @@ private:
     QPointer<QWidget> m_widget;
 
     QSignalMapper *m_promotionMapper;
+    // Per-Widget actions
     QList<QAction *> m_promotionActions;
 
     QAction *m_globalEditAction;
     QAction *m_EditPromoteToAction;
+    QAction *m_EditSignalsSlotsAction;
 
     QString m_promoteLabel;
     QString m_demoteLabel;
