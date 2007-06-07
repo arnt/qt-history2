@@ -2484,8 +2484,12 @@ void QAbstractItemView::keyboardSearch(const QString &search)
     const QString searchString = sameKey ? QString(d->keyboardInput.at(0)) : d->keyboardInput;
     QModelIndex current = start;
     QModelIndexList match;
+    QModelIndexList previous;
     do {
         match = d->model->match(current, Qt::DisplayRole, searchString);
+        if (match == previous)
+            break;
+        previous = match;
         if (match.value(0).isValid() && (match.value(0).flags() & Qt::ItemIsEnabled)) {
             setCurrentIndex(match.first());
             break;
