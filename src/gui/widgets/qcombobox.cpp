@@ -1524,7 +1524,7 @@ void QComboBox::setLineEdit(QLineEdit *edit)
         setAutoCompletion(true);
         if (d->completer) {
             d->completer->setCompletionMode(QCompleter::UnfilteredPopupCompletion);
-            connect(d->completer->popup(), SIGNAL(activated(QModelIndex)), this, SLOT(_q_completerActivated()));
+            connect(d->completer, SIGNAL(activated(QModelIndex)), this, SLOT(_q_completerActivated()));
         }
     }
 #endif
