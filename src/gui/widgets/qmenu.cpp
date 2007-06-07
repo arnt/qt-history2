@@ -1578,25 +1578,25 @@ void QMenu::popup(const QPoint &p, QAction *atAction)
         if (pos.x() < screen.left()+desktopFrame)
             pos.setX(qMax(p.x(), screen.left() + desktopFrame));
     }
-    if (pos.y() + size.height() > screen.bottom() - desktopFrame) {
+    if (pos.y() + size.height() - 1 > screen.bottom() - desktopFrame) {
         if(snapToMouse)
-            pos.setY(qMin(mouse.y() - (size.height() + desktopFrame), screen.bottom()-desktopFrame-size.height()));
+            pos.setY(qMin(mouse.y() - (size.height() + desktopFrame), screen.bottom()-desktopFrame-size.height()+1));
         else
-            pos.setY(qMax(p.y() - (size.height() + desktopFrame), screen.bottom()-desktopFrame-size.height()));
+            pos.setY(qMax(p.y() - (size.height() + desktopFrame), screen.bottom()-desktopFrame-size.height()+1));
     } else if (pos.y() < screen.top() + desktopFrame) {
         pos.setY(screen.top() + desktopFrame);
     }
 
     if (pos.y() < screen.top() + desktopFrame)
         pos.setY(screen.top() + desktopFrame);
-    if (pos.y()+size.height() > screen.bottom() - desktopFrame) {
+    if (pos.y()+size.height()-1 > screen.bottom() - desktopFrame) {
         if (d->scroll) {
             d->scroll->scrollFlags |= uint(QMenuPrivate::QMenuScroller::ScrollDown);
             int y = qMax(screen.y(),pos.y());
             size.setHeight(screen.height()-(desktopFrame*2)-y);
         } else {
             // Too big for screen, bias to see bottom of menu (for some reason)
-            pos.setY(screen.bottom()-size.height());
+            pos.setY(screen.bottom()-size.height()+1);
         }
     }
     setGeometry(QRect(pos, size));
