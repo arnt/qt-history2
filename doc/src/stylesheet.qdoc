@@ -573,10 +573,9 @@
         qApp->setSytleSheet("ns--MyPushButton { background: yellow; }");
     \endcode
 
-    \omit
     \section1 Setting QObject properties
     
-    From 4.3 and above, any \l{QMetaObject::designable()}{designable} Q_PROPERTY 
+    From 4.3 and above, any designable Q_PROPERTY 
     can be set using the qproperty-<property name> syntax. 
     
     For example,
@@ -586,7 +585,6 @@
         QPushButton { qproperty-maximumSize: 50px 50px; }
     \endcode
 
-    \endomit
     */
 
     /*!
@@ -2222,6 +2220,24 @@
 
            See also
            \l{Qt Style Sheets Reference#subcontrol-origin-prop}{subcontrol-origin}.
+
+    \row
+        \o bold{\c text-align} \target text-align-prop
+        \o \l{#Alignment}{Alignment}
+        \o The alignment of text and icon within the contents of the widget.
+
+           If this value is not specified, it defaults to the value
+           that depends on the native style.
+
+           Example:
+
+           \code
+                QPushButton {
+                    text-align: left;
+                }
+           \endcode
+
+            This property is currently supported only by QPushButton.
 
     \row
         \o \bold{\c top} \target top-prop
