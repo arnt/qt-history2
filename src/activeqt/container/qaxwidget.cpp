@@ -1377,8 +1377,12 @@ HRESULT WINAPI QAxClientSite::SetActiveObject(IOleInPlaceActiveObject *pActiveOb
     if (pszObjName && widget)
         widget->setWindowTitle(QString::fromUtf16((const ushort *)(BSTR)pszObjName));
 
-    if (m_spInPlaceActiveObject)
+    if (m_spInPlaceActiveObject) {
+        if (!inPlaceModelessEnabled)
+            m_spInPlaceActiveObject->EnableModeless(true);
+        inPlaceModelessEnabled = true;
         m_spInPlaceActiveObject->Release();
+    }
 
     m_spInPlaceActiveObject = pActiveObject;
     if (m_spInPlaceActiveObject)
@@ -1563,15 +1567,19 @@ bool QAxHostWidget::event(QEvent *e)
     case QEvent::WindowBlocked:
         if (IsWindowEnabled(winId())) {
             EnableWindow(winId(), false);
-            if (axhost && axhost->m_spInPlaceActiveObject)
+            if (axhost && axhost->m_spInPlaceActiveObject) {
+                axhost->inPlaceModelessEnabled = false;
                 axhost->m_spInPlaceActiveObject->EnableModeless(false);
+            }
         }
         break;
     case QEvent::WindowUnblocked:
         if (!IsWindowEnabled(winId())) {
             EnableWindow(winId(), true);
-            if (axhost && axhost->m_spInPlaceActiveObject)
+            if (axhost && axhost->m_spInPlaceActiveObject) {
+                axhost->inPlaceModelessEnabled = true;
                 axhost->m_spInPlaceActiveObject->EnableModeless(true);
+            }
         }
         break;
     default:
