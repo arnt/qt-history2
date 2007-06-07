@@ -749,6 +749,18 @@ void tst_QScriptEngine::importExtension()
         QCOMPARE(eng.hasUncaughtException(), true);
     }
 
+    {
+        QScriptEngine eng;
+        eng.globalObject().setProperty("__import__", eng.newFunction(__import__));
+        for (int x = 0; x < 2; ++x) {
+            QScriptValue ret = eng.importExtension("com.trolltech.syntaxerror");
+            QVERIFY(eng.hasUncaughtException());
+            QCOMPARE(eng.uncaughtExceptionLineNumber(), 4);
+            QVERIFY(ret.isError());
+            QCOMPARE(ret.property("message").toString(), QLatin1String("invalid assignment lvalue"));
+        }
+    }
+
     QCoreApplication::instance()->setLibraryPaths(libPaths);
 }
 

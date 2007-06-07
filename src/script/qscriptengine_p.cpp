@@ -1692,10 +1692,11 @@ QScriptValueImpl QScriptEnginePrivate::importExtension(const QString &extension)
 
             // the script is evaluated first
             if (!initjsContents.isEmpty()) {
-                evaluate(ctx_p, initjsContents, 0, initjsFileName);
+                evaluate(ctx_p, initjsContents, /*lineNumber=*/1, initjsFileName);
                 if (hasUncaughtException()) {
                     QScriptValueImpl r = ctx_p->returnValue();
                     popContext();
+                    m_extensionsBeingImported.remove(ext);
                     return r;
                 }
             }
@@ -1706,6 +1707,7 @@ QScriptValueImpl QScriptEnginePrivate::importExtension(const QString &extension)
                 if (hasUncaughtException()) {
                     QScriptValueImpl r = ctx_p->returnValue();
                     popContext();
+                    m_extensionsBeingImported.remove(ext);
                     return r;
                 }
             }
@@ -1717,6 +1719,7 @@ QScriptValueImpl QScriptEnginePrivate::importExtension(const QString &extension)
                 if (hasUncaughtException()) {
                     QScriptValueImpl r = ctx_p->returnValue();
                     popContext();
+                    m_extensionsBeingImported.remove(ext);
                     return r;
                 }
             }
