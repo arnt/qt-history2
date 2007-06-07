@@ -1298,11 +1298,14 @@ bool QScriptEnginePrivate::convert(const QScriptValueImpl &value,
                 if (proto.isVariant()) {
                     canCast = (type == proto.variantValue().userType())
                               || (valueType && (valueType == proto.variantValue().userType()));
-                } else if (proto.isQObject()) {
+                }
+#ifndef QT_NO_QOBJECT
+                else if (proto.isQObject()) {
                     QByteArray className = name.left(name.size()-1);
                     if (QObject *qobject = proto.toQObject())
                         canCast = qobject->qt_metacast(className) != 0;
                 }
+#endif
                 if (canCast) {
                     QByteArray varTypeName = QMetaType::typeName(var.userType());
                     if (varTypeName.endsWith('*'))
