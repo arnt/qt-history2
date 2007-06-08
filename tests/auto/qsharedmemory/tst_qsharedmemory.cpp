@@ -475,7 +475,8 @@ public:
 
         int i = 0;
         while (true) {
-            QVERIFY(consumer.lock());
+            if(!consumer.lock())
+                break;
             if (memory[0] == 'Q') {
                 memory[0] = ++i;
                 if (!set) {
