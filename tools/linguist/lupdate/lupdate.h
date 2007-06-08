@@ -7,7 +7,7 @@ class lupdateApplication : public QCoreApplication
 {
     Q_OBJECT
 public:
-    lupdateApplication(int argc, char **argv) 
+    lupdateApplication(int &argc, char **argv) 
         : QCoreApplication(argc, argv), 
           m_defaultExtensions("ui,c,c++,cc,cpp,cxx,ch,h,h++,hh,hpp,hxx")
     { }
