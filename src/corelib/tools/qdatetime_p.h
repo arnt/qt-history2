@@ -94,7 +94,8 @@ public:
     enum {
         NoSectionIndex = -1,
         FirstSectionIndex = -2,
-        LastSectionIndex = -3
+        LastSectionIndex = -3,
+        CalendarPopupIndex = -4
     };
 
     enum Section {
@@ -112,15 +113,16 @@ public:
         YearSection = 0x0400,
         DateSectionMask = (DaySection|MonthSection|YearSection),
         FirstSection = 0x1000|Internal,
-        LastSection = 0x2000|Internal
+        LastSection = 0x2000|Internal,
+        CalendarPopupSection = 0x4000|Internal
     }; // duplicated from qdatetimeedit.h
     Q_DECLARE_FLAGS(Sections, Section)
 
-        struct SectionNode {
-            Section type;
-            mutable int pos;
-            int count;
-        };
+    struct SectionNode {
+        Section type;
+        mutable int pos;
+        int count;
+    };
 
     enum State { // duplicated from QValidator
         Invalid,
@@ -160,7 +162,7 @@ public:
     QString sectionText(const QString &text, int sectionIndex, int index) const;
     int getDigit(const QVariant &dt, int index) const;
     void setDigit(QVariant &t, int index, int newval) const;
-    int parseSection(int sectionIndex, QString &txt, int index,
+    int parseSection(const QVariant &currentValue, int sectionIndex, QString &txt, int index,
                      QDateTimeParser::State &state, int *used = 0) const;
     int absoluteMax(int index, const QDateTime &value = QDateTime()) const;
     int absoluteMin(int index) const;
@@ -210,7 +212,7 @@ public:
     mutable int cachedDay;
     mutable QString text;
     QList<SectionNode> sectionNodes;
-    SectionNode first, last, none;
+    SectionNode first, last, none, popup;
     QStringList separators;
     QString displayFormat;
     QVariant::Type typ;

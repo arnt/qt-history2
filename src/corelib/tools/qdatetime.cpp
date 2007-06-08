@@ -3805,7 +3805,7 @@ QString QDateTimeParser::sectionText(const QString &text, int sectionIndex, int 
   stateptr != 0.
 */
 
-int QDateTimeParser::parseSection(int sectionIndex, QString &text, int index,
+int QDateTimeParser::parseSection(const QVariant &currentValue, int sectionIndex, QString &text, int index,
                                   State &state, int *usedptr) const
 {
     state = Invalid;
@@ -3856,7 +3856,11 @@ int QDateTimeParser::parseSection(int sectionIndex, QString &text, int index,
     case DaySection:
         if (sn.count >= 3) {
             if (sn.type == MonthSection) {
-                num = findMonth(sectiontext.toLower(), 1, sectionIndex, &sectiontext, &used);
+                int min = 1;
+                if (currentValue.toDate().year() == getMinimum().toDate().year()) {
+                    min = getMinimum().toDate().month();
+                }
+                num = findMonth(sectiontext.toLower(), min, sectionIndex, &sectiontext, &used);
             } else {
                 num = findDay(sectiontext.toLower(), 1, sectionIndex, &sectiontext, &used);
             }
@@ -3962,6 +3966,7 @@ int QDateTimeParser::parseSection(int sectionIndex, QString &text, int index,
 QDateTimeParser::StateNode QDateTimeParser::parse(const QString &inp,
                                                   const QVariant &currentValue, bool fixup) const
 {
+
     QString input = inp;
     State state = Acceptable;
     const QVariant maximum = getMaximum();
@@ -4009,7 +4014,7 @@ QDateTimeParser::StateNode QDateTimeParser::parse(const QString &inp,
             sn = sectionNodes.at(index);
             int used;
 
-            num = parseSection(index, input, pos, tmpstate, &used);
+            num = parseSection(currentValue, index, input, pos, tmpstate, &used);
             QDTPDEBUG << "sectionValue" << sectionName(sectionType(index)) << input
                       << "pos" << pos << "used" << used << stateName(tmpstate);
             if (fixup && tmpstate == Intermediate && used < sn.count) {
@@ -4252,10 +4257,10 @@ int QDateTimeParser::findMonth(const QString &str1, int startMonth, int sectionI
                     if (used) {
                         *used = limit;
                     }
-                    if (usedMonth)
+                    if (usedMonth) {
                         *usedMonth = nameFunction(month);
                     QDTPDEBUG << "used is set to" << limit << *usedMonth;
-
+                    }
                     return month;
                 }
             }
