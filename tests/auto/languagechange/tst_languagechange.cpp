@@ -141,7 +141,6 @@ void tst_languageChange::retranslatability_data()
                     << "QFileDialog::Detail View"
                     << "QFileDialog::Drive"
                     << "QFileDialog::File"
-                    << "QFileDialog::File Folder::Match Windows Explorer"
                     << "QFileDialog::Files of type:"
                     << "QFileDialog::Forward"
                     << "QFileDialog::List View"
@@ -154,7 +153,11 @@ void tst_languageChange::retranslatability_data()
                     << "QFileDialog::&New Folder"
                     << "QFileDialog::&Rename"
                     << "QFileSystemModel::Date Modified"
+#ifdef Q_OS_WIN
                     << "QFileSystemModel::My Computer"
+#else
+                    << "QFileSystemModel::Computer"
+#endif
                     << "QFileSystemModel::Size"
                     << "QFileSystemModel::Type::All other platforms"
                     << "QFileSystemModel::%1 KB"
@@ -184,6 +187,7 @@ void tst_languageChange::retranslatability()
     case FileDialog: {
         QFileDialog dlg;
         dlg.setFileMode(QFileDialog::ExistingFiles);
+        dlg.setViewMode(QFileDialog::Detail);
         dlg.exec();
         break; }
     }
