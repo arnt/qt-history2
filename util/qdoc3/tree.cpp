@@ -216,9 +216,14 @@ const FakeNode *Tree::findFakeNodeByTitle(const QString &title) const
         if (i != priv->fakeNodesByTitle.constEnd()) {
             FakeNodeHash::const_iterator j = i;
             ++j;
-            if (j != priv->fakeNodesByTitle.constEnd() && j.key() == i.key())
+            if (j != priv->fakeNodesByTitle.constEnd() && j.key() == i.key()) {
                 i.value()->doc().location().warning(
                     tr("Page '%1' defined in more than one location").arg(title));
+                while (j != priv->fakeNodesByTitle.constEnd()) {
+                    j.value()->doc().location().warning(tr("(defined here)"));
+                    ++j;
+                }
+            }
             return i.value();
         }
     }
