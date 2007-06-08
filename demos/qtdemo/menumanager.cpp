@@ -345,14 +345,16 @@ void MenuManager::createMenu(const QDomElement &category, BUTTON_TYPE type)
 
         int i = 0;
         while (!currentNode.isNull() && i <= maxExamples){
-            QDomElement currentInfo = currentNode.toElement();
             TextButton *item;
             if (i == maxExamples){
                 ++menuIndex;
                 item = new TextButton("More...", TextButton::LEFT, MORE, this->window->scene, 0, TextButton::PANEL);
                 item->setMenuString(name + QLatin1String(" -menu") + QString::number(menuIndex));
-            } else
-                item = new TextButton(currentInfo.attribute("name"), TextButton::LEFT, type, this->window->scene, 0);
+            } else {
+                QString label = currentNode.toElement().attribute("name");
+                item = new TextButton(label, TextButton::LEFT, type, this->window->scene, 0);
+                currentNode = currentNode.nextSibling();
+            }
                 
             item->setRecursiveVisible(false);
             item->setZValue(10);
@@ -395,7 +397,6 @@ void MenuManager::createMenu(const QDomElement &category, BUTTON_TYPE type)
             movieShake->append(anim);
 
             i++;
-            currentNode = currentNode.nextSibling();
         }
     }
 }
