@@ -30,7 +30,8 @@ HEADERS += \
         painting/qwmatrix.h \
         painting/qrasterizer_p.h \
         painting/qtransform.h \
-        painting/qpathclipper_p.h
+        painting/qpathclipper_p.h \
+	painting/qmemrotate_p.h
 
 
 SOURCES += \
@@ -56,7 +57,8 @@ SOURCES += \
         painting/qmatrix.cpp \
         painting/qrasterizer.cpp \
         painting/qtransform.cpp  \
-        painting/qpathclipper.cpp
+        painting/qpathclipper.cpp \
+	painting/qmemrotate.cpp
 
         DEFINES += QT_RASTER_IMAGEENGINE
         win32:DEFINES += QT_RASTER_PAINTENGINE

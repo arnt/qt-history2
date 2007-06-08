@@ -26,6 +26,7 @@
 #include <limits.h>
 #include <math.h>
 #include <private/qdrawhelper_p.h>
+#include <private/qmemrotate_p.h>
 #include <private/qpixmap_p.h>
 #include <private/qimagescale_p.h>
 
