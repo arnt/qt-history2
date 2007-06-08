@@ -75,7 +75,6 @@ HEADERS += \
     $$PWD/qdesigner_utils_p.h \
     $$PWD/resourcemimedata_p.h \
     $$PWD/qdesigner_widgetbox_p.h \
-    $$PWD/qdesigner_widgetbox_p.h \
     $$PWD/signalslotdialog_p.h
 
 SOURCES += \

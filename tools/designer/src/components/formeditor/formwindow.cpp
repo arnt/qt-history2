@@ -1366,23 +1366,23 @@ void FormWindow::paste()
 
         QDesignerResource resource(this);
         QWidget *widget = core()->widgetFactory()->containerOfWidget(w);
-       const  QWidgetList widgets = resource.paste(&b, widget);
+        const  QWidgetList widgets = resource.paste(&b, widget);
+        if (!widgets.empty()) {
+            beginCommand(tr("Paste"));
+            foreach (QWidget *w, widgets) {
+                InsertWidgetCommand *cmd = new InsertWidgetCommand(this);
+                cmd->init(w);
+                m_commandHistory->push(cmd);
+                selectWidget(w);
+            }
+            endCommand();
 
-        beginCommand(tr("Paste"));
-        foreach (QWidget *w, widgets) {
-            InsertWidgetCommand *cmd = new InsertWidgetCommand(this);
-            cmd->init(w);
-            m_commandHistory->push(cmd);
-            selectWidget(w);
+            /* This will put the freshly pasted widgets into the clipboard, replacing the original.
+             *  The point here is that the copied widgets are shifted a little with respect to the original.
+             *  If the user presses paste again, the pasted widgets will be shifted again, rather than
+             *  appearing on top of the previously pasted widgets. */
+            copy();
         }
-        endCommand();
-
-        /* This will put the freshly pasted widgets into the clipboard, replacing the original.
-         *  The point here is that the copied widgets are shifted a little with respect to the original.
-         *  If the user presses paste again, the pasted widgets will be shifted again, rather than
-         *  appearing on top of the previously pasted widgets. */
-        copy();
-
     } else {
         QMessageBox::information(this, tr("Paste error"),
                                   tr("Can't paste widgets. Designer couldn't find a container\n"
