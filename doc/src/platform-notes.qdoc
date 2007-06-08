@@ -149,7 +149,7 @@
     This compiler gives compilation error
     \code
     ANSI C++ forbids declaration ... with no type
-    \encode
+    \endcode
     on systems with old X11 header files. This is fixed by patches
     \l{http://www5.itrc.hp.com/service/patch/patchDetail.do?patchid=PHSS_31001}{PHSS_31001}
     on HP-UX 11.11 and
@@ -203,7 +203,7 @@
 
     Be sure to check our \l{Compiler Notes#Sun Studio}{Forte Developer / Sun Studio}
     notes.
-    
+
     \section2 GCC on Solaris
 
     Be sure to check the installation notes for
