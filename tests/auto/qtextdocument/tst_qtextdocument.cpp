@@ -79,6 +79,7 @@ private slots:
 
     void clonePreservesTitle();
     void clonePreservesPageSize();
+    void clonePreservesPageBreakPolicies();
     void clonePreservesDefaultFont();
     void clonePreservesRootFrameFormat();
     void clonePreservesResources();
@@ -1332,6 +1333,32 @@ void tst_QTextDocument::toHtml_data()
                                    << QString("EMPTYBLOCK") +
                                       QString("<p OPENDEFAULTBLOCKSTYLE -qt-user-state:42;\">Foo</p>");
     }
+
+    {
+        CREATE_DOC_AND_CURSOR();
+
+        QTextBlockFormat blockFmt;
+        blockFmt.setPageBreakPolicy(QTextFormat::PageBreak_AlwaysBefore);
+
+        cursor.insertBlock(blockFmt);
+        cursor.insertText("Foo");
+
+        blockFmt.setPageBreakPolicy(QTextFormat::PageBreak_AlwaysBefore | QTextFormat::PageBreak_AlwaysAfter);
+
+        cursor.insertBlock(blockFmt);
+        cursor.insertText("Bar");
+
+        QTextTableFormat tableFmt;
+        tableFmt.setPageBreakPolicy(QTextFormat::PageBreak_AlwaysAfter);
+
+        cursor.insertTable(1, 1, tableFmt);
+
+        QTest::newRow("pagebreak") << QTextDocumentFragment(&doc)
+                                   << QString("EMPTYBLOCK") +
+                                      QString("<p OPENDEFAULTBLOCKSTYLE page-break-before:always;\">Foo</p>"
+                                              "\n<p OPENDEFAULTBLOCKSTYLE page-break-before:always; page-break-after:always;\">Bar</p>"
+                                              "\n<table border=\"1\" style=\" page-break-after:always;\" cellspacing=\"2\">\n<tr>\n<td></td></tr></table>");
+    }
 }
 
 void tst_QTextDocument::toHtml()
@@ -1626,6 +1653,27 @@ void tst_QTextDocument::clonePreservesPageSize()
     doc->setPageSize(sz);
     QTextDocument *clone = doc->clone();
     QCOMPARE(clone->pageSize(), sz);
+    delete clone;
+}
+
+void tst_QTextDocument::clonePreservesPageBreakPolicies()
+{
+    QTextTableFormat tableFmt;
+    tableFmt.setPageBreakPolicy(QTextFormat::PageBreak_AlwaysAfter);
+
+    QTextBlockFormat blockFmt;
+    blockFmt.setPageBreakPolicy(QTextFormat::PageBreak_AlwaysBefore);
+
+    QTextCursor cursor(doc);
+
+    cursor.setBlockFormat(blockFmt);
+    cursor.insertText("foo");
+    cursor.insertTable(2, 2, tableFmt);
+
+    QTextDocument *clone = doc->clone();
+    QCOMPARE(clone->begin().blockFormat().pageBreakPolicy(), QTextFormat::PageBreak_AlwaysBefore);
+    QVERIFY(!clone->rootFrame()->childFrames().isEmpty());
+    QCOMPARE(clone->rootFrame()->childFrames().first()->frameFormat().pageBreakPolicy(), QTextFormat::PageBreak_AlwaysAfter);
     delete clone;
 }
 

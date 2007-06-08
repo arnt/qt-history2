@@ -168,6 +168,7 @@ private slots:
     void css_textUnderlineStyleAndDecoration();
     void css_listStyleType();
     void css_linkPseudo();
+    void css_pageBreaks();
     void universalSelectors_data();
     void universalSelectors();
     void screenMedia();
@@ -2572,6 +2573,21 @@ void tst_QTextDocumentFragment::css_linkPseudo()
 
     doc->setHtml("<style>a:link { text-decoration: none; }</style><a href=\"foobar\">Blah</a>");
     QVERIFY(!doc->begin().begin().fragment().charFormat().fontUnderline());
+}
+
+void tst_QTextDocumentFragment::css_pageBreaks()
+{
+    doc->setHtml("<p>Foo</p>");
+    QVERIFY(doc->begin().blockFormat().pageBreakPolicy() == QTextFormat::PageBreak_Auto);
+
+    doc->setHtml("<p style=\" page-break-before:always;\">Foo</p>");
+    QVERIFY(doc->begin().blockFormat().pageBreakPolicy() == QTextFormat::PageBreak_AlwaysBefore);
+
+    doc->setHtml("<p style=\" page-break-after:always;\">Foo</p>");
+    QVERIFY(doc->begin().blockFormat().pageBreakPolicy() == QTextFormat::PageBreak_AlwaysAfter);
+
+    doc->setHtml("<p style=\" page-break-before:always; page-break-after:always;\">Foo</p>");
+    QVERIFY(doc->begin().blockFormat().pageBreakPolicy() == (QTextFormat::PageBreak_AlwaysAfter | QTextFormat::PageBreak_AlwaysBefore));
 }
 
 void tst_QTextDocumentFragment::universalSelectors_data()

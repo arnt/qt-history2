@@ -334,6 +334,7 @@ private:
     void emitAttribute(const char *attribute, const QString &value);
     void emitFrameStyle(const QTextFrameFormat &format, FrameType frameType);
     void emitBorderStyle(QTextFrameFormat::BorderStyle style);
+    void emitPageBreakPolicy(QTextFormat::PageBreakFlags policy);
 
     void emitFontFamily(const QString &family);
 

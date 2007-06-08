@@ -1900,6 +1900,15 @@ void QTextHtmlExporter::emitBorderStyle(QTextFrameFormat::BorderStyle style)
     html += QLatin1Char(';');
 }
 
+void QTextHtmlExporter::emitPageBreakPolicy(QTextFormat::PageBreakFlags policy)
+{
+    if (policy & QTextFormat::PageBreak_AlwaysBefore)
+        html += QLatin1String(" page-break-before:always;");
+
+    if (policy & QTextFormat::PageBreak_AlwaysAfter)
+        html += QLatin1String(" page-break-after:always;");
+}
+
 void QTextHtmlExporter::emitFontFamily(const QString &family)
 {
     html += QLatin1String(" font-family:");
@@ -2063,6 +2072,8 @@ void QTextHtmlExporter::emitBlockAttributes(const QTextBlock &block)
         html += QString::number(block.userState());
         html += QLatin1Char(';');
     }
+
+    emitPageBreakPolicy(format.pageBreakPolicy());
 
     const QTextCharFormat blockCharFmt = block.charFormat();
     QTextCharFormat diff = formatDifference(defaultCharFormat, blockCharFmt).toCharFormat();
@@ -2398,6 +2409,7 @@ void QTextHtmlExporter::emitFrameStyle(const QTextFrameFormat &format, FrameType
     const QTextFrameFormat defaultFormat;
 
     emitFloatStyle(format.position(), OmitStyleTag);
+    emitPageBreakPolicy(format.pageBreakPolicy());
 
     if (format.borderBrush() != defaultFormat.borderBrush()) {
         html += QLatin1String(" border-color:");
