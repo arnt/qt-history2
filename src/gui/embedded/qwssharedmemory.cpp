@@ -11,20 +11,20 @@
 **
 ****************************************************************************/
 
-#include "qsharedmemory_p.h"
+#include "qwssharedmemory_p.h"
 
 #if !defined(QT_NO_QWS_MULTIPROCESS)
 
 #include <sys/shm.h>
 
 
-QSharedMemory::QSharedMemory()
+QWSSharedMemory::QWSSharedMemory()
     : shmBase(0), shmSize(0), character(0),  shmId(-1), key(-1)
 {
 }
 
 
-QSharedMemory::~QSharedMemory()
+QWSSharedMemory::~QWSSharedMemory()
 {
     detach();
 }
@@ -36,7 +36,7 @@ QSharedMemory::~QSharedMemory()
     ify this behaviour and many other implementations do not support it.
 */
 
-bool QSharedMemory::create(int size)
+bool QWSSharedMemory::create(int size)
 {
     if (shmId != -1)
         detach();
@@ -44,7 +44,7 @@ bool QSharedMemory::create(int size)
 
     if (shmId == -1) {
 #ifdef QT_SHM_DEBUG
-        perror("QSharedMemory::create allocating shared memory");
+        perror("QWSSharedMemory::create allocating shared memory");
         qWarning("Error allocating shared memory of size %d", size);
 #endif
         return false;
@@ -53,7 +53,7 @@ bool QSharedMemory::create(int size)
     shmctl(shmId, IPC_RMID, 0);
     if (shmBase == (void*)-1) {
 #ifdef QT_SHM_DEBUG
-        perror("QSharedMemory::create attaching to shared memory");
+        perror("QWSSharedMemory::create attaching to shared memory");
         qWarning("Error attaching to shared memory id %d", shmId);
 #endif
         shmBase = 0;
@@ -62,7 +62,7 @@ bool QSharedMemory::create(int size)
     return true;
 }
 
-bool QSharedMemory::attach(int id)
+bool QWSSharedMemory::attach(int id)
 {
     if (shmId == id)
         return id != -1;
@@ -72,7 +72,7 @@ bool QSharedMemory::attach(int id)
     shmBase = shmat(id,0,0);
     if (shmBase == (void*)-1) {
 #ifdef QT_SHM_DEBUG
-        perror("QSharedMemory::attach attaching to shared memory");
+        perror("QWSSharedMemory::attach attaching to shared memory");
         qWarning("Error attaching to shared memory 0x%x of size %d",
                  id, size());
 #endif
@@ -84,7 +84,7 @@ bool QSharedMemory::attach(int id)
 }
 
 
-void QSharedMemory::detach ()
+void QWSSharedMemory::detach ()
 {
     if (!shmBase)
         return;
@@ -94,7 +94,7 @@ void QSharedMemory::detach ()
     shmId = -1;
 }
 
-void QSharedMemory::setPermissions (mode_t mode)
+void QWSSharedMemory::setPermissions (mode_t mode)
 {
   struct shmid_ds shm;
   shmctl (shmId, IPC_STAT, &shm);
@@ -102,7 +102,7 @@ void QSharedMemory::setPermissions (mode_t mode)
   shmctl (shmId, IPC_SET, &shm);
 }
 
-int QSharedMemory::size () const
+int QWSSharedMemory::size () const
 {
     struct shmid_ds shm;
     shmctl (shmId, IPC_STAT, &shm);
@@ -114,7 +114,7 @@ int QSharedMemory::size () const
 
 
 
-QSharedMemory::QSharedMemory (int size, const QString &filename, char c)
+QWSSharedMemory::QWSSharedMemory (int size, const QString &filename, char c)
 {
   shmSize = size;
   shmFile = filename;
@@ -126,19 +126,19 @@ QSharedMemory::QSharedMemory (int size, const QString &filename, char c)
 
 
 
-bool QSharedMemory::create ()
+bool QWSSharedMemory::create ()
 {
   shmId = shmget (key, shmSize, IPC_CREAT | 0666);
   return (shmId != -1);
 }
 
-void QSharedMemory::destroy ()
+void QWSSharedMemory::destroy ()
 {
     if (shmId != -1)
         shmctl(shmId, IPC_RMID, 0);
 }
 
-bool QSharedMemory::attach ()
+bool QWSSharedMemory::attach ()
 {
   if (shmId == -1)
     shmId = shmget (key, shmSize, 0);

@@ -32,7 +32,7 @@
 #include <QtCore/qvarlengtharray.h>
 #include <QtNetwork/qtcpsocket.h>
 #include <QtNetwork/qtcpserver.h>
-#include <private/qsharedmemory_p.h>
+#include <private/qwssharedmemory_p.h>
 
 #ifndef QT_NO_QWS_CURSOR
 class QVNCCursor : public QScreenCursor
@@ -213,7 +213,7 @@ public:
     QScreen *subscreen;
 
 #ifndef QT_NO_QWS_MULTIPROCESS
-    QSharedMemory *shm;
+    QWSSharedMemory *shm;
 #endif
 
     QVNCScreen *q_ptr;

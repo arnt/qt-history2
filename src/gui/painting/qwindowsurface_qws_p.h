@@ -28,7 +28,7 @@
 #include "qwindowsurface_p.h"
 #include <qregion.h>
 #include <qimage.h>
-#include <private/qsharedmemory_p.h>
+#include <private/qwssharedmemory_p.h>
 
 class QScreen;
 class QWSWindowSurfacePrivate;
@@ -176,7 +176,7 @@ public:
 private:
     bool setMemory(int memId);
 
-    QSharedMemory mem;
+    QWSSharedMemory mem;
 };
 #endif // QT_NO_QWS_MULTIPROCESS
 

@@ -28,7 +28,7 @@
 #include "qwsdisplay_qws.h"
 #include "qwssocket_qws.h"
 #include "qwsevent_qws.h"
-#include <private/qsharedmemory_p.h>
+#include <private/qwssharedmemory_p.h>
 #include "qwscommand_qws_p.h"
 #include "qwslock_p.h"
 
@@ -78,7 +78,7 @@ public:
 //    QWSRegionManager *rgnMan;
     uchar *sharedRam;
 #ifndef QT_NO_QWS_MULTIPROCESS
-    QSharedMemory shm;
+    QWSSharedMemory shm;
 #endif
     int sharedRamSize;
 

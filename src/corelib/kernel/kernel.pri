@@ -90,5 +90,3 @@ unix {
    contains(QT_CONFIG, clock-monotonic):include($$QT_SOURCE_TREE/config.tests/unix/clock-monotonic/clock-monotonic.pri)
 }
 
-embedded:SOURCES += kernel/qsharedmemory_p.cpp
-

@@ -30,6 +30,7 @@ embedded {
 		    embedded/qwssocket_qws.h \
 		    embedded/qwslock_p.h \
 		    embedded/qwsutils_qws.h \
+                    embedded/qwssharedmemory_p.h \
 		    embedded/qwssignalhandler_p.h \
 		    embedded/qwsembedwidget.h
 
@@ -51,6 +52,7 @@ embedded {
 		    embedded/qwsproperty_qws.cpp \
                     embedded/qtransportauth_qws.cpp \
 		    embedded/qwslock.cpp \
+                    embedded/qwssharedmemory.cpp \
 		    embedded/qwssocket_qws.cpp \
 		    embedded/qwssignalhandler.cpp \
 		    embedded/qwsembedwidget.cpp

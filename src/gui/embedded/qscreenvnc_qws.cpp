@@ -154,8 +154,8 @@ void QVNCScreenPrivate::configure()
                 shm->destroy();
             delete shm;
         }
-        shm = new QSharedMemory(q_ptr->size, qws_qtePipeFilename(),
-                                q_ptr->displayId);
+        shm = new QWSSharedMemory(q_ptr->size, qws_qtePipeFilename(),
+                                  q_ptr->displayId);
         if (!shm->create())
             qDebug("QVNCScreen could not create shared memory");
         if (!shm->attach())

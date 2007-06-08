@@ -11,16 +11,16 @@
 **
 ****************************************************************************/
 
-#ifndef QSHAREDMEMORY_P_H
-#define QSHAREDMEMORY_P_H
+#ifndef QWSSHAREDMEMORY_P_H
+#define QWSSHAREDMEMORY_P_H
 
 //
 //  W A R N I N G
 //  -------------
 //
-// This file is not part of the Qt API.  It exists for the convenience
-// of qapplication_qws.cpp and qgfxvnc_qws.cpp.  This header file may
-// change from version to version without notice, or even be removed.
+// This file is not part of the Qt API.  It exists purely as an
+// implementation detail.  This header file may change from version to
+// version without notice, or even be removed.
 //
 // We mean it.
 //
@@ -30,11 +30,11 @@
 
 #if !defined(QT_NO_QWS_MULTIPROCESS)
 
-class Q_CORE_EXPORT QSharedMemory {
+class QWSSharedMemory {
 public:
 
-    QSharedMemory();
-    ~QSharedMemory();
+    QWSSharedMemory();
+    ~QWSSharedMemory();
 
     void setPermissions(mode_t mode);
     int size() const;
@@ -51,7 +51,7 @@ public:
     //bool attach(const QString &filename, char c = 'Q');
 // old API
 
-    QSharedMemory(int, const QString &, char c = 'Q');
+    QWSSharedMemory(int, const QString &, char c = 'Q');
     void * base() { return address(); };
 
     bool create();
@@ -70,4 +70,4 @@ private:
 
 #endif // QT_NO_QWS_MULTIPROCESS
 
-#endif // QSHAREDMEMORY_P_H
+#endif // QWSSHAREDMEMORY_P_H
