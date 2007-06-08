@@ -2127,9 +2127,9 @@ void QTextEdit::setTabChangesFocus(bool b)
     The default mode is WidgetWidth which causes words to be
     wrapped at the right edge of the text edit. Wrapping occurs at
     whitespace, keeping whole words intact. If you want wrapping to
-    occur within words use setWrapPolicy(). If you set a wrap mode of
+    occur within words use setWordWrapMode(). If you set a wrap mode of
     FixedPixelWidth or FixedColumnWidth you should also call
-    setWrapColumnOrWidth() with the width you want.
+    setLineWrapColumnOrWidth() with the width you want.
 
     Note that setting NoWrap as line wrap mode will implicitly also
     set QTextOption::NoWrap as word wrap mode.
