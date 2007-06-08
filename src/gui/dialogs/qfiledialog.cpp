@@ -749,6 +749,7 @@ void QFileDialog::setFileMode(QFileDialog::FileMode mode)
     }
     setLabelText(Accept, buttonText);
     d->qFileDialogUi->fileTypeCombo->setEnabled(mode != DirectoryOnly);
+    d->_q_updateOkButton();
 }
 
 QFileDialog::FileMode QFileDialog::fileMode() const
