@@ -695,19 +695,21 @@ void QTextDocumentLayoutPrivate::drawBorder(QPainter *painter, const QRectF &rec
     Q_Q(const QTextDocumentLayout);
 
     const qreal pageHeight = q->document()->pageSize().height();
-    const int topPage = static_cast<int>(rect.top() / pageHeight);
-    const int bottomPage = static_cast<int>((rect.bottom() + border) / pageHeight);
+    const int topPage = pageHeight > 0 ? static_cast<int>(rect.top() / pageHeight) : 0;
+    const int bottomPage = pageHeight > 0 ? static_cast<int>((rect.bottom() + border) / pageHeight) : 0;
 
     QCss::BorderStyle cssStyle = static_cast<QCss::BorderStyle>(style + 1);
 
     for (int i = topPage; i <= bottomPage; ++i) {
         QRectF clipped = rect;
 
-        clipped.setTop(qMax(clipped.top(), i * pageHeight + topMargin - border));
-        clipped.setBottom(qMin(clipped.bottom(), (i + 1) * pageHeight - bottomMargin));
+        if (topPage != bottomPage) {
+            clipped.setTop(qMax(clipped.top(), i * pageHeight + topMargin - border));
+            clipped.setBottom(qMin(clipped.bottom(), (i + 1) * pageHeight - bottomMargin));
 
-        if (clipped.bottom() <= clipped.top())
-            continue;
+            if (clipped.bottom() <= clipped.top())
+                continue;
+        }
 
         qDrawEdge(painter, clipped.left(), clipped.top(), clipped.left() + border, clipped.bottom() + border, 0, 0, QCss::LeftEdge, cssStyle, brush);
         qDrawEdge(painter, clipped.left() + border, clipped.top(), clipped.right() + border, clipped.top() + border, 0, 0, QCss::TopEdge, cssStyle, brush);
