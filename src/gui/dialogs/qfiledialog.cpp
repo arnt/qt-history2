@@ -496,7 +496,7 @@ void QFileDialog::selectFile(const QString &filename)
     if (filename.isEmpty())
         return;
 
-    QModelIndex index = d->select(d->model->index(filename));
+    QModelIndex index = d->model->index(filename);
     if (!index.isValid()) {
         // save as dialog where we want to input a default value
         QString text = filename;
