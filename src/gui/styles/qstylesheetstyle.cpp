@@ -1128,6 +1128,9 @@ static bool unstylable(const QWidget *w)
     if (w->windowType() == Qt::Desktop)
         return true;
 
+    if (!w->styleSheet().isEmpty())
+        return false;
+
 #ifndef QT_NO_SCROLLAREA
     if (const QAbstractScrollArea *sa = qobject_cast<const QAbstractScrollArea *>(w->parentWidget())) {
         if (sa->viewport() == w)
