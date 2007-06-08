@@ -630,6 +630,7 @@ void QDockWidgetPrivate::initDrag(const QPoint &pos, bool nca)
     state->widgetItem = 0;
     state->ownWidgetItem = false;
     state->nca = nca;
+    state->ctrlDrag = false;
 }
 
 void QDockWidgetPrivate::startDrag()
@@ -652,6 +653,9 @@ void QDockWidgetPrivate::startDrag()
         state->widgetItem = new QDockWidgetItem(q);
         state->ownWidgetItem = true;
     }
+
+    if (state->ctrlDrag)
+        layout->restore();
 
     state->dragging = true;
 }
@@ -719,6 +723,7 @@ void QDockWidgetPrivate::mousePressEvent(QMouseEvent *event)
             return;
 
         initDrag(event->pos(), false);
+        state->ctrlDrag = event->modifiers() & Qt::ControlModifier;
     }
 
 #endif // !defined(QT_NO_MAINWINDOW)
@@ -773,7 +778,7 @@ void QDockWidgetPrivate::mouseMoveEvent(QMouseEvent *event)
         QPoint pos = event->globalPos() - state->pressPos;
         q->move(pos);
 
-        if (!(event->modifiers() & Qt::ControlModifier))
+        if (!state->ctrlDrag)
             mwlayout->hover(state->widgetItem, event->globalPos());
     }
 
@@ -818,6 +823,12 @@ void QDockWidgetPrivate::nonClientAreaMouseEvent(QMouseEvent *event)
             if (qobject_cast<QMainWindow*>(q->parentWidget()) == 0)
                 break;
             initDrag(event->pos(), true);
+#ifdef Q_OS_WIN
+            // On Windows, NCA mouse events don't contain modifier info
+            state->ctrlDrag = GetKeyState(VK_CONTROL) & 0x8000;
+#else
+            state->ctrlDrag = event->modifiers() & Qt::ControlModifier;
+#endif
             startDrag();
             break;
         case QEvent::NonClientAreaMouseMove:
@@ -833,7 +844,7 @@ void QDockWidgetPrivate::nonClientAreaMouseEvent(QMouseEvent *event)
                 Q_ASSERT(layout != 0);
 
                 q->move(event->globalPos() - state->pressPos);
-                if (!(event->modifiers() & Qt::ControlModifier))
+                if (!state->ctrlDrag)
                     layout->hover(state->widgetItem, event->globalPos());
             }
 #endif
@@ -861,6 +872,9 @@ void QDockWidgetPrivate::moveEvent(QMoveEvent *event)
 
     // When the native window frame is being dragged, all we get is these mouse
     // move events.
+
+    if (state->ctrlDrag)
+        return;
 
     QMainWindowLayout *layout
         = qobject_cast<QMainWindowLayout *>(q->parentWidget()->layout());

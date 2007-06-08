@@ -49,6 +49,7 @@ class QDockWidgetPrivate : public QWidgetPrivate
         QLayoutItem *widgetItem;
         bool ownWidgetItem;
         bool nca;
+        bool ctrlDrag;
     };
 
 public:
