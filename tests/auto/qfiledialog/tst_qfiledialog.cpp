@@ -80,6 +80,7 @@ private slots:
     void disableSaveButton();
 
     void clearLineEdit();
+    void enableChooseButton();
 
 private:
     QByteArray userSettings;
@@ -661,6 +662,17 @@ void tst_QFiledialog::clearLineEdit()
     QTest::mouseDClick(list->viewport(), Qt::LeftButton, 0, list->visualRect(subdir).center());
     QVERIFY(fd.directory().absolutePath() != QDir::home().absolutePath());
     QVERIFY(lineEdit->text().isEmpty());
+}
+
+void tst_QFiledialog::enableChooseButton()
+{
+    QFileDialog fd;
+    fd.setFileMode(QFileDialog::Directory);
+    fd.show();
+    QDialogButtonBox *buttonBox = fd.findChild<QDialogButtonBox*>("buttonBox");
+    QPushButton *button = buttonBox->button(QDialogButtonBox::Open);
+    QVERIFY(button);
+    QCOMPARE(button->isEnabled(), true);
 }
 
 QTEST_MAIN(tst_QFiledialog)
