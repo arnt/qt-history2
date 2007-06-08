@@ -18,7 +18,7 @@
 #include <qscreendriverfactory_qws.h>
 #include <qvector.h>
 #include <private/qpainter_p.h>
-#include <private/qdrawhelper_p.h>
+#include <private/qmemrotate_p.h>
 #include <qmatrix.h>
 
 #include <unistd.h>
