@@ -30,7 +30,7 @@ class MenuManager : public QObject
     Q_OBJECT
     
 public:
-    enum BUTTON_TYPE {ROOT, MENU1, MENU2, LAUNCH, DOCUMENTATION, QUIT, FULLSCREEN};
+    enum BUTTON_TYPE {ROOT, MENU1, MENU2, LAUNCH, DOCUMENTATION, QUIT, FULLSCREEN, MORE};
     
     // singleton pattern:
     static MenuManager *instance();
@@ -59,7 +59,7 @@ private:
     void readInfoAboutExample(const QDomElement &example);
     void launchExample(const QString &uniqueName);
     
-    QDomElement createMenu(const QDomElement &firstExample, BUTTON_TYPE type, Movie *movieIn, Movie *movieOut, Movie *movieShake);
+    void createMenu(const QDomElement &category, BUTTON_TYPE type);
     void createLowLeftButton(const QString label, BUTTON_TYPE type, Movie *movieIn, Movie *movieOut, Movie *movieShake);
     void createLowRightButton(const QString label, BUTTON_TYPE type, Movie *movieIn, Movie *movieOut, Movie *movieShake);
     void createLowRightLeafButton(const QString label, int pos, BUTTON_TYPE type, Movie *movieIn, Movie *movieOut, Movie */*movieShake*/);
@@ -76,7 +76,8 @@ private:
     QDomDocument *contentsDoc;
     QAssistantClient *assistant;
     QString currentMenu;
-    QString currentExample;
+    QString currentMenuButtons;
+    QString currentInfo;
     QDir docDir;
     QDir imgDir;
 };

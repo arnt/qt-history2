@@ -26,19 +26,27 @@ public:
     TextButton::BUTTONTYPE type;
     bool highlighted;
     bool pressed;
+    bool halfling;
 
-    ButtonBackground(TextButton::BUTTONTYPE type, bool highlighted, bool pressed, QGraphicsScene *scene, QGraphicsItem *parent) : DemoItem(scene, parent)
+    ButtonBackground(TextButton::BUTTONTYPE type, bool highlighted, bool pressed,
+        QGraphicsScene *scene, QGraphicsItem *parent, bool halfling) : DemoItem(scene, parent)
     {
         this->type = type;
         this->highlighted = highlighted;
         this->pressed = pressed;
-        useSharedImage(QString(__FILE__) + static_cast<int>(type) + highlighted + pressed);
+        this->halfling = halfling;
+        useSharedImage(QString(__FILE__) + static_cast<int>(type) + highlighted + pressed + halfling);
     }
 
 protected:
     QImage *createImage(const QMatrix &matrix) const
     {
-        QRect scaledRect = matrix.mapRect(QRect(0, 0, BUTTON_WIDTH, BUTTON_HEIGHT));
+        QRect scaledRect;
+        if (this->halfling)
+            scaledRect = matrix.mapRect(QRect(0, 0, BUTTON_WIDTH / 2, BUTTON_HEIGHT));
+        else
+            scaledRect = matrix.mapRect(QRect(0, 0, BUTTON_WIDTH, BUTTON_HEIGHT));
+        
         QImage *image = new QImage(scaledRect.width(), scaledRect.height(), QImage::Format_ARGB32_Premultiplied);
         image->fill(QColor(0, 0, 0, 0).rgba());
         QPainter painter(image);
@@ -86,18 +94,21 @@ protected:
            }
            painter.setBrush(brush);
         }
+
         painter.drawRoundRect(0, 0, scaledRect.width(), scaledRect.height(), 10, 90);
         return image;
     }
 };
 
-TextButton::TextButton(const QString &text, ALIGNMENT align, int userCode, QGraphicsScene *scene, QGraphicsItem *parent, BUTTONTYPE type)
+TextButton::TextButton(const QString &text, ALIGNMENT align, int userCode,
+    QGraphicsScene *scene, QGraphicsItem *parent, BUTTONTYPE type, bool halfling)
     : DemoItem(scene, parent)
 {
     this->menuName = text;
     this->alignment = align;
     this->buttonType = type;
     this->userCode = userCode;
+    this->halfling = halfling;
     
     this->checkable = true;
     this->state = OFF;
@@ -126,7 +137,10 @@ TextButton::~TextButton()
 
 QRectF TextButton::boundingRect() const
 {
-    return QRectF(0, 0, BUTTON_WIDTH, BUTTON_HEIGHT);
+    if (this->halfling)
+        return QRectF(0, 0, BUTTON_WIDTH / 2, BUTTON_HEIGHT);
+    else
+        return QRectF(0, 0, BUTTON_WIDTH, BUTTON_HEIGHT);
 };
 
 void TextButton::setupHoverText()
@@ -175,9 +189,9 @@ void TextButton::setState(STATE state)
 
 void TextButton::setupButtonBg()
 {
-    this->bgOn = new ButtonBackground(this->buttonType, true, true, this->scene(), this);
-    this->bgOff = new ButtonBackground(this->buttonType, false, false, this->scene(), this);
-    this->bgHighlight = new ButtonBackground(this->buttonType, true, false, this->scene(), this);
+    this->bgOn = new ButtonBackground(this->buttonType, true, true, this->scene(), this, this->halfling);
+    this->bgOff = new ButtonBackground(this->buttonType, false, false, this->scene(), this, this->halfling);
+    this->bgHighlight = new ButtonBackground(this->buttonType, true, false, this->scene(), this, this->halfling);
     this->setState(OFF);
 }
 

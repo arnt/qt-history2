@@ -28,7 +28,8 @@ public:
     enum BUTTONTYPE {SIDEBAR, PANEL};
     enum STATE {ON, OFF, HIGHLIGHT};
     
-    TextButton(const QString &text, ALIGNMENT align = LEFT, int userCode = 0, QGraphicsScene *scene = 0, QGraphicsItem *parent = 0, BUTTONTYPE color = SIDEBAR);
+    TextButton(const QString &text, ALIGNMENT align = LEFT, int userCode = 0,
+        QGraphicsScene *scene = 0, QGraphicsItem *parent = 0, BUTTONTYPE color = SIDEBAR, bool halfling = false);
     virtual ~TextButton();
     
     // overidden methods:
@@ -60,6 +61,7 @@ private:
     
     bool checkable;
     bool state;
+    bool halfling;
 };
 
 #endif // TEXT_BUTTON_H

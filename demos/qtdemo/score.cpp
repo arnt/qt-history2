@@ -98,3 +98,10 @@ void Score::insertMovie(const QString &indexName, Movie *movie)
     this->index.insert(indexName, movie);
 }
 
+Movie *Score::insertMovie(const QString &indexName)
+{
+    Movie *movie = new Movie();
+    insertMovie(indexName, movie);
+    return movie;
+}
+

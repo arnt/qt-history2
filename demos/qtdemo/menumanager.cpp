@@ -30,9 +30,10 @@ MenuManager::MenuManager()
     this->ticker = 0;
     this->assistant = new QAssistantClient(QLibraryInfo::location(QLibraryInfo::BinariesPath), this);
     this->score = new Score();
-    this->currentMenu = "-no menu";
+    this->currentMenu = "[no menu visible]";
+    this->currentMenuButtons = "[no menu buttons visible]";
+    this->currentInfo = "[no info visible]";
     this->currentMenuCode = -1;
-    this->currentExample = "-no example";
     this->readXmlDocument();
 }
 
@@ -65,43 +66,63 @@ void MenuManager::itemSelected(int userCode, const QString &menuName)
 {
     this->currentMenuCode = userCode;
     if (userCode == LAUNCH)
-        this->launchExample(this->currentExample);
+        this->launchExample(this->currentInfo);
     else if (userCode == DOCUMENTATION)
-            this->assistant->showPage(info[this->currentExample]["docfile"]);
+        this->assistant->showPage(info[this->currentInfo]["docfile"]);
     else if (userCode == QUIT){
-            this->window->loop = false;
-            QCoreApplication::quit();
-    } else if (userCode == FULLSCREEN)
-            this->window->toggleFullscreen();
+        this->window->loop = false;
+        QCoreApplication::quit(); }
+    else if (userCode == FULLSCREEN)
+        this->window->toggleFullscreen();
     else {
         if (userCode == ROOT){
-            this->score->queueMovie(this->currentMenu + " -out", Score::FROM_START, Score::LOCK_ITEMS);
-            this->score->queueMovie(this->currentExample + " -out");
-            this->score->queueMovie(this->currentExample + " -buttons -out");
-            this->score->queueMovie("Qt Examples and Demos", Score::FROM_START, Score::UNLOCK_ITEMS);
-            this->score->queueMovie("Qt Examples and Demos -info");
-            if (!Colors::noTicker)
+            // out:
+            this->score->queueMovie(this->currentMenu + " -menu1 -out", Score::FROM_START, Score::LOCK_ITEMS);
+            this->score->queueMovie(this->currentMenuButtons + " -out", Score::FROM_START, Score::LOCK_ITEMS);
+            this->score->queueMovie(this->currentInfo + " -out");
+            this->score->queueMovie(this->currentInfo + " -buttons -out", Score::NEW_ANIMATION_ONLY);
+            // book-keeping:
+            this->currentMenu = "Qt Examples and Demos";
+            this->currentMenuButtons = this->currentMenu + " -buttons";
+            this->currentInfo = this->currentMenu + " -info";
+            // in:
+            this->score->queueMovie(this->currentMenu + " -menu1", Score::FROM_START, Score::UNLOCK_ITEMS);
+            this->score->queueMovie(this->currentMenuButtons, Score::FROM_START, Score::UNLOCK_ITEMS);
+            this->score->queueMovie(this->currentInfo);
+            if (!Colors::noTicker){
                 this->ticker->useGuideQt();
-            this->score->queueMovie("ticker", Score::NEW_ANIMATION_ONLY);
-            this->window->switchTimerOnOff(true);
+                this->score->queueMovie("ticker", Score::NEW_ANIMATION_ONLY);
+                this->window->switchTimerOnOff(true);
+            }
         } else if (userCode == MENU1){
+            // out:
+            this->score->queueMovie(this->currentMenu + " -menu1 -out", Score::FROM_START, Score::LOCK_ITEMS);
+            this->score->queueMovie(this->currentMenuButtons + " -out", Score::FROM_START, Score::LOCK_ITEMS);
+            this->score->queueMovie(this->currentInfo + " -out");
+            // book-keeping:
             this->currentMenu = menuName;
-            this->currentExample = menuName + " -info";
-            this->score->queueMovie("Qt Examples and Demos -out", Score::FROM_START, Score::LOCK_ITEMS);
-            this->score->queueMovie("Qt Examples and Demos -info -out");
-            this->score->queueMovie(this->currentMenu, Score::FROM_START, Score::UNLOCK_ITEMS);
-            this->score->queueMovie(this->currentExample);
+            this->currentMenuButtons = this->currentMenu + " -buttons";
+            this->currentInfo = this->currentMenu + " -info";
+            // in:
+            this->score->queueMovie(this->currentMenu + " -menu1", Score::FROM_START, Score::UNLOCK_ITEMS);
+            this->score->queueMovie(this->currentMenuButtons, Score::FROM_START, Score::UNLOCK_ITEMS);
+            this->score->queueMovie(this->currentInfo);         
             if (!Colors::noTicker)
                 this->ticker->useGuideTt();
         } else if (userCode == MENU2){
-            this->score->queueMovie(this->currentExample + " -out", Score::NEW_ANIMATION_ONLY);
-            this->score->queueMovie(this->currentExample + " -buttons -out", Score::NEW_ANIMATION_ONLY);
-            this->score->queueMovie("ticker -out", Score::NEW_ANIMATION_ONLY);        
-            this->score->queueMovie(this->currentMenu + " -shake");
-            this->score->queueMovie(menuName, Score::NEW_ANIMATION_ONLY);
-            this->score->queueMovie(menuName + " -buttons", Score::NEW_ANIMATION_ONLY);
-            this->currentExample = menuName;
-            this->window->switchTimerOnOff(false);
+            // out:
+            this->score->queueMovie(this->currentInfo + " -out", Score::NEW_ANIMATION_ONLY);
+            this->score->queueMovie(this->currentInfo + " -buttons -out", Score::NEW_ANIMATION_ONLY);
+            // book-keeping:
+            this->currentInfo = menuName;
+            // in / shake:
+            this->score->queueMovie(this->currentMenu + " -menu1 -shake");
+            this->score->queueMovie(this->currentInfo, Score::NEW_ANIMATION_ONLY);
+            this->score->queueMovie(this->currentInfo + " -buttons", Score::NEW_ANIMATION_ONLY);
+            if (!Colors::noTicker){
+                this->score->queueMovie("ticker -out", Score::NEW_ANIMATION_ONLY);        
+                this->window->switchTimerOnOff(false);
+            }
         }
         this->score->playQue();
     }
@@ -258,88 +279,102 @@ QString MenuManager::resolveImgFile(const QDomElement &example)
 
 void MenuManager::createRootMenu(const QDomElement &el)
 {
-    Movie *movieIn = new Movie();
-    Movie *movieOut = new Movie();
-    
-    this->score->insertMovie(el.attribute("name"), movieIn);
-    this->score->insertMovie(el.attribute("name")+ " -out", movieOut);
+    QString name = el.attribute("name");
+    createMenu(el, MENU1);
+    createInfo(new MenuContentItem(el, this->window->scene, 0), name + " -info");
 
-    createMenu(el.firstChild().toElement(), MENU1, movieIn, movieOut, 0);
-    createLowLeftButton(QLatin1String("Quit"), QUIT, movieIn, movieOut, 0);
-    createLowRightButton("Toggle fullscreen", FULLSCREEN, movieIn, movieOut, 0);
-    createInfo(new MenuContentItem(el, this->window->scene, 0), el.attribute("name") + " -info");
+    Movie *menuButtonsIn = this->score->insertMovie(name + " -buttons");
+    Movie *menuButtonsOut = this->score->insertMovie(name + " -buttons -out");
+    createLowLeftButton(QLatin1String("Quit"), QUIT, menuButtonsIn, menuButtonsOut, 0);
+    createLowRightButton("Toggle fullscreen", FULLSCREEN, menuButtonsIn, menuButtonsOut, 0);
 }
 
 void MenuManager::createSubMenu(const QDomElement &el)
 {
-    Movie *movieIn = new Movie();
-    Movie *movieOut = new Movie();
-    Movie *movieShake = new Movie();
-    
-    this->score->insertMovie(el.attribute("name"), movieIn);
-    this->score->insertMovie(el.attribute("name")+ " -out", movieOut);
-    this->score->insertMovie(el.attribute("name")+ " -shake", movieShake);
+    QString name = el.attribute("name");
+    createMenu(el, MENU2);
+    createInfo(new MenuContentItem(el, this->window->scene, 0), name + " -info");
 
-    createMenu(el.firstChild().toElement(), MENU2, movieIn, movieOut, movieShake);
-    createLowLeftButton(QLatin1String("Main menu"), ROOT, movieIn, movieOut, 0);
-    createInfo(new MenuContentItem(el, this->window->scene, 0), el.attribute("name") + " -info");
+    Movie *menuButtonsIn = this->score->insertMovie(name + " -buttons");
+    Movie *menuButtonsOut = this->score->insertMovie(name + " -buttons -out");
+    createLowLeftButton(QLatin1String("Main menu"), ROOT, menuButtonsIn, menuButtonsOut, 0);
 }
 
 void MenuManager::createLeafMenu(const QDomElement &el)
 {    
-    Movie *movieIn = new Movie();
-    Movie *movieOut = new Movie();
+    QString name = el.attribute("name");
+    createInfo(new ExampleContent(name, this->window->scene, 0), name);
     
-    this->score->insertMovie(el.attribute("name") + " -buttons", movieIn);
-    this->score->insertMovie(el.attribute("name") + " -buttons -out", movieOut);
-    
+    Movie *infoButtonsIn = this->score->insertMovie(name + " -buttons");
+    Movie *infoButtonsOut = this->score->insertMovie(name + " -buttons -out");
+    createLowRightLeafButton("Documentation", 600, DOCUMENTATION, infoButtonsIn, infoButtonsOut, 0);    
     if (el.attribute("executable") != "false")
-        createLowRightLeafButton("Launch", 405, LAUNCH, movieIn, movieOut, 0);    
-    createLowRightLeafButton("Documentation", 600, DOCUMENTATION, movieIn, movieOut, 0);    
-    createInfo(new ExampleContent(el.attribute("name"), this->window->scene, 0), el.attribute("name"));
+        createLowRightLeafButton("Launch", 405, LAUNCH, infoButtonsIn, infoButtonsOut, 0);    
 }
 
-QDomElement MenuManager::createMenu(const QDomElement &firstExample, BUTTON_TYPE type, Movie *movieIn, Movie *movieOut, Movie *movieShake)
+void MenuManager::createMenu(const QDomElement &category, BUTTON_TYPE type)
 {
     qreal sw = this->window->scene->sceneRect().width();
     int xOffset = 15;
     int yOffset = 10;
-    int maxExamples = 10;
-
-    QDomElement currentExample = firstExample;
-    int i=0;
-    while (!currentExample.isNull() && i < maxExamples){
-        TextButton *item = new TextButton(currentExample.attribute("name"), TextButton::LEFT, type, this->window->scene, 0);
-        item->setRecursiveVisible(false);
-        item->setZValue(10);
-        qreal ih = item->sceneBoundingRect().height();
-        qreal iw = item->sceneBoundingRect().width();
-        qreal ihp = ih + 3;
+    int maxExamples = 20;
+    int menuIndex = 0;
+    QString name = category.attribute("name");
+    QDomNode currentNode = category.firstChild();
         
-        // create in-animation:
-        DemoItemAnimation *anim = new DemoItemAnimation(item, DemoItemAnimation::ANIM_IN);
-        anim->setDuration(float(1000 + (i * 20)) * Colors::animSpeedButtons);
-        anim->setStartPos(QPointF(xOffset, -ih));
-        anim->setPosAt(0.20, QPointF(xOffset, -ih));
-        anim->setPosAt(0.50, QPointF(xOffset, (i * ihp) + yOffset + Colors::contentStartY + (10 * float(i / 4.0f))));
-        anim->setPosAt(0.60, QPointF(xOffset, (i * ihp) + yOffset + Colors::contentStartY));
-        anim->setPosAt(0.70, QPointF(xOffset, (i * ihp) + yOffset + Colors::contentStartY + (5 * float(i / 4.0f))));
-        anim->setPosAt(0.80, QPointF(xOffset, (i * ihp) + yOffset + Colors::contentStartY));
-        anim->setPosAt(0.90, QPointF(xOffset, (i * ihp) + yOffset + Colors::contentStartY + (2 * float(i / 4.0f))));
-        anim->setPosAt(1.00, QPointF(xOffset, (i * ihp) + yOffset + Colors::contentStartY));
-        movieIn->append(anim);
+    while (!currentNode.isNull()){
+        Movie *movieIn = new Movie();
+        Movie *movieOut = new Movie();
+        Movie *movieNext = new Movie();
+        Movie *moviePrev = new Movie();
+        Movie *movieShake = new Movie();
         
-        // create out-animation:
-        anim = new DemoItemAnimation(item, DemoItemAnimation::ANIM_OUT);
-        anim->hideOnFinished = true;
-        anim->setDuration((700 + (30 * i)) * Colors::animSpeedButtons);
-        anim->setStartPos(QPointF(xOffset, (i * ihp) + yOffset + Colors::contentStartY));
-        anim->setPosAt(0.60, QPointF(xOffset, 600 - ih - ih));
-        anim->setPosAt(0.65, QPointF(xOffset + 20, 600 - ih));
-        anim->setPosAt(1.00, QPointF(sw + iw, 600 - ih));
-        movieOut->append(anim);
+        ++menuIndex;
+        QString moreString = QLatin1String(" -menu") + QString::number(menuIndex);
+        this->score->insertMovie(name + moreString, movieIn);
+        this->score->insertMovie(name + moreString + " -out", movieOut);
+        this->score->insertMovie(name + moreString + " -next", movieNext);
+        this->score->insertMovie(name + moreString + " -prev", moviePrev);
+        this->score->insertMovie(name + moreString + " -shake", movieShake);
 
-        if (movieShake){
+        int i = 0;
+        while (!currentNode.isNull() && i <= maxExamples){
+            QDomElement currentInfo = currentNode.toElement();
+            TextButton *item;
+            if (i == maxExamples)
+                item = new TextButton("More...", TextButton::LEFT, MORE, this->window->scene, 0, TextButton::PANEL);
+            else
+                item = new TextButton(currentInfo.attribute("name"), TextButton::LEFT, type, this->window->scene, 0);
+                
+            item->setRecursiveVisible(false);
+            item->setZValue(10);
+            qreal ih = item->sceneBoundingRect().height();
+            qreal iw = item->sceneBoundingRect().width();
+            qreal ihp = ih + 3;
+            
+            // create in-animation:
+            DemoItemAnimation *anim = new DemoItemAnimation(item, DemoItemAnimation::ANIM_IN);
+            anim->setDuration(float(1000 + (i * 20)) * Colors::animSpeedButtons);
+            anim->setStartPos(QPointF(xOffset, -ih));
+            anim->setPosAt(0.20, QPointF(xOffset, -ih));
+            anim->setPosAt(0.50, QPointF(xOffset, (i * ihp) + yOffset + Colors::contentStartY + (10 * float(i / 4.0f))));
+            anim->setPosAt(0.60, QPointF(xOffset, (i * ihp) + yOffset + Colors::contentStartY));
+            anim->setPosAt(0.70, QPointF(xOffset, (i * ihp) + yOffset + Colors::contentStartY + (5 * float(i / 4.0f))));
+            anim->setPosAt(0.80, QPointF(xOffset, (i * ihp) + yOffset + Colors::contentStartY));
+            anim->setPosAt(0.90, QPointF(xOffset, (i * ihp) + yOffset + Colors::contentStartY + (2 * float(i / 4.0f))));
+            anim->setPosAt(1.00, QPointF(xOffset, (i * ihp) + yOffset + Colors::contentStartY));
+            movieIn->append(anim);
+            
+            // create out-animation:
+            anim = new DemoItemAnimation(item, DemoItemAnimation::ANIM_OUT);
+            anim->hideOnFinished = true;
+            anim->setDuration((700 + (30 * i)) * Colors::animSpeedButtons);
+            anim->setStartPos(QPointF(xOffset, (i * ihp) + yOffset + Colors::contentStartY));
+            anim->setPosAt(0.60, QPointF(xOffset, 600 - ih - ih));
+            anim->setPosAt(0.65, QPointF(xOffset + 20, 600 - ih));
+            anim->setPosAt(1.00, QPointF(sw + iw, 600 - ih));
+            movieOut->append(anim);
+        
             // create shake-animation:
             anim = new DemoItemAnimation(item);
             anim->setDuration(700 * Colors::animSpeedButtons);
@@ -350,12 +385,13 @@ QDomElement MenuManager::createMenu(const QDomElement &firstExample, BUTTON_TYPE
             anim->setPosAt(0.90, QPointF(xOffset - 2, (i * ihp) + yOffset + Colors::contentStartY - i*0.5));
             anim->setPosAt(1.00, QPointF(xOffset, (i * ihp) + yOffset + Colors::contentStartY));
             movieShake->append(anim);
+
+            i++;
+            currentNode = currentNode.nextSibling();
         }
-        i++;
-        currentExample = currentExample.nextSibling().toElement();
     }
-    return currentExample;
 }
+
 
 void MenuManager::createLowLeftButton(const QString label, BUTTON_TYPE type, Movie *movieIn, Movie *movieOut, Movie */*movieShake*/)
 {

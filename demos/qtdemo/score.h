@@ -41,6 +41,7 @@ public:
     
     void playMovie(const QString &indexName, RUN_MODE runMode = FROM_START, LOCK_MODE lockMode = SKIP_LOCK);
     void insertMovie(const QString &indexName, Movie *movie);
+    Movie *insertMovie(const QString &indexName);
     void queueMovie(const QString &indexName, RUN_MODE runMode = FROM_START, LOCK_MODE lockMode = SKIP_LOCK);
     void playQue();
 
