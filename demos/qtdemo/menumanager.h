@@ -30,7 +30,7 @@ class MenuManager : public QObject
     Q_OBJECT
     
 public:
-    enum BUTTON_TYPE {ROOT, MENU1, MENU2, LAUNCH, DOCUMENTATION, QUIT, FULLSCREEN, MORE};
+    enum BUTTON_TYPE {ROOT, MENU1, MENU2, LAUNCH, DOCUMENTATION, QUIT, FULLSCREEN, BACK, MORE};
     
     // singleton pattern:
     static MenuManager *instance();
