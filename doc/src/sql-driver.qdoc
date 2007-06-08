@@ -98,7 +98,7 @@
     \target QMYSQL
     \section2 QMYSQL for MySQL 4 and higher
 
-    \section3 Stored Procedure Support
+    \section3 QMYSQL Stored Procedure Support
 
     MySQL 5 introduces stored procedure support at the SQL level, but no
     API to control IN, OUT and INOUT parameters. Therefore, parameters
@@ -141,7 +141,7 @@
     Please refer to the MySQL documentation, chapter "libmysqld, the Embedded
     MySQL Server Library" for more information about the MySQL embedded server.
 
-    \section3 How to Build the Plugin on Unix and Mac OS X
+    \section3 How to Build the QMYSQL Plugin on Unix and Mac OS X
 
     You need the MySQL header files and as well as the shared library
     \c{libmysqlclient.so}. Depending on your Linux distribution you may
@@ -165,7 +165,7 @@
         make install
     \endcode
 
-    \section3 How to Build the Plugin on Windows
+    \section3 How to Build the QMYSQL Plugin on Windows
 
     You need to get the MySQL installation files. Run \c SETUP.EXE and
     choose "Custom Install". Install the "Libs & Include Files" Module.
@@ -184,13 +184,13 @@
     \target QOCI
     \section2 QOCI for the Oracle Call Interface (OCI)
 
-    \section3 General Information
+    \section3 General Information about the OCI plugin
 
     The Qt OCI plugin supports Oracle 9i, 10g and higher. After
     connecting to the Oracle server, the plugin will auto-detect the
     database version and enable features accordingly.
 
-    \section3 User Authentication
+    \section3 OCI User Authentication
 
     The Qt OCI plugin supports authentication using
     external credentials (OCI_CRED_EXT). Usually, this means that the database
@@ -200,7 +200,7 @@
     Leave the username and password empty when opening a connection with
     QSqlDatabase to use the external credentials authentication.
 
-    \section3 BLOB/LOB Support
+    \section3 OCI BLOB/LOB Support
 
     Binary Large Objects (BLOBs) can be read and written, but be aware
     that this process may require a lot of memory. You should use a forward
@@ -210,7 +210,7 @@
     BLOBs are bound to placeholders or QSqlTableModel, which uses a prepared
     query to do this internally.
 
-    \section3 How to Build the Plugin on Unix and Mac OS X
+    \section3 How to Build the OCI Plugin on Unix and Mac OS X
 
     For Oracle 10g, all you need is the "Instant Client Package - Basic" and
     "Instant Client Package - SDK". For Oracle prior to 10g, you require
@@ -241,7 +241,7 @@
         make
     \endcode
 
-    \section3 How to Build the Plugin on Windows
+    \section3 How to Build the OCI Plugin on Windows
 
     Choosing the option "Programmer" in the Oracle Client Installer from
     the Oracle Client Installation CD is sufficient to build the plugin.
@@ -270,7 +270,7 @@
     \target QODBC
     \section2 QODBC for Open Database Connectivity (ODBC)
 
-    \section3 General Information
+    \section3 General Information about the ODBC plugin
 
     ODBC is a general interface that allows you to connect to multiple
     DBMSs using a common interface. The QODBC driver allows you to connect
@@ -305,7 +305,7 @@
     If you experience very slow access of the ODBC datasource, make sure
     that ODBC call tracing is turned off in the ODBC datasource manager.
 
-    \section3 Stored Procedure Support
+    \section3 ODBC Stored Procedure Support
 
     With Microsoft SQL Server the result set returned by a stored 
     procedure that uses the return statement, or returns multiple result
@@ -323,7 +323,7 @@
     is discarded. If the stored procedure returns multiple result sets only
     the first will be accessible.
 
-    \section3 Unicode Support
+    \section3 ODBC Unicode Support
 
     The QODBC Plugin will use the Unicode API if UNICODE is defined. On
     Windows NT based systems, this is the default. Note that the ODBC
@@ -333,7 +333,7 @@
     "SQL_WCHAR support" in the ODBC driver manager otherwise Oracle
     will convert all Unicode strings to local 8-bit.
 
-    \section3 How to Build the Plugin on Unix and Mac OS X
+    \section3 How to Build the ODBC Plugin on Unix and Mac OS X
 
     It is recommended that you use unixODBC. You can find the latest
     version and ODBC drivers at \l http://www.unixodbc.org.
@@ -349,7 +349,7 @@
         make
     \endcode
 
-    \section3 How to Build the Plugin on Windows
+    \section3 How to Build the ODBC Plugin on Windows
 
     The ODBC header and include files should already be installed in the
     right directories. You just have to build the plugin as follows:
@@ -366,13 +366,13 @@
     \target QPSQL
     \section2 QPSQL for PostgreSQL (Version 7.3 and Above)
 
-    \section3 General Information
+    \section3 General Information about the QPSQL driver
 
     The QPSQL driver supports version 7.3 and higher of PostgreSQL.
 
     For more information about PostgreSQL visit \l http://www.postgresql.org.
 
-    \section3 Unicode Support
+    \section3 QPSQL Unicode Support
 
     The QPSQL driver automatically detects whether the PostgreSQL
     database you are connecting to supports Unicode or not. Unicode is
@@ -387,12 +387,12 @@
     multibyte enabled PostgreSQL server can be found in the PostgreSQL
     Administrator Guide, Chapter 5.
 
-    \section3 BLOB Support
+    \section3 QPSQL BLOB Support
 
     Binary Large Objects are supported through the \c BYTEA field type in
     PostgreSQL server versions >= 7.1.
 
-    \section3 How to Build the Plugin on Unix and Mac OS X
+    \section3 How to Build the QPSQL Plugin on Unix and Mac OS X
 
     You need the PostgreSQL client library and headers installed.
 
@@ -414,7 +414,7 @@
         make install
     \endcode
 
-    \section3 How to Build the Plugin on Windows
+    \section3 How to Build the QPSQL Plugin on Windows
 
     Install the PostgreSQL developer libraries. Assuming that PostgreSQL
     was installed in \c{C:\psql}, build the plugin as follows:
@@ -427,13 +427,13 @@
 
     \target QTDS
     \section2 QTDS for Sybase Adaptive Server
-    \section3 General Information
+    \section3 General Information about QTDS
 
     It is not possible to set the port with QSqlDatabase::setPort() due to limitations in the 
     Sybase client library. Refer to the Sybase documentation for information on how to set up
     a Sybase client configuration file to enable connections to databases on non-default ports. 
 
-    \section3 How to Build the Plugin on Unix and Mac OS X
+    \section3 How to Build the QDTS Plugin on Unix and Mac OS X
 
     Under Unix, two libraries are available which support the TDS protocol:
 
@@ -458,7 +458,7 @@
         make
     \endcode
 
-    \section3 How to Build the Plugin on Windows
+    \section3 How to Build the QDTS Plugin on Windows
 
     You can either use the DB-Library supplied by Microsoft or the Sybase
     Open Client (\l{http://www.sybase.com}). You must include \c
@@ -479,7 +479,7 @@
     \target QDB2
     \section2 QDB2 for IBM DB2 (Version 7.1 and Above)
 
-    \section3 General Information
+    \section3 General Information about QDB2
 
     The Qt DB2 plugin makes it possible to access IBM DB2 databases. It
     has been tested with IBM DB2 v7.1 and 7.2. You must install the IBM
@@ -492,7 +492,7 @@
     We suggest using a forward-only query when calling stored procedures
     in DB2 (see QSqlQuery::setForwardOnly()).
 
-    \section3 How to Build the Plugin on Unix and Mac OS X
+    \section3 How to Build the QDB2 Plugin on Unix and Mac OS X
 
     \code
         cd $QTDIR/src/plugins/sqldrivers/db2
@@ -508,7 +508,7 @@
         make install
     \endcode
 
-    \section3 How to Build the Plugin on Windows
+    \section3 How to Build the QDB2 Plugin on Windows
 
     The DB2 header and include files should already be installed in the
     right directories. You just have to build the plugin as follows:
@@ -532,8 +532,7 @@
     \target QSQLITE
     \section2 QSQLITE for SQLite (Version 3 and Above)
 
-
-    \section3 General Information
+    \section3 General Information about QSQLITE
 
     The Qt SQLite plugin makes it possible to access SQLite
     databases. SQLite is an in-process database, which means that it
@@ -560,7 +559,7 @@
 
     You can find information about SQLite on \l{http://www.sqlite.org}.
 
-    \section3 How to Build the Plugin
+    \section3 How to Build the QSQLITE Plugin
 
     SQLite version 3 is included as a third-party library within Qt.
     It can be built by passing the following parameters to the
@@ -593,7 +592,7 @@
         nmake
     \endcode
 
-    \section3 File Format Compatibility
+    \section3 QSQLITE File Format Compatibility
 
     SQLite minor releases sometimes break file format forward compatibility.
     For example, SQLite 3.3 can read database files created with SQLite 3.2,
@@ -613,7 +612,7 @@
     \target QIBASE
     \section2 QIBASE for Borland InterBase
 
-    \section3 General Information
+    \section3 General Information about QIBASE
 
     The Qt InterBase plugin makes it possible to access the InterBase and
     Firebird databases. InterBase can either be used as a client/server or
@@ -636,7 +635,7 @@
     Edition are not allowed to link this plugin to the commercial editions of
     InterBase. Please use Firebird or the free edition of InterBase.
 
-    \section3 Unicode Support and Text Encoding
+    \section3 QIBASE Unicode Support and Text Encoding
 
     By default the driver connects to the database using UNICODE_FSS. This can 
     be overridden by setting the ISC_DPB_LC_CTYPE parameter with
@@ -654,7 +653,7 @@
     Note that if the text encoding set when connecting to the database is
     not the same as in the database, problems with transliteration might arise.
 
-    \section3 Stored procedures
+    \section3 QIBASE Stored procedures
 
     InterBase/Firebird return OUT values as result set, so when calling stored
     procedure, only IN values need to be bound via QSqlQuery::bindValue(). The
@@ -667,7 +666,7 @@
     qDebug() << q.value(0); // outputs the first RETURN/OUT value
     \endcode
 
-    \section3 How to Build the Plugin on Unix and Mac OS X
+    \section3 How to Build the QIBASE Plugin on Unix and Mac OS X
 
     The following assumes InterBase or Firebird is installed in
     \c{/opt/interbase}:
@@ -688,7 +687,7 @@
         make
     \endcode
 
-    \section3 How to Build the Plugin on Windows
+    \section3 How to Build the QIBASE Plugin on Windows
 
     The following assumes InterBase or Firebird is installed in
     \c{C:\interbase}:
