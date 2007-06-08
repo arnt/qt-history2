@@ -2865,7 +2865,9 @@ void QAbstractItemViewPrivate::_q_columnsRemoved(const QModelIndex &, int, int)
 */
 void QAbstractItemViewPrivate::_q_modelDestroyed()
 {
+    Q_Q(QAbstractItemView);
     model = QAbstractItemModelPrivate::staticEmptyModel();
+    QMetaObject::invokeMethod(q, "reset", Qt::QueuedConnection);
 }
 
 /*!
