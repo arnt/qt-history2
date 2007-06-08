@@ -53,6 +53,7 @@ TextEdit::TextEdit(QWidget *parent)
     {
         QMenu *helpMenu = new QMenu(tr("Help"), this);
         menuBar()->addMenu(helpMenu);
+        helpMenu->addAction(tr("About"), this, SLOT(about())); 
         helpMenu->addAction(tr("About &Qt"), qApp, SLOT(aboutQt()));
     }
 
@@ -584,6 +585,13 @@ void TextEdit::cursorPositionChanged()
 void TextEdit::clipboardDataChanged()
 {
     actionPaste->setEnabled(!QApplication::clipboard()->text().isEmpty());
+}
+
+void TextEdit::about()
+{
+    QMessageBox::about(this, tr("About"), tr("This example demonstrates Qt's "
+        "rich text editing facilities in action, providing an example "
+        "document for you to experiment with."));
 }
 
 void TextEdit::mergeFormatOnWordOrSelection(const QTextCharFormat &format)

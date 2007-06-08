@@ -65,7 +65,8 @@ private slots:
     void cursorPositionChanged();
 
     void clipboardDataChanged();
-
+    void about();
+    
 private:
     void mergeFormatOnWordOrSelection(const QTextCharFormat &format);
     void fontChanged(const QFont &f);
