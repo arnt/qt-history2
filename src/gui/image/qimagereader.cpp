@@ -1244,6 +1244,7 @@ QByteArray QImageReader::imageFormat(QIODevice *device)
     \row    \o PBM    \o Portable Bitmap
     \row    \o PGM    \o Portable Graymap
     \row    \o PPM    \o Portable Pixmap
+    \row    \o TIFF   \o Tagged Image File Format
     \row    \o XBM    \o X11 Bitmap
     \row    \o XPM    \o X11 Pixmap
     \endtable

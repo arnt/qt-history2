@@ -623,6 +623,7 @@ bool QImageWriter::supportsOption(QImageIOHandler::ImageOption option) const
     \row    \o JPEG   \o Joint Photographic Experts Group
     \row    \o PNG    \o Portable Network Graphics
     \row    \o PPM    \o Portable Pixmap
+    \row    \o TIFF   \o Tagged Image File Format
     \row    \o XBM    \o X11 Bitmap
     \row    \o XPM    \o X11 Pixmap
     \endtable
