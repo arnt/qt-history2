@@ -86,7 +86,8 @@ void Score::queueMovie(const QString &indexName, RUN_MODE runMode, LOCK_MODE loc
 
 void Score::playQue()
 {
-    for (int i=0; i<this->playList.size(); i++)
+    int movieCount = this->playList.size();
+    for (int i=0; i<movieCount; i++)
         this->play(this->playList.at(i).movie, RUN_MODE(this->playList.at(i).runMode));
     this->playList.clear();
     if (Colors::verbose)

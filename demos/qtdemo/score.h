@@ -44,7 +44,8 @@ public:
     Movie *insertMovie(const QString &indexName);
     void queueMovie(const QString &indexName, RUN_MODE runMode = FROM_START, LOCK_MODE lockMode = SKIP_LOCK);
     void playQue();
-
+    bool Score::hasQueuedMovies(){ return this->playList.size() > 0; };
+    
     MovieIndex index;
     PlayList playList;
     

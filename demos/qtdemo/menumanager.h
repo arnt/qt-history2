@@ -60,9 +60,10 @@ private:
     void launchExample(const QString &uniqueName);
     
     void createMenu(const QDomElement &category, BUTTON_TYPE type);
-    void createLowLeftButton(const QString label, BUTTON_TYPE type, Movie *movieIn, Movie *movieOut, Movie *movieShake);
-    void createLowRightButton(const QString label, BUTTON_TYPE type, Movie *movieIn, Movie *movieOut, Movie *movieShake);
-    void createLowRightLeafButton(const QString label, int pos, BUTTON_TYPE type, Movie *movieIn, Movie *movieOut, Movie */*movieShake*/);
+    void createLowLeftButton(const QString &label, BUTTON_TYPE type,
+        Movie *movieIn, Movie *movieOut, Movie *movieShake, const QString &menuString = QString());
+    void createLowRightButton(const QString &label, BUTTON_TYPE type, Movie *movieIn, Movie *movieOut, Movie *movieShake);
+    void createLowRightLeafButton(const QString &label, int pos, BUTTON_TYPE type, Movie *movieIn, Movie *movieOut, Movie */*movieShake*/);
     void createRootMenu(const QDomElement &el);
     void createSubMenu(const QDomElement &el);
     void createLeafMenu(const QDomElement &el);

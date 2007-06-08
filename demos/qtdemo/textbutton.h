@@ -43,6 +43,7 @@ public:
     void animationStarted(int id = 0);
     void prepare();
     void setState(STATE state);
+    void setMenuString(const QString &menu);
     
 private:
     void setupButtonBg();
@@ -56,7 +57,8 @@ private:
     
     BUTTONTYPE buttonType;
     ALIGNMENT alignment;
-    QString menuName;
+    QString buttonLabel;
+    QString menuString;
     int userCode;
     
     bool checkable;

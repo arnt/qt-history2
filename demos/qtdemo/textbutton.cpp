@@ -104,7 +104,8 @@ TextButton::TextButton(const QString &text, ALIGNMENT align, int userCode,
     QGraphicsScene *scene, QGraphicsItem *parent, BUTTONTYPE type, bool halfling)
     : DemoItem(scene, parent)
 {
-    this->menuName = text;
+    this->menuString = text;
+    this->buttonLabel = text;
     this->alignment = align;
     this->buttonType = type;
     this->userCode = userCode;
@@ -115,6 +116,11 @@ TextButton::TextButton(const QString &text, ALIGNMENT align, int userCode,
 
     this->setAcceptsHoverEvents(true);
     this->setCursor(Qt::PointingHandCursor);
+}
+
+void TextButton::setMenuString(const QString &menu)
+{
+    this->menuString = menu;
 }
 
 void TextButton::prepare()
@@ -145,7 +151,7 @@ QRectF TextButton::boundingRect() const
 
 void TextButton::setupHoverText()
 {
-    DemoTextItem *textItem = new DemoTextItem(this->menuName, Colors::buttonFont(), Colors::buttonText, -1, this->scene(), this);
+    DemoTextItem *textItem = new DemoTextItem(this->buttonLabel, Colors::buttonFont(), Colors::buttonText, -1, this->scene(), this);
     textItem->setZValue(zValue() + 2);
     textItem->setPos(16, 0);
 }
@@ -241,7 +247,7 @@ void TextButton::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     if (this->state == ON){
         this->setState(OFF);
         if (!this->locked && this->boundingRect().contains(event->pos())){
-            MenuManager::instance()->itemSelected(this->userCode, this->menuName);
+            MenuManager::instance()->itemSelected(this->userCode, this->menuString);
         }
     }
 }

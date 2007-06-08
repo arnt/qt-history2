@@ -64,73 +64,86 @@ void MenuManager::readXmlDocument()
 
 void MenuManager::itemSelected(int userCode, const QString &menuName)
 {
-    this->currentMenuCode = userCode;
-    if (userCode == LAUNCH)
+    this->currentMenuCode = userCode;  
+    switch (userCode){
+    case LAUNCH:
         this->launchExample(this->currentInfo);
-    else if (userCode == DOCUMENTATION)
+        break;
+    case DOCUMENTATION:
         this->assistant->showPage(info[this->currentInfo]["docfile"]);
-    else if (userCode == QUIT){
+        break;
+    case QUIT:
         this->window->loop = false;
-        QCoreApplication::quit(); }
-    else if (userCode == FULLSCREEN)
+        QCoreApplication::quit();
+        break;
+    case FULLSCREEN:
         this->window->toggleFullscreen();
-    else {
-        if (userCode == ROOT){
-            // out:
-            this->score->queueMovie(this->currentMenu + " -menu1 -out", Score::FROM_START, Score::LOCK_ITEMS);
-            this->score->queueMovie(this->currentMenuButtons + " -out", Score::FROM_START, Score::LOCK_ITEMS);
-            this->score->queueMovie(this->currentInfo + " -out");
-            this->score->queueMovie(this->currentInfo + " -buttons -out", Score::NEW_ANIMATION_ONLY);
-            // book-keeping:
-            this->currentMenu = "Qt Examples and Demos";
-            this->currentMenuButtons = this->currentMenu + " -buttons";
-            this->currentInfo = this->currentMenu + " -info";
-            // in:
-            this->score->queueMovie(this->currentMenu + " -menu1", Score::FROM_START, Score::UNLOCK_ITEMS);
-            this->score->queueMovie(this->currentMenuButtons, Score::FROM_START, Score::UNLOCK_ITEMS);
-            this->score->queueMovie(this->currentInfo);
-            if (!Colors::noTicker){
-                this->ticker->useGuideQt();
-                this->score->queueMovie("ticker", Score::NEW_ANIMATION_ONLY);
-                this->window->switchTimerOnOff(true);
-            }
-        } else if (userCode == MENU1){
-            // out:
-            this->score->queueMovie(this->currentMenu + " -menu1 -out", Score::FROM_START, Score::LOCK_ITEMS);
-            this->score->queueMovie(this->currentMenuButtons + " -out", Score::FROM_START, Score::LOCK_ITEMS);
-            this->score->queueMovie(this->currentInfo + " -out");
-            // book-keeping:
-            this->currentMenu = menuName;
-            this->currentMenuButtons = this->currentMenu + " -buttons";
-            this->currentInfo = this->currentMenu + " -info";
-            // in:
-            this->score->queueMovie(this->currentMenu + " -menu1", Score::FROM_START, Score::UNLOCK_ITEMS);
-            this->score->queueMovie(this->currentMenuButtons, Score::FROM_START, Score::UNLOCK_ITEMS);
-            this->score->queueMovie(this->currentInfo);         
-            if (!Colors::noTicker)
-                this->ticker->useGuideTt();
-        } else if (userCode == MENU2){
-            // out:
-            this->score->queueMovie(this->currentInfo + " -out", Score::NEW_ANIMATION_ONLY);
-            this->score->queueMovie(this->currentInfo + " -buttons -out", Score::NEW_ANIMATION_ONLY);
-            // book-keeping:
-            this->currentInfo = menuName;
-            // in / shake:
-            this->score->queueMovie(this->currentMenu + " -menu1 -shake");
-            this->score->queueMovie(this->currentInfo, Score::NEW_ANIMATION_ONLY);
-            this->score->queueMovie(this->currentInfo + " -buttons", Score::NEW_ANIMATION_ONLY);
-            if (!Colors::noTicker){
-                this->score->queueMovie("ticker -out", Score::NEW_ANIMATION_ONLY);        
-                this->window->switchTimerOnOff(false);
-            }
+        break;
+    case ROOT:
+        // out:
+        this->score->queueMovie(this->currentMenu + " -out", Score::FROM_START, Score::LOCK_ITEMS);
+        this->score->queueMovie(this->currentMenuButtons + " -out", Score::FROM_START, Score::LOCK_ITEMS);
+        this->score->queueMovie(this->currentInfo + " -out");
+        this->score->queueMovie(this->currentInfo + " -buttons -out", Score::NEW_ANIMATION_ONLY);
+        // book-keeping:
+        this->currentMenu = menuName + " -menu1";
+        this->currentMenuButtons = menuName + " -buttons";
+        this->currentInfo = menuName + " -info";
+        // in:
+        this->score->queueMovie(this->currentMenu, Score::FROM_START, Score::UNLOCK_ITEMS);
+        this->score->queueMovie(this->currentMenuButtons, Score::FROM_START, Score::UNLOCK_ITEMS);
+        this->score->queueMovie(this->currentInfo);
+        if (!Colors::noTicker){
+            this->ticker->useGuideQt();
+            this->score->queueMovie("ticker", Score::NEW_ANIMATION_ONLY);
+            this->window->switchTimerOnOff(true);
         }
-        this->score->playQue();
+        break;
+    case MENU1:
+        // out:
+        this->score->queueMovie(this->currentMenu + " -out", Score::FROM_START, Score::LOCK_ITEMS);
+        this->score->queueMovie(this->currentMenuButtons + " -out", Score::FROM_START, Score::LOCK_ITEMS);
+        this->score->queueMovie(this->currentInfo + " -out");
+        // book-keeping:
+        this->currentMenu = menuName + " -menu1";
+        this->currentMenuButtons = menuName + " -buttons";
+        this->currentInfo = menuName + " -info";
+        // in:
+        this->score->queueMovie(this->currentMenu, Score::FROM_START, Score::UNLOCK_ITEMS);
+        this->score->queueMovie(this->currentMenuButtons, Score::FROM_START, Score::UNLOCK_ITEMS);
+        this->score->queueMovie(this->currentInfo);         
+        if (!Colors::noTicker)
+            this->ticker->useGuideTt();
+        break;
+    case MENU2:
+        // out:
+        this->score->queueMovie(this->currentInfo + " -out", Score::NEW_ANIMATION_ONLY);
+        this->score->queueMovie(this->currentInfo + " -buttons -out", Score::NEW_ANIMATION_ONLY);
+        // book-keeping:
+        this->currentInfo = menuName;
+        // in / shake:
+        this->score->queueMovie(this->currentMenu + " -shake");
+        this->score->queueMovie(this->currentInfo, Score::NEW_ANIMATION_ONLY);
+        this->score->queueMovie(this->currentInfo + " -buttons", Score::NEW_ANIMATION_ONLY);
+        if (!Colors::noTicker){
+            this->score->queueMovie("ticker -out", Score::NEW_ANIMATION_ONLY);        
+            this->window->switchTimerOnOff(false);
+        }
+        break;
+    case MORE:
+        this->score->queueMovie(this->currentMenu + " -out", Score::FROM_START, Score::LOCK_ITEMS);
+        this->currentMenu = menuName;
+        this->score->queueMovie(this->currentMenu, Score::FROM_START, Score::UNLOCK_ITEMS);
+        break;
     }
-
-    // Playing new movies might include
-    // loading etc. So ignore the FPS
-    // at this point
-    this->window->fpsHistory.clear();
+    
+    if (this->score->hasQueuedMovies()){
+        this->score->playQue();
+        // Playing new movies might include
+        // loading etc. So ignore the FPS
+        // at this point
+        this->window->fpsHistory.clear();
+    }
 }
 
 void MenuManager::launchExample(const QString &name)
@@ -297,7 +310,7 @@ void MenuManager::createSubMenu(const QDomElement &el)
 
     Movie *menuButtonsIn = this->score->insertMovie(name + " -buttons");
     Movie *menuButtonsOut = this->score->insertMovie(name + " -buttons -out");
-    createLowLeftButton(QLatin1String("Main menu"), ROOT, menuButtonsIn, menuButtonsOut, 0);
+    createLowLeftButton(QLatin1String("Main menu"), ROOT, menuButtonsIn, menuButtonsOut, 0, QLatin1String("Qt Examples and Demos"));
 }
 
 void MenuManager::createLeafMenu(const QDomElement &el)
@@ -318,32 +331,27 @@ void MenuManager::createMenu(const QDomElement &category, BUTTON_TYPE type)
     int xOffset = 15;
     int yOffset = 10;
     int maxExamples = 20;
-    int menuIndex = 0;
+    int menuIndex = 1;
     QString name = category.attribute("name");
     QDomNode currentNode = category.firstChild();
         
     while (!currentNode.isNull()){
-        Movie *movieIn = new Movie();
-        Movie *movieOut = new Movie();
-        Movie *movieNext = new Movie();
-        Movie *moviePrev = new Movie();
-        Movie *movieShake = new Movie();
-        
-        ++menuIndex;
         QString moreString = QLatin1String(" -menu") + QString::number(menuIndex);
-        this->score->insertMovie(name + moreString, movieIn);
-        this->score->insertMovie(name + moreString + " -out", movieOut);
-        this->score->insertMovie(name + moreString + " -next", movieNext);
-        this->score->insertMovie(name + moreString + " -prev", moviePrev);
-        this->score->insertMovie(name + moreString + " -shake", movieShake);
+        Movie *movieIn = this->score->insertMovie(name + moreString);
+        Movie *movieOut = this->score->insertMovie(name + moreString + " -out");
+//        Movie *movieNext = this->score->insertMovie(name + moreString + " -next");
+//        Movie *moviePrev = this->score->insertMovie(name + moreString + " -prev");
+        Movie *movieShake = this->score->insertMovie(name + moreString + " -shake");
 
         int i = 0;
         while (!currentNode.isNull() && i <= maxExamples){
             QDomElement currentInfo = currentNode.toElement();
             TextButton *item;
-            if (i == maxExamples)
+            if (i == maxExamples){
+                ++menuIndex;
                 item = new TextButton("More...", TextButton::LEFT, MORE, this->window->scene, 0, TextButton::PANEL);
-            else
+                item->setMenuString(name + QLatin1String(" -menu") + QString::number(menuIndex));
+            } else
                 item = new TextButton(currentInfo.attribute("name"), TextButton::LEFT, type, this->window->scene, 0);
                 
             item->setRecursiveVisible(false);
@@ -393,9 +401,12 @@ void MenuManager::createMenu(const QDomElement &category, BUTTON_TYPE type)
 }
 
 
-void MenuManager::createLowLeftButton(const QString label, BUTTON_TYPE type, Movie *movieIn, Movie *movieOut, Movie */*movieShake*/)
+void MenuManager::createLowLeftButton(const QString &label, BUTTON_TYPE type,
+    Movie *movieIn, Movie *movieOut, Movie */*movieShake*/, const QString &menuString)
 {
     TextButton *button = new TextButton(label, TextButton::RIGHT, type, this->window->scene, 0, TextButton::PANEL);
+    if (!menuString.isNull())
+        button->setMenuString(menuString);
     button->setRecursiveVisible(false);
     button->setZValue(10);
 
@@ -420,7 +431,7 @@ void MenuManager::createLowLeftButton(const QString label, BUTTON_TYPE type, Mov
     movieOut->append(buttonOut);
 }
 
-void MenuManager::createLowRightButton(const QString label, BUTTON_TYPE type, Movie *movieIn, Movie *movieOut, Movie */*movieShake*/)
+void MenuManager::createLowRightButton(const QString &label, BUTTON_TYPE type, Movie *movieIn, Movie *movieOut, Movie */*movieShake*/)
 {
     TextButton *item = new TextButton(label, TextButton::RIGHT, type, this->window->scene, 0, TextButton::PANEL);
     item->setRecursiveVisible(false);
@@ -447,7 +458,7 @@ void MenuManager::createLowRightButton(const QString label, BUTTON_TYPE type, Mo
     movieOut->append(anim);
 }
 
-void MenuManager::createLowRightLeafButton(const QString label, int xOffset, BUTTON_TYPE type, Movie *movieIn, Movie *movieOut, Movie */*movieShake*/)
+void MenuManager::createLowRightLeafButton(const QString &label, int xOffset, BUTTON_TYPE type, Movie *movieIn, Movie *movieOut, Movie */*movieShake*/)
 {
     TextButton *item = new TextButton(label, TextButton::RIGHT, type, this->window->scene, 0, TextButton::PANEL);
     item->setRecursiveVisible(false);
