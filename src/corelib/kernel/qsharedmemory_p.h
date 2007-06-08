@@ -56,7 +56,7 @@ private:
     QSharedMemory *q_sm;
 };
 
-class QSharedMemoryPrivate : public QObjectPrivate
+class Q_AUTOTEST_EXPORT QSharedMemoryPrivate : public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(QSharedMemory)
 

@@ -18,11 +18,13 @@
 
 QT_BEGIN_HEADER
 
+QT_MODULE(Core)
+
 #ifndef QT_NO_SYSTEMSEMAPHORE
 
 class QSystemSemaphorePrivate;
 
-class QSystemSemaphore
+class Q_CORE_EXPORT QSystemSemaphore
 {
 
 public:

@@ -18,11 +18,13 @@
 
 QT_BEGIN_HEADER
 
+QT_MODULE(Core)
+
 #ifndef QT_NO_SHAREDMEMORY
 
 class QSharedMemoryPrivate;
 
-class QSharedMemory : public QObject
+class Q_CORE_EXPORT QSharedMemory : public QObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QSharedMemory)
