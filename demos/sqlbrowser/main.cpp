@@ -42,10 +42,14 @@ int main(int argc, char *argv[])
     Browser browser(&mainWin);
     mainWin.setCentralWidget(&browser);
 
-    QMenu *menu = mainWin.menuBar()->addMenu(QObject::tr("&File"));
-    menu->addAction(QObject::tr("Add &Connection..."), &browser, SLOT(addConnection()));
-    menu->addSeparator();
-    menu->addAction(QObject::tr("&Quit"), &app, SLOT(quit()));
+    QMenu *fileMenu = mainWin.menuBar()->addMenu(QObject::tr("&File"));
+    fileMenu->addAction(QObject::tr("Add &Connection..."), &browser, SLOT(addConnection()));
+    fileMenu->addSeparator();
+    fileMenu->addAction(QObject::tr("&Quit"), &app, SLOT(quit()));
+
+    QMenu *helpMenu = mainWin.menuBar()->addMenu(QObject::tr("&Help"));
+    helpMenu->addAction(QObject::tr("About"), &browser, SLOT(about()));
+    helpMenu->addAction(QObject::tr("About Qt"), qApp, SLOT(aboutQt()));
 
     QObject::connect(&browser, SIGNAL(statusMessage(QString)),
                      mainWin.statusBar(), SLOT(showMessage(QString)));
