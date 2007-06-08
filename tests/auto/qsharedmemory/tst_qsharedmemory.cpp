@@ -119,7 +119,6 @@ void tst_QSharedMemory::cleanup()
 }
 
 #ifndef Q_OS_WIN
-#include <qsharedmemory_p.h>
 #include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
@@ -128,6 +127,7 @@ void tst_QSharedMemory::cleanup()
 int tst_QSharedMemory::remove(const QString &key)
 {
 #ifndef Q_OS_WIN
+/*
     // On unix the shared memory might exists from a previously failed test
     // or segfault, remove it it does
     if (key.isEmpty())
@@ -158,6 +158,8 @@ int tst_QSharedMemory::remove(const QString &key)
         return -5;
     }
     return QFile::remove(fileName);
+*/
+    return 0;
 #else
     return 0;
 #endif

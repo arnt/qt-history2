@@ -1,6 +1,6 @@
 load(qttest_p4)
 
-include(../src/qsharedmemory.pri)
+include(../src/src.pri)
 
 DEFINES	+= QSHAREDMEMORY_DEBUG
 DEFINES	+= QSYSTEMSEMAPHORE_DEBUG

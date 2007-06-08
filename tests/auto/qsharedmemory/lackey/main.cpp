@@ -21,8 +21,8 @@
 #include <qstringlist.h>
 #include <stdlib.h>
 #include <qsharedmemory.h>
-#include <qsystemlock.h>
 #include <qsystemsemaphore.h>
+#include <qsystemlock.h>
 
 class ScriptSystemSemaphore : public QObject
 {
