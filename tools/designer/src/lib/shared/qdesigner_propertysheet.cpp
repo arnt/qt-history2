@@ -181,7 +181,7 @@ QDesignerPropertySheet::QDesignerPropertySheet(QObject *object, QObject *parent)
         createFakeProperty(QLatin1String("windowModality"));
 
         if (m_canHaveLayoutAttributes) {
-            static const QString layoutGroup = tr("Layout");
+            static const QString layoutGroup = QLatin1String("Layout");
             int pindex = count();
             createFakeProperty(QLatin1String("layoutLeftMargin"), 0);
             setAttribute(pindex, true);

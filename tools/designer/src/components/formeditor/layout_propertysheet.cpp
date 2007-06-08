@@ -26,31 +26,32 @@ using namespace qdesigner_internal;
 LayoutPropertySheet::LayoutPropertySheet(QLayout *object, QObject *parent)
     : QDesignerPropertySheet(object, parent), m_layout(object)
 {
+    const QString layoutGroup = QLatin1String("Layout");
     int pindex = count();
     createFakeProperty(QLatin1String("leftMargin"), 0);
-    setPropertyGroup(pindex, tr("Layout"));
+    setPropertyGroup(pindex, layoutGroup);
 
     pindex = count();
     createFakeProperty(QLatin1String("topMargin"), 0);
-    setPropertyGroup(pindex, tr("Layout"));
+    setPropertyGroup(pindex, layoutGroup);
 
     pindex = count();
     createFakeProperty(QLatin1String("rightMargin"), 0);
-    setPropertyGroup(pindex, tr("Layout"));
+    setPropertyGroup(pindex, layoutGroup);
 
     pindex = count();
     createFakeProperty(QLatin1String("bottomMargin"), 0);
-    setPropertyGroup(pindex, tr("Layout"));
+    setPropertyGroup(pindex, layoutGroup);
 
     QGridLayout *grid = qobject_cast<QGridLayout *>(m_layout);
     if (grid) {
         pindex = count();
         createFakeProperty(QLatin1String("horizontalSpacing"), 0);
-        setPropertyGroup(pindex, tr("Layout"));
+        setPropertyGroup(pindex, layoutGroup);
 
         pindex = count();
         createFakeProperty(QLatin1String("verticalSpacing"), 0);
-        setPropertyGroup(pindex, tr("Layout"));
+        setPropertyGroup(pindex, layoutGroup);
 
         setAttribute(indexOf(QLatin1String("spacing")), true);
     } else {
