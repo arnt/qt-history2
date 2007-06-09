@@ -163,6 +163,9 @@ private slots:
     void windowMoveResize_data();
     void windowMoveResize();
 
+    void moveChild_data();
+    void moveChild();
+
 #ifdef Q_WS_WIN
     void getDC();
     void setGeometry_win();
@@ -4081,6 +4084,98 @@ void tst_QWidget::windowMoveResize()
         QCOMPARE(widget.pos(), rect.topLeft());
         QCOMPARE(widget.size(), rect.size());
     }
+}
+
+class ColorWidget : public QWidget
+{
+public:
+    ColorWidget(QWidget *parent = 0, const QColor &c = QColor(Qt::red))
+        : QWidget(parent, Qt::FramelessWindowHint), color(c)
+    {
+        QPalette opaquePalette = palette();
+        opaquePalette.setColor(backgroundRole(), color);
+        setPalette(opaquePalette);
+        setAutoFillBackground(true);
+    }
+
+    void paintEvent(QPaintEvent *e) {
+        r += e->region();
+    }
+
+    void reset() {
+        r = QRegion();
+    }
+
+    QColor color;
+    QRegion r;
+};
+
+#define VERIFY_COLOR(region, color) {                                   \
+    const QRegion r = QRegion(region);                                  \
+    for (int i = 0; i < r.rects().size(); ++i) {                        \
+        const QRect rect = r.rects().at(i);                             \
+        const QPixmap pixmap = QPixmap::grabWindow(QDesktopWidget().winId(), \
+                                                   rect.left(), rect.top(), \
+                                                   rect.width(), rect.height()); \
+        QCOMPARE(pixmap.size(), rect.size());                           \
+        QPixmap expectedPixmap(pixmap); /* ensure equal formats */      \
+        expectedPixmap.fill(color);                                     \
+        QCOMPARE(pixmap, expectedPixmap);                               \
+    }                                                                   \
+}
+
+void tst_QWidget::moveChild_data()
+{
+    QTest::addColumn<QPoint>("offset");
+
+    QTest::newRow("right") << QPoint(20, 0);
+    QTest::newRow("down") << QPoint(0, 20);
+    QTest::newRow("left") << QPoint(-20, 0);
+    QTest::newRow("up") << QPoint(0, -20);
+}
+
+void tst_QWidget::moveChild()
+{
+    QFETCH(QPoint, offset);
+
+    ColorWidget parent;
+    ColorWidget child(&parent, Qt::blue);
+
+    parent.setGeometry(10, 10, 100, 100);
+    child.setGeometry(25, 25, 50, 50);
+    QPoint childOffset = child.mapToGlobal(QPoint());
+
+    parent.show();
+    QTest::qWait(100);
+    const QPoint tlwOffset = parent.geometry().topLeft();
+
+    QCOMPARE(parent.r, QRegion(parent.rect()) - child.geometry());
+    QCOMPARE(child.r, QRegion(child.rect()));
+    VERIFY_COLOR(child.geometry().translated(tlwOffset),
+                 child.color);
+    VERIFY_COLOR(QRegion(parent.geometry()) - child.geometry().translated(tlwOffset),
+                 parent.color);
+    parent.reset();
+    child.reset();
+
+    // move
+
+    const QRect oldGeometry = child.geometry();
+
+    QPoint pos = child.pos() + offset;
+    child.move(pos);
+    QTest::qWait(100);
+    QCOMPARE(pos, child.pos());
+
+    QCOMPARE(parent.r, QRegion(oldGeometry) - child.geometry());
+#ifndef Q_WS_MAC
+    // should be scrolled in backingstore
+    QCOMPARE(child.r, QRegion());
+#endif
+    VERIFY_COLOR(child.geometry().translated(tlwOffset),
+                 child.color);
+    VERIFY_COLOR(QRegion(parent.geometry()) - child.geometry().translated(tlwOffset),
+                 parent.color);
 }
 
 void tst_QWidget::deleteStyle()
