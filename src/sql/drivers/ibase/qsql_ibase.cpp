@@ -1303,7 +1303,7 @@ bool QIBaseDriver::open(const QString & db,
     else {
         d->tc = QTextCodec::codecForName(encString.toLocal8Bit());
         if (!d->tc) {
-            qWarning("Unsupported encoding: %d. Using UNICODE_FFS for ISC_DPB_LC_CTYPE.", encString);
+            qWarning("Unsupported encoding: %s. Using UNICODE_FFS for ISC_DPB_LC_CTYPE.", encString.toLocal8Bit().constData());
             encString = QLatin1String("UNICODE_FSS"); // Fallback to UNICODE_FSS
         }
     }
