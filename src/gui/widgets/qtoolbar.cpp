@@ -65,6 +65,7 @@ void QToolBarPrivate::init()
     iconSize = QSize(e, e);
 
     layout = new QToolBarLayout(q);
+    layout->updateMarginAndSpacing();
 
 #ifdef Q_WS_MAC
     if (q->parentWidget() && q->parentWidget()->isWindow()) {
@@ -865,6 +866,12 @@ void QToolBar::changeEvent(QEvent *event)
         break;
     case QEvent::StyleChange:
         d->layout->invalidate();
+        if (!d->explicitIconSize)
+            setIconSize(QSize());
+        d->layout->updateMarginAndSpacing();
+        break;
+    case QEvent::LayoutDirectionChange:
+        d->layout->invalidate();
         break;
     default:
         break;
@@ -941,13 +948,6 @@ bool QToolBar::event(QEvent *event)
         break;
     case QEvent::ParentChange:
         d->layout->setUsePopupMenu(qobject_cast<QMainWindow*>(parentWidget()) == 0);
-        break;
-    case QEvent::StyleChange:
-        if (!d->explicitIconSize)
-            setIconSize(QSize());
-        break;
-    case QEvent::LayoutDirectionChange:
-        d->layout->invalidate();
         break;
     case QEvent::MouseButtonPress: {
         QMouseEvent *e = static_cast<QMouseEvent*>(event);

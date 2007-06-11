@@ -79,6 +79,7 @@ public:
     void setUsePopupMenu(bool set); // Yeah, there's no getter, but it's internal.
 
     bool movable() const;
+    void updateMarginAndSpacing();
 
 public slots:
     void setExpanded(bool b);

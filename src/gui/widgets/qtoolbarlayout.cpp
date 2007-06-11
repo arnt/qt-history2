@@ -73,6 +73,16 @@ QToolBarLayout::~QToolBarLayout()
     }
 }
 
+void QToolBarLayout::updateMarginAndSpacing()
+{
+    QToolBar *tb = qobject_cast<QToolBar*>(parentWidget());
+    QStyle *style = tb->style();
+    QStyleOptionToolBar opt;
+    tb->initStyleOption(&opt);
+    setMargin(style->pixelMetric(QStyle::PM_ToolBarItemMargin, &opt, tb)
+                + style->pixelMetric(QStyle::PM_ToolBarFrameWidth, &opt, tb));
+    setSpacing(style->pixelMetric(QStyle::PM_ToolBarItemSpacing, &opt, tb));
+}
 
 void QToolBarLayout::setUsePopupMenu(bool set)
 {
@@ -196,9 +206,8 @@ void QToolBarLayout::updateGeomArray() const
     tb->initStyleOption(&opt);
     const int handleExtent = movable()
             ? style->pixelMetric(QStyle::PM_ToolBarHandleExtent, &opt, tb) : 0;
-    const int margin = style->pixelMetric(QStyle::PM_ToolBarItemMargin, &opt, tb)
-                        + style->pixelMetric(QStyle::PM_ToolBarFrameWidth, &opt, tb);
-    const int spacing = style->pixelMetric(QStyle::PM_ToolBarItemSpacing, &opt, tb);
+    const int margin = this->margin();
+    const int spacing = this->spacing();
     const int extensionExtent = style->pixelMetric(QStyle::PM_ToolBarExtensionExtent, &opt, tb);
     Qt::Orientation o = tb->orientation();
 
@@ -283,8 +292,7 @@ void QToolBarLayout::setGeometry(const QRect &rect)
     tb->initStyleOption(&opt);
     const int handleExtent = movable()
             ? style->pixelMetric(QStyle::PM_ToolBarHandleExtent, &opt, tb) : 0;
-    const int margin = style->pixelMetric(QStyle::PM_ToolBarItemMargin, &opt, tb)
-                        + style->pixelMetric(QStyle::PM_ToolBarFrameWidth, &opt, tb);
+    const int margin = this->margin();
     const int extensionExtent = style->pixelMetric(QStyle::PM_ToolBarExtensionExtent, &opt, tb);
     Qt::Orientation o = tb->orientation();
 
@@ -349,9 +357,8 @@ void QToolBarLayout::layoutActions(const QSize &size)
     tb->initStyleOption(&opt);
     const int handleExtent = movable()
             ? style->pixelMetric(QStyle::PM_ToolBarHandleExtent, &opt, tb) : 0;
-    const int margin = style->pixelMetric(QStyle::PM_ToolBarItemMargin, &opt, tb)
-                        + style->pixelMetric(QStyle::PM_ToolBarFrameWidth, &opt, tb);
-    const int spacing = style->pixelMetric(QStyle::PM_ToolBarItemSpacing, &opt, tb);
+    const int margin = this->margin();
+    const int spacing = this->spacing();
     const int extensionExtent = style->pixelMetric(QStyle::PM_ToolBarExtensionExtent, &opt, tb);
     Qt::Orientation o = tb->orientation();
     bool extensionMenuContainsOnlyWidgetActions = true;
@@ -476,9 +483,8 @@ QSize QToolBarLayout::expandedSize(const QSize &size) const
     tb->initStyleOption(&opt);
     const int handleExtent = movable()
             ? style->pixelMetric(QStyle::PM_ToolBarHandleExtent, &opt, tb) : 0;
-    const int margin = style->pixelMetric(QStyle::PM_ToolBarItemMargin, &opt, tb)
-                        + style->pixelMetric(QStyle::PM_ToolBarFrameWidth, &opt, tb);
-    const int spacing = style->pixelMetric(QStyle::PM_ToolBarItemSpacing, &opt, tb);
+    const int margin = this->margin();
+    const int spacing = this->spacing();
     const int extensionExtent = style->pixelMetric(QStyle::PM_ToolBarExtensionExtent, &opt, tb);
 
     int total_w = 0;
