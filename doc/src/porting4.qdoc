@@ -961,10 +961,13 @@
     \section1 QColor
 
     In Qt 4, QColor is a value type like QPoint or QRect. Graphics
-    system-specific code has been implemented in QColorMap.
+    system-specific code has been implemented in QColormap.
 
-    The numBitPlanes() function has been replaced by
-    QColorMap::depth().
+    The \c QColor::maxColors() function has been replaced
+    by QColormap::size().
+
+    The \c QColor::numBitPlanes() function has been replaced
+    by QColormap::depth().
 
     \table
     \header \o{4,1} Predefined Qt Colors
@@ -3815,6 +3818,12 @@
     Q3TextEdit and Q3TextBrowser, and have been moved to Qt3Support.
     The new QTextEdit and QTextBrowser have a somewhat different API.
 
+    The \c QTextEdit::setWrapPolicy() function has been renamed to \l{QTextEdit::setWordWrapMode()}{setWordWrapMode()} and the
+    \c QTextEdit::setWrapColumnOrWidth() function has been renamed to \l{QTextEdit::setLineWrapColumnOrWidth()}
+    {setLineWrapColumnOrWidth()}. The Q3TextEdit::setWrapPolicy() and Q3TextEdit::setWrapColumnOrWidth() still provide this
+    functionality in the Q3TextEdit class.
+
+    
     See \l{Rich Text Processing} for an overview of the Qt 4 rich
     text classes.
 
