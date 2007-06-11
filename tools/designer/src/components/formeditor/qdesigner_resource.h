@@ -55,8 +55,8 @@ public:
     virtual FormBuilderClipboard paste(QIODevice *dev,  QWidget *widgetParent = 0, QObject *actionParent = 0);
 
 protected:
-    using QSimpleResource::create;
-    using QSimpleResource::createDom;
+    using QEditorFormBuilder::create;
+    using QEditorFormBuilder::createDom;
 
     virtual void saveDom(DomUI *ui, QWidget *widget);
     virtual QWidget *create(DomUI *ui, QWidget *parentWidget);
