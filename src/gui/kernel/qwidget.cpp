@@ -3159,7 +3159,15 @@ void QWidget::setFixedSize(const QSize & s)
 void QWidget::setFixedSize(int w, int h)
 {
     Q_D(QWidget);
+#ifdef Q_WS_QWS
+    // temporary fix for 4.3.x.
+    // Should move the embedded spesific contraints in setMinimumSize_helper into QLayout
+    int tmpW = w;
+    int tmpH = h;
+    bool minSizeSet = d->setMinimumSize_helper(tmpW, tmpH);
+#else
     bool minSizeSet = d->setMinimumSize_helper(w, h);
+#endif
     bool maxSizeSet = d->setMaximumSize_helper(w, h);
     if (!minSizeSet && !maxSizeSet)
         return;

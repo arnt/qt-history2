@@ -167,6 +167,7 @@ SUBDIRS += bic \
            qmouseevent \
            qmouseevent_modal \
            qmovie \
+           qmultiscreen \
            qmutex \
            qmutexlocker \
            qnativesocketengine \
