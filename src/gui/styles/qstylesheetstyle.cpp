@@ -1274,7 +1274,6 @@ enum PseudoElement {
     PseudoElement_HeaderViewUpArrow,
     PseudoElement_HeaderViewDownArrow,
     PseudoElement_ProgressBarChunk,
-    PseudoElement_Label,
     PseudoElement_TabBarTab,
     PseudoElement_TabBarScroller,
     PseudoElement_TabBarTear,
@@ -1340,7 +1339,6 @@ static PseudoElementInfo knownPseudoElements[NumPseudoElements] = {
     { QStyle::SC_None, "up-arrow" },
     { QStyle::SC_None, "down-arrow" },
     { QStyle::SC_None, "chunk" },
-    { QStyle::SC_None, "label" },
     { QStyle::SC_None, "tab" },
     { QStyle::SC_None, "scroller" },
     { QStyle::SC_None, "tear" },
@@ -1704,7 +1702,6 @@ static Origin defaultOrigin(int pe)
     case PseudoElement_ToolButtonMenuArrow:
     case PseudoElement_HeaderViewUpArrow:
     case PseudoElement_HeaderViewDownArrow:
-    case PseudoElement_Label:
     case PseudoElement_SliderGroove:
     case PseudoElement_SliderHandle:
         return Origin_Content;
@@ -1745,7 +1742,6 @@ static Qt::Alignment defaultPosition(int pe)
     case PseudoElement_ComboBoxArrow:
     case PseudoElement_DownArrow:
     case PseudoElement_ToolButtonMenuArrow:
-    case PseudoElement_Label:
     case PseudoElement_SliderGroove:
         return Qt::AlignCenter;
 
@@ -4152,27 +4148,15 @@ QRect QStyleSheetStyle::subElementRect(SubElement se, const QStyleOption *opt, c
     case SE_ProgressBarContents:
     case SE_ProgressBarLabel:
         if (const QStyleOptionProgressBarV2 *pb = qstyleoption_cast<const QStyleOptionProgressBarV2 *>(opt)) {
-            if (rule.hasBox() || rule.hasBorder() || hasStyleRule(w, PseudoElement_ProgressBarChunk)
-                || hasStyleRule(w, PseudoElement_Label)) {
+            if (rule.hasBox() || rule.hasBorder() || rule.hasPosition() || hasStyleRule(w, PseudoElement_ProgressBarChunk)) {
                 if (se == SE_ProgressBarGroove)
                     return rule.borderRect(pb->rect);
                 else if (se == SE_ProgressBarContents)
                     return rule.contentsRect(pb->rect);
 
-                QRenderRule labelRule = renderRule(w, PseudoElement_Label);
                 QSize sz = pb->fontMetrics.size(0, pb->text);
-                if (!labelRule.hasGeometry()) {
-                    labelRule.geo = new QStyleSheetGeometryData(sz.width(), sz.height(), sz.width(), sz.height());
-                } else {
-                    labelRule.geo->width = sz.width();
-                    labelRule.geo->height = sz.height();
-                }
-                if (!labelRule.hasPosition()) {
-                    labelRule.p = new QStyleSheetPositionData(0, 0, 0, 0, defaultOrigin(PseudoElement_Label),
-                                                              pb->textAlignment, PositionMode_Static);
-                }
-
-                return positionRect(w, rule, labelRule, PseudoElement_Label, opt->rect, opt->direction);
+                return QStyle::alignedRect(Qt::LeftToRight, rule.hasPosition() ? rule.position()->textAlignment : pb->textAlignment,
+                                           sz, pb->rect);
             }
         }
         break;
