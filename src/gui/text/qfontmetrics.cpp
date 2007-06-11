@@ -664,7 +664,7 @@ QRect QFontMetrics::boundingRect(QChar ch) const
     \o Qt::TextSingleLine ignores newline characters in the text.
     \o Qt::TextExpandTabs expands tabs (see below)
     \o Qt::TextShowMnemonic interprets "&amp;x" as \underline{x}, i.e. underlined.
-    \o Qt::TextWordBreak breaks the text to fit the rectangle.
+    \o Qt::TextWordWrap breaks the text to fit the rectangle.
     \endlist
 
     Qt::Horizontal alignment defaults to Qt::AlignLeft and vertical
@@ -1410,7 +1410,7 @@ QRectF QFontMetricsF::boundingRect(QChar ch) const
     \o Qt::TextSingleLine ignores newline characters in the text.
     \o Qt::TextExpandTabs expands tabs (see below)
     \o Qt::TextShowMnemonic interprets "&amp;x" as \underline{x}, i.e. underlined.
-    \o Qt::TextWordBreak breaks the text to fit the rectangle.
+    \o Qt::TextWordWrap breaks the text to fit the rectangle.
     \endlist
 
     Qt::Horizontal alignment defaults to Qt::AlignLeft and vertical
