@@ -644,7 +644,7 @@ void QWizardPrivate::addField(const QWizardField &field)
     myField.resolve(defaultPropertyTable);
 
     if (fieldIndexMap.contains(myField.name)) {
-        qWarning("QWizardPage::registerField: Duplicate field '%s'", qPrintable(myField.name));
+        qWarning("QWizardPage::addField: Duplicate field '%s'", qPrintable(myField.name));
         return;
     }
 
