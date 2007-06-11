@@ -103,7 +103,7 @@ void MainWindow::start()
 {
     this->switchTimerOnOff(true);
     this->demoStartTime.restart();        
-    MenuManager::instance()->itemSelected(MenuManager::ROOT, "Qt Examples and Demos");
+    MenuManager::instance()->itemSelected(MenuManager::ROOT, Colors::rootMenuName);
     if (Colors::verbose)
         qDebug("- starting demo");
 }

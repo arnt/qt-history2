@@ -42,7 +42,7 @@ void MenuContentItem::prepare()
 
 void MenuContentItem::animationStopped(int id)
 {
-    if (this->name == QLatin1String("Qt Examples and Demos"))
+    if (this->name == Colors::rootMenuName)
         return; // Optimization hack.
         
     if (id == DemoItemAnimation::ANIM_OUT){

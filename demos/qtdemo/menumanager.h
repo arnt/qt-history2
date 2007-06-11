@@ -77,6 +77,7 @@ private:
     QDomDocument *contentsDoc;
     QAssistantClient *assistant;
     QString currentMenu;
+    QString currentCategory;
     QString currentMenuButtons;
     QString currentInfo;
     QDir docDir;

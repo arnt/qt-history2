@@ -86,6 +86,7 @@ public:
     static float tickerMoveSpeed;
     static float tickerMorphSpeed;
     static QString tickerText;
+    static QString rootMenuName;
 
     // fonts
     static QFont contentFont();

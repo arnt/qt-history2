@@ -76,6 +76,7 @@ int Colors::tickerLetterCount = 80;
 float Colors::tickerMoveSpeed = 0.4f;
 float Colors::tickerMorphSpeed = 2.5f;
 QString Colors::tickerText = ".EROM ETAERC .SSEL EDOC";
+QString Colors::rootMenuName = "Qt Examples and Demos";
 
 QFont Colors::contentFont()
 {

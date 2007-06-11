@@ -30,9 +30,10 @@ MenuManager::MenuManager()
     this->ticker = 0;
     this->assistant = new QAssistantClient(QLibraryInfo::location(QLibraryInfo::BinariesPath), this);
     this->score = new Score();
-    this->currentMenu = "[no menu visible]";
-    this->currentMenuButtons = "[no menu buttons visible]";
-    this->currentInfo = "[no info visible]";
+    this->currentMenu = QLatin1String("[no menu visible]");
+    this->currentCategory = QLatin1String("[no category visible]");
+    this->currentMenuButtons = QLatin1String("[no menu buttons visible]");
+    this->currentInfo = QLatin1String("[no info visible]");
     this->currentMenuCode = -1;
     this->readXmlDocument();
 }
@@ -64,7 +65,6 @@ void MenuManager::readXmlDocument()
 
 void MenuManager::itemSelected(int userCode, const QString &menuName)
 {
-    this->currentMenuCode = userCode;  
     switch (userCode){
     case LAUNCH:
         this->launchExample(this->currentInfo);
@@ -86,6 +86,7 @@ void MenuManager::itemSelected(int userCode, const QString &menuName)
         this->score->queueMovie(this->currentInfo + " -out");
         this->score->queueMovie(this->currentInfo + " -buttons -out", Score::NEW_ANIMATION_ONLY);
         // book-keeping:
+        this->currentMenuCode = ROOT;
         this->currentMenu = menuName + " -menu1";
         this->currentMenuButtons = menuName + " -buttons";
         this->currentInfo = menuName + " -info";
@@ -105,6 +106,8 @@ void MenuManager::itemSelected(int userCode, const QString &menuName)
         this->score->queueMovie(this->currentMenuButtons + " -out", Score::FROM_START, Score::LOCK_ITEMS);
         this->score->queueMovie(this->currentInfo + " -out");
         // book-keeping:
+        this->currentMenuCode = MENU1;
+        this->currentCategory = menuName;
         this->currentMenu = menuName + " -menu1";
         this->currentMenuButtons = menuName + " -buttons";
         this->currentInfo = menuName + " -info";
@@ -120,6 +123,7 @@ void MenuManager::itemSelected(int userCode, const QString &menuName)
         this->score->queueMovie(this->currentInfo + " -out", Score::NEW_ANIMATION_ONLY);
         this->score->queueMovie(this->currentInfo + " -buttons -out", Score::NEW_ANIMATION_ONLY);
         // book-keeping:
+        this->currentMenuCode = MENU2;
         this->currentInfo = menuName;
         // in / shake:
         this->score->queueMovie(this->currentMenu + " -shake");
@@ -136,7 +140,20 @@ void MenuManager::itemSelected(int userCode, const QString &menuName)
             this->score->queueMovie(this->currentMenu + " -bottom_out", Score::FROM_START, Score::LOCK_ITEMS);
             this->score->queueMovie(backMenu + " -top_in", Score::FROM_START, Score::UNLOCK_ITEMS);
             this->currentMenu = backMenu;
-        }
+        } else if (this->currentMenuCode == MENU2){
+            // out:
+            this->score->queueMovie(this->currentInfo + " -out", Score::NEW_ANIMATION_ONLY);
+            this->score->queueMovie(this->currentInfo + " -buttons -out", Score::NEW_ANIMATION_ONLY);
+            // book-keeping:
+            this->currentMenuCode = MENU1;
+            this->currentMenuButtons = this->currentCategory + " -buttons";
+            this->currentInfo = this->currentCategory + " -info";
+            // in / shake:
+            this->score->queueMovie(this->currentMenu + " -shake");
+            this->score->queueMovie(this->currentInfo, Score::NEW_ANIMATION_ONLY);
+            this->score->queueMovie(this->currentInfo + " -buttons", Score::NEW_ANIMATION_ONLY);
+        } else if (this->currentMenuCode != ROOT)
+            itemSelected(ROOT, Colors::rootMenuName);
         break; }
     case MORE:{
         QString moreMenu = this->info[this->currentMenu]["more"];
@@ -329,7 +346,7 @@ void MenuManager::createSubMenu(const QDomElement &el)
 
     Movie *menuButtonsIn = this->score->insertMovie(name + " -buttons");
     Movie *menuButtonsOut = this->score->insertMovie(name + " -buttons -out");
-    createLowLeftButton(QLatin1String("Main menu"), ROOT, menuButtonsIn, menuButtonsOut, 0, QLatin1String("Qt Examples and Demos"));
+    createLowLeftButton(QLatin1String("Main menu"), ROOT, menuButtonsIn, menuButtonsOut, 0, Colors::rootMenuName);
 }
 
 void MenuManager::createLeafMenu(const QDomElement &el)
