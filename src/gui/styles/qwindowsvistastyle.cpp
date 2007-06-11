@@ -884,33 +884,58 @@ void QWindowsVistaStyle::drawControl(ControlElement element, const QStyleOption 
 
             XPThemeData theme(widget, painter, QLatin1String("PROGRESS"), vertical ? PP_FILLVERT : PP_FILL);
             theme.rect = option->rect;
+            bool reverse = bar->direction == Qt::LeftToRight && inverted || bar->direction == Qt::RightToLeft && !inverted;
+            QTime current = QTime::currentTime();
 
             if (isIndeterminate) {
                 if (Animation *a = d->widgetAnimation(widget)) {
-                    QTime current = QTime::currentTime();
-                    int timeDiff = a->startTime().msecsTo(current);
-                    int loopTime = 2200;
-                    float ps = (timeDiff%loopTime)/(float)loopTime;
+                    int glowSize = 120;
+                    int animationWidth = glowSize * 2 + (vertical ? theme.rect.height() : theme.rect.width());
+                    int animOffset = a->startTime().msecsTo(current) / 4;
+                    if (animOffset > animationWidth)
+                        a->setStartTime(QTime::currentTime());
                     painter->save();
                     painter->setClipRect(theme.rect);
-                    QRect barRect;
-                    QRect middleRect;
-
+                    QRect animRect;
+                    QSize pixmapSize(14, 14);
                     if (vertical) {
-                        theme.rect = QRect(theme.rect.left(),
-                                           theme.rect.top() - theme.rect.height() + (int)(2*ps*theme.rect.height()),
-                                           theme.rect.width(), (int)theme.rect.height()/2);
+                        animRect = QRect(theme.rect.left(),
+                                         inverted ? rect.top() - glowSize + animOffset :
+                                                    rect.bottom() + glowSize - animOffset,
+                                         rect.width(), glowSize);
+                         pixmapSize.setHeight(animRect.height());
                     } else {
-                        theme.rect = QRect(theme.rect.left() - theme.rect.width() + (int)(2*ps*theme.rect.width()),
-                                           theme.rect.top(), (int)theme.rect.width()/2, theme.rect.height());
+                        animRect = QRect(reverse ? rect.right() + glowSize - animOffset:
+                                                   rect.left() - glowSize + animOffset,
+                                         rect.top(), glowSize, rect.height());
+                        pixmapSize.setWidth(animRect.width());
                     }
-                    theme.partId = vertical ? PP_FILLVERT : PP_FILL;
-                    d->drawBackground(theme);
+                    QString name = QString::fromLatin1("qiprogress-%1-%2").arg(pixmapSize.width()).arg(pixmapSize.height());
+                    QPixmap pixmap;
+                    if (!QPixmapCache::find(name, pixmap)) {
+                        QImage image(pixmapSize, QImage::Format_ARGB32);
+                        image.fill(Qt::transparent);
+                        QPainter imagePainter(&image);
+                        theme.painter = &imagePainter;
+                        theme.partId = vertical ? PP_FILLVERT : PP_FILL;
+                        theme.rect = QRect(QPoint(0,0), theme.rect.size());
+                        QLinearGradient alphaGradient(0, 0, vertical ? 0 : image.width(), 
+                                                      vertical ? image.height() : 0);
+                        alphaGradient.setColorAt(0, QColor(0, 0, 0, 0));
+                        alphaGradient.setColorAt(0.5, QColor(0, 0, 0, 220));
+                        alphaGradient.setColorAt(1, QColor(0, 0, 0, 0));
+                        imagePainter.fillRect(image.rect(), alphaGradient);
+                        imagePainter.setCompositionMode(QPainter::CompositionMode_SourceIn);
+                        d->drawBackground(theme);
+                        imagePainter.end();
+                        pixmap = QPixmap::fromImage(image);
+                        QPixmapCache::insert(name, pixmap);
+                    }
+                    painter->drawPixmap(animRect, pixmap);
                     painter->restore();
                 }
             }
             else {
-                bool reverse = bar->direction == Qt::LeftToRight && inverted || bar->direction == Qt::RightToLeft && !inverted;
                 qint64 progress = qMax<qint64>(bar->progress, bar->minimum); // workaround for bug in QProgressBar
 
                 if (vertical) {
@@ -935,11 +960,10 @@ void QWindowsVistaStyle::drawControl(ControlElement element, const QStyleOption 
                 d->drawBackground(theme);
 
                 if (Animation *a = d->widgetAnimation(widget)) {
-                    QTime current = QTime::currentTime();
-                    int animOffset = a->startTime().msecsTo(current) / 4;
-                    theme.partId = vertical ? PP_MOVEOVERLAYVERT : PP_MOVEOVERLAY;
                     int glowSize = 140;
                     int animationWidth = glowSize * 2 + (vertical ? theme.rect.height() : theme.rect.width());
+                    int animOffset = a->startTime().msecsTo(current) / 4;
+                    theme.partId = vertical ? PP_MOVEOVERLAYVERT : PP_MOVEOVERLAY;
                     if (animOffset > animationWidth)
                         a->setStartTime(QTime::currentTime());
                     painter->save();
