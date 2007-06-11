@@ -790,6 +790,10 @@ void QAhiGLScreen::exposeRegion(QRegion r, int windowIndex)
 /*!
   \reimp
 
+  This overloading of createSurface() is called on the server side
+  to manage a window surface corresponding to a window surface
+  already created on the client side.
+
   If the \a key is "ahigl", create an instance of QAhiGLWindowSurface
   and return it. Otherwise, call QScreen::createSurface() and return
   the window surface it creates.
@@ -810,11 +814,12 @@ QWSWindowSurface* QAhiGLScreen::createSurface(const QString &key) const
 /*!
   \reimp
 
-  If the \a widget is a QGLWidget, or if the widget's width and
-  height are both less than or equal to 256, create an instance
-  of QAhiGLWindowSurface and return it. Otherwise, call
-  QScreen::createSurface() and return the window surface it
-  creates.
+  This overloading of createSurface() is called on the client side to
+  create a window surface for a new window. If the \a widget is a
+  QGLWidget, or if the widget's width and height are both less than or
+  equal to 256, it creates an instance of QAhiGLWindowSurface and
+  returns it. Otherwise, it calls QScreen::createSurface() to create a
+  non-OpenGL window surface and return that.
  */
 QWSWindowSurface* QAhiGLScreen::createSurface(QWidget *widget) const
 {
