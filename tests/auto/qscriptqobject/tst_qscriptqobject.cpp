@@ -210,6 +210,10 @@ public:
         { m_qtFunctionInvoked = 46; m_actuals << qVariantFromValue(arg); }
     Q_INVOKABLE void myInvokableWithDefaultArgs(int arg1, const QString &arg2 = "")
         { m_qtFunctionInvoked = 47; m_actuals << qVariantFromValue(arg1) << qVariantFromValue(arg2); }
+    Q_INVOKABLE QObject& myInvokableReturningRef()
+        { m_qtFunctionInvoked = 48; return *this; }
+    Q_INVOKABLE const QObject& myInvokableReturningConstRef() const
+        { const_cast<MyQObject*>(this)->m_qtFunctionInvoked = 49; return *this; }
 
     void emitMySignal()
         { emit mySignal(); }
@@ -813,6 +817,22 @@ void tst_QScriptExtQObject::callQtInvokable()
         QCOMPARE(m_myObject->qtFunctionActuals().size(), 2);
         QCOMPARE(m_myObject->qtFunctionActuals().at(0).toInt(), 456);
         QCOMPARE(m_myObject->qtFunctionActuals().at(1).toString(), QString());
+    }
+
+    // calling function that returns (const)ref
+    m_myObject->resetQtFunctionInvoked();
+    {
+        QScriptValue ret = m_engine->evaluate("myObject.myInvokableReturningRef()");
+        QVERIFY(ret.isUndefined());
+        QVERIFY(!m_engine->hasUncaughtException());
+        QCOMPARE(m_myObject->qtFunctionInvoked(), 48);
+    }
+    m_myObject->resetQtFunctionInvoked();
+    {
+        QScriptValue ret = m_engine->evaluate("myObject.myInvokableReturningConstRef()");
+        QVERIFY(ret.isUndefined());
+        QVERIFY(!m_engine->hasUncaughtException());
+        QCOMPARE(m_myObject->qtFunctionInvoked(), 49);
     }
 
     // first time we expect failure because the metatype is not registered
