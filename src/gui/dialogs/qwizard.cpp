@@ -1010,6 +1010,11 @@ void QWizardPrivate::recreateLayout(const QWizardLayoutInfo &info)
     if (classic)
         mainLayout->setRowMinimumHeight(row++, deltaVSpacing);
 
+    if (aero) {
+        buttonLayout->setContentsMargins(9, 9, 9, 9);
+        mainLayout->setContentsMargins(0, 11, 0, 0);
+    }
+
     int buttonStartColumn = info.extension ? 1 : 0;
     int buttonNumColumns = info.extension ? 1 : numColumns;
 
@@ -1454,15 +1459,14 @@ QPixmap QWizardPrivate::findDefaultBackgroundPixmap()
 void QWizardAntiFlickerWidget::paintEvent(QPaintEvent *)
 {
     if (wizard->wizardStyle() == QWizard::AeroStyle) {
-        QFrame *pageFrame = wizardPrivate->pageFrame;
-        Q_ASSERT(pageFrame->parent() == this);
-        const int pageFrameBottom =
-            pageFrame->mapToParent(QPoint(0, pageFrame->geometry().height())).y();
+        int leftMargin, topMargin, rightMargin, bottomMargin;
+        wizardPrivate->buttonLayout->getContentsMargins(&leftMargin, &topMargin, &rightMargin, &bottomMargin);
+        const int buttonLayoutTop = wizardPrivate->buttonLayout->contentsRect().top() - topMargin;
         QPainter painter(this);
         const QBrush brush(QColor(240, 240, 240)); // ### hardcoded for now
-        painter.fillRect(0, pageFrameBottom, width(), height() - pageFrameBottom, brush);
+        painter.fillRect(0, buttonLayoutTop, width(), height() - buttonLayoutTop, brush);
         painter.setPen(QPen(QBrush(QColor(223, 223, 223)), 0)); // ### hardcoded for now
-        painter.drawLine(0, pageFrameBottom, width(), pageFrameBottom);
+        painter.drawLine(0, buttonLayoutTop, width(), buttonLayoutTop);
     }
 }
 #endif
