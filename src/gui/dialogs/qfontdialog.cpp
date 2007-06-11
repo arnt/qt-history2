@@ -357,14 +357,14 @@ QFontDialog::~QFontDialog()
 /*!
   Executes a modal font dialog and returns a font.
 
-  If the user clicks OK, the selected font is returned. If the user
-  clicks Cancel, the \a initial font is returned.
+  If the user clicks \gui OK, the selected font is returned. If the user
+  clicks \gui Cancel, the \a initial font is returned.
 
   The dialog is constructed with the given \a parent.  \a caption is
   shown as the window title of the dialog and  \a initial is the
-  initially selected font. If the \a ok parameter is not-null, \e *\a
-  ok is set to true if the user clicked OK, and set to false if the
-  user clicked Cancel.
+  initially selected font. If the \a ok parameter is not-null, the
+  value it refers to is set to true if the user clicks \gui OK, and
+  set to false if the user clicks \gui Cancel.
 
   This static function is less flexible than the full QFontDialog
   object, but is convenient and easy to use.
@@ -408,12 +408,13 @@ QFont QFontDialog::getFont(bool *ok, const QFont &initial,
 
   Executes a modal font dialog and returns a font.
 
-  If the user clicks OK, the selected font is returned. If the user
-  clicks Cancel, the Qt default font is returned.
+  If the user clicks \gui OK, the selected font is returned. If the user
+  clicks \gui Cancel, the Qt default font is returned.
 
   The dialog is constructed with the given \a parent.
-  If the \a ok parameter is not-null, \e *\a ok is set to true if the
-  user clicked OK, and false if the user clicked Cancel.
+  If the \a ok parameter is not-null, the value it refers to is set
+  to true if the user clicks \gui OK, and false if the user clicks
+  \gui Cancel.
 
   This static function is less functional than the full QFontDialog
   object, but is convenient and easy to use.
