@@ -2,8 +2,243 @@
     \example tools/completer
     \title Completer Example
 
-    The Completer example shows how to provide string-completion facilities for an
-    input widget based on data provided by a model.
+    The Completer example shows how to provide string-completion facilities
+    for an input widget based on data provided by a model.
 
     \image completer-example.png
-*/
+
+    This example uses a custom item model, \c DirModel, and a QCompleter object.
+    QCompleter is a class that provides completions based on an item model. The
+    type of model, the completion mode, and the case sensitivity can be
+    selected using combo boxes.
+
+    \section1 The Resource File
+
+    The Completer example requires a resource file in order to store the
+    \e{countries.txt} and \e{words.txt}. The resource file contains the
+    following code:
+
+    \quotefromfile tools/completer/completer.qrc
+    \skipto <!DOCTYPE RCC>
+    \printuntil </RCC>
+
+    \section1 DirModel Class Definition
+
+    The \c DirModel class is a subclass of QDirModel, which provides a data
+    model for the local filesystem.
+
+    \quotefromfile tools/completer/dirmodel.h
+    \skipto class DirModel
+    \printuntil };
+
+    This class only has a constructor and a \c data() function as it is only
+    created to enable \c data() to return the entire file path for the
+    display role, unlike \l{QDirModel}'s \c data() function that only returns
+    the folder and not the drive label. This is further explained in
+    \c DirModel's implementation.
+
+    \section1 DirModel Class Implementation
+
+    The constructor for the \c DirModel class is used to pass \a parent to
+    QDirModel.
+
+    \quotefromfile tools/completer/dirmodel.cpp
+    \skipto DirModel::DirModel
+    \printuntil /^\}/
+
+    As mentioned earlier, the \c data() function is reimplemented in order to
+    get it to return the entire file parth for the display role. For example,
+    with a QDirModel, you will see "Program Files" in the view. However, with
+    \c DirModel, you will see "C:\\Program Files".
+
+    \quotefromfile tools/completer/dirmodel.cpp
+    \skipto QVariant DirModel
+    \printuntil /^\}/
+
+    The screenshots below illustrate this difference:
+
+    \table
+    \row \o \inlineimage completer-example-qdirmodel
+         \o \inlineimage completer-example-dirmodel
+    \endtable
+
+    The Qt::EditRole, which QCompleter uses to look for matches, is left
+    unchanged.
+
+    \section1 MainWindow Class Definition
+
+    The \c MainWindow class is a subcalss of QMainWindow and implements four
+    private slots - \c about(), \c changeCase(), \c changeMode(), and
+    \c changeModel().
+
+    \quotefromfile tools/completer/mainwindow.h
+    \skipto class MainWindow
+    \printuntil void changeModel();
+
+    Within the \c MainWindow class, we have two private functions:
+    \c createMenu() and \c modelFromFile(). We also declare the private widgets
+    needed - three QComboBox objects, a QCheckBox, a QCompleter, a QLabel, and
+    a QLineEdit.
+
+    \skipto private:
+    \printuntil };
+
+    \section1 MainWindow Class Implementation
+
+    The constructor of \c MainWindow constructs a \c MainWindow with a parent
+    widget and initializes the private members. The \c createMenu() function
+    is then invoked.
+
+    We set up three QComboBox objects, \c modelComb, \c modeCombo and
+    \c caseCombo. By default, the \c modelCombo is set to QDirModel,
+    the \c modeCombo is set to "Filtered Popup" and the \c caseCombo is set
+    to "Case Insensitive".
+
+    \quotefromfile tools/completer/mainwindow.cpp
+    \skipto MainWindow::MainWindow
+    \printuntil caseCombo->setCurrentIndex(0);
+
+    The \c wrapCheckBox is then set up. This \c checkBox determines if the
+    \c{completer}'s \l{QCompleter::setWrapAround()}{setWrapAround()} property
+    is enabled or disabled.
+
+    \skipto wrapCheckBox
+    \printuntil setChecked(true);
+
+    We instantiate \c contentsLabel and set its size policy to
+    \l{QSizePolicy::Fixed}{fixed}. The combo boxes' \l{QComboBox::activated()}
+    {activated()} signals are then connected to their respective slots.
+
+    \skipto contentsLabel
+    \printuntil changeCase(int)));
+
+    The \c lineEdit is set up and then we arrange all the widgets using a
+    QGridLayout. The \c changeModel() function is called, to initialize the
+    \c completer.
+
+    \skipto lineEdit
+    \printuntil /^\}/
+
+    The \c createMenu() function is used to instantiate the QAction objects
+    needed to fill the \c fileMenu and \c helpMenu. The actions'
+    \l{QAction::triggered()}{triggered()} signals are connected to their
+    respective slots.
+
+    \skipto void MainWindow::createMenu()
+    \printuntil /^\}/
+
+    The \c modelFromFile() function accepts the \a fileName of a file and
+    processes it depending on its contents.
+
+    We first validate the \c file to ensure that it can be opened in
+    QFile::ReadOnly mode. If this is unsuccessful, the function returns an
+    empty QStringListModel.
+
+    \skipto QAbstractItemModel *MainWindow
+    \printuntil return new QStringListModel(completer);
+
+    The mouse cursor is then overriden with Qt::WaitCursor before we fill
+    a QStringList object, \c words, with the contents of \c file. Once this
+    is done, we restore the mouse cursor.
+
+    \skipto QApplication::setOverrideCursor
+    \printuntil QApplication::restoreOverrideCursor
+
+    As mentioned earlier, the resources file contains two files -
+    \e{countries.txt} and \e{words.txt}. If the \c file read is \e{words.txt},
+    we return a QStringListModel with \c words as its QStringList and
+    \c completer as its parent.
+
+    \skipto if( !fileName
+    \printuntil );
+
+    If the \c file read is \e{countries.txt}, then we require a
+    QStandardItemModel with \c words.count() rows, 2 columns, and \c completer
+    as its parent.
+
+    \skipto QStandardItemModel
+    \printuntil completer);
+
+    A standard line in \e{countries.txt} is:
+    \quote
+        Norway                          NO
+    \endquote
+
+    Hence, to populate the QStandardItemModel object, \c m, we have to
+    split the country name and its symbol. Once this is done, we return
+    \c m.
+
+    \skipto for
+    \printuntil /^\}/
+
+    The \c changeMode() function sets the \c{completer}'s mode, depending on
+    the value of \c index.
+
+    \skipto void MainWindow::changeMode
+    \printuntil /^\}/
+
+    The \c changeModel() function changes the item model used based on the
+    model selected by the user.
+
+    A \c switch statement is used to change the item model based on the index
+    of \c modelCombo. If \c case is 0, we use an unsorted QDirModel, providing
+    us with a file path excluding the drive label.
+
+    \skipto void MainWindow::changeModel()
+    \printuntil break;
+
+    Note that we create the model with \c completer as the parent as this
+    allows us to replace the model with a new model. The \c completer will
+    ensure that the old one is deleted the moment a new model is assigned
+    to it.
+
+    If \c case is 1, we use the \c DirModel we defined earlier, resulting in
+    full paths for the files.
+
+    \skipto case 1:
+    \printuntil break;
+
+    When \c case is 2, we attempt to complete names of countries. This requires
+    a QTreeView object, \c treeView. The country names are extracted from
+    \e{countries.txt} and set the popup used to display completions to
+    \c treeView.
+
+    \skipto case 2:
+    \printuntil break;
+
+    The screenshot below shows the Completer with the country list model.
+
+    \image completer-example-country.png
+
+    If \c case is 3, we attempt to complete words. This is done using a
+    QStringListModel that contains data extracted from \e{words.txt}. The
+    model is sorted \l{QCompleter::CaseInsensitivelySortedModel}
+    {case insensitively}.
+
+    The screenshot below shows the Completer with the word list model.
+
+    \image completer-example-word.png
+
+    Once the model type is selected, we call the \c changeMode() function and
+    the \c changeCase() function and set the wrap option accordingly. The
+    \c{wrapCheckBox}'s \l{QCheckBox::clicked()}{clicked()} signal is connected
+    to the \c{completer}'s \l{QCompleter::setWrapAround()}{setWrapAround()}
+    slot.
+
+    \skipto case 3
+    \printuntil /^\}/
+
+    The \c about() function provides a brief description about the example.
+
+    \skipto void MainWindow::about()
+    \printuntil /^\}/
+
+    \section1 \c main() Function
+
+    The \c main() function instantiates QApplication and \c MainWindow and
+    invokes the \l{QWidget::show()}{show()} function.
+
+    \quotefromfile tools/completer/main.cpp
+    \skipto int main
+    \printuntil /^\}/
+    */
