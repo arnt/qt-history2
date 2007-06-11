@@ -204,10 +204,12 @@ public:
         { m_qtFunctionInvoked = 43; m_actuals << qVariantFromValue(style); }
     Q_INVOKABLE void myInvokableWithVoidStarArg(void *arg)
         { m_qtFunctionInvoked = 44; m_actuals << qVariantFromValue(arg); }
-    Q_INVOKABLE void myInvokableWithAmbigiousArg(int arg)
+    Q_INVOKABLE void myInvokableWithAmbiguousArg(int arg)
         { m_qtFunctionInvoked = 45; m_actuals << qVariantFromValue(arg); }
-    Q_INVOKABLE void myInvokableWithAmbigiousArg(uint arg)
+    Q_INVOKABLE void myInvokableWithAmbiguousArg(uint arg)
         { m_qtFunctionInvoked = 46; m_actuals << qVariantFromValue(arg); }
+    Q_INVOKABLE void myInvokableWithDefaultArgs(int arg1, const QString &arg2 = "")
+        { m_qtFunctionInvoked = 47; m_actuals << qVariantFromValue(arg1) << qVariantFromValue(arg2); }
 
     void emitMySignal()
         { emit mySignal(); }
@@ -788,9 +790,29 @@ void tst_QScriptExtQObject::callQtInvokable()
 
     m_myObject->resetQtFunctionInvoked();
     {
-        QScriptValue ret = m_engine->evaluate("myObject.myInvokableWithAmbigiousArg(123)");
+        QScriptValue ret = m_engine->evaluate("myObject.myInvokableWithAmbiguousArg(123)");
         QVERIFY(ret.isError());
-        QCOMPARE(ret.toString(), QLatin1String("TypeError: ambiguous call of overloaded function myInvokableWithAmbigiousArg(); candidates were\n    myInvokableWithAmbigiousArg(int)\n    myInvokableWithAmbigiousArg(uint)"));
+        QCOMPARE(ret.toString(), QLatin1String("TypeError: ambiguous call of overloaded function myInvokableWithAmbiguousArg(); candidates were\n    myInvokableWithAmbiguousArg(int)\n    myInvokableWithAmbiguousArg(uint)"));
+    }
+
+    m_myObject->resetQtFunctionInvoked();
+    {
+        QScriptValue ret = m_engine->evaluate("myObject.myInvokableWithDefaultArgs(123, 'hello')");
+        QVERIFY(ret.isUndefined());
+        QCOMPARE(m_myObject->qtFunctionInvoked(), 47);
+        QCOMPARE(m_myObject->qtFunctionActuals().size(), 2);
+        QCOMPARE(m_myObject->qtFunctionActuals().at(0).toInt(), 123);
+        QCOMPARE(m_myObject->qtFunctionActuals().at(1).toString(), QLatin1String("hello"));
+    }
+
+    m_myObject->resetQtFunctionInvoked();
+    {
+        QScriptValue ret = m_engine->evaluate("myObject.myInvokableWithDefaultArgs(456)");
+        QVERIFY(ret.isUndefined());
+        QCOMPARE(m_myObject->qtFunctionInvoked(), 47);
+        QCOMPARE(m_myObject->qtFunctionActuals().size(), 2);
+        QCOMPARE(m_myObject->qtFunctionActuals().at(0).toInt(), 456);
+        QCOMPARE(m_myObject->qtFunctionActuals().at(1).toString(), QString());
     }
 
     // first time we expect failure because the metatype is not registered

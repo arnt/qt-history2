@@ -1289,6 +1289,7 @@ void QScript::QtFunction::execute(QScriptContextPrivate *context)
         if (chosenIndex == -1) {
             QScriptMetaArguments metaArgs = candidates.at(0);
             if ((candidates.size() > 1)
+                && (metaArgs.args.count() == candidates.at(1).args.count())
                 && (metaArgs.matchDistance == candidates.at(1).matchDistance)) {
                 // ambiguous call
                 QString message = QString::fromLatin1("ambiguous call of overloaded function %0(); candidates were\n")
