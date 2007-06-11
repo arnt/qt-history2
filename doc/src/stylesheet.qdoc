@@ -746,8 +746,7 @@
 
     \row
         \o QFrame \target qframe-widget
-        \o Supports the \l{box model}. Does not support the
-           \l{#hover-ps}{:hover} pseudo-state. 
+        \o Supports the \l{box model}.
            
            \warning For QFrame and its subclasses, you must set the 
            QFrame::frameStyle property to QFrame::StyledPanel; otherwise, 
