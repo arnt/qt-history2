@@ -571,6 +571,9 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     All values above this are reserved for custom use. Custom values
     must be greater than this value.
 
+    \value PE_IndicatorViewItemDrop An indicator that is drawn to show where a view item is about to be dropped
+    during a drag-and-drop operation in an item view.
+
     \sa drawPrimitive()
 */
 

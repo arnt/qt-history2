@@ -673,6 +673,13 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
         p->restore();
     }
     break; }
+    case PE_IndicatorViewItemDrop: {
+        QRect rect = opt->rect;
+        if (opt->rect.height() == 0)
+            p->drawLine(rect.topLeft(), rect.topRight());
+        else
+            p->drawRect(rect);
+        break; }
     default:
         break;
     }

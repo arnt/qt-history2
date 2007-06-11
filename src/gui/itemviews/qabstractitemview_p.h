@@ -122,10 +122,12 @@ public:
 #ifndef QT_NO_CURSOR
             && viewport->cursor().shape() != Qt::ForbiddenCursor
 #endif
-            )
-            if (dropIndicatorRect.height() == 0) // FIXME: should be painted by style
-                painter->drawLine(dropIndicatorRect.topLeft(), dropIndicatorRect.topRight());
-            else painter->drawRect(dropIndicatorRect);
+            ) {
+            QStyleOption opt;
+            opt.init(q_func());
+            opt.rect = dropIndicatorRect;
+            q_func()->style()->drawPrimitive(QStyle::PE_IndicatorViewItemDrop, &opt, painter, q_func());
+        }
     }
 #endif
 
