@@ -9,7 +9,7 @@
 
 #include <QtTest/QtTest>
 
-#if defined(Q_WS_QWS) && !defined(QT_NO_QWS_TRANSFORMED)
+#if defined(Q_WS_QWS)
 
 #include <qwindowsystem_qws.h>
 #include <qscreen_qws.h>
