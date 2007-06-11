@@ -119,7 +119,7 @@ void tst_QSharedMemory::cleanup()
 }
 
 #ifndef Q_OS_WIN
-#include "private/qsharedmemory_p.h"
+#include "qsharedmemory_p.h"
 #include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>

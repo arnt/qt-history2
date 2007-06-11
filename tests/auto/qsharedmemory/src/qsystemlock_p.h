@@ -17,7 +17,7 @@
 #ifndef QT_NO_SYSTEMLOCK
 
 #include "qsystemlock.h"
-#include "private/qsharedmemory_p.h"
+#include "qsharedmemory_p.h"
 
 #define MAX_LOCKS 64
 

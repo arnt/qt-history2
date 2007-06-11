@@ -27,11 +27,7 @@ HEADERS += \
         kernel/qvariant_p.h \
         kernel/qmetaobject_p.h \
         kernel/qobject_p.h \
-        kernel/qcoreglobaldata_p.h \
-        kernel/qsharedmemory.h \
-        kernel/qsharedmemory_p.h \
-        kernel/qsystemsemaphore.h \
-        kernel/qsystemsemaphore_p.h
+        kernel/qcoreglobaldata_p.h
 
 SOURCES += \
 	kernel/qabstracteventdispatcher.cpp \
@@ -50,17 +46,13 @@ SOURCES += \
 	kernel/qtimer.cpp \
 	kernel/qtranslator.cpp \
 	kernel/qvariant.cpp \
-        kernel/qcoreglobaldata.cpp \
-        kernel/qsharedmemory.cpp \
-        kernel/qsystemsemaphore.cpp
+        kernel/qcoreglobaldata.cpp
 
 win32 {
 	SOURCES += \
 		kernel/qeventdispatcher_win.cpp \
 		kernel/qcoreapplication_win.cpp \
-		kernel/qwineventnotifier_p.cpp \
-                kernel/qsharedmemory_win.cpp \
-                kernel/qsystemsemaphore_win.cpp
+		kernel/qwineventnotifier_p.cpp
 	HEADERS += \
 		kernel/qeventdispatcher_win_p.h \
 		kernel/qwineventnotifier_p.h
@@ -78,9 +70,7 @@ mac {
 
 unix {
 	SOURCES += \
-                kernel/qcrashhandler.cpp \
-                kernel/qsharedmemory_unix.cpp \
-                kernel/qsystemsemaphore_unix.cpp
+                kernel/qcrashhandler.cpp
 	HEADERS += \
 		kernel/qcrashhandler_p.h
 
