@@ -414,14 +414,8 @@ void QMessageBoxPrivate::_q_buttonClicked(QAbstractButton *button)
 #ifndef QT_NO_TEXTEDIT
     if (detailsButton && detailsText && button == detailsButton) {
         detailsButton->setText(detailsText->isHidden() ? detailsText->label(HideLabel) : detailsText->label(ShowLabel));
-#if defined(Q_OS_UNIX) && !defined(Q_WS_MAC)
-        q->layout()->setEnabled(false);
-#endif
         detailsText->setHidden(!detailsText->isHidden());
         updateSize();
-#if defined(Q_OS_UNIX) && !defined(Q_WS_MAC)
-        q->layout()->setEnabled(true);
-#endif
     } else
 #endif
     {
