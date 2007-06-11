@@ -274,7 +274,7 @@ private:
     void handleArrowKeyEvent(int key, Qt::KeyboardModifiers modifiers);
 
 private:
-    QWidget *FormWindow::containerForPaste() const;
+    QWidget *containerForPaste() const;
 
     FormEditor *m_core;
     FormWindowCursor *m_cursor;
