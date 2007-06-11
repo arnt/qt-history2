@@ -65,9 +65,9 @@ static QByteArray zeroKey( const char *key )
             z[j++] = key[i++];
         }
     }
-    z[j] = '\0';
-
-    if ( metSomething )
+    zeroed.resize(j);
+    
+    if ( metSomething ) 
         return zeroed;
     else
         return "";
