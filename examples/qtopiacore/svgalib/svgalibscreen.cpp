@@ -77,11 +77,8 @@ bool SvgalibScreen::initDevice()
     gl_getcontext(context);
 
     vga_modeinfo *modeinfo = vga_getmodeinfo(mode);
-    if (!(modeinfo->flags & IS_LINEAR)) {
-        qCritical("SvgalibScreen::initDevice(): graphics memory not linear");
-        return false;
-    }
-    QScreen::data = vga_getgraphmem();
+    if (modeinfo->flags & IS_LINEAR)
+        QScreen::data = vga_getgraphmem();
 
     QScreenCursor::initSoftwareCursor();
     return true;
@@ -105,8 +102,9 @@ void SvgalibScreen::exposeRegion(QRegion region, int changing)
 
 void SvgalibScreen::solidFill(const QColor &color, const QRegion &reg)
 {
-    if (depth() != 32 || depth() != 16) {
-        QScreen::solidFill(color, reg);
+    if (depth() != 32 && depth() != 16) {
+        if (base())
+            QScreen::solidFill(color, reg);
         return;
     }
 
@@ -121,7 +119,8 @@ void SvgalibScreen::blit(const QImage &img, const QPoint &topLeft,
                          const QRegion &reg)
 {
     if (img.format() != pixelFormat()) {
-        QScreen::blit(img, topLeft, reg);
+        if (base())
+            QScreen::blit(img, topLeft, reg);
         return;
     }
 
@@ -138,13 +137,14 @@ void SvgalibScreen::blit(const QImage &img, const QPoint &topLeft,
 
 QWSWindowSurface* SvgalibScreen::createSurface(QWidget *widget) const
 {
-    static int onScreenPaint = -1;
-    if (onScreenPaint == -1)
-        onScreenPaint = qgetenv("QT_ONSCREEN_PAINT").toInt();
+    if (base()) {
+        static int onScreenPaint = -1;
+        if (onScreenPaint == -1)
+            onScreenPaint = qgetenv("QT_ONSCREEN_PAINT").toInt();
 
-    if (onScreenPaint > 0 || widget->testAttribute(Qt::WA_PaintOnScreen))
-        return new SvgalibSurface(widget);
-
+        if (onScreenPaint > 0 || widget->testAttribute(Qt::WA_PaintOnScreen))
+            return new SvgalibSurface(widget);
+    }
     return QScreen::createSurface(widget);
 }
 
