@@ -31,11 +31,11 @@
 #include <QtCore/QPointer>
 
 class QDesignerPropertyEditorInterface;
-class QListWidget;
-class QListWidgetItem;
 class QMenu;
 class QActionGroup;
 class QSignalMapper;
+class QItemSelection;
+class QListWidget;
 
 namespace qdesigner_internal {
 
@@ -64,9 +64,6 @@ public:
 
     static QString actionTextToName(const QString &text, const QString &prefix = QLatin1String("action"));
 
-    QAction *itemToAction(QListWidgetItem *item) const;
-    QListWidgetItem *actionToItem(QAction *action) const;
-
     // ActionView::ViewMode
     int viewMode() const;
     void setViewMode(int lm);
@@ -77,16 +74,20 @@ public slots:
 
 private slots:
     void slotCurrentItemChanged(QAction *item);
+    void slotSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected);
     void editAction(QAction *item);
     void editCurrentAction();
     void slotActionChanged();
     void slotNewAction();
-    void slotDeleteAction();
+    void slotDelete();
     void slotNotImplemented();
     void resourceImageDropped(const ResourceMimeData &data, QAction *action);
     void slotContextMenuRequested(QContextMenuEvent *, QAction *);
     void slotViewMode(QAction *a);
     void slotSelectAssociatedWidget(QWidget *w);
+    void slotCopy();
+    void slotCut();
+    void slotPaste();
 
 signals:
     void itemActivated(QAction *item);
@@ -94,6 +95,10 @@ signals:
     void contextMenuRequested(QMenu *menu, QAction *item);
 
 private:
+    typedef QList<QAction *> ActionList;
+    void deleteActions(QDesignerFormWindowInterface *formWindow, const ActionList &);
+    void copyActions(QDesignerFormWindowInterface *formWindow, const ActionList &);
+
     void updateViewModeActions();
 
     QDesignerFormEditorInterface *m_core;
@@ -104,6 +109,10 @@ private:
 
     QAction *m_actionNew;
     QAction *m_actionEdit;
+    QAction *m_actionCopy;
+    QAction *m_actionCut;
+    QAction *m_actionPaste;
+    QAction *m_actionSelectAll;
     QAction *m_actionDelete;
 
     QActionGroup *m_viewModeGroup;

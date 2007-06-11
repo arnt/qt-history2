@@ -39,6 +39,8 @@ class QPoint;
 
 namespace qdesigner_internal {
 
+class QEditorFormBuilder;
+
 class QDESIGNER_SHARED_EXPORT FormWindowBase: public QDesignerFormWindowInterface
 {
     Q_OBJECT
@@ -88,6 +90,12 @@ public:
     void deleteWidgetList(const QWidgetList &widget_list);
 
     virtual void highlightWidget(QWidget *w, const QPoint &pos, HighlightMode mode = Highlight) = 0;
+
+    enum PasteMode { PasteAll, PasteActionsOnly };
+    virtual void paste(PasteMode pasteMode) = 0;
+
+    // Factory method to create a form builder
+    virtual QEditorFormBuilder *createFormBuilder() = 0;
 
 private:
     void syncGridFeature();

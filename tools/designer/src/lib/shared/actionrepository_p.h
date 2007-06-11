@@ -168,18 +168,28 @@ public:
     int viewMode() const;
     void setViewMode(int lm);
 
+    void setSelectionMode(QAbstractItemView::SelectionMode sm);
+    QAbstractItemView::SelectionMode selectionMode() const;
+
     ActionModel *model() const { return m_model; }
 
     QAction *currentAction() const;
     void setCurrentIndex(const QModelIndex &index);
 
+    typedef QList<QAction*> ActionList;
+    ActionList selectedActions() const;
+    QItemSelection selection() const;
+
 public slots:
     void filter(const QString &text);
+    void selectAll();
+    void clearSelection();
 
 signals:
     void contextMenuRequested(QContextMenuEvent *event, QAction *);
     void currentChanged(QAction *action);
     void activated(QAction *action);
+    void selectionChanged(const QItemSelection& selected, const QItemSelection& deselected);
     void resourceImageDropped(const ResourceMimeData &data, QAction *action);
 
 private slots:

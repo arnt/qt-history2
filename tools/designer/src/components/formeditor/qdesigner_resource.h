@@ -40,7 +40,7 @@ namespace qdesigner_internal {
 
 class FormWindow;
 
-class QT_FORMEDITOR_EXPORT QDesignerResource : public QSimpleResource
+class QT_FORMEDITOR_EXPORT QDesignerResource : public QEditorFormBuilder
 {
 public:
     explicit QDesignerResource(FormWindow *fw);
@@ -48,10 +48,11 @@ public:
 
     virtual void save(QIODevice *dev, QWidget *widget);
 
-    void copy(QIODevice *dev, const QList<QWidget*> &selection);
-    DomUI *copy(const QList<QWidget*> &selection);
-    QList<QWidget*> paste(DomUI *ui, QWidget *parentWidget);
-    QList<QWidget*> paste(QIODevice *dev, QWidget *parentWidget);
+    virtual bool copy(QIODevice *dev, const FormBuilderClipboard &selection);
+    virtual DomUI *copy(const FormBuilderClipboard &selection);
+
+    virtual FormBuilderClipboard paste(DomUI *ui, QWidget *widgetParent = 0, QObject *actionParent = 0);
+    virtual FormBuilderClipboard paste(QIODevice *dev,  QWidget *widgetParent = 0, QObject *actionParent = 0);
 
 protected:
     using QSimpleResource::create;

@@ -491,7 +491,10 @@ ActionView::ActionView(QWidget *parent) :
             this, SIGNAL(resourceImageDropped(ResourceMimeData,QAction*)));
 
     // sync selection models
-    m_actionListView->setSelectionModel(m_actionTreeView->selectionModel());
+    QItemSelectionModel *selectionModel = m_actionTreeView->selectionModel();
+    m_actionListView->setSelectionModel(selectionModel);
+    connect(selectionModel, SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+            this, SIGNAL(selectionChanged(QItemSelection,QItemSelection)));
 }
 
 int ActionView::viewMode() const
@@ -529,10 +532,19 @@ void ActionView::filter(const QString &text)
     m_actionListView->filter(text);
 }
 
+void ActionView::selectAll()
+{
+    m_actionTreeView->selectAll();
+}
+
+void ActionView::clearSelection()
+{
+    m_actionTreeView->selectionModel()->clearSelection();
+}
+
 void ActionView::setCurrentIndex(const QModelIndex &index)
 {
     m_actionTreeView->setCurrentIndex(index);
-    m_actionListView->setCurrentIndex(index);
 }
 
 QAction *ActionView::currentAction() const
@@ -540,7 +552,31 @@ QAction *ActionView::currentAction() const
     return m_actionListView->currentAction();
 }
 
-// ----------     ActionRepositoryMimeData
+void ActionView::setSelectionMode(QAbstractItemView::SelectionMode sm)
+{
+    m_actionTreeView->setSelectionMode(sm);
+    m_actionListView->setSelectionMode(sm);
+}
+
+QAbstractItemView::SelectionMode ActionView::selectionMode() const
+{
+    return m_actionListView->selectionMode();
+}
+
+QItemSelection ActionView::selection() const
+{
+    return  m_actionListView->selectionModel()->selection();
+}
+
+ActionView::ActionList ActionView::selectedActions() const
+{
+    ActionList rc;
+    foreach (const QModelIndex &index, selection().indexes())
+        if (index.column() == 0)
+            rc += actionOfItem(m_model->itemFromIndex(index));
+    return rc;
+}
+// ----------  ActionRepositoryMimeData
 ActionRepositoryMimeData::ActionRepositoryMimeData(QAction *a, Qt::DropAction dropAction) :
     m_dropAction(dropAction)
 {

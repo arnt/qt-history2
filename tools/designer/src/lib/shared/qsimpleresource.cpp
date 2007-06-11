@@ -28,6 +28,7 @@
 
 #include <QtGui/QIcon>
 #include <QtGui/QWidget>
+#include <QtGui/QAction>
 
 namespace {
     typedef QList<DomWidgetData*> DomWidgetDataList;
@@ -274,5 +275,22 @@ QString QSimpleResource::customWidgetScript(QDesignerFormEditorInterface *core, 
     if (it != classNameScriptHash.constEnd())
         return it.value();
     return QString();
+}
+// ------------ FormBuilderClipboard
+
+FormBuilderClipboard::FormBuilderClipboard(QWidget *w)
+{
+    m_widgets += w;
+}
+
+bool FormBuilderClipboard::empty() const
+{
+    return m_widgets.empty() && m_actions.empty();
+}
+
+void FormBuilderClipboard::deleteAll()
+{
+    qDeleteAll(m_widgets);
+    qDeleteAll(m_actions);
 }
 }

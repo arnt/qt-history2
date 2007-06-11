@@ -25,13 +25,14 @@ TRANSLATOR qdesigner_internal::ActionEditor
 #include "resourcemimedata_p.h"
 #include "qdesigner_objectinspector_p.h"
 #include "qdesigner_utils_p.h"
+#include "qsimpleresource_p.h"
+#include "formwindowbase_p.h"
 
 #include <QtDesigner/QDesignerFormEditorInterface>
 #include <QtDesigner/QDesignerPropertyEditorInterface>
 #include <QtDesigner/QDesignerPropertySheetExtension>
 #include <QtDesigner/QExtensionManager>
 #include <QtDesigner/QDesignerMetaDataBaseInterface>
-#include <QtDesigner/QDesignerFormWindowInterface>
 #include <QtDesigner/QDesignerIconCacheInterface>
 
 #include <QtGui/QMenu>
@@ -39,6 +40,8 @@ TRANSLATOR qdesigner_internal::ActionEditor
 #include <QtGui/QToolBar>
 #include <QtGui/QSplitter>
 #include <QtGui/QAction>
+#include <QtGui/QApplication>
+#include <QtGui/QClipboard>
 #include <QtGui/QItemDelegate>
 #include <QtGui/QPainter>
 #include <QtGui/QVBoxLayout>
@@ -46,10 +49,13 @@ TRANSLATOR qdesigner_internal::ActionEditor
 #include <QtGui/QLabel>
 #include <QtGui/QPushButton>
 #include <QtGui/QContextMenuEvent>
+#include <QtGui/QItemSelection>
+
 
 #include <QtCore/QRegExp>
 #include <QtCore/QDebug>
 #include <QtCore/QSignalMapper>
+#include <QtCore/QBuffer>
 
 Q_DECLARE_METATYPE(QAction*)
 
@@ -127,6 +133,10 @@ ActionEditor::ActionEditor(QDesignerFormEditorInterface *core, QWidget *parent, 
     m_actionView(new ActionView),
     m_actionNew(new QAction(tr("New..."), this)),
     m_actionEdit(new QAction(tr("Edit..."), this)),
+    m_actionCopy(new QAction(tr("Copy"), this)),
+    m_actionCut(new QAction(tr("Cut"), this)),
+    m_actionPaste(new QAction(tr("Paste"), this)),
+    m_actionSelectAll(new QAction(tr("Select all"), this)),
     m_actionDelete(new QAction(tr("Delete"), this)),
     m_viewModeGroup(new  QActionGroup(this)),
     m_iconViewAction(0),
@@ -135,6 +145,7 @@ ActionEditor::ActionEditor(QDesignerFormEditorInterface *core, QWidget *parent, 
     m_selectAssociatedWidgetsMapper(0)
 {
     m_actionView->initialize(m_core);
+    m_actionView->setSelectionMode(QAbstractItemView::ExtendedSelection);
     setWindowTitle(tr("Actions"));
 
     QVBoxLayout *l = new QVBoxLayout(this);
@@ -151,13 +162,28 @@ ActionEditor::ActionEditor(QDesignerFormEditorInterface *core, QWidget *parent, 
     connect(m_actionNew, SIGNAL(triggered()), this, SLOT(slotNewAction()));
     toolbar->addAction(m_actionNew);
 
-    m_actionDelete->setIcon(createIconSet(QLatin1String("editdelete.png")));
-    m_actionDelete->setEnabled(false);
-    connect(m_actionDelete, SIGNAL(triggered()), this, SLOT(slotDeleteAction()));
-    toolbar->addAction(m_actionDelete);
+    connect(m_actionSelectAll, SIGNAL(triggered()), m_actionView, SLOT(selectAll()));
+
+    m_actionCut->setEnabled(false);
+    connect(m_actionCut, SIGNAL(triggered()), this, SLOT(slotCut()));
+    m_actionCut->setIcon(createIconSet(QLatin1String("editcut.png")));
+
+    m_actionCopy->setEnabled(false);
+    connect(m_actionCopy, SIGNAL(triggered()), this, SLOT(slotCopy()));
+    m_actionCopy->setIcon(createIconSet(QLatin1String("editcopy.png")));
+    toolbar->addAction(m_actionCopy);
+
+    connect(m_actionPaste, SIGNAL(triggered()), this, SLOT(slotPaste()));
+    m_actionPaste->setIcon(createIconSet(QLatin1String("editpaste.png")));
+    toolbar->addAction(m_actionPaste);
 
     m_actionEdit->setEnabled(false);
     connect(m_actionEdit, SIGNAL(triggered()), this, SLOT(editCurrentAction()));
+
+    m_actionDelete->setIcon(createIconSet(QLatin1String("editdelete.png")));
+    m_actionDelete->setEnabled(false);
+    connect(m_actionDelete, SIGNAL(triggered()), this, SLOT(slotDelete()));
+    toolbar->addAction(m_actionDelete);
     // filter
     m_filterWidget = new ActionFilterWidget(this, toolbar);
     m_filterWidget->setEnabled(false);
@@ -203,6 +229,9 @@ ActionEditor::ActionEditor(QDesignerFormEditorInterface *core, QWidget *parent, 
     // make it possible for vs integration to reimplement edit action dialog
     connect(m_actionView, SIGNAL(activated(QAction*)), this, SIGNAL(itemActivated(QAction*)));
 
+    connect(m_actionView,SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+            this, SLOT(slotSelectionChanged(QItemSelection,QItemSelection)));
+
     connect(m_actionView, SIGNAL(contextMenuRequested(QContextMenuEvent*, QAction*)),
             this, SLOT(slotContextMenuRequested(QContextMenuEvent*, QAction*)));
 
@@ -240,7 +269,7 @@ void ActionEditor::setFormWindow(QDesignerFormWindowInterface *formWindow)
         return;
 
     if (m_formWindow != 0) {
-        const QList<QAction*> actionList = qFindChildren<QAction*>(m_formWindow->mainContainer());
+        const ActionList actionList = qFindChildren<QAction*>(m_formWindow->mainContainer());
         foreach (QAction *action, actionList)
             disconnect(action, SIGNAL(changed()), this, SLOT(slotActionChanged()));
     }
@@ -249,10 +278,13 @@ void ActionEditor::setFormWindow(QDesignerFormWindowInterface *formWindow)
 
     m_actionView->model()->clear();
 
+    m_actionEdit->setEnabled(false);
+    m_actionCopy->setEnabled(false);
+    m_actionCut->setEnabled(false);
+    m_actionDelete->setEnabled(false);
+
     if (!formWindow || !formWindow->mainContainer()) {
         m_actionNew->setEnabled(false);
-        m_actionEdit->setEnabled(false);
-        m_actionDelete->setEnabled(false);
         m_filterWidget->setEnabled(false);
         return;
     }
@@ -260,7 +292,7 @@ void ActionEditor::setFormWindow(QDesignerFormWindowInterface *formWindow)
     m_actionNew->setEnabled(true);
     m_filterWidget->setEnabled(true);
 
-    const QList<QAction*> actionList = qFindChildren<QAction*>(formWindow->mainContainer());
+    const ActionList actionList = qFindChildren<QAction*>(formWindow->mainContainer());
     foreach (QAction *action, actionList) {
         if (!core()->metaDataBase()->item(action)
             || action->isSeparator()
@@ -275,6 +307,14 @@ void ActionEditor::setFormWindow(QDesignerFormWindowInterface *formWindow)
     setFilter(m_filter);
 }
 
+void  ActionEditor::slotSelectionChanged(const QItemSelection& selected, const QItemSelection& /*deselected*/)
+{
+    const bool hasSelection = !selected.indexes().empty();
+    m_actionCopy->setEnabled(hasSelection);
+    m_actionCut->setEnabled(hasSelection);
+    m_actionDelete->setEnabled(hasSelection);
+}
+
 void ActionEditor::slotCurrentItemChanged(QAction *action)
 {
     QDesignerFormWindowInterface *fw = formWindow();
@@ -283,7 +323,6 @@ void ActionEditor::slotCurrentItemChanged(QAction *action)
 
     const bool hasCurrentAction = action != 0;
     m_actionEdit->setEnabled(hasCurrentAction);
-    m_actionDelete->setEnabled(hasCurrentAction);
 
     if (!action) {
         fw->clearSelection();
@@ -379,6 +418,7 @@ void ActionEditor::slotNewAction()
     dlg.setWindowTitle(tr("New action"));
 
     if (dlg.exec() == QDialog::Accepted) {
+        m_actionView->clearSelection();
         QAction *action = new QAction(formWindow());
         action->setObjectName(dlg.actionName());
         formWindow()->ensureUniqueObjectName(action);
@@ -476,15 +516,54 @@ void ActionEditor::editCurrentAction()
         editAction(a);
 }
 
-void ActionEditor::slotDeleteAction()
+void ActionEditor::deleteActions(QDesignerFormWindowInterface *fw, const ActionList &actions)
 {
-    QAction *action = m_actionView->currentAction();
-    if (!action)
+    const bool hasMulti = actions.size() > 1;
+    if (hasMulti)
+        fw->beginCommand(tr("Remove actions"));
+
+    foreach(QAction *action, actions) {
+        RemoveActionCommand *cmd = new RemoveActionCommand(fw);
+        cmd->init(action);
+        fw->commandHistory()->push(cmd);
+    }
+    if (hasMulti)
+        fw->endCommand();
+}
+
+void ActionEditor::copyActions(QDesignerFormWindowInterface *fwi, const ActionList &actions)
+{
+    FormWindowBase *fw = qobject_cast<FormWindowBase *>(fwi);
+    if (!fw )
         return;
 
-    RemoveActionCommand *cmd = new RemoveActionCommand(formWindow());
-    cmd->init(action);
-    formWindow()->commandHistory()->push(cmd);
+    FormBuilderClipboard clipboard;
+    clipboard.m_actions = actions;
+
+    if (clipboard.empty())
+        return;
+
+    QEditorFormBuilder *formBuilder = fw->createFormBuilder();
+    Q_ASSERT(formBuilder);
+
+    QBuffer buffer;
+    if (buffer.open(QIODevice::WriteOnly))
+        if (formBuilder->copy(&buffer, clipboard))
+            qApp->clipboard()->setText(QString::fromUtf8(buffer.buffer()), QClipboard::Clipboard);
+    delete formBuilder;
+}
+
+void ActionEditor::slotDelete()
+{
+    QDesignerFormWindowInterface *fw =  formWindow();
+    if (!fw)
+        return;
+
+    const ActionView::ActionList selection = m_actionView->selectedActions();
+    if (selection.empty())
+        return;
+
+    deleteActions(fw,  selection);
 }
 
 void ActionEditor::slotNotImplemented()
@@ -572,6 +651,41 @@ void ActionEditor::updateViewModeActions()
     }
 }
 
+void ActionEditor::slotCopy()
+{
+    QDesignerFormWindowInterface *fw = formWindow();
+    if (!fw )
+        return;
+
+    const ActionView::ActionList selection = m_actionView->selectedActions();
+    if (selection.empty())
+        return;
+
+    copyActions(fw, selection);
+}
+
+void ActionEditor::slotCut()
+{
+    QDesignerFormWindowInterface *fw = formWindow();
+    if (!fw )
+        return;
+
+    const ActionView::ActionList selection = m_actionView->selectedActions();
+    if (selection.empty())
+        return;
+
+    copyActions(fw, selection);
+    deleteActions(fw, selection);
+}
+
+void ActionEditor::slotPaste()
+{
+    FormWindowBase *fw = qobject_cast<FormWindowBase *>(formWindow());
+    if (!fw)
+        return;
+    m_actionView->clearSelection();
+    fw->paste(FormWindowBase::PasteActionsOnly);
+}
 
 void ActionEditor::slotContextMenuRequested(QContextMenuEvent *e, QAction *item)
 {
@@ -581,15 +695,10 @@ void ActionEditor::slotContextMenuRequested(QContextMenuEvent *e, QAction *item)
         connect(m_selectAssociatedWidgetsMapper, SIGNAL(mapped(QWidget*)), this, SLOT(slotSelectAssociatedWidget(QWidget*)));
     }
 
-
     QMenu menu(this);
-
-    menu.addAction(m_iconViewAction);
-    menu.addAction(m_listViewAction);
-    menu.addSeparator();
     menu.addAction(m_actionNew);
+    menu.addSeparator();
     menu.addAction(m_actionEdit);
-
     // Associated Widgets
     if (QAction *action = m_actionView->currentAction()) {
         const QWidgetList associatedWidgets = ActionModel::associatedWidgets(action);
@@ -602,8 +711,15 @@ void ActionEditor::slotContextMenuRequested(QContextMenuEvent *e, QAction *item)
             }
         }
     }
-
+    menu.addSeparator();
+    menu.addAction(m_actionCut);
+    menu.addAction(m_actionCopy);
+    menu.addAction(m_actionPaste);
+    menu.addAction(m_actionSelectAll);
     menu.addAction(m_actionDelete);
+    menu.addSeparator();
+    menu.addAction(m_iconViewAction);
+    menu.addAction(m_listViewAction);
 
     emit contextMenuRequested(&menu, item);
 

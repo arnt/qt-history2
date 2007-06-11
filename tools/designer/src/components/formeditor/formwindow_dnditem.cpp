@@ -35,7 +35,7 @@ static QWidget *decorationFromWidget(QWidget *w)
 static DomUI *widgetToDom(QWidget *widget, FormWindow *form)
 {
     QDesignerResource builder(form);
-    return builder.copy(QList<QWidget*>() << widget);
+    return builder.copy(FormBuilderClipboard(widget));
 }
 
 FormWindowDnDItem::FormWindowDnDItem(QDesignerDnDItemInterface::DropType type, FormWindow *form,

@@ -45,7 +45,7 @@ public:
 
     inline QDesignerFormEditorInterface *core() const
     { return m_core; }
-    
+
     // Query extensions for additional data
     static void addExtensionDataToDOM(QAbstractFormBuilder *afb,
                                       QDesignerFormEditorInterface *core,
@@ -75,6 +75,36 @@ protected:
 
 private:
     QDesignerFormEditorInterface *m_core;
+};
+
+// Contents of clipboard for formbuilder copy and paste operations
+// (Actions and widgets)
+struct QDESIGNER_SHARED_EXPORT FormBuilderClipboard {
+    typedef QList<QAction*> ActionList;
+
+    FormBuilderClipboard() {}
+    FormBuilderClipboard(QWidget *w);
+
+    bool empty() const;
+    // Delete objects in case of a failed paste
+    void deleteAll();
+
+    QWidgetList m_widgets;
+    ActionList m_actions;
+};
+
+// Base class for a form builder used in the editor that
+// provides copy and paste.(move into base interface)
+class QDESIGNER_SHARED_EXPORT QEditorFormBuilder : public QSimpleResource
+{
+public:
+    explicit QEditorFormBuilder(QDesignerFormEditorInterface *core) : QSimpleResource(core) {}
+
+    virtual bool copy(QIODevice *dev, const FormBuilderClipboard &selection) = 0;
+    virtual DomUI *copy(const FormBuilderClipboard &selection) = 0;
+
+    virtual FormBuilderClipboard paste(DomUI *ui, QWidget *widgetParent = 0, QObject *actionParent = 0) = 0;
+    virtual FormBuilderClipboard paste(QIODevice *dev, QWidget *widgetParent = 0, QObject *actionParent = 0) = 0;
 };
 
 } // namespace qdesigner_internal

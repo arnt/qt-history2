@@ -77,17 +77,19 @@ namespace {
     typedef QList<DomProperty*> DomPropertyList;
 }
 
+static const char *currentUiVersion = "4.0";
+static const char *clipboardObjectName = "__qt_fake_top_level";
+
 namespace qdesigner_internal {
 
-QDesignerResource::QDesignerResource(FormWindow *formWindow)
-   : QSimpleResource(formWindow->core()), m_formWindow(formWindow)
+QDesignerResource::QDesignerResource(FormWindow *formWindow)  :
+    QEditorFormBuilder(formWindow->core()),
+    m_formWindow(formWindow),
+    m_topLevelSpacerCount(0),
+    m_copyWidget(false),
+    m_selected(0)
 {
     setWorkingDirectory(formWindow->absoluteDir());
-
-
-    m_topLevelSpacerCount = 0;
-    m_copyWidget = false;
-    m_selected = 0;
 
     // ### generalise
     const QString designerWidget = QLatin1String("QDesignerWidget");
@@ -1124,7 +1126,7 @@ void QDesignerResource::fixIconPath(IconPaths &ip) const
     if (!ip.second.isEmpty())
         return;
     
-    QDesignerFormEditorInterface *core = m_formWindow->core();    
+    QDesignerFormEditorInterface *core = m_formWindow->core();
     QDesignerLanguageExtension *lang = qt_extension<QDesignerLanguageExtension*>(core->extensionManager(), core);
 
     if (lang && lang->isLanguageResource(ip.first))
@@ -1331,92 +1333,116 @@ bool QDesignerResource::addItem(DomWidget *ui_widget, QWidget *widget, QWidget *
     return true;
 }
 
-void QDesignerResource::copy(QIODevice *dev, const QList<QWidget*> &selection)
+bool QDesignerResource::copy(QIODevice *dev, const FormBuilderClipboard &selection)
 {
     m_copyWidget = true;
 
     DomUI *ui = copy(selection);
+
+    m_laidout.clear();
+    m_copyWidget = false;
+
+    if (!ui)
+        return false;
+
     QDomDocument doc;
     doc.appendChild(ui->write(doc));
     dev->write(doc.toString().toUtf8());
-
-    m_laidout.clear();
-
     delete ui;
-    m_copyWidget = false;
+    return true;
 }
 
-DomUI *QDesignerResource::copy(const QList<QWidget*> &selection)
+DomUI *QDesignerResource::copy(const FormBuilderClipboard &selection)
 {
+    if (selection.empty())
+        return 0;
+
     m_copyWidget = true;
 
-    DomUI *ui = new DomUI();
-    ui->setAttributeVersion(QLatin1String("4.0"));
-
     DomWidget *ui_widget = new DomWidget();
-    QList<DomWidget*> ui_widget_list;
-    ui_widget->setAttributeName(QLatin1String("__qt_fake_top_level"));
-
-    for (int i=0; i<selection.size(); ++i) {
-        QWidget *w = selection.at(i);
-        m_selected = w;
-        DomWidget *ui_child = createDom(w, ui_widget);
-        m_selected = 0;
-        if (!ui_child)
-            continue;
-
-        ui_widget_list.append(ui_child);
+    ui_widget->setAttributeName(QLatin1String(clipboardObjectName));
+    bool hasItems = false;
+    // Widgets
+    if (!selection.m_widgets.empty()) {
+        QList<DomWidget*> ui_widget_list;
+        const int size = selection.m_widgets.size();
+        for (int i=0; i< size; ++i) {
+            QWidget *w = selection.m_widgets.at(i);
+            m_selected = w;
+            DomWidget *ui_child = createDom(w, ui_widget);
+            m_selected = 0;
+            if (ui_child)
+                ui_widget_list.append(ui_child);
+        }
+        if (!ui_widget_list.empty()) {
+            ui_widget->setElementWidget(ui_widget_list);
+            hasItems = true;
+        }
+    }
+    // actions
+    if (!selection.m_actions.empty()) {
+        QList<DomAction*> domActions;
+        foreach(QAction* action, selection.m_actions)
+            if (DomAction *domAction = createDom(action))
+                domActions += domAction;
+        if (!domActions.empty()) {
+            ui_widget-> setElementAction(domActions);
+            hasItems = true;
+        }
     }
 
-    ui_widget->setElementWidget(ui_widget_list);
-    ui->setElementWidget(ui_widget);
-
     m_laidout.clear();
-
     m_copyWidget = false;
 
-    if (QDesignerExtraInfoExtension *extra = qt_extension<QDesignerExtraInfoExtension*>(core()->extensionManager(), core()))
-        extra->saveUiExtraInfo(ui);
-
+    if (!hasItems) {
+        delete ui_widget;
+        return 0;
+    }
+    // UI
+    DomUI *ui = new DomUI();
+    ui->setAttributeVersion(QLatin1String(currentUiVersion));
+    ui->setElementWidget(ui_widget);
     return ui;
 }
 
-QList<QWidget*> QDesignerResource::paste(DomUI *ui, QWidget *parentWidget)
+FormBuilderClipboard QDesignerResource::paste(DomUI *ui, QWidget *widgetParent, QObject *actionParent)
 {
     const int saved = m_isMainWidget;
     m_isMainWidget = false;
-    QList<QWidget*> createdWidgets;
 
-    DomWidget *topLevel = ui->elementWidget();
-    QList<DomWidget*> widgets = topLevel->elementWidget();
-    for (int i=0; i<widgets.size(); ++i) {
-        QWidget *w = create(widgets.at(i), parentWidget);
-        if (!w)
-            continue;
+    FormBuilderClipboard rc;
 
-        w->move(w->pos() + m_formWindow->grid());
-        // ### change the init properties of w
-        createdWidgets.append(w);
+    // Widgets
+    const DomWidget *topLevel = ui->elementWidget();
+    foreach (DomWidget* domWidget, topLevel->elementWidget()) {
+        if (QWidget *w = create(domWidget, widgetParent)) {
+            w->move(w->pos() + m_formWindow->grid());
+            // ### change the init properties of w
+            rc.m_widgets.append(w);
+        }
     }
+    foreach (DomAction *domAction, topLevel->elementAction())
+        if (QAction *a = create(domAction, actionParent))
+            rc.m_actions .append(a);
 
     m_isMainWidget = saved;
 
     if (QDesignerExtraInfoExtension *extra = qt_extension<QDesignerExtraInfoExtension*>(core()->extensionManager(), core()))
         extra->loadUiExtraInfo(ui);
 
-    return createdWidgets;
+    return rc;
 }
 
-QList<QWidget*> QDesignerResource::paste(QIODevice *dev, QWidget *parentWidget)
+FormBuilderClipboard QDesignerResource::paste(QIODevice *dev, QWidget *widgetParent, QObject *actionParent)
 {
     QDomDocument doc;
     if (!doc.setContent(dev))
-        return QList<QWidget*>();
+        return FormBuilderClipboard();
 
     QDomElement root = doc.firstChildElement();
     DomUI ui;
     ui.read(root);
-    return paste(&ui, parentWidget);
+    return paste(&ui, widgetParent, actionParent);
 }
 
 void QDesignerResource::layoutInfo(DomLayout *layout, QObject *parent, int *margin, int *spacing)

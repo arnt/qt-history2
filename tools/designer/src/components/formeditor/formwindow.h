@@ -174,6 +174,10 @@ public:
 
     //  Initialize and return a popup menu for a managed widget
     QMenu *initializePopupMenu(QWidget *managedWidget);
+
+    virtual void paste(PasteMode pasteMode);
+    virtual QEditorFormBuilder *createFormBuilder();
+
     bool eventFilter(QObject *watched, QEvent *event);
 
 signals:
@@ -270,6 +274,8 @@ private:
     void handleArrowKeyEvent(int key, Qt::KeyboardModifiers modifiers);
 
 private:
+    QWidget *FormWindow::containerForPaste() const;
+
     FormEditor *m_core;
     FormWindowCursor *m_cursor;
     QWidget *m_mainContainer;

@@ -976,11 +976,11 @@ QWidget *FormWindow::createWidget(DomUI *ui, const QRect &rc, QWidget *target)
         }
     }
     QDesignerResource resource(this);
-    const QWidgetList widgets = resource.paste(ui, container);
-    Q_ASSERT(widgets.size() == 1); // multiple-paste from DomUI not supported yet
-
-    insertWidget(widgets.first(), rc, container);
-    return widgets.first();
+    const FormBuilderClipboard clipboard = resource.paste(ui, container);
+    Q_ASSERT(clipboard.m_widgets.size() == 1); // multiple-paste from DomUI not supported yet
+    QWidget *widget = clipboard.m_widgets.first();
+    insertWidget(widget, rc, container);
+    return widget;
 }
 
 #ifndef QT_NO_DEBUG
@@ -1330,10 +1330,11 @@ void FormWindow::copy()
     if (!b.open(QIODevice::WriteOnly))
         return;
 
+    FormBuilderClipboard clipboard;
     QDesignerResource resource(this);
-    QWidgetList sel = selectedWidgets();
-    simplifySelection(&sel);
-    resource.copy(&b, sel);
+    clipboard.m_widgets = selectedWidgets();
+    simplifySelection(&clipboard.m_widgets);
+    resource.copy(&b, clipboard);
 
     qApp->clipboard()->setText(QString::fromUtf8(b.buffer()), QClipboard::Clipboard);
 }
@@ -1344,53 +1345,91 @@ void FormWindow::cut()
     deleteWidgets();
 }
 
-void FormWindow::paste()
+QWidget *FormWindow::containerForPaste() const
 {
     QWidget *w = mainContainer();
-    const QWidgetList l(selectedWidgets());
+    const QWidgetList l = selectedWidgets();
     if (l.count() == 1) {
         w = l.first();
         w = m_core->widgetFactory()->containerOfWidget(w);
         if (LayoutInfo::layoutType(m_core, w) != LayoutInfo::NoLayout ||
-             (!core()->widgetDataBase()->isContainer(w) &&
+             (!m_core->widgetDataBase()->isContainer(w) &&
                w != mainContainer()))
             w = mainContainer();
     }
 
-    if (w && LayoutInfo::layoutType(m_core, w) == LayoutInfo::NoLayout) {
-        clearSelection(true);
+    if (w && LayoutInfo::layoutType(m_core, w) == LayoutInfo::NoLayout)
+        return m_core->widgetFactory()->containerOfWidget(w);
 
-        QByteArray code = qApp->clipboard()->text().toUtf8();
-        QBuffer b(&code);
-        b.open(QIODevice::ReadOnly);
+    return 0;
+}
 
-        QDesignerResource resource(this);
-        QWidget *widget = core()->widgetFactory()->containerOfWidget(w);
-        const  QWidgetList widgets = resource.paste(&b, widget);
-        if (!widgets.empty()) {
-            beginCommand(tr("Paste"));
-            foreach (QWidget *w, widgets) {
-                InsertWidgetCommand *cmd = new InsertWidgetCommand(this);
-                cmd->init(w);
-                m_commandHistory->push(cmd);
-                selectWidget(w);
-            }
-            endCommand();
+void FormWindow::paste()
+{
+    paste(PasteAll);
+}
 
-            /* This will put the freshly pasted widgets into the clipboard, replacing the original.
-             *  The point here is that the copied widgets are shifted a little with respect to the original.
-             *  If the user presses paste again, the pasted widgets will be shifted again, rather than
-             *  appearing on top of the previously pasted widgets. */
-            copy();
-        }
-    } else {
-        QMessageBox::information(this, tr("Paste error"),
-                                  tr("Can't paste widgets. Designer couldn't find a container\n"
-                                      "to paste into which does not contain a layout. Break the layout\n"
-                                      "of the container you want to paste into and select this container\n"
-                                      "and then paste again."));
+void FormWindow::paste(PasteMode pasteMode)
+{
+    const QString clipboardText =  qApp->clipboard()->text();
+    if (clipboardText.isEmpty() || clipboardText.indexOf(QLatin1Char('<')) == -1)
+        return;
+
+    QByteArray code = clipboardText.toUtf8();
+    QBuffer b(&code);
+    b.open(QIODevice::ReadOnly);
+
+    QDesignerResource resource(this);
+    FormBuilderClipboard clipboard = resource.paste(&b);
+    if ((pasteMode == PasteActionsOnly && clipboard.m_actions.empty()) || clipboard.empty()) {
+        clipboard.deleteAll();
+        return;
     }
 
+    // Widget selection: need a container
+    QWidget *pasteContainer = 0;
+    const bool hasWidgets = pasteMode == PasteAll && !clipboard.m_widgets.empty();
+    if (hasWidgets) {
+        pasteContainer = containerForPaste();
+        if (!pasteContainer) {
+            QMessageBox::information(this, tr("Paste error"),
+                                     tr("Can't paste widgets. Designer couldn't find a container\n"
+                                        "to paste into which does not contain a layout. Break the layout\n"
+                                        "of the container you want to paste into and select this container\n"
+                                        "and then paste again."));
+            clipboard.deleteAll();
+            return;
+        }
+    }
+
+    clearSelection(false);
+    // Create command sequence
+    beginCommand(tr("Paste"));
+
+    if (hasWidgets)
+        foreach (QWidget *w, clipboard.m_widgets) {
+            w->setParent(pasteContainer);
+            InsertWidgetCommand *cmd = new InsertWidgetCommand(this);
+            cmd->init(w);
+            m_commandHistory->push(cmd);
+            selectWidget(w);
+        }
+
+    foreach (QAction *a, clipboard.m_actions) {
+        a->setParent(this);
+        ensureUniqueObjectName(a);
+        AddActionCommand *cmd = new AddActionCommand(this);
+        cmd->init(a);
+        m_commandHistory->push(cmd);
+    }
+    endCommand();
+
+    /* This will put the freshly pasted widgets into the clipboard, replacing the original.
+     *  The point here is that the copied widgets are shifted a little with respect to the original.
+     *  If the user presses paste again, the pasted widgets will be shifted again, rather than
+     *  appearing on top of the previously pasted widgets. */
+    if (hasWidgets)
+        copy();
 }
 
 bool FormWindow::frameNeeded(QWidget *w) const
@@ -2347,6 +2386,11 @@ QString FormWindow::exportMacro() const
 void FormWindow::setExportMacro(const QString &exportMacro)
 {
     m_exportMacro = exportMacro;
+}
+
+QEditorFormBuilder *FormWindow::createFormBuilder()
+{
+    return new QDesignerResource(this);
 }
 
 } // namespace

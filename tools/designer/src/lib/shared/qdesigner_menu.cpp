@@ -40,7 +40,6 @@
 #include <QtGui/qevent.h>
 
 Q_DECLARE_METATYPE(QAction*)
-Q_DECLARE_METATYPE(QListWidgetItem*)
 
 using namespace qdesigner_internal;
 
