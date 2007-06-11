@@ -88,7 +88,7 @@ public:
     inline QString toHtml() const
     { return document()->toHtml(); }
 
-    void ensureCursorVisible();
+    virtual void ensureCursorVisible();
 
     virtual QVariant loadResource(int type, const QUrl &name);
 #ifndef QT_NO_CONTEXTMENU

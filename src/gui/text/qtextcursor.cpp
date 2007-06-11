@@ -267,7 +267,7 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
             op = QTextCursor::PreviousWord;
     }
 
-    const QTextLayout *layout = blockIt.layout();
+    const QTextLayout *layout = blockLayout(blockIt);
     int relativePos = position - blockIt.position();
     QTextLine line = layout->lineForTextPosition(relativePos);
 
@@ -348,7 +348,7 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
             } else {
                 blockIt = blockIt.previous();
             }
-            layout = blockIt.layout();
+            layout = blockLayout(blockIt);
             i = layout->lineCount()-1;
         }
         if (layout->lineCount()) {
@@ -442,7 +442,7 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
 
             if (blockIt == priv->blocksEnd())
                 return false;
-            layout = blockIt.layout();
+            layout = blockLayout(blockIt);
             i = 0;
         }
         if (layout->lineCount()) {
