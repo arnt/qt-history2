@@ -522,7 +522,7 @@ QAbstractSocket::NetworkLayerProtocol QHostAddress::protocol() const
     consists of 16 unsigned characters.
 
     \code
-        Q_IPV6ADDR addr = hostAddr.ip6Addr();
+        Q_IPV6ADDR addr = hostAddr.toIPv6Address();
         // addr contains 16 unsigned characters
 
         for (int i = 0; i < 16; ++i) {
