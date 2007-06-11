@@ -19,8 +19,14 @@
     \ingroup licensing
 
     Trolltech\reg, Qt\reg, Qtopia\reg and the Trolltech logo are registered
-    trademarks of Trolltech. Linux\reg is a trademark of Linus
-    Torvalds. All other products named in the documentation are
-    trademarks of their respective owners.
+    trademarks of Trolltech.
+
+    Linux\reg is a trademark of Linus Torvalds.
+
+    OpenGL is a trademark of Silicon Graphics, Inc. in the United States and
+    other countries.
+
+    All other products named in the documentation are trademarks of their
+    respective owners.
 
 */
