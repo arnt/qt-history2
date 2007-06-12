@@ -170,6 +170,8 @@ mac {
     sse { 
 	DEFINES += QT_HAVE_SSE
 	SSE_SOURCES += painting/qdrawhelper_sse.cpp
+
+        DEFINES += QT_HAVE_MMXEXT
     }
     sse2 { 
 	DEFINES += QT_HAVE_SSE2
@@ -192,11 +194,6 @@ mac {
             mmx_compiler.name = compiling[mmx] ${QMAKE_FILE_IN}
             silent:mmx_compiler.commands = @echo compiling[mmx] ${QMAKE_FILE_IN} && $$mmx_compiler.commands
             QMAKE_EXTRA_COMPILERS += mmx_compiler
-
-            *g++ {
-#                DEFINES += QT_HAVE_MMXEXT
-#                SOURCES += painting/qdrawhelper_mmxext.S
-            }
         }
         3dnow {
             mmx3dnow_compiler.commands = $$QMAKE_CXX -c -Winline
