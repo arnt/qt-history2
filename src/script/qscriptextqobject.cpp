@@ -1071,7 +1071,7 @@ void QScript::QtFunction::execute(QScriptContextPrivate *context)
                     } else if (vv.canConvert(QVariant::Type(tid))) {
                         v = vv;
                         converted = v.convert(QVariant::Type(tid));
-                        if (converted && (v.userType() != tid))
+                        if (converted && (vv.userType() != tid))
                             matchDistance += 10;
                     } else {
                         QByteArray vvTypeName = vv.typeName();

@@ -214,6 +214,10 @@ public:
         { m_qtFunctionInvoked = 48; return *this; }
     Q_INVOKABLE const QObject& myInvokableReturningConstRef() const
         { const_cast<MyQObject*>(this)->m_qtFunctionInvoked = 49; return *this; }
+    Q_INVOKABLE void myInvokableWithPointArg(const QPoint &arg)
+        { const_cast<MyQObject*>(this)->m_qtFunctionInvoked = 50; m_actuals << qVariantFromValue(arg); }
+    Q_INVOKABLE void myInvokableWithPointArg(const QPointF &arg)
+        { const_cast<MyQObject*>(this)->m_qtFunctionInvoked = 51; m_actuals << qVariantFromValue(arg); }
 
     void emitMySignal()
         { emit mySignal(); }
@@ -817,6 +821,29 @@ void tst_QScriptExtQObject::callQtInvokable()
         QCOMPARE(m_myObject->qtFunctionActuals().size(), 2);
         QCOMPARE(m_myObject->qtFunctionActuals().at(0).toInt(), 456);
         QCOMPARE(m_myObject->qtFunctionActuals().at(1).toString(), QString());
+    }
+
+    {
+        QScriptValue fun = m_engine->evaluate("myObject.myInvokableWithPointArg");
+        QVERIFY(fun.isFunction());
+        m_myObject->resetQtFunctionInvoked();
+        {
+            QScriptValue ret = fun.call(m_engine->evaluate("myObject"),
+                                        QScriptValueList() << m_engine->toScriptValue(QPoint(10, 20)));
+            QVERIFY(ret.isUndefined());
+            QCOMPARE(m_myObject->qtFunctionInvoked(), 50);
+            QCOMPARE(m_myObject->qtFunctionActuals().size(), 1);
+            QCOMPARE(m_myObject->qtFunctionActuals().at(0).toPoint(), QPoint(10, 20));
+        }
+        m_myObject->resetQtFunctionInvoked();
+        {
+            QScriptValue ret = fun.call(m_engine->evaluate("myObject"),
+                                        QScriptValueList() << m_engine->toScriptValue(QPointF(30, 40)));
+            QVERIFY(ret.isUndefined());
+            QCOMPARE(m_myObject->qtFunctionInvoked(), 51);
+            QCOMPARE(m_myObject->qtFunctionActuals().size(), 1);
+            QCOMPARE(m_myObject->qtFunctionActuals().at(0).toPointF(), QPointF(30, 40));
+        }
     }
 
     // calling function that returns (const)ref
