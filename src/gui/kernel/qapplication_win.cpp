@@ -1068,18 +1068,20 @@ void QApplication::beep()
 
 static void alert_widget(QWidget *widget, int duration)
 {
+    bool stopFlash = duration < 0;
+
     if (!pFlashWindowEx) {
         QLibrary themeLib(QLatin1String("user32"));
         pFlashWindowEx  = (PtrFlashWindowEx)themeLib.resolve("FlashWindowEx");
     }
 
-    if (pFlashWindowEx && widget && !widget->isActiveWindow()) {
+    if (pFlashWindowEx && widget && (!widget->isActiveWindow() || stopFlash)) {
         DWORD timeOut = GetCaretBlinkTime();
         if (timeOut <= 0)
             timeOut = 250;
 
         UINT flashCount;
-        if (duration <= 0)
+        if (duration == 0)
             flashCount = 10;
         else
             flashCount = duration/timeOut;
@@ -1087,7 +1089,7 @@ static void alert_widget(QWidget *widget, int duration)
         FLASHWINFO info;
         info.cbSize = sizeof(info);
         info.hwnd = widget->window()->winId();
-        info.dwFlags = FLASHW_TRAY;
+        info.dwFlags = stopFlash ? FLASHW_STOP : FLASHW_TRAY;
         info.dwTimeout = timeOut;
         info.uCount = flashCount;
 
@@ -1696,11 +1698,14 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
                     popup->close();
             }
 
-            // WM_ACTIVATEAPP handles the "true" false case, as this is only when the application
-            // loses focus. Doing it here would result in the widget getting focus to not know
-            // where it got it from; it would simply get a 0 value as the old focus widget.
-            if (LOWORD(wParam) != WA_INACTIVE)
+            if (LOWORD(wParam) != WA_INACTIVE) {
+                // WM_ACTIVATEAPP handles the "true" false case, as this is only when the application
+                // loses focus. Doing it here would result in the widget getting focus to not know
+                // where it got it from; it would simply get a 0 value as the old focus widget.
                 qApp->winFocus(widget, true);
+                // reset any window alert flashes
+                alert_widget(widget, -1);
+            }
 
             // Windows tries to activate a modally blocked window.
             // This happens when restoring an application after "Show Desktop"
