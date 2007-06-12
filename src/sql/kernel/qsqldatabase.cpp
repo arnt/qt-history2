@@ -337,7 +337,7 @@ void QSqlDatabasePrivate::disable()
     Once the parameters have been set up you can call open() to open
     the connection.
 
-    The connection defined above is a nameless connection. If is the
+    The connection defined above is a nameless connection. It is the
     default connection and can be accessed using database() later on:
 
     \skipto QSqlDatabase db =
