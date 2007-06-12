@@ -868,8 +868,8 @@
            can be styled using the \l{#chunk-sub}{::chunk} subcontrol.
            The chunk is displayed on the Contents rectangle of the widget.
 
-           If the progress bar displays text, use the \l{label-sub}{::label}
-           subcontrol to position the text.
+           If the progress bar displays text, use the \l{text-align-prop}{text-align}
+           property to position the text.
 
            Indeterminate progress bars have the 
            \l{#indeterminate-ps}{:indeterminate} pseudo state set.
@@ -2221,7 +2221,7 @@
            \l{Qt Style Sheets Reference#subcontrol-origin-prop}{subcontrol-origin}.
 
     \row
-        \o bold{\c text-align} \target text-align-prop
+        \o \bold{\c text-align} \target text-align-prop
         \o \l{#Alignment}{Alignment}
         \o The alignment of text and icon within the contents of the widget.
 
@@ -2236,7 +2236,8 @@
                 }
            \endcode
 
-            This property is currently supported only by QPushButton.
+            This property is currently supported only by QPushButton 
+            and QProgressBar.
 
     \row
         \o \bold{\c top} \target top-prop
@@ -2851,10 +2852,6 @@ blue green yellow * /
     \row
         \o \c ::item \target item-sub
         \o An item of a QMenuBar, a QMenu, or a QStatusBar.
-
-    \row
-        \o \c ::label \target label-sub
-        \o The label of a QProgressBar
 
     \row
         \o \c ::left-arrow \target left-arrow-sub
