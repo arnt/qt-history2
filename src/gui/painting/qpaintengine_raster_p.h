@@ -380,6 +380,10 @@ void prepare(QCustomRasterPaintDevice *device);
     QClipData *disabled_clip;
     bool clipEnabled;
 
+    bool monoDestinationWithClut;
+    QRgb destColor0;
+    QRgb destColor1;
+
     QPainter::CompositionMode compositionMode;
     QImage::Format format;
     DrawHelper *drawHelper;
@@ -397,7 +401,6 @@ private:
     int m_height;
     int bytes_per_line;
     uchar *m_buffer;
-
 };
 
 #endif // QPAINTENGINE_RASTER_P_H

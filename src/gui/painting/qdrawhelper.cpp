@@ -10,7 +10,6 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
-
 #include <private/qdrawhelper_p.h>
 #include <private/qpaintengine_raster_p.h>
 #include <private/qpainter_p.h>
@@ -149,31 +148,91 @@ static const DestFetchProc destFetchProc[QImage::NImageFormats] =
 };
 
 /*
+   Returns the color in the mono destination color table
+   that is the "nearest" to /color/.
+*/
+static inline QRgb findNearestColor(QRgb color, QRasterBuffer *rbuf)
+{
+    QRgb color_0 = PREMUL(rbuf->destColor0);
+    QRgb color_1 = PREMUL(rbuf->destColor1);
+    color = PREMUL(color);
+
+    int r = qRed(color);
+    int g = qGreen(color);
+    int b = qBlue(color);
+    int rx, gx, bx;
+    int dist_0, dist_1;
+
+    rx = r - qRed(color_0);
+    gx = g - qGreen(color_0);
+    bx = b - qBlue(color_0);
+    dist_0 = rx*rx + gx*gx + bx*bx;
+
+    rx = r - qRed(color_1);
+    gx = g - qGreen(color_1);
+    bx = b - qBlue(color_1);
+    dist_1 = rx*rx + gx*gx + bx*bx;
+
+    if (dist_0 < dist_1)
+        return color_0;
+    return color_1;
+}
+
+/*
   Destination store.
 */
-
 
 static void QT_FASTCALL destStoreMono(QRasterBuffer *rasterBuffer, int x, int y, const uint *buffer, int length)
 {
     uchar *data = (uchar *)rasterBuffer->scanLine(y);
-    for (int i = 0; i < length; ++i) {
-        if (qGray(buffer[i]) < int(qt_bayer_matrix[y & 15][x & 15]))
-            data[x >> 3] |= 0x80 >> (x & 7);
-        else
-            data[x >> 3] &= ~(0x80 >> (x & 7));
-        ++x;
+    if (rasterBuffer->monoDestinationWithClut) {
+        for (int i = 0; i < length; ++i) {
+            if (buffer[i] == rasterBuffer->destColor0) {
+                data[x >> 3] &= ~(0x80 >> (x & 7));
+            } else if (buffer[i] == rasterBuffer->destColor1) {
+                data[x >> 3] |= 0x80 >> (x & 7);
+            } else if (findNearestColor(buffer[i], rasterBuffer) == rasterBuffer->destColor0) {
+                data[x >> 3] &= ~(0x80 >> (x & 7));
+            } else {
+                data[x >> 3] |= 0x80 >> (x & 7);
+            }
+            ++x;
+        }
+    } else {
+        for (int i = 0; i < length; ++i) {
+            if (qGray(buffer[i]) < int(qt_bayer_matrix[y & 15][x & 15]))
+                data[x >> 3] |= 0x80 >> (x & 7);
+            else
+                data[x >> 3] &= ~(0x80 >> (x & 7));
+            ++x;
+        }
     }
 }
 
 static void QT_FASTCALL destStoreMonoLsb(QRasterBuffer *rasterBuffer, int x, int y, const uint *buffer, int length)
 {
     uchar *data = (uchar *)rasterBuffer->scanLine(y);
-    for (int i = 0; i < length; ++i) {
-        if (qGray(buffer[i]) < int(qt_bayer_matrix[y & 15][x & 15]))
-            data[x >> 3] |= 1 << (x & 7);
-        else
-            data[x >> 3] &= ~(1 << (x & 7));
-        ++x;
+    if (rasterBuffer->monoDestinationWithClut) {
+        for (int i = 0; i < length; ++i) {
+            if (buffer[i] == rasterBuffer->destColor0) {
+                data[x >> 3] &= ~(0x80 >> (x & 7));
+            } else if (buffer[i] == rasterBuffer->destColor1) {
+                data[x >> 3] |= 0x80 >> (x & 7);
+            } else if (findNearestColor(buffer[i], rasterBuffer) == rasterBuffer->destColor0) {
+                data[x >> 3] &= ~(0x80 >> (x & 7));
+            } else {
+                data[x >> 3] |= 0x80 >> (x & 7);
+            }
+            ++x;
+        }
+    } else {
+        for (int i = 0; i < length; ++i) {
+            if (qGray(buffer[i]) < int(qt_bayer_matrix[y & 15][x & 15]))
+                data[x >> 3] |= 1 << (x & 7);
+            else
+                data[x >> 3] &= ~(1 << (x & 7));
+            ++x;
+        }
     }
 }
 

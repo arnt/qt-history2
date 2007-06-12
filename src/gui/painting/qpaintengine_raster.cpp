@@ -3740,6 +3740,10 @@ void QRasterBuffer::init()
     clip = 0;
     format = QImage::Format_ARGB32_Premultiplied;
     drawHelper = qDrawHelper + QImage::Format_ARGB32_Premultiplied;
+
+    monoDestinationWithClut = false;
+    destColor0 = 0;
+    destColor1 = 0;
 }
 
 
@@ -3808,6 +3812,11 @@ void QRasterBuffer::prepare(QImage *image)
 
     format = image->format();
     drawHelper = qDrawHelper + format;
+    if (image->depth() == 1 && image->colorTable().size() == 2) {
+        monoDestinationWithClut = true;
+        destColor0 = image->colorTable()[0];
+        destColor1 = image->colorTable()[1];
+    }
 }
 
 void QRasterBuffer::resetBuffer(int val)
