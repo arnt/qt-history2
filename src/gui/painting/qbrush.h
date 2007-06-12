@@ -92,6 +92,7 @@ private:
     friend class QRasterPaintEngine;
     friend class QRasterPaintEnginePrivate;
     friend class QPainter;
+    friend bool hasPixmapTexture(const QBrush& brush);
     void detach(Qt::BrushStyle newStyle);
     void init(const QColor &color, Qt::BrushStyle bs);
     QBrushData *d;

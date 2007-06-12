@@ -4775,21 +4775,20 @@ void QSpanData::setup(const QBrush &brush, int alpha)
     case Qt::BDiagPattern:
     case Qt::FDiagPattern:
     case Qt::DiagCrossPattern:
+        type = Texture;
+        extern QImage qt_imageForBrush(int brushStyle, bool invert);
+        tempImage = rasterBuffer->colorizeBitmap(qt_imageForBrush(brushStyle, true), brush.color());
+        initTexture(&tempImage, alpha, TextureData::Tiled);
+        break;
     case Qt::TexturePattern:
-        {
+        type = Texture;
+        extern bool hasPixmapTexture(const QBrush& brush);
 
-            type = Texture;
-            extern QImage qt_imageForBrush(int brushStyle, bool invert);
-            QImage texture = (brushStyle == Qt::TexturePattern)
-                             ? brush.textureImage()
-                             : qt_imageForBrush(brushStyle, true);
-
-            tempImage = (texture.depth() == 1)
-                        ? rasterBuffer->colorizeBitmap(texture, brush.color())
-                        : texture;
-
-            initTexture(&tempImage, alpha, TextureData::Tiled);
-        }
+        if (hasPixmapTexture(brush) && brush.texture().isQBitmap())
+            tempImage = rasterBuffer->colorizeBitmap(brush.textureImage(), brush.color());
+        else
+            tempImage = brush.textureImage();
+        initTexture(&tempImage, alpha, TextureData::Tiled);
         break;
 
     case Qt::NoBrush:

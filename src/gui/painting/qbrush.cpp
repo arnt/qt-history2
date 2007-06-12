@@ -93,6 +93,7 @@ QImage qt_imageForBrush(int brushStyle, bool invert)
 struct QTexturedBrushData : public QBrushData
 {
     QTexturedBrushData() {
+        m_has_pixmap_texture = false;
         m_pixmap = 0;
     }
     ~QTexturedBrushData() {
@@ -102,10 +103,13 @@ struct QTexturedBrushData : public QBrushData
     void setPixmap(const QPixmap &pm) {
         delete m_pixmap;
 
-        if (pm.isNull())
+        if (pm.isNull()) {
             m_pixmap = 0;
-        else
+            m_has_pixmap_texture = false;
+        } else {
             m_pixmap = new QPixmap(pm);
+            m_has_pixmap_texture = true;
+        }
 
         m_image = QImage();
     }
@@ -114,6 +118,7 @@ struct QTexturedBrushData : public QBrushData
         m_image = image;
         delete m_pixmap;
         m_pixmap = 0;
+        m_has_pixmap_texture = false;
     }
 
     QPixmap &pixmap() {
@@ -131,7 +136,16 @@ struct QTexturedBrushData : public QBrushData
 
     QPixmap *m_pixmap;
     QImage m_image;
+    bool m_has_pixmap_texture;
 };
+
+// returns true if the brush has a pixmap (or bitmap) set as the
+// brush texture, false otherwise
+bool hasPixmapTexture(const QBrush& brush)
+{
+    QTexturedBrushData *tx_data = static_cast<QTexturedBrushData *>(brush.d);
+    return tx_data->m_has_pixmap_texture;
+}
 
 struct QGradientBrushData : public QBrushData
 {
@@ -173,7 +187,7 @@ struct QGradientBrushData : public QBrushData
     argument when creating the QBrush. Qt provides three different
     gradients: QLinearGradient, QConicalGradient, and QRadialGradient
     - all of which inherit QGradient.
-    
+
     \quotefromfile snippets/brush/gradientcreationsnippet.cpp
     \skipto QRadialGradient
     \printuntil QBrush
