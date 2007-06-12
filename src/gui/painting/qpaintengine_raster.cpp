@@ -4791,8 +4791,6 @@ void QSpanData::setup(const QBrush &brush, int alpha)
         break;
     case Qt::TexturePattern:
         type = Texture;
-        extern bool hasPixmapTexture(const QBrush& brush);
-
         if (hasPixmapTexture(brush) && brush.texture().isQBitmap())
             tempImage = rasterBuffer->colorizeBitmap(brush.textureImage(), brush.color());
         else
