@@ -35,6 +35,8 @@ private slots:
     void getSetCheck();
     void staticSetup();
 
+	void alert();
+
     void multiple_data();
     void multiple();
 
@@ -171,6 +173,24 @@ public:
         quit();
     }
 };
+
+void tst_QApplication::alert()
+{
+   int argc = 0;
+   QApplication app(argc, 0);
+   app.alert(0, 0);
+   QWidget widget;
+   QWidget widget2;
+   app.alert(&widget, 100);
+   widget.show();
+   widget2.show();
+   app.alert(&widget, -1);
+   app.alert(&widget, 250);
+   widget2.activateWindow();
+   app.alert(&widget, 0);
+   widget.activateWindow();
+   app.alert(&widget, 200);
+}
 
 void tst_QApplication::multiple_data()
 {
