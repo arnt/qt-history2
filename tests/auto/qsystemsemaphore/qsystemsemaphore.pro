@@ -1,7 +1,7 @@
 CONFIG += qttest_p4
 #QT = core
 
-include(../qsharedmemory/src/qsharedmemory.pri)
+include(../qsharedmemory/src/src.pri)
 win32: CONFIG += console
 
 DEFINES	+= QSHAREDMEMORY_DEBUG
