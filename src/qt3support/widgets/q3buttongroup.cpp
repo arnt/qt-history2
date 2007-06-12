@@ -422,7 +422,7 @@ bool Q3ButtonGroup::event(QEvent * e)
                     ++it;
                 }
             }
-            insert(button);
+            insert(button, id(button));
         }
     }
     return Q3GroupBox::event(e);

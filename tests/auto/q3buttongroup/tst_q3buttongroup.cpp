@@ -11,6 +11,7 @@
 #include <Q3ButtonGroup>
 #include <QCheckBox>
 #include <QRadioButton>
+#include <QPushButton>
 #include <QDebug>
 #include <QtTest/QtTest>
 
@@ -21,6 +22,7 @@ private slots:
     void exclusiveButtons();
     void nonExclusiveButtons();
     void buttonIds();
+    void buttonId();
 };
 
 /*
@@ -116,6 +118,14 @@ void tst_q3buttongroup::buttonIds()
     delete button2;
 }
 
+void tst_q3buttongroup::buttonId()
+{
+    Q3ButtonGroup bg;
+    QPushButton *button = new QPushButton("Foo", &bg);
+    int id = bg.insert(button, 1);
+    QApplication::instance()->processEvents();
+    QCOMPARE(id, bg.id(button));
+}
 
 QTEST_MAIN(tst_q3buttongroup)
 #include "tst_q3buttongroup.moc"
