@@ -6,7 +6,13 @@ surface_begin 0 0 100 100
 begin_block predraw
 setRenderHint Antialiasing
 setPen nopen
-setBrush 0x7f000000
+gradient_clearStops
+gradient_appendStop 0    efff0000
+gradient_appendStop 0.5  dfffff00
+gradient_appendStop 1    ef00ff00
+
+gradient_setSpread PadSpread
+gradient_setLinear 10 10 90 90
 drawEllipse 10 10 80 80
 end_block
 
@@ -14,15 +20,18 @@ setCompositionMode SourceOver
 
 begin_block postdraw
 
+gradient_clearStops
+gradient_appendStop 0    afff0000
+gradient_appendStop 0.5  cf0000ff
+gradient_appendStop 1    bf00ff00
 
-setBrush 0x1fff0000
-drawRect 0 0 50 50
-
-setBrush 0xdf00ff00
-drawRect 50 50 50 50
-
-setBrush 0x7f0000ff
-drawEllipse 30 30 40 40
+gradient_setSpread PadSpread
+gradient_setLinear 0 0 100 0
+drawEllipse 10 10 30 30
+drawEllipse 10 60 30 30
+drawEllipse 60 60 30 30
+drawEllipse 60 10 30 30
+drawEllipse 35 35 30 30
 
 # a black rectangle around
 setCompositionMode SourceOver
@@ -32,7 +41,6 @@ drawRect 0.5 0.5 99 99
 
 end_block
 surface_end
-
 
 # Destination over
 surface_begin 100 0 100 100

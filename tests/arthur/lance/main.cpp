@@ -342,6 +342,9 @@ int main(int argc, char **argv)
             case OpenGLType:
             {
                 qGLWidget = new OnScreenWidget<QGLWidget>;
+                qGLWidget->setVerboseMode(verboseMode);
+                qGLWidget->setType(type);
+                qGLWidget->setCheckersBackground(checkers_background);
                 qGLWidget->m_filename = files.at(j);
                 qGLWidget->setWindowTitle(fileinfo.filePath());
                 qGLWidget->m_commands = content;

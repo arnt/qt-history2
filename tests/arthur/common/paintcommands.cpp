@@ -84,7 +84,19 @@ const char *PaintCommands::compositionModeTable[] = {
     "DestinationOut",
     "SourceAtop",
     "DestinationAtop",
-    "Xor"
+    "Xor",
+    "Plus",
+    "Multiply",
+    "Screen",
+    "Overlay",
+    "Darken",
+    "Lighten",
+    "ColorDodge",
+    "ColorBurn",
+    "HardLight",
+    "SoftLight",
+    "Difference",
+    "Exclusion"
 };
 
 const char *PaintCommands::imageFormatTable[] = {
@@ -1986,9 +1998,9 @@ void PaintCommands::command_clearRenderHint(QRegExp /*re*/)
 void PaintCommands::command_setCompositionMode(QRegExp re)
 {
     QString modeString = re.cap(1).toLower();
-    int mode = translateEnum(compositionModeTable, modeString, 12);
+    int mode = translateEnum(compositionModeTable, modeString, 24);
 
-    if (mode < 0 || mode > QPainter::CompositionMode_Xor) {
+    if (mode < 0 || mode > QPainter::CompositionMode_Exclusion) {
         fprintf(stderr, "ERROR: invalid mode: %s\n", qPrintable(modeString));
         return;
     }
