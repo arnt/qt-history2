@@ -10,5 +10,5 @@ void LRelease::releaseMetaTranslator( const MetaTranslator& tor,
                       trimmed ? Translator::Stripped
                                : Translator::Everything) )
         qWarning("lrelease warning: For some reason, I cannot save '%s'\n",
-                 qmFileName.toLatin1().constData() );
+                 qPrintable(qmFileName) );
 }

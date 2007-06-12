@@ -53,7 +53,7 @@ static bool loadTsFile( MetaTranslator& tor, const QString& tsFileName,
     bool ok = tor.load( tsFileName );
     if ( !ok )
         qWarning("lrelease warning: For some reason, I cannot load '%s'\n",
-                 tsFileName.toLatin1().data() );
+                 qPrintable(tsFileName));
     return ok;
 }
 
@@ -67,7 +67,7 @@ static void releaseMetaTranslator( const MetaTranslator& tor,
                       trimmed ? Translator::Stripped
                                : Translator::Everything) )
         qWarning("lrelease warning: For some reason, I cannot save '%s'\n",
-                 qmFileName.toLatin1().constData() );
+                 qPrintable(qmFileName));
 }
 
 static void releaseTsFile( const QString& tsFileName, bool verbose,
@@ -87,7 +87,7 @@ int main( int argc, char **argv )
 {
     LRelease app(argc, argv);
     QStringList args = app.arguments();
-    QTranslator translator(0);
+    QTranslator translator;
     if (translator.load(QLatin1String("lrelease_") + QLocale::system().name()))
         app.installTranslator(&translator);
 
@@ -100,37 +100,36 @@ int main( int argc, char **argv )
     int i;
 
     for ( i = 1; i < argc; i++ ) {
-        if ( qstrcmp(argv[i], "-compress") == 0 ) {
+        if ( args[i] == QLatin1String("-compress") ) {
             trimmed = true;
             continue;
-	    } if ( qstrcmp(argv[i], "-nocompress") == 0 ) {
+	    } else if ( args[i] == QLatin1String("-nocompress") ) {
             trimmed = false;
             continue;
-        } else if ( qstrcmp(argv[i], "-nounfinished") == 0 ) {
+        } else if ( args[i] == QLatin1String("-nounfinished") ) {
             ignoreUnfinished = true;
             continue;
-        } else if ( qstrcmp(argv[i], "-silent") == 0 ) {
+        } else if ( args[i] == QLatin1String("-silent") ) {
             verbose = false;
             continue;
-        } else if ( qstrcmp(argv[i], "-verbose") == 0 ) {
+        } else if ( args[i] == QLatin1String("-verbose") ) {
             verbose = true;
             continue;
-        } else if ( qstrcmp(argv[i], "-version") == 0 ) {
+        } else if ( args[i] == QLatin1String("-version") ) {
             Console::out(LRelease::tr( "lrelease version %1\n").arg(QT_VERSION_STR) );
             return 0;
-        } else if ( qstrcmp(argv[i], "-qm") == 0 ) {
+        } else if ( args[i] == QLatin1String("-qm") ) {
             if ( i == argc - 1 ) {
                 printUsage();
                 return 1;
             } else {
                 i++;
-                outputFile = QString::fromLatin1(argv[i]);
-                argv[i][0] = '-';
+                outputFile = args[i];
             }
-        } else if ( qstrcmp(argv[i], "-help") == 0 ) {
+        } else if ( args[i] == QLatin1String("-help") ) {
             printUsage();
             return 0;
-        } else if ( argv[i][0] == '-' ) {
+        } else if ( args[i][0] == QLatin1Char('-') ) {
             printUsage();
             return 1;
         } else {
@@ -144,19 +143,19 @@ int main( int argc, char **argv )
     }
 
     for ( i = 1; i < argc; i++ ) {
-        if ( argv[i][0] == '-' )
+        if ( args[i][0] == '-' || args[i] == outputFile)
             continue;
 
-        QFile f( QString::fromLatin1(argv[i]) );
+        QFile f( args[i] );
         if ( !f.open(QIODevice::ReadOnly) ) {
 #if defined(_MSC_VER) && _MSC_VER >= 1400
 			char buf[100];
 			strerror_s(buf, sizeof(buf), errno);
-			qWarning( "lrelease error: Cannot open file '%s': %s\n", argv[i],
-                     buf );
+			qWarning("lrelease error: Cannot open file '%s': %s\n",
+                     qPrintable(args[i]), buf);
 #else
-            qWarning( "lrelease error: Cannot open file '%s': %s\n", argv[i],
-                     strerror(errno) );
+            qWarning("lrelease error: Cannot open file '%s': %s\n",
+                     qPrintable(args[i]), strerror(errno));
 #endif
             return 1;
         }
@@ -165,25 +164,24 @@ int main( int argc, char **argv )
         QString fullText = t.readAll();
         f.close();
 
-        if ( fullText.contains(QString(QLatin1String("<!DOCTYPE TS>"))) 
+        if ( fullText.contains(QLatin1String("<!DOCTYPE TS>")) 
             || fullText.contains(QLatin1String("urn:oasis:names:tc:xliff:document:1.1"))) {
             if ( outputFile.isEmpty() ) {
-                releaseTsFile( QString::fromLatin1(argv[i]), verbose, ignoreUnfinished,
-                               trimmed );
+                releaseTsFile( args[i], verbose, ignoreUnfinished, trimmed );
             } else {
-                loadTsFile( tor, QString::fromLatin1(argv[i]), verbose );
+                loadTsFile( tor, args[i], verbose );
             }
         } else {
             QString oldDir = QDir::currentPath();
-            QDir::setCurrent( QFileInfo(QString::fromLatin1(argv[i])).path() );
+            QDir::setCurrent( QFileInfo(args[i]).path() );
             QMap<QByteArray, QStringList> varMap;
-            bool ok = evaluateProFile(QString::fromAscii(argv[i]), verbose, &varMap);
+            bool ok = evaluateProFile(args[i], verbose, &varMap );
             if (ok) {
                 QStringList translations = varMap.value("TRANSLATIONS");
                 if (translations.isEmpty()) {
                     qWarning("lrelease warning: Met no 'TRANSLATIONS' entry in"
                              " project file '%s'\n",
-                             argv[i] );
+                             qPrintable(args[i]) );
                 } else {
                     for (QStringList::iterator it = translations.begin(); it != translations.end(); ++it) {
                         releaseTsFile(*it, verbose, ignoreUnfinished, trimmed);
