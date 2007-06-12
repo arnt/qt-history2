@@ -837,8 +837,10 @@ QFileDialog::AcceptMode QFileDialog::acceptMode() const
     \property QFileDialog::readOnly
     \brief Whether the filedialog is readonly.
 
-    If this property is set to false, the filedialog will allow creating, renaming, copying
-    and deleting files and directories.
+    If this property is set to false, the filedialog will allow renaming,
+    and deleting of files and directories and creating directories.
+
+    The default value is false.
 */
 void QFileDialog::setReadOnly(bool disabled)
 {
