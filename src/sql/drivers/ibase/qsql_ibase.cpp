@@ -381,10 +381,9 @@ QVariant QIBaseResultPrivate::fetchBlob(ISC_QUAD *bId)
     int read = 0;
     while (isc_get_segment(status, &handle, &len, chunkSize, ba.data() + read) == 0 || status[1] == isc_segment) {
         read += len;
-        if (status[1] != isc_segment && len < chunkSize)
-            break;
-        ba.resize(ba.size() + chunkSize);
+        ba.resize(read + chunkSize);
     }
+    ba.resize(read);
 
     bool isErr = (status[1] == isc_segstr_eof ? false : 
                     isError(QT_TRANSLATE_NOOP("QIBaseResult", 
