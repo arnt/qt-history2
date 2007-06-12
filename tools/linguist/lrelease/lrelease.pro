@@ -6,14 +6,12 @@ build_all:!build_pass {
     CONFIG -= build_all
     CONFIG += release
 }
-HEADERS         = lrelease.h \
-                  ../shared/metatranslator.h \
+HEADERS         = ../shared/metatranslator.h \
                   ../shared/translator.h \
                   ../shared/profileevaluator.h \
                   ../shared/proparser.h \
                   ../shared/xliff.h
-SOURCES         = lrelease.cpp \
-                  main.cpp \
+SOURCES         = main.cpp \
                   ../shared/metatranslator.cpp \
                   ../shared/translator.cpp \
                   ../shared/profileevaluator.cpp \

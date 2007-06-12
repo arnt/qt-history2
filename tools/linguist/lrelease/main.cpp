@@ -14,8 +14,8 @@
 #include "metatranslator.h"
 #include "proparser.h"
 #include "qconsole.h"
-#include "lrelease.h"
 
+#include <QCoreApplication>
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
@@ -28,7 +28,7 @@ typedef QList<MetaTranslatorMessage> TML;
 
 static void printUsage()
 {
-    Console::out(LRelease::tr("Usage:\n"
+    Console::out(QCoreApplication::tr("Usage:\n"
               "    lrelease [options] project-file\n"
               "    lrelease [options] ts-files [-qm qm-file]\n"
               "Options:\n"
@@ -62,7 +62,7 @@ static void releaseMetaTranslator( const MetaTranslator& tor,
                                    bool ignoreUnfinished, bool trimmed )
 {
     if ( verbose )
-        Console::out(LRelease::tr( "Updating '%1'...\n").arg(qmFileName));
+        Console::out(QCoreApplication::tr( "Updating '%1'...\n").arg(qmFileName));
     if ( !tor.release(qmFileName, verbose, ignoreUnfinished,
                       trimmed ? Translator::Stripped
                                : Translator::Everything) )
@@ -85,7 +85,7 @@ static void releaseTsFile( const QString& tsFileName, bool verbose,
 
 int main( int argc, char **argv )
 {
-    LRelease app(argc, argv);
+    QCoreApplication app(argc, argv);
     QStringList args = app.arguments();
     QTranslator translator;
     if (translator.load(QLatin1String("lrelease_") + QLocale::system().name()))
@@ -116,7 +116,7 @@ int main( int argc, char **argv )
             verbose = true;
             continue;
         } else if ( args[i] == QLatin1String("-version") ) {
-            Console::out(LRelease::tr( "lrelease version %1\n").arg(QT_VERSION_STR) );
+            Console::out(QCoreApplication::tr( "lrelease version %1\n").arg(QT_VERSION_STR) );
             return 0;
         } else if ( args[i] == QLatin1String("-qm") ) {
             if ( i == argc - 1 ) {
