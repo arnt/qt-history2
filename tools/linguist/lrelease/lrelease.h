@@ -6,7 +6,7 @@ class LRelease : public QCoreApplication
 {
     Q_OBJECT
 public:
-    LRelease(int argc, char **argv) : QCoreApplication(argc, argv)
+    LRelease(int &argc, char **argv) : QCoreApplication(argc, argv)
     {
     
     }
