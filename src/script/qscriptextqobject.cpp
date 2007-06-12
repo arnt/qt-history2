@@ -960,8 +960,13 @@ void QScript::QtFunction::execute(QScriptContextPrivate *context)
         thisQObject = m_object;
     }
 
+    int limit;
 #ifndef Q_SCRIPT_NO_QMETAOBJECT_CACHE
+    int lastFoundIndex = m_initialIndex;
     QScriptMetaObject *metaCache = eng_p->cachedMetaObject(meta);
+    limit = metaCache->methodLowerBound(m_initialIndex);
+#else
+    limit = 0;
 #endif
 
     QScriptMetaMethod chosenMethod;
@@ -971,7 +976,8 @@ void QScript::QtFunction::execute(QScriptContextPrivate *context)
     QVector<QScriptMetaArguments> unresolved;
     QVector<int> tooFewArgs;
     QVector<int> conversionFailed;
-    for (int index = m_initialIndex; index >= 0; --index) {
+    int index;
+    for (index = m_initialIndex; index >= limit; --index) {
 #ifndef Q_SCRIPT_NO_QMETAOBJECT_CACHE
         QScriptMetaMethod mtd = metaCache->findMethod(index);
         if (!mtd.isValid())
@@ -1030,8 +1036,13 @@ void QScript::QtFunction::execute(QScriptContextPrivate *context)
 
         if (index == m_initialIndex)
             funName = mtd.name();
-        else if (mtd.name() != funName)
-            continue;
+        else {
+            if (mtd.name() != funName)
+                continue;
+#ifndef Q_SCRIPT_NO_QMETAOBJECT_CACHE
+            lastFoundIndex = index;
+#endif
+        }
 
         if (context->argumentCount() < mtd.argumentCount()) {
             tooFewArgs.append(index);
@@ -1252,6 +1263,11 @@ void QScript::QtFunction::execute(QScriptContextPrivate *context)
         if (!m_maybeOverloaded)
             break;
     }
+
+#ifndef Q_SCRIPT_NO_QMETAOBJECT_CACHE
+    if ((index == -1) && (lastFoundIndex != limit) && m_maybeOverloaded)
+        metaCache->setMethodLowerBound(m_initialIndex, lastFoundIndex);
+#endif
 
     if ((chosenIndex == -1) && candidates.isEmpty()) {
         if (!conversionFailed.isEmpty()) {

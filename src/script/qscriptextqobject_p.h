@@ -372,9 +372,20 @@ public:
         return m_propertyAccessors.values();
     }
 
+    inline int methodLowerBound(int index) const
+    {
+        return m_methodBounds.value(index, 0);
+    }
+
+    inline void setMethodLowerBound(int index, int bound)
+    {
+        m_methodBounds.insert(index, bound);
+    }
+
 private:
     QHash<int, QScriptValueImpl> m_propertyAccessors;
     QHash<int, QScriptMetaMethod> m_methods;
+    QHash<int, int> m_methodBounds;
     QHash<QScriptNameIdImpl*, QScript::Member> m_members;
 };
 
