@@ -166,13 +166,9 @@
     explicit constructors or assignment operator, the following data
     type can be stored in a container:
 
-    \code
-        struct Movie
-        {
-            QString title;
-            QDate releaseDate;
-        };
-    \endcode
+    \quotefromfile snippets/streaming/main.cpp
+    \skipto struct Movie
+    \printuntil };
 
     Some containers have additional requirements for the data types
     they can store. For example, the Key type of a QMap<Key, T> must
@@ -189,24 +185,13 @@
     straightforward; here's how we could do it for the Movie struct
     above:
 
-    \code
-        inline QDataStream &operator<<(QDataStream &out, const Movie &movie)
-        {
-            out << (quint32)movie.id << movie.title
-                << (quint32)movie.year;
-            return out;
-        }
+    \quotefromfile snippets/streaming/main.cpp
+    \skipto QDataStream &operator<<
+    \printuntil /^\}/
 
-        inline QDataStream &operator>>(QDataStream &in, Movie &movie)
-        {
-            quint32 id;
-            quint32 year;
-            in >> id >> movie.title >> year;
-            movie.id = (int)id;
-            movie.year = (int)year;
-            return in;
-        }
-    \endcode
+    \quotefromfile snippets/streaming/main.cpp
+    \skipto QDataStream &operator>>
+    \printuntil /^\}/
 
     \keyword default-constructed values
 
