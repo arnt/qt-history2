@@ -1172,6 +1172,8 @@ void QTextBlock::setUserData(QTextBlockUserData *data)
         return;
 
     const QTextBlockData *b = p->blockMap().fragment(n);
+    if (data != b->userData)
+        delete b->userData;
     b->userData = data;
 }
 
