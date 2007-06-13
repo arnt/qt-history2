@@ -171,8 +171,6 @@ QTransportAuthPrivate::QTransportAuthPrivate()
 
 QTransportAuthPrivate::~QTransportAuthPrivate()
 {
-    while ( data.count() )
-        delete data.takeLast();
 }
 
 /*!
@@ -247,13 +245,6 @@ void QTransportAuth::setProcessKey( const char *key, const char *prog )
 */
 void QTransportAuth::registerPolicyReceiver( QObject *pr )
 {
-    Q_D(QTransportAuth);
-    QPointer<QObject> guard = pr;
-    // relies on QPointer::operator ==(const T *o, const QPointer<T> &p)
-    // and QList::contains() which calls it
-    if ( d->policyReceivers.contains( guard ))
-        return;
-    d->policyReceivers.append(guard);
     // not every policy receiver needs setup - no error if this fails
     QMetaObject::invokeMethod( pr, "setupPolicyCheck" );
 
@@ -267,12 +258,6 @@ void QTransportAuth::registerPolicyReceiver( QObject *pr )
 */
 void QTransportAuth::unregisterPolicyReceiver( QObject *pr )
 {
-    Q_D(QTransportAuth);
-    QPointer<QObject> guard = pr;
-    if ( !d->policyReceivers.contains( guard ))
-        return;
-    d->policyReceivers.removeAll(guard);
-
     disconnect( pr );
     // not every policy receiver needs tear down - no error if this fails
     QMetaObject::invokeMethod( pr, "teardownPolicyCheck" );
@@ -280,13 +265,14 @@ void QTransportAuth::unregisterPolicyReceiver( QObject *pr )
 
 /*!
   Record a new transport connection with \a properties and \a descriptor.
+
+  The calling code is resposible for destroying the returned data when the
+  tranport connection is closed.
 */
 QTransportAuth::Data *QTransportAuth::connectTransport( unsigned char properties, int descriptor )
 {
-    Q_D(QTransportAuth);
     Data *data = new Data(properties, descriptor);
     data->status = Pending;
-    d->data.append(data);
     return data;
 }
 
@@ -457,19 +443,14 @@ QIODevice *QTransportAuth::passThroughByClient( QWSClient *client ) const
   This will be called in the server process to handle incoming
   authenticated requests.
 
+  The returned QIODevice will take ownership of \a data which will be deleted
+  when the QIODevice is delected.
+
   \sa setTargetDevice()
 */
 QAuthDevice *QTransportAuth::recvBuf( QTransportAuth::Data *data, QIODevice *iod )
 {
-    Q_D(QTransportAuth);
-
-    if (d->buffers.contains(data))
-        return d->buffers[data];
-    QAuthDevice *authBuf = new QAuthDevice( iod, data, QAuthDevice::Receive );
-
-    // qDebug( "created new authbuf %p", authBuf );
-    d->buffers[data] = authBuf;
-    return authBuf;
+    return new QAuthDevice( iod, data, QAuthDevice::Receive );
 }
 
 /*!
@@ -485,16 +466,14 @@ QAuthDevice *QTransportAuth::recvBuf( QTransportAuth::Data *data, QIODevice *iod
   This will be called in the client process to generate outgoing
   authenticated requests.
 
+  The returned QIODevice will take ownership of \a data which will be deleted
+  when the QIODevice is delected.
+
   \sa setTargetDevice()
 */
 QAuthDevice *QTransportAuth::authBuf( QTransportAuth::Data *data, QIODevice *iod )
 {
-    Q_D(QTransportAuth);
-    if (d->buffers.contains(data))
-        return d->buffers[data];
-    QAuthDevice *authBuf = new QAuthDevice( iod, data, QAuthDevice::Send );
-    d->buffers[data] = authBuf;
-    return authBuf;
+    return new QAuthDevice( iod, data, QAuthDevice::Send );
 }
 
 const unsigned char *QTransportAuth::getClientKey( unsigned char progId )
@@ -829,6 +808,14 @@ QString RequestAnalyzer::analyze( QByteArray *msgQueue )
 ////  AuthDevice definition
 ////
 
+/*!
+  Constructs a new auth device for the transport \a data and I/O device \a parent.
+
+  Incoming or outgoing data will be authenticated according to the auth direction \a dir.
+
+  The auth device will take ownership of the transport \a data and delete it when the device
+  is destroyed.
+*/
 QAuthDevice::QAuthDevice( QIODevice *parent, QTransportAuth::Data *data, AuthDirection dir )
     : QIODevice( parent )
     , d( data )
@@ -856,6 +843,7 @@ QAuthDevice::~QAuthDevice()
 {
     if ( analyzer )
         delete analyzer;
+    delete d;
 }
 
 /*!

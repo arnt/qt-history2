@@ -323,10 +323,7 @@ public:
     QString m_keyFilePath;
     QObject *m_packageRegistry;
     AuthCookie authKey;
-    QList<QTransportAuth::Data*> data;
     QCache<unsigned char, char> keyCache;
-    QHash<QTransportAuth::Data*,QAuthDevice*> buffers;
-    QList< QPointer<QObject> > policyReceivers;
     QHash< QObject*, QIODevice*> buffersByClient;
     QMutex keyfileMutex;
 };
