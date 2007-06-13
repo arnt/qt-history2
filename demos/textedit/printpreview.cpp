@@ -291,6 +291,7 @@ PrintPreview::~PrintPreview()
 void PrintPreview::print()
 {
     QPrintDialog *dlg = new QPrintDialog(&printer, this);
+    dlg->setMinMax(1, doc->pageCount());
     if (dlg->exec() == QDialog::Accepted) {
         doc->print(&printer);
     }
