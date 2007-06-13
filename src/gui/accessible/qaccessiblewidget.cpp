@@ -648,14 +648,16 @@ int QAccessibleWidget::navigate(RelationFlag relation, int entry,
     // Logical
     case FocusChild:
         {
-            if (widget()->hasFocus())
-                return 0;
+            if (widget()->hasFocus()) {
+                targetObject = object();
+                break;
+            }
 
             QWidget *fw = widget()->focusWidget();
             if (!fw)
                 return -1;
 
-            if (isAncestor(widget(), fw))
+            if (isAncestor(widget(), fw) || fw == widget())
                 targetObject = fw;
             /* ###
             QWidget *parent = fw;

@@ -1040,7 +1040,7 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accFocus(VARIANT *pvarID)
         (*pvarID).vt = VT_EMPTY;
         return S_FALSE;
     }
-    if (!acc) {
+    if (!acc || control == 0) {
         (*pvarID).vt = VT_I4;
         (*pvarID).lVal = control ? control : CHILDID_SELF;
         return S_OK;
