@@ -1067,7 +1067,10 @@ void QMdiSubWindowPrivate::setMinimizeMode()
 
     Q_ASSERT(q->windowState() & Qt::WindowMinimized);
     Q_ASSERT(!(q->windowState() & Qt::WindowMaximized));
-    Q_ASSERT(baseWidget ? baseWidget->isHidden() : true);
+    // This should be a valid assert, but people can actually re-implement
+    // setVisible and do crazy stuff, so we're not guaranteed that
+    // the widget is hidden after calling hide().
+    // Q_ASSERT(baseWidget ? baseWidget->isHidden() : true);
 
     setActive(true);
 }
