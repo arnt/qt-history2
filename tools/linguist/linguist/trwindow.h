@@ -30,7 +30,6 @@ class QDialog;
 class QLabel;
 class QMenu;
 class QAssistantClient;
-template <typename T> class QList;
 class QIcon;
 
 class TrPreviewTool;

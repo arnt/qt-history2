@@ -286,6 +286,7 @@ private slots:
     void insertPhraseInTranslationAndLeave(const QModelIndex &index);
     void updateButtons();
     void updateCanPaste();
+    void clipboardChanged();
 
     void updatePageHeight(int height);
     void updateCutAndCopy();
@@ -298,7 +299,6 @@ public:
     static const char * const friendlyBackTab[];
 
 private:
-
     void visualizeBackTabs(const QString &text, QTextEdit *te);
     void setEditionEnabled(bool enabled);
 
@@ -320,7 +320,7 @@ private:
     bool copyAvail;
 
     bool mayOverwriteTranslation;
-    bool canPaste;
+    bool clipboardEmpty;
     bool doGuesses;
 };
 

@@ -18,7 +18,6 @@
 #include <QAbstractItemModel>
 #include <QList>
 #include <QHash>
-#include <QtCore/QCoreApplication>
 #include <QtCore/QLocale>
 
 class ContextItem;

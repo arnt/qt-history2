@@ -813,7 +813,6 @@ MessageEditor::MessageEditor(MessageModel *model, QMainWindow *parent)
     cutAvail = false;
     copyAvail = false;
     doGuesses = true;
-    canPaste = false;
     bottomDockWnd = new QDockWidget(parent);
     bottomDockWnd->setObjectName(QLatin1String("PhrasesDockwidget"));
     bottomDockWnd->setAllowedAreas(Qt::AllDockWidgetAreas);
@@ -884,9 +883,11 @@ MessageEditor::MessageEditor(MessageModel *model, QMainWindow *parent)
     connect(editorPage, SIGNAL(selectionChanged()),
         this, SLOT(updateCutAndCopy()));
     connect(qApp->clipboard(), SIGNAL(dataChanged()),
-        this, SLOT(updateCanPaste()));
+        this, SLOT(clipboardChanged()));
     connect(phraseTv, SIGNAL(doubleClicked(QModelIndex)),
         this, SLOT(insertPhraseInTranslation(QModelIndex)));
+
+    clipboardChanged();
 
     phraseTv->installEventFilter(this);
 
@@ -1316,13 +1317,16 @@ void MessageEditor::updateCutAndCopy()
     }
 }
 
+void MessageEditor::clipboardChanged()
+{
+    // this is expensive, so move it out of the common path in updateCanPaste
+    clipboardEmpty = qApp->clipboard()->text().isNull();
+    updateCanPaste();
+}
+
 void MessageEditor::updateCanPaste()
 {
-    bool oldCanPaste = canPaste;
-    canPaste = (!editorPage->activeTransText()->isReadOnly() &&
-        !qApp->clipboard()->text().isNull());
-    if (canPaste != oldCanPaste)
-        emit pasteAvailable(canPaste);
+    emit pasteAvailable(!editorPage->activeTransText()->isReadOnly() && !clipboardEmpty);
 }
 
 void MessageEditor::toggleGuessing()
