@@ -79,7 +79,7 @@ void tst_QDesktopWidget::screenNumberForQWidget()
 {
     QDesktopWidget desktop;
 
-    QCOMPARE(desktop.screenNumber(0), -1);
+    QCOMPARE(desktop.screenNumber(0), 0);
 
     QWidget widget;
     widget.show();

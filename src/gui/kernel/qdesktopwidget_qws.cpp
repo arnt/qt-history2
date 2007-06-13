@@ -94,7 +94,7 @@ const QRect QDesktopWidget::screenGeometry(int screenNo) const
 int QDesktopWidget::screenNumber(const QWidget *w) const
 {
     if (!w)
-        return -1;
+        return 0;
 
     QRect frame = w->frameGeometry();
     if (!w->isWindow())
