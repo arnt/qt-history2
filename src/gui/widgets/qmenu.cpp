@@ -799,7 +799,7 @@ bool QMenuPrivate::mouseEventTaken(QMouseEvent *e)
         if (scroll && scroll->scrollFlags & QMenuPrivate::QMenuScroller::ScrollUp)
             tearRect.translate(0, q->style()->pixelMetric(QStyle::PM_MenuScrollerHeight, 0, q));
         q->update(tearRect);
-        if (tearRect.contains(pos) && hasMouseMoved(e->globalPos())) {
+        if (tearRect.contains(pos) && motions > 6) {
             setCurrentAction(0);
             tearoffHighlighted = 1;
             if (e->type() == QEvent::MouseButtonRelease) {
@@ -958,16 +958,6 @@ void QMenuPrivate::_q_actionHovered()
 #endif
     }
 }
-
-bool QMenuPrivate::hasMouseMoved(const QPoint &globalPos)
-{
-    //determines if the mouse has moved (ie its intial position has 
-    //changed by more than QApplication::startDragDistance()
-    //or if there were at least 6 mouse motions)
-    return motions > 6 || 
-        QApplication::startDragDistance() < (mousePopupPos - globalPos).manhattanLength();
-}
-
 
 /*!
     Initialize \a option with the values from this menu and information from \a action. This method
@@ -1570,7 +1560,6 @@ void QMenu::popup(const QPoint &p, QAction *atAction)
     }
 
     QPoint mouse = QCursor::pos();
-    d->mousePopupPos = mouse;
     const bool snapToMouse = (QRect(p.x()-3, p.y()-3, 6, 6).contains(mouse));
 
     //handle popup falling "off screen"
@@ -1965,16 +1954,29 @@ void QMenu::mouseReleaseEvent(QMouseEvent *e)
     d->mouseDown = 0;
     d->setSyncAction();
     QAction *action = d->actionAt(e->pos());
+
     if (action && action == d->currentAction) {
         if (action->menu())
             action->menu()->d_func()->setFirstActionActive();
-        else
+        else {
 #ifdef Q_WS_WIN
-            if (e->button() == Qt::LeftButton)
+#ifndef QT_NO_MENUBAR
+            //On Windows only context menus can be activated with the right button
+            bool isContextMenu = true;
+            const QWidget *parent = parentWidget();
+            while (p) {
+                if (qobject_cast<const QMenuBar *>(p)) {
+                    isContextMenu = false;
+                    break;
+                }
+                p = p->parentWidget();
+            }
+            if (e->button() == Qt::LeftButton || (e->button() == Qt::RightButton && isContextMenu))
+#endif
 #endif
                 d->activateAction(action, QAction::Trigger);
-
-    } else if (d->hasMouseMoved(e->globalPos())) {
+        }
+    } else if (d->motions > 6) {
         d->hideUpToMenuBar();
     }
 }
@@ -2480,7 +2482,6 @@ void QMenu::leaveEvent(QEvent *)
         d->sloppyRegion = QRegion();
 }
 
-
 /*!
   \reimp
 */
@@ -2593,6 +2594,7 @@ void QMenu::internalDelayedPopup()
 
     QPoint pos(rightPos);
     QMenu *caused = qobject_cast<QMenu*>(d->activeMenu->d_func()->causedPopup.widget);
+    
     const QRect availGeometry(d->popupGeometry(QApplication::desktop()->screenNumber(caused)));
     if (isRightToLeft()) {
         pos = leftPos;
@@ -3127,7 +3129,6 @@ int QMenu::findIdForAction(QAction *act) const
     \fn void QMenu::setCheckable(bool checkable)
 
     Not necessary anymore. The \a checkable parameter is ignored.
-    Use QAction::setCheckable() instead.
 */
 
 /*!
