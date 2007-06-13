@@ -28,6 +28,7 @@
 !include "modules\evaluation.nsh"
 !include "modules\opensource.nsh"
 !include "modules\eclipse.nsh"
+!include "modules\qtjambieclipse.nsh"
 
 !include "includes\instdir.nsh"
 
@@ -77,6 +78,7 @@
 !insertmacro ENVIRONMENT_INITIALIZE
 !insertmacro REGISTERUIEXT_INITIALIZE
 !insertmacro ECLIPSE_INITIALIZE
+!insertmacro QTJAMBIECLIPSE_INITIALIZE
 
 !define MUI_FINISHPAGE_NOAUTOCLOSE
 
@@ -151,6 +153,7 @@ SectionEnd
 !insertmacro ENVIRONMENT_SECTIONS
 !insertmacro REGISTERUIEXT_SECTIONS
 !insertmacro ECLIPSE_SECTIONS
+!insertmacro QTJAMBIECLIPSE_SECTIONS
 
 !insertmacro INSTDIR_FUNCTIONS
 
@@ -217,6 +220,7 @@ Function .onInit
   !insertmacro QSA_STARTUP
   !insertmacro MINGW_STARTUP
   !insertmacro ECLIPSE_STARTUP
+  !insertmacro QTJAMBIECLIPSE_STARTUP
 FunctionEnd
 
 Function .onInstSuccess
@@ -235,6 +239,7 @@ Function .onInstSuccess
   !insertmacro QSA_FINISH
   !insertmacro MINGW_FINISH
   !insertmacro ECLIPSE_FINISH
+  !insertmacro QTJAMBIECLIPSE_FINISH
 FunctionEnd
 
 Function un.onUninstSuccess
@@ -253,6 +258,7 @@ Function un.onUninstSuccess
   !insertmacro QSA_UNFINISH
   !insertmacro MINGW_UNFINISH
   !insertmacro ECLIPSE_UNFINISH
+  !insertmacro QTJAMBIECLIPSE_UNFINISH
 FunctionEnd
 
 Function un.onInit
@@ -317,6 +323,7 @@ Function un.onInit
   !insertmacro QSA_UNSTARTUP
   !insertmacro MINGW_UNSTARTUP
   !insertmacro ECLIPSE_UNSTARTUP
+  !insertmacro QTJAMBIECLIPSE_UNSTARTUP
   
   !insertmacro MUI_INSTALLOPTIONS_EXTRACT "${UNINSTALLER_CONFIRM_PAGE}"
 FunctionEnd
@@ -331,6 +338,7 @@ FunctionEnd
 !insertmacro QSA_UNINSTALL
 !insertmacro MINGW_UNINSTALL
 !insertmacro ECLIPSE_UNINSTALL
+!insertmacro QTJAMBIECLIPSE_UNINSTALL
 
 Section Uninstall
   !insertmacro LICENSECHECK_UNINSTALL
@@ -437,4 +445,5 @@ FunctionEnd
   !insertmacro QSA_DESCRIPTION
   !insertmacro MINGW_DESCRIPTION
   !insertmacro ECLIPSE_DESCRIPTION
+  !insertmacro QTJAMBIECLIPSE_DESCRIPTION
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
