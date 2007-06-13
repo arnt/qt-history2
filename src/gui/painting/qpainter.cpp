@@ -922,7 +922,7 @@ void QPainterPrivate::updateState(QPainterState *newState)
     QPainter provides the CompositionMode enum which defines the
     Porter-Duff rules for digital image compositing; it describes a
     model for combining the pixels in one image, the source, with the
-    pixel in another image, the destination.
+    pixels in another image, the destination.
 
     The two most common forms of composition are \l
     {QPainter::CompositionMode}{Source} and \l
