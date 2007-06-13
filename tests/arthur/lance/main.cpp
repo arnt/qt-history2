@@ -508,7 +508,7 @@ int main(int argc, char **argv)
                 pt1.drawImage(QPointF(0, 0), image);
                 pt1.end();
 
-                QString filename = QString(files.at(j)).replace(".", "_") + ".png";
+                QString filename = QString(files.at(j)).replace(".qps", "_qps") + ".png";
                 image1.save(filename, "PNG");
                 printf("%s grabbed to %s\n", qPrintable(files.at(j)), qPrintable(filename));
                 break;
