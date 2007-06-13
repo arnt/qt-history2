@@ -14,6 +14,7 @@
 #include <qdesktopwidget.h>
 #include <qscreen_qws.h>
 #include <qscreendriverfactory_qws.h>
+#include <qlabel.h>
 
 class tst_QMultiScreen : public QObject
 {
@@ -27,6 +28,7 @@ private slots:
     void initTestCase();
     void cleanupTestCase();
     void widgetSetFixedSize();
+    void grabWindow();
 
 private:
     QScreen *screen;
@@ -54,9 +56,9 @@ void tst_QMultiScreen::initTestCase()
     screen = QScreenDriverFactory::create("Multi", id);
     QVERIFY(screen);
     QVERIFY(screen->connect(QString("Multi: "
-                                    "VNC:size=640x480:offset=0,0:%1 "
-                                    "VNC:size=640x480:offset=640,0:%2 "
-                                    "VNC:size=640x480:offset=0,480:%3 "
+                                    "VNC:size=640x480:depth=32:offset=0,0:%1 "
+                                    "VNC:size=640x480:depth=32:offset=640,0:%2 "
+                                    "VNC:size=640x480:depth=16:offset=0,480:%3 "
                                     ":%4")
                             .arg(id+1).arg(id+2).arg(id+3).arg(id)));
     QVERIFY(screen->initDevice());
@@ -80,6 +82,48 @@ void tst_QMultiScreen::widgetSetFixedSize()
     w.show();
     QApplication::processEvents();
     QCOMPARE(w.geometry().size(), maxRect.size());
+}
+
+void tst_QMultiScreen::grabWindow()
+{
+    QDesktopWidget desktop;
+
+    QVERIFY(desktop.numScreens() >= 2);
+
+    const QRect r0 = desktop.availableGeometry(0).adjusted(50, 50, -50, -50);
+    const QRect r1 = desktop.availableGeometry(1).adjusted(60, 60, -60, -60);
+
+    QWidget w;
+    w.setGeometry(r0);
+    w.show();
+
+    QLabel l("hi there");
+    l.setGeometry(r1);
+    l.show();
+
+    QApplication::processEvents();
+    QVERIFY(desktop.screenNumber(&w) == 0);
+    QVERIFY(desktop.screenNumber(&l) == 1);
+
+    const QPixmap p0 = QPixmap::grabWindow(w.winId());
+    const QPixmap p1 = QPixmap::grabWindow(l.winId());
+
+//     p0.save("w.png", "PNG");
+//     p1.save("l.png", "PNG");
+    QCOMPARE(p0.size(), w.size());
+    QCOMPARE(p1.size(), l.size());
+
+    const QImage img0 = p0.toImage();
+    const QImage img1 = p1.toImage();
+
+//     QPixmap::grabWidget(&w).toImage().convertToFormat(img0.format()).save("w_img.png", "PNG");
+//     QPixmap::grabWidget(&l).toImage().convertToFormat(img1.format()).save("l_img.png", "PNG");
+
+    QImage::Format format = QImage::Format_RGB16;
+    QCOMPARE(img0.convertToFormat(format),
+             QPixmap::grabWidget(&w).toImage().convertToFormat(format));
+    QCOMPARE(img1.convertToFormat(format),
+             QPixmap::grabWidget(&l).toImage().convertToFormat(format));
 }
 
 QTEST_MAIN(tst_QMultiScreen)
