@@ -185,6 +185,10 @@ private slots:
     void render();
 
     void setContentsMargins();
+
+    void moveWindowInShowEvent_data();
+    void moveWindowInShowEvent();
+
 private:
     QWidget *testWidget;
 };
@@ -5051,6 +5055,49 @@ void tst_QWidget::setContentsMargins()
     QLabel label3("why does it always rain on me?");
     label3.setFrameStyle(QFrame::Sunken | QFrame::Box);
     QCOMPARE(newSize, label3.sizeHint());
+}
+
+void tst_QWidget::moveWindowInShowEvent_data()
+{
+    QTest::addColumn<QPoint>("initial");
+    QTest::addColumn<QPoint>("position");
+
+    QTest::newRow("") << QPoint(0,0) << QPoint(10, 10);
+    QTest::newRow("") << QPoint(10,10) << QPoint(0, 0);
+}
+
+void tst_QWidget::moveWindowInShowEvent()
+{
+    QFETCH(QPoint, initial);
+    QFETCH(QPoint, position);
+
+    class MoveWindowInShowEventWidget : public QWidget
+    {
+    public:
+        QPoint position;
+        void showEvent(QShowEvent *)
+        {
+            move(position);
+        }
+    };
+
+    MoveWindowInShowEventWidget widget;
+    widget.resize(QSize(qApp->desktop()->availableGeometry().size() / 3).expandedTo(QSize(1, 1)));
+    // move to this position in showEvent()
+    widget.position = position;
+
+    // put the widget in it's starting position
+    widget.move(initial);
+    QCOMPARE(widget.pos(), initial);
+
+    // show it
+    widget.show();
+    #ifdef Q_WS_X11
+    qt_x11_wait_for_window_manager(&widget);
+    #endif
+    QTest::qWait(100);
+    // it should have moved
+    QCOMPARE(widget.pos(), position);
 }
 
 QTEST_MAIN(tst_QWidget)
