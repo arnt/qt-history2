@@ -7,9 +7,10 @@
 vec4 composite(vec4 src, vec4 dst)
 {
     vec4 result;
-    result.rgb = mix(dst.rgb * (src.a - (1 - dst.rgb / dst.a) * (2 * src.rgb - src.a)),
-                     mix(dst.rgb * (src.a - (1 - dst.rgb / dst.a) * (2 * src.rgb - src.a) * (3 - 8 * dst.rgb / dst.a)),
-                         (dst.rgb * src.a + (sqrt(dst.rgb / dst.a) * dst.a - dst.rgb) * (2 * src.rgb - src.a)),
+    float da = max(dst.a, 0.00001);
+    result.rgb = mix(dst.rgb * (src.a - (1 - dst.rgb / da) * (2 * src.rgb - src.a)),
+                     mix(dst.rgb * (src.a - (1 - dst.rgb / da) * (2 * src.rgb - src.a) * (3 - 8 * dst.rgb / da)),
+                         (dst.rgb * src.a + (sqrt(dst.rgb / da) * dst.a - dst.rgb) * (2 * src.rgb - src.a)),
                          step(dst.a, 8 * dst.rgb)),
                      step(src.a, 2 * src.rgb)) + src.rgb * (1 - dst.a) + dst.rgb * (1 - src.a);
     result.a = src.a + dst.a - src.a * dst.a;

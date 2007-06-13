@@ -4,6 +4,6 @@ vec4 composite(vec4 src, vec4 dst)
 {
     vec4 result;
     result.rgb = src.rgb * dst.rgb + src.rgb * (1 - dst.a) + dst.rgb * (1 - src.a);
-    result.a = src.a * dst.a - src.a * dst.a;
+    result.a = src.a + dst.a - src.a * dst.a;
     return result;
 }

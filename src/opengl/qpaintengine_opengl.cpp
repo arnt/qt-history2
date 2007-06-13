@@ -1769,7 +1769,7 @@ void QOpenGLPaintEnginePrivate::fillPolygon_dev(const QPointF *polygonPoints, in
     GLenum geometry_mode = GL_TRIANGLES;
 #endif
 
-    if (use_fragment_programs && !fast_style) {
+    if (use_fragment_programs && !(fast_style && has_fast_composition_mode)) {
         composite(geometry_mode, tessellator.vertices, tessellator.size / 2);
     } else {
         glVertexPointer(2, GL_FLOAT, 0, tessellator.vertices);
@@ -3204,7 +3204,7 @@ void QOpenGLPaintEnginePrivate::drawFastRect(const QRectF &r)
         bool fast_style = current_style == Qt::LinearGradientPattern
                           || current_style == Qt::SolidPattern;
 
-        if (fast_style) {
+        if (fast_style && has_fast_composition_mode) {
             glEnableClientState(GL_VERTEX_ARRAY);
             glVertexPointer(2, GL_FLOAT, 0, vertexArray);
             glDrawArrays(GL_TRIANGLE_FAN, 0, 4);

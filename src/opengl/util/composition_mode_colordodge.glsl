@@ -5,9 +5,11 @@
 vec4 composite(vec4 src, vec4 dst)
 {
     vec4 result;
-    result.rgb = mix(dst.rgb * src.a / (1 - src.rgb / src.a) + src.rgb * (1 - dst.a) + dst.rgb * (1 - src.a),
-                     src.a * dst.a + src.rgb * (1 - dst.a) + dst.rgb * (1 - src.a),
+    vec3 temp = src.rgb * (1 - dst.a) + dst.rgb * (1 - src.a);
+    result.rgb = mix(dst.rgb * src.a / max(1 - src.rgb / max(src.a, 0.000001), 0.000001) + temp,
+                     src.a * dst.a + temp,
                      step(src.a * dst.a, src.rgb * dst.a + dst.rgb * src.a));
+
     result.a = src.a + dst.a - src.a * dst.a;
     return result;
 }
