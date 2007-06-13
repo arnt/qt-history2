@@ -18,9 +18,9 @@
 #include <QtDesigner/extension.h>
 #include <extensionfactory_p.h>
 
-#include <qdesigner_stackedbox_p.h>
-#include <qdesigner_tabwidget_p.h>
-#include <qdesigner_toolbox_p.h>
+#include <QtGui/QStackedWidget>
+#include <QtGui/QTabWidget>
+#include <QtGui/QToolBox>
 
 namespace qdesigner_internal {
 
@@ -87,9 +87,9 @@ private:
     QToolBox *m_widget;
 };
 
-typedef ExtensionFactory<QDesignerContainerExtension, QDesignerStackedWidget, QStackedWidgetContainer> QDesignerStackedWidgetContainerFactory;
-typedef ExtensionFactory<QDesignerContainerExtension, QDesignerTabWidget, QTabWidgetContainer> QDesignerTabWidgetContainerFactory;
-typedef ExtensionFactory<QDesignerContainerExtension, QDesignerToolBox, QToolBoxContainer> QDesignerToolBoxContainerFactory;
+typedef ExtensionFactory<QDesignerContainerExtension, QStackedWidget, QStackedWidgetContainer> QDesignerStackedWidgetContainerFactory;
+typedef ExtensionFactory<QDesignerContainerExtension, QTabWidget, QTabWidgetContainer> QDesignerTabWidgetContainerFactory;
+typedef ExtensionFactory<QDesignerContainerExtension, QToolBox, QToolBoxContainer> QDesignerToolBoxContainerFactory;
 }  // namespace qdesigner_internal
 
 #endif // DEFAULT_CONTAINER_H
