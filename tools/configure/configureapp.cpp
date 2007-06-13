@@ -1203,8 +1203,8 @@ bool Configure::displayHelp()
         desc("BUILD_QMAKE", "no", "-no-qmake",          "Do not compile qmake.");
         desc("BUILD_QMAKE", "yes", "-qmake",            "Compile qmake.\n");
 
-        desc("NOPROCESS", "yes", "-dont-process",        "Do not generate Makefiles/Project files. This will override -no-fast if specified.");
-        desc("NOPROCESS", "no",  "-process",             "Generate Makefiles/Project files.\n");
+        desc("NOPROCESS", "yes", "-dont-process",       "Do not generate Makefiles/Project files. This will override -no-fast if specified.");
+        desc("NOPROCESS", "no",  "-process",            "Generate Makefiles/Project files.\n");
 
         desc("RTTI", "no",      "-no-rtti",             "Do not compile runtime type information.");
         desc("RTTI", "yes",     "-rtti",                "Compile runtime type information.\n");
@@ -1215,7 +1215,7 @@ bool Configure::displayHelp()
         desc("DIRECT3D", "yes",  "-direct3d",           "Compile in Direct3D support (experimental - see INSTALL for more info)");
         desc("OPENSSL", "no",    "-no-openssl",         "Do not compile in OpenSSL support");
         desc("OPENSSL", "yes",   "-openssl",            "Compile in OpenSSL support");
-        desc("QDBUS", "no",      "-no-qbus",            "Do not compile in qdbus support");
+        desc("QDBUS", "no",      "-no-qdbus",           "Do not compile in qdbus support");
         desc("QDBUS", "yes",     "-qdbus",              "Compile in qdbus support");
 
         desc(                   "-arch <arch>",         "Specify an architecture.\n"
