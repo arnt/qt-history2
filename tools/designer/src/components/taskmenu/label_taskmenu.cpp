@@ -103,22 +103,6 @@ void LabelTaskMenu::editIcon()
 {
 }
 
-LabelTaskMenuFactory::LabelTaskMenuFactory(QExtensionManager *extensionManager)
-    : QExtensionFactory(extensionManager)
-{
-}
-
-QObject *LabelTaskMenuFactory::createExtension(QObject *object, const QString &iid, QObject *parent) const
-{
-    if (QLabel *label = qobject_cast<QLabel*>(object)) {
-        if (iid == Q_TYPEID(QDesignerTaskMenuExtension)) {
-            return new LabelTaskMenu(label, parent);
-        }
-    }
-
-    return 0;
-}
-
 void LabelTaskMenu::updateText(const QString &text)
 {
     m_formWindow->cursor()->setProperty(QLatin1String("text"), QVariant(text));

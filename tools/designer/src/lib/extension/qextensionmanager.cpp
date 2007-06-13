@@ -105,10 +105,11 @@ void QExtensionManager::registerExtensions(QAbstractExtensionFactory *factory, c
         return;
     }
 
-    if (!m_extensions.contains(iid))
-        m_extensions.insert(iid, QList<QAbstractExtensionFactory*>());
+    FactoryMap::iterator it = m_extensions.find(iid);
+    if (it == m_extensions.end())
+        it = m_extensions.insert(iid, FactoryList());
 
-    m_extensions[iid].prepend(factory);
+    it.value().prepend(factory);
 }
 
 /*!
@@ -119,13 +120,18 @@ void QExtensionManager::unregisterExtensions(QAbstractExtensionFactory *factory,
 {
     if (iid.isEmpty()) {
         m_globalExtension.removeAll(factory);
-    } else if (m_extensions.contains(iid)) {
-        QList<QAbstractExtensionFactory*> &factories = m_extensions[iid];
-        factories.removeAll(factory);
-
-        if (factories.isEmpty())
-            m_extensions.remove(iid);
+        return;
     }
+
+    const FactoryMap::iterator it = m_extensions.find(iid);
+    if (it == m_extensions.end())
+        return;
+
+    FactoryList &factories = it.value();
+    factories.removeAll(factory);
+
+    if (factories.isEmpty())
+        m_extensions.erase(it);
 }
 
 /*!
@@ -134,13 +140,15 @@ void QExtensionManager::unregisterExtensions(QAbstractExtensionFactory *factory,
 */
 QObject *QExtensionManager::extension(QObject *object, const QString &iid) const
 {
-    QList<QAbstractExtensionFactory*> l = m_extensions.value(iid);
-    l += m_globalExtension;
-
-    foreach (QAbstractExtensionFactory *factory, l) {
+    const FactoryMap::const_iterator it = m_extensions.constFind(iid);
+    if (it != m_extensions.constEnd()) {
+        foreach (QAbstractExtensionFactory *factory, it.value())
+            if (QObject *ext = factory->extension(object, iid))
+                return ext;
+    }
+    foreach (QAbstractExtensionFactory *factory, m_globalExtension)
         if (QObject *ext = factory->extension(object, iid))
             return ext;
-    }
 
     return 0;
 }

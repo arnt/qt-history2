@@ -18,8 +18,6 @@
 
 // shared
 #include <qlayout_widget_p.h>
-
-#include <QtGui/QLayout>
 #include <QtGui/QStyle>
 
 static const char *leftMargin = "leftMargin";
@@ -188,21 +186,5 @@ void LayoutPropertySheet::setChanged(int index, bool changed)
         setChanged(indexOf(QLatin1String(verticalSpacing)), changed);
     }
     QDesignerPropertySheet::setChanged(index, changed);
-}
-
-LayoutPropertySheetFactory::LayoutPropertySheetFactory(QExtensionManager *parent)
-    : QExtensionFactory(parent)
-{
-}
-
-QObject *LayoutPropertySheetFactory::createExtension(QObject *object, const QString &iid, QObject *parent) const
-{
-    if (iid != Q_TYPEID(QDesignerPropertySheetExtension))
-        return 0;
-
-    if (QLayout *o = qobject_cast<QLayout*>(object))
-        return new LayoutPropertySheet(o, parent);
-
-    return 0;
 }
 }

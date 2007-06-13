@@ -871,10 +871,11 @@ QObject *QDesignerPropertySheetFactory::extension(QObject *object, const QString
     if (iid != Q_TYPEID(QDesignerPropertySheetExtension) && iid != Q_TYPEID(QDesignerDynamicPropertySheetExtension))
         return 0;
 
-    if (!m_extensions.contains(object)) {
-        if (QObject *ext = new QDesignerPropertySheet(object, const_cast<QDesignerPropertySheetFactory*>(this))) {
+    ExtensionMap::iterator it = m_extensions.find(object);
+    if (it == m_extensions.end()) {
+        if (QDesignerPropertySheet *ext = new QDesignerPropertySheet(object, const_cast<QDesignerPropertySheetFactory*>(this))) {
             connect(ext, SIGNAL(destroyed(QObject*)), this, SLOT(objectDestroyed(QObject*)));
-            m_extensions.insert(object, ext);
+            it = m_extensions.insert(object, ext);
         }
     }
 
@@ -883,7 +884,7 @@ QObject *QDesignerPropertySheetFactory::extension(QObject *object, const QString
         m_extended.insert(object, true);
     }
 
-    return m_extensions.value(object);
+    return it.value();
 }
 
 void QDesignerPropertySheetFactory::objectDestroyed(QObject *object)
@@ -900,4 +901,3 @@ void QDesignerPropertySheetFactory::objectDestroyed(QObject *object)
 
     m_extended.remove(object);
 }
-

@@ -82,22 +82,6 @@ void ListWidgetTaskMenu::editItems()
     }
 }
 
-ListWidgetTaskMenuFactory::ListWidgetTaskMenuFactory(QExtensionManager *extensionManager)
-    : QExtensionFactory(extensionManager)
-{
-}
-
-QObject *ListWidgetTaskMenuFactory::createExtension(QObject *object, const QString &iid, QObject *parent) const
-{
-    if (QListWidget *button = qobject_cast<QListWidget*>(object)) {
-        if (iid == Q_TYPEID(QDesignerTaskMenuExtension)) {
-            return new ListWidgetTaskMenu(button, parent);
-        }
-    }
-
-    return 0;
-}
-
 void ListWidgetTaskMenu::updateSelection()
 {
     if (m_editor)

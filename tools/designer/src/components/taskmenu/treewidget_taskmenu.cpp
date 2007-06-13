@@ -73,22 +73,6 @@ void TreeWidgetTaskMenu::editItems()
         dlg.fillTreeWidgetFromContents(m_treeWidget);
 }
 
-TreeWidgetTaskMenuFactory::TreeWidgetTaskMenuFactory(QExtensionManager *extensionManager)
-    : QExtensionFactory(extensionManager)
-{
-}
-
-QObject *TreeWidgetTaskMenuFactory::createExtension(QObject *object, const QString &iid, QObject *parent) const
-{
-    if (QTreeWidget *button = qobject_cast<QTreeWidget*>(object)) {
-        if (iid == Q_TYPEID(QDesignerTaskMenuExtension)) {
-            return new TreeWidgetTaskMenu(button, parent);
-        }
-    }
-
-    return 0;
-}
-
 void TreeWidgetTaskMenu::updateSelection()
 {
     if (m_editor)

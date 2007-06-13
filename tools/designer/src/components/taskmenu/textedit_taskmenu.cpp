@@ -86,24 +86,7 @@ void TextEditTaskMenu::editIcon()
 {
 }
 
-TextEditTaskMenuFactory::TextEditTaskMenuFactory(QExtensionManager *extensionManager)
-    : QExtensionFactory(extensionManager)
-{
-}
-
-QObject *TextEditTaskMenuFactory::createExtension(QObject *object, const QString &iid, QObject *parent) const
-{
-    if (QTextEdit *textEdit = qobject_cast<QTextEdit*>(object)) {
-        if (iid == Q_TYPEID(QDesignerTaskMenuExtension)) {
-            return new TextEditTaskMenu(textEdit, parent);
-        }
-    }
-
-    return 0;
-}
-
 void TextEditTaskMenu::updateText(const QString &text)
 {
     m_formWindow->cursor()->setProperty(QLatin1String("html"), QVariant(text));
 }
-

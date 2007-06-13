@@ -17,7 +17,8 @@
 #include <QtDesigner/QDesignerContainerExtension>
 #include <QtDesigner/QExtensionFactory>
 
-class QWorkspace;
+#include <extensionfactory_p.h>
+#include <QtGui/QWorkspace>
 
 namespace qdesigner_internal {
 
@@ -40,16 +41,7 @@ private:
     QWorkspace *m_workspace;
 };
 
-class QWorkspaceContainerFactory: public QExtensionFactory
-{
-    Q_OBJECT
-public:
-    explicit QWorkspaceContainerFactory(QExtensionManager *parent = 0);
-
-protected:
-    virtual QObject *createExtension(QObject *object, const QString &iid, QObject *parent) const;
-};
-
+typedef ExtensionFactory<QDesignerContainerExtension, QWorkspace, QWorkspaceContainer> QWorkspaceContainerFactory;
 }  // namespace qdesigner_internal
 
 #endif // QWORKSPACE_CONTAINER_H

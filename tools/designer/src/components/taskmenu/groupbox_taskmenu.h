@@ -14,11 +14,11 @@
 #ifndef GROUPBOX_TASKMENU_H
 #define GROUPBOX_TASKMENU_H
 
-#include <QGroupBox>
-#include <QPointer>
+#include <QtGui/QGroupBox>
+#include <QtCore/QPointer>
 
 #include <qdesigner_taskmenu_p.h>
-#include <QtDesigner/default_extensionfactory.h>
+#include <extensionfactory_p.h>
 
 class QDesignerFormWindowInterface;
 
@@ -49,16 +49,7 @@ private:
     QList<QAction*> m_taskActions;
 };
 
-class GroupBoxTaskMenuFactory: public QExtensionFactory
-{
-    Q_OBJECT
-public:
-    explicit GroupBoxTaskMenuFactory(QExtensionManager *extensionManager = 0);
-
-protected:
-    virtual QObject *createExtension(QObject *object, const QString &iid, QObject *parent) const;
-};
-
+typedef ExtensionFactory<QDesignerTaskMenuExtension, QGroupBox, GroupBoxTaskMenu>  GroupBoxTaskMenuFactory;
 }  // namespace qdesigner_internal
 
 #endif // GROUPBOX_TASKMENU_H

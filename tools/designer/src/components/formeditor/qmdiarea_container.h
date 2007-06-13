@@ -15,9 +15,9 @@
 #define QMDIAREA_CONTAINER_H
 
 #include <QtDesigner/QDesignerContainerExtension>
-#include <QtDesigner/QExtensionFactory>
+#include <extensionfactory_p.h>
 
-class QMdiArea;
+#include <QtGui/QMdiArea>
 
 namespace qdesigner_internal {
 
@@ -40,16 +40,7 @@ private:
     QMdiArea *m_mdiArea;
 };
 
-class QMdiAreaContainerFactory: public QExtensionFactory
-{
-    Q_OBJECT
-public:
-    explicit QMdiAreaContainerFactory(QExtensionManager *parent = 0);
-
-protected:
-    virtual QObject *createExtension(QObject *object, const QString &iid, QObject *parent) const;
-};
-
+typedef ExtensionFactory<QDesignerContainerExtension,  QMdiArea,  QMdiAreaContainer> QMdiAreaContainerFactory;
 }  // namespace qdesigner_internal
 
 #endif // QMDIAREA_CONTAINER_H

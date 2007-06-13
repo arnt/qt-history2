@@ -34,8 +34,10 @@ public:
     virtual QObject *extension(QObject *object, const QString &iid) const;
 
 private:
-    QHash<QString, QList<QAbstractExtensionFactory*> > m_extensions;
-    QList<QAbstractExtensionFactory*> m_globalExtension;
+    typedef QList<QAbstractExtensionFactory*> FactoryList;
+    typedef QHash<QString, FactoryList> FactoryMap;
+    FactoryMap m_extensions;
+    FactoryList m_globalExtension;
 };
 
 QT_END_HEADER

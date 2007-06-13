@@ -42,8 +42,11 @@ protected:
     virtual QObject *createExtension(QObject *object, const QString &iid, QObject *parent) const;
 
 private:
-    mutable QMap< QPair<QString,QObject*>, QObject*> m_extensions;
-    mutable QHash<QObject*, bool> m_extended;
+    typedef QPair<QString,QObject*> IdObjectKey;
+    typedef QMap< IdObjectKey, QObject*> ExtensionMap;
+    mutable ExtensionMap m_extensions;
+    typedef QHash<QObject*, bool> ExtendedSet;
+    mutable ExtendedSet m_extended;
 };
 
 QT_END_HEADER

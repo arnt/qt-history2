@@ -15,8 +15,8 @@
 #define LINE_PROPERTYSHEET_H
 
 #include <qdesigner_propertysheet_p.h>
-
-class Line;
+#include <qdesigner_widget_p.h>
+#include <extensionfactory_p.h>
 
 namespace qdesigner_internal {
 
@@ -33,17 +33,7 @@ public:
     virtual QString propertyGroup(int index) const;
 };
 
-class LinePropertySheetFactory: public QExtensionFactory
-{
-    Q_OBJECT
-    Q_INTERFACES(QAbstractExtensionFactory)
-public:
-    explicit LinePropertySheetFactory(QExtensionManager *parent = 0);
-
-protected:
-    virtual QObject *createExtension(QObject *object, const QString &iid, QObject *parent) const;
-};
-
+typedef ExtensionFactory<QDesignerPropertySheetExtension, Line, LinePropertySheet> LinePropertySheetFactory;
 }  // namespace qdesigner_internal
 
 #endif // LINE_PROPERTYSHEET_H

@@ -15,8 +15,9 @@
 #define LAYOUT_PROPERTYSHEET_H
 
 #include <qdesigner_propertysheet_p.h>
+#include <extensionfactory_p.h>
 
-class QLayout;
+#include <QtGui/QLayout>
 
 namespace qdesigner_internal {
 
@@ -36,17 +37,7 @@ private:
     QLayout *m_layout;
 };
 
-class LayoutPropertySheetFactory: public QExtensionFactory
-{
-    Q_OBJECT
-    Q_INTERFACES(QAbstractExtensionFactory)
-public:
-    explicit LayoutPropertySheetFactory(QExtensionManager *parent = 0);
-
-protected:
-    virtual QObject *createExtension(QObject *object, const QString &iid, QObject *parent) const;
-};
-
+typedef ExtensionFactory<QDesignerPropertySheetExtension, QLayout, LayoutPropertySheet>  LayoutPropertySheetFactory;
 }  // namespace qdesigner_internal
 
 #endif // LAYOUT_PROPERTYSHEET_H

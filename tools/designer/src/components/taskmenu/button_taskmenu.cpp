@@ -79,22 +79,6 @@ void ButtonTaskMenu::editIcon()
 {
 }
 
-ButtonTaskMenuFactory::ButtonTaskMenuFactory(QExtensionManager *extensionManager)
-    : QExtensionFactory(extensionManager)
-{
-}
-
-QObject *ButtonTaskMenuFactory::createExtension(QObject *object, const QString &iid, QObject *parent) const
-{
-    if (QAbstractButton *button = qobject_cast<QAbstractButton*>(object)) {
-        if (iid == Q_TYPEID(QDesignerTaskMenuExtension)) {
-            return new ButtonTaskMenu(button, parent);
-        }
-    }
-
-    return 0;
-}
-
 void ButtonTaskMenu::updateText(const QString &text)
 {
     m_formWindow->cursor()->setProperty(QLatin1String("text"), QVariant(text));

@@ -78,22 +78,6 @@ void GroupBoxTaskMenu::editIcon()
 {
 }
 
-GroupBoxTaskMenuFactory::GroupBoxTaskMenuFactory(QExtensionManager *extensionManager)
-    : QExtensionFactory(extensionManager)
-{
-}
-
-QObject *GroupBoxTaskMenuFactory::createExtension(QObject *object, const QString &iid, QObject *parent) const
-{
-    if (QGroupBox *groupbox = qobject_cast<QGroupBox*>(object)) {
-        if (iid == Q_TYPEID(QDesignerTaskMenuExtension)) {
-            return new GroupBoxTaskMenu(groupbox, parent);
-        }
-    }
-
-    return 0;
-}
-
 void GroupBoxTaskMenu::updateText(const QString &text)
 {
     formWindow()->cursor()->setProperty(QLatin1String("title"), QVariant(text));

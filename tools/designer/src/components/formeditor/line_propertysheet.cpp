@@ -17,10 +17,6 @@
 // sdk
 #include <QtDesigner/QExtensionManager>
 
-// shared
-#include <qdesigner_widget_p.h>
-
-
 #include <QtGui/QLayout>
 #include <QtCore/QMetaObject>
 #include <QtCore/QMetaProperty>
@@ -40,7 +36,7 @@ LinePropertySheet::~LinePropertySheet()
 
 bool LinePropertySheet::isVisible(int index) const
 {
-    QString name = propertyName(index);
+    const QString name = propertyName(index);
 
     if (name == QLatin1String("frameShape"))
         return false;
@@ -55,20 +51,4 @@ void LinePropertySheet::setProperty(int index, const QVariant &value)
 QString LinePropertySheet::propertyGroup(int index) const
 {
     return QDesignerPropertySheet::propertyGroup(index);
-}
-
-LinePropertySheetFactory::LinePropertySheetFactory(QExtensionManager *parent)
-    : QExtensionFactory(parent)
-{
-}
-
-QObject *LinePropertySheetFactory::createExtension(QObject *object, const QString &iid, QObject *parent) const
-{
-    if (iid != Q_TYPEID(QDesignerPropertySheetExtension))
-        return 0;
-
-    if (Line *o = qobject_cast<Line*>(object))
-        return new LinePropertySheet(o, parent);
-
-    return 0;
 }

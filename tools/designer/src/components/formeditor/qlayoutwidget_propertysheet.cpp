@@ -18,7 +18,7 @@
 
 #include <QtDesigner/QExtensionManager>
 
-#include <QLayout>
+#include <QtGui/QLayout>
 
 using namespace qdesigner_internal;
 
@@ -47,20 +47,4 @@ void QLayoutWidgetPropertySheet::setProperty(int index, const QVariant &value)
 bool QLayoutWidgetPropertySheet::dynamicPropertiesAllowed() const
 {
     return false;
-}
-
-QLayoutWidgetPropertySheetFactory::QLayoutWidgetPropertySheetFactory(QExtensionManager *parent)
-    : QExtensionFactory(parent)
-{
-}
-
-QObject *QLayoutWidgetPropertySheetFactory::createExtension(QObject *object, const QString &iid, QObject *parent) const
-{
-    if (iid != Q_TYPEID(QDesignerPropertySheetExtension))
-        return 0;
-
-    if (QLayoutWidget *o = qobject_cast<QLayoutWidget*>(object))
-        return new QLayoutWidgetPropertySheet(o, parent);
-
-    return 0;
 }

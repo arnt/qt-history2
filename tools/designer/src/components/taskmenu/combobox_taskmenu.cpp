@@ -83,21 +83,19 @@ void ComboBoxTaskMenu::editItems()
     }
 }
 
-ComboBoxTaskMenuFactory::ComboBoxTaskMenuFactory(QExtensionManager *extensionManager)
-    : QExtensionFactory(extensionManager)
+ComboBoxTaskMenuFactory::ComboBoxTaskMenuFactory(const QString &iid, QExtensionManager *extensionManager) :
+    ExtensionFactory<QDesignerTaskMenuExtension, QComboBox, ComboBoxTaskMenu>(iid, extensionManager)
 {
 }
 
-QObject *ComboBoxTaskMenuFactory::createExtension(QObject *object, const QString &iid, QObject *parent) const
+QComboBox *ComboBoxTaskMenuFactory::checkObject(QObject *qObject) const
 {
-    QComboBox *button = qobject_cast<QComboBox*>(object);
-    if (button && !qobject_cast<QFontComboBox*>(object)) {
-        if (iid == Q_TYPEID(QDesignerTaskMenuExtension)) {
-            return new ComboBoxTaskMenu(button, parent);
-        }
-    }
-
-    return 0;
+    QComboBox *combo = qobject_cast<QComboBox*>(qObject);
+    if (!combo)
+        return 0;
+    if (qobject_cast<QFontComboBox*>(combo))
+        return 0;
+    return combo;
 }
 
 void ComboBoxTaskMenu::updateSelection()

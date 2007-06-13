@@ -15,9 +15,9 @@
 #define QDOCKWIDGET_CONTAINER_H
 
 #include <QtDesigner/QDesignerContainerExtension>
-#include <QtDesigner/QExtensionFactory>
+#include <extensionfactory_p.h>
 
-class QDockWidget;
+#include <QtGui/QDockWidget>
 
 namespace qdesigner_internal {
 
@@ -40,16 +40,7 @@ private:
     QDockWidget *m_dockWidget;
 };
 
-class QDockWidgetContainerFactory: public QExtensionFactory
-{
-    Q_OBJECT
-public:
-    explicit QDockWidgetContainerFactory(QExtensionManager *parent = 0);
-
-protected:
-    virtual QObject *createExtension(QObject *object, const QString &iid, QObject *parent) const;
-};
-
+typedef ExtensionFactory<QDesignerContainerExtension,  QDockWidget, QDockWidgetContainer> QDockWidgetContainerFactory;
 }  // namespace qdesigner_internal
 
 #endif // QDOCKWIDGET_CONTAINER_H

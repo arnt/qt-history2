@@ -159,8 +159,10 @@ private slots:
     void objectDestroyed(QObject *object);
 
 private:
-    mutable QMap<QObject*, QObject*> m_extensions;
-    mutable QHash<QObject*, bool> m_extended;
+    typedef QMap<QObject*, QObject*> ExtensionMap;
+    mutable ExtensionMap m_extensions;
+    typedef QHash<QObject*, bool> ExtendedSet;
+    mutable ExtendedSet m_extended;
 };
 
 #endif // QDESIGNER_PROPERTYSHEET_H

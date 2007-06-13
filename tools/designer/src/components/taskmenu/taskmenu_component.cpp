@@ -35,36 +35,19 @@ TaskMenuComponent::TaskMenuComponent(QDesignerFormEditorInterface *core, QObject
     Q_ASSERT(m_core != 0);
 
     QExtensionManager *mgr = core->extensionManager();
+    const QString taskMenuId =  Q_TYPEID(QDesignerTaskMenuExtension);
 
-    ContainerWidgetTaskMenuFactory *containerwidget_factory = new ContainerWidgetTaskMenuFactory(mgr);
-    mgr->registerExtensions(containerwidget_factory, Q_TYPEID(QDesignerTaskMenuExtension));
+    ButtonTaskMenuFactory::registerExtension(mgr, taskMenuId);
+    GroupBoxTaskMenuFactory::registerExtension(mgr, taskMenuId);
+    LabelTaskMenuFactory::registerExtension(mgr, taskMenuId);
+    LineEditTaskMenuFactory::registerExtension(mgr, taskMenuId);
+    ListWidgetTaskMenuFactory::registerExtension(mgr, taskMenuId);
+    TreeWidgetTaskMenuFactory::registerExtension(mgr, taskMenuId);
+    TableWidgetTaskMenuFactory::registerExtension(mgr, taskMenuId);
+    TextEditTaskMenuFactory::registerExtension(mgr, taskMenuId);
 
-    ButtonTaskMenuFactory *button_factory = new ButtonTaskMenuFactory(mgr);
-    mgr->registerExtensions(button_factory, Q_TYPEID(QDesignerTaskMenuExtension));
-
-    GroupBoxTaskMenuFactory *groupbox_factory = new GroupBoxTaskMenuFactory(mgr);
-    mgr->registerExtensions(groupbox_factory, Q_TYPEID(QDesignerTaskMenuExtension));
-
-    LabelTaskMenuFactory *label_factory = new LabelTaskMenuFactory(mgr);
-    mgr->registerExtensions(label_factory, Q_TYPEID(QDesignerTaskMenuExtension));
-
-    LineEditTaskMenuFactory *lineEdit_factory = new LineEditTaskMenuFactory(mgr);
-    mgr->registerExtensions(lineEdit_factory, Q_TYPEID(QDesignerTaskMenuExtension));
-
-    ListWidgetTaskMenuFactory *listWidget_factory = new ListWidgetTaskMenuFactory(mgr);
-    mgr->registerExtensions(listWidget_factory, Q_TYPEID(QDesignerTaskMenuExtension));
-
-    TreeWidgetTaskMenuFactory *treeWidget_factory = new TreeWidgetTaskMenuFactory(mgr);
-    mgr->registerExtensions(treeWidget_factory, Q_TYPEID(QDesignerTaskMenuExtension));
-
-    TableWidgetTaskMenuFactory *tableWidget_factory = new TableWidgetTaskMenuFactory(mgr);
-    mgr->registerExtensions(tableWidget_factory, Q_TYPEID(QDesignerTaskMenuExtension));
-
-    ComboBoxTaskMenuFactory *comboBox_factory = new ComboBoxTaskMenuFactory(mgr);
-    mgr->registerExtensions(comboBox_factory, Q_TYPEID(QDesignerTaskMenuExtension));
-
-    TextEditTaskMenuFactory *textEdit_factory = new TextEditTaskMenuFactory(mgr);
-    mgr->registerExtensions(textEdit_factory, Q_TYPEID(QDesignerTaskMenuExtension));
+    mgr->registerExtensions(new ContainerWidgetTaskMenuFactory(mgr), taskMenuId);
+    mgr->registerExtensions(new ComboBoxTaskMenuFactory(taskMenuId, mgr), taskMenuId);
 }
 
 TaskMenuComponent::~TaskMenuComponent()

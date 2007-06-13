@@ -114,12 +114,13 @@ QObject *QExtensionFactory::extension(QObject *object, const QString &iid) const
 {
     if (!object)
         return 0;
+    const IdObjectKey key = qMakePair(iid, object);
 
-    QPair<QString, QObject*> key = qMakePair(iid, object);
-    if (!m_extensions.contains(key)) {
+    ExtensionMap::iterator it = m_extensions.find(key);
+    if (it == m_extensions.end()) {
         if (QObject *ext = createExtension(object, iid, const_cast<QExtensionFactory*>(this))) {
             connect(ext, SIGNAL(destroyed(QObject*)), this, SLOT(objectDestroyed(QObject*)));
-            m_extensions.insert(key, ext);
+            it = m_extensions.insert(key, ext);
         }
     }
 
@@ -128,12 +129,15 @@ QObject *QExtensionFactory::extension(QObject *object, const QString &iid) const
         m_extended.insert(object, true);
     }
 
-    return m_extensions.value(key);
+    if (it == m_extensions.end())
+        return 0;
+
+    return it.value();
 }
 
 void QExtensionFactory::objectDestroyed(QObject *object)
 {
-    QMutableMapIterator< QPair<QString,QObject*>, QObject*> it(m_extensions);
+    QMutableMapIterator< IdObjectKey, QObject*> it(m_extensions);
     while (it.hasNext()) {
         it.next();
 

@@ -63,19 +63,3 @@ void ToolBarTaskMenu::editToolBar()
     }
     Q_ASSERT(0);
 }
-
-ToolBarTaskMenuFactory::ToolBarTaskMenuFactory(QExtensionManager *extensionManager)
-    : QExtensionFactory(extensionManager)
-{
-}
-
-QObject *ToolBarTaskMenuFactory::createExtension(QObject *object, const QString &iid, QObject *parent) const
-{
-    if (QToolBar *toolbar = qobject_cast<QToolBar*>(object)) {
-        if (iid == Q_TYPEID(QDesignerTaskMenuExtension)) {
-            return new ToolBarTaskMenu(toolbar, parent);
-        }
-    }
-
-    return 0;
-}

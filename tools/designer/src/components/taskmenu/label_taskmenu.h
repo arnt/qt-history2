@@ -18,7 +18,7 @@
 #include <QtCore/QPointer>
 
 #include <qdesigner_taskmenu_p.h>
-#include <QtDesigner/default_extensionfactory.h>
+#include <extensionfactory_p.h>
 
 class QDesignerFormWindowInterface;
 
@@ -51,16 +51,7 @@ private:
     QAction *m_editPlainTextAction;
 };
 
-class LabelTaskMenuFactory: public QExtensionFactory
-{
-    Q_OBJECT
-public:
-    explicit LabelTaskMenuFactory(QExtensionManager *extensionManager = 0);
-
-protected:
-    virtual QObject *createExtension(QObject *object, const QString &iid, QObject *parent) const;
-};
-
+typedef ExtensionFactory<QDesignerTaskMenuExtension, QLabel, LabelTaskMenu>  LabelTaskMenuFactory;
 }  // namespace qdesigner_internal
 
 #endif // LABEL_TASKMENU_H

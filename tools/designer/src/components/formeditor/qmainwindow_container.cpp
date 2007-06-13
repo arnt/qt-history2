@@ -18,7 +18,6 @@
 #include <QtCore/qdebug.h>
 
 #include <QtGui/QLayout>
-#include <QtGui/QMainWindow>
 #include <QtGui/QMenuBar>
 #include <QtGui/QToolBar>
 #include <QtGui/QStatusBar>
@@ -166,20 +165,3 @@ void QMainWindowContainer::remove(int index)
     }
     m_widgets.removeAt(index);
 }
-
-QMainWindowContainerFactory::QMainWindowContainerFactory(QExtensionManager *parent)
-    : QExtensionFactory(parent)
-{
-}
-
-QObject *QMainWindowContainerFactory::createExtension(QObject *object, const QString &iid, QObject *parent) const
-{
-    if (iid != Q_TYPEID(QDesignerContainerExtension))
-        return 0;
-
-    if (QMainWindow *w = qobject_cast<QMainWindow*>(object))
-        return new QMainWindowContainer(w, parent);
-
-    return 0;
-}
-

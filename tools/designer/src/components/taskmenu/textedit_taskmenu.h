@@ -18,7 +18,8 @@
 #include <QtCore/QPointer>
 
 #include <qdesigner_taskmenu_p.h>
-#include <QtDesigner/default_extensionfactory.h>
+#include <extensionfactory_p.h>
+
 
 class QDesignerFormWindowInterface;
 
@@ -46,16 +47,7 @@ private:
     QAction *m_editTextAction;
 };
 
-class TextEditTaskMenuFactory: public QExtensionFactory
-{
-    Q_OBJECT
-public:
-    explicit TextEditTaskMenuFactory(QExtensionManager *extensionManager = 0);
-
-protected:
-    virtual QObject *createExtension(QObject *object, const QString &iid, QObject *parent) const;
-};
-
+typedef ExtensionFactory<QDesignerTaskMenuExtension, QTextEdit, TextEditTaskMenu> TextEditTaskMenuFactory;
 }  // namespace qdesigner_internal
 
 #endif // TEXTEDIT_TASKMENU_H

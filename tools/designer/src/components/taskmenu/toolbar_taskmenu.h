@@ -18,12 +18,13 @@
 #include <QtCore/QPointer>
 
 #include <qdesigner_taskmenu_p.h>
-#include <QtDesigner/default_extensionfactory.h>
+#include <extensionfactory_p.h>
 
 class QDesignerFormWindowInterface;
 
 namespace qdesigner_internal {
 
+// Not currently used.
 class ToolBarTaskMenu: public QDesignerTaskMenu
 {
     Q_OBJECT
@@ -44,16 +45,7 @@ private:
     QAction *m_editTextAction;
 };
 
-class ToolBarTaskMenuFactory: public QExtensionFactory
-{
-    Q_OBJECT
-public:
-    explicit ToolBarTaskMenuFactory(QExtensionManager *extensionManager = 0);
-
-protected:
-    virtual QObject *createExtension(QObject *object, const QString &iid, QObject *parent) const;
-};
-
+typedef ExtensionFactory<QDesignerTaskMenuExtension, QToolBar, ToolBarTaskMenu> ToolBarTaskMenuFactory;
 }  // namespace qdesigner_internal
 
 #endif // TOOLBAR_TASKMENU_H

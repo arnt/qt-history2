@@ -78,22 +78,6 @@ void LineEditTaskMenu::editIcon()
 {
 }
 
-LineEditTaskMenuFactory::LineEditTaskMenuFactory(QExtensionManager *extensionManager)
-    : QExtensionFactory(extensionManager)
-{
-}
-
-QObject *LineEditTaskMenuFactory::createExtension(QObject *object, const QString &iid, QObject *parent) const
-{
-    if (QLineEdit *lineEdit = qobject_cast<QLineEdit*>(object)) {
-        if (iid == Q_TYPEID(QDesignerTaskMenuExtension)) {
-            return new LineEditTaskMenu(lineEdit, parent);
-        }
-    }
-
-    return 0;
-}
-
 void LineEditTaskMenu::updateText(const QString &text)
 {
     m_formWindow->cursor()->setProperty(QLatin1String("text"), QVariant(text));

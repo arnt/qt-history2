@@ -14,8 +14,6 @@
 #include "qdockwidget_container.h"
 
 #include <QtCore/qdebug.h>
-
-#include <QtGui/QDockWidget>
 #include <QtGui/QMenuBar>
 #include <QtGui/QToolBar>
 #include <QtGui/QStatusBar>
@@ -70,20 +68,3 @@ void QDockWidgetContainer::remove(int index)
 {
     Q_UNUSED(index);
 }
-
-QDockWidgetContainerFactory::QDockWidgetContainerFactory(QExtensionManager *parent)
-    : QExtensionFactory(parent)
-{
-}
-
-QObject *QDockWidgetContainerFactory::createExtension(QObject *object, const QString &iid, QObject *parent) const
-{
-    if (iid != Q_TYPEID(QDesignerContainerExtension))
-        return 0;
-
-    if (QDockWidget *w = qobject_cast<QDockWidget*>(object))
-        return new QDockWidgetContainer(w, parent);
-
-    return 0;
-}
-

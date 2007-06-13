@@ -17,7 +17,9 @@
 #include <QtDesigner/QDesignerContainerExtension>
 #include <QtDesigner/QExtensionFactory>
 
-class QMainWindow;
+#include <extensionfactory_p.h>
+
+#include <QtGui/QMainWindow>
 
 namespace qdesigner_internal {
 
@@ -41,16 +43,7 @@ private:
     QList<QWidget*> m_widgets;
 };
 
-class QMainWindowContainerFactory: public QExtensionFactory
-{
-    Q_OBJECT
-public:
-    explicit QMainWindowContainerFactory(QExtensionManager *parent = 0);
-
-protected:
-    virtual QObject *createExtension(QObject *object, const QString &iid, QObject *parent) const;
-};
-
+typedef ExtensionFactory<QDesignerContainerExtension, QMainWindow, QMainWindowContainer> QMainWindowContainerFactory;
 }  // namespace qdesigner_internal
 
 #endif // QMAINWINDOW_CONTAINER_H

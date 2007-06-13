@@ -14,11 +14,11 @@
 #ifndef BUTTON_TASKMENU_H
 #define BUTTON_TASKMENU_H
 
-#include <QAbstractButton>
-#include <QPointer>
+#include <QtGui/QAbstractButton>
+#include <QtCore/QPointer>
 
 #include <qdesigner_taskmenu_p.h>
-#include <QtDesigner/default_extensionfactory.h>
+#include <extensionfactory_p.h>
 
 class QDesignerFormWindowInterface;
 
@@ -49,16 +49,7 @@ private:
     QAction *m_preferredEditAction;
 };
 
-class ButtonTaskMenuFactory: public QExtensionFactory
-{
-    Q_OBJECT
-public:
-    explicit ButtonTaskMenuFactory(QExtensionManager *extensionManager = 0);
-
-protected:
-    virtual QObject *createExtension(QObject *object, const QString &iid, QObject *parent) const;
-};
-
+typedef ExtensionFactory<QDesignerTaskMenuExtension, QAbstractButton, ButtonTaskMenu>  ButtonTaskMenuFactory;
 }  // namespace qdesigner_internal
 
 #endif // BUTTON_TASKMENU_H

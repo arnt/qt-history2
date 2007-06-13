@@ -62,20 +62,4 @@ void QMdiAreaContainer::remove(int index)
 {
     Q_UNUSED(index);
 }
-
-QMdiAreaContainerFactory::QMdiAreaContainerFactory(QExtensionManager *parent)
-    : QExtensionFactory(parent)
-{
-}
-
-QObject *QMdiAreaContainerFactory::createExtension(QObject *object, const QString &iid, QObject *parent) const
-{
-    if (iid != Q_TYPEID(QDesignerContainerExtension))
-        return 0;
-
-    if (QMdiArea *w = qobject_cast<QMdiArea*>(object))
-        return new QMdiAreaContainer(w, parent);
-
-    return 0;
-}
 }

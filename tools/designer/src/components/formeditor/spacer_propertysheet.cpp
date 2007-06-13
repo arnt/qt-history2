@@ -51,20 +51,3 @@ bool SpacerPropertySheet::dynamicPropertiesAllowed() const
 {
     return false;
 }
-
-
-SpacerPropertySheetFactory::SpacerPropertySheetFactory(QExtensionManager *parent)
-    : QExtensionFactory(parent)
-{
-}
-
-QObject *SpacerPropertySheetFactory::createExtension(QObject *object, const QString &iid, QObject *parent) const
-{
-    if (iid != Q_TYPEID(QDesignerPropertySheetExtension))
-        return 0;
-
-    if (Spacer *o = qobject_cast<Spacer*>(object))
-        return new SpacerPropertySheet(o, parent);
-
-    return 0;
-}

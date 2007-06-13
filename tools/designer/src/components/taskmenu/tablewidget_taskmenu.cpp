@@ -74,22 +74,6 @@ void TableWidgetTaskMenu::editItems()
         dlg.fillTableWidgetFromContents(m_tableWidget);
 }
 
-TableWidgetTaskMenuFactory::TableWidgetTaskMenuFactory(QExtensionManager *extensionManager)
-    : QExtensionFactory(extensionManager)
-{
-}
-
-QObject *TableWidgetTaskMenuFactory::createExtension(QObject *object, const QString &iid, QObject *parent) const
-{
-    if (QTableWidget *button = qobject_cast<QTableWidget*>(object)) {
-        if (iid == Q_TYPEID(QDesignerTaskMenuExtension)) {
-            return new TableWidgetTaskMenu(button, parent);
-        }
-    }
-
-    return 0;
-}
-
 void TableWidgetTaskMenu::updateSelection()
 {
     if (m_editor)

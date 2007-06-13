@@ -15,8 +15,8 @@
 #define QLAYOUTWIDGET_PROPERTYSHEET_H
 
 #include <qdesigner_propertysheet_p.h>
-
-class QLayoutWidget;
+#include <extensionfactory_p.h>
+#include <qlayout_widget_p.h>
 
 namespace qdesigner_internal {
 
@@ -34,17 +34,7 @@ public:
     virtual bool dynamicPropertiesAllowed() const;
 };
 
-class QLayoutWidgetPropertySheetFactory: public QExtensionFactory
-{
-    Q_OBJECT
-    Q_INTERFACES(QAbstractExtensionFactory)
-public:
-    explicit QLayoutWidgetPropertySheetFactory(QExtensionManager *parent = 0);
-
-protected:
-    virtual QObject *createExtension(QObject *object, const QString &iid, QObject *parent) const;
-};
-
+typedef ExtensionFactory<QDesignerPropertySheetExtension, QLayoutWidget,QLayoutWidgetPropertySheet>  QLayoutWidgetPropertySheetFactory;
 }  // namespace qdesigner_internal
 
 #endif // QLAYOUTWIDGET_PROPERTYSHEET_H

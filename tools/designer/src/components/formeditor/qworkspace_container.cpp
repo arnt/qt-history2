@@ -61,20 +61,4 @@ void QWorkspaceContainer::remove(int index)
 {
     Q_UNUSED(index);
 }
-
-QWorkspaceContainerFactory::QWorkspaceContainerFactory(QExtensionManager *parent)
-    : QExtensionFactory(parent)
-{
-}
-
-QObject *QWorkspaceContainerFactory::createExtension(QObject *object, const QString &iid, QObject *parent) const
-{
-    if (iid != Q_TYPEID(QDesignerContainerExtension))
-        return 0;
-
-    if (QWorkspace *w = qobject_cast<QWorkspace*>(object))
-        return new QWorkspaceContainer(w, parent);
-
-    return 0;
-}
 }

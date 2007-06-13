@@ -16,22 +16,25 @@
 
 #include <QtDesigner/container.h>
 #include <QtDesigner/extension.h>
-#include <QtDesigner/default_extensionfactory.h>
+#include <extensionfactory_p.h>
+
+#include <qdesigner_stackedbox_p.h>
+#include <qdesigner_tabwidget_p.h>
+#include <qdesigner_toolbox_p.h>
 
 namespace qdesigner_internal {
 
-class QDesignerContainer: public QObject, public QDesignerContainerExtension
+class QStackedWidgetContainer: public QObject, public QDesignerContainerExtension
 {
     Q_OBJECT
     Q_INTERFACES(QDesignerContainerExtension)
 public:
-    explicit QDesignerContainer(QWidget *widget, QObject *parent = 0);
-    virtual ~QDesignerContainer();
+    explicit QStackedWidgetContainer(QStackedWidget *widget, QObject *parent = 0);
 
-    virtual int count() const;
-    virtual QWidget *widget(int index) const;
+    virtual int count() const { return m_widget->count(); }
+    virtual QWidget *widget(int index) const { return m_widget->widget(index); }
 
-    virtual int currentIndex() const;
+    virtual int currentIndex() const { return m_widget->currentIndex(); }
     virtual void setCurrentIndex(int index);
 
     virtual void addWidget(QWidget *widget);
@@ -39,19 +42,54 @@ public:
     virtual void remove(int index);
 
 private:
-    QWidget *m_widget;
+    QStackedWidget *m_widget;
 };
 
-class QDesignerContainerFactory: public QExtensionFactory
+class QTabWidgetContainer: public QObject, public QDesignerContainerExtension
 {
     Q_OBJECT
+    Q_INTERFACES(QDesignerContainerExtension)
 public:
-    explicit QDesignerContainerFactory(QExtensionManager *parent = 0);
+    explicit QTabWidgetContainer(QTabWidget *widget, QObject *parent = 0);
 
-protected:
-    virtual QObject *createExtension(QObject *object, const QString &iid, QObject *parent) const;
+    virtual int count() const { return m_widget->count(); }
+    virtual QWidget *widget(int index) const { return m_widget->widget(index); }
+
+    virtual int currentIndex() const { return m_widget->currentIndex(); }
+    virtual void setCurrentIndex(int index);
+
+    virtual void addWidget(QWidget *widget);
+    virtual void insertWidget(int index, QWidget *widget);
+    virtual void remove(int index);
+
+private:
+    QTabWidget *m_widget;
 };
 
+class QToolBoxContainer: public QObject, public QDesignerContainerExtension
+{
+    Q_OBJECT
+    Q_INTERFACES(QDesignerContainerExtension)
+public:
+    explicit QToolBoxContainer(QToolBox *widget, QObject *parent = 0);
+
+    virtual int count() const { return m_widget->count(); }
+    virtual QWidget *widget(int index) const { return m_widget->widget(index); }
+
+    virtual int currentIndex() const { return m_widget->currentIndex(); }
+    virtual void setCurrentIndex(int index);
+
+    virtual void addWidget(QWidget *widget);
+    virtual void insertWidget(int index, QWidget *widget);
+    virtual void remove(int index);
+
+private:
+    QToolBox *m_widget;
+};
+
+typedef ExtensionFactory<QDesignerContainerExtension, QDesignerStackedWidget, QStackedWidgetContainer> QDesignerStackedWidgetContainerFactory;
+typedef ExtensionFactory<QDesignerContainerExtension, QDesignerTabWidget, QTabWidgetContainer> QDesignerTabWidgetContainerFactory;
+typedef ExtensionFactory<QDesignerContainerExtension, QDesignerToolBox, QToolBoxContainer> QDesignerToolBoxContainerFactory;
 }  // namespace qdesigner_internal
 
 #endif // DEFAULT_CONTAINER_H

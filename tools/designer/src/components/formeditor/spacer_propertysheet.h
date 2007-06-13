@@ -15,8 +15,8 @@
 #define SPACER_PROPERTYSHEET_H
 
 #include <qdesigner_propertysheet_p.h>
-
-class Spacer;
+#include <extensionfactory_p.h>
+#include <spacer_widget_p.h>
 
 namespace qdesigner_internal {
 
@@ -34,17 +34,7 @@ public:
     virtual bool dynamicPropertiesAllowed() const;
 };
 
-class SpacerPropertySheetFactory: public QExtensionFactory
-{
-    Q_OBJECT
-    Q_INTERFACES(QAbstractExtensionFactory)
-public:
-    explicit SpacerPropertySheetFactory(QExtensionManager *parent = 0);
-
-protected:
-    virtual QObject *createExtension(QObject *object, const QString &iid, QObject *parent) const;
-};
-
+typedef ExtensionFactory<QDesignerPropertySheetExtension, Spacer, SpacerPropertySheet>  SpacerPropertySheetFactory;
 }  // namespace qdesigner_internal
 
 #endif // SPACER_PROPERTYSHEET_H

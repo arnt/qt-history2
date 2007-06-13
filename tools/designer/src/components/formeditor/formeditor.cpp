@@ -46,7 +46,8 @@ namespace qdesigner_internal {
 FormEditor::FormEditor(QObject *parent)
     : QDesignerFormEditorInterface(parent)
 {
-    QDesignerPluginManager *pluginManager = new QDesignerPluginManager(this);    setPluginManager(pluginManager);
+    QDesignerPluginManager *pluginManager = new QDesignerPluginManager(this);
+    setPluginManager(pluginManager);
 
     WidgetDataBase *widgetDatabase = new WidgetDataBase(this);
     setWidgetDataBase(widgetDatabase);
@@ -61,24 +62,28 @@ FormEditor::FormEditor(QObject *parent)
     setFormManager(formWindowManager);
 
     QExtensionManager *mgr = new QExtensionManager(this);
+    const QString containerExtensionId = Q_TYPEID(QDesignerContainerExtension);
 
-    mgr->registerExtensions(new QDesignerContainerFactory(mgr),             Q_TYPEID(QDesignerContainerExtension));
-    mgr->registerExtensions(new QMainWindowContainerFactory(mgr),           Q_TYPEID(QDesignerContainerExtension));
-    mgr->registerExtensions(new QDockWidgetContainerFactory(mgr),           Q_TYPEID(QDesignerContainerExtension));
-    mgr->registerExtensions(new QWorkspaceContainerFactory(mgr),            Q_TYPEID(QDesignerContainerExtension));
-    mgr->registerExtensions(new QMdiAreaContainerFactory(mgr),              Q_TYPEID(QDesignerContainerExtension));
+    QDesignerStackedWidgetContainerFactory::registerExtension(mgr, containerExtensionId);
+    QDesignerTabWidgetContainerFactory::registerExtension(mgr, containerExtensionId);
+    QDesignerToolBoxContainerFactory::registerExtension(mgr, containerExtensionId);
+    QMainWindowContainerFactory::registerExtension(mgr, containerExtensionId);
+    QDockWidgetContainerFactory::registerExtension(mgr, containerExtensionId);
+    QWorkspaceContainerFactory::registerExtension(mgr, containerExtensionId);
+    QMdiAreaContainerFactory::registerExtension(mgr, containerExtensionId);
 
     mgr->registerExtensions(new QDesignerLayoutDecorationFactory(mgr),      Q_TYPEID(QDesignerLayoutDecorationExtension));
     mgr->registerExtensions(new QDesignerActionProviderFactory(mgr),        Q_TYPEID(QDesignerActionProviderExtension));
 
+    const QString propertySheetExtensionId = Q_TYPEID(QDesignerPropertySheetExtension);
     QDesignerPropertySheetFactory *factory = new QDesignerPropertySheetFactory(mgr);
-    mgr->registerExtensions(factory,                                        Q_TYPEID(QDesignerPropertySheetExtension));
+    mgr->registerExtensions(factory,                                        propertySheetExtensionId);
     mgr->registerExtensions(factory,                                        Q_TYPEID(QDesignerDynamicPropertySheetExtension));
     mgr->registerExtensions(new QDesignerMemberSheetFactory(mgr),           Q_TYPEID(QDesignerMemberSheetExtension));
-    mgr->registerExtensions(new QLayoutWidgetPropertySheetFactory(mgr),     Q_TYPEID(QDesignerPropertySheetExtension));
-    mgr->registerExtensions(new SpacerPropertySheetFactory(mgr),            Q_TYPEID(QDesignerPropertySheetExtension));
-    mgr->registerExtensions(new LinePropertySheetFactory(mgr),              Q_TYPEID(QDesignerPropertySheetExtension));
-    mgr->registerExtensions(new LayoutPropertySheetFactory(mgr),            Q_TYPEID(QDesignerPropertySheetExtension));
+    QLayoutWidgetPropertySheetFactory::registerExtension(mgr,  propertySheetExtensionId);
+    SpacerPropertySheetFactory::registerExtension(mgr, propertySheetExtensionId);
+    LinePropertySheetFactory::registerExtension(mgr, propertySheetExtensionId);
+    LayoutPropertySheetFactory::registerExtension(mgr, propertySheetExtensionId);
     mgr->registerExtensions(new QDesignerTaskMenuFactory(mgr),              Q_TYPEID(QDesignerTaskMenuExtension));
 
     setExtensionManager(mgr);
