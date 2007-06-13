@@ -1964,12 +1964,12 @@ void QMenu::mouseReleaseEvent(QMouseEvent *e)
             //On Windows only context menus can be activated with the right button
             bool isContextMenu = true;
             const QWidget *parent = parentWidget();
-            while (p) {
-                if (qobject_cast<const QMenuBar *>(p)) {
+            while (parent) {
+                if (qobject_cast<const QMenuBar *>(parent)) {
                     isContextMenu = false;
                     break;
                 }
-                p = p->parentWidget();
+                parent = parent->parentWidget();
             }
             if (e->button() == Qt::LeftButton || (e->button() == Qt::RightButton && isContextMenu))
 #endif
