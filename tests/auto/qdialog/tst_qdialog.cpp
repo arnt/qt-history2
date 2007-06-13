@@ -14,6 +14,7 @@
 #include <qlineedit.h>
 #include <qpushbutton.h>
 #include <qstyle.h>
+#include <QVBoxLayout>
 #include <QSizeGrip>
 
 Q_DECLARE_METATYPE(QSize)
@@ -46,6 +47,7 @@ private slots:
     void deleteMainDefault();
     void deleteInExec();
     void showSizeGrip();
+    void setVisible();
 
 private:
     QDialog *testWidget;
@@ -435,6 +437,33 @@ void tst_QDialog::showSizeGrip()
     dialog.show();
     QVERIFY(!sizeGrip->isVisible());
 #endif
+}
+
+void tst_QDialog::setVisible()
+{
+    QWidget topLevel;
+    topLevel.show();
+
+    QDialog *dialog = new QDialog;
+    dialog->setLayout(new QVBoxLayout);
+    dialog->layout()->addWidget(new QPushButton("dialog button"));
+
+    QWidget *widget = new QWidget(&topLevel);
+    widget->setLayout(new QVBoxLayout);
+    widget->layout()->addWidget(dialog);
+
+    QVERIFY(!dialog->isVisible());
+    QVERIFY(!dialog->isHidden());
+
+    widget->show();
+    QVERIFY(dialog->isVisible());
+    QVERIFY(!dialog->isHidden());
+
+    widget->hide();
+    dialog->hide();
+    widget->show();
+    QVERIFY(!dialog->isVisible());
+    QVERIFY(dialog->isHidden());
 }
 
 QTEST_MAIN(tst_QDialog)
