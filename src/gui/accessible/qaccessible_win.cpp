@@ -33,6 +33,16 @@
 #include <comdef.h>
 #endif
 
+//#define DEBUG_SHOW_ATCLIENT_COMMANDS
+#ifdef DEBUG_SHOW_ATCLIENT_COMMANDS
+#include <qdebug.h>
+
+void showDebug(const char* funcName, const QAccessibleInterface *iface)
+{
+    qDebug() << "Role:" << iface->role(0) << "Name:" << iface->text(QAccessible::Name, 0) << QLatin1String(funcName);
+}
+#endif
+
 void QAccessible::initialize()
 {
 
@@ -622,6 +632,9 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::Invoke(long dispIdMember, const _G
 */
 HRESULT STDMETHODCALLTYPE QWindowsAccessible::accHitTest(long xLeft, long yTop, VARIANT *pvarID)
 {
+#ifdef DEBUG_SHOW_ATCLIENT_COMMANDS
+    showDebug(__FUNCTION__, accessible);
+#endif //DEBUG_SHOW_ATCLIENT_COMMANDS
     if (!accessible->isValid())
         return E_FAIL;
 
@@ -656,6 +669,9 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::accHitTest(long xLeft, long yTop, 
 
 HRESULT STDMETHODCALLTYPE QWindowsAccessible::accLocation(long *pxLeft, long *pyTop, long *pcxWidth, long *pcyHeight, VARIANT varID)
 {
+#ifdef DEBUG_SHOW_ATCLIENT_COMMANDS
+    showDebug(__FUNCTION__, accessible);
+#endif //DEBUG_SHOW_ATCLIENT_COMMANDS
     if (!accessible->isValid())
         return E_FAIL;
 
@@ -676,6 +692,9 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::accLocation(long *pxLeft, long *py
 
 HRESULT STDMETHODCALLTYPE QWindowsAccessible::accNavigate(long navDir, VARIANT varStart, VARIANT *pvarEnd)
 {
+#ifdef DEBUG_SHOW_ATCLIENT_COMMANDS
+    showDebug(__FUNCTION__, accessible);
+#endif //DEBUG_SHOW_ATCLIENT_COMMANDS
     if (!accessible->isValid())
         return E_FAIL;
 
@@ -750,6 +769,9 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::accNavigate(long navDir, VARIANT v
 
 HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accChild(VARIANT varChildID, IDispatch** ppdispChild)
 {
+#ifdef DEBUG_SHOW_ATCLIENT_COMMANDS
+    showDebug(__FUNCTION__, accessible);
+#endif //DEBUG_SHOW_ATCLIENT_COMMANDS
     if (!accessible->isValid())
         return E_FAIL;
 
@@ -772,6 +794,9 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accChild(VARIANT varChildID, I
 
 HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accChildCount(long* pcountChildren)
 {
+#ifdef DEBUG_SHOW_ATCLIENT_COMMANDS
+    showDebug(__FUNCTION__, accessible);
+#endif //DEBUG_SHOW_ATCLIENT_COMMANDS
     if (!accessible->isValid())
         return E_FAIL;
 
@@ -781,6 +806,9 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accChildCount(long* pcountChil
 
 HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accParent(IDispatch** ppdispParent)
 {
+#ifdef DEBUG_SHOW_ATCLIENT_COMMANDS
+    showDebug(__FUNCTION__, accessible);
+#endif //DEBUG_SHOW_ATCLIENT_COMMANDS
     if (!accessible->isValid())
         return E_FAIL;
 
@@ -803,6 +831,9 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accParent(IDispatch** ppdispPa
 */
 HRESULT STDMETHODCALLTYPE QWindowsAccessible::accDoDefaultAction(VARIANT varID)
 {
+#ifdef DEBUG_SHOW_ATCLIENT_COMMANDS
+    showDebug(__FUNCTION__, accessible);
+#endif //DEBUG_SHOW_ATCLIENT_COMMANDS
     if (!accessible->isValid())
         return E_FAIL;
 
@@ -811,6 +842,9 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::accDoDefaultAction(VARIANT varID)
 
 HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accDefaultAction(VARIANT varID, BSTR* pszDefaultAction)
 {
+#ifdef DEBUG_SHOW_ATCLIENT_COMMANDS
+    showDebug(__FUNCTION__, accessible);
+#endif //DEBUG_SHOW_ATCLIENT_COMMANDS
     if (!accessible->isValid())
         return E_FAIL;
 
@@ -826,6 +860,9 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accDefaultAction(VARIANT varID
 
 HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accDescription(VARIANT varID, BSTR* pszDescription)
 {
+#ifdef DEBUG_SHOW_ATCLIENT_COMMANDS
+    showDebug(__FUNCTION__, accessible);
+#endif //DEBUG_SHOW_ATCLIENT_COMMANDS
     if (!accessible->isValid())
         return E_FAIL;
 
@@ -841,6 +878,9 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accDescription(VARIANT varID, 
 
 HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accHelp(VARIANT varID, BSTR *pszHelp)
 {
+#ifdef DEBUG_SHOW_ATCLIENT_COMMANDS
+    showDebug(__FUNCTION__, accessible);
+#endif //DEBUG_SHOW_ATCLIENT_COMMANDS
     if (!accessible->isValid())
         return E_FAIL;
 
@@ -861,6 +901,9 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accHelpTopic(BSTR *, VARIANT, 
 
 HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accKeyboardShortcut(VARIANT varID, BSTR *pszKeyboardShortcut)
 {
+#ifdef DEBUG_SHOW_ATCLIENT_COMMANDS
+    showDebug(__FUNCTION__, accessible);
+#endif //DEBUG_SHOW_ATCLIENT_COMMANDS
     if (!accessible->isValid())
         return E_FAIL;
 
@@ -876,6 +919,9 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accKeyboardShortcut(VARIANT va
 
 HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accName(VARIANT varID, BSTR* pszName)
 {
+#ifdef DEBUG_SHOW_ATCLIENT_COMMANDS
+    showDebug(__FUNCTION__, accessible);
+#endif //DEBUG_SHOW_ATCLIENT_COMMANDS
     if (!accessible->isValid())
         return E_FAIL;
 
@@ -891,11 +937,17 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accName(VARIANT varID, BSTR* p
 
 HRESULT STDMETHODCALLTYPE QWindowsAccessible::put_accName(VARIANT, BSTR)
 {
+#ifdef DEBUG_SHOW_ATCLIENT_COMMANDS
+    showDebug(__FUNCTION__, accessible);
+#endif //DEBUG_SHOW_ATCLIENT_COMMANDS
     return DISP_E_MEMBERNOTFOUND;
 }
 
 HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accRole(VARIANT varID, VARIANT *pvarRole)
 {
+#ifdef DEBUG_SHOW_ATCLIENT_COMMANDS
+    showDebug(__FUNCTION__, accessible);
+#endif //DEBUG_SHOW_ATCLIENT_COMMANDS
     if (!accessible->isValid())
         return E_FAIL;
 
@@ -911,6 +963,9 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accRole(VARIANT varID, VARIANT
 
 HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accState(VARIANT varID, VARIANT *pvarState)
 {
+#ifdef DEBUG_SHOW_ATCLIENT_COMMANDS
+    showDebug(__FUNCTION__, accessible);
+#endif //DEBUG_SHOW_ATCLIENT_COMMANDS
     if (!accessible->isValid())
         return E_FAIL;
 
@@ -921,6 +976,9 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accState(VARIANT varID, VARIAN
 
 HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accValue(VARIANT varID, BSTR* pszValue)
 {
+#ifdef DEBUG_SHOW_ATCLIENT_COMMANDS
+    showDebug(__FUNCTION__, accessible);
+#endif //DEBUG_SHOW_ATCLIENT_COMMANDS
     if (!accessible->isValid())
         return E_FAIL;
 
@@ -936,11 +994,17 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accValue(VARIANT varID, BSTR* 
 
 HRESULT STDMETHODCALLTYPE QWindowsAccessible::put_accValue(VARIANT, BSTR)
 {
+#ifdef DEBUG_SHOW_ATCLIENT_COMMANDS
+    showDebug(__FUNCTION__, accessible);
+#endif //DEBUG_SHOW_ATCLIENT_COMMANDS
     return DISP_E_MEMBERNOTFOUND;
 }
 
 HRESULT STDMETHODCALLTYPE QWindowsAccessible::accSelect(long flagsSelect, VARIANT varID)
 {
+#ifdef DEBUG_SHOW_ATCLIENT_COMMANDS
+    showDebug(__FUNCTION__, accessible);
+#endif //DEBUG_SHOW_ATCLIENT_COMMANDS
     if (!accessible->isValid())
         return E_FAIL;
 
@@ -964,6 +1028,9 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::accSelect(long flagsSelect, VARIAN
 
 HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accFocus(VARIANT *pvarID)
 {
+#ifdef DEBUG_SHOW_ATCLIENT_COMMANDS
+    showDebug(__FUNCTION__, accessible);
+#endif //DEBUG_SHOW_ATCLIENT_COMMANDS
     if (!accessible->isValid())
         return E_FAIL;
 
@@ -996,6 +1063,9 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accFocus(VARIANT *pvarID)
 
 HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accSelection(VARIANT *pvarChildren)
 {
+#ifdef DEBUG_SHOW_ATCLIENT_COMMANDS
+    showDebug(__FUNCTION__, accessible);
+#endif //DEBUG_SHOW_ATCLIENT_COMMANDS
     if (!accessible->isValid())
         return E_FAIL;
 
@@ -1034,8 +1104,6 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accSelection(VARIANT *pvarChil
 
     return S_OK;
 }
-
-#include <qdebug.h>
 
 HRESULT STDMETHODCALLTYPE QWindowsAccessible::GetWindow(HWND *phwnd)
 {
