@@ -84,6 +84,7 @@ public:
 
     //selection
     static QPointer<QMenu> mouseDown;
+    QPoint mousePopupPos;
     uint hasHadMouse : 1;
     int motions;
     QAction *currentAction;
@@ -163,6 +164,8 @@ public:
 
     void _q_actionTriggered();
     void _q_actionHovered();
+
+    bool hasMouseMoved(const QPoint &globalPos);
 
     //menu fading/scrolling effects
     bool doChildEffects;
