@@ -610,7 +610,7 @@ void QDialog::setVisible(bool visible)
 {
     Q_D(QDialog);
     if (visible) {
-        if (isVisible())
+        if (testAttribute(Qt::WA_WState_ExplicitShowHide) && !testAttribute(Qt::WA_WState_Hidden))
             return;
 
 #ifdef Q_OS_TEMP
@@ -667,7 +667,7 @@ void QDialog::setVisible(bool visible)
 #endif
 
     } else {
-        if (!isVisible())
+        if (testAttribute(Qt::WA_WState_ExplicitShowHide) && testAttribute(Qt::WA_WState_Hidden))
             return;
 
 #ifndef QT_NO_ACCESSIBILITY
