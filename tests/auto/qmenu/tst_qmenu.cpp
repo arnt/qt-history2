@@ -48,6 +48,7 @@ private slots:
 	void overrideMenuAction();
     void statusTip();
     void widgetActionFocus();
+    void mouseActivation();
 
 #if defined(QT3_SUPPORT)
     void indexBasedInsertion_data();
@@ -219,6 +220,38 @@ tst_QMenu::addActionsAndClear()
     menus[0]->clear();
     QCOMPARE(menus[0]->actions().count(), 0);
 }
+
+void tst_QMenu::mouseActivation()
+{
+    QMenu menu;
+    menu.addAction("Menu Action");
+    menu.show();
+    QTest::mouseClick(&menu, Qt::LeftButton, 0, QPoint(5, 5), 300);
+    QVERIFY(!menu.isVisible());
+
+    //context menus can allways be accessed with right click
+    menu.show();
+    QTest::mouseClick(&menu, Qt::RightButton, 0, QPoint(5, 5), 300);
+    QVERIFY(!menu.isVisible());
+
+#ifdef Q_OS_WIN
+    //on windows normal mainwindow menus Can only be accessed with left mouse button
+    QMenuBar menubar;
+    QMenu subMenu("Menu", &menubar);
+    QMenu subMenu2("Sub Menu", &subMenu);
+    subMenu.addMenu(&subMenu2);
+
+    subMenu2.addAction("Menu Action");
+    subMenu2.show();
+    QTest::mouseClick(&subMenu2, Qt::LeftButton, 0, QPoint(5, 5), 300);
+    QVERIFY(!subMenu2.isVisible());
+
+    subMenu2.show();
+    QTest::mouseClick(&subMenu2, Qt::RightButton, 0, QPoint(5, 5), 300);
+    QVERIFY(subMenu2.isVisible());
+#endif
+}
+
 
 void
 tst_QMenu::keyboardNavigation_data()
