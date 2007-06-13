@@ -868,8 +868,10 @@ QRect QTabBar::tabRect(int index) const
     return QRect();
 }
 
-/*! Returns the index of the tab that covers \a position or -1 if no
-  tab covers \a position;
+/*! 
+    \since 4.3
+    Returns the index of the tab that covers \a position or -1 if no
+    tab covers \a position;
 */
 
 int QTabBar::tabAt(const QPoint &position) const
