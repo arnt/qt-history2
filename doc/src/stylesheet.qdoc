@@ -735,6 +735,20 @@
            \l{#background-clip-prop}{background-clip} and
            \l{#background-origin-prop}{background-origin} properties.
 
+           If you subclass from QDialog, you need to provide a paintEvent for your
+           custom QDialog as below:
+           \code
+               void CustomDialog::paintEvent(QPaintEvent *)
+               {
+                   QStyleOption opt;
+                   opt.init(this);
+                   QPainter p(this);
+                   style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
+               }
+           \endcode
+
+           The above code is a no-operation if there is no stylesheet set.
+
     \row
         \o QDialogButtonBox \target qdialogbuttonbox-widget
         \o The layout of buttons can be altered using the
@@ -1160,6 +1174,20 @@
         \o Supports only the \l{Qt Style Sheets Reference#background-prop}{background},
            \l{#background-clip-prop}{backgorund-clip} and
            \l{#background-origin-prop}{background-origin} properties.
+
+           If you subclass from QWidget, you need to provide a paintEvent for your
+           custom QWidget as below:
+           \code
+               void CustomWidget::paintEvent(QPaintEvent *)
+               {
+                   QStyleOption opt;
+                   opt.init(this);
+                   QPainter p(this);
+                   style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
+               }
+           \endcode
+
+           The above code is a no-operation if there is no stylesheet set.
 
     \endtable
 
