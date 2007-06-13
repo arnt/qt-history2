@@ -138,10 +138,10 @@ QGLPixelBuffer::~QGLPixelBuffer()
     if (current != d->qctx)
         makeCurrent();
     qgl_cleanup_glyph_cache(d->qctx);
-    if (current && current != d->qctx)
-        current->makeCurrent();
     delete d->qctx;
     d->cleanup();
+    if (current && current != d->qctx)
+        current->makeCurrent();
     delete d_ptr;
 }
 
