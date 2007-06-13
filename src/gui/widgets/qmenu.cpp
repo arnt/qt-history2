@@ -3115,6 +3115,7 @@ int QMenu::findIdForAction(QAction *act) const
     \fn void QMenu::setCheckable(bool checkable)
 
     Not necessary anymore. The \a checkable parameter is ignored.
+    Use QAction::setCheckable() instead.
 */
 
 /*!
