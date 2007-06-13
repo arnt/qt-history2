@@ -12,6 +12,73 @@ var DEBUGEXT_INITIALIZED
 !endif
 !macroend ;DEBUGEXT_INITIALIZE
 
+
+;------------------------------------------------------------------------------------------------
+!macro CleanAutoExp UN
+Function ${UN}CleanAutoExp
+  exch $1 ;filename autoexp
+  exch
+  exch $0 ;version
+  push $3 ;readline
+  push $4 ;handle autoexp
+  push $5 ;tmpfile handle
+  push $6 ;tmp copy of autoexp.dat
+  push $7
+
+  ClearErrors
+  IfErrors done
+  
+  StrCpy $6 "$1_tmp"
+  CopyFiles /FILESONLY "$1" "$6"
+
+  FileOpen $5 $1 w
+  IfErrors done
+  
+  FileOpen $4 $6 r
+  IfErrors done
+
+nextline:
+  FileRead $4 $3
+  IfErrors renameFile
+
+  strcmp $0 "" 0 +4
+    strcpy $7 $3 15
+    strcmp $7 ";QT_DEBUG_START" nowrite
+  goto +3
+    strcmp $3 ";QT_DEBUG_START ($0)$\n" nowrite
+    strcmp $3 ";QT_DEBUG_START ($0)$\r$\n" nowrite
+
+  strcpy $7 $3 14 ;qt3 (always remove qt3 stuff)
+  strcmp $7 "; Trolltech Qt" nowrite write
+  nowrite:
+    FileRead $4 $3
+    IfErrors renameFile
+    strcmp $3 ";QT_DEBUG_END$\n" nextline
+    strcmp $3 ";QT_DEBUG_END$\r$\n" nextline
+    strcpy $7 $3 14 ;qt3
+    strcmp $7 "QObject =class" nextline nowrite
+  write:
+    FileWrite $5 $3
+    goto nextline
+
+renameFile:
+  FileClose $5
+  FileClose $4
+  SetDetailsPrint none
+  Delete $6
+  SetDetailsPrint both
+
+done:
+  pop $7
+  pop $6
+  pop $5
+  pop $4
+  pop $3
+  pop $0
+  pop $1
+FunctionEnd
+!macroend ;CleanAutoExp
+
 ;------------------------------------------------------------------------------------------------
 !macro DEBUGEXT_SECTIONS
 
@@ -336,132 +403,8 @@ done:
   pop $0
 FunctionEnd
 
-Function CleanAutoExp
-  exch $1 ;filename autoexp
-  exch
-  exch $0 ;version
-  push $3 ;readline
-  push $4 ;handle autoexp
-  push $5 ;tmpfile handle
-  push $6 ;tmp copy of autoexp.dat
-  push $7
-
-  ClearErrors
-  IfErrors done
-  
-  StrCpy $6 "$1_tmp"
-  CopyFiles /FILESONLY "$1" "$6"
-
-  FileOpen $5 $1 a
-  IfErrors done
-  
-  FileOpen $4 $6 r
-  IfErrors done
-
-nextline:
-  FileRead $4 $3
-  IfErrors renameFile
-
-  strcmp $0 "" 0 +4
-    strcpy $7 $3 15
-    strcmp $7 ";QT_DEBUG_START" nowrite
-  goto +3
-    strcmp $3 ";QT_DEBUG_START ($0)$\n" nowrite
-    strcmp $3 ";QT_DEBUG_START ($0)$\r$\n" nowrite
-
-  strcpy $7 $3 14 ;qt3 (always remove qt3 stuff)
-  strcmp $7 "; Trolltech Qt" nowrite write
-  nowrite:
-    FileRead $4 $3
-    IfErrors renameFile
-    strcmp $3 ";QT_DEBUG_END$\n" nextline
-    strcmp $3 ";QT_DEBUG_END$\r$\n" nextline
-    strcpy $7 $3 14 ;qt3
-    strcmp $7 "QObject =class" nextline nowrite
-  write:
-    FileWrite $5 $3
-    goto nextline
-
-renameFile:
-  FileClose $5
-  FileClose $4
-  SetDetailsPrint none
-  Delete $6
-  SetDetailsPrint both
-
-done:
-  pop $7
-  pop $6
-  pop $5
-  pop $4
-  pop $3
-  pop $0
-  pop $1
-FunctionEnd
-
-Function un.CleanAutoExp
-  exch $1 ;filename autoexp
-  exch
-  exch $0 ;version
-  push $3 ;readline
-  push $4 ;handle autoexp
-  push $5 ;tmpfile handle
-  push $6 ;tmp copy of autoexp.dat
-  push $7
-
-  ClearErrors
-  IfErrors done
-  
-  StrCpy $6 "$1_tmp"
-  CopyFiles /FILESONLY "$1" "$6"
-
-  FileOpen $5 $1 a
-  IfErrors done
-  
-  FileOpen $4 $6 r
-  IfErrors done
-
-nextline:
-  FileRead $4 $3
-  IfErrors renameFile
-
-  strcmp $0 "" 0 +4
-    strcpy $7 $3 15
-    strcmp $7 ";QT_DEBUG_START" nowrite
-  goto +3
-    strcmp $3 ";QT_DEBUG_START ($0)$\n" nowrite
-    strcmp $3 ";QT_DEBUG_START ($0)$\r$\n" nowrite
-
-  strcpy $7 $3 14 ;qt3 (always remove qt3 stuff)
-  strcmp $7 "; Trolltech Qt" nowrite write
-  nowrite:
-    FileRead $4 $3
-    IfErrors renameFile
-    strcmp $3 ";QT_DEBUG_END$\n" nextline
-    strcmp $3 ";QT_DEBUG_END$\r$\n" nextline
-    strcpy $7 $3 14 ;qt3
-    strcmp $7 "QObject =class" nextline nowrite
-  write:
-    FileWrite $5 $3
-    goto nextline
-
-renameFile:
-  FileClose $5
-  FileClose $4
-  SetDetailsPrint none
-  Delete $6
-  SetDetailsPrint both
-
-done:
-  pop $7
-  pop $6
-  pop $5
-  pop $4
-  pop $3
-  pop $0
-  pop $1
-FunctionEnd
-
+!insertmacro CleanAutoExp ""
+!insertmacro CleanAutoExp "un."
 !macroend ;DEBUGEXT_SECTIONS
 
 ;------------------------------------------------------------------------------------------------
