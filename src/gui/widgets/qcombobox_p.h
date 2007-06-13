@@ -74,6 +74,7 @@ protected:
         if (combo) {
             QStyleOptionComboBox opt;
             opt.initFrom(combo);
+            opt.editable = combo->isEditable();
             if (style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, combo)) {
                 //we paint the empty menu area to avoid having blank space that can happen when scrolling
                 QStyleOptionMenuItem menuOpt;
@@ -188,6 +189,7 @@ public:
     QAbstractItemView *itemView() const;
     void setItemView(QAbstractItemView *itemView);
     int spacing() const;
+    void updateTopBottomMargin();
 
     QTimer blockMouseReleaseTimer;
     QBasicTimer adjustSizeTimer;

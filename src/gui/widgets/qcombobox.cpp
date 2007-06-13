@@ -355,11 +355,9 @@ QComboBoxPrivateContainer::QComboBoxPrivateContainer(QAbstractItemView *itemView
     }
 
     // Some styles (Mac) have a margin at the top and bottom of the popup.
-    if (usePopup) {
-        const int verticalMargin = style()->pixelMetric(QStyle::PM_MenuVMargin, &opt, this);
-        layout->insertSpacing(0, verticalMargin);
-        layout->addSpacing(verticalMargin);
-    }
+    layout->insertSpacing(0, 0);
+    layout->addSpacing(0);
+    updateTopBottomMargin();
 }
 
 void QComboBoxPrivateContainer::scrollItemView(int action)
@@ -501,6 +499,30 @@ int QComboBoxPrivateContainer::spacing() const
     if (lview)
         return lview->spacing();
     return 0;
+}
+
+void QComboBoxPrivateContainer::updateTopBottomMargin()
+{
+    if (!layout() || layout()->count() < 1)
+        return;
+
+    QBoxLayout *boxLayout = qobject_cast<QBoxLayout *>(layout());
+    if (!boxLayout)
+        return;
+
+    const QStyleOptionComboBox opt = comboStyleOption();
+    const bool usePopup = style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, combo);
+    const int margin = usePopup ? style()->pixelMetric(QStyle::PM_MenuVMargin, &opt, this) : 0;
+
+    QSpacerItem *topSpacer = boxLayout->itemAt(0)->spacerItem();
+    if (topSpacer)
+        topSpacer->changeSize(0, margin, QSizePolicy::Minimum, QSizePolicy::Fixed);
+
+    QSpacerItem *bottomSpacer = boxLayout->itemAt(boxLayout->count() - 1)->spacerItem();
+    if (bottomSpacer && bottomSpacer != topSpacer)
+        bottomSpacer->changeSize(0, margin, QSizePolicy::Minimum, QSizePolicy::Fixed);
+
+    boxLayout->invalidate();
 }
 
 void QComboBoxPrivateContainer::changeEvent(QEvent *e)
@@ -1475,7 +1497,8 @@ void QComboBox::setEditable(bool editable)
         delete d->lineEdit;
         d->lineEdit = 0;
     }
-    
+
+    d->viewContainer()->updateTopBottomMargin();
     if (!testAttribute(Qt::WA_Resized))
         adjustSize();
 }
