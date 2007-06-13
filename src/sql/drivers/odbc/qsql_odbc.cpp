@@ -803,7 +803,10 @@ bool QODBCResult::fetch(int i)
                             SQL_FETCH_ABSOLUTE,
                             actualIdx);
     }
-    if (r != SQL_SUCCESS){
+    if (r != SQL_SUCCESS) {
+        if (r != SQL_NO_DATA)
+            setLastError(qMakeError(QCoreApplication::translate("QODBCResult",
+                "Unable to fetch"), QSqlError::ConnectionError, d));
         return false;
     }
     setAt(i);
@@ -839,8 +842,12 @@ bool QODBCResult::fetchFirst()
     r = SQLFetchScroll(d->hStmt,
                        SQL_FETCH_FIRST,
                        0);
-    if (r != SQL_SUCCESS)
+    if (r != SQL_SUCCESS) { 
+        if (r != SQL_NO_DATA)
+            setLastError(qMakeError(QCoreApplication::translate("QODBCResult",
+                "Unable to fetch first"), QSqlError::ConnectionError, d));
         return false;
+    }
     setAt(0);
     return true;
 }
@@ -854,8 +861,12 @@ bool QODBCResult::fetchPrevious()
     r = SQLFetchScroll(d->hStmt,
                        SQL_FETCH_PRIOR,
                        0);
-    if (r != SQL_SUCCESS)
+    if (r != SQL_SUCCESS) { 
+        if (r != SQL_NO_DATA)
+            setLastError(qMakeError(QCoreApplication::translate("QODBCResult",
+                "Unable to fetch previous"), QSqlError::ConnectionError, d));
         return false;
+    }
     setAt(at() - 1);
     return true;
 }
@@ -881,7 +892,10 @@ bool QODBCResult::fetchLast()
     r = SQLFetchScroll(d->hStmt,
                        SQL_FETCH_LAST,
                        0);
-    if (r != SQL_SUCCESS) {
+    if (r != SQL_SUCCESS) { 
+        if (r != SQL_NO_DATA)
+            setLastError(qMakeError(QCoreApplication::translate("QODBCResult",
+                "Unable to fetch last"), QSqlError::ConnectionError, d));
         return false;
     }
     SQLINTEGER currRow;
