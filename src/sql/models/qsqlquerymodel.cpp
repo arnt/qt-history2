@@ -291,7 +291,7 @@ void QSqlQueryModel::setQuery(const QSqlQuery &query)
     Q_D(QSqlQueryModel);
     QSqlRecord newRec = query.record();
     bool columnsChanged = (newRec != d->rec);
-    bool hasQuerySize = d->query.driver()->hasFeature(QSqlDriver::QuerySize);
+    bool hasQuerySize = query.driver()->hasFeature(QSqlDriver::QuerySize);
 
     if (d->colOffsets.size() != newRec.count() || columnsChanged)
         d->initColOffsets(newRec.count());
