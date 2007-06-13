@@ -903,7 +903,6 @@ void Configure::parseCmdLine()
     }
 
     useUnixSeparators = (dictionary["QMAKESPEC"] == "win32-g++");
-    qDebug("Spec is [%s]", qPrintable(dictionary["QMAKESPEC"]));
 
 
 #if !defined(EVAL)
