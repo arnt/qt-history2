@@ -83,7 +83,7 @@ QRect QMenuBarPrivate::menuRect() const
     QRect result = q->rect();
     result.adjust(hmargin, 0, -hmargin, 0);
 
-    if (QApplication::layoutDirection() == Qt::RightToLeft)
+    if (q->layoutDirection() == Qt::RightToLeft)
         result.setLeft(result.left() + extension->width());
     else
         result.setWidth(result.width() - extension->width());
@@ -180,7 +180,7 @@ void QMenuBarPrivate::updateGeometries()
         pop->addActions(hiddenActions);
 
         int vmargin = q->style()->pixelMetric(QStyle::PM_MenuBarVMargin, 0, q);
-        int x = QApplication::layoutDirection() == Qt::RightToLeft
+        int x = q->layoutDirection() == Qt::RightToLeft
                 ? menuRect.left() - extension->sizeHint().width() + 1
                 : menuRect.right();
         extension->setGeometry(x, vmargin, extension->sizeHint().width(), menuRect.height() - vmargin*2);
