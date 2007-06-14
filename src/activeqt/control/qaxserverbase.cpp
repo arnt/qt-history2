@@ -32,6 +32,7 @@
 #include <qwhatsthis.h>
 #include <ocidl.h>
 #include <olectl.h>
+#include <private/qcoreapplication_p.h>
 
 #include "qaxfactory.h"
 #include "qaxbindable.h"
@@ -863,6 +864,8 @@ public:
 
         if (qAxOutProcServer)
             QAbstractEventDispatcher::instance()->setEventFilter(qax_winEventFilter);
+        else
+            QApplication::instance()->d_func()->in_exec = true;
 
         // hook into eventloop; this allows a server to create his own QApplication object
         if (!qax_hhook && qax_ownQApp) {

@@ -170,6 +170,7 @@ private:
     friend class QWidgetPrivate;
     friend bool qt_sendSpontaneousEvent(QObject*, QEvent*);
     friend Q_CORE_EXPORT QString qAppName();
+    friend class QClassFactory;
 };
 
 inline bool QCoreApplication::sendEvent(QObject *receiver, QEvent *event)
