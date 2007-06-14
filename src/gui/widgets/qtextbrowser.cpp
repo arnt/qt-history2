@@ -99,18 +99,6 @@ public:
 #endif
 };
 
-static bool isAbsoluteFileName(const QString &name)
-{
-    return !name.isEmpty()
-           && (name[0] == QLatin1Char('/')
-#if defined(Q_WS_WIN)
-               || (name[0].isLetter() && name[1] == QLatin1Char(':')) || name.startsWith(QLatin1String("\\\\"))
-#endif
-               || (name[0]  == QLatin1Char(':') && name[1] == QLatin1Char('/'))
-              );
-
-}
-
 QString QTextBrowserPrivate::findFile(const QUrl &name) const
 {
     QString fileName;
@@ -119,7 +107,7 @@ QString QTextBrowserPrivate::findFile(const QUrl &name) const
     else
         fileName = name.toLocalFile();
 
-    if (isAbsoluteFileName(fileName))
+    if (QFileInfo(fileName).isAbsolute())
         return fileName;
 
     foreach (QString path, searchPaths) {
@@ -142,7 +130,7 @@ QUrl QTextBrowserPrivate::resolveUrl(const QUrl &url) const
     // correctly to "foo.html#someanchor"
     if (!(currentURL.isRelative()
           || (currentURL.scheme() == QLatin1String("file")
-              && !isAbsoluteFileName(currentURL.toLocalFile())))
+              && !QFileInfo(currentURL.toLocalFile()).isAbsolute()))
           || (url.hasFragment() && url.path().isEmpty())) {
         return currentURL.resolved(url);
     }
