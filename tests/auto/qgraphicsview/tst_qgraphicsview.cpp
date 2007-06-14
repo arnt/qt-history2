@@ -71,6 +71,7 @@ private slots:
     void alignment();
     void interactive();
     void scene();
+    void setScene();
     void sceneRect();
     void sceneRect_growing();
     void setSceneRect();
@@ -306,6 +307,32 @@ void tst_QGraphicsView::scene()
     }
 
     QCOMPARE(view.scene(), (QGraphicsScene *)0);
+}
+
+void tst_QGraphicsView::setScene()
+{
+    QGraphicsScene scene(-1000, -1000, 2000, 2000);
+
+    QGraphicsView view(&scene);
+    view.show();
+
+    QCOMPARE(view.sceneRect(), scene.sceneRect());
+
+    QVERIFY(view.horizontalScrollBar()->isVisible());
+    QVERIFY(view.verticalScrollBar()->isVisible());
+    QVERIFY(!view.horizontalScrollBar()->isHidden());
+    QVERIFY(!view.verticalScrollBar()->isHidden());
+
+    view.setScene(0);
+
+    QTest::qWait(250);
+    
+    QVERIFY(!view.horizontalScrollBar()->isVisible());
+    QVERIFY(!view.verticalScrollBar()->isVisible());
+    QVERIFY(!view.horizontalScrollBar()->isHidden());
+    QVERIFY(!view.verticalScrollBar()->isHidden());
+
+    QCOMPARE(view.sceneRect(), QRectF());
 }
 
 void tst_QGraphicsView::sceneRect()
