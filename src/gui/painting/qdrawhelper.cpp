@@ -215,13 +215,13 @@ static void QT_FASTCALL destStoreMonoLsb(QRasterBuffer *rasterBuffer, int x, int
     if (rasterBuffer->monoDestinationWithClut) {
         for (int i = 0; i < length; ++i) {
             if (buffer[i] == rasterBuffer->destColor0) {
-                data[x >> 3] &= ~(0x80 >> (x & 7));
+                data[x >> 3] &= ~(1 << (x & 7));
             } else if (buffer[i] == rasterBuffer->destColor1) {
-                data[x >> 3] |= 0x80 >> (x & 7);
+                data[x >> 3] |= 1 << (x & 7);
             } else if (findNearestColor(buffer[i], rasterBuffer) == rasterBuffer->destColor0) {
-                data[x >> 3] &= ~(0x80 >> (x & 7));
+                data[x >> 3] &= ~(1 << (x & 7));
             } else {
-                data[x >> 3] |= 0x80 >> (x & 7);
+                data[x >> 3] |= 1 << (x & 7);
             }
             ++x;
         }
