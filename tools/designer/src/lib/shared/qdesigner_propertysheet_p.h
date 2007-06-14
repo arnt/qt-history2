@@ -182,7 +182,7 @@ private:
  * by multiple inheritance. */
 
 template <class Object, class PropertySheet>
-class QDESIGNER_SHARED_EXPORT QDesignerPropertySheetFactory : public QDesignerAbstractPropertySheetFactory {
+class QDesignerPropertySheetFactory : public QDesignerAbstractPropertySheetFactory {
 public:
     explicit QDesignerPropertySheetFactory(QExtensionManager *parent = 0);
 
