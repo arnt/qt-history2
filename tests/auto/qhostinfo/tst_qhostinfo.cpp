@@ -10,6 +10,13 @@
 // When using WinSock2 on Windows, it's the first thing that can be included
 // (except qglobal.h), or else you'll get tons of compile errors
 #include <qglobal.h>
+
+// MinGW doesn't provide getaddrinfo(), so we test for Q_OS_WIN
+// and Q_CC_GNU, which indirectly tells us whether we're using MinGW.
+#if defined(Q_OS_WIN) && defined(Q_CC_GNU)
+# define QT_NO_GETADDRINFO
+#endif
+
 #if defined(Q_OS_WIN) && !defined(QT_NO_GETADDRINFO)
 # include <winsock2.h>
 # include <ws2tcpip.h>
@@ -292,7 +299,7 @@ void tst_QHostInfo::reverseLookup()
     if (!ipv6LookupsAvailable && hostNames.contains("classical.hexago.com")) {
         QSKIP("IPv6 lookups are not supported on this platform", SkipSingle);
     }
-#ifdef Q_OS_HPUX && defined __ia64
+#if defined(Q_OS_HPUX) && defined(__ia64)
     if (hostNames.contains("classical.hexago.com"))
         QSKIP("HP-UX 11i does not support IPv6 reverse lookups.", SkipSingle);
 #endif
