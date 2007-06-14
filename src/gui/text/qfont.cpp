@@ -2615,3 +2615,11 @@ void QFontCache::timerEvent(QTimerEvent *)
         }
     } while (current_cost != total_cost && total_cost > max_cost);
 }
+
+
+#ifndef QT_NO_DEBUG_STREAM
+QDebug operator<<(QDebug stream, const QFont &font)
+{
+    return stream << "QFont(" << font.toString() << ')';
+}
+#endif

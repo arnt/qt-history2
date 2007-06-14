@@ -269,6 +269,10 @@ Q_GUI_EXPORT QDataStream &operator<<(QDataStream &, const QFont &);
 Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QFont &);
 #endif
 
+#ifndef QT_NO_DEBUG_STREAM
+Q_GUI_EXPORT QDebug operator<<(QDebug, const QFont &);
+#endif
+
 QT_END_HEADER
 
 #endif // QFONT_H
