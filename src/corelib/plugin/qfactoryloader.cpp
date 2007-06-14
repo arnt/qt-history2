@@ -35,6 +35,7 @@ public:
     QList<QLibraryPrivate*> libraryList;
     QMap<QString,QLibraryPrivate*> keyMap;
     QStringList keyList;
+    Qt::CaseSensitivity cs;
 };
 
 QFactoryLoader::QFactoryLoader(const char *iid,
@@ -45,6 +46,7 @@ QFactoryLoader::QFactoryLoader(const char *iid,
     moveToThread(QCoreApplicationPrivate::mainThread());
     Q_D(QFactoryLoader);
     d->iid = iid;
+    d->cs = cs;
 
     QSettings settings(QSettings::UserScope, QLatin1String("Trolltech"));
 
@@ -158,7 +160,8 @@ QObject *QFactoryLoader::instance(const QString &key) const
             if (instances.at(i)->qt_metacast(d->iid) && factory->keys().contains(key, Qt::CaseInsensitive))
                 return instances.at(i);
 
-    if (QLibraryPrivate* library = d->keyMap.value(key)) {
+    QString lowered = d->cs ? key : key.toLower();
+    if (QLibraryPrivate* library = d->keyMap.value(lowered)) {
         if (library->instance || library->loadPlugin()) {
             if (QObject *obj = library->instance()) {
                 if (obj && !obj->parent())
