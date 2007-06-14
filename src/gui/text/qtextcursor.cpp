@@ -1665,6 +1665,8 @@ void QTextCursor::insertBlock(const QTextBlockFormat &format, const QTextCharFor
     d->remove();
     d->insertBlock(format, charFormat);
     d->priv->endEditBlock();
+    if (!d->priv->isInEditBlock())
+        d->setX();
 }
 
 /*!
