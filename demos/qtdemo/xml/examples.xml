@@ -53,6 +53,9 @@
     <example filename="portedcanvas" name="Ported Canvas" />
     <example filename="portedasteroids" name="Ported Asteroids" />
   </category>
+  <category dirname="ipc" name="IPC">
+    <example filename="sharedmemory" name="Shared Memory" />
+  </category>
   <category dirname="itemviews" name="Item Views">
     <example filename="basicsortfiltermodel" name="Basic Sort/Filter Model" />
     <example filename="chart" name="Chart" />

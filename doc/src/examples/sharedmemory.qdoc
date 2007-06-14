@@ -1,0 +1,6 @@
+/*!
+    \example ipc/sharedmemory
+    \title Shared Memory Example
+
+    The Shared Memory example shows how to use shared memory with Qt.
+*/
