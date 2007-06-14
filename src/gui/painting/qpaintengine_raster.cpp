@@ -1628,8 +1628,8 @@ void QRasterPaintEngine::fastFillRect(const QRect &rect, const QBrush &brush)
     Q_D(QRasterPaintEngine);
     Q_ASSERT(!d->antialiased && d->txop <= QTransform::TxTranslate);
 
-//     int offset_x = int(d->matrix.dx());
-//     int offset_y = int(d->matrix.dy());
+    int offset_x = int(d->matrix.dx());
+    int offset_y = int(d->matrix.dy());
 
     QSpanData brushData;
     brushData.init(d->rasterBuffer, this);
@@ -1641,9 +1641,9 @@ void QRasterPaintEngine::fastFillRect(const QRect &rect, const QBrush &brush)
 
     resolveGradientBoundsConditional(rect, &brushData);
 
-//    QRect r = rect.translated(offset_x, offset_y);
+    QRect r = rect.translated(offset_x, offset_y);
 
-    fillRect(rect, &brushData, d);
+    fillRect(r, &brushData, d);
 }
 
 /*!

@@ -5277,8 +5277,8 @@ void QPainter::fillRect(const QRect &r, const QBrush &brush)
         if (d->state->dirtyFlags)
             d->updateState(d->state);
 
-        const QRect rt = r.translated(int(d->state->matrix.dx()),
-                                      int(d->state->matrix.dy()));
+        const QRect &rt = r;
+
         if (d->state->bgMode == Qt::OpaqueMode)
             ((d->engine)->*(d->fillrect_func))(rt, d->state->bgBrush);
         ((d->engine)->*(d->fillrect_func))(rt, brush);
