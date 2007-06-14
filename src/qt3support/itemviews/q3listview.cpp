@@ -2786,7 +2786,7 @@ void Q3ListView::drawContentsOffset(QPainter * p, int ox, int oy,
         QRect br(cx - ox, cy - oy, cw, ch);
         for (int i = 0; i < d->dirtyItems.size(); ++i) {
             const Q3ListViewItem * item = d->dirtyItems.at(i);
-            QRect ir = itemRect(item).intersected(viewport()->rect());
+            QRect ir = itemRect(item).intersected(viewport()->visibleRect());
             if (ir.isEmpty() || br.contains(ir))
                 // we're painting this one, or it needs no painting: forget it
                 d->dirtyItems.removeAt(i);
