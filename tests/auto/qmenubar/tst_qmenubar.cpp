@@ -967,7 +967,7 @@ void tst_QMenuBar::check_menuPosition()
         mbItemRect.moveTo(mw->menuBar()->mapToGlobal(mbItemRect.topLeft()));
         QTest::keyClick(mw, Qt::Key_M, Qt::AltModifier );
         QVERIFY(menu.isActiveWindow());
-        QCOMPARE(menu.pos(), QPoint(mbItemRect.right()+1, screenRect.bottom() - menu.height()));
+        QCOMPARE(menu.pos(), QPoint(mbItemRect.right()+1, screenRect.bottom() - menu.height() + 1));
         menu.close();
     }
 
