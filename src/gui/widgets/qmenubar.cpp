@@ -466,6 +466,15 @@ void QMenuBarPrivate::_q_actionHovered()
     Q_Q(QMenuBar);
     if (QAction *action = qobject_cast<QAction *>(q->sender())) {
         emit q->hovered(action);
+#ifndef QT_NO_ACCESSIBILITY
+        if (QAccessible::isActive()) {
+            QList<QAction*> actions = q->actions();
+            int actionIndex = actions.indexOf(action);
+            ++actionIndex;
+            QAccessible::updateAccessibility(q, actionIndex, QAccessible::Focus);
+            QAccessible::updateAccessibility(q, actionIndex, QAccessible::Selection);
+        }
+#endif //QT_NO_ACCESSIBILITY
 #ifdef QT3_SUPPORT
         emit q->highlighted(q->findIdForAction(action));
 #endif

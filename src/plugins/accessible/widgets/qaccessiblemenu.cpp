@@ -587,7 +587,8 @@ QAccessible::State QAccessibleMenuItem::state ( int child ) const
 QString QAccessibleMenuItem::text ( Text t, int child ) const
 {
     QString str;
-    if (t == Name) {
+    switch (t) {
+    case Name:
         if (child == 0) {
             str = m_action->text();
         } else if (child == 1) {
@@ -595,8 +596,22 @@ QString QAccessibleMenuItem::text ( Text t, int child ) const
             if (m)
                 str = m->title();
         }
+        str = qt_accStripAmp(str);
+        break;
+    case Accelerator:
+        if (child == 0) {
+            QKeySequence key = m_action->shortcut();
+            if (!key.isEmpty()) {
+                str = key.toString();
+            } else {
+                str = qt_accHotKey(m_action->text());
+            }
+        }
+        break;
+    default:
+        break;
     }
-    return qt_accStripAmp(str);
+    return str;
 }
 
 int QAccessibleMenuItem::userActionCount ( int /*child*/ ) const
