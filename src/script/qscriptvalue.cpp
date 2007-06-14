@@ -419,8 +419,14 @@ void QScriptValue::setScope(const QScriptValue &scope)
 */
 bool QScriptValue::instanceOf(const QScriptValue &other) const
 {
-    if (!other.isValid())
+    if (!isValid() || !other.isValid())
         return false;
+    if (other.engine() != engine()) {
+        qWarning("QScriptValue::instanceof: "
+                 "cannot perform operation on a value created in "
+                 "a different engine");
+        return false;
+    }
     return QScriptValuePrivate::valueOf(*this)
         .instanceOf(QScriptValuePrivate::valueOf(other));
 }

@@ -670,6 +670,12 @@ void tst_QScriptValue::instanceOf()
     QCOMPARE(arr.instanceOf(eng.evaluate("Array")), true);
     QCOMPARE(arr.instanceOf(eng.evaluate("Function")), false);
     QCOMPARE(arr.instanceOf(eng.evaluate("QObject")), false);
+
+    QCOMPARE(QScriptValue().instanceOf(arr), false);
+
+    QScriptEngine otherEngine;
+    QTest::ignoreMessage(QtWarningMsg, "QScriptValue::instanceof: cannot perform operation on a value created in a different engine");
+    QCOMPARE(obj.instanceOf(otherEngine.globalObject().property("Object")), false);
 }
 
 static QScriptValue getter(QScriptContext *ctx, QScriptEngine *)
