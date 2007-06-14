@@ -29,6 +29,8 @@
 #include "dynamicpropertysheet.h"
 #include <QtDesigner/propertysheet.h>
 #include <QtDesigner/default_extensionfactory.h>
+#include <QtDesigner/QExtensionManager>
+
 #include <QtCore/QVariant>
 #include <QtCore/QPair>
 
@@ -146,12 +148,17 @@ private:
     mutable bool m_LastLayoutByDesigner;
 };
 
-class QDESIGNER_SHARED_EXPORT QDesignerPropertySheetFactory: public QExtensionFactory
+/* Abstract base class for factories that register a property sheet that implements
+ * both QDesignerPropertySheetExtension and QDesignerDynamicPropertySheetExtension
+ * by multiple inheritance. The factory maintains ownership of
+ * the extension and returns it for both id's. */
+
+class QDESIGNER_SHARED_EXPORT QDesignerAbstractPropertySheetFactory: public QExtensionFactory
 {
     Q_OBJECT
     Q_INTERFACES(QAbstractExtensionFactory)
 public:
-    explicit QDesignerPropertySheetFactory(QExtensionManager *parent = 0);
+    explicit QDesignerAbstractPropertySheetFactory(QExtensionManager *parent = 0);
 
     QObject *extension(QObject *object, const QString &iid) const;
 
@@ -159,10 +166,58 @@ private slots:
     void objectDestroyed(QObject *object);
 
 private:
+    virtual QObject *createPropertySheet(QObject *qObject, QObject *parent) const = 0;
+
+    const QString m_propertySheetId;
+    const QString m_dynamicPropertySheetId;
+
     typedef QMap<QObject*, QObject*> ExtensionMap;
     mutable ExtensionMap m_extensions;
     typedef QHash<QObject*, bool> ExtendedSet;
     mutable ExtendedSet m_extended;
 };
+
+/* Convenience factory template for property sheets that implement
+ * QDesignerPropertySheetExtension and QDesignerDynamicPropertySheetExtension
+ * by multiple inheritance. */
+
+template <class Object, class PropertySheet>
+class QDESIGNER_SHARED_EXPORT QDesignerPropertySheetFactory : public QDesignerAbstractPropertySheetFactory {
+public:
+    explicit QDesignerPropertySheetFactory(QExtensionManager *parent = 0);
+
+    static void registerExtension(QExtensionManager *mgr);
+
+private:
+    // Does a  qobject_cast on  the object.
+    virtual QObject *createPropertySheet(QObject *qObject, QObject *parent) const;
+};
+
+template <class Object, class PropertySheet>
+QDesignerPropertySheetFactory<Object, PropertySheet>::QDesignerPropertySheetFactory(QExtensionManager *parent) :
+    QDesignerAbstractPropertySheetFactory(parent)
+{
+}
+
+template <class Object, class PropertySheet>
+QObject *QDesignerPropertySheetFactory<Object, PropertySheet>::createPropertySheet(QObject *qObject, QObject *parent) const
+{
+    Object *object = qobject_cast<Object *>(qObject);
+    if (!object)
+        return 0;
+    return new PropertySheet(object, parent);
+}
+
+template <class Object, class PropertySheet>
+void QDesignerPropertySheetFactory<Object, PropertySheet>::registerExtension(QExtensionManager *mgr)
+{
+    QDesignerPropertySheetFactory *factory = new QDesignerPropertySheetFactory(mgr);
+    mgr->registerExtensions(factory, Q_TYPEID(QDesignerPropertySheetExtension));
+    mgr->registerExtensions(factory, Q_TYPEID(QDesignerDynamicPropertySheetExtension));
+}
+
+
+// Standard property sheet
+typedef QDesignerPropertySheetFactory<QObject, QDesignerPropertySheet> QDesignerDefaultPropertySheetFactory;
 
 #endif // QDESIGNER_PROPERTYSHEET_H

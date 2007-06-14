@@ -75,16 +75,14 @@ FormEditor::FormEditor(QObject *parent)
     mgr->registerExtensions(new QDesignerLayoutDecorationFactory(mgr),      Q_TYPEID(QDesignerLayoutDecorationExtension));
     mgr->registerExtensions(new QDesignerActionProviderFactory(mgr),        Q_TYPEID(QDesignerActionProviderExtension));
 
-    const QString propertySheetExtensionId = Q_TYPEID(QDesignerPropertySheetExtension);
-    QDesignerPropertySheetFactory *factory = new QDesignerPropertySheetFactory(mgr);
-    mgr->registerExtensions(factory,                                        propertySheetExtensionId);
-    mgr->registerExtensions(factory,                                        Q_TYPEID(QDesignerDynamicPropertySheetExtension));
-    mgr->registerExtensions(new QDesignerMemberSheetFactory(mgr),           Q_TYPEID(QDesignerMemberSheetExtension));
-    QLayoutWidgetPropertySheetFactory::registerExtension(mgr,  propertySheetExtensionId);
-    SpacerPropertySheetFactory::registerExtension(mgr, propertySheetExtensionId);
-    LinePropertySheetFactory::registerExtension(mgr, propertySheetExtensionId);
-    LayoutPropertySheetFactory::registerExtension(mgr, propertySheetExtensionId);
+    QDesignerDefaultPropertySheetFactory::registerExtension(mgr);
+    QLayoutWidgetPropertySheetFactory::registerExtension(mgr);
+    SpacerPropertySheetFactory::registerExtension(mgr);
+    LinePropertySheetFactory::registerExtension(mgr);
+    LayoutPropertySheetFactory::registerExtension(mgr);
     mgr->registerExtensions(new QDesignerTaskMenuFactory(mgr),              Q_TYPEID(QDesignerTaskMenuExtension));
+
+    mgr->registerExtensions(new QDesignerMemberSheetFactory(mgr),           Q_TYPEID(QDesignerMemberSheetExtension));
 
     setExtensionManager(mgr);
 

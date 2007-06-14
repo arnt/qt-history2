@@ -34,7 +34,7 @@ public:
     virtual bool dynamicPropertiesAllowed() const;
 };
 
-typedef ExtensionFactory<QDesignerPropertySheetExtension, QLayoutWidget,QLayoutWidgetPropertySheet>  QLayoutWidgetPropertySheetFactory;
+typedef QDesignerPropertySheetFactory<QLayoutWidget, QLayoutWidgetPropertySheet> QLayoutWidgetPropertySheetFactory;
 }  // namespace qdesigner_internal
 
 #endif // QLAYOUTWIDGET_PROPERTYSHEET_H

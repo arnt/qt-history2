@@ -33,7 +33,7 @@ public:
     virtual QString propertyGroup(int index) const;
 };
 
-typedef ExtensionFactory<QDesignerPropertySheetExtension, Line, LinePropertySheet> LinePropertySheetFactory;
+typedef QDesignerPropertySheetFactory<Line, LinePropertySheet> LinePropertySheetFactory;
 }  // namespace qdesigner_internal
 
 #endif // LINE_PROPERTYSHEET_H

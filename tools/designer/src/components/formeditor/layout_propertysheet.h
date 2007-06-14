@@ -37,7 +37,7 @@ private:
     QLayout *m_layout;
 };
 
-typedef ExtensionFactory<QDesignerPropertySheetExtension, QLayout, LayoutPropertySheet>  LayoutPropertySheetFactory;
+typedef QDesignerPropertySheetFactory<QLayout, LayoutPropertySheet>  LayoutPropertySheetFactory;
 }  // namespace qdesigner_internal
 
 #endif // LAYOUT_PROPERTYSHEET_H

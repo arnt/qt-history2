@@ -34,7 +34,7 @@ public:
     virtual bool dynamicPropertiesAllowed() const;
 };
 
-typedef ExtensionFactory<QDesignerPropertySheetExtension, Spacer, SpacerPropertySheet>  SpacerPropertySheetFactory;
+typedef QDesignerPropertySheetFactory<Spacer, SpacerPropertySheet> SpacerPropertySheetFactory;
 }  // namespace qdesigner_internal
 
 #endif // SPACER_PROPERTYSHEET_H

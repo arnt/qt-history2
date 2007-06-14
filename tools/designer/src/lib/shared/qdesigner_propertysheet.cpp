@@ -21,7 +21,6 @@
 #include <QtDesigner/QDesignerFormWindowInterface>
 #include <QtDesigner/QDesignerFormEditorInterface>
 #include <QtDesigner/QDesignerWidgetDataBaseInterface>
-#include <QtDesigner/QExtensionManager>
 
 #include <QtCore/QMetaObject>
 #include <QtCore/QMetaProperty>
@@ -857,23 +856,25 @@ QString QDesignerPropertySheet::transformLayoutPropertyName(int index) const
     return QString();
 }
 
-// ---------- QDesignerPropertySheetFactory
-QDesignerPropertySheetFactory::QDesignerPropertySheetFactory(QExtensionManager *parent)
-    : QExtensionFactory(parent)
+// ---------- QDesignerAbstractPropertySheetFactory
+QDesignerAbstractPropertySheetFactory::QDesignerAbstractPropertySheetFactory(QExtensionManager *parent) :
+    QExtensionFactory(parent),
+    m_propertySheetId(Q_TYPEID(QDesignerPropertySheetExtension)),
+    m_dynamicPropertySheetId(Q_TYPEID(QDesignerDynamicPropertySheetExtension))
 {
 }
 
-QObject *QDesignerPropertySheetFactory::extension(QObject *object, const QString &iid) const
+QObject *QDesignerAbstractPropertySheetFactory::extension(QObject *object, const QString &iid) const
 {
     if (!object)
         return 0;
 
-    if (iid != Q_TYPEID(QDesignerPropertySheetExtension) && iid != Q_TYPEID(QDesignerDynamicPropertySheetExtension))
+    if (iid != m_propertySheetId && iid != m_dynamicPropertySheetId)
         return 0;
 
     ExtensionMap::iterator it = m_extensions.find(object);
     if (it == m_extensions.end()) {
-        if (QDesignerPropertySheet *ext = new QDesignerPropertySheet(object, const_cast<QDesignerPropertySheetFactory*>(this))) {
+        if (QObject *ext = createPropertySheet(object, const_cast<QDesignerAbstractPropertySheetFactory*>(this))) {
             connect(ext, SIGNAL(destroyed(QObject*)), this, SLOT(objectDestroyed(QObject*)));
             it = m_extensions.insert(object, ext);
         }
@@ -884,10 +885,13 @@ QObject *QDesignerPropertySheetFactory::extension(QObject *object, const QString
         m_extended.insert(object, true);
     }
 
+    if (it == m_extensions.end())
+        return 0;
+
     return it.value();
 }
 
-void QDesignerPropertySheetFactory::objectDestroyed(QObject *object)
+void QDesignerAbstractPropertySheetFactory::objectDestroyed(QObject *object)
 {
     QMutableMapIterator<QObject*, QObject*> it(m_extensions);
     while (it.hasNext()) {
