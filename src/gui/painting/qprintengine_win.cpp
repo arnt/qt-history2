@@ -357,10 +357,11 @@ void QAlphaPaintEngine::flushAndInit(bool init)
         // reset states
         gccaps = d->m_savedcaps;
 
+        QTransform old_transform = painter()->transform();
         d->resetState(painter());
 
         // make sure the output from QPicture is unscaled
-        QTransform mtx = painter()->transform();
+        QTransform mtx;
         mtx.scale(1.0f / (qreal(d->m_pdev->logicalDpiX()) / qreal(qt_defaultDpi())),
                   1.0f / (qreal(d->m_pdev->logicalDpiY()) / qreal(qt_defaultDpi())));
         painter()->setTransform(mtx);
@@ -373,6 +374,8 @@ void QAlphaPaintEngine::flushAndInit(bool init)
         for (int i=0; i<rects.count(); ++i)
             d->drawAlphaImage(rects.at(i));
         d->m_alphargn = QRegion();
+
+        painter()->setTransform(old_transform);
 
         --d->m_pass; // pass #2 finished
 
