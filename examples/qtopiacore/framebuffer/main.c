@@ -193,14 +193,14 @@ int main(int argc, char **argv)
     char *devfile = "/dev/fb0";
     int nextArg = 1;
 
-    if (nextArg > argc) {
+    if (nextArg < argc) {
         if (strncmp("nographicsmodeswitch", argv[nextArg++],
                     strlen("nographicsmodeswitch")) == 0)
         {
             doGraphicsMode = 0;
         }
     }
-    if (nextArg > argc)
+    if (nextArg < argc)
 	devfile = argv[nextArg++];
 
     /* Open the file for reading and writing */
