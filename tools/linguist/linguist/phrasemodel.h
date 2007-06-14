@@ -48,6 +48,11 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation,
                         int role = Qt::DisplayRole) const;
 
+    // HACK: This model will be displayed in a _TreeView_
+    // which has a tendency to expand 'children' on duoble click
+    bool hasChildren(const QModelIndex & parent) const
+        { return !parent.isValid(); }
+
     void sort(int column, Qt::SortOrder order = Qt::AscendingOrder);
 
 private:
