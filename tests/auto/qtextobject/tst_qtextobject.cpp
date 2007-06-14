@@ -61,7 +61,6 @@ void tst_QTextObject::getSetCheck()
     QCOMPARE(var2, obj2.userData());
     obj2.setUserData((QTextBlockUserData *)0);
     QCOMPARE((QTextBlockUserData *)0, obj2.userData());
-    delete var2;
 
     // int QTextBlock::userState()
     // void QTextBlock::setUserState(int)
