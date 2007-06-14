@@ -649,14 +649,27 @@ void tst_QScriptValue::instanceOf()
     QScriptValue obj = eng.newObject();
     QCOMPARE(obj.instanceOf(eng.evaluate("Object.prototype")), true);
     QCOMPARE(obj.instanceOf(eng.evaluate("Array.prototype")), false);
+    QCOMPARE(obj.instanceOf(eng.evaluate("Function.prototype")), false);
+    QCOMPARE(obj.instanceOf(eng.evaluate("QObject.prototype")), false);
     QCOMPARE(obj.instanceOf(QScriptValue(&eng, 123)), false);
     QCOMPARE(obj.instanceOf(eng.undefinedValue()), false);
     QCOMPARE(obj.instanceOf(eng.nullValue()), false);
     QCOMPARE(obj.instanceOf(QScriptValue()), false);
 
+    QCOMPARE(obj.instanceOf(eng.evaluate("Object")), true);
+    QCOMPARE(obj.instanceOf(eng.evaluate("Array")), false);
+    QCOMPARE(obj.instanceOf(eng.evaluate("Function")), false);
+    QCOMPARE(obj.instanceOf(eng.evaluate("QObject")), false);
+
     QScriptValue arr = eng.newArray();
     QCOMPARE(arr.instanceOf(eng.evaluate("Object.prototype")), true);
     QCOMPARE(arr.instanceOf(eng.evaluate("Array.prototype")), true);
+    QCOMPARE(arr.instanceOf(eng.evaluate("Function.prototype")), false);
+    QCOMPARE(arr.instanceOf(eng.evaluate("QObject.prototype")), false);
+    QCOMPARE(arr.instanceOf(eng.evaluate("Object")), true);
+    QCOMPARE(arr.instanceOf(eng.evaluate("Array")), true);
+    QCOMPARE(arr.instanceOf(eng.evaluate("Function")), false);
+    QCOMPARE(arr.instanceOf(eng.evaluate("QObject")), false);
 }
 
 static QScriptValue getter(QScriptContext *ctx, QScriptEngine *)

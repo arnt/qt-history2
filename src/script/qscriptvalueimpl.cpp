@@ -61,19 +61,32 @@ bool QScriptValueImpl::detectedCycle() const
     return checkCycle(m_object_value, dfn);
 }
 
-bool QScriptValueImpl::instanceOf(const QScriptValueImpl &ctorValue) const
+bool QScriptValueImpl::instanceOf(const QScriptValueImpl &value) const
 {
-    if (! isObject() || ! ctorValue.isObject())
+    if (! isObject() || ! value.isObject())
         return false;
+    if (value.isFunction()) {
+        QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(engine());
+        QScriptValueImpl proto = value.property(eng_p->idTable()->id_prototype);
+        if (proto.isObject())
+            return instanceOf_helper(proto);
+    }
+    return instanceOf_helper(value);
+}
+
+bool QScriptValueImpl::instanceOf_helper(const QScriptValueImpl &value) const
+{
+    Q_ASSERT(isObject());
+    Q_ASSERT(value.isObject());
 
     QScriptObject *instance = m_object_value;
-    QScriptObject *ctor = ctorValue.m_object_value;
+    QScriptObject *target = value.m_object_value;
 
-    if (instance == ctor)
+    if (instance == target)
         return false;
 
     while (instance != 0) {
-        if (instance == ctor)
+        if (instance == target)
             return true;
 
         const QScriptValueImpl &proto = instance->m_prototype;

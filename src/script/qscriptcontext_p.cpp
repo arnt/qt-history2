@@ -1187,12 +1187,12 @@ Ltop:
         // only Function implements [[hasInstance]]
         if (object.isObject()) {
             QScriptValueImpl prototype = ctor.property(eng->idTable()->id_prototype);
-            if (!(prototype.isValid() && prototype.isObject())) {
+            if (!prototype.isObject()) {
                 stackPtr -= 2;
                 throwTypeError(QLatin1String("instanceof: 'prototype' property is not an object"));
                 HandleException();
             }
-            result = object.instanceOf(prototype);
+            result = object.instanceOf_helper(prototype);
         }
 
         eng->newBoolean(--stackPtr, result);

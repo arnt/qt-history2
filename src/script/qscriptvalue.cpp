@@ -410,16 +410,19 @@ void QScriptValue::setScope(const QScriptValue &scope)
 
 /*!
   Returns true if this QScriptValue is an instance of
-  \a ctorValue; otherwise returns false.
+  \a other; otherwise returns false.
 
-  A QScriptValue A is considered to be an instance of
-  QScriptValue B if B is in the prototype chain of A.
+  This QScriptValue is considered to be an instance of \a other if
+  \a other is a function and the value of the \c{prototype}
+  property of \a other is in the prototype chain of this
+  QScriptValue.
 */
-bool QScriptValue::instanceOf(const QScriptValue &ctorValue) const
+bool QScriptValue::instanceOf(const QScriptValue &other) const
 {
-    if (!ctorValue.isValid())
+    if (!other.isValid())
         return false;
-    return QScriptValuePrivate::valueOf(*this).instanceOf(QScriptValuePrivate::valueOf(ctorValue));
+    return QScriptValuePrivate::valueOf(*this)
+        .instanceOf(QScriptValuePrivate::valueOf(other));
 }
 
 /*!

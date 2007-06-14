@@ -123,7 +123,7 @@ public:
     QRegExp toRegExp() const;
 #endif
 
-    bool instanceOf(const QScriptValue &ctor) const;
+    bool instanceOf(const QScriptValue &other) const;
 
     bool lessThan(const QScriptValue &other) const;
     bool equals(const QScriptValue &other) const;

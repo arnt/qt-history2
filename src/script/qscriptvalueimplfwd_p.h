@@ -110,7 +110,8 @@ public:
     inline QVariant &variantValue() const;
     inline void setVariantValue(const QVariant &v);
 
-    bool instanceOf(const QScriptValueImpl &ctor) const;
+    bool instanceOf(const QScriptValueImpl &value) const;
+    bool instanceOf_helper(const QScriptValueImpl &value) const;
 
     inline QScriptValueImpl prototype() const;
     inline void setPrototype(const QScriptValueImpl &prototype);
