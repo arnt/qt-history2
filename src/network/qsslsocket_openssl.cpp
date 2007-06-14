@@ -246,7 +246,7 @@ bool QSslSocketBackendPrivate::initSslContext()
 
     // Add all our CAs to this store.
     foreach (const QSslCertificate &caCertificate, q->caCertificates())
-        q_X509_STORE_add_cert(ctx->cert_store, q_X509_dup((X509 *)caCertificate.handle()));
+        q_X509_STORE_add_cert(ctx->cert_store, (X509 *)caCertificate.handle());
 
     // Register a custom callback to get all verification errors.
     X509_STORE_set_verify_cb_func(ctx->cert_store, q_X509Callback);
