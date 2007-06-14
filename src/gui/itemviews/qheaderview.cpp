@@ -1437,7 +1437,12 @@ bool QHeaderView::restoreState(const QByteArray &state)
         || marker != QHeaderViewPrivate::VersionMarker
         || ver != 0) // current version is 0
         return false;
-    return d->read(stream);
+    
+    if (d->read(stream)) {
+        d->viewport->update();
+        return true;
+    }
+    return false;
 }
 #endif
 
