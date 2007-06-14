@@ -1949,7 +1949,7 @@ void QD3DDrawHelper::queueRect(const QRectF &rect, QD3DBatchItem *item, D3DCOLOR
         accesscontrol[i] |= WRITE;
     }
 #endif
-      
+
     m_vbuff[m_index++] = v1;
     m_vbuff[m_index++] = v2;
     m_vbuff[m_index++] = v3;
@@ -3435,7 +3435,7 @@ QPixmap QDirect3DPaintEnginePrivate::getPattern(Qt::BrushStyle style) const
         p.setPen(Qt::NoPen);
         p.drawRect(0,0,16,16);
         p.end();
-        QPixmap pattern = QPixmap::fromImage(img);
+        QPixmap pattern(QPixmap::fromImage(img));
         QDirect3DPaintEnginePrivate *ct = const_cast<QDirect3DPaintEnginePrivate *>(this);
         ct->verifyTexture(pattern);
         ct->m_patterns.insert(style, pattern);
