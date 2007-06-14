@@ -1177,14 +1177,13 @@ Ltop:
         QScriptValueImpl ctor = stackPtr[0];
         bool result = false;
 
-        if (!ctor.isObject()) {
+        // only Function implements [[hasInstance]]
+        if (!ctor.isFunction()) {
             stackPtr -= 2;
             throwTypeError(QLatin1String("invalid 'instanceof' operand"));
             HandleException();
         }
 
-        // ### fixme, this is not according to spec
-        // only Function implements [[hasInstance]]
         if (object.isObject()) {
             QScriptValueImpl prototype = ctor.property(eng->idTable()->id_prototype);
             if (!prototype.isObject()) {
