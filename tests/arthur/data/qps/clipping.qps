@@ -173,3 +173,7 @@ resetMatrix
 setBrush #7f00ff00
 drawRect 0 0 width height
 
+# the below used to assert in debug mode
+setClipRect 10 10 20 20
+setClipping false
+setClipping true
