@@ -26,13 +26,15 @@ var ECLIPSE_LOCATION
 
 !define MODULE_QTJAMBIECLIPSE_BINARIES "${MODULE_QTJAMBIECLIPSE_ROOT}\plugins\com.trolltech.qtdesigner.win32.x86_${MODULE_QTJAMBIECLIPSE_QTJAMBIVERSION}"
 
-LangString ModuleEclipsePageTitle ${LANG_ENGLISH} "Eclipse Installation Location"
-LangString ModuleEclipsePageDescription ${LANG_ENGLISH} "Select where eclipse is installed."
+LangString ModuleQtjambieclipsePageTitle ${LANG_ENGLISH} "Eclipse Installation Location"
+LangString ModuleQtjambieclipsePageDescription ${LANG_ENGLISH} "Select where eclipse is installed."
 
 !define MODULE_QTJAMBIECLIPSE_PAGE "qtjambieclipse.ini"
-Page custom ModuleEclipsePageEnter ModuleEclipsePageExit
+Page custom ModuleQtjambieclipsePageEnter ModuleQtjambieclipsePageExit
 
 !include "includes\regsvr.nsh"
+
+!define MODULE_QTJAMBIECLIPSE_INCOMPATIBLEPRODUCT "Qt Eclipse Integration"
 
 !macroend ;QTJAMBIECLIPSE_INITIALIZE
 
@@ -98,12 +100,12 @@ Function RegEclipseSvr
   pop $0
 FunctionEnd
 
-Function ModuleEclipsePageEnter
-  !insertmacro MUI_HEADER_TEXT "$(ModuleEclipsePageTitle)" "$(ModuleEclipsePageDescription)"
+Function ModuleQtjambieclipsePageEnter
+  !insertmacro MUI_HEADER_TEXT "$(ModuleQtjambieclipsePageTitle)" "$(ModuleQtjambieclipsePageDescription)"
   !insertmacro MUI_INSTALLOPTIONS_DISPLAY "${MODULE_QTJAMBIECLIPSE_PAGE}"
 FunctionEnd
 
-Function ModuleEclipsePageExit
+Function ModuleQtjambieclipsePageExit
   push $0
   push $1
 
@@ -146,6 +148,9 @@ FunctionEnd
 
 ;------------------------------------------------------------------------------------------------
 !macro QTJAMBIECLIPSE_STARTUP
+  push "${MODULE_QTJAMBIECLIPSE_INCOMPATIBLEPRODUCT}"
+  call WarnIfInstalledProductDetected
+  
   !insertmacro MUI_INSTALLOPTIONS_EXTRACT "${MODULE_QTJAMBIECLIPSE_PAGE}"
   SectionSetFlags ${QTJAMBIECLIPSE_SEC01} 17
   

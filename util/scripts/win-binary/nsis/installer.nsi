@@ -182,9 +182,9 @@ Function .onInit
   StrCpy $STARTMENU_STRING "${DEFAULT_STARTMENU_STRING}"
 
 !ifdef USE_UNINSTALL_PREVIOUS
-  push $0
-  call GetExistsPreviousInstallation
-  pop $0
+  push "${PRODUCT_NAME}"
+  call GetExistsPreviousInstallationOfProduct
+  exch $0
   StrCmp $0 true 0 +3
     MessageBox MB_OK|MB_ICONSTOP "A previous installation of ${PRODUCT_NAME} was detected.$\nPlease uninstall it before running this installer."
     Abort
@@ -378,18 +378,20 @@ Function un.UninstallerConfirmPage
   !insertmacro MUI_INSTALLOPTIONS_DISPLAY "${UNINSTALLER_CONFIRM_PAGE}"
 FunctionEnd
 
-Function GetExistsPreviousInstallation
-  push $0
+;pops product name from stack and as result pushes TRUE or FALSE on stack
+Function GetExistsPreviousInstallationOfProduct
+  exch $0
   push $1
   push $2
+  push $3
 
-  StrCpy $0 0
+  StrCpy $1 0
   loop:
-    EnumRegKey $1 HKLM Software\Microsoft\Windows\CurrentVersion\Uninstall $0
-    StrCmp $1 "" no_reg_key_found
-    ${StrStr} $2 $1 "${PRODUCT_NAME}"
-    StrCmp $2 $1 reg_key_found
-    IntOp $0 $0 + 1
+    EnumRegKey $2 HKLM Software\Microsoft\Windows\CurrentVersion\Uninstall $1
+    StrCmp $2 "" no_reg_key_found
+    ${StrStr} $3 $2 $0
+    StrCmp $3 $2 reg_key_found
+    IntOp $1 $1 + 1
     goto loop
   
   reg_key_found:
@@ -400,8 +402,25 @@ Function GetExistsPreviousInstallation
   push false
   
   done:
-  exch 3
+  exch
+  pop $3
+  exch
   pop $2
+  exch
+  pop $1
+  exch
+  pop $0
+FunctionEnd
+
+;pops product name from stack
+Function WarnIfInstalledProductDetected
+  exch $0
+  push $0
+  call GetExistsPreviousInstallationOfProduct
+  exch $1
+  StrCmp $1 true +1 +3
+    MessageBox MB_YESNO|MB_ICONQUESTION "An existing installation of $0 was detected.$\nIt is recommended to deinstall $0 before continuing.$\nDo you want to continue this installation nevertheless?" IDYES +2 IDNO +1
+      Abort
   pop $1
   pop $0
 FunctionEnd

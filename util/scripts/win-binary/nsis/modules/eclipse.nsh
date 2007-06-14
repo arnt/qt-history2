@@ -55,6 +55,8 @@ Page custom ModuleEclipsePageEnter ModuleEclipsePageExit
 
 !include "includes\regsvr.nsh"
 
+!define MODULE_ECLIPSE_INCOMPATIBLEPRODUCT "Qt Jambi Eclipse Integration"
+
 !macroend ;ECLIPSE_INITIALIZE
 
 ;------------------------------------------------------------------------------------------------
@@ -253,6 +255,9 @@ FunctionEnd
 
 ;------------------------------------------------------------------------------------------------
 !macro ECLIPSE_STARTUP
+  push "${MODULE_ECLIPSE_INCOMPATIBLEPRODUCT}"
+  call WarnIfInstalledProductDetected
+
   !insertmacro MUI_INSTALLOPTIONS_EXTRACT "${MODULE_ECLIPSE_PAGE}"
   SectionSetFlags ${ECLIPSE_SEC01} 17
   SectionSetFlags ${ECLIPSE_SEC02} 1
