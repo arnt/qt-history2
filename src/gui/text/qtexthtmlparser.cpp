@@ -972,7 +972,10 @@ void QTextHtmlParserNode::initializeProperties(const QTextHtmlParserNode *parent
         displayMode = QTextHtmlElement::DisplayNone;
 
     if (parent->id != Html_table || id == Html_caption) {
-        blockFormat.setAlignment(parent->blockFormat.alignment());
+        if (parent->blockFormat.hasProperty(QTextFormat::BlockAlignment))
+            blockFormat.setAlignment(parent->blockFormat.alignment());
+        else
+            blockFormat.clearProperty(QTextFormat::BlockAlignment);
     }
     // we don't paint per-row background colors, yet. so as an
     // exception inherit the background color here

@@ -213,6 +213,7 @@ private slots:
     void html_borderStyle();
     void html_userState();
     void html_rootFrameProperties();
+    void html_alignmentPropertySet();
 
 private:
     inline void setHtml(const QString &html)
@@ -3356,6 +3357,13 @@ void tst_QTextDocumentFragment::html_rootFrameProperties()
 
     doc->setHtml(normalFrameHtml);
     QCOMPARE(doc->rootFrame()->childFrames().size(), 1);
+}
+
+void tst_QTextDocumentFragment::html_alignmentPropertySet()
+{
+    const char html[] = "<p>Test</p>";
+    setHtml(QString::fromLatin1(html));
+    QVERIFY(!doc->begin().blockFormat().hasProperty(QTextFormat::BlockAlignment));
 }
 
 QTEST_MAIN(tst_QTextDocumentFragment)
