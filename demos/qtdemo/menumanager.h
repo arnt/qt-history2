@@ -80,6 +80,7 @@ private:
     QString currentCategory;
     QString currentMenuButtons;
     QString currentInfo;
+    DemoItemAnimation *tickerInAnim;
     QDir docDir;
     QDir imgDir;
 };

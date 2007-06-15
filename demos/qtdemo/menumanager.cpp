@@ -28,6 +28,7 @@ MenuManager * MenuManager::instance()
 MenuManager::MenuManager()
 {
     this->ticker = 0;
+    this->tickerInAnim = 0;
     this->assistant = new QAssistantClient(QLibraryInfo::location(QLibraryInfo::BinariesPath), this);
     this->score = new Score();
     this->currentMenu = QLatin1String("[no menu visible]");
@@ -95,6 +96,8 @@ void MenuManager::itemSelected(int userCode, const QString &menuName)
         this->score->queueMovie(this->currentMenuButtons, Score::FROM_START, Score::UNLOCK_ITEMS);
         this->score->queueMovie(this->currentInfo);
         if (!Colors::noTicker){
+            this->ticker->doIntroTransitions = true;
+            this->tickerInAnim->startDelay = 2000;
             this->ticker->useGuideQt();
             this->score->queueMovie("ticker", Score::NEW_ANIMATION_ONLY);
             this->window->switchTimerOnOff(true);
@@ -137,8 +140,10 @@ void MenuManager::itemSelected(int userCode, const QString &menuName)
     case BACK:{
         QString backMenu = this->info[this->currentMenu]["back"];
         if (!backMenu.isNull()){
-            this->score->queueMovie(this->currentMenu + " -bottom_out", Score::FROM_START, Score::LOCK_ITEMS);
-            this->score->queueMovie(backMenu + " -top_in", Score::FROM_START, Score::UNLOCK_ITEMS);
+            // this->score->queueMovie(this->currentMenu + " -bottom_out", Score::FROM_START, Score::LOCK_ITEMS);
+            // this->score->queueMovie(backMenu + " -top_in", Score::FROM_START, Score::UNLOCK_ITEMS);
+            this->score->queueMovie(this->currentMenu + " -top_out", Score::FROM_START, Score::LOCK_ITEMS);
+            this->score->queueMovie(backMenu + " -bottom_in", Score::FROM_START, Score::UNLOCK_ITEMS);
             this->currentMenu = backMenu;
         } else if (this->currentMenuCode == MENU2){
             // out:
@@ -152,14 +157,22 @@ void MenuManager::itemSelected(int userCode, const QString &menuName)
             this->score->queueMovie(this->currentMenu + " -shake");
             this->score->queueMovie(this->currentInfo, Score::NEW_ANIMATION_ONLY);
             this->score->queueMovie(this->currentInfo + " -buttons", Score::NEW_ANIMATION_ONLY);
+            if (!Colors::noTicker){
+                this->ticker->doIntroTransitions = false;
+                this->tickerInAnim->startDelay = 500;
+                this->score->queueMovie("ticker", Score::NEW_ANIMATION_ONLY);
+                this->window->switchTimerOnOff(true);
+            }
         } else if (this->currentMenuCode != ROOT)
             itemSelected(ROOT, Colors::rootMenuName);
         break; }
     case MORE:{
         QString moreMenu = this->info[this->currentMenu]["more"];
         if (!moreMenu.isNull()){
-            this->score->queueMovie(this->currentMenu + " -top_out", Score::FROM_START, Score::LOCK_ITEMS);
-            this->score->queueMovie(moreMenu + " -bottom_in", Score::FROM_START, Score::UNLOCK_ITEMS);
+            // this->score->queueMovie(this->currentMenu + " -top_out", Score::FROM_START, Score::LOCK_ITEMS);
+            // this->score->queueMovie(moreMenu + " -bottom_in", Score::FROM_START, Score::UNLOCK_ITEMS);
+            this->score->queueMovie(this->currentMenu + " -bottom_out", Score::FROM_START, Score::LOCK_ITEMS);
+            this->score->queueMovie(moreMenu + " -top_in", Score::FROM_START, Score::UNLOCK_ITEMS);
             this->currentMenu = moreMenu;
         }
         break; }
@@ -601,14 +614,10 @@ void MenuManager::createInfo(DemoItem *item, const QString &name)
 void MenuManager::createTicker()
 {
     if (!Colors::noTicker){
-        Movie *movie_in = new Movie();
-        Movie *movie_out = new Movie();
-        Movie *movie_activate = new Movie();
-        Movie *movie_deactivate = new Movie();
-        this->score->insertMovie("ticker", movie_in);
-        this->score->insertMovie("ticker -out", movie_out);
-        this->score->insertMovie("ticker -activate", movie_activate);
-        this->score->insertMovie("ticker -deactivate", movie_deactivate);
+        Movie *movie_in = this->score->insertMovie("ticker");
+        Movie *movie_out = this->score->insertMovie("ticker -out");
+        Movie *movie_activate = this->score->insertMovie("ticker -activate");
+        Movie *movie_deactivate = this->score->insertMovie("ticker -deactivate");
         
         this->ticker = new ItemCircleAnimation(this->window->scene, 0);
         this->ticker->setZValue(50);
@@ -617,16 +626,15 @@ void MenuManager::createTicker()
         // Move ticker in:
         int qtendpos = 485;
         int qtPosY = 120;
-        DemoItemAnimation *qtIn = new DemoItemAnimation(this->ticker, DemoItemAnimation::ANIM_IN);
-        qtIn->setDuration(500);
-        qtIn->startDelay = 2000;
-        qtIn->setStartPos(QPointF(this->window->scene->sceneRect().width(), Colors::contentStartY + qtPosY));
-        qtIn->setPosAt(0.60, QPointF(qtendpos, Colors::contentStartY + qtPosY));
-        qtIn->setPosAt(0.70, QPointF(qtendpos + 30, Colors::contentStartY + qtPosY));
-        qtIn->setPosAt(0.80, QPointF(qtendpos, Colors::contentStartY + qtPosY));
-        qtIn->setPosAt(0.90, QPointF(qtendpos + 5, Colors::contentStartY + qtPosY));
-        qtIn->setPosAt(1.00, QPointF(qtendpos, Colors::contentStartY + qtPosY));
-        movie_in->append(qtIn);
+        this->tickerInAnim = new DemoItemAnimation(this->ticker, DemoItemAnimation::ANIM_IN);
+        this->tickerInAnim->setDuration(500);
+        this->tickerInAnim->setStartPos(QPointF(this->window->scene->sceneRect().width(), Colors::contentStartY + qtPosY));
+        this->tickerInAnim->setPosAt(0.60, QPointF(qtendpos, Colors::contentStartY + qtPosY));
+        this->tickerInAnim->setPosAt(0.70, QPointF(qtendpos + 30, Colors::contentStartY + qtPosY));
+        this->tickerInAnim->setPosAt(0.80, QPointF(qtendpos, Colors::contentStartY + qtPosY));
+        this->tickerInAnim->setPosAt(0.90, QPointF(qtendpos + 5, Colors::contentStartY + qtPosY));
+        this->tickerInAnim->setPosAt(1.00, QPointF(qtendpos, Colors::contentStartY + qtPosY));
+        movie_in->append(this->tickerInAnim);
         
         // Move ticker out:
         DemoItemAnimation *qtOut = new DemoItemAnimation(this->ticker, DemoItemAnimation::ANIM_OUT);

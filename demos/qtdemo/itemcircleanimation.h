@@ -53,6 +53,7 @@ public:
 
     bool tickOnPaint;
     bool paused;
+    bool doIntroTransitions;
 
 private:
     void setupLetters();

@@ -229,6 +229,7 @@ ItemCircleAnimation::ItemCircleAnimation(QGraphicsScene *scene, QGraphicsItem *p
     this->showCount = -1;
     this->tickOnPaint = false;
     this->paused = false;
+    this->doIntroTransitions = true;
     this->setAcceptsHoverEvents(true);
     this->setCursor(Qt::OpenHandCursor);
     this->setupGuides();
@@ -371,18 +372,20 @@ void ItemCircleAnimation::switchToNextEffect()
 void ItemCircleAnimation::animationStarted(int id)
 {
     if (id == DemoItemAnimation::ANIM_IN){
-        // Make all letters dissapear
-        for (int i=0; i<this->letterList->size(); i++){
-            LetterItem *letter = this->letterList->at(i);
-            letter->setPos(1000, 0);
+        if (this->doIntroTransitions){
+            // Make all letters dissapear
+            for (int i=0; i<this->letterList->size(); i++){
+                LetterItem *letter = this->letterList->at(i);
+                letter->setPos(1000, 0);
+            }
+            this->switchToNextEffect();
+            this->useGuideQt();
+            this->scale = 1;
+            // The first time we run, we have a rather large
+            // delay to perform benchmark before the ticker shows.
+            // But now, since we are showing, use a more appropriate value:
+            this->currentAnimation->startDelay = 1500;
         }
-        this->switchToNextEffect();
-        this->useGuideQt();
-        this->scale = 1;
-        // The first time we run, we have a rather large
-        // delay to perform benchmark before the ticker shows.
-        // But now, since we are showing, use a more appropriate value:
-        this->currentAnimation->startDelay = 1500;
     }
     else if (this->effect)
         this->effect->useSheepDog = false;
