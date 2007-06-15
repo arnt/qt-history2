@@ -27,21 +27,22 @@
     driver to do OpenGL operations in the QGLWidget class. This
     example implements all three cases.
 
-    The example uses an implementation of OpenGL ES from 
-    \l {http://ati.amd.com}{ATI} for the 
-    \l {http://ati.amd.com/products/imageon238x/}{Imageon 2380}. The
-    OpenGL ES and EGL libraries are required for compiling and linking
-    the example. If your target device is different, you must supply
-    the corresponding libraries for that device, and you also might 
-    have to modify the example source code to account for differences
-    in API signatures between your EGL library and the one used here.
+    The example uses an implementation of OpenGL ES from \l
+    {http://ati.amd.com}{ATI} for the \l
+    {http://ati.amd.com/products/imageon238x/}{Imageon 2380}. The
+    OpenGL include files gl.h and egl.h must be installed to compile
+    the example, and the OpenGL and EGL libraries must be installed
+    for linking. If your target device is different, you must install
+    the include files and libraries for that device, and you also
+    might need to modify the example source code if any API signatures
+    in your EGL library differ from the ones used here.
 
-    To run the example, after compiling the example source, install
-    the compiled screen driver plugin with the command \c {make
-    install}. Then, to start an application that you want to use the 
-    plugin, either set the environment variable \l QWS_DISPLAY and 
-    then start the application, or just start the application with 
-    the \c -display switch:
+    After compiling and linking the example source, install the
+    graphics driver plugin with the command \c {make install}. To
+    start an application that uses the plugin, you can either set the
+    environment variable \l QWS_DISPLAY and then start the
+    application, or just start the application with the \c -display
+    switch, as follows:
 
     \code
         myApplication -qws -display ahigl
@@ -61,8 +62,8 @@
     \skipto class QAhiGLScreen :
     \printuntil };
 
-    The graphics driver class is derived from class QGLScreen, which
-    in turn is derived from class QScreen. If your graphics driver
+    The graphics driver class is derived from class QGLScreen, which,
+    in turn, is derived from class QScreen. If your graphics driver
     will only be used to create compositions of window images in the
     Qtopia Core server and copy the compositions to the screen, then
     you can derive your graphics driver class directly from QScreen.
@@ -75,52 +76,73 @@
     class QGLScreen is not, because the design of class QGLScreen is
     still preliminary.
 
-    All the public functions in our example graphics driver class
-    QAhiGLScreen are reimplementations of virtual functions declared
-    in either QScreen or QGLScreen. Function hasOpenGL() comes from
-    QGLScreen. All the others come from QScreen.
+    The public functions in our example graphics driver class
+    QAhiGLScreen are implementations of virtual functions declared in
+    either QScreen or QGLScreen. Function hasOpenGL() comes from
+    QGLScreen.  All the others come from QScreen.
 
-    The reimplementation of \l {QScreen::}{exposeRegion()} is called
-    by the Qtopia Core server, whenever a screen update is required.
-    Its parameters are the region on the screen to be updated and the
-    index of the client window to be updated. 
+    The driver's implementation of \l {QScreen::}{exposeRegion()} is
+    called by the Qtopia Core server, whenever a screen update is
+    required.  Its parameters are the region on the screen to be
+    updated and the index of the client window to be updated.
 
-    Two reimplementations of \l {QScreen::}{createSurface()} are
-    provided for creating new window surfaces. One is called on the
-    client side to create the window surface for a new window, and the
-    other is called on the server side to create the server's copy.
-    These window surfaces will be separate objects, but they will
-    communicate through shared memory. The overloading that has a
-    QWidget parameter is the one called on the client side. The
-    overloading that has the string key parameter is the one called 
-    on the server side.
+    The two implementations of \l {QScreen::}{createSurface()} are
+    used for creating new window surfaces. The one that accepts a
+    QWidget as input is called on the client side to create the window
+    surface for the widget. The one that accepts a QString identifying
+    the type of window surface to create is called on the server side
+    to create the server's copy of a client side window surface. The
+    client window surface object communicates its window image data to
+    the server window surface object through shared memory.
+    
+    The implementation of \l {QScreen::}{setMode()}, which is a stub
+    in the example driver, would normally reset the frame buffer's
+    resolution. Its parameters are the \e width, \e height, and the
+    bit \e depth for the frame buffer's new resolution. If you provide
+    a real implementation of setMode() in your graphics driver class,
+    remember that it must signal the other applications that it has
+    changed the frame buffer resolution, so they can redraw their
+    frame buffers with the new resolution. There is no significance to
+    setMode() being implemented as a no-op in this example. It simplyu
+    wasn't implemented. The stub is provided because QScreen declares
+    setMode() as pure virtual.
 
-    The reimplementation of \l {QScreen::}{setMode()} would normally
-    be used to reset the frame buffer's resolution, but it is only a
-    stubb in this example. The parameters are the \e width, \e height,
-    and the bit \e depth for the frame buffer's new resolution. If you
-    provide a real implementation in your graphics driver class, it
-    must notify other applications that the resolution has changed,
-    because the other applications must redraw their frame buffers
-    with the new resolution. The function is only a stub in this
-    example because the base class declares the function as pure
-    virtual, so it must have an implementation in this subclass. In
-    your graphics driver class, you would normally want to implement
-    this function to actually change the frame buffer resolution. 
+    Complex graphics operations are implemented using the OpenGL API
+    in the private functions declared in QAhiGLScreen. These private
+    functions are then used by the public API to do the real work.
+    For example, exposeRegion() first calls the private function
+    invalidateTexture() to destroy the texture (image) for the window
+    about to be updated. Then it calls redrawScreen() to build a new
+    image and display it on the screen. But exposeRegion() doesn't
+    call redrawScreen() directly. Instead it activates the driver's
+    screen update timer, which has had its timeout() signal connected
+    to the redrawScreen() slot. When the update timer times out,
+    redrawScreen() is called once to compose a single image of all
+    windows that had been passed to calls of exposeRegion() during the
+    previous timer interval. redrawScreen() uses the private function
+    drawWindow(), which in turn uses drawQuad() to paint each window
+    into the composed image. Using the update timer to funnel multiple
+    calls to exposeRegion() into a single call to redrawScreen() lets
+    the driver limit the frequency of screen updates. 
 
-    The graphics driver class uses the OpenGL library API in its
-    private functions, which are helper functions for its public
-    functions. invalidateTexture() is called by exposeRegion() to
-    invalidate the existing OpenGL texture for the window to be
-    updated, thus forcing the window image to be redrawn.
-    redrawScreen() performs the actual redrawing using the other
-    helper functions. redrawScreen() is not called directly but by
-    starting an internal timer which is started by a call to
-    exposeRegion(). This internal timer limits the frequency of screen
-    updates. drawWindow() is used by redrawScreen(). The private
-    functions drawQuad(), drawQuadInverseY(), and drawQuadWavyFlag()
-    are used for creating the transition effect displaying a new
-    window or reshowing a window that was mninimized.
+    But there is a caveat. When the animated transition effect for new
+    windows is enabled, an a window is shown for the first time, or
+    reshown after being minimized, an instance of class ShowAnimation
+    is created for the window to run the animation of the transition
+    effect. The valueChanged() signal of this ShowAnimation object is
+    also connected to the redrawScreen() slot, so in the example as it
+    is currently written, if the window transition effect is enabled,
+    when the plugin is started, with \c {-display ahigl:effects}, then
+    redrawScreen() can be called more often than the update timer is
+    meant to allow. This could be a bug in the example, so be aware of
+    it if you use the example as the basis for your own OpenGL driver.
+
+    Once redrawScreen() has composed all the window images, it uses
+    the private function drawQuad() to add the cursor. Finally, the
+    composed image is displayed on the screen. The private functions
+    drawQuad(), drawQuadInverseY(), and drawQuadWavyFlag() are used
+    for creating the animated transition effect when displaying a new
+    window or reshowing a window that had bin minimized.
 
     The only data member in class QAhiGLScreen is the standard pointer
     to a private implementation class QAhiGLScreenPrivate, where the 
