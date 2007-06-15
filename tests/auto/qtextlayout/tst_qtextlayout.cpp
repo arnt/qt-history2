@@ -47,6 +47,7 @@ private slots:
     void threeLineBoundingRect();
     void forcedBreaks();
     void breakAny();
+    void noWrap();
     void cursorToXForInlineObjects();
     void defaultWordSeparators_data();
     void defaultWordSeparators();
@@ -370,6 +371,32 @@ void tst_QTextLayout::breakAny()
     line.setLineWidth(testFont.pixelSize() * 7);
     QCOMPARE(line.textStart(), 0);
     QCOMPARE(line.textLength(), 7);
+
+    layout.endLayout();
+}
+
+void tst_QTextLayout::noWrap()
+{
+#if defined(Q_WS_MAC)
+    QSKIP("QTestFontEngine on the mac does not support logclusters at the moment", SkipAll);
+#endif
+    QString text = "AB CD";
+
+    QTextLayout layout(text, testFont);
+    QTextLine line;
+
+    QTextOption opt;
+    opt.setWrapMode(QTextOption::NoWrap);
+    layout.setTextOption(opt);
+    layout.beginLayout();
+
+    line = layout.createLine();
+    line.setLineWidth(testFont.pixelSize() * 2);
+    QCOMPARE(line.textStart(), 0);
+    QCOMPARE(line.textLength(), 5);
+
+    line = layout.createLine();
+    QVERIFY(!line.isValid());
 
     layout.endLayout();
 }

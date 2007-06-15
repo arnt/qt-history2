@@ -1523,8 +1523,9 @@ void QTextLine::layout_helper(int maxGlyphs)
 
     Q_ASSERT(line.from < eng->layoutData->string.length());
 
-    bool breakany = (eng->option.wrapMode() == QTextOption::WrapAnywhere);
-    bool manualWrap = (eng->option.wrapMode() == QTextOption::ManualWrap);
+    QTextOption::WrapMode wrapMode = eng->option.wrapMode();
+    bool breakany = (wrapMode == QTextOption::WrapAnywhere);
+    bool manualWrap = (wrapMode == QTextOption::ManualWrap || wrapMode == QTextOption::NoWrap);
 
     // #### binary search!
     int item = -1;
@@ -1681,7 +1682,7 @@ found:
            line.descent.toReal(), line.textWidth.toReal(), spaceData.width.toReal());
     LB_DEBUG("        : '%s'", eng->layoutData->string.mid(line.from, line.length).toUtf8().data());
 
-    if (eng->option.wrapMode() == QTextOption::ManualWrap || eng->option.wrapMode() == QTextOption::NoWrap) {
+    if (manualWrap) {
         eng->minWidth = qMax(eng->minWidth, line.textWidth);
         eng->maxWidth = qMax(eng->maxWidth, line.textWidth);
     } else {
