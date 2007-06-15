@@ -94,6 +94,8 @@ QPropertyEditorDelegate::~QPropertyEditorDelegate()
 bool QPropertyEditorDelegate::eventFilter(QObject *object, QEvent *event)
 {
     QWidget *editor = qobject_cast<QWidget*>(object);
+    if (editor && qobject_cast<TextPropertyEditor*>(editor->parent()))
+        editor = editor->parentWidget();
     if (editor && qobject_cast<EditorWithReset*>(editor->parent()))
         editor = editor->parentWidget();
 
