@@ -5117,7 +5117,7 @@ void QImage::setAlphaChannel(const QImage &alphaChannel)
 
 
 /*!
-    Returns the alpha channel of the image as a new grayscale QPixmap in which
+    Returns the alpha channel of the image as a new grayscale QImage in which
     each pixel's red, green, and blue values are given the alpha value of the
     original image. The color depth of the returned image is 8-bit.
 
