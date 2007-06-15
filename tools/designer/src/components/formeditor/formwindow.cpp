@@ -2252,12 +2252,15 @@ bool FormWindow::dropWidgets(const QList<QDesignerDnDItemInterface*> &item_list,
             return false;
     }
 
+    QWidget *container = findContainer(parent, false);
+    if (container == 0)
+        return false;
+
     core()->formWindowManager()->setActiveFormWindow(this);
     mainContainer()->activateWindow();
     clearSelection(false);
     highlightWidget(target, target->mapFromGlobal(global_mouse_pos), FormWindow::Restore);
 
-    QWidget *container = findContainer(parent, false);
 
     QPoint offset;
     QDesignerDnDItemInterface *current = 0;
