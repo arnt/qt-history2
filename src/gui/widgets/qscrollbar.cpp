@@ -161,7 +161,7 @@
     \table 100%
     \row \o \inlineimage macintosh-horizontalscrollbar.png Screenshot of a Macintosh style scroll bar
          \o A scroll bar shown in the \l{Macintosh Style Widget Gallery}{Macintosh widget style}.
-    \row \o \inlineimage windows-horizontalscrollbar.png Screenshot of a Windows XP style scroll bar
+    \row \o \inlineimage windowsxp-horizontalscrollbar.png Screenshot of a Windows XP style scroll bar
          \o A scroll bar shown in the \l{Windows XP Style Widget Gallery}{Windows XP widget style}.
     \row \o \inlineimage plastique-horizontalscrollbar.png Screenshot of a Plastique style scroll bar
          \o A scroll bar shown in the \l{Plastique Style Widget Gallery}{Plastique widget style}.
