@@ -35,7 +35,7 @@ private slots:
     void getSetCheck();
     void staticSetup();
 
-	void alert();
+    void alert();
 
     void multiple_data();
     void multiple();
@@ -176,20 +176,30 @@ public:
 
 void tst_QApplication::alert()
 {
-   int argc = 0;
-   QApplication app(argc, 0);
-   app.alert(0, 0);
-   QWidget widget;
-   QWidget widget2;
-   app.alert(&widget, 100);
-   widget.show();
-   widget2.show();
-   app.alert(&widget, -1);
-   app.alert(&widget, 250);
-   widget2.activateWindow();
-   app.alert(&widget, 0);
-   widget.activateWindow();
-   app.alert(&widget, 200);
+    int argc = 0;
+    QApplication app(argc, 0);
+    app.alert(0, 0);
+
+    QWidget widget;
+    QWidget widget2;
+    app.alert(&widget, 100);
+    widget.show();
+    widget2.show();
+#ifdef Q_WS_X11
+    extern void qt_x11_wait_for_window_manager( QWidget* w );
+    qt_x11_wait_for_window_manager(&widget);
+    qt_x11_wait_for_window_manager(&widget2);
+#endif
+    QTest::qWait(100);
+    app.alert(&widget, -1);
+    app.alert(&widget, 250);
+    widget2.activateWindow();
+    QApplication::setActiveWindow(&widget2);
+    app.alert(&widget, 0);
+    widget.activateWindow();
+    QApplication::setActiveWindow(&widget);
+    app.alert(&widget, 200);
+    app.syncX();
 }
 
 void tst_QApplication::multiple_data()
