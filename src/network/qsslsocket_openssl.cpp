@@ -609,14 +609,28 @@ bool QSslSocketBackendPrivate::testConnection()
         }
     }
 
-    // Check the peer certificate itself.
+    // Check the peer certificate itself. First try the subject's common name
+    // (CN) as a wildcard, then try all alternate subject name DNS entries the
+    // same way.
     if (!peerCertificate.isNull()) {
-        QString commonName = peerCertificate.subjectInfo(QSslCertificate::CommonName);
-        // ### Both CommonName and AlternameSubjectNames can contain wildcards.
-        // ### We aren't using AlternateSubjectNames
         QString peerName = q->peerName();
-        if (commonName != peerName /* && !peerCertificate.alternateSubjectNames().contains(peerName) */)
-            errors << QSslError(QSslError::HostNameMismatch);
+        QString commonName = peerCertificate.subjectInfo(QSslCertificate::CommonName);
+
+        QRegExp regexp(commonName, Qt::CaseInsensitive, QRegExp::Wildcard);
+        if (!regexp.exactMatch(peerName)) {
+            bool matched = false;
+            foreach (QString altName, peerCertificate.alternateSubjectNames().values(QSsl::DnsEntry)) {
+                regexp.setPattern(altName);
+                if (regexp.exactMatch(peerName)) {
+                    matched = true;
+                    break;
+                }
+            }
+            if (!matched) {
+                // No matches in common names or alternate names.
+                errors << QSslError(QSslError::HostNameMismatch);
+            }
+        }
     } else {
         errors << QSslError(QSslError::NoPeerCertificate);
     }
@@ -676,6 +690,7 @@ bool QSslSocketBackendPrivate::testConnection()
         sslErrors = errors;
         emit q->sslErrors(errors);
         if (!ignoreSslErrors) {
+            q->setErrorString(sslErrors.first().errorString());
             plainSocket->disconnectFromHost();
             return false;
         }

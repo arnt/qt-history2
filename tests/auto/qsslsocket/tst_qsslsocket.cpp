@@ -85,6 +85,7 @@ private slots:
     void setDefaultCiphers();
     void supportedCiphers();
     void systemCaCertificates();
+    void wildcard();
 
     static void exitLoop()
     {
@@ -649,6 +650,26 @@ void tst_QSslSocket::systemCaCertificates()
     QList<QSslCertificate> certs = QSslSocket::systemCaCertificates();
     QVERIFY(certs.size() > 1);
     QCOMPARE(certs, QSslSocket::defaultCaCertificates());
+}
+
+void tst_QSslSocket::wildcard()
+{
+    // Fluke runs an apache server listening on port 4443, serving the
+    // wildcard fluke.*.troll.no.  The DNS entry for
+    // fluke.wildcard.dev.troll.no, served by ares (root for dev.troll.no),
+    // returns the CNAME fluke.troll.no for this domain. The web server
+    // responds with the wildcard, and QSslSocket should accept that as a
+    // valid connection.  This was broken in 4.3.0.
+    QSslSocket socket;
+    socket.connectToHostEncrypted("fluke.wildcard.dev.troll.no", 4443);
+
+    QVERIFY2(socket.waitForEncrypted(), socket.peerCertificate().effectiveDate().toString().toLatin1());
+
+    QSslCertificate certificate = socket.peerCertificate();
+    QCOMPARE(certificate.subjectInfo(QSslCertificate::CommonName), QString("fluke.*.troll.no"));
+    QCOMPARE(certificate.issuerInfo(QSslCertificate::CommonName), QString("fluke.troll.no"));
+
+    socket.close();
 }
 
 #endif // QT_NO_OPENSSL
