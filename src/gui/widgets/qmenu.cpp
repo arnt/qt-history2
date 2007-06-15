@@ -1489,8 +1489,12 @@ QSize QMenu::sizeHint() const
         s.rwidth() += fw*2;
         s.rheight() += fw*2;
     }
-    s.rwidth() += 2 * style()->pixelMetric(QStyle::PM_MenuHMargin, &opt, this);
-    s.rheight() += 2 * style()->pixelMetric(QStyle::PM_MenuVMargin, &opt, this);
+
+    // Note that the action rects calculated above already include
+    // the top and left margins, so we only need to add margins for
+    // the bottom and right.
+    s.rwidth() += style()->pixelMetric(QStyle::PM_MenuHMargin, &opt, this);
+    s.rheight() += style()->pixelMetric(QStyle::PM_MenuVMargin, &opt, this);
 
     s += QSize(d->leftmargin + d->rightmargin, d->topmargin + d->bottommargin);
 
