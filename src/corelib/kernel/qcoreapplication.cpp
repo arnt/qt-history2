@@ -747,7 +747,7 @@ int QCoreApplication::exec()
 
   Note that unlike the C library function of the same name, this
   function \e does return to the caller -- it is event processing that
-  stops. 
+  stops.
 
   \sa quit(), exec()
 */
@@ -891,7 +891,8 @@ void QCoreApplication::postEvent(QObject *receiver, QEvent *event, int priority)
             // insert event in descending priority order, using upper
             // bound for a given priority (to ensure proper ordering
             // of events with the same priority)
-            QPostEventList::iterator begin = data->postEventList.begin() + data->postEventList.offset,
+            QPostEventList::iterator begin = data->postEventList.begin()
+                                             + data->postEventList.insertionOffset,
                                        end = data->postEventList.end();
             QPostEventList::iterator at = qUpperBound(begin, end, priority);
             data->postEventList.insert(at, QPostEvent(receiver, event, priority));
@@ -1018,13 +1019,13 @@ void QCoreApplicationPrivate::sendPostedEvents(QObject *receiver, int event_type
 
     // okay. here is the tricky loop. be careful about optimizing
     // this, it looks the way it does for good reasons.
-    int i = 0;
-    const int s = data->postEventList.size();
-    const int savedOffset = data->postEventList.offset;
-    data->postEventList.offset = s;
+    int startOffset = data->postEventList.startOffset;
+    int &i = (!event_type && !receiver) ? data->postEventList.startOffset : startOffset;
+    data->postEventList.insertionOffset = data->postEventList.size();
+
     while (i < data->postEventList.size()) {
         // avoid live-lock
-        if (i >= s)
+        if (i >= data->postEventList.insertionOffset)
             break;
 
         const QPostEvent &pe = data->postEventList.at(i);
@@ -1090,7 +1091,6 @@ void QCoreApplicationPrivate::sendPostedEvents(QObject *receiver, int event_type
             data->canWait = false;
 
             // uglehack: copied from below
-            data->postEventList.offset = savedOffset;
             --data->postEventList.recursion;
             if (!data->postEventList.recursion && !data->canWait && data->eventDispatcher)
                 data->eventDispatcher->wakeUp();
@@ -1106,16 +1106,18 @@ void QCoreApplicationPrivate::sendPostedEvents(QObject *receiver, int event_type
         // function depends on.
     }
 
-    data->postEventList.offset = savedOffset;
     --data->postEventList.recursion;
     if (!data->postEventList.recursion && !data->canWait && data->eventDispatcher)
         data->eventDispatcher->wakeUp();
 
     // clear the global list, i.e. remove everything that was
     // delivered.
-    if (!data->postEventList.recursion && !event_type && !receiver) {
+    if (!event_type && !receiver && data->postEventList.startOffset >= 0) {
         const QPostEventList::iterator it = data->postEventList.begin();
-        data->postEventList.erase(it, it + i);
+        data->postEventList.erase(it, it + data->postEventList.startOffset);
+        data->postEventList.insertionOffset -= data->postEventList.startOffset;
+        Q_ASSERT(data->postEventList.insertionOffset >= 0);
+        data->postEventList.startOffset = 0;
     }
 }
 

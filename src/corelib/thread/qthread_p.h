@@ -64,13 +64,17 @@ class QPostEventList : public QList<QPostEvent>
 public:
     // recursion == recursion count for sendPostedEvents()
     int recursion;
-    // offset == set by sendPostedEvents to tell postEvent() where to start insertions
-    int offset;
+
+    // sendOffset == the current event to start sending
+    int startOffset;
+    // insertionOffset == set by sendPostedEvents to tell postEvent() where to start insertions
+    int insertionOffset;
+
     int numPostedEvents;
     QMutex mutex;
 
     inline QPostEventList()
-        : QList<QPostEvent>(), recursion(0), offset(0), numPostedEvents(0)
+        : QList<QPostEvent>(), recursion(0), startOffset(0), insertionOffset(0), numPostedEvents(0)
     { }
 };
 
