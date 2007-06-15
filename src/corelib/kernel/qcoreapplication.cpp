@@ -1015,8 +1015,6 @@ void QCoreApplicationPrivate::sendPostedEvents(QObject *receiver, int event_type
         return;
     }
 
-    data->canWait = true;
-
     // okay. here is the tricky loop. be careful about optimizing
     // this, it looks the way it does for good reasons.
     int startOffset = data->postEventList.startOffset;
