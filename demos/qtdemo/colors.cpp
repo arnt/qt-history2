@@ -69,6 +69,7 @@ bool Colors::noTickerMorph = false;
 bool Colors::adapted = false;
 bool Colors::verbose = false;
 int Colors::fps = 100;
+int Colors::menuCount = 18;
 float Colors::animSpeed = 1.0;
 float Colors::animSpeedButtons = 1.0;
 float Colors::benchmarkFps = -1;
@@ -208,6 +209,8 @@ void Colors::parseArgs(int argc, char *argv[])
             Colors::noBlending = true;
         else if (s == "-no-sync")
             Colors::noScreenSync = true;
+        else if (s.startsWith("-menu"))
+            Colors::menuCount = int(parseFloat(s, "-menu"));
         else if (s.startsWith("-use-timer-update"))
             Colors::noTimerUpdate = !bool(parseFloat(s, "-use-timer-update"));
         else if (s == "-no-ticker-morph")
@@ -238,7 +241,7 @@ void Colors::parseArgs(int argc, char *argv[])
             QMessageBox::warning(0, "Arguments",
                                  QString("Usage: qtdemo [-verbose] [-no-adapt] [-opengl] [-direct3d] [-software] [-fullscreen] [-ticker[0|1]] ")
                                  + "[-animations[0|1]] [-no-blending] [-no-sync] [-use-timer-update[0|1]] [-use-window-mask] [-no-rescale] "
-                                 + "[-use-pixmaps] [-show-fps] [-show-br] [-8bit[0|1]] [-use-loop] [-use-balls] [-animation-speed<float>] [-fps<int>] "
+                                 + "[-use-pixmaps] [-show-fps] [-show-br] [-8bit[0|1]] [-menu<int>] [-use-loop] [-use-balls] [-animation-speed<float>] [-fps<int>] "
                                  + "[-low] [-ticker-letters<int>] [-ticker-speed<float>] [-no-ticker-morph] "
                                  + "[-ticker-morph-speed<float>] [-ticker-text<string>]");
             exit(0);

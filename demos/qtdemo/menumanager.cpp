@@ -379,7 +379,7 @@ void MenuManager::createMenu(const QDomElement &category, BUTTON_TYPE type)
     qreal sw = this->window->scene->sceneRect().width();
     int xOffset = 15;
     int yOffset = 10;
-    int maxExamples = 17;
+    int maxExamples = Colors::menuCount;
     int menuIndex = 1;
     QString name = category.attribute("name");
     QDomNode currentNode = category.firstChild();

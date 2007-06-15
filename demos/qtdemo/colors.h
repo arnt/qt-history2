@@ -83,6 +83,7 @@ public:
     static float benchmarkFps;
     static int tickerLetterCount;
     static int fps;
+    static int menuCount;
     static float tickerMoveSpeed;
     static float tickerMorphSpeed;
     static QString tickerText;
