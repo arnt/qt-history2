@@ -11,5 +11,5 @@ win32 {
 } else {
     TARGET = ../../release/tst_qfile
   }
-  LIBS+=ole32.lib
+  LIBS+=-lole32 -luuid
 }
