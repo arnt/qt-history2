@@ -655,33 +655,19 @@ void QGLContext::swapBuffers() const
 QColor QGLContext::overlayTransparentColor() const
 {
     Q_D(const QGLContext);
-    if (isValid()) {
-        if (!trans_colors_init)
-            find_trans_colors();
-
-        VisualID myVisualId = ((XVisualInfo*)d->vi)->visualid;
-        int myScreen = ((XVisualInfo*)d->vi)->screen;
-        for (int i = 0; i < (int)trans_colors.size(); i++) {
-            if (trans_colors[i].vis == myVisualId &&
-                 trans_colors[i].screen == myScreen) {
-                XColor col;
-                col.pixel = trans_colors[i].color;
-                col.red = col.green = col.blue = 0;
-                col.flags = 0;
-                Display *dpy = qt_x11Info(d->paintDevice)->display();
-                if (col.pixel > (uint) ((XVisualInfo *)d->vi)->colormap_size - 1)
-                    col.pixel = ((XVisualInfo *)d->vi)->colormap_size - 1;
-                XQueryColor(dpy, choose_cmap(dpy, (XVisualInfo *) d->vi), &col);
-                uchar r = (uchar)((col.red / 65535.0) * 255.0 + 0.5);
-                uchar g = (uchar)((col.green / 65535.0) * 255.0 + 0.5);
-                uchar b = (uchar)((col.blue / 65535.0) * 255.0 + 0.5);
-                return QColor(qRgb(r,g,b));
-            }
-        }
-    }
+    if (isValid())
+        return Qt::transparent;
     return QColor();                // Invalid color
 }
 
+static uint qt_transparent_pixel(VisualID id, int screen)
+{
+    for (int i = 0; i < trans_colors.size(); i++) {
+        if (trans_colors[i].vis == id && trans_colors[i].screen == screen)
+            return trans_colors[i].color;
+    }
+    return 0;
+}
 
 uint QGLContext::colorIndex(const QColor& c) const
 {
@@ -689,9 +675,10 @@ uint QGLContext::colorIndex(const QColor& c) const
     int screen = ((XVisualInfo *)d->vi)->screen;
     QColormap colmap = QColormap::instance(screen);
     if (isValid()) {
-        if (format().plane()
-             && colmap.pixel(c) == colmap.pixel(overlayTransparentColor()))
-            return colmap.pixel(c);                // Special; don't look-up
+        if (format().plane() && c == Qt::transparent) {
+            return qt_transparent_pixel(((XVisualInfo *)d->vi)->visualid,
+                                        ((XVisualInfo *)d->vi)->screen);
+        }
         if (((XVisualInfo*)d->vi)->visualid ==
              XVisualIDFromVisual((Visual *) QX11Info::appVisual(screen)))
             return colmap.pixel(c);                // We're using QColor's cmap
