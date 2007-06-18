@@ -1068,10 +1068,24 @@ QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
         pixmap.data->h = h;
         pixmap.data->d = 32;
 
-        pixmap.data->hd =
-            (Qt::HANDLE)XCreatePixmap(dpy, RootWindow(dpy, pixmap.data->xinfo.screen()),
-                                      w, h, pixmap.data->d);
+        if (QX11Info::appDepth() != pixmap.data->d) {
+            if (pixmap.data->xinfo.x11data) {
+                pixmap.data->xinfo.x11data->depth = pixmap.data->d;
+            } else {
+                QX11InfoData *xd = pixmap.data->xinfo.getX11Data(true);
+                xd->screen = QX11Info::appScreen();
+                xd->depth = pixmap.data->d;
+                xd->cells = QX11Info::appCells();
+                xd->colormap = QX11Info::appColormap();
+                xd->defaultColormap = QX11Info::appDefaultColormap();
+                xd->visual = (Visual *)QX11Info::appVisual();
+                xd->defaultVisual = QX11Info::appDefaultVisual();
+                pixmap.data->xinfo.setX11Data(xd);
+            }
+        }
 
+        pixmap.data->hd = (Qt::HANDLE)XCreatePixmap(dpy, RootWindow(dpy, pixmap.data->xinfo.screen()),
+                                                    w, h, pixmap.data->d);
         pixmap.data->picture = XRenderCreatePicture(X11->display, pixmap.data->hd,
                                                     XRenderFindStandardFormat(X11->display, PictStandardARGB32), 0, 0);
 
@@ -2136,10 +2150,10 @@ Qt::HANDLE QPixmap::x11PictureHandle() const
 Qt::HANDLE QPixmapData::x11ConvertToDefaultDepth()
 {
 #ifndef QT_NO_XRENDER
-    if (d == xinfo.depth() || !X11->use_xrender)
+    if (d == QX11Info::appDepth() || !X11->use_xrender)
         return hd;
     if (!hd2) {
-        hd2 = XCreatePixmap(xinfo.display(), hd, w, h, xinfo.depth());
+        hd2 = XCreatePixmap(xinfo.display(), hd, w, h, QX11Info::appDepth());
         XRenderPictFormat *format = XRenderFindVisualFormat(xinfo.display(),
                                                             (Visual*) xinfo.visual());
         Picture pic = XRenderCreatePicture(xinfo.display(), hd2, format, 0, 0);
