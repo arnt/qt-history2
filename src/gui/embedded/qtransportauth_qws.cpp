@@ -1417,8 +1417,10 @@ const QString GAREnforcer::SxeTag = "<SXE Breach>";
 const int GAREnforcer::minute = 60;
 
 GAREnforcer::GAREnforcer():authAttempts()
-{ 
-    reset(); 
+{
+    QDateTime nullDateTime = QDateTime();
+    for (int i = 0; i < minutelyRate; i++ )
+        authAttempts << nullDateTime;
 }
 
 
@@ -1428,7 +1430,6 @@ GAREnforcer *GAREnforcer::getInstance()
     return &theInstance;
 }
 
-
 void GAREnforcer::logAuthAttempt( QDateTime time )
 {
     QDateTime dt =  authAttempts.takeFirst();
@@ -1436,6 +1437,30 @@ void GAREnforcer::logAuthAttempt( QDateTime time )
     authAttempts.append( time );
     if ( dt.secsTo( authAttempts.last() ) <= minute )
     {
+#if defined(SXE_DISCOVERY)
+        if ( QTransportAuth::getInstance()->isDiscoveryMode() ) {
+            static QBasicAtomic reported = {0};
+            if ( reported.testAndSet(0,1) ) {
+#ifndef QT_NO_TEXTSTREAM
+                QString logFilePath = QTransportAuth::getInstance()->logFilePath();
+                if ( !logFilePath.isEmpty() ) {
+                      QFile log( logFilePath );
+                    if ( !log.open(QIODevice::WriteOnly | QIODevice::Append) ) {
+                        qWarning("Could not write to log in discovery mode: %s",
+                                 qPrintable(logFilePath) );
+                    } else {
+                        QTextStream ts( &log );
+                        ts << "\t\tWarning: Global Authentication rate of " <<  minutelyRate << "\n" 
+                           << "\t\tserver connections/authentications per minute has been exceeded,\n"
+                           << "\t\tno further warnings will be issued\n";
+                    }
+                }
+            }      
+#endif
+            reset();
+            return;
+        }
+#endif
         syslog( LOG_ERR | LOG_LOCAL6, "%s %s",
                 qPrintable( GAREnforcer::SxeTag ), 
                 qPrintable( GAREnforcer::GARMessage ) );
@@ -1445,9 +1470,9 @@ void GAREnforcer::logAuthAttempt( QDateTime time )
 
 void GAREnforcer::reset()
 {
-    authAttempts.clear();
+    QDateTime nullDateTime = QDateTime();
     for (int i = 0; i < minutelyRate; i++ )
-        authAttempts << QDateTime();
+        authAttempts[i] = nullDateTime; 
 }
 
 #include "moc_qtransportauth_qws_p.cpp"
