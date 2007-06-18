@@ -518,8 +518,6 @@ void *QGLContext::getProcAddress(const QString &proc) const
   QGLWidget AGL-specific code
  *****************************************************************************/
 
-#if (MAC_OS_X_VERSION_MAX_ALLOWED < MAC_OS_X_VERSION_10_5)
-
 /****************************************************************************
   Hacks to glue AGL to an HIView
   ***************************************************************************/
@@ -636,7 +634,6 @@ QRegion qt_mac_get_widget_rgn(const QWidget *widget)
     qt_mac_dispose_rgn(macr);
     return ret;
 }
-#endif
 
 bool QGLWidget::event(QEvent *e)
 {
