@@ -2101,11 +2101,16 @@ void QFileDialogPrivate::_q_renameCurrent()
 void QFileDialogPrivate::_q_deleteCurrent()
 {
     QModelIndex index = qFileDialogUi->listView->currentIndex();
+    if (index == qFileDialogUi->listView->rootIndex())
+        return;
     index = mapToSource(index.sibling(index.row(), 0));
     if (!index.isValid() || model->isReadOnly())
         return;
 
     QString fileName = model->fileName(index);
+    QString filePath = model->filePath(index);
+    bool isDir = model->isDir(index);
+
 #ifndef QT_NO_MESSAGEBOX
     Q_Q(QFileDialog);
     if (!model->fileInfo(index).isWritable()
@@ -2124,13 +2129,17 @@ void QFileDialogPrivate::_q_deleteCurrent()
         return;
 #endif // QT_NO_MESSAGEBOX
 
-    if (model->isDir(index) && !model->rmdir(index)) {
+    // the event loop has run, we can NOT reuse index because the model might have removed it.
+    if (isDir) {
+        QDir dir;
+        if (!dir.rmdir(filePath)) {
 #ifndef QT_NO_MESSAGEBOX
         QMessageBox::warning(q, q->windowTitle(),
                             QFileDialog::tr("Could not delete directory."));
 #endif
+        }
     } else {
-        model->remove(index);
+        QFile::remove(filePath);
     }
 }
 
