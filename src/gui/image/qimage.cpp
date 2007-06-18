@@ -798,6 +798,7 @@ QImageData *QImageData::create(uchar *data, int width, int height,  int bpl, QIm
 
     const int depth = depthForFormat(format);
     const int calc_bytes_per_line = ((width * depth + 31)/32) * 4;
+    const int min_bytes_per_line = (width * depth + 7)/8;
 
     if (bpl <= 0)
         bpl = calc_bytes_per_line;
@@ -806,7 +807,7 @@ QImageData *QImageData::create(uchar *data, int width, int height,  int bpl, QIm
         || INT_MAX/sizeof(uchar *) < uint(height)
         || INT_MAX/uint(depth) < uint(width)
         || bpl <= 0
-        || bpl < calc_bytes_per_line
+        || bpl < min_bytes_per_line
         || INT_MAX/uint(bpl) < uint(height))
         return d;                                        // invalid parameter(s)
 
