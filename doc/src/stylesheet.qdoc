@@ -98,8 +98,8 @@
     (e.g., QWindowsXPStyle on Windows XP).
 
     \warning Qt style sheets are currently not supported for
-    QMacStyle (the default style on Mac OS X). We plan to address
-    this in some future release.
+    QMacStyle (the default style on Mac OS X) and custom QStyle subclasses.
+    We plan to address this in some future release.
     */
 
     /*!
@@ -1028,7 +1028,7 @@
             using the \l{#alignment-prop}{alignment}. \warning 
             \endomit
 
-            To change the position of the QTabBar withing a QTabWidget, use the
+            To change the position of the QTabBar within a QTabWidget, use the
             \l{#tab-bar-sub}{tab-bar} subcontrol (and set subcontrol-position).
 
     \row
@@ -1044,7 +1044,7 @@
            the QWindowsStyle. To place the QTabBar in the center, set the
            subcontrol-position of the tab-bar subcontrol.
 
-            The \l{#top-ps}{:top}, \l{#left-ps}{left-ps}, \l{#right-ps}{right},
+            The \l{#top-ps}{:top}, \l{#left-ps}{:left}, \l{#right-ps}{:right},
             \l{#bottom-ps}{:bottom} pseudo states depending on the orientation
             of the tabs.
 
@@ -1069,7 +1069,7 @@
 
     \row
         \o QTableWidget \target qtablewidget-widget
-        \o See \{#qtableview-widget}{QTableView}.
+        \o See \l{#qtableview-widget}{QTableView}.
 
     \row
         \o QTextEdit \target qtextedit-widget
@@ -1108,7 +1108,7 @@
 
     \row
         \o QToolButton \target qtoolbutton-widget
-        \o Supports the \l{box model}. 
+        \o Supports the \l{box model}.
         
            If the QToolButton has a menu, is 
            \l{#menu-indicator-sub}{::menu-indicator} subcontrol can be used to
@@ -1705,7 +1705,7 @@
            Example:
 
            \code
-                * { button-layout: 2px }
+                * { button-layout: 2 }
            \endcode
 
     \row
@@ -1741,7 +1741,7 @@
            Example:
 
            \code
-                * { etch-disabled-text: 1px }
+                * { etch-disabled-text: 1 }
            \endcode
 
     \row
@@ -3224,6 +3224,188 @@ blue green yellow * /
     Quiz: What happens if we have a read-only QLineEdit in a QDialog?
     [Hint: The \l{The Style Sheet Syntax#Conflict Resolution}{Conflict Resolution} section above explains
     what happens in cases like this.]
+
+    \section1 Customizing QTableWidget's Selection Background Color
+
+    Suppose we'd like our selected item in QTableWidget to have bubblegum pink
+    fade to white as its background.
+
+    \image tableWidget-stylesheet.png
+
+    This is possible with the
+    \l{stylesheet-reference.html#selection-background-color-prop}
+    {selection-background-color} property and the syntax required is:
+
+    \code
+        QTableWidget {
+            selection-background-color: qlineargradient(x1: 0, y1: 0, x2: 0.5, y2: 0.5,
+                                        stop: 0 #FF92BB, stop: 1 white);
+        }
+    \endcode
+
+    \section1 Customizing QProgressBar Properties
+
+    The QProgressBar's \l{stylesheet-reference.html#border-prop}{border},
+    \l{stylesheet-reference.html#chunk-sub}{chunk}, and
+    \l{stylesheet-reference.html#text-align-prop}{text-align} can be customized using
+    style sheets. However, if one property or sub-control is customized,
+    all the other properties or sub-controls must be customized as well.
+
+    \image progressBar-stylesheet.png
+
+    For example, we change the \l{stylesheet-reference.html#border-prop}
+    {border} to grey and the \l{stylesheet-reference.html#chunk-sub}{chunk}
+    to cerulean.
+
+    \code
+        QProgressBar {
+            border: 2px solid grey;
+            border-radius: 5px;
+        }
+
+        QProgressBar::chunk {
+            background-color: #05B8CC;
+            width: 20px;
+        }
+    \endcode
+
+    This leaves the \l{stylesheet-reference.html#text-align-prop}
+    {text-align}, which we customize by positioning the text in the center of
+    the progress bar.
+
+    \code
+    QProgressBar {
+    	border: 2px solid grey;
+    	border-radius: 5px;
+    	text-align: center;
+    }
+    \endcode
+
+    A \l{stylesheet-reference.html#margin-prop}{margin} can be included to
+    obtain more visible chunks.
+
+    \image progressBar2-stylesheet.png
+
+    In the screenshot above, we use a
+    \l{stylesheet-reference.html#margin-prop}{margin} of 0.5 pixels.
+
+    \code
+    QProgressBar::chunk {
+    	background-color: #CD96CD;
+    	width: 10px;
+        margin: 0.5px;
+    }
+    \endcode
+
+    \section1 Customizing QTabWidget Properties
+
+    The QTabBar objects in QTabWidget can be customized using
+    style sheets. The \l{QTabWidget}'s corners, its individual tabs, tear
+    indicators, etc. are among the subcontrols that can be styled.
+
+    \image tabWidget-stylesheet.png
+
+    For the screenshot above, we use the
+    \l{stylesheet-reference.html#tab-bar-sub}{tab-bar} subcontrol to position
+    it in the center.
+
+    \code
+        QTabWidget::tab-bar {
+            subcontrol-position: center;
+        }
+    \endcode
+
+    Then we set the tab's background to light blue, with a
+    \l{stylesheet-reference.html#border-width-prop}{border-width} of 3 px, a
+    \l{stylesheet-reference.html#min-width-prop}{min-width} of 15 ex and
+    \l{stylesheet-reference.html#padding-prop}{padding} of 3 px.
+
+    \code
+        QTabBar::tab {
+            background: #B2DFEE;
+            border-width: 3px;
+            min-width: 15 ex;
+            padding: 3px;
+        }
+    \endcode
+
+    To highlight the selected tab, the
+    \l{stylesheet-reference.html#selected-ps}{selected} pseudo state is used
+    to set the selected tab's background to white.
+
+    \code
+        QTabBar::tab:selected {
+        	background: white;
+        	border-width:3px 0 3px 0;
+        	padding: 0 3px 0 3px;
+        }
+    \endcode
+
+    \section1 Customizing QScrollBar Properties
+
+    The QScrollBar can be styled using its subcontrols like
+    \l{stylesheet-reference.html#handle-sub}{handle},
+    \l{stylesheet-reference.html#add-line-sub}{add-line},
+    \l{stylesheet-reference.html#sub-line-sub}{sub-line}, and so on. Note that
+    if one property or sub-control is customized, all the other properties or
+    sub-controls must be customized as well.
+
+    \image scrollBar-stylesheet.png
+
+    The scroll bar above has been styled in aquamarine with a solid grey
+    border.
+
+    \code
+        QScrollBar:horizontal {
+            border: 2px solid grey;
+            background: #32CC99;
+            height: 15px;
+            margin: 0px 20px 0 20px;
+        }
+    \endcode
+
+    \code
+        QScrollBar::handle:horizontal {
+            background: white;
+            min-width: 20px;
+        }
+    \endcode
+
+    \code
+        QScrollBar::add-line:horizontal {
+            border: 2px solid grey;
+            background: #32CC99;
+            width: 20px;
+            subcontrol-position: right;
+            subcontrol-origin: margin;
+        }
+
+        QScrollBar::sub-line:horizontal {
+            border: 2px solid grey;
+            background: #32CC99;
+            width: 20px;
+            subcontrol-position: left;
+            subcontrol-origin: margin;
+        }
+    \endcode
+
+    The \l{stylesheet-reference.html#left-arrow-sub}{left-arrow} and
+    \l{stylesheet-reference.html#right-arrow-sub}{right-arrow} have a solid grey
+    border with a white background. As an alternative, you could also embed the
+    image of an arrow.
+
+    \code
+        QScrollBar:left-arrow:horizontal, QScrollBar::right-arrow:horizontal {
+            border: 2px solid grey;
+            width: 3px;
+            height: 3px;
+            background: white;
+        }
+
+        QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
+            background: none;
+        }
+    \endcode
 
     \sa {Style Sheet Example}, {Supported HTML Subset}, QStyle
     */
