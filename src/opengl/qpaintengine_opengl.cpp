@@ -1034,7 +1034,7 @@ void QGLGradientCache::generateGradientColorTable(const QGradientStops& s, uint 
     for (int i = 0; i < s.size(); ++i)
         colors[i] = s[i].second.rgba();
 
-    uint alpha = qRound(opacity * 255);
+    uint alpha = qRound(opacity * 256);
     while (fpos < s.first().first) {
         colorTable[pos] = PREMUL(ARGB_COMBINE_ALPHA(colors[0], alpha));
         pos++;
