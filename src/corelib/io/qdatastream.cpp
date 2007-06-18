@@ -209,15 +209,18 @@
   QDataStream member functions
  *****************************************************************************/
 
-#ifndef QT_NO_DEBUG
 #undef  CHECK_STREAM_PRECOND
+#ifndef QT_NO_DEBUG
 #define CHECK_STREAM_PRECOND(retVal) \
     if (!dev) { \
         qWarning("QDataStream: No device"); \
         return retVal; \
     }
 #else
-#define CHECK_STREAM_PRECOND(retVal)
+#define CHECK_STREAM_PRECOND(retVal) \
+    if (!dev) { \
+        return retVal; \
+    }
 #endif
 
 enum {
