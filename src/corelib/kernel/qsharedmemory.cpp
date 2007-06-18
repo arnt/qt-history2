@@ -64,6 +64,12 @@ QString QSharedMemoryPrivate::makePlatformSafeKey(const QString &key, const QStr
 
     ### Add code snippit after example is made.
 
+
+    Unlike QtSharedMemory, QSharedMemory will automatically destroy the shared
+    memory once there are no references to the shared memory.  It is advisable
+    to not mix QtSharedMemory and QSharedMemory, but to port everything to
+    QSharedMemory.
+
  */
 
 
