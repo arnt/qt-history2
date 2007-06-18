@@ -561,7 +561,7 @@ void QWizardPrivate::init()
             texts.insert(QWizard::BackButton,   QWizard::tr("< &Back"));
             texts.insert(
                 QWizard::NextButton,
-                QWizard::tr(wstyle == QWizard::AeroStyle ? "&Next" : "&Next >"));
+                wstyle == QWizard::AeroStyle ? QWizard::tr("&Next") : QWizard::tr("&Next >"));
             texts.insert(QWizard::CommitButton, QWizard::tr("Commit"));
             texts.insert(QWizard::FinishButton, QWizard::tr("&Finish"));
             texts.insert(QWizard::CancelButton, QWizard::tr("Cancel"));
