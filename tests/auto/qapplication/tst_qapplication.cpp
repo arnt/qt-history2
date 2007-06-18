@@ -177,7 +177,7 @@ public:
 void tst_QApplication::alert()
 {
     int argc = 0;
-    QApplication app(argc, 0);
+    QApplication app(argc, 0, QApplication::GuiServer);
     app.alert(0, 0);
 
     QWidget widget;
