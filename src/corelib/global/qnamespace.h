@@ -390,6 +390,8 @@ public:
 
         WA_StyleSheet = 97, // internal
 
+        WA_ShowWithoutActivating = 98,
+
         // Add new attributes before this line
         WA_AttributeCount
     };

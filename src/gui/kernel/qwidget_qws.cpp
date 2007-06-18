@@ -591,9 +591,10 @@ void QWidgetPrivate::show_sys()
 #endif
         data.fstrut_dirty = true;
         invalidateBuffer(r);
-        if (q->windowType() != Qt::Popup
+        if (!q->testAttribute(Qt::WA_ShowWithoutActivating)
+            && q->windowType() != Qt::Popup
             && q->windowType() != Qt::Tool
-            && q->windowType() != Qt::ToolTip ) {
+            && q->windowType() != Qt::ToolTip) {
             QWidget::qwsDisplay()->requestFocus(data.winid,true);
         }
 	bool staysontop =

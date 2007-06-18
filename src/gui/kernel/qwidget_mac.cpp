@@ -250,7 +250,7 @@ static void qt_mac_release_stays_on_top_group(WindowGroupRef group)
     }
 }
 
-static bool qt_isGenuineQWidget(HIViewRef ref) 
+static bool qt_isGenuineQWidget(HIViewRef ref)
 {
     return HIObjectIsOfClass(HIObjectRef(ref), kObjectQWidget);
 }
@@ -2097,7 +2097,7 @@ void QWidgetPrivate::show_sys()
         }
         if (q->windowState() & Qt::WindowMinimized) //show in collapsed state
             CollapseWindow(window, true);
-        else
+        else if (!q->testAttribute(Qt::WA_ShowWithoutActivating))
             qt_event_request_activate(q);
     } else if(!q->parentWidget() || q->parentWidget()->isVisible()) {
         HIViewSetVisible(qt_mac_hiview_for(q), true);

@@ -1644,9 +1644,17 @@ void QWidgetPrivate::show_sys()
         }
 
         // set _NET_WM_USER_TIME
-        if (X11->userTime != CurrentTime) {
+        Time userTime = X11->userTime;
+        bool setUserTime = false;
+        if (q->testAttribute(Qt::WA_ShowWithoutActivating)) {
+            userTime = 0;
+            setUserTime = true;
+        } else if (userTime != CurrentTime) {
+            setUserTime = true;
+        }
+        if (setUserTime) {
             XChangeProperty(X11->display, q->internalWinId(), ATOM(_NET_WM_USER_TIME), XA_CARDINAL,
-                            32, PropModeReplace, (unsigned char *) &X11->userTime, 1);
+                            32, PropModeReplace, (unsigned char *) &userTime, 1);
         }
 
         if (!topData()->embedded
