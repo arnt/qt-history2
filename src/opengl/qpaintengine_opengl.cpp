@@ -1195,6 +1195,9 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
 #endif
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
+    glMatrixMode(GL_TEXTURE);
+    glPushMatrix();
+    glLoadIdentity();
 
     if (QGLExtensions::glExtensions & QGLExtensions::SampleBuffers)
         glDisable(GL_MULTISAMPLE);
@@ -1318,6 +1321,8 @@ bool QOpenGLPaintEngine::end()
     Q_D(QOpenGLPaintEngine);
     d->flushDrawQueue();
     d->offscreen.end();
+    glMatrixMode(GL_TEXTURE);
+    glPopMatrix();
     glMatrixMode(GL_MODELVIEW);
     glPopMatrix();
 #ifndef Q_WS_QWS
