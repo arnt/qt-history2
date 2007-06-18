@@ -1516,9 +1516,7 @@ void QFileDialog::accept()
             QString message = tr("\nFile not found.\nPlease verify the "
                                  "correct file name was given");
 
-            QPushButton *button = d->qFileDialogUi->buttonBox->button(acceptMode() == AcceptOpen ?
-                                                       QDialogButtonBox::Open : QDialogButtonBox::Save);
-            QMessageBox::warning(this, button->text(), info.fileName() + message);
+            QMessageBox::warning(this, windowTitle(), info.fileName() + message);
 #endif // QT_NO_MESSAGEBOX
             return;
         }
@@ -1549,9 +1547,7 @@ void QFileDialog::accept()
             QDialog::accept();
 #ifndef QT_NO_MESSAGEBOX
         } else {
-            QPushButton *button = d->qFileDialogUi->buttonBox->button(acceptMode() == AcceptOpen ?
-                                                       QDialogButtonBox::Open : QDialogButtonBox::Save);
-            if (QMessageBox::warning(this, button->text(),
+            if (QMessageBox::warning(this, windowTitle(),
                                      tr("%1 already exists.\nDo you want to replace it?")
                                      .arg(info.fileName()),
                                      QMessageBox::Yes | QMessageBox::No, QMessageBox::No)
@@ -1572,10 +1568,7 @@ void QFileDialog::accept()
 #ifndef QT_NO_MESSAGEBOX
                 QString message = tr("%1\nFile not found.\nPlease verify the "
                                      "correct file name was given.");
-                QPushButton *button = d->qFileDialogUi->buttonBox->button(acceptMode() == AcceptOpen ?
-                                                            QDialogButtonBox::Open : QDialogButtonBox::Save);
-
-                QMessageBox::warning(this, button->text(), message.arg(info.fileName()));
+                QMessageBox::warning(this, windowTitle(), message.arg(info.fileName()));
 #endif // QT_NO_MESSAGEBOX
                 return;
             }
