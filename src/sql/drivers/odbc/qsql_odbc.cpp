@@ -1719,7 +1719,7 @@ void QODBCDriverPrivate::checkMySqlServer()
                    &t);
     if (r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO)
 #ifdef UNICODE
-        isMySqlServer = QString(reinterpret_cast<const QChar*>(serverString), t).contains(QLatin1String("mysql"), Qt::CaseInsensitive);
+        isMySqlServer = QString(reinterpret_cast<const QChar*>(serverString), t/sizeof(QChar)).contains(QLatin1String("mysql"), Qt::CaseInsensitive);
 #else
         isMySqlServer = QString::fromLocal8Bit(serverString, t).contains(QLatin1String("mysql"), Qt::CaseInsensitive);
 #endif
