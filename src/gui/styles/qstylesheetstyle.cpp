@@ -1151,6 +1151,9 @@ static bool unstylable(const QWidget *w)
 
 QVector<QCss::StyleRule> QStyleSheetStyle::styleRules(const QWidget *w) const
 {
+    if (!w)
+        return QVector<StyleRule>();
+
     if (styleRulesCache->contains(w))
         return styleRulesCache->value(w);
 
