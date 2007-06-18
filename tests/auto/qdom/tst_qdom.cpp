@@ -79,6 +79,8 @@ private slots:
     void indentComments() const;
     void checkLiveness() const;
     void reportDuplicateAttributes() const;
+    void elementById() const;
+    void elementsByTagNameNS() const;
 
 private:
     static QDomDocument doc(const QString &title, const QByteArray &ba);;
@@ -86,7 +88,6 @@ private:
     static bool compareDocuments( const QDomDocument &doc1, const QDomDocument &doc2 );
     static bool compareNodes( const QDomNode &node1, const QDomNode &node2, bool deep );
     static QDomNode findDomNode( const QDomDocument &doc, const QList<QVariant> &pathToNode );
-    static QString onNullWarning(const char *const functionName);
     static bool isDeepEqual(const QDomNode &n1, const QDomNode &n2);
     static bool isFakeXMLDeclaration(const QDomNode &node);
 
@@ -1559,6 +1560,26 @@ void tst_QDom::namespacedAttributes() const
     QDomDocument two = doc("document2", one.toByteArray(2));
 
     QVERIFY(isDeepEqual(one, two));
+}
+
+void tst_QDom::elementById() const
+{
+    QDomDocument doc;
+    QTest::ignoreMessage(QtWarningMsg, "elementById() is not implemented and will always return a null node.");
+    doc.elementById(QString());
+
+    const QDomDocument constDoc;
+    QTest::ignoreMessage(QtWarningMsg, "elementById() is not implemented and will always return a null node.");
+    constDoc.elementById(QString());
+}
+
+void tst_QDom::elementsByTagNameNS() const
+{
+    QDomDocument doc;
+    doc.elementsByTagNameNS(QString(), QString());
+
+    const QDomDocument constDoc;
+    constDoc.elementsByTagNameNS(QString(), QString());
 }
 
 QTEST_MAIN(tst_QDom)

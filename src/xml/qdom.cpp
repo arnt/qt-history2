@@ -7205,6 +7205,7 @@ QDomAttr QDomDocument::createAttributeNS(const QString& nsURI, const QString& qN
     return QDomAttr(IMPL->createAttributeNS(nsURI, qName));
 }
 
+// ### Qt5: remove and keep the const overload
 /*!
     Returns a QDomNodeList that contains all the elements in the
     document with the local name \a localName and a namespace URI of
@@ -7215,9 +7216,18 @@ QDomAttr QDomDocument::createAttributeNS(const QString& nsURI, const QString& qN
 */
 QDomNodeList QDomDocument::elementsByTagNameNS(const QString& nsURI, const QString& localName)
 {
+    return const_cast<const QDomDocument *>(this)->elementsByTagNameNS(nsURI, localName);
+}
+
+/*!
+  \overload
+ */
+QDomNodeList QDomDocument::elementsByTagNameNS(const QString& nsURI, const QString& localName) const
+{
     return QDomNodeList(new QDomNodeListPrivate(impl, nsURI, localName));
 }
 
+// ### Qt5: remove and keep the const overload
 /*!
     Returns the element whose ID is equal to \a elementId. If no
     element with the ID was found, this function returns a \link
@@ -7227,7 +7237,15 @@ QDomNodeList QDomDocument::elementsByTagNameNS(const QString& nsURI, const QStri
     IDs, this function returns always a \link QDomNode::isNull() null
     element\endlink. This may change in a future version.
 */
-QDomElement QDomDocument::elementById(const QString& /*elementId*/)
+QDomElement QDomDocument::elementById(const QString& elementId)
+{
+    return const_cast<const QDomDocument *>(this)->elementById(elementId);
+}
+
+/*!
+  \overload
+ */
+QDomElement QDomDocument::elementById(const QString& /*elementId*/) const
 {
     qWarning("elementById() is not implemented and will always return a null node.");
     return QDomElement();
