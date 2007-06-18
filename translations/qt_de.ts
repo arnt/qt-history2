@@ -2832,7 +2832,7 @@ Möchten sie die Datei trotzdem löschen?</translation>
     <message>
         <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="951"/>
         <source>Print</source>
-        <translation>Druck</translation>
+        <translation>Drucken</translation>
     </message>
     <message>
         <location filename="../src/gui/dialogs/qprintdialog_unix.cpp" line="1025"/>
