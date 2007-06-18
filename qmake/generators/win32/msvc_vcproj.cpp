@@ -1478,7 +1478,7 @@ bool VcprojGenerator::openOutput(QFile &file, const QString &build) const
             outputName = project->first("MAKEFILE");
         file.setFileName(outdir + outputName + ext);
     }
-    return Win32MakefileGenerator::openOutput(file, build);
+    return Win32MakefileGenerator::openOutput(file, QString());
 }
 
 QString VcprojGenerator::fixFilename(QString ofile) const
