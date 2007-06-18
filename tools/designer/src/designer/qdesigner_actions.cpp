@@ -341,7 +341,7 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
     connect(m_formSettings, SIGNAL(triggered()), this, SLOT(showFormSettings()));
     m_formActions->addAction(m_formSettings);
 
-    foreach (QString style,  QStyleFactory::keys()) {
+    foreach (const QString &style,  QStyleFactory::keys()) {
         QAction *a = new QAction(tr("%1 Style").arg(style), this);
         QString objName = QLatin1String("__qt_style_");
         objName += style;

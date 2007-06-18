@@ -48,7 +48,7 @@ public:
     enum Columns { NameColumn, UsedColumn, TextColumn, ShortCutColumn, CheckedColumn, ToolTipColumn, NumColumns };
     enum   { ActionRole = Qt::UserRole + 1000 };
 
-    ActionModel(QWidget *parent = 0);
+    explicit ActionModel(QWidget *parent = 0);
     void initialize(QDesignerFormEditorInterface *core) { m_core = core; }
 
     void clear();
@@ -88,7 +88,7 @@ class  ActionTreeView: public QTreeView
 {
     Q_OBJECT
 public:
-    ActionTreeView(ActionModel *model, QWidget *parent = 0);
+    explicit ActionTreeView(ActionModel *model, QWidget *parent = 0);
     QAction *currentAction() const;
 
 public slots:
@@ -122,7 +122,7 @@ class ActionListView: public QListView
 {
     Q_OBJECT
 public:
-    ActionListView(ActionModel *model, QWidget *parent = 0);
+    explicit ActionListView(ActionModel *model, QWidget *parent = 0);
     QAction *currentAction() const;
 
 public slots:
@@ -160,7 +160,7 @@ class ActionView : public  QStackedWidget {
 public:
     // Separate initialize() function takes core argument to make this
     // thing usable as promoted widget.
-    ActionView(QWidget *parent = 0);
+    explicit ActionView(QWidget *parent = 0);
     void initialize(QDesignerFormEditorInterface *core) { m_model->initialize(core); }
 
     // View mode

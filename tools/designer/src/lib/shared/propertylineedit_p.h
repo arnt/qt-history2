@@ -35,7 +35,7 @@ namespace qdesigner_internal {
     class PropertyLineEdit : public QLineEdit {
         Q_OBJECT
     public:
-        PropertyLineEdit(QWidget *parent);
+        explicit PropertyLineEdit(QWidget *parent);
         void setWantNewLine(bool nl) {  m_wantNewLine = nl; }
         bool wantNewLine() const { return m_wantNewLine; }
 

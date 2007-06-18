@@ -1,23 +1,31 @@
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ $TROLLTECH$. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $TROLLTECH_DUAL_LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists for the convenience
+// of Qt Designer.  This header
+// file may change from version to version without notice, or even be removed.
+//
+// We mean it.
+//
+
 #ifndef QTTOOLBARDIALOG_H
 #define QTTOOLBARDIALOG_H
 
-#include <QDialog>
-
-#if defined(Q_WS_WIN)
-#  if !defined(QT_QTTOOLBARDIALOG_EXPORT) && !defined(QT_QTTOOLBARDIALOG_IMPORT)
-#    define QT_QTTOOLBARDIALOG_EXPORT
-#  elif defined(QT_QTTOOLBARDIALOG_IMPORT)
-#    if defined(QT_QTTOOLBARDIALOG_EXPORT)
-#      undef QT_QTTOOLBARDIALOG_EXPORT
-#    endif
-#    define QT_QTTOOLBARDIALOG_EXPORT __declspec(dllimport)
-#  elif defined(QT_QTTOOLBARDIALOG_EXPORT)
-#    undef QT_QTTOOLBARDIALOG_EXPORT
-#    define QT_QTTOOLBARDIALOG_EXPORT __declspec(dllexport)
-#  endif
-#else
-#  define QT_QTTOOLBARDIALOG_EXPORT
-#endif
+#include <QtGui/QDialog>
 
 class QMainWindow;
 class QAction;
@@ -25,7 +33,7 @@ class QToolBar;
 
 class QtToolBarManagerPrivate;
 
-class QT_QTTOOLBARDIALOG_EXPORT QtToolBarManager : public QObject
+class QtToolBarManager : public QObject
 {
     Q_OBJECT
 public:
@@ -57,7 +65,7 @@ private:
 
 class QtToolBarDialogPrivate;
 
-class QT_QTTOOLBARDIALOG_EXPORT QtToolBarDialog : public QDialog
+class QtToolBarDialog : public QDialog
 {
     Q_OBJECT
 public:

@@ -105,7 +105,7 @@ QWidget*  WidgetFactory::createCustomWidget(const QString &className, QWidget *p
     }
 
     // Since a language plugin may lie about its names, like Qt Jambi
-    // does, return immediatly here...
+    // does, return immediately here...
     QDesignerLanguageExtension *lang =
         qt_extension<QDesignerLanguageExtension *>(m_core->extensionManager(), m_core);
     if (lang)

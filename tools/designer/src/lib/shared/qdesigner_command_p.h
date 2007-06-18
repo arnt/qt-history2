@@ -858,7 +858,7 @@ class QDESIGNER_SHARED_EXPORT InsertActionIntoCommand : public ActionInsertionCo
 {
 
 public:
-    InsertActionIntoCommand(QDesignerFormWindowInterface *formWindow);
+    explicit InsertActionIntoCommand(QDesignerFormWindowInterface *formWindow);
 
     virtual void redo() {  insertAction(); }
     virtual void undo() {  removeAction(); }
@@ -868,7 +868,7 @@ class QDESIGNER_SHARED_EXPORT RemoveActionFromCommand : public ActionInsertionCo
 {
 
 public:
-    RemoveActionFromCommand(QDesignerFormWindowInterface *formWindow);
+    explicit RemoveActionFromCommand(QDesignerFormWindowInterface *formWindow);
 
     virtual void redo()  {  removeAction(); }
     virtual void undo()  {  insertAction(); }

@@ -46,7 +46,7 @@ static inline QAction *actionOfItem(const QStandardItem* item)
     return qvariant_cast<QAction*>(item->data(qdesigner_internal::ActionModel::ActionRole));
 }
 
-static QIcon fixActionIcon(QIcon icon)
+static QIcon fixActionIcon(const QIcon &icon)
 {
     if (icon.isNull())
         return qdesigner_internal::emptyIcon();

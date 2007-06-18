@@ -1,11 +1,25 @@
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ $TROLLTECH$. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $TROLLTECH_DUAL_LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
 #include "qttoolbardialog.h"
 #include "ui_qttoolbardialog.h"
-#include <qset.h>
-#include <qaction.h>
-#include <qtoolbar.h>
-#include <qmainwindow.h>
-#include <qevent.h>
-#include <qheaderview.h>
+
+#include <QtCore/QSet>
+#include <QtCore/QEvent>
+#include <QtGui/QAction>
+#include <QtGui/QToolBar>
+#include <QtGui/QMainWindow>
+#include <QtGui/QHeaderView>
 
 class QtFullToolBarManagerPrivate
 {
