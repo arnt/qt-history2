@@ -112,8 +112,10 @@ long switchToGraphicsMode()
         return oldMode;
     }
     int ret = ioctl(ttyFd, KDSETMODE, KD_GRAPHICS);
-    if (ret == -1)
+    if (ret == -1) {
         printf("Switch to graphics mode failed: %s", strerror(errno));
+	return oldMode;
+    }
 
     printf("Successfully switched to graphics mode.\n\n");
 
