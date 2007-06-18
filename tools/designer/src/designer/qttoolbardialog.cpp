@@ -15,7 +15,7 @@
 #include "ui_qttoolbardialog.h"
 
 #include <QtCore/QSet>
-#include <QtCore/QEvent>
+#include <QtGui/QtEvents>
 #include <QtGui/QAction>
 #include <QtGui/QToolBar>
 #include <QtGui/QMainWindow>
