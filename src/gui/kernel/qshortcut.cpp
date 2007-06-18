@@ -22,6 +22,12 @@
 #include <private/qapplication_p.h>
 #include <private/qshortcutmap_p.h>
 
+#define QAPP_CHECK(functionName) \
+    if (!qApp) { \
+        qWarning("QShortcut: Initialize QApplication before calling '" functionName "'."); \
+        return; \
+    }
+
 /*!
     \class QShortcut
     \brief The QShortcut class is used to create keyboard shortcuts.
@@ -169,6 +175,8 @@ QShortcut::QShortcut(const QKeySequence &key, QWidget *parent,
                      Qt::ShortcutContext context)
     : QObject(*new QShortcutPrivate, parent)
 {
+    QAPP_CHECK("QShortcut");
+
     Q_D(QShortcut);
     Q_ASSERT(parent != 0);
     d->sc_context = context;
@@ -212,6 +220,7 @@ void QShortcut::setKey(const QKeySequence &key)
     Q_D(QShortcut);
     if (d->sc_sequence == key)
         return;
+    QAPP_CHECK("setKey");
     d->sc_sequence = key;
     d->redoGrab(qApp->d_func()->shortcutMap);
 }
@@ -240,6 +249,7 @@ void QShortcut::setEnabled(bool enable)
     Q_D(QShortcut);
     if (d->sc_enabled == enable)
         return;
+    QAPP_CHECK("setEnabled");
     d->sc_enabled = enable;
     qApp->d_func()->shortcutMap.setShortcutEnabled(enable, d->sc_id, this);
 }
@@ -265,6 +275,7 @@ void QShortcut::setContext(Qt::ShortcutContext context)
     Q_D(QShortcut);
     if(d->sc_context == context)
         return;
+    QAPP_CHECK("setContext");
     d->sc_context = context;
     d->redoGrab(qApp->d_func()->shortcutMap);
 }
@@ -314,6 +325,7 @@ void QShortcut::setAutoRepeat(bool on)
     Q_D(QShortcut);
     if (d->sc_autorepeat == on)
         return;
+    QAPP_CHECK("setAutoRepeat");
     d->sc_autorepeat = on;
     qApp->d_func()->shortcutMap.setShortcutAutoRepeat(on, d->sc_id, this);
 }

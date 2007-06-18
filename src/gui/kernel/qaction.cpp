@@ -24,6 +24,12 @@
 #include <private/qapplication_p.h>
 #include <private/qmenu_p.h>
 
+#define QAPP_CHECK(functionName) \
+    if (!qApp) { \
+        qWarning("QAction: Initialize QApplication before calling '" functionName "'."); \
+        return; \
+    }
+
 /*
   internal: guesses a descriptive text from a text suited for a menu entry
  */
@@ -319,6 +325,8 @@ QList<QWidget *> QAction::associatedWidgets() const
 */
 void QAction::setShortcut(const QKeySequence &shortcut)
 {
+    QAPP_CHECK("setShortcut");
+
     Q_D(QAction);
     if (d->shortcut == shortcut)
         return;
@@ -348,6 +356,8 @@ void QAction::setShortcuts(const QList<QKeySequence> &shortcuts)
 
     if (d->shortcut == primary && d->alternateShortcuts == listCopy)
         return;
+
+    QAPP_CHECK("setShortcuts");
 
     d->shortcut = primary;
     d->alternateShortcuts = listCopy;
@@ -414,6 +424,7 @@ void QAction::setShortcutContext(Qt::ShortcutContext context)
     Q_D(QAction);
     if (d->shortcutContext == context)
         return;
+    QAPP_CHECK("setShortcutContext");
     d->shortcutContext = context;
     d->redoGrab(qApp->d_func()->shortcutMap);
     d->redoGrabAlternate(qApp->d_func()->shortcutMap);
@@ -441,6 +452,7 @@ void QAction::setAutoRepeat(bool on)
     Q_D(QAction);
     if (d->autorepeat == on)
         return;
+    QAPP_CHECK("setAutoRepeat");
     d->autorepeat = on;
     d->redoGrab(qApp->d_func()->shortcutMap);
     d->redoGrabAlternate(qApp->d_func()->shortcutMap);
@@ -933,6 +945,7 @@ void QAction::setEnabled(bool b)
     d->forceDisabled = !b;
     if (b && (!d->visible || (d->group && !d->group->isEnabled())))
         return;
+    QAPP_CHECK("setEnabled");
     d->enabled = b;
 #ifndef QT_NO_SHORTCUT
     d->setShortcutEnabled(b, qApp->d_func()->shortcutMap);
@@ -962,6 +975,7 @@ void QAction::setVisible(bool b)
     Q_D(QAction);
     if (b == d->visible && b != d->forceInvisible)
         return;
+    QAPP_CHECK("setVisible");
     d->forceInvisible = !b;
     d->visible = b;
     d->enabled = b && !d->forceDisabled && (!d->group || d->group->isEnabled()) ;
