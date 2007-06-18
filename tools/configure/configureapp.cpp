@@ -2089,11 +2089,11 @@ void Configure::generateConfigfiles()
 
         tmpStream.flush();
         tmpFile.flush();
-        if(!QFile::exists(outName) || filesDiffer(tmpFile.fileName(), outName)) {
-            ::SetFileAttributesA( outName.toLocal8Bit(), FILE_ATTRIBUTE_NORMAL );
-            QFile::remove( outName );
-            tmpFile.copy( outName );
-        }
+
+        // Replace old qconfig.h with new one
+        ::SetFileAttributesA(outName.toLocal8Bit(), FILE_ATTRIBUTE_NORMAL);
+        QFile::remove(outName);
+        tmpFile.copy(outName);
         tmpFile.close();
 
         if(!QFile::exists(buildPath + "/include/QtCore/qconfig.h")) {
@@ -2176,11 +2176,11 @@ void Configure::generateConfigfiles()
 
         tmpStream.flush();
         tmpFile2.flush();
-        if(!QFile::exists(outName) || filesDiffer(tmpFile2.fileName(), outName)) {
-            ::SetFileAttributesA(outName.toLocal8Bit(), FILE_ATTRIBUTE_NORMAL );
-            QFile::remove( outName );
-            tmpFile2.copy(outName);
-        }
+        
+        // Replace old qconfig.cpp with new one
+        ::SetFileAttributesA(outName.toLocal8Bit(), FILE_ATTRIBUTE_NORMAL );
+        QFile::remove( outName );
+        tmpFile2.copy(outName);
         tmpFile2.close();
     }
 }
