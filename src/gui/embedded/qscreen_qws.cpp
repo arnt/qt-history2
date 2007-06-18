@@ -1127,8 +1127,8 @@ QImage::Format QScreenPrivate::preferredImageFormat() const
     \fn virtual bool QScreen::initDevice() = 0
 
     This function is called by the \l {Qtopia Core} server to
-    initialize the framebuffer. Note that it is called \e before the
-    connect() function.
+    initialize the framebuffer. Note that a server application will call the
+    connect() function prior to this function.
 
     Implement this function to make accelerated drivers set up the
     graphics card. Return true to indicate success and false to indicate
@@ -1143,8 +1143,7 @@ QImage::Format QScreenPrivate::preferredImageFormat() const
     This function is called by every \l {Qtopia Core} application on
     startup, and must be implemented to map in the framebuffer and the
     accelerated drivers that the graphics card control registers.
-    Note that a server application will call the initDevice() function
-    prior to this function.
+    Note that it is called \e before the initDevice() function.
 
     Ensure that the function returns true if a connection to the
     screen device can be made; otherwise return false.
