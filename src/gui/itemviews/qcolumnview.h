@@ -71,6 +71,7 @@ protected:
 
     // QColumnView functions
     virtual QAbstractItemView* createColumn(const QModelIndex &rootIndex);
+    void initilizeColumn(QAbstractItemView *column) const;
 
 protected Q_SLOTS:
     // QAbstractItemView overloads

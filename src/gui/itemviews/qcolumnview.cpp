@@ -691,56 +691,68 @@ QAbstractItemView *QColumnViewPrivate::createColumn(const QModelIndex &index, bo
 
     Return the new view.  QColumnView will automatically take ownership of the widget.
 
-    \sa setPreviewWidget()
+    \sa setPreviewWidget(), initilizeColumn()
  */
 QAbstractItemView *QColumnView::createColumn(const QModelIndex &index)
 {
-    Q_D(QColumnView);
-
     QListView *view = new QListView(viewport());
-    view->setFrameShape(QFrame::NoFrame);
-    view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-    view->setMinimumWidth(100);
-    view->setAttribute(Qt::WA_MacShowFocusRect, false);
 
-    // Copy the 'view' behavior
+    initilizeColumn(view);
+
+    view->setRootIndex(index);
+    if (model()->canFetchMore(index))
+        model()->fetchMore(index);
+
+    return view;
+}
+
+/*!
+    Copies the behavior and options of the column view and applies them to
+    the \a column such as the iconSize(), textElideMode() and
+    alternatingRowColors(). This can be useful when reimplementing
+    createColumn().
+
+    \sa createColumn()
+ */
+void QColumnView::initilizeColumn(QAbstractItemView *column) const
+{
+    Q_D(const QColumnView);
+
+    column->setFrameShape(QFrame::NoFrame);
+    column->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    column->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+    column->setMinimumWidth(100);
+    column->setAttribute(Qt::WA_MacShowFocusRect, false);
+
 #ifndef QT_NO_DRAGANDDROP
-    view->setDragDropMode(dragDropMode());
-    view->setDragDropOverwriteMode(dragDropOverwriteMode());
-    view->setDropIndicatorShown(showDropIndicator());
+    column->setDragDropMode(dragDropMode());
+    column->setDragDropOverwriteMode(dragDropOverwriteMode());
+    column->setDropIndicatorShown(showDropIndicator());
 #endif
-    view->setAlternatingRowColors(alternatingRowColors());
-    view->setAutoScroll(hasAutoScroll());
-    view->setEditTriggers(editTriggers());
-    view->setHorizontalScrollMode(horizontalScrollMode());
-    view->setIconSize(iconSize());
-    view->setSelectionBehavior(selectionBehavior());
-    view->setSelectionMode(selectionMode());
-    view->setTabKeyNavigation(tabKeyNavigation());
-    view->setTextElideMode(textElideMode());
-    view->setVerticalScrollMode(verticalScrollMode());
+    column->setAlternatingRowColors(alternatingRowColors());
+    column->setAutoScroll(hasAutoScroll());
+    column->setEditTriggers(editTriggers());
+    column->setHorizontalScrollMode(horizontalScrollMode());
+    column->setIconSize(iconSize());
+    column->setSelectionBehavior(selectionBehavior());
+    column->setSelectionMode(selectionMode());
+    column->setTabKeyNavigation(tabKeyNavigation());
+    column->setTextElideMode(textElideMode());
+    column->setVerticalScrollMode(verticalScrollMode());
 
-    view->setModel(model());
+    column->setModel(model());
 
     // Copy the custom delegate per row
     QMapIterator<int, QPointer<QAbstractItemDelegate> > i(d->rowDelegates);
     while (i.hasNext()) {
         i.next();
-        view->setItemDelegateForRow(i.key(), i.value());
+        column->setItemDelegateForRow(i.key(), i.value());
     }
 
     // set the delegate to be the columnview delegate
-    QAbstractItemDelegate *delegate = view->itemDelegate();
-    view->setItemDelegate(d->itemDelegate);
+    QAbstractItemDelegate *delegate = column->itemDelegate();
+    column->setItemDelegate(d->itemDelegate);
     delete delegate;
-
-    view->setRootIndex(index);
-
-    if (model()->canFetchMore(index))
-        model()->fetchMore(index);
-
-    return view;
 }
 
 /*!
