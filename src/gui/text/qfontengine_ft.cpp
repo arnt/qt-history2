@@ -542,8 +542,10 @@ QFontEngineFT::Glyph *QFontEngineFT::loadGlyph(QGlyphSet *set, uint glyph, Glyph
         }
 
     }
+#ifndef Q_WS_QWS
     if (format != Format_Mono)
         load_flags |= FT_LOAD_NO_BITMAP;
+#endif
 
     bool transform = this->transform
                      || set->transformationMatrix.xx != 0x10000
