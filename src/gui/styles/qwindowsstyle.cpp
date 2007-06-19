@@ -1249,7 +1249,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
     case PE_IndicatorArrowRight:
     case PE_IndicatorArrowLeft:
         {
-            if (opt->rect.width() == 0 || opt->rect.height() == 0)
+            if (opt->rect.width() <= 0 || opt->rect.height() <= 0)
                 break;
             QRect r = opt->rect;
             int size = qMin(r.height(), r.width());
