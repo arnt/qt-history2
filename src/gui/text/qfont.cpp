@@ -2234,56 +2234,12 @@ void QFontCache::clear()
 #if defined(Q_WS_QWS) && !defined(QT_NO_QWS_QPF2)
 void QFontCache::removeEngineForFont(const QByteArray &_fontName)
 {
-    QFontEngine *engineToRemove = 0;
-    QString fontName = QFile::decodeName(_fontName);
-//    qDebug() << "removeEngineForFont" << fontName;
 
-#ifndef QT_NO_QWS_QPF
-    for (EngineCache::ConstIterator it = engineCache.constBegin(), end = engineCache.constEnd();
-         it != end; ++it) {
-        if (it->data->type() == QFontEngine::QPF2
-            && static_cast<QFontEngineQPF *>(it->data)->fontFile() == fontName) {
-            engineToRemove = it->data;
-            break;
-        }
-    }
-#endif // QT_NO_QWS_QPF
-
-    if (!engineToRemove)
-        return;
-
-//    qDebug() << "found engine:" << engineToRemove;
-
-    {
-        EngineDataCache::Iterator it = engineDataCache.begin(),
-                                 end = engineDataCache.end();
-        while (it != end) {
-            QFontEngineData *data = it.value();
-            for (int i = 0; i < QUnicodeTables::ScriptCount; ++i) {
-                if (data->engines[i] && data->engines[i] == engineToRemove) {
-                    data->engines[i]->ref.deref();
-                    data->engines[i] = 0;
-                }
-            }
-            ++it;
-        }
-    }
-
-    // ###### this needs to be fixed once we introduce the multi fontengine
-    // for embedded!!
-    for (EngineCache::Iterator it = engineCache.begin(), end = engineCache.end();
-         it != end; ++it) {
-        if (it->data == engineToRemove) {
-            Q_ASSERT(it->data->ref == 0);
-//            qDebug() << "deleting engine";
-            delete it->data;
-            it->data = 0;
-            engineCache.erase(it);
-            engineToRemove = 0;
-            break;
-        }
-    }
-    Q_ASSERT(!engineToRemove);
+    /* This could be optimized but the code becomes much more complex if we want to handle multi
+     * font engines and it is probably not worth it. Therefore we just clear the entire font cache.
+     */
+    Q_UNUSED(_fontName);
+    clear();
 }
 #endif
 
