@@ -286,6 +286,8 @@ for (var p in validPlatforms) {
                 .arg(options["version"]);
             if (platform == "core")
                 platName = platName.replace("qt-core", "qtopia-core");
+            if (options["preview"])
+                platName = platName.replace(license, "preview-" + license);
             var platDir = distDir + "/" + platName;
             execute(["cp", "-r", checkoutDir, platDir]);
             
