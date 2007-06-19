@@ -152,6 +152,7 @@ public:
 #if defined(Q_WS_X11)
     void* pbuf;
     quint32 gpm;
+    int screen;
 #endif
 #if defined(Q_WS_MAC)
     bool update;

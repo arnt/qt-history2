@@ -361,23 +361,31 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
     // 1. Sharing between rgba and color-index will give wrong colors.
     // 2. Contexts cannot be shared btw. direct/non-direct renderers.
     // 3. Pixmaps cannot share contexts that are set up for direct rendering.
-    if (shareContext && (format().rgba() != shareContext->format().rgba() ||
-                          (deviceIsPixmap() &&
-                           glXIsDirect(disp, (GLXContext)shareContext->d_func()->cx))))
+    // 4. If the contexts are not created on the same screen, they can't be shared
+
+    if (shareContext
+        && (format().rgba() != shareContext->format().rgba()
+            || (deviceIsPixmap() && glXIsDirect(disp, (GLXContext)shareContext->d_func()->cx))
+            || (shareContext->d_func()->screen != xinfo->screen())))
+    {
         shareContext = 0;
+    }
 
     d->cx = 0;
     if (shareContext) {
         d->cx = glXCreateContext(disp, (XVisualInfo *)d->vi,
                                (GLXContext)shareContext->d_func()->cx, direct);
+        d->screen = ((XVisualInfo*)d->vi)->screen;
         if (d->cx) {
             QGLContext *share = const_cast<QGLContext *>(shareContext);
             d->sharing = true;
             share->d_func()->sharing = true;
         }
     }
-    if (!d->cx)
+    if (!d->cx) {
         d->cx = glXCreateContext(disp, (XVisualInfo *)d->vi, NULL, direct);
+        d->screen = ((XVisualInfo*)d->vi)->screen;
+    }
     if (!d->cx)
         return false;
     d->glFormat.setDirectRendering(glXIsDirect(disp, (GLXContext)d->cx));
@@ -654,7 +662,6 @@ void QGLContext::swapBuffers() const
 
 QColor QGLContext::overlayTransparentColor() const
 {
-    Q_D(const QGLContext);
     if (isValid())
         return Qt::transparent;
     return QColor();                // Invalid color
@@ -1023,12 +1030,18 @@ void QGLWidgetPrivate::cleanupColormaps()
 /*! \reimp */
 bool QGLWidget::event(QEvent *e)
 {
+    Q_D(QGLWidget);
     // prevents X errors on some systems, where we get a flush to a
     // hidden widget
     if (e->type() == QEvent::Hide) {
         makeCurrent();
         glFinish();
         doneCurrent();
+    } else if (e->type() == QEvent::ParentChange) {
+        if (d->glcx->d_func()->screen != d->xinfo.screen()) {
+            setContext(new QGLContext(d->glcx->requestedFormat(), this));
+            // ### recreating the overlay isn't supported atm
+        }
     }
 
     return QWidget::event(e);
@@ -1109,8 +1122,13 @@ void QGLWidget::setContext(QGLContext *context,
     QGLContext* oldcx = d->glcx;
     d->glcx = context;
 
-    if (parentWidget() && parentWidget()->x11Info().screen() != x11Info().screen())
-        d_func()->xinfo = parentWidget()->d_func()->xinfo;
+
+    if (parentWidget()) {
+        // force creation of delay-created widgets
+        parentWidget()->winId();
+        if (parentWidget()->x11Info().screen() != x11Info().screen())
+            d_func()->xinfo = parentWidget()->d_func()->xinfo;
+    }
 
     bool createFailed = false;
     if (!d->glcx->isValid()) {

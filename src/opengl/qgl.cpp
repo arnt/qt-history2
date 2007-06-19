@@ -1247,6 +1247,7 @@ void QGLContextPrivate::init(QPaintDevice *dev, const QGLFormat &format)
 #if defined(Q_WS_X11)
     pbuf = 0;
     gpm = 0;
+    screen = QX11Info::appScreen();
 #endif
 #if defined(Q_WS_WIN)
     dc = 0;
