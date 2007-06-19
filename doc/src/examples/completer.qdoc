@@ -67,7 +67,7 @@
 
     \section1 MainWindow Class Definition
 
-    The \c MainWindow class is a subcalss of QMainWindow and implements four
+    The \c MainWindow class is a subclass of QMainWindow and implements four
     private slots - \c about(), \c changeCase(), \c changeMode(), and
     \c changeModel().
 
