@@ -417,11 +417,35 @@ void tst_QSslSocket::protocol()
     QSslSocket socket;
     QCOMPARE(socket.protocol(), QSsl::SslV3);
     {
+        // Fluke allows SSLv3.
+        socket.setProtocol(QSsl::SslV3);
+        QCOMPARE(socket.protocol(), QSsl::SslV3);
+        socket.connectToHostEncrypted(QLatin1String("fluke.troll.no"), 443);
+        QVERIFY2(socket.waitForEncrypted(), qPrintable(socket.errorString()));
+        QCOMPARE(socket.protocol(), QSsl::SslV3);
+        socket.abort();
+        QCOMPARE(socket.protocol(), QSsl::SslV3);
+        socket.connectToHost(QLatin1String("fluke.troll.no"), 443);
+        QVERIFY2(socket.waitForConnected(), qPrintable(socket.errorString()));
+        socket.startClientEncryption();
+        QVERIFY2(socket.waitForEncrypted(), qPrintable(socket.errorString()));
+        QCOMPARE(socket.protocol(), QSsl::SslV3);
+        socket.abort();
+    }
+    {
         // Fluke allows TLSV1.
         socket.setProtocol(QSsl::TlsV1);
         QCOMPARE(socket.protocol(), QSsl::TlsV1);
         socket.connectToHostEncrypted(QLatin1String("fluke.troll.no"), 443);
         QVERIFY2(socket.waitForEncrypted(), qPrintable(socket.errorString()));
+        QCOMPARE(socket.protocol(), QSsl::TlsV1);
+        socket.abort();
+        QCOMPARE(socket.protocol(), QSsl::TlsV1);
+        socket.connectToHost(QLatin1String("fluke.troll.no"), 443);
+        QVERIFY2(socket.waitForConnected(), qPrintable(socket.errorString()));
+        socket.startClientEncryption();
+        QVERIFY2(socket.waitForEncrypted(), qPrintable(socket.errorString()));
+        QCOMPARE(socket.protocol(), QSsl::TlsV1);
         socket.abort();
     }
     {
@@ -430,6 +454,13 @@ void tst_QSslSocket::protocol()
         QCOMPARE(socket.protocol(), QSsl::SslV2);
         socket.connectToHostEncrypted(QLatin1String("fluke.troll.no"), 443);
         QVERIFY(socket.waitForEncrypted());
+        QCOMPARE(socket.protocol(), QSsl::SslV2);
+        socket.abort();
+        QCOMPARE(socket.protocol(), QSsl::SslV2);
+        socket.connectToHost(QLatin1String("fluke.troll.no"), 443);
+        QVERIFY2(socket.waitForConnected(), qPrintable(socket.errorString()));
+        socket.startClientEncryption();
+        QVERIFY2(socket.waitForEncrypted(), qPrintable(socket.errorString()));
         socket.abort();
     }
     {
@@ -438,6 +469,15 @@ void tst_QSslSocket::protocol()
         QCOMPARE(socket.protocol(), QSsl::AnyProtocol);
         socket.connectToHostEncrypted(QLatin1String("fluke.troll.no"), 443);
         QVERIFY(socket.waitForEncrypted());
+        QCOMPARE(socket.protocol(), QSsl::AnyProtocol);
+        socket.abort();
+        QCOMPARE(socket.protocol(), QSsl::AnyProtocol);
+        socket.connectToHost(QLatin1String("fluke.troll.no"), 443);
+        QVERIFY2(socket.waitForConnected(), qPrintable(socket.errorString()));
+        socket.startClientEncryption();
+        QVERIFY2(socket.waitForEncrypted(), qPrintable(socket.errorString()));
+        QCOMPARE(socket.protocol(), QSsl::AnyProtocol);
+        socket.abort();
     }
 }
 

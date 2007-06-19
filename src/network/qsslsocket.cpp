@@ -1390,7 +1390,7 @@ qint64 QSslSocket::writeData(const char *data, qint64 len)
     \internal
 */
 QSslSocketPrivate::QSslSocketPrivate()
-    : plainSocket(0)
+    : protocol(QSsl::SslV3), plainSocket(0)
 {
 }
 
@@ -1410,7 +1410,6 @@ void QSslSocketPrivate::init()
     autoStartHandshake = false;
     connectionEncrypted = false;
     ignoreSslErrors = false;
-    protocol = QSsl::SslV3;
     useLocalCaCertificatesOnly = false;
 
     readBuffer.clear();
