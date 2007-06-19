@@ -127,7 +127,8 @@ void QSQLiteResultPrivate::initColumns(bool emptyResultset)
 
     for (int i = 0; i < nCols; ++i) {
         QString colName = QString::fromUtf16(
-                    static_cast<const ushort *>(sqlite3_column_name16(stmt, i)));
+                    static_cast<const ushort *>(sqlite3_column_name16(stmt, i))
+                    ).remove(QLatin1Char('"'));
 
         // must use typeName for resolving the type to match QSqliteDriver::record
         QString typeName = QString::fromUtf16(
