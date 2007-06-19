@@ -123,8 +123,8 @@ bool QSharedMemoryPrivate::create(int size)
 bool QSharedMemoryPrivate::attach(QSharedMemory::AccessMode mode)
 {
     // Grab a pointer to the memory block
-    int permisions = (mode == QSharedMemory::ReadOnly ? FILE_MAP_READ : FILE_MAP_ALL_ACCESS);
-    memory = (void *)MapViewOfFile(handle(), permisions, 0, 0, 0);
+    int permissions = (mode == QSharedMemory::ReadOnly ? FILE_MAP_READ : FILE_MAP_ALL_ACCESS);
+    memory = (void *)MapViewOfFile(handle(), permissions, 0, 0, 0);
     if (0 == memory) {
         setErrorString(QLatin1String("QSharedMemory::attach"));
         cleanHandle();
