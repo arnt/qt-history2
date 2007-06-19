@@ -469,6 +469,10 @@ void QSslSocketBackendPrivate::transmit()
 {
     Q_Q(QSslSocket);
 
+    // If we don't have any SSL context, don't bother transmitting.
+    if (!ssl)
+        return;
+
     bool transmitting;
     do {
         transmitting = false;

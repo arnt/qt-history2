@@ -86,6 +86,7 @@ private slots:
     void supportedCiphers();
     void systemCaCertificates();
     void wildcard();
+    void setEmptyKey();
 
     static void exitLoop()
     {
@@ -710,6 +711,40 @@ void tst_QSslSocket::wildcard()
     QCOMPARE(certificate.issuerInfo(QSslCertificate::CommonName), QString("fluke.troll.no"));
 
     socket.close();
+}
+
+class SslServer2 : public QTcpServer
+{
+protected:
+    void incomingConnection(int socketDescriptor)
+    {
+        QSslSocket *socket = new QSslSocket(this);
+        socket->ignoreSslErrors();
+
+        // Only set the certificate
+        QList<QSslCertificate> localCert = QSslCertificate::fromPath("certs/fluke.cert");
+        QVERIFY(!localCert.isEmpty());
+        QVERIFY(localCert.first().handle());
+        socket->setLocalCertificate(localCert.first());
+
+        QVERIFY(socket->setSocketDescriptor(socketDescriptor, QAbstractSocket::ConnectedState));
+
+        socket->startServerEncryption();
+    }
+};
+
+void tst_QSslSocket::setEmptyKey()
+{
+    SslServer2 server;
+    server.listen();
+
+    QSslSocket socket;
+    socket.connectToHostEncrypted("127.0.0.1", server.serverPort());
+
+    QTestEventLoop::instance().enterLoop(2);
+
+    QCOMPARE(socket.state(), QAbstractSocket::ConnectedState);
+    QCOMPARE(socket.error(), QAbstractSocket::UnknownSocketError);
 }
 
 #endif // QT_NO_OPENSSL
