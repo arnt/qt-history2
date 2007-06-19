@@ -1190,6 +1190,7 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
         qt_resolve_version_1_3_functions(ctx);
 
 #ifndef Q_WS_QWS
+    glPushClientAttrib(GL_CLIENT_ALL_ATTRIB_BITS);
     glPushAttrib(GL_ALL_ATTRIB_BITS);
     glGetDoublev(GL_PROJECTION_MATRIX, &d->projection_matrix[0][0]);
 #endif
@@ -1329,6 +1330,7 @@ bool QOpenGLPaintEngine::end()
     glMatrixMode(GL_PROJECTION);
     glLoadMatrixd(&d->projection_matrix[0][0]);
     glPopAttrib();
+    glPopClientAttrib();
 #endif
 
 #ifndef Q_WS_QWS
