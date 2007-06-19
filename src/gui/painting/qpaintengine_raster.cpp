@@ -2959,7 +2959,9 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
             return;
 
         QFontEngineFT::GlyphFormat neededFormat = QFontEngineFT::Format_A8;
-        if (d->mono_surface)
+        if (d->mono_surface
+            || fe->isBitmapFont() // alphaPenBlt can handle mono, too
+           )
             neededFormat = QFontEngineFT::Format_Mono;
 
         QFontEngineFT::QGlyphSet *gset = fe->defaultGlyphs();
@@ -2987,7 +2989,7 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
             const int pitch = (neededFormat == QFontEngineFT::Format_Mono ? ((glyph->width + 31) & ~31) >> 3
                                : (glyph->width + 3) & ~3);
 
-            alphaPenBlt(glyph->data, pitch, d->mono_surface,
+            alphaPenBlt(glyph->data, pitch, neededFormat == QFontEngineFT::Format_Mono,
                         qRound(positions[i].x) + glyph->x,
                         qRound(positions[i].y) - glyph->y,
                         glyph->width, glyph->height);

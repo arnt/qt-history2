@@ -199,6 +199,7 @@ public:
     inline bool drawAsOutline() const { return outline_drawing; }
     inline bool drawAntialiased() const { return antialias; }
     inline bool invalid() const { return xsize == 0 && ysize == 0; }
+    inline bool isBitmapFont() const { return defaultGlyphFormat == Format_Mono; }
 
     QOpenType *openType() const;
 
