@@ -537,6 +537,10 @@ of \a value in the variable passed as a reference in argument \a n.
             // list: [ "AlPha", "beTA", "DELTA", "gamma" ]
         }
     \endcode
+    
+    Note that earlier versions of Qt allowed using a lessThan function that took its
+    arguments by non-const reference. From 4.3 and on this is no longer possible,
+    the arguments has to be passed by const reference or value.
 
     To sort values in reverse order, pass
     \l{qGreater()}{qGreater<T>()} as the \a lessThan parameter. For
