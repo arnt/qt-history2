@@ -165,6 +165,7 @@ bool QFSFileEngine::open(QIODevice::OpenMode openMode)
 
     d->openMode = openMode;
     d->lastFlushFailed = false;
+    d->tried_stat = 0;
     d->fh = 0;
     d->fd = -1;
 
@@ -192,6 +193,7 @@ bool QFSFileEngine::open(QIODevice::OpenMode openMode, FILE *fh)
     d->closeFileHandle = false;
     d->nativeFilePath.clear();
     d->filePath.clear();
+    d->tried_stat = 0;
     d->fd = -1;
 
     return d->openFh(openMode, fh);
@@ -245,6 +247,7 @@ bool QFSFileEngine::open(QIODevice::OpenMode openMode, int fd)
     d->filePath.clear();
     d->fh = 0;
     d->fd = -1;
+    d->tried_stat = 0;
 
     return d->openFd(openMode, fd);
 }
