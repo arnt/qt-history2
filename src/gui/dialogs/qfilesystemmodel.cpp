@@ -181,6 +181,7 @@ QFileSystemModelPrivate::QFileSystemNode *QFileSystemModelPrivate::node(const QS
 	        row = -1;
 	}
 
+        bool alreadyExisted = (row != -1);
         if (row == -1) {
             // Someone might call ::index("file://cookie/monster/doesn't/like/veggies"),
             // a path that doesn't exists, I.E. don't blindly create directories.
@@ -196,8 +197,13 @@ QFileSystemModelPrivate::QFileSystemNode *QFileSystemModelPrivate::node(const QS
             parent->children[row].populate(fileInfoGatherer.getInfo(info));
 #endif
         }
+
         Q_ASSERT(row >= 0);
         if (parent->visibleLocation(row) == -1) {
+            // It has been filtered out
+            if (alreadyExisted && parent->children.at(row).hasInformation() && !fetch)
+                return const_cast<QFileSystemModelPrivate::QFileSystemNode*>(&root);
+
             QFileSystemModelPrivate *p = const_cast<QFileSystemModelPrivate*>(this);
             p->addVisibleFiles(parent, QStringList(element));
             if (!p->bypassFilters.contains(&parent->children.at(row)))
