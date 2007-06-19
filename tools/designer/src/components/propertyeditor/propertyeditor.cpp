@@ -155,6 +155,10 @@ StringPropertyParameters textPropertyValidationMode(const QObject *object,const 
         return StringPropertyParameters(vm, false);
     }
 
+    // Accessibility. Both are texts the narrator reads
+    if (pname == QLatin1String("accessibleDescription") || pname == QLatin1String("accessibleName"))
+        return StringPropertyParameters(ValidationMultiLine, true);
+
     // Any names
     if (pname == QLatin1String("buddy") || pname.endsWith(QLatin1String("Name")))
         return StringPropertyParameters(ValidationObjectName, false);
@@ -166,7 +170,7 @@ StringPropertyParameters textPropertyValidationMode(const QObject *object,const 
     if (pname == QLatin1String("styleSheet")     || pname == QLatin1String("toolTip")   || 
         pname.endsWith(QLatin1String("ToolTip")) || pname == QLatin1String("whatsThis") ||
         pname == QLatin1String("iconText")       || pname == QLatin1String("windowIconText")  ||
-        pname == QLatin1String("html")           || pname == QLatin1String("accessibleDescription"))
+        pname == QLatin1String("html"))
         return StringPropertyParameters(ValidationMultiLine, true);
 
 
