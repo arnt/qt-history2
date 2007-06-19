@@ -328,7 +328,7 @@ static void initializeDb()
                 bool italic = isitalic[0] == 'y';
                 bool smooth = QByteArray(flags).contains('s');
                 if (file[0] && QFile::exists(filename))
-                    db->addFont(QString::fromUtf8(name), /*foundry*/"", weight, italic, size/10, file, /*fileIndex*/ 0, smooth);
+                    db->addFont(QString::fromUtf8(name), /*foundry*/"", weight, italic, size/10, QFile::encodeName(filename), /*fileIndex*/ 0, smooth);
             }
         } while (!feof(fontdef));
         fclose(fontdef);
