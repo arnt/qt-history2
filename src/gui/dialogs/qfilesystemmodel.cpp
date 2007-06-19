@@ -540,23 +540,23 @@ QIcon QFileSystemModelPrivate::icon(const QModelIndex &index) const
 /*!
     \reimp
 */
-bool QFileSystemModel::setData(const QModelIndex &index, const QVariant &value, int role)
+bool QFileSystemModel::setData(const QModelIndex &idx, const QVariant &value, int role)
 {
     Q_D(QFileSystemModel);
-    if (!index.isValid()
-        || index.column() != 0
+    if (!idx.isValid()
+        || idx.column() != 0
         || role != Qt::EditRole
-        || (flags(index) & Qt::ItemIsEditable) == 0) {
+        || (flags(idx) & Qt::ItemIsEditable) == 0) {
         return false;
     }
 
     QString newName = value.toString();
-    if (newName == index.data().toString())
+    if (newName == idx.data().toString())
         return true;
 
     if (newName.isEmpty()
         || newName.contains(QDir::separator())
-        || !d->rootDir.rename(index.data().toString(), newName)) {
+        || !d->rootDir.rename(idx.data().toString(), newName)) {
 #ifndef QT_NO_MESSAGEBOX
         QMessageBox::information(0, QFileSystemModel::tr("Invalid filename"),
                                 QFileSystemModel::tr("<b>The name \"%1\" can not be used.</b><p>Try using another name, with fewer characters or no punctuations marks.")
@@ -565,7 +565,7 @@ bool QFileSystemModel::setData(const QModelIndex &index, const QVariant &value, 
 #endif // QT_NO_MESSAGEBOX
         return false;
     } else {
-        QFileSystemModelPrivate::QFileSystemNode *indexNode = d->node(index);
+        QFileSystemModelPrivate::QFileSystemNode *indexNode = d->node(idx);
         QFileSystemModelPrivate::QFileSystemNode *parentNode = indexNode->parent;
         int itemLocation = d->findChild(parentNode, *indexNode);
         int visibleLocation = parentNode->visibleLocation(itemLocation);
@@ -576,6 +576,7 @@ bool QFileSystemModel::setData(const QModelIndex &index, const QVariant &value, 
         QFileInfo info(d->rootDir, newName);
         parentNode->children[itemLocation].populate(d->fileInfoGatherer.getInfo(info));
         parentNode->visibleChildren.insert(visibleLocation, itemLocation);
+        changePersistentIndex(idx, index(idx.row(), idx.column(), d->index(parentNode)));
         d->delayedSort();
     }
     return true;
