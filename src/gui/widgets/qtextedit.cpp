@@ -726,12 +726,7 @@ void QTextEdit::setDocument(QTextDocument *document)
 {
     Q_D(QTextEdit);
     d->control->setDocument(document);
-
-    document = d->control->document();
-    QTextOption opt = document->defaultTextOption();
-    opt.setWrapMode(d->wordWrap);
-    document->setDefaultTextOption(opt);
-
+    d->updateDefaultTextOption();
     d->relayoutDocument();
 }
 
@@ -1380,6 +1375,22 @@ void QTextEditPrivate::_q_currentCharFormatChanged(const QTextCharFormat &fmt)
     emit q->currentFontChanged(fmt.font());
     emit q->currentColorChanged(fmt.foreground().color());
 #endif
+}
+
+void QTextEditPrivate::updateDefaultTextOption()
+{
+    QTextDocument *doc = control->document();
+
+    QTextOption opt = doc->defaultTextOption();
+    QTextOption::WrapMode oldWrapMode = opt.wrapMode();
+
+    if (lineWrap == QTextEdit::NoWrap)
+        opt.setWrapMode(QTextOption::NoWrap);
+    else
+        opt.setWrapMode(wordWrap);
+
+    if (opt.wrapMode() != oldWrapMode)
+        doc->setDefaultTextOption(opt);
 }
 
 /*! \reimp
@@ -2131,9 +2142,6 @@ void QTextEdit::setTabChangesFocus(bool b)
     FixedPixelWidth or FixedColumnWidth you should also call
     setLineWrapColumnOrWidth() with the width you want.
 
-    Note that setting NoWrap as line wrap mode will implicitly also
-    set QTextOption::NoWrap as word wrap mode.
-
     \sa lineWrapColumnOrWidth
 */
 
@@ -2149,8 +2157,7 @@ void QTextEdit::setLineWrapMode(LineWrapMode wrap)
     if (d->lineWrap == wrap)
         return;
     d->lineWrap = wrap;
-    if (d->lineWrap == NoWrap)
-        setWordWrapMode(QTextOption::ManualWrap);
+    d->updateDefaultTextOption();
     d->relayoutDocument();
 }
 
@@ -2199,9 +2206,7 @@ void QTextEdit::setWordWrapMode(QTextOption::WrapMode mode)
     if (mode == d->wordWrap)
         return;
     d->wordWrap = mode;
-    QTextOption opt = d->control->document()->defaultTextOption();
-    opt.setWrapMode(mode);
-    d->control->document()->setDefaultTextOption(opt);
+    d->updateDefaultTextOption();
 }
 
 /*!

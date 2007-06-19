@@ -71,6 +71,8 @@ public:
 
     void _q_currentCharFormatChanged(const QTextCharFormat &format);
 
+    void updateDefaultTextOption();
+
     QTextControl *control;
 
     QTextEdit::AutoFormatting autoFormatting;

@@ -116,6 +116,7 @@ private slots:
     void textObscuredByScrollbars();
     void setTextPreservesUndoRedoEnabled();
     void wordWrapProperty();
+    void lineWrapProperty();
 
 private:
     void createSelection();
@@ -1624,6 +1625,16 @@ void tst_QTextEdit::wordWrapProperty()
         edit.setDocument(doc);
         QVERIFY(doc->defaultTextOption().wrapMode() == QTextOption::NoWrap);
     }
+}
+
+void tst_QTextEdit::lineWrapProperty()
+{
+    QVERIFY(ed->wordWrapMode() == QTextOption::WrapAtWordBoundaryOrAnywhere);
+    QVERIFY(ed->lineWrapMode() == QTextEdit::WidgetWidth);
+    ed->setLineWrapMode(QTextEdit::NoWrap);
+    QVERIFY(ed->lineWrapMode() == QTextEdit::NoWrap);
+    QVERIFY(ed->wordWrapMode() == QTextOption::WrapAtWordBoundaryOrAnywhere);
+    QVERIFY(ed->document()->defaultTextOption().wrapMode() == QTextOption::NoWrap);
 }
 
 QTEST_MAIN(tst_QTextEdit)
