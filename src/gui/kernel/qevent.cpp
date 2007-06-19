@@ -2146,10 +2146,10 @@ QDropEvent::QDropEvent(const QPoint& pos, Qt::DropActions actions, const QMimeDa
                        Qt::MouseButtons buttons, Qt::KeyboardModifiers modifiers, Type type)
     : QEvent(type), p(pos), mouseState(buttons),
       modState(modifiers), act(actions),
-      drop_action(Qt::CopyAction),
       mdata(data)
 {
     default_action = QDragManager::self()->defaultAction(act, modifiers);
+    drop_action = default_action;
     ignore();
 }
 
