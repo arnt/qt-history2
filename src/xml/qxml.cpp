@@ -198,6 +198,19 @@ public:
     bool lookingForEncodingDecl;
 };
 
+/*! \class QXmlInputSourcePrivate
+    \internal
+
+  There's a slight misdesign in this class that can
+  be worth to keep in mind: the `str' member is
+  a buffer which QXmlInputSource::next() returns from,
+  and which is populated from the input device or input
+  stream. However, when the input is a QString(the user called
+  QXmlInputSource::setData()), `str' has two roles: it's the
+  buffer, but also the source. This /seems/ to be no problem
+  because in the case of having no device or stream, the QString
+  is read in one go.
+ */
 class QXmlParseExceptionPrivate
 {
 public:
@@ -1406,32 +1419,13 @@ void QXmlInputSource::setData(const QByteArray& dat)
     \sa data() next() QXmlInputSource()
 */
 
-#define QSAX_BUFF_SIZE 1024
-#if 0
-static QByteArray escapeBuff(const QByteArray &arr)
-{
-    QByteArray result;
-    for (int i = 0; i < arr.count(); ++i) {
-        char c = arr.at(i);
-        if (c == '\\') {
-            result.append('\\');
-            result.append('\\');
-        } else if (c >= 32 && c <= 126) {
-            result.append(c);
-        } else {
-            result.append('\\');
-            QByteArray num = QByteArray::number((uchar)c);
-            while (num.length() < 3)
-                num.prepend('0');
-            result.append(num);
-        }
-    }
-    return result;
-}
-#endif
-
 void QXmlInputSource::fetchData()
 {
+    enum
+    {
+        BufferSize = 1024
+    };
+
     QByteArray rawData;
 
     if (d->inputDevice || d->inputStream) {
@@ -1443,15 +1437,15 @@ void QXmlInputSource::fetchData()
                 rawData = QByteArray((const char *) s->constData(), s->size() * sizeof(QChar));
             }
         } else if (device->isOpen() || device->open(QIODevice::ReadOnly)) {
-            rawData.resize(QSAX_BUFF_SIZE);
-            qint64 size = device->read(rawData.data(), QSAX_BUFF_SIZE);
+            rawData.resize(BufferSize);
+            qint64 size = device->read(rawData.data(), BufferSize);
 
             if (size != -1) {
                 // We don't want to give fromRawData() less than four bytes if we can avoid it.
                 while (size < 4) {
                     if (!device->waitForReadyRead(-1))
                         break;
-                    int ret = device->read(rawData.data() + size, QSAX_BUFF_SIZE - size);
+                    int ret = device->read(rawData.data() + size, BufferSize - size);
                     if (ret <= 0)
                         break;
                     size += ret;
@@ -1460,9 +1454,13 @@ void QXmlInputSource::fetchData()
 
             rawData.resize(qMax(qint64(0), size));
         }
-    }
 
-    setData(fromRawData(rawData));
+        /* We do this inside the "if (d->inputDevice ..." scope
+         * because if we're not using a stream or device, that is,
+         * the user set a QString manually, we don't want to set
+         * d->str. */
+        setData(fromRawData(rawData));
+    }
 }
 
 static QString extractEncodingDecl(const QString &text, bool *needMoreText)
