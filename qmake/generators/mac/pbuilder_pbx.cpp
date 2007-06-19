@@ -796,7 +796,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
                     QString lib("lib" + name);
                     for(QStringList::Iterator lit = libdirs.begin(); lit != libdirs.end(); ++lit) {
                         if(project->isActiveConfig("link_prl")) {
-                            /* This isn't real nice, but it is real usefull. This looks in a prl
+                            /* This isn't real nice, but it is real useful. This looks in a prl
                                for what the library will ultimately be called so we can stick it
                                in the ProjectFile. If the prl format ever changes (not likely) then
                                this will not really work. However, more concerning is that it will

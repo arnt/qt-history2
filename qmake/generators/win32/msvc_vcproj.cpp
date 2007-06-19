@@ -316,7 +316,7 @@ bool VcprojGenerator::writeProjectMakefile()
     usePlatformDir();
     QTextStream t(&Option::output);
 
-    // Check if all requirements are fullfilled
+    // Check if all requirements are fulfilled
     if(!project->values("QMAKE_FAILED_REQUIREMENTS").isEmpty()) {
         fprintf(stderr, "Project file not generated because all requirements not met:\n\t%s\n",
                 var("QMAKE_FAILED_REQUIREMENTS").toLatin1().constData());
@@ -429,7 +429,7 @@ QUuid VcprojGenerator::increaseUUID(const QUuid &id)
 
 void VcprojGenerator::writeSubDirs(QTextStream &t)
 {
-    // Check if all requirements are fullfilled
+    // Check if all requirements are fulfilled
     if(!project->values("QMAKE_FAILED_REQUIREMENTS").isEmpty()) {
         fprintf(stderr, "Project file not generated because all requirements not met:\n\t%s\n",
                 var("QMAKE_FAILED_REQUIREMENTS").toLatin1().constData());
@@ -490,7 +490,7 @@ void VcprojGenerator::writeSubDirs(QTextStream &t)
                         fprintf(stderr, "Cannot find directory: %s\n", dir.toLatin1().constData());
                 }
                 if(tmp_proj.read(fn)) {
-                    // Check if all requirements are fullfilled
+                    // Check if all requirements are fulfilled
                     if(!tmp_proj.variables()["QMAKE_FAILED_REQUIREMENTS"].isEmpty()) {
                         fprintf(stderr, "Project file(%s) not added to Solution because all requirements not met:\n\t%s\n",
                                 fn.toLatin1().constData(), tmp_proj.values("QMAKE_FAILED_REQUIREMENTS").join(" ").toLatin1().constData());
@@ -751,7 +751,7 @@ void VcprojGenerator::init()
         }
     }
 
-#if 0 // Debuging
+#if 0 // Debugging
     Q_FOREACH(QString aKey, extraCompilerSources.keys()) {
         qDebug("Extracompilers for %s are (%s)", aKey.toLatin1().constData(), extraCompilerSources.value(aKey).join(", ").toLatin1().constData());
     }
@@ -1338,7 +1338,7 @@ void VcprojGenerator::initOld()
 
     project->values("QMAKE_LIBS") += escapeFilePaths(project->values("LIBS"));
 
-     // Get filename w/o extention -----------------------------------
+     // Get filename w/o extension -----------------------------------
     QString msvcproj_project = "";
     QString targetfilename = "";
     if(!project->isEmpty("TARGET")) {

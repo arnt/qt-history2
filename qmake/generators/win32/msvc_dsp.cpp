@@ -301,7 +301,7 @@ DspMakefileGenerator::init()
     if(!project->values("QMAKE_POST_LINK").isEmpty())
         postLinkStep += var("QMAKE_POST_LINK");
 
-    // dont destroy the target, it is used by prl writer.
+    // don't destroy the target, it is used by prl writer.
     if(!project->values("DESTDIR").isEmpty()) {
         dest = project->first("DESTDIR");
         project->values("DESTDIR").first() = dest;
@@ -465,7 +465,7 @@ bool DspMakefileGenerator::writeProjectMakefile()
     bool ret = true;
 
     QTextStream t(&Option::output);
-    // Check if all requirements are fullfilled
+    // Check if all requirements are fulfilled
     if(!project->values("QMAKE_FAILED_REQUIREMENTS").isEmpty()) {
         fprintf(stderr, "Project file not generated because all requirements not met:\n\t%s\n",
                 var("QMAKE_FAILED_REQUIREMENTS").toLatin1().constData());
