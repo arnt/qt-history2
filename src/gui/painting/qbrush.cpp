@@ -271,6 +271,7 @@ static QBrushData *nullBrushInstance()
         QBrushData *x = new QBrushData;
         x->ref = 1; x->style = Qt::BrushStyle(0); x->color = Qt::black;
         x->hasTransform = false;
+        x->forceTextureClamp = false;
         if (!q_atomic_test_and_set_ptr(&defaultBrush.pointer, 0, x))
             delete x;
     }
@@ -322,6 +323,7 @@ void QBrush::init(const QColor &color, Qt::BrushStyle style)
     d->style = style;
     d->color = color;
     d->hasTransform = false;
+    d->forceTextureClamp = false;
 }
 
 /*!
@@ -536,6 +538,7 @@ void QBrush::detach(Qt::BrushStyle newStyle)
     x->color = d->color;
     x->transform = d->transform;
     x->hasTransform = d->hasTransform;
+    x->forceTextureClamp = d->forceTextureClamp;
     x = qAtomicSetPtr(&d, x);
     if (!x->ref.deref())
         cleanUp(x);

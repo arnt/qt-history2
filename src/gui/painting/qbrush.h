@@ -91,6 +91,7 @@ private:
 #endif
     friend class QRasterPaintEngine;
     friend class QRasterPaintEnginePrivate;
+    friend class QSpanData;
     friend class QPainter;
     friend bool hasPixmapTexture(const QBrush& brush);
     void detach(Qt::BrushStyle newStyle);
@@ -129,7 +130,8 @@ struct QBrushData
     Qt::BrushStyle style;
     QColor color;
     QTransform transform;
-    bool hasTransform;
+    uint hasTransform : 1;
+    uint forceTextureClamp : 1;
 };
 
 inline Qt::BrushStyle QBrush::style() const { return d->style; }

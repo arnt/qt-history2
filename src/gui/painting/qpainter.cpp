@@ -4219,7 +4219,9 @@ void QPainter::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr)
         scale(w / sw, h / sh);
         setBackgroundMode(Qt::TransparentMode);
         setRenderHint(Antialiasing, renderHints() & SmoothPixmapTransform);
-        setBrush(QBrush(d->state->pen.color(), pm));
+        QBrush brush(d->state->pen.color(), pm);
+        brush.d->forceTextureClamp = true;
+        setBrush(brush);
         setPen(Qt::NoPen);
         setBrushOrigin(QPointF(-sx, -sy));
 
@@ -4389,7 +4391,9 @@ void QPainter::drawImage(const QRectF &targetRect, const QImage &image, const QR
         scale(w / sw, h / sh);
         setBackgroundMode(Qt::TransparentMode);
         setRenderHint(Antialiasing, renderHints() & SmoothPixmapTransform);
-        setBrush(QBrush(image));
+        QBrush brush(image);
+        brush.d->forceTextureClamp = true;
+        setBrush(brush);
         setPen(Qt::NoPen);
         setBrushOrigin(QPointF(-sx, -sy));
 

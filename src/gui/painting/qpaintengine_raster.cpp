@@ -4794,7 +4794,7 @@ void QSpanData::setup(const QBrush &brush, int alpha)
             tempImage = rasterBuffer->colorizeBitmap(brush.textureImage(), brush.color());
         else
             tempImage = brush.textureImage();
-        initTexture(&tempImage, alpha, TextureData::Tiled);
+        initTexture(&tempImage, alpha, brush.d->forceTextureClamp ? TextureData::Plain : TextureData::Tiled);
         break;
 
     case Qt::NoBrush:
