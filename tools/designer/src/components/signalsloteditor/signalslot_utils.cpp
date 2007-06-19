@@ -29,7 +29,7 @@ namespace {
     typedef QPair<QString, QString> ClassNameSignaturePair;
 }
 
-// Find all member fuctions that match a predicate on the signature string
+// Find all member functions that match a predicate on the signature string
 // using the member sheet and the fake methods stored in the widget
 // database and the meta data base.
 // Assign a pair of <classname,  signature> to OutputIterator.

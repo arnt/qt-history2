@@ -121,7 +121,7 @@ signals:
 
     /*
     If QToolBarWidgetAction was in another tool bar and is inserted into
-    this toolBar, toolBarChanged is first emited for other toolbar - without
+    this toolBar, toolBarChanged is first emitted for other toolbar - without
     that action. (Another approach may be that user first must call setToolBar
     without that action for old tool bar)
     */
@@ -1753,7 +1753,7 @@ void QtToolBarListWidget::dropEvent(QDropEvent *event)
 */
 
 /*!
-    Creates a toolbar dialog with the given \a parent and the specifed
+    Creates a toolbar dialog with the given \a parent and the specified
     window \a flags.
 */
 QtToolBarDialog::QtToolBarDialog(QWidget *parent, Qt::WFlags flags)
