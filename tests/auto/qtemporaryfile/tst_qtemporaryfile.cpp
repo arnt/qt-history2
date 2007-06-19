@@ -35,6 +35,7 @@ private slots:
     void autoRemove();
     void write();
     void openCloseOpenClose();
+    void size();
 public:
 };
 
@@ -210,6 +211,20 @@ void tst_QTemporaryFile::openCloseOpenClose()
         QCOMPARE(file.fileName(), fileName);
     }
     QVERIFY(!QFile::exists(fileName));
+}
+
+void tst_QTemporaryFile::size()
+{
+    QTemporaryFile file;
+    QVERIFY(file.open());
+    QVERIFY(file.exists());
+    QVERIFY(!file.isSequential());
+    QByteArray str("foobar");
+    file.write(str);
+    QVERIFY(QFile::exists(file.fileName()));
+    QCOMPARE(file.size(), qint64(6));
+    file.seek(0);
+    QCOMPARE(file.size(), qint64(6));
 }
 
 QTEST_MAIN(tst_QTemporaryFile)

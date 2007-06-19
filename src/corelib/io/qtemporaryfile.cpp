@@ -247,7 +247,7 @@ bool QTemporaryFileEngine::open(QIODevice::OpenMode openMode)
 
         // Restore the file names (open() resets them).
         d->filePath = QString::fromLocal8Bit(filename); //changed now!
-        d->nativeFilePath = QFile::encodeName(d->filePath);
+        d->nativeInitFileName();
         delete [] filename;
         return true;
     }
