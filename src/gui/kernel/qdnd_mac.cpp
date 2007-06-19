@@ -263,7 +263,7 @@ static inline bool qt_mac_set_existing_drop_action(const DragRef &dragRef, QDrop
 }
 
 /**
-    If an answer rect has been set on the event (after beeing sendt
+    If an answer rect has been set on the event (after being sendt
     to the global event processor), we store that rect so we can
     check if the mouse is in the same area upon next drag move event. 
 */
@@ -320,7 +320,7 @@ bool QWidgetPrivate::qt_mac_dnd_event(uint kind, DragRef dragRef)
     if(QDragManager::self()->source())
         dropdata = QDragManager::self()->dragPrivate()->data;
 
-    // 'interrestedInDrag' should end up beeing 'true' if a later drop
+    // 'interrestedInDrag' should end up being 'true' if a later drop
     // will be accepted by the widget for the current mouse position 
     bool interrestedInDrag = true;
 
@@ -362,7 +362,7 @@ bool QWidgetPrivate::qt_mac_dnd_event(uint kind, DragRef dragRef)
             return false;
         else {
             // Documentation states that a drag move event is sendt immidiatly after
-            // a drag enter event. So we do that. This will honour widgets overriding
+            // a drag enter event. So we do that. This will honor widgets overriding
             // 'dragMoveEvent' only, and not 'dragEnterEvent' 
             QDragMoveEvent qDMEvent(q->mapFromGlobal(QPoint(mouse.h, mouse.v)), qtAllowed, dropdata,
                     QApplication::mouseButtons(), QApplication::keyboardModifiers());

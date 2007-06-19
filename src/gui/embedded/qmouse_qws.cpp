@@ -95,7 +95,7 @@ public:
     The mouse driver receives mouse events from the system device and
     encapsulates each event with an instance of the QWSEvent class
     which it then passes to the server application (the server is
-    responsible for propagating the event to the appropiate
+    responsible for propagating the event to the appropriate
     client). To receive mouse events, a QWSMouseHandler object will
     usually create a QSocketNotifier object for the given device. The
     QSocketNotifier class provides support for monitoring activity on

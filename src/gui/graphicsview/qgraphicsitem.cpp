@@ -251,7 +251,7 @@
     \value ItemIgnoresTransformations The item ignores inherited
     transformations (i.e., its position is still relative to its parent, but
     the parent or view rotation, zoom or shear transformations are
-    ignored). This flag is particularily useful for text label items, which
+    ignored). This flag is particularly useful for text label items, which
     can become unreadable when the view zooms away from the scene. By default,
     this flag is disabled. This flag was introduced in Qt 4.3.
 */

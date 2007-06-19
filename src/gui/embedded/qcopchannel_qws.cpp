@@ -232,7 +232,7 @@ QString QCopChannel::channel() const
 
     This function is called by the server when this object's channel
     receives new messages. Note that the default implementation simply
-    emits the received() signal; reimplement this funtion to process
+    emits the received() signal; reimplement this function to process
     the incoming \a message and \a data.
 
     Note that the format of the given \a data has to be well defined

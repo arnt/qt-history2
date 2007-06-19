@@ -306,7 +306,7 @@ void QWidgetPrivate::setParent_sys(QWidget *newparent, Qt::WindowFlags f)
     q->setAttribute(Qt::WA_WState_Hidden, false);
     adjustFlags(data.window_flags, q);
     // keep compatibility with previous versions, we need to preserve the created state
-    // (but we recreate the winId for the widget being reparented, again for compability)
+    // (but we recreate the winId for the widget being reparented, again for compatibility)
     if (wasCreated || (!q->isWindow() && newparent->testAttribute(Qt::WA_WState_Created)))
         createWinId();
     if (q->isWindow() || (!newparent || newparent->isVisible()) || explicitlyHidden)

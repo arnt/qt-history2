@@ -337,7 +337,7 @@ QTransform QPixmap::trueMatrix(const QTransform &m, int w, int h)
   \overload
 
   This convenience function loads the matrix \a m into a
-  QTransform and calls the overloaded function wih the
+  QTransform and calls the overloaded function with the
   QTransform and the width \a w and the height \a h.
  */
 QMatrix QPixmap::trueMatrix(const QMatrix &m, int w, int h)

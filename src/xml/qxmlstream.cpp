@@ -29,7 +29,7 @@
     This enum specifies the type of token the reader just read.
 
     \value NoToken The reader has not yet read anything.
-    \value Invalid An error has occured, reported in error() and errorString().
+    \value Invalid An error has occurred, reported in error() and errorString().
     \value StartDocument The reader reports the start of the
     document. If the document is declared standalone,
     isStandaloneDocument() returns true; otherwise it returns false.
@@ -58,7 +58,7 @@
 
     This enum specifies different error cases
 
-    \value NoError No error has occured.
+    \value NoError No error has occurred.
     \value CustomError A custom error has been raised with raiseError()
     \value NotWellFormedError The parser internally raised an error due to the read XML not being well-formed.
     \value PrematureEndOfDocumentError The input stream ended before the document was parsed completely. This error can be recovered from.
@@ -129,8 +129,8 @@
   DTD.
 
   If an error does occur while parsing, atEnd() returns true and
-  error() returns the kind of error that occured. hasError() can also
-  be used to check whether an error has occured. The functions
+  error() returns the kind of error that occurred. hasError() can also
+  be used to check whether an error has occurred. The functions
   errorString(), lineNumber(), columnNumber(), and characterOffset()
   make it possible to generate a verbose human-understandable error or
   warning message. In order to simplify application code,
@@ -275,7 +275,7 @@ QXmlStreamReader::~QXmlStreamReader()
 }
 
 /*! \fn bool QXmlStreamReader::hasError() const
-    Returns true an error has occured, otherwise false.
+    Returns true an error has occurred, otherwise false.
 
     \sa errorString(), error()
  */
@@ -378,7 +378,7 @@ void QXmlStreamReader::clear()
 
 /*!
     Returns true if the reader has read until the end of the XML
-    document, or an error has occured and reading has been aborted;
+    document, or an error has occurred and reading has been aborted;
     otherwise returns false.
 
     Has reading been aborted with a PrematureEndOfDocumentError
@@ -694,7 +694,7 @@ inline uint QXmlStreamReaderPrivate::peekChar()
   If \a tokenToInject is not less than zero, injectToken() is called with
   \a tokenToInject when \a str is found.
 
-  If any error occured, false is returned, otherwise true.
+  If any error occurred, false is returned, otherwise true.
   */
 bool QXmlStreamReaderPrivate::scanUntil(const char *str, short tokenToInject)
 {
@@ -1747,7 +1747,7 @@ QString QXmlStreamReader::errorString() const
     return QString();
 }
 
-/*!  Returns the type of the current error, or NoError if no error occured.
+/*!  Returns the type of the current error, or NoError if no error occurred.
 
   \sa errorString(), raiseError()
  */
@@ -2404,7 +2404,7 @@ bool QXmlStreamReader::isStandaloneDocument() const
   XML. Like its related class, it operates on a QIODevice specified
   with setDevice(). The API is simple and straight forward: For every
   XML token or event you want to write, the writer provides a
-  specialised function.
+  specialized function.
 
   You start a document with writeStartDocument() and end it with
   writeEndDocument(). This will implicitly close all remaining open

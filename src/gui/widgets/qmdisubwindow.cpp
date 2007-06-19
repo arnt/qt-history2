@@ -2068,7 +2068,7 @@ QMdiSubWindow::~QMdiSubWindow()
 
 /*!
     Sets \a widget as the internal widget of this subwindow. The
-    internal widget is displayed in the centre of the subwindow
+    internal widget is displayed in the center of the subwindow
     beneath the title bar.
 
     QMdiSubWindow takes temporary ownership of \a widget; you do

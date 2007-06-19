@@ -83,7 +83,7 @@ private:
     The keyboard driver receives keyboard events from the system
     device and encapsulates each event with an instance of the
     QWSEvent class which it then passes to the server application (the
-    server is responsible for propagating the event to the appropiate
+    server is responsible for propagating the event to the appropriate
     client). To receive keyboard events, a QWSKeyboardHandler object
     will usually create a QSocketNotifier object for the given
     device. The QSocketNotifier class provides support for monitoring

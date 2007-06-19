@@ -1401,7 +1401,7 @@ int QTableView::sizeHintForRow(int row) const
         if (d->horizontalHeader->isSectionHidden(logicalColumn))
             continue;
         index = d->model->index(row, logicalColumn, d->root);
-        if (d->wrapItemText) {// for wrapping boundries
+        if (d->wrapItemText) {// for wrapping boundaries
             option.rect.setY(rowViewportPosition(index.row()));
             option.rect.setHeight(rowHeight(index.row()));
             option.rect.setX(columnViewportPosition(index.column()));

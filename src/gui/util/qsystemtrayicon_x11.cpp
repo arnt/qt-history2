@@ -97,7 +97,7 @@ QSystemTrayIconSys::QSystemTrayIconSys(QSystemTrayIcon *q)
         XWindowAttributes attr;
         XGetWindowAttributes(display, root, &attr);
         if ((attr.your_event_mask & StructureNotifyMask) != StructureNotifyMask) {
-            (void) QApplication::desktop(); // lame trick to ensure our event mask is not overriden
+            (void) QApplication::desktop(); // lame trick to ensure our event mask is not overridden
             XSelectInput(display, root, attr.your_event_mask | StructureNotifyMask); // for MANAGER selection
         }
     }

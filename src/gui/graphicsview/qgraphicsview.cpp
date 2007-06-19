@@ -1100,7 +1100,7 @@ void QGraphicsView::resetCachedContent()
     You can call this function to notify QGraphicsView of changes to the
     background or the foreground of the scene. It is commonly used for scenes
     with tile-based backgrounds to notify changes when QGraphicsView has
-    enabled background cacheing.
+    enabled background caching.
 
     Note that QGraphicsView currently supports background caching only (see
     CachedBackground). This function is equivalent to calling update() if any

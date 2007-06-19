@@ -514,7 +514,7 @@ OSStatus QWidgetPrivate::qt_window_event(EventHandlerCallRef er, EventRef event,
             if (wcode != kWindowOpaqueRgn){
                 // If the region is kWindowOpaqueRgn, don't call next
                 // event handler cause this will make the shadow of
-                // masked windows become offset. Unfortunatly, we're not sure why.
+                // masked windows become offset. Unfortunately, we're not sure why.
                 CallNextEventHandler(er, event);
             }
             if(QWidgetPrivate::qt_widget_rgn(qt_mac_find_window(window), wcode, rgn, false))
@@ -1004,7 +1004,7 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef er, EventRef event,
             if (!widget || widget->isWindow() || widget->testAttribute(Qt::WA_Moved) || widget->testAttribute(Qt::WA_Resized)) {
                 handled_event = false;
             } else {
-                // Sync our view in case some other (non-Qt) view is controling us.
+                // Sync our view in case some other (non-Qt) view is controlling us.
                 handled_event = true;
                 Rect newBounds;
                 GetEventParameter(event, kEventParamCurrentBounds,
@@ -1802,7 +1802,7 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WindowFlags f)
     q->setAttribute(Qt::WA_WState_Hidden, false);
     adjustFlags(data.window_flags, q);
     // keep compatibility with previous versions, we need to preserve the created state
-    // (but we recreate the winId for the widget being reparented, again for compability)
+    // (but we recreate the winId for the widget being reparented, again for compatibility)
     if (wasCreated || (!q->isWindow() && parent->testAttribute(Qt::WA_WState_Created)))
         createWinId();
     if (q->isWindow() || (!parent || parent->isVisible()) || explicitlyHidden)

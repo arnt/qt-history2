@@ -2238,7 +2238,7 @@ void qt_path_stroke_cubic_to(qfixed c1x, qfixed c1y,
 
     In addition you can specify a curve's threshold, controlling the
     granularity with which a curve is drawn, using the
-    setCurveThreshold() fucntion. The default threshold is a well
+    setCurveThreshold() function. The default threshold is a well
     adjusted value (0.25), and normally you should not need to modify
     it. However, you can make the curve's appearance smoother by
     decreasing its value.

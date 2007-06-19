@@ -99,7 +99,7 @@
     
     If an error occurs, QSslSocket emits signal sslErrors. In this
     case, if no action is taken to ignore the error(s), the connection
-    is dropped. To continue, despite the occurrance of an error, you
+    is dropped. To continue, despite the occurrence of an error, you
     can call ignoreSslErrors(), either from within this slot after the
     error occurs, or anytime after construction of the QSslSocket and
     before the connection is attempted. This will allow QSslSocket to

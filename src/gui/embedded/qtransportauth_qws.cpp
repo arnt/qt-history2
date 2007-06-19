@@ -266,7 +266,7 @@ void QTransportAuth::unregisterPolicyReceiver( QObject *pr )
 /*!
   Record a new transport connection with \a properties and \a descriptor.
 
-  The calling code is resposible for destroying the returned data when the
+  The calling code is responsible for destroying the returned data when the
   tranport connection is closed.
 */
 QTransportAuth::Data *QTransportAuth::connectTransport( unsigned char properties, int descriptor )
@@ -598,7 +598,7 @@ inline bool __fileOpen( QFile *f )
   to storage allocated for the internal cache and must be used asap.
 
   The list returned is a sequence of one or more keys which match the
-  progId.  There is no seperator, each 16 byte sequence represents a key.
+  progId.  There is no separator, each 16 byte sequence represents a key.
   The sequence is followed by two iterations of the SXE magic
   bytes,eg  0xBA, 0xD4, 0xD4, 0xBA, 0xBA, 0xD4, 0xD4, 0xBA
 

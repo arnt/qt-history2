@@ -917,7 +917,7 @@ void QScriptEngine::registerCustomType(int type, MarshalFunction mf,
 /*!
     Imports the given \a extension into this QScriptEngine.  Returns
     undefinedValue() if the extension was successfully imported. You
-    can call hasUncaughtException() to check if an error occured; in
+    can call hasUncaughtException() to check if an error occurred; in
     that case, the return value is the value that was thrown by the
     exception (usually an \c{Error} object).
 

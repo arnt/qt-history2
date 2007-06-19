@@ -2033,7 +2033,7 @@ bool QRectF::intersects(const QRectF &r) const
     \since 4.3
 
     Returns a QRect based on the values of this rectangle that is the
-    smallest possible integer rectangle that completly contains this
+    smallest possible integer rectangle that completely contains this
     rectangle.
 
     \sa toRect()

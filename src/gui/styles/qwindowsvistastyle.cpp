@@ -287,7 +287,7 @@ void Pulse::paint(QPainter *painter, const QStyleOption *option)
  * widget as well as the current one. This is solved by updating dynamic properties on the widget
  * every time the function is called.
  *
- * Transitions interrupting existing transitions should allways be smooth, so whenever a hover-transition
+ * Transitions interrupting existing transitions should always be smooth, so whenever a hover-transition
  * is started on a pulsating button, it uses the current frame of the pulse-animation as the
  * starting image for the hover transition.
  *

@@ -609,7 +609,7 @@ QOleDropTarget::DragEnter(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, L
     }
 
     // Documentation states that a drag move event is sendt immidiatly after
-    // a drag enter event. This will honour widgets overriding dragMoveEvent only:
+    // a drag enter event. This will honor widgets overriding dragMoveEvent only:
     if (enterEvent.isAccepted()) {
         QDragMoveEvent moveEvent(lastPoint, translateToQDragDropActions(*pdwEffect), md,
                                  toQtMouseButtons(grfKeyState), toQtKeyboardModifiers(grfKeyState));

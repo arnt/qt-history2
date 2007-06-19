@@ -1164,7 +1164,7 @@ bool QFileSystemModel::nameFilterDisables() const
 }
 
 /*!
-    Sets the name \a filters to apply against the exisiting files.
+    Sets the name \a filters to apply against the existing files.
 */
 void QFileSystemModel::setNameFilters(const QStringList &filters)
 {

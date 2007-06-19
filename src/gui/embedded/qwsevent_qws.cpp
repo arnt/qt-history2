@@ -98,14 +98,14 @@ QWSEvent *QWSEvent::factory(int type)
     When running a \l {Qtopia Core} application, it either runs as a
     server or connects to an existing server. All system generated
     events are passed to the server application which then propagates
-    the event to the appropiate client.
+    the event to the appropriate client.
 
     Whenever the server receives an event, it queries its stack of
     top-level windows to find the window containing the event's
     position. Each window can identify the client application that
     created it, and returns its ID to the server upon
     request. Finally, the server forwards the event, encapsulated by
-    an instance of the QWSEvent class, to the appropiate client.
+    an instance of the QWSEvent class, to the appropriate client.
 
     \image qtopiacore-client.png
 

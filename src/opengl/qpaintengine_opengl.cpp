@@ -4310,7 +4310,7 @@ void QOpenGLPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
     glEnable(GL_TEXTURE_2D);
 
 #ifdef Q_WS_QWS
-    // XXX: it is necessary to disable alpha writes on GLES/embedded because we dont want
+    // XXX: it is necessary to disable alpha writes on GLES/embedded because we don't want
     // text rendering to update the alpha in the window surface.
     // XXX: This may not be needed as this behavior does seem to be caused by driver bug
     glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);

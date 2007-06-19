@@ -1386,7 +1386,7 @@ void QConfFileSettingsPrivate::syncConfFile(int confFileNo)
         }
 
         // Aquire all the read locks if we will be writing, to make sure nobody
-        // reads while we're writing. If we are only reading, aquire a single
+        // reads while we're writing. If we are only reading, acquire a single
         // read lock.
         QString readSemName = QLatin1String("QSettingsReadSem ");
         readSemName.append(file.fileName());

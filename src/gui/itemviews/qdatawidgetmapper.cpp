@@ -474,7 +474,7 @@ void QDataWidgetMapper::addMapping(QWidget *widget, int section)
 /*!
   \since 4.3
 
-  Essentially the same as addMapping(), but adds the posibility to specify
+  Essentially the same as addMapping(), but adds the possibility to specify
   the property to use specifying \a propertyName.
 
   \sa addMapping()

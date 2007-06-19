@@ -790,7 +790,7 @@ void QMacStylePrivate::initHIThemePushButton(const QStyleOptionButton *btn,
             bdi->kind = kThemePushButtonMini;
             break;
         case QAquaSizeLarge:
-            // ... We should honour if the user is explicit about using the
+            // ... We should honor if the user is explicit about using the
             // large button. But right now Qt will specify the large button
             // as default rather than QAquaSizeUnknown.
             // So we treat it like QAquaSizeUnknown

@@ -22,7 +22,7 @@
     drop events (QMouseEvent, QKeyEvent, QDragEvent, etc.), it
     translates them into instances of QGraphicsSceneEvent subclasses
     and forwards them to the QGraphicsScene it displays. The scene
-    then forwards the events to the relevent items.
+    then forwards the events to the relevant items.
 
     For example, when a QGraphicsView receives a QMouseEvent of type
     MousePress as a response to a user click, the view sends a

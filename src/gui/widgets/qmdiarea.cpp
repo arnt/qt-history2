@@ -1230,7 +1230,7 @@ QList<QMdiSubWindow *> QMdiArea::subWindowList(WindowOrder order) const
 
 /*!
     Closes all subwindows by sending a QCloseEvent to each window.
-    You may recieve subWindowActivated() signals from subwindows
+    You may receive subWindowActivated() signals from subwindows
     before they are closed (if the MDI area activates the subwindow
     when another is closing).
 

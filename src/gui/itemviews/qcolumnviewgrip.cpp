@@ -31,7 +31,7 @@
 /*
     \internal
     \fn void QColumnViewGrip::gripMoved()
-    Signal that is emited when the grip moves the parent widget.
+    Signal that is emitted when the grip moves the parent widget.
  */
 
 /*!

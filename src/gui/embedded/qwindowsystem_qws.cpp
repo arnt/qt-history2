@@ -905,7 +905,7 @@ void QWSClient::sendEmbedEvent(int windowid, QWSEmbedEvent::Type type,
 
     In \l {Qtopia Core}, all system generated events are passed to the
     server application which then propagates the event to the
-    appropiate client. See the \l {Qtopia Core Architecture}
+    appropriate client. See the \l {Qtopia Core Architecture}
     documentation for details.
 
     Note that this class is instantiated by QApplication for \l
@@ -1040,7 +1040,7 @@ void QWSClient::sendEmbedEvent(int windowid, QWSEmbedEvent::Type type,
     Whenever the server receives an event, it queries its stack of
     top-level windows to find the window containing the event's
     position (each window can identify the client application that
-    created it). Then the server forwards the event to the appropiate
+    created it). Then the server forwards the event to the appropriate
     client. If an input method is installed, it is used as a filter
     between the server and the client application.
 
@@ -4224,7 +4224,7 @@ void QWSServerPrivate::updateClientCursorPos()
     running, or to be the server application itself. All system
     generated events, including keyboard and mouse events, are passed
     to the server application which then propagates the event to the
-    appropiate client.
+    appropriate client.
 
     An input method consists of a filter and optionally a graphical
     interface, and is used to filter input events between the server
@@ -4668,7 +4668,7 @@ void QWSInputMethod::sendMouseEvent( const QPoint &pos, int state, int wheel )
 
     In \l {Qtopia Core}, all system generated events, including
     keyboard events, are passed to the server application which then
-    propagates the event to the appropiate client. The KeyboardFilter
+    propagates the event to the appropriate client. The KeyboardFilter
     class is used to implement a global, low-level filter on the
     server side. The server applies the filter to all keyboard events
     before passing them on to the clients:

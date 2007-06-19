@@ -7097,7 +7097,7 @@ QDataStream &operator>>(QDataStream &in, QString &str)
 
     QStringRef provides a read-only subset of the QString API.
 
-    A string reference explicitely references a portion of a string()
+    A string reference explicitly references a portion of a string()
     with a given size(), starting at a specific position(). Calling
     toString() returns a copy of the data as a real QString instance.
 
