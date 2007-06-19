@@ -93,6 +93,8 @@ private slots:
     void recordNonSelect();
     void caseSensivity_data() { generic_data(); }
     void caseSensivity();
+    void noEscapedFieldNamesInRecord_data() { generic_data(); }
+    void noEscapedFieldNamesInRecord();
     void whitespaceInIdentifiers_data() { generic_data(); }
     void whitespaceInIdentifiers();
     void formatValueTrimStrings_data() { generic_data(); }
@@ -1395,6 +1397,25 @@ void tst_QSqlDatabase::caseSensivity()
 	rec = db.primaryIndex(qTableName("qTesT"));
 	QVERIFY((int)rec.count() > 0);
     }
+}
+
+void tst_QSqlDatabase::noEscapedFieldNamesInRecord()
+{
+    QFETCH(QString, dbName);
+    QSqlDatabase db = QSqlDatabase::database(dbName);
+    CHECK_DATABASE(db);
+
+    QString fieldname("t_varchar");
+    if (db.driverName().startsWith("QOCI") || db.driverName().startsWith("QIBASE"))
+        fieldname = fieldname.toUpper();
+
+    QSqlQuery q(db);
+    QVERIFY2(q.exec("CREATE VIEW " + qTableName("qtest_view2") + " as select * from " + qTableName("qtest")),
+        q.lastError().text());
+    QVERIFY2(q.exec("SELECT \"" + fieldname + "\" FROM " + qTableName("qtest_view2")), 
+        q.lastError().text());
+    QCOMPARE(q.record().fieldName(0), fieldname);
+    tst_Databases::safeDropView(db, qTableName("qtest_view2"));
 }
 
 void tst_QSqlDatabase::psql_schemas()
