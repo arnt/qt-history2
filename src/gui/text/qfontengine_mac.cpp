@@ -975,18 +975,20 @@ QFontEngine::Properties QFontEngineMac::properties() const
         qint16 xMax;
         qint16 yMax;
     } bbox;
-    if (ATSFontGetTable(atsFont, MAKE_TAG('h', 'e', 'a', 'd'), 36, 2, &bbox, 0) == noErr) {
+    bbox.xMin = bbox.xMax = bbox.yMin = bbox.yMax = 0;
+    if (ATSFontGetTable(atsFont, MAKE_TAG('h', 'e', 'a', 'd'), 36, 8, &bbox, 0) == noErr) {
         bbox.xMin = qFromBigEndian<quint16>(bbox.xMin);
         bbox.yMin = qFromBigEndian<quint16>(bbox.yMin);
         bbox.xMax = qFromBigEndian<quint16>(bbox.xMax);
         bbox.yMax = qFromBigEndian<quint16>(bbox.yMax);
     }
     struct {
-        qint32 ascender;
-        qint32 descender;
-        qint32 linegap;
+        qint16 ascender;
+        qint16 descender;
+        qint16 linegap;
     } metrics;
-    if (ATSFontGetTable(atsFont, MAKE_TAG('h', 'h', 'e', 'a'), 4, 12, &metrics, 0) == noErr) {
+    metrics.ascender = metrics.descender = metrics.linegap = 0;
+    if (ATSFontGetTable(atsFont, MAKE_TAG('h', 'h', 'e', 'a'), 4, 6, &metrics, 0) == noErr) {
         metrics.ascender = qFromBigEndian<quint16>(metrics.ascender);
         metrics.descender = qFromBigEndian<quint16>(metrics.descender);
         metrics.linegap = qFromBigEndian<quint16>(metrics.linegap);
@@ -1000,8 +1002,8 @@ QFontEngine::Properties QFontEngineMac::properties() const
     props.italicAngle = 0;
     props.capHeight = props.ascent;
 
-    int lw = 0;
-    if (ATSFontGetTable(atsFont, MAKE_TAG('p', 'o', 's', 't'), 12, 4, &lw, 0) == noErr)
+    qint16 lw = 0;
+    if (ATSFontGetTable(atsFont, MAKE_TAG('p', 'o', 's', 't'), 10, 2, &lw, 0) == noErr)
        lw = qFromBigEndian<quint16>(lw);
     props.lineWidth = lw;
     
