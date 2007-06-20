@@ -479,7 +479,7 @@ static const char * QXmlStreamReader_tokenTypeString[] = {
     namespaces. If enabled, the reader processes namespaces, otherwise
     it does not.
 
-    By default, namespace-processing is disabled.
+    By default, namespace-processing is enabled.
 */
 
 
