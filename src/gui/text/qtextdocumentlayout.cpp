@@ -2289,10 +2289,9 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, int blockPosi
 
     //QTextFrameData *fd = data(layoutStruct->frame);
 
-    QTextOption option = document->defaultTextOption();
+    Qt::LayoutDirection dir = docPrivate->defaultTextOption.textDirection();
     if (blockFormat.hasProperty(QTextFormat::LayoutDirection))
-        option.setTextDirection(blockFormat.layoutDirection());
-    const Qt::LayoutDirection dir = option.textDirection();
+        dir = blockFormat.layoutDirection();
 
     const QFixed indent = this->blockIndent(blockFormat);
     const QFixed totalLeftMargin = QFixed::fromReal(blockFormat.leftMargin()) + (dir == Qt::RightToLeft ? 0 : indent);
@@ -2305,6 +2304,9 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, int blockPosi
         || (blockPosition + blockLength > layoutFrom && blockPosition <= layoutTo)
         // force relayout if we cross a page boundary
         || (layoutStruct->pageHeight != QFIXED_MAX && layoutStruct->absoluteY() + QFixed::fromReal(tl->boundingRect().height()) > layoutStruct->pageBottom)) {
+
+        QTextOption option = docPrivate->defaultTextOption;
+        option.setTextDirection(dir);
 
         if (blockFormat.hasProperty(QTextFormat::BlockAlignment)) {
             Qt::Alignment align = QStyle::visualAlignment(dir, blockFormat.alignment());

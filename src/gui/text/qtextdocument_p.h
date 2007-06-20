@@ -293,10 +293,10 @@ private:
     QMap<QUrl, QVariant> cachedResources;
     QString defaultStyleSheet;
 
-    QTextOption defaultTextOption;
     int lastBlockCount;
 
 public:
+    QTextOption defaultTextOption;
     QCss::StyleSheet parsedDefaultStyleSheet;
     int maximumBlockCount;
     bool inContentsChange;
