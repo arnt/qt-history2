@@ -787,7 +787,7 @@ void QPdfEnginePrivate::writePageRoot()
             "[\n");
     int size = pages.size();
     for (int i = 0; i < size; ++i)
-        xprintf("%d 0 R\n", pages[pageOrder == QPrinter::FirstPageFirst ? i : size-i-1]);
+        xprintf("%d 0 R\n", pages[i]);
     xprintf("]\n");
 
     //xprintf("/Group <</S /Transparency /I true /K false>>\n");

@@ -1472,11 +1472,6 @@ bool QPdfBaseEnginePrivate::openPrintDevice()
                     cupsArgList << "Collate=True";
                 }
 
-                if (pageOrder == QPrinter::LastPageFirst) {
-                    cupsArgList << "-o";
-                    cupsArgList << "outputorder=reverse";
-                }
-
                 if (duplex) {
                     cupsArgList << "-o";
                     if (orientation == QPrinter::Portrait)
