@@ -1206,6 +1206,38 @@ void QTextBlock::setUserState(int state)
     b->userState = state;
 }
 
+/*!
+    \since 4.4
+
+    Returns the blocks revision.
+
+    \sa setRevision(), QTextDocument::revision()
+*/
+int QTextBlock::revision() const
+{
+    if (!p || !n)
+        return -1;
+
+    const QTextBlockData *b = p->blockMap().fragment(n);
+    return b->revision;
+}
+
+/*!
+    \since 4.4
+
+    Sets a blocks revision to \a rev.
+
+    \sa revision(), QTextDocument::revision()
+*/
+void QTextBlock::setRevision(int rev)
+{
+    if (!p || !n)
+        return;
+
+    const QTextBlockData *b = p->blockMap().fragment(n);
+    b->revision = rev;
+}
+
 
 /*!
 \since 4.4

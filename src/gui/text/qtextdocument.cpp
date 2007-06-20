@@ -777,6 +777,24 @@ bool QTextDocument::isRedoAvailable() const
     return d->isRedoAvailable();
 }
 
+
+/*! \since 4.4
+
+    Returns the document's revision (if undo is enabled).
+
+    The revision is guaranteed to increase when a document that is not
+    modified is edited.
+
+    \sa QTextBlock::revision(), isModified()
+ */
+int QTextDocument::revision() const
+{
+    Q_D(const QTextDocument);
+    return d->undoState;
+}
+
+
+
 /*!
     Sets the document to use the given \a layout. The previous layout
     is deleted.

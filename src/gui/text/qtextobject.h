@@ -201,6 +201,9 @@ public:
     int userState() const;
     void setUserState(int state);
 
+    int revision() const;
+    void setRevision(int rev);
+
     int blockNumber() const;
 
     class Q_GUI_EXPORT iterator {

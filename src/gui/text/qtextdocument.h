@@ -108,6 +108,8 @@ public:
     bool isUndoAvailable() const;
     bool isRedoAvailable() const;
 
+    int revision() const;
+
     void setDocumentLayout(QAbstractTextDocumentLayout *layout);
     QAbstractTextDocumentLayout *documentLayout() const;
 

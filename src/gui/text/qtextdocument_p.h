@@ -74,7 +74,7 @@ class QTextBlockData : public QFragment
 {
 public:
     inline void initialize()
-    { layout = 0; userData = 0; userState = -1; }
+        { layout = 0; userData = 0; userState = -1; revision = 0; }
     void invalidate() const;
     inline void free()
     { delete layout; layout = 0; delete userData; userData = 0; }
@@ -84,6 +84,7 @@ public:
     mutable QTextLayout *layout;
     mutable QTextBlockUserData *userData;
     mutable int userState;
+    mutable int revision;
 };
 
 
@@ -120,6 +121,7 @@ public:
         QAbstractUndoItem *custom;
         int objectIndex;
     };
+    quint32 revision;
 
     bool tryMerge(const QTextUndoCommand &other);
 };
