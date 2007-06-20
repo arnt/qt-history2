@@ -1023,10 +1023,8 @@
             of the scroll button use the \l{#scroller-sub}{::scroller} 
             subcontrol.
 
-            \omit ## undecided on property name alignment
             The alignment of the tabs within the QTabBar is styled
             using the \l{#alignment-prop}{alignment}. \warning 
-            \endomit
 
             To change the position of the QTabBar within a QTabWidget, use the
             \l{#tab-bar-sub}{tab-bar} subcontrol (and set subcontrol-position).
@@ -1729,6 +1727,7 @@
            See also \l{Qt Style Sheets Reference#background-prop}{background} and
            \l{#selection-color-prop}{selection-color}.
 
+    \omit
     \row
         \o \bold{\c etch-disabled-text}*
         \o \l{#Boolean}{Boolean}
@@ -1743,6 +1742,7 @@
            \code
                 * { etch-disabled-text: 1 }
            \endcode
+    \endomit
 
     \row
         \o \bold{\c font} \target font-prop
