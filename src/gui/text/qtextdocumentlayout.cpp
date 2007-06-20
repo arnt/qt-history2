@@ -1975,7 +1975,7 @@ QRectF QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, in
     fd->maximumWidth = layoutStruct.maximumWidth;
 
     fd->size.height = fd->contentsHeight == -1
-                 ? layoutStruct.y + fd->border + fd->padding + fd->bottomMargin - parentY
+                 ? layoutStruct.y + fd->border + fd->padding + fd->bottomMargin
                  : fd->contentsHeight + 2*(fd->border + fd->padding) + fd->topMargin + fd->bottomMargin;
     fd->size.width = actualWidth + 2*(fd->border + fd->padding) + fd->leftMargin + fd->rightMargin;
     fd->sizeDirty = false;
