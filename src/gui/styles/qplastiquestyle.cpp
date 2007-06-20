@@ -5423,7 +5423,7 @@ int QPlastiqueStyle::styleHint(StyleHint hint, const QStyleOption *option, const
         ret = QCommonStyle::styleHint(hint, option, widget, returnData);
         break;
     case SH_ItemView_ArrowKeysNavigateIntoChildren:
-        ret = false;
+        ret = true;
         break;
     default:
         ret = QWindowsStyle::styleHint(hint, option, widget, returnData);
