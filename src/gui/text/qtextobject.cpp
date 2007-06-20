@@ -703,17 +703,19 @@ QTextFrame::iterator &QTextFrame::iterator::operator++()
         if (cb == e)
             return *this;
 
-        int pos = map.position(cb);
-        // check if we entered a frame
-        QTextDocumentPrivate::FragmentIterator frag = priv->find(pos-1);
-        if (priv->buffer().at(frag->stringPosition) != QChar::ParagraphSeparator) {
-            QTextFrame *nf = qobject_cast<QTextFrame *>(priv->objectForFormat(frag->format));
-            if (nf) {
-                if (priv->buffer().at(frag->stringPosition) == QTextBeginningOfFrame && nf != f) {
-                    cf = nf;
-                    cb = 0;
-                } else {
-                    Q_ASSERT(priv->buffer().at(frag->stringPosition) != QTextEndOfFrame);
+        if (!f->d_func()->childFrames.isEmpty()) {
+            int pos = map.position(cb);
+            // check if we entered a frame
+            QTextDocumentPrivate::FragmentIterator frag = priv->find(pos-1);
+            if (priv->buffer().at(frag->stringPosition) != QChar::ParagraphSeparator) {
+                QTextFrame *nf = qobject_cast<QTextFrame *>(priv->objectForFormat(frag->format));
+                if (nf) {
+                    if (priv->buffer().at(frag->stringPosition) == QTextBeginningOfFrame && nf != f) {
+                        cf = nf;
+                        cb = 0;
+                    } else {
+                        Q_ASSERT(priv->buffer().at(frag->stringPosition) != QTextEndOfFrame);
+                    }
                 }
             }
         }
