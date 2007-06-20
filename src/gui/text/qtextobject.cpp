@@ -132,7 +132,7 @@ int QTextObject::objectIndex() const
 */
 QTextDocument *QTextObject::document() const
 {
-    return qobject_cast<QTextDocument *>(parent());
+    return static_cast<QTextDocument *>(parent());
 }
 
 /*!
@@ -140,7 +140,7 @@ QTextDocument *QTextObject::document() const
 */
 QTextDocumentPrivate *QTextObject::docHandle() const
 {
-    return qobject_cast<const QTextDocument *>(parent())->docHandle();
+    return static_cast<const QTextDocument *>(parent())->docHandle();
 }
 
 /*!
