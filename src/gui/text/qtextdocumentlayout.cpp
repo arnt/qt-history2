@@ -2280,25 +2280,10 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, QLayoutStruct
     QTextBlockFormat blockFormat = bl.blockFormat();
     QTextLayout *tl = bl.layout();
 
+    const int blockPosition = bl.position();
+    const int blockLength = bl.length();
+
     LDEBUG << "layoutBlock from=" << layoutFrom << "to=" << layoutTo;
-
-    QTextOption option = doc->defaultTextOption();
-    if (blockFormat.hasProperty(QTextFormat::LayoutDirection))
-        option.setTextDirection(blockFormat.layoutDirection());
-    const Qt::LayoutDirection dir = option.textDirection();
-
-    if (blockFormat.hasProperty(QTextFormat::BlockAlignment)) {
-        Qt::Alignment align = QStyle::visualAlignment(dir, blockFormat.alignment());
-        option.setAlignment(align);
-    }
-
-    if (blockFormat.nonBreakableLines() || doc->pageSize().width() < 0) {
-        option.setWrapMode(QTextOption::ManualWrap);
-    }
-
-    tl->setTextOption(option);
-
-    const bool haveWordOrAnyWrapMode = (option.wrapMode() == QTextOption::WrapAtWordBoundaryOrAnywhere);
 
 //    qDebug() << "layoutBlock; width" << layoutStruct->x_right - layoutStruct->x_left << "(maxWidth is btw" << tl->maximumWidth() << ")";
 
@@ -2313,6 +2298,11 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, QLayoutStruct
 
     //QTextFrameData *fd = data(layoutStruct->frame);
 
+    QTextOption option = doc->defaultTextOption();
+    if (blockFormat.hasProperty(QTextFormat::LayoutDirection))
+        option.setTextDirection(blockFormat.layoutDirection());
+    const Qt::LayoutDirection dir = option.textDirection();
+
     const QFixed indent = QFixed::fromReal(this->indent(bl));
     const QFixed totalLeftMargin = QFixed::fromReal(blockFormat.leftMargin()) + (dir == Qt::RightToLeft ? 0 : indent);
     const QFixed totalRightMargin = QFixed::fromReal(blockFormat.rightMargin()) + (dir == Qt::RightToLeft ? indent : 0);
@@ -2321,9 +2311,22 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, QLayoutStruct
     tl->setPosition(QPointF(layoutStruct->x_left.toReal(), layoutStruct->y.toReal()));
 
     if (layoutStruct->fullLayout
-        || (bl.position() + bl.length() > layoutFrom && bl.position() <= layoutTo)
+        || (blockPosition + blockLength > layoutFrom && blockPosition <= layoutTo)
         // force relayout if we cross a page boundary
         || (layoutStruct->pageHeight > 0 && layoutStruct->absoluteY() + QFixed::fromReal(tl->boundingRect().height()) > layoutStruct->pageBottom)) {
+
+        if (blockFormat.hasProperty(QTextFormat::BlockAlignment)) {
+            Qt::Alignment align = QStyle::visualAlignment(dir, blockFormat.alignment());
+            option.setAlignment(align);
+        }
+
+        if (blockFormat.nonBreakableLines() || doc->pageSize().width() < 0) {
+            option.setWrapMode(QTextOption::ManualWrap);
+        }
+
+        tl->setTextOption(option);
+
+        const bool haveWordOrAnyWrapMode = (option.wrapMode() == QTextOption::WrapAtWordBoundaryOrAnywhere);
 
 //         qDebug() << "    layouting block at" << bl.position();
         const QFixed cy = layoutStruct->y;
@@ -2436,13 +2439,13 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, QLayoutStruct
             layoutStruct->y += lineHeight;
         }
         if (layoutStruct->updateRect.isValid()
-            && bl.length() > 1) {
-            if (layoutFrom >= bl.position() + bl.length()) {
+            && blockLength > 1) {
+            if (layoutFrom >= blockPosition + blockLength) {
                 // if our height didn't change and the change in the document is
                 // in one of the later paragraphs, then we don't need to repaint
                 // this one
                 layoutStruct->updateRect.setTop(qMax(layoutStruct->updateRect.top(), layoutStruct->y.toReal()));
-            } else if (layoutTo < bl.position()
+            } else if (layoutTo < blockPosition
                        && oldPosition == tl->position()) {
                 // if the change in the document happened earlier in the document
                 // and our position did /not/ change because none of the earlier paragraphs
