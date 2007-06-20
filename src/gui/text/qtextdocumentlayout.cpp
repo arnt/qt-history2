@@ -67,6 +67,7 @@ public:
     // contents width includes padding (as we need to treat this on a per cell basis for tables)
     QFixed contentsWidth;
     QFixed contentsHeight;
+    QFixed oldContentsWidth;
 
     // accumulated margins
     QFixed effectiveTopMargin;
@@ -1868,7 +1869,6 @@ QRectF QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, in
 //     qDebug("layouting frame (%d--%d), parent=%p", f->firstPosition(), f->lastPosition(), f->parentFrame());
 
     QTextFrameData *fd = data(f);
-    const QFixed oldContentsWidth = fd->contentsWidth;
     QFixed newContentsWidth;
 
     {
@@ -1934,10 +1934,11 @@ QRectF QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, in
     layoutStruct.contentsWidth = 0;
     layoutStruct.minimumWidth = 0;
     layoutStruct.maximumWidth = QFIXED_MAX;
-    layoutStruct.fullLayout = oldContentsWidth != newContentsWidth;
+    layoutStruct.fullLayout = fd->oldContentsWidth != newContentsWidth;
     layoutStruct.updateRect = QRectF(QPointF(0, 0), QSizeF(INT_MAX, INT_MAX));
     LDEBUG << "layoutStruct: x_left" << layoutStruct.x_left << "x_right" << layoutStruct.x_right
            << "fullLayout" << layoutStruct.fullLayout;
+    fd->oldContentsWidth = newContentsWidth;
 
     layoutStruct.pageHeight = QFixed::fromReal(q->document()->pageSize().height());
     if (layoutStruct.pageHeight < 0)
