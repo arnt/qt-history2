@@ -2297,7 +2297,7 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, QLayoutStruct
     if (layoutStruct->fullLayout
         || (blockPosition + blockLength > layoutFrom && blockPosition <= layoutTo)
         // force relayout if we cross a page boundary
-        || (layoutStruct->pageHeight > 0 && layoutStruct->absoluteY() + QFixed::fromReal(tl->boundingRect().height()) > layoutStruct->pageBottom)) {
+        || (layoutStruct->pageHeight != QFIXED_MAX && layoutStruct->absoluteY() + QFixed::fromReal(tl->boundingRect().height()) > layoutStruct->pageBottom)) {
 
         if (blockFormat.hasProperty(QTextFormat::BlockAlignment)) {
             Qt::Alignment align = QStyle::visualAlignment(dir, blockFormat.alignment());
