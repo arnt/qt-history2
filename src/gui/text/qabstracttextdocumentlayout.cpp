@@ -212,6 +212,9 @@
 QAbstractTextDocumentLayout::QAbstractTextDocumentLayout(QTextDocument *document)
     : QObject(*new QAbstractTextDocumentLayoutPrivate, document)
 {
+    Q_D(QAbstractTextDocumentLayout);
+    d->document = document;
+    d->docPrivate = document->docHandle();
 }
 
 /*!
@@ -220,6 +223,9 @@ QAbstractTextDocumentLayout::QAbstractTextDocumentLayout(QTextDocument *document
 QAbstractTextDocumentLayout::QAbstractTextDocumentLayout(QAbstractTextDocumentLayoutPrivate &p, QTextDocument *document)
     :QObject(p, document)
 {
+    Q_D(QAbstractTextDocumentLayout);
+    d->document = document;
+    d->docPrivate = document->docHandle();
 }
 
 /*!
@@ -388,7 +394,8 @@ QTextCharFormat QAbstractTextDocumentLayout::format(int pos)
 */
 QTextDocument *QAbstractTextDocumentLayout::document() const
 {
-    return qobject_cast<QTextDocument *>(parent());
+    Q_D(const QAbstractTextDocumentLayout);
+    return d->document;
 }
 
 /*!

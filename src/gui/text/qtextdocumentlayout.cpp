@@ -451,10 +451,7 @@ QTextDocumentLayoutPrivate::QTextDocumentLayoutPrivate()
 
 QTextFrame::Iterator QTextDocumentLayoutPrivate::frameIteratorForYPosition(QFixed y) const
 {
-    Q_Q(const QTextDocumentLayout);
-
-    const QTextDocumentPrivate *doc = q->document()->docHandle();
-    QTextFrame *rootFrame = doc->rootFrame();
+    QTextFrame *rootFrame = document->rootFrame();
 
     if (checkPoints.isEmpty()
         || y < 0 || y > data(rootFrame)->size.height)
@@ -473,11 +470,9 @@ QTextFrame::Iterator QTextDocumentLayoutPrivate::frameIteratorForYPosition(QFixe
 
 QTextFrame::Iterator QTextDocumentLayoutPrivate::frameIteratorForTextPosition(int position) const
 {
-    Q_Q(const QTextDocumentLayout);
-    const QTextDocumentPrivate *doc = q->document()->docHandle();
-    QTextFrame *rootFrame = doc->rootFrame();
+    QTextFrame *rootFrame = docPrivate->rootFrame();
 
-    const QTextDocumentPrivate::BlockMap &map = doc->blockMap();
+    const QTextDocumentPrivate::BlockMap &map = docPrivate->blockMap();
     const int begin = map.findNode(rootFrame->firstPosition());
     const int end = map.findNode(rootFrame->lastPosition()+1);
 
@@ -486,7 +481,7 @@ QTextFrame::Iterator QTextDocumentLayoutPrivate::frameIteratorForTextPosition(in
 
     QTextFrame::iterator it(rootFrame, block, begin, end);
 
-    QTextFrame *containingFrame = doc->frameAt(blockPos);
+    QTextFrame *containingFrame = docPrivate->frameAt(blockPos);
     if (containingFrame != rootFrame) {
         while (containingFrame->parentFrame() != rootFrame) {
             containingFrame = containingFrame->parentFrame();
@@ -503,7 +498,6 @@ QTextFrame::Iterator QTextDocumentLayoutPrivate::frameIteratorForTextPosition(in
 QTextDocumentLayoutPrivate::HitPoint
 QTextDocumentLayoutPrivate::hitTest(QTextFrame *frame, const QFixedPoint &point, int *position, QTextLayout **l, Qt::HitTestAccuracy accuracy) const
 {
-    Q_Q(const QTextDocumentLayout);
     QTextFrameData *fd = data(frame);
     // #########
     if (fd->layoutDirty)
@@ -512,7 +506,7 @@ QTextDocumentLayoutPrivate::hitTest(QTextFrame *frame, const QFixedPoint &point,
     Q_ASSERT(!fd->sizeDirty);
     const QFixedPoint relativePoint(point.x - fd->position.x, point.y - fd->position.y);
 
-    QTextFrame *rootFrame = q->document()->rootFrame();
+    QTextFrame *rootFrame = docPrivate->rootFrame();
 
 //     LDEBUG << "checking frame" << frame->firstPosition() << "point=" << point
 //            << "position" << fd->position << "size" << fd->size;
@@ -677,7 +671,7 @@ qreal QTextDocumentLayoutPrivate::indent(QTextBlock bl) const
     QTextBlockFormat blockFormat = bl.blockFormat();
     qreal indent = blockFormat.indent();
 
-    QTextObject *object = q->document()->objectForFormat(blockFormat);
+    QTextObject *object = document->objectForFormat(blockFormat);
     if (object)
         indent += object->format().toListFormat().indent();
 
@@ -693,9 +687,7 @@ qreal QTextDocumentLayoutPrivate::indent(QTextBlock bl) const
 void QTextDocumentLayoutPrivate::drawBorder(QPainter *painter, const QRectF &rect, qreal topMargin, qreal bottomMargin,
                                             qreal border, const QBrush &brush, QTextFrameFormat::BorderStyle style) const
 {
-    Q_Q(const QTextDocumentLayout);
-
-    const qreal pageHeight = q->document()->pageSize().height();
+    const qreal pageHeight = document->pageSize().height();
     const int topPage = pageHeight > 0 ? static_cast<int>(rect.top() / pageHeight) : 0;
     const int bottomPage = pageHeight > 0 ? static_cast<int>((rect.bottom() + border) / pageHeight) : 0;
 
@@ -795,7 +787,6 @@ void QTextDocumentLayoutPrivate::drawFrame(const QPointF &offset, QPainter *pain
                                            const QAbstractTextDocumentLayout::PaintContext &context,
                                            QTextFrame *frame) const
 {
-    Q_Q(const QTextDocumentLayout);
     QTextFrameData *fd = data(frame);
     // #######
     if (fd->layoutDirty)
@@ -839,7 +830,7 @@ void QTextDocumentLayoutPrivate::drawFrame(const QPointF &offset, QPainter *pain
             selectedTableCells[i * 4 + 3] = num_cols;
         }
 
-        QFixed pageHeight = QFixed::fromReal(q->document()->pageSize().height());
+        QFixed pageHeight = QFixed::fromReal(document->pageSize().height());
         if (pageHeight <= 0)
             pageHeight = QFIXED_MAX;
 
@@ -918,7 +909,7 @@ void QTextDocumentLayoutPrivate::drawFrame(const QPointF &offset, QPainter *pain
 
         QTextFrame::Iterator it = frame->begin();
 
-        if (frame == q->document()->rootFrame())
+        if (frame == docPrivate->rootFrame())
             it = frameIteratorForYPosition(QFixed::fromReal(context.clip.top()));
 
         QList<QTextFrame *> floats;
@@ -1077,7 +1068,6 @@ void QTextDocumentLayoutPrivate::drawFlow(const QPointF &offset, QPainter *paint
         lastBlock = it.currentBlock();
     }
 
-    QTextDocument *document = q->document();
     for (int i = 0; i < floats.count(); ++i) {
         QTextFrame *frame = floats.at(i);
         if (!isFrameFromInlineObject(frame)
@@ -1098,7 +1088,6 @@ void QTextDocumentLayoutPrivate::drawBlock(const QPointF &offset, QPainter *pain
                                            const QAbstractTextDocumentLayout::PaintContext &context,
                                            QTextBlock bl) const
 {
-    Q_Q(const QTextDocumentLayout);
     const QTextLayout *tl = bl.layout();
     QRectF r = tl->boundingRect();
     r.translate(offset + tl->position());
@@ -1146,7 +1135,7 @@ void QTextDocumentLayoutPrivate::drawBlock(const QPointF &offset, QPainter *pain
             selFormat = &range.format;
     }
 
-    QTextObject *object = q->document()->objectForFormat(bl.blockFormat());
+    QTextObject *object = document->objectForFormat(bl.blockFormat());
     if (object && object->format().toListFormat().style() != QTextListFormat::ListStyleUndefined)
         drawListItem(offset, painter, context, bl, selFormat);
 
@@ -1192,7 +1181,7 @@ void QTextDocumentLayoutPrivate::drawListItem(const QPointF &offset, QPainter *p
         font = QFont(font, q->paintDevice());
 
     const QFontMetrics fontMetrics(font);
-    QTextObject * const object = q->document()->objectForFormat(blockFormat);
+    QTextObject * const object = document->objectForFormat(blockFormat);
     const QTextListFormat lf = object->format().toListFormat();
     int style = lf.style();
     QString itemText;
@@ -1321,8 +1310,6 @@ QLayoutStruct QTextDocumentLayoutPrivate::layoutCell(QTextTable *t, const QTextT
                                                     int layoutFrom, int layoutTo, QTextTableData *td,
                                                     QFixed absoluteTableY, bool withPageBreaks)
 {
-    Q_Q(QTextDocumentLayout);
-
     LDEBUG << "layoutCell";
     QLayoutStruct layoutStruct;
     layoutStruct.frame = t;
@@ -1342,7 +1329,7 @@ QLayoutStruct QTextDocumentLayoutPrivate::layoutCell(QTextTable *t, const QTextT
     // be re-laid out, even if layoutFrom/layoutTo is not in their range. Hence
     // this line:
 
-    layoutStruct.pageHeight = QFixed::fromReal(q->document()->pageSize().height());
+    layoutStruct.pageHeight = QFixed::fromReal(document->pageSize().height());
     if (layoutStruct.pageHeight < 0 || !withPageBreaks)
         layoutStruct.pageHeight = QFIXED_MAX;
     const int currentPage = layoutStruct.currentPage();
@@ -1611,8 +1598,7 @@ QRectF QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int layoutFrom
     QVector<QFixed> cellHeights;
     cellHeights.reserve(rows * columns);
 
-    Q_Q(QTextDocumentLayout);
-    QFixed pageHeight = QFixed::fromReal(q->document()->pageSize().height());
+    QFixed pageHeight = QFixed::fromReal(document->pageSize().height());
     if (pageHeight <= 0)
         pageHeight = QFIXED_MAX;
 
@@ -1850,7 +1836,7 @@ QRectF QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, in
     QTextFrame *parent = f->parentFrame();
     const QTextFrameData *pd = parent ? data(parent) : 0;
 
-    const qreal maximumWidth = qMax(qreal(0), pd ? pd->contentsWidth.toReal() : q_func()->document()->pageSize().width());
+    const qreal maximumWidth = qMax(qreal(0), pd ? pd->contentsWidth.toReal() : document->pageSize().width());
     const QFixed width = QFixed::fromReal(fformat.width().value(maximumWidth));
 
     const QFixed maximumHeight = pd ? pd->contentsHeight : -1;
@@ -1864,7 +1850,6 @@ QRectF QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, in
 QRectF QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, int layoutTo, QFixed frameWidth, QFixed frameHeight, QFixed parentY)
 {
     LDEBUG << "layoutFrame from=" << layoutFrom << "to=" << layoutTo;
-    Q_Q(QTextDocumentLayout);
     Q_ASSERT(data(f)->sizeDirty);
 //     qDebug("layouting frame (%d--%d), parent=%p", f->firstPosition(), f->lastPosition(), f->parentFrame());
 
@@ -1940,7 +1925,7 @@ QRectF QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, in
            << "fullLayout" << layoutStruct.fullLayout;
     fd->oldContentsWidth = newContentsWidth;
 
-    layoutStruct.pageHeight = QFixed::fromReal(q->document()->pageSize().height());
+    layoutStruct.pageHeight = QFixed::fromReal(document->pageSize().height());
     if (layoutStruct.pageHeight < 0)
         layoutStruct.pageHeight = QFIXED_MAX;
 
@@ -1986,7 +1971,6 @@ QRectF QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, in
 void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, QLayoutStruct *layoutStruct,
                                             int layoutFrom, int layoutTo, QFixed width)
 {
-    Q_Q(QTextDocumentLayout);
     LDEBUG << "layoutFlow from=" << layoutFrom << "to=" << layoutTo;
     QTextFrameData *fd = data(layoutStruct->frame);
 
@@ -1994,7 +1978,7 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, QLayoutStru
 
     QTextFrame::Iterator previousIt;
 
-    const bool inRootFrame = (it.parentFrame() == q->document()->rootFrame());
+    const bool inRootFrame = (it.parentFrame() == document->rootFrame());
     if (inRootFrame) {
         bool redoCheckPoints = layoutStruct->fullLayout || checkPoints.isEmpty();
 
@@ -2103,7 +2087,7 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, QLayoutStru
 
                 cd->position = pos;
 
-                if (q->document()->pageSize().height() > 0.0f)
+                if (document->pageSize().height() > 0.0f)
                     cd->sizeDirty = true;
 
                 if (cd->sizeDirty) {
@@ -2254,7 +2238,7 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, QLayoutStru
             currentLazyLayoutPosition = -1;
             QCheckPoint cp;
             cp.y = layoutStruct->y;
-            cp.positionInFrame = q->document()->docHandle()->length();
+            cp.positionInFrame = docPrivate->length();
             cp.minimumWidth = layoutStruct->minimumWidth;
             cp.maximumWidth = layoutStruct->maximumWidth;
             cp.contentsWidth = layoutStruct->contentsWidth;
@@ -2276,7 +2260,6 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, QLayoutStruct
 {
     Q_Q(QTextDocumentLayout);
 
-    const QTextDocument *doc = q->document();
     QTextBlockFormat blockFormat = bl.blockFormat();
     QTextLayout *tl = bl.layout();
 
@@ -2298,7 +2281,7 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, QLayoutStruct
 
     //QTextFrameData *fd = data(layoutStruct->frame);
 
-    QTextOption option = doc->defaultTextOption();
+    QTextOption option = document->defaultTextOption();
     if (blockFormat.hasProperty(QTextFormat::LayoutDirection))
         option.setTextDirection(blockFormat.layoutDirection());
     const Qt::LayoutDirection dir = option.textDirection();
@@ -2320,7 +2303,7 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, QLayoutStruct
             option.setAlignment(align);
         }
 
-        if (blockFormat.nonBreakableLines() || doc->pageSize().width() < 0) {
+        if (blockFormat.nonBreakableLines() || document->pageSize().width() < 0) {
             option.setWrapMode(QTextOption::ManualWrap);
         }
 
@@ -2530,7 +2513,7 @@ QTextDocumentLayout::QTextDocumentLayout(QTextDocument *doc)
 void QTextDocumentLayout::draw(QPainter *painter, const PaintContext &context)
 {
     Q_D(QTextDocumentLayout);
-    QTextFrame *frame = document()->rootFrame();
+    QTextFrame *frame = d->document->rootFrame();
     if(data(frame)->sizeDirty)
         return;
     if (context.clip.isValid()) {
@@ -2571,7 +2554,7 @@ void QTextDocumentLayout::documentChanged(int from, int oldLength, int length)
 {
     Q_D(QTextDocumentLayout);
 
-    const QSizeF pageSize = document()->pageSize();
+    const QSizeF pageSize = d->document->pageSize();
     if (pageSize.isNull())
         return;
 
@@ -2581,7 +2564,7 @@ void QTextDocumentLayout::documentChanged(int from, int oldLength, int length)
     d->sizeChangedTimer.stop();
     d->insideDocumentChange = true;
 
-    const int documentLength = document()->docHandle()->length();
+    const int documentLength = d->docPrivate->length();
     const bool fullLayout = (oldLength == 0 && length == documentLength);
     const bool smallChange = documentLength > 0
                              && (qMax(length, oldLength) * 100 / documentLength) < 5;
@@ -2633,11 +2616,11 @@ QRectF QTextDocumentLayout::doLayout(int from, int oldLength, int length)
 //     qDebug("documentChange: from=%d, oldLength=%d, length=%d", from, oldLength, length);
 
     // mark all frames between f_start and f_end as dirty
-    markFrames(document()->rootFrame(), from, oldLength, length);
+    markFrames(d->docPrivate->rootFrame(), from, oldLength, length);
 
     QRectF updateRect;
 
-    QTextFrame *root = document()->rootFrame();
+    QTextFrame *root = d->docPrivate->rootFrame();
     if(data(root)->sizeDirty)
         updateRect = d->layoutFrame(root, from, from + length);
     data(root)->layoutDirty = false;
@@ -2654,7 +2637,7 @@ int QTextDocumentLayout::hitTest(const QPointF &point, Qt::HitTestAccuracy accur
 {
     Q_D(const QTextDocumentLayout);
     d->ensureLayouted(QFixed::fromReal(point.y()));
-    QTextFrame *f = document()->rootFrame();
+    QTextFrame *f = d->docPrivate->rootFrame();
     int position = 0;
     QTextLayout *l = 0;
     QFixedPoint pointf;
@@ -2685,10 +2668,10 @@ void QTextDocumentLayout::resizeInlineObject(QTextInlineObject item, int posInDo
     if (!handler.component)
         return;
 
-    QSizeF intrinsic = handler.iface->intrinsicSize(document(), posInDocument, format);
+    QSizeF intrinsic = handler.iface->intrinsicSize(d->document, posInDocument, format);
 
     QTextFrameFormat::Position pos = QTextFrameFormat::InFlow;
-    QTextFrame *frame = qobject_cast<QTextFrame *>(document()->objectForFormat(f));
+    QTextFrame *frame = qobject_cast<QTextFrame *>(d->document->objectForFormat(f));
     if (frame) {
         pos = frame->frameFormat().position();
         QTextFrameData *fd = data(frame);
@@ -2722,11 +2705,11 @@ void QTextDocumentLayout::positionInlineObject(QTextInlineObject item, int posIn
     if (!handler.component)
         return;
 
-    QTextFrame *frame = qobject_cast<QTextFrame *>(document()->objectForFormat(f));
+    QTextFrame *frame = qobject_cast<QTextFrame *>(d->document->objectForFormat(f));
     if (!frame)
         return;
 
-    QTextBlock b = document()->findBlock(frame->firstPosition());
+    QTextBlock b = d->document->findBlock(frame->firstPosition());
     QTextLine line;
     if (b.position() <= frame->firstPosition() && b.position() + b.length() > frame->lastPosition())
         line = b.layout()->lineAt(b.layout()->lineCount()-1);
@@ -2738,9 +2721,10 @@ void QTextDocumentLayout::positionInlineObject(QTextInlineObject item, int posIn
 void QTextDocumentLayout::drawInlineObject(QPainter *p, const QRectF &rect, QTextInlineObject item,
                                            int posInDocument, const QTextFormat &format)
 {
+    Q_D(QTextDocumentLayout);
     QTextCharFormat f = format.toCharFormat();
     Q_ASSERT(f.isValid());
-    QTextFrame *frame = qobject_cast<QTextFrame *>(document()->objectForFormat(f));
+    QTextFrame *frame = qobject_cast<QTextFrame *>(d->document->objectForFormat(f));
     if (frame && frame->frameFormat().position() != QTextFrameFormat::InFlow)
         return; // don't draw floating frames from inline objects here but in drawFlow instead
 
@@ -2750,7 +2734,8 @@ void QTextDocumentLayout::drawInlineObject(QPainter *p, const QRectF &rect, QTex
 
 int QTextDocumentLayout::dynamicPageCount() const
 {
-    const QSizeF pgSize = document()->pageSize();
+    Q_D(const QTextDocumentLayout);
+    const QSizeF pgSize = d->document->pageSize();
     if (pgSize.height() < 0)
         return 1;
     return qCeil(dynamicDocumentSize().height() / pgSize.height());
@@ -2758,7 +2743,8 @@ int QTextDocumentLayout::dynamicPageCount() const
 
 QSizeF QTextDocumentLayout::dynamicDocumentSize() const
 {
-    return data(document()->rootFrame())->size.toSizeF();
+    Q_D(const QTextDocumentLayout);
+    return data(d->docPrivate->rootFrame())->size.toSizeF();
 }
 
 int QTextDocumentLayout::pageCount() const
@@ -2855,8 +2841,9 @@ QRectF QTextDocumentLayoutPrivate::frameBoundingRectInternal(QTextFrame *frame) 
 
 QRectF QTextDocumentLayout::blockBoundingRect(const QTextBlock &block) const
 {
-    d_func()->ensureLayoutedByPosition(block.position() + block.length());
-    QTextFrame *frame = document()->frameAt(block.position());
+    Q_D(const QTextDocumentLayout);
+    d->ensureLayoutedByPosition(block.position() + block.length());
+    QTextFrame *frame = d->document->frameAt(block.position());
     QPointF offset;
     const int blockPos = block.position();
 
@@ -2881,10 +2868,11 @@ QRectF QTextDocumentLayout::blockBoundingRect(const QTextBlock &block) const
 
 int QTextDocumentLayout::layoutStatus() const
 {
-    int pos = d_func()->currentLazyLayoutPosition;
+    Q_D(const QTextDocumentLayout);
+    int pos = d->currentLazyLayoutPosition;
     if (pos == -1)
         return 100;
-    return pos * 100 / document()->docHandle()->length();
+    return pos * 100 / d->document->docHandle()->length();
 }
 
 void QTextDocumentLayout::timerEvent(QTimerEvent *e)

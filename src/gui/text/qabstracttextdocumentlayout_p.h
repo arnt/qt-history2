@@ -53,6 +53,9 @@ public:
 
     void _q_handlerDestroyed(QObject *obj);
     QPaintDevice *paintDevice;
+
+    QTextDocument *document;
+    QTextDocumentPrivate *docPrivate;
 };
 
 #endif // QABSTRACTTEXTDOCUMENTLAYOUT_P_H
