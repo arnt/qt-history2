@@ -413,7 +413,7 @@ public:
     QRectF layoutFrame(QTextFrame *f, int layoutFrom, int layoutTo, QFixed frameWidth, QFixed frameHeight, QFixed parentY = 0);
 
     void layoutBlock(const QTextBlock &bl, int blockPosition, const QTextBlockFormat &blockFormat, 
-                     QLayoutStruct *layoutStruct, int layoutFrom, int layoutTo, const QTextBlock &previousBlock);
+                     QLayoutStruct *layoutStruct, int layoutFrom, int layoutTo, const QTextBlockFormat *previousBlockFormat);
     void layoutFlow(QTextFrame::Iterator it, QLayoutStruct *layoutStruct, int layoutFrom, int layoutTo, QFixed width = 0);
     void pageBreakInsideTable(QTextTable *table, QLayoutStruct *layoutStruct);
 
@@ -2026,6 +2026,8 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, QLayoutStru
         }
     }
 
+    QTextBlockFormat previousBlockFormat = previousIt.currentBlock().blockFormat();
+
     QFixed maximumBlockWidth = 0;
     while (!it.atEnd()) {
         QTextFrame *c = it.currentFrame();
@@ -2164,8 +2166,12 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, QLayoutStru
             const QFixed origMaximumWidth = layoutStruct->maximumWidth;
             layoutStruct->maximumWidth = 0;
 
+            const QTextBlockFormat *previousBlockFormatPtr = 0;
+            if (lastIt.currentBlock().isValid())
+                previousBlockFormatPtr = &previousBlockFormat;
+
             // layout and position child block
-            layoutBlock(block, docPos, blockFormat, layoutStruct, layoutFrom, layoutTo, lastIt.currentBlock());
+            layoutBlock(block, docPos, blockFormat, layoutStruct, layoutFrom, layoutTo, previousBlockFormatPtr);
 
             // if the block right before a table is empty 'hide' it by
             // positioning it into the table border
@@ -2202,7 +2208,7 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, QLayoutStru
                         // relayout block to correctly handle page breaks
                         layoutStruct->y = origY - height;
                         layoutStruct->pageBottom = origPageBottom;
-                        layoutBlock(block, docPos, blockFormat, layoutStruct, layoutFrom, layoutTo, lastIt.currentBlock());
+                        layoutBlock(block, docPos, blockFormat, layoutStruct, layoutFrom, layoutTo, previousBlockFormatPtr);
                     }
 
                     QPointF linePos((td->position.x + td->size.width).toReal(),
@@ -2217,6 +2223,7 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, QLayoutStru
 
             maximumBlockWidth = qMax(maximumBlockWidth, layoutStruct->maximumWidth);
             layoutStruct->maximumWidth = origMaximumWidth;
+            previousBlockFormat = blockFormat;
         }
     }
     if (layoutStruct->maximumWidth == QFIXED_MAX && maximumBlockWidth > 0)
@@ -2260,7 +2267,7 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, QLayoutStru
 }
 
 void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, int blockPosition, const QTextBlockFormat &blockFormat,
-                                             QLayoutStruct *layoutStruct, int layoutFrom, int layoutTo, const QTextBlock &previousBlock)
+                                             QLayoutStruct *layoutStruct, int layoutFrom, int layoutTo, const QTextBlockFormat *previousBlockFormat)
 {
     Q_Q(QTextDocumentLayout);
 
@@ -2271,8 +2278,8 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, int blockPosi
 
 //    qDebug() << "layoutBlock; width" << layoutStruct->x_right - layoutStruct->x_left << "(maxWidth is btw" << tl->maximumWidth() << ")";
 
-    if (previousBlock.isValid()) {
-        qreal margin = qMax(blockFormat.topMargin(), previousBlock.blockFormat().bottomMargin());
+    if (previousBlockFormat) {
+        qreal margin = qMax(blockFormat.topMargin(), previousBlockFormat->bottomMargin());
         if (margin > 0 && q->paintDevice()) {
             extern int qt_defaultDpi();
             margin *= qreal(q->paintDevice()->logicalDpiY()) / qreal(qt_defaultDpi());
