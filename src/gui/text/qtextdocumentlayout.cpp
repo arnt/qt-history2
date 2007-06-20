@@ -2425,10 +2425,11 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, int blockPosi
             layoutStruct->contentsWidth
                 = qMax(layoutStruct->contentsWidth, QFixed::fromReal(line.x() + tl->lineAt(i).naturalTextWidth()) + totalRightMargin);
             const QFixed lineHeight = QFixed::fromReal(line.height());
-            if (layoutStruct->pageHeight > 0 && layoutStruct->absoluteY() + lineHeight > layoutStruct->pageBottom) {
-                layoutStruct->newPage();
+            if (layoutStruct->pageHeight != QFIXED_MAX) {
+                if (layoutStruct->absoluteY() + lineHeight > layoutStruct->pageBottom)
+                    layoutStruct->newPage();
+                line.setPosition(QPointF(line.position().x(), layoutStruct->y.toReal() - tl->position().y()));
             }
-            line.setPosition(QPointF(line.position().x(), layoutStruct->y.toReal() - tl->position().y()));
             layoutStruct->y += lineHeight;
         }
         if (layoutStruct->updateRect.isValid()
