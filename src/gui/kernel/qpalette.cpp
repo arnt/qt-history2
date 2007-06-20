@@ -370,7 +370,7 @@ void QPalette::setColorGroup(ColorGroup cg, const QColorGroup &g)
     roles are enumerated and defined in the \l ColorRole documentation.
 
 				We strongly recommend that you use the default palette of the
-				current style (returned by QApplication::standardPalette()) and
+				current style (returned by QApplication::palette()) and
 				modify that as necessary. This is done by Qt's widgets when they
 				are drawn.
 
