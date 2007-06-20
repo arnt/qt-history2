@@ -579,7 +579,8 @@ bool QSvgPaintEngine::begin(QPaintDevice *)
         return false;
     }
 
-    if (!d->outputDevice->open(QIODevice::WriteOnly | QIODevice::Text)) {
+    if (!d->outputDevice->isOpen() &&
+        !d->outputDevice->open(QIODevice::WriteOnly | QIODevice::Text)) {
         qWarning("QSvgPaintEngine::begin(), could not open output device: '%s'",
                  qPrintable(d->outputDevice->errorString()));
         return false;
