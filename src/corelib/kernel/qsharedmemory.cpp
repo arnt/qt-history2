@@ -44,6 +44,7 @@ QString QSharedMemoryPrivate::makePlatformSafeKey(const QString &key, const QStr
 }
 
 /*! \class QSharedMemory
+    \since 4.4
 
     \brief The QSharedMemory class provides a shared memory segment.
 

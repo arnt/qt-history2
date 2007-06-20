@@ -16,6 +16,7 @@
 #include <qglobal.h>
 
 /*! \class QSystemSemaphore
+    \since 4.4
 
     \brief The QSystemSemaphore class provides a general system counting semaphore.
 
