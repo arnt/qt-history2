@@ -370,7 +370,7 @@ public:
     int lastPageCount;
     qreal idealWidth;
 
-    qreal indent(QTextBlock bl) const;
+    QFixed blockIndent(const QTextBlockFormat &blockFormat) const;
 
     void drawFrame(const QPointF &offset, QPainter *painter, const QAbstractTextDocumentLayout::PaintContext &context,
                    QTextFrame *f) const;
@@ -665,23 +665,24 @@ QTextDocumentLayoutPrivate::hitTest(QTextBlock bl, const QFixedPoint &point, int
 }
 
 // ### could be moved to QTextBlock
-qreal QTextDocumentLayoutPrivate::indent(QTextBlock bl) const
+QFixed QTextDocumentLayoutPrivate::blockIndent(const QTextBlockFormat &blockFormat) const
 {
-    Q_Q(const QTextDocumentLayout);
-    QTextBlockFormat blockFormat = bl.blockFormat();
     qreal indent = blockFormat.indent();
 
     QTextObject *object = document->objectForFormat(blockFormat);
     if (object)
         indent += object->format().toListFormat().indent();
 
+    if (qIsNull(indent))
+        return 0;
+
     qreal scale = 1;
-    if (q->paintDevice()) {
+    if (paintDevice) {
         extern int qt_defaultDpi();
-        scale = qreal(q->paintDevice()->logicalDpiY()) / qreal(qt_defaultDpi());
+        scale = qreal(paintDevice->logicalDpiY()) / qreal(qt_defaultDpi());
     }
 
-    return indent * TextIndentValue * scale;
+    return QFixed::fromReal(indent * scale) * TextIndentValue;
 }
 
 void QTextDocumentLayoutPrivate::drawBorder(QPainter *painter, const QRectF &rect, qreal topMargin, qreal bottomMargin,
@@ -2286,7 +2287,7 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, QLayoutStruct
         option.setTextDirection(blockFormat.layoutDirection());
     const Qt::LayoutDirection dir = option.textDirection();
 
-    const QFixed indent = QFixed::fromReal(this->indent(bl));
+    const QFixed indent = this->blockIndent(blockFormat);
     const QFixed totalLeftMargin = QFixed::fromReal(blockFormat.leftMargin()) + (dir == Qt::RightToLeft ? 0 : indent);
     const QFixed totalRightMargin = QFixed::fromReal(blockFormat.rightMargin()) + (dir == Qt::RightToLeft ? indent : 0);
 
