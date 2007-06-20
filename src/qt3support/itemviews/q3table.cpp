@@ -3874,7 +3874,10 @@ void Q3Table::contentsMouseReleaseEvent(QMouseEvent *e)
             QMouseEvent ev(e->type(), w->mapFromGlobal(e->globalPos()),
                             e->globalPos(), e->button(), e->state());
             QApplication::sendPostedEvents(w, 0);
+            bool old = w->testAttribute(Qt::WA_NoMousePropagation);
+            w->setAttribute(Qt::WA_NoMousePropagation, true);
             QApplication::sendEvent(w, &ev);
+            w->setAttribute(Qt::WA_NoMousePropagation, old);
         }
     }
 }
