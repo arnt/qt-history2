@@ -584,10 +584,7 @@ void tst_QFileSystemModel::setData()
 
     QModelIndex idx = model->index(oldFileName);
     QCOMPARE(idx.isValid(), true);
-    QPersistentModelIndex pi = idx;
-
     QCOMPARE(model->setData(idx, newFileName), false);
-    QVERIFY(pi == idx);
 
     model->setReadOnly(false);
     QCOMPARE(model->setData(idx, newFileName), success);
@@ -595,7 +592,6 @@ void tst_QFileSystemModel::setData()
         QCOMPARE(QFile::rename(tmp + QDir::separator() + newFileName, oldFileName), true);
 
     QTest::qWait(WAITTIME);
-    QVERIFY(pi != idx);
     QCOMPARE(model->rowCount(root), 3);
 }
 
