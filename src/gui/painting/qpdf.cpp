@@ -804,7 +804,7 @@ QPdfBaseEngine::QPdfBaseEngine(QPdfBaseEnginePrivate &dd, PaintEngineFeatures f)
                 break;
             }
         }
-        
+
     } else
 #endif
     {
@@ -1077,7 +1077,7 @@ void QPdfBaseEngine::setPen()
     Q_D(QPdfBaseEngine);
     if (d->pen.style() == Qt::NoPen)
         return;
-    QBrush b = d->pen.brush();    
+    QBrush b = d->pen.brush();
     Q_ASSERT(b.style() == Qt::SolidPattern && b.isOpaque());
 
     QColor rgba = b.color();
@@ -1485,7 +1485,7 @@ bool QPdfBaseEnginePrivate::openPrintDevice()
                         cupsArgList << "sides=two-sided-short-edge";
                 }
 
-                if (orientation == QPrinter::Landscape) {
+                if (QCUPSSupport::cupsVersion() >= 10200 && orientation == QPrinter::Landscape) {
                     cupsArgList << "-o";
                     cupsArgList << "landscape";
                 }
