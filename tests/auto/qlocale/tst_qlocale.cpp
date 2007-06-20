@@ -615,6 +615,7 @@ void tst_QLocale::formatDate_data()
     QTest::newRow("25") << QDate(1974, 12, 1) << "\"\"" << "\"\"";
     QTest::newRow("26") << QDate(1974, 12, 1) << "\"yy\"" << "\"74\"";
     QTest::newRow("27") << QDate(1974, 12, 1) << "'\"yy\"'" << "\"yy\"";
+    QTest::newRow("27") << QDate() << "'\"yy\"'" << "";
 }
 
 void tst_QLocale::formatDate()
@@ -669,6 +670,7 @@ void tst_QLocale::formatTime_data()
     QTest::newRow("30") << QTime(1, 2, 3, 456) << "H:m:s.zzz" << "1:2:3.456";
     QTest::newRow("31") << QTime(1, 2, 3, 4) << "H:m:s.z" << "1:2:3.4";
     QTest::newRow("32") << QTime(1, 2, 3, 4) << "H:m:s.zzz" << "1:2:3.004";
+    QTest::newRow("33") << QTime() << "H:m:s.zzz" << "";
 }
 
 void tst_QLocale::formatTime()

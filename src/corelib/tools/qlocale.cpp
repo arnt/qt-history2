@@ -2467,6 +2467,8 @@ QString QLocale::toString(qulonglong i) const
 QString QLocale::toString(const QDate &date, const QString &format) const
 {
     QString result;
+    if (!date.isValid())
+        return result;
 
     int i = 0;
     while (i < format.size()) {
@@ -2615,6 +2617,8 @@ static QString timeZone()
 QString QLocale::toString(const QTime &time, const QString &format) const
 {
     QString result;
+    if (!time.isValid())
+        return result;
 
     int hour12 = time.hour();
     enum { AM, PM } am_pm = AM;
