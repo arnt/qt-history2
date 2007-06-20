@@ -1481,24 +1481,14 @@ void Q3Header::paintSection(QPainter *p, int index, const QRect& fr)
     } else {
         p->save();
         p->setClipRect(fr); // hack to keep styles working
-        opt.rect.setRect(fr.x() - 2, fr.y() - 2, fr.width() + 4, fr.height() + 4);
+        opt.rect.setRect(fr.x() + 1, fr.y(), fr.width(), fr.height());
         style()->drawControl(QStyle::CE_Header, &opt, p, this);
         if (orient == Qt::Horizontal) {
             p->setPen(palette().color(QPalette::Mid));
-            p->drawLine(fr.x(), fr.y() + fr.height() - 1,
+            p->drawLine(fr.x() - 1, fr.y() + fr.height() - 1,
                          fr.x() + fr.width() - 1, fr.y() + fr.height() - 1);
             p->drawLine(fr.x() + fr.width() - 1, fr.y(),
                          fr.x() + fr.width() - 1, fr.y() + fr.height() - 1);
-            p->setPen(palette().color(QPalette::Light));
-            if (index > 0)
-                p->drawLine(fr.x(), fr.y(), fr.x(), fr.y() + fr.height() - 1);
-            if (index == count() - 1) {
-                p->drawLine(fr.x() + fr.width() - 1, fr.y(),
-                             fr.x() + fr.width() - 1, fr.y() + fr.height() - 1);
-                p->setPen(palette().color(QPalette::Mid));
-                p->drawLine(fr.x() + fr.width() - 2, fr.y(),
-                             fr.x() + fr.width() - 2, fr.y() + fr.height() - 1);
-            }
         } else {
             p->setPen(palette().color(QPalette::Mid));
             p->drawLine(fr.x() + width() - 1, fr.y(),
@@ -1518,8 +1508,6 @@ void Q3Header::paintSection(QPainter *p, int index, const QRect& fr)
         }
         p->restore();
     }
-
-    paintSectionLabel(p, index, fr);
 }
 
 /*!
