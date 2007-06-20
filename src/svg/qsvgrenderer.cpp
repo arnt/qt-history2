@@ -386,7 +386,14 @@ QRectF QSvgRenderer::boundsOnElement(const QString &id) const
     \since 4.2
 
     Returns true if the element with the given \a id exists
-    in the currently parsed SVG file.
+    in the currently parsed SVG file and is a renderable
+    element.
+
+    Note: this method returns true only for elements that
+    can be rendered. Which implies that elements that are considered
+    part of the fill/stroke style properties, e.g. radialGradients
+    even tough marked with "id" attributes will not be found by this
+    method.
 */
 bool QSvgRenderer::elementExists(const QString &id) const
 {
@@ -402,7 +409,7 @@ bool QSvgRenderer::elementExists(const QString &id) const
 
     Returns the transformation matrix setup for the element
     with the given \a id. That includes the transformation on
-    the element itself. 
+    the element itself.
 */
 QMatrix QSvgRenderer::matrixForElement(const QString &id) const
 {
