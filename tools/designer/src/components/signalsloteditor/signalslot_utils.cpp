@@ -77,11 +77,14 @@ static void memberList(QDesignerFormEditorInterface *core,
     // get the promoted class name
     const qdesigner_internal::WidgetDataBaseItem *wdbItem = static_cast<qdesigner_internal::WidgetDataBaseItem *>(wdb->item(idx));
     const QString className = wdbItem->name();
-    foreach (const QString &fakeMethod, member_type == qdesigner_internal::SlotMember ? wdbItem->fakeSlots() : wdbItem->fakeSignals())
-        if (predicate(fakeMethod)) {
-            *it = ClassNameSignaturePair(className, fakeMethod);
-            ++it;
-        }
+
+    const QStringList wdbFakeMethods = member_type == qdesigner_internal::SlotMember ? wdbItem->fakeSlots() : wdbItem->fakeSignals();
+    if (!wdbFakeMethods.empty())
+        foreach (const QString &fakeMethod, wdbFakeMethods)
+            if (predicate(fakeMethod)) {
+                *it = ClassNameSignaturePair(className, fakeMethod);
+                ++it;
+            }
     // 3) fake slots from meta DB
     qdesigner_internal::MetaDataBase *metaDataBase = qobject_cast<qdesigner_internal::MetaDataBase *>(core->metaDataBase());
     if (!metaDataBase)
@@ -89,11 +92,13 @@ static void memberList(QDesignerFormEditorInterface *core,
 
     const qdesigner_internal::MetaDataBaseItem *mdbItem = metaDataBase->metaDataBaseItem(object);
     Q_ASSERT(mdbItem);
-    foreach (const QString &fakeMethod, member_type == qdesigner_internal::SlotMember ? mdbItem->fakeSlots() : mdbItem->fakeSignals())
-        if (predicate(fakeMethod)) {
-            *it = ClassNameSignaturePair(className, fakeMethod);
-            ++it;
-        }
+    const QStringList mdbFakeMethods =  member_type == qdesigner_internal::SlotMember ? mdbItem->fakeSlots() : mdbItem->fakeSignals();
+    if (!mdbFakeMethods.empty())
+        foreach (const QString &fakeMethod, mdbFakeMethods)
+            if (predicate(fakeMethod)) {
+                *it = ClassNameSignaturePair(className, fakeMethod);
+                ++it;
+            }
 }
 
 namespace {
