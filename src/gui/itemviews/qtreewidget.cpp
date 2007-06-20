@@ -1865,7 +1865,6 @@ QTreeWidgetItem *QTreeWidgetItem::takeChild(int index)
         if (model) model->beginRemoveItems(this, index, 1);
         QTreeWidgetItem *item = children.takeAt(index);
         item->par = 0;
-        d->propagateDisabled(item);
         QStack<QTreeWidgetItem*> stack;
         stack.push(item);
         while (!stack.isEmpty()) {
@@ -1874,6 +1873,7 @@ QTreeWidgetItem *QTreeWidgetItem::takeChild(int index)
             for (int c = 0; c < i->children.count(); ++c)
                 stack.push(i->children.at(c));
         }
+        d->propagateDisabled(item);
         if (model) model->endRemoveRows();
         return item;
     }
@@ -1964,7 +1964,6 @@ QList<QTreeWidgetItem*> QTreeWidgetItem::takeChildren()
         for (int n = 0; n < children.count(); ++n) {
             QTreeWidgetItem *item = children.at(n);
             item->par = 0;
-            d->propagateDisabled(item);
             QStack<QTreeWidgetItem*> stack;
             stack.push(item);
             while (!stack.isEmpty()) {
@@ -1973,6 +1972,7 @@ QList<QTreeWidgetItem*> QTreeWidgetItem::takeChildren()
                 for (int c = 0; c < i->children.count(); ++c)
                     stack.push(i->children.at(c));
             }
+            d->propagateDisabled(item);
         }
         removed = children;
         children.clear(); // detach
