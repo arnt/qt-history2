@@ -2068,9 +2068,6 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, QLayoutStru
                         && docPos > currentLazyLayoutPosition + lazyLayoutStepSize)
                         break;
 
-                    if (layoutTo != -1
-                        && docPos > layoutTo)
-                        break;
                 }
             }
         }
@@ -2262,6 +2259,7 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, QLayoutStru
             cp.maximumWidth = layoutStruct->maximumWidth;
             cp.contentsWidth = layoutStruct->contentsWidth;
             checkPoints.append(cp);
+            checkPoints.reserve(checkPoints.size());
         } else {
             currentLazyLayoutPosition = checkPoints.last().positionInFrame;
             // #######
