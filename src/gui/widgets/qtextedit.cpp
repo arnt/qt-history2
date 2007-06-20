@@ -1307,7 +1307,7 @@ void QTextEditPrivate::relayoutDocument()
     if (lineWrap == QTextEdit::FixedPixelWidth)
         width = lineWrapColumnOrWidth;
 
-    doc->setPageSize(QSize(width, INT_MAX));
+    doc->setPageSize(QSize(width, -1));
     if (tlayout)
         tlayout->ensureLayouted(verticalOffset() + viewport->height());
 
