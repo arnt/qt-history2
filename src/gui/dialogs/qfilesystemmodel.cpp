@@ -571,18 +571,40 @@ bool QFileSystemModel::setData(const QModelIndex &idx, const QVariant &value, in
 #endif // QT_NO_MESSAGEBOX
         return false;
     } else {
+        /*
+            *After re-naming something we don't want the selection to change*
+            - can't remove rows and later insert
+            - can't quickly remove and insert
+            - index pointer can't change because treeview doesn't use persistant index's
+
+            - if this get any more complicated think of changing it to just
+              use layoutChanged
+         */
+
         QFileSystemModelPrivate::QFileSystemNode *indexNode = d->node(idx);
         QFileSystemModelPrivate::QFileSystemNode *parentNode = indexNode->parent;
-        int itemLocation = d->findChild(parentNode, *indexNode);
-        int visibleLocation = parentNode->visibleLocation(itemLocation);
+        int oldItemLocation = d->findChild(parentNode, *indexNode);
+        int visibleLocation = parentNode->visibleLocation(oldItemLocation);
 
         parentNode->visibleChildren.removeAt(visibleLocation);
-        d->removeNode(parentNode, itemLocation);
-        itemLocation = d->addNode(parentNode, newName);
+        // keep the old node and just move it around so any model index's that
+        // point to it don't cause segfaults
+        // swap will move the pointers, move will remove and insert.
+        int newItemLocation = d->addNode(parentNode, newName);
+        oldItemLocation = d->findChild(parentNode, *indexNode);
+        parentNode->children.swap(newItemLocation, oldItemLocation);
         QFileInfo info(d->rootDir, newName);
-        parentNode->children[itemLocation].populate(d->fileInfoGatherer.getInfo(info));
-        parentNode->visibleChildren.insert(visibleLocation, itemLocation);
-        changePersistentIndex(idx, index(idx.row(), idx.column(), d->index(parentNode)));
+        parentNode->children[newItemLocation].fileName = newName;
+        parentNode->children[newItemLocation].parent = parentNode;
+        parentNode->children[newItemLocation].populate(d->fileInfoGatherer.getInfo(info));
+        parentNode->children.removeAt(oldItemLocation);
+        // remove from the visible children
+        for (int j = 0; j < parentNode->visibleChildren.count(); ++j)
+            if (parentNode->visibleChildren.at(j) > oldItemLocation)
+                --parentNode->visibleChildren[j];
+        if (oldItemLocation < newItemLocation)
+            --newItemLocation;
+        parentNode->visibleChildren.insert(visibleLocation, newItemLocation);
         d->delayedSort();
     }
     return true;
