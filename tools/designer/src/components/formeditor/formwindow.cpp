@@ -881,11 +881,10 @@ bool FormWindow::unify(QObject *w, QString &s, bool changeIt)
     if (!main)
         return true;
 
-    if (w->isWidgetType() && isMainContainer(qobject_cast<QWidget*>(w)) && objectName() == s)
-        return true;
-
     StringSet existingNames;
-    existingNames.insert(main->objectName());
+    // build a set of existing names of other widget excluding self
+    if (!(w->isWidgetType() && isMainContainer(qobject_cast<QWidget*>(w))))
+        existingNames.insert(main->objectName());
 
     const QDesignerMetaDataBaseInterface *metaDataBase = core()->metaDataBase();
     const QWidgetList widgetChildren = qFindChildren<QWidget*>(main);
