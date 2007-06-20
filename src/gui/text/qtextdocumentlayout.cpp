@@ -207,9 +207,8 @@ QRectF QTextTableData::cellRect(const QTextTableCell &cell) const
                   (rowPositions.at(row + rowSpan - 1) + heights.at(row + rowSpan - 1) - rowPositions.at(row)).toReal());
 }
 
-static inline bool isEmptyBlockBeforeTable(const QTextBlock &block, const QTextFrame::Iterator &nextIt)
+static inline bool isEmptyBlockBeforeTable(const QTextBlock &block, const QTextBlockFormat &format, const QTextFrame::Iterator &nextIt)
 {
-    QTextBlockFormat format = block.blockFormat();
     return !nextIt.atEnd()
            && qobject_cast<QTextTable *>(nextIt.currentFrame())
            && block.isValid()
@@ -223,8 +222,10 @@ static inline bool isEmptyBlockBeforeTable(const QTextBlock &block, const QTextF
 static inline bool isEmptyBlockBeforeTable(QTextFrame::Iterator it)
 {
     QTextFrame::Iterator next = it; ++next;
-    return it.currentFrame() == 0
-           && isEmptyBlockBeforeTable(it.currentBlock(), next);
+    if (it.currentFrame())
+        return false;
+    QTextBlock block = it.currentBlock();
+    return isEmptyBlockBeforeTable(block, block.blockFormat(), next);
 }
 
 static inline bool isEmptyBlockAfterTable(const QTextBlock &block, const QTextFrame *lastFrame)
@@ -411,8 +412,8 @@ public:
     QRectF layoutFrame(QTextFrame *f, int layoutFrom, int layoutTo, QFixed parentY = 0);
     QRectF layoutFrame(QTextFrame *f, int layoutFrom, int layoutTo, QFixed frameWidth, QFixed frameHeight, QFixed parentY = 0);
 
-    void layoutBlock(const QTextBlock &bl, QLayoutStruct *layoutStruct, int layoutFrom, int layoutTo,
-                     const QTextBlock &previousBlock);
+    void layoutBlock(const QTextBlock &bl, int blockPosition, const QTextBlockFormat &blockFormat, 
+                     QLayoutStruct *layoutStruct, int layoutFrom, int layoutTo, const QTextBlock &previousBlock);
     void layoutFlow(QTextFrame::Iterator it, QLayoutStruct *layoutStruct, int layoutFrom, int layoutTo, QFixed width = 0);
     void pageBreakInsideTable(QTextTable *table, QLayoutStruct *layoutStruct);
 
@@ -1060,7 +1061,7 @@ void QTextDocumentLayoutPrivate::drawFlow(const QPointF &offset, QPainter *paint
         // draw that block before the table itself the decoration
         // 'overpaints' the cursor and we need to paint it afterwards
         // again
-        if (isEmptyBlockBeforeTable(lastBlock, it)
+        if (isEmptyBlockBeforeTable(lastBlock, lastBlock.blockFormat(), it)
             && lastBlock.contains(context.cursorPosition)
            ) {
             *cursorBlockNeedingRepaint = lastBlock;
@@ -2029,13 +2030,13 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, QLayoutStru
     while (!it.atEnd()) {
         QTextFrame *c = it.currentFrame();
 
-        if (inRootFrame) {
-            int docPos;
-            if (it.currentFrame())
-                docPos = it.currentFrame()->firstPosition();
-            else
-                docPos = it.currentBlock().position();
+        int docPos;
+        if (it.currentFrame())
+            docPos = it.currentFrame()->firstPosition();
+        else
+            docPos = it.currentBlock().position();
 
+        if (inRootFrame) {
             if (qAbs(layoutStruct->y - checkPoints.last().y) > 2000) {
                 QFixed left, right;
                 floatMargins(layoutStruct->y, layoutStruct, &left, &right);
@@ -2153,7 +2154,9 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, QLayoutStru
             QTextBlock block = it.currentBlock();
             ++it;
 
-            if (block.blockFormat().pageBreakPolicy() & QTextFormat::PageBreak_AlwaysBefore)
+            const QTextBlockFormat blockFormat = block.blockFormat();
+
+            if (blockFormat.pageBreakPolicy() & QTextFormat::PageBreak_AlwaysBefore)
                 layoutStruct->newPage();
 
             const QFixed origY = layoutStruct->y;
@@ -2162,11 +2165,11 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, QLayoutStru
             layoutStruct->maximumWidth = 0;
 
             // layout and position child block
-            layoutBlock(block, layoutStruct, layoutFrom, layoutTo, lastIt.currentBlock());
+            layoutBlock(block, docPos, blockFormat, layoutStruct, layoutFrom, layoutTo, lastIt.currentBlock());
 
             // if the block right before a table is empty 'hide' it by
             // positioning it into the table border
-            if (isEmptyBlockBeforeTable(block, it)) {
+            if (isEmptyBlockBeforeTable(block, blockFormat, it)) {
                 const QTextBlock lastBlock = lastIt.currentBlock();
                 const qreal lastBlockBottomMargin = lastBlock.isValid() ? lastBlock.blockFormat().bottomMargin() : 0.0f;
                 layoutStruct->y = origY + QFixed::fromReal(qMax(lastBlockBottomMargin, block.blockFormat().topMargin()));
@@ -2199,7 +2202,7 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, QLayoutStru
                         // relayout block to correctly handle page breaks
                         layoutStruct->y = origY - height;
                         layoutStruct->pageBottom = origPageBottom;
-                        layoutBlock(block, layoutStruct, layoutFrom, layoutTo, lastIt.currentBlock());
+                        layoutBlock(block, docPos, blockFormat, layoutStruct, layoutFrom, layoutTo, lastIt.currentBlock());
                     }
 
                     QPointF linePos((td->position.x + td->size.width).toReal(),
@@ -2208,7 +2211,7 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, QLayoutStru
                     layout->lineAt(0).setPosition(linePos - layout->position());
                 }
 
-                if (block.blockFormat().pageBreakPolicy() & QTextFormat::PageBreak_AlwaysAfter)
+                if (blockFormat.pageBreakPolicy() & QTextFormat::PageBreak_AlwaysAfter)
                     layoutStruct->newPage();
             }
 
@@ -2256,15 +2259,12 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, QLayoutStru
     fd->currentLayoutStruct = 0;
 }
 
-void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, QLayoutStruct *layoutStruct,
-                                             int layoutFrom, int layoutTo, const QTextBlock &previousBlock)
+void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, int blockPosition, const QTextBlockFormat &blockFormat,
+                                             QLayoutStruct *layoutStruct, int layoutFrom, int layoutTo, const QTextBlock &previousBlock)
 {
     Q_Q(QTextDocumentLayout);
 
-    QTextBlockFormat blockFormat = bl.blockFormat();
     QTextLayout *tl = bl.layout();
-
-    const int blockPosition = bl.position();
     const int blockLength = bl.length();
 
     LDEBUG << "layoutBlock from=" << layoutFrom << "to=" << layoutTo;
