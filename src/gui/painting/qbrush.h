@@ -91,7 +91,7 @@ private:
 #endif
     friend class QRasterPaintEngine;
     friend class QRasterPaintEnginePrivate;
-    friend class QSpanData;
+    friend struct QSpanData;
     friend class QPainter;
     friend bool hasPixmapTexture(const QBrush& brush);
     void detach(Qt::BrushStyle newStyle);
