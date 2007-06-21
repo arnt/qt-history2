@@ -1898,7 +1898,7 @@ void QGraphicsItem::resetMatrix()
 /*!
     \since 4.3
 
-    Resets this item's tranformation matrix to the identity matrix. This is
+    Resets this item's transformation matrix to the identity matrix. This is
     equivalent to calling \c setTransform(QTransform()).
 
     \sa setTransform(), transform()
@@ -3097,8 +3097,9 @@ bool QGraphicsItem::sceneEvent(QEvent *event)
 }
 
 /*!
-    This event handler, for event \a event, can be reimplemented to
-    receive context menu events for this item.
+    This event handler can be reimplemented in a subclass to process context
+    menu events. The \a event parameter contains details about the event to
+    be handled.
 
     If you ignore the event, (i.e., by calling QEvent::ignore(),) \a event
     will propagate to any item beneath this item. If no items accept the
@@ -3119,6 +3120,10 @@ bool QGraphicsItem::sceneEvent(QEvent *event)
     \endcode
 
     The default implementation does nothing.
+
+    \note Items only receive context menu events if the view they are
+    displayed in is configured to ignore context menu events; i.e., its
+    \l{QWidget::}{contextMenuPolicy} property is set to Qt::ContextMenuPolicy.
 
     \sa sceneEvent()
 */
