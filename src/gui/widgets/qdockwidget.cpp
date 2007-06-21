@@ -1247,8 +1247,6 @@ bool QDockWidget::event(QEvent *event)
     case QEvent::Show:
         d->toggleViewAction->setChecked(true);
         emit visibilityChanged(true);
-        if (!isFloating() && layout != 0)
-            layout->raise(this);
         break;
 #endif
     case QEvent::ApplicationLayoutDirectionChange:

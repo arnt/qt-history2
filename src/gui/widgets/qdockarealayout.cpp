@@ -1040,8 +1040,6 @@ void QDockAreaLayoutInfo::setCurrentTabId(quintptr id)
             return;
         }
     }
-
-    qWarning("QDockAreaLayoutInfo::setCurrentTabId(): not found!");
 }
 
 #endif // QT_NO_TABBAR
@@ -1541,6 +1539,8 @@ void QDockAreaLayoutInfo::tab(int index, QLayoutItem *dockWidgetItem)
 #else
     if (tabbed) {
         item_list.append(QDockAreaLayoutItem(dockWidgetItem));
+        updateTabBar();
+        setCurrentTab(dockWidgetItem->widget());
     } else {
         QDockAreaLayoutInfo *new_info
             = new QDockAreaLayoutInfo(sep, dockPos, o, tabBarShape, mainWindow);
@@ -1549,6 +1549,8 @@ void QDockAreaLayoutInfo::tab(int index, QLayoutItem *dockWidgetItem)
         item_list[index].widgetItem = 0;
         new_info->item_list.append(dockWidgetItem);
         new_info->tabbed = true;
+        new_info->updateTabBar();
+        new_info->setCurrentTab(dockWidgetItem->widget());
     }
 #endif // QT_NO_TABBAR
 }
