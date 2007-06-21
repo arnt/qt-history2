@@ -1213,8 +1213,8 @@ static void XorRegion(QRegionPrivate *sra, QRegionPrivate *srb, QRegionPrivate &
     if (!sra->contains(*srb))
         SubtractRegion(srb, sra, trb);
 
-    Q_ASSERT(!tra.contains(trb));
-    Q_ASSERT(!trb.contains(tra));
+    Q_ASSERT(isEmpty(&trb) || !tra.contains(trb));
+    Q_ASSERT(isEmpty(&tra) || !trb.contains(tra));
 
     if (isEmpty(&tra)) {
         dest = trb;

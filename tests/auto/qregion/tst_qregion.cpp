@@ -594,6 +594,17 @@ void tst_QRegion::operator_xor_data()
     QTest::newRow("simple 5") << QRegion(10, 10, 10, 10)
                               << QRegion(10, 10, 10, 5)
                               << QRegion(10, 15, 10, 5);
+
+    const QRegion rgnA(0, 0, 100, 100);
+    const QRegion rgnB(0, 0, 10, 10);
+
+    QTest::newRow("simple 6") << rgnA
+                              << rgnA - rgnB
+                              << rgnB;
+
+    QTest::newRow("simple 7") << rgnB
+                              << rgnA
+                              << rgnA - rgnB;
 }
 
 void tst_QRegion::operator_xor()
