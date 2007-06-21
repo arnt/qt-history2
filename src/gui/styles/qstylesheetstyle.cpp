@@ -2736,6 +2736,7 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
 
             QRenderRule subRule = renderRule(w, opt, pseudo);
             mi.rect = subRule.contentsRect(opt->rect);
+            rule.configurePalette(&mi.palette, QPalette::ButtonText, QPalette::Button);
             subRule.configurePalette(&mi.palette, QPalette::ButtonText, QPalette::Button);
             QFont oldFont = p->font();
             if (subRule.hasFont)
@@ -2746,7 +2747,12 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
                 || (mi.checkType != QStyleOptionMenuItem::NotCheckable && hasStyleRule(w, PseudoElement_MenuCheckMark))) {
                 subRule.drawRule(p, opt->rect);
                 if (mi.menuItemType != QStyleOptionMenuItem::Separator) {
-                    mi.palette.setBrush(QPalette::Highlight, subRule.hasBackground() ? Qt::NoBrush : mi.palette.brush(QPalette::Button));
+                    if (subRule.hasBackground()) {
+                        mi.palette.setBrush(QPalette::Highlight, Qt::NoBrush);
+                        mi.palette.setBrush(QPalette::Button, Qt::NoBrush);
+                    } else {
+                        mi.palette.setBrush(QPalette::Highlight, mi.palette.brush(QPalette::Button));
+                    }
                     mi.palette.setBrush(QPalette::HighlightedText, mi.palette.brush(QPalette::ButtonText));
                     bool customCheckMark = mi.checkType != QStyleOptionMenuItem::NotCheckable && hasStyleRule(w, PseudoElement_MenuCheckMark);
                     if (customCheckMark)
