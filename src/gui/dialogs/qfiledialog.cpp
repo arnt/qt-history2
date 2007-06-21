@@ -566,13 +566,13 @@ QStringList QFileDialog::selectedFiles() const
     QModelIndexList indexes = d->qFileDialogUi->listView->selectionModel()->selectedRows();
     QStringList files;
     for (int i = 0; i < indexes.count(); ++i)
-        files.append(d->model->filePath(d->mapToSource(indexes.at(i))));
+        files.append(indexes.at(i).data(QFileSystemModel::FilePathRole).toString());
 
     if (files.isEmpty())
         files = d->typedFiles();
 
     if (files.isEmpty() && d->fileMode == DirectoryOnly)
-        files.append(d->model->filePath(d->rootIndex()));
+        files.append(d->rootIndex().data(QFileSystemModel::FilePathRole).toString());
 
     return files;
 }
@@ -933,7 +933,7 @@ void QFileDialog::setHistory(const QStringList &paths)
     QList<QUrl> list;
     QModelIndex idx = d->model->index(d->rootPath());
     while (idx.isValid()) {
-        QUrl url = QUrl::fromLocalFile(d->model->filePath(idx));
+        QUrl url = QUrl::fromLocalFile(idx.data(QFileSystemModel::FilePathRole).toString());
         if (url.isValid())
             list.append(url);
         idx = idx.parent();
@@ -973,7 +973,7 @@ QStringList QFileDialog::history() const
 {
     Q_D(const QFileDialog);
     QStringList currentHistory = d->history;
-    QString newHistory = d->model->filePath(d->rootIndex());
+    QString newHistory = d->rootIndex().data(QFileSystemModel::FilePathRole).toString();
     if (!currentHistory.contains(newHistory))
         currentHistory << newHistory;
     return currentHistory;
@@ -2057,9 +2057,10 @@ void QFileDialogPrivate::_q_showContextMenu(const QPoint &position)
     QMenu menu(view);
     if (index.isValid()) {
         // file context menu
-        renameAction->setEnabled(model->permissions(index.parent()) & QFile::WriteUser);
+        QFile::Permissions p(index.parent().data(QFileSystemModel::FilePermissions).toInt());
+        renameAction->setEnabled(p & QFile::WriteUser);
         menu.addAction(renameAction);
-        deleteAction->setEnabled(model->permissions(index.parent()) & QFile::WriteUser);
+        deleteAction->setEnabled(p & QFile::WriteUser);
         menu.addAction(deleteAction);
         menu.addSeparator();
     }
@@ -2100,14 +2101,14 @@ void QFileDialogPrivate::_q_deleteCurrent()
     if (!index.isValid() || model->isReadOnly())
         return;
 
-    QString fileName = model->fileName(index);
-    QString filePath = model->filePath(index);
+    QString fileName = index.data(QFileSystemModel::FileNameRole).toString();
+    QString filePath = index.data(QFileSystemModel::FilePathRole).toString();
     bool isDir = model->isDir(index);
 
+    QFile::Permissions p(index.parent().data(QFileSystemModel::FilePermissions).toInt());
 #ifndef QT_NO_MESSAGEBOX
     Q_Q(QFileDialog);
-    if (!model->fileInfo(index).isWritable()
-        && (QMessageBox::warning(q_func(), q_func()->windowTitle(),
+    if (!(p & QFile::WriteUser) && (QMessageBox::warning(q_func(), q_func()->windowTitle(),
                                 QFileDialog::tr("'%1' is write protected.\nDo you want to delete it anyway?")
                                 .arg(fileName),
                                  QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::No))
@@ -2118,7 +2119,7 @@ void QFileDialogPrivate::_q_deleteCurrent()
                                   QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::No)
         return;
 #else
-    if (!model->fileInfo(index).isWritable())
+    if (!(p & QFile::WriteUser))
         return;
 #endif // QT_NO_MESSAGEBOX
 
@@ -2225,7 +2226,7 @@ void QFileDialogPrivate::_q_updateOkButton() {
 void QFileDialogPrivate::_q_currentChanged(const QModelIndex &index)
 {
     _q_updateOkButton();
-    emit q_func()->currentChanged(model->filePath(mapToSource(index)));
+    emit q_func()->currentChanged(index.data(QFileSystemModel::FilePathRole).toString());
 }
 
 /*!
@@ -2239,7 +2240,7 @@ void QFileDialogPrivate::_q_enterDirectory(const QModelIndex &index)
     Q_Q(QFileDialog);
     // My Computer or a directory
     QModelIndex sourceIndex = mapToSource(index);
-    QString path = model->filePath(sourceIndex);
+    QString path = sourceIndex.data(QFileSystemModel::FilePathRole).toString();
     if (path.isEmpty() || model->isDir(sourceIndex)) {
         q->setDirectory(path);
         emit q->directoryEntered(path);
@@ -2524,11 +2525,11 @@ QString QFSCompletor::pathFromIndex(const QModelIndex &index) const
 {
     const QFileSystemModel *dirModel = static_cast<const QFileSystemModel *>(model());
     QString currentLocation = dirModel->rootPath();
-    QString path = dirModel->filePath(index);
+    QString path = index.data(QFileSystemModel::FilePathRole).toString();
     if (path.startsWith(currentLocation)) {
         return path.mid(currentLocation.length() + 1);
     }
-    return dirModel->filePath(index);
+    return index.data(QFileSystemModel::FilePathRole).toString();
 }
 
 QStringList QFSCompletor::splitPath(const QString &path) const

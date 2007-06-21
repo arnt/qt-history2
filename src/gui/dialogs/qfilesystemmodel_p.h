@@ -39,7 +39,8 @@ public:
     enum Roles {
         FileIconRole = Qt::DecorationRole,
         FilePathRole = Qt::UserRole + 1,
-        FileNameRole
+        FileNameRole,
+        FilePermissions
     };
 
     explicit QFileSystemModel(QObject *parent = 0);
@@ -139,9 +140,13 @@ public:
     class QFileSystemNode
     {
     public:
-        QFileSystemNode(const QString &filename = QString(), QFileSystemNode *p=0)
+        QFileSystemNode(const QString &filename = QString(), QFileSystemNode *p = 0)
             : fileName(filename), populatedChildren(false), parent(p), info(0) {}
-        ~QFileSystemNode() { delete info; info = 0; }
+        ~QFileSystemNode() {
+            delete info;
+            info = 0;
+            parent = 0;
+        }
 
         QString fileName;
 

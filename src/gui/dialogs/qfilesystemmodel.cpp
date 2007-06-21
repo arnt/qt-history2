@@ -446,6 +446,9 @@ QVariant QFileSystemModel::data(const QModelIndex &index, int role) const
         if (index.column() == 1)
             return Qt::AlignRight;
         break;
+    case FilePermissions:
+        int p = permissions(index);
+        return p;
     }
 
     return QVariant();
