@@ -2046,7 +2046,7 @@ bool QDockAreaLayout::restoreState(QDataStream &stream, const QList<QDockWidget*
     return ok;
 }
 
-QList<int> QDockAreaLayout::indexOf(QDockWidget *dockWidget) const
+QList<int> QDockAreaLayout::indexOf(QWidget *dockWidget) const
 {
     for (int i = 0; i < QInternal::DockCount; ++i) {
         QList<int> result = docks[i].indexOf(dockWidget);

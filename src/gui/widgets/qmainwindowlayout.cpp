@@ -290,6 +290,25 @@ QList<int> QMainWindowLayoutState::indexOf(QWidget *widget) const
     return result;
 }
 
+bool QMainWindowLayoutState::contains(QWidget *widget) const
+{
+#ifndef QT_NO_DOCKWIDGET
+    if (dockAreaLayout.centralWidgetItem != 0 && dockAreaLayout.centralWidgetItem->widget() == widget)
+        return true;
+    if (!dockAreaLayout.indexOf(widget).isEmpty())
+        return true;
+#else
+    if (centralWidgetItem != 0 && centralWidgetItem->widget() == widget)
+        return true;
+#endif
+
+#ifndef QT_NO_TOOLBAR
+    if (!toolBarAreaLayout.indexOf(widget).isEmpty())
+        return true;
+#endif
+    return false;
+}
+
 void QMainWindowLayoutState::setCentralWidget(QWidget *widget)
 {
     QLayoutItem *item = 0;
@@ -1557,6 +1576,11 @@ void QMainWindowLayout::allAnimationsFinished()
 
 void QMainWindowLayout::animationFinished(QWidget *widget)
 {
+    // Signal delivered over a qeued connection, check that the widget is still in the
+    // layout. This call never dereferences the pointer.
+    if (!layoutState.contains(widget))
+        return;
+
 #ifndef QT_NO_TOOLBAR
     if (QToolBar *tb = qobject_cast<QToolBar*>(widget)) {
         QToolBarLayout *tbl = qobject_cast<QToolBarLayout*>(tb->layout());

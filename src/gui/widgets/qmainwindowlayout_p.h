@@ -92,6 +92,8 @@ public:
     QRect itemRect(QList<int> path) const;
     QRect gapRect(QList<int> path) const; // ### get rid of this, use itemRect() instead
 
+    bool contains(QWidget *widget) const;
+
     void setCentralWidget(QWidget *widget);
     QWidget *centralWidget() const;
 

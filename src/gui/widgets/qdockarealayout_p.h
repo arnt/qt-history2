@@ -177,7 +177,7 @@ public:
     void saveState(QDataStream &stream) const;
     bool restoreState(QDataStream &stream, const QList<QDockWidget*> &widgets);
 
-    QList<int> indexOf(QDockWidget *dockWidget) const;
+    QList<int> indexOf(QWidget *dockWidget) const;
     QList<int> gapIndex(const QPoint &pos) const;
     QList<int> findSeparator(const QPoint &pos) const;
 

@@ -798,7 +798,7 @@ void QToolBarAreaLayout::getStyleOptionInfo(QStyleOptionToolBar *option, QToolBa
     }
 }
 
-QList<int> QToolBarAreaLayout::indexOf(QToolBar *toolBar) const
+QList<int> QToolBarAreaLayout::indexOf(QWidget *toolBar) const
 {
     QList<int> result;
 

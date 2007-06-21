@@ -137,7 +137,7 @@ public:
 
     void getStyleOptionInfo(QStyleOptionToolBar *option, QToolBar *toolBar) const;
 
-    QList<int> indexOf(QToolBar *toolBar) const;
+    QList<int> indexOf(QWidget *toolBar) const;
     QList<int> gapIndex(const QPoint &pos) const;
     bool insertGap(QList<int> path, QLayoutItem *item);
     void remove(QList<int> path);
