@@ -498,3 +498,12 @@ void *QX11Info::visual() const
 
 bool QX11Info::defaultVisual() const
 { return x11data ? x11data->defaultVisual : QX11Info::appDefaultVisual(); }
+
+
+/*!
+    Returns true if there is a compositing manager running.
+*/
+bool QX11Info::isCompositingManagerRunning()
+{
+    return X11 ? X11->compositingManagerRunning : false;
+}

@@ -61,6 +61,7 @@ public:
     static unsigned long appUserTime();
     static void setAppTime(unsigned long time);
     static void setAppUserTime(unsigned long time);
+    static bool isCompositingManagerRunning();
 
 protected:
     void copyX11Data(const QPaintDevice *);

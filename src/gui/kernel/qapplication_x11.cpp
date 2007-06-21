@@ -197,6 +197,8 @@ static const char * x11_atomnames = {
 
     "_NET_SUPPORTING_WM_CHECK\0"
 
+    "_NET_WM_CM_S0\0"
+
     // Property formats
     "COMPOUND_TEXT\0"
     "TEXT\0"
@@ -1712,6 +1714,8 @@ void qt_init(QApplicationPrivate *priv, int,
         // Attempt to determine the current running X11 Desktop Enviornment
         // Use dbus if/when we can, but fall back to using windowManagerName() for now
 
+        X11->compositingManagerRunning = XGetSelectionOwner(X11->display,
+                                                            ATOM(_NET_WM_CM_S0));
         X11->desktopEnvironment = DE_UNKNOWN;
 
         // See if the current window manager is using the freedesktop.org spec to give its name

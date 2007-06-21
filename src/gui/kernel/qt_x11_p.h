@@ -512,6 +512,8 @@ struct QX11Data
 
         _NET_SUPPORTING_WM_CHECK,
 
+        _NET_WM_CM_S0,
+
         // Property formats
         COMPOUND_TEXT,
         TEXT,
@@ -558,6 +560,8 @@ struct QX11Data
     Atom atoms[NAtoms];
 
     bool isSupportedByWM(Atom atom);
+
+    bool compositingManagerRunning;
 };
 
 extern QX11Data *qt_x11Data;
