@@ -376,7 +376,33 @@ void QColormap::initialize()
         } else if (!X11->custom_cmap) {
             XStandardColormap *stdcmap = 0;
             int ncmaps = 0;
-            if (XGetRGBColormaps(display, RootWindow(display, i),
+
+            bool foundArgbVisual = false;
+#ifndef QT_NO_XRENDER
+            if (X11->use_xrender) {
+                int nvi;
+                XVisualInfo templ;
+                templ.screen  = i;
+                templ.depth   = 32;
+                templ.c_class = TrueColor;
+                XVisualInfo *xvi = XGetVisualInfo(X11->display, VisualScreenMask |
+                                                  VisualDepthMask |
+                                                  VisualClassMask, &templ, &nvi);
+                for (int idx = 0; idx < nvi; ++idx) {
+                    XRenderPictFormat *format = XRenderFindVisualFormat(X11->display,
+                                                                        xvi[idx].visual);
+                    if (format->type == PictTypeDirect && format->direct.alphaMask) {
+                        d->visual = xvi[idx].visual;
+                        d->depth = 32;
+                        d->defaultVisual = false;
+                        foundArgbVisual = true;
+                        break;
+                    }
+                }
+            }
+#endif
+            if (!foundArgbVisual &&
+                XGetRGBColormaps(display, RootWindow(display, i),
                                  &stdcmap, &ncmaps, XA_RGB_DEFAULT_MAP)) {
                 if (stdcmap) {
                     for (int c = 0; c < ncmaps; ++c) {
@@ -434,7 +460,6 @@ void QColormap::initialize()
                 }
             }
         }
-
         if (!use_stdcmap) {
             switch (d->visual->c_class) {
             case StaticGray:

@@ -491,7 +491,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
         picture = 0;
     }
 
-    if (X11->use_xrender) {
+    if (X11->use_xrender && !desktop) {
         XRenderPictFormat *format = XRenderFindVisualFormat(dpy, (Visual *) xinfo.visual());
         if (format)
             picture = XRenderCreatePicture(dpy, id, format, 0, 0);
