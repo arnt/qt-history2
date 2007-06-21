@@ -1247,6 +1247,8 @@ void QRasterPaintEngine::updateState(const QPaintEngineState &state)
             d->stroker = 0;
         }
         d->penData.setup(pen_style == Qt::NoPen ? QBrush() : d->pen.brush(), d->opacity);
+
+        d->updateMatrixData(&d->penData, d->pen.brush(), d->matrix);
     }
 
     if (flags & (DirtyBrush|DirtyBrushOrigin)) {
