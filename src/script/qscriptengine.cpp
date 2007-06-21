@@ -978,9 +978,9 @@ QScriptValue QScriptEngine::importExtension(const QString &extension)
     Creates a QScriptValue using the given \a engine with the given \a
     value of template type \c{T}.
 
-    This function is equivalent to QScriptEngine::toScriptValue(\a
-    value). It is provided as a work-around for MSVC 6, which doesn't
-    support member template functions.
+    This function is equivalent to QScriptEngine::toScriptValue().
+    It is provided as a work-around for MSVC 6, which doesn't support
+    member template functions.
 
     \sa qScriptValueToValue()
 */
@@ -992,11 +992,52 @@ QScriptValue QScriptEngine::importExtension(const QString &extension)
 
     Returns the given \a value converted to the template type \c{T}.
 
-    This function is equivalent to QScriptEngine::fromScriptValue(\a
-    value). It is provided as a work-around for MSVC 6, which doesn't
+    This function is equivalent to QScriptEngine::fromScriptValue().
+    It is provided as a work-around for MSVC 6, which doesn't
     support member template functions.
 
     \sa qScriptValueFromValue()
+*/
+
+/*!
+    \fn QScriptValue qScriptValueFromSequence(QScriptEngine *engine, const Container &container)
+    \since 4.3
+    \relates QScriptEngine
+
+    Creates an array in the form of a QScriptValue using the given \a engine
+    with the given \a container of template type \c{Container}.
+
+    The \c Container type must provide a \c const_iterator class to enable the
+    contents of the container to be copied into the array.
+
+    Additionally, the type of each element in the sequence should be suitable
+    for conversion to a QScriptValue.
+    See \l{QtScript Module#Conversion Between QtScript and C++ Types}
+    {Conversion Between QtScript and C++ Types} for more information about the
+    restrictions on types that can be used with QScriptValue.
+
+    \sa qScriptValueFromValue()
+*/
+
+/*!
+    \fn void qScriptValueToSequence(const QScriptValue &value, Container &container)
+    \since 4.3
+    \relates QScriptEngine
+
+    Copies the elements in the sequence specified by \a value to the given
+    \a container of template type \c{Container}.
+
+    The \a value used is typically an array, but any container can be copied
+    as long as it provides a \c length property describing how many elements
+    it contains.
+
+    Additionally, the type of each element in the sequence must be suitable
+    for conversion to a C++ type from a QScriptValue.
+    See \l{QtScript Module#Conversion Between QtScript and C++ Types}
+    {Conversion Between QtScript and C++ Types} for more information about the
+    restrictions on types that can be used with QScriptValue.
+
+    \sa qscriptvalue_cast()
 */
 
 /*!
