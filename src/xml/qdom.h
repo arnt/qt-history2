@@ -299,9 +299,7 @@ public:
     QDomElement createElementNS(const QString& nsURI, const QString& qName);
     QDomAttr createAttributeNS(const QString& nsURI, const QString& qName);
     QDomNodeList elementsByTagNameNS(const QString& nsURI, const QString& localName);
-    QDomNodeList elementsByTagNameNS(const QString& nsURI, const QString& localName) const;
     QDomElement elementById(const QString& elementId);
-    QDomElement elementById(const QString& elementId) const;
 
     // DOM read only attributes
     QDomDocumentType doctype() const;
