@@ -90,9 +90,7 @@ how to examine their contents. Document editing is described in
 QTextDocument objects contain all the information required to construct
 rich text documents for use with a QTextEdit widget or in a custom editor.
 Although QTextEdit makes it easy to display and edit rich text, documents
-can also be used independently of any editor widget.
-
-Documents can be created and used independently of any editor widgets:
+can also be used independently of any editor widget, for example:
 
 \code
 QTextDocument *newDocument = new QTextDocument;
