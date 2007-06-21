@@ -1600,6 +1600,8 @@ private:
     }
 
     struct Method {
+        Method() : flags(0) 
+        {}
         QByteArray type;
         QByteArray parameters;
         int flags;
@@ -1646,12 +1648,14 @@ private:
     }
 
     struct Property {
+        Property() : typeId(0)
+        {}
         QByteArray type;
-        int typeId;
+        uint typeId;
         QByteArray realType;
     };
     QMap<QByteArray, Property> property_list;
-    void addProperty(const QByteArray &type, const QByteArray &name, int flags)
+    void addProperty(const QByteArray &type, const QByteArray &name, uint flags)
     {
         Property &prop = property_list[name];
         if (!type.isEmpty() && type != "HRESULT") {
@@ -1659,6 +1663,7 @@ private:
             if (prop.type != type)
                 prop.realType = type;
         }
+
         prop.typeId |= flags;
         QVariant::Type vartype = QVariant::nameToType(prop.type);
         switch(vartype) {
@@ -2478,7 +2483,7 @@ void MetaObjectGenerator::readFuncsInfo(ITypeInfo *typeinfo, ushort nFuncs)
                 if (funcdesc->invkind == INVOKE_PROPERTYGET && parameters.count() && funcdesc->cParams - funcdesc->cParamsOpt) {
                     dontBreak = true;
                 } else {
-                    int flags = Readable;
+                    uint flags = Readable;
                     if (funcdesc->invkind != INVOKE_PROPERTYGET)
                         flags |= Writable;
                     if (!(funcdesc->wFuncFlags & (FUNCFLAG_FNONBROWSABLE | FUNCFLAG_FHIDDEN)))
@@ -2618,7 +2623,7 @@ void MetaObjectGenerator::readVarsInfo(ITypeInfo *typeinfo, ushort nVars)
         }
         QByteArray variableType;
         QByteArray variableName;
-        int flags = 0;
+        uint flags = 0;
 
         variableName = QString::fromUtf16((const ushort *)bstrName).toLatin1();
         SysFreeString(bstrName);
@@ -3085,7 +3090,7 @@ QMetaObject *MetaObjectGenerator::metaObject(const QMetaObject *parentObject, co
         QByteArray realType(it.value().realType);
         if (!realType.isEmpty() && realType != type)
             metaobj->realPrototype.insert(name, realType);
-        int flags = it.value().typeId;
+        uint flags = it.value().typeId;
 
         int_data[offset++] = stringdata.length();
         stringdata += name;

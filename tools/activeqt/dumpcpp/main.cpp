@@ -616,7 +616,8 @@ void generateClassImpl(QTextStream &out, const QMetaObject *mo, const QByteArray
             if (property.isEditable())
                 flags |= Editable;
 
-            out << flags << "," << endl;           
+            out << "0x" << QString::number(flags, 16).rightJustified(8, '0') << ", \t\t // " << property.typeName() << " " << property.name();
+            out << endl;
         }
         stringData += "\"\n";
         out << endl;
