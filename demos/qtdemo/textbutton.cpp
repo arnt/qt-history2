@@ -160,7 +160,7 @@ protected:
         float yOff = scaledRect.height() / 2;
         float sizex = 3.0f;
         float sizey = 1.5f;
-        if (this->type == TextButton::BACK)
+        if (this->type == TextButton::UP)
             sizey *= -1;
         QPainterPath path;
         path.moveTo(xOff, yOff + (5 * sizey));

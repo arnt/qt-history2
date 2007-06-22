@@ -29,8 +29,8 @@ MenuManager::MenuManager()
 {
     this->ticker = 0;
     this->tickerInAnim = 0;
-    this->backButton = 0;
-    this->moreButton = 0;
+    this->upButton = 0;
+    this->downButton = 0;
     this->assistant = new QAssistantClient(QLibraryInfo::location(QLibraryInfo::BinariesPath), this);
     this->score = new Score();
     this->currentMenu = QLatin1String("[no menu visible]");
@@ -139,13 +139,24 @@ void MenuManager::itemSelected(int userCode, const QString &menuName)
             this->window->switchTimerOnOff(false);
         }
         break;
-    case BACK:{
+    case UP:{
         QString backMenu = this->info[this->currentMenu]["back"];
         if (!backMenu.isNull()){
             this->score->queueMovie(this->currentMenu + " -top_out", Score::FROM_START, Score::LOCK_ITEMS);
             this->score->queueMovie(backMenu + " -bottom_in", Score::FROM_START, Score::UNLOCK_ITEMS);
             this->currentMenu = backMenu;
-        } else if (this->currentMenuCode == MENU2){
+        }
+        break; }
+    case DOWN:{
+        QString moreMenu = this->info[this->currentMenu]["more"];
+        if (!moreMenu.isNull()){
+            this->score->queueMovie(this->currentMenu + " -bottom_out", Score::FROM_START, Score::LOCK_ITEMS);
+            this->score->queueMovie(moreMenu + " -top_in", Score::FROM_START, Score::UNLOCK_ITEMS);
+            this->currentMenu = moreMenu;
+        }
+        break; }
+    case BACK:{
+        if (this->currentMenuCode == MENU2){
             // out:
             this->score->queueMovie(this->currentInfo + " -out", Score::NEW_ANIMATION_ONLY);
             this->score->queueMovie(this->currentInfo + " -buttons -out", Score::NEW_ANIMATION_ONLY);
@@ -166,21 +177,13 @@ void MenuManager::itemSelected(int userCode, const QString &menuName)
         } else if (this->currentMenuCode != ROOT)
             itemSelected(ROOT, Colors::rootMenuName);
         break; }
-    case MORE:{
-        QString moreMenu = this->info[this->currentMenu]["more"];
-        if (!moreMenu.isNull()){
-            this->score->queueMovie(this->currentMenu + " -bottom_out", Score::FROM_START, Score::LOCK_ITEMS);
-            this->score->queueMovie(moreMenu + " -top_in", Score::FROM_START, Score::UNLOCK_ITEMS);
-            this->currentMenu = moreMenu;
-        }
-        break; }
     }
     
     // update back- and more buttons
     bool noBackMenu = this->info[this->currentMenu]["back"].isNull();
     bool noMoreMenu = this->info[this->currentMenu]["more"].isNull();
-    this->backButton->setState(noBackMenu ? TextButton::DISABLED : TextButton::OFF);
-    this->moreButton->setState(noMoreMenu ? TextButton::DISABLED : TextButton::OFF);
+    this->upButton->setState(noBackMenu ? TextButton::DISABLED : TextButton::OFF);
+    this->downButton->setState(noMoreMenu ? TextButton::DISABLED : TextButton::OFF);
         
     if (this->score->hasQueuedMovies()){
         this->score->playQue();
@@ -664,12 +667,12 @@ void MenuManager::createTicker()
 
 void MenuManager::createBackAndMoreButtons()
 {
-    this->backButton = new TextButton("", TextButton::LEFT, MenuManager::BACK, this->window->scene, 0, TextButton::BACK);
-    this->backButton->prepare();
-    this->backButton->setPos(15, 450);
-    this->backButton->setState(TextButton::DISABLED);
+    this->upButton = new TextButton("", TextButton::LEFT, MenuManager::UP, this->window->scene, 0, TextButton::UP);
+    this->upButton->prepare();
+    this->upButton->setPos(15, 450);
+    this->upButton->setState(TextButton::DISABLED);
     
-    this->moreButton = new TextButton("", TextButton::LEFT, MenuManager::MORE, this->window->scene, 0, TextButton::MORE);
-    this->moreButton->prepare();
-    this->moreButton->setPos(25 + this->moreButton->sceneBoundingRect().width(), 450);
+    this->downButton = new TextButton("", TextButton::LEFT, MenuManager::DOWN, this->window->scene, 0, TextButton::DOWN);
+    this->downButton->prepare();
+    this->downButton->setPos(25 + this->downButton->sceneBoundingRect().width(), 450);
 }

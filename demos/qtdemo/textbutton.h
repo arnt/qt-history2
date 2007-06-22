@@ -26,7 +26,7 @@ class TextButton : public DemoItem
 {
 public:
     enum ALIGNMENT {LEFT, RIGHT};
-    enum BUTTONTYPE {SIDEBAR, PANEL, BACK, MORE};
+    enum BUTTONTYPE {SIDEBAR, PANEL, UP, DOWN};
     enum STATE {ON, OFF, HIGHLIGHT, DISABLED};
     
     TextButton(const QString &text, ALIGNMENT align = LEFT, int userCode = 0,

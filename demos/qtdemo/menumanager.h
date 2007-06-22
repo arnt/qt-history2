@@ -32,7 +32,7 @@ class MenuManager : public QObject
     Q_OBJECT
     
 public:
-    enum BUTTON_TYPE {ROOT, MENU1, MENU2, LAUNCH, DOCUMENTATION, QUIT, FULLSCREEN, BACK, MORE};
+    enum BUTTON_TYPE {ROOT, MENU1, MENU2, LAUNCH, DOCUMENTATION, QUIT, FULLSCREEN, UP, DOWN, BACK};
     
     // singleton pattern:
     static MenuManager *instance();
@@ -87,8 +87,8 @@ private:
     QDir docDir;
     QDir imgDir;
 
-    TextButton *backButton;
-    TextButton *moreButton;
+    TextButton *upButton;
+    TextButton *downButton;
 };
 
 #endif // MENU_MANAGER_H
