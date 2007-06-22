@@ -3297,15 +3297,21 @@ void QAxBase::connectNotify()
         // Get ITypeInfo for source-interface, and skip if not supporting IDispatch
         ITypeInfo *eventinfo = 0;
         typelib->GetTypeInfoOfGuid(conniid, &eventinfo);
-        TYPEATTR *eventAttr;
-        eventinfo->GetTypeAttr(&eventAttr);
-        if (!eventAttr)
-            break;
+        if (eventinfo) {
+            TYPEATTR *eventAttr;
+            eventinfo->GetTypeAttr(&eventAttr);
+            if (!eventAttr) {
+                eventinfo->Release();
+                break;
+            }
 
-        TYPEKIND eventKind = eventAttr->typekind;
-        eventinfo->ReleaseTypeAttr(eventAttr);
-        if (eventKind != TKIND_DISPATCH)
-            break;
+            TYPEKIND eventKind = eventAttr->typekind;
+            eventinfo->ReleaseTypeAttr(eventAttr);
+            if (eventKind != TKIND_DISPATCH) {
+                eventinfo->Release();
+                break;
+            }
+        }
 
         // always into the cache to avoid recoursion
         QAxEventSink *eventSink = eventinfo ? new QAxEventSink(this) : 0;
