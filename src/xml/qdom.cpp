@@ -85,6 +85,12 @@ static void qt_split_namespace(QString& prefix, QString& name, const QString& qN
     }
 }
 
+// ##### shouldn't this be a member of QDomDocumentPrivate?
+/*
+  Counter for the QDomNodeListPrivate timestamps.
+*/
+static volatile long qt_nodeListTime = 0;
+
 /**************************************************************
  *
  * Private class declerations
@@ -194,7 +200,7 @@ public:
     QString tagname;
     QString nsURI;
     QList<QDomNodePrivate*> list;
-    quint64 timestamp;
+    long timestamp;
 };
 
 class QDomNamedNodeMapPrivate
@@ -509,35 +515,6 @@ public:
     QDomDocumentTypePrivate* type;
 
     void saveDocument(QTextStream& stream, const int indent, QDomNode::EncodingPolicy encUsed) const;
-
-    /* \internal
-       Counter for the QDomNodeListPrivate timestamps.
-
-       This is a cache optimization, that might in some cases be effective. The dilemma
-       is that QDomNode::childNodes() returns a list, but the implementation stores the
-       children in a linked list. Hence, in order to get the children out through childNodes(),
-       a list must be populated each time, which is O(N).
-
-       DOM has the requirement of node references being live, see DOM Core Level 3, 1.1.1
-       The DOM Structure Model, which means that changes to the underlying
-       documents must be reflected in node lists.
-
-       This mechanism, nodeListTime, is a caching optimization that reduces the amount of
-       times the node list is rebuilt, by only doing so when the document actually changes. However,
-       a change to anywhere in any document invalidate all lists, since no dependency tracking is done,
-       as well as that this is a global.
-
-       It functions by that all modifying functions(insertBefore() and so on) increment the count; each
-       QDomNodeListPrivate copies nodeListTime on construction, and compares its own value to
-       nodeListTime in order to determine whether it needs to rebuild.
-
-       This is thread safe because atomic operations are used, but it can overflow. It's too risky to
-       fix this this at this point, and we haven't run into the overflow issue yet.
-
-       The storage type was changed from int to long to work with QAtomic's APIs. This can change behavior
-       in the form of overflow on platforms where `long' is larger than `int', but that should be rare.
-    */
-    quint64 nodeListTime;
 };
 
 /**************************************************************
@@ -1074,7 +1051,6 @@ bool QDomImplementation::isNull()
 
 /*!
     \since 4.1
-    \nonreentrant
 
     Returns the invalid data policy, which specifies what should be done when
     a factory function in QDomDocument is passed invalid data.
@@ -1089,7 +1065,6 @@ QDomImplementation::InvalidDataPolicy QDomImplementation::invalidDataPolicy()
 
 /*!
     \since 4.1
-    \nonreentrant
 
     Sets the invalid data policy, which specifies what should be done when
     a factory function in QDomDocument is passed invalid data.
@@ -1135,7 +1110,7 @@ QDomNodeListPrivate::QDomNodeListPrivate(QDomNodePrivate *n_impl)
     node_impl = n_impl;
     if (node_impl)
         node_impl->ref.ref();
-    timestamp = 0;
+    timestamp = -1;
 }
 
 QDomNodeListPrivate::QDomNodeListPrivate(QDomNodePrivate *n_impl, const QString &name)
@@ -1145,7 +1120,7 @@ QDomNodeListPrivate::QDomNodeListPrivate(QDomNodePrivate *n_impl, const QString 
     if (node_impl)
         node_impl->ref.ref();
     tagname = name;
-    timestamp = 0;
+    timestamp = -1;
 }
 
 QDomNodeListPrivate::QDomNodeListPrivate(QDomNodePrivate *n_impl, const QString &_nsURI, const QString &localName)
@@ -1156,7 +1131,7 @@ QDomNodeListPrivate::QDomNodeListPrivate(QDomNodePrivate *n_impl, const QString 
         node_impl->ref.ref();
     tagname = localName;
     nsURI = _nsURI;
-    timestamp = 0;
+    timestamp = -1;
 }
 
 QDomNodeListPrivate::~QDomNodeListPrivate()
@@ -1179,11 +1154,7 @@ void QDomNodeListPrivate::createList()
 {
     if (!node_impl)
         return;
-
-    const QDomDocumentPrivate *const doc = node_impl->ownerDocument();
-    if (doc && timestamp < doc->nodeListTime)
-        timestamp = doc->nodeListTime;
-
+    timestamp = qt_nodeListTime;
     QDomNodePrivate* p = node_impl->first;
 
     list.clear();
@@ -1233,9 +1204,7 @@ QDomNodePrivate* QDomNodeListPrivate::item(int index)
 {
     if (!node_impl)
         return 0;
-
-    const QDomDocumentPrivate *const doc = node_impl->ownerDocument();
-    if (!doc || timestamp < doc->nodeListTime)
+    if (timestamp < qt_nodeListTime)
         createList();
 
     if (index >= list.size())
@@ -1248,13 +1217,10 @@ uint QDomNodeListPrivate::length() const
 {
     if (!node_impl)
         return 0;
-
-    const QDomDocumentPrivate *const doc = node_impl->ownerDocument();
-    if (!doc || timestamp < doc->nodeListTime) {
-        QDomNodeListPrivate *that = const_cast<QDomNodeListPrivate *>(this);
+    if (timestamp < qt_nodeListTime) {
+        QDomNodeListPrivate *that = (QDomNodeListPrivate*)this;
         that->createList();
     }
-
     return list.count();
 }
 
@@ -1525,9 +1491,7 @@ QDomNodePrivate* QDomNodePrivate::insertBefore(QDomNodePrivate* newChild, QDomNo
         return 0;
 
     // "mark lists as dirty"
-    QDomDocumentPrivate *const doc = ownerDocument();
-    if(doc)
-        doc->nodeListTime++;
+    qt_nodeListTime++;
 
     // Special handling for inserting a fragment. We just insert
     // all elements of the fragment instead of the fragment itself.
@@ -1620,9 +1584,7 @@ QDomNodePrivate* QDomNodePrivate::insertAfter(QDomNodePrivate* newChild, QDomNod
         return 0;
 
     // "mark lists as dirty"
-    QDomDocumentPrivate *const doc = ownerDocument();
-    if(doc)
-        doc->nodeListTime++;
+    qt_nodeListTime++;
 
     // Special handling for inserting a fragment. We just insert
     // all elements of the fragment instead of the fragment itself.
@@ -1711,9 +1673,7 @@ QDomNodePrivate* QDomNodePrivate::replaceChild(QDomNodePrivate* newChild, QDomNo
         return 0;
 
     // mark lists as dirty
-    QDomDocumentPrivate *const doc = ownerDocument();
-    if(doc)
-        doc->nodeListTime++;
+    qt_nodeListTime++;
 
     // Special handling for inserting a fragment. We just insert
     // all elements of the fragment instead of the fragment itself.
@@ -1802,9 +1762,7 @@ QDomNodePrivate* QDomNodePrivate::removeChild(QDomNodePrivate* oldChild)
         return 0;
 
     // "mark lists as dirty"
-    QDomDocumentPrivate *const doc = ownerDocument();
-    if(doc)
-        doc->nodeListTime++;
+    qt_nodeListTime++;
 
     // Perhaps oldChild was just created with "createElement" or that. In this case
     // its parent is QDomDocument but it is not part of the documents child list.
@@ -6176,8 +6134,7 @@ void QDomProcessingInstruction::setData(const QString& d)
  **************************************************************/
 
 QDomDocumentPrivate::QDomDocumentPrivate()
-    : QDomNodePrivate(0),
-      nodeListTime(1)
+    : QDomNodePrivate(0)
 {
     impl = new QDomImplementationPrivate;
     type = new QDomDocumentTypePrivate(this, this);
@@ -6186,8 +6143,7 @@ QDomDocumentPrivate::QDomDocumentPrivate()
 }
 
 QDomDocumentPrivate::QDomDocumentPrivate(const QString& aname)
-    : QDomNodePrivate(0),
-      nodeListTime(1)
+    : QDomNodePrivate(0)
 {
     impl = new QDomImplementationPrivate;
     type = new QDomDocumentTypePrivate(this, this);
@@ -6197,8 +6153,7 @@ QDomDocumentPrivate::QDomDocumentPrivate(const QString& aname)
 }
 
 QDomDocumentPrivate::QDomDocumentPrivate(QDomDocumentTypePrivate* dt)
-    : QDomNodePrivate(0),
-      nodeListTime(1)
+    : QDomNodePrivate(0)
 {
     impl = new QDomImplementationPrivate;
     if (dt != 0) {
@@ -6212,8 +6167,7 @@ QDomDocumentPrivate::QDomDocumentPrivate(QDomDocumentTypePrivate* dt)
 }
 
 QDomDocumentPrivate::QDomDocumentPrivate(QDomDocumentPrivate* n, bool deep)
-    : QDomNodePrivate(n, deep),
-      nodeListTime(1)
+    : QDomNodePrivate(n, deep)
 {
     impl = n->impl->clone();
     // Reference count is down to 0, so we set it to 1 here.
