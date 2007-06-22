@@ -1563,6 +1563,29 @@ QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QStyleOption *o
                 extraClass |= PseudoClass_NextSelected;
             else if (hdr->selectedPosition == QStyleOptionHeader::PreviousIsSelected)
                 extraClass |= PseudoClass_PreviousSelected;
+#ifndef QT_NO_TABWIDGET
+        } else if (const QStyleOptionTabWidgetFrame *tab = qstyleoption_cast<const QStyleOptionTabWidgetFrame *>(opt)) {
+            switch (tab->shape) {
+                case QTabBar::RoundedNorth:
+                case QTabBar::TriangularNorth:
+                    extraClass |= PseudoClass_Top;
+                    break;
+                case QTabBar::RoundedSouth:
+                case QTabBar::TriangularSouth:
+                    extraClass |= PseudoClass_Bottom;
+                    break;
+                case QTabBar::RoundedEast:
+                case QTabBar::TriangularEast:
+                    extraClass |= PseudoClass_Left;
+                    break;
+                case QTabBar::RoundedWest:
+                case QTabBar::TriangularWest:
+                    extraClass |= PseudoClass_Right;
+                    break;
+                default:
+                    break;
+            }
+#endif
 #ifndef QT_NO_TABBAR
         } else if (const QStyleOptionTab *tab = qstyleoption_cast<const QStyleOptionTab *>(opt)) {
             if (tab->position == QStyleOptionTab::OnlyOneTab)
