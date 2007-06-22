@@ -83,7 +83,7 @@ private slots:
     void iterateCDATA() const;
 
 private:
-    static QDomDocument doc(const QString &title, const QByteArray &ba);;
+    static QDomDocument doc(const QString &title, const QByteArray &ba);
     static int hasAttributesHelper( const QDomNode& node );
     static bool compareDocuments( const QDomDocument &doc1, const QDomDocument &doc2 );
     static bool compareNodes( const QDomNode &node1, const QDomNode &node2, bool deep );
@@ -459,7 +459,7 @@ void tst_QDom::saveWithSerialization() const
         QVERIFY(writeDevice.open(QIODevice::WriteOnly));
 
         QTextStream s(&writeDevice);
-        QTextCodec *const codec = QTextCodec::codecForName(codecName);
+        QTextCodec *codec = QTextCodec::codecForName(codecName);
         QVERIFY2(codec, qPrintable(QString::fromLatin1("Failed to load codec %1, even though it was in QTextCodec::availableCodecs()")
                                    .arg(QString::fromLatin1(codecName.constData()))));
         s.setCodec(codec);
@@ -1565,8 +1565,6 @@ void tst_QDom::namespacedAttributes() const
 
 void tst_QDom::appendChildFromToDocument() const
 {
-    return;
-
     QDomDocument doc;
     const QByteArray input("<e/>");
 
