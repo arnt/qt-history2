@@ -160,7 +160,7 @@ QPrintDialog::~QPrintDialog()
 
 int QPrintDialog::exec()
 {
-    if (printer()->outputFormat() == QPrinter::PdfFormat) {
+    if (printer()->outputFormat() != QPrinter::NativeFormat) {
         return false;
     }
 
