@@ -271,6 +271,7 @@ void tst_QSqlDatabase::dropTestTables(QSqlDatabase db)
 	return;
     // drop the view first, otherwise we'll get dependency problems
     tst_Databases::safeDropView(db, qTableName("qtest_view"));
+    tst_Databases::safeDropView(db, qTableName("qtest_view2"));
     tst_Databases::safeDropTable(db, qTableName("qtest"));
     tst_Databases::safeDropTable(db, qTableName("qtestfields"));
     tst_Databases::safeDropTable(db, qTableName("qtestalter"));
