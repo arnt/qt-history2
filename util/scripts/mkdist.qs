@@ -540,7 +540,7 @@ function checkout(p4Path, localDir)
 {
     // generate clientSpec
     var tmpClient="qt-release-tmp-" + user;
-    execute([p4Command, "client", "-t", "qt-release-3x", "-o", tmpClient]);
+    execute([p4Command, "client", "-t", "qt-release-template", "-o", tmpClient]);
     var clientSpec = Process.stdout.split("\n");
     for (var i in clientSpec) {
         clientSpec[i] = clientSpec[i].replace(/^Root:.*/, "Root: " + localDir);
