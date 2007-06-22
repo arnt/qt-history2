@@ -186,19 +186,19 @@ TextButton::TextButton(const QString &text, ALIGNMENT align, int userCode,
     this->bgOn = 0;
     this->bgOff = 0;
     this->bgHighlight = 0;
-    
-    this->checkable = true;
+    this->bgDisabled = 0;
     this->state = OFF;
 
     this->setAcceptsHoverEvents(true);
     this->setCursor(Qt::PointingHandCursor);
 
+    // Calculate button size:
     const int w = 180;
     const int h = 19;
     if (type == SIDEBAR || type == PANEL)
         this->logicalSize = QSize(w, h);
     else
-        this->logicalSize = QSize((w / 2) - 5, h * 1.5f);
+        this->logicalSize = QSize(int((w / 2.0f) - 5), int(h * 1.5f));
 }
 
 void TextButton::setMenuString(const QString &menu)
@@ -274,6 +274,9 @@ void TextButton::setState(STATE state)
     this->bgOn->setRecursiveVisible(state == ON);
     this->bgOff->setRecursiveVisible(state == OFF);
     this->bgHighlight->setRecursiveVisible(state == HIGHLIGHT);    
+    this->bgDisabled->setRecursiveVisible(state == DISABLED);    
+    this->setCursor(state == DISABLED ? Qt::ArrowCursor : Qt::PointingHandCursor);
+
 }
 
 void TextButton::setupButtonBg()
@@ -281,12 +284,13 @@ void TextButton::setupButtonBg()
     this->bgOn = new ButtonBackground(this->buttonType, true, true, this->logicalSize, this->scene(), this);
     this->bgOff = new ButtonBackground(this->buttonType, false, false, this->logicalSize, this->scene(), this);
     this->bgHighlight = new ButtonBackground(this->buttonType, true, false, this->logicalSize, this->scene(), this);
+    this->bgDisabled = new ButtonBackground(this->buttonType, true, true, this->logicalSize, this->scene(), this);
     this->setState(OFF);
 }
 
 void TextButton::hoverEnterEvent(QGraphicsSceneHoverEvent *)
 {
-    if (this->locked)
+    if (this->locked || this->state == DISABLED)
         return;
 
     if (this->state == OFF){
@@ -312,6 +316,8 @@ void TextButton::hoverEnterEvent(QGraphicsSceneHoverEvent *)
 void TextButton::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 {
     Q_UNUSED(event);
+    if (this->state == DISABLED)
+        return;
 
     this->setState(OFF);
 
@@ -321,6 +327,9 @@ void TextButton::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 
 void TextButton::mousePressEvent(QGraphicsSceneMouseEvent *)
 {
+    if (this->state == DISABLED)
+        return;
+
     if (this->state == HIGHLIGHT || this->state == OFF);
         this->setState(ON);
 }
@@ -337,6 +346,8 @@ void TextButton::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
 void TextButton::animationStarted(int)
 {
+    if (this->state == DISABLED)
+        return;
     this->setState(OFF);
 }
 

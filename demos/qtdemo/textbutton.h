@@ -27,7 +27,7 @@ class TextButton : public DemoItem
 public:
     enum ALIGNMENT {LEFT, RIGHT};
     enum BUTTONTYPE {SIDEBAR, PANEL, BACK, MORE};
-    enum STATE {ON, OFF, HIGHLIGHT};
+    enum STATE {ON, OFF, HIGHLIGHT, DISABLED};
     
     TextButton(const QString &text, ALIGNMENT align = LEFT, int userCode = 0,
         QGraphicsScene *scene = 0, QGraphicsItem *parent = 0, BUTTONTYPE color = SIDEBAR);
@@ -45,6 +45,7 @@ public:
     void prepare();
     void setState(STATE state);
     void setMenuString(const QString &menu);
+    void setDisabled(bool disabled);
     
 private:
     void setupButtonBg();
@@ -55,6 +56,7 @@ private:
     ButtonBackground *bgOn;
     ButtonBackground *bgOff;
     ButtonBackground *bgHighlight;
+    ButtonBackground *bgDisabled;
     
     BUTTONTYPE buttonType;
     ALIGNMENT alignment;
@@ -63,8 +65,7 @@ private:
     int userCode;
     QSize logicalSize;
     
-    bool checkable;
-    bool state;
+    STATE state;
 };
 
 #endif // TEXT_BUTTON_H

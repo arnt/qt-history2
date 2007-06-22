@@ -25,6 +25,8 @@
 typedef QHash<QString, QString> StringHash;
 typedef QHash<QString, StringHash> HashHash;
 
+class TextButton;
+
 class MenuManager : public QObject
 {
     Q_OBJECT
@@ -69,6 +71,7 @@ private:
     void createLeafMenu(const QDomElement &el);
     void createInfo(DemoItem *item, const QString &name);
     void createTicker();
+    void createBackAndMoreButtons();
     
     QString resolveExecutable(const QDomElement &example);
     QString resolveDocFile(const QDomElement &example);
@@ -83,6 +86,9 @@ private:
     DemoItemAnimation *tickerInAnim;
     QDir docDir;
     QDir imgDir;
+
+    TextButton *backButton;
+    TextButton *moreButton;
 };
 
 #endif // MENU_MANAGER_H
