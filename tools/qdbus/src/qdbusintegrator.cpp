@@ -1859,10 +1859,11 @@ QDBusConnectionPrivate::findMetaObject(const QString &service, const QString &pa
         return mo;
 
     QString xml;
-    if (reply.type() == QDBusMessage::ReplyMessage)
-        // fetch the XML description
-        xml = reply.arguments().at(0).toString();
-    else {
+    if (reply.type() == QDBusMessage::ReplyMessage) {
+        if (reply.signature() == QLatin1String("s"))
+            // fetch the XML description
+            xml = reply.arguments().at(0).toString();
+    } else {
         error = reply;
         lastError = error;
         if (reply.type() != QDBusMessage::ErrorMessage || error.type() != QDBusError::UnknownMethod)
