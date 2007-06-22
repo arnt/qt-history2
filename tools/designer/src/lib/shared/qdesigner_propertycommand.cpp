@@ -160,9 +160,19 @@ unsigned compareSubProperties(const QPalette & p1, const QPalette & p2)
     unsigned rc = 0;
     unsigned maskBit = 1u;
     // generate a mask for each role
+    const unsigned p1Changed = p1.resolve();
+    const unsigned p2Changed = p2.resolve();
     for (int role = QPalette::WindowText;  role < QPalette::NColorRoles; role++, maskBit <<= 1u) {
-        if (roleColorChanged(p1, p2, static_cast<QPalette::ColorRole>(role)))
+        const bool p1RoleChanged = p1Changed & maskBit;
+        const bool p2RoleChanged = p2Changed & maskBit;
+        // Role has been set/reset in editor
+        if (p1RoleChanged != p2RoleChanged) {
             rc |= maskBit;
+        } else {
+            // Was modified in both palettes: Compare values.
+            if (p1RoleChanged && p2RoleChanged && roleColorChanged(p1, p2, static_cast<QPalette::ColorRole>(role)))
+                rc |= maskBit;
+        }
     }
     return rc;
 }
@@ -274,6 +284,14 @@ QPalette applyPaletteSubProperty(const QPalette &oldValue, const QPalette &newVa
                 const QPalette::ColorRole prole =  static_cast<QPalette::ColorRole>(role);
                 rc.setColor(pgroup, prole, newValue.color(pgroup, prole));
             }
+            // Set the resolve bit from NewValue in return value
+            uint r = rc.resolve();
+            const bool origFlag = newValue.resolve() & maskBit;
+            if (origFlag)
+                r |= maskBit;
+            else
+                r &= ~maskBit;
+            rc.resolve(r);
         }
     }
     return rc;
