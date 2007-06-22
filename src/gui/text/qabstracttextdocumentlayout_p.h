@@ -44,6 +44,13 @@ public:
     inline QAbstractTextDocumentLayoutPrivate()
         : paintDevice(0) {}
 
+    inline void setDocument(QTextDocument *doc) {
+        document = doc;
+        docPrivate = 0;
+        if (doc)
+            docPrivate = doc->docHandle();
+    }
+
     inline int _q_dynamicPageCountSlot() const
     { return q_func()->pageCount(); }
     inline QSizeF _q_dynamicDocumentSizeSlot() const

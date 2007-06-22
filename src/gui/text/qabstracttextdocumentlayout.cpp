@@ -213,8 +213,7 @@ QAbstractTextDocumentLayout::QAbstractTextDocumentLayout(QTextDocument *document
     : QObject(*new QAbstractTextDocumentLayoutPrivate, document)
 {
     Q_D(QAbstractTextDocumentLayout);
-    d->document = document;
-    d->docPrivate = document->docHandle();
+    d->setDocument(document);
 }
 
 /*!
@@ -224,8 +223,7 @@ QAbstractTextDocumentLayout::QAbstractTextDocumentLayout(QAbstractTextDocumentLa
     :QObject(p, document)
 {
     Q_D(QAbstractTextDocumentLayout);
-    d->document = document;
-    d->docPrivate = document->docHandle();
+    d->setDocument(document);
 }
 
 /*!
