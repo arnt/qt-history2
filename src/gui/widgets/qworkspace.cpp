@@ -818,8 +818,8 @@ QSize QWorkspaceTitleBar::sizeHint() const
     \code
     MainWindow::MainWindow()
     {
-        mdiArea = new QMdiArea;
-        setCentralWidget(mdiArea);
+        workspace = new QWorkspace;
+        setCentralWidget(workspace);
         ...
     }
     \endcode
