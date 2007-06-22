@@ -94,7 +94,8 @@ void DemoItemAnimation::play(bool fromStart, bool force)
     }
 
     this->demoItem()->setPos(this->posAt(this->timeline->currentTime()));
-    this->demoItem()->setRecursiveVisible(true);
+    if (this->inOrOut == ANIM_IN)
+        this->demoItem()->setRecursiveVisible(true);
 
     if (this->startDelay){
         QTimer::singleShot(this->startDelay, this, SLOT(playWithoutDelay()));

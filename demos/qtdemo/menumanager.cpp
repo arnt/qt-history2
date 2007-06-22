@@ -94,6 +94,7 @@ void MenuManager::itemSelected(int userCode, const QString &menuName)
         this->currentMenuButtons = menuName + " -buttons";
         this->currentInfo = menuName + " -info";
         // in:
+        this->score->queueMovie("upndown -shake");
         this->score->queueMovie(this->currentMenu, Score::FROM_START, Score::UNLOCK_ITEMS);
         this->score->queueMovie(this->currentMenuButtons, Score::FROM_START, Score::UNLOCK_ITEMS);
         this->score->queueMovie(this->currentInfo);
@@ -117,6 +118,7 @@ void MenuManager::itemSelected(int userCode, const QString &menuName)
         this->currentMenuButtons = menuName + " -buttons";
         this->currentInfo = menuName + " -info";
         // in:
+        this->score->queueMovie("upndown -shake");
         this->score->queueMovie(this->currentMenu, Score::FROM_START, Score::UNLOCK_ITEMS);
         this->score->queueMovie(this->currentMenuButtons, Score::FROM_START, Score::UNLOCK_ITEMS);
         this->score->queueMovie(this->currentInfo);         
@@ -131,6 +133,7 @@ void MenuManager::itemSelected(int userCode, const QString &menuName)
         this->currentMenuCode = MENU2;
         this->currentInfo = menuName;
         // in / shake:
+        this->score->queueMovie("upndown -shake");
         this->score->queueMovie(this->currentMenu + " -shake");
         this->score->queueMovie(this->currentInfo, Score::NEW_ANIMATION_ONLY);
         this->score->queueMovie(this->currentInfo + " -buttons", Score::NEW_ANIMATION_ONLY);
@@ -165,6 +168,7 @@ void MenuManager::itemSelected(int userCode, const QString &menuName)
             this->currentMenuButtons = this->currentCategory + " -buttons";
             this->currentInfo = this->currentCategory + " -info";
             // in / shake:
+            this->score->queueMovie("upndown -shake");
             this->score->queueMovie(this->currentMenu + " -shake");
             this->score->queueMovie(this->currentInfo, Score::NEW_ANIMATION_ONLY);
             this->score->queueMovie(this->currentInfo + " -buttons", Score::NEW_ANIMATION_ONLY);
@@ -582,11 +586,8 @@ void MenuManager::createLowRightLeafButton(const QString &label, int xOffset, BU
 
 void MenuManager::createInfo(DemoItem *item, const QString &name)
 {
-    Movie *movie_in = new Movie();
-    Movie *movie_out = new Movie();
-    this->score->insertMovie(name, movie_in);
-    this->score->insertMovie(name + " -out", movie_out);
-    
+    Movie *movie_in = this->score->insertMovie(name);
+    Movie *movie_out = this->score->insertMovie(name + " -out");
     item->setZValue(8);
     item->setRecursiveVisible(false);
     
@@ -667,12 +668,41 @@ void MenuManager::createTicker()
 
 void MenuManager::createBackAndMoreButtons()
 {
+    float xOffset = 15.0f;
+    float yOffset = 450.0f;
+    
     this->upButton = new TextButton("", TextButton::LEFT, MenuManager::UP, this->window->scene, 0, TextButton::UP);
     this->upButton->prepare();
-    this->upButton->setPos(15, 450);
+    this->upButton->setPos(xOffset, yOffset);
     this->upButton->setState(TextButton::DISABLED);
     
     this->downButton = new TextButton("", TextButton::LEFT, MenuManager::DOWN, this->window->scene, 0, TextButton::DOWN);
     this->downButton->prepare();
-    this->downButton->setPos(25 + this->downButton->sceneBoundingRect().width(), 450);
+    this->downButton->setPos(xOffset + 10 + this->downButton->sceneBoundingRect().width(), yOffset);
+
+    Movie *movieShake = this->score->insertMovie("upndown -shake");
+
+    DemoItemAnimation *shakeAnim = new DemoItemAnimation(this->upButton, DemoItemAnimation::ANIM_UNSPECIFIED);
+    shakeAnim->timeline->setCurveShape(QTimeLine::LinearCurve);
+    shakeAnim->setDuration(650);
+    shakeAnim->setStartPos(this->upButton->pos());
+    shakeAnim->setPosAt(0.60, this->upButton->pos());
+    shakeAnim->setPosAt(0.70, this->upButton->pos() + QPointF(-2, 0));
+    shakeAnim->setPosAt(0.80, this->upButton->pos() + QPointF(1, 0));
+    shakeAnim->setPosAt(0.90, this->upButton->pos() + QPointF(-1, 0));
+    shakeAnim->setPosAt(1.00, this->upButton->pos());
+    movieShake->append(shakeAnim);
+
+    shakeAnim = new DemoItemAnimation(this->downButton, DemoItemAnimation::ANIM_UNSPECIFIED);
+    shakeAnim->timeline->setCurveShape(QTimeLine::LinearCurve);
+    shakeAnim->setDuration(650);
+    shakeAnim->setStartPos(this->downButton->pos());
+    shakeAnim->setPosAt(0.60, this->downButton->pos());
+    shakeAnim->setPosAt(0.70, this->downButton->pos() + QPointF(-5, 0));
+    shakeAnim->setPosAt(0.80, this->downButton->pos() + QPointF(-3, 0));
+    shakeAnim->setPosAt(0.90, this->downButton->pos() + QPointF(-1, 0));
+    shakeAnim->setPosAt(1.00, this->downButton->pos());
+    movieShake->append(shakeAnim);
 }
+
+
