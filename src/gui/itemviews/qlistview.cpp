@@ -1399,46 +1399,86 @@ void QListView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFl
 
             // get the ranges
             if (tl.isValid() && br.isValid()) {
-                QRect top = rectForIndex(tl);
-                QRect bottom = rectForIndex(br);
-                // if bottom is above top, swap them
-                if (top.center().y() > bottom.center().y()) {
-                    QRect tmp = top;
-                    top = bottom;
-                    bottom = tmp;
-                }
-                // if the rect are on differnet lines, expand
-                if (top.top() != bottom.top()) {
-                    // top rectangle
-                    if (isRightToLeft())
-                        top.setLeft(0);
-                    else
-                        top.setRight(contentsSize().width());
-                    // bottom rectangle
-                    if (isRightToLeft())
-                        bottom.setRight(contentsSize().width());
-                    else
-                        bottom.setLeft(0);
-                } else if (top.left() > bottom.right()) {
-                    if (isRightToLeft())
-                        bottom.setLeft(top.right());
-                    else
-                        bottom.setRight(top.left());
-
-                }
-                // middle rectangle
+                QRect first = rectForIndex(tl);
+                QRect last = rectForIndex(br);
                 QRect middle;
-                if (top.bottom() < bottom.top()) {
-                    middle.setTop(top.bottom() + 1);
-                    middle.setLeft(qMin(top.left(), bottom.left()));
-                    middle.setBottom(bottom.top() - 1);
-                    middle.setRight(qMax(top.right(), bottom.right()));
+                if (d->flow == TopToBottom) {
+                    
+                }
+                if (d->flow == LeftToRight) {
+                    QRect &top = first;
+                    QRect &bottom = last;
+                    // if bottom is above top, swap them
+                    if (top.center().y() > bottom.center().y()) {
+                        QRect tmp = top;
+                        top = bottom;
+                        bottom = tmp;
+                    }
+                    // if the rect are on differnet lines, expand
+                    if (top.top() != bottom.top()) {
+                        // top rectangle
+                        if (isRightToLeft())
+                            top.setLeft(0);
+                        else
+                            top.setRight(contentsSize().width());
+                        // bottom rectangle
+                        if (isRightToLeft())
+                            bottom.setRight(contentsSize().width());
+                        else
+                            bottom.setLeft(0);
+                    } else if (top.left() > bottom.right()) {
+                        if (isRightToLeft())
+                            bottom.setLeft(top.right());
+                        else
+                            bottom.setRight(top.left());
+                    } else {
+                        if (isRightToLeft())
+                            top.setLeft(bottom.right());
+                        else
+                            top.setRight(bottom.left());
+                    }
+                    // middle rectangle
+                    if (top.bottom() < bottom.top()) {
+                        middle.setTop(top.bottom() + 1);
+                        middle.setLeft(qMin(top.left(), bottom.left()));
+                        middle.setBottom(bottom.top() - 1);
+                        middle.setRight(qMax(top.right(), bottom.right()));
+                    }
+                } else {    // TopToBottom
+                    QRect &left = first;
+                    QRect &right = last;
+                    if (left.center().x() > right.center().x())
+                        qSwap(left, right);
+
+                    int ch = contentsSize().height();
+                    if (left.left() != right.left()) {
+                        // left rectangle
+                        if (isRightToLeft())
+                            left.setTop(0);
+                        else
+                            left.setBottom(ch);
+
+                        // top rectangle
+                        if (isRightToLeft())
+                            right.setBottom(ch);
+                        else
+                            right.setTop(0);
+                        // only set middle if the 
+                        middle.setTop(0);
+                        middle.setBottom(ch);
+                        middle.setLeft(left.right() + 1);
+                        middle.setRight(right.left() - 1);
+                    } else if (left.bottom() < right.top()) {
+                        left.setBottom(right.top() - 1);
+                    } else {
+                        right.setBottom(left.top() - 1);
+                    }
                 }
 
                 // do the selections
-                QItemSelection topSelection = d->selection(top);
+                QItemSelection topSelection = d->selection(first);
                 QItemSelection middleSelection = d->selection(middle);
-                QItemSelection bottomSelection = d->selection(bottom);
+                QItemSelection bottomSelection = d->selection(last);
                 // merge
                 selection.merge(topSelection, QItemSelectionModel::Select);
                 selection.merge(middleSelection, QItemSelectionModel::Select);

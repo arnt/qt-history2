@@ -864,6 +864,94 @@ void tst_QListView::selection_data()
         << IntList()                            // hiddenRows
         << QRect(175, 275, 1, 1)                // selection rectangle
         << IntList();                           // expected items
+
+    QTest::newRow("select a tall rect in LeftToRight flow, wrap items")
+        << 70                                   // itemCount
+        << int(QListView::ListMode)
+        << int(QListView::LeftToRight)
+        << true                                 // wrapping
+        << 0                                    // spacing
+        << QSize()                              // gridSize
+        << IntList()                            // hiddenRows
+        << QRect(90, 90, 1, 100)                // selection rectangle
+        << (IntList()                           // expected items
+                      << 11 << 12 << 13 << 14 << 15 << 16 << 17 << 18 << 19
+                << 20 << 21 << 22 << 23 << 24 << 25 << 26 << 27 << 28 << 29
+                << 30 << 31);
+                
+    QTest::newRow("select a wide rect in LeftToRight, wrap items")
+        << 70                                   // itemCount
+        << int(QListView::ListMode)
+        << int(QListView::LeftToRight)
+        << true                                 // wrapping
+        << 0                                    // spacing
+        << QSize()                              // gridSize
+        << IntList()                            // hiddenRows
+        << QRect(90, 90, 200, 1)                // selection rectangle
+        << (IntList()                           // expected items
+                      << 11 << 12 << 13 << 14 << 15);
+
+    QTest::newRow("select a wide negative rect in LeftToRight flow, wrap items")
+        << 70                                   // itemCount
+        << int(QListView::ListMode)
+        << int(QListView::LeftToRight)
+        << true                                 // wrapping
+        << 0                                    // spacing
+        << QSize()                              // gridSize
+        << IntList()                            // hiddenRows
+        << QRect(290, 90, -200, 1)              // selection rectangle
+        << (IntList()                           // expected items
+                      << 11 << 12 << 13 << 14 << 15);
+
+    QTest::newRow("select a tall rect in TopToBottom flow, wrap items")
+        << 70                                   // itemCount
+        << int(QListView::ListMode)
+        << int(QListView::TopToBottom)
+        << true                                 // wrapping
+        << 0                                    // spacing
+        << QSize()                              // gridSize
+        << IntList()                            // hiddenRows
+        << QRect(90, 90, 1, 100)                // selection rectangle
+        << (IntList()                           // expected items
+                      << 11
+                      << 12
+                      << 13);
+                
+    QTest::newRow("select a tall negative rect in TopToBottom flow, wrap items")
+        << 70                                   // itemCount
+        << int(QListView::ListMode)
+        << int(QListView::TopToBottom)
+        << true                                 // wrapping
+        << 0                                    // spacing
+        << QSize()                              // gridSize
+        << IntList()                            // hiddenRows
+        << QRect(90, 190, 1, -100)              // selection rectangle
+        << (IntList()                           // expected items
+                      << 11
+                      << 12
+                      << 13);
+                
+    QTest::newRow("select a wide rect in TopToBottom, wrap items")
+        << 70                                   // itemCount
+        << int(QListView::ListMode)
+        << int(QListView::TopToBottom)
+        << true                                 // wrapping
+        << 0                                    // spacing
+        << QSize()                              // gridSize
+        << IntList()                            // hiddenRows
+        << QRect(90, 90, 100, 1)                // selection rectangle
+        << (IntList()                           // expected items
+                            << 20 << 30              
+                      << 11 << 21 << 31
+                      << 12 << 22
+                      << 13 << 23
+                      << 14 << 24
+                      << 15 << 25
+                      << 16 << 26
+                      << 17 << 27
+                      << 18 << 28
+                      << 19 << 29);
+
 }
 
 void tst_QListView::selection()
@@ -877,7 +965,7 @@ void tst_QListView::selection()
     QFETCH(IntList, hiddenRows);
     QFETCH(QRect, selectionRect);
     QFETCH(IntList, expectedItems);
-
+    
     PublicListView v;
     QtTestModel model;
     model.colCount = 1;
@@ -902,7 +990,7 @@ void tst_QListView::selection()
     v.setSelection(selectionRect, QItemSelectionModel::ClearAndSelect);
 
     QModelIndexList selected = v.selectionModel()->selectedIndexes();
-    
+   
     QCOMPARE(selected.count(), expectedItems.count());
     for (int i = 0; i < selected.count(); ++i) {
         QVERIFY(expectedItems.contains(selected.at(i).row()));
