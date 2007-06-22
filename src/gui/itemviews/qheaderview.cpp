@@ -1949,6 +1949,8 @@ void QHeaderView::mousePressEvent(QMouseEvent *e)
     while (handle > -1 && isSectionHidden(handle)) --handle;
     if (handle == -1) {
         d->pressed = logicalIndexAt(pos);
+        if (d->clickableSections)
+            emit sectionPressed(d->pressed);
         if (d->movableSections) {
             d->section = d->target = d->pressed;
             if (d->section == -1)
@@ -1956,7 +1958,6 @@ void QHeaderView::mousePressEvent(QMouseEvent *e)
             d->state = QHeaderViewPrivate::MoveSection;
             d->setupSectionIndicator(d->section, pos);
         } else if (d->clickableSections && d->pressed != -1) {
-            emit sectionPressed(d->pressed);
             updateSection(d->pressed);
             d->state = QHeaderViewPrivate::SelectSections;
         }
