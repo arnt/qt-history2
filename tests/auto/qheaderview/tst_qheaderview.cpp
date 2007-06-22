@@ -128,6 +128,9 @@ private slots:
     void globalResizeMode_data();
     void globalResizeMode();
 
+    void sectionPressedSignal_data();
+    void sectionPressedSignal();
+
 protected:
     QHeaderView *view;
     QStandardItemModel *model;
@@ -1433,7 +1436,6 @@ void tst_QHeaderView::defaultAlignment()
     QCOMPARE(header.defaultAlignment(), (Qt::Alignment)alignment);
 }
 
-
 void tst_QHeaderView::globalResizeMode_data()
 {
     QTest::addColumn<int>("direction");
@@ -1461,5 +1463,45 @@ void tst_QHeaderView::globalResizeMode()
     for (int i = 0; i < h.count(); ++i)
         QCOMPARE(h.resizeMode(i), (QHeaderView::ResizeMode)mode);
 }
+
+
+void tst_QHeaderView::sectionPressedSignal_data()
+{
+    QTest::addColumn<int>("direction");
+    QTest::addColumn<bool>("clickable");
+    QTest::addColumn<int>("count");
+
+    QTest::newRow("horizontal unclickable 0")
+        << int(Qt::Horizontal)
+        << false
+        << 0;
+    
+    QTest::newRow("horizontal clickable 1")
+        << int(Qt::Horizontal)
+        << true
+        << 1;
+}
+
+void tst_QHeaderView::sectionPressedSignal()
+{
+    QFETCH(int, direction);
+    QFETCH(bool, clickable);
+    QFETCH(int, count);
+    
+    QStandardItemModel m(4, 4);
+    QHeaderView h((Qt::Orientation)direction);
+
+    h.setModel(&m);
+    h.show();
+    h.setClickable(clickable);
+
+    QSignalSpy spy(&h, SIGNAL(sectionPressed(int)));
+
+    QCOMPARE(spy.count(), 0);
+    QTest::mousePress(h.viewport(), Qt::LeftButton, Qt::NoModifier, QPoint(5, 5));
+    QCOMPARE(spy.count(), count);
+}
+
+
 QTEST_MAIN(tst_QHeaderView)
 #include "tst_qheaderview.moc"
