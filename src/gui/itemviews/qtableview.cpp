@@ -793,11 +793,10 @@ void QTableView::paintEvent(QPaintEvent *event)
             }
 
             //draw the top & left grid lines if the headers are not visible.
-            if (!horizontalHeader->isVisible())
+            if (horizontalHeader->isHidden() && verticalScrollMode() == ScrollPerItem)
                 painter.drawLine(dirtyArea.left(), 0, dirtyArea.right(), 0);
-            if (!verticalHeader->isVisible())
+            if (verticalHeader->isHidden() && horizontalScrollMode() == ScrollPerItem)
                 painter.drawLine(0, dirtyArea.top(), 0, dirtyArea.bottom());
-
             painter.setPen(old);
         }
     }
