@@ -82,6 +82,8 @@ private slots:
     void clearLineEdit();
     void enableChooseButton();
 
+    void hooks();
+
 private:
     QByteArray userSettings;
 };
@@ -674,6 +676,45 @@ void tst_QFiledialog::enableChooseButton()
     QVERIFY(button);
     QCOMPARE(button->isEnabled(), true);
 }
+
+typedef QString (*_qt_filedialog_existing_directory_hook)(QWidget *parent, const QString &caption, const QString &dir, QFileDialog::Options options);
+extern _qt_filedialog_existing_directory_hook qt_filedialog_existing_directory_hook;
+QString existing(QWidget *, const QString &, const QString &, QFileDialog::Options) {
+    return "dir";
+}
+
+typedef QString (*_qt_filedialog_open_filename_hook)(QWidget * parent, const QString &caption, const QString &dir, const QString &filter, QString *selectedFilter, QFileDialog::Options options);
+extern _qt_filedialog_open_filename_hook qt_filedialog_open_filename_hook;
+QString openName(QWidget *, const QString &, const QString &, const QString &, QString *, QFileDialog::Options) {
+    return "openName";
+}
+
+typedef QStringList (*_qt_filedialog_open_filenames_hook)(QWidget * parent, const QString &caption, const QString &dir, const QString &filter, QString *selectedFilter, QFileDialog::Options options);
+extern _qt_filedialog_open_filenames_hook qt_filedialog_open_filenames_hook;
+QStringList openNames(QWidget *, const QString &, const QString &, const QString &, QString *, QFileDialog::Options) {
+    return QStringList("openNames");
+}
+
+typedef QString (*_qt_filedialog_save_filename_hook)(QWidget * parent, const QString &caption, const QString &dir, const QString &filter, QString *selectedFilter, QFileDialog::Options options);
+extern _qt_filedialog_save_filename_hook qt_filedialog_save_filename_hook;
+QString saveName(QWidget *, const QString &, const QString &, const QString &, QString *, QFileDialog::Options) {
+    return "saveName";
+}
+
+
+void tst_QFiledialog::hooks()
+{
+    qt_filedialog_existing_directory_hook = &existing;
+    qt_filedialog_save_filename_hook = &saveName;
+    qt_filedialog_open_filename_hook = &openName;
+    qt_filedialog_open_filenames_hook = &openNames;
+
+    QCOMPARE(QFileDialog::getExistingDirectory(), QString("dir"));
+    QCOMPARE(QFileDialog::getOpenFileName(), QString("openName"));
+    QCOMPARE(QFileDialog::getOpenFileNames(), QStringList("openNames"));
+    QCOMPARE(QFileDialog::getSaveFileName(), QString("saveName"));
+}
+
 
 QTEST_MAIN(tst_QFiledialog)
 #include "tst_qfiledialog.moc"
