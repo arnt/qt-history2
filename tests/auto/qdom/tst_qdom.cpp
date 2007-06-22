@@ -79,6 +79,8 @@ private slots:
     void indentComments() const;
     void checkLiveness() const;
     void reportDuplicateAttributes() const;
+    void appendChildFromToDocument() const;
+    void iterateCDATA() const;
 
 private:
     static QDomDocument doc(const QString &title, const QByteArray &ba);;
@@ -1559,6 +1561,39 @@ void tst_QDom::namespacedAttributes() const
     QDomDocument two = doc("document2", one.toByteArray(2));
 
     QVERIFY(isDeepEqual(one, two));
+}
+
+void tst_QDom::appendChildFromToDocument() const
+{
+    return;
+
+    QDomDocument doc;
+    const QByteArray input("<e/>");
+
+    doc.setContent(input);
+
+    QDomElement element = doc.documentElement().toDocument().createElement("name");
+    element.setAttribute("name", "value");
+    doc.documentElement().appendChild(element);
+}
+
+void tst_QDom::iterateCDATA() const
+{
+    const QByteArray input("<e><![CDATA[data]]></e>");
+
+    QDomDocument doc;
+    QVERIFY(doc.setContent(input));
+    QCOMPARE(doc.toString(), QString("<e><![CDATA[data]]></e>\n"));
+
+    const QDomElement element(doc.documentElement());
+    QVERIFY(!element.isNull());
+
+    /* The node at element.childNodes().at(0) is not an element,
+     * it's a CDATA section. */
+    const QDomElement child(element.childNodes().at(0).toElement());
+    QVERIFY(child.isNull());
+
+    QVERIFY(element.childNodes().at(0).isCDATASection());
 }
 
 QTEST_MAIN(tst_QDom)
