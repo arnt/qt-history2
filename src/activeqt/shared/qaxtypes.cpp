@@ -214,6 +214,8 @@ bool QVariantToVARIANT(const QVariant &var, VARIANT &arg, const QByteArray &type
     switch ((int)qvar.type()) {
     case QVariant::String:
         if (out && arg.vt == (VT_BSTR|VT_BYREF)) {
+            if (*arg.pbstrVal)
+                SysFreeString(*arg.pbstrVal);
             *arg.pbstrVal = QStringToBSTR(qvar.toString());
             arg.vt = VT_BSTR|VT_BYREF;
         } else {
@@ -345,6 +347,8 @@ bool QVariantToVARIANT(const QVariant &var, VARIANT &arg, const QByteArray &type
         break;
     case QVariant::Font:
         if (out && arg.vt == (VT_DISPATCH|VT_BYREF)) {
+            if (*arg.ppdispVal)
+                (*arg.ppdispVal)->Release();
             *arg.ppdispVal = QFontToIFont(qvariant_cast<QFont>(qvar));
         } else {
             arg.vt = VT_DISPATCH;
@@ -358,6 +362,8 @@ bool QVariantToVARIANT(const QVariant &var, VARIANT &arg, const QByteArray &type
         
     case QVariant::Pixmap:
         if (out && arg.vt == (VT_DISPATCH|VT_BYREF)) {
+            if (*arg.ppdispVal)
+                (*arg.ppdispVal)->Release();
             *arg.ppdispVal = QPixmapToIPicture(qvariant_cast<QPixmap>(qvar));
         } else {
             arg.vt = VT_DISPATCH;
@@ -454,6 +460,8 @@ bool QVariantToVARIANT(const QVariant &var, VARIANT &arg, const QByteArray &type
             }
             
             if (out && arg.vt == (VT_ARRAY|vt|VT_BYREF)) {
+                if (*arg.pparray)
+                    SafeArrayDestroy(*arg.pparray);
                 *arg.pparray = array;
             } else {
                 arg.vt = VT_ARRAY|vt;
@@ -479,6 +487,8 @@ bool QVariantToVARIANT(const QVariant &var, VARIANT &arg, const QByteArray &type
             }
             
             if (out && arg.vt == (VT_ARRAY|VT_BSTR|VT_BYREF)) {
+                if (*arg.pparray)
+                    SafeArrayDestroy(*arg.pparray);
                 *arg.pparray = array;
             } else {
                 arg.vt = VT_ARRAY|VT_BSTR;
@@ -505,6 +515,8 @@ bool QVariantToVARIANT(const QVariant &var, VARIANT &arg, const QByteArray &type
             }
             
             if (out && arg.vt == (VT_ARRAY|VT_UI1|VT_BYREF)) {
+                if (*arg.pparray)
+                    SafeArrayDestroy(*arg.pparray);
                 *arg.pparray = array;
             } else {
                 arg.vt = VT_ARRAY|VT_UI1;
@@ -1079,6 +1091,7 @@ QVariant VARIANTToQVariant(const VARIANT &arg, const QByteArray &typeName, uint 
                 BSTR bstr;
                 SafeArrayGetElement(array, &i, &bstr);
                 strings << QString::fromUtf16((const ushort *)bstr);
+                SysFreeString(bstr);
             }
             
             var = strings;
