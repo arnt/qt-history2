@@ -1222,6 +1222,8 @@ void QTreeView::drawTree(QPainter *painter, const QRegion &region) const
     if (firstVisibleItem < 0)
         return;
 
+    const int viewportWidth = d->viewport->width();
+
     QVector<QRect> rects = region.rects();
     QVector<int> drawn;
     bool multipleRects = (rects.size() > 1);
@@ -1244,7 +1246,7 @@ void QTreeView::drawTree(QPainter *painter, const QRegion &region) const
         // paint the visible rows
         for (; i < viewItems.count() && y <= area.bottom(); ++i) {
             const int itemHeight = d->itemHeight(i);
-            option.rect.setRect(0, y, 0, itemHeight);
+            option.rect.setRect(0, y, viewportWidth, itemHeight);
             option.state = state | (viewItems.at(i).expanded
                                     ? QStyle::State_Open : QStyle::State_None);
             d->current = i;
