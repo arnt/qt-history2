@@ -80,20 +80,22 @@ void DemoItemAnimation::play(bool fromStart, bool force)
 
     if (Colors::noAnimations && !this->forcePlay){
         this->timeline->setCurrentTime(1);
+        this->demoItem()->setPos(this->posAt(1));
     }
     else{
-        if (this->fromStart)
-            this->timeline->setCurrentTime(0);
-
         if (this->demoItem()->isVisible())
             // If the item is already visible, start the animation from
             // the items current position rather than from start.  
             this->setPosAt(0.0, currPos);
         else
             this->setPosAt(0.0, this->startPos);
+
+        if (this->fromStart){
+            this->timeline->setCurrentTime(0);
+            this->demoItem()->setPos(this->posAt(0));
+        }
     }
 
-    this->demoItem()->setPos(this->posAt(this->timeline->currentTime()));
     if (this->inOrOut == ANIM_IN)
         this->demoItem()->setRecursiveVisible(true);
 
