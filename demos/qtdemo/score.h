@@ -34,7 +34,7 @@ class Score
 {
 public:
     enum LOCK_MODE {LOCK_ITEMS, UNLOCK_ITEMS, SKIP_LOCK};
-    enum RUN_MODE {FROM_CURRENT, FROM_START, NEW_ANIMATION_ONLY};
+    enum RUN_MODE {FROM_CURRENT, FROM_START, NEW_ANIMATION_ONLY, ONLY_IF_VISIBLE};
     
     Score();
     virtual ~Score();
@@ -50,7 +50,7 @@ public:
     PlayList playList;
     
 private:
-    void prepare(Movie *movie, LOCK_MODE lockMode);
+    void prepare(Movie *movie, RUN_MODE runMode, LOCK_MODE lockMode);
     void play(Movie *movie, RUN_MODE runMode);  
 };
 

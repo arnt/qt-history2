@@ -71,7 +71,8 @@ private:
     void createLeafMenu(const QDomElement &el);
     void createInfo(DemoItem *item, const QString &name);
     void createTicker();
-    void createBackAndMoreButtons();
+    void createUpnDownButtons();
+    void createBackButton();
     
     QString resolveExecutable(const QDomElement &example);
     QString resolveDocFile(const QDomElement &example);

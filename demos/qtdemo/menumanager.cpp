@@ -88,6 +88,7 @@ void MenuManager::itemSelected(int userCode, const QString &menuName)
         this->score->queueMovie(this->currentMenuButtons + " -out", Score::FROM_START, Score::LOCK_ITEMS);
         this->score->queueMovie(this->currentInfo + " -out");
         this->score->queueMovie(this->currentInfo + " -buttons -out", Score::NEW_ANIMATION_ONLY);
+        this->score->queueMovie("back -out", Score::ONLY_IF_VISIBLE);
         // book-keeping:
         this->currentMenuCode = ROOT;
         this->currentMenu = menuName + " -menu1";
@@ -115,12 +116,11 @@ void MenuManager::itemSelected(int userCode, const QString &menuName)
         this->currentMenuCode = MENU1;
         this->currentCategory = menuName;
         this->currentMenu = menuName + " -menu1";
-        this->currentMenuButtons = menuName + " -buttons";
         this->currentInfo = menuName + " -info";
         // in:
         this->score->queueMovie("upndown -shake");
+        this->score->queueMovie("back -in");
         this->score->queueMovie(this->currentMenu, Score::FROM_START, Score::UNLOCK_ITEMS);
-        this->score->queueMovie(this->currentMenuButtons, Score::FROM_START, Score::UNLOCK_ITEMS);
         this->score->queueMovie(this->currentInfo);         
         if (!Colors::noTicker)
             this->ticker->useGuideTt();
@@ -134,6 +134,7 @@ void MenuManager::itemSelected(int userCode, const QString &menuName)
         this->currentInfo = menuName;
         // in / shake:
         this->score->queueMovie("upndown -shake");
+        this->score->queueMovie("back -shake");
         this->score->queueMovie(this->currentMenu + " -shake");
         this->score->queueMovie(this->currentInfo, Score::NEW_ANIMATION_ONLY);
         this->score->queueMovie(this->currentInfo + " -buttons", Score::NEW_ANIMATION_ONLY);
@@ -244,7 +245,8 @@ void MenuManager::init(MainWindow *window)
     
     // Create div:
     this->createTicker();
-    this->createBackAndMoreButtons();
+    this->createUpnDownButtons();
+    this->createBackButton();
     
     // Create first level menu:
     QDomElement rootElement = this->contentsDoc->documentElement();
@@ -360,10 +362,6 @@ void MenuManager::createSubMenu(const QDomElement &el)
     QString name = el.attribute("name");
     createMenu(el, MENU2);
     createInfo(new MenuContentItem(el, this->window->scene, 0), name + " -info");
-
-    Movie *menuButtonsIn = this->score->insertMovie(name + " -buttons");
-    Movie *menuButtonsOut = this->score->insertMovie(name + " -buttons -out");
-    createLowLeftButton(QLatin1String("Main menu"), ROOT, menuButtonsIn, menuButtonsOut, 0, Colors::rootMenuName);
 }
 
 void MenuManager::createLeafMenu(const QDomElement &el)
@@ -497,7 +495,7 @@ void MenuManager::createMenu(const QDomElement &category, BUTTON_TYPE type)
 
 
 void MenuManager::createLowLeftButton(const QString &label, BUTTON_TYPE type,
-    Movie *movieIn, Movie *movieOut, Movie */*movieShake*/, const QString &menuString)
+    Movie *movieIn, Movie *movieOut, Movie *movieShake, const QString &menuString)
 {
     TextButton *button = new TextButton(label, TextButton::RIGHT, type, this->window->scene, 0, TextButton::PANEL);
     if (!menuString.isNull())
@@ -524,6 +522,19 @@ void MenuManager::createLowLeftButton(const QString &label, BUTTON_TYPE type,
     buttonOut->setStartPos(QPointF(xOffset, Colors::contentStartY + Colors::contentHeight - 26));
     buttonOut->setPosAt(1.0, QPointF(-iw, Colors::contentStartY + Colors::contentHeight - 26));
     movieOut->append(buttonOut);
+
+    if (movieShake){
+        DemoItemAnimation *shakeAnim = new DemoItemAnimation(button, DemoItemAnimation::ANIM_UNSPECIFIED);
+        shakeAnim->timeline->setCurveShape(QTimeLine::LinearCurve);
+        shakeAnim->setDuration(650);
+        shakeAnim->setStartPos(buttonIn->posAt(1.0f));
+        shakeAnim->setPosAt(0.60, buttonIn->posAt(1.0f));
+        shakeAnim->setPosAt(0.70, buttonIn->posAt(1.0f) + QPointF(-3, 0));
+        shakeAnim->setPosAt(0.80, buttonIn->posAt(1.0f) + QPointF(2, 0));
+        shakeAnim->setPosAt(0.90, buttonIn->posAt(1.0f) + QPointF(-1, 0));
+        shakeAnim->setPosAt(1.00, buttonIn->posAt(1.0f));
+        movieShake->append(shakeAnim);
+    }
 }
 
 void MenuManager::createLowRightButton(const QString &label, BUTTON_TYPE type, Movie *movieIn, Movie *movieOut, Movie */*movieShake*/)
@@ -666,7 +677,7 @@ void MenuManager::createTicker()
     }
 }
 
-void MenuManager::createBackAndMoreButtons()
+void MenuManager::createUpnDownButtons()
 {
     float xOffset = 15.0f;
     float yOffset = 450.0f;
@@ -705,4 +716,10 @@ void MenuManager::createBackAndMoreButtons()
     movieShake->append(shakeAnim);
 }
 
-
+void MenuManager::createBackButton()
+{
+    Movie *backIn = this->score->insertMovie("back -in");
+    Movie *backOut = this->score->insertMovie("back -out");
+    Movie *backShake = this->score->insertMovie("back -shake");
+    createLowLeftButton(QLatin1String("Back"), ROOT, backIn, backOut, backShake, Colors::rootMenuName);
+}

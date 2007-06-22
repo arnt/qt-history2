@@ -13,6 +13,7 @@
 
 #include "score.h"
 #include "colors.h"
+#include "demoitem.h"
 
 Score::Score()
 {
@@ -24,23 +25,30 @@ Score::~Score()
     qDeleteAll(this->index);
 }
 
-void Score::prepare(Movie *movie, LOCK_MODE lockMode)
+void Score::prepare(Movie *movie, RUN_MODE runMode, LOCK_MODE lockMode)
 {
     if (lockMode == LOCK_ITEMS){
         for (int i=0; i<movie->size(); ++i){
+            if (runMode == ONLY_IF_VISIBLE && !movie->at(i)->demoItem()->isVisible())
+                continue;
             movie->at(i)->lockItem(true);
             movie->at(i)->prepare();
         }
     }
     else if (lockMode == UNLOCK_ITEMS){
         for (int i=0; i<movie->size(); ++i){
+            if (runMode == ONLY_IF_VISIBLE && !movie->at(i)->demoItem()->isVisible())
+                continue;
             movie->at(i)->lockItem(false);
             movie->at(i)->prepare();
         }
     }
     else {
-        for (int i=0; i<movie->size(); ++i)
+        for (int i=0; i<movie->size(); ++i){
+            if (runMode == ONLY_IF_VISIBLE && !movie->at(i)->demoItem()->isVisible())
+                continue;
             movie->at(i)->prepare();
+        }
     }
 }
 
@@ -50,6 +58,11 @@ void Score::play(Movie *movie, RUN_MODE runMode)
         for (int i=0; i<movie->size(); ++i)
             if (movie->at(i)->notOwnerOfItem())
                 movie->at(i)->play(true);
+    }
+    else if (runMode == ONLY_IF_VISIBLE){
+        for (int i=0; i<movie->size(); ++i)
+            if (movie->at(i)->demoItem()->isVisible())
+                movie->at(i)->play(runMode == FROM_START);
     }
     else {
         for (int i=0; i<movie->size(); ++i)
@@ -64,7 +77,7 @@ void Score::playMovie(const QString &indexName, RUN_MODE runMode, LOCK_MODE lock
         return;
     
     Movie *movie = *movieIterator;
-    this->prepare(movie, lockMode);
+    this->prepare(movie, runMode, lockMode);
     this->play(movie, runMode);
 }
 
@@ -78,7 +91,7 @@ void Score::queueMovie(const QString &indexName, RUN_MODE runMode, LOCK_MODE loc
     }
     
     Movie *movie = *movieIterator;
-    this->prepare(movie, lockMode);
+    this->prepare(movie, runMode, lockMode);
     this->playList.append(PlayListMember(movie, int(runMode)));
     if (Colors::verbose)
         qDebug() << "Queuing movie:" << indexName;
