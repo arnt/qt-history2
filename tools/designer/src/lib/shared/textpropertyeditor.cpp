@@ -137,6 +137,8 @@ namespace qdesigner_internal {
 
         setFocusProxy(m_lineEdit);
 
+        disconnect(m_lineEdit,SIGNAL(editingFinished()),this,SIGNAL(editingFinished()));
+        disconnect(m_lineEdit,SIGNAL(textChanged(QString)),this,SLOT(slotTextChanged(QString)));
         connect(m_lineEdit,SIGNAL(editingFinished()),this,SIGNAL(editingFinished()));
         connect(m_lineEdit,SIGNAL(textChanged(QString)),this,SLOT(slotTextChanged(QString)));
     }
@@ -188,6 +190,10 @@ namespace qdesigner_internal {
 
     QSize TextPropertyEditor::sizeHint () const {
         return  m_lineEdit->sizeHint ();
+    }
+
+    QSize TextPropertyEditor::minimumSizeHint () const {
+        return  m_lineEdit->minimumSizeHint ();
     }
 
     // Returns whether newline characters are valid in validationMode.

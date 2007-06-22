@@ -36,24 +36,29 @@ GraphicsPropertyEditor::~GraphicsPropertyEditor()
 
 void GraphicsPropertyEditor::init()
 {
-    QHBoxLayout *layout = new QHBoxLayout(this);
-    layout->setMargin(0);
-    layout->setSpacing(0);
+    m_layout = new QHBoxLayout(this);
+    m_layout->setMargin(0);
+    m_layout->setSpacing(0);
 
     m_combo = new QComboBox(this);
     m_combo->setFrame(0);
-    m_combo->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
+    m_combo->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred));
     m_combo->setEditable(false);
-    layout->addWidget(m_combo);
+    m_layout->addWidget(m_combo);
     m_button = new QToolButton(this);
     m_button->setIcon(createIconSet(QLatin1String("fileopen.png")));
-    m_button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::MinimumExpanding);
+    m_button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Ignored);
     m_button->setFixedWidth(20);
-    layout->addWidget(m_button);
+    m_layout->addWidget(m_button);
     connect(m_button, SIGNAL(clicked()), this, SLOT(showDialog()));
     connect(m_combo, SIGNAL(activated(int)), this, SLOT(comboActivated(int)));
 
     populateCombo();
+}
+
+void GraphicsPropertyEditor::setSpacing(int spacing)
+{
+    m_layout->setSpacing(spacing);
 }
 
 void GraphicsPropertyEditor::comboActivated(int idx)
@@ -245,108 +250,4 @@ void GraphicsPropertyEditor::setPixmap(const QPixmap &pm)
     emit pixmapChanged(m_pixmap);
 }
 
-IconProperty::IconProperty(QDesignerFormEditorInterface *core, const QIcon &value, const QString &name)
-    : AbstractProperty<QIcon>(value, name),
-      m_core(core)
-{
-}
-
-void IconProperty::setValue(const QVariant &value)
-{
-    m_value = qvariant_cast<QIcon>(value);
-}
-
-QString IconProperty::toString() const
-{
-    const QString path = m_core->iconCache()->iconToFilePath(m_value);
-    return QFileInfo(path).fileName();
-}
-
-QVariant IconProperty::decoration() const
-{
-    if (m_value.isNull())
-        return qVariantFromValue(emptyIcon());
-    return qVariantFromValue(m_value);
-}
-
-QWidget *IconProperty::createEditor(QWidget *parent, const QObject *target,
-                                        const char *receiver) const
-{
-    GraphicsPropertyEditor *editor = new GraphicsPropertyEditor(m_core, m_value, parent);
-
-    QObject::connect(editor, SIGNAL(iconChanged(QIcon)), target, receiver);
-
-    return editor;
-}
-
-void IconProperty::updateEditorContents(QWidget *editor)
-{
-    if (GraphicsPropertyEditor *ed = qobject_cast<GraphicsPropertyEditor*>(editor)) {
-        ed->setIcon(m_value);
-    }
-}
-
-void IconProperty::updateValue(QWidget *editor)
-{
-    if (GraphicsPropertyEditor *ed = qobject_cast<GraphicsPropertyEditor*>(editor)) {
-        const QIcon newValue = ed->icon();
-
-        if (newValue.serialNumber() != m_value.serialNumber()) {
-            m_value = newValue;
-            setChanged(true);
-        }
-    }
-}
-
-PixmapProperty::PixmapProperty(QDesignerFormEditorInterface *core, const QPixmap &pixmap, const QString &name)
-    : AbstractProperty<QPixmap>(pixmap, name),
-      m_core(core)
-{
-}
-
-void PixmapProperty::setValue(const QVariant &value)
-{
-    m_value = qvariant_cast<QPixmap>(value);
-}
-
-QString PixmapProperty::toString() const
-{
-    const QString path = m_core->iconCache()->pixmapToFilePath(m_value);
-    return QFileInfo(path).fileName();
-}
-
-QVariant PixmapProperty::decoration() const
-{
-    if (m_value.isNull())
-        return qVariantFromValue(emptyIcon());
-    return qVariantFromValue(QIcon(m_value));
-}
-
-QWidget *PixmapProperty::createEditor(QWidget *parent, const QObject *target, const char *receiver) const
-{
-    GraphicsPropertyEditor *editor = new GraphicsPropertyEditor(m_core, m_value, parent);
-
-    QObject::connect(editor, SIGNAL(pixmapChanged(QPixmap)), target, receiver);
-
-    return editor;
-}
-
-void PixmapProperty::updateEditorContents(QWidget *editor)
-{
-    if (GraphicsPropertyEditor *ed = qobject_cast<GraphicsPropertyEditor*>(editor)) {
-        ed->setPixmap(m_value);
-    }
-}
-
-void PixmapProperty::updateValue(QWidget *editor)
-{
-    if (GraphicsPropertyEditor *ed = qobject_cast<GraphicsPropertyEditor*>(editor)) {
-        QPixmap newValue = ed->pixmap();
-
-        if (newValue.serialNumber() != m_value.serialNumber()) {
-            m_value = newValue;
-            setChanged(true);
-        }
-    }
-}
 }

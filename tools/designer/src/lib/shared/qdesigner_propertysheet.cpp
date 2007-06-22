@@ -464,6 +464,7 @@ QVariant QDesignerPropertySheet::metaProperty(int index) const
         for (int i=0; i<me.keyCount(); ++i) {
             const QString key = scope + QLatin1String(me.key(i));
             e.items.insert(key, me.keyToValue(key.toUtf8().constData()));
+            e.names.append(key);
         }
 
         qVariantSetValue(v, e);

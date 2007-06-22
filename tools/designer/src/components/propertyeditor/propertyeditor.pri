@@ -4,6 +4,8 @@
 
 INCLUDEPATH += $$PWD
 
+include(propertybrowser/qtpropertybrowser.pri)
+
 FORMS += $$PWD/paletteeditor.ui \
     $$PWD/stringlisteditor.ui \
     $$PWD/previewwidget.ui \
@@ -17,6 +19,7 @@ FORMS += $$PWD/paletteeditor.ui \
     $$PWD/qtbrushpatterndialog.ui
 
 HEADERS += $$PWD/propertyeditor.h \
+    $$PWD/designerpropertymanager.h \
     $$PWD/paletteeditor.h \
     $$PWD/paletteeditorbutton.h \
     $$PWD/stringlisteditor.h \
@@ -39,10 +42,11 @@ HEADERS += $$PWD/propertyeditor.h \
     $$PWD/qtbrushpatterndialog.h\
     $$PWD/qtspinbox.h\
     $$PWD/qtcolorbutton.h\
-    $$PWD/qtcolorline.h \
+    $$PWD/qtcolorline.h\
     $$PWD/graphicspropertyeditor.h
 
 SOURCES += $$PWD/propertyeditor.cpp \
+    $$PWD/designerpropertymanager.cpp \
     $$PWD/paletteeditor.cpp \
     $$PWD/paletteeditorbutton.cpp \
     $$PWD/stringlisteditor.cpp \
@@ -65,26 +69,15 @@ SOURCES += $$PWD/propertyeditor.cpp \
     $$PWD/qtbrushpatterndialog.cpp\
     $$PWD/qtspinbox.cpp\
     $$PWD/qtcolorbutton.cpp\
-    $$PWD/qtcolorline.cpp \
+    $$PWD/qtcolorline.cpp\
     $$PWD/graphicspropertyeditor.cpp
 
-HEADERS += $$PWD/qpropertyeditor.h \
-    $$PWD/qpropertyeditor_items_p.h \
-    $$PWD/qpropertyeditor_model_p.h \
-    $$PWD/qpropertyeditor_delegate_p.h \
+HEADERS += \
     $$PWD/propertyeditor_global.h \
-    $$PWD/flagbox_p.h \
-    $$PWD/flagbox_model_p.h \
     $$PWD/defs.h \
     $$PWD/qlonglongvalidator.h
 
-SOURCES += $$PWD/qpropertyeditor.cpp \
-    $$PWD/qpropertyeditor_items.cpp \
-    $$PWD/qpropertyeditor_model.cpp \
-    $$PWD/qpropertyeditor_delegate.cpp \
-    $$PWD/flagbox.cpp \
-    $$PWD/flagbox_model.cpp \
-    $$PWD/defs.cpp \
+SOURCES += $$PWD/defs.cpp \
     $$PWD/qlonglongvalidator.cpp
 
 RESOURCES += $$PWD/qtgradienteditor.qrc

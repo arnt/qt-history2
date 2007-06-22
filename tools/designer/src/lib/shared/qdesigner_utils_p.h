@@ -64,6 +64,7 @@ public:
 
     QVariant value;
     ItemMap items;
+    QStringList names;
 };
 
 // Convenience to return a dropped icon, normalized to form directory

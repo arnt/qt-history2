@@ -12,18 +12,16 @@
 ****************************************************************************/
 
 #include "propertyeditor.h"
-#include "qpropertyeditor_model_p.h"
-#include "qpropertyeditor_items_p.h"
 #include "newdynamicpropertydialog.h"
 #include "dynamicpropertysheet.h"
-#include "paletteeditorbutton.h"
-#include "graphicspropertyeditor.h"
+#include "shared_enums_p.h"
 
 // sdk
 #include <QtDesigner/QDesignerFormEditorInterface>
 #include <QtDesigner/QDesignerFormWindowManagerInterface>
 #include <QtDesigner/QExtensionManager>
 #include <QtDesigner/QDesignerPropertySheetExtension>
+#include <QtDesigner/QDesignerWidgetDataBaseInterface>
 // shared
 #include <qdesigner_utils_p.h>
 #include <qdesigner_propertycommand_p.h>
@@ -34,108 +32,27 @@
 #include <QtGui/QMenu>
 #include <QtGui/QApplication>
 #include <QtGui/QVBoxLayout>
+#include <QtGui/QScrollArea>
+#include <QtGui/QStackedWidget>
+#include <QtGui/QToolBar>
+#include <QtGui/QToolButton>
+#include <QtGui/QActionGroup>
+#include <QtGui/QLabel>
+
+#include <QSignalMapper>
+
+#include "qttreepropertybrowser.h"
+#include "qtgroupboxpropertybrowser.h"
+#include "qtvariantproperty.h"
+#include "designerpropertymanager.h"
+
+#include <iconloader_p.h>
+
+#include <QDebug>
 
 // ---------------------------------------------------------------------------------
 
 namespace qdesigner_internal {
-
-IProperty *PropertyEditor::createSpecialProperty(const QVariant &value, const QString &name)
-{
-    Q_UNUSED(value);
-    Q_UNUSED(name);
-
-    return 0;
-}
-
-class PaletteProperty : public AbstractProperty<QPalette>
-{
-public:
-    PaletteProperty(QDesignerFormEditorInterface *core, const QPalette &value,
-                QWidget *selectedWidget, const QString &name);
-
-    void setValue(const QVariant &value);
-    QString toString() const;
-
-    QWidget *createEditor(QWidget *parent, const QObject *target, const char *receiver) const;
-    void updateEditorContents(QWidget *editor);
-    void updateValue(QWidget *editor);
-
-private:
-    QDesignerFormEditorInterface *m_core;
-    QWidget *m_selectedWidget;
-};
-
-// -------------------------------------------------------------------------
-PaletteProperty::PaletteProperty(QDesignerFormEditorInterface *core, const QPalette &value, QWidget *selectedWidget,
-                const QString &name)
-    : AbstractProperty<QPalette>(value, name),
-      m_core(core),
-      m_selectedWidget(selectedWidget)
-{
-}
-
-void PaletteProperty::setValue(const QVariant &value)
-{
-    m_value = qvariant_cast<QPalette>(value);
-    QPalette parentPalette = QPalette();
-    if (m_selectedWidget) {
-        if (m_selectedWidget->isWindow())
-            parentPalette = QApplication::palette(m_selectedWidget);
-        else {
-            if (m_selectedWidget->parentWidget())
-                parentPalette = m_selectedWidget->parentWidget()->palette();
-        }
-    }
-    const uint mask = m_value.resolve();
-    m_value = m_value.resolve(parentPalette);
-    m_value.resolve(mask);
-}
-
-QString PaletteProperty::toString() const
-{
-    return QString(); // ### implement me
-}
-
-QWidget *PaletteProperty::createEditor(QWidget *parent, const QObject *target, const char *receiver) const
-{
-    PaletteEditorButton *btn = new PaletteEditorButton(m_core, m_value, m_selectedWidget, parent);
-    QObject::connect(btn, SIGNAL(changed()), target, receiver);
-    return btn;
-}
-
-void PaletteProperty::updateEditorContents(QWidget *editor)
-{
-    if (PaletteEditorButton *btn = qobject_cast<PaletteEditorButton*>(editor)) {
-        btn->setPalette(m_value);
-    }
-}
-
-void PaletteProperty::updateValue(QWidget *editor)
-{
-    if (PaletteEditorButton *btn = qobject_cast<PaletteEditorButton*>(editor)) {
-        const QPalette newValue = btn->palette();
-
-        if (newValue.resolve() != m_value.resolve() || newValue != m_value) {
-            m_value = newValue;
-            setChanged(true);
-        }
-    }
-}
-
-// -------------------------------------------------------------------------------------
-
-struct Group
-{
-    QString name;
-    QList<IProperty*> properties;
-
-    inline Group() {}
-    inline Group(const QString &n): name(n) {}
-
-    inline bool operator == (const Group &other) const
-    { return name == other.name; }
-};
-
 
 // A pair <ValidationMode, bool hasComment>.
 typedef QPair<TextPropertyValidationMode, bool> StringPropertyParameters;
@@ -143,55 +60,43 @@ typedef QPair<TextPropertyValidationMode, bool> StringPropertyParameters;
 // Return a pair of validation mode and flag indicating whether property has a comment
 // for textual properties.
 
-StringPropertyParameters textPropertyValidationMode(const QObject *object,const QString &pname,
-                                                    QVariant::Type type, bool isMainContainer)   
+StringPropertyParameters textPropertyValidationMode(const QObject *object,const QString &propertyName,
+                                                    QVariant::Type type, bool isMainContainer)
 {
     if (type == QVariant::ByteArray) {
         return StringPropertyParameters(ValidationMultiLine, false);
     }
     // object name - no comment
-    if (pname == QLatin1String("objectName")) {
+    if (propertyName == QLatin1String("objectName")) {
         const TextPropertyValidationMode vm =  isMainContainer ? ValidationObjectNameScope : ValidationObjectName;
         return StringPropertyParameters(vm, false);
     }
 
     // Accessibility. Both are texts the narrator reads
-    if (pname == QLatin1String("accessibleDescription") || pname == QLatin1String("accessibleName"))
+    if (propertyName == QLatin1String("accessibleDescription") || propertyName == QLatin1String("accessibleName"))
         return StringPropertyParameters(ValidationMultiLine, true);
 
     // Any names
-    if (pname == QLatin1String("buddy") || pname.endsWith(QLatin1String("Name")))
+    if (propertyName == QLatin1String("buddy") || propertyName.endsWith(QLatin1String("Name")))
         return StringPropertyParameters(ValidationObjectName, false);
-        
+
     // Multi line?
-    if (pname == QLatin1String("styleSheet")) 
+    if (propertyName == QLatin1String("styleSheet"))
         return StringPropertyParameters(ValidationStyleSheet, false);
-    
-    if (pname == QLatin1String("styleSheet")     || pname == QLatin1String("toolTip")   || 
-        pname.endsWith(QLatin1String("ToolTip")) || pname == QLatin1String("whatsThis") ||
-        pname == QLatin1String("iconText")       || pname == QLatin1String("windowIconText")  ||
-        pname == QLatin1String("html"))
+
+    if (propertyName == QLatin1String("styleSheet")     || propertyName == QLatin1String("toolTip")   ||
+        propertyName.endsWith(QLatin1String("ToolTip")) || propertyName == QLatin1String("whatsThis") ||
+        propertyName == QLatin1String("iconText")       || propertyName == QLatin1String("windowIconText")  ||
+        propertyName == QLatin1String("html"))
         return StringPropertyParameters(ValidationMultiLine, true);
 
 
     // text only if not Action, LineEdit
-    if (pname == QLatin1String("text") && !(qobject_cast<const QAction *>(object) || qobject_cast<const QLineEdit *>(object)))
+    if (propertyName == QLatin1String("text") && !(qobject_cast<const QAction *>(object) || qobject_cast<const QLineEdit *>(object)))
         return StringPropertyParameters(ValidationMultiLine, true);
 
     // default to single
-    return StringPropertyParameters(ValidationSingleLine, true);    
-}
-
-
-// Create a string prop with proper validation mode
-StringProperty* PropertyEditor::createStringProperty(QObject *object, const QString &pname, const QVariant &value, bool isMainContainer) const 
-{
-    const StringPropertyParameters params = textPropertyValidationMode(object, pname, value.type(), isMainContainer);
-    // Does a meta DB entry exist - add comment
-    const bool hasComment = params.second && metaDataBaseItem();
-    const QString comment = hasComment ? propertyComment(m_core, object, pname) : QString();
-    const QString stringValue = value.type() == QVariant::ByteArray ? QString::fromUtf8(value.toByteArray()) : value.toString();
-    return new StringProperty(stringValue, pname, params.first, hasComment, comment );
+    return StringPropertyParameters(ValidationSingleLine, true);
 }
 
 QDesignerMetaDataBaseItemInterface* PropertyEditor::metaDataBaseItem() const 
@@ -205,214 +110,178 @@ QDesignerMetaDataBaseItemInterface* PropertyEditor::metaDataBaseItem() const
     return db->item(o);
 }
 
-void PropertyEditor::createPropertySheet(PropertyCollection *root, QObject *object)
+void PropertyEditor::setupStringProperty(QtVariantProperty *property,
+                const QString &propertyName, const QVariant &value, bool isMainContainer)
 {
-    QList<Group> groups;
-
-    QExtensionManager *m = m_core->extensionManager();
-
-    bool isMainContainer = false;
-    if (QWidget *widget = qobject_cast<QWidget*>(object)) {
-        if (QDesignerFormWindowInterface *fw = QDesignerFormWindowInterface::findFormWindow(widget)) {
-            isMainContainer = (fw->mainContainer() == widget);
-        }
-    }
-    m_prop_sheet = qobject_cast<QDesignerPropertySheetExtension*>(m->extension(object, Q_TYPEID(QDesignerPropertySheetExtension)));
-    const int count = m_prop_sheet->count();
-    for (int i=0; i < count; ++i) {
-        if (!m_prop_sheet->isVisible(i))
-            continue;
-
-        const QString pname = m_prop_sheet->propertyName(i);
-        // Is this property redefined/hidden in a derived class?
-        // Make it appear under that category only
-        if (m_prop_sheet->indexOf(pname) != i)
-            continue;
-        const QVariant value = m_prop_sheet->property(i);
-
-        IProperty *p = 0;
-        if (qVariantCanConvert<FlagType>(value)) {
-            FlagType f = qvariant_cast<FlagType>(value);
-            if (pname == QLatin1String("alignment")) {
-                p = new AlignmentProperty(f.items, Qt::Alignment(f.value.toInt()), pname);
-            } else {
-                p = new FlagsProperty(f.items, f.value.toInt(), pname);
-            }
-        } else if (qVariantCanConvert<EnumType>(value)) {
-            EnumType e = qvariant_cast<EnumType>(value);
-            p = new MapProperty(e.items, e.value, pname, e.names);
-        }
-
-        if (!p) {
-            switch (value.type()) {
-            case 0:
-                p = createSpecialProperty(value, pname);
-                break;
-            case QVariant::Int:
-                p = new IntProperty(value.toInt(), pname);
-                break;
-            case QVariant::UInt:
-                p = new UIntProperty(value.toUInt(), pname);
-                break;
-            case QVariant::LongLong:
-                p = new LongLongProperty(value.toLongLong(), pname);
-                break;
-            case QVariant::ULongLong:
-                p = new ULongLongProperty(value.toULongLong(), pname);
-                break;
-            case QVariant::Double:
-                p = new DoubleProperty(value.toDouble(), pname);
-                break;
-            case QVariant::Char:
-                p = new CharProperty(value.toChar(), pname);
-                break;
-            case QVariant::Bool:
-                p = new BoolProperty(value.toBool(), pname);
-                break;
-            case QVariant::ByteArray:
-            case QVariant::String: 
-                p = createStringProperty(object, pname, value, isMainContainer);
-                break;
-            case QVariant::Size:
-                p = new SizeProperty(value.toSize(), pname);
-                break;
-            case QVariant::SizeF:
-                p = new SizeFProperty(value.toSizeF(), pname);
-                break;
-            case QVariant::Point:
-                p = new PointProperty(value.toPoint(), pname);
-                break;
-            case QVariant::PointF:
-                p = new PointFProperty(value.toPointF(), pname);
-                break;
-            case QVariant::Rect:
-                p = new RectProperty(value.toRect(), pname);
-                break;
-            case QVariant::RectF:
-                p = new RectFProperty(value.toRectF(), pname);
-                break;
-            case QVariant::Icon:
-                p = new IconProperty(m_core, qvariant_cast<QIcon>(value), pname);
-                break;
-            case QVariant::Pixmap:
-                p = new PixmapProperty(m_core, qvariant_cast<QPixmap>(value), pname);
-                break;
-            case QVariant::Font:
-                p = new FontProperty(qvariant_cast<QFont>(value), pname, qobject_cast<QWidget *>(object));
-                break;
-            case QVariant::Color:
-                p = new ColorProperty(qvariant_cast<QColor>(value), pname);
-                break;
-            case QVariant::SizePolicy:
-                p = new SizePolicyProperty(qvariant_cast<QSizePolicy>(value), pname);
-                break;
-            case QVariant::DateTime:
-                p = new DateTimeProperty(value.toDateTime(), pname);
-                break;
-            case QVariant::Date:
-                p = new DateProperty(value.toDate(), pname);
-                break;
-            case QVariant::Time:
-                p = new TimeProperty(value.toTime(), pname);
-                break;
-            case QVariant::Cursor:
-                p = new CursorProperty(qvariant_cast<QCursor>(value), pname);
-                break;
-            case QVariant::KeySequence:
-                p = new KeySequenceProperty(qvariant_cast<QKeySequence>(value), pname);
-                break;
-            case QVariant::Palette:
-                p = new PaletteProperty(m_core, qvariant_cast<QPalette>(value),
-                                qobject_cast<QWidget *>(object), pname);
-                break;
-            case QVariant::Url:
-                p = new UrlProperty(value.toUrl(), pname);
-                break;
-            case QVariant::StringList:
-                p = new StringListProperty(qvariant_cast<QStringList>(value), pname);
-                break;
-            default:
-                // ### qDebug() << "property" << pname << "with type" << value.type() << "not supported yet!";
-                break;
-            } // end switch
-        }
-
-        if (p != 0) {
-            p->setHasReset(m_prop_sheet->hasReset(i));
-            p->setChanged(m_prop_sheet->isChanged(i));
-            p->setDirty(false);
-
-            const QString pgroup = m_prop_sheet->propertyGroup(i);
-            int groupIndex = groups.indexOf(pgroup);
-            if (groupIndex == -1) {
-                groupIndex = groups.count();
-                groups.append(Group(pgroup));
-            }
-
-            QList<IProperty*> &groupProperties = groups[groupIndex].properties;
-            groupProperties.append(p);
-            m_indexToProperty[i] = p;
-        }
-    }
-
-    foreach (Group g, groups) {
-        root->addProperty(new SeparatorProperty(QString(), g.name));
-        foreach (IProperty *p, g.properties) {
-            root->addProperty(p);
-        }
+    const StringPropertyParameters params = textPropertyValidationMode(m_object, propertyName, value.type(), isMainContainer);
+    // Does a meta DB entry exist - add comment
+    const bool hasComment = params.second && metaDataBaseItem();
+    const QString stringValue = value.type() == QVariant::ByteArray ? QString::fromUtf8(value.toByteArray()) : value.toString();
+    property->setAttribute(QLatin1String("validationMode"), params.first);
+    // assuming comment cannot appear or disappear for the same property in different object instance
+    if (hasComment && !m_propertyToComment.contains(property)) {
+        QtVariantProperty *commentProperty = m_propertyManager->addProperty(QVariant::String, tr("comment"));
+        commentProperty->setValue(propertyComment(m_core, m_object, propertyName));
+        property->addSubProperty(commentProperty);
+        m_propertyToComment[property] = commentProperty;
+        m_commentToProperty[commentProperty] = property;
     }
 }
 
-void PropertyEditor::updatePropertySheet()
+void PropertyEditor::setupPaletteProperty(QtVariantProperty *property)
 {
-    if (!m_prop_sheet)
-        return;
-
-    const int count = m_prop_sheet->count();
-    for (int i = 0; i < count; ++i) {
-        const IndexToPropertyMap::const_iterator it = m_indexToProperty.constFind(i);
-        if (it !=  m_indexToProperty.constEnd()) {
-            IProperty *p = it.value();
-            p->setValue(m_prop_sheet->property(i));
-            m_editor->editorModel()->refresh(p);
+    QPalette value = qvariant_cast<QPalette>(property->value());
+    QPalette superPalette = QPalette();
+    QWidget *currentWidget = qobject_cast<QWidget *>(m_object);
+    if (currentWidget) {
+        if (currentWidget->isWindow())
+            superPalette = QApplication::palette(currentWidget);
+        else {
+            if (currentWidget->parentWidget())
+                superPalette = currentWidget->parentWidget()->palette();
         }
     }
+    m_updatingBrowser = true;
+    property->setAttribute(QLatin1String("superPalette"), superPalette);
+    m_updatingBrowser = false;
 }
 
-PropertyEditor::PropertyEditor(QDesignerFormEditorInterface *core,
-            QWidget *parent, Qt::WindowFlags flags)
-    : QDesignerPropertyEditor(parent, flags),
-      m_core(core),
-      m_editor(new QPropertyEditor(this)),
-      m_properties(0),
-      m_prop_sheet(0)
+PropertyEditor::PropertyEditor(QDesignerFormEditorInterface *core, QWidget *parent, Qt::WindowFlags flags)
+    : QDesignerPropertyEditor(parent, flags), m_core(core), m_propertySheet(0)
 {
-    QVBoxLayout *lay = new QVBoxLayout(this);
-    lay->setMargin(0);
-    lay->addWidget(m_editor);
+    m_stackedWidget = new QStackedWidget(this);
 
-    connect(m_editor, SIGNAL(propertyChanged(IProperty*)),
-        this, SLOT(slotFirePropertyChanged(IProperty*)));
-    connect(m_editor->editorModel(), SIGNAL(resetProperty(QString)),
-                this, SLOT(slotResetProperty(QString)));
-    connect(m_editor, SIGNAL(customContextMenuRequested(QPoint)),
-            this, SLOT(slotCustomContextMenuRequested(QPoint)));
+    QToolBar *toolBar = new QToolBar(this);
 
+    QActionGroup *actionGroup = new QActionGroup(this);
+    m_treeAction = new QAction(tr("Tree View"), this);
+    m_treeAction->setCheckable(true);
+    m_treeAction->setIcon(createIconSet(QLatin1String("widgets/listview.png")));
+    m_groupBoxAction = new QAction(tr("Group Box View"), this);
+    m_groupBoxAction->setCheckable(true);
+    m_groupBoxAction->setIcon(createIconSet(QLatin1String("widgets/groupbox.png")));
+    actionGroup->addAction(m_treeAction);
+    actionGroup->addAction(m_groupBoxAction);
+    m_groupBoxAction->setChecked(true);
+    connect(actionGroup, SIGNAL(triggered(QAction *)),
+                this, SLOT(slotViewTriggered(QAction *)));
+
+    QWidget *classWidget = new QWidget(toolBar);
+    classWidget->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
+    m_classLabel = new QLabel(classWidget);
+    QHBoxLayout *l = new QHBoxLayout(classWidget);
+    l->setMargin(0);
+    l->addWidget(m_classLabel);
+    m_classLabel->setSizePolicy(QSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed));
+
+    m_addDynamicAction = new QAction(tr("Add Dynamic Property..."), this);
+    m_addDynamicAction->setIcon(createIconSet(QLatin1String("plus.png")));
+    m_addDynamicAction->setEnabled(false);
+    connect(m_addDynamicAction, SIGNAL(triggered()), this, SLOT(slotAddDynamicProperty()));
+    QToolButton *removeButton = new QToolButton(toolBar);
+    m_removeDynamicAction = new QAction(tr("Remove Dynamic Property"), this);
+    m_removeDynamicAction->setIcon(createIconSet(QLatin1String("minus.png")));
+    m_removeDynamicAction->setEnabled(false);
+    m_removeDynamicMenu = new QMenu(this);
+    m_removeDynamicAction->setMenu(m_removeDynamicMenu);
+    removeButton->setDefaultAction(m_removeDynamicAction);
+    removeButton->setPopupMode(QToolButton::InstantPopup);
+
+    m_removeMapper = new QSignalMapper(this);
+    connect(m_removeMapper, SIGNAL(mapped(const QString &)), this, SIGNAL(removeDynamicProperty(const QString &)));
+
+    toolBar->addWidget(classWidget);
+    toolBar->addAction(m_addDynamicAction);
+    //toolBar->addAction(m_removeDynamicAction);
+    toolBar->addWidget(removeButton);
+    toolBar->addSeparator();
+    toolBar->addAction(m_treeAction);
+    toolBar->addAction(m_groupBoxAction);
+
+    QScrollArea *scroll = new QScrollArea(m_stackedWidget);
+    m_groupBrowser = new QtGroupBoxPropertyBrowser(scroll);
+    m_groupBrowser->layout()->setMargin(-1);
+    scroll->setWidgetResizable(true);
+    scroll->setWidget(m_groupBrowser);
+    m_groupBoxIndex = m_stackedWidget->addWidget(scroll);
+
+    m_treeBrowser = new QtTreePropertyBrowser(m_stackedWidget);
+    m_treeBrowser->setRootIsDecorated(false);
+    m_treeIndex = m_stackedWidget->addWidget(m_treeBrowser);
+
+    QVBoxLayout *layout = new QVBoxLayout(this);
+    layout->addWidget(toolBar);
+    layout->addWidget(m_stackedWidget);
+    layout->setMargin(0);
+    layout->setSpacing(0);
+
+    m_propertyManager = new DesignerPropertyManager(m_core, this);
+    DesignerEditorFactory *treeFactory = new DesignerEditorFactory(m_core, this);
+    treeFactory->setSpacing(0);
+    DesignerEditorFactory *groupFactory = new DesignerEditorFactory(m_core, this);
+    QtVariantPropertyManager *variantManager = m_propertyManager;
+    m_groupBrowser->setFactoryForManager(variantManager, groupFactory);
+    m_treeBrowser->setFactoryForManager(variantManager, treeFactory);
+
+    m_stackedWidget->setCurrentIndex(m_groupBoxIndex);
+    m_currentBrowser = m_groupBrowser;
+
+    connect(groupFactory, SIGNAL(resetProperty(QtProperty *)), this, SLOT(slotResetProperty(QtProperty *)));
+    connect(treeFactory, SIGNAL(resetProperty(QtProperty *)), this, SLOT(slotResetProperty(QtProperty *)));
+    connect(variantManager, SIGNAL(valueChanged(QtProperty *, const QVariant &)),
+                this, SLOT(slotValueChanged(QtProperty *, const QVariant &)));
+
+    m_updatingBrowser = false;
 }
 
 PropertyEditor::~PropertyEditor()
 {
-     delete m_properties;
+
 }
 
-bool PropertyEditor::isReadOnly() const
+void PropertyEditor::slotViewTriggered(QAction *action)
 {
-    return m_editor->isReadOnly();
+    m_currentBrowser->clear();
+    int idx = 0;
+    if (action == m_treeAction) {
+        m_currentBrowser = m_treeBrowser;
+        idx = m_treeIndex;
+    } else {
+        m_currentBrowser = m_groupBrowser;
+        idx = m_groupBoxIndex;
+    }
+    QListIterator<QtProperty *> itGroup(m_groups);
+    while (itGroup.hasNext()) {
+        QtProperty *group = itGroup.next();
+        m_currentBrowser->addProperty(group);
+    }
+    m_stackedWidget->setCurrentIndex(idx);
 }
 
-void PropertyEditor::setReadOnly(bool readOnly)
+void PropertyEditor::slotAddDynamicProperty()
 {
-    m_editor->setReadOnly(readOnly);
+    if (!m_propertySheet)
+        return;
+
+    const QDesignerDynamicPropertySheetExtension *dynamicSheet =
+            qt_extension<QDesignerDynamicPropertySheetExtension*>(m_core->extensionManager(), m_object);
+
+    if (!dynamicSheet)
+        return;
+
+    NewDynamicPropertyDialog dlg(this);
+    QStringList reservedNames;
+    for (int i = 0; i < m_propertySheet->count(); i++) {
+        if (!dynamicSheet->isDynamicProperty(i) || m_propertySheet->isVisible(i))
+            reservedNames.append(m_propertySheet->propertyName(i));
+    }
+    dlg.setReservedNames(reservedNames);
+    if (dlg.exec() == QDialog::Accepted) {
+        const QString newName = dlg.propertyName();
+        const QVariant newValue = dlg.propertyValue();
+
+        emit addDynamicProperty(newName, newValue);
+    }
 }
 
 QDesignerFormEditorInterface *PropertyEditor::core() const
@@ -420,190 +289,398 @@ QDesignerFormEditorInterface *PropertyEditor::core() const
     return m_core;
 }
 
-IProperty *PropertyEditor::propertyByName(IProperty *p, const QString &name)
+bool PropertyEditor::isReadOnly() const
 {
-    if (p->propertyName() == name)
-        return p;
+    return false;
+}
 
-    if (p->kind() == IProperty::Property_Group) {
-        IPropertyGroup *g = static_cast<IPropertyGroup*>(p);
-        for (int i=0; i<g->propertyCount(); ++i)
-            if (IProperty *c = propertyByName(g->propertyAt(i), name))
-                return c;
-    }
-
-    return 0;
+void PropertyEditor::setReadOnly(bool readOnly)
+{
+    qDebug() << "PropertyEditor::setReadOnly() request";
 }
 
 void PropertyEditor::setPropertyValue(const QString &name, const QVariant &value, bool changed)
 {
-    if (isReadOnly())
+    if (!m_nameToProperty.contains(name))
         return;
-    
-    IProperty *p = propertyByName(m_editor->initialInput(), name);
-    if (!p)
-        return;
-
-    if (p->value() != value) 
-        p->setValue(value);
-    
-    p->setChanged(changed);
-    p->setDirty(false);
-    
-    m_editor->editorModel()->refresh(p);
+    QtVariantProperty *property = m_nameToProperty.value(name);
+    updateBrowserValue(property, value);
+    property->setModified(changed);
 }
 
 void PropertyEditor::setPropertyComment(const QString &name, const QString &value)
 {
-    if (isReadOnly())
-        return;
-
-    IProperty *parent = propertyByName(m_editor->initialInput(), name);
-    if (!parent || parent->kind() != IProperty::Property_Group)
-        return;
-    
-    AbstractPropertyGroup *parentGroup = static_cast<AbstractPropertyGroup *>(parent);
-    
-    if (parentGroup->propertyCount() != 1)
-        return;
-    
-    IProperty *commentProperty = parentGroup->propertyAt(0);
-    if (commentProperty->value().toString() != value)
-        commentProperty->setValue(value);
-    
-    commentProperty->setDirty(false);
-
-    m_editor->editorModel()->refresh(commentProperty);    
-}
-
-void PropertyEditor::slotFirePropertyChanged(IProperty *p)
-{
-    if (isReadOnly() || !object())
-        return;
-
-    // Comment or property
-    if (p->parent() && p->propertyName() == QLatin1String("comment")) {
-        const QString parentProperty = p->parent()->propertyName();
-        emit propertyCommentChanged(parentProperty, p->value().toString());
-    } else {
-        emit propertyChanged(p->propertyName(), p->value());
+    if (m_nameToProperty.contains(name)) {
+        QtVariantProperty *property = m_nameToProperty.value(name);
+        if (m_propertyToComment.contains(property)) {
+            QtVariantProperty *commentProperty = m_propertyToComment.value(property);
+            updateBrowserValue(commentProperty, value);
+        }
     }
 }
 
-void PropertyEditor::clearDirty(IProperty *p)
+void PropertyEditor::updatePropertySheet()
 {
-    p->setDirty(false);
-
-    if (p->kind() == IProperty::Property_Normal)
+    if (!m_propertySheet)
         return;
 
-    IPropertyGroup *g = static_cast<IPropertyGroup*>(p);
-    for (int i=0; i<g->propertyCount(); ++i)
-        clearDirty(g->propertyAt(i));
+    for (int i = 0; i < m_propertySheet->count(); ++i) {
+        const QString propertyName = m_propertySheet->propertyName(i);
+        if (m_nameToProperty.contains(propertyName)) {
+            QtVariantProperty *property = m_nameToProperty.value(propertyName);
+            updateBrowserValue(property, m_propertySheet->property(i));
+        }
+    }
+}
+
+void PropertyEditor::updateBrowserValue(QtVariantProperty *property, const QVariant &value)
+{
+    QVariant v = value;
+    if (property->propertyType() == QtVariantPropertyManager::enumTypeId()) {
+        const EnumType e = qvariant_cast<EnumType>(v);
+        v = e.names.indexOf(e.items.key(e.value));
+    } else if (property->propertyType() == DesignerPropertyManager::designerFlagTypeId()) {
+        const FlagType f = qvariant_cast<FlagType>(v);
+        v = f.value;
+    } else if (property->propertyType() == DesignerPropertyManager::designerAlignmentTypeId()) {
+        const FlagType f = qvariant_cast<FlagType>(v);
+        v = f.value;
+    }
+    m_updatingBrowser = true;
+    property->setValue(v);
+    m_updatingBrowser = false;
+}
+
+int PropertyEditor::toBrowserType(const QVariant &value, const QString &propertyName) const
+{
+    if (qVariantCanConvert<EnumType>(value))
+        return DesignerPropertyManager::enumTypeId();
+    if (qVariantCanConvert<FlagType>(value)) {
+        if (propertyName == QLatin1String("alignment"))
+            return DesignerPropertyManager::designerAlignmentTypeId();
+        return DesignerPropertyManager::designerFlagTypeId();
+    }
+    return value.userType();
+}
+
+QString PropertyEditor::removeScope(const QString &value) const
+{
+    int pos = value.lastIndexOf(QLatin1String("::"));
+    if (pos < 0)
+        return value;
+    return value.mid(pos + 2);
+}
+
+QString PropertyEditor::realClassName(QObject *object) const
+{
+    if (!object)
+        return 0;
+
+    const QString qLayoutWidget = QLatin1String("QLayoutWidget");
+    const QString designerPrefix = QLatin1String("QDesigner");
+
+    QString className = QLatin1String(object->metaObject()->className());
+    const QDesignerWidgetDataBaseInterface *db = core()->widgetDataBase();
+    if (QDesignerWidgetDataBaseItemInterface *widgetItem = db->item(db->indexOfObject(object, true))) {
+        className = widgetItem->name();
+
+        if (object->isWidgetType() && className == qLayoutWidget
+                && static_cast<QWidget*>(object)->layout()) {
+            className = QLatin1String(static_cast<QWidget*>(object)->layout()->metaObject()->className());
+        }
+
+        //item->setIcon(0, widgetItem->icon());
+    }
+
+    if (className.startsWith(designerPrefix))
+        className.remove(1, designerPrefix.size() - 1);
+
+    return className;
 }
 
 void PropertyEditor::setObject(QObject *object)
 {
-    if (m_editor->initialInput())
-        clearDirty(m_editor->initialInput());
-
     m_object = object;
-    IPropertyGroup *old_properties = m_properties;
-    m_properties = 0;
-    m_prop_sheet = 0;
+    m_removeDynamicMenu->clear();
 
-    m_indexToProperty.clear();
-
+    QString objectName;
+    QString className;
     if (m_object) {
-        PropertyCollection *collection = new PropertyCollection(QLatin1String("<root>"));
-        createPropertySheet(collection, object);
-        m_properties = collection;
+        objectName = m_object->objectName();
+        className = realClassName(m_object);
     }
 
-    m_editor->setInitialInput(m_properties);
+    m_classLabel->setText(tr("%1\n%2").arg(objectName).arg(className));
+    m_classLabel->setToolTip(tr("Object: %1\nClass: %2").arg(objectName).arg(className));
 
-    delete old_properties;
-}
+    QMap<QString, QtVariantProperty *> toRemove = m_nameToProperty;
 
-void PropertyEditor::slotResetProperty(const QString &prop_name)
-{
-    QDesignerFormWindowInterface *form = m_core->formWindowManager()->activeFormWindow();
-    if (form == 0) {
-        qDebug("PropertyEditor::resetProperty(): widget does not belong to any form");
-        return;
-    }
-    emit resetProperty(prop_name);
-}
+    const QDesignerDynamicPropertySheetExtension *dynamicSheet =
+            qt_extension<QDesignerDynamicPropertySheetExtension*>(m_core->extensionManager(), m_object);
 
-QString PropertyEditor::currentPropertyName() const
-{
-    const QModelIndex index = m_editor->selectionModel()->currentIndex();
-    if (!index.isValid()) {
-        IProperty *property = static_cast<IProperty*>(index.internalPointer());
+    // list of properties to remove
+    // remove them
+    // traverse the sheet, in case property exists just set a value, otherwise - create it.
 
-        while (property && property->isFake())
-            property = property->parent();
+    QExtensionManager *m = m_core->extensionManager();
 
-        if (property)
-            return property->propertyName();
-    }
+    m_propertySheet = qobject_cast<QDesignerPropertySheetExtension*>(m->extension(object, Q_TYPEID(QDesignerPropertySheetExtension)));
+    if (m_propertySheet) {
+        for (int i = 0; i < m_propertySheet->count(); ++i) {
+            if (!m_propertySheet->isVisible(i))
+                continue;
 
-    return QString();
-}
-
-void PropertyEditor::slotCustomContextMenuRequested(const QPoint &pos)
-{    
-    const QModelIndex idx = m_editor->indexAt(pos);
-    if (!idx.isValid())
-        return;
-    
-    QPropertyEditorModel *model = m_editor->editorModel();
-    IProperty *nonfake = model->privateData(idx);
-    while (nonfake != 0 && nonfake->isFake())
-        nonfake = nonfake->parent();
-
-    const QDesignerPropertySheetExtension *sheet = m_prop_sheet;
-    const QDesignerDynamicPropertySheetExtension *dynamicSheet = qt_extension<QDesignerDynamicPropertySheetExtension*>(m_core->extensionManager(), m_object);;
-    if (!sheet || !dynamicSheet)
-        return;
-
-    int index = -1;
-    const bool addEnabled = dynamicSheet->dynamicPropertiesAllowed();
-    bool insertRemoveEnabled = false;
-    if (addEnabled) {
-        if (nonfake) {
-            const int idx = sheet->indexOf(nonfake->propertyName());
-            if (dynamicSheet->isDynamicProperty(idx)) {
-                insertRemoveEnabled = true;
-                index = idx;
+            const QString propertyName = m_propertySheet->propertyName(i);
+            if (m_propertySheet->indexOf(propertyName) != i)
+                continue;
+            const QString groupName = m_propertySheet->propertyGroup(i);
+            if (toRemove.contains(propertyName)) {
+                QtVariantProperty *property = toRemove.value(propertyName);
+                if (m_propertyToGroup.value(property) == groupName && toBrowserType(m_propertySheet->property(i), propertyName) == property->propertyType())
+                    toRemove.remove(propertyName);
             }
         }
     }
 
-    QMenu menu(this);
-    QAction *addAction = menu.addAction(tr("Add Dynamic Property..."));
-    addAction->setEnabled(addEnabled);
-    QAction *removeAction = menu.addAction(tr("Remove Dynamic Property"));
-    removeAction->setEnabled(insertRemoveEnabled);
-    const QAction *result = menu.exec(mapToGlobal(pos));
+    QMapIterator<QString, QtVariantProperty *> itRemove(toRemove);
+    while (itRemove.hasNext()) {
+        itRemove.next();
 
-    if (result == removeAction && nonfake) {
-        emit removeDynamicProperty(nonfake->propertyName());
-    } else if (result == addAction) {
-        NewDynamicPropertyDialog dlg(this);
-        QStringList reservedNames;
-        for (int i = 0; i < sheet->count(); i++) {
-            if (!dynamicSheet->isDynamicProperty(i) || sheet->isVisible(i))
-                reservedNames.append(sheet->propertyName(i));
+        QtVariantProperty *property = itRemove.value();
+        delete property;
+        if (m_propertyToComment.contains(property)) {
+            QtVariantProperty *commentProperty = m_propertyToComment.value(property);
+            delete commentProperty;
+            m_commentToProperty.remove(commentProperty);
+            m_propertyToComment.remove(property);
         }
-        dlg.setReservedNames(reservedNames);
-        if (dlg.exec() == QDialog::Accepted) {
-            const QString newName = dlg.propertyName();
-            const QVariant newValue = dlg.propertyValue();
+        m_nameToProperty.remove(itRemove.key());
+        m_propertyToGroup.remove(property);
+    }
 
-            emit addDynamicProperty(newName, newValue);
+    bool isMainContainer = false;
+    if (QWidget *widget = qobject_cast<QWidget*>(object)) {
+        if (QDesignerFormWindowInterface *fw = QDesignerFormWindowInterface::findFormWindow(widget)) {
+            isMainContainer = (fw->mainContainer() == widget);
         }
     }
+
+    QStringList dynamicProperties;
+    m_groups.clear();
+
+    if (m_propertySheet) {
+        QtProperty *lastProperty = 0;
+        QtProperty *lastGroup = 0;
+        for (int i = 0; i < m_propertySheet->count(); ++i) {
+            if (!m_propertySheet->isVisible(i))
+                continue;
+
+            const QString propertyName = m_propertySheet->propertyName(i);
+            if (m_propertySheet->indexOf(propertyName) != i)
+                continue;
+            const QVariant value = m_propertySheet->property(i);
+
+            int type = toBrowserType(value, propertyName);
+
+            /*
+               switch (value.type()) {
+               case QVariant::UInt:
+               p = new UIntProperty(value.toUInt(), pname);
+               break;
+               case QVariant::LongLong:
+               p = new LongLongProperty(value.toLongLong(), pname);
+               break;
+               case QVariant::ULongLong:
+               p = new ULongLongProperty(value.toULongLong(), pname);
+               break;
+               case QVariant::Char:
+               p = new CharProperty(value.toChar(), pname);
+               break;
+               case QVariant::ByteArray:
+               case QVariant::String: 
+               p = createStringProperty(object, pname, value, isMainContainer);
+               break;
+            break;
+            case QVariant::Url:
+            p = new UrlProperty(value.toUrl(), pname);
+            break;
+            case QVariant::StringList:
+            p = new StringListProperty(qvariant_cast<QStringList>(value), pname);
+            break;
+            default:
+            // ### qDebug() << "property" << pname << "with type" << value.type() << "not supported yet!";
+            break;
+        } // end switch
+        */
+            QtVariantProperty *property = 0;
+            bool newProperty = false;
+            if (m_nameToProperty.contains(propertyName)) {
+                property = m_nameToProperty.value(propertyName);
+            } else {
+                property = m_propertyManager->addProperty(type, propertyName);
+                newProperty = true;
+                if (property && type == DesignerPropertyManager::enumTypeId()) {
+                    const EnumType e = qvariant_cast<EnumType>(value);
+                    QStringList names;
+                    QStringListIterator it(e.names);
+                    while (it.hasNext())
+                        names.append(removeScope(it.next()));
+                    m_updatingBrowser = true;
+                    property->setAttribute(QLatin1String("enumNames"), names);
+                    m_updatingBrowser = false;
+                } else if (property && type == DesignerPropertyManager::designerFlagTypeId()) {
+                    const FlagType f = qvariant_cast<FlagType>(value);
+                    QList<QPair<QString, uint> > flags;
+                    QStringListIterator it(f.names);
+                    while (it.hasNext()) {
+                        const QString name = it.next();
+                        const uint val = f.items.value(name).toUInt();
+                        flags.append(qMakePair(removeScope(name), val));
+                    }
+                    m_updatingBrowser = true;
+                    QVariant v;
+                    qVariantSetValue(v, flags);
+                    property->setAttribute(QLatin1String("flags"), v);
+                    m_updatingBrowser = false;
+                }
+            }
+
+            if (property != 0) {
+                if (dynamicSheet && dynamicSheet->isDynamicProperty(i))
+                    dynamicProperties.append(propertyName);
+
+                if (type == QVariant::String)
+                    setupStringProperty(property, propertyName, value, isMainContainer);
+
+                if (type == QVariant::Palette)
+                    setupPaletteProperty(property);
+
+                updateBrowserValue(property, value);
+                if (m_propertyToComment.contains(property)) {
+                    updateBrowserValue(m_propertyToComment.value(property), propertyComment(m_core, m_object, propertyName));
+                }
+                property->setAttribute(QLatin1String("resetable"), m_propertySheet->hasReset(i));
+                property->setModified(m_propertySheet->isChanged(i));
+
+                const QString groupName = m_propertySheet->propertyGroup(i);
+                QtVariantProperty *groupProperty = 0;
+                if (m_nameToGroup.contains(groupName)) {
+                    groupProperty = m_nameToGroup.value(groupName);
+                } else {
+                    groupProperty = m_propertyManager->addProperty(QtVariantPropertyManager::groupTypeId(), groupName);
+                    m_currentBrowser->insertProperty(groupProperty, lastGroup);
+                    m_nameToGroup[groupName] = groupProperty;
+                }
+
+                if (lastGroup != groupProperty) {
+                    lastProperty = 0;
+                    lastGroup = groupProperty;
+                }
+                if (!m_groups.contains(groupProperty))
+                    m_groups.append(groupProperty);
+
+                if (newProperty) {
+                    groupProperty->insertSubProperty(property, lastProperty);
+                    m_nameToProperty[propertyName] = property;
+                    m_propertyToGroup[property] = groupName;
+                }
+                lastProperty = property;
+            } else {
+                qDebug() << "Property" << propertyName << "of type" << type << "not supported yet!";
+            }
+        }
+    }
+    QMap<QString, QtVariantProperty *> groups = m_nameToGroup;
+    QMapIterator<QString, QtVariantProperty *> itGroup(groups);
+    while (itGroup.hasNext()) {
+        QtVariantProperty *groupProperty = itGroup.next().value();
+        if (groupProperty->subProperties().count() == 0) {
+            delete groupProperty;
+            m_nameToGroup.remove(itGroup.key());
+        }
+    }
+    const bool addEnabled = dynamicSheet ? dynamicSheet->dynamicPropertiesAllowed() : false;
+    const bool removeEnabled = addEnabled && dynamicProperties.count();
+    m_addDynamicAction->setEnabled(addEnabled);
+    m_removeDynamicAction->setEnabled(removeEnabled);
+    QStringListIterator it(dynamicProperties);
+    while (it.hasNext()) {
+        QString property = it.next();
+        QAction *action = new QAction(property, m_removeDynamicMenu);
+        connect(action, SIGNAL(triggered()), m_removeMapper, SLOT(map()));
+        m_removeMapper->setMapping(action, property);
+        m_removeDynamicMenu->addAction(action);
+    }
+}
+
+QString PropertyEditor::currentPropertyName() const
+{
+    qDebug() << "PropertyEditor::currentPropertyName() request";
+    return QString();
+}
+
+void PropertyEditor::slotResetProperty(QtProperty *property)
+{
+    QDesignerFormWindowInterface *form = m_core->formWindowManager()->activeFormWindow();
+    if (!form)
+        return;
+
+    if (!m_propertyToGroup.contains(property))
+        return;
+
+    emit resetProperty(property->propertyName());
+}
+
+void PropertyEditor::slotValueChanged(QtProperty *property, const QVariant &value)
+{
+    if (m_updatingBrowser)
+        return;
+
+    if (!m_propertySheet)
+        return;
+
+    QtVariantProperty *varProp = m_propertyManager->variantProperty(property);
+
+    if (!varProp)
+        return;
+
+    if (m_commentToProperty.contains(varProp)) {
+        QtVariantProperty *commentParentProperty = m_commentToProperty.value(varProp);
+        emit propertyCommentChanged(commentParentProperty->propertyName(), value.toString());
+        return;
+    }
+
+    if (!m_propertyToGroup.contains(property))
+        return;
+
+    if (varProp->propertyType() == QtVariantPropertyManager::enumTypeId()) {
+        EnumType e = qvariant_cast<EnumType>(m_propertySheet->property(m_propertySheet->indexOf(property->propertyName())));
+        QMapIterator<QString, QVariant> it(e.items);
+        const int val = value.toInt();
+        const QString valName = varProp->attributeValue(QLatin1String("enumNames")).toStringList().at(val);
+        while (it.hasNext()) {
+            QString enumName = it.next().key();
+            if (removeScope(enumName) == valName) {
+                const QVariant newValue = it.value();
+                e.value = newValue;
+                QVariant v;
+                qVariantSetValue(v, e);
+                emit propertyChanged(property->propertyName(), v);
+                return;
+            }
+        }
+        return;
+    }
+
+    if (varProp->propertyType() == QVariant::Palette) {
+        QPalette pal = qvariant_cast<QPalette>(value);
+        if (!pal.resolve()) {
+            emit resetProperty(property->propertyName());
+            return;
+        }
+    }
+
+    emit propertyChanged(property->propertyName(), value);
 }
 
 }

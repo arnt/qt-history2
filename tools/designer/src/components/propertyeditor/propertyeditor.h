@@ -15,17 +15,30 @@
 #define PROPERTYEDITOR_H
 
 #include "propertyeditor_global.h"
-#include "qpropertyeditor.h"
 #include <qdesigner_propertyeditor_p.h>
 
 #include <QtCore/QPointer>
+#include <QtCore/QMap>
 
 class DomProperty;
 class QDesignerMetaDataBaseItemInterface;
 class QDesignerPropertySheetExtension;
 
+class QtAbstractPropertyBrowser;
+class QtGroupBoxPropertyBrowser;
+class QtTreePropertyBrowser;
+class QtProperty;
+class QtVariantProperty;
+
+class QStackedWidget;
+class QLabel;
+class QMenu;
+class QSignalMapper;
+
 namespace qdesigner_internal {
+
 class StringProperty;
+class DesignerPropertyManager;
 
 class QT_PROPERTYEDITOR_EXPORT PropertyEditor: public QDesignerPropertyEditor
 {
@@ -48,29 +61,47 @@ public:
     { return m_object; }
 
     virtual QString currentPropertyName() const;
-    
+
 private slots:
-    void slotFirePropertyChanged(IProperty *property);
-    void slotResetProperty(const QString &prop_name);
-    void slotCustomContextMenuRequested(const QPoint &pos);
+    void slotResetProperty(QtProperty *property);
+    void slotValueChanged(QtProperty *property, const QVariant &value);
+    void slotViewTriggered(QAction *action);
+    void slotAddDynamicProperty();
 
 private:
-    IProperty *propertyByName(IProperty *p, const QString &name);
-    void clearDirty(IProperty *p);
-    void createPropertySheet(PropertyCollection *root, QObject *object);
-    static IProperty *createSpecialProperty(const QVariant &value, const QString &name);
-
-private:
+    void updateBrowserValue(QtVariantProperty *property, const QVariant &value);
+    int toBrowserType(const QVariant &value, const QString &propertyName) const;
+    QString removeScope(const QString &value) const;
     QDesignerMetaDataBaseItemInterface *metaDataBaseItem() const;
-    StringProperty* createStringProperty(QObject *object, const QString &pname, const QVariant &value, bool isMainContainer) const;
-  
+    void setupStringProperty(QtVariantProperty *property, const QString &pname, const QVariant &value, bool isMainContainer);
+    void setupPaletteProperty(QtVariantProperty *property);
+    QString realClassName(QObject *object) const;
+
     QDesignerFormEditorInterface *m_core;
-    QPropertyEditor *m_editor;
-    IPropertyGroup *m_properties;
-    QDesignerPropertySheetExtension *m_prop_sheet;
+    QDesignerPropertySheetExtension *m_propertySheet;
+    QtAbstractPropertyBrowser *m_currentBrowser;
+    QtGroupBoxPropertyBrowser *m_groupBrowser;
+    QtTreePropertyBrowser *m_treeBrowser;
+    DesignerPropertyManager *m_propertyManager;
     QPointer<QObject> m_object;
-    typedef QMap<int, IProperty *> IndexToPropertyMap;
-    IndexToPropertyMap m_indexToProperty;
+    QMap<QString, QtVariantProperty*> m_nameToProperty;
+    QMap<QtProperty*, QString> m_propertyToGroup;
+    QMap<QString, QtVariantProperty*> m_nameToGroup;
+    QMap<QtVariantProperty *, QtVariantProperty *> m_propertyToComment;
+    QMap<QtVariantProperty *, QtVariantProperty *> m_commentToProperty;
+    QList<QtProperty *> m_groups;
+    bool m_updatingBrowser;
+    QSignalMapper *m_removeMapper;
+
+    QStackedWidget *m_stackedWidget;
+    int m_groupBoxIndex;
+    int m_treeIndex;
+    QAction *m_addDynamicAction;
+    QAction *m_removeDynamicAction;
+    QMenu *m_removeDynamicMenu;
+    QAction *m_treeAction;
+    QAction *m_groupBoxAction;
+    QLabel *m_classLabel;
 };
 
 }  // namespace qdesigner_internal

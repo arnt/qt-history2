@@ -61,6 +61,7 @@ namespace qdesigner_internal {
         QString text() const;
 
         virtual QSize sizeHint () const;
+        virtual QSize minimumSizeHint () const;
 
         void setAlignment(Qt::Alignment alignment);
 
