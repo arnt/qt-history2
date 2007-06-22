@@ -4055,16 +4055,16 @@ QRect QStyleSheetStyle::subControlRect(ComplexControl cc, const QStyleOptionComp
             case SC_SliderGroove:
                 return gr;
             case SC_SliderHandle: {
-                bool horizontal = opt->state & Qt::Horizontal;
+                bool horizontal = slider->orientation & Qt::Horizontal;
                 QRect cr = subRule.contentsRect(gr);
                 QRenderRule subRule2 = renderRule(w, opt, PseudoElement_SliderHandle);
                 int len = horizontal ? subRule2.size().width() : subRule2.size().height();
                 subRule2.img = 0;
+                subRule2.geo = 0;
                 cr = positionRect(w, subRule2, PseudoElement_SliderHandle, cr, opt->direction);
-                int sliderPos = 0;
-                int thickness = pixelMetric(PM_SliderControlThickness, slider, w);
-                sliderPos = sliderPositionFromValue(slider->minimum, slider->maximum, slider->sliderPosition,
-                                                    (horizontal ? cr.width() : cr.height()) - len, slider->upsideDown);
+                int thickness = horizontal ? cr.height() : cr.width();
+                int sliderPos = sliderPositionFromValue(slider->minimum, slider->maximum, slider->sliderPosition,
+                                                        (horizontal ? cr.width() : cr.height()) - len, slider->upsideDown);
                 return horizontal ? QRect(cr.x() + sliderPos, cr.y(), len, thickness)
                                   : QRect(cr.x(), cr.y() + sliderPos, thickness, len);
                 break; }
