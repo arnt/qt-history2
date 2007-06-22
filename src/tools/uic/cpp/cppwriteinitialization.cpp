@@ -861,13 +861,14 @@ void WriteInitialization::writeProperties(const QString &varName,
 
     QString indent;
     if (!m_widgetChain.top()) {
-        indent = "    ";
+        indent = QLatin1String("    ");
         m_output << m_option.indent << "if (" << varName << "->objectName().isEmpty())\n";
     }
     m_output << m_option.indent << indent << varName << "->setObjectName(QString::fromUtf8(" << fixString(varName, m_option.indent) << "));\n";
 
     int leftMargin, topMargin, rightMargin, bottomMargin;
     leftMargin = topMargin = rightMargin = bottomMargin = -1;
+    bool frameShadowEncountered = false;
 
     for (int i=0; i<lst.size(); ++i) {
         const DomProperty *p = lst.at(i);
@@ -921,7 +922,9 @@ void WriteInitialization::writeProperties(const QString &varName,
                 shape = QLatin1String("QFrame::VLine");
 
             m_output << m_option.indent << varName << "->setFrameShape(" << shape << ");\n";
-            m_output << m_option.indent << varName << "->setFrameShadow(QFrame::Sunken);\n";
+            // QFrame Default is 'Plain'. Make the line 'Sunken' unless otherwise specified
+            if (!frameShadowEncountered)
+                m_output << m_option.indent << varName << "->setFrameShadow(QFrame::Sunken);\n";
             continue;
         } else if ((flags & WritePropertyIgnoreMargin)  && propertyName == QLatin1String("margin")) {
             continue;
@@ -939,7 +942,8 @@ void WriteInitialization::writeProperties(const QString &varName,
         } else if (propertyName == QLatin1String("bottomMargin") && p->kind() == DomProperty::Number) {
             bottomMargin = p->elementNumber();
             continue;
-        }
+        } else if (propertyName == QLatin1String("frameShadow"))
+            frameShadowEncountered = true;
 
         bool stdset = m_stdsetdef;
         if (p->hasAttributeStdset())
