@@ -26,26 +26,31 @@ public:
     TextButton::BUTTONTYPE type;
     bool highlighted;
     bool pressed;
-    bool halfling;
+    QSize logicalSize;
 
-    ButtonBackground(TextButton::BUTTONTYPE type, bool highlighted, bool pressed,
-        QGraphicsScene *scene, QGraphicsItem *parent, bool halfling) : DemoItem(scene, parent)
+    ButtonBackground(TextButton::BUTTONTYPE type, bool highlighted, bool pressed, QSize logicalSize,
+        QGraphicsScene *scene, QGraphicsItem *parent) : DemoItem(scene, parent)
     {
         this->type = type;
         this->highlighted = highlighted;
         this->pressed = pressed;
-        this->halfling = halfling;
-        useSharedImage(QString(__FILE__) + static_cast<int>(type) + highlighted + pressed + halfling);
+        this->logicalSize = logicalSize;
+        useSharedImage(QString(__FILE__) + static_cast<int>(type) + highlighted + pressed);
     }
 
 protected:
     QImage *createImage(const QMatrix &matrix) const
     {
-        QRect scaledRect;
-        if (this->halfling)
-            scaledRect = matrix.mapRect(QRect(0, 0, BUTTON_WIDTH / 2, BUTTON_HEIGHT));
+        if (type == TextButton::SIDEBAR || type == TextButton::PANEL)
+            return createRoundButtonBackground(matrix);
         else
-            scaledRect = matrix.mapRect(QRect(0, 0, BUTTON_WIDTH, BUTTON_HEIGHT));
+            return createArrowBackground(matrix);
+    }
+    
+    QImage *createRoundButtonBackground(const QMatrix &matrix) const
+    {
+        QRect scaledRect;
+        scaledRect = matrix.mapRect(QRect(0, 0, this->logicalSize.width(), this->logicalSize.height()));
         
         QImage *image = new QImage(scaledRect.width(), scaledRect.height(), QImage::Format_ARGB32_Premultiplied);
         image->fill(QColor(0, 0, 0, 0).rgba());
@@ -95,13 +100,82 @@ protected:
            painter.setBrush(brush);
         }
 
-        painter.drawRoundRect(0, 0, scaledRect.width(), scaledRect.height(), 10, 90);
+        if (this->type == TextButton::PANEL)
+            painter.drawRect(0, 0, scaledRect.width(), scaledRect.height());
+        else
+            painter.drawRoundRect(0, 0, scaledRect.width(), scaledRect.height(), 10, 90);
         return image;
     }
+    
+    QImage *createArrowBackground(const QMatrix &matrix) const
+    {
+        QRect scaledRect;
+        scaledRect = matrix.mapRect(QRect(0, 0, this->logicalSize.width(), this->logicalSize.height()));
+        
+        QImage *image = new QImage(scaledRect.width(), scaledRect.height(), QImage::Format_ARGB32_Premultiplied);
+        image->fill(QColor(0, 0, 0, 0).rgba());
+        QPainter painter(image);
+        painter.setRenderHint(QPainter::SmoothPixmapTransform);
+        painter.setRenderHint(QPainter::Antialiasing);
+        painter.setPen(Qt::NoPen);
+        
+        if (Colors::useEightBitPalette){
+            painter.setPen(QColor(120, 120, 120));
+            if (this->pressed)
+                painter.setBrush(QColor(60, 60, 60));
+            else if (this->highlighted)
+                painter.setBrush(QColor(100, 100, 100));
+            else
+                painter.setBrush(QColor(80, 80, 80));
+        }
+        else {
+            QLinearGradient outlinebrush(0, 0, 0, scaledRect.height());
+            QLinearGradient brush(0, 0, 0, scaledRect.height());
+            
+            brush.setSpread(QLinearGradient::PadSpread);
+            QColor highlight(255, 255, 255, 70);
+            QColor shadow(0, 0, 0, 70);
+            QColor sunken(220, 220, 220, 30);
+            QColor normal1 = QColor(200, 170, 160, 50);
+            QColor normal2 = QColor(50, 10, 0, 50);
+ 
+           if (pressed) {
+               outlinebrush.setColorAt(0.0f, shadow);
+               outlinebrush.setColorAt(1.0f, highlight);
+               brush.setColorAt(0.0f, sunken);
+               painter.setPen(Qt::NoPen);                    
+           } else {
+               outlinebrush.setColorAt(1.0f, shadow);
+               outlinebrush.setColorAt(0.0f, highlight);
+               brush.setColorAt(0.0f, normal1);                    
+               if (!this->highlighted)
+                   brush.setColorAt(1.0f, normal2);
+               painter.setPen(QPen(outlinebrush, 1));
+           }
+           painter.setBrush(brush);
+        }
+
+        painter.drawRect(0, 0, scaledRect.width(), scaledRect.height());
+        float xOff = scaledRect.width() / 2;
+        float yOff = scaledRect.height() / 2;
+        float sizex = 3.0f;
+        float sizey = 1.5f;
+        if (this->type == TextButton::BACK)
+            sizey *= -1;
+        QPainterPath path;
+        path.moveTo(xOff, yOff + (5 * sizey));
+        path.lineTo(xOff - (4 * sizex), yOff - (3 * sizey));
+        path.lineTo(xOff + (4 * sizex), yOff - (3 * sizey));
+        path.lineTo(xOff, yOff + (5 * sizey));
+        painter.drawPath(path);
+        
+        return image;
+    }    
+
 };
 
 TextButton::TextButton(const QString &text, ALIGNMENT align, int userCode,
-    QGraphicsScene *scene, QGraphicsItem *parent, BUTTONTYPE type, bool halfling)
+    QGraphicsScene *scene, QGraphicsItem *parent, BUTTONTYPE type)
     : DemoItem(scene, parent)
 {
     this->menuString = text;
@@ -109,13 +183,22 @@ TextButton::TextButton(const QString &text, ALIGNMENT align, int userCode,
     this->alignment = align;
     this->buttonType = type;
     this->userCode = userCode;
-    this->halfling = halfling;
+    this->bgOn = 0;
+    this->bgOff = 0;
+    this->bgHighlight = 0;
     
     this->checkable = true;
     this->state = OFF;
 
     this->setAcceptsHoverEvents(true);
     this->setCursor(Qt::PointingHandCursor);
+
+    const int w = 180;
+    const int h = 19;
+    if (type == SIDEBAR || type == PANEL)
+        this->logicalSize = QSize(w, h);
+    else
+        this->logicalSize = QSize((w / 2) - 5, h * 1.5f);
 }
 
 void TextButton::setMenuString(const QString &menu)
@@ -143,14 +226,14 @@ TextButton::~TextButton()
 
 QRectF TextButton::boundingRect() const
 {
-    if (this->halfling)
-        return QRectF(0, 0, BUTTON_WIDTH / 2, BUTTON_HEIGHT);
-    else
-        return QRectF(0, 0, BUTTON_WIDTH, BUTTON_HEIGHT);
+    return QRectF(0, 0, this->logicalSize.width(), this->logicalSize.height());
 };
 
 void TextButton::setupHoverText()
 {
+    if (this->buttonLabel.isEmpty())
+        return;
+        
     DemoTextItem *textItem = new DemoTextItem(this->buttonLabel, Colors::buttonFont(), Colors::buttonText, -1, this->scene(), this);
     textItem->setZValue(zValue() + 2);
     textItem->setPos(16, 0);
@@ -195,9 +278,9 @@ void TextButton::setState(STATE state)
 
 void TextButton::setupButtonBg()
 {
-    this->bgOn = new ButtonBackground(this->buttonType, true, true, this->scene(), this, this->halfling);
-    this->bgOff = new ButtonBackground(this->buttonType, false, false, this->scene(), this, this->halfling);
-    this->bgHighlight = new ButtonBackground(this->buttonType, true, false, this->scene(), this, this->halfling);
+    this->bgOn = new ButtonBackground(this->buttonType, true, true, this->logicalSize, this->scene(), this);
+    this->bgOff = new ButtonBackground(this->buttonType, false, false, this->logicalSize, this->scene(), this);
+    this->bgHighlight = new ButtonBackground(this->buttonType, true, false, this->logicalSize, this->scene(), this);
     this->setState(OFF);
 }
 

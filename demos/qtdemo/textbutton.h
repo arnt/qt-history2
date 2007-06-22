@@ -20,16 +20,17 @@
 #include "scanitem.h"
 
 class DemoItemAnimation;
+class ButtonBackground;
 
 class TextButton : public DemoItem
 {
 public:
     enum ALIGNMENT {LEFT, RIGHT};
-    enum BUTTONTYPE {SIDEBAR, PANEL};
+    enum BUTTONTYPE {SIDEBAR, PANEL, BACK, MORE};
     enum STATE {ON, OFF, HIGHLIGHT};
     
     TextButton(const QString &text, ALIGNMENT align = LEFT, int userCode = 0,
-        QGraphicsScene *scene = 0, QGraphicsItem *parent = 0, BUTTONTYPE color = SIDEBAR, bool halfling = false);
+        QGraphicsScene *scene = 0, QGraphicsItem *parent = 0, BUTTONTYPE color = SIDEBAR);
     virtual ~TextButton();
     
     // overidden methods:
@@ -51,19 +52,19 @@ private:
     void setupHoverText();
     
     DemoItemAnimation *scanAnim;
-    DemoItem *bgOn;
-    DemoItem *bgOff;
-    DemoItem *bgHighlight;
+    ButtonBackground *bgOn;
+    ButtonBackground *bgOff;
+    ButtonBackground *bgHighlight;
     
     BUTTONTYPE buttonType;
     ALIGNMENT alignment;
     QString buttonLabel;
     QString menuString;
     int userCode;
+    QSize logicalSize;
     
     bool checkable;
     bool state;
-    bool halfling;
 };
 
 #endif // TEXT_BUTTON_H

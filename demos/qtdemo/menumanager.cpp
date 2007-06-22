@@ -256,13 +256,13 @@ void MenuManager::init(MainWindow *window)
         level2MenuNode = level2MenuNode.nextSibling();
     }
     
-    TextButton *more = new TextButton("More", TextButton::LEFT, MORE, this->window->scene, 0, TextButton::PANEL);
+    TextButton *more = new TextButton("", TextButton::LEFT, MenuManager::BACK, this->window->scene, 0, TextButton::BACK);
     more->prepare();
-    more->setPos(15, 460);
+    more->setPos(15, 450);
 
-    TextButton *back = new TextButton("Back", TextButton::LEFT, BACK, this->window->scene, 0, TextButton::PANEL);
+    TextButton *back = new TextButton("", TextButton::LEFT, MenuManager::MORE, this->window->scene, 0, TextButton::MORE);
     back->prepare();
-    back->setPos(15, 439);
+    back->setPos(25 + more->sceneBoundingRect().width(), 450);
 }
 
 void MenuManager::readInfoAboutExample(const QDomElement &example)
