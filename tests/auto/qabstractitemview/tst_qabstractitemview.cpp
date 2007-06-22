@@ -151,8 +151,10 @@ private slots:
 	//   Mac: use of GetCurrentEventButtonState() in QDragManager::drag()
 	//   Win: unknown reason
 #if !defined(Q_OS_MAC) && !defined(Q_OS_WIN)
+#if 0
     void dragAndDrop();
     void dragAndDropOnChild();
+#endif
 #endif
 };
 
@@ -680,6 +682,8 @@ void tst_QAbstractItemView::persistentEditorFocus()
 extern void qt_x11_wait_for_window_manager(QWidget *w);
 #endif
 
+#if 0
+
 static void sendMouseMove(QWidget *widget, QPoint pos = QPoint())
 {
     if (pos.isNull())
@@ -904,6 +908,7 @@ void tst_QAbstractItemView::dragAndDropOnChild()
     QVERIFY(successes == 0);
 }
 
+#endif // 0
 #endif // !Q_OS_MAC && !Q_OS_WIN
 
 class TestModel : public QStandardItemModel
