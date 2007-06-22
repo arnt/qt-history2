@@ -32,6 +32,21 @@
 #include "ui_qfiledialog.h"
 
 /*!
+    Exported hooks that can be used to customize the static functions.
+ */
+typedef QString (*_qt_filedialog_existing_directory_hook)(QWidget *parent, const QString &caption, const QString &dir, QFileDialog::Options options);
+Q_GUI_EXPORT _qt_filedialog_existing_directory_hook qt_filedialog_existing_directory_hook = 0;
+
+typedef QString (*_qt_filedialog_open_filename_hook)(QWidget * parent, const QString &caption, const QString &dir, const QString &filter, QString *selectedFilter, QFileDialog::Options options);
+Q_GUI_EXPORT _qt_filedialog_open_filename_hook qt_filedialog_open_filename_hook = 0;
+
+typedef QStringList (*_qt_filedialog_open_filenames_hook)(QWidget * parent, const QString &caption, const QString &dir, const QString &filter, QString *selectedFilter, QFileDialog::Options options);
+Q_GUI_EXPORT _qt_filedialog_open_filenames_hook qt_filedialog_open_filenames_hook = 0;
+
+typedef QString (*_qt_filedialog_save_filename_hook)(QWidget * parent, const QString &caption, const QString &dir, const QString &filter, QString *selectedFilter, QFileDialog::Options options);
+Q_GUI_EXPORT _qt_filedialog_save_filename_hook qt_filedialog_save_filename_hook = 0;
+
+/*!
   \class QFileDialog
   \brief The QFileDialog class provides a dialog that allow users to select files or directories.
   \ingroup dialogs
@@ -1159,6 +1174,8 @@ QString QFileDialog::getOpenFileName(QWidget *parent,
                                QString *selectedFilter,
                                Options options)
 {
+    if (qt_filedialog_open_filename_hook)
+        return qt_filedialog_open_filename_hook(parent, caption, dir, filter, selectedFilter, options);
     QFileDialogArgs args;
     args.parent = parent;
     args.caption = caption;
@@ -1253,6 +1270,8 @@ QStringList QFileDialog::getOpenFileNames(QWidget *parent,
                                     QString *selectedFilter,
                                     Options options)
 {
+    if (qt_filedialog_open_filenames_hook)
+        return qt_filedialog_open_filenames_hook(parent, caption, dir, filter, selectedFilter, options);
     QFileDialogArgs args;
     args.parent = parent;
     args.caption = caption;
@@ -1335,6 +1354,8 @@ QString QFileDialog::getSaveFileName(QWidget *parent,
                                QString *selectedFilter,
                                Options options)
 {
+    if (qt_filedialog_save_filename_hook)
+        return qt_filedialog_save_filename_hook(parent, caption, dir, filter, selectedFilter, options);
     QFileDialogArgs args;
     args.parent = parent;
     args.caption = caption;
@@ -1412,6 +1433,8 @@ QString QFileDialog::getExistingDirectory(QWidget *parent,
                                     const QString &dir,
                                     Options options)
 {
+    if (qt_filedialog_existing_directory_hook)
+        return qt_filedialog_existing_directory_hook(parent, caption, dir, options);
     QFileDialogArgs args;
     args.parent = parent;
     args.caption = caption;
