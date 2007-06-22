@@ -4151,7 +4151,8 @@ QAxObject *QAxBase::querySubObject(const char *name, QList<QVariant> &vars)
 //                qVariantGet(qvar, object, rettype);
                 res.pdispVal->AddRef();
             }
-            ((QAxBase*)object)->d->tryCache = true;
+//            if (object)
+                ((QAxBase*)object)->d->tryCache = true;
         }
         break;
     case VT_UNKNOWN:
@@ -4164,7 +4165,8 @@ QAxObject *QAxBase::querySubObject(const char *name, QList<QVariant> &vars)
 //                qVariantGet(qvar, object, rettype);
                 res.punkVal->AddRef();
             }
-            ((QAxBase*)object)->d->tryCache = true;
+//            if (object)
+                ((QAxBase*)object)->d->tryCache = true;
         }
         break;
     case VT_EMPTY:
