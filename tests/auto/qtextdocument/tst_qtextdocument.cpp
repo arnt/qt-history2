@@ -109,6 +109,8 @@ private slots:
 
     void setTextPreservesUndoRedoEnabled();
 
+    void firstLast();
+
 private:
     QTextDocument *doc;
     QTextCursor cursor;
@@ -2045,6 +2047,58 @@ void tst_QTextDocument::setTextPreservesUndoRedoEnabled()
 
     doc->setHtml("<p>hello");
     QVERIFY(!doc->isUndoRedoEnabled());
+}
+
+void tst_QTextDocument::firstLast()
+{
+    QCOMPARE(doc->blockCount(), 1);
+    QVERIFY(doc->firstBlock() == doc->lastBlock());
+
+    doc->setPlainText("Hello\nTest\nWorld");
+
+    QCOMPARE(doc->blockCount(), 3);
+    QVERIFY(doc->firstBlock() != doc->lastBlock());
+
+    QCOMPARE(doc->firstBlock().text(), QString("Hello"));
+    QCOMPARE(doc->lastBlock().text(), QString("World"));
+
+    // manual forward loop
+    QTextBlock block = doc->firstBlock();
+
+    QVERIFY(block.isValid());
+    QCOMPARE(block.text(), QString("Hello"));
+
+    block = block.next();
+
+    QVERIFY(block.isValid());
+    QCOMPARE(block.text(), QString("Test"));
+
+    block = block.next();
+
+    QVERIFY(block.isValid());
+    QCOMPARE(block.text(), QString("World"));
+
+    block = block.next();
+    QVERIFY(!block.isValid());
+
+    // manual backward loop
+    block = doc->lastBlock();
+
+    QVERIFY(block.isValid());
+    QCOMPARE(block.text(), QString("World"));
+
+    block = block.previous();
+
+    QVERIFY(block.isValid());
+    QCOMPARE(block.text(), QString("Test"));
+
+    block = block.previous();
+
+    QVERIFY(block.isValid());
+    QCOMPARE(block.text(), QString("Hello"));
+
+    block = block.previous();
+    QVERIFY(!block.isValid());
 }
 
 QTEST_MAIN(tst_QTextDocument)

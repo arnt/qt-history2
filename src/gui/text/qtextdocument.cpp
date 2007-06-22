@@ -1193,6 +1193,8 @@ QTextBlock QTextDocument::findBlockByNumber(int blockNumber) const
 
 /*!
     Returns the document's first text block.
+
+    \sa firstBlock()
 */
 QTextBlock QTextDocument::begin() const
 {
@@ -1209,12 +1211,34 @@ QTextBlock QTextDocument::begin() const
     \printuntil cout
 
     The block returned is invalid and represents the block after the
-    last block in the document.
+    last block in the document. You can use lastBlock() to retrieve the
+    last valid block of the document.
 
+    \sa lastBlock()
 */
 QTextBlock QTextDocument::end() const
 {
     return QTextBlock(docHandle(), 0);
+}
+
+/*!
+    \since 4.4
+    Returns the document's first text block.
+*/
+QTextBlock QTextDocument::firstBlock() const
+{
+    Q_D(const QTextDocument);
+    return QTextBlock(docHandle(), d->blockMap().begin().n);
+}
+
+/*!
+    \since 4.4
+    Returns the document's last (valid) text block.
+*/
+QTextBlock QTextDocument::lastBlock() const
+{
+    Q_D(const QTextDocument);
+    return QTextBlock(docHandle(), d->blockMap().last().n);
 }
 
 /*!

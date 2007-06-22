@@ -306,6 +306,8 @@ public:
     inline ConstIterator begin() const { return ConstIterator(this, data.minimum(data.root())); }
     inline ConstIterator end() const { return ConstIterator(this, 0); }
 
+    inline ConstIterator last() const { return ConstIterator(this, data.maximum(data.root())); }
+
     inline bool isEmpty() const { return data.head->node_count == 0; }
     inline int numNodes() const { return data.head->node_count; }
     int length() const { return data.length(); }

@@ -150,6 +150,9 @@ public:
     QTextBlock begin() const;
     QTextBlock end() const;
 
+    QTextBlock firstBlock() const;
+    QTextBlock lastBlock() const;
+
     void setPageSize(const QSizeF &size);
     QSizeF pageSize() const;
 
