@@ -2258,7 +2258,9 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
     if(ofile.lastIndexOf(Option::dir_sep) != -1)
         ofile = ofile.right(ofile.length() - ofile.lastIndexOf(Option::dir_sep) -1);
     t << "MAKEFILE      = " << ofile << endl;
-    t << "QMAKE         = " << var("QMAKE_QMAKE") << endl;
+    /* Calling Option::fixPathToTargetOS() is necessary for MinGW/MSYS, which requires
+     * back-slashes to be turned into slashes. */
+    t << "QMAKE         = " << Option::fixPathToTargetOS(var("QMAKE_QMAKE")) << endl;
     t << "DEL_FILE      = " << var("QMAKE_DEL_FILE") << endl;
     t << "CHK_DIR_EXISTS= " << var("QMAKE_CHK_DIR_EXISTS") << endl;
     t << "MKDIR         = " << var("QMAKE_MKDIR") << endl;
