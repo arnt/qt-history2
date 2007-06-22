@@ -198,6 +198,9 @@ private slots:
     void charWithAltOrCtrlModifier();
 
     void inlineCompletion();
+
+    void noTextEditedOnClear();
+
 protected slots:
 #ifdef QT3_SUPPORT
     void lostFocus();
@@ -3133,6 +3136,14 @@ void tst_QLineEdit::inlineCompletion()
 
     delete model;
     delete completer;
+}
+
+void tst_QLineEdit::noTextEditedOnClear()
+{
+    testWidget->setText("Test");
+    QSignalSpy textEditedSpy(testWidget, SIGNAL(textEdited(const QString &)));
+    testWidget->clear();
+    QCOMPARE(textEditedSpy.count(), 0);
 }
 
 QTEST_MAIN(tst_QLineEdit)

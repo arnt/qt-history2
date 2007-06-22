@@ -1308,7 +1308,7 @@ void QLineEdit::clear()
     d->selend = d->text.length();
     d->removeSelectedText();
     d->separate();
-    d->finishChange(priorState);
+    d->finishChange(priorState, /*update*/false, /*edited*/false);
 }
 
 /*!
