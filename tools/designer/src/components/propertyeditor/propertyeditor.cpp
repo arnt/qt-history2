@@ -218,11 +218,16 @@ void PropertyEditor::createPropertySheet(PropertyCollection *root, QObject *obje
         }
     }
     m_prop_sheet = qobject_cast<QDesignerPropertySheetExtension*>(m->extension(object, Q_TYPEID(QDesignerPropertySheetExtension)));
-    for (int i=0; i<m_prop_sheet->count(); ++i) {
+    const int count = m_prop_sheet->count();
+    for (int i=0; i < count; ++i) {
         if (!m_prop_sheet->isVisible(i))
             continue;
 
         const QString pname = m_prop_sheet->propertyName(i);
+        // Is this property redefined/hidden in a derived class?
+        // Make it appear under that category only
+        if (m_prop_sheet->indexOf(pname) != i)
+            continue;
         const QVariant value = m_prop_sheet->property(i);
 
         IProperty *p = 0;
@@ -363,9 +368,11 @@ void PropertyEditor::updatePropertySheet()
     if (!m_prop_sheet)
         return;
 
-    for (int i = 0; i < m_prop_sheet->count(); ++i) {
-        if (m_indexToProperty.contains(i)) {
-            IProperty *p = m_indexToProperty[i];
+    const int count = m_prop_sheet->count();
+    for (int i = 0; i < count; ++i) {
+        const IndexToPropertyMap::const_iterator it = m_indexToProperty.constFind(i);
+        if (it !=  m_indexToProperty.constEnd()) {
+            IProperty *p = it.value();
             p->setValue(m_prop_sheet->property(i));
             m_editor->editorModel()->refresh(p);
         }

@@ -69,7 +69,8 @@ private:
     IPropertyGroup *m_properties;
     QDesignerPropertySheetExtension *m_prop_sheet;
     QPointer<QObject> m_object;
-    QMap<int, IProperty *> m_indexToProperty;
+    typedef QMap<int, IProperty *> IndexToPropertyMap;
+    IndexToPropertyMap m_indexToProperty;
 };
 
 }  // namespace qdesigner_internal

@@ -349,6 +349,8 @@ void QDesignerPropertySheet::createFakeProperty(const QString &propertyName, con
     // fake properties
     const int index = m_meta->indexOfProperty(propertyName.toUtf8());
     if (index != -1) {
+        if (!m_meta->property(index).isDesignable())
+            return;
         setVisible(index, false);
         const QVariant v = value.isValid() ? value : metaProperty(index);
         m_fakeProperties.insert(index, v);
