@@ -19,7 +19,7 @@ var ECLIPSE_MINGW_LOCATION
 
 !define MODULE_ECLIPSE_QTJAMBIVERSION "1.0.0"
 
-!define MODULE_ECLIPSE_QT_PREFIX "qt"
+!define MODULE_ECLIPSE_QT_PREFIX "qtcpp"
 
 !define MODULE_ECLIPSE_QT_ID "com.trolltech.${MODULE_ECLIPSE_QT_PREFIX}_${MODULE_ECLIPSE_QTJAMBIVERSION}"
 
@@ -122,7 +122,7 @@ Section "${MODULE_ECLIPSE_QTDESIGNER_LABEL}" ECLIPSE_SEC02
   File "${MODULE_ECLIPSE_ROOT}\bin\QtDesignerComponents4.dll"
   File "${MODULE_ECLIPSE_ROOT}\bin\${MODULE_ECLIPSE_QT_PREFIX}designer.dll"
   
-  push "$ECLIPSE_INSTDIR\qtdesigner.dll"
+  push "$ECLIPSE_INSTDIR\${MODULE_ECLIPSE_QT_PREFIX}designer.dll"
   call RegEclipseSvr
 SectionEnd
 
@@ -305,7 +305,7 @@ Section un."Eclipse Integration"
 
   ReadRegDWORD $0 SHCTX "$PRODUCT_UNIQUE_KEY" ${MODULE_ECLIPSE_QTDESIGNER_INSTALLEDKEY}
   intcmp $0 1 0 DoneUnInstallQtDesigner
-    push "$ECLIPSE_INSTDIR\qtdesigner.dll"
+    push "$ECLIPSE_INSTDIR\${MODULE_ECLIPSE_QT_PREFIX}designer.dll"
     call un.RegSvr
 
     Delete "$ECLIPSE_LOCATION\plugins\${MODULE_ECLIPSE_QTDESIGNER_ID}.jar"
