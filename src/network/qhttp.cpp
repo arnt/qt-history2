@@ -1528,7 +1528,7 @@ QHttp::QHttp(const QString &hostName, quint16 port, QObject *parent)
     connection mode \a mode.
 
     If port is 0, it will use the default port for the \a mode used
-    (80 for Http and 443 fopr Https).
+    (80 for Http and 443 for Https).
 
     The \a parent parameter is passed on to the QObject constructor.
 
