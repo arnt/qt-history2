@@ -49,9 +49,11 @@ QPixmap QPixmap::grabWindow(WId window, int x, int y, int w, int h)
     QPixmap pixmap;
 
     QScreen *screen = qt_screen;
-    QDesktopWidget desktop;
-    if (desktop.numScreens() > 1) {
-        const int screenNo = desktop.screenNumber(widget);
+    QDesktopWidget *desktop = QApplication::desktop();
+    if (!desktop)
+        return QPixmap();
+    if (desktop->numScreens() > 1) {
+        const int screenNo = desktop->screenNumber(widget);
         if (screenNo != -1)
             screen = qt_screen->subScreens().at(screenNo);
         grabRect = grabRect.translated(-screen->region().boundingRect().topLeft());
