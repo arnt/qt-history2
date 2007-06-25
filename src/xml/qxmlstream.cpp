@@ -275,7 +275,7 @@ QXmlStreamReader::~QXmlStreamReader()
 }
 
 /*! \fn bool QXmlStreamReader::hasError() const
-    Returns true an error has occurred, otherwise false.
+    Returns \c true if an error has occurred, otherwise \c false.
 
     \sa errorString(), error()
  */
