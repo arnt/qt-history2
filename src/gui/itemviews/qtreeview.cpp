@@ -1431,11 +1431,18 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
                                   ? QPalette::Normal : QPalette::Disabled;
         o.backgroundColor = option.palette.color(cg, d->selectionModel->isSelected(index)
                                                  ? QPalette::Highlight : QPalette::Background);
-        int x = header->sectionPosition(0); // not always 0
+        int x = 0;
         if (!option.showDecorationSelected)
-            x += d->indentationForItem(d->current);
+            x = header->sectionPosition(0) + d->indentationForItem(d->current);
         o.rect.setRect(x - header->offset(), y, header->length() - x, height);
         style()->drawPrimitive(QStyle::PE_FrameFocusRect, &o, painter);
+        // if we show focus on all columns and the first section is moved,
+        // we have to split the focus rect into two rects
+        if (allColumnsShowFocus && !option.showDecorationSelected
+            && header->sectionsMoved() && (header->visualIndex(0) != 0)) {
+            o.rect.setRect(0, y, header->sectionPosition(0), height);
+            style()->drawPrimitive(QStyle::PE_FrameFocusRect, &o, painter);
+        }
     }
 }
 
