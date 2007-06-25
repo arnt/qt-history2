@@ -142,6 +142,7 @@ public:
     void rearrange(Rearranger *rearranger);
     void arrangeMinimizedSubWindows();
     void activateWindow(QMdiSubWindow *child);
+    void activateCurrentWindow();
     void emitWindowActivated(QMdiSubWindow *child);
     void resetActiveWindow(QMdiSubWindow *child = 0);
     void updateActiveWindow(int removedIndex, bool activeRemoved);
@@ -149,6 +150,7 @@ public:
     void internalRaise(QMdiSubWindow *child) const;
     bool scrollBarsEnabled() const;
     bool lastWindowAboutToBeDestroyed() const;
+    void setChildActivationEnabled(bool enable = true, bool onlyNextActivationEvent = false) const;
     QRect resizeToMinimumTileSize(const QSize &minSubWindowSize, int subWindowCount);
     void scrollBarPolicyChanged(Qt::Orientation, Qt::ScrollBarPolicy); // reimp
     QMdiSubWindow *nextVisibleSubWindow(int increaseFactor, int removed = -1) const;

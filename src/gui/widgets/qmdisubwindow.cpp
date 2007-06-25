@@ -702,6 +702,8 @@ QMdiSubWindowPrivate::QMdiSubWindowPrivate()
 #endif
       isShadeMode(false),
       ignoreWindowTitleChange(false),
+      ignoreNextActivationEvent(false),
+      activationEnabled(true),
       isShadeRequestFromMinimizeMode(false),
       isMaximizeMode(false),
       isWidgetHiddenByUs(false),
@@ -1228,7 +1230,7 @@ void QMdiSubWindowPrivate::setMaximizeMode()
 void QMdiSubWindowPrivate::setActive(bool activate)
 {
     Q_Q(QMdiSubWindow);
-    if (!q->parent())
+    if (!q->parent() || !activationEnabled)
         return;
 
     if (activate && !isActive && q->isEnabled()) {
@@ -2591,10 +2593,18 @@ bool QMdiSubWindow::event(QEvent *event)
         break;
     }
     case QEvent::WindowActivate:
+        if (d->ignoreNextActivationEvent) {
+            d->ignoreNextActivationEvent = false;
+            break;
+        }
         d->isExplicitlyDeactivated = false;
         d->setActive(true);
         break;
     case QEvent::WindowDeactivate:
+        if (d->ignoreNextActivationEvent) {
+            d->ignoreNextActivationEvent = false;
+            break;
+        }
         d->isExplicitlyDeactivated = true;
         d->setActive(false);
         break;

@@ -164,6 +164,8 @@ public:
 #endif
     bool isShadeMode;
     bool ignoreWindowTitleChange;
+    bool ignoreNextActivationEvent;
+    bool activationEnabled;
     bool isShadeRequestFromMinimizeMode;
     bool isMaximizeMode;
     bool isWidgetHiddenByUs;

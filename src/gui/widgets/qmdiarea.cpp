@@ -715,6 +715,16 @@ void QMdiAreaPrivate::activateWindow(QMdiSubWindow *child)
 /*!
     \internal
 */
+void QMdiAreaPrivate::activateCurrentWindow()
+{
+    QMdiSubWindow *current = q_func()->currentSubWindow();
+    if (current && !isExplicitlyDeactivated(current))
+        current->d_func()->setActive(true);
+}
+
+/*!
+    \internal
+*/
 void QMdiAreaPrivate::emitWindowActivated(QMdiSubWindow *activeWindow)
 {
     Q_Q(QMdiArea);
@@ -952,6 +962,21 @@ bool QMdiAreaPrivate::lastWindowAboutToBeDestroyed() const
         return false;
 
     return last->d_func()->data.is_closing;
+}
+
+/*!
+    \internal
+*/
+void QMdiAreaPrivate::setChildActivationEnabled(bool enable, bool onlyNextActivationEvent) const
+{
+    foreach (QMdiSubWindow *subWindow, childWindows) {
+        if (!subWindow || !subWindow->isVisible())
+            continue;
+        if (onlyNextActivationEvent)
+            subWindow->d_func()->ignoreNextActivationEvent = !enable;
+        else
+            subWindow->d_func()->activationEnabled = enable;
+    }
 }
 
 /*!
@@ -1561,6 +1586,9 @@ void QMdiArea::showEvent(QShowEvent *showEvent)
         d->pendingPlacements.clear();
     }
 
+    d->setChildActivationEnabled(true);
+    d->activateCurrentWindow();
+
     QAbstractScrollArea::showEvent(showEvent);
 }
 
@@ -1660,14 +1688,15 @@ bool QMdiArea::event(QEvent *event)
         d->isActivated = true;
         if (d->childWindows.isEmpty())
             break;
-        QMdiSubWindow *current = currentSubWindow();
-        if (!d->active && current && !d->isExplicitlyDeactivated(current))
-            d->activateWindow(current);
-        return true;
+        if (!d->active)
+            d->activateCurrentWindow();
+        d->setChildActivationEnabled(false, true);
+        break;
     }
     case QEvent::WindowDeactivate:
         d->isActivated = false;
-        return true;
+        d->setChildActivationEnabled(false, true);
+        break;
     case QEvent::StyleChange:
         // Re-tile the views if we're in tiled mode. Re-tile means we will change
         // the geometry of the children, which in turn means 'isSubWindowsTiled'
@@ -1683,6 +1712,25 @@ bool QMdiArea::event(QEvent *event)
                 QApplication::sendEvent(window, event);
         }
         break;
+    case QEvent::WindowStateChange: {
+        QWindowStateChangeEvent *changeEvent = static_cast<QWindowStateChangeEvent*>(event);
+        Qt::WindowStates oldState = changeEvent->oldState();
+        Qt::WindowStates newState = windowState();
+        // Minimized.
+        if (!(oldState & Qt::WindowMinimized) && (newState & Qt::WindowMinimized)) {
+            d->setActive(d->active, false);
+            d->setChildActivationEnabled(false);
+        // Restored.
+        } else if ((oldState & Qt::WindowMinimized) && !(newState & Qt::WindowMinimized)) {
+            d->setChildActivationEnabled(true);
+            d->activateCurrentWindow();
+        }
+        break;
+    }
+    case QEvent::Hide:
+        d->setActive(d->active, false);
+        d->setChildActivationEnabled(false);
+        break;
     default:
         break;
     }
@@ -1697,13 +1745,10 @@ bool QMdiArea::eventFilter(QObject *object, QEvent *event)
     Q_D(QMdiArea);
     if (!qobject_cast<QMdiSubWindow *>(object)) {
         // QApplication events:
-        if (event->type() == QEvent::ApplicationActivate && !d->active) {
-            QMdiSubWindow *current = currentSubWindow();
-            if (current && !d->isExplicitlyDeactivated(current))
-                d->setActive(current);
-        } else if (event->type() == QEvent::ApplicationDeactivate && d->active) {
+        if (event->type() == QEvent::ApplicationActivate && !d->active)
+            d->activateCurrentWindow();
+        else if (event->type() == QEvent::ApplicationDeactivate && d->active)
             d->setActive(d->active, false);
-        }
         return QAbstractScrollArea::eventFilter(object, event);
     }
 
