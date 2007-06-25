@@ -849,6 +849,10 @@ static int getLprPrinters(QList<QPrinterDescription>& printers)
         dollarPrinter = QString::fromLocal8Bit(qgetenv("PRINTER"));
         if (dollarPrinter.isEmpty())
             dollarPrinter = QString::fromLocal8Bit(qgetenv("LPDEST"));
+        if (dollarPrinter.isEmpty())
+            dollarPrinter = QString::fromLocal8Bit(qgetenv("NPRINTER"));
+        if (dollarPrinter.isEmpty())
+            dollarPrinter = QString::fromLocal8Bit(qgetenv("NGPRINTER"));
         if (!dollarPrinter.isEmpty())
             perhapsAddPrinter(&printers, dollarPrinter,
                               QPrintDialog::tr("unknown"),
@@ -911,7 +915,7 @@ void QPrintDialogPrivate::init()
 
 #if !defined(QT_NO_CUPS) && !defined(QT_NO_LIBRARY)
     cups = new QCUPSSupport;
-    if (QCUPSSupport::isAvailable() && cups->availablePrintersCount() > 0) {
+    if (QCUPSSupport::isAvailable()) {
         cupsPPD = cups->currentPPD();
         cupsPrinterCount = cups->availablePrintersCount();
         cupsPrinters = cups->availablePrinters();
@@ -941,7 +945,7 @@ void QPrintDialogPrivate::init()
 #if !defined(QT_NO_CUPS) && !defined(QT_NO_LIBRARY)
     }
 #endif
-    if (!ui.cbPrinters->count()) 
+    if (!ui.cbPrinters->count())
         ui.buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
 
     ui.cbPaperLayout->addItem(QPrintDialog::tr("Portrait"), QPrinter::Portrait);
@@ -1044,11 +1048,11 @@ void QPrintDialogPrivate::_q_printToFileChanged(int state)
         ui.leFile->setCursorPosition(ui.leFile->text().length());
         ui.leFile->selectAll();
         ui.buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
-        
+
     } else {
         ui.stackedWidget->setCurrentIndex(0);
         ui.gbDestination->setTitle(QPrintDialog::tr("Printer"));
-        if (!ui.cbPrinters->count()) 
+        if (!ui.cbPrinters->count())
             ui.buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
     }
     refreshPageSizes();

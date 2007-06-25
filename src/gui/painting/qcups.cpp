@@ -19,6 +19,7 @@
 #include <qtextcodec.h>
 
 typedef int (*CupsGetDests)(cups_dest_t **dests);
+typedef void (*CupsFreeDests)(int num_dests, cups_dest_t *dests);
 typedef const char* (*CupsGetPPD)(const char *printer);
 typedef int (*CupsMarkOptions)(ppd_file_t *ppd, int num_options, cups_option_t *options);
 typedef ppd_file_t* (*PPDOpenFile)(const char *filename);
@@ -33,7 +34,9 @@ typedef const char* (*CupsLangEncoding)(cups_lang_t *language);
 typedef int (*CupsAddOption)(const char *name, const char *value, int num_options, cups_option_t **options);
 
 static bool cupsLoaded = false;
+static int qt_cups_num_printers = 0;
 static CupsGetDests _cupsGetDests = 0;
+static CupsFreeDests _cupsFreeDests = 0;
 static CupsGetPPD _cupsGetPPD = 0;
 static PPDOpenFile _ppdOpenFile = 0;
 static PPDMarkDefaults _ppdMarkDefaults = 0;
@@ -51,6 +54,7 @@ static void resolveCups()
     QLibrary cupsLib(QLatin1String("cups"), 2);
     if(cupsLib.load()) {
         _cupsGetDests = (CupsGetDests) cupsLib.resolve("cupsGetDests");
+        _cupsFreeDests = (CupsFreeDests) cupsLib.resolve("cupsFreeDests");
         _cupsGetPPD = (CupsGetPPD) cupsLib.resolve("cupsGetPPD");
         _cupsLangGet = (CupsLangGet) cupsLib.resolve("cupsLangGet");
         _cupsLangEncoding = (CupsLangEncoding) cupsLib.resolve("cupsLangEncoding");
@@ -62,6 +66,14 @@ static void resolveCups()
         _cupsFreeOptions = (CupsFreeOptions) cupsLib.resolve("cupsFreeOptions");
         _cupsSetDests = (CupsSetDests) cupsLib.resolve("cupsSetDests");
         _cupsAddOption = (CupsAddOption) cupsLib.resolve("cupsAddOption");
+
+        if (_cupsGetDests && _cupsFreeDests) {
+            cups_dest_t *printers;
+            int num_printers = _cupsGetDests(&printers);
+            if (num_printers)
+                _cupsFreeDests(num_printers, printers);
+            qt_cups_num_printers = num_printers;
+        }
     }
     cupsLoaded = true;
 }
@@ -76,7 +88,7 @@ QCUPSSupport::QCUPSSupport()
     currPrinterIndex(0),
     currPPD(0)
 {
-    if(!cupsLoaded)
+    if (!cupsLoaded)
         resolveCups();
 
     // getting all available printers
@@ -103,6 +115,8 @@ QCUPSSupport::~QCUPSSupport()
 {
      if (currPPD)
         _ppdClose(currPPD);
+     if (prnCount)
+         _cupsFreeDests(prnCount, printers);
 }
 
 int QCUPSSupport::availablePrintersCount() const
@@ -162,7 +176,9 @@ bool QCUPSSupport::isAvailable()
 {
     if(!cupsLoaded)
         resolveCups();
+
     return _cupsGetDests &&
+        _cupsFreeDests &&
         _cupsGetPPD &&
         _ppdOpenFile &&
         _ppdMarkDefaults &&
@@ -173,7 +189,8 @@ bool QCUPSSupport::isAvailable()
         _cupsSetDests &&
         _cupsLangGet &&
         _cupsLangEncoding &&
-        _cupsAddOption;
+        _cupsAddOption &&
+        (qt_cups_num_printers > 0);
 }
 
 const ppd_option_t* QCUPSSupport::ppdOption(const char *key) const
