@@ -52,7 +52,7 @@
     signals and slots. A signal is emitted when a particular event
     occurs. Qt's widgets have many predefined signals, but we can
     always subclass widgets to add our own signals to them. A slot
-    is a function that is called in reponse to a particular signal.
+    is a function that is called in response to a particular signal.
     Qt's widgets have many pre-defined slots, but it is common
     practice to subclass widgets and add your own slots so that you
     can handle the signals that you are interested in.
