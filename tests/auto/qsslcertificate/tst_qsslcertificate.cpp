@@ -120,7 +120,7 @@ void tst_QSslCertificate::cleanup()
 static QByteArray readFile(const QString &absFilePath)
 {
     QFile file(absFilePath);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+    if (!file.open(QIODevice::ReadOnly)) {
         QWARN("failed to open file");
         return QByteArray();
     }
