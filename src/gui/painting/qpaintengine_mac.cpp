@@ -1300,6 +1300,8 @@ void QCoreGraphicsPaintEnginePrivate::drawPath(uchar ops, CGMutablePathRef path)
         if (!(q->state->renderHints() & QPainter::Antialiasing))
             if (current.pen.style() == Qt::SolidLine)
                 CGContextTranslateCTM(hd, double(pixelSize.x()) * 0.25, double(pixelSize.y()) * 0.25);
+            else if (current.pen.style() == Qt::DotLine && QSysInfo::MacintoshVersion == QSysInfo::MV_10_3)
+                ; // Do nothing.
             else
                 CGContextTranslateCTM(hd, 0, double(pixelSize.y()) * 0.1);
 
