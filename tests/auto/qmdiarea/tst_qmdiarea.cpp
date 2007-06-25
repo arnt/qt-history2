@@ -51,6 +51,7 @@ private slots:
     // Tests from QWorkspace
     void subWindowActivated_data();
     void subWindowActivated();
+    void subWindowActivated2();
     void subWindowActivatedWithMinimize();
     void showWindows();
     void changeWindowTitle();
@@ -224,6 +225,77 @@ void tst_QMdiArea::subWindowActivated()
         QVERIFY(workspace->activeSubWindow() == 0);
         QVERIFY( activeWindow == 0 );
     }
+}
+
+
+void tst_QMdiArea::subWindowActivated2()
+{
+    QMdiArea mdiArea;
+    QSignalSpy spy(&mdiArea, SIGNAL(subWindowActivated(QMdiSubWindow *)));
+    for (int i = 0; i < 5; ++i)
+        mdiArea.addSubWindow(new QWidget);
+    QCOMPARE(spy.count(), 0);
+    mdiArea.show();
+#ifdef Q_WS_X11
+    qt_x11_wait_for_window_manager(&mdiArea);
+#endif
+
+    QCOMPARE(spy.count(), 5);
+    QCOMPARE(mdiArea.activeSubWindow(), mdiArea.subWindowList().back());
+    spy.clear();
+
+    // Just to make sure another widget is on top wrt. stacking order.
+    // This will typically become the active window if things are broken.
+    QMdiSubWindow *staysOnTopWindow = mdiArea.subWindowList().at(3);
+    staysOnTopWindow->setWindowFlags(Qt::WindowStaysOnTopHint);
+    mdiArea.setActiveSubWindow(staysOnTopWindow);
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(mdiArea.activeSubWindow(), staysOnTopWindow);
+    spy.clear();
+
+    QMdiSubWindow *activeSubWindow = mdiArea.subWindowList().at(2);
+    mdiArea.setActiveSubWindow(activeSubWindow);
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(mdiArea.activeSubWindow(), activeSubWindow);
+    spy.clear();
+
+    // Check that we only emit _one_ signal and the active window
+    // is unchanged after hide/show.
+    mdiArea.hide();
+#ifdef Q_WS_X11
+    qt_x11_wait_for_window_manager(&mdiArea);
+#endif
+    QCOMPARE(spy.count(), 1);
+    QVERIFY(!mdiArea.activeSubWindow());
+    QCOMPARE(mdiArea.currentSubWindow(), activeSubWindow);
+    spy.clear();
+
+    mdiArea.show();
+#ifdef Q_WS_X11
+    qt_x11_wait_for_window_manager(&mdiArea);
+#endif
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(mdiArea.activeSubWindow(), activeSubWindow);
+    spy.clear();
+
+    // Check that we only emit _one_ signal and the active window
+    // is unchanged after showMinimized/showNormal.
+    mdiArea.showMinimized();
+#ifdef Q_WS_X11
+    qt_x11_wait_for_window_manager(&mdiArea);
+#endif
+    QCOMPARE(spy.count(), 1);
+    QVERIFY(!mdiArea.activeSubWindow());
+    QCOMPARE(mdiArea.currentSubWindow(), activeSubWindow);
+    spy.clear();
+
+    mdiArea.showNormal();
+#ifdef Q_WS_X11
+    qt_x11_wait_for_window_manager(&mdiArea);
+#endif
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(mdiArea.activeSubWindow(), activeSubWindow);
+    spy.clear();
 }
 
 void tst_QMdiArea::subWindowActivatedWithMinimize()
