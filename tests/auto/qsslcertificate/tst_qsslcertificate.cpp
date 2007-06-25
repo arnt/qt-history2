@@ -73,6 +73,8 @@ tst_QSslCertificate::tst_QSslCertificate()
 #ifdef Q_WS_MAC
     // applicationDirPath() points to a path inside the app bundle on Mac.
     QDir dir(qApp->applicationDirPath() + QLatin1String("/../../../certificates"));
+#elif defined(Q_OS_WIN32)
+    QDir dir(QDir::currentPath() + QLatin1String("/certificates"));
 #else
     QDir dir(qApp->applicationDirPath() + QLatin1String("/certificates"));
 #endif
@@ -118,7 +120,7 @@ void tst_QSslCertificate::cleanup()
 static QByteArray readFile(const QString &absFilePath)
 {
     QFile file(absFilePath);
-    if (!file.open(QIODevice::ReadOnly)) {
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         QWARN("failed to open file");
         return QByteArray();
     }
@@ -214,6 +216,8 @@ void tst_QSslCertificate::copyAndAssign()
 
     QByteArray encoded = readFile(absFilePath);
     QSslCertificate certificate(encoded, format);
+
+    QVERIFY(!certificate.isNull());
 
     QSslCertificate copied(certificate);
     compareCertificates(certificate, copied);
