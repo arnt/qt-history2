@@ -61,6 +61,7 @@ private slots:
     void publicKey();
     void toPemOrDer_data();
     void toPemOrDer();
+    void fromDevice();
 
 // ### add tests for certificate bundles (multiple certificates concatenated into a single
 //     structure); both PEM and DER formatted
@@ -407,6 +408,13 @@ void tst_QSslCertificate::toPemOrDer()
     else
         // ### for now, we assume that DER-encoded certificates don't contain bundled stuff
         QCOMPARE(certificate.toDer(), encoded);
+}
+
+void tst_QSslCertificate::fromDevice()
+{
+    QTest::ignoreMessage(QtWarningMsg, "QSslCertificate::fromDevice: cannot read from a null device");
+    QList<QSslCertificate> certs = QSslCertificate::fromDevice(0); // don't crash
+    QVERIFY(certs.isEmpty());
 }
 
 #endif // QT_NO_OPENSSL

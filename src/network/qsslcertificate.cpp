@@ -121,6 +121,7 @@
 QSslCertificate::QSslCertificate(QIODevice *device, QSsl::EncodingFormat format)
     : d(new QSslCertificatePrivate)
 {
+    QSslSocketPrivate::ensureInitialized();
     if (device)
         d->init(device->readAll(), format);
 }
@@ -134,6 +135,7 @@ QSslCertificate::QSslCertificate(QIODevice *device, QSsl::EncodingFormat format)
 QSslCertificate::QSslCertificate(const QByteArray &data, QSsl::EncodingFormat format)
     : d(new QSslCertificatePrivate)
 {
+    QSslSocketPrivate::ensureInitialized();
     d->init(data, format);
 }
 
@@ -498,6 +500,10 @@ QSslCertificate::fromPath(const QString &path,
 QList<QSslCertificate>
 QSslCertificate::fromDevice(QIODevice *device, QSsl::EncodingFormat format)
 {
+    if (!device) {
+        qWarning("QSslCertificate::fromDevice: cannot read from a null device");
+        return QList<QSslCertificate>();
+    }
     return fromData(device->readAll(), format);
 }
 
@@ -629,6 +635,7 @@ QList<QSslCertificate>
 QSslCertificatePrivate::certificatesFromPem(const QByteArray &pem, int count)
 {
     QList<QSslCertificate> certificates;
+    QSslSocketPrivate::ensureInitialized();
 
     int offset = 0;
     while (count == -1 || certificates.size() < count) {
@@ -664,6 +671,8 @@ QList<QSslCertificate>
 QSslCertificatePrivate::certificatesFromDer(const QByteArray &der, int count)
 {
     QList<QSslCertificate> certificates;
+    QSslSocketPrivate::ensureInitialized();
+
 
 #if OPENSSL_VERSION_NUMBER >= 0x00908000L
         const unsigned char *data = (const unsigned char *)der.data();
