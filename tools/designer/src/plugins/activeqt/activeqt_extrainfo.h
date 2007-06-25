@@ -28,7 +28,7 @@ class QAxWidget;
 class QActiveXPluginObject : public QWidget
 {
 public:
-    QActiveXPluginObject(QWidget *parent);
+    explicit QActiveXPluginObject(QWidget *parent);
     ~QActiveXPluginObject();
 
     const QMetaObject *metaObject() const;

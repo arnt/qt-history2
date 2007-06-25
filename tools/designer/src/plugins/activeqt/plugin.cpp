@@ -192,10 +192,10 @@ class QActiveXPropertySheet: public QDesignerPropertySheet
     Q_OBJECT
     Q_INTERFACES(QDesignerPropertySheetExtension)
 public:
-    QActiveXPropertySheet(QActiveXPluginObject *object, QObject *parent = 0)
+    explicit QActiveXPropertySheet(QActiveXPluginObject *object, QObject *parent = 0)
         : QDesignerPropertySheet(object, parent)
     {
-        int index = indexOf(QLatin1String("control"));
+        const int index = indexOf(QLatin1String("control"));
         if (index != -1)
             setVisible(index, false);
     }
@@ -212,7 +212,7 @@ public:
 
         if (propertyName(index) == QLatin1String("control"))
         {            
-            QString clsid = value.toString();            
+            const QString clsid = value.toString();            
             if (!clsid.isEmpty()) {
                 QActiveXPluginObject *pluginObject = static_cast<QActiveXPluginObject*>(object());
                 if (!pluginObject->loaded()) {
@@ -231,12 +231,10 @@ public:
 
     int indexOf(const QString &name) const
     {
-        int index = QDesignerPropertySheet::indexOf(name);
+        const int index = QDesignerPropertySheet::indexOf(name);
         if (index == -1) {
             // since metaobject is different, we must store the values in fake properties
-            index = count();
-            (const_cast<QActiveXPropertySheet *>(this))->m_addIndex.insert(name, index);
-            (const_cast<QActiveXPropertySheet *>(this))->m_addProperties.insert(index, QVariant());
+            (const_cast<QActiveXPropertySheet *>(this))->createFakeProperty(name, QVariant());
         }
 
         return index;
@@ -246,34 +244,32 @@ private slots:
     void updatePropertySheet()
     {
         // refresh the property sheet (we are deleting m_currentProperties)
-        struct SavedProperties tmp = m_currentProperties;
+        const struct SavedProperties tmp = m_currentProperties;
         delete this; //we delete the property sheet, because this forces a recreation
         reloadPropertySheet(tmp);
     }
 
 private:
     struct SavedProperties {
-        QMap<QString, QVariant> changedProperties;
+        typedef QMap<QString, QVariant> NamePropertyMap;
+        NamePropertyMap changedProperties;
         QWidget *widget;
         QString clsid;
     } m_currentProperties;
 
-    static void reloadPropertySheet(struct SavedProperties properties)
+    static void reloadPropertySheet(const struct SavedProperties &properties)
     {
         QDesignerFormWindowInterface *formWin = QDesignerFormWindowInterface::findFormWindow(properties.widget);
         Q_ASSERT(formWin != 0);
 
         QDesignerFormEditorInterface *core = formWin->core();
-        QDesignerPropertySheetExtension *sheet = 0;
-
-        sheet = qt_extension<QDesignerPropertySheetExtension *>(core->extensionManager(), properties.widget);
-
-        QMap<QString, QVariant>::const_iterator i = properties.changedProperties.constBegin();
-        while (i != properties.changedProperties.constEnd()) {
-            int index = sheet->indexOf(i.key());
+        QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension *>(core->extensionManager(), properties.widget);
+        
+        const SavedProperties::NamePropertyMap::const_iterator cend = properties.changedProperties.constEnd();
+        for (SavedProperties::NamePropertyMap::const_iterator i = properties.changedProperties.constBegin(); i != cend; ++i) {
+            const int index = sheet->indexOf(i.key());
             sheet->setChanged(index, true);
             sheet->setProperty(index, i.value());
-            ++i;
         }
 
         formWin->clearSelection(true);
@@ -286,7 +282,7 @@ class QActiveXTaskMenu: public QObject, public QDesignerTaskMenuExtension
     Q_OBJECT
     Q_INTERFACES(QDesignerTaskMenuExtension)
 public:
-    QActiveXTaskMenu(QActiveXPluginObject *object, QObject *parent = 0)
+    explicit QActiveXTaskMenu(QActiveXPluginObject *object, QObject *parent = 0)
         : QObject(parent), m_axwidget(object), m_action(0) { }
     virtual ~QActiveXTaskMenu() { }
 
@@ -395,7 +391,7 @@ class QActiveXPlugin : public QObject, public QDesignerCustomWidgetInterface
     Q_OBJECT
     Q_INTERFACES(QDesignerCustomWidgetInterface)
 public:
-    inline QActiveXPlugin(QObject *parent = 0)
+    explicit inline QActiveXPlugin(QObject *parent = 0)
         : QObject(parent), m_core(0) {}
 
     virtual QString name() const
