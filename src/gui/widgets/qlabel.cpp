@@ -365,7 +365,7 @@ void QLabel::clear()
     \property QLabel::pixmap
     \brief the label's pixmap
 
-    If no pixmap has been set this will return an invalid pixmap.
+    If no pixmap has been set this will return 0.
 
     Setting the pixmap clears any previous content. The buddy
     shortcut, if any, is disabled.
