@@ -1862,6 +1862,11 @@ void QTextCursor::insertFragment(const QTextDocumentFragment &fragment)
     \since 4.2
     Inserts the text \a html at the current position(). The text is interpreted as
     HTML.
+    
+    \note When using this function with a style sheet, the style sheet will
+    only apply to the current block in the document. In order to apply a style
+    sheet throughout a document, use QTextDocument::setDefaultStyleSheet()
+    instead.
 */
 void QTextCursor::insertHtml(const QString &html)
 {
