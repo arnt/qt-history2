@@ -2451,9 +2451,11 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, int blockPosi
     }
 
     // ### doesn't take floats into account. would need to do it per line. but how to retrieve then? (Simon)
-    layoutStruct->minimumWidth = qMax(layoutStruct->minimumWidth, QFixed::fromReal(tl->minimumWidth()) + totalLeftMargin);
+    const QFixed margins = totalLeftMargin + totalRightMargin;
+    layoutStruct->minimumWidth = qMax(layoutStruct->minimumWidth, QFixed::fromReal(tl->minimumWidth()) + margins);
 
-    const QFixed maxW = QFixed::fromReal(tl->maximumWidth()) + totalLeftMargin;
+    const QFixed maxW = QFixed::fromReal(tl->maximumWidth()) + margins;
+
     if (maxW > 0) {
         if (layoutStruct->maximumWidth == QFIXED_MAX)
             layoutStruct->maximumWidth = maxW;
