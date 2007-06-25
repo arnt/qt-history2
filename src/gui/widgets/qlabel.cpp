@@ -418,8 +418,6 @@ void QLabel::setPicture(const QPicture &picture)
 
     The buddy shortcut, if any, is disabled.
 
-    The label resizes itself if auto-resizing is enabled.
-
     \sa setText(), QString::setNum(), setBuddy()
 */
 
@@ -439,8 +437,6 @@ void QLabel::setNum(int num)
     the current contents of the label.
 
     The buddy shortcut, if any, is disabled.
-
-    The label resizes itself if auto-resizing is enabled.
 
     \sa setText(), QString::setNum(), setBuddy()
 */
@@ -1182,8 +1178,6 @@ void QLabelPrivate::_q_movieResized(const QSize& size)
     cleared. The label does NOT take ownership of the movie.
 
     The buddy shortcut, if any, is disabled.
-
-    The label resizes itself if auto-resizing is enabled.
 
     \sa movie(), setBuddy()
 */
