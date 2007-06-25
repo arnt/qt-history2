@@ -57,23 +57,19 @@ int QPaintDevice::metric(PaintDeviceMetric) const
 /*! \internal */
 float qt_mac_defaultDpi_x()
 {
-    static float ret = 0;
-    if(!ret) {
-        CGDirectDisplayID screen = CGMainDisplayID();
-        ret = (CGDisplayPixelsWide(screen) / CGDisplayScreenSize(screen).width) * 25.4;
-    }
-    return ret;
+    // Mac OS X currently assumes things to be 72 dpi.
+    // (see http://developer.apple.com/releasenotes/GraphicsImaging/RN-ResolutionIndependentUI/)
+    // This may need to be re-worked as we go further in the resolution-independence stuff.
+    return 72;
 }
 
 /*! \internal */
 float qt_mac_defaultDpi_y()
 {
-    static float ret = 0;
-    if(!ret) {
-        CGDirectDisplayID screen = CGMainDisplayID();
-        ret = (CGDisplayPixelsHigh(screen) / CGDisplayScreenSize(screen).height) * 25.4;
-    }
-    return ret;
+    // Mac OS X currently assumes things to be 72 dpi.
+    // (see http://developer.apple.com/releasenotes/GraphicsImaging/RN-ResolutionIndependentUI/)
+    // This may need to be re-worked as we go further in the resolution-independence stuff.
+    return 72;
 }
 
 
