@@ -1100,12 +1100,8 @@ void QTextDocumentLayoutPrivate::drawBlock(const QPointF &offset, QPainter *pain
     QTextBlockFormat blockFormat = bl.blockFormat();
 
     QBrush bg = blockFormat.background();
-    if (bg != Qt::NoBrush) {
-        // don't paint into the left margin. Right margin is already excluded by the line breaking
-        QRectF contentsRect = r;
-        contentsRect.setLeft(contentsRect.left() + bl.blockFormat().leftMargin());
-        fillBackground(painter, contentsRect, bg);
-    }
+    if (bg != Qt::NoBrush)
+        fillBackground(painter, r, bg);
 
     QVector<QTextLayout::FormatRange> selections;
     int blpos = bl.position();
