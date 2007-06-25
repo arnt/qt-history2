@@ -449,6 +449,30 @@ void QTextEditPrivate::ensureViewportLayouted()
     modified since it was either loaded or since the last call to setModified
     with false as argument. In addition it provides methods for undo and redo.
 
+    \section2 Drag and Drop
+    
+    QTextEdit also supports custom drag and drop behavior. By default,
+    QTextEdit will insert plain text, HTML and rich text when the user drops
+    data of these MIME types onto a document. Reimplement 
+    canInsertFromMimeData() and insertFromMimeData() to add support for
+    additional MIME types.
+
+    For example, to allow the user to drag and drop an image onto a QTextEdit,
+    you could the implement these functions in the following way:
+    
+    \quotefromfile snippets/textdocument-imagedrop/textedit.cpp
+    \skipto bool TextEdit::canInsertFromMimeData
+    \printuntil /^\}/
+    
+    We add support for image MIME types by returning true. For all other
+    MIME types, we use the default implementation.
+    
+    \skipto void TextEdit::insertFromMimeData
+    \printuntil /^\}/
+
+    We unpack the image from the QVariant held by the MIME source and insert
+    it into the document as a resource. 
+    
     \section2 Editing Key Bindings
 
     The list of key bindings which are implemented for editing:
@@ -1839,7 +1863,10 @@ QMimeData *QTextEdit::createMimeDataFromSelection() const
     This function returns true if the contents of the MIME data object, specified
     by \a source, can be decoded and inserted into the document. It is called
     for example when during a drag operation the mouse enters this widget and it
-    is necessary to determine whether it is possible to accept the drag.
+    is necessary to determine whether it is possible to accept the drag and drop
+    operation.
+
+    Reimplement this function to enable drag and drop support for additional MIME types.
  */
 bool QTextEdit::canInsertFromMimeData(const QMimeData *source) const
 {
@@ -1853,7 +1880,9 @@ bool QTextEdit::canInsertFromMimeData(const QMimeData *source) const
     called whenever text is inserted as the result of a clipboard paste
     operation, or when the text edit accepts data from a drag and drop
     operation.
-*/
+
+    Reimplement this function to enable drag and drop support for additional MIME types.   
+ */
 void QTextEdit::insertFromMimeData(const QMimeData *source)
 {
     Q_D(QTextEdit);
@@ -2001,6 +2030,11 @@ void QTextEdit::insertPlainText(const QString &text)
     \code
     edit->textCursor().insertHtml(fragment);
     \endcode
+
+    \note When using this function with a style sheet, the style sheet will
+    only apply to the current block in the document. In order to apply a style
+    sheet throughout a document, use QTextDocument::setDefaultStyleSheet()
+    instead.
  */
 void QTextEdit::insertHtml(const QString &text)
 {
