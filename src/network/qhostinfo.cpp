@@ -222,6 +222,9 @@ QHostInfo QHostInfo::fromName(const QString &name)
 void QHostInfoAgent::run()
 {
 #ifndef QT_NO_THREAD
+    // Dont' allow thread termination during event delivery, but allow it
+    // during the actual blocking host lookup stage.
+    setTerminationEnabled(false);
     forever
 #endif
     {
@@ -254,7 +257,18 @@ void QHostInfoAgent::run()
                query->hostName.toLatin1().constData());
 #endif
 
+#ifndef QT_NO_THREAD
+        // Start query - allow termination at this point, but not outside. We
+        // don't want to all termination during event delivery, but we don't
+        // want the lookup to prevent the app from quitting (the agent
+        // destructor terminates the thread).
+        setTerminationEnabled(true);
+#endif
         QHostInfo info = fromName(query->hostName);
+#ifndef QT_NO_THREAD
+        setTerminationEnabled(false);
+#endif
+
         int id = query->object->lookupId;
         info.setLookupId(id);
         if (pendingQueryId == id)

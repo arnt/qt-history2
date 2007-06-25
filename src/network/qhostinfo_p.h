@@ -33,6 +33,8 @@
 #include "QtCore/qobject.h"
 #include "QtCore/qpointer.h"
 
+static const int QHOSTINFO_THREAD_WAIT = 250; // ms
+
 #if !defined QT_NO_THREAD
 #include "QtCore/qthread.h"
 #    define QHostInfoAgentBase QThread
@@ -116,6 +118,8 @@ public Q_SLOTS:
             cond.wakeOne();
         }
 #ifndef QT_NO_THREAD
+        if (!wait(QHOSTINFO_THREAD_WAIT))
+            terminate();
         wait();
 #endif
     }
