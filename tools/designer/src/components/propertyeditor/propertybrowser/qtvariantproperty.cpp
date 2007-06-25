@@ -295,7 +295,7 @@ public:
     void valueChanged(QtProperty *property, const QVariant &val);
 
     int internalPropertyToType(QtProperty *property) const;
-    void createSubProperty(QtVariantProperty *parent, QtVariantProperty *after,
+    QtVariantProperty *createSubProperty(QtVariantProperty *parent, QtVariantProperty *after,
             QtProperty *internal);
     void removeSubProperty(QtVariantProperty *property);
 
@@ -322,17 +322,17 @@ int QtVariantPropertyManagerPrivate::internalPropertyToType(QtProperty *property
     return type;
 }
 
-void QtVariantPropertyManagerPrivate::createSubProperty(QtVariantProperty *parent,
+QtVariantProperty *QtVariantPropertyManagerPrivate::createSubProperty(QtVariantProperty *parent,
             QtVariantProperty *after, QtProperty *internal)
 {
     int type = internalPropertyToType(internal);
     if (!type)
-        return;
+        return 0;
 
     bool wasCreatingSubProperties = m_creatingSubProperties;
     m_creatingSubProperties = true;
 
-    QtVariantProperty *varChild = q_ptr->addProperty(type);
+    QtVariantProperty *varChild = q_ptr->addProperty(type, internal->propertyName());
 
     m_creatingSubProperties = wasCreatingSubProperties;
 
@@ -345,6 +345,7 @@ void QtVariantPropertyManagerPrivate::createSubProperty(QtVariantProperty *paren
 
     m_internalToProperty[internal] = varChild;
     (*propertyToWrappedProperty())[varChild] = internal;
+    return varChild;
 }
 
 void QtVariantPropertyManagerPrivate::removeSubProperty(QtVariantProperty *property)
@@ -1728,9 +1729,11 @@ void QtVariantPropertyManager::initializeProperty(QtProperty *property)
         if (internProp) {
             QList<QtProperty *> children = internProp->subProperties();
             QListIterator<QtProperty *> itChild(children);
-            itChild.toBack();
-            while (itChild.hasPrevious())
-                d_ptr->createSubProperty(varProp, 0, itChild.previous());
+            QtVariantProperty *lastProperty = 0;
+            while (itChild.hasNext()) {
+                QtVariantProperty *prop = d_ptr->createSubProperty(varProp, lastProperty, itChild.next());
+                lastProperty = prop ? prop : lastProperty;
+            }
         }
     }
 }

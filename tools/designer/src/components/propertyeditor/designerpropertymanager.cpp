@@ -8,6 +8,7 @@
 #include <QFileInfo>
 #include "paletteeditorbutton.h"
 #include <QtDesigner/QDesignerIconCacheInterface>
+#include <private/qfont_p.h>
 
 #include <iconloader_p.h>
 
@@ -131,6 +132,7 @@ DesignerPropertyManager::DesignerPropertyManager(QDesignerFormEditorInterface *c
     : QtVariantPropertyManager(parent), m_changingSubValue(false)
 {
     m_core = core;
+    m_createdFontProperty = 0;
     connect(this, SIGNAL(valueChanged(QtProperty *, const QVariant &)),
             this, SLOT(slotValueChanged(QtProperty *, const QVariant &)));
     connect(this, SIGNAL(propertyDestroyed(QtProperty *)),
@@ -244,6 +246,21 @@ QString DesignerPropertyManager::indexAntialiasingToString(int idx) const
         case 2: return tr("PreferAntialias");
     }
     return tr("PreferDefault");
+}
+
+unsigned DesignerPropertyManager::fontFlag(int idx) const
+{
+    switch (idx) {
+        case 0: return QFontPrivate::Family;
+        case 1: return QFontPrivate::Size;
+        case 2: return QFontPrivate::Weight;
+        case 3: return QFontPrivate::Style;
+        case 4: return QFontPrivate::Underline;
+        case 5: return QFontPrivate::StrikeOut;
+        case 6: return QFontPrivate::Kerning;
+        case 7: return QFontPrivate::StyleStrategy;
+    }
+    return 0;
 }
 
 void DesignerPropertyManager::slotValueChanged(QtProperty *property, const QVariant &value)
@@ -717,11 +734,24 @@ void DesignerPropertyManager::setValue(QtProperty *property, const QVariant &val
         emit propertyChanged(property);
 
         return;
-    } else if (m_propertyToAntialiasing.contains(property)) {
+    } else if (m_propertyToFontSubProperties.contains(property)) {
+        QMap<int, QtProperty *> subProperties = m_propertyToFontSubProperties.value(property);
         QFont font = qVariantValue<QFont>(value);
-        QtVariantProperty *antialiasing = variantProperty(m_propertyToAntialiasing.value(property));
-        if (antialiasing)
-            antialiasing->setValue(antialiasingToIndex(font.styleStrategy()));
+        unsigned mask = font.resolve();
+        QMapIterator<int, QtProperty *> itSub(subProperties);
+        int index = 0;
+        while (itSub.hasNext()) {
+            unsigned flag = fontFlag(index);
+            QtProperty *fontSubProperty = itSub.next().value();
+            fontSubProperty->setModified(mask & flag);
+            ++index;
+        }
+        if (m_propertyToAntialiasing.contains(property)) {
+            QFont font = qVariantValue<QFont>(value);
+            QtVariantProperty *antialiasing = variantProperty(m_propertyToAntialiasing.value(property));
+            if (antialiasing)
+                antialiasing->setValue(antialiasingToIndex(font.styleStrategy()));
+        }
     } else if (m_paletteValues.contains(property)) {
         if (value.type() != QVariant::Palette && !value.canConvert(QVariant::Palette))
             return;
@@ -784,6 +814,14 @@ void DesignerPropertyManager::initializeProperty(QtProperty *property)
 {
     m_resetMap[property] = false;
 
+    if (m_createdFontProperty) {
+        m_propertyToFontSubProperties[m_createdFontProperty][m_lastSubFontIndex] = property;
+        m_fontSubPropertyToFlag[property] = m_lastSubFontIndex;
+        m_fontSubPropertyToProperty[property] = m_createdFontProperty;
+        m_resetMap[property] = true;
+        ++m_lastSubFontIndex;
+    }
+
     if (propertyType(property) == designerFlagTypeId()) {
         m_flagValues[property] = FlagData();
         m_propertyToFlags[property] = QList<QtProperty *>();
@@ -816,6 +854,9 @@ void DesignerPropertyManager::initializeProperty(QtProperty *property)
         m_iconValues[property] = QIcon();
     } else if (propertyType(property) == QVariant::Pixmap) {
         m_pixmapValues[property] = QPixmap();
+    } else if (propertyType(property) == QVariant::Font) {
+        m_createdFontProperty = property;
+        m_lastSubFontIndex = 0;
     }
 
     QtVariantPropertyManager::initializeProperty(property);
@@ -830,6 +871,7 @@ void DesignerPropertyManager::initializeProperty(QtProperty *property)
 
         m_propertyToAntialiasing[property] = antialiasing;
         m_antialiasingToProperty[antialiasing] = property;
+        m_createdFontProperty = 0;
     }
 }
 
@@ -876,7 +918,31 @@ void DesignerPropertyManager::uninitializeProperty(QtProperty *property)
 
     m_pixmapValues.remove(property);
 
+    m_propertyToFontSubProperties.remove(property);
+    m_fontSubPropertyToFlag.remove(property);
+    m_fontSubPropertyToProperty.remove(property);
+
     QtVariantPropertyManager::uninitializeProperty(property);
+}
+
+bool DesignerPropertyManager::resetFontSubProperty(QtProperty *property)
+{
+    if (!m_fontSubPropertyToProperty.contains(property))
+        return false;
+
+
+    QtVariantProperty *fontProperty = variantProperty(m_fontSubPropertyToProperty.value(property));
+
+    QVariant v = fontProperty->value();
+    QFont font = qvariant_cast<QFont>(v);
+    unsigned mask = font.resolve();
+    const unsigned flag = fontFlag(m_fontSubPropertyToFlag.value(property));
+
+    mask &= ~flag;
+    font.resolve(mask);
+    qVariantSetValue(v, font);
+    fontProperty->setValue(v);
+    return true;
 }
 
 DesignerEditorFactory::DesignerEditorFactory(QDesignerFormEditorInterface *core, QObject *parent)

@@ -5416,15 +5416,20 @@ public:
     QMap<const QtProperty *, QtProperty *> m_underlineToProperty;
     QMap<const QtProperty *, QtProperty *> m_strikeOutToProperty;
     QMap<const QtProperty *, QtProperty *> m_kerningToProperty;
+
+    bool m_settingValue;
 };
 
 QtFontPropertyManagerPrivate::QtFontPropertyManagerPrivate()
 {
     m_familyNames = fontDatabase()->families();
+    m_settingValue = false;
 }
 
 void QtFontPropertyManagerPrivate::slotIntChanged(QtProperty *property, int value)
 {
+    if (m_settingValue)
+        return;
     if (m_pointSizeToProperty.contains(property)) {
         QtProperty *prop = m_pointSizeToProperty[property];
         QFont f = m_values[prop];
@@ -5435,6 +5440,8 @@ void QtFontPropertyManagerPrivate::slotIntChanged(QtProperty *property, int valu
 
 void QtFontPropertyManagerPrivate::slotEnumChanged(QtProperty *property, int value)
 {
+    if (m_settingValue)
+        return;
     if (m_familyToProperty.contains(property)) {
         QtProperty *prop = m_familyToProperty[property];
         QFont f = m_values[prop];
@@ -5445,6 +5452,8 @@ void QtFontPropertyManagerPrivate::slotEnumChanged(QtProperty *property, int val
 
 void QtFontPropertyManagerPrivate::slotBoolChanged(QtProperty *property, bool value)
 {
+    if (m_settingValue)
+        return;
     if (m_boldToProperty.contains(property)) {
         QtProperty *prop = m_boldToProperty[property];
         QFont f = m_values[prop];
@@ -5695,6 +5704,8 @@ void QtFontPropertyManager::setValue(QtProperty *property, const QFont &val)
     int idx = d_ptr->m_familyNames.indexOf(val.family());
     if (idx == -1)
         idx = 0;
+    bool settingValue = d_ptr->m_settingValue;
+    d_ptr->m_settingValue = true;
     d_ptr->m_enumPropertyManager->setValue(d_ptr->m_propertyToFamily[property], idx);
     d_ptr->m_intPropertyManager->setValue(d_ptr->m_propertyToPointSize[property], val.pointSize());
     d_ptr->m_boolPropertyManager->setValue(d_ptr->m_propertyToBold[property], val.bold());
@@ -5702,6 +5713,7 @@ void QtFontPropertyManager::setValue(QtProperty *property, const QFont &val)
     d_ptr->m_boolPropertyManager->setValue(d_ptr->m_propertyToUnderline[property], val.underline());
     d_ptr->m_boolPropertyManager->setValue(d_ptr->m_propertyToStrikeOut[property], val.strikeOut());
     d_ptr->m_boolPropertyManager->setValue(d_ptr->m_propertyToKerning[property], val.kerning());
+    d_ptr->m_settingValue = settingValue;
 
     emit propertyChanged(property);
     emit valueChanged(property, val);

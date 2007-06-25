@@ -58,6 +58,8 @@ public:
     virtual QString valueText(const QtProperty *property) const;
     virtual QIcon valueIcon(const QtProperty *property) const;
 
+    bool resetFontSubProperty(QtProperty *subProperty);
+
     static int designerFlagTypeId();
     static int designerFlagListTypeId();
     static int designerAlignmentTypeId();
@@ -104,6 +106,13 @@ private:
     QString indexAntialiasingToString(int idx) const;
     QMap<QtProperty *, QtProperty *> m_propertyToAntialiasing;
     QMap<QtProperty *, QtProperty *> m_antialiasingToProperty;
+
+    unsigned fontFlag(int idx) const;
+    QMap<QtProperty *, QMap<int, QtProperty *> > m_propertyToFontSubProperties;
+    QMap<QtProperty *, int> m_fontSubPropertyToFlag;
+    QMap<QtProperty *, QtProperty *> m_fontSubPropertyToProperty;
+    QtProperty *m_createdFontProperty;
+    int m_lastSubFontIndex;
 
     struct PaletteData
     {

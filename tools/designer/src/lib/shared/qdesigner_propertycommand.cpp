@@ -35,12 +35,56 @@
 #include <QtGui/QAction>
 #include <QtGui/QDialog>
 #include <QtGui/QPushButton>
+#include <private/qfont_p.h>
 #include <qdebug.h>
 
 namespace  {
 enum { debugPropertyCommands = 0 };
 
+// Debug resolve mask of font
+QString fontMask(unsigned m)
+{
+    QString rc;
+    if (m & QFontPrivate::Family)
+        rc += QLatin1String("Family");
+    if (m & QFontPrivate::Size)
+        rc += QLatin1String("Size ");
+    if (m & QFontPrivate::Style)
+        rc += QLatin1String("Style ");
+    if (m & QFontPrivate::Underline)
+        rc += QLatin1String("Underline ");
+    if (m & QFontPrivate::StrikeOut)
+        rc += QLatin1String("StrikeOut ");
+    if (m & QFontPrivate::Kerning)
+        rc += QLatin1String("Kerning ");
+    if (m & QFontPrivate::StyleStrategy)
+        rc += QLatin1String("StyleStrategy");
+    return rc;
+}
 
+// Debug font
+QString fontString(const QFont &f)
+{
+    QString rc; {
+        const QChar comma = QLatin1Char(',');
+        QTextStream str(&rc);
+        str << QLatin1String("QFont(\"") <<  f.family() << comma <<
+            f.pointSize();
+        if (f.bold())
+            str << comma <<  QLatin1String("bold");
+        if (f.italic())
+            str << comma <<  QLatin1String("italic");
+        if (f.underline())
+            str << comma <<  QLatin1String("underline");
+        if (f.strikeOut())
+            str << comma <<  QLatin1String("strikeOut");
+        if (f.kerning())
+            str << comma << QLatin1String("kerning");
+        str <<  comma << f.styleStrategy() << QLatin1String(" resolve: ")
+            << fontMask(f.resolve()) << QLatin1Char(')');
+    }
+    return rc;
+}
 QSize checkSize(const QSize &size)
 {
     return size.boundedTo(QSize(0xFFFFFF, 0xFFFFFF));
@@ -90,8 +134,6 @@ void checkSizes(QDesignerFormWindowInterface *fw, const QSize &size, QSize *form
 
 enum RectSubPropertyMask {  SubPropertyX=1, SubPropertyY = 2, SubPropertyWidth = 4, SubPropertyHeight = 8 };
 enum SizePolicySubPropertyMask { SubPropertyHSizePolicy = 1, SubPropertyHStretch = 2, SubPropertyVSizePolicy =4, SubPropertyVStretch = 8 };
-enum FontSubPropertyMask { SubPropertyFamily=1, SubPropertyPointSize=2, SubPropertyBold=4,  SubPropertyItalic=8,
-                           SubPropertyUnderline=16, SubPropertyStrikeOut=32, SubPropertyKerning=64, SubPropertyStyleStrategy=128};
 enum AlignmentSubPropertyMask { SubPropertyHorizontalAlignment=1, SubPropertyVerticalAlignment=2 };
 
 enum CommonSubPropertyMask { SubPropertyAll = 0xFFFFFFFF };
@@ -129,18 +171,40 @@ unsigned compareSubProperties(const QSizePolicy & sp1, const QSizePolicy & sp2)
     return rc;
 }
 
+// Compare font-subproperties taking the [undocumented]
+// resolve flag into account
+template <class Property>
+void compareFontSubProperty(const QFont & f1,
+                            const QFont & f2,
+                            Property (QFont::*getter) () const,
+                            unsigned maskBit,
+                            unsigned &mask)
+{
+    const bool f1Changed = f1.resolve() & maskBit;
+    const bool f2Changed = f2.resolve() & maskBit;
+    // Role has been set/reset in editor
+    if (f1Changed != f2Changed) {
+        mask |= maskBit;
+    } else {
+        // Was modified in both palettes: Compare values.
+        if (f1Changed && f2Changed && (f1.*getter)() != (f2.*getter)())
+            mask |= maskBit;
+    }
+}
 // find changed subproperties of a QFont
 unsigned compareSubProperties(const QFont & f1, const QFont & f2)
 {
     unsigned rc = 0;
-    COMPARE_SUBPROPERTY(f1, f2, family,        rc, SubPropertyFamily)
-    COMPARE_SUBPROPERTY(f1, f2, pointSize,     rc, SubPropertyPointSize)
-    COMPARE_SUBPROPERTY(f1, f2, bold,          rc, SubPropertyBold)
-    COMPARE_SUBPROPERTY(f1, f2, italic,        rc, SubPropertyItalic)
-    COMPARE_SUBPROPERTY(f1, f2, underline,     rc, SubPropertyUnderline)
-    COMPARE_SUBPROPERTY(f1, f2, strikeOut,     rc, SubPropertyStrikeOut)
-    COMPARE_SUBPROPERTY(f1, f2, kerning,       rc, SubPropertyKerning)
-    COMPARE_SUBPROPERTY(f1, f2, styleStrategy, rc, SubPropertyStyleStrategy)
+    compareFontSubProperty(f1, f2, &QFont::family,        QFontPrivate::Family, rc);
+    compareFontSubProperty(f1, f2, &QFont::pointSize,     QFontPrivate::Size, rc);
+    compareFontSubProperty(f1, f2, &QFont::bold,          QFontPrivate::Weight, rc);
+    compareFontSubProperty(f1, f2, &QFont::italic,        QFontPrivate::Style, rc);
+    compareFontSubProperty(f1, f2, &QFont::underline,     QFontPrivate::Underline, rc);
+    compareFontSubProperty(f1, f2, &QFont::strikeOut,     QFontPrivate::StrikeOut, rc);
+    compareFontSubProperty(f1, f2, &QFont::kerning,       QFontPrivate::Kerning, rc);
+    compareFontSubProperty(f1, f2, &QFont::styleStrategy, QFontPrivate::StyleStrategy, rc);
+    if (debugPropertyCommands)
+        qDebug() << "compareSubProperties " <<  fontString(f1) << fontString(f2) << "\n\treturns " << fontMask(rc);
     return rc;
 }
 
@@ -154,7 +218,7 @@ bool roleColorChanged(const QPalette & p1, const QPalette & p2, QPalette::ColorR
     }
     return false;
 }
-// find changed subproperties of a QPalette
+// find changed subproperties of a QPalette taking the [undocumented] resolve flags into account
 unsigned compareSubProperties(const QPalette & p1, const QPalette & p2)
 {
     unsigned rc = 0;
@@ -256,18 +320,44 @@ QSizePolicy applySizePolicySubProperty(const QSizePolicy &oldValue, const QSizeP
     return rc;
 }
 
+// Apply the font-subproperties keeping the [undocumented]
+// resolve flag in sync (note that PropertySetterType might be something like const T&).
+template <class PropertyReturnType, class PropertySetterType>
+inline void setFontSubProperty(unsigned mask,
+                               const QFont &newValue,
+                               unsigned maskBit,
+                               PropertyReturnType (QFont::*getter) () const,
+                               void (QFont::*setter) (PropertySetterType),
+                               QFont &value)
+{
+    if (mask & maskBit) {
+        (value.*setter)((newValue.*getter)());
+        // Set the resolve bit from NewValue in return value
+        uint r = value.resolve();
+        const bool origFlag = newValue.resolve() & maskBit;
+        if (origFlag)
+            r |= maskBit;
+        else
+            r &= ~maskBit;
+        value.resolve(r);
+        if (debugPropertyCommands)
+            qDebug() << "setFontSubProperty " <<  fontMask(maskBit) << " resolve=" << origFlag;
+    }
+}
 // apply changed subproperties to a QFont
 QFont applyFontSubProperty(const QFont &oldValue, const QFont &newValue, unsigned mask)
 {
     QFont  rc = oldValue;
-    SET_SUBPROPERTY(rc, newValue, family,        setFamily,        mask, SubPropertyFamily)
-    SET_SUBPROPERTY(rc, newValue, pointSize,     setPointSize,     mask, SubPropertyPointSize)
-    SET_SUBPROPERTY(rc, newValue, bold,          setBold,          mask, SubPropertyBold)
-    SET_SUBPROPERTY(rc, newValue, italic,        setItalic,        mask, SubPropertyItalic)
-    SET_SUBPROPERTY(rc, newValue, underline,     setUnderline,     mask, SubPropertyUnderline)
-    SET_SUBPROPERTY(rc, newValue, strikeOut,     setStrikeOut,     mask, SubPropertyStrikeOut)
-    SET_SUBPROPERTY(rc, newValue, kerning,       setKerning,       mask, SubPropertyKerning)
-    SET_SUBPROPERTY(rc, newValue, styleStrategy, setStyleStrategy, mask, SubPropertyStyleStrategy)
+    setFontSubProperty(mask, newValue, QFontPrivate::Family,        &QFont::family,        &QFont::setFamily, rc);
+    setFontSubProperty(mask, newValue, QFontPrivate::Size,          &QFont::pointSize,     &QFont::setPointSize, rc);
+    setFontSubProperty(mask, newValue, QFontPrivate::Weight,        &QFont::bold,          &QFont::setBold, rc);
+    setFontSubProperty(mask, newValue, QFontPrivate::Style,         &QFont::italic,        &QFont::setItalic, rc);
+    setFontSubProperty(mask, newValue, QFontPrivate::Underline,     &QFont::underline,     &QFont::setUnderline, rc);
+    setFontSubProperty(mask, newValue, QFontPrivate::StrikeOut,     &QFont::strikeOut,     &QFont::setStrikeOut, rc);
+    setFontSubProperty(mask, newValue, QFontPrivate::Kerning,       &QFont::kerning,       &QFont::setKerning, rc);
+    setFontSubProperty(mask, newValue, QFontPrivate::StyleStrategy, &QFont::styleStrategy, &QFont::setStyleStrategy, rc);
+    if (debugPropertyCommands)
+        qDebug() << "applyFontSubProperty old " <<  fontMask(oldValue.resolve()) << " new " << fontMask(newValue.resolve()) << " return: " << fontMask(rc.resolve());
     return rc;
 }
 
@@ -532,7 +622,7 @@ PropertyHelper::Value PropertyHelper::setValue(QDesignerFormWindowInterface *fw,
 PropertyHelper::Value PropertyHelper::applyValue(QDesignerFormWindowInterface *fw, const QVariant &oldValue, Value newValue)
 {
      if(debugPropertyCommands){
-         qDebug() << "PropertyHelper::applyValue(" << m_object->objectName() << ") " << oldValue << " -> " << newValue.first << " changed=" << newValue.second;
+         qDebug() << "PropertyHelper::applyValue(" << m_object << ") " << oldValue << " -> " << newValue.first << " changed=" << newValue.second;
      }
 
     if (m_objectType ==  OT_Widget) {
@@ -888,7 +978,7 @@ bool SetPropertyCommand::init(const ObjectList &list, const QString &apropertyNa
     m_newValue = newValue;
 
     if(debugPropertyCommands)
-        qDebug() << "SetPropertyCommand::init()" << propertyHelperList().size() << '/' << list.size();
+        qDebug() << "SetPropertyCommand::init()" << propertyHelperList().size() << '/' << list.size() << " reference " << referenceObject;
 
     setDescription();
 

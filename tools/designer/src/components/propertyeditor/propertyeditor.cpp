@@ -625,6 +625,9 @@ void PropertyEditor::slotResetProperty(QtProperty *property)
     if (!form)
         return;
 
+    if (m_propertyManager->resetFontSubProperty(property))
+        return;
+
     if (!m_propertyToGroup.contains(property))
         return;
 
@@ -675,6 +678,14 @@ void PropertyEditor::slotValueChanged(QtProperty *property, const QVariant &valu
     if (varProp->propertyType() == QVariant::Palette) {
         QPalette pal = qvariant_cast<QPalette>(value);
         if (!pal.resolve()) {
+            emit resetProperty(property->propertyName());
+            return;
+        }
+    }
+
+    if (varProp->propertyType() == QVariant::Font) {
+        QFont font = qvariant_cast<QFont>(value);
+        if (!font.resolve()) {
             emit resetProperty(property->propertyName());
             return;
         }
