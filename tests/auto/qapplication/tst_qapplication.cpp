@@ -850,13 +850,56 @@ public slots:
         eventLoop.exec();
         QVERIFY(p); // not dead yet
     }
+
+    void processEventsOnly()
+    {
+        QApplication::processEvents();
+    }
+    void processEventsWithDeferredDeletion()
+    {
+        QApplication::processEvents(QEventLoop::DeferredDeletion);
+    }
+    void sendPostedEventsWithDeferredDelete()
+    {
+        QApplication::sendPostedEvents(0, QEvent::DeferredDelete);
+    }
     void deleteLaterAndProcessEvents()
     {
-        QPointer<QObject> p(this);
+        QEventLoop eventLoop;
+
+        QPointer<QObject> p = this;
         deleteLater();
+
+        // trying to delete this object in a deeper eventloop just won't work
+        QMetaObject::invokeMethod(this,
+                                  "processEventsOnly",
+                                  Qt::QueuedConnection);
+        QMetaObject::invokeMethod(&eventLoop, "quit", Qt::QueuedConnection);
+        eventLoop.exec();
+        QVERIFY(p);
+        QMetaObject::invokeMethod(this,
+                                  "processEventsWithDeferredDeletion",
+                                  Qt::QueuedConnection);
+        QMetaObject::invokeMethod(&eventLoop, "quit", Qt::QueuedConnection);
+        eventLoop.exec();
+        QVERIFY(p);
+        QMetaObject::invokeMethod(this,
+                                  "sendPostedEventsWithDeferredDelete",
+                                  Qt::QueuedConnection);
+        QMetaObject::invokeMethod(&eventLoop, "quit", Qt::QueuedConnection);
+        eventLoop.exec();
+        QVERIFY(p);
+
+        // trying to delete it from this eventloop still doesn't work
         QApplication::processEvents();
         QVERIFY(p);
+        // however, it *will* work with this magic incantation
         QApplication::processEvents(QEventLoop::DeferredDeletion);
+        QVERIFY(!p);
+
+        p = new QObject;
+        p->deleteLater();
+        QApplication::sendPostedEvents(0, QEvent::DeferredDelete);
         QVERIFY(!p);
     }
 };
