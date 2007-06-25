@@ -24,6 +24,7 @@
 
 #include <QtCore/QMetaObject>
 #include <QtCore/QMetaProperty>
+#include <private/qobject_p.h>
 
 #include <QtGui/QLayout>
 #include <QtGui/QDockWidget>
@@ -66,21 +67,156 @@ static bool hasLayoutAttributes(QObject *object)
     return false;
 }
 
-// ---------- QDesignerPropertySheet::Info
+// ------------ QDesignerMemberSheetPrivate
+class QDesignerPropertySheetPrivate : public  QObjectPrivate {
+public:
+    typedef QDesignerPropertySheet::PropertyType PropertyType;
+    typedef QDesignerPropertySheet::ObjectType ObjectType;
 
-QDesignerPropertySheet::Info::Info() :
-    changed(0),
-    visible(1),
-    attribute(0),
-    reset(1),
-    defaultDynamic(0),
-    propertyType(PropertyNone)
+    explicit QDesignerPropertySheetPrivate(QObject *object);
+
+    PropertyType propertyType(int index) const;
+    QString transformLayoutPropertyName(int index) const;
+    QLayout* layout(QDesignerPropertySheetExtension **layoutPropertySheet = 0) const;
+    static ObjectType objectType(const QObject *o);
+
+    class Info {
+    public:
+        Info();
+
+        QString group;
+        QVariant defaultValue;
+        bool changed;
+        bool visible;
+        bool attribute;
+        bool reset;
+        bool defaultDynamic;
+        PropertyType propertyType;
+    };
+
+    Info &ensureInfo(int index);
+
+    const QMetaObject *m_meta;
+    const ObjectType m_objectType;
+
+    typedef QHash<int, Info> InfoHash;
+    InfoHash m_info;
+    QHash<int, QVariant> m_fakeProperties;
+    QHash<int, QVariant> m_addProperties;
+    QHash<QString, int> m_addIndex;
+
+    const bool m_canHaveLayoutAttributes;
+
+    // Variables used for caching the layout, access via layout().
+    QPointer<QObject> m_object;
+    mutable QPointer<QLayout> m_lastLayout;
+    mutable QDesignerPropertySheetExtension *m_lastLayoutPropertySheet;
+    mutable bool m_LastLayoutByDesigner;
+};
+
+QDesignerPropertySheetPrivate::Info::Info() :
+    changed(false),
+    visible(true),
+    attribute(false),
+    reset(true),
+    defaultDynamic(false),
+    propertyType(QDesignerPropertySheet::PropertyNone)
 {
+}
+
+QDesignerPropertySheetPrivate::QDesignerPropertySheetPrivate(QObject *object) :
+    m_meta(object->metaObject()),
+    m_objectType(QDesignerPropertySheet::objectTypeFromObject(object)),
+    m_canHaveLayoutAttributes( hasLayoutAttributes(object)),
+    m_object(object),
+    m_lastLayout(0),
+    m_lastLayoutPropertySheet(0),
+    m_LastLayoutByDesigner(false)
+{
+}
+
+QLayout* QDesignerPropertySheetPrivate::layout(QDesignerPropertySheetExtension **layoutPropertySheet) const
+{
+    // Return the layout and its property sheet
+    // only if it is managed by designer and not one created on a custom widget.
+    // (attempt to cache the value as this requires some hoops).
+    if (layoutPropertySheet)
+        *layoutPropertySheet = 0;
+
+    if (!m_object->isWidgetType() || !m_canHaveLayoutAttributes)
+        return 0;
+
+    QWidget *widget = qobject_cast<QWidget*>(m_object);
+    QLayout *widgetLayout = qdesigner_internal::LayoutInfo::internalLayout(widget);
+    if (!widgetLayout) {
+        m_lastLayout = 0;
+        m_lastLayoutPropertySheet = 0;
+        return 0;
+    }
+    // Smart logic to avoid retrieving the meta DB from the widget every time.
+    if (widgetLayout != m_lastLayout) {
+        m_lastLayout = widgetLayout;
+        m_LastLayoutByDesigner = false;
+        m_lastLayoutPropertySheet = 0;
+        // Is this a layout managed by designer or some layout on a custom widget?
+        if (QDesignerFormEditorInterface *core = formEditorForWidget(widget)) {
+            if (qdesigner_internal::LayoutInfo::managedLayout(core ,widgetLayout)) {
+                m_LastLayoutByDesigner = true;
+                m_lastLayoutPropertySheet = qt_extension<QDesignerPropertySheetExtension*>(core->extensionManager(), m_lastLayout);
+            }
+        }
+    }
+    if (!m_LastLayoutByDesigner)
+        return 0;
+
+    if (layoutPropertySheet)
+        *layoutPropertySheet = m_lastLayoutPropertySheet;
+
+    return  m_lastLayout;
+}
+
+QDesignerPropertySheetPrivate::Info &QDesignerPropertySheetPrivate::ensureInfo(int index)
+{
+    InfoHash::iterator it = m_info.find(index);
+    if (it == m_info.end())
+        it = m_info.insert(index, Info());
+    return it.value();
+}
+
+QDesignerPropertySheet::PropertyType QDesignerPropertySheetPrivate::propertyType(int index) const
+{
+    const InfoHash::const_iterator it = m_info.constFind(index);
+    if (it == m_info.constEnd())
+        return QDesignerPropertySheet::PropertyNone;
+    return it.value().propertyType;
+}
+
+QString QDesignerPropertySheetPrivate::transformLayoutPropertyName(int index) const
+{
+    switch (propertyType(index)) {
+    case QDesignerPropertySheet::PropertyLayoutLeftMargin:
+        return QLatin1String("leftMargin");
+    case QDesignerPropertySheet::PropertyLayoutTopMargin:
+        return QLatin1String("topMargin");
+    case QDesignerPropertySheet::PropertyLayoutRightMargin:
+        return QLatin1String("rightMargin");
+    case QDesignerPropertySheet::PropertyLayoutBottomMargin:
+        return QLatin1String("bottomMargin");
+    case QDesignerPropertySheet::PropertyLayoutSpacing:
+        return QLatin1String("spacing");
+    case QDesignerPropertySheet::PropertyLayoutHorizontalSpacing:
+        return QLatin1String("horizontalSpacing");
+    case QDesignerPropertySheet::PropertyLayoutVerticalSpacing:
+        return QLatin1String("verticalSpacing");
+    default:
+        break;
+    }
+    return QString();
 }
 
 // ----------- QDesignerPropertySheet
 
-QDesignerPropertySheet::ObjectType QDesignerPropertySheet::objectType(const QObject *o)
+QDesignerPropertySheet::ObjectType QDesignerPropertySheet::objectTypeFromObject(const QObject *o)
 {
     if (qobject_cast<const QLayout *>(o))
         return ObjectLayout;
@@ -102,44 +238,32 @@ QDesignerPropertySheet::ObjectType QDesignerPropertySheet::objectType(const QObj
 
 QDesignerPropertySheet::PropertyType QDesignerPropertySheet::propertyTypeFromName(const QString &name)
 {
-    if (name == QLatin1String("layoutLeftMargin"))
-        return  PropertyLayoutLeftMargin;
-    if (name == QLatin1String("layoutTopMargin"))
-        return  PropertyLayoutTopMargin;
-    if (name == QLatin1String("layoutRightMargin"))
-        return  PropertyLayoutRightMargin;
-    if (name == QLatin1String("layoutBottomMargin"))
-        return  PropertyLayoutBottomMargin;
-    if (name == QLatin1String("layoutSpacing"))
-        return  PropertyLayoutSpacing;
-    if (name == QLatin1String("layoutHorizontalSpacing"))
-        return  PropertyLayoutHorizontalSpacing;
-    if (name == QLatin1String("layoutVerticalSpacing"))
-        return  PropertyLayoutVerticalSpacing;
-    if (name == QLatin1String("buddy"))
-        return  PropertyBuddy;
-    if (name == QLatin1String("sizeConstraint"))
-        return  PropertySizeConstraint;
-    if (name == QLatin1String("geometry"))
-        return PropertyGeometry;
-    if (name == QLatin1String("checkable"))
-        return PropertyCheckable;
-    if (name.startsWith(QLatin1String("accessible")))
-        return  PropertyAccessibility;
-    return PropertyNone;
+    typedef QHash<QString, PropertyType> PropertyTypeHash;
+    static PropertyTypeHash propertyTypeHash;
+    if (propertyTypeHash.empty()) {
+        propertyTypeHash.insert(QLatin1String("layoutLeftMargin"),        PropertyLayoutLeftMargin);
+        propertyTypeHash.insert(QLatin1String("layoutTopMargin"),         PropertyLayoutTopMargin);
+        propertyTypeHash.insert(QLatin1String("layoutRightMargin"),       PropertyLayoutRightMargin);
+        propertyTypeHash.insert(QLatin1String("layoutBottomMargin"),      PropertyLayoutBottomMargin);
+        propertyTypeHash.insert(QLatin1String("layoutSpacing"),           PropertyLayoutSpacing);
+        propertyTypeHash.insert(QLatin1String("layoutHorizontalSpacing"), PropertyLayoutHorizontalSpacing);
+        propertyTypeHash.insert(QLatin1String("layoutVerticalSpacing"),   PropertyLayoutVerticalSpacing);
+        propertyTypeHash.insert(QLatin1String("buddy"),                   PropertyBuddy);
+        propertyTypeHash.insert(QLatin1String("sizeConstraint"),          PropertySizeConstraint);
+        propertyTypeHash.insert(QLatin1String("geometry"),                PropertyGeometry);
+        propertyTypeHash.insert(QLatin1String("checkable"),               PropertyCheckable);
+        propertyTypeHash.insert(QLatin1String("accessibleName"),          PropertyAccessibility);
+        propertyTypeHash.insert(QLatin1String("accessibleDescription"),   PropertyAccessibility);
+    }
+    return propertyTypeHash.value(name, PropertyNone);
 }
 
-QDesignerPropertySheet::QDesignerPropertySheet(QObject *object, QObject *parent)
-    : QObject(parent),
-      m_meta(object->metaObject()),
-      m_objectType(objectType(object)),
-      m_canHaveLayoutAttributes( hasLayoutAttributes(object)),
-      m_object(object),
-      m_lastLayout(0),
-      m_lastLayoutPropertySheet(0),
-      m_LastLayoutByDesigner(false)
+QDesignerPropertySheet::QDesignerPropertySheet(QObject *object, QObject *parent) :
+    QObject(*(new QDesignerPropertySheetPrivate(object)), parent)
 {
-    const QMetaObject *baseMeta = m_meta;
+    typedef QDesignerPropertySheetPrivate::Info Info;
+    Q_D(QDesignerPropertySheet);
+    const QMetaObject *baseMeta = d->m_meta;
 
     while (baseMeta && QString::fromUtf8(baseMeta->className()).startsWith(QLatin1String("QDesigner"))) {
         baseMeta = baseMeta->superClass();
@@ -147,7 +271,7 @@ QDesignerPropertySheet::QDesignerPropertySheet(QObject *object, QObject *parent)
     Q_ASSERT(baseMeta != 0);
 
     for (int index=0; index<count(); ++index) {
-        const QMetaProperty p = m_meta->property(index);
+        const QMetaProperty p = d->m_meta->property(index);
         const QString name = QString::fromUtf8(p.name());
         if (p.type() == QVariant::KeySequence) {
             createFakeProperty(name);
@@ -161,12 +285,12 @@ QDesignerPropertySheet::QDesignerPropertySheet(QObject *object, QObject *parent)
             pgroup = QString::fromUtf8(pmeta->className());
         }
 
-        Info &info = ensureInfo(index);
+        Info &info = d->ensureInfo(index);
         info.group = pgroup;
         info.propertyType = propertyTypeFromName(name);
 
         if (p.type() == QVariant::Cursor) {
-            info.defaultValue = p.read(m_object);
+            info.defaultValue = p.read(d->m_object);
         }
     }
 
@@ -179,7 +303,7 @@ QDesignerPropertySheet::QDesignerPropertySheet(QObject *object, QObject *parent)
         createFakeProperty(QLatin1String("dragEnabled"));
         createFakeProperty(QLatin1String("windowModality"));
 
-        if (m_canHaveLayoutAttributes) {
+        if (d->m_canHaveLayoutAttributes) {
             static const QString layoutGroup = QLatin1String("Layout");
             int pindex = count();
             createFakeProperty(QLatin1String("layoutLeftMargin"), 0);
@@ -217,7 +341,7 @@ QDesignerPropertySheet::QDesignerPropertySheet(QObject *object, QObject *parent)
             setPropertyGroup(pindex, layoutGroup);
         }
 
-        if (m_objectType == ObjectLabel)
+        if (d->m_objectType == ObjectLabel)
             createFakeProperty(QLatin1String("buddy"), QVariant(QByteArray()));
     }
 
@@ -237,7 +361,7 @@ QDesignerPropertySheet::QDesignerPropertySheet(QObject *object, QObject *parent)
             const QString name = QString::fromLatin1(cName);
             const int idx = addDynamicProperty(name, object->property(cName));
             if (idx != -1)
-                ensureInfo(idx).defaultDynamic = true;
+                d->ensureInfo(idx).defaultDynamic = true;
         }
     }
 }
@@ -246,10 +370,10 @@ QDesignerPropertySheet::~QDesignerPropertySheet()
 {
 }
 
-
 QObject *QDesignerPropertySheet::object() const
 {
-    return m_object;
+    Q_D(const QDesignerPropertySheet);
+    return d->m_object;
 }
 
 bool QDesignerPropertySheet::dynamicPropertiesAllowed() const
@@ -259,11 +383,12 @@ bool QDesignerPropertySheet::dynamicPropertiesAllowed() const
 
 bool QDesignerPropertySheet::canAddDynamicProperty(const QString &propName) const
 {
-    const int index = m_meta->indexOfProperty(propName.toUtf8());
+    Q_D(const QDesignerPropertySheet);
+    const int index = d->m_meta->indexOfProperty(propName.toUtf8());
     if (index != -1)
         return false; // property already exists and is not a dynamic one
-    if (m_addIndex.contains(propName)) {
-        const int idx = m_addIndex.value(propName);
+    if (d->m_addIndex.contains(propName)) {
+        const int idx = d->m_addIndex.value(propName);
         if (isVisible(idx))
             return false; // dynamic property already exists
         else
@@ -276,27 +401,28 @@ bool QDesignerPropertySheet::canAddDynamicProperty(const QString &propName) cons
 
 int QDesignerPropertySheet::addDynamicProperty(const QString &propName, const QVariant &value)
 {
+    Q_D(QDesignerPropertySheet);
     if (!value.isValid())
         return -1; // property has invalid type
     if (!canAddDynamicProperty(propName))
         return -1;
-    if (m_addIndex.contains(propName)) {
-        const int idx = m_addIndex.value(propName);
+    if (d->m_addIndex.contains(propName)) {
+        const int idx = d->m_addIndex.value(propName);
         // have to be invisible, this was checked in canAddDynamicProperty() method
         setVisible(idx, true);
-        m_addProperties.insert(idx, value);
+        d->m_addProperties.insert(idx, value);
         setChanged(idx, false);
-        const int index = m_meta->indexOfProperty(propName.toUtf8());
-        m_info[index].defaultValue = value;
+        const int index = d->m_meta->indexOfProperty(propName.toUtf8());
+        d->m_info[index].defaultValue = value;
         return idx;
     }
 
     const int index = count();
-    m_addIndex.insert(propName, index);
-    m_addProperties.insert(index, value);
+    d->m_addIndex.insert(propName, index);
+    d->m_addProperties.insert(index, value);
     setVisible(index, true);
     setChanged(index, false);
-    m_info[index].defaultValue = value;
+    d->m_info[index].defaultValue = value;
 
     setPropertyGroup(index, tr("Dynamic Properties"));
     return index;
@@ -304,7 +430,8 @@ int QDesignerPropertySheet::addDynamicProperty(const QString &propName, const QV
 
 bool QDesignerPropertySheet::removeDynamicProperty(int index)
 {
-    if (!m_addIndex.contains(propertyName(index)))
+    Q_D(QDesignerPropertySheet);
+    if (!d->m_addIndex.contains(propertyName(index)))
         return false;
 
     setVisible(index, false);
@@ -313,12 +440,13 @@ bool QDesignerPropertySheet::removeDynamicProperty(int index)
 
 bool QDesignerPropertySheet::isDynamic(int index) const
 {
-    if (!m_addProperties.contains(index))
+    Q_D(const QDesignerPropertySheet);
+    if (!d->m_addProperties.contains(index))
         return false;
 
     switch (propertyType(index)) {
     case PropertyBuddy:
-        if (m_objectType == ObjectLabel)
+        if (d->m_objectType == ObjectLabel)
             return false;
         break;
     case PropertyLayoutLeftMargin:
@@ -328,7 +456,7 @@ bool QDesignerPropertySheet::isDynamic(int index) const
     case PropertyLayoutSpacing:
     case PropertyLayoutHorizontalSpacing:
     case PropertyLayoutVerticalSpacing:
-        if (m_object->isWidgetType() && m_canHaveLayoutAttributes)
+        if (d->m_object->isWidgetType() && d->m_canHaveLayoutAttributes)
             return false;
     default:
         break;
@@ -338,7 +466,8 @@ bool QDesignerPropertySheet::isDynamic(int index) const
 
 bool QDesignerPropertySheet::isDynamicProperty(int index) const
 {
-    if (m_info.value(index).defaultDynamic)
+    Q_D(const QDesignerPropertySheet);
+    if (d->m_info.value(index).defaultDynamic)
         return false;
 
     return isDynamic(index);
@@ -346,67 +475,78 @@ bool QDesignerPropertySheet::isDynamicProperty(int index) const
 
 void QDesignerPropertySheet::createFakeProperty(const QString &propertyName, const QVariant &value)
 {
+    Q_D(QDesignerPropertySheet);
     // fake properties
-    const int index = m_meta->indexOfProperty(propertyName.toUtf8());
+    const int index = d->m_meta->indexOfProperty(propertyName.toUtf8());
     if (index != -1) {
-        if (!m_meta->property(index).isDesignable())
+        if (!d->m_meta->property(index).isDesignable())
             return;
         setVisible(index, false);
         const QVariant v = value.isValid() ? value : metaProperty(index);
-        m_fakeProperties.insert(index, v);
+        d->m_fakeProperties.insert(index, v);
     } else if (value.isValid()) { // additional properties
         const int index = count();
-        m_addIndex.insert(propertyName, index);
-        m_addProperties.insert(index, value);
-        ensureInfo(index).propertyType = propertyTypeFromName(propertyName);
+        d->m_addIndex.insert(propertyName, index);
+        d->m_addProperties.insert(index, value);
+        d->ensureInfo(index).propertyType = propertyTypeFromName(propertyName);
     }
 }
 
 bool QDesignerPropertySheet::isAdditionalProperty(int index) const
 {
-    return m_addProperties.contains(index);
+    Q_D(const QDesignerPropertySheet);
+    return d->m_addProperties.contains(index);
 }
 
 bool QDesignerPropertySheet::isFakeProperty(int index) const
 {
+    Q_D(const QDesignerPropertySheet);
     // additional properties must be fake
-    return (m_fakeProperties.contains(index) || isAdditionalProperty(index));
+    return (d->m_fakeProperties.contains(index) || isAdditionalProperty(index));
 }
 
 int QDesignerPropertySheet::count() const
 {
-    return m_meta->propertyCount() + m_addProperties.count();
+    Q_D(const QDesignerPropertySheet);
+    return d->m_meta->propertyCount() + d->m_addProperties.count();
 }
 
 int QDesignerPropertySheet::indexOf(const QString &name) const
 {
-    int index = m_meta->indexOfProperty(name.toUtf8());
+    Q_D(const QDesignerPropertySheet);
+    int index = d->m_meta->indexOfProperty(name.toUtf8());
 
     if (index == -1)
-        index = m_addIndex.value(name, -1);
+        index = d->m_addIndex.value(name, -1);
 
     return index;
 }
 
 QDesignerPropertySheet::PropertyType QDesignerPropertySheet::propertyType(int index) const
 {
-    const InfoHash::const_iterator it = m_info.constFind(index);
-    if (it == m_info.constEnd())
-        return PropertyNone;
-    return it.value().propertyType;
+    Q_D(const QDesignerPropertySheet);
+    return d->propertyType(index);
+}
+
+QDesignerPropertySheet::ObjectType QDesignerPropertySheet::objectType() const
+{
+    Q_D(const QDesignerPropertySheet);
+    return d->m_objectType;
 }
 
 QString QDesignerPropertySheet::propertyName(int index) const
 {
+    Q_D(const QDesignerPropertySheet);
     if (isAdditionalProperty(index))
-        return m_addIndex.key(index);
+        return d->m_addIndex.key(index);
 
-    return QString::fromUtf8(m_meta->property(index).name());
+    return QString::fromUtf8(d->m_meta->property(index).name());
 }
 
 QString QDesignerPropertySheet::propertyGroup(int index) const
 {
-    const QString g = m_info.value(index).group;
+    Q_D(const QDesignerPropertySheet);
+    const QString g = d->m_info.value(index).group;
 
     if (!g.isEmpty())
         return g;
@@ -415,32 +555,34 @@ QString QDesignerPropertySheet::propertyGroup(int index) const
         return QString::fromUtf8("Accessibility");
 
     if (isAdditionalProperty(index))
-        return QString::fromUtf8(m_meta->className());
+        return QString::fromUtf8(d->m_meta->className());
 
     return g;
 }
 
 void QDesignerPropertySheet::setPropertyGroup(int index, const QString &group)
 {
-    ensureInfo(index).group = group;
+    Q_D(QDesignerPropertySheet);
+    d->ensureInfo(index).group = group;
 }
 
 QVariant QDesignerPropertySheet::property(int index) const
 {
+    Q_D(const QDesignerPropertySheet);
     if (isAdditionalProperty(index)) {
         if (isFakeLayoutProperty(index)) {
             QDesignerPropertySheetExtension *layoutPropertySheet;
-            if (layout(&layoutPropertySheet) && layoutPropertySheet) {
-                const QString newPropName = transformLayoutPropertyName(index);
+            if (d->layout(&layoutPropertySheet) && layoutPropertySheet) {
+                const QString newPropName = d->transformLayoutPropertyName(index);
                 if (!newPropName.isEmpty())
                     return layoutPropertySheet->property(layoutPropertySheet->indexOf(newPropName));
             }
         }
-        return m_addProperties.value(index);
+        return d->m_addProperties.value(index);
     }
 
     if (isFakeProperty(index)) {
-        return m_fakeProperties.value(index);
+        return d->m_fakeProperties.value(index);
     }
 
     return metaProperty(index);
@@ -448,10 +590,11 @@ QVariant QDesignerPropertySheet::property(int index) const
 
 QVariant QDesignerPropertySheet::metaProperty(int index) const
 {
+    Q_D(const QDesignerPropertySheet);
     Q_ASSERT(!isFakeProperty(index));
 
-    const QMetaProperty p = m_meta->property(index);
-    QVariant v = p.read(m_object);
+    const QMetaProperty p = d->m_meta->property(index);
+    QVariant v = p.read(d->m_object);
 
     static const QString doubleColon = QLatin1String("::");
     if (p.isFlagType()) {
@@ -500,9 +643,10 @@ QVariant QDesignerPropertySheet::resolvePropertyValue(const QVariant &value) con
 
 void QDesignerPropertySheet::setFakeProperty(int index, const QVariant &value)
 {
+    Q_D(QDesignerPropertySheet);
     Q_ASSERT(isFakeProperty(index));
 
-    QVariant &v = m_fakeProperties[index];
+    QVariant &v = d->m_fakeProperties[index];
 
     if (qVariantCanConvert<qdesigner_internal::FlagType>(value) || qVariantCanConvert<qdesigner_internal::EnumType>(value)) {
         v = value;
@@ -521,6 +665,12 @@ void QDesignerPropertySheet::setFakeProperty(int index, const QVariant &value)
     }
 }
 
+void QDesignerPropertySheet::clearFakeProperties()
+{
+    Q_D(QDesignerPropertySheet);
+    d->m_fakeProperties.clear();
+}
+
 // Buddy needs to be byte array, else uic won't work
 static QVariant toByteArray(const QVariant &value) {
     if (value.type() == QVariant::ByteArray)
@@ -531,42 +681,43 @@ static QVariant toByteArray(const QVariant &value) {
 
 void QDesignerPropertySheet::setProperty(int index, const QVariant &value)
 {
+    Q_D(QDesignerPropertySheet);
     if (isAdditionalProperty(index)) {
-        if (m_objectType == ObjectLabel && propertyType(index) == PropertyBuddy) {
-            QFormBuilderExtra::applyBuddy(value.toString(), QFormBuilderExtra::BuddyApplyVisibleOnly, qobject_cast<QLabel *>(m_object));
-            m_addProperties[index] = toByteArray(value);
+        if (d->m_objectType == ObjectLabel && propertyType(index) == PropertyBuddy) {
+            QFormBuilderExtra::applyBuddy(value.toString(), QFormBuilderExtra::BuddyApplyVisibleOnly, qobject_cast<QLabel *>(d->m_object));
+            d->m_addProperties[index] = toByteArray(value);
             return;
         }
 
         if (isFakeLayoutProperty(index)) {
             QDesignerPropertySheetExtension *layoutPropertySheet;
-            if (layout(&layoutPropertySheet) && layoutPropertySheet) {
-                const QString newPropName = transformLayoutPropertyName(index);
+            if (d->layout(&layoutPropertySheet) && layoutPropertySheet) {
+                const QString newPropName = d->transformLayoutPropertyName(index);
                 if (!newPropName.isEmpty())
                     layoutPropertySheet->setProperty(layoutPropertySheet->indexOf(newPropName), value);
             }
         }
 
         if (isDynamicProperty(index)) {
-            m_object->setProperty(propertyName(index).toUtf8(), value);
-            if (m_object->isWidgetType()) {
-                QWidget *w = qobject_cast<QWidget *>(m_object);
+            d->m_object->setProperty(propertyName(index).toUtf8(), value);
+            if (d->m_object->isWidgetType()) {
+                QWidget *w = qobject_cast<QWidget *>(d->m_object);
                 w->setStyleSheet(w->styleSheet());
             }
         }
-        m_addProperties[index] = value;
+        d->m_addProperties[index] = value;
     } else if (isFakeProperty(index)) {
         setFakeProperty(index, value);
     } else {
-        const QMetaProperty p = m_meta->property(index);
-        p.write(m_object, resolvePropertyValue(value));
-        if (qobject_cast<QGroupBox *>(m_object) && propertyType(index) == PropertyCheckable) {
+        const QMetaProperty p = d->m_meta->property(index);
+        p.write(d->m_object, resolvePropertyValue(value));
+        if (qobject_cast<QGroupBox *>(d->m_object) && propertyType(index) == PropertyCheckable) {
             const int idx = indexOf(QLatin1String("focusPolicy"));
             if (!isChanged(idx)) {
                 qdesigner_internal::EnumType e = qVariantValue<qdesigner_internal::EnumType>(property(idx));
                 if (value.toBool()) {
-                    const QMetaProperty p = m_meta->property(idx);
-                    p.write(m_object, Qt::NoFocus);
+                    const QMetaProperty p = d->m_meta->property(idx);
+                    p.write(d->m_object, Qt::NoFocus);
                     e.value = Qt::StrongFocus;
                     QVariant v;
                     qVariantSetValue(v, e);
@@ -584,40 +735,42 @@ void QDesignerPropertySheet::setProperty(int index, const QVariant &value)
 
 bool QDesignerPropertySheet::hasReset(int index) const
 {
+    Q_D(const QDesignerPropertySheet);
     if (isAdditionalProperty(index))
-        return m_info.value(index).reset;
+        return d->m_info.value(index).reset;
 
     return true;
 }
 
 bool QDesignerPropertySheet::reset(int index)
 {
+    Q_D(QDesignerPropertySheet);
     if (isDynamic(index)) {
         const QString propName = propertyName(index);
-        const QVariant oldValue = m_addProperties.value(index);
-        const QVariant newValue = m_info.value(index).defaultValue;
+        const QVariant oldValue = d->m_addProperties.value(index);
+        const QVariant newValue = d->m_info.value(index).defaultValue;
         if (oldValue == newValue)
             return true;
-        m_object->setProperty(propName.toUtf8(), newValue);
-        m_addProperties[index] = newValue;
+        d->m_object->setProperty(propName.toUtf8(), newValue);
+        d->m_addProperties[index] = newValue;
         return true;
-    } else if (!m_info.value(index).defaultValue.isNull()) {
-        setProperty(index, m_info.value(index).defaultValue);
+    } else if (!d->m_info.value(index).defaultValue.isNull()) {
+        setProperty(index, d->m_info.value(index).defaultValue);
         return true;
     }
     if (isAdditionalProperty(index)) {
         const PropertyType pType = propertyType(index);
 
-        if (m_objectType == ObjectLabel && pType == PropertyBuddy) {
+        if (d->m_objectType == ObjectLabel && pType == PropertyBuddy) {
             setProperty(index, QVariant(QByteArray()));
             return true;
         }
 
         if (isFakeLayoutProperty(index)) {
             int value = -1;
-            switch (m_objectType) {
+            switch (d->m_objectType) {
             case ObjectQ3GroupBox: {
-                const QWidget *w = qobject_cast<const QWidget *>(m_object);
+                const QWidget *w = qobject_cast<const QWidget *>(d->m_object);
                 switch (pType) {
                 case PropertyLayoutLeftMargin:
                     value = w->style()->pixelMetric(QStyle::PM_LayoutLeftMargin);
@@ -656,12 +809,12 @@ bool QDesignerPropertySheet::reset(int index)
         }
         return false;
     } else if (isFakeProperty(index)) {
-        const QMetaProperty p = m_meta->property(index);
-        const bool result = p.reset(m_object);
-        m_fakeProperties[index] = p.read(m_object);
+        const QMetaProperty p = d->m_meta->property(index);
+        const bool result = p.reset(d->m_object);
+        d->m_fakeProperties[index] = p.read(d->m_object);
         return result;
-    } else if (propertyType(index) == PropertyGeometry && m_object->isWidgetType()) {
-        if (QWidget *w = qobject_cast<QWidget*>(m_object)) {
+    } else if (propertyType(index) == PropertyGeometry && d->m_object->isWidgetType()) {
+        if (QWidget *w = qobject_cast<QWidget*>(d->m_object)) {
             QWidget *widget = w;
             QDesignerFormWindowInterface *formWindow = QDesignerFormWindowInterface::findFormWindow(widget);
             if (qdesigner_internal::Utils::isCentralWidget(formWindow, widget) && formWindow->parentWidget())
@@ -679,42 +832,45 @@ bool QDesignerPropertySheet::reset(int index)
 
     // ### TODO: reset for fake properties.
 
-    const QMetaProperty p = m_meta->property(index);
-    return p.reset(m_object);
+    const QMetaProperty p = d->m_meta->property(index);
+    return p.reset(d->m_object);
 }
 
 bool QDesignerPropertySheet::isChanged(int index) const
 {
+    Q_D(const QDesignerPropertySheet);
     if (isAdditionalProperty(index)) {
         if (isFakeLayoutProperty(index)) {
             QDesignerPropertySheetExtension *layoutPropertySheet;
-            if (layout(&layoutPropertySheet) && layoutPropertySheet) {
-                const QString newPropName = transformLayoutPropertyName(index);
+            if (d->layout(&layoutPropertySheet) && layoutPropertySheet) {
+                const QString newPropName = d->transformLayoutPropertyName(index);
                 if (!newPropName.isEmpty())
                     return layoutPropertySheet->isChanged(layoutPropertySheet->indexOf(newPropName));
             }
         }
     }
-    return m_info.value(index).changed;
+    return d->m_info.value(index).changed;
 }
 
 void QDesignerPropertySheet::setChanged(int index, bool changed)
 {
+    Q_D(QDesignerPropertySheet);
     if (isAdditionalProperty(index)) {
         if (isFakeLayoutProperty(index)) {
             QDesignerPropertySheetExtension *layoutPropertySheet;
-            if (layout(&layoutPropertySheet) && layoutPropertySheet) {
-                const QString newPropName = transformLayoutPropertyName(index);
+            if (d->layout(&layoutPropertySheet) && layoutPropertySheet) {
+                const QString newPropName = d->transformLayoutPropertyName(index);
                 if (!newPropName.isEmpty())
                     layoutPropertySheet->setChanged(layoutPropertySheet->indexOf(newPropName), changed);
             }
         }
     }
-    ensureInfo(index).changed = changed;
+    d->ensureInfo(index).changed = changed;
 }
 
 bool QDesignerPropertySheet::isFakeLayoutProperty(int index) const
 {
+    Q_D(const QDesignerPropertySheet);
     if (!isAdditionalProperty(index))
         return false;
 
@@ -728,7 +884,7 @@ bool QDesignerPropertySheet::isFakeLayoutProperty(int index) const
     case PropertyLayoutSpacing:
     case PropertyLayoutHorizontalSpacing:
     case PropertyLayoutVerticalSpacing:
-        return m_canHaveLayoutAttributes;
+        return d->m_canHaveLayoutAttributes;
     default:
         break;
     }
@@ -737,9 +893,10 @@ bool QDesignerPropertySheet::isFakeLayoutProperty(int index) const
 
 bool QDesignerPropertySheet::isVisible(int index) const
 {
+    Q_D(const QDesignerPropertySheet);
     if (isAdditionalProperty(index)) {
-        if (isFakeLayoutProperty(index) && m_object->isWidgetType()) {
-            QLayout *currentLayout = layout();
+        if (isFakeLayoutProperty(index) && d->m_object->isWidgetType()) {
+            QLayout *currentLayout = d->layout();
             if (!currentLayout)
                 return false;
             switch (propertyType(index)) {
@@ -757,106 +914,38 @@ bool QDesignerPropertySheet::isVisible(int index) const
             }
             return true;
         }
-        return m_info.value(index).visible;
+        return d->m_info.value(index).visible;
     }
 
     if (isFakeProperty(index))
         return true;
 
-    const QMetaProperty p = m_meta->property(index);
-    return (p.isWritable() && p.isDesignable(m_object)) || m_info.value(index).visible;
+    const QMetaProperty p = d->m_meta->property(index);
+    return (p.isWritable() && p.isDesignable(d->m_object)) || d->m_info.value(index).visible;
 }
 
 void QDesignerPropertySheet::setVisible(int index, bool visible)
 {
-    ensureInfo(index).visible = visible;
+    Q_D(QDesignerPropertySheet);
+    d->ensureInfo(index).visible = visible;
 }
 
 bool QDesignerPropertySheet::isAttribute(int index) const
 {
+    Q_D(const QDesignerPropertySheet);
     if (isAdditionalProperty(index))
-        return m_info.value(index).attribute;
+        return d->m_info.value(index).attribute;
 
     if (isFakeProperty(index))
         return false;
 
-    return m_info.value(index).attribute;
+    return d->m_info.value(index).attribute;
 }
 
 void QDesignerPropertySheet::setAttribute(int index, bool attribute)
 {
-    ensureInfo(index).attribute = attribute;
-}
-
-QLayout* QDesignerPropertySheet::layout(QDesignerPropertySheetExtension **layoutPropertySheet) const
-{
-    // Return the layout and its property sheet
-    // only if it is managed by designer and not one created on a custom widget.
-    if (layoutPropertySheet)
-        *layoutPropertySheet = 0;
-
-    if (!m_object->isWidgetType() || !m_canHaveLayoutAttributes)
-        return 0;
-
-    QWidget *widget = qobject_cast<QWidget*>(m_object);
-    QLayout *widgetLayout = qdesigner_internal::LayoutInfo::internalLayout(widget);
-    if (!widgetLayout) {
-        m_lastLayout = 0;
-        m_lastLayoutPropertySheet = 0;
-        return 0;
-    }
-    // Smart logic to avoid retrieving the meta DB from the widget every time.
-    if (widgetLayout != m_lastLayout) {
-        m_lastLayout = widgetLayout;
-        m_LastLayoutByDesigner = false;
-        m_lastLayoutPropertySheet = 0;
-        // Is this a layout managed by designer or some layout on a custom widget?
-        if (QDesignerFormEditorInterface *core = formEditorForWidget(widget)) {
-            if (qdesigner_internal::LayoutInfo::managedLayout(core ,widgetLayout)) {
-                m_LastLayoutByDesigner = true;
-                m_lastLayoutPropertySheet = qt_extension<QDesignerPropertySheetExtension*>(core->extensionManager(), m_lastLayout);
-            }
-        }
-    }
-    if (!m_LastLayoutByDesigner)
-        return 0;
-
-    if (layoutPropertySheet)
-        *layoutPropertySheet = m_lastLayoutPropertySheet;
-
-    return  m_lastLayout;
-}
-
-QDesignerPropertySheet::Info &QDesignerPropertySheet::ensureInfo(int index)
-{
-    InfoHash::iterator it = m_info.find(index);
-    if (it == m_info.end()) {
-        it = m_info.insert(index, Info());
-    }
-    return it.value();
-}
-
-QString QDesignerPropertySheet::transformLayoutPropertyName(int index) const
-{
-    switch (propertyType(index)) {
-    case PropertyLayoutLeftMargin:
-        return QLatin1String("leftMargin");
-    case PropertyLayoutTopMargin:
-        return QLatin1String("topMargin");
-    case PropertyLayoutRightMargin:
-        return QLatin1String("rightMargin");
-    case PropertyLayoutBottomMargin:
-        return QLatin1String("bottomMargin");
-    case PropertyLayoutSpacing:
-        return QLatin1String("spacing");
-    case PropertyLayoutHorizontalSpacing:
-        return QLatin1String("horizontalSpacing");
-    case PropertyLayoutVerticalSpacing:
-        return QLatin1String("verticalSpacing");
-    default:
-        break;
-    }
-    return QString();
+    Q_D(QDesignerPropertySheet);
+    d->ensureInfo(index).attribute = attribute;
 }
 
 // ---------- QDesignerAbstractPropertySheetFactory

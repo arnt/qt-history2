@@ -28,7 +28,7 @@ using namespace qdesigner_internal;
 SpacerPropertySheet::SpacerPropertySheet(Spacer *object, QObject *parent)
     : QDesignerPropertySheet(object, parent)
 {
-    m_fakeProperties.clear();
+    clearFakeProperties();
 }
 
 SpacerPropertySheet::~SpacerPropertySheet()

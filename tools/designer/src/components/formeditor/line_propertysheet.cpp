@@ -27,7 +27,7 @@ using namespace qdesigner_internal;
 LinePropertySheet::LinePropertySheet(Line *object, QObject *parent)
     : QDesignerPropertySheet(object, parent)
 {
-    m_fakeProperties.clear();
+    clearFakeProperties();
 }
 
 LinePropertySheet::~LinePropertySheet()

@@ -25,7 +25,7 @@ using namespace qdesigner_internal;
 QLayoutWidgetPropertySheet::QLayoutWidgetPropertySheet(QLayoutWidget *object, QObject *parent)
     : QDesignerPropertySheet(object, parent)
 {
-    m_fakeProperties.clear();
+    clearFakeProperties();
 }
 
 QLayoutWidgetPropertySheet::~QLayoutWidgetPropertySheet()

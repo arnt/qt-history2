@@ -29,6 +29,9 @@
 
 #include <QtDesigner/membersheet.h>
 #include <QtDesigner/default_extensionfactory.h>
+#include <QtCore/QStringList>
+
+class QDesignerMemberSheetPrivate;
 
 class QDESIGNER_SHARED_EXPORT QDesignerMemberSheet: public QObject, public QDesignerMemberSheetExtension
 {
@@ -62,20 +65,8 @@ public:
     virtual QList<QByteArray> parameterTypes(int index) const;
     virtual QList<QByteArray> parameterNames(int index) const;
 
-protected:
-    const QMetaObject *m_meta;
-
-    class Info
-    {
-    public:
-        QString group;
-        uint visible: 1;
-
-        inline Info()
-            : visible(1) {}
-    };
-
-    QHash<int, Info> m_info;
+private:
+    Q_DECLARE_PRIVATE(QDesignerMemberSheet)
 };
 
 class QDESIGNER_SHARED_EXPORT QDesignerMemberSheetFactory: public QExtensionFactory

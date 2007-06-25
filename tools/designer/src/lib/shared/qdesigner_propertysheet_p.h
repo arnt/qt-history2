@@ -37,6 +37,7 @@
 #include <QPointer>
 
 class QLayout;
+class QDesignerPropertySheetPrivate;
 
 class QDESIGNER_SHARED_EXPORT QDesignerPropertySheet: public QObject, public QDesignerPropertySheetExtension, public QDesignerDynamicPropertySheetExtension
 {
@@ -83,11 +84,12 @@ protected:
     QVariant resolvePropertyValue(const QVariant &value) const;
     QVariant metaProperty(int index) const;
     void setFakeProperty(int index, const QVariant &value);
+    void clearFakeProperties();
 
     bool isFakeLayoutProperty(int index) const;
     bool isDynamic(int index) const;
 
-public: // For MSVC 6
+public:
     enum PropertyType { PropertyNone,
                         PropertyLayoutLeftMargin,
                         PropertyLayoutTopMargin,
@@ -102,50 +104,18 @@ public: // For MSVC 6
                         PropertyGeometry,
                         PropertyCheckable};
 
-protected:
     enum ObjectType { ObjectNone, ObjectLabel, ObjectLayout, ObjectLayoutWidget, ObjectQ3GroupBox };
-    static ObjectType objectType(const QObject *o);
-    static  PropertyType propertyTypeFromName(const QString &name);
+
+    static ObjectType objectTypeFromObject(const QObject *o);
+    static PropertyType propertyTypeFromName(const QString &name);
+
+protected:
     PropertyType propertyType(int index) const;
-
     QObject *object() const;
-    const QMetaObject *m_meta;
-    const ObjectType m_objectType;
-
-    class Info
-    {
-    public:
-        Info();
-
-        QString group;
-        QVariant defaultValue;
-        uint changed: 1;
-        uint visible: 1;
-        uint attribute: 1;
-        uint reset: 1;
-        uint defaultDynamic: 1;
-        PropertyType propertyType;
-    };
-
-    Info &ensureInfo(int index);
-
-    typedef QHash<int, Info> InfoHash;
-    InfoHash m_info;
-    QHash<int, QVariant> m_fakeProperties;
-    QHash<int, QVariant> m_addProperties;
-    QHash<QString, int> m_addIndex;
+    ObjectType objectType() const;
 
 private:
-    QString transformLayoutPropertyName(int index) const;
-    QLayout* layout(QDesignerPropertySheetExtension **layoutPropertySheet = 0) const;
-
-    const bool m_canHaveLayoutAttributes;
-
-    // Variables used for caching the layout, access via layout().
-    QPointer<QObject> m_object;
-    mutable QPointer<QLayout> m_lastLayout;
-    mutable QDesignerPropertySheetExtension *m_lastLayoutPropertySheet;
-    mutable bool m_LastLayoutByDesigner;
+    Q_DECLARE_PRIVATE(QDesignerPropertySheet)
 };
 
 /* Abstract base class for factories that register a property sheet that implements
