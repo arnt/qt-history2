@@ -141,6 +141,7 @@ public:
         inline iterator operator--(int) { iterator tmp = *this; operator--(); return tmp; }
     };
 
+    friend class iterator;
     // more Qt
     typedef iterator Iterator;
 
