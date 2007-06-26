@@ -852,40 +852,66 @@ static const uint * QT_FASTCALL fetchLinearGradient(uint *buffer, const Operator
 {
     const uint *b = buffer;
     qreal t, inc;
+
+    bool affine = true;
+    qreal rx=0, ry=0;
     if (op->linear.l == 0) {
         t = inc = 0;
     } else {
-        qreal rx = data->m21 * y + data->m11 * x + data->dx;
-        qreal ry = data->m22 * y + data->m12 * x + data->dy;
+        rx = data->m21 * y + data->m11 * x + data->dx;
+        ry = data->m22 * y + data->m12 * x + data->dy;
         t = op->linear.dx*rx + op->linear.dy*ry + op->linear.off;
         inc = op->linear.dx * data->m11 + op->linear.dy * data->m12;
-        t *= GRADIENT_STOPTABLE_SIZE;
-        inc *= GRADIENT_STOPTABLE_SIZE;
+        affine = !data->m13 && !data->m23;
+
+        if (affine) {
+            t *= GRADIENT_STOPTABLE_SIZE;
+            inc *= GRADIENT_STOPTABLE_SIZE;
+        }
     }
 
     const uint *end = buffer + length;
-    if (inc > -1e-5 && inc < 1e-5) {
-        QT_MEMFILL_UINT(buffer, length, qt_gradient_pixel_fixed(&data->gradient, int(t * FIXPT_SIZE)));
-    } else {
-        if (t+inc*length < qreal(INT_MAX >> (FIXPT_BITS + 1)) &&
-            t+inc*length > qreal(INT_MIN >> (FIXPT_BITS + 1))) {
-            // we can use fixed point math
-            int t_fixed = int(t * FIXPT_SIZE);
-            int inc_fixed = int(inc * FIXPT_SIZE);
-            while (buffer < end) {
-                *buffer = qt_gradient_pixel_fixed(&data->gradient, t_fixed);
-                t_fixed += inc_fixed;
-                ++buffer;
-            }
+    if (affine) {
+        if (inc > -1e-5 && inc < 1e-5) {
+            QT_MEMFILL_UINT(buffer, length, qt_gradient_pixel_fixed(&data->gradient, int(t * FIXPT_SIZE)));
         } else {
-            // we have to fall back to float math
-            while (buffer < end) {
-                *buffer = qt_gradient_pixel(&data->gradient, t/GRADIENT_STOPTABLE_SIZE);
-                t += inc;
-                ++buffer;
+            if (t+inc*length < qreal(INT_MAX >> (FIXPT_BITS + 1)) &&
+                t+inc*length > qreal(INT_MIN >> (FIXPT_BITS + 1))) {
+                // we can use fixed point math
+                int t_fixed = int(t * FIXPT_SIZE);
+                int inc_fixed = int(inc * FIXPT_SIZE);
+                while (buffer < end) {
+                    *buffer = qt_gradient_pixel_fixed(&data->gradient, t_fixed);
+                    t_fixed += inc_fixed;
+                    ++buffer;
+                }
+            } else {
+                // we have to fall back to float math
+                while (buffer < end) {
+                    *buffer = qt_gradient_pixel(&data->gradient, t/GRADIENT_STOPTABLE_SIZE);
+                    t += inc;
+                    ++buffer;
+                }
             }
         }
+    } else { // fall back to float math here as well
+        qreal rw = data->m23 * y + data->m13 * x + 1.;
+        while (buffer < end) {
+            qreal x = rx/rw;
+            qreal y = ry/rw;
+            t = (op->linear.dx*x + op->linear.dy *y) + op->linear.off;
+
+            *buffer = qt_gradient_pixel(&data->gradient, t);
+            rx += data->m11;
+            ry += data->m12;
+            rw += data->m13;
+            if (!rw) {
+                rw += data->m13;
+            }
+            ++buffer;
+        }
     }
+
     return b;
 }
 #else
