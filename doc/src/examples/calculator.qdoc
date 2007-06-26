@@ -365,7 +365,7 @@
     \gui{Backspace}, \gui{Clear}, and \gui{Clear All} buttons.
 
     The screenshot below shows how the \c Calculator widget would
-    like if we \e didn't set the horizontal size policy to
+    look like if we \e didn't set the horizontal size policy to
     QSizePolicy::Expanding in the constructor and if we didn't
     reimplement QWidget::sizeHint().
 
