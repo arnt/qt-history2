@@ -829,9 +829,7 @@ void TableWidgetEditor::on_previewPixmapRowButton_clicked()
     QString qrc_path;
 
     QIcon icon = currentRow->icon();
-    if (icon.isNull()) {
-        file_path = m_form->absoluteDir().absolutePath();
-    } else {
+    if (!icon.isNull()) {
         file_path = m_form->core()->iconCache()->iconToFilePath(icon);
         qrc_path = m_form->core()->iconCache()->iconToQrcPath(icon);
     }
