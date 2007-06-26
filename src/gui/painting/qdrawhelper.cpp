@@ -924,7 +924,7 @@ static const uint * QT_FASTCALL fetchLinearGradient(uint *buffer, const Operator
         while (buffer < end) {
             qreal x = rx/rw;
             qreal y = ry/rw;
-            t = (op->linear.dx*x + op->linear.dy *y) * op->linear.off;
+            t = (op->linear.dx*x + op->linear.dy *y) + op->linear.off;
 
             *buffer = qt_gradient_pixel(&data->gradient, t);
             rx += data->m11;
@@ -964,14 +964,16 @@ static const uint * QT_FASTCALL fetchRadialGradient(uint *buffer, const Operator
 {
     const uint *b = buffer;
     qreal rx = data->m21 * (y + 0.5)
-               + data->dx + data->m11 * (x + 0.5) - data->gradient.radial.focal.x;
+               + data->dx + data->m11 * (x + 0.5);
     qreal ry = data->m22 * (y + 0.5)
-               + data->dy + data->m12 * (x + 0.5) - data->gradient.radial.focal.y;
+               + data->dy + data->m12 * (x + 0.5);
     bool affine = !data->m13 && !data->m23;
     //qreal r  = data->gradient.radial.radius;
 
     const uint *end = buffer + length;
     if (affine) {
+        rx -= data->gradient.radial.focal.x;
+        ry -= data->gradient.radial.focal.y;
         while (buffer < end) {
             qreal b  = 2*(rx*op->radial.dx + ry*op->radial.dy);
             qreal det = determinant(op->radial.a, b , -(rx*rx + ry*ry));
@@ -989,8 +991,8 @@ static const uint * QT_FASTCALL fetchRadialGradient(uint *buffer, const Operator
         if (!rw)
             rw = 1;
         while (buffer < end) {
-            qreal gx = rx/rw;
-            qreal gy = ry/rw;
+            qreal gx = rx/rw - data->gradient.radial.focal.x;
+            qreal gy = ry/rw - data->gradient.radial.focal.y;
             qreal b  = 2*(gx*op->radial.dx + gy*op->radial.dy);
             qreal det = determinant(op->radial.a, b , -(gx*gx + gy*gy));
             qreal s = realRoots(op->radial.a, b, qSqrt(det));
@@ -1015,13 +1017,15 @@ static const uint * QT_FASTCALL fetchConicalGradient(uint *buffer, const Operato
 {
     const uint *b = buffer;
     qreal rx = data->m21 * (y + 0.5)
-               + data->dx + data->m11 * (x + 0.5) - data->gradient.conical.center.x;
+               + data->dx + data->m11 * (x + 0.5);
     qreal ry = data->m22 * (y + 0.5)
-               + data->dy + data->m12 * (x + 0.5) - data->gradient.conical.center.y;
+               + data->dy + data->m12 * (x + 0.5);
     bool affine = !data->m13 && !data->m23;
 
     const uint *end = buffer + length;
     if (affine) {
+        rx -= data->gradient.conical.center.x;
+        ry -= data->gradient.conical.center.y;
         while (buffer < end) {
             qreal angle = atan2(ry, rx) + data->gradient.conical.angle;
 
@@ -1037,7 +1041,9 @@ static const uint * QT_FASTCALL fetchConicalGradient(uint *buffer, const Operato
         if (!rw)
             rw = 1;
         while (buffer < end) {
-            qreal angle = atan2(ry/rw, rx/rw) + data->gradient.conical.angle;
+            qreal angle = atan2(ry/rw - data->gradient.conical.center.x,
+                                rx/rw - data->gradient.conical.center.y)
+                          + data->gradient.conical.angle;
 
             *buffer = qt_gradient_pixel(&data->gradient, 1. - angle / (2*Q_PI));
 
