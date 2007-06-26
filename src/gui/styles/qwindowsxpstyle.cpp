@@ -1302,6 +1302,8 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
             stateId = TS_CHECKED;
         else
             stateId = TS_NORMAL;
+        if (option->direction == Qt::RightToLeft)
+            hMirrored = true;
         break;
 
     case PE_IndicatorArrowDown:
@@ -2794,6 +2796,8 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                             stateId = TS_CHECKED;
                         else
                             stateId = TS_NORMAL;
+                        if (option->direction == Qt::RightToLeft)
+                            theme.mirrorHorizontally = true;
 
                         theme.partId = partId;
                         theme.stateId = stateId;
