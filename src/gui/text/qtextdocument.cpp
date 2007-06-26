@@ -520,6 +520,8 @@ void QTextDocument::markContentsDirty(int from, int length)
 void QTextDocument::setUseDesignMetrics(bool b)
 {
     Q_D(QTextDocument);
+    if (b == d->defaultTextOption.useDesignMetrics())
+        return;
     d->defaultTextOption.setUseDesignMetrics(b);
     if (d->lout)
         d->lout->documentChanged(0, 0, d->length());
