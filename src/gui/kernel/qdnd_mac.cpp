@@ -263,7 +263,7 @@ static inline bool qt_mac_set_existing_drop_action(const DragRef &dragRef, QDrop
 }
 
 /**
-    If an answer rect has been set on the event (after being sendt
+    If an answer rect has been set on the event (after being sent
     to the global event processor), we store that rect so we can
     check if the mouse is in the same area upon next drag move event. 
 */

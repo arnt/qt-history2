@@ -1366,7 +1366,7 @@ void QConfFileSettingsPrivate::syncConfFile(int confFileNo)
     int numReadLocks = readOnly ? 1 : FileLockSemMax;
 
     if (file.isOpen()) {
-        // Aquire the write lock if we will be writing
+        // Acquire the write lock if we will be writing
         if (!readOnly) {
             QString writeSemName = QLatin1String("QSettingsWriteSem ");
             writeSemName.append(file.fileName());
@@ -1385,7 +1385,7 @@ void QConfFileSettingsPrivate::syncConfFile(int confFileNo)
             }
         }
 
-        // Aquire all the read locks if we will be writing, to make sure nobody
+        // Acquire all the read locks if we will be writing, to make sure nobody
         // reads while we're writing. If we are only reading, acquire a single
         // read lock.
         QString readSemName = QLatin1String("QSettingsReadSem ");
