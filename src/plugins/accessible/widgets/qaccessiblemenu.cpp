@@ -600,10 +600,13 @@ QString QAccessibleMenuItem::text ( Text t, int child ) const
         break;
     case Accelerator:
         if (child == 0) {
+#ifndef QT_NO_SHORTCUT
             QKeySequence key = m_action->shortcut();
             if (!key.isEmpty()) {
                 str = key.toString();
-            } else {
+            } else
+#endif
+            {
                 str = qt_accHotKey(m_action->text());
             }
         }
