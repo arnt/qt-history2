@@ -2600,12 +2600,17 @@ bool QRasterPaintEngine::drawTextInFontBuffer(const QRect &devRect, int xmin, in
                     // we can set it to transparent so the background shines through instead.
                     switch (qAlpha(scanline[x - devRect.x()])) {
                     case 0x0:
-                        // Special case: If Windows has drawn on top of a transparent pixel, then
+                        // Special case: If Windows has drawn on top of a translucent pixel, then
                         // we bail out. This is an attempt at avoiding the problem where Windows
                         // has no background to use for composition, but also minimizing the
                         // number of cases hit by the fall back.
-                        // ### This is far from optimal.
-                        if (!brokenRasterBufferAlpha && qAlpha(rbScanline[x]) == 0) {
+                        //
+                        // This test could be done in the loop above, but because the bounding
+                        // box is very large (probably too big, because of kerning & italics)
+                        // we need to check only the "touched" pixels. If the kerning and
+                        // italics problems where fixed this code could be simplfied and
+                        // sped up by moving this check to the upper loop...
+                        if (!brokenRasterBufferAlpha && qAlpha(rbScanline[x]) < 255) {
                             return drawTextInFontBuffer(devRect, xmin, ymin, xmax, ymax, textItem,
                                 false, leftBearingReserve, topLeft);
                         }
