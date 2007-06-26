@@ -580,29 +580,6 @@ void QGraphicsScenePrivate::startIndexTimer()
 }
 
 /*!
-    \internal
-
-    Returns a list of possible mouse grabbers for \a event. The first item in
-    the list is the topmost candidate, and the last item is the bottommost
-    candidate.
-*/
-QList<QGraphicsItem *> QGraphicsScenePrivate::possibleMouseGrabbersForEvent(const QList<QGraphicsItem *> &items,
-                                                                            QGraphicsSceneMouseEvent *event)
-{
-    QList<QGraphicsItem *> possibleMouseGrabbers;
-    foreach (QGraphicsItem *item, items) {
-        if (item->acceptedMouseButtons() & event->button()) {
-            if (!item->isEnabled()) {
-                // Disabled mouse-accepting items discard mouse events.
-                break;
-            }
-            possibleMouseGrabbers << item;
-        }
-    }
-    return possibleMouseGrabbers;
-}
-
-/*!
     Returns all items for the screen position in \a event.
 */
 QList<QGraphicsItem *> QGraphicsScenePrivate::itemsAtPosition(const QPoint &screenPos,
@@ -697,12 +674,18 @@ bool QGraphicsScenePrivate::filterEvent(QGraphicsItem *item, QEvent *event)
 
 /*!
     \internal
+
+    This is the final dispatch point for any events from the scene to the
+    item. It filters the event first - if the filter returns true, the event
+    is considered to have been eaten by the filter, and is therefore stopped
+    (the default filter returns false). Then/otherwise, if the item is
+    enabled, the event is sent; otherwise it is stopped.
 */
 bool QGraphicsScenePrivate::sendEvent(QGraphicsItem *item, QEvent *event)
 {
     if (filterEvent(item, event))
         return false;
-    return item ? item->sceneEvent(event) : false;
+    return (item && item->isEnabled()) ? item->sceneEvent(event) : false;
 }
 
 /*!
@@ -820,7 +803,12 @@ void QGraphicsScenePrivate::mousePressEventHandler(QGraphicsSceneMouseEvent *mou
     // candidates one at a time, until the event is accepted. It's accepted by
     // default, so the receiver has to explicitly ignore it for it to pass
     // through.
-    foreach (QGraphicsItem *item, possibleMouseGrabbersForEvent(cachedItemsUnderMouse, mouseEvent)) {
+    foreach (QGraphicsItem *item, cachedItemsUnderMouse) {
+        if (!(item->acceptedMouseButtons() & mouseEvent->button())) {
+            // Skip items that don't accept the event's mouse button.
+            continue;
+        }
+
         mouseGrabberItem = item;
         mouseEvent->accept();
 
@@ -841,7 +829,15 @@ void QGraphicsScenePrivate::mousePressEventHandler(QGraphicsSceneMouseEvent *mou
         } else {
             sendMouseEvent(mouseEvent);
         }
-        if (mouseEvent->isAccepted()) {
+
+        bool disabled = !item->isEnabled();
+        if (disabled || mouseEvent->isAccepted()) {
+            if (disabled) {
+                // Disabled items eat mouse events. The mouse grabber is reset
+                // to 0 as a result of sending a mouse press to a disabled
+                // item.
+                mouseGrabberItem = 0;
+            }
             if (mouseGrabberItem)
                 storeMouseButtonsForMouseGrabber(mouseEvent);
             lastMouseGrabberItem = mouseGrabberItem;
@@ -855,6 +851,7 @@ void QGraphicsScenePrivate::mousePressEventHandler(QGraphicsSceneMouseEvent *mou
     // view.
     if (!mouseEvent->isAccepted()) {
         lastMouseGrabberItem = mouseGrabberItem;
+        mouseGrabberItem = 0;
 
         QGraphicsView *view = mouseEvent->widget() ? qobject_cast<QGraphicsView *>(mouseEvent->widget()->parentWidget()) : 0;
         bool dontClearSelection = view && view->dragMode() == QGraphicsView::ScrollHandDrag;

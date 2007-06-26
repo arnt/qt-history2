@@ -249,6 +249,7 @@ void tst_QGraphicsView::alignment()
 void tst_QGraphicsView::interactive()
 {
     TestItem *item = new TestItem;
+    item->setFlags(QGraphicsItem::ItemIsMovable);
     QCOMPARE(item->events.size(), 0);
 
     QGraphicsScene scene(-200, -200, 400, 400);

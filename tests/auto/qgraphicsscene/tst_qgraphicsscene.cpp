@@ -171,6 +171,7 @@ private slots:
     void update();
     void views();
     void event();
+    void eventsToDisabledItems();
 
     // task specific tests below me
     void task139710_bspTreeCrash();
@@ -1716,6 +1717,11 @@ void tst_QGraphicsScene::mouseEventPropagation_ignore()
     c->setParentItem(b);
     d->setParentItem(c);
 
+    a->setFlags(QGraphicsItem::ItemIsMovable);
+    b->setFlags(QGraphicsItem::ItemIsMovable);
+    c->setFlags(QGraphicsItem::ItemIsMovable);
+    d->setFlags(QGraphicsItem::ItemIsMovable);
+
     // scene -> a -> b -> c -> d
     QGraphicsScene scene;
     scene.addItem(a);
@@ -1788,6 +1794,9 @@ void tst_QGraphicsScene::mouseEventPropagation_doubleclick()
 {
     EventTester *a = new EventTester;
     EventTester *b = new EventTester;
+    a->setFlags(QGraphicsItem::ItemIsMovable);
+    b->setFlags(QGraphicsItem::ItemIsMovable);
+
     a->setPos(-50, 0);
     b->setPos(50, 0);
 
@@ -2459,6 +2468,78 @@ void tst_QGraphicsScene::event()
     CustomScene scene;
     QTestEventLoop::instance().enterLoop(1);
     QVERIFY(scene.gotTimerEvent);
+}
+
+class DisabledItemTester : public QGraphicsRectItem
+{
+public:
+    DisabledItemTester(const QRectF &rect, QGraphicsItem *parent = 0)
+        : QGraphicsRectItem(rect, parent)
+    { }
+
+    QList<QEvent::Type> receivedSceneEvents;
+    QList<QEvent::Type> receivedSceneEventFilters;
+    
+protected:
+    bool sceneEventFilter(QGraphicsItem *watched, QEvent *event)
+    {
+        receivedSceneEventFilters << event->type();
+        return QGraphicsRectItem::sceneEventFilter(watched, event);
+    }
+
+    bool sceneEvent(QEvent *event)
+    {
+        receivedSceneEvents << event->type();
+        return QGraphicsRectItem::sceneEvent(event);
+    }
+};
+
+void tst_QGraphicsScene::eventsToDisabledItems()
+{
+    QGraphicsScene scene;
+
+    DisabledItemTester *item1 = new DisabledItemTester(QRectF(-50, -50, 100, 100));
+    DisabledItemTester *item2 = new DisabledItemTester(QRectF(-50, -50, 100, 100));
+    item1->setZValue(1); // on top
+
+    scene.addItem(item1);
+    scene.addItem(item2);
+
+    item1->installSceneEventFilter(item2);
+
+    QVERIFY(item1->receivedSceneEvents.isEmpty());
+    QVERIFY(item2->receivedSceneEvents.isEmpty());
+    QVERIFY(item1->receivedSceneEventFilters.isEmpty());
+    QVERIFY(item2->receivedSceneEventFilters.isEmpty());
+
+    QGraphicsSceneMouseEvent event(QEvent::GraphicsSceneMousePress);
+    event.setButton(Qt::LeftButton);
+    QApplication::sendEvent(&scene, &event);
+
+    // First item2 receives a scene event filter. Then item1 receives the
+    // actual event. Finally the event propagates to item2. So both items
+    // should have received the event, and item1 also got the filter.
+    QCOMPARE(item1->receivedSceneEvents.size(), 1);
+    QCOMPARE(item2->receivedSceneEvents.size(), 1);
+    QCOMPARE(item1->receivedSceneEventFilters.size(), 0);
+    QCOMPARE(item2->receivedSceneEventFilters.size(), 1);
+
+    item1->receivedSceneEvents.clear();
+    item1->receivedSceneEventFilters.clear();
+    item2->receivedSceneEvents.clear();
+    item2->receivedSceneEventFilters.clear();
+
+    item1->setEnabled(false); // disable the topmost item, eat mouse events
+
+    event.setButton(Qt::LeftButton);
+    event.setAccepted(false);
+    QApplication::sendEvent(&scene, &event);
+
+    // Check that only item1 received anything - it only got the filter.
+    QCOMPARE(item1->receivedSceneEvents.size(), 0);
+    QCOMPARE(item2->receivedSceneEvents.size(), 0);
+    QCOMPARE(item1->receivedSceneEventFilters.size(), 0);
+    QCOMPARE(item2->receivedSceneEventFilters.size(), 1);
 }
 
 void tst_QGraphicsScene::task139710_bspTreeCrash()

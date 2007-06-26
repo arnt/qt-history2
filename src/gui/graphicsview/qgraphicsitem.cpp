@@ -1244,6 +1244,10 @@ void QGraphicsItemPrivate::setEnabledHelper(bool newEnabled, bool explicitly, bo
 
     Items are enabled by default.
 
+    \note If you install an event filter, you can still intercept events
+    before they are delivered to items; this mechanism disregards the item's
+    enabled state.
+
     \sa isEnabled()
 */
 void QGraphicsItem::setEnabled(bool enabled)
@@ -3029,7 +3033,7 @@ bool QGraphicsItem::sceneEvent(QEvent *event)
         return true;
     }
 
-    if (!d_ptr->enabled || !d_ptr->visible) {
+    if (!d_ptr->visible) {
         // Eaten
         return true;
     }

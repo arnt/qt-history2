@@ -545,7 +545,7 @@ void tst_QGraphicsItem::flags()
         event.setButton(Qt::LeftButton);
         event.setButtons(Qt::LeftButton);
         QApplication::sendEvent(&scene, &event);
-        QCOMPARE(scene.mouseGrabberItem(), (QGraphicsItem *)item);
+        QCOMPARE(scene.mouseGrabberItem(), (QGraphicsItem *)0); // mouse grabber is reset
 
         QGraphicsSceneMouseEvent event2(QEvent::GraphicsSceneMouseMove);
         event2.setScenePos(QPointF(10, 10));
@@ -652,6 +652,7 @@ void tst_QGraphicsItem::toolTip()
 void tst_QGraphicsItem::visible()
 {
     QGraphicsItem *item = new QGraphicsRectItem(QRectF(-10, -10, 20, 20));
+    item->setFlag(QGraphicsItem::ItemIsMovable);
     QVERIFY(item->isVisible());
     item->setVisible(false);
     QVERIFY(!item->isVisible());
@@ -797,6 +798,7 @@ void tst_QGraphicsItem::explicitlyVisible()
 void tst_QGraphicsItem::enabled()
 {
     QGraphicsRectItem *item = new QGraphicsRectItem(QRectF(-10, -10, 20, 20));
+    item->setFlag(QGraphicsItem::ItemIsMovable);
     QVERIFY(item->isEnabled());
     item->setEnabled(false);
     QVERIFY(!item->isEnabled());
