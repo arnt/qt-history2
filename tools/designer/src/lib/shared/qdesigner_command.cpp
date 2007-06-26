@@ -1679,7 +1679,20 @@ ChangeTableContentsCommand::ChangeTableContentsCommand(QDesignerFormWindowInterf
         m_oldRowCount(0),
         m_newRowCount(0)
 {
+}
 
+static void insertHeaderItem(const QString &text, const QIcon &icon, int i,
+                             QMap<int, QPair<QString, QIcon> > *headerMap)
+{
+    if (icon.isNull()) {
+        if (text.isEmpty()) // Legacy behaviour: auto-generate number for empty items
+             return;
+        QString defaultText;
+        defaultText.setNum(i+1);
+        if (text == defaultText)
+            return;
+    }
+    headerMap->insert(i, QPair<QString, QIcon>(text, icon));
 }
 
 void ChangeTableContentsCommand::init(QTableWidget *tableWidget, QTableWidget *fromTableWidget)
@@ -1698,29 +1711,13 @@ void ChangeTableContentsCommand::init(QTableWidget *tableWidget, QTableWidget *f
     m_newColumnCount = fromTableWidget->columnCount();
     m_newRowCount = fromTableWidget->rowCount();
 
-    for (int col = 0; col < m_oldColumnCount; col++) {
-        const QTableWidgetItem *item = tableWidget->horizontalHeaderItem(col);
-        if (item) {
-            const QString text = item->text();
-            const QIcon icon = item->icon();
-            if (!text.isEmpty() || !icon.isNull()) {
-                m_oldHorizontalHeaderState[col] =
-                            qMakePair<QString, QIcon>(text, icon);
-            }
-        }
-    }
+    for (int col = 0; col < m_oldColumnCount; col++)
+        if (const QTableWidgetItem *item = tableWidget->horizontalHeaderItem(col))
+            insertHeaderItem(item->text(), item->icon(), col, &m_oldHorizontalHeaderState);
 
-    for (int row = 0; row < m_oldRowCount; row++) {
-        const QTableWidgetItem *item = tableWidget->verticalHeaderItem(row);
-        if (item) {
-            const QString text = item->text();
-            const QIcon icon = item->icon();
-            if (!text.isEmpty() || !icon.isNull()) {
-                m_oldVerticalHeaderState[row] =
-                            qMakePair<QString, QIcon>(text, icon);
-            }
-        }
-    }
+    for (int row = 0; row < m_oldRowCount; row++)
+        if (const QTableWidgetItem *item = tableWidget->verticalHeaderItem(row))
+            insertHeaderItem(item->text(), item->icon(), row,  &m_oldVerticalHeaderState);
 
     for (int col = 0; col < m_oldColumnCount; col++) {
         for (int row = 0; row < m_oldRowCount; row++) {
@@ -1736,30 +1733,13 @@ void ChangeTableContentsCommand::init(QTableWidget *tableWidget, QTableWidget *f
         }
     }
 
+    for (int col = 0; col < m_newColumnCount; col++)
+        if (const QTableWidgetItem *item = fromTableWidget->horizontalHeaderItem(col))
+            insertHeaderItem(item->text(), item->icon(), col, &m_newHorizontalHeaderState);
 
-    for (int col = 0; col < m_newColumnCount; col++) {
-        const QTableWidgetItem *item = fromTableWidget->horizontalHeaderItem(col);
-        if (item) {
-            const QString text = item->text();
-            const QIcon icon = item->icon();
-            if (!text.isEmpty() || !icon.isNull()) {
-                m_newHorizontalHeaderState[col] =
-                            qMakePair<QString, QIcon>(text, icon);
-            }
-        }
-    }
-
-    for (int row = 0; row < m_newRowCount; row++) {
-        const QTableWidgetItem *item = fromTableWidget->verticalHeaderItem(row);
-        if (item) {
-            const QString text = item->text();
-            const QIcon icon = item->icon();
-            if (!text.isEmpty() || !icon.isNull()) {
-                m_newVerticalHeaderState[row] =
-                            qMakePair<QString, QIcon>(text, icon);
-            }
-        }
-    }
+    for (int row = 0; row < m_newRowCount; row++)
+        if (const QTableWidgetItem *item = fromTableWidget->verticalHeaderItem(row))
+            insertHeaderItem(item->text(), item->icon(), row, &m_newVerticalHeaderState);
 
     for (int col = 0; col < m_newColumnCount; col++) {
         for (int row = 0; row < m_newRowCount; row++) {
