@@ -498,7 +498,10 @@ void QFileSystemWatcher::removePaths(const QStringList &paths)
     \fn void QFileSystemWatcher::directoryChanged(const QString &path)
 
     This signal is emitted when the directory at the specified \a path is
-    modified or removed from disk.
+    modified or removed from disk. Note that if there are several changes
+    during a short period of time, some of the changes might not
+    emit this signal. However, the last change in the sequence of changes
+    will always generate this signal.
 
     \sa fileChanged()
 */
