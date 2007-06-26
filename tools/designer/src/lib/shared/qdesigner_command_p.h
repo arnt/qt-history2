@@ -49,6 +49,7 @@ class QToolBar;
 class QToolBox;
 class QTabWidget;
 class QTableWidget;
+class QTableWidgetItem;
 class QTreeWidget;
 class QTreeWidgetItem;
 class QListWidget;
@@ -720,33 +721,62 @@ public:
     virtual void undo();
 };
 
+// Data structure representing the contents of a QTableWidget with
+// methods to retrieve and apply for ChangeTableContentsCommand
+struct QDESIGNER_SHARED_EXPORT TableWidgetContents {
+    // Cell data (icon, text). Needs comparison
+    struct CellData {
+        CellData();
+        CellData(const QString &text, const QIcon &icon);
+
+        QTableWidgetItem *createItem() const;
+
+        bool equals(const CellData &rhs) const;
+        bool operator==(const CellData &rhs) const { return equals(rhs); }
+        bool operator!=(const CellData &rhs) const { return !equals(rhs); }
+
+        QString m_text;
+        QIcon m_icon;
+    };
+
+    typedef QPair<int, int> CellRowColumnAddress;
+    typedef QMap<int, CellData> Header;
+    typedef QMap<CellRowColumnAddress, CellData> TableItemMap;
+
+    TableWidgetContents();
+    void clear();
+
+    void fromTableWidget(const QTableWidget *tableWidget);
+    void applyToTableWidget(QTableWidget *tableWidget) const;
+
+    bool equals(const TableWidgetContents &rhs) const;
+    bool operator==(const TableWidgetContents &rhs) const { return equals(rhs); }
+    bool operator!=(const TableWidgetContents &rhs) const { return !equals(rhs); }
+
+    static QString defaultHeaderText(int i);
+    static void insertHeaderItem(const QTableWidgetItem *item, int i, Header *header);
+
+    int m_columnCount;
+    int m_rowCount;
+    Header m_horizontalHeader;
+    Header m_verticalHeader;
+    TableItemMap m_items;
+};
+
 class QDESIGNER_SHARED_EXPORT ChangeTableContentsCommand: public QDesignerFormWindowCommand
 {
-
 public:
-    explicit ChangeTableContentsCommand(QDesignerFormWindowInterface *formWindow);
+    ChangeTableContentsCommand(QDesignerFormWindowInterface *formWindow);
 
-    void init(QTableWidget *tableWidget, QTableWidget *fromTableWidget);
+    // returns false widgets have the same contents
+    bool init(QTableWidget *tableWidget, QTableWidget *fromTableWidget);
     virtual void redo();
     virtual void undo();
-private:
-    void changeContents(QTableWidget *tableWidget,
-        int rowCount, int columnCount,
-        const QMap<int, QPair<QString, QIcon> > &horizontalHeaderState,
-        const QMap<int, QPair<QString, QIcon> > &verticalHeaderState,
-        const QMap<QPair<int, int>, QPair<QString, QIcon> > &itemsState) const;
 
+private:
     QPointer<QTableWidget> m_tableWidget;
-    QMap<QPair<int, int>, QPair<QString, QIcon> > m_oldItemsState;
-    QMap<QPair<int, int>, QPair<QString, QIcon> > m_newItemsState;
-    QMap<int, QPair<QString, QIcon> > m_oldHorizontalHeaderState;
-    QMap<int, QPair<QString, QIcon> > m_newHorizontalHeaderState;
-    QMap<int, QPair<QString, QIcon> > m_oldVerticalHeaderState;
-    QMap<int, QPair<QString, QIcon> > m_newVerticalHeaderState;
-    int m_oldColumnCount;
-    int m_newColumnCount;
-    int m_oldRowCount;
-    int m_newRowCount;
+    TableWidgetContents m_oldContents;
+    TableWidgetContents m_newContents;
 };
 
 class QDESIGNER_SHARED_EXPORT ChangeTreeContentsCommand: public QDesignerFormWindowCommand
@@ -879,7 +909,7 @@ class QDESIGNER_SHARED_EXPORT MenuActionCommand : public QDesignerFormWindowComm
 public:
     void init(QAction *action, QAction *actionBefore, QWidget *associatedWidget, QWidget *objectToSelect);
 
-protected:    
+protected:
     MenuActionCommand(const QString &text, QDesignerFormWindowInterface *formWindow);
     void insertMenu();
     void removeMenu();

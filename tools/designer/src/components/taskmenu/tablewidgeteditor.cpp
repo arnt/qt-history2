@@ -25,6 +25,7 @@ TRANSLATOR qdesigner_internal::TableWidgetEditor
 #include <QtDesigner/QDesignerIconCacheInterface>
 #include <QtCore/QDir>
 #include <QtCore/QQueue>
+#include <QtCore/QTextStream>
 
 using namespace qdesigner_internal;
 
@@ -73,28 +74,28 @@ void TableWidgetEditor::fillContentsFromTableWidget(QTableWidget *tableWidget)
 
     const int colCount = ui.tableWidget->columnCount();
     for (int col = 0; col < colCount; col++) {
-        QTableWidgetItem *headerItem = ui.tableWidget->horizontalHeaderItem(col);
+        const QTableWidgetItem *headerItem = ui.tableWidget->horizontalHeaderItem(col);
         QListWidgetItem *item = new QListWidgetItem(ui.columnsListWidget);
         item->setFlags(item->flags() | Qt::ItemIsEditable);
         if (headerItem) {
             item->setText(headerItem->text());
             item->setIcon(headerItem->icon());
         } else
-            item->setText(QString::fromLatin1("%1").arg(col+1));
+            item->setText(TableWidgetContents::defaultHeaderText(col));
     }
     if (colCount > 0)
         ui.columnsListWidget->setCurrentRow(0);
 
     const int rowCount = ui.tableWidget->rowCount();
     for (int row = 0; row < rowCount; row++) {
-        QTableWidgetItem *headerItem = ui.tableWidget->verticalHeaderItem(row);
+        const QTableWidgetItem *headerItem = ui.tableWidget->verticalHeaderItem(row);
         QListWidgetItem *item = new QListWidgetItem(ui.rowsListWidget);
         item->setFlags(item->flags() | Qt::ItemIsEditable);
         if (headerItem) {
             item->setText(headerItem->text());
             item->setIcon(headerItem->icon());
         } else
-            item->setText(QString::fromLatin1("%1").arg(row+1));
+            item->setText(TableWidgetContents::defaultHeaderText(row));
     }
     if (rowCount > 0)
         ui.rowsListWidget->setCurrentRow(0);
@@ -108,9 +109,12 @@ void TableWidgetEditor::fillContentsFromTableWidget(QTableWidget *tableWidget)
 void TableWidgetEditor::fillTableWidgetFromContents(QTableWidget *tableWidget)
 {
     ChangeTableContentsCommand *cmd = new ChangeTableContentsCommand(m_form);
-    cmd->init(tableWidget, ui.tableWidget);
-    m_form->commandHistory()->push(cmd);
+    if (cmd->init(tableWidget, ui.tableWidget))
+        m_form->commandHistory()->push(cmd);
+    else
+        delete cmd;
 }
+
 
 void TableWidgetEditor::copyContents(QTableWidget *sourceWidget, QTableWidget *destWidget)
 {
@@ -407,7 +411,6 @@ void TableWidgetEditor::on_previewPixmapItemButton_clicked()
         file_path = m_form->core()->iconCache()->iconToFilePath(icon);
         qrc_path = m_form->core()->iconCache()->iconToQrcPath(icon);
     }
-
     dialog.setPaths(qrc_path, file_path);
     if (dialog.exec()) {
         file_path = dialog.filePath();
