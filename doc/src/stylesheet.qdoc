@@ -1024,7 +1024,7 @@
             subcontrol.
 
             The alignment of the tabs within the QTabBar is styled
-            using the \l{#alignment-prop}{alignment}. \warning 
+            using the \l{#Alignment}{alignment} property. \warning 
 
             To change the position of the QTabBar within a QTabWidget, use the
             \l{#tab-bar-sub}{tab-bar} subcontrol (and set subcontrol-position).
