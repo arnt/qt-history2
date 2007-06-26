@@ -396,30 +396,48 @@ void QScrollArea::ensureVisible(int x, int y, int xmargin, int ymargin)
     \since 4.2
 
     Scrolls the contents of the scroll area so that the \a childWidget
-    of the scroll area's widget() is visible inside the region of the
-    viewport with margins specified in pixels by \a xmargin and \a
-    ymargin. If the specified point cannot be reached, the contents
-    are scrolled to the nearest valid position. The default value for
-    both margins is 50 pixels.
+    of the scroll area's widget() is visible inside the viewport with margins
+    specified in pixels by \a xmargin and \a ymargin.
+
+    If the child widget is an input widget, QScrollArea will ensure that its
+    micro focus rectangle is visible, rather than the widget as a whole.  If
+    the child widget (or its micro focus rectangle) with margins is not
+    completely contained within the viewport, the contents are scrolled to the
+    nearest valid position, or as close to this position as possible.  The
+    default value for both margins is 50 pixels.
 */
 void QScrollArea::ensureWidgetVisible(QWidget *childWidget, int xmargin, int ymargin)
 {
     Q_D(QScrollArea);
-    if (d->widget->isAncestorOf(childWidget)) {
-        QRect focusRect(childWidget->mapTo(d->widget, QPoint(0,0)), childWidget->size());
-        focusRect.adjust(-xmargin, -ymargin, xmargin, ymargin);
-        QRect visibleRect(-d->widget->pos(), d->viewport->size());
-        if (!visibleRect.contains(focusRect)) {
-            if (focusRect.right() > visibleRect.right())
-                d->hbar->setValue(focusRect.right() - d->viewport->width());
-            else if (focusRect.left() < visibleRect.left())
-                d->hbar->setValue(focusRect.left());
-            if (focusRect.bottom() > visibleRect.bottom())
-                d->vbar->setValue(focusRect.bottom() - d->viewport->height());
-            else if (focusRect.top() < visibleRect.top())
-                d->vbar->setValue(focusRect.top());
-        }
-    }
+
+    if (!d->widget->isAncestorOf(childWidget))
+        return;
+
+    const QRect microFocus = childWidget->inputMethodQuery(Qt::ImMicroFocus).toRect();
+    const QRect defaultMicroFocus =
+        childWidget->QWidget::inputMethodQuery(Qt::ImMicroFocus).toRect();
+    QRect focusRect = (microFocus != defaultMicroFocus)
+        ? QRect(childWidget->mapTo(d->widget, microFocus.topLeft()), microFocus.size())
+        : QRect(childWidget->mapTo(d->widget, QPoint(0,0)), childWidget->size());
+    focusRect.adjust(-xmargin, -ymargin, xmargin, ymargin);
+    const QRect visibleRect(-d->widget->pos(), d->viewport->size());
+
+    if (visibleRect.contains(focusRect))
+        return;
+
+    if (focusRect.width() > visibleRect.width())
+        d->hbar->setValue(focusRect.center().x() - d->viewport->width() / 2);
+    else if (focusRect.right() > visibleRect.right())
+        d->hbar->setValue(focusRect.right() - d->viewport->width());
+    else
+        d->hbar->setValue(focusRect.left());
+
+    if (focusRect.height() > visibleRect.height())
+        d->vbar->setValue(focusRect.center().y() - d->viewport->height() / 2);
+    else if (focusRect.bottom() > visibleRect.bottom())
+        d->vbar->setValue(focusRect.bottom() - d->viewport->height());
+    else
+        d->vbar->setValue(focusRect.top());
 }
 
 
