@@ -813,6 +813,15 @@ Q_DECLARE_METATYPE(QGradient)
 Q_DECLARE_METATYPE(QGradient*)
 Q_DECLARE_METATYPE(QLinearGradient)
 
+class Zoo : public QObject
+{
+    Q_OBJECT
+public:
+    Zoo() { }
+public slots:
+    Baz *toBaz(Bar *b) { return reinterpret_cast<Baz*>(b); }
+};
+
 void tst_QScriptEngine::castWithPrototypeChain()
 {
     QScriptEngine eng;
@@ -820,7 +829,6 @@ void tst_QScriptEngine::castWithPrototypeChain()
     Baz baz;
     QScriptValue barProto = qScriptValueFromValue(&eng, &bar);
     QScriptValue bazProto = qScriptValueFromValue(&eng, &baz);
-    bazProto.setPrototype(barProto); // establish chain
     eng.setDefaultPrototype(qMetaTypeId<Bar*>(), barProto);
     eng.setDefaultPrototype(qMetaTypeId<Baz*>(), bazProto);
 
@@ -832,10 +840,38 @@ void tst_QScriptEngine::castWithPrototypeChain()
         Baz *pbaz = qscriptvalue_cast<Baz*>(baz2Value);
         QVERIFY(pbaz != 0);
         QCOMPARE(pbaz->b, baz2.b);
-        // this is the essential part
-        Bar *pbar = qscriptvalue_cast<Bar*>(baz2Value);
-        QVERIFY(pbar != 0);
-        QCOMPARE(pbar->a, baz2.a);
+
+        Zoo zoo;
+        QScriptValue scriptZoo = eng.newQObject(&zoo);
+        QScriptValue toBaz = scriptZoo.property("toBaz");
+        QVERIFY(toBaz.isFunction());
+
+        // no relation between Bar and Baz's proto --> casting fails
+        {
+            Bar *pbar = qscriptvalue_cast<Bar*>(baz2Value);
+            QVERIFY(pbar == 0);
+        }
+
+        {
+            QScriptValue ret = toBaz.call(scriptZoo, QScriptValueList() << baz2Value);
+            QVERIFY(ret.isError());
+            QCOMPARE(ret.toString(), QLatin1String("TypeError: incompatible type of argument(s) in call to toBaz(); candidates were\n    toBaz(Bar*)"));
+        }
+
+        // establish chain -- now casting should work
+        bazProto.setPrototype(barProto);
+
+        {
+            Bar *pbar = qscriptvalue_cast<Bar*>(baz2Value);
+            QVERIFY(pbar != 0);
+            QCOMPARE(pbar->a, baz2.a);
+        }
+
+        {
+            QScriptValue ret = toBaz.call(scriptZoo, QScriptValueList() << baz2Value);
+            QVERIFY(!ret.isError());
+            QCOMPARE(qscriptvalue_cast<Baz*>(ret), pbaz);
+        }
     }
 
     bazProto.setPrototype(barProto.prototype()); // kill chain
