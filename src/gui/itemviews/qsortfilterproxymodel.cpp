@@ -1142,11 +1142,6 @@ void QSortFilterProxyModelPrivate::_q_sourceColumnsRemoved(
     mapFromSource(), mapSelectionToSource(), and
     mapSelectionFromSource().
 
-    In Qt 4.1, sorting and filtering isn't dynamically reapplied
-    whenever the data of the original model changes, as an
-    optimization. Qt 4.2 is expected to offer a mechanism to enable
-    dynamic sorting and filtering.
-
     The \l{itemviews/basicsortfiltermodel}{Basic Sort/Filter Model}
     and \l{itemviews/customsortfiltermodel}{Custom Sort/Filter Model}
     examples illustrate how to use QSortFilterProxyModel to perform
