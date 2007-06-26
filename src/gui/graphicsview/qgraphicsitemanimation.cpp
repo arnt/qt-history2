@@ -525,7 +525,11 @@ void QGraphicsItemAnimation::setStep(qreal x)
 }
 
 /*!
-Resets the item to its starting position and transformation.
+    Resets the item to its starting position and transformation.
+
+    \obsolete
+
+    You can call setStep(0) instead.
 */
 void QGraphicsItemAnimation::reset()
 {
