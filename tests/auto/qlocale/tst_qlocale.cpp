@@ -696,8 +696,10 @@ void tst_QLocale::macDefaultLocale()
 
     QTime invalidTime;
     QDate invalidDate;
-    QCOMPARE(locale.toString(invalidTime), QString());
-    QCOMPARE(locale.toString(invalidDate), QString());
+    QCOMPARE(locale.toString(invalidTime, QLocale::ShortFormat), QString());
+    QCOMPARE(locale.toString(invalidDate, QLocale::ShortFormat), QString());
+    QCOMPARE(locale.toString(invalidTime, QLocale::LongFormat), QString());
+    QCOMPARE(locale.toString(invalidDate, QLocale::LongFormat), QString());
     QCOMPARE(locale.decimalPoint(), QChar('.'));
     QCOMPARE(locale.groupSeparator(), QChar(','));
     QCOMPARE(locale.dateFormat(QLocale::ShortFormat), QString("M/d/yy"));
