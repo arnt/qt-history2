@@ -528,7 +528,8 @@ redo:
     QBezier *o = curveSegments;
 
     while (b >= beziers) {
-        if (b - beziers == 9 || o - curveSegments == maxSegments) {
+        int stack_segments = b - beziers + 1;
+        if ((stack_segments == 10) || (o - curveSegments == maxSegments - stack_segments)) {
             threshold *= 1.5;
             if (threshold > 2.)
                 goto give_up;
