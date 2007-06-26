@@ -399,23 +399,47 @@ Qt::Alignment applyAlignmentSubProperty(Qt::Alignment oldValue, Qt::Alignment ne
     return (oldValue & takeOverMask) | (newValue & changeMask);
 }
 
+}
+
+namespace qdesigner_internal {
+
 // apply changed subproperties to a variant
-QVariant applySubProperty(const QVariant &oldValue, const QVariant &newValue, qdesigner_internal::SpecialProperty specialProperty, unsigned mask)
+PropertyHelper::Value applySubProperty(const QVariant &oldValue, const QVariant &newValue, qdesigner_internal::SpecialProperty specialProperty, unsigned mask, bool changed)
 {
     if (mask == SubPropertyAll)
-        return newValue;
+        return PropertyHelper::Value(newValue, changed);
 
     switch (oldValue.type()) {
     case QVariant::Rect:
-        return applyRectSubProperty(oldValue.toRect(), newValue.toRect(), mask);
+        return PropertyHelper::Value(applyRectSubProperty(oldValue.toRect(), newValue.toRect(), mask), changed);
     case QVariant::Size:
-        return applySizeSubProperty(oldValue.toSize(), newValue.toSize(), mask);
+        return PropertyHelper::Value(applySizeSubProperty(oldValue.toSize(), newValue.toSize(), mask), changed);
     case QVariant::SizePolicy:
-        return qVariantFromValue(applySizePolicySubProperty(qvariant_cast<QSizePolicy>(oldValue), qvariant_cast<QSizePolicy>(newValue), mask));
-    case QVariant::Font:
-        return qVariantFromValue(applyFontSubProperty(qvariant_cast<QFont>(oldValue), qvariant_cast<QFont>(newValue), mask));
-    case QVariant::Palette:
-        return qVariantFromValue(applyPaletteSubProperty(qvariant_cast<QPalette>(oldValue), qvariant_cast<QPalette>(newValue), mask));
+        return PropertyHelper::Value(qVariantFromValue(applySizePolicySubProperty(qvariant_cast<QSizePolicy>(oldValue), qvariant_cast<QSizePolicy>(newValue), mask)), changed);
+    case QVariant::Font: {
+        // Changed flag in case of font and palette depends on resolve mask only, not on the passed "changed" value.
+
+        // The first case: the user changed bold subproperty and then pressed reset button for this subproperty (not for
+        // the whole font property). We instantiate SetPropertyCommand passing changed=true. But in this case no
+        // subproperty is changed and the whole property should be marked an unchanged.
+
+        // The second case: there are 2 pushbuttons, for 1st the user set bold and italic subproperties,
+        // for the 2nd he set bold only. He does multiselection so that the current widget is the 2nd one.
+        // He press reset next to bold subproperty. In result the 2nd widget should have the whole
+        // font property marked as unchanged and the 1st widget should have the font property
+        // marked as changed and only italic subproperty should be marked as changed (the bold should be reset).
+
+        // The third case: there are 2 pushbuttons, for 1st the user set bold and italic subproperties,
+        // for the 2nd he set bold only. He does multiselection so that the current widget is the 2nd one.
+        // He press reset button for the whole font property. In result whole font properties for both
+        // widgets should be marked as unchanged.
+        QFont font = applyFontSubProperty(qvariant_cast<QFont>(oldValue), qvariant_cast<QFont>(newValue), mask);
+        return PropertyHelper::Value(qVariantFromValue(font), font.resolve());
+        }
+    case QVariant::Palette: {
+        QPalette palette = applyPaletteSubProperty(qvariant_cast<QPalette>(oldValue), qvariant_cast<QPalette>(newValue), mask);
+        return PropertyHelper::Value(qVariantFromValue(palette), palette.resolve());
+        }
     default:
         // Enumerations, flags
         switch (specialProperty) {
@@ -424,20 +448,16 @@ QVariant applySubProperty(const QVariant &oldValue, const QVariant &newValue, qd
             f.value = static_cast<uint>(applyAlignmentSubProperty(variantToAlignment(oldValue), variantToAlignment(newValue), mask));
             QVariant v;
             qVariantSetValue(v, f);
-            return v;
+            return PropertyHelper::Value(v, changed);
                                                }
         default:
         break;
         }
         break;
     }
-    return newValue;
+    return PropertyHelper::Value(newValue, changed);
 
 }
-}
-
-namespace qdesigner_internal {
-
 // figure out special property
 enum SpecialProperty getSpecialProperty(const QString& propertyName)
 {
@@ -614,8 +634,8 @@ PropertyHelper::Value PropertyHelper::setValue(QDesignerFormWindowInterface *fw,
         return  applyValue(fw, m_oldValue.first, Value(value, changed));
 
     // apply subproperties
-    const QVariant maskedNewValue = applySubProperty(m_oldValue.first, value, m_specialProperty, subPropertyMask);
-    return applyValue(fw, m_oldValue.first, Value(maskedNewValue, changed));
+    const PropertyHelper::Value maskedNewValue = applySubProperty(m_oldValue.first, value, m_specialProperty, subPropertyMask, changed);
+    return applyValue(fw, m_oldValue.first, maskedNewValue);
 }
 
 // Apply the value and update. Returns corrected value
