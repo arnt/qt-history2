@@ -1142,6 +1142,10 @@ void QSortFilterProxyModelPrivate::_q_sourceColumnsRemoved(
     mapFromSource(), mapSelectionToSource(), and
     mapSelectionFromSource().
 
+    \note By default, the model does not dynamically re-sort and re-filter
+    data whenever the original model changes. This behavior can be
+    changed by setting the \l{dynamicSortFilter} property. 
+        
     The \l{itemviews/basicsortfiltermodel}{Basic Sort/Filter Model}
     and \l{itemviews/customsortfiltermodel}{Custom Sort/Filter Model}
     examples illustrate how to use QSortFilterProxyModel to perform
