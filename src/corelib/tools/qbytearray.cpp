@@ -3491,7 +3491,7 @@ QByteArray &QByteArray::setNum(double n, char f, int prec)
         int n = 63;
         QByteArray::number(n);              // returns "63"
         QByteArray::number(n, 16);          // returns "3f"
-        QByteArray::number(n, 16).upper();  // returns "3F"
+        QByteArray::number(n, 16).toUpper();  // returns "3F"
     \endcode
 
     \sa setNum(), toInt()
