@@ -1286,6 +1286,9 @@ void QMainWindowLayout::tabChanged()
     if (info == 0)
         return;
     info->apply(false);
+
+    if (QWidget *w = centralWidget())
+        w->raise();
 }
 #endif // QT_NO_TABBAR
 
