@@ -32,6 +32,8 @@
 #include "ui_qfiledialog.h"
 
 /*!
+    \internal
+
     Exported hooks that can be used to customize the static functions.
  */
 typedef QString (*_qt_filedialog_existing_directory_hook)(QWidget *parent, const QString &caption, const QString &dir, QFileDialog::Options options);
