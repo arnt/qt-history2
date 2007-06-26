@@ -367,7 +367,7 @@ void ValueExtractor::lengthValues(const Declaration &decl, int *m)
     else if (i == 3) m[3] = m[1];
 }
 
-bool ValueExtractor::extractGeometry(int *w, int *h, int *mw, int *mh)
+bool ValueExtractor::extractGeometry(int *w, int *h, int *minw, int *minh, int *maxw, int *maxh)
 {
     extractFont();
     bool hit = false;
@@ -376,8 +376,10 @@ bool ValueExtractor::extractGeometry(int *w, int *h, int *mw, int *mh)
         switch (decl.propertyId) {
         case Width: *w = lengthValue(decl); break;
         case Height: *h = lengthValue(decl); break;
-        case MinimumWidth: *mw = lengthValue(decl); break;
-        case MinimumHeight: *mh = lengthValue(decl); break;
+        case MinimumWidth: *minw = lengthValue(decl); break;
+        case MinimumHeight: *minh = lengthValue(decl); break;
+        case MaximumWidth: *maxw = lengthValue(decl); break;
+        case MaximumHeight: *maxh = lengthValue(decl); break;
         default: continue;
         }
         hit = true;

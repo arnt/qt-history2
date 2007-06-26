@@ -449,7 +449,7 @@ struct Q_GUI_EXPORT ValueExtractor
     bool extractFont(QFont *font, int *fontSizeAdjustment);
     bool extractBackground(QBrush *, QString *, Repeat *, Qt::Alignment *, QCss::Origin *, QCss::Attachment *,
                            QCss::Origin *);
-    bool extractGeometry(int *w, int *h, int *mw, int *mh);
+    bool extractGeometry(int *w, int *h, int *minw, int *minh, int *maxw, int *maxh);
     bool extractPosition(int *l, int *t, int *r, int *b, QCss::Origin *, Qt::Alignment *,
                          QCss::PositionMode *, Qt::Alignment *);
     bool extractBox(int *margins, int *paddings, int *spacing = 0);

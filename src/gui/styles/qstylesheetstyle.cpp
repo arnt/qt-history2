@@ -169,10 +169,10 @@ struct QStyleSheetPaletteData : public QSharedData
 
 struct QStyleSheetGeometryData : public QSharedData
 {
-    QStyleSheetGeometryData(int w, int h, int minw, int minh)
-        : minWidth(minw), minHeight(minh), width(w), height(h) { }
+    QStyleSheetGeometryData(int w, int h, int minw, int minh, int maxw, int maxh)
+        : minWidth(minw), minHeight(minh), width(w), height(h), maxWidth(maxw), maxHeight(maxh) { }
 
-    int minWidth, minHeight, width, height;
+    int minWidth, minHeight, width, height, maxWidth, maxHeight;
 };
 
 struct QStyleSheetPositionData : public QSharedData
@@ -347,9 +347,9 @@ QRenderRule::QRenderRule(const QVector<Declaration> &declarations, const QWidget
     ValueExtractor v(declarations, palette);
     features = v.extractStyleFeatures();
 
-    int w = -1, h = -1, minw = -1, minh = -1;
-    if (v.extractGeometry(&w, &h, &minw, &minh))
-        geo = new QStyleSheetGeometryData(w, h, minw, minh);
+    int w = -1, h = -1, minw = -1, minh = -1, maxw = -1, maxh = -1;
+    if (v.extractGeometry(&w, &h, &minw, &minh, &maxw, &maxh))
+        geo = new QStyleSheetGeometryData(w, h, minw, minh, maxw, maxh);
 
     int left = 0, top = 0, right = 0, bottom = 0;
     Origin origin = Origin_Unknown;
@@ -3921,7 +3921,7 @@ QRect QStyleSheetStyle::subControlRect(ComplexControl cc, const QStyleOptionComp
                     th = qMax(th, ih);
                 }
                 if (!labelRule.hasGeometry()) {
-                    labelRule.geo = new QStyleSheetGeometryData(tw, th, tw, th);
+                    labelRule.geo = new QStyleSheetGeometryData(tw, th, tw, th, -1, -1);
                 } else {
                     labelRule.geo->width = tw;
                     labelRule.geo->height = th;
