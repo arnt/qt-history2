@@ -544,31 +544,31 @@ Ltop:
                     stackPtr -= 1;
                     HandleException();
                 }
-                else if (member.isGetterOrSetter()) {
-                    // call the getter function
-                    QScriptValueImpl getter;
-                    if (member.isGetter()) {
-                        getter = *stackPtr;
-                    } else {
-                        if (!base.m_object_value->findGetter(&member)) {
-                            stackPtr -= 1;
-                            throwError(QLatin1String("No getter defined"));
-                            HandleException();
-                        }
-                        base.get(member, &getter);
-                    }
-                    if (m_scopeChain.m_class == eng->m_class_with)
-                        *stackPtr = getter.call(m_scopeChain.prototype());
-                    else
-                        *stackPtr = getter.call(m_scopeChain);
-                    if (hasUncaughtException()) {
-                        stackPtr -= 1;
-                        Done();
-                    }
-                }
             } else {
                 throwNotDefined(memberName);
                 HandleException();
+            }
+        }
+        if (member.isGetterOrSetter()) {
+            // call the getter function
+            QScriptValueImpl getter;
+            if (member.isGetter()) {
+                getter = *stackPtr;
+            } else {
+                if (!base.m_object_value->findGetter(&member)) {
+                    stackPtr -= 1;
+                    throwError(QLatin1String("No getter defined"));
+                    HandleException();
+                }
+                base.get(member, &getter);
+            }
+            if (m_scopeChain.m_class == eng->m_class_with)
+                *stackPtr = getter.call(m_scopeChain.prototype());
+            else
+                *stackPtr = getter.call(m_scopeChain);
+            if (hasUncaughtException()) {
+                stackPtr -= 1;
+                Done();
             }
         }
         ++iPtr;

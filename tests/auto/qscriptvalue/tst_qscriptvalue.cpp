@@ -927,6 +927,18 @@ void tst_QScriptValue::getSetProperty()
                                 QScriptValue::PropertyGetter | QScriptValue::PropertySetter);
             QVERIFY(object6.property("__proto__").strictlyEquals(object6.prototype()));
         }
+
+        // global property that's a getter+setter
+        {
+            eng.globalObject().setProperty("globalGetterSetterProperty", eng.newFunction(getterSetter),
+                                           QScriptValue::PropertyGetter | QScriptValue::PropertySetter);
+            eng.evaluate("globalGetterSetterProperty = 123");
+            {
+                QScriptValue ret = eng.evaluate("globalGetterSetterProperty");
+                QVERIFY(ret.isNumber());
+                QVERIFY(ret.strictlyEquals(QScriptValue(&eng, 123)));
+            }
+        }
     }
 
     eng.globalObject().setProperty("object", object);
