@@ -47,10 +47,8 @@ public:
     GroupMap groupMap;
     FakeNodeHash fakeNodesByTitle;
     TargetHash targetHash;
-    QHash<FunctionNode*,QString> relatedHash;
-    QSet<QString> usedIndexes;
-    QString index;
-    QString url;
+    QList<QPair<ClassNode*,QString> > basesList;
+    QList<QPair<FunctionNode*,QString> > relatedList;
 };
 
 Tree::Tree()
@@ -101,14 +99,8 @@ const Node *Tree::findNode(const QStringList &path, const Node *relative, int fi
         }
         if (node && i == path.size()
                 && (!(findFlags & NonFunction) || node->type() != Node::Function
-                    || ((FunctionNode *)node)->metaness() == FunctionNode::MacroWithoutParams)) {
-
-            if (node->index() != priv->index) {
-                // Add the index the node was obtained from to the set of used indexes.
-                priv->usedIndexes.insert(node->index());
-            }
+                    || ((FunctionNode *)node)->metaness() == FunctionNode::MacroWithoutParams))
             return node;
-	}
         relative = relative->parent();
     } while (relative);
 
@@ -322,19 +314,8 @@ void Tree::resolveInheritance(NamespaceNode *rootNode)
             }
 	    ++c;
 	}
-    }
-
-    QHashIterator<FunctionNode*,QString> iter(priv->relatedHash);
-
-    while (iter.hasNext()) {
-        iter.next();
-        Node *node = root()->findNode(iter.value(), Node::Class);
-        if (!node)
-            node = root()->findNode(iter.value(), Node::Fake);
-        if (!node)
-            node = root()->findNode(iter.value(), Node::Namespace);
-        if (node)
-            iter.key()->setRelates(static_cast<InnerNode *>(node));
+        if (rootNode == root())
+	    priv->unresolvedInheritanceMap.clear();
     }
 }
 
@@ -539,34 +520,14 @@ NodeList Tree::allBaseClasses(const ClassNode *classe) const
     return result;
 }
 
-void Tree::readIndexes(const QStringList &indexFiles, const QString &indexDir)
+void Tree::readIndexes(const QStringList &indexFiles)
 {
-    QDir dir(indexDir);
-    if (indexFiles.isEmpty())
-        return;
-    QStringList expandedIndexFiles = dir.entryList(indexFiles);
-    foreach (QString indexFile, expandedIndexFiles)
-        readIndexFile(indexFile, indexDir);
+    foreach (QString indexFile, indexFiles)
+        readIndexFile(indexFile);
 }
 
-void Tree::readIndexFile(const QString &indexFile, const QString &indexDir)
+void Tree::readIndexFile(const QString &path)
 {
-    QString path;
-    QString indexFileName;
-    if (!indexDir.isEmpty()) {
-        path = indexDir + "/" + indexFile;
-        indexFileName = indexFile;
-    } else {
-        path = indexFile;
-   	indexFileName = QFileInfo(path).fileName();
-    }
-
-    if (indexFile == priv->index) {
-        // We shouldn't allow any of the input indexes to be the same as the
-	// output index.
-	return;
-    }
-
     QFile file(path);
     if (file.open(QFile::ReadOnly)) {
         QDomDocument document;
@@ -575,20 +536,27 @@ void Tree::readIndexFile(const QString &indexFile, const QString &indexDir)
 
         QDomElement indexElement = document.documentElement();
         QString indexUrl = indexElement.attribute("url", "");
+        priv->basesList.clear();
+        priv->relatedList.clear();
 
         // Scan all elements in the XML file, constructing a map that contains
         // base classes for each class found.
 
         QDomElement child = indexElement.firstChildElement();
         while (!child.isNull()) {
-            readIndexSection(child, root(), indexUrl, indexFile);
+            readIndexSection(child, root(), indexUrl);
             child = child.nextSiblingElement();
         }
+
+        // Now that all the base classes have been found for this index,
+        // arrange them into an inheritance hierarchy.
+
+        resolveIndex();
     }
 }
 
 void Tree::readIndexSection(const QDomElement &element,
-    InnerNode *parent, const QString &indexUrl, const QString &index)
+    InnerNode *parent, const QString &indexUrl)
 {
     QString name = element.attribute("name");
 
@@ -605,9 +573,8 @@ void Tree::readIndexSection(const QDomElement &element,
 
     } else if (element.nodeName() == "class") {
         section = new ClassNode(parent, name);
-        foreach (QString base, element.attribute("bases").split(","))
-            addBaseClass(static_cast<ClassNode *>(section), Node::Public,
-                         QStringList() << base, base);
+        priv->basesList.append(QPair<ClassNode*,QString>(
+            static_cast<ClassNode*>(section), element.attribute("bases")));
 
         if (!indexUrl.isEmpty())
             location = Location(indexUrl + "/" + name.toLower() + ".html");
@@ -720,7 +687,9 @@ void Tree::readIndexSection(const QDomElement &element,
 
         if (element.hasAttribute("relates")
             && element.attribute("relates") != parent->name()) {
-            priv->relatedHash[functionNode] = element.attribute("relates");
+            priv->relatedList.append(
+                QPair<FunctionNode*,QString>(functionNode,
+                                             element.attribute("relates")));
         }
 
         QDomElement child = element.firstChildElement("parameter");
@@ -785,22 +754,6 @@ void Tree::readIndexSection(const QDomElement &element,
     else
         section->setAccess(Node::Public);
 
-    QString status = element.attribute("status");
-    if (status == "compat")
-        section->setStatus(Node::Compat);
-    else if (status == "obsolete")
-        section->setStatus(Node::Obsolete);
-    else if (status == "deprecated")
-        section->setStatus(Node::Deprecated);
-    else if (status == "preliminary")
-        section->setStatus(Node::Preliminary);
-    else if (status == "commendable")
-        section->setStatus(Node::Commendable);
-    else if (status == "main")
-        section->setStatus(Node::Main);
-    else
-        section->setStatus(Node::Main);
-
     if (element.nodeName() != "page") {
         QString threadSafety = element.attribute("threadsafety");
         if (threadSafety == "non-reentrant")
@@ -816,19 +769,12 @@ void Tree::readIndexSection(const QDomElement &element,
 
     section->setModuleName(element.attribute("module"));
     section->setUrl(indexUrl);
-    section->setIndex(index);
 
     // Create some content for the node.
     QSet<QString> emptySet;
 
-    if (element.hasAttribute("description")) {
-        Doc doc(location, "\\brief " + element.attribute("description"),
-                emptySet); // placeholder
-        section->setDoc(doc);
-    } else {
-        Doc doc(location, " ", emptySet); // placeholder
-        section->setDoc(doc);
-    }
+    Doc doc(location, " ", emptySet); // placeholder
+    section->setDoc(doc);
 
     InnerNode *inner = dynamic_cast<InnerNode*>(section);
     if (inner) {
@@ -836,14 +782,14 @@ void Tree::readIndexSection(const QDomElement &element,
 
         while (!child.isNull()) {
             if (element.nodeName() == "class")
-                readIndexSection(child, inner, indexUrl, index);
+                readIndexSection(child, inner, indexUrl);
             else if (element.nodeName() == "page")
-                readIndexSection(child, inner, indexUrl, index);
+                readIndexSection(child, inner, indexUrl);
             else if (element.nodeName() == "namespace" && !name.isEmpty())
                 // The root node in the index is a namespace with an empty name.
-                readIndexSection(child, inner, indexUrl, index);
+                readIndexSection(child, inner, indexUrl);
             else
-                readIndexSection(child, parent, indexUrl, index);
+                readIndexSection(child, parent, indexUrl);
 
             child = child.nextSiblingElement();
         }
@@ -862,12 +808,32 @@ QString Tree::readIndexText(const QDomElement &element)
     return text;
 }
 
+void Tree::resolveIndex()
+{
+    QPair<ClassNode*,QString> pair;
+
+    foreach (pair, priv->basesList) {
+        foreach (QString base, pair.second.split(",")) {
+            Node *baseClass = root()->findNode(base, Node::Class);
+            if (baseClass) {
+                pair.first->addBaseClass(Node::Public,
+                                         static_cast<ClassNode*>(baseClass));
+            }
+        }
+    }
+
+    QPair<FunctionNode*,QString> relatedPair;
+
+    foreach (relatedPair, priv->relatedList) {
+        Node *classNode = root()->findNode(relatedPair.second, Node::Class);
+        if (classNode)
+            relatedPair.first->setRelates(static_cast<ClassNode*>(classNode));
+    }
+}
+
 QDomElement Tree::generateIndexSection(QDomDocument &document, const Node *node) const
 {
-    // Only generate sections for nodes that are internal (i.e. have an empty
-    // URL). Other indexes may be part of the same documentation set, with
-    // the same project URL, but we don't want to merge indexes.
-    if (!node->index().isEmpty() && node->index() != priv->index)
+    if (!node->url().isEmpty())
         return QDomElement();
 
     QString nodeName;
@@ -919,31 +885,6 @@ QDomElement Tree::generateIndexSection(QDomDocument &document, const Node *node)
     }
     element.setAttribute("access", access);
 
-    QString status;
-    switch (node->status()) {
-        case Node::Compat:
-            status = "compat";
-            break;
-        case Node::Obsolete:
-            status = "obsolete";
-            break;
-        case Node::Deprecated:
-            status = "deprecated";
-            break;
-        case Node::Preliminary:
-            status = "preliminary";
-            break;
-        case Node::Commendable:
-            status = "commendable";
-            break;
-        case Node::Main:
-            status = "main";
-            break;
-        default:
-            return QDomElement();
-    }
-    element.setAttribute("status", status);
-
     if (node->type() != Node::Fake) {
         QString threadSafety;
         switch (node->threadSafeness()) {
@@ -969,9 +910,6 @@ QDomElement Tree::generateIndexSection(QDomDocument &document, const Node *node)
     element.setAttribute("href", fullDocumentName(node));
     element.setAttribute("location", node->location().fileName());
 
-    if (!node->doc().briefText().isEmpty())
-        element.setAttribute("description", node->doc().briefText().toString());
-
     if (node->type() == Node::Class) {
 
         // Classes contain information about their base classes.
@@ -979,18 +917,13 @@ QDomElement Tree::generateIndexSection(QDomDocument &document, const Node *node)
             return QDomElement();
 
         const ClassNode *classNode = static_cast<const ClassNode*>(node);
-        QSet<QString> baseStrings;
-/*        QList<RelatedClass> bases = classNode->baseClasses();
+        QList<RelatedClass> bases = classNode->baseClasses();
+        QStringList baseStrings;
         foreach (RelatedClass related, bases) {
             ClassNode *baseClassNode = related.node;
-            baseStrings.insert(baseClassNode->name());
-            node->doc().location().warning(baseClassNode->name());
-        }*/
-        QList<InheritanceBound> unresolvedBases = priv->unresolvedInheritanceMap.value(const_cast<ClassNode *>(classNode));
-        foreach (InheritanceBound base, unresolvedBases)
-            baseStrings.insert(base.basePath.join("::"));
-        QStringList baseNames = baseStrings.values();
-        element.setAttribute("bases", baseNames.join(","));
+            baseStrings.append(baseClassNode->name());
+        }
+        element.setAttribute("bases", baseStrings.join(","));
         element.setAttribute("module", node->moduleName());
     }
 
@@ -1091,8 +1024,6 @@ QDomElement Tree::generateIndexSection(QDomDocument &document, const Node *node)
         element.setAttribute("overload", functionNode->isOverload()?"true":"false");
         if (functionNode->relates())
             element.setAttribute("relates", functionNode->relates()->name());
-        else if (priv->relatedHash.contains(const_cast<FunctionNode *>(functionNode)))
-            element.setAttribute("relates", priv->relatedHash[const_cast<FunctionNode *>(functionNode)]);
     }
 
     // Inner nodes and function nodes contain child nodes of some sort, either
@@ -1198,9 +1129,14 @@ QDomElement Tree::generateIndexSections(QDomDocument &document,
     return element;
 }
 
-bool Tree::generateIndex(const QString &fileName, const QString &url,
+void Tree::generateIndex(const QString &fileName, const QString &url,
                          const QString &title) const
 {
+    QFile file(fileName);
+    if (!file.open(QFile::WriteOnly | QFile::Text))
+        return ;
+
+    QTextStream out(&file);
     QDomDocument document("QDOCINDEX");
     QDomProcessingInstruction process = document.createProcessingInstruction(
         "xml", QString("version=\"1.0\" encoding=\"%1\"").arg("iso-8859-1"));
@@ -1216,33 +1152,7 @@ bool Tree::generateIndex(const QString &fileName, const QString &url,
     QDomElement rootElement = generateIndexSections(document, root());
     indexElement.appendChild(rootElement);
 
-    // Examine the index. If it only contains an empty, untitled namespace, don't
-    // write an index file.
-    if (rootElement.childNodes().count() == 0)
-        return false;
-
-    QFile file(fileName);
-    if (!file.open(QFile::WriteOnly | QFile::Text))
-        return false;
-
-    QTextStream out(&file);
     out << document;
-    out.flush();
-    return true;
-}
-
-void Tree::generateIndexDependencies(const QString &dir, const QString &fileName) const
-{
-    QString path = dir + "/" + fileName + ".dep";
-    QFile file(path);
-    if (!file.open(QFile::WriteOnly | QFile::Text))
-        return;
-
-    QTextStream out(&file);
-    out << QDir::toNativeSeparators(dir + "/" + fileName) << " :";
-    foreach (QString index, priv->usedIndexes)
-        out << " " << index;
-    out << "\n";
     out.flush();
 }
 
@@ -1320,24 +1230,4 @@ QString Tree::fullDocumentName(const Node *node) const
     }
 
     return "";
-}
-
-const QString &Tree::url() const
-{
-    return priv->url;
-}
-
-void Tree::setUrl(const QString &url)
-{
-    priv->url = url;
-}
-
-const QString &Tree::outputIndex() const
-{
-    return priv->index;
-}
-
-void Tree::setOutputIndex(const QString &index)
-{
-    priv->index = index;
 }
