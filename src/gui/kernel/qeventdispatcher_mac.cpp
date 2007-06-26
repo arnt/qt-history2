@@ -429,7 +429,7 @@ bool QEventDispatcherMac::processEvents(QEventLoop::ProcessEventsFlags flags)
 
     bool retVal = false;
     for (;;) {
-        QApplication::sendPostedEvents(0, 0, d->threadData);
+        QApplicationPrivate::sendPostedEvents(0, 0, d->threadData);
         if (d->activateTimers() > 0) //send null timers
             retVal = true;
 

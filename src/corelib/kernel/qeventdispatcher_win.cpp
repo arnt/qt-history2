@@ -436,7 +436,7 @@ bool QEventDispatcherWin32::processEvents(QEventLoop::ProcessEventsFlags flags)
     bool canWait;
     bool retVal = false;
     do {
-        QCoreApplication::sendPostedEvents(0, 0, d->threadData);
+        QCoreApplicationPrivate::sendPostedEvents(0, 0, d->threadData);
 
         DWORD waitRet = 0;
         HANDLE pHandles[MAXIMUM_WAIT_OBJECTS - 1];
