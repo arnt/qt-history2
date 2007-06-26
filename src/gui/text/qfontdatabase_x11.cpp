@@ -1482,7 +1482,7 @@ static FcPattern *getFcPattern(const QFontPrivate *fp, int script, const QFontDe
         if (!family.isEmpty()) {
             QByteArray cs = family.toUtf8();
             value.u.s = (const FcChar8 *)cs.data();
-            FcPatternAddWeak(pattern, FC_FAMILY, value, FcTrue);
+            FcPatternAdd(pattern, FC_FAMILY, value, FcTrue);
         }
         if (i == 0) {
             ::match(script, request, family, foundry, -1, &desc);
