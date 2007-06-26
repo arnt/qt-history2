@@ -1,3 +1,16 @@
+/****************************************************************************
+**
+** copyright (c) 1992-$thisyear$ $trolltech$. all rights reserved.
+**
+** this file is part of the $module$ of the qt toolkit.
+**
+** $trolltech_dual_license$
+**
+** this file is provided as is with no warranty of any kind, including the
+** warranty of design, merchantability and fitness for a particular purpose.
+**
+****************************************************************************/
+
 #include "qteditorfactory.h"
 #include "qtcursordatabase_p.h"
 #include <QCheckBox>
