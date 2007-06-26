@@ -951,6 +951,12 @@ bool QFile::open(OpenMode mode)
     CONFIG += console
     \endcode
 
+    \note On Windows, \a fh must be opened in binary mode (i.e., the mode
+    string must contain 'b', as in "rb" or "wb") when accessing files and
+    other random-access devices. Qt will translate the end-of-line characters
+    if you pass QIODevice::Text to \a mode. Sequential devices, such as stdin
+    and stdout, are unaffected by this limitation.
+
     \sa close(), {qmake Variable Reference#CONFIG}{qmake Variable Reference}
 */
 bool QFile::open(FILE *fh, OpenMode mode)
