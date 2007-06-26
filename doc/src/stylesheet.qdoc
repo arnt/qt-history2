@@ -914,7 +914,7 @@
         \o QScrollBar \target qscrollbar-widget
         \o Supports the \l{box model}. The Contents rectangle of the widget
            is considered to be the groove over which the slider moves. The extent
-           of the QScrolBar (i.e the width or the height depending on the orientation)
+           of the QScrollBar (i.e the width or the height depending on the orientation)
            is set using the \l{#width-prop}{width} or \l{#height-prop}{height} property
            respectively. To determine the orientation, use the 
            \l{#horizontal-ps}{:horizontal} and the \l{vertical-ps}{:vertical}
@@ -1822,10 +1822,10 @@
         \o The height of a \l{subcontrol}.
 
            If this property is not specified, it defaults to a value
-           that depends on the subcontrol and on the current style.
+           that depends on the subcontrol/widget and on the current style.
 
-           \warning Unless otherwise specified, this property applies 
-           only to subcontrols and not to widgets.
+           Specifying this property for a widget, makes the widget have
+           a fixed height.
 
            Example:
 
@@ -1954,6 +1954,45 @@
         \o The widget's left margin.
 
     \row
+        \o \bold{\c max-height} \target max-height-prop
+        \o \l{#Length}{Length}
+        \o The widget's or a subcontrol's maximum height.
+
+           This property is supported by QAbstractItemView
+           subclasses, QAbstractSpinBox subclasses, QCheckBox,
+           QComboBox, QFrame, QGroupBox, QLabel, QLineEdit, QMenu,
+           QMenuBar, QPushButton, QRadioButton, QSizeGrip, QSpinBox,
+           QSplitter, QStatusBar, QTextEdit, and QToolTip.
+
+           Example:
+
+           \code
+                QSpinBox { max-height: 24px }
+           \endcode
+
+           See also \l{#max-width-prop}{max-width}.
+
+    \row
+        \o \bold{\c max-width} \target max-width-prop
+        \o \l{#Length}{Length}
+        \o The widget's or a subcontrol's maximum width.
+
+           This property is supported by QAbstractItemView
+           subclasses, QAbstractSpinBox subclasses, QCheckBox,
+           QComboBox, QFrame, QGroupBox, QLabel, QLineEdit, QMenu,
+           QMenuBar, QPushButton, QRadioButton, QSizeGrip, QSpinBox,
+           QSplitter, QStatusBar, QTextEdit, and QToolTip.
+
+           Example:
+
+           \code
+                QComboBox { max-width: 72px }
+           \endcode
+
+           See also \l{#max-height-prop}{max-height}.
+
+
+    \row
         \o \bold{\c messagebox-text- \target messagebox-text-interaction-flags-prop
            \BR \c interaction-flags}*
         \o \l{#Number}{Number}
@@ -1985,12 +2024,6 @@
            If this property is not specified, the minimum height is
            derived based on the widget's contents and the style.
 
-           \warning When used with widgets, this property affects 
-           only the QWidget::minimumSizeHint() of the element.
-           As a result, this does not work for widgets that are not in a
-           layout or do not use the QStyle::sizeFromContents() for size hint
-           computation.
-
            Example:
 
            \code
@@ -2002,7 +2035,7 @@
     \row
         \o \bold{\c min-width} \target min-width-prop
         \o \l{#Length}{Length}
-        \o The widget's minimum width.
+        \o The widget's or a subcontrol's minimum width.
 
            This property is supported by QAbstractItemView
            subclasses, QAbstractSpinBox subclasses, QCheckBox,
@@ -2012,12 +2045,6 @@
 
            If this property is not specified, the minimum width is
            derived based on the widget's contents and the style.
-
-           \warning When used with widgets, this property affects
-           only the QWidget::minimumSizeHint() of the element. 
-           As a result, this does not work for widgets that are not in a
-           layout or do not use the QStyle::sizeFromContents() for size hint
-           computation.
 
            Example:
 
@@ -2293,13 +2320,13 @@
     \row
         \o \bold{\c width} \target width-prop
         \o \l{#Length}{Length}
-        \o The width of a \l{subcontrol}.
+        \o The width of a widget or a \l{subcontrol}.
 
            If this property is not specified, it defaults to a value
-           that depends on the subcontrol and on the current style.
+           that depends on the subcontrol/widget and on the current style.
 
-           \warning Unless otherwise specified, this property applies 
-           only to subcontrols and not to widgets.
+           Specifying this property for a widget, makes the widget have
+           a fixed width.
 
            Example:
 
