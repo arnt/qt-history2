@@ -478,7 +478,7 @@ Der Befehl zur Konvertierung in das Format der Version 4 lautet&lt;b&gt;uic3 -co
     <message>
         <location filename="../tools/designer/src/designer/formwindowsettings.ui" line="164"/>
         <source>&amp;Include Hints</source>
-        <translation>&amp;Inkludedateien</translation>
+        <translation>&amp;Include-Dateien</translation>
     </message>
     <message>
         <location filename="../tools/designer/src/designer/formwindowsettings.ui" line="190"/>
@@ -2536,12 +2536,12 @@ Bitte wählen Sie einen anderen Namen.</translation>
     <message>
         <location filename="../tools/designer/src/lib/shared/qdesigner_promotiondialog.cpp" line="91"/>
         <source>Header file:</source>
-        <translation>Inkludedatei:</translation>
+        <translation>Include-Datei:</translation>
     </message>
     <message>
         <location filename="../tools/designer/src/lib/shared/qdesigner_promotiondialog.cpp" line="92"/>
         <source>Global include</source>
-        <translation>Globale Inkludedatei</translation>
+        <translation>Globale Include-Datei</translation>
     </message>
     <message>
         <location filename="../tools/designer/src/lib/shared/qdesigner_promotiondialog.cpp" line="103"/>
@@ -2747,12 +2747,12 @@ Bitte wählen Sie einen anderen Namen.</translation>
     <message>
         <location filename="../tools/designer/src/lib/shared/promotionmodel.cpp" line="104"/>
         <source>Header file</source>
-        <translation>Inkludedatei</translation>
+        <translation>Include-Datei</translation>
     </message>
     <message>
         <location filename="../tools/designer/src/lib/shared/promotionmodel.cpp" line="105"/>
         <source>Global include</source>
-        <translation>Globale Inkludedatei</translation>
+        <translation>Globale Include-Datei</translation>
     </message>
     <message>
         <location filename="../tools/designer/src/lib/shared/promotionmodel.cpp" line="106"/>
@@ -2849,7 +2849,7 @@ Bitte wählen Sie einen anderen Namen.</translation>
     <message>
         <location filename="../tools/designer/src/lib/shared/qdesigner_promotion.cpp" line="322"/>
         <source>Cannot set an empty include file.</source>
-        <translation>Der Name der Inkludedatei darf nicht leer sein.</translation>
+        <translation>Der Name der Include-Datei darf nicht leer sein.</translation>
     </message>
 </context>
 <context>
