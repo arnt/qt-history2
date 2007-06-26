@@ -1712,21 +1712,6 @@ bool QMdiArea::event(QEvent *event)
                 QApplication::sendEvent(window, event);
         }
         break;
-    case QEvent::WindowStateChange: {
-        QWindowStateChangeEvent *changeEvent = static_cast<QWindowStateChangeEvent*>(event);
-        Qt::WindowStates oldState = changeEvent->oldState();
-        Qt::WindowStates newState = windowState();
-        // Minimized.
-        if (!(oldState & Qt::WindowMinimized) && (newState & Qt::WindowMinimized)) {
-            d->setActive(d->active, false);
-            d->setChildActivationEnabled(false);
-        // Restored.
-        } else if ((oldState & Qt::WindowMinimized) && !(newState & Qt::WindowMinimized)) {
-            d->setChildActivationEnabled(true);
-            d->activateCurrentWindow();
-        }
-        break;
-    }
     case QEvent::Hide:
         d->setActive(d->active, false);
         d->setChildActivationEnabled(false);
