@@ -1955,10 +1955,65 @@ static QWidget *embeddedWidget(QWidget *w)
     return w;
 }
 
+// sets up the geometry of the widget. We set a dynamic property when
+// we modify the min/max size of the widget. The min/max size is restored
+// to their original value when a new stylesheet that does not contain
+// the CSS properies is set and when the widget has this dynamic property set.
+// This way we don't trample on users who had setup a min/max size in code and
+// don't use stylesheets at all.
+void QStyleSheetStyle::setGeometry(QWidget *w)
+{
+    QRenderRule rule = renderRule(w, PseudoElement_None);
+    const QStyleSheetGeometryData *geo = rule.geometry();
+    if (w->property("_q_stylesheet_minw").toBool()
+        && ((!rule.hasGeometry() || (geo->width == -1 && geo->minWidth == -1)))) {
+            w->setMinimumWidth(0);
+            w->setProperty("_q_stylesheet_minw", QVariant());
+    }
+    if (w->property("_q_stylesheet_minh").toBool()
+        && ((!rule.hasGeometry() || (geo->height == -1 && geo->minHeight == -1)))) {
+            w->setMinimumHeight(0);
+            w->setProperty("_q_stylesheet_minh", QVariant());
+    }
+    if (w->property("_q_stylesheet_maxw").toBool()
+        && ((!rule.hasGeometry() || (geo->width == -1 && geo->maxWidth == -1)))) {
+            w->setMaximumWidth(QWIDGETSIZE_MAX);
+            w->setProperty("_q_stylesheet_maxw", QVariant());
+    }
+   if (w->property("_q_stylesheet_maxh").toBool()
+        && ((!rule.hasGeometry() || (geo->height == -1 && geo->maxHeight == -1)))) {
+            w->setMaximumHeight(QWIDGETSIZE_MAX);
+            w->setProperty("_q_stylesheet_maxh", QVariant());
+    }
+
+
+    if (rule.hasGeometry()) {
+        if (geo->minWidth != -1 || geo->width != -1) {
+            w->setProperty("_q_stylesheet_minw", true);
+            w->setMinimumWidth(rule.boxSize(QSize(qMax(geo->width, geo->minWidth), 0)).width());
+        }
+        if (geo->minHeight != -1 || geo->height != -1) {
+            w->setProperty("_q_stylesheet_minh", true);
+            w->setMinimumHeight(rule.boxSize(QSize(0, qMax(geo->height, geo->minHeight))).height());
+        }
+        if (geo->maxWidth != -1 || geo->width != -1) {
+            w->setProperty("_q_stylesheet_maxw", true);
+            w->setMaximumWidth(rule.boxSize(QSize(qMin(geo->width == -1 ? QWIDGETSIZE_MAX : geo->width,
+                                                       geo->maxWidth == -1 ? QWIDGETSIZE_MAX : geo->maxWidth), 0)).width());
+        }
+        if (geo->maxHeight != -1 || geo->height != -1) {
+            w->setProperty("_q_stylesheet_maxh", true);
+            w->setMaximumHeight(rule.boxSize(QSize(0, qMin(geo->height == -1 ? QWIDGETSIZE_MAX : geo->height,
+                                                       geo->maxHeight == -1 ? QWIDGETSIZE_MAX : geo->maxHeight))).height());
+        }
+    }
+}
+
 void QStyleSheetStyle::setProperties(QWidget *w)
 {
     QHash<QString, QVariant> propertyHash;
     QVector<Declaration> decls = declarations(styleRules(w), QString());
+
     // run through the declarations in order
     for (int i = 0; i < decls.count(); i++) {
         Declaration decl = decls.at(i);
@@ -2135,6 +2190,7 @@ void QStyleSheetStyle::polish(QWidget *w)
     }
 
     QRenderRule rule = renderRule(w, PseudoElement_None);
+    setGeometry(w);
     setProperties(w);
     unsetPalette(w);
     setPalette(w);
@@ -2216,6 +2272,10 @@ void QStyleSheetStyle::unpolish(QWidget *w)
     styleSheetCache->remove(w);
     baseStyle()->unpolish(w);
     unsetPalette(w);
+    w->setProperty("_q_stylesheet_minw", QVariant());
+    w->setProperty("_q_stylesheet_minh", QVariant());
+    w->setProperty("_q_stylesheet_maxw", QVariant());
+    w->setProperty("_q_stylesheet_maxh", QVariant());
     w->setAttribute(Qt::WA_StyleSheet, false);
     QObject::disconnect(w, SIGNAL(destroyed(QObject*)),
                       this, SLOT(widgetDestroyed(QObject*)));
