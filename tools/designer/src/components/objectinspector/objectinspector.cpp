@@ -529,6 +529,18 @@ void  ObjectInspector::dragLeaveEvent(QDragLeaveEvent * /* event*/)
     restoreDropHighlighting();
 }
 
+// Return an offset for dropping.
+// Position the dropped widget with form grid offset to avoid overlapping unless we
+// drop on a layout. Position doesn't matter there
+// and it enables us to drop on a squeezed layout widget
+
+static inline QPoint dropPointOffset(const FormWindowBase *fw, const QWidget *dropTarget)
+{
+    if (!dropTarget || dropTarget->layout())
+        return QPoint(0, 0);
+    return QPoint(fw->designerGrid().deltaX(), fw->designerGrid().deltaY());
+}
+
 void  ObjectInspector::dropEvent (QDropEvent * event)
 {
     if (!m_formWindow || !m_formFakeDropTarget) {
@@ -541,7 +553,7 @@ void  ObjectInspector::dropEvent (QDropEvent * event)
         event->ignore();
         return;
     }
-    const QPoint fakeGlobalDropFormPos = m_formFakeDropTarget->mapToGlobal(QPoint(0, 0));
+    const QPoint fakeGlobalDropFormPos = m_formFakeDropTarget->mapToGlobal(dropPointOffset(m_formWindow , m_formFakeDropTarget));
     mimeData->moveDecoration(fakeGlobalDropFormPos + mimeData->hotSpot());
     if (!m_formWindow->dropWidgets(mimeData->items(), m_formFakeDropTarget, fakeGlobalDropFormPos)) {
         event->ignore();
@@ -564,8 +576,9 @@ void ObjectInspector::handleDragEnterMoveEvent(QDragMoveEvent * event, bool isDr
     }
 
     QWidget *dropTarget = 0;
-    const QPoint fakeDropTargetOffset = QPoint(5, 5);
+    QPoint fakeDropTargetOffset = QPoint(0, 0);
     if (QWidget *managedWidget = managedWidgetAt(mapToGlobal(event->pos()))) {
+        fakeDropTargetOffset = dropPointOffset(m_formWindow, managedWidget);
         // pretend we drag over the managed widget on the form
         const QPoint fakeFormPos = m_formWindow->mapFromGlobal(managedWidget->mapToGlobal(fakeDropTargetOffset));
         const FormWindowBase::WidgetUnderMouseMode wum = mimeData->items().size() == 1 ? FormWindowBase::FindSingleSelectionDropTarget : FormWindowBase::FindMultiSelectionDropTarget;
