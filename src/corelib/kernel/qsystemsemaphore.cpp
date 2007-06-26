@@ -61,7 +61,7 @@
     of resources it guards to \a initialValue (by default, 0) if it didn't already
     exists.  When initializing the key it uses the access mode \a mode.
 
-    \sa acquire(), key().
+    \sa acquire(), key()
  */
 QSystemSemaphore::QSystemSemaphore(const QString &key, int initialValue, AccessMode mode)
 {
