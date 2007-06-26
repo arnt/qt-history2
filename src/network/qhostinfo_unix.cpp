@@ -153,13 +153,15 @@ QHostInfo QHostInfoAgent::fromName(const QString &hostName)
                     addresses.append(addr);
             }
 #endif
-            else {
-                results.setError(QHostInfo::UnknownError);
-                results.setErrorString(tr("Unknown address type"));
-                break;
-            }
             node = node->ai_next;
         }
+        if (addresses.isEmpty() && node == 0) {
+            // Reached the end of the list, but no addresses were found; this
+            // means the list contains one or more unknown address types.
+            results.setError(QHostInfo::UnknownError);
+            results.setErrorString(tr("Unknown address type"));
+        }
+
         results.setAddresses(addresses);
         freeaddrinfo(res);
     } else if (result == EAI_NONAME
