@@ -2581,10 +2581,14 @@ void QGraphicsView::mousePressEvent(QMouseEvent *event)
             mouseEvent.setAccepted(false);
             QApplication::sendEvent(d->scene, &mouseEvent);
 
-            // Update the last mouse event selected state.
-            d->lastMouseEvent.setAccepted(mouseEvent.isAccepted());
+            // Update the original mouse event accepted state.
+            bool isAccepted = mouseEvent.isAccepted();
+            event->setAccepted(isAccepted);
 
-            if (mouseEvent.isAccepted())
+            // Update the last mouse event accepted state.
+            d->lastMouseEvent.setAccepted(isAccepted);
+
+            if (isAccepted)
                 return;
         }
     }

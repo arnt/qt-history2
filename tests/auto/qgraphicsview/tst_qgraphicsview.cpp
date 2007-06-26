@@ -116,6 +116,7 @@ private slots:
     void levelOfDetail();
     void scrollBarRanges_data();
     void scrollBarRanges();
+    void acceptMousePressEvent();
 };
 
 void tst_QGraphicsView::construction()
@@ -2963,6 +2964,44 @@ void tst_QGraphicsView::scrollBarRanges()
     QCOMPARE(view.verticalScrollBar()->minimum(), vmin);
     QCOMPARE(view.horizontalScrollBar()->maximum(), hmax);
     QCOMPARE(view.verticalScrollBar()->maximum(), vmax);
+}
+
+class TestView : public QGraphicsView
+{
+public:
+    TestView(QGraphicsScene *scene)
+        : QGraphicsView(scene), accepted(false)
+    { }
+
+    bool accepted;
+
+protected:
+    void mousePressEvent(QMouseEvent *event)
+    {
+        QGraphicsView::mousePressEvent(event);
+        accepted = event->isAccepted();
+    }
+};
+
+void tst_QGraphicsView::acceptMousePressEvent()
+{
+    QGraphicsScene scene;
+
+    TestView view(&scene);
+    view.show();
+
+    QMouseEvent event(QEvent::MouseButtonPress,
+                      view.viewport()->rect().center(),
+                      view.viewport()->mapToGlobal(view.viewport()->rect().center()),
+                      Qt::LeftButton, 0, 0);
+    event.setAccepted(false);
+    QApplication::sendEvent(view.viewport(), &event);
+    QVERIFY(!view.accepted);
+
+    scene.addRect(0, 0, 2000, 2000)->setFlag(QGraphicsItem::ItemIsMovable);
+    
+    QApplication::sendEvent(view.viewport(), &event);
+    QVERIFY(view.accepted);
 }
 
 QTEST_MAIN(tst_QGraphicsView)
