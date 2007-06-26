@@ -870,8 +870,8 @@ void QWindowsVistaStyle::drawControl(ControlElement element, const QStyleOption 
             }
 
             if (const QProgressBar *progressbar = qobject_cast<const QProgressBar *>(widget)) {
-                if (progressbar->value() < progressbar->maximum() && (progressbar->value() > 0 || isIndeterminate) && d->transitionsEnabled()) {
-                    if (!d->widgetAnimation(progressbar)) {
+                if ((progressbar->value() > 0 || isIndeterminate) && d->transitionsEnabled()) {
+                    if (!d->widgetAnimation(progressbar) && progressbar->value() < progressbar->maximum()) { 
                         Animation *a = new Animation;
                         a->setWidget(const_cast<QWidget*>(widget));
                         a->setStartTime(QTime::currentTime());
@@ -964,8 +964,13 @@ void QWindowsVistaStyle::drawControl(ControlElement element, const QStyleOption 
                     int animationWidth = glowSize * 2 + (vertical ? theme.rect.height() : theme.rect.width());
                     int animOffset = a->startTime().msecsTo(current) / 4;
                     theme.partId = vertical ? PP_MOVEOVERLAYVERT : PP_MOVEOVERLAY;
-                    if (animOffset > animationWidth)
-                        a->setStartTime(QTime::currentTime());
+                    if (animOffset > animationWidth) {
+                        if (bar->progress < bar->maximum)
+                            a->setStartTime(QTime::currentTime());
+                        else
+                            d->stopAnimation(widget); //we stop the glow motion only after it has
+                                                      //moved out of view
+                    }
                     painter->save();
                     painter->setClipRect(theme.rect);
                     if (vertical) {
