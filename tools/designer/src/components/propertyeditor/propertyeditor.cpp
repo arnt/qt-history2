@@ -360,6 +360,8 @@ int PropertyEditor::toBrowserType(const QVariant &value, const QString &property
             return DesignerPropertyManager::designerAlignmentTypeId();
         return DesignerPropertyManager::designerFlagTypeId();
     }
+    if (value.type() == QVariant::ByteArray)
+        return QVariant::String;
     return value.userType();
 }
 

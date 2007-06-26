@@ -9,6 +9,7 @@ typedef QList<DesignerIntPair> DesignerFlagList;
 Q_DECLARE_METATYPE(DesignerFlagList)
 
 class QDesignerFormEditorInterface;
+class QLineEdit;
 
 namespace qdesigner_internal
 {
@@ -125,6 +126,10 @@ private:
 
     QMap<QtProperty *, QPixmap> m_pixmapValues;
 
+    QMap<QtProperty *, uint> m_uintValues;
+    QMap<QtProperty *, qlonglong> m_longLongValues;
+    QMap<QtProperty *, qulonglong> m_uLongLongValues;
+
     QMap<QtProperty *, int> m_stringAttributes;
 
     bool m_changingSubValue;
@@ -135,7 +140,7 @@ class DesignerEditorFactory : public QtVariantEditorFactory
 {
     Q_OBJECT
 public:
-    DesignerEditorFactory(QDesignerFormEditorInterface *core, QObject *parent = 0);
+    explicit DesignerEditorFactory(QDesignerFormEditorInterface *core, QObject *parent = 0);
     ~DesignerEditorFactory();
     void setSpacing(int spacing);
 signals:
@@ -153,6 +158,9 @@ private slots:
     void slotPaletteChanged(const QPalette &value);
     void slotIconChanged(const QIcon &value);
     void slotPixmapChanged(const QPixmap &value);
+    void slotUintChanged(const QString &value);
+    void slotLongLongChanged(const QString &value);
+    void slotULongLongChanged(const QString &value);
 private:
     ResetDecorator *m_resetDecorator;
     bool m_changingPropertyValue;
@@ -168,6 +176,12 @@ private:
     QMap<GraphicsPropertyEditor *, QtProperty *> m_editorToIconProperty;
     QMap<QtProperty *, QList<GraphicsPropertyEditor *> > m_pixmapPropertyToEditors;
     QMap<GraphicsPropertyEditor *, QtProperty *> m_editorToPixmapProperty;
+    QMap<QtProperty *, QList<QLineEdit *> > m_uintPropertyToEditors;
+    QMap<QLineEdit *, QtProperty *> m_editorToUintProperty;
+    QMap<QtProperty *, QList<QLineEdit *> > m_longLongPropertyToEditors;
+    QMap<QLineEdit *, QtProperty *> m_editorToLongLongProperty;
+    QMap<QtProperty *, QList<QLineEdit *> > m_uLongLongPropertyToEditors;
+    QMap<QLineEdit *, QtProperty *> m_editorToULongLongProperty;
 };
 
 }

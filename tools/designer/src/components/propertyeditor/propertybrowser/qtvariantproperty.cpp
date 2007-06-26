@@ -1465,7 +1465,7 @@ int QtVariantPropertyManager::attributeType(int propertyType, const QString &att
 
     The specified \a value must be of a type returned by valueType(),
     or of type that can be converted to valueType() using the
-    QVariant::canConvert() funciton, otherwise this function does
+    QVariant::canConvert() function, otherwise this function does
     nothing.
 
     \sa value(), QtVariantProperty::setValue(), valueChanged()

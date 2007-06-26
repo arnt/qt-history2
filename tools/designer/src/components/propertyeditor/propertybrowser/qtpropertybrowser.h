@@ -53,7 +53,7 @@ public:
     void insertSubProperty(QtProperty *property, QtProperty *afterProperty);
     void removeSubProperty(QtProperty *property);
 protected:
-    QtProperty(QtAbstractPropertyManager *manager);
+    explicit QtProperty(QtAbstractPropertyManager *manager);
     void propertyChanged();
 private:
     friend class QtAbstractPropertyManager;
@@ -65,7 +65,7 @@ class QT_QTPROPERTYBROWSER_EXPORT QtAbstractPropertyManager : public QObject
     Q_OBJECT
 public:
 
-    QtAbstractPropertyManager(QObject *parent = 0);
+    explicit QtAbstractPropertyManager(QObject *parent = 0);
     ~QtAbstractPropertyManager();
 
     QSet<QtProperty *> properties() const;
@@ -99,7 +99,7 @@ class QtAbstractEditorFactoryBase : public QObject
 public:
     virtual QWidget *createEditor(QtProperty *property, QWidget *parent) = 0;
 protected:
-    QtAbstractEditorFactoryBase(QObject *parent = 0)
+    explicit QtAbstractEditorFactoryBase(QObject *parent = 0)
         : QObject(parent) {}
 
     virtual void breakConnection(QtAbstractPropertyManager *manager) = 0;
@@ -113,7 +113,7 @@ template <class PropertyManager>
 class QT_QTPROPERTYBROWSER_EXPORT QtAbstractEditorFactory : public QtAbstractEditorFactoryBase
 {
 public:
-    QtAbstractEditorFactory(QObject *parent) : QtAbstractEditorFactoryBase(parent) {}
+    explicit QtAbstractEditorFactory(QObject *parent) : QtAbstractEditorFactoryBase(parent) {}
     QWidget *createEditor(QtProperty *property, QWidget *parent)
     {
         QSetIterator<PropertyManager *> it(m_managers);
@@ -202,7 +202,7 @@ public:
     QList<QtBrowserItem *> children() const;
     QtAbstractPropertyBrowser *browser() const;
 private:
-    QtBrowserItem(QtAbstractPropertyBrowser *browser, QtProperty *property, QtBrowserItem *parent);
+    explicit QtBrowserItem(QtAbstractPropertyBrowser *browser, QtProperty *property, QtBrowserItem *parent);
     ~QtBrowserItem();
     class QtBrowserItemPrivate *d_ptr;
     friend class QtAbstractPropertyBrowserPrivate;
@@ -213,7 +213,7 @@ class QtAbstractPropertyBrowser : public QWidget
     Q_OBJECT
 public:
 
-    QtAbstractPropertyBrowser(QWidget *parent = 0);
+    explicit QtAbstractPropertyBrowser(QWidget *parent = 0);
     ~QtAbstractPropertyBrowser();
 
     QList<QtProperty *> properties() const;
