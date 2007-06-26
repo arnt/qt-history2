@@ -2825,7 +2825,7 @@ void QWidgetPrivate::setModal_sys()
 {
     Q_Q(QWidget);
 
-    if (!q->testAttribute(Qt::WA_WState_Created))
+    if (!q->testAttribute(Qt::WA_WState_Created) || !q->isWindow())
         return;
 
     const QWidget * const windowParent = q->window()->parentWidget();
