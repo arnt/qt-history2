@@ -436,7 +436,7 @@ bool QEventDispatcherWin32::processEvents(QEventLoop::ProcessEventsFlags flags)
     bool canWait;
     bool retVal = false;
     do {
-        QCoreApplication::sendPostedEvents(0, (flags & QEventLoop::DeferredDeletion) ? -1 : 0);
+        QCoreApplication::sendPostedEvents(0, 0, d->threadData);
 
         DWORD waitRet = 0;
         HANDLE pHandles[MAXIMUM_WAIT_OBJECTS - 1];
@@ -455,7 +455,7 @@ bool QEventDispatcherWin32::processEvents(QEventLoop::ProcessEventsFlags flags)
             } else if(!(flags & QEventLoop::ExcludeSocketNotifiers) && !d->queuedSocketEvents.isEmpty()) {
                 // process queued socket events
                 haveMessage = true;
-                msg = d->queuedSocketEvents.takeFirst(); 
+                msg = d->queuedSocketEvents.takeFirst();
             } else {
                 haveMessage = winPeekMessage(&msg, 0, 0, 0, PM_REMOVE);
                 if (haveMessage && (flags & QEventLoop::ExcludeUserInputEvents)
@@ -472,7 +472,7 @@ bool QEventDispatcherWin32::processEvents(QEventLoop::ProcessEventsFlags flags)
                     && (msg.message == WM_USER && msg.hwnd == d->internalHwnd)) {
                     // queue socket events for later processing
                     haveMessage = false;
-                    d->queuedSocketEvents.append(msg); 
+                    d->queuedSocketEvents.append(msg);
                 }
             }
             if (!haveMessage) {

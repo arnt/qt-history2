@@ -94,6 +94,7 @@ public:
 
     QThread *thread;
     bool quitNow;
+    int loopLevel;
     QAbstractEventDispatcher *eventDispatcher;
     QStack<QEventLoop *> eventLoops;
     QPostEventList postEventList;

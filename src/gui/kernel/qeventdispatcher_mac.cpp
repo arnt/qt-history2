@@ -72,7 +72,7 @@ void QEventDispatcherMac::registerTimer(int timerId, int interval, QObject *obj)
         return;
     }
 #endif
-    
+
     Q_D(QEventDispatcherMac);
     if (!d->macTimerList)
         d->macTimerList = new MacTimerList;
@@ -119,7 +119,7 @@ bool QEventDispatcherMac::unregisterTimer(int id)
         return false;
     }
 #endif
-    
+
     Q_D(QEventDispatcherMac);
     if(!d->macTimerList || id <= 0)
         return false;                                // not init'd or invalid timer
@@ -154,7 +154,7 @@ bool QEventDispatcherMac::unregisterTimers(QObject *obj)
         return false;
     }
 #endif
-    
+
     Q_D(QEventDispatcherMac);
     if(!d->macTimerList)                                // not initialized
         return false;
@@ -429,7 +429,7 @@ bool QEventDispatcherMac::processEvents(QEventLoop::ProcessEventsFlags flags)
 
     bool retVal = false;
     for (;;) {
-        QApplication::sendPostedEvents(0, (flags & QEventLoop::DeferredDeletion) ? -1 : 0);
+        QApplication::sendPostedEvents(0, 0, d->threadData);
         if (d->activateTimers() > 0) //send null timers
             retVal = true;
 

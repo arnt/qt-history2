@@ -63,13 +63,11 @@ public:
     \value WaitForMoreEvents Wait for events if no pending events are
     available.
 
-    \value DeferredDeletion Allow objects to be queued for deletion
-    at a later time.
-
     \value X11ExcludeTimers
 
     \omitvalue ExcludeUserInput
     \omitvalue WaitForMore
+    \omitvalue DeferredDeletion
 
     \sa processEvents()
 */
@@ -129,7 +127,7 @@ bool QEventLoop::processEvents(ProcessEventsFlags flags)
 
     Generally speaking, no user interaction can take place before
     calling exec(). As a special case, modal widgets like QMessageBox
-    can be used before calling exec(), because modal widgets 
+    can be used before calling exec(), because modal widgets
     use their own local event loop.
 
     To make your application perform idle processing (i.e. executing a
@@ -151,15 +149,16 @@ int QEventLoop::exec(ProcessEventsFlags flags)
     }
     d->inExec = true;
     d->exit = false;
+    ++d->threadData->loopLevel;
     d->threadData->eventLoops.push(this);
 
 #if defined(QT_NO_EXCEPTIONS)
     while (!d->exit)
-        processEvents(flags | WaitForMoreEvents | ProcessEventsFlag(QEventLoop::DeferredDeletion));
+        processEvents(flags | WaitForMoreEvents);
 #else
     try {
         while (!d->exit)
-            processEvents(flags | WaitForMoreEvents | ProcessEventsFlag(QEventLoop::DeferredDeletion));
+            processEvents(flags | WaitForMoreEvents);
     } catch (...) {
         qWarning("Qt has caught an exception thrown from an event handler. Throwing\n"
                  "exceptions from an event handler is not supported in Qt. You must\n"
@@ -173,6 +172,7 @@ int QEventLoop::exec(ProcessEventsFlags flags)
     Q_UNUSED(eventLoop); // --release warning
 
     d->inExec = false;
+    --d->threadData->loopLevel;
 
     return d->returnCode;
 }

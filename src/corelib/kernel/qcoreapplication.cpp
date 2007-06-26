@@ -496,7 +496,7 @@ bool QCoreApplication::testAttribute(Qt::ApplicationAttribute attribute)
 */
 bool QCoreApplication::notifyInternal(QObject *receiver, QEvent *event)
 {
-    // Make it possible for Qt JAmbi and QSA to hook into events even
+    // Make it possible for Qt Jambi and QSA to hook into events even
     // though QApplication is subclassed...
     bool result = false;
     void *cbdata[] = { receiver, event, &result };
@@ -504,7 +504,25 @@ bool QCoreApplication::notifyInternal(QObject *receiver, QEvent *event)
         return result;
     }
 
-    return notify(receiver, event);
+    // Qt enforces the rule that events can only be sent to objects in
+    // the current thread, so receiver->d_func()->threadData is
+    // equivalent to QThreadData::current(), just without the function
+    // call overhead.
+    QThreadData *threadData = receiver->d_func()->threadData;
+    ++threadData->loopLevel;
+#if defined(QT_NO_EXCEPTIONS)
+    bool returnValue = notify(receiver, event);
+#else
+    bool returnValue;
+    try {
+        returnValue = notify(receiver, event);
+    } catch(...) {
+        --threadData->loopLevel;
+        throw;
+    }
+#endif
+    --threadData->loopLevel;
+    return returnValue;
 }
 
 
@@ -871,16 +889,8 @@ void QCoreApplication::postEvent(QObject *receiver, QEvent *event, int priority)
         ++receiver->d_func()->postedEvents;
         ++data->postEventList.numPostedEvents;
         if (event->type() == QEvent::DeferredDelete) {
-            if (!data->eventLoops.isEmpty()) {
-                // remember the current running eventloop
-                for (int i = data->eventLoops.size() - 1; i >= 0; --i) {
-                    QEventLoop *eventLoop = data->eventLoops.at(i);
-                    if (eventLoop->isRunning()) {
-                        event->d = reinterpret_cast<QEventPrivate *>(eventLoop);
-                        break;
-                    }
-                }
-            }
+            // remember the current running eventloop
+            event->d = reinterpret_cast<QEventPrivate *>(quintptr(data->loopLevel));
         }
 
         if (data->postEventList.isEmpty() || data->postEventList.last().priority >= priority) {
@@ -973,13 +983,10 @@ void QCoreApplication::sendPostedEvents(QObject *receiver, int event_type)
 void QCoreApplicationPrivate::sendPostedEvents(QObject *receiver, int event_type,
                                                QThreadData *data)
 {
-    bool doDeferredDeletion = (event_type == QEvent::DeferredDelete);
     if (event_type == -1) {
-        // we were called by the event dispatcher.
-        doDeferredDeletion = true;
+        // we were called by an obsolete event dispatcher.
         event_type = 0;
     }
-
 
     if (receiver && receiver->d_func()->threadData != data) {
         qWarning("QCoreApplication::sendPostedEvents: Cannot send "
@@ -1037,19 +1044,15 @@ void QCoreApplicationPrivate::sendPostedEvents(QObject *receiver, int event_type
         }
 
         if (pe.event->type() == QEvent::DeferredDelete) {
-            QEventLoop *savedEventLoop = reinterpret_cast<QEventLoop *>(pe.event->d);
-            QEventLoop *currentEventLoop = data->eventLoops.isEmpty() ? 0 : data->eventLoops.top();
-            bool savedEventLoopIsRunning = data->eventLoops.contains(savedEventLoop);
-
-            // DeferredDelete events are only sent when we are explicitly
-            // asked to (s.a. QEventLoop::DeferredDeletion), and then only if
-            // there is no current event loop, or if the current event loop is
-            // equal to the loop in which deleteLater() was called.
-            if (!doDeferredDeletion
-                || (currentEventLoop
-                    && savedEventLoop
-                    && savedEventLoop != currentEventLoop
-                    && savedEventLoopIsRunning)) {
+            // DeferredDelete events are only sent when we are explicitly asked to
+            // (s.a. QEvent::DeferredDelete), and then only if the event loop that
+            // posted the event has returned.
+            const bool allowDeferredDelete =
+                (quintptr(pe.event->d) > data->loopLevel
+                 || (!quintptr(pe.event->d) && data->loopLevel > 0)
+                 || (event_type == QEvent::DeferredDelete
+                     && quintptr(pe.event->d) == data->loopLevel));
+            if (!allowDeferredDelete) {
                 // cannot send deferred delete
                 if (!event_type && !receiver) {
                     // don't lose the event

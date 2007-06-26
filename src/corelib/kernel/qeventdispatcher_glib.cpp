@@ -181,7 +181,7 @@ static gboolean postEventSourceDispatch(GSource *s, GSourceFunc, gpointer)
         ;
 
     source->previousFlags = source->flags;
-    QCoreApplication::sendPostedEvents(0, (source->flags & QEventLoop::DeferredDeletion) ? -1 : 0);
+    QCoreApplication::sendPostedEvents();
     return true; // i dunno, george...
 }
 

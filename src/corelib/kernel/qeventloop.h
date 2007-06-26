@@ -40,8 +40,11 @@ public:
         ExcludeUserInput = ExcludeUserInputEvents,
         WaitForMore = WaitForMoreEvents,
 #endif
-	X11ExcludeTimers = 0x08,
-	DeferredDeletion = 0x10
+	X11ExcludeTimers = 0x08
+
+#ifdef QT_DEPRECATED
+	, DeferredDeletion = 0x10
+#endif
     };
     Q_DECLARE_FLAGS(ProcessEventsFlags, ProcessEventsFlag)
 

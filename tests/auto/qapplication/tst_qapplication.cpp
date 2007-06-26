@@ -893,12 +893,10 @@ public slots:
         // trying to delete it from this eventloop still doesn't work
         QApplication::processEvents();
         QVERIFY(p);
-        // however, it *will* work with this magic incantation
         QApplication::processEvents(QEventLoop::DeferredDeletion);
-        QVERIFY(!p);
+        QVERIFY(p);
 
-        p = new QObject;
-        p->deleteLater();
+        // however, it *will* work with this magic incantation
         QApplication::sendPostedEvents(0, QEvent::DeferredDelete);
         QVERIFY(!p);
     }
@@ -927,6 +925,8 @@ void tst_QApplication::testDeleteLaterProcessEvents()
         app.processEvents();
         QVERIFY(p);
         app.processEvents(QEventLoop::ProcessEventsFlag(0x10)); // 0x10 == QEventLoop::DeferredDeletion
+        QVERIFY(p);
+        QApplication::sendPostedEvents(0, QEvent::DeferredDelete);
         QVERIFY(!p);
 
         // If you call deleteLater() on an object when there is no parent

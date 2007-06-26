@@ -730,7 +730,7 @@ private:
 LRESULT CALLBACK axs_FilterProc(int nCode, WPARAM wParam, LPARAM lParam)
 {
     if (qApp && !invokeCount)
-        qApp->sendPostedEvents(0, -1);
+        qApp->sendPostedEvents();
 
     return CallNextHookEx(qax_hhook, nCode, wParam, lParam);
 }
@@ -1048,7 +1048,7 @@ void QAxServerBase::init()
 
 #ifdef QT_DEBUG
     EnterCriticalSection(&refCountSection);
-    ++qaxserverbase_instance_count;    
+    ++qaxserverbase_instance_count;
     LeaveCriticalSection(&refCountSection);
 #endif
 
@@ -1065,7 +1065,7 @@ QAxServerBase::~QAxServerBase()
 {
 #ifdef QT_DEBUG
     EnterCriticalSection(&refCountSection);
-    --qaxserverbase_instance_count;    
+    --qaxserverbase_instance_count;
     LeaveCriticalSection(&refCountSection);
 #endif
 
@@ -1179,7 +1179,7 @@ HRESULT QAxServerBase::InternalQueryInterface(REFIID iid, void **iface)
 	    *iface = (IPersistStorage*)this;
 	else if (iid == IID_IPersistPropertyBag)
 	    *iface = (IPersistPropertyBag*)this;
-        else if (iid == IID_IPersistFile && 
+        else if (iid == IID_IPersistFile &&
             qAxFactory()->metaObject(class_name)->indexOfClassInfo("MIME") != -1)
             *iface = (IPersistFile*)this;
 	else if (iid == IID_IViewObject)
@@ -1282,7 +1282,7 @@ bool QAxServerBase::internalCreate()
         // initialize to sizeHint, but don't set resized flag so that container has a chance to override
         bool wasResized = qt.widget->testAttribute(Qt::WA_Resized);
         updateGeometry();
-        if (!wasResized && qt.widget->testAttribute(Qt::WA_Resized) 
+        if (!wasResized && qt.widget->testAttribute(Qt::WA_Resized)
             && qt.widget->sizePolicy() != QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed)) {
             qt.widget->setAttribute(Qt::WA_Resized, false);
         }
@@ -1619,7 +1619,7 @@ HMENU QAxServerBase::createPopup(QMenu *popup, HMENU oldMenu)
     const QList<QAction*> actions = popup->actions();
     for (int i = 0; i < actions.count(); ++i) {
         QAction *action = actions.at(i);
-        
+
         uint flags = action->isEnabled() ? MF_ENABLED : MF_GRAYED;
         if (action->isSeparator())
             flags |= MF_SEPARATOR;
@@ -1629,7 +1629,7 @@ HMENU QAxServerBase::createPopup(QMenu *popup, HMENU oldMenu)
             flags |= MF_STRING;
         if (action->isChecked())
             flags |= MF_CHECKED;
-        
+
 	ushort itemId;
         if (flags & MF_POPUP) {
             itemId = (ushort)createPopup(action->menu());
@@ -2034,7 +2034,7 @@ int QAxServerBase::qt_metacall(QMetaObject::Call call, int index, void **argv)
 
 	    if (!signature.isEmpty())
 		ptypes = signature.split(',');
-	    
+
 	    pcount = ptypes.count();
 	}
 	break;
@@ -2424,7 +2424,7 @@ HRESULT WINAPI QAxServerBase::Invoke(DISPID dispidMember, REFIID riid,
                         if (regexp.lastIndexIn(QString::fromLatin1(name.constData())) != -1) {
                             name = name.left(name.length() - regexp.cap(0).length()) + "(";
                             int overload = regexp.cap(1).toInt() + 1;
-                            
+
                             for (int s = 0; s < qt.object->metaObject()->methodCount(); ++s) {
                                 QMetaMethod slot = qt.object->metaObject()->method(s);
                                 if (slot.methodType() == QMetaMethod::Slot && QByteArray(slot.signature()).startsWith(name)) {
@@ -2561,7 +2561,7 @@ HRESULT WINAPI QAxServerBase::Invoke(DISPID dispidMember, REFIID riid,
             qt.object->qt_metacall(QMetaObject::InvokeMetaMethod, index, argv);
             if (--invokeCount < 0)
                 invokeCount = 0;
-		
+
 		// update reference parameters and return value
 		for (int p = 0; p < pcount; ++p) {
 		    bool out;
@@ -2598,7 +2598,7 @@ HRESULT WINAPI QAxServerBase::Invoke(DISPID dispidMember, REFIID riid,
                 if (index == -1)
                     return res;
             }
-            
+
             QMetaProperty property;
             if (index < mo->propertyCount())
                 property = mo->property(index);
@@ -2610,7 +2610,7 @@ HRESULT WINAPI QAxServerBase::Invoke(DISPID dispidMember, REFIID riid,
                 pDispParams->cNamedArgs != 1 ||
                 *pDispParams->rgdispidNamedArgs != DISPID_PROPERTYPUT)
                 return DISP_E_BADPARAMCOUNT;
-            
+
             QVariant var = VARIANTToQVariant(*pDispParams->rgvarg, property.typeName(), property.type());
             if (!var.isValid()) {
                 if (puArgErr)
@@ -2622,7 +2622,7 @@ HRESULT WINAPI QAxServerBase::Invoke(DISPID dispidMember, REFIID riid,
                     *puArgErr = 0;
                 return DISP_E_TYPEMISMATCH;
             }
-            
+
             res = S_OK;
 	}
 	break;
@@ -2643,12 +2643,12 @@ HRESULT WINAPI QAxServerBase::Invoke(DISPID dispidMember, REFIID riid,
             fmt.dwAspect = DVASPECT_CONTENT;
             fmt.lindex = -1;
             fmt.tymed = TYMED_NULL;
-            
+
             STGMEDIUM stg;
             stg.tymed = TYMED_NULL;
             stg.pUnkForRelease = 0;
             stg.hBitmap = 0; // initializes the whole union
-            
+
             if (m_spAdviseSink) {
                 m_spAdviseSink->OnViewChange(DVASPECT_CONTENT, -1);
                 m_spAdviseSink->OnDataChange(&fmt, &stg);
@@ -2657,7 +2657,7 @@ HRESULT WINAPI QAxServerBase::Invoke(DISPID dispidMember, REFIID riid,
                 adviseSinks.at(i).pAdvSink->OnDataChange(&fmt, &stg);
             }
         }
-        
+
         dirtyflag = true;
         break;
     default:
@@ -3104,7 +3104,7 @@ HRESULT WINAPI QAxServerBase::Load(LPCOLESTR fileName, DWORD mode)
             return S_OK;
         }
     }
-   
+
     return E_FAIL;
 }
 
@@ -3513,7 +3513,7 @@ HRESULT WINAPI QAxServerBase::SetObjectRects(LPCRECT prcPos, LPCRECT prcClip)
 	}
 
 	::SetWindowRgn(m_hWnd, tempRgn, true);
-	::SetWindowPos(m_hWnd, 0, prcPos->left, prcPos->top, 
+	::SetWindowPos(m_hWnd, 0, prcPos->left, prcPos->top,
             prcPos->right - prcPos->left, prcPos->bottom - prcPos->top,
 	    SWP_NOZORDER | SWP_NOACTIVATE);
     }
@@ -3969,7 +3969,7 @@ HRESULT WINAPI QAxServerBase::GetExtent(DWORD dwDrawAspect, SIZEL* psizel)
 	return E_FAIL;
     if (!psizel)
 	return E_POINTER;
-    
+
     psizel->cx = MAP_PIX_TO_LOGHIM(m_currentExtent.width(), qt.widget->logicalDpiX());
     psizel->cy = MAP_PIX_TO_LOGHIM(m_currentExtent.height(), qt.widget->logicalDpiY());
     return S_OK;
@@ -4060,7 +4060,7 @@ HRESULT WINAPI QAxServerBase::SetExtent(DWORD dwDrawAspect, SIZEL* psizel)
     if (!isWidget || !qt.widget) // nothing to do
 	return S_OK;
 
-    QSize proposedSize(MAP_LOGHIM_TO_PIX(psizel->cx, qt.widget->logicalDpiX()), 
+    QSize proposedSize(MAP_LOGHIM_TO_PIX(psizel->cx, qt.widget->logicalDpiX()),
         MAP_LOGHIM_TO_PIX(psizel->cy, qt.widget->logicalDpiY()));
 
     // can the widget be resized at all?
@@ -4193,9 +4193,9 @@ HRESULT WINAPI QAxServerBase::DAdvise(FORMATETC *pformatetc, DWORD advf,
         return E_FAIL;
 
     *pdwConnection = adviseSinks.count() + 1;
-    STATDATA data = { 
+    STATDATA data = {
         {pformatetc->cfFormat,pformatetc->ptd,pformatetc->dwAspect,pformatetc->lindex,pformatetc->tymed},
-        advf, pAdvSink, *pdwConnection 
+        advf, pAdvSink, *pdwConnection
     };
     adviseSinks.append(data);
     pAdvSink->AddRef();

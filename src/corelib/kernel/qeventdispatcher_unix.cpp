@@ -832,7 +832,7 @@ bool QEventDispatcherUNIX::processEvents(QEventLoop::ProcessEventsFlags flags)
 
     // we are awake, broadcast it
     emit awake();
-    QCoreApplicationPrivate::sendPostedEvents(0, (flags & QEventLoop::DeferredDeletion) ? -1 : 0, d->threadData);
+    QCoreApplicationPrivate::sendPostedEvents(0, 0, d->threadData);
 
     int nevents = 0;
     const bool canWait = (d->threadData->canWait
