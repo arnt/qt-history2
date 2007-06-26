@@ -27,4 +27,9 @@ for translation in `find $BINDIR/translations/ -name '*.qm'`; do
     cp "$translation" "$TRANSLATIONDEST"
 done
 
+# Copy the untranslated, so there's a starting point for them as well.
+for translation in `find $BINDIR/translations/ -name '*_untranslated.ts'`; do
+    cp "$translation" "$TRANSLATIONDEST"
+done
+
 exit 0

@@ -130,7 +130,7 @@ fi
 # finally phrase books for Linguist
 PHRASEDEST="$OUTDIR/Developer/Applications/Qt/phrasebooks"
 mkdir -p "$PHRASEDEST"
-for phrasebook in `find $BINDIR/phrasebooks/ -name '*.qph'`; do
+for phrasebook in `find $BINDIR/tools/linguist/phrasebooks/ -name '*.qph'`; do
     cp "$phrasebook" "$PHRASEDEST"
 done
 
