@@ -27,9 +27,11 @@
     QAbstractSocket that allows you to send and receive UDP
     datagrams.
 
-    The most common way to use this class is to bind to an address
-    and port using bind(), then call writeDatagram() and
-    readDatagram() to transfer data.
+    The most common way to use this class is to bind to an address and port
+    using bind(), then call writeDatagram() and readDatagram() to transfer
+    data. If you want to use the standard QIODevice functions read(),
+    readLine(), write(), etc., you must first connect the socket directly to a
+    peer by calling connectToHost().
 
     The socket emits the bytesWritten() signal every time a datagram
     is written to the network. If you just want to send datagrams,
