@@ -1368,6 +1368,8 @@ void Q3Header::setCellSize(int section, int s)
     d->sizes[section] = s;
     if (updatesEnabled())
         calculatePositions();
+    else
+        d->positionsDirty = true;
 }
 
 
