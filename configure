@@ -2954,7 +2954,8 @@ Qt/Mac only:
     -arch <arch> ....... Build Qt for <arch>
                          Example values for <arch>: x86 ppc x86_64 ppc64
 
-    -sdk <sdk>.......... Build Qt using Apple provided SDK <sdk>.
+    -sdk <sdk>.......... Build Qt using Apple provided SDK <sdk>. This option requires gcc 4.
+                         To use a different SDK with gcc 3.3, set the SDKROOT environment variable.
 
 EOF
 fi
