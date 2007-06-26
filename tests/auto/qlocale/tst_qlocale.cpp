@@ -694,6 +694,10 @@ void tst_QLocale::macDefaultLocale()
         QSKIP("This test only tests for en_US", SkipAll);
     }
 
+    QTime invalidTime;
+    QDate invalidDate;
+    QCOMPARE(locale.toString(invalidTime), QString());
+    QCOMPARE(locale.toString(invalidDate), QString());
     QCOMPARE(locale.decimalPoint(), QChar('.'));
     QCOMPARE(locale.groupSeparator(), QChar(','));
     QCOMPARE(locale.dateFormat(QLocale::ShortFormat), QString("M/d/yy"));
