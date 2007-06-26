@@ -122,6 +122,11 @@ QScriptValue QScriptContext::throwValue(const QScriptValue &value)
   The \a text will be stored in the \c{message} property of the error
   object.
 
+  The error object will be initialized to contain information about
+  the location where the error occurred; specifically, it will have
+  properties \c{lineNumber}, \c{fileName} and \c{stack}. These
+  properties are described in \l {QtScript Extensions to ECMAScript}.
+
   \sa throwValue(), state()
 */
 QScriptValue QScriptContext::throwError(Error error, const QString &text)
