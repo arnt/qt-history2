@@ -265,6 +265,7 @@ void tst_QMdiArea::subWindowActivated2()
 #ifdef Q_WS_X11
     qt_x11_wait_for_window_manager(&mdiArea);
 #endif
+    QTest::qWait(100);
     QCOMPARE(spy.count(), 1);
     QVERIFY(!mdiArea.activeSubWindow());
     QCOMPARE(mdiArea.currentSubWindow(), activeSubWindow);
@@ -274,6 +275,7 @@ void tst_QMdiArea::subWindowActivated2()
 #ifdef Q_WS_X11
     qt_x11_wait_for_window_manager(&mdiArea);
 #endif
+    QTest::qWait(100);
     QCOMPARE(spy.count(), 1);
     QCOMPARE(mdiArea.activeSubWindow(), activeSubWindow);
     spy.clear();
@@ -284,6 +286,7 @@ void tst_QMdiArea::subWindowActivated2()
 #ifdef Q_WS_X11
     qt_x11_wait_for_window_manager(&mdiArea);
 #endif
+    QTest::qWait(100);
     QCOMPARE(spy.count(), 1);
     QVERIFY(!mdiArea.activeSubWindow());
     QCOMPARE(mdiArea.currentSubWindow(), activeSubWindow);
@@ -293,6 +296,7 @@ void tst_QMdiArea::subWindowActivated2()
 #ifdef Q_WS_X11
     qt_x11_wait_for_window_manager(&mdiArea);
 #endif
+    QTest::qWait(100);
     QCOMPARE(spy.count(), 1);
     QCOMPARE(mdiArea.activeSubWindow(), activeSubWindow);
     spy.clear();
