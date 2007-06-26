@@ -1340,6 +1340,13 @@ QLayoutStruct QTextDocumentLayoutPrivate::layoutCell(QTextTable *t, const QTextT
     QFixed pageTop = currentPage * layoutStruct.pageHeight + layoutStruct.pageTopMargin - layoutStruct.frameY;
     layoutStruct.y = qMax(layoutStruct.y, pageTop);
 
+    const QList<QTextFrame *> childFrames = td->childFrameMap.values(cell.row() + cell.column() * t->rows());
+    for (int i = 0; i < childFrames.size(); ++i) {
+        QTextFrame *frame = childFrames.at(i);
+        QTextFrameData *cd = data(frame);
+        cd->sizeDirty = true;
+    }
+
     layoutFlow(cell.begin(), &layoutStruct, layoutFrom, layoutTo, width);
 
     QFixed floatMinWidth;
@@ -1348,7 +1355,6 @@ QLayoutStruct QTextDocumentLayoutPrivate::layoutCell(QTextTable *t, const QTextT
     // layoutFlow with regards to the cell height (layoutStruct->y), so for a safety measure we
     // do that here. For example with <td><img align="right" src="..." />blah</td>
     // when the image happens to be higher than the text
-    const QList<QTextFrame *> childFrames = td->childFrameMap.values(cell.row() + cell.column() * t->rows());
     for (int i = 0; i < childFrames.size(); ++i) {
         QTextFrame *frame = childFrames.at(i);
         QTextFrameData *cd = data(frame);
