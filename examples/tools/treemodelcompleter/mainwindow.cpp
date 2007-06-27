@@ -44,11 +44,7 @@ MainWindow::MainWindow(QWidget *parent)
     caseCombo = new QComboBox;
     caseCombo->addItem(tr("Case Insensitive"));
     caseCombo->addItem(tr("Case Sensitive"));
-#ifdef Q_OS_WIN
     caseCombo->setCurrentIndex(0);
-#else
-    caseCombo->setCurrentIndex(1);
-#endif
 
     QLabel *separatorLabel = new QLabel;
     separatorLabel->setText(tr("Tree Separator"));
