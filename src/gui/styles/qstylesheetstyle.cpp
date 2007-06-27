@@ -1963,7 +1963,7 @@ static QWidget *embeddedWidget(QWidget *w)
 // don't use stylesheets at all.
 void QStyleSheetStyle::setGeometry(QWidget *w)
 {
-    QRenderRule rule = renderRule(w, PseudoElement_None);
+    QRenderRule rule = renderRule(w, PseudoElement_None, PseudoClass_Enabled);
     const QStyleSheetGeometryData *geo = rule.geometry();
     if (w->property("_q_stylesheet_minw").toBool()
         && ((!rule.hasGeometry() || geo->minWidth == -1))) {
@@ -2189,7 +2189,6 @@ void QStyleSheetStyle::polish(QWidget *w)
         renderRulesCache->remove(w);
     }
 
-    QRenderRule rule = renderRule(w, PseudoElement_None);
     setGeometry(w);
     setProperties(w);
     unsetPalette(w);
@@ -2198,13 +2197,27 @@ void QStyleSheetStyle::polish(QWidget *w)
 
 #ifndef QT_NO_SCROLLAREA
     if (QAbstractScrollArea *sa = qobject_cast<QAbstractScrollArea *>(w)) {
-        QRenderRule rule = renderRule(sa, 0);
+        QRenderRule rule = renderRule(sa, PseudoElement_None, PseudoClass_Enabled);
         if ((rule.hasBorder() && rule.border()->hasBorderImage())
             || (rule.hasBackground() && !rule.background()->pixmap.isNull())) {
             QObject::connect(sa->horizontalScrollBar(), SIGNAL(valueChanged(int)),
                              sa, SLOT(update()));
             QObject::connect(sa->verticalScrollBar(), SIGNAL(valueChanged(int)),
                              sa, SLOT(update()));
+        }
+    }
+#endif
+
+#ifndef QT_NO_FRAME
+    if (QFrame *frame = qobject_cast<QFrame *>(w)) {
+        QRenderRule rule = renderRule(frame, PseudoElement_None, PseudoClass_Enabled);
+        if (rule.hasBox() || !rule.hasNativeBorder()) {
+            if (!frame->property("_q_stylesheet_framestyle").isValid())
+                frame->setProperty("_q_stylesheet_framestyle", frame->frameStyle());
+            frame->setFrameStyle(QFrame::StyledPanel);
+        } else if (frame->property("_q_stylesheet_framestyle").isValid()) {
+            frame->setFrameStyle(frame->property("_q_stylesheet_framestyle").toInt());
+            frame->setProperty("_q_stylesheet_framestyle", QVariant());
         }
     }
 #endif
@@ -2233,6 +2246,9 @@ void QStyleSheetStyle::polish(QWidget *w)
 #endif
 #ifndef QT_NO_TABBAR
               || qobject_cast<QTabBar *>(w)
+#endif
+#ifndef QT_NO_FRAME
+              || qobject_cast<QFrame *>(w)
 #endif
               || QString::fromLocal8Bit(me->className()) == QLatin1String("QDialog")
               || QString::fromLocal8Bit(super->className()) == QLatin1String("QDialog");
@@ -2276,6 +2292,10 @@ void QStyleSheetStyle::unpolish(QWidget *w)
     w->setProperty("_q_stylesheet_minh", QVariant());
     w->setProperty("_q_stylesheet_maxw", QVariant());
     w->setProperty("_q_stylesheet_maxh", QVariant());
+    if (w->property("_q_stylesheet_framestyle").isValid()) {
+        (static_cast<QFrame *>(w))->setFrameStyle(w->property("_q_stylesheet_framestyle").toInt());
+        w->setProperty("_q_stylesheet_framestyle", QVariant());
+    }
     w->setAttribute(Qt::WA_StyleSheet, false);
     QObject::disconnect(w, SIGNAL(destroyed(QObject*)),
                       this, SLOT(widgetDestroyed(QObject*)));
@@ -3282,16 +3302,6 @@ void QStyleSheetStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *op
 
     case PE_Frame:
         if (const QStyleOptionFrame *frm = qstyleoption_cast<const QStyleOptionFrame *>(opt)) {
-#ifndef QT_NO_SCROLLAREA
-            if (const QAbstractScrollArea *sa = qobject_cast<const QAbstractScrollArea *>(w)) {
-                const QAbstractScrollAreaPrivate *sap = sa->d_func();
-                rule.drawBackground(p, opt->rect, sap->contentsOffset());
-            } else
-#endif
-            {
-                rule.drawBackground(p, opt->rect);
-            }
-
             if (rule.hasNativeBorder()) {
                 QStyleOptionFrame frmOpt(*frm);
                 rule.configurePalette(&frmOpt.palette, QPalette::Text, QPalette::Base);
@@ -3324,7 +3334,16 @@ void QStyleSheetStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *op
         return;
 
     case PE_Widget:
-        rule.drawBackground(p, opt->rect);
+#ifndef QT_NO_SCROLLAREA
+        if (const QAbstractScrollArea *sa = qobject_cast<const QAbstractScrollArea *>(w)) {
+            const QAbstractScrollAreaPrivate *sap = sa->d_func();
+            rule.drawBackground(p, opt->rect, sap->contentsOffset());
+        } else
+#endif
+        {
+            rule.drawBackground(p, opt->rect);
+        }
+
         return;
 
     case PE_FrameMenu:
@@ -3883,6 +3902,16 @@ int QStyleSheetStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWi
             break;
         case SH_TabBar_ElideMode: s = QLatin1String("tabbar-elide-mode"); break;
         case SH_TabBar_PreferNoArrows: s = QLatin1String("tabbar-prefer-no-arrows"); break;
+        case SH_ComboBox_PopupFrameStyle:
+#ifndef QT_NO_COMBOBOX
+            if (qobject_cast<const QComboBox *>(w)) {
+                QAbstractItemView *view = qFindChild<QAbstractItemView *>(w);
+                QRenderRule subRule = renderRule(view, PseudoElement_None);
+                if (subRule.hasBox() || !subRule.hasNativeBorder())
+                    return QFrame::NoFrame;
+            }
+#endif // QT_NO_COMBOBOX
+            break;
         default: break;
     }
     if (!s.isEmpty() && rule.hasStyleHint(s)) {
