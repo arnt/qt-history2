@@ -75,7 +75,7 @@ protected:
             QStyleOptionComboBox opt;
             opt.initFrom(combo);
             opt.editable = combo->isEditable();
-            if (style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, combo)) {
+            if (combo->style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, combo)) {
                 //we paint the empty menu area to avoid having blank space that can happen when scrolling
                 QStyleOptionMenuItem menuOpt;
                 menuOpt.initFrom(this);
@@ -86,7 +86,7 @@ protected:
                 menuOpt.maxIconWidth = 0;
                 menuOpt.tabWidth = 0;
                 QPainter p(viewport());
-                style()->drawControl(QStyle::CE_MenuEmptyArea, &menuOpt, &p, this);
+                combo->style()->drawControl(QStyle::CE_MenuEmptyArea, &menuOpt, &p, this);
             }
         }
         QListView::paintEvent(e);

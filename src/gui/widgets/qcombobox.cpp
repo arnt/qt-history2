@@ -306,7 +306,7 @@ void QComboBoxPrivateContainer::leaveEvent(QEvent *)
 // when the mouse moves outside the popup.
 #ifdef Q_WS_MAC
     QStyleOptionComboBox opt = comboStyleOption();
-    if (style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, this))
+    if (combo->style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, this))
         view->clearSelection();
 #endif
 }
@@ -333,7 +333,7 @@ QComboBoxPrivateContainer::QComboBoxPrivateContainer(QAbstractItemView *itemView
 
     // add scroller arrows if style needs them
     QStyleOptionComboBox opt = comboStyleOption();
-    const bool usePopup = style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, this);
+    const bool usePopup = combo->style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, this);
     if (usePopup) {
         top = new QComboBoxPrivateScroller(QAbstractSlider::SliderSingleStepSub, this);
         bottom = new QComboBoxPrivateScroller(QAbstractSlider::SliderSingleStepAdd, this);
@@ -343,7 +343,7 @@ QComboBoxPrivateContainer::QComboBoxPrivateContainer(QAbstractItemView *itemView
         setLineWidth(1);
     }
 
-    setFrameStyle(style()->styleHint(QStyle::SH_ComboBox_PopupFrameStyle, &opt, this));
+    setFrameStyle(combo->style()->styleHint(QStyle::SH_ComboBox_PopupFrameStyle, &opt, this));
 
     if (top) {
         layout->insertWidget(0, top);
@@ -465,12 +465,12 @@ void QComboBoxPrivateContainer::setItemView(QAbstractItemView *itemView)
     view->viewport()->installEventFilter(this);
     view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     QStyleOptionComboBox opt = comboStyleOption();
-    const bool usePopup = style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, combo);
+    const bool usePopup = combo->style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, combo);
 #ifndef QT_NO_SCROLLBAR
     if (usePopup)
         view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 #endif
-    if (style()->styleHint(QStyle::SH_ComboBox_ListMouseTracking, &opt, combo) ||
+    if (combo->style()->styleHint(QStyle::SH_ComboBox_ListMouseTracking, &opt, combo) ||
         usePopup) {
         view->setMouseTracking(true);
     }
@@ -511,8 +511,8 @@ void QComboBoxPrivateContainer::updateTopBottomMargin()
         return;
 
     const QStyleOptionComboBox opt = comboStyleOption();
-    const bool usePopup = style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, combo);
-    const int margin = usePopup ? style()->pixelMetric(QStyle::PM_MenuVMargin, &opt, this) : 0;
+    const bool usePopup = combo->style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, combo);
+    const int margin = usePopup ? combo->style()->pixelMetric(QStyle::PM_MenuVMargin, &opt, this) : 0;
 
     QSpacerItem *topSpacer = boxLayout->itemAt(0)->spacerItem();
     if (topSpacer)
@@ -529,8 +529,8 @@ void QComboBoxPrivateContainer::changeEvent(QEvent *e)
 {
     if (e->type() == QEvent::StyleChange) {
         QStyleOptionComboBox opt = comboStyleOption();
-        view->setMouseTracking(style()->styleHint(QStyle::SH_ComboBox_ListMouseTracking, &opt, combo) ||
-                               style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, combo));
+        view->setMouseTracking(combo->style()->styleHint(QStyle::SH_ComboBox_ListMouseTracking, &opt, combo) ||
+                               combo->style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, combo));
     }
     QWidget::changeEvent(e);
 }
@@ -609,7 +609,7 @@ void QComboBoxPrivateContainer::mousePressEvent(QMouseEvent *e)
     QStyleOptionComboBox opt = comboStyleOption();
     opt.subControls = QStyle::SC_All;
     opt.activeSubControls = QStyle::SC_ComboBoxArrow;
-    QStyle::SubControl sc = style()->hitTestComplexControl(QStyle::CC_ComboBox, &opt,
+    QStyle::SubControl sc = combo->style()->hitTestComplexControl(QStyle::CC_ComboBox, &opt,
                                                            combo->mapFromGlobal(e->globalPos()),
                                                            combo);
     if ((combo->isEditable() && sc == QStyle::SC_ComboBoxArrow)
