@@ -486,31 +486,12 @@ void PropertyEditor::setObject(QObject *object)
 
             /*
                switch (value.type()) {
-               case QVariant::UInt:
-               p = new UIntProperty(value.toUInt(), pname);
-               break;
-               case QVariant::LongLong:
-               p = new LongLongProperty(value.toLongLong(), pname);
-               break;
-               case QVariant::ULongLong:
-               p = new ULongLongProperty(value.toULongLong(), pname);
-               break;
                case QVariant::Char:
                p = new CharProperty(value.toChar(), pname);
                break;
-               case QVariant::ByteArray:
-               case QVariant::String: 
-               p = createStringProperty(object, pname, value, isMainContainer);
-               break;
-            break;
-            case QVariant::Url:
-            p = new UrlProperty(value.toUrl(), pname);
             break;
             case QVariant::StringList:
             p = new StringListProperty(qvariant_cast<QStringList>(value), pname);
-            break;
-            default:
-            // ### qDebug() << "property" << pname << "with type" << value.type() << "not supported yet!";
             break;
         } // end switch
         */

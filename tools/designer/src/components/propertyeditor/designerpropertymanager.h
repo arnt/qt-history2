@@ -15,6 +15,7 @@
 #define DESIGNERPROPERTYMANAGER_H
 
 #include "qtvariantproperty.h"
+#include <QUrl>
 
 typedef QPair<QString, uint> DesignerIntPair;
 Q_DECLARE_METATYPE(DesignerIntPair)
@@ -23,6 +24,7 @@ Q_DECLARE_METATYPE(DesignerFlagList)
 
 class QDesignerFormEditorInterface;
 class QLineEdit;
+class QUrl;
 
 namespace qdesigner_internal
 {
@@ -142,6 +144,7 @@ private:
     QMap<QtProperty *, uint> m_uintValues;
     QMap<QtProperty *, qlonglong> m_longLongValues;
     QMap<QtProperty *, qulonglong> m_uLongLongValues;
+    QMap<QtProperty *, QUrl> m_urlValues;
 
     QMap<QtProperty *, int> m_stringAttributes;
 
@@ -174,7 +177,9 @@ private slots:
     void slotUintChanged(const QString &value);
     void slotLongLongChanged(const QString &value);
     void slotULongLongChanged(const QString &value);
+    void slotUrlChanged(const QString &value);
 private:
+
     ResetDecorator *m_resetDecorator;
     bool m_changingPropertyValue;
     QDesignerFormEditorInterface *m_core;
@@ -195,6 +200,8 @@ private:
     QMap<QLineEdit *, QtProperty *> m_editorToLongLongProperty;
     QMap<QtProperty *, QList<QLineEdit *> > m_uLongLongPropertyToEditors;
     QMap<QLineEdit *, QtProperty *> m_editorToULongLongProperty;
+    QMap<QtProperty *, QList<QLineEdit *> > m_urlPropertyToEditors;
+    QMap<QLineEdit *, QtProperty *> m_editorToUrlProperty;
 };
 
 }

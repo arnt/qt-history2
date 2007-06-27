@@ -46,8 +46,8 @@ void GraphicsPropertyEditor::init()
     m_combo->setEditable(false);
     m_layout->addWidget(m_combo);
     m_button = new QToolButton(this);
-    m_button->setIcon(createIconSet(QLatin1String("fileopen.png")));
-    m_button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::MinimumExpanding);
+    m_button->setText(tr("..."));
+    m_button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Ignored);
     m_button->setFixedWidth(20);
     m_layout->addWidget(m_button);
     connect(m_button, SIGNAL(clicked()), this, SLOT(showDialog()));

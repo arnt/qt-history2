@@ -171,6 +171,7 @@ QWidget *QtSpinBoxFactory::createEditor(QtIntPropertyManager *manager, QtPropert
     QSpinBox *editor = new QSpinBox(parent);
     editor->setRange(manager->minimum(property), manager->maximum(property));
     editor->setValue(manager->value(property));
+    editor->setKeyboardTracking(false);
     d_ptr->m_createdEditors[property].append(editor);
     d_ptr->m_editorToProperty[editor] = property;
 
@@ -837,6 +838,7 @@ QWidget *QtDoubleSpinBoxFactory::createEditor(QtDoublePropertyManager *manager,
     editor->setDecimals(manager->decimals(property));
     editor->setRange(manager->minimum(property), manager->maximum(property));
     editor->setValue(manager->value(property));
+    editor->setKeyboardTracking(false);
     d_ptr->m_createdEditors[property].append(editor);
     d_ptr->m_editorToProperty[editor] = property;
 
