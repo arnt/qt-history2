@@ -257,35 +257,19 @@ bool QVistaHelper::winEvent(MSG* msg, long* result)
     switch (msg->message) {
     case WM_NCHITTEST: {
         LRESULT lResult;
-        HRESULT hr;
-        hr = pDwmDefWindowProc(msg->hwnd, msg->message, msg->wParam, msg->lParam, &lResult);
-        if (lResult == HTCLOSE || lResult == HTMAXBUTTON || lResult == HTMINBUTTON)
+        pDwmDefWindowProc(msg->hwnd, msg->message, msg->wParam, msg->lParam, &lResult);
+        if (lResult == HTCLOSE || lResult == HTMAXBUTTON || lResult == HTMINBUTTON || lResult == HTHELP)
             *result = lResult;
         else
             *result = DefWindowProc(msg->hwnd, msg->message, msg->wParam, msg->lParam);
         break;
     }
-    case WM_NCMOUSEMOVE: {
+    case WM_NCMOUSEMOVE:
+    case WM_NCLBUTTONDOWN:
+    case WM_NCLBUTTONUP:
+    case WM_NCMOUSELEAVE: {
         LRESULT lResult;
-        HRESULT hr;
-        hr = pDwmDefWindowProc(msg->hwnd, msg->message, msg->wParam, msg->lParam, &lResult);
-        *result = lResult;
-        *result = DefWindowProc(msg->hwnd, msg->message, msg->wParam, msg->lParam);
-        break;
-    }
-    case WM_NCLBUTTONDOWN: {
-        LRESULT lResult;
-        HRESULT hr;
-        hr = pDwmDefWindowProc(msg->hwnd, msg->message, msg->wParam, msg->lParam, &lResult);
-        *result = lResult;
-        *result = DefWindowProc(msg->hwnd, msg->message, msg->wParam, msg->lParam);
-        break;
-    }
-    case WM_NCLBUTTONUP: {
-        LRESULT lResult;
-        HRESULT hr;
-        hr = pDwmDefWindowProc(msg->hwnd, msg->message, msg->wParam, msg->lParam, &lResult);
-        *result = lResult;
+        pDwmDefWindowProc(msg->hwnd, msg->message, msg->wParam, msg->lParam, &lResult);
         *result = DefWindowProc(msg->hwnd, msg->message, msg->wParam, msg->lParam);
         break;
     }
