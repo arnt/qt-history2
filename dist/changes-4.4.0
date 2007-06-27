@@ -1,0 +1,507 @@
+Qt 4.4 introduces many new features as well as many improvements and
+bugfixes over the 4.3.x series. For more details, see the online
+documentation which is included in this distribution. The
+documentation is also available at http://doc.trolltech.com/4.4
+
+The Qt version 4.4 series is binary compatible with the 4.3.x series.
+Applications compiled for 4.3 will continue to run with 4.4.
+
+The Qtopia Core version 4.4 series is binary compatible with the 4.3.x
+series except for some parts of the device handling API, as detailed
+in Platform Specific Changes below.
+
+Some of the changes listed in this file include issue tracking numbers
+corresponding to tasks in the Task Tracker:
+
+  http://www.trolltech.com/developer/task-tracker
+
+Each of these identifiers can be entered in the task tracker to obtain
+more information about a particular change.
+
+****************************************************************************
+*                           General                                        *
+****************************************************************************
+
+General Improvements
+--------------------
+
+- Configuration/Compilation
+
+- Legal
+
+- Documentation and Examples
+
+- Translations
+
+- Signals and slots
+
+Third party components
+----------------------
+
+****************************************************************************
+*                          Library                                         *
+****************************************************************************
+
+- QAbstractButton
+
+- QAbstractItemView
+
+- QAbstractProxyModel
+
+- QAbstractSlider
+
+- QAbstractSocket
+
+- QAccessible
+
+- QApplication
+
+- QAtomic
+
+- QAuthenticator
+
+- QBitArray
+
+- QCalendarWidget
+
+- QChar
+
+- QCleanlooksStyle
+
+- QClipboard
+
+- QColor
+
+- QColorDialog
+
+- QColumnView
+
+- QComboBox
+
+- QCompleter
+
+- QCoreApplication
+
+- QCryptographicHash
+
+- QCursor
+
+- QDataWidgetMapper
+
+- QDateTime
+
+- QDateTimeEdit
+
+- QDesktopWidget
+
+- QDial
+
+- QDialog
+
+- QDialogButtonBox
+
+- QDir
+
+- QDirIterator
+
+- QDockWidget
+
+- QDomDocument
+
+- QDoubleSpinBox
+
+- QDrag
+
+- QFile
+
+- QFileDialog
+
+- QFileInfo
+
+- QFileSystemWatcher
+
+- QFocusFrame
+
+- QFont
+
+- QFontComboBox
+
+- QFontMetrics
+
+- QFrame
+
+- QFSFileEngine
+
+- QFtp
+
+- QGL
+
+- QGLFramebufferObject
+
+- QGLPixelBuffer
+
+- QGLWidget
+
+- QGraphicsItem
+
+- QGraphicsItemAnimation
+
+- QGraphicsScene
+
+- QGraphicsSceneWheelEvent
+
+- QGraphicsView
+
+- QGridLayout
+
+- QHeaderView
+
+- QHostInfo
+
+- QHttp
+
+- QIcon
+
+- QImage
+
+- QImageReader
+
+- QImageWriter
+
+- QInputDialog
+
+- QIntValidator, QDoubleValidator
+
+- QItemDelegate
+
+- QItemSelectionModel
+
+- QLabel
+
+- QLayout
+
+- QLibrary
+
+- QLineEdit
+
+- QList
+
+- QListView
+
+- QListWidget
+
+- QLocale
+
+- QMacStyle
+
+- QMainWindow
+
+- QMdiArea
+- QMdiSubWindow
+
+- QMenu
+
+- QMenuBar
+
+- QMessageBox
+
+- QMetaObject
+
+- QMetaType
+
+- QModelIndex
+
+- QMotifStyle
+
+- QMutex
+
+- QNetworkInterface
+
+- QNetworkProxy
+
+- QObject
+
+- QPageSetupDialog
+
+- QPainter
+
+- QPainterPath
+
+- QPicture
+
+- QPixmap
+
+- QPixmapCache
+
+- QPlastiqueStyle
+
+- QPrintDialog
+
+- QPrinter
+
+- QProcess
+
+- QProgressBar
+
+- QProgressDialog
+
+- QPushButton
+
+- QReadWriteLock
+
+- QRectF
+
+- QRegion
+
+- QResource
+
+- QScrollArea
+
+- QSemaphore
+
+- QSettings
+
+- QSizeGrip
+
+- QSlider
+
+- QSocketNotifier
+
+- QSortFilterProxyModel
+
+- QSpinBox
+
+- QSplashScreen
+
+- QSplitter
+
+- QSql
+
+- QSqlDriver
+
+- QSqlQueryModel
+
+- QSqlRelationalTableModel
+
+- QSqlTableModel
+
+- QSslCertificate
+- QSslCipher
+- QSslError
+- QSslKey
+- QSslSocket
+
+- QStandardItemModel
+
+- QStatusbar
+
+- QString
+
+- QStringListModel
+
+- QStyle
+
+- QStyleOption
+
+- QSyntaxHighligher
+
+- QSystemTrayIcon
+	
+- QTabBar
+
+- QTableView
+
+- QTableWidget
+
+- QTabWidget
+
+- QtAlgorithms
+
+- QTcpSocket
+
+- QTemporaryFile
+
+- QTextBrowser
+
+- QTextCodec
+
+- QTextCursor
+
+- QTextDecoder
+
+- QTextDocument
+
+- QTextDocumentFragment
+
+- QTextEdit
+
+- QTextFormat
+
+- QTextLayout
+
+- QTextStream
+
+- QTextTable
+
+- QtGlobal
+
+- QThread
+
+- QThreadStorage
+
+- QTimeEdit
+
+- QTimeLine
+
+- QTimer
+
+- QToolBar
+
+- QToolBox
+
+- QToolButton
+
+- QToolTip
+
+- QTreeView
+
+- QTreeWidget
+
+- QUdpSocket
+
+- QUndoStack
+
+- QUrl
+
+- QValidator
+
+- QVariant
+
+- QWaitCondition
+
+- QWidget
+
+- QWindowsStyle
+
+- QWindowsXPStyle
+
+- QWizard
+- QWizardPage
+
+- QXmlParseException
+
+- QXmlSimpleReader
+
+- Q3DateEdit
+
+- Q3DockWindow
+
+- Q3GroupBox
+
+- Q3ListView
+
+- Q3ScrollView
+
+- Q3SqlCursor
+
+- Q3TextEdit
+
+- Qt Style Sheets
+
+****************************************************************************
+*                          Database Drivers                                *
+****************************************************************************
+
+- Interbase driver
+
+- MySQL driver
+
+- OCI driver
+
+- ODBC driver
+
+- SQLite driver
+
+- PostgreSQL driver
+
+- DB2 driver
+
+****************************************************************************
+*                             QTestLib                                     *
+****************************************************************************
+
+****************************************************************************
+*                               QDBus                                      *
+****************************************************************************
+
+- Library
+
+- Viewer
+
+****************************************************************************
+*                      Platform Specific Changes                           *
+****************************************************************************
+
+X11
+---
+
+Windows
+-------
+
+- ActiveQt
+
+
+Mac OS X
+--------
+
+Qtopia Core
+-----------
+
+ - New font system
+
+- OpenGL ES
+
+ - Accelerated graphics API
+
+ - General fixes
+
+****************************************************************************
+*                      Compiler Specific Changes                           *
+****************************************************************************
+
+- MinGW
+
+****************************************************************************
+*                          Tools                                           *
+****************************************************************************
+
+- Build System
+
+- Assistant
+
+- Designer
+
+- Linguist
+
+- lupdate
+
+- rcc
+
+- moc
+
+- uic
+
+-uic3
+
+- qmake
+
+****************************************************************************
+*                          Plugins                                         *
+****************************************************************************
+
+- QTiffPlugin
+
+****************************************************************************
+*                   Important Behavior Changes
+****************************************************************************
+
