@@ -444,6 +444,11 @@ Ltop:
     goto *iPtr->code;
 #endif
 
+    I(Nop):
+    {
+        ++iPtr;
+    }   Next();
+
     I(LoadUndefined):
     {
         CHECK_TEMPSTACK(1);

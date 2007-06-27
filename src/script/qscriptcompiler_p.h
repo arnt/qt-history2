@@ -145,6 +145,7 @@ public:
     void iHalt();
     void iMakeReference();
     void iIn();
+    void iNop();
 
 protected:
     virtual bool preVisit(AST::Node *node);

@@ -724,6 +724,8 @@ bool Compiler::visit(AST::IfStatement *node)
 
     if (! node->ko) {
         patchInstruction(cond, nextInstructionOffset() - cond);
+        if (!m_instructions.isEmpty() && m_instructions.last().op == QScriptInstruction::OP_Ret)
+            iNop();
     } else {
         int terminator = nextInstructionOffset();
         iBranch(0);
@@ -1985,6 +1987,11 @@ void Compiler::iMakeReference()
 void Compiler::iIn()
 {
     pushInstruction(QScriptInstruction::OP_In);
+}
+
+void Compiler::iNop()
+{
+    pushInstruction(QScriptInstruction::OP_Nop);
 }
 
 void Compiler::iNewString(QScriptNameIdImpl *id)
