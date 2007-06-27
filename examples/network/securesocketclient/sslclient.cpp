@@ -150,7 +150,7 @@ void SslClient::sendData()
 
 void SslClient::sslErrors(const QList<QSslError> &errors)
 {
-    QDialog errorDialog;
+    QDialog errorDialog(this);
     Ui_SslErrors ui;
     ui.setupUi(&errorDialog);
     connect(ui.certificateChainButton, SIGNAL(clicked()),
