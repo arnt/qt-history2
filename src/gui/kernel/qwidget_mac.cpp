@@ -479,6 +479,8 @@ OSStatus QWidgetPrivate::qt_window_event(EventHandlerCallRef er, EventRef event,
                                                            & ~Qt::WindowMaximized));
                 QApplication::sendSpontaneousEvent(widget, &e);
             }
+            extern QPointer<QWidget> qt_button_down; //qapplication_mac.cpp
+            qt_button_down = 0;
         } else if(ekind == kEventWindowCollapsed) {
             if (!widget->isMinimized()) {
                 widget->data->window_state = widget->data->window_state | Qt::WindowMinimized;
