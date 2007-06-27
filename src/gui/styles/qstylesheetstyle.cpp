@@ -1966,42 +1966,42 @@ void QStyleSheetStyle::setGeometry(QWidget *w)
     QRenderRule rule = renderRule(w, PseudoElement_None);
     const QStyleSheetGeometryData *geo = rule.geometry();
     if (w->property("_q_stylesheet_minw").toBool()
-        && ((!rule.hasGeometry() || (geo->width == -1 && geo->minWidth == -1)))) {
+        && ((!rule.hasGeometry() || geo->minWidth == -1))) {
             w->setMinimumWidth(0);
             w->setProperty("_q_stylesheet_minw", QVariant());
     }
     if (w->property("_q_stylesheet_minh").toBool()
-        && ((!rule.hasGeometry() || (geo->height == -1 && geo->minHeight == -1)))) {
+        && ((!rule.hasGeometry() || geo->minHeight == -1))) {
             w->setMinimumHeight(0);
             w->setProperty("_q_stylesheet_minh", QVariant());
     }
     if (w->property("_q_stylesheet_maxw").toBool()
-        && ((!rule.hasGeometry() || (geo->width == -1 && geo->maxWidth == -1)))) {
+        && ((!rule.hasGeometry() || geo->maxWidth == -1))) {
             w->setMaximumWidth(QWIDGETSIZE_MAX);
             w->setProperty("_q_stylesheet_maxw", QVariant());
     }
    if (w->property("_q_stylesheet_maxh").toBool()
-        && ((!rule.hasGeometry() || (geo->height == -1 && geo->maxHeight == -1)))) {
+        && ((!rule.hasGeometry() || geo->maxHeight == -1))) {
             w->setMaximumHeight(QWIDGETSIZE_MAX);
             w->setProperty("_q_stylesheet_maxh", QVariant());
     }
 
 
     if (rule.hasGeometry()) {
-        if (geo->minWidth != -1 || geo->width != -1) {
+        if (geo->minWidth != -1) {
             w->setProperty("_q_stylesheet_minw", true);
             w->setMinimumWidth(rule.boxSize(QSize(qMax(geo->width, geo->minWidth), 0)).width());
         }
-        if (geo->minHeight != -1 || geo->height != -1) {
+        if (geo->minHeight != -1) {
             w->setProperty("_q_stylesheet_minh", true);
             w->setMinimumHeight(rule.boxSize(QSize(0, qMax(geo->height, geo->minHeight))).height());
         }
-        if (geo->maxWidth != -1 || geo->width != -1) {
+        if (geo->maxWidth != -1) {
             w->setProperty("_q_stylesheet_maxw", true);
             w->setMaximumWidth(rule.boxSize(QSize(qMin(geo->width == -1 ? QWIDGETSIZE_MAX : geo->width,
                                                        geo->maxWidth == -1 ? QWIDGETSIZE_MAX : geo->maxWidth), 0)).width());
         }
-        if (geo->maxHeight != -1 || geo->height != -1) {
+        if (geo->maxHeight != -1) {
             w->setProperty("_q_stylesheet_maxh", true);
             w->setMaximumHeight(rule.boxSize(QSize(0, qMin(geo->height == -1 ? QWIDGETSIZE_MAX : geo->height,
                                                        geo->maxHeight == -1 ? QWIDGETSIZE_MAX : geo->maxHeight))).height());
