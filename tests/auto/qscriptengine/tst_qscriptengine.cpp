@@ -83,6 +83,12 @@ void tst_QScriptEngine::newFunction()
         QCOMPARE(fun.isValid(), true);
         QCOMPARE(fun.isFunction(), true);
         QCOMPARE(fun.isObject(), true);
+        // a prototype property is automatically constructed
+        {
+            QScriptValue prot = fun.property("prototype", QScriptValue::ResolveLocal);
+            QVERIFY(prot.isObject());
+            QVERIFY(prot.property("constructor").strictlyEquals(fun));
+        }
         // prototype should be Function.prototype
         QCOMPARE(fun.prototype().isValid(), true);
         QCOMPARE(fun.prototype().isFunction(), true);

@@ -461,6 +461,10 @@ QScriptValue QScriptEngine::newActivationObject()
   QScriptContext associated with the invocation to determine the
   actual number of arguments passed.
 
+  A \c{prototype} property is automatically created for the resulting
+  function object, to provide for the possibility that the function
+  will be used as a constructor.
+
   By combining newFunction() and the property flags
   QScriptValue::PropertyGetter and QScriptValue::PropertySetter, you
   can create script object properties that behave like normal
