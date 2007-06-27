@@ -56,6 +56,7 @@ private slots:
     void xToCursorAtEndOfLine();
     void boundingRectTopLeft();
     void charStopForSurrogatePairs();
+    void tabStops();
 
 private:
     QFont testFont;
@@ -532,6 +533,25 @@ void tst_QTextLayout::charStopForSurrogatePairs()
     QVERIFY(attrs[1].charStop);
     QVERIFY(!attrs[2].charStop);
     QVERIFY(attrs[3].charStop);
+}
+
+void tst_QTextLayout::tabStops()
+{
+    QString txt("Hello there\tworld");
+    QTextLayout layout(txt, testFont);
+    layout.beginLayout();
+    QTextLine line = layout.createLine();
+
+    QVERIFY(line.isValid());
+    line.setNumColumns(11);
+    QCOMPARE(line.textLength(), 12);
+
+    line = layout.createLine();
+    QVERIFY(line.isValid());
+    line.setNumColumns(5);
+    QCOMPARE(line.textLength(), 5);
+
+    layout.endLayout();
 }
 
 QTEST_MAIN(tst_QTextLayout)

@@ -1586,6 +1586,9 @@ void QTextLine::layout_helper(int maxGlyphs)
         tmpData.descent = qMax(tmpData.descent, current.descent);
 
         if (current.isTab && (alignment & Qt::AlignLeft)) {
+            if (checkFullOtherwiseExtend(line, tmpData, spaceData, glyphCount, maxGlyphs, minw, manualWrap))
+                goto found;
+
             QFixed x = line.x + line.textWidth + tmpData.textWidth + spaceData.textWidth;
             QFixed nx = eng->nextTab(&current, x);
             spaceData.textWidth += nx - x;
