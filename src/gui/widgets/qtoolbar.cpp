@@ -945,6 +945,21 @@ bool QToolBar::event(QEvent *event)
         // fallthrough intended
     case QEvent::Show:
         d->toggleViewAction->setChecked(event->type() == QEvent::Show);
+#ifdef Q_WS_MAC
+        // There's currently no way to invalidate the size and let
+        // HIToolbar know about it. This forces a re-check.
+        if (QMainWindow *mainWindow = qobject_cast<QMainWindow *>(parentWidget())) {
+            WindowRef windowRef = qt_mac_window_for(this);
+            if (mainWindow->unifiedTitleAndToolBarOnMac()
+                    && mainWindow->toolBarArea(this) == Qt::TopToolBarArea
+                    && IsWindowToolbarVisible(windowRef))   {
+                DisableScreenUpdates();
+                ShowHideWindowToolbar(windowRef, false, false);
+                ShowHideWindowToolbar(windowRef, true, false);
+                EnableScreenUpdates();
+            }
+        }
+#endif
         break;
     case QEvent::ParentChange:
         d->layout->setUsePopupMenu(qobject_cast<QMainWindow*>(parentWidget()) == 0);
