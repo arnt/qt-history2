@@ -80,6 +80,7 @@ public:
     QLayout* layout(QDesignerPropertySheetExtension **layoutPropertySheet = 0) const;
     static ObjectType objectType(const QObject *o);
 
+    enum PropertyKind { NormalProperty, FakeProperty, DynamicProperty, DefaultDynamicProperty };
     class Info {
     public:
         Info();
@@ -90,8 +91,8 @@ public:
         bool visible;
         bool attribute;
         bool reset;
-        bool defaultDynamic;
         PropertyType propertyType;
+        PropertyKind kind;
     };
 
     Info &ensureInfo(int index);
@@ -119,8 +120,8 @@ QDesignerPropertySheetPrivate::Info::Info() :
     visible(true),
     attribute(false),
     reset(true),
-    defaultDynamic(false),
-    propertyType(QDesignerPropertySheet::PropertyNone)
+    propertyType(QDesignerPropertySheet::PropertyNone),
+    kind(NormalProperty)
 {
 }
 
@@ -361,7 +362,7 @@ QDesignerPropertySheet::QDesignerPropertySheet(QObject *object, QObject *parent)
             const QString name = QString::fromLatin1(cName);
             const int idx = addDynamicProperty(name, object->property(cName));
             if (idx != -1)
-                d->ensureInfo(idx).defaultDynamic = true;
+                d->ensureInfo(idx).kind = QDesignerPropertySheetPrivate::DefaultDynamicProperty;
         }
     }
 }
@@ -401,6 +402,7 @@ bool QDesignerPropertySheet::canAddDynamicProperty(const QString &propName) cons
 
 int QDesignerPropertySheet::addDynamicProperty(const QString &propName, const QVariant &value)
 {
+    typedef QDesignerPropertySheetPrivate::Info Info;
     Q_D(QDesignerPropertySheet);
     if (!value.isValid())
         return -1; // property has invalid type
@@ -413,17 +415,20 @@ int QDesignerPropertySheet::addDynamicProperty(const QString &propName, const QV
         d->m_addProperties.insert(idx, value);
         setChanged(idx, false);
         const int index = d->m_meta->indexOfProperty(propName.toUtf8());
-        d->m_info[index].defaultValue = value;
+        Info &info = d->ensureInfo(index);
+        info.defaultValue = value;
+        info.kind = QDesignerPropertySheetPrivate::DynamicProperty;
         return idx;
     }
 
     const int index = count();
     d->m_addIndex.insert(propName, index);
     d->m_addProperties.insert(index, value);
-    setVisible(index, true);
-    setChanged(index, false);
-    d->m_info[index].defaultValue = value;
-
+    Info &info = d->ensureInfo(index);
+    info.visible = true;
+    info.changed = false;
+    info.defaultValue = value;
+    info.kind = QDesignerPropertySheetPrivate::DynamicProperty;
     setPropertyGroup(index, tr("Dynamic Properties"));
     return index;
 }
@@ -467,28 +472,30 @@ bool QDesignerPropertySheet::isDynamic(int index) const
 bool QDesignerPropertySheet::isDynamicProperty(int index) const
 {
     Q_D(const QDesignerPropertySheet);
-    if (d->m_info.value(index).defaultDynamic)
-        return false;
-
-    return isDynamic(index);
+    return d->m_info.value(index).kind == QDesignerPropertySheetPrivate::DynamicProperty;
 }
 
 void QDesignerPropertySheet::createFakeProperty(const QString &propertyName, const QVariant &value)
 {
+    typedef QDesignerPropertySheetPrivate::Info Info;
     Q_D(QDesignerPropertySheet);
     // fake properties
     const int index = d->m_meta->indexOfProperty(propertyName.toUtf8());
     if (index != -1) {
         if (!d->m_meta->property(index).isDesignable())
             return;
-        setVisible(index, false);
+        Info &info = d->ensureInfo(index);
+        info.visible = false;
+        info.kind = QDesignerPropertySheetPrivate::FakeProperty;
         const QVariant v = value.isValid() ? value : metaProperty(index);
         d->m_fakeProperties.insert(index, v);
     } else if (value.isValid()) { // additional properties
         const int index = count();
         d->m_addIndex.insert(propertyName, index);
         d->m_addProperties.insert(index, value);
-        d->ensureInfo(index).propertyType = propertyTypeFromName(propertyName);
+        Info &info = d->ensureInfo(index);
+        info.propertyType = propertyTypeFromName(propertyName);
+        info.kind = QDesignerPropertySheetPrivate::FakeProperty;
     }
 }
 
