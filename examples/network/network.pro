@@ -11,6 +11,8 @@ SUBDIRS       = blockingfortuneclient \
                 threadedfortuneserver \
  		torrent
 
+contains(QT_CONFIG, openssl):SUBDIRS += securesocketclient
+
 # install
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS network.pro README
 sources.path = $$[QT_INSTALL_EXAMPLES]/network
