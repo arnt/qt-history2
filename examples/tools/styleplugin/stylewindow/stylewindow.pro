@@ -2,7 +2,8 @@ HEADERS    = stylewindow.h
 SOURCES    = stylewindow.cpp \
              main.cpp
 
-TARGET     = ../styleplugin
+TARGET     = styleplugin
+DESTDIR    = ../
 
 # install
 target.path = $$[QT_INSTALL_EXAMPLES]/tools/styleplugin/stylewindow
