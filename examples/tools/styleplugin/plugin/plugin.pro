@@ -5,7 +5,12 @@ HEADERS     = simplestyle.h \
 SOURCES     = simplestyle.cpp \
               simplestyleplugin.cpp
 TARGET      = simplestyleplugin
-DESTDIR     = ../styles/
+win32 {
+    debug:DESTDIR = ../debug/styles/
+    release:DESTDIR = ../release/styles/
+} else {
+    DESTDIR = ../styles/
+}
 
 # install
 target.path = $$[QT_INSTALL_EXAMPLES]/tools/styleplugin/stylewindow/styles
