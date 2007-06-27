@@ -1227,6 +1227,8 @@ void QScript::QtFunction::execute(QScriptContextPrivate *context)
                             matchDistance += 10;
                         break;
                     }
+                } else {
+                    matchDistance += 10;
                 }
             }
 
