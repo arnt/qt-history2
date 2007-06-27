@@ -125,7 +125,7 @@ void QComboBoxPrivate::updateArrow(QStyle::StateFlag state)
     arrowState = state;
     QStyleOptionComboBox opt;
     q->initStyleOption(&opt);
-    q->update(q->style()->subControlRect(QStyle::CC_ComboBox, &opt, QStyle::SC_ComboBoxArrow));
+    q->update(q->style()->subControlRect(QStyle::CC_ComboBox, &opt, QStyle::SC_ComboBoxArrow, q));
 }
 
 void QComboBoxPrivate::_q_modelReset()
@@ -306,7 +306,7 @@ void QComboBoxPrivateContainer::leaveEvent(QEvent *)
 // when the mouse moves outside the popup.
 #ifdef Q_WS_MAC
     QStyleOptionComboBox opt = comboStyleOption();
-    if (combo->style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, this))
+    if (combo->style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, q))
         view->clearSelection();
 #endif
 }
@@ -333,7 +333,7 @@ QComboBoxPrivateContainer::QComboBoxPrivateContainer(QAbstractItemView *itemView
 
     // add scroller arrows if style needs them
     QStyleOptionComboBox opt = comboStyleOption();
-    const bool usePopup = combo->style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, this);
+    const bool usePopup = combo->style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, combo);
     if (usePopup) {
         top = new QComboBoxPrivateScroller(QAbstractSlider::SliderSingleStepSub, this);
         bottom = new QComboBoxPrivateScroller(QAbstractSlider::SliderSingleStepAdd, this);
@@ -343,7 +343,7 @@ QComboBoxPrivateContainer::QComboBoxPrivateContainer(QAbstractItemView *itemView
         setLineWidth(1);
     }
 
-    setFrameStyle(combo->style()->styleHint(QStyle::SH_ComboBox_PopupFrameStyle, &opt, this));
+    setFrameStyle(combo->style()->styleHint(QStyle::SH_ComboBox_PopupFrameStyle, &opt, combo));
 
     if (top) {
         layout->insertWidget(0, top);
@@ -512,7 +512,7 @@ void QComboBoxPrivateContainer::updateTopBottomMargin()
 
     const QStyleOptionComboBox opt = comboStyleOption();
     const bool usePopup = combo->style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, combo);
-    const int margin = usePopup ? combo->style()->pixelMetric(QStyle::PM_MenuVMargin, &opt, this) : 0;
+    const int margin = usePopup ? combo->style()->pixelMetric(QStyle::PM_MenuVMargin, &opt, combo) : 0;
 
     QSpacerItem *topSpacer = boxLayout->itemAt(0)->spacerItem();
     if (topSpacer)
