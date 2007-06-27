@@ -1131,10 +1131,10 @@ static bool unstylable(const QWidget *w)
     if (const QAbstractScrollArea *sa = qobject_cast<const QAbstractScrollArea *>(w->parentWidget())) {
         if (sa->viewport() == w)
             return true;
-    } else
+    }
 #endif
 #ifndef QT_NO_LINEEDIT
-    if (qobject_cast<const QLineEdit *>(w)) {
+    else if (qobject_cast<const QLineEdit *>(w)) {
         if (0
 #ifndef QT_NO_COMBOBOX
             || qobject_cast<const QComboBox *>(w->parentWidget())

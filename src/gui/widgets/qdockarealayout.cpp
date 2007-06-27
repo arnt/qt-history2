@@ -136,12 +136,14 @@ QDockAreaLayoutItem
 ** QDockAreaLayoutInfo
 */
 
+#ifndef QT_NO_TABBAR
 static quintptr tabId(const QDockAreaLayoutItem &item)
 {
     if (item.widgetItem == 0)
         return 0;
     return reinterpret_cast<quintptr>(item.widgetItem->widget());
 }
+#endif
 
 QDockAreaLayoutInfo::QDockAreaLayoutInfo()
     : sep(0), dockPos(QInternal::LeftDock), o(Qt::Horizontal), rect(0, 0, -1, -1), mainWindow(0)
