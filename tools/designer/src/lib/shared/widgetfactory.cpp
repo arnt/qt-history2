@@ -136,16 +136,6 @@ QWidget *WidgetFactory::createWidget(const QString &widgetName, QWidget *parentW
         w = new Line(parentWidget);
     } else if (widgetName == QLatin1String("QDockWidget")) {
         w = new QDesignerDockWidget(parentWidget);
-    } else if (widgetName == QLatin1String("QTabWidget")) {
-        w = new QDesignerTabWidget(parentWidget);
-    } else if (widgetName == QLatin1String("QStackedWidget")) {
-        w = new QDesignerStackedWidget(parentWidget);
-    } else if (widgetName == QLatin1String("QToolBox")) {
-        w = new QDesignerToolBox(parentWidget);
-    } else if (widgetName == QLatin1String("QToolBar")) {
-        QToolBar *tb = new QToolBar(parentWidget);
-        w = tb;
-        ToolBarEventFilter::install(tb);
     } else if (widgetName == QLatin1String("QMenuBar")) {
         w = new QDesignerMenuBar(parentWidget);
     } else if (widgetName == QLatin1String("QMenu")) {
@@ -206,8 +196,12 @@ QWidget *WidgetFactory::createWidget(const QString &widgetName, QWidget *parentW
 
     Q_ASSERT(w != 0);
 
-    if (fw != 0)
+    if (fw) { // form editor  initialization
         initialize(w);
+    } else { // preview-only initialization
+        if (QStackedWidget *stackedWidget = qobject_cast<QStackedWidget*>(w))
+            QStackedWidgetPreviewEventFilter::install(stackedWidget); // Add browse button only.
+    }
 
     return w;
 }
@@ -224,16 +218,10 @@ QString WidgetFactory::classNameOf(QDesignerFormEditorInterface *c, QObject* o)
             return customClassName;
     }
 
-    if (qobject_cast<QDesignerTabWidget*>(o))
-        return QLatin1String("QTabWidget");
-    else if (qobject_cast<QDesignerStackedWidget*>(o))
-        return QLatin1String("QStackedWidget");
-    else if (qobject_cast<QDesignerMenuBar*>(o))
+    if (qobject_cast<QDesignerMenuBar*>(o))
         return QLatin1String("QMenuBar");
     else if (qobject_cast<QDesignerDockWidget*>(o))
         return QLatin1String("QDockWidget");
-    else if (qobject_cast<QDesignerToolBox*>(o))
-        return QLatin1String("QToolBox");
     else if (qobject_cast<QDesignerDialog*>(o))
         return QLatin1String("QDialog");
     else if (qobject_cast<QDesignerWidget*>(o))
@@ -423,6 +411,23 @@ void WidgetFactory::initialize(QObject *object) const
 
     if (qobject_cast<QMenu*>(object) || qobject_cast<QMenuBar*>(object)) {
         qobject_cast<QWidget*>(object)->setFocusPolicy(Qt::StrongFocus);
+    }
+    // helpers
+    if (QToolBox *toolBox = qobject_cast<QToolBox*>(object)) {
+        QToolBoxHelper::install(toolBox);
+        return;
+    }
+    if (QStackedWidget *stackedWidget = qobject_cast<QStackedWidget*>(object)) {
+        QStackedWidgetEventFilter::install(stackedWidget);
+        return;
+    }
+    if (QTabWidget *tabWidget = qobject_cast<QTabWidget*>(object)) {
+        QTabWidgetEventFilter::install(tabWidget);
+        return;
+    }
+    if (QToolBar *toolBar = qobject_cast<QToolBar *>(object)) {
+        ToolBarEventFilter::install(toolBar);
+        return;
     }
 }
 

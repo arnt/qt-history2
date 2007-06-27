@@ -27,6 +27,9 @@
 #include "spacer_propertysheet.h"
 #include "line_propertysheet.h"
 #include "layout_propertysheet.h"
+#include "qdesigner_stackedbox_p.h"
+#include "qdesigner_toolbox_p.h"
+#include "qdesigner_tabwidget_p.h"
 #include "qtbrushmanager.h"
 #include "brushmanagerproxy.h"
 #include "iconcache.h"
@@ -80,6 +83,10 @@ FormEditor::FormEditor(QObject *parent)
     SpacerPropertySheetFactory::registerExtension(mgr);
     LinePropertySheetFactory::registerExtension(mgr);
     LayoutPropertySheetFactory::registerExtension(mgr);
+    QStackedWidgetPropertySheetFactory::registerExtension(mgr);
+    QToolBoxWidgetPropertySheetFactory::registerExtension(mgr);
+    QTabWidgetPropertySheetFactory::registerExtension(mgr);
+
     mgr->registerExtensions(new QDesignerTaskMenuFactory(mgr),              Q_TYPEID(QDesignerTaskMenuExtension));
 
     mgr->registerExtensions(new QDesignerMemberSheetFactory(mgr),           Q_TYPEID(QDesignerMemberSheetExtension));

@@ -63,6 +63,9 @@ TRANSLATOR qdesigner_internal::FormWindow
 #include <QtGui/QPainter>
 #include <QtGui/QGroupBox>
 #include <QtGui/QDockWidget>
+#include <QtGui/QToolBox>
+#include <QtGui/QStackedWidget>
+#include <QtGui/QTabWidget>
 
 namespace {
 class BlockSelection
@@ -1840,14 +1843,14 @@ QMenu *FormWindow::createPopupMenu(QWidget *w)
 
     // Check for special containers and obtain the page menu from them to add layout actions.
     if (!isFormWindow) {
-        if (QDesignerStackedWidget *stackedWidget  = qobject_cast<QDesignerStackedWidget*>(w)) {
-            stackedWidget->addContextMenuActions(popup);
+        if (QStackedWidget *stackedWidget  = qobject_cast<QStackedWidget*>(w)) {
+            QStackedWidgetEventFilter::addStackedWidgetContextMenuActions(stackedWidget, popup);
         } else {
-            if (QDesignerTabWidget *tabWidget = qobject_cast<QDesignerTabWidget*>(w)) {
-                tabWidget->addContextMenuActions(popup);
+            if (QTabWidget *tabWidget = qobject_cast<QTabWidget*>(w)) {
+                QTabWidgetEventFilter::addTabWidgetContextMenuActions(tabWidget, popup);
             }  else {
-                if (QDesignerToolBox *toolBox = qobject_cast<QDesignerToolBox*>(w)) {
-                    toolBox->addContextMenuActions(popup);
+                if (QToolBox *toolBox = qobject_cast<QToolBox*>(w)) {
+                    QToolBoxHelper::addToolBoxContextMenuActions(toolBox, popup);
                 }
             }
         }

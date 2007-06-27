@@ -29,9 +29,9 @@ class QDesignerFormEditorInterface;
 class QDesignerCustomWidgetInterface;
 class QDesignerWidgetDataBaseItemInterface;
 
-class QDesignerTabWidget;
-class QDesignerStackedWidget;
-class QDesignerToolBox;
+class QTabWidget;
+class QStackedWidget;
+class QToolBox;
 class QToolBar;
 class QDesignerDockWidget;
 class QLayoutWidget;
@@ -93,9 +93,9 @@ protected:
 
     virtual bool checkProperty(QObject *obj, const QString &prop) const;
 
-    DomWidget *saveWidget(QDesignerTabWidget *widget, DomWidget *ui_parentWidget);
-    DomWidget *saveWidget(QDesignerStackedWidget *widget, DomWidget *ui_parentWidget);
-    DomWidget *saveWidget(QDesignerToolBox *widget, DomWidget *ui_parentWidget);
+    DomWidget *saveWidget(QTabWidget *widget, DomWidget *ui_parentWidget);
+    DomWidget *saveWidget(QStackedWidget *widget, DomWidget *ui_parentWidget);
+    DomWidget *saveWidget(QToolBox *widget, DomWidget *ui_parentWidget);
     DomWidget *saveWidget(QWidget *widget, QDesignerContainerExtension *container, DomWidget *ui_parentWidget);
     DomWidget *saveWidget(QToolBar *toolBar, DomWidget *ui_parentWidget);
     DomWidget *saveWidget(QDesignerDockWidget *dockWidget, DomWidget *ui_parentWidget);

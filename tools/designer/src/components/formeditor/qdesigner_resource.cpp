@@ -54,6 +54,8 @@
 #include <QtGui/QLayout>
 #include <QtGui/QTabWidget>
 #include <QtGui/QToolBox>
+#include <QtGui/QTabWidget>
+#include <QtGui/QStackedWidget>
 #include <QtGui/QToolBar>
 #include <QtGui/QTabBar>
 #include <QtGui/QAction>
@@ -97,10 +99,7 @@ QDesignerResource::QDesignerResource(FormWindow *formWindow)  :
     const QString widget = QLatin1String("QWidget");
     m_internal_to_qt.insert(layoutWidget, widget);
     m_internal_to_qt.insert(designerWidget, widget);
-    m_internal_to_qt.insert(QLatin1String("QDesignerStackedWidget"), QLatin1String("QStackedWidget"));
-    m_internal_to_qt.insert(QLatin1String("QDesignerTabWidget"), QLatin1String("QTabWidget"));
     m_internal_to_qt.insert(QLatin1String("QDesignerDialog"), QLatin1String("QDialog"));
-    m_internal_to_qt.insert(QLatin1String("QDesignerToolBox"), QLatin1String("QToolBox"));
     m_internal_to_qt.insert(QLatin1String("QDesignerMenuBar"), QLatin1String("QMenuBar"));
     m_internal_to_qt.insert(QLatin1String("QDesignerMenu"), QLatin1String("QMenu"));
     m_internal_to_qt.insert(QLatin1String("QDesignerDockWidget"), QLatin1String("QDockWidget"));
@@ -768,11 +767,11 @@ DomWidget *QDesignerResource::createDom(QWidget *widget, DomWidget *ui_parentWid
 
     DomWidget *w = 0;
 
-    if (QDesignerTabWidget *tabWidget = qobject_cast<QDesignerTabWidget*>(widget))
+    if (QTabWidget *tabWidget = qobject_cast<QTabWidget*>(widget))
         w = saveWidget(tabWidget, ui_parentWidget);
-    else if (QDesignerStackedWidget *stackedWidget = qobject_cast<QDesignerStackedWidget*>(widget))
+    else if (QStackedWidget *stackedWidget = qobject_cast<QStackedWidget*>(widget))
         w = saveWidget(stackedWidget, ui_parentWidget);
-    else if (QDesignerToolBox *toolBox = qobject_cast<QDesignerToolBox*>(widget))
+    else if (QToolBox *toolBox = qobject_cast<QToolBox*>(widget))
         w = saveWidget(toolBox, ui_parentWidget);
     else if (QToolBar *toolBar = qobject_cast<QToolBar*>(widget))
         w = saveWidget(toolBar, ui_parentWidget);
@@ -1060,7 +1059,7 @@ DomWidget *QDesignerResource::saveWidget(QWidget *widget, QDesignerContainerExte
     return ui_widget;
 }
 
-DomWidget *QDesignerResource::saveWidget(QDesignerStackedWidget *widget, DomWidget *ui_parentWidget)
+DomWidget *QDesignerResource::saveWidget(QStackedWidget *widget, DomWidget *ui_parentWidget)
 {
     DomWidget *ui_widget = QAbstractFormBuilder::createDom(widget, ui_parentWidget, false);
     QList<DomWidget*> ui_widget_list;
@@ -1158,7 +1157,7 @@ DomProperty *QDesignerResource::createIconProperty(const QVariant &v) const
     return dom_prop;
 }
 
-DomWidget *QDesignerResource::saveWidget(QDesignerTabWidget *widget, DomWidget *ui_parentWidget)
+DomWidget *QDesignerResource::saveWidget(QTabWidget *widget, DomWidget *ui_parentWidget)
 {
     DomWidget *ui_widget = QAbstractFormBuilder::createDom(widget, ui_parentWidget, false);
     QList<DomWidget*> ui_widget_list;
@@ -1212,7 +1211,7 @@ DomWidget *QDesignerResource::saveWidget(QDesignerTabWidget *widget, DomWidget *
     return ui_widget;
 }
 
-DomWidget *QDesignerResource::saveWidget(QDesignerToolBox *widget, DomWidget *ui_parentWidget)
+DomWidget *QDesignerResource::saveWidget(QToolBox *widget, DomWidget *ui_parentWidget)
 {
     DomWidget *ui_widget = QAbstractFormBuilder::createDom(widget, ui_parentWidget, false);
     QList<DomWidget*> ui_widget_list;
@@ -1263,24 +1262,41 @@ DomWidget *QDesignerResource::saveWidget(QDesignerToolBox *widget, DomWidget *ui
     return ui_widget;
 }
 
+// Do not save the 'currentTabName' properties of containers
+static inline bool checkContainerProperty(const QWidget *w, const QString &propertyName)
+{
+    if (qobject_cast<const QToolBox *>(w))
+        return QToolBoxWidgetPropertySheet::checkProperty(propertyName);
+    if (qobject_cast<const QTabWidget *>(w))
+        return QTabWidgetPropertySheet::checkProperty(propertyName);
+    if (qobject_cast<const QStackedWidget *>(w))
+        return QStackedWidgetPropertySheet::checkProperty(propertyName);
+    return true;
+}
+
 bool QDesignerResource::checkProperty(QObject *obj, const QString &prop) const
 {
     const QMetaObject *meta = obj->metaObject();
     const int pindex = meta->indexOfProperty(prop.toLatin1());
-    if (pindex != -1) {
-        if (!meta->property(pindex).isStored(obj))
-            return false;
-    }
-
-    if (prop == QLatin1String("objectName")) { // ### don't store the property objectName
+    if (pindex != -1 && !meta->property(pindex).isStored(obj))
         return false;
-    } else if (prop == QLatin1String("geometry") && obj->isWidgetType()) {
-         QWidget *check_widget = qobject_cast<QWidget*>(obj);
+
+    if (prop == QLatin1String("objectName"))  // ### don't store the property objectName
+        return false;
+
+    QWidget *check_widget = 0;
+    if (obj->isWidgetType())
+        check_widget = qobject_cast<QWidget*>(obj);
+
+    if (check_widget && prop == QLatin1String("geometry")) {
          if (m_selected && m_selected == check_widget)
              return true;
 
         return !LayoutInfo::isWidgetLaidout(core(), check_widget);
     }
+
+    if (check_widget && !checkContainerProperty(check_widget, prop))
+        return false;
 
     if (QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(core()->extensionManager(), obj)) {
         QDesignerDynamicPropertySheetExtension *dynamicSheet = qt_extension<QDesignerDynamicPropertySheetExtension*>(core()->extensionManager(), obj);
@@ -1512,13 +1528,13 @@ QList<DomProperty*> QDesignerResource::computeProperties(QObject *object)
     QList<DomProperty*> properties;
     if (QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(core()->extensionManager(), object)) {
         QDesignerDynamicPropertySheetExtension *dynamicSheet = qt_extension<QDesignerDynamicPropertySheetExtension*>(core()->extensionManager(), object);
-        for (int index = 0; index < sheet->count(); ++index) {
-            const QString propertyName = sheet->propertyName(index);
-            QVariant value = sheet->property(index);
-
+        const int count = sheet->count();
+        for (int index = 0; index < count; ++index) {
             if (!sheet->isChanged(index) && (!dynamicSheet || !dynamicSheet->isDynamicProperty(index)))
                 continue;
 
+            const QString propertyName = sheet->propertyName(index);
+            const QVariant value = sheet->property(index);
             if (DomProperty *p = createProperty(object, propertyName, value)) {
                 if (p->kind() == DomProperty::String) {
                     const QString property_comment = propertyComment(m_formWindow->core(), object, propertyName);

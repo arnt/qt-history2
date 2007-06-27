@@ -23,13 +23,13 @@ TRANSLATOR qdesigner_internal::ContainerWidgetTaskMenu
 #include <QtDesigner/QDesignerContainerExtension>
 
 #include <qdesigner_command_p.h>
-#include <qdesigner_stackedbox_p.h>
-#include <qdesigner_tabwidget_p.h>
-#include <qdesigner_toolbox_p.h>
 #include <qdesigner_dockwidget_p.h>
 
 #include <QtGui/QAction>
 #include <QtGui/QMainWindow>
+#include <QtGui/QToolBox>
+#include <QtGui/QStackedWidget>
+#include <QtGui/QTabWidget>
 
 #include <QtCore/qdebug.h>
 
@@ -143,16 +143,14 @@ ContainerWidgetTaskMenuFactory::ContainerWidgetTaskMenuFactory(QExtensionManager
 
 QObject *ContainerWidgetTaskMenuFactory::createExtension(QObject *object, const QString &iid, QObject *parent) const
 {
-    if (iid != Q_TYPEID(QDesignerTaskMenuExtension))
+    if (iid != Q_TYPEID(QDesignerTaskMenuExtension) || !object->isWidgetType())
         return 0;
 
     QWidget *widget = qobject_cast<QWidget*>(object);
-    if (!widget)
-        return 0;
 
-    if (qobject_cast<QDesignerStackedWidget*>(widget)
-            || qobject_cast<QDesignerToolBox*>(widget)
-            || qobject_cast<QDesignerTabWidget*>(widget)
+    if (qobject_cast<QStackedWidget*>(widget)
+            || qobject_cast<QToolBox*>(widget)
+            || qobject_cast<QTabWidget*>(widget)
             || qobject_cast<QDesignerDockWidget*>(widget)
             || qobject_cast<QMainWindow*>(widget))
         return 0;

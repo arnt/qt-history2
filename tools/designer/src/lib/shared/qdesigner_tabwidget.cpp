@@ -24,6 +24,7 @@
 #include <QtGui/QMouseEvent>
 #include <QtGui/QMenu>
 #include <QtGui/QLabel>
+#include <QtGui/QTabWidget>
 
 #include <QtCore/qdebug.h>
 
@@ -33,21 +34,24 @@ class MyMimeData : public QMimeData
 {
     Q_OBJECT
 public:
-    MyMimeData(const QDesignerTabWidget *tab) : m_tab(tab) {}
-    static bool fromMyTab(const QMimeData *mimeData, const QDesignerTabWidget *tab) {
+    MyMimeData(const QTabWidget *tab) : m_tab(tab) {}
+    static bool fromMyTab(const QMimeData *mimeData, const QTabWidget *tab) {
         if (!mimeData)
             return false;
         const MyMimeData *m = qobject_cast<const MyMimeData *>(mimeData);
         return m &&  m->m_tab ==  tab;
     }
 private:
-    const QDesignerTabWidget *m_tab;
+    const QTabWidget *m_tab;
 };
 
 } // namespace qdesigner_internal
 
-QDesignerTabWidget::QDesignerTabWidget(QWidget *parent) :
-    QTabWidget(parent),
+// ------------- QTabWidgetEventFilter
+
+QTabWidgetEventFilter::QTabWidgetEventFilter(QTabWidget *parent) :
+    QObject(parent),
+    m_tabWidget(parent),
     m_dropIndicator(0),
     m_dragPage(0),
     m_mousePressed(false),
@@ -62,58 +66,72 @@ QDesignerTabWidget::QDesignerTabWidget(QWidget *parent) :
     connect(m_actionInsertPage, SIGNAL(triggered()), this, SLOT(addPage()));
     connect(m_actionInsertPageAfter, SIGNAL(triggered()), this, SLOT(addPageAfter()));
     connect(m_actionDeletePage, SIGNAL(triggered()), this, SLOT(removeCurrentPage()));
-    connect(this, SIGNAL(currentChanged(int)), this, SLOT(slotCurrentChanged(int)));
+    connect(m_tabWidget, SIGNAL(currentChanged(int)), this, SLOT(slotCurrentChanged(int)));
+
 }
 
-QDesignerTabWidget::~QDesignerTabWidget()
+QTabWidgetEventFilter::~QTabWidgetEventFilter()
 {
 }
 
-QString QDesignerTabWidget::currentTabName() const
+void QTabWidgetEventFilter::install(QTabWidget *tabWidget)
 {
-    return currentWidget()
-        ? currentWidget()->objectName()
-        : QString();
+    new QTabWidgetEventFilter(tabWidget);
 }
 
-void QDesignerTabWidget::setCurrentTabName(const QString &tabName)
+QTabWidgetEventFilter *QTabWidgetEventFilter::eventFilterOf(const QTabWidget *tabWidget)
 {
-    if (QWidget *w = currentWidget())
-        w->setObjectName(tabName);
+    QList<QTabWidgetEventFilter*> filters = qFindChildren<QTabWidgetEventFilter*>(tabWidget);
+    if (filters.empty())
+        return 0;
+    return filters.front();
 }
 
-QString QDesignerTabWidget::currentTabText() const
+QMenu *QTabWidgetEventFilter::addTabWidgetContextMenuActions(const QTabWidget *tabWidget, QMenu *popup)
 {
-    return tabText(currentIndex());
+    QTabWidgetEventFilter *filter = eventFilterOf(tabWidget);
+    if (!filter)
+        return 0;
+    return filter->addContextMenuActions(popup);
 }
 
-void QDesignerTabWidget::setCurrentTabText(const QString &tabText)
+QTabBar *QTabWidgetEventFilter::tabBar() const
 {
-    setTabText(currentIndex(), tabText);
+    // QTabWidget::tabBar() accessor is protected, grmbl...
+    if (!m_cachedTabBar) {
+        const QList<QTabBar *> tabBars = qFindChildren<QTabBar *>(m_tabWidget);
+        Q_ASSERT(tabBars.size() == 1);
+        m_cachedTabBar = tabBars.front();
+    }
+    return m_cachedTabBar;
+
 }
 
-QString QDesignerTabWidget::currentTabToolTip() const
+static bool canMove(const QPoint &pressPoint, const QMouseEvent *e)
 {
-    return tabToolTip(currentIndex());
+    const QPoint pt = pressPoint - e->pos();
+    return pt.manhattanLength() > QApplication::startDragDistance();
 }
 
-void QDesignerTabWidget::setCurrentTabToolTip(const QString &tabToolTip)
+bool QTabWidgetEventFilter::eventFilter(QObject *o, QEvent *e)
 {
-    setTabToolTip(currentIndex(), tabToolTip);
-}
+    const QEvent::Type type = e->type();
+    // Do not try to locate tab bar and form window, etc. for uninteresting events and
+    // avoid asserts about missing tab bars when being destroyed
+    switch (type) {
+    case QEvent::MouseButtonDblClick:
+    case QEvent::MouseButtonPress:
+    case QEvent::MouseButtonRelease:
+    case QEvent::MouseMove:
+    case QEvent::DragLeave:
+    case QEvent::DragEnter:
+    case QEvent::DragMove:
+    case QEvent::Drop:
+        break;
+    default:
+        return false;
+    }
 
-QIcon QDesignerTabWidget::currentTabIcon() const
-{
-    return tabIcon(currentIndex());
-}
-
-void QDesignerTabWidget::setCurrentTabIcon(const QIcon &tabIcon)
-{
-    setTabIcon(currentIndex(), tabIcon);
-}
-
-bool QDesignerTabWidget::eventFilter(QObject *o, QEvent *e)
-{
     if (o != tabBar())
         return false;
 
@@ -121,7 +139,7 @@ bool QDesignerTabWidget::eventFilter(QObject *o, QEvent *e)
     if (!fw)
         return false;
 
-    switch (e->type()) {
+    switch (type) {
     case QEvent::MouseButtonDblClick:
         break;
     case QEvent::MouseButtonPress: {
@@ -130,11 +148,13 @@ bool QDesignerTabWidget::eventFilter(QObject *o, QEvent *e)
             m_mousePressed = true;
             m_pressPoint = mev->pos();
 
-            for (int i = 0; i < tabBar()->count(); ++i) {
-                if (tabBar()->tabRect(i).contains(m_pressPoint)) {
-                    if (i != tabBar()->currentIndex()) {
+            QTabBar *tabbar = tabBar();
+            const int count = tabbar->count();
+            for (int i = 0; i < count; ++i) {
+                if (tabbar->tabRect(i).contains(m_pressPoint)) {
+                    if (i != tabbar->currentIndex()) {
                         qdesigner_internal::SetPropertyCommand *cmd = new qdesigner_internal::SetPropertyCommand(fw);
-                        cmd->init(this, QLatin1String("currentIndex"), i);
+                        cmd->init(m_tabWidget, QLatin1String("currentIndex"), i);
                         fw->commandHistory()->push(cmd);
                     }
                     break;
@@ -149,15 +169,19 @@ bool QDesignerTabWidget::eventFilter(QObject *o, QEvent *e)
 
     case QEvent::MouseMove: {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(e);
-        if (m_mousePressed && canMove(mouseEvent)) {
-            m_mousePressed = false;
-            QDrag *drg = new QDrag(this);
-            drg->setMimeData(new qdesigner_internal::MyMimeData(this));
+        if (m_mousePressed && canMove(m_pressPoint, mouseEvent)) {
+            const int index = m_tabWidget->currentIndex();
+            if (index == -1)
+                break;
 
-            m_dragIndex = currentIndex();
-            m_dragPage = currentWidget();
-            m_dragLabel = currentTabText();
-            m_dragIcon = currentTabIcon();
+            m_mousePressed = false;
+            QDrag *drg = new QDrag(m_tabWidget);
+            drg->setMimeData(new qdesigner_internal::MyMimeData(m_tabWidget));
+
+            m_dragIndex = index;
+            m_dragPage  = m_tabWidget->currentWidget();
+            m_dragLabel = m_tabWidget->tabText(index);
+            m_dragIcon  = m_tabWidget->tabIcon(index);
             if (m_dragIcon.isNull()) {
                 QLabel *label = new QLabel(m_dragLabel);
                 label->adjustSize();
@@ -167,14 +191,14 @@ bool QDesignerTabWidget::eventFilter(QObject *o, QEvent *e)
                 drg->setPixmap(m_dragIcon.pixmap(22, 22));
             }
 
-            removeTab(m_dragIndex);
+            m_tabWidget->removeTab(m_dragIndex);
 
             const Qt::DropActions dropAction = drg->start(Qt::MoveAction);
 
             if (dropAction == Qt::IgnoreAction) {
                 // abort
-                insertTab(m_dragIndex, m_dragPage, m_dragIcon, m_dragLabel);
-                setCurrentIndex(m_dragIndex);
+                m_tabWidget->insertTab(m_dragIndex, m_dragPage, m_dragIcon, m_dragLabel);
+                m_tabWidget->setCurrentIndex(m_dragIndex);
             }
 
             if (m_dropIndicator)
@@ -190,7 +214,7 @@ bool QDesignerTabWidget::eventFilter(QObject *o, QEvent *e)
     case QEvent::DragEnter:
     case QEvent::DragMove: {
         QDragMoveEvent *de = static_cast<QDragMoveEvent*>(e);
-        if (!qdesigner_internal::MyMimeData::fromMyTab(de->mimeData(), this))
+        if (!qdesigner_internal::MyMimeData::fromMyTab(de->mimeData(), m_tabWidget))
             return false;
 
         if (de->proposedAction() == Qt::MoveAction)
@@ -204,14 +228,14 @@ bool QDesignerTabWidget::eventFilter(QObject *o, QEvent *e)
         const int index = pageFromPosition(de->pos(), rect);
 
         if (!m_dropIndicator) {
-            m_dropIndicator = new QWidget(this);
+            m_dropIndicator = new QWidget(m_tabWidget);
             QPalette p = m_dropIndicator->palette();
-            p.setColor(backgroundRole(), Qt::red);
+            p.setColor(m_tabWidget->backgroundRole(), Qt::red);
             m_dropIndicator->setPalette(p);
         }
 
         QPoint pos;
-        if (index == count())
+        if (index == m_tabWidget->count())
             pos = tabBar()->mapToParent(QPoint(rect.x() + rect.width(), rect.y()));
         else
             pos = tabBar()->mapToParent(QPoint(rect.x(), rect.y()));
@@ -222,7 +246,7 @@ bool QDesignerTabWidget::eventFilter(QObject *o, QEvent *e)
 
     case QEvent::Drop: {
         QDropEvent *de = static_cast<QDropEvent*>(e);
-        if (!qdesigner_internal::MyMimeData::fromMyTab(de->mimeData(), this))
+        if (!qdesigner_internal::MyMimeData::fromMyTab(de->mimeData(), m_tabWidget))
             return false;
         de->acceptProposedAction();
         de->accept();
@@ -231,8 +255,8 @@ bool QDesignerTabWidget::eventFilter(QObject *o, QEvent *e)
         const int newIndex = pageFromPosition(de->pos(), rect);
 
         qdesigner_internal::MoveTabPageCommand *cmd = new qdesigner_internal::MoveTabPageCommand(fw);
-        insertTab(m_dragIndex, m_dragPage, m_dragIcon, m_dragLabel);
-        cmd->init(this, m_dragPage, m_dragIcon, m_dragLabel, m_dragIndex, newIndex);
+        m_tabWidget->insertTab(m_dragIndex, m_dragPage, m_dragIcon, m_dragLabel);
+        cmd->init(m_tabWidget, m_dragPage, m_dragIcon, m_dragLabel, m_dragIndex, newIndex);
         fw->commandHistory()->push(cmd);
     } break;
 
@@ -243,85 +267,66 @@ bool QDesignerTabWidget::eventFilter(QObject *o, QEvent *e)
     return false;
 }
 
-void QDesignerTabWidget::removeCurrentPage()
+void QTabWidgetEventFilter::removeCurrentPage()
 {
-    if (!currentWidget())
+    if (!m_tabWidget->currentWidget())
         return;
 
     if (QDesignerFormWindowInterface *fw = formWindow()) {
         qdesigner_internal::DeleteTabPageCommand *cmd = new qdesigner_internal::DeleteTabPageCommand(fw);
-        cmd->init(this);
+        cmd->init(m_tabWidget);
         fw->commandHistory()->push(cmd);
     }
 }
 
-void QDesignerTabWidget::addPage()
+void QTabWidgetEventFilter::addPage()
 {
     if (QDesignerFormWindowInterface *fw = formWindow()) {
         qdesigner_internal::AddTabPageCommand *cmd = new qdesigner_internal::AddTabPageCommand(fw);
-        cmd->init(this, qdesigner_internal::AddTabPageCommand::InsertBefore);
+        cmd->init(m_tabWidget, qdesigner_internal::AddTabPageCommand::InsertBefore);
         fw->commandHistory()->push(cmd);
     }
 }
 
-void QDesignerTabWidget::addPageAfter()
+void QTabWidgetEventFilter::addPageAfter()
 {
     if (QDesignerFormWindowInterface *fw = formWindow()) {
         qdesigner_internal::AddTabPageCommand *cmd = new qdesigner_internal::AddTabPageCommand(fw);
-        cmd->init(this, qdesigner_internal::AddTabPageCommand::InsertAfter);
+        cmd->init(m_tabWidget, qdesigner_internal::AddTabPageCommand::InsertAfter);
         fw->commandHistory()->push(cmd);
     }
 }
 
-bool QDesignerTabWidget::canMove(QMouseEvent *e) const
+void QTabWidgetEventFilter::slotCurrentChanged(int index)
 {
-    const QPoint pt = m_pressPoint - e->pos();
-    return pt.manhattanLength() > QApplication::startDragDistance();
-}
-
-void QDesignerTabWidget::slotCurrentChanged(int index)
-{
-    if (widget(index)) {
+    if (m_tabWidget->widget(index)) {
         if (QDesignerFormWindowInterface *fw = formWindow()) {
             fw->clearSelection();
-            fw->selectWidget(this, true);
+            fw->selectWidget(m_tabWidget, true);
         }
     }
 }
 
-QDesignerFormWindowInterface *QDesignerTabWidget::formWindow() const
+QDesignerFormWindowInterface *QTabWidgetEventFilter::formWindow() const
 {
-    return QDesignerFormWindowInterface::findFormWindow(const_cast<QDesignerTabWidget*>(this));
-}
-
-void QDesignerTabWidget::tabInserted(int index)
-{
-    QTabWidget::tabInserted(index);
-
-    if (m_actionDeletePage)
-        m_actionDeletePage->setEnabled(count() > 1);
-}
-
-void QDesignerTabWidget::tabRemoved(int index)
-{
-    QTabWidget::tabRemoved(index);
-
-    if (m_actionDeletePage)
-        m_actionDeletePage->setEnabled(count() > 1);
+    return QDesignerFormWindowInterface::findFormWindow(const_cast<QTabWidget*>(m_tabWidget));
 }
 
 // Get page from mouse position. Default to new page if in right half of last page?
-int QDesignerTabWidget::pageFromPosition(const QPoint &pos, QRect &rect) const {
+int QTabWidgetEventFilter::pageFromPosition(const QPoint &pos, QRect &rect) const
+{
     int index = 0;
-    for (; index < count(); index++) {
-        const QRect rc = tabBar()->tabRect(index);
+    const QTabBar *tabbar = tabBar();
+    const int count = m_tabWidget->count();
+    for (; index < count; index++) {
+        const QRect rc = tabbar->tabRect(index);
         if (rc.contains(pos)) {
             rect = rc;
             break;
         }
     }
 
-    if (index == count() -1) {
+    if (index == count -1) {
         QRect rect2 = rect;
         rect2.setLeft(rect2.left() + rect2.width() / 2);
         if (rect2.contains(pos))
@@ -330,18 +335,21 @@ int QDesignerTabWidget::pageFromPosition(const QPoint &pos, QRect &rect) const {
     return index;
 }
 
-QMenu *QDesignerTabWidget::addContextMenuActions(QMenu *popup)
+QMenu *QTabWidgetEventFilter::addContextMenuActions(QMenu *popup)
 {
     QMenu *pageMenu = 0;
-    if (count()) {
-        const QString pageSubMenuLabel = tr("Page %1 of %2").arg(currentIndex() + 1).arg(count());
+    const int count = m_tabWidget->count();
+    m_actionDeletePage->setEnabled(count > 1);
+    if (count) {
+        const int currentIndex = m_tabWidget->currentIndex();
+        const QString pageSubMenuLabel = tr("Page %1 of %2").arg(currentIndex + 1).arg(count);
         pageMenu = popup->addMenu(pageSubMenuLabel);
         pageMenu->addAction(m_actionDeletePage);
         // Set up promotion menu for current widget.
-        if (QWidget *page =  currentWidget ()) {
+        if (QWidget *page =  m_tabWidget->currentWidget ()) {
             m_pagePromotionTaskMenu->setWidget(page);
-            m_pagePromotionTaskMenu->addActions(QDesignerFormWindowInterface::findFormWindow(this), 
-                                                qdesigner_internal::PromotionTaskMenu::SuppressGlobalEdit, 
+            m_pagePromotionTaskMenu->addActions(QDesignerFormWindowInterface::findFormWindow(m_tabWidget),
+                                                qdesigner_internal::PromotionTaskMenu::SuppressGlobalEdit,
                                                 pageMenu);
         }
     }
@@ -351,6 +359,137 @@ QMenu *QDesignerTabWidget::addContextMenuActions(QMenu *popup)
     insertPageMenu->addAction(m_actionInsertPage);
     popup->addSeparator();
     return pageMenu;
+}
+
+// ----------- QTabWidgetPropertySheet
+
+static const char *currentTabTextKey = "currentTabText";
+static const char *currentTabNameKey = "currentTabName";
+static const char *currentTabIconKey = "currentTabIcon";
+static const char *currentTabToolTipKey = "currentTabToolTip";
+
+QTabWidgetPropertySheet::QTabWidgetPropertySheet(QTabWidget *object, QObject *parent) :
+    QDesignerPropertySheet(object, parent),
+    m_tabWidget(object)
+{
+    createFakeProperty(QLatin1String(currentTabTextKey), QString());
+    createFakeProperty(QLatin1String(currentTabNameKey), QString());
+    createFakeProperty(QLatin1String(currentTabIconKey), QIcon());
+    createFakeProperty(QLatin1String(currentTabToolTipKey), QString());
+}
+
+QTabWidgetPropertySheet::TabWidgetProperty QTabWidgetPropertySheet::tabWidgetPropertyFromName(const QString &name)
+{
+    typedef QHash<QString, TabWidgetProperty> TabWidgetPropertyHash;
+    static TabWidgetPropertyHash tabWidgetPropertyHash;
+    if (tabWidgetPropertyHash.empty()) {
+        tabWidgetPropertyHash.insert(QLatin1String(currentTabTextKey),    PropertyCurrentTabText);
+        tabWidgetPropertyHash.insert(QLatin1String(currentTabNameKey),    PropertyCurrentTabName);
+        tabWidgetPropertyHash.insert(QLatin1String(currentTabIconKey),    PropertyCurrentTabIcon);
+        tabWidgetPropertyHash.insert(QLatin1String(currentTabToolTipKey), PropertyCurrentTabToolTip);
+    }
+    return tabWidgetPropertyHash.value(name, PropertyTabWidgetNone);
+}
+
+void QTabWidgetPropertySheet::setProperty(int index, const QVariant &value)
+{
+    const TabWidgetProperty tabWidgetProperty = tabWidgetPropertyFromName(propertyName(index));
+    if (tabWidgetProperty == PropertyTabWidgetNone) {
+        QDesignerPropertySheet::setProperty(index, value);
+        return;
+    }
+
+    // index-dependent
+    const int currentIndex = m_tabWidget->currentIndex();
+    if (currentIndex == -1)
+        return;
+
+    switch (tabWidgetProperty) {
+    case PropertyCurrentTabText:
+        m_tabWidget->setTabText(currentIndex, value.toString());
+        break;
+    case PropertyCurrentTabName:
+        m_tabWidget->widget(currentIndex)->setObjectName(value.toString());
+        break;
+    case PropertyCurrentTabIcon:
+        m_tabWidget->setTabIcon(currentIndex, qvariant_cast<QIcon>(value));
+        break;
+    case PropertyCurrentTabToolTip:
+        m_tabWidget->setTabToolTip(currentIndex, value.toString());
+        break;
+    case PropertyTabWidgetNone:
+        break;
+    }
+}
+
+QVariant QTabWidgetPropertySheet::property(int index) const
+{
+    const TabWidgetProperty tabWidgetProperty = tabWidgetPropertyFromName(propertyName(index));
+    if (tabWidgetProperty == PropertyTabWidgetNone)
+        return  QDesignerPropertySheet::property(index);
+
+    // index-dependent
+    const int currentIndex = m_tabWidget->currentIndex();
+    if (currentIndex == -1)
+        return QVariant();
+
+    // index-dependent
+    switch (tabWidgetProperty) {
+    case PropertyCurrentTabText:
+        return m_tabWidget->tabText(currentIndex);
+    case PropertyCurrentTabName:
+        return m_tabWidget->widget(currentIndex)->objectName();
+    case PropertyCurrentTabIcon:
+        return m_tabWidget->tabIcon(currentIndex);
+        break;
+    case PropertyCurrentTabToolTip:
+        return m_tabWidget->tabToolTip(currentIndex);
+        break;
+    case PropertyTabWidgetNone:
+        break;
+    }
+    return QVariant();
+}
+
+bool QTabWidgetPropertySheet::reset(int index)
+{
+    const TabWidgetProperty tabWidgetProperty = tabWidgetPropertyFromName(propertyName(index));
+    if (tabWidgetProperty == PropertyTabWidgetNone)
+        return QDesignerPropertySheet::reset(index);
+
+    // index-dependent
+    const int currentIndex = m_tabWidget->currentIndex();
+    if (currentIndex == -1)
+        return false;
+
+    // index-dependent
+    switch (tabWidgetProperty) {
+    case PropertyCurrentTabText:
+    case PropertyCurrentTabName:
+    case PropertyCurrentTabToolTip:
+        setProperty(index, QString());
+        break;
+    case PropertyCurrentTabIcon:
+        setProperty(index, QIcon());
+        break;
+    case PropertyTabWidgetNone:
+        break;
+    }
+    return true;
+}
+
+bool QTabWidgetPropertySheet::checkProperty(const QString &propertyName)
+{
+    switch (tabWidgetPropertyFromName(propertyName)) {
+    case PropertyCurrentTabText:
+    case PropertyCurrentTabName:
+    case PropertyCurrentTabToolTip:
+    case PropertyCurrentTabIcon:
+        return false;
+    default:
+        break;
+    }
+    return true;
 }
 
 #include "qdesigner_tabwidget.moc" // required for MyMimeData

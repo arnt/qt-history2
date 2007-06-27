@@ -26,45 +26,38 @@
 #define QDESIGNER_TABWIDGET_H
 
 #include "shared_global_p.h"
+#include "qdesigner_propertysheet_p.h"
 
-#include <QtGui/QTabWidget>
+#include <QtCore/QPointer>
+#include <QtGui/QIcon>
 
 class QDesignerFormWindowInterface;
+class QTabWidget;
+class QTabBar;
+class QMenu;
+class QAction;
 
 namespace qdesigner_internal {
     class PromotionTaskMenu;
 }
 
-class QMenu;
-
-class QDESIGNER_SHARED_EXPORT QDesignerTabWidget : public QTabWidget
+class QDESIGNER_SHARED_EXPORT QTabWidgetEventFilter : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString currentTabName READ currentTabName WRITE setCurrentTabName STORED false DESIGNABLE true)
-    Q_PROPERTY(QString currentTabText READ currentTabText WRITE setCurrentTabText STORED false DESIGNABLE true)
-    Q_PROPERTY(QString currentTabToolTip READ currentTabToolTip WRITE setCurrentTabToolTip STORED false DESIGNABLE true)
-    Q_PROPERTY(QIcon currentTabIcon READ currentTabIcon WRITE setCurrentTabIcon STORED false DESIGNABLE true)
-
 public:
-    QDesignerTabWidget(QWidget *parent = 0);
-    ~QDesignerTabWidget();
+    QTabWidgetEventFilter(QTabWidget *parent);
+    ~QTabWidgetEventFilter();
 
-    QString currentTabName() const;
-    void setCurrentTabName(const QString &tabName);
-
-    QString currentTabText() const;
-    void setCurrentTabText(const QString &tabText);
-
-    QString currentTabToolTip() const;
-    void setCurrentTabToolTip(const QString &tabToolTip);
-
-    QIcon currentTabIcon() const;
-    void setCurrentTabIcon(const QIcon &tabIcon);
+    // Install helper on QTabWidget
+    static void install(QTabWidget *tabWidget);
+    static QTabWidgetEventFilter *eventFilterOf(const QTabWidget *tabWidget);
+    // Convenience to add a menu on a tackedWidget
+    static QMenu *addTabWidgetContextMenuActions(const QTabWidget *tabWidget, QMenu *popup);
 
     // Add context menu and return page submenu or 0.
     QMenu *addContextMenuActions(QMenu *popup);
 
-    bool eventFilter(QObject *o, QEvent *e);
+    virtual bool eventFilter(QObject *o, QEvent *e);
 
     QDesignerFormWindowInterface *formWindow() const;
 
@@ -74,16 +67,12 @@ private slots:
     void addPageAfter();
     void slotCurrentChanged(int index);
 
-protected:
-    bool canMove(QMouseEvent *e) const;
-    virtual void tabInserted(int index);
-    virtual void tabRemoved(int index);
-
-private:
-
 private:
     int pageFromPosition(const QPoint &pos, QRect &rect) const;
+    QTabBar *tabBar() const;
 
+    QTabWidget *m_tabWidget;
+    mutable QPointer<QTabBar> m_cachedTabBar;
     QPoint m_pressPoint;
     QWidget *m_dropIndicator;
     int m_dragIndex;
@@ -96,5 +85,28 @@ private:
     QAction *m_actionInsertPageAfter;
     qdesigner_internal::PromotionTaskMenu* m_pagePromotionTaskMenu;
 };
+
+// PropertySheet to handle the page properties
+class QDESIGNER_SHARED_EXPORT QTabWidgetPropertySheet : public QDesignerPropertySheet {
+public:
+    explicit QTabWidgetPropertySheet(QTabWidget *object, QObject *parent = 0);
+
+    virtual void setProperty(int index, const QVariant &value);
+    virtual QVariant property(int index) const;
+    virtual bool reset(int index);
+
+    // Check whether the property is to be saved. Returns false for the page
+    // properties (as the property sheet has no concept of 'stored')
+    static bool checkProperty(const QString &propertyName);
+
+private:
+    enum TabWidgetProperty { PropertyCurrentTabText, PropertyCurrentTabName, PropertyCurrentTabIcon,
+                             PropertyCurrentTabToolTip, PropertyTabWidgetNone };
+
+    static TabWidgetProperty tabWidgetPropertyFromName(const QString &name);
+    QTabWidget *m_tabWidget;
+};
+
+typedef QDesignerPropertySheetFactory<QTabWidget, QTabWidgetPropertySheet> QTabWidgetPropertySheetFactory;
 
 #endif // QDESIGNER_TABWIDGET_H
