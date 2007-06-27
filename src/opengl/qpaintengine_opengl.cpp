@@ -1271,8 +1271,10 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
         if (has_frag_program) {
             d->use_fragment_programs = d->createFragmentPrograms();
 
-            if (!d->use_fragment_programs)
+            if (!d->use_fragment_programs) {
+                d->deleteFragmentPrograms();
                 qWarning() << "QOpenGLPaintEngine: Failed to create fragment programs.";
+            }
         }
 
         gccaps &= ~(RadialGradientFill | ConicalGradientFill | LinearGradientFill | PatternBrush | BlendModes);
