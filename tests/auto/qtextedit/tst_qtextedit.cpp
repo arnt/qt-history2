@@ -117,6 +117,7 @@ private slots:
     void setTextPreservesUndoRedoEnabled();
     void wordWrapProperty();
     void lineWrapProperty();
+    void selectionChanged();
 
 private:
     void createSelection();
@@ -1635,6 +1636,39 @@ void tst_QTextEdit::lineWrapProperty()
     QVERIFY(ed->lineWrapMode() == QTextEdit::NoWrap);
     QVERIFY(ed->wordWrapMode() == QTextOption::WrapAtWordBoundaryOrAnywhere);
     QVERIFY(ed->document()->defaultTextOption().wrapMode() == QTextOption::NoWrap);
+}
+
+void tst_QTextEdit::selectionChanged()
+{
+    ed->setPlainText("Hello World");
+
+    ed->moveCursor(QTextCursor::Start);
+
+    QSignalSpy selectionChangedSpy(ed, SIGNAL(selectionChanged()));
+
+    QTest::keyClick(ed, Qt::Key_Right);
+    QCOMPARE(ed->textCursor().position(), 1);
+    QCOMPARE(selectionChangedSpy.count(), 0);
+
+    QTest::keyClick(ed, Qt::Key_Right, Qt::ShiftModifier);
+    QCOMPARE(ed->textCursor().position(), 2);
+    QCOMPARE(selectionChangedSpy.count(), 1);
+
+    QTest::keyClick(ed, Qt::Key_Right, Qt::ShiftModifier);
+    QCOMPARE(ed->textCursor().position(), 3);
+    QCOMPARE(selectionChangedSpy.count(), 2);
+
+    QTest::keyClick(ed, Qt::Key_Right, Qt::ShiftModifier);
+    QCOMPARE(ed->textCursor().position(), 4);
+    QCOMPARE(selectionChangedSpy.count(), 3);
+
+    QTest::keyClick(ed, Qt::Key_Right);
+    QCOMPARE(ed->textCursor().position(), 5);
+    QCOMPARE(selectionChangedSpy.count(), 4);
+
+    QTest::keyClick(ed, Qt::Key_Right);
+    QCOMPARE(ed->textCursor().position(), 6);
+    QCOMPARE(selectionChangedSpy.count(), 4);
 }
 
 QTEST_MAIN(tst_QTextEdit)

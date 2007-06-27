@@ -246,7 +246,7 @@ bool QTextControlPrivate::cursorMoveKeyEvent(QKeyEvent *e)
     }
 #endif
 
-    selectionChanged(true);
+    selectionChanged(/*forceEmitSelectionChanged =*/(mode == QTextCursor::KeepAnchor));
 
     repaintOldAndNewSelection(oldSelection);
 
