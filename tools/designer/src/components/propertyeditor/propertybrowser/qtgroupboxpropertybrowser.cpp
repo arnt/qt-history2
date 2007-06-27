@@ -1,13 +1,13 @@
 /****************************************************************************
 **
-** copyright (c) 1992-$thisyear$ $trolltech$. all rights reserved.
+** Copyright (C) 1992-$THISYEAR$ $TROLLTECH$. All rights reserved.
 **
-** this file is part of the $module$ of the qt toolkit.
+** This file is part of the $MODULE$ of the Qt Toolkit.
 **
-** $trolltech_dual_license$
+** $TROLLTECH_DUAL_LICENSE$
 **
-** this file is provided as is with no warranty of any kind, including the
-** warranty of design, merchantability and fitness for a particular purpose.
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
 
