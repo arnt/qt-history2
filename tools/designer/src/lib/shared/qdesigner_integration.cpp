@@ -285,13 +285,17 @@ QObject *QDesignerIntegration::propertyEditorObject()
 void QDesignerIntegration::initializePlugins(QDesignerFormEditorInterface *formEditor)
 {
     // load the plugins
-    if (WidgetDataBase *widgetDatabase = qobject_cast<WidgetDataBase*>(formEditor->widgetDataBase())) {
-        widgetDatabase->loadPlugins();
-        widgetDatabase->grabDefaultPropertyValues();
+    WidgetDataBase *widgetDataBase = qobject_cast<WidgetDataBase*>(formEditor->widgetDataBase());
+    if (widgetDataBase) {
+        widgetDataBase->loadPlugins();
     }
 
     if (WidgetFactory *widgetFactory = qobject_cast<WidgetFactory*>(formEditor->widgetFactory())) {
         widgetFactory->loadPlugins();
+    }
+
+    if (widgetDataBase) {
+        widgetDataBase->grabDefaultPropertyValues();
     }
 }
 

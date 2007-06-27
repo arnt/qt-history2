@@ -396,11 +396,12 @@ void WidgetDataBase::remove(int index)
 
 QList<QVariant> WidgetDataBase::defaultPropertyValues(const QString &name)
 {
-    const WidgetFactory factory(m_core);
+    WidgetFactory *factory = qobject_cast<WidgetFactory *>(m_core->widgetFactory());
+    Q_ASSERT(factory);
     // Create non-widgets, widgets in order
-    QObject* object = factory.createObject(name, 0);
+    QObject* object = factory->createObject(name, 0);
     if (!object)
-        object = factory.createWidget(name, 0);
+        object = factory->createWidget(name, 0);
     if (!object) {
         qDebug() << "** WARNING Factory failed to create " << name;
         return QList<QVariant>();
