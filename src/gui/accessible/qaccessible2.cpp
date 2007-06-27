@@ -85,10 +85,12 @@ QAccessibleSimpleEditableTextInterface::QAccessibleSimpleEditableTextInterface(
     Q_ASSERT(iface);
 }
 
+#ifndef QT_NO_CLIPBOARD
 static QString textForRange(QAccessibleInterface *iface, int startOffset, int endOffset)
 {
     return iface->text(QAccessible::Value, 0).mid(startOffset, endOffset - startOffset);
 }
+#endif
 
 void QAccessibleSimpleEditableTextInterface::copyText(int startOffset, int endOffset)
 {

@@ -1463,6 +1463,7 @@ void QXmlInputSource::fetchData()
     }
 }
 
+#ifndef QT_NO_TEXTCODEC
 static QString extractEncodingDecl(const QString &text, bool *needMoreText)
 {
     *needMoreText = false;
@@ -1504,6 +1505,7 @@ static QString extractEncodingDecl(const QString &text, bool *needMoreText)
 
     return encoding;
 }
+#endif // QT_NO_TEXTCODEC
 
 /*!
     This function reads the XML file from \a data and tries to
@@ -1520,7 +1522,7 @@ QString QXmlInputSource::fromRawData(const QByteArray &data, bool beginning)
 {
 #ifdef QT_NO_TEXTCODEC
     Q_UNUSED(beginning);
-    return QString(data);
+    return QString::fromAscii(data.constData(), data.size());
 #else
     if (data.size() == 0)
         return QString();
