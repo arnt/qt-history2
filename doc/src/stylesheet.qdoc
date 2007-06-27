@@ -1819,13 +1819,15 @@
     \row
         \o \bold{\c height} \target height-prop
         \o \l{#Length}{Length}
-        \o The height of a \l{subcontrol}.
+        \o The height of a \l{subcontrol} (or in some case, a widget).
 
            If this property is not specified, it defaults to a value
            that depends on the subcontrol/widget and on the current style.
 
-           Specifying this property for a widget, makes the widget have
-           a fixed height.
+           \warning Unless otherwise specified, this property has no effect 
+           when set on widgets. If you want a widget with a fixed height, set
+           the \l{#min-width}{min-height} and \l{#max-width}{max-height} to
+           the same value.
 
            Example:
 
@@ -2320,13 +2322,15 @@
     \row
         \o \bold{\c width} \target width-prop
         \o \l{#Length}{Length}
-        \o The width of a widget or a \l{subcontrol}.
+        \o The width of a \l{subcontrol} (or a widget in some cases).
 
            If this property is not specified, it defaults to a value
            that depends on the subcontrol/widget and on the current style.
-
-           Specifying this property for a widget, makes the widget have
-           a fixed width.
+            
+           \warning Unless otherwise specified, this property has no effect 
+           when set on widgets. If you want a widget with a fixed width, set
+           the \l{#min-width}{min-width} and \l{#max-width}{max-width} to
+           the same value.
 
            Example:
 
