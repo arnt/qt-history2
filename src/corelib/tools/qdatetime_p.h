@@ -199,11 +199,9 @@ public:
 
     FieldInfo fieldInfo(int index) const;
 
-#ifndef QT_NO_DATESTRING
     virtual QVariant getMinimum() const;
     virtual QVariant getMaximum() const;
     virtual int cursorPosition() const { return -1; }
-#endif
     virtual QString displayText() const { return text; }
     virtual QString getAmPmText(AmPm ap, Case cs) const;
 

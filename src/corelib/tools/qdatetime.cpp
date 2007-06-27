@@ -4787,6 +4787,7 @@ bool QDateTimeParser::fromString(const QString &text, QDate *date, QTime *time) 
     }
     return true;
 }
+#endif // QT_NO_DATESTRING
 
 QVariant QDateTimeParser::getMinimum() const
 {
@@ -4808,7 +4809,6 @@ QVariant QDateTimeParser::getMaximum() const
     }
     return QVariant();
 }
-#endif // QT_NO_DATESTRING
 
 QString QDateTimeParser::getAmPmText(AmPm ap, Case cs) const
 {
