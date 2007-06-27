@@ -170,7 +170,7 @@ static bool haveCaret = false;
 static DWORD WM_MSIME_MOUSE = 0;
 
 QWinInputContext::QWinInputContext(QObject *parent)
-    : QInputContext(parent)
+    : QInputContext(parent), recursionGuard(false)
 {
     if (QSysInfo::WindowsVersion < QSysInfo::WV_2000) {
         // try to get the Active IMM COM object on Win95/98/NT, where english versions don't
@@ -445,8 +445,13 @@ bool QWinInputContext::endComposition()
     qDebug("endComposition! fw = %s", fw ? fw->className() : "(null)");
 #endif
     bool result = true;
-    if(imePosition == -1)
+    if(imePosition == -1 || recursionGuard)
         return result;
+
+    // Googles Pinyin Input Method likes to call endComposition again
+    // when we call notifyIME with CPS_CANCEL, so protect ourselves
+    // against that.
+    recursionGuard = true;
 
     if (fw) {
         Q_ASSERT(fw->testAttribute(Qt::WA_WState_Created));
@@ -470,6 +475,8 @@ bool QWinInputContext::endComposition()
     if (imeComposition)
         imeComposition->clear();
     imePosition = -1;
+
+    recursionGuard = false;
 
     return result;
 }

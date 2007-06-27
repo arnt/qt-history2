@@ -55,6 +55,7 @@ public:
     static LRESULT DefWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 private:
     void init();
+    bool recursionGuard;
 };
 
 #endif // QWININPUTCONTEXT_P_H
