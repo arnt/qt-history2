@@ -320,12 +320,16 @@ void QPainterPrivate::updateMatrix()
         state->txop |= QTransform::TxTranslate;
         // We want to translate in dev space so we do the adding of the redirection
         // offset manually.
-        const QTransform &m = state->matrix;
-        state->matrix.setMatrix(m.m11(), m.m12(), m.m13(),
-                                m.m21(), m.m22(), m.m23(),
-                                m.m31() - redirection_offset.x(),
-                                m.m32() - redirection_offset.y(),
-                                m.m33());
+        if (state->matrix.isAffine()) {
+            state->matrix = QTransform(state->matrix.m11(), state->matrix.m12(),
+                                       state->matrix.m21(), state->matrix.m22(),
+                                       state->matrix.dx()-redirection_offset.x(),
+                                       state->matrix.dy()-redirection_offset.y());
+        } else {
+            QTransform temp;
+            temp.translate(-redirection_offset.x(), -redirection_offset.y());
+            state->matrix *= temp;
+        }
     }
     state->dirtyFlags |= QPaintEngine::DirtyTransform;
 
