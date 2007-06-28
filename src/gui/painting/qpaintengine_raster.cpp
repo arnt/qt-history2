@@ -2973,7 +2973,11 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
 
         QFontEngineFT::QGlyphSet *gset = fe->defaultGlyphs();
         if (d->txop >= QTransform::TxScale) {
-            gset = fe->loadTransformedGlyphSet(glyphs.data(), glyphs.size(), d->matrix, neededFormat);
+            if (d->matrix.isAffine())
+                gset = fe->loadTransformedGlyphSet(glyphs.data(), glyphs.size(), d->matrix, neededFormat);
+            else
+                gset = 0;
+
             if (!gset) {
                 QPaintEngine::drawTextItem(p, ti);
                 return;

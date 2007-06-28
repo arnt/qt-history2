@@ -2030,8 +2030,12 @@ void QX11PaintEngine::drawFreetype(const QPointF &p, const QTextItemInt &ti)
     GlyphSet glyphSet = ft->defaultGlyphs()->id;
     if (d->txop >= QTransform::TxScale
         && xrenderPath) {
-        QFontEngineFT::QGlyphSet *set = ft->loadTransformedGlyphSet(glyphs.data(), glyphs.size(), d->matrix,
-                                                                    QFontEngineFT::Format_Render);
+
+        QFontEngineFT::QGlyphSet *set = 0;
+        if (d->matrix.isAffine())
+            set = ft->loadTransformedGlyphSet(glyphs.data(), glyphs.size(), d->matrix,
+                                              QFontEngineFT::Format_Render);
+
         if (set) {
             glyphSet = set->id;
         } else {
