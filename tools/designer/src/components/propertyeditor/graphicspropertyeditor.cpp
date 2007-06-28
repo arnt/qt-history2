@@ -42,7 +42,7 @@ void GraphicsPropertyEditor::init()
 
     m_combo = new QComboBox(this);
     m_combo->setFrame(0);
-    m_combo->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
+    m_combo->setSizePolicy(QSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed));
     m_combo->setEditable(false);
     m_layout->addWidget(m_combo);
     m_button = new QToolButton(this);

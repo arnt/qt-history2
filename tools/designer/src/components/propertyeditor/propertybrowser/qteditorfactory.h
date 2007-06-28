@@ -16,7 +16,7 @@
 
 #include "qtpropertymanager.h"
 
-class QT_QTPROPERTYBROWSER_EXPORT QtSpinBoxFactory : public QtAbstractEditorFactory<QtIntPropertyManager>
+class QtSpinBoxFactory : public QtAbstractEditorFactory<QtIntPropertyManager>
 {
     Q_OBJECT
 public:
@@ -37,7 +37,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void slotEditorDestroyed(QObject *))
 };
 
-class QT_QTPROPERTYBROWSER_EXPORT QtSliderFactory : public QtAbstractEditorFactory<QtIntPropertyManager>
+class QtSliderFactory : public QtAbstractEditorFactory<QtIntPropertyManager>
 {
     Q_OBJECT
 public:
@@ -58,7 +58,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void slotEditorDestroyed(QObject *))
 };
 
-class QT_QTPROPERTYBROWSER_EXPORT QtScrollBarFactory : public QtAbstractEditorFactory<QtIntPropertyManager>
+class QtScrollBarFactory : public QtAbstractEditorFactory<QtIntPropertyManager>
 {
     Q_OBJECT
 public:
@@ -79,7 +79,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void slotEditorDestroyed(QObject *))
 };
 
-class QT_QTPROPERTYBROWSER_EXPORT QtCheckBoxFactory : public QtAbstractEditorFactory<QtBoolPropertyManager>
+class QtCheckBoxFactory : public QtAbstractEditorFactory<QtBoolPropertyManager>
 {
     Q_OBJECT
 public:
@@ -99,7 +99,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void slotEditorDestroyed(QObject *))
 };
 
-class QT_QTPROPERTYBROWSER_EXPORT QtDoubleSpinBoxFactory : public QtAbstractEditorFactory<QtDoublePropertyManager>
+class QtDoubleSpinBoxFactory : public QtAbstractEditorFactory<QtDoublePropertyManager>
 {
     Q_OBJECT
 public:
@@ -121,7 +121,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void slotEditorDestroyed(QObject *))
 };
 
-class QT_QTPROPERTYBROWSER_EXPORT QtLineEditFactory : public QtAbstractEditorFactory<QtStringPropertyManager>
+class QtLineEditFactory : public QtAbstractEditorFactory<QtStringPropertyManager>
 {
     Q_OBJECT
 public:
@@ -142,7 +142,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void slotEditorDestroyed(QObject *))
 };
 
-class QT_QTPROPERTYBROWSER_EXPORT QtDateEditFactory : public QtAbstractEditorFactory<QtDatePropertyManager>
+class QtDateEditFactory : public QtAbstractEditorFactory<QtDatePropertyManager>
 {
     Q_OBJECT
 public:
@@ -164,7 +164,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void slotEditorDestroyed(QObject *))
 };
 
-class QT_QTPROPERTYBROWSER_EXPORT QtTimeEditFactory : public QtAbstractEditorFactory<QtTimePropertyManager>
+class QtTimeEditFactory : public QtAbstractEditorFactory<QtTimePropertyManager>
 {
     Q_OBJECT
 public:
@@ -184,7 +184,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void slotEditorDestroyed(QObject *))
 };
 
-class QT_QTPROPERTYBROWSER_EXPORT QtDateTimeEditFactory : public QtAbstractEditorFactory<QtDateTimePropertyManager>
+class QtDateTimeEditFactory : public QtAbstractEditorFactory<QtDateTimePropertyManager>
 {
     Q_OBJECT
 public:
@@ -204,7 +204,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void slotEditorDestroyed(QObject *))
 };
 
-class QT_QTPROPERTYBROWSER_EXPORT QtKeySequenceEditorFactory : public QtAbstractEditorFactory<QtKeySequencePropertyManager>
+class QtKeySequenceEditorFactory : public QtAbstractEditorFactory<QtKeySequencePropertyManager>
 {
     Q_OBJECT
 public:
@@ -224,7 +224,27 @@ private:
     Q_PRIVATE_SLOT(d_func(), void slotEditorDestroyed(QObject *))
 };
 
-class QT_QTPROPERTYBROWSER_EXPORT QtEnumEditorFactory : public QtAbstractEditorFactory<QtEnumPropertyManager>
+class QtCharEditorFactory : public QtAbstractEditorFactory<QtCharPropertyManager>
+{
+    Q_OBJECT
+public:
+    QtCharEditorFactory(QObject *parent = 0);
+    ~QtCharEditorFactory();
+protected:
+    void connectPropertyManager(QtCharPropertyManager *manager);
+    QWidget *createEditor(QtCharPropertyManager *manager, QtProperty *property,
+                QWidget *parent);
+    void disconnectPropertyManager(QtCharPropertyManager *manager);
+private:
+    class QtCharEditorFactoryPrivate *d_ptr;
+    Q_DECLARE_PRIVATE(QtCharEditorFactory)
+    Q_DISABLE_COPY(QtCharEditorFactory)
+    Q_PRIVATE_SLOT(d_func(), void slotPropertyChanged(QtProperty *, const QChar &))
+    Q_PRIVATE_SLOT(d_func(), void slotSetValue(const QChar &))
+    Q_PRIVATE_SLOT(d_func(), void slotEditorDestroyed(QObject *))
+};
+
+class QtEnumEditorFactory : public QtAbstractEditorFactory<QtEnumPropertyManager>
 {
     Q_OBJECT
 public:
@@ -248,7 +268,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void slotEditorDestroyed(QObject *))
 };
 
-class QT_QTPROPERTYBROWSER_EXPORT QtCursorEditorFactory : public QtAbstractEditorFactory<QtCursorPropertyManager>
+class QtCursorEditorFactory : public QtAbstractEditorFactory<QtCursorPropertyManager>
 {
     Q_OBJECT
 public:

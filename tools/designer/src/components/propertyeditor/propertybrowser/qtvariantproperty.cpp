@@ -282,6 +282,7 @@ public:
     void slotValueChanged(QtProperty *property, const QTime &val);
     void slotValueChanged(QtProperty *property, const QDateTime &val);
     void slotValueChanged(QtProperty *property, const QKeySequence &val);
+    void slotValueChanged(QtProperty *property, const QChar &val);
     void slotValueChanged(QtProperty *property, const QLocale &val);
     void slotValueChanged(QtProperty *property, const QPoint &val);
     void slotValueChanged(QtProperty *property, const QPointF &val);
@@ -495,6 +496,11 @@ void QtVariantPropertyManagerPrivate::slotValueChanged(QtProperty *property, con
     valueChanged(property, v);
 }
 
+void QtVariantPropertyManagerPrivate::slotValueChanged(QtProperty *property, const QChar &val)
+{
+    valueChanged(property, QVariant(val));
+}
+
 void QtVariantPropertyManagerPrivate::slotValueChanged(QtProperty *property, const QLocale &val)
 {
     valueChanged(property, QVariant(val));
@@ -668,6 +674,9 @@ void QtVariantPropertyManagerPrivate::slotFlagNamesChanged(QtProperty *property,
     \row
         \o QKeySequence
         \o QVariant::KeySequence
+    \row
+        \o QChar
+        \o QVariant::Char
     \row
         \o QLocale
         \o QVariant::Locale
@@ -924,6 +933,12 @@ QtVariantPropertyManager::QtVariantPropertyManager(QObject *parent)
     d_ptr->m_typeToValueType[QVariant::KeySequence] = QVariant::KeySequence;
     connect(keySequencePropertyManager, SIGNAL(valueChanged(QtProperty *, const QKeySequence &)),
                 this, SLOT(slotValueChanged(QtProperty *, const QKeySequence &)));
+    // CharPropertyManager
+    QtCharPropertyManager *charPropertyManager = new QtCharPropertyManager(this);
+    d_ptr->m_typeToPropertyManager[QVariant::Char] = charPropertyManager;
+    d_ptr->m_typeToValueType[QVariant::Char] = QVariant::Char;
+    connect(charPropertyManager, SIGNAL(valueChanged(QtProperty *, const QChar &)),
+                this, SLOT(slotValueChanged(QtProperty *, const QChar &)));
     // LocalePropertyManager
     QtLocalePropertyManager *localePropertyManager = new QtLocalePropertyManager(this);
     d_ptr->m_typeToPropertyManager[QVariant::Locale] = localePropertyManager;
@@ -1254,6 +1269,8 @@ QVariant QtVariantPropertyManager::value(const QtProperty *property) const
                 return dateTimeManager->value(internProp);
             } else if (QtKeySequencePropertyManager *keySequenceManager = qobject_cast<QtKeySequencePropertyManager *>(manager)) {
                 return keySequenceManager->value(internProp);
+            } else if (QtCharPropertyManager *charManager = qobject_cast<QtCharPropertyManager *>(manager)) {
+                return charManager->value(internProp);
             } else if (QtLocalePropertyManager *localeManager = qobject_cast<QtLocalePropertyManager *>(manager)) {
                 return localeManager->value(internProp);
             } else if (QtPointPropertyManager *pointManager = qobject_cast<QtPointPropertyManager *>(manager)) {
@@ -1526,6 +1543,9 @@ void QtVariantPropertyManager::setValue(QtProperty *property, const QVariant &va
             } else if (QtKeySequencePropertyManager *keySequenceManager = qobject_cast<QtKeySequencePropertyManager *>(manager)) {
                 keySequenceManager->setValue(internProp, qVariantValue<QKeySequence>(val));
                 return;
+            } else if (QtCharPropertyManager *charManager = qobject_cast<QtCharPropertyManager *>(manager)) {
+                charManager->setValue(internProp, qVariantValue<QChar>(val));
+                return;
             } else if (QtLocalePropertyManager *localeManager = qobject_cast<QtLocalePropertyManager *>(manager)) {
                 localeManager->setValue(internProp, qVariantValue<QLocale>(val));
                 return;
@@ -1797,16 +1817,17 @@ class QtVariantEditorFactoryPrivate
     Q_DECLARE_PUBLIC(QtVariantEditorFactory)
 public:
 
-    QtSpinBoxFactory        *m_spinBoxFactory;
-    QtDoubleSpinBoxFactory  *m_doubleSpinBoxFactory;
-    QtCheckBoxFactory       *m_checkBoxFactory;
-    QtLineEditFactory       *m_lineEditFactory;
-    QtDateEditFactory       *m_dateEditFactory;
-    QtTimeEditFactory       *m_timeEditFactory;
-    QtDateTimeEditFactory   *m_dateTimeEditFactory;
+    QtSpinBoxFactory           *m_spinBoxFactory;
+    QtDoubleSpinBoxFactory     *m_doubleSpinBoxFactory;
+    QtCheckBoxFactory          *m_checkBoxFactory;
+    QtLineEditFactory          *m_lineEditFactory;
+    QtDateEditFactory          *m_dateEditFactory;
+    QtTimeEditFactory          *m_timeEditFactory;
+    QtDateTimeEditFactory      *m_dateTimeEditFactory;
     QtKeySequenceEditorFactory *m_keySequenceEditorFactory;
-    QtEnumEditorFactory     *m_comboBoxFactory;
-    QtCursorEditorFactory   *m_cursorEditorFactory;
+    QtCharEditorFactory        *m_charEditorFactory;
+    QtEnumEditorFactory        *m_comboBoxFactory;
+    QtCursorEditorFactory      *m_cursorEditorFactory;
 
     QMap<QtAbstractEditorFactoryBase *, int> m_factoryToType;
     QMap<int, QtAbstractEditorFactoryBase *> m_typeToFactory;
@@ -1848,6 +1869,9 @@ public:
         \o QDateTimeEdit
     \row
         \o QKeySequence
+        \o customized editor
+    \row
+        \o QChar
         \o customized editor
     \row
         \o \c enum
@@ -1906,6 +1930,10 @@ QtVariantEditorFactory::QtVariantEditorFactory(QObject *parent)
     d_ptr->m_keySequenceEditorFactory = new QtKeySequenceEditorFactory(this);
     d_ptr->m_factoryToType[d_ptr->m_keySequenceEditorFactory] = QVariant::KeySequence;
     d_ptr->m_typeToFactory[QVariant::KeySequence] = d_ptr->m_keySequenceEditorFactory;
+
+    d_ptr->m_charEditorFactory = new QtCharEditorFactory(this);
+    d_ptr->m_factoryToType[d_ptr->m_charEditorFactory] = QVariant::Char;
+    d_ptr->m_typeToFactory[QVariant::Char] = d_ptr->m_charEditorFactory;
 
     d_ptr->m_cursorEditorFactory = new QtCursorEditorFactory(this);
     d_ptr->m_factoryToType[d_ptr->m_cursorEditorFactory] = QVariant::Cursor;
@@ -1971,6 +1999,11 @@ void QtVariantEditorFactory::connectPropertyManager(QtVariantPropertyManager *ma
     QListIterator<QtKeySequencePropertyManager *> itKeySequence(keySequencePropertyManagers);
     while (itKeySequence.hasNext())
         d_ptr->m_keySequenceEditorFactory->addPropertyManager(itKeySequence.next());
+
+    QList<QtCharPropertyManager *> charPropertyManagers = qFindChildren<QtCharPropertyManager *>(manager);
+    QListIterator<QtCharPropertyManager *> itChar(charPropertyManagers);
+    while (itChar.hasNext())
+        d_ptr->m_charEditorFactory->addPropertyManager(itChar.next());
 
     QList<QtLocalePropertyManager *> localePropertyManagers = qFindChildren<QtLocalePropertyManager *>(manager);
     QListIterator<QtLocalePropertyManager *> itLocale(localePropertyManagers);
@@ -2105,6 +2138,11 @@ void QtVariantEditorFactory::disconnectPropertyManager(QtVariantPropertyManager 
     QListIterator<QtKeySequencePropertyManager *> itKeySequence(keySequencePropertyManagers);
     while (itKeySequence.hasNext())
         d_ptr->m_keySequenceEditorFactory->removePropertyManager(itKeySequence.next());
+
+    QList<QtCharPropertyManager *> charPropertyManagers = qFindChildren<QtCharPropertyManager *>(manager);
+    QListIterator<QtCharPropertyManager *> itChar(charPropertyManagers);
+    while (itChar.hasNext())
+        d_ptr->m_charEditorFactory->removePropertyManager(itChar.next());
 
     QList<QtLocalePropertyManager *> localePropertyManagers = qFindChildren<QtLocalePropertyManager *>(manager);
     QListIterator<QtLocalePropertyManager *> itLocale(localePropertyManagers);

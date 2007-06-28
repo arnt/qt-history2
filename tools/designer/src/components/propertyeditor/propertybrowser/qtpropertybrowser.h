@@ -17,25 +17,9 @@
 #include <QWidget>
 #include <QSet>
 
-#if defined(Q_WS_WIN)
-#  if !defined(QT_QTPROPERTYBROWSER_EXPORT) && !defined(QT_QTPROPERTYBROWSER_IMPORT)
-#    define QT_QTPROPERTYBROWSER_EXPORT
-#  elif defined(QT_QTPROPERTYBROWSER_IMPORT)
-#    if defined(QT_QTPROPERTYBROWSER_EXPORT)
-#      undef QT_QTPROPERTYBROWSER_EXPORT
-#    endif
-#    define QT_QTPROPERTYBROWSER_EXPORT __declspec(dllimport)
-#  elif defined(QT_QTPROPERTYBROWSER_EXPORT)
-#    undef QT_QTPROPERTYBROWSER_EXPORT
-#    define QT_QTPROPERTYBROWSER_EXPORT __declspec(dllexport)
-#  endif
-#else
-#  define QT_QTPROPERTYBROWSER_EXPORT
-#endif
-
 class QtAbstractPropertyManager;
 
-class QT_QTPROPERTYBROWSER_EXPORT QtProperty
+class QtProperty
 {
 public:
     ~QtProperty();
@@ -73,7 +57,7 @@ private:
     class QtPropertyPrivate *d_ptr;
 };
 
-class QT_QTPROPERTYBROWSER_EXPORT QtAbstractPropertyManager : public QObject
+class QtAbstractPropertyManager : public QObject
 {
     Q_OBJECT
 public:
@@ -123,7 +107,7 @@ protected Q_SLOTS:
 };
 
 template <class PropertyManager>
-class QT_QTPROPERTYBROWSER_EXPORT QtAbstractEditorFactory : public QtAbstractEditorFactoryBase
+class QtAbstractEditorFactory : public QtAbstractEditorFactoryBase
 {
 public:
     explicit QtAbstractEditorFactory(QObject *parent) : QtAbstractEditorFactoryBase(parent) {}
@@ -207,7 +191,7 @@ private:
 
 class QtAbstractPropertyBrowser;
 
-class QT_QTPROPERTYBROWSER_EXPORT QtBrowserItem
+class QtBrowserItem
 {
 public:
     QtProperty *property() const;

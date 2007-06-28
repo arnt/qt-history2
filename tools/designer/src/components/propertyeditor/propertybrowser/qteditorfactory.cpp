@@ -1577,7 +1577,10 @@ bool QtKeySequenceEdit::eventFilter(QObject *o, QEvent *e)
 
 void QtKeySequenceEdit::slotClearShortcut()
 {
+    if (m_keySequence.isEmpty())
+        return;
     setKeySequence(QKeySequence());
+    emit keySequenceChanged(m_keySequence);
 }
 
 void QtKeySequenceEdit::handleKeyEvent(QKeyEvent *e)
@@ -1812,6 +1815,308 @@ void QtKeySequenceEditorFactory::disconnectPropertyManager(QtKeySequenceProperty
 {
     disconnect(manager, SIGNAL(valueChanged(QtProperty *, const QKeySequence &)),
                 this, SLOT(slotPropertyChanged(QtProperty *, const QKeySequence &)));
+}
+
+// QtCharEdit
+
+class QtCharEdit : public QWidget
+{
+    Q_OBJECT
+public:
+    QtCharEdit(QWidget *parent = 0);
+
+    QChar value() const;
+    bool eventFilter(QObject *o, QEvent *e);
+public Q_SLOTS:
+    void setValue(const QChar &value);
+Q_SIGNALS:
+    void valueChanged(const QChar &value);
+protected:
+    void focusInEvent(QFocusEvent *e);
+    void focusOutEvent(QFocusEvent *e);
+    void keyPressEvent(QKeyEvent *e);
+    void keyReleaseEvent(QKeyEvent *e);
+    bool event(QEvent *e);
+private slots:
+    void slotClearChar();
+private:
+    void handleKeyEvent(QKeyEvent *e);
+
+    QChar m_value;
+    QLineEdit *m_lineEdit;
+};
+
+QtCharEdit::QtCharEdit(QWidget *parent)
+    : QWidget(parent)
+{
+    m_lineEdit = new QLineEdit(this);
+    QHBoxLayout *layout = new QHBoxLayout(this);
+    layout->addWidget(m_lineEdit);
+    layout->setMargin(0);
+    m_lineEdit->installEventFilter(this);
+    m_lineEdit->setReadOnly(true);
+    m_lineEdit->setFocusProxy(this);
+    setFocusPolicy(m_lineEdit->focusPolicy());
+    setAttribute(Qt::WA_InputMethodEnabled);
+}
+
+bool QtCharEdit::eventFilter(QObject *o, QEvent *e)
+{
+    if (o == m_lineEdit && e->type() == QEvent::ContextMenu) {
+        QContextMenuEvent *c = static_cast<QContextMenuEvent *>(e);
+        QMenu *menu = m_lineEdit->createStandardContextMenu();
+        QList<QAction *> actions = menu->actions();
+        QListIterator<QAction *> itAction(actions);
+        while (itAction.hasNext()) {
+            QAction *action = itAction.next();
+            action->setShortcut(QKeySequence());
+            QString actionString = action->text();
+            int pos = actionString.lastIndexOf("\t");
+            if (pos > 0) {
+                actionString = actionString.mid(0, pos);
+            }
+            action->setText(actionString);
+        }
+        QAction *actionBefore = 0;
+        if (actions.count() > 0)
+            actionBefore = actions[0];
+        QAction *clearAction = new QAction(tr("Clear Char"), menu);
+        menu->insertAction(actionBefore, clearAction);
+        menu->insertSeparator(actionBefore);
+        clearAction->setEnabled(!m_value.isNull());
+        connect(clearAction, SIGNAL(triggered()), this, SLOT(slotClearChar()));
+        menu->exec(c->globalPos());
+        delete menu;
+        e->accept();
+        return true;
+    }
+
+    return QWidget::eventFilter(o, e);
+}
+
+void QtCharEdit::slotClearChar()
+{
+    if (m_value.isNull())
+        return;
+    setValue(QChar());
+    emit valueChanged(m_value);
+}
+
+void QtCharEdit::handleKeyEvent(QKeyEvent *e)
+{
+    int key = e->key();
+    if (key == Qt::Key_Control || key == Qt::Key_Shift ||
+            key == Qt::Key_Meta || key == Qt::Key_Alt || key == Qt::Key_Super_L || key == Qt::Key_Return)
+        return;
+
+    QString text = e->text();
+    if (text.count() != 1)
+        return;
+
+    QChar c = text.at(0);
+    if (!c.isPrint())
+        return;
+
+    if (m_value == c)
+        return;
+
+    m_value = c;
+    QString str = m_value.isNull() ? QString() : QString(m_value);
+    m_lineEdit->setText(str);
+    e->accept();
+    emit valueChanged(m_value);
+}
+
+void QtCharEdit::setValue(const QChar &value)
+{
+    if (value == m_value)
+        return;
+
+    m_value = value;
+    QString str = value.isNull() ? QString() : QString(value);
+    m_lineEdit->setText(str);
+}
+
+QChar QtCharEdit::value() const
+{
+    return m_value;
+}
+
+void QtCharEdit::focusInEvent(QFocusEvent *e)
+{
+    m_lineEdit->event(e);
+    m_lineEdit->selectAll();
+    QWidget::focusInEvent(e);
+}
+
+void QtCharEdit::focusOutEvent(QFocusEvent *e)
+{
+    m_lineEdit->event(e);
+    QWidget::focusOutEvent(e);
+}
+
+void QtCharEdit::keyPressEvent(QKeyEvent *e)
+{
+    handleKeyEvent(e);
+    e->accept();
+}
+
+void QtCharEdit::keyReleaseEvent(QKeyEvent *e)
+{
+    m_lineEdit->event(e);
+}
+
+bool QtCharEdit::event(QEvent *e)
+{
+    if (e->type() == QEvent::Shortcut ||
+            e->type() == QEvent::ShortcutOverride  ||
+            e->type() == QEvent::KeyRelease) {
+        e->accept();
+        return true;
+    }
+    return QWidget::event(e);
+}
+
+// QtCharEditorFactory
+
+class QtCharEditorFactoryPrivate
+{
+    QtCharEditorFactory *q_ptr;
+    Q_DECLARE_PUBLIC(QtCharEditorFactory)
+public:
+    QMap<QtProperty *, QList<QtCharEdit *> > m_createdEditors;
+    QMap<QtCharEdit *, QtProperty *> m_editorToProperty;
+
+    void slotPropertyChanged(QtProperty *property, const QChar &value);
+    void slotSetValue(const QChar &value);
+    void slotEditorDestroyed(QObject *object);
+};
+
+void QtCharEditorFactoryPrivate::slotPropertyChanged(QtProperty *property,
+            const QChar &value)
+{
+    if (!m_createdEditors.contains(property))
+        return;
+    QList<QtCharEdit *> editors = m_createdEditors[property];
+    QListIterator<QtCharEdit *> itEditor(editors);
+    while (itEditor.hasNext()) {
+        QtCharEdit *editor = itEditor.next();
+        editor->blockSignals(true);
+        editor->setValue(value);
+        editor->blockSignals(false);
+    }
+}
+
+void QtCharEditorFactoryPrivate::slotSetValue(const QChar &value)
+{
+    QObject *object = q_ptr->sender();
+    QMap<QtCharEdit *, QtProperty *>::ConstIterator itEditor =
+                m_editorToProperty.constBegin();
+    while (itEditor != m_editorToProperty.constEnd()) {
+        if (itEditor.key() == object) {
+            QtProperty *property = itEditor.value();
+            QtCharPropertyManager *manager = q_ptr->propertyManager(property);
+            if (!manager)
+                return;
+            manager->setValue(property, value);
+            return;
+        }
+        itEditor++;
+    }
+}
+
+void QtCharEditorFactoryPrivate::slotEditorDestroyed(QObject *object)
+{
+    QMap<QtCharEdit *, QtProperty *>::ConstIterator itEditor =
+                m_editorToProperty.constBegin();
+    while (itEditor != m_editorToProperty.constEnd()) {
+        if (itEditor.key() == object) {
+            QtCharEdit *editor = itEditor.key();
+            QtProperty *property = itEditor.value();
+            m_editorToProperty.remove(editor);
+            m_createdEditors[property].removeAll(editor);
+            if (m_createdEditors[property].isEmpty())
+                m_createdEditors.remove(property);
+            return;
+        }
+        itEditor++;
+    }
+}
+
+/*!
+    \class QtCharEditorFactory
+
+    \brief The QtCharEditorFactory class provides editor
+    widgets for properties created by QtCharPropertyManager objects.
+
+    \sa QtAbstractEditorFactory
+*/
+
+/*!
+    Creates a factory with the given \a parent.
+*/
+QtCharEditorFactory::QtCharEditorFactory(QObject *parent)
+    : QtAbstractEditorFactory<QtCharPropertyManager>(parent)
+{
+    d_ptr = new QtCharEditorFactoryPrivate();
+    d_ptr->q_ptr = this;
+
+}
+
+/*!
+    Destroys this factory, and all the widgets it has created.
+*/
+QtCharEditorFactory::~QtCharEditorFactory()
+{
+    QMap<QtCharEdit *, QtProperty *> editorToProperty = d_ptr->m_editorToProperty;
+    QMap<QtCharEdit *, QtProperty *>::ConstIterator it = editorToProperty.constBegin();
+    while (it != editorToProperty.constEnd()) {
+        delete it.key();
+        it++;
+    }
+    delete d_ptr;
+}
+
+/*!
+    \internal
+
+    Reimplemented from the QtAbstractEditorFactory class.
+*/
+void QtCharEditorFactory::connectPropertyManager(QtCharPropertyManager *manager)
+{
+    connect(manager, SIGNAL(valueChanged(QtProperty *, const QChar &)),
+                this, SLOT(slotPropertyChanged(QtProperty *, const QChar &)));
+}
+
+/*!
+    \internal
+
+    Reimplemented from the QtAbstractEditorFactory class.
+*/
+QWidget *QtCharEditorFactory::createEditor(QtCharPropertyManager *manager,
+        QtProperty *property, QWidget *parent)
+{
+    QtCharEdit *editor = new QtCharEdit(parent);
+    editor->setValue(manager->value(property));
+    d_ptr->m_createdEditors[property].append(editor);
+    d_ptr->m_editorToProperty[editor] = property;
+
+    connect(editor, SIGNAL(valueChanged(const QChar &)),
+                this, SLOT(slotSetValue(const QChar &)));
+    connect(editor, SIGNAL(destroyed(QObject *)),
+                this, SLOT(slotEditorDestroyed(QObject *)));
+    return editor;
+}
+
+/*!
+    \internal
+
+    Reimplemented from the QtAbstractEditorFactory class.
+*/
+void QtCharEditorFactory::disconnectPropertyManager(QtCharPropertyManager *manager)
+{
+    disconnect(manager, SIGNAL(valueChanged(QtProperty *, const QChar &)),
+                this, SLOT(slotPropertyChanged(QtProperty *, const QChar &)));
 }
 
 // QtEnumEditorFactory

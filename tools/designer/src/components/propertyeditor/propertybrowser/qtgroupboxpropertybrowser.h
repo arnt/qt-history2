@@ -16,7 +16,7 @@
 
 #include "qtpropertybrowser.h"
 
-class QT_QTPROPERTYBROWSER_EXPORT QtGroupBoxPropertyBrowser : public QtAbstractPropertyBrowser
+class QtGroupBoxPropertyBrowser : public QtAbstractPropertyBrowser
 {
     Q_OBJECT
 public:

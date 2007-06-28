@@ -21,7 +21,7 @@ class QTime;
 class QDateTime;
 class QLocale;
 
-class QT_QTPROPERTYBROWSER_EXPORT QtGroupPropertyManager : public QtAbstractPropertyManager
+class QtGroupPropertyManager : public QtAbstractPropertyManager
 {
     Q_OBJECT
 public:
@@ -35,7 +35,7 @@ protected:
     virtual void uninitializeProperty(QtProperty *property);
 };
 
-class QT_QTPROPERTYBROWSER_EXPORT QtIntPropertyManager : public QtAbstractPropertyManager
+class QtIntPropertyManager : public QtAbstractPropertyManager
 {
     Q_OBJECT
 public:
@@ -64,7 +64,7 @@ private:
     Q_DISABLE_COPY(QtIntPropertyManager)
 };
 
-class QT_QTPROPERTYBROWSER_EXPORT QtBoolPropertyManager : public QtAbstractPropertyManager
+class QtBoolPropertyManager : public QtAbstractPropertyManager
 {
     Q_OBJECT
 public:
@@ -88,7 +88,7 @@ private:
     Q_DISABLE_COPY(QtBoolPropertyManager)
 };
 
-class QT_QTPROPERTYBROWSER_EXPORT QtDoublePropertyManager : public QtAbstractPropertyManager
+class QtDoublePropertyManager : public QtAbstractPropertyManager
 {
     Q_OBJECT
 public:
@@ -120,7 +120,7 @@ private:
     Q_DISABLE_COPY(QtDoublePropertyManager)
 };
 
-class QT_QTPROPERTYBROWSER_EXPORT QtStringPropertyManager : public QtAbstractPropertyManager
+class QtStringPropertyManager : public QtAbstractPropertyManager
 {
     Q_OBJECT
 public:
@@ -146,7 +146,7 @@ private:
     Q_DISABLE_COPY(QtStringPropertyManager)
 };
 
-class QT_QTPROPERTYBROWSER_EXPORT QtDatePropertyManager : public QtAbstractPropertyManager
+class QtDatePropertyManager : public QtAbstractPropertyManager
 {
     Q_OBJECT
 public:
@@ -175,7 +175,7 @@ private:
     Q_DISABLE_COPY(QtDatePropertyManager)
 };
 
-class QT_QTPROPERTYBROWSER_EXPORT QtTimePropertyManager : public QtAbstractPropertyManager
+class QtTimePropertyManager : public QtAbstractPropertyManager
 {
     Q_OBJECT
 public:
@@ -198,7 +198,7 @@ private:
     Q_DISABLE_COPY(QtTimePropertyManager)
 };
 
-class QT_QTPROPERTYBROWSER_EXPORT QtDateTimePropertyManager : public QtAbstractPropertyManager
+class QtDateTimePropertyManager : public QtAbstractPropertyManager
 {
     Q_OBJECT
 public:
@@ -221,7 +221,7 @@ private:
     Q_DISABLE_COPY(QtDateTimePropertyManager)
 };
 
-class QT_QTPROPERTYBROWSER_EXPORT QtKeySequencePropertyManager : public QtAbstractPropertyManager
+class QtKeySequencePropertyManager : public QtAbstractPropertyManager
 {
     Q_OBJECT
 public:
@@ -244,9 +244,32 @@ private:
     Q_DISABLE_COPY(QtKeySequencePropertyManager)
 };
 
+class QtCharPropertyManager : public QtAbstractPropertyManager
+{
+    Q_OBJECT
+public:
+    QtCharPropertyManager(QObject *parent = 0);
+    ~QtCharPropertyManager();
+
+    QChar value(const QtProperty *property) const;
+
+public Q_SLOTS:
+    void setValue(QtProperty *property, const QChar &val);
+Q_SIGNALS:
+    void valueChanged(QtProperty *property, const QChar &val);
+protected:
+    QString valueText(const QtProperty *property) const;
+    virtual void initializeProperty(QtProperty *property);
+    virtual void uninitializeProperty(QtProperty *property);
+private:
+    class QtCharPropertyManagerPrivate *d_ptr;
+    Q_DECLARE_PRIVATE(QtCharPropertyManager)
+    Q_DISABLE_COPY(QtCharPropertyManager)
+};
+
 class QtEnumPropertyManager;
 
-class QT_QTPROPERTYBROWSER_EXPORT QtLocalePropertyManager : public QtAbstractPropertyManager
+class QtLocalePropertyManager : public QtAbstractPropertyManager
 {
     Q_OBJECT
 public:
@@ -273,7 +296,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void slotPropertyDestroyed(QtProperty *))
 };
 
-class QT_QTPROPERTYBROWSER_EXPORT QtPointPropertyManager : public QtAbstractPropertyManager
+class QtPointPropertyManager : public QtAbstractPropertyManager
 {
     Q_OBJECT
 public:
@@ -300,7 +323,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void slotPropertyDestroyed(QtProperty *))
 };
 
-class QT_QTPROPERTYBROWSER_EXPORT QtPointFPropertyManager : public QtAbstractPropertyManager
+class QtPointFPropertyManager : public QtAbstractPropertyManager
 {
     Q_OBJECT
 public:
@@ -330,7 +353,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void slotPropertyDestroyed(QtProperty *))
 };
 
-class QT_QTPROPERTYBROWSER_EXPORT QtSizePropertyManager : public QtAbstractPropertyManager
+class QtSizePropertyManager : public QtAbstractPropertyManager
 {
     Q_OBJECT
 public:
@@ -363,7 +386,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void slotPropertyDestroyed(QtProperty *))
 };
 
-class QT_QTPROPERTYBROWSER_EXPORT QtSizeFPropertyManager : public QtAbstractPropertyManager
+class QtSizeFPropertyManager : public QtAbstractPropertyManager
 {
     Q_OBJECT
 public:
@@ -399,7 +422,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void slotPropertyDestroyed(QtProperty *))
 };
 
-class QT_QTPROPERTYBROWSER_EXPORT QtRectPropertyManager : public QtAbstractPropertyManager
+class QtRectPropertyManager : public QtAbstractPropertyManager
 {
     Q_OBJECT
 public:
@@ -429,7 +452,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void slotPropertyDestroyed(QtProperty *))
 };
 
-class QT_QTPROPERTYBROWSER_EXPORT QtRectFPropertyManager : public QtAbstractPropertyManager
+class QtRectFPropertyManager : public QtAbstractPropertyManager
 {
     Q_OBJECT
 public:
@@ -462,7 +485,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void slotPropertyDestroyed(QtProperty *))
 };
 
-class QT_QTPROPERTYBROWSER_EXPORT QtEnumPropertyManager : public QtAbstractPropertyManager
+class QtEnumPropertyManager : public QtAbstractPropertyManager
 {
     Q_OBJECT
 public:
@@ -492,7 +515,7 @@ private:
     Q_DISABLE_COPY(QtEnumPropertyManager)
 };
 
-class QT_QTPROPERTYBROWSER_EXPORT QtFlagPropertyManager : public QtAbstractPropertyManager
+class QtFlagPropertyManager : public QtAbstractPropertyManager
 {
     Q_OBJECT
 public:
@@ -522,7 +545,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void slotPropertyDestroyed(QtProperty *))
 };
 
-class QT_QTPROPERTYBROWSER_EXPORT QtSizePolicyPropertyManager : public QtAbstractPropertyManager
+class QtSizePolicyPropertyManager : public QtAbstractPropertyManager
 {
     Q_OBJECT
 public:
@@ -551,7 +574,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void slotPropertyDestroyed(QtProperty *))
 };
 
-class QT_QTPROPERTYBROWSER_EXPORT QtFontPropertyManager : public QtAbstractPropertyManager
+class QtFontPropertyManager : public QtAbstractPropertyManager
 {
     Q_OBJECT
 public:
@@ -583,7 +606,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void slotPropertyDestroyed(QtProperty *))
 };
 
-class QT_QTPROPERTYBROWSER_EXPORT QtColorPropertyManager : public QtAbstractPropertyManager
+class QtColorPropertyManager : public QtAbstractPropertyManager
 {
     Q_OBJECT
 public:
@@ -611,7 +634,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void slotPropertyDestroyed(QtProperty *))
 };
 
-class QT_QTPROPERTYBROWSER_EXPORT QtCursorPropertyManager : public QtAbstractPropertyManager
+class QtCursorPropertyManager : public QtAbstractPropertyManager
 {
     Q_OBJECT
 public:

@@ -1916,6 +1916,121 @@ void QtKeySequencePropertyManager::uninitializeProperty(QtProperty *property)
     d_ptr->m_values.remove(property);
 }
 
+// QtCharPropertyManager
+
+class QtCharPropertyManagerPrivate
+{
+    QtCharPropertyManager *q_ptr;
+    Q_DECLARE_PUBLIC(QtCharPropertyManager)
+public:
+
+    QMap<const QtProperty *, QChar> m_values;
+};
+
+/*! \class QtCharPropertyManager
+
+    \brief The QtCharPropertyManager provides and manages QChar properties.
+
+    A char's value can be retrieved using the value()
+    function, and set using the setValue() slot.
+
+    In addition, QtCharPropertyManager provides the valueChanged() signal
+    which is emitted whenever a property created by this manager
+    changes.
+
+    \sa QtAbstractPropertyManager
+*/
+
+/*!
+    \fn void QtCharPropertyManager::valueChanged(QtProperty *property, const QChar &value)
+
+    This signal is emitted whenever a property created by this manager
+    changes its value, passing a pointer to the \a property and the new
+    \a value as parameters.
+*/
+
+/*!
+    Creates a manager with the given \a parent.
+*/
+QtCharPropertyManager::QtCharPropertyManager(QObject *parent)
+    : QtAbstractPropertyManager(parent)
+{
+    d_ptr = new QtCharPropertyManagerPrivate;
+    d_ptr->q_ptr = this;
+}
+
+/*!
+    Destroys this manager, and all the properties it has created.
+*/
+QtCharPropertyManager::~QtCharPropertyManager()
+{
+    delete d_ptr;
+}
+
+/*!
+    Returns the given \a property's value.
+
+    If the given \a property is not managed by this manager, this
+    function returns an null QChar object.
+
+    \sa setValue()
+*/
+QChar QtCharPropertyManager::value(const QtProperty *property) const
+{
+    if (!d_ptr->m_values.contains(property))
+        return QChar();
+    return d_ptr->m_values[property];
+}
+
+/*!
+    \reimp
+*/
+QString QtCharPropertyManager::valueText(const QtProperty *property) const
+{
+    if (!d_ptr->m_values.contains(property))
+        return QString();
+    QChar c = value(property);
+    QString str = c.isNull() ? QString() : QString(c);
+    return str;
+}
+
+/*!
+    \fn void QtCharPropertyManager::setValue(QtProperty *property, const QChar &value)
+
+    Sets the value of the given \a property to \a value.
+
+    \sa value(), valueChanged()
+*/
+void QtCharPropertyManager::setValue(QtProperty *property, const QChar &val)
+{
+    if (!d_ptr->m_values.contains(property))
+        return;
+
+    if (d_ptr->m_values[property] == val)
+        return;
+
+    d_ptr->m_values[property] = val;
+
+    emit propertyChanged(property);
+    emit valueChanged(property, val);
+}
+
+/*!
+    \reimp
+*/
+void QtCharPropertyManager::initializeProperty(QtProperty *property)
+{
+    d_ptr->m_values[property] = QChar();
+}
+
+/*!
+    \reimp
+*/
+void QtCharPropertyManager::uninitializeProperty(QtProperty *property)
+{
+    d_ptr->m_values.remove(property);
+}
+
 // QtLocalePropertyManager
 
 class QtLocalePropertyManagerPrivate

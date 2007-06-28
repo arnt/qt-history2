@@ -24,7 +24,7 @@ Q_DECLARE_METATYPE(QtIconMap)
 
 class QtVariantPropertyManager;
 
-class QT_QTPROPERTYBROWSER_EXPORT QtVariantProperty : public QtProperty
+class QtVariantProperty : public QtProperty
 {
 public:
     ~QtVariantProperty();
@@ -42,7 +42,7 @@ private:
     class QtVariantPropertyPrivate *d_ptr;
 };
 
-class QT_QTPROPERTYBROWSER_EXPORT QtVariantPropertyManager : public QtAbstractPropertyManager
+class QtVariantPropertyManager : public QtAbstractPropertyManager
 {
     Q_OBJECT
 public:
@@ -97,6 +97,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void slotValueChanged(QtProperty *, const QTime &))
     Q_PRIVATE_SLOT(d_func(), void slotValueChanged(QtProperty *, const QDateTime &))
     Q_PRIVATE_SLOT(d_func(), void slotValueChanged(QtProperty *, const QKeySequence &))
+    Q_PRIVATE_SLOT(d_func(), void slotValueChanged(QtProperty *, const QChar &))
     Q_PRIVATE_SLOT(d_func(), void slotValueChanged(QtProperty *, const QLocale &))
     Q_PRIVATE_SLOT(d_func(), void slotValueChanged(QtProperty *, const QPoint &))
     Q_PRIVATE_SLOT(d_func(), void slotValueChanged(QtProperty *, const QPointF &))
@@ -122,7 +123,7 @@ private:
     Q_DISABLE_COPY(QtVariantPropertyManager)
 };
 
-class QT_QTPROPERTYBROWSER_EXPORT QtVariantEditorFactory : public QtAbstractEditorFactory<QtVariantPropertyManager>
+class QtVariantEditorFactory : public QtAbstractEditorFactory<QtVariantPropertyManager>
 {
     Q_OBJECT
 public:

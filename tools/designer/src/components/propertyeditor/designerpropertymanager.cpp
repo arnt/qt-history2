@@ -1277,11 +1277,15 @@ QWidget *DesignerEditorFactory::createEditor(QtVariantPropertyManager *manager, 
             manager, property, parent);
 }
 
-template <class Editor>
+template <class Editor, class PropertyToEditors, class EditorToProperty>
 bool removeEditor(QObject *object,
-                QMap<QtProperty *, QList<Editor *> > *propertyToEditors,
-                QMap<Editor *, QtProperty *> *editorToProperty)
+                PropertyToEditors *pte,
+                EditorToProperty *etp,
+                Editor *dummy = 0)
 {
+    Q_UNUSED(dummy)
+    QMap<QtProperty *, QList<Editor *> > *propertyToEditors = pte;
+    QMap<Editor *, QtProperty *> *editorToProperty = etp;
     if (!propertyToEditors)
         return false;
     if (!editorToProperty)
@@ -1303,30 +1307,32 @@ bool removeEditor(QObject *object,
 
 void DesignerEditorFactory::slotEditorDestroyed(QObject *object)
 {
-    if (removeEditor(object, &m_stringPropertyToEditors, &m_editorToStringProperty))
+    if (removeEditor<TextPropertyEditor>(object, &m_stringPropertyToEditors, &m_editorToStringProperty))
         return;
-    if (removeEditor(object, &m_palettePropertyToEditors, &m_editorToPaletteProperty))
+    if (removeEditor<PaletteEditorButton>(object, &m_palettePropertyToEditors, &m_editorToPaletteProperty))
         return;
-    if (removeEditor(object, &m_iconPropertyToEditors, &m_editorToIconProperty))
+    if (removeEditor<GraphicsPropertyEditor>(object, &m_iconPropertyToEditors, &m_editorToIconProperty))
         return;
-    if (removeEditor(object, &m_pixmapPropertyToEditors, &m_editorToPixmapProperty))
+    if (removeEditor<GraphicsPropertyEditor>(object, &m_pixmapPropertyToEditors, &m_editorToPixmapProperty))
         return;
-    if (removeEditor(object, &m_uintPropertyToEditors, &m_editorToUintProperty))
+    if (removeEditor<QLineEdit>(object, &m_uintPropertyToEditors, &m_editorToUintProperty))
         return;
-    if (removeEditor(object, &m_longLongPropertyToEditors, &m_editorToLongLongProperty))
+    if (removeEditor<QLineEdit>(object, &m_longLongPropertyToEditors, &m_editorToLongLongProperty))
         return;
-    if (removeEditor(object, &m_uLongLongPropertyToEditors, &m_editorToULongLongProperty))
+    if (removeEditor<QLineEdit>(object, &m_uLongLongPropertyToEditors, &m_editorToULongLongProperty))
         return;
-    if (removeEditor(object, &m_urlPropertyToEditors, &m_editorToUrlProperty))
+    if (removeEditor<QLineEdit>(object, &m_urlPropertyToEditors, &m_editorToUrlProperty))
         return;
 }
 
-template<class Editor>
+template<class Editor, class EditorToProperty>
 bool updateManager(QtVariantEditorFactory *factory, bool *changingPropertyValue,
-        const QMap<Editor *, QtProperty *> &editorToProperty, QWidget *editor, const QVariant &value)
+        const EditorToProperty &etp, QWidget *editor, const QVariant &value, Editor *dummy = 0)
 {
+    Q_UNUSED(dummy)
     if (!editor)
         return false;
+    const QMap<Editor *, QtProperty *> &editorToProperty = etp;
     QMapIterator<Editor *, QtProperty *> it(editorToProperty);
     while (it.hasNext()) {
         if (it.next().key() == editor) {
@@ -1343,42 +1349,42 @@ bool updateManager(QtVariantEditorFactory *factory, bool *changingPropertyValue,
 
 void DesignerEditorFactory::slotUintChanged(const QString &value)
 {
-    updateManager(this, &m_changingPropertyValue, m_editorToUintProperty, qobject_cast<QWidget *>(sender()), value.toUInt());
+    updateManager<QLineEdit>(this, &m_changingPropertyValue, m_editorToUintProperty, qobject_cast<QWidget *>(sender()), value.toUInt());
 }
 
 void DesignerEditorFactory::slotLongLongChanged(const QString &value)
 {
-    updateManager(this, &m_changingPropertyValue, m_editorToLongLongProperty, qobject_cast<QWidget *>(sender()), value.toLongLong());
+    updateManager<QLineEdit>(this, &m_changingPropertyValue, m_editorToLongLongProperty, qobject_cast<QWidget *>(sender()), value.toLongLong());
 }
 
 void DesignerEditorFactory::slotULongLongChanged(const QString &value)
 {
-    updateManager(this, &m_changingPropertyValue, m_editorToULongLongProperty, qobject_cast<QWidget *>(sender()), value.toULongLong());
+    updateManager<QLineEdit>(this, &m_changingPropertyValue, m_editorToULongLongProperty, qobject_cast<QWidget *>(sender()), value.toULongLong());
 }
 
 void DesignerEditorFactory::slotUrlChanged(const QString &value)
 {
-    updateManager(this, &m_changingPropertyValue, m_editorToUrlProperty, qobject_cast<QWidget *>(sender()), QUrl(value));
+    updateManager<QLineEdit>(this, &m_changingPropertyValue, m_editorToUrlProperty, qobject_cast<QWidget *>(sender()), QUrl(value));
 }
 
 void DesignerEditorFactory::slotStringTextChanged(const QString &value)
 {
-    updateManager(this, &m_changingPropertyValue, m_editorToStringProperty, qobject_cast<QWidget *>(sender()), value);
+    updateManager<TextPropertyEditor>(this, &m_changingPropertyValue, m_editorToStringProperty, qobject_cast<QWidget *>(sender()), value);
 }
 
 void DesignerEditorFactory::slotPaletteChanged(const QPalette &value)
 {
-    updateManager(this, &m_changingPropertyValue, m_editorToPaletteProperty, qobject_cast<QWidget *>(sender()), qVariantFromValue(value));
+    updateManager<PaletteEditorButton>(this, &m_changingPropertyValue, m_editorToPaletteProperty, qobject_cast<QWidget *>(sender()), qVariantFromValue(value));
 }
 
 void DesignerEditorFactory::slotIconChanged(const QIcon &value)
 {
-    updateManager(this, &m_changingPropertyValue, m_editorToIconProperty, qobject_cast<QWidget *>(sender()), qVariantFromValue(value));
+    updateManager<GraphicsPropertyEditor>(this, &m_changingPropertyValue, m_editorToIconProperty, qobject_cast<QWidget *>(sender()), qVariantFromValue(value));
 }
 
 void DesignerEditorFactory::slotPixmapChanged(const QPixmap &value)
 {
-    updateManager(this, &m_changingPropertyValue, m_editorToPixmapProperty, qobject_cast<QWidget *>(sender()), qVariantFromValue(value));
+    updateManager<GraphicsPropertyEditor>(this, &m_changingPropertyValue, m_editorToPixmapProperty, qobject_cast<QWidget *>(sender()), qVariantFromValue(value));
 }
 
 ResetDecorator::~ResetDecorator()

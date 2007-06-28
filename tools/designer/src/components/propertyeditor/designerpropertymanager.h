@@ -186,22 +186,22 @@ private:
 
     int m_spacing;
 
-    QMap<QtProperty *, QList<TextPropertyEditor *> > m_stringPropertyToEditors;
-    QMap<TextPropertyEditor *, QtProperty *> m_editorToStringProperty;
-    QMap<QtProperty *, QList<PaletteEditorButton *> > m_palettePropertyToEditors;
-    QMap<PaletteEditorButton *, QtProperty *> m_editorToPaletteProperty;
-    QMap<QtProperty *, QList<GraphicsPropertyEditor *> > m_iconPropertyToEditors;
-    QMap<GraphicsPropertyEditor *, QtProperty *> m_editorToIconProperty;
-    QMap<QtProperty *, QList<GraphicsPropertyEditor *> > m_pixmapPropertyToEditors;
-    QMap<GraphicsPropertyEditor *, QtProperty *> m_editorToPixmapProperty;
-    QMap<QtProperty *, QList<QLineEdit *> > m_uintPropertyToEditors;
-    QMap<QLineEdit *, QtProperty *> m_editorToUintProperty;
-    QMap<QtProperty *, QList<QLineEdit *> > m_longLongPropertyToEditors;
-    QMap<QLineEdit *, QtProperty *> m_editorToLongLongProperty;
-    QMap<QtProperty *, QList<QLineEdit *> > m_uLongLongPropertyToEditors;
-    QMap<QLineEdit *, QtProperty *> m_editorToULongLongProperty;
-    QMap<QtProperty *, QList<QLineEdit *> > m_urlPropertyToEditors;
-    QMap<QLineEdit *, QtProperty *> m_editorToUrlProperty;
+    QMap<QtProperty *, QList<TextPropertyEditor *> >        m_stringPropertyToEditors;
+    QMap<TextPropertyEditor *, QtProperty *>                m_editorToStringProperty;
+    QMap<QtProperty *, QList<PaletteEditorButton *> >       m_palettePropertyToEditors;
+    QMap<PaletteEditorButton *, QtProperty *>               m_editorToPaletteProperty;
+    QMap<QtProperty *, QList<GraphicsPropertyEditor *> >    m_iconPropertyToEditors;
+    QMap<GraphicsPropertyEditor *, QtProperty *>            m_editorToIconProperty;
+    QMap<QtProperty *, QList<GraphicsPropertyEditor *> >    m_pixmapPropertyToEditors;
+    QMap<GraphicsPropertyEditor *, QtProperty *>            m_editorToPixmapProperty;
+    QMap<QtProperty *, QList<QLineEdit *> >                 m_uintPropertyToEditors;
+    QMap<QLineEdit *, QtProperty *>                         m_editorToUintProperty;
+    QMap<QtProperty *, QList<QLineEdit *> >                 m_longLongPropertyToEditors;
+    QMap<QLineEdit *, QtProperty *>                         m_editorToLongLongProperty;
+    QMap<QtProperty *, QList<QLineEdit *> >                 m_uLongLongPropertyToEditors;
+    QMap<QLineEdit *, QtProperty *>                         m_editorToULongLongProperty;
+    QMap<QtProperty *, QList<QLineEdit *> >                 m_urlPropertyToEditors;
+    QMap<QLineEdit *, QtProperty *>                         m_editorToUrlProperty;
 };
 
 }

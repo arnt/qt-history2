@@ -16,7 +16,7 @@
 
 #include "qtpropertybrowser.h"
 
-class QT_QTPROPERTYBROWSER_EXPORT QtTreePropertyBrowser : public QtAbstractPropertyBrowser
+class QtTreePropertyBrowser : public QtAbstractPropertyBrowser
 {
     Q_OBJECT
     Q_ENUMS(ResizeMode)
