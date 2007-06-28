@@ -6022,7 +6022,7 @@ bool QWidget::event(QEvent *event)
             killTimer(d->timerId);
             QWidgetBackingStore *bs = d->maybeBackingStore();
             if (bs)
-                bs->updateDirtyTlwRegion();
+                bs->updateDirtyRegion(this);
             d->timerId = -1;
         } else {
             this->timerEvent(timerEvent);
@@ -6315,7 +6315,7 @@ bool QWidget::event(QEvent *event)
         changeEvent(event);
         break;
 
-#if defined(Q_WS_X11) || defined(Q_WS_QWS)
+#if defined(Q_WS_X11) || defined(Q_WS_QWS) || (defined(Q_WS_WIN) && defined(Q_WIN_USE_QT_UPDATE_EVENT))
     case QEvent::UpdateRequest: {
 #ifndef Q_WS_WIN
         extern void qt_syncBackingStore(QWidget *widget);

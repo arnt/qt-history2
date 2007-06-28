@@ -289,7 +289,7 @@ void QWidgetBackingStore::blitToScreen(const QRegion &rgn, QWidget *widget)
 }
 #endif
 
-#if defined(Q_WS_X11)
+#if defined(Q_WS_X11) || (defined(Q_WS_WIN) && defined(Q_WIN_USE_QT_UPDATE_EVENT))
 void qt_syncBackingStore(QWidget *widget)
 {
     // dirtyOnScreen may get out of sync when widget is scrolled or moved
@@ -341,7 +341,7 @@ void qt_syncBackingStore(QWidget *widget)
 #endif
         topData->backingStore->cleanRegion(toClean, tlw);
 }
-#elif defined(Q_WS_WIN)
+#elif defined(Q_WS_WIN) && !defined(Q_WIN_USE_QT_UPDATE_EVENT)
 void qt_syncBackingStore(QWidget *widget)
 {
     QWidget *tlw = widget->window();
@@ -596,11 +596,27 @@ void QWidgetBackingStore::dirtyRegion(const QRegion &rgn, QWidget *widget)
 
 #ifndef Q_WS_QWS
 #ifdef Q_RATE_LIMIT_PAINTING
-    if (widget->d_func()->timerId == -1)
-        widget->d_func()->timerId = widget->startTimer(30);
+    if (refreshInterval > 0) {
+        QWidget *timerWidget = widget;
+#ifdef Q_FLATTEN_EXPOSE
+        if (timerWidget != tlw) {
+            timerWidget = tlw;
+            wrgn.translate(widget->mapTo(tlw, QPoint(0, 0)));
+        }
+#endif
+        timerWidget->d_func()->dirty += wrgn;
+        if (timerWidget->d_func()->timerId == -1)
+            timerWidget->d_func()->timerId = timerWidget->startTimer(refreshInterval);
+    } else {
+        widget->d_func()->dirtyWidget_sys(wrgn);
+    }
 #else
     widget->d_func()->dirtyWidget_sys(wrgn);
 #endif // Q_RATE_LIMIT_PAINTING
+#endif
+#if defined(Q_RATE_LIMIT_PAINTING) && defined(Q_FLATTEN_EXPOSE)
+    // wrgn is already translated otherwise
+    if (refreshInterval <= 0)
 #endif
     wrgn.translate(widget->mapTo(tlw, QPoint(0, 0)));
 #ifndef Q_WS_QWS
@@ -612,13 +628,23 @@ void QWidgetBackingStore::dirtyRegion(const QRegion &rgn, QWidget *widget)
 }
 
 #ifdef Q_RATE_LIMIT_PAINTING
-void QWidgetBackingStore::updateDirtyTlwRegion()
+int QWidgetBackingStore::refreshInterval = 30;
+
+Q_GUI_EXPORT void qt_setMinimumRefreshInterval(int ms)
 {
-    Q_ASSERT(tlw);
-    if (!dirty.isEmpty() && tlw->isVisible() && tlw->updatesEnabled())
-        tlw->d_func()->dirtyWidget_sys(dirty);
+    QWidgetBackingStore::refreshInterval = ms >= 0 ? ms : 0;
 }
-#endif
+
+void QWidgetBackingStore::updateDirtyRegion(QWidget *widget)
+{
+    if (!widget || widget->d_func()->dirty.isEmpty())
+        return;
+
+    if (widget->isVisible() && widget->updatesEnabled())
+        widget->d_func()->dirtyWidget_sys(widget->d_func()->dirty);
+    widget->d_func()->dirty = QRegion();
+}
+#endif // Q_RATE_LIMIT_PAINTING
 
 
 void QWidgetBackingStore::copyToScreen(QWidget *widget, const QRegion &rgn)
@@ -651,12 +677,29 @@ void QWidgetBackingStore::copyToScreen(const QRegion &rgn, QWidget *widget, cons
     if (!QWidgetBackingStore::paintOnScreen(widget)) {
         widget->d_func()->cleanWidget_sys(rgn);
 
+#if defined(Q_WS_WIN) && defined(Q_WIN_USE_QT_UPDATE_EVENT)
+        HDC oldHandle = HDC(widget->d_func()->hd);
+        if (oldHandle) {
+            // New clip is the widget's visible region intersected with the flush region.
+            widget->d_func()->hd = Qt::HANDLE(GetDCEx(widget->internalWinId(), rgn.handle(),
+                                                      DCX_INTERSECTRGN));
+        }
+#endif
+
 #ifndef QT_NO_PAINT_DEBUG
         qt_flushUpdate(widget, rgn);
 #endif
 
         QPoint wOffset = widget->data->wrect.topLeft();
         windowSurface->flush(widget, rgn, offset);
+
+#if defined(Q_WS_WIN) && defined(Q_WIN_USE_QT_UPDATE_EVENT)
+        // Reset device context.
+        if (oldHandle) {
+            ReleaseDC(widget->internalWinId(), HDC(widget->d_func()->hd));
+            widget->d_func()->hd = Qt::HANDLE(oldHandle);
+        }
+#endif
     }
 
 #ifdef Q_FLATTEN_EXPOSE
@@ -961,7 +1004,7 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool 
         toFlush.translate(widget->mapTo(tlw, QPoint()));
         copyToScreen(toFlush, tlw, tlwOffset, recursiveCopyToScreen);
     } else {
-#ifdef Q_WS_X11
+#if defined(Q_WS_X11) || (defined(Q_WS_WIN) && defined(Q_WIN_USE_QT_UPDATE_EVENT))
         toFlush += widget->d_func()->dirtyOnScreen;
 #endif
         copyToScreen(toFlush, widget, widget->mapTo(tlw, QPoint()), false);

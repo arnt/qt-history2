@@ -38,7 +38,7 @@ public:
     bool bltRect(const QRect &rect, int dx, int dy, QWidget *widget);
     void dirtyRegion(const QRegion &rgn, QWidget *widget=0);
 #ifdef Q_RATE_LIMIT_PAINTING
-    void updateDirtyTlwRegion();
+    void updateDirtyRegion(QWidget *widget);
 #endif
     void cleanRegion(const QRegion &rgn, QWidget *widget=0, bool recursiveCopyToScreen = true);
 #if defined (Q_WS_QWS) || defined (Q_WS_WIN)
@@ -56,6 +56,9 @@ public:
 #endif
 
     static bool isOpaque(const QWidget *widget);
+#ifdef Q_RATE_LIMIT_PAINTING
+    static int refreshInterval;
+#endif
 
 private:
     QWidget *tlw;

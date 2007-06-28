@@ -896,6 +896,11 @@ void QWidgetPrivate::dirtyWidget_sys(const QRegion &rgn)
         QRegion wrgn = rgn;
         if (data.wrect.isValid())
             wrgn.translate(-data.wrect.topLeft());
+#if defined(Q_WIN_USE_QT_UPDATE_EVENT)
+        dirtyOnScreen += rgn;
+        QApplication::postEvent(q, new QEvent(QEvent::UpdateRequest), Qt::LowEventPriority);
+        return;
+#endif
         InvalidateRgn(q->internalWinId(), wrgn.handle(), FALSE);
         // check if this is the first call to dirty a previously clean widget
         if (!q->testAttribute(Qt::WA_PendingUpdate)) {
@@ -912,6 +917,9 @@ void QWidgetPrivate::dirtyWidget_sys(const QRegion &rgn)
 void QWidgetPrivate::cleanWidget_sys(const QRegion& rgn)
 {
     Q_Q(QWidget);
+#if defined(Q_WIN_USE_QT_UPDATE_EVENT)
+    dirtyOnScreen -= rgn;
+#endif
     Q_ASSERT(q->testAttribute(Qt::WA_WState_Created));
     ValidateRgn(q->internalWinId(),rgn.handle());
 }

@@ -54,6 +54,10 @@
 #define Q_WIDGET_CACHE_OPAQUEREGIONS
 #endif
 
+//#define Q_WIN_USE_QT_UPDATE_EVENT
+//#define Q_RATE_LIMIT_PAINTING
+//#define Q_FLATTEN_EXPOSE
+
 // Extra QWidget data
 //  - to minimize memory usage for members that are seldom used.
 //  - top-level widgets have extra extra data to reduce cost further
@@ -292,7 +296,7 @@ public:
     void scrollRect(const QRect &, int dx, int dy);
     void invalidateBuffer(const QRegion &);
     bool isOverlapped(const QRect&) const;
-# if defined(Q_WS_X11)
+# if defined(Q_WS_X11) || (defined(Q_WS_WIN) && defined(Q_WIN_USE_QT_UPDATE_EVENT))
     QRegion dirtyOnScreen;
 # endif
 #endif
@@ -427,7 +431,7 @@ public:
 #ifdef Q_RATE_LIMIT_PAINTING
     int timerId;
 #endif
-#if defined(Q_WIDGET_USE_DIRTYLIST)
+#if defined(Q_WIDGET_USE_DIRTYLIST) || defined(Q_RATE_LIMIT_PAINTING)
     QRegion dirty;
 #endif
 #if defined(Q_WS_X11)
