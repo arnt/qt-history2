@@ -786,8 +786,8 @@ QComboBox::QComboBox(bool rw, QWidget *parent, const char *name)
     allowing the user to modify each item in the list.
 
     Comboboxes can contain pixmaps as well as strings; the
-    insertItem() and changeItem() functions are suitably overloaded.
-    For editable comboboxes, the function clearEdit() is provided,
+    insertItem() and setItemText() functions are suitably overloaded.
+    For editable comboboxes, the function clearEditText() is provided,
     to clear the displayed string without changing the combobox's
     contents.
 
@@ -813,8 +813,8 @@ QComboBox::QComboBox(bool rw, QWidget *parent, const char *name)
     accepted.
 
     A combobox can be populated using the insert functions,
-    insertStringList() and insertItem() for example. Items can be
-    changed with changeItem(). An item can be removed with
+    insertItem() and insertItems() for example. Items can be
+    changed with setItemText(). An item can be removed with
     removeItem() and all items can be removed with clear(). The text
     of the current item is returned by currentText(), and the text of
     a numbered item is returned with text(). The current item can be
