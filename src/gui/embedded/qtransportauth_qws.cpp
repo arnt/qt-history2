@@ -765,6 +765,7 @@ Note: this method will modify the msgQueue and pull off the data
 */
 QString RequestAnalyzer::analyze( QByteArray *msgQueue )
 {
+#ifdef Q_WS_QWS
     dataSize = 0;
     moreData = false;
     QBuffer cmdBuf( msgQueue );
@@ -801,6 +802,10 @@ QString RequestAnalyzer::analyze( QByteArray *msgQueue )
     dataSize = QWS_PROTOCOL_ITEM_SIZE( *command );
     delete command;
     return request;
+#else
+    Q_UNUSED(msgQueue);
+    return QString();
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////
