@@ -137,7 +137,10 @@ inline bool QAuthDevice::atEnd() const
 
 inline qint64 QAuthDevice::bytesAvailable() const
 {
-    return m_bytesAvailable;
+    if ( way == Receive )
+        return m_bytesAvailable;
+    else
+        return ( m_target ? m_target->bytesAvailable() : 0 );
 }
 
 inline qint64 QAuthDevice::bytesToWrite() const
