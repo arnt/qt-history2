@@ -122,6 +122,13 @@
          \o A \l{Plastique Style Widget Gallery}{Plastique style} tree view.
     \endtable
 
+    \section1 Improving Performance
+
+    It is possible to give the view hints about the data it is handling in order
+    to improve its performance when displaying large numbers of items. One approach
+    that can be taken for views that are intended to display items with equal heights
+    is to set the \l uniformRowHeights property to true.
+
     \sa QListView, QTreeWidget, {View Classes}, QAbstractItemModel, QAbstractItemView,
         {Dir View Example}
 */
