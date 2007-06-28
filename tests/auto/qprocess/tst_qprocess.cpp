@@ -106,6 +106,7 @@ private slots:
     void removeFileWhileProcessIsRunning();
     void fileWriterProcess();
     void detachedWorkingDirectoryAndPid();
+    void switchReadChannels();
 
 protected slots:
     void readFromProcess();
@@ -1719,6 +1720,37 @@ void tst_QProcess::detachedWorkingDirectoryAndPid()
 
     QCOMPARE(actualWorkingDir, workingDir);
     QCOMPARE(actualPid, pid);
+}
+
+void tst_QProcess::switchReadChannels()
+{
+    const char data[] = "ABCD";
+    
+    QProcess process;
+
+#ifdef Q_OS_MAC
+    process.start("testProcessEcho2/testProcessEcho2.app");
+#else
+    process.start("testProcessEcho2/testProcessEcho2");
+#endif
+    process.write(data);
+    process.closeWriteChannel();
+    QVERIFY(process.waitForFinished(5000));
+
+    for (int i = 0; i < 4; ++i) {
+        process.setReadChannel(QProcess::StandardOutput);
+        QCOMPARE(process.read(1), QByteArray(&data[i], 1));
+        process.setReadChannel(QProcess::StandardError);
+        QCOMPARE(process.read(1), QByteArray(&data[i], 1));
+    }
+    
+    process.ungetChar('D');
+    process.setReadChannel(QProcess::StandardOutput);
+    process.ungetChar('D');
+    process.setReadChannel(QProcess::StandardError);
+    QCOMPARE(process.read(1), QByteArray("D"));
+    process.setReadChannel(QProcess::StandardOutput);
+    QCOMPARE(process.read(1), QByteArray("D"));
 }
 
 QTEST_MAIN(tst_QProcess)
