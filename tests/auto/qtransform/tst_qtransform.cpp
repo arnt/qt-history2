@@ -41,6 +41,7 @@ private slots:
     void testOffset();
     void types();
     void scalarOps();
+    void transform();
 
 private:
     void mapping_data();
@@ -534,6 +535,26 @@ void tst_QTransform::scalarOps()
     QCOMPARE(t.m33(), 8.);
     QCOMPARE(t.m21(), 6.);
 }
+
+void tst_QTransform::transform()
+{
+    QTransform t;
+    t.rotate(30, Qt::YAxis);
+    t.translate(15, 10);
+    t.scale(2, 2);
+    t.rotate(30);
+    t.shear(0.5, 0.5);
+
+    QTransform a, b, c, d, e;
+    a.rotate(30, Qt::YAxis);
+    b.translate(15, 10);
+    c.scale(2, 2);
+    d.rotate(30);
+    e.shear(0.5, 0.5);
+
+    QCOMPARE(t, e * d * c * b * a);
+}
+
 QTEST_APPLESS_MAIN(tst_QTransform)
 
 

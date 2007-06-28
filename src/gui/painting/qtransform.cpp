@@ -346,8 +346,15 @@ QTransform QTransform::inverted(bool *invertible) const
 */
 QTransform & QTransform::translate(qreal dx, qreal dy)
 {
-    affine._dx += dx*affine._m11 + dy*affine._m21;
-    affine._dy += dy*affine._m22 + dx*affine._m12;
+    if (type() != TxProject) {
+        affine._dx += dx*affine._m11 + dy*affine._m21;
+        affine._dy += dy*affine._m22 + dx*affine._m12;
+    } else {
+        QTransform translate;
+        translate.affine._dx = dx;
+        translate.affine._dy = dy;
+        *this = translate * *this;
+    }
     m_dirty |= TxTranslate;
     return *this;
 }
@@ -360,10 +367,17 @@ QTransform & QTransform::translate(qreal dx, qreal dy)
 */
 QTransform & QTransform::scale(qreal sx, qreal sy)
 {
-    affine._m11 *= sx;
-    affine._m12 *= sx;
-    affine._m21 *= sy;
-    affine._m22 *= sy;
+    if (type() != TxProject) {
+        affine._m11 *= sx;
+        affine._m12 *= sx;
+        affine._m21 *= sy;
+        affine._m22 *= sy;
+    } else {
+        QTransform scale;
+        scale.affine._m11 = sx;
+        scale.affine._m22 = sy;
+        *this = scale * *this;
+    }
     m_dirty |= TxScale;
     return *this;
 }
@@ -376,14 +390,21 @@ QTransform & QTransform::scale(qreal sx, qreal sy)
 */
 QTransform & QTransform::shear(qreal sh, qreal sv)
 {
-    qreal tm11 = sv*affine._m21;
-    qreal tm12 = sv*affine._m22;
-    qreal tm21 = sh*affine._m11;
-    qreal tm22 = sh*affine._m12;
-    affine._m11 += tm11;
-    affine._m12 += tm12;
-    affine._m21 += tm21;
-    affine._m22 += tm22;
+    if (type() != TxProject) {
+        qreal tm11 = sv*affine._m21;
+        qreal tm12 = sv*affine._m22;
+        qreal tm21 = sh*affine._m11;
+        qreal tm22 = sh*affine._m12;
+        affine._m11 += tm11;
+        affine._m12 += tm12;
+        affine._m21 += tm21;
+        affine._m22 += tm22;
+    } else {
+        QTransform shear;
+        shear.affine._m12 = sv;
+        shear.affine._m21 = sh;
+        *this = shear * *this;
+    }
     m_dirty |= TxShear;
     return *this;
 }
@@ -422,12 +443,21 @@ QTransform & QTransform::rotate(qreal a, Qt::Axis axis)
     }
 
     if (axis == Qt::ZAxis) {
-        qreal tm11 = cosa*affine._m11 + sina*affine._m21;
-        qreal tm12 = cosa*affine._m12 + sina*affine._m22;
-        qreal tm21 = -sina*affine._m11 + cosa*affine._m21;
-        qreal tm22 = -sina*affine._m12 + cosa*affine._m22;
-        affine._m11 = tm11; affine._m12 = tm12;
-        affine._m21 = tm21; affine._m22 = tm22;
+        if (type() != TxProject) {
+            qreal tm11 = cosa*affine._m11 + sina*affine._m21;
+            qreal tm12 = cosa*affine._m12 + sina*affine._m22;
+            qreal tm21 = -sina*affine._m11 + cosa*affine._m21;
+            qreal tm22 = -sina*affine._m12 + cosa*affine._m22;
+            affine._m11 = tm11; affine._m12 = tm12;
+            affine._m21 = tm21; affine._m22 = tm22;
+        } else {
+            QTransform result;
+            result.affine._m11 = cosa;
+            result.affine._m12 = sina;
+            result.affine._m22 = cosa;
+            result.affine._m21 = -sina;
+            *this = result * *this;
+        }
         m_dirty |= TxRotate;
     } else {
         QTransform result;
@@ -439,7 +469,7 @@ QTransform & QTransform::rotate(qreal a, Qt::Axis axis)
             result.m_23 = -sina * inv_dist_to_plane;
         }
         m_dirty = TxProject;
-        operator*=(result);
+        *this = result * *this;
     }
 
     return *this;
@@ -465,12 +495,21 @@ QTransform & QTransform::rotateRadians(qreal a, Qt::Axis axis)
     qreal cosa = qCos(a);
 
     if (axis == Qt::ZAxis) {
-        qreal tm11 = cosa*affine._m11 + sina*affine._m21;
-        qreal tm12 = cosa*affine._m12 + sina*affine._m22;
-        qreal tm21 = -sina*affine._m11 + cosa*affine._m21;
-        qreal tm22 = -sina*affine._m12 + cosa*affine._m22;
-        affine._m11 = tm11; affine._m12 = tm12;
-        affine._m21 = tm21; affine._m22 = tm22;
+        if (type() != TxProject) {
+            qreal tm11 = cosa*affine._m11 + sina*affine._m21;
+            qreal tm12 = cosa*affine._m12 + sina*affine._m22;
+            qreal tm21 = -sina*affine._m11 + cosa*affine._m21;
+            qreal tm22 = -sina*affine._m12 + cosa*affine._m22;
+            affine._m11 = tm11; affine._m12 = tm12;
+            affine._m21 = tm21; affine._m22 = tm22;
+        } else {
+            QTransform result;
+            result.affine._m11 = cosa;
+            result.affine._m12 = sina;
+            result.affine._m22 = cosa;
+            result.affine._m21 = -sina;
+            *this = result * *this;
+        }
         m_dirty |= TxRotate;
     } else {
         QTransform result;
@@ -482,7 +521,7 @@ QTransform & QTransform::rotateRadians(qreal a, Qt::Axis axis)
             result.m_23 = -sina * inv_dist_to_plane;
         }
         m_dirty = TxProject;
-        operator*=(result);
+        *this = result * *this;
     }
     return *this;
 }
