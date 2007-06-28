@@ -183,30 +183,19 @@
     Class ShowAnimation is derived from the QTimeLine class, which is
     used for controlling animations.
 
-    \section1 QAhiGLScreen Class Implementation
+    \section1 The Class Implementations
 
+    \section2 The Graphics Driver Class Implementation
 
-===
-    For example, the window server's 
-    \l {QWSServer::windowEvent()} {window event signal} is connected
-    to the \c QAhiGLScreenPrivate::windowEvent() slot. If data member 
-    \c doEffects is set, this slot performs the animation of the
-    transition effect, whenever a new window is shown, or when an
-    existing window is reshown after having been minimized. Note that
-    \c doEffects will be set true at startup time if the 
-    \c {-display ahigl:effects} option is included on the command line.
-===
+    The public functions in class QAhiGLScreen are implementations of
+    virtual functions declared in the base classes. hasOpenGL() is
+    declared in base class QGLScreen. The others are declared in base
+    class QScreen.
 
-
-    The public functions in the example graphics driver class are
-    implementations of virtual functions declared in one of the base
-    classes QScreen or QGLScreen. Function hasOpenGL() comes from
-    QGLScreen.  All the others come from QScreen.
-
-    The driver's implementation of \l {QScreen::}{exposeRegion()} is
-    called by the Qtopia Core server whenever a screen update is
-    required.  Its parameters are the region on the screen to be
-    updated and the index of the client window to be updated.
+    The implementation of \l {QScreen::}{exposeRegion()} is called by
+    the Qtopia Core server whenever a screen update is required.  Its
+    parameters are the region on the screen to be updated and the
+    index of the client window to be updated.
 
     The two implementations of \l {QScreen::}{createSurface()} are
     used for creating new window surfaces. The one that accepts a
@@ -214,45 +203,45 @@
     surface for the widget. The one that accepts a QString identifying
     the type of window surface to create is called on the server side
     to create the server's copy of a client side window surface. The
-    client window surface object communicates its window image data to
-    the server window surface object through shared memory.
+    client's window surface instance communicates its window image
+    data to the server's window surface instance through shared
+    memory.
     
     The implementation of \l {QScreen::}{setMode()}, which is a stub
-    in the example driver, would normally reset the frame buffer's
+    in this example, would normally reset the frame buffer's
     resolution. Its parameters are the \e width, \e height, and the
-    bit \e depth for the new resolution of the frame buffer. If you
-    provide an implementation of setMode() in your graphics driver,
-    remember that it must emit a signal to warn other applications to
-    redraw their frame buffers with the new resolution.  There is no
-    significance to setMode() being implemented as a no-op in this
-    example. It simply wasn't implemented. The stub was included in
-    the example driver because QScreen declares setMode() as pure
-    virtual.
+    bit \e depth for the frame buffer's new resolution. If you
+    implement setMode() in your graphics driver, remember that it must
+    emit a signal to warn other applications to redraw their frame
+    buffers with the new resolution.  There is no significance to
+    setMode() not being implemented in this example. It simply wasn't
+    implemented. However, the stub had to be included because QScreen
+    declares setMode() to be pure virtual.
 
     Complex graphics operations are implemented using the OpenGL API.
     Examples of this are shown in the private functions declared in
-    QAhiGLScreen. These private functions are used by the public API
-    to do the real work.  For example, exposeRegion() first calls the
-    invalidateTexture() to destroy the existing texture (image) for
-    the window about to be updated. This ensures that a new texture
-    will be created. Then it calls redrawScreen() to build the new
-    texture and display it on the screen. But exposeRegion() doesn't
-    call redrawScreen() directly. Instead it activates the driver's
-    screen update timer, which has its timeout() signal connected to
-    the redrawScreen() slot. When this timer times out, redrawScreen()
-    is called once to compose a single image of all the windows for
-    which exposeRegion() was called during the previous timer
-    interval.  redrawScreen() calls the private function drawWindow(),
-    which in turn calls drawQuad(), to paint each window into the
-    composition. Using the update timer to funnel multiple calls to
-    exposeRegion() into a single call to redrawScreen() lets the
-    driver limit the frequency of screen updates.
+    QAhiGLScreen, which do the real work.  For example, exposeRegion()
+    first calls the invalidateTexture() to destroy the existing
+    texture (image) for the window about to be updated. This ensures
+    that a new texture will be created. Then it calls redrawScreen()
+    to build the new texture and display it on the screen. But
+    exposeRegion() doesn't call redrawScreen() directly. Instead it
+    activates the driver's screen update timer, which has its
+    timeout() signal connected to the redrawScreen() slot. When a
+    timeout occurs, redrawScreen() is called once to compose a single
+    image of all the windows for which exposeRegion() was called
+    during the previous timer interval.  redrawScreen() calls the
+    private function drawWindow(), which in turn calls drawQuad(), to
+    paint each window into the composition. Using the update timer to
+    funnel multiple calls of exposeRegion() into a single call of
+    redrawScreen() gives us a way to limit the frequency of screen
+    updates.
 
     But there is a caveat. When the driver's animated transition
-    effect for new windows is enabled, and a window is then shown for
-    the first time, or reshown after having been minimized for a time,
-    an instance of class ShowAnimation is created for the window to
-    run the animation of the transition effect. The valueChanged()
+    effect for displaying new windows is enabled, and a new window is
+    being shown or a window is being reshown after having been
+    minimized, an instance of class ShowAnimation is created for the
+    window to run the animated transition effect. The valueChanged()
     signal of this ShowAnimation object is also connected to the
     redrawScreen() slot of the driver, so in the driver as currently
     written, if the driver's window transition effect is enabled
@@ -354,7 +343,18 @@
     used for customizing the shape of the curve used for the
     transition effect.
 
-    \section1 QAhiGLWindowSurface Class Implementation
+    For example, the window server's 
+    \l {QWSServer::windowEvent()} {window event signal} is connected
+    to the \c QAhiGLScreenPrivate::windowEvent() slot. If data member 
+    \c doEffects is set, this slot performs the animation of the
+    transition effect, whenever a new window is shown, or when an
+    existing window is reshown after having been minimized. Note that
+    \c doEffects will be set true at startup time if the 
+    \c {-display ahigl:effects} option is included on the command line.
+
+
+
+    \section2 The window Surface Class Implementation    
 
     The implementation of OpenGL ES tested with this example only supports
     one OpenGL context. This context is therefore shared between QAhiGLScreen
