@@ -815,7 +815,7 @@ void QWindowsVistaStyle::drawControl(ControlElement element, const QStyleOption 
                             pulse->setPrimaryImage(startImage);
                             pulse->setAlternateImage(alternateImage);
                             pulse->setStartTime(QTime::currentTime());
-                            pulse->setDuration(1600);
+                            pulse->setDuration(2000);
                             d->startAnimation(pulse);
                             anim = pulse;
                         }
