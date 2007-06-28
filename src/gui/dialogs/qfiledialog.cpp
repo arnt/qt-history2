@@ -997,8 +997,13 @@ QStringList QFileDialog::history() const
 }
 
 /*!
-    \brief set the item delegate used to render the items in the views in the
-    filedialog to the specified \a delegate
+    Sets the item delegate used to render items in the views in the
+    file dialog to the given \a delegate.
+
+    \warning You should not share the same instance of a delegate between views.
+    Doing so can cause incorrect or unintuitive editing behavior since each
+    view connected to a given delegate may receive the \l{QAbstractItemDelegate::}{closeEditor()}
+    signal, and attempt to access, modify or close an editor that has already been closed.
 */
 void QFileDialog::setItemDelegate(QAbstractItemDelegate *delegate)
 {

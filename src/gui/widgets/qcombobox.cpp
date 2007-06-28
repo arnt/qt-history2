@@ -1653,6 +1653,12 @@ QAbstractItemDelegate *QComboBox::itemDelegate() const
     Sets the item \a delegate for the popup list view.
     The combobox takes ownership of the delegate.
 
+    \warning You should not share the same instance of a delegate between comboboxes,
+    widget mappers or views. Doing so can cause incorrect or unintuitive editing behavior
+    since each view connected to a given delegate may receive the
+    \l{QAbstractItemDelegate::}{closeEditor()} signal, and attempt to access, modify or
+    close an editor that has already been closed.
+
     \sa itemDelegate()
 */
 void QComboBox::setItemDelegate(QAbstractItemDelegate *delegate)

@@ -587,6 +587,11 @@ QItemSelectionModel* QAbstractItemView::selectionModel() const
     Any existing delegate will be removed, but not deleted. QAbstractItemView
     does not take ownership of \a delegate.
 
+    \warning You should not share the same instance of a delegate between views.
+    Doing so can cause incorrect or unintuitive editing behavior since each
+    view connected to a given delegate may receive the \l{QAbstractItemDelegate::}{closeEditor()}
+    signal, and attempt to access, modify or close an editor that has already been closed.
+
     \sa itemDelegate()
 */
 void QAbstractItemView::setItemDelegate(QAbstractItemDelegate *delegate)
@@ -646,9 +651,14 @@ QVariant QAbstractItemView::inputMethodQuery(Qt::InputMethodQuery query) const
     Any existing row delegate for \a row will be removed, but not
     deleted. QAbstractItemView does not take ownership of \a delegate.
 
-    Note: If a delegate has been assigned to both a row and a column, the row
+    \note If a delegate has been assigned to both a row and a column, the row
     delegate (i.e., this delegate) will take presedence and manage the
     intersecting cell index.
+
+    \warning You should not share the same instance of a delegate between views.
+    Doing so can cause incorrect or unintuitive editing behavior since each
+    view connected to a given delegate may receive the \l{QAbstractItemDelegate::}{closeEditor()}
+    signal, and attempt to access, modify or close an editor that has already been closed.
 
     \sa itemDelegateForRow(), setItemDelegateForColumn(), itemDelegate()
 */
@@ -699,8 +709,13 @@ QAbstractItemDelegate *QAbstractItemView::itemDelegateForRow(int row) const
     Any existing column delegate for \a column will be removed, but not
     deleted. QAbstractItemView does not take ownership of \a delegate.
 
-    Note: If a delegate has been assigned to both a row and a column, the row
+    \note If a delegate has been assigned to both a row and a column, the row
     delegate will take presedence and manage the intersecting cell index.
+
+    \warning You should not share the same instance of a delegate between views.
+    Doing so can cause incorrect or unintuitive editing behavior since each
+    view connected to a given delegate may receive the \l{QAbstractItemDelegate::}{closeEditor()}
+    signal, and attempt to access, modify or close an editor that has already been closed.
 
     \sa itemDelegateForColumn(), setItemDelegateForRow(), itemDelegate()
 */
