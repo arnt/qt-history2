@@ -1645,7 +1645,7 @@ pixmap property in the property editor.
 
     For specialized widgets that do not share a common API with standard Qt
     widgets, it is worth considering adapting a custom widget for use in \QD.
-    If this is not possible then QFrame is the obvious choice for a placeholder
+    If this is not possible then QWidget is the obvious choice for a placeholder
     widget since it is the lowest common denominator for all widgets.
 
     To add a placeholder, select an object of a suitable base class
