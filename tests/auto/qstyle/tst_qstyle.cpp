@@ -26,6 +26,16 @@
 #include <qcommonstyle.h>
 #include <qstylefactory.h>
 
+#include <qimagereader.h>
+#include <qimagewriter.h>
+#include <qmenu.h>
+#include <qpushbutton.h>
+#include <qspinbox.h>
+#include <qcombobox.h>
+#include <qradiobutton.h>
+#include <qlineedit.h>
+
+
 #if QT_VERSION >= 0x040200
 #include <QCleanlooksStyle>
 #endif
@@ -53,6 +63,7 @@ public:
 private:
     void testAllFunctions(QStyle *);
     void testScrollBarSubControls(QStyle *);
+    void testPainting(QStyle *style, const QString &platform);
 private slots:
     void drawItemPixmap();
     void initTestCase();
@@ -270,12 +281,108 @@ void tst_QStyle::testWindowsXPStyle()
 #endif
 }
 
+void writeImage(const QString &fileName, QImage image)
+{
+    QImageWriter imageWriter(fileName);
+    imageWriter.setFormat("png");
+    qDebug() << "result " << imageWriter.write(image);
+}
+
+QImage readImage(const QString &fileName)
+{
+    QImageReader reader(fileName);
+    return reader.read();
+}
+
+
 void tst_QStyle::testWindowsVistaStyle()
 {
 #ifdef Q_WS_WIN
     QWindowsVistaStyle vistastyle;
     testAllFunctions(&vistastyle);
+
+    if (QSysInfo::WindowsVersion == QSysInfo::WV_VISTA)
+        testPainting(&vistastyle, "vista");
 #endif
+}
+
+void comparePixmap(const QString &filename, const QPixmap &pixmap)
+{
+    QImage oldFile = readImage(filename);
+    QPixmap oldPixmap = QPixmap::fromImage(oldFile);
+    if (!oldFile.isNull())
+        QVERIFY(pixmapsAreEqual(&pixmap, &oldPixmap));
+    else
+        writeImage(filename, pixmap.toImage());
+}
+
+void tst_QStyle::testPainting(QStyle *style, const QString &platform)
+{
+    //Test Menu
+    QString fileName = "images/" + platform + "/menu.png"; 
+    QMenu menu;
+    menu.setStyle(style);
+    menu.show();
+    menu.addAction(new QAction("Test 1", &menu));
+    menu.addAction(new QAction("Test 2", &menu));
+    QPixmap pixmap = QPixmap::grabWidget(&menu);
+    comparePixmap(fileName, pixmap);
+
+    //Push button    
+    fileName = "images/" + platform + "/button.png";
+    QPushButton button("OK");
+    button.setStyle(style);
+    button.show();
+    pixmap = QPixmap::grabWidget(&button);
+    button.hide();
+    comparePixmap(fileName, pixmap);
+
+    //Push button    
+    fileName = "images/" + platform + "/radiobutton.png";
+    QRadioButton radiobutton("Check");
+    radiobutton.setStyle(style);
+    radiobutton.show();
+    pixmap = QPixmap::grabWidget(&radiobutton);
+    radiobutton.hide();
+    comparePixmap(fileName, pixmap);
+
+    //Combo box
+    fileName = "images/" + platform + "/combobox.png";
+    QComboBox combobox;
+    combobox.setStyle(style);
+    combobox.addItem("Test 1");
+    combobox.addItem("Test 2");
+    combobox.show();
+    pixmap = QPixmap::grabWidget(&combobox);
+    combobox.hide();
+    comparePixmap(fileName, pixmap);
+
+    //Spin box
+    fileName = "images/" + platform + "/spinbox.png";
+    QDoubleSpinBox spinbox;
+    spinbox.setStyle(style);
+    spinbox.show();
+    pixmap = QPixmap::grabWidget(&spinbox);
+    spinbox.hide();
+    comparePixmap(fileName, pixmap);
+
+    //Slider
+    fileName = "images/" + platform + "/slider.png";
+    QSlider slider;
+    slider.setStyle(style);
+    slider.show();
+    pixmap = QPixmap::grabWidget(&slider);
+    slider.hide();
+    comparePixmap(fileName, pixmap);
+
+    //Line edit
+    fileName = "images/" + platform + "/lineedit.png";
+    QLineEdit lineedit("Test text");
+    lineedit.setStyle(style);
+    lineedit.show();
+    pixmap = QPixmap::grabWidget(&lineedit);
+    lineedit.hide();
+    comparePixmap(fileName, pixmap);
 }
 
 void tst_QStyle::testMacStyle()
