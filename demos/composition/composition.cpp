@@ -58,6 +58,31 @@ CompositionWidget::CompositionWidget(QWidget *parent)
     rbXor = new QRadioButton("Xor", modesGroup);
     connect(rbXor, SIGNAL(clicked()), view, SLOT(setXorMode()));
 
+    rbPlus = new QRadioButton("Plus", modesGroup);
+    connect(rbPlus, SIGNAL(clicked()), view, SLOT(setPlusMode()));
+    rbMultiply = new QRadioButton("Multiply", modesGroup);
+    connect(rbMultiply, SIGNAL(clicked()), view, SLOT(setMultiplyMode()));
+    rbScreen = new QRadioButton("Screen", modesGroup);
+    connect(rbScreen, SIGNAL(clicked()), view, SLOT(setScreenMode()));
+    rbOverlay = new QRadioButton("Overlay", modesGroup);
+    connect(rbOverlay, SIGNAL(clicked()), view, SLOT(setOverlayMode()));
+    rbDarken = new QRadioButton("Darken", modesGroup);
+    connect(rbDarken, SIGNAL(clicked()), view, SLOT(setDarkenMode()));
+    rbLighten = new QRadioButton("Lighten", modesGroup);
+    connect(rbLighten, SIGNAL(clicked()), view, SLOT(setLightenMode()));
+    rbColorDodge = new QRadioButton("Color Dodge", modesGroup);
+    connect(rbColorDodge, SIGNAL(clicked()), view, SLOT(setColorDodgeMode()));
+    rbColorBurn = new QRadioButton("Color Burn", modesGroup);
+    connect(rbColorBurn, SIGNAL(clicked()), view, SLOT(setColorBurnMode()));
+    rbHardLight = new QRadioButton("Hard Light", modesGroup);
+    connect(rbHardLight, SIGNAL(clicked()), view, SLOT(setHardLightMode()));
+    rbSoftLight = new QRadioButton("Soft Light", modesGroup);
+    connect(rbSoftLight, SIGNAL(clicked()), view, SLOT(setSoftLightMode()));
+    rbDifference = new QRadioButton("Difference", modesGroup);
+    connect(rbDifference, SIGNAL(clicked()), view, SLOT(setDifferenceMode()));
+    rbExclusion = new QRadioButton("Exclusion", modesGroup);
+    connect(rbExclusion, SIGNAL(clicked()), view, SLOT(setExclusionMode()));
+
     QGroupBox *circleColorGroup = new QGroupBox(mainGroup);
     circleColorGroup->setAttribute(Qt::WA_ContentsPropagated);
     circleColorGroup->setTitle("Circle color");
@@ -110,19 +135,33 @@ CompositionWidget::CompositionWidget(QWidget *parent)
     mainGroupLayout->addWidget(enableOpenGLButton);
 #endif
 
-    QVBoxLayout *modesLayout = new QVBoxLayout(modesGroup);
-    modesLayout->addWidget(rbClear);
-    modesLayout->addWidget(rbSource);
-    modesLayout->addWidget(rbDest);
-    modesLayout->addWidget(rbSourceOver);
-    modesLayout->addWidget(rbDestOver);
-    modesLayout->addWidget(rbSourceIn);
-    modesLayout->addWidget(rbDestIn);
-    modesLayout->addWidget(rbSourceOut);
-    modesLayout->addWidget(rbDestOut);
-    modesLayout->addWidget(rbSourceAtop);
-    modesLayout->addWidget(rbDestAtop);
-    modesLayout->addWidget(rbXor);
+    QGridLayout *modesLayout = new QGridLayout(modesGroup);
+    modesLayout->addWidget(rbClear,             0,      0);
+    modesLayout->addWidget(rbSource,            1,      0);
+    modesLayout->addWidget(rbDest,              2,      0);
+    modesLayout->addWidget(rbSourceOver,        3,      0);
+    modesLayout->addWidget(rbDestOver,          4,      0);
+    modesLayout->addWidget(rbSourceIn,          5,      0);
+    modesLayout->addWidget(rbDestIn,            6,      0);
+    modesLayout->addWidget(rbSourceOut,         7,      0);
+    modesLayout->addWidget(rbDestOut,           8,      0);
+    modesLayout->addWidget(rbSourceAtop,        9,      0);
+    modesLayout->addWidget(rbDestAtop,         10,      0);
+    modesLayout->addWidget(rbXor,              11,      0);
+
+    modesLayout->addWidget(rbPlus,              0,      1);
+    modesLayout->addWidget(rbMultiply,          1,      1);
+    modesLayout->addWidget(rbScreen,            2,      1);
+    modesLayout->addWidget(rbOverlay,           3,      1);
+    modesLayout->addWidget(rbDarken,            4,      1);
+    modesLayout->addWidget(rbLighten,           5,      1);
+    modesLayout->addWidget(rbColorDodge,        6,      1);
+    modesLayout->addWidget(rbColorBurn,         7,      1);
+    modesLayout->addWidget(rbHardLight,         8,      1);
+    modesLayout->addWidget(rbSoftLight,         9,      1);
+    modesLayout->addWidget(rbDifference,       10,      1);
+    modesLayout->addWidget(rbExclusion,        11,      1);
+
 
     QVBoxLayout *circleColorLayout = new QVBoxLayout(circleColorGroup);
     circleColorLayout->addWidget(circleColorSlider);
@@ -312,21 +351,21 @@ void CompositionRenderer::paint(QPainter *painter)
             glColor4f(1.,1.,1.,1.);
 
             glBegin(GL_QUADS);
-            {                
+            {
                 glTexCoord2f(0, 1.0);
                 glVertex2f(0, 0);
-                
+
                 glTexCoord2f(x_fraction, 1.0);
                 glVertex2f(width(), 0);
-                
+
                 glTexCoord2f(x_fraction, 1.0-y_fraction);
                 glVertex2f(width(), height());
-                
+
                 glTexCoord2f(0, 1.0-y_fraction);
                 glVertex2f(0, height());
             }
             glEnd();
-            
+
             glDisable(GL_TEXTURE_2D);
             p.restore();
 
@@ -342,13 +381,13 @@ void CompositionRenderer::paint(QPainter *painter)
         {
             glTexCoord2f(0, 1.0);
             glVertex2f(0, 0);
-                
+
             glTexCoord2f(x_fraction, 1.0);
             glVertex2f(width(), 0);
-                
+
             glTexCoord2f(x_fraction, 1.0-y_fraction);
             glVertex2f(width(), height());
-                
+
             glTexCoord2f(0, 1.0-y_fraction);
             glVertex2f(0, height());
         }
@@ -378,7 +417,7 @@ void CompositionRenderer::paint(QPainter *painter)
 
         painter->drawImage(0, 0, m_buffer);
     }
-    
+
     if (m_animation_enabled)
         update();
 }

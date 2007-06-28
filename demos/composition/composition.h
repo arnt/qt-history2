@@ -51,6 +51,19 @@ private:
     QRadioButton *rbSourceAtop;
     QRadioButton *rbDestAtop;
     QRadioButton *rbXor;
+
+    QRadioButton *rbPlus;
+    QRadioButton *rbMultiply;
+    QRadioButton *rbScreen;
+    QRadioButton *rbOverlay;
+    QRadioButton *rbDarken;
+    QRadioButton *rbLighten;
+    QRadioButton *rbColorDodge;
+    QRadioButton *rbColorBurn;
+    QRadioButton *rbHardLight;
+    QRadioButton *rbSoftLight;
+    QRadioButton *rbDifference;
+    QRadioButton *rbExclusion;
 };
 
 class CompositionRenderer : public ArthurFrame
@@ -81,7 +94,7 @@ public:
     int circleAlpha() const { return m_circle_alpha; }
 
 public slots:
-void setClearMode() { m_composition_mode = QPainter::CompositionMode_Clear; update(); }
+    void setClearMode() { m_composition_mode = QPainter::CompositionMode_Clear; update(); }
     void setSourceMode() { m_composition_mode = QPainter::CompositionMode_Source; update(); }
     void setDestMode() { m_composition_mode = QPainter::CompositionMode_Destination; update(); }
     void setSourceOverMode() { m_composition_mode = QPainter::CompositionMode_SourceOver; update(); }
@@ -93,6 +106,19 @@ void setClearMode() { m_composition_mode = QPainter::CompositionMode_Clear; upda
     void setSourceAtopMode() { m_composition_mode = QPainter::CompositionMode_SourceAtop; update(); }
     void setDestAtopMode() { m_composition_mode = QPainter::CompositionMode_DestinationAtop; update(); }
     void setXorMode() { m_composition_mode = QPainter::CompositionMode_Xor; update(); }
+
+    void setPlusMode() { m_composition_mode = QPainter::CompositionMode_Plus; update(); }
+    void setMultiplyMode() { m_composition_mode = QPainter::CompositionMode_Multiply; update(); }
+    void setScreenMode() { m_composition_mode = QPainter::CompositionMode_Screen; update(); }
+    void setOverlayMode() { m_composition_mode = QPainter::CompositionMode_Overlay; update(); }
+    void setDarkenMode() { m_composition_mode = QPainter::CompositionMode_Darken; update(); }
+    void setLightenMode() { m_composition_mode = QPainter::CompositionMode_Lighten; update(); }
+    void setColorDodgeMode() { m_composition_mode = QPainter::CompositionMode_ColorDodge; update(); }
+    void setColorBurnMode() { m_composition_mode = QPainter::CompositionMode_ColorBurn; update(); }
+    void setHardLightMode() { m_composition_mode = QPainter::CompositionMode_HardLight; update(); }
+    void setSoftLightMode() { m_composition_mode = QPainter::CompositionMode_SoftLight; update(); }
+    void setDifferenceMode() { m_composition_mode = QPainter::CompositionMode_Difference; update(); }
+    void setExclusionMode() { m_composition_mode = QPainter::CompositionMode_Exclusion; update(); }
 
     void setCircleAlpha(int alpha) { m_circle_alpha = alpha; update(); }
     void setCircleColor(int hue) { m_circle_hue = hue; update(); }
