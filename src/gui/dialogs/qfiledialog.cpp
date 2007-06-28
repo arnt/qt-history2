@@ -31,7 +31,7 @@
 #include <qapplication.h>
 #include "ui_qfiledialog.h"
 
-/*!
+/*
     \internal
 
     Exported hooks that can be used to customize the static functions.

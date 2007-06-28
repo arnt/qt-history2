@@ -25,16 +25,35 @@ public:
     QScreen *create(const QString&, int displayId);
 };
 
+/*!
+  \class QAhiGLScreenPlugin
+  \brief The QAhiGLScreenPlugin class is the plugin for the ATI handheld device graphics driver.
+
+  QAhiGLScreenPlugin inherits QScreenDriverPlugin. See
+  \l{How to Create Qt Plugins} for details.
+ */
+
+/*!
+  This is the default constructor.
+ */
 QAhiGLScreenPlugin::QAhiGLScreenPlugin()
     : QScreenDriverPlugin()
 {
 }
 
+/*!
+  Returns a string list containing the string "ahigl" which
+  is the only screen driver supported by this plugin.
+ */
 QStringList QAhiGLScreenPlugin::keys() const
 {
     return (QStringList() << "ahigl");
 }
 
+/*!
+  Creates a screen driver of the kind specified by \a driver.
+  The \a displayId identifies the Qtopia Core server to connect to.
+ */
 QScreen* QAhiGLScreenPlugin::create(const QString& driver, int displayId)
 {
     if (driver.toLower() != "ahigl")

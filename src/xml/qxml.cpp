@@ -178,6 +178,19 @@ class QXmlAttributesPrivate
 {
 };
 
+/* \class QXmlInputSourcePrivate
+    \internal
+
+  There's a slight misdesign in this class that can
+  be worth to keep in mind: the `str' member is
+  a buffer which QXmlInputSource::next() returns from,
+  and which is populated from the input device or input
+  stream. However, when the input is a QString(the user called
+  QXmlInputSource::setData()), `str' has two roles: it's the
+  buffer, but also the source. This /seems/ to be no problem
+  because in the case of having no device or stream, the QString
+  is read in one go.
+ */
 class QXmlInputSourcePrivate
 {
 public:
@@ -197,20 +210,6 @@ public:
     QString encodingDeclChars;
     bool lookingForEncodingDecl;
 };
-
-/*! \class QXmlInputSourcePrivate
-    \internal
-
-  There's a slight misdesign in this class that can
-  be worth to keep in mind: the `str' member is
-  a buffer which QXmlInputSource::next() returns from,
-  and which is populated from the input device or input
-  stream. However, when the input is a QString(the user called
-  QXmlInputSource::setData()), `str' has two roles: it's the
-  buffer, but also the source. This /seems/ to be no problem
-  because in the case of having no device or stream, the QString
-  is read in one go.
- */
 class QXmlParseExceptionPrivate
 {
 public:

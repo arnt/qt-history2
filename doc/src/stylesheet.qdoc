@@ -1824,10 +1824,10 @@
            If this property is not specified, it defaults to a value
            that depends on the subcontrol/widget and on the current style.
 
-           \warning Unless otherwise specified, this property has no effect 
-           when set on widgets. If you want a widget with a fixed height, set
-           the \l{#min-width}{min-height} and \l{#max-width}{max-height} to
-           the same value.
+           \warning Unless otherwise specified, this property has no
+           effect when set on widgets. If you want a widget with a
+           fixed height, set the \l{#min-height-prop}{min-height} and
+           \l{#max-height-prop}{max-height} to the same value.
 
            Example:
 
@@ -2327,10 +2327,10 @@
            If this property is not specified, it defaults to a value
            that depends on the subcontrol/widget and on the current style.
             
-           \warning Unless otherwise specified, this property has no effect 
-           when set on widgets. If you want a widget with a fixed width, set
-           the \l{#min-width}{min-width} and \l{#max-width}{max-width} to
-           the same value.
+           \warning Unless otherwise specified, this property has no
+           effect when set on widgets. If you want a widget with a
+           fixed width, set the \l{#min-width-prop}{min-width} and
+           \l{#max-width-prop}{max-width} to the same value.
 
            Example:
 
