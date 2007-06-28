@@ -67,10 +67,6 @@
 
     \img qmdiarea-arrange.png
 
-    If you want your users to be able to work with child windows
-    larger than the visible MDI area, set the scrollBarsEnabled
-    property to true.
-
     \sa QMdiSubWindow
 */
 
