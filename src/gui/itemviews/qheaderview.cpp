@@ -81,6 +81,12 @@ QDataStream &operator>>(QDataStream &in, QHeaderViewPrivate::SectionSpan &span)
     setSortIndicator(); this indicates whether the items in the associated
     item view will be sorted in the order given by the section.
 
+    For a horizontal header the section is equivalent to a column in the
+    model, and for a vertical header the section is equivalent to a row
+    in the model.
+
+    \section1 Moving Header Sections
+
     A header can be fixed in place, or made movable with setMovable().
     It can be made clickable with setClickable(), and has resizing behavior
     in accordance with setResizeMode().
@@ -93,15 +99,17 @@ QDataStream &operator>>(QDataStream &in, QHeaderViewPrivate::SectionSpan &span)
 
     You can identify a section using the logicalIndex() and logicalIndexAt()
     functions, or by its index position, using the visualIndex() and visualIndexAt()
-    functions. The visual index will change if a section is moved while the logical
-    index wont change.
+    functions. The visual index will change if a section is moved, but the logical
+    index will not change.
 
-    For a horizontal header the section is equivalent to a column in the
-    model, and for a vertical header the section is equivalent to a row
-    in the model.
+    \section1 Appearance
 
     QTableWidget and QTableView create default headers. If you want
     the headers to be visible, you can use \l{QFrame::}{setVisible()}.
+
+    \note Each header renders the data for each section itself, and does not
+    rely on a delegate. As a result, calling a header's setItemDelegate()
+    function will have no effect.
 
     \sa {Model/View Programming}, QListView, QTableView, QTreeView
 */
