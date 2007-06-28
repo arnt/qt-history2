@@ -1030,7 +1030,7 @@ void QMenu::initStyleOption(QStyleOptionMenuItem *option, const QAction *action)
     \ingroup application
     \ingroup basicwidgets
     \mainclass
-
+    
     A menu widget is a selection menu. It can be either a pull-down
     menu in a menu bar or a standalone context menu. Pull-down menus
     are shown by the menu bar when the user clicks on the respective
@@ -1041,7 +1041,39 @@ void QMenu::initStyleOption(QStyleOptionMenuItem *option, const QAction *action)
     popup() or synchronously with exec(). Menus can also be invoked in
     response to button presses; these are just like context menus
     except for how they are invoked.
+    
+    \raw HTML
+    <table align="center" cellpadding="0">
+    <tr>
+        <td>
+            \endraw
+            \inlineimage plastique-menu.png
+            \raw HTML
+        </td>
+        <td>
+            \endraw
+            \inlineimage windowsXP-menu.png
+            \raw HTML
+        </td>
+        <td>
+            \endraw
+            \inlineimage macintosh-menu.png
+            \raw HTML
+        </td>
 
+    </tr>
+    <tr>
+        <td colspan="3">
+           \endraw
+           A menu shown in \l{Plastique Style Widget Gallery}{Plastique widget style}, 
+           \l{Windows XP Style Widget Gallery}{Windows XP widget style},
+           and \l{Macintosh Style Widget Gallery}{Macintosh widget style}. 
+           \raw HTML
+        </td>
+    </tr>
+    </table>
+    \endraw    
+    
     A menu consists of a list of action items. Actions are added with
     addAction(). An action is represented vertically and rendered by
     QStyle. In addition, actions can have a text label, an optional
