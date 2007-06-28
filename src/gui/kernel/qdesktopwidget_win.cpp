@@ -321,7 +321,7 @@ int QDesktopWidget::numScreens() const
     Returns a widget that represents the screen with index \a screen.
 
     If the system uses a virtual desktop, the returned widget will
-    have the geometry of the entire virtual desktop i.e. bounding
+    have the geometry of the entire virtual desktop; i.e., bounding
     every \a screen.
 
     \sa primaryScreen(), numScreens(), isVirtualDesktop()
@@ -335,8 +335,8 @@ QWidget *QDesktopWidget::screen(int /* screen */)
 /*!
   Returns the available geometry of the screen with index \a screen. What
   is available will be subrect of screenGeometry() based on what the
-  platform decides is available (for example excludes the Qt::Dock and menu bar
-  on Mac OS X, or the taskbar on Windows).
+  platform decides is available (for example excludes the dock and menu bar
+  on Mac OS X, or the task bar on Windows).
 
   \sa screenNumber(), screenGeometry()
 */
