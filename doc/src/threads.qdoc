@@ -96,8 +96,8 @@
 
     QMutex provides a mutually exclusive lock, or mutex. At most one
     thread can hold the mutex at any time. If a thread tries to
-    acquire the mutex while the mutex already locked, the thread will
-    be put to sleep until the thread that current holds the mutex
+    acquire the mutex while the mutex is already locked, the thread will
+    be put to sleep until the thread that currently holds the mutex
     unlocks it. Mutexes are often used to protect accesses to shared
     data (i.e., data that can be accessed from multiple threads
     simultaneously). In the \l{Reentrancy and Thread-Safety} section
