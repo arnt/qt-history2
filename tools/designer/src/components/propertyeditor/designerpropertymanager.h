@@ -34,6 +34,7 @@ class ResetWidget;
 class TextPropertyEditor;
 class PaletteEditorButton;
 class GraphicsPropertyEditor;
+class StringListEditorButton;
 
 class ResetDecorator : public QObject
 {
@@ -145,6 +146,7 @@ private:
     QMap<QtProperty *, qlonglong> m_longLongValues;
     QMap<QtProperty *, qulonglong> m_uLongLongValues;
     QMap<QtProperty *, QUrl> m_urlValues;
+    QMap<QtProperty *, QStringList> m_stringListValues;
 
     QMap<QtProperty *, int> m_stringAttributes;
 
@@ -178,6 +180,7 @@ private slots:
     void slotLongLongChanged(const QString &value);
     void slotULongLongChanged(const QString &value);
     void slotUrlChanged(const QString &value);
+    void slotStringListChanged(const QStringList &value);
 private:
 
     ResetDecorator *m_resetDecorator;
@@ -202,6 +205,8 @@ private:
     QMap<QLineEdit *, QtProperty *>                         m_editorToULongLongProperty;
     QMap<QtProperty *, QList<QLineEdit *> >                 m_urlPropertyToEditors;
     QMap<QLineEdit *, QtProperty *>                         m_editorToUrlProperty;
+    QMap<QtProperty *, QList<StringListEditorButton *> >    m_stringListPropertyToEditors;
+    QMap<StringListEditorButton *, QtProperty *>            m_editorToStringListProperty;
 };
 
 }

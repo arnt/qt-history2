@@ -32,7 +32,7 @@ public:
     { return m_stringList; }
 
 signals:
-    void changed();
+    void stringListChanged(const QStringList &stringList);
 
 public slots:
     void setStringList(const QStringList &stringList);

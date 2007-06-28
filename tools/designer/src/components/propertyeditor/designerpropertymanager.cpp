@@ -22,6 +22,7 @@
 #include <QLineEdit>
 #include <QUrl>
 #include "paletteeditorbutton.h"
+#include "stringlisteditorbutton.h"
 #include <QtDesigner/QDesignerIconCacheInterface>
 #include <private/qfont_p.h>
 #include <qlonglongvalidator.h>
@@ -586,6 +587,8 @@ bool DesignerPropertyManager::isPropertyTypeSupported(int propertyType) const
         return true;
     if (propertyType == QVariant::Url)
         return true;
+    if (propertyType == QVariant::StringList)
+        return true;
     return QtVariantPropertyManager::isPropertyTypeSupported(propertyType);
 }
 
@@ -643,6 +646,9 @@ QString DesignerPropertyManager::valueText(const QtProperty *property) const
     if (m_urlValues.contains(const_cast<QtProperty *>(property))) {
         return m_urlValues.value(const_cast<QtProperty *>(property)).toString();
     }
+    if (m_stringListValues.contains(const_cast<QtProperty *>(property))) {
+        return m_stringListValues.value(const_cast<QtProperty *>(property)).join(QLatin1String("; "));
+    }
     return QtVariantPropertyManager::valueText(property);
 }
 
@@ -683,6 +689,8 @@ QVariant DesignerPropertyManager::value(const QtProperty *property) const
         return m_uLongLongValues.value(const_cast<QtProperty *>(property));
     if (m_urlValues.contains(const_cast<QtProperty *>(property)))
         return m_urlValues.value(const_cast<QtProperty *>(property));
+    if (m_stringListValues.contains(const_cast<QtProperty *>(property)))
+        return m_stringListValues.value(const_cast<QtProperty *>(property));
     return QtVariantPropertyManager::value(property);
 }
 
@@ -706,6 +714,8 @@ int DesignerPropertyManager::valueType(int propertyType) const
         return QVariant::ULongLong;
     if (propertyType == QVariant::Url)
         return QVariant::Url;
+    if (propertyType == QVariant::StringList)
+        return QVariant::StringList;
     return QtVariantPropertyManager::valueType(propertyType);
 }
 
@@ -922,6 +932,22 @@ void DesignerPropertyManager::setValue(QtProperty *property, const QVariant &val
         emit propertyChanged(property);
 
         return;
+    } else if (m_stringListValues.contains(property)) {
+        if (value.type() != QVariant::StringList && !value.canConvert(QVariant::StringList))
+            return;
+
+        QStringList v = value.toStringList();
+
+        QStringList oldValue = m_stringListValues.value(property);
+        if (v == oldValue)
+            return;
+
+        m_stringListValues[property] = v;
+
+        emit valueChanged(property, v);
+        emit propertyChanged(property);
+
+        return;
     }
     QtVariantPropertyManager::setValue(property, value);
 }
@@ -981,6 +1007,8 @@ void DesignerPropertyManager::initializeProperty(QtProperty *property)
         m_uLongLongValues[property] = 0;
     } else if (propertyType(property) == QVariant::Url) {
         m_urlValues[property] = 0;
+    } else if (propertyType(property) == QVariant::StringList) {
+        m_stringListValues[property] = QStringList();
     }
 
     QtVariantPropertyManager::initializeProperty(property);
@@ -1050,6 +1078,7 @@ void DesignerPropertyManager::uninitializeProperty(QtProperty *property)
     m_longLongValues.remove(property);
     m_uLongLongValues.remove(property);
     m_urlValues.remove(property);
+    m_stringListValues.remove(property);
 
     QtVariantPropertyManager::uninitializeProperty(property);
 }
@@ -1195,6 +1224,13 @@ void DesignerEditorFactory::slotValueChanged(QtProperty *property, const QVarian
             QLineEdit *editor = it.next();
             editor->setText(value.toUrl().toString());
         }
+    } else if (manager->propertyType(property) == QVariant::StringList) {
+        QList<StringListEditorButton *> editors = m_stringListPropertyToEditors.value(property);
+        QListIterator<StringListEditorButton *> it(editors);
+        while (it.hasNext()) {
+            StringListEditorButton *editor = it.next();
+            editor->setStringList(value.toStringList());
+        }
     }
 }
 
@@ -1269,6 +1305,13 @@ QWidget *DesignerEditorFactory::createEditor(QtVariantPropertyManager *manager, 
         connect(ed, SIGNAL(destroyed(QObject *)), this, SLOT(slotEditorDestroyed(QObject *)));
         connect(ed, SIGNAL(textChanged(const QString &)), this, SLOT(slotUrlChanged(const QString &)));
         editor = ed;
+    } else if (manager->propertyType(property) == QVariant::StringList) {
+        StringListEditorButton *ed = new StringListEditorButton(manager->value(property).toStringList(), parent);
+        m_stringListPropertyToEditors[property].append(ed);
+        m_editorToStringListProperty[ed] = property;
+        connect(ed, SIGNAL(destroyed(QObject *)), this, SLOT(slotEditorDestroyed(QObject *)));
+        connect(ed, SIGNAL(stringListChanged(const QStringList &)), this, SLOT(slotStringListChanged(const QStringList &)));
+        editor = ed;
     } else {
         editor = QtVariantEditorFactory::createEditor(manager, property, parent);
     }
@@ -1318,6 +1361,8 @@ void DesignerEditorFactory::slotEditorDestroyed(QObject *object)
     if (removeEditor(object, &m_uLongLongPropertyToEditors, &m_editorToULongLongProperty))
         return;
     if (removeEditor(object, &m_urlPropertyToEditors, &m_editorToUrlProperty))
+        return;
+    if (removeEditor(object, &m_stringListPropertyToEditors, &m_editorToStringListProperty))
         return;
 }
 
@@ -1379,6 +1424,11 @@ void DesignerEditorFactory::slotIconChanged(const QIcon &value)
 void DesignerEditorFactory::slotPixmapChanged(const QPixmap &value)
 {
     updateManager(this, &m_changingPropertyValue, m_editorToPixmapProperty, qobject_cast<QWidget *>(sender()), qVariantFromValue(value));
+}
+
+void DesignerEditorFactory::slotStringListChanged(const QStringList &value)
+{
+    updateManager(this, &m_changingPropertyValue, m_editorToStringListProperty, qobject_cast<QWidget *>(sender()), qVariantFromValue(value));
 }
 
 ResetDecorator::~ResetDecorator()
