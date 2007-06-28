@@ -446,7 +446,6 @@ static void qt_set_windows_resources()
     QFont messageFont;
     QFont statusFont;
     QFont titleFont;
-    QFont smallTitleFont;
     QFont iconTitleFont;
     QT_WA({
         NONCLIENTMETRICS ncm;
@@ -456,7 +455,6 @@ static void qt_set_windows_resources()
         messageFont = qt_LOGFONTtoQFont(ncm.lfMessageFont,true);
         statusFont = qt_LOGFONTtoQFont(ncm.lfStatusFont,true);
         titleFont = qt_LOGFONTtoQFont(ncm.lfCaptionFont,true);
-        smallTitleFont = qt_LOGFONTtoQFont(ncm.lfSmCaptionFont,true);
         LOGFONTW lfIconTitleFont;
         SystemParametersInfoW(SPI_GETICONTITLELOGFONT, sizeof(lfIconTitleFont), &lfIconTitleFont, 0);
         iconTitleFont = qt_LOGFONTtoQFont(lfIconTitleFont,true);
@@ -472,7 +470,6 @@ static void qt_set_windows_resources()
         LOGFONTA lfIconTitleFont;
         SystemParametersInfoA(SPI_GETICONTITLELOGFONT, sizeof(lfIconTitleFont), &lfIconTitleFont, 0);
         iconTitleFont = qt_LOGFONTtoQFont((LOGFONT&)lfIconTitleFont,true);
-        //smallTitleFont = qt_LOGFONTtoQFont((LOGFONT&)ncm.lfSmCaptionFont,true);
     });
 
     QApplication::setFont(menuFont, "QMenu");
