@@ -469,13 +469,12 @@ static void qt_set_windows_resources()
         messageFont = qt_LOGFONTtoQFont((LOGFONT&)ncm.lfMessageFont,true);
         statusFont = qt_LOGFONTtoQFont((LOGFONT&)ncm.lfStatusFont,true);
         titleFont = qt_LOGFONTtoQFont((LOGFONT&)ncm.lfCaptionFont,true);
-        smallTitleFont = qt_LOGFONTtoQFont((LOGFONT&)ncm.lfSmCaptionFont,true);
         LOGFONTA lfIconTitleFont;
         SystemParametersInfoA(SPI_GETICONTITLELOGFONT, sizeof(lfIconTitleFont), &lfIconTitleFont, 0);
         iconTitleFont = qt_LOGFONTtoQFont((LOGFONT&)lfIconTitleFont,true);
+        //smallTitleFont = qt_LOGFONTtoQFont((LOGFONT&)ncm.lfSmCaptionFont,true);
     });
 
-    QApplication::setFont(iconTitleFont, "QAbstractItemView");
     QApplication::setFont(menuFont, "QMenu");
     QApplication::setFont(menuFont, "QMenuBar");
     QApplication::setFont(messageFont, "QMessageBox");
@@ -483,7 +482,9 @@ static void qt_set_windows_resources()
     QApplication::setFont(statusFont, "QStatusBar");
     QApplication::setFont(titleFont, "Q3TitleBar");
     QApplication::setFont(titleFont, "QWorkspaceTitleBar");
-    QApplication::setFont(smallTitleFont, "QDockWidgetTitle");
+    QApplication::setFont(iconTitleFont, "QAbstractItemView");
+    QApplication::setFont(iconTitleFont, "QDockWidgetTitle");
+
 #else
     LOGFONT lf;
     HGDIOBJ stockFont = GetStockObject(SYSTEM_FONT);
