@@ -306,7 +306,7 @@ void QComboBoxPrivateContainer::leaveEvent(QEvent *)
 // when the mouse moves outside the popup.
 #ifdef Q_WS_MAC
     QStyleOptionComboBox opt = comboStyleOption();
-    if (combo->style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, q))
+    if (combo->style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, combo))
         view->clearSelection();
 #endif
 }
