@@ -14,3 +14,58 @@ General Improvements
 
 - Translations
     * Updated the German translation to provide complete coverage of Qt.
+
+****************************************************************************
+*                           Library                                        *
+****************************************************************************
+
+General Improvements
+--------------------
+
+- QAbstractPrintDialog
+    * [163000] Fixed bug on unix where PrintSelection option would not be
+               enabled unless PrintPageRange was enabled.
+
+- QGraphicsView
+    * [160828] Fixed bug in QGraphicsScene/View::render() which could cause
+               nothing to be rendered for QPicture target devices.
+
+- QPainter
+    * [158815] Fixed rendering artifacts for extended composition modes with
+               semitransparent or antialiased drawing.
+    * [163744] Fixed aliased ellipse drawing artifacts (horizontal lines)
+               in raster engine.
+    * [166623] Fixed bug where gradients with ObjectBoundingMode would be
+               drawn at an incorrect offset.
+    * [167497] Fixed color bleeding artifacts at edges when drawing
+               images/pixmaps with SmoothPixmapTransform on X11.
+    * [168621] Fixed bug which would cause projective transformations to be
+               incorrectly applied for non-top-level widgets.
+    * [168623] Fixed drawing of gradients with projective transformations.
+
+- QPixmap
+    * [167841] Fixed bug where filling a QPixmap with an alpha color would
+               fail to detach the pixmap, causing copies of the pixmap to
+               be changed as well.
+
+- QRegion
+    * [167445] Removed potential assert in QRegion::operator^ on unix.
+
+- QTextEdit
+    * [161577] Fixed regression causing Shift-Backspace to be ignored.
+    * [165833] Fixed floating point overflow causing incorrect page heights
+               for text documents.
+    * [167377] Fixed performance regression when appending a lot of text in
+               NoWrap line break mode when there is a horizontal scrollbar.
+
+- QTextDocument
+    * [160631] Fixed missing HTML export of page break policies.
+    * [163258] Fixed bug causing text table borders to not be drawn in
+               QLabels and tooltips.
+    * [166670] Fixed layouting bug causing the right margin property of 
+               paragraphs inside table cells to be ignored.
+    * [168406] Fixed rendering bug which would cause incorrect background
+               fills for paragraphs with a left margin set.
+
+- QTextLayout
+    * [166083] Fixed incorrect line breaking when breaking at a tab character.
