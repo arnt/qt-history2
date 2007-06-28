@@ -431,6 +431,38 @@ void WidgetFactory::initialize(QObject *object) const
     }
 }
 
+// Check for 'interactor' click on a tab bar,
+// which can appear within a QTabWidget or as a standalone widget.
+
+static bool isTabBarInteractor(const QTabBar *tabBar)
+{
+    // Tabbar embedded in Q(Designer)TabWidget, ie, normal tab widget case
+    if (qobject_cast<const QTabWidget*>(tabBar->parentWidget()))
+        return true;
+
+    // Standalone tab bar on the form. Return true for tab rect areas
+    // only to allow the user to select the tab bar by clicking outside the actual tabs.
+    const int count = tabBar->count();
+    if (count == 0)
+        return false;
+
+    // click into current tab: No Interaction
+    const int currentIndex = tabBar->currentIndex();
+    const QPoint pos = tabBar->mapFromGlobal(QCursor::pos());
+    if (tabBar->tabRect(currentIndex).contains(pos))
+        return false;
+
+    // click outside: No Interaction
+    const QRect geometry = QRect(QPoint(0, 0), tabBar->size());
+    if (!geometry.contains(pos))
+        return false;
+    // click into another tab: Let's interact, switch tabs.
+    for (int i = 0; i < count; i++)
+        if (tabBar->tabRect(i).contains(pos))
+            return true;
+    return false;
+}
+
 bool WidgetFactory::isPassiveInteractor(QWidget *widget)
 {
     if (m_lastPassiveInteractor != 0 && (QWidget*)(*m_lastPassiveInteractor) == widget)
@@ -444,9 +476,11 @@ bool WidgetFactory::isPassiveInteractor(QWidget *widget)
     else if (widget == 0)
         return m_lastWasAPassiveInteractor;
 
-    if (qobject_cast<QTabBar*>(widget))
-        return (m_lastWasAPassiveInteractor = true);
-    else if (qobject_cast<QSizeGrip*>(widget))
+    if (const QTabBar *tabBar = qobject_cast<const QTabBar*>(widget)) {
+        if (isTabBarInteractor(tabBar))
+            m_lastWasAPassiveInteractor = true;
+        return m_lastWasAPassiveInteractor;
+    }  else if (qobject_cast<QSizeGrip*>(widget))
         return (m_lastWasAPassiveInteractor = true);
     else if (qobject_cast<QAbstractButton*>(widget) && (qobject_cast<QTabBar*>(widget->parent()) || qobject_cast<QToolBox*>(widget->parent())))
         return (m_lastWasAPassiveInteractor = true);
