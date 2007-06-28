@@ -20,6 +20,7 @@
 #include <qdesigner_formbuilder_p.h>
 #include <sheet_delegate_p.h>
 
+#include <QtDesigner/QDesignerFormEditorInterface>
 #include <QtDesigner/QDesignerFormWindowInterface>
 #include <QtDesigner/QExtensionManager>
 #include <QtDesigner/QDesignerLanguageExtension>
