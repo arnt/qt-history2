@@ -1870,17 +1870,20 @@ void QApplicationPrivate::setFocusWidget(QWidget *focus, Qt::FocusReason reason)
                 }
 #endif
                 QFocusEvent out(QEvent::FocusOut, reason);
-                QStyle *style = prev->style();
+                QPointer<QWidget> that = prev;
                 QApplication::sendEvent(prev, &out);
-                QApplication::sendEvent(style, &out);
+                if (that)
+                    QApplication::sendEvent(that->style(), &out);
             }
             if(focus && QApplicationPrivate::focus_widget == focus) {
                 QInputContext *qic = focus->inputContext();
                 if (qic && focus_widget->testAttribute(Qt::WA_WState_Created))
                     qic->setFocusWidget( focus_widget );
                 QFocusEvent in(QEvent::FocusIn, reason);
+                QPointer<QWidget> that = focus;
                 QApplication::sendEvent(focus, &in);
-                QApplication::sendEvent(focus->style(), &in);
+                if (that)
+                    QApplication::sendEvent(that->style(), &in);
             }
         }
         emit qApp->focusChanged(prev, focus_widget);

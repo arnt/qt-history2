@@ -65,6 +65,7 @@ private slots:
     void setActiveWindow();
 
     void focusChanged();
+    void focusOut();
 
     void execAfterExit();
 
@@ -1218,6 +1219,49 @@ void tst_QApplication::focusChanged()
     QVERIFY(now == QApplication::focusWidget());
     QVERIFY(old == &le2);
     spy.clear();
+}
+
+class LineEdit : public QLineEdit
+{
+public:
+    LineEdit(QWidget *parent = 0) : QLineEdit(parent) { }
+
+protected:
+    void focusOutEvent(QFocusEvent *e) {
+        QLineEdit::focusOutEvent(e);
+        if (objectName() == "le1")
+            setStyleSheet("");
+    }
+
+    void focusInEvent(QFocusEvent *e) {
+        QLineEdit::focusInEvent(e);
+        if (objectName() == "le2")
+            setStyleSheet("");
+    }
+};
+
+void tst_QApplication::focusOut()
+{
+    int argc = 1;
+    QApplication app(argc, &argv0, QApplication::GuiServer);
+
+    // Tests the case where the style pointer changes when on focus in/out
+    // (the above is the case when the stylesheet changes)
+    QWidget w;
+    QLineEdit *le1 = new LineEdit(&w);
+    le1->setObjectName("le1");
+    le1->setStyleSheet("background: #fee");
+    le1->setFocus();
+
+    QLineEdit *le2 = new LineEdit(&w);
+    le2->setObjectName("le2");
+    le2->setStyleSheet("background: #fee");
+    le2->move(100, 100);
+    w.show();
+
+    QTest::qWait(2000);
+    le2->setFocus();
+    QTest::qWait(2000);
 }
 
 void tst_QApplication::execAfterExit()
