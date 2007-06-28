@@ -22,6 +22,8 @@ QT_BEGIN_HEADER
 #  include "QtCore/qatomic_alpha.h"
 #elif defined(QT_ARCH_ARM)
 #  include "QtCore/qatomic_arm.h"
+#elif defined(QT_ARCH_BFIN)
+#  include "QtCore/qatomic_bfin.h"
 #elif defined(QT_ARCH_BOUNDSCHECKER)
 #  include "QtCore/qatomic_boundschecker.h"
 #elif defined(QT_ARCH_GENERIC)
