@@ -90,9 +90,13 @@
     \printuntil /^\}/
 
     The \c initializeGL() function is fairly minimal, only setting up the display
-    list used in the scene. To cooperate fully with QPainter, we defer matrix
-    stack operations and attribute initialization until the widget needs to be
-    updated.
+    list used in the scene.
+
+    \skipto initializeGL(
+    \printuntil /^\}/
+
+    To cooperate fully with QPainter, we defer matrix stack operations and attribute
+    initialization until the widget needs to be updated.
 
     In this example, we implement \l{QWidget::paintEvent()}{paintEvent()} rather
     than \l{QGLWidget::paintGL()}{paintGL()} to render
