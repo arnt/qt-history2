@@ -1538,9 +1538,8 @@ void QFileDialog::accept()
             info = QFileInfo(d->getEnvironmentVariable(fn));
         if (!info.exists()) {
 #ifndef QT_NO_MESSAGEBOX
-            QString message = tr("\nFile not found.\nPlease verify the "
-                                 "correct file name was given");
-
+            QString message = tr("%1\nDirectory not found.\nPlease verify the "
+                                          "correct directory name was given.");
             QMessageBox::warning(this, windowTitle(), info.fileName() + message);
 #endif // QT_NO_MESSAGEBOX
             return;
