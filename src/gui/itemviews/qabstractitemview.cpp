@@ -3440,7 +3440,6 @@ QWidget *QAbstractItemViewPrivate::editor(const QModelIndex &index,
             addEditor(index, w);
             QWidget::setTabOrder(q, w);
 
-            if (q->currentIndex() == index) {
             // Special cases for some editors containing QLineEdit
 #ifndef QT_NO_LINEEDIT
             if (QLineEdit *le = ::qobject_cast<QLineEdit*>(w))
@@ -3450,7 +3449,6 @@ QWidget *QAbstractItemViewPrivate::editor(const QModelIndex &index,
             if (QSpinBox *sb = ::qobject_cast<QSpinBox*>(w))
                 sb->selectAll();
 #endif
-            }
         }
     }
     return w;

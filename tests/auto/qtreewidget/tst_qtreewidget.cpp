@@ -366,7 +366,7 @@ void tst_QTreeWidget::editItem_data()
     {
         TreeItemList list;
         for (int i = 0; i < 10; i++) {
-            TreeItem *item = new TreeItem(QStringList() << "" << "");
+            TreeItem *item = new TreeItem(QStringList() << "col1" << "col2");
             if ((i & 1) == 0)
                 item->setFlags(item->flags() | Qt::ItemIsEditable);
             else
@@ -396,9 +396,10 @@ void tst_QTreeWidget::editItem()
                 QTest::ignoreMessage(QtWarningMsg, "edit: editing failed");
             tree.editItem(item, col);
             QApplication::instance()->processEvents();
-            QWidget *editor = tree.findChild<QLineEdit*>();
+            QLineEdit *editor = tree.findChild<QLineEdit*>();
             if (editor) {
                 QVERIFY(item->flags() & Qt::ItemIsEditable);
+                QCOMPARE(editor->selectedText(), editor->text());
                 QTest::keyClick(editor, Qt::Key_A);
                 QTest::keyClick(editor, Qt::Key_Enter);
                 QApplication::instance()->processEvents();
