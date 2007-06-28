@@ -3304,8 +3304,12 @@ int QGLWidget::fontDisplayListBase(const QFont & font, int listBase)
 static void qt_save_gl_state()
 {
 #ifndef Q_WS_QWS
+    glPushClientAttrib(GL_CLIENT_ALL_ATTRIB_BITS);
     glPushAttrib(GL_ALL_ATTRIB_BITS);
 #endif
+    glMatrixMode(GL_TEXTURE);
+    glPushMatrix();
+    glLoadIdentity();
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
     glMatrixMode(GL_MODELVIEW);
@@ -3321,12 +3325,15 @@ static void qt_save_gl_state()
 
 static void qt_restore_gl_state()
 {
+    glMatrixMode(GL_TEXTURE);
+    glPopMatrix();
     glMatrixMode(GL_PROJECTION);
     glPopMatrix();
     glMatrixMode(GL_MODELVIEW);
     glPopMatrix();
 #ifndef Q_WS_QWS
     glPopAttrib();
+    glPopClientAttrib();
 #endif
 }
 
