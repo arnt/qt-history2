@@ -1859,6 +1859,7 @@
 
 /*!
     \enum Qt::Dock
+    \compat
 
     Each dock window can be in one of the following positions:
 
