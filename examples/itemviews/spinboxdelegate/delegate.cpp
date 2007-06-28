@@ -55,7 +55,7 @@ void SpinBoxDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
     spinBox->interpretText();
     int value = spinBox->value();
 
-    model->setData(index, value);
+    model->setData(index, value, Qt::EditRole);
 }
 
 void SpinBoxDelegate::updateEditorGeometry(QWidget *editor,
