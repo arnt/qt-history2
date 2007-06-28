@@ -38,7 +38,7 @@ private slots:
 
 private:
     QPixmap formPreviewPixmap(const QString &fileName);
-    void loadFrom(const QString &path, bool resourceFile);
+    void loadFrom(const QString &path, bool resourceFile, const QString &uiExtension);
 
 private:
     bool openTemplate(const QString &templateFileName);

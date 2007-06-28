@@ -21,6 +21,8 @@
 #include <sheet_delegate_p.h>
 
 #include <QtDesigner/QDesignerFormWindowInterface>
+#include <QtDesigner/QExtensionManager>
+#include <QtDesigner/QDesignerLanguageExtension>
 
 #include <QtCore/QDir>
 #include <QtCore/QFile>
@@ -68,11 +70,21 @@ NewForm::NewForm(QDesignerWorkbench *workbench, QWidget *parentWidget, const QSt
     }
     m_recentButton->setMenu(recentFilesMenu);
 
-    loadFrom(QLatin1String(":/trolltech/designer/templates/forms"), true);
+
+    QString uiExtension = QLatin1String("ui");
+    QString templatePath = QLatin1String(":/trolltech/designer/templates/forms");
+
+    QDesignerLanguageExtension *lang = qt_extension<QDesignerLanguageExtension *>(workbench->core()->extensionManager(), workbench->core());
+    if (lang) {
+        templatePath = QLatin1String(":/templates/forms");
+        uiExtension = lang->uiExtension();
+    }
+
+    loadFrom(templatePath, true, uiExtension);
 
     QDesignerSettings settings;
     foreach(QString path, settings.formTemplatePaths())
-        loadFrom(path, false);
+        loadFrom(path, false, uiExtension);
 }
 
 NewForm::~NewForm()
@@ -229,7 +241,7 @@ QPixmap NewForm::formPreviewPixmap(const QString &fileName)
     return QPixmap::fromImage(dest);
 }
 
-void NewForm::loadFrom(const QString &path, bool resourceFile)
+void NewForm::loadFrom(const QString &path, bool resourceFile, const QString &uiExtension)
 {
     const QDir dir(path);
 
@@ -237,7 +249,8 @@ void NewForm::loadFrom(const QString &path, bool resourceFile)
         return;
 
     // Iterate through the directory and add the templates
-    const QFileInfoList list = dir.entryInfoList(QStringList(QLatin1String("*.ui")), QDir::Files);
+    const QFileInfoList list = dir.entryInfoList(QStringList(QLatin1String("*.") + uiExtension),
+                                                 QDir::Files);
 
     if (list.isEmpty())
         return;
