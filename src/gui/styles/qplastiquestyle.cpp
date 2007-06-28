@@ -20,6 +20,7 @@ static const bool AnimateBusyProgressBar = true;
 static const bool AnimateProgressBar = false;
 // #define QPlastique_MaskButtons
 static const int ProgressBarFps = 25;
+static const int blueFrameWidth =  2;  // with of line edit focus frame
 
 #include "qwindowsstyle_p.h"
 #include <qapplication.h>
@@ -4255,6 +4256,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                     QStyleOptionFrame frameOpt;
                     frameOpt.initFrom(lineEdit);
                     frameOpt.rect = subControlRect(CC_SpinBox, spinBox, SC_SpinBoxEditField, widget);
+                    frameOpt.rect.adjust(-blueFrameWidth, -blueFrameWidth, blueFrameWidth, blueFrameWidth);
                     frameOpt.lineWidth = pixelMetric(QStyle::PM_DefaultFrameWidth);
                     frameOpt.midLineWidth = 0;
                     frameOpt.state |= QStyle::State_Sunken;
@@ -4534,6 +4536,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                     if (QLineEdit *lineedit = qFindChild<QLineEdit *>(widget))
                         frameOpt.initFrom(lineedit);
                     frameOpt.rect = subControlRect(CC_ComboBox, option, SC_ComboBoxEditField, widget);
+                    frameOpt.rect.adjust(-blueFrameWidth, -blueFrameWidth, blueFrameWidth, blueFrameWidth);
                     frameOpt.lineWidth = pixelMetric(QStyle::PM_DefaultFrameWidth);
                     frameOpt.midLineWidth = 0;
                     frameOpt.state |= QStyle::State_Sunken;
@@ -5215,6 +5218,7 @@ QRect QPlastiqueStyle::subControlRect(ComplexControl control, const QStyleOption
                 } else {
                     rect = spinBox->rect;
                 }
+                rect.adjust(blueFrameWidth, blueFrameWidth, -blueFrameWidth, -blueFrameWidth);
                 rect = visualRect(spinBox->direction, spinBox->rect, rect);
                 break;
             default:
@@ -5238,7 +5242,7 @@ QRect QPlastiqueStyle::subControlRect(ComplexControl control, const QStyleOption
                 rect = visualRect(option->direction, option->rect, rect);
 
                 if (box->editable) {
-                    rect = box->rect;
+                    rect = box->rect.adjusted(blueFrameWidth, blueFrameWidth, -blueFrameWidth, -blueFrameWidth);
                     rect.setRight(rect.right() - 16); // Overlaps the combobox button by 2 pixels
                 } else {
                     rect.setRect(option->rect.left() + frameWidth, option->rect.top() + frameWidth,
