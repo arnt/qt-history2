@@ -1682,8 +1682,9 @@ QWidget *QMenuBar::cornerWidget(Qt::Corner corner) const
 /*!
     \fn void QMenuBar::triggered(QAction *action)
 
-    This signal is emitted when an action in this menubar is triggered; \a action
-    is the action that caused the event to be sent.
+    This signal is emitted when an action in a menu belonging to this menubar
+    is triggered as a result of a mouse click; \a action is the action that
+    caused the signal to be emitted.
 
     Normally, you connect each menu action to a single slot using
     QAction::triggered(), but sometimes you will want to connect
