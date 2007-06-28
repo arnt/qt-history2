@@ -267,8 +267,10 @@ public:
 #if defined(Q_OS_MAC)
     static QT3_SUPPORT Qt::MacintoshVersion macVersion() { return (Qt::MacintoshVersion)QSysInfo::MacintoshVersion; }
 #endif
+#  ifndef QT_NO_CURSOR
     inline static  QT3_SUPPORT void setOverrideCursor(const QCursor &cursor, bool replace)
-        { if (replace) changeOverrideCursor(cursor); else setOverrideCursor(cursor); }
+    { if (replace) changeOverrideCursor(cursor); else setOverrideCursor(cursor); }
+#  endif
     inline static QT3_SUPPORT bool hasGlobalMouseTracking() {return true;}
     inline static QT3_SUPPORT void setGlobalMouseTracking(bool) {};
     inline static QT3_SUPPORT void flushX() { flush(); }
