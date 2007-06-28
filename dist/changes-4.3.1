@@ -26,9 +26,27 @@ General Improvements
     * [163000] Fixed bug on unix where PrintSelection option would not be
                enabled unless PrintPageRange was enabled.
 
+- QGLWidget
+    * [162085] X11 only: Fixed usage of QGLWidget on multiple X11 screens.
+    * [164707] X11 only: Fixed the transparent overlay color usage to make
+	       it possible to draw with a solid black color. Qt::transparent
+	       is now always returned as the transparent color in an overlay.
+    * [162143] Fixed a crash when calling renderPixmap() with insanely large
+	       sizes. It now gracefully fails instead.
+
 - QGraphicsView
     * [160828] Fixed bug in QGraphicsScene/View::render() which could cause
                nothing to be rendered for QPicture target devices.
+
+- QImage
+    * [163727] Fixed artifacts in scaled images when using Qt::FastTransformation.
+
+- QOpenGLPaintEngine
+    * [166087] Fixed a memory leak caused by not releasing GL program handles
+	       if they failed to compile.
+    * [166054] Push and pop the texture matrix stack and the client state
+	       attributes when begin()/end().
+    * [161021] Fixed drawing points with a cosmetic pen with a width > 0.
 
 - QPainter
     * [158815] Fixed rendering artifacts for extended composition modes with
@@ -42,11 +60,43 @@ General Improvements
     * [168621] Fixed bug which would cause projective transformations to be
                incorrectly applied for non-top-level widgets.
     * [168623] Fixed drawing of gradients with projective transformations.
+    * [167891] Fixed an assert in QBezier::shifted() that occured when
+	       drawing certain paths.
+
+- QPrintDialog
+    X11 only:
+    * [142701] X11 only: Fixed an assert  which occured on a system with
+	       CUPS setup, but no printers available.
+    * [165957] X11 only: Added support for picking printers from the
+	       NPRINTER and NGPRINTER enviroment variables.
+	       Don't use CUPS commandline options when not using CUPS.
+    * [158807] Fixed page ordering when printing to a CUPS printer, and
+	       .pdf files.
+    * [155129] Fixed Landscape printing with CUPS version < 1.2.
+
+    Windows only:
+    * [166054] Windows only: Fixed a crash which occured when trying to
+	       use a QPrintDialog to configure a printer set to use
+	       QPrinter::PostScriptFormat as output format.
+    * [162729] Windows only: Fixed an assert that occured when entering
+	       an invalid page range.
+
+- QPrintEngine
+    * [166499] Windows only: Printing from a QTextEdit gave wrong results
+	       under certain circumstances.
+
 
 - QPixmap
     * [167841] Fixed bug where filling a QPixmap with an alpha color would
                fail to detach the pixmap, causing copies of the pixmap to
                be changed as well.
+    * [157166] X11 only: Fixed disappearing icons on 8 bit TrueColor displays.
+
+- QRasterPaintEngine
+    * [166710] Qt::OpaqueMode wasn't taken into account under certain
+	       circumstances when QPainter::fillRect() was called.
+    * [159538] Fixed drawing of a mono image into another mono image.
+
 
 - QRegion
     * [167445] Removed potential assert in QRegion::operator^ on unix.
@@ -62,10 +112,11 @@ General Improvements
     * [160631] Fixed missing HTML export of page break policies.
     * [163258] Fixed bug causing text table borders to not be drawn in
                QLabels and tooltips.
-    * [166670] Fixed layouting bug causing the right margin property of 
+    * [166670] Fixed layouting bug causing the right margin property of
                paragraphs inside table cells to be ignored.
     * [168406] Fixed rendering bug which would cause incorrect background
                fills for paragraphs with a left margin set.
 
 - QTextLayout
     * [166083] Fixed incorrect line breaking when breaking at a tab character.
+
