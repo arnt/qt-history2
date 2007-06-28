@@ -1760,7 +1760,7 @@ void QTableWidgetPrivate::_q_dataChanged(const QModelIndex &topLeft,
   \fn void QTableWidget::cellChanged(int row, int column)
 
   This signal is emitted whenever the data of the item in the cell
-  specidied by \a row and \a column has changed.
+  specified by \a row and \a column has changed.
 */
 
 /*!
