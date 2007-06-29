@@ -22,6 +22,10 @@ General Improvements
 General Improvements
 --------------------
 
+- QAbstractItemView
+    * [166605] Fixed regression causing keyboard modifiers to have no effect during
+               drag-and-drop.
+
 - QAbstractPrintDialog
     * [163000] Fixed bug on unix where PrintSelection option would not be
                enabled unless PrintPageRange was enabled.
@@ -101,6 +105,10 @@ General Improvements
 - QRegion
     * [167445] Removed potential assert in QRegion::operator^ on unix.
 
+- QScrollArea
+    * [167838] Use micro focus rectangle (if "active") instead of the entire widget
+               in ensureWidgetVisible().
+
 - QTextEdit
     * [161577] Fixed regression causing Shift-Backspace to be ignored.
     * [165833] Fixed floating point overflow causing incorrect page heights
@@ -120,3 +128,26 @@ General Improvements
 - QTextLayout
     * [166083] Fixed incorrect line breaking when breaking at a tab character.
 
+- QWidget
+    * [165177] Fixed crash when deleting a focus widget from a window with a non-null parent.
+
+- QWizard
+    * [159684] AeroStyle: Fixed bug causing the minimum height to be set too low.
+    * [161670] AeroStyle: Fixed problem with titlebar buttons remaining glowing after
+               the mouse had left.
+    * [161678] AeroStyle: Fixed incorrect vertical center alignment problem of wizard
+               buttons.
+
+- Q3ListViewItem
+    * [165853] Fixed background coloring of a cell.
+
+- Q3Wizard
+    * [168195] Fixed bug causing the wrong page to be shown upon reopening the wizard.
+
+****************************************************************************
+*                   Important Behavior Changes
+****************************************************************************
+
+- QScrollArea
+    * [167838] Use micro focus rectangle (if "active") instead of the entire widget
+               in ensureWidgetVisible().
