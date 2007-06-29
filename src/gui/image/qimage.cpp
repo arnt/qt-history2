@@ -132,6 +132,8 @@ const QVector<QRgb> *qt_image_colortable(const QImage &image)
 }
 
 extern int qt_defaultDpi();
+extern int qt_defaultDpiX();
+extern int qt_defaultDpiY();
 
 QBasicAtomic qimage_serial_number = Q_ATOMIC_INIT(1);
 
@@ -153,8 +155,14 @@ QImageData::QImageData()
     bytes_per_line = 0;
     format = QImage::Format_ARGB32;
 
+    // ### Qt 4.4: remove #ifdef
+#ifdef Q_WS_QWS
+    dpmx = qt_defaultDpiX()*100./2.54;
+    dpmy = qt_defaultDpiY()*100./2.54;
+#else
     dpmx = qt_defaultDpi()*100./2.54;
     dpmy = qt_defaultDpi()*100./2.54;
+#endif
     offset = QPoint(0,0);
 
     paintEngine = 0;

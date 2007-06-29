@@ -39,6 +39,8 @@ extern QDirect3DPaintEngine *qt_d3dEngine();
 #endif
 
 extern int qt_defaultDpi();
+extern int qt_defaultDpiX();
+extern int qt_defaultDpiY();
 
 // ### Qt 5: remove
 typedef void (*_qt_pixmap_cleanup_hook)(int);
@@ -603,31 +605,37 @@ bool QPixmap::convertFromImage(const QImage &image, ColorMode mode)
 int QPixmap::metric(PaintDeviceMetric metric) const
 {
     // override the image dpi with the screen dpi when rendering to a pixmap
-
-    int dpm = qRound(qt_defaultDpi()*100./2.54);
+    // ### Qt 4.4: remove #ifdef
+#ifdef Q_WS_QWS
+    int dpmX = qRound(qt_defaultDpiX()*100./2.54);
+    int dpmY = qRound(qt_defaultDpiY()*100./2.54);
+#else
+    int dpmX = qRound(qt_defaultDpi()*100./2.54);
+    int dpmY = dpmX;
+#endif
     switch (metric) {
     case PdmWidthMM:
-        return qRound(data->image.width() * 1000 / dpm);
+        return qRound(data->image.width() * 1000 / dpmX);
         break;
 
     case PdmHeightMM:
-        return qRound(data->image.height() * 1000 / dpm);
+        return qRound(data->image.height() * 1000 / dpmY);
         break;
 
     case PdmDpiX:
-        return qRound(dpm * 0.0254);
+        return qRound(dpmX * 0.0254);
         break;
 
     case PdmDpiY:
-        return qRound(dpm * 0.0254);
+        return qRound(dpmY * 0.0254);
         break;
 
     case PdmPhysicalDpiX:
-        return qRound(dpm * 0.0254);
+        return qRound(dpmX * 0.0254);
         break;
 
     case PdmPhysicalDpiY:
-        return qRound(dpm * 0.0254);
+        return qRound(dpmY * 0.0254);
         break;
     default:
         return data->image.metric(metric);
