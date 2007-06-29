@@ -77,6 +77,7 @@ public:
     static bool useButtonBalls;
     static bool adapted;
     static bool verbose;
+    static bool pause;
 
     static float animSpeed;
     static float animSpeedButtons;

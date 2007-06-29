@@ -401,6 +401,9 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 
 void MainWindow::focusInEvent(QFocusEvent *)
 {
+    if (!Colors::pause)
+        return;
+        
     if (MenuManager::instance()->ticker)
         MenuManager::instance()->ticker->pause(false);
 
@@ -413,6 +416,9 @@ void MainWindow::focusInEvent(QFocusEvent *)
 
 void MainWindow::focusOutEvent(QFocusEvent *)
 {
+    if (!Colors::pause)
+        return;
+        
     if (MenuManager::instance()->ticker)
         MenuManager::instance()->ticker->pause(true);
         
