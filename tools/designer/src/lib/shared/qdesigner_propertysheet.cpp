@@ -927,14 +927,35 @@ bool QDesignerPropertySheet::isVisible(int index) const
     if (isFakeProperty(index))
         return true;
 
+    if (propertyName(index) == QLatin1String("windowTitle") ||
+            propertyName(index) == QLatin1String("windowIcon") ||
+            propertyName(index) == QLatin1String("windowOpacity") ||
+            propertyName(index) == QLatin1String("windowIconText") ||
+            propertyName(index) == QLatin1String("windowModified")) {
+        return d->m_info.value(index).visible;
+    }
+
     const QMetaProperty p = d->m_meta->property(index);
-    return (p.isWritable() && p.isDesignable(d->m_object)) || d->m_info.value(index).visible;
+    return (p.isWritable() && (p.isDesignable(d->m_object) || p.isDesignable())) || d->m_info.value(index).visible;
 }
 
 void QDesignerPropertySheet::setVisible(int index, bool visible)
 {
     Q_D(QDesignerPropertySheet);
     d->ensureInfo(index).visible = visible;
+}
+
+bool QDesignerPropertySheet::isEnabled(int index) const
+{
+    Q_D(const QDesignerPropertySheet);
+    if (isAdditionalProperty(index))
+        return true;
+
+    if (isFakeProperty(index))
+        return true;
+
+    const QMetaProperty p = d->m_meta->property(index);
+    return (p.isWritable() && p.isDesignable(d->m_object)) || d->m_info.value(index).visible;
 }
 
 bool QDesignerPropertySheet::isAttribute(int index) const

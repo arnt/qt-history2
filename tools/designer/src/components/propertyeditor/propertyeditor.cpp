@@ -45,6 +45,7 @@
 #include "qtgroupboxpropertybrowser.h"
 #include "qtvariantproperty.h"
 #include "designerpropertymanager.h"
+#include "qdesigner_propertysheet_p.h"
 
 #include <iconloader_p.h>
 
@@ -346,6 +347,10 @@ void PropertyEditor::updateBrowserValue(QtVariantProperty *property, const QVari
         const FlagType f = qvariant_cast<FlagType>(v);
         v = f.value;
     }
+    QDesignerPropertySheet *sheet = qobject_cast<QDesignerPropertySheet*>(m_core->extensionManager()->extension(m_object, Q_TYPEID(QDesignerPropertySheetExtension)));
+    if (sheet) {
+        property->setEnabled(sheet->isEnabled(sheet->indexOf(property->propertyName())));
+    }
     m_updatingBrowser = true;
     property->setValue(v);
     m_updatingBrowser = false;
@@ -484,17 +489,6 @@ void PropertyEditor::setObject(QObject *object)
 
             int type = toBrowserType(value, propertyName);
 
-            /*
-               switch (value.type()) {
-               case QVariant::Char:
-               p = new CharProperty(value.toChar(), pname);
-               break;
-            break;
-            case QVariant::StringList:
-            p = new StringListProperty(qvariant_cast<QStringList>(value), pname);
-            break;
-        } // end switch
-        */
             QtVariantProperty *property = 0;
             bool newProperty = false;
             if (m_nameToProperty.contains(propertyName)) {

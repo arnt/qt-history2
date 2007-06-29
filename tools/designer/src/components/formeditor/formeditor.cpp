@@ -40,7 +40,6 @@
 // shared
 #include <pluginmanager_p.h>
 #include <qdesigner_taskmenu_p.h>
-#include <qdesigner_propertysheet_p.h>
 #include <qdesigner_membersheet_p.h>
 #include <qdesigner_promotion_p.h>
 

@@ -78,6 +78,8 @@ public:
 
     void createFakeProperty(const QString &propertyName, const QVariant &value = QVariant());
 
+    virtual bool isEnabled(int index) const;
+
 protected:
     bool isAdditionalProperty(int index) const;
     bool isFakeProperty(int index) const;
