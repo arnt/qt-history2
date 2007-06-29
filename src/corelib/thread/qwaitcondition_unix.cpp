@@ -159,8 +159,8 @@ struct QWaitConditionPrivate {
                 sleep(1);
                 mutex.lock();
             }
-            mutex.unlock();
             keyPressed.wakeAll();
+            mutex.unlock();          
         }
     \endcode
 
