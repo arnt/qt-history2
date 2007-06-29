@@ -13,6 +13,9 @@
 
 #include "qvfb.h"
 #include "qvfbview.h"
+#ifdef Q_WS_X11
+#include "qvfbx11view.h"
+#endif
 #include "qvfbratedlg.h"
 #include "ui_config.h"
 #include "skin.h"
@@ -102,7 +105,7 @@ static const char *red_off_led_xpm[] = {
 class AnimationSaveWidget : public QWidget {
     Q_OBJECT
 public:
-    AnimationSaveWidget(QVFbView *v);
+    AnimationSaveWidget(QVFbAbstractView *v);
     ~AnimationSaveWidget();
     bool detectPpmtoMpegCommand();
     void timerEvent(QTimerEvent *te);
@@ -113,7 +116,7 @@ protected slots:
     void reset();
     void save();
 private:
-    QVFbView *view;
+    QVFbAbstractView *view;
     QProgressBar *progressBar;
     QLabel *statusText;
     bool haveMpeg, savingAsMpeg, recording;
@@ -153,9 +156,10 @@ void Zoomer::zoom(int z)
 
 // =====================================================================
 
-QVFb::QVFb( int display_id, int w, int h, int d, int r, const QString &skin, QWidget *parent, Qt::WindowFlags flags )
+QVFb::QVFb( int display_id, int w, int h, int d, int r, const QString &skin, DisplayType displayType, QWidget *parent, Qt::WindowFlags flags )
     : QMainWindow( parent, flags )
 {
+    this->displayType = displayType;
     view = 0;
     secondaryView = 0;
     scroller = 0;
@@ -216,7 +220,12 @@ void QVFb::init( int display_id, int pw, int ph, int d, int r, const QString& sk
     	    if ( vis ) hide();
     	    menuBar()->hide();
 	    scroller = 0;
-	    view = new QVFbView( display_id, pw, ph, d, rot, skin );
+#ifdef Q_WS_X11
+	    if (displayType == X11)
+		view = new QVFbX11View( display_id, pw, ph, d, rot, skin );
+	    else
+#endif
+		view = new QVFbView( display_id, pw, ph, d, rot, skin );
 	    skin->setView( view );
 	    view->setContentsMargins( 0, 0, 0, 0 );
 	    view->setFixedSize( sw, sh );
@@ -232,7 +241,12 @@ void QVFb::init( int display_id, int pw, int ph, int d, int r, const QString& sk
             if (Skin::hasSecondaryScreen(skin_name)) {
                 QSize ssize = Skin::secondaryScreenSize(skin_name);
                 // assumes same depth and rotation
-                secondaryView = new QVFbView( display_id+1, ssize.width(), ssize.height(), d, rot, skin );
+#ifdef Q_WS_X11
+		if (displayType == X11)
+		    secondaryView = new QVFbX11View( display_id+1, ssize.width(), ssize.height(), d, rot, skin );
+		else
+#endif
+		    secondaryView = new QVFbView( display_id+1, ssize.width(), ssize.height(), d, rot, skin );
                 skin->setSecondaryView(secondaryView);
                 secondaryView->show();
             }
@@ -263,7 +277,12 @@ void QVFb::init( int display_id, int pw, int ph, int d, int r, const QString& sk
 	}
 	menuBar()->show();
 	scroller = new QScrollArea(this);
-	view = new QVFbView( display_id, pw, ph, d, rot, scroller );
+#ifdef Q_WS_X11
+	if (displayType == X11)
+	    view = new QVFbX11View( display_id, pw, ph, d, rot, scroller );
+	else
+#endif
+	    view = new QVFbView( display_id, pw, ph, d, rot, scroller );
 	scroller->setWidget(view);
 	view->setContentsMargins( 0, 0, 0, 0 );
 	setCentralWidget(scroller);
@@ -700,7 +719,7 @@ QSize QVFb::sizeHint() const
 
 // =====================================================================
 
-AnimationSaveWidget::AnimationSaveWidget(QVFbView *v) :
+AnimationSaveWidget::AnimationSaveWidget(QVFbAbstractView *v) :
 	QWidget((QWidget*)0,0),
 	view(v), recording(false), animation(0),
 	timerId(-1), progressTimerId(-1),

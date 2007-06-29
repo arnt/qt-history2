@@ -42,7 +42,7 @@ class CursorWindow : public QWidget
 public:
     CursorWindow( const QString& fn, QPoint hot, QWidget *sk);
 
-    void setView(QVFbView*);
+    void setView(QVFbAbstractView*);
     void setPos(QPoint);
     bool handleMouseEvent(QEvent *ev);
 
@@ -52,7 +52,7 @@ protected:
 
 private:
     QWidget *mouseRecipient;
-    QVFbView *view;
+    QVFbAbstractView *view;
     QWidget *skin;
     QPoint hotspot;
 };
@@ -427,7 +427,7 @@ void Skin::updateSecondaryScreen()
     }
 }
 
-void Skin::setView( QVFbView *v )
+void Skin::setView( QVFbAbstractView *v )
 {
     view = v;
     view->setFocus();
@@ -438,7 +438,7 @@ void Skin::setView( QVFbView *v )
     setupDefaultButtons();
 }
 
-void Skin::setSecondaryView( QVFbView *v )
+void Skin::setSecondaryView( QVFbAbstractView *v )
 {
     secondaryView = v;
     updateSecondaryScreen();
@@ -664,7 +664,7 @@ bool CursorWindow::handleMouseEvent(QEvent *ev)
     return handledEvent;
 }
 
-void CursorWindow::setView(QVFbView* v)
+void CursorWindow::setView(QVFbAbstractView* v)
 {
     if ( view ) {
 	view->removeEventFilter(this);

@@ -39,12 +39,21 @@
 
 extern int qvfb_protocol;
 
-QVFbView::QVFbView(int id, int w, int h, int d, Rotation r, QWidget *parent)
+QVFbAbstractView::QVFbAbstractView( QWidget *parent )
 #ifdef QVFB_USE_GLWIDGET
-    : QGLWidget(parent),
+    : QGLWidget( parent )
 #else
-      : QWidget(parent),
+    : QWidget( parent )
 #endif
+{
+}
+
+QVFbAbstractView::~QVFbAbstractView()
+{
+}
+
+QVFbView::QVFbView(int id, int w, int h, int d, Rotation r, QWidget *parent)
+        : QVFbAbstractView(parent),
         viewdepth(d), rsh(0), gsh(0), bsh(0), rmax(15), gmax(15), bmax(15),
         contentsWidth(w), contentsHeight(h), gred(1.0), ggreen(1.0), gblue(1.0),
         gammatable(0), refreshRate(30), animation(0),

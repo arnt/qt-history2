@@ -18,6 +18,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <signal.h>
+#ifdef Q_WS_X11
+#include <QX11Info>
+#endif
 
 void fn_quit_qvfb(int)
 {
@@ -29,7 +32,7 @@ void fn_quit_qvfb(int)
 void usage( const char *app )
 {
     printf( "Usage: %s [-width width] [-height height] [-depth depth] [-zoom zoom]"
-	    "[-mmap] [-nocursor] [-qwsdisplay :id] [-skin skindirectory]\n"
+	    "[-mmap] [-nocursor] [-qwsdisplay :id] [-x11display :id] [-skin skindirectory]\n"
 	    "Supported depths: 1, 4, 8, 32\n", app );
 }
 int qvfb_protocol = 0;
@@ -43,8 +46,10 @@ int main( int argc, char *argv[] )
     int width = 0;
     int height = 0;
     int depth = 32;
+    bool depthSet = false;
     int rotation = 0;
     bool cursor = true;
+    QVFb::DisplayType displayType = QVFb::QWS;
     double zoom = 1.0;
     QString displaySpec( ":0" );
     QString skin;
@@ -59,6 +64,7 @@ int main( int argc, char *argv[] )
 	    skin = argv[++i];
 	} else if ( arg == "-depth" ) {
 	    depth = atoi( argv[++i] );
+	    depthSet = true;
 	} else if ( arg == "-nocursor" ) {
 	    cursor = false;
 	} else if ( arg == "-mmap" ) {
@@ -67,6 +73,17 @@ int main( int argc, char *argv[] )
 	    zoom = atof( argv[++i] );
 	} else if ( arg == "-qwsdisplay" ) {
 	    displaySpec = argv[++i];
+	    displayType = QVFb::QWS;
+#ifdef Q_WS_X11
+	} else if ( arg == "-x11display" ) {
+	    displaySpec = argv[++i];
+	    displayType = QVFb::X11;
+
+	    // Usually only the default X11 depth will work with Xnest,
+	    // so override the default of 32 with the actual X11 depth.
+	    if (!depthSet)
+		depth = QX11Info::appDepth();
+#endif
 	} else {
 	    printf( "Unknown parameter %s\n", arg.toLatin1().constData() );
 	    usage( argv[0] );
@@ -92,7 +109,7 @@ int main( int argc, char *argv[] )
     signal(SIGINT, fn_quit_qvfb);
     signal(SIGTERM, fn_quit_qvfb);
 
-    QVFb mw( displayId, width, height, depth, rotation, skin );
+    QVFb mw( displayId, width, height, depth, rotation, skin, displayType );
     mw.setZoom(zoom);
     //app.setMainWidget( &mw );
     mw.enableCursor(cursor);
