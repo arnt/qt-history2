@@ -78,6 +78,8 @@ enum WIZ_NAV_BACKBUTTONSTATES {     //NAV_BACKBUTTONSTATES
 #define WIZ_DTT_COMPOSITED  (1UL << 13)     //DTT_COMPOSITED
 #define WIZ_DTT_GLOWSIZE    (1UL << 11)     //DTT_GLOWSIZE
 
+#define WIZ_WM_NCMOUSELEAVE 674             //WM_NCMOUSELEAVE
+
 typedef BOOL (WINAPI *PtrDwmDefWindowProc)(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, LRESULT *plResult);
 typedef HRESULT (WINAPI *PtrDwmIsCompositionEnabled)(BOOL* pfEnabled);
 typedef HRESULT (WINAPI *PtrDwmExtendFrameIntoClientArea)(HWND hWnd, const WIZ_MARGINS* pMarInset);
@@ -267,7 +269,7 @@ bool QVistaHelper::winEvent(MSG* msg, long* result)
     case WM_NCMOUSEMOVE:
     case WM_NCLBUTTONDOWN:
     case WM_NCLBUTTONUP:
-    case WM_NCMOUSELEAVE: {
+    case WIZ_WM_NCMOUSELEAVE: {
         LRESULT lResult;
         pDwmDefWindowProc(msg->hwnd, msg->message, msg->wParam, msg->lParam, &lResult);
         *result = DefWindowProc(msg->hwnd, msg->message, msg->wParam, msg->lParam);
