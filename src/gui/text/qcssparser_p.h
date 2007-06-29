@@ -366,6 +366,7 @@ enum PseudoClass
     PseudoClass_Children        = 0x00002000,
     PseudoClass_Sibling         = 0x00004000,
     PseudoClass_Default         = 0x00008000,
+    PseudoClass_Item            = PseudoClass_Default,
     PseudoClass_First           = 0x00010000,
     PseudoClass_Last            = 0x00020000,
     PseudoClass_Middle          = 0x00040000,
@@ -382,7 +383,7 @@ enum PseudoClass
     PseudoClass_Frameless        = 0x20000000,
     PseudoClass_ReadOnly         = 0x40000000,
     PseudoClass_Closed           = 0x80000000,
-    NumPseudos = 34
+    NumPseudos = 35
 };
 
 struct Q_GUI_EXPORT Pseudo

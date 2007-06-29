@@ -1335,8 +1335,8 @@ static PseudoElementInfo knownPseudoElements[NumPseudoElements] = {
     { QStyle::SC_None, "separator" },
     { QStyle::SC_None, "branch" },
     { QStyle::SC_None, "section" },
-    { QStyle::SC_None, "up-arrow" },
     { QStyle::SC_None, "down-arrow" },
+    { QStyle::SC_None, "up-arrow" },
     { QStyle::SC_None, "chunk" },
     { QStyle::SC_None, "tab" },
     { QStyle::SC_None, "scroller" },
@@ -1432,6 +1432,8 @@ static int pseudoClass(QStyle::State state)
         pc |= PseudoClass_Sibling;
     if (state & QStyle::State_ReadOnly)
         pc |= PseudoClass_ReadOnly;
+    if (state & QStyle::State_Item)
+        pc |= PseudoClass_Item;
 
     return pc;
 }

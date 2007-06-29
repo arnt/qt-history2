@@ -241,6 +241,7 @@ static const QCssKnownValue pseudos[NumPseudos - 1] = {
     { "horizontal", PseudoClass_Horizontal },
     { "hover", PseudoClass_Hover },
     { "indeterminate" , PseudoClass_Indeterminate },
+    { "is-item", PseudoClass_Item },
     { "last", PseudoClass_Last },
     { "left", PseudoClass_Left },
     { "middle", PseudoClass_Middle },
