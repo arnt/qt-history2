@@ -1052,7 +1052,7 @@ void QMenu::initStyleOption(QStyleOptionMenuItem *option, const QAction *action)
         </td>
         <td>
             \endraw
-            \inlineimage windowsXP-menu.png
+            \inlineimage windowsxp-menu.png
             \raw HTML
         </td>
         <td>
