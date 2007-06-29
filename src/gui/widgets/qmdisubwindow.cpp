@@ -954,6 +954,8 @@ void QMdiSubWindowPrivate::updateGeometryConstraints()
         else
             resizeEnabled = true;
     }
+    if (q->layout())
+        q->layout()->invalidate();
     updateDirtyRegions();
 }
 
@@ -1985,12 +1987,9 @@ void QMdiSubWindowPrivate::setSizeGrip(QSizeGrip *newSizeGrip)
 */
 void QMdiSubWindowPrivate::setSizeGripVisible(bool visible) const
 {
-    if (sizeGrip) {
-        sizeGrip->setVisible(visible);
-        return;
-    }
-    // See if we can find a size grip
-    if (QSizeGrip *grip = qFindChild<QSizeGrip *>(q_func()))
+    // See if we can find any size grips
+    QList<QSizeGrip *> sizeGrips = qFindChildren<QSizeGrip *>(q_func());
+    foreach (QSizeGrip *grip, sizeGrips)
         grip->setVisible(visible);
 }
 
@@ -2102,14 +2101,9 @@ void QMdiSubWindow::setWidget(QWidget *widget)
 
 #ifndef QT_NO_SIZEGRIP
     QSizeGrip *sizeGrip = qFindChild<QSizeGrip *>(widget);
-#ifndef QT_NO_STATUSBAR
-    if (sizeGrip && qobject_cast<QStatusBar *>(sizeGrip->parent()))
+    if (sizeGrip)
         sizeGrip->installEventFilter(this);
-    else
-#endif
-    if (sizeGrip && !d->sizeGrip)
-        d->setSizeGrip(sizeGrip);
-    else if (d->sizeGrip)
+    if (d->sizeGrip)
         d->sizeGrip->raise();
 #endif
 
