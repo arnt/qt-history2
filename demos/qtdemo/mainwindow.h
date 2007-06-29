@@ -74,6 +74,7 @@ private:
     ImageItem *qtLogo;
     bool doneAdapt;
     bool useTimer;
+    DemoTextItem *pausedLabel;
 };
 
 #endif // MAIN_WINDOW_H

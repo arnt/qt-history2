@@ -31,6 +31,7 @@ MainWindow::MainWindow(QWidget *parent) : QGraphicsView(parent), updateTimer(thi
     this->loop = false;
     this->fpsMedian = -1;
     this->fpsLabel = 0;
+    this->pausedLabel = 0;
     this->doneAdapt = false;
     this->useTimer = false;
     this->updateTimer.setSingleShot(true);
@@ -253,6 +254,11 @@ void MainWindow::setupSceneItems()
     this->qtLogo = new ImageItem(":/images/qtlogo_small.png", 1000, 1000, this->scene, 0, true, 0.5f);
     this->trolltechLogo->setZValue(100);
     this->qtLogo->setZValue(100);
+    this->pausedLabel = new DemoTextItem(QString("PAUSED"), Colors::buttonFont(), Qt::white, -1, this->scene, 0);
+    this->pausedLabel->setZValue(100);
+    QFontMetricsF fm(Colors::buttonFont());
+    this->pausedLabel->setPos(Colors::stageWidth - fm.width("PAUSED"), 590 - fm.height());
+    this->pausedLabel->setRecursiveVisible(false);
 }
 
 void MainWindow::checkAdapt()
@@ -401,6 +407,8 @@ void MainWindow::focusInEvent(QFocusEvent *)
     int code = MenuManager::instance()->currentMenuCode;
     if (code == MenuManager::ROOT || code == MenuManager::MENU1)
         this->switchTimerOnOff(true);
+
+    this->pausedLabel->setRecursiveVisible(false);
 }
 
 void MainWindow::focusOutEvent(QFocusEvent *)
@@ -411,6 +419,8 @@ void MainWindow::focusOutEvent(QFocusEvent *)
     int code = MenuManager::instance()->currentMenuCode;
     if (code == MenuManager::ROOT || code == MenuManager::MENU1)
         this->switchTimerOnOff(false);
+
+    this->pausedLabel->setRecursiveVisible(true);
 }
 
 void MainWindow::resizeEvent(QResizeEvent *event)
