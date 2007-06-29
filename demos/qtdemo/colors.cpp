@@ -215,7 +215,7 @@ void Colors::parseArgs(int argc, char *argv[])
         else if (s.startsWith("-use-timer-update"))
             Colors::noTimerUpdate = !bool(parseFloat(s, "-use-timer-update"));
         else if (s.startsWith("-pause"))
-            Colors::pause = int(parseFloat(s, "-pause"));
+            Colors::pause = bool(parseFloat(s, "-pause"));
         else if (s == "-no-ticker-morph")
             Colors::noTickerMorph = true;
         else if (s == "-use-window-mask")
