@@ -260,7 +260,9 @@
     true. You can use QSqlDatabase::transaction() to initiate a
     transaction, followed by the SQL commands you want to execute
     within the context of the transaction, and then either
-    QSqlDatabase::commit() or QSqlDatabase::rollback().
+    QSqlDatabase::commit() or QSqlDatabase::rollback(). When
+    using transactions you must start the transaction before you
+    create your query.
 
     Example:
 
