@@ -448,8 +448,8 @@ Qt::DropActions QListModel::supportedDropActions() const
     partially checked with the setCheckState() function. The corresponding
     checkState() function indicates what check state the item currently has.
 
-    The isItemHidden() function can be used to determine whether the
-    item is hidden.  Items can be hidden with setItemHidden().
+    The isHidden() function can be used to determine whether the
+    item is hidden.  Items can be hidden with setHidden().
 
     \section1 Subclassing
 
