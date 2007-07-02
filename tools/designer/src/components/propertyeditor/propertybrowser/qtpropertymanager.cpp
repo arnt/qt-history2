@@ -21,6 +21,7 @@
 #include <QFontDatabase>
 #include <QPainter>
 #include <QLabel>
+#include <limits.h>
 
 class QtMetaEnumWrapper : public QObject
 {
