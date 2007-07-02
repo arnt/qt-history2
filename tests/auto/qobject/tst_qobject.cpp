@@ -1303,7 +1303,7 @@ void tst_QObject::moveToThread()
         QCOMPARE(child->thread(), (QThread *)&thread);
 
         connect(object, SIGNAL(destroyed()), &thread, SLOT(quit()), Qt::DirectConnection);
-        object->deleteLater();
+        QMetaObject::invokeMethod(object, "deleteLater", Qt::QueuedConnection);
         thread.wait();
 
         QVERIFY(opointer == 0);
@@ -1335,7 +1335,7 @@ void tst_QObject::moveToThread()
 
         thread.start();
         connect(object, SIGNAL(destroyed()), &thread, SLOT(quit()), Qt::DirectConnection);
-        object->deleteLater();
+        QMetaObject::invokeMethod(object, "deleteLater", Qt::QueuedConnection);
         thread.wait();
     }
 
@@ -1364,7 +1364,7 @@ void tst_QObject::moveToThread()
 
         thread.start();
         connect(object, SIGNAL(destroyed()), &thread, SLOT(quit()), Qt::DirectConnection);
-        object->deleteLater();
+        QMetaObject::invokeMethod(object, "deleteLater", Qt::QueuedConnection);
         thread.wait();
     }
 
@@ -1400,7 +1400,7 @@ void tst_QObject::moveToThread()
 
         thread.start();
         connect(socket, SIGNAL(destroyed()), &thread, SLOT(quit()), Qt::DirectConnection);
-        socket->deleteLater();
+        QMetaObject::invokeMethod(socket, "deleteLater", Qt::QueuedConnection);
         thread.wait();
     }
 }
