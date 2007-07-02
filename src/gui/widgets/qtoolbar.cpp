@@ -946,6 +946,8 @@ bool QToolBar::event(QEvent *event)
     case QEvent::Show:
         d->toggleViewAction->setChecked(event->type() == QEvent::Show);
 #ifdef Q_WS_MAC
+        // Fall through
+    case QEvent::LayoutRequest:
         // There's currently no way to invalidate the size and let
         // HIToolbar know about it. This forces a re-check.
         if (QMainWindow *mainWindow = qobject_cast<QMainWindow *>(parentWidget())) {
