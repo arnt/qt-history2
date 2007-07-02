@@ -342,7 +342,7 @@ public:
     { return reinterpret_cast<QAccessibleValueInterface *>(cast_helper(QAccessible2::ValueInterface)); }
 
     inline QAccessibleTableInterface *tableInterface()
-    { return reinterpret_cast<QAccessibleTableInterface *>(cast_helper(QAccessible2::TextInterface)); }
+    { return reinterpret_cast<QAccessibleTableInterface *>(cast_helper(QAccessible2::TableInterface)); }
 
 private:
     QAccessible2Interface *cast_helper(QAccessible2::InterfaceType);
