@@ -164,6 +164,9 @@ private slots:
     void explicitlyHiddenWidget();
     void resizeTimer();
     void fixedMinMaxSize();
+#ifndef Q_WS_MAC
+    void replaceMenuBarWhileMaximized();
+#endif
 };
 
 void tst_QMdiSubWindow::initTestCase()
@@ -1643,6 +1646,72 @@ void tst_QMdiSubWindow::fixedMinMaxSize()
     QVERIFY(!subWindow->isMaximized());
     QCOMPARE(subWindow->size(), minimumSize);
 }
+
+#ifndef Q_WS_MAC
+void tst_QMdiSubWindow::replaceMenuBarWhileMaximized()
+{
+
+    QMainWindow mainWindow;
+
+    QMdiArea *mdiArea = new QMdiArea;
+    QMdiSubWindow *subWindow = mdiArea->addSubWindow(new QTextEdit);
+    subWindow->showMaximized();
+
+    mainWindow.setCentralWidget(mdiArea);
+    QMenuBar *menuBar = mainWindow.menuBar();
+    mainWindow.show();
+#ifdef Q_WS_X11
+    qt_x11_wait_for_window_manager(&mainWindow);
+#endif
+
+    QVERIFY(subWindow->maximizedButtonsWidget());
+    QVERIFY(subWindow->maximizedSystemMenuIconWidget());
+    QCOMPARE(menuBar->cornerWidget(Qt::TopLeftCorner), subWindow->maximizedSystemMenuIconWidget());
+    QCOMPARE(menuBar->cornerWidget(Qt::TopRightCorner), subWindow->maximizedButtonsWidget());
+
+    // Replace.
+    mainWindow.setMenuBar(new QMenuBar);
+    menuBar = mainWindow.menuBar();
+    qApp->processEvents();
+
+    QVERIFY(subWindow->maximizedButtonsWidget());
+    QVERIFY(subWindow->maximizedSystemMenuIconWidget());
+    QCOMPARE(menuBar->cornerWidget(Qt::TopLeftCorner), subWindow->maximizedSystemMenuIconWidget());
+    QCOMPARE(menuBar->cornerWidget(Qt::TopRightCorner), subWindow->maximizedButtonsWidget());
+
+    subWindow->showNormal();
+    QVERIFY(!subWindow->maximizedButtonsWidget());
+    QVERIFY(!subWindow->maximizedSystemMenuIconWidget());
+    QVERIFY(!menuBar->cornerWidget(Qt::TopLeftCorner));
+    QVERIFY(!menuBar->cornerWidget(Qt::TopRightCorner));
+
+    // Delete and replace.
+    subWindow->showMaximized();
+    delete menuBar;
+    mainWindow.setMenuBar(new QMenuBar);
+    qApp->processEvents();
+
+    QVERIFY(!subWindow->maximizedButtonsWidget());
+    QVERIFY(!subWindow->maximizedSystemMenuIconWidget());
+
+    subWindow->showNormal();
+    QVERIFY(!subWindow->maximizedButtonsWidget());
+    QVERIFY(!subWindow->maximizedSystemMenuIconWidget());
+
+    // Delete.
+    subWindow->showMaximized();
+    mainWindow.setMenuBar(0);
+    qApp->processEvents();
+    QVERIFY(!mainWindow.menuWidget());
+
+    QVERIFY(!subWindow->maximizedButtonsWidget());
+    QVERIFY(!subWindow->maximizedSystemMenuIconWidget());
+
+    subWindow->showNormal();
+    QVERIFY(!subWindow->maximizedButtonsWidget());
+    QVERIFY(!subWindow->maximizedSystemMenuIconWidget());
+}
+#endif
 
 QTEST_MAIN(tst_QMdiSubWindow)
 #include "tst_qmdisubwindow.moc"

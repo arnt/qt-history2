@@ -537,15 +537,28 @@ void tst_QMainWindow::menuBar()
         QCOMPARE(mw.menuBar(), (QMenuBar *)mb1);
         QVERIFY(mb2 == 0);
 
+        QPointer<QWidget> topLeftCornerWidget = new QWidget;
+        mb1->setCornerWidget(topLeftCornerWidget, Qt::TopLeftCorner);
+        QPointer<QWidget> topRightCornerWidget = new QWidget;
+        mb1->setCornerWidget(topRightCornerWidget, Qt::TopRightCorner);
+
         mb2 = new QMenuBar;
         mw.setMenuBar(mb2);
         QVERIFY(mw.menuBar() != 0);
         QCOMPARE(mw.menuBar(), (QMenuBar *)mb2);
         QVERIFY(mb1 == 0);
 
+        QVERIFY(topLeftCornerWidget);
+        QCOMPARE(mb2->cornerWidget(Qt::TopLeftCorner), static_cast<QWidget *>(topLeftCornerWidget));
+        QVERIFY(topRightCornerWidget);
+        QCOMPARE(mb2->cornerWidget(Qt::TopRightCorner), static_cast<QWidget *>(topRightCornerWidget));
+
         mw.setMenuBar(0);
         QVERIFY(mw.menuBar() != 0);
         QVERIFY(mb2 == 0);
+
+        QVERIFY(!topLeftCornerWidget);
+        QVERIFY(!topRightCornerWidget);
     }
 }
 
