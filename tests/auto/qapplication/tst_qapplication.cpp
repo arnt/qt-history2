@@ -78,7 +78,10 @@ private slots:
     void allWidgets();
 
     void setAttribute();
+
+    void windowsCommandLine_data();
     void windowsCommandLine();
+
 private:
     inline QChar pathSeparator(void)
     {
@@ -1347,20 +1350,37 @@ void tst_QApplication::setAttribute()
     delete w;
 }
 
+void tst_QApplication::windowsCommandLine_data()
+{
+#if defined(Q_OS_WIN)
+    QTest::addColumn<QString>("args");
+    QTest::addColumn<QString>("expected");
+
+    QTest::newRow("hello world")
+        << QString("Hello \"World\"") 
+        << QString("Hello \"World\"");
+    QTest::newRow("sql")
+        << QString("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'PNR' AND TABLE_TYPE = 'VIEW' ORDER BY TABLE_NAME")
+        << QString("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'PNR' AND TABLE_TYPE = 'VIEW' ORDER BY TABLE_NAME");
+#endif
+}
+
 void tst_QApplication::windowsCommandLine()
 {
 #if defined(Q_OS_WIN)
+    QFETCH(QString, args);
+    QFETCH(QString, expected);
+
     QProcess testProcess;
-    QStringList args("Hello \"World\"");
 #if defined(QT_DEBUG)
-    testProcess.start("wincmdline/debug/wincmdline", args);
+    testProcess.start("wincmdline/debug/wincmdline", QStringList(args));
 #else
-    testProcess.start("wincmdline/release/wincmdline", args);
+    testProcess.start("wincmdline/release/wincmdline", QStringList(args));
 #endif
     QVERIFY(testProcess.waitForFinished(10000));
     QByteArray error = testProcess.readAllStandardError();
     QString procError(error);
-    QCOMPARE(procError, QString("Hello \"World\""));
+    QCOMPARE(procError, expected);
 #endif
 }
 

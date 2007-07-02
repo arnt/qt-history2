@@ -75,7 +75,7 @@ static QVector<Char*> qWinCmdLine(Char *cmdParam, int length, int &argc)
                     else
                         p--;                        // treat \ literally
                 } else {
-                    if (*p == Char('\"') || *p == Char('\'')) {        // " or ' quote
+                    if (!quote && (*p == Char('\"') || *p == Char('\''))) {        // " or ' quote
                         quote = *p++;
                         continue;
                     } else if (QChar::fromLatin1(*p).isSpace() && !quote)
