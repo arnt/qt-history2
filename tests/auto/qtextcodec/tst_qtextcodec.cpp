@@ -287,6 +287,28 @@ void tst_QTextCodec::codecForLocale()
 #else
     QSKIP("This test is not implemented on Windows", SkipAll);
 #endif
+
+    // find a codec that is not the codecForLocale()
+    QTextCodec *codec2 = 0;
+    foreach (int mib, QTextCodec::availableMibs()) {
+        if (mib != codec->mibEnum()) {
+            codec2 = QTextCodec::codecForMib(mib);
+            if (codec2)
+                break;
+        }
+    }
+    if (!codec2) {
+        QSKIP("Could not find a codec that is not already the codecForLocale()", SkipAll);
+        return;
+    }
+
+    // set it, codecForLocale() should return it now
+    QTextCodec::setCodecForLocale(codec2);
+    QCOMPARE(QTextCodec::codecForLocale(), codec2);
+
+    // reset back to the default
+    QTextCodec::setCodecForLocale(0);
+    QCOMPARE(QTextCodec::codecForLocale(), codec);
 }
 
 void tst_QTextCodec::asciiToIscii() const
