@@ -918,8 +918,13 @@ void QDockWidgetPrivate::setWindowState(bool floating, bool unplug, const QRect 
     nativeDeco = false;
 #endif
 
-    if (!nativeDeco)
+    if (nativeDeco) {
+        flags |= Qt::CustomizeWindowHint | Qt::WindowTitleHint;
+        if (hasFeature(q, QDockWidget::DockWidgetClosable))
+            flags |= Qt::WindowSystemMenuHint;
+    } else {
         flags |= Qt::FramelessWindowHint;
+    }
 
     if (unplug)
         flags |= Qt::X11BypassWindowManagerHint;
