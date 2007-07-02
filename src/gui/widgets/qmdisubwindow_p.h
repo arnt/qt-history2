@@ -68,7 +68,7 @@ public:
 
 #ifndef QT_NO_MENUBAR
     void showButtonsInMenuBar(QMenuBar *menuBar);
-    void removeButtonsFromMenuBar();
+    void removeButtonsFromMenuBar(QMenuBar *menuBar = 0);
     QMenuBar *menuBar() const { return m_menuBar; }
 #endif
     void updateWindowIcon(const QIcon &windowIcon);

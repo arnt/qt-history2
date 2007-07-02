@@ -624,8 +624,15 @@ void ControlContainer::showButtonsInMenuBar(QMenuBar *menuBar)
 /*
     \internal
 */
-void ControlContainer::removeButtonsFromMenuBar()
+void ControlContainer::removeButtonsFromMenuBar(QMenuBar *menuBar)
 {
+    if (menuBar && menuBar != m_menuBar) {
+        // m_menubar was deleted while sub-window was maximized
+        previousRight = 0;
+        previousLeft = 0;
+        m_menuBar = menuBar;
+    }
+
     if (!m_menuBar)
         return;
 
@@ -1621,8 +1628,14 @@ void QMdiSubWindowPrivate::showButtonsInMenuBar(QMenuBar *menuBar)
     topLevelWindow->setWindowModified(q->isWindowModified());
     topLevelWindow->installEventFilter(q);
 
+    int buttonHeight = 0;
+    if (controlContainer->controllerWidget())
+        buttonHeight = controlContainer->controllerWidget()->height();
+    else if (controlContainer->systemMenuLabel())
+        buttonHeight = controlContainer->systemMenuLabel()->height();
+
     // This will rarely happen.
-    if (menuBar && menuBar->height() < controlContainer->controllerWidget()->height()
+    if (menuBar && menuBar->height() < buttonHeight
             && topLevelWindow->layout()) {
         // Make sure topLevelWindow->contentsRect returns correct geometry.
         // topLevelWidget->updateGeoemtry will not do the trick here since it will post the event.
@@ -1641,8 +1654,17 @@ void QMdiSubWindowPrivate::removeButtonsFromMenuBar()
 
     Q_Q(QMdiSubWindow);
 
+    QMenuBar *currentMenuBar = 0;
+#ifndef QT_NO_MAINWINDOW
+    if (QMainWindow *mainWindow = qobject_cast<QMainWindow *>(q->window())) {
+        // NB! We can't use menuBar() here because that one will actually create
+        // a menubar for us if not set. That's not what we want :-)
+        currentMenuBar = qobject_cast<QMenuBar *>(mainWindow->menuWidget());
+    }
+#endif
+
     ignoreWindowTitleChange = true;
-    controlContainer->removeButtonsFromMenuBar();
+    controlContainer->removeButtonsFromMenuBar(currentMenuBar);
     ignoreWindowTitleChange = false;
 
     QWidget *topLevelWindow = q->window();
@@ -2494,7 +2516,7 @@ bool QMdiSubWindow::eventFilter(QObject *object, QEvent *event)
             d->updateWindowTitle(true);
             d->lastChildWindowTitle = d->baseWidget->windowTitle();
 #ifndef QT_NO_MENUBAR
-        } else if (maximizedButtonsWidget() && d->controlContainer->menuBar()
+        } else if (maximizedButtonsWidget() && d->controlContainer->menuBar() && d->controlContainer->menuBar()
                    ->cornerWidget(Qt::TopRightCorner) == maximizedButtonsWidget()) {
             if (d->baseWidget && d->baseWidget->windowTitle() == windowTitle())
                 d->updateWindowTitle(true);
@@ -2611,7 +2633,7 @@ bool QMdiSubWindow::event(QEvent *event)
         if (!windowTitle().contains(QLatin1String("[*]")))
             break;
 #ifndef QT_NO_MENUBAR
-        if (maximizedButtonsWidget() && d->controlContainer->menuBar()
+        if (maximizedButtonsWidget() && d->controlContainer->menuBar() && d->controlContainer->menuBar()
                 ->cornerWidget(Qt::TopRightCorner) == maximizedButtonsWidget()) {
             window()->setWindowModified(isWindowModified());
         }
