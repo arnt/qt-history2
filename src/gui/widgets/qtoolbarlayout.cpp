@@ -477,6 +477,7 @@ QSize QToolBarLayout::expandedSize(const QSize &size) const
         updateGeomArray();
 
     QToolBar *tb = qobject_cast<QToolBar*>(parentWidget());
+    QMainWindow *win = qobject_cast<QMainWindow*>(tb->parentWidget());
     Qt::Orientation o = tb->orientation();
     QStyle *style = tb->style();
     QStyleOptionToolBar opt;
@@ -499,8 +500,13 @@ QSize QToolBarLayout::expandedSize(const QSize &size) const
         return QSize(0, 0);
 
     int min_w = pick(o, size);
-    int space = total_w/(int)sqrt(count + 0.0) + spacing + extensionExtent;
-    space = qMax(space, min_w);
+    int rows = (int)sqrt(count + 0.0);
+    if (rows == 1)
+        ++rows;      // we want to expand to at least two rows
+    int space = total_w/rows + spacing + extensionExtent;
+    space = qMax(space, min_w - 2*margin - handleExtent);
+    if (win != 0)
+        space = qMin(space, pick(o, win->size()) - 2*margin - handleExtent);
 
     int w = 0;
     int h = 0;
@@ -535,6 +541,8 @@ QSize QToolBarLayout::expandedSize(const QSize &size) const
 
     w += 2*margin + handleExtent + spacing + extensionExtent;
     w = qMax(w, min_w);
+    if (win != 0)
+        w = qMin(w, pick(o, win->size()));
     h += 2*margin;
 
     QSize result;
