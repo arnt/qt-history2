@@ -1587,7 +1587,8 @@ void QtKeySequenceEdit::handleKeyEvent(QKeyEvent *e)
 {
     int nextKey = e->key();
     if (nextKey == Qt::Key_Control || nextKey == Qt::Key_Shift ||
-            nextKey == Qt::Key_Meta || nextKey == Qt::Key_Alt || nextKey == Qt::Key_Super_L)
+            nextKey == Qt::Key_Meta || nextKey == Qt::Key_Alt ||
+            nextKey == Qt::Key_Super_L || nextKey == Qt::Key_AltGr)
         return;
 
     nextKey |= translateModifiers(e->modifiers());
