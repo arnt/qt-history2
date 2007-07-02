@@ -228,7 +228,7 @@ public:
     void updateGapIndicator();
     void paintDropIndicator(QPainter *p, QWidget *widget, const QRegion &clip);
     void applyState(QMainWindowLayoutState &newState, bool animate = true);
-    void restore();
+    void restore(bool keepSavedState = false);
     void updateHIToolBarStatus();
 
 private slots:

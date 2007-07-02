@@ -1626,14 +1626,15 @@ void QMainWindowLayout::animationFinished(QWidget *widget)
     updateGapIndicator();
 }
 
-void QMainWindowLayout::restore()
+void QMainWindowLayout::restore(bool keepSavedState)
 {
     if (!savedState.isValid())
         return;
 
     layoutState = savedState;
     applyState(layoutState);
-    savedState.clear();
+    if (!keepSavedState)
+        savedState.clear();
     currentGapPos.clear();
     pluggingWidget = 0;
     updateGapIndicator();
@@ -1806,7 +1807,7 @@ QList<int> QMainWindowLayout::hover(QLayoutItem *widgetItem, const QPoint &mouse
     currentGapPos = path;
     if (path.isEmpty()) {
         fixToolBarOrientation(widgetItem, 2); // 2 = top dock, ie. horizontal
-        restore();
+        restore(true);
         return QList<int>();
     }
 
@@ -1815,7 +1816,7 @@ QList<int> QMainWindowLayout::hover(QLayoutItem *widgetItem, const QPoint &mouse
     QMainWindowLayoutState newState = savedState;
 
     if (!newState.insertGap(path, widgetItem)) {
-        restore(); // not enough space
+        restore(true); // not enough space
         return QList<int>();
     }
 
@@ -1823,7 +1824,7 @@ QList<int> QMainWindowLayout::hover(QLayoutItem *widgetItem, const QPoint &mouse
     QSize size = newState.rect.size();
 
     if (min.width() > size.width() || min.height() > size.height()) {
-        restore();
+        restore(true);
         return QList<int>();
     }
 
