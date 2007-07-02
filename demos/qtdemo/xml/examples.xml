@@ -162,6 +162,22 @@
     <example filename="styleplugin" name="Style Plugin" />
     <example filename="undoframework" name="Undo Framework" />
   </category>
+  <category dirname="tutorial" name="Tutorial">
+    <example filename="t1" name="Tutorial 1" />
+    <example filename="t2" name="Tutorial 2" />
+    <example filename="t3" name="Tutorial 3" />
+    <example filename="t4" name="Tutorial 4" />
+    <example filename="t5" name="Tutorial 5" />
+    <example filename="t6" name="Tutorial 6" />
+    <example filename="t7" name="Tutorial 7" />
+    <example filename="t8" name="Tutorial 8" />
+    <example filename="t9" name="Tutorial 9" />
+    <example filename="t10" name="Tutorial 10" />
+    <example filename="t11" name="Tutorial 11" />
+    <example filename="t12" name="Tutorial 12" />
+    <example filename="t13" name="Tutorial 13" />
+    <example filename="t14" name="Tutorial 14" />
+  </category>
   <category dirname="widgets" name="Widgets">
     <example filename="analogclock" name="Analog Clock" />
     <example filename="calculator" name="Calculator " />
