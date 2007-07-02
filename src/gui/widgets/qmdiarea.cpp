@@ -456,6 +456,9 @@ QMdiAreaPrivate::QMdiAreaPrivate()
       isSubWindowsTiled(false),
       showActiveWindowMaximized(false),
       tileCalledFromResizeEvent(false),
+      updatesDisabledByUs(false),
+      indexToNextWindow(-1),
+      indexToPreviousWindow(-1),
       resizeTimerId(-1)
 {
 }
@@ -468,8 +471,9 @@ void QMdiAreaPrivate::_q_deactivateAllWindows(QMdiSubWindow *aboutToActivate)
     if (ignoreWindowStateChange)
         return;
 
+    Q_Q(QMdiArea);
     if (!aboutToActivate)
-        aboutToBecomeActive = qobject_cast<QMdiSubWindow *>(q_func()->sender());
+        aboutToBecomeActive = qobject_cast<QMdiSubWindow *>(q->sender());
     else
         aboutToBecomeActive = aboutToActivate;
     Q_ASSERT(aboutToBecomeActive);
@@ -481,8 +485,13 @@ void QMdiAreaPrivate::_q_deactivateAllWindows(QMdiSubWindow *aboutToActivate)
         ignoreWindowStateChange = true;
         if(!(options & QMdiArea::DontMaximizeSubWindowOnActivation) && !showActiveWindowMaximized)
             showActiveWindowMaximized = child->isMaximized() && child->isVisible();
-        if (showActiveWindowMaximized && child->isMaximized())
+        if (showActiveWindowMaximized && child->isMaximized()) {
+            if (q->updatesEnabled()) {
+                updatesDisabledByUs = true;
+                q->setUpdatesEnabled(false);
+            }
             child->showNormal();
+        }
         if (child->isMinimized() && !child->isShaded() && !windowStaysOnTop(child))
             child->lower();
         ignoreWindowStateChange = false;
@@ -748,6 +757,11 @@ void QMdiAreaPrivate::emitWindowActivated(QMdiSubWindow *activeWindow)
     Q_ASSERT(index != -1);
     indicesToActivatedChildren.move(index, 0);
     internalRaise(activeWindow);
+
+    if (updatesDisabledByUs) {
+        q->setUpdatesEnabled(true);
+        updatesDisabledByUs = false;
+    }
 
     Q_ASSERT(aboutToBecomeActive == activeWindow);
     active = activeWindow;

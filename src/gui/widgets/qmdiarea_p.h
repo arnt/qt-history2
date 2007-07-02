@@ -130,6 +130,9 @@ public:
     bool isSubWindowsTiled;
     bool showActiveWindowMaximized;
     bool tileCalledFromResizeEvent;
+    bool updatesDisabledByUs;
+    int indexToNextWindow;
+    int indexToPreviousWindow;
     int resizeTimerId;
 
     // Slots.
