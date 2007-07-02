@@ -25,7 +25,7 @@
     model/view architecture (including delegates).
 
     In this example, we will see how to implement a custom delegate
-    to render and edit a "star rating" data type, which can stores
+    to render and edit a "star rating" data type, which can store
     values such as "1 out of 5 stars".
 
     The example consists of the following classes:
