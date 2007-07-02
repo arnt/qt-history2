@@ -2323,6 +2323,14 @@ void QStyleSheetStyle::unpolish(QApplication *app)
     baseStyle()->unpolish(app);
 }
 
+inline static bool verticalTabs(QTabBar::Shape shape)
+{
+    return shape == QTabBar::RoundedWest
+           || shape == QTabBar::RoundedEast
+           || shape == QTabBar::TriangularWest
+           || shape == QTabBar::TriangularEast;
+}
+
 void QStyleSheetStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComplex *opt, QPainter *p,
                                           const QWidget *w) const
 {
@@ -2909,7 +2917,7 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
             if (!cb->currentIcon.isNull()) {
                 int spacing = rule.hasBox() ? rule.box()->spacing : -1;
                 if (spacing == -1)
-                        spacing = 6;
+                    spacing = 6;
                 QIcon::Mode mode = cb->state & State_Enabled ? QIcon::Normal : QIcon::Disabled;
                 QPixmap pixmap = cb->currentIcon.pixmap(cb->iconSize, mode);
                 QRect iconRect(editRect);
@@ -3170,7 +3178,7 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
     case CE_TabBarTabLabel:
     case CE_TabBarTabShape:
         if (const QStyleOptionTab *tab = qstyleoption_cast<const QStyleOptionTab *>(opt)) {
-            QStyleOptionTab tabCopy(*tab);
+            QStyleOptionTabV2 tabCopy(*tab);
             QRenderRule subRule = renderRule(w, opt, PseudoElement_TabBarTab);
             QRect r = positionRect(w, subRule, PseudoElement_TabBarTab, opt->rect, opt->direction);
             if (ce == CE_TabBarTabShape && subRule.hasDrawable()) {
@@ -3647,11 +3655,8 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const 
     case PM_TabBarTabHSpace:
     case PM_TabBarTabVSpace:
         subRule = renderRule(w, PseudoElement_TabBarTab);
-        if (subRule.hasBox()) {
-           return m == PM_TabBarTabVSpace
-               ? subRule.box()->paddings[TopEdge] + subRule.box()->paddings[BottomEdge]
-               : subRule.box()->paddings[LeftEdge] + subRule.box()->paddings[RightEdge];
-        }
+        if (subRule.hasBox() || subRule.hasBorder())
+            return 0;
         break;
 
     case PM_TabBarScrollButtonWidth:   {
@@ -3802,9 +3807,18 @@ QSize QStyleSheetStyle::sizeFromContents(ContentsType ct, const QStyleOption *op
 
     case CT_TabBarTab: {
         QRenderRule subRule = renderRule(w, PseudoElement_TabBarTab, PseudoClass_Enabled);
-        sz = sz.expandedTo(subRule.minimumContentsSize());
-        if (subRule.hasBox() || subRule.hasBorder())
-            return subRule.boxSize(sz, Margin | Border);
+        sz = csz.expandedTo(subRule.minimumContentsSize());
+        if (subRule.hasBox() || subRule.hasBorder()) {
+            sz = subRule.boxSize(sz);
+            int spaceForIcon = 0;
+            bool vertical = false;
+            if (const QStyleOptionTab *tab = qstyleoption_cast<const QStyleOptionTab *>(opt)) {
+                if (!tab->icon.isNull())
+                    spaceForIcon = 6 /* icon offset */ + 4 /* spacing */ + 2 /* magic */; // ###: hardcoded to match with common style
+                vertical = verticalTabs(tab->shape);
+            }
+            return sz + QSize(vertical ? 0 : spaceForIcon, vertical ? spaceForIcon : 0);
+        }
         break;
                        }
 
