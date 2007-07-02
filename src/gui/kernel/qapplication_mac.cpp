@@ -1286,6 +1286,8 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             GetEventParameter(event, kEventParamQWidget, typeQWidget, 0,
                               sizeof(widget), 0, &widget);
             if(widget) {
+                if (widget->macEvent(er, event))
+                    return noErr;
                 WindowPtr window = qt_mac_window_for(widget);
                 bool just_show = !qt_mac_is_macsheet(widget);
                 if(!just_show) {
@@ -1315,6 +1317,8 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             qt_mac_event_release(request_activate_pending.event);
             if(request_activate_pending.widget) {
                 QWidget *tlw = request_activate_pending.widget->window();
+                if (tlw->macEvent(er, event))
+                    return noErr;
                 request_activate_pending.widget = 0;
                 tlw->activateWindow();
                 SelectWindow(qt_mac_window_for(tlw));
@@ -1338,6 +1342,8 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                         widget = QApplication::widgetAt(where.x(), where.y());
                 }
                 if(widget) {
+                    if (widget->macEvent(er, event))
+                        return noErr;
                     QPoint plocal(widget->mapFromGlobal(where));
                     QContextMenuEvent qme(QContextMenuEvent::Mouse, plocal, where);
                     QApplication::sendEvent(widget, &qme);
@@ -1559,6 +1565,8 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                         GetEventParameter(event, kEventParamClickCount, typeUInt32, NULL,
                                           sizeof(count), NULL, &count);
                         if(count == 2 && qt_mac_collapse_on_dblclick) {
+                            if (widget->macEvent(er, event))
+                                return noErr;
                             widget->setWindowState(widget->windowState() | Qt::WindowMinimized);
                             //we send a hide to be like X11/Windows
                             QEvent e(QEvent::Hide);
@@ -1569,6 +1577,8 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                 }
             }
         }
+        if (widget && widget->macEvent(er, event))
+            return noErr;
         WindowPartCode wpc = qt_mac_window_at(where.h, where.v, 0);
         if (inPopupMode == false
                 && (qt_button_down == 0 || qt_button_down_in_content == false)
@@ -1892,7 +1902,10 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
         else
             widget = app->activeWindow();
 
-        if (!widget) {
+        if (widget) {
+            if (widget->macEvent(er, event))
+                return noErr;
+        } else {
             // Darn, I need to update tho modifier state, even though
             // Qt itself isn't getting them, otherwise the keyboard state get inconsistent.
             if (key_ekind == kEventRawKeyModifiersChanged) {
@@ -1918,6 +1931,8 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
         GetEventParameter(event, kEventParamDirectObject, typeWindowRef, 0,
                           sizeof(WindowRef), 0, &wid);
         widget = qt_mac_find_window(wid);
+        if (widget && widget->macEvent(er, event))
+            return noErr;
         if(ekind == kEventWindowActivated) {
             if(QApplicationPrivate::app_style) {
                 QEvent ev(QEvent::Style);

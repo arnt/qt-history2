@@ -737,6 +737,8 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef er, EventRef event,
         if(GetEventParameter(event, kEventParamDirectObject, typeControlRef,
                              0, sizeof(hiview), 0, &hiview) == noErr)
             widget = QWidget::find((WId)hiview);
+        if (widget && widget->macEvent(er, event))
+            return noErr;
         if(ekind == kEventControlDraw) {
             if(widget && qt_isGenuineQWidget(hiview)) {
                 QMacWindowChangeEvent::exec(true);

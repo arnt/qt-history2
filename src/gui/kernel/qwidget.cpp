@@ -7072,7 +7072,8 @@ void QWidget::hideEvent(QHideEvent *)
 
     \warning This function is not portable.
 
-    \warning This function is not currently called, consider using QApplication::macEventFilter()
+    \warning This function was not called inside of Qt until Qt 4.4.
+    For compatibility with earlier versions of Qt, consider using QApplication::macEventFilter()
     instead.
 
     \sa QApplication::macEventFilter()
