@@ -508,7 +508,6 @@ public:
     bool isDocument() const { return true; }
     QDomNode::NodeType nodeType() const { return QDomNode::DocumentNode; }
     void clear();
-    virtual void save(QTextStream&, int, int) const;
 
     // Variables
     QDomImplementationPrivate* impl;
@@ -6492,14 +6491,6 @@ void QDomDocumentPrivate::saveDocument(QTextStream& s, const int indent, QDomNod
             startNode = startNode->next;
         }
     }
-}
-
-/*! \internal
-   \since 4.2
- */
-void QDomDocumentPrivate::save(QTextStream&, int, int) const
-{
-    qDebug() << "This function is never expected to be called.";
 }
 
 /**************************************************************

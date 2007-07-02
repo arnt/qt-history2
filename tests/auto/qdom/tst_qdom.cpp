@@ -81,8 +81,10 @@ private slots:
     void reportDuplicateAttributes() const;
     void appendChildFromToDocument() const;
     void iterateCDATA() const;
+    void appendDocumentNode() const;
 
 private:
+    static QDomDocument generateRequest();
     static QDomDocument doc(const QString &title, const QByteArray &ba);
     static int hasAttributesHelper( const QDomNode& node );
     static bool compareDocuments( const QDomDocument &doc1, const QDomDocument &doc2 );
@@ -1592,6 +1594,42 @@ void tst_QDom::iterateCDATA() const
     QVERIFY(child.isNull());
 
     QVERIFY(element.childNodes().at(0).isCDATASection());
+}
+
+/*!
+  \internal
+  \since 4.4
+  \brief This function cannot be factored into appendDocumentNode(). The
+         invocation of constructors/destructors is part of triggering the bug.
+ */
+QDomDocument tst_QDom::generateRequest()
+{
+    QDomDocument doc;
+    QDomElement elem = doc.createElement("test_elem");
+
+    elem.setAttribute("name", "value");
+    doc.appendChild(elem);
+    return doc;
+}
+
+void tst_QDom::appendDocumentNode() const
+{
+    QDomDocument doc;
+    QDomDocument xml = generateRequest();
+    QDomElement elem = doc.createElement("document");
+
+    doc.appendChild(elem);
+
+    Q_ASSERT(!xml.isNull());
+    const QString expected(QLatin1String("<document>\n<test_elem name=\"value\" />\n</document>\n"));
+
+    elem.appendChild(xml);
+    QCOMPARE(doc.childNodes().count(), 1);
+    QCOMPARE(doc.toString(0), expected);
+
+    elem.appendChild(xml.firstChild());
+    QCOMPARE(doc.childNodes().count(), 1);
+    QCOMPARE(doc.toString(0), expected);
 }
 
 QTEST_MAIN(tst_QDom)
