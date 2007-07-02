@@ -739,6 +739,16 @@
 
     into the folder where your executable is, so that you are including a
     \c Microsoft.VC80.CRT directory alongside your application's executable.
+    If you are bundling the runtimes and also need to deploy plugins you have
+    to remove the manifest from the plugins (embedded as a resource) by
+    adding this to the pro file of the plugins you are compiling:
+
+\code
+    CONFIG-=embed_manifest_dll
+\endcode
+
+    If this is not done, plugins will not load on some systems. 
+
 
     To install the run time libraries on the end-user's system, you need to
     include the appropriate Visual C++ Redistributable Package (VCRedist)
