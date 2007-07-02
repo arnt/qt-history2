@@ -1565,7 +1565,10 @@ void QMdiSubWindowPrivate::sizeParameters(int *margin, int *minWidth) const
         return;
     }
 
-    *margin = q->style()->pixelMetric(QStyle::PM_MdiSubWindowFrameWidth);
+    if (q->isMaximized() && !drawTitleBarWhenMaximized())
+        *margin = 0;
+    else
+        *margin = q->style()->pixelMetric(QStyle::PM_MdiSubWindowFrameWidth);
 
     QStyleOptionTitleBar opt = this->titleBarOptions();
     int tempWidth = 0;
