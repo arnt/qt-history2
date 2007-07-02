@@ -1627,11 +1627,7 @@ void tst_QWidget::showMinimized()
 {
     QWidget plain;
     plain.move(100, 100);
-    Q3HBox layouted;
-    QLineEdit le(&layouted);
-    QLineEdit le2(&layouted);
-    QLineEdit le3(&layouted);
-
+    plain.resize(200, 200);
     QPoint pos = plain.pos();
 
     plain.showMinimized();
@@ -1646,6 +1642,7 @@ void tst_QWidget::showMinimized()
 
     plain.showMinimized();
     QVERIFY(plain.isMinimized());
+    QVERIFY(plain.isVisible());
     QCOMPARE(plain.pos(), pos);
 
     plain.hide();
@@ -1655,6 +1652,10 @@ void tst_QWidget::showMinimized()
     plain.showMinimized();
     QVERIFY(plain.isMinimized());
     QVERIFY(plain.isVisible());
+
+    plain.setGeometry(200, 200, 300, 300);
+    plain.showNormal();
+    QCOMPARE(plain.geometry(), QRect(200, 200, 300, 300));
 
     {
         QWidget frame;
