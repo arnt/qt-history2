@@ -325,6 +325,8 @@ void PropertyEditor::updatePropertySheet()
     if (!m_propertySheet)
         return;
 
+    updateToolBarLabel();
+
     for (int i = 0; i < m_propertySheet->count(); ++i) {
         const QString propertyName = m_propertySheet->propertyName(i);
         if (m_nameToProperty.contains(propertyName)) {
@@ -332,6 +334,20 @@ void PropertyEditor::updatePropertySheet()
             updateBrowserValue(property, m_propertySheet->property(i));
         }
     }
+}
+
+void PropertyEditor::updateToolBarLabel()
+{
+    QString objectName;
+    QString className;
+    if (m_object) {
+        objectName = m_object->objectName();
+        className = realClassName(m_object);
+    }
+
+    m_classLabel->setText(tr("%1\n%2").arg(objectName).arg(className));
+    m_classLabel->setToolTip(tr("Object: %1\nClass: %2").arg(objectName).arg(className));
+
 }
 
 void PropertyEditor::updateBrowserValue(QtVariantProperty *property, const QVariant &value)
@@ -348,7 +364,7 @@ void PropertyEditor::updateBrowserValue(QtVariantProperty *property, const QVari
         v = f.value;
     }
     QDesignerPropertySheet *sheet = qobject_cast<QDesignerPropertySheet*>(m_core->extensionManager()->extension(m_object, Q_TYPEID(QDesignerPropertySheetExtension)));
-    if (sheet) {
+    if (sheet && m_propertyToGroup.contains(property)) { // don't do it for comments since property sheet doesn't keep them
         property->setEnabled(sheet->isEnabled(sheet->indexOf(property->propertyName())));
     }
     m_updatingBrowser = true;
@@ -410,15 +426,7 @@ void PropertyEditor::setObject(QObject *object)
     m_object = object;
     m_removeDynamicMenu->clear();
 
-    QString objectName;
-    QString className;
-    if (m_object) {
-        objectName = m_object->objectName();
-        className = realClassName(m_object);
-    }
-
-    m_classLabel->setText(tr("%1\n%2").arg(objectName).arg(className));
-    m_classLabel->setToolTip(tr("Object: %1\nClass: %2").arg(objectName).arg(className));
+    updateToolBarLabel();
 
     QMap<QString, QtVariantProperty *> toRemove = m_nameToProperty;
 

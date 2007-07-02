@@ -70,6 +70,7 @@ private slots:
 
 private:
     void updateBrowserValue(QtVariantProperty *property, const QVariant &value);
+    void updateToolBarLabel();
     int toBrowserType(const QVariant &value, const QString &propertyName) const;
     QString removeScope(const QString &value) const;
     QDesignerMetaDataBaseItemInterface *metaDataBaseItem() const;
