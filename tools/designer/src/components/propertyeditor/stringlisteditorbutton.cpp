@@ -28,6 +28,7 @@ StringListEditorButton::StringListEditorButton(
 {
     setFocusPolicy(Qt::NoFocus);
     setText(tr("Change String List"));
+    setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
 
     connect(this, SIGNAL(clicked()), this, SLOT(showStringListEditor()));
 }
