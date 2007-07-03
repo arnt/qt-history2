@@ -82,19 +82,39 @@
     Earlier versions of aCC do not support the \c{-Ae} option (this enables
     the ANSI C c89 mode) and therefore you need to use \c{cc} instead.
 
-    \section1 Intel C++ (Linux, Windows, FreeBSD)
+    \section1 Intel C++ Compiler
+
+    \section2 Intel C++ Compiler for Linux
+
+    Trolltech currently tests the following compilers:
+
+    \list
+    \o Intel(R) C++ Compiler for applications running on IA-32,
+       Version 10.0 Build 20070613 Package ID: l_cc_c_10.0.025
+    \o Intel(R) C++ Compiler for applications running on Intel(R) 64,
+       Version 10.0 Build 20070613 Package ID: l_cc_c_10.0.025
+    \endlist
+
+    \section2 Known issues with Intel C++ Compiler for Linux
+
+    \list
+    \o Precompiled header support does not work with version 10.0.025
+       of this compiler.  For now, configure Qt with -no-pch.
+    \o Version 10.0.025 for Intel 64 is known to miscompile qmake when
+       building in release mode. For now, configure Qt with -debug.
+    \endlist
+
+    These issues have been reported to Intel and are awaiting resolution.
+
+    \section2 Intel C++ Compiler (Windows, Altix)
 
     Qt 4 has been tested successfully with:
 
     \list
     \o Windows - Intel(R) C++ Compiler for 32-bit applications,
        Version 8.1 Build 20050309Z Package ID: W_CC_PC_8.1.026
-    \o Linux - Intel(R) C++ Itanium(R) Compiler for Itanium(R)-based
-       applications Version 8.1 Build 20050518 Package ID: l_cc_pc_8.1.032
     \o Altix - Intel(R) C++ Itanium(R) Compiler for Itanium(R)-based
        applications Version 8.1 Build 20050406 Package ID: l_cc_pc_8.1.030
-    \o FreeBSD - Intel(R) C++ Compiler for 32-bit applications,
-       Version 8.1 Build 20050520Z Package ID: l_cc_pc_8.1.032
     \endlist
 
     We currently only test the Intel compiler on 32-bit Windows versions.
