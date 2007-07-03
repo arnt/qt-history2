@@ -1329,10 +1329,10 @@ void QByteArray::resize(int size)
     Example:
     \code
         QByteArray ba("Istambul");
-        ba.fill("o");
+        ba.fill('o');
         // ba == "oooooooo"
 
-        ba.fill("X", 2);
+        ba.fill('X', 2);
         // ba == "XX"
     \endcode
 
