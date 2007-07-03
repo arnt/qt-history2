@@ -165,7 +165,7 @@
     \section1 No Limits
 
     Because we had the \c{moc} for signals and slots, we could add
-    other useful things to it that could not not be done with templates.
+    other useful things to it that could not be done with templates.
     Among these are scoped translations via a generated \c{tr()}
     function, and an advanced property system with introspection and
     extended runtime type information. The property system alone is a
