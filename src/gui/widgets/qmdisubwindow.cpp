@@ -2910,7 +2910,6 @@ void QMdiSubWindow::paintEvent(QPaintEvent *paintEvent)
     QStyleOptionFrame frameOptions;
     frameOptions.initFrom(this);
     frameOptions.lineWidth = style()->pixelMetric(QStyle::PM_MdiSubWindowFrameWidth, 0, this);
-    frameOptions.midLineWidth = 1;
     if (d->isActive)
         frameOptions.state |= QStyle::State_Active;
     else
