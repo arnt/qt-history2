@@ -985,6 +985,14 @@ void QDockWidgetPrivate::setWindowState(bool floating, bool unplug, const QRect 
     The visual appearance of the title bar and buttons is dependent
     on the \l{QStyle}{style} in use.
 
+    A QDockWidget acts as a wrapper for its child widget, set with setWidget().
+    Custom size hints, minimum and maximum sizes and size policies should be
+    implemented in the child widget. QDockWidget will respect them, adjusting
+    its own constraints to include the frame and title. Size constraints
+    should not be set on the QDockWidget itself, because they change depending
+    on wether it is docked; a docked QDockWidget has no frame and a smaller title
+    bar.
+
     \sa QMainWindow, {Dock Widgets Example}
 */
 
