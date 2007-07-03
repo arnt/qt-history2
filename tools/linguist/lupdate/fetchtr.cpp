@@ -975,21 +975,22 @@ bool UiHandler::startElement( const QString& /* namespaceURI */,
                               const QString& qName,
                               const QXmlAttributes& atts )
 {
-    if ( qName == QString(QLatin1String("item")) ) {
+    if ( qName == QLatin1String("item") ) {
         flush();
-        if ( !atts.value(QString(QLatin1String("text"))).isEmpty() )
-            source = atts.value( QString(QLatin1String("text")) );
-    } else if ( qName == QString(QLatin1String("string")) ) {
+        if ( !atts.value(QLatin1String("text")).isEmpty() )
+            source = atts.value(QLatin1String("text"));
+    } else if ( qName == QLatin1String("string") ) {
         flush();
-        if (atts.value(QString(QLatin1String("notr"))).isEmpty() ||
-            atts.value(QString(QLatin1String("notr"))) != QString(QLatin1String("true"))) {
+        if (atts.value(QLatin1String("notr")).isEmpty() ||
+            atts.value(QLatin1String("notr")) != QLatin1String("true")) {
             trString = true;
-            comment = atts.value(QString(QLatin1String("comment")));
+            comment = atts.value(QLatin1String("comment"));
         } else {
             trString = false;
         }
     }
-    if (trString) m_lineNumber = m_locator->lineNumber();
+    if (trString)
+        m_lineNumber = m_locator->lineNumber();
     accum.truncate( 0 );
     return true;
 }
@@ -998,19 +999,18 @@ bool UiHandler::endElement( const QString& /* namespaceURI */,
                             const QString& /* localName */,
                             const QString& qName )
 {
-    accum.replace( QRegExp(QString(QLatin1String("\r\n"))), QLatin1String("\n") );
+    accum.replace( QRegExp(QLatin1String("\r\n")), QLatin1String("\n") );
 
-    if ( qName == QString(QLatin1String("class")) ) {
+    if ( qName == QLatin1String("class") ) {
         if ( context.isEmpty() )
             context = accum;
-    } else if ( qName == QString(QLatin1String("string")) && trString ) {
+    } else if ( qName == QLatin1String("string") && trString ) {
         source = accum;
-    } else if ( qName == QString(QLatin1String("comment")) ) {
+    } else if ( qName == QLatin1String("comment") ) {
         comment = accum;
         flush();
-    } else if ( qName == QString(QLatin1String("function")) ) {
-        fetchtr_inlined_cpp( fname, accum, tor,
-                             context.toLatin1() );
+    } else if ( qName == QLatin1String("function") ) {
+        fetchtr_inlined_cpp( fname, accum, tor, context.toLatin1() );
     } else {
         flush();
     }
