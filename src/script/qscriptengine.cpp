@@ -758,7 +758,7 @@ QScriptContext *QScriptEngine::currentContext() const
   restore the old context.
 
   By default, the `this' object of the new context is the Global Object.
-  The context's \l{QScriptContext::callee()}() will be invalid.
+  The context's \l{QScriptContext::callee()}{callee}() will be invalid.
 
   This function is useful when you want to evaluate script code
   as if it were the body of a function. You can use the context's
