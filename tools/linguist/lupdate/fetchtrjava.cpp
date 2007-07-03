@@ -559,8 +559,8 @@ static void parse( MetaTranslator *tor )
                  qPrintable(yyFileName), yyParenLineNo );
 }
 
-void lupdateApplication::fetchtr_java( const QString &fileName,  MetaTranslator *tor,
-                   const char *defaultContext, bool mustExist, const QByteArray &codecForSource )
+void lupdateApplication::fetchtr_java( const QString &fileName, MetaTranslator *tor,
+    const QString &defaultContext, bool mustExist, const QByteArray &codecForSource )
 {
     yyDefaultContext = defaultContext;   
     yyInPos = -1;

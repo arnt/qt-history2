@@ -894,7 +894,7 @@ static void parse( MetaTranslator *tor, const char *initialContext, const char *
 }
 
 void lupdateApplication::fetchtr_cpp( const QString &fileName, MetaTranslator *tor,
-    const char *defaultContext, bool mustExist, const QByteArray &codecForSource )
+    const QString &defaultContext, bool mustExist, const QByteArray &codecForSource )
 {
 #if defined(_MSC_VER) && _MSC_VER >= 1400
 	if (fopen_s(&yyInFile, qPrintable(fileName), "r")) {
@@ -916,7 +916,7 @@ void lupdateApplication::fetchtr_cpp( const QString &fileName, MetaTranslator *t
 
     startTokenizer( fileName, getCharFromFile, tor->codecForTr(),
         QTextCodec::codecForName(codecForSource) );
-    parse( tor, 0, defaultContext );
+    parse( tor, 0, defaultContext.toAscii() );
     fclose( yyInFile );
 }
 
@@ -1044,8 +1044,10 @@ void UiHandler::flush()
 }
 
 void lupdateApplication::fetchtr_ui( const QString &fileName, MetaTranslator *tor,
-                 const char * /* defaultContext */, bool mustExist )
+                 const QString &defaultContext, bool mustExist )
 {
+    Q_UNUSED(defaultContext)
+    
     QFile f( fileName );
     if ( !f.open(QIODevice::ReadOnly) ) {
 		if ( mustExist ) {

@@ -264,18 +264,18 @@ int lupdateApplication::start()
 #ifdef LINGUIST_DEBUG
             qDebug() << "  " << (*it);
 #endif
-	    if ( (*it).endsWith(QLatin1String(".java"), Qt::CaseInsensitive) ) {
-	        fetchtr_java( *it, &fetchedTor, defaultContext.toAscii(), true, codecForSource );
-	    }
+            if ( (*it).endsWith(QLatin1String(".java"), Qt::CaseInsensitive) ) {
+                fetchtr_java( *it, &fetchedTor, defaultContext, true, codecForSource );
+            }
             else if ( (*it).endsWith(QLatin1String(".ui"), Qt::CaseInsensitive) ) {
 #ifdef LINGUIST_DEBUG
                 qDebug() << "  " << (*it) + ".h";
 #endif
-                fetchtr_ui( *it, &fetchedTor, defaultContext.toAscii(), true );
+                fetchtr_ui( *it, &fetchedTor, defaultContext, true );
                 fetchtr_cpp( *it + ".h", &fetchedTor,
-                             defaultContext.toAscii(), false, codecForSource );
-            }else{
-                fetchtr_cpp( *it, &fetchedTor, defaultContext.toAscii(), true, codecForSource );
+                             defaultContext, false, codecForSource );
+            } else {
+                fetchtr_cpp( *it, &fetchedTor, defaultContext, true, codecForSource );
             }
         }
 

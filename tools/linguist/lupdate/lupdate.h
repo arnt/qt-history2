@@ -16,16 +16,18 @@ public:
 
     // defined in fetchtr.cpp
     void fetchtr_cpp( const QString &fileName, MetaTranslator *tor,
-                      const char *defaultContext, bool mustExist, const QByteArray &codecForSource );
+                      const QString &defaultContext, bool mustExist,
+                      const QByteArray &codecForSource );
     void fetchtr_ui( const QString &fileName, MetaTranslator *tor,
-                     const char *defaultContext, bool mustExist );
+                     const QString &defaultContext, bool mustExist );
 
     // defined in fetchtrjava.cpp
     void fetchtr_java( const QString &fileName, MetaTranslator *tor,
-                       const char *defaultContext, bool mustExist, const QByteArray &codecForSource );
+                       const QString &defaultContext, bool mustExist,
+                       const QByteArray &codecForSource );
     // defined in merge.cpp
-    void merge( const MetaTranslator *tor, const MetaTranslator *virginTor, MetaTranslator *out,
-                bool verbose, bool noObsolete );
+    void merge( const MetaTranslator *tor, const MetaTranslator *virginTor,
+                MetaTranslator *out, bool verbose, bool noObsolete );
 
     void recursiveFileInfoList( const QDir &dir, const QStringList &nameFilters, 
                                 QDir::Filters filter, bool recursive, QFileInfoList *fileinfolist);
