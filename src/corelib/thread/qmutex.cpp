@@ -385,8 +385,7 @@ void QMutex::unlock()
     \ingroup thread
     \ingroup environment
 
-    The purpose of QMutexLocker is to simplify QMutex locking and
-    unlocking. Locking and unlocking a QMutex in complex functions and
+    Locking and unlocking a QMutex in complex functions and
     statements or in exception handling code is error-prone and
     difficult to debug. QMutexLocker can be used in such situations
     to ensure that the state of the mutex is always well-defined.
