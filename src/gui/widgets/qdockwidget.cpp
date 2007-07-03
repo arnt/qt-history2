@@ -867,7 +867,7 @@ void QDockWidgetPrivate::moveEvent(QMoveEvent *event)
 {
     Q_Q(QDockWidget);
 
-    if (state == 0 || !state->dragging || !state->nca)
+    if (state == 0 || !state->dragging || !state->nca || !q->isWindow())
         return;
 
     // When the native window frame is being dragged, all we get is these mouse
