@@ -751,7 +751,34 @@ QScriptContext *QScriptEngine::currentContext() const
 }
 
 /*!
-  \internal
+  Enters a new execution context and returns the associated
+  QScriptContext object.
+
+  Once you are done with the context, you should call popContext() to
+  restore the old context.
+
+  By default, the `this' object of the new context is the Global Object.
+  The context's \l{QScriptContext::callee()}() will be invalid.
+
+  This function is useful when you want to evaluate script code
+  as if it were the body of a function. You can use the context's
+  \l{QScriptContext::activationObject()}{activationObject}() to initialize
+  local variables that will be available to scripts. Example:
+
+  \code
+  QScriptEngine engine;
+  QScriptContext *context = engine.pushContext();
+  context->activationObject().setProperty("myArg", QScriptValue(&engine, 123));
+  engine.evaluate("var tmp = myArg + 42");
+  ...
+  engine.popContext();
+  \endcode
+
+  In the above example, the new variable "tmp" defined in the script
+  will be local to the context; in other words, the script doesn't
+  have any effect on the global environment.
+
+  \sa popContext()
 */
 QScriptContext *QScriptEngine::pushContext()
 {
@@ -767,7 +794,10 @@ QScriptContext *QScriptEngine::pushContext()
 }
 
 /*!
-  \internal
+  Pops the current execution context and restores the previous one.
+  This function must be used in conjunction with pushContext().
+
+  \sa pushContext()
 */
 void QScriptEngine::popContext()
 {

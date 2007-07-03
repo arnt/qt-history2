@@ -341,6 +341,36 @@ void tst_QScriptContext::pushAndPopContext()
     // popping the top-level context is not allowed
     eng.popContext();
     QCOMPARE(eng.currentContext(), topLevel);
+
+    {
+        QScriptContext *ctx3 = eng.pushContext();
+        ctx3->activationObject().setProperty("foo", QScriptValue(&eng, 123));
+        QVERIFY(eng.evaluate("foo").strictlyEquals(QScriptValue(&eng, 123)));
+        eng.evaluate("var bar = 'ciao'");
+        QVERIFY(ctx3->activationObject().property("bar", QScriptValue::ResolveLocal).strictlyEquals(QScriptValue(&eng, "ciao")));
+        eng.popContext();
+    }
+
+    {
+        QScriptContext *ctx4 = eng.pushContext();
+        QScriptValue obj = eng.newObject();
+        obj.setProperty("prop", QScriptValue(&eng, 456));
+        ctx4->setThisObject(obj);
+        QScriptValue ret = eng.evaluate("var tmp = this.prop; return tmp + 1");
+        QCOMPARE(eng.currentContext(), ctx4);
+        QVERIFY(ret.strictlyEquals(QScriptValue(&eng, 457)));
+        eng.popContext();
+    }
+
+    // throwing an exception
+    {
+        QScriptContext *ctx5 = eng.pushContext();
+        QScriptValue ret = eng.evaluate("throw new Error('oops')");
+        QVERIFY(ret.isError());
+        QVERIFY(eng.hasUncaughtException());
+        QCOMPARE(eng.currentContext(), ctx5);
+        eng.popContext();
+    }
 }
 
 void tst_QScriptContext::lineNumber()
