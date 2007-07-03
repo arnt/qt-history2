@@ -936,8 +936,9 @@ bool QSqlQuery::exec()
         4  NULL
     \endcode
 
-    To bind NULL values, a null QVariant has to be added to the bound QVariantList,
-    for example: \c {QVariant(QVariant::String)}
+    To bind NULL values, a null QVariant of the relevant type has to be added to
+    the bound QVariantList; for example, \c {QVariant(QVariant::String)} should be
+    used if you are using strings.
 
     Note that every bound QVariantList must contain the same amount of variants.
     Note that the type of the QVariants in a list must not change. For example,
@@ -965,6 +966,9 @@ bool QSqlQuery::execBatch(BatchExecutionMode mode)
     must be included when specifying the placeholder name. If \a paramType
     is QSql::Out or QSql::InOut, the placeholder will be
     overwritten with data from the database after the exec() call.
+
+    To bind a NULL value, use a null QVariant; for example, use
+    \c {QVariant(QVariant::String)} if you are binding a string.
 
     \sa addBindValue(), prepare(), exec(), boundValue() boundValues()
 */
@@ -994,6 +998,9 @@ void QSqlQuery::bindValue(int pos, const QVariant& val, QSql::ParamType paramTyp
     which placeholder a value will be bound to in the prepared query.
     If \a paramType is QSql::Out or QSql::InOut, the placeholder will
     be overwritten with data from the database after the exec() call.
+
+    To bind a NULL value, use a null QVariant; for example, use
+    \c {QVariant(QVariant::String)} if you are binding a string.
 
     \sa bindValue(), prepare(), exec(), boundValue() boundValues()
 */
