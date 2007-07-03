@@ -42,6 +42,7 @@
 #include <QSignalMapper>
 
 #include "qttreepropertybrowser.h"
+#include "qtbuttoncontainerpropertybrowser.h"
 #include "qtgroupboxpropertybrowser.h"
 #include "qtvariantproperty.h"
 #include "designerpropertymanager.h"
@@ -158,12 +159,16 @@ PropertyEditor::PropertyEditor(QDesignerFormEditorInterface *core, QWidget *pare
     m_treeAction = new QAction(tr("Tree View"), this);
     m_treeAction->setCheckable(true);
     m_treeAction->setIcon(createIconSet(QLatin1String("widgets/listview.png")));
+    m_buttonContainerAction = new QAction(tr("Container Button View"), this);
+    m_buttonContainerAction->setCheckable(true);
+    m_buttonContainerAction->setIcon(createIconSet(QLatin1String("widgets/toolbutton.png")));
     m_groupBoxAction = new QAction(tr("Group Box View"), this);
     m_groupBoxAction->setCheckable(true);
     m_groupBoxAction->setIcon(createIconSet(QLatin1String("widgets/groupbox.png")));
     actionGroup->addAction(m_treeAction);
+    actionGroup->addAction(m_buttonContainerAction);
     actionGroup->addAction(m_groupBoxAction);
-    m_groupBoxAction->setChecked(true);
+    m_buttonContainerAction->setChecked(true);
     connect(actionGroup, SIGNAL(triggered(QAction *)),
                 this, SLOT(slotViewTriggered(QAction *)));
 
@@ -197,14 +202,22 @@ PropertyEditor::PropertyEditor(QDesignerFormEditorInterface *core, QWidget *pare
     toolBar->addWidget(removeButton);
     toolBar->addSeparator();
     toolBar->addAction(m_treeAction);
+    toolBar->addAction(m_buttonContainerAction);
     toolBar->addAction(m_groupBoxAction);
 
-    QScrollArea *scroll = new QScrollArea(m_stackedWidget);
-    m_groupBrowser = new QtGroupBoxPropertyBrowser(scroll);
+    QScrollArea *groupScroll = new QScrollArea(m_stackedWidget);
+    m_groupBrowser = new QtGroupBoxPropertyBrowser(groupScroll);
     m_groupBrowser->layout()->setMargin(-1);
-    scroll->setWidgetResizable(true);
-    scroll->setWidget(m_groupBrowser);
-    m_groupBoxIndex = m_stackedWidget->addWidget(scroll);
+    groupScroll->setWidgetResizable(true);
+    groupScroll->setWidget(m_groupBrowser);
+    m_groupBoxIndex = m_stackedWidget->addWidget(groupScroll);
+
+    QScrollArea *buttonScroll = new QScrollArea(m_stackedWidget);
+    m_buttonBrowser = new QtButtonContainerPropertyBrowser(buttonScroll);
+    m_buttonBrowser->layout()->setMargin(-1);
+    buttonScroll->setWidgetResizable(true);
+    buttonScroll->setWidget(m_buttonBrowser);
+    m_buttonContainerIndex = m_stackedWidget->addWidget(buttonScroll);
 
     m_treeBrowser = new QtTreePropertyBrowser(m_stackedWidget);
     m_treeBrowser->setRootIsDecorated(false);
@@ -222,10 +235,11 @@ PropertyEditor::PropertyEditor(QDesignerFormEditorInterface *core, QWidget *pare
     DesignerEditorFactory *groupFactory = new DesignerEditorFactory(m_core, this);
     QtVariantPropertyManager *variantManager = m_propertyManager;
     m_groupBrowser->setFactoryForManager(variantManager, groupFactory);
+    m_buttonBrowser->setFactoryForManager(variantManager, groupFactory);
     m_treeBrowser->setFactoryForManager(variantManager, treeFactory);
 
-    m_stackedWidget->setCurrentIndex(m_groupBoxIndex);
-    m_currentBrowser = m_groupBrowser;
+    m_stackedWidget->setCurrentIndex(m_buttonContainerIndex);
+    m_currentBrowser = m_buttonBrowser;
 
     connect(groupFactory, SIGNAL(resetProperty(QtProperty *)), this, SLOT(slotResetProperty(QtProperty *)));
     connect(treeFactory, SIGNAL(resetProperty(QtProperty *)), this, SLOT(slotResetProperty(QtProperty *)));
@@ -247,6 +261,9 @@ void PropertyEditor::slotViewTriggered(QAction *action)
     if (action == m_treeAction) {
         m_currentBrowser = m_treeBrowser;
         idx = m_treeIndex;
+    } else if (action == m_buttonContainerAction) {
+        m_currentBrowser = m_buttonBrowser;
+        idx = m_buttonContainerIndex;
     } else {
         m_currentBrowser = m_groupBrowser;
         idx = m_groupBoxIndex;
