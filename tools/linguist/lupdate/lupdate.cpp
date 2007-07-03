@@ -76,17 +76,17 @@ void lupdateApplication::updateTsFiles( const MetaTranslator& fetchedTor,
         merge( &tor, &fetchedTor, &out, verbose, noObsolete );
         if ( noObsolete )
             out.stripObsoleteMessages();
-        out.stripEmptyContexts();
+            out.stripEmptyContexts();
         
             if ( !out.save(*t) ) {
 #if defined(_MSC_VER) && _MSC_VER >= 1400
                 char buf[100];
                 strerror_s(buf, sizeof(buf), errno);
                 qWarning("lupdate error: Cannot save '%s': %s\n",
-                     fn.toLatin1().constData(), buf );
+                     qPrintable(fn), buf );
 #else
-            qWarning( "lupdate error: Cannot save '%s': %s\n",
-                     fn.toLatin1().constData(), strerror(errno) );
+                qWarning( "lupdate error: Cannot save '%s': %s\n",
+                     qPrintable(fn), strerror(errno) );
 #endif
             }
         ++t;
@@ -96,8 +96,8 @@ void lupdateApplication::updateTsFiles( const MetaTranslator& fetchedTor,
 
 int lupdateApplication::start()
 {
-    int argc = arguments().count();
     QStringList argv = arguments();
+    int argc = argv.count();
     QString defaultContext = QLatin1String("@default");
     MetaTranslator fetchedTor;
     QByteArray codecForTr;
@@ -125,26 +125,25 @@ int lupdateApplication::start()
 
     for ( i = 1; i < argc; i++ ) {
         QString arg = argv.at(i);
-        QByteArray barg = arg.toLocal8Bit();
-        if ( barg == "-help") {
+        if ( arg == QLatin1String("-help") ) {
             printUsage();
             return 0;
-        } else if ( barg == "-noobsolete" ) {
+        } else if ( arg == QLatin1String("-noobsolete") ) {
             noObsolete = true;
             continue;
-        } else if ( barg == "-silent") {
+        } else if ( arg == QLatin1String("-silent") ) {
             verbose = false;
             continue;
-        } else if ( barg == "-verbose") {
+        } else if ( arg == QLatin1String("-verbose") ) {
             verbose = true;
             continue;
-        } else if ( barg == "-version") {
+        } else if ( arg == QLatin1String("-version") ) {
             Console::out(tr("lupdate version %1\n").arg(QT_VERSION_STR) );
             return 0;
-        } else if ( barg == "-ts") {
+        } else if ( arg == QLatin1String("-ts") ) {
             metTsFlag = true;
             continue;
-        } else if ( barg == "-extensions") {
+        } else if ( arg == QLatin1String("-extensions") ) {
             ++i;
             if (i == argc) {
                 qWarning("The -extensions option should be followed by an extension list.");
@@ -165,10 +164,10 @@ int lupdateApplication::start()
 				char buf[100];
 				strerror_s(buf, sizeof(buf), errno);
 				qWarning("lupdate error: Cannot open file '%s': %s\n",
-                         barg.constData(), buf );
+                         qPrintable(arg), buf );
 #else
                 qWarning("lupdate error: Cannot open file '%s': %s\n",
-                         barg.constData(), strerror(errno) );
+                         qPrintable(arg), strerror(errno) );
 #endif
                 return 1;
             }
@@ -186,11 +185,11 @@ int lupdateApplication::start()
                     tsFileNames.append( QFileInfo(arg).absoluteFilePath() );
                 } else {
                     qWarning("lupdate warning: For some reason, I cannot save '%s'\n",
-                             barg.constData() );
+                             qPrintable(arg) );
                 }
             } else {
                 qWarning("lupdate error: File '%s' lacks .ts or .xlf extension\n",
-                         barg.constData() );
+                         qPrintable(arg) );
             }
         } else if (arg.endsWith(QLatin1String(".pro"), Qt::CaseInsensitive)) {
             proFiles << arg;
@@ -266,17 +265,17 @@ int lupdateApplication::start()
             qDebug() << "  " << (*it);
 #endif
 	    if ( (*it).endsWith(QLatin1String(".java"), Qt::CaseInsensitive) ) {
-	        fetchtr_java( (*it).toAscii(), &fetchedTor, defaultContext.toAscii(), true, codecForSource );
+	        fetchtr_java( *it, &fetchedTor, defaultContext.toAscii(), true, codecForSource );
 	    }
             else if ( (*it).endsWith(QLatin1String(".ui"), Qt::CaseInsensitive) ) {
 #ifdef LINGUIST_DEBUG
                 qDebug() << "  " << (*it) + ".h";
 #endif
-                fetchtr_ui( (*it).toAscii(), &fetchedTor, defaultContext.toAscii(), true );
-                fetchtr_cpp( QString((*it) + QLatin1String(".h")).toAscii(), &fetchedTor,
+                fetchtr_ui( *it, &fetchedTor, defaultContext.toAscii(), true );
+                fetchtr_cpp( *it + ".h", &fetchedTor,
                              defaultContext.toAscii(), false, codecForSource );
             }else{
-                fetchtr_cpp( (*it).toAscii(), &fetchedTor, defaultContext.toAscii(), true, codecForSource );
+                fetchtr_cpp( *it, &fetchedTor, defaultContext.toAscii(), true, codecForSource );
             }
         }
 

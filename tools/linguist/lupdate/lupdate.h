@@ -15,13 +15,13 @@ public:
     int start();
 
     // defined in fetchtr.cpp
-    void fetchtr_cpp( const char *fileName, MetaTranslator *tor,
+    void fetchtr_cpp( const QString &fileName, MetaTranslator *tor,
                       const char *defaultContext, bool mustExist, const QByteArray &codecForSource );
-    void fetchtr_ui( const char *fileName, MetaTranslator *tor,
+    void fetchtr_ui( const QString &fileName, MetaTranslator *tor,
                      const char *defaultContext, bool mustExist );
 
     // defined in fetchtrjava.cpp
-    void fetchtr_java( const char *fileName, MetaTranslator *tor,
+    void fetchtr_java( const QString &fileName, MetaTranslator *tor,
                        const char *defaultContext, bool mustExist, const QByteArray &codecForSource );
     // defined in merge.cpp
     void merge( const MetaTranslator *tor, const MetaTranslator *virginTor, MetaTranslator *out,

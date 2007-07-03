@@ -53,7 +53,7 @@ class Scope
   should be self-explanatory.
 */
 
-static QByteArray yyFileName;
+static QString yyFileName;
 static QChar yyCh;
 static QString yyIdent;
 static QString yyComment;
@@ -167,7 +167,7 @@ static int getToken()
                         if ( yyCh == EOF ) {
                             qFatal( "%s: Unterminated Java comment starting at"
                                     " line %d\n",
-                                    (const char *) yyFileName, yyLineNo );
+                                    qPrintable(yyFileName), yyLineNo );
                             
                             return Tok_Comment;
                         }
@@ -203,7 +203,8 @@ static int getToken()
                                 else {
                                     int sub(yyCh.toLower().toAscii() - 87);
                                     if( sub > 15 || sub < 10) {
-                                        qFatal( "%s:%d: Invalid Unicode", (const char *) yyFileName, yyLineNo );    
+                                        qFatal( "%s:%d: Invalid Unicode",
+                                            qPrintable(yyFileName), yyLineNo );    
                                     }
                                     unicode += sub;
                                 }
@@ -225,7 +226,8 @@ static int getToken()
                 }
                 
                 if ( yyCh != '"' )
-                    qFatal( "%s:%d: Unterminated string", (const char *) yyFileName, yyLineNo );
+                    qFatal( "%s:%d: Unterminated string",
+                        qPrintable(yyFileName), yyLineNo );
                 
                 yyCh = getChar();
                 
@@ -335,11 +337,13 @@ static bool matchString( QString &s )
     yyTok = getToken();
     while ( yyTok == Tok_Plus ) {
         yyTok = getToken();
-        if(yyTok == Tok_String)
+        if (yyTok == Tok_String)
             s += yyString;
         else {
-	    qWarning( "%s:%d: String used in translation can only contain strings concatenated with other strings, not expresions or numbers.", (const char *) yyFileName, yyLineNo );
-	    return false;  
+            qWarning( "%s:%d: String used in translation can only contain strings"
+                " concatenated with other strings, not expressions or numbers.",
+                qPrintable(yyFileName), yyLineNo );
+            return false;  
         }
         yyTok = getToken();
     }
@@ -441,7 +445,7 @@ static void parse( MetaTranslator *tor )
             }
             else {
                 qFatal( "%s:%d: Class must be followed by a classname",
-                                          (const char *) yyFileName, yyLineNo );
+                                          qPrintable(yyFileName), yyLineNo );
             }
             while (!match(Tok_LeftBrace)) {
                 yyTok = getToken();
@@ -463,7 +467,8 @@ static void parse( MetaTranslator *tor )
                         plural = true;
                     }
                 }
-                tor->insert( MetaTranslatorMessage(context().toUtf8(), text.toUtf8(), com.toUtf8(), QLatin1String(yyFileName), yyLineNo,
+                tor->insert( MetaTranslatorMessage(context().toUtf8(),
+                    text.toUtf8(), com.toUtf8(), yyFileName, yyLineNo,
                     QStringList(), true, MetaTranslatorMessage::Unfinished, plural) );
             }
             break;
@@ -492,8 +497,9 @@ static void parse( MetaTranslator *tor )
                             break;
                         }
                     }
-                    tor->insert( MetaTranslatorMessage(contextOverride.toUtf8(), text.toUtf8(), com.toUtf8(), QLatin1String(yyFileName), yyLineNo,
-                                                       QStringList(), true, MetaTranslatorMessage::Unfinished, plural) );
+                    tor->insert( MetaTranslatorMessage(contextOverride.toUtf8(),
+                        text.toUtf8(), com.toUtf8(), yyFileName, yyLineNo,
+                        QStringList(), true, MetaTranslatorMessage::Unfinished, plural) );
                 }
             }
             break;
@@ -503,10 +509,9 @@ static void parse( MetaTranslator *tor )
             break;
             
         case Tok_RightBrace:
-            if ( yyScope.isEmpty() )
-            {
+            if ( yyScope.isEmpty() ) {
                 qFatal( "%s:%d: Unbalanced right brace in Java code\n",
-                        (const char *)yyFileName, yyLineNo );
+                        qPrintable(yyFileName), yyLineNo );
             }
             else
                 delete (yyScope.pop());
@@ -534,7 +539,7 @@ static void parse( MetaTranslator *tor )
                         break;
                     default:
                          qFatal( "%s:%d: Package keyword should be followed by com.package.name;",
-                                          (const char *) yyFileName, yyLineNo );
+                                          qPrintable(yyFileName), yyLineNo );
                          break;
                 }
                 yyTok = getToken();
@@ -548,13 +553,13 @@ static void parse( MetaTranslator *tor )
     
     if ( !yyScope.isEmpty() )
         qFatal( "%s:%d: Unbalanced braces in Java code\n",
-                 (const char *)yyFileName, yyScope.top()->line );
+                 qPrintable(yyFileName), yyScope.top()->line );
     else if ( yyParenDepth != 0 )
         qFatal( "%s:%d: Unbalanced parentheses in Java code\n",
-                 (const char *)yyFileName, yyParenLineNo );
+                 qPrintable(yyFileName), yyParenLineNo );
 }
 
-void lupdateApplication::fetchtr_java( const char *fileName,  MetaTranslator *tor,
+void lupdateApplication::fetchtr_java( const QString &fileName,  MetaTranslator *tor,
                    const char *defaultContext, bool mustExist, const QByteArray &codecForSource )
 {
     yyDefaultContext = defaultContext;   
@@ -571,7 +576,8 @@ void lupdateApplication::fetchtr_java( const char *fileName,  MetaTranslator *to
     QFile file(fileName);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         if( mustExist )
-            qFatal( "lupdate error: Cannot open java source file '%s'\n", fileName);
+            qFatal( "lupdate error: Cannot open java source file '%s'\n",
+                qPrintable(fileName));
     }
     
     yyInTextStream = new QTextStream( &file );
