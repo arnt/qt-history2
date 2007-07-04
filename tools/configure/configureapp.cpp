@@ -2319,7 +2319,8 @@ void Configure::displayConfig()
 #if !defined(EVAL)
 void Configure::generateHeaders()
 {
-    if (dictionary["SYNCQT"] == "yes") {
+    if (dictionary["SYNCQT"] == "yes"
+        && findFile("perl.exe")) {
         cout << "Running syncqt..." << endl;
         QStringList args;
         args += buildPath + "/bin/syncqt.bat";
