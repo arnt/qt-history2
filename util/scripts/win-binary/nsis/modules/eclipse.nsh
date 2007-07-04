@@ -49,6 +49,8 @@ var ECLIPSE_MINGW_LOCATION
 !define MODULE_ECLIPSE_QTREFERENCE_LABEL "Qt Reference documentation"
 !define MODULE_ECLIPSE_QTREFERENCE_INSTALLEDKEY "EclipseQtReferenceInstalled"
 
+!define MODULE_ECLIPSE_MSRT_VERSION "71"
+
 LangString ModuleEclipsePageTitle ${LANG_ENGLISH} "Eclipse Installation Location"
 LangString ModuleEclipsePageDescription ${LANG_ENGLISH} "Select where eclipse is installed, and where MinGW is located."
 
@@ -200,8 +202,8 @@ FunctionEnd
 Function InstallQtModules
   SetOutPath "$ECLIPSE_INSTDIR"
   SetOverwrite ifnewer
-  File "${MODULE_ECLIPSE_ROOT}\bin\msvcp80.dll"
-  File "${MODULE_ECLIPSE_ROOT}\bin\msvcr80.dll"
+  File "${MODULE_ECLIPSE_ROOT}\bin\msvcp${MODULE_ECLIPSE_MSRT_VERSION}.dll"
+  File "${MODULE_ECLIPSE_ROOT}\bin\msvcr${MODULE_ECLIPSE_MSRT_VERSION}.dll"
   File "${MODULE_ECLIPSE_ROOT}\bin\QtCore4.dll"
   File "${MODULE_ECLIPSE_ROOT}\bin\QtGui4.dll"
   File "${MODULE_ECLIPSE_ROOT}\bin\QtXml4.dll"
@@ -355,12 +357,10 @@ Section un."Eclipse Integration"
     Delete "$ECLIPSE_LOCATION\plugins\${MODULE_ECLIPSE_QTREFERENCE_ID}\plugin.xml"
     Delete "$ECLIPSE_LOCATION\plugins\${MODULE_ECLIPSE_QTREFERENCE_ID}\qt.xml"
     RMDir "$ECLIPSE_LOCATION\plugins\${MODULE_ECLIPSE_QTREFERENCE_ID}"
-;    Delete "$ECLIPSE_LOCATION\features\${MODULE_ECLIPSE_QTREFERENCE_ID}\feature.xml"
-;    RMDir "$ECLIPSE_LOCATION\features\${MODULE_ECLIPSE_QTREFERENCE_ID}"
   DoneUnInstallQtReference:
   
-  Delete "$ECLIPSE_INSTDIR\msvcp80.dll"
-  Delete "$ECLIPSE_INSTDIR\msvcr80.dll"
+  Delete "$ECLIPSE_INSTDIR\msvcp${MODULE_ECLIPSE_MSRT_VERSION}.dll"
+  Delete "$ECLIPSE_INSTDIR\msvcr${MODULE_ECLIPSE_MSRT_VERSION}.dll"
   Delete "$ECLIPSE_INSTDIR\QtCore4.dll"
   Delete "$ECLIPSE_INSTDIR\QtGui4.dll"
   Delete "$ECLIPSE_INSTDIR\QtXml4.dll"
