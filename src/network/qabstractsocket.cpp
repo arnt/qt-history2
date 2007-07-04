@@ -1766,7 +1766,7 @@ bool QAbstractSocket::flush()
 qint64 QAbstractSocket::readData(char *data, qint64 maxSize)
 {
     Q_D(QAbstractSocket);
-    if (d->socketEngine && !d->socketEngine->isReadNotificationEnabled())
+    if (d->socketEngine && !d->socketEngine->isReadNotificationEnabled() && d->socketEngine->isValid())
         d->socketEngine->setReadNotificationEnabled(true);
 
     if (!d->isBuffered) {
