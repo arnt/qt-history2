@@ -557,12 +557,7 @@ void PropertyEditor::setObject(QObject *object)
                 if (type == QVariant::Palette)
                     setupPaletteProperty(property);
 
-                updateBrowserValue(property, value);
-                if (m_propertyToComment.contains(property)) {
-                    updateBrowserValue(m_propertyToComment.value(property), propertyComment(m_core, m_object, propertyName));
-                }
                 property->setAttribute(QLatin1String("resetable"), m_propertySheet->hasReset(i));
-                property->setModified(m_propertySheet->isChanged(i));
 
                 const QString groupName = m_propertySheet->propertyGroup(i);
                 QtVariantProperty *groupProperty = 0;
@@ -587,6 +582,12 @@ void PropertyEditor::setObject(QObject *object)
                     m_propertyToGroup[property] = groupName;
                 }
                 lastProperty = property;
+
+                updateBrowserValue(property, value);
+                if (m_propertyToComment.contains(property)) {
+                    updateBrowserValue(m_propertyToComment.value(property), propertyComment(m_core, m_object, propertyName));
+                }
+                property->setModified(m_propertySheet->isChanged(i));
             } else {
                 qDebug() << "Property" << propertyName << "of type" << type << "not supported yet!";
             }
