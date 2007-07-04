@@ -262,7 +262,7 @@ VCCLCompilerTool::VCCLCompilerTool()
         EnableFiberSafeOptimizations(unset),
         EnableFunctionLevelLinking(unset),
         EnableIntrinsicFunctions(unset),
-        ExceptionHandling(_False),
+        ExceptionHandling(ehDefault),
         ExpandAttributedSource(unset),
         FavorSizeOrSpeed(favorNone),
         FloatingPointModel(floatingPointNotSet),
@@ -319,6 +319,17 @@ inline XmlOutput::xml_output xformUsePrecompiledHeaderForNET2005(pchOption whatP
     return attrE(_UsePrecompiledHeader, whatPch);
 }
 
+inline XmlOutput::xml_output xformExceptionHandlingNET2005(exceptionHandling eh, DotNET compilerVersion)
+{
+    if (eh == ehDefault)
+        return noxml();
+
+    if (compilerVersion == NET2005)
+        return attrE(_ExceptionHandling, eh);
+
+    return attrS(_ExceptionHandling, (eh == ehNoSEH ? "true" : "false"));
+}
+
 XmlOutput &operator<<(XmlOutput &xml, const VCCLCompilerTool &tool)
 {
     return xml
@@ -346,7 +357,7 @@ XmlOutput &operator<<(XmlOutput &xml, const VCCLCompilerTool &tool)
             << attrT(_EnableFiberSafeOptimizations, tool.EnableFiberSafeOptimizations)
             << attrT(_EnableFunctionLevelLinking, tool.EnableFunctionLevelLinking)
             << attrT(_EnableIntrinsicFunctions, tool.EnableIntrinsicFunctions)
-            << attrT(_ExceptionHandling, tool.ExceptionHandling)
+            << xformExceptionHandlingNET2005(tool.ExceptionHandling, tool.config->CompilerVersion)
             << attrT(_ExpandAttributedSource, tool.ExpandAttributedSource)
             << attrE(_FavorSizeOrSpeed, tool.FavorSizeOrSpeed, /*ifNot*/ favorNone)
 
@@ -428,21 +439,23 @@ bool VCCLCompilerTool::parseOption(const char* option)
         break;
     case 'E':
         if(second == 'H') {
-            if(third == 'a'
-                || (third == 'c' && fourth != 's')
-                || (third == 's' && fourth != 'c')) {
+            QString opt(option);
+            if (opt.contains('a') && !opt.contains('s') && !opt.contains('c'))
+                ExceptionHandling = ehSEH;
+            else if (!opt.contains('a') && opt.contains('s') && opt.contains('c'))
+                ExceptionHandling = ehNoSEH;
+            else {
                 // ExceptionHandling must be false, or it will override
                 // with an /EHsc option
-                ExceptionHandling = _False;
+                ExceptionHandling = ehNone;
                 AdditionalOptions += option;
-                break;
-            } else if((third == 'c' && fourth == 's')
-                     || (third == 's' && fourth == 'c')) {
-                ExceptionHandling = _True;
-                AdditionalOptions += option;
-                break;
             }
-            found = false; break;
+            if (config->CompilerVersion != NET2005
+                && ExceptionHandling == ehSEH) {
+                ExceptionHandling = ehNone;
+                AdditionalOptions += option;
+            }
+            break;
         }
         GeneratePreprocessedFile = preprocessYes;
         break;
@@ -545,9 +558,9 @@ bool VCCLCompilerTool::parseOption(const char* option)
             EnableFiberSafeOptimizations = _True;
             break;
         case 'X':
-            // ExceptionHandling == true will override with
-            // an /EHsc option, which is correct with /GX
-            ExceptionHandling = _True; // Fall-through
+            // Same as the /EHsc option, which is Exception Handling without SEH
+            ExceptionHandling = ehNoSEH;
+            break;
         case 'Z':
         case 'e':
         case 'h':
@@ -2177,7 +2190,7 @@ void VCFilter::outputFileConfig(XmlOutput &xml, const QString &filename)
     // Unset some default options
     CompilerTool.BufferSecurityCheck = unset;
     CompilerTool.DebugInformationFormat = debugUnknown;
-    CompilerTool.ExceptionHandling = unset;
+    CompilerTool.ExceptionHandling = ehDefault;
     CompilerTool.GeneratePreprocessedFile = preprocessUnknown;
     CompilerTool.Optimization = optimizeDefault;
     CompilerTool.ProgramDataBaseFileName.clear();

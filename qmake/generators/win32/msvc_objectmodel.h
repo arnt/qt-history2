@@ -126,6 +126,12 @@ enum enhancedInstructionSetOption {
     archSSE = 1,
     archSSE2 = 2
 };
+enum exceptionHandling {
+    ehDefault = -1,
+    ehNone    = 0,
+    ehNoSEH   = 1,
+    ehSEH     = 2
+};
 enum enumResourceLangID {
     rcUseDefault                 = 0,
     rcAfrikaans                  = 1078,
@@ -445,7 +451,7 @@ public:
     triState                EnableFiberSafeOptimizations;
     triState                EnableFunctionLevelLinking;
     triState                EnableIntrinsicFunctions;
-    triState                ExceptionHandling;
+    exceptionHandling       ExceptionHandling;
     triState                ExpandAttributedSource;
     favorSizeOrSpeedOption  FavorSizeOrSpeed;
     floatingPointModel      FloatingPointModel;
