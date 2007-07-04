@@ -75,7 +75,7 @@ QAction *QMenuBarPrivate::actionAt(QPoint p) const
     return 0;
 }
 
-QRect QMenuBarPrivate::menuRect() const
+QRect QMenuBarPrivate::menuRect(bool extVisible) const
 {
     Q_Q(const QMenuBar);
 
@@ -83,10 +83,12 @@ QRect QMenuBarPrivate::menuRect() const
     QRect result = q->rect();
     result.adjust(hmargin, 0, -hmargin, 0);
 
-    if (q->layoutDirection() == Qt::RightToLeft)
-        result.setLeft(result.left() + extension->sizeHint().width());
-    else
-        result.setWidth(result.width() - extension->sizeHint().width());
+    if (extVisible) {
+        if (q->layoutDirection() == Qt::RightToLeft)
+            result.setLeft(result.left() + extension->sizeHint().width());
+        else
+            result.setWidth(result.width() - extension->sizeHint().width());
+    }
 
     if (leftWidget && leftWidget->isVisible()) {
         QSize sz = leftWidget->sizeHint();
@@ -109,8 +111,7 @@ QRect QMenuBarPrivate::menuRect() const
 
 bool QMenuBarPrivate::isVisible(QAction *action)
 {
-    QRect r = menuRect();
-    return r.contains(actionRect(action));
+    return !hiddenActions.contains(action);
 }
 
 void QMenuBarPrivate::updateGeometries()
@@ -163,11 +164,27 @@ void QMenuBarPrivate::updateGeometries()
 #endif
     itemsDirty = false;
 
-    QList<QAction *> hiddenActions;
-    QRect menuRect = this->menuRect();
-    for (int i = 0; i < actionList.count(); ++i) {
-        if (!menuRect.contains(actionRect(actionList.at(i))))
-            hiddenActions.append(actionList.at(i));
+    hiddenActions.clear();
+    //this is the menu rectangle without any extension
+    QRect menuRect = this->menuRect(false);
+
+    //we try to see if the actions will fit there
+    bool hasHiddenActions = false;
+    foreach(QAction *action, actionList) {
+        if (!menuRect.contains(actionRect(action))) {
+            hasHiddenActions = true;
+            break;
+        }
+    }
+
+    //...and if not, determine the ones that fit on the menu with the extension visible
+    if (hasHiddenActions) {
+        menuRect = this->menuRect(true);
+        foreach(QAction *action, actionList) {
+            if (!menuRect.contains(actionRect(action))) {
+                hiddenActions.append(action);
+            }
+        }
     }
 
     if (hiddenActions.count() > 0) {

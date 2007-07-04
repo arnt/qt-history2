@@ -94,12 +94,14 @@ public:
     //menu fading/scrolling effects
     bool doChildEffects;
 
-    QRect menuRect() const;
+    QRect menuRect(bool) const;
 
     // reparenting
     void handleReparent();
     QWidget *oldParent;
     QWidget *oldWindow;
+
+    QList<QAction*> hiddenActions;
 #ifdef QT3_SUPPORT
     bool doAutoResize;
 #endif
