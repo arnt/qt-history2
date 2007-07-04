@@ -13,6 +13,7 @@
 #include <qscriptvalueiterator.h>
 #include <qgraphicsitem.h>
 #include <qstandarditemmodel.h>
+#include <QtCore/qnumeric.h>
 
 //TESTED_CLASS=
 //TESTED_FILES=qscriptengine.h qscriptengine.cpp
@@ -207,6 +208,23 @@ void tst_QScriptEngine::newDate()
 
         QCOMPARE(date.toDateTime(), dt);
     }
+
+    // Date.parse() should return NaN when it fails
+    {
+        QTest::ignoreMessage(QtWarningMsg, "QDateTime::fromString: Parameter out of range");
+        QScriptValue ret = eng.evaluate("Date.parse()");
+        QVERIFY(ret.isNumber());
+        QVERIFY(qIsNaN(ret.toNumber()));
+    }
+
+    // Date.parse() should be able to parse the output of Date().toString()
+#ifndef Q_WS_WIN // ### kill this when task 169701 has been fixed
+    {
+        QScriptValue ret = eng.evaluate("var x = new Date(); var s = x.toString(); s == new Date(Date.parse(s)).toString()");
+        QVERIFY(ret.isBoolean());
+        QCOMPARE(ret.toBoolean(), true);
+    }
+#endif
 }
 
 void tst_QScriptEngine::newQObject()

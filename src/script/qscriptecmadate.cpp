@@ -308,8 +308,10 @@ static inline qsreal TimeClip(qsreal t)
 static inline qsreal ParseString(const QString &s)
 {
     QDateTime dt = QDateTime::fromString(s);
+    if (!dt.isValid())
+        return qSNaN();
     int year = dt.date().year();
-    int month = dt.date().month();
+    int month = dt.date().month() - 1;
     int day = dt.date().day();
     int hours = dt.time().hour();
     int mins = dt.time().minute();
