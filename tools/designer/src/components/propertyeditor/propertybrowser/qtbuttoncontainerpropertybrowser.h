@@ -36,6 +36,7 @@ private:
     Q_DISABLE_COPY(QtButtonContainerPropertyBrowser)
     Q_PRIVATE_SLOT(d_func(), void slotUpdate())
     Q_PRIVATE_SLOT(d_func(), void slotEditorDestroyed())
+    Q_PRIVATE_SLOT(d_func(), void slotToggled(bool))
 
 };
 

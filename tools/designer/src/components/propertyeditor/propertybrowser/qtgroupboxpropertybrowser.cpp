@@ -54,8 +54,8 @@ public:
 private:
     void updateLater();
     void updateItem(WidgetItem *item);
-    void insertRow(QGridLayout *layout, int row);
-    void removeRow(QGridLayout *layout, int row);
+    void insertRow(QGridLayout *layout, int row) const;
+    void removeRow(QGridLayout *layout, int row) const;
 
     bool hasHeader(WidgetItem *item) const;
 
@@ -318,7 +318,7 @@ void QtGroupBoxPropertyBrowserPrivate::propertyRemoved(QtBrowserItem *index)
     delete item;
 }
 
-void QtGroupBoxPropertyBrowserPrivate::insertRow(QGridLayout *layout, int row)
+void QtGroupBoxPropertyBrowserPrivate::insertRow(QGridLayout *layout, int row) const
 {
     QMap<QLayoutItem *, QRect> itemToPos;
     int idx = 0;
@@ -341,7 +341,7 @@ void QtGroupBoxPropertyBrowserPrivate::insertRow(QGridLayout *layout, int row)
     }
 }
 
-void QtGroupBoxPropertyBrowserPrivate::removeRow(QGridLayout *layout, int row)
+void QtGroupBoxPropertyBrowserPrivate::removeRow(QGridLayout *layout, int row) const
 {
     QMap<QLayoutItem *, QRect> itemToPos;
     int idx = 0;
