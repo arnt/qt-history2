@@ -310,6 +310,8 @@ void QTabBarPrivate::layoutTabs()
     // Since tab widget is rather *ahem* strict about keeping the geometry of the
     // tab bar to its absolute minimum, this won't bleed through, but will show up
     // if you use tab bar on its own (a.k.a. not a bug, but a feature).
+    // Update: if squeezeTabs is true, we DO set a maximum size to prevent the tabs
+    // being wider than necessary.
     if (!vertTabs) {
         int minx = 0;
         int x = 0;
@@ -327,6 +329,9 @@ void QTabBarPrivate::layoutTabs()
             tabChain[tabChainIndex].minimumSize = sz.width();
             tabChain[tabChainIndex].empty = false;
             tabChain[tabChainIndex].expansive = true;
+
+            if (squeezeTabs)
+                tabChain[tabChainIndex].maximumSize = tabChain[tabChainIndex].sizeHint;
         }
 
         last = minx;
@@ -349,6 +354,9 @@ void QTabBarPrivate::layoutTabs()
             tabChain[tabChainIndex].minimumSize = sz.height();
             tabChain[tabChainIndex].empty = false;
             tabChain[tabChainIndex].expansive = true;
+
+            if (squeezeTabs)
+                tabChain[tabChainIndex].maximumSize = tabChain[tabChainIndex].sizeHint;
         }
 
         last = miny;
@@ -868,7 +876,7 @@ QRect QTabBar::tabRect(int index) const
     return QRect();
 }
 
-/*! 
+/*!
     \since 4.3
     Returns the index of the tab that covers \a position or -1 if no
     tab covers \a position;

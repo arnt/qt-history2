@@ -39,7 +39,7 @@ public:
     QTabBarPrivate()
         :currentIndex(-1), pressedIndex(-1),
          shape(QTabBar::RoundedNorth),
-         layoutDirty(false), drawBase(true), scrollOffset(0){}
+         layoutDirty(false), drawBase(true), scrollOffset(0), squeezeTabs(false) {}
 
     int currentIndex;
     int pressedIndex;
@@ -95,6 +95,8 @@ public:
     QSize iconSize;
     Qt::TextElideMode elideMode;
     bool useScrollButtons;
+
+    bool squeezeTabs;
 };
 
 #endif

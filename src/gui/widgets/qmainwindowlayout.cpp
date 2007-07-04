@@ -25,6 +25,7 @@
 #include "qwidgetanimator_p.h"
 #include "qrubberband.h"
 #include "qdockwidget_p.h"
+#include "qtabbar_p.h"
 
 #include <qapplication.h>
 #include <qstatusbar.h>
@@ -1236,11 +1237,16 @@ void QMainWindowLayout::keepSize(QDockWidget *w)
 class QMainWindowTabBar : public QTabBar
 {
 public:
-    QMainWindowTabBar(QWidget *parent)
-        : QTabBar(parent) {}
+    QMainWindowTabBar(QWidget *parent);
 protected:
     bool event(QEvent *e);
 };
+
+QMainWindowTabBar::QMainWindowTabBar(QWidget *parent)
+    : QTabBar(parent)
+{
+    static_cast<QTabBarPrivate*>(d_ptr)->squeezeTabs = true;
+}
 
 bool QMainWindowTabBar::event(QEvent *e)
 {
