@@ -316,9 +316,12 @@ bool QTipLabel::tipChanged(const QPoint &pos, const QString &text, QObject *o)
 }
 
 /*!
-    Shows \a text as a tool tip, at global position \a pos. If you
-    specify a non-empty rect the tip will be hidden as soon as you
-    move your cursor out of this area.
+    Shows \a text as a tool tip, with the global position \a pos as
+    the point-of-interest. The tooltip will be shown with a platform
+    specific offset from this point-of-interest.
+
+    If you specify a non-empty rect the tip will be hidden as soon
+    as you move your cursor out of this area.
 
     The \a rect is in the coordinates of the widget you specify with
     \a w. If the \a rect is not empty you must specify a widget.
