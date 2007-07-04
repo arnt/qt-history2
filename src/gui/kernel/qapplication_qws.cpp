@@ -583,7 +583,8 @@ void QWSDisplay::Data::reinit( const QString& newAppName )
     if (shm.attach(connected_event->simpleData.servershmid)) {
         sharedRam = static_cast<uchar *>(shm.address());
         QScreen *s = qt_get_screen(qws_display_id, qws_display_spec.constData());
-        sharedRamSize += s->memoryNeeded(QLatin1String(qws_display_spec.constData()));
+        if (s)
+            sharedRamSize += s->memoryNeeded(QLatin1String(qws_display_spec.constData()));
     } else {
         perror("QWSDisplay::Data::init");
         qFatal("Client can't attach to main ram memory.");
@@ -670,7 +671,8 @@ void QWSDisplay::Data::init()
         if (shm.attach(connected_event->simpleData.servershmid)) {
             sharedRam = static_cast<uchar *>(shm.address());
             QScreen *s = qt_get_screen(qws_display_id, qws_display_spec.constData());
-            sharedRamSize += s->memoryNeeded(QLatin1String(qws_display_spec.constData()));
+            if (s)
+                sharedRamSize += s->memoryNeeded(QLatin1String(qws_display_spec.constData()));
         } else {
             perror("QWSDisplay::Data::init");
             qFatal("Client can't attach to main ram memory.");
@@ -691,7 +693,8 @@ void QWSDisplay::Data::init()
             qFatal("Cannot get display lock");
 
         QScreen *s = qt_get_screen(qws_display_id, qws_display_spec.constData());
-        sharedRamSize += s->memoryNeeded(QLatin1String(qws_display_spec.constData()));
+        if (s)
+            sharedRamSize += s->memoryNeeded(QLatin1String(qws_display_spec.constData()));
 
 #ifndef QT_NO_QWS_MULTIPROCESS
 
