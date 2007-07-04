@@ -120,6 +120,7 @@ public:
     typedef QHash<int, DBusTimeout *> TimeoutHash;
     typedef QMultiHash<QString, SignalHook> SignalHookHash;
     typedef QHash<QString, QDBusMetaObject* > MetaObjectHash;
+    typedef QHash<QByteArray, int> MatchRefCountHash;
 
 public:
     // public methods are entry points from other objects
@@ -138,7 +139,7 @@ public:
     int sendWithReplyAsync(const QDBusMessage &message, QObject *receiver,
                            const char *returnMethod, const char *errorMethod, int timeout = -1);
     void connectSignal(const QString &key, const SignalHook &hook);
-    void disconnectSignal(SignalHookHash::Iterator &it);
+    SignalHookHash::Iterator disconnectSignal(SignalHookHash::Iterator &it);
     void registerObject(const ObjectTreeNode *node);
     void connectRelay(const QString &service, const QString &currentOwner,
                       const QString &path, const QString &interface,
@@ -219,6 +220,7 @@ public:
 
     QStringList serviceNames;
     SignalHookHash signalHooks;
+    MatchRefCountHash matchRefCounts;
     ObjectTreeNode rootNode;
     MetaObjectHash cachedMetaObjects;
 
