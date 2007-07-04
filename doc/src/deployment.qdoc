@@ -492,9 +492,11 @@
         nmake sub-src
     \endcode
 
-    This will build Qt statically. Note that we have used \c nmake in
-    all the examples, but if you use MinGW you must use the \c
-    mingw32-make instead.
+    This will build Qt statically. Note that unlike with a dynamic build,
+    building Qt statically will result in libraries without version numbers;
+    e.g. \c QtCore4.lib will be \c QtCore.lib. Also, we have used \c nmake
+    in all the examples, but if you use MinGW you must use
+    \c mingw32-make instead.
 
     \section2 Linking the Application to the Static Version of Qt
 
