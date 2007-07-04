@@ -497,7 +497,7 @@ void QSslSocketBackendPrivate::transmit()
         // Check if we've got any data to be written to the socket.
         QVarLengthArray<char, 4096> data;
         int pendingBytes;
-        while ((pendingBytes = q_BIO_pending(writeBio)) > 0) {
+        while (plainSocket->isValid() && (pendingBytes = q_BIO_pending(writeBio)) > 0) {
             // Read encrypted data from the write BIO into a buffer.
             data.resize(pendingBytes);
             int encryptedBytesRead = q_BIO_read(writeBio, data.data(), pendingBytes);
@@ -559,7 +559,7 @@ void QSslSocketBackendPrivate::transmit()
                 emit q->error(QAbstractSocket::UnknownSocketError);
                 break;
             }
-        } while (readBytes > 0);
+        } while (ssl && readBytes > 0);
     } while (ssl && ctx && transmitting);
 }
 
