@@ -316,14 +316,16 @@ QListView::LayoutMode QListView::layoutMode() const
     \property QListView::spacing
     \brief the space between items in the layout
 
-    This property is the size of the empty space between items in the
-    layout.
+    This property is the size of the empty space that is padded around
+    an item in the layout.
 
     Setting this property when the view is visible will cause the
     items to be laid out again.
 
     \sa viewMode
 */
+// Qt5: Use same semantic as layouts (spacing is the size of space 
+// *between* items)
 void QListView::setSpacing(int space)
 {
     Q_D(QListView);
