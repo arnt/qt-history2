@@ -1002,12 +1002,14 @@ CGImageRef qt_mac_create_imagemask(const QPixmap &px, const QRectF &sr)
     const int sx = qRound(sr.x()), sy = qRound(sr.y()), sw = qRound(sr.width()), sh = qRound(sr.height());
     const int sbpr = px.data->nbytes / px.data->h;
     const uint nbytes = sw * sh;
+    //  alpha is always 255 for bitmaps, ignore it in this case.
+    const quint32 mask = px.depth() == 1 ? 0x00ffffff : 0xffffffff;
     quint8 *dptr = (quint8 *)malloc(nbytes);
     quint32 *sptr = px.data->pixels, *srow;
     for(int y = sy, offset=0; y < sh; ++y) {
         srow = sptr + (y * (sbpr / 4));
         for(int x = sx; x < sw; ++x)
-            *(dptr+(offset++)) =  *(srow+x) ? 255 : 0;
+            *(dptr+(offset++)) = (*(srow+x) & mask) ? 255 : 0;
     }
     QCFType<CGDataProviderRef> provider = CGDataProviderCreateWithData(dptr, dptr, nbytes, qt_mac_cgimage_data_free);
     px.data->cg_mask = CGImageMaskCreate(sw, sh, 8, 8, nbytes / sh, provider, 0, 0);

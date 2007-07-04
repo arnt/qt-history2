@@ -52,6 +52,7 @@ private slots:
     void mask();
     void bitmapMask();
     void cacheKey();
+    void drawBitmap();
 
 #ifdef Q_WS_QWS
     void convertFromImageNoDetach();
@@ -325,6 +326,21 @@ void tst_QPixmap::cacheKey()
     pixmap2.detach();
     QVERIFY(pixmap2.cacheKey() != pixmap1.cacheKey());
     QVERIFY(pixmap1.cacheKey() == pixmap1_key);
+}
+
+// Test drawing a bitmap on a pixmap.
+void tst_QPixmap::drawBitmap()
+{
+    QBitmap bitmap(10,10);
+    bitmap.fill(Qt::color1);
+    
+    QPixmap pixmap(10,10);
+    QPainter painter2(&pixmap);
+    painter2.fillRect(0,0,10,10, QBrush(Qt::green));
+    painter2.setPen(Qt::red);
+    painter2.drawPixmap(0,0,10,10, bitmap);
+    painter2.end();
+    QCOMPARE(pixmap.toImage().pixel(5,5), QColor(Qt::red).rgb());
 }
 
 #ifdef Q_WS_QWS
