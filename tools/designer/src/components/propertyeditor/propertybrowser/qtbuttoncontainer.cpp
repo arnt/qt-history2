@@ -26,12 +26,12 @@ public:
     QWidget *m_container;
     bool m_containerVisible;
 
-    bool slotToggled(bool checked);
+    void slotToggled(bool checked);
 
     QVBoxLayout *m_layout;
 };
 
-bool QtButtonContainerPrivate::slotToggled(bool checked)
+void QtButtonContainerPrivate::slotToggled(bool checked)
 {
     m_containerVisible = checked;
     if (m_container)
