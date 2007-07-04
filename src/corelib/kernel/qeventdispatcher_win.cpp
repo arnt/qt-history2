@@ -39,16 +39,7 @@ struct TimerInfo {                              // internal timer info
     int timerId;
     int interval;
     QObject *obj;                               // - object to receive events
-    int    type;                                // GDI timer, fast multimedia timer or zero timer
-    QEventDispatcherWin32Private *dispatcher;
-    int fastInd;                                // id of fast timer
-
-    enum TimerType
-    {
-        Normal,
-        Fast,
-        Off
-    };
+    int fastTimerId;
 };
 
 class QZeroTimerEvent : public QEvent
@@ -105,6 +96,7 @@ public:
     TimerVec timerVec;
     TimerDict timerDict;
     void registerTimer(::TimerInfo *t);
+    void unregisterTimer(::TimerInfo *t);
 
     // socket notifiers
     QSNDict sn_read;
@@ -120,15 +112,12 @@ public:
 
     QList<MSG> queuedUserInputEvents;
     QList<MSG> queuedSocketEvents;
-
-    CRITICAL_SECTION fastTimerCriticalSection;
 };
 
 QEventDispatcherWin32Private::QEventDispatcherWin32Private()
     : threadId(GetCurrentThreadId()), interrupt(false), internalHwnd(0)
 {
     resolveTimerAPI();
-    InitializeCriticalSection(&fastTimerCriticalSection);
 
     wakeUpNotifier.setHandle(QT_WA_INLINE(CreateEventW(0, FALSE, FALSE, 0),
                                           CreateEventA(0, FALSE, FALSE, 0)));
@@ -145,7 +134,6 @@ QEventDispatcherWin32Private::~QEventDispatcherWin32Private()
         DestroyWindow(internalHwnd);
     QByteArray className = "QEventDispatcherWin32_Internal_Widget" + QByteArray::number(quintptr(qt_internal_proc));
     UnregisterClassA(className.constData(), qWinAppInst());
-    DeleteCriticalSection(&fastTimerCriticalSection);
 }
 
 void QEventDispatcherWin32Private::activateEventNotifier(QWinEventNotifier * wen)
@@ -181,23 +169,9 @@ void WINAPI CALLBACK qt_fast_timer_proc(uint timerId, uint /*reserved*/, DWORD_P
     if (!timerId) // sanity check
         return;
 
-    QCoreApplication *app = QCoreApplication::instance();
-    if (!app) {
-        qtimeKillEvent(timerId);
-        return;
-    }
-
     TimerInfo *t = (TimerInfo*)user;
     Q_ASSERT(t);
-    EnterCriticalSection(&t->dispatcher->fastTimerCriticalSection);
-    if (t->type == TimerInfo::Off) { // timer stopped
-        qtimeKillEvent(timerId);
-        LeaveCriticalSection(&t->dispatcher->fastTimerCriticalSection);
-        delete t;
-        return;
-    }
     QCoreApplication::postEvent(t->obj, new QTimerEvent(t->timerId));
-    LeaveCriticalSection(&t->dispatcher->fastTimerCriticalSection);
 }
 
 LRESULT CALLBACK qt_internal_proc(HWND hwnd, UINT message, WPARAM wp, LPARAM lp)
@@ -349,19 +323,26 @@ void QEventDispatcherWin32Private::registerTimer(::TimerInfo *t)
         else
             ok = SetTimer(internalHwnd, t->timerId, (uint) t->interval, 0);
     } else {
-        t->dispatcher = this;
-        t->type = ::TimerInfo::Fast;
-        t->fastInd = qtimeSetEvent(t->interval, 1, qt_fast_timer_proc, (DWORD_PTR)t, TIME_CALLBACK_FUNCTION|TIME_PERIODIC);
-        ok = t->fastInd;
+        ok = t->fastTimerId = qtimeSetEvent(t->interval, 1, qt_fast_timer_proc, (DWORD_PTR)t,
+                                            TIME_CALLBACK_FUNCTION | TIME_PERIODIC | TIME_KILL_SYNCHRONOUS);
         if (ok == 0) { // fall back to normal timer if no more multimedia timers avaiable
-            t->dispatcher = 0;
-            t->type = ::TimerInfo::Normal;
             ok = SetTimer(internalHwnd, t->timerId, (uint) t->interval, 0);
         }
     }
 
     if (ok == 0)
         qErrnoWarning("QEventDispatcherWin32::registerTimer: Failed to create a timer");
+}
+
+void QEventDispatcherWin32Private::unregisterTimer(::TimerInfo *t)
+{
+    if (t->fastTimerId != 0) {
+        qtimeKillEvent(t->fastTimerId);
+        QCoreApplicationPrivate::removePostedTimerEvent(t->obj, t->timerId);
+    } else if (internalHwnd) {
+        KillTimer(internalHwnd, t->timerId);
+    }
+    delete t;
 }
 
 void QEventDispatcherWin32Private::doWsaAsyncSelect(int socket)
@@ -634,9 +615,7 @@ void QEventDispatcherWin32::registerTimer(int timerId, int interval, QObject *ob
     t->timerId  = timerId;
     t->interval = interval;
     t->obj  = object;
-    t->dispatcher = 0;
-    t->type = ::TimerInfo::Normal;
-    t->fastInd = 0;
+    t->fastTimerId = 0;
 
     if (d->internalHwnd)
         d->registerTimer(t);
@@ -667,25 +646,7 @@ bool QEventDispatcherWin32::unregisterTimer(int timerId)
 
     d->timerDict.remove(t->timerId);
     d->timerVec.removeAll(t);
-
-    switch (t->type) {
-    case ::TimerInfo::Fast:
-        {
-            // save these here, because the timer callback may delete t right when we leave critical section
-            QObject *obj = t->obj;
-            int timerId = t->timerId;
-            EnterCriticalSection(&d->fastTimerCriticalSection);
-            t->type = ::TimerInfo::Off; // kill timer (and delete t) from callback
-            LeaveCriticalSection(&d->fastTimerCriticalSection);
-            QCoreApplicationPrivate::removePostedTimerEvent(obj, timerId);
-            break;
-        }
-    case ::TimerInfo::Normal:
-        if (d->internalHwnd)
-            KillTimer(d->internalHwnd, t->timerId);
-        delete t;
-        break;
-    }
+    d->unregisterTimer(t);
     return true;
 }
 
@@ -710,20 +671,7 @@ bool QEventDispatcherWin32::unregisterTimers(QObject *object)
         if (t && t->obj == object) {                // object found
             d->timerDict.remove(t->timerId);
             d->timerVec.removeAt(i);
-            switch (t->type) {
-            case ::TimerInfo::Fast:
-                EnterCriticalSection(&d->fastTimerCriticalSection);
-                t->type = ::TimerInfo::Off; // kill timer (and delete t) from callback
-                LeaveCriticalSection(&d->fastTimerCriticalSection);
-                QCoreApplicationPrivate::removePostedTimerEvent(t->obj, t->timerId);
-                break;
-            case ::TimerInfo::Normal:
-                if (d->internalHwnd)
-                    KillTimer(d->internalHwnd, t->timerId);
-                delete t;
-                break;
-            }
-
+            d->unregisterTimer(t);
             --i;
         }
     }
