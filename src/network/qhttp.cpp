@@ -1773,7 +1773,10 @@ QHttp::~QHttp()
     \since 4.3
 
     Forwards the sslErrors signal from the QSslSocket used in QHttp. \a errors
-    is the list of errors that occurred during the SSL handshake.
+    is the list of errors that occurred during the SSL handshake. Unless you
+    call ignoreSslErrors() from within a slot connected to this signal when an
+    error occurs, QHttp will tear down the connection immediately after
+    emitting the signal.
 
     \sa QSslSocket QSslSocket::ignoreSslErrors()
 */
@@ -2962,10 +2965,13 @@ void QHttpPrivate::setSock(QTcpSocket *sock)
 }
 
 /*!
-  Tells the QSslSocket used for the Http connection to ignore
-  the errors reported in the sslErrors signal
+    Tells the QSslSocket used for the Http connection to ignore the errors
+    reported in the sslErrors() signal.
 
-  \sa QSslSocket QSslSocket::sslErrors()
+    Note that this function must be called from within a slot connected to the
+    sslErrors() signal to have any effect.
+
+    \sa QSslSocket QSslSocket::sslErrors()
 */
 #ifndef QT_NO_OPENSSL
 void QHttp::ignoreSslErrors()
