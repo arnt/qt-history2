@@ -2013,10 +2013,12 @@ QString DocParser::endCommandName( int command )
     return commandName( endCommandFor(command) );
 }
 
-QString DocParser::untabifyEtc( const QString& str )
+QString DocParser::untabifyEtc( const QString& oldStr )
 {
     QString result;
     int column = 0;
+    QString str = oldStr;
+    str.replace("\r", "");
 
     for ( int i = 0; i < (int) str.length(); i++ ) {
 	if ( str[i] == '\t' ) {
