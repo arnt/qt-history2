@@ -207,14 +207,12 @@ PropertyEditor::PropertyEditor(QDesignerFormEditorInterface *core, QWidget *pare
 
     QScrollArea *groupScroll = new QScrollArea(m_stackedWidget);
     m_groupBrowser = new QtGroupBoxPropertyBrowser(groupScroll);
-    m_groupBrowser->layout()->setMargin(-1);
     groupScroll->setWidgetResizable(true);
     groupScroll->setWidget(m_groupBrowser);
     m_groupBoxIndex = m_stackedWidget->addWidget(groupScroll);
 
     QScrollArea *buttonScroll = new QScrollArea(m_stackedWidget);
     m_buttonBrowser = new QtButtonPropertyBrowser(buttonScroll);
-    m_buttonBrowser->layout()->setMargin(-1);
     buttonScroll->setWidgetResizable(true);
     buttonScroll->setWidget(m_buttonBrowser);
     m_buttonIndex = m_stackedWidget->addWidget(buttonScroll);
