@@ -2545,6 +2545,22 @@ QDateTime QDateTime::fromTime_t(uint seconds)
 }
 
 #ifndef QT_NO_DATESTRING
+
+static int fromShortMonthName(const QString &monthName)
+{
+    // Assume that English monthnames are the default
+    for (int i = 0; i < 12; ++i) {
+        if (monthName == QLatin1String(qt_shortMonthNames[i]))
+            return i + 1;
+    }
+    // If English names can't be found, search the localized ones
+    for (int i = 1; i <= 12; ++i) {
+        if (monthName == QDate::shortMonthName(i))
+            return i;
+    }
+    return -1;
+}
+
 /*!
     \fn QDateTime QDateTime::fromString(const QString &string, Qt::DateFormat format)
 
@@ -2586,32 +2602,35 @@ QDateTime QDateTime::fromString(const QString& s, Qt::DateFormat f)
             return QDateTime();
         }
 
-        QString monthName = parts.at(1);
-        int month = -1;
-        // Assume that English monthnames are the default
-        for (int i = 0; i < 12; ++i) {
-            if (monthName == QLatin1String(qt_shortMonthNames[i])) {
-                month = i + 1;
-                break;
-            }
+        // Accept "Sun Dec 1 13:02:00 1974" and "Sun 1. Dec 13:02:00 1974"
+        int month = -1, day = -1;
+        bool ok;
+
+        month = fromShortMonthName(parts.at(1));
+        if (month != -1) {
+            day = parts.at(2).toInt(&ok);
+            if (!ok)
+                day = -1;
         }
-        // If English names can't be found, search the localized ones
-        if (month == -1) {
-            for (int i = 1; i <= 12; ++i) {
-                if (monthName == QDate::shortMonthName(i)) {
-                    month = i;
-                    break;
+
+        if (month == -1 || day == -1) {
+            // first variant failed, lets try the other
+            month = fromShortMonthName(parts.at(2));
+            if (month != -1) {
+                QString dayStr = parts.at(1);
+                if (dayStr.endsWith(QLatin1Char('.'))) {
+                    dayStr.chop(1);
+                    day = dayStr.toInt(&ok);
+                    if (!ok)
+                        day = -1;
+                } else {
+                    day = -1;
                 }
             }
         }
-        if (month < 1 || month > 12) {
-            qWarning("QDateTime::fromString: Parameter out of range");
-            return QDateTime();
-        }
 
-        bool ok;
-        int day = parts.at(2).toInt(&ok);
-        if (!ok) {
+        if (month == -1 || day == -1) {
+            // both variants failed, give up
             qWarning("QDateTime::fromString: Parameter out of range");
             return QDateTime();
         }
