@@ -1,5 +1,12 @@
 Here are the programs in the Qt tutorial.  The tutorial itself is in
-../doc/html/tutorial.html (or http://doc.trolltech.com/4.0/tutorial.html).
+../doc/html/tutorial.html (or http://doc.trolltech.com/4.3/tutorial.html).
+
+All programs corresponding to the chapters in the tutorial should
+automatically be built when Qt is compiled, or will be provided as
+pre-built executables if you have obtained a binary package of Qt.
+
+If you have only compiled the Qt libraries, use the following instructions
+to build the tutorial.
 
 Typing 'make' in this directory builds all the programs (t1/t1,
 t2/t2, t3/t3 and so on). Typing 'make' in each subdirectory builds
