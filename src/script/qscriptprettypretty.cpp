@@ -37,10 +37,20 @@ PrettyPretty::~PrettyPretty()
 {
 }
 
+void PrettyPretty::acceptAsBlock(AST::Node *node)
+{
+    out << "{";
+    pushIndentLevel();
+    newlineAndIndent();
+    accept(node);
+    popIndentLevel();
+    newlineAndIndent();
+    out << "}";
+}
+
 QTextStream &PrettyPretty::operator () (AST::Node *node, int level)
 {
     int was = indentLevel(level);
-    newlineAndIndent();
     accept(node);
     indentLevel(was);
     return out;
@@ -145,7 +155,7 @@ bool PrettyPretty::visit(AST::RegExpLiteral *node)
 {
     out << "/" << eng->toString(node->pattern) << "/";
     if (node->flags)
-        eng->toString(node->flags);
+        out << eng->toString(node->flags);
 
     return true;
 }
@@ -159,6 +169,7 @@ bool PrettyPretty::visit(AST::ArrayLiteral *node)
 {
     out << "[";
     accept(node->elements);
+    accept(node->elision);
     out << "]";
     return false;
 }
@@ -194,9 +205,11 @@ void PrettyPretty::endVisit(AST::ObjectLiteral *node)
 
 bool PrettyPretty::visit(AST::ElementList *node)
 {
+    accept(node->elision);
     accept(node->expression);
     for (node = node->next; node != 0; node = node->next) {
         out << ", ";
+        accept(node->elision);
         accept(node->expression);
     }
     return false;
@@ -209,9 +222,10 @@ void PrettyPretty::endVisit(AST::ElementList *node)
 
 bool PrettyPretty::visit(AST::Elision *node)
 {
-    Q_UNUSED(node);
-    qDebug("*** elision");
-    return true;
+    out << ", ";
+    for (AST::Elision *eit = node->next; eit != 0; eit = eit->next)
+        out << ", ";
+    return false;
 }
 
 void PrettyPretty::endVisit(AST::Elision *node)
@@ -388,7 +402,7 @@ void PrettyPretty::endVisit(AST::DeleteExpression *node)
 bool PrettyPretty::visit(AST::VoidExpression *node)
 {
     Q_UNUSED(node);
-    qDebug("*** voidexpression");
+    out << "void ";
     return true;
 }
 
@@ -599,15 +613,8 @@ void PrettyPretty::endVisit(AST::Expression *node)
 
 bool PrettyPretty::visit(AST::Block *node)
 {
-    out << "{";
-    pushIndentLevel();
-    newlineAndIndent();
-    accept(node->statements);
-    popIndentLevel();
-    newlineAndIndent();
-    out << "}";
     Q_UNUSED(node);
-    return false;
+    return true;
 }
 
 void PrettyPretty::endVisit(AST::Block *node)
@@ -659,7 +666,7 @@ bool PrettyPretty::visit(AST::VariableStatement *node)
 void PrettyPretty::endVisit(AST::VariableStatement *node)
 {
     Q_UNUSED(node);
-    // out << ";";
+    out << ";";
 }
 
 bool PrettyPretty::visit(AST::VariableDeclaration *node)
@@ -692,7 +699,7 @@ void PrettyPretty::endVisit(AST::EmptyStatement *node)
 bool PrettyPretty::visit(AST::ExpressionStatement *node)
 {
     accept(node->expression);
-    //out << ";";
+    out << ";";
     return false;
 }
 
@@ -703,14 +710,13 @@ void PrettyPretty::endVisit(AST::ExpressionStatement *node)
 
 bool PrettyPretty::visit(AST::IfStatement *node)
 {
-    newlineAndIndent();
     out << "if (";
     accept(node->expression);
     out << ") ";
-    accept(node->ok);
+    acceptAsBlock(node->ok);
     if (node->ko) {
         out << " else ";
-        accept(node->ko);
+        acceptAsBlock(node->ko);
     }
     return false;
 }
@@ -722,16 +728,11 @@ void PrettyPretty::endVisit(AST::IfStatement *node)
 
 bool PrettyPretty::visit(AST::DoWhileStatement *node)
 {
-    newlineAndIndent();
     out << "do ";
-    pushIndentLevel();
-    newlineAndIndent();
-    accept(node->statement);
-    popIndentLevel();
-    newlineAndIndent();
-    out << "while (";
+    acceptAsBlock(node->statement);
+    out << " while (";
     accept(node->expression);
-    out << ")";
+    out << ");";
     return false;
 }
 
@@ -742,11 +743,10 @@ void PrettyPretty::endVisit(AST::DoWhileStatement *node)
 
 bool PrettyPretty::visit(AST::WhileStatement *node)
 {
-    newlineAndIndent();
     out << "while (";
     accept(node->expression);
     out << ") ";
-    accept(node->statement);
+    acceptAsBlock(node->statement);
     return false;
 }
 
@@ -763,12 +763,8 @@ bool PrettyPretty::visit(AST::ForStatement *node)
     accept(node->condition);
     out << "; ";
     accept(node->expression);
-    out << ")";
-    pushIndentLevel();
-    newlineAndIndent();
-    accept(node->statement);
-    popIndentLevel();
-    newlineAndIndent();
+    out << ") ";
+    acceptAsBlock(node->statement);
     return false;
 }
 
@@ -785,12 +781,8 @@ bool PrettyPretty::visit(AST::LocalForStatement *node)
     accept(node->condition);
     out << "; ";
     accept(node->expression);
-    out << ")";
-    pushIndentLevel();
-    newlineAndIndent();
-    accept(node->statement);
-    popIndentLevel();
-    newlineAndIndent();
+    out << ") ";
+    acceptAsBlock(node->statement);
     return false;
 }
 
@@ -805,12 +797,8 @@ bool PrettyPretty::visit(AST::ForEachStatement *node)
     accept(node->initialiser);
     out << " in ";
     accept(node->expression);
-    out << ")";
-    pushIndentLevel();
-    newlineAndIndent();
-    accept(node->statement);
-    popIndentLevel();
-    newlineAndIndent();
+    out << ") ";
+    acceptAsBlock(node->statement);
     return false;
 }
 
@@ -825,12 +813,8 @@ bool PrettyPretty::visit(AST::LocalForEachStatement *node)
     accept(node->declaration);
     out << " in ";
     accept(node->expression);
-    out << ")";
-    pushIndentLevel();
-    newlineAndIndent();
-    accept(node->statement);
-    popIndentLevel();
-    newlineAndIndent();
+    out << ") ";
+    acceptAsBlock(node->statement);
     return false;
 }
 
@@ -845,7 +829,7 @@ bool PrettyPretty::visit(AST::ContinueStatement *node)
     if (node->label) {
         out << " " << eng->toString(node->label);
     }
-    //out << ";";
+    out << ";";
     return false;
 }
 
@@ -860,7 +844,7 @@ bool PrettyPretty::visit(AST::BreakStatement *node)
     if (node->label) {
         out << " " << eng->toString(node->label);
     }
-    //out << ";";
+    out << ";";
     return false;
 }
 
@@ -876,7 +860,7 @@ bool PrettyPretty::visit(AST::ReturnStatement *node)
         out << " ";
         accept(node->expression);
     }
-    //out << ";";
+    out << ";";
     return false;
 }
 
@@ -889,12 +873,8 @@ bool PrettyPretty::visit(AST::WithStatement *node)
 {
     out << "with (";
     accept(node->expression);
-    out << ")";
-    pushIndentLevel();
-    newlineAndIndent();
-    accept(node->statement);
-    popIndentLevel();
-    newlineAndIndent();
+    out << ") ";
+    acceptAsBlock(node->statement);
     return false;
 }
 
@@ -907,12 +887,8 @@ bool PrettyPretty::visit(AST::SwitchStatement *node)
 {
     out << "switch (";
     accept(node->expression);
-    out << ")";
-    pushIndentLevel();
-    newlineAndIndent();
-    accept(node->block);
-    popIndentLevel();
-    newlineAndIndent();
+    out << ") ";
+    acceptAsBlock(node->block);
     return false;
 }
 
@@ -923,9 +899,16 @@ void PrettyPretty::endVisit(AST::SwitchStatement *node)
 
 bool PrettyPretty::visit(AST::CaseBlock *node)
 {
-    qDebug() << "*** caseblock";
-    Q_UNUSED(node);
-    return true;
+    accept(node->clauses);
+    if (node->defaultClause) {
+        newlineAndIndent();
+        accept(node->defaultClause);
+    }
+    if (node->moreClauses) {
+        newlineAndIndent();
+        accept(node->moreClauses);
+    }
+    return false;
 }
 
 void PrettyPretty::endVisit(AST::CaseBlock *node)
@@ -935,9 +918,12 @@ void PrettyPretty::endVisit(AST::CaseBlock *node)
 
 bool PrettyPretty::visit(AST::CaseClauses *node)
 {
-    qDebug() << "*** caseclauses";
-    Q_UNUSED(node);
-    return true;
+    accept(node->clause);
+    for (node = node->next; node != 0; node = node->next) {
+        newlineAndIndent();
+        accept(node->clause);
+    }
+    return false;
 }
 
 void PrettyPretty::endVisit(AST::CaseClauses *node)
@@ -949,8 +935,11 @@ bool PrettyPretty::visit(AST::CaseClause *node)
 {
     out << "case ";
     accept(node->expression);
-    out << ": ";
-    accept(node->statements);
+    out << ":";
+    if (node->statements) {
+        newlineAndIndent();
+        accept(node->statements);
+    }
     return false;
 }
 
@@ -962,7 +951,8 @@ void PrettyPretty::endVisit(AST::CaseClause *node)
 bool PrettyPretty::visit(AST::DefaultClause *node)
 {
     Q_UNUSED(node);
-    out << "default: ";
+    out << "default:";
+    newlineAndIndent();
     return true;
 }
 
@@ -986,7 +976,9 @@ bool PrettyPretty::visit(AST::ThrowStatement *node)
 {
     Q_UNUSED(node);
     out << "throw ";
-    return true;
+    accept(node->expression);
+    out << ";";
+    return false;
 }
 
 void PrettyPretty::endVisit(AST::ThrowStatement *node)
@@ -997,14 +989,14 @@ void PrettyPretty::endVisit(AST::ThrowStatement *node)
 bool PrettyPretty::visit(AST::TryStatement *node)
 {
     out << "try ";
-    accept(node->statement);
+    acceptAsBlock(node->statement);
     if (node->catchExpression) {
         out << " catch (" << eng->toString(node->catchExpression->name) << ") ";
-        node->catchExpression->statement->accept(this);
+        acceptAsBlock(node->catchExpression->statement);
     }
     if (node->finallyExpression) {
         out << " finally ";
-        node->finallyExpression->statement->accept(this);
+        acceptAsBlock(node->finallyExpression->statement);
     }
     return false;
 }
@@ -1067,8 +1059,6 @@ bool PrettyPretty::visit(AST::FunctionDeclaration *node)
     }
 
     out << "}";
-    newlineAndIndent();
-    newlineAndIndent();
 
     return false;
 }
@@ -1080,7 +1070,6 @@ void PrettyPretty::endVisit(AST::FunctionDeclaration *node)
 
 bool PrettyPretty::visit(AST::FunctionExpression *node)
 {
-//    newlineAndIndent();
     out << "function";
 
     if (node->name)

@@ -279,6 +279,8 @@ protected:
 
     QTextStream &newlineAndIndent();
 
+    void acceptAsBlock(AST::Node *node);
+
 private:
     QScriptEnginePrivate *eng;
     QTextStream &out;

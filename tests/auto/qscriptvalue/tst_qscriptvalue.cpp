@@ -48,6 +48,8 @@ private slots:
     void equals();
     void strictlyEquals();
     void castToPointer();
+    void prettyPrinter_data();
+    void prettyPrinter();
 };
 
 tst_QScriptValue::tst_QScriptValue()
@@ -1599,6 +1601,147 @@ void tst_QScriptValue::castToPointer()
         QScriptValue v2 = eng.newVariant(qVariantFromValue(cp));
         QCOMPARE(qscriptvalue_cast<QColor*>(v2), cp);
     }
+}
+
+void tst_QScriptValue::prettyPrinter_data()
+{
+    QTest::addColumn<QString>("function");
+    QTest::addColumn<QString>("expected");
+    QTest::newRow("") << QString("function() { }") << QString("function() {}");
+    QTest::newRow("") << QString("return function foo() { }") << QString("function foo() {}");
+    QTest::newRow("") << QString("return function foo(bar) { }") << QString("function foo(bar) {}");
+    QTest::newRow("") << QString("return function foo(bar, baz) { }") << QString("function foo(bar, baz) {}");
+    QTest::newRow("this") << QString("function() { this; }") << QString("function() {\n    this;\n}");
+    QTest::newRow("identifier") << QString("function(a) { a; }") << QString("function(a) {\n    a;\n}");
+    QTest::newRow("null") << QString("function() { null; }") << QString("function() {\n    null;\n}");
+    QTest::newRow("true") << QString("function() { true; }") << QString("function() {\n    true;\n}");
+    QTest::newRow("false") << QString("function() { false; }") << QString("function() {\n    false;\n}");
+    QTest::newRow("string") << QString("function() { 'test'; }") << QString("function() {\n    \"test\";\n}");
+    QTest::newRow("string") << QString("function() { \"test\"; }") << QString("function() {\n    \"test\";\n}");
+    QTest::newRow("number") << QString("function() { 123; }") << QString("function() {\n    123;\n}");
+    QTest::newRow("number") << QString("function() { 123.456; }") << QString("function() {\n    123.456;\n}");
+    QTest::newRow("regexp") << QString("function() { /hello/; }") << QString("function() {\n    /hello/;\n}");
+    QTest::newRow("regexp") << QString("function() { /hello/gim; }") << QString("function() {\n    /hello/gim;\n}");
+    QTest::newRow("array") << QString("function() { []; }") << QString("function() {\n    [];\n}");
+    QTest::newRow("array") << QString("function() { [10]; }") << QString("function() {\n    [10];\n}");
+    QTest::newRow("array") << QString("function() { [10, 20, 30]; }") << QString("function() {\n    [10, 20, 30];\n}");
+    QTest::newRow("array") << QString("function() { [10, 20, , 40]; }") << QString("function() {\n    [10, 20, , 40];\n}");
+    QTest::newRow("array") << QString("function() { [,]; }") << QString("function() {\n    [, ];\n}");
+    QTest::newRow("array") << QString("function() { [, 10]; }") << QString("function() {\n    [, 10];\n}");
+    QTest::newRow("array") << QString("function() { [, 10, ]; }") << QString("function() {\n    [, 10];\n}");
+    QTest::newRow("array") << QString("function() { [, 10, ,]; }") << QString("function() {\n    [, 10, ];\n}");
+    QTest::newRow("array") << QString("function() { [[10], [20]]; }") << QString("function() {\n    [[10], [20]];\n}");
+    QTest::newRow("member") << QString("function() { a.b; }") << QString("function() {\n    a.b;\n}");
+    QTest::newRow("member") << QString("function() { a.b.c; }") << QString("function() {\n    a.b.c;\n}");
+    QTest::newRow("call") << QString("function() { f(); }") << QString("function() {\n    f();\n}");
+    QTest::newRow("call") << QString("function() { f(a); }") << QString("function() {\n    f(a);\n}");
+    QTest::newRow("call") << QString("function() { f(a, b); }") << QString("function() {\n    f(a, b);\n}");
+    QTest::newRow("new") << QString("function() { new C(); }") << QString("function() {\n    new C();\n}");
+    QTest::newRow("new") << QString("function() { new C(a); }") << QString("function() {\n    new C(a);\n}");
+    QTest::newRow("new") << QString("function() { new C(a, b); }") << QString("function() {\n    new C(a, b);\n}");
+    QTest::newRow("++") << QString("function() { a++; }") << QString("function() {\n    a++;\n}");
+    QTest::newRow("++") << QString("function() { ++a; }") << QString("function() {\n    ++a;\n}");
+    QTest::newRow("--") << QString("function() { a--; }") << QString("function() {\n    a--;\n}");
+    QTest::newRow("--") << QString("function() { --a; }") << QString("function() {\n    --a;\n}");
+    QTest::newRow("delete") << QString("function() { delete a; }") << QString("function() {\n    delete a;\n}");
+    QTest::newRow("void") << QString("function() { void a; }") << QString("function() {\n    void a;\n}");
+    QTest::newRow("typeof") << QString("function() { typeof a; }") << QString("function() {\n    typeof a;\n}");
+    QTest::newRow("+") << QString("function() { +a; }") << QString("function() {\n    +a;\n}");
+    QTest::newRow("-") << QString("function() { -a; }") << QString("function() {\n    -a;\n}");
+    QTest::newRow("~") << QString("function() { ~a; }") << QString("function() {\n    ~a;\n}");
+    QTest::newRow("!") << QString("function() { !a; }") << QString("function() {\n    !a;\n}");
+    QTest::newRow("+") << QString("function() { a + b; }") << QString("function() {\n    a + b;\n}");
+    QTest::newRow("&&") << QString("function() { a && b; }") << QString("function() {\n    a && b;\n}");
+    QTest::newRow("&=") << QString("function() { a &= b; }") << QString("function() {\n    a &= b;\n}");
+    QTest::newRow("=") << QString("function() { a = b; }") << QString("function() {\n    a = b;\n}");
+    QTest::newRow("&") << QString("function() { a & b; }") << QString("function() {\n    a & b;\n}");
+    QTest::newRow("|") << QString("function() { a | b; }") << QString("function() {\n    a | b;\n}");
+    QTest::newRow("^") << QString("function() { a ^ b; }") << QString("function() {\n    a ^ b;\n}");
+    QTest::newRow("-=") << QString("function() { a -= b; }") << QString("function() {\n    a -= b;\n}");
+    QTest::newRow("/") << QString("function() { a / b; }") << QString("function() {\n    a / b;\n}");
+    QTest::newRow("/=") << QString("function() { a /= b; }") << QString("function() {\n    a /= b;\n}");
+    QTest::newRow("==") << QString("function() { a == b; }") << QString("function() {\n    a == b;\n}");
+    QTest::newRow(">=") << QString("function() { a >= b; }") << QString("function() {\n    a >= b;\n}");
+    QTest::newRow(">") << QString("function() { a > b; }") << QString("function() {\n    a > b;\n}");
+    QTest::newRow("in") << QString("function() { a in b; }") << QString("function() {\n    a in b;\n}");
+    QTest::newRow("+=") << QString("function() { a += b; }") << QString("function() {\n    a += b;\n}");
+    QTest::newRow("instanceof") << QString("function() { a instanceof b; }") << QString("function() {\n    a instanceof b;\n}");
+    QTest::newRow("<=") << QString("function() { a <= b; }") << QString("function() {\n    a <= b;\n}");
+    QTest::newRow("<<") << QString("function() { a << b; }") << QString("function() {\n    a << b;\n}");
+    QTest::newRow("<<=") << QString("function() { a <<= b; }") << QString("function() {\n    a <<= b;\n}");
+    QTest::newRow("<") << QString("function() { a < b; }") << QString("function() {\n    a < b;\n}");
+    QTest::newRow("%") << QString("function() { a % b; }") << QString("function() {\n    a % b;\n}");
+    QTest::newRow("%=") << QString("function() { a %= b; }") << QString("function() {\n    a %= b;\n}");
+    QTest::newRow("*") << QString("function() { a * b; }") << QString("function() {\n    a * b;\n}");
+    QTest::newRow("*=") << QString("function() { a *= b; }") << QString("function() {\n    a *= b;\n}");
+    QTest::newRow("!=") << QString("function() { a != b; }") << QString("function() {\n    a != b;\n}");
+    QTest::newRow("||") << QString("function() { a || b; }") << QString("function() {\n    a || b;\n}");
+    QTest::newRow("|=") << QString("function() { a |= b; }") << QString("function() {\n    a |= b;\n}");
+    QTest::newRow(">>") << QString("function() { a >> b; }") << QString("function() {\n    a >> b;\n}");
+    QTest::newRow(">>=") << QString("function() { a >>= b; }") << QString("function() {\n    a >>= b;\n}");
+    QTest::newRow("===") << QString("function() { a === b; }") << QString("function() {\n    a === b;\n}");
+    QTest::newRow("!==") << QString("function() { a !== b; }") << QString("function() {\n    a !== b;\n}");
+    QTest::newRow("-") << QString("function() { a - b; }") << QString("function() {\n    a - b;\n}");
+    QTest::newRow(">>>") << QString("function() { a >>> b; }") << QString("function() {\n    a >>> b;\n}");
+    QTest::newRow(">>>=") << QString("function() { a >>>= b; }") << QString("function() {\n    a >>>= b;\n}");
+    QTest::newRow("^=") << QString("function() { a ^= b; }") << QString("function() {\n    a ^= b;\n}");
+    QTest::newRow("? :") << QString("function() { a ? b : c; }") << QString("function() {\n    a ? b : c;\n}");
+    QTest::newRow("a; b; c") << QString("function() { a; b; c; }") << QString("function() {\n    a;\n    b;\n    c;\n}");
+    QTest::newRow("var a;") << QString("function() { var a; }") << QString("function() {\n    var a;\n}");
+    QTest::newRow("var a, b;") << QString("function() { var a, b; }") << QString("function() {\n    var a, b;\n}");
+    QTest::newRow("var a = 10;") << QString("function() { var a = 10; }") << QString("function() {\n    var a = 10;\n}");
+    QTest::newRow("var a, b = 20;") << QString("function() { var a, b = 20; }") << QString("function() {\n    var a, b = 20;\n}");
+    QTest::newRow("var a = 10, b = 20;") << QString("function() { var a = 10, b = 20; }") << QString("function() {\n    var a = 10, b = 20;\n}");
+    QTest::newRow("if") << QString("function() { if (a) b; }") << QString("function() {\n    if (a) {\n        b;\n    }\n}");
+    QTest::newRow("if") << QString("function() { if (a) { b; c; } }") << QString("function() {\n    if (a) {\n        b;\n        c;\n    }\n}");
+    QTest::newRow("if-else") << QString("function() { if (a) b; else c; }") << QString("function() {\n    if (a) {\n        b;\n    } else {\n        c;\n    }\n}");
+    QTest::newRow("if-else") << QString("function() { if (a) { b; c; } else { d; e; } }") << QString("function() {\n    if (a) {\n        b;\n        c;\n    } else {\n        d;\n        e;\n    }\n}");
+    QTest::newRow("do-while") << QString("function() { do { a; } while (b); }") << QString("function() {\n    do {\n        a;\n    } while (b);\n}");
+    QTest::newRow("do-while") << QString("function() { do { a; b; c; } while (d); }") << QString("function() {\n    do {\n        a;\n        b;\n        c;\n    } while (d);\n}");
+    QTest::newRow("while") << QString("function() { while (a) { b; } }") << QString("function() {\n    while (a) {\n        b;\n    }\n}");
+    QTest::newRow("while") << QString("function() { while (a) { b; c; } }") << QString("function() {\n    while (a) {\n        b;\n        c;\n    }\n}");
+    QTest::newRow("for") << QString("function() { for (a; b; c) { } }") << QString("function() {\n    for (a; b; c) {\n        \n    }\n}");
+    QTest::newRow("for") << QString("function() { for (; a; b) { } }") << QString("function() {\n    for (; a; b) {\n        \n    }\n}");
+    QTest::newRow("for") << QString("function() { for (; ; a) { } }") << QString("function() {\n    for (; ; a) {\n        \n    }\n}");
+    QTest::newRow("for") << QString("function() { for (; ; ) { } }") << QString("function() {\n    for (; ; ) {\n        \n    }\n}");
+    QTest::newRow("for") << QString("function() { for (var a; b; c) { } }") << QString("function() {\n    for (var a; b; c) {\n        \n    }\n}");
+    QTest::newRow("for") << QString("function() { for (var a, b, c; d; e) { } }") << QString("function() {\n    for (var a, b, c; d; e) {\n        \n    }\n}");
+    QTest::newRow("continue") << QString("function() { for (; ; ) { continue; } }") << QString("function() {\n    for (; ; ) {\n        continue;\n    }\n}");
+    QTest::newRow("continue") << QString("function() { for (; ; ) { continue label; } }") << QString("function() {\n    for (; ; ) {\n        continue label;\n    }\n}");
+    QTest::newRow("break") << QString("function() { for (; ; ) { break; } }") << QString("function() {\n    for (; ; ) {\n        break;\n    }\n}");
+    QTest::newRow("break") << QString("function() { for (; ; ) { break label; } }") << QString("function() {\n    for (; ; ) {\n        break label;\n    }\n}");
+    QTest::newRow("return") << QString("function() { return; }") << QString("function() {\n    return;\n}");
+    QTest::newRow("return") << QString("function() { return 10; }") << QString("function() {\n    return 10;\n}");
+    QTest::newRow("with") << QString("function() { with (a) { b; } }") << QString("function() {\n    with (a) {\n        b;\n    }\n}");
+    QTest::newRow("with") << QString("function() { with (a) { b; c; } }") << QString("function() {\n    with (a) {\n        b;\n        c;\n    }\n}");
+    QTest::newRow("switch") << QString("function() { switch (a) { } }") << QString("function() {\n    switch (a) {\n        \n    }\n}");
+    QTest::newRow("switch") << QString("function() { switch (a) { case 1: ; } }") << QString("function() {\n    switch (a) {\n        case 1:\n        ;\n    }\n}");
+    QTest::newRow("switch") << QString("function() { switch (a) { case 1: b; break; } }") << QString("function() {\n    switch (a) {\n        case 1:\n        b;\n        break;\n    }\n}");
+    QTest::newRow("switch") << QString("function() { switch (a) { case 1: b; break; case 2: break; } }") << QString("function() {\n    switch (a) {\n        case 1:\n        b;\n        break;\n        case 2:\n        break;\n    }\n}");
+    QTest::newRow("switch") << QString("function() { switch (a) { case 1: case 2: ; } }") << QString("function() {\n    switch (a) {\n        case 1:\n        case 2:\n        ;\n    }\n}");
+    QTest::newRow("switch") << QString("function() { switch (a) { case 1: default: ; } }") << QString("function() {\n    switch (a) {\n        case 1:\n        default:\n        ;\n    }\n}");
+    QTest::newRow("switch") << QString("function() { switch (a) { case 1: default: ; case 3: ; } }") << QString("function() {\n    switch (a) {\n        case 1:\n        default:\n        ;\n        case 3:\n        ;\n    }\n}");
+    QTest::newRow("label") << QString("function() { a: b; }") << QString("function() {\n    a: b;\n}");
+    QTest::newRow("throw") << QString("function() { throw a; }") << QString("function() {\n    throw a;\n}");
+    QTest::newRow("try-catch") << QString("function() { try { a; } catch (e) { b; } }") << QString("function() {\n    try {\n        a;\n    } catch (e) {\n        b;\n    }\n}");
+    QTest::newRow("try-finally") << QString("function() { try { a; } finally { b; } }") << QString("function() {\n    try {\n        a;\n    } finally {\n        b;\n    }\n}");
+    QTest::newRow("try-catch-finally") << QString("function() { try { a; } catch (e) { b; } finally { c; } }") << QString("function() {\n    try {\n        a;\n    } catch (e) {\n        b;\n    } finally {\n        c;\n    }\n}");
+}
+
+void tst_QScriptValue::prettyPrinter()
+{
+    QFETCH(QString, function);
+    QFETCH(QString, expected);
+    QScriptEngine eng;
+    QScriptValue val = eng.evaluate(function);
+    QString actual = val.toString();
+    int count = qMin(actual.size(), expected.size());
+//    qDebug() << actual << expected;
+    for (int i = 0; i < count; ++i) {
+//        qDebug() << i << actual.at(i) << expected.at(i);
+        QCOMPARE(actual.at(i), expected.at(i));
+    }
+    QCOMPARE(actual.size(), expected.size());
 }
 
 QTEST_MAIN(tst_QScriptValue)
