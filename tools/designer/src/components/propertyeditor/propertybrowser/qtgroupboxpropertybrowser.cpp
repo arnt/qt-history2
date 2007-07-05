@@ -70,7 +70,6 @@ private:
 void QtGroupBoxPropertyBrowserPrivate::init(QWidget *parent)
 {
     m_mainLayout = new QGridLayout();
-    m_mainLayout->setMargin(0);
     parent->setLayout(m_mainLayout);
     QLayoutItem *item = new QSpacerItem(0, 0,
                 QSizePolicy::Fixed, QSizePolicy::Expanding);
