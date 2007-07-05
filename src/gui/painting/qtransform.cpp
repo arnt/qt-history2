@@ -115,23 +115,23 @@
 
     \table 100%
     \row
-    \o \inlineimage qmatrix-simpletransformation
+    \o \inlineimage qtransform-simpletransformation.png
     \o
-    \quotefromfile snippets/matrix/matrix.cpp
+    \quotefromfile snippets/transform/main.cpp
     \skipto SimpleTransformation::paintEvent
     \printuntil }
     \endtable
 
     Although these functions are very convenient, it can be more
-    efficient to build a QTransform and call QPainter::setMatrix() if you
+    efficient to build a QTransform and call QPainter::setTransform() if you
     want to perform more than a single transform operation. For
     example:
 
     \table 100%
     \row
-    \o \inlineimage qmatrix-combinedtransformation.png
+    \o \inlineimage qtransform-combinedtransformation.png
     \o
-    \quotefromfile snippets/matrix/matrix.cpp
+    \quotefromfile snippets/transform/main.cpp
     \skipto CombinedTransformation::paintEvent
     \printuntil }
     \endtable
@@ -182,9 +182,9 @@
 
     \table 100%
     \row
-    \o \inlineimage qmatrix-combinedtransformation.png
+    \o \inlineimage qtransform-combinedtransformation2.png
     \o
-    \quotefromfile snippets/matrix/matrix.cpp
+    \quotefromfile snippets/transform/main.cpp
     \skipto BasicOperations::paintEvent
     \printuntil }
     \endtable
