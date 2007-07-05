@@ -266,6 +266,30 @@ void QUndoCommand::setText(const QString &text)
     d->text = text;
 }
 
+/*!
+    Returns the number of child commands in this command.
+
+    \sa child()
+*/
+
+int QUndoCommand::childCount() const
+{
+    return d->child_list.count();
+}
+
+/*!
+    Returns the child command at \a index.
+
+    \sa childCount(), QUndoStack::command()
+*/
+
+const QUndoCommand *QUndoCommand::child(int index) const
+{
+    if (index < 0 || index >= d->child_list.count())
+        return 0;
+    return d->child_list.at(index);
+}
+
 #endif // QT_NO_UNDOCOMMAND
 
 #ifndef QT_NO_UNDOSTACK
@@ -673,7 +697,7 @@ void QUndoStack::redo()
     Returns the number of commands on the stack. Macro commands are counted as
     one command.
 
-    \sa index() setIndex()
+    \sa index() setIndex() command()
 */
 
 int QUndoStack::count() const
@@ -945,6 +969,25 @@ void QUndoStack::endMacro()
         d->checkUndoLimit();
         d->setIndex(d->index + 1, false);
     }
+}
+
+/*!
+    Returns the command at \a index.
+
+    This function returns a const pointer, because modifying a command once it's pushed on
+    the stack and executed almost always leads to corruption in the state of the document
+    when commands are subsequently undone or redone.
+
+    \sa command() QUndoCommand::child()
+*/
+
+const QUndoCommand *QUndoStack::command(int index) const
+{
+    Q_D(const QUndoStack);
+
+    if (index < 0 || index >= d->command_list.count())
+        return 0;
+    return d->command_list.at(index);
 }
 
 /*!

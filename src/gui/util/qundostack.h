@@ -45,6 +45,9 @@ public:
     virtual int id() const;
     virtual bool mergeWith(const QUndoCommand *other);
 
+    int childCount() const;
+    const QUndoCommand *child(int index) const;
+
 private:
     Q_DISABLE_COPY(QUndoCommand)
     friend class QUndoStack;
@@ -93,6 +96,8 @@ public:
 
     void setUndoLimit(int limit);
     int undoLimit() const;
+
+    const QUndoCommand *command(int index) const;
 
 public Q_SLOTS:
     void setClean();
