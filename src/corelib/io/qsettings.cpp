@@ -883,32 +883,13 @@ static bool checkAccess(const QString &name)
         // if the file exists but we can't open it, report an error
         return file.open(QFile::ReadOnly);
     } else {
-        QDir dir;
-        if (QDir::isRelativePath(name))
-            dir = QDir::current();
-        else
-            dir = QDir::root();
-
-        /*
-            Create the directories to the file.
-        */
-        QStringList pathElements = name.split(QLatin1Char('/'), QString::SkipEmptyParts);
-        for (int i = 0; i < pathElements.size() - 1; ++i) {
-            const QString &elt = pathElements.at(i);
-            if (dir.cd(elt))
-                continue;
-
-            if (dir.mkdir(elt) && dir.cd(elt))
-                continue;
-
-            if (dir.cd(elt))
-                continue;
-
-            // if the path can't be created/reached, report an error
-            return false;
+        // Create the directories to the file.
+        QDir dir(fileInfo.absolutePath());
+        if (dir.exists() && dir.isReadable()) {
+            return true;
+        } else {
+            return dir.mkpath(dir.absolutePath());
         }
-        // we treat non-existent files as if they existed but were empty
-        return true;
     }
 }
 
@@ -2301,7 +2282,7 @@ void QConfFileSettingsPrivate::ensureSectionParsed(QConfFile *confFile,
         settings.setValue("HKEY_CURRENT_USER\\MySoft\\Star Runner\\Galaxy\\Sun", "OurStar");
         settings.value("HKEY_CURRENT_USER\\MySoft\\Star Runner\\Galaxy\\Default"); // returns "Milkyway"
     \endcode
-    
+
     On other platforms than windows, "Default" and "." would be
     treated as regular subkeys.
 
