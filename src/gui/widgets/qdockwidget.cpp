@@ -1265,6 +1265,7 @@ bool QDockWidget::event(QEvent *event)
     case QEvent::ApplicationLayoutDirectionChange:
     case QEvent::LayoutDirectionChange:
     case QEvent::StyleChange:
+    case QEvent::ParentChange:
         d->updateButtons();
         break;
     case QEvent::ZOrderChange: {
