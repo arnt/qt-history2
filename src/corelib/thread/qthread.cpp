@@ -153,6 +153,12 @@ QThread *QAdoptedThread::createThreadForAdoption()
     return t;
 }
 
+void QAdoptedThread::run()
+{
+    // this function should never be called
+    qFatal("QAdoptedThread::run(): Internal error, this implementation should never be called.");
+}
+
 /*!
     \class QThread
     \brief The QThread class provides platform-independent threads.
@@ -165,9 +171,10 @@ QThread *QAdoptedThread::createThreadForAdoption()
     program; it shares data with all the other threads within the
     process but executes independently in the way that a separate
     program does on a multitasking operating system. Instead of
-    starting in \c main(), QThreads begin executing in run().
-    To create your own threads, subclass QThread and reimplement
-    run(). For example:
+    starting in \c main(), QThreads begin executing in run().  By
+    default, run() starts the event loop by calling exec() (see
+    below). To create your own threads, subclass QThread and
+    reimplement run(). For example:
 
     \code
         class MyThread : public QThread
@@ -202,11 +209,12 @@ QThread *QAdoptedThread::createThreadForAdoption()
     Each QThread can have its own event loop. You can start the event
     loop by calling exec(); you can stop it by calling exit() or
     quit(). Having an event loop in a thread makes it possible to
-    connect signals from other threads to slots in this threads,
-    using a mechanism called \l{Qt::QueuedConnection}{queued
+    connect signals from other threads to slots in this threads, using
+    a mechanism called \l{Qt::QueuedConnection}{queued
     connections}. It also makes it possible to use classes that
     require the event loop, such as QTimer and QTcpSocket, in the
-    thread.
+    thread. Note, however, that is is not possible to use any widget
+    classes in the thread.
 
     In extreme cases, you may want to forcibly terminate() an
     executing thread. However, doing so is dangerous and discouraged.
@@ -452,15 +460,20 @@ void QThread::quit()
 { exit(); }
 
 /*!
-    \fn void QThread::run()
+    The starting point for the thread. After calling start(), the
+    newly created thread calls this function. The default
+    implementation simply calls exec().
 
-    This method is pure virtual and must be implemented in derived
-    classes in order to do useful work. Returning from this method
-    will end the execution of the thread.
+    You can reimplemented this function to do other useful
+    work. Returning from this method will end the execution of the
+    thread.
 
-    \sa wait()
+    \sa start() wait()
 */
-
+void QThread::run()
+{
+    (void) exec();
+}
 
 /*! \internal
     Initializes the QThread system.

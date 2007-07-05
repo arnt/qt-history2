@@ -157,12 +157,7 @@ public:
 
     static QThread *createThreadForAdoption();
 private:
-    inline void run()
-    {
-        // this function should never be called, it is implemented
-        // only so that we can instantiate the object
-        qFatal("QAdoptedThread::run(): Internal error, this implementation should never be called.");
-    }
+    void run();
 };
 
 #else // QT_NO_THREAD

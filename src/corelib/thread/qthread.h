@@ -76,7 +76,7 @@ Q_SIGNALS:
     void terminated();
 
 protected:
-    virtual void run() = 0;
+    virtual void run();
     int exec();
 
     static void setTerminationEnabled(bool enabled = true);
