@@ -24,6 +24,10 @@
 #  include <sys/types.h>
 #  include <sys/stat.h>
 #endif
+#ifdef Q_OS_DARWIN
+#include <ApplicationServices/ApplicationServices.h>
+#include <private/qcore_mac_p.h>
+#endif
 
 //#define GENERATE_AGGREGRATE_SUBDIR
 
@@ -1635,53 +1639,82 @@ int
 ProjectBuilderMakefileGenerator::pbuilderVersion() const
 {
     QString ret;
-    if(project->isEmpty("QMAKE_PBUILDER_VERSION")) {
+    if(!project->isEmpty("QMAKE_PBUILDER_VERSION")) {
+        ret = project->first("QMAKE_PBUILDER_VERSION");
+    } else {
         QString version, version_plist = project->first("QMAKE_PBUILDER_VERSION_PLIST");
         if(version_plist.isEmpty()) {
+#ifdef Q_OS_DARWIN
+            ret = QLatin1String("34");
+            QCFType<CFURLRef> cfurl;
+            OSStatus err = LSFindApplicationForInfo(0, CFSTR("com.apple.Xcode"), 0, 0, &cfurl);
+            if (err == noErr) {
+                QCFType<CFBundleRef> bundle = CFBundleCreate(0, cfurl);
+                if (bundle) {
+                    CFStringRef str = CFStringRef(CFBundleGetValueForInfoDictionaryKey(bundle,
+                                                              CFSTR("CFBundleShortVersionString")));
+                    if (str) {
+                        QStringList versions = QCFString::toQString(str).split(QLatin1Char('.'));
+                        int versionMajor = versions.at(0).toInt();
+                        int versionMinor = versions.at(1).toInt();
+                        if (versionMajor >= 2) {
+                            ret = QLatin1String("42");
+                        } else if (versionMajor == 1 && versionMinor >= 5) {
+                            ret = QLatin1String("39");
+                        }
+                    }
+                }
+            }
+#else
             if(exists("/Developer/Applications/Xcode.app/Contents/version.plist"))
                 version_plist = "/Developer/Applications/Xcode.app/Contents/version.plist";
             else
                 version_plist = "/Developer/Applications/Project Builder.app/Contents/version.plist";
+#endif
         } else {
             version_plist = version_plist.replace(QRegExp("\""), "");
         }
-        QFile version_file(version_plist);
-        if (version_file.open(QIODevice::ReadOnly)) {
-            debug_msg(1, "pbuilder: version.plist: Reading file: %s", version_plist.toLatin1().constData());
-            QTextStream plist(&version_file);
+        if (ret.isEmpty()) {
+            QFile version_file(version_plist);
+            if (version_file.open(QIODevice::ReadOnly)) {
+                debug_msg(1, "pbuilder: version.plist: Reading file: %s", version_plist.toLatin1().constData());
+                QTextStream plist(&version_file);
 
-            bool in_dict = false;
-            QString current_key;
-            QRegExp keyreg("^<key>(.*)</key>$"), stringreg("^<string>(.*)</string>$");
-            while(!plist.atEnd()) {
-                QString line = plist.readLine().trimmed();
-                if(line == "<dict>")
-                    in_dict = true;
-                else if(line == "</dict>")
-                    in_dict = false;
-                else if(in_dict) {
-                    if(keyreg.exactMatch(line))
-                        current_key = keyreg.cap(1);
-                    else if(current_key == "CFBundleShortVersionString" && stringreg.exactMatch(line))
-                        version = stringreg.cap(1);
+                bool in_dict = false;
+                QString current_key;
+                QRegExp keyreg("^<key>(.*)</key>$"), stringreg("^<string>(.*)</string>$");
+                while(!plist.atEnd()) {
+                    QString line = plist.readLine().trimmed();
+                    if(line == "<dict>")
+                        in_dict = true;
+                    else if(line == "</dict>")
+                        in_dict = false;
+                    else if(in_dict) {
+                        if(keyreg.exactMatch(line))
+                            current_key = keyreg.cap(1);
+                        else if(current_key == "CFBundleShortVersionString" && stringreg.exactMatch(line))
+                            version = stringreg.cap(1);
+                    }
                 }
+                plist.flush();
+                version_file.close();
+            } else {
+                debug_msg(1, "pbuilder: version.plist: Failure to open %s", version_plist.toLatin1().constData());
             }
-            plist.flush();
-            version_file.close();
-        } else { debug_msg(1, "pbuilder: version.plist: Failure to open %s", version_plist.toLatin1().constData()); }
-        if(version.isEmpty() && version_plist.contains("Xcode")) {
-            ret = "39";
-        } else {
-            if(version.startsWith("2."))
-                ret = "42";
-            else if(version == "1.5")
+            if(version.isEmpty() && version_plist.contains("Xcode")) {
                 ret = "39";
-            else if(version == "1.1")
-                ret = "34";
+            } else {
+                int versionMajor = version.left(1).toInt();
+                if(versionMajor >= 2)
+                    ret = "42";
+                else if(version == "1.5")
+                    ret = "39";
+                else if(version == "1.1")
+                    ret = "34";
+            }
         }
-    } else {
-        ret = project->first("QMAKE_PBUILDER_VERSION");
     }
+
     if(!ret.isEmpty()) {
         bool ok;
         int int_ret = ret.toInt(&ok);
