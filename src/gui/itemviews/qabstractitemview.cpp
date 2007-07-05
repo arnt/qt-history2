@@ -3463,6 +3463,8 @@ QWidget *QAbstractItemViewPrivate::editor(const QModelIndex &index,
 #ifndef QT_NO_SPINBOX
             if (QSpinBox *sb = ::qobject_cast<QSpinBox*>(w))
                 sb->selectAll();
+            else if (QDoubleSpinBox *dsb = ::qobject_cast<QDoubleSpinBox*>(w))
+                dsb->selectAll();
 #endif
         }
     }
