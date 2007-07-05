@@ -30,6 +30,7 @@ class QtButtonPropertyBrowser;
 class QtTreePropertyBrowser;
 class QtProperty;
 class QtVariantProperty;
+class QtBrowserItem;
 
 class QStackedWidget;
 class QLabel;
@@ -78,6 +79,10 @@ private:
     void setupStringProperty(QtVariantProperty *property, const QString &pname, const QVariant &value, bool isMainContainer);
     void setupPaletteProperty(QtVariantProperty *property);
     QString realClassName(QObject *object) const;
+    void storeExpansionState();
+    void applyExpansionState();
+    void setExpanded(QtBrowserItem *item, bool expanded);
+    bool isExpanded(QtBrowserItem *item);
 
     QDesignerFormEditorInterface *m_core;
     QDesignerPropertySheetExtension *m_propertySheet;
@@ -107,6 +112,8 @@ private:
     QAction *m_groupBoxAction;
     QAction *m_buttonAction;
     QLabel *m_classLabel;
+
+    QMap<QString, bool> m_expansionState;
 };
 
 }  // namespace qdesigner_internal

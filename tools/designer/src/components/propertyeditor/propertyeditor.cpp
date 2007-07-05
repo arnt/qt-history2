@@ -101,13 +101,13 @@ StringPropertyParameters textPropertyValidationMode(const QObject *object,const 
     return StringPropertyParameters(ValidationSingleLine, true);
 }
 
-QDesignerMetaDataBaseItemInterface* PropertyEditor::metaDataBaseItem() const 
+QDesignerMetaDataBaseItemInterface* PropertyEditor::metaDataBaseItem() const
 {
     QObject *o = object();
-    if (!o) 
+    if (!o)
         return 0;
     QDesignerMetaDataBaseInterface *db = core()->metaDataBase();
-    if (!db) 
+    if (!db)
         return 0;
     return db->item(o);
 }
@@ -254,8 +254,79 @@ PropertyEditor::~PropertyEditor()
 
 }
 
+void PropertyEditor::setExpanded(QtBrowserItem *item, bool expanded)
+{
+    if (m_buttonBrowser == m_currentBrowser)
+        m_buttonBrowser->setExpanded(item, expanded);
+    else if (m_treeBrowser == m_currentBrowser)
+        m_treeBrowser->setExpanded(item, expanded);
+}
+
+bool PropertyEditor::isExpanded(QtBrowserItem *item)
+{
+    if (m_buttonBrowser == m_currentBrowser)
+        return m_buttonBrowser->isExpanded(item);
+    else if (m_treeBrowser == m_currentBrowser)
+        return m_treeBrowser->isExpanded(item);
+    return false;
+}
+
+void PropertyEditor::storeExpansionState()
+{
+    if (m_groupBrowser == m_currentBrowser)
+        return;
+
+    QList<QtBrowserItem *> items = m_currentBrowser->topLevelItems();
+    QListIterator<QtBrowserItem *> itGroup(items);
+    while (itGroup.hasNext()) {
+        QtBrowserItem *item = itGroup.next();
+        const QString groupName = item->property()->propertyName();
+        QList<QtBrowserItem *> propertyItems = item->children();
+        if (propertyItems.count() > 0)
+            m_expansionState[groupName] = isExpanded(item);
+
+        // properies stuff here
+        QListIterator<QtBrowserItem *> itProperty(propertyItems);
+        while (itProperty.hasNext()) {
+            QtBrowserItem *propertyItem = itProperty.next();
+            const QString propertyName = propertyItem->property()->propertyName();
+            if (propertyItem->children().count() > 0)
+                m_expansionState[groupName + QLatin1Char('|') + propertyName] = isExpanded(propertyItem);
+        }
+    }
+}
+
+void PropertyEditor::applyExpansionState()
+{
+    if (m_groupBrowser == m_currentBrowser)
+        return;
+
+    QList<QtBrowserItem *> items = m_currentBrowser->topLevelItems();
+    QListIterator<QtBrowserItem *> itGroup(items);
+    while (itGroup.hasNext()) {
+        QtBrowserItem *item = itGroup.next();
+        const QString groupName = item->property()->propertyName();
+        if (m_expansionState.contains(groupName))
+            setExpanded(item, m_expansionState.value(groupName));
+
+        // properies stuff here
+        QList<QtBrowserItem *> propertyItems = item->children();
+        QListIterator<QtBrowserItem *> itProperty(propertyItems);
+        while (itProperty.hasNext()) {
+            QtBrowserItem *propertyItem = itProperty.next();
+            const QString propertyName = propertyItem->property()->propertyName();
+            const QString key = groupName + QLatin1Char('|') + propertyName;
+            if (m_expansionState.contains(key))
+                setExpanded(propertyItem, m_expansionState.value(key));
+        }
+    }
+}
+
 void PropertyEditor::slotViewTriggered(QAction *action)
 {
+    storeExpansionState();
+    const bool wasEnabled = updatesEnabled();
+    setUpdatesEnabled(false);
     m_currentBrowser->clear();
     int idx = 0;
     if (action == m_treeAction) {
@@ -274,6 +345,8 @@ void PropertyEditor::slotViewTriggered(QAction *action)
         m_currentBrowser->addProperty(group);
     }
     m_stackedWidget->setCurrentIndex(idx);
+    applyExpansionState();
+    setUpdatesEnabled(wasEnabled);
 }
 
 void PropertyEditor::slotAddDynamicProperty()
@@ -442,6 +515,8 @@ void PropertyEditor::setObject(QObject *object)
 {
     m_object = object;
     m_removeDynamicMenu->clear();
+
+    storeExpansionState();
 
     const bool wasEnabled = updatesEnabled();
     setUpdatesEnabled(false);
@@ -617,6 +692,7 @@ void PropertyEditor::setObject(QObject *object)
         m_removeMapper->setMapping(action, property);
         m_removeDynamicMenu->addAction(action);
     }
+    applyExpansionState();
     setUpdatesEnabled(wasEnabled);
 }
 
