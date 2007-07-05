@@ -182,6 +182,8 @@ private slots:
     void specialValueCornerCase();
     void cursorPositionOnInit();
 
+    void dateEditTimeEditFormats();
+
 private:
     EditorDateEdit* testWidget;
     QWidget *testFocusWidget;
@@ -2774,6 +2776,17 @@ void tst_QDateTimeEdit::cursorPositionOnInit()
         // ### legacy behavior. Keep it like this rather than changing
         // ### but add a test none-the-less
     }
+}
+
+void tst_QDateTimeEdit::dateEditTimeEditFormats()
+{
+    QTimeEdit t;
+    t.setDisplayFormat("hh yyyy");
+    QCOMPARE(t.displayedSections(), QDateTimeEdit::HourSection);
+
+    QDateEdit d;
+    d.setDisplayFormat("hh yyyy");
+    QCOMPARE(d.displayedSections(), QDateTimeEdit::YearSection);
 }
 
 QTEST_MAIN(tst_QDateTimeEdit)
