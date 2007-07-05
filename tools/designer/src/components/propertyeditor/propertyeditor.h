@@ -26,7 +26,7 @@ class QDesignerPropertySheetExtension;
 
 class QtAbstractPropertyBrowser;
 class QtGroupBoxPropertyBrowser;
-class QtButtonContainerPropertyBrowser;
+class QtButtonPropertyBrowser;
 class QtTreePropertyBrowser;
 class QtProperty;
 class QtVariantProperty;
@@ -82,7 +82,7 @@ private:
     QDesignerFormEditorInterface *m_core;
     QDesignerPropertySheetExtension *m_propertySheet;
     QtAbstractPropertyBrowser *m_currentBrowser;
-    QtButtonContainerPropertyBrowser *m_buttonBrowser;
+    QtButtonPropertyBrowser *m_buttonBrowser;
     QtGroupBoxPropertyBrowser *m_groupBrowser;
     QtTreePropertyBrowser *m_treeBrowser;
     DesignerPropertyManager *m_propertyManager;
@@ -98,14 +98,14 @@ private:
 
     QStackedWidget *m_stackedWidget;
     int m_groupBoxIndex;
-    int m_buttonContainerIndex;
+    int m_buttonIndex;
     int m_treeIndex;
     QAction *m_addDynamicAction;
     QAction *m_removeDynamicAction;
     QMenu *m_removeDynamicMenu;
     QAction *m_treeAction;
     QAction *m_groupBoxAction;
-    QAction *m_buttonContainerAction;
+    QAction *m_buttonAction;
     QLabel *m_classLabel;
 };
 

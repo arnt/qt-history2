@@ -5,7 +5,7 @@ SOURCES += $$PWD/qtpropertybrowser.cpp \
             $$PWD/qteditorfactory.cpp \
             $$PWD/qtvariantproperty.cpp \
             $$PWD/qttreepropertybrowser.cpp \
-            $$PWD/qtbuttoncontainerpropertybrowser.cpp \
+            $$PWD/qtbuttonpropertybrowser.cpp \
             $$PWD/qtgroupboxpropertybrowser.cpp \
             $$PWD/qtcursordatabase.cpp
 HEADERS += $$PWD/qtpropertybrowser.h \
@@ -13,7 +13,7 @@ HEADERS += $$PWD/qtpropertybrowser.h \
             $$PWD/qteditorfactory.h \
             $$PWD/qtvariantproperty.h \
             $$PWD/qttreepropertybrowser.h \
-            $$PWD/qtbuttoncontainerpropertybrowser.h \
+            $$PWD/qtbuttonpropertybrowser.h \
             $$PWD/qtgroupboxpropertybrowser.h \
             $$PWD/qtcursordatabase_p.h
 RESOURCES += $$PWD/qtpropertybrowser.qrc

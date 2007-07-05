@@ -42,7 +42,7 @@
 #include <QSignalMapper>
 
 #include "qttreepropertybrowser.h"
-#include "qtbuttoncontainerpropertybrowser.h"
+#include "qtbuttonpropertybrowser.h"
 #include "qtgroupboxpropertybrowser.h"
 #include "qtvariantproperty.h"
 #include "designerpropertymanager.h"
@@ -159,16 +159,16 @@ PropertyEditor::PropertyEditor(QDesignerFormEditorInterface *core, QWidget *pare
     m_treeAction = new QAction(tr("Tree View"), this);
     m_treeAction->setCheckable(true);
     m_treeAction->setIcon(createIconSet(QLatin1String("widgets/listview.png")));
-    m_buttonContainerAction = new QAction(tr("Container Button View"), this);
-    m_buttonContainerAction->setCheckable(true);
-    m_buttonContainerAction->setIcon(createIconSet(QLatin1String("widgets/toolbutton.png")));
+    m_buttonAction = new QAction(tr("Drop Down Button View"), this);
+    m_buttonAction->setCheckable(true);
+    m_buttonAction->setIcon(createIconSet(QLatin1String("widgets/toolbutton.png")));
     m_groupBoxAction = new QAction(tr("Group Box View"), this);
     m_groupBoxAction->setCheckable(true);
     m_groupBoxAction->setIcon(createIconSet(QLatin1String("widgets/groupbox.png")));
     actionGroup->addAction(m_treeAction);
-    actionGroup->addAction(m_buttonContainerAction);
+    actionGroup->addAction(m_buttonAction);
     actionGroup->addAction(m_groupBoxAction);
-    m_buttonContainerAction->setChecked(true);
+    m_buttonAction->setChecked(true);
     connect(actionGroup, SIGNAL(triggered(QAction *)),
                 this, SLOT(slotViewTriggered(QAction *)));
 
@@ -202,7 +202,7 @@ PropertyEditor::PropertyEditor(QDesignerFormEditorInterface *core, QWidget *pare
     toolBar->addWidget(removeButton);
     toolBar->addSeparator();
     toolBar->addAction(m_treeAction);
-    toolBar->addAction(m_buttonContainerAction);
+    toolBar->addAction(m_buttonAction);
     toolBar->addAction(m_groupBoxAction);
 
     QScrollArea *groupScroll = new QScrollArea(m_stackedWidget);
@@ -213,11 +213,11 @@ PropertyEditor::PropertyEditor(QDesignerFormEditorInterface *core, QWidget *pare
     m_groupBoxIndex = m_stackedWidget->addWidget(groupScroll);
 
     QScrollArea *buttonScroll = new QScrollArea(m_stackedWidget);
-    m_buttonBrowser = new QtButtonContainerPropertyBrowser(buttonScroll);
+    m_buttonBrowser = new QtButtonPropertyBrowser(buttonScroll);
     m_buttonBrowser->layout()->setMargin(-1);
     buttonScroll->setWidgetResizable(true);
     buttonScroll->setWidget(m_buttonBrowser);
-    m_buttonContainerIndex = m_stackedWidget->addWidget(buttonScroll);
+    m_buttonIndex = m_stackedWidget->addWidget(buttonScroll);
 
     m_treeBrowser = new QtTreePropertyBrowser(m_stackedWidget);
     m_treeBrowser->setRootIsDecorated(false);
@@ -238,7 +238,7 @@ PropertyEditor::PropertyEditor(QDesignerFormEditorInterface *core, QWidget *pare
     m_buttonBrowser->setFactoryForManager(variantManager, groupFactory);
     m_treeBrowser->setFactoryForManager(variantManager, treeFactory);
 
-    m_stackedWidget->setCurrentIndex(m_buttonContainerIndex);
+    m_stackedWidget->setCurrentIndex(m_buttonIndex);
     m_currentBrowser = m_buttonBrowser;
 
     connect(groupFactory, SIGNAL(resetProperty(QtProperty *)), this, SLOT(slotResetProperty(QtProperty *)));
@@ -261,9 +261,9 @@ void PropertyEditor::slotViewTriggered(QAction *action)
     if (action == m_treeAction) {
         m_currentBrowser = m_treeBrowser;
         idx = m_treeIndex;
-    } else if (action == m_buttonContainerAction) {
+    } else if (action == m_buttonAction) {
         m_currentBrowser = m_buttonBrowser;
-        idx = m_buttonContainerIndex;
+        idx = m_buttonIndex;
     } else {
         m_currentBrowser = m_groupBrowser;
         idx = m_groupBoxIndex;
@@ -443,6 +443,9 @@ void PropertyEditor::setObject(QObject *object)
     m_object = object;
     m_removeDynamicMenu->clear();
 
+    const bool wasEnabled = updatesEnabled();
+    setUpdatesEnabled(false);
+
     updateToolBarLabel();
 
     QMap<QString, QtVariantProperty *> toRemove = m_nameToProperty;
@@ -614,6 +617,7 @@ void PropertyEditor::setObject(QObject *object)
         m_removeMapper->setMapping(action, property);
         m_removeDynamicMenu->addAction(action);
     }
+    setUpdatesEnabled(wasEnabled);
 }
 
 QString PropertyEditor::currentPropertyName() const
