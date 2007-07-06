@@ -1777,7 +1777,8 @@
     \row
         \o \c font-size
         \o \l{#Font Size}{Font Size}
-        \o The font size.
+        \o The font size. In this version of Qt, only pt and px metrics are 
+           supported.
 
            Example:
 
@@ -1824,10 +1825,10 @@
            If this property is not specified, it defaults to a value
            that depends on the subcontrol/widget and on the current style.
 
-           \warning Unless otherwise specified, this property has no
-           effect when set on widgets. If you want a widget with a
-           fixed height, set the \l{#min-height-prop}{min-height} and
-           \l{#max-height-prop}{max-height} to the same value.
+           \warning Unless otherwise specified, this property has no effect 
+           when set on widgets. If you want a widget with a fixed height, set
+           the \l{#min-width-prop}{min-height} and 
+           \l{#max-width-prop}{max-height} to the same value.
 
            Example:
 
@@ -2327,9 +2328,9 @@
            If this property is not specified, it defaults to a value
            that depends on the subcontrol/widget and on the current style.
             
-           \warning Unless otherwise specified, this property has no
-           effect when set on widgets. If you want a widget with a
-           fixed width, set the \l{#min-width-prop}{min-width} and
+           \warning Unless otherwise specified, this property has no effect 
+           when set on widgets. If you want a widget with a fixed width, set
+           the \l{#min-width-prop}{min-width} and 
            \l{#max-width-prop}{max-width} to the same value.
 
            Example:
@@ -2595,6 +2596,7 @@ blue green yellow * /
 
            \list
            \o \c px: pixels (the default when no units are specified)
+           \o \c pt: the size of one point (i.e., 1/72 of an inch)
            \o \c em: the em width of the font (i.e., the width of 'M')
            \o \c ex: the ex width of the font (i.e., the height of 'x')
            \endlist
