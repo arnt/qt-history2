@@ -1033,10 +1033,10 @@ QList<QMdiSubWindow *> QMdiAreaPrivate::subWindowList(QMdiArea::WindowOrder orde
                 list.prepend(child);
         }
     } else { // ActivationHistoryOrder
-        Q_ASSERT(d->indicesToActivatedChildren.size() == d->childWindows.size());
-        for (int i = d->indicesToActivatedChildren.count() - 1; i >= 0; --i) {
-            QMdiSubWindow *child = d->childWindows.at(d->indicesToActivatedChildren.at(i));
-            if (!sanityCheck(child, "QMdiArea::subWindowList"))
+        Q_ASSERT(indicesToActivatedChildren.size() == childWindows.size());
+        for (int i = indicesToActivatedChildren.count() - 1; i >= 0; --i) {
+            QMdiSubWindow *child = childWindows.at(indicesToActivatedChildren.at(i));
+            if (!child)
                 continue;
             if (!reversed)
                 list.append(child);
