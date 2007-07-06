@@ -1724,6 +1724,7 @@ void QHashData::checkSanity()
 
 /*! 
     \fn uint qHash(const QPair<T1, T2> &key)
+    \relates QHash
     \since 4.3
 
     Returns the hash value for \a key.

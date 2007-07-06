@@ -468,8 +468,8 @@ void qDrawWinPanel(QPainter *p, int x, int y, int w, int h,
     \relates QPainter
 
     Draws the plain rectangle beginning at (\a x, \a y) with the given
-    \a width and \a height, using the provided \a painter, \a lineColor
-    and \a lineWidth . The rectangle's interior is filled with the \a
+    \a width and \a height, using the specified \a painter, \a lineColor
+    and \a lineWidth. The rectangle's interior is filled with the \a
     fill brush unless \a fill is 0.
 
     \warning This function does not look at QWidget::style() or
@@ -515,10 +515,38 @@ void qDrawPlainRect(QPainter *p, int x, int y, int w, int h, const QColor &c,
  *****************************************************************************/
 
 /*!
-    \fn void qDrawShadeLine(QPainter *p, const QPoint &p1, const QPoint &p2,
-    const QPalette &pal, bool sunken, int lineWidth, int midLineWidth)
-
+    \fn void qDrawShadeLine(QPainter *painter, const QPoint &p1, const QPoint &p2,
+             const QPalette &palette, bool sunken, int lineWidth, int midLineWidth)
+    \relates QPainter
     \overload
+
+    Draws a horizontal or vertical shaded line between \a p1 and \a p2
+    using the given \a painter.  Note that nothing is drawn if the line
+    between the points would be neither horizontal nor vertical.
+
+    The provided \a palette specifies the shading colors (\l
+    {QPalette::light()}{light}, \l {QPalette::dark()}{dark} and \l
+    {QPalette::mid()}{middle} colors).  The given \a lineWidth
+    specifies the line width for each of the lines; it is not the
+    total line width. The given \a midLineWidth specifies the width of
+    a middle line drawn in the QPalette::mid() color.
+
+    The line appears sunken if \a sunken is true, otherwise raised.
+
+    \warning This function does not look at QWidget::style() or
+    QApplication::style().  Use the drawing functions in QStyle to
+    make widgets that follow the current GUI style.
+
+
+    Alternatively you can use a QFrame widget and apply the
+    QFrame::setFrameStyle() function to display a shaded line:
+
+    \code
+        QFrame frame:
+        frame.setFrameStyle(QFrame::HLine | QFrame::Sunken);
+    \endcode
+
+    \sa qDrawShadeRect(), qDrawShadePanel(), QStyle
 */
 
 void qDrawShadeLine(QPainter *p, const QPoint &p1, const QPoint &p2,
@@ -530,10 +558,37 @@ void qDrawShadeLine(QPainter *p, const QPoint &p1, const QPoint &p2,
 }
 
 /*!
-    \fn void qDrawShadeRect(QPainter *p, const QRect &r, const QPalette &pal,
-    bool sunken, int lineWidth, int midLineWidth, const QBrush *fill)
-
+    \fn void qDrawShadeRect(QPainter *painter, const QRect &rect, const QPalette &palette,
+             bool sunken, int lineWidth, int midLineWidth, const QBrush *fill)
+    \relates QPainter
     \overload
+
+    Draws the shaded rectangle specified by \a rect using the given \a painter.
+
+    The provide \a palette specifies the shading colors (\l
+    {QPalette::light()}{light}, \l {QPalette::dark()}{dark} and \l
+    {QPalette::mid()}{middle} colors.  The given \a lineWidth
+    specifies the line width for each of the lines; it is not the
+    total line width.  The \a midLineWidth specifies the width of a
+    middle line drawn in the QPalette::mid() color.  The rectangle's
+    interior is filled with the \a fill brush unless \a fill is 0.
+
+    The rectangle appears sunken if \a sunken is true, otherwise
+    raised.
+
+    \warning This function does not look at QWidget::style() or
+    QApplication::style(). Use the drawing functions in QStyle to make
+    widgets that follow the current GUI style.
+
+    Alternatively you can use a QFrame widget and apply the
+    QFrame::setFrameStyle() function to display a shaded rectangle:
+
+    \code
+        QFrame frame:
+        frame.setFrameStyle(QFrame::Box | QFrame::Raised);
+    \endcode
+
+    \sa qDrawShadeLine(), qDrawShadePanel(), qDrawPlainRect(), QStyle
 */
 
 void qDrawShadeRect(QPainter *p, const QRect &r,
@@ -546,8 +601,34 @@ void qDrawShadeRect(QPainter *p, const QRect &r,
 }
 
 /*!
-    \fn void qDrawShadePanel(QPainter *p, const QRect &r, const QPalette &pal, bool sunken, int lineWidth, const QBrush *fill)
+    \fn void qDrawShadePanel(QPainter *painter, const QRect &rect, const QPalette &palette,
+             bool sunken, int lineWidth, const QBrush *fill)
+    \relates QPainter
     \overload
+
+    Draws the shaded panel at the rectangle specified by \a rect using the
+    given \a painter and the given \a lineWidth.
+
+    The given \a palette specifies the shading colors (\l
+    {QPalette::light()}{light}, \l {QPalette::dark()}{dark} and \l
+    {QPalette::mid()}{middle} colors).  The panel's interior is filled
+    with the \a fill brush unless \a fill is 0.
+
+    The panel appears sunken if \a sunken is true, otherwise raised.
+
+    \warning This function does not look at QWidget::style() or
+    QApplication::style(). Use the drawing functions in QStyle to make
+    widgets that follow the current GUI style.
+
+    Alternatively you can use a QFrame widget and apply the
+    QFrame::setFrameStyle() function to display a shaded panel:
+
+    \code
+        QFrame frame:
+        frame.setFrameStyle( QFrame::Panel | QFrame::Sunken);
+    \endcode
+
+    \sa qDrawWinPanel(), qDrawShadeLine(), qDrawShadeRect(), QStyle
 */
 
 void qDrawShadePanel(QPainter *p, const QRect &r,
@@ -559,8 +640,26 @@ void qDrawShadePanel(QPainter *p, const QRect &r,
 }
 
 /*!
-    \fn void qDrawWinButton(QPainter *p, const QRect &r, const QPalette &pal, bool sunken, const QBrush *fill)
+    \fn void qDrawWinButton(QPainter *painter, const QRect &rect, const QPalette &palette,
+             bool sunken, const QBrush *fill)
+    \relates QPainter
     \overload
+
+    Draws the Windows-style button at the rectangle specified by \a rect using
+    the given \a painter with a line width of 2 pixels. The button's interior
+    is filled with the \a{fill} brush unless \a fill is 0.
+
+    The given \a palette specifies the shading colors (\l
+    {QPalette::light()}{light}, \l {QPalette::dark()}{dark} and \l
+    {QPalette::mid()}{middle} colors).
+
+    The button appears sunken if \a sunken is true, otherwise raised.
+
+    \warning This function does not look at QWidget::style() or
+    QApplication::style()-> Use the drawing functions in QStyle to make
+    widgets that follow the current GUI style.
+
+    \sa qDrawWinPanel(), QStyle
 */
 
 void qDrawWinButton(QPainter *p, const QRect &r,
@@ -570,8 +669,30 @@ void qDrawWinButton(QPainter *p, const QRect &r,
 }
 
 /*!
-    \fn void qDrawWinPanel(QPainter *p, const QRect &r, const QPalette &pal, bool sunken, const QBrush *fill)
+    \fn void qDrawWinPanel(QPainter *painter, const QRect &rect, const QPalette &palette,
+             bool sunken, const QBrush *fill)
     \overload
+
+    Draws the Windows-style panel at the rectangle specified by \a rect using
+    the given \a painter with a line width of 2 pixels. The button's interior
+    is filled with the \a fill brush unless \a fill is 0.
+
+    The given \a palette specifies the shading colors.  The panel
+    appears sunken if \a sunken is true, otherwise raised.
+
+    \warning This function does not look at QWidget::style() or
+    QApplication::style(). Use the drawing functions in QStyle to make
+    widgets that follow the current GUI style.
+
+    Alternatively you can use a QFrame widget and apply the
+    QFrame::setFrameStyle() function to display a shaded panel:
+
+    \code
+        QFrame frame:
+        frame.setFrameStyle(QFrame::WinPanel | QFrame::Raised);
+    \endcode
+
+    \sa qDrawShadePanel(), qDrawWinButton(), QStyle
 */
 
 void qDrawWinPanel(QPainter *p, const QRect &r,
@@ -581,8 +702,27 @@ void qDrawWinPanel(QPainter *p, const QRect &r,
 }
 
 /*!
-    \fn void qDrawPlainRect(QPainter *p, const QRect &r, const QColor &c, int lineWidth, const QBrush *fill)
+    \fn void qDrawPlainRect(QPainter *painter, const QRect &rect, const QColor &lineColor, int lineWidth, const QBrush *fill)
+    \relates QPainter
     \overload
+
+    Draws the plain rectangle specified by \a rect using the given \a painter,
+    \a lineColor and \a lineWidth. The rectangle's interior is filled with the
+    \a fill brush unless \a fill is 0.
+
+    \warning This function does not look at QWidget::style() or
+    QApplication::style(). Use the drawing functions in QStyle to make
+    widgets that follow the current GUI style.
+
+    Alternatively you can use a QFrame widget and apply the
+    QFrame::setFrameStyle() function to display a plain rectangle:
+
+    \code
+        QFrame frame:
+        frame.setFrameStyle(QFrame::Box | QFrame::Plain);
+    \endcode
+
+    \sa qDrawShadeRect(), QStyle
 */
 
 void qDrawPlainRect(QPainter *p, const QRect &r, const QColor &c,
