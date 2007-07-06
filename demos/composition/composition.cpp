@@ -443,3 +443,10 @@ void CompositionRenderer::mouseReleaseEvent(QMouseEvent *)
 {
     m_current_object = NoObject;
 }
+
+void CompositionRenderer::setCirclePos(const QPointF &pos)
+{
+    m_circle_pos = pos;
+    update();
+}
+

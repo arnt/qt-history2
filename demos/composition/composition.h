@@ -85,7 +85,7 @@ public:
     void mouseMoveEvent(QMouseEvent *);
     void mouseReleaseEvent(QMouseEvent *);
 
-    void setCirclePos(const QPointF &pos) { m_circle_pos = pos; update(); }
+    void setCirclePos(const QPointF &pos);
 
     QSize sizeHint() const { return QSize(500, 400); }
 
