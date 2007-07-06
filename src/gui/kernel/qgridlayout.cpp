@@ -358,7 +358,7 @@ int QGridLayoutPrivate::heightForWidth(int w, int hSpacing, int vSpacing)
     effectiveMargins(&left, &top, &right, &bottom);
 
     int hMargins = left + right;
-    if (w + hMargins != hfw_width) {  // ### bug?
+    if (w - hMargins != hfw_width) {
         qGeomCalc(colData, 0, cc, 0, w - hMargins);
         recalcHFW(w - hMargins);
     }
