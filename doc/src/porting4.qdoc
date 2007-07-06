@@ -2048,6 +2048,8 @@
     \row \o QIODevice::writeBlock(const char *, Q_ULONG) \o QIODevice::write(const char *, qint64)
     \endtable
 
+    \note QIODevice::open(QIODevice::OpenMode) is no longer pure virtual.
+
     The following functions are no longer virtual or don't exist anymore:
 
     \table
