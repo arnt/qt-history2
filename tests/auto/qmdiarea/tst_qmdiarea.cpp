@@ -1434,6 +1434,15 @@ void tst_QMdiArea::tileSubWindows()
     workspace.setActiveSubWindow(0);
     QVERIFY(workspace.viewport()->childrenRect() != workspace.viewport()->rect());
 
+    // Make sure the active window is placed in top left corner regardless
+    // of whether we have any windows with staysOnTopHint or not.
+    windows.at(3)->setWindowFlags(windows.at(3)->windowFlags() | Qt::WindowStaysOnTopHint);
+    QMdiSubWindow *activeSubWindow = windows.at(6);
+    workspace.setActiveSubWindow(activeSubWindow);
+    QCOMPARE(workspace.activeSubWindow(), activeSubWindow);
+    workspace.tileSubWindows();
+    QCOMPARE(activeSubWindow->geometry().topLeft(), QPoint(0, 0));
+
     // Verify that we try to resize the area such that all sub-windows are visible.
     // It's important that tiled windows are NOT overlapping.
     workspace.resize(150, 150);
