@@ -299,9 +299,6 @@ void CompositionRenderer::drawSource(QPainter &p)
 
 void CompositionRenderer::paint(QPainter *painter)
 {
-    if (m_animation_enabled)
-        updateCirclePos();
-
 #ifdef QT_OPENGL_SUPPORT
     if (usesOpenGL()) {
 
@@ -418,8 +415,10 @@ void CompositionRenderer::paint(QPainter *painter)
         painter->drawImage(0, 0, m_buffer);
     }
 
-    if (m_animation_enabled)
+    if (m_animation_enabled && m_current_object == NoObject) {
+        updateCirclePos();
         update();
+    }
 }
 
 void CompositionRenderer::mousePressEvent(QMouseEvent *e)
