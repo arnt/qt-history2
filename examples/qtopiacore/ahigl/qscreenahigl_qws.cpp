@@ -174,6 +174,10 @@ void QAhiGLScreenPrivate::windowEvent(QWSWindow *window,
     }
 }
 
+/*!
+  This function assumes the updateTimer is still counting down and stops it
+  and then calls redrawScreen() in the public screen driver class QAhiGLScreen.
+ */
 void QAhiGLScreenPrivate::redrawScreen()
 {
     updateTimer.stop();
@@ -213,7 +217,7 @@ void QAhiGLScreenPrivate::redrawScreen()
 
   The base class QGLScreen has only one pure virtual function,
   hasOpenGL(), which must return true if your screen driver class
-  is supports OpenGL.
+  supports OpenGL.
 
   QWSWindowSurface * createSurface(const QString & key) const
   QWSWindowSurface * createSurface(QWidget * widget) const
@@ -695,7 +699,9 @@ void QAhiGLScreen::drawWindow(QWSWindow *win, qreal progress)
                      drawRect, progress);
 }
 
-
+/*!
+  The window compositions are constructed here.
+ */
 void QAhiGLScreen::redrawScreen()
 {
     glBindFramebufferOES(GL_FRAMEBUFFER_EXT, 0);
@@ -751,7 +757,7 @@ void QAhiGLScreen::redrawScreen()
 
         glBindTexture(GL_TEXTURE_2D, info->texture);
         drawWindow(win, progress);
-    }
+    } // for i
 
     // Draw cursor
 
@@ -774,7 +780,6 @@ void QAhiGLScreen::redrawScreen()
 /*!
   \reimp
 
-  See QScreen::exposeRegion().
  */
 void QAhiGLScreen::exposeRegion(QRegion r, int windowIndex)
 {
@@ -785,6 +790,45 @@ void QAhiGLScreen::exposeRegion(QRegion r, int windowIndex)
 
     if (!d_ptr->updateTimer.isActive())
         d_ptr->updateTimer.start(frameSpan);
+}
+
+/*!
+  \reimp
+
+  This overloading of createSurface() is called on the client side to
+  create a window surface for a new window. If the \a widget is a
+  QGLWidget, or if the widget's width and height are both less than or
+  equal to 256, it creates an instance of QAhiGLWindowSurface.
+  Otherwise, it calls QScreen::createSurface() to create a non-OpenGL
+  window surface. The pointer to the new window surface is returned.
+
+  Note that this function first asks whether this application is the
+  server, and it only creates an instance of QAhiGLWindowSurface if
+  the answer is yes. What this means is we only let the server have
+  access to the OpenGL hardware, because of an implementation
+  restyriction in the OpenGL libraries we are using. Thus only clients
+  that are in the server process get to create OpenGL window surfaces.
+ */
+QWSWindowSurface* QAhiGLScreen::createSurface(QWidget *widget) const
+{
+    if (QApplication::type() == QApplication::GuiServer) {
+        if (qobject_cast<QGLWidget*>(widget)) {
+            return new QAhiGLWindowSurface(widget,
+					   d_ptr->eglDisplay,
+                                           d_ptr->eglSurface,
+                                           d_ptr->eglContext);
+        }
+
+        const QRect rect = widget->frameGeometry();
+        if (rect.width() <= 256 && rect.height() <= 256) {
+            return new QAhiGLWindowSurface(widget,
+					   d_ptr->eglDisplay,
+                                           d_ptr->eglSurface,
+                                           d_ptr->eglContext);
+        }
+    }
+
+    return QScreen::createSurface(widget);
 }
 
 /*!
@@ -809,38 +853,6 @@ QWSWindowSurface* QAhiGLScreen::createSurface(const QString &key) const
     }
 
     return QScreen::createSurface(key);
-}
-
-/*!
-  \reimp
-
-  This overloading of createSurface() is called on the client side to
-  create a window surface for a new window. If the \a widget is a
-  QGLWidget, or if the widget's width and height are both less than or
-  equal to 256, it creates an instance of QAhiGLWindowSurface and
-  returns it. Otherwise, it calls QScreen::createSurface() to create a
-  non-OpenGL window surface and return that.
- */
-QWSWindowSurface* QAhiGLScreen::createSurface(QWidget *widget) const
-{
-    if (QApplication::type() == QApplication::GuiServer) {
-        if (qobject_cast<QGLWidget*>(widget)) {
-            return new QAhiGLWindowSurface(widget,
-					   d_ptr->eglDisplay,
-                                           d_ptr->eglSurface,
-                                           d_ptr->eglContext);
-        }
-
-        const QRect rect = widget->frameGeometry();
-        if (rect.width() <= 256 && rect.height() <= 256) {
-            return new QAhiGLWindowSurface(widget,
-					   d_ptr->eglDisplay,
-                                           d_ptr->eglSurface,
-                                           d_ptr->eglContext);
-        }
-    }
-
-    return QScreen::createSurface(widget);
 }
 
 /*!
