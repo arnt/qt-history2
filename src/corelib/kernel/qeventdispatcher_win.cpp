@@ -27,6 +27,10 @@
 #include <private/qthread_p.h>
 #include <private/qmutexpool_p.h>
 
+#ifndef TIME_KILL_SYNCHRONOUS
+#  define TIME_KILL_SYNCHRONOUS 0x0100
+#endif
+
 class QEventDispatcherWin32Private;
 
 struct QSockNot {
