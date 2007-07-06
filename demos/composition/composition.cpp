@@ -244,7 +244,7 @@ void CompositionRenderer::updateCirclePos()
     qreal x = width() / 2.0 + (cos(t) + sin(-t*2)) * width() / 2.0;
     qreal y = height() / 2.0 + (sin(t) + cos(t * 3)) * height() / 2.0;
 
-    m_circle_pos = QLineF(m_circle_pos, QPointF(x, y)).pointAt(0.01);
+    setCirclePos(QLineF(m_circle_pos, QPointF(x, y)).pointAt(0.01));
 }
 
 void CompositionRenderer::drawBase(QPainter &p)
@@ -417,7 +417,6 @@ void CompositionRenderer::paint(QPainter *painter)
 
     if (m_animation_enabled && m_current_object == NoObject) {
         updateCirclePos();
-        update();
     }
 }
 
