@@ -19,6 +19,8 @@
     Topics:
 
     \list
+    \i \l{Overview}
+    \tableofcontents{1 Overview}
     \i \l{The Style Sheet Syntax}
      \tableofcontents{1 The Style Sheet Syntax}
     \i \l{Qt Designer Integration}
@@ -576,13 +578,13 @@
     \section1 Setting QObject properties
     
     From 4.3 and above, any designable Q_PROPERTY 
-    can be set using the qproperty-<property name> syntax. 
+    can be set using the qproperty-<property name> syntax.
     
     For example,
     \code
         MyLabel { qproperty-pixmap: url(pixmap.png); }
         MyGroupBox { qproperty-titleColor: rgb(100, 200, 100); }
-        QPushButton { qproperty-maximumSize: 50px 50px; }
+        QPushButton { qproperty-iconSize: 20px 20px; }
     \endcode
 
     */
@@ -595,8 +597,8 @@
     \title Qt Designer Integration
 
     \l{Qt Designer}{Qt Designer} is an excellent tool
-    to preview style sheets. Just right-click anywhere on the form
-    you're designing and click \bold{Change styleSheet...}.
+    to preview style sheets. You can right-click on any widget in Designer
+    and select \bold{Change styleSheet...} to set the style sheet.
 
     \image stylesheet-designer-options.png
 
@@ -623,13 +625,7 @@
     \target box model
     \section1 The Box Model
 
-    Widgets and subcontrols that support the
-    \l{Qt Style Sheets Reference#background-prop}{background},
-    \l{Qt Style Sheets Reference#border-prop}{border},
-    \l{Qt Style Sheets Reference#margin-prop}{margin}, and
-    \l{Qt Style Sheets Reference#padding-prop}{padding}
-    properties follow the box model. The image below illustrates how
-    these properties relate to each other:
+    The four concentric rectangles appear conceptually as below:
 
     \image stylesheet-boxmodel.png
 
@@ -650,10 +646,65 @@
     properties all default to zero. In that case, all four rectangles
     (\c margin, \c border, \c padding, and \c content) coincide exactly.
 
-    If a background is specified for a widget, by default it is drawn
-    only for the area inside the border. This can be changed using
-    the \l{Qt Style Sheets Reference#background-clip-prop}{background-clip}
-    property.
+    You can specify a background for the widget using the 
+    \l{Qt Style Sheets Reference#background-image-prop}{background-image} 
+    property. By default, the background-image is drawn only for the area 
+    inside the border. This can be changed using the 
+    \l{Qt Style Sheets Reference#background-clip-prop}{background-clip}
+    property. You can use 
+    \l{Qt Style Sheets Reference#background-repeat-prop}{background-repeat}
+    and
+    \l{Qt Style Sheets Reference#background-origin-prop}{background-origin}
+    to control the repetition and origin of the background image.
+
+    A background-image does not scale with the size of the widget. To provide
+    a "skin" or background that scales along with the widget size, one must
+    you the 
+    \l{Qt Style Sheets Reference#border-image-prop}{border-image}. Since the
+    border-image property provides an alternate background, it is not required
+    to specify a background-image when border-image is specified. In the case,
+    when both of them are specified, the border-image draws over the 
+    background-image.
+
+    In addition, the \l{Qt Style Sheets Reference#image-prop}{image} property
+    may be used to draw an image over the border-image. The image specified does
+    not tile or stretch and when its size does not match the size of the widget,
+    it's alignment is specified using the
+    \l{Qt Style Sheets Reference#image-position-prop}{image-position} 
+    property. Unlike background-image and border-image, one may specify a
+    SVG in the image property, in which case the image is scaled automatically
+    according to the widget size.
+
+    The steps to render a rule are as follows:
+        \list
+        \o Set clip for entire rendering operation (border-radius)
+        \o Draw the background (background-image)
+        \o Draw the border (border-image, border)
+        \o Draw overlay image (image)
+        \endlist
+
+    \target sub controls
+    \section1 Sub-controls
+
+    A widget is considered as a heirarchy (tree) of subcontrols drawn on top 
+    of each other. For example, the QComboBox draws the drop-down sub-control
+    followed by the down-arrow sub-control. A QComboBox is thus rendered as
+    follows:
+        \list
+        \o Render the QComboBox { } rule
+        \o Render the QComboBox::drop-down { } rule
+        \o Render the QComboBox::down-arrow { } rule
+        \endlist
+
+    Sub-controls share a parent-child relationship. In the case of QComboBox,
+    the parent of down-arrow is the drop-down and the parent of drop-down is
+    the widget itself. Sub-controls are positioned within their parent using
+    the \l{Qt Style Sheets Reference#subcontrol-position-prop}
+    {subcontrol-position} and
+    \l{Qt Style Sheets Reference#subcontrol-origin-prop}{subcontrol-origin}
+    properties.
+    
+    Once positioned, sub-controls can be styled using the the \l{box model}.
     */
 
     /*!
@@ -1257,7 +1308,7 @@
            and \l{#alternate-background-color-prop}{alternate-background-color}.
 
     \row
-        \o \c background-color
+        \o \c background-color \target background-color-prop
         \o \l{#Brush}{Brush} \BR
         \o The background color used for the widget.
 
@@ -1269,7 +1320,7 @@
            \endcode
 
     \row
-        \o \c background-image
+        \o \c background-image \target background-image-prop
         \o \l{#Url}{Url}
         \o The background image used for the widget. Semi-transparent
            parts of the image let the \c background-color shine
@@ -1282,7 +1333,7 @@
            \endcode
 
     \row
-        \o \c background-repeat
+        \o \c background-repeat \target background-repeat-prop
         \o \l{#Repeat}{Repeat}
         \o Whether and how the background image is repeated to fill
            the \c background-origin rectangle.
