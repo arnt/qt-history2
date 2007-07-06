@@ -37,8 +37,6 @@ public:
     Number(QScriptEnginePrivate *engine);
     virtual ~Number();
 
-    inline QScriptClassInfo *classInfo() const { return m_classInfo; }
-
     virtual void execute(QScriptContextPrivate *context);
 
     void newNumber(QScriptValueImpl *result, double value = 0);
@@ -50,8 +48,6 @@ protected:
     static QScriptValueImpl method_toFixed(QScriptContextPrivate *context, QScriptEnginePrivate *eng, QScriptClassInfo *classInfo);
     static QScriptValueImpl method_toExponential(QScriptContextPrivate *context, QScriptEnginePrivate *eng, QScriptClassInfo *classInfo);
     static QScriptValueImpl method_toPrecision(QScriptContextPrivate *context, QScriptEnginePrivate *eng, QScriptClassInfo *classInfo);
-
-    QScriptClassInfo *m_classInfo;
 };
 
 } } // namespace QScript::Ecma

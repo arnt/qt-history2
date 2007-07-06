@@ -40,8 +40,6 @@ public:
     Date(QScriptEnginePrivate *engine);
     virtual ~Date();
 
-    inline QScriptClassInfo *classInfo() const { return m_classInfo; }
-
     virtual void execute(QScriptContextPrivate *context);
 
     void newDate(QScriptValueImpl *result, double t);
@@ -195,9 +193,6 @@ protected:
     static QScriptValueImpl method_toUTCString(QScriptContextPrivate *context,
                                                QScriptEnginePrivate *eng,
                                                QScriptClassInfo *classInfo);
-
-private:
-    QScriptClassInfo *m_classInfo;
 };
 
 } } // namespace QScript::Ecma

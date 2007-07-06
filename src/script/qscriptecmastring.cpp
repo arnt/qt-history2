@@ -113,57 +113,35 @@ bool String::StringClassData::extraMember(const QScriptValueImpl &object,
 }
 
 String::String(QScriptEnginePrivate *eng):
-    Core(eng)
+    Core(eng, QLatin1String("String"))
 {
-    m_classInfo = eng->registerClass(QLatin1String("String"));
-    QExplicitlySharedDataPointer<QScriptClassData> data(new StringClassData(m_classInfo));
-    m_classInfo->setData(data);
+    QExplicitlySharedDataPointer<QScriptClassData> data(new StringClassData(classInfo()));
+    classInfo()->setData(data);
 
-    publicPrototype.invalidate();
     newString(&publicPrototype, QString());
 
     eng->newConstructor(&ctor, this, publicPrototype);
 
-    const QScriptValue::PropertyFlags flags = QScriptValue::SkipInEnumeration;
-    publicPrototype.setProperty(QLatin1String("toString"),
-                                eng->createFunction(method_toString, 0, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("valueOf"),
-                                eng->createFunction(method_valueOf, 0, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("charAt"),
-                                eng->createFunction(method_charAt, 1, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("charCodeAt"),
-                                eng->createFunction(method_charCodeAt, 1, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("concat"),
-                                eng->createFunction(method_concat, 0, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("indexOf"),
-                                eng->createFunction(method_indexOf, 1, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("lastIndexOf"),
-                                eng->createFunction(method_lastIndexOf, 1, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("localeCompare"),
-                                eng->createFunction(method_localeCompare, 1, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("match"),
-                                eng->createFunction(method_match, 1, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("replace"),
-                                eng->createFunction(method_replace, 2, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("search"),
-                                eng->createFunction(method_search, 1, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("slice"),
-                                eng->createFunction(method_slice, 0, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("split"),
-                                eng->createFunction(method_split, 2, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("substring"),
-                                eng->createFunction(method_substring, 2, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("toLowerCase"),
-                                eng->createFunction(method_toLowerCase, 0, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("toLocaleLowerCase"),
-                                eng->createFunction(method_toLocaleLowerCase, 0, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("toUpperCase"),
-                                eng->createFunction(method_toUpperCase, 0, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("toLocaleUpperCase"),
-                                eng->createFunction(method_toLocaleUpperCase, 0, m_classInfo), flags);
+    addPrototypeFunction(QLatin1String("toString"), method_toString, 0);
+    addPrototypeFunction(QLatin1String("valueOf"), method_valueOf, 0);
+    addPrototypeFunction(QLatin1String("charAt"), method_charAt, 1);
+    addPrototypeFunction(QLatin1String("charCodeAt"), method_charCodeAt, 1);
+    addPrototypeFunction(QLatin1String("concat"), method_concat, 0);
+    addPrototypeFunction(QLatin1String("indexOf"), method_indexOf, 1);
+    addPrototypeFunction(QLatin1String("lastIndexOf"), method_lastIndexOf, 1);
+    addPrototypeFunction(QLatin1String("localeCompare"), method_localeCompare, 1);
+    addPrototypeFunction(QLatin1String("match"), method_match, 1);
+    addPrototypeFunction(QLatin1String("replace"), method_replace, 2);
+    addPrototypeFunction(QLatin1String("search"), method_search, 1);
+    addPrototypeFunction(QLatin1String("slice"), method_slice, 0);
+    addPrototypeFunction(QLatin1String("split"), method_split, 2);
+    addPrototypeFunction(QLatin1String("substring"), method_substring, 2);
+    addPrototypeFunction(QLatin1String("toLowerCase"), method_toLowerCase, 0);
+    addPrototypeFunction(QLatin1String("toLocaleLowerCase"), method_toLocaleLowerCase, 0);
+    addPrototypeFunction(QLatin1String("toUpperCase"), method_toUpperCase, 0);
+    addPrototypeFunction(QLatin1String("toLocaleUpperCase"), method_toLocaleUpperCase, 0);
 
-    ctor.setProperty(QLatin1String("fromCharCode"),
-                     eng->createFunction(method_fromCharCode, 1, m_classInfo), flags);
+    addConstructorFunction(QLatin1String("fromCharCode"), method_fromCharCode, 1);
 }
 
 String::~String()

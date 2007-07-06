@@ -23,15 +23,46 @@
 
 namespace QScript { namespace Ecma {
 
-Core::Core(QScriptEnginePrivate *engine)
+Core::Core(QScriptEnginePrivate *engine, const QString &className)
     : m_engine(engine)
 {
+    m_classInfo = engine->registerClass(className);
     this->length = 1;
-    ctor.invalidate();
+}
+
+Core::Core(QScriptEnginePrivate *engine, QScriptClassInfo *classInfo)
+    : m_engine(engine), m_classInfo(classInfo)
+{
+    this->length = 1;
 }
 
 Core::~Core()
 {
+}
+
+void Core::addPrototypeFunction(const QString &name, QScriptInternalFunctionSignature fun,
+                                int length, const QScriptValue::PropertyFlags flags)
+{
+    addFunction(publicPrototype, name, fun, length, flags);
+}
+
+void Core::addConstructorFunction(const QString &name, QScriptInternalFunctionSignature fun,
+                                  int length, const QScriptValue::PropertyFlags flags)
+{
+    addFunction(ctor, name, fun, length, flags);
+}
+
+void Core::addFunction(QScriptValueImpl &object, const QString &name,
+                       QScriptInternalFunctionSignature fun, int length,
+                       const QScriptValue::PropertyFlags flags)
+{
+    QScriptValueImpl val = engine()->createFunction(fun, length, m_classInfo, name);
+    object.setProperty(name, val, flags);
+}
+
+QString Core::functionName() const
+{
+    return m_classInfo->name();
 }
 
 

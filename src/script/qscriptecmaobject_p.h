@@ -39,8 +39,6 @@ public:
 
     void initialize();
 
-    inline QScriptClassInfo *classInfo() const { return m_classInfo; }
-
     virtual void execute(QScriptContextPrivate *context);
 
     void newObject(QScriptValueImpl *result, const QScriptValueImpl &proto = QScriptValueImpl());
@@ -70,9 +68,6 @@ protected:
     static QScriptValueImpl method_defineSetter(QScriptContextPrivate *context,
                                                 QScriptEnginePrivate *eng,
                                                 QScriptClassInfo *classInfo);
-
-private:
-    QScriptClassInfo *m_classInfo;
 };
 
 } } // namespace QScript::Ecma

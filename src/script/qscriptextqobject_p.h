@@ -51,8 +51,6 @@ public:
     ExtQObject(QScriptEnginePrivate *engine, QScriptClassInfo *classInfo);
     virtual ~ExtQObject();
 
-    inline QScriptClassInfo *classInfo() const { return m_classInfo; }
-
     virtual void execute(QScriptContextPrivate *context);
 
     class Instance: public QScriptFunction {
@@ -96,15 +94,14 @@ protected:
     static QScriptValueImpl method_findChild(QScriptContextPrivate *context, QScriptEnginePrivate *eng, QScriptClassInfo *classInfo);
     static QScriptValueImpl method_findChildren(QScriptContextPrivate *context, QScriptEnginePrivate *eng, QScriptClassInfo *classInfo);
     static QScriptValueImpl method_toString(QScriptContextPrivate *context, QScriptEnginePrivate *eng, QScriptClassInfo *classInfo);
-
-    QScriptClassInfo *m_classInfo;
 };
 
 class ConnectionQObject: public QObject
 {
 public:
     ConnectionQObject(const QMetaMethod &m, const QScriptValueImpl &sender,
-                      const QScriptValueImpl &receiver, const QScriptValueImpl &slot);
+                      const QScriptValueImpl &receiver, const QScriptValueImpl &slot,
+                      QScriptEngine::ValueOwnership ownership);
     ~ConnectionQObject();
 
     static const QMetaObject staticMetaObject;
@@ -116,6 +113,7 @@ public:
 
     void mark(int generation);
     bool hasTarget(const QScriptValueImpl &, const QScriptValueImpl &) const;
+    QScriptValueImpl senderObject() const;
 
 private:
     QMetaMethod m_method;
@@ -139,6 +137,8 @@ public:
     virtual void execute(QScriptContextPrivate *context);
 
     virtual Type type() const { return QScriptFunction::Qt; }
+
+    virtual QString functionName() const;
 
     inline QObject *object() const { return m_object; }
     inline const QMetaObject *metaObject() const { return m_object->metaObject(); }
@@ -164,8 +164,6 @@ public:
     ExtQMetaObject(QScriptEnginePrivate *engine, QScriptClassInfo *classInfo);
     virtual ~ExtQMetaObject();
 
-    inline QScriptClassInfo *classInfo() const { return m_classInfo; }
-
     virtual void execute(QScriptContextPrivate *context);
 
     class Instance: public QScriptFunction {
@@ -190,8 +188,6 @@ public:
 
 protected:
     static QScriptValueImpl method_className(QScriptContextPrivate *context, QScriptEnginePrivate *eng, QScriptClassInfo *classInfo);
-
-    QScriptClassInfo *m_classInfo;
 };
 
 } // namespace QScript

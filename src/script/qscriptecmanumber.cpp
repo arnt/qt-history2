@@ -27,33 +27,22 @@
 namespace QScript { namespace Ecma {
 
 Number::Number(QScriptEnginePrivate *eng):
-    Core(eng)
+    Core(eng, QLatin1String("Number"))
 {
-    m_classInfo = eng->registerClass(QLatin1String("Number"));
-
-    publicPrototype.invalidate();
     newNumber(&publicPrototype, 0);
 
     eng->newConstructor(&ctor, this, publicPrototype);
 
-    QScriptValue::PropertyFlags flags = QScriptValue::SkipInEnumeration;
+    addPrototypeFunction(QLatin1String("toString"), method_toString, 0);
+    addPrototypeFunction(QLatin1String("toLocaleString"), method_toLocaleString, 0);
+    addPrototypeFunction(QLatin1String("valueOf"), method_valueOf, 0);
+    addPrototypeFunction(QLatin1String("toFixed"), method_toFixed, 0);
+    addPrototypeFunction(QLatin1String("toExponential"), method_toExponential, 0);
+    addPrototypeFunction(QLatin1String("toPrecision"), method_toPrecision, 0);
 
-    publicPrototype.setProperty(QLatin1String("toString"),
-                                eng->createFunction(method_toString, 0, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("toLocaleString"),
-                                eng->createFunction(method_toLocaleString, 0, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("valueOf"),
-                                eng->createFunction(method_valueOf, 0, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("toFixed"),
-                                eng->createFunction(method_toFixed, 0, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("toExponential"),
-                                eng->createFunction(method_toExponential, 0, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("toPrecision"),
-                                eng->createFunction(method_toPrecision, 0, m_classInfo), flags);
-
-    flags = QScriptValue::Undeletable
-            | QScriptValue::ReadOnly
-            | QScriptValue::SkipInEnumeration;
+    QScriptValue::PropertyFlags flags = QScriptValue::Undeletable
+                                        | QScriptValue::ReadOnly
+                                        | QScriptValue::SkipInEnumeration;
     ctor.setProperty(QLatin1String("NaN"),
                      QScriptValueImpl(eng, qSNaN()), flags);
     ctor.setProperty(QLatin1String("NEGATIVE_INFINITY"),

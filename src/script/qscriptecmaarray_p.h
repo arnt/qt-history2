@@ -40,9 +40,6 @@ public:
     Array(QScriptEnginePrivate *engine);
     virtual ~Array();
 
-    inline QScriptClassInfo *classInfo() const
-        { return m_classInfo; }
-
     virtual void execute(QScriptContextPrivate *context);
 
     class ArrayClassData: public QScriptClassData
@@ -85,7 +82,7 @@ public:
     };
 
     inline Instance *get(const QScriptValueImpl &object) const
-    { return Instance::get(object, m_classInfo); }
+    { return Instance::get(object, classInfo()); }
 
     void newArray(QScriptValueImpl *result,
                   const QScript::Array &value = QScript::Array());
@@ -127,8 +124,6 @@ protected:
     static QScriptValueImpl method_unshift(QScriptContextPrivate *context,
                                            QScriptEnginePrivate *eng,
                                            QScriptClassInfo *classInfo);
-
-    QScriptClassInfo *m_classInfo;
 };
 
 } } // namespace QScript::Ecma

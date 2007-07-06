@@ -30,18 +30,14 @@
 namespace QScript { namespace Ext {
 
 Variant::Variant(QScriptEnginePrivate *eng, QScriptClassInfo *classInfo):
-    Ecma::Core(eng), m_classInfo(classInfo)
+    Ecma::Core(eng, classInfo)
 {
-    publicPrototype.invalidate();
     newVariant(&publicPrototype, QVariant());
 
     eng->newConstructor(&ctor, this, publicPrototype);
 
-    const QScriptValue::PropertyFlags flags = QScriptValue::SkipInEnumeration;
-    publicPrototype.setProperty(QLatin1String("toString"),
-                eng->createFunction(method_toString, 0, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("valueOf"),
-                eng->createFunction(method_valueOf, 0, m_classInfo), flags);
+    addPrototypeFunction(QLatin1String("toString"), method_toString, 0);
+    addPrototypeFunction(QLatin1String("valueOf"), method_valueOf, 0);
 }
 
 Variant::~Variant()

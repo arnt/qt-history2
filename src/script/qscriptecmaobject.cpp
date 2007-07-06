@@ -26,7 +26,7 @@
 namespace QScript { namespace Ecma {
 
 Object::Object(QScriptEnginePrivate *eng, QScriptClassInfo *classInfo):
-    Core(eng), m_classInfo(classInfo)
+    Core(eng, classInfo)
 {
     newObject(&publicPrototype, eng->nullValue());
 }
@@ -41,24 +41,14 @@ void Object::initialize()
 
     eng->newConstructor(&ctor, this, publicPrototype);
 
-    const QScriptValue::PropertyFlags flags = QScriptValue::SkipInEnumeration;
-    publicPrototype.setProperty(QLatin1String("toString"),
-                                eng->createFunction(method_toString, 1, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("toLocaleString"),
-                                eng->createFunction(method_toLocaleString, 1, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("valueOf"),
-                                eng->createFunction(method_valueOf, 0, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("hasOwnProperty"),
-                                eng->createFunction(method_hasOwnProperty, 1, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("isPrototypeOf"),
-                                eng->createFunction(method_isPrototypeOf, 1, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("propertyIsEnumerable"),
-                                eng->createFunction(method_propertyIsEnumerable, 1, m_classInfo), flags);
-
-    publicPrototype.setProperty(QLatin1String("__defineGetter__"),
-                                eng->createFunction(method_defineGetter, 2, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("__defineSetter__"),
-                                eng->createFunction(method_defineSetter, 2, m_classInfo), flags);
+    addPrototypeFunction(QLatin1String("toString"), method_toString, 1);
+    addPrototypeFunction(QLatin1String("toLocaleString"), method_toLocaleString, 1);
+    addPrototypeFunction(QLatin1String("valueOf"), method_valueOf, 0);
+    addPrototypeFunction(QLatin1String("hasOwnProperty"), method_hasOwnProperty, 1);
+    addPrototypeFunction(QLatin1String("isPrototypeOf"), method_isPrototypeOf, 1);
+    addPrototypeFunction(QLatin1String("propertyIsEnumerable"), method_propertyIsEnumerable, 1);
+    addPrototypeFunction(QLatin1String("__defineGetter__"), method_defineGetter, 2);
+    addPrototypeFunction(QLatin1String("__defineSetter__"), method_defineSetter, 2);
 }
 
 void Object::execute(QScriptContextPrivate *context)

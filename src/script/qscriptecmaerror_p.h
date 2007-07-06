@@ -37,8 +37,6 @@ public:
     Error(QScriptEnginePrivate *engine);
     virtual ~Error();
 
-    inline QScriptClassInfo *classInfo() const { return m_objectClass; }
-
     virtual void execute(QScriptContextPrivate *context);
 
     void newError(QScriptValueImpl *result, const QString &message = QString());
@@ -75,8 +73,6 @@ public:
 protected:
     static QScriptValueImpl method_toString(QScriptContextPrivate *context, QScriptEnginePrivate *eng, QScriptClassInfo *classInfo);
     static QScriptValueImpl method_backtrace(QScriptContextPrivate *context, QScriptEnginePrivate *eng, QScriptClassInfo *classInfo);
-
-    QScriptClassInfo *m_objectClass;
 
 private:
     void newError(QScriptValueImpl *result, const QScriptValueImpl &proto,

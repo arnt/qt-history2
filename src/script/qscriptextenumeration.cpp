@@ -48,24 +48,18 @@ void EnumerationClassData::mark(const QScriptValueImpl &object, int generation)
 
 
 Enumeration::Enumeration(QScriptEnginePrivate *eng):
-    Ecma::Core(eng)
+    Ecma::Core(eng, QLatin1String("Enumeration"))
 {
-    m_classInfo = eng->registerClass(QLatin1String("Enumeration"));
-    QExplicitlySharedDataPointer<QScriptClassData> data(new EnumerationClassData(m_classInfo));
-    m_classInfo->setData(data);
+    QExplicitlySharedDataPointer<QScriptClassData> data(new EnumerationClassData(classInfo()));
+    classInfo()->setData(data);
 
-    publicPrototype.invalidate();
     newEnumeration(&publicPrototype, eng->newArray());
 
     eng->newConstructor(&ctor, this, publicPrototype);
 
-    const QScriptValue::PropertyFlags flags = QScriptValue::SkipInEnumeration;
-    publicPrototype.setProperty(QLatin1String("toFirst"),
-                                eng->createFunction(method_toFirst, 0, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("hasNext"),
-                                eng->createFunction(method_hasNext, 0, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("next"),
-                                eng->createFunction(method_next, 0, m_classInfo), flags);
+    addPrototypeFunction(QLatin1String("toFirst"), method_toFirst, 0);
+    addPrototypeFunction(QLatin1String("hasNext"), method_hasNext, 0);
+    addPrototypeFunction(QLatin1String("next"), method_next, 0);
 }
 
 Enumeration::~Enumeration()

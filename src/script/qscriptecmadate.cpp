@@ -413,111 +413,60 @@ namespace QScript { namespace Ecma {
 
 
 Date::Date(QScriptEnginePrivate *eng):
-    Core(eng)
+    Core(eng, QLatin1String("Date"))
 {
     LocalTZA = getLocalTZA();
 
-    m_classInfo = eng->registerClass(QLatin1String("Date"));
-
-    publicPrototype.invalidate();
     newDate(&publicPrototype, qSNaN());
 
-    const QScriptValue::PropertyFlags flags = QScriptValue::SkipInEnumeration;
-
     eng->newConstructor(&ctor, this, publicPrototype);
-    ctor.setProperty(QLatin1String("parse"),
-                     eng->createFunction(method_parse, 1, m_classInfo), flags);
-    ctor.setProperty(QLatin1String("UTC"),
-                     eng->createFunction(method_UTC, 1, m_classInfo), flags);
+    addConstructorFunction(QLatin1String("parse"), method_parse, 1);
+    addConstructorFunction(QLatin1String("UTC"), method_UTC, 1);
 
-    publicPrototype.setProperty(QLatin1String("toString"),
-                                eng->createFunction(method_toString, 0, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("toDateString"),
-                                eng->createFunction(method_toDateString, 0, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("toTimeString"),
-                                eng->createFunction(method_toTimeString, 0, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("toLocaleString"),
-                                eng->createFunction(method_toLocaleString, 0, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("toLocaleDateString"),
-                                eng->createFunction(method_toLocaleDateString, 0, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("toLocaleTimeString"),
-                                eng->createFunction(method_toLocaleTimeString, 0, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("valueOf"),
-                                eng->createFunction(method_valueOf, 0, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("getTime"),
-                                eng->createFunction(method_getTime, 0, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("getYear"),
-                                eng->createFunction(method_getYear, 0, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("getFullYear"),
-                                eng->createFunction(method_getFullYear, 0, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("getUTCFullYear"),
-                                eng->createFunction(method_getUTCFullYear, 0, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("getMonth"),
-                                eng->createFunction(method_getMonth, 0, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("getUTCMonth"),
-                                eng->createFunction(method_getUTCMonth, 0, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("getDate"),
-                                eng->createFunction(method_getDate, 0, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("getUTCDate"),
-                                eng->createFunction(method_getUTCDate, 0, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("getDay"),
-                                eng->createFunction(method_getDay, 0, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("getUTCDay"),
-                                eng->createFunction(method_getUTCDay, 0, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("getHours"),
-                                eng->createFunction(method_getHours, 0, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("getUTCHours"),
-                                eng->createFunction(method_getUTCHours, 0, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("getMinutes"),
-                                eng->createFunction(method_getMinutes, 0, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("getUTCMinutes"),
-                                eng->createFunction(method_getUTCMinutes, 0, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("getSeconds"),
-                                eng->createFunction(method_getSeconds, 0, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("getUTCSeconds"),
-                                eng->createFunction(method_getUTCSeconds, 0, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("getMilliseconds"),
-                                eng->createFunction(method_getMilliseconds, 0, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("getUTCMilliseconds"),
-                                eng->createFunction(method_getUTCMilliseconds, 0, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("getTimezoneOffset"),
-                                eng->createFunction(method_getTimezoneOffset, 0, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("setTime"),
-                                eng->createFunction(method_setTime, 1, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("setMilliseconds"),
-                                eng->createFunction(method_setMilliseconds, 1, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("setUTCMilliseconds"),
-                                eng->createFunction(method_setUTCMilliseconds, 1, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("setSeconds"),
-                                eng->createFunction(method_setSeconds, 2, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("setUTCSeconds"),
-                                eng->createFunction(method_setUTCSeconds, 2, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("setMinutes"),
-                                eng->createFunction(method_setMinutes, 3, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("setUTCMinutes"),
-                                eng->createFunction(method_setUTCMinutes, 3, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("setHours"),
-                                eng->createFunction(method_setHours, 4, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("setUTCHours"),
-                                eng->createFunction(method_setUTCHours, 4, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("setDate"),
-                                eng->createFunction(method_setDate, 1, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("setUTCDate"),
-                                eng->createFunction(method_setUTCDate, 1, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("setMonth"),
-                                eng->createFunction(method_setMonth, 2, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("setUTCMonth"),
-                                eng->createFunction(method_setUTCMonth, 2, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("setYear"),
-                                eng->createFunction(method_setYear, 1, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("setFullYear"),
-                                eng->createFunction(method_setFullYear, 3, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("setUTCFullYear"),
-                                eng->createFunction(method_setUTCFullYear, 3, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("toUTCString"),
-                                eng->createFunction(method_toUTCString, 0, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("toGMTString"),
-                                eng->createFunction(method_toUTCString, 0, m_classInfo), flags);
+    addPrototypeFunction(QLatin1String("toString"), method_toString, 0);
+    addPrototypeFunction(QLatin1String("toDateString"), method_toDateString, 0);
+    addPrototypeFunction(QLatin1String("toTimeString"), method_toTimeString, 0);
+    addPrototypeFunction(QLatin1String("toLocaleString"), method_toLocaleString, 0);
+    addPrototypeFunction(QLatin1String("toLocaleDateString"), method_toLocaleDateString, 0);
+    addPrototypeFunction(QLatin1String("toLocaleTimeString"), method_toLocaleTimeString, 0);
+    addPrototypeFunction(QLatin1String("valueOf"), method_valueOf, 0);
+    addPrototypeFunction(QLatin1String("getTime"), method_getTime, 0);
+    addPrototypeFunction(QLatin1String("getYear"), method_getYear, 0);
+    addPrototypeFunction(QLatin1String("getFullYear"), method_getFullYear, 0);
+    addPrototypeFunction(QLatin1String("getUTCFullYear"), method_getUTCFullYear, 0);
+    addPrototypeFunction(QLatin1String("getMonth"), method_getMonth, 0);
+    addPrototypeFunction(QLatin1String("getUTCMonth"), method_getUTCMonth, 0);
+    addPrototypeFunction(QLatin1String("getDate"), method_getDate, 0);
+    addPrototypeFunction(QLatin1String("getUTCDate"), method_getUTCDate, 0);
+    addPrototypeFunction(QLatin1String("getDay"), method_getDay, 0);
+    addPrototypeFunction(QLatin1String("getUTCDay"), method_getUTCDay, 0);
+    addPrototypeFunction(QLatin1String("getHours"), method_getHours, 0);
+    addPrototypeFunction(QLatin1String("getUTCHours"), method_getUTCHours, 0);
+    addPrototypeFunction(QLatin1String("getMinutes"), method_getMinutes, 0);
+    addPrototypeFunction(QLatin1String("getUTCMinutes"), method_getUTCMinutes, 0);
+    addPrototypeFunction(QLatin1String("getSeconds"), method_getSeconds, 0);
+    addPrototypeFunction(QLatin1String("getUTCSeconds"), method_getUTCSeconds, 0);
+    addPrototypeFunction(QLatin1String("getMilliseconds"), method_getMilliseconds, 0);
+    addPrototypeFunction(QLatin1String("getUTCMilliseconds"), method_getUTCMilliseconds, 0);
+    addPrototypeFunction(QLatin1String("getTimezoneOffset"), method_getTimezoneOffset, 0);
+    addPrototypeFunction(QLatin1String("setTime"), method_setTime, 1);
+    addPrototypeFunction(QLatin1String("setMilliseconds"), method_setMilliseconds, 1);
+    addPrototypeFunction(QLatin1String("setUTCMilliseconds"), method_setUTCMilliseconds, 1);
+    addPrototypeFunction(QLatin1String("setSeconds"), method_setSeconds, 2);
+    addPrototypeFunction(QLatin1String("setUTCSeconds"), method_setUTCSeconds, 2);
+    addPrototypeFunction(QLatin1String("setMinutes"), method_setMinutes, 3);
+    addPrototypeFunction(QLatin1String("setUTCMinutes"), method_setUTCMinutes, 3);
+    addPrototypeFunction(QLatin1String("setHours"), method_setHours, 4);
+    addPrototypeFunction(QLatin1String("setUTCHours"), method_setUTCHours, 4);
+    addPrototypeFunction(QLatin1String("setDate"), method_setDate, 1);
+    addPrototypeFunction(QLatin1String("setUTCDate"), method_setUTCDate, 1);
+    addPrototypeFunction(QLatin1String("setMonth"), method_setMonth, 2);
+    addPrototypeFunction(QLatin1String("setUTCMonth"), method_setUTCMonth, 2);
+    addPrototypeFunction(QLatin1String("setYear"), method_setYear, 1);
+    addPrototypeFunction(QLatin1String("setFullYear"), method_setFullYear, 3);
+    addPrototypeFunction(QLatin1String("setUTCFullYear"), method_setUTCFullYear, 3);
+    addPrototypeFunction(QLatin1String("toUTCString"), method_toUTCString, 0);
+    addPrototypeFunction(QLatin1String("toGMTString"), method_toUTCString, 0);
 }
 
 Date::~Date()
@@ -585,7 +534,7 @@ void Date::newDate(QScriptValueImpl *result, const QDate &d)
 
 QDateTime Date::toDateTime(const QScriptValueImpl &date) const
 {
-    Q_ASSERT(date.classInfo() == m_classInfo);
+    Q_ASSERT(date.classInfo() == classInfo());
     qsreal t = date.internalValue().toNumber();
     return ToDateTime(t);
 }

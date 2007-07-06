@@ -37,9 +37,6 @@ public:
     String(QScriptEnginePrivate *engine);
     virtual ~String();
 
-    inline QScriptClassInfo *classInfo() const
-        { return m_classInfo; }
-
     virtual void execute(QScriptContextPrivate *context);
 
     class StringClassData: public QScriptClassData
@@ -104,9 +101,6 @@ protected:
                                                  QScriptClassInfo *classInfo);
     static QScriptValueImpl method_fromCharCode(QScriptContextPrivate *context, QScriptEnginePrivate *eng,
                                             QScriptClassInfo *classInfo);
-
-private:
-    QScriptClassInfo *m_classInfo;
 };
 
 } } // namespace QScript::Ecma

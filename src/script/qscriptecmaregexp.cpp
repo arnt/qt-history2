@@ -28,23 +28,15 @@
 namespace QScript { namespace Ecma {
 
 RegExp::RegExp(QScriptEnginePrivate *eng):
-    Core(eng)
+    Core(eng, QLatin1String("RegExp"))
 {
-    m_classInfo = eng->registerClass(QLatin1String("RegExp"));
-
-    publicPrototype.invalidate();
     newRegExp(&publicPrototype, QString(), QString());
 
     eng->newConstructor(&ctor, this, publicPrototype);
 
-    QScriptValue::PropertyFlags flags = QScriptValue::SkipInEnumeration;
-
-    publicPrototype.setProperty(QLatin1String("exec"),
-                                eng->createFunction(method_exec, 1, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("test"),
-                                eng->createFunction(method_test, 1, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("toString"),
-                                eng->createFunction(method_toString, 1, m_classInfo), flags);
+    addPrototypeFunction(QLatin1String("exec"), method_exec, 1);
+    addPrototypeFunction(QLatin1String("test"), method_test, 1);
+    addPrototypeFunction(QLatin1String("toString"), method_toString, 1);
 }
 
 RegExp::~RegExp()

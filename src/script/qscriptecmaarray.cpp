@@ -169,42 +169,27 @@ bool Array::ArrayClassData::extraMember(const QScriptValueImpl &object,
 }
 
 Array::Array(QScriptEnginePrivate *eng):
-    Core(eng)
+    Core(eng, QLatin1String("Array"))
 {
-    m_classInfo = eng->registerClass(QLatin1String("Array"));
-    QExplicitlySharedDataPointer<QScriptClassData> data(new ArrayClassData(m_classInfo));
-    m_classInfo->setData(data);
+    QExplicitlySharedDataPointer<QScriptClassData> data(new ArrayClassData(classInfo()));
+    classInfo()->setData(data);
 
-    publicPrototype.invalidate();
     newArray(&publicPrototype);
 
     eng->newConstructor(&ctor, this, publicPrototype);
 
-    QScriptValue::PropertyFlags flags = QScriptValue::SkipInEnumeration;
-    publicPrototype.setProperty(QLatin1String("toString"),
-                                eng->createFunction(method_toString, 0, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("toLocaleString"),
-                                eng->createFunction(method_toLocaleString, 0, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("concat"),
-                                eng->createFunction(method_concat, 0, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("join"),
-                                eng->createFunction(method_join, 1, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("pop"),
-                                eng->createFunction(method_pop, 0, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("push"),
-                                eng->createFunction(method_push, 1, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("reverse"),
-                                eng->createFunction(method_reverse, 0, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("shift"),
-                                eng->createFunction(method_shift, 0, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("slice"),
-                                eng->createFunction(method_slice, 0, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("sort"),
-                                eng->createFunction(method_sort, 1, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("splice"),
-                                eng->createFunction(method_splice, 1, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("unshift"),
-                                eng->createFunction(method_unshift, 1, m_classInfo), flags);
+    addPrototypeFunction(QLatin1String("toString"), method_toString, 0);
+    addPrototypeFunction(QLatin1String("toLocaleString"), method_toLocaleString, 0);
+    addPrototypeFunction(QLatin1String("concat"), method_concat, 0);
+    addPrototypeFunction(QLatin1String("join"), method_join, 1);
+    addPrototypeFunction(QLatin1String("pop"), method_pop, 0);
+    addPrototypeFunction(QLatin1String("push"), method_push, 1);
+    addPrototypeFunction(QLatin1String("reverse"), method_reverse, 0);
+    addPrototypeFunction(QLatin1String("shift"), method_shift, 0);
+    addPrototypeFunction(QLatin1String("slice"), method_slice, 0);
+    addPrototypeFunction(QLatin1String("sort"), method_sort, 1);
+    addPrototypeFunction(QLatin1String("splice"), method_splice, 1);
+    addPrototypeFunction(QLatin1String("unshift"), method_unshift, 1);
 }
 
 Array::~Array()

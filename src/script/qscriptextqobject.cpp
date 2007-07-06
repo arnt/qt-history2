@@ -56,6 +56,8 @@ public:
 
     virtual Type type() const { return QScriptFunction::QtProperty; }
 
+    virtual QString functionName() const;
+
 private:
     const QMetaObject *m_meta;
     int m_index;
@@ -580,7 +582,7 @@ private:
 
 
 QScript::ExtQObject::ExtQObject(QScriptEnginePrivate *eng, QScriptClassInfo *classInfo):
-    Ecma::Core(eng), m_classInfo(classInfo)
+    Ecma::Core(eng, classInfo)
 {
     newQObject(&publicPrototype, new QScript::QObjectPrototype(),
                QScriptEngine::AutoOwnership,
@@ -589,16 +591,12 @@ QScript::ExtQObject::ExtQObject(QScriptEnginePrivate *eng, QScriptClassInfo *cla
                | QScriptEngine::ExcludeChildObjects);
 
     eng->newConstructor(&ctor, this, publicPrototype);
-    const QScriptValue::PropertyFlags flags = QScriptValue::SkipInEnumeration;
-    publicPrototype.setProperty(QLatin1String("toString"),
-                                eng->createFunction(method_toString, 0, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("findChild"),
-                                eng->createFunction(method_findChild, 1, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("findChildren"),
-                                eng->createFunction(method_findChildren, 1, m_classInfo), flags);
+    addPrototypeFunction(QLatin1String("toString"), method_toString, 0);
+    addPrototypeFunction(QLatin1String("findChild"), method_findChild, 1);
+    addPrototypeFunction(QLatin1String("findChildren"), method_findChildren, 1);
 
     QExplicitlySharedDataPointer<QScriptClassData> data(new QScript::ExtQObjectData(eng, classInfo));
-    m_classInfo->setData(data);
+    classInfo->setData(data);
 }
 
 QScript::ExtQObject::~ExtQObject()
@@ -680,7 +678,8 @@ QScriptValueImpl QScript::ExtQObject::method_toString(QScriptContextPrivate *con
 QScript::ConnectionQObject::ConnectionQObject(const QMetaMethod &method,
                                               const QScriptValueImpl &sender,
                                               const QScriptValueImpl &receiver,
-                                              const QScriptValueImpl &slot)
+                                              const QScriptValueImpl &slot,
+                                              QScriptEngine::ValueOwnership ownership)
     : m_method(method), m_sender(sender),
       m_receiver(receiver)
 {
@@ -691,7 +690,7 @@ QScript::ConnectionQObject::ConnectionQObject(const QMetaMethod &method,
     QScriptEngine *eng = m_slot.engine();
     QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(eng);
     QScriptValueImpl me;
-    eng_p->qobjectConstructor->newQObject(&me, this, QScriptEngine::QtOwnership,
+    eng_p->qobjectConstructor->newQObject(&me, this, ownership,
                                           /*options=*/0, /*isConnection=*/true);
     QScriptValuePrivate::init(m_self, eng_p->registerValue(me));
 
@@ -845,8 +844,24 @@ void QScript::ConnectionQObject::mark(int generation)
 bool QScript::ConnectionQObject::hasTarget(const QScriptValueImpl &receiver,
                                            const QScriptValueImpl &slot) const
 {
-    return ((receiver.objectValue() == m_receiver.objectValue())
-            && (slot.objectValue() == m_slot.objectValue()));
+    if (receiver.isObject() != m_receiver.isObject())
+        return false;
+    if ((receiver.isObject() && m_receiver.isObject())
+        && (receiver.objectValue() != m_receiver.objectValue())) {
+        return false;
+    }
+    return (slot.objectValue() == m_slot.objectValue());
+}
+
+QScriptValueImpl QScript::ConnectionQObject::senderObject() const
+{
+    return m_sender;
+}
+
+QString QScript::QtPropertyFunction::functionName() const
+{
+    QMetaProperty prop = m_meta->property(m_index);
+    return QLatin1String(prop.name());
 }
 
 void QScript::QtPropertyFunction::execute(QScriptContextPrivate *context)
@@ -922,6 +937,15 @@ static int indexOfMetaEnum(const QMetaObject *meta, const QByteArray &str)
             return i;
     }
     return -1;
+}
+
+QString QScript::QtFunction::functionName() const
+{
+    if (!m_object)
+        return QString();
+    const QMetaObject *meta = m_object->metaObject();
+    QMetaMethod method = meta->method(m_initialIndex);
+    return QLatin1String(methodName(method));
 }
 
 void QScript::QtFunction::execute(QScriptContextPrivate *context)
@@ -1393,7 +1417,8 @@ bool QScript::QtFunction::createConnection(const QScriptValueImpl &self,
         } while (method.attributes() & QMetaMethod::Cloned);
     }
 
-    QObject *conn = new ConnectionQObject(method, self, receiver, slot);
+    QObject *conn = new ConnectionQObject(method, self, receiver, slot,
+                                          QScriptEngine::QtOwnership);
     m_connections.append(conn);
     return QMetaObject::connect(m_object, index, conn, conn->metaObject()->methodOffset());
 }
@@ -1546,18 +1571,15 @@ void ExtQMetaObjectData::mark(const QScriptValueImpl &object, int generation)
 
 QScript::ExtQMetaObject::ExtQMetaObject(QScriptEnginePrivate *eng,
                                         QScriptClassInfo *classInfo):
-    Ecma::Core(eng), m_classInfo(classInfo)
+    Ecma::Core(eng, classInfo)
 {
-    publicPrototype.invalidate();
     newQMetaObject(&publicPrototype, QScript::StaticQtMetaObject::get());
 
     eng->newConstructor(&ctor, this, publicPrototype);
-    const QScriptValue::PropertyFlags flags = QScriptValue::SkipInEnumeration;
-    publicPrototype.setProperty(QLatin1String("className"),
-                                eng->createFunction(method_className, 0, m_classInfo), flags);
+    addPrototypeFunction(QLatin1String("className"), method_className, 0);
 
     QExplicitlySharedDataPointer<QScriptClassData> data(new QScript::ExtQMetaObjectData(eng, classInfo));
-    m_classInfo->setData(data);
+    classInfo->setData(data);
 }
 
 QScript::ExtQMetaObject::~ExtQMetaObject()

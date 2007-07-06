@@ -53,9 +53,6 @@ public:
     Enumeration(QScriptEnginePrivate *engine);
     virtual ~Enumeration();
 
-    inline QScriptClassInfo *classInfo() const
-        { return m_classInfo; }
-
     virtual void execute(QScriptContextPrivate *context);
 
     class Instance: public QScriptObjectData {
@@ -80,7 +77,7 @@ public:
 
     inline Instance *get(const QScriptValueImpl &object) const
     {
-        return Instance::get(object, m_classInfo);
+        return Instance::get(object, classInfo());
     }
 
 protected:
@@ -90,9 +87,6 @@ protected:
                                            QScriptClassInfo *classInfo);
     static QScriptValueImpl method_next(QScriptContextPrivate *context, QScriptEnginePrivate *eng,
                                         QScriptClassInfo *classInfo);
-
-private:
-    QScriptClassInfo *m_classInfo;
 };
 
 } } // namespace QScript::Ext

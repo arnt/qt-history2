@@ -26,20 +26,14 @@
 namespace QScript { namespace Ecma {
 
 Boolean::Boolean(QScriptEnginePrivate *eng):
-    Core(eng)
+    Core(eng, QLatin1String("Boolean"))
 {
-    m_classInfo = eng->registerClass(QLatin1String("Boolean"));
-
-    publicPrototype.invalidate();
     newBoolean(&publicPrototype, false);
 
     eng->newConstructor(&ctor, this, publicPrototype);
 
-    const QScriptValue::PropertyFlags flags = QScriptValue::SkipInEnumeration;
-    publicPrototype.setProperty(QLatin1String("toString"),
-                                eng->createFunction(method_toString, 0, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("valueOf"),
-                                eng->createFunction(method_valueOf, 0, m_classInfo), flags);
+    addPrototypeFunction(QLatin1String("toString"), method_toString, 0);
+    addPrototypeFunction(QLatin1String("valueOf"), method_valueOf, 0);
 }
 
 Boolean::~Boolean()

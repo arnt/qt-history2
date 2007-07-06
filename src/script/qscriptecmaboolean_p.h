@@ -37,8 +37,6 @@ public:
     Boolean(QScriptEnginePrivate *engine);
     virtual ~Boolean();
 
-    inline QScriptClassInfo *classInfo() const { return m_classInfo; }
-
     virtual void execute(QScriptContextPrivate *context);
 
     void newBoolean(QScriptValueImpl *result, bool value = false);
@@ -50,8 +48,6 @@ protected:
     static QScriptValueImpl method_valueOf(QScriptContextPrivate *context,
                                            QScriptEnginePrivate *eng,
                                            QScriptClassInfo *classInfo);
-
-    QScriptClassInfo *m_classInfo;
 };
 
 } } // namespace QScript::Ecma

@@ -31,9 +31,9 @@
 namespace QScript { namespace Ecma {
 
 Function::Function(QScriptEnginePrivate *eng, QScriptClassInfo *classInfo):
-    Core(eng), m_classInfo(classInfo)
+    Core(eng, classInfo)
 {
-    publicPrototype = eng->createFunction(method_void, 0, m_classInfo); // public prototype
+    publicPrototype = eng->createFunction(method_void, 0, classInfo); // public prototype
 }
 
 Function::~Function()
@@ -45,17 +45,11 @@ void Function::initialize()
     QScriptEnginePrivate *eng = engine();
     eng->newConstructor(&ctor, this, publicPrototype);
 
-    const QScriptValue::PropertyFlags flags = QScriptValue::SkipInEnumeration;
-    publicPrototype.setProperty(QLatin1String("toString"),
-                                eng->createFunction(method_toString, 1, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("apply"),
-                                eng->createFunction(method_apply, 1, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("call"),
-                                eng->createFunction(method_call, 1, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("connect"),
-                                eng->createFunction(method_connect, 1, m_classInfo), flags);
-    publicPrototype.setProperty(QLatin1String("disconnect"),
-                                eng->createFunction(method_disconnect, 1, m_classInfo), flags);
+    addPrototypeFunction(QLatin1String("toString"), method_toString, 1);
+    addPrototypeFunction(QLatin1String("apply"), method_apply, 1);
+    addPrototypeFunction(QLatin1String("call"), method_call, 1);
+    addPrototypeFunction(QLatin1String("connect"), method_connect, 1);
+    addPrototypeFunction(QLatin1String("disconnect"), method_disconnect, 1);
 }
 
 void Function::execute(QScriptContextPrivate *context)

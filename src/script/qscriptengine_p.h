@@ -501,9 +501,9 @@ inline QScriptClassInfo *QScriptEnginePrivate::registerClass(const QString &name
 }
 
 inline QScriptValueImpl QScriptEnginePrivate::createFunction(QScriptInternalFunctionSignature fun,
-                                       int length, QScriptClassInfo *classInfo)
+                                       int length, QScriptClassInfo *classInfo, const QString &name)
 {
-    return createFunction(new QScript::C2Function(fun, length, classInfo));
+    return createFunction(new QScript::C2Function(fun, length, classInfo, name));
 }
 
 inline void QScriptEnginePrivate::newFunction(QScriptValueImpl *o, QScriptFunction *function)

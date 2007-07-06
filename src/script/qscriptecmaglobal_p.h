@@ -25,7 +25,12 @@
 // We mean it.
 //
 
-#include "qscriptecmacore_p.h"
+#include "qscriptobjectdata_p.h"
+
+class QScriptEnginePrivate;
+class QScriptContextPrivate;
+class QScriptClassInfo;
+class QScriptValueImpl;
 
 #ifndef QT_NO_SCRIPT
 
@@ -94,5 +99,5 @@ inline QScriptEnginePrivate *Global::engine() const
 } } // namespace QScript::Ecma
 
 #endif // QT_NO_SCRIPT
-#endif
 
+#endif

@@ -74,6 +74,8 @@ void QScript::C2Function::execute(QScriptContextPrivate *context)
 
 QString QScript::C2Function::functionName() const
 {
+    if (!m_name.isEmpty())
+        return m_name;
     return QLatin1String("<native>");
 }
 

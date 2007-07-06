@@ -176,7 +176,8 @@ public:
     inline QScriptValueImpl newArray(const QScript::Array &value);
     inline QScriptValueImpl newArray(uint length = 0);
 
-    void evaluate(QScriptContextPrivate *context, const QString &contents, int lineNumber, const QString &fileName = QString());
+    void evaluate(QScriptContextPrivate *context, const QString &contents,
+                  int lineNumber, const QString &fileName = QString());
 
     inline void setLexer(QScript::Lexer *lexer);
 
@@ -187,7 +188,8 @@ public:
     inline QScriptClassInfo *registerClass(const QString &name);
 
     inline QScriptValueImpl createFunction(QScriptInternalFunctionSignature fun,
-                                           int length, QScriptClassInfo *classInfo);
+                                           int length, QScriptClassInfo *classInfo,
+                                           const QString &name = QString());
 
     inline QString toString(QScriptNameIdImpl *id) const;
     inline QString memberName(const QScript::Member &member) const;

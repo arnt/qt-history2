@@ -75,27 +75,21 @@ static QScriptValueImpl method_UriError(QScriptContextPrivate *context, QScriptE
 }
 
 Error::Error(QScriptEnginePrivate *eng):
-    Core(eng)
+    Core(eng, QLatin1String("Error"))
 {
-    m_objectClass = eng->registerClass(QLatin1String("Error"));
-
     eng->newFunction(&ctor, this);
     newErrorPrototype(&publicPrototype, QScriptValueImpl(), ctor, QLatin1String("Error"));
-    publicPrototype.setProperty(QLatin1String("backtrace"),
-                                eng->createFunction(method_backtrace, 0, m_objectClass),
-                                QScriptValue::SkipInEnumeration);
-    publicPrototype.setProperty(QLatin1String("toString"),
-                                eng->createFunction(method_toString, 0, m_objectClass),
-                                QScriptValue::SkipInEnumeration);
+    addPrototypeFunction(QLatin1String("backtrace"), method_backtrace, 0);
+    addPrototypeFunction(QLatin1String("toString"), method_toString, 0);
 
     // native errors
 
-    evalErrorCtor = eng->createFunction(method_EvalError, 3, m_objectClass);
-    rangeErrorCtor = eng->createFunction(method_RangeError, 3, m_objectClass);
-    referenceErrorCtor = eng->createFunction(method_ReferenceError, 3, m_objectClass);
-    syntaxErrorCtor = eng->createFunction(method_SyntaxError, 3, m_objectClass);
-    typeErrorCtor = eng->createFunction(method_TypeError, 3, m_objectClass);
-    uriErrorCtor = eng->createFunction(method_UriError, 3, m_objectClass);
+    evalErrorCtor = eng->createFunction(method_EvalError, 3, classInfo());
+    rangeErrorCtor = eng->createFunction(method_RangeError, 3, classInfo());
+    referenceErrorCtor = eng->createFunction(method_ReferenceError, 3, classInfo());
+    syntaxErrorCtor = eng->createFunction(method_SyntaxError, 3, classInfo());
+    typeErrorCtor = eng->createFunction(method_TypeError, 3, classInfo());
+    uriErrorCtor = eng->createFunction(method_UriError, 3, classInfo());
 
     newErrorPrototype(&evalErrorPrototype, publicPrototype,
                       evalErrorCtor, QLatin1String("EvalError"));

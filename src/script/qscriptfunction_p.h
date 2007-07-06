@@ -101,9 +101,9 @@ class C2Function: public QScriptFunction
 {
 public:
     C2Function(QScriptInternalFunctionSignature funPtr, int length,
-               QScriptClassInfo *classInfo)
+               QScriptClassInfo *classInfo, const QString &name)
         : QScriptFunction(length), m_funPtr(funPtr),
-          m_classInfo(classInfo)
+          m_classInfo(classInfo), m_name(name)
         { }
 
     virtual ~C2Function() {}
@@ -117,6 +117,7 @@ public:
 private:
     QScriptInternalFunctionSignature m_funPtr;
     QScriptClassInfo *m_classInfo;
+    QString m_name;
 };
 
 namespace AST {

@@ -41,8 +41,6 @@ public:
     Variant(QScriptEnginePrivate *engine, QScriptClassInfo *classInfo);
     virtual ~Variant();
 
-    inline QScriptClassInfo *classInfo() const { return m_classInfo; }
-
     virtual void execute(QScriptContextPrivate *context);
 
     class Instance: public QScriptObjectData {
@@ -67,9 +65,6 @@ protected:
                                             QScriptClassInfo *classInfo);
     static QScriptValueImpl method_valueOf(QScriptContextPrivate *context, QScriptEnginePrivate *eng,
                                            QScriptClassInfo *classInfo);
-
-protected:
-    QScriptClassInfo *m_classInfo;
 };
 
 } } // namespace QScript::Ext
