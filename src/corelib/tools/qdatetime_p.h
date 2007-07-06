@@ -69,7 +69,8 @@ class Q_CORE_EXPORT QDateTimeParser
 {
 public:
     QDateTimeParser(QVariant::Type t)
-        : currentSectionIndex(-1), display(0), cachedDay(-1), typ(t), fixday(false), allowEmpty(true)
+        : currentSectionIndex(-1), display(0), cachedDay(-1), parserType(t),
+        fixday(false), allowEmpty(true)
     {
         first.type = FirstSection;
         first.pos = -1;
@@ -213,7 +214,7 @@ public:
     SectionNode first, last, none, popup;
     QStringList separators;
     QString displayFormat;
-    QVariant::Type typ;
+    QVariant::Type parserType;
 
     bool fixday;
     bool allowEmpty;

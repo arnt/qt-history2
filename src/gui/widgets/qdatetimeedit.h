@@ -145,6 +145,7 @@ protected:
     virtual void paintEvent(QPaintEvent *event);
     void initStyleOption(QStyleOptionSpinBox *option) const;
 
+    QDateTimeEdit(const QVariant &val, QVariant::Type parserType, QWidget *parent = 0);
 private:
     Q_DECLARE_PRIVATE(QDateTimeEdit)
     Q_DISABLE_COPY(QDateTimeEdit)

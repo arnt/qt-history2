@@ -3322,9 +3322,9 @@ bool QDateTimeParser::isSpecial(const QChar &c) const
 {
     switch (c.cell()) {
     case 'd': case 'M': case 'y':
-        return (typ == QVariant::Date || typ == QVariant::DateTime);
+        return (parserType == QVariant::Date || parserType == QVariant::DateTime);
     case 'H': case 'h': case 'm': case 's': case 'z': case 'a': case 'p': case 'A':
-        return (typ == QVariant::Time || typ == QVariant::DateTime);
+        return (parserType == QVariant::Time || parserType == QVariant::DateTime);
     case '\'': return true;
     default: return false;
     }
@@ -4103,7 +4103,7 @@ QDateTimeParser::StateNode QDateTimeParser::parse(const QString &inp,
         }
 
         if (state != Invalid) {
-            if (typ != QVariant::Time) {
+            if (parserType != QVariant::Time) {
                 if (year % 100 != year2digits) {
                     if (isSet.contains(&year2digits) && !isSet.contains(&year)) {
                         year = (year / 100) * 100;
@@ -4169,7 +4169,7 @@ QDateTimeParser::StateNode QDateTimeParser::parse(const QString &inp,
                 }
             }
 
-            if (typ != QVariant::Date) {
+            if (parserType != QVariant::Date) {
                 if (isSet.contains(&hour12)) {
                     const bool hasHour = isSet.contains(&hour);
                     if (ampm == -1) {
@@ -4811,7 +4811,7 @@ bool QDateTimeParser::fromString(const QString &text, QDate *date, QTime *time) 
 
 QVariant QDateTimeParser::getMinimum() const
 {
-    switch (typ) {
+    switch (parserType) {
     case QVariant::Time: return QDATETIMEEDIT_TIME_MIN;
     case QVariant::Date: return QDATETIMEEDIT_DATE_MIN;
     case QVariant::DateTime: return QDATETIMEEDIT_DATETIME_MIN;
@@ -4821,7 +4821,7 @@ QVariant QDateTimeParser::getMinimum() const
 }
 QVariant QDateTimeParser::getMaximum() const
 {
-    switch (typ) {
+    switch (parserType) {
     case QVariant::Time: return QDATETIMEEDIT_TIME_MAX;
     case QVariant::Date: return QDATETIMEEDIT_DATE_MAX;
     case QVariant::DateTime: return QDATETIMEEDIT_DATETIME_MAX;

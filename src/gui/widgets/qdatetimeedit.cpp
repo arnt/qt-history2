@@ -47,7 +47,7 @@ class QDateTimeEditPrivate : public QAbstractSpinBoxPrivate, public QDateTimePar
 public:
     QDateTimeEditPrivate();
 
-    void init();
+    void init(const QVariant &var);
     void readLocaleSettings();
 
     void emitSignals(EmitPolicy ep, const QVariant &old);
@@ -195,9 +195,7 @@ QDateTimeEdit::QDateTimeEdit(QWidget *parent)
     : QAbstractSpinBox(*new QDateTimeEditPrivate, parent)
 {
     Q_D(QDateTimeEdit);
-    d->value = QVariant(QDateTime(QDATETIMEEDIT_DATE_INITIAL, QDATETIMEEDIT_TIME_MIN));
-    setDisplayFormat(d->defaultDateFormat + QLatin1String(" ") + d->defaultTimeFormat);
-    d->init();
+    d->init(QDateTime(QDATETIMEEDIT_DATE_INITIAL, QDATETIMEEDIT_TIME_MIN));
 }
 
 /*!
@@ -209,9 +207,8 @@ QDateTimeEdit::QDateTimeEdit(const QDateTime &datetime, QWidget *parent)
     : QAbstractSpinBox(*new QDateTimeEditPrivate, parent)
 {
     Q_D(QDateTimeEdit);
-    d->value = datetime.isValid() ? QVariant(datetime) : QVariant(QDateTime(QDATETIMEEDIT_DATE_INITIAL, QDATETIMEEDIT_TIME_MIN));
-    setDisplayFormat(d->defaultDateFormat + QLatin1String(" ") + d->defaultTimeFormat);
-    d->init();
+    d->init(datetime.isValid() ? datetime : QDateTime(QDATETIMEEDIT_DATE_INITIAL,
+                                                      QDATETIMEEDIT_TIME_MIN));
 }
 
 /*!
@@ -225,13 +222,7 @@ QDateTimeEdit::QDateTimeEdit(const QDate &date, QWidget *parent)
     : QAbstractSpinBox(*new QDateTimeEditPrivate, parent)
 {
     Q_D(QDateTimeEdit);
-    d->value = QVariant(QDateTime(date.isValid() ? date : QDATETIMEEDIT_DATE_INITIAL, QDATETIMEEDIT_TIME_MIN));
-    setDisplayFormat(d->defaultDateFormat);
-    d->init();
-#ifdef QT_KEYPAD_NAVIGATION
-    if (QApplication::keypadNavigationEnabled())
-        setCalendarPopup(true);
-#endif
+    d->init(date.isValid() ? date : QDATETIMEEDIT_DATE_INITIAL);
 }
 
 /*!
@@ -245,13 +236,19 @@ QDateTimeEdit::QDateTimeEdit(const QTime &time, QWidget *parent)
     : QAbstractSpinBox(*new QDateTimeEditPrivate, parent)
 {
     Q_D(QDateTimeEdit);
-    d->value = QVariant(QDateTime(QDATETIMEEDIT_DATE_INITIAL, time.isValid() ? time : QDATETIMEEDIT_TIME_MIN));
-    setDisplayFormat(d->defaultTimeFormat);
-    if (d->displayFormat.isEmpty()) {
-        d->defaultDateFormat = QLatin1String("hh:mm:ss");
-        setDisplayFormat(d->defaultTimeFormat);
-    }
-    d->init();
+    d->init(time.isValid() ? time : QDATETIMEEDIT_TIME_MIN);
+}
+
+/*!
+  \internal
+*/
+
+QDateTimeEdit::QDateTimeEdit(const QVariant &var, QVariant::Type parserType, QWidget *parent)
+    : QAbstractSpinBox(*new QDateTimeEditPrivate, parent)
+{
+    Q_D(QDateTimeEdit);
+    d->parserType = parserType;
+    d->init(var);
 }
 
 QDateTime QDateTimeEdit::dateTime() const
@@ -1360,7 +1357,7 @@ void QDateTimeEdit::mousePressEvent(QMouseEvent *event)
 
 
 QTimeEdit::QTimeEdit(QWidget *parent)
-    : QDateTimeEdit(QDATETIMEEDIT_TIME_MIN, parent)
+    : QDateTimeEdit(QDATETIMEEDIT_TIME_MIN, QVariant::Time, parent)
 {
 }
 
@@ -1370,7 +1367,7 @@ QTimeEdit::QTimeEdit(QWidget *parent)
 */
 
 QTimeEdit::QTimeEdit(const QTime &time, QWidget *parent)
-    : QDateTimeEdit(time, parent)
+    : QDateTimeEdit(time, QVariant::Time, parent)
 {
 }
 
@@ -1413,7 +1410,7 @@ QTimeEdit::QTimeEdit(const QTime &time, QWidget *parent)
 */
 
 QDateEdit::QDateEdit(QWidget *parent)
-    : QDateTimeEdit(QDATETIMEEDIT_DATE_INITIAL, parent)
+    : QDateTimeEdit(QDATETIMEEDIT_DATE_INITIAL, QVariant::Date, parent)
 {
 }
 
@@ -1423,7 +1420,7 @@ QDateEdit::QDateEdit(QWidget *parent)
 */
 
 QDateEdit::QDateEdit(const QDate &date, QWidget *parent)
-    : QDateTimeEdit(date, parent)
+    : QDateTimeEdit(date, QVariant::Date, parent)
 {
 }
 
@@ -2120,8 +2117,37 @@ void QDateTimeEdit::initStyleOption(QStyleOptionSpinBox *option) const
     }
 }
 
-void QDateTimeEditPrivate::init()
+void QDateTimeEditPrivate::init(const QVariant &var)
 {
+    Q_Q(QDateTimeEdit);
+    switch (var.type()) {
+    case QVariant::Date:
+        value = QDateTime(var.toDate(), QDATETIMEEDIT_TIME_MIN);
+        q->setDisplayFormat(defaultDateFormat);
+        if (sectionNodes.isEmpty()) // ### safeguard for broken locale
+            q->setDisplayFormat(QLatin1String("dd/MM/yyyy"));
+        break;
+    case QVariant::DateTime:
+        value = var;
+        q->setDisplayFormat(defaultDateFormat + QLatin1Char(' ') + defaultTimeFormat);
+        if (sectionNodes.isEmpty()) // ### safeguard for broken locale
+            q->setDisplayFormat(QLatin1String("dd/MM/yyyy hh:mm:ss"));
+        break;
+    case QVariant::Time:
+        value = QDateTime(QDATETIMEEDIT_DATE_INITIAL, var.toTime());
+        q->setDisplayFormat(defaultTimeFormat);
+        if (sectionNodes.isEmpty()) // ### safeguard for broken locale
+            q->setDisplayFormat(QLatin1String("hh:mm:ss"));
+        break;
+    default:
+        Q_ASSERT_X(0, "QDateTimeEditPrivate::init", "Internal error");
+        break;
+    }
+#ifdef QT_KEYPAD_NAVIGATION
+    if (QApplication::keypadNavigationEnabled())
+        setCalendarPopup(true);
+#endif
+
     setLayoutItemMargins(QStyle::SE_DateTimeEditLayoutItem);
 }
 
