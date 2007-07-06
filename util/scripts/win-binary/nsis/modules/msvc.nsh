@@ -62,6 +62,7 @@ Section "${MODULE_MSVC_NAME} ${MODULE_MSVC_VERSION}" MSVC_SEC01
   call PatchMSVCBinaryFiles
 
   WriteRegStr SHCTX "SOFTWARE\Trolltech\Common\${MODULE_MSVC_VERSION}\$LICENSE_PRODUCT" "Key" "$LICENSE_KEY"
+  call MSVC_UpdateExistingVsipLicenseKeys
 
   push $0
   WriteRegStr HKCU "SOFTWARE\trolltech\Versions\${MODULE_MSVC_VERSION}\" "InstallDir" "$MSVC_INSTDIR"
@@ -130,6 +131,27 @@ Function MSVC_ValidateDirectoryFunc
   push "${MODULE_MSVC_BUILDDIR}"
   push $MSVC_INSTDIR
   call CommonCheckDirectory
+FunctionEnd
+
+Function MSVC_UpdateExistingVsipLicenseKeys
+  Push $0 ; EnumRegKey loop index
+  Push $1 ; Reg key
+  Push $2 ; StrStr result
+
+  StrCpy $0 0
+  loop:
+    EnumRegKey $1 SHCTX SOFTWARE\Trolltech $0
+    StrCmp $1 "" no_reg_key_found
+    ${StrStr} $2 $1 "Qt4VS"
+    StrCmp $2 $1 0 +1
+      WriteRegStr SHCTX "SOFTWARE\Trolltech\$2" "LicenseKey" "$LICENSE_KEY"
+    IntOp $0 $0 + 1
+    goto loop
+  no_reg_key_found:
+
+  Pop $2
+  Pop $1
+  Pop $0
 FunctionEnd
 !macroend
 
