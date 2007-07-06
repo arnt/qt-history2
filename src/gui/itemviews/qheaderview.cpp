@@ -1715,7 +1715,7 @@ void QHeaderView::initializeSections()
     Q_D(QHeaderView);
     const int oldCount = d->sectionCount;
     const int newCount = d->modelSectionCount();
-    if (newCount == 0) {
+    if (newCount <= 0) {
         d->clear();
         emit sectionCountChanged(oldCount, 0);
     } else if (newCount != oldCount) {
