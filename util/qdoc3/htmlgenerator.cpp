@@ -2232,7 +2232,7 @@ void HtmlGenerator::generateFullName(const Node *apparentNode, const Node *relat
     if ( actualNode == 0 )
         actualNode = apparentNode;
     out() << "<a href=\"" << linkForNode(actualNode, relative) << "\">";
-    out() << protect(fullName(actualNode, relative, marker));
+    out() << protect(fullName(apparentNode, relative, marker));
     out() << "</a>";
 }
 
