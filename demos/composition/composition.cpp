@@ -446,7 +446,9 @@ void CompositionRenderer::mouseReleaseEvent(QMouseEvent *)
 
 void CompositionRenderer::setCirclePos(const QPointF &pos)
 {
+    const QRect oldRect = rectangle_around(m_circle_pos).toAlignedRect();
     m_circle_pos = pos;
-    update();
+    const QRect newRect = rectangle_around(m_circle_pos).toAlignedRect();
+    update(oldRect | newRect);
 }
 
