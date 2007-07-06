@@ -637,16 +637,15 @@ void QMdiAreaPrivate::rearrange(Rearranger *rearranger)
     }
 
     QList<QWidget *> widgets;
+    const bool reverseList = rearranger->type() == Rearranger::RegularTiler;
+    const QList<QMdiSubWindow *> subWindows = subWindowList(QMdiArea::StackingOrder, reverseList);
     QSize minSubWindowSize;
-    foreach (QMdiSubWindow *child, childWindows) {
+    foreach (QMdiSubWindow *child, subWindows) {
         if (!sanityCheck(child, "QMdiArea::rearrange") || !child->isVisible())
             continue;
         if (rearranger->type() == Rearranger::IconTiler) {
-            if (child->isMinimized() && !child->isShaded()) {
+            if (child->isMinimized() && !child->isShaded())
                 widgets.append(child);
-                if (!windowStaysOnTop(child))
-                    child->lower();
-            }
         } else {
             if (child->isMinimized() && !child->isShaded())
                 continue;
@@ -654,16 +653,15 @@ void QMdiAreaPrivate::rearrange(Rearranger *rearranger)
                 child->showNormal();
             minSubWindowSize = minSubWindowSize.expandedTo(child->minimumSize());
             widgets.append(child);
-            internalRaise(child);
         }
     }
 
-    if (active) {
+    if (active && rearranger->type() == Rearranger::RegularTiler) {
+        // Move active window in front if necessary. That's the case if we
+        // have any windows with staysOnTopHint set.
         int indexToActive = widgets.indexOf((QWidget *)active);
-        if (indexToActive >= 0) {
-            widgets.move(indexToActive, widgets.size() - 1);
-            internalRaise(active);
-        }
+        if (indexToActive > 0)
+            widgets.move(indexToActive, 0);
     }
 
     QRect domain = q->viewport()->rect();
@@ -1009,6 +1007,46 @@ void QMdiAreaPrivate::scrollBarPolicyChanged(Qt::Orientation orientation, Qt::Sc
     updateScrollBars();
 }
 
+QList<QMdiSubWindow *> QMdiAreaPrivate::subWindowList(QMdiArea::WindowOrder order, bool reversed) const
+{
+    QList<QMdiSubWindow *> list;
+    if (childWindows.isEmpty())
+        return list;
+
+    if (order == QMdiArea::CreationOrder) {
+        foreach (QMdiSubWindow *child, childWindows) {
+            if (!child)
+                continue;
+            if (!reversed)
+                list.append(child);
+            else
+                list.prepend(child);
+        }
+    } else if (order == QMdiArea::StackingOrder) {
+        foreach (QObject *object, viewport->children()) {
+            QMdiSubWindow *child = qobject_cast<QMdiSubWindow *>(object);
+            if (!child || !childWindows.contains(child))
+                continue;
+            if (!reversed)
+                list.append(child);
+            else
+                list.prepend(child);
+        }
+    } else { // ActivationHistoryOrder
+        Q_ASSERT(d->indicesToActivatedChildren.size() == d->childWindows.size());
+        for (int i = d->indicesToActivatedChildren.count() - 1; i >= 0; --i) {
+            QMdiSubWindow *child = d->childWindows.at(d->indicesToActivatedChildren.at(i));
+            if (!sanityCheck(child, "QMdiArea::subWindowList"))
+                continue;
+            if (!reversed)
+                list.append(child);
+            else
+                list.prepend(child);
+        }
+    }
+    return list;
+}
+
 /*!
     \internal
 */
@@ -1234,33 +1272,7 @@ void QMdiArea::closeActiveSubWindow()
 QList<QMdiSubWindow *> QMdiArea::subWindowList(WindowOrder order) const
 {
     Q_D(const QMdiArea);
-    QList<QMdiSubWindow *> list;
-    if (d->childWindows.isEmpty())
-        return list;
-
-    if (order == CreationOrder) {
-        foreach (QMdiSubWindow *child, d->childWindows) {
-            if (!sanityCheck(child, "QMdiArea::subWindowList"))
-                continue;
-            list.append(child);
-        }
-    } else if (order == StackingOrder) {
-        QList<QMdiSubWindow *> staysOnTopChildren;
-        foreach (QObject *object, viewport()->children()) {
-            QMdiSubWindow *child = qobject_cast<QMdiSubWindow *>(object);
-            if (child && d->childWindows.contains(child))
-                list.append(child);
-        }
-    } else { // ActivationHistoryOrder
-        Q_ASSERT(d->indicesToActivatedChildren.size() == d->childWindows.size());
-        for (int i = d->indicesToActivatedChildren.count() - 1; i >= 0; --i) {
-            QMdiSubWindow *child = d->childWindows.at(d->indicesToActivatedChildren.at(i));
-            if (!sanityCheck(child, "QMdiArea::subWindowList"))
-                continue;
-            list.append(child);
-        }
-    }
-    return list;
+    return d->subWindowList(order, false);
 }
 
 /*!

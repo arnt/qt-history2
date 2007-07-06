@@ -157,6 +157,7 @@ public:
     QRect resizeToMinimumTileSize(const QSize &minSubWindowSize, int subWindowCount);
     void scrollBarPolicyChanged(Qt::Orientation, Qt::ScrollBarPolicy); // reimp
     QMdiSubWindow *nextVisibleSubWindow(int increaseFactor, int removed = -1) const;
+    QList<QMdiSubWindow *> subWindowList(QMdiArea::WindowOrder, bool reversed = false) const;
 
     inline void startResizeTimer()
     {
