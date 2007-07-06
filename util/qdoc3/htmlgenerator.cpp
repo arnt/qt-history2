@@ -789,7 +789,6 @@ void HtmlGenerator::generateClassLikeNode(const InnerNode *inner, CodeMarker *ma
     }
 
     sections = marker->sections(inner, CodeMarker::Detailed, CodeMarker::Okay);
-    sections += marker->sections(inner, CodeMarker::Detailed, CodeMarker::Compat);
     s = sections.begin();
     while ( s != sections.end() ) {
         out() << "<hr />\n";
