@@ -586,7 +586,7 @@
     <string>&amp;Statistics</string>
    </property>
    <property name="whatsThis" >
-    <string>Set whether or not to display translation statistics.</string>
+    <string>Display translation statistics.</string>
    </property>
   </action>
   <action name="actionManual" >
