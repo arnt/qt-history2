@@ -331,7 +331,6 @@ void QHeaderView::setModel(QAbstractItemModel *model)
                                 this, SLOT(headerDataChanged(Qt::Orientation,int,int)));
         QObject::disconnect(d->model, SIGNAL(layoutAboutToBeChanged()),
                             this, SLOT(_q_layoutAboutToBeChanged()));
-        QObject::disconnect(d->model, SIGNAL(layoutChanged()), this, SLOT(_q_layoutChanged()));
     }
 
     if (model && model != QAbstractItemModelPrivate::staticEmptyModel()) {
@@ -354,7 +353,6 @@ void QHeaderView::setModel(QAbstractItemModel *model)
                          this, SLOT(headerDataChanged(Qt::Orientation,int,int)));
         QObject::connect(model, SIGNAL(layoutAboutToBeChanged()),
                          this, SLOT(_q_layoutAboutToBeChanged()));
-        QObject::connect(model, SIGNAL(layoutChanged()), this, SLOT(_q_layoutChanged()));
     }
 
     d->state = QHeaderViewPrivate::NoClear;
@@ -1682,8 +1680,11 @@ void QHeaderViewPrivate::_q_layoutAboutToBeChanged()
 void QHeaderViewPrivate::_q_layoutChanged()
 {
     Q_Q(QHeaderView);
-    if (persistentHiddenSections.isEmpty())
+    if (persistentHiddenSections.isEmpty()) {
+        if (modelSectionCount() != sectionCount)
+            q->initializeSections();
         return;
+    }
     bool sectionCountChanged = false;
     for (int i = 0; i < persistentHiddenSections.count(); ++i) {
         QModelIndex index = persistentHiddenSections.at(i);
