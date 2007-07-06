@@ -2616,6 +2616,7 @@ blue green yellow * /
 
         \warning The colors specified in for stops must either be color names 
         or have the #rrggbb format i.e one cannot use the rgb or rgba notation.
+        In addition, the stops have to appear sorted in ascending order.
 
         Examples:
 
@@ -2623,7 +2624,7 @@ blue green yellow * /
             / * linear gradient from white to green * /
             QTextEdit {
                 background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
-                            stop:0 white, stop:1 green)
+                            stop:0 white, stop: 0.4 gray, stop:1 green)
             }
 
             / * conical gradient from white to green * /
