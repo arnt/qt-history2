@@ -642,7 +642,7 @@ QSize QLabelPrivate::sizeForWidth(int w) const
                 w = fm.averageCharWidth() * 80;
             else if (w < 0)
                 w = 2000;
-            w -= hextra;
+            w -= (hextra + contentsMargin.width());
             br = fm.boundingRect(0, 0, w ,2000, flags, text);
             if (tryWidth && br.height() < 4*fm.lineSpacing() && br.width() > w/2)
                 br = fm.boundingRect(0, 0, w/2, 2000, flags, text);
