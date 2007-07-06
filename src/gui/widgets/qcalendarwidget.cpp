@@ -749,6 +749,7 @@ void QCalendarTextNavigator::removeDateLabel()
     if (!m_dateFrame)
         return;
     m_acceptTimer.stop();
+    m_dateFrame->hide();
     m_dateFrame->deleteLater();
     delete m_dateValidator;
     m_dateFrame = 0;
