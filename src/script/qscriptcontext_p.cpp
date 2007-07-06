@@ -293,7 +293,7 @@ QString ScriptFunction::toString(QScriptContextPrivate *context) const
     QString str;
     QTextStream out(&str, QIODevice::WriteOnly);
     PrettyPretty pp(eng, out);
-    pp(m_definition, /*indent=*/ 1);
+    pp(m_definition, /*indent=*/ 0);
     return str;
 }
 
