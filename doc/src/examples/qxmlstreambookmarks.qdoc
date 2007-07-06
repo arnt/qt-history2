@@ -3,11 +3,10 @@
     \title QXmlStream Bookmarks Example
 
     The QXmlStream Bookmarks example provides a reader for XML Bookmark
-    Exchange Language (XbeL) files that uses Qt's QXmlStreamReader class
+    Exchange Language (XBEL) files using Qt's QXmlStreamReader class
     for reading, and QXmlStreamWriter class for writing the files.
 
     \image xmlstreamexample-screenshot.png
-    \caption QXmlStream Bookmarks Screenshot with WindowsXP
 
     \section1 XbelWriter Class Definition
 
@@ -22,29 +21,28 @@
 
     \section1 XbelWriter Class Implementation
 
-    The constructor for \c XbelWriter accepts a QTreeWidget to initialize the
-    \c treeWidget within its definition. We enable the auto-formatting
-    property of the QXmlStreamWriter to ensure the stream writer
-    automatically adds line-breaks and indentation to empty sections between
-    the elements, in the generated XML data. This increases readability as
-    data is split into several lines.
+    The \c XbelWriter constructor accepts a \a treeWidget to initialize within
+    its definition. We enable \l{QXmlStreamWriter}'s auto-formatting property
+    to ensure line-breaks and indentations are added automatically to empty
+    sections between elements, increasing readability as the data is split into
+    several lines.
 
     \quotefromfile xml/streambookmarks/xbelwriter.cpp
     \skipto XbelWriter::XbelWriter
     \printuntil /^\}/
 
     The \c writeFile() function accepts a QIODevice object and sets it using
-    \c setDevice(). This function is used to write the document type
-    definition(DTD), the start element, as well as the version. Also, it
-    writes \c{treeWidget}'s top-level items.
+    \c setDevice(). This function then writes the document type
+    definition(DTD), the start element, the version, and \c{treeWidget}'s
+    top-level items.
 
     \quotefromfile xml/streambookmarks/xbelwriter.cpp
     \skipto bool XbelWriter::writeFile
     \printuntil /^\}/
 
     The \c writeItem() function accepts a QTreeWidget object and writes it
-    to the stream. The item's \c tagName can either be a "folder", "bookmark"
-    or "separator".
+    to the stream, depending on its \c tagName, which can either be a "folder",
+    "bookmark", or "separator".
 
     \quotefromfile xml/streambookmarks/xbelwriter.cpp
     \skipto void XbelWriter::writeItem
@@ -54,7 +52,7 @@
 
     The \c XbelReader class is a subclass of QXmlStreamReader, the pendent
     class for QXmlStreamWriter. \c XbelReader contains a private instance
-    of QTreeWidget to read bookmarks according to their hierarchies.
+    of QTreeWidget to group bookmarks according to their hierarchies.
 
     \quotefromfile xml/streambookmarks/xbelreader.h
     \skipto class XbelReader
@@ -64,7 +62,7 @@
 
     The \c XbelReader constructor accepts a QTreeWidget to initialize the
     \c treeWidget within its definition. A QStyle object is used to set
-    \c{treeWidget}'s style property. \c folderIcon is set to QIcon::Normal
+    \c{treeWidget}'s style property. The \c folderIcon is set to QIcon::Normal
     mode where the pixmap is only displayed when the user is not interacting
     with the icon. The QStyle::SP_DirClosedIcon, QStyle::SP_DirOpenIcon, and
     QStyle::SP_FileIcon correspond to standard pixmaps that follow the style
@@ -78,14 +76,14 @@
     \l{QXmlStreamReader::setDevice()}{setDevice()}. The actual process
     of reading only takes place in event the file is a valid XBEL 1.0
     file. Otherwise, the \l{QXmlStreamReader::raiseError()}
-    {raiseError()} function is called with a customer error message.
+    {raiseError()} function is used to display an error message.
 
     \quotefromfile xml/streambookmarks/xbelreader.cpp
     \skipto bool XbelReader::read
     \printuntil /^\}/
 
     The \c readUnknownElement() function reads an unknown element. The
-    Q_ASSERT macro is used to provide a pre-condition for the function.
+    Q_ASSERT() macro is used to provide a pre-condition for the function.
 
     \quotefromfile xml/streambookmarks/xbelreader.cpp
     \skipto void XbelReader::readUnknownElement
@@ -116,8 +114,8 @@
 
     \section1 MainWindow Class Definition
 
-    The \c MainWindow class is a subclass of QMainWindow, with the generic
-    menu for \c File and \c Help.
+    The \c MainWindow class is a subclass of QMainWindow, with a
+    \c File menu and a \c Help menu.
 
     \quotefromfile xml/streambookmarks/mainwindow.h
     \skipto class MainWindow
@@ -129,7 +127,7 @@
     treeWidget and sets its header with a QStringList object, \c labels.
     The constructor also invokes \c createActions() and \c createMenus()
     to set up the menus and their corresponding actions. The \c statusBar()
-    is used to display a message "Ready" and the window's size is fixed
+    is used to display the message "Ready" and the window's size is fixed
     to 480x320 pixels.
 
     \quotefromfile xml/streambookmarks/mainwindow.cpp
@@ -147,8 +145,8 @@
 
     The \c saveAs() function displays a QFileDialog, prompting the user for
     a \c fileName using QFileDialog::getSaveFileName(). Similar to the
-    \c open() function, this function also displays a related warning message
-    if the file cannot be written to.
+    \c open() function, this function also displays a warning message if
+    the file cannot be written to.
 
     \quotefromfile xml/streambookmarks/mainwindow.cpp
     \skipto void MainWindow::saveAs()
@@ -163,7 +161,7 @@
 
     In order to implement the \c open(), \c saveAs(), \c exit(), \c about()
     and \c aboutQt() functions, we connect them to QAction objects and
-    add them to the \c fileMenu and \c helpMenu. The connections are done
+    add them to the \c fileMenu and \c helpMenu. The connections are as shown
     below:
 
     \quotefromfile xml/streambookmarks/mainwindow.cpp
@@ -195,5 +193,5 @@
 
     See the \l{http://pyxml.sourceforge.net/topics/xbel/}
     {XML Bookmark Exchange Language Resource Page} for more information
-    about XbeL files.
+    about XBEL files.
 */
