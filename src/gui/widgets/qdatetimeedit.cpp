@@ -2145,7 +2145,7 @@ void QDateTimeEditPrivate::init(const QVariant &var)
     }
 #ifdef QT_KEYPAD_NAVIGATION
     if (QApplication::keypadNavigationEnabled())
-        setCalendarPopup(true);
+        q->setCalendarPopup(true);
 #endif
 
     setLayoutItemMargins(QStyle::SE_DateTimeEditLayoutItem);
