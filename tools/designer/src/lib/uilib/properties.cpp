@@ -238,11 +238,13 @@ QVariant domPropertyToVariant(const DomProperty *p)
         return QVariant(QUrl(url->elementString()->text()));
     }
 
+#ifndef QT_NO_CURSOR
     case DomProperty::Cursor:
         return qVariantFromValue(QCursor(static_cast<Qt::CursorShape>(p->elementCursor())));
 
     case DomProperty::CursorShape:
         return qVariantFromValue(QCursor(enumKeyOfObjectToValue<QAbstractFormBuilderGadget, Qt::CursorShape>("cursorShape", p->elementCursorShape().toLatin1())));
+#endif
 
     case DomProperty::Locale: {
         const DomLocale *locale = p->elementLocale();
@@ -431,11 +433,13 @@ static bool applySimpleProperty(const QVariant &v, bool translateString, DomProp
     }
         return true;
 
+#ifndef QT_NO_CURSOR
     case QVariant::Cursor: {
         const QMetaEnum cursorShape_enum = metaEnum<QAbstractFormBuilderGadget>("cursorShape");
         dom_prop->setElementCursorShape(QLatin1String(cursorShape_enum.valueToKey(qvariant_cast<QCursor>(v).shape())));
         }
         return true;
+#endif
 
     case QVariant::KeySequence: {
         DomString *s = new DomString();

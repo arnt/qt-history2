@@ -349,12 +349,15 @@ bool QAbstractFormBuilder::addItem(DomWidget *ui_widget, QWidget *widget, QWidge
 
     if (QMainWindow *mw = qobject_cast<QMainWindow*>(parentWidget)) {
 
+#ifndef QT_NO_MENUBAR
         // the menubar
         if (QMenuBar *menuBar = qobject_cast<QMenuBar*>(widget)) {
             mw->setMenuBar(menuBar);
             return true;
         }
+#endif
 
+#ifndef QT_NO_TOOLBAR
         // apply the toolbar's attributes
         else if (QToolBar *toolBar = qobject_cast<QToolBar*>(widget)) {
             mw->addToolBar(toolbarAreaFromDOMAttributes(attributes), toolBar);
@@ -365,13 +368,17 @@ bool QAbstractFormBuilder::addItem(DomWidget *ui_widget, QWidget *widget, QWidge
 
             return true;
         }
+#endif
 
+#ifndef QT_NO_STATUSBAR
         // statusBar
         else if (QStatusBar *statusBar = qobject_cast<QStatusBar*>(widget)) {
             mw->setStatusBar(statusBar);
             return true;
         }
+#endif
 
+#ifndef QT_NO_DOCKWIDGET
         // apply the dockwidget's attributes
         else if (QDockWidget *dockWidget = qobject_cast<QDockWidget*>(widget)) {
             if (const DomProperty *attr = attributes.value(QLatin1String("dockWidgetArea"))) {
@@ -392,6 +399,7 @@ bool QAbstractFormBuilder::addItem(DomWidget *ui_widget, QWidget *widget, QWidge
             }
             return true;
         }
+#endif
 
         else if (! mw->centralWidget()) {
             mw->setCentralWidget(widget);
@@ -399,6 +407,7 @@ bool QAbstractFormBuilder::addItem(DomWidget *ui_widget, QWidget *widget, QWidge
         }
     }
 
+#ifndef QT_NO_TABWIDGET
     else if (QTabWidget *tabWidget = qobject_cast<QTabWidget*>(parentWidget)) {
         widget->setParent(0);
 
@@ -409,13 +418,17 @@ bool QAbstractFormBuilder::addItem(DomWidget *ui_widget, QWidget *widget, QWidge
             tabWidget->setTabIcon(tabIndex, qvariant_cast<QIcon>(toVariant(0, picon)));
         }
 
+#ifndef QT_NO_TOOLTIP
         if (const DomProperty *ptoolTip = attributes.value(QLatin1String("toolTip"))) {
             tabWidget->setTabToolTip(tabIndex, toString(ptoolTip->elementString()));
         }
+#endif
 
         return true;
     }
+#endif
 
+#ifndef QT_NO_TOOLBOX
     else if (QToolBox *toolBox = qobject_cast<QToolBox*>(parentWidget)) {
         const int tabIndex = toolBox->count();
         toolBox->addItem(widget, label);
@@ -424,27 +437,36 @@ bool QAbstractFormBuilder::addItem(DomWidget *ui_widget, QWidget *widget, QWidge
             toolBox->setItemIcon(tabIndex, qvariant_cast<QIcon>(toVariant(0, picon)));
         }
 
+#ifndef QT_NO_TOOLTIP
         if (const DomProperty *ptoolTip = attributes.value(QLatin1String("toolTip"))) {
             toolBox->setItemToolTip(tabIndex, toString(ptoolTip->elementString()));
         }
+#endif
 
         return true;
     }
+#endif
 
+#ifndef QT_NO_STACKEDWIDGET
     else if (QStackedWidget *stackedWidget = qobject_cast<QStackedWidget*>(parentWidget)) {
         stackedWidget->addWidget(widget);
         return true;
     }
+#endif
 
+#ifndef QT_NO_SPLITTER
     else if (QSplitter *splitter = qobject_cast<QSplitter*>(parentWidget)) {
         splitter->addWidget(widget);
         return true;
     }
+#endif
 
+#ifndef QT_NO_DOCKWIDGET
     else if (QDockWidget *dockWidget = qobject_cast<QDockWidget*>(parentWidget)) {
         dockWidget->setWidget(widget);
         return true;
     }
+#endif
 
     return false;
 }
@@ -1042,10 +1064,13 @@ DomWidget *QAbstractFormBuilder::createDom(QWidget *widget, DomWidget *ui_parent
 
     // splitters need to store their children in the order specified by child indexes,
     // not the order of the child list.
+#ifndef QT_NO_SPLITTER
     if (QSplitter *splitter = qobject_cast<QSplitter*>(widget)) {
         for (int i = 0; i < splitter->count(); ++i)
             children.append(splitter->widget(i));
-    } else {
+    } else
+#endif
+    {
         QList<QObject *> childObjects = widget->children();
 
         QList<QWidget *> list = qVariantValue<QWidgetList>(widget->property("_q_widgetOrder"));
@@ -1838,23 +1863,37 @@ void QAbstractFormBuilder::loadComboBoxExtraInfo(DomWidget *ui_widget, QComboBox
 */
 void QAbstractFormBuilder::loadExtraInfo(DomWidget *ui_widget, QWidget *widget, QWidget *parentWidget)
 {
-    if (QListWidget *listWidget = qobject_cast<QListWidget*>(widget)) {
+    if (0) {
+#ifndef QT_NO_LISTWIDGET
+    } else if (QListWidget *listWidget = qobject_cast<QListWidget*>(widget)) {
         loadListWidgetExtraInfo(ui_widget, listWidget, parentWidget);
+#endif
+#ifndef QT_NO_TREEWIDGET
     } else if (QTreeWidget *treeWidget = qobject_cast<QTreeWidget*>(widget)) {
         loadTreeWidgetExtraInfo(ui_widget, treeWidget, parentWidget);
+#endif
+#ifndef QT_NO_TABLEWIDGET
     } else if (QTableWidget *tableWidget = qobject_cast<QTableWidget*>(widget)) {
         loadTableWidgetExtraInfo(ui_widget, tableWidget, parentWidget);
+#endif
+#ifndef QT_NO_COMBOBOX
     } else if (QComboBox *comboBox = qobject_cast<QComboBox*>(widget)) {
         if (!qobject_cast<QFontComboBox *>(widget))
             loadComboBoxExtraInfo(ui_widget, comboBox, parentWidget);
+#endif
+#ifndef QT_NO_TABWIDGET
     } else if (QTabWidget *tabWidget = qobject_cast<QTabWidget*>(widget)) {
         DomProperty *currentIndex = propertyMap(ui_widget->elementProperty()).value(QLatin1String("currentIndex"));
         if (currentIndex)
             tabWidget->setCurrentIndex(currentIndex->elementNumber());
+#endif
+#ifndef QT_NO_STACKEDWIDGET
     } else if (QStackedWidget *stackedWidget = qobject_cast<QStackedWidget*>(widget)) {
         DomProperty *currentIndex = propertyMap(ui_widget->elementProperty()).value(QLatin1String("currentIndex"));
         if (currentIndex)
             stackedWidget->setCurrentIndex(currentIndex->elementNumber());
+#endif
+#ifndef QT_NO_TOOLBOX
     } else if (QToolBox *toolBox = qobject_cast<QToolBox*>(widget)) {
         DomProperty *currentIndex = propertyMap(ui_widget->elementProperty()).value(QLatin1String("currentIndex"));
         if (currentIndex)
@@ -1862,6 +1901,7 @@ void QAbstractFormBuilder::loadExtraInfo(DomWidget *ui_widget, QWidget *widget, 
         DomProperty *tabSpacing = propertyMap(ui_widget->elementProperty()).value(QLatin1String("tabSpacing"));
         if (tabSpacing)
             toolBox->layout()->setSpacing(tabSpacing->elementNumber());
+#endif
     }
 }
 

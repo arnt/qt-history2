@@ -111,11 +111,20 @@ QWidget *QFormBuilder::create(DomWidget *ui_widget, QWidget *parentWidget)
 {
     QFormBuilderExtra::instance(this)->setProcessingLayoutWidget(false);
     if (ui_widget->attributeClass() == QLatin1String("QWidget") && !ui_widget->hasAttributeNative()
-            && parentWidget &&
-            !qobject_cast<QMainWindow *>(parentWidget) &&
-            !qobject_cast<QToolBox *>(parentWidget) &&
-            !qobject_cast<QStackedWidget *>(parentWidget) &&
-            !qobject_cast<QTabWidget *>(parentWidget))
+            && parentWidget
+#ifndef QT_NO_MAINWINDOW
+            && !qobject_cast<QMainWindow *>(parentWidget)
+#endif
+#ifndef QT_NO_TOOLBOX
+            && !qobject_cast<QToolBox *>(parentWidget)
+#endif
+#ifndef QT_NO_STACKEDWIDGET
+            && !qobject_cast<QStackedWidget *>(parentWidget)
+#endif
+#ifndef QT_NO_STACKEDWIDGET
+            && !qobject_cast<QTabWidget *>(parentWidget)
+#endif
+            )
         QFormBuilderExtra::instance(this)->setProcessingLayoutWidget(true);
     return QAbstractFormBuilder::create(ui_widget, parentWidget);
 }
@@ -128,10 +137,18 @@ QWidget *QFormBuilder::createWidget(const QString &widgetName, QWidget *parentWi
 {
     QWidget *w = 0;
 
-    if (qobject_cast<QTabWidget*>(parentWidget)
-            || qobject_cast<QStackedWidget*>(parentWidget)
-            || qobject_cast<QToolBox*>(parentWidget))
+#ifndef QT_NO_TABWIDGET
+    if (qobject_cast<QTabWidget*>(parentWidget))
         parentWidget = 0;
+#endif
+#ifndef QT_NO_STACKEDWIDGET
+    if (qobject_cast<QStackedWidget*>(parentWidget))
+        parentWidget = 0;
+#endif
+#ifndef QT_NO_TOOLBOX
+    if (qobject_cast<QToolBox*>(parentWidget))
+        parentWidget = 0;
+#endif
 
     // ### special-casing for Line (QFrame) -- fix for 4.2
     if (widgetName == QLatin1String("Line")) {

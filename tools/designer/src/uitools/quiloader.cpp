@@ -184,7 +184,9 @@ QWidget *FormBuilderPrivate::create(DomWidget *ui_widget, QWidget *parentWidget)
     if (w == 0)
         return 0;
 
-    if (QTabWidget *tabw = qobject_cast<QTabWidget*>(w)) {
+    if (0) {
+#ifndef QT_NO_TABWIDGET
+    } else if (QTabWidget *tabw = qobject_cast<QTabWidget*>(w)) {
         const int cnt = tabw->count();
         for (int i = 0; i < cnt; ++i) {
             const QString text = QApplication::translate(m_class.toUtf8(),
@@ -194,6 +196,8 @@ QWidget *FormBuilderPrivate::create(DomWidget *ui_widget, QWidget *parentWidget)
 
             tabw->setTabText(i, text);
         }
+#endif
+#ifndef QT_NO_LISTWIDGET
     } else if (QListWidget *listw = qobject_cast<QListWidget*>(w)) {
         const int cnt = listw->count();
         for (int i = 0; i < cnt; ++i) {
@@ -204,12 +208,16 @@ QWidget *FormBuilderPrivate::create(DomWidget *ui_widget, QWidget *parentWidget)
                                                     QCoreApplication::UnicodeUTF8);
             item->setText(text);
         }
+#endif
+#ifndef QT_NO_TREEWIDGET
     } else if (QTreeWidget *treew = qobject_cast<QTreeWidget*>(w)) {
         const int cnt = treew->topLevelItemCount();
         for (int i = 0; i < cnt; ++i) {
             QTreeWidgetItem *item = treew->topLevelItem(i);
             recursiveTranslate(item, m_class);
         }
+#endif
+#ifndef QT_NO_TABLEWIDGET
     } else if (QTableWidget *tablew = qobject_cast<QTableWidget*>(w)) {
         const int row_cnt = tablew->rowCount();
         const int col_cnt = tablew->columnCount();
@@ -225,6 +233,8 @@ QWidget *FormBuilderPrivate::create(DomWidget *ui_widget, QWidget *parentWidget)
                 item->setText(text);
             }
         }
+#endif
+#ifndef QT_NO_COMBOBOX
     } else if (QComboBox *combow = qobject_cast<QComboBox*>(w)) {
         if (!qobject_cast<QFontComboBox*>(w)) {
             const int cnt = combow->count();
@@ -236,6 +246,8 @@ QWidget *FormBuilderPrivate::create(DomWidget *ui_widget, QWidget *parentWidget)
                 combow->setItemText(i, text);
             }
         }
+#endif
+#ifndef QT_NO_TOOLBOX
     } else if (QToolBox *toolw = qobject_cast<QToolBox*>(w)) {
         const int cnt = toolw->count();
         for (int i = 0; i < cnt; ++i) {
@@ -245,6 +257,7 @@ QWidget *FormBuilderPrivate::create(DomWidget *ui_widget, QWidget *parentWidget)
                                                     QCoreApplication::UnicodeUTF8);
             toolw->setItemText(i, text);
         }
+#endif
     }
 
     return w;
