@@ -47,9 +47,6 @@ private:
     void drawQuad(const QRect &textureGeometry,
                   const QRect &subGeometry,
                   const QRect &screenGeometry);
-    void drawQuadInverseY(const QRect &textureGeometry,
-                          const QRect &subTexGeometry,
-                          const QRect &screenGeometry);
     void drawQuadWavyFlag(const QRect &textureGeometry,
                           const QRect &subTexGeometry,
                           const QRect &screenGeometry,
