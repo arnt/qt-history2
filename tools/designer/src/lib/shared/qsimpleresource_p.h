@@ -54,7 +54,9 @@ public:
                                           QDesignerFormEditorInterface *core,
                                           DomWidget *ui_widget, QWidget *widget,
                                           bool applyState);
-
+    // Enable warnings while saving. Turn off for backups.
+    static bool setWarningsEnabled(bool warningsEnabled);
+    static bool warningsEnabled();
     // Return the script returned by the CustomWidget codeTemplate API
     static QString customWidgetScript(QDesignerFormEditorInterface *core, QObject *object);
     static QString customWidgetScript(QDesignerFormEditorInterface *core, const QString &className);
@@ -74,6 +76,7 @@ protected:
     static void addScript(const QString &script, ScriptSource source, DomScripts &domScripts);
 
 private:
+    static bool m_warningsEnabled;
     QDesignerFormEditorInterface *m_core;
 };
 

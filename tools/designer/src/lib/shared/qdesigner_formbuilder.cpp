@@ -261,7 +261,10 @@ QWidget *QDesignerFormBuilder::createPreview(const QDesignerFormWindowInterface 
     QDesignerFormBuilder builder(fw->core(), UseScriptAndContainerExtension);
     builder.setWorkingDirectory(fw->absoluteDir());
 
+    const bool warningsEnabled = QSimpleResource::setWarningsEnabled(false);
     QByteArray bytes = fw->contents().toUtf8();
+    QSimpleResource::setWarningsEnabled(warningsEnabled);
+
     QBuffer buffer(&bytes);
 
     QWidget *widget = builder.load(&buffer, 0);

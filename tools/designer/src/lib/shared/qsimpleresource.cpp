@@ -39,6 +39,8 @@ namespace {
 
 namespace qdesigner_internal {
 
+bool QSimpleResource::m_warningsEnabled = true;
+
 QSimpleResource::QSimpleResource(QDesignerFormEditorInterface *core) :
     QAbstractFormBuilder(),
     m_core(core)
@@ -276,6 +278,19 @@ QString QSimpleResource::customWidgetScript(QDesignerFormEditorInterface *core, 
         return it.value();
     return QString();
 }
+
+bool QSimpleResource::setWarningsEnabled(bool warningsEnabled)
+{
+    const bool rc = m_warningsEnabled;
+    m_warningsEnabled = warningsEnabled;
+    return rc;
+}
+
+bool QSimpleResource::warningsEnabled()
+{
+    return m_warningsEnabled;
+}
+
 // ------------ FormBuilderClipboard
 
 FormBuilderClipboard::FormBuilderClipboard(QWidget *w)

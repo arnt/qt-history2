@@ -124,7 +124,7 @@ void QDesignerResource::save(QIODevice *dev, QWidget *widget)
 
     QAbstractFormBuilder::save(dev, widget);
 
-    if (m_topLevelSpacerCount != 0) {
+    if (QSimpleResource::warningsEnabled() && m_topLevelSpacerCount != 0) {
         QMessageBox::warning(widget->window(), QApplication::translate("Designer", "Qt Designer"),
                QApplication::translate("Designer", "This file contains top level spacers.<br>"
                            "They have <b>NOT</b> been saved into the form.<br>"

@@ -31,6 +31,7 @@
 #include <qdesigner_formbuilder_p.h>
 #include <qdesigner_utils_p.h>
 #include <iconloader_p.h>
+#include <qsimpleresource_p.h>
 // sdk
 #include <QtDesigner/QDesignerFormEditorInterface>
 #include <QtDesigner/QDesignerFormWindowInterface>
@@ -1176,6 +1177,7 @@ void QDesignerActions::backupForms()
     QStringList tmpFiles;
     QMap<QString, QString> backupMap;
     QDir backupDir(m_backupPath);
+    const bool warningsEnabled = qdesigner_internal::QSimpleResource::setWarningsEnabled(false);
     for (int i = 0; i < count; ++i) {
         QDesignerFormWindow *fw = m_workbench->formWindow(i);
         QDesignerFormWindowInterface *fwi = fw->editor();
@@ -1202,7 +1204,7 @@ void QDesignerActions::backupForms()
             file.close();
         }
     }
-
+    qdesigner_internal::QSimpleResource::setWarningsEnabled(warningsEnabled);
     if(!tmpFiles.isEmpty()) {
         const QStringList backupFiles = backupDir.entryList(QDir::Files);
         if(!backupFiles.isEmpty()) {
