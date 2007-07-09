@@ -319,19 +319,23 @@ QWSCalibratedMouseHandler::QWSCalibratedMouseHandler(const QString &, const QStr
 }
 
 /*!
+    Fills \a cd with the device coordinates corresponding to the given
+    screen coordinates.
+
     \internal
 */
 void QWSCalibratedMouseHandler::getCalibration(QWSPointerCalibrationData *cd) const
 {
-    QPoint screen_tl = cd->screenPoints[QWSPointerCalibrationData::TopLeft];
-    QPoint screen_br = cd->screenPoints[QWSPointerCalibrationData::BottomRight];
-
-    int tlx = (s * screen_tl.x() - c) / a;
-    int tly = (s * screen_tl.y() - f) / e;
-    cd->devPoints[QWSPointerCalibrationData::TopLeft] = QPoint(tlx,tly);
-    cd->devPoints[QWSPointerCalibrationData::BottomRight] =
-        QPoint(tlx - (s * (screen_tl.x() - screen_br.x()) / a),
-                tly - (s * (screen_tl.y() - screen_br.y()) / e));
+    const qint64 scale = qint64(a) * qint64(e) - qint64(b) * qint64(d);
+    const qint64 xOff = qint64(b) * qint64(f) - qint64(c) * qint64(e);
+    const qint64 yOff = qint64(c) * qint64(d) - qint64(a) * qint64(f);
+    for (int i = 0; i <= QWSPointerCalibrationData::LastLocation; ++i) {
+        const qint64 sX = cd->screenPoints[i].x();
+        const qint64 sY = cd->screenPoints[i].y();
+        const qint64 dX = (s*(e*sX - b*sY) + xOff) / scale;
+        const qint64 dY = (s*(a*sY - d*sX) + yOff) / scale;
+        cd->devPoints[i] = QPoint(dX, dY);
+    }
 }
 
 /*!
