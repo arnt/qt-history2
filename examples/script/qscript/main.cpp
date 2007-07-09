@@ -21,8 +21,25 @@
 
 #include <stdlib.h>
 
+static bool wantsToQuit;
+
+static QScriptValue qtscript_quit(QScriptContext *ctx, QScriptEngine *eng)
+{
+    Q_UNUSED(ctx);
+    wantsToQuit = true;
+    return eng->undefinedValue();
+}
+
 static void interactive(QScriptEngine &eng)
 {
+    QScriptValue global = eng.globalObject();
+    QScriptValue quitFunction = eng.newFunction(qtscript_quit);
+    if (!global.property(QLatin1String("exit")).isValid())
+        global.setProperty(QLatin1String("exit"), quitFunction);
+    if (!global.property(QLatin1String("quit")).isValid())
+        global.setProperty(QLatin1String("quit"), quitFunction);
+    wantsToQuit = false;
+
     QTextStream qin(stdin, QFile::ReadOnly);
 
     const char *qscript_prompt = "qs> ";
@@ -58,6 +75,9 @@ static void interactive(QScriptEngine &eng)
 
             if (! result.isUndefined())
                 fprintf(stderr, "%s\n", qPrintable(result.toString()));
+
+            if (wantsToQuit)
+                break;
         }
     }
 }
@@ -81,7 +101,6 @@ int main(int argc, char *argv[])
     eng.importExtension("qt.gui");
     eng.importExtension("qt.xml");
 
-    QScriptValue globalObject = eng.globalObject();
 
     {
         QScriptValue qscript = eng.newObject();
