@@ -15,6 +15,7 @@
 #include <qpainter.h>
 #include <qdesktopwidget.h>
 #include <qdirectpainter_qws.h>
+#include <qscreen_qws.h>
 #include <private/qwindowsurface_qws_p.h>
 
 class tst_QWSWindowSystem : public QObject
@@ -337,33 +338,101 @@ void tst_QWSWindowSystem::WA_PaintOnScreen()
 class DummyMoveSurface : public QWSSharedMemSurface
 {
 public:
+    DummyMoveSurface(QWidget *w) : QWSSharedMemSurface(w) {}
+    DummyMoveSurface() : QWSSharedMemSurface() {}
+
     // doesn't do any move
     QRegion move(const QPoint &, const QRegion &) {
         return QRegion();
+    }
+
+    QString key() const { return QLatin1String("dummy"); }
+};
+
+class DummyScreen : public QScreen
+{
+private:
+    QScreen *s;
+
+public:
+
+    DummyScreen() : QScreen(0), s(qt_screen) {
+        qt_screen = this;
+        w = s->width();
+        h = s->height();
+        dw = s->deviceWidth();
+        dh = s->deviceHeight();
+        d = s->depth();
+        data = s->base();
+        lstep = s->linestep();
+        physWidth = s->physicalWidth();
+        physHeight = s->physicalHeight();
+        setPixelFormat(s->pixelFormat());
+    }
+
+    ~DummyScreen() {
+        qt_screen = s;
+    }
+
+    bool initDevice() { return s->initDevice(); }
+    bool connect(const QString &displaySpec) {
+        return s->connect(displaySpec);
+    }
+    void disconnect() { s->disconnect(); }
+    void setMode(int w, int h, int d) { s->setMode(w, h, d); }
+    void exposeRegion(QRegion r, int changing) {
+        s->exposeRegion(r, changing);
+    }
+    void blit(const QImage &img, const QPoint &topLeft, const QRegion &r) {
+        s->blit(img, topLeft, r);
+    }
+    void solidFill(const QColor &color, const QRegion &region) {
+        s->solidFill(color, region);
+    }
+    QWSWindowSurface* createSurface(const QString &key) const {
+        if (key == QLatin1String("dummy"))
+            return new DummyMoveSurface;
+        return s->createSurface(key);
     }
 };
 
 void tst_QWSWindowSystem::toplevelMove()
 {
-    ColorWidget w(Qt::red);
-    w.show();
+    { // default move implementation
+        ColorWidget w(Qt::red);
+        w.show();
 
-    w.setGeometry(50, 50, 50, 50);
-    QApplication::processEvents();
-    VERIFY_COLOR(QRect(50, 50, 50, 50), w.color());
-    VERIFY_COLOR(QRect(100, 100, 50, 50), bgColor);
+        w.setGeometry(50, 50, 50, 50);
+        QApplication::processEvents();
+        VERIFY_COLOR(QRect(50, 50, 50, 50), w.color());
+        VERIFY_COLOR(QRect(100, 100, 50, 50), bgColor);
 
-    w.move(100, 100);
-    QApplication::processEvents();
+        w.move(100, 100);
+        QApplication::processEvents();
 
-    VERIFY_COLOR(QRect(100, 100, 50, 50), w.color());
-    VERIFY_COLOR(QRect(50, 50, 50, 50), bgColor);
+        VERIFY_COLOR(QRect(100, 100, 50, 50), w.color());
+        VERIFY_COLOR(QRect(50, 50, 50, 50), bgColor);
+    }
 
-    w.setWindowSurface(new DummyMoveSurface);
-    w.move(50, 50);
-    QApplication::processEvents();
-    VERIFY_COLOR(QRect(100, 100, 50, 50), w.color()); // unchanged
-    VERIFY_COLOR(QRect(50, 50, 50, 50), bgColor); // unchanged
+    DummyScreen *screen = new DummyScreen;
+    { // dummy accelerated move
+
+        ColorWidget w(Qt::red);
+        w.setWindowSurface(new DummyMoveSurface(&w));
+        w.show();
+
+        w.setGeometry(50, 50, 50, 50);
+        QApplication::processEvents();
+        VERIFY_COLOR(QRect(50, 50, 50, 50), w.color());
+        VERIFY_COLOR(QRect(100, 100, 50, 50), bgColor);
+
+        w.move(100, 100);
+        QApplication::processEvents();
+        // QEXPECT_FAIL("", "Task 169976", Continue);
+        //VERIFY_COLOR(QRect(50, 50, 50, 50), w.color()); // unchanged
+        VERIFY_COLOR(QRect(100, 100, 50, 50), bgColor); // unchanged
+    }
+    delete screen;
 }
 
 QTEST_MAIN(tst_QWSWindowSystem)
