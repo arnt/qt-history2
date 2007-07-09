@@ -525,6 +525,8 @@ void QTextEditPrivate::ensureViewportLayouted()
         when the property is set. If the text edit has another content
         type, it will not be replaced by plain text when you call
         toPlainText().
+
+		\sa html
 */
 
 /*!
@@ -1086,7 +1088,7 @@ void QTextEdit::setPlainText(const QString &text)
 
     Note that the undo/redo history is cleared by calling setHtml().
 
-    \sa {Supported HTML Subset}
+    \sa {Supported HTML Subset}, plainText
 */
 
 void QTextEdit::setHtml(const QString &text)
