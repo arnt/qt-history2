@@ -70,6 +70,7 @@ void tst_Selftests::runSubTest_data()
 
     QTest::newRow("waitwithoutgui") << "waitwithoutgui";
     QTest::newRow("differentexec") << "differentexec";
+    QTest::newRow("exception") << "exception";
     QTest::newRow("qexecstringlist") << "qexecstringlist";
 }
 

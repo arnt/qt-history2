@@ -1160,13 +1160,13 @@ char *toHexRepresentation(const char *ba, int length)
 */
 int QTest::qExec(QObject *testObject, int argc, char **argv)
 {
-// #ifndef QT_NO_EXCEPTIONS
-//     try {
-// #endif
+ #ifndef QT_NO_EXCEPTIONS
+     try {
+ #endif
 
-// #if defined(Q_OS_WIN)
-//     SetErrorMode(SetErrorMode(0) | SEM_NOGPFAULTERRORBOX);
-// #endif
+ #if defined(Q_OS_WIN)
+     SetErrorMode(SetErrorMode(0) | SEM_NOGPFAULTERRORBOX);
+ #endif
 
     QTestResult::reset();
 
@@ -1223,22 +1223,22 @@ int QTest::qExec(QObject *testObject, int argc, char **argv)
     QTestResult::setCurrentTestFunction(0);
     QTestTable::clearGlobalTestTable();
 
-// #ifndef QT_NO_EXCEPTIONS
-//     } catch (...) {
-//         QTestResult::addFailure("Caught unhandled exception", __FILE__, __LINE__);
-//         if (QTestResult::currentTestFunction()) {
-//             QTestResult::finishedCurrentTestFunction();
-//             QTestResult::setCurrentTestFunction(0);
-//         }
+ #ifndef QT_NO_EXCEPTIONS
+     } catch (...) {
+         QTestResult::addFailure("Caught unhandled exception", __FILE__, __LINE__);
+         if (QTestResult::currentTestFunction()) {
+             QTestResult::finishedCurrentTestFunction();
+             QTestResult::setCurrentTestFunction(0);
+         }
 
-//         QTestLog::stopLogging();
-// #ifdef Q_OS_WIN
-//         // rethrow exception to make debugging easier
-//         throw;
-// #endif
-//         return -1;
-//     }
-// #endif
+         QTestLog::stopLogging();
+ #ifdef Q_OS_WIN
+         // rethrow exception to make debugging easier
+         throw;
+ #endif
+         return -1;
+     }
+ #endif
 
     QTestLog::stopLogging();
     currentTestObject = 0;
