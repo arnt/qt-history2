@@ -3309,8 +3309,18 @@ void QWSServerPrivate::moveWindowRegion(QWSWindow *changingw, int dx, int dy)
     update_regions();
     const QRegion newRegion(changingw->allocatedRegion());
 
+    QWSWindowSurface *surface = changingw->windowSurface();
+    QRegion expose;
+    if (surface) {
+        const QPoint topLeft = changingw->requestedRegion().boundingRect().topLeft();
+        surface->setGeometry(changingw->requestedRegion().boundingRect());
+        expose = surface->move(QPoint(dx, dy),
+                               changingw->allocatedRegion().translated(-topLeft));
+    } else {
+        expose = oldRegion + newRegion;
+    }
     int idx = windows.indexOf(changingw);
-    exposeRegion(oldRegion + newRegion, idx);
+    exposeRegion(expose, idx);
     changingw->d->state = oldState;
 }
 
