@@ -30,6 +30,11 @@ General Improvements
     * [163000] Fixed bug on unix where PrintSelection option would not be
                enabled unless PrintPageRange was enabled.
 
+- QApplication
+	Windows only:
+	* [166677] Fixed an issue with alert() where windows would keep flashing 
+			   after beeing activated by the user.
+
 - QGLWidget
     * [162085] X11 only: Fixed usage of QGLWidget on multiple X11 screens.
     * [164707] X11 only: Fixed the transparent overlay color usage to make
@@ -44,6 +49,10 @@ General Improvements
 
 - QImage
     * [163727] Fixed artifacts in scaled images when using Qt::FastTransformation.
+
+- QMenu
+	* [166652] Fixed a regression where context menus could not be triggered with
+			   the right mouse button.
 
 - QOpenGLPaintEngine
     * [166087] Fixed a memory leak caused by not releasing GL program handles
@@ -66,6 +75,9 @@ General Improvements
     * [168623] Fixed drawing of gradients with projective transformations.
     * [167891] Fixed an assert in QBezier::shifted() that occured when
 	       drawing certain paths.
+
+- QPlastiqueStyle
+	* [167145] Fixed a regression with combo and spin box text margins.
 
 - QPrintDialog
     X11 only:
@@ -102,7 +114,6 @@ General Improvements
 	       circumstances when QPainter::fillRect() was called.
     * [159538] Fixed drawing of a mono image into another mono image.
 
-
 - QRegion
     * [167445] Removed potential assert in QRegion::operator^ on unix.
 
@@ -131,6 +142,13 @@ General Improvements
 
 - QWidget
     * [165177] Fixed crash when deleting a focus widget from a window with a non-null parent.
+
+- QWindowsVistaStyle
+	* [162730] Fixed incorrect font for item views on Windows Vista.
+	* [157324] More native appearence for indeterminate progress bars.
+
+- QWindowsXPStyle
+	* [132695] Fixed a crash issue occuring after multiple system theme changes.
 
 - QWizard
     * [159684] AeroStyle: Fixed bug causing the minimum height to be set too low.
