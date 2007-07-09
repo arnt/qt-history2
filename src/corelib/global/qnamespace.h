@@ -966,7 +966,7 @@ public:
     };
 #endif // Q_OS_MAC
 
-#if defined(Q_OS_WIN)
+#if defined(Q_OS_WIN) || defined(Q_OS_CYGWIN)
 #ifndef qdoc
     typedef int WindowsVersion;
 

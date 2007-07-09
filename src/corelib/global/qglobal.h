@@ -1108,7 +1108,7 @@ public:
 #else
 #  error "Qt not configured correctly, please run configure"
 #endif
-#ifdef Q_WS_WIN
+#if defined(Q_WS_WIN) || defined(Q_OS_CYGWIN)
     enum WinVersion {
         WV_32s      = 0x0001,
         WV_95       = 0x0002,
@@ -1170,7 +1170,7 @@ inline QT3_SUPPORT bool qSysInfo(int *wordSize, bool *bigEndian)
 }
 #endif
 
-#if defined(Q_WS_WIN)
+#if defined(Q_WS_WIN) || defined(Q_OS_CYGWIN)
 #if defined(QT3_SUPPORT)
 inline QT3_SUPPORT bool qt_winUnicode() { return !(QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based); }
 inline QT3_SUPPORT int qWinVersion() { return QSysInfo::WindowsVersion; }

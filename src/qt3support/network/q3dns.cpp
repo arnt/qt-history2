@@ -13,7 +13,7 @@
 
 #include "qplatformdefs.h"
 #include "qbytearray.h"
-#ifdef Q_OS_WIN32
+#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN) 
 # include "qt_windows.h"
 #else
 # include <sys/types.h>
