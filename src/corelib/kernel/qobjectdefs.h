@@ -41,6 +41,7 @@ class QByteArray;
 # define Q_SLOTS
 # define Q_SIGNALS protected
 # define Q_PRIVATE_SLOT(d, signature)
+# define Q_EMIT
 #ifndef QT_NO_EMIT
 # define emit
 #endif
