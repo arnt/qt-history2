@@ -3313,7 +3313,6 @@ void QWSServerPrivate::moveWindowRegion(QWSWindow *changingw, int dx, int dy)
     QRegion expose;
     if (surface) {
         const QPoint topLeft = changingw->requestedRegion().boundingRect().topLeft();
-        surface->setGeometry(changingw->requestedRegion().boundingRect());
         expose = surface->move(QPoint(dx, dy),
                                changingw->allocatedRegion().translated(-topLeft));
     } else {
@@ -3670,6 +3669,7 @@ void QWSServerPrivate::request_region(int wid, const QString &surfaceKey,
     }
 
     setWindowRegion(changingw, r);
+    surface->QWindowSurface::setGeometry(r.boundingRect());
 
     Q_Q(QWSServer);
 
