@@ -2642,7 +2642,7 @@ blue green yellow * /
 
     \row
         \o \bold Length \target Length
-        \o \l{#Number}{Number} (\c px | \c em | \c ex)?
+        \o \l{#Number}{Number} (\c px | \c pt | \c em | \c ex)?
         \o A number followed by a measurement unit. The supported
            units are:
 
