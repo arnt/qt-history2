@@ -1853,6 +1853,9 @@ if [ "$CFG_EMBEDDED" != "no" ]; then
             XPLATFORM="qws/linux-$CFG_EMBEDDED-g++"
         fi
         ;;
+    CYGWIN*:*)
+	CFG_EMBEDDED=x86
+	;;
     *)
         echo "Qtopia Core is not supported on this platform. Disabling."
         CFG_EMBEDDED=no
