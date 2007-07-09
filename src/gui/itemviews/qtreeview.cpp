@@ -1260,8 +1260,8 @@ void QTreeView::drawTree(QPainter *painter, const QRegion &region) const
             d->spanning = viewItems.at(i).spanning;
             if (!multipleRects || !drawn.contains(i)) {
                 drawRow(painter, option, viewItems.at(i).index);
-                if (multipleRects && area.contains(option.rect))
-                    drawn.append(i);
+                if (multipleRects)   // even if the rect only intersects the item,
+                    drawn.append(i); // the entire item will be painted
             }
             y += itemHeight;
         }
