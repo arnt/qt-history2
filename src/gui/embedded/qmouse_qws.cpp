@@ -152,11 +152,6 @@ public:
 */
 
 /*!
-    \fn virtual void QWSMouseHandler::getCalibration(QWSPointerCalibrationData *) const
-    \internal
-*/
-
-/*!
     \fn const QPoint &QWSMouseHandler::pos() const
 
     Returns the current mouse position.
