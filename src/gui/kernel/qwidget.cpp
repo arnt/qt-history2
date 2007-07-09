@@ -1157,6 +1157,10 @@ QWidget::~QWidget()
 
     clearFocus();
 
+#ifdef Q_WIDGET_CACHE_OPAQUEREGIONS
+     d->setDirtyOpaqueRegion();
+#endif
+
     if (isWindow() && isVisible() && internalWinId())
         hide();
 
