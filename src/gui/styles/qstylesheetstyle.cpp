@@ -444,6 +444,8 @@ QRenderRule::QRenderRule(const QVector<Declaration> &declarations, const QWidget
                    int hint;
                    if (QString(styleHint).endsWith(QLatin1String("alignment"))) {
                        hint = (int) decl.alignmentValue();
+                   } else if (QString(styleHint).endsWith(QLatin1String("color"))) {
+                       hint = (int) decl.colorValue().rgba();
                    } else {
                        decl.intValue(&hint);
                    }
