@@ -678,25 +678,25 @@ void tst_QFiledialog::enableChooseButton()
 }
 
 typedef QString (*_qt_filedialog_existing_directory_hook)(QWidget *parent, const QString &caption, const QString &dir, QFileDialog::Options options);
-extern _qt_filedialog_existing_directory_hook qt_filedialog_existing_directory_hook;
+extern Q_GUI_EXPORT _qt_filedialog_existing_directory_hook qt_filedialog_existing_directory_hook;
 QString existing(QWidget *, const QString &, const QString &, QFileDialog::Options) {
     return "dir";
 }
 
 typedef QString (*_qt_filedialog_open_filename_hook)(QWidget * parent, const QString &caption, const QString &dir, const QString &filter, QString *selectedFilter, QFileDialog::Options options);
-extern _qt_filedialog_open_filename_hook qt_filedialog_open_filename_hook;
+extern Q_GUI_EXPORT _qt_filedialog_open_filename_hook qt_filedialog_open_filename_hook;
 QString openName(QWidget *, const QString &, const QString &, const QString &, QString *, QFileDialog::Options) {
     return "openName";
 }
 
 typedef QStringList (*_qt_filedialog_open_filenames_hook)(QWidget * parent, const QString &caption, const QString &dir, const QString &filter, QString *selectedFilter, QFileDialog::Options options);
-extern _qt_filedialog_open_filenames_hook qt_filedialog_open_filenames_hook;
+extern Q_GUI_EXPORT _qt_filedialog_open_filenames_hook qt_filedialog_open_filenames_hook;
 QStringList openNames(QWidget *, const QString &, const QString &, const QString &, QString *, QFileDialog::Options) {
     return QStringList("openNames");
 }
 
 typedef QString (*_qt_filedialog_save_filename_hook)(QWidget * parent, const QString &caption, const QString &dir, const QString &filter, QString *selectedFilter, QFileDialog::Options options);
-extern _qt_filedialog_save_filename_hook qt_filedialog_save_filename_hook;
+extern Q_GUI_EXPORT _qt_filedialog_save_filename_hook qt_filedialog_save_filename_hook;
 QString saveName(QWidget *, const QString &, const QString &, const QString &, QString *, QFileDialog::Options) {
     return "saveName";
 }
