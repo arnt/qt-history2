@@ -227,7 +227,8 @@
     Qt 4; you must write \c Qt::yellow or add the "using namespace"
     directive and drop the \c Qt:: prefix.
 
-    The \l qt3to4.html porting tool automates this conversion.
+    The \l{qt3to4 - The Qt 3 to 4 Porting Tool}{qt3to4} porting tool
+    automates this conversion.
 
     \section1 QObject/QWidget Constructors
 
@@ -432,7 +433,6 @@
   Dock widgets occupying the same area can now be arranged in horizontal,
   vertical or collapsible tabs. Collapsible tabs are oriented according to
   the location of dock widgets around the main window's central area.
-  suitable
 
   \raw HTML
   <table align="center" width="80%">

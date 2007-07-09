@@ -531,7 +531,7 @@
         qApp->setStyleSheet("QGroupBox { color: red; } ");
     \endcode
 
-    The QPushButton does not have an explcit color set. Hence, instead
+    The QPushButton does not have an explicit color set. Hence, instead
     of inheriting color of its parent QGroupBox, it has the sytem color.
     If we want to set the color on a QGroupBox and its children, 
     we can write:

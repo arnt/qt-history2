@@ -3923,7 +3923,7 @@ QString& QString::fill(QChar ch, int size)
 
     Returns true if \a s1 is not equal to \a s2; otherwise returns false.
 
-    For \a s1 != 0, this is equivalent to \c {compare(\a s1, \a s2) !=
+    For \a s1 != 0, this is equivalent to \c {compare(} \a s1, \a s2 \c {) !=
     0}. Note that no string is equal to \a s1 being 0.
 
     \sa QString::compare()
