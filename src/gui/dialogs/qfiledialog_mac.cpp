@@ -399,6 +399,10 @@ QString qt_mac_get_save_file_name(const QFileDialogArgs &args, QString *pwd,
                                                             wclass == kFloatingWindowClass || wclass == kMovableModalWindowClass)) {
             options.modality = kWindowModalityWindowModal;
             options.parentWindow = qt_mac_window_for(parent);
+
+            // The parent needs to be active for the sheet to get keyboard focus.
+            if (!parent->isActiveWindow())
+                parent->activateWindow();
         } else {
             parent = parent->window();
             QString s = parent->windowTitle();
