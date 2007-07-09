@@ -707,12 +707,21 @@ void QSortFilterProxyModelPrivate::source_items_removed(
     int delta_item_count = end - start + 1;
     source_to_proxy.remove(start, delta_item_count);
 
-    // Adjust "stale" indexes in proxy-to-source mapping
     int proxy_count = proxy_to_source.size();
+    if (proxy_count > source_to_proxy.size()) {
+        // mapping is in an inconsistent state -- redo the whole mapping
+        qWarning("QSortFilterProxyModel: inconsistent changes reported by source model");
+        remove_from_mapping(source_parent);
+        return;
+    }
+
+    // Adjust "stale" indexes in proxy-to-source mapping
     for (int proxy_item = 0; proxy_item < proxy_count; ++proxy_item) {
         int source_item = proxy_to_source.at(proxy_item);
-        if (source_item >= start)
+        if (source_item >= start) {
+            Q_ASSERT(source_item - delta_item_count >= 0);
             proxy_to_source.replace(proxy_item, source_item - delta_item_count);
+        }
     }
     build_source_to_proxy_mapping(proxy_to_source, source_to_proxy);
 

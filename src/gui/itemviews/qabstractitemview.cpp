@@ -40,6 +40,7 @@ QAbstractItemViewPrivate::QAbstractItemViewPrivate()
         selectionModel(0),
         selectionMode(QAbstractItemView::ExtendedSelection),
         selectionBehavior(QAbstractItemView::SelectItems),
+        currentlyCommittingEditor(0),
         pressedModifiers(Qt::NoModifier),
         pressedPosition(QPoint(-1, -1)),
         state(QAbstractItemView::NoState),
@@ -2371,15 +2372,17 @@ void QAbstractItemView::closeEditor(QWidget *editor, QAbstractItemDelegate::EndE
 void QAbstractItemView::commitData(QWidget *editor)
 {
     Q_D(QAbstractItemView);
-    if (!editor || !d->itemDelegate)
+    if (!editor || !d->itemDelegate || d->currentlyCommittingEditor)
         return;
     QModelIndex index = d->indexForEditor(editor);
     if (!index.isValid())
         return;
+    d->currentlyCommittingEditor = editor;
     QAbstractItemDelegate *delegate = d->delegateForIndex(index);
     editor->removeEventFilter(delegate);
     delegate->setModelData(editor, d->model, index);
     editor->installEventFilter(delegate);
+    d->currentlyCommittingEditor = 0;
 }
 
 /*!

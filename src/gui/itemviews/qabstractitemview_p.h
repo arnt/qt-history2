@@ -269,6 +269,7 @@ public:
 
     _q_abstractitemview_editor_container editors;
     QList<QWidget*> persistent;
+    QWidget *currentlyCommittingEditor;
 
     QPersistentModelIndex enteredIndex;
     QPersistentModelIndex pressedIndex;
