@@ -961,8 +961,6 @@ void QMdiSubWindowPrivate::updateGeometryConstraints()
         else
             resizeEnabled = true;
     }
-    if (q->layout())
-        q->layout()->invalidate();
     updateDirtyRegions();
 }
 
