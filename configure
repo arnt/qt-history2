@@ -3513,9 +3513,10 @@ if true; then ###[ '!' -f "$outpath/bin/qmake" ];
         if [ "$PLATFORM_MAC" = "yes" ]; then
             echo "export MACOSX_DEPLOYMENT_TARGET = 10.3" >>"$mkfile"
             echo "CARBON_LFLAGS =-framework ApplicationServices" >>"$mkfile"
+            echo "CARBON_CFLAGS =-fconstant-cfstrings" >>"$mkfile"
             EXTRA_LFLAGS="$EXTRA_LFLAGS \$(CARBON_LFLAGS)"
             EXTRA_CFLAGS="$EXTRA_CFLAGS \$(CARBON_CFLAGS)"
-            EXTRA_CXXFLAGS="$EXTRA_CFLAGS \$(CARBON_CXXFLAGS)"
+            EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS \$(CARBON_CFLAGS)"
             EXTRA_OBJS="qsettings_mac.o qcore_mac.o"
             EXTRA_SRCS="\"$relpath/src/corelib/io/qsettings_mac.cpp\" \"$relpath/src/corelib/kernel/qcore_mac.cpp\""
 	    if echo "$CFG_MAC_ARCHS" | grep x86 > /dev/null 2>&1; then
