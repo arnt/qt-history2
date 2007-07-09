@@ -34,6 +34,7 @@ private slots:
     void setMaxWindowRect();
     void initialGeometry();
     void WA_PaintOnScreen();
+    void toplevelMove();
 
 private:
     QWSWindow* getWindow(int windId);
@@ -331,6 +332,38 @@ void tst_QWSWindowSystem::WA_PaintOnScreen()
     w.setGeometry(rect);
     QApplication::processEvents();
     VERIFY_COLOR(rect, QColor(Qt::red));
+}
+
+class DummyMoveSurface : public QWSSharedMemSurface
+{
+public:
+    // doesn't do any move
+    QRegion move(const QPoint &, const QRegion &) {
+        return QRegion();
+    }
+};
+
+void tst_QWSWindowSystem::toplevelMove()
+{
+    ColorWidget w(Qt::red);
+    w.show();
+
+    w.setGeometry(50, 50, 50, 50);
+    QApplication::processEvents();
+    VERIFY_COLOR(QRect(50, 50, 50, 50), w.color());
+    VERIFY_COLOR(QRect(100, 100, 50, 50), bgColor);
+
+    w.move(100, 100);
+    QApplication::processEvents();
+
+    VERIFY_COLOR(QRect(100, 100, 50, 50), w.color());
+    VERIFY_COLOR(QRect(50, 50, 50, 50), bgColor);
+
+    w.setWindowSurface(new DummyMoveSurface);
+    w.move(50, 50);
+    QApplication::processEvents();
+    VERIFY_COLOR(QRect(100, 100, 50, 50), w.color()); // unchanged
+    VERIFY_COLOR(QRect(50, 50, 50, 50), bgColor); // unchanged
 }
 
 QTEST_MAIN(tst_QWSWindowSystem)
