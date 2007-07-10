@@ -419,8 +419,7 @@ void QFileDialog::changeEvent(QEvent *e)
 {
     Q_D(QFileDialog);
     if (e->type() == QEvent::LanguageChange) {
-        if (d->useDefaultCaption)
-            d->retranslateWindowTitle();
+        d->retranslateWindowTitle();
         d->retranslateStrings();
     }
     QDialog::changeEvent(e);
@@ -429,12 +428,15 @@ void QFileDialog::changeEvent(QEvent *e)
 void QFileDialogPrivate::retranslateWindowTitle()
 {
     Q_Q(QFileDialog);
+    if (!useDefaultCaption || setWindowTitle != q->windowTitle())
+        return;
     if (fileMode == QFileDialog::ExistingFiles || fileMode == QFileDialog::ExistingFile)
         q->setWindowTitle(QFileDialog::tr("Open"));
     if (fileMode == QFileDialog::AnyFile)
         q->setWindowTitle(QFileDialog::tr("Save As"));
     if (fileMode == QFileDialog::DirectoryOnly || fileMode == QFileDialog::Directory)
         q->setWindowTitle(QFileDialog::tr("Find Directory"));
+    setWindowTitle = q->windowTitle();
 }
 
 void QFileDialogPrivate::retranslateStrings()
@@ -739,8 +741,7 @@ void QFileDialog::setFileMode(QFileDialog::FileMode mode)
 {
     Q_D(QFileDialog);
     d->fileMode = mode;
-    if (d->useDefaultCaption)
-        d->retranslateWindowTitle();
+    d->retranslateWindowTitle();
 
     // set selection mode and behavior
     QAbstractItemView::SelectionMode selectionMode;
@@ -1626,6 +1627,7 @@ void QFileDialogPrivate::init(const QString &directory, const QString &nameFilte
     Q_Q(QFileDialog);
     if (!caption.isEmpty()) {
         useDefaultCaption = false;
+        setWindowTitle = caption;        
         q->setWindowTitle(caption);
     }
 

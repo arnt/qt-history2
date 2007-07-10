@@ -205,6 +205,7 @@ public:
     QFileDialog::AcceptMode acceptMode;
     bool confirmOverwrite;
     QString defaultSuffix;
+    QString setWindowTitle;
 
     QStringList history;
 
