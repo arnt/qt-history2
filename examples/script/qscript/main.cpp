@@ -101,6 +101,7 @@ int main(int argc, char *argv[])
     eng.importExtension("qt.gui");
     eng.importExtension("qt.xml");
 
+    QScriptValue globalObject = eng.globalObject();
 
     {
         QScriptValue qscript = eng.newObject();
