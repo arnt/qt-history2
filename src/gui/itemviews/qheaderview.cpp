@@ -1307,6 +1307,7 @@ void QHeaderView::setDefaultSectionSize(int size)
 {
     Q_D(QHeaderView);
     d->defaultSectionSize = size;
+    d->forceInitializing = true;
 }
 
 /*!
@@ -1724,6 +1725,9 @@ void QHeaderView::initializeSections()
         initializeSections(min, newCount - 1);
         if (stretchLastSection()) // we've already gotten the size hint
             d->lastSectionSize = sectionSize(logicalIndex(d->sectionCount - 1));
+    } else if (d->forceInitializing) {
+        d->forceInitializing = false;
+        initializeSections(0, newCount - 1);
     }
 }
 

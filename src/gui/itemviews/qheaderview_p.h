@@ -59,6 +59,7 @@ public:
           highlightSelected(false),
           stretchLastSection(false),
           cascadingResizing(false),
+          forceInitializing(false),
           stretchSections(0),
           contentsSections(0),
           minimumSectionSize(-1),
@@ -238,6 +239,7 @@ public:
     bool highlightSelected;
     bool stretchLastSection;
     bool cascadingResizing;
+    bool forceInitializing;
     int stretchSections;
     int contentsSections;
     int defaultSectionSize;
