@@ -89,12 +89,23 @@ OSStatus QMacFontPath::closePath(void *data)
 
 #include "qscriptengine_p.h"
 
-QFontEngineMacMulti::QFontEngineMacMulti(const ATSUFontID &fontID, const QFontDef &fontDef, bool kerning)
+QFontEngineMacMulti::QFontEngineMacMulti(const ATSUFontID &_fontID, const QFontDef &fontDef, bool kerning)
     : QFontEngineMulti(0)
 {
     this->fontDef = fontDef;
     this->kerning = kerning;
-    this->fontID = fontID;
+    this->fontID = _fontID;
+
+    FMFontFamily fmFamily;
+    FMFontStyle fntStyle;
+    FMGetFontFamilyInstanceFromFont(fontID, &fmFamily, &fntStyle);
+    if (fontDef.weight >= QFont::Bold)
+        fntStyle |= ::bold;
+    if (fontDef.style != QFont::StyleNormal)
+        fntStyle |= ::italic;
+
+    FMFontStyle intrinsicStyle;
+    FMGetFontFromFontFamilyInstance(fmFamily, fntStyle, &this->fontID, &intrinsicStyle);
 
     OSStatus status;
 
