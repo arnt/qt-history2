@@ -20,6 +20,7 @@
 #include "qmainwindowlayout_p.h"
 #include "qwidgetanimator_p.h"
 #include "qtoolbarlayout_p.h"
+#include "qtoolbar_p.h"
 
 /******************************************************************************
 ** QToolBarAreaLayoutItem
@@ -911,6 +912,52 @@ QLayoutItem *QToolBarAreaLayout::unplug(QList<int> path)
     return item.widgetItem;
 }
 
+static QRect unpackRect(uint geom0, uint geom1, bool *floating)
+{
+    *floating = geom0 & 1;
+    if (!*floating)
+        return QRect();
+
+    geom0 >>= 1;
+
+    int x = (int)(geom0 & 0x0000ffff) - 0x7FFF;
+    int y = (int)(geom1 & 0x0000ffff) - 0x7FFF;
+
+    geom0 >>= 16;
+    geom1 >>= 16;
+
+    int w = geom0 & 0x0000ffff;
+    int h = geom1 & 0x0000ffff;
+
+    return QRect(x, y, w, h);
+}
+
+static void packRect(uint *geom0, uint *geom1, const QRect &rect, bool floating)
+{
+    *geom0 = 0;
+    *geom1 = 0;
+
+    if (!floating)
+        return;
+
+    // The 0x7FFF is half of 0xFFFF. We add it so we can handle negative coordinates on
+    // dual monitors. It's subtracted when unpacking.
+
+    *geom0 |= qMax(0, rect.width()) & 0x0000ffff;
+    *geom1 |= qMax(0, rect.height()) & 0x0000ffff;
+
+    *geom0 <<= 16;
+    *geom1 <<= 16;
+
+    *geom0 |= qMax(0, rect.x() + 0x7FFF) & 0x0000ffff;
+    *geom1 |= qMax(0, rect.y() + 0x7FFF) & 0x0000ffff;
+
+    // yeah, we chop one bit off the width, but it still has a range up to 32512
+
+    *geom0 <<= 1;
+    *geom0 |= 1;
+}
+
 void QToolBarAreaLayout::saveState(QDataStream &stream) const
 {
     // save toolbar state
@@ -942,8 +989,10 @@ void QToolBarAreaLayout::saveState(QDataStream &stream) const
                 stream << (uchar) !widget->isHidden();
                 stream << item.pos;
                 stream << item.size;
-                int dummy = 0;
-                stream << dummy << dummy;
+
+                uint geom0, geom1;
+                packRect(&geom0, &geom1, widget->geometry(), widget->isWindow());
+                stream << geom0 << geom1;
             }
         }
     }
@@ -981,10 +1030,23 @@ bool QToolBarAreaLayout::restoreState(QDataStream &stream, const QList<QToolBar*
             stream >> shown;
             stream >> item.pos;
             stream >> item.size;
-            int dummy;
-            stream >> dummy;
-            if (tmarker == ToolBarStateMarkerEx)
-                stream >> dummy;
+
+            /*
+               4.3.0 added floating toolbars, but failed to add the ability to restore them.
+               We need to store there geometry (four ints). We cannot change the format in a
+               patch release (4.3.1) by adding ToolBarStateMarkerEx2 to signal extra data. So
+               for now we'll pack it in the two legacy ints we no longer used in Qt4.3.0.
+               In 4.4, we should add ToolBarStateMarkerEx2 and fix this properly.
+            */
+
+            QRect rect;
+            bool floating = false;
+            uint geom0, geom1;
+            stream >> geom0;
+            if (tmarker == ToolBarStateMarkerEx) {
+                stream >> geom1;
+                rect = unpackRect(geom0, geom1, &floating);
+            }
 
             QToolBar *toolBar = 0;
             for (int x = 0; x < toolBars.count(); ++x) {
@@ -1000,6 +1062,7 @@ bool QToolBarAreaLayout::restoreState(QDataStream &stream, const QList<QToolBar*
             item.widgetItem = new QWidgetItem(toolBar);
             toolBar->setOrientation(dock.o);
             toolBar->setVisible(shown);
+            toolBar->d_func()->setWindowState(floating, true, rect);
 
             line.toolBarItems.append(item);
         }

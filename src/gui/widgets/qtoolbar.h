@@ -142,6 +142,7 @@ private:
     friend class QMainWindow;
     friend class QMainWindowLayout;
     friend class QToolBarLayout;
+    friend class QToolBarAreaLayout;
 };
 
 inline QAction *QToolBar::actionAt(int ax, int ay) const
