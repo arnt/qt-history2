@@ -20,38 +20,66 @@
 #include "qscriptcontext_p.h"
 #include "qscriptmember_p.h"
 #include "qscriptobject_p.h"
+#include "qscriptclassdata_p.h"
 
 #include <QtCore/QtDebug>
 
 namespace QScript { namespace Ecma {
 
-Array::ArrayClassData::ArrayClassData(QScriptClassInfo *classInfo):
+class ArrayClassData: public QScriptClassData
+{
+    QScriptClassInfo *m_classInfo;
+
+public:
+    ArrayClassData(QScriptClassInfo *classInfo);
+    virtual ~ArrayClassData();
+
+    inline QScriptClassInfo *classInfo() const
+        { return m_classInfo; }
+
+    virtual void mark(const QScriptValueImpl &object, int generation);
+    virtual bool resolve(const QScriptValueImpl &object,
+                         QScriptNameIdImpl *nameId,
+                         QScript::Member *member,
+                         QScriptValueImpl *base);
+    virtual bool get(const QScriptValueImpl &obj, const Member &m,
+                     QScriptValueImpl *out_value);
+    virtual bool put(QScriptValueImpl *object, const Member &member,
+                     const QScriptValueImpl &value);
+    virtual bool removeMember(const QScriptValueImpl &object,
+                              const QScript::Member &member);
+    virtual int extraMemberCount(const QScriptValueImpl &object);
+    virtual bool extraMember(const QScriptValueImpl &object,
+                             int index, Member *member);
+};
+
+ArrayClassData::ArrayClassData(QScriptClassInfo *classInfo):
     m_classInfo(classInfo)
 {
 }
 
-Array::ArrayClassData::~ArrayClassData()
+ArrayClassData::~ArrayClassData()
 {
 }
 
-void Array::ArrayClassData::mark(const QScriptValueImpl &object, int generation)
+void ArrayClassData::mark(const QScriptValueImpl &object, int generation)
 {
-    Instance *instance = Instance::get(object, classInfo());
+    Array::Instance *instance = Array::Instance::get(object, classInfo());
     if (! instance)
         return;
 
     instance->value.mark(generation);
 }
 
-bool Array::ArrayClassData::resolve(const QScriptValueImpl &object,
-                                    QScriptNameIdImpl *nameId,
-                                    QScript::Member *member,
-                                    QScriptValueImpl *base)
+bool ArrayClassData::resolve(const QScriptValueImpl &object,
+                             QScriptNameIdImpl *nameId,
+                             QScript::Member *member,
+                             QScriptValueImpl *base)
 {
     QScriptEngine *eng = object.engine();
     QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(eng);
 
-    if (Instance::get(object, classInfo())) {
+    if (Array::Instance::get(object, classInfo())) {
 
         if (nameId == eng_p->idTable()->id_length) {
             member->native(nameId, /*id=*/ 0, QScriptValue::Undeletable);
@@ -73,9 +101,9 @@ bool Array::ArrayClassData::resolve(const QScriptValueImpl &object,
     return false;
 }
 
-bool Array::ArrayClassData::get(const QScriptValueImpl &object,
-                                const QScript::Member &member,
-                                QScriptValueImpl *result)
+bool ArrayClassData::get(const QScriptValueImpl &object,
+                         const QScript::Member &member,
+                         QScriptValueImpl *result)
 {
     Q_ASSERT(member.isValid());
 
@@ -84,7 +112,7 @@ bool Array::ArrayClassData::get(const QScriptValueImpl &object,
 
     QScriptEnginePrivate *eng = QScriptEnginePrivate::get(object.engine());
 
-    Instance *instance = Instance::get(object, classInfo());
+    Array::Instance *instance = Array::Instance::get(object, classInfo());
     if (! instance)
         return false;
 
@@ -103,9 +131,9 @@ bool Array::ArrayClassData::get(const QScriptValueImpl &object,
     return true;
 }
 
-bool Array::ArrayClassData::put(QScriptValueImpl *object,
-                                const QScript::Member &member,
-                                const QScriptValueImpl &value)
+bool ArrayClassData::put(QScriptValueImpl *object,
+                         const QScript::Member &member,
+                         const QScriptValueImpl &value)
 {
     Q_ASSERT(object != 0);
     Q_ASSERT(member.isValid());
@@ -113,7 +141,7 @@ bool Array::ArrayClassData::put(QScriptValueImpl *object,
     if (! member.isNativeProperty())
         return false;
 
-    Instance *instance = Instance::get(*object, classInfo());
+    Array::Instance *instance = Array::Instance::get(*object, classInfo());
     if (! instance)
         return false;
 
@@ -133,13 +161,13 @@ bool Array::ArrayClassData::put(QScriptValueImpl *object,
     return true;
 }
 
-bool Array::ArrayClassData::removeMember(const QScriptValueImpl &object,
-                                         const QScript::Member &member)
+bool ArrayClassData::removeMember(const QScriptValueImpl &object,
+                                  const QScript::Member &member)
 {
     if (!member.isNativeProperty() || !member.isDeletable() || (member.nameId() != 0))
         return false;
 
-    Instance *instance = Instance::get(object, classInfo());
+    Array::Instance *instance = Array::Instance::get(object, classInfo());
     if (! instance)
         return false;
 
@@ -149,18 +177,18 @@ bool Array::ArrayClassData::removeMember(const QScriptValueImpl &object,
     return true;
 }
 
-int Array::ArrayClassData::extraMemberCount(const QScriptValueImpl &object)
+int ArrayClassData::extraMemberCount(const QScriptValueImpl &object)
 {
-    if (Instance *instance = Instance::get(object, classInfo())) {
+    if (Array::Instance *instance = Array::Instance::get(object, classInfo())) {
         return instance->value.count();
     }
     return 0;
 }
 
-bool Array::ArrayClassData::extraMember(const QScriptValueImpl &object,
-                                        int index, QScript::Member *member)
+bool ArrayClassData::extraMember(const QScriptValueImpl &object,
+                                 int index, QScript::Member *member)
 {
-    if (Instance::get(object, classInfo())) {
+    if (Array::Instance::get(object, classInfo())) {
         member->native(/*nameId=*/ 0, index, /*flags=*/0);
         return true;
     }

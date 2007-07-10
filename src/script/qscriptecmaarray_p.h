@@ -30,7 +30,6 @@
 #ifndef QT_NO_SCRIPT
 
 #include "qscriptecmacore_p.h"
-#include "qscriptclassdata_p.h"
 
 namespace QScript { namespace Ecma {
 
@@ -41,33 +40,6 @@ public:
     virtual ~Array();
 
     virtual void execute(QScriptContextPrivate *context);
-
-    class ArrayClassData: public QScriptClassData
-    {
-        QScriptClassInfo *m_classInfo;
-
-    public:
-        ArrayClassData(QScriptClassInfo *classInfo);
-        virtual ~ArrayClassData();
-
-        inline QScriptClassInfo *classInfo() const
-            { return m_classInfo; }
-
-        virtual void mark(const QScriptValueImpl &object, int generation);
-        virtual bool resolve(const QScriptValueImpl &object,
-                             QScriptNameIdImpl *nameId,
-                             QScript::Member *member,
-                             QScriptValueImpl *base);
-        virtual bool get(const QScriptValueImpl &obj, const Member &m,
-                         QScriptValueImpl *out_value);
-        virtual bool put(QScriptValueImpl *object, const Member &member,
-                         const QScriptValueImpl &value);
-        virtual bool removeMember(const QScriptValueImpl &object,
-                                  const QScript::Member &member);
-        virtual int extraMemberCount(const QScriptValueImpl &object);
-        virtual bool extraMember(const QScriptValueImpl &object,
-                                 int index, Member *member);
-    };
 
     class Instance: public QScriptObjectData {
     public:

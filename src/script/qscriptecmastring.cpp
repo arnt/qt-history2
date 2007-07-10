@@ -20,6 +20,7 @@
 #include "qscriptcontext_p.h"
 #include "qscriptmember_p.h"
 #include "qscriptobject_p.h"
+#include "qscriptclassdata_p.h"
 
 #include <QtCore/QStringList>
 #include <QtCore/QtDebug>
@@ -29,19 +30,40 @@
 
 namespace QScript { namespace Ecma {
 
-String::StringClassData::StringClassData(QScriptClassInfo *classInfo):
+class StringClassData: public QScriptClassData
+{
+    QScriptClassInfo *m_classInfo;
+
+public:
+    StringClassData(QScriptClassInfo *classInfo);
+    virtual ~StringClassData();
+
+    inline QScriptClassInfo *classInfo() const
+        { return m_classInfo; }
+
+    virtual bool resolve(const QScriptValueImpl &object,
+                         QScriptNameIdImpl *nameId,
+                         QScript::Member *member, QScriptValueImpl *base);
+    virtual bool get(const QScriptValueImpl &obj, const Member &m,
+                     QScriptValueImpl *out_value);
+    virtual int extraMemberCount(const QScriptValueImpl &object);
+    virtual bool extraMember(const QScriptValueImpl &object,
+                             int index, Member *member);
+};
+
+StringClassData::StringClassData(QScriptClassInfo *classInfo):
     m_classInfo(classInfo)
 {
 }
 
-String::StringClassData::~StringClassData()
+StringClassData::~StringClassData()
 {
 }
 
-bool String::StringClassData::resolve(const QScriptValueImpl &object,
-                                      QScriptNameIdImpl *nameId,
-                                      QScript::Member *member,
-                                      QScriptValueImpl *base)
+bool StringClassData::resolve(const QScriptValueImpl &object,
+                              QScriptNameIdImpl *nameId,
+                              QScript::Member *member,
+                              QScriptValueImpl *base)
 {
     if (object.classInfo() != classInfo())
         return false;
@@ -65,9 +87,9 @@ bool String::StringClassData::resolve(const QScriptValueImpl &object,
     return ok;
 }
 
-bool String::StringClassData::get(const QScriptValueImpl &object,
-                                  const QScript::Member &member,
-                                  QScriptValueImpl *result)
+bool StringClassData::get(const QScriptValueImpl &object,
+                          const QScript::Member &member,
+                          QScriptValueImpl *result)
 {
     Q_ASSERT(member.isValid());
 
@@ -93,7 +115,7 @@ bool String::StringClassData::get(const QScriptValueImpl &object,
     return true;
 }
 
-int String::StringClassData::extraMemberCount(const QScriptValueImpl &object)
+int StringClassData::extraMemberCount(const QScriptValueImpl &object)
 {
     if (object.classInfo() != classInfo())
         return 0;
@@ -102,8 +124,8 @@ int String::StringClassData::extraMemberCount(const QScriptValueImpl &object)
     return ref->s.length();
 }
 
-bool String::StringClassData::extraMember(const QScriptValueImpl &object,
-                                          int index, Member *member)
+bool StringClassData::extraMember(const QScriptValueImpl &object,
+                                  int index, Member *member)
 {
     if (object.classInfo() != classInfo())
         return false;
