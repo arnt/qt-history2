@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "qscriptextqobject_p.h"
+#include <QtCore/qfeatures.h>
 
 #ifndef QT_NO_SCRIPT
 
@@ -22,12 +22,12 @@
 #include "qscriptobject_p.h"
 #include "qscriptable.h"
 #include "qscriptable_p.h"
+#include "qscriptextqobject_p.h"
 
 #include <QtCore/QtDebug>
 #include <QtCore/QMetaMethod>
 #include <QtCore/QRegExp>
 #include <QtCore/QVarLengthArray>
-#include "qscriptextqobject_p.h"
 
 // we use bits 15..12 of property flags
 enum {
