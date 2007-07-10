@@ -253,6 +253,13 @@ void QWSMouseHandler::mouseChanged(const QPoint &position, int state, int wheel)
     \sa QWSCalibratedMouseHandler::calibrate(), clearCalibration()
 */
 
+/*! \fn QWSMouseHandler::getCalibration(QWSPointerCalibrationData *data) const
+    This virtual function allows subclasses of QWSMouseHandler
+    to fill in the device coordinates in \a data with values
+    that correspond to screen coordinates that are already in
+    \a data. Note that the default implementation does nothing.
+ */
+
 /*!
     \class QWSCalibratedMouseHandler
     \ingroup qws
