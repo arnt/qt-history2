@@ -72,6 +72,7 @@ private slots:
     void proxymodel();
     void setFilter();
     void focus();
+    void caption();
 
     void historyBack();
     void historyForward();
@@ -220,6 +221,14 @@ void tst_QFiledialog::fileMode()
     QCOMPARE(fd.fileMode(), QFileDialog::DirectoryOnly);
     fd.setFileMode(QFileDialog::ExistingFiles);
     QCOMPARE(fd.fileMode(), QFileDialog::ExistingFiles);
+}
+
+void tst_QFiledialog::caption()
+{
+    QFileDialog fd;
+    fd.setWindowTitle("testing");
+    fd.setFileMode(QFileDialog::Directory);
+    QCOMPARE(fd.windowTitle(), QString("testing"));
 }
 
 void tst_QFiledialog::filters()
