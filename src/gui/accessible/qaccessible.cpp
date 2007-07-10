@@ -333,7 +333,9 @@
     This enum specifies string information that an accessible object
     returns.
 
-    \value Name         The name of the object.
+    \value Name         The name of the object. This can be used both
+                        as an identifier or a short description by
+                        accessible clients.
     \value Description  A short text describing the object.
     \value Value        The value of the object.
     \value Help         A longer text giving information about how to use the object.
@@ -810,9 +812,11 @@ const QAccessibleInterface *other, int otherChild) const
     Returns the value of the text property \a t of the object, or of
     the object's child if \a child is not 0.
 
-    The \l Name is a string used by clients to identify, find or
+    The \l Name is a string used by clients to identify, find, or
     announce an accessible object for the user. All objects must have
-    a name that is unique within their container.
+    a name that is unique within their container. The name can be
+    used differently by clients, so the name should both give a
+    short description of the object and be unique.
 
     An accessible object's \l Description provides textual information
     about an object's visual appearance. The description is primarily

@@ -8213,6 +8213,9 @@ QString QWidget::whatsThis() const
 
   \brief the widget's name as seen by assistive technologies
 
+    It is be used by accessible clients to identify, find, or announce
+    the widget for accessible clients.
+
   \sa QAccessibleInterface::text()
 */
 void QWidget::setAccessibleName(const QString &name)
