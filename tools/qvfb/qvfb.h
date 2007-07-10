@@ -88,7 +88,7 @@ protected:
     QMenu* createHelpMenu();
 
 private:
-    void findSkins(const QString &currentSkin);
+    int findSkins(const QString &);
     void init( int display_id, int w, int h, int d, int r, const QString& skin );
     Skin *skin;
     double skinscaleH,skinscaleV;
@@ -100,7 +100,7 @@ private:
     Config* config;
     QStringList skinnames;
     QStringList skinfiles;
-    int currentSkinIndex;
+    QString currentSkin;
     Zoomer *zoomer;
     QScrollArea* scroller;
     DisplayType displayType;

@@ -164,7 +164,7 @@ QVFb::QVFb( int display_id, int w, int h, int d, int r, const QString &skin, Dis
     secondaryView = 0;
     scroller = 0;
     this->skin = 0;
-    currentSkinIndex = -1;
+    currentSkin = skin;
     findSkins(skin);
     zoomer = 0;
     QPixmap pix(":/res/images/logo.png");
@@ -266,15 +266,6 @@ void QVFb::init( int display_id, int pw, int ph, int d, int r, const QString& sk
 	if ( !pw ) pw = 240;
 	if ( !ph ) ph = 320;
 
-     	if ( currentSkinIndex!=-1 ) {
-	    clearMask();
-            setParent( 0, 0 );
-            move( pos() );
-            show();
-	    //unset fixed size:
-	    setMinimumSize(0,0);
-	    setMaximumSize(QWIDGETSIZE_MAX,QWIDGETSIZE_MAX);
-	}
 	menuBar()->show();
 	scroller = new QScrollArea(this);
 #ifdef Q_WS_X11
@@ -494,8 +485,10 @@ void QVFb::about()
     );
 }
 
-void QVFb::findSkins(const QString &currentSkin)
+int QVFb::findSkins(const QString &currentSkin)
 {
+    if (currentSkin.isEmpty())
+        return 0;
     skinnames.clear();
     skinfiles.clear();
     QDir dir(":/skins/","*.skin");
@@ -504,10 +497,12 @@ void QVFb::findSkins(const QString &currentSkin)
     for (QFileInfoList::const_iterator it = l.begin(); it != l.end(); ++it) {
 	skinnames.append((*it).baseName()); // should perhaps be in file
 	skinfiles.append((*it).filePath());
-	if (((*it).baseName() + ".skin") == currentSkin)
-	    currentSkinIndex = i;
+	if (((*it).baseName() + ".skin") == currentSkin) {
+	    return i;
+        }
 	i++;
     }
+    return -1;
 }
 
 class Config : public QDialog, public Ui::Config
@@ -535,8 +530,15 @@ void QVFb::configure()
     // since QCheckBox doesn't have setChecked(bool) in 2.x.
     chooseSize(QSize(w,h));
     config->skin->insertItems(config->skin->count(), skinnames);
+    int currentSkinIndex = findSkins(currentSkin);
     if (currentSkinIndex > 0)
 	config->skin->setCurrentIndex(currentSkinIndex);
+    else
+        config->skin->setEnabled(false);
+
+    config->interval->setValue(view->flickerInterval());
+    config->flickerHighlight->setChecked(view->flickerHighlight());
+
     config->skin->addItem(tr("Browse..."));
     config->touchScreen->setChecked(view->touchScreenEmulation());
     config->lcdScreen->setChecked(view->lcdScreenEmulation());
@@ -605,7 +607,12 @@ void QVFb::configure()
 	    d=24;
 	else
 	    d=32;
-	int skinIndex = config->skin->currentIndex();
+        int skinIndex;
+        if (currentSkinIndex >= 0)
+            skinIndex = config->skin->currentIndex();
+        else
+            skinIndex = currentSkinIndex;
+
 	if ( w != view->displayWidth() || h != view->displayHeight()
 		|| d != view->displayDepth() || skinIndex != currentSkinIndex ) {
 	    QVFbView::Rotation rot = view->displayRotation();
@@ -613,13 +620,30 @@ void QVFb::configure()
 		    ((rot == QVFbView::Rot180) ? 180 :
 		    ((rot == QVFbView::Rot270) ? 270 : 0 )));
 	    currentSkinIndex = skinIndex;
-	    init( id, w, h, d, r, skinIndex > 0 ? skinfiles[skinIndex-1] : QString::null );
+            if (skinIndex == 0)
+                currentSkin.clear();
+            else if (skinIndex > 0)
+                currentSkin = skinfiles[skinIndex-1];
+	    init( id, w, h, d, r, currentSkin );
 	}
 	view->setTouchscreenEmulation( config->touchScreen->isChecked() );
 	bool lcdEmulation = config->lcdScreen->isChecked();
 	view->setLcdScreenEmulation( lcdEmulation );
 	if ( lcdEmulation )
 	    setZoom3();
+        if (config->flickerHighlight->isChecked()) {
+            int interval = config->interval->value();
+            view->setFlickerHighlight(true);
+            view->setFlickerInterval(interval);
+            if (secondaryView) {
+                secondaryView->setFlickerHighlight(true);
+                secondaryView->setFlickerInterval(interval);
+            }
+        } else {
+            view->setFlickerHighlight(false);
+            if (secondaryView)
+                secondaryView->setFlickerHighlight(false);
+        }
     } else {
 	view->setGamma(ogr, ogg, ogb);
     }

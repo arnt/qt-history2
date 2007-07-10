@@ -108,6 +108,12 @@ public:
     QSize sizeHint() const;
     void setRate(int);
 
+    void setFlickerHighlight(bool b) { mEnableFlick = b; }
+    bool flickerHighlight() const { return mEnableFlick; }
+
+    void setFlickerInterval(int);
+    int flickerInterval() const;
+
 public slots:
     void setTouchscreenEmulation(bool);
     void setLcdScreenEmulation(bool);
@@ -152,6 +158,7 @@ private:
     int refreshRate;
     QAnimationWriter *animation;
     QVFbFlicker *mFlick;
+    bool mEnableFlick;
     double hzm,vzm;
     QVFbViewProtocol *mView;
     bool emulateTouchscreen;

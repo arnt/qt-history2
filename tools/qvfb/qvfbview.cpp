@@ -57,7 +57,7 @@ QVFbView::QVFbView(int id, int w, int h, int d, Rotation r, QWidget *parent)
         : QVFbAbstractView(parent),
         viewdepth(d), rsh(0), gsh(0), bsh(0), rmax(15), gmax(15), bmax(15),
         contentsWidth(w), contentsHeight(h), gred(1.0), ggreen(1.0), gblue(1.0),
-        gammatable(0), refreshRate(30), animation(0), mFlick(0),
+        gammatable(0), refreshRate(30), animation(0), mFlick(0), mEnableFlick(false),
         hzm(1.0), vzm(1.0), mView(0),
         emulateTouchscreen(false), emulateLcdScreen(false), rotation(r)
 {
@@ -105,6 +105,16 @@ QSize QVFbView::sizeHint() const
 void QVFbView::setRate(int i)
 {
     mView->setRate(i);
+}
+
+void QVFbView::setFlickerInterval(int i)
+{
+    mFlick->setInterval(i);
+}
+
+int QVFbView::flickerInterval() const
+{
+    return mFlick->interval();
 }
 
 void QVFbView::setGamma(double gr, double gg, double gb)
@@ -606,7 +616,7 @@ void QVFbView::drawScreen(const QRect &rect)
 
 
     QPainter p(this);
-    if (0) {
+    if (mEnableFlick) {
         mFlick->drawPixmap(x1, y1, pm, leadingX, leadingY, pm.width(), pm.height());
         p.drawPixmap(0,0, mFlick->flickerMap());
     } else {
