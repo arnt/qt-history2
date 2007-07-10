@@ -72,9 +72,9 @@
     change, unless setRegion() is called.
 
     If QDirectPainter::ReservedSynchronous is passed to the
-    constructor, calls to setRegion() will block until the region is
-    reserved, meaning that allocatedRegion() will be
-    available immediately.
+    constructor, calls to setRegion() will run the application event
+    loop until the region is reserved, meaning that allocatedRegion()
+    will be available immediately.
 
     \section1 Rendering
 
@@ -581,7 +581,7 @@ int QDirectPainter::linestep()
 
 /*!
   \warning This function is not yet implemented.
-  
+
   Locks access to the framebuffer.
 
   Note that calling this function will prevent all other
