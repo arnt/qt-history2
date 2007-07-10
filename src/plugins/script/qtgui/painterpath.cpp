@@ -182,7 +182,7 @@ static QScriptValue arcTo(QScriptContext *ctx, QScriptEngine *)
 static QScriptValue boundingRect(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QPainterPath, boundingRect);
-    return eng->toScriptValue(self->boundingRect());
+    return qScriptValueFromValue(eng, self->boundingRect());
 }
 
 /////////////////////////////////////////////////////////////
@@ -234,7 +234,7 @@ static QScriptValue contains(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue controlPointRect(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QPainterPath, controlPointRect);
-    return eng->toScriptValue(self->controlPointRect());
+    return qScriptValueFromValue(eng, self->controlPointRect());
 }
 
 /////////////////////////////////////////////////////////////
@@ -262,7 +262,7 @@ static QScriptValue cubicTo(QScriptContext *ctx, QScriptEngine *)
 static QScriptValue currentPosition(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QPainterPath, currentPosition);
-    return eng->toScriptValue(self->currentPosition());
+    return qScriptValueFromValue(eng, self->currentPosition());
 }
 
 /////////////////////////////////////////////////////////////
@@ -275,7 +275,7 @@ static QScriptValue currentPosition(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue fillRule(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QPainterPath, fillRule);
-    return eng->toScriptValue(static_cast<int>(self->fillRule()));
+    return qScriptValueFromValue(eng, static_cast<int>(self->fillRule()));
 }
 
 /////////////////////////////////////////////////////////////
@@ -366,7 +366,7 @@ static QScriptValue pointAtPercent(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QPainterPath, pointAtPercent);
     qreal t = ctx->argument(0).toNumber();
-    return eng->toScriptValue(self->pointAtPercent(t));
+    return qScriptValueFromValue(eng, self->pointAtPercent(t));
 }
 
 /////////////////////////////////////////////////////////////
@@ -439,7 +439,7 @@ static QScriptValue toFillPolygon(QScriptContext *ctx, QScriptEngine *eng)
     DECLARE_SELF(QPainterPath, toFillPolygon);
     // ### QTransform overload
     QMatrix matrix = qscriptvalue_cast<QMatrix>(ctx->argument(0));
-    return eng->toScriptValue(self->toFillPolygon(matrix));
+    return qScriptValueFromValue(eng, self->toFillPolygon(matrix));
 }
 
 /////////////////////////////////////////////////////////////
@@ -449,7 +449,7 @@ static QScriptValue toFillPolygons(QScriptContext *ctx, QScriptEngine *eng)
     DECLARE_SELF(QPainterPath, toFillPolygons);
     // ### QTransform overload
     QMatrix matrix = qscriptvalue_cast<QMatrix>(ctx->argument(0));
-    return eng->toScriptValue(self->toFillPolygons(matrix));
+    return qScriptValueFromValue(eng, self->toFillPolygons(matrix));
 }
 
 /////////////////////////////////////////////////////////////
@@ -467,7 +467,7 @@ static QScriptValue toSubpathPolygons(QScriptContext *ctx, QScriptEngine *eng)
     DECLARE_SELF(QPainterPath, toSubpathPolygons);
     // ### QTransform overload
     QMatrix matrix = qscriptvalue_cast<QMatrix>(ctx->argument(0));
-    return eng->toScriptValue(self->toSubpathPolygons(matrix));
+    return qScriptValueFromValue(eng, self->toSubpathPolygons(matrix));
 }
 
 /////////////////////////////////////////////////////////////

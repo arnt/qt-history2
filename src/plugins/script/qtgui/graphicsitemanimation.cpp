@@ -44,19 +44,19 @@ static QScriptValue horizontalShearAt(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue item(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QGraphicsItemAnimation, item);
-    return eng->toScriptValue(self->item());
+    return qScriptValueFromValue(eng, self->item());
 }
 
 static QScriptValue matrixAt(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QGraphicsItemAnimation, matrixAt);
-    return eng->toScriptValue(self->matrixAt(ctx->argument(0).toNumber()));
+    return qScriptValueFromValue(eng, self->matrixAt(ctx->argument(0).toNumber()));
 }
 
 static QScriptValue posAt(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QGraphicsItemAnimation, posAt);
-    return eng->toScriptValue(self->posAt(ctx->argument(0).toNumber()));
+    return qScriptValueFromValue(eng, self->posAt(ctx->argument(0).toNumber()));
 }
 
 static QScriptValue posList(QScriptContext *ctx, QScriptEngine *)
@@ -149,7 +149,7 @@ static QScriptValue shearList(QScriptContext *ctx, QScriptEngine *)
 static QScriptValue timeLine(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QGraphicsItemAnimation, timeLine);
-    return eng->toScriptValue(self->timeLine());
+    return qScriptValueFromValue(eng, self->timeLine());
 }
 
 static QScriptValue translationList(QScriptContext *ctx, QScriptEngine *)

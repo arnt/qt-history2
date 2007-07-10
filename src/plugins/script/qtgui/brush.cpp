@@ -49,7 +49,7 @@ static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue color(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QBrush, color);
-    return eng->toScriptValue(self->color());
+    return qScriptValueFromValue(eng, self->color());
 }
 
 /////////////////////////////////////////////////////////////
@@ -57,7 +57,7 @@ static QScriptValue color(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue gradient(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QBrush, gradient);
-    return eng->toScriptValue(const_cast<QGradient*>(self->gradient()));
+    return qScriptValueFromValue(eng, const_cast<QGradient*>(self->gradient()));
 }
 
 /////////////////////////////////////////////////////////////
@@ -73,7 +73,7 @@ static QScriptValue isOpaque(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue matrix(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QBrush, matrix);
-    return eng->toScriptValue(self->matrix());
+    return qScriptValueFromValue(eng, self->matrix());
 }
 
 /////////////////////////////////////////////////////////////
@@ -143,7 +143,7 @@ static QScriptValue style(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue texture(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QBrush, texture);
-    return eng->toScriptValue(self->texture());
+    return qScriptValueFromValue(eng, self->texture());
 }
 
 /////////////////////////////////////////////////////////////
@@ -159,7 +159,7 @@ static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue textureImage(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QBrush, textureImage);
-    return eng->toScriptValue(self->textureImage());
+    return qScriptValueFromValue(eng, self->textureImage());
 }
 
 /////////////////////////////////////////////////////////////
@@ -167,7 +167,7 @@ static QScriptValue textureImage(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue transform(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QBrush, transform);
-    return eng->toScriptValue(self->transform());
+    return qScriptValueFromValue(eng, self->transform());
 }
 
 /////////////////////////////////////////////////////////////

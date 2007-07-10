@@ -40,7 +40,7 @@ static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue absoluteDir(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QFileInfo, absoluteDir);
-    return eng->toScriptValue(self->absoluteDir());
+    return qScriptValueFromValue(eng, self->absoluteDir());
 }
 
 /////////////////////////////////////////////////////////////
@@ -128,7 +128,7 @@ static QScriptValue created(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue dir(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QFileInfo, dir);
-    return eng->toScriptValue(self->dir());
+    return qScriptValueFromValue(eng, self->dir());
 }
 
 /////////////////////////////////////////////////////////////

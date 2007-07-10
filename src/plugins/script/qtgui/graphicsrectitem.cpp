@@ -34,7 +34,7 @@ static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue rect(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QGraphicsRectItem, rect);
-    return eng->toScriptValue(self->rect());
+    return qScriptValueFromValue(eng, self->rect());
 }
 
 static QScriptValue setRect(QScriptContext *ctx, QScriptEngine *eng)

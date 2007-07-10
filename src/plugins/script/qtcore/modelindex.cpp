@@ -62,7 +62,7 @@ static QScriptValue flags(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue internalId(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QModelIndex, internalId);
-    return eng->toScriptValue(self->internalId());
+    return qScriptValueFromValue(eng, self->internalId());
 }
 
 /////////////////////////////////////////////////////////////
@@ -70,7 +70,7 @@ static QScriptValue internalId(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue internalPointer(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QModelIndex, internalPointer);
-    return eng->toScriptValue(self->internalPointer());
+    return qScriptValueFromValue(eng, self->internalPointer());
 }
 
 /////////////////////////////////////////////////////////////

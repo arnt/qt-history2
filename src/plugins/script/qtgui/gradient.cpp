@@ -56,7 +56,7 @@ static QScriptValue spread(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue stops(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QGradient, stops);
-    return eng->toScriptValue(self->stops());
+    return qScriptValueFromValue(eng, self->stops());
 }
 
 /////////////////////////////////////////////////////////////

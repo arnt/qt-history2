@@ -23,7 +23,7 @@ static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue path(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QGraphicsPathItem, path);
-    return eng->toScriptValue(self->path());
+    return qScriptValueFromValue(eng, self->path());
 }
 
 static QScriptValue setPath(QScriptContext *ctx, QScriptEngine *eng)

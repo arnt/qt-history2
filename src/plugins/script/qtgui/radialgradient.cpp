@@ -49,13 +49,13 @@ static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue center(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QRadialGradient, center);
-    return eng->toScriptValue(self->center());
+    return qScriptValueFromValue(eng, self->center());
 }
 
 static QScriptValue focalPoint(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QRadialGradient, focalPoint);
-    return eng->toScriptValue(self->focalPoint());
+    return qScriptValueFromValue(eng, self->focalPoint());
 }
 
 static QScriptValue radius(QScriptContext *ctx, QScriptEngine *eng)

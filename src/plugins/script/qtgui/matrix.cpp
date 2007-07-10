@@ -122,11 +122,11 @@ static QScriptValue map(QScriptContext *ctx, QScriptEngine *eng)
     DECLARE_SELF(QMatrix, map);
     QScriptValue arg = ctx->argument(0);
     if (QPainterPath *path = qscriptvalue_cast<QPainterPath*>(arg))
-        return eng->toScriptValue(self->map(*path));
+        return qScriptValueFromValue(eng, self->map(*path));
     else if (QRegion *region = qscriptvalue_cast<QRegion*>(arg))
-        return eng->toScriptValue(self->map(*region));
+        return qScriptValueFromValue(eng, self->map(*region));
     // ### Point(F), Line(F)
-    return eng->toScriptValue(self->map(qscriptvalue_cast<QPolygonF>(arg)));
+    return qScriptValueFromValue(eng, self->map(qscriptvalue_cast<QPolygonF>(arg)));
 }
 
 /////////////////////////////////////////////////////////////
@@ -134,7 +134,7 @@ static QScriptValue map(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue mapRect(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QMatrix, mapRect);
-    return eng->toScriptValue(self->mapRect(qscriptvalue_cast<QRectF>(ctx->argument(0))));
+    return qScriptValueFromValue(eng, self->mapRect(qscriptvalue_cast<QRectF>(ctx->argument(0))));
 }
 
 /////////////////////////////////////////////////////////////
@@ -142,7 +142,7 @@ static QScriptValue mapRect(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue mapToPolygon(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QMatrix, mapToPolygon);
-    return eng->toScriptValue(self->mapToPolygon(qscriptvalue_cast<QRect>(ctx->argument(0))));
+    return qScriptValueFromValue(eng, self->mapToPolygon(qscriptvalue_cast<QRect>(ctx->argument(0))));
 }
 
 /////////////////////////////////////////////////////////////

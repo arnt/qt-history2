@@ -34,31 +34,31 @@ static QScriptValue equals(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue name(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QXmlStreamEntityDeclaration, name);
-    return eng->toScriptValue(self->name());
+    return qScriptValueFromValue(eng, self->name());
 }
 
 static QScriptValue notationName(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QXmlStreamEntityDeclaration, notationName);
-    return eng->toScriptValue(self->notationName());
+    return qScriptValueFromValue(eng, self->notationName());
 }
 
 static QScriptValue publicId(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QXmlStreamEntityDeclaration, publicId);
-    return eng->toScriptValue(self->publicId());
+    return qScriptValueFromValue(eng, self->publicId());
 }
 
 static QScriptValue systemId(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QXmlStreamEntityDeclaration, systemId);
-    return eng->toScriptValue(self->systemId());
+    return qScriptValueFromValue(eng, self->systemId());
 }
 
 static QScriptValue value(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QXmlStreamEntityDeclaration, value);
-    return eng->toScriptValue(self->value());
+    return qScriptValueFromValue(eng, self->value());
 }
 
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)

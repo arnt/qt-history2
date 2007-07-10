@@ -34,7 +34,7 @@ static QScriptValue fillRule(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue polygon(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QGraphicsPolygonItem, polygon);
-    return eng->toScriptValue(self->polygon());
+    return qScriptValueFromValue(eng, self->polygon());
 }
 
 static QScriptValue setFillRule(QScriptContext *ctx, QScriptEngine *eng)

@@ -57,7 +57,7 @@ static QScriptValue atEnd(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue attributes(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QXmlStreamReader, attributes);
-    return eng->toScriptValue(static_cast<QVector<QXmlStreamAttribute> >(self->attributes()));
+    return qScriptValueFromValue(eng, static_cast<QVector<QXmlStreamAttribute> >(self->attributes()));
 }
 
 static QScriptValue characterOffset(QScriptContext *ctx, QScriptEngine *eng)
@@ -82,13 +82,13 @@ static QScriptValue columnNumber(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue device(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QXmlStreamReader, device);
-    return eng->toScriptValue(self->device());
+    return qScriptValueFromValue(eng, self->device());
 }
 
 static QScriptValue entityDeclarations(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QXmlStreamReader, entityDeclarations);
-    return eng->toScriptValue(self->entityDeclarations());
+    return qScriptValueFromValue(eng, self->entityDeclarations());
 }
 
 static QScriptValue error(QScriptContext *ctx, QScriptEngine *eng)
@@ -191,49 +191,49 @@ static QScriptValue lineNumber(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue name(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QXmlStreamReader, name);
-    return eng->toScriptValue(self->name());
+    return qScriptValueFromValue(eng, self->name());
 }
 
 static QScriptValue namespaceDeclarations(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QXmlStreamReader, namespaceDeclarations);
-    return eng->toScriptValue(self->namespaceDeclarations());
+    return qScriptValueFromValue(eng, self->namespaceDeclarations());
 }
 
 static QScriptValue namespaceProcessing(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QXmlStreamReader, namespaceProcessing);
-    return eng->toScriptValue(self->namespaceProcessing());
+    return qScriptValueFromValue(eng, self->namespaceProcessing());
 }
 
 static QScriptValue namespaceUri(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QXmlStreamReader, namespaceUri);
-    return eng->toScriptValue(self->namespaceUri());
+    return qScriptValueFromValue(eng, self->namespaceUri());
 }
 
 static QScriptValue notationDeclarations(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QXmlStreamReader, notationDeclarations);
-    return eng->toScriptValue(self->notationDeclarations());
+    return qScriptValueFromValue(eng, self->notationDeclarations());
 }
 
 static QScriptValue processingInstructionData(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QXmlStreamReader, processingInstructionData);
-    return eng->toScriptValue(self->processingInstructionData());
+    return qScriptValueFromValue(eng, self->processingInstructionData());
 }
 
 static QScriptValue processingInstructionTarget(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QXmlStreamReader, processingInstructionTarget);
-    return eng->toScriptValue(self->processingInstructionTarget());
+    return qScriptValueFromValue(eng, self->processingInstructionTarget());
 }
 
 static QScriptValue qualifiedName(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QXmlStreamReader, qualifiedName);
-    return eng->toScriptValue(self->qualifiedName());
+    return qScriptValueFromValue(eng, self->qualifiedName());
 }
 
 static QScriptValue raiseError(QScriptContext *ctx, QScriptEngine *eng)
@@ -272,7 +272,7 @@ static QScriptValue setNamespaceProcessing(QScriptContext *ctx, QScriptEngine *e
 static QScriptValue text(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QXmlStreamReader, text);
-    return eng->toScriptValue(self->text());
+    return qScriptValueFromValue(eng, self->text());
 }
 
 static QScriptValue tokenString(QScriptContext *ctx, QScriptEngine *eng)

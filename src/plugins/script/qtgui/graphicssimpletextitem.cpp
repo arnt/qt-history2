@@ -23,7 +23,7 @@ static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue font(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QGraphicsSimpleTextItem, font);
-    return eng->toScriptValue(self->font());
+    return qScriptValueFromValue(eng, self->font());
 }
 
 static QScriptValue setFont(QScriptContext *ctx, QScriptEngine *eng)

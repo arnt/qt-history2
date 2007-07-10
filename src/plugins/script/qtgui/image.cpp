@@ -81,7 +81,7 @@ static QScriptValue cacheKey(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue color(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QImage, color);
-    return eng->toScriptValue(self->color(ctx->argument(0).toInt32()));
+    return qScriptValueFromValue(eng, self->color(ctx->argument(0).toInt32()));
 }
 
 /////////////////////////////////////////////////////////////
@@ -89,7 +89,7 @@ static QScriptValue color(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue colorTable(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QImage, colorTable);
-    return eng->toScriptValue(self->colorTable());
+    return qScriptValueFromValue(eng, self->colorTable());
 }
 
 /////////////////////////////////////////////////////////////
@@ -271,7 +271,7 @@ static QScriptValue numColors(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue offset(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QImage, offset);
-    return eng->toScriptValue(self->offset());
+    return qScriptValueFromValue(eng, self->offset());
 }
 
 /////////////////////////////////////////////////////////////
@@ -280,10 +280,10 @@ static QScriptValue pixel(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QImage, pixel);
     if (ctx->argumentCount() > 1) {
-        return eng->toScriptValue(self->pixel(ctx->argument(0).toInt32(),
+        return qScriptValueFromValue(eng, self->pixel(ctx->argument(0).toInt32(),
                                               ctx->argument(1).toInt32()));
     } else {
-        return eng->toScriptValue(self->pixel(qscriptvalue_cast<QPoint>(ctx->argument(0))));
+        return qScriptValueFromValue(eng, self->pixel(qscriptvalue_cast<QPoint>(ctx->argument(0))));
     }
 }
 
@@ -305,7 +305,7 @@ static QScriptValue pixelIndex(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue rect(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QImage, rect);
-    return eng->toScriptValue(self->rect());
+    return qScriptValueFromValue(eng, self->rect());
 }
 
 /////////////////////////////////////////////////////////////
@@ -451,7 +451,7 @@ static QScriptValue setText(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue size(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QImage, size);
-    return eng->toScriptValue(self->size());
+    return qScriptValueFromValue(eng, self->size());
 }
 
 /////////////////////////////////////////////////////////////
@@ -476,7 +476,7 @@ static QScriptValue textKeys(QScriptContext *ctx, QScriptEngine *eng)
 {
 #ifndef QT_NO_IMAGE_TEXT
     DECLARE_SELF(QImage, textKeys);
-    return eng->toScriptValue(self->textKeys());
+    return qScriptValueFromValue(eng, self->textKeys());
 #else
     Q_UNUSED(ctx);
     Q_UNUSED(eng);

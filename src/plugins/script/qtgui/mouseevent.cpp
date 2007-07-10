@@ -56,7 +56,7 @@ static QScriptValue buttons(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue globalPos(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QMouseEvent, globalPos);
-    return eng->toScriptValue(self->globalPos());
+    return qScriptValueFromValue(eng, self->globalPos());
 }
 
 /////////////////////////////////////////////////////////////
@@ -80,7 +80,7 @@ static QScriptValue globalY(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue pos(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QMouseEvent, pos);
-    return eng->toScriptValue(self->pos());
+    return qScriptValueFromValue(eng, self->pos());
 }
 
 /////////////////////////////////////////////////////////////

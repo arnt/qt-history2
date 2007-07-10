@@ -48,25 +48,25 @@ static QScriptValue isDefault(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue name(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QXmlStreamAttribute, name);
-    return eng->toScriptValue(self->name());
+    return qScriptValueFromValue(eng, self->name());
 }
 
 static QScriptValue namespaceUri(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QXmlStreamAttribute, namespaceUri);
-    return eng->toScriptValue(self->namespaceUri());
+    return qScriptValueFromValue(eng, self->namespaceUri());
 }
 
 static QScriptValue qualifiedName(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QXmlStreamAttribute, qualifiedName);
-    return eng->toScriptValue(self->qualifiedName());
+    return qScriptValueFromValue(eng, self->qualifiedName());
 }
 
 static QScriptValue value(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QXmlStreamAttribute, value);
-    return eng->toScriptValue(self->value());
+    return qScriptValueFromValue(eng, self->value());
 }
 
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)

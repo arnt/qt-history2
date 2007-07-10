@@ -41,7 +41,7 @@ static QScriptValue angle(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue center(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QConicalGradient, center);
-    return eng->toScriptValue(self->center());
+    return qScriptValueFromValue(eng, self->center());
 }
 
 static QScriptValue setAngle(QScriptContext *ctx, QScriptEngine *eng)

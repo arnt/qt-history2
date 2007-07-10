@@ -30,7 +30,7 @@ static QScriptValue appendTo(QScriptContext *ctx, QScriptEngine *)
 static QScriptValue at(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QStringRef, at);
-    return eng->toScriptValue(self->at(ctx->argument(0).toInt32()));
+    return qScriptValueFromValue(eng, self->at(ctx->argument(0).toInt32()));
 }
 
 static QScriptValue clear(QScriptContext *ctx, QScriptEngine *eng)

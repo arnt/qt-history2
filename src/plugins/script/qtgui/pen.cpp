@@ -14,7 +14,7 @@ Q_DECLARE_METATYPE(QVector<qreal>)
 
 static inline QScriptValue newPen(QScriptEngine *eng, const QPen &pen)
 {
-    return eng->toScriptValue(pen);
+    return qScriptValueFromValue(eng, pen);
 }
 
 /////////////////////////////////////////////////////////////
@@ -42,7 +42,7 @@ static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue brush(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QPen, brush);
-    return eng->toScriptValue(self->brush());
+    return qScriptValueFromValue(eng, self->brush());
 }
 
 /////////////////////////////////////////////////////////////
@@ -58,7 +58,7 @@ static QScriptValue capStyle(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue color(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QPen, color);
-    return eng->toScriptValue(self->color());
+    return qScriptValueFromValue(eng, self->color());
 }
 
 /////////////////////////////////////////////////////////////
@@ -74,7 +74,7 @@ static QScriptValue dashOffset(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue dashPattern(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QPen, dashPattern);
-    return eng->toScriptValue(self->dashPattern());
+    return qScriptValueFromValue(eng, self->dashPattern());
 }
 
 /////////////////////////////////////////////////////////////

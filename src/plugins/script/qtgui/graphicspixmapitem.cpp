@@ -23,13 +23,13 @@ static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue offset(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QGraphicsPixmapItem, offset);
-    return eng->toScriptValue(self->offset());
+    return qScriptValueFromValue(eng, self->offset());
 }
 
 static QScriptValue pixmap(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QGraphicsPixmapItem, pixmap);
-    return eng->toScriptValue(self->pixmap());
+    return qScriptValueFromValue(eng, self->pixmap());
 }
 
 static QScriptValue setOffset(QScriptContext *ctx, QScriptEngine *eng)

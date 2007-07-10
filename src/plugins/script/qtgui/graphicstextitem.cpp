@@ -45,7 +45,7 @@ static QScriptValue adjustSize(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue defaultTextColor(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QGraphicsTextItem, defaultTextColor);
-    return eng->toScriptValue(self->defaultTextColor());
+    return qScriptValueFromValue(eng, self->defaultTextColor());
 }
 
 /////////////////////////////////////////////////////////////
@@ -53,7 +53,7 @@ static QScriptValue defaultTextColor(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue document(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QGraphicsTextItem, document);
-    return eng->toScriptValue(self->document());
+    return qScriptValueFromValue(eng, self->document());
 }
 
 /////////////////////////////////////////////////////////////
@@ -61,7 +61,7 @@ static QScriptValue document(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue font(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QGraphicsTextItem, font);
-    return eng->toScriptValue(self->font());
+    return qScriptValueFromValue(eng, self->font());
 }
 
 /////////////////////////////////////////////////////////////
@@ -158,7 +158,7 @@ static QScriptValue setTextWidth(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue textCursor(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QGraphicsTextItem, textCursor);
-    return eng->toScriptValue(self->textCursor());
+    return qScriptValueFromValue(eng, self->textCursor());
 }
 
 /////////////////////////////////////////////////////////////

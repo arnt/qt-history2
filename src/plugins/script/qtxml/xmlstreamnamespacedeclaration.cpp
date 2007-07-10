@@ -34,13 +34,13 @@ static QScriptValue equals(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue namespaceUri(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QXmlStreamNamespaceDeclaration, namespaceUri);
-    return eng->toScriptValue(self->namespaceUri());
+    return qScriptValueFromValue(eng, self->namespaceUri());
 }
 
 static QScriptValue prefix(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QXmlStreamNamespaceDeclaration, prefix);
-    return eng->toScriptValue(self->prefix());
+    return qScriptValueFromValue(eng, self->prefix());
 }
 
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)

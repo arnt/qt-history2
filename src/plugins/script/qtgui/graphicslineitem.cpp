@@ -29,13 +29,13 @@ static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue line(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QGraphicsLineItem, line);
-    return eng->toScriptValue(self->line());
+    return qScriptValueFromValue(eng, self->line());
 }
 
 static QScriptValue pen(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QGraphicsLineItem, pen);
-    return eng->toScriptValue(self->pen());
+    return qScriptValueFromValue(eng, self->pen());
 }
 
 static QScriptValue setLine(QScriptContext *ctx, QScriptEngine *eng)

@@ -63,7 +63,7 @@ static QScriptValue __mtd__(QScriptContext *ctx, QScriptEngine *eng) \
 
 #define DECLARE_GET_METHOD(Class, __get__) \
 BEGIN_DECLARE_METHOD(Class, __get__) { \
-    return eng->toScriptValue(self->__get__()); \
+    return qScriptValueFromValue(eng, self->__get__()); \
 } END_DECLARE_METHOD
 
 #define DECLARE_SET_METHOD(Class, T, __set__) \

@@ -10,7 +10,7 @@
 static QScriptValue toUtf8(QScriptContext *ctx, QScriptEngine *eng)
 {
     QString str = ctx->thisObject().toString();
-    return eng->toScriptValue<QByteArray>(str.toUtf8());
+    return qScriptValueFromValue<QByteArray>(eng, str.toUtf8());
 }
 
 static QScriptValue fromUtf8(QScriptContext *ctx, QScriptEngine *eng)

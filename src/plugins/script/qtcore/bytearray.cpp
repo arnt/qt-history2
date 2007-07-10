@@ -84,7 +84,7 @@ static QScriptValue clear(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue constData(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QByteArray, constData);
-    return eng->toScriptValue(self->constData());
+    return qScriptValueFromValue(eng, self->constData());
 }
 
 /////////////////////////////////////////////////////////////
@@ -381,7 +381,7 @@ static QScriptValue size(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue split(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QByteArray, split);
-    return eng->toScriptValue(self->split(ctx->argument(0).toInt32()));
+    return qScriptValueFromValue(eng, self->split(ctx->argument(0).toInt32()));
 }
 
 /////////////////////////////////////////////////////////////

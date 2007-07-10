@@ -28,7 +28,7 @@ static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue alternateBase(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QPalette, alternateBase);
-    return eng->toScriptValue(self->alternateBase());
+    return qScriptValueFromValue(eng, self->alternateBase());
 }
 
 /////////////////////////////////////////////////////////////
@@ -36,7 +36,7 @@ static QScriptValue alternateBase(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue base(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QPalette, base);
-    return eng->toScriptValue(self->base());
+    return qScriptValueFromValue(eng, self->base());
 }
 
 /////////////////////////////////////////////////////////////
@@ -44,7 +44,7 @@ static QScriptValue base(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue brightText(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QPalette, brightText);
-    return eng->toScriptValue(self->brightText());
+    return qScriptValueFromValue(eng, self->brightText());
 }
 
 /////////////////////////////////////////////////////////////
@@ -55,10 +55,10 @@ static QScriptValue brush(QScriptContext *ctx, QScriptEngine *eng)
     if (ctx->argumentCount() == 2) {
         QPalette::ColorGroup group = static_cast<QPalette::ColorGroup>(ctx->argument(0).toInt32());
         QPalette::ColorRole role = static_cast<QPalette::ColorRole>(ctx->argument(1).toInt32());
-        return eng->toScriptValue(self->brush(group, role));
+        return qScriptValueFromValue(eng, self->brush(group, role));
     } else {
         QPalette::ColorRole role = static_cast<QPalette::ColorRole>(ctx->argument(0).toInt32());
-        return eng->toScriptValue(self->brush(role));
+        return qScriptValueFromValue(eng, self->brush(role));
     }
 }
 
@@ -67,7 +67,7 @@ static QScriptValue brush(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue button(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QPalette, button);
-    return eng->toScriptValue(self->button());
+    return qScriptValueFromValue(eng, self->button());
 }
 
 /////////////////////////////////////////////////////////////
@@ -75,7 +75,7 @@ static QScriptValue button(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue buttonText(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QPalette, buttonText);
-    return eng->toScriptValue(self->buttonText());
+    return qScriptValueFromValue(eng, self->buttonText());
 }
 
 /////////////////////////////////////////////////////////////
@@ -83,7 +83,7 @@ static QScriptValue buttonText(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue cacheKey(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QPalette, cacheKey);
-    return eng->toScriptValue(self->cacheKey());
+    return qScriptValueFromValue(eng, self->cacheKey());
 }
 
 /////////////////////////////////////////////////////////////
@@ -94,10 +94,10 @@ static QScriptValue color(QScriptContext *ctx, QScriptEngine *eng)
     if (ctx->argumentCount() == 2) {
         QPalette::ColorGroup group = static_cast<QPalette::ColorGroup>(ctx->argument(0).toInt32());
         QPalette::ColorRole role = static_cast<QPalette::ColorRole>(ctx->argument(1).toInt32());
-        return eng->toScriptValue(self->color(group, role));
+        return qScriptValueFromValue(eng, self->color(group, role));
     } else {
         QPalette::ColorRole role = static_cast<QPalette::ColorRole>(ctx->argument(0).toInt32());
-        return eng->toScriptValue(self->color(role));
+        return qScriptValueFromValue(eng, self->color(role));
     }
 }
 
@@ -114,7 +114,7 @@ static QScriptValue currentColorGroup(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue dark(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QPalette, dark);
-    return eng->toScriptValue(self->dark());
+    return qScriptValueFromValue(eng, self->dark());
 }
 
 /////////////////////////////////////////////////////////////
@@ -122,7 +122,7 @@ static QScriptValue dark(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue highlight(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QPalette, highlight);
-    return eng->toScriptValue(self->highlight());
+    return qScriptValueFromValue(eng, self->highlight());
 }
 
 /////////////////////////////////////////////////////////////
@@ -130,7 +130,7 @@ static QScriptValue highlight(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue highlightedText(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QPalette, highlightedText);
-    return eng->toScriptValue(self->highlightedText());
+    return qScriptValueFromValue(eng, self->highlightedText());
 }
 
 /////////////////////////////////////////////////////////////
@@ -166,7 +166,7 @@ static QScriptValue isEqual(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue light(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QPalette, light);
-    return eng->toScriptValue(self->light());
+    return qScriptValueFromValue(eng, self->light());
 }
 
 /////////////////////////////////////////////////////////////
@@ -174,7 +174,7 @@ static QScriptValue light(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue linkVisited(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QPalette, linkVisited);
-    return eng->toScriptValue(self->linkVisited());
+    return qScriptValueFromValue(eng, self->linkVisited());
 }
 
 /////////////////////////////////////////////////////////////
@@ -182,7 +182,7 @@ static QScriptValue linkVisited(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue mid(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QPalette, mid);
-    return eng->toScriptValue(self->mid());
+    return qScriptValueFromValue(eng, self->mid());
 }
 
 /////////////////////////////////////////////////////////////
@@ -190,7 +190,7 @@ static QScriptValue mid(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue midlight(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QPalette, midlight);
-    return eng->toScriptValue(self->midlight());
+    return qScriptValueFromValue(eng, self->midlight());
 }
 
 /////////////////////////////////////////////////////////////
@@ -271,7 +271,7 @@ static QScriptValue setCurrentColorGroup(QScriptContext *ctx, QScriptEngine *eng
 static QScriptValue shadow(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QPalette, shadow);
-    return eng->toScriptValue(self->shadow());
+    return qScriptValueFromValue(eng, self->shadow());
 }
 
 /////////////////////////////////////////////////////////////
@@ -279,7 +279,7 @@ static QScriptValue shadow(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue text(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QPalette, text);
-    return eng->toScriptValue(self->text());
+    return qScriptValueFromValue(eng, self->text());
 }
 
 /////////////////////////////////////////////////////////////
@@ -287,7 +287,7 @@ static QScriptValue text(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue window(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QPalette, window);
-    return eng->toScriptValue(self->window());
+    return qScriptValueFromValue(eng, self->window());
 }
 
 /////////////////////////////////////////////////////////////
@@ -295,7 +295,7 @@ static QScriptValue window(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue windowText(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QPalette, windowText);
-    return eng->toScriptValue(self->windowText());
+    return qScriptValueFromValue(eng, self->windowText());
 }
 
 /////////////////////////////////////////////////////////////

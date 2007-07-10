@@ -45,7 +45,7 @@ static QScriptValue alphaChannel(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue cacheKey(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QPixmap, cacheKey);
-    return eng->toScriptValue(self->cacheKey());
+    return qScriptValueFromValue(eng, self->cacheKey());
 }
 
 /////////////////////////////////////////////////////////////
@@ -189,7 +189,7 @@ static QScriptValue loadFromData(QScriptContext *ctx, QScriptEngine *)
 static QScriptValue mask(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QPixmap, mask);
-    return eng->toScriptValue(self->mask());
+    return qScriptValueFromValue(eng, self->mask());
 }
 
 /////////////////////////////////////////////////////////////
@@ -197,7 +197,7 @@ static QScriptValue mask(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue rect(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QPixmap, rect);
-    return eng->toScriptValue(self->rect());
+    return qScriptValueFromValue(eng, self->rect());
 }
 
 /////////////////////////////////////////////////////////////
@@ -255,7 +255,7 @@ static QScriptValue setMask(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue size(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QPixmap, size);
-    return eng->toScriptValue(self->size());
+    return qScriptValueFromValue(eng, self->size());
 }
 
 /////////////////////////////////////////////////////////////
@@ -263,7 +263,7 @@ static QScriptValue size(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue toImage(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QPixmap, toImage);
-    return eng->toScriptValue(self->toImage());
+    return qScriptValueFromValue(eng, self->toImage());
 }
 
 /////////////////////////////////////////////////////////////

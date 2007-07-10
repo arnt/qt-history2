@@ -36,7 +36,7 @@ static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue finalStop(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QLinearGradient, finalStop);
-    return eng->toScriptValue(self->finalStop());
+    return qScriptValueFromValue(eng, self->finalStop());
 }
 
 static QScriptValue setFinalStop(QScriptContext *ctx, QScriptEngine *eng)
@@ -66,7 +66,7 @@ static QScriptValue setStart(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue start(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QLinearGradient, start);
-    return eng->toScriptValue(self->start());
+    return qScriptValueFromValue(eng, self->start());
 }
 
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)

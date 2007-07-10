@@ -94,13 +94,13 @@ static QScriptValue entryInfoList(QScriptContext *ctx, QScriptEngine *eng)
             filters = QDir::Filters(ctx->argument(1).toInt32());
         if (ctx->argumentCount() > 2)
             sort = QDir::SortFlags(ctx->argument(2).toInt32());
-        return eng->toScriptValue(self->entryInfoList(nameFilters, filters, sort));
+        return qScriptValueFromValue(eng, self->entryInfoList(nameFilters, filters, sort));
     } else {
         if (ctx->argumentCount() > 0)
             filters = QDir::Filters(ctx->argument(0).toInt32());
         if (ctx->argumentCount() > 1)
             sort = QDir::SortFlags(ctx->argument(1).toInt32());
-        return eng->toScriptValue(self->entryInfoList(filters, sort));
+        return qScriptValueFromValue(eng, self->entryInfoList(filters, sort));
     }
 }
 
@@ -117,13 +117,13 @@ static QScriptValue entryList(QScriptContext *ctx, QScriptEngine *eng)
             filters = QDir::Filters(ctx->argument(1).toInt32());
         if (ctx->argumentCount() > 2)
             sort = QDir::SortFlags(ctx->argument(2).toInt32());
-        return eng->toScriptValue(self->entryList(nameFilters, filters, sort));
+        return qScriptValueFromValue(eng, self->entryList(nameFilters, filters, sort));
     } else {
         if (ctx->argumentCount() > 0)
             filters = QDir::Filters(ctx->argument(0).toInt32());
         if (ctx->argumentCount() > 1)
             sort = QDir::SortFlags(ctx->argument(1).toInt32());
-        return eng->toScriptValue(self->entryList(filters, sort));
+        return qScriptValueFromValue(eng, self->entryList(filters, sort));
     }
 }
 
@@ -214,7 +214,7 @@ static QScriptValue mkpath(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue nameFilters(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QDir, nameFilters);
-    return eng->toScriptValue(self->nameFilters());
+    return qScriptValueFromValue(eng, self->nameFilters());
 }
 
 /////////////////////////////////////////////////////////////
@@ -360,7 +360,7 @@ static QScriptValue currentPath(QScriptContext *, QScriptEngine *eng)
 
 static QScriptValue drives(QScriptContext *, QScriptEngine *eng)
 {
-    return eng->toScriptValue(QDir::drives());
+    return qScriptValueFromValue(eng, QDir::drives());
 }
 
 /////////////////////////////////////////////////////////////
@@ -429,7 +429,7 @@ static QScriptValue rootPath(QScriptContext *, QScriptEngine *eng)
 
 static QScriptValue searchPaths(QScriptContext *ctx, QScriptEngine *eng)
 {
-    return eng->toScriptValue(ctx->argument(0).toString());
+    return qScriptValueFromValue(eng, ctx->argument(0).toString());
 }
 
 /////////////////////////////////////////////////////////////

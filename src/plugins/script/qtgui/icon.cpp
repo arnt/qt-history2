@@ -43,12 +43,12 @@ static QScriptValue actualSize(QScriptContext *ctx, QScriptEngine *eng)
     if (ctx->argumentCount() >= 3) {
         QIcon::Mode mode = static_cast<QIcon::Mode>(ctx->argument(1).toInt32());
         QIcon::State state = static_cast<QIcon::State>(ctx->argument(2).toInt32());
-        return eng->toScriptValue(self->actualSize(size, mode, state));
+        return qScriptValueFromValue(eng, self->actualSize(size, mode, state));
     } else if (ctx->argumentCount() == 2) {
         QIcon::Mode mode = static_cast<QIcon::Mode>(ctx->argument(1).toInt32());
-        return eng->toScriptValue(self->actualSize(size, mode));
+        return qScriptValueFromValue(eng, self->actualSize(size, mode));
     } else {
-        return eng->toScriptValue(self->actualSize(size));
+        return qScriptValueFromValue(eng, self->actualSize(size));
     }
 }
 
@@ -100,7 +100,7 @@ static QScriptValue addPixmap(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue cacheKey(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QIcon, cacheKey);
-    return eng->toScriptValue(self->cacheKey());
+    return qScriptValueFromValue(eng, self->cacheKey());
 }
 
 /////////////////////////////////////////////////////////////
@@ -147,7 +147,7 @@ static QScriptValue pixmap(QScriptContext *ctx, QScriptEngine *eng)
     DECLARE_SELF(QIcon, pixmap);
     QSize size = qscriptvalue_cast<QSize>(ctx->argument(0));
     // ### overloads
-    return eng->toScriptValue(self->pixmap(size));
+    return qScriptValueFromValue(eng, self->pixmap(size));
 }
 
 /////////////////////////////////////////////////////////////

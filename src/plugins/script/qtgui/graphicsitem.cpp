@@ -113,9 +113,9 @@ BEGIN_DECLARE_METHOD(QGraphicsItem, collidesWithPath) {
 
 BEGIN_DECLARE_METHOD(QGraphicsItem, collidingItems) {
     if (ctx->argument(0).isUndefined())
-        return eng->toScriptValue(self->collidingItems());
+        return qScriptValueFromValue(eng, self->collidingItems());
     else
-        return eng->toScriptValue(self->collidingItems(static_cast<Qt::ItemSelectionMode>(ctx->argument(0).toInt32())));
+        return qScriptValueFromValue(eng, self->collidingItems(static_cast<Qt::ItemSelectionMode>(ctx->argument(0).toInt32())));
 } END_DECLARE_METHOD
 
 BEGIN_DECLARE_METHOD(QGraphicsItem, data) {
@@ -185,7 +185,7 @@ BEGIN_DECLARE_METHOD(QGraphicsItem, parentItem) {
     QGraphicsItem *parent = self->parentItem();
     if (!parent)
         return eng->nullValue();
-    QScriptValue ret = eng->toScriptValue(parent);
+    QScriptValue ret = qScriptValueFromValue(eng, parent);
     QScriptValue proto;
     switch (parent->type()) {
     case 2:

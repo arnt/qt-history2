@@ -34,7 +34,7 @@ static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue boundingRect(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QRegion, boundingRect);
-    return eng->toScriptValue(self->boundingRect());
+    return qScriptValueFromValue(eng, self->boundingRect());
 }
 
 /////////////////////////////////////////////////////////////
@@ -90,7 +90,7 @@ static QScriptValue isEmpty(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue rects(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QRegion, rects);
-    return eng->toScriptValue(self->rects());
+    return qScriptValueFromValue(eng, self->rects());
 }
 
 /////////////////////////////////////////////////////////////

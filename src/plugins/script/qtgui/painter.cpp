@@ -43,7 +43,7 @@ static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue background(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QPainter, background);
-    return eng->toScriptValue(self->background());
+    return qScriptValueFromValue(eng, self->background());
 }
 
 /////////////////////////////////////////////////////////////
@@ -85,7 +85,7 @@ static QScriptValue boundingRect(QScriptContext *ctx, QScriptEngine *eng)
                                     ctx->argument(4).toInt32(),
                                     ctx->argument(5).toString());
     }
-    return eng->toScriptValue(result);
+    return qScriptValueFromValue(eng, result);
 }
 
 /////////////////////////////////////////////////////////////
@@ -93,7 +93,7 @@ static QScriptValue boundingRect(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue brush(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QPainter, brush);
-    return eng->toScriptValue(self->brush());
+    return qScriptValueFromValue(eng, self->brush());
 }
 
 /////////////////////////////////////////////////////////////
@@ -101,7 +101,7 @@ static QScriptValue brush(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue brushOrigin(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QPainter, brushOrigin);
-    return eng->toScriptValue(self->brushOrigin());
+    return qScriptValueFromValue(eng, self->brushOrigin());
 }
 
 /////////////////////////////////////////////////////////////
@@ -109,7 +109,7 @@ static QScriptValue brushOrigin(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue clipPath(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QPainter, clipPath);
-    return eng->toScriptValue(self->clipPath());
+    return qScriptValueFromValue(eng, self->clipPath());
 }
 
 /////////////////////////////////////////////////////////////
@@ -117,7 +117,7 @@ static QScriptValue clipPath(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue clipRegion(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QPainter, clipRegion);
-    return eng->toScriptValue(self->clipRegion());
+    return qScriptValueFromValue(eng, self->clipRegion());
 }
 
 /////////////////////////////////////////////////////////////
@@ -125,7 +125,7 @@ static QScriptValue clipRegion(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue combinedMatrix(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QPainter, combinedMatrix);
-    return eng->toScriptValue(self->combinedMatrix());
+    return qScriptValueFromValue(eng, self->combinedMatrix());
 }
 
 /////////////////////////////////////////////////////////////
@@ -133,7 +133,7 @@ static QScriptValue combinedMatrix(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue combinedTransform(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QPainter, combinedTransform);
-    return eng->toScriptValue(self->combinedTransform());
+    return qScriptValueFromValue(eng, self->combinedTransform());
 }
 
 /////////////////////////////////////////////////////////////
@@ -149,7 +149,7 @@ static QScriptValue compositionMode(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue device(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QPainter, device);
-    return eng->toScriptValue(self->device());
+    return qScriptValueFromValue(eng, self->device());
 }
 
 /////////////////////////////////////////////////////////////
@@ -157,7 +157,7 @@ static QScriptValue device(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue deviceMatrix(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QPainter, deviceMatrix);
-    return eng->toScriptValue(self->deviceMatrix());
+    return qScriptValueFromValue(eng, self->deviceMatrix());
 }
 
 /////////////////////////////////////////////////////////////
@@ -165,7 +165,7 @@ static QScriptValue deviceMatrix(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue deviceTransform(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QPainter, deviceTransform);
-    return eng->toScriptValue(self->deviceTransform());
+    return qScriptValueFromValue(eng, self->deviceTransform());
 }
 
 /////////////////////////////////////////////////////////////
@@ -621,7 +621,7 @@ static QScriptValue opacity(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue paintEngine(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QPainter, paintEngine);
-    return eng->toScriptValue(self->paintEngine());
+    return qScriptValueFromValue(eng, self->paintEngine());
 }
 
 /////////////////////////////////////////////////////////////
@@ -629,7 +629,7 @@ static QScriptValue paintEngine(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue pen(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QPainter, pen);
-    return eng->toScriptValue(self->pen());
+    return qScriptValueFromValue(eng, self->pen());
 }
 
 /////////////////////////////////////////////////////////////
@@ -964,7 +964,7 @@ static QScriptValue testRenderHint(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue transform(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QPainter, transform);
-    return eng->toScriptValue(self->transform());
+    return qScriptValueFromValue(eng, self->transform());
 }
 
 /////////////////////////////////////////////////////////////
@@ -996,7 +996,7 @@ static QScriptValue viewTransformEnabled(QScriptContext *ctx, QScriptEngine *eng
 static QScriptValue viewport(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QPainter, viewport);
-    return eng->toScriptValue(self->viewport());
+    return qScriptValueFromValue(eng, self->viewport());
 }
 
 /////////////////////////////////////////////////////////////
@@ -1004,7 +1004,7 @@ static QScriptValue viewport(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue window(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QPainter, window);
-    return eng->toScriptValue(self->window());
+    return qScriptValueFromValue(eng, self->window());
 }
 
 /////////////////////////////////////////////////////////////
@@ -1012,7 +1012,7 @@ static QScriptValue window(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue worldMatrix(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QPainter, worldMatrix);
-    return eng->toScriptValue(self->worldMatrix());
+    return qScriptValueFromValue(eng, self->worldMatrix());
 }
 
 /////////////////////////////////////////////////////////////
@@ -1028,7 +1028,7 @@ static QScriptValue worldMatrixEnabled(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue worldTransform(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QPainter, worldTransform);
-    return eng->toScriptValue(self->worldTransform());
+    return qScriptValueFromValue(eng, self->worldTransform());
 }
 
 /////////////////////////////////////////////////////////////
