@@ -133,7 +133,7 @@ void ExtQObject::Instance::execute(QScriptContextPrivate *context)
         return;
     }
 
-    QtFunction fun(value, index, /*maybeOverloaded=*/true);
+    QtFunction fun(context->thisObject(), index, /*maybeOverloaded=*/true);
     fun.execute(context);
 }
 
@@ -161,7 +161,7 @@ static bool hasMethodAccess(const QMetaMethod &method)
 class ExtQObjectData: public QScriptClassData
 {
 public:
-    ExtQObjectData(QScriptEnginePrivate *, QScriptClassInfo *classInfo)
+    ExtQObjectData(QScriptClassInfo *classInfo)
         : m_classInfo(classInfo)
     {
     }
@@ -359,8 +359,8 @@ public:
         case METHOD_ID: {
             QScript::Member m;
             bool maybeOverloaded = (member.flags() & MAYBE_OVERLOADED) != 0;
-            *result = eng->createFunction(new QtFunction(qobject, member.id(),
-                                                           maybeOverloaded));
+            *result = eng->createFunction(new QtFunction(obj, member.id(),
+                                                         maybeOverloaded));
             // make it persist (otherwise Function.prototype.disconnect() would fail)
             QScriptObject *instance = obj.objectValue();
             if (!instance->findMember(member.nameId(), &m)) {
@@ -568,8 +568,8 @@ public:
         ExtQObject::Instance *inst = ExtQObject::Instance::get(object, m_classInfo);
         if (inst->isConnection) {
             ConnectionQObject *connection = static_cast<ConnectionQObject*>((QObject*)inst->value);
-            Q_ASSERT(connection != 0);
-            connection->mark(generation);
+            if (connection)
+                connection->mark(generation);
         }
     }
 
@@ -595,7 +595,7 @@ QScript::ExtQObject::ExtQObject(QScriptEnginePrivate *eng, QScriptClassInfo *cla
     addPrototypeFunction(QLatin1String("findChild"), method_findChild, 1);
     addPrototypeFunction(QLatin1String("findChildren"), method_findChildren, 1);
 
-    QExplicitlySharedDataPointer<QScriptClassData> data(new QScript::ExtQObjectData(eng, classInfo));
+    QExplicitlySharedDataPointer<QScriptClassData> data(new QScript::ExtQObjectData(classInfo));
     classInfo->setData(data);
 }
 
@@ -676,27 +676,21 @@ QScriptValueImpl QScript::ExtQObject::method_toString(QScriptContextPrivate *con
 }
 
 QScript::ConnectionQObject::ConnectionQObject(const QMetaMethod &method,
-                                              const QScriptValueImpl &sender,
+                                              QObject *sender,
+                                              const QScriptValueImpl &signal,
                                               const QScriptValueImpl &receiver,
                                               const QScriptValueImpl &slot,
                                               QScriptEngine::ValueOwnership ownership)
-    : m_method(method), m_sender(sender),
-      m_receiver(receiver)
+    : m_method(method), m_sender(sender), m_signal(signal),
+      m_receiver(receiver), m_slot(slot)
 {
-    m_slot = slot;
-    m_hasReceiver = (sender.isObject() && receiver.isObject()
-                     && sender.objectValue() != receiver.objectValue());
-
+    // store reference to connection in public QScriptValue to protect from GC
     QScriptEngine *eng = m_slot.engine();
     QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(eng);
     QScriptValueImpl me;
     eng_p->qobjectConstructor->newQObject(&me, this, ownership,
                                           /*options=*/0, /*isConnection=*/true);
     QScriptValuePrivate::init(m_self, eng_p->registerValue(me));
-
-    QObject *qobject = static_cast<QtFunction*>(sender.toFunction())->object();
-    Q_ASSERT(qobject);
-    connect(qobject, SIGNAL(destroyed()), this, SLOT(deleteLater()));
 }
 
 QScript::ConnectionQObject::~ConnectionQObject()
@@ -709,18 +703,19 @@ static const uint qt_meta_data_ConnectionQObject[] = {
        1,       // revision
        0,       // classname
        0,    0, // classinfo
-       1,   10, // methods
+       2,   10, // methods
        0,    0, // properties
        0,    0, // enums/sets
 
  // slots: signature, parameters, type, tag, flags
-      19,   18,   18,   18, 0x0a,
+      28,   27,   27,   27, 0x0a,
+      38,   27,   27,   27, 0x0a,
 
        0        // eod
 };
 
 static const char qt_meta_stringdata_ConnectionQObject[] = {
-    "ConnectionQObject\0\0execute()\0"
+    "QScript::ConnectionQObject\0\0execute()\0senderDestroyed()\0"
 };
 
 const QMetaObject QScript::ConnectionQObject::staticMetaObject = {
@@ -749,8 +744,9 @@ int QScript::ConnectionQObject::qt_metacall(QMetaObject::Call _c, int _id, void 
     if (_c == QMetaObject::InvokeMetaMethod) {
         switch (_id) {
         case 0: execute(_a); break;
+        case 1: senderDestroyed(); break;
         }
-        _id -= 1;
+        _id -= 2;
     }
     return _id;
 }
@@ -794,16 +790,23 @@ void QScript::ConnectionQObject::execute(void **argv)
     }
 
     QScriptValueImpl senderObject;
-    if (sender() == m_sender.toQObject())
-        senderObject = m_sender;
-    else
-        senderObject = eng->newQObject(sender());
+    Q_ASSERT(sender() == m_sender);
+    if (m_signal.isFunction()) {
+        QtFunction *fun = static_cast<QtFunction*>(m_signal.toFunction());
+        Q_ASSERT(fun->type() == QScriptFunction::Qt);
+        senderObject = static_cast<QtFunction*>(fun)->object();
+        Q_ASSERT(senderObject.isQObject());
+        Q_ASSERT(senderObject.toQObject() == m_sender);
+    } else {
+        // ### dubious...
+        senderObject = eng->newQObject(m_sender, QScriptEngine::QtOwnership);
+    }
 
     QScriptValueImpl thisObject;
-    if (m_hasReceiver)
+    if (m_receiver.isObject())
         thisObject = m_receiver;
     else
-        thisObject = senderObject;
+        thisObject = eng->globalObject();
 
     QScriptContext *context = eng->pushContext();
     QScriptContextPrivate *context_data = QScriptContextPrivate::get(context);
@@ -814,14 +817,15 @@ void QScript::ConnectionQObject::execute(void **argv)
     context_data->args = const_cast<QScriptValueImpl*> (activation_data->m_objects.constData());
 
     QScriptValueImpl tmp;
-    if (m_hasReceiver) {
+    if (m_receiver.isObject()) {
+        // ### this should either be documented or done in a different way...
         tmp = m_receiver.property(QLatin1String("sender"));
         m_receiver.setProperty(QLatin1String("sender"), senderObject);
     }
 
     fun->execute(context_data);
 
-    if (m_hasReceiver)
+    if (m_receiver.isObject())
         m_receiver.setProperty(QLatin1String("sender"), tmp);
 
     if (context->state() == QScriptContext::ExceptionState) {
@@ -833,8 +837,8 @@ void QScript::ConnectionQObject::execute(void **argv)
 
 void QScript::ConnectionQObject::mark(int generation)
 {
-    if (m_sender.isValid())
-        m_sender.mark(generation);
+    if (m_signal.isValid())
+        m_signal.mark(generation);
     if (m_receiver.isValid())
         m_receiver.mark(generation);
     if (m_slot.isValid())
@@ -853,9 +857,19 @@ bool QScript::ConnectionQObject::hasTarget(const QScriptValueImpl &receiver,
     return (slot.objectValue() == m_slot.objectValue());
 }
 
-QScriptValueImpl QScript::ConnectionQObject::senderObject() const
+QObject *QScript::ConnectionQObject::senderQObject() const
 {
     return m_sender;
+}
+
+void QScript::ConnectionQObject::senderDestroyed()
+{
+    if (m_signal.isFunction()) {
+        QtFunction *fun = static_cast<QtFunction*>(m_signal.toFunction());
+        fun->removeConnection(this);
+    }
+    m_sender = 0;
+    deleteLater();
 }
 
 QString QScript::QtPropertyFunction::functionName() const
@@ -941,16 +955,24 @@ static int indexOfMetaEnum(const QMetaObject *meta, const QByteArray &str)
 
 QString QScript::QtFunction::functionName() const
 {
-    if (!m_object)
+    const QMetaObject *meta = metaObject();
+    if (!meta)
         return QString();
-    const QMetaObject *meta = m_object->metaObject();
     QMetaMethod method = meta->method(m_initialIndex);
     return QLatin1String(methodName(method));
 }
 
+void QScript::QtFunction::mark(QScriptEnginePrivate *engine, int generation)
+{
+    if (m_object.isValid())
+        engine->markObject(m_object, generation);
+    QScriptFunction::mark(engine, generation);
+}
+
 void QScript::QtFunction::execute(QScriptContextPrivate *context)
 {
-    if (!m_object) {
+    QObject *qobj = qobject();
+    if (!qobj) {
         context->throwError(QLatin1String("cannot call function of deleted QObject"));
         return;
     }
@@ -960,11 +982,11 @@ void QScript::QtFunction::execute(QScriptContextPrivate *context)
 
     QScriptValueImpl result = eng_p->undefinedValue();
 
-    const QMetaObject *meta = m_object->metaObject();
+    const QMetaObject *meta = qobj->metaObject();
 
     QObject *thisQObject = context->thisObject().toQObject();
     if (!thisQObject) // ### TypeError
-        thisQObject = m_object;
+        thisQObject = qobj;
 
     QByteArray funName;
     if (!meta->cast(thisQObject)) {
@@ -981,7 +1003,7 @@ void QScript::QtFunction::execute(QScriptContextPrivate *context)
         return;
 #endif
         // invoking a function in the prototype
-        thisQObject = m_object;
+        thisQObject = qobj;
     }
 
     int limit;
@@ -1401,13 +1423,11 @@ void QScript::QtFunction::execute(QScriptContextPrivate *context)
     context->m_result = result;
 }
 
-bool QScript::QtFunction::createConnection(const QScriptValueImpl &self,
-                                           const QScriptValueImpl &receiver,
-                                           const QScriptValueImpl &slot)
+int QScript::QtFunction::mostGeneralMethod(QMetaMethod *out) const
 {
-    Q_ASSERT(slot.isFunction());
-
-    const QMetaObject *meta = m_object->metaObject();
+    const QMetaObject *meta = metaObject();
+    if (!meta)
+        return -1;
     int index = m_initialIndex;
     QMetaMethod method = meta->method(index);
     if (maybeOverloaded() && (method.attributes() & QMetaMethod::Cloned)) {
@@ -1416,11 +1436,30 @@ bool QScript::QtFunction::createConnection(const QScriptValueImpl &self,
             method = meta->method(--index);
         } while (method.attributes() & QMetaMethod::Cloned);
     }
+    if (out)
+        *out = method;
+    return index;
+}
 
-    QObject *conn = new ConnectionQObject(method, self, receiver, slot,
+bool QScript::QtFunction::createConnection(const QScriptValueImpl &self,
+                                           const QScriptValueImpl &receiver,
+                                           const QScriptValueImpl &slot)
+{
+    Q_ASSERT(slot.isFunction());
+    QObject *qobj = qobject();
+    if (!qobj)
+        return false;
+
+    QMetaMethod method;
+    int index = mostGeneralMethod(&method);
+    QObject *conn = new ConnectionQObject(method, qobj, self, receiver, slot,
                                           QScriptEngine::QtOwnership);
     m_connections.append(conn);
-    return QMetaObject::connect(m_object, index, conn, conn->metaObject()->methodOffset());
+
+    bool ok = QMetaObject::connect(qobj, index, conn, conn->metaObject()->methodOffset());
+    if (ok)
+        QObject::connect(qobj, SIGNAL(destroyed()), conn, SLOT(senderDestroyed()));
+    return ok;
 }
 
 bool QScript::QtFunction::destroyConnection(const QScriptValueImpl &,
@@ -1428,32 +1467,47 @@ bool QScript::QtFunction::destroyConnection(const QScriptValueImpl &,
                                             const QScriptValueImpl &slot)
 {
     Q_ASSERT(slot.isFunction());
+    QObject *qobj = qobject();
+    if (!qobj)
+        return false;
+
     // find the connection with the given receiver+slot
     QObject *conn = 0;
-    for (int i = 0; i < m_connections.count(); ++i) {
-        ConnectionQObject *candidate = static_cast<ConnectionQObject*>((QObject*)m_connections.at(i));
-        if (candidate->hasTarget(receiver, slot)) {
+    QList<QPointer<QObject> >::iterator it;
+    for (it = m_connections.begin(); it != m_connections.end(); ) {
+        ConnectionQObject *candidate = static_cast<ConnectionQObject*>((QObject*)(*it));
+        if (!candidate) {
+            it = m_connections.erase(it);
+        } else if (candidate->hasTarget(receiver, slot)) {
             conn = candidate;
-            m_connections.removeAt(i);
+            m_connections.erase(it);
             break;
+        } else {
+            ++it;
         }
     }
     if (! conn)
         return false;
 
-    const QMetaObject *meta = m_object->metaObject();
-    int index = m_initialIndex;
-    QMetaMethod method = meta->method(index);
-    if (maybeOverloaded() && (method.attributes() & QMetaMethod::Cloned)) {
-        // find the most general method
-        do {
-            method = meta->method(--index);
-        } while (method.attributes() & QMetaMethod::Cloned);
+    int index = mostGeneralMethod();
+    bool ok = QMetaObject::disconnect(qobj, index, conn, conn->metaObject()->methodOffset());
+    if (ok) {
+        QObject::disconnect(qobj, SIGNAL(destroyed()), conn, SLOT(senderDestroyed()));
+        delete conn;
     }
-
-    bool ok = QMetaObject::disconnect(m_object, index, conn, conn->metaObject()->methodOffset());
-    delete conn;
     return ok;
+}
+
+void QScript::QtFunction::removeConnection(QObject *connection)
+{
+    m_connections.removeAll(connection);
+    QObject *qobj = qobject();
+    if (!qobj)
+        return;
+    int index = mostGeneralMethod();
+    bool ok = QMetaObject::disconnect(qobj, index, connection, connection->metaObject()->methodOffset());
+    if (ok)
+        QObject::disconnect(qobj, SIGNAL(destroyed()), connection, SLOT(senderDestroyed()));
 }
 
 QScript::QtFunction::~QtFunction()

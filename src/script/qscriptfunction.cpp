@@ -42,6 +42,12 @@ QString QScriptFunction::functionName() const
     return QString();
 }
 
+void QScriptFunction::mark(QScriptEnginePrivate *engine, int generation)
+{
+    for (int i = 0; i < formals.count(); ++i)
+        engine->markString(formals.at(i), generation);
+}
+
 // public API function
 void QScript::CFunction::execute(QScriptContextPrivate *context)
 {

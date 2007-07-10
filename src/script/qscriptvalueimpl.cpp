@@ -122,31 +122,14 @@ bool QScriptValueImpl::resolve_helper(QScriptNameIdImpl *nameId, QScript::Member
     }
 
     if (isFunction()) {
-        if (nameId == eng_p->idTable()->id_length) {
+        if (nameId == eng_p->idTable()->id_arguments) {
             member->native(nameId, 0,
                            QScriptValue::Undeletable
                            | QScriptValue::ReadOnly
                            | QScriptValue::SkipInEnumeration);
             *object = *this;
             return true;
-        } else if (nameId == eng_p->idTable()->id_arguments) {
-            member->native(nameId, 0,
-                           QScriptValue::Undeletable
-                           | QScriptValue::ReadOnly
-                           | QScriptValue::SkipInEnumeration);
-            *object = *this;
-            return true;
-        }/* else if (nameId == eng_p->idTable()->id___fileName__) {
-            QScriptFunction *foo = toFunction();
-            if (foo->fileName().isEmpty())
-                return false;
-            member->native(nameId, 0,
-                           QScriptValue::Undeletable
-                           | QScriptValue::ReadOnly
-                           | QScriptValue::SkipInEnumeration);
-            *object = *this;
-            return true;
-        }*/
+        }
     }
 
     if (mode & QScriptValue::ResolvePrototype) {

@@ -30,6 +30,82 @@
 
 namespace QScript { namespace Ecma {
 
+class FunctionClassData: public QScriptClassData
+{
+    QScriptClassInfo *m_classInfo;
+
+public:
+    FunctionClassData(QScriptClassInfo *classInfo);
+    virtual ~FunctionClassData();
+
+    inline QScriptClassInfo *classInfo() const
+        { return m_classInfo; }
+
+    virtual bool resolve(const QScriptValueImpl &object,
+                         QScriptNameIdImpl *nameId,
+                         QScript::Member *member, QScriptValueImpl *base);
+    virtual bool get(const QScriptValueImpl &obj, const Member &m,
+                     QScriptValueImpl *out_value);
+    virtual void mark(const QScriptValueImpl &object, int generation);
+};
+
+FunctionClassData::FunctionClassData(QScriptClassInfo *classInfo)
+    : m_classInfo(classInfo)
+{
+}
+
+FunctionClassData::~FunctionClassData()
+{
+}
+
+bool FunctionClassData::resolve(const QScriptValueImpl &object,
+                                QScriptNameIdImpl *nameId,
+                                QScript::Member *member, QScriptValueImpl *base)
+{
+    if (object.classInfo() != classInfo())
+        return false;
+
+    QScriptEnginePrivate *eng = QScriptEnginePrivate::get(object.engine());
+
+    if (nameId == eng->idTable()->id_length) {
+        member->native(nameId, /*id=*/ 0,
+                       QScriptValue::Undeletable
+                       | QScriptValue::ReadOnly
+                       | QScriptValue::SkipInEnumeration);
+        *base = object;
+        return true;
+    }
+
+    return false;
+}
+
+bool FunctionClassData::get(const QScriptValueImpl &object, const Member &member,
+                            QScriptValueImpl *result)
+{
+    if (object.classInfo() != classInfo())
+        return false;
+
+    QScriptEnginePrivate *eng = QScriptEnginePrivate::get(object.engine());
+    if (! member.isNativeProperty())
+        return false;
+
+    if (member.nameId() == eng->idTable()->id_length) {
+        eng->newNumber(result, object.toFunction()->length);
+        return true;
+    }
+
+    return false;
+}
+
+void FunctionClassData::mark(const QScriptValueImpl &object, int generation)
+{
+    if (object.classInfo() != classInfo())
+        return;
+    QScriptFunction *fun = object.toFunction();
+    QScriptEnginePrivate *eng = QScriptEnginePrivate::get(m_classInfo->engine());
+    fun->mark(eng, generation);
+}
+
 Function::Function(QScriptEnginePrivate *eng, QScriptClassInfo *classInfo):
     Core(eng, classInfo)
 {
@@ -50,6 +126,9 @@ void Function::initialize()
     addPrototypeFunction(QLatin1String("call"), method_call, 1);
     addPrototypeFunction(QLatin1String("connect"), method_connect, 1);
     addPrototypeFunction(QLatin1String("disconnect"), method_disconnect, 1);
+
+    QExplicitlySharedDataPointer<QScriptClassData> data(new FunctionClassData(classInfo()));
+    classInfo()->setData(data);
 }
 
 void Function::execute(QScriptContextPrivate *context)
@@ -183,7 +262,14 @@ QScriptValueImpl Function::method_disconnect(QScriptContextPrivate *context, QSc
 
     QtFunction *qtSignal = static_cast<QtFunction*>(fun);
 
-    QMetaMethod sig = qtSignal->metaObject()->method(qtSignal->initialIndex());
+    const QMetaObject *meta = qtSignal->metaObject();
+    if (!meta) {
+        return context->throwError(
+            QScriptContext::TypeError,
+            QString::fromLatin1("Function.prototype.disconnect: cannot disconnect from deleted QObject"));
+    }
+
+    QMetaMethod sig = meta->method(qtSignal->initialIndex());
     if (sig.methodType() != QMetaMethod::Signal) {
         return context->throwError(QScriptContext::TypeError,
             QString::fromLatin1("Function.prototype.disconnect: %0::%1 is not a signal")
@@ -195,7 +281,7 @@ QScriptValueImpl Function::method_disconnect(QScriptContextPrivate *context, QSc
     QScriptValueImpl slot;
     QScriptValueImpl arg0 = context->argument(0);
     if (context->argumentCount() < 2) {
-        receiver = self;
+        receiver = QScriptValueImpl();
         slot = arg0;
     } else {
         receiver = arg0;
@@ -247,7 +333,14 @@ QScriptValueImpl Function::method_connect(QScriptContextPrivate *context, QScrip
 
     QtFunction *qtSignal = static_cast<QtFunction*>(fun);
 
-    QMetaMethod sig = qtSignal->metaObject()->method(qtSignal->initialIndex());
+    const QMetaObject *meta = qtSignal->metaObject();
+    if (!meta) {
+        return context->throwError(
+            QScriptContext::TypeError,
+            QString::fromLatin1("Function.prototype.connect: cannot connect to deleted QObject"));
+    }
+
+    QMetaMethod sig = meta->method(qtSignal->initialIndex());
     if (sig.methodType() != QMetaMethod::Signal) {
         return context->throwError(QScriptContext::TypeError,
             QString::fromLatin1("Function.prototype.connect: %0::%1 is not a signal")
@@ -259,7 +352,7 @@ QScriptValueImpl Function::method_connect(QScriptContextPrivate *context, QScrip
     QScriptValueImpl slot;
     QScriptValueImpl arg0 = context->argument(0);
     if (context->argumentCount() < 2) {
-        receiver = self;
+        receiver = QScriptValueImpl();
         slot = arg0;
     } else {
         receiver = arg0;

@@ -69,9 +69,11 @@ public:
 
     virtual QString functionName() const;
 
+    virtual void mark(QScriptEnginePrivate *engine, int generation);
+
 public: // ### private
     int length;
-    QList<QScriptNameIdImpl*> formals; // ### mark the formals
+    QList<QScriptNameIdImpl*> formals;
 };
 
 namespace QScript {

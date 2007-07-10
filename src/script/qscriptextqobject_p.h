@@ -99,8 +99,11 @@ protected:
 class ConnectionQObject: public QObject
 {
 public:
-    ConnectionQObject(const QMetaMethod &m, const QScriptValueImpl &sender,
-                      const QScriptValueImpl &receiver, const QScriptValueImpl &slot,
+    ConnectionQObject(const QMetaMethod &m,
+                      QObject *sender,
+                      const QScriptValueImpl &signal,
+                      const QScriptValueImpl &receiver,
+                      const QScriptValueImpl &slot,
                       QScriptEngine::ValueOwnership ownership);
     ~ConnectionQObject();
 
@@ -113,21 +116,23 @@ public:
 
     void mark(int generation);
     bool hasTarget(const QScriptValueImpl &, const QScriptValueImpl &) const;
-    QScriptValueImpl senderObject() const;
+    QObject *senderQObject() const;
+
+    void senderDestroyed();
 
 private:
     QMetaMethod m_method;
-    QScriptValue m_self;
-    QScriptValueImpl m_sender;
+    QObject *m_sender;
+    QScriptValueImpl m_signal;
     QScriptValueImpl m_receiver;
     QScriptValueImpl m_slot;
-    bool m_hasReceiver;
+    QScriptValue m_self;
 };
 
 class QtFunction: public QScriptFunction
 {
 public:
-    QtFunction(QObject *object, int initialIndex, bool maybeOverloaded)
+    QtFunction(const QScriptValueImpl &object, int initialIndex, bool maybeOverloaded)
         : m_object(object), m_initialIndex(initialIndex),
           m_maybeOverloaded(maybeOverloaded)
         { }
@@ -140,19 +145,40 @@ public:
 
     virtual QString functionName() const;
 
-    inline QObject *object() const { return m_object; }
-    inline const QMetaObject *metaObject() const { return m_object->metaObject(); }
+    virtual void mark(QScriptEnginePrivate *engine, int generation);
+
+    inline QScriptValueImpl object() const { return m_object; }
+
+    inline QObject *qobject() const {
+        if (!m_object.isQObject())
+            return 0;
+        return m_object.toQObject();
+    }
+
+    inline const QMetaObject *metaObject() const {
+        if (!m_object.isQObject())
+            return 0;
+        QObject *qobj = m_object.toQObject();
+        if (!qobj)
+            return 0;
+        return qobj->metaObject();
+    }
+
+    int mostGeneralMethod(QMetaMethod *out = 0) const;
+
     inline int initialIndex() const { return m_initialIndex; }
     inline bool maybeOverloaded() const { return m_maybeOverloaded; }
+
     bool createConnection(const QScriptValueImpl &self,
                           const QScriptValueImpl &receiver,
                           const QScriptValueImpl &slot);
     bool destroyConnection(const QScriptValueImpl &self,
                            const QScriptValueImpl &receiver,
                            const QScriptValueImpl &slot);
+    void removeConnection(QObject *connection);
 
 private:
-    QPointer<QObject> m_object;
+    QScriptValueImpl m_object;
     QList<QPointer<QObject> > m_connections;
     int m_initialIndex;
     bool m_maybeOverloaded;

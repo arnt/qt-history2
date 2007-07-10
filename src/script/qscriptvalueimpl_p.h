@@ -497,21 +497,10 @@ inline void QScriptValueImpl::get_helper(const QScript::Member &member, QScriptV
             return;
     }
 
-    out->invalidate();
-
-    if (! isFunction()) {
-        return;
-    } else if (member.nameId() == eng->idTable()->id_length) {
-        QScriptFunction *foo = eng->convertToNativeFunction(*this);
-        Q_ASSERT(foo != 0);
-        eng->newNumber(out, foo->length);
-    } else if (member.nameId() == eng->idTable()->id_arguments) {
+    if (isFunction() && (member.nameId() == eng->idTable()->id_arguments))
         eng->newNull(out);
-    }/* else if (member.nameId() == eng->idTable()->id___fileName__) {
-        QScriptFunction *foo = eng->convertToNativeFunction(*this);
-        Q_ASSERT(foo != 0);
-        return eng->newString(out, foo->fileName());
-    }*/
+    else
+        out->invalidate();
 }
 
 inline void QScriptValueImpl::put(const QScript::Member &member, const QScriptValueImpl &value)

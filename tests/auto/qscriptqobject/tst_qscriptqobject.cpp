@@ -14,6 +14,7 @@
 #include <qscriptvalueiterator.h>
 #include <qwidget.h>
 #include <qpushbutton.h>
+#include <qlineedit.h>
 
 //TESTED_CLASS=
 //TESTED_FILES=qscriptextqobject.h qscriptextqobject.cpp
@@ -1038,7 +1039,7 @@ void tst_QScriptExtQObject::connectAndDisconnect()
     QCOMPARE(m_engine->evaluate("gotSignal").toBoolean(), true);
     QCOMPARE(m_engine->evaluate("signalArgs.length").toNumber(), 0.0);
     QCOMPARE(m_engine->evaluate("signalSender").toQObject(), (QObject *)0);
-    QCOMPARE(m_engine->evaluate("slotThisObject").toQObject(), (QObject *)m_myObject);
+    QVERIFY(m_engine->evaluate("slotThisObject").strictlyEquals(m_engine->globalObject()));
 
     m_engine->evaluate("gotSignal = false");
     m_myObject->emitMySignal();
@@ -1096,7 +1097,8 @@ void tst_QScriptExtQObject::connectAndDisconnect()
     m_myObject->emitMySignal();
     QCOMPARE(m_engine->evaluate("gotSignal").toBoolean(), true);
     QCOMPARE(m_engine->evaluate("signalArgs.length").toNumber(), 0.0);
-    QCOMPARE(m_engine->evaluate("signalSender").toQObject(), (QObject *)m_myObject);
+    QVERIFY(m_engine->evaluate("slotThisObject").strictlyEquals(m_engine->evaluate("otherObject")));
+    QVERIFY(m_engine->evaluate("signalSender").strictlyEquals(m_engine->evaluate("myObject")));
     QCOMPARE(m_engine->evaluate("slotThisObject").property("name").toString(), QLatin1String("foo"));
     QVERIFY(m_engine->evaluate("myObject.mySignal.disconnect(otherObject, myHandler)").isUndefined());
 
@@ -1106,7 +1108,8 @@ void tst_QScriptExtQObject::connectAndDisconnect()
     m_myObject->emitMySignal2(true);
     QCOMPARE(m_engine->evaluate("gotSignal").toBoolean(), true);
     QCOMPARE(m_engine->evaluate("signalArgs.length").toNumber(), 1.0);
-    QCOMPARE(m_engine->evaluate("signalSender").toQObject(), (QObject *)m_myObject);
+    QVERIFY(m_engine->evaluate("slotThisObject").strictlyEquals(m_engine->evaluate("yetAnotherObject")));
+    QVERIFY(m_engine->evaluate("signalSender").strictlyEquals(m_engine->evaluate("myObject")));
     QCOMPARE(m_engine->evaluate("slotThisObject").property("name").toString(), QLatin1String("bar"));
     QVERIFY(m_engine->evaluate("myObject.mySignal2.disconnect(yetAnotherObject, myHandler)").isUndefined());
 
@@ -1115,8 +1118,8 @@ void tst_QScriptExtQObject::connectAndDisconnect()
     m_myObject->emitMySignal2(true);
     QCOMPARE(m_engine->evaluate("gotSignal").toBoolean(), true);
     QCOMPARE(m_engine->evaluate("signalArgs.length").toNumber(), 1.0);
-    QCOMPARE(m_engine->evaluate("signalSender").toQObject(), (QObject *)m_myObject);
     QCOMPARE(m_engine->evaluate("slotThisObject").toQObject(), (QObject *)m_myObject);
+    QVERIFY(m_engine->evaluate("signalSender").strictlyEquals(m_engine->evaluate("myObject")));
     QVERIFY(m_engine->evaluate("myObject.mySignal2.disconnect(myObject, myHandler)").isUndefined());
 
     // connect(obj, string)
@@ -1260,6 +1263,17 @@ void tst_QScriptExtQObject::connectAndDisconnect()
         QVERIFY(ret.isError());
         QCOMPARE(ret.toString(), QLatin1String("Error: Function.prototype.disconnect: failed to disconnect from MyQObject::mySignal()"));
     }
+
+    // when the wrapper dies, the connection stays alive
+    QVERIFY(m_engine->evaluate("myObject.mySignal.connect(myObject.mySlot)").isUndefined());
+    m_myObject->resetQtFunctionInvoked();
+    m_myObject->emitMySignal();
+    QCOMPARE(m_myObject->qtFunctionInvoked(), 20);
+    m_engine->evaluate("myObject = null");
+    m_engine->collectGarbage();
+    m_myObject->resetQtFunctionInvoked();
+    m_myObject->emitMySignal();
+    QCOMPARE(m_myObject->qtFunctionInvoked(), 20);
 }
 
 void tst_QScriptExtQObject::classEnums()

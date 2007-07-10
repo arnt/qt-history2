@@ -137,7 +137,7 @@
   \endcode
 
   When a script function is invoked in response to a signal, the
-  `this' object will be the object that emitted the signal.
+  `this' object will be the Global Object.
 
   \section3 Signal to Member Function Connections
 

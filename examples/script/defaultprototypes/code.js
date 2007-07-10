@@ -9,7 +9,7 @@ listWidget.addItems(["Orange", "Gray"]);
 listWidget.currentItemChanged.connect(
     function(item)
     {
-        this.setBackgroundColor(item.text);
+        listWidget.setBackgroundColor(item.text);
     }
 );
 
