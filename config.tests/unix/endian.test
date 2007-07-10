@@ -13,19 +13,16 @@ test -d "$OUTDIR/config.tests/unix/endian" || mkdir -p "$OUTDIR/config.tests/uni
 "$OUTDIR/bin/qmake" -nocache -spec "$QMKSPEC" "$SRCDIR/config.tests/unix/endian/endiantest.pro" -o "$OUTDIR/config.tests/unix/endian/Makefile" >/dev/null 2>&1
 cd "$OUTDIR/config.tests/unix/endian"
 
-UNAME=`uname -s`
-case $UNAME in
-CYGWIN*)
-    binary=./endiantest.exe
-    ;;
-*)
-    binary=./endiantest
-    ;;
-esac
-
 
 ENDIAN="UNKNOWN"
 [ "$VERBOSE" = "yes" ] && make || make >/dev/null 2>&1
+
+if [ -f ./endiantest.exe ]; then
+    binary=./endiantest.exe
+else
+    binary=./endiantest
+fi
+
 
 if [ -f $binary ]; then
     : # nop
