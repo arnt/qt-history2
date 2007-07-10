@@ -336,6 +336,15 @@ int qScriptRegisterSequenceMetaType(
                                       qScriptValueToSequence, prototype);
 }
 
+#ifndef QT_NO_QOBJECT
+Q_SCRIPT_EXPORT bool qScriptConnect(QObject *sender, const char *signal,
+                                    const QScriptValue &receiver,
+                                    const QScriptValue &function);
+Q_SCRIPT_EXPORT bool qScriptDisconnect(QObject *sender, const char *signal,
+                                       const QScriptValue &receiver,
+                                       const QScriptValue &function);
+#endif // QT_NO_QOBJECT
+
 Q_DECLARE_OPERATORS_FOR_FLAGS(QScriptEngine::QObjectWrapOptions)
 
 QT_END_HEADER

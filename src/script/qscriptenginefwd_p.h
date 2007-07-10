@@ -320,6 +320,15 @@ public:
     void setupProcessEvents();
     void processEvents();
 
+#ifndef QT_NO_QOBJECT
+    bool scriptConnect(QObject *sender, const char *signal,
+                       const QScriptValueImpl &receiver,
+                       const QScriptValueImpl &function);
+    bool scriptDisconnect(QObject *sender, const char *signal,
+                          const QScriptValueImpl &receiver,
+                          const QScriptValueImpl &function);
+#endif
+
 public: // attributes
     int m_callDepth;
     int m_maxCallDepth;

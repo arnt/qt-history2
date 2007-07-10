@@ -1297,4 +1297,55 @@ int QScriptEngine::processEventsInterval() const
     return d->m_processEventsInterval;
 }
 
+#ifndef QT_NO_QOBJECT
+
+/*!
+  \since 4.4
+  \relates QScriptEngine
+
+  Creates a connection from the \a signal in the \a sender to the
+  given \a function. If \a receiver is an object, it will act as the
+  `this' object when the signal handler function is invoked. Returns
+  true if the connection succeeds; otherwise returns false.
+*/
+bool qScriptConnect(QObject *sender, const char *signal,
+                    const QScriptValue &receiver, const QScriptValue &function)
+{
+    if (!sender || !signal)
+        return false;
+    if (!function.isFunction())
+        return false;
+    if (receiver.isObject() && (receiver.engine() != function.engine()))
+        return false;
+    QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(function.engine());
+    return eng_p->scriptConnect(sender, signal,
+                                QScriptValuePrivate::valueOf(receiver),
+                                QScriptValuePrivate::valueOf(function));
+}
+
+/*!
+  \since 4.4
+  \relates QScriptEngine
+
+  Disconnects the \a signal in the \a sender from the given (\a
+  receiver, \a function) pair. Returns true if the connection is
+  successfully broken; otherwise returns false.
+*/
+bool qScriptDisconnect(QObject *sender, const char *signal,
+                       const QScriptValue &receiver, const QScriptValue &function)
+{
+    if (!sender || !signal)
+        return false;
+    if (!function.isFunction())
+        return false;
+    if (receiver.isObject() && (receiver.engine() != function.engine()))
+        return false;
+    QScriptEnginePrivate *eng_p = QScriptEnginePrivate::get(function.engine());
+    return eng_p->scriptDisconnect(sender, signal,
+                                   QScriptValuePrivate::valueOf(receiver),
+                                   QScriptValuePrivate::valueOf(function));
+}
+
+#endif // QT_NO_QOBJECT
+
 #endif // QT_NO_SCRIPT

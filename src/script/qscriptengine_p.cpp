@@ -1781,4 +1781,58 @@ void QScriptEnginePrivate::setupProcessEvents()
     }
 }
 
+#ifndef QT_NO_QOBJECT
+
+bool QScriptEnginePrivate::scriptConnect(QObject *sender, const char *signal,
+                                         const QScriptValueImpl &receiver,
+                                         const QScriptValueImpl &function)
+{
+    Q_ASSERT(sender);
+    Q_ASSERT(signal);
+    const QMetaObject *meta = sender->metaObject();
+    int index = meta->indexOfSignal(QMetaObject::normalizedSignature(signal+1));
+    if (index == -1)
+        return false;
+    QMetaMethod method = meta->method(index);
+    QObject *conn = new QScript::ConnectionQObject(method, sender,
+                                                   /*signal=*/QScriptValueImpl(),
+                                                   receiver, function,
+                                                   QScriptEngine::ScriptOwnership);
+    return QMetaObject::connect(sender, index, conn, conn->metaObject()->methodOffset());
+}
+
+bool QScriptEnginePrivate::scriptDisconnect(QObject *sender, const char *signal,
+                                            const QScriptValueImpl &receiver,
+                                            const QScriptValueImpl &function)
+{
+    Q_ASSERT(sender);
+    Q_ASSERT(signal);
+    const QMetaObject *meta = sender->metaObject();
+    int index = meta->indexOfSignal(QMetaObject::normalizedSignature(signal+1));
+    if (index == -1)
+        return false;
+    bool ok = false;
+    QHash<QScriptObject*, QScriptValuePrivate*>::const_iterator it;
+    for (it = m_objectHandles.constBegin(); it != m_objectHandles.constEnd(); ++it) {
+        QObject *qobj = it.value()->value.toQObject();
+        if (!qobj)
+            continue;
+        void *ptr = qobj->qt_metacast("QScript::ConnectionQObject");
+        if (!ptr)
+            continue;
+        QScript::ConnectionQObject *conn;
+        conn = reinterpret_cast<QScript::ConnectionQObject*>(ptr);
+        if ((conn->senderQObject() != sender)
+            || !conn->hasTarget(receiver, function)) {
+            continue;
+        }
+        ok = QMetaObject::disconnect(sender, index, conn, conn->metaObject()->methodOffset());
+        delete conn;
+        break;
+    }
+    return ok;
+}
+
+#endif // QT_NO_QOBJECT
+
 #endif // QT_NO_SCRIPT

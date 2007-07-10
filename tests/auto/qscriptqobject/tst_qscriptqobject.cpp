@@ -351,6 +351,7 @@ private slots:
     void getSetChildren();
     void callQtInvokable();
     void connectAndDisconnect();
+    void cppConnectAndDisconnect();
     void classEnums();
     void classConstructor();
     void overrideInvokable();
@@ -1274,6 +1275,96 @@ void tst_QScriptExtQObject::connectAndDisconnect()
     m_myObject->resetQtFunctionInvoked();
     m_myObject->emitMySignal();
     QCOMPARE(m_myObject->qtFunctionInvoked(), 20);
+}
+
+void tst_QScriptExtQObject::cppConnectAndDisconnect()
+{
+    QScriptEngine eng;
+    QLineEdit edit;
+    QLineEdit edit2;
+    QScriptValue fun = eng.evaluate("function fun(text) { signalObject = this; signalArg = text; }; return fun");
+    for (int z = 0; z < 2; ++z) {
+        QScriptValue receiver;
+        if (z == 0)
+            receiver = QScriptValue();
+        else
+            receiver = eng.newObject();
+        for (int y = 0; y < 2; ++y) {
+            QVERIFY(qScriptConnect(&edit, SIGNAL(textChanged(const QString &)), receiver, fun));
+            QVERIFY(qScriptConnect(&edit2, SIGNAL(textChanged(const QString &)), receiver, fun));
+            // check signal emission
+            for (int x = 0; x < 4; ++x) {
+                QLineEdit *ed = (x < 2) ? &edit : &edit2;
+                ed->setText((x % 2) ? "foo" : "bar");
+                {
+                    QScriptValue ret = eng.globalObject().property("signalObject");
+                    if (receiver.isObject())
+                        QVERIFY(ret.strictlyEquals(receiver));
+                    else
+                        QVERIFY(ret.strictlyEquals(eng.globalObject()));
+                }
+                {
+                    QScriptValue ret = eng.globalObject().property("signalArg");
+                    QVERIFY(ret.isString());
+                    QCOMPARE(ret.toString(), ed->text());
+                }
+                eng.collectGarbage();
+            }
+
+            // check disconnect
+            QVERIFY(qScriptDisconnect(&edit, SIGNAL(textChanged(const QString &)), receiver, fun));
+            eng.globalObject().setProperty("signalObject", QScriptValue());
+            eng.globalObject().setProperty("signalArg", QScriptValue());
+            edit.setText("something else");
+            QVERIFY(!eng.globalObject().property("signalObject").isValid());
+            QVERIFY(!eng.globalObject().property("signalArg").isValid());
+            QVERIFY(!qScriptDisconnect(&edit, SIGNAL(textChanged(const QString &)), receiver, fun));
+
+            // other object's connection should remain
+            edit2.setText(edit.text());
+            {
+                QScriptValue ret = eng.globalObject().property("signalObject");
+                if (receiver.isObject())
+                    QVERIFY(ret.strictlyEquals(receiver));
+                else
+                    QVERIFY(ret.strictlyEquals(eng.globalObject()));
+            }
+            {
+                QScriptValue ret = eng.globalObject().property("signalArg");
+                QVERIFY(ret.isString());
+                QCOMPARE(ret.toString(), edit2.text());
+            }
+
+            // disconnect other object too
+            QVERIFY(qScriptDisconnect(&edit2, SIGNAL(textChanged(const QString &)), receiver, fun));
+            eng.globalObject().setProperty("signalObject", QScriptValue());
+            eng.globalObject().setProperty("signalArg", QScriptValue());
+            edit2.setText("even more different");
+            QVERIFY(!eng.globalObject().property("signalObject").isValid());
+            QVERIFY(!eng.globalObject().property("signalArg").isValid());
+            QVERIFY(!qScriptDisconnect(&edit2, SIGNAL(textChanged(const QString &)), receiver, fun));
+        }
+    }
+
+    // make sure we don't crash when engine is deleted
+    {
+        QScriptEngine *eng2 = new QScriptEngine;
+        QScriptValue fun2 = eng2->evaluate("function(text) { signalObject = this; signalArg = text; }");
+        QVERIFY(qScriptConnect(&edit, SIGNAL(textChanged(const QString &)), QScriptValue(), fun2));
+        delete eng2;
+        edit.setText("ciao");
+        QVERIFY(!qScriptDisconnect(&edit, SIGNAL(textChanged(const QString &)), QScriptValue(), fun2));
+    }
+
+    // mixing script-side and C++-side connect
+    {
+        eng.globalObject().setProperty("edit", eng.newQObject(&edit));
+        QVERIFY(eng.evaluate("edit.textChanged.connect(fun)").isUndefined());
+        QVERIFY(qScriptDisconnect(&edit, SIGNAL(textChanged(const QString &)), QScriptValue(), fun));
+
+        QVERIFY(qScriptConnect(&edit, SIGNAL(textChanged(const QString &)), QScriptValue(), fun));
+        QVERIFY(eng.evaluate("edit.textChanged.disconnect(fun)").isError());
+    }
 }
 
 void tst_QScriptExtQObject::classEnums()
