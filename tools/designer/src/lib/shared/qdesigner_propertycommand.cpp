@@ -683,6 +683,9 @@ QVariant PropertyHelper::findDefaultValue(QDesignerFormWindowInterface *fw) cons
     if (m_index < default_prop_values.size())
         return default_prop_values.at(m_index);
 
+    if (m_oldValue.first.type() == QVariant::Color)
+        return QColor();
+
     return m_oldValue.first; // Again, we just don't know
 }
 
