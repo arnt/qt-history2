@@ -207,6 +207,7 @@ private slots:
     void dataStar() const;
     void canConvertQStringList() const;
     void canConvertQStringList_data() const;
+    void canConvertMetaTypeToInt() const;
 };
 
 Q_DECLARE_METATYPE(QDate)
@@ -2328,6 +2329,30 @@ void tst_QVariant::canConvertQStringList_data() const
 
     l << "c";
     QTest::newRow("Three items") << false << l << QString();
+}
+
+template<typename T> void convertMetaType()
+{
+    QVERIFY(qVariantFromValue<T>(10).isValid());
+    QVERIFY(qVariantFromValue<T>(10).canConvert(QVariant::Int));
+    QCOMPARE(qVariantFromValue<T>(10).toInt(), 10);
+    QCOMPARE(qVariantFromValue<T>(10), qVariantFromValue<T>(10));
+}
+
+void tst_QVariant::canConvertMetaTypeToInt() const
+{
+    convertMetaType<long>();
+    convertMetaType<short>();
+    convertMetaType<short>();
+    convertMetaType<unsigned short>();
+    convertMetaType<ushort>();
+    convertMetaType<ulong>();
+    convertMetaType<unsigned long>();
+    convertMetaType<uchar>();
+    convertMetaType<unsigned char>();
+    convertMetaType<char>();
+    convertMetaType<uint>();
+    convertMetaType<unsigned int>();
 }
 
 QTEST_MAIN(tst_QVariant)

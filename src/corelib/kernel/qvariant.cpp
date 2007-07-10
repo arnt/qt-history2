@@ -310,6 +310,26 @@ static bool isNull(const QVariant::Private *d)
     return d->is_null;
 }
 
+/*!
+  \internal
+  \since 4.4
+
+  We cannot use v_cast() for QMetaType's numeric types because they're smaller than QVariant::Private::Data,
+  which in turns makes v_cast() believe the value is stored in d->data.c. But
+  it's not, since we're a QMetaType type.
+ */
+template<typename T>
+inline bool compareNumericMetaType(const QVariant::Private *const a, const QVariant::Private *const b)
+{
+    return *static_cast<const T *>(a->data.shared->ptr) == *static_cast<const T *>(b->data.shared->ptr);
+}
+
+/*!
+  \internal
+
+  Compares \a a to \a b. The caller guarantees that \a a and \a b
+  are of the same type.
+ */
 static bool compare(const QVariant::Private *a, const QVariant::Private *b)
 {
     switch(a->type) {
@@ -386,6 +406,18 @@ static bool compare(const QVariant::Private *a, const QVariant::Private *b)
         return *v_cast<QBitArray>(a) == *v_cast<QBitArray>(b);
     case QVariant::Invalid:
         return true;
+    case QMetaType::Long:
+        return compareNumericMetaType<long>(a, b);
+    case QMetaType::ULong:
+        return compareNumericMetaType<ulong>(a, b);
+    case QMetaType::Short:
+        return compareNumericMetaType<short>(a, b);
+    case QMetaType::UShort:
+        return compareNumericMetaType<ushort>(a, b);
+    case QMetaType::UChar:
+        return compareNumericMetaType<uchar>(a, b);
+    case QMetaType::Char:
+        return compareNumericMetaType<char>(a, b);
     default:
         break;
     }
@@ -2436,7 +2468,13 @@ bool QVariant::canConvert(Type t) const
     if (d.type > QVariant::LastCoreType || t > QVariant::LastCoreType) {
         switch (uint(t)) {
         case QVariant::Int:
-            return d.type == QVariant::KeySequence;
+            return d.type == QVariant::KeySequence
+                   || d.type == QMetaType::ULong
+                   || d.type == QMetaType::Long
+                   || d.type == QMetaType::UShort
+                   || d.type == QMetaType::UChar
+                   || d.type == QMetaType::Char
+                   || d.type == QMetaType::Short;
         case QVariant::Image:
             return d.type == QVariant::Pixmap || d.type == QVariant::Bitmap;
         case QVariant::Pixmap:
@@ -2458,9 +2496,9 @@ bool QVariant::canConvert(Type t) const
                               || d.type == QVariant::Brush;
         case QVariant::Brush:
             return d.type == QVariant::Color || d.type == QVariant::Pixmap;
+        case QMetaType::Long:
         case QMetaType::Char:
         case QMetaType::UChar:
-        case QMetaType::Long:
         case QMetaType::ULong:
         case QMetaType::Short:
         case QMetaType::UShort:
