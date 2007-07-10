@@ -22,7 +22,8 @@ HEADERS         = qvfb.h \
                   qvfbmmap.h \
 		  qvfbhdr.h \
 		  qlock_p.h \
-		  qwssignalhandler_p.h
+		  qwssignalhandler_p.h \
+                  qvfbflicker.h
 
 SOURCES         = qvfb.cpp \
 		  qvfbview.cpp \
@@ -34,7 +35,8 @@ SOURCES         = qvfb.cpp \
                   qvfbshmem.cpp \
                   qvfbmmap.cpp \
 		  qlock.cpp \
- 	          qwssignalhandler.cpp
+ 	          qwssignalhandler.cpp \
+                  qvfbflicker.cpp
 
 contains(QT_CONFIG, opengl) {
 	QT += opengl

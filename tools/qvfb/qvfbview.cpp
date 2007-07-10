@@ -14,6 +14,7 @@
 #include "qvfbview.h"
 #include "qvfbshmem.h"
 #include "qvfbmmap.h"
+#include "qvfbflicker.h"
 
 #include "qanimationwriter.h"
 #include <QApplication>
@@ -56,7 +57,7 @@ QVFbView::QVFbView(int id, int w, int h, int d, Rotation r, QWidget *parent)
         : QVFbAbstractView(parent),
         viewdepth(d), rsh(0), gsh(0), bsh(0), rmax(15), gmax(15), bmax(15),
         contentsWidth(w), contentsHeight(h), gred(1.0), ggreen(1.0), gblue(1.0),
-        gammatable(0), refreshRate(30), animation(0),
+        gammatable(0), refreshRate(30), animation(0), mFlick(0),
         hzm(1.0), vzm(1.0), mView(0),
         emulateTouchscreen(false), emulateLcdScreen(false), rotation(r)
 {
@@ -72,6 +73,9 @@ QVFbView::QVFbView(int id, int w, int h, int d, Rotation r, QWidget *parent)
         mView = new QMMapViewProtocol(id, QSize(_w, _h), d, this);
         break;
     }
+
+    mFlick = new QVFbFlicker(this);
+    mFlick->setSize(QSize(contentsWidth, contentsHeight));
 
     connect(mView, SIGNAL(displayDataChanged(const QRect &)),
             SLOT(refreshDisplay(const QRect &)));
@@ -206,6 +210,7 @@ void QVFbView::setZoom(double hz, double vz)
         contentsWidth = int(displayWidth()*hz);
         contentsHeight = int(displayHeight()*vz);
         resize(contentsWidth, contentsHeight);
+        mFlick->setSize(QSize(contentsWidth, contentsHeight));
 
 	updateGeometry();
 	qApp->sendPostedEvents();
@@ -264,8 +269,11 @@ void QVFbView::refreshDisplay(const QRect &r)
             animation->appendFrame(img,QPoint(r.x(),r.y()));
         }
     }
-    if (!r.isNull())
-	update(r);
+
+    // TODO, update all only if flicker detection is active.
+    //if (!r.isNull())
+	//update(r);
+    update();
 }
 
 QImage QVFbView::getBuffer(const QRect &r, int &leading) const
@@ -596,8 +604,14 @@ void QVFbView::drawScreen(const QRect &rect)
         pm = pm.transformed(m);
     }
 
+
     QPainter p(this);
-    p.drawPixmap(x1, y1, pm, leadingX, leadingY, pm.width(), pm.height());
+    if (0) {
+        mFlick->drawPixmap(x1, y1, pm, leadingX, leadingY, pm.width(), pm.height());
+        p.drawPixmap(0,0, mFlick->flickerMap());
+    } else {
+        p.drawPixmap(x1, y1, pm, leadingX, leadingY, pm.width(), pm.height());
+    }
 }
 
 //bool QVFbView::eventFilter(QObject *obj, QEvent *e)

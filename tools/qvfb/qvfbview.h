@@ -26,6 +26,7 @@ class QTimer;
 class QAnimationWriter;
 struct QVFbHeader;
 class QVFbViewProtocol;
+class QVFbFlicker;
 
 class QVFbAbstractView :
 #ifdef QVFB_USE_GLWIDGET
@@ -150,6 +151,7 @@ private:
 
     int refreshRate;
     QAnimationWriter *animation;
+    QVFbFlicker *mFlick;
     double hzm,vzm;
     QVFbViewProtocol *mView;
     bool emulateTouchscreen;
