@@ -317,8 +317,8 @@ bool QTipLabel::tipChanged(const QPoint &pos, const QString &text, QObject *o)
 
 /*!
     Shows \a text as a tool tip, with the global position \a pos as
-    the point-of-interest. The tooltip will be shown with a platform
-    specific offset from this point-of-interest.
+    the point of interest. The tool tip will be shown with a platform
+    specific offset from this point of interest.
 
     If you specify a non-empty rect the tip will be hidden as soon
     as you move your cursor out of this area.
