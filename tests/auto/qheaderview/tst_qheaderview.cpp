@@ -131,6 +131,9 @@ private slots:
     void sectionPressedSignal_data();
     void sectionPressedSignal();
 
+    void defaultSectionSize_data();
+    void defaultSectionSize();
+
 protected:
     QHeaderView *view;
     QStandardItemModel *model;
@@ -1502,6 +1505,37 @@ void tst_QHeaderView::sectionPressedSignal()
     QCOMPARE(spy.count(), count);
 }
 
+
+void tst_QHeaderView::defaultSectionSize_data()
+{
+    QTest::addColumn<int>("direction");
+    QTest::addColumn<int>("oldDefaultSize");
+    QTest::addColumn<int>("newDefaultSize");
+
+    //QTest::newRow("horizontal,-5") << int(Qt::Horizontal) << 100 << -5;
+    QTest::newRow("horizontal, 0") << int(Qt::Horizontal) << 100 << 0;
+    QTest::newRow("horizontal, 5") << int(Qt::Horizontal) << 100 << 5;
+    QTest::newRow("horizontal,25") << int(Qt::Horizontal) << 100 << 5;
+}
+
+void tst_QHeaderView::defaultSectionSize()
+{
+    QFETCH(int, direction);
+    QFETCH(int, oldDefaultSize);
+    QFETCH(int, newDefaultSize);
+    
+    QStandardItemModel m(4, 4);
+    QHeaderView h((Qt::Orientation)direction);
+
+    h.setModel(&m);
+
+    QCOMPARE(h.defaultSectionSize(), oldDefaultSize);
+    h.setDefaultSectionSize(newDefaultSize);
+    QCOMPARE(h.defaultSectionSize(), newDefaultSize);
+    h.reset();
+    for (int i = 0; i < h.count(); ++i)
+        QCOMPARE(h.sectionSize(i), newDefaultSize);
+}
 
 QTEST_MAIN(tst_QHeaderView)
 #include "tst_qheaderview.moc"
