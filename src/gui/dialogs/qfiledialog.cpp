@@ -1335,6 +1335,8 @@ QStringList QFileDialog::getOpenFileNames(QWidget *parent,
   options about how to run the dialog, see the QFileDialog::Option enum for
   more information on the flags you can pass.
 
+  The default filter can be chosen by setting \a selectedFilter to the desired value.
+  
   The dialog's caption is set to \a caption. If \a caption is not
   specified then a default caption will be used.
 
