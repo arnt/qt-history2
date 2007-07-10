@@ -162,7 +162,12 @@ void tst_Selftests::checkXML() const
     QByteArray out(proc.readAllStandardOutput());
     QByteArray err(proc.readAllStandardError());
 
-    QVERIFY2(err.isEmpty(), err.constData());
+    /* Some platforms decides to output a message for uncaught exceptions. For instance,
+     * this is what windows platforms says:
+     * "This application has requested the Runtime to terminate it in an unusual way.
+     * Please contact the application's support team for more information." */
+    if(subdir != QLatin1String("exception"))
+        QVERIFY2(err.isEmpty(), err.constData());
 
     QXmlStreamReader reader(out);
 
