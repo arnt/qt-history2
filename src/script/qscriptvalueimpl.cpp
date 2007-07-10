@@ -121,17 +121,6 @@ bool QScriptValueImpl::resolve_helper(QScriptNameIdImpl *nameId, QScript::Member
             return true;
     }
 
-    if (isFunction()) {
-        if (nameId == eng_p->idTable()->id_arguments) {
-            member->native(nameId, 0,
-                           QScriptValue::Undeletable
-                           | QScriptValue::ReadOnly
-                           | QScriptValue::SkipInEnumeration);
-            *object = *this;
-            return true;
-        }
-    }
-
     if (mode & QScriptValue::ResolvePrototype) {
         // For values and other non object based types, search in class's prototype
         const QScriptValueImpl &proto = object_data->m_prototype;

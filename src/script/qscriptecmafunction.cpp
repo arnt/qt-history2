@@ -67,7 +67,8 @@ bool FunctionClassData::resolve(const QScriptValueImpl &object,
 
     QScriptEnginePrivate *eng = QScriptEnginePrivate::get(object.engine());
 
-    if (nameId == eng->idTable()->id_length) {
+    if ((nameId == eng->idTable()->id_length)
+        || (nameId == eng->idTable()->id_arguments)) {
         member->native(nameId, /*id=*/ 0,
                        QScriptValue::Undeletable
                        | QScriptValue::ReadOnly
@@ -91,6 +92,9 @@ bool FunctionClassData::get(const QScriptValueImpl &object, const Member &member
 
     if (member.nameId() == eng->idTable()->id_length) {
         eng->newNumber(result, object.toFunction()->length);
+        return true;
+    } else if (member.nameId() == eng->idTable()->id_arguments) {
+        eng->newNull(result);
         return true;
     }
 

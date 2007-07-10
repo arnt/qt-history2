@@ -497,10 +497,7 @@ inline void QScriptValueImpl::get_helper(const QScript::Member &member, QScriptV
             return;
     }
 
-    if (isFunction() && (member.nameId() == eng->idTable()->id_arguments))
-        eng->newNull(out);
-    else
-        out->invalidate();
+    out->invalidate();
 }
 
 inline void QScriptValueImpl::put(const QScript::Member &member, const QScriptValueImpl &value)
