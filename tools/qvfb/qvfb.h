@@ -59,6 +59,7 @@ public:
 protected slots:
     void saveImage();
     void toggleAnimation();
+    void toggleFrames();
     void toggleCursor();
     void changeRate();
     void setRate(int);
@@ -97,6 +98,7 @@ private:
     QVFbRateDialog *rateDlg;
     QMenu *viewMenu;
     QAction *cursorAction;
+    QAction *framesAction;
     Config* config;
     QStringList skinnames;
     QStringList skinfiles;

@@ -19,9 +19,15 @@
 
 #include <sys/time.h>
 
+static const int fade_frames_count = 60;
+
 QVFbFlicker::QVFbFlicker(QObject *parent)
-    : QObject(parent), mInterval(500)
+    : QObject(parent), mInterval(10)
 {
+    fadeTimer = new QTimer(this);
+    fadeTimer->setInterval(30);
+
+    connect(fadeTimer, SIGNAL(timeout()), this, SIGNAL(flickerMapChanged()));
 }
 
 QVFbFlicker::~QVFbFlicker()
@@ -71,8 +77,10 @@ void QVFbFlicker::drawPixmap(int dx, int dy, const QPixmap &pixmap, int sx, int 
             int y;
             for (x = sx; x < sx + sw; ++x) {
                 for (y = sy; y < sy + sh; ++y) {
-                    if (lastImage.pixel(x+dx, y+dy) != asImage.pixel(x, y))
+                    if (lastImage.pixel(x+dx, y+dy) != asImage.pixel(x, y)) {
                         p.drawPoint(x+dx, y+dy);
+                        mFramesRemaining = fade_frames_count;
+                    }
                 }
             }
         } else {
@@ -91,9 +99,11 @@ void QVFbFlicker::drawPixmap(int dx, int dy, const QPixmap &pixmap, int sx, int 
                             << lastMark << mark << mInterval;
                     }
                     if (lastImage.pixel(x+dx, y+dy) != asImage.pixel(x, y)) {
-                        if (lastMark != 0 && (mark - lastMark) < mInterval)
+                        if (lastMark != 0 && (mark - lastMark) < mInterval) {
 
                             p.drawPoint(x+dx, y+dy);
+                            mFramesRemaining = fade_frames_count;
+                        }
                         depth[depthIndex] = mark;
                     } else if (lastMark != 0 && mark - lastMark >= mInterval) {
                         depth[depthIndex] = 0;
@@ -109,37 +119,14 @@ void QVFbFlicker::drawPixmap(int dx, int dy, const QPixmap &pixmap, int sx, int 
     {
         QPainter p(&view);
         p.drawPixmap(dx, dy, pixmap, sx, sy, sw, sh);
-        p.drawPixmap(0, 0, flickerView);
+        if (mFramesRemaining)  {
+            p.drawPixmap(0, 0, flickerView);
+            if (!fadeTimer->isActive())
+                fadeTimer->start();
+        } else {
+            flickerView.fill(QColor(0,0,0,0));
+            if (fadeTimer->isActive())
+                fadeTimer->stop();
+        }
     }
-#if 0
-    QDateTime nextDrawn = QDateTime::currentDateTime();
-    qDebug() << "append - rect:" << area;
-    if (lastDrawn.secsTo(nextDrawn) > 2)
-    {
-        flickerView.fill(QColor(0,0,0,0));
-        lastDrawn = nextDrawn;
-        return;
-    }
-
-    lastDrawn = nextDrawn;
-    //qDebug() << "detect";
-
-    QRegion areaR(area);
-    if (areaR.intersects(lastDirty)) {
-        QRegion areaI = areaR.intersected(lastDirty);
-
-        // fade flickerview by half.
-        QPainter p(&flickerView);
-#if 1
-        p.setCompositionMode(QPainter::CompositionMode_SourceIn);
-        p.fillRect(0,0, flickerView.width(), flickerView.height(), QColor(0,0,0,128));
-        p.setCompositionMode(QPainter::CompositionMode_SourceOver);
-#endif
-        p.setPen(Qt::red);
-        p.setBrush(QColor(255, 0, 0, 128));
-        p.setClipRegion(areaI);
-        p.drawRect(areaI.boundingRect());
-    }
-    lastDirty = areaR;
-#endif
 }

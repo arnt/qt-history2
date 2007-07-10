@@ -344,6 +344,12 @@ QMenu* QVFb::createViewMenu()
     cursorAction = viewMenu->addAction( "Show &Cursor", this,
                                         SLOT(toggleCursor()) );
     cursorAction->setCheckable(true);
+    framesAction = viewMenu->addAction( "Capture Frames", this,
+                                        SLOT(toggleFrames()) );
+    framesAction->setCheckable(true);
+    if( view && view->frames() )
+        framesAction->setChecked(true);
+
     if ( view )
 	enableCursor(true);
     viewMenu->addAction( "&Refresh Rate...", this, SLOT(changeRate()) );
@@ -447,6 +453,12 @@ void QVFb::toggleAnimation()
 	animWidget->show();
 }
 
+void QVFb::toggleFrames()
+{
+    view->toggleFrames();
+    framesAction->setChecked(true); 
+}
+
 void QVFb::toggleCursor()
 {
     enableCursor(cursorAction->isChecked());
@@ -538,6 +550,8 @@ void QVFb::configure()
 
     config->interval->setValue(view->flickerInterval());
     config->flickerHighlight->setChecked(view->flickerHighlight());
+
+    config->maxFrames->setValue(view->maxFrames());
 
     config->skin->addItem(tr("Browse..."));
     config->touchScreen->setChecked(view->touchScreenEmulation());
@@ -644,6 +658,7 @@ void QVFb::configure()
             if (secondaryView)
                 secondaryView->setFlickerHighlight(false);
         }
+        view->setMaxFrames(config->maxFrames->value());
     } else {
 	view->setGamma(ogr, ogg, ogb);
     }

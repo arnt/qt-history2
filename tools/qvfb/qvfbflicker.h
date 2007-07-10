@@ -37,8 +37,11 @@ public:
 
     void setInterval(uint = 0);
     uint interval() const;
+
+    uint framesRemaining() const { return mFramesRemaining; }
+
 signals:
-    void flickerMapChanged(const QRect &);
+    void flickerMapChanged();
 
 private:
     QPixmap flickerView;
@@ -47,6 +50,8 @@ private:
     QPixmap lastPixmap;
     QVector<int> depth;
     uint mInterval;
+    uint mFramesRemaining;
+    QTimer *fadeTimer;
 };
 
 #endif //  QVFBFLICKER_H
