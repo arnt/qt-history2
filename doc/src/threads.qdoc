@@ -53,6 +53,10 @@
        woken up by another thread.
     \endlist
 
+    \note Qt's threading classes are implemented with native threading API,
+    e.g., Win32 and pthreads. Therefore, they can be used with threads of the
+    same native API.
+
     \section2 Creating a Thread
 
     To create a thread, subclass QThread and reimplement its
