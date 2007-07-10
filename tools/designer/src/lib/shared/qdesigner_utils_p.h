@@ -38,6 +38,7 @@ class QPixmap;
 
 namespace qdesigner_internal {
 class ResourceMimeData;
+class QDesignerFormWindowCommand;
 
 QDESIGNER_SHARED_EXPORT void designerWarning(const QString &message);
 
@@ -71,6 +72,8 @@ public:
 QDESIGNER_SHARED_EXPORT QIcon resourceMimeDataToIcon(const ResourceMimeData &rmd, QDesignerFormWindowInterface *fw);
 // Convenience to return an dropped pixmap, normalized to form directory
 QDESIGNER_SHARED_EXPORT QPixmap resourceMimeDataToPixmap(const ResourceMimeData &rmd, QDesignerFormWindowInterface *fw);
+// Create a command to change a text property (that is, create a reset property command if the text is empty)
+QDESIGNER_SHARED_EXPORT QDesignerFormWindowCommand *createTextPropertyCommand(const QString &propertyName, const QString &text, QObject *object, QDesignerFormWindowInterface *fw);
 
 // Convenience to run UIC
 enum UIC_Mode { UIC_GenerateCode, UIC_ConvertV3 };

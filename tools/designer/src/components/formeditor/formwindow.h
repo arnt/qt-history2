@@ -140,8 +140,8 @@ public:
     void beginCommand(const QString &description);
     void endCommand();
 
-    bool blockSelectionChanged(bool blocked);
-    void emitSelectionChanged();
+    virtual bool blockSelectionChanged(bool blocked);
+    virtual void emitSelectionChanged();
 
     bool unify(QObject *w, QString &s, bool changeIt);
 
@@ -247,7 +247,7 @@ private:
     bool handleKeyReleaseEvent(QWidget *widget, QWidget *managedWidget, QKeyEvent *e);
 
     bool isCentralWidget(QWidget *w) const;
-    
+
     bool setCurrentWidget(QWidget *currentWidget);
     bool trySelectWidget(QWidget *w, bool select);
 
@@ -294,7 +294,7 @@ private:
     Selection *m_selection;
 
     QPoint m_startPos;
-   
+
     QUndoStack *m_commandHistory;
 
     QString m_fileName;

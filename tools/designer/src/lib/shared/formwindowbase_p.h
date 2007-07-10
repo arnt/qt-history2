@@ -97,6 +97,9 @@ public:
     // Factory method to create a form builder
     virtual QEditorFormBuilder *createFormBuilder() = 0;
 
+    virtual bool blockSelectionChanged(bool blocked) = 0;
+    virtual void emitSelectionChanged() = 0;
+
 private:
     void syncGridFeature();
     static Grid m_defaultGrid;

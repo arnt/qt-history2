@@ -13,6 +13,7 @@
 
 #include "qdesigner_utils_p.h"
 #include "resourcemimedata_p.h"
+#include "qdesigner_propertycommand_p.h"
 
 #include <QtDesigner/QDesignerFormEditorInterface>
 #include <QtDesigner/QDesignerFormWindowInterface>
@@ -100,6 +101,18 @@ namespace qdesigner_internal
         const QString normalizedQrcPath = fw->absoluteDir().absoluteFilePath(rmd.qrcPath());
         const QPixmap rc =  fw->core()->iconCache()->nameToPixmap(rmd.filePath(), normalizedQrcPath);
         return rc;
+    }
+
+    QDESIGNER_SHARED_EXPORT QDesignerFormWindowCommand *createTextPropertyCommand(const QString &propertyName, const QString &text, QObject *object, QDesignerFormWindowInterface *fw)
+    {
+        if (text.isEmpty()) {
+            ResetPropertyCommand *cmd = new ResetPropertyCommand(fw);
+            cmd->init(object, propertyName);
+            return cmd;
+        }
+        SetPropertyCommand *cmd = new SetPropertyCommand(fw);
+        cmd->init(object, propertyName, text);
+        return cmd;
     }
 
     QDESIGNER_SHARED_EXPORT bool runUIC(const QString &fileName, UIC_Mode mode, QByteArray& ba, QString &errorMessage)

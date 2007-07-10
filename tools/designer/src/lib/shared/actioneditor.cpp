@@ -450,18 +450,6 @@ static QDesignerFormWindowCommand *setIconPropertyCommand(const QIcon &newIcon, 
     return cmd;
 }
 
-static QDesignerFormWindowCommand *setTextPropertyCommand(const QString &propertyName, const QString &text, QAction *action, QDesignerFormWindowInterface *fw)
-{
-    if (text.isEmpty()) {
-        ResetPropertyCommand *cmd = new ResetPropertyCommand(fw);
-        cmd->init(action, propertyName);
-        return cmd;
-    }
-    SetPropertyCommand *cmd = new SetPropertyCommand(fw);
-    cmd->init(action, propertyName, text);
-    return cmd;
-}
-
 void ActionEditor::editAction(QAction *action)
 {
     if (!action)
@@ -497,10 +485,10 @@ void ActionEditor::editAction(QAction *action)
         formWindow()->beginCommand(QLatin1String("Edit action"));
 
     if (changedMask & NameChanged)
-        formWindow()->commandHistory()->push(setTextPropertyCommand(QLatin1String("objectName"), newName, action, formWindow()));
+        formWindow()->commandHistory()->push(createTextPropertyCommand(QLatin1String("objectName"), newName, action, formWindow()));
 
     if (changedMask & TextChanged)
-        formWindow()->commandHistory()->push(setTextPropertyCommand(QLatin1String("text"), newText, action, formWindow()));
+        formWindow()->commandHistory()->push(createTextPropertyCommand(QLatin1String("text"), newText, action, formWindow()));
 
     if (changedMask & IconChanged)
         formWindow()->commandHistory()->push(setIconPropertyCommand(newIcon, action, formWindow()));

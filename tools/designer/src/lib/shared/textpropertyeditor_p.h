@@ -43,6 +43,7 @@ namespace qdesigner_internal {
         TextPropertyEditor(const TextPropertyEditor &);
         TextPropertyEditor& operator=(const TextPropertyEditor &);
         Q_OBJECT
+        Q_PROPERTY(QString text READ text WRITE setText USER true)
     public:
         enum EmbeddingMode {
             // Stand-alone widget
