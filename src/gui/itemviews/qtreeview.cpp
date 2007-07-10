@@ -1321,8 +1321,9 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
         }
     }
 
+    const bool widgetHasFocus = hasFocus();
     bool currentRowHasFocus = false;
-    if (allColumnsShowFocus && current.isValid()) { // check if the focus index is before or after the visible columns
+    if (allColumnsShowFocus && widgetHasFocus && current.isValid()) { // check if the focus index is before or after the visible columns
         const int r = index.row();
         for (int c = 0; c < left && !currentRowHasFocus; ++c)
             currentRowHasFocus = (index.sibling(r, c) == current);
@@ -1342,7 +1343,6 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
     int headerSection;
     QModelIndex modelIndex;
 
-    const bool widgetHasFocus = hasFocus();
     for (int headerIndex = left; headerIndex <= right; ++headerIndex) {
         headerSection = header->logicalIndex(headerIndex);
         if (header->isSectionHidden(headerSection))
