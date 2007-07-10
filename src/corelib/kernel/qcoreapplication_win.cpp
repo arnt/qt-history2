@@ -118,7 +118,6 @@ Q_CORE_EXPORT void qWinMsgHandler(QtMsgType t, const char* str)
   qWinMain() - Initializes Windows. Called from WinMain() in qtmain_win.cpp
  *****************************************************************************/
 
-
 #if defined(Q_OS_TEMP)
 Q_CORE_EXPORT void __cdecl qWinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdParam,
                int cmdShow, int &argc, QVector<char *> &argv)
