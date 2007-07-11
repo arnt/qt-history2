@@ -309,6 +309,42 @@ void qt_change_net_wm_state(const QWidget* w, bool set, Atom one, Atom two = 0)
                false, (SubstructureNotifyMask | SubstructureRedirectMask), &e);
 }
 
+static QVector<Atom> getNetWmState(QWidget *w)
+{
+    QVector<Atom> returnValue;
+
+    // Don't read anything, just get the size of the property data
+    Atom actualType;
+    int actualFormat;
+    ulong propertyLength;
+    ulong bytesLeft;
+    uchar *propertyData = 0;
+    if (XGetWindowProperty(X11->display, w->internalWinId(), ATOM(_NET_WM_STATE), 0, 0,
+                           False, XA_ATOM, &actualType, &actualFormat,
+                           &propertyLength, &bytesLeft, &propertyData) == Success
+        && actualType == XA_ATOM && actualFormat == 32) {
+        returnValue.resize(bytesLeft / 4);
+        XFree((char*) propertyData);
+
+        // fetch all data
+        if (XGetWindowProperty(X11->display, w->internalWinId(), ATOM(_NET_WM_STATE), 0,
+                               returnValue.size(), False, XA_ATOM, &actualType, &actualFormat,
+                               &propertyLength, &bytesLeft, &propertyData) != Success) {
+            returnValue.clear();
+        } else if (propertyLength != returnValue.size()) {
+            returnValue.resize(propertyLength);
+        }
+
+        // put it into netWmState
+        if (!returnValue.isEmpty()) {
+            memcpy(returnValue.data(), propertyData, returnValue.size() * sizeof(Atom));
+        }
+        XFree((char*) propertyData);
+    }
+
+    return returnValue;
+}
+
 void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyOldWindow)
 {
     Q_Q(QWidget);
@@ -1617,29 +1653,29 @@ void QWidgetPrivate::show_sys()
 
         SetMWMHints(X11->display, q->internalWinId(), mwmhints);
 
-        // set _NET_WM_STATE
-        Atom net_winstates[6] = { 0, 0, 0, 0, 0, 0 };
-        int curr_winstate = 0;
+        // update _NET_WM_STATE
+        QVector<Atom> netWmState = getNetWmState(q);
 
         Qt::WindowFlags flags = q->windowFlags();
         if (flags & Qt::WindowStaysOnTopHint) {
-            net_winstates[curr_winstate++] = ATOM(_NET_WM_STATE_ABOVE);
-            net_winstates[curr_winstate++] = ATOM(_NET_WM_STATE_STAYS_ON_TOP);
+            netWmState.append(ATOM(_NET_WM_STATE_ABOVE));
+            netWmState.append(ATOM(_NET_WM_STATE_STAYS_ON_TOP));
         }
         if (q->isFullScreen()) {
-            net_winstates[curr_winstate++] = ATOM(_NET_WM_STATE_FULLSCREEN);
+            netWmState.append(ATOM(_NET_WM_STATE_FULLSCREEN));
         }
         if (q->isMaximized()) {
-            net_winstates[curr_winstate++] = ATOM(_NET_WM_STATE_MAXIMIZED_HORZ);
-            net_winstates[curr_winstate++] = ATOM(_NET_WM_STATE_MAXIMIZED_VERT);
+            netWmState.append(ATOM(_NET_WM_STATE_MAXIMIZED_HORZ));
+            netWmState.append(ATOM(_NET_WM_STATE_MAXIMIZED_VERT));
         }
         if (data.window_modality != Qt::NonModal) {
-            net_winstates[curr_winstate++] = ATOM(_NET_WM_STATE_MODAL);
+            netWmState.append(ATOM(_NET_WM_STATE_MODAL));
         }
 
-        if (curr_winstate > 0) {
-            XChangeProperty(X11->display, q->internalWinId(), ATOM(_NET_WM_STATE), XA_ATOM,
-                            32, PropModeReplace, (unsigned char *) net_winstates, curr_winstate);
+        if (!netWmState.isEmpty()) {
+            XChangeProperty(X11->display, q->internalWinId(),
+                            ATOM(_NET_WM_STATE), XA_ATOM, 32, PropModeReplace,
+                            (unsigned char *) netWmState.data(), netWmState.size());
         } else {
             XDeleteProperty(X11->display, q->internalWinId(), ATOM(_NET_WM_STATE));
         }
