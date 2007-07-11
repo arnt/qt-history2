@@ -999,10 +999,11 @@ QRect QTreeView::visualRect(const QModelIndex &index) const
     if (spanning && index.column() > 0)
         return QRect();
 
-    int x = columnViewportPosition(index.column());
+    bool firstColumnMoved = (spanning && (d->header->logicalIndex(0) != 0));
+    int x = (firstColumnMoved? 0 : columnViewportPosition(index.column()));
     int w = (spanning ? d->header->length() : columnWidth(index.column()));
 
-    if (index.column() == 0) {
+    if (index.column() == 0 && !firstColumnMoved) {
         int i = d->indentationForItem(vi);
         x += i;
         w -= i;
