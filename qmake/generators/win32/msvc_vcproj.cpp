@@ -380,7 +380,7 @@ QUuid VcprojGenerator::getProjectUUID(const QString &filename)
 
     // If none, create one based on the MD5 of absolute project path
     if(uuid.isNull() || !filename.isEmpty()) {
-        QString abspath = filename.isEmpty()?project->first("QMAKE_MAKEFILE"):filename;
+        QString abspath = Option::fixPathToLocalOS(filename.isEmpty()?project->first("QMAKE_MAKEFILE"):filename);
         QByteArray digest = QCryptographicHash::hash(abspath.toUtf8(), QCryptographicHash::Md5);
         memcpy((unsigned char*)(&uuid), digest.constData(), sizeof(QUuid));
         validUUID = !uuid.isNull();
