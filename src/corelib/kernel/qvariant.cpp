@@ -1501,15 +1501,6 @@ QVariant::QVariant(const char *val)
 */
 
 /*!
-  \fn QVariant::QVariant(QBool val)
-
-  \internal
-
-    Constructs a new variant with a boolean value, \a val.
-*/
-
-
-/*!
   \fn QVariant::QVariant(double val)
 
     Constructs a new variant with a floating point value, \a val.
@@ -1566,8 +1557,6 @@ QVariant::QVariant(qulonglong val)
 { d.is_null = false; d.type = ULongLong; d.data.ull = val; }
 QVariant::QVariant(bool val)
 { d.is_null = false; d.type = Bool; d.data.b = val; }
-QVariant::QVariant(QBool val)
-{ d.is_null = false; d.type = Bool; d.data.b = (val != 0); }
 QVariant::QVariant(double val)
 { d.is_null = false; d.type = Double; d.data.d = val; }
 
