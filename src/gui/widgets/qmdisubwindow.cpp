@@ -376,6 +376,13 @@ class ControllerWidget : public QWidget
 public:
     ControllerWidget(QWidget *parent = 0);
     QSize sizeHint() const;
+    void setControlVisible(QMdiSubWindowPrivate::WindowStateAction action, bool visible);
+    inline bool hasVisibleControls() const
+    {
+        return (visibleControls & QStyle::SC_MdiMinButton)
+               || (visibleControls & QStyle::SC_MdiNormalButton)
+               || (visibleControls & QStyle::SC_MdiCloseButton);
+    }
 
 signals:
     void _q_minimize();
@@ -393,6 +400,7 @@ protected:
 private:
     QStyle::SubControl activeControl;
     QStyle::SubControl hoverControl;
+    QStyle::SubControls visibleControls;
     void initStyleOption(QStyleOptionComplex *option) const;
     inline QStyle::SubControl getSubControl(const QPoint &pos) const
     {
@@ -408,7 +416,8 @@ private:
 ControllerWidget::ControllerWidget(QWidget *parent)
     : QWidget(parent),
       activeControl(QStyle::SC_None),
-      hoverControl(QStyle::SC_None)
+      hoverControl(QStyle::SC_None),
+      visibleControls(QStyle::SC_None)
 {
     setFocusPolicy(Qt::NoFocus);
     setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
@@ -425,6 +434,27 @@ QSize ControllerWidget::sizeHint() const
     initStyleOption(&opt);
     QSize size(48, 16);
     return style()->sizeFromContents(QStyle::CT_MdiControls, &opt, size, this);
+}
+
+void ControllerWidget::setControlVisible(QMdiSubWindowPrivate::WindowStateAction action, bool visible)
+{
+    QStyle::SubControl subControl = QStyle::SC_None;
+
+    // Map action from QMdiSubWindowPrivate::WindowStateAction to QStyle::SubControl.
+    if (action == QMdiSubWindowPrivate::MaximizeAction)
+        subControl = QStyle::SC_MdiNormalButton;
+    else if (action == QMdiSubWindowPrivate::CloseAction)
+        subControl = QStyle::SC_MdiCloseButton;
+    else if (action == QMdiSubWindowPrivate::MinimizeAction)
+        subControl = QStyle::SC_MdiMinButton;
+
+    if (subControl == QStyle::SC_None)
+        return;
+
+    if (visible && !(visibleControls & subControl))
+        visibleControls |= subControl;
+    else if (!visible && (visibleControls & subControl))
+        visibleControls &= ~subControl;
 }
 
 /*
@@ -546,7 +576,7 @@ bool ControllerWidget::event(QEvent *event)
 void ControllerWidget::initStyleOption(QStyleOptionComplex *option) const
 {
     option->initFrom(this);
-    option->subControls = QStyle::SC_All;
+    option->subControls = visibleControls;
     option->activeSubControls = QStyle::SC_None;
 }
 
@@ -594,11 +624,11 @@ ControlContainer::~ControlContainer()
 */
 void ControlContainer::showButtonsInMenuBar(QMenuBar *menuBar)
 {
-    if (!menuBar || !mdiChild)
+    if (!menuBar || !mdiChild || mdiChild->windowFlags() & Qt::FramelessWindowHint)
         return;
     m_menuBar = menuBar;
 
-    if (m_menuLabel) {
+    if (m_menuLabel && mdiChild->windowFlags() & Qt::WindowSystemMenuHint) {
         QWidget *currentLeft = menuBar->cornerWidget(Qt::TopLeftCorner);
         if (currentLeft)
             currentLeft->hide();
@@ -608,7 +638,8 @@ void ControlContainer::showButtonsInMenuBar(QMenuBar *menuBar)
         }
         m_menuLabel->show();
     }
-    if (m_controllerWidget) {
+    ControllerWidget *controllerWidget = qobject_cast<ControllerWidget *>(m_controllerWidget);
+    if (controllerWidget && controllerWidget->hasVisibleControls()) {
         QWidget *currentRight = menuBar->cornerWidget(Qt::TopRightCorner);
         if (currentRight)
             currentRight->hide();
@@ -1795,7 +1826,6 @@ QPalette QMdiSubWindowPrivate::desktopPalette() const
     return newPalette;
 }
 
-#ifndef QT_NO_ACTION
 void QMdiSubWindowPrivate::updateActions()
 {
     Qt::WindowFlags windowFlags = q_func()->windowFlags();
@@ -1826,7 +1856,6 @@ void QMdiSubWindowPrivate::updateActions()
     if (windowFlags & Qt::WindowMaximizeButtonHint)
         setVisible(MaximizeAction, true);
 }
-#endif // QT_NO_ACTION
 
 void QMdiSubWindowPrivate::setFocusWidget()
 {
@@ -1927,13 +1956,28 @@ void QMdiSubWindowPrivate::setWindowFlags(Qt::WindowFlags windowFlags)
 
     q->setWindowFlags(windowFlags);
     updateGeometryConstraints();
-#ifndef QT_NO_ACTION
     updateActions();
-#endif
     QSize currentSize = q->size();
     if (q->isVisible() && (currentSize.width() < internalMinimumSize.width()
             || currentSize.height() < internalMinimumSize.height())) {
         q->resize(currentSize.expandedTo(internalMinimumSize));
+    }
+}
+
+void QMdiSubWindowPrivate::setVisible(WindowStateAction action, bool visible)
+{
+#ifndef QT_NO_ACTION
+    if (actions[action])
+        actions[action]->setVisible(visible);
+#endif
+
+    Q_Q(QMdiSubWindow);
+    if (!controlContainer)
+        controlContainer = new ControlContainer(q);
+
+    if (ControllerWidget *ctrlWidget = qobject_cast<ControllerWidget *>
+                                       (controlContainer->controllerWidget())) {
+        ctrlWidget->setControlVisible(action, visible);
     }
 }
 
@@ -1942,12 +1986,6 @@ void QMdiSubWindowPrivate::setEnabled(WindowStateAction action, bool enable)
 {
     if (actions[action])
         actions[action]->setEnabled(enable);
-}
-
-void QMdiSubWindowPrivate::setVisible(WindowStateAction action, bool visible)
-{
-    if (actions[action])
-        actions[action]->setVisible(visible);
 }
 
 #ifndef QT_NO_MENU
@@ -2602,9 +2640,7 @@ bool QMdiSubWindow::event(QEvent *event)
         d->updateCursor();
         d->updateMask();
         d->updateDirtyRegions();
-#ifndef QT_NO_ACTION
         d->updateActions();
-#endif
         if (!wasResized && testAttribute(Qt::WA_Resized))
             setAttribute(Qt::WA_Resized, false);
         break;

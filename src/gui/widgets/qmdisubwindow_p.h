@@ -230,15 +230,13 @@ public:
     void leaveRubberBandMode();
 #endif
     QPalette desktopPalette() const;
-#ifndef QT_NO_ACTION
     void updateActions();
-#endif
     void setFocusWidget();
     void restoreFocus();
     void setWindowFlags(Qt::WindowFlags windowFlags);
+    void setVisible(WindowStateAction, bool visible = true);
 #ifndef QT_NO_ACTION
     void setEnabled(WindowStateAction, bool enable = true);
-    void setVisible(WindowStateAction, bool visible = true);
 #ifndef QT_NO_MENU
     void addToSystemMenu(WindowStateAction, const QString &text, const char *slot);
 #endif

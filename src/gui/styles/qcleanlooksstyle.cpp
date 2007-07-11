@@ -3759,7 +3759,18 @@ QSize QCleanlooksStyle::sizeFromContents(ContentsType type, const QStyleOption *
 	    newSize += QSize(4, 4);
 	break;
     case CT_MdiControls:
-        newSize = QSize(60, 19);
+        if (const QStyleOptionComplex *styleOpt = qstyleoption_cast<const QStyleOptionComplex *>(option)) {
+            int width = 0;
+            if (styleOpt->subControls & SC_MdiMinButton)
+                width += 19 + 1;
+            if (styleOpt->subControls & SC_MdiNormalButton)
+                width += 19 + 1;
+            if (styleOpt->subControls & SC_MdiCloseButton)
+                width += 19 + 1;
+            newSize = QSize(width, 19);
+        } else {
+            newSize = QSize(60, 19);
+        }
         break;
     default:
         break;
@@ -4131,26 +4142,6 @@ QRect QCleanlooksStyle::subControlRect(ComplexControl control, const QStyleOptio
             ret = visualRect(tb->direction, tb->rect, ret);
         }
         break;
-#ifndef QT_NO_WORKSPACE
-    case CC_MdiControls:
-    {
-        int buttonWidth = option->rect.width()/3 - 1;
-        int offset = 0;
-        switch (subControl) {
-        case SC_MdiCloseButton:
-            offset += buttonWidth + 2;
-            //FALL THROUGH
-        case SC_MdiNormalButton:
-            offset += buttonWidth;
-            //FALL THROUGH
-        case SC_MdiMinButton:
-            rect = QRect(offset, 0, buttonWidth, option->rect.height());
-            break;
-        default:
-            break;
-        }
-    }
-#endif // QT_NO_WORKSPACE
     default:
         break;
     }

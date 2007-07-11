@@ -3484,21 +3484,38 @@ QRect QWindowsXPStyle::subControlRect(ComplexControl cc, const QStyleOptionCompl
 #ifndef QT_NO_WORKSPACE
     case CC_MdiControls:
     {
-        int buttonWidth = option->rect.width()/3;
+        int numSubControls = 0;
+        if (option->subControls & SC_MdiCloseButton)
+            ++numSubControls;
+        if (option->subControls & SC_MdiMinButton)
+            ++numSubControls;
+        if (option->subControls & SC_MdiNormalButton)
+            ++numSubControls;
+        if (numSubControls == 0)
+            break;
+
+        int buttonWidth = option->rect.width()/ numSubControls;
         int offset = 0;
         switch (subControl) {
         case SC_MdiCloseButton:
+            // Only one sub control, no offset needed.
+            if (numSubControls == 1)
+                break;
             offset += buttonWidth;
             //FALL THROUGH
         case SC_MdiNormalButton:
-            offset += buttonWidth;
-            //FALL THROUGH
-        case SC_MdiMinButton:
-            rect = QRect(offset, 0, buttonWidth, option->rect.height());
+            // No offset needed if
+            // 1) There's only one sub control
+            // 2) We have a close button and a normal button (offset already added in SC_MdiClose)
+            if (numSubControls == 1 || (numSubControls == 2 && !(option->subControls & SC_MdiMinButton)))
+                break;
+            if (option->subControls & SC_MdiNormalButton)
+                offset += buttonWidth;
             break;
         default:
             break;
         }
+        rect = QRect(offset, 0, buttonWidth, option->rect.height());
         break;
     }
 #endif // QT_NO_WORKSPACE
@@ -3576,7 +3593,18 @@ QSize QWindowsXPStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt
         break;
 
     case CT_MdiControls:
-        sz = QSize(54, 19);
+        if (const QStyleOptionComplex *styleOpt = qstyleoption_cast<const QStyleOptionComplex *>(option)) {
+            int width = 0;
+            if (styleOpt->subControls & SC_MdiMinButton)
+                width += 17 + 1;
+            if (styleOpt->subControls & SC_MdiNormalButton)
+                width += 17 + 1;
+            if (styleOpt->subControls & SC_MdiCloseButton)
+                width += 17 + 1;
+            sz = QSize(width, 19);
+        } else {
+            sz = QSize(54, 19);
+        }
         break;
 
     default:
