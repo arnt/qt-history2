@@ -39,6 +39,7 @@ QScriptValue constructStringRefClass(QScriptEngine *eng);
 QScriptValue constructTextStreamClass(QScriptEngine *eng);
 QScriptValue constructTimeLineClass(QScriptEngine *eng);
 QScriptValue constructTimerClass(QScriptEngine *eng);
+QScriptValue constructSettingsClass(QScriptEngine *eng);
 void extendStringPrototype(QScriptEngine *eng);
 
 static QScriptValue scriptValueFromQPoint(QScriptEngine *engine, const QPoint &point)
@@ -208,6 +209,7 @@ void QtCoreScriptPlugin::initialize(const QString &key, QScriptEngine *engine)
         extensionObject.setProperty("QTextStream", constructTextStreamClass(engine));
         extensionObject.setProperty("QTimeLine", constructTimeLineClass(engine));
         extensionObject.setProperty("QTimer", constructTimerClass(engine));
+        extensionObject.setProperty("QSettings", constructSettingsClass(engine));
         extendStringPrototype(engine);
     } else {
         Q_ASSERT_X(false, "initialize", qPrintable(key));
