@@ -1470,6 +1470,7 @@ void QScriptEnginePrivate::init()
     m_id_table.id_callee      = nameId(QLatin1String("callee"), true);
     m_id_table.id___proto__   = nameId(QLatin1String("__proto__"), true);
     m_id_table.id___fileName__ = nameId(QLatin1String("__fileName__"), true);
+    m_id_table.id___qt_sender__  = nameId(QLatin1String("__qt_sender__"), true);
 
     const int TEMP_STACK_SIZE = 10 * 1024;
     tempStackBegin = new QScriptValueImpl[TEMP_STACK_SIZE];

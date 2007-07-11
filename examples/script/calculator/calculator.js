@@ -71,7 +71,7 @@ Calculator.prototype.calculate = function(rightOperand, pendingOperator)
 
 Calculator.prototype.digitClicked = function()
 {
-    var digitValue = this.sender.text - 0;
+    var digitValue = __qt_sender__.text - 0;
     if ((digitValue == 0) && (this.ui.display.text == "0"))
         return;
     if (this.waitingForOperand) {
@@ -85,15 +85,15 @@ Calculator.prototype.unaryOperatorClicked = function()
 {
     var operand = this.ui.display.text - 0;
     var result = 0;
-    if (this.sender.text == "Sqrt") {
+    if (__qt_sender__.text == "Sqrt") {
         if (operand < 0) {
             this.abortOperation();
             return;
         }
         result = Math.sqrt(operand);
-    } else if (this.sender.text == "x^2") {
+    } else if (__qt_sender__.text == "x^2") {
         result = Math.pow(operand, 2);
-    } else if (this.sender.text == "1/x") {
+    } else if (__qt_sender__.text == "1/x") {
         if (operand == 0.0) {
             this.abortOperation();
             return;
@@ -129,7 +129,7 @@ Calculator.prototype.additiveOperatorClicked = function()
         this.sumSoFar = operand;
     }
 
-    this.pendingAdditiveOperator = this.sender.text;
+    this.pendingAdditiveOperator = __qt_sender__.text;
     this.waitingForOperand = true;
 }
 
@@ -147,7 +147,7 @@ Calculator.prototype.multiplicativeOperatorClicked = function()
         this.factorSoFar = operand;
     }
 
-    this.pendingMultiplicativeOperator = this.sender.text;
+    this.pendingMultiplicativeOperator = __qt_sender__.text;
     this.waitingForOperand = true;
 }
 

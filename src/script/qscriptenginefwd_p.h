@@ -101,6 +101,7 @@ public:
     QScriptNameIdImpl *id_callee;
     QScriptNameIdImpl *id___proto__;
     QScriptNameIdImpl *id___fileName__;
+    QScriptNameIdImpl *id___qt_sender__;
 };
 
 } // namespace QScript
