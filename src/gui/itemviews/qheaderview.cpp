@@ -1556,12 +1556,19 @@ void QHeaderView::sectionsInserted(const QModelIndex &parent,
         d->length += insertLength;
         QHeaderViewPrivate::SectionSpan span(insertLength, insertCount, d->globalResizeMode);
         d->sectionSpans.append(span);
-    } else {
+    } else if ((d->sectionSpans.at(insertAt).sectionSize() == d->defaultSectionSize)
+               && d->sectionSpans.at(insertAt).resizeMode == d->globalResizeMode) {
+        // add the new sections to an existing span
         int insertLength = d->sectionSpans.at(insertAt).sectionSize() * insertCount;
         d->length += insertLength;
         d->sectionSpans[insertAt].size += insertLength;
         d->sectionSpans[insertAt].count += insertCount;
-        d->createSectionSpan(logicalFirst, logicalLast, d->defaultSectionSize * insertCount, d->globalResizeMode);
+    } else {
+        // separate them out into their own span
+        int insertLength = d->defaultSectionSize * insertCount;
+        d->length += insertLength;
+        QHeaderViewPrivate::SectionSpan span(insertLength, insertCount, d->globalResizeMode);
+        d->sectionSpans.insert(insertAt, span);
     }
     
     // update resize mode section counts
@@ -1574,9 +1581,11 @@ void QHeaderView::sectionsInserted(const QModelIndex &parent,
     if (!d->sectionHidden.isEmpty()) {
         QBitArray sectionHidden(d->sectionHidden);
         sectionHidden.resize(sectionHidden.count() + insertCount);
-        sectionHidden.fill(false, logicalFirst, logicalLast);
+        //sectionHidden.fill(false, logicalFirst, logicalLast + 1);
+        for (int i = logicalFirst; i <= logicalLast; ++i)
+            sectionHidden.setBit(i, false);
         for (int j = logicalLast + 1; j < sectionHidden.count(); ++j)
-            sectionHidden.setBit(j, d->sectionHidden.testBit(j));
+            sectionHidden.setBit(j, d->sectionHidden.testBit(j - insertCount));
         d->sectionHidden = sectionHidden;
     }
 
