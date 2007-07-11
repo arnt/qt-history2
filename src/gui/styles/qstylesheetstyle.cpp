@@ -2325,6 +2325,7 @@ void QStyleSheetStyle::unpolish(QApplication *app)
     baseStyle()->unpolish(app);
 }
 
+#ifndef QT_NO_TABBAR
 inline static bool verticalTabs(QTabBar::Shape shape)
 {
     return shape == QTabBar::RoundedWest
@@ -2332,6 +2333,7 @@ inline static bool verticalTabs(QTabBar::Shape shape)
            || shape == QTabBar::TriangularWest
            || shape == QTabBar::TriangularEast;
 }
+#endif // QT_NO_TABBAR
 
 void QStyleSheetStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComplex *opt, QPainter *p,
                                           const QWidget *w) const
@@ -3807,6 +3809,7 @@ QSize QStyleSheetStyle::sizeFromContents(ContentsType ct, const QStyleOption *op
             return rule.boxSize(sz);
         break;
 
+#ifndef QT_NO_TABBAR
     case CT_TabBarTab: {
         QRenderRule subRule = renderRule(w, PseudoElement_TabBarTab, PseudoClass_Enabled);
         sz = csz.expandedTo(subRule.minimumContentsSize());
@@ -3823,6 +3826,7 @@ QSize QStyleSheetStyle::sizeFromContents(ContentsType ct, const QStyleOption *op
         }
         break;
                        }
+#endif // QT_NO_TABBAR
 
     default:
         break;
