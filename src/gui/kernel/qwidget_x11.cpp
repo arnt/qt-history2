@@ -144,7 +144,7 @@ static inline bool isTransient(const QWidget *w)
              || w->windowType() == Qt::SplashScreen
              || w->windowType() == Qt::ToolTip
              || w->windowType() == Qt::Drawer)
-            && !w->testAttriute(Qt::WA_X11BypassTransientForHint));
+            && !w->testAttribute(Qt::WA_X11BypassTransientForHint));
 }
 
 static void do_size_hints(QWidget* widget, QWExtra *x);
