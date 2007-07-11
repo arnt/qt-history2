@@ -79,11 +79,21 @@ QStyleOptionMenuItem QComboMenuDelegate::getStyleOption(const QStyleOptionViewIt
     menuOption.checkType = QStyleOptionMenuItem::NonExclusive;
     menuOption.checked = mCombo->currentIndex() == index.row();
     menuOption.menuItemType = QStyleOptionMenuItem::Normal;
-    QVariant decoration = index.model()->data(index, Qt::DecorationRole);
-    if (decoration.type() == QVariant::Pixmap )
-        menuOption.icon = QIcon(qvariant_cast<QPixmap>(decoration));
-    else
-        menuOption.icon = qvariant_cast<QIcon>(decoration);
+
+    QVariant variant = index.model()->data(index, Qt::DecorationRole);
+    switch (variant.type()) {
+    case QVariant::Icon:
+        menuOption.icon = qvariant_cast<QIcon>(variant);
+        break;
+    case QVariant::Color: {
+        static QPixmap pixmap(option.decorationSize);
+        pixmap.fill(qvariant_cast<QColor>(variant));
+        menuOption.icon = pixmap;
+        break; }
+    default:
+        menuOption.icon = qvariant_cast<QPixmap>(variant);
+        break;
+    }
 
     menuOption.text = index.model()->data(index, Qt::DisplayRole).toString()
                            .replace(QLatin1Char('&'), QLatin1String("&&"));
