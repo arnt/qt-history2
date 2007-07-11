@@ -215,7 +215,7 @@ void QTextDocumentFragmentPrivate::insert(QTextCursor &_cursor) const
     a QTextDocument. A document fragment can be created from a
     QTextDocument, from a QTextCursor's selection, or from another
     document fragment. Document fragments can also be created by the
-    static functions, fromPlainText() and fromHTML().
+    static functions, fromPlainText() and fromHtml().
 
     The contents of a document fragment can be obtained as plain text
     by using the toPlainText() function, or it can be obtained as HTML
