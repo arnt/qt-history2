@@ -19,6 +19,17 @@
 //TESTED_CLASS=QColumnView
 //TESTED_FILES=gui/itemviews/qcolumnview.h gui/itemviews/qcolumnview.cpp
 
+// Will try to wait for the condition while allowing event processing
+// for a maximum of 5 seconds.
+#define TRY_VERIFY(expr) \
+    do { \
+        const int step = 50; \
+        for (int i = 0; i < 5000 && !(expr); i+=step) { \
+            QTest::qWait(step); \
+        } \
+        QVERIFY(expr); \
+    } while(0)
+
 #define ANIMATION_DELAY 300
 
 class tst_QColumnView : public QObject {
@@ -369,7 +380,7 @@ void tst_QColumnView::clicked()
     QTest::qWait(ANIMATION_DELAY);
 
     QModelIndex child = home.parent();
-    
+
     //child = child.sibling(child.row()-1, 0);
 
     qRegisterMetaType<QModelIndex>("QModelIndex");
@@ -377,6 +388,7 @@ void tst_QColumnView::clicked()
 
     // find the column to click on that contains child
     QRect rect = view.visualRect(child);
+    TRY_VERIFY(view.isVisible());
     QPoint globalPoint = view.mapToGlobal(rect.center());
     QWidget *w = QApplication::widgetAt(globalPoint);
     QVERIFY(w);
