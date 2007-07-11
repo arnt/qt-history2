@@ -10,24 +10,42 @@ ate the goose who was loose.</source>
     </message>
 </context>
 <context>
+    <name>@default</name>
+    <message>
+        <location filename="../tools/designer/src/components/signalsloteditor/signalsloteditorwindow.cpp" line="543"/>
+        <source>&lt;object&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/signalsloteditor/signalsloteditorwindow.cpp" line="555"/>
+        <source>&lt;signal&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/signalsloteditor/signalsloteditorwindow.cpp" line="555"/>
+        <source>&lt;slot&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>Command</name>
     <message>
-        <location filename="../tools/designer/src/components/signalsloteditor/signalsloteditor.cpp" line="836"/>
+        <location filename="../tools/designer/src/components/signalsloteditor/signalsloteditor.cpp" line="394"/>
         <source>Change signal</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/signalsloteditor/signalsloteditor.cpp" line="848"/>
+        <location filename="../tools/designer/src/components/signalsloteditor/signalsloteditor.cpp" line="406"/>
         <source>Change slot</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/signalsloteditor/signalsloteditor.cpp" line="862"/>
+        <location filename="../tools/designer/src/components/signalsloteditor/signalsloteditor.cpp" line="420"/>
         <source>Change sender</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/signalsloteditor/signalsloteditor.cpp" line="881"/>
+        <location filename="../tools/designer/src/components/signalsloteditor/signalsloteditor.cpp" line="438"/>
         <source>Change receiver</source>
         <translation type="unfinished"></translation>
     </message>
@@ -57,321 +75,359 @@ ate the goose who was loose.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="63"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="65"/>
         <source>Insert &apos;%1&apos;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="181"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="183"/>
         <source>Raise &apos;%1&apos;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="202"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="204"/>
         <source>Lower &apos;%1&apos;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="269"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="271"/>
         <source>Delete &apos;%1&apos;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="371"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="373"/>
         <source>Reparent &apos;%1&apos;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="414"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="416"/>
         <source>Promote to custom widget</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="455"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="457"/>
         <source>Demote from custom widget</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="498"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="500"/>
         <source>Lay out using grid</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="503"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="505"/>
         <source>Lay out vertically</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="508"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="510"/>
         <source>Lay out horizontally</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="546"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="548"/>
         <source>Break layout</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="986"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="988"/>
         <source>Move Page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="1612"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="1614"/>
         <source>Delete Page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="879"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="881"/>
         <source>Page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="1651"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="1653"/>
         <source>page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="1654"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="1656"/>
         <source>Insert Page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="881"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="883"/>
         <source>tab</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="1079"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="1081"/>
         <source>Change Tab order</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="1107"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="1109"/>
         <source>Create Menu Bar</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="1151"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="1153"/>
         <source>Delete Menu Bar</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="1198"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="1200"/>
         <source>Create Status Bar</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="1240"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="1242"/>
         <source>Delete Status Bar</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="1285"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="1287"/>
         <source>Add Tool Bar</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="1349"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="1351"/>
         <source>Set Dock Window Widget</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="1374"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="1376"/>
         <source>Add Dock Window</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="1427"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="1429"/>
         <source>Adjust Size of &apos;%1&apos;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="1471"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="1473"/>
         <source>Change Layout Item Geometry</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="1533"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="1535"/>
         <source>Insert Row</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="1675"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="1801"/>
         <source>Change Table Contents</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="1848"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="1827"/>
         <source>Change Tree Contents</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="2142"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="2123"/>
         <source>Add action</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="2148"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="2129"/>
         <source>Remove action</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="2201"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="2182"/>
         <source>Add menu</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="2207"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="2188"/>
         <source>Remove menu</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="2213"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="2194"/>
         <source>Create submenu</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="2244"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_command.cpp" line="2225"/>
         <source>Delete Tool Bar</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_menu.cpp" line="1139"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_menu.cpp" line="1138"/>
         <source>Set action text</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_menu.cpp" line="1142"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_menu.cpp" line="1141"/>
         <source>Insert action</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_menubar.cpp" line="867"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_menubar.cpp" line="866"/>
         <source>Move action</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_menubar.cpp" line="446"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_menubar.cpp" line="445"/>
         <source>Change Title</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_menubar.cpp" line="448"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_menubar.cpp" line="447"/>
         <source>Insert Menu</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_propertycommand.cpp" line="886"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_propertycommand.cpp" line="1031"/>
         <source>changed &apos;%1&apos; of &apos;%2&apos;</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_propertycommand.cpp" line="888"/>
+    <message numerus="yes">
+        <location filename="../tools/designer/src/lib/shared/qdesigner_propertycommand.cpp" line="1034"/>
         <source>changed &apos;%1&apos; of %2 objects</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_propertycommand.cpp" line="964"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_propertycommand.cpp" line="1110"/>
         <source>reset &apos;%1&apos; of &apos;%2&apos;</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_propertycommand.cpp" line="966"/>
+    <message numerus="yes">
+        <location filename="../tools/designer/src/lib/shared/qdesigner_propertycommand.cpp" line="1113"/>
         <source>reset &apos;%1&apos; of %2 objects</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_propertycommand.cpp" line="1055"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_propertycommand.cpp" line="1202"/>
         <source>add dynamic property &apos;%1&apos; to &apos;%2&apos;</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_propertycommand.cpp" line="1057"/>
+    <message numerus="yes">
+        <location filename="../tools/designer/src/lib/shared/qdesigner_propertycommand.cpp" line="1205"/>
         <source>add dynamic property &apos;%1&apos; to %2 objects</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_propertycommand.cpp" line="1143"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_propertycommand.cpp" line="1291"/>
         <source>remove dynamic property &apos;%1&apos; from &apos;%2&apos;</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_propertycommand.cpp" line="1145"/>
+    <message numerus="yes">
+        <location filename="../tools/designer/src/lib/shared/qdesigner_propertycommand.cpp" line="1294"/>
         <source>remove dynamic property &apos;%1&apos; from %2 objects</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
     </message>
     <message>
         <location filename="../tools/designer/src/lib/shared/qdesigner_propertycommentcommand.cpp" line="56"/>
         <source>changed comment of &apos;%1&apos; of &apos;%2&apos;</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_propertycommentcommand.cpp" line="58"/>
+    <message numerus="yes">
+        <location filename="../tools/designer/src/lib/shared/qdesigner_propertycommentcommand.cpp" line="59"/>
         <source>changed comment of &apos;%1&apos; of %2 objects</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/signalslotdialog.cpp" line="175"/>
+        <source>Change signals/slots</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ConnectDialog</name>
+    <message>
+        <location filename="../tools/designer/src/components/signalsloteditor/connectdialog.ui" line="13"/>
+        <source>Configure Connection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/signalsloteditor/connectdialog.ui" line="59"/>
+        <source>GroupBox</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/signalsloteditor/connectdialog.ui" line="74"/>
+        <source>Edit...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/signalsloteditor/connectdialog.ui" line="99"/>
+        <source>Show all signals and slots</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>Designer</name>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/qdesigner_resource.cpp" line="328"/>
+        <location filename="../tools/designer/src/components/formeditor/qdesigner_resource.cpp" line="364"/>
         <source>Qt Designer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/qdesigner_resource.cpp" line="128"/>
+        <location filename="../tools/designer/src/components/formeditor/qdesigner_resource.cpp" line="131"/>
         <source>This file contains top level spacers.&lt;br&gt;They have &lt;b&gt;NOT&lt;/b&gt; been saved into the form.&lt;br&gt;Perhaps you forgot to create a layout?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/qdesigner_resource.cpp" line="268"/>
+        <location filename="../tools/designer/src/components/formeditor/qdesigner_resource.cpp" line="283"/>
         <source>This file cannot be read because it was created using %1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/qdesigner_resource.cpp" line="283"/>
+        <location filename="../tools/designer/src/components/formeditor/qdesigner_resource.cpp" line="298"/>
         <source>This file was created using Designer from Qt-%1 and cannot be read.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/qdesigner_resource.cpp" line="290"/>
+        <location filename="../tools/designer/src/components/formeditor/qdesigner_resource.cpp" line="305"/>
         <source>This file cannot be read because the extra info extension failed to load.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/qdesigner_resource.cpp" line="316"/>
+        <location filename="../tools/designer/src/components/formeditor/qdesigner_resource.cpp" line="352"/>
         <source>The converted file could not be read.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/qdesigner_resource.cpp" line="324"/>
+        <location filename="../tools/designer/src/components/formeditor/qdesigner_resource.cpp" line="360"/>
         <source>This file was created using Designer from Qt-%1 and will be converted to a new form by Qt Designer.
 The old form has been untouched, but you will have to save this form under a new name.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/qdesigner_resource.cpp" line="332"/>
+        <location filename="../tools/designer/src/components/formeditor/qdesigner_resource.cpp" line="368"/>
         <source>This file was created using Designer from Qt-%1 and could not be read:&lt;br&gt;%2&lt;br&gt;Please run it through &lt;b&gt;uic3 -convert&lt;/b&gt; to convert it to Qt-4&apos;s ui format.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/qdesigner_resource.cpp" line="877"/>
+        <location filename="../tools/designer/src/components/formeditor/qdesigner_resource.cpp" line="940"/>
         <source>Custom Widgets</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/qdesigner_resource.cpp" line="888"/>
+        <location filename="../tools/designer/src/components/formeditor/qdesigner_resource.cpp" line="952"/>
         <source>Promoted Widgets</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_utils.cpp" line="124"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_utils.cpp" line="136"/>
         <source>Unable to launch %1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_utils.cpp" line="128"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_utils.cpp" line="140"/>
         <source>%1 timed out.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -490,41 +546,36 @@ The old form has been untouched, but you will have to save this form under a new
 </context>
 <context>
     <name>LayoutPropertySheet</name>
-    <message>
-        <location filename="../tools/designer/src/components/formeditor/layout_propertysheet.cpp" line="53"/>
-        <source>Layout</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 <context>
     <name>NewForm</name>
     <message>
-        <location filename="../tools/designer/src/designer/newform.cpp" line="44"/>
+        <location filename="../tools/designer/src/designer/newform.cpp" line="47"/>
         <source>C&amp;reate</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/newform.cpp" line="45"/>
+        <location filename="../tools/designer/src/designer/newform.cpp" line="48"/>
         <source>Recent</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/newform.cpp" line="56"/>
+        <location filename="../tools/designer/src/designer/newform.cpp" line="59"/>
         <source>&amp;Close</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/newform.cpp" line="60"/>
+        <location filename="../tools/designer/src/designer/newform.cpp" line="63"/>
         <source>&amp;Open...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/newform.cpp" line="63"/>
+        <location filename="../tools/designer/src/designer/newform.cpp" line="66"/>
         <source>&amp;Recent Forms</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/newform.cpp" line="99"/>
+        <location filename="../tools/designer/src/designer/newform.cpp" line="112"/>
         <source>Error loading form</source>
         <translation type="unfinished"></translation>
     </message>
@@ -534,7 +585,7 @@ The old form has been untouched, but you will have to save this form under a new
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/newform.cpp" line="350"/>
+        <location filename="../tools/designer/src/designer/newform.cpp" line="308"/>
         <source>Read error</source>
         <translation type="unfinished"></translation>
     </message>
@@ -566,47 +617,51 @@ The old form has been untouched, but you will have to save this form under a new
         <source>You have &lt;B&gt;No&lt;/B&gt; Items</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <location filename="../tools/designer/src/designer/extra/oubliette.cpp" line="229"/>
+    <message numerus="yes">
+        <location filename="../tools/designer/src/designer/extra/oubliette.cpp" line="228"/>
         <source>You have %1 of %2 items</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/extra/oubliette.cpp" line="232"/>
+        <location filename="../tools/designer/src/designer/extra/oubliette.cpp" line="231"/>
         <source>OK</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/extra/oubliette.cpp" line="324"/>
+        <location filename="../tools/designer/src/designer/extra/oubliette.cpp" line="323"/>
         <source>Easter Egg Found</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/extra/oubliette.cpp" line="327"/>
+        <location filename="../tools/designer/src/designer/extra/oubliette.cpp" line="326"/>
         <source>Welcome to the Trolltech Business Card Hunt
 Use the direction keys to move around and find the business cards for all the trolls.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/extra/oubliette.cpp" line="332"/>
+        <location filename="../tools/designer/src/designer/extra/oubliette.cpp" line="331"/>
         <source>You Did It!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../tools/designer/src/designer/extra/oubliette.cpp" line="334"/>
-        <source>You&apos;ve collected all the Trolltech cards. It took you %1 steps.
-There&apos;s nothing more here. You should get back to work.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tools/designer/src/designer/extra/oubliette.cpp" line="335"/>
         <source>That&apos;s rather anti-climatic</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/extra/oubliette.cpp" line="335"/>
+        <location filename="../tools/designer/src/designer/extra/oubliette.cpp" line="334"/>
         <source>Quit</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../tools/designer/src/designer/extra/oubliette.cpp" line="333"/>
+        <source>You&apos;ve collected all the Trolltech cards. It took you %n steps.
+There&apos;s nothing more here. You should get back to work.</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
     </message>
 </context>
 <context>
@@ -632,50 +687,55 @@ There&apos;s nothing more here. You should get back to work.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/plugindialog.cpp" line="105"/>
+        <location filename="../tools/designer/src/designer/plugindialog.cpp" line="106"/>
         <source>Qt Designer couldn&apos;t find any plugins</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/plugindialog.cpp" line="108"/>
+        <location filename="../tools/designer/src/designer/plugindialog.cpp" line="109"/>
         <source>Qt Designer found the following plugins</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/plugindialog.cpp" line="163"/>
+        <location filename="../tools/designer/src/designer/plugindialog.cpp" line="164"/>
         <source>New custom widget plugins have been found.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/plugindialog.ui" line="59"/>
+        <location filename="../tools/designer/src/designer/plugindialog.ui" line="68"/>
         <source>TextLabel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/designer/plugindialog.ui" line="60"/>
+        <source>1</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>PreferencesDialog</name>
     <message>
-        <location filename="../tools/designer/src/designer/preferencesdialog.cpp" line="32"/>
+        <location filename="../tools/designer/src/designer/preferencesdialog.cpp" line="34"/>
         <source>Docked Window</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/preferencesdialog.cpp" line="33"/>
+        <location filename="../tools/designer/src/designer/preferencesdialog.cpp" line="35"/>
         <source>Multiple Top-Level Windows</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/preferencesdialog.cpp" line="36"/>
+        <location filename="../tools/designer/src/designer/preferencesdialog.cpp" line="38"/>
         <source>Toolwindow Font</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/preferencesdialog.cpp" line="37"/>
+        <location filename="../tools/designer/src/designer/preferencesdialog.cpp" line="39"/>
         <source>Default Grid</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/preferencesdialog.cpp" line="127"/>
+        <location filename="../tools/designer/src/designer/preferencesdialog.cpp" line="152"/>
         <source>Pick a directory to save templates in</source>
         <translation type="unfinished"></translation>
     </message>
@@ -685,18 +745,28 @@ There&apos;s nothing more here. You should get back to work.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/preferencesdialog.ui" line="24"/>
+        <location filename="../tools/designer/src/designer/preferencesdialog.ui" line="26"/>
         <source>User Interface Mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/preferencesdialog.ui" line="57"/>
+        <location filename="../tools/designer/src/designer/preferencesdialog.ui" line="60"/>
         <source>Additional Template Paths</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/preferencesdialog.ui" line="73"/>
+        <location filename="../tools/designer/src/designer/preferencesdialog.ui" line="122"/>
         <source>...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/designer/preferencesdialog.ui" line="41"/>
+        <source>Preview/Print Style</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/designer/preferencesdialog.ui" line="106"/>
+        <source>Preview/Print Style Sheet</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -711,12 +781,12 @@ There&apos;s nothing more here. You should get back to work.</source>
 <context>
     <name>QActiveXPlugin</name>
     <message>
-        <location filename="../tools/designer/src/plugins/activeqt/plugin.cpp" line="408"/>
+        <location filename="../tools/designer/src/plugins/activeqt/plugin.cpp" line="404"/>
         <source>ActiveX control</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/plugins/activeqt/plugin.cpp" line="411"/>
+        <location filename="../tools/designer/src/plugins/activeqt/plugin.cpp" line="407"/>
         <source>ActiveX control widget</source>
         <translation type="unfinished"></translation>
     </message>
@@ -732,17 +802,17 @@ There&apos;s nothing more here. You should get back to work.</source>
 <context>
     <name>QActiveXTaskMenu</name>
     <message>
-        <location filename="../tools/designer/src/plugins/activeqt/plugin.cpp" line="301"/>
+        <location filename="../tools/designer/src/plugins/activeqt/plugin.cpp" line="297"/>
         <source>Set Control</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/plugins/activeqt/plugin.cpp" line="329"/>
+        <location filename="../tools/designer/src/plugins/activeqt/plugin.cpp" line="325"/>
         <source>Licensed Control</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/plugins/activeqt/plugin.cpp" line="330"/>
+        <location filename="../tools/designer/src/plugins/activeqt/plugin.cpp" line="326"/>
         <source>The control requires a design-time license</source>
         <translation type="unfinished"></translation>
     </message>
@@ -752,6 +822,67 @@ There&apos;s nothing more here. You should get back to work.</source>
     <message>
         <location filename="../tools/designer/src/lib/shared/qdesigner_promotion.cpp" line="55"/>
         <source>%1 is not a promoted class.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_promotion.cpp" line="120"/>
+        <source>The base class %1 is invalid.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_promotion.cpp" line="127"/>
+        <source>The class %1 already exists.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_promotion.cpp" line="136"/>
+        <source>Promoted Widgets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_promotion.cpp" line="262"/>
+        <source>The class %1 cannot be removed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_promotion.cpp" line="271"/>
+        <source>The class %1 cannot be removed because it is still referenced.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_promotion.cpp" line="281"/>
+        <source>The class %1 cannot be renamed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_promotion.cpp" line="288"/>
+        <source>The class %1 cannot be renamed to an empty name.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_promotion.cpp" line="293"/>
+        <source>There is already a class named %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_promotion.cpp" line="322"/>
+        <source>Cannot set an empty include file.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/uilib/formscriptrunner.cpp" line="58"/>
+        <source>Exception at line %1: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/uilib/formscriptrunner.cpp" line="93"/>
+        <source>Unknown error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/uilib/formscriptrunner.cpp" line="144"/>
+        <source>An error occurred while running the script for %1: %2
+Script: %3</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -771,7 +902,7 @@ There&apos;s nothing more here. You should get back to work.</source>
 <context>
     <name>QDesignerActionEditor</name>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actioneditor.cpp" line="31"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actioneditor.cpp" line="32"/>
         <source>Action Editor</source>
         <translation type="unfinished"></translation>
     </message>
@@ -779,291 +910,321 @@ There&apos;s nothing more here. You should get back to work.</source>
 <context>
     <name>QDesignerActions</name>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="109"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="149"/>
         <source>Edit Widgets</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="110"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="150"/>
         <source>&amp;New Form...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="281"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="284"/>
         <source>&amp;Open Form...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="112"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="152"/>
         <source>&amp;Save Form</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="113"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="153"/>
         <source>Save Form &amp;As...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="114"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="154"/>
         <source>Save A&amp;ll Forms</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="115"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="155"/>
         <source>Save Form As &amp;Template...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="1097"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="1166"/>
         <source>&amp;Close Form</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="117"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="159"/>
         <source>&amp;Quit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="118"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="160"/>
         <source>&amp;Preview</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="119"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="161"/>
         <source>Form &amp;Settings...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="120"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="162"/>
         <source>&amp;Minimize</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="122"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="164"/>
         <source>Bring All to Front</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="124"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="166"/>
         <source>Preferences...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="140"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="198"/>
         <source>CTRL+N</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="144"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="202"/>
         <source>CTRL+O</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="160"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="218"/>
         <source>Clear &amp;Menu</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="167"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="225"/>
         <source>CTRL+S</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="174"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="232"/>
         <source>CTRL+SHIFT+S</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="184"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="250"/>
         <source>CTRL+W</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="191"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="257"/>
         <source>CTRL+Q</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="199"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="267"/>
         <source>CTRL+Z</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="203"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="272"/>
         <source>CTRL+SHIFT+Z</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="263"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="333"/>
         <source>CTRL+R</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="276"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="346"/>
         <source>%1 Style</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="286"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="360"/>
         <source>CTRL+M</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="309"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="385"/>
         <source>Qt Designer &amp;Help</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="315"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="392"/>
         <source>Current Widget Help</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="321"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="399"/>
         <source>What&apos;s New in Qt Designer?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="326"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="405"/>
         <source>About Plugins</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="955"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="1024"/>
         <source>About Qt Designer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="335"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="417"/>
         <source>About Qt</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="686"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="754"/>
         <source>Open Form</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="687"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="755"/>
         <source>Designer UI files (*.%1);;All Files (*)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="770"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="838"/>
         <source>Save form as</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="470"/>
-        <source>Save</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="471"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="127"/>
         <source>%1 already exists.
 Do you want to replace it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="546"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="610"/>
         <source>Form %1 successful saved...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="561"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="625"/>
         <source>Designer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="561"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="625"/>
         <source>Feature not implemented yet!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="673"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="741"/>
         <source>Read error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="674"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="742"/>
         <source>%1
 Do you want to update the file location or generate a new form?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="677"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="745"/>
         <source>&amp;Update</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="678"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="746"/>
         <source>&amp;New Form</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="790"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="858"/>
         <source>Save Form?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="751"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="819"/>
         <source>Could not open file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="758"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="826"/>
         <source>The file, %1, could not be opened
 Reason: %2
 Would you like to retry or change your file?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="761"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="829"/>
         <source>Select New File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="791"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="859"/>
         <source>Could not write file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="796"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="864"/>
         <source>It was not possible to write the entire file, %1, to disk.
 Reason:%2
 Would you like to retry?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="1095"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="1164"/>
         <source>&amp;Close Preview</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="1045"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="1114"/>
         <source>Form Settings - %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="157"/>
+        <source>Save &amp;Image...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="158"/>
+        <source>&amp;Print...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="1378"/>
+        <source>Image files (*.%1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="1404"/>
+        <source>Save Image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="1400"/>
+        <source>Saved image %1...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="1405"/>
+        <source>The file %1 could not be written.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="1455"/>
+        <source>Printed %1...</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>QDesignerFormWindow</name>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_formwindow.cpp" line="164"/>
+        <location filename="../tools/designer/src/designer/qdesigner_formwindow.cpp" line="209"/>
         <source>%1 - %2[*]</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_formwindow.cpp" line="174"/>
+        <location filename="../tools/designer/src/designer/qdesigner_formwindow.cpp" line="219"/>
         <source>Save Form?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_formwindow.cpp" line="175"/>
+        <location filename="../tools/designer/src/designer/qdesigner_formwindow.cpp" line="220"/>
         <source>Do you want to save the changes to this document before closing?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_formwindow.cpp" line="177"/>
+        <location filename="../tools/designer/src/designer/qdesigner_formwindow.cpp" line="222"/>
         <source>If you don&apos;t save, your changes will be lost.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1071,37 +1232,37 @@ Would you like to retry?</source>
 <context>
     <name>QDesignerMenu</name>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_menu.cpp" line="64"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_menu.cpp" line="63"/>
         <source>Type Here</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_menu.cpp" line="67"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_menu.cpp" line="66"/>
         <source>Add Separator</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_menu.cpp" line="433"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_menu.cpp" line="432"/>
         <source>Insert separator</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_menu.cpp" line="438"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_menu.cpp" line="437"/>
         <source>Remove separator</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_menu.cpp" line="440"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_menu.cpp" line="439"/>
         <source>Remove action &apos;%1&apos;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_menu.cpp" line="1106"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_menu.cpp" line="1105"/>
         <source>Add separator</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_menu.cpp" line="780"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_menu.cpp" line="779"/>
         <source>Insert action</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1109,22 +1270,22 @@ Would you like to retry?</source>
 <context>
     <name>QDesignerMenuBar</name>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_menubar.cpp" line="77"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_menubar.cpp" line="76"/>
         <source>Type Here</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_menubar.cpp" line="388"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_menubar.cpp" line="387"/>
         <source>Remove Menu &apos;%1&apos;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_menubar.cpp" line="398"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_menubar.cpp" line="397"/>
         <source>Remove Menu Bar</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_menubar.cpp" line="453"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_menubar.cpp" line="452"/>
         <source>Menu</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1132,7 +1293,7 @@ Would you like to retry?</source>
 <context>
     <name>QDesignerObjectInspector</name>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_objectinspector.cpp" line="30"/>
+        <location filename="../tools/designer/src/designer/qdesigner_objectinspector.cpp" line="32"/>
         <source>Object Inspector</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1153,12 +1314,7 @@ Would you like to retry?</source>
 <context>
     <name>QDesignerPropertySheet</name>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_propertysheet.cpp" line="184"/>
-        <source>Layout</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_propertysheet.cpp" line="302"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_propertysheet.cpp" line="432"/>
         <source>Dynamic Properties</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1166,7 +1322,7 @@ Would you like to retry?</source>
 <context>
     <name>QDesignerResourceEditor</name>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_resourceeditor.cpp" line="29"/>
+        <location filename="../tools/designer/src/designer/qdesigner_resourceeditor.cpp" line="30"/>
         <source>Resource Editor</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1174,129 +1330,24 @@ Would you like to retry?</source>
 <context>
     <name>QDesignerSignalSlotEditor</name>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_signalsloteditor.cpp" line="28"/>
+        <location filename="../tools/designer/src/designer/qdesigner_signalsloteditor.cpp" line="29"/>
         <source>Signal/Slot Editor</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>QDesignerStackedWidget</name>
-    <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_stackedbox.cpp" line="47"/>
-        <source>Previous Page</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_stackedbox.cpp" line="48"/>
-        <source>Next Page</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_stackedbox.cpp" line="49"/>
-        <source>Delete</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_stackedbox.cpp" line="50"/>
-        <source>Before Current Page</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_stackedbox.cpp" line="51"/>
-        <source>After Current Page</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_stackedbox.cpp" line="52"/>
-        <source>Change Page Order...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_stackedbox.cpp" line="99"/>
-        <source>Change Page Order</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_stackedbox.cpp" line="234"/>
-        <source>Page %1 of %2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_stackedbox.cpp" line="245"/>
-        <source>Insert Page</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 <context>
     <name>QDesignerTabWidget</name>
-    <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_tabwidget.cpp" line="54"/>
-        <source>Delete</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_tabwidget.cpp" line="55"/>
-        <source>Before Current Page</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_tabwidget.cpp" line="56"/>
-        <source>After Current Page</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_tabwidget.cpp" line="337"/>
-        <source>Page %1 of %2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_tabwidget.cpp" line="349"/>
-        <source>Insert Page</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 <context>
     <name>QDesignerToolBox</name>
-    <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_toolbox.cpp" line="26"/>
-        <source>Delete Page</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_toolbox.cpp" line="27"/>
-        <source>Before Current Page</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_toolbox.cpp" line="28"/>
-        <source>After Current Page</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_toolbox.cpp" line="29"/>
-        <source>Change Page Order...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_toolbox.cpp" line="122"/>
-        <source>Change Page Order</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_toolbox.cpp" line="178"/>
-        <source>Page %1 of %2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_toolbox.cpp" line="189"/>
-        <source>Insert Page</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 <context>
     <name>QDesignerWidgetBox</name>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_widgetbox.cpp" line="33"/>
+        <location filename="../tools/designer/src/designer/qdesigner_widgetbox.cpp" line="34"/>
         <source>Widget Box</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1304,195 +1355,161 @@ Would you like to retry?</source>
 <context>
     <name>QDesignerWorkbench</name>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="278"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="281"/>
         <source>&amp;File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="282"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="285"/>
         <source>&amp;Recent Forms</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="289"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="292"/>
         <source>&amp;Edit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="303"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="306"/>
         <source>F&amp;orm</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="308"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="311"/>
         <source>Preview in</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="315"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="318"/>
         <source>&amp;Tools</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="319"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="322"/>
         <source>&amp;Window</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="324"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="327"/>
         <source>&amp;Help</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="353"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="1262"/>
         <source>File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="361"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="1267"/>
         <source>Edit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="369"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="1287"/>
         <source>Tools</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="377"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="1271"/>
         <source>Form</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="383"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="1293"/>
         <source>Toolbars</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="492"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="504"/>
         <source>Widget Box</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="628"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="642"/>
         <source>Qt Designer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="857"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="877"/>
         <source>Save Forms?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="860"/>
-        <source>There are %1 forms with unsaved changes. Do you want to review these changes before quitting?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="862"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="881"/>
         <source>If you don&apos;t review your documents, all your changes will be lost.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="863"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="882"/>
         <source>Discard Changes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="865"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="884"/>
         <source>Review Changes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="977"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="1003"/>
         <source>Backup Information</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="979"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="1005"/>
         <source>Designer was not correctly terminated during your last session.There are existing Backup files, do you want to load them?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="1064"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="1090"/>
         <source>The file &lt;b&gt;%1&lt;/b&gt; could not be opened.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="1083"/>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="1109"/>
         <source>The file &lt;b&gt;%1&lt;/b&gt; is not a valid Designer ui file.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="391"/>
+        <source>Configure Toolbars...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="879"/>
+        <source>There are %n forms with unsaved changes. Do you want to review these changes before quitting?</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="1275"/>
+        <source>Window</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="1279"/>
+        <source>Help</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="1283"/>
+        <source>Style</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/designer/qdesigner_workbench.cpp" line="1291"/>
+        <source>Dock views</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>QFormInternal::QCoreApplication</name>
-    <message>
-        <location filename="../tools/designer/src/lib/uilib/formscriptrunner.cpp" line="59"/>
-        <source>Syntax error.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tools/designer/src/lib/uilib/formscriptrunner.cpp" line="64"/>
-        <source>Exception at line %1: %2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tools/designer/src/lib/uilib/formscriptrunner.cpp" line="96"/>
-        <source>Unknown error</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tools/designer/src/lib/uilib/formscriptrunner.cpp" line="147"/>
-        <source>An error occurred while running the script for %1: %2
-Script: %3</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 <context>
     <name>QFormInternal::QObject</name>
-    <message>
-        <location filename="../tools/designer/src/lib/uilib/formbuilder.cpp" line="153"/>
-        <source>QFormBuilder was unable to create a widget of the class &apos;%1&apos;.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tools/designer/src/lib/uilib/formbuilder.cpp" line="218"/>
-        <source>The layout type `%1&apos; is not supported.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tools/designer/src/lib/uilib/properties.cpp" line="84"/>
-        <source>The set-type property %1 could not be read.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tools/designer/src/lib/uilib/properties.cpp" line="102"/>
-        <source>The enumeration-type property %1 could not be read.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tools/designer/src/lib/uilib/properties.cpp" line="282"/>
-        <source>Reading properties of the type %1 is not supported yet.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tools/designer/src/lib/uilib/properties.cpp" line="544"/>
-        <source>The property %1 could not be written. The type %2 is not supported yet.</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 <context>
     <name>QObject</name>
-    <message>
-        <location filename="../tools/designer/src/components/signalsloteditor/signalsloteditor.cpp" line="364"/>
-        <source>Show all signals and slots</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tools/designer/src/components/signalsloteditor/signalsloteditor.cpp" line="412"/>
-        <source>Configure Connection</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <location filename="../tools/designer/src/components/widgetbox/widgetbox.cpp" line="131"/>
         <source>A parse error occurred at line %1, column %2 of the XML code specified for the widget %3: %4
@@ -1511,28 +1528,23 @@ Script: %3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="1153"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="1223"/>
         <source>The backup file %1 could not be written.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="1259"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="1329"/>
         <source>The backup directory %1 could not be created.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="1265"/>
+        <location filename="../tools/designer/src/designer/qdesigner_actions.cpp" line="1335"/>
         <source>The temporary backup directory %1 could not be created.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/designer/qdesigner_settings.cpp" line="46"/>
+        <location filename="../tools/designer/src/designer/qdesigner_settings.cpp" line="59"/>
         <source>The template path %1 could not be created.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tools/designer/src/lib/shared/pluginmanager.cpp" line="191"/>
-        <source>The plugin &apos;%1&apos; failed to load: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1541,17 +1553,17 @@ Script: %3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_formbuilder.cpp" line="53"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_formbuilder.cpp" line="54"/>
         <source>Script errors occurred:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_taskmenu.cpp" line="85"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_taskmenu.cpp" line="87"/>
         <source>Change Object Name</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_taskmenu.cpp" line="89"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_taskmenu.cpp" line="91"/>
         <source>Object Name</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1567,26 +1579,647 @@ Script: %3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/uilib/abstractformbuilder.cpp" line="1274"/>
+        <location filename="../tools/designer/src/lib/uilib/abstractformbuilder.cpp" line="1299"/>
         <source>Flags property are not supported yet.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/uilib/abstractformbuilder.cpp" line="1355"/>
+        <location filename="../tools/designer/src/lib/uilib/abstractformbuilder.cpp" line="1380"/>
         <source>While applying tab stops: The widget &apos;%1&apos; could not be found.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/uilib/abstractformbuilder.cpp" line="2195"/>
+        <location filename="../tools/designer/src/lib/uilib/abstractformbuilder.cpp" line="2239"/>
         <source>This version of the uitools library is linked without script support.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/formeditor/iconcache.h" line="71"/>
+        <source>The icon specified by %1 could not be opened: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/objectinspector/objectinspectormodel.cpp" line="147"/>
+        <source>&lt;noname&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/objectinspector/objectinspectormodel.cpp" line="148"/>
+        <source>separator</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/objectinspector/objectinspectormodel.cpp" line="222"/>
+        <source>Object</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/objectinspector/objectinspectormodel.cpp" line="223"/>
+        <source>Class</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/signalsloteditor/signalsloteditor.cpp" line="121"/>
+        <source>SENDER(%1), SIGNAL(%2), RECEIVER(%3), SLOT(%4)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/widgetbox/widgetbox.cpp" line="443"/>
+        <source>The widgetbox could not load the file %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/widgetbox/widgetbox.cpp" line="458"/>
+        <source>The widgetbox could not parse the file %1. An error occurred at line %2: %3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/widgetbox/widgetbox.cpp" line="550"/>
+        <source>The file %1 does not appear to be a widgetbox file.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/widgetbox/widgetbox.cpp" line="558"/>
+        <source>An error occurred while parsing the file %1: %2 is not a valid child of the root element.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/widgetbox/widgetbox.cpp" line="996"/>
+        <source>The class attribute for the class %1 does not match the class name %2.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/widgetbox/widgetbox.cpp" line="998"/>
+        <source>The class attribute for the class %1 is missing.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_formbuilder.cpp" line="255"/>
+        <source>The style %1 could not be loaded.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_formbuilder.cpp" line="272"/>
+        <source>The preview failed to build.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_formbuilder.cpp" line="303"/>
+        <source>%1 - [Preview]</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_formbuilder.cpp" line="321"/>
+        <source>Designer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/scriptcommand.cpp" line="23"/>
+        <source>Change script</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/widgetdatabase.cpp" line="347"/>
+        <source>A custom widget plugin whose class name (%1) matches that of an existing class has been found.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/widgetfactory.cpp" line="103"/>
+        <source>The custom widget factory registered for widgets of class %1 returned 0.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/widgetfactory.cpp" line="122"/>
+        <source>A class name mismatch occurred when creating a widget using the custom widget factory registered for widgets of class %1. It returned a widget of class %2.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/uilib/formbuilder.cpp" line="178"/>
+        <source>QFormBuilder was unable to create a widget of the class &apos;%1&apos;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/uilib/formbuilder.cpp" line="243"/>
+        <source>The layout type `%1&apos; is not supported.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/uilib/properties.cpp" line="84"/>
+        <source>The set-type property %1 could not be read.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/uilib/properties.cpp" line="102"/>
+        <source>The enumeration-type property %1 could not be read.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/uilib/properties.cpp" line="284"/>
+        <source>Reading properties of the type %1 is not supported yet.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/uilib/properties.cpp" line="548"/>
+        <source>The property %1 could not be written. The type %2 is not supported yet.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QStackedWidgetEventFilter</name>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_stackedbox.cpp" line="123"/>
+        <source>Previous Page</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_stackedbox.cpp" line="124"/>
+        <source>Next Page</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_stackedbox.cpp" line="125"/>
+        <source>Delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_stackedbox.cpp" line="126"/>
+        <source>Before Current Page</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_stackedbox.cpp" line="127"/>
+        <source>After Current Page</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_stackedbox.cpp" line="128"/>
+        <source>Change Page Order...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_stackedbox.cpp" line="190"/>
+        <source>Change Page Order</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_stackedbox.cpp" line="249"/>
+        <source>Page %1 of %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_stackedbox.cpp" line="260"/>
+        <source>Insert Page</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QTabWidgetEventFilter</name>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_tabwidget.cpp" line="58"/>
+        <source>Delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_tabwidget.cpp" line="59"/>
+        <source>Before Current Page</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_tabwidget.cpp" line="60"/>
+        <source>After Current Page</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_tabwidget.cpp" line="345"/>
+        <source>Page %1 of %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_tabwidget.cpp" line="357"/>
+        <source>Insert Page</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QToolBoxHelper</name>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_toolbox.cpp" line="29"/>
+        <source>Delete Page</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_toolbox.cpp" line="30"/>
+        <source>Before Current Page</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_toolbox.cpp" line="31"/>
+        <source>After Current Page</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_toolbox.cpp" line="32"/>
+        <source>Change Page Order...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_toolbox.cpp" line="101"/>
+        <source>Change Page Order</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_toolbox.cpp" line="156"/>
+        <source>Page %1 of %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_toolbox.cpp" line="168"/>
+        <source>Insert Page</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QtBoolPropertyManager</name>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qtpropertymanager.cpp" line="1199"/>
+        <source>True</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qtpropertymanager.cpp" line="1200"/>
+        <source>False</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QtCharEdit</name>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qteditorfactory.cpp" line="1884"/>
+        <source>Clear Char</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QtColorPropertyManager</name>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qtpropertymanager.cpp" line="6140"/>
+        <source>[%1, %2, %3] (%4)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qtpropertymanager.cpp" line="6207"/>
+        <source>Red</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qtpropertymanager.cpp" line="6215"/>
+        <source>Green</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qtpropertymanager.cpp" line="6223"/>
+        <source>Blue</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qtpropertymanager.cpp" line="6231"/>
+        <source>Alpha</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QtCursorDatabase</name>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qtcursordatabase.cpp" line="20"/>
+        <source>Arrow</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qtcursordatabase.cpp" line="22"/>
+        <source>Up Arrow</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qtcursordatabase.cpp" line="24"/>
+        <source>Cross</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qtcursordatabase.cpp" line="26"/>
+        <source>Wait</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qtcursordatabase.cpp" line="28"/>
+        <source>IBeam</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qtcursordatabase.cpp" line="30"/>
+        <source>Size Vertical</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qtcursordatabase.cpp" line="32"/>
+        <source>Size Horizontal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qtcursordatabase.cpp" line="34"/>
+        <source>Size Backslash</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qtcursordatabase.cpp" line="36"/>
+        <source>Size Slash</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qtcursordatabase.cpp" line="38"/>
+        <source>Size All</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qtcursordatabase.cpp" line="40"/>
+        <source>Blank</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qtcursordatabase.cpp" line="42"/>
+        <source>Split Vertical</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qtcursordatabase.cpp" line="44"/>
+        <source>Split Horizontal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qtcursordatabase.cpp" line="46"/>
+        <source>Pointing Hand</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qtcursordatabase.cpp" line="48"/>
+        <source>Forbidden</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qtcursordatabase.cpp" line="50"/>
+        <source>Open Hand</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qtcursordatabase.cpp" line="52"/>
+        <source>Closed Hand</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qtcursordatabase.cpp" line="54"/>
+        <source>What&apos;s This</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qtcursordatabase.cpp" line="56"/>
+        <source>Busy</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QtFontPropertyManager</name>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qtpropertymanager.cpp" line="5785"/>
+        <source>[%1, %2]</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qtpropertymanager.cpp" line="5860"/>
+        <source>Family</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qtpropertymanager.cpp" line="5871"/>
+        <source>Point Size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qtpropertymanager.cpp" line="5879"/>
+        <source>Bold</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qtpropertymanager.cpp" line="5886"/>
+        <source>Italic</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qtpropertymanager.cpp" line="5893"/>
+        <source>Underline</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qtpropertymanager.cpp" line="5900"/>
+        <source>Strikeout</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qtpropertymanager.cpp" line="5907"/>
+        <source>Kerning</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>QtKeySequenceEdit</name>
     <message>
-        <location filename="../tools/designer/src/components/propertyeditor/qpropertyeditor_items.cpp" line="1338"/>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qteditorfactory.cpp" line="1564"/>
         <source>Clear Shortcut</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QtLocalePropertyManager</name>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qtpropertymanager.cpp" line="2197"/>
+        <source>%1, %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qtpropertymanager.cpp" line="2248"/>
+        <source>Language</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qtpropertymanager.cpp" line="2256"/>
+        <source>Country</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QtPointFPropertyManager</name>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qtpropertymanager.cpp" line="2671"/>
+        <source>(%1, %2)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qtpropertymanager.cpp" line="2740"/>
+        <source>X</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qtpropertymanager.cpp" line="2748"/>
+        <source>Y</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QtPointPropertyManager</name>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qtpropertymanager.cpp" line="2428"/>
+        <source>(%1, %2)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qtpropertymanager.cpp" line="2464"/>
+        <source>X</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qtpropertymanager.cpp" line="2471"/>
+        <source>Y</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QtRectFPropertyManager</name>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qtpropertymanager.cpp" line="4376"/>
+        <source>[(%1, %2), %3 x %4]</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qtpropertymanager.cpp" line="4528"/>
+        <source>X</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qtpropertymanager.cpp" line="4537"/>
+        <source>Y</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qtpropertymanager.cpp" line="4546"/>
+        <source>Width</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qtpropertymanager.cpp" line="4555"/>
+        <source>Height</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QtRectPropertyManager</name>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qtpropertymanager.cpp" line="3943"/>
+        <source>[(%1, %2), %3 x %4]</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qtpropertymanager.cpp" line="4060"/>
+        <source>X</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qtpropertymanager.cpp" line="4068"/>
+        <source>Y</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qtpropertymanager.cpp" line="4076"/>
+        <source>Width</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qtpropertymanager.cpp" line="4084"/>
+        <source>Height</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QtSizeFPropertyManager</name>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qtpropertymanager.cpp" line="3446"/>
+        <source>%1 x %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qtpropertymanager.cpp" line="3678"/>
+        <source>Width</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qtpropertymanager.cpp" line="3687"/>
+        <source>Height</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QtSizePolicyPropertyManager</name>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qtpropertymanager.cpp" line="5390"/>
+        <source>[%1, %2, %3, %4]</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qtpropertymanager.cpp" line="5437"/>
+        <source>Horizontal Policy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qtpropertymanager.cpp" line="5446"/>
+        <source>Vertical Policy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qtpropertymanager.cpp" line="5455"/>
+        <source>Horizontal Stretch</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qtpropertymanager.cpp" line="5463"/>
+        <source>Vertical Stretch</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QtSizePropertyManager</name>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qtpropertymanager.cpp" line="2982"/>
+        <source>%1 x %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qtpropertymanager.cpp" line="3181"/>
+        <source>Width</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qtpropertymanager.cpp" line="3189"/>
+        <source>Height</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QtTreePropertyBrowser</name>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qttreepropertybrowser.cpp" line="226"/>
+        <source>Property</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertybrowser/qttreepropertybrowser.cpp" line="227"/>
+        <source>Value</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1650,6 +2283,29 @@ Do you want overwrite the template?</source>
     </message>
 </context>
 <context>
+    <name>SignalSlotDialogClass</name>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/signalslotdialog.ui" line="13"/>
+        <source>Signals and slots</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/signalslotdialog.ui" line="19"/>
+        <source>Slots</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/signalslotdialog.ui" line="80"/>
+        <source>...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/signalslotdialog.ui" line="62"/>
+        <source>Signals</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>VersionDialog</name>
     <message>
         <location filename="../tools/designer/src/designer/versiondialog.cpp" line="141"/>
@@ -1690,46 +2346,124 @@ Do you want overwrite the template?</source>
 <context>
     <name>qdesigner_internal::ActionEditor</name>
     <message>
-        <location filename="../tools/designer/src/lib/shared/actioneditor.cpp" line="126"/>
+        <location filename="../tools/designer/src/lib/shared/actioneditor.cpp" line="149"/>
         <source>Actions</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/actioneditor.cpp" line="137"/>
+        <location filename="../tools/designer/src/lib/shared/actioneditor.cpp" line="134"/>
         <source>New...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/actioneditor.cpp" line="142"/>
+        <location filename="../tools/designer/src/lib/shared/actioneditor.cpp" line="140"/>
         <source>Delete</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/actioneditor.cpp" line="412"/>
+        <location filename="../tools/designer/src/lib/shared/actioneditor.cpp" line="418"/>
         <source>New action</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/actioneditor.cpp" line="468"/>
+        <location filename="../tools/designer/src/lib/shared/actioneditor.cpp" line="459"/>
         <source>Edit action</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/actioneditor.cpp" line="527"/>
+        <location filename="../tools/designer/src/lib/shared/actioneditor.cpp" line="559"/>
         <source>Designer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/actioneditor.cpp" line="527"/>
+        <location filename="../tools/designer/src/lib/shared/actioneditor.cpp" line="559"/>
         <source>Feature not implemented!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/actioneditor.cpp" line="135"/>
+        <source>Edit...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/actioneditor.cpp" line="136"/>
+        <source>Copy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/actioneditor.cpp" line="137"/>
+        <source>Cut</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/actioneditor.cpp" line="138"/>
+        <source>Paste</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/actioneditor.cpp" line="139"/>
+        <source>Select all</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/actioneditor.cpp" line="195"/>
+        <source>Icon View</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/actioneditor.cpp" line="201"/>
+        <source>Detailed View</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/actioneditor.cpp" line="511"/>
+        <source>Remove actions</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/actioneditor.cpp" line="694"/>
+        <source>Used In</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>qdesigner_internal::ActionFilterWidget</name>
     <message>
-        <location filename="../tools/designer/src/lib/shared/actioneditor.cpp" line="75"/>
+        <location filename="../tools/designer/src/lib/shared/actioneditor.cpp" line="80"/>
         <source>Filter: </source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>qdesigner_internal::ActionModel</name>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/actionrepository.cpp" line="77"/>
+        <source>Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/actionrepository.cpp" line="78"/>
+        <source>Used</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/actionrepository.cpp" line="79"/>
+        <source>Text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/actionrepository.cpp" line="80"/>
+        <source>Shortcut</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/actionrepository.cpp" line="81"/>
+        <source>Checkable</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/actionrepository.cpp" line="82"/>
+        <source>ToolTip</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1785,72 +2519,57 @@ Do you want overwrite the template?</source>
 </context>
 <context>
     <name>qdesigner_internal::ConnectionDelegate</name>
-    <message>
-        <location filename="../tools/designer/src/components/signalsloteditor/signalsloteditorwindow.cpp" line="486"/>
-        <source>&lt;object&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tools/designer/src/components/signalsloteditor/signalsloteditorwindow.cpp" line="494"/>
-        <source>&lt;signal&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tools/designer/src/components/signalsloteditor/signalsloteditorwindow.cpp" line="494"/>
-        <source>&lt;slot&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 <context>
     <name>qdesigner_internal::ConnectionModel</name>
     <message>
-        <location filename="../tools/designer/src/components/signalsloteditor/signalsloteditorwindow.cpp" line="68"/>
+        <location filename="../tools/designer/src/components/signalsloteditor/signalsloteditorwindow.cpp" line="131"/>
         <source>Sender</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/signalsloteditor/signalsloteditorwindow.cpp" line="69"/>
+        <location filename="../tools/designer/src/components/signalsloteditor/signalsloteditorwindow.cpp" line="132"/>
         <source>Signal</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/signalsloteditor/signalsloteditorwindow.cpp" line="70"/>
+        <location filename="../tools/designer/src/components/signalsloteditor/signalsloteditorwindow.cpp" line="133"/>
         <source>Receiver</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/signalsloteditor/signalsloteditorwindow.cpp" line="71"/>
+        <location filename="../tools/designer/src/components/signalsloteditor/signalsloteditorwindow.cpp" line="134"/>
         <source>Slot</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/signalsloteditor/signalsloteditorwindow.cpp" line="141"/>
+        <location filename="../tools/designer/src/components/signalsloteditor/signalsloteditorwindow.cpp" line="204"/>
         <source>&lt;sender&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/signalsloteditor/signalsloteditorwindow.cpp" line="142"/>
+        <location filename="../tools/designer/src/components/signalsloteditor/signalsloteditorwindow.cpp" line="205"/>
         <source>&lt;signal&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/signalsloteditor/signalsloteditorwindow.cpp" line="143"/>
+        <location filename="../tools/designer/src/components/signalsloteditor/signalsloteditorwindow.cpp" line="206"/>
         <source>&lt;receiver&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/signalsloteditor/signalsloteditorwindow.cpp" line="144"/>
+        <location filename="../tools/designer/src/components/signalsloteditor/signalsloteditorwindow.cpp" line="207"/>
         <source>&lt;slot&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/signalsloteditor/signalsloteditorwindow.cpp" line="253"/>
+        <location filename="../tools/designer/src/components/signalsloteditor/signalsloteditorwindow.cpp" line="312"/>
         <source>Signal and Slot Editor</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/signalsloteditor/signalsloteditorwindow.cpp" line="255"/>
-        <source>The connection already exists!&lt;br&gt;SENDER(%1), SIGNAL(%2), RECEIVER(%3), SLOT(%4)</source>
+        <location filename="../tools/designer/src/components/signalsloteditor/signalsloteditorwindow.cpp" line="313"/>
+        <source>The connection already exists!&lt;br&gt;%1&lt;/br&gt;</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1869,6 +2588,91 @@ Do you want overwrite the template?</source>
     <message>
         <location filename="../tools/designer/src/components/taskmenu/containerwidget_taskmenu.cpp" line="52"/>
         <source>Insert Page After Current Page</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>qdesigner_internal::DesignerPropertyManager</name>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/designerpropertymanager.cpp" line="223"/>
+        <source>AlignLeft</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/designerpropertymanager.cpp" line="218"/>
+        <source>AlignHCenter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/designerpropertymanager.cpp" line="219"/>
+        <source>AlignRight</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/designerpropertymanager.cpp" line="220"/>
+        <source>AlignJustify</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/designerpropertymanager.cpp" line="229"/>
+        <source>AlignTop</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/designerpropertymanager.cpp" line="234"/>
+        <source>AlignVCenter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/designerpropertymanager.cpp" line="231"/>
+        <source>AlignBottom</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/designerpropertymanager.cpp" line="265"/>
+        <source>PreferDefault</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/designerpropertymanager.cpp" line="262"/>
+        <source>NoAntialias</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/designerpropertymanager.cpp" line="263"/>
+        <source>PreferAntialias</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/designerpropertymanager.cpp" line="618"/>
+        <source>%1, %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../tools/designer/src/components/propertyeditor/designerpropertymanager.cpp" line="624"/>
+        <source>Customized (%n roles)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/designerpropertymanager.cpp" line="625"/>
+        <source>Inherited</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/designerpropertymanager.cpp" line="974"/>
+        <source>Horizontal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/designerpropertymanager.cpp" line="983"/>
+        <source>Vertical</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/designerpropertymanager.cpp" line="1016"/>
+        <source>Antialiasing</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2001,42 +2805,42 @@ Do you want overwrite the template?</source>
 <context>
     <name>qdesigner_internal::FormWindow</name>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="375"/>
+        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="378"/>
         <source>Edit contents</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="376"/>
+        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="379"/>
         <source>F2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="932"/>
+        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="942"/>
         <source>Insert widget &apos;%1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="996"/>
+        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="1006"/>
         <source>Resize</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="1225"/>
+        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="1235"/>
         <source>Key Move</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="1363"/>
+        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="1409"/>
         <source>Paste</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="1379"/>
+        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="1397"/>
         <source>Paste error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="1383"/>
+        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="1401"/>
         <source>Can&apos;t paste widgets. Designer couldn&apos;t find a container
 to paste into which does not contain a layout. Break the layout
 of the container you want to paste into and select this container
@@ -2044,17 +2848,17 @@ and then paste again.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="1485"/>
+        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="1534"/>
         <source>Break layout</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="1824"/>
+        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="1870"/>
         <source>Lay out</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="2202"/>
+        <location filename="../tools/designer/src/components/formeditor/formwindow.cpp" line="2243"/>
         <source>Drop widget</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2062,8 +2866,13 @@ and then paste again.</source>
 <context>
     <name>qdesigner_internal::FormWindowBase</name>
     <message>
-        <location filename="../tools/designer/src/lib/shared/formwindowbase.cpp" line="160"/>
+        <location filename="../tools/designer/src/lib/shared/formwindowbase.cpp" line="162"/>
         <source>Delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/formwindowbase.cpp" line="153"/>
+        <source>Delete &apos;%1&apos;</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2075,147 +2884,147 @@ and then paste again.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/formwindowmanager.cpp" line="253"/>
+        <location filename="../tools/designer/src/components/formeditor/formwindowmanager.cpp" line="254"/>
         <source>Cuts the selected widgets and puts them on the clipboard</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/formwindowmanager.cpp" line="258"/>
+        <location filename="../tools/designer/src/components/formeditor/formwindowmanager.cpp" line="259"/>
         <source>&amp;Copy</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/formwindowmanager.cpp" line="260"/>
+        <location filename="../tools/designer/src/components/formeditor/formwindowmanager.cpp" line="262"/>
         <source>Copies the selected widgets to the clipboard</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/formwindowmanager.cpp" line="265"/>
+        <location filename="../tools/designer/src/components/formeditor/formwindowmanager.cpp" line="267"/>
         <source>&amp;Paste</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/formwindowmanager.cpp" line="267"/>
+        <location filename="../tools/designer/src/components/formeditor/formwindowmanager.cpp" line="270"/>
         <source>Pastes the clipboard&apos;s contents</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/formwindowmanager.cpp" line="272"/>
+        <location filename="../tools/designer/src/components/formeditor/formwindowmanager.cpp" line="275"/>
         <source>&amp;Delete</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/formwindowmanager.cpp" line="273"/>
+        <location filename="../tools/designer/src/components/formeditor/formwindowmanager.cpp" line="277"/>
         <source>Deletes the selected widgets</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/formwindowmanager.cpp" line="278"/>
+        <location filename="../tools/designer/src/components/formeditor/formwindowmanager.cpp" line="282"/>
         <source>Select &amp;All</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/formwindowmanager.cpp" line="280"/>
+        <location filename="../tools/designer/src/components/formeditor/formwindowmanager.cpp" line="285"/>
         <source>Selects all widgets</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/formwindowmanager.cpp" line="285"/>
+        <location filename="../tools/designer/src/components/formeditor/formwindowmanager.cpp" line="290"/>
         <source>Bring to &amp;Front</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/formwindowmanager.cpp" line="288"/>
+        <location filename="../tools/designer/src/components/formeditor/formwindowmanager.cpp" line="294"/>
         <source>Raises the selected widgets</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/formwindowmanager.cpp" line="292"/>
+        <location filename="../tools/designer/src/components/formeditor/formwindowmanager.cpp" line="298"/>
         <source>Send to &amp;Back</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/formwindowmanager.cpp" line="295"/>
+        <location filename="../tools/designer/src/components/formeditor/formwindowmanager.cpp" line="302"/>
         <source>Lowers the selected widgets</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/formwindowmanager.cpp" line="300"/>
+        <location filename="../tools/designer/src/components/formeditor/formwindowmanager.cpp" line="307"/>
         <source>Adjust &amp;Size</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/formwindowmanager.cpp" line="302"/>
+        <location filename="../tools/designer/src/components/formeditor/formwindowmanager.cpp" line="310"/>
         <source>Adjusts the size of the selected widget</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/formwindowmanager.cpp" line="307"/>
+        <location filename="../tools/designer/src/components/formeditor/formwindowmanager.cpp" line="315"/>
         <source>Lay Out &amp;Horizontally</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/formwindowmanager.cpp" line="309"/>
+        <location filename="../tools/designer/src/components/formeditor/formwindowmanager.cpp" line="318"/>
         <source>Lays out the selected widgets horizontally</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/formwindowmanager.cpp" line="314"/>
+        <location filename="../tools/designer/src/components/formeditor/formwindowmanager.cpp" line="323"/>
         <source>Lay Out &amp;Vertically</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/formwindowmanager.cpp" line="316"/>
+        <location filename="../tools/designer/src/components/formeditor/formwindowmanager.cpp" line="326"/>
         <source>Lays out the selected widgets vertically</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/formwindowmanager.cpp" line="321"/>
+        <location filename="../tools/designer/src/components/formeditor/formwindowmanager.cpp" line="331"/>
         <source>Lay Out in a &amp;Grid</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/formwindowmanager.cpp" line="323"/>
+        <location filename="../tools/designer/src/components/formeditor/formwindowmanager.cpp" line="334"/>
         <source>Lays out the selected widgets in a grid</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/formwindowmanager.cpp" line="329"/>
+        <location filename="../tools/designer/src/components/formeditor/formwindowmanager.cpp" line="340"/>
         <source>Lay Out Horizontally in S&amp;plitter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/formwindowmanager.cpp" line="331"/>
+        <location filename="../tools/designer/src/components/formeditor/formwindowmanager.cpp" line="343"/>
         <source>Lays out the selected widgets horizontally in a splitter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/formwindowmanager.cpp" line="337"/>
+        <location filename="../tools/designer/src/components/formeditor/formwindowmanager.cpp" line="349"/>
         <source>Lay Out Vertically in Sp&amp;litter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/formwindowmanager.cpp" line="339"/>
+        <location filename="../tools/designer/src/components/formeditor/formwindowmanager.cpp" line="352"/>
         <source>Lays out the selected widgets vertically in a splitter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/formwindowmanager.cpp" line="344"/>
+        <location filename="../tools/designer/src/components/formeditor/formwindowmanager.cpp" line="357"/>
         <source>&amp;Break Layout</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/formwindowmanager.cpp" line="346"/>
+        <location filename="../tools/designer/src/components/formeditor/formwindowmanager.cpp" line="360"/>
         <source>Breaks the selected layout</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/formwindowmanager.cpp" line="443"/>
+        <location filename="../tools/designer/src/components/formeditor/formwindowmanager.cpp" line="459"/>
         <source>Break Layout</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/formwindowmanager.cpp" line="454"/>
+        <location filename="../tools/designer/src/components/formeditor/formwindowmanager.cpp" line="470"/>
         <source>Adjust Size</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2223,13 +3032,18 @@ and then paste again.</source>
 <context>
     <name>qdesigner_internal::GraphicsPropertyEditor</name>
     <message>
-        <location filename="../tools/designer/src/components/propertyeditor/graphicspropertyeditor.cpp" line="122"/>
+        <location filename="../tools/designer/src/components/propertyeditor/graphicspropertyeditor.cpp" line="128"/>
         <source>&lt;no icon&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/propertyeditor/graphicspropertyeditor.cpp" line="123"/>
+        <location filename="../tools/designer/src/components/propertyeditor/graphicspropertyeditor.cpp" line="129"/>
         <source>&lt;no pixmap&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/graphicspropertyeditor.cpp" line="49"/>
+        <source>...</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2472,63 +3286,43 @@ Please select another name.</source>
 <context>
     <name>qdesigner_internal::NewPromotedClassPanel</name>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_promotiondialog.cpp" line="71"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_promotiondialog.cpp" line="73"/>
         <source>Add</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_promotiondialog.cpp" line="73"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_promotiondialog.cpp" line="75"/>
         <source>New Promoted Class</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_promotiondialog.cpp" line="89"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_promotiondialog.cpp" line="91"/>
         <source>Base class name:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_promotiondialog.cpp" line="90"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_promotiondialog.cpp" line="92"/>
         <source>Promoted class name:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_promotiondialog.cpp" line="91"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_promotiondialog.cpp" line="93"/>
         <source>Header file:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_promotiondialog.cpp" line="92"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_promotiondialog.cpp" line="94"/>
         <source>Global include</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_promotiondialog.cpp" line="103"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_promotiondialog.cpp" line="105"/>
         <source>Reset</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>qdesigner_internal::ObjectInspector</name>
-    <message>
-        <location filename="../tools/designer/src/components/objectinspector/objectinspector.cpp" line="69"/>
-        <source>Object</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tools/designer/src/components/objectinspector/objectinspector.cpp" line="70"/>
-        <source>Class</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tools/designer/src/components/objectinspector/objectinspector.cpp" line="232"/>
-        <source>&lt;noname&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tools/designer/src/components/objectinspector/objectinspector.cpp" line="233"/>
-        <source>separator</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 <context>
     <name>qdesigner_internal::OrderDialog</name>
@@ -2609,7 +3403,7 @@ Please select another name.</source>
 <context>
     <name>qdesigner_internal::PaletteEditorButton</name>
     <message>
-        <location filename="../tools/designer/src/components/propertyeditor/paletteeditorbutton.cpp" line="33"/>
+        <location filename="../tools/designer/src/components/propertyeditor/paletteeditorbutton.cpp" line="31"/>
         <source>Change Palette</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2721,36 +3515,73 @@ Please select another name.</source>
 <context>
     <name>qdesigner_internal::PromotionTaskMenu</name>
     <message>
-        <location filename="../tools/designer/src/lib/shared/promotiontaskmenu.cpp" line="47"/>
+        <location filename="../tools/designer/src/lib/shared/promotiontaskmenu.cpp" line="53"/>
         <source>Promoted widgets...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/promotiontaskmenu.cpp" line="48"/>
+        <location filename="../tools/designer/src/lib/shared/promotiontaskmenu.cpp" line="54"/>
         <source>Promote to ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/promotiontaskmenu.cpp" line="49"/>
+        <location filename="../tools/designer/src/lib/shared/promotiontaskmenu.cpp" line="56"/>
         <source>Promote to</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/promotiontaskmenu.cpp" line="50"/>
+        <location filename="../tools/designer/src/lib/shared/promotiontaskmenu.cpp" line="57"/>
         <source>Demote to %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/promotiontaskmenu.cpp" line="55"/>
+        <source>Change signals/slots...</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>qdesigner_internal::PropertyEditor</name>
     <message>
-        <location filename="../tools/designer/src/components/propertyeditor/propertyeditor.cpp" line="573"/>
+        <location filename="../tools/designer/src/components/propertyeditor/propertyeditor.cpp" line="183"/>
         <source>Add Dynamic Property...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/propertyeditor/propertyeditor.cpp" line="575"/>
+        <location filename="../tools/designer/src/components/propertyeditor/propertyeditor.cpp" line="188"/>
         <source>Remove Dynamic Property</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertyeditor.cpp" line="125"/>
+        <source>comment</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertyeditor.cpp" line="159"/>
+        <source>Tree View</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertyeditor.cpp" line="162"/>
+        <source>Drop Down Button View</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertyeditor.cpp" line="165"/>
+        <source>Group Box View</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertyeditor.cpp" line="436"/>
+        <source>%1
+%2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/components/propertyeditor/propertyeditor.cpp" line="437"/>
+        <source>Object: %1
+Class: %2</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2764,94 +3595,54 @@ Please select another name.</source>
 </context>
 <context>
     <name>qdesigner_internal::QCoreApplication</name>
-    <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_promotion.cpp" line="120"/>
-        <source>The base class %1 is invalid.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_promotion.cpp" line="127"/>
-        <source>The class %1 already exists.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_promotion.cpp" line="136"/>
-        <source>Promoted Widgets</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_promotion.cpp" line="262"/>
-        <source>The class %1 cannot be removed</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_promotion.cpp" line="271"/>
-        <source>The class %1 cannot be removed because it is still referenced.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_promotion.cpp" line="281"/>
-        <source>The class %1 cannot be renamed</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_promotion.cpp" line="288"/>
-        <source>The class %1 cannot be renamed to an empty name.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_promotion.cpp" line="293"/>
-        <source>There is already a class named %1.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_promotion.cpp" line="322"/>
-        <source>Cannot set an empty include file.</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 <context>
     <name>qdesigner_internal::QDesignerPromotionDialog</name>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_promotiondialog.cpp" line="187"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_promotiondialog.cpp" line="190"/>
         <source>Promoted Widgets</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_promotiondialog.cpp" line="194"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_promotiondialog.cpp" line="197"/>
         <source>Promoted Classes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_promotiondialog.cpp" line="250"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_promotiondialog.cpp" line="257"/>
         <source>Promote</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_promotiondialog.cpp" line="396"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_promotiondialog.cpp" line="425"/>
         <source>%1 - Error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_promotiondialog.cpp" line="409"/>
+        <source>Change signals/slots...</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>qdesigner_internal::QDesignerResource</name>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/qdesigner_resource.cpp" line="1527"/>
+        <location filename="../tools/designer/src/components/formeditor/qdesigner_resource.cpp" line="1624"/>
         <source>Loading qrc file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/qdesigner_resource.cpp" line="1529"/>
+        <location filename="../tools/designer/src/components/formeditor/qdesigner_resource.cpp" line="1626"/>
         <source>The specified qrc file &lt;p&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/p&gt;&lt;p&gt;could not be found. Do you want to update the file location?&lt;/p&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/qdesigner_resource.cpp" line="1535"/>
+        <location filename="../tools/designer/src/components/formeditor/qdesigner_resource.cpp" line="1632"/>
         <source>New location for %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/formeditor/qdesigner_resource.cpp" line="1536"/>
+        <location filename="../tools/designer/src/components/formeditor/qdesigner_resource.cpp" line="1633"/>
         <source>Resource files (*.qrc)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2859,146 +3650,61 @@ Please select another name.</source>
 <context>
     <name>qdesigner_internal::QDesignerTaskMenu</name>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_taskmenu.cpp" line="122"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_taskmenu.cpp" line="125"/>
         <source>Change objectName...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_taskmenu.cpp" line="123"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_taskmenu.cpp" line="126"/>
         <source>Change toolTip...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_taskmenu.cpp" line="124"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_taskmenu.cpp" line="127"/>
         <source>Change whatsThis...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_taskmenu.cpp" line="125"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_taskmenu.cpp" line="128"/>
         <source>Change styleSheet...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_taskmenu.cpp" line="126"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_taskmenu.cpp" line="129"/>
         <source>Create Menu Bar</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_taskmenu.cpp" line="127"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_taskmenu.cpp" line="130"/>
         <source>Add Tool Bar</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_taskmenu.cpp" line="128"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_taskmenu.cpp" line="131"/>
         <source>Create Status Bar</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_taskmenu.cpp" line="129"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_taskmenu.cpp" line="132"/>
         <source>Remove Status Bar</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_taskmenu.cpp" line="130"/>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_taskmenu.cpp" line="133"/>
         <source>Change script...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/qdesigner_taskmenu.cpp" line="134"/>
+        <source>Change signals/slots...</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>qdesigner_internal::QObject</name>
-    <message>
-        <location filename="../tools/designer/src/components/formeditor/iconcache.h" line="71"/>
-        <source>The icon specified by %1 could not be opened: %2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tools/designer/src/components/widgetbox/widgetbox.cpp" line="467"/>
-        <source>The widgetbox could not load the file %1.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tools/designer/src/components/widgetbox/widgetbox.cpp" line="482"/>
-        <source>The widgetbox could not parse the file %1. An error occurred at line %2: %3</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tools/designer/src/components/widgetbox/widgetbox.cpp" line="574"/>
-        <source>The file %1 does not appear to be a widgetbox file.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tools/designer/src/components/widgetbox/widgetbox.cpp" line="582"/>
-        <source>An error occurred while parsing the file %1: %2 is not a valid child of the root element.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tools/designer/src/components/widgetbox/widgetbox.cpp" line="1020"/>
-        <source>The class attribute for the class %1 does not match the class name %2.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tools/designer/src/components/widgetbox/widgetbox.cpp" line="1022"/>
-        <source>The class attribute for the class %1 is missing.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_formbuilder.cpp" line="252"/>
-        <source>The style %1 could not be loaded.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_formbuilder.cpp" line="266"/>
-        <source>The preview failed to build.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_formbuilder.cpp" line="288"/>
-        <source>%1 - [Preview]</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tools/designer/src/lib/shared/qdesigner_formbuilder.cpp" line="301"/>
-        <source>Designer</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tools/designer/src/lib/shared/scriptcommand.cpp" line="23"/>
-        <source>Change script</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tools/designer/src/lib/shared/widgetdatabase.cpp" line="326"/>
-        <source>A custom widget plugin whose class name (%1) matches that of an existing class has been found.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tools/designer/src/lib/shared/widgetfactory.cpp" line="102"/>
-        <source>The custom widget factory registered for widgets of class %1 returned 0.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tools/designer/src/lib/shared/widgetfactory.cpp" line="112"/>
-        <source>A class name mismatch occurred when creating a widget using the custom widget factory registered for widgets of class %1. It returned a widget of class %2.</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 <context>
     <name>qdesigner_internal::QPropertyEditorModel</name>
-    <message>
-        <location filename="../tools/designer/src/components/propertyeditor/qpropertyeditor_model.cpp" line="113"/>
-        <source>&lt;noname&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tools/designer/src/components/propertyeditor/qpropertyeditor_model.cpp" line="154"/>
-        <source>Property</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../tools/designer/src/components/propertyeditor/qpropertyeditor_model.cpp" line="155"/>
-        <source>Value</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 <context>
     <name>qdesigner_internal::QtBrushDialog</name>
@@ -3638,6 +4344,29 @@ Please select another name.</source>
     </message>
 </context>
 <context>
+    <name>qdesigner_internal::SignalSlotDialog</name>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/signalslotdialog.cpp" line="373"/>
+        <source>There is already a slot with the signature &apos;%1&apos;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/signalslotdialog.cpp" line="378"/>
+        <source>There is already a signal with the signature &apos;%1&apos;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/signalslotdialog.cpp" line="384"/>
+        <source>%1 - Duplicate Signature</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tools/designer/src/lib/shared/signalslotdialog.cpp" line="481"/>
+        <source>Signals/Slots of %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>qdesigner_internal::SignalSlotEditorPlugin</name>
     <message>
         <location filename="../tools/designer/src/components/signalsloteditor/signalsloteditor_plugin.cpp" line="46"/>
@@ -3645,7 +4374,7 @@ Please select another name.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/signalsloteditor/signalsloteditor_plugin.cpp" line="47"/>
+        <location filename="../tools/designer/src/components/signalsloteditor/signalsloteditor_plugin.cpp" line="48"/>
         <source>F4</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3662,24 +4391,24 @@ Please select another name.</source>
     <name>qdesigner_internal::StringListEditorButton</name>
     <message>
         <location filename="../tools/designer/src/components/propertyeditor/stringlisteditorbutton.cpp" line="30"/>
-        <source>Change StringList</source>
+        <source>Change String List</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>qdesigner_internal::StyleSheetEditorDialog</name>
     <message>
-        <location filename="../tools/designer/src/lib/shared/stylesheeteditor.cpp" line="46"/>
+        <location filename="../tools/designer/src/lib/shared/stylesheeteditor.cpp" line="50"/>
         <source>Edit Style Sheet</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/stylesheeteditor.cpp" line="106"/>
+        <location filename="../tools/designer/src/lib/shared/stylesheeteditor.cpp" line="104"/>
         <source>Valid Style Sheet</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/lib/shared/stylesheeteditor.cpp" line="103"/>
+        <location filename="../tools/designer/src/lib/shared/stylesheeteditor.cpp" line="101"/>
         <source>Invalid Style Sheet</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4136,32 +4865,32 @@ Please select another name.</source>
 <context>
     <name>qdesigner_internal::WidgetBoxTreeView</name>
     <message>
-        <location filename="../tools/designer/src/components/widgetbox/widgetbox.cpp" line="425"/>
+        <location filename="../tools/designer/src/components/widgetbox/widgetbox.cpp" line="401"/>
         <source>Scratchpad</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/widgetbox/widgetbox.cpp" line="646"/>
+        <location filename="../tools/designer/src/components/widgetbox/widgetbox.cpp" line="622"/>
         <source>Custom Widgets</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/widgetbox/widgetbox.cpp" line="935"/>
+        <location filename="../tools/designer/src/components/widgetbox/widgetbox.cpp" line="911"/>
         <source>Expand all</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/widgetbox/widgetbox.cpp" line="936"/>
+        <location filename="../tools/designer/src/components/widgetbox/widgetbox.cpp" line="912"/>
         <source>Collapse all</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/widgetbox/widgetbox.cpp" line="940"/>
+        <location filename="../tools/designer/src/components/widgetbox/widgetbox.cpp" line="916"/>
         <source>Remove</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../tools/designer/src/components/widgetbox/widgetbox.cpp" line="941"/>
+        <location filename="../tools/designer/src/components/widgetbox/widgetbox.cpp" line="917"/>
         <source>Edit name</source>
         <translation type="unfinished"></translation>
     </message>
