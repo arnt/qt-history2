@@ -522,32 +522,37 @@
     \printuntil /^\}/
 
     The constructors create an instance of QAhiGLWindowSurfacePrivate,
-    the OpenGL window surface implementation class. The client side
-    constructor also creates an instance of the OpenGL paint device,
-    QWSGLPaintDevice, which is returned by \l {QWSWindowSurface::}
-    {paintDevice()}. This ensures that all \l {QPainter}s used on this
-    surface will use an OpenGL enabled QPaintEngine. It is a bit of
-    jiggery pokery, required because \l {QWSWindowSurface::}
-    {paintDevice()} is pure virtual. Normally, the client side
-    constructor will be called with an \l {QGLWidget}{OpenGL widget},
-    which has its own \l {QWidget::} {paintEngine()} function that
-    returns the global static OpenGL paint engine, but because the
-    constructor also accepts a normal \l {QWidget}{widget}, it must be
-    able to find the OpenGL paint engine in that case as well, so
-    since \l {QWSWindowSurface::} {paintDevice()} must be implemented
-    anyway, the constructor creates an instance of QWSGLPaintDevice,
-    which can always return the global static pointer to
-    QOpenGLPaintEngine.
+    the private implementation class, which contains all the state
+    variables for QAhiGLWindowSurface. The client side constructor
+    also creates an instance of QWSGLPaintDevice, the OpenGL paint
+    device, for return by \l {QWSWindowSurface::} {paintDevice()}.
+    This ensures that all \l {QPainter}s used on this surface will use
+    an OpenGL enabled QPaintEngine. It is a bit of jiggery pokery,
+    which is required because \l {QWSWindowSurface::} {paintDevice()}
+    is declared pure virtual. Normally, the client side constructor
+    will be called with an \l {QGLWidget}{OpenGL widget}, which has
+    its own \l {QWidget::} {paintEngine()} function that returns the
+    global static OpenGL paint engine, but because the constructor
+    also accepts a normal \l {QWidget}{widget}, it must be able to
+    find the OpenGL paint engine in that case as well, so since \l
+    {QWSWindowSurface::} {paintDevice()} must be implemented anyway,
+    the constructor creates an instance of QWSGLPaintDevice, which can
+    always return the global static pointer to QOpenGLPaintEngine.
 
-    The OpenGL library implementation used with this example only
+    The OpenGL library implementation used for this example only
     supports one OpenGL context. This context is therefore shared
     among the single instance of QAhiGLScreen and all instances of
     QAhiGLWindowSurface. It is passed to both constructors.
 
-    This example makes use of the OpenGL FrameBufferObject extension. All 
-    painting is performed into a framebuffer object which is later
-    compositioned onto the screen by QAhiGLScreen. Allocateding the framebuffer
-    object is done in \l {QWindowSurface::}{setGeometry()}.
+    This example uses the OpenGL frame buffer object extension, which
+    allows for accelerating OpenGL painting operations. Using this
+    OpenGL extension, painting operations are performed in a frame
+    buffer object, which QAhiGLScreen later uses to construct window
+    compositions on the screen. Allocation of the frame buffer object
+    is performed in \l {QWindowSurface::} {setGeometry()}. A safer way
+    to use this extension would be to first test to see if the
+    extension is supported by your OpenGL library, and use a different
+    approach if it is not.
 
     \skipto QAhiGLWindowSurface::setGeometry
     \printuntil /^\}/
