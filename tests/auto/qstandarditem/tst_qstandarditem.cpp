@@ -545,10 +545,30 @@ void tst_QStandardItem::insertRow()
 
 void tst_QStandardItem::insertRows_data()
 {
+    QTest::addColumn<int>("rows");
+    QTest::addColumn<int>("columns");
+    QTest::addColumn<int>("insertAt");
+    QTest::addColumn<int>("insertCount");
+
+    QTest::newRow("insert {0,1} at 0 in 0x0") << 0 << 0 << 0 << 2;
 }
 
 void tst_QStandardItem::insertRows()
 {
+    QFETCH(int, rows);
+    QFETCH(int, columns);
+    QFETCH(int, insertAt);
+    QFETCH(int, insertCount);
+
+    QStandardItem item(rows, columns);
+
+    QList<QStandardItem*> items;
+    for (int i = 0; i < insertCount; ++i) {
+        items.append(new QStandardItem());
+    }
+    item.insertRows(insertAt, items);
+
+    QCOMPARE(item.rowCount(), rows + insertCount);
 }
 
 void tst_QStandardItem::appendColumn_data()

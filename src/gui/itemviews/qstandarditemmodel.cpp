@@ -317,6 +317,8 @@ bool QStandardItemPrivate::insertRows(int row, const QList<QStandardItem*> &item
     if (model)
         model->d_func()->rowsAboutToBeInserted(q, row, row + count - 1);
     if (rowCount() == 0) {
+        if (columnCount() == 0)
+            q->setColumnCount(1);
         children.resize(columnCount() * count);
         rows = count;
     } else {
