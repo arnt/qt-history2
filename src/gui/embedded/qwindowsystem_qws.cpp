@@ -3352,6 +3352,9 @@ void QWSServerPrivate::exposeRegion(QRegion r, int changing)
     if (disablePainting)
         return;
 
+    if (r.isEmpty())
+        return;
+
     static bool initial = true;
     if (initial) {
         r = QRect(0,0,qt_screen->width(), qt_screen->height());
