@@ -475,22 +475,11 @@ void tst_QHeaderView::sectionSize()
     view->setDefaultSectionSize(initialDefaultSize);
     for (int s = 0; s < view->count(); ++s)
         QCOMPARE(view->sectionSize(s), initialDefaultSize);
+    view->doItemsLayout();
 
     // stretch last section
     view->setStretchLastSection(true);
     int lastSection = view->count() - 1;
-    #if 0 // ### disabled
-    // even with stretchLastSection,  the stretched last section can't become smaller than the minimum section size.
-    if (view->length() > view->viewport()->height()) {
-        int minimumSize = view->fontMetrics().height() + view->style()->pixelMetric(QStyle::PM_HeaderMargin);
-        QCOMPARE(view->sectionSize(lastSection), minimumSize);
-    } else {
-        QCOMPARE(view->length(), view->viewport()->height());
-        int minimumSize = view->viewport()->height() - view->sectionViewportPosition(lastSection);
-        QCOMPARE(view->sectionSize(lastSection), minimumSize);
-    }
-    #endif
-
     
     //test that when hiding the last column, 
     //resizing the new last visible columns still works
