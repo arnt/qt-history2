@@ -265,6 +265,15 @@ void QVFb::init( int display_id, int pw, int ph, int d, int r, const QString& sk
 	if ( !pw ) pw = 240;
 	if ( !ph ) ph = 320;
 
+     	if ( currentSkinIndex!=-1 ) {
+	    clearMask();
+            setParent( 0, 0 );
+            move( pos() );
+            show();
+	    //unset fixed size:
+	    setMinimumSize(0,0);
+	    setMaximumSize(QWIDGETSIZE_MAX,QWIDGETSIZE_MAX);
+	}
 	menuBar()->show();
 	scroller = new QScrollArea(this);
 #ifdef Q_WS_X11
