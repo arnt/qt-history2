@@ -56,7 +56,7 @@ namespace qdesigner_internal {
         typedef QList<QStandardItem *> StandardItemList;
         enum { ObjectNameColumn, ClassNameColumn, NumColumns };
 
-        ObjectInspectorModel(QObject *parent);
+        explicit ObjectInspectorModel(QObject *parent);
 
         enum UpdateResult { NoForm, Rebuilt, Updated };
         UpdateResult update(QDesignerFormWindowInterface *fw);

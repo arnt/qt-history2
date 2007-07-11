@@ -20,6 +20,7 @@
 #include <QtGui/QToolBar>
 #include <QtGui/QMainWindow>
 #include <QtGui/QHeaderView>
+#include <QtGui/QPushButton>
 
 class QtFullToolBarManagerPrivate
 {
@@ -466,8 +467,6 @@ void QtFullToolBarManager::addAction(QAction *action, const QString &category)
 {
     if (!action)
         return;
-//    if (!d_ptr->categoryToActions.contains(category))
-//        return;
     if (action->isSeparator())
         return;
     if (d_ptr->allActions.contains(action))
@@ -538,8 +537,6 @@ void QtFullToolBarManager::addDefaultToolBar(QToolBar *toolBar, const QString &c
         return;
     if (d_ptr->toolBars.contains(toolBar))
         return;
-//    if (!d_ptr->categoryToActions.contains(category))
-//        return;
     // could be also checked if toolBar belongs to mainwindow
 
     QList<QAction *> newActionsWithSeparators;
@@ -607,7 +604,7 @@ QToolBar *QtFullToolBarManager::createToolBar(const QString &toolBarName)
         return 0;
     QToolBar *toolBar = new QToolBar(toolBarName, mainWindow());
     int i = 1;
-    QLatin1String prefix("_Custom_Toolbar_");
+    const QString prefix = QLatin1String("_Custom_Toolbar_");
     QString name = QString("%1%2").arg(prefix).arg(i);
     while (d_ptr->toolBarByName(name))
         name = QString("%1%2").arg(prefix).arg(++i);
@@ -616,7 +613,6 @@ QToolBar *QtFullToolBarManager::createToolBar(const QString &toolBarName)
     d_ptr->customToolBars.append(toolBar);
     d_ptr->toolBars.insert(toolBar, QList<QAction *>());
     d_ptr->toolBarsWithSeparators.insert(toolBar, QList<QAction *>());
-    //emit toolBarCreated(toolBar);
     return toolBar;
 }
 
@@ -627,7 +623,6 @@ void QtFullToolBarManager::deleteToolBar(QToolBar *toolBar)
     if (d_ptr->defaultToolBars.contains(toolBar))
         return;
     setToolBar(toolBar, QList<QAction *>());
-    //emit toolBarRemoved(toolBar);
     d_ptr->customToolBars.removeAll(toolBar);
     d_ptr->toolBars.remove(toolBar);
     d_ptr->toolBarsWithSeparators.remove(toolBar);
@@ -675,7 +670,6 @@ void QtFullToolBarManager::setToolBar(QToolBar *toolBar, const QList<QAction *> 
     }
 
     d_ptr->removeWidgetActions(toRemove);
-    //emit toolBarChanged(toolBar, newActions);
 
     QList<QAction *> oldActions = d_ptr->toolBarsWithSeparators.value(toolBar);
     QListIterator<QAction *> itOldAction(oldActions);
@@ -1767,34 +1761,26 @@ QtToolBarDialog::QtToolBarDialog(QWidget *parent, Qt::WFlags flags)
     d_ptr->ui.actionTree->setColumnCount(1);
     d_ptr->ui.actionTree->setRootIsDecorated(false);
     d_ptr->ui.actionTree->header()->hide();
-/*
-    ui.toolBarList->setEditTriggers(QAbstractItemView::DoubleClicked |
-                QAbstractItemView::EditKeyPressed);
-*/
 
-//    ui.actionList->setDragEnabled(true);
-//    FeedbackItemDelegate *del = new FeedbackItemDelegate(this);
-//    ui.currentToolBarList->setItemDelegate(del);
-//    ui.currentToolBarList->setAcceptDrops(true);
-
-    d_ptr->ui.upButton->setIcon(QIcon(":/qttoolbardialog/images/up.png"));
-    d_ptr->ui.downButton->setIcon(QIcon(":/qttoolbardialog/images/down.png"));
-    d_ptr->ui.leftButton->setIcon(QIcon(":/qttoolbardialog/images/back.png"));
-    d_ptr->ui.rightButton->setIcon(QIcon(":/qttoolbardialog/images/forward.png"));
-    d_ptr->ui.newButton->setIcon(QIcon(":/qttoolbardialog/images/plus.png"));
-    d_ptr->ui.removeButton->setIcon(QIcon(":/qttoolbardialog/images/minus.png"));
+    d_ptr->ui.upButton->setIcon(QIcon(QLatin1String(":/qttoolbardialog/images/up.png")));
+    d_ptr->ui.downButton->setIcon(QIcon(QLatin1String(":/qttoolbardialog/images/down.png")));
+    d_ptr->ui.leftButton->setIcon(QIcon(QLatin1String(":/qttoolbardialog/images/back.png")));
+    d_ptr->ui.rightButton->setIcon(QIcon(QLatin1String(":/qttoolbardialog/images/forward.png")));
+    d_ptr->ui.newButton->setIcon(QIcon(QLatin1String(":/qttoolbardialog/images/plus.png")));
+    d_ptr->ui.removeButton->setIcon(QIcon(QLatin1String(":/qttoolbardialog/images/minus.png")));
 
     connect(d_ptr->ui.newButton, SIGNAL(clicked()), this, SLOT(newClicked()));
     connect(d_ptr->ui.removeButton, SIGNAL(clicked()), this, SLOT(removeClicked()));
     connect(d_ptr->ui.renameButton, SIGNAL(clicked()), this, SLOT(renameClicked()));
-    connect(d_ptr->ui.defaultButton, SIGNAL(clicked()), this, SLOT(defaultClicked()));
-    connect(d_ptr->ui.okButton, SIGNAL(clicked()), this, SLOT(okClicked()));
-    connect(d_ptr->ui.applyButton, SIGNAL(clicked()), this, SLOT(applyClicked()));
-    connect(d_ptr->ui.cancelButton, SIGNAL(clicked()), this, SLOT(cancelClicked()));
     connect(d_ptr->ui.upButton, SIGNAL(clicked()), this, SLOT(upClicked()));
     connect(d_ptr->ui.downButton, SIGNAL(clicked()), this, SLOT(downClicked()));
     connect(d_ptr->ui.leftButton, SIGNAL(clicked()), this, SLOT(leftClicked()));
     connect(d_ptr->ui.rightButton, SIGNAL(clicked()), this, SLOT(rightClicked()));
+
+    connect(d_ptr->ui.buttonBox->button(QDialogButtonBox::RestoreDefaults), SIGNAL(clicked()), this, SLOT(defaultClicked()));
+    connect(d_ptr->ui.buttonBox->button(QDialogButtonBox::Ok), SIGNAL(clicked()), this, SLOT(okClicked()));
+    connect(d_ptr->ui.buttonBox->button(QDialogButtonBox::Apply), SIGNAL(clicked()), this, SLOT(applyClicked()));
+    connect(d_ptr->ui.buttonBox->button(QDialogButtonBox::Cancel), SIGNAL(clicked()), this, SLOT(cancelClicked()));
 
     connect(d_ptr->ui.actionTree, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)),
                     this, SLOT(currentActionChanged(QTreeWidgetItem *)));

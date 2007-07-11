@@ -283,7 +283,7 @@ void PropertyEditor::storeExpansionState()
         if (propertyItems.count() > 0)
             m_expansionState[groupName] = isExpanded(item);
 
-        // properies stuff here
+        // properties stuff here
         QListIterator<QtBrowserItem *> itProperty(propertyItems);
         while (itProperty.hasNext()) {
             QtBrowserItem *propertyItem = itProperty.next();
@@ -307,7 +307,7 @@ void PropertyEditor::applyExpansionState()
         if (m_expansionState.contains(groupName))
             setExpanded(item, m_expansionState.value(groupName));
 
-        // properies stuff here
+        // properties stuff here
         QList<QtBrowserItem *> propertyItems = item->children();
         QListIterator<QtBrowserItem *> itProperty(propertyItems);
         while (itProperty.hasNext()) {
