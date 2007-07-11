@@ -102,7 +102,7 @@ private:
     Config* config;
     QStringList skinnames;
     QStringList skinfiles;
-    QString currentSkin;
+    int currentSkinIndex;
     Zoomer *zoomer;
     QScrollArea* scroller;
     DisplayType displayType;

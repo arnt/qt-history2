@@ -164,8 +164,7 @@ QVFb::QVFb( int display_id, int w, int h, int d, int r, const QString &skin, Dis
     secondaryView = 0;
     scroller = 0;
     this->skin = 0;
-    currentSkin = skin;
-    findSkins(skin);
+    currentSkinIndex = findSkins(skin);
     zoomer = 0;
     QPixmap pix(":/res/images/logo.png");
     setWindowIcon( pix );
@@ -499,8 +498,6 @@ void QVFb::about()
 
 int QVFb::findSkins(const QString &currentSkin)
 {
-    if (currentSkin.isEmpty())
-        return 0;
     skinnames.clear();
     skinfiles.clear();
     QDir dir(":/skins/","*.skin");
@@ -513,6 +510,15 @@ int QVFb::findSkins(const QString &currentSkin)
 	    return i;
         }
 	i++;
+    }
+    if (currentSkin.isEmpty())
+        return 0;
+    // didn't find it, add it.
+    QFileInfo fi(currentSkin);
+    if (fi.exists()) {
+        skinnames.append(fi.baseName()); // should perhaps be in file
+        skinfiles.append(fi.filePath());
+        return i;
     }
     return -1;
 }
@@ -541,12 +547,12 @@ void QVFb::configure()
     // Need to block signals, because we connect to animateClick(),
     // since QCheckBox doesn't have setChecked(bool) in 2.x.
     chooseSize(QSize(w,h));
+
+
     config->skin->insertItems(config->skin->count(), skinnames);
-    int currentSkinIndex = findSkins(currentSkin);
+
     if (currentSkinIndex > 0)
 	config->skin->setCurrentIndex(currentSkinIndex);
-    else
-        config->skin->setEnabled(false);
 
     config->interval->setValue(view->flickerInterval());
     config->flickerHighlight->setChecked(view->flickerHighlight());
@@ -621,12 +627,7 @@ void QVFb::configure()
 	    d=24;
 	else
 	    d=32;
-        int skinIndex;
-        if (currentSkinIndex >= 0)
-            skinIndex = config->skin->currentIndex();
-        else
-            skinIndex = currentSkinIndex;
-
+        int skinIndex = config->skin->currentIndex();
 	if ( w != view->displayWidth() || h != view->displayHeight()
 		|| d != view->displayDepth() || skinIndex != currentSkinIndex ) {
 	    QVFbView::Rotation rot = view->displayRotation();
@@ -634,9 +635,8 @@ void QVFb::configure()
 		    ((rot == QVFbView::Rot180) ? 180 :
 		    ((rot == QVFbView::Rot270) ? 270 : 0 )));
 	    currentSkinIndex = skinIndex;
-            if (skinIndex == 0)
-                currentSkin.clear();
-            else if (skinIndex > 0)
+            QString currentSkin;
+            if (skinIndex > 0)
                 currentSkin = skinfiles[skinIndex-1];
 	    init( id, w, h, d, r, currentSkin );
 	}
