@@ -5,26 +5,26 @@
     \section1 Introduction
 
     This example demonstrates how you can use OpenGL for Embedded
-    Systems (ES) to create your own screen driver and \l {add your
-    graphics driver to Qtopia Core}. In \l {Qtopia Core}, painting is
-    a pure software implementation and is normally performed in two
-    steps: The clients render each window onto a corresponding surface
-    (stored in memory) using a paint engine, and then the server uses
-    the screen driver to compose the surface images and copy them to
-    the screen. (See the \l {Qtopia Core Architecture} documentation
-    for details.)
+    Systems (ES) in your own screen driver and \l {add your graphics
+    driver to Qtopia Core}. In \l {Qtopia Core}, painting is done in
+    software, normally performed in two steps: First, each client
+    renders its windows onto its window surface in memory using a
+    paint engine. Then the server uses the screen driver to compose
+    the window surface images and copy the composition to the screen.
+    (See the \l {Qtopia Core Architecture} documentation for details.)
 
     This example is not for the novice. It assumes the reader is
-    familiar with both OpenGL ES and the screen driver framework
+    familiar with both OpenGL and the screen driver framework
     demonstrated in the \l {Accelerated Graphics Driver Example}.
 
-    An OpenGL screen driver for Qtopia Core can use OpenGL ES in
-    three ways. First, the \l {QWSServer} {Qtopia Core server} can use
-    the driver to compose multiple window images and then show the
+    An OpenGL screen driver for Qtopia Core can use OpenGL ES in three
+    ways. First, the \l {QWSServer} {Qtopia Core server} can use the
+    driver to compose multiple window images and then show the
     composition on the screen. Second, clients can use the driver to
     accelerate OpenGL painting operations using the QOpenGLPaintEngine
     class. Finally, clients can use the driver to do OpenGL operations
-    in the QGLWidget class. This example implements all three cases.
+    with instances of the QGLWidget class. This example implements all
+    three cases.
 
     The example uses an implementation of OpenGL ES from 
     \l {http://ati.amd.com}{ATI} for the 
@@ -33,7 +33,7 @@
     the example, and the OpenGL and EGL libraries must be installed
     for linking. If your target device is different, you must install
     the include files and libraries for that device, and you also
-    might need to modify the example source code if any API signatures
+    might need to modify the example source code, if any API signatures
     in your EGL library differ from the ones used here.
 
     After compiling and linking the example source, install the
@@ -48,9 +48,9 @@
     \endcode
 
     The example driver also implements an animated transition effect
-    that can be used when showing new windows or reshowing windows
-    that have been minimized. To enable this transition effect, run
-    the application with \c {-display ahigl:effects}.
+    for use when showing new windows or reshowing windows that have
+    been minimized. To enable this transition effect, run the
+    application with \c {-display ahigl:effects}.
 
     \section1 The Class Definitions
 
@@ -123,26 +123,24 @@
 
     The window surface classes are QAhiGLWindowSurface and its private
     implementation class QAhiGLWindowSurfacePrivate. We create class
-    QAhiGLWindowSurface to support the driver using the OpenGL paint
-    engine and the OpenGL widget: QOpenGLPaintEngine and QGLWidget.
-    QAhiGLWindowSurface is derived from the more general OpenGL window
-    surface class, QWSGLWindowSurface, which is derived from
-    QWSWindowSurface.
+    QAhiGLWindowSurface so the screen driver can use the OpenGL paint
+    engine and the OpenGL widget, classes QOpenGLPaintEngine and
+    QGLWidget.  QAhiGLWindowSurface is derived from the more general
+    OpenGL window surface class, QWSGLWindowSurface, which is derived
+    from QWSWindowSurface.
 
     \quotefromfile qtopiacore/ahigl/qwindowsurface_ahigl_p.h
     \skipto class QAhiGLWindowSurface :
     \printuntil /^\}/
 
-    QAhiGLWindowSurface is tailored to any special requirements of the
-    ATI handheld device supported by the example screen driver.  In
-    addition to implementing the standard functionality required when
-    creating any new subclass of QWSWindowSurface, QAhiGLWindowSurface
-    also contains the textureId() function used by QAhiGLScreen.
+    In addition to implementing the standard functionality required by
+    any new subclass of QWSWindowSurface, QAhiGLWindowSurface also
+    contains the textureId() function used by QAhiGLScreen.
 
-    The same d-pointer pattern is used in the window surface class.
+    The same d-pointer pattern is used in this window surface class.
     The private implementation class is QAhiGLWindowSurfacePrivate. It
-    allows making changes to the internal design of the window surface
-    class without breaking binary compatibility.
+    allows making changes to the state variables of the window surface
+    without breaking binary compatibility.
 
     \quotefromfile qtopiacore/ahigl/qwindowsurface_ahigl.cpp
     \skipto class QAhiGLWindowSurfacePrivate
@@ -163,22 +161,23 @@
     \printuntil windowMap;
 
     As each new window is created, an instance of struct WindowInfo is
-    allocated and inserted into the \c windowMap. WindowInfo uses a
-    GLuint to identify the GL \c texture it creates for the window.
+    allocated and inserted into the window map. WindowInfo uses a
+    GLuint to identify the OpenGL texture it creates for the window.
     Note that the example driver, in addition to drawing windows using
     OpenGL, also supports drawing windows in the normal way without
-    OpenGL, but it uses a GL texture for the rendering operations in
-    either case.  Top-level windows that are drawn without OpenGL are
-    first rendered in the normal way into a shared memory segment,
-    which is then converted to a GL texture and drawn to the screen.
+    OpenGL, but it uses an OpenGL texture for the rendering operations
+    in either case.  Top-level windows that are drawn without OpenGL
+    are first rendered in the normal way into a shared memory segment,
+    which is then converted to a OpenGL texture and drawn to the
+    screen.
 
     To animate the window transition effect, WindowInfo uses an
-    instance of the helper class ShowAnimation.  The \c animation is
-    created by the windowEvent() slot in QAhiGLScreenPrivate,
-    whenever a \l {QWSServer::WindowEvent} {Show} window event is
-    emitted by the \l {QWSServer} {window server}. The server emits
-    this signal when a window is shown the first time and again later,
-    when the window is reshown after having been minimized.
+    instance of the helper class ShowAnimation.  The animation is
+    created by the windowEvent() slot in QAhiGLScreenPrivate, whenever
+    a \l {QWSServer::WindowEvent} {Show} window event is emitted by
+    the \l {QWSServer} {window server}. The server emits this signal
+    when a window is shown the first time and again later, when the
+    window is reshown after having been minimized.
 
     \quotefromfile qtopiacore/ahigl/qscreenahigl_qws.cpp
     \skipto class ShowAnimation
@@ -200,8 +199,8 @@
     \section2 The Plugin Class Implementation
 
     QAhiGLScreenPlugin is a straightforward derivation of
-    QScreenDriverPlugin. Its keys() and create() functions are
-    reimplimentations of QScreenDriverPlugin functions. They are
+    QScreenDriverPlugin.  It reimplements \l {QScreenDriverPlugin::}
+    {keys()} and \l {QScreenDriverPlugin::} {create()}. They are
     called as needed by the \l {QWSServer} {Qtopia Core server.}
     Recall that the server detects that the ahigl screen driver has
     been requested, either by including "ahigl" in the value for the
@@ -212,11 +211,12 @@
         myApplication -qws -display ahigl
     \endcode
 
-    The server calls the plugin's keys() function, which returns a \l
-    {QStringList} containing the singleton "ahigl" matching the
-    requested screen driver and telling the server that it can use our
-    example screen driver. The server then calls create(), which
-    creates the instance of QAhiGLScreen.
+    The server calls \l {QScreenDriverPlugin::} {keys()}, which
+    returns a \l {QStringList} containing the singleton "ahigl"
+    matching the requested screen driver and telling the server that
+    it can use our example screen driver. The server then calls \l
+    {QScreenDriverPlugin::} {create(), which creates the instance of
+    QAhiGLScreen.
 
     Note the use of the macros Q_EXPORT_STATIC_PLUGIN(QAhiGLScreen)
     and Q_EXPORT_PLUGIN2(qahiglscreen, QAhiGLScreenPlugin) at the end
@@ -249,19 +249,17 @@
     screen. A better implementation would query the hardware for the
     corresponding values in it's current state and use those. It asks
     whether the screen driver was started with the \c effects option
-    and sets the \c doEffects flag accordingly. This flag determines
-    whether the animated transition effect is used when showing new
-    windows.
+    and sets the \c doEffects flag accordingly.
 
     \quotefromfile qtopiacore/ahigl/qscreenahigl_qws.cpp
     \skipto QAhiGLScreen::connect
     \printuntil /^\}/
 
     The \l {QScreen::}{initDevice()} function is called by the server
-    after connect(). It uses EGL library functions to initialize the
-    ATI hardware. Note that some data structures used in this example
-    are specific to the EGL implementation used, e.g., the DummyScreen
-    structure.
+    after \l {QScreen::}{connect()}. It uses EGL library functions to
+    initialize the ATI hardware. Note that some data structures used
+    in this example are specific to the EGL implementation used, e.g.,
+    the DummyScreen structure.
 
     \skipto initDevice
     \printuntil /^\}/
@@ -309,19 +307,20 @@
     of ShowAnimation being deleted.
 
     The \l {QTimeLine::valueForTime()} {valueForTime()} function in
-    QTimeline is reimplemented in ShowAnimation to return time values
+    QTimeLine is reimplemented in ShowAnimation to return time values
     that represent a curved path for the window transition effect.
 
     \skipto ShowAnimation::valueForTime
     \printuntil /^\}/
 
     valueForTime() is called internally, when the time interval it
-    computed on the previous call has elapsed. If it computes a next
-    time value that is different from the one computed previously, the
-    \l {QTimeLine::valueChanged()} {valueChanged()} signal is emitted.
-    The ShowAnimation constructor shown above connects this signal to
-    the redrawScreen() slot in the screen driver's private
-    implementation class. This is how the animation actually happens.
+    computed during the previous call has elapsed. If it computes a
+    next time value that is different from the one computed
+    previously, the \l {QTimeLine::valueChanged()} {valueChanged()}
+    signal is emitted.  The ShowAnimation constructor shown above
+    connects this signal to the redrawScreen() slot in the screen
+    driver's private implementation class. This is how the animation
+    actually happens.
 
     The screen driver's implementation of \l {QScreen::}
     {exposeRegion()} is where the main work of the screen driver is
@@ -329,11 +328,11 @@
     \l {QWSServer} {window system} to update a particular window's
     region of the screen. But note that it doesn't actually update the
     screen, i.e., it doesn't actually call redrawScreen() directly,
-    but starts the updateTimer, which causes redrawScreen() to
-    be called once for each timer interval. This means that all calls
-    to exposeRegion() during a timer interval are handled by a single
-    call to redrawScreen(). Thus updateTimer can be used to limit
-    the frequency of screen updates.
+    but starts the updateTimer, which causes redrawScreen() to be
+    called once for each updateTimer interval. This means that all
+    calls to exposeRegion() during an updateTimer interval are handled
+    by a single call to redrawScreen(). Thus updateTimer can be used
+    to limit the frequency of screen updates.
 
     \skipto QAhiGLScreen::exposeRegion
     \printuntil /^\}/
@@ -343,16 +342,16 @@
     texture will be created for the window, when redrawScreen() is
     eventually called.
 
-    But there is a caveat to using updateTimer to limit the
-    frequency of screen updates. When the driver's animated transition
-    effect for new windows is enabled and a new window is being shown
-    for the first time or reshown after having been minimized, an
-    instance of ShowAnimation is created to run the animation. The
-    valueChanged() signal of this ShowAnimation is also connected to
-    the redrawScreen() slot, and QTimeLine, the base class of our
-    ShowAnimation, uses its own timer to limit the speed of the
-    animation. This means that in the driver as currently written, if
-    the window transition effect is enabled (i.e. if the plugin is
+    But there is a caveat to using updateTimer to limit the frequency
+    of screen updates. When the driver's animated transition effect
+    for new windows is enabled and a new window is being shown for the
+    first time or reshown after having been minimized, an instance of
+    ShowAnimation is created to run the animation. The valueChanged()
+    signal of this ShowAnimation is also connected to the
+    redrawScreen() slot, and QTimeLine, the base class of our
+    ShowAnimation, uses its own, internal timer to limit the speed of
+    the animation. This means that in the driver as currently written,
+    if the window transition effect is enabled (i.e. if the plugin is
     started, with \c {-display ahigl:effects}), then redrawScreen()
     can be called both when the update timer times out and when the
     ShowAnimation timer times out, so the screen might get updated
@@ -370,15 +369,15 @@
 
     Recall that this redrawScreen() in the private implementation
     class is a slot function connected to two signals, the \c
-    timeout() signal of the updateTimer in the private
-    implementation class, and the valueChanged() signal of the
-    helper class ShowAnimation. Thus, the screen is only updated in
-    response to a timeout of one of the two timers. This is important
-    for two reasons. First, the screen is meant to be updated no more
-    than once per updateTimer interval. Second, however, if the
-    animated window transition effect is requested, the screen might
-    be updated more oftewn than that, and this might be a bug if the
-    hardware can't handle more frequent updates.
+    timeout() signal of the updateTimer in the private implementation
+    class, and the valueChanged() signal of the helper class
+    ShowAnimation. Thus, the screen is only ever updated when a
+    timeout of one of the two timers occurs. This is important for two
+    reasons. First, the screen is meant to be updated no more than
+    once per updateTimer interval. Second, however, if the animated
+    window transition effect is requested, the screen might be updated
+    more often than that, and this might be a bug if the hardware
+    can't handle more frequent updates.
 
     The redrawScreen() in QAhiGLScreen begins by using standard
     OpenGL to fill the screen with the background color.
@@ -410,7 +409,7 @@
     \printuntil /^\}/
  
     The call to \c drawWindow(win,progress), in addition to passing a
-    pointer to the window to be redrawn, also passes a \c progress
+    pointer to the window to be redrawn, also passes the \c progress
     parameter obtained by calling \l {QTimeLine::currentValue()} on
     the window's instance of ShowAnimation. Recall that the current
     value of the timeline is updated internally by a timer local to
@@ -461,10 +460,11 @@
     Note the test at the top of the function asking if our application
     process is the \l {QApplication::GuiServer} {server}.  We only
     create instances of QAhiGLWindowSurface if our client is in the
-    server process because of an implementation restriction required
-    by the OpenGL libraries used in the example. They only support use
-    of OpenGL in the server process. Hence a client can use the
-    QAhiGLWindowSurface if the client is in the server process.
+    server process. This is because of an implementation restriction
+    required by the OpenGL library used in the example. They only
+    support use of OpenGL in the server process. Hence a client can
+    use the QAhiGLWindowSurface if the client is in the server
+    process.
 
     The other overloading of createSurface() is called by the
     server to create a window surface that will hold a copy of a
@@ -480,16 +480,16 @@
     communicates its image data to the server's window surface through
     shared memory.
 
-    You will see that the implementation of \l {QScreen::}{setMode()},
-    is a stub in this example. It would normally reset the frame
-    buffer's resolution. Its parameters are the \e width, \e height,
-    and the bit \e depth for the frame buffer's new resolution. If you
-    implement setMode() in your screen driver, remember that it must
-    emit a signal to warn other applications to redraw their frame
-    buffers with the new resolution.  There is no significance to
-    setMode() not being implemented in this example. It simply wasn't
-    implemented. However, the stub had to be included because QScreen
-    declares setMode() to be pure virtual.
+    The implementation of \l {QScreen::}{setMode()}, is a stub in this
+    example. It would normally reset the frame buffer's resolution.
+    Its parameters are the \e width, \e height, and the bit \e depth
+    for the frame buffer's new resolution. If you implement setMode()
+    in your screen driver, remember that it must emit a signal to warn
+    other applications to redraw their frame buffers with the new
+    resolution.  There is no significance to setMode() not being
+    implemented in this example. It simply wasn't implemented.
+    However, the stub had to be included because QScreen declares
+    setMode() to be pure virtual.
 
     Before the application exits, the server will call \l {QScreen::}
     {shutdownDevice()} to release the hardware resources. This is also
