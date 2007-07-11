@@ -493,6 +493,7 @@ void tst_QFiledialog::focus()
 {
     QFileDialog fd;
     fd.show();
+    WAIT_FOR_CONDITION(fd.isVisible(), true);
     qApp->processEvents();
 
     QList<QWidget*> treeView = fd.findChildren<QWidget*>("fileNameEdit");
