@@ -57,12 +57,24 @@ public:
 
     QSize sizeHint() const;
 
+    void setFlickerHighlight(bool) {}
+    bool flickerHighlight() const { return false; }
+
+    void setFlickerInterval(int) {}
+    int flickerInterval() const { return 0; }
+
+    void setMaxFrames(int) {}
+    int maxFrames() const { return 1; }
+
+    bool frames() const { return false; }
+
 public slots:
     void setTouchscreenEmulation( bool );
     void setLcdScreenEmulation( bool );
     void setZoom( double, double );
     void startAnimation( const QString& );
     void stopAnimation();
+    void toggleFrames() {}
 
 protected:
     void showEvent(QShowEvent *);
