@@ -1279,7 +1279,8 @@ void tst_QHeaderView::focusPolicy()
 
     qApp->processEvents();
     qApp->processEvents();
-    
+
+    WAIT_FOR_CONDITION(widget.hasFocus(), false);
     QVERIFY(!widget.hasFocus());
     QVERIFY(!widget.header()->hasFocus());
 
