@@ -100,7 +100,6 @@ public:
     QScriptNameIdImpl *id_length;
     QScriptNameIdImpl *id_callee;
     QScriptNameIdImpl *id___proto__;
-    QScriptNameIdImpl *id___fileName__;
     QScriptNameIdImpl *id___qt_sender__;
 };
 
