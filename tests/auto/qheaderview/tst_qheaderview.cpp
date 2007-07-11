@@ -134,6 +134,9 @@ private slots:
     void defaultSectionSize_data();
     void defaultSectionSize();
 
+    void hideAndInsert_data();
+    void hideAndInsert();
+
 protected:
     QHeaderView *view;
     QStandardItemModel *model;
@@ -1525,6 +1528,42 @@ void tst_QHeaderView::defaultSectionSize()
     h.reset();
     for (int i = 0; i < h.count(); ++i)
         QCOMPARE(h.sectionSize(i), newDefaultSize);
+}
+
+void tst_QHeaderView::hideAndInsert_data()
+{
+    QTest::addColumn<int>("direction");
+    QTest::addColumn<int>("hide");
+    QTest::addColumn<int>("insert");
+    QTest::addColumn<int>("hidden");
+    
+    QTest::newRow("horizontal, 0, 0") << int(Qt::Horizontal) << 0 << 0 << 1;
+}
+
+void tst_QHeaderView::hideAndInsert()
+{
+    QFETCH(int, direction);
+    QFETCH(int, hide);
+    QFETCH(int, insert);
+    QFETCH(int, hidden);
+        
+    QStandardItemModel m(4, 4);
+    QHeaderView h((Qt::Orientation)direction);
+
+    h.setModel(&m);
+
+    h.setSectionHidden(hide, true);
+
+    if (direction == Qt::Vertical)
+        m.insertRow(insert);
+    else
+        m.insertColumn(insert);
+
+    for (int i = 0; i < h.count(); ++i)
+        if (i != hidden)
+            QCOMPARE(h.isSectionHidden(i), false);
+        else
+            QCOMPARE(h.isSectionHidden(i), true);
 }
 
 QTEST_MAIN(tst_QHeaderView)
