@@ -392,6 +392,8 @@ public:
 
         WA_ShowWithoutActivating = 98,
 
+        WA_X11BypassTransientForHint = 99,
+
         // Add new attributes before this line
         WA_AttributeCount
     };

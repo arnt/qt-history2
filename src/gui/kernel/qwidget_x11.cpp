@@ -138,12 +138,13 @@ static void SetMWMHints(Display *display, Window window, const QtMWMHints &mwmhi
 // Returns true if we should set WM_TRANSIENT_FOR on \a w
 static inline bool isTransient(const QWidget *w)
 {
-    return ((w->windowType() == Qt::Dialog)
-            || (w->windowType() == Qt::Sheet)
-            || (w->windowType() == Qt::Tool)
-            || (w->windowType() == Qt::SplashScreen)
-            || (w->windowType() == Qt::ToolTip)
-            || (w->windowType() == Qt::Drawer));
+    return ((w->windowType() == Qt::Dialog
+             || w->windowType() == Qt::Sheet
+             || w->windowType() == Qt::Tool
+             || w->windowType() == Qt::SplashScreen
+             || w->windowType() == Qt::ToolTip
+             || w->windowType() == Qt::Drawer)
+            && !w->testAttriute(Qt::WA_X11BypassTransientForHint));
 }
 
 static void do_size_hints(QWidget* widget, QWExtra *x);
