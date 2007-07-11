@@ -2108,7 +2108,10 @@ QMdiSubWindow::QMdiSubWindow(QWidget *parent, Qt::WindowFlags flags)
     d->font = QApplication::font("QWorkspaceTitleBar");
     // We don't want the menu icon by default on mac.
 #ifndef Q_WS_MAC
-    d->menuIcon = style()->standardIcon(QStyle::SP_TitleBarMenuButton);
+    if (windowIcon().isNull())
+        d->menuIcon = style()->standardIcon(QStyle::SP_TitleBarMenuButton);
+    else
+        d->menuIcon = windowIcon();
 #endif
     connect(qApp, SIGNAL(focusChanged(QWidget *, QWidget *)),
             this, SLOT(_q_processFocusChanged(QWidget *, QWidget *)));
@@ -2183,6 +2186,9 @@ void QMdiSubWindow::setWidget(QWidget *widget)
     }
     d->lastChildWindowTitle = d->baseWidget->windowTitle();
     d->ignoreWindowTitleChange = false;
+
+    if (windowIcon().isNull() && !d->baseWidget->windowIcon().isNull())
+        setWindowIcon(d->baseWidget->windowIcon());
 
     d->updateGeometryConstraints();
     if (!wasResized && testAttribute(Qt::WA_Resized))
