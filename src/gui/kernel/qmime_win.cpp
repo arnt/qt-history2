@@ -513,6 +513,7 @@ QVariant QWindowsMimeText::convertToMime(const QString &mime, LPDATAOBJECT pData
         QByteArray data = getData(CF_UNICODETEXT, pDataObj);
         if (!data.isEmpty()) {
             str = QString::fromUtf16((const unsigned short *)data.data());
+            str.replace(QLatin1String("\r\n"), QLatin1String("\n"));
         } else {
             data = getData(CF_TEXT, pDataObj);
             if (!data.isEmpty()) {
