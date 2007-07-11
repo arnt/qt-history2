@@ -935,6 +935,8 @@ function checkLicense(packageDir, fileList, checkMode)
             && fileName.find(/^include\//) == -1
             && fileName.find(/^doc\//) == -1
             && fileName.find(/^config.tests\//) == -1
+            && fileName.find(/^examples\/qdbus\//) == -1
+            && fileName.find(/^tools\/designer\/src\/designer\/extra\//) == -1
             && fileName.find(/\.cpp$|\.h$|\.c$/) != -1) {
 
             content = File.read(absFileName);
