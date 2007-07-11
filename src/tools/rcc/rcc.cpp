@@ -220,7 +220,7 @@ bool RCCResourceLibrary::interpretResourceFile(QIODevice *inputDevice, QString f
         if(!document.setContent(inputDevice, &errorMsg, &errorLine, &errorColumn)) {
             if(ignoreErrors)
                 return true;
-            fprintf(stderr, "RCC Parse Error: '%s' Line:%d Column:%d [%s]\n",
+            fprintf(stderr, "RCC Parse Error: '%s' Line: %d Column: %d [%s]\n",
                     qPrintable(fname), errorLine, errorColumn,
                     qPrintable(errorMsg));
             return false;
@@ -294,7 +294,8 @@ bool RCCResourceLibrary::interpretResourceFile(QIODevice *inputDevice, QString f
                         if (!file.exists()) {
                             if(ignoreErrors)
                                 continue;
-                            fprintf(stderr, "RCC: Error: Cannot find file '%s'\n", qPrintable(fileName));
+                            fprintf(stderr, "RCC: Error: Cannot find file '%s'\n",
+                                qPrintable(fileName));
                             return false;
                         } else if (file.isFile()) {
                             addFile(alias, RCCFileInfo(alias.section(QLatin1Char('/'), -1), file, language, country,

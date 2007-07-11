@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
     //parse options
     QString errorMsg;
     for (int i = 1; i < args.count() && errorMsg.isEmpty(); i++) {
-         if (args[i].isEmpty())
+        if (args[i].isEmpty())
             continue;
         if (args[i][0] == '-') {   // option
             QString opt = args[i];
