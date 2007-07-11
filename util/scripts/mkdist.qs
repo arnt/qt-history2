@@ -235,6 +235,7 @@ moduleMap["QtOpenGL module"]             = new RegExp("^src/opengl");
 moduleMap["QtSql module"]                = new RegExp("^src/sql");
 moduleMap["QtXML module"]                = new RegExp("^src/xml");
 moduleMap["QtSVG module"]                = new RegExp("^src/svg");
+moduleMap["QtScript module"]             = new RegExp("^src/script");
 moduleMap["ActiveQt Framework"]          = new RegExp("^src/activeqt");
 
 // main applications
