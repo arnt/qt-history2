@@ -43,7 +43,7 @@
 
 #include "qttreepropertybrowser.h"
 #include "qtbuttonpropertybrowser.h"
-#include "qtgroupboxpropertybrowser.h"
+//#include "qtgroupboxpropertybrowser.h"
 #include "qtvariantproperty.h"
 #include "designerpropertymanager.h"
 #include "qdesigner_propertysheet_p.h"
@@ -162,12 +162,14 @@ PropertyEditor::PropertyEditor(QDesignerFormEditorInterface *core, QWidget *pare
     m_buttonAction = new QAction(tr("Drop Down Button View"), this);
     m_buttonAction->setCheckable(true);
     m_buttonAction->setIcon(createIconSet(QLatin1String("widgets/toolbutton.png")));
+/*
     m_groupBoxAction = new QAction(tr("Group Box View"), this);
     m_groupBoxAction->setCheckable(true);
     m_groupBoxAction->setIcon(createIconSet(QLatin1String("widgets/groupbox.png")));
+*/
     actionGroup->addAction(m_treeAction);
     actionGroup->addAction(m_buttonAction);
-    actionGroup->addAction(m_groupBoxAction);
+//    actionGroup->addAction(m_groupBoxAction);
     m_buttonAction->setChecked(true);
     connect(actionGroup, SIGNAL(triggered(QAction *)),
                 this, SLOT(slotViewTriggered(QAction *)));
@@ -203,13 +205,15 @@ PropertyEditor::PropertyEditor(QDesignerFormEditorInterface *core, QWidget *pare
     toolBar->addSeparator();
     toolBar->addAction(m_treeAction);
     toolBar->addAction(m_buttonAction);
-    toolBar->addAction(m_groupBoxAction);
+//    toolBar->addAction(m_groupBoxAction);
 
+/*
     QScrollArea *groupScroll = new QScrollArea(m_stackedWidget);
     m_groupBrowser = new QtGroupBoxPropertyBrowser(groupScroll);
     groupScroll->setWidgetResizable(true);
     groupScroll->setWidget(m_groupBrowser);
     m_groupBoxIndex = m_stackedWidget->addWidget(groupScroll);
+*/
 
     QScrollArea *buttonScroll = new QScrollArea(m_stackedWidget);
     m_buttonBrowser = new QtButtonPropertyBrowser(buttonScroll);
@@ -232,7 +236,7 @@ PropertyEditor::PropertyEditor(QDesignerFormEditorInterface *core, QWidget *pare
     treeFactory->setSpacing(0);
     DesignerEditorFactory *groupFactory = new DesignerEditorFactory(m_core, this);
     QtVariantPropertyManager *variantManager = m_propertyManager;
-    m_groupBrowser->setFactoryForManager(variantManager, groupFactory);
+//    m_groupBrowser->setFactoryForManager(variantManager, groupFactory);
     m_buttonBrowser->setFactoryForManager(variantManager, groupFactory);
     m_treeBrowser->setFactoryForManager(variantManager, treeFactory);
 
@@ -271,8 +275,8 @@ bool PropertyEditor::isExpanded(QtBrowserItem *item)
 
 void PropertyEditor::storeExpansionState()
 {
-    if (m_groupBrowser == m_currentBrowser)
-        return;
+//    if (m_groupBrowser == m_currentBrowser)
+//        return;
 
     QList<QtBrowserItem *> items = m_currentBrowser->topLevelItems();
     QListIterator<QtBrowserItem *> itGroup(items);
@@ -301,8 +305,8 @@ void PropertyEditor::storeExpansionState()
 
 void PropertyEditor::applyExpansionState()
 {
-    if (m_groupBrowser == m_currentBrowser)
-        return;
+//    if (m_groupBrowser == m_currentBrowser)
+//        return;
 
     QList<QtBrowserItem *> items = m_currentBrowser->topLevelItems();
     QListIterator<QtBrowserItem *> itGroup(items);
@@ -343,9 +347,11 @@ void PropertyEditor::slotViewTriggered(QAction *action)
     } else if (action == m_buttonAction) {
         m_currentBrowser = m_buttonBrowser;
         idx = m_buttonIndex;
+        /*
     } else {
         m_currentBrowser = m_groupBrowser;
         idx = m_groupBoxIndex;
+        */
     }
     QListIterator<QtProperty *> itGroup(m_groups);
     while (itGroup.hasNext()) {
