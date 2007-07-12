@@ -102,6 +102,8 @@ public:
     inline const T *data() const { return d; }
     inline const T *constData() const { return d; }
 
+    inline void detach() { if (d && d->ref != 1) detach_helper(); }
+
     //inline operator bool () const { return d != 0; }
 
     inline bool operator==(const QExplicitlySharedDataPointer<T> &other) const { return d == other.d; }
@@ -138,6 +140,7 @@ public:
     inline bool operator!() const { return !d; }
 
 private:
+    void detach_helper();
 
     T *d;
 };
@@ -148,6 +151,16 @@ Q_INLINE_TEMPLATE QSharedDataPointer<T>::QSharedDataPointer(T *adata) : d(adata)
 
 template <class T>
 Q_OUTOFLINE_TEMPLATE void QSharedDataPointer<T>::detach_helper()
+{
+    T *x = new T(*d);
+    x->ref.ref();
+    x = qAtomicSetPtr(&d, x);
+    if (!x->ref.deref())
+        delete x;
+}
+
+template <class T>
+Q_OUTOFLINE_TEMPLATE void QExplicitlySharedDataPointer<T>::detach_helper()
 {
     T *x = new T(*d);
     x->ref.ref();
