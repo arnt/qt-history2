@@ -21,6 +21,8 @@
 
 #include "qfile.h"
 #include "qabstractfileengine.h"
+#include "qthreadstorage.h"
+
 #include "qopentype_p.h"
 #include <private/qpdf_p.h>
 #include <private/qmath_p.h>
@@ -53,14 +55,34 @@
 
 // -------------------------- Freetype support ------------------------------
 
-static FT_Library library = 0;
+class QtFreetypeData
+{
+public:
+    QtFreetypeData()
+        : library(0)
+    { }
+
+    FT_Library library;
+    QHash<QFontEngine::FaceId, QFreetypeFace *> faces;
+};
+
+Q_GLOBAL_STATIC(QThreadStorage<QtFreetypeData *>, freetypeData)
+
+QtFreetypeData *qt_getFreetypeData()
+{
+    QtFreetypeData *&freetypeData = ::freetypeData()->localData();
+    if (!freetypeData)
+        freetypeData = new QtFreetypeData;
+    return freetypeData;
+}
+
 FT_Library qt_getFreetype()
 {
-    if (!library)
-        FT_Init_FreeType(&library);
-    return library;
+    QtFreetypeData *freetypeData = qt_getFreetypeData();
+    if (!freetypeData->library)
+        FT_Init_FreeType(&freetypeData->library);
+    return freetypeData->library;
 }
-static QHash<QFontEngine::FaceId, QFreetypeFace *> *freetypeFaces = 0;
 
 int QFreetypeFace::fsType() const
 {
@@ -76,12 +98,11 @@ QFreetypeFace *QFreetypeFace::getFace(const QFontEngine::FaceId &face_id)
     if (face_id.filename.isEmpty())
         return 0;
 
-    if (!library)
-        FT_Init_FreeType(&library);
-    if (!freetypeFaces)
-        freetypeFaces = new QHash<QFontEngine::FaceId, QFreetypeFace *>();
+    QtFreetypeData *freetypeData = qt_getFreetypeData();
+    if (!freetypeData->library)
+        FT_Init_FreeType(&freetypeData->library);
 
-    QFreetypeFace *freetype = freetypeFaces->value(face_id, 0);
+    QFreetypeFace *freetype = freetypeData->faces.value(face_id, 0);
     if (!freetype) {
         freetype = new QFreetypeFace;
         FT_Face face;
@@ -103,11 +124,11 @@ QFreetypeFace *QFreetypeFace::getFace(const QFontEngine::FaceId &face_id)
             freetype->fontData = file.readAll();
         }
         if (!freetype->fontData.isEmpty()) {
-            if (FT_New_Memory_Face(library, (const FT_Byte *)freetype->fontData.constData(), freetype->fontData.size(), face_id.index, &face)) {
+            if (FT_New_Memory_Face(freetypeData->library, (const FT_Byte *)freetype->fontData.constData(), freetype->fontData.size(), face_id.index, &face)) {
                 delete freetype;
                 return 0;
             }
-        } else if (FT_New_Face(library, face_id.filename, face_id.index, &face)) {
+        } else if (FT_New_Face(freetypeData->library, face_id.filename, face_id.index, &face)) {
             delete freetype;
             return 0;
         }
@@ -167,7 +188,7 @@ QFreetypeFace *QFreetypeFace::getFace(const QFontEngine::FaceId &face_id)
 #endif
 
         FT_Set_Charmap(freetype->face, freetype->unicode_map);
-        freetypeFaces->insert(face_id, freetype);
+        freetypeData->faces.insert(face_id, freetype);
     }
     freetype->ref.ref();
     return freetype;
@@ -175,20 +196,19 @@ QFreetypeFace *QFreetypeFace::getFace(const QFontEngine::FaceId &face_id)
 
 void QFreetypeFace::release(const QFontEngine::FaceId &face_id)
 {
+    QtFreetypeData *freetypeData = qt_getFreetypeData();
     if (!ref.deref()) {
         FT_Done_Face(face);
 #ifndef QT_NO_FONTCONFIG
         if (charset)
             FcCharSetDestroy(charset);
 #endif
-        freetypeFaces->take(face_id);
+        freetypeData->faces.take(face_id);
         delete this;
     }
-    if (!freetypeFaces->size()) {
-        delete freetypeFaces;
-        freetypeFaces = 0;
-        FT_Done_FreeType(library);
-        library = 0;
+    if (freetypeData->faces.isEmpty()) {
+        FT_Done_FreeType(freetypeData->library);
+        freetypeData->library = 0;
     }
 }
 
@@ -570,9 +590,9 @@ QFontEngineFT::Glyph *QFontEngineFT::loadGlyph(QGlyphSet *set, uint glyph, Glyph
     if (err != FT_Err_Ok)
         qWarning("load glyph failed err=%x face=%p, glyph=%d", err, face, glyph);
 
-    if (outline_drawing) 
+    if (outline_drawing)
         return 0;
-    
+
     FT_GlyphSlot slot = face->glyph;
 
     FT_Matrix matrix = freetype->matrix;
@@ -657,7 +677,7 @@ QFontEngineFT::Glyph *QFontEngineFT::loadGlyph(QGlyphSet *set, uint glyph, Glyph
 
         FT_Outline_Transform(&slot->outline, &matrix);
         FT_Outline_Translate (&slot->outline, (hsubpixel ? -3*left +(4<<6) : -left), -bottom*vfactor);
-        FT_Outline_Get_Bitmap(library, &slot->outline, &bitmap);
+        FT_Outline_Get_Bitmap(qt_getFreetype(), &slot->outline, &bitmap);
         if (hsubpixel) {
             Q_ASSERT (bitmap.pixel_mode == FT_PIXEL_MODE_GRAY);
             Q_ASSERT(antialias);
@@ -1111,9 +1131,9 @@ void QFontEngineFT::getUnscaledGlyph(glyph_t glyph, QPainterPath *path, glyph_me
     metrics->y = QFixed::fromFixed(-top);
     metrics->xoff = QFixed::fromFixed(face->glyph->advance.x);
 
-    if (!FT_IS_SCALABLE(freetype->face)) 
+    if (!FT_IS_SCALABLE(freetype->face))
         QFreetypeFace::addBitmapToPath(face->glyph, p, path);
-    else 
+    else
         QFreetypeFace::addGlyphToPath(face, face->glyph, p, path, face->units_per_EM << 6, face->units_per_EM << 6);
 
     FT_Set_Transform(face, &freetype->matrix, 0);
