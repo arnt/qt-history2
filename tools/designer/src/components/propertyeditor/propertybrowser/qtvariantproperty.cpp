@@ -97,14 +97,12 @@ Q_GLOBAL_STATIC(PropertyMap, propertyToWrappedProperty)
 
 static QtProperty *wrappedProperty(QtProperty *property)
 {
-    QMap<QtVariantProperty *, QtProperty *>::ConstIterator it =
-            propertyToWrappedProperty()->constBegin();
-    while (it != propertyToWrappedProperty()->constEnd()) {
+    const QMap<QtVariantProperty *, QtProperty *>::ConstIterator pcend = propertyToWrappedProperty()->constEnd();
+    for (QMap<QtVariantProperty *, QtProperty *>::ConstIterator it = propertyToWrappedProperty()->constBegin(); it != pcend; ++it) {
         QtVariantProperty *varProp = it.key();
         if (property == varProp) {
             return it.value();
         }
-        it++;
     }
     return 0;
 }
@@ -118,6 +116,9 @@ public:
 
 /*!
     \class QtVariantProperty
+    \internal
+    \inmodule QtDesigner
+    \since 4.4
 
     \brief The QtVariantProperty class is a convenience class handling
     QVariant based properties.
@@ -618,6 +619,9 @@ void QtVariantPropertyManagerPrivate::slotFlagNamesChanged(QtProperty *property,
 
 /*!
     \class QtVariantPropertyManager
+    \internal
+    \inmodule QtDesigner
+    \since 4.4
 
     \brief The QtVariantPropertyManager class provides and manages QVariant based properties.
 
@@ -1178,14 +1182,12 @@ QtVariantPropertyManager::~QtVariantPropertyManager()
 */
 QtVariantProperty *QtVariantPropertyManager::variantProperty(const QtProperty *property) const
 {
-    QMap<QtVariantProperty *, int>::ConstIterator it =
-            d_ptr->m_propertyToType.constBegin();
-    while (it != d_ptr->m_propertyToType.constEnd()) {
+    QMap<QtVariantProperty *, int>::ConstIterator pcend =  d_ptr->m_propertyToType.constEnd();
+    for (QMap<QtVariantProperty *, int>::ConstIterator it = d_ptr->m_propertyToType.constBegin(); it != pcend; ++it) {
         QtVariantProperty *varProp = it.key();
         if (property == varProp) {
             return varProp;
         }
-        it++;
     }
     return 0;
 }
@@ -1245,9 +1247,8 @@ QtVariantProperty *QtVariantPropertyManager::addProperty(int propertyType, const
 */
 QVariant QtVariantPropertyManager::value(const QtProperty *property) const
 {
-    QMap<QtVariantProperty *, QtProperty *>::ConstIterator it =
-            propertyToWrappedProperty()->constBegin();
-    while (it != propertyToWrappedProperty()->constEnd()) {
+    const QMap<QtVariantProperty *, QtProperty *>::ConstIterator pcend = propertyToWrappedProperty()->constEnd();
+    for (QMap<QtVariantProperty *, QtProperty *>::ConstIterator it = propertyToWrappedProperty()->constBegin(); it != pcend; ++it) {
         QtVariantProperty *varProp = it.key();
         if (property == varProp) {
             QtProperty *internProp = it.value();
@@ -1300,7 +1301,6 @@ QVariant QtVariantPropertyManager::value(const QtProperty *property) const
                 return flagManager->value(internProp);
             }
         }
-        it++;
     }
     return QVariant();
 }
@@ -1335,11 +1335,10 @@ int QtVariantPropertyManager::valueType(int propertyType) const
 */
 int QtVariantPropertyManager::propertyType(const QtProperty *property) const
 {
-    QMap<QtVariantProperty *, int>::ConstIterator it = d_ptr->m_propertyToType.constBegin();
-    while (it != d_ptr->m_propertyToType.constEnd()) {
+    const QMap<QtVariantProperty *, int>::ConstIterator pcend = d_ptr->m_propertyToType.constEnd();
+    for (QMap<QtVariantProperty *, int>::ConstIterator it = d_ptr->m_propertyToType.constBegin(); it != pcend; ++it) {
         if (it.key() == property)
             return it.value();
-        it++;
     }
     return 0;
 }
@@ -1370,9 +1369,8 @@ QVariant QtVariantPropertyManager::attributeValue(const QtProperty *property, co
     if (itAttr == attributes.constEnd())
         return QVariant();
 
-    QMap<QtVariantProperty *, QtProperty *>::ConstIterator itVar =
-            propertyToWrappedProperty()->constBegin();
-    while (itVar != propertyToWrappedProperty()->constEnd()) {
+    const QMap<QtVariantProperty *, QtProperty *>::ConstIterator itvcend = propertyToWrappedProperty()->constEnd();
+    for (QMap<QtVariantProperty *, QtProperty *>::ConstIterator itVar = propertyToWrappedProperty()->constBegin(); itVar != itvcend; ++itVar) {
         QtVariantProperty *varProp = itVar.key();
         if (property == varProp) {
             QtProperty *internProp = itVar.value();
@@ -1445,7 +1443,6 @@ QVariant QtVariantPropertyManager::attributeValue(const QtProperty *property, co
                 return QVariant();
             }
         }
-        itVar++;
     }
     return QVariant();
 }
@@ -1508,12 +1505,10 @@ void QtVariantPropertyManager::setValue(QtProperty *property, const QVariant &va
 
     int valType = valueType(property);
 
-    if (propType != valType && !val.canConvert((QVariant::Type)valType))
+    if (propType != valType && !val.canConvert(static_cast<QVariant::Type>(valType)))
         return;
-
-    QMap<QtVariantProperty *, QtProperty *>::ConstIterator it =
-            propertyToWrappedProperty()->constBegin();
-    while (it != propertyToWrappedProperty()->constEnd()) {
+    const QMap<QtVariantProperty *, QtProperty *>::ConstIterator pcend = propertyToWrappedProperty()->constEnd();
+    for (QMap<QtVariantProperty *, QtProperty *>::ConstIterator it = propertyToWrappedProperty()->constBegin(); it != pcend; ++it) {
         QtVariantProperty *varProp = it.key();
         if (property == varProp) {
             QtProperty *internProp = it.value();
@@ -1588,7 +1583,6 @@ void QtVariantPropertyManager::setValue(QtProperty *property, const QVariant &va
                 return;
             }
         }
-        it++;
     }
 }
 
@@ -1618,9 +1612,8 @@ void QtVariantPropertyManager::setAttribute(QtProperty *property,
                 !value.canConvert((QVariant::Type)attrType))
         return;
 
-    QMap<QtVariantProperty *, QtProperty *>::ConstIterator it =
-            propertyToWrappedProperty()->constBegin();
-    while (it != propertyToWrappedProperty()->constEnd()) {
+    const QMap<QtVariantProperty *, QtProperty *>::ConstIterator pcend = propertyToWrappedProperty()->constEnd();
+    for  (QMap<QtVariantProperty *, QtProperty *>::ConstIterator it = propertyToWrappedProperty()->constBegin(); it != pcend; ++it) {
         QtVariantProperty *varProp = it.key();
         if (property == varProp) {
             QtProperty *internProp = it.value();
@@ -1690,7 +1683,6 @@ void QtVariantPropertyManager::setAttribute(QtProperty *property,
                 return;
             }
         }
-        it++;
     }
 }
 
@@ -1709,15 +1701,13 @@ bool QtVariantPropertyManager::hasValue(const QtProperty *property) const
 */
 QString QtVariantPropertyManager::valueText(const QtProperty *property) const
 {
-    QMap<QtVariantProperty *, QtProperty *>::ConstIterator it =
-            propertyToWrappedProperty()->constBegin();
-    while (it != propertyToWrappedProperty()->constEnd()) {
+    const QMap<QtVariantProperty *, QtProperty *>::ConstIterator pcend = propertyToWrappedProperty()->constEnd();
+    for  (QMap<QtVariantProperty *, QtProperty *>::ConstIterator it = propertyToWrappedProperty()->constBegin(); it != pcend; ++it) {
         QtVariantProperty *varProp = it.key();
         if (property == varProp) {
             QtProperty *internProp = it.value();
             return internProp->valueText();
         }
-        it++;
     }
     return QString();
 }
@@ -1727,15 +1717,13 @@ QString QtVariantPropertyManager::valueText(const QtProperty *property) const
 */
 QIcon QtVariantPropertyManager::valueIcon(const QtProperty *property) const
 {
-    QMap<QtVariantProperty *, QtProperty *>::ConstIterator it =
-            propertyToWrappedProperty()->constBegin();
-    while (it != propertyToWrappedProperty()->constEnd()) {
+    const QMap<QtVariantProperty *, QtProperty *>::ConstIterator pcend = propertyToWrappedProperty()->constEnd();
+    for (QMap<QtVariantProperty *, QtProperty *>::ConstIterator it = propertyToWrappedProperty()->constBegin(); it != pcend; ++it) {
         QtVariantProperty *varProp = it.key();
         if (property == varProp) {
             QtProperty *internProp = it.value();
             return internProp->valueIcon();
         }
-        it++;
     }
     return QIcon();
 }
@@ -1835,6 +1823,9 @@ public:
 
 /*!
     \class QtVariantEditorFactory
+    \internal
+    \inmodule QtDesigner
+    \since 4.4
 
     \brief The QtVariantEditorFactory class provides widgets for properties
     created by QtVariantPropertyManager objects.

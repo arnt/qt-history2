@@ -155,7 +155,7 @@ void QtBrushEditorPrivate::slotRemoveClicked()
         return; // not possible
 
     QMap<QString, QBrush>::ConstIterator itCurrent = it;
-    it++;
+    ++it;
     if (it == brushes.constEnd()) {
         if (itCurrent != brushes.constBegin())
             newCurrent = (--itCurrent).key();
@@ -376,7 +376,7 @@ void QtBrushEditor::setBrushManager(QDesignerBrushManagerInterface *manager)
     while (it != brushes.constEnd()) {
         d_ptr->slotBrushAdded(it.key(), it.value());
 
-        it++;
+        ++it;
     }
     QString current = d_ptr->m_brushManager->currentBrush();
     d_ptr->slotCurrentBrushChanged(current, d_ptr->m_brushManager->brush(current));

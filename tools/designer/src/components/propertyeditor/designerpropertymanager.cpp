@@ -660,25 +660,22 @@ int DesignerPropertyManager::designerAlignmentTypeId()
 
 bool DesignerPropertyManager::isPropertyTypeSupported(int propertyType) const
 {
+    switch (propertyType) {
+    case QVariant::Palette:
+    case QVariant::Icon:
+    case QVariant::Pixmap:
+    case QVariant::UInt:
+    case QVariant::LongLong:
+    case QVariant::Url:
+    case QVariant::StringList:
+        return true;
+    default:
+        break;
+    }
+
     if (propertyType == designerFlagTypeId())
         return true;
     if (propertyType == designerAlignmentTypeId())
-        return true;
-    if (propertyType == QVariant::Palette)
-        return true;
-    if (propertyType == QVariant::Icon)
-        return true;
-    if (propertyType == QVariant::Pixmap)
-        return true;
-    if (propertyType == QVariant::UInt)
-        return true;
-    if (propertyType == QVariant::LongLong)
-        return true;
-    if (propertyType == QVariant::ULongLong)
-        return true;
-    if (propertyType == QVariant::Url)
-        return true;
-    if (propertyType == QVariant::StringList)
         return true;
     return QtVariantPropertyManager::isPropertyTypeSupported(propertyType);
 }
@@ -688,18 +685,17 @@ QString DesignerPropertyManager::valueText(const QtProperty *property) const
     if (m_flagValues.contains(const_cast<QtProperty *>(property))) {
         const FlagData data = m_flagValues.value(const_cast<QtProperty *>(property));
         const uint v = data.val;
-        QList<QPair<QString, uint> > flags = data.flags;
-        QListIterator<QPair<QString, uint> > itFlag(flags);
-
+        const QChar bar = QLatin1Char('|');
         QString valueStr;
-        while (itFlag.hasNext()) {
-            const QPair<QString, uint> pair = itFlag.next();
-            const uint val = pair.second;
+        const QList<QPair<QString, uint> > flags = data.flags;
+        const  QList<QPair<QString, uint> >::const_iterator fcend = flags.constEnd();
+        for (QList<QPair<QString, uint> >::const_iterator it = flags.constBegin(); it != fcend; ++it) {
+            const uint val = it->second;
             const bool checked = (val == 0) ? (v == 0) : ((val & v) == val);
             if (checked) {
                 if (!valueStr.isEmpty())
-                    valueStr += QLatin1String("|");
-                valueStr += pair.first;
+                    valueStr += bar;
+                valueStr += it->first;
             }
         }
         return valueStr;
@@ -713,7 +709,8 @@ QString DesignerPropertyManager::valueText(const QtProperty *property) const
         const uint mask = data.val.resolve();
         if (mask)
             return tr("Customized (%n roles)", 0, bitCount(mask));
-        return tr("Inherited");
+        static const QString inherited = tr("Inherited");
+        return inherited;
     }
     if (m_iconValues.contains(const_cast<QtProperty *>(property))) {
         const QIcon v = m_iconValues.value(const_cast<QtProperty *>(property));
@@ -787,26 +784,23 @@ QVariant DesignerPropertyManager::value(const QtProperty *property) const
 
 int DesignerPropertyManager::valueType(int propertyType) const
 {
+    switch (propertyType) {
+    case QVariant::Palette:
+    case QVariant::Icon:
+    case QVariant::Pixmap:
+    case QVariant::UInt:
+    case QVariant::LongLong:
+    case QVariant::ULongLong:
+    case QVariant::Url:
+    case QVariant::StringList:
+        return propertyType;
+    default:
+        break;
+    }
     if (propertyType == designerFlagTypeId())
         return QVariant::UInt;
     if (propertyType == designerAlignmentTypeId())
         return QVariant::UInt;
-    if (propertyType == QVariant::Palette)
-        return QVariant::Palette;
-    if (propertyType == QVariant::Icon)
-        return QVariant::Icon;
-    if (propertyType == QVariant::Pixmap)
-        return QVariant::Pixmap;
-    if (propertyType == QVariant::UInt)
-        return QVariant::UInt;
-    if (propertyType == QVariant::LongLong)
-        return QVariant::LongLong;
-    if (propertyType == QVariant::ULongLong)
-        return QVariant::ULongLong;
-    if (propertyType == QVariant::Url)
-        return QVariant::Url;
-    if (propertyType == QVariant::StringList)
-        return QVariant::StringList;
     return QtVariantPropertyManager::valueType(propertyType);
 }
 
@@ -1579,13 +1573,14 @@ QWidget *ResetDecorator::editor(QWidget *subEditor, bool resetable, QtAbstractPr
 
 void ResetDecorator::slotPropertyChanged(QtProperty *property)
 {
-    if (!m_createdResetWidgets.contains(property))
+    QMap<QtProperty *, QList<ResetWidget *> >::ConstIterator prIt = m_createdResetWidgets.constFind(property);
+    if (prIt == m_createdResetWidgets.constEnd())
         return;
 
-    QList<ResetWidget *> editors = m_createdResetWidgets[property];
-    QListIterator<ResetWidget *> itEditor(editors);
-    while (itEditor.hasNext()) {
-        ResetWidget *widget = itEditor.next();
+    const QList<ResetWidget *> editors = prIt.value();
+    const QList<ResetWidget *>::ConstIterator cend = editors.constEnd();
+    for (QList<ResetWidget *>::ConstIterator itEditor = editors.constBegin(); itEditor != cend; ++itEditor) {
+        ResetWidget *widget = *itEditor;
         widget->setResetEnabled(property->isModified());
         widget->setValueText(property->valueText());
         widget->setValueIcon(property->valueIcon());
@@ -1594,9 +1589,8 @@ void ResetDecorator::slotPropertyChanged(QtProperty *property)
 
 void ResetDecorator::slotEditorDestroyed(QObject *object)
 {
-    QMap<ResetWidget *, QtProperty *>::ConstIterator itEditor =
-        m_resetWidgetToProperty.constBegin();
-    while (itEditor != m_resetWidgetToProperty.constEnd()) {
+    const  QMap<ResetWidget *, QtProperty *>::ConstIterator rcend = m_resetWidgetToProperty.constEnd();
+    for (QMap<ResetWidget *, QtProperty *>::ConstIterator itEditor =  m_resetWidgetToProperty.constBegin(); itEditor != rcend; ++itEditor) {
         if (itEditor.key() == object) {
             ResetWidget *editor = itEditor.key();
             QtProperty *property = itEditor.value();
@@ -1606,7 +1600,6 @@ void ResetDecorator::slotEditorDestroyed(QObject *object)
                 m_createdResetWidgets.remove(property);
             return;
         }
-        itEditor++;
     }
 }
 

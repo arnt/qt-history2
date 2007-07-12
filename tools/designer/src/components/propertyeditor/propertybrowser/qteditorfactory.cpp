@@ -25,6 +25,13 @@
 #include <QMap>
 #include <QKeyEvent>
 
+template <class MapIterator>
+static inline void deleteMapKeys(const MapIterator &begin, const MapIterator &end)
+{
+    for (MapIterator it = begin; it != end; ++it)
+        delete it.key();
+}
+
 // QtSpinBoxFactory
 
 class QtSpinBoxFactoryPrivate
@@ -80,9 +87,8 @@ void QtSpinBoxFactoryPrivate::slotRangeChanged(QtProperty *property, int min, in
 void QtSpinBoxFactoryPrivate::slotSetValue(int value)
 {
     QObject *object = q_ptr->sender();
-    QMap<QSpinBox *, QtProperty *>::ConstIterator itEditor =
-                m_editorToProperty.constBegin();
-    while (itEditor != m_editorToProperty.constEnd()) {
+    const QMap<QSpinBox *, QtProperty *>::ConstIterator  ecend = m_editorToProperty.constEnd();
+    for (QMap<QSpinBox *, QtProperty *>::ConstIterator itEditor = m_editorToProperty.constBegin(); itEditor !=  ecend; ++itEditor) {
         if (itEditor.key() == object) {
             QtProperty *property = itEditor.value();
             QtIntPropertyManager *manager = q_ptr->propertyManager(property);
@@ -91,15 +97,13 @@ void QtSpinBoxFactoryPrivate::slotSetValue(int value)
             manager->setValue(property, value);
             return;
         }
-        itEditor++;
     }
 }
 
 void QtSpinBoxFactoryPrivate::slotEditorDestroyed(QObject *object)
 {
-    QMap<QSpinBox *, QtProperty *>::ConstIterator itEditor =
-                m_editorToProperty.constBegin();
-    while (itEditor != m_editorToProperty.constEnd()) {
+    const QMap<QSpinBox *, QtProperty *>::ConstIterator  ecend = m_editorToProperty.constEnd();
+    for (QMap<QSpinBox *, QtProperty *>::ConstIterator itEditor = m_editorToProperty.constBegin(); itEditor !=  ecend; ++itEditor) {
         if (itEditor.key() == object) {
             QSpinBox *editor = itEditor.key();
             QtProperty *property = itEditor.value();
@@ -109,12 +113,14 @@ void QtSpinBoxFactoryPrivate::slotEditorDestroyed(QObject *object)
                 m_createdEditors.remove(property);
             return;
         }
-        itEditor++;
     }
 }
 
 /*!
     \class QtSpinBoxFactory
+    \internal
+    \inmodule QtDesigner
+    \since 4.4
 
     \brief The QtSpinBoxFactory class provides QSpinBox widgets for
     properties created by QtIntPropertyManager objects.
@@ -138,12 +144,7 @@ QtSpinBoxFactory::QtSpinBoxFactory(QObject *parent)
 */
 QtSpinBoxFactory::~QtSpinBoxFactory()
 {
-    QMap<QSpinBox *, QtProperty *> editorToProperty = d_ptr->m_editorToProperty;
-    QMap<QSpinBox *, QtProperty *>::ConstIterator it = editorToProperty.constBegin();
-    while (it != editorToProperty.constEnd()) {
-        delete it.key();
-        it++;
-    }
+    deleteMapKeys(d_ptr->m_editorToProperty.constBegin(), d_ptr->m_editorToProperty.constEnd());
     delete d_ptr;
 }
 
@@ -247,9 +248,8 @@ void QtSliderFactoryPrivate::slotRangeChanged(QtProperty *property, int min, int
 void QtSliderFactoryPrivate::slotSetValue(int value)
 {
     QObject *object = q_ptr->sender();
-    QMap<QSlider *, QtProperty *>::ConstIterator itEditor =
-                m_editorToProperty.constBegin();
-    while (itEditor != m_editorToProperty.constEnd()) {
+    const QMap<QSlider *, QtProperty *>::ConstIterator ecend = m_editorToProperty.constEnd();
+    for (QMap<QSlider *, QtProperty *>::ConstIterator itEditor = m_editorToProperty.constBegin(); itEditor != ecend; ++itEditor ) {
         if (itEditor.key() == object) {
             QtProperty *property = itEditor.value();
             QtIntPropertyManager *manager = q_ptr->propertyManager(property);
@@ -258,15 +258,13 @@ void QtSliderFactoryPrivate::slotSetValue(int value)
             manager->setValue(property, value);
             return;
         }
-        itEditor++;
     }
 }
 
 void QtSliderFactoryPrivate::slotEditorDestroyed(QObject *object)
 {
-    QMap<QSlider *, QtProperty *>::ConstIterator itEditor =
-                m_editorToProperty.constBegin();
-    while (itEditor != m_editorToProperty.constEnd()) {
+    const QMap<QSlider *, QtProperty *>::ConstIterator ecend = m_editorToProperty.constEnd();
+    for (QMap<QSlider *, QtProperty *>::ConstIterator itEditor = m_editorToProperty.constBegin(); itEditor != ecend; ++itEditor ) {
         if (itEditor.key() == object) {
             QSlider *editor = itEditor.key();
             QtProperty *property = itEditor.value();
@@ -276,12 +274,14 @@ void QtSliderFactoryPrivate::slotEditorDestroyed(QObject *object)
                 m_createdEditors.remove(property);
             return;
         }
-        itEditor++;
     }
 }
 
 /*!
     \class QtSliderFactory
+    \internal
+    \inmodule QtDesigner
+    \since 4.4
 
     \brief The QtSliderFactory class provides QSlider widgets for
     properties created by QtIntPropertyManager objects.
@@ -305,12 +305,7 @@ QtSliderFactory::QtSliderFactory(QObject *parent)
 */
 QtSliderFactory::~QtSliderFactory()
 {
-    QMap<QSlider *, QtProperty *> editorToProperty = d_ptr->m_editorToProperty;
-    QMap<QSlider *, QtProperty *>::ConstIterator it = editorToProperty.constBegin();
-    while (it != editorToProperty.constEnd()) {
-        delete it.key();
-        it++;
-    }
+    deleteMapKeys(d_ptr->m_editorToProperty.constBegin(), d_ptr->m_editorToProperty.constEnd());
     delete d_ptr;
 }
 
@@ -413,9 +408,8 @@ void QtScrollBarFactoryPrivate::slotRangeChanged(QtProperty *property, int min, 
 void QtScrollBarFactoryPrivate::slotSetValue(int value)
 {
     QObject *object = q_ptr->sender();
-    QMap<QScrollBar *, QtProperty *>::ConstIterator itEditor =
-                m_editorToProperty.constBegin();
-    while (itEditor != m_editorToProperty.constEnd()) {
+    const QMap<QScrollBar *, QtProperty *>::ConstIterator ecend = m_editorToProperty.constEnd();
+    for (QMap<QScrollBar *, QtProperty *>::ConstIterator itEditor = m_editorToProperty.constBegin(); itEditor != ecend; ++itEditor)
         if (itEditor.key() == object) {
             QtProperty *property = itEditor.value();
             QtIntPropertyManager *manager = q_ptr->propertyManager(property);
@@ -424,15 +418,12 @@ void QtScrollBarFactoryPrivate::slotSetValue(int value)
             manager->setValue(property, value);
             return;
         }
-        itEditor++;
-    }
 }
 
 void QtScrollBarFactoryPrivate::slotEditorDestroyed(QObject *object)
 {
-    QMap<QScrollBar *, QtProperty *>::ConstIterator itEditor =
-                m_editorToProperty.constBegin();
-    while (itEditor != m_editorToProperty.constEnd()) {
+    const QMap<QScrollBar *, QtProperty *>::ConstIterator ecend = m_editorToProperty.constEnd();
+    for (QMap<QScrollBar *, QtProperty *>::ConstIterator itEditor = m_editorToProperty.constBegin(); itEditor != ecend; ++itEditor)
         if (itEditor.key() == object) {
             QScrollBar *editor = itEditor.key();
             QtProperty *property = itEditor.value();
@@ -442,12 +433,13 @@ void QtScrollBarFactoryPrivate::slotEditorDestroyed(QObject *object)
                 m_createdEditors.remove(property);
             return;
         }
-        itEditor++;
-    }
 }
 
 /*!
     \class QtScrollBarFactory
+    \internal
+    \inmodule QtDesigner
+    \since 4.4
 
     \brief The QtScrollBarFactory class provides QScrollBar widgets for
     properties created by QtIntPropertyManager objects.
@@ -471,12 +463,7 @@ QtScrollBarFactory::QtScrollBarFactory(QObject *parent)
 */
 QtScrollBarFactory::~QtScrollBarFactory()
 {
-    QMap<QScrollBar *, QtProperty *> editorToProperty = d_ptr->m_editorToProperty;
-    QMap<QScrollBar *, QtProperty *>::ConstIterator it = editorToProperty.constBegin();
-    while (it != editorToProperty.constEnd()) {
-        delete it.key();
-        it++;
-    }
+    deleteMapKeys(d_ptr->m_editorToProperty.constBegin(), d_ptr->m_editorToProperty.constEnd());
     delete d_ptr;
 }
 
@@ -559,9 +546,9 @@ void QtCheckBoxFactoryPrivate::slotPropertyChanged(QtProperty *property, bool va
 void QtCheckBoxFactoryPrivate::slotSetValue(bool value)
 {
     QObject *object = q_ptr->sender();
-    QMap<QCheckBox *, QtProperty *>::ConstIterator itEditor =
-                m_editorToProperty.constBegin();
-    while (itEditor != m_editorToProperty.constEnd()) {
+
+    const QMap<QCheckBox *, QtProperty *>::ConstIterator ecend = m_editorToProperty.constEnd();
+    for (QMap<QCheckBox *, QtProperty *>::ConstIterator itEditor = m_editorToProperty.constBegin(); itEditor != ecend;  ++itEditor)
         if (itEditor.key() == object) {
             QtProperty *property = itEditor.value();
             QtBoolPropertyManager *manager = q_ptr->propertyManager(property);
@@ -570,15 +557,12 @@ void QtCheckBoxFactoryPrivate::slotSetValue(bool value)
             manager->setValue(property, value);
             return;
         }
-        itEditor++;
-    }
 }
 
 void QtCheckBoxFactoryPrivate::slotEditorDestroyed(QObject *object)
 {
-    QMap<QCheckBox *, QtProperty *>::ConstIterator itEditor =
-                m_editorToProperty.constBegin();
-    while (itEditor != m_editorToProperty.constEnd()) {
+    const QMap<QCheckBox *, QtProperty *>::ConstIterator ecend = m_editorToProperty.constEnd();
+    for (QMap<QCheckBox *, QtProperty *>::ConstIterator itEditor = m_editorToProperty.constBegin(); itEditor != ecend;  ++itEditor)
         if (itEditor.key() == object) {
             QCheckBox *editor = itEditor.key();
             QtProperty *property = itEditor.value();
@@ -588,12 +572,13 @@ void QtCheckBoxFactoryPrivate::slotEditorDestroyed(QObject *object)
                 m_createdEditors.remove(property);
             return;
         }
-        itEditor++;
-    }
 }
 
 /*!
     \class QtCheckBoxFactory
+    \internal
+    \inmodule QtDesigner
+    \since 4.4
 
     \brief The QtCheckBoxFactory class provides QCheckBox widgets for
     properties created by QtBoolPropertyManager objects.
@@ -617,12 +602,7 @@ QtCheckBoxFactory::QtCheckBoxFactory(QObject *parent)
 */
 QtCheckBoxFactory::~QtCheckBoxFactory()
 {
-    QMap<QCheckBox *, QtProperty *> editorToProperty = d_ptr->m_editorToProperty;
-    QMap<QCheckBox *, QtProperty *>::ConstIterator it = editorToProperty.constBegin();
-    while (it != editorToProperty.constEnd()) {
-        delete it.key();
-        it++;
-    }
+    deleteMapKeys(d_ptr->m_editorToProperty.constBegin(), d_ptr->m_editorToProperty.constEnd());
     delete d_ptr;
 }
 
@@ -745,9 +725,8 @@ void QtDoubleSpinBoxFactoryPrivate::slotDecimalsChanged(QtProperty *property, in
 void QtDoubleSpinBoxFactoryPrivate::slotSetValue(double value)
 {
     QObject *object = q_ptr->sender();
-    QMap<QDoubleSpinBox *, QtProperty *>::ConstIterator itEditor =
-                m_editorToProperty.constBegin();
-    while (itEditor != m_editorToProperty.constEnd()) {
+    const QMap<QDoubleSpinBox *, QtProperty *>::ConstIterator itcend = m_editorToProperty.constEnd();
+    for (QMap<QDoubleSpinBox *, QtProperty *>::ConstIterator itEditor = m_editorToProperty.constBegin(); itEditor != itcend; ++itEditor) {
         if (itEditor.key() == object) {
             QtProperty *property = itEditor.value();
             QtDoublePropertyManager *manager = q_ptr->propertyManager(property);
@@ -756,15 +735,13 @@ void QtDoubleSpinBoxFactoryPrivate::slotSetValue(double value)
             manager->setValue(property, value);
             return;
         }
-        itEditor++;
     }
 }
 
 void QtDoubleSpinBoxFactoryPrivate::slotEditorDestroyed(QObject *object)
 {
-    QMap<QDoubleSpinBox *, QtProperty *>::ConstIterator itEditor =
-                m_editorToProperty.constBegin();
-    while (itEditor != m_editorToProperty.constEnd()) {
+    const QMap<QDoubleSpinBox *, QtProperty *>::ConstIterator itcend = m_editorToProperty.constEnd();
+    for (QMap<QDoubleSpinBox *, QtProperty *>::ConstIterator itEditor = m_editorToProperty.constBegin(); itEditor != itcend; ++itEditor) {
         if (itEditor.key() == object) {
             QDoubleSpinBox *editor = itEditor.key();
             QtProperty *property = itEditor.value();
@@ -774,11 +751,13 @@ void QtDoubleSpinBoxFactoryPrivate::slotEditorDestroyed(QObject *object)
                 m_createdEditors.remove(property);
             return;
         }
-        itEditor++;
     }
 }
 
 /*! \class QtDoubleSpinBoxFactory
+    \internal
+    \inmodule QtDesigner
+    \since 4.4
 
     \brief The QtDoubleSpinBoxFactory class provides QDoubleSpinBox
     widgets for properties created by QtDoublePropertyManager objects.
@@ -802,12 +781,7 @@ QtDoubleSpinBoxFactory::QtDoubleSpinBoxFactory(QObject *parent)
 */
 QtDoubleSpinBoxFactory::~QtDoubleSpinBoxFactory()
 {
-    QMap<QDoubleSpinBox *, QtProperty *> editorToProperty = d_ptr->m_editorToProperty;
-    QMap<QDoubleSpinBox *, QtProperty *>::ConstIterator it = editorToProperty.constBegin();
-    while (it != editorToProperty.constEnd()) {
-        delete it.key();
-        it++;
-    }
+    deleteMapKeys(d_ptr->m_editorToProperty.constBegin(), d_ptr->m_editorToProperty.constEnd());
     delete d_ptr;
 }
 
@@ -926,9 +900,8 @@ void QtLineEditFactoryPrivate::slotRegExpChanged(QtProperty *property,
 void QtLineEditFactoryPrivate::slotSetValue(const QString &value)
 {
     QObject *object = q_ptr->sender();
-    QMap<QLineEdit *, QtProperty *>::ConstIterator itEditor =
-                m_editorToProperty.constBegin();
-    while (itEditor != m_editorToProperty.constEnd()) {
+    const QMap<QLineEdit *, QtProperty *>::ConstIterator ecend = m_editorToProperty.constEnd();
+    for (QMap<QLineEdit *, QtProperty *>::ConstIterator itEditor = m_editorToProperty.constBegin(); itEditor != ecend; ++itEditor)
         if (itEditor.key() == object) {
             QtProperty *property = itEditor.value();
             QtStringPropertyManager *manager = q_ptr->propertyManager(property);
@@ -937,15 +910,12 @@ void QtLineEditFactoryPrivate::slotSetValue(const QString &value)
             manager->setValue(property, value);
             return;
         }
-        itEditor++;
-    }
 }
 
 void QtLineEditFactoryPrivate::slotEditorDestroyed(QObject *object)
 {
-    QMap<QLineEdit *, QtProperty *>::ConstIterator itEditor =
-                m_editorToProperty.constBegin();
-    while (itEditor != m_editorToProperty.constEnd()) {
+    const QMap<QLineEdit *, QtProperty *>::ConstIterator ecend = m_editorToProperty.constEnd();
+    for (QMap<QLineEdit *, QtProperty *>::ConstIterator itEditor = m_editorToProperty.constBegin(); itEditor != ecend; ++itEditor)
         if (itEditor.key() == object) {
             QLineEdit *editor = itEditor.key();
             QtProperty *property = itEditor.value();
@@ -955,12 +925,14 @@ void QtLineEditFactoryPrivate::slotEditorDestroyed(QObject *object)
                 m_createdEditors.remove(property);
             return;
         }
-        itEditor++;
-    }
+
 }
 
 /*!
     \class QtLineEditFactory
+    \internal
+    \inmodule QtDesigner
+    \since 4.4
 
     \brief The QtLineEditFactory class provides QLineEdit widgets for
     properties created by QtStringPropertyManager objects.
@@ -984,12 +956,7 @@ QtLineEditFactory::QtLineEditFactory(QObject *parent)
 */
 QtLineEditFactory::~QtLineEditFactory()
 {
-    QMap<QLineEdit *, QtProperty *> editorToProperty = d_ptr->m_editorToProperty;
-    QMap<QLineEdit *, QtProperty *>::ConstIterator it = editorToProperty.constBegin();
-    while (it != editorToProperty.constEnd()) {
-        delete it.key();
-        it++;
-    }
+    deleteMapKeys(d_ptr->m_editorToProperty.constBegin(), d_ptr->m_editorToProperty.constEnd());
     delete d_ptr;
 }
 
@@ -1098,9 +1065,8 @@ void QtDateEditFactoryPrivate::slotRangeChanged(QtProperty *property,
 void QtDateEditFactoryPrivate::slotSetValue(const QDate &value)
 {
     QObject *object = q_ptr->sender();
-    QMap<QDateEdit *, QtProperty *>::ConstIterator itEditor =
-                m_editorToProperty.constBegin();
-    while (itEditor != m_editorToProperty.constEnd()) {
+    const QMap<QDateEdit *, QtProperty *>::ConstIterator  ecend = m_editorToProperty.constEnd();
+    for (QMap<QDateEdit *, QtProperty *>::ConstIterator itEditor = m_editorToProperty.constBegin(); itEditor != ecend; ++itEditor)
         if (itEditor.key() == object) {
             QtProperty *property = itEditor.value();
             QtDatePropertyManager *manager = q_ptr->propertyManager(property);
@@ -1109,15 +1075,12 @@ void QtDateEditFactoryPrivate::slotSetValue(const QDate &value)
             manager->setValue(property, value);
             return;
         }
-        itEditor++;
-    }
 }
 
 void QtDateEditFactoryPrivate::slotEditorDestroyed(QObject *object)
 {
-    QMap<QDateEdit *, QtProperty *>::ConstIterator itEditor =
-                m_editorToProperty.constBegin();
-    while (itEditor != m_editorToProperty.constEnd()) {
+    const QMap<QDateEdit *, QtProperty *>::ConstIterator  ecend = m_editorToProperty.constEnd();
+    for (QMap<QDateEdit *, QtProperty *>::ConstIterator itEditor = m_editorToProperty.constBegin(); itEditor != ecend; ++itEditor)
         if (itEditor.key() == object) {
             QDateEdit *editor = itEditor.key();
             QtProperty *property = itEditor.value();
@@ -1127,12 +1090,13 @@ void QtDateEditFactoryPrivate::slotEditorDestroyed(QObject *object)
                 m_createdEditors.remove(property);
             return;
         }
-        itEditor++;
-    }
 }
 
 /*!
     \class QtDateEditFactory
+    \internal
+    \inmodule QtDesigner
+    \since 4.4
 
     \brief The QtDateEditFactory class provides QDateEdit widgets for
     properties created by QtDatePropertyManager objects.
@@ -1156,12 +1120,7 @@ QtDateEditFactory::QtDateEditFactory(QObject *parent)
 */
 QtDateEditFactory::~QtDateEditFactory()
 {
-    QMap<QDateEdit *, QtProperty *> editorToProperty = d_ptr->m_editorToProperty;
-    QMap<QDateEdit *, QtProperty *>::ConstIterator it = editorToProperty.constBegin();
-    while (it != editorToProperty.constEnd()) {
-        delete it.key();
-        it++;
-    }
+    deleteMapKeys(d_ptr->m_editorToProperty.constBegin(), d_ptr->m_editorToProperty.constEnd());
     delete d_ptr;
 }
 
@@ -1245,9 +1204,8 @@ void QtTimeEditFactoryPrivate::slotPropertyChanged(QtProperty *property, const Q
 void QtTimeEditFactoryPrivate::slotSetValue(const QTime &value)
 {
     QObject *object = q_ptr->sender();
-    QMap<QTimeEdit *, QtProperty *>::ConstIterator itEditor =
-                m_editorToProperty.constBegin();
-    while (itEditor != m_editorToProperty.constEnd()) {
+    const  QMap<QTimeEdit *, QtProperty *>::ConstIterator ecend = m_editorToProperty.constEnd();
+    for (QMap<QTimeEdit *, QtProperty *>::ConstIterator itEditor = m_editorToProperty.constBegin(); itEditor != ecend; ++itEditor)
         if (itEditor.key() == object) {
             QtProperty *property = itEditor.value();
             QtTimePropertyManager *manager = q_ptr->propertyManager(property);
@@ -1256,15 +1214,12 @@ void QtTimeEditFactoryPrivate::slotSetValue(const QTime &value)
             manager->setValue(property, value);
             return;
         }
-        itEditor++;
-    }
 }
 
 void QtTimeEditFactoryPrivate::slotEditorDestroyed(QObject *object)
 {
-    QMap<QTimeEdit *, QtProperty *>::ConstIterator itEditor =
-                m_editorToProperty.constBegin();
-    while (itEditor != m_editorToProperty.constEnd()) {
+    const  QMap<QTimeEdit *, QtProperty *>::ConstIterator ecend = m_editorToProperty.constEnd();
+    for (QMap<QTimeEdit *, QtProperty *>::ConstIterator itEditor = m_editorToProperty.constBegin(); itEditor != ecend; ++itEditor)
         if (itEditor.key() == object) {
             QTimeEdit *editor = itEditor.key();
             QtProperty *property = itEditor.value();
@@ -1274,12 +1229,13 @@ void QtTimeEditFactoryPrivate::slotEditorDestroyed(QObject *object)
                 m_createdEditors.remove(property);
             return;
         }
-        itEditor++;
-    }
 }
 
 /*!
     \class QtTimeEditFactory
+    \internal
+    \inmodule QtDesigner
+    \since 4.4
 
     \brief The QtTimeEditFactory class provides QTimeEdit widgets for
     properties created by QtTimePropertyManager objects.
@@ -1303,12 +1259,7 @@ QtTimeEditFactory::QtTimeEditFactory(QObject *parent)
 */
 QtTimeEditFactory::~QtTimeEditFactory()
 {
-    QMap<QTimeEdit *, QtProperty *> editorToProperty = d_ptr->m_editorToProperty;
-    QMap<QTimeEdit *, QtProperty *>::ConstIterator it = editorToProperty.constBegin();
-    while (it != editorToProperty.constEnd()) {
-        delete it.key();
-        it++;
-    }
+    deleteMapKeys(d_ptr->m_editorToProperty.constBegin(), d_ptr->m_editorToProperty.constEnd());
     delete d_ptr;
 }
 
@@ -1387,9 +1338,8 @@ void QtDateTimeEditFactoryPrivate::slotPropertyChanged(QtProperty *property,
 void QtDateTimeEditFactoryPrivate::slotSetValue(const QDateTime &value)
 {
     QObject *object = q_ptr->sender();
-    QMap<QDateTimeEdit *, QtProperty *>::ConstIterator itEditor =
-                m_editorToProperty.constBegin();
-    while (itEditor != m_editorToProperty.constEnd()) {
+    const  QMap<QDateTimeEdit *, QtProperty *>::ConstIterator ecend = m_editorToProperty.constEnd();
+    for (QMap<QDateTimeEdit *, QtProperty *>::ConstIterator itEditor = m_editorToProperty.constBegin(); itEditor != ecend;  ++itEditor)
         if (itEditor.key() == object) {
             QtProperty *property = itEditor.value();
             QtDateTimePropertyManager *manager = q_ptr->propertyManager(property);
@@ -1398,15 +1348,12 @@ void QtDateTimeEditFactoryPrivate::slotSetValue(const QDateTime &value)
             manager->setValue(property, value);
             return;
         }
-        itEditor++;
-    }
 }
 
 void QtDateTimeEditFactoryPrivate::slotEditorDestroyed(QObject *object)
 {
-    QMap<QDateTimeEdit *, QtProperty *>::ConstIterator itEditor =
-                m_editorToProperty.constBegin();
-    while (itEditor != m_editorToProperty.constEnd()) {
+    const  QMap<QDateTimeEdit *, QtProperty *>::ConstIterator ecend = m_editorToProperty.constEnd();
+    for (QMap<QDateTimeEdit *, QtProperty *>::ConstIterator itEditor = m_editorToProperty.constBegin(); itEditor != ecend;  ++itEditor)
         if (itEditor.key() == object) {
             QDateTimeEdit *editor = itEditor.key();
             QtProperty *property = itEditor.value();
@@ -1416,12 +1363,13 @@ void QtDateTimeEditFactoryPrivate::slotEditorDestroyed(QObject *object)
                 m_createdEditors.remove(property);
             return;
         }
-        itEditor++;
-    }
 }
 
 /*!
     \class QtDateTimeEditFactory
+    \internal
+    \inmodule QtDesigner
+    \since 4.4
 
     \brief The QtDateTimeEditFactory class provides QDateTimeEdit
     widgets for properties created by QtDateTimePropertyManager objects.
@@ -1445,12 +1393,7 @@ QtDateTimeEditFactory::QtDateTimeEditFactory(QObject *parent)
 */
 QtDateTimeEditFactory::~QtDateTimeEditFactory()
 {
-    QMap<QDateTimeEdit *, QtProperty *> editorToProperty = d_ptr->m_editorToProperty;
-    QMap<QDateTimeEdit *, QtProperty *>::ConstIterator it = editorToProperty.constBegin();
-    while (it != editorToProperty.constEnd()) {
-        delete it.key();
-        it++;
-    }
+    deleteMapKeys(d_ptr->m_editorToProperty.constBegin(), d_ptr->m_editorToProperty.constEnd());
     delete d_ptr;
 }
 
@@ -1709,9 +1652,8 @@ void QtKeySequenceEditorFactoryPrivate::slotPropertyChanged(QtProperty *property
 void QtKeySequenceEditorFactoryPrivate::slotSetValue(const QKeySequence &value)
 {
     QObject *object = q_ptr->sender();
-    QMap<QtKeySequenceEdit *, QtProperty *>::ConstIterator itEditor =
-                m_editorToProperty.constBegin();
-    while (itEditor != m_editorToProperty.constEnd()) {
+    const  QMap<QtKeySequenceEdit *, QtProperty *>::ConstIterator ecend = m_editorToProperty.constEnd();
+    for (QMap<QtKeySequenceEdit *, QtProperty *>::ConstIterator itEditor =  m_editorToProperty.constBegin(); itEditor != ecend; ++itEditor)
         if (itEditor.key() == object) {
             QtProperty *property = itEditor.value();
             QtKeySequencePropertyManager *manager = q_ptr->propertyManager(property);
@@ -1720,15 +1662,12 @@ void QtKeySequenceEditorFactoryPrivate::slotSetValue(const QKeySequence &value)
             manager->setValue(property, value);
             return;
         }
-        itEditor++;
-    }
 }
 
 void QtKeySequenceEditorFactoryPrivate::slotEditorDestroyed(QObject *object)
 {
-    QMap<QtKeySequenceEdit *, QtProperty *>::ConstIterator itEditor =
-                m_editorToProperty.constBegin();
-    while (itEditor != m_editorToProperty.constEnd()) {
+    const  QMap<QtKeySequenceEdit *, QtProperty *>::ConstIterator ecend = m_editorToProperty.constEnd();
+    for (QMap<QtKeySequenceEdit *, QtProperty *>::ConstIterator itEditor = m_editorToProperty.constBegin(); itEditor != ecend; ++itEditor)
         if (itEditor.key() == object) {
             QtKeySequenceEdit *editor = itEditor.key();
             QtProperty *property = itEditor.value();
@@ -1738,12 +1677,13 @@ void QtKeySequenceEditorFactoryPrivate::slotEditorDestroyed(QObject *object)
                 m_createdEditors.remove(property);
             return;
         }
-        itEditor++;
-    }
 }
 
 /*!
     \class QtKeySequenceEditorFactory
+    \internal
+    \inmodule QtDesigner
+    \since 4.4
 
     \brief The QtKeySequenceEditorFactory class provides editor
     widgets for properties created by QtKeySequencePropertyManager objects.
@@ -1767,12 +1707,7 @@ QtKeySequenceEditorFactory::QtKeySequenceEditorFactory(QObject *parent)
 */
 QtKeySequenceEditorFactory::~QtKeySequenceEditorFactory()
 {
-    QMap<QtKeySequenceEdit *, QtProperty *> editorToProperty = d_ptr->m_editorToProperty;
-    QMap<QtKeySequenceEdit *, QtProperty *>::ConstIterator it = editorToProperty.constBegin();
-    while (it != editorToProperty.constEnd()) {
-        delete it.key();
-        it++;
-    }
+    deleteMapKeys(d_ptr->m_editorToProperty.constBegin(), d_ptr->m_editorToProperty.constEnd());
     delete d_ptr;
 }
 
@@ -2011,9 +1946,8 @@ void QtCharEditorFactoryPrivate::slotPropertyChanged(QtProperty *property,
 void QtCharEditorFactoryPrivate::slotSetValue(const QChar &value)
 {
     QObject *object = q_ptr->sender();
-    QMap<QtCharEdit *, QtProperty *>::ConstIterator itEditor =
-                m_editorToProperty.constBegin();
-    while (itEditor != m_editorToProperty.constEnd()) {
+    const QMap<QtCharEdit *, QtProperty *>::ConstIterator ecend = m_editorToProperty.constEnd();
+    for (QMap<QtCharEdit *, QtProperty *>::ConstIterator itEditor = m_editorToProperty.constBegin(); itEditor != ecend;  ++itEditor)
         if (itEditor.key() == object) {
             QtProperty *property = itEditor.value();
             QtCharPropertyManager *manager = q_ptr->propertyManager(property);
@@ -2022,15 +1956,12 @@ void QtCharEditorFactoryPrivate::slotSetValue(const QChar &value)
             manager->setValue(property, value);
             return;
         }
-        itEditor++;
-    }
 }
 
 void QtCharEditorFactoryPrivate::slotEditorDestroyed(QObject *object)
 {
-    QMap<QtCharEdit *, QtProperty *>::ConstIterator itEditor =
-                m_editorToProperty.constBegin();
-    while (itEditor != m_editorToProperty.constEnd()) {
+    const QMap<QtCharEdit *, QtProperty *>::ConstIterator ecend = m_editorToProperty.constEnd();
+    for (QMap<QtCharEdit *, QtProperty *>::ConstIterator itEditor = m_editorToProperty.constBegin(); itEditor != ecend;  ++itEditor)
         if (itEditor.key() == object) {
             QtCharEdit *editor = itEditor.key();
             QtProperty *property = itEditor.value();
@@ -2040,12 +1971,13 @@ void QtCharEditorFactoryPrivate::slotEditorDestroyed(QObject *object)
                 m_createdEditors.remove(property);
             return;
         }
-        itEditor++;
-    }
 }
 
 /*!
     \class QtCharEditorFactory
+    \internal
+    \inmodule QtDesigner
+    \since 4.4
 
     \brief The QtCharEditorFactory class provides editor
     widgets for properties created by QtCharPropertyManager objects.
@@ -2069,12 +2001,7 @@ QtCharEditorFactory::QtCharEditorFactory(QObject *parent)
 */
 QtCharEditorFactory::~QtCharEditorFactory()
 {
-    QMap<QtCharEdit *, QtProperty *> editorToProperty = d_ptr->m_editorToProperty;
-    QMap<QtCharEdit *, QtProperty *>::ConstIterator it = editorToProperty.constBegin();
-    while (it != editorToProperty.constEnd()) {
-        delete it.key();
-        it++;
-    }
+    deleteMapKeys(d_ptr->m_editorToProperty.constBegin(), d_ptr->m_editorToProperty.constEnd());
     delete d_ptr;
 }
 
@@ -2170,7 +2097,8 @@ void QtEnumEditorFactoryPrivate::slotEnumNamesChanged(QtProperty *property,
         editor->blockSignals(true);
         editor->clear();
         editor->addItems(enumNames);
-        for (int i = 0; i < enumNames.count(); i++)
+        const int nameCount = enumNames.count();
+        for (int i = 0; i < nameCount; i++)
             editor->setItemIcon(i, enumIcons.value(i));
         editor->setCurrentIndex(manager->value(property));
         editor->blockSignals(false);
@@ -2194,7 +2122,8 @@ void QtEnumEditorFactoryPrivate::slotEnumIconsChanged(QtProperty *property,
     while (itEditor.hasNext()) {
         QComboBox *editor = itEditor.next();
         editor->blockSignals(true);
-        for (int i = 0; i < enumNames.count(); i++)
+        const int nameCount = enumNames.count();
+        for (int i = 0; i < nameCount; i++)
             editor->setItemIcon(i, enumIcons.value(i));
         editor->setCurrentIndex(manager->value(property));
         editor->blockSignals(false);
@@ -2204,9 +2133,8 @@ void QtEnumEditorFactoryPrivate::slotEnumIconsChanged(QtProperty *property,
 void QtEnumEditorFactoryPrivate::slotSetValue(int value)
 {
     QObject *object = q_ptr->sender();
-    QMap<QComboBox *, QtProperty *>::ConstIterator itEditor =
-                m_editorToProperty.constBegin();
-    while (itEditor != m_editorToProperty.constEnd()) {
+    const  QMap<QComboBox *, QtProperty *>::ConstIterator ecend = m_editorToProperty.constEnd();
+    for (QMap<QComboBox *, QtProperty *>::ConstIterator itEditor = m_editorToProperty.constBegin(); itEditor != ecend; ++itEditor)
         if (itEditor.key() == object) {
             QtProperty *property = itEditor.value();
             QtEnumPropertyManager *manager = q_ptr->propertyManager(property);
@@ -2215,15 +2143,12 @@ void QtEnumEditorFactoryPrivate::slotSetValue(int value)
             manager->setValue(property, value);
             return;
         }
-        itEditor++;
-    }
 }
 
 void QtEnumEditorFactoryPrivate::slotEditorDestroyed(QObject *object)
 {
-    QMap<QComboBox *, QtProperty *>::ConstIterator itEditor =
-                m_editorToProperty.constBegin();
-    while (itEditor != m_editorToProperty.constEnd()) {
+    const  QMap<QComboBox *, QtProperty *>::ConstIterator ecend = m_editorToProperty.constEnd();
+    for (QMap<QComboBox *, QtProperty *>::ConstIterator itEditor = m_editorToProperty.constBegin(); itEditor != ecend; ++itEditor)
         if (itEditor.key() == object) {
             QComboBox *editor = itEditor.key();
             QtProperty *property = itEditor.value();
@@ -2233,12 +2158,13 @@ void QtEnumEditorFactoryPrivate::slotEditorDestroyed(QObject *object)
                 m_createdEditors.remove(property);
             return;
         }
-        itEditor++;
-    }
 }
 
 /*!
     \class QtEnumEditorFactory
+    \internal
+    \inmodule QtDesigner
+    \since 4.4
 
     \brief The QtEnumEditorFactory class provides QComboBox widgets for
     properties created by QtEnumPropertyManager objects.
@@ -2262,12 +2188,7 @@ QtEnumEditorFactory::QtEnumEditorFactory(QObject *parent)
 */
 QtEnumEditorFactory::~QtEnumEditorFactory()
 {
-    QMap<QComboBox *, QtProperty *> editorToProperty = d_ptr->m_editorToProperty;
-    QMap<QComboBox *, QtProperty *>::ConstIterator it = editorToProperty.constBegin();
-    while (it != editorToProperty.constEnd()) {
-        delete it.key();
-        it++;
-    }
+    deleteMapKeys(d_ptr->m_editorToProperty.constBegin(), d_ptr->m_editorToProperty.constEnd());
     delete d_ptr;
 }
 
@@ -2385,9 +2306,8 @@ void QtCursorEditorFactoryPrivate::slotEditorDestroyed(QObject *object)
     // remove from m_editorToEnum map;
     // remove from m_enumToEditors map;
     // if m_enumToEditors doesn't contains more editors delete enum property;
-    QMap<QWidget *, QtProperty *>::ConstIterator itEditor =
-                m_editorToEnum.constBegin();
-    while (itEditor != m_editorToEnum.constEnd()) {
+    const  QMap<QWidget *, QtProperty *>::ConstIterator ecend = m_editorToEnum.constEnd();
+    for (QMap<QWidget *, QtProperty *>::ConstIterator itEditor = m_editorToEnum.constBegin(); itEditor != ecend; ++itEditor)
         if (itEditor.key() == object) {
             QWidget *editor = itEditor.key();
             QtProperty *enumProp = itEditor.value();
@@ -2402,12 +2322,13 @@ void QtCursorEditorFactoryPrivate::slotEditorDestroyed(QObject *object)
             }
             return;
         }
-        itEditor++;
-    }
 }
 
 /*!
     \class QtCursorEditorFactory
+    \internal
+    \inmodule QtDesigner
+    \since 4.4
 
     \brief The QtCursorEditorFactory class provides QComboBox widgets for
     properties created by QtCursorPropertyManager objects.

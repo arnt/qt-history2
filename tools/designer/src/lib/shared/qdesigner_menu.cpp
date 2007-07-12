@@ -645,7 +645,8 @@ bool QDesignerMenu::eventFilter(QObject *object, QEvent *event)
 
 int QDesignerMenu::actionAtPosition(const QPoint &pos) const
 {
-    for (int i = 0; i<actions().count(); ++i) {
+    const int actionCount = actions().count();
+    for (int i = 0; i < actionCount; ++i) {
         QRect g = actionGeometry(safeActionAt(i));
         g.setTopLeft(QPoint(0, 0));
 

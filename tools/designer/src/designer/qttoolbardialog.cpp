@@ -179,7 +179,7 @@ void QtFullToolBarManagerPrivate::removeWidgetActions(const QMap<QToolBar *, QLi
             actionToToolBars[oldAction].removeAll(toolBar);
         }
 
-        itToolBar++;
+        ++itToolBar;
     }
 }
 
@@ -218,7 +218,7 @@ void QtFullToolBarManagerPrivate::saveState(QDataStream &stream) const
                 stream << QString();
             }
         }
-        itToolBar++;
+        ++itToolBar;
     }
 
 
@@ -250,7 +250,7 @@ void QtFullToolBarManagerPrivate::saveState(QDataStream &stream) const
                 }
             }
         }
-        itToolBar++;
+        ++itToolBar;
     }
 }
 
@@ -345,7 +345,7 @@ QToolBar *QtFullToolBarManagerPrivate::findDefaultToolBar(const QString &objectN
         if (tb->objectName() == objectName)
             return tb;
 
-        itToolBar++;
+        ++itToolBar;
     }
 
     qWarning("QtToolBarManager::restoreState(): cannot find a QToolBar named "
@@ -358,7 +358,7 @@ QToolBar *QtFullToolBarManagerPrivate::findDefaultToolBar(const QString &objectN
         if (tb->windowTitle() == objectName)
             return tb;
 
-        itToolBar++;
+        ++itToolBar;
     }
     qWarning("QtToolBarManager::restoreState(): cannot find a QToolBar with "
         "matching 'windowTitle' (looking for '%s').",
@@ -402,7 +402,7 @@ QToolBar *QtFullToolBarManagerPrivate::toolBarByName(const QString &toolBarName)
         if (toolBar->objectName() == toolBarName)
             return toolBar;
 
-        itToolBar++;
+        ++itToolBar;
     }
     return 0;
 }
@@ -641,7 +641,7 @@ void QtFullToolBarManager::setToolBars(const QMap<QToolBar *, QList<QAction *> >
     QMap<QToolBar *, QList<QAction *> >::ConstIterator it = actions.constBegin();
     while (it != actions.constEnd()) {
         setToolBar(it.key(), it.value());
-        it++;
+        ++it;
     }
 }
 
@@ -762,6 +762,9 @@ public:
 //////////////////////////////////////
 
 /*! \class QtToolBarManager
+    \internal
+    \inmodule QtDesigner
+    \since 4.4
 
     \brief The QtToolBarManager class provides toolbar management for
     main windows.
@@ -1155,7 +1158,7 @@ void QtToolBarDialogPrivate::fillNew()
         else
             item->setFlags(item->flags() | Qt::ItemIsEditable);
 
-        it++;
+        ++it;
     }
     ui.toolBarList->sortItems();
     setButtons();
@@ -1307,7 +1310,7 @@ void QtToolBarDialogPrivate::defaultClicked()
         }
         currentState.insert(toolBarItem, itToolBar.value());
 
-        itToolBar++;
+        ++itToolBar;
     }
     currentToolBarChanged(toolBarToItem.value(currentToolBar));
 
@@ -1335,7 +1338,7 @@ void QtToolBarDialogPrivate::applyClicked()
             toolBar->setWindowTitle(item->toolBarName());
         }
 
-        itToolBar++;
+        ++itToolBar;
     }
 
     QSet<ToolBarItem *> toRemove = removedItems;
@@ -1700,6 +1703,9 @@ void QtToolBarListWidget::dropEvent(QDropEvent *event)
 */
 
 /*! \class QtToolBarDialog
+    \internal
+    \inmodule QtDesigner
+    \since 4.4
 
     \brief The QtToolBarDialog class provides a dialog for customizing
     toolbars.

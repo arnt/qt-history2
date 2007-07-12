@@ -374,6 +374,9 @@ void QtTreePropertyBrowserPrivate::slotExpanded(const QModelIndex &index)
 
 /*!
     \class QtTreePropertyBrowser
+    \internal
+    \inmodule QtDesigner
+    \since 4.4
 
     \brief The QtTreePropertyBrowser class provides QTreeWidget based
     property browser.

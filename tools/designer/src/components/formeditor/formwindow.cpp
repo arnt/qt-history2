@@ -506,7 +506,8 @@ bool FormWindow::isPageOfContainerWidget(const QWidget *widget) const
                 widget->parentWidget());
 
     if (c != 0) {
-        for (int i = 0; i<c->count(); ++i) {
+        const int pageCount = c->count();
+        for (int i = 0; i < pageCount; ++i) {
             if (widget == c->widget(i))
                 return true;
         }

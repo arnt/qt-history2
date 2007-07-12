@@ -52,6 +52,9 @@ public:
 
 /*!
     \class QtProperty
+    \internal
+    \inmodule QtDesigner
+    \since 4.4
 
     \brief The QtProperty class encapsulates an instance of a property.
 
@@ -483,6 +486,9 @@ void QtAbstractPropertyManagerPrivate::propertyInserted(QtProperty *property,
 
 /*!
     \class QtAbstractPropertyManager
+    \internal
+    \inmodule QtDesigner
+    \since 4.4
 
     \brief The QtAbstractPropertyManager provides an interface for
     property managers.
@@ -744,6 +750,9 @@ void QtAbstractPropertyManager::uninitializeProperty(QtProperty *property)
 
 /*!
     \class QtAbstractEditorFactoryBase
+    \internal
+    \inmodule QtDesigner
+    \since 4.4
 
     \brief The QtAbstractEditorFactoryBase provides an interface for
     editor factories.
@@ -827,6 +836,9 @@ void QtAbstractPropertyManager::uninitializeProperty(QtProperty *property)
 
 /*!
     \class QtAbstractEditorFactory
+    \internal
+    \inmodule QtDesigner
+    \since 4.4
 
     \brief The QtAbstractEditorFactory is the base template class for editor
     factories.
@@ -1045,6 +1057,9 @@ void QtBrowserItemPrivate::removeChild(QtBrowserItem *index)
 
 /*!
     \class QtBrowserItem
+    \internal
+    \inmodule QtDesigner
+    \since 4.4
 
     \brief The QtBrowserItem class represents a property in
     a property browser instance.
@@ -1279,13 +1294,9 @@ void QtAbstractPropertyBrowserPrivate::createBrowserIndexes(QtProperty *property
         parentToAfter[0] = 0;
     }
 
-    QMap<QtBrowserItem *, QtBrowserItem *>::ConstIterator it =
-                parentToAfter.constBegin();
-    while (it != parentToAfter.constEnd()) {
+    const QMap<QtBrowserItem *, QtBrowserItem *>::ConstIterator pcend = parentToAfter.constEnd();
+    for (QMap<QtBrowserItem *, QtBrowserItem *>::ConstIterator it = parentToAfter.constBegin(); it != pcend; ++it)
         createBrowserIndex(property, it.key(), it.value());
-
-        it++;
-    }
 }
 
 QtBrowserItem *QtAbstractPropertyBrowserPrivate::createBrowserIndex(QtProperty *property,
@@ -1419,6 +1430,9 @@ void QtAbstractPropertyBrowserPrivate::slotPropertyDataChanged(QtProperty *prope
 
 /*!
     \class QtAbstractPropertyBrowser
+    \internal
+    \inmodule QtDesigner
+    \since 4.4
 
     \brief QtAbstractPropertyBrowser provides a base class for
     implementing property browsers.

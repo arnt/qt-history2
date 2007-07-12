@@ -398,9 +398,9 @@ void QtGradientStopsWidget::mousePressEvent(QMouseEvent *e)
                     while (itSt != stops.constFind(stop->position())) {
                         d_ptr->m_model->selectStop(itSt.value(), true);
                         if (oldCurrent->position() < stop->position())
-                            itSt++;
+                            ++itSt;
                         else
-                            itSt--;
+                            --itSt--;
                     }
                 }
             }
@@ -463,7 +463,7 @@ void QtGradientStopsWidget::mouseMoveEvent(QMouseEvent *e)
                 else if (minOffset > offset)
                     minOffset = offset;
             }
-            itStop++;
+            ++itStop;
         }
 
         double viewportMin = d_ptr->toViewport(-minOffset);
@@ -491,7 +491,7 @@ void QtGradientStopsWidget::mouseMoveEvent(QMouseEvent *e)
 
             newPositions[posX + itStop.value()] = stop;
 
-            itStop++;
+            ++itStop;
         }
 
         bool forward = true;
@@ -516,7 +516,7 @@ void QtGradientStopsWidget::mouseMoveEvent(QMouseEvent *e)
             d_ptr->m_model->moveStop(stop, newPos);
 
             if (forward)
-                itNewPos++;
+                ++itNewPos;
         }
 
         QMap<qreal, QColor>::ConstIterator itOld = d_ptr->m_dragOriginal.constBegin();
@@ -525,7 +525,7 @@ void QtGradientStopsWidget::mouseMoveEvent(QMouseEvent *e)
             if (!d_ptr->m_model->at(position))
                 d_ptr->m_model->addStop(position, itOld.value());
 
-            itOld++;
+            ++itOld;
         }
 
     } else {
@@ -631,11 +631,11 @@ void QtGradientStopsWidget::keyPressEvent(QKeyEvent *e)
         } else {
             QMap<qreal, QtGradientStop *>::ConstIterator itStop = stops.constBegin();
             while (itStop.value() != current)
-                itStop++;
+                ++itStop;
             if (e->key() == Qt::Key_Left && itStop != stops.constBegin())
                 itStop--;
             else if (e->key() == Qt::Key_Right && itStop != --stops.constEnd())
-                itStop++;
+                ++itStop;
             newCurrent = itStop.value();
         }
         d_ptr->m_model->clearSelection();

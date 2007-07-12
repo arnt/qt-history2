@@ -393,12 +393,10 @@ void QtButtonPropertyBrowserPrivate::insertRow(QGridLayout *layout, int row) con
         }
     }
 
-    QMap<QLayoutItem *, QRect>::ConstIterator it = itemToPos.constBegin();
-    while (it != itemToPos.constEnd()) {
-        QRect r = it.value();
+    const QMap<QLayoutItem *, QRect>::ConstIterator icend =  itemToPos.constEnd();
+    for(QMap<QLayoutItem *, QRect>::ConstIterator it = itemToPos.constBegin(); it != icend; ++it) {
+        const QRect r = it.value();
         layout->addItem(it.key(), r.x(), r.y(), r.width(), r.height());
-
-        it++;
     }
 }
 
@@ -416,12 +414,10 @@ void QtButtonPropertyBrowserPrivate::removeRow(QGridLayout *layout, int row) con
         }
     }
 
-    QMap<QLayoutItem *, QRect>::ConstIterator it = itemToPos.constBegin();
-    while (it != itemToPos.constEnd()) {
-        QRect r = it.value();
+    const QMap<QLayoutItem *, QRect>::ConstIterator icend =  itemToPos.constEnd();
+    for(QMap<QLayoutItem *, QRect>::ConstIterator it = itemToPos.constBegin(); it != icend; ++it) {
+        const QRect r = it.value();
         layout->addItem(it.key(), r.x(), r.y(), r.width(), r.height());
-
-        it++;
     }
 }
 
@@ -476,6 +472,9 @@ void QtButtonPropertyBrowserPrivate::updateItem(WidgetItem *item)
 
 /*!
     \class QtButtonPropertyBrowser
+    \internal
+    \inmodule QtDesigner
+    \since 4.4
 
     \brief The QtButtonPropertyBrowser class provides a drop down QToolButton
     based property browser.
@@ -540,12 +539,9 @@ QtButtonPropertyBrowser::QtButtonPropertyBrowser(QWidget *parent)
 */
 QtButtonPropertyBrowser::~QtButtonPropertyBrowser()
 {
-    QMap<QtButtonPropertyBrowserPrivate::WidgetItem *, QtBrowserItem *>::ConstIterator it =
-                d_ptr->m_itemToIndex.constBegin();
-    while (it != d_ptr->m_itemToIndex.constEnd()) {
+    const QMap<QtButtonPropertyBrowserPrivate::WidgetItem *, QtBrowserItem *>::ConstIterator icend = d_ptr->m_itemToIndex.constEnd();
+    for (QMap<QtButtonPropertyBrowserPrivate::WidgetItem *, QtBrowserItem *>::ConstIterator  it =  d_ptr->m_itemToIndex.constBegin(); it != icend; ++it)
         delete it.key();
-        it++;
-    }
     delete d_ptr;
 }
 

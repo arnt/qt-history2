@@ -201,6 +201,9 @@ Q_GLOBAL_STATIC(QtMetaEnumProvider, metaEnumProvider)
 
 /*!
     \class QtGroupPropertyManager
+    \internal
+    \inmodule QtDesigner
+    \since 4.4
 
     \brief The QtGroupPropertyManager provides and manages group properties.
 
@@ -272,6 +275,9 @@ public:
 
 /*!
     \class QtIntPropertyManager
+    \internal
+    \inmodule QtDesigner
+    \since 4.4
 
     \brief The QtIntPropertyManager provides and manages int properties.
 
@@ -586,6 +592,9 @@ public:
 
 /*!
     \class QtDoublePropertyManager
+    \internal
+    \inmodule QtDesigner
+    \since 4.4
 
     \brief The QtDoublePropertyManager provides and manages double properties.
 
@@ -941,10 +950,8 @@ public:
 
     struct Data
     {
-        Data()
+        Data() : regExp(QString(QLatin1Char('*')),  Qt::CaseSensitive, QRegExp::Wildcard)
         {
-            regExp.setPatternSyntax(QRegExp::Wildcard);
-            regExp.setPattern("*");
         }
         QString val;
         QRegExp regExp;
@@ -955,6 +962,9 @@ public:
 
 /*!
     \class QtStringPropertyManager
+    \internal
+    \inmodule QtDesigner
+    \since 4.4
 
     \brief The QtStringPropertyManager provides and manages QString properties.
 
@@ -1133,6 +1143,9 @@ public:
 
 /*!
     \class QtBoolPropertyManager
+    \internal
+    \inmodule QtDesigner
+    \since 4.4
 
     \brief The QtBoolPropertyManager class provides and manages boolean properties.
 
@@ -1194,10 +1207,9 @@ QString QtBoolPropertyManager::valueText(const QtProperty *property) const
 {
     if (!d_ptr->m_values.contains(property))
         return QString();
-    bool v = value(property);
-    if (v)
-        return tr("True");
-    return tr("False");
+    static const QString trueText = tr("True");
+    static const QString falseText = tr("False");
+    return value(property) ? trueText : falseText;
 }
 
 /*!
@@ -1268,6 +1280,9 @@ public:
 
 /*!
     \class QtDatePropertyManager
+    \internal
+    \inmodule QtDesigner
+    \since 4.4
 
     \brief The QtDatePropertyManager provides and manages QDate properties.
 
@@ -1578,6 +1593,9 @@ public:
 
 /*!
     \class QtTimePropertyManager
+    \internal
+    \inmodule QtDesigner
+    \since 4.4
 
     \brief The QtTimePropertyManager provides and manages QTime properties.
 
@@ -1698,6 +1716,9 @@ public:
 };
 
 /*! \class QtDateTimePropertyManager
+    \internal
+    \inmodule QtDesigner
+    \since 4.4
 
     \brief The QtDateTimePropertyManager provides and manages QDateTime properties.
 
@@ -1728,8 +1749,9 @@ QtDateTimePropertyManager::QtDateTimePropertyManager(QObject *parent)
     d_ptr->q_ptr = this;
 
     QLocale loc;
-    d_ptr->m_format = loc.dateFormat(QLocale::ShortFormat) +
-            QLatin1String(" ") + loc.timeFormat(QLocale::ShortFormat);
+    d_ptr->m_format = loc.dateFormat(QLocale::ShortFormat);
+    d_ptr->m_format += QLatin1Char(' ');
+    d_ptr->m_format += loc.timeFormat(QLocale::ShortFormat);
 }
 
 /*!
@@ -1816,6 +1838,9 @@ public:
 };
 
 /*! \class QtKeySequencePropertyManager
+    \internal
+    \inmodule QtDesigner
+    \since 4.4
 
     \brief The QtKeySequencePropertyManager provides and manages QKeySequence properties.
 
@@ -1929,6 +1954,9 @@ public:
 };
 
 /*! \class QtCharPropertyManager
+    \internal
+    \inmodule QtDesigner
+    \since 4.4
 
     \brief The QtCharPropertyManager provides and manages QChar properties.
 
@@ -2096,6 +2124,9 @@ void QtLocalePropertyManagerPrivate::slotPropertyDestroyed(QtProperty *property)
 
 /*!
     \class QtLocalePropertyManager
+    \internal
+    \inmodule QtDesigner
+    \since 4.4
 
     \brief The QtLocalePropertyManager provides and manages QLocale properties.
 
@@ -2334,6 +2365,9 @@ void QtPointPropertyManagerPrivate::slotPropertyDestroyed(QtProperty *property)
 }
 
 /*! \class QtPointPropertyManager
+    \internal
+    \inmodule QtDesigner
+    \since 4.4
 
     \brief The QtPointPropertyManager provides and manages QPoint properties.
 
@@ -2555,6 +2589,9 @@ void QtPointFPropertyManagerPrivate::slotPropertyDestroyed(QtProperty *property)
 }
 
 /*! \class QtPointFPropertyManager
+    \internal
+    \inmodule QtDesigner
+    \since 4.4
 
     \brief The QtPointFPropertyManager provides and manages QPointF properties.
 
@@ -2846,6 +2883,9 @@ void QtSizePropertyManagerPrivate::setRange(QtProperty *property,
 
 /*!
     \class QtSizePropertyManager
+    \internal
+    \inmodule QtDesigner
+    \since 4.4
 
     \brief The QtSizePropertyManager provides and manages QSize properties.
 
@@ -3288,6 +3328,9 @@ void QtSizeFPropertyManagerPrivate::setRange(QtProperty *property,
 
 /*!
     \class QtSizeFPropertyManager
+    \internal
+    \inmodule QtDesigner
+    \since 4.4
 
     \brief The QtSizeFPropertyManager provides and manages QSizeF properties.
 
@@ -3821,6 +3864,9 @@ void QtRectPropertyManagerPrivate::setConstraint(QtProperty *property,
 
 /*!
     \class QtRectPropertyManager
+    \internal
+    \inmodule QtDesigner
+    \since 4.4
 
     \brief The QtRectPropertyManager provides and manages QRect properties.
 
@@ -4232,6 +4278,9 @@ void QtRectFPropertyManagerPrivate::setConstraint(QtProperty *property,
 
 /*!
     \class QtRectFPropertyManager
+    \internal
+    \inmodule QtDesigner
+    \since 4.4
 
     \brief The QtRectFPropertyManager provides and manages QRectF properties.
 
@@ -4618,6 +4667,9 @@ public:
 
 /*!
     \class QtEnumPropertyManager
+    \internal
+    \inmodule QtDesigner
+    \since 4.4
 
     \brief The QtEnumPropertyManager provides and manages enum properties.
 
@@ -4921,6 +4973,9 @@ void QtFlagPropertyManagerPrivate::slotPropertyDestroyed(QtProperty *property)
 
 /*!
     \class QtFlagPropertyManager
+    \internal
+    \inmodule QtDesigner
+    \since 4.4
 
     \brief The QtFlagPropertyManager provides and manages flag properties.
 
@@ -5045,15 +5100,14 @@ QString QtFlagPropertyManager::valueText(const QtProperty *property) const
     QtFlagPropertyManagerPrivate::Data data = d_ptr->m_values[property];
 
     QString str;
-    QStringListIterator itFlag(data.flagNames);
     int level = 0;
-    while (itFlag.hasNext()) {
-        QString flagName = itFlag.next();
+    const QChar bar = QLatin1Char('|');
+    const QStringList::const_iterator fncend = data.flagNames.constEnd();
+    for (QStringList::const_iterator it =  data.flagNames.constBegin(); it != fncend; ++it) {
         if (data.val & (1 << level)) {
-            if (str.isNull())
-                str = flagName;
-            else
-                str += QLatin1String("|") + flagName;
+            if (!str.isEmpty())
+                str += bar;
+            str += *it;
         }
 
         level++;
@@ -5270,6 +5324,9 @@ void QtSizePolicyPropertyManagerPrivate::slotPropertyDestroyed(QtProperty *prope
 
 /*!
     \class QtSizePolicyPropertyManager
+    \internal
+    \inmodule QtDesigner
+    \since 4.4
 
     \brief The QtSizePolicyPropertyManager provides and manages QSizePolicy properties.
 
@@ -5646,6 +5703,9 @@ void QtFontPropertyManagerPrivate::slotPropertyDestroyed(QtProperty *property)
 
 /*!
     \class QtFontPropertyManager
+    \internal
+    \inmodule QtDesigner
+    \since 4.4
 
     \brief The QtFontPropertyManager provides and manages QFont properties.
 
@@ -5805,7 +5865,7 @@ QIcon QtFontPropertyManager::valueIcon(const QtProperty *property) const
     p.setFont(f);
     QTextOption t;
     t.setAlignment(Qt::AlignCenter);
-    p.drawText(QRect(0, 0, 16, 16), QLatin1String("A"), t);
+    p.drawText(QRect(0, 0, 16, 16), QString(QLatin1Char('A')), t);
     //p.drawRect(QRect(0, 0, 15, 15));
     QPixmap pix = QPixmap::fromImage(img);
     return QIcon(pix);
@@ -6042,6 +6102,9 @@ void QtColorPropertyManagerPrivate::slotPropertyDestroyed(QtProperty *property)
 
 /*!
     \class QtColorPropertyManager
+    \internal
+    \inmodule QtDesigner
+    \since 4.4
 
     \brief The QtColorPropertyManager provides and manages QColor properties.
 
@@ -6286,6 +6349,9 @@ public:
 
 /*!
     \class QtCursorPropertyManager
+    \internal
+    \inmodule QtDesigner
+    \since 4.4
 
     \brief The QtCursorPropertyManager provides and manages QCursor properties.
 

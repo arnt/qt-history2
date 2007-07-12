@@ -540,9 +540,9 @@ bool QDesignerMenuBar::eventFilter(QObject *object, QEvent *event)
 
 int QDesignerMenuBar::actionAtPosition(const QPoint &pos) const
 {
-    QList<QAction*> lst = actions();
-    int index = 0;
-    for (; index<lst.count(); ++index) {
+    const QList<QAction*> lst = actions();
+    const int lstCount = lst.count();
+    for (int index = 0; index<lstCount; ++index) {
         QRect g = actionGeometry(lst.at(index));
         if (QApplication::layoutDirection() == Qt::LeftToRight)
             g.setTopLeft(QPoint(0, 0));

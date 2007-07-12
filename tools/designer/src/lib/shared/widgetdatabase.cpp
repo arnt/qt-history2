@@ -409,7 +409,8 @@ QList<QVariant> WidgetDataBase::defaultPropertyValues(const QString &name)
     // Get properties from sheet.
     QList<QVariant> result;
     if (const QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(m_core->extensionManager(), object)) {
-        for (int i = 0; i < sheet->count(); ++i) {
+        const int propertyCount = sheet->count();
+        for (int i = 0; i < propertyCount; ++i) {
             result.append(sheet->property(i));
         }
     }
@@ -419,7 +420,8 @@ QList<QVariant> WidgetDataBase::defaultPropertyValues(const QString &name)
 
 void WidgetDataBase::grabDefaultPropertyValues()
 {
-    for (int i = 0; i < count(); ++i) {
+    const int itemCount = count();
+    for (int i = 0; i < itemCount; ++i) {
         QDesignerWidgetDataBaseItemInterface *dbItem = item(i);
         const QList<QVariant> default_prop_values = defaultPropertyValues(dbItem->name());
         dbItem->setDefaultPropertyValues(default_prop_values);
@@ -520,7 +522,8 @@ QDESIGNER_SHARED_EXPORT WidgetDataBaseItemList
 {
     WidgetDataBaseItemList rc;
     // find existing promoted widgets deriving from base.
-    for (int i = 0; i < db->count(); ++i) {
+    const int count = db->count();
+    for (int i = 0; i < count; ++i) {
         QDesignerWidgetDataBaseItemInterface *item = db->item(i);
         if (item->isPromoted() && item->extends() == baseClassName) {
             rc.push_back(item);

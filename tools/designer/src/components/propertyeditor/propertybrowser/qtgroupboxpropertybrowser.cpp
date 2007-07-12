@@ -331,12 +331,10 @@ void QtGroupBoxPropertyBrowserPrivate::insertRow(QGridLayout *layout, int row) c
         }
     }
 
-    QMap<QLayoutItem *, QRect>::ConstIterator it = itemToPos.constBegin();
-    while (it != itemToPos.constEnd()) {
-        QRect r = it.value();
+    const QMap<QLayoutItem *, QRect>::ConstIterator icend = itemToPos.constEnd();
+    for (QMap<QLayoutItem *, QRect>::ConstIterator it = itemToPos.constBegin(); it != icend; ++it) {
+        const QRect r = it.value();
         layout->addItem(it.key(), r.x(), r.y(), r.width(), r.height());
-
-        it++;
     }
 }
 
@@ -354,12 +352,10 @@ void QtGroupBoxPropertyBrowserPrivate::removeRow(QGridLayout *layout, int row) c
         }
     }
 
-    QMap<QLayoutItem *, QRect>::ConstIterator it = itemToPos.constBegin();
-    while (it != itemToPos.constEnd()) {
-        QRect r = it.value();
+    const QMap<QLayoutItem *, QRect>::ConstIterator icend = itemToPos.constEnd();
+    for (QMap<QLayoutItem *, QRect>::ConstIterator it = itemToPos.constBegin(); it != icend; ++it) {
+        const QRect r = it.value();
         layout->addItem(it.key(), r.x(), r.y(), r.width(), r.height());
-
-        it++;
     }
 }
 
@@ -421,6 +417,9 @@ void QtGroupBoxPropertyBrowserPrivate::updateItem(WidgetItem *item)
 
 /*!
     \class QtGroupBoxPropertyBrowser
+    \internal
+    \inmodule QtDesigner
+    \since 4.4
 
     \brief The QtGroupBoxPropertyBrowser class provides a QGroupBox
     based property browser.
@@ -469,12 +468,9 @@ QtGroupBoxPropertyBrowser::QtGroupBoxPropertyBrowser(QWidget *parent)
 */
 QtGroupBoxPropertyBrowser::~QtGroupBoxPropertyBrowser()
 {
-    QMap<QtGroupBoxPropertyBrowserPrivate::WidgetItem *, QtBrowserItem *>::ConstIterator it =
-                d_ptr->m_itemToIndex.constBegin();
-    while (it != d_ptr->m_itemToIndex.constEnd()) {
+    const QMap<QtGroupBoxPropertyBrowserPrivate::WidgetItem *, QtBrowserItem *>::ConstIterator icend = d_ptr->m_itemToIndex.constEnd();
+    for (QMap<QtGroupBoxPropertyBrowserPrivate::WidgetItem *, QtBrowserItem *>::ConstIterator it = d_ptr->m_itemToIndex.constBegin(); it != icend; ++it)
         delete it.key();
-        it++;
-    }
     delete d_ptr;
 }
 

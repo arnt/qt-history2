@@ -102,7 +102,7 @@ QMap<qreal, QColor> QtGradientStopsEditorPrivate::stopsData(const QMap<qreal, Qt
         QtGradientStop *stop = itStop.value();
         data[stop->position()] = stop->color();
 
-        itStop++;
+        ++itStop;
     }
     return data;
 }
@@ -113,8 +113,7 @@ QGradientStops QtGradientStopsEditorPrivate::makeGradientStops(const QMap<qreal,
     QMap<qreal, QColor>::ConstIterator itData = data.constBegin();
     while (itData != data.constEnd()) {
         stops << QPair<qreal, QColor>(itData.key(), itData.value());
-
-        itData++;
+        ++itData;
     }
     return stops;
 }
