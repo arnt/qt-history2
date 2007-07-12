@@ -25,6 +25,11 @@ General Improvements
 - QAbstractItemView
     * [166605] Fixed regression causing keyboard modifiers to have no effect during
                drag-and-drop.
+    * [169233] DoubleSpinBox would not get its text selected when being edited.
+    * [168917] Text would sometimes not be selected in the editor.
+
+- QAbstractItemModel
+    * [166714] Fixed regression causing persistent indexes to not be correctly updated.
 
 - QAbstractPrintDialog
     * [163000] Fixed bug on unix where PrintSelection option would not be
@@ -51,8 +56,16 @@ General Improvements
     * [163727] Fixed artifacts in scaled images when using Qt::FastTransformation.
 
 - QMenu
-	* [166652] Fixed a regression where context menus could not be triggered with
-			   the right mouse button.
+    * [166652] Fixed a regression where context menus could not be triggered with
+               the right mouse button.
+    * [161789] Fixed tear-off handle not being activated when dragging down from the
+               menu bar item.
+
+- QMenuBar
+    * [168892] Fixed bug that made the extension always appear when adding a separator
+               to a menu bar.
+    * [166181] Fixed bug that made the extension be misplaced.
+    * [166242] Fixed bug which would cause the menus to be collapsed.
 
 - QOpenGLPaintEngine
     * [166087] Fixed a memory leak caused by not releasing GL program handles
@@ -171,6 +184,9 @@ General Improvements
 
 - Q3ListViewItem
     * [165853] Fixed background coloring of a cell.
+
+- Q3Table
+    * [168497] Fixed bad update on Q3Table when using setUpdatesEnabled.
 
 - Q3Wizard
     * [168195] Fixed bug causing the wrong page to be shown upon reopening the wizard.
