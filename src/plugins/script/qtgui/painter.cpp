@@ -1138,5 +1138,11 @@ QScriptValue constructPainterClass(QScriptEngine *eng)
 
     qScriptRegisterSequenceMetaType<QVector<QRectF> >(eng);
 
-    return eng->newFunction(ctor, proto);
+    QScriptValue ctorFun = eng->newFunction(ctor, proto);
+    ADD_ENUM_VALUE(ctorFun, QPainter, Antialiasing);
+    ADD_ENUM_VALUE(ctorFun, QPainter, TextAntialiasing);
+    ADD_ENUM_VALUE(ctorFun, QPainter, SmoothPixmapTransform);
+    ADD_ENUM_VALUE(ctorFun, QPainter, HighQualityAntialiasing);
+
+    return ctorFun;
 }
