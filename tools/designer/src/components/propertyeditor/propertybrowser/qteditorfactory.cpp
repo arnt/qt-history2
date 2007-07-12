@@ -13,24 +13,17 @@
 
 #include "qteditorfactory.h"
 #include "qtcursordatabase_p.h"
-#include <QCheckBox>
-#include <QSpinBox>
-#include <QScrollBar>
-#include <QComboBox>
-#include <QAbstractItemView>
-#include <QLineEdit>
-#include <QDateTimeEdit>
-#include <QHBoxLayout>
-#include <QMenu>
-#include <QMap>
-#include <QKeyEvent>
-
-template <class MapIterator>
-static inline void deleteMapKeys(const MapIterator &begin, const MapIterator &end)
-{
-    for (MapIterator it = begin; it != end; ++it)
-        delete it.key();
-}
+#include <QtGui/QCheckBox>
+#include <QtGui/QSpinBox>
+#include <QtGui/QScrollBar>
+#include <QtGui/QComboBox>
+#include <QtGui/QAbstractItemView>
+#include <QtGui/QLineEdit>
+#include <QtGui/QDateTimeEdit>
+#include <QtGui/QHBoxLayout>
+#include <QtGui/QMenu>
+#include <QtGui/QKeyEvent>
+#include <QtCore/QMap>
 
 // QtSpinBoxFactory
 
@@ -101,7 +94,7 @@ void QtSpinBoxFactoryPrivate::slotSetValue(int value)
 }
 
 void QtSpinBoxFactoryPrivate::slotEditorDestroyed(QObject *object)
-{
+{   
     const QMap<QSpinBox *, QtProperty *>::ConstIterator  ecend = m_editorToProperty.constEnd();
     for (QMap<QSpinBox *, QtProperty *>::ConstIterator itEditor = m_editorToProperty.constBegin(); itEditor !=  ecend; ++itEditor) {
         if (itEditor.key() == object) {
@@ -144,7 +137,7 @@ QtSpinBoxFactory::QtSpinBoxFactory(QObject *parent)
 */
 QtSpinBoxFactory::~QtSpinBoxFactory()
 {
-    deleteMapKeys(d_ptr->m_editorToProperty.constBegin(), d_ptr->m_editorToProperty.constEnd());
+    qDeleteAll(d_ptr->m_editorToProperty.keys());
     delete d_ptr;
 }
 
@@ -305,7 +298,7 @@ QtSliderFactory::QtSliderFactory(QObject *parent)
 */
 QtSliderFactory::~QtSliderFactory()
 {
-    deleteMapKeys(d_ptr->m_editorToProperty.constBegin(), d_ptr->m_editorToProperty.constEnd());
+    qDeleteAll(d_ptr->m_editorToProperty.keys());
     delete d_ptr;
 }
 
@@ -463,7 +456,7 @@ QtScrollBarFactory::QtScrollBarFactory(QObject *parent)
 */
 QtScrollBarFactory::~QtScrollBarFactory()
 {
-    deleteMapKeys(d_ptr->m_editorToProperty.constBegin(), d_ptr->m_editorToProperty.constEnd());
+    qDeleteAll(d_ptr->m_editorToProperty.keys());
     delete d_ptr;
 }
 
@@ -602,7 +595,7 @@ QtCheckBoxFactory::QtCheckBoxFactory(QObject *parent)
 */
 QtCheckBoxFactory::~QtCheckBoxFactory()
 {
-    deleteMapKeys(d_ptr->m_editorToProperty.constBegin(), d_ptr->m_editorToProperty.constEnd());
+    qDeleteAll(d_ptr->m_editorToProperty.keys());
     delete d_ptr;
 }
 
@@ -781,7 +774,7 @@ QtDoubleSpinBoxFactory::QtDoubleSpinBoxFactory(QObject *parent)
 */
 QtDoubleSpinBoxFactory::~QtDoubleSpinBoxFactory()
 {
-    deleteMapKeys(d_ptr->m_editorToProperty.constBegin(), d_ptr->m_editorToProperty.constEnd());
+    qDeleteAll(d_ptr->m_editorToProperty.keys());
     delete d_ptr;
 }
 
@@ -956,7 +949,7 @@ QtLineEditFactory::QtLineEditFactory(QObject *parent)
 */
 QtLineEditFactory::~QtLineEditFactory()
 {
-    deleteMapKeys(d_ptr->m_editorToProperty.constBegin(), d_ptr->m_editorToProperty.constEnd());
+    qDeleteAll(d_ptr->m_editorToProperty.keys());
     delete d_ptr;
 }
 
@@ -1120,7 +1113,7 @@ QtDateEditFactory::QtDateEditFactory(QObject *parent)
 */
 QtDateEditFactory::~QtDateEditFactory()
 {
-    deleteMapKeys(d_ptr->m_editorToProperty.constBegin(), d_ptr->m_editorToProperty.constEnd());
+    qDeleteAll(d_ptr->m_editorToProperty.keys());
     delete d_ptr;
 }
 
@@ -1259,7 +1252,7 @@ QtTimeEditFactory::QtTimeEditFactory(QObject *parent)
 */
 QtTimeEditFactory::~QtTimeEditFactory()
 {
-    deleteMapKeys(d_ptr->m_editorToProperty.constBegin(), d_ptr->m_editorToProperty.constEnd());
+    qDeleteAll(d_ptr->m_editorToProperty.keys());
     delete d_ptr;
 }
 
@@ -1393,7 +1386,7 @@ QtDateTimeEditFactory::QtDateTimeEditFactory(QObject *parent)
 */
 QtDateTimeEditFactory::~QtDateTimeEditFactory()
 {
-    deleteMapKeys(d_ptr->m_editorToProperty.constBegin(), d_ptr->m_editorToProperty.constEnd());
+    qDeleteAll(d_ptr->m_editorToProperty.keys());
     delete d_ptr;
 }
 
@@ -1707,7 +1700,7 @@ QtKeySequenceEditorFactory::QtKeySequenceEditorFactory(QObject *parent)
 */
 QtKeySequenceEditorFactory::~QtKeySequenceEditorFactory()
 {
-    deleteMapKeys(d_ptr->m_editorToProperty.constBegin(), d_ptr->m_editorToProperty.constEnd());
+    qDeleteAll(d_ptr->m_editorToProperty.keys());
     delete d_ptr;
 }
 
@@ -2001,7 +1994,7 @@ QtCharEditorFactory::QtCharEditorFactory(QObject *parent)
 */
 QtCharEditorFactory::~QtCharEditorFactory()
 {
-    deleteMapKeys(d_ptr->m_editorToProperty.constBegin(), d_ptr->m_editorToProperty.constEnd());
+    qDeleteAll(d_ptr->m_editorToProperty.keys());
     delete d_ptr;
 }
 
@@ -2188,7 +2181,7 @@ QtEnumEditorFactory::QtEnumEditorFactory(QObject *parent)
 */
 QtEnumEditorFactory::~QtEnumEditorFactory()
 {
-    deleteMapKeys(d_ptr->m_editorToProperty.constBegin(), d_ptr->m_editorToProperty.constEnd());
+    qDeleteAll(d_ptr->m_editorToProperty.keys());
     delete d_ptr;
 }
 
