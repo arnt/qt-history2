@@ -30,7 +30,8 @@ class MainWindow : public QMainWindow
     QSignalMapper *mapper;
 
 public:
-    MainWindow(QWidget *parent = 0, Qt::WindowFlags flags = 0);
+    MainWindow(const QMap<QString, QSize> &customSizeHints,
+                QWidget *parent = 0, Qt::WindowFlags flags = 0);
 
 public slots:
     void actionTriggered(QAction *action);
@@ -43,7 +44,7 @@ public slots:
 private:
     void setupToolBar();
     void setupMenuBar();
-    void setupDockWidgets();
+    void setupDockWidgets(const QMap<QString, QSize> &customSizeHints);
 };
 
 #endif

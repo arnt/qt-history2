@@ -49,7 +49,8 @@ static const char * const message =
 #endif
     ;
 
-MainWindow::MainWindow(QWidget *parent, Qt::WindowFlags flags)
+MainWindow::MainWindow(const QMap<QString, QSize> &customSizeHints,
+                        QWidget *parent, Qt::WindowFlags flags)
     : QMainWindow(parent, flags)
 {
     setObjectName("MainWindow");
@@ -57,7 +58,7 @@ MainWindow::MainWindow(QWidget *parent, Qt::WindowFlags flags)
 
     setupToolBar();
     setupMenuBar();
-    setupDockWidgets();
+    setupDockWidgets(customSizeHints);
 
     QTextEdit *center = new QTextEdit(this);
     center->setReadOnly(true);
@@ -347,7 +348,7 @@ void BlueTitleBar::mousePressEvent(QMouseEvent *event)
     }
 }
 
-void MainWindow::setupDockWidgets()
+void MainWindow::setupDockWidgets(const QMap<QString, QSize> &customSizeHints)
 {
     mapper = new QSignalMapper(this);
     connect(mapper, SIGNAL(mapped(int)), this, SLOT(setCorner(int)));
@@ -408,6 +409,11 @@ void MainWindow::setupDockWidgets()
             swatch->setPalette(pal);
 #endif
         }
+
+        QString name = QString::fromLatin1(sets[i].name);
+        if (customSizeHints.contains(name))
+            swatch->setCustomSizeHint(customSizeHints.value(name));
+
         addDockWidget(sets[i].area, swatch);
         dockWidgetMenu->addMenu(swatch->menu);
     }

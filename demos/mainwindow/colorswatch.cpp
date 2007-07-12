@@ -75,6 +75,8 @@ public:
     virtual QSize sizeHint() const;
     virtual QSize minimumSizeHint() const;
 
+    void setCustomSizeHint(const QSize &size);
+
 public slots:
     void changeSizeHints();
 
@@ -217,6 +219,12 @@ void ColorDock::changeSizeHints()
     parentWidget()->setMaximumSize(dwMaxSz);
     updateGeometry();
     update();
+}
+
+void ColorDock::setCustomSizeHint(const QSize &size)
+{
+    szHint = size;
+    updateGeometry();
 }
 
 ColorSwatch::ColorSwatch(const QString &colorName, QWidget *parent, Qt::WindowFlags flags)
@@ -489,6 +497,12 @@ void ColorSwatch::place(Qt::DockWidgetArea area, bool p)
         allowTopAction->setEnabled(area != Qt::TopDockWidgetArea);
         allowBottomAction->setEnabled(area != Qt::BottomDockWidgetArea);
     }
+}
+
+void ColorSwatch::setCustomSizeHint(const QSize &size)
+{
+    if (ColorDock *dock = qobject_cast<ColorDock*>(widget()))
+        dock->setCustomSizeHint(size);
 }
 
 void ColorSwatch::changeClosable(bool on)
