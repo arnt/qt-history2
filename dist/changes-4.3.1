@@ -15,6 +15,9 @@ General Improvements
 - Translations
     * Updated the German translation to provide complete coverage of Qt.
 
+- QDBusView
+    * Now has an icon for Mac OS X and Windows.
+
 ****************************************************************************
 *                           Library                                        *
 ****************************************************************************
@@ -40,6 +43,9 @@ General Improvements
 	* [166677] Fixed an issue with alert() where windows would keep flashing 
 			   after beeing activated by the user.
 
+- QFileDialog:
+   * [164947] Mac only: Activate the parent of a native sheet dialog before showing the sheet
+
 - QGLWidget
     * [162085] X11 only: Fixed usage of QGLWidget on multiple X11 screens.
     * [164707] X11 only: Fixed the transparent overlay color usage to make
@@ -55,6 +61,14 @@ General Improvements
 - QImage
     * [163727] Fixed artifacts in scaled images when using Qt::FastTransformation.
 
+- QMainWindow
+
+    * [166004], [167651] Make the unified toolbar handle layout requests.
+    * Mac only: Don't move the window's titlebar when clicking on the toolbar button.
+    * [164105] Make the unified toolbar handles showMaximized().
+    * [162555] Move OpenGL contexts when the toolbar button is pressed and we 
+               are using the unified toolbar.
+
 - QMenu
     * [166652] Fixed a regression where context menus could not be triggered with
                the right mouse button.
@@ -66,6 +80,12 @@ General Improvements
                to a menu bar.
     * [166181] Fixed bug that made the extension be misplaced.
     * [166242] Fixed bug which would cause the menus to be collapsed.
+
+- QMessageBox
+    * Don't lose the default button when we change the modality of the messagebox.
+
+- QMacStyle
+    * Make sure that items with State_Focus actually get the focus ring drawn.
 
 - QOpenGLPaintEngine
     * [166087] Fixed a memory leak caused by not releasing GL program handles
@@ -113,6 +133,7 @@ General Improvements
 - QPrintEngine
     * [166499] Windows only: Printing from a QTextEdit gave wrong results
 	       under certain circumstances.
+    * [161915] Mac only: Drawing vertial lines with a dot pattern work on OS X 10.3.9 now.
 
 
 - QPixmap
@@ -191,6 +212,28 @@ General Improvements
 - Q3Wizard
     * [168195] Fixed bug causing the wrong page to be shown upon reopening the wizard.
 
+
+****************************************************************************
+*                      Platform Specific Changes                           *
+****************************************************************************
+
+X11
+---
+
+Windows
+-------
+
+
+Mac OS X
+--------
+
+    * QMake's Xcode generator is now more robust determining which version of Xcode projects it
+      should generate. It also uses launch services to determine Xcode's location as well.
+    * Small changes to be more Leopard compatible
+    * [167020] The translations are really included in the binary package now.
+    * [164530] Make sure that the DPI for fonts don't change when the resolution changes.
+        
+
 ****************************************************************************
 *                   Important Behavior Changes
 ****************************************************************************
@@ -198,3 +241,4 @@ General Improvements
 - QScrollArea
     * [167838] Use micro focus rectangle (if "active") instead of the entire widget
                in ensureWidgetVisible().
+
