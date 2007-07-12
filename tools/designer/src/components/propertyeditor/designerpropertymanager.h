@@ -31,7 +31,7 @@ namespace qdesigner_internal
 
 class ResetWidget;
 
-class TextPropertyEditor;
+class TextEditor;
 class PaletteEditorButton;
 class GraphicsPropertyEditor;
 class StringListEditorButton;
@@ -189,8 +189,8 @@ private:
 
     int m_spacing;
 
-    QMap<QtProperty *, QList<TextPropertyEditor *> >        m_stringPropertyToEditors;
-    QMap<TextPropertyEditor *, QtProperty *>                m_editorToStringProperty;
+    QMap<QtProperty *, QList<TextEditor *> >                m_stringPropertyToEditors;
+    QMap<TextEditor *, QtProperty *>                        m_editorToStringProperty;
     QMap<QtProperty *, QList<PaletteEditorButton *> >       m_palettePropertyToEditors;
     QMap<PaletteEditorButton *, QtProperty *>               m_editorToPaletteProperty;
     QMap<QtProperty *, QList<GraphicsPropertyEditor *> >    m_iconPropertyToEditors;

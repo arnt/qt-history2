@@ -14,6 +14,8 @@
 #include "designerpropertymanager.h"
 #include "textpropertyeditor_p.h"
 #include "graphicspropertyeditor.h"
+#include "stylesheeteditor_p.h"
+#include "richtexteditor_p.h"
 #include "shared_enums_p.h"
 #include <QLabel>
 #include <QToolButton>
@@ -44,6 +46,95 @@ class DesignerAlignmentPropertyType
 Q_DECLARE_METATYPE(DesignerAlignmentPropertyType)
 
 namespace qdesigner_internal {
+
+
+class TextEditor : public QWidget
+{
+    Q_OBJECT
+public:
+    TextEditor(QWidget *parent);
+
+    TextPropertyValidationMode textPropertyValidationMode() const;
+    void setTextPropertyValidationMode(TextPropertyValidationMode vm);
+
+    void setSpacing(int spacing);
+public slots:
+    void setText(const QString &text);
+
+signals:
+    void textChanged(const QString &text);
+
+private slots:
+    void buttonClicked();
+private:
+    TextPropertyEditor *m_editor;
+    QToolButton *m_button;
+    QHBoxLayout *m_layout;
+};
+
+TextEditor::TextEditor(QWidget *parent)
+    : QWidget(parent)
+{
+    m_editor = new TextPropertyEditor(this);
+    m_layout = new QHBoxLayout(this);
+    m_layout->addWidget(m_editor);
+    m_button = new QToolButton(this);
+    m_button->setText(tr("..."));
+    m_button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Ignored);
+    m_button->setFixedWidth(20);
+    m_layout->addWidget(m_button);
+    m_layout->setMargin(0);
+    m_layout->setSpacing(0);
+
+    connect(m_editor, SIGNAL(textChanged(QString)), this, SIGNAL(textChanged(QString)));
+    connect(m_button, SIGNAL(clicked()), this, SLOT(buttonClicked()));
+    setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed));
+    m_button->setVisible(false);
+}
+
+void TextEditor::setSpacing(int spacing)
+{
+    m_layout->setSpacing(spacing);
+}
+
+TextPropertyValidationMode TextEditor::textPropertyValidationMode() const
+{
+    return m_editor->textPropertyValidationMode();
+}
+
+void TextEditor::setTextPropertyValidationMode(TextPropertyValidationMode vm)
+{
+    m_editor->setTextPropertyValidationMode(vm);
+    m_button->setVisible(vm == ValidationStyleSheet/* || vm == ValidationMultiLine*/);
+}
+
+void TextEditor::setText(const QString &text)
+{
+    m_editor->setText(text);
+}
+
+void TextEditor::buttonClicked()
+{
+    if (textPropertyValidationMode() == ValidationStyleSheet) {
+        StyleSheetEditorDialog dlg(this);
+        dlg.setText(m_editor->text());
+        if (dlg.exec() == QDialog::Accepted) {
+            const QString text = dlg.text();
+            m_editor->setText(text);
+            emit textChanged(text);
+        }
+        /*
+    } else if (textPropertyValidationMode() == ValidationMultiLine) {
+        RichTextEditorDialog dlg(this);
+        dlg.editor()->setText(m_editor->text());
+        if (dlg.exec() == QDialog::Accepted) {
+            const QString text = dlg.editor()->text(Qt::RichText);
+            m_editor->setText(text);
+            emit textChanged(text);
+        }
+        */
+    }
+}
 
 class ResetWidget : public QWidget
 {
@@ -1146,10 +1237,10 @@ void DesignerEditorFactory::slotAttributeChanged(QtProperty *property, const QSt
 {
     QtVariantPropertyManager *manager = propertyManager(property);
     if (manager->propertyType(property) == QVariant::String && attribute == QLatin1String("validationMode")) {
-        QList<TextPropertyEditor *> editors = m_stringPropertyToEditors.value(property);
-        QListIterator<TextPropertyEditor *> it(editors);
+        QList<TextEditor *> editors = m_stringPropertyToEditors.value(property);
+        QListIterator<TextEditor *> it(editors);
         while (it.hasNext()) {
-            TextPropertyEditor *editor = it.next();
+            TextEditor *editor = it.next();
             editor->setTextPropertyValidationMode(static_cast<TextPropertyValidationMode>(value.toInt()));
         }
     } else if (manager->propertyType(property) == QVariant::Palette && attribute == QLatin1String("superPalette")) {
@@ -1169,10 +1260,10 @@ void DesignerEditorFactory::slotValueChanged(QtProperty *property, const QVarian
 
     QtVariantPropertyManager *manager = propertyManager(property);
     if (manager->propertyType(property) == QVariant::String) {
-        QList<TextPropertyEditor *> editors = m_stringPropertyToEditors.value(property);
-        QListIterator<TextPropertyEditor *> it(editors);
+        QList<TextEditor *> editors = m_stringPropertyToEditors.value(property);
+        QListIterator<TextEditor *> it(editors);
         while (it.hasNext()) {
-            TextPropertyEditor *editor = it.next();
+            TextEditor *editor = it.next();
             editor->setText(value.toString());
         }
     } else if (manager->propertyType(property) == QVariant::Palette) {
@@ -1239,8 +1330,10 @@ QWidget *DesignerEditorFactory::createEditor(QtVariantPropertyManager *manager, 
 {
     QWidget *editor = 0;
     if (manager->propertyType(property) == QVariant::String) {
-        TextPropertyEditor *ed = new TextPropertyEditor(parent);
+        TextEditor *ed = new TextEditor(parent);
         ed->setText(manager->value(property).toString());
+        ed->setSpacing(m_spacing);
+        ed->setTextPropertyValidationMode(static_cast<TextPropertyValidationMode>(manager->attributeValue(property, QLatin1String("validationMode")).toInt()));
         m_stringPropertyToEditors[property].append(ed);
         m_editorToStringProperty[ed] = property;
         connect(ed, SIGNAL(destroyed(QObject *)), this, SLOT(slotEditorDestroyed(QObject *)));

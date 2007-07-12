@@ -79,10 +79,14 @@ QToolButton *QtButtonPropertyBrowserPrivate::createButton(QWidget *parent) const
     button->setCheckable(true);
     button->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed));
     button->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+    button->setArrowType(Qt::DownArrow);
+    button->setIconSize(QSize(3, 16));
+    /*
     QIcon icon;
     icon.addPixmap(q_ptr->style()->standardPixmap(QStyle::SP_ArrowDown), QIcon::Normal, QIcon::Off);
     icon.addPixmap(q_ptr->style()->standardPixmap(QStyle::SP_ArrowUp), QIcon::Normal, QIcon::On);
     button->setIcon(icon);
+    */
     return button;
 }
 
@@ -190,6 +194,7 @@ void QtButtonPropertyBrowserPrivate::setExpanded(WidgetItem *item, bool expanded
     }
 
     item->button->setChecked(expanded);
+    item->button->setArrowType(expanded ? Qt::UpArrow : Qt::DownArrow);
 }
 
 void QtButtonPropertyBrowserPrivate::slotToggled(bool checked)
