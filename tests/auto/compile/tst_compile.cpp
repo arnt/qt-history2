@@ -36,6 +36,7 @@ private slots:
     void templateCallOrder();
     void virtualFunctionNoLongerPureVirtual();
     void charSignedness() const;
+    void privateStaticTemplateMember() const;
 };
 
 #if defined(Q_CC_MSVC) && _MSC_VER < 1300
@@ -542,6 +543,29 @@ void tst_Compiler::charSignedness() const
     QCOMPARE("unsigned char",   resolveCharSignedness<unsigned char>());
     QCOMPARE("signed char",     resolveCharSignedness<signed char>());
 #endif
+}
+
+class PrivateStaticTemplateMember
+{
+public:
+    long regularMember()
+    {
+        return helper<long, int>(3);
+    }
+
+private:
+    template<typename A, typename B>
+    static A helper(const B b)
+    {
+        return A(b);
+    }
+};
+
+void tst_Compiler::privateStaticTemplateMember() const
+{
+    PrivateStaticTemplateMember v;
+
+    QCOMPARE(long(3), v.regularMember());
 }
 
 QTEST_MAIN(tst_Compiler)
