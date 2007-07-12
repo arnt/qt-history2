@@ -117,9 +117,21 @@ General Improvements
 - QRegion
     * [167445] Removed potential assert in QRegion::operator^ on unix.
 
+- QScriptEngine
+    * [165899] Fixed bug where calling an overloaded slot from a script
+               would pick the wrong overload when the argument is a QObject.
+    * [166903] Fixed crash when evaluating a call to a script function that
+               ends with an if-statement with a true-part that ends with a
+               return statement (and has no else-part).
+
 - QScrollArea
     * [167838] Use micro focus rectangle (if "active") instead of the entire widget
                in ensureWidgetVisible().
+
+- QSortFilterProxyModel
+    * [167273] Fixed regression that caused QSortFilterProxyModel to assert when
+               changing data in a QSqlTableModel source model with edit strategy
+               OnFieldChange.
 
 - QTextEdit
     * [161577] Fixed regression causing Shift-Backspace to be ignored.
