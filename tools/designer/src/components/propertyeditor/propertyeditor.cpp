@@ -170,7 +170,7 @@ PropertyEditor::PropertyEditor(QDesignerFormEditorInterface *core, QWidget *pare
     actionGroup->addAction(m_treeAction);
     actionGroup->addAction(m_buttonAction);
 //    actionGroup->addAction(m_groupBoxAction);
-    m_buttonAction->setChecked(true);
+    m_treeAction->setChecked(true);
     connect(actionGroup, SIGNAL(triggered(QAction *)),
                 this, SLOT(slotViewTriggered(QAction *)));
 
@@ -240,8 +240,8 @@ PropertyEditor::PropertyEditor(QDesignerFormEditorInterface *core, QWidget *pare
     m_buttonBrowser->setFactoryForManager(variantManager, groupFactory);
     m_treeBrowser->setFactoryForManager(variantManager, treeFactory);
 
-    m_stackedWidget->setCurrentIndex(m_buttonIndex);
-    m_currentBrowser = m_buttonBrowser;
+    m_stackedWidget->setCurrentIndex(m_treeIndex);
+    m_currentBrowser = m_treeBrowser;
 
     connect(groupFactory, SIGNAL(resetProperty(QtProperty *)), this, SLOT(slotResetProperty(QtProperty *)));
     connect(treeFactory, SIGNAL(resetProperty(QtProperty *)), this, SLOT(slotResetProperty(QtProperty *)));
@@ -303,6 +303,14 @@ void PropertyEditor::storeExpansionState()
     }
 }
 
+void PropertyEditor::collapseAll()
+{
+    QList<QtBrowserItem *> items = m_currentBrowser->topLevelItems();
+    QListIterator<QtBrowserItem *> itGroup(items);
+    while (itGroup.hasNext())
+        setExpanded(itGroup.next(), false);
+}
+
 void PropertyEditor::applyExpansionState()
 {
 //    if (m_groupBrowser == m_currentBrowser)
@@ -330,6 +338,8 @@ void PropertyEditor::applyExpansionState()
             const  QMap<QString, bool>::const_iterator pit = m_expansionState.constFind(key);
             if (pit !=  excend)
                 setExpanded(propertyItem, pit.value());
+            else
+                setExpanded(propertyItem, false);
         }
     }
 }
@@ -337,6 +347,7 @@ void PropertyEditor::applyExpansionState()
 void PropertyEditor::slotViewTriggered(QAction *action)
 {
     storeExpansionState();
+    collapseAll();
     const bool wasEnabled = updatesEnabled();
     setUpdatesEnabled(false);
     m_currentBrowser->clear();

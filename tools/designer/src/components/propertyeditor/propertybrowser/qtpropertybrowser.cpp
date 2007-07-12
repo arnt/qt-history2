@@ -1720,8 +1720,9 @@ void QtAbstractPropertyBrowser::clear()
 {
     QList<QtProperty *> subList = properties();
     QListIterator<QtProperty *> itSub(subList);
-    while (itSub.hasNext()) {
-        QtProperty *property = itSub.next();
+    itSub.toBack();
+    while (itSub.hasPrevious()) {
+        QtProperty *property = itSub.previous();
         removeProperty(property);
     }
 }

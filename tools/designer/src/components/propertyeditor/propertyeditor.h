@@ -83,6 +83,7 @@ private:
     void applyExpansionState();
     void setExpanded(QtBrowserItem *item, bool expanded);
     bool isExpanded(QtBrowserItem *item);
+    void collapseAll();
 
     QDesignerFormEditorInterface *m_core;
     QDesignerPropertySheetExtension *m_propertySheet;
