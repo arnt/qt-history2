@@ -3008,4 +3008,4 @@ QDebug operator<<(QDebug dbg, const QVariant::Type p)
 /*!
     \fn DataPtr &QVariant::data_ptr()
     \internal
-*/http://groups.google.com/
+*/
