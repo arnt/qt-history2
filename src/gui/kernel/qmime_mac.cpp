@@ -316,11 +316,66 @@ QList<QByteArray> QMacPasteboardMimeUnicodeText::convertFromMime(const QString &
     QList<QByteArray> ret;
     QString string = data.toString();
     if(flavor == QLatin1String("public.utf8-plain-text"))
-        ret.append(string.toLatin1());
+        ret.append(string.toUtf8());
     else if (flavor == QLatin1String("public.utf16-plain-text"))
         ret.append(QByteArray((char*)string.utf16(), string.length()*2));
     return ret;
 }
+
+class QMacPasteboardMimeHTMLText : public QMacPasteboardMime {
+public:
+    QMacPasteboardMimeHTMLText() : QMacPasteboardMime(MIME_ALL) { }
+    QString convertorName();
+
+    QString flavorFor(const QString &mime);
+    QString mimeFor(QString flav);
+    bool canConvert(const QString &mime, QString flav);
+    QVariant convertToMime(const QString &mime, QList<QByteArray> data, QString flav);
+    QList<QByteArray> convertFromMime(const QString &mime, QVariant data, QString flav);
+};
+
+QString QMacPasteboardMimeHTMLText::convertorName()
+{
+    return QLatin1String("HTML");
+}
+
+QString QMacPasteboardMimeHTMLText::flavorFor(const QString &mime)
+{
+    if (mime == QLatin1String("text/html"))
+        return QLatin1String("public.html");
+    return QString();
+}
+
+QString QMacPasteboardMimeHTMLText::mimeFor(QString flav)
+{
+    if (flav == QLatin1String("public.html"))
+        return QLatin1String("text/html");
+    return QString();
+}
+
+bool QMacPasteboardMimeHTMLText::canConvert(const QString &mime, QString flav)
+{
+    return flavorFor(mime) == flav;
+}
+
+QVariant QMacPasteboardMimeHTMLText::convertToMime(const QString &mimeType, QList<QByteArray> data, QString flavor)
+{
+    if (!canConvert(mimeType, flavor))
+        return QVariant();
+    if (data.count() > 1)
+        qWarning("QMacPasteboardMimeHTMLText: Cannot handle multiple member data");
+    return data.first();
+}
+
+QList<QByteArray> QMacPasteboardMimeHTMLText::convertFromMime(const QString &mime, QVariant data, QString flavor)
+{
+    QList<QByteArray> ret;
+    if (!canConvert(mime, flavor))
+        return ret;
+    ret.append(data.toByteArray());
+    return ret;
+}
+
 
 #ifdef Q_WS_MAC32
 #include <QuickTime/QuickTime.h>
@@ -870,6 +925,7 @@ void QMacPasteboardMime::initialize()
 #endif
         new QMacPasteboardMimeUnicodeText;
         new QMacPasteboardMimePlainText;
+        new QMacPasteboardMimeHTMLText;
         new QMacPasteboardMimeFileUri;
 
         //make sure our "non-standard" types are always last! --Sam
