@@ -17,6 +17,8 @@ QFrame {
 
 QLabel {
     border: none;
+    background: none;
+    border-image: none;
 }
 
 QGroupBox {
