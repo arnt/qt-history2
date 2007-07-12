@@ -24,13 +24,13 @@ static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue oldPos(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QHoverEvent, oldPos);
-    return eng->toScriptValue(self->oldPos());
+    return qScriptValueFromValue(eng, self->oldPos());
 }
 
 static QScriptValue pos(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QHoverEvent, pos);
-    return eng->toScriptValue(self->pos());
+    return qScriptValueFromValue(eng, self->pos());
 }
 
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)

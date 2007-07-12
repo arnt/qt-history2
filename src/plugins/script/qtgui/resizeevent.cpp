@@ -23,13 +23,13 @@ static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue oldSize(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QResizeEvent, oldSize);
-    return eng->toScriptValue(self->oldSize());
+    return qScriptValueFromValue(eng, self->oldSize());
 }
 
 static QScriptValue size(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QResizeEvent, size);
-    return eng->toScriptValue(self->size());
+    return qScriptValueFromValue(eng, self->size());
 }
 
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)

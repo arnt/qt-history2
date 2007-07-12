@@ -22,13 +22,13 @@ static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue rect(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QPaintEvent, rect);
-    return eng->toScriptValue(self->rect());
+    return qScriptValueFromValue(eng, self->rect());
 }
 
 static QScriptValue region(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QPaintEvent, region);
-    return eng->toScriptValue(self->region());
+    return qScriptValueFromValue(eng, self->region());
 }
 
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)

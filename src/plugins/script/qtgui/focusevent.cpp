@@ -23,13 +23,13 @@ static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue gotFocus(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QFocusEvent, gotFocus);
-    return eng->toScriptValue(self->gotFocus());
+    return qScriptValueFromValue(eng, self->gotFocus());
 }
 
 static QScriptValue lostFocus(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QFocusEvent, lostFocus);
-    return eng->toScriptValue(self->lostFocus());
+    return qScriptValueFromValue(eng, self->lostFocus());
 }
 
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)

@@ -25,13 +25,13 @@ static QScriptValue ctor(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue action(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QActionEvent, action);
-    return eng->toScriptValue(self->action());
+    return qScriptValueFromValue(eng, self->action());
 }
 
 static QScriptValue before(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QActionEvent, before);
-    return eng->toScriptValue(self->before());
+    return qScriptValueFromValue(eng, self->before());
 }
 
 static QScriptValue toString(QScriptContext *ctx, QScriptEngine *eng)
