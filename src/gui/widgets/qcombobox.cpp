@@ -579,7 +579,8 @@ bool QComboBoxPrivateContainer::eventFilter(QObject *o, QEvent *e)
     case QEvent::MouseMove: {
         if (isVisible()) {
             QMouseEvent *m = static_cast<QMouseEvent *>(e);
-            QPoint vector = m->pos() - initialClickPosition;
+            QWidget *widget = static_cast<QWidget *>(o);
+            QPoint vector = widget->mapToGlobal(m->pos()) - initialClickPosition;
             if (vector.manhattanLength() > 9 && blockMouseReleaseTimer.isActive())
                 blockMouseReleaseTimer.stop();
         }
@@ -2435,7 +2436,7 @@ void QComboBox::mousePressEvent(QMouseEvent *e)
             // We've restricted the next couple of lines, because by not calling
             // viewContainer(), we avoid creating the QComboBoxPrivateContainer.
             d->viewContainer()->blockMouseReleaseTimer.start(QApplication::doubleClickInterval());
-            d->viewContainer()->initialClickPosition = e->pos();
+            d->viewContainer()->initialClickPosition = mapToGlobal(e->pos());
 #ifdef QT_KEYPAD_NAVIGATION
         }
 #endif
