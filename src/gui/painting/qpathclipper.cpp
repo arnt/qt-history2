@@ -197,7 +197,7 @@ public:
     QPointF ctrl1, ctrl2;
 };
 
-
+#ifdef QDEBUG_CLIPPER
 static QDebug operator<<(QDebug str, const PathVertex &b)
 {
     QString out = QString::fromLatin1("Vertex(%1 - (%2, %3),inter=%4,tf=%5)")
@@ -210,7 +210,6 @@ static QDebug operator<<(QDebug str, const PathVertex &b)
     return str;
 }
 
-#ifdef QDEBUG_CLIPPER
 static QDebug operator<<(QDebug str, const PathVertex::TraversalFlag &b)
 {
     QString out;
