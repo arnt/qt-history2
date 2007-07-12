@@ -2596,7 +2596,7 @@ void QGraphicsView::mousePressEvent(QMouseEvent *event)
     }
 
 #ifndef QT_NO_RUBBERBAND
-    if (d->dragMode == QGraphicsView::RubberBandDrag) {
+    if (d->dragMode == QGraphicsView::RubberBandDrag && !d->rubberBanding) {
         if (d->sceneInteractionAllowed) {
             // Rubberbanding is only allowed in interactive mode.
             d->rubberBanding = true;
@@ -2643,6 +2643,14 @@ void QGraphicsView::mouseMoveEvent(QMouseEvent *event)
                     viewport()->update();
             }
 
+            // Stop rubber banding if the user has let go of all buttons (even
+            // if we didn't get the release events).
+            if (!event->buttons()) {
+                d->rubberBanding = false;
+                d->rubberBandRect = QRect();
+                return;
+            }
+            
             // Update rubberband position
             d->rubberBandRect = QRect(d->mousePressViewPoint, event->pos()).normalized();
 
@@ -2748,7 +2756,7 @@ void QGraphicsView::mouseReleaseEvent(QMouseEvent *event)
     Q_D(QGraphicsView);
 
 #ifndef QT_NO_RUBBERBAND
-    if (d->dragMode == QGraphicsView::RubberBandDrag && d->sceneInteractionAllowed) {
+    if (d->dragMode == QGraphicsView::RubberBandDrag && d->sceneInteractionAllowed && !event->buttons()) {
         if (d->rubberBanding) {
             if (d->viewportUpdateMode != QGraphicsView::NoViewportUpdate){
                 if (d->viewportUpdateMode != FullViewportUpdate)
@@ -2757,6 +2765,7 @@ void QGraphicsView::mouseReleaseEvent(QMouseEvent *event)
                     viewport()->update();
             }
             d->rubberBanding = false;
+            d->rubberBandRect = QRect();
             return;
         }
     } else
@@ -3144,6 +3153,14 @@ void QGraphicsView::scrollContentsBy(int dx, int dy)
     Q_D(QGraphicsView);
     if (isRightToLeft())
         dx = -dx;
+
+    // Update old rubberband
+    if (d->viewportUpdateMode != QGraphicsView::NoViewportUpdate && !d->rubberBandRect.isNull()) {
+        if (d->viewportUpdateMode != FullViewportUpdate)
+            viewport()->update(d->rubberBandRegion(viewport(), d->rubberBandRect));
+        else
+            viewport()->update();
+    }
 
     if (d->viewportUpdateMode != QGraphicsView::NoViewportUpdate){
         if (d->accelerateScrolling && d->viewportUpdateMode != FullViewportUpdate)
