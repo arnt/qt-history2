@@ -175,7 +175,9 @@ static const int QGRAPHICSVIEW_REGION_RECT_THRESHOLD = 50;
     the exposed area). In some situations, however, the painter clip can slow
     down rendering; especially when all painting is restricted to inside
     exposed areas. By enabling this flag, QGraphicsView will completely
-    disable its implicit clipping.
+    disable its implicit clipping. Note that rendering artifacts from using a
+    semi-transparent foreground or background brush can occur if clipping is
+    disabled.
 
     \value DontSavePainterState When rendering, QGraphicsView protects the
     painter state (see QPainter::save()) when rendering the background or
@@ -2854,6 +2856,7 @@ void QGraphicsView::paintEvent(QPaintEvent *event)
     QRegion exposedRegion = event->region();
     if (!d->accelerateScrolling)
         exposedRegion = viewport()->rect();
+    QVector<QRect> clipRects = exposedRegion.rects();
 
     // Set up the painter
     QPainter painter(viewport());
@@ -2974,18 +2977,28 @@ void QGraphicsView::paintEvent(QPaintEvent *event)
             painter.drawPixmap(rect, d->backgroundPixmap, rect);
         painter.setTransform(oldMatrix);
     } else {
+        if (clipRects.size() > 1)
+            painter.save();
+
         // Draw the background directly
-        foreach (QRectF rect, exposedRects) {
+        for (int i = 0; i < exposedRects.size(); ++i) {
             if (!(d->optimizationFlags & DontSavePainterState))
                 painter.save();
 
-            if (!(d->optimizationFlags & DontClipPainter))
-                painter.setClipRect(rect.adjusted(-1, -1, 1, 1));
-            drawBackground(&painter, rect);
+            if (!(d->optimizationFlags & DontClipPainter) && clipRects.size() > 1) {
+                QTransform oldTransform = painter.worldTransform();
+                painter.setWorldTransform(QTransform());
+                painter.setClipRect(clipRects.at(i));
+                painter.setWorldTransform(oldTransform);
+            }
+            drawBackground(&painter, exposedRects.at(i));
 
             if (!(d->optimizationFlags & DontSavePainterState))
                 painter.restore();
         }
+
+        if (clipRects.size() > 1)
+            painter.restore();
     }
 
 #ifdef QGRAPHICSVIEW_DEBUG
@@ -3038,13 +3051,17 @@ void QGraphicsView::paintEvent(QPaintEvent *event)
 #endif
 
     // Foreground
-    foreach (QRectF rect, exposedRects) {
+    for (int i = 0; i < exposedRects.size(); ++i) {
         if (!(d->optimizationFlags & DontSavePainterState))
             painter.save();
 
-        if (!(d->optimizationFlags & DontClipPainter))
-            painter.setClipRect(rect.adjusted(-1, -1, 1, 1));
-        drawForeground(&painter, rect);
+        if (!(d->optimizationFlags & DontClipPainter) && clipRects.size() > 1) {
+            QTransform oldTransform = painter.worldTransform();
+            painter.setWorldTransform(QTransform());
+            painter.setClipRect(clipRects.at(i));
+            painter.setWorldTransform(oldTransform);
+        }
+        drawForeground(&painter, exposedRects.at(i));
 
         if (!(d->optimizationFlags & DontSavePainterState))
             painter.restore();
@@ -3155,14 +3172,12 @@ void QGraphicsView::scrollContentsBy(int dx, int dy)
 
         // Scroll the background pixmap
         if (!d->backgroundPixmap.isNull()) {
-#if defined(Q_OS_WIN) || defined(Q_WS_QWS) || defined(Q_WS_MAC)
             QPixmap tmp = d->backgroundPixmap;
             QPainter painter(&d->backgroundPixmap);
+            painter.setCompositionMode(QPainter::CompositionMode_Source);
+            painter.fillRect(0, 0, tmp.width(), tmp.height(),
+                             viewport()->palette().brush(viewport()->backgroundRole()));
             painter.drawPixmap(dx, dy, tmp);
-#else
-            QPainter painter(&d->backgroundPixmap);
-            painter.drawPixmap(dx, dy, d->backgroundPixmap);
-#endif
         }
     }
 }
