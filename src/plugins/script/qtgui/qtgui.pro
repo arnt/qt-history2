@@ -12,9 +12,7 @@ SOURCES += main.cpp \
 	   radialgradient.cpp \
 	   icon.cpp \
 	   image.cpp \
-	   keyevent.cpp \
 	   matrix.cpp \
-	   mouseevent.cpp \
 	   pen.cpp \
 	   pixmap.cpp \
 	   polygon.cpp \
@@ -23,6 +21,14 @@ SOURCES += main.cpp \
 	   palette.cpp \
 	   region.cpp \
 	   transform.cpp
+
+SOURCES += actionevent.cpp \
+	   focusevent.cpp \
+	   hoverevent.cpp \
+	   keyevent.cpp \
+	   mouseevent.cpp \
+	   paintevent.cpp \
+	   resizeevent.cpp
 
 SOURCES += graphicsitem.cpp \
 	   graphicsitemanimation.cpp \

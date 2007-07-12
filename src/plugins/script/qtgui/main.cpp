@@ -17,6 +17,14 @@
 #include <QtGui/QApplication>
 #include <qdebug.h>
 
+QScriptValue constructActionEventClass(QScriptEngine *engine);
+QScriptValue constructFocusEventClass(QScriptEngine *engine);
+QScriptValue constructHoverEventClass(QScriptEngine *engine);
+QScriptValue constructKeyEventClass(QScriptEngine *engine);
+QScriptValue constructMouseEventClass(QScriptEngine *engine);
+QScriptValue constructPaintEventClass(QScriptEngine *engine);
+QScriptValue constructResizeEventClass(QScriptEngine *engine);
+
 QScriptValue constructBrushClass(QScriptEngine *engine);
 QScriptValue constructColorClass(QScriptEngine *engine);
 QScriptValue constructFontClass(QScriptEngine *engine);
@@ -26,9 +34,7 @@ QScriptValue constructLinearGradientClass(QScriptEngine *engine);
 QScriptValue constructRadialGradientClass(QScriptEngine *engine);
 QScriptValue constructIconClass(QScriptEngine *engine);
 QScriptValue constructImageClass(QScriptEngine *engine);
-QScriptValue constructKeyEventClass(QScriptEngine *engine);
 QScriptValue constructMatrixClass(QScriptEngine *engine);
-QScriptValue constructMouseEventClass(QScriptEngine *engine);
 QScriptValue constructPenClass(QScriptEngine *engine);
 QScriptValue constructPixmapClass(QScriptEngine *engine);
 QScriptValue constructPolygonClass(QScriptEngine *engine);
@@ -81,7 +87,6 @@ void QtGuiScriptPlugin::initialize(const QString &key,
         extensionObject.setProperty("QIcon", constructIconClass(engine));
         extensionObject.setProperty("QImage", constructImageClass(engine));
         extensionObject.setProperty("QLinearGradient", constructLinearGradientClass(engine));
-        extensionObject.setProperty("QKeyEvent", constructKeyEventClass(engine));
         extensionObject.setProperty("QMatrix", constructMatrixClass(engine));
         extensionObject.setProperty("QPen", constructPenClass(engine));
         extensionObject.setProperty("QPolygon", constructPolygonClass(engine));
@@ -91,6 +96,8 @@ void QtGuiScriptPlugin::initialize(const QString &key,
         extensionObject.setProperty("QRadialGradient", constructRadialGradientClass(engine));
         extensionObject.setProperty("QRegion", constructRegionClass(engine));
         extensionObject.setProperty("QTransform", constructTransformClass(engine));
+
+        extensionObject.setProperty("QKeyEvent", constructKeyEventClass(engine));
 
         extensionObject.setProperty("QGraphicsItem", constructGraphicsItemClass(engine));
         extensionObject.setProperty("QGraphicsItemAnimation", constructGraphicsItemAnimationClass(engine));
@@ -106,7 +113,13 @@ void QtGuiScriptPlugin::initialize(const QString &key,
         extensionObject.setProperty("QGraphicsScene", constructGraphicsSceneClass(engine));
 
         if (QApplication::type() != QApplication::Tty) {
+            extensionObject.setProperty("QActionEvent", constructActionEventClass(engine));
+            extensionObject.setProperty("QFocusEvent", constructFocusEventClass(engine));
+            extensionObject.setProperty("QHoverEvent", constructHoverEventClass(engine));
             extensionObject.setProperty("QMouseEvent", constructMouseEventClass(engine));
+            extensionObject.setProperty("QPaintEvent", constructPaintEventClass(engine));
+            extensionObject.setProperty("QResizeEvent", constructResizeEventClass(engine));
+
             extensionObject.setProperty("QPixmap", constructPixmapClass(engine));
             extensionObject.setProperty("QGraphicsPixmapItem", constructGraphicsPixmapItemClass(engine));
             extensionObject.setProperty("QGraphicsView", constructGraphicsViewClass(engine));
