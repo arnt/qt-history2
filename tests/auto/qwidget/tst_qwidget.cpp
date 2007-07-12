@@ -189,6 +189,8 @@ private slots:
     void moveWindowInShowEvent_data();
     void moveWindowInShowEvent();
 
+    void repaintWhenChildDeleted();
+
 private:
     QWidget *testWidget;
 };
@@ -5099,6 +5101,37 @@ void tst_QWidget::moveWindowInShowEvent()
     QTest::qWait(100);
     // it should have moved
     QCOMPARE(widget.pos(), position);
+}
+
+void tst_QWidget::repaintWhenChildDeleted()
+{
+    ColorWidget w(0, Qt::red);
+    w.setGeometry(50, 50, 100, 100);
+    w.show();
+    QApplication::processEvents();
+#ifdef Q_WS_X11
+    qt_x11_wait_for_window_manager(&w);
+#endif
+    VERIFY_COLOR(w.geometry(), w.color);
+
+    {
+        const QPoint tlwOffset = w.geometry().topLeft();
+        ColorWidget child(&w, Qt::blue);
+        child.setGeometry(10, 10, 10, 10);
+        child.show();
+        QApplication::processEvents();
+#ifdef Q_WS_X11
+        qt_x11_wait_for_window_manager(&w);
+#endif
+
+        VERIFY_COLOR(child.geometry().translated(tlwOffset), child.color);
+    }
+
+    QApplication::processEvents();
+#ifdef Q_WS_X11
+    qt_x11_wait_for_window_manager(&w);
+#endif
+    VERIFY_COLOR(w.geometry(), w.color);
 }
 
 QTEST_MAIN(tst_QWidget)
