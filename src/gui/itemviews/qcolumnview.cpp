@@ -59,7 +59,8 @@ QColumnView::QColumnView(QWidget * parent)
 {
     Q_D(QColumnView);
     setTextElideMode(Qt::ElideMiddle);
-    connect(&(d->currentAnimation), SIGNAL(frameChanged(int)), horizontalScrollBar(), SLOT(setValue(int)));
+    connect(&(d->currentAnimation), SIGNAL(frameChanged(int)),
+            horizontalScrollBar(), SLOT(setValue(int)));
     connect(&(d->currentAnimation), SIGNAL(finished()), this, SLOT(_q_changeCurrentColumn()));
     delete d->itemDelegate;
     setItemDelegate(new QColumnViewDelegate(this));
@@ -787,7 +788,7 @@ void QColumnViewPrivate::setPreviewWidget(QWidget *widget)
 {
     Q_Q(QColumnView);
     if (previewColumn) {
-        if(!columns.isEmpty() && columns.last() == previewColumn)
+        if (!columns.isEmpty() && columns.last() == previewColumn)
             columns.removeLast();
         previewColumn->deleteLater();
     }
@@ -805,7 +806,8 @@ void QColumnViewPrivate::setPreviewWidget(QWidget *widget)
 }
 
 /*!
-    Sets the column widths to the values given in the \a list.  Extra values in the list are kept and used when the columns are created.
+    Sets the column widths to the values given in the \a list.  Extra values in the list are
+    kept and used when the columns are created.
 
     If list contains too few values, only width of the rest of the columns will not be modified.
 
@@ -1067,3 +1069,4 @@ void QColumnViewDelegate::paint(QPainter *painter,
 #include "moc_qcolumnview.cpp"
 
 #endif // QT_NO_COLUMNVIEW
+
