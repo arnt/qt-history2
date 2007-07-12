@@ -24,14 +24,10 @@
 #include <qlist.h>
 #include <qvector.h>
 #include <qtextcodec.h>
-#include <qdebug.h>
-
-#include <ibase.h>
-
 #include <stdlib.h>
 #include <limits.h>
 #include <math.h>
-
+    
 #define FBVERSION SQL_DIALECT_V6
 
 #ifndef SQLDA_CURRENT_VERSION
@@ -1059,7 +1055,7 @@ bool QIBaseResult::gotoNext(QSqlCachedResult::ValueCache& row, int rowIdx)
         case SQL_LONG:
             if (d->sqlda->sqlvar[i].sqllen == 4)
                 if (d->sqlda->sqlvar[i].sqlscale < 0)
-                    row[idx] = QVariant(long((*(long*)buf)) * pow(10.0, d->sqlda->sqlvar[i].sqlscale));
+                    row[idx] = QVariant((*(qint32*)buf) * pow(10.0, d->sqlda->sqlvar[i].sqlscale));
                 else
                     row[idx] = QVariant(int((*(long*)buf)));
             else
@@ -1233,11 +1229,11 @@ QIBaseDriver::QIBaseDriver(QObject * parent)
     d = new QIBaseDriverPrivate(this);
 }
 
-QIBaseDriver::QIBaseDriver(void *connection, QObject *parent)
+QIBaseDriver::QIBaseDriver(isc_db_handle connection, QObject *parent)
     : QSqlDriver(parent)
 {
     d = new QIBaseDriverPrivate(this);
-    d->ibase = (isc_db_handle)connection;
+    d->ibase = connection;
     setOpen(true);
     setOpenError(false);
 }

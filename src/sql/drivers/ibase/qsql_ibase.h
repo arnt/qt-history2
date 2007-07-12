@@ -17,6 +17,7 @@
 #include <QtSql/qsqlresult.h>
 #include <QtSql/qsqldriver.h>
 #include <QtSql/private/qsqlcachedresult_p.h>
+#include <ibase.h>
 
 QT_BEGIN_HEADER
 class QIBaseDriverPrivate;
@@ -52,7 +53,7 @@ class QIBaseDriver : public QSqlDriver
     friend class QIBaseResultPrivate;
 public:
     explicit QIBaseDriver(QObject *parent = 0);
-    explicit QIBaseDriver(void *connection, QObject *parent = 0);
+    explicit QIBaseDriver(isc_db_handle connection, QObject *parent = 0);
     virtual ~QIBaseDriver();
     bool hasFeature(DriverFeature f) const;
     bool open(const QString & db,
