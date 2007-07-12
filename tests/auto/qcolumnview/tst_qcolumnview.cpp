@@ -68,9 +68,11 @@ protected slots:
 };
 
 class ColumnView : public QColumnView {
-    public:
-        void ScrollContentsBy(int x, int y) {scrollContentsBy(x,y); }
-        int HorizontalOffset() const { return horizontalOffset(); }
+
+public:
+    QList<QPointer<QAbstractItemView> > createdColumns;
+    void ScrollContentsBy(int x, int y) {scrollContentsBy(x,y); }
+    int HorizontalOffset() const { return horizontalOffset(); }
 
     enum PublicCursorAction {
         MoveUp = QAbstractItemView::MoveUp,
@@ -86,8 +88,19 @@ class ColumnView : public QColumnView {
     };
 
     inline QModelIndex MoveCursor(PublicCursorAction ca, Qt::KeyboardModifiers kbm)
-    { return QColumnView::moveCursor((CursorAction)ca, kbm); }
-    bool IsIndexHidden(const QModelIndex&index) const { return isIndexHidden(index); }
+        { return QColumnView::moveCursor((CursorAction)ca, kbm); }
+    bool IsIndexHidden(const QModelIndex&index) const
+        { return isIndexHidden(index); }
+
+
+protected:
+    QAbstractItemView *createColumn(const QModelIndex &index) {
+        QAbstractItemView *view = QColumnView::createColumn(index);
+        QPointer<QAbstractItemView> savedView = view;
+        createdColumns.append(savedView);
+        return view;
+    }
+
 };
 
 tst_QColumnView::tst_QColumnView()
@@ -376,10 +389,11 @@ void tst_QColumnView::clicked()
     view.show();
 
     QModelIndex home = model.index(QDir::homePath());
+    QVERIFY(home.isValid());
     view.setCurrentIndex(home);
     QTest::qWait(ANIMATION_DELAY);
 
-    QModelIndex child = home.parent();
+    QModelIndex parent = home.parent();
 
     //child = child.sibling(child.row()-1, 0);
 
@@ -387,7 +401,7 @@ void tst_QColumnView::clicked()
     QSignalSpy spy(&view, SIGNAL(clicked(const QModelIndex &)));
 
     // find the column to click on that contains child
-    QRect rect = view.visualRect(child);
+    QRect rect = view.visualRect(parent);
     TRY_VERIFY(view.isVisible());
     QPoint globalPoint = view.mapToGlobal(rect.center());
     QWidget *w = QApplication::widgetAt(globalPoint);
@@ -396,6 +410,12 @@ void tst_QColumnView::clicked()
 
     QTest::mouseClick(w, Qt::LeftButton, 0, localPoint);
     QCOMPARE(spy.count(), 1);
+    qApp->processEvents();
+    for (int i = 0; i < view.createdColumns.count(); ++i) {
+        QAbstractItemView *column = view.createdColumns.at(i);
+        if (column && column->selectionModel() && (column->rootIndex() == home.parent()))
+                QVERIFY(column->selectionModel()->selectedIndexes().isEmpty());
+    }
 }
 
 void tst_QColumnView::moveGrip()
