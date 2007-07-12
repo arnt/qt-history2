@@ -1182,7 +1182,7 @@ bool QLastResortMimes::canConvertFromMime(const FORMATETC &formatetc, const QMim
     // really check
     return formatetc.tymed & TYMED_HGLOBAL
         && (formats.contains(formatetc.cfFormat)
-        || QInternalMimeData::hasFormatHelper(formats.value(formatetc.cfFormat), mimeData));
+        && QInternalMimeData::hasFormatHelper(formats.value(formatetc.cfFormat), mimeData));
 }
 
 bool QLastResortMimes::convertFromMime(const FORMATETC &formatetc, const QMimeData *mimeData, STGMEDIUM * pmedium) const
