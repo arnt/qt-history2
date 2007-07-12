@@ -67,7 +67,7 @@ public:
 
     \omitvalue ExcludeUserInput
     \omitvalue WaitForMore
-    \omitvalue DeferredDeletion
+    \value DeferredDeletion deprecated - do not use.
 
     \sa processEvents()
 */

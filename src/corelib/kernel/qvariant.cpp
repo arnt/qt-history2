@@ -310,7 +310,7 @@ static bool isNull(const QVariant::Private *d)
     return d->is_null;
 }
 
-/*!
+/*
   \internal
   \since 4.4
 
@@ -3008,4 +3008,4 @@ QDebug operator<<(QDebug dbg, const QVariant::Type p)
 /*!
     \fn DataPtr &QVariant::data_ptr()
     \internal
-*/
+*/http://groups.google.com/

@@ -51,6 +51,7 @@ defines                 = Q_QDOC \
                           Q_WS_.* \
                           Q_OS_.* \
                           Q_BYTE_ORDER \
+			  QT_DEPRECATED \
                           __cplusplus
 
 codeindent              = 1
