@@ -3853,7 +3853,7 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const QWid
         break;
 
     case PM_MenuTearoffHeight:
-        ret = 6;
+        ret = 10;
         break;
 
     case PM_MenuScrollerHeight:
