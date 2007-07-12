@@ -15,9 +15,11 @@
 
 // #define FONTENGINE_DEBUG
 
+#include <qapplication.h>
 #include <qbytearray.h>
 #include <qdebug.h>
 #include <qtextcodec.h>
+#include <qthread.h>
 
 #include "qfontdatabase.h"
 #include "qpaintdevice.h"
@@ -640,9 +642,9 @@ void QFontEngineXLFD::getUnscaledGlyph(glyph_t glyph, QPainterPath *path, glyph_
     metrics->y = QFixed::fromFixed(-top);
     metrics->xoff = QFixed::fromFixed(face->glyph->advance.x);
 
-    if (!FT_IS_SCALABLE(freetype->face)) 
+    if (!FT_IS_SCALABLE(freetype->face))
         QFreetypeFace::addBitmapToPath(face->glyph, p, path);
-    else 
+    else
         QFreetypeFace::addGlyphToPath(face, face->glyph, p, path, face->units_per_EM << 6, face->units_per_EM << 6);
 
     FT_Set_Transform(face, &freetype->matrix, 0);
@@ -810,7 +812,7 @@ QFontEngineX11FT::QFontEngineX11FT(FcPattern *pattern, const QFontDef &fd, int s
     face_id.filename = file_name;
     face_id.index = face_index;
 
-    canUploadGlyphsToServer = true;
+    canUploadGlyphsToServer = qApp->thread() == QThread::currentThread();
 
     subpixelType = Subpixel_None;
     if (antialias) {
@@ -900,7 +902,7 @@ QFontEngineX11FT::~QFontEngineX11FT()
 unsigned long QFontEngineX11FT::allocateServerGlyphSet()
 {
 #ifndef QT_NO_XRENDER
-    if (!X11->use_xrender)
+    if (!canUploadGlyphsToServer || !X11->use_xrender)
         return 0;
     return XRenderCreateGlyphSet(X11->display, XRenderFindStandardFormat(X11->display, xglyph_format));
 #else
@@ -920,6 +922,8 @@ void QFontEngineX11FT::freeServerGlyphSet(unsigned long id)
 bool QFontEngineX11FT::uploadGlyphToServer(QGlyphSet *set, uint glyphid, Glyph *g, GlyphInfo *info, int glyphDataSize) const
 {
 #ifndef QT_NO_XRENDER
+    if (!canUploadGlyphsToServer)
+        return false;
     if (g->format == Format_Mono) {
         /*
          * swap bit order around; FreeType is always MSBFirst
