@@ -765,6 +765,10 @@ void QMdiAreaPrivate::emitWindowActivated(QMdiSubWindow *activeWindow)
     active = activeWindow;
     aboutToBecomeActive = 0;
     Q_ASSERT(active->d_func()->isActive);
+
+    if (active->isMaximized() && scrollBarsEnabled())
+        updateScrollBars();
+
     emit q->subWindowActivated(active);
 }
 
@@ -833,7 +837,8 @@ void QMdiAreaPrivate::updateScrollBars()
     }
 
     QRect viewportRect = q->viewport()->rect();
-    QRect childrenRect = q->viewport()->childrenRect();
+    QRect childrenRect = active && active->isMaximized() ? active->geometry()
+                                                         : q->viewport()->childrenRect();
     int startX = q->isLeftToRight() ? childrenRect.left() : viewportRect.right()
                                                             - childrenRect.right();
     // Horizontal scroll bar.
@@ -1536,8 +1541,6 @@ void QMdiArea::resizeEvent(QResizeEvent *resizeEvent)
         return;
     }
 
-    d->updateScrollBars();
-
     // Resize maximized views.
     bool hasMaximizedSubWindow = false;
     foreach (QMdiSubWindow *child, d->childWindows) {
@@ -1548,6 +1551,8 @@ void QMdiArea::resizeEvent(QResizeEvent *resizeEvent)
                 hasMaximizedSubWindow = true;
         }
     }
+
+    d->updateScrollBars();
 
     // Minimized views are stacked under maximized views so there's
     // no need to re-arrange minimized views on-demand. Start a timer
