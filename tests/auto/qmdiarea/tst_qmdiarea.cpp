@@ -81,6 +81,7 @@ private slots:
     void delayedPlacement();
     void iconGeometryInMenuBar();
     void resizeTimer();
+    void updateScrollBars();
     void setActivationOrder_data();
     void setActivationOrder();
 
@@ -1819,6 +1820,60 @@ void tst_QMdiArea::resizeTimer()
     QTest::qWait(500); // Wait for timer events to occur.
 
     QCOMPARE(timerEventSpy.count(), 1);
+}
+
+void tst_QMdiArea::updateScrollBars()
+{
+    QMdiArea mdiArea;
+    mdiArea.setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    mdiArea.setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+
+    QMdiSubWindow *subWindow1 = mdiArea.addSubWindow(new QWidget);
+    QMdiSubWindow *subWindow2 = mdiArea.addSubWindow(new QWidget);
+
+    mdiArea.show();
+#ifdef Q_WS_X11
+    qt_x11_wait_for_window_manager(&mdiArea);
+#endif
+    qApp->processEvents();
+
+    QScrollBar *hbar = mdiArea.horizontalScrollBar();
+    QVERIFY(hbar);
+    QVERIFY(!hbar->isVisible());
+
+    QScrollBar *vbar = mdiArea.verticalScrollBar();
+    QVERIFY(vbar);
+    QVERIFY(!vbar->isVisible());
+
+    // Move sub-window 2 away.
+    subWindow2->move(10000, 10000);
+    qApp->processEvents();
+    QVERIFY(hbar->isVisible());
+    QVERIFY(vbar->isVisible());
+
+    // Maximize sub-window 1 and make sure we don't have any scroll bars.
+    subWindow1->showMaximized();
+    qApp->processEvents();
+    QVERIFY(subWindow1->isMaximized());
+    QVERIFY(!hbar->isVisible());
+    QVERIFY(!vbar->isVisible());
+
+    // We still shouldn't get any scroll bars.
+    mdiArea.resize(mdiArea.size() - QSize(20, 20));
+#ifdef Q_WS_X11
+    qt_x11_wait_for_window_manager(&mdiArea);
+#endif
+    qApp->processEvents();
+    QVERIFY(subWindow1->isMaximized());
+    QVERIFY(!hbar->isVisible());
+    QVERIFY(!vbar->isVisible());
+
+    // Restore sub-window 1 and make sure we have scroll bars again.
+    subWindow1->showNormal();
+    qApp->processEvents();
+    QVERIFY(!subWindow1->isMaximized());
+    QVERIFY(hbar->isVisible());
+    QVERIFY(vbar->isVisible());
 }
 
 void tst_QMdiArea::setActivationOrder_data()
