@@ -215,7 +215,7 @@
     returns a \l {QStringList} containing the singleton "ahigl"
     matching the requested screen driver and telling the server that
     it can use our example screen driver. The server then calls \l
-    {QScreenDriverPlugin::} {create(), which creates the instance of
+    {QScreenDriverPlugin::} {create()}, which creates the instance of
     QAhiGLScreen.
 
     Note the use of the macros Q_EXPORT_STATIC_PLUGIN(QAhiGLScreen)
