@@ -378,6 +378,7 @@ void QColormap::initialize()
             int ncmaps = 0;
 
             bool foundArgbVisual = false;
+#if 0
 #ifndef QT_NO_XRENDER
             if (X11->use_xrender) {
                 int nvi;
@@ -400,6 +401,7 @@ void QColormap::initialize()
                     }
                 }
             }
+#endif
 #endif
             if (!foundArgbVisual &&
                 XGetRGBColormaps(display, RootWindow(display, i),
