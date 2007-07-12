@@ -23,6 +23,13 @@ private slots:
     void clip();
     void testIntersections();
     void testIntersections2();
+    void testIntersections3();
+    void testIntersections4();
+    void testIntersections5();
+    void testIntersections6();
+    void testIntersections7();
+    void testIntersections8();
+    void testIntersections9();
 };
 
 Q_DECLARE_METATYPE(QPainterPath)
@@ -407,6 +414,253 @@ void tst_QPathClipper::testIntersections2()
     QVERIFY(path1.contains(path2));
     QVERIFY(!path2.contains(path1));
 }
+
+void tst_QPathClipper::testIntersections3()
+{
+    QPainterPath path1 = Paths::node();
+    QPainterPath path2 = Paths::interRect();
+
+    QVERIFY(!path1.intersects(path2));
+    QVERIFY(!path2.intersects(path1));
+}
+
+void tst_QPathClipper::testIntersections4()
+{
+    QPainterPath path1;
+    QPainterPath path2;
+
+    path1.moveTo(-5, 0);
+    path1.lineTo(5, 0);
+
+    path2.moveTo(0, -5);
+    path2.lineTo(0, 5);
+
+    QVERIFY(path1.intersects(path2));
+    QVERIFY(path2.intersects(path1));
+}
+
+void tst_QPathClipper::testIntersections5()
+{
+    QPainterPath path1;
+    QPainterPath path2;
+
+    path1.addRect(0, 0, 4, 4);
+    path1.addRect(2, 1, 1, 1);
+    path2.addRect(0.5, 2, 1, 1);
+
+    QVERIFY(!path1.intersects(path2));
+    QVERIFY(!path2.intersects(path1));
+}
+
+void tst_QPathClipper::testIntersections6()
+{
+    QPainterPath path1;
+    QPainterPath path2;
+
+    path1.moveTo(QPointF(-115.567, -98.3254));
+    path1.lineTo(QPointF(-45.9007, -98.3254));
+    path1.lineTo(QPointF(-45.9007, -28.6588));
+    path1.lineTo(QPointF(-115.567, -28.6588));
+
+    path2.moveTo(QPointF(-110, -110));
+    path2.lineTo(QPointF(110, -110));
+    path2.lineTo(QPointF(110, 110));
+    path2.lineTo(QPointF(-110, 110));
+    path2.lineTo(QPointF(-110, -110));
+
+    QVERIFY(path1.intersects(path2));
+    QVERIFY(path2.intersects(path1));
+}
+
+
+void tst_QPathClipper::testIntersections7()
+{
+    QPainterPath path1;
+    QPainterPath path2;
+
+    path1.addRect(0, 0, 10, 10);
+    path2.addRect(5, 0, 10, 10);
+
+    QVERIFY(path1.intersects(path2));
+    QVERIFY(path2.intersects(path1));
+
+    path1 = QPainterPath();
+    path2 = QPainterPath();
+    path1.addRect(0, 0, 10, 10);
+    path2.addRect(0, 5, 10, 10);
+
+    QVERIFY(path1.intersects(path2));
+    QVERIFY(path2.intersects(path1));
+
+    path1 = QPainterPath();
+    path2 = QPainterPath();
+    path1.addRect(0, 0, 10, 10);
+    path2.addRect(0, 0, 10, 10);
+
+    QVERIFY(path1.intersects(path2));
+    QVERIFY(path2.intersects(path1));
+
+    ///
+    path1 = QPainterPath();
+    path2 = QPainterPath();
+    path1.addRect(1, 1, 10, 10);
+    path2.addRect(5, 1, 10, 10);
+
+    QVERIFY(path1.intersects(path2));
+    QVERIFY(path2.intersects(path1));
+
+    path1 = QPainterPath();
+    path2 = QPainterPath();
+    path1.addRect(1, 1, 10, 10);
+    path2.addRect(1, 5, 10, 10);
+
+    QVERIFY(path1.intersects(path2));
+    QVERIFY(path2.intersects(path1));
+
+    path1 = QPainterPath();
+    path2 = QPainterPath();
+    path1.addRect(1, 1, 10, 10);
+    path2.addRect(1, 1, 10, 10);
+
+    QVERIFY(path1.intersects(path2));
+    QVERIFY(path2.intersects(path1));
+
+    path1 = QPainterPath();
+    path2 = QPainterPath();
+    path1.addRect(1, 1, 10, 10);
+    path2.addRect(5, 5, 10, 10);
+
+    QVERIFY(path1.intersects(path2));
+    QVERIFY(path2.intersects(path1));
+
+    path1 = QPainterPath();
+    path2 = QPainterPath();
+    path1.addRect(1, 1, 10, 10);
+    path2.addRect(9, 9, 10, 10);
+
+    QVERIFY(path1.intersects(path2));
+    QVERIFY(path2.intersects(path1));
+
+    path1 = QPainterPath();
+    path2 = QPainterPath();
+    path1.addRect(1, 1, 10, 10);
+    path2.addRect(10, 10, 10, 10);
+
+    QVERIFY(path1.intersects(path2));
+    QVERIFY(path2.intersects(path1));
+
+    path1 = QPainterPath();
+    path2 = QPainterPath();
+    path1.addRect(1, 1, 10, 10);
+    path2.addRect(11, 11, 10, 10);
+
+    QVERIFY(path1.intersects(path2));
+    QVERIFY(path2.intersects(path1));
+
+    path1 = QPainterPath();
+    path2 = QPainterPath();
+    path1.addRect(1, 1, 10, 10);
+    path2.addRect(12, 12, 10, 10);
+
+    QVERIFY(!path1.intersects(path2));
+    QVERIFY(!path2.intersects(path1));
+
+    path1 = QPainterPath();
+    path2 = QPainterPath();
+    path1.addRect(11, 11, 10, 10);
+    path2.addRect(12, 12, 10, 10);
+
+    QVERIFY(path1.intersects(path2));
+    QVERIFY(path2.intersects(path1));
+
+    path1 = QPainterPath();
+    path2 = QPainterPath();
+    path1.addRect(11, 11, 10, 10);
+    path2.addRect(10, 10, 10, 10);
+
+    QVERIFY(path1.intersects(path2));
+    QVERIFY(path2.intersects(path1));
+}
+
+
+void tst_QPathClipper::testIntersections8()
+{
+    QPainterPath path1 = Paths::node() * QTransform().translate(100, 50);
+    QPainterPath path2 = Paths::node() * QTransform().translate(150, 50);;
+
+    QVERIFY(path1.intersects(path2));
+    QVERIFY(path2.intersects(path1));
+
+    path1 = Paths::node();
+    path2 = Paths::node();
+
+    QVERIFY(path1.intersects(path2));
+    QVERIFY(path2.intersects(path1));
+
+    path1 = Paths::node();
+    path2 = Paths::node() * QTransform().translate(0, 30);
+
+    QVERIFY(path1.intersects(path2));
+    QVERIFY(path2.intersects(path1));
+
+    path1 = Paths::node();
+    path2 = Paths::node() * QTransform().translate(30, 0);
+
+    QVERIFY(path1.intersects(path2));
+    QVERIFY(path2.intersects(path1));
+
+    path1 = Paths::node();
+    path2 = Paths::node() * QTransform().translate(30, 30);
+
+    QVERIFY(path1.intersects(path2));
+    QVERIFY(path2.intersects(path1));
+
+    path1 = Paths::node();
+    path2 = Paths::node() * QTransform().translate(1, 1);
+
+    QVERIFY(path1.intersects(path2));
+    QVERIFY(path2.intersects(path1));
+}
+
+
+void tst_QPathClipper::testIntersections9()
+{
+    QPainterPath path1;
+    QPainterPath path2;
+
+    path1.addRect(QRectF(-1,143, 146, 106));
+    path2.addRect(QRectF(-9,145, 150, 100));
+
+    QVERIFY(path1.intersects(path2));
+    QVERIFY(path2.intersects(path1));
+
+    path1 = QPainterPath();;
+    path2 = QPainterPath();
+
+    path1.addRect(QRectF(-1,191, 136, 106));
+    path2.addRect(QRectF(-19,194, 150, 100));
+    QVERIFY(path1.intersects(path2));
+    QVERIFY(path2.intersects(path1));
+
+    path1 = QPainterPath();;
+    path2 = QPainterPath();
+
+    path1.moveTo(-1 ,  143);
+    path1.lineTo(148 ,  143);
+    path1.lineTo(148 ,  250);
+    path1.lineTo(-1 ,  250);
+
+    path2.moveTo(-5 ,  146);
+    path2.lineTo(145 ,  146);
+    path2.lineTo(145 ,  246);
+    path2.lineTo(-5 ,  246);
+    path2.lineTo(-5 ,  146);
+
+    QVERIFY(!path1.intersects(path2));
+    QVERIFY(!path2.intersects(path1));
+}
+
+
 QTEST_APPLESS_MAIN(tst_QPathClipper)
 
 

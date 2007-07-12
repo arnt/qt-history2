@@ -1338,6 +1338,7 @@ static void _qt_pathIntersectsItem(const QPainterPath &selectionPath, QGraphicsI
         path = item->mapToScene(item->shape());
     } else {
         path.addPolygon(_q_adjustedRect(item->sceneBoundingRect()));
+        path.closeSubpath();
     }
 
     if (path.isEmpty())
@@ -1408,6 +1409,7 @@ QList<QGraphicsItem *> QGraphicsScene::items(const QPolygonF &polygon, Qt::ItemS
 
     QPainterPath polyPath;
     polyPath.addPolygon(polygon);
+    polyPath.closeSubpath();
 
     QRectF polyRect = polygon.boundingRect();
 

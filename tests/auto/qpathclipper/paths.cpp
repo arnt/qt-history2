@@ -541,6 +541,39 @@ QPainterPath Paths::triangle2()
     path.lineTo(60, 60);
     path.closeSubpath();
 
-    return path;  
+    return path;
+}
+
+QPainterPath Paths::node()
+{
+    QRectF m_rect;
+    m_rect.setWidth(150);
+    m_rect.setHeight(100);
+
+    QPainterPath shape;
+    shape.addRoundRect(m_rect, 25);
+
+    const int conWidth = 10;
+    const int xOffset  = 7;
+
+    QRectF rect(xOffset,
+                conWidth + 20,
+                conWidth, conWidth);
+    shape.addEllipse(rect);
+    //shape.addRect(rect);
+
+    rect = QRectF(m_rect.right() - conWidth - xOffset,
+                  conWidth + 20,
+                  conWidth, conWidth);
+    shape.addEllipse(rect);
+    //shape.addRect(rect);
+    return shape;
+}
+
+QPainterPath Paths::interRect()
+{
+    QPainterPath path;
+    path.addRect(132, 42, 1, 1);
+    return path;
 }
 

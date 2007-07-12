@@ -39,5 +39,8 @@ namespace Paths
 
     QPainterPath triangle1();
     QPainterPath triangle2();
+
+    QPainterPath node();
+    QPainterPath interRect();
 }
 #endif

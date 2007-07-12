@@ -1677,6 +1677,7 @@ void QGraphicsView::render(QPainter *painter, const QRectF &target, const QRect 
     painter->setClipRect(targetRect);
     QPainterPath path;
     path.addPolygon(sourceScenePoly);
+    path.closeSubpath();
     painter->setClipPath(painterMatrix.map(path), Qt::IntersectClip);
 
     // Transform the painter.
@@ -1863,6 +1864,7 @@ QList<QGraphicsItem *> QGraphicsView::items(const QPolygon &polygon, Qt::ItemSel
 
     QPainterPath path;
     path.addPolygon(polygon);
+    path.closeSubpath();
     return d->itemsInArea(path);
 }
 
@@ -2664,6 +2666,7 @@ void QGraphicsView::mouseMoveEvent(QMouseEvent *event)
             // Set the new selection area
             QPainterPath selectionArea;
             selectionArea.addPolygon(mapToScene(d->rubberBandRect));
+            selectionArea.closeSubpath();
             if (d->scene)
                 d->scene->setSelectionArea(selectionArea, d->rubberBandSelectionMode);
             return;
