@@ -464,7 +464,7 @@ void QVFb::toggleAnimation()
 void QVFb::toggleFrames()
 {
     view->toggleFrames();
-    framesAction->setChecked(true); 
+    framesAction->setChecked(true);
 }
 
 void QVFb::toggleCursor()
@@ -761,6 +761,8 @@ void QVFb::updateGammaLabels()
 
 QSize QVFb::sizeHint() const
 {
+    if (!view)
+        return QWidget::sizeHint();
     return QSize(int(view->displayWidth()*view->zoomH()),
 	    int(menuBar()->height()+view->displayHeight()*view->zoomV()));
 }
