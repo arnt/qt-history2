@@ -105,7 +105,9 @@ QFontEngineMacMulti::QFontEngineMacMulti(const ATSUFontID &_fontID, const QFontD
         fntStyle |= ::italic;
 
     FMFontStyle intrinsicStyle;
-    FMGetFontFromFontFamilyInstance(fmFamily, fntStyle, &this->fontID, &intrinsicStyle);
+    FMFont fnt = 0;
+    if (FMGetFontFromFontFamilyInstance(fmFamily, fntStyle, &fnt, &intrinsicStyle) == noErr)
+       fontID = FMGetATSFontRefFromFont(fnt);
 
     OSStatus status;
 
