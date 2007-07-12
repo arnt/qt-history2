@@ -125,6 +125,7 @@ class QGlobalNetworkProxy
 public:
     QGlobalNetworkProxy()
         : mutex(QMutex::Recursive)
+        , applicationLevelProxy(0)
 #ifndef QT_NO_SOCKS5
         , socks5SocketEngineHandler(0)
 #endif
@@ -136,6 +137,7 @@ public:
 
     ~QGlobalNetworkProxy()
     {
+        delete applicationLevelProxy;
 #ifndef QT_NO_SOCKS5
         delete socks5SocketEngineHandler;
 #endif
@@ -146,8 +148,8 @@ public:
 
     void init()
     {
-#ifndef QT_NO_SOCKS5
         QMutexLocker lock(&mutex);
+#ifndef QT_NO_SOCKS5
         if (!socks5SocketEngineHandler)
             socks5SocketEngineHandler = new QSocks5SocketEngineHandler();
 #endif
@@ -160,18 +162,20 @@ public:
     void setApplicationProxy(const QNetworkProxy &proxy)
     {
         QMutexLocker lock(&mutex);
-        applicationLevelProxy = proxy;
+        if (!applicationLevelProxy)
+            applicationLevelProxy = new QNetworkProxy;
+        *applicationLevelProxy = proxy;
     }
 
     QNetworkProxy applicationProxy()
     {
         QMutexLocker lock(&mutex);
-        return applicationLevelProxy;
+        return applicationLevelProxy ? *applicationLevelProxy : QNetworkProxy();
     }
 
 private:
     QMutex mutex;
-    QNetworkProxy applicationLevelProxy;
+    QNetworkProxy *applicationLevelProxy;
 #ifndef QT_NO_SOCKS5
     QSocks5SocketEngineHandler *socks5SocketEngineHandler;
 #endif
@@ -201,6 +205,8 @@ public:
 QNetworkProxy::QNetworkProxy()
  : d_ptr(new QNetworkProxyPrivate)
 {
+    globalNetworkProxy()->init();
+
     Q_D(QNetworkProxy);
     d->type = DefaultProxy;
     d->port = 0;
