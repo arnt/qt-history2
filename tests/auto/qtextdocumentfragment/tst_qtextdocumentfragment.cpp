@@ -214,6 +214,7 @@ private slots:
     void html_userState();
     void html_rootFrameProperties();
     void html_alignmentPropertySet();
+    void html_brAfterHr();
 
 private:
     inline void setHtml(const QString &html)
@@ -3364,6 +3365,25 @@ void tst_QTextDocumentFragment::html_alignmentPropertySet()
     const char html[] = "<p>Test</p>";
     setHtml(QString::fromLatin1(html));
     QVERIFY(!doc->begin().blockFormat().hasProperty(QTextFormat::BlockAlignment));
+}
+
+void tst_QTextDocumentFragment::html_brAfterHr()
+{
+    setHtml(QString::fromLatin1("Text A<br><hr><br>Text B<hr>"));
+
+    QCOMPARE(doc->blockCount(), 4);
+
+    QTextBlock block = doc->begin();
+    QCOMPARE(block.text(), QString("Text A") + QChar(QChar::LineSeparator));
+
+    block = block.next();
+    QVERIFY(block.text().isEmpty());
+
+    block = block.next();
+    QCOMPARE(block.text(), QChar(QChar::LineSeparator) + QString("Text B"));
+
+    block = block.next();
+    QVERIFY(block.text().isEmpty());
 }
 
 QTEST_MAIN(tst_QTextDocumentFragment)

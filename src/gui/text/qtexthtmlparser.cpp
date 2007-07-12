@@ -1334,7 +1334,7 @@ void QTextHtmlParserNode::applyCssDeclarations(const QVector<QCss::Declaration> 
 bool QTextHtmlParserNode::hasOnlyWhitespace() const
 {
     for (int i = 0; i < text.count(); ++i)
-        if (!text.at(i).isSpace())
+        if (!text.at(i).isSpace() || text.at(i) == QChar::LineSeparator)
             return false;
     return true;
 }
