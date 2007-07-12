@@ -36,7 +36,7 @@
 
 enum { QIBaseChunkSize = SHRT_MAX / 2 };
 
-static bool getIBaseError(QString& msg, ISC_STATUS* status, long &sqlcode,
+static bool getIBaseError(QString& msg, ISC_STATUS* status, ISC_LONG &sqlcode,
                           QTextCodec *tc)
 {
     if (status[0] != 1 || status[1] <= 0)
@@ -255,7 +255,7 @@ public:
     bool isError(const char *msg, QSqlError::ErrorType typ = QSqlError::UnknownError)
     {
         QString imsg;
-        long sqlcode;
+        ISC_LONG sqlcode;
         if (!getIBaseError(imsg, status, sqlcode, tc))
             return false;
 
@@ -283,7 +283,7 @@ public:
     bool isError(const char *msg, QSqlError::ErrorType typ = QSqlError::UnknownError)
     {
         QString imsg;
-        long sqlcode;
+        ISC_LONG sqlcode;
         if (!getIBaseError(imsg, status, sqlcode, tc))
             return false;
 
@@ -1055,11 +1055,11 @@ bool QIBaseResult::gotoNext(QSqlCachedResult::ValueCache& row, int rowIdx)
         case SQL_LONG:
             if (d->sqlda->sqlvar[i].sqllen == 4)
                 if (d->sqlda->sqlvar[i].sqlscale < 0)
-                    row[idx] = QVariant((*(qint32*)buf) * pow(10.0, d->sqlda->sqlvar[i].sqlscale));
+                    row[idx] = QVariant(*(qint32*)buf * pow(10.0, d->sqlda->sqlvar[i].sqlscale));
                 else
-                    row[idx] = QVariant(int((*(long*)buf)));
+                    row[idx] = QVariant(*(qint32*)buf);
             else
-                row[idx] = QVariant(qint64((*(long*)buf)));
+                row[idx] = QVariant(*(qint64*)buf);
             break;
         case SQL_SHORT:
             if (d->sqlda->sqlvar[i].sqlscale < 0)
