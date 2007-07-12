@@ -1458,12 +1458,10 @@ bool QHeaderView::restoreState(const QByteArray &state)
 */
 void QHeaderView::reset()
 {
-    //Q_D(QHeaderView);
-    //   d->clear();
+    Q_D(QHeaderView);
     QAbstractItemView::reset();
-    //d->state = QHeaderViewPrivate::NoClear;
+    d->clear();
     initializeSections();
-    //d->state = QHeaderViewPrivate::NoState;
 }
 
 /*!
