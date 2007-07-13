@@ -14,7 +14,7 @@
 #ifndef QTSPINBOX_H
 #define QTSPINBOX_H
 
-#include <QSpinBox>
+#include <QtGui/QSpinBox>
 
 namespace qdesigner_internal {
 

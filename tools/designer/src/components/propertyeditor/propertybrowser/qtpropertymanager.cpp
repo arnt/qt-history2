@@ -13,14 +13,14 @@
 
 #include "qtpropertymanager.h"
 #include "qtcursordatabase_p.h"
-#include <QDateTime>
-#include <QLocale>
-#include <QMap>
-#include <QIcon>
-#include <QMetaEnum>
-#include <QFontDatabase>
-#include <QPainter>
-#include <QLabel>
+#include <QtCore/QDateTime>
+#include <QtCore/QLocale>
+#include <QtCore/QMap>
+#include <QtGui/QIcon>
+#include <QtCore/QMetaEnum>
+#include <QtGui/QFontDatabase>
+#include <QtGui/QPainter>
+#include <QtGui/QLabel>
 #include <limits.h>
 
 class QtMetaEnumWrapper : public QObject

@@ -14,7 +14,7 @@
 #ifndef QTBRUSHPATTERNDIALOG_H
 #define QTBRUSHPATTERNDIALOG_H
 
-#include <QDialog>
+#include <QtGui/QDialog>
 
 namespace qdesigner_internal {
 

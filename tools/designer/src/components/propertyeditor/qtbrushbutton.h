@@ -14,7 +14,7 @@
 #ifndef QTBRUSHBUTTON_H
 #define QTBRUSHBUTTON_H
 
-#include <QToolButton>
+#include <QtGui/QToolButton>
 
 class QDesignerBrushManagerInterface;
 

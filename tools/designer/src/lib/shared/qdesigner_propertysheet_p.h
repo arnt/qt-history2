@@ -34,7 +34,7 @@
 #include <QtCore/QVariant>
 #include <QtCore/QPair>
 
-#include <QPointer>
+#include <QtCore/QPointer>
 
 class QLayout;
 class QDesignerPropertySheetPrivate;

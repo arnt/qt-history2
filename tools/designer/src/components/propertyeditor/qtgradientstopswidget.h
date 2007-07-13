@@ -14,7 +14,7 @@
 #ifndef QTGRADIENTSTOPSWIDGET_H
 #define QTGRADIENTSTOPSWIDGET_H
 
-#include <QAbstractScrollArea>
+#include <QtGui/QAbstractScrollArea>
 
 namespace qdesigner_internal {
 

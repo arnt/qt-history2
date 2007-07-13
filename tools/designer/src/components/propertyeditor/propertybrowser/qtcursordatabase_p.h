@@ -14,9 +14,9 @@
 #ifndef QTCURSORDATABASE_H
 #define QTCURSORDATABASE_H
 
-#include <QMap>
-#include <QIcon>
-#include <QStringList>
+#include <QtCore/QMap>
+#include <QtGui/QIcon>
+#include <QtCore/QStringList>
 
 class QtCursorDatabase
 {

@@ -12,8 +12,8 @@
 ****************************************************************************/
 
 #include "qdesigner.h"
-#include <QLibraryInfo>
-#include <QDir>
+#include <QtCore/QLibraryInfo>
+#include <QtCore/QDir>
 
 #include <stdlib.h>
 
@@ -23,8 +23,9 @@ int main(int argc, char *argv[])
 
     // report Qt usage for commercial customers with a "metered license" (currently experimental)
 #if QT_EDITION != QT_EDITION_OPENSOURCE
-    QString reporterPath = QLibraryInfo::location(QLibraryInfo::BinariesPath) + QDir::separator()
-                           + QLatin1String("qtusagereporter");
+    QString reporterPath = QLibraryInfo::location(QLibraryInfo::BinariesPath);
+    reporterPath += QDir::separator();
+    reporterPath += QLatin1String("qtusagereporter");
 #if defined(Q_OS_WIN)
     reporterPath += QLatin1String(".exe");
 #endif

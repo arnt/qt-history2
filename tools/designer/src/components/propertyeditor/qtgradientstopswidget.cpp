@@ -17,17 +17,14 @@ TRANSLATOR qdesigner_internal::QtGradientStopsWidget
 
 #include "qtgradientstopswidget.h"
 #include "qtgradientstopsmodel.h"
-#include <QMap>
-#include <QImage>
-#include <QPainter>
-#include <QScrollBar>
-#include <QMouseEvent>
-#include <QRubberBand>
-#include <QMenu>
-
-#include "qdebug.h"
-
-using namespace qdesigner_internal;
+#include <QtCore/QMap>
+#include <QtGui/QImage>
+#include <QtGui/QPainter>
+#include <QtGui/QScrollBar>
+#include <QtGui/QMouseEvent>
+#include <QtGui/QRubberBand>
+#include <QtGui/QMenu>
+#include <QtCore/QDebug>
 
 namespace qdesigner_internal {
 
@@ -71,8 +68,6 @@ public:
     QMap<QtGradientStop *, qreal> m_dragStops;
     QMap<qreal, QColor> m_dragOriginal;
 };
-
-}
 
 double QtGradientStopsWidgetPrivate::fromViewport(int x) const
 {
@@ -855,6 +850,6 @@ double QtGradientStopsWidget::zoom() const
 {
     return d_ptr->m_zoom;
 }
-
+}
 
 #include "moc_qtgradientstopswidget.cpp"

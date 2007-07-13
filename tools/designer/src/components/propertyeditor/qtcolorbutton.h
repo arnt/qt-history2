@@ -14,7 +14,7 @@
 #ifndef QTCOLORBUTTON_H
 #define QTCOLORBUTTON_H
 
-#include <QToolButton>
+#include <QtGui/QToolButton>
 
 namespace qdesigner_internal {
 

@@ -16,7 +16,7 @@
 
 #include "ui_newform.h"
 
-#include <QDialog>
+#include <QtGui/QDialog>
 
 class QDesignerWorkbench;
 

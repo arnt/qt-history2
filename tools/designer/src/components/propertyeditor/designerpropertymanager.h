@@ -15,7 +15,7 @@
 #define DESIGNERPROPERTYMANAGER_H
 
 #include "qtvariantproperty.h"
-#include <QUrl>
+#include <QtCore/QUrl>
 
 typedef QPair<QString, uint> DesignerIntPair;
 Q_DECLARE_METATYPE(DesignerIntPair)

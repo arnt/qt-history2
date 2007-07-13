@@ -809,12 +809,12 @@ bool FormWindow::isMainContainer(const QWidget *w) const
 void FormWindow::updateChildSelections(QWidget *w)
 {
     const QWidgetList l = qFindChildren<QWidget*>(w);
-
-    QListIterator<QWidget*> it(l);
-    while (it.hasNext()) {
-        QWidget *w = it.next();
-        if (isManaged(w)) {
-            updateSelection(w);
+    if (!l.empty()) {
+        const QWidgetList::const_iterator lcend = l.constEnd();
+        for (QWidgetList::const_iterator it = l.constBegin(); it != lcend; ++it) {
+            QWidget *w = *it;
+            if (isManaged(w))
+                updateSelection(w);
         }
     }
 }
@@ -1956,27 +1956,34 @@ QWidget *FormWindow::findContainer(QWidget *w, bool excludeLayout) const
 
 void FormWindow::simplifySelection(QWidgetList *sel) const
 {
+    if (sel->size() < 2)
+        return;
     // Figure out which widgets should be removed from selection.
     // We want to remove those whose parent widget is also in the
     // selection (because the child widgets are contained by
     // their parent, they shouldn't be in the selection --
     // they are "implicitly" selected)
-    QWidgetList toBeRemoved;
-    QListIterator<QWidget*> it(*sel);
-    while (it.hasNext()) {
-        QWidget *child = it.next();
+    typedef QVector<QWidget *> WidgetVector;
+    WidgetVector toBeRemoved;
+    toBeRemoved.reserve(sel->size());
+    const QWidgetList::const_iterator scend = sel->constEnd();
+    for (QWidgetList::const_iterator it = sel->constBegin(); it != scend; ++it) {
+        QWidget *child = *it;
         QWidget *w = child;
 
         while (w->parentWidget() && sel->contains(w->parentWidget()))
             w = w->parentWidget();
 
-        if (child != w)
+        if (w != child)
             toBeRemoved.append(child);
     }
     // Now we can actually remove the widgets that were marked
     // for removal in the previous pass.
-    while (!toBeRemoved.isEmpty())
-        sel->removeAll(toBeRemoved.takeFirst());
+    if (!toBeRemoved.isEmpty()) {
+        const WidgetVector::const_iterator rcend = toBeRemoved.constEnd();
+        for (WidgetVector::const_iterator it = toBeRemoved.constBegin(); it != rcend; ++it)
+            sel->removeAll(*it);
+    }
 }
 
 FormWindow *FormWindow::findFormWindow(QWidget *w)
@@ -2092,17 +2099,20 @@ void FormWindow::highlightWidget(QWidget *widget, const QPoint &pos, HighlightMo
     }
 }
 
-QList<QWidget *> FormWindow::widgets(QWidget *widget) const
+QWidgetList FormWindow::widgets(QWidget *widget) const
 {
-    QList<QWidget *> l;
-
-    foreach (QObject *o, widget->children()) {
-        QWidget *w = qobject_cast<QWidget*>(o);
-        if (w && isManaged(w))
-            l.append(w);
-    }
-
-    return l;
+    const  QObjectList children = widget->children();
+    if (children.empty())
+        return QWidgetList();
+    QWidgetList rc;
+    const QObjectList::const_iterator cend = children.constEnd();
+    for (QObjectList::const_iterator it = children.constBegin(); it != cend; ++it)
+        if ((*it)->isWidgetType()) {
+            QWidget *w = qobject_cast<QWidget*>(*it);
+            if (isManaged(w))
+                rc.push_back(w);
+        }
+    return rc;
 }
 
 int FormWindow::toolCount() const

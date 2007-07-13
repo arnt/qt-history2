@@ -11,15 +11,12 @@
 **
 ****************************************************************************/
 
-#include <QPainter>
-#include <QPaintEvent>
-#include <QStyleOption>
 #include "qtcolorline.h"
-#include "qdrawutil.h"
-
-#include "qdebug.h"
-
-using namespace qdesigner_internal;
+#include <QtGui/QPainter>
+#include <QtGui/QPaintEvent>
+#include <QtGui/QStyleOption>
+#include <QtGui/qdrawutil.h>
+#include <QtCore/QDebug>
 
 namespace qdesigner_internal {
 
@@ -98,8 +95,6 @@ private:
 
     PixData m_lastValidMainPixmapData;
 };
-
-}
 
 QtColorLinePrivate::QtColorLinePrivate()
     : m_color(Qt::black), m_component(QtColorLine::Value),
@@ -884,4 +879,4 @@ void QtColorLine::mouseReleaseEvent(QMouseEvent *event)
 {
     d_ptr->mouseReleaseEvent(event);
 }
-
+}

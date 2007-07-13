@@ -20,13 +20,11 @@ TRANSLATOR qdesigner_internal::QtBrushEditor
 #include "qtgradientdialog.h"
 #include "ui_qtbrusheditor.h"
 #include "abstractbrushmanager.h"
-#include <qitemdelegate.h>
-#include <qlineedit.h>
-#include <qvalidator.h>
-#include <QContextMenuEvent>
-#include <QMenu>
-
-using namespace qdesigner_internal;
+#include <QtGui/QItemDelegate>
+#include <QtGui/QLineEdit>
+#include <QtGui/QValidator>
+#include <QtGui/QContextMenuEvent>
+#include <QtGui/QMenu>
 
 namespace qdesigner_internal {
 
@@ -57,8 +55,6 @@ public:
 
     Ui::QtBrushEditor m_ui;
 };
-
-}
 
 void QtBrushEditorPrivate::slotTextureChooserClicked()
 {
@@ -406,6 +402,6 @@ void QtBrushEditor::contextMenuEvent(QContextMenuEvent *e)
     if (menu.exec(e->globalPos(), renameAction) == renameAction)
         d_ptr->m_ui.listWidget->editItem(item);
 }
-
+}
 
 #include "moc_qtbrusheditor.cpp"

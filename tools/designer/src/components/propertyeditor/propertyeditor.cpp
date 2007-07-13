@@ -39,18 +39,17 @@
 #include <QtGui/QActionGroup>
 #include <QtGui/QLabel>
 
-#include <QSignalMapper>
+#include <QtCore/QSignalMapper>
 
 #include "qttreepropertybrowser.h"
 #include "qtbuttonpropertybrowser.h"
-//#include "qtgroupboxpropertybrowser.h"
 #include "qtvariantproperty.h"
 #include "designerpropertymanager.h"
 #include "qdesigner_propertysheet_p.h"
 
 #include <iconloader_p.h>
 
-#include <QDebug>
+#include <QtCore/QDebug>
 
 // ---------------------------------------------------------------------------------
 

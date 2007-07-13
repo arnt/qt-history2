@@ -14,10 +14,10 @@
 #include "qtvariantproperty.h"
 #include "qtpropertymanager.h"
 #include "qteditorfactory.h"
-#include <QVariant>
-#include <QIcon>
-#include <QDate>
-#include <QLocale>
+#include <QtCore/QVariant>
+#include <QtGui/QIcon>
+#include <QtCore/QDate>
+#include <QtCore/QLocale>
 
 class QtEnumPropertyType
 {

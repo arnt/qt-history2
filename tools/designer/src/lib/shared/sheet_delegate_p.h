@@ -28,8 +28,8 @@
 
 #include "shared_global_p.h"
 
-#include <QItemDelegate>
-#include <QTreeView>
+#include <QtGui/QItemDelegate>
+#include <QtGui/QTreeView>
 
 class QTreeView;
 

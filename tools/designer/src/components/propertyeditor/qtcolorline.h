@@ -14,7 +14,7 @@
 #ifndef QTCOLORLINE_H
 #define QTCOLORLINE_H
 
-#include <QWidget>
+#include <QtGui/QWidget>
 
 namespace qdesigner_internal {
 

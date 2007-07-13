@@ -12,7 +12,7 @@
 ****************************************************************************/
 
 #include "qtcursordatabase_p.h"
-#include <QApplication>
+#include <QtGui/QApplication>
 
 QtCursorDatabase::QtCursorDatabase()
 {

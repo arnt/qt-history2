@@ -12,9 +12,9 @@
 ****************************************************************************/
 
 #include "qtpropertybrowser.h"
-#include <QSet>
-#include <QMap>
-#include <QIcon>
+#include <QtCore/QSet>
+#include <QtCore/QMap>
+#include <QtGui/QIcon>
 
 class QtPropertyPrivate
 {

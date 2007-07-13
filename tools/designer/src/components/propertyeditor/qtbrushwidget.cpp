@@ -12,9 +12,7 @@
 ****************************************************************************/
 
 #include "qtbrushwidget.h"
-#include <QPainter>
-
-using namespace qdesigner_internal;
+#include <QtGui/QPainter>
 
 namespace qdesigner_internal {
 
@@ -27,8 +25,6 @@ public:
     bool m_backgroundTransparent;
     int m_size;
 };
-
-}
 
 ///////////////
 
@@ -134,19 +130,5 @@ void QtBrushWidget::paintEvent(QPaintEvent *e)
 
     p.setBrushOrigin(0, 0);
     p.fillRect(r, br);
-    /*
-    if (d_ptr->m_brush.style() == Qt::LinearGradientPattern ||
-            d_ptr->m_brush.style() == Qt::RadialGradientPattern ||
-            d_ptr->m_brush.style() == Qt::ConicalGradientPattern) {
-        p.setBrushOrigin(0, 0);
-        p.scale(r.width(), r.height());
-        p.fillRect(QRect(0, 0, 1, 1), br);
-    } else if (d_ptr->m_brush.style() == Qt::TexturePattern) {
-        p.setBrushOrigin(0, 0);
-        p.fillRect(r, br);
-    } else {
-        p.fillRect(r, br);
-    }
-    */
 }
-
+}

@@ -12,10 +12,8 @@
 ****************************************************************************/
 
 #include "qtcolorbutton.h"
-#include <QColorDialog>
-#include <QPainter>
-
-using namespace qdesigner_internal;
+#include <QtGui/QColorDialog>
+#include <QtGui/QPainter>
 
 namespace qdesigner_internal {
 
@@ -29,8 +27,6 @@ public:
 
     void slotEditColor();
 };
-
-}
 
 void QtColorButtonPrivate::slotEditColor()
 {
@@ -112,6 +108,7 @@ void QtColorButton::paintEvent(QPaintEvent *e)
     QRect r = rect().adjusted(corr, corr, -corr, -corr);
     p.setBrushOrigin((r.width() % pixSize + pixSize) / 2 + corr, (r.height() % pixSize + pixSize) / 2 + corr);
     p.fillRect(r, br);
+}
 }
 
 #include "moc_qtcolorbutton.cpp"

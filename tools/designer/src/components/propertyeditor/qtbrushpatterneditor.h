@@ -14,7 +14,7 @@
 #ifndef QTBRUSHPATTERNEDITOR_H
 #define QTBRUSHPATTERNEDITOR_H
 
-#include <QWidget>
+#include <QtGui/QWidget>
 
 namespace qdesigner_internal {
 

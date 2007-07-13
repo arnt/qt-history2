@@ -14,7 +14,7 @@
 #ifndef QTBRUSHWIDGET_H
 #define QTBRUSHWIDGET_H
 
-#include <QWidget>
+#include <QtGui/QWidget>
 
 namespace qdesigner_internal {
 

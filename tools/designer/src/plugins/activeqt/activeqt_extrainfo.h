@@ -19,9 +19,9 @@
 #include <QtDesigner/QExtensionFactory>
 
 #include <QtCore/QPointer>
-#include <QWidget>
+#include <QtGui/QWidget>
 
-#include <QPixmap>
+#include <QtGui/QPixmap>
 
 class QAxWidget;
 

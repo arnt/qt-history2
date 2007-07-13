@@ -25,9 +25,9 @@ TRANSLATOR qdesigner_internal::TreeWidgetEditor
 #include <QtDesigner/QDesignerIconCacheInterface>
 #include <QtCore/QDir>
 #include <QtCore/QQueue>
-#include <QHeaderView>
+#include <QtGui/QHeaderView>
 
-using namespace qdesigner_internal;
+namespace qdesigner_internal {
 
 TreeWidgetEditor::TreeWidgetEditor(QDesignerFormWindowInterface *form, QWidget *parent)
     : QDialog(parent), m_updating(false)
@@ -780,4 +780,5 @@ void TreeWidgetEditor::closeEditors()
         for (int i = 0; i < numCols; i++) 
             ui.treeWidget->closePersistentEditor (cur, i);
     }
+}
 }

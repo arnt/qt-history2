@@ -14,7 +14,7 @@
 #ifndef QLONGLONGVALIDATOR_H
 #define QLONGLONGVALIDATOR_H
 
-#include <QValidator>
+#include <QtGui/QValidator>
 
 namespace qdesigner_internal {
 

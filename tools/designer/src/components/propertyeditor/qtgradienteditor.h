@@ -14,7 +14,7 @@
 #ifndef QTGRADIENTEDITOR_H
 #define QTGRADIENTEDITOR_H
 
-#include <QWidget>
+#include <QtGui/QWidget>
 
 namespace qdesigner_internal {
 

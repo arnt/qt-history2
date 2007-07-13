@@ -12,23 +12,20 @@
 ****************************************************************************/
 
 #include "qtgradientwidget.h"
-#include <QMap>
-#include <QImage>
-#include <QPainter>
-#include <QScrollBar>
-#include <QMouseEvent>
+#include <QtCore/QMap>
+#include <QtGui/QImage>
+#include <QtGui/QPainter>
+#include <QtGui/QScrollBar>
+#include <QtGui/QMouseEvent>
+#include <QtCore/QDebug>
 
 #define _USE_MATH_DEFINES
 
-
-#include "math.h"
-#include "qdebug.h"
+#include <math.h>
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
-
-using namespace qdesigner_internal;
 
 namespace qdesigner_internal {
 
@@ -39,7 +36,6 @@ class QtGradientWidgetPrivate
 public:
     QPointF fromViewport(const QPointF &point) const;
     QPointF toViewport(const QPointF &point) const;
-//    void setupDrag(QtGradientStop *stop, int x);
 
     QPointF checkRange(const QPointF &point) const;
     QRectF pointRect(const QPointF &point, double size) const;
@@ -80,8 +76,6 @@ public:
     double m_angleOffset;
     double m_dragAngle;
 };
-
-}
 
 double QtGradientWidgetPrivate::correctAngle(double angle) const
 {
@@ -132,36 +126,7 @@ QPointF QtGradientWidgetPrivate::toViewport(const QPointF &point) const
     QSize size = q_ptr->size();
     return QPointF(point.x() * size.width(), point.y() * size.height());
 }
-/*
-void QtGradientWidgetPrivate::setupDrag(QtGradientStop *stop, int x)
-{
-    m_model->setCurrentStop(stop);
 
-    int viewportX = qRound(toViewport(stop->position()));
-    m_dragOffset = x - viewportX;
-
-    QList<QtGradientStop *> stops = m_stops;
-    m_stops.clear();
-    QListIterator<QtGradientStop *> itStop(stops);
-    while (itStop.hasNext()) {
-        QtGradientStop *s = itStop.next();
-        if (m_model->isSelected(s) || s == stop) {
-            m_dragStops[s] = s->position() - stop->position();
-            m_stops.append(s);
-        } else {
-            m_dragOriginal[s->position()] = s->color();
-        }
-    }
-    itStop.toFront();
-    while (itStop.hasNext()) {
-        QtGradientStop *s = itStop.next();
-        if (!m_model->isSelected(s))
-            m_stops.append(s);
-    }
-    m_stops.removeAll(stop);
-    m_stops.prepend(stop);
-}
-*/
 ////////////////////////////
 
 QtGradientWidget::QtGradientWidget(QWidget *parent)
@@ -541,16 +506,6 @@ void QtGradientWidget::paintEvent(QPaintEvent *e)
 
             p.restore();
         }
-        /*
-        p.drawEllipse(d_ptr->pointRect(d_ptr->toViewport(d_ptr->m_centralRadial + QPointF(0, d_ptr->m_radiusRadial)),
-                        2 * d_ptr->m_handleSize / 3));
-        p.drawEllipse(d_ptr->pointRect(d_ptr->toViewport(d_ptr->m_centralRadial + QPointF(0, -d_ptr->m_radiusRadial)),
-                        2 * d_ptr->m_handleSize / 3));
-        p.drawEllipse(d_ptr->pointRect(d_ptr->toViewport(d_ptr->m_centralRadial + QPointF(d_ptr->m_radiusRadial, 0)),
-                        2 * d_ptr->m_handleSize / 3));
-        p.drawEllipse(d_ptr->pointRect(d_ptr->toViewport(d_ptr->m_centralRadial + QPointF(-d_ptr->m_radiusRadial, 0)),
-                        2 * d_ptr->m_handleSize / 3));
-        */
         p.restore();
 
         p.save();
@@ -755,5 +710,5 @@ qreal QtGradientWidget::angleConical() const
 {
     return d_ptr->m_angleConical;
 }
+}
 
-//#include "moc_qtgradientwidget.cpp"

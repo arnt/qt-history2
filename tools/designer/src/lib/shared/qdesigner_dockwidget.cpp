@@ -20,7 +20,7 @@
 #include <QtDesigner/QExtensionManager>
 
 #include <QtGui/QMainWindow>
-#include <QLayout>
+#include <QtGui/QLayout>
 
 QDesignerDockWidget::QDesignerDockWidget(QWidget *parent)
     : QDockWidget(parent)

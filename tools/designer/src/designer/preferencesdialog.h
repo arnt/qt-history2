@@ -14,7 +14,7 @@
 #ifndef PREFERENCESDIALOG_H
 #define PREFERENCESDIALOG_H
 
-#include <QDialog>
+#include <QtGui/QDialog>
 
 struct Preferences;
 

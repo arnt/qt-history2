@@ -25,7 +25,7 @@
 // We mean it.
 //
 
-#include <QDialog>
+#include <QtGui/QDialog>
 #include "ui_orderdialog.h"
 
 class QDesignerFormWindowInterface;

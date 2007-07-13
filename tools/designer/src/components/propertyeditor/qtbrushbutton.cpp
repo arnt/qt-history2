@@ -13,11 +13,8 @@
 
 #include "qtbrushbutton.h"
 #include "qtbrushdialog.h"
-#include <QPainter>
-
-#include "qdebug.h"
-
-using namespace qdesigner_internal;
+#include <QtGui/QPainter>
+#include <QtCore/QDebug>
 
 namespace qdesigner_internal {
 
@@ -32,8 +29,6 @@ public:
     QDesignerBrushManagerInterface *m_brushManager;
     QtBrushDialog *m_dialog;
 };
-
-}
 
 void QtBrushButtonPrivate::slotEditBrush()
 {
@@ -152,20 +147,6 @@ void QtBrushButton::paintEvent(QPaintEvent *e)
     }
     p.setBrushOrigin(0, 0);
     p.fillRect(0, 0, r.width(), r.height(), br);
-    /*
-    if (d_ptr->m_brush.style() == Qt::LinearGradientPattern ||
-            d_ptr->m_brush.style() == Qt::RadialGradientPattern ||
-            d_ptr->m_brush.style() == Qt::ConicalGradientPattern) {
-        p.scale(r.width(), r.height());
-        p.setBrushOrigin(0, 0);
-        p.fillRect(QRectF(0, 0, 1, 1), *(d_ptr->m_brush.gradient()));
-    } else if (d_ptr->m_brush.style() == Qt::TexturePattern) {
-        p.setBrushOrigin(0, 0);
-        p.fillRect(0, 0, r.width(), r.height(), br);
-    } else {
-        p.fillRect(0, 0, r.width(), r.height(), br);
-    }
-    */
     if (!d_ptr->m_backgroundTransparent) {
         p.end();
         p.begin(this);
@@ -185,4 +166,5 @@ void QtBrushButton::setTexture(const QPixmap &texture)
         d_ptr->m_dialog->setBrush(QBrush(texture));
 }
 
+}
 #include "moc_qtbrushbutton.cpp"

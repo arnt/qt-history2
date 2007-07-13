@@ -14,8 +14,8 @@
 #ifndef QTGRADIENTSTOPSMODEL_H
 #define QTGRADIENTSTOPSMODEL_H
 
-#include <QObject>
-#include <QMap>
+#include <QtCore/QObject>
+#include <QtCore/QMap>
 
 class QColor;
 

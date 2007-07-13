@@ -14,8 +14,8 @@
 #ifndef QTPROPERTYBROWSER_H
 #define QTPROPERTYBROWSER_H
 
-#include <QWidget>
-#include <QSet>
+#include <QtGui/QWidget>
+#include <QtCore/QSet>
 
 class QtAbstractPropertyManager;
 

@@ -12,12 +12,12 @@
 ****************************************************************************/
 
 #include "qtgroupboxpropertybrowser.h"
-#include <QSet>
-#include <QGridLayout>
-#include <QLabel>
-#include <QGroupBox>
-#include <QTimer>
-#include <QMap>
+#include <QtCore/QSet>
+#include <QtGui/QGridLayout>
+#include <QtGui/QLabel>
+#include <QtGui/QGroupBox>
+#include <QtCore/QTimer>
+#include <QtCore/QMap>
 
 //////////////////////////////////
 

@@ -14,7 +14,7 @@
 #ifndef QTBRUSHDIALOG_H
 #define QTBRUSHDIALOG_H
 
-#include <QDialog>
+#include <QtGui/QDialog>
 
 class QDesignerBrushManagerInterface;
 

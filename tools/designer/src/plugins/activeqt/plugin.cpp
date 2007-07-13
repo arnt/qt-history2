@@ -27,7 +27,7 @@
 #include <ActiveQt/QAxWidget>
 #include <ActiveQt/qaxselect.h>
 
-#include <QMetaProperty>
+#include <QtCore/QMetaProperty>
 
 #include <olectl.h>
 #include "activeqt_extrainfo.h"

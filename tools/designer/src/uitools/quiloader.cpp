@@ -18,22 +18,22 @@
 #include <formbuilder.h>
 #include <ui4_p.h>
 
-#include <qdebug.h>
-#include <QAction>
-#include <QActionGroup>
-#include <QApplication>
-#include <QDir>
-#include <QLibraryInfo>
-#include <QLayout>
-#include <QWidget>
-#include <QMap>
-#include <QTabWidget>
-#include <QTreeWidget>
-#include <QListWidget>
-#include <QTableWidget>
-#include <QToolBox>
-#include <QComboBox>
-#include <QFontComboBox>
+#include <QtCore/qdebug.h>
+#include <QtGui/QAction>
+#include <QtGui/QActionGroup>
+#include <QtGui/QApplication>
+#include <QtCore/QDir>
+#include <QtCore/QLibraryInfo>
+#include <QtGui/QLayout>
+#include <QtGui/QWidget>
+#include <QtCore/QMap>
+#include <QtGui/QTabWidget>
+#include <QtGui/QTreeWidget>
+#include <QtGui/QListWidget>
+#include <QtGui/QTableWidget>
+#include <QtGui/QToolBox>
+#include <QtGui/QComboBox>
+#include <QtGui/QFontComboBox>
 #include <private/qobject_p.h>
 
 typedef QMap<QString, bool> widget_map;

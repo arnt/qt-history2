@@ -18,11 +18,8 @@ TRANSLATOR qdesigner_internal::QtGradientStopsEditor
 #include "qtgradientstopseditor.h"
 #include "ui_qtgradientstopseditor.h"
 #include "qtgradientstopsmodel.h"
-#include <QTimer>
-
-#include "qdebug.h"
-
-using namespace qdesigner_internal;
+#include <QtCore/QTimer>
+#include <QtCore/QDebug>
 
 namespace qdesigner_internal {
 
@@ -68,8 +65,6 @@ public:
 
     Ui::QtGradientStopsEditor m_ui;
 };
-
-}
 
 void QtGradientStopsEditorPrivate::enableCurrent(bool enable)
 {
@@ -608,5 +603,5 @@ QGradientStops QtGradientStopsEditor::gradientStops() const
     }
     return stops;
 }
-
+}
 #include "moc_qtgradientstopseditor.cpp"

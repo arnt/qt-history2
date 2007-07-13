@@ -12,13 +12,13 @@
 ****************************************************************************/
 
 #include "qtbuttonpropertybrowser.h"
-#include <QSet>
-#include <QGridLayout>
-#include <QLabel>
-#include <QTimer>
-#include <QMap>
-#include <QToolButton>
-#include <QStyle>
+#include <QtCore/QSet>
+#include <QtGui/QGridLayout>
+#include <QtGui/QLabel>
+#include <QtCore/QTimer>
+#include <QtCore/QMap>
+#include <QtGui/QToolButton>
+#include <QtGui/QStyle>
 
 //////////////////////////////////
 

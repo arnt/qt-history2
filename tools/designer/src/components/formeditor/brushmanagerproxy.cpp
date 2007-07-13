@@ -16,7 +16,7 @@
 #include "qsimpleresource_p.h"
 #include "ui4_p.h"
 
-#include <QDomDocument>
+#include <QtXml/QDomDocument>
 
 namespace qdesigner_internal {
 

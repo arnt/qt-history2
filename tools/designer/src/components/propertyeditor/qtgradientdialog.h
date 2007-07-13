@@ -14,7 +14,7 @@
 #ifndef QTGRADIENTDIALOG_H
 #define QTGRADIENTDIALOG_H
 
-#include <QDialog>
+#include <QtGui/QDialog>
 
 namespace qdesigner_internal {
 

@@ -17,12 +17,12 @@
 #include "stylesheeteditor_p.h"
 #include "richtexteditor_p.h"
 #include "shared_enums_p.h"
-#include <QLabel>
-#include <QToolButton>
-#include <QHBoxLayout>
-#include <QFileInfo>
-#include <QLineEdit>
-#include <QUrl>
+#include <QtGui/QLabel>
+#include <QtGui/QToolButton>
+#include <QtGui/QHBoxLayout>
+#include <QtCore/QFileInfo>
+#include <QtGui/QLineEdit>
+#include <QtCore/QUrl>
 #include "paletteeditorbutton.h"
 #include "stringlisteditorbutton.h"
 #include <QtDesigner/QDesignerIconCacheInterface>
@@ -31,7 +31,7 @@
 
 #include <iconloader_p.h>
 
-#include <QDebug>
+#include <QtCore/QDebug>
 
 class DesignerFlagPropertyType
 {

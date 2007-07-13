@@ -14,7 +14,7 @@
 #ifndef QTGRADIENTWIDGET_H
 #define QTGRADIENTWIDGET_H
 
-#include <QWidget>
+#include <QtGui/QWidget>
 
 namespace qdesigner_internal {
 

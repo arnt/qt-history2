@@ -17,9 +17,7 @@ TRANSLATOR qdesigner_internal::QtGradientDialog
 
 #include "qtgradientdialog.h"
 #include "ui_qtgradientdialog.h"
-#include <QPushButton>
-
-using namespace qdesigner_internal;
+#include <QtGui/QPushButton>
 
 namespace qdesigner_internal {
 
@@ -30,8 +28,6 @@ class QtGradientDialogPrivate
 public:
     Ui::QtGradientDialog m_ui;
 };
-
-}
 
 QtGradientDialog::QtGradientDialog(QWidget *parent)
     : QDialog(parent)
@@ -61,4 +57,5 @@ void QtGradientDialog::setGradient(const QGradient &gradient)
 QGradient QtGradientDialog::gradient() const
 {
     return d_ptr->m_ui.gradientEditor->gradient();
+}
 }

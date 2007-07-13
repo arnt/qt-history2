@@ -25,7 +25,7 @@
 #ifndef CSSHIGHLIGHTER_H
 #define CSSHIGHLIGHTER_H
 
-#include <QSyntaxHighlighter>
+#include <QtGui/QSyntaxHighlighter>
 #include "shared_global_p.h"
 
 namespace qdesigner_internal {

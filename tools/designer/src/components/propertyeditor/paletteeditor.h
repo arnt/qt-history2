@@ -15,7 +15,7 @@
 #define PALETTEEDITOR_H
 
 #include "ui_paletteeditor.h"
-#include <QItemDelegate>
+#include <QtGui/QItemDelegate>
 
 class QListView;
 class QLabel;

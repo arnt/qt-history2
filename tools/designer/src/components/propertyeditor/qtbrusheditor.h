@@ -14,7 +14,7 @@
 #ifndef QTBRUSHEDITOR_H
 #define QTBRUSHEDITOR_H
 
-#include <QWidget>
+#include <QtGui/QWidget>
 
 class QDesignerBrushManagerInterface;
 

@@ -17,9 +17,9 @@
 #include <QtDesigner/QDesignerBrushManagerInterface>
 #include "formeditor_global.h"
 
-#include <QObject>
-#include <QMap>
-#include <QBrush>
+#include <QtCore/QObject>
+#include <QtCore/QMap>
+#include <QtGui/QBrush>
 
 
 namespace qdesigner_internal {

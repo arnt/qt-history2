@@ -15,8 +15,8 @@
 #define QTVARIANTPROPERTY_H
 
 #include "qtpropertybrowser.h"
-#include <QVariant>
-#include <QIcon>
+#include <QtCore/QVariant>
+#include <QtGui/QIcon>
 
 typedef QMap<int, QIcon> QtIconMap;
 Q_DECLARE_METATYPE(QIcon)

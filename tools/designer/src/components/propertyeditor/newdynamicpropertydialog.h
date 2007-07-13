@@ -27,7 +27,7 @@
 
 #include "propertyeditor_global.h"
 #include <QtGui/QDialog>
-#include <QVariant>
+#include <QtCore/QVariant>
 
 class QAbstractButton;
 

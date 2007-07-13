@@ -13,7 +13,7 @@
 
 #include "newdynamicpropertydialog.h"
 #include "ui_newdynamicpropertydialog.h"
-#include <QMessageBox>
+#include <QtGui/QMessageBox>
 
 namespace qdesigner_internal {
 
