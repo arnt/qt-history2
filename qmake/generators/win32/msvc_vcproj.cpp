@@ -547,9 +547,9 @@ void VcprojGenerator::writeSubDirs(QTextStream &t)
                         if(newDep->target.endsWith(".dll"))
                             newDep->target = newDep->target.left(newDep->target.length()-3) + "lib";
 
-                        // All projects having mocable sourcefiles are dependent on moc.exe
-                        if(tmp_proj.variables()["CONFIG"].contains("moc"))
-                            newDep->dependencies << "moc.exe";
+                        // All ActiveQt Server projects are dependent on idc.exe
+                        if(tmp_proj.variables()["CONFIG"].contains("qaxserver"))
+                            newDep->dependencies << "idc.exe";
 
                         // All extra compilers which has valid input are considered dependencies
                         const QStringList &quc = tmp_proj.variables()["QMAKE_EXTRA_COMPILERS"];
@@ -558,9 +558,28 @@ void VcprojGenerator::writeSubDirs(QTextStream &t)
                             for(QStringList::ConstIterator iit = invar.constBegin(); iit != invar.constEnd(); ++iit) {
                                 const QStringList fileList = tmp_proj.variables().value(*iit);
                                 if (!fileList.isEmpty()) {
-                                    QString dep = tmp_proj.first((*it) + ".commands").section('/', -1).section('\\', -1);
-                                    if (!newDep->dependencies.contains(dep))
-                                        newDep->dependencies << dep;
+                                    const QStringList &cmdsParts = tmp_proj.variables().value((*it) + ".commands");
+                                    bool startOfLine = true;
+                                    foreach(QString cmd, cmdsParts) {
+                                        if (!startOfLine) {
+                                            if (cmd.contains("\r"))
+                                                startOfLine = true;
+                                            continue;
+                                        }
+                                        if (cmd.isEmpty())
+                                            continue;
+
+                                        startOfLine = false;
+                                        // Extra compiler commands might be defined in variables, so
+                                        // expand them (don't care about the in/out files)
+                                        cmd = tmp_vcproj.replaceExtraCompilerVariables(cmd, QStringList(), QStringList());
+                                        // Pull out command based on spaces and quoting, if the
+                                        // command starts with that
+                                        cmd = cmd.left(cmd.indexOf(cmd.at(0) == '"' ? '"' : ' ', 1));
+                                        QString dep = cmd.section('/', -1).section('\\', -1);
+                                        if (!newDep->dependencies.contains(dep))
+                                            newDep->dependencies << dep;
+                                    }                                   
                                 }
                             }
                         }
@@ -1461,7 +1480,7 @@ QString VcprojGenerator::replaceExtraCompilerVariables(const QString &var, const
 
 
 
-bool VcprojGenerator::openOutput(QFile &file, const QString &build) const
+bool VcprojGenerator::openOutput(QFile &file, const QString &/*build*/) const
 {
     QString outdir;
     if(!file.fileName().isEmpty()) {

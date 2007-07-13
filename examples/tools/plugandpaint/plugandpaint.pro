@@ -8,7 +8,7 @@ SOURCES        = main.cpp \
                  plugindialog.cpp
 LIBS           = -L$${QT_BUILD_TREE}/examples/tools/plugandpaint/plugins -lpnp_basictools
 
-CONFIG(debug, debug|release) {
+if(!debug_and_release|build_pass):CONFIG(debug, debug|release) {
    mac:LIBS = $$member(LIBS, 0) $$member(LIBS, 1)_debug
    win32:LIBS = $$member(LIBS, 0) $$member(LIBS, 1)d
 }
