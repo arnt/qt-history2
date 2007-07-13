@@ -33,7 +33,6 @@
 #include <qmousedriverfactory_qws.h>
 #include <qkbddriverfactory_qws.h>
 #include <qdebug.h>
-#include <qwssocket_qws.h>
 
 class QVFbScreenPrivate
 {
@@ -48,16 +47,11 @@ public:
 #ifndef QT_NO_QWS_KEYBOARD
     QWSKeyboardHandler *keyboard;
 #endif
-#ifndef QT_NO_QWS_MULTIPROCESS
-    QWSSocket *screen;
-#endif
 };
 
 QVFbScreenPrivate::QVFbScreenPrivate()
     : mouse(0)
-#ifndef QT_NO_QWS_MULTIPROCESS
-    , screen(0)
-#endif
+
 {
 #ifndef QT_NO_QWS_KEYBOARD
     keyboard = 0;
@@ -69,9 +63,6 @@ QVFbScreenPrivate::~QVFbScreenPrivate()
     delete mouse;
 #ifndef QT_NO_QWS_KEYBOARD
     delete keyboard;
-#endif
-#ifndef QT_NO_QWS_MULTIPROCESS
-    delete screen;
 #endif
 }
 
@@ -230,18 +221,6 @@ bool QVFbScreen::connect(const QString &displaySpec)
         physHeight = qRound(dh * 25.4 / dpi);
     }
 
-#ifndef QT_NO_QWS_MULTIPROCESS
-    // Attempt to connect to the vfb socket
-    if (qApp->type() == QApplication::GuiServer) {
-        d_ptr->screen = new QWSSocket();
-        const QString qvfbSock = QString(QLatin1String(QT_VFB_SCREEN_SOCK))
-                                 .arg(displayId);
-        if(!d_ptr->screen->connectToLocalFile(qvfbSock))
-            qFatal("Unable to connect to QVFb ('%s')",
-                   qvfbSock.toLatin1().constData());
-    }
-#endif
-
     qDebug("Connected to VFB server %s: %d x %d x %d %dx%dmm (%dx%ddpi)", displaySpec.toLatin1().data(),
         w, h, d, physWidth, physHeight, int(dw*25.4/physWidth), int(dh*25.4/physHeight) );
 
@@ -355,14 +334,6 @@ void QVFbScreen::setDirty(const QRect& rect)
     const QRect r = rect.translated(-offset());
     d_ptr->hdr->dirty = true;
     d_ptr->hdr->update = d_ptr->hdr->update.united(r);
-
-#ifndef QT_NO_QWS_MULTIPROCESS
-    char buf;
-    d_ptr->screen->write("f", 1);
-    d_ptr->screen->flush();
-    d_ptr->screen->waitForReadyRead();
-    d_ptr->screen->read(&buf, 1);
-#endif
 }
 
 

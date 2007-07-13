@@ -59,7 +59,6 @@ public:
 protected slots:
     void saveImage();
     void toggleAnimation();
-    void toggleFrames();
     void toggleCursor();
     void changeRate();
     void setRate(int);
@@ -89,7 +88,7 @@ protected:
     QMenu* createHelpMenu();
 
 private:
-    int findSkins(const QString &);
+    void findSkins(const QString &currentSkin);
     void init( int display_id, int w, int h, int d, int r, const QString& skin );
     Skin *skin;
     double skinscaleH,skinscaleV;
@@ -98,7 +97,6 @@ private:
     QVFbRateDialog *rateDlg;
     QMenu *viewMenu;
     QAction *cursorAction;
-    QAction *framesAction;
     Config* config;
     QStringList skinnames;
     QStringList skinfiles;

@@ -17,11 +17,8 @@
 
 class QVFbHeader;
 class QTimer;
-class QVFbServerSocket;
-class QVFbSocket;
 class QShMemViewProtocol : public QVFbViewProtocol
 {
-    Q_OBJECT
 public:
     QShMemViewProtocol(int display_id, const QSize &size, int depth, QObject *parent = 0);
     ~QShMemViewProtocol();
@@ -44,10 +41,6 @@ protected:
     QVFbKeyProtocol *keyHandler() const { return kh; }
     QVFbMouseProtocol *mouseHandler() const { return mh; }
 
-private slots:
-    void newConnection();
-    void readyRead();
-
 private:
     QVFbKeyPipeProtocol *kh;
     QVFbMousePipe *mh;
@@ -57,8 +50,6 @@ private:
     int lockId;
     int shmId;
     QTimer *mRefreshTimer;
-    QVFbServerSocket *mServer;
-    QVFbSocket *mSocket;
 };
 
 #endif

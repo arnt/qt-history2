@@ -15,7 +15,6 @@
 
 #include "qvfbshmem.h"
 #include "qvfbhdr.h"
-#include "qvfbsocket.h"
 
 #define QTE_PIPE "QtEmbedded-%1"
 
@@ -91,8 +90,7 @@ private:
 
 QShMemViewProtocol::QShMemViewProtocol(int displayid, const QSize &s,
                                        int d, QObject *parent)
-    : QVFbViewProtocol(displayid, parent), hdr(0), dataCache(0), lockId(-1),
-    mServer(0), mSocket(0)
+    : QVFbViewProtocol(displayid, parent), hdr(0), dataCache(0), lockId(-1)
 {
     int actualdepth=d;
 
@@ -199,32 +197,7 @@ QShMemViewProtocol::QShMemViewProtocol(int displayid, const QSize &s,
 
 
     mRefreshTimer = new QTimer( this );
-//    connect( mRefreshTimer, SIGNAL(timeout()), this, SLOT(flushChanges()) );
-
-    mServer = new QVFbServerSocket(QString(QT_VFB_SCREEN_SOCK).arg(displayid),
-                                   this);
-    QObject::connect( mServer, SIGNAL(newConnection()), 
-                      this, SLOT(newConnection()) ); 
-}
-
-void QShMemViewProtocol::newConnection()
-{
-    if(mSocket) {
-        delete mSocket;
-        mSocket = 0;
-    }
-
-    mSocket = mServer->nextPendingConnection();
-    QObject::connect( mSocket, SIGNAL(readyRead()), this, SLOT(readyRead()) );
-}
-
-void QShMemViewProtocol::readyRead()
-{
-    char b;
-    mSocket->read(&b, 1);
-    flushChanges();
-    mSocket->write(&b, 1);
-    mSocket->flush();
+    connect( mRefreshTimer, SIGNAL(timeout()), this, SLOT(flushChanges()) );
 }
 
 QShMemViewProtocol::~QShMemViewProtocol()
@@ -235,7 +208,6 @@ QShMemViewProtocol::~QShMemViewProtocol()
     free(dataCache);
     delete kh;
     delete mh;
-    delete mSocket;
 }
 
 int QShMemViewProtocol::width() const

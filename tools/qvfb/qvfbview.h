@@ -26,9 +26,6 @@ class QTimer;
 class QAnimationWriter;
 struct QVFbHeader;
 class QVFbViewProtocol;
-class QVFbFrameModel;
-class QVFbFrameView;
-class QVFbFlicker;
 
 class QVFbAbstractView :
 #ifdef QVFB_USE_GLWIDGET
@@ -122,27 +119,12 @@ public:
     QSize sizeHint() const;
     void setRate(int);
 
-    void setFlickerHighlight(bool b) { mEnableFlick = b; }
-    bool flickerHighlight() const { return mEnableFlick; }
-
-    void setFlickerInterval(int);
-    int flickerInterval() const;
-
-    void setMaxFrames(int);
-    int maxFrames() const;
-
-    bool frames() const;
-
 public slots:
     void setTouchscreenEmulation(bool);
     void setLcdScreenEmulation(bool);
     void setZoom(double, double);
     void startAnimation(const QString&);
     void stopAnimation();
-
-    void toggleFrames();
-
-    void showImage(const QPixmap &);
 
 protected slots:
     void refreshDisplay(const QRect &);
@@ -180,20 +162,11 @@ private:
 
     int refreshRate;
     QAnimationWriter *animation;
-    QVFbFlicker *mFlick;
-    bool mEnableFlick;
     double hzm,vzm;
     QVFbViewProtocol *mView;
     bool emulateTouchscreen;
     bool emulateLcdScreen;
     Rotation rotation;
-
-    bool mFrames;
-    int frameCounter;
-
-    QVFbFrameModel *fModel;
-    QVFbFrameView *fView;
-    QPixmap fPixmap;
 };
 
 #endif

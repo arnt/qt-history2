@@ -164,7 +164,8 @@ QVFb::QVFb( int display_id, int w, int h, int d, int r, const QString &skin, Dis
     secondaryView = 0;
     scroller = 0;
     this->skin = 0;
-    currentSkinIndex = findSkins(skin);
+    currentSkinIndex = -1;
+    findSkins(skin);
     zoomer = 0;
     QPixmap pix(":/res/images/logo.png");
     setWindowIcon( pix );
@@ -352,12 +353,6 @@ QMenu* QVFb::createViewMenu()
     cursorAction = viewMenu->addAction( "Show &Cursor", this,
                                         SLOT(toggleCursor()) );
     cursorAction->setCheckable(true);
-    framesAction = viewMenu->addAction( "Capture Frames", this,
-                                        SLOT(toggleFrames()) );
-    framesAction->setCheckable(true);
-    if( view && view->frames() )
-        framesAction->setChecked(true);
-
     if ( view )
 	enableCursor(true);
     viewMenu->addAction( "&Refresh Rate...", this, SLOT(changeRate()) );
@@ -461,12 +456,6 @@ void QVFb::toggleAnimation()
 	animWidget->show();
 }
 
-void QVFb::toggleFrames()
-{
-    view->toggleFrames();
-    framesAction->setChecked(true);
-}
-
 void QVFb::toggleCursor()
 {
     enableCursor(cursorAction->isChecked());
@@ -505,7 +494,7 @@ void QVFb::about()
     );
 }
 
-int QVFb::findSkins(const QString &currentSkin)
+void QVFb::findSkins(const QString &currentSkin)
 {
     skinnames.clear();
     skinfiles.clear();
@@ -515,21 +504,10 @@ int QVFb::findSkins(const QString &currentSkin)
     for (QFileInfoList::const_iterator it = l.begin(); it != l.end(); ++it) {
 	skinnames.append((*it).baseName()); // should perhaps be in file
 	skinfiles.append((*it).filePath());
-	if (((*it).baseName() + ".skin") == currentSkin) {
-	    return i;
-        }
+	if (((*it).baseName() + ".skin") == currentSkin)
+	    currentSkinIndex = i;
 	i++;
     }
-    if (currentSkin.isEmpty())
-        return 0;
-    // didn't find it, add it.
-    QFileInfo fi(currentSkin);
-    if (fi.exists()) {
-        skinnames.append(fi.baseName()); // should perhaps be in file
-        skinfiles.append(fi.filePath());
-        return i;
-    }
-    return -1;
 }
 
 class Config : public QDialog, public Ui::Config
@@ -556,18 +534,9 @@ void QVFb::configure()
     // Need to block signals, because we connect to animateClick(),
     // since QCheckBox doesn't have setChecked(bool) in 2.x.
     chooseSize(QSize(w,h));
-
-
     config->skin->insertItems(config->skin->count(), skinnames);
-
     if (currentSkinIndex > 0)
 	config->skin->setCurrentIndex(currentSkinIndex);
-
-    config->interval->setValue(view->flickerInterval());
-    config->flickerHighlight->setChecked(view->flickerHighlight());
-
-    config->maxFrames->setValue(view->maxFrames());
-
     config->skin->addItem(tr("Browse..."));
     config->touchScreen->setChecked(view->touchScreenEmulation());
     config->lcdScreen->setChecked(view->lcdScreenEmulation());
@@ -636,7 +605,7 @@ void QVFb::configure()
 	    d=24;
 	else
 	    d=32;
-        int skinIndex = config->skin->currentIndex();
+	int skinIndex = config->skin->currentIndex();
 	if ( w != view->displayWidth() || h != view->displayHeight()
 		|| d != view->displayDepth() || skinIndex != currentSkinIndex ) {
 	    QVFbView::Rotation rot = view->displayRotation();
@@ -644,30 +613,13 @@ void QVFb::configure()
 		    ((rot == QVFbView::Rot180) ? 180 :
 		    ((rot == QVFbView::Rot270) ? 270 : 0 )));
 	    currentSkinIndex = skinIndex;
-            QString currentSkin;
-            if (skinIndex > 0)
-                currentSkin = skinfiles[skinIndex-1];
-	    init( id, w, h, d, r, currentSkin );
+	    init( id, w, h, d, r, skinIndex > 0 ? skinfiles[skinIndex-1] : QString::null );
 	}
 	view->setTouchscreenEmulation( config->touchScreen->isChecked() );
 	bool lcdEmulation = config->lcdScreen->isChecked();
 	view->setLcdScreenEmulation( lcdEmulation );
 	if ( lcdEmulation )
 	    setZoom3();
-        if (config->flickerHighlight->isChecked()) {
-            int interval = config->interval->value();
-            view->setFlickerHighlight(true);
-            view->setFlickerInterval(interval);
-            if (secondaryView) {
-                secondaryView->setFlickerHighlight(true);
-                secondaryView->setFlickerInterval(interval);
-            }
-        } else {
-            view->setFlickerHighlight(false);
-            if (secondaryView)
-                secondaryView->setFlickerHighlight(false);
-        }
-        view->setMaxFrames(config->maxFrames->value());
     } else {
 	view->setGamma(ogr, ogg, ogb);
     }
@@ -761,8 +713,6 @@ void QVFb::updateGammaLabels()
 
 QSize QVFb::sizeHint() const
 {
-    if (!view)
-        return QWidget::sizeHint();
     return QSize(int(view->displayWidth()*view->zoomH()),
 	    int(menuBar()->height()+view->displayHeight()*view->zoomV()));
 }

@@ -14,9 +14,6 @@
 #include "qvfbview.h"
 #include "qvfbshmem.h"
 #include "qvfbmmap.h"
-#include "qvfbflicker.h"
-
-#include "qvfbframemodel.h"
 
 #include "qanimationwriter.h"
 #include <QApplication>
@@ -40,8 +37,6 @@
 #include <errno.h>
 #include <math.h>
 
-#include <QListView>
-
 extern int qvfb_protocol;
 
 QVFbAbstractView::QVFbAbstractView( QWidget *parent )
@@ -61,10 +56,9 @@ QVFbView::QVFbView(int id, int w, int h, int d, Rotation r, QWidget *parent)
         : QVFbAbstractView(parent),
         viewdepth(d), rsh(0), gsh(0), bsh(0), rmax(15), gmax(15), bmax(15),
         contentsWidth(w), contentsHeight(h), gred(1.0), ggreen(1.0), gblue(1.0),
-        gammatable(0), refreshRate(30), animation(0), mFlick(0), mEnableFlick(false),
+        gammatable(0), refreshRate(30), animation(0),
         hzm(1.0), vzm(1.0), mView(0),
-        emulateTouchscreen(false), emulateLcdScreen(false), rotation(r),
-        mFrames(false), frameCounter(0), fModel(0), fView(0)
+        emulateTouchscreen(false), emulateLcdScreen(false), rotation(r)
 {
     int _w = (rotation & 0x1) ? h : w;
     int _h = (rotation & 0x1) ? w : h;
@@ -79,13 +73,8 @@ QVFbView::QVFbView(int id, int w, int h, int d, Rotation r, QWidget *parent)
         break;
     }
 
-    mFlick = new QVFbFlicker(this);
-    mFlick->setSize(QSize(contentsWidth, contentsHeight));
-
     connect(mView, SIGNAL(displayDataChanged(const QRect &)),
             SLOT(refreshDisplay(const QRect &)));
-
-    connect(mFlick, SIGNAL(flickerMapChanged()), this, SLOT(update()));
 
     setAttribute(Qt::WA_PaintOnScreen, true);
     setMouseTracking(true);
@@ -96,7 +85,6 @@ QVFbView::QVFbView(int id, int w, int h, int d, Rotation r, QWidget *parent)
 
     setGamma(1.0,1.0,1.0);
     mView->setRate(30);
-    fModel = new QVFbFrameModel();
 }
 
 QVFbView::~QVFbView()
@@ -113,26 +101,6 @@ QSize QVFbView::sizeHint() const
 void QVFbView::setRate(int i)
 {
     mView->setRate(i);
-}
-
-void QVFbView::setFlickerInterval(int i)
-{
-    mFlick->setInterval(i);
-}
-
-int QVFbView::flickerInterval() const
-{
-    return mFlick->interval();
-}
-
-void QVFbView::setMaxFrames(int count)
-{
-    fModel->setMaxFrames(count);
-}
-
-int QVFbView::maxFrames() const
-{
-    return fModel->maxFrames();
 }
 
 void QVFbView::setGamma(double gr, double gg, double gb)
@@ -238,7 +206,6 @@ void QVFbView::setZoom(double hz, double vz)
         contentsWidth = int(displayWidth()*hz);
         contentsHeight = int(displayHeight()*vz);
         resize(contentsWidth, contentsHeight);
-        mFlick->setSize(QSize(contentsWidth, contentsHeight));
 
 	updateGeometry();
 	qApp->sendPostedEvents();
@@ -297,39 +264,8 @@ void QVFbView::refreshDisplay(const QRect &r)
             animation->appendFrame(img,QPoint(r.x(),r.y()));
         }
     }
-
-    if(frames()) {
-        int leading;
-        QImage img = getBuffer(QRect(0, 0, contentsWidth, contentsHeight),
-                leading).copy();
-
-        QPainter p(&img);
-        p.setPen(Qt::red);
-        QRect dr = r;
-        dr.setWidth(dr.width() - 1);
-        dr.setHeight(dr.height() - 1);
-        p.drawRect(dr);
-
-        // Save the frame
-        QString filename = QString("/tmp/QVFb_cap_%1.png").arg(frameCounter, 5, 10, QLatin1Char('0'));
-        img.save(filename);
-        fModel->appendImage(img, filename);
-        // Add to the model
-        ++frameCounter;
-        if (frameCounter > fModel->maxFrames())
-            frameCounter = 0;
-    }
-
-    if (mEnableFlick)
-        update();
-    else if (!r.isNull())
-        update(r);
-}
-
-void QVFbView::showImage(const QPixmap &pix)
-{
-    fPixmap = pix;
-    update();
+    if (!r.isNull())
+	update(r);
 }
 
 QImage QVFbView::getBuffer(const QRect &r, int &leading) const
@@ -661,34 +597,7 @@ void QVFbView::drawScreen(const QRect &rect)
     }
 
     QPainter p(this);
-    if (mEnableFlick) {
-        mFlick->drawPixmap(x1, y1, pm, leadingX, leadingY, pm.width(), pm.height());
-        p.drawPixmap(0,0, mFlick->flickerMap());
-    } else {
-        p.drawPixmap(x1, y1, pm, leadingX, leadingY, pm.width(), pm.height());
-    }
-}
-
-bool QVFbView::frames() const
-{
-    return mFrames;
-}
-
-void QVFbView::toggleFrames()
-{
-    mFrames = !mFrames;
-    if(mFrames) {
-        if(!fView) {
-            fView = new QVFbFrameView(0);
-            fView->setModel(fModel);
-            QObject::connect( fView, SIGNAL(showImage(const QPixmap &)),
-                              this, SLOT(showImage(const QPixmap &)) );
-        }
-        fView->show();
-    } else {
-        fModel->clear();
-        frameCounter = 0;
-    }
+    p.drawPixmap(x1, y1, pm, leadingX, leadingY, pm.width(), pm.height());
 }
 
 //bool QVFbView::eventFilter(QObject *obj, QEvent *e)
@@ -702,29 +611,12 @@ void QVFbView::toggleFrames()
 
 void QVFbView::paintEvent(QPaintEvent *e)
 {
-    if(!fPixmap.isNull()) {
-        QPainter p(this);
-        p.drawPixmap(0, 0, fPixmap);
-    } else {
-        /*
-           QRect r( pe->rect() );
-           r = QRect(int(r.x()/hzm),int(r.y()/vzm),
-           int(r.width()/hzm)+1,int(r.height()/vzm)+1);
-
-           mView->flushChanges();
-         */
-        drawScreen(e->rect());
-    }
+    drawScreen(e->rect());
 }
 
 void QVFbView::mousePressEvent(QMouseEvent *e)
 {
-    if(fPixmap.isNull()) {
-        sendMouseData( QPoint(int(e->x()/hzm),int(e->y()/vzm)), e->buttons(), 0 );
-    } else {
-        fPixmap = QPixmap();
-        update();
-    }
+    sendMouseData(QPoint(int(e->x()/hzm),int(e->y()/vzm)), e->buttons(), 0);
 }
 
 void QVFbView::contextMenuEvent(QContextMenuEvent*)

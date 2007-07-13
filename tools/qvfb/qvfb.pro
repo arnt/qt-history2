@@ -1,8 +1,7 @@
 TEMPLATE        = app
-CONFIG          += qt warn_on uic 
+CONFIG          += qt warn_on uic
 TARGET          = qvfb
 DESTDIR         = ../../bin
-QT              += network
 
 !win32:!embedded:!mac:CONFIG += x11
 
@@ -23,10 +22,7 @@ HEADERS         = qvfb.h \
                   qvfbmmap.h \
 		  qvfbhdr.h \
 		  qlock_p.h \
-		  qwssignalhandler_p.h \
-                  qvfbsocket.h \
-                  qvfbframemodel.h \
-                  qvfbflicker.h
+		  qwssignalhandler_p.h
 
 SOURCES         = qvfb.cpp \
 		  qvfbview.cpp \
@@ -38,10 +34,7 @@ SOURCES         = qvfb.cpp \
                   qvfbshmem.cpp \
                   qvfbmmap.cpp \
 		  qlock.cpp \
- 	          qwssignalhandler.cpp \
-                  qvfbsocket.cpp \
-                  qvfbframemodel.cpp \
-                  qvfbflicker.cpp
+ 	          qwssignalhandler.cpp
 
 contains(QT_CONFIG, opengl) {
 	QT += opengl
