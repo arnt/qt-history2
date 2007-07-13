@@ -43,6 +43,8 @@
         <file>images/teapot.ppm</file>
         <file>images/test.ppm</file>
         <file>images/test.xpm</file>
+        <file>images/tst7.bmp</file>
+        <file>images/tst7.png</file>
         <file>images/transparent.xpm</file>
         <file>images/trolltech.gif</file>
     </qresource>

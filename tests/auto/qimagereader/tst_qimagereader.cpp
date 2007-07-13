@@ -101,6 +101,7 @@ private slots:
     void readCorruptImage_data();
     void readCorruptImage();
 #endif
+    void readCorruptBmp();
 
 #if QT_VERSION >= 0x040200
     void supportsOption_data();
@@ -159,6 +160,7 @@ void tst_QImageReader::readImage_data()
     QTest::newRow("BMP: font") << QString("font.bmp") << true << QByteArray("bmp");
     QTest::newRow("BMP: signed char") << QString("crash-signed-char.bmp") << true << QByteArray("bmp");
     QTest::newRow("BMP: 4bpp RLE") << QString("4bpp-rle.bmp") << true << QByteArray("bmp");
+    QTest::newRow("BMP: 4bpp uncompressed") << QString("tst7.bmp") << true << QByteArray("bmp");
     QTest::newRow("BMP: 16bpp") << QString("16bpp.bmp") << true << QByteArray("bmp");
 #if QT_VERSION >= 0x040200
     QTest::newRow("BMP: negative height") << QString("negativeheight.bmp") << true << QByteArray("bmp");
@@ -295,6 +297,7 @@ void tst_QImageReader::setClipRect_data()
     QTest::addColumn<QByteArray>("format");
     QTest::newRow("BMP: colorful") << "images/colorful" << QRect(0, 0, 50, 50) << QByteArray("bmp");
     QTest::newRow("BMP: font") << "images/font" << QRect(0, 0, 50, 50) << QByteArray("bmp");
+    QTest::newRow("BMP: 4bpp uncompressed") << "images/tst7.bmp" << QRect(0, 0, 31, 31) << QByteArray("bmp");
     QTest::newRow("XPM: marble") << "images/marble" << QRect(0, 0, 50, 50) << QByteArray("xpm");
     QTest::newRow("PNG: kollada") << "images/kollada" << QRect(0, 0, 50, 50) << QByteArray("png");
     QTest::newRow("PPM: teapot") << "images/teapot" << QRect(0, 0, 50, 50) << QByteArray("ppm");
@@ -1134,6 +1137,11 @@ void tst_QImageReader::readCorruptImage()
     QCOMPARE(reader.read().isNull(), shouldFail);
 }
 #endif // QT_VERSION
+
+void tst_QImageReader::readCorruptBmp()
+{
+    QCOMPARE(QPixmap::fromImage(QImage("images/tst7.bmp")), QPixmap("images/tst7.png"));
+}
 
 #if QT_VERSION >= 0x040200
 void tst_QImageReader::supportsOption_data()
