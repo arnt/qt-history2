@@ -1823,8 +1823,7 @@ QAbstractItemViewPrivate::position(const QPoint &pos, const QRect &rect, const Q
         }
     }
 
-    if (r == QAbstractItemView::OnItem
-        && (!(model->flags(index) & Qt::ItemIsDropEnabled) || !(model->flags(index.parent()) & Qt::ItemIsDropEnabled)))
+    if (r == QAbstractItemView::OnItem && (!(model->flags(index) & Qt::ItemIsDropEnabled)))
         r = pos.y() < rect.center().y() ? QAbstractItemView::AboveItem : QAbstractItemView::BelowItem;
 
     return r;
