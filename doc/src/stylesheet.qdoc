@@ -743,6 +743,9 @@
            viewport. Setting the background-attachment to \c{scroll}, scrolls
            the background-image when the scroll bars move.
 
+           See \l{Examples#Customizing QAbstractScrollArea}
+           {Customizing QAbstractScrollArea} for an example.
+
     \row
         \o QCheckBox \target qcheckbox-widget
         \o Supports the \l{box model}. The check indicator can be
@@ -753,6 +756,9 @@
            The \l{#spacing-prop}{spacing} property
            specifies the spacing between the check indicator and
            the text.
+
+           See \l{Examples#Customizing QCheckBox}
+           {Customizing QCheckBox} for an example.
 
     \row
         \o QColumnView \target qcolumnview-widget
@@ -771,6 +777,9 @@
            can be styled using the \l{#down-arrow-sub}{::down-arrow} 
            subcontrol. By default, the arrow is placed in the center of the 
            contents rectangle of the drop-down subcontrol.
+
+           See \l{Examples#Customizing QComboBox}{Customizing QComboBox} 
+           for an example.
 
     \row
         \o QDateEdit \target qdateedit-widget
@@ -817,6 +826,9 @@
            QFrame::frameStyle property to QFrame::StyledPanel; otherwise, 
            the background and border attributes will not be respected.
 
+           See \l{Examples#Customizing QFrame}{Customizing QFrame}
+           for an example.
+
     \row
         \o QGroupBox \target qgroupbox-widget
         \o Supports the \l{box model}. The title can be styled using the
@@ -828,6 +840,9 @@
            the \l{#indicator-sub}{::indicator} subcontrol. The 
            \l{#spacing-prop}{spacing} property can be used to control
            the spacing between the text and indicator.
+
+           See \l{Examples#Customizing QGroupBox}{Customizing QGroupBox}
+           for an example.
 
     \row
         \o QHeaderView \target qheaderview-widget
@@ -842,6 +857,9 @@
            Sort indicator in can be styled using the 
            \l{#up-arrow-sub}{::up-arrow} and the 
            \l{#down-arrow-sub}{::down-arrow} Sub-control.
+
+           See \l{Examples#Customizing QHeaderView}{Customizing QHeaderView}
+           for an example.
 
     \row
         \o QLabel \target qlabel-widget
@@ -865,6 +883,9 @@
            The password character can be styled using the
            \l{#lineedit-password-character-prop}{lineedit-password-character}
            property.
+
+           See \l{Examples#Customizing QLineEdit}{Customizing QLineEdit}
+           for an example.
 
     \row
         \o QListView \target qlistview-widget
@@ -914,12 +935,18 @@
 
             The tear-off is styled using the \l{#tear-off-sub}{::tear-off}.
 
+           See \l{Examples#Customizing QMenu}{Customizing QMenu}
+           for an example.
+
     \row
         \o QMenuBar \target qmenubar-widget
         \o Supports the \l{box model}. The \l{#spacing-prop}{spacing}
            property specifies the spacing between menu items.
            Individual items are styled using the \l{#item-sub}{::item}
            subcontrol.
+
+           See \l{Examples#Customizing QMenuBar}{Customizing QMenuBar}
+           for an example.
 
     \row
         \o QMessageBox \target qmessagebox-widget
@@ -939,6 +966,9 @@
            Indeterminate progress bars have the 
            \l{#indeterminate-ps}{:indeterminate} pseudo state set.
 
+           See \l{Examples#Customizing QProgressBar}{Customizing QProgressBar}
+           for an example.
+
     \row
         \o QPushButton \target qpushbutton-widget
         \o Supports the \l{box model}. Supports the \l{#default-ps}{:default},
@@ -950,6 +980,9 @@
            customized using the \l{#open-ps}{:open} and 
            \l{#closed-ps}{:closed} pseudo-states.
 
+           See \l{Examples#Customizing QPushButton}{Customizing QPushButton}
+           for an example.
+
     \row
         \o QRadioButton \target qradiobutton-widget
         \o Supports the \l{box model}. The check indicator can be
@@ -960,6 +993,9 @@
            The \l{#spacing-prop}{spacing} property
            specifies the spacing between the check indicator and
            the text.
+
+           See \l{Examples#Customizing QRadioButton}
+           {Customizing QRadioButton} for an example.
 
     \row
         \o QScrollBar \target qscrollbar-widget
@@ -993,11 +1029,17 @@
            region of the slider that subtracts a page. The \l{add-page-sub}{::add-page}
            subcontrol can be used to style the region of the slider that adds a page.
 
+           See \l{Examples#Customizing QScrollBar}{Customizing QScrollBar} 
+           for an example.
+
     \row
         \o QSizeGrip \target qsizegrip-widget
         \o Supports the \l{#width-prop}{width},
            \l{#height-prop}{height}, and \l{#image-prop}{image}
            properties.
+
+           See \l{Examples#Customizing QSizeGrip}{Customizing QSizeGrip}
+           for an example.
 
     \row
         \o QSlider \target qslider-widget
@@ -1013,6 +1055,9 @@
            The thumb of the slider is styled using \l{#handle-sub}{::handle}
            subcontrol. The subcontrol moves in the Contents rectangle of
            the groove subcontrol.
+
+           See \l{Examples#Customizing QSlider}{Customizing QSlider}
+           for an example.
 
     \row
         \o QSpinBox \target qspinbox-widget
@@ -1036,11 +1081,17 @@
            it occupies half the height of its reference rectangle.
            The bottom-arrow is placed in the center of the Contents
            rectangle of the bottom-button.
- 
+
+           See \l{Examples#Customizing QSpinBox}{Customizing QSpinBox}
+           for an example.
+
     \row
         \o QSplitter \target qsplitter-widget
         \o Supports the \l{box model}. The handle of the splitter 
            is styled using the \l{#handle-sub}{::handle} subcontrol.
+
+           See \l{Examples#Customizing QSplitter}{Customizing QSplitter}
+           for an example.
 
     \row
         \o QStatusBar \target qstatusbar-widget
@@ -1048,6 +1099,9 @@
            {background} property.
            The frame for individual items can be style using the
            \l{#item-sub}{::item} subcontrol.
+
+           See \l{Examples#Customizing QStatusBar}{Customizing QStatusBar}
+           for an example.
 
     \row
         \o QTabBar \target qtabbar-widget
@@ -1080,6 +1134,9 @@
             To change the position of the QTabBar within a QTabWidget, use the
             \l{#tab-bar-sub}{tab-bar} subcontrol (and set subcontrol-position).
 
+           See \l{Examples#Customizing QTabWidget and QTabBar}{Customizing QTabBar}
+           for an example.
+
     \row
         \o QTabWidget \target qtabwidget-widget
         \o The frame of the tab widget is styled using the 
@@ -1097,7 +1154,9 @@
             \l{#bottom-ps}{:bottom} pseudo states depending on the orientation
             of the tabs.
 
-    \row
+           See \l{Examples#Customizing QTabWidget and QTabBar}
+           {Customizing QTabWidget} for an example.
+
         \o QTableView \target qtableview-widget
         \o Supports the \l{box model}. When
            \l{QAbstractItemView::alternatingRowColors}{alternating row colors} 
@@ -1140,20 +1199,23 @@
         \o QToolBar \target qtoolbar-widget
         \o Supports the \l{box model}. 
         
-            The \l{#top-ps}{:top}, \l{#left-ps}{:left}, \l{#right-ps}{:right},
-            \l{#bottom-ps}{:bottom} pseudo states depending on the area in
-            which the tool bar is grouped.
+           The \l{#top-ps}{:top}, \l{#left-ps}{:left}, \l{#right-ps}{:right},
+           \l{#bottom-ps}{:bottom} pseudo states depending on the area in
+           which the tool bar is grouped.
 
-            The \l{#first-ps}{:first}, \l{#last-ps}{:last}, \l{#middle-ps}{:middle},
-            \l{#only-one-ps}{:only-one} pseudo states indicator the position
-            of the tool bar within a line group (See 
-            QStyleOptionToolBar::positionWithinLine).
+           The \l{#first-ps}{:first}, \l{#last-ps}{:last}, \l{#middle-ps}{:middle},
+           \l{#only-one-ps}{:only-one} pseudo states indicator the position
+           of the tool bar within a line group (See 
+           QStyleOptionToolBar::positionWithinLine).
 
-            The separator of a QToolBar is styled using the 
-            \l{#separator-sub}{::separator} subcontrol.
+           The separator of a QToolBar is styled using the 
+           \l{#separator-sub}{::separator} subcontrol.
 
-            The handle (to move the toolbar) is styled using the
-            \l{#handle-sub}{::handle} subcontrol.
+           The handle (to move the toolbar) is styled using the
+           \l{#handle-sub}{::handle} subcontrol.
+
+           See \l{Examples#Customizing QToolBar}{Customizing QToolBar} 
+           for an example.
 
     \row
         \o QToolButton \target qtoolbutton-widget
@@ -1175,22 +1237,28 @@
            \l{#down-arrow-sub}{::down-arrow}, \l{#left-arrow-sub}{::left-arrow}
            and \l{#right-arrow-sub}{::right-arrow} subcontrols are used.
 
+           See \l{Examples#Customizing QToolButton}{Customizing QToolButton}
+           for an example.
+
     \row
         \o QToolBox \target qtoolbox-widget
         \o Supports the \l{box model}. 
         
-           The individual tabs can by styled using the 
-           \l{#tab-sub}{::tab} subcontrol. The tabs support the
-           \l{#only-one-ps}{:only-one}, \l{#first-ps}{:first},
-           \l{#last-ps}{:last}, \l{#middle-ps}{:middle},
-           \l{#previous-selected-ps}{:previous-selected},
-           \l{#next-selected-ps}{:next-selected},
-           \l{#selected-ps}{:selected} pseudo states.
+          The individual tabs can by styled using the 
+          \l{#tab-sub}{::tab} subcontrol. The tabs support the
+          \l{#only-one-ps}{:only-one}, \l{#first-ps}{:first},
+          \l{#last-ps}{:last}, \l{#middle-ps}{:middle},
+         \l{#previous-selected-ps}{:previous-selected},
+          \l{#next-selected-ps}{:next-selected},
+          \l{#selected-ps}{:selected} pseudo states.
 
     \row
         \o QToolTip \target qtooltip-widget
         \o Supports the \l{box model}. The \l{#opacity-prop}{opacity}
            property controls the opacity of the tooltip.
+
+           See \l{Examples#Customizing QToolTip}{Customizing QToolTip}
+           for an example.
 
     \row
         \o QTreeView \target qtreeview-widget
@@ -1213,6 +1281,9 @@
 
            See \l{qabstractscrollarea-widget}{QAbsractScrollArea} to
            style scrollable backgrounds.
+
+           See \l{Examples#Customizing QTreeView}{Customizing QTreeView}
+           for an example to style the branches.
 
     \row
         \o QTreeWidget \target qtreewidget-widget
@@ -2789,7 +2860,7 @@ blue green yellow * /
 
     \row
         \o \c :flat \target flat-ps
-        \o The item desires to be rendered flat. For example, a
+        \o The item is flat. For example, a
            \l{QPushButton::flat}{flat} QPushButton.
 
     \row
@@ -2820,6 +2891,12 @@ blue green yellow * /
            or QRadioButton is \l{Qt::PartiallyChecked}{partially checked}.
 
     \row
+        \o \c :is-item \target is-item-ps
+        \o The item is adjacent to a node of a QTreeView. This state is used
+           with the \l{#branch-sub}{::branch} subcontrol to select areas that
+           are adjacent to the node.
+
+    \row
         \o \c :last \target last-ps
         \o The item is the last (in a list). For example, the last
            tab in a QTabBar.
@@ -2843,6 +2920,7 @@ blue green yellow * /
         \o \c :non-exclusive \target non-exclusive-ps
         \o The item is part of a non-exclusive item group. For example, a menu
            item in a non-exclusive QActionGroup.
+
     \row
         \o \c :off \target off-ps
         \o For items that can be toggled, this applies to items
@@ -2905,7 +2983,7 @@ blue green yellow * /
 
     \row
         \o \c :vertical \target vertical-ps
-        \o The item has vertical orientation
+        \o The item has vertical orientation.
 
     \endtable
 
@@ -2921,12 +2999,12 @@ blue green yellow * /
 
     \row
         \o \c ::add-line \target add-line-sub
-        \o The button to add a line of a QScrollBar
+        \o The button to add a line of a QScrollBar.
 
     \row
         \o \c ::add-page \target add-page-sub
         \o The region between the handle (slider) and the \l{#add-line-sub}{add-line}
-           of a QScrollBar
+           of a QScrollBar.
 
     \row
         \o \c ::branch \target branch-sub
@@ -2934,7 +3012,7 @@ blue green yellow * /
 
     \row
         \o \c ::chunk \target chunk-sub
-        \o The progress chunk of a QProgressBar
+        \o The progress chunk of a QProgressBar.
 
     \row
         \o \c ::down-arrow \target down-arrow-sub
@@ -2951,7 +3029,7 @@ blue green yellow * /
 
     \row
         \o \c ::groove \target groove-sub
-        \o The groove of a QSlider
+        \o The groove of a QSlider.
 
     \row
         \o \c ::indicator \target indicator-sub
@@ -2960,7 +3038,7 @@ blue green yellow * /
 
     \row
         \o \c ::handle \target handle-sub
-        \o The handle (slider) of a QScrollBar or a QSlider
+        \o The handle (slider) of a QScrollBar or a QSlider.
 
     \row
         \o \c ::item \target item-sub
@@ -2968,7 +3046,7 @@ blue green yellow * /
 
     \row
         \o \c ::left-arrow \target left-arrow-sub
-        \o The left arrow of a QScrollBar
+        \o The left arrow of a QScrollBar.
 
     \row
         \o \c ::left-corner \target left-corner-sub
@@ -2977,11 +3055,11 @@ blue green yellow * /
 
     \row
         \o \c ::menu-arrow \target menu-arrow-sub
-        \o The arrow of a QToolButton with a menu
+        \o The arrow of a QToolButton with a menu.
 
     \row
         \o \c ::menu-button \target menu-button-sub
-        \o The menu button of a QToolButton
+        \o The menu button of a QToolButton.
 
     \row
         \o \c ::menu-indicator \target menu-indicator-sub
@@ -2989,11 +3067,11 @@ blue green yellow * /
 
     \row
         \o \c ::right-arrow \target right-arrow-sub
-        \o The right arrow of a QMenu or a QScrollBar
+        \o The right arrow of a QMenu or a QScrollBar.
 
     \row
         \o \c ::pane \target pane-sub
-        \o The pane (frame) of a QTabWidget
+        \o The pane (frame) of a QTabWidget.
 
     \row
         \o \c ::right-corner \target right-corner-sub
@@ -3002,28 +3080,28 @@ blue green yellow * /
 
     \row
         \o \c ::scroller \target scroller-sub
-        \o The scroller of a QMenu or QTabBar
+        \o The scroller of a QMenu or QTabBar.
 
     \row
         \o \c ::section \target section-sub
-        \o The section of a QHeaderView
+        \o The section of a QHeaderView.
 
     \row
         \o \c ::separator \target separator-sub
-        \o The separator of a QMenu
+        \o The separator of a QMenu.
 
     \row
         \o \c ::sub-line \target sub-line-sub
-        \o The button to subtract a line of a QScrollBar
+        \o The button to subtract a line of a QScrollBar.
 
     \row
         \o \c ::sub-page \target sub-page-sub
         \o The region between the handle (slider) and the \l{#sub-line-sub}{sub-line}
-           of a QScrollBar
+           of a QScrollBar.
 
     \row
         \o \c ::tab \target tab-sub
-        \o The tab of a QTabBar or QToolBox
+        \o The tab of a QTabBar or QToolBox.
 
     \row
         \o \c ::tab-bar \target tab-bar-sub
@@ -3033,11 +3111,11 @@ blue green yellow * /
 
     \row
         \o \c ::tear \target tear-sub
-        \o The tear indicator of a QTabBar
+        \o The tear indicator of a QTabBar.
 
     \row
         \o \c ::tear-off \target tear-off-sub
-        \o The tear-off indicator of a QMenu
+        \o The tear-off indicator of a QMenu.
 
     \row
         \o \c ::title \target title-sub
@@ -3064,12 +3142,12 @@ blue green yellow * /
     \previouspage Qt Style Sheets Reference
     \title Examples
 
-    In this section, we will see examples of how to style widgets
-    using style sheets. The following are a list of examples available:
-
     \tableofcontents
+    \section1 Style Sheet Usage
+    
+    We will now see a few examples to get started with using Qt Style Sheets.
 
-    \section1 Customizing the Foreground and Background Colors
+    \section2 Customizing the Foreground and Background Colors
 
     Let's start by setting yellow as the background color of all
     \l{QLineEdit}s in an application. This could be achieved like
@@ -3149,7 +3227,7 @@ blue green yellow * /
         ageSpinBox->setProperty("mandatoryField", true);
     \endcode
 
-    \section1 Customizing a QPushButton Using the Box Model
+    \section2 Customizing a QPushButton Using the Box Model
 
     This time, we will show how to create a red QPushButton. This
     QPushButton would presumably be connected to a very destructive
@@ -3233,7 +3311,7 @@ blue green yellow * /
         }
     \endcode
 
-    \section1 Customizing the QPushButton's Menu Indicator Sub-Control
+    \section2 Customizing the QPushButton's Menu Indicator Sub-Control
 
     Subcontrols give access to the sub-elements of a widget. For
     example, a QPushButton associated with a menu (using
@@ -3268,7 +3346,7 @@ blue green yellow * /
     \l{Qt Style Sheets Reference#subcontrol-origin-prop}{subcontrol-origin} for more
     information).
 
-    \section1 Complex Selector Example
+    \section2 Complex Selector Example
 
     Since red seems to be our favorite color, let's make the text in
     QLineEdit red by setting the following application-wide
@@ -3310,25 +3388,114 @@ blue green yellow * /
     [Hint: The \l{The Style Sheet Syntax#Conflict Resolution}{Conflict Resolution} section above explains
     what happens in cases like this.]
 
-    \section1 Customizing QTableWidget's Selection Background Color
+    \section1 Customizing specific widgets
 
-    Suppose we'd like our selected item in QTableWidget to have bubblegum pink
-    fade to white as its background.
+    This section provides examples to customize specific widgets using Style Sheets.
 
-    \image tableWidget-stylesheet.png
+    \section2 Customizing QAbstractScrollArea
 
-    This is possible with the
-    \l{stylesheet-reference.html#selection-background-color-prop}
-    {selection-background-color} property and the syntax required is:
-
+    The background of any QAbstractScrollArea (Item views, QTextEdit 
+    and QTextBrowser) can be set using the background properties. For example,
+    to set a background-image that scrolls with the scroll bar:
     \code
-        QTableWidget {
-            selection-background-color: qlineargradient(x1: 0, y1: 0, x2: 0.5, y2: 0.5,
-                                        stop: 0 #FF92BB, stop: 1 white);
+        QTextEdit, QListView {
+            background-color: white;
+            background-image: url(/tmp/draft.png);
+            background-attachment: scroll;
         }
     \endcode
 
-    \section1 Customizing QProgressBar Properties
+    \section2 Customizing QCheckBox
+
+    Styling of a QCheckBox is almost indentical to styling a QRadioButton. The
+    main difference is that a tristate QCheckBox has an indeterminate state.
+
+    \code
+        QCheckBox {
+            spacing: 5px;
+        }
+
+        QCheckBox::indicator {
+            width: 13px;
+            height: 13px;
+        }
+
+        QCheckBox::indicator:unchecked {
+            image: url(:/images/checkbox_unchecked.png);
+        }
+
+        QCheckBox::indicator:unchecked:hover {
+            image: url(:/images/checkbox_unchecked_hover.png);
+        }
+
+        QCheckBox::indicator:unchecked:pressed {
+            image: url(:/images/checkbox_unchecked_pressed.png);
+        }
+
+        QCheckBox::indicator:checked {
+            image: url(:/images/checkbox_checked.png);
+        }
+
+        QCheckBox::indicator:checked:hover {
+            image: url(:/images/checkbox_checked_hover.png);
+        }
+
+        QCheckBox::indicator:checked:pressed {
+            image: url(:/images/checkbox_checked_pressed.png);
+        }
+
+        QCheckBox::indicator:indeterminate:hover {
+            image: url(:/images/checkbox_indeterminate_hover.png);
+        }
+
+        QCheckBox::indicator:indeterminate:pressed {
+            image: url(:/images/checkbox_indeterminate_pressed.png);
+        }
+    \endcode
+
+    \section2 Customizing QComboBox
+
+    \section2 Customizing QSpinBox
+
+    \section2 Customizing QFrame
+
+    \section2 Customizing QGroupBox
+
+    \section2 Customizing QHeaderView
+
+    \section2 Customizing QLineEdit
+    
+    The frame of a QLineEdit is styled using the \l{The Box Model}. To
+    create a line edit with rounded corners, we can set:
+    \code
+        QLineEdit {
+            border: 2px solid gray;
+            border-radius: 10px;
+            padding: 0 8px;
+            background: yellow;
+            selection-background-color: darkgray;
+        }
+    \endcode
+
+    The password character of line edits that have QLineEdit::Password
+    echo mode can be set using:
+    \code
+        QLineEdit[echoMode="2"] {
+            lineedit-password-character: 9679;
+        }
+    \endcode
+
+    The background of a read only QLineEdit can be modified as below:
+    \code
+        QLineEdit:read-only {
+            background: lightblue;
+    \endcode
+    
+    \section2 Customizing QMenu
+
+    \section2 Customizing QMenuBar
+
+    \section2 Customizing QProgressBar
 
     The QProgressBar's \l{stylesheet-reference.html#border-prop}{border},
     \l{stylesheet-reference.html#chunk-sub}{chunk}, and
@@ -3382,51 +3549,43 @@ blue green yellow * /
     }
     \endcode
 
-    \section1 Customizing QTabWidget Properties
+    \section2 Customizing QPushButton
 
-    The QTabBar objects in QTabWidget can be customized using
-    style sheets. The \l{QTabWidget}'s corners, its individual tabs, tear
-    indicators, etc. are among the subcontrols that can be styled.
+    \section2 Customizing QRadioButton
 
-    \image tabWidget-stylesheet.png
-
-    For the screenshot above, we use the
-    \l{stylesheet-reference.html#tab-bar-sub}{tab-bar} subcontrol to position
-    it in the center.
-
+    The indicator of a QRadioButton can be changed using:
     \code
-        QTabWidget::tab-bar {
-            subcontrol-position: center;
+        QRadioButton::indicator {
+            width: 13px;
+            height: 13px;
+        }
+
+        QRadioButton::indicator::unchecked {
+            image: url(:/images/radiobutton_unchecked.png);
+        }
+
+        QRadioButton::indicator:unchecked:hover {
+            image: url(:/images/radiobutton_unchecked_hover.png);
+        }
+
+        QRadioButton::indicator:unchecked:pressed {
+            image: url(:/images/radiobutton_unchecked_pressed.png);
+        }
+
+        QRadioButton::indicator::checked {
+            image: url(:/images/radiobutton_checked.png);
+        }
+
+        QRadioButton::indicator:checked:hover {
+            image: url(:/images/radiobutton_checked_hover.png);
+        }
+
+        QRadioButton::indicator:checked:pressed {
+            image: url(:/images/radiobutton_checked_pressed.png);
         }
     \endcode
 
-    Then we set the tab's background to light blue, with a
-    \l{stylesheet-reference.html#border-width-prop}{border-width} of 3 px, a
-    \l{stylesheet-reference.html#min-width-prop}{min-width} of 15 ex and
-    \l{stylesheet-reference.html#padding-prop}{padding} of 3 px.
-
-    \code
-        QTabBar::tab {
-            background: #B2DFEE;
-            border-width: 3px;
-            min-width: 15 ex;
-            padding: 3px;
-        }
-    \endcode
-
-    To highlight the selected tab, the
-    \l{stylesheet-reference.html#selected-ps}{selected} pseudo state is used
-    to set the selected tab's background to white.
-
-    \code
-        QTabBar::tab:selected {
-        	background: white;
-        	border-width:3px 0 3px 0;
-        	padding: 0 3px 0 3px;
-        }
-    \endcode
-
-    \section1 Customizing QScrollBar Properties
+    \section2 Customizing QScrollBar
 
     The QScrollBar can be styled using its subcontrols like
     \l{stylesheet-reference.html#handle-sub}{handle},
@@ -3491,6 +3650,85 @@ blue green yellow * /
             background: none;
         }
     \endcode
+
+
+    \section2 Customizing QSizeGrip
+
+    \section2 Customizing QSlider
+
+    \section2 Customizing QSplitter
+
+    \section2 Customizing QStatusBar
+
+    \section2 Customizing QTabWidget and QTabBar
+
+    The QTabBar objects in QTabWidget can be customized using
+    style sheets. The \l{QTabWidget}'s corners, its individual tabs, tear
+    indicators, etc. are among the subcontrols that can be styled.
+
+    \image tabWidget-stylesheet.png
+
+    For the screenshot above, we use the
+    \l{stylesheet-reference.html#tab-bar-sub}{tab-bar} subcontrol to position
+    it in the center.
+
+    \code
+        QTabWidget::tab-bar {
+            subcontrol-position: center;
+        }
+    \endcode
+
+    Then we set the tab's background to light blue, with a
+    \l{stylesheet-reference.html#border-width-prop}{border-width} of 3 px, a
+    \l{stylesheet-reference.html#min-width-prop}{min-width} of 15 ex and
+    \l{stylesheet-reference.html#padding-prop}{padding} of 3 px.
+
+    \code
+        QTabBar::tab {
+            background: #B2DFEE;
+            border-width: 3px;
+            min-width: 15 ex;
+            padding: 3px;
+        }
+    \endcode
+
+    To highlight the selected tab, the
+    \l{stylesheet-reference.html#selected-ps}{selected} pseudo state is used
+    to set the selected tab's background to white.
+
+    \code
+        QTabBar::tab:selected {
+        	background: white;
+        	border-width:3px 0 3px 0;
+        	padding: 0 3px 0 3px;
+        }
+    \endcode
+
+    \section2 Customizing QTableWidget
+
+    Suppose we'd like our selected item in QTableWidget to have bubblegum pink
+    fade to white as its background.
+
+    \image tableWidget-stylesheet.png
+
+    This is possible with the
+    \l{stylesheet-reference.html#selection-background-color-prop}
+    {selection-background-color} property and the syntax required is:
+
+    \code
+        QTableWidget {
+            selection-background-color: qlineargradient(x1: 0, y1: 0, x2: 0.5, y2: 0.5,
+                                        stop: 0 #FF92BB, stop: 1 white);
+        }
+    \endcode
+
+    \section2 Customizing QToolBar
+
+    \section2 Customizing QToolButton
+
+    \section2 Customizing QToolTip
+
+    \section2 Customizing QTreeView
 
     \sa {Style Sheet Example}, {Supported HTML Subset}, QStyle
     */
