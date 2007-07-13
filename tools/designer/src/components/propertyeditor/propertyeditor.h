@@ -69,6 +69,7 @@ private slots:
     void slotValueChanged(QtProperty *property, const QVariant &value);
     void slotViewTriggered(QAction *action);
     void slotAddDynamicProperty();
+    void slotSorting(bool sort);
 
 private:
     void updateBrowserValue(QtVariantProperty *property, const QVariant &value);
@@ -81,9 +82,13 @@ private:
     QString realClassName(QObject *object) const;
     void storeExpansionState();
     void applyExpansionState();
+    void storePropertiesExpansionState(const QList<QtBrowserItem *> &items);
+    void applyPropertiesExpansionState(const QList<QtBrowserItem *> &items);
     void setExpanded(QtBrowserItem *item, bool expanded);
     bool isExpanded(QtBrowserItem *item);
     void collapseAll();
+    void clearView();
+    void fillView();
 
     QDesignerFormEditorInterface *m_core;
     QDesignerPropertySheetExtension *m_propertySheet;
@@ -109,10 +114,13 @@ private:
     QAction *m_addDynamicAction;
     QAction *m_removeDynamicAction;
     QMenu *m_removeDynamicMenu;
+    QAction *m_sortingAction;
     QAction *m_treeAction;
 //    QAction *m_groupBoxAction;
     QAction *m_buttonAction;
     QLabel *m_classLabel;
+
+    bool m_sorting;
 
     QMap<QString, bool> m_expansionState;
 };

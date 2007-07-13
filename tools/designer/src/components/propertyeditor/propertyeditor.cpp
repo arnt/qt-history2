@@ -151,6 +151,7 @@ PropertyEditor::PropertyEditor(QDesignerFormEditorInterface *core, QWidget *pare
     : QDesignerPropertyEditor(parent, flags), m_core(core), m_propertySheet(0)
 {
     m_stackedWidget = new QStackedWidget(this);
+    m_sorting = false;
 
     QToolBar *toolBar = new QToolBar(this);
 
@@ -194,6 +195,10 @@ PropertyEditor::PropertyEditor(QDesignerFormEditorInterface *core, QWidget *pare
     removeButton->setDefaultAction(m_removeDynamicAction);
     removeButton->setPopupMode(QToolButton::InstantPopup);
 
+    m_sortingAction = new QAction(createIconSet(QLatin1String("sort.png")), tr("Sorting"), this);
+    m_sortingAction->setCheckable(true);
+    connect(m_sortingAction, SIGNAL(toggled(bool)), this, SLOT(slotSorting(bool)));
+
     m_removeMapper = new QSignalMapper(this);
     connect(m_removeMapper, SIGNAL(mapped(const QString &)), this, SIGNAL(removeDynamicProperty(const QString &)));
 
@@ -202,6 +207,7 @@ PropertyEditor::PropertyEditor(QDesignerFormEditorInterface *core, QWidget *pare
     //toolBar->addAction(m_removeDynamicAction);
     toolBar->addWidget(removeButton);
     toolBar->addSeparator();
+    toolBar->addAction(m_sortingAction);
     toolBar->addAction(m_treeAction);
     toolBar->addAction(m_buttonAction);
 //    toolBar->addAction(m_groupBoxAction);
@@ -272,32 +278,45 @@ bool PropertyEditor::isExpanded(QtBrowserItem *item)
     return false;
 }
 
+void PropertyEditor::storePropertiesExpansionState(const QList<QtBrowserItem *> &items)
+{
+    const QChar bar = QLatin1Char('|');
+    QListIterator<QtBrowserItem *> itProperty(items);
+    while (itProperty.hasNext()) {
+        QtBrowserItem *propertyItem = itProperty.next();
+        if (!propertyItem->children().empty()) {
+            QtProperty *property = propertyItem->property();
+            const QString propertyName = property->propertyName();
+            const QMap<QtProperty *, QString>::const_iterator itGroup = m_propertyToGroup.constFind(property);
+            if (itGroup != m_propertyToGroup.constEnd()) {
+                QString key = itGroup.value();
+                key += bar;
+                key += propertyName;
+                m_expansionState[key] = isExpanded(propertyItem);
+            }
+        }
+    }
+}
+
 void PropertyEditor::storeExpansionState()
 {
 //    if (m_groupBrowser == m_currentBrowser)
 //        return;
 
-    QList<QtBrowserItem *> items = m_currentBrowser->topLevelItems();
-    QListIterator<QtBrowserItem *> itGroup(items);
-    const QChar bar = QLatin1Char('|');
-    while (itGroup.hasNext()) {
-        QtBrowserItem *item = itGroup.next();
-        const QString groupName = item->property()->propertyName();
-        QList<QtBrowserItem *> propertyItems = item->children();
-        if (!propertyItems.empty())
-            m_expansionState[groupName] = isExpanded(item);
+    const QList<QtBrowserItem *> items = m_currentBrowser->topLevelItems();
+    if (m_sorting) {
+        storePropertiesExpansionState(items);
+    } else {
+        QListIterator<QtBrowserItem *> itGroup(items);
+        while (itGroup.hasNext()) {
+            QtBrowserItem *item = itGroup.next();
+            const QString groupName = item->property()->propertyName();
+            QList<QtBrowserItem *> propertyItems = item->children();
+            if (!propertyItems.empty())
+                m_expansionState[groupName] = isExpanded(item);
 
-        // properties stuff here
-        QListIterator<QtBrowserItem *> itProperty(propertyItems);
-        while (itProperty.hasNext()) {
-            QtBrowserItem *propertyItem = itProperty.next();
-            const QString propertyName = propertyItem->property()->propertyName();
-            if (!propertyItem->children().empty()) {
-                QString key = groupName;
-                key += bar;
-                key += propertyName;
-                m_expansionState[key] = isExpanded(propertyItem);
-            }
+            // properties stuff here
+            storePropertiesExpansionState(propertyItems);
         }
     }
 }
@@ -310,35 +329,72 @@ void PropertyEditor::collapseAll()
         setExpanded(itGroup.next(), false);
 }
 
+void PropertyEditor::applyPropertiesExpansionState(const QList<QtBrowserItem *> &items)
+{
+    const QChar bar = QLatin1Char('|');
+    QListIterator<QtBrowserItem *> itProperty(items);
+    while (itProperty.hasNext()) {
+        const QMap<QString, bool>::const_iterator excend = m_expansionState.constEnd();
+        QtBrowserItem *propertyItem = itProperty.next();
+        QtProperty *property = propertyItem->property();
+        const QString propertyName = property->propertyName();
+        const QMap<QtProperty *, QString>::const_iterator itGroup = m_propertyToGroup.constFind(property);
+        if (itGroup != m_propertyToGroup.constEnd()) {
+            QString key = itGroup.value();
+            key += bar;
+            key += propertyName;
+            const QMap<QString, bool>::const_iterator pit = m_expansionState.constFind(key);
+            if (pit != excend)
+                setExpanded(propertyItem, pit.value());
+            else
+                setExpanded(propertyItem, false);
+        }
+    }
+}
+
 void PropertyEditor::applyExpansionState()
 {
 //    if (m_groupBrowser == m_currentBrowser)
 //        return;
 
-    QList<QtBrowserItem *> items = m_currentBrowser->topLevelItems();
-    QListIterator<QtBrowserItem *> itGroup(items);
-    const QChar bar = QLatin1Char('|');
-    const QMap<QString, bool>::const_iterator excend = m_expansionState.constEnd();
-    while (itGroup.hasNext()) {
-        QtBrowserItem *item = itGroup.next();
-        const QString groupName = item->property()->propertyName();
-        const QMap<QString, bool>::const_iterator git = m_expansionState.constFind(groupName);
-        if (git != excend)
-            setExpanded(item, git.value());
-        // properties stuff here
-        QList<QtBrowserItem *> propertyItems = item->children();
-        QListIterator<QtBrowserItem *> itProperty(propertyItems);
-        while (itProperty.hasNext()) {
-            QtBrowserItem *propertyItem = itProperty.next();
-            const QString propertyName = propertyItem->property()->propertyName();
-            QString key = groupName;
-            key += bar;
-            key += propertyName;
-            const  QMap<QString, bool>::const_iterator pit = m_expansionState.constFind(key);
-            if (pit !=  excend)
-                setExpanded(propertyItem, pit.value());
+    const QList<QtBrowserItem *> items = m_currentBrowser->topLevelItems();
+    if (m_sorting) {
+        applyPropertiesExpansionState(items);
+    } else {
+        QListIterator<QtBrowserItem *> itTopLevel(items);
+        const QMap<QString, bool>::const_iterator excend = m_expansionState.constEnd();
+        while (itTopLevel.hasNext()) {
+            QtBrowserItem *item = itTopLevel.next();
+            const QString groupName = item->property()->propertyName();
+            const QMap<QString, bool>::const_iterator git = m_expansionState.constFind(groupName);
+            if (git != excend)
+                setExpanded(item, git.value());
             else
-                setExpanded(propertyItem, false);
+                setExpanded(item, true);
+            // properties stuff here
+            applyPropertiesExpansionState(item->children());
+        }
+    }
+}
+
+void PropertyEditor::clearView()
+{
+    m_currentBrowser->clear();
+}
+
+void PropertyEditor::fillView()
+{
+    if (m_sorting) {
+        QMapIterator<QString, QtVariantProperty *> itProperty(m_nameToProperty);
+        while (itProperty.hasNext()) {
+            QtVariantProperty *property = itProperty.next().value();
+            m_currentBrowser->addProperty(property);
+        }
+    } else {
+        QListIterator<QtProperty *> itGroup(m_groups);
+        while (itGroup.hasNext()) {
+            QtProperty *group = itGroup.next();
+            m_currentBrowser->addProperty(group);
         }
     }
 }
@@ -349,7 +405,7 @@ void PropertyEditor::slotViewTriggered(QAction *action)
     collapseAll();
     const bool wasEnabled = updatesEnabled();
     setUpdatesEnabled(false);
-    m_currentBrowser->clear();
+    clearView();
     int idx = 0;
     if (action == m_treeAction) {
         m_currentBrowser = m_treeBrowser;
@@ -363,12 +419,25 @@ void PropertyEditor::slotViewTriggered(QAction *action)
         idx = m_groupBoxIndex;
         */
     }
-    QListIterator<QtProperty *> itGroup(m_groups);
-    while (itGroup.hasNext()) {
-        QtProperty *group = itGroup.next();
-        m_currentBrowser->addProperty(group);
-    }
+    fillView();
     m_stackedWidget->setCurrentIndex(idx);
+    applyExpansionState();
+    setUpdatesEnabled(wasEnabled);
+}
+
+void PropertyEditor::slotSorting(bool sort)
+{
+    if (sort == m_sorting)
+        return;
+
+    storeExpansionState();
+    m_sorting = sort;
+    collapseAll();
+    const bool wasEnabled = updatesEnabled();
+    setUpdatesEnabled(false);
+    clearView();
+    m_treeBrowser->setRootIsDecorated(sort);
+    fillView();
     applyExpansionState();
     setUpdatesEnabled(wasEnabled);
 }
@@ -671,12 +740,23 @@ void PropertyEditor::setObject(QObject *object)
                 const QString groupName = m_propertySheet->propertyGroup(i);
                 QtVariantProperty *groupProperty = 0;
 
+                if (newProperty) {
+                    QMap<QString, QtVariantProperty*>::const_iterator itPrev = m_nameToProperty.insert(propertyName, property);
+                    m_propertyToGroup[property] = groupName;
+                    if (m_sorting) {
+                        QtProperty *previous = 0;
+                        if (itPrev != m_nameToProperty.constBegin())
+                            previous = (--itPrev).value();
+                        m_currentBrowser->insertProperty(property, previous);
+                    }
+                }
                 const QMap<QString, QtVariantProperty*>::const_iterator gnit = m_nameToGroup.constFind(groupName);
                 if (gnit != m_nameToGroup.constEnd()) {
                     groupProperty = gnit.value();
                 } else {
                     groupProperty = m_propertyManager->addProperty(QtVariantPropertyManager::groupTypeId(), groupName);
-                    m_currentBrowser->insertProperty(groupProperty, lastGroup);
+                    if (!m_sorting)
+                        m_currentBrowser->insertProperty(groupProperty, lastGroup);
                     m_nameToGroup[groupName] = groupProperty;
                 }
 
@@ -686,12 +766,9 @@ void PropertyEditor::setObject(QObject *object)
                 }
                 if (!m_groups.contains(groupProperty))
                     m_groups.append(groupProperty);
-
-                if (newProperty) {
+                if (newProperty)
                     groupProperty->insertSubProperty(property, lastProperty);
-                    m_nameToProperty[propertyName] = property;
-                    m_propertyToGroup[property] = groupName;
-                }
+
                 lastProperty = property;
 
                 updateBrowserValue(property, value);
