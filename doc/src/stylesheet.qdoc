@@ -822,9 +822,8 @@
         \o QFrame \target qframe-widget
         \o Supports the \l{box model}.
            
-           \warning For QFrame and its subclasses, you must set the 
-           QFrame::frameStyle property to QFrame::StyledPanel; otherwise, 
-           the background and border attributes will not be respected.
+           Since 4.3, setting a stylesheet on a QLabel automatically
+           sets the QFrame::frameStyle property to QFrame::StyledPanel.
 
            See \l{Examples#Customizing QFrame}{Customizing QFrame}
            for an example.
@@ -866,10 +865,11 @@
         \o Supports the \l{box model}. Does not support the
            \l{#hover-ps}{:hover} pseudo-state. 
            
-           \warning Since a QLabel is a QFrame, you must set the 
-           QFrame::frameStyle property to QFrame::StyledPanel; 
-           otherwise, the background and border attributes will 
-           not be respected.
+           Since 4.3, setting a stylesheet on a QLabel automatically
+           sets the QFrame::frameStyle property to QFrame::StyledPanel.
+
+           See \l{Examples#Customizing QFrame}{Customizing QFrame} for an
+           example (a QLabel derives from QFrame).
 
     \row
         \o QLineEdit \target qlineedit-widget
@@ -1257,8 +1257,8 @@
         \o Supports the \l{box model}. The \l{#opacity-prop}{opacity}
            property controls the opacity of the tooltip.
 
-           See \l{Examples#Customizing QToolTip}{Customizing QToolTip}
-           for an example.
+           See \l{Examples#Customizing QFrame}{Customizing QFrame}
+           for an example (a QToolTip is a QFrame).
 
     \row
         \o QTreeView \target qtreeview-widget
@@ -2845,6 +2845,10 @@ blue green yellow * /
         \o The item is \l{QWidget::enabled}{disabled}.
 
     \row
+        \o \c :editable \target editable-ps
+        \o The QComboBox is editable.
+
+    \row
         \o \c :enabled \target enabled-ps
         \o The item is \l{QWidget::enabled}{enabled}.
 
@@ -3456,8 +3460,86 @@ blue green yellow * /
     \section2 Customizing QComboBox
 
     \section2 Customizing QSpinBox
+    
+    QSpinBox can be completely customized as below (the style sheet has commentary inline):
+
+    \code
+        QSpinBox {
+            padding-right: 15px; / * make room for the arrows * /
+            border-image: url(:/images/frame.png) 4;
+            border-width: 3;
+        }
+
+        QSpinBox::up-button {
+            subcontrol-origin: border;
+            subcontrol-position: top right; / * position at the top right corner * /
+
+            width: 16px; / * 16 + 2*1px border-width = 15px padding + 3px parent border * /
+            border-image: url(:/images/spinup.png) 1;
+            border-width: 1px;
+        }
+
+        QSpinBox::up-button:hover {
+            border-image: url(:/images/spinup_hover.png) 1;
+        }
+
+        QSpinBox::up-button:pressed {
+            border-image: url(:/images/spinup_pressed.png) 1;
+        }
+
+        QSpinBox::up-arrow {
+            image: url(:/images/up_arrow.png);
+            width: 7px;
+            height: 7px;
+        }
+
+        QSpinBox::up-arrow:disabled, QSpinBox::up-arrow:off { / * off state when value is max * /
+           image: url(:/images/up_arrow_disabled.png);
+        }
+
+        QSpinBox::down-button {
+            subcontrol-origin: border;
+            subcontrol-position: bottom right; / * position at bottom right corner * /
+
+            width: 16px;
+            border-image: url(:/images/spindown.png) 1;
+            border-width: 1px;
+            border-top-width: 0;
+        }
+
+        QSpinBox::down-button:hover {
+            border-image: url(:/images/spindown_hover.png) 1;
+        }
+
+        QSpinBox::down-button:pressed {
+            border-image: url(:/images/spindown_pressed.png) 1;
+        }
+
+        QSpinBox::down-arrow {
+            image: url(:/images/down_arrow.png);
+            width: 7px;
+            height: 7px;
+        }
+
+        QSpinBox::down-arrow:disabled,
+        QSpinBox::down-arrow:off { / * off state when value in min * /
+           image: url(:/images/down_arrow_disabled.png);
+        }
+
+    \endcode
 
     \section2 Customizing QFrame
+
+    A QFrame is styled using the \l{The Box Model}.
+
+    \code
+        QFrame, QLabel, QToolTip {
+            border: 2px solid green;
+            border-radius: 4px;
+            padding: 2px;
+            background-image: url(images/welcome.png);
+        }
+    \endcode
 
     \section2 Customizing QGroupBox
 
@@ -3653,8 +3735,56 @@ blue green yellow * /
 
 
     \section2 Customizing QSizeGrip
+    
+    QSizeGrip is usually styled by just setting an image.
+
+    \code
+        QSizeGrip {
+            image: url(:/images/sizegrip.png);
+            width: 16px;
+            height: 16px;
+        }
+    \endcode
 
     \section2 Customizing QSlider
+
+    You can style horizontal slider as below:
+    \code
+        QSlider::groove:horizontal {
+            border: 1px solid #999999;
+            height: 8px; / * the groove expands to the size of the slider by default. by giving it a height, it has a fixed size * /
+            background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #B1B1B1, stop:1 #c4c4c4);
+        }
+        QSlider::handle:horizontal {
+            background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #b4b4b4, stop:1 #8f8f8f);
+            border: 1px solid #5c5c5c;
+            width: 18px;
+            margin: -2px 0; / * handle is placed by default on the contents rect of the groove. Expand outside the groove * /
+            border-radius: 3px;
+        }
+    \endcode
+
+    If you want to change the color of the slider parts before and after the handle, you can use the add-page
+    and sub-page subcontrols. For example, for a vertical slider:
+
+    \code
+        QSlider::groove:vertical {
+            background: red;
+            position: absolute; / * absolutely position 4px from the left and right of the widget. setting margins on the widget should work too... * /
+            left: 4px; right: 4px;
+        }
+        QSlider::handle:vertical {
+            height: 10px;
+            background: green;
+            margin: 0 -4px; / * expand outside the groove * /
+        }
+        QSlider::add-page:vertical {
+            background: white;
+        }
+        QSlider::sub-page:vertical {
+            background: pink;
+        }
+    \endcode
 
     \section2 Customizing QSplitter
 
@@ -3725,8 +3855,6 @@ blue green yellow * /
     \section2 Customizing QToolBar
 
     \section2 Customizing QToolButton
-
-    \section2 Customizing QToolTip
 
     \section2 Customizing QTreeView
 
