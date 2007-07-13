@@ -5,6 +5,7 @@ have been removed:
  
     libjpeg - some source files, images, Makefiles, manual pages
     libpng/contrib - a collection of examples and test-suite
+    libmng/bcb - a collection of files for the Borland compiler
     libmng/contrib - a collection of projects that use libmng
     libmng/special - configuration file for Mozilla integration
     libtiff/contrib - a collection of additions to libtiff
