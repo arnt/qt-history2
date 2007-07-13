@@ -142,6 +142,8 @@ bool QLibraryPrivate::load_sys()
     }
     if (loadHints & QLibrary::ExportExternalSymbolsHint) {
         dlFlags |= RTLD_GLOBAL;
+    } else {
+        dlFlags |= RTLD_LOCAL;
     }
 #if defined(Q_OS_AIX)	// Not sure if any other platform actually support this thing.
     if (loadHints & QLibrary::LoadArchiveMemberHint) {
