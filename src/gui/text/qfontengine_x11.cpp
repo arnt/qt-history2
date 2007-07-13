@@ -768,13 +768,13 @@ void QFontEngineMultiFT::loadEngine(int at)
     // note: we use -1 for the script to make sure that we keep real
     // FT engines separate from Multi engines in the font cache
     QFontCache::Key key(fontDef, -1, screen);
-    QFontEngine *fontEngine = QFontCache::instance->findEngine(key);
+    QFontEngine *fontEngine = QFontCache::instance()->findEngine(key);
     if (!fontEngine) {
         FcConfigSubstitute(0, pattern, FcMatchPattern);
         FcDefaultSubstitute(pattern);
         fontEngine = engineForPattern(pattern, request, screen);
         FcPatternDestroy(pattern);
-        QFontCache::instance->insertEngine(key, fontEngine);
+        QFontCache::instance()->insertEngine(key, fontEngine);
     }
     fontEngine->ref.ref();
     engines[at] = fontEngine;

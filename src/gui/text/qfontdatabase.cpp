@@ -587,8 +587,7 @@ Q_SIGNALS:
 
 void QFontDatabasePrivate::invalidate()
 {
-    if (QFontCache::instance)
-        QFontCache::instance->clear();
+    QFontCache::instance()->clear();
     free();
     emit fontDatabaseChanged();
 }
@@ -780,11 +779,11 @@ static void initFontDef(const QtFontDesc &desc, const QFontDef &request, QFontDe
 static void getEngineData(const QFontPrivate *d, const QFontCache::Key &key)
 {
     // look for the requested font in the engine data cache
-    d->engineData = QFontCache::instance->findEngineData(key);
+    d->engineData = QFontCache::instance()->findEngineData(key);
     if (!d->engineData) {
         // create a new one
         d->engineData = new QFontEngineData;
-        QFontCache::instance->insertEngineData(key, d->engineData);
+        QFontCache::instance()->insertEngineData(key, d->engineData);
     } else {
         d->engineData->ref.ref();
     }

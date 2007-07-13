@@ -1867,7 +1867,7 @@ void QFontDatabase::load(const QFontPrivate *d, int script)
     // set it to the actual pointsize, so QFontInfo will do the right thing
     req.pointSize = qt_pointSize(req.pixelSize, d->dpi);
 
-    QFontEngine *fe = QFontCache::instance->findEngine(key);
+    QFontEngine *fe = QFontCache::instance()->findEngine(key);
 
     if (!fe) {
         if (qt_enable_test_font && req.family == QLatin1String("__Qt__Box__Engine__")) {
@@ -1898,7 +1898,7 @@ void QFontDatabase::load(const QFontPrivate *d, int script)
         d->engineData->engines[script] = fe;
         fe->ref.ref();
     }
-    QFontCache::instance->insertEngine(key, fe);
+    QFontCache::instance()->insertEngine(key, fe);
 }
 
 static void registerFont(QFontDatabasePrivate::ApplicationFont *fnt)

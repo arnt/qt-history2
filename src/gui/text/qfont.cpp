@@ -24,6 +24,7 @@
 #include "qstringlist.h"
 
 #include "qthread.h"
+#include "qthreadstorage.h"
 
 #include <private/qunicodetables_p.h>
 #include "qfont_p.h"
@@ -2141,16 +2142,28 @@ static const int fast_timeout =  10000; // 10s
 static const int slow_timeout = 300000; //  5m
 #endif // QFONTCACHE_DEBUG
 
-QFontCache *QFontCache::instance = 0;
 const uint QFontCache::min_cost = 4*1024; // 4mb
 
+Q_GLOBAL_STATIC(QThreadStorage<QFontCache *>, fontCache)
+
+
+QFontCache *QFontCache::instance()
+{
+    QFontCache *&fontCache = ::fontCache()->localData();
+    if (!fontCache)
+        fontCache = new QFontCache;
+    return fontCache;
+}
+
+void QFontCache::cleanup()
+{
+    ::fontCache()->setLocalData(0);
+}
 
 QFontCache::QFontCache()
-    : QObject(qApp), total_cost(0), max_cost(min_cost),
+    : QObject(), total_cost(0), max_cost(min_cost),
       current_timestamp(0), fast(false), timer_id(-1)
 {
-    Q_ASSERT(instance == 0);
-    instance = this;
 }
 
 QFontCache::~QFontCache()
@@ -2185,7 +2198,6 @@ QFontCache::~QFontCache()
         }
         ++it;
     }
-    instance = 0;
 }
 
 void QFontCache::clear()

@@ -93,17 +93,14 @@ static inline float pointSize(const QFontDef &fd, int dpi)
 
 void QFont::initialize()
 {
-    if (QFontCache::instance)
-        return;
     shared_dc = CreateCompatibleDC(qt_win_display_dc());
     if (!shared_dc)
         qErrnoWarning("QFont::initialize: CreateCompatibleDC failed");
-    new QFontCache();
 }
 
 void QFont::cleanup()
 {
-    delete QFontCache::instance;
+    QFontCache::cleanup();
     DeleteDC(shared_dc);
     shared_dc = 0;
 }

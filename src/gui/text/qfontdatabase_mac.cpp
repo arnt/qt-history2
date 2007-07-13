@@ -206,7 +206,7 @@ static const char *styleHint(const QFontDef &request)
 void QFontDatabase::load(const QFontPrivate *d, int script)
 {
     // sanity checks
-    if(!QFontCache::instance)
+    if(!qApp)
         qWarning("QFont: Must construct a QApplication before a QFont");
     Q_ASSERT(script >= 0 && script < QUnicodeTables::ScriptCount);
     Q_UNUSED(script);
@@ -218,9 +218,9 @@ void QFontDatabase::load(const QFontPrivate *d, int script)
     req.pointSize = 0;
     QFontCache::Key key = QFontCache::Key(req, QUnicodeTables::Common, d->screen);
 
-    if(!(d->engineData = QFontCache::instance->findEngineData(key))) {
+    if(!(d->engineData = QFontCache::instance()->findEngineData(key))) {
         d->engineData = new QFontEngineData;
-        QFontCache::instance->insertEngineData(key, d->engineData);
+        QFontCache::instance()->insertEngineData(key, d->engineData);
     } else {
         d->engineData->ref.ref();
     }
@@ -230,7 +230,7 @@ void QFontDatabase::load(const QFontPrivate *d, int script)
     // set it to the actual pointsize, so QFontInfo will do the right thing
     req.pointSize = qRound(qt_mac_pointsize(d->request, d->dpi));
 
-    QFontEngine *e = QFontCache::instance->findEngine(key);
+    QFontEngine *e = QFontCache::instance()->findEngine(key);
     if(!e && qt_enable_test_font && req.family == QLatin1String("__Qt__Box__Engine__")) {
         e = new QTestFontEngine(req.pixelSize);
         e->fontDef = req;
@@ -309,7 +309,7 @@ void QFontDatabase::load(const QFontPrivate *d, int script)
     QFontEngine *engine = new QFontEngineMacMulti(fontID, fontDef, d->kerning);
     d->engineData->engine = engine;
     engine->ref.ref(); //a ref for the engineData->engine
-    QFontCache::instance->insertEngine(key, engine);
+    QFontCache::instance()->insertEngine(key, engine);
 }
 
 static void registerFont(QFontDatabasePrivate::ApplicationFont *fnt)

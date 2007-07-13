@@ -723,7 +723,7 @@ QFontDatabase::findFont(int script, const QFontPrivate *fp,
         }
 
         QFontCache::Key key(request, script);
-        fe = QFontCache::instance->findEngine(key);
+        fe = QFontCache::instance()->findEngine(key);
         if (fe)
             return fe;
     }
@@ -791,7 +791,7 @@ QFontDatabase::findFont(int script, const QFontPrivate *fp,
                 def.family = def.family.left(def.family.indexOf(QLatin1Char(',')));
             }
             QFontCache::Key key(def, script);
-            QFontCache::instance->insertEngine(key, fe);
+            QFontCache::instance()->insertEngine(key, fe);
         }
 
         if (scriptRequiresOpenType(script)) {
@@ -816,7 +816,7 @@ QFontDatabase::findFont(int script, const QFontPrivate *fp,
 
         if (fp) {
             QFontCache::Key key(request, script);
-            QFontCache::instance->insertEngine(key, fe);
+            QFontCache::instance()->insertEngine(key, fe);
         }
     }
 
@@ -842,12 +842,12 @@ void QFontDatabase::load(const QFontPrivate *d, int script)
         QFontCache::Key key(req, script);
 
         // look for the requested font in the engine data cache
-        d->engineData = QFontCache::instance->findEngineData(key);
+        d->engineData = QFontCache::instance()->findEngineData(key);
 
         if (!d->engineData) {
             // create a new one
             d->engineData = new QFontEngineData;
-            QFontCache::instance->insertEngineData(key, d->engineData);
+            QFontCache::instance()->insertEngineData(key, d->engineData);
         } else {
             d->engineData->ref.ref();
         }

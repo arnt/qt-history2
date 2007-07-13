@@ -1599,7 +1599,7 @@ void QWSDisplay::setTransformation(int t)
     bool isFullScreen = maxWindowRect == QRect(0, 0, qt_screen->width(), qt_screen->height());
 
     QPixmapCache::clear();
-    QFontCache::instance->clear();
+    QFontCache::instance()->clear();
     qws_mapPixmaps(true);
     qws_setScreenTransformation(t);
     qws_mapPixmaps(false);
@@ -2496,9 +2496,8 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
 #if !defined(QT_NO_QWS_QPF2)
     else if (event->type == QWSEvent::Font) {
         QWSFontEvent *e = static_cast<QWSFontEvent *>(event);
-        if (e->simpleData.type == QWSFontEvent::FontRemoved
-            && QFontCache::instance) {
-            QFontCache::instance->removeEngineForFont(e->fontName);
+        if (e->simpleData.type == QWSFontEvent::FontRemoved) {
+            QFontCache::instance()->removeEngineForFont(e->fontName);
         }
     }
 #endif

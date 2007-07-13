@@ -30,15 +30,11 @@
 
 
 void QFont::initialize()
-{
-    // create global font cache
-    if (! QFontCache::instance) (void) new QFontCache;
-}
+{ }
 
 void QFont::cleanup()
 {
-    // delete the global font cache
-    delete QFontCache::instance;
+    QFontCache::cleanup();
 }
 
 

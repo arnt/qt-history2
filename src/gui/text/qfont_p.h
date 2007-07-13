@@ -188,7 +188,9 @@ class QFontCache : public QObject
 {
     Q_OBJECT
 public:
-    static QFontCache *instance;
+    // note: these static functions work on a per-thread basis
+    static QFontCache *instance();
+    static void cleanup();
 
     QFontCache();
     ~QFontCache();

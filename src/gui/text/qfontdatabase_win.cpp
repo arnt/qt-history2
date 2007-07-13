@@ -952,7 +952,7 @@ static QFontEngine *loadWin(const QFontPrivate *d, int script, const QFontDef &r
 void QFontDatabase::load(const QFontPrivate *d, int script)
 {
     // sanity checks
-    if (!QFontCache::instance)
+    if (!qApp)
         qWarning("QFontDatabase::load: Must construct QApplication first");
     Q_ASSERT(script >= 0 && script < QUnicodeTables::ScriptCount);
 
@@ -977,7 +977,7 @@ void QFontDatabase::load(const QFontPrivate *d, int script)
     if (d->engineData->engines[script])
         return;
 
-    QFontEngine *fe = QFontCache::instance->findEngine(key);
+    QFontEngine *fe = QFontCache::instance()->findEngine(key);
 
     // set it to the actual pointsize, so QFontInfo will do the right thing
     req.pointSize = req.pixelSize*72./d->dpi;
@@ -996,7 +996,7 @@ void QFontDatabase::load(const QFontPrivate *d, int script)
     }
     d->engineData->engines[script] = fe;
     fe->ref.ref();
-    QFontCache::instance->insertEngine(key, fe);
+    QFontCache::instance()->insertEngine(key, fe);
 }
 
 #if !defined(FR_PRIVATE)

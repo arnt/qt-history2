@@ -60,7 +60,7 @@ void QFont::setRawName(const QString &name)
 
 void QFont::cleanup()
 {
-    delete QFontCache::instance;
+    QFontCache::cleanup();
 }
 
 /*!
@@ -95,10 +95,7 @@ Qt::HANDLE QFont::handle() const
 }
 
 void QFont::initialize()
-{
-    if(!QFontCache::instance)
-        new QFontCache();
-}
+{ }
 
 QString QFont::defaultFamily() const
 {

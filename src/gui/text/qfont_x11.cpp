@@ -108,9 +108,6 @@ int QFontPrivate::defaultEncodingID = -1;
 */
 void QFont::initialize()
 {
-    // create global font cache
-    if (! QFontCache::instance) (void) new QFontCache;
-
     extern int qt_encoding_id_for_mib(int mib); // from qfontdatabase_x11.cpp
     QTextCodec *codec = QTextCodec::codecForLocale();
     // determine the default encoding id using the locale, otherwise
@@ -163,8 +160,7 @@ void QFont::initialize()
 */
 void QFont::cleanup()
 {
-    // delete the global font cache
-    delete QFontCache::instance;
+    QFontCache::cleanup();
 }
 
 /*!
