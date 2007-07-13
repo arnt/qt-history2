@@ -253,6 +253,18 @@ static QScriptValue drawImage(QScriptContext *ctx, QScriptEngine *eng)
         } else {
             self->drawImage(qscriptvalue_cast<QPointF>(arg0), image);
         }
+    } else if (ctx->argumentCount() == 3) {
+        // x, y, image
+        self->drawImage(ctx->argument(0).toInt32(),
+                        ctx->argument(1).toInt32(),
+                        qscriptvalue_cast<QImage>(ctx->argument(2)));
+    } else if (ctx->argumentCount() == 5) {
+        // x, y, width, height, image
+        self->drawImage(QRect(ctx->argument(0).toInt32(),
+                              ctx->argument(1).toInt32(),
+                              ctx->argument(2).toInt32(),
+                              ctx->argument(3).toInt32()),
+                        qscriptvalue_cast<QImage>(ctx->argument(4)));
     }
     return eng->undefinedValue();
 }
@@ -341,7 +353,22 @@ static QScriptValue drawPie(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue drawPixmap(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QPainter, drawPixmap);
-    if (ctx->argumentCount() == 5) {
+    if (ctx->argumentCount() == 2) {
+        // target, pixmap
+        QScriptValue arg0 = ctx->argument(0);
+        QPixmap pixmap = qscriptvalue_cast<QPixmap>(ctx->argument(1));
+        if (arg0.property("width").isValid()) {
+            self->drawPixmap(qscriptvalue_cast<QRectF>(arg0), pixmap,
+                             QRectF(0, 0, pixmap.width(), pixmap.height()));
+        } else {
+            self->drawPixmap(qscriptvalue_cast<QPointF>(arg0), pixmap);
+        }
+    } else if (ctx->argumentCount() == 3) {
+        // x, y, pixmap
+        self->drawPixmap(ctx->argument(0).toInt32(),
+                         ctx->argument(1).toInt32(),
+                         qscriptvalue_cast<QPixmap>(ctx->argument(2)));
+    } else if (ctx->argumentCount() == 5) {
         // x, y, width, height, pixmap
         self->drawPixmap(ctx->argument(0).toInt32(),
                          ctx->argument(1).toInt32(),
@@ -531,14 +558,14 @@ static QScriptValue fillPath(QScriptContext *ctx, QScriptEngine *eng)
 static QScriptValue fillRect(QScriptContext *ctx, QScriptEngine *eng)
 {
     DECLARE_SELF(QPainter, fillRect);
-    if (ctx->argumentCount() == 4) {
+    if (ctx->argumentCount() == 5) {
         // x, y, width, height, brush
         self->fillRect(ctx->argument(0).toInt32(),
                        ctx->argument(1).toInt32(),
                        ctx->argument(2).toInt32(),
                        ctx->argument(3).toInt32(),
                        qscriptvalue_cast<QBrush>(ctx->argument(4)));
-    } else if (ctx->argumentCount() == 1) {
+    } else if (ctx->argumentCount() == 2) {
         // rect, brush
         self->fillRect(qscriptvalue_cast<QRectF>(ctx->argument(0)),
                        qscriptvalue_cast<QBrush>(ctx->argument(1)));
