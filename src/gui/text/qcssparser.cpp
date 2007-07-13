@@ -231,6 +231,7 @@ static const QCssKnownValue pseudos[NumPseudos - 1] = {
     { "closed", PseudoClass_Closed },
     { "default", PseudoClass_Default },
     { "disabled", PseudoClass_Disabled },
+    { "editable", PseudoClass_Editable },
     { "enabled", PseudoClass_Enabled },
     { "exclusive", PseudoClass_Exclusive },
     { "first", PseudoClass_First },

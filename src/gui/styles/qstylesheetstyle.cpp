@@ -1529,6 +1529,8 @@ QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QStyleOption *o
                 extraClass |= PseudoClass_Frameless;
             if (!combo->editable)
                 extraClass |= PseudoClass_ReadOnly;
+            else
+                extraClass |= PseudoClass_Editable;
 #ifndef QT_NO_SPINBOX
         } else if (const QStyleOptionSpinBox *spin = qstyleoption_cast<const QStyleOptionSpinBox *>(opt)) {
             if (!spin->frame)

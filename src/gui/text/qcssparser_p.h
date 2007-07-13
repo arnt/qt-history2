@@ -358,6 +358,7 @@ enum PseudoClass
     PseudoClass_Unchecked       = 0x00000040,
     PseudoClass_Off             = PseudoClass_Unchecked,
     PseudoClass_Indeterminate   = 0x00000080,
+    PseudoClass_Editable        = PseudoClass_Indeterminate,
     PseudoClass_Unspecified     = 0x00000100,
     PseudoClass_Selected        = 0x00000200,
     PseudoClass_Horizontal      = 0x00000400,
@@ -383,7 +384,7 @@ enum PseudoClass
     PseudoClass_Frameless        = 0x20000000,
     PseudoClass_ReadOnly         = 0x40000000,
     PseudoClass_Closed           = 0x80000000,
-    NumPseudos = 35
+    NumPseudos = 36
 };
 
 struct Q_GUI_EXPORT Pseudo
