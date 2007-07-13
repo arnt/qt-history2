@@ -63,8 +63,7 @@ public:
     \value WaitForMoreEvents Wait for events if no pending events are
     available.
 
-    \value X11ExcludeTimers
-
+    \omitvalue X11ExcludeTimers
     \omitvalue ExcludeUserInput
     \omitvalue WaitForMore
     \value DeferredDeletion deprecated - do not use.
