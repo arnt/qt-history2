@@ -594,12 +594,8 @@ void QColumnViewPrivate::closeColumns(const QModelIndex &parent, bool build)
     while (!dirsToAppend.isEmpty())
         createColumn(dirsToAppend.takeLast(), true);
 
-    if (build && !alreadyExists) {
+    if (build && !alreadyExists)
         createColumn(parent, false);
-    } else {
-        if (alreadyExists && columns.last()->selectionModel())
-            columns.last()->selectionModel()->clear();
-    }
 }
 
 void QColumnViewPrivate::_q_clicked(const QModelIndex &index)
@@ -943,9 +939,11 @@ void QColumnViewPrivate::_q_changeCurrentColumn()
         parentColumn->setCurrentIndex(current.parent());
     }
 
-    if (columns.last()->isHidden())
+    if (columns.last()->isHidden()) {
         columns.last()->setVisible(true);
-
+    }
+    if (columns.last()->selectionModel())
+        columns.last()->selectionModel()->clear();
     updateScrollbars();
 }
 
