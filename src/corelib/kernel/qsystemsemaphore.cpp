@@ -21,24 +21,43 @@
 
   \brief The QSystemSemaphore class provides a general system counting semaphore.
 
-  A semaphore is a generalization of a mutex. While a mutex can only
-  be locked once, it's possible to acquire a semaphore multiple
-  times. Semaphores are typically used to protect a certain number of
-  identical resources.  With a system semaphore multiple threads or
-  processes can access the same semaphore.
+  A semaphore is a generalization of a mutex. While a mutex can be
+  locked only once, a semaphore can be acquired multiple times.
+  Typically, a semaphore is used to protect a certain number of
+  identical resources.
 
-  There are some platform difference that should be known when using this class:
+  Like its lighter counterpart QSemaphore, a QSystemSemaphore can be
+  accessed from multiple \l {QThread} {threads}. But unlike
+  QSemaphore, the much heavier QSystemSemaphore can also be accessed
+  from multiple \l {QProcess} {processes}. If your application
+  doesn't need to access semaphores from multiple processes, you
+  probably want to use QSemaphore.
 
-  * On Windows once all of the QSystemSemaphore have been destroyed or
-    crashed the semaphore is automatically removed.
+  When using this class, be aware of the following platform differences:
 
-  * On Unix if the process that owns the QSystemSemaphore crashes the
-    semaphore is not automatically removed.  When setting the key you
-    can force QSystemSemaphore to take ownership if it already exists
-    and reset the number of resources to the requested amount.  * On
-    Unix once the process exits Unix will automatically undo any
-    operations that occurred. So if a process acquires and then exits
-    Unix will automatically release one.
+  \list
+
+  \o Windows: When all instances of QSystemSemaphore for a particular
+  key have been deleted, or when all processes having instances of
+  QSystemSemaphore for a particular key have terminated or crashed,
+  Windows automatically removes its underlying system semaphore.
+
+  \o Unix: If the last process having an instance of QSystemSemaphore
+  for a particular key terminates or crashes, Unix does not
+  automatically remove its underlying system semaphore. However, when
+  a later process then creates its first instance of QSystemSemaphore
+  for that same key, it can specify that it wants to \c Create the
+  semaphore, in case one already exists for that key due to a crash,
+  and it can reset the resource count to the desired value. If the
+  \c Open flag is used in that case, QSystemSemaphore will be given
+  the exisating system semaphore, but the resource count will not be
+  reset.
+
+  \o Unix: Once the process exits Unix will automatically undo any
+  operations that occurred. So if a process acquires and then exits
+  Unix will automatically release one.
+
+  \endlist
 
   Semaphores support two fundamental operations, acquire() and release():
 
