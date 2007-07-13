@@ -972,15 +972,15 @@ void QUndoStack::endMacro()
 }
 
 /*!
-    Returns the command at \a index.
+  Returns a const pointer to the command at \a index.
 
-    This function returns a const pointer, because modifying a command once it's pushed on
-    the stack and executed almost always leads to corruption in the state of the document
-    when commands are subsequently undone or redone.
+  This function returns a const pointer, because modifying a command,
+  once it has been pushed onto the stack and executed, almost always
+  causes corruption of the state of the document, if the command is 
+  later undone or redone.
 
-    \sa command() QUndoCommand::child()
+  \sa QUndoCommand::child()
 */
-
 const QUndoCommand *QUndoStack::command(int index) const
 {
     Q_D(const QUndoStack);

@@ -46,10 +46,10 @@
     description for more details.
 
     A subwindow becomes active when it gets the keyboard focus, or
-    when setFocus() is called. The user activates a window by
-    moving focus in the usual ways. The MDI area emits the subWindowActivated()
-    signal when the active window changes, and the activeSubWindow()
-    function returns the active subwindow.
+    when setFocus() is called. The user activates a window by moving
+    focus in the usual ways. The MDI area emits the
+    subWindowActivated() signal when the active window changes, and
+    the activeSubWindow() function returns the active subwindow.
 
     The convenience function subWindowList() returns a list of all
     subwindows. This information could be used in a popup menu
@@ -93,17 +93,23 @@
 */
 
 /*!
-    \enum QMdiArea::WindowOrder
+  \enum QMdiArea::WindowOrder
 
-    Specifies the order in which child windows are returned from
-    subWindowList(). The cascadeSubWindows() and tileSubWindows()
-    functions follow this order when arranging the windows.
+  Specifies the criteria to use for ordering the list of child windows
+  returned by subWindowList(). The functions cascadeSubWindows() and
+  tileSubWindows() follow this order when arranging the windows.
 
-    \value CreationOrder The windows are returned in the order of
-    their creation
-    \value StackingOrder The windows are returned in the order in
-    which they are stacked; the top-most window is
-    last in the list.
+  \value CreationOrder The windows are returned in the order of
+  their creation.
+  
+  \value StackingOrder The windows are returned in the order in
+  which they are stacked, with the top-most window being last in
+  the list.
+  
+  \value ActivationHistoryOrder The windows are returned in the order in
+  which they were activated.
+
+  \sa subWindowList()
 */
 
 #include "qmdiarea_p.h"
@@ -1012,7 +1018,8 @@ void QMdiAreaPrivate::scrollBarPolicyChanged(Qt::Orientation orientation, Qt::Sc
     updateScrollBars();
 }
 
-QList<QMdiSubWindow *> QMdiAreaPrivate::subWindowList(QMdiArea::WindowOrder order, bool reversed) const
+QList<QMdiSubWindow*>
+QMdiAreaPrivate::subWindowList(QMdiArea::WindowOrder order, bool reversed) const
 {
     QList<QMdiSubWindow *> list;
     if (childWindows.isEmpty())
@@ -1266,11 +1273,13 @@ void QMdiArea::closeActiveSubWindow()
 }
 
 /*!
-    Returns a list of all subwindows in the MDI area. If \a order
-    is CreationOrder (the default), the windows are sorted in the
-    order in which they were inserted into the workspace. If \a order
-    is StackingOrder, the windows are listed in their stacking order,
-    with the topmost window as the last item in the list.
+    Returns a list of all subwindows in the MDI area. If \a order is
+    CreationOrder (the default), the windows are sorted in the order
+    in which they were inserted into the workspace. If \a order is
+    StackingOrder, the windows are listed in their stacking order,
+    with the topmost window as the last item in the list. If \a order
+    is ActivationHistoryOrder, the windows are listed according to
+    their recent activation history.
 
     \sa WindowOrder
 */
@@ -1465,6 +1474,17 @@ void QMdiArea::setBackground(const QBrush &brush)
     }
 }
 
+
+/*!
+  \property QMdiArea::activationOrder
+  \brief the ordering criteria for subwindow lists
+
+  This property specifies the ordering criteria for the list of
+  subwindows returned by subWindowList(). By default, it is the window
+  creation order.
+
+  \sa subWindowList()
+*/
 QMdiArea::WindowOrder QMdiArea::activationOrder() const
 {
     Q_D(const QMdiArea);

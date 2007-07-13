@@ -331,13 +331,6 @@ QMainWindow::~QMainWindow()
                             option is not set, all dock areas show their tabs
                             at the bottom. Implies AllowTabbedDocks.
 
-    \value CollapsibleTabs  Implies ForceTabbedDocks and VerticalTabs. In
-                            addition, clicking the tab of a dock widget
-                            that is already on top causes the whole dock area
-                            to collapse, giving more space to the central
-                            widget. The tab bar remains visible, and clicking
-                            it uncollapses the dock area.
-
     These options only control how dock widgets may be dropped in a QMainWindow.
     They do not re-arrange the dock widgets to conform with the specified
     options. For this reason they should be set before any dock widgets

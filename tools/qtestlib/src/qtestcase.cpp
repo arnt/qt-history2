@@ -645,6 +645,13 @@
 */
 
 /*!
+    \fn char *QTest::toString(const QUrl &url)
+    \overload
+
+    Returns a textual representation of the given \a url.
+*/
+
+/*!
     \fn char *QTest::toString(const QPointF &point)
     \overload
 
@@ -1252,7 +1259,8 @@ int QTest::qExec(QObject *testObject, int argc, char **argv)
 /*!
   \overload
 
-  Behaves identically to qExec(QObject *, int,  char**) but takes a QStringList instead.
+  Behaves identically to qExec(QObject *, int, char**) but takes a
+  QStringList of \a arguments instead of a \c char** list.
  */
 int QTest::qExec(QObject *testObject, const QStringList &arguments)
 {

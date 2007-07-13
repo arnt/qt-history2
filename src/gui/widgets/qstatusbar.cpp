@@ -615,6 +615,9 @@ void QStatusBar::hideOrShow()
     repaint();
 }
 
+/*!
+  \reimp
+ */
 void QStatusBar::showEvent(QShowEvent *)
 {
 #ifndef QT_NO_SIZEGRIP

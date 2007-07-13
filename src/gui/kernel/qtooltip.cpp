@@ -396,17 +396,18 @@ void QToolTip::showText(const QPoint &pos, const QString &text, QWidget *w)
 
 
 /*!
-  Returns true if a tooltip is currently shown; otherwise returns false.
+  Returns true if this tooltip is currently shown.
 
-  \sa isVisible(), showText()
+  \sa showText()
  */
 bool QToolTip::isVisible()
 {
     return (QTipLabel::instance != 0);
 }
 
-/*!  Returns the currently visible text; or an empty string if no
-  tooltip is currently visible.
+/*!
+  Returns the tooltip text, if a tooltip is visible, or an
+  empty string if a tooltip is not visible.
  */
 QString QToolTip::text()
 {

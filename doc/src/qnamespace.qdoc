@@ -1005,6 +1005,9 @@
     \value WA_StyledBackground Indicates the widget should be drawn
     using a styled background.
 
+    \value WA_ShowWithoutActivating Show the widget without making it
+    active.
+
     \omitvalue WA_SetLayoutDirection
     \omitvalue WA_InputMethodTransparent
     \omitvalue WA_WState_CompressKeys
@@ -1031,6 +1034,7 @@
     \omitvalue WA_CanHostQMdiSubWindowTitleBar
     \omitvalue WA_AttributeCount
     \omitvalue WA_StyleSheet
+    \omitvalue WA_X11BypassTransientForHint
 */
 
 /*! \typedef Qt::HANDLE
