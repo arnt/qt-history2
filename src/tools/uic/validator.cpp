@@ -16,12 +16,9 @@
 #include "ui4.h"
 #include "uic.h"
 
-#include <QTextStream>
-
-Validator::Validator(Uic *uic)
-    : driver(uic->driver()), output(uic->output()), option(uic->option())
+Validator::Validator(Uic *uic)   :
+    m_driver(uic->driver())
 {
-    this->uic = uic;
 }
 
 void Validator::acceptUI(DomUI *node)
@@ -31,35 +28,35 @@ void Validator::acceptUI(DomUI *node)
 
 void Validator::acceptWidget(DomWidget *node)
 {
-    (void) driver->findOrInsertWidget(node);
+    (void) m_driver->findOrInsertWidget(node);
 
     TreeWalker::acceptWidget(node);
 }
 
 void Validator::acceptLayoutItem(DomLayoutItem *node)
 {
-    (void) driver->findOrInsertLayoutItem(node);
+    (void) m_driver->findOrInsertLayoutItem(node);
 
     TreeWalker::acceptLayoutItem(node);
 }
 
 void Validator::acceptLayout(DomLayout *node)
 {
-    (void) driver->findOrInsertLayout(node);
+    (void) m_driver->findOrInsertLayout(node);
 
     TreeWalker::acceptLayout(node);
 }
 
 void Validator::acceptActionGroup(DomActionGroup *node)
 {
-    (void) driver->findOrInsertActionGroup(node);
+    (void) m_driver->findOrInsertActionGroup(node);
 
     TreeWalker::acceptActionGroup(node);
 }
 
 void Validator::acceptAction(DomAction *node)
 {
-    (void) driver->findOrInsertAction(node);
+    (void) m_driver->findOrInsertAction(node);
 
     TreeWalker::acceptAction(node);
 }

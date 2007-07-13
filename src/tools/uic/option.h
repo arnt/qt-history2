@@ -14,7 +14,7 @@
 #ifndef OPTION_H
 #define OPTION_H
 
-#include <QString>
+#include <QtCore/QString>
 
 struct Option
 {

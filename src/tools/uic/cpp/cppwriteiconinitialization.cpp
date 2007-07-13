@@ -18,7 +18,7 @@
 #include "utils.h"
 #include "uic.h"
 
-#include <QTextStream>
+#include <QtCore/QTextStream>
 
 namespace CPP {
 

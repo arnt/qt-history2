@@ -16,10 +16,10 @@
 
 #include "databaseinfo.h"
 #include "customwidgetsinfo.h"
-#include <QString>
-#include <QStringList>
-#include <QHash>
-#include <QStack>
+#include <QtCore/QString>
+#include <QtCore/QStringList>
+#include <QtCore/QHash>
+#include <QtCore/QStack>
 
 class QTextStream;
 class QIODevice;

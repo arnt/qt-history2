@@ -16,10 +16,10 @@
 
 #include "treewalker.h"
 
-#include <QHash>
-#include <QMap>
-#include <QSet>
-#include <QString>
+#include <QtCore/QHash>
+#include <QtCore/QMap>
+#include <QtCore/QSet>
+#include <QtCore/QString>
 
 class QTextStream;
 class Driver;

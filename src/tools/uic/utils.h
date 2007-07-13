@@ -15,9 +15,9 @@
 #define UTILS_H
 
 #include "ui4.h"
-#include <QString>
-#include <QList>
-#include <QHash>
+#include <QtCore/QString>
+#include <QtCore/QList>
+#include <QtCore/QHash>
 
 inline bool toBool(const QString &str)
 { return str.toLower() == QLatin1String("true"); }
@@ -29,12 +29,13 @@ inline QString fixString(const QString &str, const QString &indent)
 {
     QString cursegment;
     QStringList result;
-    QByteArray utf8 = str.toUtf8();
+    const QByteArray utf8 = str.toUtf8();
+    const int utf8Length = utf8.length();
 
-    for (int i = 0; i < utf8.length(); ++i) {
+    for (int i = 0; i < utf8Length; ++i) {
         const uchar cbyte = utf8.at(i);
         if (cbyte >= 0x80) {
-            cursegment += QLatin1String("\\");
+            cursegment += QLatin1Char('\\');
             cursegment += QString::number(cbyte, 8);
         } else {
             switch(cbyte) {

@@ -14,7 +14,7 @@
 #ifndef TREEWALKER_H
 #define TREEWALKER_H
 
-#include <QList>
+#include <QtCore/QList>
 
 class DomUI;
 class DomLayoutDefault;

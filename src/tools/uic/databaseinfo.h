@@ -15,8 +15,8 @@
 #define DATABASEINFO_H
 
 #include "treewalker.h"
-#include <QStringList>
-#include <QMap>
+#include <QtCore/QStringList>
+#include <QtCore/QMap>
 
 class Driver;
 

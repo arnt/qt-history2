@@ -22,7 +22,7 @@
 #include "databaseinfo.h"
 #include "customwidgetsinfo.h"
 
-#include <QTextStream>
+#include <QtCore/QTextStream>
 
 namespace {
     void openNameSpaces(const QStringList &namespaceList, QTextStream &output) {

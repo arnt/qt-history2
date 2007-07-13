@@ -19,8 +19,8 @@
 #include "databaseinfo.h"
 #include "globaldefs.h"
 
-#include <QTextStream>
-#include <QtDebug>
+#include <QtCore/QTextStream>
+#include <QtCore/QDebug>
 
 namespace {
     // Fixup an enumeration name from class Qt.

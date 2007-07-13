@@ -11,7 +11,6 @@
 **
 ****************************************************************************/
 
-#include <QDataStream>
 #include "cppextractimages.h"
 #include "cppwriteicondata.h"
 #include "driver.h"
@@ -19,11 +18,12 @@
 #include "utils.h"
 #include "uic.h"
 
-#include <QTextStream>
-#include <QTextCodec>
-#include <QDir>
-#include <QFile>
-#include <QFileInfo>
+#include <QtCore/QDataStream>
+#include <QtCore/QTextStream>
+#include <QtCore/QTextCodec>
+#include <QtCore/QDir>
+#include <QtCore/QFile>
+#include <QtCore/QFileInfo>
 
 namespace CPP {
 

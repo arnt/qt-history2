@@ -16,9 +16,9 @@
 #include "ui4.h"
 #include "uic.h"
 #include "databaseinfo.h"
-#include <qdebug.h>
-#include <QFileInfo>
-#include <QTextStream>
+#include <QtCore/QDebug>
+#include <QtCore/QFileInfo>
+#include <QtCore/QTextStream>
 
 namespace {
     enum { debugWriteIncludes = 0 };

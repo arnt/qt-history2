@@ -36,10 +36,7 @@ struct Validator : public TreeWalker
     void acceptAction(DomAction *node);
 
 private:
-    Driver *driver;
-    QTextStream &output;
-    const Option &option;
-    Uic *uic;
+    Driver *m_driver;
 };
 
 #endif // VALIDATOR_H

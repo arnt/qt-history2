@@ -15,10 +15,10 @@
 #include "option.h"
 #include "driver.h"
 #include "../../corelib/global/qconfig.cpp"
-#include <QFile>
-#include <QDir>
-#include <QTextStream>
-#include <QTextCodec>
+#include <QtCore/QFile>
+#include <QtCore/QDir>
+#include <QtCore/QTextStream>
+#include <QtCore/QTextCodec>
 
 static const char *error = 0;
 
@@ -108,8 +108,9 @@ int main(int argc, char *argv[])
 #if QT_EDITION != QT_EDITION_OPENSOURCE
 #ifdef QT_CONFIGURE_BINARIES_PATH
     const char *binariesPath = QT_CONFIGURE_BINARIES_PATH;
-    QString reporterPath = QString::fromLocal8Bit(binariesPath) + QDir::separator()
-                           + QLatin1String("qtusagereporter");
+    QString reporterPath = QString::fromLocal8Bit(binariesPath);
+    reporterPath += QDir::separator();
+    reporterPath += QLatin1String("qtusagereporter");
 #if defined(Q_OS_WIN)
     reporterPath += QLatin1String(".exe");
 #endif

@@ -28,11 +28,11 @@
 #include "javawritedeclaration.h"
 #endif
 
-#include <QDomDocument>
-#include <QFileInfo>
-#include <QRegExp>
-#include <QTextStream>
-#include <QDateTime>
+#include <QtXml/QDomDocument>
+#include <QtCore/QFileInfo>
+#include <QtCore/QRegExp>
+#include <QtCore/QTextStream>
+#include <QtCore/QDateTime>
 
 #if defined Q_WS_WIN
 #include <qt_windows.h>
