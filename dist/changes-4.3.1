@@ -18,6 +18,17 @@ General Improvements
 - QDBusView
     * Now has an icon for Mac OS X and Windows.
 
+Third party components
+----------------------
+
+- FreeType
+    * Security fix (CVE-2007-2754): Integer overflow in the TT_Load_Simple_Glyph
+      function in freetype 2.3.4 and earlier allows remote authenticated users
+      users to execute arbitrary code via crafted BDF fonts.
+
+- SQLite
+    * File descriptors are not inherited during spawn() anymore.
+
 ****************************************************************************
 *                           Library                                        *
 ****************************************************************************
@@ -214,6 +225,13 @@ General Improvements
 - Q3Wizard
     * [168195] Fixed bug causing the wrong page to be shown upon reopening the wizard.
 
+
+****************************************************************************
+*                          Database Drivers                                *
+****************************************************************************
+
+- SQLite driver
+    * Use new sqlite3_prepare16_v2 instead of sqlite3_prepare16 when possible.
 
 ****************************************************************************
 *                      Platform Specific Changes                           *
