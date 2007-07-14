@@ -253,8 +253,7 @@ public:
     inline bool isMetaEnum() const
     { return (m_kind == MetaEnum); }
 
-    inline QByteArray name() const
-    { return m_name; }
+    QByteArray name() const;
 
     inline int enumeratorIndex() const
     { Q_ASSERT(isMetaEnum()); return m_typeId; }

@@ -41,6 +41,15 @@ enum {
 
 static const bool GeneratePropertyFunctions = true;
 
+QByteArray QScriptMetaType::name() const
+{
+    if (!m_name.isEmpty())
+        return m_name;
+    else if (m_kind == Variant)
+        return "QVariant";
+    return QByteArray();
+}
+
 namespace QScript {
 
 class QtPropertyFunction: public QScriptFunction
@@ -1227,7 +1236,7 @@ void QScript::QtFunction::execute(QScriptContextPrivate *context)
                     }
                 } else if (actual.isVariant()) {
                     if ((actual.variantValue().userType() == tid)
-                        || argType.name() == "QVariant") {
+                        || argType.isVariant()) {
                         // perfect
                     } else {
                         matchDistance += 10;
@@ -1402,7 +1411,7 @@ void QScript::QtFunction::execute(QScriptContextPrivate *context)
                     result = eng_p->create(retType.typeId(), params[0]);
                     if (!result.isValid())
                         result = eng_p->newVariant(QVariant(retType.typeId(), params[0]));
-                } else if (retType.name() == "QVariant") {
+                } else if (retType.isVariant()) {
                     result = eng_p->newVariant(*(QVariant *)params[0]);
                 } else {
                     result = eng_p->undefinedValue();
