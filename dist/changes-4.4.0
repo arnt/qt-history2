@@ -38,6 +38,10 @@ General Improvements
 Third party components
 ----------------------
 
+- Updated Qt's SQLite version to 3.4.0.
+
+- Updated Qt's libmng version to 1.0.10.
+
 ****************************************************************************
 *                          Library                                         *
 ****************************************************************************
