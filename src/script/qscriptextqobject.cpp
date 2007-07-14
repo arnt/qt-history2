@@ -770,8 +770,8 @@ void QScript::ConnectionQObject::execute(void **argv)
 
     int formalCount = fun->formals.count();
     int mx = qMax(formalCount, argc);
-    activation_data->m_members.resize(mx);
-    activation_data->m_objects.resize(mx);
+    activation_data->m_members.resize(mx + 1);
+    activation_data->m_objects.resize(mx + 1);
     for (int i = 0; i < mx; ++i) {
         QScriptNameIdImpl *nameId;
         if (i < formalCount)
@@ -790,7 +790,6 @@ void QScript::ConnectionQObject::execute(void **argv)
     }
 
     QScriptValueImpl senderObject;
-    Q_ASSERT(sender() == m_sender);
     if (m_signal.isFunction()) {
         QtFunction *fun = static_cast<QtFunction*>(m_signal.toFunction());
         Q_ASSERT(fun->type() == QScriptFunction::Qt);
@@ -801,6 +800,8 @@ void QScript::ConnectionQObject::execute(void **argv)
         // ### dubious...
         senderObject = eng->newQObject(m_sender, QScriptEngine::QtOwnership);
     }
+    activation_data->m_members[mx].object(eng->idTable()->id___qt_sender__, mx,                                           QScriptValue::SkipInEnumeration);
+    activation_data->m_objects[mx] = senderObject;
 
     QScriptValueImpl thisObject;
     if (m_receiver.isObject())
@@ -816,17 +817,7 @@ void QScript::ConnectionQObject::execute(void **argv)
     context_data->argc = argc;
     context_data->args = const_cast<QScriptValueImpl*> (activation_data->m_objects.constData());
 
-    QScriptValueImpl tmp;
-    if (m_receiver.isObject()) {
-        // ### this should either be documented or done in a different way...
-        tmp = m_receiver.property(QLatin1String("sender"));
-        m_receiver.setProperty(QLatin1String("sender"), senderObject);
-    }
-
     fun->execute(context_data);
-
-    if (m_receiver.isObject())
-        m_receiver.setProperty(QLatin1String("sender"), tmp);
 
     if (context->state() == QScriptContext::ExceptionState) {
         qWarning() << "***" << context->returnValue().toString(); // ### fixme

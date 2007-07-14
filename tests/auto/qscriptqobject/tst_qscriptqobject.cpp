@@ -1032,14 +1032,14 @@ void tst_QScriptExtQObject::connectAndDisconnect()
     // connect(function)
     QCOMPARE(m_engine->evaluate("myObject.mySignal.connect(123)").isError(), true);
 
-    m_engine->evaluate("myHandler = function() { global.gotSignal = true; global.signalArgs = arguments; global.slotThisObject = this; global.signalSender = this.sender; }");
+    m_engine->evaluate("myHandler = function() { global.gotSignal = true; global.signalArgs = arguments; global.slotThisObject = this; global.signalSender = __qt_sender__; }");
     QVERIFY(m_engine->evaluate("myObject.mySignal.connect(myHandler)").isUndefined());
 
     m_engine->evaluate("gotSignal = false");
     m_engine->evaluate("myObject.mySignal()");
     QCOMPARE(m_engine->evaluate("gotSignal").toBoolean(), true);
     QCOMPARE(m_engine->evaluate("signalArgs.length").toNumber(), 0.0);
-    QCOMPARE(m_engine->evaluate("signalSender").toQObject(), (QObject *)0);
+    QCOMPARE(m_engine->evaluate("signalSender").toQObject(), (QObject *)m_myObject);
     QVERIFY(m_engine->evaluate("slotThisObject").strictlyEquals(m_engine->globalObject()));
 
     m_engine->evaluate("gotSignal = false");
