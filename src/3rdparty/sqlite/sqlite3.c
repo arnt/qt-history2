@@ -12680,6 +12680,8 @@ static ThreadData *sqlite3Os2ThreadSpecificData( int allocateFlag ){
 */
 #if OS_UNIX              /* This file is used on unix only */
 
+#include <qconfig.h>
+
 /* #define SQLITE_ENABLE_LOCKING_STYLE 0 */
 
 /*
@@ -12725,7 +12727,7 @@ static ThreadData *sqlite3Os2ThreadSpecificData( int allocateFlag ){
 #ifndef THREADSAFE
 # define THREADSAFE 1
 #endif
-#if THREADSAFE
+#ifndef QT_NO_THREAD
 # include <pthread.h>
 # define SQLITE_UNIX_THREADS 1
 #endif
@@ -13689,7 +13691,7 @@ static int sqlite3UnixOpenReadWrite(
   OsFile **pId,
   int *pReadonly
 ){
-  int h;
+  int h, oldflags;
   
   CRASH_TEST_OVERRIDE(sqlite3CrashOpenReadWrite, zFilename, pId, pReadonly);
   assert( 0==*pId );
@@ -13708,6 +13710,11 @@ static int sqlite3UnixOpenReadWrite(
     *pReadonly = 1;
   }else{
     *pReadonly = 0;
+  }
+  oldflags = fcntl(h, F_GETFD, 0);
+  if (oldflags >= 0){
+    oldflags |= FD_CLOEXEC;
+    fcntl(h, F_SETFD, oldflags);
   }
   return allocateUnixFile(h, pId, zFilename, 0);
 }
@@ -13728,7 +13735,7 @@ static int sqlite3UnixOpenReadWrite(
 ** On failure, return SQLITE_CANTOPEN.
 */
 static int sqlite3UnixOpenExclusive(const char *zFilename, OsFile **pId, int delFlag){
-  int h;
+  int h, oldflags;
 
   CRASH_TEST_OVERRIDE(sqlite3CrashOpenExclusive, zFilename, pId, delFlag);
   assert( 0==*pId );
@@ -13737,6 +13744,11 @@ static int sqlite3UnixOpenExclusive(const char *zFilename, OsFile **pId, int del
                 delFlag ? 0600 : SQLITE_DEFAULT_FILE_PERMISSIONS);
   if( h<0 ){
     return SQLITE_CANTOPEN;
+  }
+  oldflags = fcntl(h, F_GETFD, 0);
+  if (oldflags >= 0){
+    oldflags |= FD_CLOEXEC;
+    fcntl(h, F_SETFD, oldflags);
   }
   return allocateUnixFile(h, pId, zFilename, delFlag);
 }
@@ -13749,13 +13761,18 @@ static int sqlite3UnixOpenExclusive(const char *zFilename, OsFile **pId, int del
 ** On failure, return SQLITE_CANTOPEN.
 */
 static int sqlite3UnixOpenReadOnly(const char *zFilename, OsFile **pId){
-  int h;
+  int h, oldflags;
   
   CRASH_TEST_OVERRIDE(sqlite3CrashOpenReadOnly, zFilename, pId, 0);
   assert( 0==*pId );
   h = open(zFilename, O_RDONLY|O_LARGEFILE|O_BINARY);
   if( h<0 ){
     return SQLITE_CANTOPEN;
+  }
+  oldflags = fcntl(h, F_GETFD, 0);
+  if (oldflags >= 0){
+    oldflags |= FD_CLOEXEC;
+    fcntl(h, F_SETFD, oldflags);
   }
   return allocateUnixFile(h, pId, zFilename, 0);
 }
@@ -13783,6 +13800,7 @@ static int unixOpenDirectory(
   OsFile *id,
   const char *zDirname
 ){
+  int oldflags;
   unixFile *pFile = (unixFile*)id;
   assert( pFile!=0 );
   SET_THREADID(pFile);
@@ -13792,6 +13810,11 @@ static int unixOpenDirectory(
     return SQLITE_CANTOPEN; 
   }
   OSTRACE3("OPENDIR %-3d %s\n", pFile->dirfd, zDirname);
+  oldflags = fcntl(pFile->dirfd, F_GETFD, 0);
+  if (oldflags >= 0){
+    oldflags |= FD_CLOEXEC;
+    fcntl(pFile->dirfd, F_SETFD, oldflags);
+  }
   return SQLITE_OK;
 }
 
@@ -15810,6 +15833,8 @@ static int sqlite3UnixCurrentTime(double *prNow){
 */
 #if OS_WIN               /* This file is used for windows only */
 
+#include <qconfig.h>
+
 #include <winbase.h>
 
 #ifdef __CYGWIN__
@@ -15819,7 +15844,7 @@ static int sqlite3UnixCurrentTime(double *prNow){
 /*
 ** Macros used to determine whether or not to use threads.
 */
-#if defined(THREADSAFE) && THREADSAFE
+#ifndef QT_NO_THREAD
 # define SQLITE_W32_THREADS 1
 #endif
 
