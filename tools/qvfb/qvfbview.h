@@ -65,24 +65,12 @@ public:
     virtual double zoomH() const = 0;
     virtual double zoomV() const = 0;
 
-    virtual void setFlickerHighlight(bool b) = 0;
-    virtual bool flickerHighlight() const = 0;
-
-    virtual void setFlickerInterval(int) = 0;
-    virtual int flickerInterval() const = 0;
-
-    virtual void setMaxFrames(int) = 0;
-    virtual int maxFrames() const = 0;
-
-    virtual bool frames() const = 0;
-
 public slots:
     virtual void setTouchscreenEmulation( bool ) = 0;
     virtual void setLcdScreenEmulation( bool ) = 0;
     virtual void setZoom( double, double ) = 0;
     virtual void startAnimation( const QString& ) = 0;
     virtual void stopAnimation() = 0;
-    virtual void toggleFrames() = 0;
 };
 
 class QVFbView : public QVFbAbstractView
