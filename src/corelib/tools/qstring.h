@@ -763,6 +763,7 @@ public:
 
     const char toAscii() const { return QChar(*this).toAscii(); }
     const char toLatin1() const { return QChar(*this).toLatin1(); }
+    ushort& unicode() { return s.data()[i].unicode(); }
     const ushort unicode() const { return QChar(*this).unicode(); }
 
 #ifdef QT3_SUPPORT

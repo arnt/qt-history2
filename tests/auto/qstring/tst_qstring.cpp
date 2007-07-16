@@ -155,6 +155,7 @@ private slots:
     void compare();
     void resizeAfterFromRawData();
     void resizeAfterReserve();
+    void QCharRefMutableUnicode() const;
 };
 
 typedef QList<int> IntList;
@@ -4122,6 +4123,17 @@ void tst_QString::resizeAfterReserve()
     s += "hello world";
     s.resize(0);
     QVERIFY(s.capacity() == 100);
+}
+
+void tst_QString::QCharRefMutableUnicode() const
+{
+    QString str;
+    str.resize(3);
+    str[0].unicode() = 115;
+    str[1].unicode() = 116;
+    str[2].unicode() = 114;
+
+    QCOMPARE(str, QString::fromLatin1("str"));
 }
 
 QTEST_APPLESS_MAIN(tst_QString)
