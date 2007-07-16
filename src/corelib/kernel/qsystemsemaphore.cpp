@@ -27,56 +27,65 @@
   identical resources.
 
   Like its lighter counterpart QSemaphore, a QSystemSemaphore can be
-  accessed from multiple \l {QThread} {threads}. But unlike
-  QSemaphore, the much heavier QSystemSemaphore can also be accessed
-  from multiple \l {QProcess} {processes}. If your application
-  doesn't need to access semaphores from multiple processes, you
-  probably want to use QSemaphore.
+  accessed from multiple \l {QThread} {threads}. Unlike QSemaphore, a
+  QSystemSemaphore can also be accessed from multiple \l {QProcess}
+  {processes}. This means QSystemSemaphore is a much heavier class, so
+  if your application doesn't need to access your semaphores across
+  multiple processes, you will probably want to use QSemaphore.
 
-  When using this class, be aware of the following platform differences:
+  When using this class, be aware of the following platform
+  differences:
 
   \list
 
   \o Windows: When all instances of QSystemSemaphore for a particular
   key have been deleted, or when all processes having instances of
-  QSystemSemaphore for a particular key have terminated or crashed,
-  Windows automatically removes its underlying system semaphore.
+  QSystemSemaphore for a particular key have terminated normally or
+  crashed, Windows will automatically remove its underlying system
+  semaphore.
 
   \o Unix: If the last process having an instance of QSystemSemaphore
-  for a particular key terminates or crashes, Unix does not
-  automatically remove its underlying system semaphore. However, when
-  a later process then creates its first instance of QSystemSemaphore
-  for that same key, it can specify that it wants to \c Create the
-  semaphore, in case one already exists for that key due to a crash,
-  and it can reset the resource count to the desired value. If the
-  \c Open flag is used in that case, QSystemSemaphore will be given
-  the exisating system semaphore, but the resource count will not be
-  reset.
+  for a particular key crashes, Unix does not automatically remove its
+  underlying system semaphore. A subsequent process that constructs a
+  QSystemSemaphore with that same key will then be allocated the
+  existing system semaphore. If the QSystemSemaphore constructor
+  specifies \l {QSystemSemaphore::} {Open} as its \l
+  {QSystemSemaphore::AccessMode} {access mode}, its resource request
+  will not be honored, and the number of resources will remain as it
+  was set in the crashed process. Use \l {QSystemSemaphore::} {Create}
+  as the \l {QSystemSemaphore::AccessMode} {access mode} to force Unix
+  to reset the resource count in the underlying system semaphore.
 
-  \o Unix: Once the process exits Unix will automatically undo any
-  operations that occurred. So if a process acquires and then exits
-  Unix will automatically release one.
+  \o Unix: When a process using QSystemSemaphore terminates for any
+  reason, Unix automatically reverses any acquire operations that
+  occurred in that process that were not released. Thus if the process
+  acquires a resource and then exits, Unix will release that resource.
 
   \endlist
 
   Semaphores support two fundamental operations, acquire() and release():
 
-  acquire() tries to acquire 1 resource. If there aren't that many
-  resources available, the call will block until this is the case.
+  acquire() tries to acquire one resource. If there isn't a resource
+  available, the call blocks until a resource becomes available. Then
+  the resource is acquired and the call returns.
 
-  release(n) releases n resources.
+  release() releases one resource so it can be acquired by another
+  process. The function can also be called with a parameter n > 1,
+  which releases n resources.
 
-  A system semaphore needs a key that every process can use to access
-  the same semaphore.
+  A system semaphore is created with a string key that other processes
+  can use to use the same semaphore.
 
-  Example:
-    QSemaphore sem("market", 3);      // semaphore available == 3
-
-    sem.acquire();         // semaphores available == 2
-    sem.acquire();         // semaphores available == 1
-    sem.acquire();         // semaphores available == 0
-    sem.release(5);         // semaphores available == 5
-    sem.release(5);         // semaphores available == 10
+  Example: Create a system semaphore 
+  \code
+    QSystemSemaphore sem("market", 3, QSystemSemaphore::Create);
+                                 // resources available == 3
+    sem.acquire();               // resources available == 2
+    sem.acquire();               // resources available == 1
+    sem.acquire();               // resources available == 0
+    sem.release();               // resources available == 1 
+    sem.release(2);              // resources available == 3
+  \endcode
 
   A typical application of system semaphores is for controlling access
   to a circular buffer shared by a producer process and a consumer
@@ -86,10 +95,39 @@
  */
 
 /*!
-  Creates a new system semaphore with \a key and initializes the
-  number of resources it guards to \a initialValue (by default, 0) if
-  it didn't already exists.  When initializing the key it uses the
-  access mode \a mode.
+
+  Requests a system semaphore for the specified \a key. The parameters
+  \a initialValue and \a mode are used according to the following
+  rules, which are system dependent.
+
+  In Unix, if the \a mode is \l {QSystemSemaphore::} {Open} and the
+  system already has a semaphore identified by \a key, that semaphore
+  is used, and the semaphore's resource count is not changed, i.e., \a
+  initialValue is ignored. But if the system does not already have a
+  semaphore identified by \a key, it creates a new semphore for that
+  key and sets its resource count to \a initialValue.
+
+  In Unix, if the \a mode is \l {QSystemSemaphore::} {Create} and the
+  system already has a semaphore identified by \a key, that semaphore
+  is used, and its resource count is set to \a initialValue. If the
+  system does not already have a semaphore identified by \a key, it
+  creates a new semphore for that key and sets its resource count to
+  \a initialValue.
+
+  In Windows, \a mode is ignored, and the system always tries to
+  create a semaphore for the specified \a key. If the system does not
+  already have a semaphore identified as \a key, it creates the
+  semaphore and sets its resource count to \a initialValue. But if the
+  system already has a semaphore identified as \a key it uses that
+  semaphore and ignores \a initialValue.
+
+  The \l {QSystemSemaphore::AccessMode} {mode} parameter is only used
+  in Unix systems to handle the case where a semaphore survives a
+  process crash. In that case, the next process to allocate a
+  semaphore with the same \a key will get the semaphore that survived
+  the crash, and unless \a mode is \l {QSystemSempahore::} {Create},
+  the resource count will not be reset to \a initialValue but will
+  retain the initial value it had been given by the crashed process.
   
   \sa acquire(), key()
  */
@@ -100,11 +138,19 @@ QSystemSemaphore::QSystemSemaphore(const QString &key, int initialValue, AccessM
 }
 
 /*!
-  Destroys a system semaphore.
+  The destructor destroys the QSystemSemaphore object, but the
+  underlying system semaphore is not deallocated and removed from the
+  system unless this QSystemSemaphore is the last one using the
+  underlying system semaphore.
 
-  warning: On Windows if it has been acquired it will not automatically release.
-  warning: On Unix if it has been acquired, but not released
-           it will automatically release once the process exits.
+  Two important side effects of the destructor depend on the system.
+  In Windows, if acquire() has been called for this semaphore but not
+  release(), release() will not be called by the destructor, nor will
+  the resource be released when the process exits normally. This would
+  be a program bug which could be the cause of a deadlock in another
+  process trying to acquire the same resource. In Unix, acquired
+  resources that are not released before the destructor is called are
+  automatically released when the process exits.
 */
 QSystemSemaphore::~QSystemSemaphore()
 {
