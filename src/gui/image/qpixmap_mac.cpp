@@ -682,6 +682,8 @@ int QPixmap::defaultDepth()
     return 32;
 }
 
+#include <OpenGL/OpenGL.h>
+#include <OpenGL/gl.h>
 // Load and resolve the symbols we need from OpenGL manually so QtGui doesn't have to link against the OpenGL framework.
 typedef CGLError (*PtrCGLChoosePixelFormat)(const CGLPixelFormatAttribute *, CGLPixelFormatObj *,  long *);
 typedef CGLError (*PtrCGLClearDrawable)(CGLContextObj);
