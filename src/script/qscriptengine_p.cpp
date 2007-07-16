@@ -487,6 +487,19 @@ void QScriptEnginePrivate::maybeGC_helper(bool do_string_gc)
     }
 
 #ifndef QT_NO_QOBJECT
+    {
+        QHash<QObject*, QScriptQObjectData*>::const_iterator it;
+        for (it = m_qobjectData.constBegin(); it != m_qobjectData.constEnd(); ++it) {
+            QScriptQObjectData *qdata = it.value();
+            QList<QPointer<QScript::ConnectionQObject> >::const_iterator it2;
+            for (it2 = qdata->connections.constBegin(); it2 != qdata->connections.constEnd(); ++it2) {
+                QScript::ConnectionQObject *conn = *it2;
+                if (conn)
+                    conn->mark(generation);
+            }
+        }
+    }
+
 # ifndef Q_SCRIPT_NO_QMETAOBJECT_CACHE
     {
         QHash<const QMetaObject*, QScriptMetaObject*>::const_iterator it;

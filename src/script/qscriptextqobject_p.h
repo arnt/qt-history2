@@ -77,7 +77,6 @@ public:
 
     public:
         QPointer<QObject> value;
-        bool isConnection;
         QScriptEngine::ValueOwnership ownership;
         QScriptEngine::QObjectWrapOptions options;
     };
@@ -87,8 +86,7 @@ public:
 
     void newQObject(QScriptValueImpl *result, QObject *value,
                     QScriptEngine::ValueOwnership ownership = QScriptEngine::QtOwnership,
-                    const QScriptEngine::QObjectWrapOptions &options = 0,
-                    bool isConnection = false);
+                    const QScriptEngine::QObjectWrapOptions &options = 0);
 
 protected:
     static QScriptValueImpl method_findChild(QScriptContextPrivate *context, QScriptEnginePrivate *eng, QScriptClassInfo *classInfo);

@@ -579,14 +579,8 @@ public:
         return false;
     }
 
-    virtual void mark(const QScriptValueImpl &object, int generation)
+    virtual void mark(const QScriptValueImpl &, int)
     {
-        ExtQObject::Instance *inst = ExtQObject::Instance::get(object, m_classInfo);
-        if (inst->isConnection) {
-            ConnectionQObject *connection = static_cast<ConnectionQObject*>((QObject*)inst->value);
-            if (connection)
-                connection->mark(generation);
-        }
     }
 
 private:
@@ -628,12 +622,10 @@ void QScript::ExtQObject::execute(QScriptContextPrivate *context)
 
 void QScript::ExtQObject::newQObject(QScriptValueImpl *result, QObject *value,
                                      QScriptEngine::ValueOwnership ownership,
-                                     const QScriptEngine::QObjectWrapOptions &options,
-                                     bool isConnection)
+                                     const QScriptEngine::QObjectWrapOptions &options)
 {
     Instance *instance = new Instance();
     instance->value = value;
-    instance->isConnection = isConnection;
     instance->ownership = ownership;
     instance->options = options;
 
