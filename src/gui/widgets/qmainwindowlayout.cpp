@@ -1174,6 +1174,12 @@ void QMainWindowLayout::addDockWidget(Qt::DockWidgetArea area,
                                              Qt::Orientation orientation)
 {
     addChildWidget(dockwidget);
+
+    // If we are currently moving a separator, then we need to abort the move, since each
+    // time we move the mouse layoutState is replaced by savedState modified by the move.
+    if (!movingSeparator.isEmpty())
+        endSeparatorMove(movingSeparatorPos);
+
     layoutState.dockAreaLayout.addDockWidget(toDockPos(area), dockwidget, orientation);
     emit dockwidget->dockLocationChanged(area);
     invalidate();
