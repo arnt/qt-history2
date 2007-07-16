@@ -2962,9 +2962,8 @@ QString QLocale::toString(double i, char f, int prec) const
 /*!
     Returns a QLocale object initialized to the system locale.
 
-    On Windows and Mac, this locale will use system functions to format dates and
-    strings. It will therefore reflect customizations made by the user
-    in the control panel.
+    On Windows and Mac, this locale will use the decimal/grouping characters and date/time
+    formats specified in the system configuration panel.
 
     \sa QTextCodec::locale() c()
 */
