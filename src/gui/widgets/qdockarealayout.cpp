@@ -1690,6 +1690,20 @@ void QDockAreaLayoutInfo::saveState(QDataStream &stream) const
     }
 }
 
+#ifdef Q_WS_MAC
+static Qt::DockWidgetArea toDockWidgetArea(QInternal::DockPosition pos)
+{
+    switch (pos) {
+        case QInternal::LeftDock:   return Qt::LeftDockWidgetArea;
+        case QInternal::RightDock:  return Qt::RightDockWidgetArea;
+        case QInternal::TopDock:    return Qt::TopDockWidgetArea;
+        case QInternal::BottomDock: return Qt::BottomDockWidgetArea;
+        default: break;
+    }
+    return Qt::NoDockWidgetArea;
+}
+#endif
+
 bool QDockAreaLayoutInfo::restoreState(QDataStream &stream, QList<QDockWidget*> &widgets)
 {
     uchar marker;
@@ -1740,12 +1754,31 @@ bool QDockAreaLayoutInfo::restoreState(QDataStream &stream, QList<QDockWidget*> 
 
             QDockAreaLayoutItem item(new QDockWidgetItem(widget));
             if (flags & StateFlagFloating) {
+                bool drawer = false;
+#ifdef Q_WS_MAC // drawer support
+                extern bool qt_mac_is_macdrawer(const QWidget *); //qwidget_mac.cpp
+                extern bool qt_mac_set_drawer_preferred_edge(QWidget *, Qt::DockWidgetArea); //qwidget_mac.cpp
+                drawer = qt_mac_is_macdrawer(widget);
+#endif
+
                 widget->hide();
-                widget->setFloating(true);
+                if (!drawer)
+                    widget->setFloating(true);
                 int x, y, w, h;
                 stream >> x >> y >> w >> h;
-                widget->move(x, y);
-                widget->resize(w, h);
+                
+#ifdef Q_WS_MAC // drawer support
+                if (drawer) {
+                    mainWindow->window()->createWinId();
+                    widget->window()->createWinId();
+                    qt_mac_set_drawer_preferred_edge(widget, toDockWidgetArea(dockPos));
+                } else 
+#endif                
+                {                
+                    widget->move(x, y);
+                    widget->resize(w, h);
+                }
+
                 widget->setVisible(flags & StateFlagVisible);
             } else {
                 int dummy;
