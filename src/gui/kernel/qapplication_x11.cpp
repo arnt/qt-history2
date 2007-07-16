@@ -2071,7 +2071,8 @@ void qt_cleanup()
         QColormap::cleanup();
     }
 
-#if !defined(QT_NO_FONTCONFIG)
+#if !defined(QT_NO_FONTCONFIG) && (FC_VERSION-0 >= 20300)
+#warning yay
     if (X11->has_fontconfig)
         FcFini();
 #endif
