@@ -641,6 +641,10 @@
   Qt's network proxying facilties have been extended to cover HTTP CONNECT
   proxying, and also include support for Cram-MD5 and NTLM authentication.
 
+  Qt Linguist has been extended to provide support for XML Localization
+  Interchange File Format (XLIFF) files, improving interoperability with
+  third party tools and services that support this format.
+
   The QtXml module has been expanded with classes to provide
   a streaming API for handling XML: QXmlStreamReader and
   QXmlStreamWriter complement Qt's existing range of SAX and DOM-based
