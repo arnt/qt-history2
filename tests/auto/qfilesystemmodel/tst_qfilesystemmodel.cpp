@@ -131,9 +131,13 @@ void tst_QFileSystemModel::cleanup()
         QStringList list = dir.entryList(QDir::AllEntries | QDir::System | QDir::Hidden | QDir::NoDotAndDotDot);
         for (int i = 0; i < list.count(); ++i) {
             QFileInfo fi(dir.path() + QDir::separator() + list.at(i));
-            if (fi.exists() && fi.isFile())
-                QVERIFY(QFile::remove(tmp + QDir::separator() + list.at(i)));
-            if (fi.exists() && fi.isDir())
+            if (fi.exists() && fi.isFile()) {
+		QFile p(fi.absolutePath()); 
+                p.setPermissions(QFile::ReadUser | QFile::ReadOwner | QFile::ExeOwner | QFile::ExeUser | QFile::WriteUser | QFile::WriteOwner | QFile::WriteOther);
+		QFile dead(dir.path() + QDir::separator() + list.at(i));
+		QVERIFY(dead.remove());
+	    }
+	    if (fi.exists() && fi.isDir())
                 QVERIFY(dir.rmdir(list.at(i)));
         }
         list = dir.entryList(QDir::AllEntries | QDir::System | QDir::Hidden | QDir::NoDotAndDotDot);
@@ -477,6 +481,10 @@ void tst_QFileSystemModel::filters_data()
                          (int)(QDir::Dirs | QDir::Files | QDir::Hidden | QDir::NoDotAndDotDot | QDir::CaseSensitive) << (QStringList() << "a") << 1;
     QTest::newRow("dir+files+hid+dot+cas+alldir") << (QStringList() << "a" << "b" << "c") << (QStringList() << "Z") <<
                          (int)(QDir::Dirs | QDir::Files | QDir::Hidden | QDir::NoDotAndDotDot | QDir::CaseSensitive | QDir::AllDirs) << (QStringList() << "Z") << 1;
+    
+    QTest::newRow("case sensitive") << (QStringList() << "Antiguagdb" << "Antiguamtd"
+        << "Antiguamtp" << "afghanistangdb" << "afghanistanmtd")
+        << QStringList() << (int)(QDir::Files) << QStringList() << 6;
 }
 
 void tst_QFileSystemModel::filters()
@@ -507,7 +515,7 @@ void tst_QFileSystemModel::filters()
     else
         QVERIFY(xFactor.entryList(filters).count() == rowCount);
 
-    if (files.count() > 3 && rowCount >= 3) {
+    if (files.count() > 3 && rowCount >= 3 && rowCount != 6) {
         QString fileName1 = (tmp + QDir::separator() + files.at(0));
         QString fileName2 = (tmp + QDir::separator() + files.at(1));
         QString fileName3 = (tmp + QDir::separator() + files.at(2));
