@@ -15,8 +15,13 @@ defineReplace(mocCmd) {
     win32:count($$list($$INCPATH), 40, >) {
         EOC = $$escape_expand(\n\t)
 
-        # the VCPROJ generator will replace the \r\h with the coded \r\n: &#x0d;&#x0a;
-        # No other generator understands the \h
+        if(contains(TEMPLATE, "vc.*")|contains(TEMPLATE_PREFIX, "vc")) {
+            # the VCPROJ generator will replace the \r\h with the coded \r\n: &#x0d;&#x0a;
+            # No other generator understands the \h
+            if(win32-msvc.net|win32-msvc2005): EOC = $$escape_expand(\r\h)
+            else: EOC = $$escape_expand(\\ \n\t)
+        }
+
         if(win32-msvc.net|win32-msvc2005): if(contains(TEMPLATE, "vc.*")|contains(TEMPLATE_PREFIX, "vc")): EOC = $$escape_expand(\r\h)
 
         INCLUDETEMP = mocinclude.tmp
