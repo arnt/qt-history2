@@ -52,6 +52,12 @@
     \value PrintSelection The print selection option is enalbed.
     \value PrintPageRange The page range selection option is enabled.
     \value PrintCollateCopies
+    \value DontUseSheet Do not make the native print dialog a sheet. By default
+    on Mac OS X, the native dialog is made a sheet if it has a parent that can
+    accept sheets and is visible.  Internally, Mac OS X tracks whether a
+    printing <em>session</em> and not which particular dialog should be a sheet
+    or not.  Therefore, make sure this value matches between the page setup
+    dialog and the print dialog or you can potentially end up in a modal loop that you can't break.
 */
 
 /*!
@@ -84,8 +90,8 @@ QAbstractPrintDialog::QAbstractPrintDialog(QAbstractPrintDialogPrivate &ptr,
     Sets the set of options that should be enabled in the print dialog
     to \a options.
 
-    Note that this function has no effect on Mac OS X. See the QPrintDialog
-    documentation for more information.
+    Except for the DontUseSheet option, this function has no effect on Mac OS
+    X. See the QPrintDialog documentation for more information.
 */
 void QAbstractPrintDialog::setEnabledOptions(PrintDialogOptions options)
 {
@@ -96,8 +102,8 @@ void QAbstractPrintDialog::setEnabledOptions(PrintDialogOptions options)
 /*!
     Adds the option \a option to the set of enabled options in this dialog.
 
-    Note that this function has no effect on Mac OS X. See the QPrintDialog
-    documentation for more information.
+    Except for the DontUseSheet option, this function has no effect on Mac OS
+    X. See the QPrintDialog documentation for more information.
 */
 void QAbstractPrintDialog::addEnabledOption(PrintDialogOption option)
 {
@@ -270,11 +276,12 @@ QPrinter *QAbstractPrintDialog::printer() const
     settings for each available printer can be modified via the dialog's
     \gui{Properties} push button.
 
-    On Windows and Mac OS X, the native print dialog is used, which
-    means that some QWidget and QDialog properties set on the dialog
-    won't be respected. In addition, the native print dialog on Mac OS X does
-    not support setting printer options, i.e. QAbstractPrintDialog::setEnabledOptions()
-    and QAbstractPrintDialog::addEnabledOption() have no effect.
+    On Windows and Mac OS X, the native print dialog is used, which means that
+    some QWidget and QDialog properties set on the dialog won't be respected.
+    In addition, aside from the DontUseSheet option, the native print dialog on
+    Mac OS X does not support setting printer options, i.e.
+    QAbstractPrintDialog::setEnabledOptions() and
+    QAbstractPrintDialog::addEnabledOption() have no effect.
 
     \sa QPageSetupDialog, QPrinter, {Pixelator Example}, {Order Form Example},
         {Image Viewer Example}, {Scribble Example}

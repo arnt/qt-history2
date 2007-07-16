@@ -74,4 +74,5 @@ SOURCES += \
         dialogs/qsidebar.cpp \
         dialogs/qfilesystemmodel.cpp \
         dialogs/qfileinfogatherer.cpp \
+        dialogs/qpagesetupdialog.cpp \
 	dialogs/qwizard.cpp

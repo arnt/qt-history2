@@ -43,7 +43,8 @@ public:
         PrintToFile             = 0x0001,
         PrintSelection          = 0x0002,
         PrintPageRange          = 0x0004,
-        PrintCollateCopies      = 0x0010
+        PrintCollateCopies      = 0x0010,
+        DontUseSheet            = 0x0020
     };
 
     Q_DECLARE_FLAGS(PrintDialogOptions, PrintDialogOption)

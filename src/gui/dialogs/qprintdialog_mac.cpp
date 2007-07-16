@@ -12,6 +12,7 @@
 ****************************************************************************/
 #include <private/qt_mac_p.h>
 
+#include <qhash.h>
 #include <qprintdialog.h>
 #include <private/qapplication_p.h>
 #include <private/qabstractprintdialog_p.h>
@@ -21,7 +22,14 @@ class QPrintDialogPrivate : public QAbstractPrintDialogPrivate
 {
     Q_DECLARE_PUBLIC(QPrintDialog)
 public:
-    QPrintDialogPrivate() : ep(0) { }
+    QPrintDialogPrivate() : ep(0), upp(0), sheetBlocks(false), acceptStatus(false) { }
+    ~QPrintDialogPrivate() {
+        if (upp) {
+            DisposePMSheetDoneUPP(upp);
+            upp = 0;
+        }
+        sheetCallbackMap.remove(ep->session);
+    }
 
     inline void _q_printToFileChanged(int) {}
     inline void _q_rbPrintRangeToggled(bool) {}
@@ -30,9 +38,25 @@ public:
     inline void _q_paperSizeChanged(int) {}
     inline void _q_btnBrowseClicked() {}
     inline void _q_btnPropertiesClicked() {}
+    static void printDialogSheetDoneCallback(PMPrintSession printSession, WindowRef /*documentWindow*/, Boolean accepted) {
+        QPrintDialogPrivate *priv = sheetCallbackMap.value(printSession);
+        if (!priv) {
+            qWarning("%s:%d: QPrintDialog::exec: Could not retrieve data structure, "
+                     "you most likely now have an infinite loop", __FILE__, __LINE__);
+            return;
+        }
+        priv->sheetBlocks = false;
+        priv->acceptStatus = accepted;
+    }
 
     QMacPrintEnginePrivate *ep;
+    PMSheetDoneUPP upp;
+    bool sheetBlocks;
+    Boolean acceptStatus;
+    static QHash<PMPrintSession, QPrintDialogPrivate *> sheetCallbackMap;
 };
+
+QHash<PMPrintSession, QPrintDialogPrivate *> QPrintDialogPrivate::sheetCallbackMap;
 
 QPrintDialog::QPrintDialog(QPrinter *printer, QWidget *parent)
     : QAbstractPrintDialog(*(new QPrintDialogPrivate), printer, parent)
@@ -50,7 +74,6 @@ int QPrintDialog::exec()
 {
     Q_D(QPrintDialog);
     QMacBlockingFunction func;
-    Boolean result;
 
     // If someone is reusing a QPrinter object, the end released all our old
     // information. In this case, we must reinitialize.
@@ -67,13 +90,34 @@ int QPrintDialog::exec()
         PMSetLastPage(d->ep->settings, toPage(), false);
     }
     { //simulate modality
+        // First, see if we should use a sheet.
+        QWidget *parent = parentWidget();
+        if (parent && parent->isVisible()) {
+            WindowRef windowRef = qt_mac_window_for(parent);
+            WindowClass wclass;
+            GetWindowClass(windowRef, &wclass);
+            if (!isOptionEnabled(QAbstractPrintDialog::DontUseSheet)
+                && (wclass == kDocumentWindowClass || wclass == kFloatingWindowClass
+                    || wclass == kMovableModalWindowClass)) {
+                // Yes, we can use a sheet
+                if (!d->upp)
+                    d->upp = NewPMSheetDoneUPP(QPrintDialogPrivate::printDialogSheetDoneCallback);
+                d->sheetCallbackMap.insert(d->ep->session, d);
+                PMSessionUseSheets(d->ep->session, windowRef, d->upp);
+                d->sheetBlocks = true;
+            }
+        }
 	QWidget modal_widg(0, Qt::Window);
         modal_widg.setObjectName(QLatin1String(__FILE__ "__modal_dlg"));
+        modal_widg.createWinId();
 	QApplicationPrivate::enterModal(&modal_widg);
-        PMSessionPrintDialog(d->ep->session, d->ep->settings, d->ep->format, &result);
+        PMSessionPrintDialog(d->ep->session, d->ep->settings, d->ep->format, &d->acceptStatus);
+        while (d->sheetBlocks) {
+            qApp->processEvents(QEventLoop::WaitForMoreEvents);
+        }
 	QApplicationPrivate::leaveModal(&modal_widg);
     }
-    if (result) {
+    if (d->acceptStatus) {
         UInt32 frompage, topage;
         PMGetFirstPage(d->ep->settings, &frompage);
         PMGetLastPage(d->ep->settings, &topage);
@@ -106,7 +150,7 @@ int QPrintDialog::exec()
                 = QString::fromUtf8(reinterpret_cast<const char *>(localFile));
         }
     }
-    return result;
+    return d->acceptStatus ? Accepted : Rejected;
 }
 
 #include "moc_qprintdialog.cpp"
