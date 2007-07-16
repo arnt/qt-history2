@@ -2652,7 +2652,7 @@ void QGraphicsView::mouseMoveEvent(QMouseEvent *event)
                 d->rubberBandRect = QRect();
                 return;
             }
-            
+
             // Update rubberband position
             d->rubberBandRect = QRect(d->mousePressViewPoint, event->pos()).normalized();
 
@@ -3157,6 +3157,7 @@ void QGraphicsView::scrollContentsBy(int dx, int dy)
     if (isRightToLeft())
         dx = -dx;
 
+#ifndef QT_NO_RUBBERBAND
     // Update old rubberband
     if (d->viewportUpdateMode != QGraphicsView::NoViewportUpdate && !d->rubberBandRect.isNull()) {
         if (d->viewportUpdateMode != FullViewportUpdate)
@@ -3164,6 +3165,7 @@ void QGraphicsView::scrollContentsBy(int dx, int dy)
         else
             viewport()->update();
     }
+#endif
 
     if (d->viewportUpdateMode != QGraphicsView::NoViewportUpdate){
         if (d->accelerateScrolling && d->viewportUpdateMode != FullViewportUpdate)
