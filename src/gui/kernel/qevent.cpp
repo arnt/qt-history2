@@ -934,14 +934,14 @@ Qt::FocusReason QFocusEvent::reason() const
 /*!
     \fn bool QFocusEvent::gotFocus() const
 
-    Returns true if type() is QEVent::FocusIn; otherwise returns
+    Returns true if type() is QEvent::FocusIn; otherwise returns
     false.
 */
 
 /*!
     \fn bool QFocusEvent::lostFocus() const
 
-    Returns true if type() is QEVent::FocusOut; otherwise returns
+    Returns true if type() is QEvent::FocusOut; otherwise returns
     false.
 */
 
@@ -1733,7 +1733,7 @@ void QInputMethodEvent::setCommitString(const QString &commitString, int replace
     \section1 Notes for X11 Users
 
     Qt uses the following hard-coded names to identify tablet
-    devices from the xorg.conf file on X11 (apart from IRIX): 
+    devices from the xorg.conf file on X11 (apart from IRIX):
     'stylus', 'pen', and 'eraser'. If the devices have other names,
     they will not be picked up Qt.
 */
