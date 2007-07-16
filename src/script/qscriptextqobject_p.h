@@ -235,8 +235,7 @@ public:
     inline Kind kind() const
     { return m_kind; }
 
-    inline int typeId() const
-    { return isMetaEnum() ? 2/*int*/ : m_typeId; }
+    int typeId() const;
 
     inline bool isValid() const
     { return (m_kind != Invalid); }

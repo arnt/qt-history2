@@ -407,7 +407,7 @@ void tst_QScriptExtQObject::getSetStaticProperty()
     QCOMPARE(m_engine->evaluate("myObject.intProperty")
              .strictlyEquals(QScriptValue(m_engine, 123.0)), true);
     QCOMPARE(m_engine->evaluate("myObject.variantProperty")
-             .strictlyEquals(QScriptValue(m_engine, QLatin1String("foo"))), true);
+             .toVariant(), QVariant(QLatin1String("foo")));
     QCOMPARE(m_engine->evaluate("myObject.stringProperty")
              .strictlyEquals(QScriptValue(m_engine, QLatin1String("bar"))), true);
     QCOMPARE(m_engine->evaluate("myObject.variantListProperty").isArray(), true);
@@ -453,10 +453,10 @@ void tst_QScriptExtQObject::getSetStaticProperty()
 
     m_myObject->setVariantProperty(QLatin1String("bar"));
     QCOMPARE(m_engine->evaluate("myObject.variantProperty")
-             .strictlyEquals(QScriptValue(m_engine, QLatin1String("bar"))), true);
+             .toVariant(), QVariant(QLatin1String("bar")));
     m_myObject->setVariantProperty(42);
     QCOMPARE(m_engine->evaluate("myObject.variantProperty")
-             .strictlyEquals(QScriptValue(m_engine, 42)), true);
+             .toVariant(), QVariant(42));
 
     m_myObject->setStringProperty(QLatin1String("baz"));
     QCOMPARE(m_engine->evaluate("myObject.stringProperty")
@@ -491,7 +491,7 @@ void tst_QScriptExtQObject::getSetStaticProperty()
     QCOMPARE(m_myObject->stringProperty(), QLatin1String("123"));
 
     QCOMPARE(m_engine->evaluate("myObject.variantProperty = \"foo\";"
-                                "myObject.variantProperty").toString(), QLatin1String("foo"));
+                                "myObject.variantProperty.valueOf()").toString(), QLatin1String("foo"));
     QCOMPARE(m_myObject->variantProperty(), QVariant(QLatin1String("foo")));
     QCOMPARE(m_engine->evaluate("myObject.variantProperty = 42;"
                                 "myObject.variantProperty").toNumber(), 42.0);
@@ -1628,7 +1628,7 @@ void tst_QScriptExtQObject::overloadedSlots()
     m_engine->evaluate("myObject.myOverloadedSlot(new RegExp())");
     QCOMPARE(m_myObject->qtFunctionInvoked(), 34);
 
-    // should pick myOverloadedSlot(QVariant) -- or QString?
+    // should pick myOverloadedSlot(QVariant)
     m_myObject->resetQtFunctionInvoked();
     QScriptValue f = m_engine->evaluate("myObject.myOverloadedSlot");
     f.call(QScriptValue(), QScriptValueList() << m_engine->newVariant(QVariant("ciao")));

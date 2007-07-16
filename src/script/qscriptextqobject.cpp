@@ -41,6 +41,13 @@ enum {
 
 static const bool GeneratePropertyFunctions = true;
 
+int QScriptMetaType::typeId() const
+{
+    if (isVariant())
+        return QMetaType::type("QVariant");
+    return isMetaEnum() ? 2/*int*/ : m_typeId;
+}
+
 QByteArray QScriptMetaType::name() const
 {
     if (!m_name.isEmpty())
@@ -895,7 +902,7 @@ void QScript::QtPropertyFunction::execute(QScriptContextPrivate *context)
 
     QMetaProperty prop = m_meta->property(m_index);
     Q_ASSERT(prop.isScriptable());
-
+    int type = prop.userType();
     if (context->argumentCount() == 0) {
         // get
         if (prop.isValid()) {
@@ -911,11 +918,14 @@ void QScript::QtPropertyFunction::execute(QScriptContextPrivate *context)
             if (scriptable)
                 QScriptablePrivate::get(scriptable)->engine = oldEngine;
 
-            result = eng_p->valueFromVariant(v);
+            if (uint(type) == QVariant::LastType)
+                result = eng_p->newVariant(v);
+            else
+                result = eng_p->valueFromVariant(v);
         }
     } else {
         // set
-        QVariant v = variantFromValue(prop.userType(), context->argument(0));
+        QVariant v = variantFromValue(type, context->argument(0));
 
         QScriptable *scriptable = scriptableFromQObject(qobject);
         QScriptEngine *oldEngine = 0;
@@ -1050,7 +1060,10 @@ void QScript::QtFunction::execute(QScriptContextPrivate *context)
                         types.append(QScriptMetaType::unresolved(returnTypeName));
                 }
             } else {
-                types.append(QScriptMetaType::metaType(rtype, returnTypeName));
+                if (returnTypeName == "QVariant")
+                    types.append(QScriptMetaType::variant());
+                else
+                    types.append(QScriptMetaType::metaType(rtype, returnTypeName));
             }
             // resolve argument types
             QList<QByteArray> parameterTypeNames = method.parameterTypes();
@@ -1068,7 +1081,10 @@ void QScript::QtFunction::execute(QScriptContextPrivate *context)
                             types.append(QScriptMetaType::unresolved(argTypeName));
                     }
                 } else {
-                    types.append(QScriptMetaType::metaType(atype, argTypeName));
+                    if (argTypeName == "QVariant")
+                        types.append(QScriptMetaType::variant());
+                    else
+                        types.append(QScriptMetaType::metaType(atype, argTypeName));
                 }
             }
 
@@ -1116,16 +1132,15 @@ void QScript::QtFunction::execute(QScriptContextPrivate *context)
             QScriptMetaType argType = mtd.argumentType(i);
             int tid = argType.typeId();
             QVariant v(tid, (void *)0);
-
-            converted = eng_p->convert(actual, tid, v.data());
+            if (actual.isVariant() && argType.isVariant())
+                v = actual.variantValue();
+            else
+                converted = eng_p->convert(actual, tid, v.data());
 
             if (!converted) {
                 if (actual.isVariant()) {
                     QVariant &vv = actual.variantValue();
-                    if (argType.isVariant()) {
-                        v = vv;
-                        converted = true;
-                    } else if (vv.canConvert(QVariant::Type(tid))) {
+                    if (vv.canConvert(QVariant::Type(tid))) {
                         v = vv;
                         converted = v.convert(QVariant::Type(tid));
                         if (converted && (vv.userType() != tid))
@@ -1235,8 +1250,8 @@ void QScript::QtFunction::execute(QScriptContextPrivate *context)
                         break;
                     }
                 } else if (actual.isVariant()) {
-                    if ((actual.variantValue().userType() == tid)
-                        || argType.isVariant()) {
+                    if (argType.isVariant()
+                        || (actual.variantValue().userType() == tid)) {
                         // perfect
                     } else {
                         matchDistance += 10;
@@ -1407,12 +1422,12 @@ void QScript::QtFunction::execute(QScriptContextPrivate *context)
                 result = context->returnValue(); // propagate
             } else {
                 QScriptMetaType retType = chosenMethod.returnType();
-                if (retType.typeId() != 0) {
+                if (retType.isVariant()) {
+                    result = eng_p->newVariant(*(QVariant *)params[0]);
+                } else if (retType.typeId() != 0) {
                     result = eng_p->create(retType.typeId(), params[0]);
                     if (!result.isValid())
                         result = eng_p->newVariant(QVariant(retType.typeId(), params[0]));
-                } else if (retType.isVariant()) {
-                    result = eng_p->newVariant(*(QVariant *)params[0]);
                 } else {
                     result = eng_p->undefinedValue();
                 }
