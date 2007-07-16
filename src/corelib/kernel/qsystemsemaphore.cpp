@@ -104,14 +104,14 @@
   system already has a semaphore identified by \a key, that semaphore
   is used, and the semaphore's resource count is not changed, i.e., \a
   initialValue is ignored. But if the system does not already have a
-  semaphore identified by \a key, it creates a new semphore for that
+  semaphore identified by \a key, it creates a new semaphore for that
   key and sets its resource count to \a initialValue.
 
   In Unix, if the \a mode is \l {QSystemSemaphore::} {Create} and the
   system already has a semaphore identified by \a key, that semaphore
   is used, and its resource count is set to \a initialValue. If the
   system does not already have a semaphore identified by \a key, it
-  creates a new semphore for that key and sets its resource count to
+  creates a new semaphore for that key and sets its resource count to
   \a initialValue.
 
   In Windows, \a mode is ignored, and the system always tries to
@@ -125,7 +125,7 @@
   in Unix systems to handle the case where a semaphore survives a
   process crash. In that case, the next process to allocate a
   semaphore with the same \a key will get the semaphore that survived
-  the crash, and unless \a mode is \l {QSystemSempahore::} {Create},
+  the crash, and unless \a mode is \l {QSystemSemaphore::} {Create},
   the resource count will not be reset to \a initialValue but will
   retain the initial value it had been given by the crashed process.
   
