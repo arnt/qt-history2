@@ -2148,8 +2148,8 @@
        other components and applications can understand.
     \endlist
 
-    Each of these groups are described in detail in the following sections.
-
+    For more information, see the \l{http://www.phptr.com/content/images/0131872494/samplechapter/blanchette_ch10.pdf}
+    {"Item View Classes" Chapter of C++ GUI Programming with Qt 4}.
 
     \section1 Item Data Handling
 
@@ -2326,17 +2326,17 @@
     \table 90%
     \row \o \l{QAbstractItemModel::index()}{index()}
          \o Given a model index for a parent item, this function allows views and delegates
-            to access children of that item. If no valid child item can be found that
-            corresponds to the specified row, column, and parent model index, the function
-            must return QModelIndex() - an invalid model index.
+            to access children of that item. If no valid child item - corresponding to the
+            specified row, column, and parent model index, can be found, the function
+            must return QModelIndex(), which is an invalid model index.
     \row \o \l{QAbstractItemModel::parent()}{parent()}
          \o Provides a model index corresponding to the parent of any given child item.
             If the model index specified corresponds to a top-level item in the model, or if
-            there is no valid parent item in the model, and the function must return
+            there is no valid parent item in the model, the function must return
             an invalid model index, created with the empty QModelIndex() constructor.
     \endtable
 
-    Both the above functions use the \l{QAbstractItemModel::createIndex()}{createIndex()}
+    Both functions above use the \l{QAbstractItemModel::createIndex()}{createIndex()}
     factory function to generate indexes for other components to use. It is normal for
     models to supply some unique identifier to this function to ensure that
     the model index can be re-associated with its corresponding item later on.
@@ -2382,7 +2382,7 @@
 
     When implementing drag and drop support in a custom model, it is possible to
     export items of data in specialized formats by reimplementing the following
-    functions:
+    function:
 
     \table 90%
     \row \o \l{QAbstractItemModel::mimeData()}{mimeData()}
@@ -2459,13 +2459,18 @@
     \l{QAbstractItemModel::insertColumns()}{insertColumns()}, to ensure that the
     model behaves consistently.
 
-    It is important that the functions that remove data from the
-    model (
-    \l{QAbstractItemModel}'s \l{QAbstractItemModel::}{removeRows()},
-    \l{QAbstractItemModel::}{removeRow()},
-    \l{QAbstractItemModel::}{removeColumns()},
-    and \l{QAbstractItemModel::}{removeColumn()}) are reimplemented for
-    drags that move data to work properly.
+    In order to ensure drag operations work properly, it is important to
+    reimplement the following functions that remove data from the model:
+
+    \list
+        \o \l{QAbstractItemModel::}{removeRows()}
+        \o \l{QAbstractItemModel::}{removeRow()}
+        \o \l{QAbstractItemModel::}{removeColumns()}
+        \o \l{QAbstractItemModel::}{removeColumn()}
+    \endlist
+
+    For more information about drag and drop with item views, refer to
+    \l{Using Drag and Drop with Item Views}.
 
     \section2 Convenience Views
 
@@ -2478,6 +2483,24 @@
     into the model. For more information on drag and drop in convenience views,
     you can see \l{Using Drag and Drop with Item Views}.
 
+    \section1 Performance Optimization for Large Amounts of Data
 
-    \sa {http://www.phptr.com/content/images/0131872494/samplechapter/blanchette_ch10.pdf}{"Item View Classes" Chapter of C++ GUI Programming with Qt 4}
+    The \l{QAbstractItemModel::canFetchMore()}{canFetchMore()} function checks
+    if the parent has more data available and returns true or false accordingly.
+    The \l{QAbstractItemModel::fetchMore()}{fetchMore()} function fetches data
+    based on the parent specified. Both these functions can be combined, for
+    example, in a database query involving incremental data to populate a
+    QAbstractItemModel. We reimplement \l{QAbstractItemModel::canFetchMore()}
+    {canFetchMore()} to indicate if there is more data to be fetched and
+    \l{QAbstractItemModel::fetchMore()}{fetchMore()} to populate the model
+    as required.
+
+    Another example would be dynamically populated tree models, where we reimplement
+    \l{QAbstractItemModel::fetchMore()}{fetchMore()} when a branch in the tree model
+    is expanded.
+
+    \note Both functions must be reimplemented as the default implementation of
+    \l{QAbstractItemModel::canFetchMore()}{canFetchMore()} returns false and
+    \l{QAbstractItemModel::fetchMore()}{fetchMore()} does nothing.
+
 */
