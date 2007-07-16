@@ -1245,12 +1245,8 @@ void QFileSystemModelPrivate::_q_directoryChanged(const QString &directory, cons
     // non-filtered files will be removed in a fileSystemChanged()
     for (int i = parentNode->children.count() - 1;  i >= 0; --i) {
         QStringList::const_iterator iterator;
-        if (parentNode->caseSensitive())
-            iterator = qBinaryFind(newFiles.begin(), newFiles.end(),
+        interator = qBinaryFind(newFiles.begin(), newFiles.end(),
                        parentNode->children.at(i).fileName);
-        else
-            iterator = qBinaryFind(newFiles.begin(), newFiles.end(),
-                       parentNode->children.at(i).fileName, caseInsensitiveLessThan);
         if (iterator == newFiles.constEnd()) {
            removeNode(parentNode, i);
         }
