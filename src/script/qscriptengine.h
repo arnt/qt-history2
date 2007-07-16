@@ -199,6 +199,9 @@ protected:
 private:
     Q_DECLARE_PRIVATE(QScriptEngine)
     Q_DISABLE_COPY(QScriptEngine)
+#ifndef QT_NO_QOBJECT
+    Q_PRIVATE_SLOT(d_func(), void _q_objectDestroyed(QObject *))
+#endif
 };
 
 #ifndef QT_NO_QOBJECT

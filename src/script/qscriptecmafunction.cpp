@@ -296,14 +296,13 @@ QScriptValueImpl Function::method_disconnect(QScriptContextPrivate *context, QSc
             slot = receiver.property(arg1.toString(), QScriptValue::ResolvePrototype);
     }
 
-    QScriptFunction *otherFun = slot.toFunction();
-    if (otherFun == 0) {
+    if (!slot.isFunction()) {
         return context->throwError(
             QScriptContext::TypeError,
             QLatin1String("Function.prototype.disconnect: target is not a function"));
     }
 
-    bool ok = qtSignal->destroyConnection(self, receiver, slot);
+    bool ok = eng->scriptDisconnect(self, receiver, slot);
     if (!ok) {
         return context->throwError(
             QString::fromLatin1("Function.prototype.disconnect: failed to disconnect from %0::%1")
@@ -367,14 +366,13 @@ QScriptValueImpl Function::method_connect(QScriptContextPrivate *context, QScrip
             slot = receiver.property(arg1.toString(), QScriptValue::ResolvePrototype);
     }
 
-    QScriptFunction *otherFun = slot.toFunction();
-    if (otherFun == 0) {
+    if (!slot.isFunction()) {
         return context->throwError(
             QScriptContext::TypeError,
             QLatin1String("Function.prototype.connect: target is not a function"));
     }
 
-    bool ok = qtSignal->createConnection(self, receiver, slot);
+    bool ok = eng->scriptConnect(self, receiver, slot);
     if (!ok) {
         return context->throwError(
             QString::fromLatin1("Function.prototype.connect: failed to connect to %0::%1")

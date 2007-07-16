@@ -1363,7 +1363,7 @@ void tst_QScriptExtQObject::cppConnectAndDisconnect()
         QVERIFY(qScriptDisconnect(&edit, SIGNAL(textChanged(const QString &)), QScriptValue(), fun));
 
         QVERIFY(qScriptConnect(&edit, SIGNAL(textChanged(const QString &)), QScriptValue(), fun));
-        QVERIFY(eng.evaluate("edit.textChanged.disconnect(fun)").isError());
+        QVERIFY(eng.evaluate("edit.textChanged.disconnect(fun)").isUndefined());
     }
 }
 

@@ -1346,6 +1346,8 @@ bool qScriptDisconnect(QObject *sender, const char *signal,
                                    QScriptValuePrivate::valueOf(function));
 }
 
+#include "moc_qscriptengine.cpp"
+
 #endif // QT_NO_QOBJECT
 
 #endif // QT_NO_SCRIPT

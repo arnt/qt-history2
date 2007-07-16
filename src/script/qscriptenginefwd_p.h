@@ -106,6 +106,7 @@ public:
 } // namespace QScript
 
 #ifndef QT_NO_QOBJECT
+class QScriptQObjectData;
 class QScriptMetaObject;
 #endif
 
@@ -321,12 +322,31 @@ public:
     void processEvents();
 
 #ifndef QT_NO_QOBJECT
+    QScriptQObjectData *qobjectData(QObject *object);
+
     bool scriptConnect(QObject *sender, const char *signal,
                        const QScriptValueImpl &receiver,
                        const QScriptValueImpl &function);
     bool scriptDisconnect(QObject *sender, const char *signal,
                           const QScriptValueImpl &receiver,
                           const QScriptValueImpl &function);
+
+    bool scriptConnect(QObject *sender, int index,
+                       const QScriptValueImpl &receiver,
+                       const QScriptValueImpl &function,
+                       const QScriptValueImpl &senderWrapper = QScriptValueImpl());
+    bool scriptDisconnect(QObject *sender, int index,
+                          const QScriptValueImpl &receiver,
+                          const QScriptValueImpl &function);
+
+    bool scriptConnect(const QScriptValueImpl &signal,
+                       const QScriptValueImpl &receiver,
+                       const QScriptValueImpl &function);
+    bool scriptDisconnect(const QScriptValueImpl &signal,
+                          const QScriptValueImpl &receiver,
+                          const QScriptValueImpl &function);
+
+    void _q_objectDestroyed(QObject *object);
 #endif
 
 public: // attributes
@@ -409,6 +429,8 @@ public: // attributes
     QTime m_processEventTracker;
 
 #ifndef QT_NO_QOBJECT
+    QHash<QObject*, QScriptQObjectData*> m_qobjectData;
+
 # ifndef Q_SCRIPT_NO_QMETAOBJECT_CACHE
     QHash<const QMetaObject*, QScriptMetaObject*> m_cachedMetaObjects;
 # endif

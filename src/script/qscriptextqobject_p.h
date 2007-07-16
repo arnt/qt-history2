@@ -99,12 +99,11 @@ protected:
 class ConnectionQObject: public QObject
 {
 public:
-    ConnectionQObject(const QMetaMethod &m,
-                      QObject *sender,
-                      const QScriptValueImpl &signal,
+    ConnectionQObject(QObject *sender,
+                      const QScriptValueImpl &senderWrapper,
+                      int signalIndex,
                       const QScriptValueImpl &receiver,
-                      const QScriptValueImpl &slot,
-                      QScriptEngine::ValueOwnership ownership);
+                      const QScriptValueImpl &slot);
     ~ConnectionQObject();
 
     static const QMetaObject staticMetaObject;
@@ -115,18 +114,18 @@ public:
     void execute(void **argv);
 
     void mark(int generation);
-    bool hasTarget(const QScriptValueImpl &, const QScriptValueImpl &) const;
-    QObject *senderQObject() const;
 
-    void senderDestroyed();
+    QObject *senderQObject() const;
+    int signalIndex() const;
+    bool matches(int signalIndex, const QScriptValueImpl &receiver,
+                 const QScriptValueImpl &slot) const;
 
 private:
-    QMetaMethod m_method;
     QObject *m_sender;
-    QScriptValueImpl m_signal;
+    QScriptValueImpl m_senderWrapper;
+    int m_signalIndex;
     QScriptValueImpl m_receiver;
     QScriptValueImpl m_slot;
-    QScriptValue m_self;
 };
 
 class QtFunction: public QScriptFunction
@@ -137,7 +136,7 @@ public:
           m_maybeOverloaded(maybeOverloaded)
         { }
 
-    virtual ~QtFunction();
+    virtual ~QtFunction() { }
 
     virtual void execute(QScriptContextPrivate *context);
 
@@ -169,17 +168,8 @@ public:
     inline int initialIndex() const { return m_initialIndex; }
     inline bool maybeOverloaded() const { return m_maybeOverloaded; }
 
-    bool createConnection(const QScriptValueImpl &self,
-                          const QScriptValueImpl &receiver,
-                          const QScriptValueImpl &slot);
-    bool destroyConnection(const QScriptValueImpl &self,
-                           const QScriptValueImpl &receiver,
-                           const QScriptValueImpl &slot);
-    void removeConnection(QObject *connection);
-
 private:
     QScriptValueImpl m_object;
-    QList<QPointer<QObject> > m_connections;
     int m_initialIndex;
     bool m_maybeOverloaded;
 };
@@ -217,6 +207,15 @@ protected:
 };
 
 } // namespace QScript
+
+class QScriptQObjectData // : public QObjectUserData
+{
+public:
+    QScriptQObjectData();
+    ~QScriptQObjectData();
+
+    QList<QPointer<QScript::ConnectionQObject> > connections;
+};
 
 class QScriptMetaType
 {

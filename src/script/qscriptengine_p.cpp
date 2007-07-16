@@ -284,6 +284,7 @@ QScriptEnginePrivate::~QScriptEnginePrivate()
     delete[] tempStackBegin;
 
 #ifndef QT_NO_QOBJECT
+    qDeleteAll(m_qobjectData);
 # ifndef Q_SCRIPT_NO_QMETAOBJECT_CACHE
     qDeleteAll(m_cachedMetaObjects);
 # endif
@@ -1783,6 +1784,30 @@ void QScriptEnginePrivate::setupProcessEvents()
 
 #ifndef QT_NO_QOBJECT
 
+QScriptQObjectData *QScriptEnginePrivate::qobjectData(QObject *object)
+{
+    QHash<QObject*, QScriptQObjectData*>::const_iterator it;
+    it = m_qobjectData.constFind(object);
+    if (it != m_qobjectData.constEnd())
+        return it.value();
+
+    QScriptQObjectData *data = new QScriptQObjectData();
+    m_qobjectData.insert(object, data);
+    QObject::connect(object, SIGNAL(destroyed(QObject*)),
+                     q_func(), SLOT(_q_objectDestroyed(QObject *)));
+    return data;
+}
+
+void QScriptEnginePrivate::_q_objectDestroyed(QObject *object)
+{
+    QHash<QObject*, QScriptQObjectData*>::iterator it;
+    it = m_qobjectData.find(object);
+    Q_ASSERT(it != m_qobjectData.end());
+    QScriptQObjectData *data = it.value();
+    m_qobjectData.erase(it);
+    delete data;
+}
+
 bool QScriptEnginePrivate::scriptConnect(QObject *sender, const char *signal,
                                          const QScriptValueImpl &receiver,
                                          const QScriptValueImpl &function)
@@ -1793,12 +1818,7 @@ bool QScriptEnginePrivate::scriptConnect(QObject *sender, const char *signal,
     int index = meta->indexOfSignal(QMetaObject::normalizedSignature(signal+1));
     if (index == -1)
         return false;
-    QMetaMethod method = meta->method(index);
-    QObject *conn = new QScript::ConnectionQObject(method, sender,
-                                                   /*signal=*/QScriptValueImpl(),
-                                                   receiver, function,
-                                                   QScriptEngine::ScriptOwnership);
-    return QMetaObject::connect(sender, index, conn, conn->metaObject()->methodOffset());
+    return scriptConnect(sender, index, receiver, function);
 }
 
 bool QScriptEnginePrivate::scriptDisconnect(QObject *sender, const char *signal,
@@ -1811,26 +1831,69 @@ bool QScriptEnginePrivate::scriptDisconnect(QObject *sender, const char *signal,
     int index = meta->indexOfSignal(QMetaObject::normalizedSignature(signal+1));
     if (index == -1)
         return false;
-    bool ok = false;
-    QHash<QScriptObject*, QScriptValuePrivate*>::const_iterator it;
-    for (it = m_objectHandles.constBegin(); it != m_objectHandles.constEnd(); ++it) {
-        QObject *qobj = it.value()->value.toQObject();
-        if (!qobj)
-            continue;
-        void *ptr = qobj->qt_metacast("QScript::ConnectionQObject");
-        if (!ptr)
-            continue;
-        QScript::ConnectionQObject *conn;
-        conn = reinterpret_cast<QScript::ConnectionQObject*>(ptr);
-        if ((conn->senderQObject() != sender)
-            || !conn->hasTarget(receiver, function)) {
-            continue;
-        }
-        ok = QMetaObject::disconnect(sender, index, conn, conn->metaObject()->methodOffset());
+    return scriptDisconnect(sender, index, receiver, function);
+}
+
+bool QScriptEnginePrivate::scriptConnect(QObject *sender, int index,
+                                         const QScriptValueImpl &receiver,
+                                         const QScriptValueImpl &function,
+                                         const QScriptValueImpl &senderWrapper)
+{
+    QScript::ConnectionQObject *conn = new QScript::ConnectionQObject(
+        sender, senderWrapper, index, receiver, function);
+    bool ok = QMetaObject::connect(sender, index, conn, conn->metaObject()->methodOffset());
+    if (ok) {
+        QScriptQObjectData *data = qobjectData(sender);
+        data->connections.append(conn);
+    } else {
         delete conn;
-        break;
     }
     return ok;
+}
+
+bool QScriptEnginePrivate::scriptDisconnect(QObject *sender, int index,
+                                            const QScriptValueImpl &receiver,
+                                            const QScriptValueImpl &function)
+{
+    QScriptQObjectData *data = qobjectData(sender);
+    if (!data)
+        return false;
+    bool ok = false;
+    QList<QPointer<QScript::ConnectionQObject> >::iterator it;
+    for (it = data->connections.begin(); it != data->connections.end(); ) {
+        QScript::ConnectionQObject *conn = *it;
+        if (!conn) {
+            it = data->connections.erase(it);
+        } else if (!conn->matches(index, receiver, function)) {
+            ++it;
+        } else {
+            ok = QMetaObject::disconnect(sender, index, conn, conn->metaObject()->methodOffset());
+            if (ok) {
+                data->connections.erase(it);
+                delete conn;
+            }
+            break;
+        }
+    }
+    return ok;
+}
+
+bool QScriptEnginePrivate::scriptConnect(const QScriptValueImpl &signal,
+                                         const QScriptValueImpl &receiver,
+                                         const QScriptValueImpl &function)
+{
+    QScript::QtFunction *fun = static_cast<QScript::QtFunction*>(signal.toFunction());
+    int index = fun->mostGeneralMethod();
+    return scriptConnect(fun->qobject(), index, receiver, function, fun->object());
+}
+
+bool QScriptEnginePrivate::scriptDisconnect(const QScriptValueImpl &signal,
+                                            const QScriptValueImpl &receiver,
+                                            const QScriptValueImpl &function)
+{
+    QScript::QtFunction *fun = static_cast<QScript::QtFunction*>(signal.toFunction());
+    int index = fun->mostGeneralMethod();
+    return scriptDisconnect(fun->qobject(), index, receiver, function);
 }
 
 #endif // QT_NO_QOBJECT
