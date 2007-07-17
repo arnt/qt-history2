@@ -2056,7 +2056,7 @@
     \section1 Using Proxy Models
 
     Proxy models can be inserted between an existing model and any number of views.
-    Qt is supplied with a standard proxy models, QSortFilterProxyModel, that is usually
+    Qt is supplied with a standard proxy model, QSortFilterProxyModel, that is usually
     instantiated and used directly, but can also be subclassed to provide custom filtering
     and sorting behavior. The QSortFilterProxyModel class can be used in the following way:
 
