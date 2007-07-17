@@ -6,7 +6,7 @@ SOURCES    = echowindow.cpp \
 TARGET     = ../echoplugin
 
 # install
-target.path = $$[QT_INSTALL_EXAMPLES]/tools/echoplugin/echowindow
+target.path = $$[QT_INSTALL_EXAMPLES]/tools/echoplugin
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS echowindow.pro
 sources.path = $$[QT_INSTALL_EXAMPLES]/tools/echoplugin/echowindow
 INSTALLS += target sources
