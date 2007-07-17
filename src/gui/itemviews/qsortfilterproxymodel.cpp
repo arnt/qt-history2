@@ -1835,7 +1835,7 @@ void QSortFilterProxyModel::setFilterKeyColumn(int column)
     \brief the case sensitivity of the QRegExp pattern used to filter the
     contents of the source model
 
-    By default, the filter is case sensistive.
+    By default, the filter is case sensitive.
 
     \sa filterRegExp, sortCaseSensitivity
 */
@@ -1859,7 +1859,7 @@ void QSortFilterProxyModel::setFilterCaseSensitivity(Qt::CaseSensitivity cs)
     \property QSortFilterProxyModel::sortCaseSensitivity
     \brief the case sensitivity setting used for comparing strings when sorting
 
-    By default, sorting is case sensistive.
+    By default, sorting is case sensitive.
 
     \sa filterCaseSensitivity, lessThan()
 */
