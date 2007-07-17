@@ -196,6 +196,13 @@ void QPrinterPrivate::createDefaultEngines()
     \value HighResolution On Windows, sets the printer resolution to that
     defined for the printer in use. For PostScript printing, sets the
     resolution of the PostScript driver to 1200 dpi.
+
+    \note When rendering text on a QPrinter device, it is important
+    to realize that the size of text, when specified in points, is
+    independent of the resolution specified for the device itself.
+    Therefore, it may be useful to specify the font size in pixels
+    when combining text with graphics to ensure that their relative
+    sizes are what you expect.
 */
 
 /*!
