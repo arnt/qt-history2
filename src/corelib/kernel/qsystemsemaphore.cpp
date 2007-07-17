@@ -193,7 +193,8 @@ QSystemSemaphore::~QSystemSemaphore()
   this QSystemSemaphore object. If the new \a key is different from
   the old key, calling this function is like calling the destructor of
   the semaphore with the old key, then calling the constructor to
-  create a new semaphore with the new \a key.
+  create a new semaphore with the new \a key. The \a initialValue and
+  \a mode parameters are as defined for the constructor.
 
   \sa QSystemSemaphore(), key()
  */
