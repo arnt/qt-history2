@@ -1863,8 +1863,8 @@ QDateTime::QDateTime()
 
 
 /*!
-    Constructs a datetime with the given \a date, and a valid
-    time (00:00:00.000).
+    Constructs a datetime with the given \a date, a valid
+    time(00:00:00.000), and sets the timeSpec() to Qt::LocalTime.
 */
 
 QDateTime::QDateTime(const QDate &date)
@@ -1973,7 +1973,15 @@ QTime QDateTime::time() const
 
 Qt::TimeSpec QDateTime::timeSpec() const
 {
-    return d->spec == QDateTimePrivate::UTC ? Qt::UTC : Qt::LocalTime;
+    switch(d->spec)
+    {
+        case QDateTimePrivate::UTC:
+            return Qt::UTC;
+        case QDateTimePrivate::OffsetFromUTC:
+            return Qt::OffsetFromUTC;
+        default:
+            return Qt::LocalTime;
+    }
 }
 
 /*!
@@ -2012,7 +2020,19 @@ void QDateTime::setTime(const QTime &time)
 void QDateTime::setTimeSpec(Qt::TimeSpec spec)
 {
     detach();
-    d->spec = (spec == Qt::UTC) ? QDateTimePrivate::UTC : QDateTimePrivate::LocalUnknown;
+
+    switch(spec)
+    {
+        case Qt::UTC:
+            d->spec = QDateTimePrivate::UTC;
+            break;
+        case Qt::OffsetFromUTC:
+            d->spec = QDateTimePrivate::OffsetFromUTC;
+            break;
+        default:
+            d->spec = QDateTimePrivate::LocalUnknown;
+            break;
+    }
 }
 
 static uint toTime_t(const QDate &utcDate, const QTime &utcTime)
@@ -2172,6 +2192,7 @@ QString QDateTime::toString(Qt::DateFormat f) const
         buf += QLatin1Char(' ');
         buf += d->time.toString(f);
     }
+
     return buf;
 }
 
@@ -2544,6 +2565,63 @@ QDateTime QDateTime::fromTime_t(uint seconds)
     return d;
 }
 
+/*!
+ \since 4.4
+ \internal
+
+ Sets the offset from UTC to \a seconds, and also
+ sets timeSpec() to Qt::OffsetFromUTC.
+
+ The maximum and minimum offset is 14 positive or negative hours.
+ If \a seconds is larger or smaller than that, the result is undefined.
+
+ 0 as offset is identical to UTC. Therefore, if \a seconds is 0, the timeSpec()
+ will be set to Qt::UTC. Hence the UTC offset always relates to UTC, and
+ can never relate to local time.
+
+ \sa isValid(), utcOffset()
+ */
+void QDateTime::setUtcOffset(int seconds)
+{
+    detach();
+
+    /* The motivation to also setting d->spec is to ensure that the QDateTime
+     * instance stay in well-defined states all the time, instead of that
+     * we instruct the user to ensure it. */
+    if(seconds == 0)
+        d->spec = QDateTimePrivate::UTC;
+    else
+        d->spec = QDateTimePrivate::OffsetFromUTC;
+
+    /* Even if seconds is 0 we assign it to utcOffset. */
+    d->utcOffset = seconds;
+}
+
+/*!
+ \since 4.4
+ \internal
+
+ Returns the UTC offset in seconds. If the timeSpec()
+ isn't Qt::OffsetFromUTC, 0 is returned. However, since 0 is a valid
+ UTC offset the return value of this function cannot be used to
+ determine whether a utcOffset() is used or is valid, timeSpec()
+ must be checked.
+
+ Likewise, if this QDateTime() is invalid or if timeSpec()
+ isn't Qt::OffsetFromUTC, 0 is returned.
+
+ The UTC offset only applies if the timeSpec() is Qt::OffsetFromUTC.
+
+ \sa isValid(), setUtcOffset()
+ */
+int QDateTime::utcOffset() const
+{
+    if(isValid() && d->spec == QDateTimePrivate::OffsetFromUTC)
+        return d->utcOffset;
+    else
+        return 0;
+}
+
 #ifndef QT_NO_DATESTRING
 
 static int fromShortMonthName(const QString &monthName)
@@ -2671,7 +2749,8 @@ QDateTime QDateTime::fromString(const QString& s, Qt::DateFormat f)
 
         return QDateTime(date, time);
     }
-#endif //QT_NO_REGEXP
+#endif //QT_NO_TEXTDATE
+
     return QDateTime();
 }
 

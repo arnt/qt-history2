@@ -87,6 +87,9 @@ private slots:
 
     void fromString();
 
+    void zoneOffset() const;
+    void setZoneOffset() const;
+
 private:
     bool europeanTimeZone;
     QDate defDate() const { return QDate(1900, 1, 1); }
@@ -1155,6 +1158,62 @@ void tst_QDateTime::fromString_LOCALE_ILDATE()
     QSKIP("Windows only", SkipAll);
 #endif
 }
+
+void tst_QDateTime::zoneOffset() const
+{
+    /* Check default value. */
+    QCOMPARE(QDateTime().zoneOffset(), 0);
+}
+
+void tst_QDateTime::setZoneOffset() const
+{
+    /* Basic tests. */
+    {
+        QDateTime dt(QDateTime::currentDateTime());
+        dt.setTimeSpec(Qt::LocalTime);
+
+        dt.setZoneOffset(0);
+        QCOMPARE(dt.zoneOffset(), 0);
+        QCOMPARE(dt.timeSpec(), Qt::UTC);
+
+        dt.setZoneOffset(-100);
+        QCOMPARE(dt.zoneOffset(), -100);
+        QCOMPARE(dt.timeSpec(), Qt::OffsetFromUTC);
+    }
+
+    /* Test detaching. */
+    {
+        QDateTime dt(QDateTime::currentDateTime());
+        QDateTime dt2(dt);
+
+        dt.setZoneOffset(501);
+
+        QCOMPARE(dt.zoneOffset(), 501);
+        QCOMPARE(dt2.zoneOffset(), 0);
+    }
+
+    /* Check copying. */
+    {
+        QDateTime dt(QDateTime::currentDateTime());
+        dt.setZoneOffset(502);
+        QCOMPARE(dt.zoneOffset(), 502);
+
+        QDateTime dt2(dt);
+        QCOMPARE(dt2.zoneOffset(), 502);
+    }
+
+    /* Check assignment. */
+    {
+        QDateTime dt(QDateTime::currentDateTime());
+        dt.setZoneOffset(502);
+        QDateTime dt2;
+        dt2 = dt;
+
+        QCOMPARE(dt2.zoneOffset(), 502);
+    }
+}
+
+Q_DECLARE_METATYPE(Qt::DateFormat)
 
 QTEST_APPLESS_MAIN(tst_QDateTime)
 #include "tst_qdatetime.moc"

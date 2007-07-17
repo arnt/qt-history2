@@ -45,17 +45,24 @@
 class QDateTimePrivate
 {
 public:
-    enum Spec { LocalUnknown = -1, LocalStandard = 0, LocalDST = 1, UTC = 2 };
+    enum Spec { LocalUnknown = -1, LocalStandard = 0, LocalDST = 1, UTC = 2, OffsetFromUTC = 3};
 
-    QDateTimePrivate() : ref(1), spec(LocalUnknown) {}
+    QDateTimePrivate() : ref(1), spec(LocalUnknown), utcOffset(0) {}
     QDateTimePrivate(const QDateTimePrivate &other)
-        : ref(1), date(other.date), time(other.time), spec(other.spec)
+        : ref(1), date(other.date), time(other.time), spec(other.spec), utcOffset(other.utcOffset)
     {}
 
     QAtomic ref;
     QDate date;
     QTime time;
     Spec spec;
+    /*!
+      \internal
+      \since 4.4
+
+      The offset in seconds. Applies only when timeSpec() is OffsetFromUTC.
+     */
+    int utcOffset;
 
     Spec getLocal(QDate &outDate, QTime &outTime) const;
     void getUTC(QDate &outDate, QTime &outTime) const;

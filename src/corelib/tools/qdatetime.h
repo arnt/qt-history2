@@ -207,6 +207,9 @@ public:
     inline bool operator>(const QDateTime &other) const { return other < *this; }
     inline bool operator>=(const QDateTime &other) const { return !(*this < other); }
 
+    void setUtcOffset(int seconds);
+    int utcOffset() const;
+
     static QDateTime currentDateTime();
 #ifndef QT_NO_DATESTRING
     static QDateTime fromString(const QString &s, Qt::DateFormat f = Qt::TextDate);
@@ -226,6 +229,7 @@ public:
         else
             return currentDateTime().toUTC();
     }
+    
 #endif
 
 private:

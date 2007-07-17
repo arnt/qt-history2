@@ -1142,7 +1142,8 @@ public:
 
     enum TimeSpec {
         LocalTime,
-        UTC
+        UTC,
+        OffsetFromUTC
     };
 
     enum DayOfWeek {
