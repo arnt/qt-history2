@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "default_container.h"
+#include <QtCore/QDebug>
 
 template <class Container>
 static inline void setCurrentContainerIndex(int index, Container *container)
@@ -118,4 +119,19 @@ void QToolBoxContainer::remove(int index)
 {
     m_widget->removeItem(index);
 }
+
+// ------------------- QScrollAreaContainer
+
+QScrollAreaContainer::QScrollAreaContainer(QScrollArea *widget, QObject *parent) :
+    QObject(parent),
+    SingleChildContainer<QScrollArea>(widget)
+{
+}
+// ------------------- QDockWidgetContainer
+QDockWidgetContainer::QDockWidgetContainer(QDockWidget *widget, QObject *parent) :
+    QObject(parent),
+    SingleChildContainer<QDockWidget>(widget)
+{
+}
+
 }

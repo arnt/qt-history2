@@ -124,6 +124,9 @@ QWidget *QFormBuilder::create(DomWidget *ui_widget, QWidget *parentWidget)
 #ifndef QT_NO_STACKEDWIDGET
             && !qobject_cast<QTabWidget *>(parentWidget)
 #endif
+#ifndef QT_NO_SCROLLAREA
+            && !qobject_cast<QScrollArea *>(parentWidget)
+#endif
             )
         QFormBuilderExtra::instance(this)->setProcessingLayoutWidget(true);
     return QAbstractFormBuilder::create(ui_widget, parentWidget);

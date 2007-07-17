@@ -38,6 +38,7 @@
 #include <QtGui/QTableWidget>
 #include <QtGui/QWidget>
 #include <QtGui/QSplitter>
+#include <QtGui/QScrollArea>
 
 #include <QtXml/QDomDocument>
 
@@ -183,7 +184,7 @@ QWidget *QAbstractFormBuilder::create(DomUI *ui, QWidget *parentWidget)
     DomCustomWidgets *domCustomWidgets  = ui->elementCustomWidgets();
     createCustomWidgets(domCustomWidgets);
 
-#ifndef QT_FORMBUILDER_NO_SCRIPT    
+#ifndef QT_FORMBUILDER_NO_SCRIPT  
     if (domCustomWidgets) {
         foreach(const DomCustomWidget* cw, domCustomWidgets->elementCustomWidget()) {
             if (const DomScript *domScript = cw->elementScript()) {
@@ -464,6 +465,13 @@ bool QAbstractFormBuilder::addItem(DomWidget *ui_widget, QWidget *widget, QWidge
 #ifndef QT_NO_DOCKWIDGET
     else if (QDockWidget *dockWidget = qobject_cast<QDockWidget*>(parentWidget)) {
         dockWidget->setWidget(widget);
+        return true;
+    }
+#endif
+
+#ifndef QT_NO_SCROLLAREA
+    else if (QScrollArea *scrollArea = qobject_cast<QScrollArea*>(parentWidget)) {
+        scrollArea->setWidget(widget);
         return true;
     }
 #endif

@@ -30,6 +30,7 @@ TRANSLATOR qdesigner_internal::ContainerWidgetTaskMenu
 #include <QtGui/QToolBox>
 #include <QtGui/QStackedWidget>
 #include <QtGui/QTabWidget>
+#include <QtGui/QScrollArea>
 
 #include <QtCore/qdebug.h>
 
@@ -152,6 +153,7 @@ QObject *ContainerWidgetTaskMenuFactory::createExtension(QObject *object, const 
             || qobject_cast<QToolBox*>(widget)
             || qobject_cast<QTabWidget*>(widget)
             || qobject_cast<QDesignerDockWidget*>(widget)
+            || qobject_cast<QScrollArea*>(widget)
             || qobject_cast<QMainWindow*>(widget))
         return 0;
 

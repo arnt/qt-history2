@@ -44,6 +44,7 @@ TRANSLATOR qdesigner_internal::WidgetFactory
 #include <QtDesigner/QDesignerLanguageExtension>
 
 #include <QtGui/QtGui>
+#include <QtGui/QScrollBar>
 #include <QtCore/qdebug.h>
 
 namespace qdesigner_internal {
@@ -488,11 +489,21 @@ bool WidgetFactory::isPassiveInteractor(QWidget *widget)
         return (m_lastWasAPassiveInteractor = true);
     else if (qobject_cast<QToolBar*>(widget))
         return (m_lastWasAPassiveInteractor = true);
-    else if (qstrcmp(widget->metaObject()->className(), "QDockWidgetTitle") == 0)
+    else if (qobject_cast<QScrollBar*>(widget)) {
+        // A scroll bar is an interactor on a QAbstractScrollArea only.
+        if (const QWidget *parent = widget->parentWidget()) {
+            const QString objectName = parent->objectName();
+            static const QString scrollAreaVContainer = QLatin1String("qt_scrollarea_vcontainer");
+            static const QString scrollAreaHContainer = QLatin1String("qt_scrollarea_hcontainer");
+            if (objectName == scrollAreaVContainer || objectName == scrollAreaHContainer) {
+                m_lastWasAPassiveInteractor = true;
+                return m_lastWasAPassiveInteractor;
+            }
+        }
+    } else if (qstrcmp(widget->metaObject()->className(), "QDockWidgetTitle") == 0)
         return (m_lastWasAPassiveInteractor = true);
     else if (widget->objectName().startsWith(QLatin1String("__qt__passive_")))
         return (m_lastWasAPassiveInteractor = true);
-
     return m_lastWasAPassiveInteractor;
 }
 
