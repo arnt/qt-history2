@@ -53,6 +53,7 @@ private slots:
     void moveCursor();
     void selectAll();
     void clicked();
+    void selectedColumns();
 
     // grip
     void moveGrip();
@@ -416,6 +417,30 @@ void tst_QColumnView::clicked()
         if (column && column->selectionModel() && (column->rootIndex() == home.parent()))
                 QVERIFY(column->selectionModel()->selectedIndexes().isEmpty());
     }
+}
+
+void tst_QColumnView::selectedColumns()
+{
+    ColumnView view;
+    QDirModel model;
+    view.setModel(&model);
+    view.resize(800,300);
+    view.show();
+
+    QModelIndex home = model.index(QDir::homePath());
+    view.setCurrentIndex(home);
+
+    QTest::qWait(ANIMATION_DELAY);
+
+    for (int i = 0; i < view.createdColumns.count(); ++i) {
+        QAbstractItemView *column = view.createdColumns.at(i);
+        if (!column)
+            continue;
+        if (!column->rootIndex().isValid() || column->rootIndex() == home)
+            continue;
+        QVERIFY(column->currentIndex().isValid());
+    }
+
 }
 
 void tst_QColumnView::moveGrip()
