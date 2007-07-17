@@ -1,6 +1,7 @@
 TEMPLATE      = subdirs
-SUBDIRS       = textfinder \
-                multipleinheritance
+SUBDIRS       = multipleinheritance
+
+contains(QT_BUILD_PARTS, tools): SUBDIRS += textfinder
 
 # install
 target.path = $$[QT_INSTALL_EXAMPLES]/uitools
