@@ -7,7 +7,7 @@ var ctx = document.getElementById('tutorial').getContext('2d');
   ctx.fillStyle = '#09F';
   ctx.fillRect(0,75,75,75);
   ctx.fillStyle = '#F30';
-  ctx.fillRect(75,75,150,150);
+  ctx.fillRect(75,75,75,75);
   ctx.fillStyle = '#FFF';
 
   // set transparency value
