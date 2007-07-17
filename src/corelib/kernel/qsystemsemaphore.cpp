@@ -19,7 +19,7 @@
   \class QSystemSemaphore
   \since 4.4
 
-  \brief The QSystemSemaphore class provides a general system counting semaphore.
+  \brief The QSystemSemaphore class provides a general counting system semaphore.
 
   A semaphore is a generalization of a mutex. While a mutex can be
   locked only once, a semaphore can be acquired multiple times.
@@ -189,11 +189,11 @@ QSystemSemaphore::~QSystemSemaphore()
 */
 
 /*!
-  This function works the same as the class constructor, i.e., it
-  reconstructs the QSystemSemaphore. If the \a key is being changed,
-  calling this function is like calling the destructor for the
-  semaphore with the current key and then calling the constructor to
-  create a new semaphore for the new \a key.
+  This function works the same as the constructor. It reconstructs
+  this QSystemSemaphore object. If the new \a key is different from
+  the old key, calling this function is like calling the destructor of
+  the semaphore with the old key, then calling the constructor to
+  create a new semaphore with the new \a key.
 
   \sa QSystemSemaphore(), key()
  */
@@ -230,9 +230,8 @@ QString QSystemSemaphore::key() const
 }
 
 /*!
-  
   Acquires one of the resources guarded by this semaphore, if there is
-  one available and returns true. If all the resources guarded by this
+  one available, and returns true. If all the resources guarded by this
   semaphore have already been acquired, the call blocks until one of
   them is released by another process or thread having a semaphore
   with the same key.
@@ -247,15 +246,30 @@ bool QSystemSemaphore::acquire()
 }
 
 /*!
-  Releases \a n resources guarded by the semaphore.  This function
-  can be used to "create" resources. For example: Returns true on
-  success; otherwise returns false.
+  Releases \a n resources guarded by the semaphore. Returns true
+  unless there is a system error.
 
-  QSystemSemaphore sem(5);  // a semaphore that guards 5 resources
+  Example: Create a system semaphore having five resources; acquire
+  them all and then release them all.
+  
+  \code
+  QSystemSemaphore sem("market", 5, QSystemSemaphore::Create);
   sem.acquire(5);           // acquire all 5 resources
   sem.release(5);           // release the 5 resources
-  sem.release(10);          // "create" 10 new resources
+  \endcode
 
+  This function can also "create" resources. For example, immediately
+  following the sequence of statements above, suppose we add the
+  statement:
+
+  \code
+  sem.release(10);          // "create" 10 new resources
+  \endcode
+
+  Ten new resources are now guarded by the semaphore, in addition to
+  the five that already existed. You would not normally use this
+  function to create more resources.
+  
   \sa acquire()
  */
 bool QSystemSemaphore::release(int n)
