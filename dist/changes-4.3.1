@@ -54,8 +54,14 @@ General Improvements
 	* [166677] Fixed an issue with alert() where windows would keep flashing 
 			   after beeing activated by the user.
 
+- QFile
+   * [167217] Fix regression when reopening a file; the sequential bit was not reset.
+
 - QFileDialog:
    * [164947] Mac only: Activate the parent of a native sheet dialog before showing the sheet
+
+- QFSFileEngine:
+   * [163406] Ensure that QFile::readLine() works on all platforms when QFile is opened on FD 0.
 
 - QGLWidget
     * [162085] X11 only: Fixed usage of QGLWidget on multiple X11 screens.
@@ -65,12 +71,40 @@ General Improvements
     * [162143] Fixed a crash when calling renderPixmap() with insanely large
 	       sizes. It now gracefully fails instead.
 
+- QGraphicsItem
+    * [163430] Improved precision of QGraphicsItem::ItemIsMovable move operations,
+               and fixed move support for QGraphicsItem::ItemIgnoresTransformations.
+
+- QGraphicsItemAnimation
+    * [164585] Fixed setTimeLine(0) to properly remove the existing timeline, and also
+               ensure that setting the same timeline twice works fine.
+
+- QGraphicsScene
+    * [163555] Flat items (items whose bounding rect width or height is 0) no longer
+               cause a full viewport update when updating.
+
 - QGraphicsView
     * [160828] Fixed bug in QGraphicsScene/View::render() which could cause
                nothing to be rendered for QPicture target devices.
+    * [163919] Scrollbar ranges are no longer reset to (0,0) when the scrollbars are
+               disabled (Qt::ScrollBarAlwaysOff).
+    * [163537] Scrollbar ranges are now correct also for styles with a viewport frame
+               only around the viewport itself (e.g., Motif & Mac OS X style).
+    * [158245] Calling setScene(0) now recalculates the scrollbar ranges.
+    * [170619] [157400] Fixed rendering bugs when using a semi-transparent foreground
+               or background brush.
+    * [170619] [168885] Fixed a bug where the rubber band would appear after invoking
+               a context menu.
+
+- QHostInfo
+    * [168233] Terminate all pending lookups on application exit to avoid a delayed
+               app shutdown while waiting for the lookups to complete.
+    * [167487] Fix support for Unix platforms that allow IPv6 looksup through getaddrinfo(),
+               but that don't support IPv6 sockets.
 
 - QImage
     * [163727] Fixed artifacts in scaled images when using Qt::FastTransformation.
+    * [169908] Fixed a crash when reading 4bit uncompressed BMP images.
 
 - QMainWindow
 
@@ -97,6 +131,12 @@ General Improvements
 
 - QMacStyle
     * Make sure that items with State_Focus actually get the focus ring drawn.
+
+- QNetworkProxy
+    * [170549] Fixed a regression from 4.2.3 in the default constructor; if used
+               before any other proxy settings were applied, it would fail to
+               initialize the proxy handlers, effectively disabling support for
+               SOCKS5 and HTTP proxies.
 
 - QOpenGLPaintEngine
     * [166087] Fixed a memory leak caused by not releasing GL program handles
@@ -146,6 +186,11 @@ General Improvements
 	       under certain circumstances.
     * [161915] Mac only: Drawing vertial lines with a dot pattern work on OS X 10.3.9 now.
 
+- QProcess
+    * [161944] QProcess::setReadChannel() no longer affects the contents of the
+               stderr / stdout / unget buffers. QProcess::readAllStandardError() and
+               QProcess::readAllStandardOutput() no longer clear any unget data
+               or buffered data.
 
 - QPixmap
     * [167841] Fixed bug where filling a QPixmap with an alpha color would
@@ -178,6 +223,27 @@ General Improvements
                changing data in a QSqlTableModel source model with edit strategy
                OnFieldChange.
 
+- QSslCertificate
+    * [168116] Don't crash when passing 0 to QSslCertificate::fromDevice(); issue a
+               warning instead. This fix also removes warnings about uninitialised
+               symbol when accessing the static functions in QSslCertificate before
+               creating a QSslSocket.
+
+- QSslSocket
+    * [164356] Fixed a crash when passing a string to setCiphers().
+    * [166633] Fixed a memory leak for each established connection.
+    * [165962] Fixed support for wildcard certificates.
+    * [167593] QSslSocket::protocol() was sometimes ignored and defaulted to SSLv3.
+    * [167380] Fixed a crash when assigning a null key for SSL servers.
+    * [169571] Fixed a crash after a remote disconnect.
+
+- QTcpSocket
+    * [169183] Removed a qWarning() when reading from a closed socket
+               (regression from 4.2.3).
+
+- QTemporaryFile
+    * [167565] Fixed a regression from 4.2.3; size() would always return 0.
+
 - QTextEdit
     * [161577] Fixed regression causing Shift-Backspace to be ignored.
     * [165833] Fixed floating point overflow causing incorrect page heights
@@ -196,6 +262,9 @@ General Improvements
 
 - QTextLayout
     * [166083] Fixed incorrect line breaking when breaking at a tab character.
+
+- QUrl
+    * Fixed a bug in QUrl::clear(), which left some internal data uncleared.
 
 - QWidget
     * [165177] Fixed crash when deleting a focus widget from a window with a non-null parent.
@@ -219,6 +288,10 @@ General Improvements
 - Q3ListViewItem
     * [165853] Fixed background coloring of a cell.
 
+- Q3Socket
+    * [163563] Fixed regression in canReadLine(); it now properly searches all internal
+               buffers.
+
 - Q3Table
     * [168497] Fixed bad update on Q3Table when using setUpdatesEnabled.
 
@@ -232,6 +305,13 @@ General Improvements
 
 - SQLite driver
     * Use new sqlite3_prepare16_v2 instead of sqlite3_prepare16 when possible.
+
+****************************************************************************
+*                               Examples                                   *
+****************************************************************************
+
+- Secure Socket Client
+    * New example
 
 ****************************************************************************
 *                      Platform Specific Changes                           *
