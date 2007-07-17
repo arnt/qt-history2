@@ -58,35 +58,51 @@ void TextFinder::loadTextFile()
     inputFile.close();
 
     ui_textEdit->append(line);
+    ui_textEdit->setUndoRedoEnabled(false);
+    ui_textEdit->setUndoRedoEnabled(true);
 }
 
 void TextFinder::on_findButton_clicked()
 {
     QString searchString = ui_lineEdit->text();
     QTextDocument *document = ui_textEdit->document();
-    QTextCursor highlightCursor(document);  
-    QTextCursor cursor(document);
+
+    bool found = false;
 
     if (isFirstTime == false)
-        document->undo();    
+        document->undo();
 
-    cursor.beginEditBlock();
+    if (searchString == "") {
+        QMessageBox::information(this, tr("Empty Search Field"),
+                "The search field is empty. Please enter a word and click Find.");
+    } else {
 
-    QTextCharFormat plainFormat(highlightCursor.charFormat());
-    QTextCharFormat colorFormat = plainFormat;
-    colorFormat.setForeground(Qt::red);
+        QTextCursor highlightCursor(document);  
+        QTextCursor cursor(document);
+        
+        cursor.beginEditBlock();
 
-    while (!highlightCursor.isNull() && !highlightCursor.atEnd()) {
-        highlightCursor = document->find(searchString, highlightCursor);
+        QTextCharFormat plainFormat(highlightCursor.charFormat());
+        QTextCharFormat colorFormat = plainFormat;
+        colorFormat.setForeground(Qt::red);
 
-        if (!highlightCursor.isNull()) {
-            highlightCursor.movePosition(QTextCursor::WordRight,
-                                   QTextCursor::KeepAnchor);
+        while (!highlightCursor.isNull() && !highlightCursor.atEnd()) {
+            highlightCursor = document->find(searchString, highlightCursor, QTextDocument::FindWholeWords);
 
-            highlightCursor.mergeCharFormat(colorFormat);
+            if (!highlightCursor.isNull()) {
+                found = true;
+                highlightCursor.movePosition(QTextCursor::WordRight,
+                                       QTextCursor::KeepAnchor);
+                highlightCursor.mergeCharFormat(colorFormat);
+            }
         }
-    }
-    cursor.endEditBlock();
 
-    isFirstTime = false;
+        cursor.endEditBlock();
+        isFirstTime = false;
+
+        if (found == false) {
+            QMessageBox::information(this, tr("Word Not Found"),
+                "Sorry, the word cannot be found.");
+        }    
+    }
 }
