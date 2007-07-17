@@ -86,7 +86,7 @@
 
     The figure below illustrates this process:
 
-    \image insertCompletion.png
+    \image customcompleter-insertcompletion.png
 
     \c{completion.length()} = 6
 
