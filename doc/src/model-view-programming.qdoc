@@ -185,6 +185,11 @@
     approach to handling data in item views unless you strongly need an
     item-based set of classes.
 
+    If you wish to take advantage of the features provided by the model/view
+    approach while still using an item-based interface, consider using view
+    classes, such as QListView, QTableView, and QTreeView with
+    QStandardItemModel.
+
     \section1 The Model/View Components
 
     The following sections describe the way in which the model/view pattern
