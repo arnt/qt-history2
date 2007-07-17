@@ -3,7 +3,13 @@ HEADERS    = echowindow.h \
 SOURCES    = echowindow.cpp \
              main.cpp
 
-TARGET     = ../echoplugin
+TARGET     = echoplugin
+win32 {
+    debug:DESTDIR = ../debug/
+    release:DESTDIR = ../release/
+} else {
+    DESTDIR    = ../
+}
 
 # install
 target.path = $$[QT_INSTALL_EXAMPLES]/tools/echoplugin
