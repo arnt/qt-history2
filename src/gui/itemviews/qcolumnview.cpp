@@ -591,8 +591,11 @@ void QColumnViewPrivate::closeColumns(const QModelIndex &parent, bool build)
     }
 
     // Now fill in missing columns
-    while (!dirsToAppend.isEmpty())
-        createColumn(dirsToAppend.takeLast(), true);
+    while (!dirsToAppend.isEmpty()) {
+        QAbstractItemView *newView = createColumn(dirsToAppend.takeLast(), true);
+        if (!dirsToAppend.isEmpty())
+            newView->setCurrentIndex(dirsToAppend.last());
+    }
 
     if (build && !alreadyExists)
         createColumn(parent, false);
@@ -603,8 +606,20 @@ void QColumnViewPrivate::_q_clicked(const QModelIndex &index)
     Q_Q(QColumnView);
     if (!index.isValid())
         return;
-    if (q->currentIndex().parent() != index.parent())
-        q->setCurrentIndex(index);
+    QModelIndex parent = index.parent();
+    QAbstractItemView *columnClicked = 0;
+    for (int column = 0; column < columns.count(); ++column) {
+        if (columns.at(column)->rootIndex() == parent) {
+            columnClicked = columns[column];
+            break;
+        }
+    }
+    if (q->selectionModel() && columnClicked) {
+        QItemSelectionModel::SelectionFlags flags = QItemSelectionModel::Current;
+        if (columnClicked->selectionModel()->isSelected(index))
+            flags |= QItemSelectionModel::Select;
+        q->selectionModel()->setCurrentIndex(index, flags);
+    }
 }
 
 /*!
@@ -910,7 +925,6 @@ void QColumnViewPrivate::_q_changeCurrentColumn()
     // Set up the "current" column with focus
     int currentColumn = qMax(0, columns.size() - 2);
     QAbstractItemView *parentColumn = columns.at(currentColumn);
-    parentColumn->setCurrentIndex(current);
     if (q->hasFocus())
         parentColumn->setFocus(Qt::OtherFocusReason);
     q->setFocusProxy(parentColumn);
@@ -927,6 +941,8 @@ void QColumnViewPrivate::_q_changeCurrentColumn()
             QAbstractItemView *view = columns.at(i);
             view->setSelectionModel(replacementSelectionModel);
             view->setFocusPolicy(Qt::NoFocus);
+            if (columns.size() > i + 1)
+                view->setCurrentIndex(columns.at(i+1)->rootIndex());
             break;
         }
     }
@@ -936,7 +952,8 @@ void QColumnViewPrivate::_q_changeCurrentColumn()
     // We want the parent selection to stay highlighted (but dimmed depending upon the color theme)
     if (currentColumn > 0) {
         parentColumn = columns.at(currentColumn - 1);
-        parentColumn->setCurrentIndex(current.parent());
+        if (parentColumn->currentIndex() != current.parent())
+            parentColumn->setCurrentIndex(current.parent());
     }
 
     if (columns.last()->isHidden()) {
