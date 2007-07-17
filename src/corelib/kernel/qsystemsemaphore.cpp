@@ -38,28 +38,35 @@
 
   \list
 
-  \o Windows: When all instances of QSystemSemaphore for a particular
-  key have been deleted, or when all processes having instances of
-  QSystemSemaphore for a particular key have terminated normally or
-  crashed, Windows will automatically remove its underlying system
-  semaphore.
+  \o Windows: QSystemSemaphore does not own its underlying system
+  semaphore. Windows owns it. This means that when all instances of
+  QSystemSemaphore for a particular key have been destroyed, either by
+  having their destructors called, or because one or more processes
+  crash, Windows removes the underlying system semaphore. 
 
-  \o Unix: If the last process having an instance of QSystemSemaphore
-  for a particular key crashes, Unix does not automatically remove its
-  underlying system semaphore. A subsequent process that constructs a
-  QSystemSemaphore with that same key will then be allocated the
-  existing system semaphore. If the QSystemSemaphore constructor
-  specifies \l {QSystemSemaphore::} {Open} as its \l
-  {QSystemSemaphore::AccessMode} {access mode}, its resource request
-  will not be honored, and the number of resources will remain as it
-  was set in the crashed process. Use \l {QSystemSemaphore::} {Create}
-  as the \l {QSystemSemaphore::AccessMode} {access mode} to force Unix
-  to reset the resource count in the underlying system semaphore.
+  \o Unix: QSystemSemaphore owns the underlying system semaphore in
+  Unix systems. This means that the last process having an instance of
+  QSystemSemaphore for a particular key must remove the underlying
+  system semaphore in its destructor. If the last process crashes
+  without running the QSystemSemaphore destructor, Unix does not
+  automatically remove the underlying system semaphore, and the
+  semaphore survives the crash. A subsequent process that constructs a
+  QSystemSemaphore with the same key will then be given the existing
+  system semaphore. In that case, if the QSystemSemaphore constructor
+  has specified its \l {QSystemSemaphore::AccessMode} {access mode} as
+  \l {QSystemSemaphore::} {Open}, its initial resource count will not
+  be reset to the one provided but remain set to the value it received
+  in the crashed process. To protect against this, the first process
+  to create a semaphore for a particular key (usually a server), must
+  pass its \l {QSystemSemaphore::AccessMode} {access mode} as \l
+  {QSystemSemaphore::} {Create}, which will force Unix to reset the
+  resource count in the underlying system semaphore.
 
   \o Unix: When a process using QSystemSemaphore terminates for any
-  reason, Unix automatically reverses any acquire operations that
-  occurred in that process that were not released. Thus if the process
-  acquires a resource and then exits, Unix will release that resource.
+  reason, Unix automatically reverses the effect of all acquire
+  operations that were not released. Thus if the process acquires a
+  resource and then exits without releasing it, Unix will release that
+  resource.
 
   \endlist
 
@@ -95,7 +102,6 @@
  */
 
 /*!
-
   Requests a system semaphore for the specified \a key. The parameters
   \a initialValue and \a mode are used according to the following
   rules, which are system dependent.
@@ -139,9 +145,9 @@ QSystemSemaphore::QSystemSemaphore(const QString &key, int initialValue, AccessM
 
 /*!
   The destructor destroys the QSystemSemaphore object, but the
-  underlying system semaphore is not deallocated and removed from the
-  system unless this QSystemSemaphore is the last one using the
-  underlying system semaphore.
+  underlying system semaphore is not removed from the system unless
+  this instance of QSystemSemaphore is the last one existing for that
+  system semaphore.
 
   Two important side effects of the destructor depend on the system.
   In Windows, if acquire() has been called for this semaphore but not
@@ -161,29 +167,35 @@ QSystemSemaphore::~QSystemSemaphore()
 /*!
   \enum QSystemSemaphore::AccessMode
 
-  \value Open If the semaphore already exists initialValue is not set.
-  If the semaphore doesn't exists it will be created and the
-  initialValue is set. On Unix after creating QSystemSemaphore will
-  take ownership of the semaphore and remove it when QSystemSemaphore
-  is destroyed.
+  This enum is used by the constructor and setKey(). Its purpose is to
+  enable handling the problem in Unix implementations of semaphores
+  that survive a crash. In Unix, when a semaphore survives a crash, we
+  need a way to force it to reset its resource count, when the system
+  reuses the semaphore. In Windows, where semaphores can't survive a
+  crash, this enum has no effect.
 
+  \value Open If the semaphore already exists, its initial resource
+  count is not reset. If the semaphore does not already exist, it is
+  created and its initial resource count set.
 
-  \value Create On Unix QSystemSemaphore will take ownership of the
-  semaphore and set initialValue even if it already exists.  This is
-  used when the first semaphore for this key is constructed and you
-  know that any existing semaphore could only exists from a crash.
-  This applies to Unix where system semaphores will survive a crash.
-  On windows Create does the exact same behavior as Open as semaphores
-  do not survive a crash.
+  \value Create QSystemSemaphore takes ownership of the semaphore and
+  sets its resource count to the requested value, regardless of
+  whether the semaphore already exists by having survived a crash.
+  This value should be passed to the constructor, when the first
+  semaphore for a particular key is constructed and you know that if
+  the semaphore already exists it could only be because of a crash. In
+  Windows, where a semaphore can't survive a crash, Create and Open
+  have the same behavior.
 */
 
 /*!
-  Sets a new \a key to this system semaphore and initializes the
-  number of resources it guards to \a initialValue (by default, 0) if
-  the semaphore didn't previously exists.  When initializing the key
-  it uses the access mode \a mode.
+  This function works the same as the class constructor, i.e., it
+  reconstructs the QSystemSemaphore. If the \a key is being changed,
+  calling this function is like calling the destructor for the
+  semaphore with the current key and then calling the constructor to
+  create a new semaphore for the new \a key.
 
-  \sa key(), acquire()
+  \sa QSystemSemaphore(), key()
  */
 void QSystemSemaphore::setKey(const QString &key, int initialValue, AccessMode mode)
 {
@@ -207,7 +219,8 @@ void QSystemSemaphore::setKey(const QString &key, int initialValue, AccessMode m
 }
 
 /*!
-  Returns the key assigned to this system semaphore.
+  Returns the key assigned to this system semaphore. The key is the
+  name by which the semaphore can be accessed from other processes.
 
   \sa setKey()
  */
@@ -217,11 +230,14 @@ QString QSystemSemaphore::key() const
 }
 
 /*!
-  Tries to acquire 1 resource guarded by the semaphore.  If not
-  available, this call will block until enough resources are
-  available.
+  
+  Acquires one of the resources guarded by this semaphore, if there is
+  one available and returns true. If all the resources guarded by this
+  semaphore have already been acquired, the call blocks until one of
+  them is released by another process or thread having a semaphore
+  with the same key.
 
-  Returns true on success; otherwise returns false.
+  If false is returned, a system error has occurred.
 
   \sa release()
  */
