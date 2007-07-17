@@ -1337,7 +1337,7 @@ QStringList QFileDialog::getOpenFileNames(QWidget *parent,
   more information on the flags you can pass.
 
   The default filter can be chosen by setting \a selectedFilter to the desired value.
-  
+
   The dialog's caption is set to \a caption. If \a caption is not
   specified then a default caption will be used.
 
@@ -1627,7 +1627,7 @@ void QFileDialogPrivate::init(const QString &directory, const QString &nameFilte
     Q_Q(QFileDialog);
     if (!caption.isEmpty()) {
         useDefaultCaption = false;
-        setWindowTitle = caption;        
+        setWindowTitle = caption;
         q->setWindowTitle(caption);
     }
 
@@ -1995,7 +1995,7 @@ void QFileDialogPrivate::_q_navigateBackward()
 void QFileDialogPrivate::_q_navigateForward()
 {
     Q_Q(QFileDialog);
-    if (!currentHistory.isEmpty() && currentHistoryLocation < currentHistory.size()) {
+    if (!currentHistory.isEmpty() && currentHistoryLocation < currentHistory.size() - 1) {
         ++currentHistoryLocation;
         QString nextHistory = currentHistory.at(currentHistoryLocation);
         q->setDirectory(nextHistory);
