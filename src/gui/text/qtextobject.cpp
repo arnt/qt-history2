@@ -824,8 +824,8 @@ QTextBlockUserData::~QTextBlockUserData()
     by calling isValid().
 
     QTextBlock provides comparison operators to make it easier to work with
-    blocks: operator==() compares two block for equality, operator!=()
-    compares two blocks for inequality, and operator<() determines whether
+    blocks: \l operator==() compares two block for equality, \l operator!=()
+    compares two blocks for inequality, and \l operator<() determines whether
     a block precedes another in the same document.
 
     \img qtextblock-sequence.png
