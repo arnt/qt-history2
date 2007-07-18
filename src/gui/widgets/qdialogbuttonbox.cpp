@@ -107,7 +107,7 @@
     has an AcceptRole, RejectRole, or HelpRole, the accepted(), rejected(), or
     helpRequested() signals are emitted respectively.
 
-    if you want a specific button to be default you need to call
+    If you want a specific button to be default you need to call
     QPushButton::setDefault() on it yourself. However, if there is no default
     button set and to preserve which button is the default button across
     platforms when using the QPushButton::autoDefault property, the first push
