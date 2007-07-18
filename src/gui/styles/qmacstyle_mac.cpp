@@ -4038,13 +4038,20 @@ QRect QMacStyle::subElementRect(SubElement sr, const QStyleOption *opt,
         }
         break;
     case SE_ComboBoxLayoutItem:
-        rect = opt->rect;
-        if (controlSize == QAquaSizeLarge) {
-            rect.adjust(+3, +2, -3, -4);
-        } else if (controlSize == QAquaSizeSmall) {
-            setLayoutItemMargins(+2, +1, -3, -4, &rect, opt->direction);
+        if (widget && qobject_cast<QToolBar *>(widget->parentWidget())) {
+            // Do nothing, because QToolbar needs the entire widget rect.
+            // Otherwise it will be clipped. Equivalent to
+            // widget->setAttribute(Qt::WA_LayoutUsesWidgetRect), but without
+            // all the hassle.
         } else {
-            setLayoutItemMargins(+1, 0, -2, 0, &rect, opt->direction);
+            rect = opt->rect;
+            if (controlSize == QAquaSizeLarge) {
+                rect.adjust(+3, +2, -3, -4);
+            } else if (controlSize == QAquaSizeSmall) {
+                setLayoutItemMargins(+2, +1, -3, -4, &rect, opt->direction);
+            } else {
+                setLayoutItemMargins(+1, 0, -2, 0, &rect, opt->direction);
+            }
         }
         break;
     case SE_LabelLayoutItem:
