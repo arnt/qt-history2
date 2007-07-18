@@ -1458,9 +1458,10 @@ bool QHeaderView::restoreState(const QByteArray &state)
 */
 void QHeaderView::reset()
 {
-    Q_D(QHeaderView);
     QAbstractItemView::reset();
-    d->clear();
+    // it would be correct to call clear, but some apps rely
+    // on the header keeping the sections, even after calling reset
+    //d->clear();
     initializeSections();
 }
 
@@ -1574,7 +1575,7 @@ void QHeaderView::sectionsInserted(const QModelIndex &parent,
         d->stretchSections = d->sectionCount;
     else if (d->globalResizeMode == ResizeToContents)
         d->contentsSections = d->sectionCount;
-    
+
     // insert new sections in sectionsHidden
     if (!d->sectionHidden.isEmpty()) {
         QBitArray sectionHidden(d->sectionHidden);
@@ -1733,8 +1734,8 @@ void QHeaderView::initializeSections()
         if (stretchLastSection()) // we've already gotten the size hint
             d->lastSectionSize = sectionSize(logicalIndex(d->sectionCount - 1));
     } else if (d->forceInitializing) {
-        d->forceInitializing = false;
         initializeSections(0, newCount - 1);
+        d->forceInitializing = false;
     }
 }
 
@@ -1751,8 +1752,24 @@ void QHeaderView::initializeSections(int start, int end)
 
     d->invalidateCachedSizeHint();
 
-    if (end < d->sectionCount)
-        d->removeSectionsFromSpans(end + 1, d->sectionCount);
+    if (end < d->sectionCount) {
+        int newCount = end + 1;
+        d->removeSectionsFromSpans(newCount, d->sectionCount);
+        if (!d->hiddenSectionSize.isEmpty()) {
+            if (d->sectionCount - newCount > d->hiddenSectionSize.count()) {
+                for (int i = end + 1; i < d->sectionCount; ++i)
+                    d->hiddenSectionSize.remove(i);
+            } else {
+                QHash<int, int>::iterator it = d->hiddenSectionSize.begin();
+                while (it != d->hiddenSectionSize.constEnd()) {
+                    if (it.key() >= start && it.key() <= end)
+                        it = d->hiddenSectionSize.erase(it);
+                    else
+                        ++it;
+                }
+            }
+        }
+    }
 
     int oldCount = d->sectionCount;
     d->sectionCount = end + 1;
@@ -1773,7 +1790,8 @@ void QHeaderView::initializeSections(int start, int end)
     if (!d->sectionHidden.isEmpty())
         d->sectionHidden.resize(d->sectionCount);
 
-    d->createSectionSpan(start, end, (end - start + 1) * d->defaultSectionSize, d->globalResizeMode);
+    if (end > oldCount || d->forceInitializing)
+        d->createSectionSpan(start, end, (end - start + 1) * d->defaultSectionSize, d->globalResizeMode);
     //Q_ASSERT(d->headerLength() == d->length);
 
     emit sectionCountChanged(oldCount,  d->sectionCount);
