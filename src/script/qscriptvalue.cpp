@@ -669,10 +669,9 @@ QScriptValue QScriptValue::toObject() const
 }
 
 /*!
-  Returns the QDateTime representation of this value.
-  If this QScriptValue is not a date, or the value of the
-  date is NaN (Not-a-Number), an invalid QDateTime is
-  returned.
+  Returns a QDateTime representation of this value, in local time.
+  If this QScriptValue is not a date, or the value of the date is NaN
+  (Not-a-Number), an invalid QDateTime is returned.
 
   \sa isDate()
 */

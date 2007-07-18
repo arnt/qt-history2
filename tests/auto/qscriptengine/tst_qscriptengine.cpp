@@ -196,7 +196,7 @@ void tst_QScriptEngine::newDate()
     }
 
     {
-        QDateTime dt = QDateTime(QDate(1, 2, 3), QTime(4, 5, 6, 7));
+        QDateTime dt = QDateTime(QDate(1, 2, 3), QTime(4, 5, 6, 7), Qt::LocalTime);
         QScriptValue date = eng.newDate(dt);
         QCOMPARE(date.isValid(), true);
         QCOMPARE(date.isDate(), true);
@@ -207,6 +207,13 @@ void tst_QScriptEngine::newDate()
         QCOMPARE(date.prototype().strictlyEquals(eng.evaluate("Date.prototype")), true);
 
         QCOMPARE(date.toDateTime(), dt);
+    }
+
+    {
+        QDateTime dt = QDateTime(QDate(1, 2, 3), QTime(4, 5, 6, 7), Qt::UTC);
+        QScriptValue date = eng.newDate(dt);
+        // toDateTime() result should be in local time
+        QCOMPARE(date.toDateTime(), dt.toLocalTime());
     }
 
     // Date.parse() should return NaN when it fails

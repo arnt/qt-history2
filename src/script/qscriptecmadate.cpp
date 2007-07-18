@@ -305,38 +305,10 @@ static inline qsreal TimeClip(qsreal t)
     return QScriptEnginePrivate::toInteger(t);
 }
 
-static inline qsreal ParseString(const QString &s)
-{
-    QDateTime dt = QDateTime::fromString(s);
-    if (!dt.isValid())
-        return qSNaN();
-    int year = dt.date().year();
-    int month = dt.date().month() - 1;
-    int day = dt.date().day();
-    int hours = dt.time().hour();
-    int mins = dt.time().minute();
-    int secs = dt.time().second();
-    int ms = dt.time().msec();
-    double t = MakeDate(MakeDay(year, month, day), MakeTime(hours, mins, secs, ms));
-    return t = TimeClip(UTC(t));
-}
-
-static inline QDateTime ToDateTime(qsreal t)
-{
-    if (qIsNaN(t))
-        return QDateTime();
-    int year = int(YearFromTime(t));
-    int month = int(MonthFromTime(t) + 1);
-    int day = int(DateFromTime(t));
-    int hours = HourFromTime(t);
-    int mins = MinFromTime(t);
-    int secs = SecFromTime(t);
-    int ms = msFromTime(t);
-    return QDateTime(QDate(year, month, day), QTime(hours, mins, secs, ms));
-}
-
 static inline qsreal FromDateTime(const QDateTime &dt)
 {
+    if (!dt.isValid())
+        return qSNaN();
     QDate date = dt.date();
     QTime taim = dt.time();
     int year = date.year();
@@ -346,49 +318,73 @@ static inline qsreal FromDateTime(const QDateTime &dt)
     int mins = taim.minute();
     int secs = taim.second();
     int ms = taim.msec();
-    return MakeDate(MakeDay(year, month, day),
-                    MakeTime(hours, mins, secs, ms));
+    double t = MakeDate(MakeDay(year, month, day),
+                        MakeTime(hours, mins, secs, ms));
+    if (dt.timeSpec() == Qt::LocalTime)
+        t = UTC(t);
+    return TimeClip(t);
+}
+
+static inline qsreal ParseString(const QString &s)
+{
+    return FromDateTime(QDateTime::fromString(s, Qt::TextDate));
+}
+
+/*!
+  \internal
+
+  Converts the ECMA Date value \t (in UTC form) to QDateTime
+  according to \a spec.
+*/
+static inline QDateTime ToDateTime(qsreal t, Qt::TimeSpec spec)
+{
+    if (qIsNaN(t))
+        return QDateTime();
+    if (spec == Qt::LocalTime)
+        t = LocalTime(t);
+    int year = int(YearFromTime(t));
+    int month = int(MonthFromTime(t) + 1);
+    int day = int(DateFromTime(t));
+    int hours = HourFromTime(t);
+    int mins = MinFromTime(t);
+    int secs = SecFromTime(t);
+    int ms = msFromTime(t);
+    return QDateTime(QDate(year, month, day), QTime(hours, mins, secs, ms), spec);
 }
 
 static inline QString ToString(qsreal t)
 {
-    t = LocalTime(t);
-    return ToDateTime(t).toString();
+    return ToDateTime(t, Qt::LocalTime).toString();
 }
 
 static inline QString ToUTCString(qsreal t)
 {
-    return ToDateTime(t).toString();
+    return ToDateTime(t, Qt::UTC).toString();
 }
 
 static inline QString ToDateString(qsreal t)
 {
-    t = LocalTime(t);
-    return ToDateTime(t).date().toString();
+    return ToDateTime(t, Qt::LocalTime).date().toString();
 }
 
 static inline QString ToTimeString(qsreal t)
 {
-    t = LocalTime(t);
-    return ToDateTime(t).time().toString();
+    return ToDateTime(t, Qt::LocalTime).time().toString();
 }
 
 static inline QString ToLocaleString(qsreal t)
 {
-    t = LocalTime(t);
-    return ToDateTime(t).toString(Qt::LocaleDate);
+    return ToDateTime(t, Qt::LocalTime).toString(Qt::LocaleDate);
 }
 
 static inline QString ToLocaleDateString(qsreal t)
 {
-    t = LocalTime(t);
-    return ToDateTime(t).date().toString(Qt::LocaleDate);
+    return ToDateTime(t, Qt::LocalTime).date().toString(Qt::LocaleDate);
 }
 
 static inline QString ToLocaleTimeString(qsreal t)
 {
-    t = LocalTime(t);
-    return ToDateTime(t).time().toString(Qt::LocaleDate);
+    return ToDateTime(t, Qt::LocalTime).time().toString(Qt::LocaleDate);
 }
 
 static qsreal getLocalTZA()
@@ -536,7 +532,7 @@ QDateTime Date::toDateTime(const QScriptValueImpl &date) const
 {
     Q_ASSERT(date.classInfo() == classInfo());
     qsreal t = date.internalValue().toNumber();
-    return ToDateTime(t);
+    return ToDateTime(t, Qt::LocalTime);
 }
 
 QScriptValueImpl Date::method_parse(QScriptContextPrivate *context, QScriptEnginePrivate *eng, QScriptClassInfo *)
