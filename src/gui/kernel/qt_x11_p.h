@@ -27,6 +27,7 @@
 
 #include "QtGui/qwindowdefs.h"
 #include "QtCore/qlist.h"
+#include "QtCore/qvariant.h"
 
 // the following is necessary to work around breakage in many versions
 // of XFree86's Xlib.h still in use
@@ -298,7 +299,7 @@ struct QX11Data
     bool xdndMimeDataForAtom(Atom a, QMimeData *mimeData, QByteArray *data, Atom *atomFormat, int *dataFormat);
     QList<Atom> xdndMimeAtomsForFormat(const QString &format);
     QVariant xdndMimeConvertToFormat(Atom a, const QByteArray &data, const QString &format);
-    Atom xdndMimeAtomForFormat(const QString &format, const QList<Atom> &atoms);
+    Atom xdndMimeAtomForFormat(const QString &format, QVariant::Type requestedType, const QList<Atom> &atoms);
 
     QList<QXdndDropTransaction> dndDropTransactions;
 

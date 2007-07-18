@@ -599,7 +599,7 @@ QVariant QX11Data::xdndMimeConvertToFormat(Atom a, const QByteArray &data, const
 }
 
 //$$$ middle of xdndObtainData
-Atom QX11Data::xdndMimeAtomForFormat(const QString &format, const QList<Atom> &atoms)
+Atom QX11Data::xdndMimeAtomForFormat(const QString &format, QVariant::Type requestedType, const QList<Atom> &atoms)
 {
     // find matches for string types
     if (format == QLatin1String("text/plain")) {
@@ -1729,7 +1729,7 @@ void QX11Data::xdndHandleSelectionRequest(const XSelectionRequestEvent * req)
     XSendEvent(X11->display, req->requestor, False, 0, &evt);
 }
 
-static QVariant xdndObtainData(const char *format)
+static QVariant xdndObtainData(const char *format, QVariant::Type requestedType)
 {
     QByteArray result;
 
@@ -1751,7 +1751,7 @@ static QVariant xdndObtainData(const char *format)
         atoms.append(qt_xdnd_types[i]);
         ++i;
     }
-    Atom a = X11->xdndMimeAtomForFormat(QLatin1String(format), atoms);
+    Atom a = X11->xdndMimeAtomForFormat(QLatin1String(format), requestedType, atoms);
     if (!a)
         return result;
 
@@ -1921,12 +1921,12 @@ void QDragManager::updatePixmap()
     }
 }
 
-QVariant QDropData::retrieveData_sys(const QString &mimetype, QVariant::Type) const
+QVariant QDropData::retrieveData_sys(const QString &mimetype, QVariant::Type requestedType) const
 {
     QByteArray mime = mimetype.toLatin1();
     QVariant data = X11->motifdnd_active
                       ? X11->motifdndObtainData(mime)
-                      : xdndObtainData(mime);
+                      : xdndObtainData(mime, requestedType);
     return data;
 }
 

@@ -1047,7 +1047,7 @@ bool QClipboardWatcher::hasFormat_sys(const QString &format) const
     return list.contains(format);
 }
 
-QVariant QClipboardWatcher::retrieveData_sys(const QString &fmt, QVariant::Type) const
+QVariant QClipboardWatcher::retrieveData_sys(const QString &fmt, QVariant::Type requestedType) const
 {
     if (fmt.isEmpty() || empty())
         return QByteArray();
@@ -1061,7 +1061,7 @@ QVariant QClipboardWatcher::retrieveData_sys(const QString &fmt, QVariant::Type)
     for (int i = 0; i < size; ++i)
         atoms.append(targets[i]);
 
-    Atom fmtatom = X11->xdndMimeAtomForFormat(fmt, atoms);
+    Atom fmtatom = X11->xdndMimeAtomForFormat(fmt, requestedType, atoms);
 
     if (fmtatom == 0)
         return QVariant();
