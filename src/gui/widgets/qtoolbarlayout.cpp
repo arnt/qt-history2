@@ -309,10 +309,11 @@ void QToolBarLayout::setGeometry(const QRect &rect)
         handRect = QRect();
     }
 
+    bool ranOutOfSpace = false;
     if (!animating)
-        layoutActions(rect.size());
+        ranOutOfSpace = layoutActions(rect.size());
 
-    if (expanded || animating || pick(o, sizeHint()) > pick(o, rect.size())) {
+    if (expanded || animating || ranOutOfSpace) {
         Qt::ToolBarArea area = Qt::TopToolBarArea;
         if (QMainWindow *win = qobject_cast<QMainWindow*>(tb->parentWidget()))
             area = win->toolBarArea(tb);
@@ -342,7 +343,7 @@ void QToolBarLayout::setGeometry(const QRect &rect)
     }
 }
 
-void QToolBarLayout::layoutActions(const QSize &size)
+bool QToolBarLayout::layoutActions(const QSize &size)
 {
     if (dirty)
         updateGeomArray();
@@ -462,6 +463,10 @@ void QToolBarLayout::layoutActions(const QSize &size)
         ++rows;
     }
 
+    // if we are using a popup menu, not the expadning toolbar effect, we cannot move custom
+    // widgets into the menu. If only custom widget actions are chopped off, the popup menu
+    // is empty. So we show the little extension button to show something is chopped off,
+    // but we make it disabled.
     extension->setEnabled(popupMenu == 0 || !extensionMenuContainsOnlyWidgetActions);
 
     // we have to do the show/hide here, because it triggers more calls to setGeometry :(
@@ -469,6 +474,8 @@ void QToolBarLayout::layoutActions(const QSize &size)
         showWidgets.at(i)->show();
     for (int i = 0; i < hideWidgets.count(); ++i)
         hideWidgets.at(i)->hide();
+
+    return ranOutOfSpace;
 }
 
 QSize QToolBarLayout::expandedSize(const QSize &size) const

@@ -72,7 +72,7 @@ public:
 
     QRect handleRect() const;
 
-    void layoutActions(const QSize &size);
+    bool layoutActions(const QSize &size);
     QSize expandedSize(const QSize &size) const;
     bool expanded, animating;
 
