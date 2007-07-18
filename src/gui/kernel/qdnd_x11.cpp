@@ -532,7 +532,7 @@ QList<Atom> QX11Data::xdndMimeAtomsForFormat(const QString &format)
 }
 
 //$$$
-QByteArray QX11Data::xdndMimeConvertToFormat(Atom a, const QByteArray &data, const QString &format)
+QVariant QX11Data::xdndMimeConvertToFormat(Atom a, const QByteArray &data, const QString &format)
 {
     QString atomName = xdndMimeAtomToString(a);
     if (atomName == format)
@@ -595,7 +595,7 @@ QByteArray QX11Data::xdndMimeConvertToFormat(Atom a, const QByteArray &data, con
             return buf.buffer();
         }
     }
-    return QByteArray();
+    return QVariant();
 }
 
 //$$$ middle of xdndObtainData
@@ -1729,7 +1729,7 @@ void QX11Data::xdndHandleSelectionRequest(const XSelectionRequestEvent * req)
     XSendEvent(X11->display, req->requestor, False, 0, &evt);
 }
 
-static QByteArray xdndObtainData(const char *format)
+static QVariant xdndObtainData(const char *format)
 {
     QByteArray result;
 
@@ -1924,7 +1924,7 @@ void QDragManager::updatePixmap()
 QVariant QDropData::retrieveData_sys(const QString &mimetype, QVariant::Type) const
 {
     QByteArray mime = mimetype.toLatin1();
-    QByteArray data = X11->motifdnd_active
+    QVariant data = X11->motifdnd_active
                       ? X11->motifdndObtainData(mime)
                       : xdndObtainData(mime);
     return data;

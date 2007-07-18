@@ -297,7 +297,7 @@ struct QX11Data
     QStringList xdndMimeFormatsForAtom(Atom a);
     bool xdndMimeDataForAtom(Atom a, QMimeData *mimeData, QByteArray *data, Atom *atomFormat, int *dataFormat);
     QList<Atom> xdndMimeAtomsForFormat(const QString &format);
-    QByteArray xdndMimeConvertToFormat(Atom a, const QByteArray &data, const QString &format);
+    QVariant xdndMimeConvertToFormat(Atom a, const QByteArray &data, const QString &format);
     Atom xdndMimeAtomForFormat(const QString &format, const QList<Atom> &atoms);
 
     QList<QXdndDropTransaction> dndDropTransactions;
@@ -305,7 +305,7 @@ struct QX11Data
     // from qmotifdnd_x11.cpp
     void motifdndHandle(QWidget *, const XEvent *, bool);
     void motifdndEnable(QWidget *, bool);
-    QByteArray motifdndObtainData(const char *format);
+    QVariant motifdndObtainData(const char *format);
     QByteArray motifdndFormat(int n);
     bool motifdnd_active;
 

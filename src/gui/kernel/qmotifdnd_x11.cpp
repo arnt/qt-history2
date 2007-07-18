@@ -688,7 +688,7 @@ QByteArray QX11Data::motifdndFormat(int n)
 }
 
 
-QByteArray QX11Data::motifdndObtainData(const char *mimeType)
+QVariant QX11Data::motifdndObtainData(const char *mimeType)
 {
     QByteArray result;
 
