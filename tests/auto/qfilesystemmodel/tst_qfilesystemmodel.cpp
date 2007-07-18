@@ -135,7 +135,7 @@ void tst_QFileSystemModel::cleanup()
 		QFile p(fi.absolutePath()); 
                 p.setPermissions(QFile::ReadUser | QFile::ReadOwner | QFile::ExeOwner | QFile::ExeUser | QFile::WriteUser | QFile::WriteOwner | QFile::WriteOther);
 		QFile dead(dir.path() + QDir::separator() + list.at(i));
-		QVERIFY(dead.remove());
+		dead.remove();
 	    }
 	    if (fi.exists() && fi.isDir())
                 QVERIFY(dir.rmdir(list.at(i)));
