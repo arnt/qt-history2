@@ -264,8 +264,12 @@ void QVFbView::refreshDisplay(const QRect &r)
             animation->appendFrame(img,QPoint(r.x(),r.y()));
         }
     }
-    if (!r.isNull())
-	update(r);
+    if (!r.isNull()) {
+        if (hzm == 1.0 && vzm == 1.0) // hw: workaround for 4.3.1
+            update(r);
+        else
+            update();
+    }
 }
 
 QImage QVFbView::getBuffer(const QRect &r, int &leading) const
@@ -510,7 +514,10 @@ static int findMultiple(int start, double m, int limit, int step)
 
 void QVFbView::drawScreen(const QRect &rect)
 {
-    QRect r = rect & QRect(0, 0, mView->width(), mView->height());
+    QRect r = QRect(0, 0, mView->width(), mView->height());
+
+    if (hzm == 1.0 && vzm == 1.0) // hw: workaround for 4.3.1
+        r &= rect;
 
     if (int(hzm) != hzm || int(vzm) != vzm) {
         r.setLeft(findMultiple(r.left(),hzm,0,-1));
