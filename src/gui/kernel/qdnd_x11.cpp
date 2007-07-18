@@ -538,6 +538,18 @@ QVariant QX11Data::xdndMimeConvertToFormat(Atom a, const QByteArray &data, const
     if (atomName == format)
         return data;
 
+    if (!encoding.isEmpty()
+        && atomName == format + QLatin1String(";charset=") + QString::fromLatin1(encoding)) {
+
+        if (requestedType == QVariant::String) {
+            QTextCodec *codec = QTextCodec::codecForName(encoding);
+            if (codec)
+                return codec->toUnicode(data);
+        }
+
+        return data;
+    }
+
     // special cases for string types
     if (format == QLatin1String("text/plain")) {
         if (a == ATOM(UTF8_STRING))
@@ -626,6 +638,22 @@ Atom QX11Data::xdndMimeAtomForFormat(const QString &format, QVariant::Type reque
     if (format == QLatin1String("image/ppm")) {
         if (atoms.contains(XA_PIXMAP))
             return XA_PIXMAP;
+    }
+
+    // for string/text requests try to use a format with a well-defined charset
+    // first to avoid encoding problems
+    if (requestedType == QVariant::String
+        && format.startsWith(QLatin1String("text/"))
+        && !format.contains(QLatin1String("charset="))) {
+
+        QString formatWithCharset = format;
+        formatWithCharset.append(QLatin1String(";charset=utf-8"));
+
+        Atom a = xdndMimeStringToAtom(formatWithCharset);
+        if (a && atoms.contains(a)) {
+            *encoding = "utf-8";
+            return a;
+        }
     }
 
     Atom a = xdndMimeStringToAtom(format);
