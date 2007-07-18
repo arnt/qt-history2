@@ -73,7 +73,7 @@ static bool allowX11ColorNames = false;
     or a color name (such as "blue"), to the setNamedColor() function.
     The color names are taken from the SVG 1.0 color names. The name()
     function returns the name of the color in the format
-    #AARRGGBB. Colors can also be set using setRgb(), setHsv() and
+    "#RRGGBB". Colors can also be set using setRgb(), setHsv() and
     setCmyk(). To get a lighter or darker color use the lighter() and
     darker() functions respectively.
 
