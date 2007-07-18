@@ -535,6 +535,5 @@ bool Q3WidgetStack::event(QEvent* e)
 {
     if (e->type() == QEvent::LayoutRequest || e->type() == QEvent::LayoutHint )
         updateGeometry(); // propgate layout hints to parent
-    return QFrame::event(e);
     return Q3Frame::event(e);
 }
