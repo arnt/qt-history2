@@ -36,6 +36,11 @@ Third party components
 - SQLite
     * File descriptors are not inherited during spawn() anymore.
 
+Build System
+------------
+
+    * Fixed native builds on arm architectures.
+
 ****************************************************************************
 *                           Library                                        *
 ****************************************************************************
@@ -268,6 +273,9 @@ General Improvements
                for text documents.
     * [167377] Fixed performance regression when appending a lot of text in
                NoWrap line break mode when there is a horizontal scrollbar.
+    * [163446] Fixed excessive emission of selectionChanged() signal when moving the cursor
+    * [167701] Fixed QTextEdit::setLineWrapMode to not change the wordWrapMode property when
+               called with NoWrap.
 
 - QTextDocument
     * [160631] Fixed missing HTML export of page break policies.
@@ -280,6 +288,10 @@ General Improvements
 
 - QTextLayout
     * [166083] Fixed incorrect line breaking when breaking at a tab character.
+    * [165861] Fixed support for QTextOption::NoWrap.
+
+- QLabel
+    * [162515] Fixed QLabel's alignment not being applied properly to richtext.
 
 - QUrl
     * Fixed a bug in QUrl::clear(), which left some internal data uncleared.
@@ -370,6 +382,8 @@ X11
       caused all applications to hang on startup.
     * [165229] Changed the linux-lsb-g++ to not link with libGLU
       (which is not part of the LSB specification).
+    * [155083] [146833] Obey all font substitutions from fontconfig. Use a
+      strong binding for QFont's family with fontconfig.
 
 Windows
 -------
@@ -378,6 +392,7 @@ Windows
       minimized window did not work.
     * [169376] Fixed a race condition that would cause a crash when
       stopping timers in a thread.
+    * [165440] Fix crash when using Google's Pinyin input method with Qt.
 
 Mac OS X
 --------
@@ -389,7 +404,12 @@ Mac OS X
     * [164530] Make sure that the DPI for fonts don't change when the resolution changes.
     * [165530] Fixed a bug that caused Q_DECLARE_METATYPE() in a
       precompiled header to interfere with the Objective-C 'id' keyword
+    * [165659] Fix bold/italic font rendering for some fonts
 
+Qtopia Core
+-----------
+
+    * Fix support for bitmap fonts.
 
 ****************************************************************************
 *                   Important Behavior Changes
