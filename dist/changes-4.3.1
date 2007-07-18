@@ -66,8 +66,14 @@ General Improvements
       would keep flashing after beeing activated by the user.
     * [168974] Fixed compilation when QT3_SUPPORT and QT_NO_CURSOR are defined.
 
+- QComboBox
+    * [165130] Mac only: Fixed bug where an editable combo box cuts off list entries.
+
 - QDesktopServices
    * [165817] Fixed misleading documentation of QDesktopServices::setUrlHandler().
+
+- QDialog
+    * [166900, 166514] Fixed bug where the dialog remained visible after calling hide.
 
 - QFile
    * [167217] Fix regression when reopening a file; the sequential bit was not reset.
@@ -121,6 +127,10 @@ General Improvements
     * [163727] Fixed artifacts in scaled images when using Qt::FastTransformation.
     * [169908] Fixed a crash when reading 4bit uncompressed BMP images.
 
+- QLocale
+    * [167534] Fixed bug where QLocale::toString returned garbage if passing an invalid
+               time or date.
+
 - QMainWindow
 
     * [166004], [167651] Make the unified toolbar handle layout requests.
@@ -128,6 +138,20 @@ General Improvements
     * [164105] Make the unified toolbar handles showMaximized().
     * [162555] Move OpenGL contexts when the toolbar button is pressed and we 
                are using the unified toolbar.
+    * [169063] Fixed a crash when setting a new menu bar and the old one contained corner widgets.
+
+- QMdiArea
+    * [162573] Improved switching between maximized sub-windows (less flickering).
+    * [162046, 164264] Improved activation behavior.
+    * [170770] Fixed inconsistent behavior with scroll bars when having a maximized sub-window.
+    * [169873] Fixed incorrect positions of tiled sub-windows.
+
+- QMdiSubWindow
+    * [168129] Improved picking of a default window icon.
+    * [169859] Improved menu bar buttons for maximized sub-windows.
+    * Improved support for size grips.
+    * [169543] Windows only (XP style): Fixed frame width being 1 pixel wider than it should be.
+    * [168829] Fixed wrong margins of maximized sub-windows inside QMainWindow.
 
 - QMenu
     * [166652] Fixed a regression where context menus could not be triggered with
@@ -298,6 +322,7 @@ General Improvements
 
 - QWidget
     * [165177] Fixed crash when deleting a focus widget from a window with a non-null parent.
+    * [165654] Fixed repaint issue when deleting an opaque child widget.
 
 - QWindowsVistaStyle
 	* [162730] Fixed incorrect font for item views on Windows Vista.
@@ -314,6 +339,9 @@ General Improvements
                the mouse had left.
     * [161678] AeroStyle: Fixed incorrect vertical center alignment problem of wizard
                buttons.
+
+- Q3Header
+    * [167283] Fixed regression in painting of the header.
 
 - Q3ListViewItem
     * [165853] Fixed background coloring of a cell.
