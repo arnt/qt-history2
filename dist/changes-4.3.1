@@ -233,6 +233,14 @@ General Improvements
                changing data in a QSqlTableModel source model with edit strategy
                OnFieldChange.
 
+- QSqlQueryModel
+    * [166880] Fixed a bug where setQuery() could cause a crash by calling hasFeature()
+               on the wrong driver instance.
+
+- QSqlRelationalTableModel
+    * [140782] Fixed a bug which caused insertRecord() to fail when record()
+               returns a record containing duplicate field names.
+
 - QSslCertificate
     * [168116] Don't crash when passing 0 to QSslCertificate::fromDevice(); issue a
                warning instead. This fix also removes warnings about uninitialised
@@ -313,15 +321,31 @@ General Improvements
 *                          Database Drivers                                *
 ****************************************************************************
 
+- Interbase driver
+    * [149761] Added support for compiling Firebird 2.0 on 64-bit platforms.
+    * [165423] Fixed a regression causing an assert when calling a stored procedure
+               without out-parameters.
+    * [166238] Fixed a bug causing only the first segment of multi-segmented
+               BLOBs being retrieved in some cases.
+
+- ODBC driver
+    * [167167] Fixed a regression causing a crash when checking DBMS general
+               information when connecting to a database.
+    
 - SQLite driver
     * Use new sqlite3_prepare16_v2 instead of sqlite3_prepare16 when possible.
-
+    * [167665] Fixed a regression causing field names to be escaped multiple times
+               when selecting from views.
+    
 ****************************************************************************
 *                               Examples                                   *
 ****************************************************************************
 
 - Secure Socket Client
     * New example
+    
+- Accelerated Screen Driver
+    * Don't crash if unable to get pointer to the frame buffer.
 
 ****************************************************************************
 *                      Platform Specific Changes                           *
