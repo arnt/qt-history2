@@ -149,6 +149,7 @@ private:
     Q_DECLARE_PRIVATE(QCalendarWidget)
     Q_DISABLE_COPY(QCalendarWidget)
 
+    Q_PRIVATE_SLOT(d_func(), void _q_slotChangeDate(const QDate &date))
     Q_PRIVATE_SLOT(d_func(), void _q_slotChangeDate(const QDate &date, bool changeMonth))
     Q_PRIVATE_SLOT(d_func(), void _q_editingFinished())
     Q_PRIVATE_SLOT(d_func(), void _q_prevMonthClicked())
