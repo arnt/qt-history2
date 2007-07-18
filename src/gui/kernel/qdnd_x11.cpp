@@ -541,12 +541,12 @@ QVariant QX11Data::xdndMimeConvertToFormat(Atom a, const QByteArray &data, const
     // special cases for string types
     if (format == QLatin1String("text/plain")) {
         if (a == ATOM(UTF8_STRING))
-            return data;
+            return QString::fromUtf8(data);
         if (a == XA_STRING)
-            return QString::fromLatin1(data).toUtf8();
+            return QString::fromLatin1(data);
         if (a == ATOM(TEXT) || a == ATOM(COMPOUND_TEXT))
             // #### might be wrong for COMPUND_TEXT
-            return QString::fromLocal8Bit(data, data.size()).toUtf8();
+            return QString::fromLocal8Bit(data, data.size());
     }
 
     // special case for uri types
