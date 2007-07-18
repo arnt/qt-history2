@@ -298,8 +298,8 @@ struct QX11Data
     QStringList xdndMimeFormatsForAtom(Atom a);
     bool xdndMimeDataForAtom(Atom a, QMimeData *mimeData, QByteArray *data, Atom *atomFormat, int *dataFormat);
     QList<Atom> xdndMimeAtomsForFormat(const QString &format);
-    QVariant xdndMimeConvertToFormat(Atom a, const QByteArray &data, const QString &format);
-    Atom xdndMimeAtomForFormat(const QString &format, QVariant::Type requestedType, const QList<Atom> &atoms);
+    QVariant xdndMimeConvertToFormat(Atom a, const QByteArray &data, const QString &format, QVariant::Type requestedType, const QByteArray &encoding);
+    Atom xdndMimeAtomForFormat(const QString &format, QVariant::Type requestedType, const QList<Atom> &atoms, QByteArray *requestedEncoding);
 
     QList<QXdndDropTransaction> dndDropTransactions;
 

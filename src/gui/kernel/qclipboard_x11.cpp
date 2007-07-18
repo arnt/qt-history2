@@ -1061,12 +1061,13 @@ QVariant QClipboardWatcher::retrieveData_sys(const QString &fmt, QVariant::Type 
     for (int i = 0; i < size; ++i)
         atoms.append(targets[i]);
 
-    Atom fmtatom = X11->xdndMimeAtomForFormat(fmt, requestedType, atoms);
+    QByteArray encoding;
+    Atom fmtatom = X11->xdndMimeAtomForFormat(fmt, requestedType, atoms, &encoding);
 
     if (fmtatom == 0)
         return QVariant();
 
-    return X11->xdndMimeConvertToFormat(fmtatom, getDataInFormat(fmtatom), fmt);
+    return X11->xdndMimeConvertToFormat(fmtatom, getDataInFormat(fmtatom), fmt, requestedType, encoding);
 }
 
 QByteArray QClipboardWatcher::getDataInFormat(Atom fmtatom) const

@@ -532,7 +532,7 @@ QList<Atom> QX11Data::xdndMimeAtomsForFormat(const QString &format)
 }
 
 //$$$
-QVariant QX11Data::xdndMimeConvertToFormat(Atom a, const QByteArray &data, const QString &format)
+QVariant QX11Data::xdndMimeConvertToFormat(Atom a, const QByteArray &data, const QString &format, QVariant::Type requestedType, const QByteArray &encoding)
 {
     QString atomName = xdndMimeAtomToString(a);
     if (atomName == format)
@@ -599,8 +599,10 @@ QVariant QX11Data::xdndMimeConvertToFormat(Atom a, const QByteArray &data, const
 }
 
 //$$$ middle of xdndObtainData
-Atom QX11Data::xdndMimeAtomForFormat(const QString &format, QVariant::Type requestedType, const QList<Atom> &atoms)
+Atom QX11Data::xdndMimeAtomForFormat(const QString &format, QVariant::Type requestedType, const QList<Atom> &atoms, QByteArray *encoding)
 {
+    encoding->clear();
+
     // find matches for string types
     if (format == QLatin1String("text/plain")) {
         if (atoms.contains(ATOM(UTF8_STRING)))
@@ -1751,7 +1753,8 @@ static QVariant xdndObtainData(const char *format, QVariant::Type requestedType)
         atoms.append(qt_xdnd_types[i]);
         ++i;
     }
-    Atom a = X11->xdndMimeAtomForFormat(QLatin1String(format), requestedType, atoms);
+    QByteArray encoding;
+    Atom a = X11->xdndMimeAtomForFormat(QLatin1String(format), requestedType, atoms, &encoding);
     if (!a)
         return result;
 
@@ -1783,7 +1786,7 @@ static QVariant xdndObtainData(const char *format, QVariant::Type requestedType)
     if (!qt_xdnd_current_widget || (qt_xdnd_current_widget->windowType() == Qt::Desktop))
         delete tw;
 
-    return X11->xdndMimeConvertToFormat(a, result, QLatin1String(format));
+    return X11->xdndMimeConvertToFormat(a, result, QLatin1String(format), requestedType, encoding);
 }
 
 
