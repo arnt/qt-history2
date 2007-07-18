@@ -122,6 +122,7 @@ void PropertyEditor::setupStringProperty(QtVariantProperty *property,
     // assuming comment cannot appear or disappear for the same property in different object instance
     if (hasComment && !m_propertyToComment.contains(property)) {
         QtVariantProperty *commentProperty = m_propertyManager->addProperty(QVariant::String, tr("comment"));
+        commentProperty->setToolTip(tr("comment"));
         commentProperty->setValue(propertyComment(m_core, m_object, propertyName));
         property->addSubProperty(commentProperty);
         m_propertyToComment[property] = commentProperty;
@@ -152,6 +153,18 @@ PropertyEditor::PropertyEditor(QDesignerFormEditorInterface *core, QWidget *pare
 {
     m_stackedWidget = new QStackedWidget(this);
     m_sorting = false;
+    m_coloring = false;
+
+    m_colors[0] =  QColor(255, 230, 191);
+    m_colors[1] =  QColor(255, 255, 191);
+    m_colors[2] =  QColor(191, 255, 191);
+    m_colors[3] =  QColor(199, 255, 255);
+    m_colors[4] =  QColor(234, 191, 255);
+    m_colors[5] =  QColor(255, 191, 239);
+    m_dynamicColor = QColor(191, 207, 255);
+    m_layoutColor = QColor(255, 191, 191);
+
+    m_dynamicGroup = 0;
 
     QToolBar *toolBar = new QToolBar(this);
 
@@ -161,7 +174,7 @@ PropertyEditor::PropertyEditor(QDesignerFormEditorInterface *core, QWidget *pare
     m_treeAction->setIcon(createIconSet(QLatin1String("widgets/listview.png")));
     m_buttonAction = new QAction(tr("Drop Down Button View"), this);
     m_buttonAction->setCheckable(true);
-    m_buttonAction->setIcon(createIconSet(QLatin1String("widgets/toolbutton.png")));
+    m_buttonAction->setIcon(createIconSet(QLatin1String("dropdownbutton.png")));
 /*
     m_groupBoxAction = new QAction(tr("Group Box View"), this);
     m_groupBoxAction->setCheckable(true);
@@ -195,22 +208,37 @@ PropertyEditor::PropertyEditor(QDesignerFormEditorInterface *core, QWidget *pare
     removeButton->setDefaultAction(m_removeDynamicAction);
     removeButton->setPopupMode(QToolButton::InstantPopup);
 
+    QToolButton *configureButton = new QToolButton(toolBar);
+    QAction *configureAction = new QAction(tr("Configure Property Editor"), this);
+    configureAction->setIcon(createIconSet(QLatin1String("widgets/toolbutton.png")));
+    QMenu *configureMenu = new QMenu(this);
+    configureAction->setMenu(configureMenu);
+    configureButton->setDefaultAction(configureAction);
+    configureButton->setPopupMode(QToolButton::InstantPopup);
+
     m_sortingAction = new QAction(createIconSet(QLatin1String("sort.png")), tr("Sorting"), this);
     m_sortingAction->setCheckable(true);
     connect(m_sortingAction, SIGNAL(toggled(bool)), this, SLOT(slotSorting(bool)));
+
+    m_coloringAction = new QAction(createIconSet(QLatin1String("color.png")), tr("Color Groups"), this);
+    m_coloringAction->setCheckable(true);
+    connect(m_coloringAction, SIGNAL(toggled(bool)), this, SLOT(slotColoring(bool)));
 
     m_removeMapper = new QSignalMapper(this);
     connect(m_removeMapper, SIGNAL(mapped(const QString &)), this, SIGNAL(removeDynamicProperty(const QString &)));
 
     toolBar->addWidget(classWidget);
     toolBar->addAction(m_addDynamicAction);
-    //toolBar->addAction(m_removeDynamicAction);
     toolBar->addWidget(removeButton);
     toolBar->addSeparator();
-    toolBar->addAction(m_sortingAction);
-    toolBar->addAction(m_treeAction);
-    toolBar->addAction(m_buttonAction);
-//    toolBar->addAction(m_groupBoxAction);
+    toolBar->addWidget(configureButton);
+
+    configureMenu->addAction(m_sortingAction);
+    configureMenu->addAction(m_coloringAction);
+    configureMenu->addSeparator();
+    configureMenu->addAction(m_treeAction);
+    configureMenu->addAction(m_buttonAction);
+//    configureMenu->addAction(m_groupBoxAction);
 
 /*
     QScrollArea *groupScroll = new QScrollArea(m_stackedWidget);
@@ -228,6 +256,8 @@ PropertyEditor::PropertyEditor(QDesignerFormEditorInterface *core, QWidget *pare
 
     m_treeBrowser = new QtTreePropertyBrowser(m_stackedWidget);
     m_treeBrowser->setRootIsDecorated(false);
+    m_treeBrowser->setMarkPropertiesWithoutValue(true);
+    m_treeBrowser->setResizeMode(QtTreePropertyBrowser::Interactive);
     m_treeIndex = m_stackedWidget->addWidget(m_treeBrowser);
 
     QVBoxLayout *layout = new QVBoxLayout(this);
@@ -382,6 +412,28 @@ void PropertyEditor::clearView()
     m_currentBrowser->clear();
 }
 
+QColor PropertyEditor::propertyColor(QtProperty *property) const
+{
+    if (!m_coloring)
+        return QColor();
+
+    QtProperty *groupProperty = property;
+
+    QMap<QtProperty *, QString>::ConstIterator itProp = m_propertyToGroup.constFind(property);
+    if (itProp != m_propertyToGroup.constEnd())
+        groupProperty = m_nameToGroup.value(itProp.value());
+
+    const int groupIdx = m_groups.indexOf(groupProperty);
+    if (groupIdx != -1) {
+        if (groupProperty == m_dynamicGroup)
+            return m_dynamicColor;
+        if (isLayoutGroup(groupProperty))
+            return m_layoutColor;
+        return m_colors[groupIdx % m_colors.count()];
+    }
+    return QColor();
+}
+
 void PropertyEditor::fillView()
 {
     if (m_sorting) {
@@ -389,14 +441,32 @@ void PropertyEditor::fillView()
         while (itProperty.hasNext()) {
             QtVariantProperty *property = itProperty.next().value();
             m_currentBrowser->addProperty(property);
+            //QtBrowserItem *item = m_currentBrowser->addProperty(property);
+            //if (m_currentBrowser == m_treeBrowser)
+            //    m_treeBrowser->setColor(item, propertyColor(property));
         }
     } else {
         QListIterator<QtProperty *> itGroup(m_groups);
         while (itGroup.hasNext()) {
             QtProperty *group = itGroup.next();
-            m_currentBrowser->addProperty(group);
+            QtBrowserItem *item = m_currentBrowser->addProperty(group);
+            if (m_currentBrowser == m_treeBrowser)
+                m_treeBrowser->setBackgroundColor(item, propertyColor(group));
+            group->setModified(m_currentBrowser == m_treeBrowser);
         }
     }
+}
+
+bool PropertyEditor::isLayoutGroup(QtProperty *group) const
+{
+    if (group->propertyName() == QLatin1String("Layout"))
+        return true;
+    return false;
+}
+
+void PropertyEditor::updateActionsState()
+{
+    m_coloringAction->setEnabled(m_treeAction->isChecked() && !m_sortingAction->isChecked());
 }
 
 void PropertyEditor::slotViewTriggered(QAction *action)
@@ -423,6 +493,7 @@ void PropertyEditor::slotViewTriggered(QAction *action)
     m_stackedWidget->setCurrentIndex(idx);
     applyExpansionState();
     setUpdatesEnabled(wasEnabled);
+    updateActionsState();
 }
 
 void PropertyEditor::slotSorting(bool sort)
@@ -440,6 +511,24 @@ void PropertyEditor::slotSorting(bool sort)
     fillView();
     applyExpansionState();
     setUpdatesEnabled(wasEnabled);
+    updateActionsState();
+}
+
+void PropertyEditor::slotColoring(bool coloring)
+{
+    if (coloring == m_coloring)
+        return;
+
+    m_coloring = coloring;
+    //m_treeBrowser->setMarkPropertiesWithoutValue(!coloring);
+    if (m_currentBrowser == m_treeBrowser) {
+        QList<QtBrowserItem *> items = m_treeBrowser->topLevelItems();
+        QListIterator<QtBrowserItem *> itItem(items);
+        while (itItem.hasNext()) {
+            QtBrowserItem *item = itItem.next();
+            m_treeBrowser->setBackgroundColor(item, propertyColor(item->property()));
+        }
+    }
 }
 
 void PropertyEditor::slotAddDynamicProperty()
@@ -698,6 +787,7 @@ void PropertyEditor::setObject(QObject *object)
                 property = m_nameToProperty.value(propertyName);
             } else {
                 property = m_propertyManager->addProperty(type, propertyName);
+                property->setToolTip(propertyName);
                 newProperty = true;
                 if (property && type == DesignerPropertyManager::enumTypeId()) {
                     const EnumType e = qvariant_cast<EnumType>(value);
@@ -726,8 +816,11 @@ void PropertyEditor::setObject(QObject *object)
             }
 
             if (property != 0) {
-                if (dynamicSheet && dynamicSheet->isDynamicProperty(i))
+                bool dynamicProperty = false;
+                if (dynamicSheet && dynamicSheet->isDynamicProperty(i)) {
                     dynamicProperties.append(propertyName);
+                    dynamicProperty = true;
+                }
 
                 if (type == QVariant::String)
                     setupStringProperty(property, propertyName, value, isMainContainer);
@@ -735,7 +828,7 @@ void PropertyEditor::setObject(QObject *object)
                 if (type == QVariant::Palette)
                     setupPaletteProperty(property);
 
-                property->setAttribute(QLatin1String("resetable"), m_propertySheet->hasReset(i));
+                property->setAttribute(QLatin1String("resettable"), m_propertySheet->hasReset(i));
 
                 const QString groupName = m_propertySheet->propertyGroup(i);
                 QtVariantProperty *groupProperty = 0;
@@ -755,9 +848,18 @@ void PropertyEditor::setObject(QObject *object)
                     groupProperty = gnit.value();
                 } else {
                     groupProperty = m_propertyManager->addProperty(QtVariantPropertyManager::groupTypeId(), groupName);
+                    groupProperty->setToolTip(groupName);
+                    QtBrowserItem *item = 0;
                     if (!m_sorting)
-                        m_currentBrowser->insertProperty(groupProperty, lastGroup);
+                        item = m_currentBrowser->insertProperty(groupProperty, lastGroup);
                     m_nameToGroup[groupName] = groupProperty;
+                    m_groups.append(groupProperty);
+                    if (dynamicProperty)
+                        m_dynamicGroup = groupProperty;
+                    if (m_currentBrowser == m_treeBrowser && item) {
+                        m_treeBrowser->setBackgroundColor(item, propertyColor(groupProperty));
+                        groupProperty->setModified(true);
+                    }
                 }
 
                 if (lastGroup != groupProperty) {
@@ -787,6 +889,8 @@ void PropertyEditor::setObject(QObject *object)
     while (itGroup.hasNext()) {
         QtVariantProperty *groupProperty = itGroup.next().value();
         if (groupProperty->subProperties().empty()) {
+            if (groupProperty == m_dynamicGroup)
+                m_dynamicGroup = 0;
             delete groupProperty;
             m_nameToGroup.remove(itGroup.key());
         }

@@ -56,6 +56,13 @@ public:
     void setExpanded(QtBrowserItem *item, bool expanded);
     bool isExpanded(QtBrowserItem *item) const;
 
+    void setBackgroundColor(QtBrowserItem *item, const QColor &color);
+    QColor backgroundColor(QtBrowserItem *item) const;
+    QColor calculatedBackgroundColor(QtBrowserItem *item) const;
+
+    void setMarkPropertiesWithoutValue(bool mark);
+    bool markPropertiesWithoutValue() const;
+
 Q_SIGNALS:
 
     void collapsed(QtBrowserItem *item);

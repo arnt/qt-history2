@@ -70,6 +70,7 @@ private slots:
     void slotViewTriggered(QAction *action);
     void slotAddDynamicProperty();
     void slotSorting(bool sort);
+    void slotColoring(bool color);
 
 private:
     void updateBrowserValue(QtVariantProperty *property, const QVariant &value);
@@ -89,6 +90,9 @@ private:
     void collapseAll();
     void clearView();
     void fillView();
+    bool isLayoutGroup(QtProperty *group) const;
+    QColor propertyColor(QtProperty *property) const;
+    void updateActionsState();
 
     QDesignerFormEditorInterface *m_core;
     QDesignerPropertySheetExtension *m_propertySheet;
@@ -104,6 +108,7 @@ private:
     QMap<QtVariantProperty *, QtVariantProperty *> m_propertyToComment;
     QMap<QtVariantProperty *, QtVariantProperty *> m_commentToProperty;
     QList<QtProperty *> m_groups;
+    QtProperty *m_dynamicGroup;
     bool m_updatingBrowser;
     QSignalMapper *m_removeMapper;
 
@@ -115,14 +120,19 @@ private:
     QAction *m_removeDynamicAction;
     QMenu *m_removeDynamicMenu;
     QAction *m_sortingAction;
+    QAction *m_coloringAction;
     QAction *m_treeAction;
 //    QAction *m_groupBoxAction;
     QAction *m_buttonAction;
     QLabel *m_classLabel;
 
     bool m_sorting;
+    bool m_coloring;
 
     QMap<QString, bool> m_expansionState;
+    QMap<int, QColor> m_colors;
+    QColor m_dynamicColor;
+    QColor m_layoutColor;
 };
 
 }  // namespace qdesigner_internal

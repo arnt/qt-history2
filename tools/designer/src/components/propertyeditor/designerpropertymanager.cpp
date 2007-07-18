@@ -505,7 +505,7 @@ QStringList DesignerPropertyManager::attributes(int propertyType) const
         list.append(QLatin1String("validationMode"));
     if (propertyType == QVariant::Palette)
         list.append(QLatin1String("superPalette"));
-    list.append(QLatin1String("resetable"));
+    list.append(QLatin1String("resettable"));
     return list;
 }
 
@@ -514,7 +514,7 @@ int DesignerPropertyManager::attributeType(int propertyType, const QString &attr
     if (!isPropertyTypeSupported(propertyType))
         return 0;
 
-    if (attribute == QLatin1String("resetable"))
+    if (attribute == QLatin1String("resettable"))
         return QVariant::Bool;
     if (attribute == QLatin1String("flags") && propertyType == designerFlagTypeId())
         return designerFlagListTypeId();
@@ -528,7 +528,7 @@ int DesignerPropertyManager::attributeType(int propertyType, const QString &attr
 QVariant DesignerPropertyManager::attributeValue(const QtProperty *property, const QString &attribute)
 {
     QtProperty *prop = const_cast<QtProperty *>(property);
-    if (attribute == QLatin1String("resetable") && m_resetMap.contains(prop))
+    if (attribute == QLatin1String("resettable") && m_resetMap.contains(prop))
         return m_resetMap.value(prop);
     if (attribute == QLatin1String("flags") && m_flagValues.contains(prop)) {
         QVariant v;
@@ -547,7 +547,7 @@ QVariant DesignerPropertyManager::attributeValue(const QtProperty *property, con
 void DesignerPropertyManager::setAttribute(QtProperty *property,
             const QString &attribute, const QVariant &value)
 {
-    if (attribute == QLatin1String("resetable") && m_resetMap.contains(property)) {
+    if (attribute == QLatin1String("resettable") && m_resetMap.contains(property)) {
         if (value.userType() != QVariant::Bool)
             return;
         bool val = value.toBool();
@@ -666,6 +666,7 @@ bool DesignerPropertyManager::isPropertyTypeSupported(int propertyType) const
     case QVariant::Pixmap:
     case QVariant::UInt:
     case QVariant::LongLong:
+    case QVariant::ULongLong:
     case QVariant::Url:
     case QVariant::StringList:
         return true;
@@ -1403,7 +1404,7 @@ QWidget *DesignerEditorFactory::createEditor(QtVariantPropertyManager *manager, 
         editor = QtVariantEditorFactory::createEditor(manager, property, parent);
     }
     return m_resetDecorator->editor(editor,
-            manager->variantProperty(property)->attributeValue(QLatin1String("resetable")).toBool(),
+            manager->variantProperty(property)->attributeValue(QLatin1String("resettable")).toBool(),
             manager, property, parent);
 }
 
@@ -1543,18 +1544,19 @@ void ResetDecorator::setSpacing(int spacing)
     m_spacing = spacing;
 }
 
-QWidget *ResetDecorator::editor(QWidget *subEditor, bool resetable, QtAbstractPropertyManager *manager, QtProperty *property,
+QWidget *ResetDecorator::editor(QWidget *subEditor, bool resettable, QtAbstractPropertyManager *manager, QtProperty *property,
             QWidget *parent)
 {
     Q_UNUSED(manager)
 
     ResetWidget *resetWidget = 0;
-    if (resetable) {
+    if (resettable) {
         resetWidget = new ResetWidget(property, parent);
         resetWidget->setSpacing(m_spacing);
         resetWidget->setResetEnabled(property->isModified());
         resetWidget->setValueText(property->valueText());
         resetWidget->setValueIcon(property->valueIcon());
+        resetWidget->setAutoFillBackground(true);
         connect(resetWidget, SIGNAL(destroyed(QObject *)), this, SLOT(slotEditorDestroyed(QObject *)));
         connect(resetWidget, SIGNAL(resetProperty(QtProperty *)), this, SIGNAL(resetProperty(QtProperty *)));
         m_createdResetWidgets[property].append(resetWidget);

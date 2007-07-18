@@ -44,7 +44,7 @@ public:
     ~ResetDecorator();
 
     void connectPropertyManager(QtAbstractPropertyManager *manager);
-    QWidget *editor(QWidget *subEditor, bool resetable, QtAbstractPropertyManager *manager, QtProperty *property,
+    QWidget *editor(QWidget *subEditor, bool resettable, QtAbstractPropertyManager *manager, QtProperty *property,
                 QWidget *parent);
     void disconnectPropertyManager(QtAbstractPropertyManager *manager);
     void setSpacing(int spacing);
