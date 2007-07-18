@@ -1327,6 +1327,11 @@ static void getText(QString &text, QTextDocumentPrivate *priv, const QString &do
     only returns the text, with no rich text formatting information.
     If you want a document fragment (i.e. formatted rich text) use
     selection() instead.
+
+    \note If the selection obtained from an editor spans a line break,
+    the text will contain a Unicode U+2029 paragraph separator character
+    instead of a newline \c{\n} character. Use QString::replace() to
+    replace these characters with newlines.
 */
 QString QTextCursor::selectedText() const
 {
@@ -1373,7 +1378,7 @@ QString QTextCursor::selectedText() const
     formatting information. If you just want the selected text (i.e.
     plain text) use selectedText() instead.
 
-    Note that contrary to QTextDocumentFragment::toPlainText(),
+    \note Unlike QTextDocumentFragment::toPlainText(),
     selectedText() may include special unicode characters such as
     QChar::ParagraphSeparator.
 
