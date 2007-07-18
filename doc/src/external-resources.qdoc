@@ -129,3 +129,8 @@
     \externalpage http://www.davidflanagan.com/javascript5/
     \title JavaScript: The Definitive Guide
 */
+
+/*!
+    \externalpage http://trolltech.com/products/qt/addon/solutions/catalog/4/Utilities/qtsharedmemory/
+    \title QtSharedMemory
+*/
