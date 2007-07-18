@@ -515,7 +515,7 @@ void tst_QFileSystemModel::filters()
     else
         QVERIFY(xFactor.entryList(filters).count() == rowCount);
 
-    if (files.count() > 3 && rowCount >= 3 && rowCount != 6) {
+    if (files.count() > 3 && rowCount >= 3 && rowCount != 5) {
         QString fileName1 = (tmp + QDir::separator() + files.at(0));
         QString fileName2 = (tmp + QDir::separator() + files.at(1));
         QString fileName3 = (tmp + QDir::separator() + files.at(2));
