@@ -18,6 +18,13 @@ General Improvements
 - QDBusView
     * Now has an icon for Mac OS X and Windows.
 
+- Intel C++ Compiler for Linux
+    * Added support for version 10 of the compiler. See the compiler
+      notes documentation for known problems and work-arounds for this
+      compiler.
+    * Added linux-icc-32 mkspec, for building with the 32-bit compiler
+      on 64-bit hosts.
+
 Third party components
 ----------------------
 
@@ -50,9 +57,12 @@ General Improvements
                enabled unless PrintPageRange was enabled.
 
 - QApplication
-	Windows only:
-	* [166677] Fixed an issue with alert() where windows would keep flashing 
-			   after beeing activated by the user.
+    * [166677] Windows only: Fixed an issue with alert() where windows
+      would keep flashing after beeing activated by the user.
+    * [168974] Fixed compilation when QT3_SUPPORT and QT_NO_CURSOR are defined.
+
+- QDesktopServices
+   * [165817] Fixed misleading documentation of QDesktopServices::setUrlHandler().
 
 - QFile
    * [167217] Fix regression when reopening a file; the sequential bit was not reset.
@@ -320,9 +330,30 @@ General Improvements
 X11
 ---
 
+    * [163862] Fixed a bug where QClipboard would escape all non-ASCII
+      characters that were copied from GTK+ applications
+    * [165182] Fixed building with the Intel C++ Compiler for Linux on
+      IA-64 (Itanium) (missing functions in qatomic_ia64.h)
+   * [163861] Fixed building on AIX 5.3 where the
+     _POSIX_MONOTONIC_CLOCK macro was accidentally redefined.
+    * [166650] Fixed a regression from 4.2.3 where calling
+      QWidget::move() in a reimplementation of QWidget::showEvent()
+      did not work.
+    * [166097] QWidget::show() no longer overwrites the _NET_WM_STATE
+      property. Instead, QWidget now merges any existing _NET_WM_STATE
+      property together with its own state.
+    * Fixed the QAtomic implementation on the Alpha, which previously
+      caused all applications to hang on startup.
+    * [165229] Changed the linux-lsb-g++ to not link with libGLU
+      (which is not part of the LSB specification).
+
 Windows
 -------
 
+    * [169105] Fixed a regression where calling resize() on a
+      minimized window did not work.
+    * [169376] Fixed a race condition that would cause a crash when
+      stopping timers in a thread.
 
 Mac OS X
 --------
@@ -332,7 +363,9 @@ Mac OS X
     * Small changes to be more Leopard compatible
     * [167020] The translations are really included in the binary package now.
     * [164530] Make sure that the DPI for fonts don't change when the resolution changes.
-        
+    * [165530] Fixed a bug that caused Q_DECLARE_METATYPE() in a
+      precompiled header to interfere with the Objective-C 'id' keyword
+
 
 ****************************************************************************
 *                   Important Behavior Changes
