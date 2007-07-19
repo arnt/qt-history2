@@ -63,36 +63,91 @@ QRect QAccessibleItemRow::rect(int child) const
     return r.translated(view->viewport()->mapToGlobal(QPoint(0, 0)));
 }
 
+int QAccessibleItemRow::treeLevel() const
+{
+    int level = 0;
+    QModelIndex idx = row;
+    while (idx.isValid()) {
+        idx = idx.parent();
+        ++level;
+    }
+    return level;
+}
+
 QString QAccessibleItemRow::text(Text t, int child) const
 {
-    if (!child) {
-        if (children().count() >= 1)
-            child = 1;
-        else
-            return QString();
-    }
-
-    QModelIndex idx = childIndex(child);
-    if (!idx.isValid())
-        return QString();
-
     QString value;
+    if (t == Name) {
+        if (!child) {
+            if (children().count() >= 1)
+                child = 1;
+            else
+                return QString();
+        }
 
-    switch (t) {
-    case Description:
-        value = idx.model()->data(idx, Qt::AccessibleDescriptionRole).toString();
-        break;
-    case Name:
-    case Value:
+        QModelIndex idx = childIndex(child);
+        if (!idx.isValid())
+            return QString();
+
         value = idx.model()->data(idx, Qt::AccessibleTextRole).toString();
         if (value.isEmpty())
             value = idx.model()->data(idx, Qt::DisplayRole).toString();
-        break;
-    default:
-        break;
+    } else if (t == Value) {
+        if (qobject_cast<QTreeView*>(view)) {
+            if (child == 0)
+                value = QString::number(treeLevel());
+        } else {
+            if (!child && children().count() >= 1)
+                child = 1;
+            if (child) {
+                QModelIndex idx = childIndex(child);
+                if (!idx.isValid())
+                    return QString();
+                value = idx.model()->data(idx, Qt::AccessibleTextRole).toString();
+                if (value.isEmpty())
+                    value = idx.model()->data(idx, Qt::DisplayRole).toString();
+            }
+        }
+    } else if (t == Description) {
+        if (child == 0 && qobject_cast<QTreeView*>(view)) {
+            // We store the tree coordinates of the current item in the description.
+            // This enables some screen readers to report where the focus is
+            // in a tree view. (works in JAWS). Also, Firefox does the same thing.
+            // For instance the description "L2, 4 of 25 with 24" means
+            // "L2": Tree Level 2
+            // "4 of 25": We are item 4 out of in total 25 other siblings
+            // "with 24": We have 24 children. (JAWS does not read this number)
+
+            // level
+            int level = treeLevel();
+
+            QAbstractItemModel *m = view->model();
+            // totalSiblings and itemIndex
+            QModelIndex parent = row.parent();
+            int rowCount = m->rowCount(parent);
+            int itemIndex = -1;
+            int totalSiblings = 0;
+            for (int i = 0 ; i < rowCount; ++i) {
+                QModelIndex sibling = row.sibling(i, 0);
+                if (!view->isIndexHidden(sibling))
+                    ++totalSiblings;
+                if (row == sibling)
+                    itemIndex = totalSiblings;
+            }
+            int totalChildren = m->rowCount(row);   // JAWS does not report child count, so we do
+                                                    // this simple and efficient.
+                                                    // (don't check if they are all visible).
+            value = QString::fromAscii("L%1, %2 of %3 with %4").arg(level).arg(itemIndex).arg(totalSiblings).arg(totalChildren);
+        } else {
+            if (child == 0 && children().count() >= 1)
+                child = 1;
+            QModelIndex idx = childIndex(child);
+            value = idx.model()->data(idx, Qt::AccessibleDescriptionRole).toString();
+        }
     }
     return value;
 }
+
 
 void QAccessibleItemRow::setText(Text t, int child, const QString &text)
 {

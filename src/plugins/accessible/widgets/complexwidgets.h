@@ -117,6 +117,8 @@ public:
     QModelIndex childIndex(int child) const;
 private:
     static QAbstractItemView::CursorAction toCursorAction(Relation rel);
+    int treeLevel() const;
+
     QPersistentModelIndex row;
     QPointer<QAbstractItemView> view;
 };
