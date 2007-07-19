@@ -22,6 +22,7 @@
 
 namespace {
     enum { debugWriteIncludes = 0 };
+    enum { warnHeaderGeneration = 0 };
 }
 
 namespace CPP {
@@ -146,6 +147,11 @@ void WriteIncludes::insertIncludeForClass(const QString &className, QString head
         // Last resort: Create default header
         header = lowerClassName;
         header += QLatin1String(".h");
+        if (warnHeaderGeneration) {
+            const QString msg =  QString::fromUtf8("Warning: generated header '%1' for class '%2'.").arg(header).arg(className);
+            qWarning(msg.toUtf8().constData());
+        }
+
         global = true;
     } while (false);
 
@@ -153,7 +159,7 @@ void WriteIncludes::insertIncludeForClass(const QString &className, QString head
         insertInclude(header, global);
 }
 
-void WriteIncludes::add(const QString &className, const QString &header, bool global)
+void WriteIncludes::add(const QString &className, bool determineHeader, const QString &header, bool global)
 {
     if (debugWriteIncludes)
         qDebug() << "WriteIncludes::add" << className << header  << global;
@@ -172,7 +178,8 @@ void WriteIncludes::add(const QString &className, const QString &header, bool gl
         m_uic->customWidgetsInfo()->extends(className, QLatin1String("Q3Table"))) {
         add(QLatin1String("Q3Header"));
     }
-    insertIncludeForClass(className, header, global);
+    if (determineHeader)
+        insertIncludeForClass(className, header, global);
 }
 
 void WriteIncludes::acceptCustomWidget(DomCustomWidget *node)
@@ -185,14 +192,18 @@ void WriteIncludes::acceptCustomWidget(DomCustomWidget *node)
         if (!domScript->text().isEmpty())
             activateScripts();
 
-    // custom header unless it is a built-in qt class
-    QString header;
-    bool global = false;
-    if (node->elementHeader() && !m_classToHeader.contains(className) && node->elementHeader()->text().size()) {
-        global = node->elementHeader()->attributeLocation().toLower() == QLatin1String("global");
-        header = node->elementHeader()->text();
+    if (!node->elementHeader() || node->elementHeader()->text().isEmpty()) {
+        add(className, false); // no header specified
+    } else {
+        // custom header unless it is a built-in qt class
+        QString header;
+        bool global = false;
+        if (!m_classToHeader.contains(className)) {
+            global = node->elementHeader()->attributeLocation().toLower() == QLatin1String("global");
+            header = node->elementHeader()->text();
+        }
+        add(className, true, header, global);
     }
-    add(className, header, global);
 }
 
 void WriteIncludes::acceptCustomWidgets(DomCustomWidgets *node)

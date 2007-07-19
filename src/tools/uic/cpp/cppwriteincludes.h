@@ -53,7 +53,7 @@ struct WriteIncludes : public TreeWalker
     bool scriptsActivated() const { return m_scriptsActivated; }
 
 private:
-    void add(const QString &className, const QString &header = QString(), bool global = false);
+    void add(const QString &className, bool determineHeader = true, const QString &header = QString(), bool global = false);
 
 private:
     typedef QMap<QString, bool> OrderedSet;

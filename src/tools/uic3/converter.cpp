@@ -33,6 +33,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+enum { warnHeaderGeneration = 0 };
+
 #define CONVERT_PROPERTY(o, n) \
     do { \
         if (name == QLatin1String(o) \
@@ -67,6 +69,23 @@ static QString classNameForObjectName(const QDomElement &widget, const QString &
         }
     }
     return QString();
+}
+
+// Check for potential KDE classes like
+//  K3ListView or KLineEdit as precise as possible
+static inline bool isKDEClass(const QString &className)
+{
+    const int size = className.size();
+    if (size < 3 || className.at(0) != QLatin1Char('K'))
+        return false;
+    // K3ListView
+    if (className.at(1) == QLatin1Char('3')) {
+        if (size < 4)
+            return false;
+        return className.at(2).isUpper() &&  className.at(3).isLower();
+    }
+    // KLineEdit
+    return className.at(1) .isUpper() && className.at(2).isLower();
 }
 
 DomUI *Ui3Reader::generateUi4(const QDomElement &widget)
@@ -391,16 +410,17 @@ DomUI *Ui3Reader::generateUi4(const QDomElement &widget)
         ui->setElementPixmapFunction(pixmapFunction);
 
     for (int i=0; i<ui_customwidget_list.size(); ++i) {
-        QString name = ui_customwidget_list.at(i)->elementClass();
+        const QString name = ui_customwidget_list.at(i)->elementClass();
         if (candidateCustomWidgets.contains(name))
             candidateCustomWidgets.remove(name);
     }
+
 
     QMapIterator<QString, bool> it(candidateCustomWidgets);
     while (it.hasNext()) {
         it.next();
 
-        QString customClass = it.key();
+        const QString customClass = it.key();
         QString baseClass;
 
         if (customClass.endsWith(QLatin1String("ListView")))
@@ -418,6 +438,21 @@ DomUI *Ui3Reader::generateUi4(const QDomElement &widget)
         DomCustomWidget *customWidget = new DomCustomWidget();
         customWidget->setElementClass(customClass);
         customWidget->setElementExtends(baseClass);
+
+        // Magic header generation feature for legacy KDE forms
+        // (for example, filesharing/advanced/kcm_sambaconf/share.ui)
+        if (isKDEClass(customClass)) {
+            QString header = customClass.toLower();
+            header += QLatin1String(".h");
+            DomHeader *domHeader = new DomHeader;
+            domHeader->setText(header);
+            domHeader->setAttributeLocation(QLatin1String("global"));
+            customWidget->setElementHeader(domHeader);
+            if (warnHeaderGeneration) {
+                const QString msg = QString::fromUtf8("Warning: generated header '%1' for class '%2'.").arg(header).arg(customClass);
+                qWarning(msg.toUtf8().constData());
+            }
+        }
         ui_customwidget_list.append(customWidget);
     }
 
