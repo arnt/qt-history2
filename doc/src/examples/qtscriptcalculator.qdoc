@@ -2,11 +2,11 @@
     \example script/calculator
     \title QtScript Calculator Example
     \ingroup scripting
-    
+
     In this simple QtScript example, we show how to implement the
     functionality of a calculator widget.
 
-    \image calculator-example.png
+    \image qtscript-calculator-example.png
 
     The program logic in this example is a fairly straight port of the logic in the C++ \l{Calculator Example}.
     The graphical user interface is defined in a UI file.
