@@ -646,7 +646,9 @@ void QListView::setRootIndex(const QModelIndex &index)
     Q_D(QListView);
     d->column = qBound(0, d->column, d->model->columnCount(index) - 1);
     QAbstractItemView::setRootIndex(index);
-    // ### clear the internal structures
+    // sometimes we get an update before reset() is called
+    d->clear();
+    d->hiddenRows.clear();
 }
 
 /*!
