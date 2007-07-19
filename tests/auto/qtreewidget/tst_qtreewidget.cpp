@@ -790,6 +790,10 @@ void tst_QTreeWidget::selectedItems()
                 QVERIFY(sel.contains(child));
         }
     }
+
+    // Possible to select null without crashing?
+    testWidget->setItemSelected(0, true);
+    QVERIFY(!testWidget->isItemSelected(0));
 }
 
 void tst_QTreeWidget::itemAssignment()
