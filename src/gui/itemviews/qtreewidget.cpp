@@ -2886,6 +2886,8 @@ void QTreeWidget::setItemWidget(QTreeWidgetItem *item, int column, QWidget *widg
 */
 bool QTreeWidget::isItemSelected(const QTreeWidgetItem *item) const
 {
+    if (!item) 
+        return false;
     return item->d->selected;
 }
 
@@ -2902,6 +2904,10 @@ bool QTreeWidget::isItemSelected(const QTreeWidgetItem *item) const
 void QTreeWidget::setItemSelected(const QTreeWidgetItem *item, bool select)
 {
     Q_D(QTreeWidget);
+
+    if (!item)
+        return;
+
     selectionModel()->select(d->index(item), (select ? QItemSelectionModel::Select
                                               : QItemSelectionModel::Deselect)
                              |QItemSelectionModel::Rows);
