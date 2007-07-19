@@ -16,8 +16,6 @@
 #include <QtGui/qwidget.h>
 #include <QtGui/qtextedit.h>
 #include <QtGui/private/qwidget_p.h>
-#include <QtGui/qapplication.h>
-#include <QtGui/private/qapplication_p.h>
 #include <qdebug.h>
 
 #include "qwidgetanimator_p.h"
@@ -74,21 +72,6 @@ void QWidgetAnimator::abort(QWidget *w)
 void QWidgetAnimator::animate(QWidget *widget, const QRect &_final_geometry, bool animate)
 {
     QRect final_geometry = _final_geometry;
-
-    /* If QApplication::exec() hasn't been called yet, there is no point trying to animate
-       anything. It won't work, since there are no timers, and it will crash when the
-       finshed(QWidget*) signal is delivered through the qeued connection to QMainWindowLayout,
-       if the widget is deleted before QApplication::exec() is called. This happens when
-       you f.ex. call QMainWindow::setCentralWidget() twice before exec(). */
-    if (qApp != 0 && !qApp->d_func()->in_exec) {
-        if (!final_geometry.isValid() && !widget->isWindow()) {
-            // Make the wigdet go away by sending it to negative space
-            QSize s = widget->size();
-            final_geometry = QRect(-500 - s.width(), -500 - s.height(), s.width(), s.height());
-        }
-        widget->setGeometry(final_geometry);
-        return;
-    }
 
     QRect r = widget->geometry();
     if (r.right() < 0 || r.bottom() < 0)

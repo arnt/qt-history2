@@ -1591,8 +1591,18 @@ void QMainWindowLayout::allAnimationsFinished()
 
 void QMainWindowLayout::animationFinished(QWidget *widget)
 {
-    // Signal delivered over a qeued connection, check that the widget is still in the
-    // layout. This call never dereferences the pointer.
+
+    /* This signal is delivered from QWidgetAnimator over a qeued connection. The problem is that
+       the widget can be deleted. This is handled as follows:
+
+       The animator only ever animates widgets that have been added to this layout. If a widget
+       is deleted during animation, the widget's destructor removes the widget form this layout.
+       This in turn aborts the animation (see takeAt()) and this signal will never be delivered.
+
+       If the widget is deleted after the animation is finished but before this qeued signal
+       is delivered, the widget is no longer in the layout and we catch it here. The key is that
+       QMainWindowLayoutState::contains() never dereferences the pointer. */
+
     if (!layoutState.contains(widget))
         return;
 
