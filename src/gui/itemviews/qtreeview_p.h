@@ -84,6 +84,7 @@ public:
     void _q_currentChanged(const QModelIndex&, const QModelIndex&);
     void _q_columnsAboutToBeRemoved(const QModelIndex &, int, int);
     void _q_columnsRemoved(const QModelIndex &, int, int);
+    void _q_modelAboutToBeReset();
 
     void layout(int item);
 

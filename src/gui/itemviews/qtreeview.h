@@ -192,6 +192,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _q_currentChanged(const QModelIndex&, const QModelIndex &))
     Q_PRIVATE_SLOT(d_func(), void _q_columnsAboutToBeRemoved(const QModelIndex &, int, int))
     Q_PRIVATE_SLOT(d_func(), void _q_columnsRemoved(const QModelIndex &, int, int))
+    Q_PRIVATE_SLOT(d_func(), void _q_modelAboutToBeReset())
 };
 
 #endif // QT_NO_TREEVIEW

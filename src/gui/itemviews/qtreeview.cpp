@@ -188,6 +188,7 @@ void QTreeView::setModel(QAbstractItemModel *model)
                    d->model, SLOT(submit()));
         disconnect(d->model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
                    this, SLOT(rowsRemoved(QModelIndex,int,int)));
+        disconnect(d->model, SIGNAL(modelAboutToBeReset()), this, SLOT(_q_modelAboutToBeReset()));
     }
     d->viewItems.clear();
     d->expandedIndexes.clear();
@@ -210,6 +211,8 @@ void QTreeView::setModel(QAbstractItemModel *model)
     connect(d->model, SIGNAL(columnsRemoved(QModelIndex,int,int)),
             this, SLOT(_q_columnsRemoved(QModelIndex,int,int)));
 
+    connect(d->model, SIGNAL(modelAboutToBeReset()), SLOT(_q_modelAboutToBeReset()));
+    
     if (d->sortingEnabled)
         sortByColumn(header()->sortIndicatorSection());
 }
@@ -2674,6 +2677,11 @@ void QTreeViewPrivate::_q_currentChanged(const QModelIndex &current, const QMode
         }
         viewport->update(currentRect);
     }
+}
+
+void QTreeViewPrivate::_q_modelAboutToBeReset()
+{
+    viewItems.clear();
 }
 
 void QTreeViewPrivate::_q_columnsAboutToBeRemoved(const QModelIndex &parent, int start, int end)
