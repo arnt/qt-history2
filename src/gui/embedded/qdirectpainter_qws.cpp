@@ -72,9 +72,10 @@
     change, unless setRegion() is called.
 
     If QDirectPainter::ReservedSynchronous is passed to the
-    constructor, calls to setRegion() will run the application event
-    loop until the region is reserved, meaning that allocatedRegion()
-    will be available immediately.
+    constructor, calls to setRegion() will block until the region is
+    reserved, meaning that allocatedRegion() will be available immediately.
+    Note that in the current version setRegion() will cause the application
+    event loop to be entered, potentially causing reentrancy issues.
 
     \section1 Rendering
 
