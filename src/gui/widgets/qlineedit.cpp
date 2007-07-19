@@ -492,7 +492,7 @@ void QLineEdit::setEchoMode(EchoMode mode)
     Q_D(QLineEdit);
     if(mode == (EchoMode)d->echoMode)
         return;
-    setAttribute(Qt::WA_InputMethodEnabled, mode == Normal);
+    setAttribute(Qt::WA_InputMethodEnabled, mode == Normal || mode == PasswordEchoOnEdit);
     d->echoMode = mode;
     d->updateTextLayout();
     update();
