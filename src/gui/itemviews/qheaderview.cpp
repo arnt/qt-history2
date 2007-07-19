@@ -1641,6 +1641,20 @@ void QHeaderViewPrivate::_q_sectionsRemoved(const QModelIndex &parent,
         return;
     int oldCount = q->count();
     int changeCount = logicalLast - logicalFirst + 1;
+
+    // remove sections in sectionsHidden
+    if (!sectionHidden.isEmpty()) {
+        const int newsize = qMin(sectionCount - changeCount, sectionHidden.size());
+        QBitArray newSectionHidden(newsize);
+        for(int j = 0, k = 0; j < sectionHidden.size(); ++j) {
+            const int logical = q->logicalIndex(j);
+            if (logical < logicalFirst || logical > logicalLast) {
+                newSectionHidden[k++] = sectionHidden[j];
+            }
+        }
+        sectionHidden = newSectionHidden;
+    }
+
     if (visualIndices.isEmpty() && logicalIndices.isEmpty()) {
         for (int i = logicalFirst; i <= changeCount+logicalFirst; ++i)
             hiddenSectionSize.remove(i);

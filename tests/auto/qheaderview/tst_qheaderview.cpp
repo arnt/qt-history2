@@ -9,6 +9,7 @@
 
 #include <QtTest/QtTest>
 #include <QStandardItemModel>
+#include <QStringListModel>
 
 #include <qabstractitemmodel.h>
 #include <qapplication.h>
@@ -138,6 +139,8 @@ private slots:
 
     void hideAndInsert_data();
     void hideAndInsert();
+
+    void removeSection();
 
 protected:
     QHeaderView *view;
@@ -1584,6 +1587,33 @@ void tst_QHeaderView::hideAndInsert()
         else
             QCOMPARE(h.isSectionHidden(i), true);
 }
+
+void tst_QHeaderView::removeSection()
+{
+//test that removing a hidden section gives the expected result: the next row should be hidden
+//(see task
+    const int hidden = 3; //section that will be hidden
+    const QStringList list = QStringList() << "0" << "1" << "2" << "3" << "4" << "5" << "6";
+
+    QStringListModel model( list );
+    QHeaderView view(Qt::Vertical);
+    view.setModel(&model);
+    view.hideSection(hidden);
+    view.hideSection(1);
+    model.removeRow(1);
+    view.show();
+
+    for(int i = 0; i < view.count(); i++) {
+        if (i == (hidden-1)) { //-1 because we removed a row in the meantime
+            QCOMPARE(view.sectionSize(i), 0);
+            QVERIFY(view.isSectionHidden(i));
+        } else {
+            QCOMPARE(view.sectionSize(i), view.defaultSectionSize() );
+            QVERIFY(!view.isSectionHidden(i));
+        }
+    }
+}
+
 
 QTEST_MAIN(tst_QHeaderView)
 #include "tst_qheaderview.moc"
