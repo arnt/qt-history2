@@ -45,24 +45,29 @@ static const QMetaObject *propertyIntroducedBy(const QMetaObject *meta, int inde
     return 0;
 }
 
-static QDesignerFormEditorInterface *formEditorForWidget(QWidget *w) {
-    const QDesignerFormWindowInterface *formWindow =  QDesignerFormWindowInterface::findFormWindow(w);
-    if (!formWindow)
-        return 0;
-    return formWindow->core();
+// Find the form editor in the hierarchy.
+// We know that the parent of the sheet is the extension manager
+// whose parent is the core.
+
+static QDesignerFormEditorInterface *formEditorForObject(QObject *o) {
+    do {
+        if (QDesignerFormEditorInterface* core = qobject_cast<QDesignerFormEditorInterface*>(o))
+            return core;
+        o = o->parent();
+    } while(o);
+    Q_ASSERT(o);
+    return 0;
 }
 
-static bool hasLayoutAttributes(QObject *object)
+static bool hasLayoutAttributes(QDesignerFormEditorInterface *core, QObject *object)
 {
     if (!object->isWidgetType())
         return false;
 
     QWidget *w =  qobject_cast<QWidget *>(object);
-    if (const QDesignerFormEditorInterface *core = formEditorForWidget(w)) {
-        if (const QDesignerWidgetDataBaseInterface *db = core->widgetDataBase()) {
-            if (db->isContainer(w))
-                return true;
-        }
+    if (const QDesignerWidgetDataBaseInterface *db = core->widgetDataBase()) {
+        if (db->isContainer(w))
+            return true;
     }
     return false;
 }
@@ -73,7 +78,7 @@ public:
     typedef QDesignerPropertySheet::PropertyType PropertyType;
     typedef QDesignerPropertySheet::ObjectType ObjectType;
 
-    explicit QDesignerPropertySheetPrivate(QObject *object);
+    explicit QDesignerPropertySheetPrivate(QObject *object, QObject *sheetParent);
 
     PropertyType propertyType(int index) const;
     QString transformLayoutPropertyName(int index) const;
@@ -97,6 +102,7 @@ public:
 
     Info &ensureInfo(int index);
 
+    QDesignerFormEditorInterface *m_core;
     const QMetaObject *m_meta;
     const ObjectType m_objectType;
 
@@ -125,10 +131,11 @@ QDesignerPropertySheetPrivate::Info::Info() :
 {
 }
 
-QDesignerPropertySheetPrivate::QDesignerPropertySheetPrivate(QObject *object) :
+QDesignerPropertySheetPrivate::QDesignerPropertySheetPrivate(QObject *object, QObject *sheetParent) :
+    m_core(formEditorForObject(sheetParent)),
     m_meta(object->metaObject()),
     m_objectType(QDesignerPropertySheet::objectTypeFromObject(object)),
-    m_canHaveLayoutAttributes( hasLayoutAttributes(object)),
+    m_canHaveLayoutAttributes(hasLayoutAttributes(m_core, object)),
     m_object(object),
     m_lastLayout(0),
     m_lastLayoutPropertySheet(0),
@@ -160,11 +167,9 @@ QLayout* QDesignerPropertySheetPrivate::layout(QDesignerPropertySheetExtension *
         m_LastLayoutByDesigner = false;
         m_lastLayoutPropertySheet = 0;
         // Is this a layout managed by designer or some layout on a custom widget?
-        if (QDesignerFormEditorInterface *core = formEditorForWidget(widget)) {
-            if (qdesigner_internal::LayoutInfo::managedLayout(core ,widgetLayout)) {
-                m_LastLayoutByDesigner = true;
-                m_lastLayoutPropertySheet = qt_extension<QDesignerPropertySheetExtension*>(core->extensionManager(), m_lastLayout);
-            }
+        if (qdesigner_internal::LayoutInfo::managedLayout(m_core ,widgetLayout)) {
+            m_LastLayoutByDesigner = true;
+            m_lastLayoutPropertySheet = qt_extension<QDesignerPropertySheetExtension*>(m_core->extensionManager(), m_lastLayout);
         }
     }
     if (!m_LastLayoutByDesigner)
@@ -255,12 +260,17 @@ QDesignerPropertySheet::PropertyType QDesignerPropertySheet::propertyTypeFromNam
         propertyTypeHash.insert(QLatin1String("checkable"),               PropertyCheckable);
         propertyTypeHash.insert(QLatin1String("accessibleName"),          PropertyAccessibility);
         propertyTypeHash.insert(QLatin1String("accessibleDescription"),   PropertyAccessibility);
+        propertyTypeHash.insert(QLatin1String("windowTitle"),             PropertyWindowTitle);
+        propertyTypeHash.insert(QLatin1String("windowIcon"),              PropertyWindowIcon);
+        propertyTypeHash.insert(QLatin1String("windowOpacity"),           PropertyWindowOpacity);
+        propertyTypeHash.insert(QLatin1String("windowIconText"),          PropertyWindowIconText);
+        propertyTypeHash.insert(QLatin1String("windowModified"),          PropertyWindowModified );
     }
     return propertyTypeHash.value(name, PropertyNone);
 }
 
 QDesignerPropertySheet::QDesignerPropertySheet(QObject *object, QObject *parent) :
-    QObject(*(new QDesignerPropertySheetPrivate(object)), parent)
+    QObject(*(new QDesignerPropertySheetPrivate(object, parent)), parent)
 {
     typedef QDesignerPropertySheetPrivate::Info Info;
     Q_D(QDesignerPropertySheet);
@@ -611,7 +621,8 @@ QVariant QDesignerPropertySheet::metaProperty(int index) const
         QString scope = QString::fromUtf8(me.scope());
         if (!scope.isEmpty())
             scope += doubleColon;
-        for (int i=0; i<me.keyCount(); ++i) {
+        const int keyCount = me.keyCount();
+        for (int i=0; i < keyCount; ++i) {
             const QString key = scope + QLatin1String(me.key(i));
             e.items.insert(key, me.keyToValue(key.toUtf8().constData()));
             e.names.append(key);
@@ -625,7 +636,8 @@ QVariant QDesignerPropertySheet::metaProperty(int index) const
         QString scope = QString::fromUtf8(me.scope());
         if (!scope.isEmpty())
             scope += doubleColon;
-        for (int i=0; i<me.keyCount(); ++i) {
+        const int keyCount = me.keyCount();
+        for (int i=0; i < keyCount; ++i) {
             const QString key = scope + QLatin1String(me.key(i));
             e.items.insert(key, me.keyToValue(key.toUtf8().constData()));
             e.names.append(key);
@@ -901,12 +913,13 @@ bool QDesignerPropertySheet::isFakeLayoutProperty(int index) const
 bool QDesignerPropertySheet::isVisible(int index) const
 {
     Q_D(const QDesignerPropertySheet);
+    const PropertyType type = propertyType(index);
     if (isAdditionalProperty(index)) {
         if (isFakeLayoutProperty(index) && d->m_object->isWidgetType()) {
             QLayout *currentLayout = d->layout();
             if (!currentLayout)
                 return false;
-            switch (propertyType(index)) {
+            switch (type) {
             case  PropertyLayoutSpacing:
                 if (qobject_cast<const QGridLayout *>(currentLayout))
                     return false;
@@ -927,16 +940,22 @@ bool QDesignerPropertySheet::isVisible(int index) const
     if (isFakeProperty(index))
         return true;
 
-    if (propertyName(index) == QLatin1String("windowTitle") ||
-            propertyName(index) == QLatin1String("windowIcon") ||
-            propertyName(index) == QLatin1String("windowOpacity") ||
-            propertyName(index) == QLatin1String("windowIconText") ||
-            propertyName(index) == QLatin1String("windowModified")) {
-        return d->m_info.value(index).visible;
+    const bool visible = d->m_info.value(index).visible;
+    switch (type) {
+    case PropertyWindowTitle:
+    case PropertyWindowIcon:
+    case PropertyWindowOpacity:
+    case PropertyWindowIconText:
+    case PropertyWindowModified:
+        return visible;
+    default:
+        if (visible)
+            return true;
+        break;
     }
 
     const QMetaProperty p = d->m_meta->property(index);
-    return (p.isWritable() && (p.isDesignable(d->m_object) || p.isDesignable())) || d->m_info.value(index).visible;
+    return (p.isWritable() && (p.isDesignable(d->m_object) || p.isDesignable()));
 }
 
 void QDesignerPropertySheet::setVisible(int index, bool visible)
@@ -977,35 +996,61 @@ void QDesignerPropertySheet::setAttribute(int index, bool attribute)
 }
 
 // ---------- QDesignerAbstractPropertySheetFactory
-QDesignerAbstractPropertySheetFactory::QDesignerAbstractPropertySheetFactory(QExtensionManager *parent) :
-    QExtensionFactory(parent),
+
+struct QDesignerAbstractPropertySheetFactory::PropertySheetFactoryPrivate {
+    PropertySheetFactoryPrivate();
+    const QString m_propertySheetId;
+    const QString m_dynamicPropertySheetId;
+
+    typedef QMap<QObject*, QObject*> ExtensionMap;
+    ExtensionMap m_extensions;
+    typedef QHash<QObject*, bool> ExtendedSet;
+    ExtendedSet m_extended;
+};
+
+QDesignerAbstractPropertySheetFactory::PropertySheetFactoryPrivate::PropertySheetFactoryPrivate() :
     m_propertySheetId(Q_TYPEID(QDesignerPropertySheetExtension)),
     m_dynamicPropertySheetId(Q_TYPEID(QDesignerDynamicPropertySheetExtension))
 {
 }
 
+// ---------- QDesignerAbstractPropertySheetFactory
+
+
+QDesignerAbstractPropertySheetFactory::QDesignerAbstractPropertySheetFactory(QExtensionManager *parent) :
+    QExtensionFactory(parent),
+    m_impl(new PropertySheetFactoryPrivate)
+{
+}
+
+QDesignerAbstractPropertySheetFactory::~QDesignerAbstractPropertySheetFactory()
+{
+    delete m_impl;
+}
+
 QObject *QDesignerAbstractPropertySheetFactory::extension(QObject *object, const QString &iid) const
 {
+    typedef PropertySheetFactoryPrivate::ExtensionMap ExtensionMap;
     if (!object)
         return 0;
 
-    if (iid != m_propertySheetId && iid != m_dynamicPropertySheetId)
+    if (iid != m_impl->m_propertySheetId && iid != m_impl->m_dynamicPropertySheetId)
         return 0;
 
-    ExtensionMap::iterator it = m_extensions.find(object);
-    if (it == m_extensions.end()) {
+    ExtensionMap::iterator it = m_impl->m_extensions.find(object);
+    if (it == m_impl->m_extensions.end()) {
         if (QObject *ext = createPropertySheet(object, const_cast<QDesignerAbstractPropertySheetFactory*>(this))) {
             connect(ext, SIGNAL(destroyed(QObject*)), this, SLOT(objectDestroyed(QObject*)));
-            it = m_extensions.insert(object, ext);
+            it = m_impl->m_extensions.insert(object, ext);
         }
     }
 
-    if (!m_extended.contains(object)) {
+    if (!m_impl->m_extended.contains(object)) {
         connect(object, SIGNAL(destroyed(QObject*)), this, SLOT(objectDestroyed(QObject*)));
-        m_extended.insert(object, true);
+        m_impl->m_extended.insert(object, true);
     }
 
-    if (it == m_extensions.end())
+    if (it == m_impl->m_extensions.end())
         return 0;
 
     return it.value();
@@ -1013,7 +1058,7 @@ QObject *QDesignerAbstractPropertySheetFactory::extension(QObject *object, const
 
 void QDesignerAbstractPropertySheetFactory::objectDestroyed(QObject *object)
 {
-    QMutableMapIterator<QObject*, QObject*> it(m_extensions);
+    QMutableMapIterator<QObject*, QObject*> it(m_impl->m_extensions);
     while (it.hasNext()) {
         it.next();
 
@@ -1023,5 +1068,5 @@ void QDesignerAbstractPropertySheetFactory::objectDestroyed(QObject *object)
         }
     }
 
-    m_extended.remove(object);
+    m_impl->m_extended.remove(object);
 }

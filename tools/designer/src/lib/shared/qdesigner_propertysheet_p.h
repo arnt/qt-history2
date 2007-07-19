@@ -104,7 +104,13 @@ public:
                         PropertyBuddy,
                         PropertyAccessibility,
                         PropertyGeometry,
-                        PropertyCheckable};
+                        PropertyCheckable,
+                        PropertyWindowTitle,
+                        PropertyWindowIcon,
+                        PropertyWindowOpacity,
+                        PropertyWindowIconText,
+                     PropertyWindowModified
+    };
 
     enum ObjectType { ObjectNone, ObjectLabel, ObjectLayout, ObjectLayoutWidget, ObjectQ3GroupBox };
 
@@ -131,6 +137,7 @@ class QDESIGNER_SHARED_EXPORT QDesignerAbstractPropertySheetFactory: public QExt
     Q_INTERFACES(QAbstractExtensionFactory)
 public:
     explicit QDesignerAbstractPropertySheetFactory(QExtensionManager *parent = 0);
+    virtual ~QDesignerAbstractPropertySheetFactory();
 
     QObject *extension(QObject *object, const QString &iid) const;
 
@@ -140,13 +147,8 @@ private slots:
 private:
     virtual QObject *createPropertySheet(QObject *qObject, QObject *parent) const = 0;
 
-    const QString m_propertySheetId;
-    const QString m_dynamicPropertySheetId;
-
-    typedef QMap<QObject*, QObject*> ExtensionMap;
-    mutable ExtensionMap m_extensions;
-    typedef QHash<QObject*, bool> ExtendedSet;
-    mutable ExtendedSet m_extended;
+    struct PropertySheetFactoryPrivate;
+    PropertySheetFactoryPrivate *m_impl;
 };
 
 /* Convenience factory template for property sheets that implement
