@@ -1777,6 +1777,14 @@ QStringList QScriptEnginePrivate::uncaughtExceptionBacktrace() const
     return QScript::Ecma::Error::backtrace(value);
 }
 
+#ifndef QT_NO_QOBJECT
+void QScriptEnginePrivate::emitSignalHandlerException()
+{
+    Q_Q(QScriptEngine);
+    emit q->signalHandlerException(uncaughtException());
+}
+#endif
+
 void QScriptEnginePrivate::processEvents()
 {
 #ifndef QT_NO_QOBJECT

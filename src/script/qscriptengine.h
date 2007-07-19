@@ -172,6 +172,11 @@ public:
     void setProcessEventsInterval(int interval);
     int processEventsInterval() const;
 
+#ifndef QT_NO_QOBJECT
+Q_SIGNALS:
+    void signalHandlerException(const QScriptValue &exception);
+#endif
+
 private:
     QScriptValue create(int type, const void *ptr);
 

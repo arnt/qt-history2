@@ -817,11 +817,9 @@ void QScript::ConnectionQObject::execute(void **argv)
 
     fun->execute(context_data);
 
-    if (context->state() == QScriptContext::ExceptionState) {
-        qWarning() << "***" << context->returnValue().toString(); // ### fixme
-    }
-
     eng->popContext();
+    if (eng->hasUncaughtException())
+        eng->emitSignalHandlerException();
 }
 
 void QScript::ConnectionQObject::mark(int generation)
@@ -921,7 +919,8 @@ void QScript::QtPropertyFunction::execute(QScriptContextPrivate *context)
 
         result = context->argument(0);
     }
-    context->m_result = result;
+    if (!eng->hasUncaughtException())
+        context->m_result = result;
 }
 
 static int indexOfMetaEnum(const QMetaObject *meta, const QByteArray &str)

@@ -1307,6 +1307,8 @@ int QScriptEngine::processEventsInterval() const
   given \a function. If \a receiver is an object, it will act as the
   `this' object when the signal handler function is invoked. Returns
   true if the connection succeeds; otherwise returns false.
+
+  \sa qScriptDisconnect(), QScriptEngine::signalHandlerException()
 */
 bool qScriptConnect(QObject *sender, const char *signal,
                     const QScriptValue &receiver, const QScriptValue &function)
@@ -1330,6 +1332,8 @@ bool qScriptConnect(QObject *sender, const char *signal,
   Disconnects the \a signal in the \a sender from the given (\a
   receiver, \a function) pair. Returns true if the connection is
   successfully broken; otherwise returns false.
+
+  \sa qScriptConnect()
 */
 bool qScriptDisconnect(QObject *sender, const char *signal,
                        const QScriptValue &receiver, const QScriptValue &function)
@@ -1345,6 +1349,16 @@ bool qScriptDisconnect(QObject *sender, const char *signal,
                                    QScriptValuePrivate::valueOf(receiver),
                                    QScriptValuePrivate::valueOf(function));
 }
+
+/*!
+    \since 4.4
+    \fn void QScriptEngine::signalHandlerException(const QScriptValue &exception)
+
+    This signal is emitted when a script function connected to a signal causes
+    an \a exception.
+
+    \sa qScriptConnect()
+*/
 
 #include "moc_qscriptengine.cpp"
 

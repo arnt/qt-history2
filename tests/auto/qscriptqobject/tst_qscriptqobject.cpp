@@ -345,6 +345,12 @@ public slots:
     void init();
     void cleanup();
 
+protected slots:
+    void onSignalHandlerException(const QScriptValue &exception)
+    {
+        m_signalHandlerException = exception;
+    }
+
 private slots:
     void getSetStaticProperty();
     void getSetDynamicProperty();
@@ -368,6 +374,7 @@ private slots:
 private:
     QScriptEngine *m_engine;
     MyQObject *m_myObject;
+    QScriptValue m_signalHandlerException;
 };
 
 tst_QScriptExtQObject::tst_QScriptExtQObject()
@@ -1364,6 +1371,36 @@ void tst_QScriptExtQObject::cppConnectAndDisconnect()
 
         QVERIFY(qScriptConnect(&edit, SIGNAL(textChanged(const QString &)), QScriptValue(), fun));
         QVERIFY(eng.evaluate("edit.textChanged.disconnect(fun)").isUndefined());
+    }
+
+    // signalHandlerException()
+    {
+        connect(&eng, SIGNAL(signalHandlerException(QScriptValue)),
+                this, SLOT(onSignalHandlerException(QScriptValue)));
+
+        eng.globalObject().setProperty("edit", eng.newQObject(&edit));
+        QScriptValue fun = eng.evaluate("function() { nonExistingFunction(); }");
+        QVERIFY(qScriptConnect(&edit, SIGNAL(textChanged(const QString &)), QScriptValue(), fun));
+
+        m_signalHandlerException = QScriptValue();
+        QScriptValue ret = eng.evaluate("edit.text = 'trigger a signal handler exception from script'");
+        QVERIFY(ret.isError());
+        QVERIFY(m_signalHandlerException.strictlyEquals(ret));
+
+        m_signalHandlerException = QScriptValue();
+        edit.setText("trigger a signal handler exception from C++");
+        QVERIFY(m_signalHandlerException.isError());
+
+        QVERIFY(qScriptDisconnect(&edit, SIGNAL(textChanged(const QString &)), QScriptValue(), fun));
+
+        m_signalHandlerException = QScriptValue();
+        eng.evaluate("edit.text = 'no more exception from script'");
+        QVERIFY(!m_signalHandlerException.isValid());
+        edit.setText("no more exception from C++");
+        QVERIFY(!m_signalHandlerException.isValid());
+
+        disconnect(&eng, SIGNAL(signalHandlerException(QScriptValue)),
+                   this, SLOT(onSignalHandlerException(QScriptValue)));
     }
 }
 
