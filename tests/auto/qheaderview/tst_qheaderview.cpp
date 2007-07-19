@@ -134,6 +134,8 @@ private slots:
     void defaultSectionSize_data();
     void defaultSectionSize();
 
+    void oneSectionSize();
+
     void hideAndInsert_data();
     void hideAndInsert();
 
@@ -439,6 +441,23 @@ void tst_QHeaderView::stretch()
     view->setStretchLastSection(false);
     QCOMPARE(view->stretchLastSection(), false);
 }
+
+void tst_QHeaderView::oneSectionSize()
+{
+    //this ensures that if there is only one section, it gets a correct width (more than 0)
+    QHeaderView view (Qt::Vertical);
+    QtTestModel model;
+    model.cols = 1;
+    model.rows = 1;
+
+    view.setResizeMode(QHeaderView::Interactive);
+    view.setModel(&model);
+
+    view.show();
+
+    QVERIFY(view.sectionSize(0) > 0);
+}
+
 
 void tst_QHeaderView::sectionSize_data()
 {

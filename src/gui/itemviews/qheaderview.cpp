@@ -1790,7 +1790,7 @@ void QHeaderView::initializeSections(int start, int end)
     if (!d->sectionHidden.isEmpty())
         d->sectionHidden.resize(d->sectionCount);
 
-    if (end > oldCount || d->forceInitializing)
+    if (d->sectionCount > oldCount || d->forceInitializing)
         d->createSectionSpan(start, end, (end - start + 1) * d->defaultSectionSize, d->globalResizeMode);
     //Q_ASSERT(d->headerLength() == d->length);
 
