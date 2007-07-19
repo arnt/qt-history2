@@ -31,6 +31,7 @@
 #include <qmenu.h>
 #include <qapplication.h>
 #include <qbasictimer.h>
+#include <qstylepainter.h>
 
 enum {
     RowCount = 6,
@@ -1563,6 +1564,21 @@ protected:
     }
 };
 
+class QPrevNextCalButton : public QToolButton
+{
+    Q_OBJECT
+public:
+    QPrevNextCalButton(QWidget *parent) : QToolButton(parent) {}
+protected:
+    void paintEvent(QPaintEvent *) {
+        QStylePainter painter(this);
+        QStyleOptionToolButton opt;
+        initStyleOption(&opt);
+        opt.state &= ~QStyle::State_HasFocus;
+        painter.drawComplexControl(QStyle::CC_ToolButton, opt);
+    }
+};
+
 class QCalendarWidgetPrivate : public QWidgetPrivate
 {
     Q_DECLARE_PUBLIC(QCalendarWidget)
@@ -1679,8 +1695,8 @@ void QCalendarWidgetPrivate::createNavigationBar(QWidget *widget)
     navBarBackground->setAutoFillBackground(true);
     navBarBackground->setBackgroundRole(QPalette::Highlight);
 
-    prevMonth = new QToolButton(navBarBackground);
-    nextMonth = new QToolButton(navBarBackground);
+    prevMonth = new QPrevNextCalButton(navBarBackground);
+    nextMonth = new QPrevNextCalButton(navBarBackground);
     prevMonth->setAutoRaise(true);
     nextMonth->setAutoRaise(true);
     prevMonth->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
@@ -1692,6 +1708,7 @@ void QCalendarWidgetPrivate::createNavigationBar(QWidget *widget)
     nextMonth->setAutoRepeat(true);
     prevMonth->setFocusProxy(m_view);
     nextMonth->setFocusProxy(m_view);
+
 
     monthButton = new QCalToolButton(navBarBackground);
     monthButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
