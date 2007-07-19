@@ -32,6 +32,7 @@
 #include "qdebug.h"
 #include "qimagewriter.h"
 #include "qbuffer.h"
+#include "qtextcodec.h"
 
 #include "qdnd_p.h"
 #include "qt_x11_p.h"
