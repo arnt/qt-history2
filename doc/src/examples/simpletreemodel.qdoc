@@ -37,8 +37,8 @@
     The data is stored internally in the model using \c TreeItem objects that
     are linked together in a pointer-based tree structure. Generally, each
     \c TreeItem has a parent item, and can have a number of child items.
-    However, the root item in the tree structure has no parent item; this
-    item is never referenced outside the model.
+    However, the root item in the tree structure has no parent item and it
+    is never referenced outside the model.
 
     Each \c TreeItem contains information about its place in the tree
     structure; it can return its parent item and its row number. Having
@@ -51,11 +51,11 @@
     \endtable
 
     The use of a pointer-based tree structure means that, when passing a
-    model index to a view, we can use record the address of the
-    corresponding item in the index (see QAbstractItemModel::createIndex())
-    and retrieve it later with QModelIndex::internalPointer(). This makes
-    writing the model easier and ensures that all model indexes that refer
-    to the same item have the same internal data pointer.
+    model index to a view, we can record the address of the corresponding
+    item in the index (see QAbstractItemModel::createIndex()) and retrieve
+    it later with QModelIndex::internalPointer(). This makes writing the
+    model easier and ensures that all model indexes that refer to the same
+    item have the same internal data pointer.
 
     With the appropriate data structure in place, we can create a tree model
     with a minimal amount of extra code to supply model indexes and data to
