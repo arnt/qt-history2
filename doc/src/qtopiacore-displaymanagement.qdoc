@@ -150,20 +150,30 @@
     \endcode
 
     Note also that the VNC screen driver defaults to a virtual screen
-    driver if no subdriver is specified.
-
-    In the case where a VNC driver acts as a \c Multi subdriver, but
-    has no specified subdriver of its own, the VNC driver accepts a
+    driver if no subdriver is specified. In this case the VNC driver accepts a
     few additional (optional) arguments specifying the size and depth
     of the default virtual screen:
 
     \list
         \o \c {size=<width x height>}
         \o \c {depth=<value>}
+        \o \c {mmHeight=<physical height in millimeters>}
+        \o \c {mmWidth=<physical width in millimeters>}
     \endlist
 
-    It also accepts the \l mmHeight and \l mmWidth arguments
-    specifying the screens physical size.
+    Example running the VNC screen driver with a virtual screen of size 
+    720x480 with 32 bits per pixel:
+
+    \code
+	export QWS_DISPLAY="VNC:size=720x480:depth=32"
+    \endcode
+
+    Example running the VNC screen driver on top of the Linux framebuffer
+    driver:
+
+    \code
+	export QWS_DISPLAY="VNC:LinuxFb"
+    \endcode
 
     \endtable
 
