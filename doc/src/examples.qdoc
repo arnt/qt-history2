@@ -308,4 +308,9 @@
     \o \l{qtopiacore/svgalib}{Accelerated Graphics Driver}\raisedaster
     \o \l{qtopiacore/ahigl}{OpenGL for Embedded Systems}\raisedaster
     \endlist
+
+    \section1 IPC Examples
+    \list
+    \o \l{ipc/sharedmemory}{Shared Memory}\raisedaster
+    \endlist
 */

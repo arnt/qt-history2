@@ -333,7 +333,7 @@ static inline qsreal ParseString(const QString &s)
 /*!
   \internal
 
-  Converts the ECMA Date value \t (in UTC form) to QDateTime
+  Converts the ECMA Date value \tt (in UTC form) to QDateTime
   according to \a spec.
 */
 static inline QDateTime ToDateTime(qsreal t, Qt::TimeSpec spec)

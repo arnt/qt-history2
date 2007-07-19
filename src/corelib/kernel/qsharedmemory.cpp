@@ -43,33 +43,47 @@ QString QSharedMemoryPrivate::makePlatformSafeKey(const QString &key, const QStr
 #endif
 }
 
-/*! \class QSharedMemory
-    \since 4.4
+/*!
+  \class QSharedMemory
+  \since 4.4
 
-    \brief The QSharedMemory class provides a shared memory segment.
+  \brief The QSharedMemory class provides access to a shared memory segment.
 
-    QSharedMemory provides a way for multiple threads and processes to
-    access the same memory on a system.  QSharedMemory provides a way
-    to lock the memory so it can be accessed by one process or thread
-    at a time.
+  QSharedMemory provides access to a shared memory segment by multiple
+  threads and processes. It also provides a way for a single thread or
+  process to lock the memory for exclusive access.
 
-    There are some platform difference that should be known when using this class:
+  When using this class, be aware of the following platform
+  differences:
 
-    * On Windows once all of the QSharedMemory have been destroyed or the processes
-      exits the shared memory is automatically removed.
-    * On Unix the last QSharedMemory to detach will remove the shared memory
-      so if there is one QSharedMemory that is attached and the program crashes or
-      the QSharedMemory is not destroyed the shared memory is not removed from
-      the system.
-    * On HP-UX you can only attach once to a shared memory per process.
+  \list
 
-    ### Add code snippit after example is made.
+  \o Windows: QSharedMemory does not "own" the shared memory segment.
+  When all threads or processes that have an instance of QSharedMemory
+  attached to a particular shared memory segment have either destroyed
+  their instance of QSharedMemory or exited, the Windows kernel
+  releases the shared memory segment automatically.
 
+  \o Unix: QSharedMemory "owns" the shared memory segment. When the
+  last thread or process that has an instance of QSharedMemory
+  attached to a particular shared memory segment detaches from the
+  segment by destroying its instance of QSharedMemory, the Unix kernel
+  release the shared memory segment. But if that last thread or
+  process crashes without running the QSharedMemory destructor, the
+  shared memory segment survives the crash.
 
-    Unlike QtSharedMemory, QSharedMemory will automatically destroy the shared
-    memory once there are no references to the shared memory.  It is advisable
-    to not mix QtSharedMemory and QSharedMemory, but to port everything to
-    QSharedMemory.
+  \o HP-UX: Only one attach to a shared memory segment is allowed per
+  process. This means that QSharedMemeory should not be used across
+  multiple threads in the same process in HP-UX.
+
+  \endlist
+
+  ### Add code snippit after example is made.
+
+  Unlike QtSharedMemory, QSharedMemory will automatically destroy the
+  shared memory once there are no references to the shared memory.  It
+  is advisable to not mix QtSharedMemory and QSharedMemory, but to
+  port everything to QSharedMemory.
 
  */
 
