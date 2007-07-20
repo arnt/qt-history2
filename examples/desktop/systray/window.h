@@ -15,7 +15,7 @@
 #define WINDOW_H
 
 #include <QSystemTrayIcon>
-#include <QWidget>
+#include <QDialog>
 
 class QAction;
 class QCheckBox;
@@ -28,7 +28,7 @@ class QPushButton;
 class QSpinBox;
 class QTextEdit;
 
-class Window : public QWidget
+class Window : public QDialog
 {
     Q_OBJECT
 

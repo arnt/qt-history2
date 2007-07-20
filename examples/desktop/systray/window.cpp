@@ -51,7 +51,7 @@ void Window::setVisible(bool visible)
     minimizeAction->setEnabled(visible);
     maximizeAction->setEnabled(!isMaximized());
     restoreAction->setEnabled(isMaximized() || !visible);
-    QWidget::setVisible(visible);
+    QDialog::setVisible(visible);
 }
 
 void Window::closeEvent(QCloseEvent *event)
