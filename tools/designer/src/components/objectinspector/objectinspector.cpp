@@ -211,7 +211,7 @@ QWidget *ObjectInspector::ObjectInspectorPrivate::managedWidgetAt(const QPoint &
     const  QPoint pos = m_treeView->viewport()->mapFromGlobal(global_mouse_pos);
     QObject *o = m_model->objectAt(m_treeView->indexAt(pos));
 
-    if (!o->isWidgetType())
+    if (!o || !o->isWidgetType())
         return 0;
 
     QWidget *rc = qobject_cast<QWidget *>(o);
