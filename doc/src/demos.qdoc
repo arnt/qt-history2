@@ -6,7 +6,8 @@
     This is the list of demonstrations in Qt's \c demos directory.
     These are larger and more complicated programs than the
     \l{Qt Examples} and are used to highlight certain features of
-    Qt.
+    Qt. You can launch any of these programs from the
+    \l{Examples and Demos Launcher} application.
 
     If you are new to Qt, and want to start developing applications,
     you should probably start by going through the
@@ -79,7 +80,7 @@
 
     \list
     \o \l{demos/undo}{Undo Framework} demonstrates how Qt's
-	\l{Overview of Qt's Undo Framework}{undo framework} is used to
-	provide advanced undo/redo functionality.
+        \l{Overview of Qt's Undo Framework}{undo framework} is used to
+        provide advanced undo/redo functionality.
     \endlist
 */

@@ -45,7 +45,9 @@
     \row \o \l{Resource Compiler (rcc)}
          \o Embed resources into Qt applications during the build process.
     \row \o \l{Configuring Qt}{Configuring Qt (qtconfig)}
-         \o Unix-based Qt configuration tool with online help.
+         \o X11-based Qt configuration tool with online help.
+    \row \o \l{Examples and Demos Launcher}
+         \o A launcher for Qt's Examples and Demonstration programs.
     \row \o \l{qt3to4 - The Qt 3 to 4 Porting Tool}
          \o A tool to assist in porting applications from Qt 3 to Qt 4.
     \row \o \l{QtDBus XML compiler (qdbusxml2cpp)}

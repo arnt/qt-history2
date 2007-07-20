@@ -5,9 +5,12 @@
 
     This is the list of examples in Qt's \c examples directory. The
     examples demonstrate Qt features in small, self-contained
-    programs. They are not very impressive when you run them, but
-    their source code is carefully written to show good Qt
-    programming practices. If you are new to Qt, you should probably
+    programs. They are not all designed to be impressive when you run
+    them, but their source code is carefully written to show good Qt
+    programming practices. You can launch any of these programs from the
+    \l{Examples and Demos Launcher} application.
+
+    If you are new to Qt, you should probably
     start by going through the \l{tutorial.html}{Tutorial} before you
     have a look at the \l{mainwindows/application}{Application}
     example.

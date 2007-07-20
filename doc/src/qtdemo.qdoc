@@ -1,0 +1,15 @@
+/*!
+  \page qtdemo.html
+  \title Examples and Demos Launcher
+  \ingroup qttools
+  \keyword qtdemo
+
+  The Examples and Demos Launcher (qtdemo) allows the user to browse the
+  examples and demonstrations included with Qt, access the documentation
+  associated with each of them, and launch them as separate applications.
+
+  The \c qtdemo executable should be installed alongside the
+  \l{Qt's Tools}{other tools} supplied with Qt.
+
+  \image qtdemo.png
+*/
