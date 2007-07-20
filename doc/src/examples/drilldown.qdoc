@@ -374,8 +374,9 @@
     reason we must create a custom item class is that we want to catch
     the item's hover events, animating the item when the mouse cursor
     is hovering over the image (by default, no items accept hover
-    events). Please see the \l {The Graphics View Framework}
-    documentation and the \l {Graphics View Examples} for more
+    events). Please see the \l{The Graphics View Framework}
+    documentation and the
+    \l{Qt Examples#Graphics View}{Graphics View examples} for more
     details.
 
     \skipto View::mouseReleaseEvent

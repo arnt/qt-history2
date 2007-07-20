@@ -2536,7 +2536,7 @@
     If you need to manage a set of actions created for a particular menu,
     we suggest that you construct a QActionGroup and add them to that.
 
-    The \l{Qt Examples#Main Window Examples}{Main Window examples} provided
+    The \l{Qt Examples#Main Windows}{Main Window examples} provided
     show how to use Qt's action system to construct menus, toolbars, and other
     common user interface elements.
 
@@ -3825,7 +3825,7 @@
     {setLineWrapColumnOrWidth()}. The Q3TextEdit::setWrapPolicy() and Q3TextEdit::setWrapColumnOrWidth() still provide this
     functionality in the Q3TextEdit class.
 
-    
+
     See \l{Rich Text Processing} for an overview of the Qt 4 rich
     text classes.
 

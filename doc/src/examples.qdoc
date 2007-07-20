@@ -288,9 +288,9 @@
     \list
     \o \l{xml/dombookmarks}{DOM Bookmarks}
     \o \l{xml/saxbookmarks}{SAX Bookmarks}
-    \o \l{xml/streambookmarks}{QXmlStream Bookmarks}
+    \o \l{xml/streambookmarks}{QXmlStream Bookmarks}\raisedaster
     \o \l{xml/rsslisting}{RSS-Listing}
-    \o \l{xml/xmlstreamlint}{XML Stream Lint Example}
+    \o \l{xml/xmlstreamlint}{XML Stream Lint Example}\raisedaster
     \endlist
 
     \section1 IPC Examples

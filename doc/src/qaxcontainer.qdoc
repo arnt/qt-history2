@@ -28,7 +28,7 @@
        interface to the Windows Script Host.
     \endlist
 
-    Some \l{ActiveQt Examples}{example applications} that use
+    Some \l{Qt Examples#ActiveQt}{example applications} that use
     standard ActiveX controls to provide high-level user interface
     functionality are provided.
 

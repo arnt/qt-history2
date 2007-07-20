@@ -743,7 +743,7 @@
            viewport. Setting the background-attachment to \c{scroll}, scrolls
            the background-image when the scroll bars move.
 
-           See \l{Examples#Customizing QAbstractScrollArea}
+           See \l{Qt Style Sheets Examples#Customizing QAbstractScrollArea}
            {Customizing QAbstractScrollArea} for an example.
 
     \row
@@ -757,7 +757,7 @@
            specifies the spacing between the check indicator and
            the text.
 
-           See \l{Examples#Customizing QCheckBox}
+           See \l{Qt Style Sheets Examples#Customizing QCheckBox}
            {Customizing QCheckBox} for an example.
 
     \row
@@ -778,7 +778,7 @@
            subcontrol. By default, the arrow is placed in the center of the 
            contents rectangle of the drop-down subcontrol.
 
-           See \l{Examples#Customizing QComboBox}{Customizing QComboBox} 
+           See \l{Qt Style Sheets Examples#Customizing QComboBox}{Customizing QComboBox} 
            for an example.
 
     \row
@@ -825,7 +825,7 @@
            Since 4.3, setting a stylesheet on a QLabel automatically
            sets the QFrame::frameStyle property to QFrame::StyledPanel.
 
-           See \l{Examples#Customizing QFrame}{Customizing QFrame}
+           See \l{Qt Style Sheets Examples#Customizing QFrame}{Customizing QFrame}
            for an example.
 
     \row
@@ -840,7 +840,7 @@
            \l{#spacing-prop}{spacing} property can be used to control
            the spacing between the text and indicator.
 
-           See \l{Examples#Customizing QGroupBox}{Customizing QGroupBox}
+           See \l{Qt Style Sheets Examples#Customizing QGroupBox}{Customizing QGroupBox}
            for an example.
 
     \row
@@ -857,7 +857,7 @@
            \l{#up-arrow-sub}{::up-arrow} and the 
            \l{#down-arrow-sub}{::down-arrow} Sub-control.
 
-           See \l{Examples#Customizing QHeaderView}{Customizing QHeaderView}
+           See \l{Qt Style Sheets Examples#Customizing QHeaderView}{Customizing QHeaderView}
            for an example.
 
     \row
@@ -868,7 +868,7 @@
            Since 4.3, setting a stylesheet on a QLabel automatically
            sets the QFrame::frameStyle property to QFrame::StyledPanel.
 
-           See \l{Examples#Customizing QFrame}{Customizing QFrame} for an
+           See \l{Qt Style Sheets Examples#Customizing QFrame}{Customizing QFrame} for an
            example (a QLabel derives from QFrame).
 
     \row
@@ -884,7 +884,7 @@
            \l{#lineedit-password-character-prop}{lineedit-password-character}
            property.
 
-           See \l{Examples#Customizing QLineEdit}{Customizing QLineEdit}
+           See \l{Qt Style Sheets Examples#Customizing QLineEdit}{Customizing QLineEdit}
            for an example.
 
     \row
@@ -935,7 +935,7 @@
 
             The tear-off is styled using the \l{#tear-off-sub}{::tear-off}.
 
-           See \l{Examples#Customizing QMenu}{Customizing QMenu}
+           See \l{Qt Style Sheets Examples#Customizing QMenu}{Customizing QMenu}
            for an example.
 
     \row
@@ -945,7 +945,7 @@
            Individual items are styled using the \l{#item-sub}{::item}
            subcontrol.
 
-           See \l{Examples#Customizing QMenuBar}{Customizing QMenuBar}
+           See \l{Qt Style Sheets Examples#Customizing QMenuBar}{Customizing QMenuBar}
            for an example.
 
     \row
@@ -966,7 +966,7 @@
            Indeterminate progress bars have the 
            \l{#indeterminate-ps}{:indeterminate} pseudo state set.
 
-           See \l{Examples#Customizing QProgressBar}{Customizing QProgressBar}
+           See \l{Qt Style Sheets Examples#Customizing QProgressBar}{Customizing QProgressBar}
            for an example.
 
     \row
@@ -980,7 +980,7 @@
            customized using the \l{#open-ps}{:open} and 
            \l{#closed-ps}{:closed} pseudo-states.
 
-           See \l{Examples#Customizing QPushButton}{Customizing QPushButton}
+           See \l{Qt Style Sheets Examples#Customizing QPushButton}{Customizing QPushButton}
            for an example.
 
     \row
@@ -994,7 +994,7 @@
            specifies the spacing between the check indicator and
            the text.
 
-           See \l{Examples#Customizing QRadioButton}
+           See \l{Qt Style Sheets Examples#Customizing QRadioButton}
            {Customizing QRadioButton} for an example.
 
     \row
@@ -1029,7 +1029,7 @@
            region of the slider that subtracts a page. The \l{add-page-sub}{::add-page}
            subcontrol can be used to style the region of the slider that adds a page.
 
-           See \l{Examples#Customizing QScrollBar}{Customizing QScrollBar} 
+           See \l{Qt Style Sheets Examples#Customizing QScrollBar}{Customizing QScrollBar} 
            for an example.
 
     \row
@@ -1038,7 +1038,7 @@
            \l{#height-prop}{height}, and \l{#image-prop}{image}
            properties.
 
-           See \l{Examples#Customizing QSizeGrip}{Customizing QSizeGrip}
+           See \l{Qt Style Sheets Examples#Customizing QSizeGrip}{Customizing QSizeGrip}
            for an example.
 
     \row
@@ -1056,7 +1056,7 @@
            subcontrol. The subcontrol moves in the Contents rectangle of
            the groove subcontrol.
 
-           See \l{Examples#Customizing QSlider}{Customizing QSlider}
+           See \l{Qt Style Sheets Examples#Customizing QSlider}{Customizing QSlider}
            for an example.
 
     \row
@@ -1082,7 +1082,7 @@
            The bottom-arrow is placed in the center of the Contents
            rectangle of the bottom-button.
 
-           See \l{Examples#Customizing QSpinBox}{Customizing QSpinBox}
+           See \l{Qt Style Sheets Examples#Customizing QSpinBox}{Customizing QSpinBox}
            for an example.
 
     \row
@@ -1090,7 +1090,7 @@
         \o Supports the \l{box model}. The handle of the splitter 
            is styled using the \l{#handle-sub}{::handle} subcontrol.
 
-           See \l{Examples#Customizing QSplitter}{Customizing QSplitter}
+           See \l{Qt Style Sheets Examples#Customizing QSplitter}{Customizing QSplitter}
            for an example.
 
     \row
@@ -1100,7 +1100,7 @@
            The frame for individual items can be style using the
            \l{#item-sub}{::item} subcontrol.
 
-           See \l{Examples#Customizing QStatusBar}{Customizing QStatusBar}
+           See \l{Qt Style Sheets Examples#Customizing QStatusBar}{Customizing QStatusBar}
            for an example.
 
     \row
@@ -1134,7 +1134,7 @@
             To change the position of the QTabBar within a QTabWidget, use the
             \l{#tab-bar-sub}{tab-bar} subcontrol (and set subcontrol-position).
 
-           See \l{Examples#Customizing QTabWidget and QTabBar}{Customizing QTabBar}
+           See \l{Qt Style Sheets Examples#Customizing QTabWidget and QTabBar}{Customizing QTabBar}
            for an example.
 
     \row
@@ -1154,7 +1154,7 @@
             \l{#bottom-ps}{:bottom} pseudo states depending on the orientation
             of the tabs.
 
-           See \l{Examples#Customizing QTabWidget and QTabBar}
+           See \l{Qt Style Sheets Examples#Customizing QTabWidget and QTabBar}
            {Customizing QTabWidget} for an example.
 
         \o QTableView \target qtableview-widget
@@ -1214,7 +1214,7 @@
            The handle (to move the toolbar) is styled using the
            \l{#handle-sub}{::handle} subcontrol.
 
-           See \l{Examples#Customizing QToolBar}{Customizing QToolBar} 
+           See \l{Qt Style Sheets Examples#Customizing QToolBar}{Customizing QToolBar} 
            for an example.
 
     \row
@@ -1237,7 +1237,7 @@
            \l{#down-arrow-sub}{::down-arrow}, \l{#left-arrow-sub}{::left-arrow}
            and \l{#right-arrow-sub}{::right-arrow} subcontrols are used.
 
-           See \l{Examples#Customizing QToolButton}{Customizing QToolButton}
+           See \l{Qt Style Sheets Examples#Customizing QToolButton}{Customizing QToolButton}
            for an example.
 
     \row
@@ -1257,7 +1257,7 @@
         \o Supports the \l{box model}. The \l{#opacity-prop}{opacity}
            property controls the opacity of the tooltip.
 
-           See \l{Examples#Customizing QFrame}{Customizing QFrame}
+           See \l{Qt Style Sheets Examples#Customizing QFrame}{Customizing QFrame}
            for an example (a QToolTip is a QFrame).
 
     \row
@@ -1282,7 +1282,7 @@
            See \l{qabstractscrollarea-widget}{QAbsractScrollArea} to
            style scrollable backgrounds.
 
-           See \l{Examples#Customizing QTreeView}{Customizing QTreeView}
+           See \l{Qt Style Sheets Examples#Customizing QTreeView}{Customizing QTreeView}
            for an example to style the branches.
 
     \row

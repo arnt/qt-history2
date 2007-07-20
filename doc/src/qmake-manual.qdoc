@@ -4169,7 +4169,7 @@
     \skipto CONFIG
     \printuntil CONFIG
 
-    See the \l{Qt Examples#Qt Designer Examples}{Qt Designer examples} for more
+    See the \l{Qt Examples#Qt Designer}{Qt Designer examples} for more
     examples of plugin-based projects.
 
     \section1 Building and Installing in Debug and Release Modes
