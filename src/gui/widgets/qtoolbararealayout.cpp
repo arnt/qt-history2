@@ -1060,7 +1060,7 @@ bool QToolBarAreaLayout::restoreState(QDataStream &stream, const QList<QToolBar*
             }
 
             item.widgetItem = new QWidgetItem(toolBar);
-            toolBar->setOrientation(dock.o);
+            toolBar->setOrientation(floating ? Qt::Horizontal : dock.o);
             toolBar->setVisible(shown);
             toolBar->d_func()->setWindowState(floating, true, rect);
 
