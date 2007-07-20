@@ -635,7 +635,7 @@ void QMenuBar::initStyleOption(QStyleOptionMenuItem *option, const QAction *acti
     parent. The menu bar is created like this:
 
     \code
-	QMenuBar *menuBar = new QMenuBar(0);
+        QMenuBar *menuBar = new QMenuBar(0);
     \endcode
 
     \bold{Note:} The text used for the application name in the menu bar is
@@ -645,7 +645,7 @@ void QMenuBar::initStyleOption(QStyleOptionMenuItem *option, const QAction *acti
     \section1 Examples
 
     The \l{mainwindows/menus}{Menus} example shows how to use QMenuBar and QMenu.
-    The other \l{Qt Examples#Main Window Examples}{main window application examples}
+    The other \l{Qt Examples#Main Windows}{main window application examples}
     also provide menus using these classes.
 
     \sa QMenu, QShortcut, QAction,
