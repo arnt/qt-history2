@@ -89,25 +89,29 @@ OSStatus QMacFontPath::closePath(void *data)
 
 #include "qscriptengine_p.h"
 
-QFontEngineMacMulti::QFontEngineMacMulti(const ATSUFontID &_fontID, const QFontDef &fontDef, bool kerning)
+QFontEngineMacMulti::QFontEngineMacMulti(const ATSFontFamilyRef &atsFamily, const ATSFontRef &atsFontRef, const QFontDef &fontDef, bool kerning)
     : QFontEngineMulti(0)
 {
     this->fontDef = fontDef;
     this->kerning = kerning;
-    this->fontID = _fontID;
 
     FMFontFamily fmFamily;
-    FMFontStyle fntStyle;
-    FMGetFontFamilyInstanceFromFont(fontID, &fmFamily, &fntStyle);
-    if (fontDef.weight >= QFont::Bold)
-        fntStyle |= ::bold;
-    if (fontDef.style != QFont::StyleNormal)
-        fntStyle |= ::italic;
+    FMFontStyle fntStyle = 0;
+    fmFamily = FMGetFontFamilyFromATSFontFamilyRef(atsFamily);
+    if (fmFamily == kInvalidFontFamily) {
+        // Use the ATSFont then...
+        fontID = FMGetFontFromATSFontRef(atsFontRef);
+    } else {
+        if (fontDef.weight >= QFont::Bold)
+            fntStyle |= ::bold;
+        if (fontDef.style != QFont::StyleNormal)
+            fntStyle |= ::italic;
 
-    FMFontStyle intrinsicStyle;
-    FMFont fnt = 0;
-    if (FMGetFontFromFontFamilyInstance(fmFamily, fntStyle, &fnt, &intrinsicStyle) == noErr)
-       fontID = FMGetATSFontRefFromFont(fnt);
+        FMFontStyle intrinsicStyle;
+        FMFont fnt = 0;
+        if (FMGetFontFromFontFamilyInstance(fmFamily, fntStyle, &fnt, &intrinsicStyle) == noErr)
+           fontID = FMGetATSFontRefFromFont(fnt);
+    }
 
     OSStatus status;
 

@@ -261,27 +261,24 @@ void QFontDatabase::load(const QFontPrivate *d, int script)
     // previous versions
     family_list << QApplication::font().defaultFamily();
 
-    ATSUFontID fontID = 0;
+    ATSFontFamilyRef familyRef = 0;
+    ATSFontRef fontRef = 0;
     QFontDatabasePrivate *db = privateDb();
     if (!db->count)
         initializeDb();
     for(int i = 0; i < family_list.size(); ++i) {
-        bool found = false;
         for (int k = 0; k < db->count; ++k) {
             if (db->families[k]->name.compare(family_list.at(i), Qt::CaseInsensitive) == 0) {
                 QByteArray family_name = db->families[k]->name.toUtf8();
-                if(ATSFontRef atsfontref = ATSFontFindFromName(QCFString(db->families[k]->name),
-                                                               kATSOptionFlagsDefault)) {
-                    found = true;
-                    fontID = FMGetFontFromATSFontRef(atsfontref);
-                    break;
+                familyRef = ATSFontFamilyFindFromName(QCFString(db->families[k]->name), kATSOptionFlagsDefault);
+                if (familyRef) {
+                    fontRef = ATSFontFindFromName(QCFString(db->families[k]->name), kATSOptionFlagsDefault);
+                    goto FamilyFound;
                 }
             }
         }
-        if (found)
-            break;
     }
-
+FamilyFound:
     //fill in the engine's font definition
     QFontDef fontDef = d->request; //copy..
     if(fontDef.pointSize < 0)
@@ -301,12 +298,12 @@ void QFontDatabase::load(const QFontPrivate *d, int script)
 #else
     {
         QCFString actualName;
-        if(ATSFontGetName(FMGetATSFontRefFromFont(fontID), kATSOptionFlagsDefault, &actualName) == noErr)
+        if(ATSFontFamilyGetName(familyRef, kATSOptionFlagsDefault, &actualName) == noErr)
             fontDef.family = actualName;
     }
 #endif
 
-    QFontEngine *engine = new QFontEngineMacMulti(fontID, fontDef, d->kerning);
+    QFontEngine *engine = new QFontEngineMacMulti(familyRef, fontRef, fontDef, d->kerning);
     d->engineData->engine = engine;
     engine->ref.ref(); //a ref for the engineData->engine
     QFontCache::instance()->insertEngine(key, engine);

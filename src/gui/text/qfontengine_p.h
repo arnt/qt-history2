@@ -403,7 +403,7 @@ class QFontEngineMacMulti : public QFontEngineMulti
 {
     friend class QFontEngineMac;
 public:
-    QFontEngineMacMulti(const ATSUFontID &fontID, const QFontDef &fontDef, bool kerning);
+    QFontEngineMacMulti(const ATSFontFamilyRef &atsFamily, const ATSFontRef &atsFontRef, const QFontDef &fontDef, bool kerning);
     virtual ~QFontEngineMacMulti();
 
     virtual bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const;
