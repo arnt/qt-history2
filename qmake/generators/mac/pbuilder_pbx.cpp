@@ -1207,7 +1207,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
       << "\t\t\t\t" << writeSettings("OTHER_REZFLAGS", QStringList()) << ";" << "\n"
       << "\t\t\t\t" << writeSettings("SECTORDER_FLAGS", QStringList()) << ";" << "\n"
       << "\t\t\t\t" << writeSettings("WARNING_CFLAGS", QStringList()) << ";" << "\n"
-      << "\t\t\t\t" << writeSettings("PREBINDINGS", QStringList((project->isEmpty("QMAKE_DO_PREBINDING") ? "NO" : "YES")), SettingsNoQuote) << ";" << "\n";
+      << "\t\t\t\t" << writeSettings("PREBINDING", QStringList((project->isEmpty("QMAKE_DO_PREBINDING") ? "NO" : "YES")), SettingsNoQuote) << ";" << "\n";
     if(!project->isEmpty("PRECOMPILED_HEADER")) {
         if(pbVersion >= 38) {
             t << "\t\t\t\t" << writeSettings("GCC_PRECOMPILE_PREFIX_HEADER", "YES") << ";" << "\n"
