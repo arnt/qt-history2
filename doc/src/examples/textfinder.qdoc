@@ -116,16 +116,24 @@
     The \c{on_findButton_clicked()} function is a slot that is connected to
     \c{ui_findButton}'s \c clicked() signal. The \c searchString is extracted
     from the \c ui_lineEdit and the \c document is extracted from \c textEdit.
-    We use two QTextCursor objects: one to traverse through the words in
-    \c line and another to keep track of the edit blocks.
+    In event there is an empty \c searchString, a QMessageBox is used,
+    requesting the user to enter a word. Otherwise, we traverse through the
+    words in \c ui_textEdit, and highlight all ocurrences of the
+    \c searchString . Two QTextCursor objects are used: One to traverse through
+    the words in \c line and another to keep track of the edit blocks.
 
-    \quotefromfile uitools/textfinder/textfinder.cpp
     \skipto void TextFinder::on_findButton_clicked()
-    \printuntil /^\}/
+    \printuntil cursor.endEditBlock();
 
     The \c isFirstTime flag is set to false the moment \c findButton is
     clicked. This is necessary to undo the previous text highlight before
-    highlighting the user's next search string.
+    highlighting the user's next search string. Also, the \c found flag
+    is used to indicate if the \c searchString was found within the contents
+    of \c ui_textEdit. If it was not found, a QMessageBox is used
+    to inform the user.
+
+    \skipto isFirstTime = false;
+    \printuntil /^\}/
 
     \section1 \c main() Function
 
