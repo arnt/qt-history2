@@ -87,8 +87,8 @@ private slots:
 
     void fromString();
 
-    void zoneOffset() const;
-    void setZoneOffset() const;
+    void utcOffset();
+    void setUtcOffset();
 
 private:
     bool europeanTimeZone;
@@ -1159,25 +1159,25 @@ void tst_QDateTime::fromString_LOCALE_ILDATE()
 #endif
 }
 
-void tst_QDateTime::zoneOffset() const
+void tst_QDateTime::utcOffset()
 {
     /* Check default value. */
-    QCOMPARE(QDateTime().zoneOffset(), 0);
+    QCOMPARE(QDateTime().utcOffset(), 0);
 }
 
-void tst_QDateTime::setZoneOffset() const
+void tst_QDateTime::setUtcOffset()
 {
     /* Basic tests. */
     {
         QDateTime dt(QDateTime::currentDateTime());
         dt.setTimeSpec(Qt::LocalTime);
 
-        dt.setZoneOffset(0);
-        QCOMPARE(dt.zoneOffset(), 0);
+        dt.setUtcOffset(0);
+        QCOMPARE(dt.utcOffset(), 0);
         QCOMPARE(dt.timeSpec(), Qt::UTC);
 
-        dt.setZoneOffset(-100);
-        QCOMPARE(dt.zoneOffset(), -100);
+        dt.setUtcOffset(-100);
+        QCOMPARE(dt.utcOffset(), -100);
         QCOMPARE(dt.timeSpec(), Qt::OffsetFromUTC);
     }
 
@@ -1186,30 +1186,30 @@ void tst_QDateTime::setZoneOffset() const
         QDateTime dt(QDateTime::currentDateTime());
         QDateTime dt2(dt);
 
-        dt.setZoneOffset(501);
+        dt.setUtcOffset(501);
 
-        QCOMPARE(dt.zoneOffset(), 501);
-        QCOMPARE(dt2.zoneOffset(), 0);
+        QCOMPARE(dt.utcOffset(), 501);
+        QCOMPARE(dt2.utcOffset(), 0);
     }
 
     /* Check copying. */
     {
         QDateTime dt(QDateTime::currentDateTime());
-        dt.setZoneOffset(502);
-        QCOMPARE(dt.zoneOffset(), 502);
+        dt.setUtcOffset(502);
+        QCOMPARE(dt.utcOffset(), 502);
 
         QDateTime dt2(dt);
-        QCOMPARE(dt2.zoneOffset(), 502);
+        QCOMPARE(dt2.utcOffset(), 502);
     }
 
     /* Check assignment. */
     {
         QDateTime dt(QDateTime::currentDateTime());
-        dt.setZoneOffset(502);
+        dt.setUtcOffset(502);
         QDateTime dt2;
         dt2 = dt;
 
-        QCOMPARE(dt2.zoneOffset(), 502);
+        QCOMPARE(dt2.utcOffset(), 502);
     }
 }
 
