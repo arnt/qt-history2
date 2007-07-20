@@ -17,9 +17,9 @@
 #include <QTextStream>
 #include <QXmlStreamReader>
 
-/*!
- \short This class exists for the solve purpose of creating a translation context.
- */
+/*
+ This class exists for the solve purpose of creating a translation context.
+*/
 class XmlStreamLint
 {
 public:
