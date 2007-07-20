@@ -207,21 +207,30 @@
     The \c .ts file format is a simple human-readable XML format that can
     be used with version control systems if required.
 
+    Qt Linguist is also able to import and export XML Localization
+    Interchange File Format (XLIFF) files, making it possible to take
+    advantage of tools and translation services that work with this
+    format.
+
     Pass the \c -help option to \c lupdate to obtain the list of
     supported options:
 
     \code
-        Usage:
-            lupdate [options] project-file
-            lupdate [options] source-files -ts ts-files
-        Options:
-            -help  Display this information and exit
-            -noobsolete
-                   Drop all obsolete strings
-            -silent
-                   Don't explain what is being done
-            -version
-                   Display the version of lupdate and exit
+    Usage:
+        lupdate [options] [project-file]
+        lupdate [options] [source-file|path]... -ts ts-files
+    Options:
+        -help  Display this information and exit.
+        -noobsolete
+               Drop all obsolete strings.
+        -extensions <ext>[,<ext>]...
+               Process files with the given extensions only.
+               The extension list must be separated with commas, not with whitespace.
+               Default: 'ui,c,c++,cc,cpp,cxx,ch,h,h++,hh,hpp,hxx'.
+        -silent
+               Don't explain what is being done.
+        -version
+               Display the version of lupdate and exit.
     \endcode
 
     \section1 lrelease
