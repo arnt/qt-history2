@@ -21,7 +21,7 @@
     \list
     \o The \l QAxContainer module is a static
        library implementing QObject and QWidget subclasses, QAxObject and
-       QAxWidget, that act as a containers for COM objects and ActiveX
+       QAxWidget, that act as containers for COM objects and ActiveX
        controls.
     \o The \l QAxServer module is a static library that implements
        functionality for in-process and executable COM servers. This
