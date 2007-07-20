@@ -2608,26 +2608,26 @@ void tst_QAccessibility::listViewTest()
     iface->navigate(QAccessible::Child, 1, &child);
     delete iface;
     iface = child;
-    QCOMPARE(iface->text(QAccessible::Value, 1), QString("A"));
-    QCOMPARE(iface->text(QAccessible::Value, 2), QString("B"));
-    QCOMPARE(iface->text(QAccessible::Value, 3), QString("C"));
+    QCOMPARE(iface->text(QAccessible::Name, 1), QString("A"));
+    QCOMPARE(iface->text(QAccessible::Name, 2), QString("B"));
+    QCOMPARE(iface->text(QAccessible::Name, 3), QString("C"));
 
     QAccessibleInterface *childA = 0;
     QCOMPARE(iface->navigate(QAccessible::Child, 1, &childA), 0);
     QVERIFY(childA);
-    QCOMPARE(childA->text(QAccessible::Value, 1), QString("A"));
+    QCOMPARE(childA->text(QAccessible::Name, 1), QString("A"));
     delete childA;
 
     QAccessibleInterface *childB = 0;
     QCOMPARE(iface->navigate(QAccessible::Child, 2, &childB), 0);
     QVERIFY(childB);
-    QCOMPARE(childB->text(QAccessible::Value, 1), QString("B"));
+    QCOMPARE(childB->text(QAccessible::Name, 1), QString("B"));
     delete childB;
 
     QAccessibleInterface *childC = 0;
     QCOMPARE(iface->navigate(QAccessible::Child, 3, &childC), 0);
     QVERIFY(childC);
-    QCOMPARE(childC->text(QAccessible::Value, 1), QString("C"));
+    QCOMPARE(childC->text(QAccessible::Name, 1), QString("C"));
     delete childC;
 
     delete iface;
@@ -3304,14 +3304,16 @@ void tst_QAccessibility::tableWidgetTest()
     client->navigate(QAccessible::Child, 1, &view);
     QCOMPARE(view->role(0), QAccessible::Table);
     QAccessibleInterface *ifRow;
-    view->navigate(QAccessible::Child, 1, &ifRow);
+    view->navigate(QAccessible::Child, 2, &ifRow);
     QCOMPARE(ifRow->role(0), QAccessible::Row);
     QAccessibleInterface *item;
     int entry = ifRow->navigate(QAccessible::Child, 1, &item);
     QCOMPARE(entry, 1);
     QCOMPARE(item , (QAccessibleInterface*)0);
-    QCOMPARE(ifRow->text(QAccessible::Value, 1), QLatin1String("0,0"));
-    QCOMPARE(ifRow->text(QAccessible::Value, 2), QLatin1String("1,0"));
+    QCOMPARE(ifRow->text(QAccessible::Name, 2), QLatin1String("0,0"));
+    QCOMPARE(ifRow->text(QAccessible::Name, 3), QLatin1String("1,0"));
+
+    QCOMPARE(verifyHierarchy(client),  0);
 
     delete ifRow;
     delete view;
@@ -3419,11 +3421,11 @@ void tst_QAccessibility::tableViewTest()
     qt_x11_wait_for_window_manager(w);
 #endif
     QAccessibleInterface *client = QAccessible::queryAccessibleInterface(w);
-    for (int y = 0; y < 8; ++y) {
+    for (int y = 1; y < 9; ++y) {   // skip the header, start from 1
         QCOMPARE(client->role(0), QAccessible::Client);
         QRect globalRect = client->rect(0);
         QVERIFY(globalRect.isValid());
-        QPoint p = globalRect.topLeft() + QPoint(40,40);
+        QPoint p = globalRect.topLeft() + QPoint(40, 8);
         p.ry() += 50 * y;
         int index = client->childAt(p.x(), p.y());
         QCOMPARE(index, 1);
@@ -3440,7 +3442,7 @@ void tst_QAccessibility::tableViewTest()
         index = row->childAt(p.x(), p.y());
         QVERIFY(index > 0);
         QCOMPARE(row->role(index), QAccessible::Cell);
-        QCOMPARE(row->text(QAccessible::Value, index), QString::fromAscii("[%1,0,0]").arg(y));
+        QCOMPARE(row->text(QAccessible::Name, index), QString::fromAscii("[%1,0,0]").arg(y - 1));
         delete table;
         delete row;
     }
@@ -3716,8 +3718,7 @@ void tst_QAccessibility::comboBoxTest()
 void tst_QAccessibility::treeWidgetTest()
 {
 #ifdef QTEST_ACCESSIBILITY
-    QWidget topWidget;
-    QWidget *w = &topWidget;
+    QWidget *w = new QWidget;
     QTreeWidget *tree = new QTreeWidget(w);
     QHBoxLayout *l = new QHBoxLayout(w);
     l->addWidget(tree);
@@ -3728,6 +3729,7 @@ void tst_QAccessibility::treeWidgetTest()
         tree->addTopLevelItem(new QTreeWidgetItem(strings));
     }
     w->show();
+//    QTest::qWait(1000);
 #if defined(Q_WS_X11)
     qt_x11_wait_for_window_manager(w);
 #endif
@@ -3742,15 +3744,17 @@ void tst_QAccessibility::treeWidgetTest()
     QCOMPARE(entry, 0);
 
     QAccessibleInterface *accTreeItem2 = 0;
-    entry = accTreeItem->navigate(QAccessible::Sibling, 2, &accTreeItem2);
+    entry = accTreeItem->navigate(QAccessible::Sibling, 3, &accTreeItem2);
     QCOMPARE(entry, 0);
     QCOMPARE(accTreeItem2->text(QAccessible::Name, 0), QLatin1String("row: 1"));
 
     QCOMPARE(verifyHierarchy(acc), 0);
+
     delete accTreeItem2;
     delete accTreeItem;
     delete accViewport;
     delete acc;
+    delete w;
 
 
     QTestAccessibility::clearEvents();

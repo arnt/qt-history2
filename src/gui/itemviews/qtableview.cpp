@@ -2321,6 +2321,8 @@ void QTableView::currentChanged(const QModelIndex &current, const QModelIndex &p
     if (QAccessible::isActive()) {
         if (current.isValid()) {
             int entry = visualIndex(current) + 1;
+            if (horizontalHeader())
+                ++entry;
             QAccessible::updateAccessibility(viewport(), entry, QAccessible::Focus);
         }
     }
@@ -2340,11 +2342,15 @@ void QTableView::selectionChanged(const QItemSelection &selected,
         QModelIndex sel = selected.indexes().value(0);
         if (sel.isValid()) {
             int entry = visualIndex(sel);
+            if (horizontalHeader())
+                ++entry;
             QAccessible::updateAccessibility(viewport(), entry, QAccessible::Selection);
         }
         QModelIndex desel = deselected.indexes().value(0);
         if (desel.isValid()) {
             int entry = visualIndex(sel);
+            if (horizontalHeader())
+                ++entry;
             QAccessible::updateAccessibility(viewport(), entry, QAccessible::SelectionRemove);
         }
     }

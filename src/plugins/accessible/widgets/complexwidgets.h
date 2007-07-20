@@ -93,7 +93,7 @@ class QAccessibleItemRow: public QAccessibleInterface
 {
     friend class QAccessibleItemView;
 public:
-    QAccessibleItemRow(QAbstractItemView *view, const QModelIndex &index);
+    QAccessibleItemRow(QAbstractItemView *view, const QModelIndex &index = QModelIndex(), bool isHeader = false);
     QRect rect(int child) const;
     QString text(Text t, int child) const;
     void setText(Text t, int child, const QString &text);
@@ -115,12 +115,17 @@ public:
     bool doAction(int action, int child, const QVariantList &params = QVariantList());
 
     QModelIndex childIndex(int child) const;
+
+    QHeaderView *horizontalHeader() const;  //used by QAccessibleItemView
 private:
     static QAbstractItemView::CursorAction toCursorAction(Relation rel);
+    int logicalFromChild(QHeaderView *header, int child) const;
     int treeLevel() const;
+    QHeaderView *verticalHeader() const;
 
     QPersistentModelIndex row;
     QPointer<QAbstractItemView> view;
+    bool m_header;
 };
 
 class QAccessibleItemView: public QAccessibleAbstractScrollArea, public QAccessibleTableInterface
@@ -170,6 +175,9 @@ public:
     void unselectColumn(int column);
     void cellAtIndex(int index, int *row, int *column, int *rowSpan,
                      int *columnSpan, bool *isSelected);
+
+    QHeaderView *horizontalHeader() const;
+    bool isValidChildRole(QAccessible::Role role) const;
 
 protected:
     QAbstractItemView *itemView() const;

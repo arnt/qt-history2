@@ -192,9 +192,6 @@ QObject *QAccessibleWidget::parentObject() const
 /*! \reimp */
 int QAccessibleWidget::childAt(int x, int y) const
 {
-    qDebug() << "akkar";
-
-
     QWidget *w = widget();
     if (!w->isVisible())
         return -1;
@@ -204,8 +201,6 @@ int QAccessibleWidget::childAt(int x, int y) const
 
     QWidgetList list = childWidgets(w);
     int ccount = childCount();
-
-    qDebug() << "child at" << list.count() << childCount();
 
     // a complex child
     if (list.size() < ccount) {

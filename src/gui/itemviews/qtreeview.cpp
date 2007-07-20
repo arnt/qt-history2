@@ -3307,6 +3307,8 @@ void QTreeView::currentChanged(const QModelIndex &current, const QModelIndex &pr
 #ifndef QT_NO_ACCESSIBILITY
     if (QAccessible::isActive()) {
         int entry = visualIndex(current) + 1;
+        if (header())
+            ++entry;
         QAccessible::updateAccessibility(viewport(), entry, QAccessible::Focus);
     }
 #endif
@@ -3325,11 +3327,15 @@ void QTreeView::selectionChanged(const QItemSelection &selected,
         QModelIndex sel = selected.indexes().value(0);
         if (sel.isValid()) {
             int entry = visualIndex(sel) + 1;
+            if (header())
+                ++entry;
             QAccessible::updateAccessibility(viewport(), entry, QAccessible::Selection);
         }
         QModelIndex desel = deselected.indexes().value(0);
         if (desel.isValid()) {
             int entry = visualIndex(desel) + 1;
+            if (header())
+                ++entry;
             QAccessible::updateAccessibility(viewport(), entry, QAccessible::SelectionRemove);
         }
     }

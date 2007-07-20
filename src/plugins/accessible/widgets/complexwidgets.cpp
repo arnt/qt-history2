@@ -38,29 +38,144 @@
 QString Q_GUI_EXPORT qt_accStripAmp(const QString &text);
 
 #ifndef QT_NO_ITEMVIEWS
+/*
+The MSDN article "Exposing Data Tables through Microsoft Active Accessibility" explains
+how data tables should be exposed. Url: http://msdn2.microsoft.com/en-us/library/ms971325.aspx
+Basically, the model is like this:
 
-QAccessibleItemRow::QAccessibleItemRow(QAbstractItemView *aView, const QModelIndex &index)
-    : row(index), view(aView)
+ROLE_SYSTEM_TABLE
+  |- ROLE_SYSTEM_ROW
+  |  |- ROLE_SYSTEM_ROWHEADER
+  |  |- ROLE_SYSTEM_COLUMNHEADER
+  |  |- ROLE_SYSTEM_COLUMNHEADER
+  |  |- ROLE_SYSTEM_COLUMNHEADER
+  |     '- ..
+  |- ROLE_SYSTEM_ROW
+  |  |- ROLE_SYSTEM_ROWHEADER
+  |  |- ROLE_SYSTEM_CELL
+  |  |- ROLE_SYSTEM_CELL
+  |  |- ROLE_SYSTEM_CELL
+  |   '- ..
+  |- ROLE_SYSTEM_ROW
+  |  |- ROLE_SYSTEM_ROWHEADER
+  |  |- ROLE_SYSTEM_CELL
+  |  |- ROLE_SYSTEM_CELL
+  |  |- ROLE_SYSTEM_CELL
+  |   '- ..
+   '- ..
+
+The headers of QTreeView is also represented like this.
+*/
+QAccessibleItemRow::QAccessibleItemRow(QAbstractItemView *aView, const QModelIndex &index, bool isHeader)
+    : row(index), view(aView), m_header(isHeader)
 {
+}
+
+QHeaderView *QAccessibleItemRow::horizontalHeader() const
+{
+    QHeaderView *header = 0;
+    if (m_header) {
+        if (false) {
+#ifndef QT_NO_TABLEVIEW
+        } else if (const QTableView *tv = qobject_cast<const QTableView*>(view)) {
+            header = tv->horizontalHeader();
+#endif
+#ifndef QT_NO_TREEVIEW
+        } else if (const QTreeView *tv = qobject_cast<const QTreeView*>(view)) {
+            header = tv->header();
+#endif
+        }
+    }
+    return header;
+}
+
+QHeaderView *QAccessibleItemRow::verticalHeader() const
+{
+    QHeaderView *header = 0;
+    if (const QTableView *tv = qobject_cast<const QTableView*>(view))
+        header = tv->verticalHeader();
+    return header;
+}
+
+int QAccessibleItemRow::logicalFromChild(QHeaderView *header, int child) const
+{
+    int logical = -1;
+    if (header->sectionsHidden()) {
+        int kid = 0;
+        for (int i = 0; i < header->count(); ++i) {
+            if (!header->isSectionHidden(i))
+                ++kid;
+            if (kid == child) {
+                logical = i;
+                break;
+            }
+        }
+    } else {
+        logical = child - 1;
+    }
+    return logical;
 }
 
 QRect QAccessibleItemRow::rect(int child) const
 {
-    if (!row.isValid() || !view || !view->isVisible())
-        return QRect();
-
     QRect r;
+    if (view && view->isVisible()) {
+        if (QHeaderView *header = horizontalHeader()) {
+            if (!child) {
+                r = header->rect();
+            } else {
+                if (QHeaderView *vheader = verticalHeader()) {
+                    if (child == 1) {
+                        int w = vheader->width();
+                        int h = header->height();
+                        r.setRect(0, 0, w, h);
+                    }
+                    --child;
+                }
+                if (child) {
+                    int logical = logicalFromChild(header, child);
+                    int w = header->sectionSize(logical);
+                    r.setRect(header->sectionViewportPosition(logical), 0, w, header->height());
+                    r.translate(header->mapTo(view, QPoint(0, 0)));
+                }
+            }
+        } else if (row.isValid()) {
+            if (!child) {
+                QModelIndex parent = row.parent();
+                const int colCount = row.model()->columnCount(parent);
+                for (int i = 0; i < colCount; ++i)
+                    r |= view->visualRect(row.model()->index(row.row(), i, parent));
+                r.translate(view->viewport()->mapTo(view, QPoint(0,0)));
 
-    if (child) {
-        r = view->visualRect(childIndex(child));
-    } else {
-        QModelIndex parent = row.parent();
-        const int colCount = row.model()->columnCount(parent);
-        for (int i = 0; i < colCount; ++i)
-            r |= view->visualRect(row.model()->index(row.row(), i, parent));
+                if (const QHeaderView *vheader = verticalHeader()) { // include the section of the vertical header
+                    QRect re;
+                    int logicalRow = row.row();
+                    int h = vheader->sectionSize(logicalRow);
+                    re.setRect(0, vheader->sectionViewportPosition(logicalRow), vheader->width(), h);
+                    re.translate(vheader->mapTo(view, QPoint(0, 0)));
+                    r |= re;
+                }
+            } else {
+                if (QHeaderView *vheader = verticalHeader()) {
+                    if (child == 1) {
+                        int logicalRow = row.row();
+                        int h = vheader->sectionSize(logicalRow);
+                        r.setRect(0, vheader->sectionViewportPosition(logicalRow), vheader->width(), h);
+                        r.translate(vheader->mapTo(view, QPoint(0, 0)));
+                    }
+                    --child;
+                }
+                if (child) {
+                    r = view->visualRect(childIndex(child));
+                    r.translate(view->viewport()->mapTo(view, QPoint(0,0)));
+                }
+            }
+        }
     }
+    if (!r.isNull())
+        r.translate(view->mapToGlobal(QPoint(0, 0)));
 
-    return r.translated(view->viewport()->mapToGlobal(QPoint(0, 0)));
+    return r;
 }
 
 int QAccessibleItemRow::treeLevel() const
@@ -78,38 +193,47 @@ QString QAccessibleItemRow::text(Text t, int child) const
 {
     QString value;
     if (t == Name) {
-        if (!child) {
-            if (children().count() >= 1)
-                child = 1;
-            else
-                return QString();
-        }
-
-        QModelIndex idx = childIndex(child);
-        if (!idx.isValid())
-            return QString();
-
-        value = idx.model()->data(idx, Qt::AccessibleTextRole).toString();
-        if (value.isEmpty())
-            value = idx.model()->data(idx, Qt::DisplayRole).toString();
-    } else if (t == Value) {
-        if (qobject_cast<QTreeView*>(view)) {
-            if (child == 0)
-                value = QString::number(treeLevel());
+        if (m_header) {
+            if (!child)
+                return QString(); 
+            if (QHeaderView *vheader = verticalHeader()) {
+                if (child == 1)
+                    return QString();
+                --child;
+            }
+            QHeaderView *header = horizontalHeader();
+            int logical = logicalFromChild(header, child);
+            value = view->model()->headerData(logical, Qt::Horizontal).toString();
         } else {
-            if (!child && children().count() >= 1)
-                child = 1;
+            if (!child) {   // for one-column views (i.e. QListView)
+                if (children().count() >= 1)
+                    child = 1;
+                else
+                    return QString();
+            }
+
+            if (QHeaderView *vheader = verticalHeader()) {
+                if (child == 1) {
+                    value = view->model()->headerData(row.row(), Qt::Vertical).toString();
+                }
+                --child;
+            }
+            
             if (child) {
                 QModelIndex idx = childIndex(child);
                 if (!idx.isValid())
                     return QString();
+
                 value = idx.model()->data(idx, Qt::AccessibleTextRole).toString();
                 if (value.isEmpty())
                     value = idx.model()->data(idx, Qt::DisplayRole).toString();
             }
         }
+    } else if (t == Value) {
+        if (qobject_cast<QTreeView*>(view) && child == 0)
+            value = QString::number(treeLevel());
     } else if (t == Description) {
-        if (child == 0 && qobject_cast<QTreeView*>(view)) {
+        if (child == 0 && qobject_cast<QTreeView*>(view) && !m_header) {
             // We store the tree coordinates of the current item in the description.
             // This enables some screen readers to report where the focus is
             // in a tree view. (works in JAWS). Also, Firefox does the same thing.
@@ -139,39 +263,62 @@ QString QAccessibleItemRow::text(Text t, int child) const
                                                     // (don't check if they are all visible).
             value = QString::fromAscii("L%1, %2 of %3 with %4").arg(level).arg(itemIndex).arg(totalSiblings).arg(totalChildren);
         } else {
-            if (child == 0 && children().count() >= 1)
-                child = 1;
-            QModelIndex idx = childIndex(child);
-            value = idx.model()->data(idx, Qt::AccessibleDescriptionRole).toString();
+            if (!m_header) {
+                if (child == 0 && children().count() >= 1)
+                    child = 1;
+                if (QHeaderView *vheader = verticalHeader()) {
+                    if (child == 1) {
+                        value = view->model()->headerData(row.row(), Qt::Vertical).toString();
+                    }
+                    --child;
+                }
+                if (child) {
+                    QModelIndex idx = childIndex(child);
+                    value = idx.model()->data(idx, Qt::AccessibleDescriptionRole).toString();
+                }
+                
+            }
         }
     }
     return value;
 }
 
-
 void QAccessibleItemRow::setText(Text t, int child, const QString &text)
 {
-    if (!child) {
-        if (children().count() == 1)
-            child = 1;
-        else
+    if (m_header) {
+        if (child)
+            view->model()->setHeaderData(child - 1, Qt::Horizontal, text);
+        // child == 0 means the cell to the left of the horizontal header, which is empty!?
+    } else {
+        if (!child) {
+            if (children().count() == 1)
+                child = 1;
+            else
+                return;
+        }
+
+        if (QHeaderView *vheader = verticalHeader()) {
+            if (child == 1) {
+                view->model()->setHeaderData(row.row(), Qt::Vertical, text);
+                return;
+            }
+            --child;
+        }
+        QModelIndex idx = childIndex(child);
+        if (!idx.isValid())
             return;
-    }
 
-    QModelIndex idx = childIndex(child);
-    if (!idx.isValid())
-        return;
-
-    switch (t) {
-    case Description:
-        const_cast<QAbstractItemModel *>(idx.model())->setData(idx, text,
-                                         Qt::AccessibleDescriptionRole);
-        break;
-    case Value:
-        const_cast<QAbstractItemModel *>(idx.model())->setData(idx, text, Qt::EditRole);
-        break;
-    default:
-        break;
+        switch (t) {
+        case Description:
+            const_cast<QAbstractItemModel *>(idx.model())->setData(idx, text,
+                                             Qt::AccessibleDescriptionRole);
+            break;
+        case Value:
+            const_cast<QAbstractItemModel *>(idx.model())->setData(idx, text, Qt::EditRole);
+            break;
+        default:
+            break;
+        }
     }
 }
 
@@ -196,7 +343,7 @@ QList<QModelIndex> QAccessibleItemRow::children() const
 
 bool QAccessibleItemRow::isValid() const
 {
-    return row.isValid();
+    return m_header ? true : row.isValid();
 }
 
 QObject *QAccessibleItemRow::object() const
@@ -206,14 +353,27 @@ QObject *QAccessibleItemRow::object() const
 
 int QAccessibleItemRow::childCount() const
 {
-    return children().count();
+    int count = 0;
+    if (QHeaderView *header = horizontalHeader()) {
+        count = header->count() - header->hiddenSectionCount();
+    } else {
+        count = children().count();
+    }
+#ifndef QT_NO_TABLEVIEW
+    if (const QTableView *tv = qobject_cast<const QTableView*>(view)) {
+        if (verticalHeader())
+            ++count;
+    }
+#endif
+    return count;
 }
 
 int QAccessibleItemRow::indexOfChild(const QAccessibleInterface *iface) const
 {
     if (!iface || iface->role(0) != Row)
         return -1;
-
+    
+    //### meaningless code?
     QList<QModelIndex> kids = children();
     QModelIndex idx = static_cast<const QAccessibleItemRow *>(iface)->row;
     if (!idx.isValid())
@@ -240,12 +400,10 @@ int QAccessibleItemRow::childAt(int x, int y) const
     if (!view || !view->isVisible())
         return -1;
 
-    QModelIndex idx = view->indexAt(view->viewport()->mapFromGlobal(QPoint(x, y)));
-    if (idx.isValid() && idx.parent() == row.parent() && idx.row() == row.row()) {
-        QList<QModelIndex> kids = children();
-        return kids.indexOf(idx) + 1;
+    for (int i = childCount(); i >= 0; --i) {
+        if (rect(i).contains(x, y))
+            return i;
     }
-
     return -1;
 }
 
@@ -292,8 +450,7 @@ int QAccessibleItemRow::navigate(RelationFlag relation, int index,
     case Child: {
         if (!index)
             return -1;
-        QList<QModelIndex> kids = children();
-        if (index < 1 && index > kids.count())
+        if (index < 1 && index > childCount())
             return -1;
 
         return index;}
@@ -343,16 +500,29 @@ QAccessible::Role QAccessibleItemRow::role(int child) const
     if (false) {
 #ifndef QT_NO_TREEVIEW
     } else if (qobject_cast<const QTreeView*>(view)) {
+        if (horizontalHeader()) {
+            if (!child)
+                return Row;
+            return ColumnHeader;
+        }
         return TreeItem;
 #endif
 #ifndef QT_NO_LISTVIEW
     } else if (qobject_cast<const QListView*>(view)) {
         return ListItem;
 #endif
+#ifndef QT_NO_TABLEVIEW
+    } else if (qobject_cast<const QTableView *>(view)) {
+        if (!child)
+            return Row;
+        if (child == 1) {
+            if (verticalHeader())
+                return RowHeader;
+        }
+        if (m_header)
+            return ColumnHeader;
+#endif
     }
-    // TableView
-    if (!child)
-        return Row;
     return Cell;
 }
 
@@ -363,40 +533,55 @@ QAccessible::State QAccessibleItemRow::state(int child) const
     if (!view)
         return st;
 
-    QRect globalRect = view->viewport()->rect().translated(view->viewport()->mapToGlobal(QPoint(0,0)));
-    if (!globalRect.intersects(rect(child))) {
+    QAccessibleInterface *parent = 0;
+    QRect globalRect;
+    if (navigate(Ancestor, 1, &parent) == 0) {
+        globalRect = parent->rect(0);
+        delete parent;
+    }
+    if (!globalRect.intersects(rect(child)))
         st |= Invisible;
-    } else {
-        if (child) {
-            QModelIndex idx = childIndex(child);
-            if (!idx.isValid())
-                return st;
 
-            if (view->selectionModel()->isSelected(idx))
-                st |= Selected;
-            if (idx.model()->data(idx, Qt::CheckStateRole).toInt() == Qt::Checked)
-                st |= Checked;
+    if (!horizontalHeader()) {
+        if (!(st & Invisible)) {
+            if (child) {
+                if (QHeaderView *vheader = verticalHeader() ) {
+                    if (child == 1) {
+                        if (!vheader->isVisible())
+                            st |= Invisible;
+                    }
+                    --child;
+                }
+                if (child) {
+                    QModelIndex idx = childIndex(child);
+                    if (!idx.isValid())
+                        return st;
 
-            Qt::ItemFlags flags = idx.flags();
-            if (flags & Qt::ItemIsSelectable) {
-                st |= Selectable;
-                if (view->selectionMode() == QAbstractItemView::MultiSelection)
-                    st |= MultiSelectable;
-                if (view->selectionMode() == QAbstractItemView::ExtendedSelection)
-                    st |= ExtSelectable;
+                    if (view->selectionModel()->isSelected(idx))
+                        st |= Selected;
+                    if (idx.model()->data(idx, Qt::CheckStateRole).toInt() == Qt::Checked)
+                        st |= Checked;
+
+                    Qt::ItemFlags flags = idx.flags();
+                    if (flags & Qt::ItemIsSelectable) {
+                        st |= Selectable;
+                        if (view->selectionMode() == QAbstractItemView::MultiSelection)
+                            st |= MultiSelectable;
+                        if (view->selectionMode() == QAbstractItemView::ExtendedSelection)
+                            st |= ExtSelectable;
+                    }
+                }
+            } else {
+                Qt::ItemFlags flags = row.flags();
+                if (flags & Qt::ItemIsSelectable) {
+                    st |= Selectable;
+                    st |= Focusable;
+                }
+                if (view->selectionModel()->isRowSelected(row.row(), row.parent()))
+                    st |= Selected;
             }
-
-        } else {
-            Qt::ItemFlags flags = row.flags();
-            if (flags & Qt::ItemIsSelectable) {
-                st |= Selectable;
-                st |= Focusable;
-            }
-            if (view->selectionModel()->isRowSelected(row.row(), row.parent()))
-                st |= Selected;
         }
     }
-
 
     return st;
 }
@@ -421,6 +606,9 @@ bool QAccessibleItemRow::doAction(int action, int child, const QVariantList & /*
 {
     if (!view)
         return false;
+
+    if (QHeaderView *header = verticalHeader())
+        --child;
 
     QModelIndex idx = child ? childIndex(child) : QModelIndex(row);
     if (!idx.isValid())
@@ -537,34 +725,51 @@ QAccessibleItemView::QAccessibleItemView(QWidget *w)
 
 }
 
-QAccessible::Role QAccessibleItemView::expectedRoleOfChildren() const
+
+QHeaderView *QAccessibleItemView::horizontalHeader() const
+{
+    QHeaderView *header = 0;
+    if (false) {
+#ifndef QT_NO_TABLEVIEW
+    } else if (const QTableView *tv = qobject_cast<const QTableView*>(itemView())) {
+        header = tv->horizontalHeader();
+#endif
+#ifndef QT_NO_TREEVIEW
+    } else if (const QTreeView *tv = qobject_cast<const QTreeView*>(itemView())) {
+        header = tv->header();
+#endif
+    }
+    return header;
+}
+
+bool QAccessibleItemView::isValidChildRole(QAccessible::Role role) const
 {
     if (atViewport()) {
         if (false) {
 #ifndef QT_NO_TREEVIEW
         } else if (qobject_cast<QTreeView*>(itemView())) {
-            return TreeItem;
+            return (role == TreeItem || role == Row);
 #endif
 #ifndef QT_NO_LISTVIEW
         } else if (qobject_cast<QListView*>(itemView())) {
-            return ListItem;
+            return (role == ListItem);
 #endif
         }
         // TableView
-        return Row;
+        return role == Row;
     } else {
         if (false) {
 #ifndef QT_NO_TREEVIEW
         } else if (qobject_cast<QTreeView*>(itemView())) {
-            return Tree;
+            return (role == Tree);
 #endif
 #ifndef QT_NO_LISTVIEW
         } else if (qobject_cast<QListView*>(itemView())) {
-            return List;
+            return (role == List);
 #endif
         }
         // TableView
-        return Table;
+        return (role == Table);
     }
 }
 
@@ -585,15 +790,25 @@ QAbstractItemView *QAccessibleItemView::itemView() const
 int QAccessibleItemView::indexOfChild(const QAccessibleInterface *iface) const
 {
     if (atViewport()) {
-        if (!iface || iface->role(0) != expectedRoleOfChildren())
+        if (!iface || !isValidChildRole(iface->role(0)))
             return -1;
 
+        int entry = -1;
         // ### This will fail if a row is hidden.
-        QModelIndex idx = static_cast<const QAccessibleItemRow *>(iface)->row;
+        const QAccessibleItemRow *ifRow = static_cast<const QAccessibleItemRow *>(iface);
+        if (ifRow->horizontalHeader())
+            return 1;
+
+        QModelIndex idx = ifRow->row;
         if (!idx.isValid())
             return -1;
 
-        return entryFromIndex(idx);
+        entry = entryFromIndex(idx);
+        if (horizontalHeader())
+            ++entry;
+
+        return entry;
+
     } else {
         return QAccessibleAbstractScrollArea::indexOfChild(iface);
     }
@@ -642,6 +857,9 @@ int QAccessibleItemView::childCount() const
         while (it.next()) {
             ++count;
         }
+        if (horizontalHeader())
+            ++count;
+
         return count;
     } else {
         return QAccessibleAbstractScrollArea::childCount();
@@ -681,14 +899,33 @@ QRect QAccessibleItemView::rect(int child) const
     if (atViewport()) {
         QRect r;
         if (!child) {
-            QWidget *w = itemView()->viewport();
+            // Make sure that the rect *include* the vertical and horizontal headers, while
+            // not including the potential vertical and horizontal scrollbars.
+            QAbstractItemView *w = itemView();
+
+            int vscrollWidth = 0;
+            const QScrollBar *sb = w->verticalScrollBar();
+            if (sb && sb->isVisible())
+                vscrollWidth = sb->width();
+
+            int hscrollHeight = 0;
+            sb = w->horizontalScrollBar();
+            if (sb && sb->isVisible())
+                hscrollHeight = sb->height();
+
             QPoint globalPos = w->mapToGlobal(QPoint(0,0));
             r = w->rect().translated(globalPos);
+            if (w->isRightToLeft()) {
+                r.adjust(vscrollWidth, 0, 0, -hscrollHeight);                
+            } else {
+                r.adjust(0, 0, -vscrollWidth, -hscrollHeight);
+            }
         } else {
-            QModelIndex idx = childIndex(child);
-            QAccessibleInterface *iface = new QAccessibleItemRow(itemView(), idx);
-            r = iface->rect(0);
-            delete iface;
+            QAccessibleInterface *iface = 0;
+            if (navigate(Child, child, &iface) == 0) {
+                r = iface->rect(0);
+                delete iface;
+            }
         }
         return r;
     } else {
@@ -699,13 +936,12 @@ QRect QAccessibleItemView::rect(int child) const
 int QAccessibleItemView::childAt(int x, int y) const
 {
     if (atViewport()) {
-        QPoint localPos = itemView()->viewport()->mapFromGlobal(QPoint(x, y));
-        QModelIndex idx = itemView()->indexAt(localPos);
-        idx = idx.sibling(idx.row(), 0);
-        int entry = entryFromIndex(idx);
-        if (entry == -1 && rect(0).contains(QPoint(x,y)))
-            entry = 0;
-        return entry;
+        QPoint p(x, y);
+        for (int i = childCount(); i >= 0; --i) {
+            if (rect(i).contains(p))
+                return i;
+        }
+        return -1;
     } else {
         return QAccessibleAbstractScrollArea::childAt(x, y);
     }
@@ -760,6 +996,14 @@ int QAccessibleItemView::navigate(RelationFlag relation, int index,
             *iface = new QAccessibleItemView(itemView());
             return 0;
         } else if (relation == Child && index >= 1) {
+            if (horizontalHeader()) {
+                if (index == 1) {
+                    *iface = new QAccessibleItemRow(itemView(), QModelIndex(), true);
+                    return 0;
+                }
+                --index;
+            }
+
             //###JAS hidden rows..
             QModelIndex idx = childIndex(index);
             if (idx.isValid()) {
