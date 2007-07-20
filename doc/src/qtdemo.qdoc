@@ -4,12 +4,23 @@
   \ingroup qttools
   \keyword qtdemo
 
-  The Examples and Demos Launcher (qtdemo) allows the user to browse the
+  The Examples and Demos Launcher (\c qtdemo) allows the user to browse the
   examples and demonstrations included with Qt, access the documentation
   associated with each of them, and launch them as separate applications.
+
+  \image qtdemo.png
 
   The \c qtdemo executable should be installed alongside the
   \l{Qt's Tools}{other tools} supplied with Qt.
 
-  \image qtdemo.png
+  \list
+  \i On Windows, click the Start button, open the \e Programs submenu, open
+  the \e{Qt 4} submenu, and click \e{Examples and Demos}.
+  \i On Unix or Linux, you may find a \c qtdemo icon on the desktop background or
+  in the desktop start menu under the \e Programming or \e Development
+  submenus. You can launch this application from this icon. Alternatively, you can
+  enter \c qtdemo in a terminal window.
+  \i On Mac OS X, navigate to the \c /Developer/Applications/Qt directory in the
+  Finder and double click on the \c qtdemo.app icon.
+  \endlist
 */

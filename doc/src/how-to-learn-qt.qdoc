@@ -18,16 +18,16 @@
     \title How to Learn Qt
     \ingroup howto
 
-    We assume that you already know C++.
+    We assume that you already know C++ and will be using it for Qt
+    development. See the \l{Trolltech website} for more information about
+    using other programming languages with Qt.
 
     The best way to learn Qt is to read the official Qt book,
     \l{http://www.amazon.com/gp/product/0131872494/ref=ase_trolltech/}{C++
     GUI Programming with Qt 4} (ISBN 0-13-187249-4). This book
     provides comprehensive coverage of Qt programming all the way
     from "Hello Qt" to advanced features like multithreading, 2D and
-    3D graphics, networking, item view classes, and XML. See \l{Books
-    about Qt Programming} for a complete list of Qt books, including
-    translations.
+    3D graphics, networking, item view classes, and XML.
 
     If you want to program purely in C++, designing your interfaces
     in code without the aid of any design tools, read the
@@ -52,8 +52,16 @@
     your projects. You can also read Qt's source code since this is
     supplied. 
 
-    If you run the \c qtdemo application, you'll see many of Qt's
+    \table
+    \row \o \inlineimage qtdemo-small.png
+    \o \bold{Getting an Overview}
+
+    If you run the \l{Examples and Demos Launcher}, you'll see many of Qt's
     widgets in action.
+
+    The \l{Qt Widget Gallery} also provides overviews of selected Qt
+    widgets in each of the styles used on various supported platforms.
+    \endtable
 
     Qt comes with extensive documentation, with hypertext
     cross-references throughout, so you can easily click your way to
@@ -61,11 +69,13 @@
     probably use the most is the \link index.html API
     Reference\endlink. Each link provides a different way of
     navigating the API Reference; try them all to see which work best
-    for you. You might also like to try \link assistant-manual.html
-    Qt Assistant\endlink: this tool is supplied with Qt and provides
-    access to the entire Qt API, and it provides a full text search
-    facility. There are also a growing number of \l{Books about Qt
-    Programming}.
+    for you. You might also like to try \l{Qt Assistant}:
+    this tool is supplied with Qt and provides access to the entire
+    Qt API, and it provides a full text search facility.
+
+    There are also a growing number of books about Qt programming; see
+    \l{Books about Qt Programming} for a complete list of Qt books,
+    including translations to various languages.
 
     Good luck, and have fun!
 */
