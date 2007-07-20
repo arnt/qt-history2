@@ -58,7 +58,7 @@
 
     Qt supports Microsoft Active Accessibility (MSAA), Mac OS X
     Accessibility, and the Unix/X11 AT-SPI standard. Other backends
-    can be supported using QAccessibilityBridge.
+    can be supported using QAccessibleBridge.
 
     In addition to QAccessible's static functions, Qt offers one
     generic interface, QAccessibleInterface, that can be used to wrap

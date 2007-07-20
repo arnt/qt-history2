@@ -472,13 +472,13 @@ QWheelEvent::QWheelEvent(const QPoint &pos, const QPoint& globalPos, int delta, 
 /*!
     \fn int QWheelEvent::delta() const
 
-    Returns the distance that the wheel is rotated, in eights of a
+    Returns the distance that the wheel is rotated, in eighths of a
     degree. A positive value indicates that the wheel was rotated
     forwards away from the user; a negative value indicates that the
     wheel was rotated backwards toward the user.
 
     Most mouse types work in steps of 15 degrees, in which case the
-    delta value is a multiple of 120 (== 15 * 8).
+    delta value is a multiple of 120; i.e., 120 * 1/8 = 15.
 
     Example:
 

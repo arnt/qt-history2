@@ -1843,6 +1843,9 @@ void QWidget::createWinId()
     \brief the widget's style sheet
     \since 4.2
 
+    The style sheet contains a textual description of customizations to the
+    widget's style, as described in the \l{Qt Style Sheets} document.
+
     \sa setStyle(), QApplication::styleSheet, {Qt Style Sheets}
 */
 QString QWidget::styleSheet() const

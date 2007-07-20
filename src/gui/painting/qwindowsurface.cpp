@@ -30,6 +30,7 @@ public:
     \since 4.3
     \internal
     \preliminary
+    \ingroup qws
 
     \brief The QWindowSurface class provides the drawing area for top-level
     windows.

@@ -151,12 +151,7 @@ static pfn_glCompressedTexImage2DARB qt_glCompressedTexImage2DARB = 0;
     precedence than others.
 
     You create and tell a QGLFormat object what rendering options you
-    want from an OpenGL
-    \footnote
-        OpenGL is a trademark of Silicon Graphics, Inc. in the
-        United States and other countries.
-    \endfootnote
-    rendering context.
+    want from an OpenGL rendering context.
 
     OpenGL drivers or accelerated hardware may or may not support
     advanced features such as alpha channel or stereographic viewing.
@@ -197,6 +192,11 @@ static pfn_glCompressedTexImage2DARB qt_glCompressedTexImage2DARB = 0;
         }
     }
     \endcode
+
+    \legalese
+        OpenGL is a trademark of Silicon Graphics, Inc. in the
+        United States and other countries.
+    \endlegalese
 
     \sa QGLContext, QGLWidget
 */

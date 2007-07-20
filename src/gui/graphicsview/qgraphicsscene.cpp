@@ -72,7 +72,7 @@ static const int QGRAPHICSSCENE_INDEXTIMER_TIMEOUT = 2000;
     positional information for every item on the scene. Because of this, you
     should always set the scene rect when operating on large scenes.
 
-    One of QGraphicsScene's greatest strengts is its ability to efficiently
+    One of QGraphicsScene's greatest strengths is its ability to efficiently
     determine the location of items. Even with millions of items on the scene,
     the items() functions can determine the location of an item within few
     milliseconds. There are several overloads to items(): one that finds items
@@ -86,6 +86,8 @@ static const int QGRAPHICSSCENE_INDEXTIMER_TIMEOUT = 2000;
     items, call setSelectionArea(), and to clear the current selection, call
     clearSelection(). Call selectedItems() to get the list of all selected
     items.
+
+    \section1 Event Handling and Propagation
 
     Another responsibility that QGraphicsScene has, is to propagate events
     from QGraphicsView. To send an event to a scene, you construct an event
