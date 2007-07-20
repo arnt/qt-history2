@@ -422,6 +422,7 @@
     \page supported-platforms.html
     \title Supported Platforms
     \brief The platforms supported by Trolltech for Qt.
+    \ingroup platform-notes
 
     Qt is supported on a variety of 32-bit and 64-bit platforms, and can
     usually be built on each platform with GCC, a vendor-supplied compiler, or
