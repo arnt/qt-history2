@@ -1262,6 +1262,47 @@ void tst_QLineEdit::undo_keypressevents_data()
 	QTestEventList keys;
 	QStringList expectedString;
 
+	// inserting 'ABC'
+	keys.addKeyClick('A');
+	keys.addKeyClick('B');
+	keys.addKeyClick('C');
+
+        // removes 'C'
+        keys.addKeyClick(Qt::Key_Backspace);
+
+	expectedString << "AB";
+	expectedString << "ABC";
+
+	QTest::newRow("Inserts,backspace") << keys << expectedString;
+    }
+
+    {
+	QTestEventList keys;
+	QStringList expectedString;
+
+	// inserting 'ABC'
+	keys.addKeyClick('A');
+	keys.addKeyClick('B');
+	keys.addKeyClick('C');
+
+        // removes 'C'
+        keys.addKeyClick(Qt::Key_Backspace);
+
+        // inserting 'Z'
+	keys.addKeyClick('Z');
+
+	expectedString << "ABZ";
+	expectedString << "AB";
+	expectedString << "ABC";
+
+	QTest::newRow("Inserts,backspace,inserts") << keys << expectedString;
+    }
+
+
+    {
+	QTestEventList keys;
+	QStringList expectedString;
+
 	// inserting '123'
 	keys.addKeyClick(Qt::Key_1);
 	keys.addKeyClick(Qt::Key_2);
