@@ -378,8 +378,8 @@ inline void qt_memfill(T *dest, T value, int count)
 }
 
 template <class T>
-void qt_rectfill(T *dest, T value,
-                 int x, int y, int width, int height, int stride)
+inline void qt_rectfill(T *dest, T value,
+                        int x, int y, int width, int height, int stride)
 {
     stride /= sizeof(T);
     dest += y * stride + x;
