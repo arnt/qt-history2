@@ -937,19 +937,26 @@ void QDesignerWorkbench::updateWindowMenu(QDesignerFormWindowInterface *fwi)
 {
     bool minimizeChecked = false;
     bool minimizeEnabled = false;
+    QDesignerFormWindow *activeFormWindow = 0;
     do {
         if (!fwi)
         break;
-        QDesignerFormWindow *fw = qobject_cast<QDesignerFormWindow *>(fwi->parentWidget());
-        if (!fw)
+        activeFormWindow = qobject_cast<QDesignerFormWindow *>(fwi->parentWidget());
+        if (!activeFormWindow)
             break;
 
         minimizeEnabled = true;
-        minimizeChecked = isFormWindowMinimized(fw);
+        minimizeChecked = isFormWindowMinimized(activeFormWindow);
     } while (false) ;
 
     m_actionManager->minimizeAction()->setEnabled(minimizeEnabled);
     m_actionManager->minimizeAction()->setChecked(minimizeChecked);
+
+    if (!m_formWindows.empty()) {
+        const QList<QDesignerFormWindow*>::const_iterator cend = m_formWindows.constEnd();
+        for (QList<QDesignerFormWindow*>::const_iterator it = m_formWindows.constBegin(); it != cend; ++it)
+            (*it)->action()->setChecked(*it == activeFormWindow);
+    }
 }
 
 void QDesignerWorkbench::formWindowActionTriggered(QAction *a)

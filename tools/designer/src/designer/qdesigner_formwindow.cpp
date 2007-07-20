@@ -96,12 +96,6 @@ QAction *QDesignerFormWindow::action() const
 void QDesignerFormWindow::changeEvent(QEvent *e)
 {
     switch (e->type()) {
-        case QEvent::ActivationChange: {
-            if (isActiveWindow()) {
-                m_action->setChecked(true);
-                // ### raise();
-            }
-        } break;
         case QEvent::WindowTitleChange:
             m_action->setText(windowTitle().remove(QLatin1String("[*]")));
             break;
