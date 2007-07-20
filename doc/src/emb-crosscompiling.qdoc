@@ -50,14 +50,20 @@
 
     Each platform has a default specification. \l {Qtopia Core} will
     use the default specification for the current platform unless told
-    otherwise. To override this behavior, you can either use the \c
-    configure script's \c -platform option to specify another
-    platform, or you can use the \c -xplatform option to use the
-    specification for another architecture. For example:
+    otherwise. To override this behavior, you can use the \c configure
+    script's \c -platform option to change the specification for the host
+    platform (where compilation will take place).
+
+    The \c configure script's \c -xplatform option is used to provide a
+    specification for the target architecture (where the library will be
+    deployed).
+
+    For example, to cross-compile an application to run on a device with
+    an ARM architecture, using the GCC toolchain, run the configure
+    script at the command line in the following way:
 
     \code
-        ./configure <other options>
-                    -xplatform qws/linux-preferredarchitecture-g++
+        ./configure -embedded arm -xplatform qws/linux-arm-g++ <other options>
     \endcode
 
     If neither of the provided specifications fits your target device,
