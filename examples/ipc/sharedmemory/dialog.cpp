@@ -28,6 +28,9 @@ Dialog::Dialog(QWidget *parent) : QDialog(parent), sharedMemory("QSharedMemoryEx
 
 void Dialog::loadFromFile()
 {
+    if (sharedMemory.isAttached())
+        detach();
+
     QString fileName = QFileDialog::getOpenFileName(this, QString(), QString(),
                                         tr("Images (*.png *.xpm *.jpg)"));
     QImage image;
