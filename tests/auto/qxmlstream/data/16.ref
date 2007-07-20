@@ -1,2 +1,6 @@
-Invalid( )
-ERROR: Invalid XML encoding name.
+StartDocument( )
+DTD( text="
+<!DOCTYPE test >" )
+StartElement( name="germanüumlaut" qualifiedName="germanüumlaut" )
+EndElement( name="germanüumlaut" qualifiedName="germanüumlaut" )
+EndDocument( )
