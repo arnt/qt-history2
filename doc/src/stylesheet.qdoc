@@ -711,7 +711,7 @@
     \page stylesheet-reference.html
     \contentspage {Qt Style Sheet}{Contents}
     \previouspage Customizing Qt Widgets Using Style Sheets
-    \nextpage Examples
+    \nextpage Qt Style Sheets Examples
     \title Qt Style Sheets Reference
 
     Qt Style Sheets support various properties, pseudo-states, and
@@ -752,7 +752,7 @@
            styled using the \l{#indicator-sub}{::indicator}
            subcontrol. By default, the indicator is placed in the Top
            Left corner of the Contents rectangle of the widget.
-           
+
            The \l{#spacing-prop}{spacing} property
            specifies the spacing between the check indicator and
            the text.
@@ -821,7 +821,7 @@
     \row
         \o QFrame \target qframe-widget
         \o Supports the \l{box model}.
-           
+
            Since 4.3, setting a stylesheet on a QLabel automatically
            sets the QFrame::frameStyle property to QFrame::StyledPanel.
 
@@ -864,7 +864,7 @@
         \o QLabel \target qlabel-widget
         \o Supports the \l{box model}. Does not support the
            \l{#hover-ps}{:hover} pseudo-state. 
-           
+
            Since 4.3, setting a stylesheet on a QLabel automatically
            sets the QFrame::frameStyle property to QFrame::StyledPanel.
 
@@ -894,7 +894,7 @@
            is enabled, the alternating colors can be styled using the 
            \l{#alternate-background-color-prop}{alternate-background-color}
            property.
-        
+
            The color and background of the selected item is styled using
            \l{#selection-color-prop}{selection-color} and
            \l{#selection-background-color-prop}{selection-background-color}
@@ -913,14 +913,14 @@
     \row
         \o QMenu \target qmenu-widget
         \o Supports the \l{box model}. 
-        
+
            Individual items are styled using the \l{#item-sub}{::item} 
            subcontrol. In addition to the usually supported pseudo states,
            \c{item} subcontrol supports the 
            \l{#selected-ps}{:selected}, \l{#default-ps}{:default},
            \l{#exclusive-ps}{:exclusive} and the 
            \l{#non-exclusive-ps}{non-exclusive} pseudo states. 
-           
+
            The indicator of checkable menu items is styled using the
            \l{#indicator-sub}{::indicator} subcontrol.
 
@@ -973,7 +973,7 @@
         \o QPushButton \target qpushbutton-widget
         \o Supports the \l{box model}. Supports the \l{#default-ps}{:default},
            \l{#flat-ps}{:flat}, \l{#checked-ps}{:checked} pseudo states.
-        
+
            For QPushButton with a menu, the menu indicator is styled
            using the \l{#menu-indicator-sub}{::menu-indicator}
            subcontrol. Appearance of checkable push buttons can be
@@ -989,7 +989,7 @@
            styled using the \l{#indicator-sub}{::indicator}
            subcontrol. By default, the indicator is placed in the Top
            Left corner of the Contents rectangle of the widget.
-           
+
            The \l{#spacing-prop}{spacing} property
            specifies the spacing between the check indicator and
            the text.
@@ -1048,7 +1048,7 @@
            properties must be provided. For vertical sliders, the 
            \l{min-height-prop}{min-height} and \l{width-prop}{width}
            properties must be provided.
-        
+
            The groove of the slider is styled 
            using the \l{#groove-sub}{::groove}. The groove is 
            positioned by default in the Contents rectangle of the widget. 
@@ -1063,7 +1063,7 @@
         \o QSpinBox \target qspinbox-widget
         \o The frame of the spin box can be styled using the \l{box
            model}. 
-           
+
            The up button and arrow can be styled using the 
            \l{#up-button-sub}{::up-button} and
            \l{#up-arrow-sub}{::up-arrow} subcontrols. By default,
@@ -1072,7 +1072,7 @@
            it occupies half the height of its reference rectangle.
            The up-arrow is placed in the center of the Contents
            rectangle of the up-button.
-           
+
            The down button and arrow can be styled using the 
            \l{#down-button-sub}{::down-button} and
            \l{#down-arrow-sub}{::down-arrow} subcontrols. By default,
@@ -1163,12 +1163,12 @@
            is enabled, the alternating colors can be styled using the 
            \l{#alternate-background-color-prop}{alternate-background-color}
            property.
-        
+
            The color and background of the selected item is styled using
            \l{#selection-color-prop}{selection-color} and
            \l{#selection-background-color-prop}{selection-background-color}
            respectively.
-        
+
            The color of the grid can be specified using the
            \l{#gridline-color-prop}{gridline-color} property.
 
@@ -1198,7 +1198,7 @@
     \row
         \o QToolBar \target qtoolbar-widget
         \o Supports the \l{box model}. 
-        
+
            The \l{#top-ps}{:top}, \l{#left-ps}{:left}, \l{#right-ps}{:right},
            \l{#bottom-ps}{:bottom} pseudo states depending on the area in
            which the tool bar is grouped.
@@ -1220,7 +1220,7 @@
     \row
         \o QToolButton \target qtoolbutton-widget
         \o Supports the \l{box model}.
-        
+
            If the QToolButton has a menu, is 
            \l{#menu-indicator-sub}{::menu-indicator} subcontrol can be used to
            style the indicator. By default, the menu-indicator is positioned
@@ -1243,7 +1243,7 @@
     \row
         \o QToolBox \target qtoolbox-widget
         \o Supports the \l{box model}. 
-        
+
           The individual tabs can by styled using the 
           \l{#tab-sub}{::tab} subcontrol. The tabs support the
           \l{#only-one-ps}{:only-one}, \l{#first-ps}{:first},
@@ -1267,7 +1267,7 @@
            is enabled, the alternating colors can be styled using the 
            \l{#alternate-background-color-prop}{alternate-background-color}
            property.
-        
+
            The color and background of the selected item is styled using
            \l{#selection-color-prop}{selection-color} and
            \l{#selection-background-color-prop}{selection-background-color}
@@ -1965,7 +1965,7 @@
         \o \l{#Url}{Url}+
         \o The image that is drawn in the contents rectangle of a 
            \l{subcontrol}. 
-           
+
            The image property accepts a list of \l{#Url}{Url}s or 
            an \c{svg}. The actual image that is drawn is determined
            using the same algorithm as QIcon. If a \c{svg} is specified,
@@ -2449,7 +2449,7 @@
 
            If this property is not specified, it defaults to a value
            that depends on the subcontrol/widget and on the current style.
-            
+
            \warning Unless otherwise specified, this property has no effect 
            when set on widgets. If you want a widget with a fixed width, set
            the \l{#min-width-prop}{min-width} and 
@@ -2561,7 +2561,7 @@
 
     \row
         \o \bold{Box \target Box Colors 
-	Colors}
+        Colors}
         \o \l{#Brush}{Brush}\{1,4\}
         \o One to four occurrences of \l{#Brush}{Brush}, specifying the top,
            right, bottom, and left edges of a box, respectively. If
@@ -2620,7 +2620,7 @@ blue green yellow * /
            (red, green, blue, alpha). The \c rgb() or \c rgba() syntax can be
            used with integer values between 0 and 255, or with
            percentages.
-           
+
            Examples:
 
     \code
@@ -2833,7 +2833,7 @@ blue green yellow * /
         \o \c :closed \target closed-ps
         \o The item is in the closed state. For example, an non-expanded 
            item in a QTreeView
-           
+
     \row
         \o \c :default \target default-ps
         \o The item is the default. For example, a 
@@ -3144,11 +3144,11 @@ blue green yellow * /
     \page stylesheet-examples.html
     \contentspage {Qt Style Sheet}{Contents}
     \previouspage Qt Style Sheets Reference
-    \title Examples
+    \title Qt Style Sheets Examples
 
     \tableofcontents
     \section1 Style Sheet Usage
-    
+
     We will now see a few examples to get started with using Qt Style Sheets.
 
     \section2 Customizing the Foreground and Background Colors
@@ -3460,7 +3460,7 @@ blue green yellow * /
     \section2 Customizing QComboBox
 
     \section2 Customizing QSpinBox
-    
+
     QSpinBox can be completely customized as below (the style sheet has commentary inline):
 
     \code
@@ -3546,7 +3546,7 @@ blue green yellow * /
     \section2 Customizing QHeaderView
 
     \section2 Customizing QLineEdit
-    
+
     The frame of a QLineEdit is styled using the \l{The Box Model}. To
     create a line edit with rounded corners, we can set:
     \code
@@ -3572,7 +3572,7 @@ blue green yellow * /
         QLineEdit:read-only {
             background: lightblue;
     \endcode
-    
+
     \section2 Customizing QMenu
 
     \section2 Customizing QMenuBar
@@ -3609,9 +3609,9 @@ blue green yellow * /
 
     \code
     QProgressBar {
-    	border: 2px solid grey;
-    	border-radius: 5px;
-    	text-align: center;
+        border: 2px solid grey;
+        border-radius: 5px;
+        text-align: center;
     }
     \endcode
 
@@ -3625,8 +3625,8 @@ blue green yellow * /
 
     \code
     QProgressBar::chunk {
-    	background-color: #CD96CD;
-    	width: 10px;
+        background-color: #CD96CD;
+        width: 10px;
         margin: 0.5px;
     }
     \endcode
@@ -3735,7 +3735,7 @@ blue green yellow * /
 
 
     \section2 Customizing QSizeGrip
-    
+
     QSizeGrip is usually styled by just setting an image.
 
     \code
@@ -3828,9 +3828,9 @@ blue green yellow * /
 
     \code
         QTabBar::tab:selected {
-        	background: white;
-        	border-width:3px 0 3px 0;
-        	padding: 0 3px 0 3px;
+                background: white;
+                border-width:3px 0 3px 0;
+                padding: 0 3px 0 3px;
         }
     \endcode
 

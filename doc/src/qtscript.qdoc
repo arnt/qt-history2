@@ -85,11 +85,11 @@
   \skipto QScriptEngine engine;
   \printuntil engine.globalObject()
 
-  The newQObject() function accepts two additional optional arguments:
-  one is the ownership mode, and the other is a collection of options
-  that allow you to control certain aspects of how the QScriptValue
-  that wraps the QObject should behave. We will come back to the usage
-  of these arguments later.
+  The \l{QScriptEngine::}{newQObject()} function accepts two additional
+  optional arguments: one is the ownership mode, and the other is a
+  collection of options that allow you to control certain aspects of how
+  the QScriptValue that wraps the QObject should behave. We will come
+  back to the usage of these arguments later.
 
   \section2 Using Signals and Slots
 
@@ -879,7 +879,7 @@
   obtain a reference to the QScriptValue being operated upon; then you
   call qscriptvalue_cast() to cast it to your C++ type, and perform
   the relevant operations using the usual C++ API of the type.
-  
+
   You associate a prototype object with a C++ type by calling
   QScriptEngine::setDefaultPrototype(). Once this mapping is
   established, QtScript will automatically assign the correct

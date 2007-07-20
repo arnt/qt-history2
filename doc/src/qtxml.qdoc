@@ -74,7 +74,7 @@
     in Qt 4.3 and later. A stream reader reports an XML document as a stream
     of tokens. This differs from SAX as SAX applications provide handlers to
     receive XML events from the parser whereas the QXmlStreamReader drives the
-    loop, pulling tokens from the reader consequtively on an as-needed basis.
+    loop, pulling tokens from the reader when they are needed.
     This pulling approach makes it possible to build recursive descent parsers,
     allowing XML parsing code to be split into different methods or classes.
 
