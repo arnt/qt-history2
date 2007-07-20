@@ -27,7 +27,11 @@ build all of the tutorial programs at the same time.
 
 On Mac OS X:
 
-Open each of the .pro files found in the tutorial subdirectories in Xcode
-and build them individually.
+Create an Xcode project with the .pro file in the tutorial directory.
+You can do this by typing the following at the command line:
+
+qmake -spec macx-xcode
+
+Then open the generated Xcode project in Xcode and build it.
 
 Feel free to send comments about the tutorial to qt-bugs@trolltech.com.
