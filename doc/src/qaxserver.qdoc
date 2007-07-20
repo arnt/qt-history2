@@ -31,7 +31,7 @@
 
     \section1 Using the Library
 
-    To turn a standard Qt application into an COM server using the
+    To turn a standard Qt application into a COM server using the
     QAxServer library you must add \c qaxserver as a CONFIG setting
     in your \c .pro file.
 
