@@ -242,6 +242,8 @@ General Improvements
     * [166710] Qt::OpaqueMode wasn't taken into account under certain
 	       circumstances when QPainter::fillRect() was called.
     * [159538] Fixed drawing of a mono image into another mono image.
+    * [166000] Fixed compilation of mmxext optimizations.
+    * [156925] Fixed performance bug in 3DNow! optimizations.
 
 - QRegion
     * [167445] Removed potential assert in QRegion::operator^ on unix.
@@ -438,6 +440,21 @@ Qtopia Core
 -----------
 
     * Fix support for bitmap fonts.
+    * [164297] Fixed potential crash for accelerated paint engines.
+    * [160970] Fixed support for 1 bit black and white screens.
+    * [164783] Fixed bug in 4 bit grayscale support which resulted in pink 
+      colors under certain circumstances.
+    * [164955] Fixed painting error when using QWidget::move().
+    * [166368] Fixed bug in QWidget::setFixedSize() when using multiple 
+      screens.
+    * [165686] Fixed bug in QPixmap::grabWindow() when using multiple screens.
+    * [130925] Fixed use of QWSWindowSurface::move() when acceleration is 
+      available.
+    * [143865] Implement QWSCalibratedMouseHandler::getCalibration() properly 
+      to fill all return values.
+    * [161820] Fixed wrong detection of glib libraries when cross-compiling.
+    * [152914] Improved framebuffer test example.
+    * [171454] Fixed painting errors when zooming in QVFb.
 
 ****************************************************************************
 *                   Important Behavior Changes
