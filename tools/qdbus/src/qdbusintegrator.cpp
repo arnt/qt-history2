@@ -296,12 +296,30 @@ static void qDBusRealToggleWatch(QDBusConnectionPrivate *d, DBusWatch *watch, in
     }
 }
 
-static void qDBusNewConnection(DBusServer *server, DBusConnection *c, void *data)
+static void qDBusNewConnection(DBusServer *server, DBusConnection *connection, void *data)
 {
-    Q_ASSERT(data); Q_ASSERT(server); Q_ASSERT(c);
-    Q_UNUSED(data); Q_UNUSED(server); Q_UNUSED(c);
+    // ### We may want to separate the server from the QDBusConnectionPrivate    
+    Q_ASSERT(server); Q_UNUSED(server);
+    Q_ASSERT(connection);
+    Q_ASSERT(data);
 
-    qDebug("SERVER: GOT A NEW CONNECTION"); // TODO
+    // keep the connection alive
+    dbus_connection_ref(connection);
+    QDBusConnectionPrivate *d = new QDBusConnectionPrivate;
+    
+    // setConnection does the error handling for us
+    QDBusErrorInternal error;
+    d->setPeer(connection, error);
+
+    QDBusConnection retval = QDBusConnectionPrivate::q(d);
+    d->setBusService(retval);
+
+    //d->name = QString::number(reinterpret_cast<int>(d));
+    //d->setConnection(d->name, d); 
+
+    // make QDBusServer emit the newConnection signal
+    QDBusConnectionPrivate *server_d = static_cast<QDBusConnectionPrivate *>(data);
+    server_d->serverConnection(retval);
 }
 
 static QByteArray buildMatchRule(const QString &service, const QString & /*owner*/,
@@ -459,6 +477,7 @@ bool QDBusConnectionPrivate::handleMessage(const QDBusMessage &amsg)
     case QDBusMessage::ErrorMessage:
         qWarning("QDBusConnection received a message of type %d that it shouldn't have",
                  amsg.type());
+        qDebug() << "error:" << amsg.errorName() << amsg.errorMessage();
         return false;           // we shouldn't have got them here
     case QDBusMessage::InvalidMessage:
         Q_ASSERT_X(false, "QDBusConnection", "Invalid message found when processing");
@@ -886,7 +905,7 @@ void QDBusConnectionPrivate::closeConnection()
         if (server) {
             dbus_server_disconnect(server);
         }
-    } else if (oldMode == ClientMode) {
+    } else if (oldMode == ClientMode || oldMode == PeerMode) {
         if (connection) {
             dbus_connection_close(connection);
             // send the "close" message
@@ -960,7 +979,7 @@ void QDBusConnectionPrivate::customEvent(QEvent *e)
 void QDBusConnectionPrivate::doDispatch()
 {
     QDBusDispatchLocker locker(DoDispatchAction, this);
-    if (mode == ClientMode)
+    if (mode == ClientMode || mode == PeerMode)
         while (dbus_connection_dispatch(connection) == DBUS_DISPATCH_DATA_REMAINS);
 }
 
@@ -1143,6 +1162,7 @@ void QDBusConnectionPrivate::sendError(const QDBusMessage &msg, QDBusError::Erro
     } else if (code == QDBusError::UnknownObject) {
         send(msg.createErrorReply(QDBusError::UnknownObject,
                                   QString::fromLatin1("No such object path '%1'").arg(msg.path())));
+        qDebug() << "UnknownObject" << msg;
     }
 }
 
@@ -1399,7 +1419,7 @@ static dbus_int32_t server_slot = -1;
 
 void QDBusConnectionPrivate::setServer(DBusServer *s, const QDBusErrorInternal &error)
 {
-    if (!server) {
+    if (!s) {
         handleError(error);
         return;
     }
@@ -1407,17 +1427,59 @@ void QDBusConnectionPrivate::setServer(DBusServer *s, const QDBusErrorInternal &
     server = s;
     mode = ServerMode;
 
-    dbus_server_allocate_data_slot(&server_slot);
-    if (server_slot < 0)
+    dbus_bool_t data_allocated = dbus_server_allocate_data_slot(&server_slot);
+    if (data_allocated && server_slot < 0)
         return;
 
-    dbus_server_set_watch_functions(server, qDBusAddWatch, qDBusRemoveWatch,
-                                    qDBusToggleWatch, this, 0); // ### check return type?
-    dbus_server_set_timeout_functions(server, qDBusAddTimeout, qDBusRemoveTimeout,
-                                      qDBusToggleTimeout, this, 0);
+    dbus_bool_t watch_functions_set = dbus_server_set_watch_functions(server,
+                                                                      qDBusAddWatch,
+                                                                      qDBusRemoveWatch,
+                                                                      qDBusToggleWatch,
+                                                                      this, 0);
+    //qDebug() << "watch_functions_set" << watch_functions_set;
+    Q_UNUSED(watch_functions_set);
+
+    dbus_bool_t time_functions_set = dbus_server_set_timeout_functions(server,
+                                                                       qDBusAddTimeout,
+                                                                       qDBusRemoveTimeout,
+                                                                       qDBusToggleTimeout,
+                                                                       this, 0);
+    //qDebug() << "time_functions_set" << time_functions_set;
+    Q_UNUSED(time_functions_set);
+    
     dbus_server_set_new_connection_function(server, qDBusNewConnection, this, 0);
 
-    dbus_server_set_data(server, server_slot, this, 0);
+    dbus_bool_t data_set = dbus_server_set_data(server, server_slot, this, 0);
+    //qDebug() << "data_set" << data_set;
+    Q_UNUSED(data_set);
+}
+
+void QDBusConnectionPrivate::setPeer(DBusConnection *c, const QDBusErrorInternal &error)
+{
+    if (!c) {
+        handleError(error);
+        return;
+    }
+
+    connection = c;
+    mode = PeerMode;
+    
+    dbus_connection_set_exit_on_disconnect(connection, false);
+    dbus_connection_set_watch_functions(connection,
+                                        qDBusAddWatch,
+                                        qDBusRemoveWatch,
+                                        qDBusToggleWatch,
+                                        this, 0);
+    dbus_connection_set_timeout_functions(connection,
+                                          qDBusAddTimeout,
+                                          qDBusRemoveTimeout,
+                                          qDBusToggleTimeout,
+                                          this, 0);
+    dbus_connection_add_filter(connection,
+                               qDBusSignalFilter,
+                               this, 0);
+
+    QMetaObject::invokeMethod(this, "doDispatch", Qt::QueuedConnection);
 }
 
 void QDBusConnectionPrivate::setConnection(DBusConnection *dbc, const QDBusErrorInternal &error)
@@ -1429,7 +1491,7 @@ void QDBusConnectionPrivate::setConnection(DBusConnection *dbc, const QDBusError
 
     connection = dbc;
     mode = ClientMode;
-
+    
     dbus_connection_set_exit_on_disconnect(connection, false);
     dbus_connection_set_watch_functions(connection, qDBusAddWatch, qDBusRemoveWatch,
                                         qDBusToggleWatch, this, 0);
@@ -1720,6 +1782,7 @@ void QDBusConnectionPrivate::connectSignal(const QString &key, const SignalHook 
                      hook.obj->metaObject()->className(),
                      hook.obj->metaObject()->method(hook.midx).signature(),
                      qPrintable(qerror.name()), qPrintable(qerror.message()));
+            Q_ASSERT(false);
         }
     }
 }

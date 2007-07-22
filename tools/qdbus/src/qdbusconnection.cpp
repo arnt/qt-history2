@@ -314,14 +314,7 @@ QDBusConnection QDBusConnection::connectToBus(BusType type, const QString &name)
 
     // create the bus service
     // will lock in QDBusConnectionPrivate::connectRelay()
-    d->busService = new QDBusConnectionInterface(retval, d);
-    d->ref.deref();              // busService has a increased the refcounting to us
-                                 // avoid cyclic refcounting
-
-    QObject::connect(d->busService, SIGNAL(serviceOwnerChanged(QString,QString,QString)),
-                     d, SIGNAL(serviceOwnerChanged(QString,QString,QString)));
-    QObject::connect(d, SIGNAL(callWithCallbackFailed(QDBusError,QDBusMessage)),
-                     d->busService, SIGNAL(callWithCallbackFailed(QDBusError,QDBusMessage)));
+    d->setBusService(retval);
 
     return retval;
 }
@@ -344,21 +337,14 @@ QDBusConnection QDBusConnection::connectToBus(const QString &address,
     d = new QDBusConnectionPrivate;
     // setConnection does the error handling for us
     QDBusErrorInternal error;
-    d->setConnection(dbus_connection_open(address.toUtf8().constData(), error), error);
-
+    d->setPeer(dbus_connection_open(address.toUtf8().constData(), error), error);
     _q_manager()->setConnection(name, d);
 
     QDBusConnection retval(d);
 
     // create the bus service
     // will lock in QDBusConnectionPrivate::connectRelay()
-    d->busService = new QDBusConnectionInterface(retval, d);
-    d->ref.deref();              // busService has a increased the refcounting to us
-                                 // avoid cyclic refcounting
-    QObject::connect(d->busService, SIGNAL(serviceOwnerChanged(QString,QString,QString)),
-                     d, SIGNAL(serviceOwnerChanged(QString,QString,QString)));
-    QObject::connect(d, SIGNAL(callWithCallbackFailed(QDBusError,QDBusMessage)),
-                     d->busService, SIGNAL(callWithCallbackFailed(QDBusError,QDBusMessage)));
+    d->setBusService(retval);
 
     return retval;
 }
@@ -840,7 +826,7 @@ QString QDBusConnection::baseService() const
 */
 bool QDBusConnection::registerService(const QString &serviceName)
 {
-    if (interface()->registerService(serviceName)) {
+    if (interface() && interface()->registerService(serviceName)) {
         if (d) d->registerService(serviceName);
         return true;
     }
@@ -908,6 +894,31 @@ QDBusConnection QDBusConnection::sender()
 void QDBusConnectionPrivate::setSender(const QDBusConnectionPrivate *s)
 {
     _q_manager()->setSender(s);
+}
+
+/*!
+  \internal
+*/
+void QDBusConnectionPrivate::setConnection(const QString &name, QDBusConnectionPrivate *c)
+{
+    _q_manager()->setConnection(name, c);
+}
+
+/*!
+  \internal
+*/
+void QDBusConnectionPrivate::setBusService(const QDBusConnection &connection)
+{
+    busService = new QDBusConnectionInterface(connection, this);
+    ref.deref(); // busService has increased the refcounting to us
+                 // avoid cyclic refcounting
+//    if (mode != PeerMode)
+    QObject::connect(busService, SIGNAL(serviceOwnerChanged(QString,QString,QString)),
+                     this, SIGNAL(serviceOwnerChanged(QString,QString,QString)));
+
+    QObject::connect(this, SIGNAL(callWithCallbackFailed(QDBusError,QDBusMessage)),
+                     busService, SIGNAL(callWithCallbackFailed(QDBusError,QDBusMessage)));
+
 }
 
 /*!

@@ -75,7 +75,7 @@ class QDBusConnectionPrivate: public QObject
     Q_OBJECT
 public:
     // structs and enums
-    enum ConnectionMode { InvalidMode, ServerMode, ClientMode }; // LocalMode
+    enum ConnectionMode { InvalidMode, ServerMode, ClientMode, PeerMode }; // LocalMode
 
     struct Watcher
     {
@@ -127,6 +127,8 @@ public:
     explicit QDBusConnectionPrivate(QObject *parent = 0);
     ~QDBusConnectionPrivate();
 
+    void setBusService(const QDBusConnection &connection);
+    void setPeer(DBusConnection *connection, const QDBusErrorInternal &error);
     void setConnection(DBusConnection *connection, const QDBusErrorInternal &error);
     void setServer(DBusServer *server, const QDBusErrorInternal &error);
     void closeConnection();
@@ -158,6 +160,9 @@ public:
 
     void postEventToThread(int action, QObject *target, QEvent *event);
 
+    inline void serverConnection(const QDBusConnection &connection)
+        { emit newServerConnection(connection); }
+    
 private:
     void checkThread();
     bool handleError(const QDBusErrorInternal &error);
@@ -195,6 +200,7 @@ public slots:
 signals:
     void serviceOwnerChanged(const QString &name, const QString &oldOwner, const QString &newOwner);
     void callWithCallbackFailed(const QDBusError &error, const QDBusMessage &message);
+    void newServerConnection(const QDBusConnection &connection);
 
 public:
     QAtomic ref;
@@ -239,8 +245,10 @@ public:
     static void messageResultReceived(DBusPendingCall *, void *);
 
     static QDBusConnectionPrivate *d(const QDBusConnection& q) { return q.d; }
+    static QDBusConnection q(QDBusConnectionPrivate *connection) { return QDBusConnection(connection); }
 
     static void setSender(const QDBusConnectionPrivate *s);
+    static void setConnection(const QString &name, QDBusConnectionPrivate *c);
 
     friend class ActivateObjectEvent;
     friend class CallDeliveryEvent;

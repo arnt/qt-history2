@@ -33,7 +33,7 @@ class QDBUS_EXPORT QDBusConnectionInterface: public QDBusAbstractInterface
 {
     Q_OBJECT
     Q_ENUMS(ServiceQueueOptions ServiceReplacementOptions RegisterServiceReply)
-    friend class QDBusConnection;
+    friend class QDBusConnectionPrivate;
     static inline const char *staticInterfaceName();
 
     explicit QDBusConnectionInterface(const QDBusConnection &connection, QObject *parent);

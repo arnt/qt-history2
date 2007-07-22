@@ -15,6 +15,7 @@
 #include <QtGui/qmainwindow.h>
 #include <QtGui/qtabwidget.h>
 #include <QtDBus/qdbusconnection.h>
+#include <QtDBus/qdbusserver.h>
 #include "qdbusviewer.h"
 
 #include <stdio.h>
@@ -52,6 +53,17 @@ int main(int argc, char *argv[])
     QObject::connect(aboutQtAction, SIGNAL(triggered()), &app, SLOT(aboutQt()));
 
     mw.show();
+
+
+    QString serverAddress = "unix:tmpdir=/tmp";
+    QDBusConnection client = QDBusConnection::connectToBus(serverAddress, "somename");
+    if (client.isConnected()) {
+        serverAddress = "";
+        qDebug() << "connected to bus";
+    } else {
+        qDebug() << "faild to connect" << client.lastError();
+    }
+    QDBusServer server(serverAddress, 0);
 
     return app.exec();
 }

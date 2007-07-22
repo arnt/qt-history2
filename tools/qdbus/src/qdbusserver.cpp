@@ -35,8 +35,8 @@ QDBusServer::QDBusServer(const QString &address, QObject *parent)
     if (address.isEmpty())
         return;
 
-    //    QObject::connect(d, SIGNAL(newServerConnection(QDBusConnection&)),
-    //                     this, SIGNAL(newConnection(QDBusConnection&)));
+    QObject::connect(d, SIGNAL(newServerConnection(const QDBusConnection &)),
+                     this, SIGNAL(newConnection(const QDBusConnection &)));
 
     // server = dbus_server_listen( "unix:tmpdir=/tmp", &error);
     QDBusErrorInternal error;
@@ -77,7 +77,6 @@ QString QDBusServer::address() const
 
     return addr;
 }
-
 /*!
   \fn void QDBusServer::newConnection(const QDBusConnection &connection)
 

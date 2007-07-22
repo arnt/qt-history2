@@ -17,7 +17,7 @@
 #include "qdbusmetaobject_p.h"
 #include "qdbusutil_p.h"
 
-#include <QDebug>
+#include <qdebug.h>
 
 QDBusAbstractInterfacePrivate::QDBusAbstractInterfacePrivate(const QString &serv,
                                                              const QString &p,
@@ -326,6 +326,7 @@ QDBusMessage QDBusAbstractInterface::callWithArgumentList(QDBus::CallMode mode,
         }
     }
 
+    qDebug() << "QDBusAbstractInterface" << "Service" << service() << "Path:" << path();
     QDBusMessage msg = QDBusMessage::createMethodCall(service(), path(), interface(), m);
     msg.setArguments(args);
 
