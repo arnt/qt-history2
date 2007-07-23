@@ -1432,7 +1432,7 @@ void Configure::autoDetection()
     if (dictionary["MNG"] == "auto")
         dictionary["MNG"] = defaultTo("MNG");
     if (dictionary["TIFF"] == "auto")
-        dictionary["TIFF"] == defaultTo("TIFF");
+        dictionary["TIFF"] = dictionary["ZLIB"] == "no" ? "no" : defaultTo("TIFF");
     if (dictionary["LIBJPEG"] == "auto")
         dictionary["LIBJPEG"] = checkAvailability("LIBJPEG") ? defaultTo("LIBJPEG") : "qt";
     if (dictionary["LIBPNG"] == "auto")
