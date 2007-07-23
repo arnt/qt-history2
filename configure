@@ -589,7 +589,7 @@ l_FLAGS=
 QCONFIG_FLAGS=
 XPLATFORM=
 PLATFORM=$QMAKESPEC
-CROSS_COMPILE=no
+QT_CROSS_COMPILE=no
 OPT_CONFIRM_LICENSE=no
 OPT_SHADOW=maybe
 OPT_FAST=auto
@@ -2030,7 +2030,7 @@ else
   XQMAKESPEC="$relpath/mkspecs/${XPLATFORM}"
 fi
 if [ "$PLATFORM" != "$XPLATFORM" ]; then
-    CROSS_COMPILE=yes
+    QT_CROSS_COMPILE=yes
     QMAKE_CONFIG="$QMAKE_CONFIG cross_compile"
 fi
 
@@ -3920,7 +3920,7 @@ for _SQLDR in $CFG_SQL_AVAILABLE; do
             if [ "$CFG_SQL_sqlite" != "no" ]; then
                 SQLITE_AUTODETECT_FAILED="no"
                 if [ "$CFG_SQLITE" = "system" ]; then
-                    if [ "$CROSS_COMPILE" = "no" ] && $WHICH pkg-config >/dev/null 2>&1; then
+                    if [ "$QT_CROSS_COMPILE" = "no" ] && $WHICH pkg-config >/dev/null 2>&1; then
                         QT_CFLAGS_SQLITE=`pkg-config --cflags sqlite3`
                         QT_LFLAGS_SQLITE=`pkg-config --libs sqlite3`
                     fi
@@ -4016,7 +4016,7 @@ fi
 
 # auto-detect libdbus-1 support
 if [ "$CFG_QDBUS" != "no" ]; then
-    if [ "$CROSS_COMPILE" = "no" ] && "$WHICH" pkg-config >/dev/null 2>&1 && \
+    if [ "$QT_CROSS_COMPILE" = "no" ] && "$WHICH" pkg-config >/dev/null 2>&1 && \
         pkg-config --atleast-version="$MIN_DBUS_1_VERSION" dbus-1 2>/dev/null; then
         QT_CFLAGS_DBUS=`pkg-config --cflags dbus-1`
         QT_LIBS_DBUS=`pkg-config --libs dbus-1`
@@ -4234,7 +4234,7 @@ if [ "$PLATFORM_X11" = "yes" ]; then
 
     # auto-detect Glib support
     if [ "$CFG_GLIB" != "no" ]; then
-        if [ "$CROSS_COMPILE" = "no" ] && "$WHICH" pkg-config >/dev/null 2>&1; then
+        if [ "$QT_CROSS_COMPILE" = "no" ] && "$WHICH" pkg-config >/dev/null 2>&1; then
             QT_CFLAGS_GLIB=`pkg-config --cflags glib-2.0 gthread-2.0`
             QT_LIBS_GLIB=`pkg-config --libs glib-2.0 gthread-2.0`
         fi
