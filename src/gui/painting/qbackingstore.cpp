@@ -1258,7 +1258,7 @@ void QWidget::repaint(const QRegion& rgn)
         }
     }
 #ifndef Q_WS_QWS
-// QWS doesn't support paint-on-screen
+// QWS does paint-on-screen in qscreen_qws.cpp
     else {
         d->cleanWidget_sys(rgn);
         //     qDebug() << "QWidget::repaint paintOnScreen" << this << "region" << rgn;
