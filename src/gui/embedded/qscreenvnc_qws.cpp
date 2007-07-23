@@ -489,7 +489,7 @@ void QVNCServer::newConnection()
     dirtyMap()->reset();
 
     // send protocol version
-    char *proto = "RFB 003.003\n";
+    const char *proto = "RFB 003.003\n";
     client->write(proto, 12);
     state = Protocol;
 
