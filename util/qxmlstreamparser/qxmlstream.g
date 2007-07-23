@@ -142,15 +142,21 @@ public:
 
     inline QStringRef addToStringStorage(const QStringRef &s) {
         int pos = tagStackStringStorageSize;
-        tagStackStringStorage.insert(pos, s.unicode(), s.size());
-        tagStackStringStorageSize = tagStackStringStorage.size();
-        return QStringRef(&tagStackStringStorage, pos, s.size());
+	int sz = s.size();
+	if (pos != tagStackStringStorage.size())
+	    tagStackStringStorage.resize(pos);
+        tagStackStringStorage.insert(pos, s.unicode(), sz);
+        tagStackStringStorageSize += sz;
+        return QStringRef(&tagStackStringStorage, pos, sz);
     }
     inline QStringRef addToStringStorage(const QString &s) {
         int pos = tagStackStringStorageSize;
-        tagStackStringStorage.insert(pos, s.unicode(), s.size());
-        tagStackStringStorageSize = tagStackStringStorage.size();
-        return QStringRef(&tagStackStringStorage, pos, s.size());
+	int sz = s.size();
+	if (pos != tagStackStringStorage.size())
+	    tagStackStringStorage.resize(pos);
+        tagStackStringStorage.insert(pos, s.unicode(), sz);
+        tagStackStringStorageSize += sz;
+        return QStringRef(&tagStackStringStorage, pos, sz);
     }
 
     QXmlStreamSimpleStack<Tag> tagStack;
@@ -220,8 +226,10 @@ public:
 
     QIODevice *device;
     bool deleteDevice;
+#ifndef QT_NO_TEXTCODEC
     QTextCodec *codec;
     QTextDecoder *decoder;
+#endif
     bool atEnd;
 
     /*!
@@ -497,11 +505,13 @@ bool QXmlStreamReaderPrivate::parse()
         break;
     case QXmlStreamReader::StartDocument:
 	lockEncoding = true;
+#ifndef QT_NO_TEXTCODEC
 	if(decoder->hasFailure()) {
 	    raiseWellFormedError(QXmlStream::tr("Encountered incorrectly encoded content."));
 	    readBuffer.clear();
 	    return false;
 	}
+#endif
         // fall through
     default:
         clearTextBuffer();

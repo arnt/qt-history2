@@ -649,15 +649,21 @@ public:
 
     inline QStringRef addToStringStorage(const QStringRef &s) {
         int pos = tagStackStringStorageSize;
-        tagStackStringStorage.insert(pos, s.unicode(), s.size());
-        tagStackStringStorageSize = tagStackStringStorage.size();
-        return QStringRef(&tagStackStringStorage, pos, s.size());
+	int sz = s.size();
+	if (pos != tagStackStringStorage.size())
+	    tagStackStringStorage.resize(pos);
+        tagStackStringStorage.insert(pos, s.unicode(), sz);
+        tagStackStringStorageSize += sz;
+        return QStringRef(&tagStackStringStorage, pos, sz);
     }
     inline QStringRef addToStringStorage(const QString &s) {
         int pos = tagStackStringStorageSize;
-        tagStackStringStorage.insert(pos, s.unicode(), s.size());
-        tagStackStringStorageSize = tagStackStringStorage.size();
-        return QStringRef(&tagStackStringStorage, pos, s.size());
+	int sz = s.size();
+	if (pos != tagStackStringStorage.size())
+	    tagStackStringStorage.resize(pos);
+        tagStackStringStorage.insert(pos, s.unicode(), sz);
+        tagStackStringStorageSize += sz;
+        return QStringRef(&tagStackStringStorage, pos, sz);
     }
 
     QXmlStreamSimpleStack<Tag> tagStack;
