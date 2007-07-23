@@ -233,6 +233,7 @@ QString QAccessibleItemRow::text(Text t, int child) const
         if (qobject_cast<QTreeView*>(view) && child == 0)
             value = QString::number(treeLevel());
     } else if (t == Description) {
+#ifndef QT_NO_TREEVIEW
         if (child == 0 && qobject_cast<QTreeView*>(view) && !m_header) {
             // We store the tree coordinates of the current item in the description.
             // This enables some screen readers to report where the focus is
@@ -262,7 +263,9 @@ QString QAccessibleItemRow::text(Text t, int child) const
                                                     // this simple and efficient.
                                                     // (don't check if they are all visible).
             value = QString::fromAscii("L%1, %2 of %3 with %4").arg(level).arg(itemIndex).arg(totalSiblings).arg(totalChildren);
-        } else {
+        } else
+#endif // QT_NO_TREEVIEW
+        {
             if (!m_header) {
                 if (child == 0 && children().count() >= 1)
                     child = 1;
