@@ -1714,7 +1714,8 @@ QString QXmlStreamReader::readElementText()
             case Comment:
                 break;
             default:
-                d->raiseError(UnexpectedElementError, QXmlStream::tr("Expected character data."));
+                if (!d->error)
+                    d->raiseError(UnexpectedElementError, QXmlStream::tr("Expected character data."));
                 return result;
             }
         }
