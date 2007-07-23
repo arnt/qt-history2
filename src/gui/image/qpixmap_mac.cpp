@@ -107,11 +107,7 @@ QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
             if(image.numColors() == 2) {
                 QRgb c0 = image.color(0);       // Auto: convert to best
                 QRgb c1 = image.color(1);
-#if 0
                 conv8 = qMin(c0,c1) != qRgb(0,0,0) || qMax(c0,c1) != qRgb(255,255,255);
-#else
-                conv8 = ((c0 == qRgb(0,0,0)) && c1 == qRgb(255,255,255));
-#endif
             } else {
                 // eg. 1-color monochrome images (they do exist).
                 conv8 = true;
