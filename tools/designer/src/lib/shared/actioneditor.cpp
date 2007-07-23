@@ -36,7 +36,6 @@ TRANSLATOR qdesigner_internal::ActionEditor
 #include <QtDesigner/QDesignerIconCacheInterface>
 
 #include <QtGui/QMenu>
-#include <QtGui/QMessageBox>
 #include <QtGui/QToolBar>
 #include <QtGui/QSplitter>
 #include <QtGui/QAction>
@@ -50,7 +49,6 @@ TRANSLATOR qdesigner_internal::ActionEditor
 #include <QtGui/QPushButton>
 #include <QtGui/QContextMenuEvent>
 #include <QtGui/QItemSelection>
-
 
 #include <QtCore/QRegExp>
 #include <QtCore/QDebug>
@@ -89,7 +87,6 @@ public:
         m_button->setIconSize(QSize(16, 16));
         m_button->setFlat(true);
         l->addWidget(m_button);
-        l->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
 
         connect(m_button, SIGNAL(clicked()), m_editor, SLOT(clear()));
         connect(m_editor, SIGNAL(textChanged(QString)), this, SLOT(checkButton(QString)));
@@ -184,11 +181,17 @@ ActionEditor::ActionEditor(QDesignerFormEditorInterface *core, QWidget *parent, 
     m_actionDelete->setEnabled(false);
     connect(m_actionDelete, SIGNAL(triggered()), this, SLOT(slotDelete()));
     toolbar->addAction(m_actionDelete);
-    // filter
-    m_filterWidget = new ActionFilterWidget(this, toolbar);
-    m_filterWidget->setEnabled(false);
-    toolbar->addWidget(m_filterWidget);
-    // Action group for detailed/icon view. Steal the icons from the file dialog.
+
+    // Toolbutton with menu containing action group for detailed/icon view. Steal the icons from the file dialog.
+    QToolButton *configureButton = new QToolButton();
+    QAction *configureAction = new QAction(tr("Configure Action Editor"), this);
+    configureAction->setIcon(createIconSet(QLatin1String("widgets/toolbutton.png")));
+    QMenu *configureMenu = new QMenu(this);
+    configureAction->setMenu(configureMenu);
+    configureButton->setDefaultAction(configureAction);
+    configureButton->setPopupMode(QToolButton::InstantPopup);
+    toolbar->addWidget(configureButton);
+
     m_viewModeGroup->setExclusive(true);
     connect(m_viewModeGroup, SIGNAL(triggered(QAction*)), this, SLOT(slotViewMode(QAction*)));
 
@@ -196,13 +199,18 @@ ActionEditor::ActionEditor(QDesignerFormEditorInterface *core, QWidget *parent, 
     m_iconViewAction->setData(QVariant(ActionView::IconView));
     m_iconViewAction->setCheckable(true);
     m_iconViewAction->setIcon(style()->standardIcon (QStyle::SP_FileDialogListView));
-    toolbar->addAction(m_iconViewAction);
+    configureMenu->addAction(m_iconViewAction);
 
     m_listViewAction = m_viewModeGroup->addAction(tr("Detailed View"));
     m_listViewAction->setData(QVariant(ActionView::DetailedView));
     m_listViewAction->setCheckable(true);
     m_listViewAction->setIcon(style()->standardIcon (QStyle::SP_FileDialogDetailedView));
-    toolbar->addAction(m_listViewAction);
+    configureMenu->addAction(m_listViewAction);
+    // filter
+    m_filterWidget = new ActionFilterWidget(this, toolbar);
+    m_filterWidget->setEnabled(false);
+    toolbar->addWidget(m_filterWidget);
+ 
     // main layout
     QSplitter *splitter = new QSplitter(Qt::Horizontal, this);
     splitter->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -552,11 +560,6 @@ void ActionEditor::slotDelete()
         return;
 
     deleteActions(fw,  selection);
-}
-
-void ActionEditor::slotNotImplemented()
-{
-    QMessageBox::information(this, tr("Designer"), tr("Feature not implemented!"));
 }
 
 QString ActionEditor::actionTextToName(const QString &text, const QString &prefix)

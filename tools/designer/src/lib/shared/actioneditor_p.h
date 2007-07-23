@@ -80,7 +80,6 @@ private slots:
     void slotActionChanged();
     void slotNewAction();
     void slotDelete();
-    void slotNotImplemented();
     void resourceImageDropped(const ResourceMimeData &data, QAction *action);
     void slotContextMenuRequested(QContextMenuEvent *, QAction *);
     void slotViewMode(QAction *a);
