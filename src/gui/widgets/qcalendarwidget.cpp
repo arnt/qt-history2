@@ -911,7 +911,7 @@ public:
 
     void internalUpdate() { updateGeometries(); }
     void setReadOnly(bool enable);
-    virtual void keyboardSearch(const QString & search) { }
+    virtual void keyboardSearch(const QString & search) { Q_UNUSED(search) }
 
 signals:
     void changeDate(const QDate &date, bool changeMonth);
