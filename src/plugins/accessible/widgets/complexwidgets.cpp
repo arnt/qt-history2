@@ -211,7 +211,7 @@ QString QAccessibleItemRow::text(Text t, int child) const
                 else
                     return QString();
             }
-
+        }
         QModelIndex idx = childIndex(child);
         if (!idx.isValid())
             return QString();
