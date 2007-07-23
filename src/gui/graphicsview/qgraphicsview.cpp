@@ -2956,9 +2956,11 @@ void QGraphicsView::paintEvent(QPaintEvent *event)
             // Recreate the background pixmap, and flag the whole background as
             // exposed.
             d->backgroundPixmap = QPixmap(viewport()->size());
+            QBrush bgBrush = viewport()->palette().brush(viewport()->backgroundRole());
+            if (!bgBrush.isOpaque())
+                d->backgroundPixmap.fill(Qt::transparent);
             QPainter p(&d->backgroundPixmap);
-            p.fillRect(0, 0, d->backgroundPixmap.width(), d->backgroundPixmap.height(),
-                       viewport()->palette().brush(viewport()->backgroundRole()));
+            p.fillRect(0, 0, d->backgroundPixmap.width(), d->backgroundPixmap.height(), bgBrush);
             d->backgroundPixmapExposed = QRegion(viewport()->rect());
             d->mustResizeBackgroundPixmap = false;
         }
@@ -2966,16 +2968,19 @@ void QGraphicsView::paintEvent(QPaintEvent *event)
         // Redraw exposed areas
         if (!d->backgroundPixmapExposed.isEmpty()) {
             QPainter backgroundPainter(&d->backgroundPixmap);
-            backgroundPainter.setTransform(viewportTransform());
             foreach (QRect rect, d->backgroundPixmapExposed.rects()) {
+                QRectF exposedSceneRect = mapToScene(rect.adjusted(-1, -1, 1, 1)).boundingRect();
+
+                // Set the clip in device coordinates to avoid sub
+                // pixelation. This way we only redraw the pixels not
+                // already scrolled.
+                backgroundPainter.setTransform(QTransform());
+                backgroundPainter.setClipRect(rect, Qt::ReplaceClip);
+
+                backgroundPainter.setTransform(viewportTransform());
                 if (!(d->optimizationFlags & DontSavePainterState))
                     backgroundPainter.save();
-
-                QRectF exposedSceneRect = mapToScene(rect.adjusted(-1, -1, 1, 1)).boundingRect();
-                if (!(d->optimizationFlags & DontClipPainter))
-                    backgroundPainter.setClipRect(exposedSceneRect.adjusted(-1, -1, 1, 1));
                 drawBackground(&backgroundPainter, exposedSceneRect);
-
                 if (!(d->optimizationFlags & DontSavePainterState))
                     backgroundPainter.restore();
             }
@@ -3188,17 +3193,17 @@ void QGraphicsView::scrollContentsBy(int dx, int dy)
         if (dy > 0) {
             d->backgroundPixmapExposed += QRect(0, 0, viewport()->width(), dy);
         } else if (dy < 0) {
-            d->backgroundPixmapExposed += QRect(0, viewport()->height() + dy - 1,
-                                                viewport()->width(), -dy + 1);
+            d->backgroundPixmapExposed += QRect(0, viewport()->height() + dy,
+                                                viewport()->width(), -dy);
         }
 
         // Scroll the background pixmap
         if (!d->backgroundPixmap.isNull()) {
-            QPixmap tmp = d->backgroundPixmap;
+            QPixmap tmp = d->backgroundPixmap.copy();
+            QBrush bgBrush = viewport()->palette().brush(viewport()->backgroundRole());
+            if (!bgBrush.isOpaque())
+                d->backgroundPixmap.fill(Qt::transparent);
             QPainter painter(&d->backgroundPixmap);
-            painter.setCompositionMode(QPainter::CompositionMode_Source);
-            painter.fillRect(0, 0, tmp.width(), tmp.height(),
-                             viewport()->palette().brush(viewport()->backgroundRole()));
             painter.drawPixmap(dx, dy, tmp);
         }
     }
