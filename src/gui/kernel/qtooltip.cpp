@@ -34,7 +34,7 @@
 /*!
     \class QToolTip
 
-    \brief The QToolTip class provides tooltips (balloon help) for any
+    \brief The QToolTip class provides tool tips (balloon help) for any
     widget.
 
     \ingroup helpsystem
@@ -45,32 +45,32 @@
     position in a distinctive black-on-yellow color combination. The
     tip can be any \l{QTextEdit}{rich text} formatted string.
 
-    Rich text formatted tips implictely do word breaking, unless
+    Rich text displayed in a tool tip is implicitly word-wrapped unless
     specified differently with \c{<p style='white-space:pre'>}.
 
-    The simplest and most common way to set a widget's tooltip is by
+    The simplest and most common way to set a widget's tool tip is by
     calling its QWidget::setToolTip() function.
 
-    It is also possible to show different tooltips for different
+    It is also possible to show different tool tips for different
     regions of a widget, by using a QHelpEvent of type
     QEvent::ToolTip. Intercept the help event in your widget's \l
     {QWidget::}{event()} function and call QToolTip::showText() with
     the text you want to display. The \l{widgets/tooltips}{Tooltips}
     example illustrates this technique.
 
-    Note that if you want to show tooltips in an item view, the
+    Note that, if you want to show tooltips in an item view, the
     model/view architecture provides functionality to set an item's
-    tootip, e.g., the QTableWidgetItem::setToolTip() function. But if
-    you want to provide custom tooltips in an item view you must
-    intercept the help event in the QAbstractItemView::viewportEvent()
-    function instead.
+    tool tip; e.g., the QTableWidgetItem::setToolTip() function.
+    However, if you want to provide custom tool tips in an item view,
+    you must intercept the help event in the
+    QAbstractItemView::viewportEvent() function and handle it yourself.
 
-    The default tooltip color and font can be customized with
+    The default tool tip color and font can be customized with
     setPalette() and setFont(). When a tooltip is currently on
     display, isVisble() returns true and text() the currently visible
     text.
 
-    \sa QWidget::toolTip, QAction::toolTip, {Tooltips Example}
+    \sa QWidget::toolTip, QAction::toolTip, {Tool Tips Example}
 */
 
 class QTipLabel : public QLabel

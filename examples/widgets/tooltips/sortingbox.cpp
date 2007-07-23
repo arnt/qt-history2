@@ -47,7 +47,7 @@ SortingBox::SortingBox()
     trianglePath.lineTo(120, 100);
     trianglePath.lineTo(x + 120 / 2, y);
 
-    setWindowTitle(tr("Tooltips"));
+    setWindowTitle(tr("Tool Tips"));
     resize(500, 300);
 
     createShapeItem(circlePath, tr("Circle"), initialItemPosition(circlePath),
@@ -85,6 +85,7 @@ void SortingBox::resizeEvent(QResizeEvent * /* event */)
 void SortingBox::paintEvent(QPaintEvent * /* event */)
 {
     QPainter painter(this);
+    painter.setRenderHint(QPainter::Antialiasing);
     foreach (ShapeItem shapeItem, shapeItems) {
         painter.translate(shapeItem.position());
         painter.setBrush(shapeItem.color());

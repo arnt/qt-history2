@@ -1,8 +1,8 @@
 /*!
     \example widgets/tooltips
-    \title Tooltips Example
+    \title Tool Tips Example
 
-    The Tooltips example shows how to provide static and dynamic tool
+    The Tool Tips example shows how to provide static and dynamic tool
     tips for an application's widgets.
 
     The simplest and most common way to set a widget's tool tip is by
