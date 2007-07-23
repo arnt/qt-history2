@@ -1649,7 +1649,7 @@ pixmap property in the property editor.
     widget since it is the lowest common denominator for all widgets.
 
     To add a placeholder, select an object of a suitable base class
-    and choose \gui{Promote to...} from the form's context menu.
+    and choose \gui{Promote to ...} from the form's context menu.
     After entering the class name and header file in the lower part
     of the dialog, choose \gui{Add}. The placeholder class will
     now appear along with the base class in the upper list.
