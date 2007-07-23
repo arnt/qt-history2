@@ -11,9 +11,7 @@
 **
 ****************************************************************************/
 
-
 #include "dialog.h"
-
 #include <QFileDialog>
 #include <QBuffer>
 
@@ -54,16 +52,26 @@ Dialog::Dialog(QWidget *parent)
 
 /*!
   This slot function is called when the \tt {Load Image From File...}
-  button is pressed on one of the Dialog processes. First, it prompts
-  the user to select an image file. Then it loads the selected image
-  from the file into a QImage, displays it in the Dialog, and streams
-  it into a QBuffer using a QDataStream. 
+  button is pressed on the firs Dialog process. First, it tests
+  whether the process is already connected to a shared memory segment
+  and, if so, detaches from that segment. This ensures that we always
+  start the example from the beginning if we run it multiple times
+  with the same two Dialog processes. After detaching from an existing
+  shared memory segment, the user is prompted to select an image file.
+  The selected file is loaded into a QImage. The QImage is displayed
+  in the Dialog and streamed into a QBuffer with a QDataStream.
 
-  Next, it requests a shared memory segment large enough to hold the
-  data in the QBuffer, locks the segment to prevent the other Dialog
-  process from accessing it, and copies the data from the QBuffer into
-  the shared memory. Finally, it unlocks the shared memory segment so
-  the other Dialog process can access it.
+  Next, it gets a new shared memory segment from the system big enough
+  to hold the image data in the QBuffer, and it locks the segment to
+  prevent the second Dialog process from accessing it. Then it copies
+  the image from the QBuffer into the shared memory segment. Finally,
+  it unlocks the shared memory segment so the second Dialog process
+  can access it.
+
+  After this function runs, the user is expected to press the \tt
+  {Load Image from Shared Memory} button on the second Dialog process.
+
+  \sa loadFromMemory()
  */
 void Dialog::loadFromFile()
 {
@@ -99,12 +107,16 @@ void Dialog::loadFromFile()
 }
 
 /*!
-  This slot function is called when the \tt {Load Image from Shared
-  Memory} button is pressed. First, it attaches the Dialog process to
-  the shared memory segment. Then it locks the segment for exclusive
-  access, copies the data from the segment into a QBuffer, and streams
-  the QBuffer into a QImage. Then it unlocks the shared memory segment,
-  detaches from it, and finally displays the QImage in the Dialog.
+  This slot function is called in the second Dialog process, when the
+  user presses the \tt {Load Image from Shared Memory} button. First,
+  it attaches the process to the shared memory segment created by the
+  first Dialog process. Then it locks the segment for exclusive
+  access, copies the image data from the segment into a QBuffer, and
+  streams the QBuffer into a QImage. Then it unlocks the shared memory
+  segment, detaches from it, and finally displays the QImage in the
+  Dialog.
+
+  \sa loadFromFile()
  */
 void Dialog::loadFromMemory()
 {
@@ -130,7 +142,9 @@ void Dialog::loadFromMemory()
 
 /*!
   This is the slot function called when the \tt {Detatch Image from
-  Shared Memory} button is pressed.
+  Shared Memory} button is pressed. It is also called at the top of
+  loadFromFile() to ensure thart the example can be run multiple times
+  using the same two Dialog processes.
  */
 void Dialog::detach()
 {

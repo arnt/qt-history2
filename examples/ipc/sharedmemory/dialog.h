@@ -22,15 +22,15 @@ class Dialog : public QDialog
 {
     Q_OBJECT
 
-public:
+  public:
     Dialog(QWidget *parent = 0);
 
-public slots:
+  public slots:
     void loadFromFile();
     void loadFromMemory();
     void detach();
 
-private:
+  private:
     Ui::Dialog ui;
     QSharedMemory sharedMemory;
 };
