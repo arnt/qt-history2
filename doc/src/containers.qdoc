@@ -778,7 +778,7 @@
     \endlist
 
     The following table summarizes the algorithmic complexity of Qt's
-    squential container classes:
+    sequential container classes:
 
     \table
     \header \o                \o Index lookup \o Insertion \o Prepending         \o Appending
