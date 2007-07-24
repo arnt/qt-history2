@@ -28,6 +28,7 @@
 #include <QtCore/QMetaMethod>
 #include <QtCore/QRegExp>
 #include <QtCore/QVarLengthArray>
+#include <QtCore/QPointer>
 
 // we use bits 15..12 of property flags
 enum {
@@ -1592,7 +1593,11 @@ QScriptQObjectData::QScriptQObjectData()
 
 QScriptQObjectData::~QScriptQObjectData()
 {
-    qDeleteAll(connections);
+    // This is the equivalent of qDeleteAll, but gcc 3.3 on Panther
+    // doesn't know how to delete a QPointer.
+    for (int i = 0; i < connections.size(); ++i) {
+        delete static_cast<const QScript::ConnectionQObject*>(connections.at(i));
+    }
 }
 
 #include "qscriptextqobject.moc"
