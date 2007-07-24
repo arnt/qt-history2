@@ -504,7 +504,6 @@ void QTextEditPrivate::ensureViewportLayouted()
     \row \i End \i Moves the cursor to the end of the line.
     \row \i Ctrl+End \i Moves the cursor to the end of the text.
     \row \i Alt+Wheel \i Scrolls the page horizontally (the Wheel is the mouse wheel).
-    \row \i Ctrl+Wheel \i Zooms the text.
     \endtable
 
     To select (mark) text hold down the Shift key whilst pressing one
