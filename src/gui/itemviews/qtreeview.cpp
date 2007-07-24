@@ -27,6 +27,9 @@
 #ifndef QT_NO_ACCESSIBILITY
 #include <qaccessible.h>
 #endif
+#if defined(Q_WS_MAC) && !defined(QT_NO_STYLE_MAC)
+#include <QMacStyle>
+#endif
 
 #include <private/qtreeview_p.h>
 
@@ -1834,7 +1837,37 @@ QModelIndex QTreeView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifie
             ++i;
         return d->viewItems.value(i).index;
     }
-    int vi = qMax(0, d->viewIndex(current));
+    int vi = -1;
+#if defined(Q_WS_MAC) && !defined(QT_NO_STYLE_MAC)
+    // Selection behavior is slightly different on the Mac.
+    if (d->selectionMode == QAbstractItemView::ExtendedSelection && qobject_cast<QMacStyle *>(style())
+        && d->selectionModel && d->selectionModel->hasSelection()) {
+
+        const bool moveUpDown = (cursorAction == MoveUp || cursorAction == MoveDown);
+        const bool moveNextPrev = (cursorAction == MoveNext || cursorAction == MovePrevious);
+        const bool contiguousSelection = moveUpDown && (modifiers & Qt::ShiftModifier);
+
+        // Use the outermost index in the selection as the current index
+        if (!contiguousSelection && (moveUpDown || moveNextPrev)) {
+
+            // Find outermost index.
+            const bool useTopIndex = (cursorAction == MoveUp || cursorAction == MovePrevious);
+            int index = useTopIndex ? INT_MAX : INT_MIN;
+            const QItemSelection selection = d->selectionModel->selection();
+            foreach (QItemSelectionRange range, selection) {
+                int candidate = d->viewIndex(useTopIndex ? range.topLeft() : range.bottomRight());
+                if (candidate >= 0)
+                    index = useTopIndex ? qMin(index, candidate) : qMax(index, candidate);
+            }
+
+            if (index >= 0 && index < INT_MAX)
+                vi = index;
+        }
+    }
+#endif
+    if (vi < 0)
+        vi = qMax(0, d->viewIndex(current));
+
     switch (cursorAction) {
     case MoveNext:
     case MoveDown:
