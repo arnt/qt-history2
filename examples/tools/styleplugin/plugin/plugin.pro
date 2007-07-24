@@ -13,7 +13,7 @@ win32 {
 }
 
 # install
-target.path = $$[QT_INSTALL_EXAMPLES]/tools/styleplugin/stylewindow/styles
+target.path = $$[QT_INSTALL_EXAMPLES]/tools/styleplugin/styles
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS plugin.pro
 sources.path = $$[QT_INSTALL_EXAMPLES]/tools/styleplugin/plugin
 INSTALLS += target sources
