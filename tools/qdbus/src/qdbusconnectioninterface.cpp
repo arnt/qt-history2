@@ -248,7 +248,7 @@ QDBusConnectionInterface::registerService(const QString &serviceName,
     }
 
     QDBusMessage reply = call(QLatin1String("RequestName"), serviceName, flags);
-    qDebug() << "QDBusConnectionInterface::registerService" << serviceName << "Reply:" << reply;
+//    qDebug() << "QDBusConnectionInterface::registerService" << serviceName << "Reply:" << reply;
 
     // convert the low-level flags to something that we can use
     if (reply.type() == QDBusMessage::ReplyMessage) {

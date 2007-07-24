@@ -326,7 +326,7 @@ QDBusMessage QDBusAbstractInterface::callWithArgumentList(QDBus::CallMode mode,
         }
     }
 
-    qDebug() << "QDBusAbstractInterface" << "Service" << service() << "Path:" << path();
+//    qDebug() << "QDBusAbstractInterface" << "Service" << service() << "Path:" << path();
     QDBusMessage msg = QDBusMessage::createMethodCall(service(), path(), interface(), m);
     msg.setArguments(args);
 
