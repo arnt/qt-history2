@@ -71,9 +71,11 @@ QDataStream &operator>>(QDataStream &in, QHeaderViewPrivate::SectionSpan &span)
     by using QAbstractItemModel::setHeaderData().
 
     Each header has an orientation() and a number of sections, given by
-    the count() function. Sections can be moved and resized using
-    moveSection() and resizeSection(); they can be hidden and shown
-    with hideSection() and showSection().
+    the count() function. A section refers to a part of the header - either
+    a row or a column, depending on the orientation. 
+    
+    Sections can be moved and resized using moveSection() and resizeSection();
+    they can also be hidden and shown with hideSection() and showSection().
 
     Each section of a header is described by a section ID, specified by
     its section(), and can be located at a particular visualIndex() in the
