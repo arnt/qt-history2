@@ -21,7 +21,7 @@
 /*!
   \class QTreeWidgetItemIterator
   \ingroup model-view
-  \brief The QTreeWidgetItemIterator class provides a way to iterate over the 
+  \brief The QTreeWidgetItemIterator class provides a way to iterate over the
   items in a QTreeWidget instance.
 
   The iterator will walk the items in a pre-order traversal order, thus visiting the
@@ -145,7 +145,7 @@ QTreeWidgetItemIterator &QTreeWidgetItemIterator::operator=(const QTreeWidgetIte
 }
 
 /*!
-    The prefix ++ operator (++it) advances the iterator to the next matching item 
+    The prefix ++ operator (++it) advances the iterator to the next matching item
     and returns a reference to the resulting iterator.
     Sets the current pointer to 0 if the current item is the last matching item.
 */
@@ -160,7 +160,7 @@ QTreeWidgetItemIterator &QTreeWidgetItemIterator::operator++()
 }
 
 /*!
-    The prefix -- operator (--it) advances the iterator to the previous matching item 
+    The prefix -- operator (--it) advances the iterator to the previous matching item
     and returns a reference to the resulting iterator.
     Sets the current pointer to 0 if the current item is the first matching item.
 */
@@ -209,14 +209,9 @@ bool QTreeWidgetItemIterator::matchesFlags(const QTreeWidgetItem *item) const
             return false;
     }
 
-    {
-        // ### We only test the check state for column 0
-        Qt::CheckState check = item->checkState(0);
-        // PartiallyChecked matches as Checked.
-        if ((flags & Checked) && (check == Qt::Unchecked))
-            return false;
-        if ((flags & NotChecked) && (check != Qt::Unchecked))
-            return false;
+    // ### We only test the check state for column 0
+    if ((flags & Checked|NotChecked) != 0 && (item->checkState(0) == Qt::Unchecked) != (bool)(flags & NotChecked)) {
+        return false;
     }
 
     if ((flags & HasChildren) && !item->childCount())
@@ -310,7 +305,7 @@ void QTreeWidgetItemIteratorPrivate::ensureValidIterator(const QTreeWidgetItem *
 {
     Q_Q(QTreeWidgetItemIterator);
     Q_ASSERT(itemToBeRemoved);
-    
+
     if (!q->current) return;
     QTreeWidgetItem *nextItem = q->current;
 
@@ -343,10 +338,10 @@ void QTreeWidgetItemIteratorPrivate::ensureValidIterator(const QTreeWidgetItem *
     if (nextItem->parent() == itemToBeRemoved->parent()) {
         // They have the same parent, i.e. we have to adjust the m_currentIndex member of the iterator
         // if the deleted item is to the left of the nextItem.
-        
+
         QTreeWidgetItem *par = itemToBeRemoved->parent();   // We know they both have the same parent.
         QTreeWidget *tw = itemToBeRemoved->treeWidget();    // ..and widget
-        int indexOfItemToBeRemoved = par ? par->indexOfChild(const_cast<QTreeWidgetItem *>(itemToBeRemoved)) 
+        int indexOfItemToBeRemoved = par ? par->indexOfChild(const_cast<QTreeWidgetItem *>(itemToBeRemoved))
             : tw->indexOfTopLevelItem(const_cast<QTreeWidgetItem *>(itemToBeRemoved));
         int indexOfNextItem = par ? par->indexOfChild(nextItem) : tw->indexOfTopLevelItem(nextItem);
 
@@ -361,7 +356,7 @@ void QTreeWidgetItemIteratorPrivate::ensureValidIterator(const QTreeWidgetItem *
 /*!
   \fn const QTreeWidgetItemIterator QTreeWidgetItemIterator::operator++(int)
 
-  The postfix ++ operator (it++) advances the iterator to the next matching item 
+  The postfix ++ operator (it++) advances the iterator to the next matching item
   and returns an iterator to the previously current item.
 */
 
