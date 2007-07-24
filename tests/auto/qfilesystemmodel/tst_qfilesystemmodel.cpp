@@ -132,8 +132,8 @@ void tst_QFileSystemModel::cleanup()
         for (int i = 0; i < list.count(); ++i) {
             QFileInfo fi(dir.path() + QDir::separator() + list.at(i));
             if (fi.exists() && fi.isFile()) {
-		QFile p(fi.absolutePath()); 
-                p.setPermissions(QFile::ReadUser | QFile::ReadOwner | QFile::ExeOwner | QFile::ExeUser | QFile::WriteUser | QFile::WriteOwner | QFile::WriteOther);
+		QFile p(fi.absolutePath());
+                //p.setPermissions(QFile::ReadUser | QFile::ReadOwner | QFile::ExeOwner | QFile::ExeUser | QFile::WriteUser | QFile::WriteOwner | QFile::WriteOther);
 		QFile dead(dir.path() + QDir::separator() + list.at(i));
 		dead.remove();
 	    }
