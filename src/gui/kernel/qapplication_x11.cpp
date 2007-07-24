@@ -2071,10 +2071,6 @@ void qt_cleanup()
         QColormap::cleanup();
     }
 
-#if !defined(QT_NO_FONTCONFIG) && (FC_VERSION-0 >= 20300)
-    if (X11->has_fontconfig && FcGetVersion() >= 20400)
-        FcFini();
-#endif
 #ifndef QT_NO_XRENDER
     for (int i = 0; i < X11->solid_fill_count; ++i) {
         if (X11->solid_fills[i].picture)
