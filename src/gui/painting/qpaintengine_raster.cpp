@@ -3209,6 +3209,17 @@ void QRasterPaintEngine::drawLines(const QLineF *lines, int lineCount)
             for (int i = 0; i < lineCount; ++i) {
                 const QRectF objectRect(lines[i].p1(), lines[i].p2());
                 resolveGradientBoundsConditional(objectRect, &d->penData);
+
+                if (lines[i].p1() == lines[i].p2()) {
+                    if (d->pen.capStyle() != Qt::FlatCap) {
+                        QPointF p = lines[i].p1();
+                        QLineF line = d->matrix.map(QLineF(QPointF(p.x() - width*0.5, p.y()),
+                                                           QPointF(p.x() + width*0.5, p.y())));
+                        d->rasterizer.rasterizeLine(line.p1(), line.p2(), 1);
+                    }
+                    continue;
+                }
+
                 QLineF line = d->matrix.map(lines[i]);
                 d->rasterizer.rasterizeLine(line.p1(), line.p2(), width / line.length(), d->pen.capStyle() == Qt::SquareCap);
             }

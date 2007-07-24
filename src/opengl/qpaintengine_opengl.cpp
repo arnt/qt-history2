@@ -3359,6 +3359,15 @@ void QOpenGLPaintEngine::drawLines(const QLineF *lines, int lineCount)
             path.setFillRule(Qt::WindingFill);
             for (int i=0; i<lineCount; ++i) {
                 const QLineF &l = lines[i];
+
+                if (l.p1() == l.p2()) {
+                    if (d->cpen.capStyle() != Qt::FlatCap) {
+                        QPointF p = l.p1();
+                        drawPoints(&p, 1);
+                    }
+                    continue;
+                }
+
                 path.moveTo(l.x1(), l.y1());
                 path.lineTo(l.x2(), l.y2());
             }

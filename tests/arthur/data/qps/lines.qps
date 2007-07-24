@@ -420,3 +420,105 @@ translate 20 0
 drawLine 0 0 7 400
 translate 20 0
 drawLine 0 0 8 400
+
+resetMatrix
+
+translate 20 450
+
+drawText 0 0 "Zero length lines:"
+
+translate 0 20
+drawText 100 10 "Square cap"
+save
+begin_block points
+setPen 0x000000 1 solidline squarecap
+drawLine 0 0 0 0
+setPen 0x000000 2 solidline squarecap
+drawLine 8 0 8 0
+setPen 0x000000 3 solidline squarecap
+drawLine 16 0 16 0
+setPen 0x000000 4 solidline squarecap
+drawLine 24 0 24 0
+setPen 0x000000 5 solidline squarecap
+drawLine 32 0 32 0
+setPen 0x000000 6 solidline squarecap
+drawLine 40 0 40 0
+setPen 0x000000 7 solidline squarecap
+drawLine 48 0 48 0
+setPen 0x000000 8 solidline squarecap
+drawLine 57 0 57 0
+setPen 0x000000 9 solidline squarecap
+drawLine 67 0 67 0
+setPen 0x000000 10 solidline squarecap
+drawLine 78 0 78 0
+end_block points
+restore
+
+translate 0 12
+setRenderHint Antialiasing off
+repeat_block points
+setRenderHint Antialiasing
+
+translate 0 20
+drawText 100 10 "Round cap"
+save
+begin_block points2
+setPen 0x000000 1 solidline roundcap
+drawLine 0 0 0 0
+setPen 0x000000 2 solidline roundcap
+drawLine 8 0 8 0
+setPen 0x000000 3 solidline roundcap
+drawLine 16 0 16 0
+setPen 0x000000 4 solidline roundcap
+drawLine 24 0 24 0
+setPen 0x000000 5 solidline roundcap
+drawLine 32 0 32 0
+setPen 0x000000 6 solidline roundcap
+drawLine 40 0 40 0
+setPen 0x000000 7 solidline roundcap
+drawLine 48 0 48 0
+setPen 0x000000 8 solidline roundcap
+drawLine 57 0 57 0
+setPen 0x000000 9 solidline roundcap
+drawLine 67 0 67 0
+setPen 0x000000 10 solidline roundcap
+drawLine 78 0 78 0
+end_block points2
+restore
+
+translate 0 12
+setRenderHint Antialiasing off
+repeat_block points2
+setRenderHint Antialiasing
+
+translate 0 20
+drawText 100 10 "Flat cap"
+save
+begin_block points3
+setPen 0x000000 1 solidline flatcap
+drawLine 0 0 0 0
+setPen 0x000000 2 solidline flatcap
+drawLine 8 0 8 0
+setPen 0x000000 3 solidline flatcap
+drawLine 16 0 16 0
+setPen 0x000000 4 solidline flatcap
+drawLine 24 0 24 0
+setPen 0x000000 5 solidline flatcap
+drawLine 32 0 32 0
+setPen 0x000000 6 solidline flatcap
+drawLine 40 0 40 0
+setPen 0x000000 7 solidline flatcap
+drawLine 48 0 48 0
+setPen 0x000000 8 solidline flatcap
+drawLine 57 0 57 0
+setPen 0x000000 9 solidline flatcap
+drawLine 67 0 67 0
+setPen 0x000000 10 solidline flatcap
+drawLine 78 0 78 0
+end_block points3
+restore
+
+translate 0 12
+setRenderHint Antialiasing off
+repeat_block points3
+setRenderHint Antialiasing

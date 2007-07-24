@@ -651,6 +651,13 @@ void QPaintEngine::drawLines(const QLineF *lines, int lineCount)
 {
     for (int i=0; i<lineCount; ++i) {
         QPointF pts[2] = { lines[i].p1(), lines[i].p2() };
+
+        if (pts[0] == pts[1]) {
+            if (state->pen().capStyle() != Qt::FlatCap)
+                drawPoints(pts, 1);
+            continue;
+        }
+
         drawPolygon(pts, 2, PolylineMode);
     }
 }
