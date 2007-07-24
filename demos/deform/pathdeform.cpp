@@ -267,7 +267,7 @@ void PathDeformRenderer::timerEvent(QTimerEvent *e)
             m_direction *= 0.995;
         double time = m_repaintTracker.restart();
 
-        QRect rectBefore = circle_bounds(m_pos, m_radius, LENS_EXTENT);
+        QRect rectBefore = circle_bounds(m_pos, m_radius, m_fontSize);
 
         double dx = m_direction.x();
         double dy = m_direction.y();
@@ -302,7 +302,7 @@ void PathDeformRenderer::timerEvent(QTimerEvent *e)
         } else
 #endif
         {
-            QRect rectAfter = circle_bounds(m_pos, m_radius, LENS_EXTENT);
+            QRect rectAfter = circle_bounds(m_pos, m_radius, m_fontSize);
             update(rectAfter | rectBefore);
             QApplication::syncX();
         }
