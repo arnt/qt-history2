@@ -55,6 +55,8 @@ RSSListing::RSSListing(QWidget *parent)
     abortButton->setEnabled(false);
 
     treeWidget = new QTreeWidget(this);
+    connect(treeWidget, SIGNAL(itemActivated(QTreeWidgetItem*, int)),
+            this, SLOT(itemActivated(QTreeWidgetItem*)));
     QStringList headerLabels;
     headerLabels << tr("Title") << tr("Link");
     treeWidget->setHeaderLabels(headerLabels);
@@ -198,4 +200,12 @@ void RSSListing::parseXml()
         qWarning() << "XML ERROR:" << xml.lineNumber() << ": " << xml.errorString();
         http.abort();
     }
+}
+
+/*
+    Open the link in the browser
+*/
+void RSSListing::itemActivated(QTreeWidgetItem * item)
+{
+    QDesktopServices::openUrl(QUrl(item->text(1)));
 }
