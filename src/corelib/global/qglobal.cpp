@@ -2648,7 +2648,7 @@ int qrand()
     \relates <QtGlobal>
 
     Returns \a str as a \c{const char *}. This is equivalent to
-    \a{str}.toLocal8bit().constData().
+    \a{str}.toLocal8Bit().constData().
 
     Example:
 
