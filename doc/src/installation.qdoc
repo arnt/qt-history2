@@ -11,7 +11,7 @@
 ****************************************************************************/
 
 /****************************************************************************
-** Please remember to update the Qt/Windows and Qt/X11 INSTALL file.
+** Please remember to update the Qt/Mac, Qt/Windows, and Qt/X11 INSTALL file.
 ****************************************************************************/
 
 /*! \group installation
@@ -273,9 +273,12 @@ as part of the \l{Qt Commercial Editions}.
 \ingroup installation
 \brief How to install Qt on Mac OS X.
 
-\bold{Note:} If you have obtained a binary package for this platform,
-consult the installation instructions provided instead of the ones in
-this document.
+\bold{Note for the binary package}: If you have the binary package, simply double-click on the Qt.mpkg
+and follow the instructions to install Qt. You can later run the \c{uninstal-qt.py}
+script to uninstall the binary package. The script is located in /Developer/Tools and
+must be run as root.
+
+What follows is how to install Qt/Mac from the source package.
 
 \list 1
 \o  If you have the commercial edition of Qt, install your license
@@ -336,7 +339,8 @@ this document.
     sudo make install
 \endcode
 
-    and enter the root password.
+    and enter your password, this requires that you have administrator access
+    to your machine.
 
     \bold{Note:} If you later need to reconfigure and rebuild Qt from the
     same location, ensure that all traces of the previous configuration are

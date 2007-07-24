@@ -1,7 +1,11 @@
                           INSTALLING Qt/Mac Version %VERSION%
 
-Note: If you have obtained a binary package for this platform, consult the
-installation instructions provided instead of the ones in this document.
+Note for the binary package: If you have the binary package, simply double-click on the Qt.mpkg
+and follow the instructions to install Qt. You can later run the \c{uninstal-qt.py}
+script to uninstall the binary package. The script is located in /Developer/Tools and
+must be run as root.
+
+What follows is how to install Qt/Mac from the source package.
 
 1.  If you have the commercial edition of Qt, install your license
     file as $HOME/.qt-license.
