@@ -660,7 +660,8 @@ bool QWSWindowSurface::move(const QPoint &offset)
 /*!
     Move the surface with the given \a offset.
 
-    The new visible region after the window move is given by \a newClip.
+    The new visible region after the window move is given by \a newClip
+    in screen coordinates.
 
     A subclass may reimplement this function to enable accelerated window move.
     The returned region indicates the area that still needs to be composed
@@ -673,8 +674,9 @@ bool QWSWindowSurface::move(const QPoint &offset)
 */
 QRegion QWSWindowSurface::move(const QPoint &offset, const QRegion &newClip)
 {
+    const QRegion oldGeometry = geometry();
     QWindowSurface::setGeometry(geometry().translated(offset));
-    return newClip + geometry();
+    return oldGeometry + newClip;
 }
 
 static void scroll(const QImage &img, const QRect &rect, const QPoint &point)

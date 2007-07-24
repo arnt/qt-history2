@@ -398,7 +398,7 @@ public:
 
 void tst_QWSWindowSystem::toplevelMove()
 {
-    { // default move implementation
+    { // default move implementation, opaque window
         ColorWidget w(Qt::red);
         w.show();
 
@@ -411,6 +411,23 @@ void tst_QWSWindowSystem::toplevelMove()
         QApplication::processEvents();
 
         VERIFY_COLOR(QRect(100, 100, 50, 50), w.color());
+        VERIFY_COLOR(QRect(50, 50, 50, 50), bgColor);
+    }
+
+    { // default move implementation, non-opaque window
+        ColorWidget w(Qt::red);
+        w.setWindowOpacity(0.5);
+        w.show();
+
+        w.setGeometry(50, 50, 50, 50);
+        QApplication::processEvents();
+//        VERIFY_COLOR(QRect(50, 50, 50, 50), w.color());
+        VERIFY_COLOR(QRect(100, 100, 50, 50), bgColor);
+
+        w.move(100, 100);
+        QApplication::processEvents();
+
+//        VERIFY_COLOR(QRect(100, 100, 50, 50), w.color());
         VERIFY_COLOR(QRect(50, 50, 50, 50), bgColor);
     }
 

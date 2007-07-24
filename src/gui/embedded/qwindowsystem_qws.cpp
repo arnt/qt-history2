@@ -3311,13 +3311,11 @@ void QWSServerPrivate::moveWindowRegion(QWSWindow *changingw, int dx, int dy)
 
     QWSWindowSurface *surface = changingw->windowSurface();
     QRegion expose;
-    if (surface) {
-        const QPoint topLeft = changingw->requestedRegion().boundingRect().topLeft();
-        expose = surface->move(QPoint(dx, dy),
-                               changingw->allocatedRegion().translated(-topLeft));
-    } else {
+    if (surface)
+        expose = surface->move(QPoint(dx, dy), changingw->allocatedRegion());
+    else
         expose = oldRegion + newRegion;
-    }
+
     int idx = windows.indexOf(changingw);
     exposeRegion(expose, idx);
     changingw->d->state = oldState;
