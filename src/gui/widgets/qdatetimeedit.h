@@ -15,6 +15,7 @@
 #define QDATETIMEEDIT_H
 
 #include <QtCore/qdatetime.h>
+#include <QtCore/qvariant.h>
 #include <QtGui/qabstractspinbox.h>
 
 QT_BEGIN_HEADER
