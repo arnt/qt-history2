@@ -4695,19 +4695,23 @@ static QPainterPath generateWavyPath(qreal minWidth, QPaintDevice *device)
     const qreal radius = 1.3 * device->logicalDpiY() / qt_defaultDpi();
     qreal xs, ys;
     int i = 0;
+    path.moveTo(0, radius);
     do {
-        int endAngle     = up ? -180  : 180;
-
         xs = i*(2*radius);
         ys = 0;
 
-        // we need to move to the start of the new arc to not have the path
-        // be implicitly connected for us
-        path.arcMoveTo(xs, ys, 2*radius, 2*radius, 0);
-        path.arcTo(xs, ys, 2*radius, 2*radius, 0, endAngle);
+        qreal remaining = minWidth - xs;
+        qreal angle = 180;
+
+        // cut-off at the last arc segment
+        if (remaining < 2 * radius)
+            angle = 180 * acos(1 - remaining / radius) / Q_PI;
+
+        path.arcTo(xs, ys, 2*radius, 2*radius, 180, up ? angle : -angle);
+
         up = !up;
         ++i;
-    } while (xs + radius < minWidth);
+    } while (xs + 2*radius < minWidth);
 
     return path;
 }
