@@ -4151,7 +4151,8 @@ QDateTimeParser::StateNode QDateTimeParser::parse(const QString &inp,
                     if (sn.count >= 3) {
                         current = &dayofweek;
                     } else {
-                        current = &day; num = qMax<int>(1, num);
+                        current = &day;
+                        num = qMax<int>(1, num);
                     }
                     break;
                 case AmPmSection: current = &ampm; break;
@@ -4200,13 +4201,14 @@ QDateTimeParser::StateNode QDateTimeParser::parse(const QString &inp,
                 }
 
                 const QDate date = strictDate(year, month, day);
-                const int diff = dayofweek - date.dayOfWeek() && isSet.contains(&dayofweek);
-                if (diff != 0 && state == Acceptable) {
-                    conflicts = true;
+                const int diff = dayofweek - date.dayOfWeek();
+                if (diff != 0 && state == Acceptable && isSet.contains(&dayofweek)) {
+                    conflicts = isSet.contains(&day);
                     const SectionNode &sn = sectionNode(currentSectionIndex);
-                    if (sn.type == DaySection && sn.count >= 3) {
-                        day -= diff;
-                        if (day < 0) {
+                    if ((sn.type == DaySection && sn.count >= 3) || currentSectionIndex == -1) {
+                        // dayofweek should be preferred
+                        day += diff;
+                        if (day <= 0) {
                             day += 7;
                         } else if (day > date.daysInMonth()) {
                             day -= 7;
