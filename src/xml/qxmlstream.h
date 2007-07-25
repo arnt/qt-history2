@@ -32,6 +32,9 @@ public:
     inline ~QXmlStreamStringRef(){}
     inline void clear() { m_string.clear(); m_position = m_size = 0; }
     inline operator QStringRef() const { return QStringRef(&m_string, m_position, m_size); }
+    inline const QString *string() const { return &m_string; }
+    inline int position() const { return m_position; }
+    inline int size() const { return m_size; }
 };
 
 
@@ -53,6 +56,11 @@ public:
     inline QStringRef namespaceUri() const { return m_namespaceUri; }
     inline QStringRef name() const { return m_name; }
     inline QStringRef qualifiedName() const { return m_qualifiedName; }
+    inline QStringRef prefix() const {
+        return QStringRef(m_qualifiedName.string(),
+                          m_qualifiedName.position(),
+                          qMax(0, m_qualifiedName.size() - m_name.size() - 1));
+    }
     inline QStringRef value() const { return m_value; }
     inline bool isDefault() const { return m_isDefault; }
     inline bool operator==(const QXmlStreamAttribute &other) const {
@@ -227,6 +235,7 @@ public:
     QStringRef name() const;
     QStringRef namespaceUri() const;
     QStringRef qualifiedName() const;
+    QStringRef prefix() const;
 
     QStringRef processingInstructionTarget() const;
     QStringRef processingInstructionData() const;

@@ -7,8 +7,8 @@ StartElement( name="foo" qualifiedName="foo"
 Characters( whitespace text="
 
 " )
-StartElement( name="bar" namespaceUri="http://example.org/~wilbur" qualifiedName="a:bar"
-    Attribute( name="attr" namespaceUri="http://example.org/~wilbur" qualifiedName="a:attr" value="1" )
+StartElement( name="bar" namespaceUri="http://example.org/~wilbur" qualifiedName="a:bar" prefix="a"
+    Attribute( name="attr" namespaceUri="http://example.org/~wilbur" qualifiedName="a:attr" prefix="a" value="1" )
 
     Attribute( name="attr" qualifiedName="attr" value="2" )
  )

@@ -10,7 +10,7 @@ Characters( whitespace text="
 
 " )
 StartElement( name="bar" namespaceUri="http://example.org/~wilbur" qualifiedName="bar"
-    Attribute( name="attr" namespaceUri="http://example.org/~wilbur" qualifiedName="a:attr" value="1" )
+    Attribute( name="attr" namespaceUri="http://example.org/~wilbur" qualifiedName="a:attr" prefix="a" value="1" )
 
     Attribute( name="attr" qualifiedName="attr" value="2" )
  )

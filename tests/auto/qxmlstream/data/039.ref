@@ -11,8 +11,8 @@ StartElement( name="foo" namespaceUri="http://example.org/~wilbur" qualifiedName
 Characters( whitespace text="
 
 " )
-StartElement( name="bar" namespaceUri="http://example.org/~kipper" qualifiedName="b:bar"
-    Attribute( name="attr" namespaceUri="http://example.org/~wilbur" qualifiedName="a:attr" value="1" )
+StartElement( name="bar" namespaceUri="http://example.org/~kipper" qualifiedName="b:bar" prefix="b"
+    Attribute( name="attr" namespaceUri="http://example.org/~wilbur" qualifiedName="a:attr" prefix="a" value="1" )
 
     Attribute( name="attr" qualifiedName="attr" value="2" )
  )

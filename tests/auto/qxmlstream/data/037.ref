@@ -9,9 +9,9 @@ Characters( whitespace text="
 
 " )
 StartElement( name="bar" qualifiedName="bar"
-    Attribute( name="attr" namespaceUri="http://example.org/~wilbur" qualifiedName="a:attr" value="1" )
+    Attribute( name="attr" namespaceUri="http://example.org/~wilbur" qualifiedName="a:attr" prefix="a" value="1" )
 
-    Attribute( name="attr" namespaceUri="http://example.org/~kipper" qualifiedName="b:attr" value="2" )
+    Attribute( name="attr" namespaceUri="http://example.org/~kipper" qualifiedName="b:attr" prefix="b" value="2" )
  )
 EndElement( name="bar" qualifiedName="bar" )
 Characters( whitespace text="

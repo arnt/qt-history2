@@ -646,6 +646,8 @@ QByteArray tst_QXmlStream::readFile(const QString &filename)
             writer << " namespaceUri=\"" << reader.namespaceUri().toString() << "\"";
         if (!reader.qualifiedName().isEmpty())
             writer << " qualifiedName=\"" << reader.qualifiedName().toString() << "\"";
+        if (!reader.prefix().isEmpty())
+            writer << " prefix=\"" << reader.prefix().toString() << "\"";
         if (reader.attributes().size()) {
             foreach(QXmlStreamAttribute attribute, reader.attributes()) {
                 writer << endl << "    Attribute(";
@@ -655,6 +657,8 @@ QByteArray tst_QXmlStream::readFile(const QString &filename)
                     writer << " namespaceUri=\"" << attribute.namespaceUri().toString() << "\"";
                 if (!attribute.qualifiedName().isEmpty())
                     writer << " qualifiedName=\"" << attribute.qualifiedName().toString() << "\"";
+                if (!attribute.prefix().isEmpty())
+                    writer << " prefix=\"" << attribute.prefix().toString() << "\"";
                 if (!attribute.value().isEmpty())
                     writer << " value=\"" << attribute.value().toString() << "\"";
                 writer << " )" << endl;
@@ -738,7 +742,7 @@ void tst_QXmlStream::testReader_data() const
 void tst_QXmlStream::parseXSLTTestSuite() const
 {
     /* We disable this test for now, so it doesn't show up as an XFAIL. */
-#if 0 
+#if 0
     QEXPECT_FAIL("", "Two problems needs to be solved in order to enable this test: \n"
                      "* The XSLT suite is 69 MB large, which is quite a lot compared to the existing XML suite on 2 mb.\n"
                      "* We need a c14n-like implementation in order to compare the outputs.", Abort);

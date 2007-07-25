@@ -22,11 +22,11 @@ Characters( whitespace text="
 
 " )
 StartElement( name="bar" qualifiedName="bar"
-    Attribute( name="attr" namespaceUri="http://example.org/wine" qualifiedName="a:attr" value="1" )
+    Attribute( name="attr" namespaceUri="http://example.org/wine" qualifiedName="a:attr" prefix="a" value="1" )
 
-    Attribute( name="attr" namespaceUri="http://Example.org/wine" qualifiedName="b:attr" value="2" )
+    Attribute( name="attr" namespaceUri="http://Example.org/wine" qualifiedName="b:attr" prefix="b" value="2" )
 
-    Attribute( name="attr" namespaceUri="http://example.org/Wine" qualifiedName="c:attr" value="3" )
+    Attribute( name="attr" namespaceUri="http://example.org/Wine" qualifiedName="c:attr" prefix="c" value="3" )
  )
 EndElement( name="bar" qualifiedName="bar" )
 Characters( whitespace text="

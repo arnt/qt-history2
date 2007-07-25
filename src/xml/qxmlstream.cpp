@@ -154,11 +154,10 @@
   If you parse XML data that does not utilize namespaces according to
   the XML specification or doesn't use namespaces at all, you can use
   the element's qualifiedName() instead. A qualified name is the
-  element's \e prefix followed by colon followed by the element's
-  local name - exactly like the element appears in the raw XML
-  data. Since the mapping namespaceUri to prefix is neither unique nor
-  universal, qualifiedName() should be avoided for namespace-compliant
-  XML data.
+  element's prefix() followed by colon followed by the element's local
+  name() - exactly like the element appears in the raw XML data. Since
+  the mapping namespaceUri to prefix is neither unique nor universal,
+  qualifiedName() should be avoided for namespace-compliant XML data.
 
   In order to parse standalone documents that do use undeclared
   namespace prefixes, you can turn off namespace processing completely
@@ -1810,12 +1809,25 @@ QStringRef QXmlStreamReader::namespaceUri() const
   can point to the same namespace), you shouldn't use qualifiedName(),
   but the resolved namespaceUri() and the attribute's local name().
 
-   \sa name(), namespaceUri()
+   \sa name(), prefix(), namespaceUri()
  */
 QStringRef QXmlStreamReader::qualifiedName() const
 {
     Q_D(const QXmlStreamReader);
     return d->qualifiedName;
+}
+
+
+
+/*!
+  Returns the prefix of a StartElement or EndElement.
+
+  \sa name(), qualifiedName()
+*/
+QStringRef QXmlStreamReader::prefix() const
+{
+    Q_D(const QXmlStreamReader);
+    return d->prefix;
 }
 
 
@@ -1896,13 +1908,20 @@ QXmlStreamAttribute::QXmlStreamAttribute(const QString &qualifiedName, const QSt
    Returns the attribute's qualified name.
 
    A qualified name is the raw name of an attribute in the XML
-   data. It consists of the namespace prefix, followed by colon,
-   followed by the attribute's local name. Since the namespace prefix
+   data. It consists of the namespace prefix(), followed by colon,
+   followed by the attribute's local name(). Since the namespace prefix
    is not unique (the same prefix can point to different namespaces
    and different prefixes can point to the same namespace), you
    shouldn't use qualifiedName(), but the resolved namespaceUri() and
    the attribute's local name().
  */
+/*! \fn QStringRef QXmlStreamAttribute::prefix() const
+   Returns the attribute's namespace prefix.
+
+   \sa name(), qualifiedName()
+
+*/
+
 /*! \fn QStringRef QXmlStreamAttribute::value() const
    Returns the attribute's value.
  */
