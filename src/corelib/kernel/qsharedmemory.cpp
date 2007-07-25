@@ -25,7 +25,9 @@
 
     On Unix this will be a file name
  */
-QString QSharedMemoryPrivate::makePlatformSafeKey(const QString &key, const QString &prefix)
+QString
+QSharedMemoryPrivate::makePlatformSafeKey(const QString &key,
+					  const QString &prefix)
 {
     if (key.isEmpty())
         return QString();
@@ -78,33 +80,39 @@ QString QSharedMemoryPrivate::makePlatformSafeKey(const QString &key, const QStr
 
   \endlist
 
-  ### Add code snippit after example is made.
+  Remember to lock the shared memory with lock() before reading from
+  or writing to the shared memory, and remember to release the lock
+  with unlock() after you are done. 
 
-  Unlike QtSharedMemory, QSharedMemory will automatically destroy the
-  shared memory once there are no references to the shared memory.  It
-  is advisable to not mix QtSharedMemory and QSharedMemory, but to
-  port everything to QSharedMemory.
-
+  Unlike QtSharedMemory, QSharedMemory automatically destroys the
+  shared memory segment when the last instance of QSharedMemory is
+  detached from the segment, and no references to the segment
+  remain. Do not mix using QtSharedMemory and QSharedMemory. Port
+  everything to QSharedMemory.
  */
-
 
 /*!
-    \overload
+  \overload
 
-    Constructs an shared memory with a given \a parent.
-    The key is not set and must be set before create() or attach() are used.
+  Constructs a shared memory object with the given \a parent.  The
+  shared memory object's key is not set by the constructor, so the
+  shared memory object does not have an underlying shared memory
+  segment attached. The key must be set with setKey() before create()
+  or attach() can be used.
 
-    \sa setKey()
+  \sa setKey()
  */
-QSharedMemory::QSharedMemory(QObject *parent) : QObject(*new QSharedMemoryPrivate, parent)
+QSharedMemory::QSharedMemory(QObject *parent)
+  : QObject(*new QSharedMemoryPrivate, parent)
 {
 }
 
 /*!
-    Constructs a shared memory module with a given \a parent
-    where \a key is set.
+  Constructs a shared memory object with the given \a parent and with
+  its key set to \a key. Because its key is set, its create() and
+  attach() functions can be called.
 
-    \sa setKey(), create(), attach()
+  \sa setKey(), create(), attach()
  */
 QSharedMemory::QSharedMemory(const QString &key, QObject *parent)
     : QObject(*new QSharedMemoryPrivate, parent)
@@ -113,10 +121,13 @@ QSharedMemory::QSharedMemory(const QString &key, QObject *parent)
 }
 
 /*!
-    Destructor will detach if it is currently attached.
-    If there are no more attachments the memory segment will be destroyed.
+  The destructor clears the key, which forces the shared memory object
+  to \l {detach()} {detach} from its underlying shared memory
+  segment. If this shared memory object is the last one connected to
+  the shared memory segment, the detach() operation destroys the
+  shared memory segment.
 
-    \sa detach() isAttached()
+  \sa detach() isAttached()
  */
 QSharedMemory::~QSharedMemory()
 {
@@ -124,10 +135,13 @@ QSharedMemory::~QSharedMemory()
 }
 
 /*!
-    Sets a new \a key to this shared memory.  If the shared memory is
-    attached it will detach before setting the new key.
+  Sets a new \a key for this shared memory object.  If \a key and the
+  current key are the same, the function returns without doing
+  anything. If the shared memory object is attached to an underlying
+  shared memory segment, it will \l {detach()} {detach} from it before
+  setting the new key. This function does not do an attach().
 
-    \sa key() isAttached()
+  \sa key() isAttached()
  */
 void QSharedMemory::setKey(const QString &key)
 {
@@ -145,7 +159,11 @@ void QSharedMemory::setKey(const QString &key)
 }
 
 /*!
-    Returns the key assigned to this shared memory.
+  Returns the key assigned to this shared memory. The key is the
+  identifier used by the operating system to identify the shared
+  memory segment. When QSharedMemory is used for interprocess
+  communication, the key is how each process attaches to the shared
+  memory segment through which the IPC occurs.
 
     \sa setKey()
  */
@@ -156,13 +174,15 @@ QString QSharedMemory::key() const
 }
 
 /*!
-    Creates a shared memory segment of \a size bytes and then attaches
-    to the shared memory segment with access mode \a mode.  If the memory
-    segment already exists create will return false and not be attached.
+  Creates a shared memory segment of \a size bytes with the key passed
+  to the constructor or set with setKey(), attaches to the new shared
+  memory segment with the given access \a mode, and returns \tt true.
+  If a shared memory segment identified by the key already exists, the
+  attach operation is not performed, and \tt false is returned. When
+  the return value is \tt false, call error() to determine which error
+  occurred.
 
-    Returns true on success; otherwise returns false.
-
-    \sa error()
+  \sa error()
  */
 bool QSharedMemory::create(int size, AccessMode mode)
 {
@@ -174,7 +194,8 @@ bool QSharedMemory::create(int size, AccessMode mode)
 
     if (size <= 0) {
         d->error = QSharedMemory::InvalidSize;
-        d->errorString = QSharedMemory::tr("%1: create size is less then 0").arg(function);
+        d->errorString =
+	    QSharedMemory::tr("%1: create size is less then 0").arg(function);
         return false;
     }
 
@@ -185,9 +206,10 @@ bool QSharedMemory::create(int size, AccessMode mode)
 }
 
 /*!
-    Returns the size of the shared memory if attached; otherwise 0.
+  Returns the size of the attached shared memory segment. If no shared
+  memory segment is attached, 0 is returned.
 
-    \sa create() attach()
+  \sa create() attach()
  */
 int QSharedMemory::size() const
 {
@@ -196,19 +218,28 @@ int QSharedMemory::size() const
 }
 
 /*!
-    \enum QSharedMemory::AccessMode
+  \enum QSharedMemory::AccessMode
 
-    \value ReadOnly The shared memory can only be read from.  If an attempt is
-                    made to write to the memory the program will segfault.
-    \value ReadWrite The shared memory can be read from and written to.
+  \value ReadOnly The shared memory segment is read-only. Writing to
+  the shared memory segment is not allowed. An attempt to write to a
+  shared memory segment created with ReadOnly causes the program to
+  abort.
+    
+  \value ReadWrite Reading and writing the shared memory segment are
+  both allowed.
 */
 
 /*!
-    Attempts to attach to the shared memory segment with the current key
-    and access mode \a mode.  Returns true on success; otherwise returns false.
-    After attaching the shared memory can be accessed by data().
+  Attempts to attach the process to the shared memory segment
+  identified by the key that was passed to the constructor or to a
+  call to setKey(). The access \a mode is \l {QSharedMemory::}
+  {ReadWrite} by default. It can also be \l {QSharedMemory::}
+  {ReadOnly}. Returns true if the attach operation is successful. If
+  false is returned, call error() to determine which error occurred.
+  After attaching the shared memory segment, a pointer to the shared
+  memory can be obtained by calling data().
 
-    \sa isAttached(), detach(), create()
+  \sa isAttached(), detach(), create()
  */
 bool QSharedMemory::attach(AccessMode mode)
 {
@@ -224,9 +255,10 @@ bool QSharedMemory::attach(AccessMode mode)
 }
 
 /*!
-    Returns true if attached to the shared memory segment otherwise false.
+  Returns true if this process is attached to the shared memory
+  segment.
 
-    \sa attach(), detach()
+  \sa attach(), detach()
  */
 bool QSharedMemory::isAttached() const
 {
@@ -235,11 +267,14 @@ bool QSharedMemory::isAttached() const
 }
 
 /*!
-    Detaches from the shared memory.  If there is no one attached to
-    the memory segment then memory is destroyed.
-    Returns true on success; otherwise returns false.
+  Detaches the process from the shared memory segment. If this was the
+  last process attached to the shared memory segment, then the shared
+  memory segment is released by the system, i.e., the contents are
+  destroyed. The function returns true if it detaches the shared
+  memory segment. If it returns false, it usually means the segment
+  either isn't attached, or it is locked by another process.
 
-    \sa attach(), isAttached()
+  \sa attach(), isAttached()
  */
 bool QSharedMemory::detach()
 {
@@ -259,10 +294,14 @@ bool QSharedMemory::detach()
 }
 
 /*!
-    Returns a pointer to the shared memory if attached otherwise 0.
+  Returns a pointer to the contents of the shared memory segment, if
+  one is attached. Otherwise it returns null. Remember to lock the
+  shared memory with lock() before reading from or writing to the
+  shared memory, and remember to release the lock with unlock() after
+  you are done.
 
-    \sa attach() create()
-  */
+  \sa attach()
+ */
 void *QSharedMemory::data()
 {
     Q_D(QSharedMemory);
@@ -270,8 +309,14 @@ void *QSharedMemory::data()
 }
 
 /*!
-    This is an overloaded member function, provided for convenience.
-*/
+  Returns a const pointer to the contents of the shared memory
+  segment, if one is attached. Otherwise it returns null. Remember to
+  lock the shared memory with lock() before reading from or writing to
+  the shared memory, and remember to release the lock with unlock()
+  after you are done.
+
+  \sa attach() create()
+ */
 const void* QSharedMemory::constData() const
 {
     Q_D(const QSharedMemory);
@@ -279,8 +324,8 @@ const void* QSharedMemory::constData() const
 }
 
 /*!
-    This is an overloaded member function, provided for convenience.
-*/
+  \overload
+ */
 const void *QSharedMemory::data() const
 {
     Q_D(const QSharedMemory);
@@ -288,11 +333,14 @@ const void *QSharedMemory::data() const
 }
 
 /*!
-    This will lock the memory segment.  If another process has locked the
-    memory segment lock() will block until it is unlocked.
-    Returns true on success; otherwise returns false.
+  This is a semaphore that locks the shared memory segment for access
+  by this process.  If another process has locked the segment, lock()
+  will block until the lock is released. It returns true if it obtains
+  the lock. It should always return true. If it returns false, it
+  means you have a program bug. If your code calls lock() when you
+  already have the lock, your process will block forever.
 
-    \sa unlock(), data()
+  \sa unlock(), data()
  */
 bool QSharedMemory::lock()
 {
@@ -308,10 +356,12 @@ bool QSharedMemory::lock()
 }
 
 /*!
-    Unlocks the memory segment.
-    Returns true on success; otherwise returns false.
+  Releases the lock on the shared memory segment and returns true, if
+  the lock is currently held by this process. If the segment is not
+  locked, or if the lock is held by another process, nothing happens
+  and false is returned.
 
-    \sa lock()
+  \sa lock()
  */
 bool QSharedMemory::unlock()
 {
@@ -327,31 +377,39 @@ bool QSharedMemory::unlock()
     return false;
 }
 
-/*! \enum QSharedMemory::SharedMemoryError
+/*!
+  \enum QSharedMemory::SharedMemoryError
 
-    \value NoError No error occurred.
+  \value NoError No error occurred.
 
-    \value PermissionDenied Permission for doing the operation has been denied.
+  \value PermissionDenied The operation failed because the caller
+  didin't have the required persmissions.
 
-    \value InvalidSize Unable to create a shared memory of because of the size.
+  \value InvalidSize A create operation failed because the requested
+  size was invalid.
 
-    \value KeyError Error with the shared memory key.
+  \value KeyError The operation failed because of an invalid key.
 
-    \value AlreadyExists Error creating shared memory because it already existed.
+  \value AlreadyExists A create() operation failed because a shared
+  memory segment with the specified key already existed.
 
-    \value NotFound Unable to attach to shared memory because it doesn't exists.
+  \value NotFound An attach() failed because a shared memory segment
+  with the specified key could not be found.
 
-    \value LockError Error because it was unable to get a lock
+  \value LockError The attempt to lock() the shared memory segment
+  failed because the lock was held by another process.
 
-    \value OutOfResources The operating system ran out of a resource.
+  \value OutOfResources A create() operation failed because there was
+  not enough memory available to fill the request.
 
-    \value UnknownError Something else happened.. :)
+  \value UnknownError Something else happened and it was bad. 
 */
 
 /*!
-    Returns the type of error that occurred last or NoError.
+  Returns a value indicating whether an error occurred, and, if so,
+  which error it was.
 
-    \sa errorString()
+  \sa errorString()
  */
 QSharedMemory::SharedMemoryError QSharedMemory::error() const
 {
@@ -360,11 +418,12 @@ QSharedMemory::SharedMemoryError QSharedMemory::error() const
 }
 
 /*!
-    Returns the human-readable message appropriate to the current error
-    reported by error(). If no suitable string is available, an empty
-    string is returned.
+  Returns a text description of the last error that occurred. If
+  error() returns an \l {QSharedMemory::SharedMemoryError} {error
+  value}, call this function to get a text string that describes the
+  error.
 
-    \sa error()
+  \sa error()
  */
 QString QSharedMemory::errorString() const
 {
