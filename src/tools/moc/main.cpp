@@ -178,9 +178,7 @@ int main(int _argc, char **_argv)
                 error("Cannot open options file specified with @");
             argv.remove(n);
             while (!f.atEnd()) {
-                QByteArray line = f.readLine();
-                if (line.endsWith('\n'))
-                    line.chop(1);
+                QByteArray line = f.readLine().trimmed();
                 if (!line.isEmpty())
                     argv.insert(n++, line);
             }
