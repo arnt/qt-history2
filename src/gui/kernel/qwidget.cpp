@@ -8426,11 +8426,13 @@ void QWidget::raise()
             return;
         const int from = p->d_func()->children.indexOf(this);
         Q_ASSERT(from >= 0);
-        if (from == parentChildCount - 1)
-            return;
-        p->d_func()->children.move(from, parentChildCount - 1);
+        // Do nothing if the widget is already in correct stacking order _and_ created.
+        if (from != parentChildCount -1)
+            p->d_func()->children.move(from, parentChildCount - 1);
         if (!testAttribute(Qt::WA_WState_Created) && p->testAttribute(Qt::WA_WState_Created))
             create();
+        else if (from == parentChildCount - 1)
+            return;
     }
     if (testAttribute(Qt::WA_WState_Created))
         d->raise_sys();
@@ -8458,11 +8460,13 @@ void QWidget::lower()
             return;
         const int from = p->d_func()->children.indexOf(this);
         Q_ASSERT(from >= 0);
-        if (from == 0)
-            return;
-        p->d_func()->children.move(from, 0);
+        // Do nothing if the widget is already in correct stacking order _and_ created.
+        if (from != 0)
+            p->d_func()->children.move(from, 0);
         if (!testAttribute(Qt::WA_WState_Created) && p->testAttribute(Qt::WA_WState_Created))
             create();
+        else if (from == 0)
+            return;
     }
     if (testAttribute(Qt::WA_WState_Created))
         d->lower_sys();
@@ -8492,11 +8496,13 @@ void QWidget::stackUnder(QWidget* w)
         Q_ASSERT(to >= 0);
         if (from < to)
             --to;
-        if (from == to)
-            return;
-        p->d_func()->children.move(from, to);
+        // Do nothing if the widget is already in correct stacking order _and_ created.
+        if (from != to)
+            p->d_func()->children.move(from, to);
         if (!testAttribute(Qt::WA_WState_Created) && p->testAttribute(Qt::WA_WState_Created))
             create();
+        else if (from == to)
+            return;
     }
     if (testAttribute(Qt::WA_WState_Created))
         d->stackUnder_sys(w);
