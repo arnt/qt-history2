@@ -26,7 +26,7 @@
 #define QDESIGNER_TASKMENU_H
 
 #include "shared_global_p.h"
-#include <QtDesigner/taskmenu.h>
+#include <QtDesigner/QDesignerTaskMenuExtension>
 
 #include <QtDesigner/default_extensionfactory.h>
 
@@ -40,7 +40,7 @@ class QWidget;
 class QSignalMapper;
 
 namespace qdesigner_internal {
-class PromotionTaskMenu;
+class QDesignerTaskMenuPrivate;
 
 class QDESIGNER_SHARED_EXPORT QDesignerTaskMenu: public QObject, public QDesignerTaskMenuExtension
 {
@@ -62,7 +62,6 @@ protected:
 
 private slots:
     void changeObjectName();
-
     void changeToolTip();
     void changeWhatsThis();
     void changeStyleSheet();
@@ -74,24 +73,7 @@ private slots:
     void containerFakeMethods();
 
 private:
-    QPointer<QWidget> m_widget;
-    QAction *m_separator;
-    QAction *m_separator2;
-    QAction *m_separator3;
-    QAction *m_separator4;
-    QAction *m_separator5;
-    QAction *m_changeObjectNameAction;
-    QAction *m_changeToolTip;
-    QAction *m_changeWhatsThis;
-    QAction *m_changeStyleSheet;
-
-    QAction *m_addMenuBar;
-    QAction *m_addToolBar;
-    QAction *m_addStatusBar;
-    QAction *m_removeStatusBar;
-    QAction *m_changeScript;
-    QAction *m_containerFakeMethods;
-    mutable PromotionTaskMenu* m_promotionTaskMenu;
+    Q_DECLARE_PRIVATE(QDesignerTaskMenu)
 };
 
 class QDESIGNER_SHARED_EXPORT QDesignerTaskMenuFactory: public QExtensionFactory
