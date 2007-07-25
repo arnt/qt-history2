@@ -1621,6 +1621,10 @@
 
     \value WidgetShortcut The shortcut is active when its
     parent widget has focus.
+    \value WidgetWithChildrenShortcut The shortcut is active
+    when its parent widget, or any of it's children has focus.
+    Children which are top-level widgets, except popups, are
+    not affected by this shortcut context.
     \value WindowShortcut The shortcut is active when its
     parent widget is a logical subwidget of the
     active top-level window.
