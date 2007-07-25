@@ -562,13 +562,14 @@ void QTextControlPrivate::_q_emitCursorPosChanged(const QTextCursor &someCursor)
 void QTextControlPrivate::setBlinkingCursorEnabled(bool enable)
 {
     Q_Q(QTextControl);
-    if (enable && QApplication::cursorFlashTime() > 0) {
+
+    if (enable && QApplication::cursorFlashTime() > 0)
         cursorBlinkTimer.start(QApplication::cursorFlashTime() / 2, q);
-        cursorOn = true;
-    } else {
+    else
         cursorBlinkTimer.stop();
-        cursorOn = false;
-    }
+
+    cursorOn = enable;
+
     repaintCursor();
 }
 
