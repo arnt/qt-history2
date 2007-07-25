@@ -77,7 +77,7 @@ class Q_CORE_EXPORT QDateTimeParser
 public:
     QDateTimeParser(QVariant::Type t)
         : currentSectionIndex(-1), display(0), cachedDay(-1), parserType(t),
-        fixday(false), allowEmpty(true)
+        fixday(false), allowEmpty(true), spec(Qt::LocalTime)
     {
         first.type = FirstSection;
         first.pos = -1;
@@ -226,6 +226,8 @@ public:
 
     bool fixday;
     bool allowEmpty;
+
+    Qt::TimeSpec spec; // spec if used by QDateTimeEdit
 };
 
 Q_CORE_EXPORT bool operator==(const QDateTimeParser::SectionNode &s1, const QDateTimeParser::SectionNode &s2);

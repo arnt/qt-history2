@@ -89,7 +89,7 @@ public:
     virtual QStyle::SubControl newHoverControl(const QPoint &pos);
     bool updateHoverControl(const QPoint &pos);
 
-    void clearCache() const;
+    virtual void clearCache() const;
     virtual void updateEditFieldGeometry();
 
     static int variantCompare(const QVariant &arg1, const QVariant &arg2);

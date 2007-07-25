@@ -55,6 +55,7 @@ public:
     QVariant valueFromText(const QString &f) const;
     virtual void _q_editorCursorPositionChanged(int oldpos, int newpos);
     virtual void interpret(EmitPolicy ep);
+    virtual void clearCache() const;
 
     QDateTime validateAndInterpret(QString &input, int &, QValidator::State &state,
                                    bool fixup = false) const;
@@ -72,11 +73,13 @@ public:
 
     void updateCache(const QVariant &val, const QString &str) const;
 
+    void updateTimeSpec();
     QDateTime getMinimum() const { return minimum.toDateTime(); }
     QDateTime getMaximum() const { return maximum.toDateTime(); }
     QString valueToText(const QVariant &var) const { return textFromValue(var); }
     QString getAmPmText(AmPm ap, Case cs) const;
     int cursorPosition() const { return edit ? edit->cursorPosition() : -1; }
+
     virtual QStyle::SubControl newHoverControl(const QPoint &pos);
     virtual void updateEditFieldGeometry();
     virtual QVariant getZeroVariant() const;
@@ -270,7 +273,6 @@ void QDateTimeEdit::setDateTime(const QDateTime &datetime)
 {
     Q_D(QDateTimeEdit);
     if (datetime.isValid()) {
-        d->cachedDay = -1;
         d->clearCache();
         if (!(d->sections & DateSections_Mask))
             setDateRange(datetime.date(), datetime.date());
@@ -301,9 +303,9 @@ void QDateTimeEdit::setDate(const QDate &date)
         if (!(d->sections & DateSections_Mask))
             setDateRange(date, date);
 
-        d->cachedDay = -1;
         d->clearCache();
-        d->setValue(QDateTime(date, d->value.toTime()), EmitIfChanged);
+        d->setValue(QDateTime(date, d->value.toTime(), d->spec), EmitIfChanged);
+        d->updateTimeSpec();
     }
 }
 
@@ -328,8 +330,7 @@ void QDateTimeEdit::setTime(const QTime &time)
     Q_D(QDateTimeEdit);
     if (time.isValid()) {
         d->clearCache();
-        d->cachedDay = -1;
-        d->setValue(QDateTime(d->value.toDate(), time), EmitIfChanged);
+        d->setValue(QDateTime(d->value.toDate(), time, d->spec), EmitIfChanged);
     }
 }
 
@@ -364,10 +365,11 @@ void QDateTimeEdit::clearMinimumDateTime()
     setMinimumDateTime(QDateTime(QDATETIMEEDIT_COMPAT_DATE_MIN, QDATETIMEEDIT_TIME_MIN));
 }
 
-void QDateTimeEdit::setMinimumDateTime(const QDateTime &m)
+void QDateTimeEdit::setMinimumDateTime(const QDateTime &dt)
 {
     Q_D(QDateTimeEdit);
-    if (m.isValid() && m.date() >= QDATETIMEEDIT_DATE_MIN) {
+    if (dt.isValid() && dt.date() >= QDATETIMEEDIT_DATE_MIN) {
+        const QDateTime m = dt.toTimeSpec(d->spec);
         const QDateTime max = d->maximum.toDateTime();
         d->setRange(m, (max > m ? max : m));
     }
@@ -403,10 +405,11 @@ void QDateTimeEdit::clearMaximumDateTime()
     setMaximumDateTime(QDATETIMEEDIT_DATETIME_MAX);
 }
 
-void QDateTimeEdit::setMaximumDateTime(const QDateTime &m)
+void QDateTimeEdit::setMaximumDateTime(const QDateTime &dt)
 {
     Q_D(QDateTimeEdit);
-    if (m.isValid() && m.date() <= QDATETIMEEDIT_DATE_MAX) {
+    if (dt.isValid() && dt.date() <= QDATETIMEEDIT_DATE_MAX) {
+        const QDateTime m = dt.toTimeSpec(d->spec);
         const QDateTime min = d->minimum.toDateTime();
         d->setRange((min < m ? min : m), m);
     }
@@ -440,7 +443,11 @@ void QDateTimeEdit::setMaximumDateTime(const QDateTime &m)
 void QDateTimeEdit::setDateTimeRange(const QDateTime &min, const QDateTime &max)
 {
     Q_D(QDateTimeEdit);
-    d->setRange(min, min > max ? min : max);
+    const QDateTime minimum = min.toTimeSpec(d->spec);
+    QDateTime maximum = max.toTimeSpec(d->spec);
+    if (min > max)
+        maximum = minimum;
+    d->setRange(minimum, maximum);
 }
 
 /*!
@@ -465,7 +472,7 @@ void QDateTimeEdit::setMinimumDate(const QDate &min)
 {
     Q_D(QDateTimeEdit);
     if (min.isValid() && min >= QDATETIMEEDIT_DATE_MIN) {
-        setMinimumDateTime(QDateTime(min, d->minimum.toTime()));
+        setMinimumDateTime(QDateTime(min, d->minimum.toTime(), d->spec));
     }
 }
 
@@ -496,7 +503,7 @@ void QDateTimeEdit::setMaximumDate(const QDate &max)
 {
     Q_D(QDateTimeEdit);
     if (max.isValid()) {
-        setMaximumDateTime(QDateTime(max, d->maximum.toTime()));
+        setMaximumDateTime(QDateTime(max, d->maximum.toTime(), d->spec));
     }
 }
 
@@ -527,7 +534,7 @@ void QDateTimeEdit::setMinimumTime(const QTime &min)
 {
     Q_D(QDateTimeEdit);
     if (min.isValid()) {
-        const QDateTime m(d->minimum.toDate(), min);
+        const QDateTime m(d->minimum.toDate(), min, d->spec);
         setMinimumDateTime(m);
     }
 }
@@ -595,8 +602,8 @@ void QDateTimeEdit::setDateRange(const QDate &min, const QDate &max)
 {
     Q_D(QDateTimeEdit);
     if (min.isValid() && max.isValid()) {
-        setDateTimeRange(QDateTime(min, d->minimum.toTime()),
-                         QDateTime(max, d->maximum.toTime()));
+        setDateTimeRange(QDateTime(min, d->minimum.toTime(), d->spec),
+                         QDateTime(max, d->maximum.toTime(), d->spec));
     }
 }
 
@@ -627,8 +634,8 @@ void QDateTimeEdit::setTimeRange(const QTime &min, const QTime &max)
 {
     Q_D(QDateTimeEdit);
     if (min.isValid() && max.isValid()) {
-        setDateTimeRange(QDateTime(d->minimum.toDate(), min),
-                         QDateTime(d->maximum.toDate(), max));
+        setDateTimeRange(QDateTime(d->minimum.toDate(), min, d->spec),
+                         QDateTime(d->maximum.toDate(), max, d->spec));
     }
 }
 
@@ -865,7 +872,7 @@ void QDateTimeEdit::setDisplayFormat(const QString &format)
             setDateRange(d->value.toDate(), d->value.toDate());
         } else if (dateShown && !timeShown) {
             setTimeRange(QDATETIMEEDIT_TIME_MIN, QDATETIMEEDIT_TIME_MAX);
-            d->value = QDateTime(d->value.toDate(), QTime());
+            d->value = QDateTime(d->value.toDate(), QTime(), d->spec);
         }
         d->updateEdit();
         d->_q_editorCursorPositionChanged(-1, 0);
@@ -901,6 +908,30 @@ void QDateTimeEdit::setCalendarPopup(bool enable)
 #endif
     d->updateEditFieldGeometry();
     update();
+}
+
+/*!
+    \property QDateTimeEdit::timeSpec
+    \brief the current timespec used by the date time edit.
+    \since 4.4
+
+    All dates/passed to the date time edit will be converted to this
+    timespec.
+*/
+
+Qt::TimeSpec QDateTimeEdit::timeSpec() const
+{
+    Q_D(const QDateTimeEdit);
+    return d->spec;
+}
+
+void QDateTimeEdit::setTimeSpec(Qt::TimeSpec spec)
+{
+    Q_D(QDateTimeEdit);
+    if (spec != d->spec) {
+        d->spec = spec;
+        d->updateTimeSpec();
+    }
 }
 
 /*!
@@ -1262,6 +1293,7 @@ void QDateTimeEdit::stepBy(int steps)
     d->updateCache(d->value, d->displayText());
 
     d->setSelected(d->currentSectionIndex);
+    d->updateTimeSpec();
 }
 
 /*!
@@ -1565,6 +1597,13 @@ QDateTimeEditPrivate::QDateTimeEditPrivate()
 #endif
 }
 
+void QDateTimeEditPrivate::updateTimeSpec()
+{
+    minimum = minimum.toDateTime().toTimeSpec(spec);
+    maximum = maximum.toDateTime().toTimeSpec(spec);
+    value = value.toDateTime().toTimeSpec(spec);
+}
+
 void QDateTimeEditPrivate::updateEdit()
 {
     const QString newText = (specialValue() ? specialValueText : textFromValue(value));
@@ -1824,7 +1863,7 @@ QString QDateTimeEditPrivate::textFromValue(const QVariant &f) const
 QVariant QDateTimeEditPrivate::valueFromText(const QString &f) const
 {
     Q_Q(const QDateTimeEdit);
-    return q->dateTimeFromText(f);
+    return q->dateTimeFromText(f).toTimeSpec(spec);
 }
 
 
@@ -1967,7 +2006,7 @@ QDateTime QDateTimeEditPrivate::stepBy(int sectionIndex, int steps, bool test) c
         }
     }
 
-    const QDateTime ret = bound(v, value, steps).toDateTime();
+    const QDateTime ret = bound(v, value, steps).toDateTime().toTimeSpec(spec);
     return ret;
 }
 
@@ -2186,9 +2225,16 @@ void QDateTimeEditPrivate::interpret(EmitPolicy ep)
         && correctionMode == QAbstractSpinBox::CorrectToPreviousValue
         && (state == QValidator::Invalid || !(fieldInfo(currentSectionIndex) & AllowPartial))) {
         setValue(value, ep);
+        updateTimeSpec();
     } else {
         QAbstractSpinBoxPrivate::interpret(ep);
     }
+}
+
+void QDateTimeEditPrivate::clearCache() const
+{
+    QAbstractSpinBoxPrivate::clearCache();
+    cachedDay = -1;
 }
 
 /*!
@@ -2245,6 +2291,7 @@ void QDateTimeEditPrivate::init(const QVariant &var)
     if (QApplication::keypadNavigationEnabled())
         q->setCalendarPopup(true);
 #endif
+    updateTimeSpec();
     setLayoutItemMargins(QStyle::SE_DateTimeEditLayoutItem);
 }
 
@@ -2309,7 +2356,7 @@ void QDateTimeEditPrivate::updateEditFieldGeometry()
 QVariant QDateTimeEditPrivate::getZeroVariant() const
 {
     Q_ASSERT(type == QVariant::DateTime);
-    return QDateTime(QDATETIMEEDIT_DATE_INITIAL, QTime());
+    return QDateTime(QDATETIMEEDIT_DATE_INITIAL, QTime(), spec);
 }
 
 bool QDateTimeEditPrivate::isSeparatorKey(const QKeyEvent *ke) const

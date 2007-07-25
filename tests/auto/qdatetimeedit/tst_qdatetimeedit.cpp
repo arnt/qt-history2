@@ -190,8 +190,11 @@ private slots:
     void specialValueCornerCase();
     void cursorPositionOnInit();
 
-    void dateEditTimeEditFormats();
     void cachedDayTest();
+
+    void dateEditTimeEditFormats();
+    void timeSpec();
+    void timeSpecBug();
 private:
     EditorDateEdit* testWidget;
     QWidget *testFocusWidget;
@@ -276,6 +279,7 @@ void tst_QDateTimeEdit::cleanup()
 {
     testWidget->clearMinimumDateTime();
     testWidget->clearMaximumDateTime();
+    testWidget->setTimeSpec(Qt::LocalTime);
     testWidget->setSpecialValueText(QString());
     testWidget->setWrapping(false);
 }
@@ -2924,6 +2928,46 @@ void tst_QDateTimeEdit::dateEditTimeEditFormats()
     d.setDisplayFormat("hh yyyy");
     QCOMPARE(d.displayedSections(), QDateTimeEdit::YearSection);
 }
+
+void tst_QDateTimeEdit::timeSpec()
+{
+    QDateTimeEdit edit;
+    QCOMPARE(edit.dateTime().timeSpec(), edit.timeSpec());
+    QCOMPARE(edit.minimumDateTime().timeSpec(), edit.timeSpec());
+    QCOMPARE(edit.maximumDateTime().timeSpec(), edit.timeSpec());
+    edit.setTimeSpec(Qt::UTC);
+    QCOMPARE(edit.minimumDateTime().timeSpec(), edit.timeSpec());
+    QCOMPARE(edit.maximumDateTime().timeSpec(), edit.timeSpec());
+    QCOMPARE(edit.dateTime().timeSpec(), edit.timeSpec());
+    edit.setTimeSpec(Qt::LocalTime);
+    const QDateTime dt = edit.dateTime();
+    QCOMPARE(edit.timeSpec(), Qt::LocalTime);
+    const QDateTime utc = dt.toUTC();
+    if (dt.time() != utc.time()) {
+        const QDateTime min(QDate(1999, 1, 1), QTime(1, 0, 0), Qt::LocalTime);
+        edit.setMinimumDateTime(min);
+        QCOMPARE(edit.minimumTime(), min.time());
+        edit.setTimeSpec(Qt::UTC);
+        QVERIFY(edit.minimumTime() != min.time());
+        QVERIFY(edit.minimumDateTime().timeSpec() != min.timeSpec());
+        QCOMPARE(edit.minimumDateTime().toTime_t(), min.toTime_t());
+    } else {
+        QSKIP("Not tested in the GMT timezone", SkipAll);
+    }
+}
+
+void tst_QDateTimeEdit::timeSpecBug()
+{
+    testWidget->setTimeSpec(Qt::UTC);
+    testWidget->setDisplayFormat("hh:mm");
+    testWidget->setTime(QTime(2, 2));
+    const QString oldText = testWidget->text();
+    const QDateTime oldDateTime = testWidget->dateTime();
+    QTest::keyClick(testWidget, Qt::Key_Tab);
+    QCOMPARE(oldDateTime, testWidget->dateTime());
+    QCOMPARE(oldText, testWidget->text());
+}
+
 
 void tst_QDateTimeEdit::cachedDayTest()
 {

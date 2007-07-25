@@ -124,6 +124,9 @@ public:
     bool calendarPopup() const;
     void setCalendarPopup(bool enable);
 
+    Qt::TimeSpec timeSpec() const;
+    void setTimeSpec(Qt::TimeSpec spec);
+
     QSize sizeHint() const;
 
     virtual void clear();

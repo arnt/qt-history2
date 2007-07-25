@@ -3443,7 +3443,7 @@ int QDateTimeParser::getDigit(const QDateTime &t, int index) const
 
 /*!
   \internal
-  Sets a digit in a variant. E.g.
+  Sets a digit in a datetime. E.g.
 
   QDateTime var(QDate(2004, 02, 02));
   int digit = getDigit(var, Year);
@@ -3486,7 +3486,7 @@ void QDateTimeParser::setDigit(QDateTime &v, int index, int newVal) const
         day = qMax<int>(cachedDay, day);
     }
 
-    v = QDateTime(fixedDate(year, month, day), QTime(hour, minute, second, msec));
+    v = QDateTime(fixedDate(year, month, day), QTime(hour, minute, second, msec), spec);
 }
 
 
@@ -4275,7 +4275,7 @@ QDateTimeParser::StateNode QDateTimeParser::parse(const QString &inp,
 
             }
 
-            tmp = QDateTime(strictDate(year, month, day), QTime(hour, minute, second, msec));
+            tmp = QDateTime(strictDate(year, month, day), QTime(hour, minute, second, msec), spec);
             QDTPDEBUG << year << month << day << hour << minute << second << msec;
         }
         QDTPDEBUGN("'%s' => '%s'(%s)", input.toLatin1().constData(),
@@ -4296,7 +4296,7 @@ end:
     node.input = input;
     node.state = state;
     node.conflicts = conflicts;
-    node.value = tmp;
+    node.value = tmp.toTimeSpec(spec);
     text = input;
     return node;
 }
@@ -4883,11 +4883,11 @@ bool QDateTimeParser::fromString(const QString &text, QDate *date, QTime *time) 
 
 QDateTime QDateTimeParser::getMinimum() const
 {
-    return QDateTime(QDATETIMEEDIT_DATE_MIN, QDATETIMEEDIT_TIME_MIN);
+    return QDateTime(QDATETIMEEDIT_DATE_MIN, QDATETIMEEDIT_TIME_MIN, spec);
 }
 QDateTime QDateTimeParser::getMaximum() const
 {
-    return QDateTime(QDATETIMEEDIT_DATE_MAX, QDATETIMEEDIT_TIME_MAX);
+    return QDateTime(QDATETIMEEDIT_DATE_MAX, QDATETIMEEDIT_TIME_MAX, spec);
 }
 
 QString QDateTimeParser::getAmPmText(AmPm ap, Case cs) const
