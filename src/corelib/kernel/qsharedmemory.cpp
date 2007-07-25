@@ -251,7 +251,11 @@ bool QSharedMemory::detach()
     if (!d->tryLocker(&lock, QLatin1String("QSharedMemory::detach")))
         return false;
 
-    return d->detach();
+    if (d->detach()) {
+        d->size = 0;
+        return true;
+    }
+    return false;
 }
 
 /*!

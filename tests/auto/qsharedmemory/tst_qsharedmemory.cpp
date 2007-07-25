@@ -287,6 +287,8 @@ void tst_QSharedMemory::attach()
         // Make sure detach doesn't screw up something and we can't re-attach.
         QVERIFY(sm.attach());
         QVERIFY(sm.detach());
+        QCOMPARE(sm.size(), 0);
+        QVERIFY(sm.data() == 0);
     } else {
         QVERIFY(sm.data() == 0);
         QVERIFY(sm.size() == 0);
