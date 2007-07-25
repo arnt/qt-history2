@@ -1216,7 +1216,8 @@ public:
     enum ShortcutContext {
         WidgetShortcut,
         WindowShortcut,
-        ApplicationShortcut
+        ApplicationShortcut,
+        WidgetWithChildrenShortcut
     };
 
     enum FillRule {

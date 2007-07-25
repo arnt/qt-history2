@@ -607,6 +607,14 @@ bool QShortcutMap::correctContext(Qt::ShortcutContext context, QWidget *w, QWidg
     if (context == Qt::WidgetShortcut)
         return w == QApplication::focusWidget();
 
+    if (context == Qt::WidgetWithChildrenShortcut) {
+        const QWidget *tw = QApplication::focusWidget();
+        while (tw && tw != w && (tw->windowType() == Qt::Widget || tw->windowType() == Qt::Popup))
+            tw = tw->parentWidget();
+        return tw == w;
+    }
+
+    // Below is Qt::WindowShortcut context
     QWidget *tlw = w->window();
 
     /* if a floating tool window is active, keep shortcuts on the
