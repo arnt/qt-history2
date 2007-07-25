@@ -822,8 +822,9 @@ void tst_QComboBox::hide()
     testWidget->showPopup();
     QVERIFY(testWidget->view());
     QVERIFY(testWidget->view()->isVisible());
-    testWidget->hide();
+    testWidget->hidePopup();
     QVERIFY(!testWidget->view()->isVisible());
+    testWidget->hide();
     QVERIFY(!testWidget->isVisible());
 }
 
