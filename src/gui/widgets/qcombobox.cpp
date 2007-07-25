@@ -35,6 +35,10 @@
 #ifdef Q_WS_X11
 #include <private/qt_x11_p.h>
 #endif
+#if defined(Q_WS_MAC) && !defined(QT_NO_EFFECTS) && !defined(QT_NO_STYLE_MAC)
+#include <private/qcore_mac_p.h>
+#include <QMacStyle>
+#endif
 
 QComboBoxPrivate::QComboBoxPrivate()
     : QWidgetPrivate(),
@@ -2220,8 +2224,49 @@ void QComboBox::showPopup()
 void QComboBox::hidePopup()
 {
     Q_D(QComboBox);
-    if (d->container && d->container->isVisible())
+    if (d->container && d->container->isVisible()) {
+#if !defined(QT_NO_EFFECTS)
+        // Flash selected/triggered item (if any).
+        if (style()->styleHint(QStyle::SH_Menu_FlashTriggeredItem)) {
+            QItemSelectionModel *selectionModel = view() ? view()->selectionModel() : 0;
+            if (selectionModel && selectionModel->hasSelection()) {
+                QEventLoop eventLoop;
+                const QItemSelection selection = selectionModel->selection();
+
+                // Deselect item and wait 60 ms.
+                selectionModel->select(selection, QItemSelectionModel::Toggle);
+                QTimer::singleShot(60, &eventLoop, SLOT(quit()));
+                eventLoop.exec();
+
+                // Select item and wait 20 ms.
+                selectionModel->select(selection, QItemSelectionModel::Toggle);
+                QTimer::singleShot(20, &eventLoop, SLOT(quit()));
+                eventLoop.exec();
+            }
+        }
+
+        // Fade out.
+        if (style()->styleHint(QStyle::SH_Menu_FadeOutOnHide)) {
+            // ### Qt4.4
+            // Should be something like: d->container->transitionWindow(Qt::FadeOutTransition, 150);
+            // Hopefully we'll integrate qt/research/windowtransitions into main before 4.4.
+            // Talk to Richard, Trenton or Bjoern.
+#if defined(Q_WS_MAC) && !defined(QT_NO_STYLE_MAC)
+            if (qobject_cast<QMacStyle *>(style())) {
+                TransitionWindowOptions options = {0, 0.15, 0, 0};
+                TransitionWindowWithOptions(qt_mac_window_for(d->container), kWindowFadeTransitionEffect,
+                                            kWindowHideTransitionAction, 0, 1, &options);
+
+                // Wait for the transition to complete.
+                QEventLoop eventLoop;
+                QTimer::singleShot(150, &eventLoop, SLOT(quit()));
+                eventLoop.exec();
+            }
+#endif // Q_WS_MAC
+        }
+#endif // QT_NO_EFFECTS
         d->container->hide();
+    }
 #ifdef QT_KEYPAD_NAVIGATION
     if (QApplication::keypadNavigationEnabled() && isEditable() && hasFocus())
         setEditFocus(true);

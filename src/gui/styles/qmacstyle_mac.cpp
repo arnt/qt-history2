@@ -2467,6 +2467,12 @@ int QMacStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *w
     case SH_ItemView_ArrowKeysNavigateIntoChildren:
         ret = false;
         break;
+    case SH_Menu_FlashTriggeredItem:
+        ret = true;
+        break;
+    case SH_Menu_FadeOutOnHide:
+        ret = true;
+        break;
     default:
         ret = QWindowsStyle::styleHint(sh, opt, w, hret);
         break;

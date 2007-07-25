@@ -648,6 +648,8 @@ public:
         SH_TextControl_FocusIndicatorTextCharFormat,
         SH_WizardStyle,
         SH_ItemView_ArrowKeysNavigateIntoChildren,
+        SH_Menu_FlashTriggeredItem,
+        SH_Menu_FadeOutOnHide,
 
         // Add new style hint values here
 

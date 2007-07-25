@@ -1711,6 +1711,9 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     QStyleHintReturnVariant return value. The QTextFormat::OutlinePen property is used for the outline and QTextFormat::BackgroundBrush
     for the background of the highlighted area.
 
+    \value SH_Menu_FlashTriggeredItem Flash triggered item.
+    \value SH_Menu_FadeOutOnHide Fade out the menu instead of hiding it immediately.
+
     Used to fill any area not covered by the items.
     \omitvalue SH_UnderlineAccelerator
 
