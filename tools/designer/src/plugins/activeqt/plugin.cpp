@@ -14,6 +14,8 @@
 #include <QtDesigner/QtDesigner>
 #include <QtDesigner/QExtensionFactory>
 #include <QtDesigner/private/qdesigner_propertysheet_p.h>
+#include <QtDesigner/private/qdesigner_taskmenu_p.h>
+#include <QtDesigner/private/extensionfactory_p.h>
 
 #include <QtCore/qplugin.h>
 #include <QtCore/QObject>
@@ -97,10 +99,7 @@ QActiveXPluginObject::QActiveXPluginObject(QWidget *parent)
 
 QActiveXPluginObject::~QActiveXPluginObject()
 {
-    foreach (QVariant *qvar, m_propValues) {
-        delete qvar;        
-    }
-
+    qDeleteAll(m_propValues);
     delete m_axobject;
 }
 
@@ -157,7 +156,7 @@ bool QActiveXPluginObject::setControl(const QString &clsid)
         m_axobject = 0;
         return false;
     }
-	
+        
     update();
     return true;
 }
@@ -167,24 +166,23 @@ QSize QActiveXPluginObject::sizeHint() const
     return QSize(80,70);
 }
 
-void QActiveXPluginObject::paintEvent (QPaintEvent *event)
+void QActiveXPluginObject::paintEvent (QPaintEvent * /*event */)
 {
+    static const QString loaded = tr("Control loaded");
     QPainter p(this);
-    QRect r = contentsRect();
+    const QRect r = contentsRect();
 
     if (m_axobject) {
         p.setBrush(QBrush(Qt::green, Qt::BDiagPattern));
         p.drawRect(r.adjusted(0,0,-1,-1));
-	p.setPen(Qt::black);
-        p.drawText(5,r.height()-5,tr("Control loaded"));
+        p.setPen(Qt::black);
+        p.drawText(5,r.height()-5,loaded);
     } else {
         p.drawRect(r.adjusted(0,0,-1,-1));
     }
 
     p.drawPixmap((r.width()-m_axImage.width())/2,
         (r.height()-m_axImage.height())/2,m_axImage);
-
-    Q_UNUSED(event);
 }
 
 class QActiveXPropertySheet: public QDesignerPropertySheet
@@ -198,11 +196,6 @@ public:
         const int index = indexOf(QLatin1String("control"));
         if (index != -1)
             setVisible(index, false);
-    }
-
-    virtual ~QActiveXPropertySheet()
-    {
-
     }
 
     void setProperty(int index, const QVariant &value)
@@ -277,30 +270,36 @@ private:
     }
 };
 
-class QActiveXTaskMenu: public QObject, public QDesignerTaskMenuExtension
+class QActiveXTaskMenu: public qdesigner_internal::QDesignerTaskMenu
 {
     Q_OBJECT
     Q_INTERFACES(QDesignerTaskMenuExtension)
 public:
-    explicit QActiveXTaskMenu(QActiveXPluginObject *object, QObject *parent = 0)
-        : QObject(parent), m_axwidget(object), m_action(0) { }
+    explicit QActiveXTaskMenu(QActiveXPluginObject *object, QObject *parent = 0) : 
+       qdesigner_internal::QDesignerTaskMenu(object, parent),
+       m_axwidget(object), 
+       m_action(0),m_separator(0) { }
+
     virtual ~QActiveXTaskMenu() { }
 
     virtual QList<QAction*> taskActions() const
     {
-        if (!m_taskActions.isEmpty())
-            return m_taskActions;
-
-        QActiveXTaskMenu *that = const_cast<QActiveXTaskMenu*>(this);
-
-        m_action = new QAction(that);
-        m_action->setText(tr("Set Control"));
-        m_action->setEnabled(!m_axwidget->loaded());
-
-        connect(m_action, SIGNAL(triggered()), this, SLOT(setActiveXControl()));
-        m_taskActions.append(m_action);
-
-        return m_taskActions;
+        if (m_taskActions.isEmpty()) {
+           QActiveXTaskMenu *that = const_cast<QActiveXTaskMenu*>(this);
+           m_separator = new QAction(that);
+           m_separator->setSeparator(true);
+           m_action = new QAction(that);
+           m_action->setText(tr("Set Control"));
+           m_action->setEnabled(!m_axwidget->loaded());
+           
+           connect(m_action, SIGNAL(triggered()), this, SLOT(setActiveXControl()));
+           m_taskActions.append(m_action);
+        }
+        QList<QAction*> rc = QDesignerTaskMenu::taskActions();
+        if (!rc.empty())
+            rc += m_separator; 
+        rc += m_taskActions;
+        return rc;
     }
 
 private slots:
@@ -354,37 +353,12 @@ private slots:
 private:
     QActiveXPluginObject *m_axwidget;
     mutable QAction *m_action;
+    mutable QAction *m_separator;
     mutable QList<QAction*> m_taskActions;
 };
 
-class QActiveXExtensionFactory: public QExtensionFactory
-{
-    Q_OBJECT
-    Q_INTERFACES(QAbstractExtensionFactory)
-public:
-    QActiveXExtensionFactory(QExtensionManager *parent, QDesignerFormEditorInterface *core)
-        : QExtensionFactory(parent) { m_core = core; }
-
-protected:
-    virtual QObject *createExtension(QObject *object, const QString &iid, QObject *parent) const
-    {
-        QActiveXPluginObject *w = qobject_cast<QActiveXPluginObject*>(object);
-
-        if (!w)
-            return 0;
-
-        if (iid == Q_TYPEID(QDesignerPropertySheetExtension))
-            return new QActiveXPropertySheet(w, parent);
-
-        if (iid == Q_TYPEID(QDesignerTaskMenuExtension))
-            return new QActiveXTaskMenu(w, parent);
-
-        return 0;
-    }
-
-private:
-    QDesignerFormEditorInterface *m_core;
-};
+typedef QDesignerPropertySheetFactory<QActiveXPluginObject, QActiveXPropertySheet> ActiveXPropertySheetFactory;
+typedef qdesigner_internal::ExtensionFactory<QDesignerTaskMenuExtension, QActiveXPluginObject, QActiveXTaskMenu>  ActiveXTaskMenuFactory;
 
 class QActiveXPlugin : public QObject, public QDesignerCustomWidgetInterface
 {
@@ -431,10 +405,8 @@ public:
         m_core = core;
 
         QExtensionManager *mgr = core->extensionManager();
-        QActiveXExtensionFactory *axf = new QActiveXExtensionFactory(mgr, core);
-        mgr->registerExtensions(axf, Q_TYPEID(QDesignerPropertySheetExtension));
-        mgr->registerExtensions(axf, Q_TYPEID(QDesignerTaskMenuExtension));
-
+        ActiveXPropertySheetFactory::registerExtension(mgr);
+        ActiveXTaskMenuFactory::registerExtension(mgr, Q_TYPEID(QDesignerTaskMenuExtension));
         QAxWidgetExtraInfoFactory *extraInfoFactory = new QAxWidgetExtraInfoFactory(core, mgr);
         mgr->registerExtensions(extraInfoFactory, Q_TYPEID(QDesignerExtraInfoExtension));
     }
