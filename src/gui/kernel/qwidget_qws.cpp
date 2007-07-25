@@ -773,7 +773,7 @@ void QWidgetPrivate::raise_sys()
 #endif // QT_NO_WINDOWGROUPHINT
     } else {
         setDirtyOpaqueRegion();
-        q->update(q->rect());
+        invalidateBuffer(q->rect());
     }
 }
 
