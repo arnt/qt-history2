@@ -56,14 +56,15 @@ public:
     virtual void _q_editorCursorPositionChanged(int oldpos, int newpos);
     virtual void interpret(EmitPolicy ep);
 
-    QVariant validateAndInterpret(QString &input, int &, QValidator::State &state, bool fixup = false) const;
+    QDateTime validateAndInterpret(QString &input, int &, QValidator::State &state,
+                                   bool fixup = false) const;
     void clearSection(int index);
     virtual QString displayText() const { return edit->displayText(); } // this is from QDateTimeParser
 
     int absoluteIndex(QDateTimeEdit::Section s, int index) const;
     int absoluteIndex(const SectionNode &s) const;
     void updateEdit();
-    QVariant stepBy(int index, int steps, bool test = false) const;
+    QDateTime stepBy(int index, int steps, bool test = false) const;
     int sectionAt(int pos) const;
     int closestSection(int index, bool forward) const;
     int nextPrevSection(int index, bool forward) const;
@@ -71,13 +72,14 @@ public:
 
     void updateCache(const QVariant &val, const QString &str) const;
 
-    QVariant getMinimum() const { return minimum; }
-    QVariant getMaximum() const { return maximum; }
+    QDateTime getMinimum() const { return minimum.toDateTime(); }
+    QDateTime getMaximum() const { return maximum.toDateTime(); }
     QString valueToText(const QVariant &var) const { return textFromValue(var); }
     QString getAmPmText(AmPm ap, Case cs) const;
     int cursorPosition() const { return edit ? edit->cursorPosition() : -1; }
     virtual QStyle::SubControl newHoverControl(const QPoint &pos);
     virtual void updateEditFieldGeometry();
+    virtual QVariant getZeroVariant() const;
 
     void _q_resetButton();
     void updateArrow(QStyle::StateFlag state);
@@ -1195,7 +1197,7 @@ QDateTime QDateTimeEdit::dateTimeFromText(const QString &text) const
     QString copy = text;
     int pos = d->edit->cursorPosition();
     QValidator::State state = QValidator::Acceptable;
-    return d->validateAndInterpret(copy, pos, state).toDateTime();
+    return d->validateAndInterpret(copy, pos, state);
 }
 
 /*!
@@ -1668,7 +1670,7 @@ void QDateTimeEditPrivate::updateCache(const QVariant &val, const QString &str) 
   parses and validates \a input
 */
 
-QVariant QDateTimeEditPrivate::validateAndInterpret(QString &input, int &/*position*/,
+QDateTime QDateTimeEditPrivate::validateAndInterpret(QString &input, int &/*position*/,
                                                     QValidator::State &state, bool fixup) const
 {
     if (input.isEmpty()) {
@@ -1677,16 +1679,16 @@ QVariant QDateTimeEditPrivate::validateAndInterpret(QString &input, int &/*posit
         } else {
             state = QValidator::Invalid;
         }
-        return getZeroVariant();
+        return getZeroVariant().toDateTime();
     } else if (cachedText == input && !fixup) {
         state = cachedState;
-        return cachedValue;
+        return cachedValue.toDateTime();
     }
     if (!specialValueText.isEmpty() && input == specialValueText) {
         state = QValidator::Acceptable;
-        return minimum;
+        return minimum.toDateTime();
     }
-    StateNode tmp = parse(input, value, fixup);
+    StateNode tmp = parse(input, value.toDateTime(), fixup);
     input = tmp.input;
     state = QValidator::State(int(tmp.state));
     if (state == QValidator::Acceptable) {
@@ -1704,7 +1706,7 @@ QVariant QDateTimeEditPrivate::validateAndInterpret(QString &input, int &/*posit
     } else {
         clearCache();
     }
-    return (tmp.value.isNull() ? getZeroVariant() : tmp.value);
+    return (tmp.value.isNull() ? getZeroVariant().toDateTime() : tmp.value);
 }
 
 
@@ -1741,10 +1743,10 @@ QVariant QDateTimeEditPrivate::valueFromText(const QString &f) const
   QDateTimeEdit::stepEnabled() as well as QDateTimeEdit::stepBy().
 */
 
-QVariant QDateTimeEditPrivate::stepBy(int sectionIndex, int steps, bool test) const
+QDateTime QDateTimeEditPrivate::stepBy(int sectionIndex, int steps, bool test) const
 {
     Q_Q(const QDateTimeEdit);
-    QVariant v = value;
+    QDateTime v = value.toDateTime();
     QString str = displayText();
     int pos = edit->cursorPosition();
     const SectionNode sn = sectionNode(sectionIndex);
@@ -1753,13 +1755,13 @@ QVariant QDateTimeEditPrivate::stepBy(int sectionIndex, int steps, bool test) co
     // to make sure it behaves reasonably when typing something and then stepping in non-tracking mode
     if (!test && pendingEmit) {
         if (q->validate(str, pos) != QValidator::Acceptable) {
-            v = value;
+            v = value.toDateTime();
         } else {
-            v = valueFromText(str);
+            v = q->dateTimeFromText(str);
         }
         val = getDigit(v, sectionIndex);
     } else {
-        val = getDigit(value, sectionIndex);
+        val = getDigit(v, sectionIndex);
     }
 
     val += steps;
@@ -1774,7 +1776,7 @@ QVariant QDateTimeEditPrivate::stepBy(int sectionIndex, int steps, bool test) co
     }
 
 
-    const int tmp = v.toDate().day();
+    const int tmp = v.date().day();
 
     setDigit(v, sectionIndex, val); // if this sets year or month it will make
 
@@ -1782,8 +1784,8 @@ QVariant QDateTimeEditPrivate::stepBy(int sectionIndex, int steps, bool test) co
 
     // changing one section should only modify that section, if possible
     if (sn.type != AmPmSection && (variantCompare(v, minimum) < 0) || (variantCompare(v, maximum) > 0)) {
-        const int localmin = getDigit(minimum, sectionIndex);
-        const int localmax = getDigit(maximum, sectionIndex);
+        const int localmin = getDigit(minimum.toDateTime(), sectionIndex);
+        const int localmax = getDigit(maximum.toDateTime(), sectionIndex);
 
         if (wrapping) {
             // just because we hit the roof in one direction, it
@@ -1791,10 +1793,10 @@ QVariant QDateTimeEditPrivate::stepBy(int sectionIndex, int steps, bool test) co
             if (steps > 0) {
                 setDigit(v, sectionIndex, min);
                 if (sn.type != DaySection && sections & DateSectionMask) {
-                    const int daysInMonth = v.toDate().daysInMonth();
-                    if (v.toDate().day() < tmp && v.toDate().day() < daysInMonth) {
+                    const int daysInMonth = v.date().daysInMonth();
+                    if (v.date().day() < tmp && v.date().day() < daysInMonth) {
                         const int adds = qMin(tmp, daysInMonth);
-                        v = v.toDateTime().addDays(adds - v.toDate().day());
+                        v = v.addDays(adds - v.date().day());
                     }
                 }
 
@@ -1806,10 +1808,10 @@ QVariant QDateTimeEditPrivate::stepBy(int sectionIndex, int steps, bool test) co
             } else {
                 setDigit(v, sectionIndex, max);
                 if (sn.type != DaySection && sections & DateSectionMask) {
-                    const int daysInMonth = v.toDate().daysInMonth();
-                    if (v.toDate().day() < tmp && v.toDate().day() < daysInMonth) {
+                    const int daysInMonth = v.date().daysInMonth();
+                    if (v.date().day() < tmp && v.date().day() < daysInMonth) {
                         const int adds = qMin(tmp, daysInMonth);
-                        v = v.toDateTime().addDays(adds - v.toDate().day());
+                        v = v.addDays(adds - v.date().day());
                     }
                 }
 
@@ -1823,21 +1825,23 @@ QVariant QDateTimeEditPrivate::stepBy(int sectionIndex, int steps, bool test) co
             setDigit(v, sectionIndex, (steps > 0 ? localmax : localmin));
         }
     }
-    if (!test && tmp != v.toDate().day() && sn.type != DaySection) {
+    if (!test && tmp != v.date().day() && sn.type != DaySection) {
         // this should not happen when called from stepEnabled
         cachedDay = qMax<int>(tmp, cachedDay);
     }
 
     if (variantCompare(v, minimum) < 0) {
         if (wrapping) {
-            QVariant t = v;
+            QDateTime t = v;
             setDigit(t, sectionIndex, steps < 0 ? max : min);
             int mincmp = variantCompare(t, minimum);
             int maxcmp = variantCompare(t, maximum);
             if (mincmp >= 0 && maxcmp <= 0) {
                 v = t;
             } else {
-                setDigit(t, sectionIndex, getDigit(steps < 0 ? maximum : minimum, sectionIndex));
+                setDigit(t, sectionIndex, getDigit(steps < 0
+                                                   ? maximum.toDateTime()
+                                                   : minimum.toDateTime(), sectionIndex));
                 mincmp = variantCompare(t, minimum);
                 maxcmp = variantCompare(t, maximum);
                 if (mincmp >= 0 && maxcmp <= 0) {
@@ -1845,18 +1849,20 @@ QVariant QDateTimeEditPrivate::stepBy(int sectionIndex, int steps, bool test) co
                 }
             }
         } else {
-            v = value;
+            v = value.toDateTime();
         }
     } else if (variantCompare(v, maximum) > 0) {
         if (wrapping) {
-            QVariant t = v;
+            QDateTime t = v;
             setDigit(t, sectionIndex, steps > 0 ? min : max);
             int mincmp = variantCompare(t, minimum);
             int maxcmp = variantCompare(t, maximum);
             if (mincmp >= 0 && maxcmp <= 0) {
                 v = t;
             } else {
-                setDigit(t, sectionIndex, getDigit(steps > 0 ? minimum : maximum, sectionIndex));
+                setDigit(t, sectionIndex, getDigit(steps > 0 ?
+                                                   minimum.toDateTime() :
+                                                   maximum.toDateTime(), sectionIndex));
                 mincmp = variantCompare(t, minimum);
                 maxcmp = variantCompare(t, maximum);
                 if (mincmp >= 0 && maxcmp <= 0) {
@@ -1864,14 +1870,13 @@ QVariant QDateTimeEditPrivate::stepBy(int sectionIndex, int steps, bool test) co
                 }
             }
         } else {
-            v = value;
+            v = value.toDateTime();
         }
     }
 
-    const QVariant ret = bound(v, value, steps);
+    const QDateTime ret = bound(v, value, steps).toDateTime();
     return ret;
 }
-
 
 /*!
   \internal
@@ -2207,6 +2212,12 @@ void QDateTimeEditPrivate::updateEditFieldGeometry()
     optCombo.subControls = QStyle::SC_ComboBoxEditField;
     edit->setGeometry(q->style()->subControlRect(QStyle::CC_ComboBox, &optCombo,
                                                  QStyle::SC_ComboBoxEditField, q));
+}
+
+QVariant QDateTimeEditPrivate::getZeroVariant() const
+{
+    Q_ASSERT(type == QVariant::DateTime);
+    return QDateTime(QDATETIMEEDIT_DATE_INITIAL, QTime());
 }
 
 bool QDateTimeEditPrivate::isSeparatorKey(const QKeyEvent *ke) const

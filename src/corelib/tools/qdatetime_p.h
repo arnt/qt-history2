@@ -142,7 +142,7 @@ public:
         QString input;
         State state;
         bool conflicts;
-        QVariant value;
+        QDateTime value;
     };
 
     enum AmPm {
@@ -156,7 +156,7 @@ public:
     };
 
 #ifndef QT_NO_DATESTRING
-    StateNode parse(const QString &input, const QVariant &currentValue, bool fixup) const;
+    StateNode parse(const QString &input, const QDateTime &currentValue, bool fixup) const;
 #endif
     int sectionMaxSize(int index) const;
     int sectionSize(int index) const;
@@ -168,9 +168,9 @@ public:
     SectionNode sectionNode(int index) const;
     Section sectionType(int index) const;
     QString sectionText(const QString &text, int sectionIndex, int index) const;
-    int getDigit(const QVariant &dt, int index) const;
-    void setDigit(QVariant &t, int index, int newval) const;
-    int parseSection(const QVariant &currentValue, int sectionIndex, QString &txt, int index,
+    int getDigit(const QDateTime &dt, int index) const;
+    void setDigit(QDateTime &t, int index, int newval) const;
+    int parseSection(const QDateTime &currentValue, int sectionIndex, QString &txt, int index,
                      QDateTimeParser::State &state, int *used = 0) const;
     int absoluteMax(int index, const QDateTime &value = QDateTime()) const;
     int absoluteMin(int index) const;
@@ -188,7 +188,8 @@ public:
 #endif
     int findAmPm(QString &str1, int index, int *used = 0) const;
     int maxChange(int s) const;
-    int potentialValue(const QString &str, int min, int max, int index, const QVariant &currentValue, int insert) const;
+    int potentialValue(const QString &str, int min, int max, int index, const QDateTime &currentValue,
+                       int insert) const;
     int potentialValueHelper(const QString &str, int min, int max, int size, int insert) const;
 
     QString sectionName(int s) const;
@@ -207,8 +208,8 @@ public:
 
     FieldInfo fieldInfo(int index) const;
 
-    virtual QVariant getMinimum() const;
-    virtual QVariant getMaximum() const;
+    virtual QDateTime getMinimum() const;
+    virtual QDateTime getMaximum() const;
     virtual int cursorPosition() const { return -1; }
     virtual QString displayText() const { return text; }
     virtual QString getAmPmText(AmPm ap, Case cs) const;
@@ -225,8 +226,6 @@ public:
 
     bool fixday;
     bool allowEmpty;
-
-    static int dateTimeCompare(const QVariant &arg1, const QVariant &arg2);
 };
 
 Q_CORE_EXPORT bool operator==(const QDateTimeParser::SectionNode &s1, const QDateTimeParser::SectionNode &s2);

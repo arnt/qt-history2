@@ -1667,9 +1667,6 @@ QVariant QAbstractSpinBoxPrivate::getZeroVariant() const
     switch (type) {
     case QVariant::Int: ret = QVariant((int)0); break;
     case QVariant::Double: ret = QVariant((double)0.0); break;
-    case QVariant::Time: ret = QVariant(QTime()); break;
-    case QVariant::Date: ret = QVariant(QDATETIMEEDIT_DATE_INITIAL); break;
-    case QVariant::DateTime: ret = QVariant(QDateTime(QDATETIMEEDIT_DATE_INITIAL, QTime())); break;
     default: break;
     }
     return ret;
