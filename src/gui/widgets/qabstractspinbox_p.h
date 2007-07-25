@@ -71,7 +71,7 @@ public:
     void updateState(bool up);
     QString stripped(const QString &text, int *pos = 0) const;
     bool specialValue() const;
-    QVariant getZeroVariant() const;
+    virtual QVariant getZeroVariant() const;
     void setRange(const QVariant &min, const QVariant &max);
     void setValue(const QVariant &val, EmitPolicy ep, bool updateEdit = true);
     virtual QVariant bound(const QVariant &val, const QVariant &old = QVariant(), int steps = 0) const;

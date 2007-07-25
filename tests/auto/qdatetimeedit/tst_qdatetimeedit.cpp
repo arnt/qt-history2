@@ -79,14 +79,11 @@ class tst_QDateTimeEdit : public QObject
 public:
     tst_QDateTimeEdit();
     virtual ~tst_QDateTimeEdit();
-
 public slots:
     void initTestCase();
     void init();
     void cleanup();
     void cleanupTestCase();
-
-
 private slots:
     void getSetCheck();
     void constructor_qwidget();
@@ -121,6 +118,17 @@ private slots:
     void clearMinimumDate();
     void clearMaximumDate_data();
     void clearMaximumDate();
+
+    void minimumDateTime_data();
+    void minimumDateTime();
+    void maximumDateTime_data();
+    void maximumDateTime();
+
+    void clearMinimumDateTime_data();
+    void clearMinimumDateTime();
+    void clearMaximumDateTime_data();
+    void clearMaximumDateTime();
+
     void displayFormat_data();
     void displayFormat();
 
@@ -183,7 +191,6 @@ private slots:
     void cursorPositionOnInit();
 
     void dateEditTimeEditFormats();
-
 private:
     EditorDateEdit* testWidget;
     QWidget *testFocusWidget;
@@ -266,10 +273,8 @@ void tst_QDateTimeEdit::init()
 
 void tst_QDateTimeEdit::cleanup()
 {
-    testWidget->clearMinimumDate();
-    testWidget->clearMaximumDate();
-    testWidget->clearMinimumTime();
-    testWidget->clearMaximumTime();
+    testWidget->clearMinimumDateTime();
+    testWidget->clearMaximumDateTime();
     testWidget->setSpecialValueText(QString());
     testWidget->setWrapping(false);
 }
@@ -433,6 +438,63 @@ void tst_QDateTimeEdit::minimumDate()
     QCOMPARE(testWidget->minimumDate(), expectedMinDate);
 }
 
+void tst_QDateTimeEdit::minimumDateTime_data()
+{
+    QTest::addColumn<QDateTime>("minimumDateTime");
+    QTest::addColumn<QDateTime>("expectedMinDateTime");
+
+    QTest::newRow("normal-0") << QDateTime(QDate(2004, 5, 10), QTime(2, 3, 14))
+                              << QDateTime(QDate(2004, 5, 10), QTime(2, 3, 14));
+
+    QTest::newRow("normal-1") << QDateTime(QDate(2005, 5, 10), QTime(22, 33, 1))
+                              << QDateTime(QDate(2005, 5, 10), QTime(22, 33, 1));
+    QTest::newRow("normal-2") << QDateTime(QDate(2006, 5, 10), QTime(13, 31, 23))
+                              << QDateTime(QDate(2006, 5, 10), QTime(13, 31, 23));
+    QTest::newRow("normal-3") << QDateTime(QDate(2007, 5, 10), QTime(22, 23, 23))
+                              << QDateTime(QDate(2007, 5, 10), QTime(22, 23, 23));
+    QTest::newRow("normal-4") << QDateTime(QDate(2008, 5, 10), QTime(2, 3, 1))
+                              << QDateTime(QDate(2008, 5, 10), QTime(2, 3, 1));
+    QTest::newRow("invalid-0") << QDateTime() << QDateTime(QDate(1752, 9, 14), QTime(0, 0, 0));
+}
+
+void tst_QDateTimeEdit::minimumDateTime()
+{
+    QFETCH(QDateTime, minimumDateTime);
+    QFETCH(QDateTime, expectedMinDateTime);
+
+    testWidget->setMinimumDateTime(minimumDateTime);
+    QCOMPARE(testWidget->minimumDateTime(), expectedMinDateTime);
+}
+
+
+void tst_QDateTimeEdit::maximumDateTime_data()
+{
+    QTest::addColumn<QDateTime>("maximumDateTime");
+    QTest::addColumn<QDateTime>("expectedMinDateTime");
+
+    QTest::newRow("normal-0") << QDateTime(QDate(2004, 5, 10), QTime(2, 3, 14))
+                              << QDateTime(QDate(2004, 5, 10), QTime(2, 3, 14));
+
+    QTest::newRow("normal-1") << QDateTime(QDate(2005, 5, 10), QTime(22, 33, 1))
+                              << QDateTime(QDate(2005, 5, 10), QTime(22, 33, 1));
+    QTest::newRow("normal-2") << QDateTime(QDate(2006, 5, 10), QTime(13, 31, 23))
+                              << QDateTime(QDate(2006, 5, 10), QTime(13, 31, 23));
+    QTest::newRow("normal-3") << QDateTime(QDate(2007, 5, 10), QTime(22, 23, 23))
+                              << QDateTime(QDate(2007, 5, 10), QTime(22, 23, 23));
+    QTest::newRow("normal-4") << QDateTime(QDate(2008, 5, 10), QTime(2, 3, 1))
+                              << QDateTime(QDate(2008, 5, 10), QTime(2, 3, 1));
+    QTest::newRow("invalid-0") << QDateTime() << QDateTime(QDate(7999, 12, 31), QTime(23, 59, 59, 999));
+}
+
+void tst_QDateTimeEdit::maximumDateTime()
+{
+    QFETCH(QDateTime, maximumDateTime);
+    QFETCH(QDateTime, expectedMinDateTime);
+
+    testWidget->setMaximumDateTime(maximumDateTime);
+    QCOMPARE(testWidget->maximumDateTime(), expectedMinDateTime);
+}
+
 void tst_QDateTimeEdit::maximumDate_data()
 {
     QTest::addColumn<QDate>("maximumDate");
@@ -461,11 +523,10 @@ void tst_QDateTimeEdit::clearMinimumDate_data()
     QTest::addColumn<QDate>("expectedMinDateAfterClear");
 
     QTest::newRow("normal-0") << QDate(2004, 05, 10) << true << QDate(1752, 9, 14);
-    QTest::newRow("normal-1") << QDate(2002, 03, 15) << true << QDate(1752, 9, 14);
+    QTest::newRow("normal-1") << QDate(2002, 3, 15) << true << QDate(1752, 9, 14);
     QTest::newRow("normal-2") << QDate(7999, 12, 31) << true << QDate(1752, 9, 14);
     QTest::newRow("normal-3") << QDate(1753, 1, 1) << true << QDate(1752, 9, 14);
     QTest::newRow("invalid-0") << QDate(0, 0, 0) << false << QDate(1752, 9, 14);
-
 }
 
 void tst_QDateTimeEdit::clearMinimumDate()
@@ -476,12 +537,76 @@ void tst_QDateTimeEdit::clearMinimumDate()
 
     testWidget->setMinimumDate(minimumDate);
     if (valid) {
-	testWidget->clearMaximumDate(); // Sanity
 	QCOMPARE(testWidget->minimumDate(), minimumDate);
     }
     testWidget->clearMinimumDate();
     QCOMPARE(testWidget->minimumDate(), expectedMinDateAfterClear);
 }
+
+void tst_QDateTimeEdit::clearMinimumDateTime_data()
+{
+    QTest::addColumn<QDateTime>("minimumDateTime");
+    QTest::addColumn<bool>("valid");
+    QTest::addColumn<QDateTime>("expectedMinDateTimeAfterClear");
+
+    QTest::newRow("normal-0") << QDateTime(QDate(2004, 05, 10), QTime(12, 12, 12))
+                              << true << QDateTime(QDate(1752, 9, 14), QTime(0, 0));
+    QTest::newRow("normal-1") << QDateTime(QDate(2002, 3, 15), QTime(13, 13, 13))
+                              << true << QDateTime(QDate(1752, 9, 14), QTime(0, 0));
+    QTest::newRow("normal-2") << QDateTime(QDate(7999, 12, 31), QTime(14, 14, 14))
+                              << true << QDateTime(QDate(1752, 9, 14), QTime(0, 0));
+    QTest::newRow("normal-3") << QDateTime(QDate(1753, 1, 1), QTime(15, 15, 15))
+                              << true << QDateTime(QDate(1752, 9, 14), QTime(0, 0));
+    QTest::newRow("invalid-0") << QDateTime() << false << QDateTime(QDate(1752, 9, 14), QTime(0, 0));
+}
+
+void tst_QDateTimeEdit::clearMinimumDateTime()
+{
+    QFETCH(QDateTime, minimumDateTime);
+    QFETCH(bool, valid);
+    QFETCH(QDateTime, expectedMinDateTimeAfterClear);
+
+    testWidget->setMinimumDateTime(minimumDateTime);
+    if (valid) {
+	QCOMPARE(testWidget->minimumDateTime(), minimumDateTime);
+    }
+    testWidget->clearMinimumDateTime();
+    QCOMPARE(testWidget->minimumDateTime(), expectedMinDateTimeAfterClear);
+}
+
+
+void tst_QDateTimeEdit::clearMaximumDateTime_data()
+{
+    QTest::addColumn<QDateTime>("maximumDateTime");
+    QTest::addColumn<bool>("valid");
+    QTest::addColumn<QDateTime>("expectedMinDateTimeAfterClear");
+
+    QTest::newRow("normal-0") << QDateTime(QDate(2004, 05, 10), QTime(12, 12, 12))
+                              << true << QDateTime(QDate(7999, 12, 31), QTime(23, 59, 59, 999));
+    QTest::newRow("normal-1") << QDateTime(QDate(2002, 3, 15), QTime(13, 13, 13))
+                              << true << QDateTime(QDate(7999, 12, 31), QTime(23, 59, 59, 999));
+    QTest::newRow("normal-2") << QDateTime(QDate(7999, 12, 31), QTime(14, 14, 14))
+                              << true << QDateTime(QDate(7999, 12, 31), QTime(23, 59, 59, 999));
+    QTest::newRow("normal-3") << QDateTime(QDate(1753, 1, 1), QTime(15, 15, 15))
+                              << true << QDateTime(QDate(7999, 12, 31), QTime(23, 59, 59, 999));
+    QTest::newRow("invalid-0") << QDateTime()
+                               << false << QDateTime(QDate(7999, 12, 31), QTime(23, 59, 59, 999));
+}
+
+void tst_QDateTimeEdit::clearMaximumDateTime()
+{
+    QFETCH(QDateTime, maximumDateTime);
+    QFETCH(bool, valid);
+    QFETCH(QDateTime, expectedMinDateTimeAfterClear);
+
+    testWidget->setMaximumDateTime(maximumDateTime);
+    if (valid) {
+	QCOMPARE(testWidget->maximumDateTime(), maximumDateTime);
+    }
+    testWidget->clearMaximumDateTime();
+    QCOMPARE(testWidget->maximumDateTime(), expectedMinDateTimeAfterClear);
+}
+
 
 void tst_QDateTimeEdit::clearMaximumDate_data()
 {
@@ -504,7 +629,6 @@ void tst_QDateTimeEdit::clearMaximumDate()
 
     testWidget->setMaximumDate(maximumDate);
     if (valid) {
-	testWidget->clearMinimumDate(); // Sanity
 	QCOMPARE(testWidget->maximumDate(), maximumDate);
     }
     testWidget->clearMaximumDate();
@@ -896,14 +1020,17 @@ void tst_QDateTimeEdit::setRange_data()
     QTest::addColumn<QDateTime>("expectedMin");
     QTest::addColumn<QDateTime>("expectedMax");
 
-    QTest::newRow("data0") << QTime(0, 0) << QTime(14, 12, 0) << QDate::currentDate() << QDate::currentDate()
-                           << QDateTime(QDate::currentDate(), QTime(0, 0)) << QDateTime(QDate::currentDate(),
-                                                                                        QTime(14, 12, 0));
+    const QDate cdt = QDate::currentDate();
 
-    QTest::newRow("data1") << QTime(10, 0) << QTime(1, 12, 0) << QDate::currentDate().addDays(-1)
-                           << QDate::currentDate()
-                           << QDateTime(QDate::currentDate().addDays(-1), QTime(10, 0))
-                           << QDateTime(QDate::currentDate(), QTime(1, 12, 0));
+    QTest::newRow("data0") << QTime(0, 0) << QTime(14, 12, 0)
+                           << cdt << cdt
+                           << QDateTime(cdt, QTime(0, 0))
+                           << QDateTime(cdt, QTime(14, 12, 0));
+
+    QTest::newRow("data1") << QTime(10, 0) << QTime(1, 12, 0) << cdt.addDays(-1)
+                           << cdt
+                           << QDateTime(cdt.addDays(-1), QTime(10, 0))
+                           << QDateTime(cdt, QTime(1, 12, 0));
 }
 
 void tst_QDateTimeEdit::setRange()
@@ -916,52 +1043,63 @@ void tst_QDateTimeEdit::setRange()
     QFETCH(QDateTime, expectedMax);
     testWidget->hide();
 
-    QDateTimeEdit dte(0);
-    dte.setTimeRange(minTime, maxTime);
-    QCOMPARE(dte.minimumTime(), expectedMin.time());
-    QCOMPARE(dte.maximumTime(), expectedMax.time());
+    {
+        QDateTimeEdit dte(0);
+        dte.setTimeRange(minTime, maxTime);
+        QCOMPARE(dte.minimumTime(), expectedMin.time());
+        QCOMPARE(dte.maximumTime(), expectedMax.time());
+        dte.setDateRange(minDate, maxDate);
+        QCOMPARE(dte.minimumDate(), expectedMin.date());
+        QCOMPARE(dte.minimumDateTime(), expectedMin);
+        QCOMPARE(dte.maximumDate(), expectedMax.date());
+        QCOMPARE(dte.maximumDateTime(), expectedMax);
+        QCOMPARE(dte.minimumTime(), expectedMin.time());
+        QCOMPARE(dte.maximumTime(), expectedMax.time());
+        dte.setDateTimeRange(QDateTime(minDate, minTime), QDateTime(maxDate, maxTime));
+        QCOMPARE(dte.minimumDate(), expectedMin.date());
+        QCOMPARE(dte.minimumDateTime(), expectedMin);
+        QCOMPARE(dte.maximumDate(), expectedMax.date());
+        QCOMPARE(dte.maximumDateTime(), expectedMax);
+        QCOMPARE(dte.minimumTime(), expectedMin.time());
+        QCOMPARE(dte.maximumTime(), expectedMax.time());
+    }
+    {
 
-    dte.setDateRange(minDate, maxDate);
+        QDateTimeEdit dte2(0);
+        dte2.setDateRange(minDate, maxDate);
+        dte2.setTimeRange(minTime, maxTime);
 
-    QCOMPARE(dte.minimumDate(), expectedMin.date());
-    QCOMPARE(dte.maximumDate(), expectedMax.date());
-    QCOMPARE(dte.minimumTime(), expectedMin.time());
-    QCOMPARE(dte.maximumTime(), expectedMax.time());
-    dte.hide();
+        QCOMPARE(dte2.minimumDate(), expectedMin.date());
+        QCOMPARE(dte2.maximumDate(), expectedMax.date());
+        QCOMPARE(dte2.minimumTime(), expectedMin.time());
+        QCOMPARE(dte2.maximumTime(), expectedMax.time());
+    }
 
-    QDateTimeEdit dte2(0);
-    dte2.setDateRange(minDate, maxDate);
-    dte2.setTimeRange(minTime, maxTime);
+    {
+        QDateTimeEdit dte3(0);
+        dte3.setMinimumTime(minTime);
+        dte3.setMaximumTime(maxTime);
+        dte3.setMinimumDate(minDate);
+        dte3.setMaximumDate(maxDate);
 
-    QCOMPARE(dte2.minimumDate(), expectedMin.date());
-    QCOMPARE(dte2.maximumDate(), expectedMax.date());
-    QCOMPARE(dte2.minimumTime(), expectedMin.time());
-    QCOMPARE(dte2.maximumTime(), expectedMax.time());
-    dte2.hide();
+        QCOMPARE(dte3.minimumDate(), expectedMin.date());
+        QCOMPARE(dte3.maximumDate(), expectedMax.date());
+        QCOMPARE(dte3.minimumTime(), expectedMin.time());
+        QCOMPARE(dte3.maximumTime(), expectedMax.time());
+    }
 
-    QDateTimeEdit dte3(0);
-    dte3.setMinimumTime(minTime);
-    dte3.setMaximumTime(maxTime);
-    dte3.setMinimumDate(minDate);
-    dte3.setMaximumDate(maxDate);
+    {
+        QDateTimeEdit dte4(0);
+        dte4.setMinimumDate(minDate);
+        dte4.setMaximumDate(maxDate);
+        dte4.setMinimumTime(minTime);
+        dte4.setMaximumTime(maxTime);
 
-    QCOMPARE(dte3.minimumDate(), expectedMin.date());
-    QCOMPARE(dte3.maximumDate(), expectedMax.date());
-    QCOMPARE(dte3.minimumTime(), expectedMin.time());
-    QCOMPARE(dte3.maximumTime(), expectedMax.time());
-    dte3.hide();
-
-    QDateTimeEdit dte4(0);
-    dte4.setMinimumDate(minDate);
-    dte4.setMaximumDate(maxDate);
-    dte4.setMinimumTime(minTime);
-    dte4.setMaximumTime(maxTime);
-
-    QCOMPARE(dte4.minimumDate(), expectedMin.date());
-    QCOMPARE(dte4.maximumDate(), expectedMax.date());
-    QCOMPARE(dte4.minimumTime(), expectedMin.time());
-    QCOMPARE(dte4.maximumTime(), expectedMax.time());
-    dte4.hide();
+        QCOMPARE(dte4.minimumDate(), expectedMin.date());
+        QCOMPARE(dte4.maximumDate(), expectedMax.date());
+        QCOMPARE(dte4.minimumTime(), expectedMin.time());
+        QCOMPARE(dte4.maximumTime(), expectedMax.time());
+    }
 }
 
 void tst_QDateTimeEdit::wrappingTime_data()
@@ -1522,8 +1660,7 @@ void tst_QDateTimeEdit::userKeyPress_Time_data()
         QTest::newRow( "data54" ) << bool(false) << keys << expected;
     }
 
-    /////////////////
-        // enter a valid one digit second in 12 h mode
+    // enter a valid one digit second in 12 h mode
     {
         QTestEventList keys;
         keys.addKeyClick( Qt::Key_Tab );
@@ -2187,7 +2324,7 @@ void tst_QDateTimeEdit::currentSection_data()
     QTest::addColumn<uint>("section");
     QTest::addColumn<uint>("currentSection");
 
-    // First is delibrate, this way we can make sure that it is not reset by specifying no section.
+    // First is deliberate, this way we can make sure that it is not reset by specifying no section.
     QTest::newRow("data0") << QString("dd/MM/yyyy hh:mm:ss zzz ap")
                         << (uint)QDateTimeEdit::NoSection << (uint)QDateTimeEdit::YearSection;
     QTest::newRow("data1") << QString("dd/MM/yyyy hh:mm:ss zzz ap")
@@ -2264,8 +2401,8 @@ void tst_QDateTimeEdit::weirdCase()
     QTest::keyClick(testWidget, Qt::Key_Delete);
     QCOMPARE(testWidget->text(), QString("01//01//005"));
     QTest::keyClick(testWidget, Qt::Key_4);
-    QCOMPARE(testWidget->text(), QString("01//01//005"));}
-
+    QCOMPARE(testWidget->text(), QString("01//01//005"));
+}
 
 void tst_QDateTimeEdit::newCase()
 {
@@ -2515,7 +2652,6 @@ void tst_QDateTimeEdit::setSelectedSection()
     QCOMPARE(testWidget->lineEdit()->selectedText(), QString("09"));
     testWidget->setSelectedSection(QDateTimeEdit::NoSection);
     QVERIFY(!testWidget->lineEdit()->hasSelectedText());
-
 }
 
 void tst_QDateTimeEdit::calendarPopup()
@@ -2647,7 +2783,6 @@ void tst_QDateTimeEdit::yyTest()
         QCOMPARE(testWidget->sectionText(QDateTimeEdit::YearSection), QString("00"));
         QCOMPARE(testWidget->date(), QDate(2000 - ((i + 1) * 100), 1, 1));
     }
-
 }
 
 void tst_QDateTimeEdit::task108572()

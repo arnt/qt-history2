@@ -15,7 +15,6 @@
 #define QDATETIMEEDIT_H
 
 #include <QtCore/qdatetime.h>
-#include <QtCore/qvariant.h>
 #include <QtGui/qabstractspinbox.h>
 
 QT_BEGIN_HEADER
@@ -36,6 +35,8 @@ class Q_GUI_EXPORT QDateTimeEdit : public QAbstractSpinBox
     Q_PROPERTY(QDateTime dateTime READ dateTime WRITE setDateTime NOTIFY dateTimeChanged USER true)
     Q_PROPERTY(QDate date READ date WRITE setDate NOTIFY dateChanged)
     Q_PROPERTY(QTime time READ time WRITE setTime NOTIFY timeChanged)
+    Q_PROPERTY(QDateTime maximumDateTime READ maximumDateTime WRITE setMaximumDateTime RESET clearMaximumDateTime)
+    Q_PROPERTY(QDateTime minimumDateTime READ minimumDateTime WRITE setMinimumDateTime RESET clearMinimumDateTime)
     Q_PROPERTY(QDate maximumDate READ maximumDate WRITE setMaximumDate RESET clearMaximumDate)
     Q_PROPERTY(QDate minimumDate READ minimumDate WRITE setMinimumDate RESET clearMinimumDate)
     Q_PROPERTY(QTime maximumTime READ maximumTime WRITE setMaximumTime RESET clearMaximumTime)
@@ -72,6 +73,16 @@ public:
     QDateTime dateTime() const;
     QDate date() const;
     QTime time() const;
+
+    QDateTime minimumDateTime() const;
+    void clearMinimumDateTime();
+    void setMinimumDateTime(const QDateTime &dt);
+
+    QDateTime maximumDateTime() const;
+    void clearMaximumDateTime();
+    void setMaximumDateTime(const QDateTime &dt);
+
+    void setDateTimeRange(const QDateTime &min, const QDateTime &max);
 
     QDate minimumDate() const;
     void setMinimumDate(const QDate &min);

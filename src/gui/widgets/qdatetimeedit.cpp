@@ -253,6 +253,13 @@ QDateTimeEdit::QDateTimeEdit(const QVariant &var, QVariant::Type parserType, QWi
     d->init(var);
 }
 
+/*!
+  \property QDateTimeEdit::dateTime
+  \brief the QDateTime that is set in the QDateTimeEdit
+
+  \sa date, time
+*/
+
 QDateTime QDateTimeEdit::dateTime() const
 {
     Q_D(const QDateTimeEdit);
@@ -275,18 +282,7 @@ void QDateTimeEdit::setDateTime(const QDateTime &datetime)
   \property QDateTimeEdit::date
   \brief the QDate that is set in the QDateTimeEdit
 
-  \sa time
-*/
-
-/*!
-    \property QDateEdit::date
-    \brief the QDate that is edited in the QDateEdit
-
-*/
-
-/*!
-    \property QTimeEdit::time
-    \brief the QTime that is edited in the QTimeEdit
+  \sa time, dateTime
 */
 
 /*!
@@ -307,7 +303,7 @@ void QDateTimeEdit::setDate(const QDate &date)
 
         d->cachedDay = -1;
         d->clearCache();
-        d->setValue(QVariant(QDateTime(date, d->value.toTime())), EmitIfChanged);
+        d->setValue(QDateTime(date, d->value.toTime()), EmitIfChanged);
     }
 }
 
@@ -315,7 +311,7 @@ void QDateTimeEdit::setDate(const QDate &date)
   \property QDateTimeEdit::time
   \brief the QTime that is set in the QDateTimeEdit
 
-  \sa date
+  \sa date, dateTime
 */
 
 /*!
@@ -333,16 +329,119 @@ void QDateTimeEdit::setTime(const QTime &time)
     if (time.isValid()) {
         d->clearCache();
         d->cachedDay = -1;
-        d->setValue(QVariant(QDateTime(d->value.toDate(), time)), EmitIfChanged);
+        d->setValue(QDateTime(d->value.toDate(), time), EmitIfChanged);
+    }
+}
+
+
+/*!
+  \property QDateTimeEdit::minimumDateTime
+  \since 4.4
+
+  \brief the minimum datetime of the date time edit
+
+  When setting this property the \l maximumDateTime is adjusted if
+  necessary to ensure that the range remains valid. If the datetime is
+  not a valid QDateTime object, this function does nothing.
+
+  The default minimumDateTime can be restored with
+  clearMinimumDateTime
+
+  \sa maximumDateTime, minimumTime, maximumTime, minimumDate,
+  maximumDate, setDateTimeRange, setDateRange, setTimeRange,
+  clearMinimumDateTime, clearMaximumDateTime, clearMinimumDate,
+  clearMaximumDate, clearMinimumTime, clearMaximumTime
+*/
+
+QDateTime QDateTimeEdit::minimumDateTime() const
+{
+    Q_D(const QDateTimeEdit);
+    return d->minimum.toDateTime();
+}
+
+void QDateTimeEdit::clearMinimumDateTime()
+{
+    setMinimumDateTime(QDateTime(QDATETIMEEDIT_COMPAT_DATE_MIN, QDATETIMEEDIT_TIME_MIN));
+}
+
+void QDateTimeEdit::setMinimumDateTime(const QDateTime &m)
+{
+    Q_D(QDateTimeEdit);
+    if (m.isValid() && m.date() >= QDATETIMEEDIT_DATE_MIN) {
+        const QDateTime max = d->maximum.toDateTime();
+        d->setRange(m, (max > m ? max : m));
     }
 }
 
 /*!
-  \property QDateTimeEdit::dateTime
-  \brief the QDateTime that is set in the QDateTimeEdit
+  \property QDateTimeEdit::maximumDateTime
+  \since 4.4
 
-  \sa minimumDate, minimumTime, maximumDate, maximumTime
+  \brief the maximum datetime of the date time edit
+
+  When setting this property the \l minimumDateTime is adjusted if
+  necessary to ensure that the range remains valid. If the datetime is
+  not a valid QDateTime object, this function does nothing.
+
+  The default maximumDateTime can be restored with
+  clearMaximumDateTime
+
+  \sa minimumDateTime, minimumTime, maximumTime, minimumDate,
+  maximumDate, setDateTimeRange, setDateRange, setTimeRange,
+  clearMinimumDateTime, clearMaximumDateTime, clearMinimumDate,
+  clearMaximumDate, clearMinimumTime, clearMaximumTime
 */
+
+QDateTime QDateTimeEdit::maximumDateTime() const
+{
+    Q_D(const QDateTimeEdit);
+    return d->maximum.toDateTime();
+}
+
+void QDateTimeEdit::clearMaximumDateTime()
+{
+    setMaximumDateTime(QDATETIMEEDIT_DATETIME_MAX);
+}
+
+void QDateTimeEdit::setMaximumDateTime(const QDateTime &m)
+{
+    Q_D(QDateTimeEdit);
+    if (m.isValid() && m.date() <= QDATETIMEEDIT_DATE_MAX) {
+        const QDateTime min = d->minimum.toDateTime();
+        d->setRange((min < m ? min : m), m);
+    }
+}
+
+
+/*!
+  Convenience function to set minimum and maximum date time with one
+  function call.
+  \since 4.4
+
+  \code
+  setDateTimeRange(min, max);
+  \endcode
+
+  is analogous to:
+
+  \code
+  setMinimumDateTime(min);
+  setMaximumDateTime(max);
+  \endcode
+
+  If either \a min or \a max are not valid, this function does
+  nothing.
+
+  \sa setMinimumDate(), maximumDate(), setMaximumDate(),
+  clearMinimumDate(), setMinimumTime(), maximumTime(),
+  setMaximumTime(), clearMinimumTime(), QDateTime::isValid()
+*/
+
+void QDateTimeEdit::setDateTimeRange(const QDateTime &min, const QDateTime &max)
+{
+    Q_D(QDateTimeEdit);
+    d->setRange(min, min > max ? min : max);
+}
 
 /*!
   \property QDateTimeEdit::minimumDate
@@ -366,8 +465,7 @@ void QDateTimeEdit::setMinimumDate(const QDate &min)
 {
     Q_D(QDateTimeEdit);
     if (min.isValid() && min >= QDATETIMEEDIT_DATE_MIN) {
-        const QVariant m(QDateTime(min, d->minimum.toTime()));
-        d->setRange(m, (d->variantCompare(d->maximum, m) > 0 ? d->maximum : m));
+        setMinimumDateTime(QDateTime(min, d->minimum.toTime()));
     }
 }
 
@@ -398,8 +496,7 @@ void QDateTimeEdit::setMaximumDate(const QDate &max)
 {
     Q_D(QDateTimeEdit);
     if (max.isValid()) {
-        const QVariant m(QDateTime(max, d->maximum.toTime()));
-        d->setRange((d->variantCompare(d->minimum, m) < 0 ? d->minimum : m), m);
+        setMaximumDateTime(QDateTime(max, d->maximum.toTime()));
     }
 }
 
@@ -430,8 +527,8 @@ void QDateTimeEdit::setMinimumTime(const QTime &min)
 {
     Q_D(QDateTimeEdit);
     if (min.isValid()) {
-        const QVariant m(QDateTime(d->minimum.toDate(), min));
-        d->setRange(m, (d->variantCompare(d->maximum, m) > 0 ? d->maximum : m));
+        const QDateTime m(d->minimum.toDate(), min);
+        setMinimumDateTime(m);
     }
 }
 
@@ -461,8 +558,8 @@ void QDateTimeEdit::setMaximumTime(const QTime &max)
 {
     Q_D(QDateTimeEdit);
     if (max.isValid()) {
-        const QVariant m(QDateTime(d->maximum.toDate(), max));
-        d->setRange((d->variantCompare(d->minimum, m) < 0 ? d->minimum : m), m);
+        const QDateTime m(d->maximum.toDate(), max);
+        setMaximumDateTime(m);
     }
 }
 
@@ -498,8 +595,8 @@ void QDateTimeEdit::setDateRange(const QDate &min, const QDate &max)
 {
     Q_D(QDateTimeEdit);
     if (min.isValid() && max.isValid()) {
-        d->setRange(QVariant(QDateTime(min, d->minimum.toTime())),
-                    QVariant(QDateTime(max, d->maximum.toTime())));
+        setDateTimeRange(QDateTime(min, d->minimum.toTime()),
+                         QDateTime(max, d->maximum.toTime()));
     }
 }
 
@@ -530,8 +627,8 @@ void QDateTimeEdit::setTimeRange(const QTime &min, const QTime &max)
 {
     Q_D(QDateTimeEdit);
     if (min.isValid() && max.isValid()) {
-        d->setRange(QVariant(QDateTime(d->minimum.toDate(), min)),
-                    QVariant(QDateTime(d->maximum.toDate(), max)));
+        setDateTimeRange(QDateTime(d->minimum.toDate(), min),
+                         QDateTime(d->maximum.toDate(), max));
     }
 }
 
@@ -768,7 +865,7 @@ void QDateTimeEdit::setDisplayFormat(const QString &format)
             setDateRange(d->value.toDate(), d->value.toDate());
         } else if (dateShown && !timeShown) {
             setTimeRange(QDATETIMEEDIT_TIME_MIN, QDATETIMEEDIT_TIME_MAX);
-            d->value = QVariant(QDateTime(d->value.toDate(), QTime()));
+            d->value = QDateTime(d->value.toDate(), QTime());
         }
         d->updateEdit();
         d->_q_editorCursorPositionChanged(-1, 0);
@@ -1457,8 +1554,8 @@ QDateTimeEditPrivate::QDateTimeEditPrivate()
     none.pos = -1;
     sections = 0;
     calendarPopup = false;
-    minimum = QVariant(QDATETIMEEDIT_COMPAT_DATETIME_MIN);
-    maximum = QVariant(QDATETIMEEDIT_DATETIME_MAX);
+    minimum = QDATETIMEEDIT_COMPAT_DATETIME_MIN;
+    maximum = QDATETIMEEDIT_DATETIME_MAX;
     arrowState = QStyle::State_None;
     monthCalendar = 0;
     readLocaleSettings();
@@ -1467,7 +1564,6 @@ QDateTimeEditPrivate::QDateTimeEditPrivate()
     focusOnButton = false;
 #endif
 }
-
 
 void QDateTimeEditPrivate::updateEdit()
 {
@@ -1509,7 +1605,7 @@ void QDateTimeEditPrivate::updateEdit()
 
 void QDateTimeEditPrivate::setSelected(int sectionIndex, bool forward)
 {
-    if ( specialValue()
+    if (specialValue()
 #ifdef QT_KEYPAD_NAVIGATION
         || (QApplication::keypadNavigationEnabled() && !edit->hasEditFocus())
 #endif
@@ -1529,7 +1625,6 @@ void QDateTimeEditPrivate::setSelected(int sectionIndex, bool forward)
         }
     }
 }
-
 
 /*!
   \internal
@@ -1729,7 +1824,7 @@ QString QDateTimeEditPrivate::textFromValue(const QVariant &f) const
 QVariant QDateTimeEditPrivate::valueFromText(const QString &f) const
 {
     Q_Q(const QDateTimeEdit);
-    return QVariant(q->dateTimeFromText(f));
+    return q->dateTimeFromText(f);
 }
 
 
@@ -1782,10 +1877,12 @@ QDateTime QDateTimeEditPrivate::stepBy(int sectionIndex, int steps, bool test) c
 
     // sure that days are lowered if needed.
 
+    const QDateTime minimumDateTime = minimum.toDateTime();
+    const QDateTime maximumDateTime = maximum.toDateTime();
     // changing one section should only modify that section, if possible
-    if (sn.type != AmPmSection && (variantCompare(v, minimum) < 0) || (variantCompare(v, maximum) > 0)) {
-        const int localmin = getDigit(minimum.toDateTime(), sectionIndex);
-        const int localmax = getDigit(maximum.toDateTime(), sectionIndex);
+    if (sn.type != AmPmSection && (v < minimumDateTime || v > maximumDateTime)) {
+        const int localmin = getDigit(minimumDateTime, sectionIndex);
+        const int localmax = getDigit(maximumDateTime, sectionIndex);
 
         if (wrapping) {
             // just because we hit the roof in one direction, it
@@ -1800,9 +1897,9 @@ QDateTime QDateTimeEditPrivate::stepBy(int sectionIndex, int steps, bool test) c
                     }
                 }
 
-                if (variantCompare(v, minimum) < 0) {
+                if (v < minimumDateTime) {
                     setDigit(v, sectionIndex, localmin);
-                    if (variantCompare(v, minimum) < 0)
+                    if (v < minimumDateTime)
                         setDigit(v, sectionIndex, localmin + 1);
                 }
             } else {
@@ -1815,9 +1912,9 @@ QDateTime QDateTimeEditPrivate::stepBy(int sectionIndex, int steps, bool test) c
                     }
                 }
 
-                if (variantCompare(v, maximum) > 0) {
+                if (v > maximumDateTime) {
                     setDigit(v, sectionIndex, localmax);
-                    if (variantCompare(v, maximum) > 0)
+                    if (v > maximumDateTime)
                         setDigit(v, sectionIndex, localmax - 1);
                 }
             }
@@ -1830,44 +1927,40 @@ QDateTime QDateTimeEditPrivate::stepBy(int sectionIndex, int steps, bool test) c
         cachedDay = qMax<int>(tmp, cachedDay);
     }
 
-    if (variantCompare(v, minimum) < 0) {
+    if (v < minimumDateTime) {
         if (wrapping) {
             QDateTime t = v;
             setDigit(t, sectionIndex, steps < 0 ? max : min);
-            int mincmp = variantCompare(t, minimum);
-            int maxcmp = variantCompare(t, maximum);
-            if (mincmp >= 0 && maxcmp <= 0) {
-                v = t;
-            } else {
+            bool mincmp = (t >= minimumDateTime);
+            bool maxcmp = (t <= maximumDateTime);
+            if (!mincmp || !maxcmp) {
                 setDigit(t, sectionIndex, getDigit(steps < 0
-                                                   ? maximum.toDateTime()
-                                                   : minimum.toDateTime(), sectionIndex));
-                mincmp = variantCompare(t, minimum);
-                maxcmp = variantCompare(t, maximum);
-                if (mincmp >= 0 && maxcmp <= 0) {
-                    v = t;
-                }
+                                                   ? maximumDateTime
+                                                   : minimumDateTime, sectionIndex));
+                mincmp = (t >= minimumDateTime);
+                maxcmp = (t <= maximumDateTime);
+            }
+            if (mincmp && maxcmp) {
+                v = t;
             }
         } else {
             v = value.toDateTime();
         }
-    } else if (variantCompare(v, maximum) > 0) {
+    } else if (v > maximumDateTime) {
         if (wrapping) {
             QDateTime t = v;
             setDigit(t, sectionIndex, steps > 0 ? min : max);
-            int mincmp = variantCompare(t, minimum);
-            int maxcmp = variantCompare(t, maximum);
-            if (mincmp >= 0 && maxcmp <= 0) {
-                v = t;
-            } else {
+            bool mincmp = (t >= minimumDateTime);
+            bool maxcmp = (t <= maximumDateTime);
+            if (!mincmp || !maxcmp) {
                 setDigit(t, sectionIndex, getDigit(steps > 0 ?
-                                                   minimum.toDateTime() :
-                                                   maximum.toDateTime(), sectionIndex));
-                mincmp = variantCompare(t, minimum);
-                maxcmp = variantCompare(t, maximum);
-                if (mincmp >= 0 && maxcmp <= 0) {
-                    v = t;
-                }
+                                                   minimumDateTime :
+                                                   maximumDateTime, sectionIndex));
+                mincmp = (t >= minimumDateTime);
+                maxcmp = (t <= maximumDateTime);
+            }
+            if (mincmp && maxcmp) {
+                v = t;
             }
         } else {
             v = value.toDateTime();
@@ -2152,7 +2245,6 @@ void QDateTimeEditPrivate::init(const QVariant &var)
     if (QApplication::keypadNavigationEnabled())
         q->setCalendarPopup(true);
 #endif
-
     setLayoutItemMargins(QStyle::SE_DateTimeEditLayoutItem);
 }
 
