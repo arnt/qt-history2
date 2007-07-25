@@ -564,7 +564,7 @@ int QProgressDialog::value() const
 
   For the progress dialog to work as expected, you should initially set
   this property to 0 and finally set it to
-  QProgressDialog::totalSteps(); you can call setProgress() any number of times
+  QProgressDialog::maximum(); you can call setValue() any number of times
   in-between.
 
   \warning If the progress dialog is modal
