@@ -231,7 +231,7 @@ ColorSwatch::ColorSwatch(const QString &colorName, QWidget *parent, Qt::WindowFl
     : QDockWidget(parent, flags)
 {
     setObjectName(colorName + QLatin1String(" Dock Widget"));
-    setWindowTitle(objectName());
+    setWindowTitle(objectName() + QLatin1String(" [*]"));
 
     QFrame *swatch = new ColorDock(colorName, this);
     swatch->setFrameStyle(QFrame::Box | QFrame::Sunken);
@@ -331,6 +331,11 @@ ColorSwatch::ColorSwatch(const QString &colorName, QWidget *parent, Qt::WindowFl
     splitVMenu->setTitle(tr("Split vertically into"));
     connect(splitVMenu, SIGNAL(triggered(QAction*)), this, SLOT(splitInto(QAction*)));
 
+    windowModifiedAction = new QAction(tr("Modified"), this);
+    windowModifiedAction->setCheckable(true);
+    windowModifiedAction->setChecked(false);
+    connect(windowModifiedAction, SIGNAL(toggled(bool)), this, SLOT(setWindowModified(bool)));
+
     menu = new QMenu(colorName, this);
     menu->addAction(toggleViewAction());
     QAction *action = menu->addAction(tr("Raise"));
@@ -350,6 +355,8 @@ ColorSwatch::ColorSwatch(const QString &colorName, QWidget *parent, Qt::WindowFl
     menu->addMenu(splitHMenu);
     menu->addMenu(splitVMenu);
     menu->addMenu(tabMenu);
+    menu->addSeparator();
+    menu->addAction(windowModifiedAction);
 
     connect(menu, SIGNAL(aboutToShow()), this, SLOT(updateContextMenu()));
 
@@ -422,9 +429,9 @@ void ColorSwatch::updateContextMenu()
     foreach (ColorSwatch *dock, dock_list) {
 //        if (!dock->isVisible() || dock->isFloating())
 //            continue;
-        tabMenu->addAction(dock->windowTitle());
-        splitHMenu->addAction(dock->windowTitle());
-        splitVMenu->addAction(dock->windowTitle());
+        tabMenu->addAction(dock->objectName());
+        splitHMenu->addAction(dock->objectName());
+        splitVMenu->addAction(dock->objectName());
     }
 }
 
@@ -434,7 +441,7 @@ void ColorSwatch::splitInto(QAction *action)
     QList<ColorSwatch*> dock_list = qFindChildren<ColorSwatch*>(mainWindow);
     ColorSwatch *target = 0;
     foreach (ColorSwatch *dock, dock_list) {
-        if (action->text() == dock->windowTitle()) {
+        if (action->text() == dock->objectName()) {
             target = dock;
             break;
         }
@@ -453,7 +460,7 @@ void ColorSwatch::tabInto(QAction *action)
     QList<ColorSwatch*> dock_list = qFindChildren<ColorSwatch*>(mainWindow);
     ColorSwatch *target = 0;
     foreach (ColorSwatch *dock, dock_list) {
-        if (action->text() == dock->windowTitle()) {
+        if (action->text() == dock->objectName()) {
             target = dock;
             break;
         }

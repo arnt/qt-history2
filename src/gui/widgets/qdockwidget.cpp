@@ -35,6 +35,8 @@
 #include <qmacstyle_mac.h>
 #endif
 
+extern QString qt_setWindowTitle_helperHelper(const QString&, QWidget*); // qwidget.cpp
+
 static inline bool hasFeature(const QDockWidget *dockwidget, QDockWidget::DockWidgetFeature feature)
 { return (dockwidget->features() & feature) == feature; }
 
@@ -527,7 +529,8 @@ void QDockWidgetPrivate::init()
 #ifndef QT_NO_ACTION
     toggleViewAction = new QAction(q);
     toggleViewAction->setCheckable(true);
-    toggleViewAction->setText(q->windowTitle());
+    fixedWindowTitle = qt_setWindowTitle_helperHelper(q->windowTitle(), q);
+    toggleViewAction->setText(fixedWindowTitle);
     QObject::connect(toggleViewAction, SIGNAL(triggered(bool)),
                         q, SLOT(_q_toggleView(bool)));
 #endif
@@ -544,13 +547,15 @@ void QDockWidgetPrivate::init()
 */
 void QDockWidget::initStyleOption(QStyleOptionDockWidget *option) const
 {
+    Q_D(const QDockWidget);
+
     if (!option)
         return;
     QDockWidgetLayout *dwlayout = qobject_cast<QDockWidgetLayout*>(layout());
 
     option->initFrom(this);
     option->rect = dwlayout->titleArea();
-    option->title = windowTitle();
+    option->title = d->fixedWindowTitle;
     option->closable = hasFeature(this, QDockWidget::DockWidgetClosable);
     option->movable = hasFeature(this, QDockWidget::DockWidgetMovable);
     option->floatable = hasFeature(this, QDockWidget::DockWidgetFloatable);
@@ -1183,10 +1188,12 @@ void QDockWidget::changeEvent(QEvent *event)
     QDockWidgetLayout *layout = qobject_cast<QDockWidgetLayout*>(this->layout());
 
     switch (event->type()) {
+    case QEvent::ModifiedChange:
     case QEvent::WindowTitleChange:
         update(layout->titleArea());
 #ifndef QT_NO_ACTION
-        d->toggleViewAction->setText(windowTitle());
+        d->fixedWindowTitle = qt_setWindowTitle_helperHelper(windowTitle(), this);
+        d->toggleViewAction->setText(d->fixedWindowTitle);
 #endif
 #ifndef QT_NO_TABBAR
         {

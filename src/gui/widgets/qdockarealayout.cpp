@@ -1847,7 +1847,8 @@ void QDockAreaLayoutInfo::updateTabBar() const
         if (item.widgetItem == 0)
             continue;
 
-        QString title = item.widgetItem->widget()->windowTitle();
+        QDockWidget *dw = qobject_cast<QDockWidget*>(item.widgetItem->widget());
+        QString title = dw->d_func()->fixedWindowTitle;
         quintptr id = tabId(item);
         if (tab_idx == tabBar->count()) {
             tabBar->insertTab(tab_idx, title);

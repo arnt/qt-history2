@@ -48,6 +48,8 @@ class ColorSwatch : public QDockWidget
     QMenu *splitHMenu;
     QMenu *splitVMenu;
 
+    QAction *windowModifiedAction;
+
 public:
     ColorSwatch(const QString &colorName, QWidget *parent = 0, Qt::WindowFlags flags = 0);
 
