@@ -191,6 +191,7 @@ private slots:
     void cursorPositionOnInit();
 
     void dateEditTimeEditFormats();
+    void cachedDayTest();
 private:
     EditorDateEdit* testWidget;
     QWidget *testFocusWidget;
@@ -2922,6 +2923,19 @@ void tst_QDateTimeEdit::dateEditTimeEditFormats()
     QDateEdit d;
     d.setDisplayFormat("hh yyyy");
     QCOMPARE(d.displayedSections(), QDateTimeEdit::YearSection);
+}
+
+void tst_QDateTimeEdit::cachedDayTest()
+{
+    testWidget->setDisplayFormat("MM/dd");
+    testWidget->setDate(QDate(2007, 1, 30));
+    testWidget->setCurrentSection(QDateTimeEdit::DaySection);
+    QTest::keyClick(testWidget->lineEdit(), Qt::Key_Up);
+    testWidget->setCurrentSection(QDateTimeEdit::MonthSection);
+    QTest::keyClick(testWidget->lineEdit(), Qt::Key_Up);
+    QCOMPARE(testWidget->date(), QDate(2007, 2, 28));
+    QTest::keyClick(testWidget, Qt::Key_Up);
+    QCOMPARE(testWidget->date(), QDate(2007, 3, 31));
 }
 
 QTEST_MAIN(tst_QDateTimeEdit)
