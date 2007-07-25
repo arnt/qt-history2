@@ -34,6 +34,8 @@
 
 #include <math.h>
 
+double qstrtod(const char *s00, char const **se, bool *ok);
+
 static bool parsePathDataFast(const QStringRef &data, QPainterPath &path);
 
 static QPen defaultPen(Qt::black, 1, Qt::NoPen,
@@ -322,7 +324,10 @@ static qreal toDouble(const QChar *&str)
             val = strtof(temp, 0);
         else
 #endif
-            val = strtod(temp, 0);
+        {
+            bool ok = false;
+            val = qstrtod(temp, 0, &ok);
+        }
     }
     return val;
 
