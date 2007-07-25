@@ -1767,7 +1767,7 @@ QMacStyle::~QMacStyle()
 /*! \reimp */
 void QMacStyle::polish(QPalette &pal)
 {
-    QPixmap px(200, 200);
+    QPixmap px(1, 4);
     QColor pc(Qt::black);
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
     if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_4) {
