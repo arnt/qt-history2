@@ -69,6 +69,7 @@ QToolBarLayout::~QToolBarLayout()
                 if (item->customWidget)
                     widgetAction->releaseWidget(item->widget());
             }
+            delete item;
         }
     }
 }

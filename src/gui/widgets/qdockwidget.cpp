@@ -167,6 +167,11 @@ QDockWidgetLayout::QDockWidgetLayout(QWidget *parent)
 {
 }
 
+QDockWidgetLayout::~QDockWidgetLayout()
+{
+    qDeleteAll(item_list);
+}
+
 bool QDockWidgetLayout::nativeWindowDeco() const
 {
 #if defined(Q_WS_X11) || defined(Q_WS_QWS)
