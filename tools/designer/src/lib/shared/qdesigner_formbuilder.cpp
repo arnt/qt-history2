@@ -159,6 +159,50 @@ QPixmap QDesignerFormBuilder::nameToPixmap(const QString &filePath, const QStrin
     return QPixmap(core()->iconCache()->resolveQrcPath(filePath, qrcPath, workingDirectory().absolutePath()));
 }
 
+/* If the property is a enum or flag value, retrieve
+ * the existing enum/flag type via property sheet and use it to convert */
+
+static bool readDomEnumerationValue(const DomProperty *p,
+                                    const QDesignerPropertySheetExtension* sheet,
+                                    QVariant &v)
+{
+    switch (p->kind()) {
+    case DomProperty::Set: {
+        const int index = sheet->indexOf(p->attributeName());
+        if (index == -1)
+            return false;
+        const QVariant sheetValue = sheet->property(index);
+        if (qVariantCanConvert<PropertySheetFlagValue>(sheetValue)) {
+            const PropertySheetFlagValue f = qvariant_cast<PropertySheetFlagValue>(sheetValue);
+            bool ok = false;
+            v = f.metaFlags.parseFlags(p->elementSet(), &ok);
+            if (!ok)
+                designerWarning(f.metaFlags.messageParseFailed(p->elementSet()));
+            return true;
+        }
+    }
+        break;
+    case DomProperty::Enum: {
+        const int index = sheet->indexOf(p->attributeName());
+        if (index == -1)
+            return false;
+        const QVariant sheetValue = sheet->property(index);
+        if (qVariantCanConvert<PropertySheetEnumValue>(sheetValue)) {
+            const PropertySheetEnumValue e = qvariant_cast<PropertySheetEnumValue>(sheetValue);
+            bool ok = false;
+            v = e.metaEnum.parseEnum(p->elementEnum(), &ok);
+            if (!ok)
+                designerWarning(e.metaEnum.messageParseFailed(p->elementEnum()));
+            return true;
+        }
+    }
+        break;
+    default:
+        break;
+    }
+    return false;
+}
+
 void QDesignerFormBuilder::applyProperties(QObject *o, const QList<DomProperty*> &properties)
 {
     typedef QList<DomProperty*> DomPropertyList;
@@ -175,28 +219,14 @@ void QDesignerFormBuilder::applyProperties(QObject *o, const QList<DomProperty*>
     const DomPropertyList::const_iterator cend = properties.constEnd();
     for (DomPropertyList::const_iterator it = properties.constBegin(); it != cend; ++it) {
         DomProperty *p = *it;
-        const QString attributeName = p->attributeName();
         QVariant v;
-        if (sheet && p->kind() == DomProperty::Enum && qVariantCanConvert<EnumType>(sheet->property(sheet->indexOf(attributeName)))) {
-            const EnumType e = qvariant_cast<EnumType>(sheet->property(sheet->indexOf(attributeName)));
-            if (e.items.contains(p->elementEnum()))
-                v = e.items[p->elementEnum()];
-        } else if (sheet && p->kind() == DomProperty::Set && qVariantCanConvert<FlagType>(sheet->property(sheet->indexOf(attributeName)))) {
-            const FlagType e = qvariant_cast<FlagType>(sheet->property(sheet->indexOf(attributeName)));
-            uint flags = 0;
-            QStringList items = p->elementSet().split(QLatin1String("|"));
-            foreach (QString item, items) {
-                if (e.items.contains(item))
-                    flags |= e.items[item].toUInt();
-            }
-            v = flags;
-        } else {
+        if (!readDomEnumerationValue(p, sheet, v))
             v = toVariant(meta, p);
-        }
 
         if (v.isNull())
             continue;
 
+        const QString attributeName = p->attributeName();
         if (formBuilderExtra->applyPropertyInternally(o, attributeName, v))
             continue;
 
@@ -243,7 +273,7 @@ void QDesignerFormBuilder::loadExtraInfo(DomWidget *ui_widget, QWidget *widget, 
 QWidget *QDesignerFormBuilder::createPreview(const QDesignerFormWindowInterface *fw,
                                              const QString &styleName,
                                              const QString &appStyleSheet,
-                                             ScriptErrors *scriptErrors, 
+                                      ScriptErrors *scriptErrors,
                                              QString *errorMessage)
 {
     scriptErrors->clear();

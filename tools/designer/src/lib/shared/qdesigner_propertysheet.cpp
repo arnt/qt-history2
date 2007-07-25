@@ -24,6 +24,7 @@
 
 #include <QtCore/QMetaObject>
 #include <QtCore/QMetaProperty>
+#include <QtCore/QDebug>
 #include <private/qobject_p.h>
 
 #include <QtGui/QLayout>
@@ -33,6 +34,13 @@
 #include <QtGui/QGroupBox>
 #include <QtGui/QStyle>
 #include <QtGui/QApplication>
+
+// #define SIMULATE_JAMBI
+#ifdef SIMULATE_JAMBI
+static const char *enumSeparatorC = ".";
+#else
+static const char *enumSeparatorC = "::";
+#endif
 
 static const QMetaObject *propertyIntroducedBy(const QMetaObject *meta, int index)
 {
@@ -70,6 +78,64 @@ static bool hasLayoutAttributes(QDesignerFormEditorInterface *core, QObject *obj
             return true;
     }
     return false;
+}
+
+// Cache DesignerMetaEnum by scope/name of a  QMetaEnum
+static const qdesigner_internal::DesignerMetaEnum &designerMetaEnumFor(const QMetaEnum &me)
+{
+    typedef QPair<QString, QString> ScopeNameKey;
+    typedef QMap<ScopeNameKey, qdesigner_internal::DesignerMetaEnum> DesignerMetaEnumCache;
+    static DesignerMetaEnumCache cache;
+
+    const QString name = QLatin1String(me.name());
+#ifdef SIMULATE_JAMBI
+    // Java uses the enum name
+    QString scope = QLatin1String(me.scope());
+    scope += QLatin1String(enumSeparatorC);
+    scope += name;
+#else
+    const QString scope = QLatin1String(me.scope());
+#endif
+
+    const ScopeNameKey key = ScopeNameKey(scope, name);
+    DesignerMetaEnumCache::iterator it = cache.find(key);
+    if (it == cache.end()) {
+        qdesigner_internal::DesignerMetaEnum dme = qdesigner_internal::DesignerMetaEnum( name, scope, QLatin1String(enumSeparatorC));
+        const int keyCount = me.keyCount();
+        for (int i=0; i < keyCount; ++i)
+            dme.addKey(me.value(i), QLatin1String(me.key(i)));
+        it = cache.insert(key, dme);
+    }
+    return it.value();
+}
+
+// Cache DesignerMetaFlags by scope/name of a  QMetaEnum
+static const qdesigner_internal::DesignerMetaFlags &designerMetaFlagsFor(const QMetaEnum &me)
+{
+    typedef QPair<QString, QString> ScopeNameKey;
+    typedef QMap<ScopeNameKey, qdesigner_internal::DesignerMetaFlags> DesignerMetaFlagsCache;
+    static DesignerMetaFlagsCache cache;
+
+    const QString name = QLatin1String(me.name());
+#ifdef SIMULATE_JAMBI
+    // Java uses the enum name
+    QString scope = QLatin1String(me.scope());
+    scope += QLatin1String(enumSeparatorC);
+    scope += name;
+#else
+    const QString scope = QLatin1String(me.scope());
+#endif
+
+    const ScopeNameKey key = ScopeNameKey(scope, name);
+    DesignerMetaFlagsCache::iterator it = cache.find(key);
+    if (it == cache.end()) {
+        qdesigner_internal::DesignerMetaFlags dme = qdesigner_internal::DesignerMetaFlags(name, scope, QLatin1String(enumSeparatorC));
+        const int keyCount = me.keyCount();
+        for (int i=0; i < keyCount; ++i)
+            dme.addKey(me.value(i), QLatin1String(me.key(i)));
+        it = cache.insert(key, dme);
+    }
+    return it.value();
 }
 
 // ------------ QDesignerMemberSheetPrivate
@@ -612,50 +678,23 @@ QVariant QDesignerPropertySheet::metaProperty(int index) const
 
     const QMetaProperty p = d->m_meta->property(index);
     QVariant v = p.read(d->m_object);
-
-    static const QString doubleColon = QLatin1String("::");
     if (p.isFlagType()) {
-        qdesigner_internal::FlagType e;
-        e.value = v;
-        const QMetaEnum me = p.enumerator();
-        QString scope = QString::fromUtf8(me.scope());
-        if (!scope.isEmpty())
-            scope += doubleColon;
-        const int keyCount = me.keyCount();
-        for (int i=0; i < keyCount; ++i) {
-            const QString key = scope + QLatin1String(me.key(i));
-            e.items.insert(key, me.keyToValue(key.toUtf8().constData()));
-            e.names.append(key);
-        }
-
-        qVariantSetValue(v, e);
+        qdesigner_internal::PropertySheetFlagValue psflags = qdesigner_internal::PropertySheetFlagValue(v.toInt(), designerMetaFlagsFor(p.enumerator()));
+        qVariantSetValue(v, psflags);
     } else if (p.isEnumType()) {
-        qdesigner_internal::EnumType e;
-        e.value = v;
-        const QMetaEnum me = p.enumerator();
-        QString scope = QString::fromUtf8(me.scope());
-        if (!scope.isEmpty())
-            scope += doubleColon;
-        const int keyCount = me.keyCount();
-        for (int i=0; i < keyCount; ++i) {
-            const QString key = scope + QLatin1String(me.key(i));
-            e.items.insert(key, me.keyToValue(key.toUtf8().constData()));
-            e.names.append(key);
-        }
-
-        qVariantSetValue(v, e);
+        qdesigner_internal::PropertySheetEnumValue pse = qdesigner_internal::PropertySheetEnumValue(v.toInt(), designerMetaEnumFor(p.enumerator()));
+        qVariantSetValue(v, pse);
     }
-
     return v;
 }
 
 QVariant QDesignerPropertySheet::resolvePropertyValue(const QVariant &value) const
 {
-    if (qVariantCanConvert<qdesigner_internal::FlagType>(value))
-       return qvariant_cast<qdesigner_internal::FlagType>(value).value;
+    if (qVariantCanConvert<qdesigner_internal::PropertySheetEnumValue>(value))
+       return qvariant_cast<qdesigner_internal::PropertySheetEnumValue>(value).value;
 
-    if (qVariantCanConvert<qdesigner_internal::EnumType>(value))
-       return qvariant_cast<qdesigner_internal::EnumType>(value).value;
+    if (qVariantCanConvert<qdesigner_internal::PropertySheetFlagValue>(value))
+       return qvariant_cast<qdesigner_internal::PropertySheetFlagValue>(value).value;
 
     return value;
 }
@@ -667,18 +706,18 @@ void QDesignerPropertySheet::setFakeProperty(int index, const QVariant &value)
 
     QVariant &v = d->m_fakeProperties[index];
 
-    if (qVariantCanConvert<qdesigner_internal::FlagType>(value) || qVariantCanConvert<qdesigner_internal::EnumType>(value)) {
+    if (qVariantCanConvert<qdesigner_internal::PropertySheetFlagValue>(value) || qVariantCanConvert<qdesigner_internal::PropertySheetEnumValue>(value)) {
         v = value;
-    } else if (qVariantCanConvert<qdesigner_internal::FlagType>(v)) {
-        qdesigner_internal::FlagType f = qvariant_cast<qdesigner_internal::FlagType>(v);
-        f.value = value;
+    } else if (qVariantCanConvert<qdesigner_internal::PropertySheetFlagValue>(v)) {
+        qdesigner_internal::PropertySheetFlagValue f = qvariant_cast<qdesigner_internal::PropertySheetFlagValue>(v);
+        f.value = value.toInt();
         qVariantSetValue(v, f);
-        Q_ASSERT(f.value.type() == QVariant::Int);
-    } else if (qVariantCanConvert<qdesigner_internal::EnumType>(v)) {
-        qdesigner_internal::EnumType e = qvariant_cast<qdesigner_internal::EnumType>(v);
-        e.value = value;
+        Q_ASSERT(value.type() == QVariant::Int);
+    } else if (qVariantCanConvert<qdesigner_internal::PropertySheetEnumValue>(v)) {
+        qdesigner_internal::PropertySheetEnumValue e = qvariant_cast<qdesigner_internal::PropertySheetEnumValue>(v);
+        e.value = value.toInt();
         qVariantSetValue(v, e);
-        Q_ASSERT(e.value.type() == QVariant::Int);
+        Q_ASSERT(value.type() == QVariant::Int);
     } else {
         v = value;
     }
@@ -733,7 +772,7 @@ void QDesignerPropertySheet::setProperty(int index, const QVariant &value)
         if (qobject_cast<QGroupBox *>(d->m_object) && propertyType(index) == PropertyCheckable) {
             const int idx = indexOf(QLatin1String("focusPolicy"));
             if (!isChanged(idx)) {
-                qdesigner_internal::EnumType e = qVariantValue<qdesigner_internal::EnumType>(property(idx));
+                qdesigner_internal::PropertySheetEnumValue e = qVariantValue<qdesigner_internal::PropertySheetEnumValue>(property(idx));
                 if (value.toBool()) {
                     const QMetaProperty p = d->m_meta->property(idx);
                     p.write(d->m_object, Qt::NoFocus);
@@ -1070,3 +1109,4 @@ void QDesignerAbstractPropertySheetFactory::objectDestroyed(QObject *object)
 
     m_impl->m_extended.remove(object);
 }
+

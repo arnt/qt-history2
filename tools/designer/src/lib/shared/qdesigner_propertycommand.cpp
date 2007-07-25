@@ -444,8 +444,8 @@ PropertyHelper::Value applySubProperty(const QVariant &oldValue, const QVariant 
         // Enumerations, flags
         switch (specialProperty) {
         case qdesigner_internal::SP_Alignment: {
-            qdesigner_internal::FlagType f = qvariant_cast<qdesigner_internal::FlagType>(oldValue);
-            f.value = static_cast<uint>(applyAlignmentSubProperty(variantToAlignment(oldValue), variantToAlignment(newValue), mask));
+            qdesigner_internal::PropertySheetFlagValue f = qvariant_cast<qdesigner_internal::PropertySheetFlagValue>(oldValue);
+            f.value = applyAlignmentSubProperty(variantToAlignment(oldValue), variantToAlignment(newValue), mask);
             QVariant v;
             qVariantSetValue(v, f);
             return PropertyHelper::Value(v, changed);

@@ -26,6 +26,7 @@
 #include <QtGui/QApplication>
 #include <QtCore/QProcess>
 #include <QtCore/QLibraryInfo>
+#include <QtCore/QDebug>
 
 namespace qdesigner_internal
 {
@@ -36,50 +37,139 @@ namespace qdesigner_internal
         qWarning(prefixedMessage.toUtf8().constData());
     }
 
-    QString EnumType::id() const
+    // ------------- DesignerMetaEnum
+    DesignerMetaEnum::DesignerMetaEnum(const QString &name, const QString &scope, const QString &separator) :
+        MetaEnum<int>(name, scope, separator)
     {
-        const int v = value.toInt();
-        const ItemMap::const_iterator cend = items.constEnd();
-        for (ItemMap::const_iterator it = items.constBegin();it != cend; ++it )  {
-            if (it.value().toInt() == v)
-                return it.key();
-        }
-        return QString();
     }
 
-    // ------- FlagType
-    QStringList FlagType::flags() const
+
+    QString DesignerMetaEnum::toString(int value, SerializationMode sm, bool *ok) const
     {
+        // find value
+        bool valueOk;
+        const QString item = valueToKey(value, &valueOk);
+        if (ok)
+            *ok = valueOk;
+
+        if (!valueOk || sm == NameOnly)
+            return item;
+
+        QString qualifiedItem;
+        appendQualifiedName(item,  qualifiedItem);
+        return qualifiedItem;
+    }
+
+    QString DesignerMetaEnum::messageToStringFailed(int value) const
+    {
+        return QObject::tr("%1 is not a valid enumeration value of '%2'.").arg(value).arg(name());
+    }
+
+    QString DesignerMetaEnum::messageParseFailed(const QString &s) const
+    {
+        return QObject::tr("'%1' could not be converted to an enumeration value of type '%2'.").arg(s).arg(name());
+    }
+    // -------------- DesignerMetaFlags
+    DesignerMetaFlags::DesignerMetaFlags(const QString &name, const QString &scope, const QString &separator) :
+       MetaEnum<uint>(name, scope, separator)
+    {
+    }
+
+    QStringList DesignerMetaFlags::flags(int ivalue) const
+    {
+        typedef MetaEnum<uint>::KeyToValueMap::const_iterator KeyToValueMapIterator;
         QStringList rc;
-        const uint v = value.toUInt();
-        const ItemMap::const_iterator cend = items.constEnd();
-        for (ItemMap::const_iterator it = items.constBegin();it != cend; ++it )  {
-            const uint itemValue = it.value().toUInt();
+        const uint v = static_cast<uint>(ivalue);
+        const KeyToValueMapIterator cend = keyToValueMap().constEnd();
+        for (KeyToValueMapIterator it = keyToValueMap().constBegin();it != cend; ++it )  {
+            const uint itemValue = it.value();
             // Check for equality first as flag values can be 0 or -1, too. Takes preference over a bitwise flag
             if (v == itemValue) {
                 rc.clear();
                 rc.push_back(it.key());
                 return rc;
             }
-            if ((v & itemValue) == itemValue)
-                rc.push_back(it.key());
+            // Do not add 0-flags (None-flags)
+            if (itemValue)
+                if ((v & itemValue) == itemValue)
+                    rc.push_back(it.key());
         }
         return rc;
     }
 
-    QString FlagType::flagString() const
+
+    QString DesignerMetaFlags::toString(int value, SerializationMode sm) const
     {
-        const QStringList flagIds = flags();
-        switch (flagIds.size()) {
-        case 0:
+        const QStringList flagIds = flags(value);
+        if (flagIds.empty())
             return QString();
-        case 1:
-            return flagIds.front();
-        default:
-            break;
+
+        const QChar delimiter = QLatin1Char('|');
+        QString rc;
+        const QStringList::const_iterator cend = flagIds.constEnd();
+        for (QStringList::const_iterator it = flagIds.constBegin(); it != cend; ++it) {
+            if (!rc.isEmpty())
+                rc += delimiter ;
+            if (sm == FullyQualified)
+                appendQualifiedName(*it, rc);
+            else
+                rc += *it;
         }
-        static const QString delimiter = QString(QLatin1Char('|'));
-        return flagIds.join(delimiter);
+        return rc;
+    }
+
+
+    int DesignerMetaFlags::parseFlags(const QString &s, bool *ok) const
+    {
+        if (s.isEmpty()) {
+            if (ok)
+                *ok = true;
+            return 0;
+        }
+        uint flags = 0;
+        bool valueOk = true;
+        QStringList keys = s.split(QString(QLatin1Char('|')));
+        const QStringList::iterator cend = keys.end();
+        for (QStringList::iterator it = keys.begin(); it != cend; ++it) {
+            const uint flagValue = keyToValue(*it, &valueOk);
+            if (!valueOk) {
+                flags = 0;
+                break;
+            }
+            flags |= flagValue;
+        }
+        if (ok)
+            *ok = valueOk;
+        return static_cast<int>(flags);
+    }
+
+    QString DesignerMetaFlags::messageParseFailed(const QString &s) const
+    {
+        return QObject::tr("'%1' could not be converted to a flag value of type '%2'.").arg(s).arg(name());
+    }
+
+    // ---------- PropertySheetEnumValue
+
+    PropertySheetEnumValue::PropertySheetEnumValue(int v, const DesignerMetaEnum &me) :
+       value(v),
+       metaEnum(me)
+    {
+    }
+    PropertySheetEnumValue::PropertySheetEnumValue() :
+       value(0)
+    {
+    }
+
+    // ---------------- PropertySheetFlagValue
+    PropertySheetFlagValue::PropertySheetFlagValue(int v, const DesignerMetaFlags &mf) :
+        value(v),
+        metaFlags(mf)
+    {
+    }
+
+    PropertySheetFlagValue::PropertySheetFlagValue() :
+        value(0)
+    {
     }
 
     // Convenience to return an icon normalized to form directory

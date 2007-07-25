@@ -94,10 +94,10 @@ QVariant domPropertyToVariant(QAbstractFormBuilder *afb,const QMetaObject *meta,
         const QByteArray pname = p->attributeName().toUtf8();
         const int index = meta->indexOfProperty(pname);
         if (index == -1) {
-            // ### special-casing for Line (QFrame) -- fix for 4.2
+            // ### special-casing for Line (QFrame) -- fix for 4.2. Jambi hack for enumerations
             if (!qstrcmp(meta->className(), "QFrame")
                 && (pname == QByteArray("orientation"))) {
-                return QVariant((p->elementEnum() == QLatin1String("Qt::Horizontal")) ? QFrame::HLine : QFrame::VLine);
+                return QVariant(p->elementEnum().endsWith(QLatin1String("Horizontal")) ? QFrame::HLine : QFrame::VLine);
             } else {
                 uiLibWarning(QObject::tr("The enumeration-type property %1 could not be read.").arg(p->attributeName()));
                 return QVariant();
