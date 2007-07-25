@@ -903,7 +903,7 @@ HIRect QMacStylePrivate::comboboxInnerBounds(const HIRect &outerBounds, int butt
         break;
     case kThemePopupButtonMini:
         innerBounds.origin.x += 2;
-        innerBounds.origin.y += 3;
+        innerBounds.origin.y += 2;
         innerBounds.size.width -= 5;
         innerBounds.size.height -= 6;
         break;
