@@ -15,9 +15,17 @@
   \printuntil /^\}/
 
   To compile and link the example, run make. To run the example,
-  launch two instances of the executable. 
+  launch an instance of the executable and press the top button.
 
-  \image sharedmemory-example.png Screenshot of the Shared Memory example
+  \image sharedmemory-example_1.png Screenshot of the Shared Memory example
 
+  Select an image file (e.g., qt.png) and the dialog loads it into a
+  shared memory segment and displays it.
 
-*/
+  \image sharedmemory-example_2.png Screenshot of the Shared Memory example
+
+  Now launch a second instance of the executable, and press the bottom
+  button. The second dialog displays the same image but this time
+  loaded from shared memory.
+
+  */
