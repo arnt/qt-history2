@@ -27,8 +27,8 @@ class Q_XML_EXPORT QXmlStreamStringRef {
     int m_position, m_size;
 public:
     inline QXmlStreamStringRef():m_position(0), m_size(0){}
-    inline QXmlStreamStringRef(const QStringRef &string)
-        :m_string(string.string()?*string.string():QString()), m_position(string.position()), m_size(string.size()){}
+    inline QXmlStreamStringRef(const QStringRef &aString)
+        :m_string(aString.string()?*aString.string():QString()), m_position(aString.position()), m_size(aString.size()){}
     inline ~QXmlStreamStringRef(){}
     inline void clear() { m_string.clear(); m_position = m_size = 0; }
     inline operator QStringRef() const { return QStringRef(&m_string, m_position, m_size); }
