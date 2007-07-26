@@ -293,7 +293,7 @@
     \o \l{xml/xmlstreamlint}{XML Stream Lint Example}\raisedaster
     \endlist
 
-    \section1 IPC Examples
+    \section1 Inter-Process Communication
     \list
     \o \l{ipc/sharedmemory}{Shared Memory}\raisedaster
     \endlist

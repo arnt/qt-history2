@@ -1,6 +1,23 @@
 /*!
-    \example ipc/sharedmemory
-    \title Shared Memory Example
+  \example ipc/sharedmemory
+  \title Shared Memory Example
 
-    The Shared Memory example shows how to use shared memory with Qt.
+  The Shared Memory example shows how to use the QSharedMemory class
+  to implement inter-process communication via shared memory. The
+  example uses a standard Qt main program and a dialog class (Dialog),
+  which is a simple subclass of QDialog. The main() function creates
+  an \l {QApplication} {application} and an instance of our Dialog,
+  and then shows the dialog and passes control to the application in
+  the standard way.
+
+  \quotefromfile ipc/sharedmemory/main.cpp
+  \skipto int main
+  \printuntil /^\}/
+
+  To compile and link the example, run make. To run the example,
+  launch two instances of the executable. 
+
+  \image sharedmemory-example.png Screenshot of the Shared Memory example
+
+
 */

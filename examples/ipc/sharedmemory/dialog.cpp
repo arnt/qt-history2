@@ -46,7 +46,6 @@ Dialog::Dialog(QWidget *parent)
     connect(ui.loadFromSharedMemoryButton,
 	    SIGNAL(clicked()),
 	    SLOT(loadFromMemory()));
-    connect(ui.detachButton, SIGNAL(clicked()), SLOT(detach()));
     setWindowTitle(tr("SharedMemory Example"));
 }
 
@@ -102,8 +101,6 @@ void Dialog::loadFromFile()
     const char *from = buffer.data().data();
     memcpy(to, from, qMin(sharedMemory.size(), size));
     sharedMemory.unlock();
-
-    ui.detachButton->setEnabled(true);
 }
 
 /*!
@@ -121,8 +118,8 @@ void Dialog::loadFromFile()
 void Dialog::loadFromMemory()
 {
     if (!sharedMemory.attach()) {
-        ui.label->setText(tr("Unable to load from shared memory: \n%1.\n" \
-            "Try loading an image first.").arg(sharedMemory.errorString()));
+        ui.label->setText(tr("The shared memory segment does not exist\n" \
+			     "Press \"Load Image From File\""));
         return;
     }
 
@@ -149,8 +146,6 @@ void Dialog::loadFromMemory()
 void Dialog::detach()
 {
     if (!sharedMemory.detach())
-        ui.label->setText(tr("Unable to detach from shared memory: " \
-                             "\n%1.\n").arg(sharedMemory.errorString()));
-    ui.detachButton->setEnabled(false);
+        ui.label->setText(tr("Unable to detach from shared memory."));
 }
 

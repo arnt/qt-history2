@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>413</width>
-    <height>300</height>
+    <width>451</width>
+    <height>322</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -23,7 +23,7 @@
    <item row="1" column="0" >
     <widget class="QLabel" name="label" >
      <property name="text" >
-      <string>Launch two copies of this application and in the first one load an image. In the second application load the image from the shared memory.</string>
+      <string>Launch two of these dialogs.  In the first, press the top button and load an image from a file.  In the second, press the bottom button and display the loaded image from shared memory.</string>
      </property>
      <property name="alignment" >
       <set>Qt::AlignCenter</set>
@@ -36,17 +36,7 @@
    <item row="2" column="0" >
     <widget class="QPushButton" name="loadFromSharedMemoryButton" >
      <property name="text" >
-      <string>Load Image from Shared Memory</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="0" >
-    <widget class="QPushButton" name="detachButton" >
-     <property name="enabled" >
-      <bool>false</bool>
-     </property>
-     <property name="text" >
-      <string>Detach from Shared Memory</string>
+      <string>Display Image From Shared Memory</string>
      </property>
     </widget>
    </item>
