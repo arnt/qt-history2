@@ -187,6 +187,11 @@ static Q16Dot16 intersectPixelFP(int x, Q16Dot16 top, Q16Dot16 bottom, Q16Dot16 
     }
 }
 
+static inline bool q16Dot16Compare(qreal p1, qreal p2)
+{
+    return FloatToQ16Dot16(p2 - p1) == 0;
+}
+
 void QRasterizer::rasterizeLine(const QPointF &a, const QPointF &b, qreal width, bool squareCap)
 {
     QPointF pa = a;
@@ -194,7 +199,7 @@ void QRasterizer::rasterizeLine(const QPointF &a, const QPointF &b, qreal width,
 
     QSpanBuffer buffer(d->spanData, d->rasterBuffer, d->deviceRect);
 
-    if (qFuzzyCompare(pa.y(), pb.y())) {
+    if (q16Dot16Compare(pa.y(), pb.y())) {
         const qreal x = (a.x() + b.x()) * 0.5f;
         const qreal dx = qAbs(b.x() - a.x()) * 0.5f;
 
@@ -211,7 +216,7 @@ void QRasterizer::rasterizeLine(const QPointF &a, const QPointF &b, qreal width,
         squareCap = false;
     }
 
-    if (qFuzzyCompare(pa.x(), pb.x())) {
+    if (q16Dot16Compare(pa.x(), pb.x())) {
         if (pa.y() > pb.y())
             qSwap(pa, pb);
 
@@ -232,7 +237,7 @@ void QRasterizer::rasterizeLine(const QPointF &a, const QPointF &b, qreal width,
         pa.ry() = qBound(qreal(d->deviceRect.top()), pa.y(), qreal(d->deviceRect.bottom() + 1));
         pb.ry() = qBound(qreal(d->deviceRect.top()), pb.y(), qreal(d->deviceRect.bottom() + 1));
 
-        if (qFuzzyCompare(left, right) || qFuzzyCompare(pa.y(), pb.y()))
+        if (q16Dot16Compare(left, right) || q16Dot16Compare(pa.y(), pb.y()))
             return;
 
         if (d->antialiased) {
@@ -323,7 +328,7 @@ void QRasterizer::rasterizeLine(const QPointF &a, const QPointF &b, qreal width,
         qreal topBound = qBound(qreal(d->deviceRect.top()), top.y(), qreal(d->deviceRect.bottom()));
         qreal bottomBound = qBound(qreal(d->deviceRect.top()), bottom.y(), qreal(d->deviceRect.bottom()));
 
-        if (qFuzzyCompare(topBound, bottomBound))
+        if (q16Dot16Compare(topBound, bottomBound))
             return;
 
         qreal leftSlope = (left.x() - top.x()) / (left.y() - top.y());
