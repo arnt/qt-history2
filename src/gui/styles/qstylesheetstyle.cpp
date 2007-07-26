@@ -1406,6 +1406,8 @@ static int pseudoClass(QStyle::State state)
 {
     int pc = (state & QStyle::State_Enabled)
              ? PseudoClass_Enabled : PseudoClass_Disabled;
+    if (state & QStyle::State_Active)
+        pc |= PseudoClass_Active;
     if (state & QStyle::State_Sunken)
         pc |= PseudoClass_Pressed;
     if (state & QStyle::State_MouseOver)

@@ -226,6 +226,7 @@ static const QCssKnownValue values[NumKnownValues - 1] = {
 };
 
 static const QCssKnownValue pseudos[NumPseudos - 1] = {
+    { "active", PseudoClass_Active },
     { "bottom", PseudoClass_Bottom },
     { "checked", PseudoClass_Checked },
     { "closed", PseudoClass_Closed },
