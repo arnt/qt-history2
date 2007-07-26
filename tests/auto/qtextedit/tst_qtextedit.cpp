@@ -917,6 +917,12 @@ void tst_QTextEdit::setPlainTextShouldUseCurrentCharFormat()
     QTextCursor cursor(ed->document());
     cursor.movePosition(QTextCursor::NextCharacter);
     QCOMPARE(cursor.charFormat().fontUnderline(), true);
+
+    ed->setHtml("<p style=\"color:blue\">Foo</p>");
+    ed->setPlainText("Hello World");
+    cursor = QTextCursor(ed->document());
+    cursor.movePosition(QTextCursor::NextCharacter);
+    QCOMPARE(cursor.charFormat().fontUnderline(), true);
 }
 
 void tst_QTextEdit::setPlainTextShouldEmitTextChangedOnce()
