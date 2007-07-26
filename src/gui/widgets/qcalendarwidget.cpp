@@ -1302,8 +1302,7 @@ void QCalendarView::keyPressEvent(QKeyEvent *event)
     } else if (event->key() == Qt::Key_Back) {
         if (QApplication::keypadNavigationEnabled() && hasEditFocus()) {
             if (QCalendarModel *calendarModel = qobject_cast<QCalendarModel *>(model())) {
-                calendarModel->setDate(origDate);
-                emit editingFinished();
+                emit changeDate(origDate, true); //changes selection back to origDate, but doesn't activate
                 setEditFocus(false);
                 return;
             }
