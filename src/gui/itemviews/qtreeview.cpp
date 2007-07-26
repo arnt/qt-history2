@@ -1384,8 +1384,10 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
             if ((d->model->flags(index) & Qt::ItemIsEnabled) == 0) {
                 opt.state &= ~QStyle::State_Enabled;
                 cg = QPalette::Disabled;
-            } else {
+            } else if (isActiveWindow()) {
                 cg = QPalette::Active;
+            } else {
+                cg = QPalette::Inactive;
             }
             opt.palette.setCurrentColorGroup(cg);
         }
@@ -1409,13 +1411,8 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
             opt.rect.setRect(reverse ? position : i + position, y, width - i, height);
             if (alternate && (d->current & 1))
                 painter->fillRect(opt.rect, opt.palette.alternateBase());
-            QPalette::ColorGroup cg = opt.state & QStyle::State_Enabled
-                              ? QPalette::Active : QPalette::Disabled;
-            if (cg == QPalette::Active && !(opt.state & QStyle::State_Active))
-                cg = QPalette::Inactive;
-
             if ((opt.state & QStyle::State_Selected) && option.showDecorationSelected)
-                painter->fillRect(branches, opt.palette.brush(cg, QPalette::Highlight));
+                painter->fillRect(branches, opt.palette.highlight());
             else if (alternate && (d->current & 1))
                 painter->fillRect(branches, opt.palette.alternateBase());
             drawBranches(painter, branches, index);
