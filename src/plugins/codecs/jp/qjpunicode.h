@@ -122,6 +122,8 @@ public:
     uint unicodeToSjis(uint h, uint l) const;
     uint sjisibmvdcToUnicode(uint h, uint l) const;
     uint unicodeToSjisibmvdc(uint h, uint l) const;
+    uint cp932ToUnicode(uint h, uint l) const;
+    uint unicodeToCp932(uint h, uint l) const;
 
     uint sjisToUnicode(uint sjis) const {
         return sjisToUnicode((sjis & 0xff00) >> 8, (sjis & 0x00ff));

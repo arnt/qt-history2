@@ -85,6 +85,10 @@ QByteArray QSjisCodec::convertFromUnicode(const QChar *uc, int len, ConverterSta
             // JIS X 0208 IBM VDC
             *cursor++ = (j >> 8);
             *cursor++ = (j & 0xff);
+        } else if ((j = conv->unicodeToCp932(ch.row(), ch.cell())) != 0) {
+            // CP932 (for lead bytes 87, ee & ed)
+            *cursor++ = (j >> 8);
+            *cursor++ = (j & 0xff);
         } else if ((j = conv->unicodeToJisx0212(ch.row(), ch.cell())) != 0) {
             // JIS X 0212 (can't be encoded in ShiftJIS !)
             *cursor++ = 0x81;        // white square
@@ -139,6 +143,8 @@ QString QSjisCodec::convertToUnicode(const char* chars, int len, ConverterState 
             // JIS X 0208
             if (IsSjisChar2(ch)) {
                 if ((u = conv->sjisibmvdcToUnicode(buf[0], ch))) {
+                    result += QValidChar(u);
+                } else if ((u = conv->cp932ToUnicode(buf[0], ch))) {
                     result += QValidChar(u);
                 }
                 else if (IsUserDefinedChar1(buf[0])) {
