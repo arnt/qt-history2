@@ -1836,6 +1836,13 @@ void QFileDialog::setProxyModel(QAbstractProxyModel *proxyModel)
     d->qFileDialogUi->treeView->setSelectionModel(d->qFileDialogUi->listView->selectionModel());
     delete selModel;
     d->setRootIndex(idx);
+
+    // reconnect selection
+    QItemSelectionModel *selections = d->qFileDialogUi->listView->selectionModel();
+    QObject::connect(selections, SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
+                     this, SLOT(_q_selectionChanged()));
+    QObject::connect(selections, SIGNAL(currentChanged(QModelIndex,QModelIndex)),
+                     this, SLOT(_q_currentChanged(QModelIndex)));
 }
 
 /*!
