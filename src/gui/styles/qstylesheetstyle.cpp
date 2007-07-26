@@ -3882,6 +3882,11 @@ int QStyleSheetStyle::layoutSpacingImplementation(QSizePolicy::ControlType  cont
 int QStyleSheetStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *w,
                            QStyleHintReturn *shret) const
 {
+    // Prevent endless loop if somebody use isActiveWindow property as selector.
+    // QWidget::isActiveWindow uses this styleHint to determine if the window is active or not
+    if (sh == SH_Widget_ShareActivation)
+        return baseStyle()->styleHint(sh, opt, w, shret);
+
     QRenderRule rule = renderRule(w, opt);
     QString s;
     switch (sh) {
