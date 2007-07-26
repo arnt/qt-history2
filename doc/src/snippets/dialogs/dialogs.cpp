@@ -164,7 +164,6 @@ inline void moo()
 
     for (int i = 0; i < numFiles; i++) {
         progress.setValue(i);
-        qApp->processEvents();
 
         if (progress.wasCanceled())
             break;

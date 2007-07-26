@@ -180,12 +180,9 @@ void QProgressDialogPrivate::retranslateStrings()
 
   There are two ways of using QProgressDialog: modal and modeless.
 
-  Using a modal QProgressDialog is simpler for the programmer, but you
-  must call QApplication::processEvents() or
-  QEventLoop::processEvents(ExcludeUserInput) to keep the event loop
-  running to ensure that the application doesn't freeze. Do the
-  operation in a loop, call \l setValue() at intervals, and check
-  for cancellation with wasCanceled(). For example:
+  Compared to a modeless QProgressDialog, a modal QProgressDialog is simpler
+  to use for the programmer. Do the operation in a loop, call \l setValue() at
+  intervals, and check for cancellation with wasCanceled(). For example:
 
   \quotefromfile snippets/dialogs/dialogs.cpp
   \skipto QProgressDialog progress("Copying files...", "Abort Copy", 0, numFiles, this);
