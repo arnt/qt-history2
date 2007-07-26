@@ -134,6 +134,7 @@ public:
     virtual QList<QPointer<QWidget> > calcCausedStack() const;
     QMenuCaused causedPopup;
     void hideUpToMenuBar();
+    void hideMenu(QMenu *menu);
 
     //index mappings
     inline QAction *actionAt(int i) const { return q_func()->actions().at(i); }
@@ -198,6 +199,7 @@ public:
     void setMacMenuEnabled(bool enable = true);
 #endif
 
+    QPointer<QAction> actionAboutToTrigger;
     QPointer<QWidget> noReplayFor;
 };
 
