@@ -46,6 +46,7 @@
 #include <private/qwindowsstyle_p.h>
 #include <qtabbar.h>
 #include <QMetaProperty>
+#include <qmainwindow.h>
 
 #include <limits.h>
 
@@ -2257,6 +2258,9 @@ void QStyleSheetStyle::polish(QWidget *w)
 #endif
 #ifndef QT_NO_FRAME
               || qobject_cast<QFrame *>(w)
+#endif
+#ifndef QT_NO_MAINWINDOW
+              || qobject_cast<QMainWindow *>(w)
 #endif
               || QString::fromLocal8Bit(me->className()) == QLatin1String("QDialog")
               || QString::fromLocal8Bit(super->className()) == QLatin1String("QDialog");
