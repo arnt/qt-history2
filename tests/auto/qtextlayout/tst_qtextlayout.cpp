@@ -57,6 +57,7 @@ private slots:
     void boundingRectTopLeft();
     void charStopForSurrogatePairs();
     void tabStops();
+    void integerOverflow();
 
 private:
     QFont testFont;
@@ -550,6 +551,26 @@ void tst_QTextLayout::tabStops()
     QVERIFY(line.isValid());
     line.setNumColumns(5);
     QCOMPARE(line.textLength(), 5);
+
+    layout.endLayout();
+}
+
+void tst_QTextLayout::integerOverflow()
+{
+    QString txt("Hello world... ");
+
+    for (int i = 0; i < 8; ++i)
+        txt += txt;
+
+    QTextLayout layout(txt, testFont);
+    layout.beginLayout();
+    QTextLine line = layout.createLine();
+
+    QVERIFY(line.isValid());
+    line.setLineWidth(INT_MAX);
+    QCOMPARE(line.textLength(), txt.length());
+
+    QVERIFY(!layout.createLine().isValid());
 
     layout.endLayout();
 }

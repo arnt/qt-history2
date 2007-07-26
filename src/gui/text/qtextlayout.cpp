@@ -1397,6 +1397,10 @@ qreal QTextLine::naturalTextWidth() const
 void QTextLine::setLineWidth(qreal width)
 {
     QScriptLine &line = eng->lines[i];
+
+    if (width > QFIXED_MAX)
+        width = QFIXED_MAX;
+
     line.width = QFixed::fromReal(width);
     line.length = 0;
     line.textWidth = 0;
