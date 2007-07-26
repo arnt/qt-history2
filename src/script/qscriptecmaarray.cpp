@@ -82,7 +82,9 @@ bool ArrayClassData::resolve(const QScriptValueImpl &object,
     if (Array::Instance::get(object, classInfo())) {
 
         if (nameId == eng_p->idTable()->id_length) {
-            member->native(nameId, /*id=*/ 0, QScriptValue::Undeletable);
+            member->native(nameId, /*id=*/ 0,
+                           QScriptValue::Undeletable
+                           | QScriptValue::SkipInEnumeration);
             *base = object;
             return true;
         }

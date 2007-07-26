@@ -73,7 +73,8 @@ bool StringClassData::resolve(const QScriptValueImpl &object,
     if (nameId == eng->idTable()->id_length) {
         member->native(nameId, /*id=*/ 0,
                        QScriptValue::Undeletable
-                       | QScriptValue::ReadOnly);
+                       | QScriptValue::ReadOnly
+                       | QScriptValue::SkipInEnumeration);
         *base = object;
         return true;
     }
