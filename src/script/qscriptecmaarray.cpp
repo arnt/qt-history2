@@ -91,7 +91,7 @@ bool ArrayClassData::resolve(const QScriptValueImpl &object,
         bool isNumber;
         quint32 pos = propertyName.toUInt(&isNumber);
 
-        if (isNumber && (QScriptValue(eng, pos).toString() == propertyName)) { // ### improve me
+        if (isNumber && (QScriptValueImpl(eng_p, pos).toString() == propertyName)) { // ### improve me
             member->native(0, pos, /*flags=*/0);
             *base = object;
             return true;
