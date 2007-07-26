@@ -3132,12 +3132,20 @@ elif [ "$Edition" = "OpenSource" ]; then
     done
 elif [ "$Edition" = "Preview" ]; then
     while true; do
+        if [ "$QT_EDITION" = "QT_EDITION_OPENSOURCE" ]; then
+            TheLicense=`head -n 1 "$relpath/LICENSE.PREVIEW.OPENSOURCE"`
+        else
+            TheLicense=`head -n 1 "$relpath/LICENSE.PREVIEW.COMMERCIAL"`
+        fi
+
+        TheLicense=`echo $TheLicense | sed -e "s,  *, ,g" -e "s,^  *,," -e "s,  *$,,"`
+
         if [ "$OPT_CONFIRM_LICENSE" = "yes" ]; then
             echo "You have already accepted the terms of the $LicenseType license."
             acceptance=yes
         else
             echo "You are licensed to use this software under the terms of"
-            echo "the Qt PREVIEW VERSION LICENSE AGREEMENT"
+            echo "the $TheLicense"
             echo
             echo "Type '?' to read the Preview License."
             echo "Type 'yes' to accept this license offer."
@@ -3167,12 +3175,20 @@ elif [ "$Edition" = "Preview" ]; then
     done
 elif [ "$Edition" = "Snapshot" ]; then
     while true; do
+        if [ "$QT_EDITION" = "QT_EDITION_OPENSOURCE" ]; then
+            TheLicense=`head -n 1 "$relpath/LICENSE.SNAPSHOT.OPENSOURCE"`
+        else
+            TheLicense=`head -n 1 "$relpath/LICENSE.SNAPSHOT.COMMERCIAL"`
+        fi
+
+        TheLicense=`echo $TheLicense | sed -e "s,  *, ,g" -e "s,^  *,," -e "s,  *$,,"`
+
         if [ "$OPT_CONFIRM_LICENSE" = "yes" ]; then
             echo "You have already accepted the terms of the $LicenseType license."
             acceptance=yes
         else
             echo "You are licensed to use this software under the terms of"
-            echo "the Qt SNAPSHOT VERSION LICENSE AGREEMENT"
+            echo "the $TheLicense"
             echo
             echo "Type '?' to read the Snapshot License."
             echo "Type 'yes' to accept this license offer."
