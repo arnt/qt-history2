@@ -78,6 +78,10 @@
 #  endif
 #endif
 
+#if defined(QT_NO_FPU) || (_MSC_VER >= 1300 && _MSC_VER < 1400)
+#  define FLOATING_POINT_BUGGY_OR_NO_FPU
+#endif
+
 #define qreal_to_fixed_26_6(f) (int(f * 64))
 #define qt_swap_int(x, y) { int tmp = (x); (x) = (y); (y) = tmp; }
 #define qt_swap_qreal(x, y) { qreal tmp = (x); (x) = (y); (y) = tmp; }
@@ -3255,16 +3259,20 @@ void QRasterPaintEngine::drawEllipse(const QRectF &rect)
 
     if (d->fast_pen
         && (d->pen.style() == Qt::SolidLine || d->pen.style() == Qt::NoPen)
+#ifdef FLOATING_POINT_BUGGY_OR_NO_FPU
         && qMax(r.width(), r.height()) < 128 // integer math breakdown
+#endif
         && d->txop <= QTransform::TxScale) // no shear
     {
         const QRect devRect(0, 0, d->deviceRect.width(), d->deviceRect.height());
         const QRect brect = QRect(int(r.x()), int(r.y()),
                                   int_dim(r.x(), r.width()),
                                   int_dim(r.y(), r.height()));
-        drawEllipse_midpoint_i(brect, devRect, penBlend, brushBlend,
-                               &d->penData, &d->brushData);
-        return;
+        if (brect == rect) {
+            drawEllipse_midpoint_i(brect, devRect, penBlend, brushBlend,
+                                   &d->penData, &d->brushData);
+            return;
+        }
     }
 
     if (d->brushData.blend) {
@@ -5855,9 +5863,6 @@ static inline void drawEllipsePoints(int x, int y, int length,
     }
 }
 
-#if defined(QT_NO_FPU) || (_MSC_VER >= 1300 && _MSC_VER < 1400)
-#  define FLOATING_POINT_BUGGY_OR_NO_FPU
-#endif
 /*!
     \internal
     Draws an ellipse using the integer point midpoint algorithm.
