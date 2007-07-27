@@ -3568,8 +3568,10 @@
        this contains a colon-separated list of directories.
     \o In a directory listed in the \c QMAKEFEATURES property variable; this
        contains a colon-spearated list of directories.
+    \omit
     \o In a features directory beneath the project's root directory (where
        the \c{.qmake.cache} file is generated).
+    \endomit
     \o In a features directory residing within a \c mkspecs directory.
        \c mkspecs directories can be located beneath any of the directories
        listed in the \c QMAKEPATH environment variable (a colon-separated list
