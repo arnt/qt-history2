@@ -369,6 +369,14 @@ bool ControlLabel::event(QEvent *event)
 {
     if (event->type() == QEvent::WindowIconChange)
         updateWindowIcon();
+#ifndef QT_NO_TOOLTIP
+    else if (event->type() == QEvent::ToolTip) {
+        QStyleOptionTitleBar options;
+        options.initFrom(this);
+        showToolTip(static_cast<QHelpEvent *>(event), this, options,
+                    QStyle::CC_TitleBar, QStyle::SC_TitleBarSysMenu);
+    }
+#endif
     return QWidget::event(event);
 }
 
