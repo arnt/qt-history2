@@ -944,10 +944,11 @@ void QAbstractItemModelPrivate::reset()
 
     Custom models need to create model indexes for other components to use.
     To do this, call createIndex() with suitable row and column numbers for
-    the item, and supply a unique identifier for the item, either as a
-    pointer or as an integer value. Custom models typically use these
-    unique identifiers in other reimplemented functions to retrieve item
-    data and access information about the item's parents and children.
+    the item, and an identifier for it, either as a pointer or as an
+    integer value. The combination of these values must be unique for each
+    item. Custom models typically use these unique identifiers in other
+    reimplemented functions to retrieve item data and access information
+    about the item's parents and children.
     See the \l{itemviews/simpletreemodel}{Simple Tree Model} example for
     more information about unique identifiers.
 
