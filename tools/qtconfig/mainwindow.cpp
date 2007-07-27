@@ -902,11 +902,11 @@ void MainWindow::helpAboutQt()
 void MainWindow::pageChanged(QWidget *page)
 {
     if (page == tab)
-        helpview->setText(tr(appearance_text));
-    else if (page == tab1)
-        helpview->setText(tr(font_text));
-    else if (page == tab2)
         helpview->setText(tr(interface_text));
+    else if (page == tab1)
+        helpview->setText(tr(appearance_text));
+    else if (page == tab2)
+        helpview->setText(tr(font_text));
     else if (page == tab3)
         helpview->setText(tr(printer_text));
 }
