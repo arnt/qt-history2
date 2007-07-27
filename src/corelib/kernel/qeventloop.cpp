@@ -48,7 +48,8 @@ public:
     This enum controls the types of events processed by the
     processEvents() functions.
 
-    \value AllEvents All events are processed
+    \value AllEvents All events except
+    \l{QEvent::DeferredDelete}{DeferredDelete} are processed.
 
     \value ExcludeUserInputEvents Do not process user input events,
     such as ButtonPress and KeyPress. Note that the events are not
