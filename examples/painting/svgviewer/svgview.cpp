@@ -40,8 +40,6 @@ void SvgRasterView::paintEvent(QPaintEvent *)
     }
     QPainter pt(this);
     pt.drawImage(0, 0, buffer);
-
-    update();
 }
 
 QSize SvgRasterView::sizeHint() const
@@ -88,8 +86,6 @@ void SvgNativeView::paintEvent(QPaintEvent *)
     QPainter p(this);
     p.setViewport(0, 0, width(), height());
     doc->render(&p);
-
-    update();
 }
 
 QSize SvgNativeView::sizeHint() const
@@ -135,8 +131,6 @@ void SvgGLView::paintEvent(QPaintEvent *)
     QPainter p(this);
     p.setRenderHint(QPainter::HighQualityAntialiasing, highQualityAntialiasing);
     doc->render(&p);
-
-    update();
 }
 
 QSize SvgGLView::sizeHint() const
