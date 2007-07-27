@@ -250,6 +250,73 @@ static inline QRgb colorref2qrgb(COLORREF col)
 }
 #endif
 
+#ifndef QT_NO_TOOLTIP
+static void showToolTip(QHelpEvent *helpEvent, QWidget *widget, const QStyleOptionComplex &opt,
+                        QStyle::ComplexControl complexControl, QStyle::SubControl subControl)
+{
+    Q_ASSERT(helpEvent);
+    Q_ASSERT(helpEvent->type() == QEvent::ToolTip);
+    Q_ASSERT(widget);
+
+#if defined(Q_WS_MAC) && !defined(QT_NO_STYLE_MAC)
+    // Native Mac windows don't show tool tip.
+    if (qobject_cast<QMacStyle *>(widget->style()))
+        return;
+#endif
+
+    const QRect rect = widget->style()->subControlRect(complexControl, &opt, subControl, widget);
+
+    // Convert CC_MdiControls to CC_TitleBar. Sub controls of different complex
+    // controls cannot be in the same switch as they might have the same value.
+    if (complexControl == QStyle::CC_MdiControls) {
+        if (subControl == QStyle::SC_MdiMinButton)
+            subControl = QStyle::SC_TitleBarMinButton;
+        else if (subControl == QStyle::SC_MdiCloseButton)
+            subControl = QStyle::SC_TitleBarCloseButton;
+        else if (subControl == QStyle::SC_MdiNormalButton)
+            subControl = QStyle::SC_TitleBarNormalButton;
+        else
+            subControl = QStyle::SC_None;
+    }
+
+    QString toolTip;
+
+    switch (subControl) {
+    case QStyle::SC_TitleBarMinButton:
+        toolTip = QMdiSubWindow::tr("Minimize");
+        break;
+    case QStyle::SC_TitleBarMaxButton:
+        toolTip = QMdiSubWindow::tr("Maximize");
+        break;
+    case QStyle::SC_TitleBarUnshadeButton:
+        toolTip = QMdiSubWindow::tr("Unshade");
+        break;
+    case QStyle::SC_TitleBarShadeButton:
+        toolTip = QMdiSubWindow::tr("Shade");
+        break;
+    case QStyle::SC_TitleBarNormalButton:
+        if (widget->isMaximized() || !qobject_cast<QMdiSubWindow *>(widget))
+            toolTip = QMdiSubWindow::tr("Restore Down");
+        else
+            toolTip = QMdiSubWindow::tr("Restore");
+        break;
+    case QStyle::SC_TitleBarCloseButton:
+        toolTip = QMdiSubWindow::tr("Close");
+        break;
+    case QStyle::SC_TitleBarContextHelpButton:
+        toolTip = QMdiSubWindow::tr("Help");
+        break;
+    case QStyle::SC_TitleBarSysMenu:
+        toolTip = QMdiSubWindow::tr("Menu");
+        break;
+    default:
+        break;
+    }
+
+    QToolTip::showText(helpEvent->globalPos(), toolTip, widget, rect);
+}
+#endif // QT_NO_TOOLTIP
+
 /*
     \class ControlLabel
     \internal
@@ -547,24 +614,11 @@ void ControllerWidget::leaveEvent(QEvent * /*event*/)
 bool ControllerWidget::event(QEvent *event)
 {
 #ifndef QT_NO_TOOLTIP
-    if (event->type() != QEvent::ToolTip)
-        return QWidget::event(event);
-
-    QHelpEvent *helpEvent = static_cast<QHelpEvent *>(event);
-    QStyle::SubControl subControl = getSubControl(helpEvent->pos());
-    switch (subControl) {
-    case QStyle::SC_MdiCloseButton:
-        QToolTip::showText(helpEvent->globalPos(), QMdiSubWindow::tr("Close"));
-        break;
-    case QStyle::SC_MdiMinButton:
-        QToolTip::showText(helpEvent->globalPos(), QMdiSubWindow::tr("Minimize"));
-        break;
-    case QStyle::SC_MdiNormalButton:
-        QToolTip::showText(helpEvent->globalPos(), QMdiSubWindow::tr("Restore Down"));
-        break;
-    default:
-        QToolTip::hideText();
-        break;
+    if (event->type() == QEvent::ToolTip) {
+        QStyleOptionComplex opt;
+        initStyleOption(&opt);
+        QHelpEvent *helpEvent = static_cast<QHelpEvent *>(event);
+        showToolTip(helpEvent, this, opt, QStyle::CC_MdiControls, getSubControl(helpEvent->pos()));
     }
 #endif // QT_NO_TOOLTIP
     return QWidget::event(event);
@@ -2702,6 +2756,12 @@ bool QMdiSubWindow::event(QEvent *event)
     case QEvent::PaletteChange:
         d->titleBarPalette = d->desktopPalette();
         break;
+#ifndef QT_NO_TOOLTIP
+    case QEvent::ToolTip:
+        showToolTip(static_cast<QHelpEvent *>(event), this, d->titleBarOptions(),
+                    QStyle::CC_TitleBar, d->hoveredSubControl);
+        break;
+#endif
     default:
         break;
     }
