@@ -2473,7 +2473,12 @@ void Configure::generateMakefiles()
 
         int i = 0;
         QString pwd = QDir::currentPath();
-        if (dictionary["FAST"] != "yes") {
+	/* If we're using MinGW, we always want to use -fast. This is
+	 * the same as on UNIX, and it ensures that src/Makefile gets
+	 * created. The reason "cd $QTDIR && qmake -r" doesn't do this
+	 * is due to the introduction of parallel builds; projects.pro
+	 * doesn't add src/ as a sub-directory, it's included. */
+        if (dictionary["FAST"] != "yes" && spec != "win32-g++") {
             QString dirName;
             bool generate = true;
             bool doDsp = (dictionary["DSPFILES"] == "yes" || dictionary["VCPFILES"] == "yes"
