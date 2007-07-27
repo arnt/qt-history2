@@ -719,6 +719,24 @@
     Features specific to this platform include support for creating universal
     binaries, frameworks and bundles.
 
+    \section2 Source and Binary Packages
+
+    The version of \c qmake supplied in source packages is configured slightly
+    differently to that supplied in binary packages in that it uses a different
+    feature specification. Where the source package typically uses the
+    \c macx-g++ specification, the binary package is typically configured to
+    use the \c macx-xcode specification.
+
+    Users of each package can override this configuration by invoking \c qmake
+    with the \c -spec option (see \l{Running qmake} for more information). This
+    makes it possible, for example, to use \c qmake from a binary package to
+    create a Makefile in a project directory with the following command line
+    invocation:
+
+    \code
+        qmake -spec macx-g++
+    \endcode
+
     \section2 Using Frameworks
 
     \c qmake is able to automatically generate build rules for linking against
