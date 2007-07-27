@@ -75,10 +75,10 @@ public:
     const QString &separator() const { return m_separator; }
 
     const QStringList &keys() const { return m_keys; }
+    const KeyToValueMap &keyToValueMap() const { return m_keyToValueMap; }
 
 protected:
     void appendQualifiedName(const QString &key, QString &target) const;
-    const KeyToValueMap &keyToValueMap() const { return m_keyToValueMap; }
 
 private:
     QString m_name;
