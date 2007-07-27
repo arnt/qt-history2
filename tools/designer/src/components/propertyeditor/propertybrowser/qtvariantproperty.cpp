@@ -111,6 +111,8 @@ class QtVariantPropertyPrivate
 {
     QtVariantProperty *q_ptr;
 public:
+    QtVariantPropertyPrivate(QtVariantPropertyManager *m) : manager(m) {}
+
     QtVariantPropertyManager *manager;
 };
 
@@ -165,10 +167,9 @@ public:
     \sa QtVariantPropertyManager
 */
 QtVariantProperty::QtVariantProperty(QtVariantPropertyManager *manager)
-    : QtProperty(manager)
+    : QtProperty(manager),  d_ptr(new QtVariantPropertyPrivate(manager))
 {
-    d_ptr = new QtVariantPropertyPrivate;
-    d_ptr->manager = manager;
+
 }
 
 /*!
@@ -264,6 +265,7 @@ class QtVariantPropertyManagerPrivate
     QtVariantPropertyManager *q_ptr;
     Q_DECLARE_PUBLIC(QtVariantPropertyManager)
 public:
+    QtVariantPropertyManagerPrivate();
 
     bool m_creatingProperty;
     bool m_creatingSubProperties;
@@ -320,7 +322,28 @@ public:
     QMap<QtVariantProperty *, int> m_propertyToType;
     QMap<int, int> m_typeToValueType;
     QMap<QtProperty *, QtVariantProperty *> m_internalToProperty;
+
+    const QString constraintProperty;
+    const QString decimalsProperty;
+    const QString enumIconsProperty;
+    const QString enumNamesProperty;
+    const QString flagNamesProperty;
+    const QString maximumProperty;
+    const QString minimumProperty;
+    const QString regExpProperty;
 };
+
+QtVariantPropertyManagerPrivate::QtVariantPropertyManagerPrivate() :
+    constraintProperty(QLatin1String("constraint")),
+    decimalsProperty(QLatin1String("decimals")),
+    enumIconsProperty(QLatin1String("enumIcons")),
+    enumNamesProperty(QLatin1String("enumNames")),
+    flagNamesProperty(QLatin1String("flagNames")),
+    maximumProperty(QLatin1String("maximum")),
+    minimumProperty(QLatin1String("minimum")),
+    regExpProperty(QLatin1String("regExp"))
+{
+}
 
 int QtVariantPropertyManagerPrivate::internalPropertyToType(QtProperty *property) const
 {
@@ -380,14 +403,16 @@ void QtVariantPropertyManagerPrivate::slotPropertyInserted(QtProperty *property,
     if (m_creatingProperty)
         return;
 
-    if (!m_internalToProperty.contains(parent))
+    QtVariantProperty *varParent = m_internalToProperty.value(parent, 0);
+    if (!varParent)
         return;
 
-    if (after && !m_internalToProperty.contains(after))
-        return;
-
-    QtVariantProperty *varParent = m_internalToProperty[parent];
-    QtVariantProperty *varAfter = after ? m_internalToProperty[after] : 0;
+    QtVariantProperty *varAfter = 0;
+    if (after) {
+        varAfter = m_internalToProperty.value(after, 0);
+        if (!varAfter)
+            return;
+    }
 
     createSubProperty(varParent, varAfter, property);
 }
@@ -395,19 +420,19 @@ void QtVariantPropertyManagerPrivate::slotPropertyInserted(QtProperty *property,
 void QtVariantPropertyManagerPrivate::slotPropertyRemoved(QtProperty *property, QtProperty *parent)
 {
     Q_UNUSED(parent)
-    if (!m_internalToProperty.contains(property))
-        return;
 
-    QtVariantProperty *varProperty = m_internalToProperty[property];
+    QtVariantProperty *varProperty = m_internalToProperty.value(property, 0);
+    if (!varProperty)
+        return;
 
     removeSubProperty(varProperty);
 }
 
 void QtVariantPropertyManagerPrivate::valueChanged(QtProperty *property, const QVariant &val)
 {
-    if (!m_internalToProperty.contains(property))
+    QtVariantProperty *varProp = m_internalToProperty.value(property, 0);
+    if (!varProp)
         return;
-    QtVariantProperty *varProp = m_internalToProperty[property];
     emit q_ptr->valueChanged(varProp, val);
     emit q_ptr->propertyChanged(varProp);
 }
@@ -419,11 +444,10 @@ void QtVariantPropertyManagerPrivate::slotValueChanged(QtProperty *property, int
 
 void QtVariantPropertyManagerPrivate::slotRangeChanged(QtProperty *property, int min, int max)
 {
-    if (!m_internalToProperty.contains(property))
-        return;
-    QtVariantProperty *varProp = m_internalToProperty[property];
-    emit q_ptr->attributeChanged(varProp, QLatin1String("minimum"), QVariant(min));
-    emit q_ptr->attributeChanged(varProp, QLatin1String("maximum"), QVariant(max));
+    if (QtVariantProperty *varProp = m_internalToProperty.value(property, 0)) {
+        emit q_ptr->attributeChanged(varProp, minimumProperty, QVariant(min));
+        emit q_ptr->attributeChanged(varProp, maximumProperty, QVariant(max));
+    }
 }
 
 void QtVariantPropertyManagerPrivate::slotValueChanged(QtProperty *property, double val)
@@ -433,19 +457,16 @@ void QtVariantPropertyManagerPrivate::slotValueChanged(QtProperty *property, dou
 
 void QtVariantPropertyManagerPrivate::slotRangeChanged(QtProperty *property, double min, double max)
 {
-    if (!m_internalToProperty.contains(property))
-        return;
-    QtVariantProperty *varProp = m_internalToProperty[property];
-    emit q_ptr->attributeChanged(varProp, QLatin1String("minimum"), QVariant(min));
-    emit q_ptr->attributeChanged(varProp, QLatin1String("maximum"), QVariant(max));
+    if (QtVariantProperty *varProp = m_internalToProperty.value(property, 0)) {
+        emit q_ptr->attributeChanged(varProp, minimumProperty, QVariant(min));
+        emit q_ptr->attributeChanged(varProp, maximumProperty, QVariant(max));
+    }
 }
 
 void QtVariantPropertyManagerPrivate::slotDecimalsChanged(QtProperty *property, int prec)
 {
-    if (!m_internalToProperty.contains(property))
-        return;
-    QtVariantProperty *varProp = m_internalToProperty[property];
-    emit q_ptr->attributeChanged(varProp, QLatin1String("decimals"), QVariant(prec));
+    if (QtVariantProperty *varProp = m_internalToProperty.value(property, 0))
+        emit q_ptr->attributeChanged(varProp, decimalsProperty, QVariant(prec));
 }
 
 void QtVariantPropertyManagerPrivate::slotValueChanged(QtProperty *property, bool val)
@@ -460,10 +481,8 @@ void QtVariantPropertyManagerPrivate::slotValueChanged(QtProperty *property, con
 
 void QtVariantPropertyManagerPrivate::slotRegExpChanged(QtProperty *property, const QRegExp &regExp)
 {
-    if (!m_internalToProperty.contains(property))
-        return;
-    QtVariantProperty *varProp = m_internalToProperty[property];
-    emit q_ptr->attributeChanged(varProp, QLatin1String("regExp"), QVariant(regExp));
+    if (QtVariantProperty *varProp = m_internalToProperty.value(property, 0))
+        emit q_ptr->attributeChanged(varProp, regExpProperty, QVariant(regExp));
 }
 
 void QtVariantPropertyManagerPrivate::slotValueChanged(QtProperty *property, const QDate &val)
@@ -473,11 +492,10 @@ void QtVariantPropertyManagerPrivate::slotValueChanged(QtProperty *property, con
 
 void QtVariantPropertyManagerPrivate::slotRangeChanged(QtProperty *property, const QDate &min, const QDate &max)
 {
-    if (!m_internalToProperty.contains(property))
-        return;
-    QtVariantProperty *varProp = m_internalToProperty[property];
-    emit q_ptr->attributeChanged(varProp, QLatin1String("minimum"), QVariant(min));
-    emit q_ptr->attributeChanged(varProp, QLatin1String("maximum"), QVariant(max));
+    if (QtVariantProperty *varProp = m_internalToProperty.value(property, 0)) {
+        emit q_ptr->attributeChanged(varProp, minimumProperty, QVariant(min));
+        emit q_ptr->attributeChanged(varProp, maximumProperty, QVariant(max));
+    }
 }
 
 void QtVariantPropertyManagerPrivate::slotValueChanged(QtProperty *property, const QTime &val)
@@ -524,11 +542,10 @@ void QtVariantPropertyManagerPrivate::slotValueChanged(QtProperty *property, con
 
 void QtVariantPropertyManagerPrivate::slotRangeChanged(QtProperty *property, const QSize &min, const QSize &max)
 {
-    if (!m_internalToProperty.contains(property))
-        return;
-    QtVariantProperty *varProp = m_internalToProperty[property];
-    emit q_ptr->attributeChanged(varProp, QLatin1String("minimum"), QVariant(min));
-    emit q_ptr->attributeChanged(varProp, QLatin1String("maximum"), QVariant(max));
+    if (QtVariantProperty *varProp = m_internalToProperty.value(property, 0)) {
+        emit q_ptr->attributeChanged(varProp, minimumProperty, QVariant(min));
+        emit q_ptr->attributeChanged(varProp, maximumProperty, QVariant(max));
+    }
 }
 
 void QtVariantPropertyManagerPrivate::slotValueChanged(QtProperty *property, const QSizeF &val)
@@ -538,11 +555,10 @@ void QtVariantPropertyManagerPrivate::slotValueChanged(QtProperty *property, con
 
 void QtVariantPropertyManagerPrivate::slotRangeChanged(QtProperty *property, const QSizeF &min, const QSizeF &max)
 {
-    if (!m_internalToProperty.contains(property))
-        return;
-    QtVariantProperty *varProp = m_internalToProperty[property];
-    emit q_ptr->attributeChanged(varProp, QLatin1String("minimum"), QVariant(min));
-    emit q_ptr->attributeChanged(varProp, QLatin1String("maximum"), QVariant(max));
+    if (QtVariantProperty *varProp = m_internalToProperty.value(property, 0)) {
+        emit q_ptr->attributeChanged(varProp, minimumProperty, QVariant(min));
+        emit q_ptr->attributeChanged(varProp, maximumProperty, QVariant(max));
+    }
 }
 
 void QtVariantPropertyManagerPrivate::slotValueChanged(QtProperty *property, const QRect &val)
@@ -552,10 +568,8 @@ void QtVariantPropertyManagerPrivate::slotValueChanged(QtProperty *property, con
 
 void QtVariantPropertyManagerPrivate::slotConstraintChanged(QtProperty *property, const QRect &constraint)
 {
-    if (!m_internalToProperty.contains(property))
-        return;
-    QtVariantProperty *varProp = m_internalToProperty[property];
-    emit q_ptr->attributeChanged(varProp, QLatin1String("constraint"), QVariant(constraint));
+    if (QtVariantProperty *varProp = m_internalToProperty.value(property, 0))
+        emit q_ptr->attributeChanged(varProp, constraintProperty, QVariant(constraint));
 }
 
 void QtVariantPropertyManagerPrivate::slotValueChanged(QtProperty *property, const QRectF &val)
@@ -565,10 +579,8 @@ void QtVariantPropertyManagerPrivate::slotValueChanged(QtProperty *property, con
 
 void QtVariantPropertyManagerPrivate::slotConstraintChanged(QtProperty *property, const QRectF &constraint)
 {
-    if (!m_internalToProperty.contains(property))
-        return;
-    QtVariantProperty *varProp = m_internalToProperty[property];
-    emit q_ptr->attributeChanged(varProp, QLatin1String("constraint"), QVariant(constraint));
+    if (QtVariantProperty *varProp = m_internalToProperty.value(property, 0))
+        emit q_ptr->attributeChanged(varProp, constraintProperty, QVariant(constraint));
 }
 
 void QtVariantPropertyManagerPrivate::slotValueChanged(QtProperty *property, const QColor &val)
@@ -578,20 +590,17 @@ void QtVariantPropertyManagerPrivate::slotValueChanged(QtProperty *property, con
 
 void QtVariantPropertyManagerPrivate::slotEnumNamesChanged(QtProperty *property, const QStringList &enumNames)
 {
-    if (!m_internalToProperty.contains(property))
-        return;
-    QtVariantProperty *varProp = m_internalToProperty[property];
-    emit q_ptr->attributeChanged(varProp, QLatin1String("enumNames"), QVariant(enumNames));
+    if (QtVariantProperty *varProp = m_internalToProperty.value(property, 0))
+        emit q_ptr->attributeChanged(varProp, enumNamesProperty, QVariant(enumNames));
 }
 
 void QtVariantPropertyManagerPrivate::slotEnumIconsChanged(QtProperty *property, const QMap<int, QIcon> &enumIcons)
 {
-    if (!m_internalToProperty.contains(property))
-        return;
-    QtVariantProperty *varProp = m_internalToProperty[property];
-    QVariant v;
-    qVariantSetValue(v, enumIcons);
-    emit q_ptr->attributeChanged(varProp, QLatin1String("enumIcons"), v);
+    if (QtVariantProperty *varProp = m_internalToProperty.value(property, 0)) {
+        QVariant v;
+        qVariantSetValue(v, enumIcons);
+        emit q_ptr->attributeChanged(varProp, enumIconsProperty, v);
+    }
 }
 
 void QtVariantPropertyManagerPrivate::slotValueChanged(QtProperty *property, const QSizePolicy &val)
@@ -611,10 +620,8 @@ void QtVariantPropertyManagerPrivate::slotValueChanged(QtProperty *property, con
 
 void QtVariantPropertyManagerPrivate::slotFlagNamesChanged(QtProperty *property, const QStringList &flagNames)
 {
-    if (!m_internalToProperty.contains(property))
-        return;
-    QtVariantProperty *varProp = m_internalToProperty[property];
-    emit q_ptr->attributeChanged(varProp, QLatin1String("flagNames"), QVariant(flagNames));
+    if (QtVariantProperty *varProp = m_internalToProperty.value(property, 0))
+        emit q_ptr->attributeChanged(varProp, flagNamesProperty, QVariant(flagNames));
 }
 
 /*!
@@ -868,8 +875,8 @@ QtVariantPropertyManager::QtVariantPropertyManager(QObject *parent)
     // IntPropertyManager
     QtIntPropertyManager *intPropertyManager = new QtIntPropertyManager(this);
     d_ptr->m_typeToPropertyManager[QVariant::Int] = intPropertyManager;
-    d_ptr->m_typeToAttributeToAttributeType[QVariant::Int][QLatin1String("minimum")] = QVariant::Int;
-    d_ptr->m_typeToAttributeToAttributeType[QVariant::Int][QLatin1String("maximum")] = QVariant::Int;
+    d_ptr->m_typeToAttributeToAttributeType[QVariant::Int][d_ptr->minimumProperty] = QVariant::Int;
+    d_ptr->m_typeToAttributeToAttributeType[QVariant::Int][d_ptr->maximumProperty] = QVariant::Int;
     d_ptr->m_typeToValueType[QVariant::Int] = QVariant::Int;
     connect(intPropertyManager, SIGNAL(valueChanged(QtProperty *, int)),
                 this, SLOT(slotValueChanged(QtProperty *, int)));
@@ -878,11 +885,11 @@ QtVariantPropertyManager::QtVariantPropertyManager(QObject *parent)
     // DoublePropertyManager
     QtDoublePropertyManager *doublePropertyManager = new QtDoublePropertyManager(this);
     d_ptr->m_typeToPropertyManager[QVariant::Double] = doublePropertyManager;
-    d_ptr->m_typeToAttributeToAttributeType[QVariant::Double][QLatin1String("minimum")] =
+    d_ptr->m_typeToAttributeToAttributeType[QVariant::Double][d_ptr->minimumProperty] =
             QVariant::Double;
-    d_ptr->m_typeToAttributeToAttributeType[QVariant::Double][QLatin1String("maximum")] =
+    d_ptr->m_typeToAttributeToAttributeType[QVariant::Double][d_ptr->maximumProperty] =
             QVariant::Double;
-    d_ptr->m_typeToAttributeToAttributeType[QVariant::Double][QLatin1String("decimals")] =
+    d_ptr->m_typeToAttributeToAttributeType[QVariant::Double][d_ptr->decimalsProperty] =
             QVariant::Int;
     d_ptr->m_typeToValueType[QVariant::Double] = QVariant::Double;
     connect(doublePropertyManager, SIGNAL(valueChanged(QtProperty *, double)),
@@ -901,7 +908,7 @@ QtVariantPropertyManager::QtVariantPropertyManager(QObject *parent)
     QtStringPropertyManager *stringPropertyManager = new QtStringPropertyManager(this);
     d_ptr->m_typeToPropertyManager[QVariant::String] = stringPropertyManager;
     d_ptr->m_typeToValueType[QVariant::String] = QVariant::String;
-    d_ptr->m_typeToAttributeToAttributeType[QVariant::String][QLatin1String("regExp")] =
+    d_ptr->m_typeToAttributeToAttributeType[QVariant::String][d_ptr->regExpProperty] =
             QVariant::RegExp;
     connect(stringPropertyManager, SIGNAL(valueChanged(QtProperty *, const QString &)),
                 this, SLOT(slotValueChanged(QtProperty *, const QString &)));
@@ -911,9 +918,9 @@ QtVariantPropertyManager::QtVariantPropertyManager(QObject *parent)
     QtDatePropertyManager *datePropertyManager = new QtDatePropertyManager(this);
     d_ptr->m_typeToPropertyManager[QVariant::Date] = datePropertyManager;
     d_ptr->m_typeToValueType[QVariant::Date] = QVariant::Date;
-    d_ptr->m_typeToAttributeToAttributeType[QVariant::Date][QLatin1String("minimum")] =
+    d_ptr->m_typeToAttributeToAttributeType[QVariant::Date][d_ptr->minimumProperty] =
             QVariant::Date;
-    d_ptr->m_typeToAttributeToAttributeType[QVariant::Date][QLatin1String("maximum")] =
+    d_ptr->m_typeToAttributeToAttributeType[QVariant::Date][d_ptr->maximumProperty] =
             QVariant::Date;
     connect(datePropertyManager, SIGNAL(valueChanged(QtProperty *, const QDate &)),
                 this, SLOT(slotValueChanged(QtProperty *, const QDate &)));
@@ -971,7 +978,7 @@ QtVariantPropertyManager::QtVariantPropertyManager(QObject *parent)
     QtPointFPropertyManager *pointFPropertyManager = new QtPointFPropertyManager(this);
     d_ptr->m_typeToPropertyManager[QVariant::PointF] = pointFPropertyManager;
     d_ptr->m_typeToValueType[QVariant::PointF] = QVariant::PointF;
-    d_ptr->m_typeToAttributeToAttributeType[QVariant::PointF][QLatin1String("decimals")] =
+    d_ptr->m_typeToAttributeToAttributeType[QVariant::PointF][d_ptr->decimalsProperty] =
             QVariant::Int;
     connect(pointFPropertyManager, SIGNAL(valueChanged(QtProperty *, const QPointF &)),
                 this, SLOT(slotValueChanged(QtProperty *, const QPointF &)));
@@ -987,9 +994,9 @@ QtVariantPropertyManager::QtVariantPropertyManager(QObject *parent)
     QtSizePropertyManager *sizePropertyManager = new QtSizePropertyManager(this);
     d_ptr->m_typeToPropertyManager[QVariant::Size] = sizePropertyManager;
     d_ptr->m_typeToValueType[QVariant::Size] = QVariant::Size;
-    d_ptr->m_typeToAttributeToAttributeType[QVariant::Size][QLatin1String("minimum")] =
+    d_ptr->m_typeToAttributeToAttributeType[QVariant::Size][d_ptr->minimumProperty] =
             QVariant::Size;
-    d_ptr->m_typeToAttributeToAttributeType[QVariant::Size][QLatin1String("maximum")] =
+    d_ptr->m_typeToAttributeToAttributeType[QVariant::Size][d_ptr->maximumProperty] =
             QVariant::Size;
     connect(sizePropertyManager, SIGNAL(valueChanged(QtProperty *, const QSize &)),
                 this, SLOT(slotValueChanged(QtProperty *, const QSize &)));
@@ -1007,11 +1014,11 @@ QtVariantPropertyManager::QtVariantPropertyManager(QObject *parent)
     QtSizeFPropertyManager *sizeFPropertyManager = new QtSizeFPropertyManager(this);
     d_ptr->m_typeToPropertyManager[QVariant::SizeF] = sizeFPropertyManager;
     d_ptr->m_typeToValueType[QVariant::SizeF] = QVariant::SizeF;
-    d_ptr->m_typeToAttributeToAttributeType[QVariant::SizeF][QLatin1String("minimum")] =
+    d_ptr->m_typeToAttributeToAttributeType[QVariant::SizeF][d_ptr->minimumProperty] =
             QVariant::SizeF;
-    d_ptr->m_typeToAttributeToAttributeType[QVariant::SizeF][QLatin1String("maximum")] =
+    d_ptr->m_typeToAttributeToAttributeType[QVariant::SizeF][d_ptr->maximumProperty] =
             QVariant::SizeF;
-    d_ptr->m_typeToAttributeToAttributeType[QVariant::SizeF][QLatin1String("decimals")] =
+    d_ptr->m_typeToAttributeToAttributeType[QVariant::SizeF][d_ptr->decimalsProperty] =
             QVariant::Int;
     connect(sizeFPropertyManager, SIGNAL(valueChanged(QtProperty *, const QSizeF &)),
                 this, SLOT(slotValueChanged(QtProperty *, const QSizeF &)));
@@ -1031,7 +1038,7 @@ QtVariantPropertyManager::QtVariantPropertyManager(QObject *parent)
     QtRectPropertyManager *rectPropertyManager = new QtRectPropertyManager(this);
     d_ptr->m_typeToPropertyManager[QVariant::Rect] = rectPropertyManager;
     d_ptr->m_typeToValueType[QVariant::Rect] = QVariant::Rect;
-    d_ptr->m_typeToAttributeToAttributeType[QVariant::Rect][QLatin1String("constraint")] =
+    d_ptr->m_typeToAttributeToAttributeType[QVariant::Rect][d_ptr->constraintProperty] =
             QVariant::Rect;
     connect(rectPropertyManager, SIGNAL(valueChanged(QtProperty *, const QRect &)),
                 this, SLOT(slotValueChanged(QtProperty *, const QRect &)));
@@ -1049,9 +1056,9 @@ QtVariantPropertyManager::QtVariantPropertyManager(QObject *parent)
     QtRectFPropertyManager *rectFPropertyManager = new QtRectFPropertyManager(this);
     d_ptr->m_typeToPropertyManager[QVariant::RectF] = rectFPropertyManager;
     d_ptr->m_typeToValueType[QVariant::RectF] = QVariant::RectF;
-    d_ptr->m_typeToAttributeToAttributeType[QVariant::RectF][QLatin1String("constraint")] =
+    d_ptr->m_typeToAttributeToAttributeType[QVariant::RectF][d_ptr->constraintProperty] =
             QVariant::RectF;
-    d_ptr->m_typeToAttributeToAttributeType[QVariant::RectF][QLatin1String("decimals")] =
+    d_ptr->m_typeToAttributeToAttributeType[QVariant::RectF][d_ptr->decimalsProperty] =
             QVariant::Int;
     connect(rectFPropertyManager, SIGNAL(valueChanged(QtProperty *, const QRectF &)),
                 this, SLOT(slotValueChanged(QtProperty *, const QRectF &)));
@@ -1084,9 +1091,9 @@ QtVariantPropertyManager::QtVariantPropertyManager(QObject *parent)
     QtEnumPropertyManager *enumPropertyManager = new QtEnumPropertyManager(this);
     d_ptr->m_typeToPropertyManager[enumId] = enumPropertyManager;
     d_ptr->m_typeToValueType[enumId] = QVariant::Int;
-    d_ptr->m_typeToAttributeToAttributeType[enumId][QLatin1String("enumNames")] =
+    d_ptr->m_typeToAttributeToAttributeType[enumId][d_ptr->enumNamesProperty] =
             QVariant::StringList;
-    d_ptr->m_typeToAttributeToAttributeType[enumId][QLatin1String("enumIcons")] =
+    d_ptr->m_typeToAttributeToAttributeType[enumId][d_ptr->enumIconsProperty] =
             iconMapTypeId();
     connect(enumPropertyManager, SIGNAL(valueChanged(QtProperty *, int)),
                 this, SLOT(slotValueChanged(QtProperty *, int)));
@@ -1145,7 +1152,7 @@ QtVariantPropertyManager::QtVariantPropertyManager(QObject *parent)
     QtFlagPropertyManager *flagPropertyManager = new QtFlagPropertyManager(this);
     d_ptr->m_typeToPropertyManager[flagId] = flagPropertyManager;
     d_ptr->m_typeToValueType[flagId] = QVariant::Int;
-    d_ptr->m_typeToAttributeToAttributeType[flagId][QLatin1String("flagNames")] =
+    d_ptr->m_typeToAttributeToAttributeType[flagId][d_ptr->flagNamesProperty] =
             QVariant::StringList;
     connect(flagPropertyManager, SIGNAL(valueChanged(QtProperty *, int)),
                 this, SLOT(slotValueChanged(QtProperty *, int)));
@@ -1377,68 +1384,68 @@ QVariant QtVariantPropertyManager::attributeValue(const QtProperty *property, co
 
             QtAbstractPropertyManager *manager = internProp->propertyManager();
             if (QtIntPropertyManager *intManager = qobject_cast<QtIntPropertyManager *>(manager)) {
-                if (attribute == QLatin1String("maximum"))
+                if (attribute == d_ptr->maximumProperty)
                     return intManager->maximum(internProp);
-                if (attribute == QLatin1String("minimum"))
+                if (attribute == d_ptr->minimumProperty)
                     return intManager->minimum(internProp);
                 return QVariant();
             } else if (QtDoublePropertyManager *doubleManager = qobject_cast<QtDoublePropertyManager *>(manager)) {
-                if (attribute == QLatin1String("maximum"))
+                if (attribute == d_ptr->maximumProperty)
                     return doubleManager->maximum(internProp);
-                if (attribute == QLatin1String("minimum"))
+                if (attribute == d_ptr->minimumProperty)
                     return doubleManager->minimum(internProp);
-                if (attribute == QLatin1String("decimals"))
+                if (attribute == d_ptr->decimalsProperty)
                     return doubleManager->decimals(internProp);
                 return QVariant();
             } else if (QtStringPropertyManager *stringManager = qobject_cast<QtStringPropertyManager *>(manager)) {
-                if (attribute == QLatin1String("regExp"))
+                if (attribute == d_ptr->regExpProperty)
                     return stringManager->regExp(internProp);
                 return QVariant();
             } else if (QtDatePropertyManager *dateManager = qobject_cast<QtDatePropertyManager *>(manager)) {
-                if (attribute == QLatin1String("maximum"))
+                if (attribute == d_ptr->maximumProperty)
                     return dateManager->maximum(internProp);
-                if (attribute == QLatin1String("minimum"))
+                if (attribute == d_ptr->minimumProperty)
                     return dateManager->minimum(internProp);
                 return QVariant();
             } else if (QtPointFPropertyManager *pointFManager = qobject_cast<QtPointFPropertyManager *>(manager)) {
-                if (attribute == QLatin1String("decimals"))
+                if (attribute == d_ptr->decimalsProperty)
                     return pointFManager->decimals(internProp);
                 return QVariant();
             } else if (QtSizePropertyManager *sizeManager = qobject_cast<QtSizePropertyManager *>(manager)) {
-                if (attribute == QLatin1String("maximum"))
+                if (attribute == d_ptr->maximumProperty)
                     return sizeManager->maximum(internProp);
-                if (attribute == QLatin1String("minimum"))
+                if (attribute == d_ptr->minimumProperty)
                     return sizeManager->minimum(internProp);
                 return QVariant();
             } else if (QtSizeFPropertyManager *sizeFManager = qobject_cast<QtSizeFPropertyManager *>(manager)) {
-                if (attribute == QLatin1String("maximum"))
+                if (attribute == d_ptr->maximumProperty)
                     return sizeFManager->maximum(internProp);
-                if (attribute == QLatin1String("minimum"))
+                if (attribute == d_ptr->minimumProperty)
                     return sizeFManager->minimum(internProp);
-                if (attribute == QLatin1String("decimals"))
+                if (attribute == d_ptr->decimalsProperty)
                     return sizeFManager->decimals(internProp);
                 return QVariant();
             } else if (QtRectPropertyManager *rectManager = qobject_cast<QtRectPropertyManager *>(manager)) {
-                if (attribute == QLatin1String("constraint"))
+                if (attribute == d_ptr->constraintProperty)
                     return rectManager->constraint(internProp);
                 return QVariant();
             } else if (QtRectFPropertyManager *rectFManager = qobject_cast<QtRectFPropertyManager *>(manager)) {
-                if (attribute == QLatin1String("constraint"))
+                if (attribute == d_ptr->constraintProperty)
                     return rectFManager->constraint(internProp);
-                if (attribute == QLatin1String("decimals"))
+                if (attribute == d_ptr->decimalsProperty)
                     return rectFManager->decimals(internProp);
                 return QVariant();
             } else if (QtEnumPropertyManager *enumManager = qobject_cast<QtEnumPropertyManager *>(manager)) {
-                if (attribute == QLatin1String("enumNames"))
+                if (attribute == d_ptr->enumNamesProperty)
                     return enumManager->enumNames(internProp);
-                if (attribute == QLatin1String("enumIcons")) {
+                if (attribute == d_ptr->enumIconsProperty) {
                     QVariant v;
                     qVariantSetValue(v, enumManager->enumIcons(internProp));
                     return v;
                 }
                 return QVariant();
             } else if (QtFlagPropertyManager *flagManager = qobject_cast<QtFlagPropertyManager *>(manager)) {
-                if (attribute == QLatin1String("flagNames"))
+                if (attribute == d_ptr->flagNamesProperty)
                     return flagManager->flagNames(internProp);
                 return QVariant();
             }
@@ -1620,65 +1627,65 @@ void QtVariantPropertyManager::setAttribute(QtProperty *property,
 
             QtAbstractPropertyManager *manager = internProp->propertyManager();
             if (QtIntPropertyManager *intManager = qobject_cast<QtIntPropertyManager *>(manager)) {
-                if (attribute == QLatin1String("maximum"))
+                if (attribute == d_ptr->maximumProperty)
                     intManager->setMaximum(internProp, qVariantValue<int>(value));
-                else if (attribute == QLatin1String("minimum"))
+                else if (attribute == d_ptr->minimumProperty)
                     intManager->setMinimum(internProp, qVariantValue<int>(value));
                 return;
             } else if (QtDoublePropertyManager *doubleManager = qobject_cast<QtDoublePropertyManager *>(manager)) {
-                if (attribute == QLatin1String("maximum"))
+                if (attribute == d_ptr->maximumProperty)
                     doubleManager->setMaximum(internProp, qVariantValue<double>(value));
-                if (attribute == QLatin1String("minimum"))
+                if (attribute == d_ptr->minimumProperty)
                     doubleManager->setMinimum(internProp, qVariantValue<double>(value));
-                if (attribute == QLatin1String("decimals"))
+                if (attribute == d_ptr->decimalsProperty)
                     doubleManager->setDecimals(internProp, qVariantValue<int>(value));
                 return;
             } else if (QtStringPropertyManager *stringManager = qobject_cast<QtStringPropertyManager *>(manager)) {
-                if (attribute == QLatin1String("regExp"))
+                if (attribute == d_ptr->regExpProperty)
                     stringManager->setRegExp(internProp, qVariantValue<QRegExp>(value));
                 return;
             } else if (QtDatePropertyManager *dateManager = qobject_cast<QtDatePropertyManager *>(manager)) {
-                if (attribute == QLatin1String("maximum"))
+                if (attribute == d_ptr->maximumProperty)
                     dateManager->setMaximum(internProp, qVariantValue<QDate>(value));
-                if (attribute == QLatin1String("minimum"))
+                if (attribute == d_ptr->minimumProperty)
                     dateManager->setMinimum(internProp, qVariantValue<QDate>(value));
                 return;
             } else if (QtPointFPropertyManager *pointFManager = qobject_cast<QtPointFPropertyManager *>(manager)) {
-                if (attribute == QLatin1String("decimals"))
+                if (attribute == d_ptr->decimalsProperty)
                     pointFManager->setDecimals(internProp, qVariantValue<int>(value));
                 return;
             } else if (QtSizePropertyManager *sizeManager = qobject_cast<QtSizePropertyManager *>(manager)) {
-                if (attribute == QLatin1String("maximum"))
+                if (attribute == d_ptr->maximumProperty)
                     sizeManager->setMaximum(internProp, qVariantValue<QSize>(value));
-                if (attribute == QLatin1String("minimum"))
+                if (attribute == d_ptr->minimumProperty)
                     sizeManager->setMinimum(internProp, qVariantValue<QSize>(value));
                 return;
             } else if (QtSizeFPropertyManager *sizeFManager = qobject_cast<QtSizeFPropertyManager *>(manager)) {
-                if (attribute == QLatin1String("maximum"))
+                if (attribute == d_ptr->maximumProperty)
                     sizeFManager->setMaximum(internProp, qVariantValue<QSizeF>(value));
-                if (attribute == QLatin1String("minimum"))
+                if (attribute == d_ptr->minimumProperty)
                     sizeFManager->setMinimum(internProp, qVariantValue<QSizeF>(value));
-                if (attribute == QLatin1String("decimals"))
+                if (attribute == d_ptr->decimalsProperty)
                     sizeFManager->setDecimals(internProp, qVariantValue<int>(value));
                 return;
             } else if (QtRectPropertyManager *rectManager = qobject_cast<QtRectPropertyManager *>(manager)) {
-                if (attribute == QLatin1String("constraint"))
+                if (attribute == d_ptr->constraintProperty)
                     rectManager->setConstraint(internProp, qVariantValue<QRect>(value));
                 return;
             } else if (QtRectFPropertyManager *rectFManager = qobject_cast<QtRectFPropertyManager *>(manager)) {
-                if (attribute == QLatin1String("constraint"))
+                if (attribute == d_ptr->constraintProperty)
                     rectFManager->setConstraint(internProp, qVariantValue<QRectF>(value));
-                if (attribute == QLatin1String("decimals"))
+                if (attribute == d_ptr->decimalsProperty)
                     rectFManager->setDecimals(internProp, qVariantValue<int>(value));
                 return;
             } else if (QtEnumPropertyManager *enumManager = qobject_cast<QtEnumPropertyManager *>(manager)) {
-                if (attribute == QLatin1String("enumNames"))
+                if (attribute == d_ptr->enumNamesProperty)
                     enumManager->setEnumNames(internProp, qVariantValue<QStringList>(value));
-                if (attribute == QLatin1String("enumIcons"))
+                if (attribute == d_ptr->enumIconsProperty)
                     enumManager->setEnumIcons(internProp, qVariantValue<QtIconMap>(value));
                 return;
             } else if (QtFlagPropertyManager *flagManager = qobject_cast<QtFlagPropertyManager *>(manager)) {
-                if (attribute == QLatin1String("flagNames"))
+                if (attribute == d_ptr->flagNamesProperty)
                     flagManager->setFlagNames(internProp, qVariantValue<QStringList>(value));
                 return;
             }
@@ -2077,10 +2084,11 @@ void QtVariantEditorFactory::connectPropertyManager(QtVariantPropertyManager *ma
 QWidget *QtVariantEditorFactory::createEditor(QtVariantPropertyManager *manager, QtProperty *property,
         QWidget *parent)
 {
-    int propType = manager->propertyType(property);
-    if (!d_ptr->m_typeToFactory.contains(propType))
+    const int propType = manager->propertyType(property);
+    QtAbstractEditorFactoryBase *factory = d_ptr->m_typeToFactory.value(propType, 0);
+    if (!factory)
         return 0;
-    return d_ptr->m_typeToFactory[propType]->createEditor(wrappedProperty(property), parent);
+    return factory->createEditor(wrappedProperty(property), parent);
 }
 
 /*!

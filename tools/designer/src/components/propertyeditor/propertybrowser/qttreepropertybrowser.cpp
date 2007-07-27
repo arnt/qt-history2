@@ -74,9 +74,7 @@ class QtPropertyEditorView : public QTreeWidget
 {
     Q_OBJECT
 public:
-    QtPropertyEditorView(QWidget *parent = 0)
-        : QTreeWidget(parent), m_editorPrivate(0)
-        {}
+    QtPropertyEditorView(QWidget *parent = 0);
 
     void setEditorPrivate(QtTreePropertyBrowserPrivate *editorPrivate)
         { m_editorPrivate = editorPrivate; }
@@ -89,6 +87,13 @@ protected:
 private:
     QtTreePropertyBrowserPrivate *m_editorPrivate;
 };
+
+QtPropertyEditorView::QtPropertyEditorView(QWidget *parent) :
+    QTreeWidget(parent),
+    m_editorPrivate(0)
+{
+    connect(header(), SIGNAL(sectionDoubleClicked(int)), this, SLOT(resizeColumnToContents(int)));
+}
 
 void QtPropertyEditorView::drawRow(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
@@ -151,8 +156,12 @@ private slots:
     void slotEditorDestroyed(QObject *object);
 private:
     int indentation(const QModelIndex &index) const;
-    mutable QMap<QWidget *, QtProperty *> m_editorToProperty;
-    mutable QMap<QtProperty *, QWidget *> m_propertyToEditor;
+
+    typedef QMap<QWidget *, QtProperty *> EditorToPropertyMap;
+    mutable EditorToPropertyMap m_editorToProperty;
+
+    typedef QMap<QtProperty *, QWidget *> PropertyToEditorMap;
+    mutable PropertyToEditorMap m_propertyToEditor;
     QtTreePropertyBrowserPrivate *m_editorPrivate;
 };
 
@@ -174,18 +183,19 @@ int QtPropertyEditorDelegate::indentation(const QModelIndex &index) const
 
 void QtPropertyEditorDelegate::slotEditorDestroyed(QObject *object)
 {
-    QWidget *w = qobject_cast<QWidget *>(object);
-    if (w && m_editorToProperty.contains(w)) {
-        m_propertyToEditor.remove(m_editorToProperty[w]);
-        m_editorToProperty.remove(w);
+    if (QWidget *w = qobject_cast<QWidget *>(object)) {
+        const EditorToPropertyMap::iterator it = m_editorToProperty.find(w);
+        if (it != m_editorToProperty.end()) {
+            m_propertyToEditor.remove(it.value());
+            m_editorToProperty.erase(it);
+        }
     }
 }
 
 void QtPropertyEditorDelegate::closeEditor(QtProperty *property)
 {
-    if (m_propertyToEditor.contains(property)) {
-        m_propertyToEditor[property]->deleteLater();
-    }
+    if (QWidget *w = m_propertyToEditor.value(property, 0))
+        w->deleteLater();
 }
 
 QWidget *QtPropertyEditorDelegate::createEditor(QWidget *parent,
@@ -352,7 +362,8 @@ void QtTreePropertyBrowserPrivate::disableItem(QTreeWidgetItem *item) const
         flags &= ~Qt::ItemIsEnabled;
         item->setFlags(flags);
         m_delegate->closeEditor(m_itemToIndex[item]->property());
-        for (int i = 0; i < item->childCount(); i++) {
+        const int childCount = item->childCount();
+        for (int i = 0; i < childCount; i++) {
             QTreeWidgetItem *child = item->child(i);
             disableItem(child);
         }
@@ -364,7 +375,8 @@ void QtTreePropertyBrowserPrivate::enableItem(QTreeWidgetItem *item) const
     Qt::ItemFlags flags = item->flags();
     flags |= Qt::ItemIsEnabled;
     item->setFlags(flags);
-    for (int i = 0; i < item->childCount(); i++) {
+    const int childCount = item->childCount();
+    for (int i = 0; i < childCount; i++) {
         QTreeWidgetItem *child = item->child(i);
         QtProperty *property = m_itemToIndex[child]->property();
         if (property->isEnabled()) {
@@ -451,7 +463,7 @@ void QtTreePropertyBrowserPrivate::updateItem(QTreeWidgetItem *item)
 QColor QtTreePropertyBrowserPrivate::calculatedBackgroundColor(QtBrowserItem *item) const
 {
     QtBrowserItem *i = item;
-    QMap<QtBrowserItem *, QColor>::const_iterator itEnd = m_indexToBackgroundColor.constEnd();
+    const QMap<QtBrowserItem *, QColor>::const_iterator itEnd = m_indexToBackgroundColor.constEnd();
     while (i) {
         QMap<QtBrowserItem *, QColor>::const_iterator it = m_indexToBackgroundColor.constFind(i);
         if (it != itEnd)

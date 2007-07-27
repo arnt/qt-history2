@@ -35,9 +35,28 @@
 
 #include <QtCore/qdebug.h>
 
-namespace qdesigner_internal {
+static qdesigner_internal::InvisibleWidget *createIndicator(QWidget *parent, const QPalette &p)
+{
+    qdesigner_internal::InvisibleWidget * rc = new qdesigner_internal::InvisibleWidget(parent);
+    rc->setAutoFillBackground(true);
+    rc->setPalette(p);
+    rc->hide();
+    return rc;
+}
 
-const int ShiftValue = 1;
+static const char *leftMarginC = "leftMargin";
+static const char *rightMarginC = "rightMargin";
+static const char *bottomMarginC = "bottomMargin";
+static const char *topMarginC = "topMargin";
+static const char *spacingC = "spacing";
+static const char *horizontalSpacingC = "horizontalSpacing";
+static const char *verticalSpacingC =  "verticalSpacing";
+
+namespace {
+    enum { ShiftValue = 1 };
+}
+
+namespace qdesigner_internal {
 
 class FriendlyLayout: public QLayout
 {
@@ -46,15 +65,13 @@ public:
 
     friend class ::QLayoutWidgetItem;
 };
-
-} // namespace qdesigner_internal
-
+}
 
 using namespace qdesigner_internal;
 
 // ---- QLayoutSupport ----
-QLayoutSupport::QLayoutSupport(QDesignerFormWindowInterface *formWindow, QWidget *widget, QObject *parent)
-    : QObject(parent),
+QLayoutSupport::QLayoutSupport(QDesignerFormWindowInterface *formWindow, QWidget *widget, QObject *parent)  :
+      QObject(parent),
       m_formWindow(formWindow),
       m_widget(widget),
       m_currentIndex(-1),
@@ -63,32 +80,17 @@ QLayoutSupport::QLayoutSupport(QDesignerFormWindowInterface *formWindow, QWidget
     QPalette p;
     p.setColor(QPalette::Base, Qt::red);
 
-    m_indicatorLeft = new InvisibleWidget(m_widget);
-    m_indicatorLeft->setAutoFillBackground(true);
-    m_indicatorLeft->setPalette(p);
-    m_indicatorLeft->hide();
-
-    m_indicatorTop = new InvisibleWidget(m_widget);
-    m_indicatorTop->setAutoFillBackground(true);
-    m_indicatorTop->setPalette(p);
-    m_indicatorTop->hide();
-
-    m_indicatorRight = new InvisibleWidget(m_widget);
-    m_indicatorRight->setAutoFillBackground(true);
-    m_indicatorRight->setPalette(p);
-    m_indicatorRight->hide();
-
-    m_indicatorBottom = new InvisibleWidget(m_widget);
-    m_indicatorBottom->setAutoFillBackground(true);
-    m_indicatorBottom->setPalette(p);
-    m_indicatorBottom->hide();
+    m_indicatorLeft = createIndicator(m_widget, p);
+    m_indicatorTop = createIndicator(m_widget, p);
+    m_indicatorRight = createIndicator(m_widget, p);
+    m_indicatorBottom = createIndicator(m_widget, p);
 
     if (QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(formWindow->core()->extensionManager(), m_widget)) {
-        sheet->setChanged(sheet->indexOf(QLatin1String("leftMargin")), true);
-        sheet->setChanged(sheet->indexOf(QLatin1String("topMargin")), true);
-        sheet->setChanged(sheet->indexOf(QLatin1String("rightMargin")), true);
-        sheet->setChanged(sheet->indexOf(QLatin1String("bottomMargin")), true);
-        sheet->setChanged(sheet->indexOf(QLatin1String("spacing")), true);
+        sheet->setChanged(sheet->indexOf(QLatin1String(leftMarginC)), true);
+        sheet->setChanged(sheet->indexOf(QLatin1String(topMarginC)), true);
+        sheet->setChanged(sheet->indexOf(QLatin1String(rightMarginC)), true);
+        sheet->setChanged(sheet->indexOf(QLatin1String(bottomMarginC)), true);
+        sheet->setChanged(sheet->indexOf(QLatin1String(spacingC)), true);
     }
 }
 
@@ -114,7 +116,7 @@ void QLayoutSupport::tryRemoveRow(int row)
     bool please_removeRow = true;
     int index = 0;
     while (QLayoutItem *item = gridLayout()->itemAt(index)) {
-        QRect info = itemInfo(index);
+        const QRect info = itemInfo(index);
         ++index;
 
         if (info.y() == row && !isEmptyItem(item)) {
@@ -188,7 +190,7 @@ void QLayoutSupport::tryRemoveColumn(int column)
     bool please_removeColumn = true;
     int index = 0;
     while (QLayoutItem *item = gridLayout()->itemAt(index)) {
-        QRect info = itemInfo(index);
+        const QRect info = itemInfo(index);
         ++index;
 
         if (info.x() == column && !isEmptyItem(item)) {
@@ -236,16 +238,16 @@ void QLayoutSupport::adjustIndicator(const QPoint &pos, int index)
     QLayoutItem *item = layout()->itemAt(index);
     QRect g = extendedGeometry(index);
 
-    int dx = g.right() - pos.x();
-    int dy = g.bottom() - pos.y();
+    const int dx = g.right() - pos.x();
+    const int dy = g.bottom() - pos.y();
 
-    int dx1 = pos.x() - g.x();
-    int dy1 = pos.y() - g.y();
+    const int dx1 = pos.x() - g.x();
+    const int dy1 = pos.y() - g.y();
 
-    int mx = qMin(dx, dx1);
-    int my = qMin(dy, dy1);
+    const int mx = qMin(dx, dx1);
+    const int my = qMin(dy, dy1);
 
-    bool isVertical = mx < my;
+    const bool isVertical = mx < my;
 
     // ### cleanup
     if (isEmptyItem(item)) {
@@ -286,7 +288,7 @@ void QLayoutSupport::adjustIndicator(const QPoint &pos, int index)
         m_indicatorRight->setPalette(p);
         m_indicatorBottom->setPalette(p);
 
-        QRect r(layout()->geometry().topLeft(), layout()->parentWidget()->size());
+        const QRect r(layout()->geometry().topLeft(), layout()->parentWidget()->size());
         if (isVertical) {
             m_indicatorBottom->hide();
 
@@ -295,7 +297,7 @@ void QLayoutSupport::adjustIndicator(const QPoint &pos, int index)
                 m_indicatorRight->show();
                 m_indicatorRight->raise();
 
-                int incr = (mx == dx1) ? 0 : +1;
+                const int incr = (mx == dx1) ? 0 : +1;
 
                 if (qobject_cast<QGridLayout*>(layout())) {
                     m_currentInsertMode = QDesignerLayoutDecorationExtension::InsertColumnMode;
@@ -314,7 +316,7 @@ void QLayoutSupport::adjustIndicator(const QPoint &pos, int index)
                 m_indicatorBottom->show();
                 m_indicatorBottom->raise();
 
-                int incr = (my == dy1) ? 0 : +1;
+                const int incr = (my == dy1) ? 0 : +1;
 
                 if (qobject_cast<QGridLayout*>(layout())) {
                     m_currentInsertMode = QDesignerLayoutDecorationExtension::InsertRowMode;
@@ -375,7 +377,7 @@ void QLayoutSupport::removeWidget(QWidget *widget)
 
     switch (layoutType) {
         case LayoutInfo::Grid: {
-            int index = indexOf(widget);
+            const int index = indexOf(widget);
             if (index != -1) {
                 QGridLayout *gridLayout = qobject_cast<QGridLayout*>(layout());
                 Q_ASSERT(gridLayout);
@@ -587,7 +589,7 @@ void QLayoutSupport::createEmptyCells(QGridLayout *&gridLayout)
 
     for (int r = 0; r < gridLayout->rowCount(); ++r) {
         for (int c = 0; c < gridLayout->columnCount(); ++c) {
-            QPair<int,int> cell = qMakePair(r, c);
+            const QPair<int,int> cell = qMakePair(r, c);
             cells.insert(cell, 0);
         }
     }
@@ -600,7 +602,7 @@ void QLayoutSupport::createEmptyCells(QGridLayout *&gridLayout)
 
         for (int r = row; r < row + rowspan; ++r) {
             for (int c = column; c < column + colspan; ++c) {
-                QPair<int,int> cell = qMakePair(r, c);
+                const QPair<int,int> cell = qMakePair(r, c);
                 cells[cell] = item;
 
                 if (!item) {
@@ -721,7 +723,7 @@ QRect QLayoutSupport::extendedGeometry(int index) const
     QLayoutItem *item = layout()->itemAt(index);
     QRect g = item->geometry();
 
-    QRect info = itemInfo(index);
+    const QRect info = itemInfo(index);
 
     if (info.x() == 0) {
         QPoint topLeft = g.topLeft();
@@ -775,7 +777,7 @@ int QLayoutSupport::findItemAt(const QPoint &pos) const
     int index = 0;
     while (QLayoutItem *item = layout()->itemAt(index)) {
 
-        QRect g = item->geometry();
+        const QRect g = item->geometry();
 
         int dist = (g.center() - pos).manhattanLength();
         if (best == -1 || dist < best) {
@@ -793,7 +795,7 @@ void QLayoutSupport::computeGridLayout(QHash<QLayoutItem*, QRect> *l)
 {
     int index = 0;
     while (QLayoutItem *item = layout()->itemAt(index)) {
-        QRect info = itemInfo(index);
+        const QRect info = itemInfo(index);
         l->insert(item, info);
 
         ++index;
@@ -807,24 +809,32 @@ void QLayoutSupport::rebuildGridLayout(QHash<QLayoutItem*, QRect> *infos)
     leftMargin = topMargin = rightMargin = bottomMargin = 0;
     int horizSpacing = gridLayout->horizontalSpacing();
     int vertSpacing = gridLayout->verticalSpacing();
-    bool leftMarginChanged, topMarginChanged, rightMarginChanged, bottomMarginChanged, horizSpacingChanged, vertSpacingChanged;;
+    bool leftMarginChanged, topMarginChanged, rightMarginChanged, bottomMarginChanged, horizSpacingChanged, vertSpacingChanged;
     leftMarginChanged = topMarginChanged = rightMarginChanged = bottomMarginChanged = horizSpacingChanged = vertSpacingChanged = false;
 
     QDesignerFormEditorInterface *core = formWindow()->core();
     QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(core->extensionManager(), gridLayout);
     if (sheet) {
-        leftMargin = sheet->property(sheet->indexOf("leftMargin")).toInt();
-        topMargin = sheet->property(sheet->indexOf("topMargin")).toInt();
-        rightMargin = sheet->property(sheet->indexOf("rightMargin")).toInt();
-        bottomMargin = sheet->property(sheet->indexOf("bottomMargin")).toInt();
-        horizSpacing = sheet->property(sheet->indexOf("horizontalSpacing")).toInt();
-        vertSpacing = sheet->property(sheet->indexOf("verticalSpacing")).toInt();
-        leftMarginChanged = sheet->isChanged(sheet->indexOf(QLatin1String("leftMargin")));
-        topMarginChanged = sheet->isChanged(sheet->indexOf(QLatin1String("topMargin")));
-        rightMarginChanged = sheet->isChanged(sheet->indexOf(QLatin1String("rightMargin")));
-        bottomMarginChanged = sheet->isChanged(sheet->indexOf(QLatin1String("bottomMargin")));
-        horizSpacingChanged = sheet->isChanged(sheet->indexOf(QLatin1String("horizontalSpacing")));
-        vertSpacingChanged = sheet->isChanged(sheet->indexOf(QLatin1String("verticalSpacing")));
+        const int leftMarginIndex = sheet->indexOf(QLatin1String(leftMarginC));
+        const int topMarginIndex  = sheet->indexOf(QLatin1String(topMarginC));
+        const int rightMarginIndex = sheet->indexOf(QLatin1String(rightMarginC));
+        const int bottomMarginIndex = sheet->indexOf(QLatin1String((bottomMarginC)));
+        const int horizSpacingIndex = sheet->indexOf(QLatin1String(horizontalSpacingC));
+        const int vertSpacingIndex = sheet->indexOf(QLatin1String(verticalSpacingC));
+        Q_ASSERT(leftMarginIndex != -1 && topMarginIndex  != -1 && rightMarginIndex   != -1 && bottomMargin  != -1 && horizSpacingIndex != -1 && vertSpacingIndex  != -1);
+        leftMargin = sheet->property(leftMarginIndex).toInt();
+        topMargin = sheet->property(topMarginIndex).toInt();
+        rightMargin = sheet->property(rightMarginIndex).toInt();
+        bottomMargin = sheet->property(bottomMarginIndex).toInt();
+        horizSpacing = sheet->property(horizSpacingIndex).toInt();
+        vertSpacing = sheet->property(vertSpacingIndex).toInt();
+
+        leftMarginChanged = sheet->isChanged(leftMarginIndex);
+        topMarginChanged = sheet->isChanged(topMarginIndex);
+        rightMarginChanged = sheet->isChanged(rightMarginIndex);
+        bottomMarginChanged = sheet->isChanged(bottomMarginIndex);
+        horizSpacingChanged = sheet->isChanged(horizSpacingIndex);
+        vertSpacingChanged = sheet->isChanged(vertSpacingIndex);
     }
 
     { // take the items
@@ -843,7 +853,7 @@ void QLayoutSupport::rebuildGridLayout(QHash<QLayoutItem*, QRect> *infos)
     while (it.hasNext()) {
         it.next();
 
-        QRect info = it.value();
+        const QRect info = it.value();
 
         gridLayout->addItem(it.key(), info.y(), info.x(),
                 info.height(), info.width());
@@ -851,18 +861,30 @@ void QLayoutSupport::rebuildGridLayout(QHash<QLayoutItem*, QRect> *infos)
 
     QDesignerPropertySheetExtension *newSheet = qt_extension<QDesignerPropertySheetExtension*>(core->extensionManager(), gridLayout);
     if (sheet && newSheet) {
-        newSheet->setProperty(newSheet->indexOf("leftMargin"), leftMargin);
-        newSheet->setChanged(newSheet->indexOf("leftMargin"), leftMarginChanged);
-        newSheet->setProperty(newSheet->indexOf("topMargin"), topMargin);
-        newSheet->setChanged(newSheet->indexOf("topMargin"), topMarginChanged);
-        newSheet->setProperty(newSheet->indexOf("rightMargin"), rightMargin);
-        newSheet->setChanged(newSheet->indexOf("rightMargin"), rightMarginChanged);
-        newSheet->setProperty(newSheet->indexOf("bottomMargin"), bottomMargin);
-        newSheet->setChanged(newSheet->indexOf("bottomMargin"), bottomMarginChanged);
-        newSheet->setProperty(newSheet->indexOf("horizontalSpacing"), horizSpacing);
-        newSheet->setChanged(newSheet->indexOf("horizontalSpacing"), horizSpacingChanged);
-        newSheet->setProperty(newSheet->indexOf("verticalSpacing"), vertSpacing);
-        newSheet->setChanged(newSheet->indexOf("verticalSpacing"), vertSpacingChanged);
+        const int leftMarginIndex = newSheet->indexOf(QLatin1String(leftMarginC));
+        const int topMarginIndex  = newSheet->indexOf(QLatin1String(topMarginC));
+        const int rightMarginIndex = newSheet->indexOf(QLatin1String(rightMarginC));
+        const int bottomMarginIndex = newSheet->indexOf(QLatin1String((bottomMarginC)));
+        const int horizSpacingIndex = newSheet->indexOf(QLatin1String(horizontalSpacingC));
+        const int vertSpacingIndex = newSheet->indexOf(QLatin1String(verticalSpacingC));
+        Q_ASSERT(leftMarginIndex != -1 && topMarginIndex  != -1 && rightMarginIndex   != -1 && bottomMargin  != -1 && horizSpacingIndex != -1 && vertSpacingIndex  != -1);
+
+        newSheet->setProperty(leftMarginIndex, leftMargin);
+        newSheet->setChanged(leftMarginIndex, leftMarginChanged);
+        newSheet->setProperty(topMarginIndex, topMargin);
+        newSheet->setChanged(topMarginIndex, topMarginChanged);
+        newSheet->setProperty(rightMarginIndex,  rightMargin);
+
+        newSheet->setChanged(topMarginIndex, topMarginChanged);
+        newSheet->setProperty(rightMarginIndex, rightMargin);
+        newSheet->setChanged(rightMarginIndex, rightMarginChanged);
+        newSheet->setProperty(bottomMarginIndex, bottomMargin);
+        newSheet->setChanged(bottomMarginIndex, bottomMarginChanged);
+
+        newSheet->setProperty(horizSpacingIndex, horizSpacing);
+        newSheet->setChanged(horizSpacingIndex, horizSpacingChanged);
+        newSheet->setProperty(vertSpacingIndex, vertSpacing);
+        newSheet->setChanged(vertSpacingIndex, vertSpacingChanged);
     }
 }
 

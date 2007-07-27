@@ -92,7 +92,8 @@ private Q_SLOTS:
     void slotValueChanged(QtProperty *property, const QVariant &value);
     void slotPropertyDestroyed(QtProperty *property);
 private:
-    QMap<QtProperty *, bool> m_resetMap;
+    typedef QMap<QtProperty *, bool> PropertyBoolMap;
+    PropertyBoolMap m_resetMap;
 
     int bitCount(int mask) const;
     struct FlagData
@@ -102,8 +103,10 @@ private:
         DesignerFlagList flags;
         QList<uint> values;
     };
-    QMap<QtProperty *, FlagData> m_flagValues;
-    QMap<QtProperty *, QList<QtProperty *> > m_propertyToFlags;
+    typedef QMap<QtProperty *, FlagData> PropertyFlagDataMap;
+    PropertyFlagDataMap m_flagValues;
+    typedef  QMap<QtProperty *, QList<QtProperty *> > PropertyToPropertyListMap;
+    PropertyToPropertyListMap m_propertyToFlags;
     QMap<QtProperty *, QtProperty *> m_flagToProperty;
 
     int alignToIndexH(uint align) const;
@@ -136,7 +139,8 @@ private:
         QPalette val;
         QPalette superPalette;
     };
-    QMap<QtProperty *, PaletteData> m_paletteValues;
+    typedef QMap<QtProperty *, PaletteData>  PropertyPaletteDataMap;
+    PropertyPaletteDataMap m_paletteValues;
 
     QMap<QtProperty *, QIcon> m_iconValues;
 
@@ -148,7 +152,8 @@ private:
     QMap<QtProperty *, QUrl> m_urlValues;
     QMap<QtProperty *, QStringList> m_stringListValues;
 
-    QMap<QtProperty *, int> m_stringAttributes;
+    typedef QMap<QtProperty *, int>  PropertyIntMap;
+    PropertyIntMap m_stringAttributes;
 
     bool m_changingSubValue;
     QDesignerFormEditorInterface *m_core;
