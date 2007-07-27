@@ -99,6 +99,7 @@ static inline QPaintEngine::PaintEngineFeatures svgEngineFeatures()
 {
     return QPaintEngine::PaintEngineFeatures(
         QPaintEngine::AllFeatures
+        & ~QPaintEngine::PatternBrush
         & ~QPaintEngine::PerspectiveTransform
         & ~QPaintEngine::ConicalGradientFill
         & ~QPaintEngine::PorterDuff);
@@ -184,10 +185,7 @@ public:
     {
         qWarning("svg's don't support conical gradients!");
     }
-    void saveTextureBrush(const QBrush &)
-    {
-        qWarning("texture brushes not yet supported");
-    }
+
     void saveGradientStops(QTextStream &str, const QGradient *g) {
         QGradientStops stops = g->stops();
         foreach(QGradientStop stop, stops) {
@@ -326,9 +324,6 @@ public:
             d_func()->attributes.fillOpacity = QString();
             stream() << QLatin1String("fill=\"url(#") << d_func()->currentGradientName << QLatin1String(")\" ");
             break;
-        case Qt::TexturePattern:
-            saveTextureBrush(sbrush);
-            break;
         case Qt::NoBrush:
             stream() << QLatin1String("fill=\"none\" ");
             d_func()->attributes.fill = QLatin1String("none");
@@ -336,8 +331,7 @@ public:
             return;
             break;
         default:
-            qWarning("unhandled brush style");
-            break;
+           break;
         }
     }
     void qfontToSvg(const QFont &sfont)
