@@ -661,6 +661,14 @@ bool QCoreApplication::closingDown()
     You can call this function occasionally when your program is busy
     performing a long operation (e.g. copying a file).
 
+    In event you are running a local loop which calls this function
+    continuously, without an event loop, the DeferredDelete events will
+    not be processed. This can affect the behaviour of widgets,
+    e.g. QToolTip, that rely on DeferredDelete events to function properly.
+    An alternative would be to call
+    \l{QCoreApplication::sendPostedEvents()}{sendPostedEvents()} from
+    within that local loop.
+    
     Calling this function processes events only for the calling thread.
 
     \threadsafe
