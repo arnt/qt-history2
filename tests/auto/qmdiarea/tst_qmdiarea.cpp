@@ -1806,20 +1806,24 @@ void tst_QMdiArea::resizeTimer()
 #ifdef Q_WS_X11
     qt_x11_wait_for_window_manager(&mdiArea);
 #endif
+    QTest::qWait(250);
 
     EventSpy timerEventSpy(subWindow, QEvent::Timer);
     QCOMPARE(timerEventSpy.count(), 0);
 
     mdiArea.tileSubWindows();
-    QCOMPARE(timerEventSpy.count(), 0);
-
-    QTest::qWait(250);
-    mdiArea.resize(mdiArea.size() + QSize(2, 2));
-    qApp->processEvents();
-
-    QTest::qWait(500); // Wait for timer events to occur.
-
+    QTest::qWait(250); // Wait for timer events to occur.
     QCOMPARE(timerEventSpy.count(), 1);
+    timerEventSpy.clear();
+
+    mdiArea.resize(mdiArea.size() + QSize(2, 2));
+    QTest::qWait(250); // Wait for timer events to occur.
+    QCOMPARE(timerEventSpy.count(), 1);
+    timerEventSpy.clear();
+
+    // Check that timers are killed.
+    QTest::qWait(250); // Wait for timer events to occur.
+    QCOMPARE(timerEventSpy.count(), 0);
 }
 
 void tst_QMdiArea::updateScrollBars()
