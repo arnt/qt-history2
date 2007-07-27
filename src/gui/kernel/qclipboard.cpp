@@ -189,7 +189,7 @@ QClipboard::~QClipboard()
     \keyword clipboard mode
 
     This enum type is used to control which part of the system clipboard is
-    used by QClipboard::data(), QClipboard::setData() and related functions.
+    used by QClipboard::mimeData(), QClipboard::setMimeData() and related functions.
 
     \value Clipboard  indicates that data should be stored and retrieved from
     the global clipboard.
@@ -197,7 +197,7 @@ QClipboard::~QClipboard()
     \value Selection  indicates that data should be stored and retrieved from
     the global mouse selection. Support for \c Selection is provided only on 
     systems with a global mouse selection (e.g. X11).
-    
+
     \value FindBuffer indicates that data should be stored and retrieved from
     the Find buffer. This mode is used for holding search strings on Mac OS X.
 
@@ -229,7 +229,7 @@ QClipboard::~QClipboard()
 
     Common values for \a subtype are "plain" and "html".
 
-    \sa setText(), data()
+    \sa setText(), mimeData()
 */
 QString QClipboard::text(QString &subtype, Mode mode) const
 {
@@ -266,7 +266,7 @@ QString QClipboard::text(QString &subtype, Mode mode) const
     mouse selection. If \a mode is QClipboard::FindBuffer, the
     text is retrieved from the search string buffer.
 
-    \sa setText(), data()
+    \sa setText(), mimeData()
 */
 QString QClipboard::text(Mode mode) const
 {
@@ -284,7 +284,7 @@ QString QClipboard::text(Mode mode) const
     mouse selection. If \a mode is QClipboard::FindBuffer, the
     text is stored in the search string buffer.
 
-    \sa text(), setData()
+    \sa text(), setMimeData()
 */
 void QClipboard::setText(const QString &text, Mode mode)
 {
@@ -304,7 +304,7 @@ void QClipboard::setText(const QString &text, Mode mode)
     QClipboard::Selection, the image is retrieved from the global
     mouse selection. 
 
-    \sa setImage() pixmap() data(), QImage::isNull()
+    \sa setImage() pixmap() mimeData(), QImage::isNull()
 */
 QImage QClipboard::image(Mode mode) const
 {
@@ -331,7 +331,7 @@ QImage QClipboard::image(Mode mode) const
         clipboard->setMimeData(data, mode);
     \endcode
 
-    \sa image(), setPixmap() setData()
+    \sa image(), setPixmap() setMimeData()
 */
 void QClipboard::setImage(const QImage &image, Mode mode)
 {
@@ -353,7 +353,7 @@ void QClipboard::setImage(const QImage &image, Mode mode)
     QClipboard::Selection, the pixmap is retrieved from the global
     mouse selection.
 
-    \sa setPixmap() image() data() QPixmap::convertFromImage()
+    \sa setPixmap() image() mimeData() QPixmap::convertFromImage()
 */
 QPixmap QClipboard::pixmap(Mode mode) const
 {
@@ -372,7 +372,7 @@ QPixmap QClipboard::pixmap(Mode mode) const
     QClipboard::Selection, the pixmap is stored in the global
     mouse selection.
 
-    \sa pixmap() setImage() setData()
+    \sa pixmap() setImage() setMimeData()
 */
 void QClipboard::setPixmap(const QPixmap &pixmap, Mode mode)
 {
@@ -406,7 +406,7 @@ void QClipboard::setPixmap(const QPixmap &pixmap, Mode mode)
 
     Sets the clipboard data to \a src. Ownership of the data is
     transferred to the clipboard. If you want to remove the data
-    either call clear() or call setData() again with new data.
+    either call clear() or call setMimeData() again with new data.
 
     The \a mode argument is used to control which part of the system
     clipboard is used.  If \a mode is QClipboard::Clipboard, the
@@ -418,10 +418,11 @@ void QClipboard::setPixmap(const QPixmap &pixmap, Mode mode)
     The setText(), setImage() and setPixmap() functions are simpler
     wrappers for setting text, image and pixmap data respectively.
 
-    \sa data()
+    \sa mimeData()
 */
 
-/*! \fn void QClipboard::clear(Mode mode)
+/*! 
+    \fn void QClipboard::clear(Mode mode)
     Clear the clipboard contents.
 
     The \a mode argument is used to control which part of the system
@@ -521,19 +522,22 @@ bool QClipboard::ownsFindBuffer() const
     return ownsMode(FindBuffer);
 }
 
-/*! \internal
+/*! 
+    \internal
     \fn bool QClipboard::supportsMode(Mode mode) const;
     Returns true if the clipboard supports the clipboard mode speacified by \a mode;
     otherwise returns false.
 */
 
-/*! \internal
+/*! 
+    \internal
     \fn bool QClipboard::ownsMode(Mode mode) const;
     Returns true if the clipboard supports the clipboard data speacified by \a mode;
     otherwise returns false.
 */
 
-/*! \internal
+/*! 
+    \internal
     Emits the appropriate changed signal for \a mode.
 */
 void QClipboard::emitChanged(Mode mode)
