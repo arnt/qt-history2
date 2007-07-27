@@ -1083,9 +1083,12 @@ void QTextEdit::setPlainText(const QString &text)
     toHtml() returns the text of the text edit as html.
 
     setHtml() changes the text of the text edit.  Any previous text is
-    removed. The input text is interpreted as rich text in html format.
+    removed and the undo/redo history is cleared. The input text is
+    interpreted as rich text in html format.
 
-    Note that the undo/redo history is cleared by calling setHtml().
+    \note It is the responsibility of the caller to make sure that the
+    text is correctly decoded when a QString containing HTML is created
+    and passed to setHtml().
 
     \sa {Supported HTML Subset}, plainText
 */

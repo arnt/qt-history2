@@ -895,6 +895,10 @@ void QTextDocument::setPlainText(const QString &text)
     "<b>bold</b> text" will produce text where the first word has a font
     weight that gives it a bold appearance: "\bold{bold} text".
 
+    \note It is the responsibility of the caller to make sure that the
+    text is correctly decoded when a QString containing HTML is created
+    and passed to setHtml().
+
     \sa setPlainText(), {Supported HTML Subset}
 */
 void QTextDocument::setHtml(const QString &html)
