@@ -7,6 +7,10 @@
 
     \image stylepluginexample.png
 
+    On some platforms, the native style will prevent the button
+    from having a red background. In this case, try to run the example
+    in another style (e.g., plastique).
+
     A plugin in Qt is a class stored in a shared library that can be
     loaded by a QPluginLoader at run-time. When you create plugins in
     Qt, they either extend a Qt application or Qt itself. Writing a

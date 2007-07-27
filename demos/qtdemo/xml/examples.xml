@@ -159,7 +159,6 @@
     <example filename="regexp" name="Regular Expressions" />
     <example filename="settingseditor" name="Settings Editor" />
     <example filename="treemodelcompleter" name="Tree Model Completer" />
-    <example filename="styleplugin" name="Style Plugin" />
     <example filename="undoframework" name="Undo Framework" />
   </category>
   <category dirname="tutorial" name="Tutorial">
