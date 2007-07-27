@@ -3542,6 +3542,43 @@ blue green yellow * /
     \endcode
 
     \section2 Customizing QGroupBox
+    
+    Let us look at an example that moves the QGroupBox's title to
+    the center.
+
+    \code
+        QGroupBox {
+            background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                              stop: 0 #E0E0E0, stop: 1 #FFFFFF);
+            border: 2px solid gray;
+            border-radius: 5px;
+            margin-top: 1ex; / * leave space at the top for the title * /
+        }
+
+        QGroupBox::title {
+            subcontrol-origin: margin;
+            subcontrol-position: top center; / * position at the top center * /
+            padding: 0 3px;
+            background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                              stop: 0 #FFOECE, stop: 1 #FFFFFF);
+        }
+    \endcode
+
+    For a checkable QGroupBox, use the \{#indicator-sub}{::indicator} subcontrol
+    and style it exactly like a QCheckBox (i.e)
+
+    \code
+        QGroupBox::indicator {
+            width: 13px;
+            height: 13px;
+        }
+
+        QGroupBox::indicator:unchecked {
+            image: url(:/images/checkbox_unchecked.png);
+        }
+        
+        / * proceed with styling just like QCheckBox * /
+    \endcode
 
     \section2 Customizing QHeaderView
 
@@ -3632,6 +3669,47 @@ blue green yellow * /
     \endcode
 
     \section2 Customizing QPushButton
+
+    A QPushButton is styled as follows:
+    \code
+        QPushButton {
+            border: 2px solid #8f8f91;
+            border-radius: 6px;
+            background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, 
+                                              stop: 0 #f6f7fa, stop: 1 #dadbde);
+            min-width: 80px;
+        }
+        QPushButton:pressed {
+            background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, 
+                                              stop: 0 #dadbde, stop: 1 #f6f7fa);
+        }
+        QPushButton:flat {
+            border: none; / * no border for a flat push button * /
+        }
+    \endcode
+
+    For a QPushButton with a menu, use the 
+    \l{Qt Style Sheets Reference#menu-indicator-sub}{::menu-indicator} 
+    subcontrol.
+
+    \code
+        QPushButton:open { / * when the button has its menu open * /
+            background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, 
+                                              stop: 0 #dadbde, stop: 1 #f6f7fa);
+        }
+        QPushButton::menu-indicator { 
+            image: url(menu_indicator.png);
+            subcontrol-origin: padding; 
+            subcontrol-position: bottom right;
+        }
+        QPushButton::menu-indicator:pressed, QPushButton::menu-indicator:open {
+            position: relative; 
+            top: 2px; left: 2px; / * shift the arrow by 2 px * /
+        }
+    \endcode
+
+    Checkable QPushButton have the \l{Qt Style Sheets Reference#checked-ps}
+    {:checked} pseudo state set.
 
     \section2 Customizing QRadioButton
 
@@ -3787,6 +3865,22 @@ blue green yellow * /
     \endcode
 
     \section2 Customizing QSplitter
+
+    A QSplitter derives from a QFrame and hence can be styled like a QFrame. 
+    The grip or the handle is customized using the 
+    \l{Qt Style Sheets Reference#handle-sub}{::handle} subcontrol.
+
+    \code
+        QSplitter::handle {
+            image: url(images/splitter.png);
+        }
+        QSplitter::handle:horizontal {
+            height: 2px;
+        }
+        QSplitter::handle:vertical {
+            width: 2px;
+        }
+    \endcode
 
     \section2 Customizing QStatusBar
 
