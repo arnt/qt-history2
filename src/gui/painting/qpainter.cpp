@@ -4816,12 +4816,12 @@ void QPainter::drawTextItem(const QPointF &p, const QTextItem &_ti)
         return;
 
     const RenderHints oldRenderHints = d->state->renderHints;
-    if (d->state->txop >= QTransform::TxScale) {
+    if (d->state->txop >= QTransform::TxScale && d->state->txop < QTransform::TxProject) {
         // draw antialias decoration (underline/overline/strikeout) with
         // transformed text
 
         const QTransform &m = d->state->matrix;
-        bool isPlain45DegreeRotation =
+        bool isPlain90DegreeRotation =
             (qFuzzyCompare(m.m11(), qreal(0))
              && qFuzzyCompare(m.m12(), qreal(1))
              && qFuzzyCompare(m.m21(), qreal(-1))
@@ -4840,7 +4840,7 @@ void QPainter::drawTextItem(const QPointF &p, const QTextItem &_ti)
              && qFuzzyCompare(m.m22(), qreal(0))
                 )
             ;
-        if (!isPlain45DegreeRotation)
+        if (!isPlain90DegreeRotation)
             setRenderHint(QPainter::Antialiasing, true);
     }
 
