@@ -64,6 +64,8 @@ protected:
     void setCurrentBlockUserData(QTextBlockUserData *data);
     QTextBlockUserData *currentBlockUserData() const;
 
+    QTextBlock currentBlock() const;
+
 private:
     Q_DISABLE_COPY(QSyntaxHighlighter)
     Q_PRIVATE_SLOT(d_func(), void _q_reformatBlocks(int from, int charsRemoved, int charsAdded))

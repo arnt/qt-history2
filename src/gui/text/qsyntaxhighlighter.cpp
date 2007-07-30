@@ -126,7 +126,7 @@ void QSyntaxHighlighterPrivate::_q_reformatBlocks(int from, int charsRemoved, in
     QTextBlock block = doc->findBlock(from);
     if (!block.isValid())
         return;
-    
+
     int endPosition;
     QTextBlock lastBlock = doc->findBlock(from + charsAdded);
     if (lastBlock.isValid())
@@ -641,6 +641,16 @@ QTextBlockUserData *QSyntaxHighlighter::currentBlockUserData() const
 
     return d->currentBlock.userData();
 }
+
+/*!
+    Returns the current text block.
+ */
+QTextBlock QSyntaxHighlighter::currentBlock() const
+{
+    Q_D(const QSyntaxHighlighter);
+    return d->currentBlock;
+}
+
 
 #include "moc_qsyntaxhighlighter.cpp"
 
