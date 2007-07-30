@@ -660,6 +660,35 @@ Changes in properties are applied to all selected objects that have a
 matching property.
 \endtable
 
+Certain properties are treated specially by the property editor:
+
+\list
+\o Compound properties - properties that are made up of more than one
+value - are represented as nodes that can be expanded, enabling their
+values to be edited.
+\o Properties that contain a choice or selection of flags are edited
+via combo boxes whose items can be checked.
+\o Properties that allow access to rich data types, such as QPalette,
+are modified using dialogs that open when the properties are edited.
+\endlist
+
+\o QLabel and the widgets in the \gui Buttons section of the widget box
+have a \c text property that can also be edited by double clicking on
+the widget or by pressing \gui F2. \QD interprets the backslash (\\)
+character specially, enabling newline (\\n) characters to be inserted
+into the text; the \\\\ character sequence is used to insert a single
+backslash into the text. A context menu can also be opened while editing,
+providing another way to insert special characters and newlines into the
+text.
+
+\section2 Dynamic Properties
+
+The property editor can also be used to add new
+\l{QObject#Dynamic Properties}{dynamic properties} to both standard Qt
+widgets and to forms themselves. Dynamic properties are added and removed
+via the property editor's context menu - click the right mouse button
+to open this.
+
 \raw HTML
 <table align="center" width="80%">
 <tr><td>
@@ -673,12 +702,6 @@ matching property.
 </td></tr>
 </table>
 \endraw
-
-The property editor can also be used to add new
-\l{QObject#Dynamic Properties}{dynamic properties} to both standard Qt
-widgets and to forms themselves. Dynamic properties are added and removed
-via the property editor's context menu - click the right mouse button
-to open this.
 
 \section1 The Object Inspector
 
