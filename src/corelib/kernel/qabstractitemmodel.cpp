@@ -1700,11 +1700,15 @@ QModelIndex QAbstractItemModel::buddy(const QModelIndex &index) const
     The search starts from the \a start index, and continues until the
     number of matching data items equals \a hits, the search reaches
     the last row, or the search reaches \a start again, depending on
-    whether \c MatchWrap is specified in \a flags.
+    whether \c MatchWrap is specified in \a flags. If you want to search
+    for all matching items, use \a hits = -1.
 
     By default, this function will perform a wrapping, string-based comparison
     on all items, searching for items that begin with the search term specified
     by \a value.
+    
+    \note The default implementation of this function only searches columns,
+    This function can be reimplemented to include other search behavior.
 */
 QModelIndexList QAbstractItemModel::match(const QModelIndex &start, int role,
                                           const QVariant &value, int hits,
