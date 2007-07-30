@@ -837,7 +837,7 @@ QKeyMapper::sendKeyEvent(QWidget *widget, bool grab,
                          quint32 nativeModifiers)
 {
     Q_UNUSED(count);
-    if(widget) {
+    if(widget && widget->isEnabled()) {
         bool key_event = true;
 #if defined(QT3_SUPPORT) && !defined(QT_NO_SHORTCUT)
         if(type == QEvent::KeyPress && !grab
