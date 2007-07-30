@@ -2916,3 +2916,40 @@ bool QInternal::callFunction(InternalFunction func, void **args)
 
     \sa Q_BYTE_ORDER, Q_LITTLE_ENDIAN
 */
+
+/*!
+    \macro Q_GLOBAL_STATIC(type, name)
+    \internal
+
+    Declares a global static variable with the given \a type and \a name.
+
+    Use this macro to instantiate an object in a thread-safe way, creating
+    a global pointer that can be used to refer to it.
+
+    \warning This macro is subject to a race condition that can cause the object
+    to be constructed twice. However, if this occurs, the second instance will
+    be immediately deleted.
+
+    See also
+    \l{http://www.aristeia.com/publications.html}{"C++ and the perils of Double-Checked Locking"}
+    by Scott Meyers and Andrei Alexandrescu.
+*/
+
+/*!
+    \macro Q_GLOBAL_STATIC_WITH_ARGS(type, name, arguments)
+    \internal
+
+    Declares a global static variable with the specified \a type and \a name.
+
+    Use this macro to instantiate an object using the \a arguments specified
+    in a thread-safe way, creating a global pointer that can be used to refer
+    to it.
+
+    \warning This macro is subject to a race condition that can cause the object
+    to be constructed twice. However, if this occurs, the second instance will
+    be immediately deleted.
+
+    See also
+    \l{http://www.aristeia.com/publications.html}{"C++ and the perils of Double-Checked Locking"}
+    by Scott Meyers and Andrei Alexandrescu.
+*/
