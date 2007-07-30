@@ -495,8 +495,7 @@ int QMetaCallEvent::placeMetaCall(QObject *object)
     inherits() function.
 
     When an object is deleted, it emits a destroyed() signal. You can
-    catch this signal to avoid dangling references to QObjects. The
-    QPointer class provides an elegant way to use this feature.
+    catch this signal to avoid dangling references to QObjects.
 
     QObjects can receive events through event() and filter the events
     of other objects. See installEventFilter() and eventFilter() for
