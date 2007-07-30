@@ -273,7 +273,8 @@ int main(int _argc, char **_argv)
             break;
         case 'D': // define macro
             {
-                QByteArray name, value;
+                QByteArray name;
+                QByteArray value("1");
                 if (!more) {
                     if (n < argc-1)
                         name = argv[++n];

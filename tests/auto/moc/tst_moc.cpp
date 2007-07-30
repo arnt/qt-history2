@@ -433,6 +433,7 @@ private slots:
     void escapesInStringLiterals();
     void frameworkSearchPath();
     void cstyleEnums();
+    void defineMacroViaCmdline();
 
 signals:
     void sigWithUnsignedArg(unsigned foo);
@@ -891,6 +892,28 @@ void tst_Moc::cstyleEnums()
     QCOMPARE(metaEnum.keyCount(), 2);
     QCOMPARE(metaEnum.key(0), "Foo");
     QCOMPARE(metaEnum.key(1), "Bar");
+}
+
+void tst_Moc::defineMacroViaCmdline()
+{
+#if defined(Q_OS_LINUX) && defined(Q_CC_GNU)
+    QVERIFY(!qgetenv("QTDIR").isNull());
+
+    QProcess proc;
+
+    QStringList args;
+    args << "-DFOO";
+    args << srcify("macro-on-cmdline.h");
+
+    proc.start("moc", args);
+    QVERIFY(proc.waitForFinished());
+    QCOMPARE(proc.exitCode(), 0);
+    QCOMPARE(proc.readAllStandardError(), QByteArray());
+    QByteArray mocOut = proc.readAllStandardOutput();
+    QVERIFY(!mocOut.isEmpty());
+#else
+    QSKIP("Only tested on linux/gcc", SkipAll);
+#endif
 }
 
 QTEST_MAIN(tst_Moc)
