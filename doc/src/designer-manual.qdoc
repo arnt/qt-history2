@@ -1687,17 +1687,19 @@ pixmap property in the property editor.
 
     \section2 User Defined Custom Widgets
 
-    \image customwidgetplugin-example.png
+    \image worldtimeclockplugin-example.png
 
     Custom widgets can be adapted for use with \QD, giving designers the
     opportunity to configure the user interface using the actual widgets
     that will be used in an application rather than placeholder widgets.
 
     The process of creating a custom widget plugin is described in the
-    \l{designer/customwidgetplugin}{Custom Widget Plugin} example. To use a
-    plugin, it is necessary to ensure that it is located on a path that \QD
-    searches for plugins. Generally, plugins stored in
-    \c{$QTDIR/plugins/designer} will be loaded when \QD starts.
+    \l{Creating Custom Widgets for Qt Designer} chapter of this manual.
+
+    To use a plugin created in this way, it is necessary to ensure that
+    it is located on a path that \QD searches for plugins. Generally,
+    plugins stored in \c{$QTDIR/plugins/designer} will be loaded when
+    \QD starts.
 */
 
 /*!
@@ -2329,6 +2331,12 @@ without having to write code themselves.
 
            See also the \l {designer/containerextension}{Container
            Extension} example.
+
+           \note It is not possible to add custom per-page properties to
+           certain widgets (e.g., QTabWidget) due to the way they are
+           implemented. This limitation will be addressed in future
+           versions of Qt.
+
     \endtable
 
     The usage of QDesignerMemberSheetExtension and QDesignerPropertySheetExtension

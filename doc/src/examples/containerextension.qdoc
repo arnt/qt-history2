@@ -200,7 +200,7 @@
     function's QDesignerFormEditorInterface parameter provides the
     plugin with a gateway to all of \QD's API's.
 
-    In case of a multipage widget such as ours, we must also implement
+    In the case of a multipage widget such as ours, we must also implement
     two private slots, currentIndexChanged() and pageTitleChanged(),
     to be able to update \QD's property editor whenever the user views
     another page or changes one of the page titles. To be able to give
