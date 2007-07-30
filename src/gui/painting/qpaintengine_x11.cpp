@@ -728,7 +728,11 @@ void QX11PaintEngine::drawPoints(const QPoint *points, int pointCount)
         || d->has_alpha_brush
         || d->has_alpha_pen
         || d->has_custom_pen
-        || (d->render_hints & QPainter::Antialiasing)) {
+        || (d->render_hints & QPainter::Antialiasing))
+    {
+        Qt::PenCapStyle capStyle = d->cpen.capStyle();
+        if (capStyle == Qt::FlatCap)
+            d->cpen.setCapStyle(Qt::SquareCap);
         const QPoint *end = points + pointCount;
         while (points < end) {
             QPainterPath path;
@@ -737,6 +741,7 @@ void QX11PaintEngine::drawPoints(const QPoint *points, int pointCount)
             drawPath(path);
             ++points;
         }
+        d->cpen.setCapStyle(capStyle);
         return;
     }
 
@@ -775,7 +780,11 @@ void QX11PaintEngine::drawPoints(const QPointF *points, int pointCount)
         || d->has_alpha_brush
         || d->has_alpha_pen
         || d->has_custom_pen
-        || (d->render_hints & QPainter::Antialiasing)) {
+        || (d->render_hints & QPainter::Antialiasing))
+    {
+        Qt::PenCapStyle capStyle = d->cpen.capStyle();
+        if (capStyle == Qt::FlatCap)
+            d->cpen.setCapStyle(Qt::SquareCap);
         const QPointF *end = points + pointCount;
         while (points < end) {
             QPainterPath path;
@@ -784,6 +793,7 @@ void QX11PaintEngine::drawPoints(const QPointF *points, int pointCount)
             drawPath(path);
             ++points;
         }
+        d->cpen.setCapStyle(capStyle);
         return;
     }
 

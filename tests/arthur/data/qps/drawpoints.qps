@@ -63,4 +63,19 @@ translate 60 0
 setPen green 5 solidline roundcap
 repeat_block points
 
+resetMatrix
+
+translate 0 300
+scale 3 3
+setPen red 0 solidline flatcap
+repeat_block points
+
+translate 60 0
+setPen blue 1 solidline flatcap
+repeat_block points
+
+translate 60 0
+setPen green 5 solidline flatcap
+repeat_block points
+
 

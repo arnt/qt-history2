@@ -3311,7 +3311,11 @@ void QOpenGLPaintEngine::drawPoints(const QPointF *points, int pointCount)
     d->setGradientOps(d->cpen.brush(), QRectF());
 
     if (!d->cpen.isCosmetic() || d->high_quality_antialiasing) {
+        Qt::PenCapStyle capStyle = d->cpen.capStyle();
+        if (capStyle == Qt::FlatCap)
+            d->cpen.setCapStyle(Qt::SquareCap);
         QPaintEngine::drawPoints(points, pointCount);
+        d->cpen.setCapStyle(capStyle);
         return;
     }
 
