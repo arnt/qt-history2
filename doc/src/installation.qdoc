@@ -173,9 +173,10 @@ as part of the \l{Qt Commercial Editions}.
 \o  If you have the commercial edition of Qt, copy the license file
     from your account on dist.trolltech.com into your home directory
     (this may be known as the \c userprofile environment variable) and
-    rename it to \c{.qt-license}. For example on Windows 2000,
-    \c{%USERPROFILE%} should be something like \c{C:\Documents and
-    Settings\username}
+    rename it to \c{.qt-license}. This renaming process must be done
+    using a \e{command prompt} on Windows, \bold{not} with Windows Explorer.
+    For example on Windows 2000, \c{%USERPROFILE%} should be something
+    like \c{C:\Documents and Settings\username}
 
     For the open source version you do not need a license file.
 
