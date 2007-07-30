@@ -30,9 +30,9 @@
 
     \value NoToken The reader has not yet read anything.
     \value Invalid An error has occurred, reported in error() and errorString().
-    \value StartDocument The reader reports the start of the
-    document. If the document is declared standalone,
-    isStandaloneDocument() returns true; otherwise it returns false.
+    \value StartDocument The reader reports the XML version number in documentVersion(), and the
+    encoding as specified in the XML document in documentEncoding().
+    If the document is declared standalone, isStandaloneDocument() returns true; otherwise it returns false.
     \value EndDocument The reader reports the end of the document.
     \value StartElement The reader reports the start of an element
     with namespaceUri() and name(). Empty elements are also reported
@@ -46,7 +46,9 @@
     characters are all white-space, isWhitespace() returns true. If
     the characters stem from a CDATA section, isCDATA() returns true.
     \value Comment The reader reports a comment in text().
-    \value DTD The reader reports a DTD in text(), notation declarations in notationDeclarations().
+    \value DTD The reader reports a DTD in text(), notation declarations in notationDeclarations(),
+    and entity declarations in entityDeclarations(). Details of the DTD declaration are reported in
+    in dtdName(), dtdPublicId(), and dtdSystemId().
     \value EntityReference The reader reports an entity reference that could not be resolved.
     The name of the reference is reported in name(), the replacement text in text().
     \value ProcessingInstruction The reader reports a processing instruction
@@ -1455,11 +1457,11 @@ bool QXmlStreamReaderPrivate::checkStartDocument()
     return false;
 }
 
-void QXmlStreamReaderPrivate::startDocument(const QStringRef &version)
+void QXmlStreamReaderPrivate::startDocument()
 {
     QString err;
-    if (version != QLatin1String("1.0")) {
-        if (version.toString().contains(QLatin1Char(' ')))
+    if (documentVersion != QLatin1String("1.0")) {
+        if (documentVersion.toString().contains(QLatin1Char(' ')))
             err = QXmlStream::tr("Invalid XML version string.");
         else
             err = QXmlStream::tr("Unsupported XML version.");
@@ -1481,6 +1483,7 @@ void QXmlStreamReaderPrivate::startDocument(const QStringRef &version)
 
         if (prefix.isEmpty() && key == QLatin1String("encoding")) {
             const QString name(value.toString());
+            documentEncoding = value;
 
             if(hasStandalone)
                 err = QXmlStream::tr("The standalone pseudo attribute must appear after the encoding.");
@@ -1666,6 +1669,42 @@ QXmlStreamEntityDeclarations QXmlStreamReader::entityDeclarations() const
     if (d->entityDeclarations.size())
         const_cast<QXmlStreamReaderPrivate *>(d)->resolveDtd();
     return d->publicEntityDeclarations;
+}
+
+/*!  If the state() is \l DTD, this function returns the DTD's
+  name. Otherwise an empty string is returned.
+
+ */
+QStringRef QXmlStreamReader::dtdName() const
+{
+   Q_D(const QXmlStreamReader);
+   if (d->type == QXmlStreamReader::DTD)
+       return d->dtdName;
+   return QStringRef();
+}
+
+/*!  If the state() is \l DTD, this function returns the DTD's
+  public identifier. Otherwise an empty string is returned.
+
+ */
+QStringRef QXmlStreamReader::dtdPublicId() const
+{
+   Q_D(const QXmlStreamReader);
+   if (d->type == QXmlStreamReader::DTD)
+       return d->dtdPublicId;
+   return QStringRef();
+}
+
+/*!  If the state() is \l DTD, this function returns the DTD's
+  system identifier. Otherwise an empty string is returned.
+
+ */
+QStringRef QXmlStreamReader::dtdSystemId() const
+{
+   Q_D(const QXmlStreamReader);
+   if (d->type == QXmlStreamReader::DTD)
+       return d->dtdSystemId;
+   return QStringRef();
 }
 
 /*!  If the state() is \l StartElement, this function returns the
@@ -2402,6 +2441,31 @@ bool QXmlStreamReader::isStandaloneDocument() const
 {
     Q_D(const QXmlStreamReader);
     return d->standalone;
+}
+
+
+/*!  If the state() is \l StartDocument, this function returns the
+     version string as specified in the XML declaration.
+     Otherwise an empty string is returned.
+ */
+QStringRef QXmlStreamReader::documentVersion() const
+{
+   Q_D(const QXmlStreamReader);
+   if (d->type == QXmlStreamReader::StartDocument)
+       return d->documentVersion;
+   return QStringRef();
+}
+
+/*!  If the state() is \l StartDocument, this function returns the
+     encoding string as specified in the XML declaration.
+     Otherwise an empty string is returned.
+ */
+QStringRef QXmlStreamReader::documentEncoding() const
+{
+   Q_D(const QXmlStreamReader);
+   if (d->type == QXmlStreamReader::StartDocument)
+       return d->documentEncoding;
+   return QStringRef();
 }
 
 

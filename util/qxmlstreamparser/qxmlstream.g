@@ -253,7 +253,7 @@ public:
     void resolveDtd();
     uint resolveCharRef(int symbolIndex);
     bool checkStartDocument();
-    void startDocument(const QStringRef &version);
+    void startDocument();
     void parseError();
     void checkPublicLiteral(const QStringRef &publicId);
 
@@ -302,6 +302,8 @@ public:
 
     QStringRef prefix, namespaceUri, qualifiedName, name;
     QStringRef processingInstructionTarget, processingInstructionData;
+    QStringRef dtdName, dtdPublicId, dtdSystemId;
+    QStringRef documentVersion, documentEncoding;
     uint isEmptyElement : 1;
     uint isWhitespace : 1;
     uint isCDATA : 1;
@@ -483,6 +485,9 @@ bool QXmlStreamReaderPrivate::parse()
     case QXmlStreamReader::DTD:
         publicNotationDeclarations.clear();
         publicEntityDeclarations.clear();
+        dtdName.clear();
+        dtdPublicId.clear();
+        dtdSystemId.clear();
         // fall through
     case QXmlStreamReader::Comment:
     case QXmlStreamReader::Characters:
@@ -505,6 +510,8 @@ bool QXmlStreamReaderPrivate::parse()
         break;
     case QXmlStreamReader::StartDocument:
 	lockEncoding = true;
+        documentVersion.clear();
+        documentEncoding.clear();
 #ifndef QT_NO_TEXTCODEC
 	if(decoder->hasFailure()) {
 	    raiseWellFormedError(QXmlStream::tr("Encountered incorrectly encoded content."));
@@ -769,7 +776,8 @@ xml_decl ::= xml_decl_start VERSION space_opt EQ space_opt literal attribute_lis
 /.
         case $rule_number:
             setType(QXmlStreamReader::StartDocument);
-            startDocument(symString(6));
+            documentVersion = symString(6);
+            startDocument();
         break;
 ./
 
@@ -777,37 +785,44 @@ external_id ::= SYSTEM literal;
 /.
         case $rule_number:
             hasExternalDtdSubset = true;
+            dtdSystemId = symString(2);
         break;
 ./
 external_id ::= PUBLIC public_literal space literal;
 /.
         case $rule_number:
             checkPublicLiteral(symString(2));
+            dtdPublicId = symString(2);
+            dtdSystemId = symString(4);
             hasExternalDtdSubset = true;
         break;
 ./
 external_id ::=;
 
-doctype_decl_start ::= langle_bang DOCTYPE name space;
+doctype_decl_start ::= langle_bang DOCTYPE qname space;
 /.
         case $rule_number:
             if (!scanPublicOrSystem() && atEnd) {
                 resume($rule_number);
                 return false;
             }
+            dtdName = symString(3);
         break;
 ./
 
+doctype_decl ::= langle_bang DOCTYPE qname RANGLE;
+/.
+        case $rule_number:./
+doctype_decl ::= langle_bang DOCTYPE qname markup space_opt RANGLE;
+/.
+        case $rule_number:
+            dtdName = symString(3);
+            // fall through
+./
 doctype_decl ::= doctype_decl_start external_id space_opt markup space_opt RANGLE;
 /.
         case $rule_number:./
 doctype_decl ::= doctype_decl_start external_id space_opt RANGLE;
-/.
-        case $rule_number:./
-doctype_decl ::= langle_bang DOCTYPE name RANGLE;
-/.
-        case $rule_number:./
-doctype_decl ::= langle_bang DOCTYPE name markup space_opt RANGLE;
 /.
         case $rule_number:
             setType(QXmlStreamReader::DTD);
@@ -1281,15 +1296,15 @@ literal_content ::= literal_content_start;
 
 public_literal ::= literal;
 /.
-        case $rule_number: { 
-            if (!QXmlUtils::isPublicID(symString(1).toString())) { 
-                raiseWellFormedError(QXmlStream::tr("%1 is an invalid PUBLIC identifier.").arg(symString(1).toString())); 
-                resume($rule_number); 
-                return false; 
-            } 
-        } break; 
+        case $rule_number: {
+            if (!QXmlUtils::isPublicID(symString(1).toString())) {
+                raiseWellFormedError(QXmlStream::tr("%1 is an invalid PUBLIC identifier.").arg(symString(1).toString()));
+                resume($rule_number);
+                return false;
+            }
+        } break;
 ./
-            
+
 entity_value ::= QUOTE QUOTE;
 /.
         case $rule_number:./

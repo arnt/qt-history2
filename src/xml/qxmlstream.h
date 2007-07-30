@@ -224,6 +224,8 @@ public:
     inline bool isProcessingInstruction() const { return tokenType() == ProcessingInstruction; }
 
     bool isStandaloneDocument() const;
+    QStringRef documentVersion() const;
+    QStringRef documentEncoding() const;
 
     qint64 lineNumber() const;
     qint64 columnNumber() const;
@@ -245,6 +247,9 @@ public:
     QXmlStreamNamespaceDeclarations namespaceDeclarations() const;
     QXmlStreamNotationDeclarations notationDeclarations() const;
     QXmlStreamEntityDeclarations entityDeclarations() const;
+    QStringRef dtdName() const;
+    QStringRef dtdPublicId() const;
+    QStringRef dtdSystemId() const;
 
 
     enum Error {
