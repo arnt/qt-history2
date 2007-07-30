@@ -28,6 +28,8 @@ class Dialog : public QDialog
   public slots:
     void loadFromFile();
     void loadFromMemory();
+
+ private:
     void detach();
 
   private:

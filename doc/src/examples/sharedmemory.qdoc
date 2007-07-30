@@ -3,21 +3,50 @@
   \title Shared Memory Example
 
   The Shared Memory example shows how to use the QSharedMemory class
-  to implement inter-process communication via shared memory. The
-  example uses a standard Qt main program and a dialog class (Dialog),
-  which is a simple subclass of QDialog. The main() function creates
-  an \l {QApplication} {application} and an instance of our Dialog,
-  and then shows the dialog and passes control to the application in
-  the standard way.
+  to implement inter-process communication using shared memory. To
+  build the example, run make. Then just run the executable. main()
+  creates an \l {QApplication} {application} and an instance of our
+  example class Dialog. The dialog displays itself and theen control
+  is passed to the application in the standard way.
 
   \quotefromfile ipc/sharedmemory/main.cpp
   \skipto int main
   \printuntil /^\}/
 
-  To compile and link the example, run make. To run the example,
-  launch an instance of the executable and press the top button.
+  An instance of class Dialog pops up.
 
   \image sharedmemory-example_1.png Screenshot of the Shared Memory example
+
+  Class Dialog inherits QDialog. It encapsulates the example's user
+  interface and an instance of QSharedMemory. It also has two public
+  slots, loadFromFile() and loadFromMemory() that correspond to the
+  two buttons on the dialog.
+
+  \quotefromfile ipc/sharedmemory/dialog.h
+  \skipto class Dialog
+  \printuntil /^\}/
+
+  The constructor builds the user interface widgetas and connects the
+  clicked() signal of each button to the corresponding slot function.
+
+  \quotefromfile ipc/sharedmemory/dialog.cpp
+  \skipto Dialog::Dialog
+  \printuntil /^\}/
+
+  Note that the \l {QSharedMemory} {QSharedMemory()} constructor is
+  passed the string "QSharedMemoryExample" as the key. This key will
+  be used to name and identify the system's shared memory segment.
+
+  Click the \tt {Load Image From File} button to begin. Clicking this
+  button invokes the loadFromFile() slot. The first thing the function
+  does is ask if the process is already attached to a shared memory
+  segment. If so, the process detaches itself from that segment.
+
+  \quotefromfile ipc/sharedmemory/dialog.cpp
+  \skipto Dialog::loadFromFile()
+  \printuntil /^\}/
+
+  
 
   Select an image file (e.g., qt.png) and the dialog loads it into a
   shared memory segment and displays it.

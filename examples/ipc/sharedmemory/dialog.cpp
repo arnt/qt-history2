@@ -14,6 +14,7 @@
 #include "dialog.h"
 #include <QFileDialog>
 #include <QBuffer>
+#include <QtCore/QDebug>
 
 /*!
   \class Dialog
@@ -77,7 +78,8 @@ void Dialog::loadFromFile()
     if (sharedMemory.isAttached())
         detach();
 
-    QString fileName = QFileDialog::getOpenFileName(this, QString(), QString(),
+    ui.label->setText(tr("Select an image file"));
+    QString fileName = QFileDialog::getOpenFileName(0, QString(), QString(),
                                         tr("Images (*.png *.xpm *.jpg)"));
     QImage image;
     if (!image.load(fileName))
@@ -92,8 +94,7 @@ void Dialog::loadFromFile()
     int size = buffer.size();
 
     if (!sharedMemory.create(size)) {
-        ui.label->setText(tr("Unable to store in shared memory: \n%1.\n" \
-            "Is there already an image there?").arg(sharedMemory.errorString()));
+        ui.label->setText(tr("Unable to create shared memory segment."));
         return;
     }
     sharedMemory.lock();
@@ -118,8 +119,8 @@ void Dialog::loadFromFile()
 void Dialog::loadFromMemory()
 {
     if (!sharedMemory.attach()) {
-        ui.label->setText(tr("The shared memory segment does not exist\n" \
-			     "Press \"Load Image From File\""));
+        ui.label->setText(tr("Unable to attach to shared memory segment.\n" \
+			     "Load an image first."));
         return;
     }
 
@@ -138,14 +139,14 @@ void Dialog::loadFromMemory()
 }
 
 /*!
-  This is the slot function called when the \tt {Detatch Image from
-  Shared Memory} button is pressed. It is also called at the top of
-  loadFromFile() to ensure thart the example can be run multiple times
-  using the same two Dialog processes.
+  This private function is called by the destructor to detach the
+  process from its shared memory segment. When the last process
+  detaches from a shared memory segment, the system releases the
+  shared memory.
  */
 void Dialog::detach()
 {
-    if (!sharedMemory.detach())
+    if (!sharedMemory.detach()) 
         ui.label->setText(tr("Unable to detach from shared memory."));
 }
 
