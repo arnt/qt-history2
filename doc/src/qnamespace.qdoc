@@ -915,9 +915,10 @@
     participate in composition management, i.e. they cannot be
     semi-transparent or shine through semi-transparent overlapping
     widgets. This is only supported on X11. The flag is set or
-    cleared by the widget's author. This flag is required for
-    rendering outside of Qt's paint system; e.g. if you need to
-    use native X11 painting primitives.
+    cleared by the widget's author. For rendering outside of Qt's
+    paint system; e.g. if you need to use native X11 painting primitives,
+    you need to reimplement QWidget::paintEngine() to return 0 and set
+    this flag.
 
     \value WA_PaintOutsidePaintEvent Makes it possible to use QPainter
     to paint on the widget outside
