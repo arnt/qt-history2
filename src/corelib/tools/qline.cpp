@@ -543,13 +543,16 @@ QLineF::IntersectType QLineF::intersect(const QLineF &l, QPointF *intersectionPo
                                             l.x1(), l.y1(), l.x2(), l.y2())
                          ? BoundedIntersection : UnboundedIntersection;
 
+    bool dx_zero = qFuzzyCompare(dx(), 0);
+    bool ldx_zero = qFuzzyCompare(l.dx(), 0);
+
     // For special case where one of the lines are vertical
-    if (dx() == 0 && l.dx() == 0) {
+    if (dx_zero && ldx_zero) {
         type = NoIntersection;
-    } else if (dx() == 0) {
+    } else if (dx_zero) {
         qreal la = l.dy() / l.dx();
         isect = QPointF(pt1.x(), la * pt1.x() + l.y1() - la*l.x1());
-    } else if (l.dx() == 0) {
+    } else if (ldx_zero) {
         qreal ta = dy() / dx();
         isect = QPointF(l.x1(), ta * l.x1() + y1() - ta*x1());
     } else {

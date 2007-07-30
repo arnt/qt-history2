@@ -79,6 +79,14 @@ void tst_QLine::testIntersection_data()
     QTest::newRow("bounded") << 1.0 << 1.0 << 5.0 << 5.0
                           << 0.0 << 4.0 << 5.0 << 4.0
                           << int(QLineF::BoundedIntersection) << 4.0 << 4.0;
+
+    QTest::newRow("almost vertical") << 0.0 << 10.0 << 20.0000000000001 << 10.0
+                                     << 10.0 << 0.0 << 10.0 << 20.0
+                                     << int(QLineF::BoundedIntersection) << 10.0 << 10.0;
+
+    QTest::newRow("almost horizontal") << 0.0 << 10.0 << 20.0 << 10.0
+                                       << 10.0000000000001 << 0.0 << 10.0 << 20.0
+                                       << int(QLineF::BoundedIntersection) << 10.0 << 10.0;
 }
 
 void tst_QLine::testIntersection()
