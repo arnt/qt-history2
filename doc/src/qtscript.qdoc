@@ -273,8 +273,8 @@
   myDialog.okButton
   \endcode
 
-  Since \c{objectName} is itself a Q_PROPERTY, you can by default
-  manipulate the name in script code:
+  Since \c{objectName} is itself a Q_PROPERTY, you can manipulate
+  the name in script code to, for example, rename an object:
 
   \code
   myDialog.okButton.objectName = "cancelButton";
@@ -284,7 +284,9 @@
   You can also use the functions \c{findChild()} and \c{findChildren()}
   to find children. These two functions behave identically to
   QObject::findChild() and QObject::findChildren(), respectively.
-  Example:
+
+  For example, we can use these functions to find objects using strings
+  and regular expressions:
 
   \code
   var okButton = myDialog.findChild("okButton");
@@ -305,15 +307,19 @@
   \section2 Controlling QObject Ownership
 
   By default, the script engine does not take ownership of the
-  QObject that is passed to QScriptEngine::newQObject(). You can
-  change that by specifying a different ownership mode as the
-  second argument (QScriptEngine::QtOwnership is the default).
-  Specifying QScriptEngine::ScriptOwnership will cause the script
-  engine to take full ownership of the QObject and delete it when
-  it deems that it is safe to do so. If the QObject does not
-  have a parent object, and/or the QObject is created in context
-  of the script engine and is not intended to outlive the script
-  engine, this ownership mode is appropriate.
+  QObject that is passed to QScriptEngine::newQObject(); the object
+  is managed according to Qt's object ownership (see
+  \l{Object Trees and Object Ownership}). You can change this
+  behavior by specifying a different ownership mode as the
+  second argument, overriding the default (QScriptEngine::QtOwnership).
+
+  Specifying QScriptEngine::ScriptOwnership as the ownership mode
+  will cause the script engine to take full ownership of the QObject
+  and delete it when it determines that it is safe to do so.
+  This ownership mode is appropriate if the QObject does not have a
+  parent object, and/or the QObject is created in the context of the
+  script engine and is not intended to outlive the script engine.
+
   For example, a constructor function that constructs QObjects
   only to be used in the script environment is a good candidate:
 
@@ -335,23 +341,27 @@
 
   QScriptEngine::newQObject() can take a third argument which allows
   you to control various aspects of the access to the QObject through
-  the QtScript wrapper object (the value returned by newQObject()).
+  the QtScript wrapper object it returns.
+
   QScriptEngine::ExcludeChildObjects specifies that child objects of
   the QObject should not appear as properties of the wrapper object.
+
   QScriptEngine::ExcludeSuperClassProperties and
   QScriptEngine::ExcludeSuperClassMethods can be used to avoid
-  exposing members that are inherited from the QObject's superclass;
-  this is useful e.g. when you want to define a "pure" interface where
-  inherited members don't make sense from a scripting perspective
-  (e.g. you don't want script authors to be able to change the
-  \c{objectName} property of the object, or invoke the \c{deleteLater()} slot).
+  exposing members that are inherited from the QObject's superclass.
+  This is useful for defining a "pure" interface where inherited members
+  don't make sense from a scripting perspective; e.g., you don't want
+  script authors to be able to change the \c{objectName} property of
+  the object or invoke the \c{deleteLater()} slot.
+
   QScriptEngine::AutoCreateDynamicProperties specifies that properties
   that don't already exist in the QObject should be created as dynamic
   properties of the QObject, rather than as properties of the QtScript
   wrapper object. If you want new properties to truly become persistent
-  properties of the QObject, rather than properties that die when the
-  wrapper object dies (and that aren't shared if the QObject is wrapped
-  multiple times with newQObject()), you should use this option.
+  properties of the QObject, rather than properties that are destroyed
+  along with the wrapper object (and that aren't shared if the QObject
+  is wrapped multiple times with newQObject()), you should use this
+  option.
 
   \section1 Conversion Between QtScript and C++ Types
 
@@ -361,14 +371,14 @@
   you access a QObject property in script code, or when
   you call QScriptEngine::toScriptValue() or
   QScriptEngine::fromScriptValue() in C++. QtScript provides default
-  conversion for many of the built-in Qt types. You can change the
-  conversion for a type by registering your own
+  conversion operations for many of the built-in Qt types. You can
+  change the conversion operation for a type by registering your own
   conversion functions with qScriptRegisterMetaType().
 
   The following table describes the default conversion from a
-  QScriptValue to a C++ type:
+  QScriptValue to a C++ type.
 
-    \table 70%
+    \table 80%
     \header \o C++ Type \o Default Conversion
     \row    \o bool \o QScriptValue::toBoolean()
     \row    \o int \o QScriptValue::toInt32()
@@ -388,26 +398,53 @@
     \row    \o QObject* \o QScriptValue::toQObject()
     \row    \o QWidget* \o QScriptValue::toQObject()
     \row    \o QVariant \o QScriptValue::toVariant()
-    \row    \o QChar \o If the QScriptValue is a string, the result is the first character of the string, or a null QChar if the string is empty; otherwise, the result is a QChar constructed from the unicode obtained by converting the QScriptValue to a \c{ushort}.
-    \row    \o QStringList \o If the QScriptValue is an array, the result is a QStringList constructed from the result of QScriptValue::toString() for each array element; otherwise, the result is an empty QStringList.
-    \row    \o QVariantList \o If the QScriptValue is an array, the result is a QVariantList constructed from the result of QScriptValue::toVariant() for each array element; otherwise, the result is an empty QVariantList.
-    \row    \o QVariantMap \o If the QScriptValue is an object, the result is a QVariantMap with a (key, value) pair (propertyName, propertyValue.toVariant()) for each property, using QScriptValueIterator to iterate over the object's properties.
-    \row    \o QObjectList \o If the QScriptValue is an array, the result is a QObjectList constructed from the result of QScriptValue::toQObject() for each array element; otherwise, the result is an empty QObjectList.
-    \row    \o QList<int> \o If the QScriptValue is an array, the result is a QList<int> constructed from the result of QScriptValue::toInt32() for each array element; otherwise, the result is an empty QList<int>.
+    \row    \o QChar \o If the QScriptValue is a string, the result
+               is the first character of the string, or a null QChar
+               if the string is empty; otherwise, the result is a QChar
+               constructed from the unicode obtained by converting the
+               QScriptValue to a \c{ushort}.
+    \row    \o QStringList \o If the QScriptValue is an array, the
+               result is a QStringList constructed from the result of
+               QScriptValue::toString() for each array element; otherwise,
+               the result is an empty QStringList.
+    \row    \o QVariantList \o If the QScriptValue is an array, the result
+               is a QVariantList constructed from the result of
+               QScriptValue::toVariant() for each array element; otherwise,
+               the result is an empty QVariantList.
+    \row    \o QVariantMap \o If the QScriptValue is an object, the result
+               is a QVariantMap with a (key, value) pair of the form
+               (propertyName, propertyValue.toVariant()) for each property,
+               using QScriptValueIterator to iterate over the object's
+               properties.
+    \row    \o QObjectList \o If the QScriptValue is an array, the result
+               is a QObjectList constructed from the result of
+               QScriptValue::toQObject() for each array element; otherwise,
+               the result is an empty QObjectList.
+    \row    \o QList<int> \o If the QScriptValue is an array, the result is
+               a QList<int> constructed from the result of
+               QScriptValue::toInt32() for each array element; otherwise,
+               the result is an empty QList<int>.
     \endtable
 
   Additionally, QtScript will handle the following cases:
 
   \list
-  \i If the QScriptValue is a QObject and the target type name ends with a '*' (i.e. it's a pointer), the QObject pointer will be qobject_cast'ed to the target type.
-  \i If the QScriptValue is a QVariant and the target type name ends with a '*' (i.e. it's a pointer), and the \l{QVariant::userType()}{userType()} of the QVariant is the type that the target type points to, the result is a pointer to the QVariant's data.
-  \i If the QScriptValue is a QVariant and it can be converted to the target type (according to QVariant::canConvert()), the QVariant will be qvariant_cast'ed to the target type.
+  \i If the QScriptValue is a QObject and the target type name ends with
+     \c * (i.e., it is a pointer), the QObject pointer will be cast to the
+     target type with qobject_cast().
+  \i If the QScriptValue is a QVariant and the target type name ends with
+     \c * (i.e., it is a pointer), and the \l{QVariant::userType()}{userType()}
+     of the QVariant is the type that the target type points to, the result
+     is a pointer to the QVariant's data.
+  \i If the QScriptValue is a QVariant and it can be converted to the
+     target type (according to QVariant::canConvert()), the QVariant will
+     be cast to the target type with qvariant_cast().
   \endlist
 
-  The following table describes the default behavior when a QScriptValue
-  is constructed from a C++ type:
+  The following table describes the default behavior when a QScriptValue is
+  constructed from a C++ type:
 
-    \table 70%
+    \table 80%
     \header \o C++ Type \o Default Construction
     \row    \o void \o QScriptEngine::undefinedValue()
     \row    \o bool \o QScriptValue(engine, value)
@@ -420,8 +457,13 @@
     \row    \o char \o QScriptValue(engine, value)
     \row    \o uchar \o QScriptValue(engine, value)
     \row    \o QString \o QScriptValue(engine, value)
-    \row    \o qlonglong \o QScriptValue(engine, qsreal(value)). Note that the conversion may lead to loss of precision, since not all 64-bit integers can be represented as a qsreal.
-    \row    \o qulonglong \o QScriptValue(engine, qsreal(value)). Note that the conversion may lead to loss of precision, since not all 64-bit unsigned integers can be represented as a qsreal.
+    \row    \o qlonglong \o QScriptValue(engine, qsreal(value)). Note that
+               the conversion may lead to loss of precision, since not all
+               64-bit integers can be represented using the qsreal type.
+    \row    \o qulonglong \o QScriptValue(engine, qsreal(value)). Note that
+               the conversion may lead to loss of precision, since not all
+               64-bit unsigned integers can be represented using the qsreal
+               type.
     \row    \o QChar \o QScriptValue(this, value.unicode())
     \row    \o QDateTime \o \l{QScriptEngine::newDate()}{QScriptEngine::newDate}(value)
     \row    \o QDate \o \l{QScriptEngine::newDate()}{QScriptEngine::newDate}(value)
@@ -429,14 +471,27 @@
     \row    \o QObject* \o \l{QScriptEngine::newQObject()}{QScriptEngine::newQObject}(value)
     \row    \o QWidget* \o \l{QScriptEngine::newQObject()}{QScriptEngine::newQObject}(value)
     \row    \o QVariant \o \l{QScriptEngine::newVariant()}{QScriptEngine::newVariant}(value)
-    \row    \o QStringList \o A new script array (created with QScriptEngine::newArray()), whose elements are created using the QScriptValue(QScriptEngine *, QString) constructor for each element of the list.
-    \row    \o QVariantList \o A new script array (created with QScriptEngine::newArray()), whose elements are created using QScriptEngine::newVariant() for each element of the list.
-    \row    \o QVariantMap \o A new script object (created with QScriptEngine::newObject()), whose properties are initialized according to the (key, value) pairs of the map.
-    \row    \o QObjectList \o A a new script array (created with QScriptEngine::newArray()), whose elements are created using QScriptEngine::newQObject() for each element of the list.
-    \row    \o QList<int> \o A new script array (created with QScriptEngine::newArray()), whose elements are created using the QScriptValue(QScriptEngine *, int) constructor for each element of the list.
+    \row    \o QStringList \o A new script array (created with
+               QScriptEngine::newArray()), whose elements are created using
+               the QScriptValue(QScriptEngine *, QString) constructor for
+               each element of the list.
+    \row    \o QVariantList \o A new script array (created with
+               QScriptEngine::newArray()), whose elements are created using
+               QScriptEngine::newVariant() for each element of the list.
+    \row    \o QVariantMap \o A new script object (created with
+               QScriptEngine::newObject()), whose properties are initialized
+               according to the (key, value) pairs of the map.
+    \row    \o QObjectList \o A new script array (created with
+               QScriptEngine::newArray()), whose elements are created using
+               QScriptEngine::newQObject() for each element of the list.
+    \row    \o QList<int> \o A new script array (created with
+               QScriptEngine::newArray()), whose elements are created using
+               the QScriptValue(QScriptEngine *, int) constructor for each
+               element of the list.
     \endtable
 
-  Other types will be wrapped using QScriptEngine::newVariant(). For null pointers of any type, the result is QScriptEngine::nullValue().
+  Other types will be wrapped using QScriptEngine::newVariant(). For null
+  pointers of any type, the result is QScriptEngine::nullValue().
 
   \section1 How to Design and Implement Application Objects
 
@@ -446,45 +501,49 @@
   \section2 Making a C++ object available to Scripts Written in Qt Script
 
   Making C++ classes and objects available to a scripting language is
-  not trivial since scripting languages are more dynamic than C++ and
-  it must be possible to introspect objects (query information such as
-  functions names, function signatures, properties, etc., at
-  runtime). Standard C++ doesn't provide for this.
+  not trivial because scripting languages tend to be more dynamic than
+  C++, and it must be possible to introspect objects (query information
+  such as function names, function signatures, properties, etc., at
+  run-time). Standard C++ does not provide features for this.
 
   We can achieve the functionality we want by extending C++, using
-  C++'s own facilities so our code is still standard C++. The Qt meta
-  object system provides the necessary additional functionality. It
-  allows us to write using an extended C++ syntax, but converts this
-  into standard C++ using a small utility program called \l{moc} (Meta
-  Object Compiler). Classes that wish to take advantage of the meta
-  object facilities are either subclasses of QObject, or use the
+  C++'s own facilities so our code is still standard C++. The Qt
+  meta-object system provides the necessary additional functionality.
+  It allows us to write using an extended C++ syntax, but converts this
+  into standard C++ using a small utility program called \l{moc}
+  (Meta-Object Compiler). Classes that wish to take advantage of the
+  meta-object facilities are either subclasses of QObject, or use the
   \c{Q_OBJECT} macro. Qt has used this approach for many years and it has
-  proven to be solid and reliable. Qt Script uses this meta object
+  proven to be solid and reliable. Qt Script uses this meta-object
   technology to provide scripters with dynamic access to C++ classes
   and objects.
 
   To completely understand how to make C++ objects available to Qt
-  Script, some basic knowledge of the Qt meta object system is very
+  Script, some basic knowledge of the Qt meta-object system is very
   helpful. We recommend that you read the \l{Qt Object Model}. The
   information in this document and the documents it links to are very
-  useful for understanding how to implement application objects,
-  however this knowledge is not essential. To make an object available
-  in Qt Script, it must derive from QObject. All classes which derive
-  from QObject are introspective and can provide the information
-  needed by the scripting engine, e.g. classname, functions,
-  signatures, etc., at runtime. Because we obtain the information we
-  need about classes dynamically at run time, there is no need to
-  write wrappers for QObject derived classes.
+  useful for understanding how to implement application objects.
+
+  However, this knowledge is not essential in the simplest cases.
+  To make an object available in Qt Script, it must derive from
+  QObject. All classes which derive from QObject can be introspected
+  and can provide the information needed by the scripting engine at
+  run-time; e.g., class name, functions, signatures. Because we obtain
+  the information we need about classes dynamically at run-time, there
+  is no need to write wrappers for QObject derived classes.
 
   \section2 Making C++ Class Member Functions Available in Qt Script
 
-  The meta object system makes information about signals and slots
-  dynamically available at runtime. This means that for QObject
-  derived classes, only the signals and slots are automatically made
-  available to scripts. This is very convenient, because in practice
-  we normally only want to make specially chosen functions available
-  to scripters. When you create a QObject subclass, make sure that the
-  functions you want to be available to scripters are public slots:
+  The meta-object system also makes information about signals and slots
+  dynamically available at run-time. By default, for QObject subclasses,
+  only the signals and slots are automatically made available to scripts.
+  This is very convenient because, in practice, we normally only want to
+  make specially chosen functions available to scripters. When you create
+  a QObject subclass, make sure that the functions you want to expose to
+  Qt Script are public slots.
+
+  For example, the following class definition enables scripting only for
+  certain functions:
 
     \code
     class MyObject : public QObject
@@ -509,7 +568,9 @@
 
   In the example above, aNonScriptableFunction() is not declared as a
   slot, so it will not be available in Qt Script. The other three
-  functions will automatically be made available in Qt Script.
+  functions will automatically be made available in Qt Script because
+  they are declared in the \c{public slots} section of the class
+  definition.
 
   It is possible to make any function script-invokable by specifying
   the \c{Q_INVOKABLE} modifier when declaring the function:
@@ -528,10 +589,10 @@
   \endcode
 
   Once declared with \c{Q_INVOKABLE}, the method can be invoked from
-  QtScript code just as if it were a slot. Although such a method is
+  Qt Script code just as if it were a slot. Although such a method is
   not a slot, you can still specify it as the target function in a
-  call to \c{connect()} in script code (\c{connect()} accepts any
-  function as target, both native and non-native).
+  call to \c{connect()} in script code; \c{connect()} accepts both
+  native and non-native functions as targets.
 
   \section2 Making C++ Class Properties Available in Qt Script
 
@@ -556,10 +617,10 @@
     \endcode
 
   To make this possible, you must define properties in the C++ QObject
-  subclass. The class declaration of MyObject must look like the
-  following to declare a property enabled of the type bool, which
-  should use the function \c{setEnabled(bool)} as its setter function and
-  the function \c{isEnabled()} as its getter function:
+  subclass. For example, the following \c MyObject class declaration
+  declares a boolean property called \c enabled, which uses the function
+  \c{setEnabled(bool)} as its setter function and \c{isEnabled()} as its
+  getter function:
 
     \code
     class MyObject : public QObject
@@ -589,9 +650,9 @@
   the names of the setter and getter functions as arguments.
 
   If you don't want a property of your class to be accessible in
-  QtScript, you set the \c{SCRIPTABLE} attribute to false when
+  QtScript, you set the \c{SCRIPTABLE} attribute to \c false when
   declaring the property; by default, the \c{SCRIPTABLE} attribute is
-  true. Example:
+  \c true. For example:
 
   \code
   Q_PROPERTY(int nonScriptableProperty READ foo WRITE bar SCRIPTABLE false)
@@ -601,12 +662,14 @@
 
   In the Qt object model, signals are used as a notification mechanism
   between QObjects. This means one object can connect a signal to
-  another object's slot and every time the signal is fired (emitted)
-  the slot is called. This connection is established using the
-  QObject::connect() function. This mechanism is also available to Qt
-  Script programmers. The C++ code for declaring a signal is no
-  different for a C++ class that is to be used by Qt Script than a C++
-  class used with Qt.
+  another object's slot and, every time the signal is emitted, the slot
+  is called. This connection is established using the QObject::connect()
+  function.
+
+  The signals and slots mechanism is also available to Qt Script
+  programmers. The code to declare a signal in C++ is the same,
+  regardless of whether the signal will be connected to a slot in C++
+  or in Qt Script.
 
     \code
     class MyObject : public QObject
@@ -634,9 +697,10 @@
     };
     \endcode
 
-  The only change this time is to declare a signals section, and
-  declare the relevant signal in it.  Now the script writer can write
-  a function and connect to the object like this:
+  The only change we have made to the code in the previous section is
+  to declare a signals section with the relevant signal. Now, the
+  script writer can define a function and connect to the object like
+  this:
 
     \code
     function enabledChangedHandler( b )
@@ -666,39 +730,41 @@
   but for larger applications this is probably not the right
   approach. The problem is that this method reveals too much of the
   internal API and gives script programmers access to application
-  internals which should not be exposed.  Generally, the best way of
-  making application functionality available to scripters is to code
-  some QObjects which define the applications public API using
-  signals, slots, and properties. This gives you complete control of
-  the functionality you make available. The implementation of these
-  objects simply calls the functions in the application which do the
-  real work. So instead of making all your QObjects available to the
-  scripting engine, just add the wrapper QObjects.
+  internals which should not be exposed.
 
-  \section1 Making Use of Prototype-based Inheritance
+  Generally, the best way of making application functionality available
+  to scripters is to code some QObjects which define the applications
+  public API using signals, slots, and properties. This gives you
+  complete control of the functionality made available by the
+  application. The implementations of these objects simply call the
+  functions in the application which do the real work. So, instead of
+  making all your QObjects available to the scripting engine, just add
+  the wrapper QObjects.
+
+  \section1 Making Use of Prototype-Based Inheritance
 
   In ECMAScript, inheritance is based on the concept of \bold{shared
   prototype objects}; this is quite different from the class-based
-  inheritance familiar to C++ programmers. With QtScript, you can
-  associate a custom prototype object with a C++ type (using
-  QScriptEngine::setDefaultPrototype()); this is the key to providing
-  a script interface to that type. Since QtScript is built on top of
-  Qt's Meta-Type System, this can be done for any C++ type. This
-  section explains the underlying concepts of prototype-based
+  inheritance familiar to C++ programmers. With Qt Script, you can
+  associate a custom prototype object with a C++ type using
+  QScriptEngine::setDefaultPrototype(); this is the key to providing
+  a script interface to that type. Since the QtScript module is built
+  on top of Qt's meta-type system, this can be done for any C++ type.
+  This section explains the underlying concepts of prototype-based
   inheritance. Once these concepts are understood, the associated
-  practices can be applied through the QtScript API in order to create
-  well-behaved, consistent bindings to C++ that will fit nicely into
-  the ECMAScript universe.
+  practices can be applied throughout the QtScript API in order to
+  create well-behaved, consistent bindings to C++ that will fit nicely
+  into the ECMAScript universe.
 
   When experimenting with QtScript objects and inheritance, it can be
-  helpful to use the interactive interpreter that's part of the QtScript
+  helpful to use the interactive interpreter included with the QtScript
   examples, located in \c{examples/script/qscript}.
 
   \section2 Prototype Objects and Shared Properties
 
-  The purpose of a QtScript \bold{prototype object} is to define
+  The purpose of a Qt Script \bold{prototype object} is to define
   behavior that should be shared by a set of other QtScript
-  objects. We say that objects that share the same prototype object
+  objects. We say that objects which share the same prototype object
   belong to the same \e{class} (again, on the technical side this
   should not to be confused with the class constructs of languages
   like C++ and Java; ECMAScript has no such construct).
@@ -710,7 +776,7 @@
   in the prototype object instead; if the prototype has the property,
   then that property is returned. Otherwise, the property is looked up
   in the prototype of the prototype object, and so on; this chain of
-  objects constitute a \bold{prototype chain}. The chain of prototype
+  objects constitutes a \bold{prototype chain}. The chain of prototype
   objects is followed until the property is found or the end of the
   chain is reached.
 
@@ -741,23 +807,25 @@
   object will immediately be reflected in the behavior of all objects
   that have the modified object as their prototype.
 
-  \section2 Defining Classes in a Prototype-based Universe
+  \section2 Defining Classes in a Prototype-Based Universe
 
-  In QtScript, a class is not defined explicitly; there is no
+  In Qt Script, a class is not defined explicitly; there is no
   \c{class} keyword. Instead, you define a new class in two steps:
 
-  \list
-  \i Define a \bold{constructor function} that will initialize new objects; and
-  \i Set up a \bold{prototype object} that defines the class interface, and assign this object to the public \c{prototype} property of the constructor function.
+  \list 1
+  \i Define a \bold{constructor function} that will initialize new objects.
+  \i Set up a \bold{prototype object} that defines the class interface, and
+     assign this object to the public \c{prototype} property of the
+     constructor function.
   \endlist
 
   With this arrangement, the constructor's public \c{prototype}
   property will automatically be set as the prototype of objects created
   by applying the \c{new} operator to your constructor function;
-  e.g. the prototype of an object created by \c{new Foo()} will be the
+  e.g., the prototype of an object created by \c{new Foo()} will be the
   value of \c{Foo.prototype}.
 
-  Functions that don't operate on the `this' object ("static" methods)
+  Functions that don't operate on the \c this object ("static" methods)
   are typically stored as properties of the constructor function, not
   as properties of the prototype object. The same is true for
   constants, such as enum values.
@@ -773,11 +841,11 @@
   \endcode
 
   Next, you want to set up \c{Person.prototype} as your prototype
-  object, i.e. define the interface that should be common to all
-  \c{Person} objects. QtScript automatically creates a default
+  object; i.e., define the interface that should be common to all
+  \c{Person} objects. Qt Script automatically creates a default
   prototype object (by the expression \c{new Object()}) for every
   script function; you can add properties to this object, or you can
-  assign your own custom object. (Generally speaking, any QtScript
+  assign your own custom object. (Generally speaking, any Qt Script
   object can act as prototype for any other object.)
 
   Here's an example of how you might want to override the
@@ -789,10 +857,10 @@
   Person.prototype.toString = function() { return "Person(name: " + this.name + ")"; }
   \endcode
 
-  This resembles reimplementing a virtual function in C++. Henceforth,
-  when the property named \c{toString} is looked up in a \c{Person}
-  object, it will be resolved in \c{Person.prototype}, not in
-  \c{Object.prototype} as before:
+  This resembles the process of reimplementing a virtual function
+  in C++. Henceforth, when the property named \c{toString} is
+  looked up in a \c{Person} object, it will be resolved in
+  \c{Person.prototype}, not in \c{Object.prototype} as before:
 
   \code
   var p1 = new Person("John Doe");
@@ -801,7 +869,7 @@
   print(p2); // "Person(name: G.I. Jane)"
   \endcode
 
-  There's also some other interesting things we can learn about a
+  There are also some other interesting things we can learn about a
   \c{Person} object:
 
   \code
@@ -813,7 +881,7 @@
 
   The \c{hasOwnProperty()} function is not inherited from
   \c{Person.prototype}, but rather from \c{Object.prototype}, which is
-  the prototype of \c{Person.prototype} itself; i.e. the prototype
+  the prototype of \c{Person.prototype} itself; i.e., the prototype
   chain of \c{Person} objects is \c{Person.prototype} followed by
   \c{Object.prototype}. This prototype chain establishes a \e{class
   hierarchy}, as demonstrated by applying the \c{instanceof} operator;
@@ -857,20 +925,22 @@
   same as that of \c{Person} objects, but with \c{Employee.prototype}
   added to the front of the chain.
 
-  \section2 Prototype-based Programming with the QtScript C++ API
+  \section2 Prototype-Based Programming with the QtScript C++ API
 
   You can use QScriptEngine::newFunction() to wrap
   native functions. When implementing a constructor function,
-  you also pass the prototype object as argument to QScriptEngine::newFunction().
+  you also pass the prototype object as an argument to
+  QScriptEngine::newFunction().
   You can call QScriptValue::construct() to call a constructor
-  function, and use QScriptValue::call() from within a native constructor
-  function if you need to call a base class constructor.
+  function, and you can use QScriptValue::call() from within a
+  native constructor function if you need to call a base class
+  constructor.
 
   The QScriptable class provides a convenient way to implement a
   prototype object in terms of C++ slots and properties. Take a look
   at the \l{Default Prototypes Example} to see how this is done.
   Alternatively, the prototype functionality can be implemented in
-  terms of stand-alone native functions that you wrap with
+  terms of standalone native functions that you wrap with
   QScriptEngine::newFunction() and set as properties of your prototype
   object by calling QScriptValue::setProperty().
 
@@ -878,11 +948,11 @@
   QScriptable::thisObject() (or QScriptContext::thisObject()) to
   obtain a reference to the QScriptValue being operated upon; then you
   call qscriptvalue_cast() to cast it to your C++ type, and perform
-  the relevant operations using the usual C++ API of the type.
+  the relevant operations using the usual C++ API for the type.
 
   You associate a prototype object with a C++ type by calling
   QScriptEngine::setDefaultPrototype(). Once this mapping is
-  established, QtScript will automatically assign the correct
+  established, Qt Script will automatically assign the correct
   prototype when a value of such a type is wrapped in a QScriptValue;
   either when you explicitly call QScriptEngine::toScriptValue(), or
   when a value of such a type is returned from a C++ slot and
@@ -892,7 +962,7 @@
 
   \section1 ECMAScript Compatibility
 
-  QtScript implements all the built-in classes and functions defined
+  Qt Script implements all the built-in classes and functions defined
   in ECMA-262.
 
   The Date parsing and string conversion functions are implemented using
@@ -902,25 +972,27 @@
   do not precisely match the semantics for regular expressions defined
   in ECMA-262.
 
-  \section1 QtScript Extensions to ECMAScript
+  \section1 Qt Script Extensions to ECMAScript
 
   \list
-  \i \c{__proto__}: The prototype of an object (QScriptValue::prototype())
+  \i \c{__proto__} \br
+    The prototype of an object (QScriptValue::prototype())
     can be accessed through its \c{__proto__} property in script code.
-    This property has flags QScriptValue::Undeletable.
-    Example:
+    This property has the QScriptValue::Undeletable flag set.
+    For example:
 
   \code
     var o = new Object();
     (o.__proto__ === Object.prototype); // this evaluates to true
   \endcode
 
-  \i \c{Object.prototype.__defineGetter__}: This function installs a
+  \i \c{Object.prototype.__defineGetter__} \br
+    This function installs a
     getter function for a property of an object. The first argument is
     the property name, and the second is the function to call to get
     the value of that property. When the function is invoked, the
-    \c this object will be the object whose property is being accessed.
-    Example:
+    \c this object will be the object whose property is accessed.
+    For example:
 
   \code
     var o = new Object();
@@ -928,12 +1000,13 @@
     var y = o.x; // 123
   \endcode
 
-  \i \c{Object.prototype.__defineSetter__}: This function installs a
+  \i \c{Object.prototype.__defineSetter__} \br
+    This function installs a
     setter function for a property of an object. The first argument is
     the property name, and the second is the function to call to set
     the value of that property.  When the function is invoked, the
-    \c this object will be the object whose property is being accessed.
-    Example:
+    \c this object will be the object whose property is accessed.
+    For example:
 
   \code
     var o = new Object();
@@ -941,27 +1014,31 @@
     o.x = 123; // will print "and the value is: 123"
   \endcode
 
-  \i \c{Function.prototype.connect}: This function connects
+  \i \c{Function.prototype.connect} \br
+    This function connects
     a signal to a slot. Usage of this function is described in
     the section \l{Using Signals and Slots}.
 
-  \i \c{Function.prototype.disconnect}: This function disconnects
+  \i \c{Function.prototype.disconnect} \br
+    This function disconnects
     a signal from a slot. Usage of this function is described in
     the section \l{Using Signals and Slots}.
 
-  \i \c{QObject.prototype.findChild}: This function is semantically
-    equivalent to QObject::findChild().
+  \i \c{QObject.prototype.findChild} \br
+    This function is semantically equivalent to QObject::findChild().
 
-  \i \c{QObject.prototype.findChildren}: This function is semantically
-    equivalent to QObject::findChildren().
+  \i \c{QObject.prototype.findChildren} \br
+    This function is semantically equivalent to QObject::findChildren().
 
-  \i \c{QObject.prototype.toString}: This function returns a default string
-    representation of a QObject.
+  \i \c{QObject.prototype.toString} \br
+    This function returns a default string representation of a QObject.
 
-  \i \c{gc}: This function invokes the garbage collector.
+  \i \c{gc} \br
+    This function invokes the garbage collector.
 
-  \i \c{Error.prototype.backtrace}: This function returns a human-readable
-    backtrace, in the form of an array of strings.
+  \i \c{Error.prototype.backtrace} \br
+    This function returns a human-readable backtrace, in the form of
+    an array of strings.
 
   \i Error objects have the following additional properties:
     \list
