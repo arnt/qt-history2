@@ -1325,6 +1325,7 @@ void tst_CssParser::pseudoElement()
 void tst_CssParser::gradient_data()
 {
     QTest::addColumn<QString>("css");
+    QTest::addColumn<QString>("type");
     QTest::addColumn<QPointF>("start");
     QTest::addColumn<QPointF>("finalStop");
     QTest::addColumn<int>("spread");
@@ -1335,14 +1336,28 @@ void tst_CssParser::gradient_data()
 
     QTest::newRow("color-string") <<
      "selection-background-color: qlineargradient(x1:1, y1:2, x2:3, y2:4, "
-         "stop:0.2 red, stop:0.5 green)" << QPointF(1, 2) << QPointF(3, 4)
+         "stop:0.2 red, stop:0.5 green)" << "linear" << QPointF(1, 2) << QPointF(3, 4)
                                   << 0 << qreal(0.2) << QColor("red") << qreal(0.5) << QColor("green");
 
     QTest::newRow("color-#") <<
-     "selection-background-color: qgradient(type: linear, x1:0, y1:0, x2:0, y2:1, "
-         "spread: reflect, stop:0.2 #123, stop:0.5 #456)" << QPointF(0, 0) << QPointF(0, 1)
+     "selection-background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, "
+         "spread: reflect, stop:0.2 #123, stop:0.5 #456)" << "linear" << QPointF(0, 0) << QPointF(0, 1)
                              << 1 << qreal(0.2) << QColor("#123") << qreal(0.5) << QColor("#456");
 
+    QTest::newRow("color-rgb") <<
+     "selection-background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, "
+         "spread: reflect, stop:0.2 rgb(1, 2, 3), stop:0.5 rgba(1, 2, 3, 4))" << "linear" << QPointF(0, 0) << QPointF(0, 1)
+                             << 1 << qreal(0.2) << QColor(1, 2, 3) << qreal(0.5) << QColor(1, 2, 3, 4);
+
+    QTest::newRow("color-spaces") <<
+     "selection-background-color: qlineargradient(x1: 0, y1 :0,x2:0, y2 : 1 , "
+         "spread: reflect, stop:0.2 rgb(1, 2, 3), stop: 0.5   rgba(1, 2, 3, 4))" << "linear" << QPointF(0, 0) << QPointF(0, 1)
+                             << 1 << qreal(0.2) << QColor(1, 2, 3) << qreal(0.5) << QColor(1, 2, 3, 4);
+
+    QTest::newRow("conical gradient") <<
+     "selection-background-color: qconicalgradient(cx: 4, cy : 2, angle: 23, "
+         "spread: repeat, stop:0.2 rgb(1, 2, 3), stop:0.5 rgba(1, 2, 3, 4))" << "conical" << QPointF(4, 2) << QPointF()
+                             << 2 << qreal(0.2) << QColor(1, 2, 3) << qreal(0.5) << QColor(1, 2, 3, 4);
 
     /* wont pass: stop values are expected to be sorted
      QTest::newRow("unsorted-stop") <<
@@ -1355,6 +1370,7 @@ void tst_CssParser::gradient_data()
 void tst_CssParser::gradient()
 {
     QFETCH(QString, css);
+    QFETCH(QString, type);
     QFETCH(QPointF, finalStop);
     QFETCH(QPointF, start);
     QFETCH(int, spread);
@@ -1381,15 +1397,22 @@ void tst_CssParser::gradient()
     QBrush fg, sfg;
     QBrush sbg, abg;
     QVERIFY(ve.extractPalette(&fg, &sfg, &sbg, &abg));
-    QVERIFY(sbg.style() == Qt::LinearGradientPattern);
-    const QLinearGradient *lg = static_cast<const QLinearGradient *>(sbg.gradient());
-    QCOMPARE(lg->start(), start);
-    QCOMPARE(lg->finalStop(), finalStop);
-    QCOMPARE(lg->spread(), QGradient::Spread(spread));
-    QVERIFY(lg->stops().at(0).first == stop0);
-    QVERIFY(lg->stops().at(0).second == color0);
-    QVERIFY(lg->stops().at(1).first == stop1);
-    QVERIFY(lg->stops().at(1).second == color1);
+    if (type == "linear") {
+        QVERIFY(sbg.style() == Qt::LinearGradientPattern);
+        const QLinearGradient *lg = static_cast<const QLinearGradient *>(sbg.gradient());
+        QCOMPARE(lg->start(), start);
+        QCOMPARE(lg->finalStop(), finalStop);
+    } else if (type == "conical") {
+        QVERIFY(sbg.style() == Qt::ConicalGradientPattern);
+        const QConicalGradient *cg = static_cast<const QConicalGradient *>(sbg.gradient());
+        QCOMPARE(cg->center(), start);
+    }
+    const QGradient *g = sbg.gradient();
+    QCOMPARE(g->spread(), QGradient::Spread(spread));
+    QVERIFY(g->stops().at(0).first == stop0);
+    QVERIFY(g->stops().at(0).second == color0);
+    QVERIFY(g->stops().at(1).first == stop1);
+    QVERIFY(g->stops().at(1).second == color1);
 }
 
 void tst_CssParser::extractFontFamily_data()

@@ -1149,6 +1149,17 @@ static bool unstylable(const QWidget *w)
             return true;
     }
 #endif
+#ifndef QT_NO_FRAME
+    // detect QComboBoxPrivateContainer
+    else if (qobject_cast<const QFrame *>(w)) {
+        if (0
+#ifndef QT_NO_COMBOBOX
+            || qobject_cast<const QComboBox *>(w->parentWidget())
+#endif
+           )
+            return true;
+    }
+#endif
     return false;
 }
 

@@ -634,34 +634,46 @@ static QBrush parseBrushValue(Value v, const QPalette &pal)
     gradFuncs << QLatin1String("qlineargradient") << QLatin1String("qradialgradient") << QLatin1String("qconicalgradient") << QLatin1String("qgradient");
     int gradType = -1;
 
-    if (lst.at(0).compare(QLatin1String("gradient"), Qt::CaseInsensitive) != 0
-        && (gradType = gradFuncs.indexOf(lst.at(0).toLower())) == -1)
+    if ((gradType = gradFuncs.indexOf(lst.at(0).toLower())) == -1)
         return QBrush();
 
-    QStringList gradientTypes;
-    gradientTypes << QLatin1String("linear") << QLatin1String("radial") << QLatin1String("conical") << QLatin1String("gradient");
-    QStringList params = lst.at(1).split(QLatin1String(","), QString::SkipEmptyParts);
     QHash<QString, qreal> vars;
     QVector<QGradientStop> stops;
-    QRegExp re(QLatin1String("\\s*(\\S*):\\s*(\\S*)\\s*(\\S*)"));
+
     int spread = -1;
     QStringList spreads;
     spreads << QLatin1String("pad") << QLatin1String("reflect") << QLatin1String("repeat");
-    for (int i = 0; i < params.count(); i++) {
-        if (re.indexIn(params.at(i)) == -1)
-            continue;
-        QString attr = re.cap(1);
-        QString value = re.cap(2);
 
-        if (attr.compare(QLatin1String("type"), Qt::CaseInsensitive) == 0) {
-           gradType = gradientTypes.indexOf(value);
-        } else if (attr.compare(QLatin1String("spread"), Qt::CaseInsensitive) == 0) {
-            spread = spreads.indexOf(value);
-        } else if (attr.compare(QLatin1String("stop"), Qt::CaseInsensitive) == 0) {
-            stops.append(QGradientStop(value.toDouble(), QColor(re.cap(3))));
+    Parser parser(lst.at(1));
+    while (parser.hasNext()) {
+        parser.skipSpace();
+        if (!parser.test(IDENT))
+            return QBrush();
+        QString attr = parser.lexem();
+        parser.skipSpace();
+        if (!parser.test(COLON))
+            return QBrush();
+        parser.skipSpace();
+        if (attr.compare(QLatin1String("stop"), Qt::CaseInsensitive) == 0) {
+            Value stop, color;
+            parser.next();
+            if (!parser.parseTerm(&stop)) return QBrush();
+            parser.skipSpace();
+            parser.next();
+            if (!parser.parseTerm(&color)) return QBrush();
+            stops.append(QGradientStop(stop.variant.toDouble(), parseColorValue(color, pal)));
         } else {
-            vars[attr] = value.toDouble();
+            parser.next();
+            Value value;
+            parser.parseTerm(&value);
+            if (attr.compare(QLatin1String("spread"), Qt::CaseInsensitive) == 0) {
+                spread = spreads.indexOf(value.variant.toString());
+            } else {
+                vars[attr] = value.variant.toString().toDouble();
+            }
         }
+        parser.skipSpace();
+        parser.test(COMMA);
     }
 
     if (gradType == 0) {
