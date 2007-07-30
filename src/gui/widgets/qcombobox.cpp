@@ -545,6 +545,7 @@ void QComboBoxPrivateContainer::changeEvent(QEvent *e)
         QStyleOptionComboBox opt = comboStyleOption();
         view->setMouseTracking(combo->style()->styleHint(QStyle::SH_ComboBox_ListMouseTracking, &opt, combo) ||
                                combo->style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, combo));
+        setFrameStyle(combo->style()->styleHint(QStyle::SH_ComboBox_PopupFrameStyle, &opt, combo));
     }
     QWidget::changeEvent(e);
 }
