@@ -1,4 +1,4 @@
-StartDocument( )
+StartDocument( documentVersion="1.0" )
 DTD( text="
 <!DOCTYPE doc [
 <!ELEMENT doc (#PCDATA)>
@@ -6,7 +6,7 @@ DTD( text="
 <!ENTITY replace "replace">
 <!ENTITY me "me">
 %e;
-]>"
+]>" dtdName="doc"
     EntityDeclaration( name="e" systemId="something" )
 
     EntityDeclaration( name="replace" value="replace" )

@@ -1,0 +1,7 @@
+StartDocument( )
+Invalid(
+    EntityDeclaration( name="ent1" value="foo" )
+
+    EntityDeclaration( name="ent2" value="foo<br/>" )
+ )
+ERROR: Expected ' ', but got ':'.

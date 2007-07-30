@@ -1,4 +1,4 @@
-StartDocument( )
+StartDocument( documentVersion="1.0" )
 Comment( text=" Namespace inequality test: different escaping " )
 DTD( text="
 <!DOCTYPE foo [
@@ -10,7 +10,7 @@ DTD( text="
 <!ATTLIST bar a:attr CDATA #IMPLIED
               b:attr CDATA #IMPLIED
               c:attr CDATA #IMPLIED>
-]>" )
+]>" dtdName="foo" )
 StartElement( name="foo" qualifiedName="foo"
     NamespaceDeclaration( prefix="a" namespaceUri="http://example.org/~wilbur" )
 

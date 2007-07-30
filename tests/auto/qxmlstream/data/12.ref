@@ -5,7 +5,7 @@ DTD( text="<!DOCTYPE doc
 <!NOTATION not2 PUBLIC "'">
 <!NOTATION not3 PUBLIC "asd">
 <!NOTATION not4 PUBLIC 'asd'>
-]>"
+]>" dtdName="doc"
     NotationDeclaration( name="not1" publicId="0123456789-()+,.'/:=?;!*#@$_%" )
 
     NotationDeclaration( name="not2" publicId="'" )

@@ -640,6 +640,16 @@ QByteArray tst_QXmlStream::readFile(const QString &filename)
             writer << " processingInstructionTarget=\"" << reader.processingInstructionTarget().toString() << "\"";
         if (!reader.processingInstructionData().isEmpty())
             writer << " processingInstructionData=\"" << reader.processingInstructionData().toString() << "\"";
+        if (!reader.dtdName().isEmpty())
+            writer << " dtdName=\"" << reader.dtdName().toString() << "\"";
+        if (!reader.dtdPublicId().isEmpty())
+            writer << " dtdPublicId=\"" << reader.dtdPublicId().toString() << "\"";
+        if (!reader.dtdSystemId().isEmpty())
+            writer << " dtdSystemId=\"" << reader.dtdSystemId().toString() << "\"";
+        if (!reader.documentVersion().isEmpty())
+            writer << " documentVersion=\"" << reader.documentVersion().toString() << "\"";
+        if (!reader.documentEncoding().isEmpty())
+            writer << " documentEncoding=\"" << reader.documentEncoding().toString() << "\"";
         if (!reader.name().isEmpty())
             writer << " name=\"" << reader.name().toString() << "\"";
         if (!reader.namespaceUri().isEmpty())

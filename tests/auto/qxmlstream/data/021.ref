@@ -1,4 +1,4 @@
-StartDocument( )
+StartDocument( documentVersion="1.0" )
 Comment( text=" Simple legal case: default namespace and unbinding " )
 StartElement( name="foo" namespaceUri="http://example.org/namespace" qualifiedName="foo"
     NamespaceDeclaration( namespaceUri="http://example.org/namespace" )

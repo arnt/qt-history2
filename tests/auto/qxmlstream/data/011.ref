@@ -1,4 +1,4 @@
-StartDocument( )
+StartDocument( documentVersion="1.0" )
 Comment( text=" Namespace equality test: use of entity reference " )
 DTD( text="
 <!DOCTYPE foo [
@@ -11,7 +11,7 @@ DTD( text="
               b:attr CDATA #IMPLIED
               c:attr CDATA #IMPLIED>
 <!ENTITY tilde "~">
-]>"
+]>" dtdName="foo"
     EntityDeclaration( name="tilde" value="~" )
  )
 StartElement( name="foo" qualifiedName="foo"

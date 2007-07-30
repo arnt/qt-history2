@@ -1,4 +1,4 @@
-StartDocument( )
+StartDocument( documentVersion="1.0" )
 DTD( text="
 <!DOCTYPE doc [
 <!ELEMENT doc (#PCDATA)>
@@ -6,7 +6,7 @@ DTD( text="
 %e;
 <!ENTITY not "not">
 <!ENTITY me "me">
-]>"
+]>" dtdName="doc"
     EntityDeclaration( name="e" systemId="something" )
  )
 StartElement( name="doc" qualifiedName="doc"

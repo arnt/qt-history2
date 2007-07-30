@@ -1,4 +1,4 @@
-StartDocument( )
+StartDocument( documentVersion="1.0" )
 Comment( text=" Attribute uniqueness: repeated attribute with different prefixes " )
 StartElement( name="foo" qualifiedName="foo"
     NamespaceDeclaration( prefix="a" namespaceUri="http://example.org/~wilbur" )
