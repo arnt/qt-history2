@@ -1236,7 +1236,8 @@ QVector<QCss::StyleRule> QStyleSheetStyle::styleRules(const QWidget *w) const
     StyleSelector::NodePtr n;
     n.ptr = (void *)w;
     QVector<QCss::StyleRule> rules = styleSelector.styleRulesForNode(n);
-    styleRulesCache->insert(w, rules);
+    if (w->property("_q_stylesheet_polished").toBool() == true)
+        styleRulesCache->insert(w, rules);
     return rules;
 }
 
@@ -1469,7 +1470,8 @@ QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, int element, int stat
 
     QVector<Declaration> decls = declarations(styleRules(w), part, state);
     QRenderRule newRule(decls, w);
-    (*renderRulesCache)[w][part][state] = newRule;
+    if (w->property("_q_stylesheet_polished").toBool() == true)
+        (*renderRulesCache)[w][part][state] = newRule;
     return newRule;
 }
 
@@ -2199,8 +2201,10 @@ void QStyleSheetStyle::polish(QWidget *w)
 {
     baseStyle()->polish(w);
 
+    w->setProperty("_q_stylesheet_polished", true);
     w->setAttribute(Qt::WA_StyleSheet, !unstylable(w));
 
+    // Legacy code alert: following code is redundant since we don't cache unpolished widgets
     if (styleSheetCache->contains(w)) {
         // the widget accessed its style pointer before polish (or repolish)
         // and the stylesheet could have changed behind our back
