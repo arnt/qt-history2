@@ -40,9 +40,59 @@
     \e{Not documented here. Please contact Trolltech Technical Support
     if you have queries.}
 
-    \img dependencies.png Qt/X11 Dependencies
+    \image dependencies.png Qt/X11 Dependencies
 
-    Note: You must compile with XRender support to get alpha transparency
+    \raw HTML
+    <style type="text/css" id="colorstyles">
+     #QtGuiColor { background-color: #98fd00; color: black }
+     #QtCoreColor { background-color: #9c9cff; color: black }
+     #DefaultColor { background-color: #f6f6dc; color: black }
+     #FreetypeColor { background-color: #e6e6fa; color: black }
+     #GLColor { background-color: #ffc0cb; color: black }
+     #PthreadColor { background-color: #bdb76b; color: black }
+     #OptionalColor { background-color: #cae1ff; color: black }
+     #SMColor { background-color: #c2fafa; color: black }
+     #MiscColor { background-color: #f0f9ff; color: black }
+     #GlibColor { background-color: #b3b3b3; color: black }
+    </style>
+    \endraw
+
+    \table 90%
+    \header \o Name \o Library \o Notes \o Configuration options
+    \raw HTML
+    <tr id="QtGuiColor">
+    <td>QtGui</td><td>libQtGui</td><td>QtGui
+    </tr><tr id="QtCoreColor">
+    <td> QtCore </td><td> libQtCore </td><td> QtCore (non-user interface features)</td>
+    </tr><tr id="OptionalColor">
+    <td> XRender </td><td> libXrender </td><td> X Rendering Extension; used for anti-aliasing</td><td><tt>-xrender</tt> or auto-detected</td>
+    </tr><tr id="OptionalColor">
+    <td> Xrandr </td><td> libXrandr </td><td> X Resize and Rotate Extension</td><td><tt>-xrandr</tt> or auto-detected</td>
+    </tr><tr id="OptionalColor">
+    <td> Xcursor </td><td> libXcursor </td><td> X Cursor Extension</td><td><tt>-xcursor</tt> or auto-detected</td>
+    </tr><tr id="OptionalColor">
+    <td> Xfixes </td><td> libXfixes </td><td> X Fixes Extension</td><td><tt>-xfixes</tt> or auto-detected</td>
+    </tr><tr id="OptionalColor">
+    <td> Xinerama </td><td> libXinerama </td><td> Multi-head support</td><td><tt>-xinerama</tt> or auto-detected</td>
+    </tr><tr id="DefaultColor">
+    <td> Xt </td><td> libXext </td><td> Xt Intrinsics</td>
+    </tr><tr id="DefaultColor">
+    <td> Xext </td><td> libXext </td><td> X Extensions</td>
+    </tr><tr id="DefaultColor">
+    <td> X11 </td><td> libX11 </td><td> X Window System</td>
+    </tr><tr id="SMColor">
+    <td> SM </td><td> libSM </td><td> X Session Management</td><td><tt>-sm</tt> or auto-detected</td>
+    </tr><tr id="SMColor">
+    <td> ICE </td><td> libICE </td><td> Inter-Client Exchange</td><td><tt>-sm</tt> or auto-detected</td>
+    </tr><tr id="GlibColor">
+    <td> glib </td><td> libglib-2.0 </td><td> Common event loop handling</td><td><tt>-glib</tt> or auto-detected</td>
+    </tr><tr id="PthreadColor">
+    <td> pthread </td><td> libpthread </td><td> Multithreading</td>
+    </tr>
+    \endraw
+    \endtable
+
+    \note You must compile with XRender support to get alpha transparency
     support for pixmaps and images.
 
     \target win

@@ -4,12 +4,12 @@
 # lout -EPS dependencies.lout > dependencies.eps
 macro @TTGreenColour { {cmyk 0.40 0.00 1.00 0.01} }
 macro @TTPurpleColour { {cmyk 0.39 0.39 0.00 0.00} }
-macro @XrenderColour { rgb { 0.961 0.961 0.863 } }
+macro @DefaultColour { rgb { 0.961 0.961 0.863 } }
 macro @FreetypeColour { rgb { 0.902 0.902 0.980 } }
 macro @GLColour { rgb { 1.000 0.753 0.796 } }
 macro @PthreadColour { rgb { 0.741 0.718 0.420 } }
-macro @XineramaColour { rgb { 0.792 0.882 1.000 } }
-macro @SMColour { rgb { 0.961 1.000 0.980 } }
+macro @OptionalColour { rgb { 0.792 0.882 1.000 } }
+macro @SMColour { rgb { 0.761 0.980 0.980 } }
 macro @MiscColour { rgb { 0.941 0.973 1.000 } }
 macro @GlibColour { rgb { 0.7 0.7 0.7 } }
 @Illustration
@@ -43,21 +43,28 @@ macro @GlibColour { rgb { 0.7 0.7 0.7 } }
 
     aformat { @Cell A | @Cell B | @Cell marginbelow { 0c } font { +2p } C | @Cell D | @Cell E }
     bformat { @Cell A | @Cell B | @Cell C | @Cell D | @Cell E }
-    cformat { @Cell A | @Cell marginbelow { 1c } B | @Cell marginbelow { 1c } C | @Cell marginbelow { 1c } D | @Cell E }
-    dformat { @Cell A | @Cell B | @Cell C | @Cell D | @Cell E }
-    eformat { @Cell A | @Cell B | @Cell C | @StartHSpan @Cell D | @HSpan }
+    cformat { @Cell A | @Cell B | @Cell C | @Cell D | @Cell E }
+    dformat { @Cell A | @Cell B | @Cell C | @Cell D | @Cell marginleft { 1.5c } E }
+    eformat { @Cell A | @Cell B | @Cell C | @Cell D | @Cell marginleft { 1.5c } E }
+    fformat { @Cell A | @Cell B | @Cell C | @Cell D | @Cell marginleft { 1.5c } E }
+    gformat { @Cell A | @Cell B | @Cell C | @StartHSpan @Cell D | @HSpan }
 {
     @Rowa C { Qt"/"X11 library dependencies }
     @Rowb C { QTGUI:: @Node paint { @TTGreenColour } QtGui }
-    @Rowc B { XRENDER:: @Node paint { @XrenderColour } XRender }
-	  C { XINERAMA:: @Node paint { @XineramaColour } Xinerama }
-          D { SM:: @Node paint { @SMColour } SM }
-    @Rowd A { QTCORE:: @Node paint { @TTPurpleColour } QtCore }
-          C { XEXT:: @Node Xext } D { ICE:: @Node paint { @SMColour } ICE }
-    @Rowe A { PTHREAD:: @Node paint { @PthreadColour } pthread }
+    @Rowc B { XCURSOR:: @Node paint { @OptionalColour } Xcursor }
+          C { XRANDR:: @Node paint { @OptionalColour } Xrandr }
+          D { XINERAMA:: @Node paint { @OptionalColour } Xinerama }
+    @Rowd C { XRENDER:: @Node paint { @OptionalColour } XRender }
+          E { Xt:: @Node paint { @DefaultColour } Xt* }
+    @Rowe A { QTCORE:: @Node paint { @TTPurpleColour } QtCore }
+          C { XFIXES:: @Node paint { @OptionalColour } Xfixes }
+	  D { XEXT:: @Node paint { @DefaultColour } Xext }
+          E { SM:: @Node paint { @SMColour } SM }
+    @Rowf A { PTHREAD:: @Node paint { @PthreadColour } pthread }
           B { GLIB:: @Node paint { @GlibColour } Glib }
-          C { X:: @Node X11 }
-          D {
+          D { X:: @Node paint { @DefaultColour } X11 }
+          E { ICE:: @Node paint { @SMColour } ICE }
+    @Rowg D {
 	@Tbl
 	    font { -2p }
 	    margin { 0.15f }
@@ -69,48 +76,28 @@ macro @GlibColour { rgb { 0.7 0.7 0.7 } }
 	{
 	    @Rowb A { C:: @BNode {} } B { D:: @BNode {} }
 	          C { some configurations only }
+            @Rowb B { * } C { Xt intrinsics only }
 	}
 	} 
 }
 //
-@Arrow from { QTGUI } to { XINERAMA }
+@VHVCurveArrow from { QTGUI } to { XINERAMA } pathstyle { dotted }
 @HVCurveArrow from { QTGUI } to { QTCORE }
 @Arrow from { QTCORE } to { PTHREAD }
 @VHVCurveArrow from { QTCORE } to { GLIB } pathstyle { dotted }
-@VHVCurveArrow from { QTGUI } to { SM }
-@VHVCurveArrow from { QTGUI } to { XRENDER } pathstyle { dotted }
+@HVCurveArrow from { QTGUI } to { Xt }
+@Arrow from { QTGUI } to { XRANDR } pathstyle { dotted }
+@VHVCurveArrow from { QTGUI } to { XCURSOR } pathstyle { dotted }
+@Arrow from { XRANDR } to { XRENDER }
 @Arrow from { XINERAMA } to { XEXT }
-@VHCurveArrow from { XRENDER } to { XEXT }
+@VHCurveArrow from { XCURSOR } to { XRENDER }
+@HVCurveArrow from { XRENDER } to { XEXT }
+@Arrow from { Xt } to { SM }
+@HVHCurveArrow from { Xt } to { X }
 @Arrow from { SM } to { ICE }
 @Arrow from { XEXT } to { X }
+@VHCurveArrow from { XCURSOR } to { XFIXES }
+@VHVCurveArrow from { XFIXES } to { X }
 @Link from { C@W } to { D@E } pathstyle { dotted }
-}
-@LLP
-@Tbl
-    font { -1p }
-    aformat { @Cell white @Colour @I A | @Cell white @Colour @I B | @Cell white @Colour @I C }
-    bformat { @Cell A | @Cell B | @Cell C }
-{
-    @Rowa paint { darkgrey } A { Name } B { Library } C { Notes }
-    @Rowb paint { @TTGreenColour } A { QtGui } B { libQtGui }
-	C { QtGui }
-    @Rowb paint { @TTPurpleColour } A { QtCore } B { libQtCore }
-	C { QtCore (non-user interface features) }
-    @Rowb paint { @XrenderColour } A { XRender } B { libXrender }  
-	C { X Rendering Extension; -xrender or auto-detected }
-    @Rowb paint { @XineramaColour } A { Xinerama } B { libXinerama }
-	C { Multi-head support; -xinerama or auto-detected }
-    @Rowb paint { @MiscColour} A { Xext } B { libXext }  
-	C { X Extensions }
-    @Rowb paint { @MiscColour} A { X11 } B { libX11 }  
-	C { X Window System }
-    @Rowb paint { @SMColour } A { SM } B { libSM }  
-	C { X Session Management; -sm or auto-detected }
-    @Rowb paint { @SMColour } A { ICE } B { libICE }  
-	C { Inter-Client Exchange; -sm or auto-detected }
-    @Rowb paint { @GlibColour } A { glib } B { libglib-2.0 }  
-	C { Common event loop handling; -glib or auto-detected }
-    @Rowb paint { @PthreadColour } A { pthread } B { libpthread }  
-	C { Multithreading }
 }
 }
