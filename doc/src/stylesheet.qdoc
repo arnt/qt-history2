@@ -3733,6 +3733,10 @@ blue green yellow * /
         QPushButton:flat {
             border: none; / * no border for a flat push button * /
         }
+
+        QPushButton:default {
+            border-color: navy; / * make the default button prominent * /
+        }
     \endcode
 
     For a QPushButton with a menu, use the 
@@ -3803,7 +3807,7 @@ blue green yellow * /
     if one property or sub-control is customized, all the other properties or
     sub-controls must be customized as well.
 
-    \image scrollBar-stylesheet.png
+    \image stylesheet-scrollbar1.png
 
     The scroll bar above has been styled in aquamarine with a solid grey
     border.
@@ -3860,6 +3864,54 @@ blue green yellow * /
         }
     \endcode
 
+    If you want the scroll buttons of the scroll bar to be placed together
+    (instead of the edges) like on Mac OS X, you can use the following
+    stylesheet:
+    \code
+        QScrollBar:horizontal {
+            border: 2px solid green;
+            background: cyan;
+            height: 15px;
+            margin: 0px 40px 0 0px;
+        }
+
+        QScrollBar::handle:horizontal {
+            background: gray;
+            min-width: 20px;
+        }
+
+        QScrollBar::add-line:horizontal {
+            background: blue;
+            width: 16px;
+            subcontrol-position: right;
+            subcontrol-origin: margin;
+            border: 2px solid black;
+        }
+
+        QScrollBar::sub-line:horizontal {
+            background: magenta;
+            width: 16px;
+            subcontrol-position: top right;
+            subcontrol-origin: margin;
+            border: 2px solid black;
+            position: absolute;
+            right: 20px;
+        }
+
+        QScrollBar:left-arrow:horizontal, QScrollBar::right-arrow:horizontal {
+            width: 3px;
+            height: 3px;
+            background: pink;
+        }
+
+        QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
+            background: none;
+        }
+
+    \endcode
+    
+    The scroll bar using the above stylesheet looks like this:
+        \image stylesheet-scrollbar2.png
 
     \section2 Customizing QSizeGrip
 
@@ -4114,6 +4166,10 @@ blue green yellow * /
     \code
         QTabBar::tear {
             image: url(tear_indicator.png);
+        }
+
+        QTabBar::scroller { / * the width of the scroll buttons * /
+            width: 20px;
         }
 
         QTabBar QToolButton { / * the scroll buttons are tool buttons * /
