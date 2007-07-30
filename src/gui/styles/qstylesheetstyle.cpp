@@ -3673,10 +3673,12 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const 
 
     case PM_TabBarScrollButtonWidth:   {
         subRule = renderRule(w, opt, PseudoElement_TabBarScroller);
-        if (subRule.hasContentsSize())
-            return subRule.size().height();
-       break;
+        if (subRule.hasContentsSize()) {
+            QSize sz = subRule.size();
+            return sz.width() != -1 ? sz.width() : sz.height();
+        }
                                         }
+        break;
 
     case PM_TabBarTabShiftHorizontal:
     case PM_TabBarTabShiftVertical:
