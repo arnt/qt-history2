@@ -1079,8 +1079,10 @@ void VcprojGenerator::initPostBuildEventTools()
     VCConfiguration &conf = vcProject.Configuration;
     if(!project->values("QMAKE_POST_LINK").isEmpty()) {
         QString cmdline = fixCommandLine(conf.CompilerVersion, var("QMAKE_POST_LINK"));
-        conf.postBuild.Description = cmdline;
         conf.postBuild.CommandLine = cmdline;
+        if (conf.CompilerVersion < NET2005)
+            cmdline = cmdline.replace("\n", "&&");
+        conf.postBuild.Description = cmdline;
     }
     if(!project->values("MSVCPROJ_COPY_DLL").isEmpty()) {
         if(!conf.postBuild.CommandLine.isEmpty())
