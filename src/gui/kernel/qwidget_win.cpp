@@ -302,7 +302,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
                 if (flags & Qt::WindowTitleHint)
                     style |= WS_CAPTION;
                 if (flags & Qt::WindowSystemMenuHint)
-                    style |= WS_SYSMENU;
+                    style |= (WS_SYSMENU | WS_CAPTION);
                 if (flags & Qt::WindowMinimizeButtonHint)
                     style |= WS_MINIMIZEBOX;
                 if (flags & Qt::WindowMaximizeButtonHint)
