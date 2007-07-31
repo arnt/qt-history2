@@ -669,31 +669,47 @@ void qt_event_request_showsheet(QWidget *w)
 
 /* window changing. This is a hack around Apple's missing functionality, pending the toolbox
    team fix. --Sam */
-static EventRef request_window_change_pending = 0;
-Q_GUI_EXPORT void qt_event_request_window_change()
+Q_GUI_EXPORT void qt_event_request_window_change(QWidget *widget)
 {
-    if(request_window_change_pending) {
-        if(IsEventInQueue(GetMainEventQueue(), request_window_change_pending))
-            return;
-#ifdef DEBUG_DROPPED_EVENTS
-        qDebug("%s:%d Whoa, we dropped an event on the floor!", __FILE__, __LINE__);
-#endif
-    }
-
+    if (!widget)
+        return;
+    EventRef windowChangeEvent;
     CreateEvent(0, kEventClassQt, kEventQtRequestWindowChange, GetCurrentEventTime(),
-                kEventAttributeUserEvent, &request_window_change_pending);
-    PostEventToQueue(GetMainEventQueue(), request_window_change_pending,
-                     kEventPriorityHigh);
+                kEventAttributeUserEvent, &windowChangeEvent);
+    SetEventParameter(windowChangeEvent, kEventParamQWidget, typeQWidget, sizeof(widget), &widget);
+    PostEventToQueue(GetMainEventQueue(), windowChangeEvent, kEventPriorityHigh);
 }
-bool qt_event_remove_window_change()
+
+static Boolean qt_windowChangeComparatorProc(EventRef inEvent, void *data)
 {
-    if(request_window_change_pending) {
-        if (IsEventInQueue(GetMainEventQueue(), request_window_change_pending))
-            RemoveEventFromQueue(GetMainEventQueue(), request_window_change_pending);
-        qt_mac_event_release(request_window_change_pending);
+    UInt32 ekind = GetEventKind(inEvent),
+           eclass = GetEventClass(inEvent);
+    if (eclass == kEventClassQt && ekind == kEventQtRequestWindowChange) {
+        QWidget *widget;
+        GetEventParameter(inEvent, kEventParamQWidget, typeQWidget, 0, sizeof(widget), 0, &widget);
+        return widget == static_cast<QWidget *>(data);
+    }
+    return false;
+}
+
+bool qt_event_remove_window_change(QWidget *widget)
+{
+    EventRef releaseEvent = FindSpecificEventInQueue(GetMainEventQueue(),
+                                                     qt_windowChangeComparatorProc,
+                                                     widget);
+    if (releaseEvent) {
+        RemoveEventFromQueue(GetMainEventQueue(), releaseEvent);
+        ReleaseEvent(releaseEvent);
+        // Remove ALL of them.
+        while (qt_event_remove_window_change(widget));
         return true;
     }
     return false;
+}
+
+
+Q_GUI_EXPORT void qt_event_request_window_change()
+{
 }
 
 /* activation */
@@ -1301,8 +1317,10 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                     ShowHide(window, true);
             }
         } else if(ekind == kEventQtRequestWindowChange) {
-            qt_mac_event_release(request_window_change_pending);
-            QMacWindowChangeEvent::exec(false);
+            QWidget *widget;
+            GetEventParameter(event, kEventParamQWidget, typeQWidget, 0, sizeof(widget), 0, &widget);
+            QEvent glWindowChangeEvent(QEvent::MacGLWindowChange);
+            QApplication::sendEvent(widget, &glWindowChangeEvent);
         } else if(ekind == kEventQtRequestMenubarUpdate) {
             qt_mac_event_release(request_menubarupdate_pending);
             QMenuBar::macUpdateMenuBar();

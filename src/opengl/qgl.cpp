@@ -2510,10 +2510,6 @@ QGLWidget::~QGLWidget()
 #if defined(Q_WGL)
     delete d->olcx;
 #endif
-#if defined(Q_WS_MAC) && (MAC_OS_X_VERSION_MAX_ALLOWED < MAC_OS_X_VERSION_10_5)
-    delete d->watcher;
-    d->watcher = 0;
-#endif
 #if defined(GLX_MESA_release_buffers) && defined(QGL_USE_MESA_EXT)
     if (doRelease)
         glXReleaseBuffersMESA(x11Display(), winId());

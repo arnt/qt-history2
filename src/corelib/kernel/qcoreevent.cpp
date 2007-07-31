@@ -219,6 +219,7 @@
     \omitvalue ZeroTimerEvent
     \omitvalue ApplicationActivated
     \omitvalue ApplicationDeactivated
+    \omitvalue MacGLWindowChange
 */
 
 /*!

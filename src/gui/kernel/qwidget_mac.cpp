@@ -76,7 +76,8 @@ extern void qt_event_request_activate(QWidget *); //qapplication_mac.cpp
 extern bool qt_event_remove_activate(); //qapplication_mac.cpp
 extern void qt_mac_event_release(QWidget *w); //qapplication_mac.cpp
 extern void qt_event_request_showsheet(QWidget *); //qapplication_mac.cpp
-extern void qt_event_request_window_change(); //qapplication_mac.cpp
+extern void qt_event_request_window_change(QWidget *); //qapplication_mac.cpp
+extern bool qt_event_remove_window_change(QWidget *); //qapplication_mac.cpp
 extern IconRef qt_mac_create_iconref(const QPixmap &); //qpixmap_mac.cpp
 extern void qt_mac_set_cursor(const QCursor *, const QPoint &); //qcursor_mac.cpp
 extern void qt_mac_update_cursor(); //qcursor_mac.cpp
@@ -499,7 +500,7 @@ OSStatus QWidgetPrivate::qt_window_event(EventHandlerCallRef er, EventRef event,
                     // Let HIToolbar do its thang, but things like the OpenGL context
                     // needs to know about it.
                     CallNextEventHandler(er, event);
-                    qt_event_request_window_change();
+                    qt_event_request_window_change(widget);
                     widget->data->fstrut_dirty = true;
                 }
             }
@@ -623,7 +624,7 @@ OSStatus QWidgetPrivate::qt_window_event(EventHandlerCallRef er, EventRef event,
 
                             QResizeEvent qre(newRect.size(), oldRect.size());
                             QApplication::sendSpontaneousEvent(widget, &qre);
-                            qt_event_request_window_change();
+                            qt_event_request_window_change(widget);
                         }
                     }
                 }
@@ -691,6 +692,7 @@ static EventTypeSpec widget_events[] = {
     { kEventClassControl, kEventControlOwningWindowChanged },
     { kEventClassControl, kEventControlBoundsChanged },
     { kEventClassControl, kEventControlGetSizeConstraints },
+    { kEventClassControl, kEventControlVisibilityChanged },
 
     { kEventClassMouse, kEventMouseDown },
     { kEventClassMouse, kEventMouseUp },
@@ -741,8 +743,10 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef er, EventRef event,
             return noErr;
         if(ekind == kEventControlDraw) {
             if(widget && qt_isGenuineQWidget(hiview)) {
-                QMacWindowChangeEvent::exec(true);
-
+                if (qt_event_remove_window_change(widget)) {
+                    QEvent glChangeEvent(QEvent::MacGLWindowChange);
+                    QApplication::sendEvent(widget, &glChangeEvent);
+                }
                 //requested rgn
                 widget->d_func()->clp_serial++;
                 RgnHandle rgn;
@@ -961,6 +965,8 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef er, EventRef event,
                                   sizeof(foo), 0, &foo);
                 widget->d_func()->initWindowPtr();
             }
+            if (widget)
+                qt_event_request_window_change(widget);
         } else if(ekind == kEventControlDragEnter || ekind == kEventControlDragWithin ||
                   ekind == kEventControlDragLeave || ekind == kEventControlDragReceive) {
             // dnd are really handled in qdnd_mac.cpp,
@@ -1021,6 +1027,7 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef er, EventRef event,
                 widget->setGeometry(rect);
                 widget->setAttribute(Qt::WA_Moved, moved);
                 widget->setAttribute(Qt::WA_Resized, resized);
+                qt_event_request_window_change(widget);
             }
         } else if (ekind == kEventControlGetSizeConstraints) {
             if (!widget) {
@@ -1036,6 +1043,10 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef er, EventRef event,
                 hisize.height = size.height();
                 SetEventParameter(event, kEventParamMaximumSize, typeHISize, sizeof(HISize), &hisize);
             }
+        } else if (ekind == kEventControlVisibilityChanged) {
+            handled_event = false;
+            if (widget)
+                qt_event_request_window_change(widget);
         }
         break; }
     case kEventClassMouse: {
@@ -1751,6 +1762,7 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
         }
         d->setWinId(0);
     }
+    qt_event_remove_window_change(this);
 }
 
 void QWidgetPrivate::transferChildren()
@@ -1837,7 +1849,7 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WindowFlags f)
             CFRelease(old_id);
         }
     }
-    qt_event_request_window_change();
+    qt_event_request_window_change(q);
 }
 
 QPoint QWidget::mapToGlobal(const QPoint &pos) const
@@ -2106,7 +2118,7 @@ void QWidgetPrivate::show_sys()
     } else if(!q->parentWidget() || q->parentWidget()->isVisible()) {
         HIViewSetVisible(qt_mac_hiview_for(q), true);
     }
-    qt_event_request_window_change();
+    qt_event_request_window_change(q);
 }
 
 void QWidgetPrivate::hide_sys()
@@ -2151,7 +2163,7 @@ void QWidgetPrivate::hide_sys()
     } else {
         HIViewSetVisible(qt_mac_hiview_for(q), false);
     }
-    qt_event_request_window_change();
+    qt_event_request_window_change(q);
     deactivateWidgetCleanup();
     qt_mac_event_release(q);
 }
@@ -2291,7 +2303,7 @@ void QWidget::setWindowState(Qt::WindowStates newstate)
     if(newstate & Qt::WindowActive)
         activateWindow();
 
-    qt_event_request_window_change();
+    qt_event_request_window_change(this);
     if (needSendStateChange) {
         QWindowStateChangeEvent e(oldstate);
         QApplication::sendEvent(this, &e);
@@ -2320,7 +2332,7 @@ void QWidgetPrivate::raise_sys()
         }
     } else if(q->parentWidget()) {
         HIViewSetZOrder(qt_mac_hiview_for(q), kHIViewZOrderAbove, 0);
-        qt_event_request_window_change();
+        qt_event_request_window_change(q);
     }
 }
 
@@ -2333,7 +2345,7 @@ void QWidgetPrivate::lower_sys()
         SendBehind(qt_mac_window_for(q), 0);
     } else if(q->parentWidget()) {
         HIViewSetZOrder(qt_mac_hiview_for(q), kHIViewZOrderBelow, 0);
-        qt_event_request_window_change();
+        qt_event_request_window_change(q);
     }
 }
 
@@ -2347,7 +2359,7 @@ void QWidgetPrivate::stackUnder_sys(QWidget *w)
     if(!p || p != w->parentWidget())
         return;
     HIViewSetZOrder(qt_mac_hiview_for(q), kHIViewZOrderBelow, qt_mac_hiview_for(w));
-    qt_event_request_window_change();
+    qt_event_request_window_change(q);
 }
 
 /*
@@ -2591,7 +2603,7 @@ void QWidgetPrivate::setGeometry_sys_helper(int x, int y, int w, int h, bool isM
             }
         }
     }
-    qt_event_request_window_change();
+    qt_event_request_window_change(q);
 }
 
 void QWidgetPrivate::setConstraints_sys()

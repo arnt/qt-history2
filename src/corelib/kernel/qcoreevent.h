@@ -217,6 +217,8 @@ public:
 
         ContentsRectChange = 178,               // sent by QWidget::setContentsMargins (internal)
 
+        MacGLWindowChange = 179,                // Internal! the window of the GLWidget has changed
+
         User = 1000,                            // first user event id
         MaxUser = 65535                         // last user event id
     };
