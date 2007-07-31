@@ -193,6 +193,7 @@ private slots:
     void cachedDayTest();
 
     void dateEditTimeEditFormats();
+    void timeSpec_data();
     void timeSpec();
     void timeSpecBug();
 private:
@@ -2929,17 +2930,36 @@ void tst_QDateTimeEdit::dateEditTimeEditFormats()
     QCOMPARE(d.displayedSections(), QDateTimeEdit::YearSection);
 }
 
+
+void tst_QDateTimeEdit::timeSpec_data()
+{
+    QTest::addColumn<bool>("useSetProperty");
+    QTest::newRow("setProperty") << true;
+    QTest::newRow("setTimeSpec") << false;
+}
+
+
 void tst_QDateTimeEdit::timeSpec()
 {
+    QFETCH(bool, useSetProperty);
+
     QDateTimeEdit edit;
     QCOMPARE(edit.dateTime().timeSpec(), edit.timeSpec());
     QCOMPARE(edit.minimumDateTime().timeSpec(), edit.timeSpec());
     QCOMPARE(edit.maximumDateTime().timeSpec(), edit.timeSpec());
-    edit.setTimeSpec(Qt::UTC);
+    if (useSetProperty) {
+        edit.setProperty("timeSpec", Qt::UTC);
+    } else {
+        edit.setTimeSpec(Qt::UTC);
+    }
     QCOMPARE(edit.minimumDateTime().timeSpec(), edit.timeSpec());
     QCOMPARE(edit.maximumDateTime().timeSpec(), edit.timeSpec());
     QCOMPARE(edit.dateTime().timeSpec(), edit.timeSpec());
-    edit.setTimeSpec(Qt::LocalTime);
+    if (useSetProperty) {
+        edit.setProperty("timeSpec", Qt::LocalTime);
+    } else {
+        edit.setTimeSpec(Qt::LocalTime);
+    }
     const QDateTime dt = edit.dateTime();
     QCOMPARE(edit.timeSpec(), Qt::LocalTime);
     const QDateTime utc = dt.toUTC();
@@ -2947,7 +2967,11 @@ void tst_QDateTimeEdit::timeSpec()
         const QDateTime min(QDate(1999, 1, 1), QTime(1, 0, 0), Qt::LocalTime);
         edit.setMinimumDateTime(min);
         QCOMPARE(edit.minimumTime(), min.time());
-        edit.setTimeSpec(Qt::UTC);
+        if (useSetProperty) {
+            edit.setProperty("timeSpec", Qt::UTC);
+        } else {
+            edit.setTimeSpec(Qt::UTC);
+        }
         QVERIFY(edit.minimumTime() != min.time());
         QVERIFY(edit.minimumDateTime().timeSpec() != min.timeSpec());
         QCOMPARE(edit.minimumDateTime().toTime_t(), min.toTime_t());

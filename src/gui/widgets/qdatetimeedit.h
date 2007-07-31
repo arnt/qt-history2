@@ -48,6 +48,7 @@ class Q_GUI_EXPORT QDateTimeEdit : public QAbstractSpinBox
     Q_PROPERTY(bool calendarPopup READ calendarPopup WRITE setCalendarPopup)
     Q_PROPERTY(int currentSectionIndex READ currentSectionIndex WRITE setCurrentSectionIndex)
     Q_PROPERTY(int sectionCount READ sectionCount)
+    Q_PROPERTY(Qt::TimeSpec timeSpec READ timeSpec WRITE setTimeSpec)
 
 public:
     enum Section {

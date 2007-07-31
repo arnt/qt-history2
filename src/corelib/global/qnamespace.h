@@ -28,7 +28,7 @@ class Q_CORE_EXPORT
 Qt {
 #ifdef Q_MOC_RUN
     Q_OBJECT
-    Q_ENUMS(Orientation TextFormat BackgroundMode DateFormat ScrollBarPolicy FocusPolicy ContextMenuPolicy CaseSensitivity LayoutDirection ArrowType ShortcutContext)
+    Q_ENUMS(Orientation TextFormat BackgroundMode DateFormat ScrollBarPolicy FocusPolicy ContextMenuPolicy CaseSensitivity LayoutDirection ArrowType ShortcutContext TimeSpec)
     Q_ENUMS(ToolButtonStyle)
     Q_ENUMS(PenStyle PenCapStyle PenJoinStyle BrushStyle FillRule BGMode ClipOperation GlobalColor)
     Q_FLAGS(Alignment)
