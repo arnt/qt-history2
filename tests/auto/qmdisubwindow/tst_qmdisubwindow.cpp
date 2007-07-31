@@ -135,6 +135,7 @@ private slots:
     void initTestCase();
     void sizeHint();
     void minimumSizeHint();
+    void minimumSize();
     void setWidget();
     void setWindowState_data();
     void setWindowState();
@@ -204,6 +205,28 @@ void tst_QMdiSubWindow::minimumSizeHint()
     window.widget()->show();
     QCOMPARE(window.minimumSizeHint(), window.widget()->minimumSizeHint()
                                        .expandedTo(qApp->globalStrut()));
+}
+
+void tst_QMdiSubWindow::minimumSize()
+{
+    QMdiArea mdiArea;
+    mdiArea.resize(200, 200);
+
+    // Check that we respect the minimum size set on the sub-window itself.
+    QMdiSubWindow *subWindow1 = mdiArea.addSubWindow(new QWidget);
+    subWindow1->setMinimumSize(1000, 1000);
+    mdiArea.show();
+#if defined(Q_WS_X11)
+    qt_x11_wait_for_window_manager(&mdiArea);
+#endif
+    QCOMPARE(subWindow1->size(), QSize(1000, 1000));
+
+    // Check that we respect the minimum size set on the internal widget.
+    QWidget *widget = new QWidget;
+    widget->setMinimumSize(1000, 1000);
+    QMdiSubWindow *subWindow2 = mdiArea.addSubWindow(widget);
+    QVERIFY(subWindow2->size() != mdiArea.viewport()->size());
+    QCOMPARE(subWindow2->size(), subWindow2->minimumSizeHint());
 }
 
 void tst_QMdiSubWindow::setWidget()
