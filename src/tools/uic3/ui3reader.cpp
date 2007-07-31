@@ -225,7 +225,7 @@ Ui3Reader::~Ui3Reader()
 
 void Ui3Reader::generate(const QString &fn, const QString &outputFn,
           QDomDocument doc, bool decl, bool subcl, const QString &trm,
-          const QString& subClass, bool omitForwardDecls, const QString &convertedUiFile)
+          const QString& subClass, bool omitForwardDecls, bool implicitIncludes, const QString &convertedUiFile)
 {
     init();
 
@@ -251,21 +251,21 @@ void Ui3Reader::generate(const QString &fn, const QString &outputFn,
             createSubImpl(e, subClass);
     } else {
         if (decl)
-            createFormDecl(e);
+            createFormDecl(e, implicitIncludes);
         else
             createFormImpl(e);
     }
 
 }
 
-void Ui3Reader::generateUi4(const QString &fn, const QString &outputFn, QDomDocument doc)
+void Ui3Reader::generateUi4(const QString &fn, const QString &outputFn, QDomDocument doc, bool implicitIncludes)
 {
     init();
 
     fileName = fn;
     outputFileName = outputFn;
 
-    DomUI *ui = generateUi4(parse(doc));
+    DomUI *ui = generateUi4(parse(doc), implicitIncludes);
     if (!ui)
         return;
 

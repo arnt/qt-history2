@@ -42,11 +42,11 @@ public:
     ~Ui3Reader();
 
     void computeDeps(const QDomElement &e, QStringList &globalIncludes, QStringList &localIncludes, bool impl = false);
-    void generateUi4(const QString &fn, const QString &outputFn, QDomDocument doc);
+    void generateUi4(const QString &fn, const QString &outputFn, QDomDocument doc, bool implicitIncludes);
 
     void generate(const QString &fn, const QString &outputFn,
          QDomDocument doc, bool decl, bool subcl, const QString &trm,
-         const QString& subclname, bool omitForwardDecls, const QString &convertedUiFile);
+         const QString& subclname, bool omitForwardDecls, bool implicitIncludes, const QString &convertedUiFile);
 
     void embed(const char *project, const QStringList &images);
 
@@ -54,7 +54,7 @@ public:
     void setForwardDeclarationsEnabled(bool b);
     void setOutputFileName(const QString &fileName);
 
-    void createFormDecl(const QDomElement &e);
+    void createFormDecl(const QDomElement &e, bool implicitIncludes);
     void createFormImpl(const QDomElement &e);
 
     void createWrapperDecl(const QDomElement &e, const QString &convertedUiFile);
@@ -95,7 +95,7 @@ private:
     void errorInvalidSlot(const QString &slot, const QString &widgetName, const QString &widgetClass,
                           int line, int col);
 
-    DomUI *generateUi4(const QDomElement &e);
+    DomUI *generateUi4(const QDomElement &e, bool implicitIncludes);
     DomWidget *createWidget(const QDomElement &w, const QString &widgetClass = QString());
     void createProperties(const QDomElement &e, QList<DomProperty*> *properties, const QString &className);
     void createAttributes(const QDomElement &e, QList<DomProperty*> *properties, const QString &className);

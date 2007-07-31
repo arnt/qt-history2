@@ -150,6 +150,8 @@ void WriteIncludes::insertIncludeForClass(const QString &className, QString head
         }
 
         // Last resort: Create default header
+        if (!m_uic->option().implicitIncludes)
+            break;
         header = lowerClassName;
         header += QLatin1String(".h");
         if (warnHeaderGeneration) {

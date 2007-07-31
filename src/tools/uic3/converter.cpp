@@ -75,6 +75,8 @@ static QString classNameForObjectName(const QDomElement &widget, const QString &
 //  K3ListView or KLineEdit as precise as possible
 static inline bool isKDEClass(const QString &className)
 {
+    if (className.indexOf(QLatin1Char(':')) != -1)
+        return false;
     const int size = className.size();
     if (size < 3 || className.at(0) != QLatin1Char('K'))
         return false;
@@ -88,7 +90,7 @@ static inline bool isKDEClass(const QString &className)
     return className.at(1) .isUpper() && className.at(2).isLower();
 }
 
-DomUI *Ui3Reader::generateUi4(const QDomElement &widget)
+DomUI *Ui3Reader::generateUi4(const QDomElement &widget, bool implicitIncludes)
 {
     QDomNodeList nl;
     candidateCustomWidgets.clear();
@@ -441,7 +443,7 @@ DomUI *Ui3Reader::generateUi4(const QDomElement &widget)
 
         // Magic header generation feature for legacy KDE forms
         // (for example, filesharing/advanced/kcm_sambaconf/share.ui)
-        if (isKDEClass(customClass)) {
+        if (implicitIncludes && isKDEClass(customClass)) {
             QString header = customClass.toLower();
             header += QLatin1String(".h");
             DomHeader *domHeader = new DomHeader;
