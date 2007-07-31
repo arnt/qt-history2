@@ -447,9 +447,10 @@ void QGraphicsSceneMouseEvent::setLastPos(const QPointF &pos)
 }
 
 /*!
-    Returns the last recorded, the scene coordinates of the
-    previous mouse event received by the view, that created the
-    event mouse cursor position in scene coordinates.
+    Returns the last recorded mouse cursor position in scene 
+    coordinates. The last recorded position is the position of
+    the previous mouse event received by the view that created
+    the event.
 
     \sa lastPos(), lastScreenPos(), scenePos()
 */
