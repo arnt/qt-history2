@@ -1156,7 +1156,8 @@ QAbstractItemModel::~QAbstractItemModel()
 /*!
     \fn int QAbstractItemModel::rowCount(const QModelIndex &parent) const
 
-    Returns the number of rows under the given \a parent.
+    Returns the number of rows under the given \a parent.   When the parent
+    is valid it means that rowCount is returning the number of children of parent.
 
     \bold{Tip:} When implementing a table based model, rowCount() should return 0 when
     the parent is valid.
@@ -1168,6 +1169,8 @@ QAbstractItemModel::~QAbstractItemModel()
     \fn int QAbstractItemModel::columnCount(const QModelIndex &parent) const
 
     Returns the number of columns for the children of the given \a parent.
+    When the parent is valid it means that rowCount is returning the number
+    of children of parent.
 
     In most subclasses, the number of columns is independent of the
     \a parent. For example:
