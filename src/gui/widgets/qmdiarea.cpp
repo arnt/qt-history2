@@ -132,6 +132,7 @@
 #include <QDesktopWidget>
 #include <QDebug>
 #include <private/qmath_p.h>
+#include <private/qlayoutengine_p.h>
 
 // Asserts in debug mode, gives warning otherwise.
 static bool sanityCheck(const QMdiSubWindow * const child, const char *where)
@@ -555,7 +556,7 @@ void QMdiAreaPrivate::appendChild(QMdiSubWindow *child)
 
     if (!child->testAttribute(Qt::WA_Resized) && q->isVisible()) {
         QSize newSize(child->sizeHint().boundedTo(q->viewport()->size()));
-        child->resize(newSize.expandedTo(child->minimumSize()));
+        child->resize(newSize.expandedTo(qSmartMinSize(child)));
     }
 
     if (!placer)
@@ -1623,7 +1624,7 @@ void QMdiArea::showEvent(QShowEvent *showEvent)
                 continue;
             if (!window->testAttribute(Qt::WA_Resized)) {
                 QSize newSize(window->sizeHint().boundedTo(viewport()->size()));
-                window->resize(newSize.expandedTo(window->minimumSize()));
+                window->resize(newSize.expandedTo(qSmartMinSize(window)));
             }
             if (!window->testAttribute(Qt::WA_Moved) && !window->isMinimized()
                     && !window->isMaximized()) {
