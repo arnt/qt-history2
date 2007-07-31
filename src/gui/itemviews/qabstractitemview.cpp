@@ -1513,8 +1513,10 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *event)
 }
 
 /*!
-    This function is called with the given \a event when a mouse button is released
-    while the cursor is inside the widget. It will emit the clicked() signal if an
+    This function is called with the given \a event when a mouse button is released,
+    after a mouse press event on the widget. If a user presses the mouse inside your
+    widget and then drags the mouse to another location before releasing the mouse button,
+    your widget receives the release event. The function will emit the clicked() signal if an
     item was being pressed.
 */
 void QAbstractItemView::mouseReleaseEvent(QMouseEvent *event)
