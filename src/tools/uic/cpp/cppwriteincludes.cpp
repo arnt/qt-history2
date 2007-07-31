@@ -137,8 +137,13 @@ void WriteIncludes::insertIncludeForClass(const QString &className, QString head
             break;
         }
 
-        // Quick check by class name to detect includehints provided for custom widgets
-        const QString lowerClassName = className.toLower();
+        // Quick check by class name to detect includehints provided for custom widgets.
+        // Remove namespaces
+        QString lowerClassName = className.toLower();
+        static const QString namespaceSeparator = QLatin1String("::");
+        const int namespaceIndex = lowerClassName.lastIndexOf(namespaceSeparator);
+        if (namespaceIndex != -1)
+            lowerClassName.remove(0, namespaceIndex + namespaceSeparator.size());
         if (m_includeBaseNames.contains(lowerClassName)) {
             header.clear();
             break;
