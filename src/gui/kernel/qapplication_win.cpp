@@ -1034,7 +1034,17 @@ void qt_win_set_cursor(QWidget *w, const QCursor& /* c */)
     SetCursor(cW->cursor().handle());
 }
 
-
+Qt::KeyboardModifiers qt_win_getKeyboardModifiers()
+{
+    Qt::KeyboardModifiers modifiers = Qt::NoModifier;
+    if (GetKeyState(VK_SHIFT) < 0)
+        modifiers |= Qt::ShiftModifier;
+    if (GetKeyState(VK_CONTROL) < 0)
+        modifiers |= Qt::ControlModifier;
+    if (GetKeyState(VK_MENU) < 0)
+        modifiers |= Qt::AltModifier;
+    return modifiers;
+}
 
 /*****************************************************************************
   Routines to find a Qt widget from a screen position
@@ -1888,7 +1898,8 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
                 }
                 if (fw && fw->isEnabled()) {
                     QPoint pos = fw->inputMethodQuery(Qt::ImMicroFocus).toRect().center();
-                    QContextMenuEvent e(QContextMenuEvent::Keyboard, pos, fw->mapToGlobal(pos));
+                    QContextMenuEvent e(QContextMenuEvent::Keyboard, pos, fw->mapToGlobal(pos), 
+                                      qt_win_getKeyboardModifiers());
                     result = qt_sendSpontaneousEvent(fw, &e);
                 }
             }
@@ -2697,7 +2708,8 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
         } else if (type == QEvent::MouseButtonRelease && button == Qt::RightButton
                 && qApp->activePopupWidget() == activePopupWidget) {
             // popup still alive and received right-button-release
-            QContextMenuEvent e2(QContextMenuEvent::Mouse, pos, globalPos);
+            QContextMenuEvent e2(QContextMenuEvent::Mouse, pos, globalPos, 
+                              qt_win_getKeyboardModifiers());
             bool res2 = QApplication::sendSpontaneousEvent( target, &e2 );
             if (!res) // RMB not accepted
                 res = res2 && e2.isAccepted();
@@ -2741,7 +2753,8 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
         // non client area events are only informational, you cannot "handle" them
         res = res && e.isAccepted() && !nonClientAreaEvent;
         if (type == QEvent::MouseButtonRelease && button == Qt::RightButton) {
-            QContextMenuEvent e2(QContextMenuEvent::Mouse, pos, QPoint(gpos.x,gpos.y));
+            QContextMenuEvent e2(QContextMenuEvent::Mouse, pos, QPoint(gpos.x,gpos.y), 
+                              qt_win_getKeyboardModifiers());
             bool res2 = QApplication::sendSpontaneousEvent(widget, &e2);
             if (!res)
                 res = res2 && e2.isAccepted();

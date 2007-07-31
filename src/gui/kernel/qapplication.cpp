@@ -3318,7 +3318,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
             QPoint relpos = context->pos();
             bool eventAccepted = context->isAccepted();
             while (w) {
-                QContextMenuEvent ce(context->reason(), relpos, context->globalPos());
+                QContextMenuEvent ce(context->reason(), relpos, context->globalPos(), context->modifiers());
                 ce.spont = e->spontaneous();
                 res = d->notify_helper(w, w == receiver ? context : &ce);
                 eventAccepted = ((w == receiver) ? context : &ce)->isAccepted();

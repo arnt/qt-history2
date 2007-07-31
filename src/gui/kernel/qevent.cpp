@@ -1283,6 +1283,22 @@ QContextMenuEvent::QContextMenuEvent(Reason reason, const QPoint &pos, const QPo
     : QInputEvent(ContextMenu), p(pos), gp(globalPos), reas(reason)
 {}
 
+/*!
+    Constructs a context menu event object with the accept parameter
+    flag set to false.
+
+    The \a reason parameter must be QContextMenuEvent::Mouse or
+    QContextMenuEvent::Keyboard.
+
+    The \a pos parameter specifies the mouse position relative to the
+    receiving widget. \a globalPos is the mouse position in absolute
+    coordinates. The \a modifiers holds the keyboard modifiers.
+*/
+QContextMenuEvent::QContextMenuEvent(Reason reason, const QPoint &pos, const QPoint &globalPos,
+                                     Qt::KeyboardModifiers modifiers)
+    : QInputEvent(ContextMenu, modifiers), p(pos), gp(globalPos), reas(reason)
+{}
+
 #ifdef QT3_SUPPORT
 /*!
     Constructs a context menu event with the given \a reason for the

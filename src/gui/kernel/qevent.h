@@ -350,6 +350,8 @@ class Q_GUI_EXPORT QContextMenuEvent : public QInputEvent
 public:
     enum Reason { Mouse, Keyboard, Other };
 
+    QContextMenuEvent(Reason reason, const QPoint &pos, const QPoint &globalPos,
+                      Qt::KeyboardModifiers modifiers);
     QContextMenuEvent(Reason reason, const QPoint &pos, const QPoint &globalPos);
     QContextMenuEvent(Reason reason, const QPoint &pos);
     ~QContextMenuEvent();
