@@ -61,7 +61,7 @@ void QSharedMemoryPrivate::setErrorString(const QString &function)
 HANDLE QSharedMemoryPrivate::handle()
 {
     if (!hand) {
-        QString function = QLatin1String("QSharedMemory::handle:");
+        QString function = QLatin1String("QSharedMemory::handle");
         QString safeKey = makePlatformSafeKey(key);
         if (safeKey.isEmpty()) {
             error = QSharedMemory::KeyError;
