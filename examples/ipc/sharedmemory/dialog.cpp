@@ -82,8 +82,10 @@ void Dialog::loadFromFile()
     QString fileName = QFileDialog::getOpenFileName(0, QString(), QString(),
                                         tr("Images (*.png *.xpm *.jpg)"));
     QImage image;
-    if (!image.load(fileName))
+    if (!image.load(fileName)) {
+        ui.label->setText(tr("Selected file is not an image, please select another."));
         return;
+    }
     ui.label->setPixmap(QPixmap::fromImage(image));
 
     // load into shared memory
