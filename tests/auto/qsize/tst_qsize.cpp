@@ -122,6 +122,22 @@ void tst_QSize::scale()
     QSize t6(88473, 88473);
     t6.scale(141817, 141817, Qt::KeepAspectRatio);
     QCOMPARE(t6, QSize(141817, 141817));
+
+    QSize t7(800, 600);
+    t7.scale(400, INT_MAX, Qt::KeepAspectRatio);
+    QCOMPARE(t7, QSize(400, 300));
+
+    QSize t8(800, 600);
+    t8.scale(INT_MAX, 150, Qt::KeepAspectRatio);
+    QCOMPARE(t8, QSize(200, 150));
+
+    QSize t9(600, 800);
+    t9.scale(300, INT_MAX, Qt::KeepAspectRatio);
+    QCOMPARE(t9, QSize(300, 400));
+
+    QSize t10(600, 800);
+    t10.scale(INT_MAX, 200, Qt::KeepAspectRatio);
+    QCOMPARE(t10, QSize(150, 200));
 }
 
 
