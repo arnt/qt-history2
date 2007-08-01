@@ -1500,6 +1500,8 @@ QRegion QWidgetPrivate::getOpaqueRegion() const
     QRegion r = isOpaque() ? q->rect() : getOpaqueChildren();
     if (extra && !extra->mask.isEmpty())
         r &= extra->mask;
+    if (r.isEmpty())
+        return r;
     return r & clipRect();
 }
 
@@ -1530,6 +1532,9 @@ QRegion QWidgetPrivate::getOpaqueChildren() const
 void QWidgetPrivate::subtractOpaqueChildren(QRegion &rgn, const QRegion &clipRgn, const QPoint &offset, int startIdx) const
 {
     Q_UNUSED(startIdx);
+
+    if (clipRgn.isEmpty())
+        return;
 
     const QRegion r = getOpaqueChildren();
     if (!r.isEmpty())
