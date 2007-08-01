@@ -670,8 +670,6 @@ values to be edited.
 via combo boxes whose items can be checked.
 \o Properties that allow access to rich data types, such as QPalette,
 are modified using dialogs that open when the properties are edited.
-\endlist
-
 \o QLabel and the widgets in the \gui Buttons section of the widget box
 have a \c text property that can also be edited by double clicking on
 the widget or by pressing \gui F2. \QD interprets the backslash (\\)
@@ -680,6 +678,7 @@ into the text; the \\\\ character sequence is used to insert a single
 backslash into the text. A context menu can also be opened while editing,
 providing another way to insert special characters and newlines into the
 text.
+\endlist
 
 \section2 Dynamic Properties
 
