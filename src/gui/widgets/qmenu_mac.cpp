@@ -1146,7 +1146,7 @@ QMenuBarPrivate::macCreateMenuBar(QWidget *parent)
 {
     Q_Q(QMenuBar);
     static int checkEnv = -1;
-    if (checkEnv < 0) {
+    if (qt_mac_no_native_menubar == false && checkEnv < 0) {
         checkEnv = !qgetenv("QT_MAC_NO_NATIVE_MENUBAR").isEmpty();
         qt_mac_no_native_menubar = checkEnv;
     }
