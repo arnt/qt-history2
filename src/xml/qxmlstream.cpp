@@ -70,6 +70,83 @@
 
 
 /*!
+  \class QXmlStreamEntityResolver
+  \reentrant
+  \since 4.4
+
+  \brief The QXmlStreamEntityResolver class provides an entity resolver for a QXmlStreamReader.
+
+  \module XML
+  \ingroup xml-tools
+ */
+
+/*!
+  Destroys the entity resolver.
+ */
+QXmlStreamEntityResolver::~QXmlStreamEntityResolver()
+{
+}
+
+/*! \internal
+
+This function is a stub for later functionality.
+*/
+QString QXmlStreamEntityResolver::resolveEntity(const QString& /*publicId*/, const QString& /*systemId*/)
+{
+    return QString();
+}
+
+
+/*!
+  Resolves the undeclared entity \a name and returns its replacement text. If the entity
+  is also unknown to the entity resolver, it returns an empty string.
+
+  The default implementation always returns an empty string.
+*/
+
+QString QXmlStreamEntityResolver::resolveUndeclaredEntity(const QString &/*name*/)
+{
+    return QString();
+}
+
+QString QXmlStreamReaderPrivate::resolveUndeclaredEntity(const QString &name)
+{
+    if (entityResolver)
+        return entityResolver->resolveUndeclaredEntity(name);
+    return QString();
+}
+
+
+
+/*! Makes \a resolver the new entityResolver().
+
+   The stream reader does \e not take ownership of the resolver. It's
+   the callers responsibility to ensure that the resolver is valid
+   during the entire life-time of the stream reader object, or until
+   another resolver or 0 is set.
+
+   \sa entityResolver()
+ */
+void QXmlStreamReader::setEntityResolver(QXmlStreamEntityResolver *resolver)
+{
+    Q_D(QXmlStreamReader);
+    d->entityResolver = resolver;
+}
+
+/*!
+  Returns the entity resolver, or 0 if there is no entity resolver.
+
+  \sa setEntityResolver()
+ */
+QXmlStreamEntityResolver *QXmlStreamReader::entityResolver() const
+{
+    Q_D(const QXmlStreamReader);
+    return d->entityResolver;
+}
+
+
+
+/*!
   \class QXmlStreamReader
   \reentrant
   \since 4.3
@@ -515,7 +592,6 @@ QXmlStreamPrivateTagStack::QXmlStreamPrivateTagStack()
     NamespaceDeclaration &namespaceDeclaration = namespaceDeclarations.push();
     namespaceDeclaration.prefix = addToStringStorage(QLatin1String("xml"));
     namespaceDeclaration.namespaceUri = addToStringStorage(QLatin1String("http://www.w3.org/XML/1998/namespace"));
-    tagStackDefaultStringStorageSize = tagStackStringStorageSize;
 }
 
 QXmlStreamReaderPrivate::QXmlStreamReaderPrivate(QXmlStreamReader *q)
@@ -530,6 +606,7 @@ QXmlStreamReaderPrivate::QXmlStreamReaderPrivate(QXmlStreamReader *q)
     sym_stack = 0;
     state_stack = 0;
     reallocateStack();
+    entityResolver = 0;
     init();
     entityHash.insert(QLatin1String("lt"), Entity::createLiteral(QLatin1String("<")));
     entityHash.insert(QLatin1String("gt"), Entity::createLiteral(QLatin1String(">")));
@@ -556,7 +633,6 @@ void QXmlStreamReaderPrivate::init()
     putStack.reserve(32);
     textBuffer.clear();
     textBuffer.reserve(256);
-    initTagStack();
     tagsDone = false;
     attributes.clear();
     attributes.reserve(16);
@@ -1466,7 +1542,6 @@ void QXmlStreamReaderPrivate::startDocument()
         else
             err = QXmlStream::tr("Unsupported XML version.");
     }
-    initTagStack();
     int n = attributeStack.size();
 
     /* We use this bool to ensure that the pesudo attributes are in the
@@ -1713,6 +1788,8 @@ QStringRef QXmlStreamReader::dtdSystemId() const
 
   The QXmlStreamNamespaceDeclaration class is defined to be a QVector
   of QXmlStreamNamespaceDeclaration.
+
+  \sa addExtraNamespaceDeclaration(), addExtraNamespaceDeclarations()
  */
 QXmlStreamNamespaceDeclarations QXmlStreamReader::namespaceDeclarations() const
 {
@@ -1721,6 +1798,34 @@ QXmlStreamNamespaceDeclarations QXmlStreamReader::namespaceDeclarations() const
         const_cast<QXmlStreamReaderPrivate *>(d)->resolvePublicNamespaces();
     return d->publicNamespaceDeclarations;
 }
+
+
+/*!
+  Adds an \a extraNamespaceDeclaration. The declaration will be
+  valid for children of the current element, or - should the function
+  be called before any elements are read - for the entire XML
+  document.
+
+  \sa namespaceDeclarations(), addExtraNamespaceDeclarations(), setNamespaceProcessing()
+ */
+void QXmlStreamReader::addExtraNamespaceDeclaration(const QXmlStreamNamespaceDeclaration &extraNamespaceDeclaration)
+{
+    Q_D(QXmlStreamReader);
+    QXmlStreamReaderPrivate::NamespaceDeclaration &namespaceDeclaration = d->namespaceDeclarations.push();
+    namespaceDeclaration.prefix = d->addToStringStorage(extraNamespaceDeclaration.prefix());
+    namespaceDeclaration.namespaceUri = d->addToStringStorage(extraNamespaceDeclaration.namespaceUri());
+};
+
+/*!
+  Like addExtraNamespaceDeclaration() but for a vector of namespace declarations
+
+  \sa namespaceDeclarations(), addExtraNamespaceDeclaration()
+ */
+void QXmlStreamReader::addExtraNamespaceDeclarations(const QXmlStreamNamespaceDeclarations &extraNamespaceDeclarations)
+{
+    for (int i = 0; i < extraNamespaceDeclarations.size(); ++i)
+        addExtraNamespaceDeclaration(extraNamespaceDeclarations.at(i));
+};
 
 
 /*!  Convenience function to be called in case a StartElement was
@@ -2138,6 +2243,15 @@ Returns the public identifier.
 */
 QXmlStreamNamespaceDeclaration::QXmlStreamNamespaceDeclaration()
 {
+}
+
+/*!
+  Creates a namespace declaration with \a prefix and \a namespaceUri.
+*/
+QXmlStreamNamespaceDeclaration::QXmlStreamNamespaceDeclaration(const QString &prefix, const QString &namespaceUri)
+{
+    m_prefix = prefix;
+    m_namespaceUri = namespaceUri;
 }
 
 /*!
@@ -2582,7 +2696,6 @@ QXmlStreamWriterPrivate::QXmlStreamWriterPrivate(QXmlStreamWriter *q)
     device = 0;
     stringDevice = 0;
     deleteDevice = false;
-    initTagStack();
 #ifndef QT_NO_TEXTCODEC
     codec = QTextCodec::codecForMib(106); // utf8
     encoder = codec->makeEncoder();

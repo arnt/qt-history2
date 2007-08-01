@@ -29,6 +29,7 @@ public:
     inline QXmlStreamStringRef():m_position(0), m_size(0){}
     inline QXmlStreamStringRef(const QStringRef &aString)
         :m_string(aString.string()?*aString.string():QString()), m_position(aString.position()), m_size(aString.size()){}
+    inline QXmlStreamStringRef(const QString &aString):m_string(aString), m_position(0), m_size(aString.size()){}
     inline ~QXmlStreamStringRef(){}
     inline void clear() { m_string.clear(); m_position = m_size = 0; }
     inline operator QStringRef() const { return QStringRef(&m_string, m_position, m_size); }
@@ -100,8 +101,9 @@ class Q_XML_EXPORT QXmlStreamNamespaceDeclaration {
 public:
     QXmlStreamNamespaceDeclaration();
     QXmlStreamNamespaceDeclaration(const QXmlStreamNamespaceDeclaration &);
-    QXmlStreamNamespaceDeclaration& operator=(const QXmlStreamNamespaceDeclaration &);
+    QXmlStreamNamespaceDeclaration(const QString &prefix, const QString &namespaceUri);
     ~QXmlStreamNamespaceDeclaration();
+    QXmlStreamNamespaceDeclaration& operator=(const QXmlStreamNamespaceDeclaration &);
     inline QStringRef prefix() const { return m_prefix; }
     inline QStringRef namespaceUri() const { return m_namespaceUri; }
     inline bool operator==(const QXmlStreamNamespaceDeclaration &other) const {
@@ -168,6 +170,13 @@ Q_DECLARE_TYPEINFO(QXmlStreamEntityDeclaration, Q_MOVABLE_TYPE);
 typedef QVector<QXmlStreamEntityDeclaration> QXmlStreamEntityDeclarations;
 
 
+class Q_XML_EXPORT QXmlStreamEntityResolver
+{
+public:
+    virtual ~QXmlStreamEntityResolver();
+    virtual QString resolveEntity(const QString& publicId, const QString& systemId);
+    virtual QString resolveUndeclaredEntity(const QString &name);
+};
 
 class Q_XML_EXPORT QXmlStreamReader {
     QDOC_PROPERTY(bool namespaceProcessing READ namespaceProcessing WRITE setNamespaceProcessing)
@@ -245,6 +254,8 @@ public:
     QStringRef text() const;
 
     QXmlStreamNamespaceDeclarations namespaceDeclarations() const;
+    void addExtraNamespaceDeclaration(const QXmlStreamNamespaceDeclaration &extraNamespaceDeclaraction);
+    void addExtraNamespaceDeclarations(const QXmlStreamNamespaceDeclarations &extraNamespaceDeclaractions);
     QXmlStreamNotationDeclarations notationDeclarations() const;
     QXmlStreamEntityDeclarations entityDeclarations() const;
     QStringRef dtdName() const;
@@ -267,6 +278,9 @@ public:
     {
         return error() != NoError;
     }
+
+    void setEntityResolver(QXmlStreamEntityResolver *resolver);
+    QXmlStreamEntityResolver *entityResolver() const;
 
 private:
     Q_DISABLE_COPY(QXmlStreamReader)

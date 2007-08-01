@@ -507,6 +507,8 @@ private slots:
     void reportSuccess() const;
     void reportSuccess_data() const;
     void parseXSLTTestSuite() const;
+    void addExtraNamespaceDeclarations();
+    void setEntityResolver();
 
 private:
     static QByteArray readFile(const QString &filename);
@@ -816,6 +818,65 @@ void tst_QXmlStream::parseXSLTTestSuite() const
     QCOMPARE(xsltExpectedRunCount, filesParsed);
 #endif
 }
+
+void tst_QXmlStream::addExtraNamespaceDeclarations()
+{
+    const char *data = "<bla><undeclared:foo/><undeclared_too:foo/></bla>";
+    {
+        QXmlStreamReader xml(data);
+        while (!xml.atEnd()) {
+            xml.readNext();
+        }
+        QVERIFY2(xml.hasError(), "namespaces undeclared");
+    }
+    {
+        QXmlStreamReader xml(data);
+        xml.addExtraNamespaceDeclaration(QXmlStreamNamespaceDeclaration("undeclared", "blabla"));
+        xml.addExtraNamespaceDeclaration(QXmlStreamNamespaceDeclaration("undeclared_too", "foofoo"));
+        while (!xml.atEnd()) {
+            xml.readNext();
+        }
+        QVERIFY2(!xml.hasError(), xml.errorString().toLatin1().constData());
+    }
+}
+
+
+class EntityResolver : public QXmlStreamEntityResolver {
+public:
+    QString resolveUndeclaredEntity(const QString &name) {
+        static int count = 0;
+        return name.toUpper() + QString::number(++count);
+    }
+};
+void tst_QXmlStream::setEntityResolver()
+{
+    const char *data = "<bla foo=\"&undeclared;\">&undeclared_too;</bla>";
+    {
+        QXmlStreamReader xml(data);
+        while (!xml.atEnd()) {
+            xml.readNext();
+        }
+        QVERIFY2(xml.hasError(), "undeclared entities");
+    }
+    {
+        QString foo;
+        QString bla_text;
+        QXmlStreamReader xml(data);
+        EntityResolver resolver;
+        xml.setEntityResolver(&resolver);
+        while (!xml.atEnd()) {
+            xml.readNext();
+            if (xml.isStartElement())
+                foo = xml.attributes().value("foo").toString();
+            if (xml.isCharacters())
+                bla_text += xml.text().toString();
+        }
+        QVERIFY2(!xml.hasError(), xml.errorString().toLatin1().constData());
+        QCOMPARE(foo, QLatin1String("UNDECLARED1"));
+        QCOMPARE(bla_text, QLatin1String("UNDECLARED_TOO2"));
+    }
+}
+
 /*
   In addition to QTestLib's flags, one can specify "-c <filename>" and have that file output in its canonical form.
 */

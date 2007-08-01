@@ -137,7 +137,6 @@ public:
     QXmlStreamSimpleStack<NamespaceDeclaration> namespaceDeclarations;
     QString tagStackStringStorage;
     int tagStackStringStorageSize;
-    int tagStackDefaultStringStorageSize;
     bool tagsDone;
 
     inline QStringRef addToStringStorage(const QStringRef &s) {
@@ -161,10 +160,6 @@ public:
 
     QXmlStreamSimpleStack<Tag> tagStack;
 
-    inline void initTagStack() {
-        tagStackStringStorageSize = tagStackDefaultStringStorageSize;
-        namespaceDeclarations.resize(1);
-    }
 
     inline Tag &tagStack_pop() {
         Tag& tag = tagStack.pop();
@@ -180,6 +175,9 @@ public:
         return tag;
     }
 };
+
+
+class QXmlStreamEntityResolver;
 
 class QXmlStreamReaderPrivate : public QXmlStreamReader_Table, public QXmlStreamPrivateTagStack{
     QXmlStreamReader *q_ptr;
@@ -412,6 +410,7 @@ public:
 
     static bool validateName(const QStringRef &name);
 
+    QString resolveUndeclaredEntity(const QString &name);
     void parseEntity(const QString &value);
     QXmlStreamReaderPrivate *entityParser;
 
@@ -436,6 +435,8 @@ public:
 
     void raiseError(QXmlStreamReader::Error error, const QString& message = QString());
     void raiseWellFormedError(const QString &message);
+
+    QXmlStreamEntityResolver *entityResolver;
 
 private:
     /*! \internal
@@ -851,7 +852,7 @@ markup_list ::= markup_list markup_decl | markup_list space | markup_list perefe
 markup_decl ::= element_decl | attlist_decl | entity_decl | entity_done | notation_decl | processing_instruction | comment;
 
 
-element_decl_start ::= langle_bang ELEMENT name space;
+element_decl_start ::= langle_bang ELEMENT qname space;
 /.
         case $rule_number:
             if (!scanString(spell[EMPTY], EMPTY, false)
@@ -883,7 +884,7 @@ pcdata ::= pcdata_start PCDATA;
 questionmark_or_star_or_plus_opt ::= QUESTIONMARK | STAR | PLUS;
 questionmark_or_star_or_plus_opt ::=;
 
-cp ::= name questionmark_or_star_or_plus_opt | choice_or_seq questionmark_or_star_or_plus_opt;
+cp ::= qname questionmark_or_star_or_plus_opt | choice_or_seq questionmark_or_star_or_plus_opt;
 
 cp_pipe_or_comma_list ::= cp space_opt;
 cp_pipe_or_comma_list ::= cp space_opt PIPE space_opt cp_pipe_list space_opt;
@@ -892,8 +893,8 @@ cp_pipe_list ::= cp | cp_pipe_list space_opt PIPE space_opt cp;
 cp_comma_list ::= cp | cp_comma_list space_opt COMMA space_opt cp;
 
 
-name_pipe_list ::= PIPE space_opt name;
-name_pipe_list ::= name_pipe_list space_opt PIPE space_opt name;
+name_pipe_list ::= PIPE space_opt qname;
+name_pipe_list ::= name_pipe_list space_opt PIPE space_opt qname;
 
 star_opt ::= | STAR;
 
@@ -1537,7 +1538,18 @@ entity_ref ::= AMPERSAND name SEMICOLON;
                     clearSym();
                 }
                 break;
-            } else if (entitiesMustBeDeclared()) {
+            }
+
+            if (entityResolver) {
+                QString replacementText = resolveUndeclaredEntity(reference);
+                if (!replacementText.isNull()) {
+                    putReplacement(replacementText);
+                    textBuffer.chop(2 + sym(2).len);
+                    clearSym();
+                    break;
+                }
+            }
+            if (entitiesMustBeDeclared()) {
                 raiseWellFormedError(QXmlStream::tr("Entity '%1' not declared.").arg(reference));
                 break;
             }
@@ -1599,7 +1611,19 @@ entity_ref_in_attribute_value ::= AMPERSAND name SEMICOLON;
                     putReplacementInAttributeValue(entity.value);
                 textBuffer.chop(2 + sym(2).len);
                 clearSym();
-            } else if (entitiesMustBeDeclared()) {
+                break;
+            }
+
+            if (entityResolver) {
+                QString replacementText = resolveUndeclaredEntity(reference);
+                if (!replacementText.isNull()) {
+                    putReplacement(replacementText);
+                    textBuffer.chop(2 + sym(2).len);
+                    clearSym();
+                    break;
+                }
+            }
+            if (entitiesMustBeDeclared()) {
                 raiseWellFormedError(QXmlStream::tr("Entity '%1' not declared.").arg(reference));
             }
         } break;
