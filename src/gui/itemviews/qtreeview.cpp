@@ -844,8 +844,8 @@ bool QTreeView::isAnimated() const
     \property QTreeView::allColumnsShowFocus
     \brief whether items should show keyboard focus using all columns
 
-    If this property is true all columns will show focus and selection
-    states, otherwise only one column will show focus.
+    If this property is true all columns will show focus, otherwise only
+    one column will show focus.
 
     The default is false.
 */
