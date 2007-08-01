@@ -886,17 +886,20 @@ bool QNativeSocketEngine::isReadNotificationEnabled() const
     return d->readNotifier && d->readNotifier->isEnabled();
 }
 
-/*!
-    \internal
+/*
+  \internal
+  \class QReadNotifier
+  \brief The QReadNotifer class is used to improve performance. 
 
-    Private class used for performance reasons vs connecting to the QSocketNotifier
-    activated() signal.
-  */
+  QReadNotifier is a private class used for performance reasons vs
+  connecting to the QSocketNotifier activated() signal.
+ */
 class QReadNotifier : public QSocketNotifier
 {
 public:
     QReadNotifier(int fd, QNativeSocketEngine *parent)
-        : QSocketNotifier(fd, QSocketNotifier::Read, parent) { engine = parent; }
+        : QSocketNotifier(fd, QSocketNotifier::Read, parent)
+    { engine = parent; }
 
 protected:
     bool event(QEvent *);
@@ -913,12 +916,14 @@ bool QReadNotifier::event(QEvent *e)
     return QSocketNotifier::event(e);
 }
 
-/*!
-    \internal
+/*
+  \internal
+  \class QWriteNotifier
+  \brief The QWriteNotifer class is used to improve performance. 
 
-    Private class used for performance reasons vs connecting to the QSocketNotifier
-    activated() signal.
-  */
+  QWriteNotifier is a private class used for performance reasons vs
+  connecting to the QSocketNotifier activated() signal.
+ */
 class QWriteNotifier : public QSocketNotifier
 {
 public:

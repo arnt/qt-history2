@@ -34,7 +34,7 @@
 
   \section1 Language Overview
 
-  Qt Script is based on the ECMAScript scripting language, as defined
+  QtScript is based on the ECMAScript scripting language, as defined
   in standard \l{ECMA-262}. Microsoft's JScript, and Netscape's
   JavaScript are also based on the ECMAScript standard. For an
   overview of ECMAScript, see the
@@ -242,7 +242,7 @@
   \section2 Accessing Properties
 
   The properties of the QObject are available as properties
-  of the corresponding Qt Script object. When you manipulate
+  of the corresponding QtScript object. When you manipulate
   a property in script code, the C++ get/set method for that
   property will automatically be invoked. For example, if your
   C++ class has a property declared as follows:
@@ -264,7 +264,7 @@
   \section2 Accessing Child QObjects
 
   Every named child of the QObject is by default available as
-  a property of the corresponding Qt Script object. For example,
+  a property of the corresponding QtScript object. For example,
   if you have a QDialog with a child widget whose \c{objectName()} is
   \c{"okButton"}, you can access this object in script code through
   the expression
@@ -498,7 +498,7 @@
   This section explains how to implement application objects and
   provides the necessary technical background material.
 
-  \section2 Making a C++ object available to Scripts Written in Qt Script
+  \section2 Making a C++ object available to Scripts Written in QtScript
 
   Making C++ classes and objects available to a scripting language is
   not trivial because scripting languages tend to be more dynamic than
@@ -514,7 +514,7 @@
   (Meta-Object Compiler). Classes that wish to take advantage of the
   meta-object facilities are either subclasses of QObject, or use the
   \c{Q_OBJECT} macro. Qt has used this approach for many years and it has
-  proven to be solid and reliable. Qt Script uses this meta-object
+  proven to be solid and reliable. QtScript uses this meta-object
   technology to provide scripters with dynamic access to C++ classes
   and objects.
 
@@ -525,14 +525,14 @@
   useful for understanding how to implement application objects.
 
   However, this knowledge is not essential in the simplest cases.
-  To make an object available in Qt Script, it must derive from
+  To make an object available in QtScript, it must derive from
   QObject. All classes which derive from QObject can be introspected
   and can provide the information needed by the scripting engine at
   run-time; e.g., class name, functions, signatures. Because we obtain
   the information we need about classes dynamically at run-time, there
   is no need to write wrappers for QObject derived classes.
 
-  \section2 Making C++ Class Member Functions Available in Qt Script
+  \section2 Making C++ Class Member Functions Available in QtScript
 
   The meta-object system also makes information about signals and slots
   dynamically available at run-time. By default, for QObject subclasses,
@@ -540,7 +540,7 @@
   This is very convenient because, in practice, we normally only want to
   make specially chosen functions available to scripters. When you create
   a QObject subclass, make sure that the functions you want to expose to
-  Qt Script are public slots.
+  QtScript are public slots.
 
   For example, the following class definition enables scripting only for
   certain functions:
@@ -555,7 +555,7 @@
 
         void aNonScriptableFunction();
 
-    public slots: // these functions (slots) will be available in Qt Script
+    public slots: // these functions (slots) will be available in QtScript
         void calculate( ... );
         void setEnabled( bool enabled );
         bool isEnabled() const;
@@ -567,8 +567,8 @@
     \endcode
 
   In the example above, aNonScriptableFunction() is not declared as a
-  slot, so it will not be available in Qt Script. The other three
-  functions will automatically be made available in Qt Script because
+  slot, so it will not be available in QtScript. The other three
+  functions will automatically be made available in QtScript because
   they are declared in the \c{public slots} section of the class
   definition.
 
@@ -589,15 +589,15 @@
   \endcode
 
   Once declared with \c{Q_INVOKABLE}, the method can be invoked from
-  Qt Script code just as if it were a slot. Although such a method is
+  QtScript code just as if it were a slot. Although such a method is
   not a slot, you can still specify it as the target function in a
   call to \c{connect()} in script code; \c{connect()} accepts both
   native and non-native functions as targets.
 
-  \section2 Making C++ Class Properties Available in Qt Script
+  \section2 Making C++ Class Properties Available in QtScript
 
   In the previous example, if we wanted to get or set a property using
-  Qt Script we would have to write code like the following:
+  QtScript we would have to write code like the following:
 
     \code
     var obj = new MyObject;
@@ -634,7 +634,7 @@
 
         void aNonScriptableFunction();
 
-    public slots: // these functions (slots) will be available in Qt Script
+    public slots: // these functions (slots) will be available in QtScript
         void calculate( ... );
         void setEnabled( bool enabled );
         bool isEnabled() const;
@@ -666,10 +666,10 @@
   is called. This connection is established using the QObject::connect()
   function.
 
-  The signals and slots mechanism is also available to Qt Script
+  The signals and slots mechanism is also available to QtScript
   programmers. The code to declare a signal in C++ is the same,
   regardless of whether the signal will be connected to a slot in C++
-  or in Qt Script.
+  or in QtScript.
 
     \code
     class MyObject : public QObject
@@ -683,7 +683,7 @@
 
         void aNonScriptableFunction();
 
-    public slots: // these functions (slots) will be available in Qt Script
+    public slots: // these functions (slots) will be available in QtScript
         void calculate( ... );
         void setEnabled( bool enabled );
         bool isEnabled() const;
@@ -721,9 +721,9 @@
   \section2 Design of Application Objects
 
   The previous section described how to implement C++ objects which
-  can be used in Qt Script. Application objects are the same kind of
+  can be used in QtScript. Application objects are the same kind of
   objects, and they make your application's functionality available to
-  Qt Script scripters.  Since the C++ application is already written
+  QtScript scripters.  Since the C++ application is already written
   in Qt, many objects are already QObjects. The easiest approach would
   be to simply add all these QObjects as application objects to the
   scripting engine. For small applications this might be sufficient,
@@ -745,7 +745,7 @@
 
   In ECMAScript, inheritance is based on the concept of \bold{shared
   prototype objects}; this is quite different from the class-based
-  inheritance familiar to C++ programmers. With Qt Script, you can
+  inheritance familiar to C++ programmers. With QtScript, you can
   associate a custom prototype object with a C++ type using
   QScriptEngine::setDefaultPrototype(); this is the key to providing
   a script interface to that type. Since the QtScript module is built
@@ -762,7 +762,7 @@
 
   \section2 Prototype Objects and Shared Properties
 
-  The purpose of a Qt Script \bold{prototype object} is to define
+  The purpose of a QtScript \bold{prototype object} is to define
   behavior that should be shared by a set of other QtScript
   objects. We say that objects which share the same prototype object
   belong to the same \e{class} (again, on the technical side this
@@ -809,7 +809,7 @@
 
   \section2 Defining Classes in a Prototype-Based Universe
 
-  In Qt Script, a class is not defined explicitly; there is no
+  In QtScript, a class is not defined explicitly; there is no
   \c{class} keyword. Instead, you define a new class in two steps:
 
   \list 1
@@ -842,10 +842,10 @@
 
   Next, you want to set up \c{Person.prototype} as your prototype
   object; i.e., define the interface that should be common to all
-  \c{Person} objects. Qt Script automatically creates a default
+  \c{Person} objects. QtScript automatically creates a default
   prototype object (by the expression \c{new Object()}) for every
   script function; you can add properties to this object, or you can
-  assign your own custom object. (Generally speaking, any Qt Script
+  assign your own custom object. (Generally speaking, any QtScript
   object can act as prototype for any other object.)
 
   Here's an example of how you might want to override the
@@ -952,7 +952,7 @@
 
   You associate a prototype object with a C++ type by calling
   QScriptEngine::setDefaultPrototype(). Once this mapping is
-  established, Qt Script will automatically assign the correct
+  established, QtScript will automatically assign the correct
   prototype when a value of such a type is wrapped in a QScriptValue;
   either when you explicitly call QScriptEngine::toScriptValue(), or
   when a value of such a type is returned from a C++ slot and
@@ -962,7 +962,7 @@
 
   \section1 ECMAScript Compatibility
 
-  Qt Script implements all the built-in classes and functions defined
+  QtScript implements all the built-in classes and functions defined
   in ECMA-262.
 
   The Date parsing and string conversion functions are implemented using
@@ -972,7 +972,7 @@
   do not precisely match the semantics for regular expressions defined
   in ECMA-262.
 
-  \section1 Qt Script Extensions to ECMAScript
+  \section1 QtScript Extensions to ECMAScript
 
   \list
   \i \c{__proto__} \br
