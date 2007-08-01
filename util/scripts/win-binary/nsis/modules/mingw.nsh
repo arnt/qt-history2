@@ -480,6 +480,7 @@ Function ModuleMinGWMakeEnvFile
   FileWrite $0 "pause$\r$\n"
   FileWrite $0 "configure -plugin-sql-sqlite -plugin-sql-odbc -qt-libpng -qt-libjpeg$\r$\n"
   FileWrite $0 "cd %QTDIR%\src$\r$\n"
+  FileWrite $0 "qmake$\r$\n"
   FileWrite $0 "mingw32-make debug$\r$\n"
   FileWrite $0 ":END$\r$\n"
   FileClose $0
