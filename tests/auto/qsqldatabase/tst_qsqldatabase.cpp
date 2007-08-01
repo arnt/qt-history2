@@ -55,6 +55,8 @@ private slots:
     void tables();
     void transaction_data() { generic_data(); }
     void transaction();
+    void eventNotification_data() { generic_data(); }
+    void eventNotification();
 
     void addDatabase();
 
@@ -77,6 +79,11 @@ private slots:
     void recordSQLServer();
     void recordIBase_data();
     void recordIBase();
+
+    void eventNotificationIBase_data() { generic_data(); }
+    void eventNotificationIBase();
+    void eventNotificationPSQL_data() { generic_data(); }
+    void eventNotificationPSQL();
 
     //database specific 64 bit integer test
     void bigIntField_data() { generic_data(); }
@@ -2065,6 +2072,103 @@ void tst_QSqlDatabase::odbc_uintfield()
     q.exec(QString("DROP TABLE %1").arg(tableName));
 }
 
+void tst_QSqlDatabase::eventNotification()
+{
+    QFETCH(QString, dbName);
+    QSqlDatabase db = QSqlDatabase::database(dbName);
+    CHECK_DATABASE(db);
+
+    QSqlDriver *driver = db.driver();
+    if (!driver->hasFeature(QSqlDriver::EventNotifications))
+        QSKIP("DBMS doesn't support event notifications", SkipSingle);
+
+    // Not subscribed to any events yet
+    QCOMPARE(driver->subscribedToNotifications().size(), 0);
+
+    // Subscribe to "event_foo"
+    QVERIFY2(driver->subscribeToNotification(QLatin1String("event_foo")), qPrintable(driver->lastError().text()));
+    QCOMPARE(driver->subscribedToNotifications().size(), 1);
+    QVERIFY(driver->subscribedToNotifications().contains("event_foo"));
+
+    // Can't subscribe to the same event multiple times
+    QVERIFY2(!driver->subscribeToNotification(QLatin1String("event_foo")), "Shouldn't be able to subscribe to event_foo twice");
+    QCOMPARE(driver->subscribedToNotifications().size(), 1);
+
+    // Unsubscribe from "event_foo"
+    QVERIFY2(driver->unsubscribeFromNotification(QLatin1String("event_foo")), driver->lastError().text());
+    QCOMPARE(driver->subscribedToNotifications().size(), 0);
+
+    // Re-subscribing to "event_foo" now is allowed
+    QVERIFY2(driver->subscribeToNotification(QLatin1String("event_foo")), "Couldn't subscribe to event_foo");
+    QCOMPARE(driver->subscribedToNotifications().size(), 1);
+
+    // closing the connection causes automatically unsubscription from all events
+    db.close();
+    QCOMPARE(driver->subscribedToNotifications().size(), 0);
+
+    // Can't subscribe to anything while database is closed
+    QVERIFY2(!driver->subscribeToNotification(QLatin1String("event_foo")), "Shouldn't be able to subscribe to event_foo");
+    QCOMPARE(driver->subscribedToNotifications().size(), 0);
+
+    db.open();
+}
+
+void tst_QSqlDatabase::eventNotificationIBase()
+{
+    QFETCH(QString, dbName);
+    QSqlDatabase db = QSqlDatabase::database(dbName);
+    CHECK_DATABASE(db);
+
+    if (!db.driverName().startsWith("QIBASE")) {
+        QSKIP("InterBase/Firebird server specific test", SkipSingle);
+        return;
+    }
+
+    QString procedureName = qTableName("posteventProc");
+    QVERIFY2(db.driver()->subscribeToNotification(procedureName), qPrintable(db.driver()->lastError().text()));
+    QTest::qWait(300);  // Interbase needs some time to call the driver callback.
+    
+    db.transaction();   // InterBase events are posted from within transactions.
+    QSqlQuery q(db);
+    q.exec(QString("DROP PROCEDURE %1").arg(procedureName));
+    q.exec(QString("CREATE PROCEDURE %1\nAS BEGIN\nPOST_EVENT '%1';\nEND;").arg(procedureName));
+    q.exec(QString("EXECUTE PROCEDURE %1").arg(procedureName));
+    QSignalSpy spy(db.driver(), SIGNAL(notification(const QString&)));
+    db.commit();        // No notifications are posted until the transaction is commited.
+    QTest::qWait(300);  // Interbase needs some time to post the notification and call the driver callback.
+                        // This happends from another thread, and we have to process events in order for the
+                        // event handler in the driver to be executed and emit the notification signal.
+
+    QCOMPARE(spy.count(), 1);
+    QList<QVariant> arguments = spy.takeFirst();
+    QVERIFY(arguments.at(0).toString() == procedureName);
+    QVERIFY2(db.driver()->unsubscribeFromNotification(procedureName), qPrintable(db.driver()->lastError().text()));
+    q.exec(QString("DROP PROCEDURE %1").arg(procedureName));
+}
+
+void tst_QSqlDatabase::eventNotificationPSQL()
+{
+    QFETCH(QString, dbName);
+    QSqlDatabase db = QSqlDatabase::database(dbName);
+    CHECK_DATABASE(db);
+
+    if (!db.driverName().startsWith("QPSQL")) {
+        QSKIP("Postgres server specific test", SkipSingle);
+        return;
+    }
+
+    QSqlQuery query(db);
+    QString procedureName = qTableName("posteventProc");
+
+    QVERIFY2(db.driver()->subscribeToNotification(procedureName), qPrintable(db.driver()->lastError().text()));
+    QSignalSpy spy(db.driver(), SIGNAL(notification(const QString&)));
+    query.exec(QString("NOTIFY \"%1\"").arg(procedureName));
+    QCoreApplication::processEvents();
+    QCOMPARE(spy.count(), 1);
+    QList<QVariant> arguments = spy.takeFirst();
+    QVERIFY(arguments.at(0).toString() == procedureName);
+    QVERIFY2(db.driver()->unsubscribeFromNotification(procedureName), qPrintable(db.driver()->lastError().text()));
+}
 
 QTEST_MAIN(tst_QSqlDatabase)
 #include "tst_qsqldatabase.moc"

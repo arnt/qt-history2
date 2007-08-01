@@ -427,6 +427,7 @@ bool QSQLiteDriver::hasFeature(DriverFeature f) const
     case NamedPlaceholders:
     case BatchOperations:
     case LowPrecisionNumbers:
+    case EventNotifications:
         return false;
     }
     return false;

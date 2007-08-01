@@ -999,6 +999,7 @@ bool QMYSQLDriver::hasFeature(DriverFeature f) const
     case BatchOperations:
     case SimpleLocking:
     case LowPrecisionNumbers:
+    case EventNotifications:
         return false;
     case QuerySize:
     case BLOB:

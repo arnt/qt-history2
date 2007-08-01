@@ -513,6 +513,7 @@ bool QTDSDriver::hasFeature(DriverFeature f) const
     case QuerySize:
     case Unicode:
     case SimpleLocking:
+    case EventNotifications:
         return false;
     case BLOB:
         return true;

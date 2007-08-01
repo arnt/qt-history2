@@ -1891,6 +1891,7 @@ bool QOCIDriver::hasFeature(DriverFeature f) const
     case QuerySize:
     case PositionalPlaceholders:
     case SimpleLocking:
+    case EventNotifications:
         return false;
     case Unicode:
         return d->serverVersion >= 9;

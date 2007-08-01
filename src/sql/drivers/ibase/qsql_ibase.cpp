@@ -12,7 +12,6 @@
 ****************************************************************************/
 
 #include "qsql_ibase.h"
-
 #include <qcoreapplication.h>
 #include <qdatetime.h>
 #include <qvariant.h>
@@ -20,14 +19,14 @@
 #include <qsqlfield.h>
 #include <qsqlindex.h>
 #include <qsqlquery.h>
-#include <qstringlist.h>
 #include <qlist.h>
 #include <qvector.h>
 #include <qtextcodec.h>
+#include <qmutex.h>
 #include <stdlib.h>
 #include <limits.h>
 #include <math.h>
-    
+
 #define FBVERSION SQL_DIALECT_V6
 
 #ifndef SQLDA_CURRENT_VERSION
@@ -219,6 +218,7 @@ static QTime fromTime(char *buffer)
 
     return t;
 }
+
 static ISC_DATE toDate(const QDate &t)
 {
     static const QDate basedate(1858, 11, 17);
@@ -247,6 +247,21 @@ static QByteArray encodeString(QTextCodec *tc, const QString &str)
     return str.toUtf8();
 }
 
+struct QIBaseEventBuffer {
+#if defined(FB_API_VER) && FB_API_VER >= 20
+    ISC_UCHAR *eventBuffer;
+    ISC_UCHAR *resultBuffer;
+#else
+    char *eventBuffer;
+    char *resultBuffer;
+#endif
+    ISC_LONG bufferLength;
+    ISC_LONG eventId;
+    
+    enum QIBaseSubscriptionState { Starting, Subscribed, Finished };
+    QIBaseSubscriptionState subscriptionState;
+};
+
 class QIBaseDriverPrivate
 {
 public:
@@ -259,7 +274,6 @@ public:
         if (!getIBaseError(imsg, status, sqlcode, tc))
             return false;
 
-        //qDebug() << "ERROR" << msg << imsg << typ;
         q->setLastError(QSqlError(QCoreApplication::translate("QIBaseDriver", msg),
                         imsg, typ, int(sqlcode)));
         return true;
@@ -271,7 +285,20 @@ public:
     isc_tr_handle trans;
     QTextCodec *tc;
     ISC_STATUS status[20];
+    QMap<QString, QIBaseEventBuffer*> eventBuffers;
 };
+
+typedef QMap<void *, QIBaseDriver *> QIBaseBufferDriverMap;
+Q_GLOBAL_STATIC(QIBaseBufferDriverMap, qBufferDriverMap)
+Q_GLOBAL_STATIC(QMutex, qMutex);
+
+static void qFreeEventBuffer(QIBaseEventBuffer* eBuffer)
+{
+    qMutex()->lock();
+    qBufferDriverMap()->remove(reinterpret_cast<void *>(eBuffer->resultBuffer));
+    qMutex()->unlock();
+    delete eBuffer;
+}
 
 class QIBaseResultPrivate
 {
@@ -1258,6 +1285,7 @@ bool QIBaseDriver::hasFeature(DriverFeature f) const
     case PositionalPlaceholders:
     case Unicode:
     case BLOB:
+    case EventNotifications:
         return true;
     }
     return false;
@@ -1353,6 +1381,27 @@ bool QIBaseDriver::open(const QString & db,
 void QIBaseDriver::close()
 {
     if (isOpen()) {
+
+        if (d->eventBuffers.size()) {
+            ISC_STATUS status[20];
+            QMap<QString, QIBaseEventBuffer *>::const_iterator i;
+            for (i = d->eventBuffers.constBegin(); i != d->eventBuffers.constEnd(); ++i) {
+                QIBaseEventBuffer *eBuffer = i.value();
+                eBuffer->subscriptionState = QIBaseEventBuffer::Finished;
+                isc_cancel_events(status, &d->ibase, &eBuffer->eventId);
+                qFreeEventBuffer(eBuffer);
+            }
+            d->eventBuffers.clear();
+
+#if defined(FB_API_VER)
+            // Workaround for Firebird crash
+            QTime timer;
+            timer.start();
+            while (timer.elapsed() < 500)
+                QCoreApplication::processEvents();
+#endif
+        }
+
         isc_detach_database(d->status, &d->ibase);
         d->ibase = 0;
         setOpen(false);
@@ -1540,4 +1589,150 @@ QString QIBaseDriver::formatValue(const QSqlField &field, bool trimStrings) cons
 QVariant QIBaseDriver::handle() const
 {
     return QVariant(qRegisterMetaType<isc_db_handle>("isc_db_handle"), &d->ibase);
+}
+
+#if defined(FB_API_VER) && FB_API_VER >= 20
+static ISC_EVENT_CALLBACK qEventCallback(char *result, ISC_USHORT length, const ISC_UCHAR *updated)
+#else
+static isc_callback qEventCallback(char *result, short length, char *updated)
+#endif
+{
+    if (!updated)
+        return 0;
+
+
+    memcpy(result, updated, length);
+    qMutex()->lock();
+    QIBaseDriver *driver = qBufferDriverMap()->value(result);
+    qMutex()->unlock();
+    
+    // We use an asynchronous call (i.e., queued connection) because the event callback
+    // is executed in a different thread than the one in which the driver lives.
+    if (driver)
+        QMetaObject::invokeMethod(driver, "qHandleEventNotification", Qt::QueuedConnection, Q_ARG(void *, reinterpret_cast<void *>(result)));
+
+    return 0;
+}
+
+bool QIBaseDriver::subscribeToNotificationImplementation(const QString &name)
+{
+    if (!isOpen()) {
+        qWarning("QIBaseDriver::subscribeFromNotificationImplementation: database not open.");
+        return false;
+    }
+
+    if (d->eventBuffers.contains(name)) {
+        qWarning("QIBaseDriver::subscribeToNotificationImplementation: already subscribing to '%s'.",
+            qPrintable(name));
+        return false;
+    }
+
+    QIBaseEventBuffer *eBuffer = new QIBaseEventBuffer;
+    eBuffer->subscriptionState = QIBaseEventBuffer::Starting;
+    eBuffer->bufferLength = isc_event_block(&eBuffer->eventBuffer,
+                                            &eBuffer->resultBuffer,
+                                            1,
+                                            name.toLocal8Bit().constData());
+
+    qMutex()->lock();
+    qBufferDriverMap()->insert(eBuffer->resultBuffer, this);
+    qMutex()->unlock();
+
+    d->eventBuffers.insert(name, eBuffer);
+
+    ISC_STATUS status[20];
+    isc_que_events(status,
+                   &d->ibase,
+                   &eBuffer->eventId,
+                   eBuffer->bufferLength,
+                   eBuffer->eventBuffer,
+#if defined (FB_API_VER) && FB_API_VER >= 20
+                   (ISC_EVENT_CALLBACK)qEventCallback,
+#else
+                   (isc_callback)qEventCallback,
+#endif
+                   eBuffer->resultBuffer);
+
+    if (status[0] == 1 && status[1]) {
+        setLastError(QSqlError(QString(QLatin1String("Could not subscribe to event notifications for %1.")).arg(name)));
+        d->eventBuffers.remove(name);
+        qFreeEventBuffer(eBuffer);
+        return false;
+    }
+
+    return true;
+}
+
+bool QIBaseDriver::unsubscribeFromNotificationImplementation(const QString &name)
+{
+    if (!isOpen()) {
+        qWarning("QIBaseDriver::unsubscribeFromNotificationImplementation: database not open.");
+        return false;
+    }
+
+    if (!d->eventBuffers.contains(name)) {
+        qWarning("QIBaseDriver::QIBaseSubscriptionState not subscribed to '%s'.",
+            qPrintable(name));
+        return false;
+    }
+
+    QIBaseEventBuffer *eBuffer = d->eventBuffers.value(name);
+    ISC_STATUS status[20];
+    eBuffer->subscriptionState = QIBaseEventBuffer::Finished;
+    isc_cancel_events(status, &d->ibase, &eBuffer->eventId);
+
+    if (status[0] == 1 && status[1]) {
+        setLastError(QSqlError(QString(QLatin1String("Could not unsubscribe from event notifications for %1.")).arg(name)));
+        return false;
+    }
+
+    d->eventBuffers.remove(name);
+    qFreeEventBuffer(eBuffer);
+
+    return true;
+}
+
+QStringList QIBaseDriver::subscribedToNotificationsImplementation() const
+{
+    return QStringList(d->eventBuffers.keys());
+}
+
+void QIBaseDriver::qHandleEventNotification(void *updatedResultBuffer)
+{
+    QMap<QString, QIBaseEventBuffer *>::const_iterator i;
+    for (i = d->eventBuffers.constBegin(); i != d->eventBuffers.constEnd(); ++i) {
+        QIBaseEventBuffer* eBuffer = i.value();
+        if (reinterpret_cast<void *>(eBuffer->resultBuffer) != updatedResultBuffer)
+            continue;
+
+        ISC_ULONG counts[20];
+        memset(counts, 0, sizeof(counts));
+        isc_event_counts(counts, eBuffer->bufferLength, eBuffer->eventBuffer, eBuffer->resultBuffer);
+        if (counts[0]) {
+
+            if (eBuffer->subscriptionState == QIBaseEventBuffer::Subscribed)
+                emit notification(i.key());
+            else if (eBuffer->subscriptionState == QIBaseEventBuffer::Starting)
+                eBuffer->subscriptionState = QIBaseEventBuffer::Subscribed;
+
+            ISC_STATUS status[20];
+            isc_que_events(status,
+                           &d->ibase,
+                           &eBuffer->eventId,
+                           eBuffer->bufferLength,
+                           eBuffer->eventBuffer,
+#if defined (FB_API_VER) && FB_API_VER >= 20
+                                    (ISC_EVENT_CALLBACK)qEventCallback,
+#else
+                                    (isc_callback)qEventCallback,
+#endif
+                                   eBuffer->resultBuffer);
+            if (status[0] == 1 && status[1]) {
+                qCritical("QIBaseDriver::qHandleEventNotification: could not resubscribe to '%s'",
+                    qPrintable(i.key()));
+            }
+
+            return;
+        }
+    }
 }

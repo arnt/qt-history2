@@ -1468,6 +1468,7 @@ bool QODBCDriver::hasFeature(DriverFeature f) const
     case BatchOperations:
     case SimpleLocking:
     case LowPrecisionNumbers:
+    case EventNotifications:
         return false;
     }
     return false;

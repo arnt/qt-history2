@@ -149,7 +149,7 @@ public:
 	// yes - interbase really wants the physical path on the host machine.
 //	addDb("QIBASE", "/opt/interbase/qttest.gdb", "SYSDBA", "masterkey", "horsehead.troll.no");
 //	addDb("QIBASE", "c:\\qttest.gdb", "SYSDBA", "masterkey", "iceblink.troll.no");
-//	addDb("QIBASE", "silence.troll.no:c:\\ibase\\testdb", "SYSDBA", "masterkey", ""); // InterBase 7.5 on silence
+	addDb("QIBASE", "silence.troll.no:c:\\ibase\\testdb", "SYSDBA", "masterkey", ""); // InterBase 7.5 on silence
 //	addDb("QIBASE", "silence.troll.no:c:\\ibase\\testdb_ascii", "SYSDBA", "masterkey", ""); // InterBase 7.5 on silence
 
 	// Anders' local Firebird and InterBase test databases
@@ -157,7 +157,7 @@ public:
 //	addDb("QIBASE", "localhost:c:\\Borland\\InterBase\\TESTDB_UTF8.IB", "SYSDBA", "masterkey", ""); // InterBase 2007 Developer
 
 	// use in-memory database to prevent local files
-	addDb("QSQLITE", ":memory:");
+//	addDb("QSQLITE", ":memory:");
 //	addDb("QSQLITE", "/tmp/foo.db");
 
 #if defined (Q_OS_WIN32)

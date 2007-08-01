@@ -22,6 +22,7 @@
 #include <qsqlindex.h>
 #include <qsqlrecord.h>
 #include <qsqlquery.h>
+#include <qsocketnotifier.h>
 #include <qstringlist.h>
 
 #include <libpq-fe.h>
@@ -66,10 +67,12 @@ inline void qPQfreemem(void *buffer)
 class QPSQLDriverPrivate
 {
 public:
-    QPSQLDriverPrivate(): connection(0), isUtf8(false), pro(QPSQLDriver::Version6) {}
+    QPSQLDriverPrivate() : connection(0), isUtf8(false), pro(QPSQLDriver::Version6), sn(0) {}
     PGconn *connection;
     bool isUtf8;
     QPSQLDriver::Protocol pro;
+    QSocketNotifier *sn;
+    QStringList seid;
 
     void appendTables(QStringList &tl, QSqlQuery &t, QChar type);
 };
@@ -474,7 +477,7 @@ QPSQLDriver::QPSQLDriver(QObject *parent)
     init();
 }
 
-QPSQLDriver::QPSQLDriver(PGconn * conn, QObject * parent)
+QPSQLDriver::QPSQLDriver(PGconn *conn, QObject *parent)
     : QSqlDriver(parent)
 {
     init();
@@ -510,6 +513,7 @@ bool QPSQLDriver::hasFeature(DriverFeature f) const
     case QuerySize:
     case LastInsertId:
     case LowPrecisionNumbers:
+    case EventNotifications:
         return true;
     case BatchOperations:
     case PreparedQueries:
@@ -588,6 +592,14 @@ bool QPSQLDriver::open(const QString & db,
 void QPSQLDriver::close()
 {
     if (isOpen()) {
+
+        d->seid.clear();
+        if (d->sn) {
+            disconnect(d->sn, SIGNAL(activated(int)), this, SLOT(_q_handleNotification(int)));
+            delete d->sn;
+            d->sn = 0;
+        }
+
         if (d->connection)
             PQfinish(d->connection);
         d->connection = 0;
@@ -945,4 +957,93 @@ bool QPSQLDriver::isOpen() const
 QPSQLDriver::Protocol QPSQLDriver::protocol() const
 {
     return d->pro;
+}
+
+bool QPSQLDriver::subscribeToNotificationImplementation(const QString &name)
+{
+    if (!isOpen()) {
+        qWarning("QPSQLDriver::subscribeToNotificationImplementation: database not open.");
+        return false;
+    }
+
+    if (d->seid.contains(name)) {
+        qWarning("QPSQLDriver::subscribeToNotificationImplementation: already subscribing to '%s'.",
+            qPrintable(name));
+        return false;
+    }
+    
+    int socket = PQsocket(d->connection);
+    if (socket) {
+        QString query = QString(QLatin1String("LISTEN %1")).arg(escapeIdentifier(name, QSqlDriver::TableName));
+        if (PQresultStatus(PQexec(d->connection, 
+                                  d->isUtf8 ? query.toUtf8().constData() 
+                                            : query.toLocal8Bit().constData())
+                          ) != PGRES_COMMAND_OK) {
+            setLastError(qMakeError(tr("Unable to subscribe"), QSqlError::StatementError, d));
+            return false;
+        }
+
+        if (!d->sn) {
+            d->sn = new QSocketNotifier(socket, QSocketNotifier::Read);
+            connect(d->sn, SIGNAL(activated(int)), this, SLOT(_q_handleNotification(int)));
+        }
+    }
+
+    d->seid << name;
+    return true;
+}
+
+bool QPSQLDriver::unsubscribeFromNotificationImplementation(const QString &name)
+{
+    if (!isOpen()) {
+        qWarning("QPSQLDriver::unsubscribeFromNotificationImplementation: database not open.");
+        return false;
+    }
+
+    if (!d->seid.contains(name)) {
+        qWarning("QPSQLDriver::unsubscribeFromNotificationImplementation: not subscribed to '%s'.",
+            qPrintable(name));
+        return false;
+    }
+
+    QString query = QString(QLatin1String("UNLISTEN %1")).arg(escapeIdentifier(name, QSqlDriver::TableName));
+    if (PQresultStatus(PQexec(d->connection, 
+                              d->isUtf8 ? query.toUtf8().constData() 
+                                        : query.toLocal8Bit().constData())
+                      ) != PGRES_COMMAND_OK) {
+        setLastError(qMakeError(tr("Unable to unsubscribe"), QSqlError::StatementError, d));
+        return false;
+    }
+
+    d->seid.removeAll(name);
+
+    if (d->seid.isEmpty()) {
+        disconnect(d->sn, SIGNAL(activated(int)), this, SLOT(_q_handleNotification(int)));
+        delete d->sn;
+        d->sn = 0;
+    }
+
+    return true;
+}
+
+QStringList QPSQLDriver::subscribedToNotificationsImplementation() const
+{
+    return d->seid;
+}
+
+void QPSQLDriver::_q_handleNotification(int)
+{
+    PQconsumeInput(d->connection);
+    PGnotify *notify = PQnotifies(d->connection);
+    if (notify) {
+        QString name(QLatin1String(notify->relname));
+
+        if (d->seid.contains(name))
+            emit notification(name);
+        else
+            qWarning("QPSQLDriver: received notification for '%s' which isn't subscribed to.", 
+                qPrintable(name));
+
+        qPQfreemem(notify);
+    }
 }

@@ -49,6 +49,7 @@ private:
 
 class QIBaseDriver : public QSqlDriver
 {
+    Q_OBJECT
     friend class QIBaseDriverPrivate;
     friend class QIBaseResultPrivate;
 public:
@@ -79,6 +80,14 @@ public:
 
     QString formatValue(const QSqlField &field, bool trimStrings) const;
     QVariant handle() const;
+
+protected Q_SLOTS:
+    bool subscribeToNotificationImplementation(const QString &name);
+    bool unsubscribeFromNotificationImplementation(const QString &name);
+    QStringList subscribedToNotificationsImplementation() const;
+
+private Q_SLOTS:
+    void qHandleEventNotification(void* updatedResultBuffer);
 
 private:
     QIBaseDriverPrivate* d;

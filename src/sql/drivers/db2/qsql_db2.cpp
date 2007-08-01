@@ -1374,6 +1374,7 @@ bool QDB2Driver::hasFeature(DriverFeature f) const
         case LastInsertId:
         case SimpleLocking:
         case LowPrecisionNumbers:
+        case EventNotifications:
             return false;
         case BLOB:
         case Transactions:
