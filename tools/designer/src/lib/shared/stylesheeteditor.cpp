@@ -27,7 +27,6 @@ TRANSLATOR qdesigner_internal::StyleSheetEditorDialog
 #include <QtGui/QDialogButtonBox>
 #include <QtGui/QPushButton>
 #include <QtGui/QVBoxLayout>
-#include <QtGui/QMessageBox>
 #include "private/qcssparser_p.h"
 
 static const char *styleSheetProperty = "styleSheet";

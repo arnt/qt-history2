@@ -48,6 +48,7 @@ TRANSLATOR qdesigner_internal::FormWindow
 #include <QtDesigner/QDesignerContainerExtension>
 #include <QtDesigner/QDesignerTaskMenuExtension>
 #include <QtDesigner/QDesignerWidgetBoxInterface>
+#include <abstractdialoggui_p.h>
 
 #include <QtCore/QtDebug>
 #include <QtCore/QBuffer>
@@ -59,7 +60,6 @@ TRANSLATOR qdesigner_internal::FormWindow
 #include <QtGui/QRubberBand>
 #include <QtGui/QApplication>
 #include <QtGui/QSplitter>
-#include <QtGui/QMessageBox>
 #include <QtGui/QPainter>
 #include <QtGui/QGroupBox>
 #include <QtGui/QDockWidget>
@@ -1395,11 +1395,12 @@ void FormWindow::paste(PasteMode pasteMode)
     if (hasWidgets) {
         pasteContainer = containerForPaste();
         if (!pasteContainer) {
-            QMessageBox::information(this, tr("Paste error"),
-                                     tr("Can't paste widgets. Designer couldn't find a container\n"
+            const QString message =  tr("Can't paste widgets. Designer couldn't find a container\n"
                                         "to paste into which does not contain a layout. Break the layout\n"
                                         "of the container you want to paste into and select this container\n"
-                                        "and then paste again."));
+                                        "and then paste again.");
+            core()->dialogGui()->message(this, QDesignerDialogGuiInterface::FormEditorMessage, QMessageBox::Information,
+                                         tr("Paste error"), message, QMessageBox::Ok);
             clipboard.deleteAll();
             return;
         }

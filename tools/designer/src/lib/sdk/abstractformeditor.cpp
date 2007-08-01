@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "abstractformeditor.h"
+#include "abstractdialoggui_p.h"
 #include "private/qobject_p.h"
 
 #include <QtDesigner/QDesignerWidgetBoxInterface>
@@ -31,7 +32,9 @@
 
 class QDesignerFormEditorInterfacePrivate : public  QObjectPrivate {
 public:
-    QDesignerFormEditorInterfacePrivate() : m_pluginManager(0),m_promotion(0) {}
+    QDesignerFormEditorInterfacePrivate();
+    ~QDesignerFormEditorInterfacePrivate();
+
 
     QPointer<QWidget> m_topLevel;
     QPointer<QDesignerWidgetBoxInterface> m_widgetBox;
@@ -48,8 +51,22 @@ public:
     QPointer<QDesignerActionEditorInterface> m_actionEditor;
     QDesignerPluginManager *m_pluginManager;
     QDesignerPromotionInterface *m_promotion;
+    QDesignerDialogGuiInterface *m_dialogGui;
 };
 
+QDesignerFormEditorInterfacePrivate::QDesignerFormEditorInterfacePrivate() :
+    m_pluginManager(0),
+    m_promotion(0),
+    m_dialogGui(0)
+{
+}
+
+QDesignerFormEditorInterfacePrivate::~QDesignerFormEditorInterfacePrivate()
+{
+    delete m_formWindowManager;
+    delete m_promotion;
+    delete m_dialogGui;
+}
 /*!
     \class QDesignerFormEditorInterface
 
@@ -119,9 +136,8 @@ QDesignerFormEditorInterface::~QDesignerFormEditorInterface()
     \sa setWidgetBox()
 */
 QDesignerWidgetBoxInterface *QDesignerFormEditorInterface::widgetBox() const
-{ 
-    Q_D(const QDesignerFormEditorInterface);
-    return d->m_widgetBox; 
+{     Q_D(const QDesignerFormEditorInterface);
+    return d->m_widgetBox;
 }
 
 /*!
@@ -435,4 +451,17 @@ QString QDesignerFormEditorInterface::resourceLocation() const
 #else
     return QLatin1String(":/trolltech/formeditor/images/win");
 #endif
+}
+
+QDesignerDialogGuiInterface *QDesignerFormEditorInterface::dialogGui() const
+{
+    Q_D(const QDesignerFormEditorInterface);
+    return d->m_dialogGui;
+}
+
+void QDesignerFormEditorInterface::setDialogGui(QDesignerDialogGuiInterface *dialogGui)
+{
+    Q_D(QDesignerFormEditorInterface);
+    delete  d->m_dialogGui;
+    d->m_dialogGui = dialogGui;
 }

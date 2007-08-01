@@ -48,6 +48,7 @@
 #include <QtDesigner/QDesignerFormWindowToolInterface>
 #include <QtDesigner/QExtensionManager>
 #include <QtDesigner/QDesignerContainerExtension>
+#include <abstractdialoggui_p.h>
 
 #include <QtGui/QMenu>
 #include <QtGui/QMessageBox>
@@ -118,6 +119,11 @@ QDesignerResource::~QDesignerResource()
 {
 }
 
+static inline QString messageBoxTitle()
+{
+    return QApplication::translate("Designer", "Qt Designer");
+}
+
 void QDesignerResource::save(QIODevice *dev, QWidget *widget)
 {
     m_topLevelSpacerCount = 0;
@@ -125,11 +131,12 @@ void QDesignerResource::save(QIODevice *dev, QWidget *widget)
     QAbstractFormBuilder::save(dev, widget);
 
     if (QSimpleResource::warningsEnabled() && m_topLevelSpacerCount != 0) {
-        QMessageBox::warning(widget->window(), QApplication::translate("Designer", "Qt Designer"),
-               QApplication::translate("Designer", "This file contains top level spacers.<br>"
+        const QString message = QApplication::translate("Designer", "This file contains top level spacers.<br>"
                            "They have <b>NOT</b> been saved into the form.<br>"
-                           "Perhaps you forgot to create a layout?"),
-                           QMessageBox::Ok, 0);
+                           "Perhaps you forgot to create a layout?");
+
+        core()->dialogGui()->message(widget->window(), QDesignerDialogGuiInterface::TopLevelSpacerMessage,
+                                     QMessageBox::Warning, messageBoxTitle(), message, QMessageBox::Ok);
     }
 }
 
@@ -336,7 +343,8 @@ QWidget *QDesignerResource::create(DomUI *ui, QWidget *parentWidget)
     switch (loadPrecheck(core(), ui,  errorMessage)) {
     case LoadPreCheckFailed:
     case LoadPreCheckVersionMismatch:
-        QMessageBox::warning(parentWidget->window(),  QApplication::translate("Designer", "Qt Designer"), errorMessage, QMessageBox::Ok, 0);
+        core()->dialogGui()->message(parentWidget->window(), QDesignerDialogGuiInterface::FormLoadFailureMessage,
+                                     QMessageBox::Warning, messageBoxTitle(), errorMessage, QMessageBox::Ok);
         return 0;
     case LoadPreCheckVersion3: {
         const QString version = ui->attributeVersion();
@@ -353,20 +361,22 @@ QWidget *QDesignerResource::create(DomUI *ui, QWidget *parentWidget)
             }
         }
         if (w) {
-            QMessageBox::information(parentWidget->window(), QApplication::translate("Designer", "Qt Designer"),
-                                     QApplication::translate("Designer", "This file was created using Designer from Qt-%1 and"
+            const QString message =  QApplication::translate("Designer", "This file was created using Designer from Qt-%1 and"
                                      " will be converted to a new form by Qt Designer.\n"
                                      "The old form has been untouched, but you will have to save this form"
-                                     " under a new name.").arg(version), QMessageBox::Ok, 0);
+                                     " under a new name.").arg(version);
+
+            core()->dialogGui()->message(parentWidget->window(), QDesignerDialogGuiInterface::UiVersionMismatchMessage,
+                                         QMessageBox::Information, messageBoxTitle(), message, QMessageBox::Ok);
             return w;
         }
 
-        QMessageBox::warning(parentWidget->window(), QApplication::translate("Designer", "Qt Designer"),
-                             QApplication::translate("Designer", "This file was created using Designer from Qt-%1 and "
+        const QString message = QApplication::translate("Designer", "This file was created using Designer from Qt-%1 and "
                              "could not be read:<br>%2<br>"
                              "Please run it through <b>uic3 -convert</b> to convert "
-                             "it to Qt-4's ui format.").arg(version).arg(errorMessage),
-                             QMessageBox::Ok, 0);
+                             "it to Qt-4's ui format.").arg(version).arg(errorMessage);
+        core()->dialogGui()->message(parentWidget->window(), QDesignerDialogGuiInterface::FormLoadFailureMessage,
+                                     QMessageBox::Warning, messageBoxTitle(),  message, QMessageBox::Ok);
         return 0;
     }
 
@@ -1644,18 +1654,17 @@ void QDesignerResource::createResources(DomResources *resources)
     foreach (DomResource *res, dom_include) {
         QString path = m_formWindow->absoluteDir().absoluteFilePath(res->attributeLocation());
         while (!QFile::exists(path)) {
-            const QMessageBox::StandardButton answer = 
-                QMessageBox::warning(m_formWindow->core()->topLevel(), QApplication::translate("qdesigner_internal::QDesignerResource",
-                "Loading qrc file", 0, QApplication::UnicodeUTF8),
-                QApplication::translate("qdesigner_internal::QDesignerResource",
-                "The specified qrc file <p><b>%1</b></p><p>could not be found. Do you want to update the file location?</p>", 0, QApplication::UnicodeUTF8).arg(path),
-                QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
+            QWidget *dialogParent = m_formWindow->core()->topLevel();
+            const QString promptTitle = QApplication::translate("qdesigner_internal::QDesignerResource", "Loading qrc file", 0, QApplication::UnicodeUTF8);
+            const QString prompt = QApplication::translate("qdesigner_internal::QDesignerResource", "The specified qrc file <p><b>%1</b></p><p>could not be found. Do you want to update the file location?</p>", 0, QApplication::UnicodeUTF8).arg(path);
+
+            const QMessageBox::StandardButton answer = core()->dialogGui()->message(dialogParent,  QDesignerDialogGuiInterface::ResourceLoadFailureMessage,
+                                                                                    QMessageBox::Warning, promptTitle,  prompt, QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
             if (answer == QMessageBox::Yes) {
                 const QFileInfo fi(path);
-                path = QFileDialog::getOpenFileName(m_formWindow->core()->topLevel(),
-                    QApplication::translate("qdesigner_internal::QDesignerResource",
-                    "New location for %1", 0, QApplication::UnicodeUTF8).arg(fi.fileName()), fi.absolutePath(),
-                    QApplication::translate("qdesigner_internal::QDesignerResource", "Resource files (*.qrc)", 0, QApplication::UnicodeUTF8));
+                const QString fileDialogTitle = QApplication::translate("qdesigner_internal::QDesignerResource", "New location for %1", 0, QApplication::UnicodeUTF8).arg(fi.fileName());
+                const QString fileDialogPattern = QApplication::translate("qdesigner_internal::QDesignerResource", "Resource files (*.qrc)", 0, QApplication::UnicodeUTF8);
+                path = core()->dialogGui()->getOpenFileName(dialogParent, fileDialogTitle, fi.absolutePath(), fileDialogPattern);
                 if (path.isEmpty())
                     break;
             } else {

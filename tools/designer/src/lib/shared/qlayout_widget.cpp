@@ -30,7 +30,6 @@
 #include <QtGui/QApplication>
 #include <QtGui/QLayout>
 #include <QtGui/QAction>
-#include <QtGui/QMessageBox>
 #include <QtGui/qevent.h>
 
 #include <QtCore/qdebug.h>

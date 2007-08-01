@@ -18,6 +18,8 @@ TRANSLATOR qdesigner_internal::ScriptDialog
 #include "scriptdialog_p.h"
 #include "qscripthighlighter_p.h"
 
+#include <abstractdialoggui_p.h>
+
 #include <QtGui/QTextEdit>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QHBoxLayout>
@@ -28,8 +30,9 @@ TRANSLATOR qdesigner_internal::ScriptDialog
 namespace qdesigner_internal {
 
     // ScriptDialog
-    ScriptDialog::ScriptDialog(QWidget *parent) :
+    ScriptDialog::ScriptDialog(QDesignerDialogGuiInterface *m_dialogGui, QWidget *parent) :
         QDialog(parent),
+        m_dialogGui(m_dialogGui),
         m_textEdit(new QTextEdit)
     {
         setWindowTitle(tr("Edit script"));
@@ -86,7 +89,8 @@ variables <i>widget</i> and <i>childWidgets</i>, respectively.");
         QScriptEngine scriptEngine;
         if (scriptEngine.canEvaluate(script))
             return true;
-        QMessageBox::warning (this, windowTitle(), tr("Syntax error"));
+        m_dialogGui->message(this, QDesignerDialogGuiInterface::ScriptDialogMessage, QMessageBox::Warning,
+                             windowTitle(), tr("Syntax error"), QMessageBox::Ok);
         return  false;
     }
 } // namespace qdesigner_internal

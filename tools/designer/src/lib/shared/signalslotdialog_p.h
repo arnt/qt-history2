@@ -32,7 +32,7 @@
 
 class QDesignerFormEditorInterface;
 class QDesignerFormWindowInterface;
-
+class QDesignerDialogGuiInterface;
 class QDesignerMemberSheet;
 class QListView;
 class QToolButton;
@@ -110,7 +110,7 @@ class QDESIGNER_SHARED_EXPORT SignalSlotDialog : public QDialog {
 public:
     enum FocusMode { FocusSlots, FocusSignals };
 
-    explicit SignalSlotDialog(QWidget *parent = 0, FocusMode m = FocusSlots);
+    explicit SignalSlotDialog(QDesignerDialogGuiInterface *dialogGui, QWidget *parent = 0, FocusMode m = FocusSlots);
     virtual ~SignalSlotDialog();
 
     DialogCode showDialog(SignalSlotDialogData &slotData, SignalSlotDialogData &signalData);
@@ -132,6 +132,7 @@ private:
 
     const FocusMode m_focusMode;
     Ui::SignalSlotDialogClass *m_ui;
+    QDesignerDialogGuiInterface *m_dialogGui;
     SignaturePanel *m_slotPanel;
     SignaturePanel *m_signalPanel;
 };

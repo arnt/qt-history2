@@ -25,6 +25,7 @@ TRANSLATOR qdesigner_internal::QDesignerPromotionDialog
 #include <QtDesigner/QDesignerFormWindowInterface>
 #include <QtDesigner/QDesignerPromotionInterface>
 #include <QtDesigner/QDesignerWidgetDataBaseItemInterface>
+#include <abstractdialoggui_p.h>
 
 #include <QtCore/QTimer>
 #include <QtGui/QVBoxLayout>
@@ -35,7 +36,6 @@ TRANSLATOR qdesigner_internal::QDesignerPromotionDialog
 #include <QtGui/QPushButton>
 #include <QtGui/QItemSelectionModel>
 #include <QtGui/QItemSelection>
-#include <QtGui/QMessageBox>
 #include <QtGui/QComboBox>
 #include <QtGui/QLineEdit>
 #include <QtGui/QCheckBox>
@@ -422,6 +422,7 @@ namespace qdesigner_internal {
     }
 
     void QDesignerPromotionDialog::displayError(const QString &message) {
-        QMessageBox::critical(this, tr("%1 - Error").arg(windowTitle()), message,  QMessageBox::Close);
+        m_core->dialogGui()->message(this, QDesignerDialogGuiInterface::PromotionErrorMessage, QMessageBox::Warning,
+                                     tr("%1 - Error").arg(windowTitle()), message,  QMessageBox::Close);
     }
 } // namespace qdesigner_internal

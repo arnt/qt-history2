@@ -29,6 +29,7 @@ TRANSLATOR qdesigner_internal::ConnectionModel
 #include <QtDesigner/QDesignerContainerExtension>
 #include <QtDesigner/QDesignerMetaDataBaseInterface>
 #include <QtDesigner/QDesignerFormWindowCursorInterface>
+#include <abstractdialoggui_p.h>
 
 #include <QtCore/QAbstractItemModel>
 #include <QtCore/QDebug>
@@ -43,7 +44,6 @@ TRANSLATOR qdesigner_internal::ConnectionModel
 #include <QtGui/QHeaderView>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QToolButton>
-#include <QtGui/QMessageBox>
 
 template <typename T>
 static void merge(QDesignerFormWindowInterface *form, QStringList *lst, const QList<T> &elts)
@@ -309,9 +309,10 @@ void ConnectionModel::connectionChanged(Connection *con)
         c = static_cast<SignalSlotConnection*>(m_editor->connection(i));
         if (c->sender() == changedCon->sender() && c->signal() == changedCon->signal()
             && c->receiver() == changedCon->receiver() && c->slot() == changedCon->slot()) {
-                QMessageBox::warning(m_editor->parentWidget(), tr("Signal and Slot Editor"),
-                    tr("The connection already exists!<br>%1</br>").arg(changedCon->toString()));
-                break;
+            const QString message = tr("The connection already exists!<br>%1</br>").arg(changedCon->toString());
+            m_editor->formWindow()->core()->dialogGui()->message(m_editor->parentWidget(), QDesignerDialogGuiInterface::SignalSlotEditorMessage,
+                                                                 QMessageBox::Warning,  tr("Signal and Slot Editor"), message, QMessageBox::Ok);
+            break;
         }
     }
     emit dataChanged(createIndex(idx, 0), createIndex(idx, 3));

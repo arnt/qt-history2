@@ -27,6 +27,7 @@
 #include <QtDesigner/QDesignerWidgetFactoryInterface>
 #include <QtDesigner/QDesignerCustomWidgetInterface>
 #include <QtDesigner/abstracticoncache.h>
+#include <abstractdialoggui_p.h>
 
 // shared
 #include <resourcefile_p.h>
@@ -348,7 +349,8 @@ QWidget *QDesignerFormBuilder::createPreview(const QDesignerFormWindowInterface 
         // Display Script errors or message box
         QWidget *dialogParent = fw->core()->topLevel();
         if (scriptErrors.empty()) {
-            QMessageBox::critical(dialogParent, QObject::tr("Designer"), errorMessage);
+            fw->core()->dialogGui()->message(dialogParent, QDesignerDialogGuiInterface::PreviewFailureMessage,
+                                             QMessageBox::Warning, QObject::tr("Designer"), errorMessage, QMessageBox::Ok);
         } else {
             ScriptErrorDialog scriptErrorDialog(scriptErrors, dialogParent);
             scriptErrorDialog.exec();

@@ -391,7 +391,7 @@ void QDesignerTaskMenu::changeScript()
     const QString oldScript = item->script();
     QString newScript = oldScript;
 
-    ScriptDialog scriptDialog(fw);
+    ScriptDialog scriptDialog(fw->core()->dialogGui(), fw);
     if (!scriptDialog.editScript(newScript))
         return;
 

@@ -29,6 +29,8 @@
 
 #include <QtGui/QDialog>
 
+class QDesignerDialogGuiInterface;
+
 class QTextEdit;
 
 namespace qdesigner_internal {
@@ -38,7 +40,7 @@ namespace qdesigner_internal {
         Q_OBJECT
 
     public:
-        explicit ScriptDialog(QWidget *parent);
+        explicit ScriptDialog(QDesignerDialogGuiInterface *dialogGui, QWidget *parent);
         bool editScript(QString &script);
 
     private slots:
@@ -47,8 +49,9 @@ namespace qdesigner_internal {
     private:
         QString trimmedScript() const;
         bool checkScript();
-        QTextEdit *m_textEdit;
 
+        QDesignerDialogGuiInterface *m_dialogGui;
+        QTextEdit *m_textEdit;
     };
 } // namespace qdesigner_internal
 

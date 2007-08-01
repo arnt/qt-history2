@@ -33,8 +33,6 @@ TRANSLATOR qdesigner_internal::ResourceEditor
 #include <QtGui/QHeaderView>
 #include <QtGui/QPushButton>
 #include <QtGui/QLineEdit>
-#include <QtGui/QFileDialog>
-#include <QtGui/QMessageBox>
 #include <QtGui/QToolButton>
 #include <QtGui/QItemDelegate>
 #include <QtGui/QKeyEvent>
@@ -43,6 +41,8 @@ TRANSLATOR qdesigner_internal::ResourceEditor
 
 #include <QtDesigner/QDesignerFormEditorInterface>
 #include <QtDesigner/QDesignerFormWindowManagerInterface>
+#include <abstractdialoggui_p.h>
+
 
 #include <resourcefile_p.h>
 #include <iconloader_p.h>
@@ -255,6 +255,7 @@ class EditableResourceModel : public ResourceModel
 
 public:
     EditableResourceModel(const ResourceFile &resource_file,
+                          QDesignerFormEditorInterface *core,
                           QObject *parent = 0);
     virtual Qt::ItemFlags flags(const QModelIndex &index) const;
     virtual QModelIndex addFiles(const QModelIndex &idx, const QStringList &file_list);
@@ -263,11 +264,16 @@ public:
 
 private slots:
     void showWarning(const QString &caption, const QString &message);
+
+private:
+    QDesignerFormEditorInterface *m_core;
 };
 
 EditableResourceModel::EditableResourceModel(const ResourceFile &resource_file,
-                                             QObject *parent)
-    : ResourceModel(resource_file, parent)
+                                             QDesignerFormEditorInterface *core,
+                                             QObject *parent)  :
+    ResourceModel(resource_file, parent),
+    m_core(core)
 {
 }
 
@@ -312,12 +318,11 @@ QModelIndex EditableResourceModel::addFiles(const QModelIndex &idx,
         if (msgBox.clickedButton() == insertButton)
             result = ResourceModel::addFiles(idx, good_file_list);
     } else {
-        QMessageBox::warning(0, tr("Invalid files"),
-                                tr("Files referenced in a qrc must be in the qrc's "
+        const QString message = tr("Files referenced in a qrc must be in the qrc's "
                                     "directory or one of its subdirectories:<p><b>%1</b><p>"
-                                    "The selected files do not comply with this.")
-                                        .arg(absolutePath(QString())),
-                                    QMessageBox::Cancel, QMessageBox::NoButton);
+                                    "The selected files do not comply with this.").arg(absolutePath(QString()));
+        m_core->dialogGui()->message(m_core->topLevel(), QDesignerDialogGuiInterface::ResourceEditorMessage, QMessageBox::Warning,
+                                     tr("Invalid files"), message,  QMessageBox::Cancel, QMessageBox::NoButton);
     }
 
     return result;
@@ -351,7 +356,7 @@ bool EditableResourceModel::save()
 
 void EditableResourceModel::showWarning(const QString &caption, const QString &message)
 {
-    QMessageBox::warning(0, caption, message, QMessageBox::Ok, QMessageBox::NoButton);
+    m_core->dialogGui()->message(m_core->topLevel(), QDesignerDialogGuiInterface::ResourceEditorMessage, QMessageBox::Warning, caption, message, QMessageBox::Ok);
 }
 
 /******************************************************************************
@@ -361,7 +366,7 @@ void EditableResourceModel::showWarning(const QString &caption, const QString &m
 class ModelCache
 {
 public:
-    ResourceModel *model(const QString &file);
+    ResourceModel *model(QDesignerFormEditorInterface *core, const QString &file);
 
 private:
     typedef QList<ResourceModel*> ResourceModelList;
@@ -370,10 +375,10 @@ private:
 
 Q_GLOBAL_STATIC(ModelCache, g_model_cache)
 
-ResourceModel *ModelCache::model(const QString &file)
+ResourceModel *ModelCache::model(QDesignerFormEditorInterface *core, const QString &file)
 {
     if (file.isEmpty()) {
-        ResourceModel *model = new EditableResourceModel(ResourceFile());
+        ResourceModel *model = new EditableResourceModel(ResourceFile(), core);
         m_model_list.append(model);
         return model;
     }
@@ -388,14 +393,13 @@ ResourceModel *ModelCache::model(const QString &file)
 
     ResourceFile rf(file);
     if (!rf.load()) {
-        QMessageBox::warning(0, QApplication::translate("Designer", "Error opening resource file"),
-                                QApplication::translate("Designer", "Failed to open \"%1\":\n%2")
-                                    .arg(file).arg(rf.errorMessage()),
-                                QMessageBox::Ok, QMessageBox::NoButton);
+        const QString title = QApplication::translate("Designer", "Error opening resource file");
+        const QString message =  QApplication::translate("Designer", "Failed to open \"%1\":\n%2").arg(file).arg(rf.errorMessage());
+        core->dialogGui()->message(core->topLevel(), QDesignerDialogGuiInterface::ResourceEditorMessage, QMessageBox::Warning, title, message, QMessageBox::Ok);
         return 0;
     }
 
-    ResourceModel *model = new EditableResourceModel(rf);
+    ResourceModel *model = new EditableResourceModel(rf, core);
     m_model_list.append(model);
     return model;
 }
@@ -557,9 +561,11 @@ void ResourceEditor::addFiles()
     if (model == 0)
         return;
 
-    const QStringList file_list = QFileDialog::getOpenFileNames(this, tr("Open file"),
-                                                            model->lastResourceOpenDirectory(),
-                                                            tr("All files (*)"));
+    Q_ASSERT(m_form);
+    const QStringList file_list =
+        m_form->core()->dialogGui()->getOpenFileNames(this, tr("Open file"),
+                                                      model->lastResourceOpenDirectory(),
+                                                      tr("All files (*)"));
     if (file_list.isEmpty())
         return;
 
@@ -725,7 +731,8 @@ void ResourceEditor::addView(const QString &qrc_file)
 
     QTreeView *view = new QrcView;
     view->setDragEnabled(m_dragEnabled);
-    ResourceModel *model = g_model_cache()->model(qrc_file);
+    Q_ASSERT(m_form);
+    ResourceModel *model = g_model_cache()->model(m_form->core(), qrc_file);
     if (model == 0)
         return;
     removeEmptyComboItem();
@@ -816,9 +823,11 @@ void ResourceEditor::saveCurrentView()
         return;
 
     if (model->fileName().isEmpty()) {
-        QString file_name = QFileDialog::getSaveFileName(this, tr("Save resource file"),
-                                                            m_form->absoluteDir().absolutePath(),
-                                                            tr("Resource files (*.qrc)"));
+        Q_ASSERT(m_form);
+        QString file_name =
+            m_form->core()->dialogGui()->getSaveFileName(this, tr("Save resource file"),
+                                                         m_form->absoluteDir().absolutePath(),
+                                                         tr("Resource files (*.qrc)"));
         if (file_name.isEmpty())
             return;
 
@@ -899,9 +908,11 @@ void ResourceEditor::reloadCurrentView()
 
 void ResourceEditor::newView()
 {
-    QString file_name = QFileDialog::getSaveFileName(this, tr("New resource file"),
-                                                        m_form->absoluteDir().absolutePath(),
-                                                        tr("Resource files (*.qrc)"));
+    Q_ASSERT(m_form);
+    QString file_name =
+        m_form->core()->dialogGui()->getSaveFileName(this, tr("New resource file"),
+                                                     m_form->absoluteDir().absolutePath(),
+                                                     tr("Resource files (*.qrc)"));
     if (file_name.isEmpty()) {
         setCurrentIndex(m_qrc_stack->count() == 0 ? 0 : m_qrc_stack->currentIndex());
         return;
@@ -917,9 +928,11 @@ void ResourceEditor::newView()
 
 void ResourceEditor::openView()
 {
-    QString file_name = QFileDialog::getOpenFileName(this, tr("Open resource file"),
-                                                        m_form->absoluteDir().absolutePath(),
-                                                        tr("Resource files (*.qrc)"));
+    Q_ASSERT(m_form);
+    QString file_name =
+                m_form->core()->dialogGui()->getOpenFileName(this, tr("Open resource file"),
+                                                             m_form->absoluteDir().absolutePath(),
+                                                             tr("Resource files (*.qrc)"));
     if (file_name.isEmpty()) {
         setCurrentIndex(m_qrc_stack->count() == 0 ? 0 : m_qrc_stack->currentIndex());
         return;

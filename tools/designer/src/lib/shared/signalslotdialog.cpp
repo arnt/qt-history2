@@ -24,6 +24,7 @@
 #include <QtDesigner/QDesignerFormEditorInterface>
 #include <QtDesigner/QDesignerFormWindowInterface>
 #include <QtDesigner/QDesignerWidgetFactoryInterface>
+#include <abstractdialoggui_p.h>
 
 #include <QtGui/QStandardItemModel>
 #include <QtGui/QRegExpValidator>
@@ -327,10 +328,11 @@ void SignaturePanel::closeEditor()
 
 // ------ SignalSlotDialog
 
-SignalSlotDialog::SignalSlotDialog(QWidget *parent, FocusMode mode) :
+SignalSlotDialog::SignalSlotDialog(QDesignerDialogGuiInterface *dialogGui, QWidget *parent, FocusMode mode) :
     QDialog(parent),
     m_focusMode(mode),
-    m_ui(new Ui::SignalSlotDialogClass)
+    m_ui(new Ui::SignalSlotDialogClass),
+    m_dialogGui(dialogGui)
 {
     setModal(true);
     m_ui->setupUi(this);
@@ -381,7 +383,8 @@ void SignalSlotDialog::slotCheckSignature(const QString &signature, bool *ok)
         }
     } while (false);
     if (!*ok)
-        QMessageBox::warning(this, tr("%1 - Duplicate Signature").arg(windowTitle()), errorMessage, QMessageBox::Close);
+        m_dialogGui->message(this, QDesignerDialogGuiInterface::SignalSlotDialogMessage,
+                             QMessageBox::Warning, tr("%1 - Duplicate Signature").arg(windowTitle()), errorMessage, QMessageBox::Close);
 }
 
 QDialog::DialogCode SignalSlotDialog::showDialog(SignalSlotDialogData &slotData, SignalSlotDialogData &signalData)
@@ -401,7 +404,7 @@ QDialog::DialogCode SignalSlotDialog::showDialog(SignalSlotDialogData &slotData,
 bool SignalSlotDialog::editMetaDataBase(QDesignerFormWindowInterface *fw, QObject *object, QWidget *parent, FocusMode mode)
 {
     QDesignerFormEditorInterface *core = fw->core();
-    SignalSlotDialog dlg(parent, mode);
+    SignalSlotDialog dlg(core->dialogGui(), parent, mode);
     dlg.setWindowTitle(tr("Signals/Slots of %1").arg(object->objectName()));
 
     SignalSlotDialogData slotData;
@@ -477,7 +480,7 @@ bool SignalSlotDialog::editPromotedClass(QDesignerFormEditorInterface *core, con
     const QStringList oldSlots =  slotData.m_fakeMethods;
     const QStringList oldSignals = signalData.m_fakeMethods;
 
-    SignalSlotDialog dlg(parent, mode);
+    SignalSlotDialog dlg(core->dialogGui(), parent, mode);
     dlg.setWindowTitle(tr("Signals/Slots of %1").arg(promotedClassName));
 
     if (dlg.showDialog(slotData, signalData) == QDialog::Rejected)

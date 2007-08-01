@@ -76,7 +76,8 @@ HEADERS += \
     $$PWD/resourcemimedata_p.h \
     $$PWD/qdesigner_widgetbox_p.h \
     $$PWD/signalslotdialog_p.h \
-    $$PWD/extensionfactory_p.h
+    $$PWD/extensionfactory_p.h \
+    $$PWD/dialoggui_p.h
 
 SOURCES += \
     $$PWD/spacer_widget.cpp \
@@ -140,4 +141,5 @@ SOURCES += \
     $$PWD/resourcemimedata.cpp \
     $$PWD/qdesigner_widgetbox.cpp \
     $$PWD/iconloader.cpp \
-    $$PWD/signalslotdialog.cpp
+    $$PWD/signalslotdialog.cpp \
+    $$PWD/dialoggui.cpp

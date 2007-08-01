@@ -41,12 +41,14 @@
 #include <qdesigner_taskmenu_p.h>
 #include <qdesigner_membersheet_p.h>
 #include <qdesigner_promotion_p.h>
+#include <dialoggui_p.h>
 
 namespace qdesigner_internal {
 
 FormEditor::FormEditor(QObject *parent)
     : QDesignerFormEditorInterface(parent)
 {
+    setDialogGui(new DialogGui);
     QDesignerPluginManager *pluginManager = new QDesignerPluginManager(this);
     setPluginManager(pluginManager);
 
@@ -104,7 +106,5 @@ FormEditor::FormEditor(QObject *parent)
 
 FormEditor::~FormEditor()
 {
-    delete formWindowManager();
-    delete promotion();
 }
 }

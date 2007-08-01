@@ -542,7 +542,7 @@ void PropertyEditor::slotAddDynamicProperty()
     if (!dynamicSheet)
         return;
 
-    NewDynamicPropertyDialog dlg(this);
+    NewDynamicPropertyDialog dlg(core()->dialogGui(), this);
     QStringList reservedNames;
     const int propertyCount = m_propertySheet->count();
     for (int i = 0; i < propertyCount; i++) {

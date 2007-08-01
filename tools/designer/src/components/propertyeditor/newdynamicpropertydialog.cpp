@@ -13,13 +13,15 @@
 
 #include "newdynamicpropertydialog.h"
 #include "ui_newdynamicpropertydialog.h"
-#include <QtGui/QMessageBox>
+#include <abstractdialoggui_p.h>
 
 namespace qdesigner_internal {
 
-NewDynamicPropertyDialog::NewDynamicPropertyDialog(QWidget *parent)
-    : QDialog(parent),
-      m_ui(new Ui::NewDynamicPropertyDialog)
+NewDynamicPropertyDialog::NewDynamicPropertyDialog(QDesignerDialogGuiInterface *dialogGui,
+                                                       QWidget *parent)   :
+    QDialog(parent),
+    m_dialogGui(dialogGui),
+    m_ui(new Ui::NewDynamicPropertyDialog)
 {
     m_ui->setupUi(this);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
@@ -90,6 +92,11 @@ QVariant NewDynamicPropertyDialog::propertyValue() const
     return nameToValueMap().value(m_ui->m_comboBox->currentText());
 }
 
+void NewDynamicPropertyDialog::information(const QString &message)
+{
+    m_dialogGui->message(this, QDesignerDialogGuiInterface::PropertyEditorMessage, QMessageBox::Information, tr("Set Property Name"), message);
+}
+
 void NewDynamicPropertyDialog::on_m_buttonBox_clicked(QAbstractButton *btn)
 {
     const int role = m_ui->m_buttonBox->buttonRole(btn);
@@ -100,11 +107,11 @@ void NewDynamicPropertyDialog::on_m_buttonBox_clicked(QAbstractButton *btn)
         case QDialogButtonBox::AcceptRole:
             QString name = m_ui->m_lineEdit->text();
             if (m_reservedNames.contains(name)) {
-                QMessageBox::information(this, tr("Set Property Name"), tr("The current object already has a property named '%1'.\nPlease select another, unique one.").arg(name));
-                    break;
+                information(tr("The current object already has a property named '%1'.\nPlease select another, unique one.").arg(name));
+                break;
             } else if (name.startsWith(QLatin1String("_q_"))) {
-                QMessageBox::information(this, tr("Set Property Name"), tr("The '_q_' prefix is reserved for Qt library.\nPlease select another name."));
-                    break;
+                information(tr("The '_q_' prefix is reserved for the Qt library.\nPlease select another name."));
+                break;
             }
             accept();
             break;

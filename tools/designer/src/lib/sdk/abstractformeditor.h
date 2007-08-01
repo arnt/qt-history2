@@ -34,6 +34,7 @@ class QDesignerIconCacheInterface;
 class QDesignerActionEditorInterface;
 class QDesignerIntegrationInterface;
 class QDesignerPluginManager;
+class QDesignerDialogGuiInterface;
 
 class QWidget;
 
@@ -64,6 +65,7 @@ public:
     QDesignerActionEditorInterface *actionEditor() const;
     QDesignerIntegrationInterface *integration() const;
     QDesignerPluginManager *pluginManager() const;
+    QDesignerDialogGuiInterface *dialogGui() const;
     QString resourceLocation() const;
 
     void setTopLevel(QWidget *topLevel);
@@ -73,6 +75,7 @@ public:
     void setPluginManager(QDesignerPluginManager *pluginManager);
     void setActionEditor(QDesignerActionEditorInterface *actionEditor);
     void setIntegration(QDesignerIntegrationInterface *integration);
+    void setDialogGui(QDesignerDialogGuiInterface *dialogGui);
 
 protected:
     void setFormManager(QDesignerFormWindowManagerInterface *formWindowManager);

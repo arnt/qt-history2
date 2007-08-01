@@ -23,8 +23,6 @@ TRANSLATOR qdesigner_internal::PromotionModel
 #include <QtDesigner/QDesignerFormEditorInterface>
 
 #include <QtGui/QStandardItem>
-#include <QtGui/QMessageBox>
-#include <qdebug.h>
 
 namespace {
     typedef QList<QStandardItem *> StandardItemList;

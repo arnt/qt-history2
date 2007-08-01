@@ -30,6 +30,7 @@
 #include <QtCore/QVariant>
 
 class QAbstractButton;
+class QDesignerDialogGuiInterface;
 
 namespace qdesigner_internal {
 
@@ -42,7 +43,7 @@ class QT_PROPERTYEDITOR_EXPORT NewDynamicPropertyDialog: public QDialog
 {
     Q_OBJECT
 public:
-    NewDynamicPropertyDialog(QWidget *parent = 0);
+    NewDynamicPropertyDialog(QDesignerDialogGuiInterface *dialogGui, QWidget *parent = 0);
     ~NewDynamicPropertyDialog();
 
     void setReservedNames(const QStringList &names);
@@ -55,7 +56,9 @@ private slots:
     void on_m_buttonBox_clicked(QAbstractButton *btn);
 
 private:
+    void information(const QString &message);
 
+    QDesignerDialogGuiInterface *m_dialogGui;
     Ui::NewDynamicPropertyDialog *m_ui;
     QStringList m_reservedNames;
 
