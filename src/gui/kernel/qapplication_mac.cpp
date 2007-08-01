@@ -1363,7 +1363,8 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                     if (widget->macEvent(er, event))
                         return noErr;
                     QPoint plocal(widget->mapFromGlobal(where));
-                    QContextMenuEvent qme(QContextMenuEvent::Mouse, plocal, where);
+                    const Qt::KeyboardModifiers keyboardModifiers = qt_mac_get_modifiers(GetCurrentEventKeyModifiers());
+                    QContextMenuEvent qme(QContextMenuEvent::Mouse, plocal, where, keyboardModifiers);
                     QApplication::sendEvent(widget, &qme);
                     if(qme.isAccepted()) { //once this happens the events before are pitched
                         qt_button_down = 0;
