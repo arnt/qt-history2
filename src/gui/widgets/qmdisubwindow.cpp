@@ -2130,6 +2130,7 @@ void QMdiSubWindowPrivate::updateInternalWindowTitle()
     } else {
         windowTitle = qt_setWindowTitle_helperHelper(q->windowTitle(), q);
     }
+    q->update(0, 0, q->width(), titleBarHeight());
 }
 
 /*!
@@ -2744,7 +2745,6 @@ bool QMdiSubWindow::event(QEvent *event)
         }
 #endif // QT_NO_MENUBAR
         d->updateInternalWindowTitle();
-        update(0, 0, width(), d->titleBarHeight());
         break;
     case QEvent::LayoutDirectionChange:
         d->updateDirtyRegions();
