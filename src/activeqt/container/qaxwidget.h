@@ -49,6 +49,7 @@ public:
 protected:
     bool initialize(IUnknown**);
     virtual bool createHostWindow(bool);
+    bool createHostWindow(bool, const QByteArray&);
     
     void changeEvent(QEvent *e);
     void resizeEvent(QResizeEvent *);

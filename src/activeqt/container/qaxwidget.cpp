@@ -132,7 +132,7 @@ public:
     QAxClientSite(QAxWidget *c);
     virtual ~QAxClientSite();
 
-    bool activateObject(bool initialized);
+    bool activateObject(bool initialized, const QByteArray &data);
 
     void releaseAll();
     void deactivate();
@@ -499,7 +499,7 @@ QAxClientSite::QAxClientSite(QAxWidget *c)
     menuBar = 0;
 }
 
-bool QAxClientSite::activateObject(bool initialized)
+bool QAxClientSite::activateObject(bool initialized, const QByteArray &data)
 {
     if (!host)
         host = new QAxHostWidget(widget, this);
@@ -545,8 +545,49 @@ bool QAxClientSite::activateObject(bool initialized)
                 IPersistStreamInit *spPSI = 0;
                 m_spOleObject->QueryInterface(IID_IPersistStreamInit, (void**)&spPSI);
                 if (spPSI) {
-                    spPSI->InitNew();
+                    if (data.length()) {
+                        IStream *pStream = 0;
+                        HGLOBAL hGlobal = GlobalAlloc(GMEM_MOVEABLE, data.length());
+                        if (hGlobal) {
+                            BYTE *pStByte = (BYTE *)GlobalLock(hGlobal);
+                            if (pStByte)
+                                memcpy(pStByte, data.data(), data.length());
+                            GlobalUnlock(hGlobal);
+                            if (SUCCEEDED(CreateStreamOnHGlobal(hGlobal, TRUE, &pStream))) {
+                                spPSI->Load(pStream);
+                                pStream->Release();
+                            }
+                            GlobalFree(hGlobal);
+                        }
+                    } else {
+                        spPSI->InitNew();
+                    }
                     spPSI->Release();
+                } else if (data.length()) { //try initializing using a IPersistStorage
+                    IPersistStorage *spPS = 0;
+                    m_spOleObject->QueryInterface( IID_IPersistStorage, (void**)&spPS );
+                    if (spPS) {
+                        HGLOBAL hGlobal = GlobalAlloc(GMEM_MOVEABLE, data.length());
+                        if (hGlobal) {
+                            BYTE* pbData = (BYTE*)GlobalLock(hGlobal);
+                            if (pbData)
+                                memcpy(pbData, data.data(), data.length());
+                            GlobalUnlock(hGlobal);
+                            // open an IStorage on the data and pass it to Load
+                            LPLOCKBYTES pLockBytes = 0;
+                            if (SUCCEEDED(CreateILockBytesOnHGlobal(hGlobal, TRUE, &pLockBytes))) {
+                                LPSTORAGE pStorage = 0;
+                                if (SUCCEEDED(StgOpenStorageOnILockBytes(pLockBytes, 0, 
+                                              STGM_READWRITE | STGM_SHARE_EXCLUSIVE, 0, 0, &pStorage))) {
+                                    spPS->Load(pStorage);
+                                    pStorage->Release();
+                                }
+                                pLockBytes->Release();
+                            }
+                            GlobalFree(hGlobal);
+                        }
+                        spPS->Release();
+                    }
                 }
             }
 
@@ -1787,12 +1828,28 @@ bool QAxWidget::initialize(IUnknown **ptr)
 */
 bool QAxWidget::createHostWindow(bool initialized)
 {
+    return createHostWindow(initialized, QByteArray());
+}
+
+/*!
+    Creates the client site for the ActiveX control, and returns true if
+    the control could be embedded successfully, otherwise returns false.
+    If \a initialized is false the control will be initialized using the 
+    \a data. The control will be initialized through either IPersistStreamInit
+    or IPersistStorage interface.
+
+    If the control needs to be initialized using custom data, call this function
+    in your reimplementation of initialize(). This function is not called by 
+    the  default implementation of initialize().
+*/
+bool QAxWidget::createHostWindow(bool initialized, const QByteArray &data)
+{
 #ifdef QT3_SUPPORT
     QApplication::sendPostedEvents(0, QEvent::ChildInserted);
 #endif
 
     container = new QAxClientSite(this);
-    container->activateObject(initialized);
+    container->activateObject(initialized, data);
 
     ATOM filter_ref = FindAtomA(qaxatom);
     if (!filter_ref)
