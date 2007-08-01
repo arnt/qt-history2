@@ -329,7 +329,7 @@ QSocks5BindStore::QSocks5BindStore()
     , sweepTimerId(-1)
 {
     QCoreApplication *app = QCoreApplication::instance();
-    if (app->thread() != thread())
+    if (app && app->thread() != thread())
         moveToThread(app->thread());
 }
 
