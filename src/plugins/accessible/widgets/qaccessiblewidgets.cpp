@@ -44,6 +44,8 @@ using namespace QAccessible2;
 
 QList<QWidget*> childWidgets(const QWidget *widget, bool includeTopLevel)
 {
+    if (widget == 0)
+        return QList<QWidget*>();
     QList<QObject*> list = widget->children();
     QList<QWidget*> widgets;
     for (int i = 0; i < list.size(); ++i) {

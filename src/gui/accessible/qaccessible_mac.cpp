@@ -335,7 +335,7 @@ QInterfaceItem::QInterfaceItem(QAccessibleInterface *interface, int child)
 */
 QInterfaceItem::QInterfaceItem(QInterfaceItem other, int child)
 :base(other.base)
-,m_cachedObject(other.object())
+,m_cachedObject(other.m_cachedObject)
 ,child(child)
 {
     ++base->refCount;
@@ -343,7 +343,7 @@ QInterfaceItem::QInterfaceItem(QInterfaceItem other, int child)
 
 QInterfaceItem::QInterfaceItem(const QInterfaceItem &other)
 :base(other.base)
-,m_cachedObject(other.object())
+,m_cachedObject(other.m_cachedObject)
 ,child(other.child)
 {
     ++base->refCount;
