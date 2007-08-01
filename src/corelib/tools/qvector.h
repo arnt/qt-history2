@@ -35,8 +35,14 @@ struct Q_CORE_EXPORT QVectorData
     QBasicAtomic ref;
     int alloc;
     int size;
+#if defined(Q_OS_SOLARIS) && defined(Q_CC_GNU) && defined(__LP64__) && defined(QT_BOOTSTRAPPED)
+    // workaround for bug in gcc 3.4.2
+    uint sharable;
+    uint capacity;
+#else
     uint sharable : 1;
     uint capacity : 1;
+#endif
 
     static QVectorData shared_null;
     static QVectorData *malloc(int sizeofTypedData, int size, int sizeofT, QVectorData *init);
@@ -49,8 +55,14 @@ struct QVectorTypedData
     QBasicAtomic ref;
     int alloc;
     int size;
+#if defined(Q_OS_SOLARIS) && defined(Q_CC_GNU) && defined(__LP64__) && defined(QT_BOOTSTRAPPED)
+    // workaround for bug in gcc 3.4.2
+    uint sharable;
+    uint capacity;
+#else
     uint sharable : 1;
     uint capacity : 1;
+#endif
     T array[1];
 };
 
