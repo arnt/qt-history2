@@ -3147,6 +3147,9 @@ QStringList &QMakeProject::values(const QString &_var, QMap<QString, QStringList
 #endif
         var = ".BUILTIN.HOST." + type;
         place[var] = QStringList(ret);
+    } else if (var == QLatin1String("QMAKE_DIR_SEP")) {
+        if (place[var].isEmpty())
+            return values("DIR_SEPARATOR", place);
     }
     //qDebug("REPLACE [%s]->[%s]", qPrintable(var), qPrintable(place[var].join("::")));
     return place[var];
