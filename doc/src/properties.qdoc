@@ -22,27 +22,33 @@
     ordinary data members:
 
     \list
-    \o A read function. This must always exist.
+    \o A \c READ function. This accessor function must always exist.
 
-    \o A write function. This is optional; read-only properties like
-    QWidget::isDesktop() do not have one.
+    \o An optional \c WRITE function. Read-only properties do not need
+    a \c WRITE accessor function (e.g., QWidget::isDesktop() does not
+    have one).
 
-    \o A "stored" attribute that indicates persistence. Most
+    \o A \c RESET function to set the property back to its context
+    specific default value. This is very rare, but QWidget::cursor
+    needs this, for example, since no call to QWidget::setCursor() can
+    mean \tt {reset to the context specific cursor}.
+
+    \o A \c STORED attribute that indicates persistence. Most
     properties are stored, but a few virtual properties are not. For
-    example, QWidget::minimumWidth() isn't stored, since it's just
-    a view of QWidget::minimumSize(), and has no data of its own.
+    example, QWidget::minimumWidth() isn't stored, since it's just a
+    view of QWidget::minimumSize() and has no data of its own.
 
-    \o A reset function to set a property back to its context specific
-    default value. This is very rare, but for example, QWidget::cursor
-    needs this, since no call to QWidget::setCursor() can mean "reset to
-    the context specific cursor".
+    \o A \c DESIGNABLE attribute that indicates whether it makes sense
+    to make the property available in a GUI builder (e.g., \l {Qt
+    Designer}). For most properties this makes sense. A case where it
+    does not make sense is the property \c QAbstractButton::down. The
+    user can press buttons, and the application programmer can cause
+    the program to press its own buttons, but a GUI design tool can't
+    press buttons.
 
-    \o A "designable" attribute that indicates whether it makes sense to
-    make the property available in a GUI builder (e.g., \l{Qt
-    Designer}). For most properties this  makes sense, but not for
-    all, e.g. QAbstractButton::down. The user can press buttons,
-    and the application programmer can make the program press its own
-    buttons, but a GUI design tool can't press buttons.
+    \o A \c USER attribute that indicates whether the property is
+    designated as the one that the user can edit, or that is in some
+    other way significant.
 
     \endlist
 
@@ -82,8 +88,8 @@
 
     \section1 A Simple Example
 
-    Here's a simple example that shows the most important property
-    functions in use:
+    Here's an example that shows the most important property functions
+    in use:
 
     \code
         class MyClass : public QObject
@@ -100,10 +106,10 @@
         };
     \endcode
 
-    The class has a property \c priority that is not yet known to the
-    meta-object system. In order to make the property known, you must
-    declare it with the Q_PROPERTY() macro. The syntax is as
-    follows:
+    The class is meant to have a property \c priority, but this
+    property is not yet known to the meta-object system. To make
+    property \c priority known, you must declare it with the
+    Q_PROPERTY() macro. The syntax is as follows:
 
     \code
         Q_PROPERTY(type name
@@ -112,14 +118,17 @@
                    [RESET resetFunction]
                    [DESIGNABLE bool]
                    [SCRIPTABLE bool]
-                   [STORED bool])
+                   [STORED bool]
+		   [USER bool])
     \endcode
 
-    For the declaration to be valid, the get function must be const and
-    to return either the type itself, a pointer to it, or a reference to
-    it. The optional write function must return void and must take exactly
-    one argument, either the type itself, a pointer or a const reference
-    to it. The meta-object compiler enforces this.
+    For the declaration to be valid, the \e READ function (priority()
+    in the example) must be \c const and must return the property type
+    (enum Priority in the example), or a pointer to that type, or a
+    reference to it. The optional \e WRITE function (setPriority() in
+    the example) must return void and must take exactly one argument
+    of the property type, or a pointer to that type, or a const
+    reference to it. The meta-object compiler enforces this.
 
     The type of a property can be any QVariant supported type or an
     enumeration type declared in the class itself. Since \c MyClass uses

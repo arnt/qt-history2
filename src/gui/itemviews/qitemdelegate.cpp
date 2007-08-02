@@ -483,7 +483,8 @@ QWidget *QItemDelegate::createEditor(QWidget *parent,
     Sets the data to be displayed and edited by the \a editor for the
     item specified by \a index.
 
-    The default implementation uses the editor's user property to set values.
+    The default implementation uses the \a editor widget's \l {Qt's
+    Property System} {user property} to set values.
 
     \sa QMetaProperty::isUser()
 */
