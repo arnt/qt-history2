@@ -323,15 +323,15 @@ larger than necessary because it can be resized later.
 
 We start composing the dialog by placing some text labels onto the
 form.  This is achieved by dragging each \gui Label from the \gui
-{Display Widgets} section of the widget box onto the form. We add some
-\gui {Spin Box}es and a \gui {Combo Box} from the \gui {Input Widgets}
-section of the widget box, one \gui {Vertical Spacer} and one \gui
-{Horizontal Spacer} from the \gui Spacers section (represented on the
-form as blue springs), and two \gui {Push Button}s from the \gui
-Buttons section. Note that a \gui {Dialog Button Box} should be used to
-ensure that the dialog buttons are positioned correctly on each
-platform.
-For explanatory reasons, we use single buttons throughout the example.
+{Display Widgets} section of the widget box onto the form. We add a
+\gui {Line Edit}, some \gui {Spin Box}es and a \gui {Combo Box} from
+the \gui {Input Widgets} section of the widget box, one
+\gui {Vertical Spacer} and one \gui {Horizontal Spacer} from the
+\gui Spacers section (represented on the form as blue springs),
+and two \gui {Push Button}s from the \gui Buttons section. Note that
+a \gui {Dialog Button Box} should be used to ensure that the dialog
+buttons are positioned correctly on each platform. For explanatory reasons,
+we use single buttons throughout the example.
 
 Widgets and spacers can be moved around on the form by dragging them, or by
 using the cursor keys. A widget can be resized by dragging the resize handles
