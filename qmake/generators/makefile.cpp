@@ -2467,7 +2467,7 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
         for(QStringList::Iterator dep_it = deplist.begin(); dep_it != deplist.end(); ++dep_it) {
             QString dep = var((*dep_it) + ".target");
             if(dep.isEmpty())
-                dep = (*dep_it);
+                dep = Option::fixPathToTargetOS(*dep_it, false);
             deps += " " + dep;
         }
         if(project->values((*qut_it) + ".CONFIG").indexOf("recursive") != -1) {
