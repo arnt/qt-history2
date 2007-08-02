@@ -2122,7 +2122,7 @@ Draw_Sweep( TRaster_Instance*  raster )
                         ++span_count;
 
                         if (span_count == MAX_SPANS) {
-                            ras.black_spans(y, span_count, spans, ras.user_data);
+                            ras.black_spans(span_count, spans, ras.user_data);
                             span_count = 0;
                         }
                     }
@@ -2150,7 +2150,7 @@ Draw_Sweep( TRaster_Instance*  raster )
     }
 
     if (span_count > 0)
-        ras.black_spans(spans->y, span_count, spans, ras.user_data);
+        ras.black_spans(span_count, spans, ras.user_data);
 
     return SUCCESS;
 }

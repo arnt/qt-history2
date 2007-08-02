@@ -67,7 +67,7 @@ void QT_FASTCALL comp_func_Exclusion(uint *dest, const uint *src, int length, ui
 #ifdef QT_HAVE_MMX
 extern const CompositionFunction qt_functionForMode_MMX[];
 extern const CompositionFunctionSolid qt_functionForModeSolid_MMX[];
-void qt_blend_color_argb_mmx(int, int count, const QSpan *spans, void *userData);
+void qt_blend_color_argb_mmx(int count, const QSpan *spans, void *userData);
 #endif
 
 #ifdef QT_HAVE_MMXEXT
@@ -82,7 +82,7 @@ void qt_bitmapblit16_mmxext(QRasterBuffer *rasterBuffer, int x, int y,
 extern const CompositionFunction qt_functionForMode_MMX3DNOW[];
 extern const CompositionFunctionSolid qt_functionForModeSolid_MMX3DNOW[];
 
-void qt_blend_color_argb_mmx3dnow(int, int count, const QSpan *spans,
+void qt_blend_color_argb_mmx3dnow(int count, const QSpan *spans,
                                   void *userData);
 #endif // MMX
 
@@ -95,7 +95,7 @@ void qt_bitmapblit16_sse3dnow(QRasterBuffer *rasterBuffer, int x, int y,
                               quint32 color,
                               const uchar *src, int width, int height,
                               int stride);
-void qt_blend_color_argb_sse3dnow(int, int count, const QSpan *spans,
+void qt_blend_color_argb_sse3dnow(int count, const QSpan *spans,
                                   void *userData);
 #endif // SSE
 #endif // QT_HAVE_3DNOW
@@ -106,7 +106,7 @@ void qt_bitmapblit16_sse(QRasterBuffer *rasterBuffer, int x, int y,
                          quint32 color,
                          const uchar *src, int width, int height, int stride);
 
-void qt_blend_color_argb_sse(int, int count, const QSpan *spans, void *userData);
+void qt_blend_color_argb_sse(int count, const QSpan *spans, void *userData);
 
 extern const CompositionFunction qt_functionForMode_SSE[];
 extern const CompositionFunctionSolid qt_functionForModeSolid_SSE[];

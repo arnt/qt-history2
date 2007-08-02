@@ -96,7 +96,7 @@ private:
 
     void flushSpans()
     {
-        m_blend(0, m_spanCount, m_spans, m_data);
+        m_blend(m_spanCount, m_spans, m_data);
         m_spanCount = 0;
     }
 

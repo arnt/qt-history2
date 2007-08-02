@@ -69,7 +69,7 @@ const CompositionFunction qt_functionForMode_SSE[] = {
     comp_func_Exclusion
 };
 
-void qt_blend_color_argb_sse(int, int count, const QSpan *spans, void *userData)
+void qt_blend_color_argb_sse(int count, const QSpan *spans, void *userData)
 {
     qt_blend_color_argb_x86<QSSEIntrinsics>(count, spans, userData,
                                             (CompositionFunctionSolid*)qt_functionForModeSolid_SSE);

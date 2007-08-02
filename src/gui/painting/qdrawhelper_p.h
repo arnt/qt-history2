@@ -78,10 +78,10 @@ struct DrawHelper {
 };
 
 extern DrawHelper qDrawHelper[QImage::NImageFormats];
-void qBlendTexture(int, int count, const QSpan *spans, void *userData);
+void qBlendTexture(int count, const QSpan *spans, void *userData);
 #ifdef Q_WS_QWS
 extern DrawHelper qDrawHelperCallback[QImage::NImageFormats];
-void qBlendTextureCallback(int, int count, const QSpan *spans, void *userData);
+void qBlendTextureCallback(int count, const QSpan *spans, void *userData);
 #endif
 
 typedef void QT_FASTCALL (*CompositionFunction)(uint *dest, const uint *src, int length, uint const_alpha);

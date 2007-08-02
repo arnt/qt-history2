@@ -79,7 +79,7 @@ const CompositionFunction qt_functionForMode_MMX3DNOW[] = {
     comp_func_Exclusion
 };
 
-void qt_blend_color_argb_mmx3dnow(int, int count, const QSpan *spans, void *userData)
+void qt_blend_color_argb_mmx3dnow(int count, const QSpan *spans, void *userData)
 {
     qt_blend_color_argb_x86<QMMX3DNOWIntrinsics>(count, spans, userData,
                                                  (CompositionFunctionSolid*)qt_functionForModeSolid_MMX3DNOW);

@@ -224,7 +224,7 @@
 
 
   /* maximal number of gray spans in a call to the span callback */
-#define QT_FT_MAX_GRAY_SPANS  32
+#define QT_FT_MAX_GRAY_SPANS  256
 
 
   typedef struct TCell_*  PCell;
@@ -271,7 +271,6 @@
 
     QT_FT_Raster_Span_Func  render_span;
     void*                render_span_data;
-    int                  span_y;
 
     int  band_size;
     int  band_shoot;
@@ -1095,23 +1094,21 @@
 
 
   static void
-  gray_render_span( int             y,
-                    int             count,
+  gray_render_span( int             count,
                     const QT_FT_Span*  spans,
                     PWorker         worker )
   {
     unsigned char*  p;
     QT_FT_Bitmap*      map = &worker->target;
 
-
-    /* first of all, compute the scanline offset */
-    p = (unsigned char*)map->buffer - y * map->pitch;
-    if ( map->pitch >= 0 )
-      p += ( map->rows - 1 ) * map->pitch;
-
     for ( ; count > 0; count--, spans++ )
     {
       unsigned char  coverage = spans->coverage;
+
+      /* first of all, compute the scanline offset */
+      p = (unsigned char*)map->buffer - spans->y * map->pitch;
+      if ( map->pitch >= 0 )
+        p += ( map->rows - 1 ) * map->pitch;
 
 
       if ( coverage )
@@ -1152,7 +1149,6 @@
                        int     acount )
   {
     QT_FT_Span*  span;
-    int       count;
     int       coverage;
 
 
@@ -1192,10 +1188,9 @@
     if ( coverage )
     {
       /* see whether we can add this span to the current list */
-      count = ras.num_gray_spans;
-      span  = ras.gray_spans + count - 1;
-      if ( count > 0                          &&
-           ras.span_y == y                    &&
+      span  = ras.gray_spans + ras.num_gray_spans - 1;
+      if ( ras.num_gray_spans > 0             &&
+           span->y == y                       &&
            (int)span->x + span->len == (int)x &&
            span->coverage == coverage         )
       {
@@ -1203,21 +1198,21 @@
         return;
       }
 
-      if ( ras.span_y != y || count >= QT_FT_MAX_GRAY_SPANS )
+      if ( ras.num_gray_spans >= QT_FT_MAX_GRAY_SPANS )
       {
-        if ( ras.render_span && count > 0 )
-          ras.render_span( ras.span_y, count, ras.gray_spans,
+        if ( ras.render_span )
+          ras.render_span( ras.num_gray_spans, ras.gray_spans,
                            ras.render_span_data );
         /* ras.render_span( span->y, ras.gray_spans, count ); */
 
 #ifdef DEBUG_GRAYS
 
-        if ( ras.span_y >= 0 )
+        if ( 1 )
         {
           int  n;
 
 
-          fprintf( stderr, "y=%3d ", ras.span_y );
+          fprintf( stderr, "y=%3d ", y );
           span = ras.gray_spans;
           for ( n = 0; n < count; n++, span++ )
             fprintf( stderr, "[%d..%d]:%02x ",
@@ -1228,9 +1223,7 @@
 #endif /* DEBUG_GRAYS */
 
         ras.num_gray_spans = 0;
-        ras.span_y         = y;
 
-        count = 0;
         span  = ras.gray_spans;
       }
       else
@@ -1282,8 +1275,6 @@
     if ( ras.num_cells == 0 )
       return;
 
-    ras.num_gray_spans = 0;
-
     for ( yindex = 0; yindex < ras.ycount; yindex++ )
     {
       PCell   cell  = ras.ycells[yindex];
@@ -1313,10 +1304,6 @@
         gray_hline( RAS_VAR_ x, yindex, cover * ( ONE_PIXEL * 2 ),
                     ras.count_ex - x );
     }
-
-    if ( ras.render_span && ras.num_gray_spans > 0 )
-      ras.render_span( ras.span_y, ras.num_gray_spans,
-                       ras.gray_spans, ras.render_span_data );
   }
 
   /*************************************************************************/
@@ -1613,6 +1600,7 @@
     TPos volatile    min, max, max_y;
     QT_FT_BBox*         clip;
 
+    ras.num_gray_spans = 0;
 
     /* Set up state in the raster object */
     gray_compute_cbox( RAS_VAR );
@@ -1751,6 +1739,10 @@
       }
     }
 
+    if ( ras.render_span && ras.num_gray_spans > 0 )
+        ras.render_span( ras.num_gray_spans,
+                         ras.gray_spans, ras.render_span_data );
+
     if ( ras.band_shoot > 8 && ras.band_size > 16 )
       ras.band_size = ras.band_size / 2;
 
@@ -1828,7 +1820,6 @@
     ras.num_cells = 0;
     ras.invalid   = 1;
     ras.band_size = raster->band_size;
-    ras.num_gray_spans = 0;
 
     if ( target_map )
       ras.target = *target_map;
