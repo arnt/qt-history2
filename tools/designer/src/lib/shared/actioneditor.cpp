@@ -84,7 +84,7 @@ public:
         connect(m_editor, SIGNAL(textChanged(QString)), actionEditor, SLOT(setFilter(QString)));
 
         m_button->setIcon(createIconSet(QLatin1String("resetproperty.png")));
-        m_button->setIconSize(QSize(16, 16));
+        m_button->setIconSize(QSize(8, 8));
         m_button->setFlat(true);
         l->addWidget(m_button);
 
