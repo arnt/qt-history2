@@ -79,7 +79,7 @@ const CompositionFunction qt_functionForMode_SSE3DNOW[] = {
     comp_func_Exclusion
 };
 
-void qt_blend_color_argb_sse3dnow(int count, const QSpan *spans, void *userData)
+void qt_blend_color_argb_sse3dnow(int, int count, const QSpan *spans, void *userData)
 {
     qt_blend_color_argb_x86<QSSE3DNOWIntrinsics>(count, spans, userData,
                                                  (CompositionFunctionSolid*)qt_functionForModeSolid_SSE3DNOW);

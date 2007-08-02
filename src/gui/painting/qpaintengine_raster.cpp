@@ -99,10 +99,10 @@ void qt_draw_text_item(const QPointF &point, const QTextItemInt &ti, HDC hdc,
 /********************************************************************************
  * Span functions
  */
-static void qt_span_fill_clipRect(int count, const QSpan *spans, void *userData);
-static void qt_span_fill_clipRegion(int count, const QSpan *spans, void *userData);
-static void qt_span_fill_clipped(int count, const QSpan *spans, void *userData);
-static void qt_span_clip(int count, const QSpan *spans, void *userData);
+static void qt_span_fill_clipRect(int, int count, const QSpan *spans, void *userData);
+static void qt_span_fill_clipRegion(int, int count, const QSpan *spans, void *userData);
+static void qt_span_fill_clipped(int, int count, const QSpan *spans, void *userData);
+static void qt_span_clip(int, int count, const QSpan *spans, void *userData);
 
 struct ClipData
 {
@@ -1576,7 +1576,7 @@ static void fillRect(const QRect &r, QSpanData *data,
             ++i;
         }
 
-        blend(n, spans, data);
+        blend(0, n, spans, data);
         y += n;
     }
 }
@@ -2418,7 +2418,7 @@ void QRasterPaintEngine::alphaPenBlt(const void* src, int bpl, bool mono, int rx
                 }
 
                 if (current == NSPANS) {
-                    blend(current, spans, &d->penData);
+                    blend(0, current, spans, &d->penData);
                     current = 0;
                 }
                 spans[current].x = x + rx;
@@ -2446,7 +2446,7 @@ void QRasterPaintEngine::alphaPenBlt(const void* src, int bpl, bool mono, int rx
                 }
 
                 if (current == NSPANS) {
-                    blend(current, spans, &d->penData);
+                    blend(0, current, spans, &d->penData);
                     current = 0;
                 }
                 int coverage = scanline[x];
@@ -2471,7 +2471,7 @@ void QRasterPaintEngine::alphaPenBlt(const void* src, int bpl, bool mono, int rx
 //              << "span:" << spans->x << spans->y << spans->len << spans->coverage;
         // Call span func for current set of spans.
     if (current != 0)
-        blend(current, spans, &d->penData);
+        blend(0, current, spans, &d->penData);
 }
 
 #ifdef Q_WS_QWS
@@ -3080,7 +3080,7 @@ void QRasterPaintEngine::drawPoints(const QPointF *points, int pointCount)
                     const QT_FT_Span &last = array[count - 1];
                     // spans must be sorted on y (primary) and x (secondary)
                     if (y < last.y || y == last.y && x < last.x) {
-                        d->penData.blend(count, array.constData(), &d->penData);
+                        d->penData.blend(0, count, array.constData(), &d->penData);
                         count = 0;
                     }
                 }
@@ -3093,7 +3093,7 @@ void QRasterPaintEngine::drawPoints(const QPointF *points, int pointCount)
         }
 
         if (count > 0)
-            d->penData.blend(count, array.constData(), &d->penData);
+            d->penData.blend(0, count, array.constData(), &d->penData);
     }
 }
 
@@ -3463,7 +3463,7 @@ void QRasterPaintEnginePrivate::drawBitmap(const QPointF &pos, const QPixmap &pm
                     x += len;
                     ++n;
                     if (n == spanCount) {
-                        fg->blend(n, spans, fg);
+                        fg->blend(0, n, spans, fg);
                         n = 0;
                     }
                 }
@@ -3490,7 +3490,7 @@ void QRasterPaintEnginePrivate::drawBitmap(const QPointF &pos, const QPixmap &pm
                     x += len;
                     ++n;
                     if (n == spanCount) {
-                        fg->blend(n, spans, fg);
+                        fg->blend(0, n, spans, fg);
                         n = 0;
                     }
                 }
@@ -3499,7 +3499,7 @@ void QRasterPaintEnginePrivate::drawBitmap(const QPointF &pos, const QPixmap &pm
 #endif
     }
     if (n) {
-        fg->blend(n, spans, fg);
+        fg->blend(0, n, spans, fg);
         n = 0;
     }
 }
@@ -4291,7 +4291,7 @@ static const QSpan *qt_intersect_spans(const QClipData *clip, int *currentClip,
     return spans;
 }
 
-static void qt_span_fill_clipped(int spanCount, const QSpan *spans, void *userData)
+static void qt_span_fill_clipped(int, int spanCount, const QSpan *spans, void *userData)
 {
 //     qDebug() << "qt_span_fill_clipped" << spanCount;
     QSpanData *fillData = reinterpret_cast<QSpanData *>(userData);
@@ -4312,7 +4312,7 @@ static void qt_span_fill_clipped(int spanCount, const QSpan *spans, void *userDa
 //                  << "span:" << cspans->x << cspans->y << cspans->len << spans->coverage;
 
         if (clipped - cspans)
-            fillData->unclipped_blend(clipped - cspans, cspans, fillData);
+            fillData->unclipped_blend(0, clipped - cspans, cspans, fillData);
     }
 }
 
@@ -4454,7 +4454,7 @@ static int qt_intersect_spans(QT_FT_Span *spans, int numSpans,
     return n;
 }
 
-static void qt_span_fill_clipRect(int count, const QSpan *spans,
+static void qt_span_fill_clipRect(int, int count, const QSpan *spans,
                                   void *userData)
 {
     QSpanData *fillData = reinterpret_cast<QSpanData *>(userData);
@@ -4467,10 +4467,10 @@ static void qt_span_fill_clipRect(int count, const QSpan *spans,
     count = qt_intersect_spans(const_cast<QSpan*>(spans), count,
                                rb->clipRect);
     if (count > 0)
-        fillData->unclipped_blend(count, spans, fillData);
+        fillData->unclipped_blend(0, count, spans, fillData);
 }
 
-static void qt_span_fill_clipRegion(int count, const QSpan *spans,
+static void qt_span_fill_clipRegion(int, int count, const QSpan *spans,
                                     void *userData)
 {
     QSpanData *fillData = reinterpret_cast<QSpanData *>(userData);
@@ -4488,12 +4488,12 @@ static void qt_span_fill_clipRegion(int count, const QSpan *spans,
                                                  &cspans[0], NSPANS,
                                                  rb->clipRegion);
         if (unclipped > 0)
-            fillData->unclipped_blend(unclipped, cspans, fillData);
+            fillData->unclipped_blend(0, unclipped, cspans, fillData);
     }
 
 }
 
-static void qt_span_clip(int count, const QSpan *spans, void *userData)
+static void qt_span_clip(int, int count, const QSpan *spans, void *userData)
 {
     ClipData *clipData = reinterpret_cast<ClipData *>(userData);
 //     qDebug() << " qt_span_clip: " << count << clipData->operation;
@@ -5097,7 +5097,7 @@ static void drawLine_midpoint_i(int x1, int y1, int x2, int y2, ProcessSpans spa
                 spans[0].len = ushort(len);
                 spans[0].y = y1;
                 spans[0].coverage = 255;
-                span_func(1, spans, data);
+                span_func(0, 1, spans, data);
             }
         }
         return;
@@ -5174,7 +5174,7 @@ static void drawLine_midpoint_i(int x1, int y1, int x2, int y2, ProcessSpans spa
                     if (spans[current].len > 0)
                         ++current;
                     if (current == NSPANS) {
-                        span_func(NSPANS, spans, data);
+                        span_func(0, NSPANS, spans, data);
                         current = 0;
                     }
 
@@ -5221,7 +5221,7 @@ static void drawLine_midpoint_i(int x1, int y1, int x2, int y2, ProcessSpans spa
                     if (spans[NSPANS - 1 - current].len > 0)
                         ++current;
                     if (current == NSPANS) {
-                        span_func(NSPANS, spans, data);
+                        span_func(0, NSPANS, spans, data);
                         current = 0;
                     }
 
@@ -5283,7 +5283,7 @@ static void drawLine_midpoint_i(int x1, int y1, int x2, int y2, ProcessSpans spa
         if (x>=0 && y>=0 && x < devRect.width()) {
             Q_ASSERT(x >= 0 && y >= 0 && x < devRect.width() && y < devRect.height());
             if (current == NSPANS) {
-                span_func(NSPANS, spans, data);
+                span_func(0, NSPANS, spans, data);
                 current = 0;
             }
             spans[current].len = 1;
@@ -5316,7 +5316,7 @@ static void drawLine_midpoint_i(int x1, int y1, int x2, int y2, ProcessSpans spa
                     continue;
                 Q_ASSERT(x<devRect.width() && y<devRect.height());
                 if (current == NSPANS) {
-                    span_func(NSPANS, spans, data);
+                    span_func(0, NSPANS, spans, data);
                     current = 0;
                 }
                 spans[current].len = 1;
@@ -5348,7 +5348,7 @@ static void drawLine_midpoint_i(int x1, int y1, int x2, int y2, ProcessSpans spa
                     continue;
                 Q_ASSERT(x>=0 && x<devRect.width() && y>=0 && y<devRect.height());
                 if (current == NSPANS) {
-                    span_func(NSPANS, spans, data);
+                    span_func(0, NSPANS, spans, data);
                     current = 0;
                 }
                 spans[current].len = 1;
@@ -5361,7 +5361,7 @@ static void drawLine_midpoint_i(int x1, int y1, int x2, int y2, ProcessSpans spa
     }
 flush_and_return:
     if (current > 0)
-        span_func(current, ordered ? spans : spans + (NSPANS - current), data);
+        span_func(0, current, ordered ? spans : spans + (NSPANS - current), data);
 }
 
 static void offset_pattern(int offset, bool *inDash, int *dashIndex, int *currentOffset, const QVarLengthArray<qreal> &pattern)
@@ -5454,7 +5454,7 @@ static void drawLine_midpoint_dashed_i(int x1, int y1, int x2, int y2,
                 int x = start;
                 while (x < stop_clipped) {
                     if (current == NSPANS) {
-                        span_func(NSPANS, spans, data);
+                        span_func(0, NSPANS, spans, data);
                         current = 0;
                     }
                     const int dash = qMin(currPattern, stop_clipped - x);
@@ -5498,7 +5498,7 @@ static void drawLine_midpoint_dashed_i(int x1, int y1, int x2, int y2,
                 if (inDash) {
                     for (int i = 0; i < dash; ++i) {
                         if (current == NSPANS) {
-                            span_func(NSPANS, spans, data);
+                            span_func(0, NSPANS, spans, data);
                             current = 0;
                         }
                         spans[current].x = x1;
@@ -5549,7 +5549,7 @@ static void drawLine_midpoint_dashed_i(int x1, int y1, int x2, int y2,
             Q_ASSERT(x >= 0 && y >= 0 && x < devRect.width() && y < devRect.height());
             if (inDash) {
                 if (current == NSPANS) {
-                    span_func(NSPANS, spans, data);
+                    span_func(0, NSPANS, spans, data);
                     current = 0;
                 }
                 spans[current].len = 1;
@@ -5590,7 +5590,7 @@ static void drawLine_midpoint_dashed_i(int x1, int y1, int x2, int y2,
                 Q_ASSERT(skip || x < devRect.width() && y < devRect.height());
                 if (inDash && !skip) {
                     if (current == NSPANS) {
-                        span_func(NSPANS, spans, data);
+                        span_func(0, NSPANS, spans, data);
                         current = 0;
                     }
                     spans[current].len = 1;
@@ -5618,7 +5618,7 @@ static void drawLine_midpoint_dashed_i(int x1, int y1, int x2, int y2,
             while (x < x2) {
                 if (d < 0) {
                     if (current > 0) {
-                        span_func(current, spans, data);
+                        span_func(0, current, spans, data);
                         current = 0;
                     }
 
@@ -5635,7 +5635,7 @@ static void drawLine_midpoint_dashed_i(int x1, int y1, int x2, int y2,
                 Q_ASSERT(skip || x < devRect.width() && y < devRect.height());
                 if (inDash && !skip) {
                     if (current == NSPANS) {
-                        span_func(NSPANS, spans, data);
+                        span_func(0, NSPANS, spans, data);
                         current = 0;
                     }
                     spans[current].len = 1;
@@ -5681,7 +5681,7 @@ static void drawLine_midpoint_dashed_i(int x1, int y1, int x2, int y2,
             Q_ASSERT(x >= 0 && y >= 0 && x < devRect.width() && y < devRect.height());
             if (inDash) {
                 if (current == NSPANS) {
-                    span_func(NSPANS, spans, data);
+                    span_func(0, NSPANS, spans, data);
                     current = 0;
                 }
                 spans[current].len = 1;
@@ -5720,7 +5720,7 @@ static void drawLine_midpoint_dashed_i(int x1, int y1, int x2, int y2,
                 Q_ASSERT(skip || x < devRect.width() && y < devRect.height());
                 if (inDash && !skip) {
                     if (current == NSPANS) {
-                        span_func(NSPANS, spans, data);
+                        span_func(0, NSPANS, spans, data);
                         current = 0;
                     }
                     spans[current].len = 1;
@@ -5758,7 +5758,7 @@ static void drawLine_midpoint_dashed_i(int x1, int y1, int x2, int y2,
                 Q_ASSERT(skip || x >= 0 && x < devRect.width() && y < devRect.height());
                 if (inDash && !skip) {
                     if (current == NSPANS) {
-                        span_func(NSPANS, spans, data);
+                        span_func(0, NSPANS, spans, data);
                         current = 0;
                     }
                     spans[current].len = 1;
@@ -5777,7 +5777,7 @@ static void drawLine_midpoint_dashed_i(int x1, int y1, int x2, int y2,
     }
 flush_and_return:
     if (current > 0)
-        span_func(current, ordered ? spans : spans + (NSPANS - current), data);
+        span_func(0, current, ordered ? spans : spans + (NSPANS - current), data);
 
     // adjust offset
     if (reversed) {
@@ -5853,13 +5853,13 @@ static inline void drawEllipsePoints(int x, int y, int length,
         int n = (fill[0].y >= fill[1].y ? 1 : 2);
         n = qt_intersect_spans(fill, n, clip);
         if (n > 0)
-            brush_func(n, fill, brush_data);
+            brush_func(0, n, fill, brush_data);
     }
     if (pen_func) {
         int n = (outline[1].y >= outline[2].y ? 2 : 4);
         n = qt_intersect_spans(outline, n, clip);
         if (n > 0)
-            pen_func(n, outline, pen_data);
+            pen_func(0, n, outline, pen_data);
     }
 }
 

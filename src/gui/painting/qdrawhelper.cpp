@@ -2489,7 +2489,7 @@ static inline Operator getOperator(const QSpanData *data, const QSpan *spans, in
 // -------------------- blend methods ---------------------
 
 
-static void blend_color_generic(int count, const QSpan *spans, void *userData)
+static void blend_color_generic(int , int count, const QSpan *spans, void *userData)
 {
     QSpanData *data = reinterpret_cast<QSpanData *>(userData);
     uint buffer[buffer_size];
@@ -2514,7 +2514,7 @@ static void blend_color_generic(int count, const QSpan *spans, void *userData)
 }
 
 #ifdef Q_WS_QWS
-static void blend_color_generic_callback(int count, const QSpan *spans,
+static void blend_color_generic_callback(int , int count, const QSpan *spans,
                                          void *userData)
 {
     QSpanData *data = reinterpret_cast<QSpanData*>(userData);
@@ -2522,7 +2522,7 @@ static void blend_color_generic_callback(int count, const QSpan *spans,
 }
 #endif
 
-static void blend_color_argb(int count, const QSpan *spans, void *userData)
+static void blend_color_argb(int , int count, const QSpan *spans, void *userData)
 {
     QSpanData *data = reinterpret_cast<QSpanData *>(userData);
 
@@ -2555,7 +2555,7 @@ static void blend_color_argb(int count, const QSpan *spans, void *userData)
 }
 
 #ifdef Q_WS_QWS
-static void blend_color_argb_callback(int count, const QSpan *spans,
+static void blend_color_argb_callback(int , int count, const QSpan *spans,
                                       void *userData)
 {
     QSpanData *data = reinterpret_cast<QSpanData*>(userData);
@@ -2576,7 +2576,7 @@ static inline uint BYTE_MUL_RGB16_32(uint x, uint a) {
     return t;
 }
 
-static void blend_color_rgb16(int count, const QSpan *spans, void *userData)
+static void blend_color_rgb16(int , int count, const QSpan *spans, void *userData)
 {
     QSpanData *data = reinterpret_cast<QSpanData *>(userData);
 
@@ -2651,7 +2651,7 @@ static void blend_color_rgb16(int count, const QSpan *spans, void *userData)
     }
 }
 
-static void blend_src_generic(int count, const QSpan *spans, void *userData)
+static void blend_src_generic(int , int count, const QSpan *spans, void *userData)
 {
     QSpanData *data = reinterpret_cast<QSpanData *>(userData);
 
@@ -2679,7 +2679,7 @@ static void blend_src_generic(int count, const QSpan *spans, void *userData)
 }
 
 #ifdef Q_WS_QWS
-static void blend_src_generic_callback(int count, const QSpan *spans,
+static void blend_src_generic_callback(int , int count, const QSpan *spans,
                                        void *userData)
 {
     QSpanData *data = reinterpret_cast<QSpanData *>(userData);
@@ -2705,7 +2705,7 @@ static void blend_src_generic_callback(int count, const QSpan *spans,
 }
 #endif // Q_WS_QWS
 
-static void blend_src_argb(int count, const QSpan *spans, void *userData)
+static void blend_src_argb(int , int count, const QSpan *spans, void *userData)
 {
     QSpanData *data = reinterpret_cast<QSpanData *>(userData);
 
@@ -2730,7 +2730,7 @@ static void blend_src_argb(int count, const QSpan *spans, void *userData)
 }
 
 #ifdef Q_WS_QWS
-static void blend_src_argb_callback(int count, const QSpan *spans,
+static void blend_src_argb_callback(int , int count, const QSpan *spans,
                                     void *userData)
 {
     QSpanData *data = reinterpret_cast<QSpanData *>(userData);
@@ -2757,7 +2757,7 @@ static void blend_src_argb_callback(int count, const QSpan *spans,
 }
 #endif // Q_WS_QWS
 
-static void blend_untransformed_generic(int count, const QSpan *spans, void *userData)
+static void blend_untransformed_generic(int , int count, const QSpan *spans, void *userData)
 {
     QSpanData *data = reinterpret_cast<QSpanData *>(userData);
 
@@ -2805,7 +2805,7 @@ static void blend_untransformed_generic(int count, const QSpan *spans, void *use
 }
 
 #ifdef Q_WS_QWS
-static void blend_untransformed_generic_callback(int count, const QSpan *spans,
+static void blend_untransformed_generic_callback(int , int count, const QSpan *spans,
                                                  void *userData)
 {
     QSpanData *data = reinterpret_cast<QSpanData *>(userData);
@@ -2851,12 +2851,12 @@ static void blend_untransformed_generic_callback(int count, const QSpan *spans,
 }
 #endif // Q_WS_QWS
 
-static void blend_untransformed_argb(int count, const QSpan *spans, void *userData)
+static void blend_untransformed_argb(int , int count, const QSpan *spans, void *userData)
 {
     QSpanData *data = reinterpret_cast<QSpanData *>(userData);
     if (data->texture.format != QImage::Format_ARGB32_Premultiplied
         && data->texture.format != QImage::Format_RGB32) {
-        blend_untransformed_generic(count, spans, userData);
+        blend_untransformed_generic(0, count, spans, userData);
         return;
     }
 
@@ -2894,7 +2894,7 @@ static void blend_untransformed_argb(int count, const QSpan *spans, void *userDa
 }
 
 #ifdef Q_WS_QWS
-static void blend_untransformed_argb_callback(int count, const QSpan *spans,
+static void blend_untransformed_argb_callback(int , int count, const QSpan *spans,
                                               void *userData)
 {
     QSpanData *data = reinterpret_cast<QSpanData *>(userData);
@@ -2938,12 +2938,12 @@ static void blend_untransformed_argb_callback(int count, const QSpan *spans,
 }
 #endif // Q_WS_QWS
 
-static void blend_untransformed_rgb16(int count, const QSpan *spans, void *userData)
+static void blend_untransformed_rgb16(int , int count, const QSpan *spans, void *userData)
 {
     QSpanData *data = reinterpret_cast<QSpanData *>(userData);
     if (data->texture.format != QImage::Format_RGB16 &&
         data->texture.format != QImage::Format_ARGB32_Premultiplied) {
-        blend_untransformed_generic(count, spans, userData);
+        blend_untransformed_generic(0, count, spans, userData);
         return;
     }
 
@@ -3033,7 +3033,7 @@ static void blend_untransformed_rgb16(int count, const QSpan *spans, void *userD
     }
 }
 
-static void blend_tiled_generic(int count, const QSpan *spans, void *userData)
+static void blend_tiled_generic(int , int count, const QSpan *spans, void *userData)
 {
     QSpanData *data = reinterpret_cast<QSpanData *>(userData);
 
@@ -3084,7 +3084,7 @@ static void blend_tiled_generic(int count, const QSpan *spans, void *userData)
 }
 
 #ifdef Q_WS_QWS
-static void blend_tiled_generic_callback(int count, const QSpan *spans,
+static void blend_tiled_generic_callback(int , int count, const QSpan *spans,
                                          void *userData)
 {
     QSpanData *data = reinterpret_cast<QSpanData *>(userData);
@@ -3133,12 +3133,12 @@ static void blend_tiled_generic_callback(int count, const QSpan *spans,
 }
 #endif // Q_WS_QWS
 
-static void blend_tiled_argb(int count, const QSpan *spans, void *userData)
+static void blend_tiled_argb(int , int count, const QSpan *spans, void *userData)
 {
     QSpanData *data = reinterpret_cast<QSpanData *>(userData);
     if (data->texture.format != QImage::Format_ARGB32_Premultiplied
         && data->texture.format != QImage::Format_RGB32) {
-        blend_tiled_generic(count, spans, userData);
+        blend_tiled_generic(0, count, spans, userData);
         return;
     }
 
@@ -3183,7 +3183,7 @@ static void blend_tiled_argb(int count, const QSpan *spans, void *userData)
 }
 
 #ifdef Q_WS_QWS
-static void blend_tiled_argb_callback(int count, const QSpan *spans,
+static void blend_tiled_argb_callback(int , int count, const QSpan *spans,
                                       void *userData)
 {
     QSpanData *data = reinterpret_cast<QSpanData *>(userData);
@@ -3234,12 +3234,12 @@ static void blend_tiled_argb_callback(int count, const QSpan *spans,
 }
 #endif
 
-static void blend_tiled_rgb16(int count, const QSpan *spans, void *userData)
+static void blend_tiled_rgb16(int , int count, const QSpan *spans, void *userData)
 {
     QSpanData *data = reinterpret_cast<QSpanData *>(userData);
     if (data->texture.format != QImage::Format_RGB16
         && data->texture.format != QImage::Format_ARGB32_Premultiplied) {
-        blend_tiled_generic(count, spans, userData);
+        blend_tiled_generic(0, count, spans, userData);
         return;
     }
 
@@ -3357,7 +3357,7 @@ static void blend_tiled_rgb16(int count, const QSpan *spans, void *userData)
     }
 }
 
-static void blend_texture_generic(int count, const QSpan *spans, void *userData)
+static void blend_texture_generic(int , int count, const QSpan *spans, void *userData)
 {
     QSpanData *data = reinterpret_cast<QSpanData *>(userData);
 
@@ -3387,7 +3387,7 @@ static void blend_texture_generic(int count, const QSpan *spans, void *userData)
 }
 
 #ifdef Q_WS_QWS
-static void blend_texture_generic_callback(int count, const QSpan *spans,
+static void blend_texture_generic_callback(int , int count, const QSpan *spans,
                                            void *userData)
 {
     QSpanData *data = reinterpret_cast<QSpanData *>(userData);
@@ -3415,12 +3415,12 @@ static void blend_texture_generic_callback(int count, const QSpan *spans,
 }
 #endif // Q_WS_QWS
 
-static void blend_transformed_bilinear_argb(int count, const QSpan *spans, void *userData)
+static void blend_transformed_bilinear_argb(int , int count, const QSpan *spans, void *userData)
 {
     QSpanData *data = reinterpret_cast<QSpanData *>(userData);
     if (data->texture.format != QImage::Format_ARGB32_Premultiplied
         && data->texture.format != QImage::Format_RGB32) {
-        blend_src_generic(count, spans, userData);
+        blend_src_generic(0, count, spans, userData);
         return;
     }
 
@@ -3576,7 +3576,7 @@ static void blend_transformed_bilinear_argb(int count, const QSpan *spans, void 
 }
 
 #ifdef Q_WS_QWS
-static void blend_transformed_bilinear_argb_callback(int count,
+static void blend_transformed_bilinear_argb_callback(int , int count,
                                                      const QSpan *spans,
                                                      void *userData)
 {
@@ -3743,12 +3743,12 @@ static void blend_transformed_bilinear_argb_callback(int count,
 }
 #endif // Q_WS_QWS
 
-static void blend_transformed_bilinear_tiled_argb(int count, const QSpan *spans, void *userData)
+static void blend_transformed_bilinear_tiled_argb(int , int count, const QSpan *spans, void *userData)
 {
     QSpanData *data = reinterpret_cast<QSpanData *>(userData);
     if (data->texture.format != QImage::Format_ARGB32_Premultiplied
         && data->texture.format != QImage::Format_RGB32) {
-        blend_src_generic(count, spans, userData);
+        blend_src_generic(0, count, spans, userData);
         return;
     }
 
@@ -3921,7 +3921,7 @@ static void blend_transformed_bilinear_tiled_argb(int count, const QSpan *spans,
 }
 
 #ifdef Q_WS_QWS
-static void blend_transformed_bilinear_tiled_argb_callback(int count,
+static void blend_transformed_bilinear_tiled_argb_callback(int , int count,
                                                            const QSpan *spans,
                                                            void *userData)
 {
@@ -4105,12 +4105,12 @@ static void blend_transformed_bilinear_tiled_argb_callback(int count,
 }
 #endif // Q_WS_QWS
 
-static void blend_transformed_argb(int count, const QSpan *spans, void *userData)
+static void blend_transformed_argb(int , int count, const QSpan *spans, void *userData)
 {
     QSpanData *data = reinterpret_cast<QSpanData *>(userData);
     if (data->texture.format != QImage::Format_ARGB32_Premultiplied
         && data->texture.format != QImage::Format_RGB32) {
-        blend_src_generic(count, spans, userData);
+        blend_src_generic(0, count, spans, userData);
         return;
     }
 
@@ -4217,7 +4217,7 @@ static void blend_transformed_argb(int count, const QSpan *spans, void *userData
 }
 
 #ifdef Q_WS_QWS
-static void blend_transformed_argb_callback(int count, const QSpan *spans,
+static void blend_transformed_argb_callback(int , int count, const QSpan *spans,
                                             void *userData)
 {
     QSpanData *data = reinterpret_cast<QSpanData *>(userData);
@@ -4334,12 +4334,12 @@ static void blend_transformed_argb_callback(int count, const QSpan *spans,
 }
 #endif // Q_WS_QWS
 
-static void blend_transformed_tiled_argb(int count, const QSpan *spans, void *userData)
+static void blend_transformed_tiled_argb(int , int count, const QSpan *spans, void *userData)
 {
     QSpanData *data = reinterpret_cast<QSpanData *>(userData);
     if (data->texture.format != QImage::Format_ARGB32_Premultiplied
         && data->texture.format != QImage::Format_RGB32) {
-        blend_src_generic(count, spans, userData);
+        blend_src_generic(0, count, spans, userData);
         return;
     }
 
@@ -4450,7 +4450,7 @@ static void blend_transformed_tiled_argb(int count, const QSpan *spans, void *us
 }
 
 #ifdef Q_WS_QWS
-static void blend_transformed_tiled_argb_callback(int count,
+static void blend_transformed_tiled_argb_callback(int , int count,
                                                   const QSpan *spans,
                                                   void *userData)
 {
@@ -4713,15 +4713,15 @@ static const ProcessSpans processTextureSpansCallback[NBlendTypes][QImage::NImag
 };
 #endif // Q_WS_QWS
 
-void qBlendTexture(int count, const QSpan *spans, void *userData)
+void qBlendTexture(int, int count, const QSpan *spans, void *userData)
 {
     QSpanData *data = reinterpret_cast<QSpanData *>(userData);
     ProcessSpans proc = processTextureSpans[getBlendType(data)][data->rasterBuffer->format];
-    proc(count, spans, userData);
+    proc(0, count, spans, userData);
 }
 
 #ifdef Q_WS_QWS
-void qBlendTextureCallback(int count, const QSpan *spans, void *userData)
+void qBlendTextureCallback(int, int count, const QSpan *spans, void *userData)
 {
     QSpanData *data = reinterpret_cast<QSpanData *>(userData);
     ProcessSpans proc = processTextureSpansCallback[getBlendType(data)][data->rasterBuffer->format];
