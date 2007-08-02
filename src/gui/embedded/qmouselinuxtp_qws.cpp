@@ -180,7 +180,8 @@ QWSLinuxTPMouseHandlerPrivate::~QWSLinuxTPMouseHandlerPrivate()
 
 void QWSLinuxTPMouseHandlerPrivate::suspend()
 {
-    mouseNotifier->setEnabled(false);
+    if (mouseNotifier)
+        mouseNotifier->setEnabled(false);
 }
 
 void QWSLinuxTPMouseHandlerPrivate::resume()
@@ -190,7 +191,8 @@ void QWSLinuxTPMouseHandlerPrivate::resume()
     lastSample=0;
     numSamples=0;
     skipCount=0;
-    mouseNotifier->setEnabled(true);
+    if (mouseNotifier)
+        mouseNotifier->setEnabled(true);
 }
 
 
