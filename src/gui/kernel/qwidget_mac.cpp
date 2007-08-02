@@ -22,6 +22,7 @@
 #include "qevent.h"
 #include "qimage.h"
 #include "qlayout.h"
+#include "qmenubar.h"
 #ifdef QT_RASTER_PAINTENGINE
 # include <private/qpaintengine_raster_p.h>
 #endif
@@ -445,6 +446,7 @@ OSStatus QWidgetPrivate::qt_window_event(EventHandlerCallRef er, EventRef event,
 #endif
         } else if(ekind == kEventWindowClose) {
             widget->d_func()->close_helper(QWidgetPrivate::CloseWithSpontaneousEvent);
+            QMenuBar::macUpdateMenuBar();
         } else if (ekind == kEventWindowTransitionCompleted) {
             WindowTransitionAction transitionAction;
             GetEventParameter(event, kEventParamWindowTransitionAction, typeWindowTransitionAction,
