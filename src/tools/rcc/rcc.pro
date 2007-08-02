@@ -11,6 +11,7 @@ DEFINES	       += QT_BOOTSTRAPPED \
                   QT_NO_UNICODETABLES QT_NO_LIBRARY QT_NO_SYSTEMLOCALE QT_NO_GEOM_VARIANT
 
 win32:DEFINES += QT_NODLL
+win32:LIBS += user32.lib
 
 CONFIG -= qt
 INCLUDEPATH	 = ../../corelib/arch/generic $$QT_BUILD_TREE/include . \
@@ -88,6 +89,7 @@ contains(QT_CONFIG, zlib) {
    unix:LIBS += -lz
 #  win32:LIBS += libz.lib
 }
+
 
 target.path=$$[QT_INSTALL_BINS]
 INSTALLS += target
