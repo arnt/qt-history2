@@ -312,7 +312,7 @@ QFontEngineData::~QFontEngineData()
     Create QFonts like this:
 
     \code
-        QFont serifFont("Times", 10, Bold);
+        QFont serifFont("Times", 10, QFont::Bold);
         QFont sansFont("Helvetica [Cronyx]", 12);
     \endcode
 
