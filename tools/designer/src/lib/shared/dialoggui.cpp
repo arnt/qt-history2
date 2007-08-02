@@ -30,7 +30,7 @@ QMessageBox::StandardButton
         rc = QMessageBox::information(parent, title, text, buttons, defaultButton);
         break;
     case QMessageBox::Warning:
-        rc = QMessageBox::information(parent, title, text, buttons, defaultButton);
+        rc = QMessageBox::warning(parent, title, text, buttons, defaultButton);
         break;
     case QMessageBox::Critical:
         rc = QMessageBox::critical(parent, title, text, buttons, defaultButton);
