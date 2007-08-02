@@ -571,7 +571,7 @@ OSStatus QWidgetPrivate::qt_window_event(EventHandlerCallRef er, EventRef event,
                 } else {
                     //implicitly removes the maximized bit
                     if((widget->data->window_state & Qt::WindowMaximized) &&
-                       IsWindowInStandardState((WindowPtr)widget->handle(), 0, 0)) {
+                       IsWindowInStandardState(wid, 0, 0)) {
                         widget->data->window_state &= ~Qt::WindowMaximized;
                         QWindowStateChangeEvent e(Qt::WindowStates(widget->data->window_state
                                                     | Qt::WindowMaximized));
