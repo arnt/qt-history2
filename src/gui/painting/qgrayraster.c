@@ -1725,7 +1725,8 @@
 #ifdef DEBUG_GRAYS
           fprintf( stderr, "Rotten glyph!\n" );
 #endif
-          return 1;
+          /* == Raster_Err_OutOfMemory in qblackraster.c */
+          return -6;
         }
 
         if ( bottom-top >= ras.band_size )
@@ -1858,8 +1859,6 @@
   gray_raster_done( QT_FT_Raster  raster )
   {
     free(raster);
-    /* nothing */
-    QT_FT_UNUSED( raster );
   }
 
 
