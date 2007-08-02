@@ -100,8 +100,21 @@ public:
         LineIntersection
     };
 public:
-    PathVertex();
-    PathVertex(qreal x, qreal y, Type t);
+    inline PathVertex()
+        : heap_allocated(true)
+    {
+#ifdef QDEBUG_CLIPPER
+        Q_ASSERT(0);
+#endif
+    }
+    inline PathVertex(qreal xi, qreal yi, Type t)
+        : next(0), prev(0), intersect(DNone),
+          code(TNone), neighbor(0),
+          cross_transfer(false),
+          x(xi), y(yi), alpha(0), type(t),
+          heap_allocated(true)
+    {
+    }
     ~PathVertex();
 
     Direction eat();
@@ -195,6 +208,8 @@ private:
 public:
     //used only by curveto/movecurveto elements
     QPointF ctrl1, ctrl2;
+
+    bool heap_allocated;
 };
 
 #ifdef QDEBUG_CLIPPER
@@ -235,13 +250,6 @@ static QDebug operator<<(QDebug str, const PathVertex::TraversalFlag &b)
     return str;
 }
 #endif
-
-PathVertex::PathVertex()
-{
-#ifdef QDEBUG_CLIPPER
-    Q_ASSERT(0);
-#endif
-}
 
 PathVertex::Direction PathVertex::eat()
 {
@@ -406,13 +414,6 @@ void PathVertex::setIntersect(Degeneracy d)
         intersect = d;
 }
 
-PathVertex::PathVertex(qreal xi, qreal yi, Type t)
-    : next(0), prev(0), intersect(DNone),
-      code(TNone), neighbor(0),
-      cross_transfer(false),
-      x(xi), y(yi), alpha(0), type(t)
-{
-}
 
 PathVertex::~PathVertex()
 {
@@ -429,14 +430,34 @@ public:
     PathVertex *last_node;
     PathVertex *current_node;
 
-    VertexList()
+    const int PATH_CACHE_SIZE;
+    PathVertex *cache;
+    int current_cache;
+
+    inline PathVertex *allocateVertex(qreal x, qreal y, PathVertex::Type t)
+    {
+        if (current_cache <= (PATH_CACHE_SIZE - 1)) {
+            cache[current_cache] = PathVertex(x, y, t);
+            PathVertex *vtx = &cache[current_cache];
+            vtx->heap_allocated = false;
+            ++current_cache;
+            return vtx;
+        } else
+            return new PathVertex(x, y, t);
+    }
+
+    VertexList(int size)
         : node(0), first_node(0),
-          last_node(0), current_node(0)
-    {}
+          last_node(0), current_node(0),
+          PATH_CACHE_SIZE(size), current_cache(0)
+    {
+        cache = new PathVertex[PATH_CACHE_SIZE];
+    }
 
     ~VertexList()
     {
         reset();
+        delete [] cache;
     }
 
     void setCurrentNode(PathVertex *a)
@@ -453,13 +474,15 @@ public:
 
 	while (a != 0) {
 	    PathVertex *n = a->next;
-	    delete a;
+            if (a->heap_allocated)
+                delete a;
 	    a = n;
 	}
 
 	current_node = 0;
 	first_node = 0;
 	last_node = 0;
+        current_cache = 0;
     }
 
     void makeRing()
@@ -493,7 +516,8 @@ public:
 	    last_node = a->prev;
 	if (a == first_node)
 	    first_node = a->next;
-	delete a;
+        if (a->heap_allocated)
+            delete a;
     }
 
     void appendNode(PathVertex *a)
@@ -618,7 +642,7 @@ struct VertexListNavigate {
 
 VertexList *VertexList::fromPainterPath(const QPainterPath &path)
 {
-    VertexList *lst = new VertexList;
+    VertexList *lst = new VertexList(path.elementCount());
 
     bool multipleMoves = false;
     PathVertex *firstMove = 0;
@@ -626,8 +650,8 @@ VertexList *VertexList::fromPainterPath(const QPainterPath &path)
         const QPainterPath::Element &e = path.elementAt(i);
         switch(e.type) {
         case QPainterPath::MoveToElement: {
-            PathVertex *lstMove = new PathVertex(e.x, e.y,
-                                     PathVertex::MoveTo);
+            PathVertex *lstMove = lst->allocateVertex(e.x, e.y,
+                                                      PathVertex::MoveTo);
             lst->appendNode(lstMove);
             multipleMoves = firstMove;
             if (!firstMove)
@@ -639,8 +663,8 @@ VertexList *VertexList::fromPainterPath(const QPainterPath &path)
                 qFuzzyCompare(firstMove->x, e.x) && qFuzzyCompare(firstMove->y, e.y)) {
                 firstMove->setType(PathVertex::MoveLineTo);
             } else {
-                lst->appendNode(new PathVertex(e.x, e.y,
-                                               PathVertex::LineTo));
+                lst->appendNode(lst->allocateVertex(e.x, e.y,
+                                                    PathVertex::LineTo));
             }
             break;
         }
@@ -655,9 +679,9 @@ VertexList *VertexList::fromPainterPath(const QPainterPath &path)
                 firstMove->ctrl1 = QPointF(e.x, e.y);
                 firstMove->ctrl2 = QPointF(path.elementAt(i+1).x, path.elementAt(i+1).y);
             } else {
-                PathVertex *vtx = new PathVertex(path.elementAt(i+2).x,
-                                                 path.elementAt(i+2).y,
-                                                 PathVertex::CurveTo);
+                PathVertex *vtx = lst->allocateVertex(path.elementAt(i+2).x,
+                                                      path.elementAt(i+2).y,
+                                                      PathVertex::CurveTo);
                 vtx->ctrl1 = QPointF(e.x, e.y);
                 vtx->ctrl2 = QPointF(path.elementAt(i+1).x, path.elementAt(i+1).y);
                 lst->appendNode(vtx);
@@ -1320,7 +1344,7 @@ public:
             } else if (qFuzzyCompare(alpha, 1)) {
                 v = two;
             } else {
-                v = new PathVertex(x, y, type);
+                v = lst.allocateVertex(x, y, type);
                 v->alpha = alpha;
                 one = one->next;
                 while (one && one != two &&
