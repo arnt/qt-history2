@@ -2796,7 +2796,7 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
                     else
                         textRect = textRect.adjusted(indicatorSize, 0, 0, 0);
                 }
-                drawItemText(p, textRect, tf, button->palette, (button->state & State_Enabled),
+                drawItemText(p, textRect, tf, butOpt.palette, (button->state & State_Enabled),
                              button->text, QPalette::ButtonText);
             } else {
                 ParentStyle::drawControl(ce, &butOpt, p, w);
