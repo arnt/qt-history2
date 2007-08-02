@@ -1157,6 +1157,7 @@
            See \l{Qt Style Sheets Examples#Customizing QTabWidget and QTabBar}
            {Customizing QTabWidget} for an example.
 
+    \row
         \o QTableView \target qtableview-widget
         \o Supports the \l{box model}. When
            \l{QAbstractItemView::alternatingRowColors}{alternating row colors} 
