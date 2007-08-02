@@ -357,7 +357,7 @@ void QAlphaPaintEngine::flushAndInit(bool init)
         // reset states
         gccaps = d->m_savedcaps;
 
-        QTransform old_transform = painter()->transform();
+        painter()->save();
         d->resetState(painter());
 
         // make sure the output from QPicture is unscaled
@@ -375,7 +375,7 @@ void QAlphaPaintEngine::flushAndInit(bool init)
             d->drawAlphaImage(rects.at(i));
         d->m_alphargn = QRegion();
 
-        painter()->setTransform(old_transform);
+        painter()->restore();
 
         --d->m_pass; // pass #2 finished
 
@@ -388,6 +388,17 @@ void QAlphaPaintEngine::flushAndInit(bool init)
         d->m_pic = new QPicture();
         d->m_picpainter = new QPainter(d->m_pic);
         d->m_picengine = d->m_picpainter->paintEngine();
+
+        // When newPage() is called and the m_picpainter is recreated
+        // we have to copy the current state of the original printer
+        // painter back to the m_picpainter
+        d->m_picpainter->setPen(painter()->pen());
+        d->m_picpainter->setBrush(painter()->brush());
+        d->m_picpainter->setBrushOrigin(painter()->brushOrigin());
+        d->m_picpainter->setFont(painter()->font());
+        d->m_picpainter->setOpacity(painter()->opacity());
+        d->m_picpainter->setTransform(painter()->combinedTransform());
+        d->m_picengine->syncState();
     }
 }
 
@@ -523,6 +534,10 @@ void QAlphaPaintEnginePrivate::resetState(QPainter *p)
     p->setBackground(QBrush());
     p->setFont(QFont());
     p->setTransform(QTransform());
+    // The view transform is already recorded and included in the
+    // picture we're about to replay. If we don't turn if off,
+    // the view matrix will be applied twice.
+    p->setViewTransformEnabled(false);
     p->setClipRegion(QRegion(), Qt::NoClip);
     p->setClipPath(QPainterPath(), Qt::NoClip);
     p->setClipping(false);
