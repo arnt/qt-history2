@@ -24,6 +24,9 @@
 
 #define QVERIFY_SQL(q, stmt) QVERIFY2(stmt, qPrintable(q.lastError().text()))
 
+#define DBMS_SPECIFIC(db, driver) \
+    if (!db.driverName().startsWith(driver)) { QSKIP(driver " specific test", SkipSingle); return; }
+
 // ### use QSystem::hostName if it is integrated in qtest/main
 static QString qGetHostName()
 {

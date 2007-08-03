@@ -18,14 +18,11 @@
 #include <q3cstring.h>
 #include <qdatetime.h>
 #include <qdebug.h>
-
 #include <q3sqlrecordinfo.h>
 
 #define NODATABASE_SKIP "No database drivers are available in this Qt configuration"
 
-
 #include "tst_databases.h"
-
 
 //TESTED_FILES=
 
@@ -34,12 +31,11 @@ struct FieldDef;
 
 class tst_QSqlDatabase : public QObject
 {
-Q_OBJECT
+    Q_OBJECT
 
 public:
     tst_QSqlDatabase();
     virtual ~tst_QSqlDatabase();
-
 
 public slots:
     void initTestCase();
@@ -57,7 +53,6 @@ private slots:
     void transaction();
     void eventNotification_data() { generic_data(); }
     void eventNotification();
-
     void addDatabase();
 
     //database specific tests
@@ -799,11 +794,7 @@ void tst_QSqlDatabase::recordTDS()
     QFETCH(QString, dbName);
     QSqlDatabase db = QSqlDatabase::database(dbName);
     CHECK_DATABASE(db);
-
-    if (!db.driverName().startsWith("QTDS")) {
-	QSKIP("TDS specific test", SkipSingle);
-	return;
-    }
+    DBMS_SPECIFIC(db, "QTDS");
 
     static const FieldDef fieldDefs[] = {
 	FieldDef("tinyint", QVariant::Int,		255),
@@ -850,11 +841,7 @@ void tst_QSqlDatabase::recordOCI()
     QFETCH(QString, dbName);
     QSqlDatabase db = QSqlDatabase::database(dbName);
     CHECK_DATABASE(db);
-
-    if (!db.driverName().startsWith("QOCI")) {
-	QSKIP("Oracle specific test", SkipSingle);
-	return;
-    }
+    DBMS_SPECIFIC(db, "QOIC");
 
     // runtime check for Oracle version since V8 doesn't support TIMESTAMPs
     if (tst_Databases::getOraVersion(db) >= 9) {
@@ -929,11 +916,7 @@ void tst_QSqlDatabase::recordPSQL()
     QFETCH(QString, dbName);
     QSqlDatabase db = QSqlDatabase::database(dbName);
     CHECK_DATABASE(db);
-
-    if (!db.driverName().startsWith("QPSQL")) {
-	QSKIP("PostgresSQL specific test", SkipSingle);
-	return;
-    }
+    DBMS_SPECIFIC(db, "QPSQL");
 
     FieldDef byteadef(QString::null, QVariant::Invalid);
     if (db.driver()->hasFeature(QSqlDriver::BLOB))
@@ -1008,11 +991,7 @@ void tst_QSqlDatabase::recordMySQL()
     QFETCH(QString, dbName);
     QSqlDatabase db = QSqlDatabase::database(dbName);
     CHECK_DATABASE(db);
-
-    if (!db.driverName().startsWith("QMYSQL")) {
-	QSKIP("MySQL specific test", SkipSingle);
-	return;
-    }
+    DBMS_SPECIFIC(db, "QMYSQL");
 
     static QDateTime dt(QDate::currentDate(), QTime(1, 2, 3, 0));
     static const FieldDef fieldDefs[] = {
@@ -1073,11 +1052,7 @@ void tst_QSqlDatabase::recordDB2()
     QFETCH(QString, dbName);
     QSqlDatabase db = QSqlDatabase::database(dbName);
     CHECK_DATABASE(db);
-
-    if (!db.driverName().startsWith("QDB2")) {
-	QSKIP("DB2 specific test", SkipSingle);
-	return;
-    }
+    DBMS_SPECIFIC(db, "QDB2");
 
     static const FieldDef fieldDefs[] = {
 	FieldDef("char(20)", QVariant::String,		QString("Blah1")),
@@ -1121,11 +1096,7 @@ void tst_QSqlDatabase::recordIBase()
     QFETCH(QString, dbName);
     QSqlDatabase db = QSqlDatabase::database(dbName);
     CHECK_DATABASE(db);
-
-    if (!db.driverName().startsWith("QIBASE")) {
-	QSKIP("Interbase specific test", SkipSingle);
-	return;
-    }
+    DBMS_SPECIFIC(db, "QIBASE");
 
     static const FieldDef fieldDefs[] = {
 	FieldDef("char(20)", QVariant::String, QString("Blah1"), FALSE),
@@ -1156,11 +1127,7 @@ void tst_QSqlDatabase::recordSQLite()
     QFETCH(QString, dbName);
     QSqlDatabase db = QSqlDatabase::database(dbName);
     CHECK_DATABASE(db);
-
-    if (!db.driverName().startsWith("QSQLITE")) {
-	QSKIP("QSQLITE specific test", SkipSingle);
-	return;
-    }
+    DBMS_SPECIFIC(db, "QSQLITE");
 
     // well... SQLite has exactly two datatypes, so this test is rather
     // short. But worthy because of the NULL check.
@@ -1506,11 +1473,7 @@ void tst_QSqlDatabase::psql_escapeBytea()
     QFETCH(QString, dbName);
     QSqlDatabase db = QSqlDatabase::database(dbName);
     CHECK_DATABASE(db);
-
-    if (!db.driverName().startsWith("QPSQL")) {
-	QSKIP("PostgreSQL server specific test", SkipSingle);
-	return;
-    }
+    DBMS_SPECIFIC(db, "QPSQL");
 
     const char dta[4] = {'\x71', '\x14', '\x32', '\x81'};
     QByteArray ba(dta, 4);
@@ -1547,15 +1510,10 @@ void tst_QSqlDatabase::psql_precisionPolicy()
     QFETCH(QString, dbName);
     QSqlDatabase db = QSqlDatabase::database(dbName);
     CHECK_DATABASE(db);
+    DBMS_SPECIFIC(db, "QPSQL");
 
     QSqlQuery q(db);
     QString tableName = qTableName("qtest_precisionpolicy");
-
-    if (!db.driverName().startsWith("QPSQL")) {
-	QSKIP("PostgreSQL server specific test", SkipSingle);
-        return;
-    }
-
     QVERIFY(db.driver()->hasFeature(QSqlDriver::LowPrecisionNumbers));
 
     // Create a test table with some data
@@ -1699,11 +1657,7 @@ void tst_QSqlDatabase::ibase_numericFields()
     QFETCH(QString, dbName);
     QSqlDatabase db = QSqlDatabase::database(dbName);
     CHECK_DATABASE(db);
-
-    if (!db.driverName().startsWith("QIBASE")) {
-       QSKIP("InterBase specific test", SkipSingle);
-       return;
-    }
+    DBMS_SPECIFIC(db, "QIBASE");
 
     QSqlQuery q(db);
     QString tableName = qTableName("numericfields");
@@ -1788,11 +1742,7 @@ void tst_QSqlDatabase::ibase_fetchBlobs()
     QFETCH(QString, dbName);
     QSqlDatabase db = QSqlDatabase::database(dbName);
     CHECK_DATABASE(db);
-
-    if (!db.driverName().startsWith("QIBASE")) {
-       QSKIP("InterBase specific test", SkipSingle);
-       return;
-    }
+    DBMS_SPECIFIC(db, "QIBASE");
 
     QString tableName = qTableName("qtest_ibaseblobs");
     QSqlQuery q(db);
@@ -1829,11 +1779,7 @@ void tst_QSqlDatabase::ibase_procWithoutReturnValues()
     QFETCH(QString, dbName);
     QSqlDatabase db = QSqlDatabase::database(dbName);
     CHECK_DATABASE(db);
-
-    if (!db.driverName().startsWith("QIBASE")) {
-       QSKIP("InterBase specific test", SkipSingle);
-       return;
-    }
+    DBMS_SPECIFIC(db, "QIBASE");
 
     QSqlQuery q(db);
     QString tableName = qTableName("qtest_procWithoutReturnValues");
@@ -1897,11 +1843,7 @@ void tst_QSqlDatabase::mysql_multiselect()
     QFETCH(QString, dbName);
     QSqlDatabase db = QSqlDatabase::database(dbName);
     CHECK_DATABASE(db);
-
-    if (!db.driverName().startsWith("QMYSQL")) {
-        QSKIP("MySQL server specific test", SkipSingle);
-        return;
-    }
+    DBMS_SPECIFIC(db, "QMYSQL");
 
     QSqlQuery q(db);
     QVERIFY2(q.exec("SELECT * FROM " + qTableName("qtest") + "; SELECT * FROM " + qTableName("qtest")), q.lastError().text());
@@ -1916,11 +1858,7 @@ void tst_QSqlDatabase::ibase_useCustomCharset()
     QFETCH(QString, dbName);
     QSqlDatabase db = QSqlDatabase::database(dbName);
     CHECK_DATABASE(db);
-
-    if (!db.driverName().startsWith("QIBASE")) {
-        QSKIP("InterBase/Firebird server specific test", SkipSingle);
-        return;
-    }
+    DBMS_SPECIFIC(db, "QIBASE");
 
     db.close();
     db.setConnectOptions("ISC_DPB_LC_CTYPE=Latin1");
@@ -1943,11 +1881,7 @@ void tst_QSqlDatabase::oci_serverDetach()
     QFETCH(QString, dbName);
     QSqlDatabase db = QSqlDatabase::database(dbName);
     CHECK_DATABASE(db);
-
-    if (!db.driverName().startsWith("QOCI")) {
-        QSKIP("Oracle server specific test", SkipSingle);
-        return;
-    }
+    DBMS_SPECIFIC(db, "QOCI");
 
     for (int i = 0; i < 200; i++) {
         db.close();
@@ -1966,11 +1900,7 @@ void tst_QSqlDatabase::oci_xmltypeSupport()
     QFETCH(QString, dbName);
     QSqlDatabase db = QSqlDatabase::database(dbName);
     CHECK_DATABASE(db);
-
-    if (!db.driverName().startsWith("QOCI")) {
-        QSKIP("Oracle server specific test", SkipSingle);
-        return;
-    }
+    DBMS_SPECIFIC(db, "QOCI");
 
     QString tableName = qTableName("qtest_xmltype");
     QString xml("<?xml version=\"1.0\"?><TABLE_NAME>MY_TABLE</TABLE_NAME>");
@@ -2051,11 +1981,7 @@ void tst_QSqlDatabase::odbc_uintfield()
     QFETCH(QString, dbName);
     QSqlDatabase db = QSqlDatabase::database(dbName);
     CHECK_DATABASE(db);
-
-    if (!db.driverName().startsWith("QODBC")) {
-        QSKIP("ODBC server specific test", SkipSingle);
-        return;
-    }
+    DBMS_SPECIFIC(db, "QODBC");
 
     QString tableName = qTableName("uint_table");
     unsigned int val = 4294967295;
@@ -2118,11 +2044,7 @@ void tst_QSqlDatabase::eventNotificationIBase()
     QFETCH(QString, dbName);
     QSqlDatabase db = QSqlDatabase::database(dbName);
     CHECK_DATABASE(db);
-
-    if (!db.driverName().startsWith("QIBASE")) {
-        QSKIP("InterBase/Firebird server specific test", SkipSingle);
-        return;
-    }
+    DBMS_SPECIFIC(db, "QIBASE");
 
     QString procedureName = qTableName("posteventProc");
     QVERIFY2(db.driver()->subscribeToNotification(procedureName), qPrintable(db.driver()->lastError().text()));
@@ -2151,11 +2073,7 @@ void tst_QSqlDatabase::eventNotificationPSQL()
     QFETCH(QString, dbName);
     QSqlDatabase db = QSqlDatabase::database(dbName);
     CHECK_DATABASE(db);
-
-    if (!db.driverName().startsWith("QPSQL")) {
-        QSKIP("Postgres server specific test", SkipSingle);
-        return;
-    }
+    DBMS_SPECIFIC(db, "QPSQL");
 
     QSqlQuery query(db);
     QString procedureName = qTableName("posteventProc");
