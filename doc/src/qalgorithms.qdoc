@@ -390,7 +390,7 @@ of \a value in the variable passed as a reference in argument \a n.
     \relates <QtAlgorithms>
 
     Sorts the items in range [\a begin, \a end) in ascending order
-    using the heap sort algorithm.
+    using the quicksort algorithm.
 
     Example:
     \code
@@ -487,7 +487,12 @@ of \a value in the variable passed as a reference in argument \a n.
     \relates <QtAlgorithms>
 
     Sorts the items in range [\a begin, \a end) in ascending order
-    using the heap sort algorithm.
+    using a stable sorting algorithm.
+
+    If of two items neither is less than the other, the items are
+    taken to be equal. The item that appeared before the other in the
+    original container will still appear first after the sort. This
+    property is often useful when sorting user-visible data.
 
     Example:
     \code
@@ -502,11 +507,6 @@ of \a value in the variable passed as a reference in argument \a n.
 
     This function requires the item type (in the example above,
     \c{int}) to implement \c operator<().
-
-    If of two items neither is less than the other, the items are
-    taken to be equal. The item that appeared before the other in the
-    original container will still appear first after the sort. This
-    property is often useful when sorting user-visible data.
 
     \sa qSort(), {random access iterators}
 */
