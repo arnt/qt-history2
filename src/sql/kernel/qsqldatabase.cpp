@@ -468,7 +468,13 @@ QSqlDatabase QSqlDatabase::database(const QString& connectionName, bool open)
     QSqlDatabase::removeDatabase("sales"); // correct
     \endcode
 
-    \sa database() {Threads and the SQL Module}
+    To remove the default connection, which may have been created with a 
+    call to addDatabase() not specifying a connection name, you can
+    retrieve the default connection name by calling connectionName() on 
+    the database returned by database(). Note that if a default database
+    hasn't been created an invalid database will be returned.
+
+    \sa database() connectionName() {Threads and the SQL Module}
 */
 
 void QSqlDatabase::removeDatabase(const QString& connectionName)
