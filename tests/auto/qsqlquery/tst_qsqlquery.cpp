@@ -133,6 +133,8 @@ private slots:
     void createQueryOnClosedDatabase();
     void seekForwardOnlyQuery_data() { generic_data(); }
     void seekForwardOnlyQuery();
+    void reExecutePreparedForwardOnlyQuery_data() { generic_data(); }
+    void reExecutePreparedForwardOnlyQuery();
 
 private:
     // returns all database connections
@@ -2252,12 +2254,40 @@ void tst_QSqlQuery::createQueryOnClosedDatabase()
 
     QVERIFY2(query.next(), qPrintable(query.lastError().text()));
     QCOMPARE(query.value(0).toInt(), 0);
-    QCOMPARE(query.value(1).toString().trimmed(), QLatin1String("VarChar0"));
-    QCOMPARE(query.value(2).toString().trimmed(), QLatin1String("Char0"));
+    QCOMPARE(query.value(1).toString(), QLatin1String("VarChar0"));
+    QCOMPARE(query.value(2).toString(), QLatin1String("Char0"));
 
     db.close();
     QVERIFY2(!query.exec(QString("select * from %1 where id = 0").arg(qTableName("qtest"))),
         qPrintable(QString("This can't happen! The query should not have been executed!")));
+}
+
+void tst_QSqlQuery::reExecutePreparedForwardOnlyQuery()
+{
+    QFETCH(QString, dbName);
+    QSqlDatabase db = QSqlDatabase::database(dbName);
+    CHECK_DATABASE(db);
+
+    QSqlQuery q(db);
+    q.setForwardOnly(true);
+
+    QVERIFY2(q.prepare(QString("SELECT id, t_varchar, t_char FROM %1 WHERE id = :id").arg(qTableName("qtest"))),
+        qPrintable(q.lastError().text()));
+    q.bindValue(":id", 0);
+    QVERIFY2(q.exec(), qPrintable(q.lastError().text()));
+
+    // Do something, like iterate over the result, or skip to the end
+    QVERIFY2(q.last(), qPrintable(q.lastError().text()));
+
+    QVERIFY2(q.exec(), qPrintable(q.lastError().text()));
+    /* This was broken with SQLite because the cache size was set to 0 in the 2nd execute.
+       When forwardOnly is set we don't cahce the entire result, but we do cache the current row
+       but this requires the cache size to be equal to the column count.
+    */
+    QVERIFY2(q.next(), qPrintable(q.lastError().text()));
+    QCOMPARE(q.value(0).toInt(), 0);
+    QCOMPARE(q.value(1).toString().trimmed(), QString("VarChar0"));
+    QCOMPARE(q.value(2).toString().trimmed(), QString("Char0"));
 }
 
 QTEST_MAIN(tst_QSqlQuery)
