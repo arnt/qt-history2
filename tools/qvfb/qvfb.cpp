@@ -18,8 +18,9 @@
 #endif
 #include "qvfbratedlg.h"
 #include "ui_config.h"
-#include "skin.h"
 #include "qanimationwriter.h"
+
+#include <deviceskin.h>
 
 #include <QMenuBar>
 #include <QMenu>

@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "skin.h"
+#include "deviceskin.h"
 
 #include <QtCore/qnamespace.h>
 #include <QtGui/QApplication>

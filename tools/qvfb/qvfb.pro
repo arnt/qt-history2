@@ -16,7 +16,6 @@ HEADERS         = qvfb.h \
 		  qvfbratedlg.h \
 		  qanimationwriter.h \
                   gammaview.h \
-		  skin.h \
                   qvfbprotocol.h \
                   qvfbshmem.h \
                   qvfbmmap.h \
@@ -29,12 +28,13 @@ SOURCES         = qvfb.cpp \
 		  qvfbratedlg.cpp \
                   main.cpp \
 		  qanimationwriter.cpp \
-		  skin.cpp \
                   qvfbprotocol.cpp \
                   qvfbshmem.cpp \
                   qvfbmmap.cpp \
 		  qlock.cpp \
  	          qwssignalhandler.cpp
+
+include($$QT_SOURCE_TREE/tools/shared/deviceskin/deviceskin.pri)
 
 contains(QT_CONFIG, opengl) {
 	QT += opengl
