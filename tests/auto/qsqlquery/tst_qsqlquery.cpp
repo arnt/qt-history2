@@ -2254,8 +2254,8 @@ void tst_QSqlQuery::createQueryOnClosedDatabase()
 
     QVERIFY2(query.next(), qPrintable(query.lastError().text()));
     QCOMPARE(query.value(0).toInt(), 0);
-    QCOMPARE(query.value(1).toString(), QLatin1String("VarChar0"));
-    QCOMPARE(query.value(2).toString(), QLatin1String("Char0"));
+    QCOMPARE(query.value(1).toString().trimmed(), QLatin1String("VarChar0"));
+    QCOMPARE(query.value(2).toString().trimmed(), QLatin1String("Char0"));
 
     db.close();
     QVERIFY2(!query.exec(QString("select * from %1 where id = 0").arg(qTableName("qtest"))),
