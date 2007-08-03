@@ -1082,6 +1082,8 @@ void QBoxLayout::addStrut(int size)
 bool QBoxLayout::setStretchFactor(QWidget *widget, int stretch)
 {
     Q_D(QBoxLayout);
+    if (!widget)
+        return false;
     for (int i = 0; i < d->list.size(); ++i) {
         QBoxLayoutItem *box = d->list.at(i);
         if (box->item->widget() == widget) {
