@@ -79,6 +79,12 @@ QTableCornerButton::section, QHeaderView::section {
     border: native;
 }
 
+
+QHeaderView[style="QWindowsXPStyle"]::section,
+QHeaderView[style="QWindowsVistaStyle"]::section {
+    -qt-style-features: none;
+}
+
 QProgressBar {
     -qt-background-role: base;
 }
