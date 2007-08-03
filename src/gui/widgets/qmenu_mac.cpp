@@ -1222,6 +1222,49 @@ MenuRef QMenuBarPrivate::macMenu()
 */
 MenuRef QMenuBar::macMenu() {  return d_func()->macMenu(); }
 
+/* !
+    \internal
+    Ancestor function that crosses windows (QWidget::isAncestorOf
+    only considers widgets within the same window).
+*/
+static bool qt_mac_is_ancestor(QWidget* possibleAncestor, QWidget *child)
+{
+    QWidget * current = child->parentWidget();
+    while (current != 0) {
+        if (current == possibleAncestor)
+            return true;
+        current = current->parentWidget();
+    }
+    return false;
+}
+
+/* !
+    \internal
+    Returns true if the entries of menuBar should be disabled,
+    based on the modality type of modalWidget.
+*/
+static bool qt_mac_should_disable_menu(QMenuBar *menuBar, QWidget *modalWidget)
+{
+    if (modalWidget == 0 || menuBar == 0)
+        return false;
+    const Qt::WindowModality modality = modalWidget->windowModality();
+    if (modality == Qt::ApplicationModal) {
+        return true;
+    } else if (modality == Qt::WindowModal) {
+        QWidget * parent = menuBar->parentWidget();
+        
+        // Special case for the global menu bar: It's not associated
+        // with a window so don't disable it.
+        if (parent == 0) 
+            return false;
+
+        // Disable menu entries in menu bars that belong to ancestors of
+        // the modal widget, leave entries in unrelated menu bars enabled.
+        return qt_mac_is_ancestor(parent, modalWidget);
+    }
+    return false; // modality == NonModal
+}
+
 /*!
   \internal
 
@@ -1282,8 +1325,12 @@ bool QMenuBar::macUpdateMenuBar()
     if (mb) {
         if (MenuRef menu = mb->macMenu()) {
             SetRootMenu(menu);
-            if (mb != menubars()->value(qApp->activeModalWidget()))
-                qt_mac_set_modal_state(menu, QApplicationPrivate::modalState());
+            QWidget *modalWidget = qApp->activeModalWidget();
+            if (mb != menubars()->value(modalWidget)) {
+                qDebug() << "set modal state";
+                qDebug() << mb << mb->parentWidget() << modalWidget << qApp->activeWindow();
+                qt_mac_set_modal_state(menu, qt_mac_should_disable_menu(mb, modalWidget));
+            }
         }
         qt_mac_current_menubar.qmenubar = mb;
         qt_mac_current_menubar.modal = QApplicationPrivate::modalState();
@@ -1294,8 +1341,10 @@ bool QMenuBar::macUpdateMenuBar()
             ret = true;
             if (MenuRef menu = qt_mac_current_menubar.qmenubar->macMenu()) {
                 SetRootMenu(menu);
-                if (qt_mac_current_menubar.qmenubar != menubars()->value(qApp->activeModalWidget()))
-                    qt_mac_set_modal_state(menu, QApplicationPrivate::modalState());
+                QWidget *modalWidget = qApp->activeModalWidget();
+                if (qt_mac_current_menubar.qmenubar != menubars()->value(modalWidget)) {
+                    qt_mac_set_modal_state(menu, qt_mac_should_disable_menu(mb, modalWidget));
+                }
             }
             qt_mac_current_menubar.modal = modal;
         }
