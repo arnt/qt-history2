@@ -57,6 +57,7 @@ public:
 
 private:
     friend class QGridLayoutPrivate;
+    friend class QGridLayout;
 
     QLayoutItem *item_;
     int row, col;
@@ -1363,6 +1364,25 @@ QLayoutItem *QGridLayout::itemAt(int index) const
     return d->itemAt(index);
 }
 
+/*!
+    Returns the layout item that occupies cell (row, column), or 0 if
+    the cell is empty.
+
+    \sa getItemPosition(), indexOf()
+*/
+QLayoutItem *QGridLayout::itemAtPosition(int row, int column) const
+{
+    Q_D(const QGridLayout);
+    int n = d->things.count();
+    for (int i = 0; i < n; ++i) {
+        QGridBox *box = d->things.at(i);
+        if (row >= box->row && row <= box->torow
+                && column >= box->col && column <= box->tocol) {
+            return box->item();
+        }
+    }
+    return 0;
+}
 
 /*!
     \reimp
@@ -1379,6 +1399,8 @@ QLayoutItem *QGridLayout::takeAt(int index)
   The variables passed as \a row and \a column are updated with the position of the
   item in the layout, and the \a rowSpan and \a columnSpan variables are updated
   with the vertical and horizontal spans of the item.
+
+  \sa itemAtPosition(), itemAt()
 */
 void QGridLayout::getItemPosition(int index, int *row, int *column, int *rowSpan, int *columnSpan)
 {

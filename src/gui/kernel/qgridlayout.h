@@ -96,8 +96,9 @@ public:
     inline QT3_SUPPORT void setOrigin(Qt::Corner corner) { setOriginCorner(corner); }
     inline QT3_SUPPORT Qt::Corner origin() const { return originCorner(); }
 #endif
-    QLayoutItem *itemAt(int) const;
-    QLayoutItem *takeAt(int);
+    QLayoutItem *itemAt(int index) const;
+    QLayoutItem *itemAtPosition(int row, int column) const;
+    QLayoutItem *takeAt(int index);
     int count() const;
     void setGeometry(const QRect&);
 

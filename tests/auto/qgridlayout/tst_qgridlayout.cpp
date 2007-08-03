@@ -42,6 +42,7 @@ public slots:
 
 private slots:
     void getItemPosition();
+    void itemAtPosition();
     void badDistributionBug();
     void setMinAndMaxSize();
     void spacingAndSpacers();
@@ -66,6 +67,7 @@ private:
     QWidget *w1;
     QWidget *w2;
     QWidget *w3;
+    QSpacerItem *sp;
 
     QGridLayout *m_grid;
     QWidget *m_toplevel;
@@ -102,8 +104,8 @@ void tst_QGridLayout::initTestCase()
     testLayout->addWidget(w3, 0, 1, 1, 2);
     w3->setPalette(QPalette(Qt::blue));
 
-
-    testLayout->addItem(new QSpacerItem(4,4), 1, 3, 2, 1);
+    sp = new QSpacerItem(4, 4);
+    testLayout->addItem(sp, 1, 3, 2, 1);
 
     testWidget->resize( 200, 200 );
     testWidget->show();
@@ -177,6 +179,24 @@ void tst_QGridLayout::getItemPosition()
     QVERIFY(seenW2);
     QVERIFY(seenW3);
     QVERIFY(seenSpacer);
+}
+
+void tst_QGridLayout::itemAtPosition()
+{
+    void *table[4][5] = {
+        { w1, w3, w3, 0,  0 },
+        { 0,  w2, w2, sp, 0 },
+        { 0,  w2, w2, sp, 0 },
+        { 0,  0,  0,  0,  0 }
+    };
+
+    for (int row = 0; row < 4; ++row) {
+        for (int col = 0; col < 5; ++col) {
+            QLayoutItem *item = testLayout->itemAtPosition(row, col);
+            QVERIFY(item == table[row][col]
+                    || (item && item->widget() == table[row][col]));
+        }
+    }
 }
 
 #include "ui_sortdialog.h"
