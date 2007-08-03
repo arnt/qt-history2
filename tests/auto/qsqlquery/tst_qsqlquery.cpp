@@ -12,12 +12,11 @@
 
 #include "../qsqldatabase/tst_databases.h"
 
-
 //TESTED_FILES=
 
 class tst_QSqlQuery : public QObject
 {
-Q_OBJECT
+    Q_OBJECT
 
 public:
     tst_QSqlQuery();
@@ -62,7 +61,6 @@ private slots:
     void transaction();
     void record_data() { generic_data(); }
     void record();
-
     void record_sqlite_data() { generic_data(); }
     void record_sqlite();
 
@@ -233,7 +231,6 @@ void tst_QSqlQuery::generic_data()
     if (dbs.fillTestTable() == 0)
 	QSKIP("No database drivers are available in this Qt configuration", SkipAll);
 }
-
 
 void tst_QSqlQuery::dropTestTables(QSqlDatabase db)
 {
@@ -669,11 +666,7 @@ void tst_QSqlQuery::storedProceduresIBase()
     QFETCH(QString, dbName);
     QSqlDatabase db = QSqlDatabase::database(dbName);
     CHECK_DATABASE(db);
-
-    if (!db.driverName().startsWith("QIBASE")) {
-        QSKIP("Test requires Interbase", SkipSingle);
-        return;
-    }
+    DBMS_SPECIFIC(db, "QIBASE");
 
     QSqlQuery q(db);
     q.exec("drop procedure " + qTableName("TESTPROC"));
@@ -1332,9 +1325,7 @@ void tst_QSqlQuery::nullBlob()
     QFETCH(QString, dbName);
     QSqlDatabase db = QSqlDatabase::database(dbName);
     CHECK_DATABASE(db);
-
-    if (!db.driverName().startsWith("QOCI"))
-	QSKIP("OCI specific test", SkipSingle);
+    DBMS_SPECIFIC(db, "QOCI");
 
     QSqlQuery q(QString::null, db);
     QVERIFY2(q.exec("create table " + qTableName("qtest_nullblob") + " (id int primary key, bb blob)"),
@@ -1371,9 +1362,7 @@ void tst_QSqlQuery::rawField()
     QFETCH(QString, dbName);
     QSqlDatabase db = QSqlDatabase::database(dbName);
     CHECK_DATABASE(db);
-
-    if (!db.driverName().startsWith("QOCI"))
-	QSKIP("OCI specific test", SkipSingle);
+    DBMS_SPECIFIC(db, "QOCI");
 
     QSqlQuery q(QString::null, db);
     q.setForwardOnly(TRUE);
@@ -1446,7 +1435,6 @@ void tst_QSqlQuery::precision()
     } // SQLITE scope
     tst_Databases::safeDropTable(db, qTableName("qtest_precision"));
 }
-
 
 void tst_QSqlQuery::nullResult()
 {
@@ -2059,9 +2047,7 @@ void tst_QSqlQuery::record_sqlite()
     QFETCH(QString, dbName);
     QSqlDatabase db = QSqlDatabase::database(dbName);
     CHECK_DATABASE(db);
-
-    if (db.driverName() != "QSQLITE")
-        QSKIP("This test requires sqlite support", SkipAll);
+    DBMS_SPECIFIC(db, "QSQLITE");
 
     QSqlQuery q(db);
 
@@ -2090,9 +2076,7 @@ void tst_QSqlQuery::oraLong()
     QFETCH(QString, dbName);
     QSqlDatabase db = QSqlDatabase::database(dbName);
     CHECK_DATABASE(db);
-
-    if (!db.driverName().startsWith("QOCI"))
-        QSKIP("This test requires oracle support", SkipAll);
+    DBMS_SPECIFIC(db, "QOCI");
 
     QSqlQuery q(db);
 
