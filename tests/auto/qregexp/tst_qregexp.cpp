@@ -60,6 +60,8 @@ private slots:
 */
     void staticRegExp();
     void rainersSlowRegExpCopyBug();
+    void nonExistingBackReferenceBug();
+
 #if QT_VERSION >= 0x040200
     void reentrancy();
 #endif
@@ -938,6 +940,30 @@ void tst_QRegExp::rainersSlowRegExpCopyBug()
         QRegExp copy = original;
         (void)copy.exactMatch("~");
         QRegExp copy2 = original;
+    }
+}
+
+void tst_QRegExp::nonExistingBackReferenceBug()
+{
+    {
+        QRegExp rx("<\\5>");
+        QVERIFY(rx.isValid());
+        QCOMPARE(rx.indexIn("<>"), 0);
+        QCOMPARE(rx.capturedTexts(), QStringList("<>"));
+    }
+
+    {
+        QRegExp rx("<\\1>");
+        QVERIFY(rx.isValid());
+        QCOMPARE(rx.indexIn("<>"), 0);
+        QCOMPARE(rx.capturedTexts(), QStringList("<>"));
+    }
+
+    {
+        QRegExp rx("(?:<\\1>)\\1\\5\\4");
+        QVERIFY(rx.isValid());
+        QCOMPARE(rx.indexIn("<>"), 0);
+        QCOMPARE(rx.capturedTexts(), QStringList("<>"));
     }
 }
 

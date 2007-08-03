@@ -3032,8 +3032,9 @@ int QRegExpEngine::parse(const QChar *pattern, int len)
         f.clear();
     }
 #endif
-    while (nbrefs > officialncap) {
-        // in this case, captureForOfficialCapture.size() != officialncap
+    // handle the case where there's a \5 with no corresponding capture
+    // (captureForOfficialCapture.size() != officialncap)
+    for (int i = 0; i < nbrefs - officialncap; ++i) {
         captureForOfficialCapture.append(ncap);
         ++ncap;
     }
