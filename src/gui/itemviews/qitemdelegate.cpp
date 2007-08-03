@@ -522,7 +522,8 @@ void QItemDelegate::setEditorData(QWidget *editor, const QModelIndex &index) con
     Sets the data for the specified \a model and item \a index from that
     supplied by the \a editor.
 
-    The default implementation uses the editor's user property to get values.
+    The default implementation uses the \a editor widget's \l {Qt's
+    Property System} {user property} for the value.
 
     \sa QMetaProperty::isUser()
 */
@@ -1043,9 +1044,9 @@ QRect QItemDelegate::rect(const QStyleOptionViewItem &option,
 /*!
   \internal
 
-  Note that on Mac, if /usr/include/AssertMacros.h is included prior to QItemDelegate,
-  and the application is building in debug mode, the check(assertion) will conflict
-  with QItemDelegate::check.
+  Note that on Mac, if /usr/include/AssertMacros.h is included prior
+  to QItemDelegate, and the application is building in debug mode, the
+  check(assertion) will conflict with QItemDelegate::check.
 
   To avoid this problem, add
 
