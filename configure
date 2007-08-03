@@ -40,8 +40,6 @@ QT_CONFIG=
 SUPPORTED=
 QMAKE_VARS_FILE=.qmake.vars
 
-exec 5> "$QMAKE_VARS_FILE"
-
 #-------------------------------------------------------------------------------
 # utility functions
 #-------------------------------------------------------------------------------
@@ -66,7 +64,7 @@ QMakeVar()
 	    ;;
     esac
 
-    echo >&5 "$2" "$eq" "$3"
+    echo "$2" "$eq" "$3" >> "$QMAKE_VARS_FILE"
 }
 
 # relies on $QMAKESPEC being set correctly. parses include statements in
