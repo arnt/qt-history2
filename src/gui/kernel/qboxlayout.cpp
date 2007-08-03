@@ -931,6 +931,25 @@ void QBoxLayout::insertStretch(int index, int stretch)
 }
 
 /*!
+    Inserts \a spacerItem at position \a index, with zero minimum
+    size and stretch factor \a stretch. If \a index is negative the
+    space is added at the end.
+
+    \sa addSpacerItem(), insertStretch(), insertSpacing()
+*/
+void QBoxLayout::insertSpacerItem(int index, QSpacerItem *spacerItem)
+{
+    Q_D(QBoxLayout);
+    if (index < 0)                                // append
+        index = d->list.count();
+
+    QBoxLayoutItem *it = new QBoxLayoutItem(spacerItem);
+    it->magic = true;
+    d->list.insert(index, it);
+    invalidate();
+}
+
+/*!
     Inserts \a layout at position \a index, with stretch factor \a
     stretch. If \a index is negative, the layout is added at the end.
 
@@ -1006,6 +1025,16 @@ void QBoxLayout::addSpacing(int size)
 void QBoxLayout::addStretch(int stretch)
 {
     insertStretch(-1, stretch);
+}
+
+/*!
+    Adds \a spacerItem to the end of this box layout.
+
+    \sa addSpacing(), addStretch()
+*/
+void QBoxLayout::addSpacerItem(QSpacerItem *spacerItem)
+{
+    insertSpacerItem(-1, spacerItem);
 }
 
 /*!

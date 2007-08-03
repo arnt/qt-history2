@@ -51,6 +51,7 @@ public:
 
     void addSpacing(int size);
     void addStretch(int stretch = 0);
+    void addSpacerItem(QSpacerItem *spacerItem);
     void addWidget(QWidget *, int stretch = 0, Qt::Alignment alignment = 0);
     void addLayout(QLayout *layout, int stretch = 0);
     void addStrut(int);
@@ -58,6 +59,7 @@ public:
 
     void insertSpacing(int index, int size);
     void insertStretch(int index, int stretch = 0);
+    void insertSpacerItem(int index, QSpacerItem *spacerItem);
     void insertWidget(int index, QWidget *widget, int stretch = 0, Qt::Alignment alignment = 0);
     void insertLayout(int index, QLayout *layout, int stretch = 0);
 

@@ -65,6 +65,7 @@ SUBDIRS += bic \
            qatomic \
            qatomicpointer \
            qbitarray \
+           qboxlayout \
            qbrush \
            qbuffer \
            qbuttongroup \
