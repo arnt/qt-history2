@@ -23,7 +23,7 @@ class QPopupMenu;
 class QMenuData;
 class QAction;
 class Config;
-class Skin;
+class DeviceSkin;
 class QVFb;
 class QLabel;
 class QMenu;
@@ -52,9 +52,11 @@ public:
     ~QVFb();
 
     void enableCursor( bool e );
-    void popupMenu();
 
     QSize sizeHint() const;
+
+public slots:
+     void popupMenu();
 
 protected slots:
     void saveImage();
@@ -90,7 +92,7 @@ protected:
 private:
     void findSkins(const QString &currentSkin);
     void init( int display_id, int w, int h, int d, int r, const QString& skin );
-    Skin *skin;
+    DeviceSkin *skin;
     double skinscaleH,skinscaleV;
     QVFbAbstractView *view;
     QVFbAbstractView *secondaryView;

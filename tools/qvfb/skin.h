@@ -14,31 +14,82 @@
 #ifndef SKIN_H
 #define SKIN_H
 
-#include <QWidget>
-#include <QPolygon>
-#include <QRegion>
-#include <QPixmap>
+#include <QtGui/QWidget>
+#include <QtGui/QPolygon>
+#include <QtGui/QRegion>
+#include <QtGui/QPixmap>
+#include <QtCore/QVector>
 
-class QVFb;
-class QVFbAbstractView;
-class CursorWindow;
+namespace qvfb_internal {
+    class CursorWindow;
+}
+
 class QTextStream;
 
-class Skin : public QWidget
+// ------- Button Area
+struct DeviceSkinButtonArea {
+    DeviceSkinButtonArea();
+    QString name;
+    int	keyCode;
+    QPolygon area;
+    QString text;
+    bool activeWhenClosed;
+};
+
+// -------- Parameters
+struct DeviceSkinParameters {
+    enum ReadMode { ReadAll, ReadSizeOnly };
+    bool read(const QString &skinDirectory,  ReadMode rm,  QString *errorMessage);
+    bool read(QTextStream &ts, ReadMode rm, QString *errorMessage);
+
+    QSize screenSize() const { return screenRect.size(); }
+    QSize secondaryScreenSize() const;
+    bool hasSecondaryScreen() const;
+
+    QString skinImageUpFileName;
+    QString skinImageDownFileName;
+    QString skinImageClosedFileName;
+    QString skinCursorFileName;
+
+    QImage skinImageUp;
+    QImage skinImageDown;
+    QImage skinImageClosed;
+    QImage skinCursor;
+
+    QRect screenRect;
+    QRect backScreenRect;
+    QRect closedScreenRect;
+    QPoint cursorHot;
+    QVector<DeviceSkinButtonArea> buttonAreas;
+
+    int joystick;
+    QString prefix;
+};
+
+// --------- Skin Widget
+class DeviceSkin : public QWidget
 {
     Q_OBJECT
 public:
-    Skin( QVFb *p, const QString &skinFile, int &viewW, int &viewH );
-    ~Skin( );
-    void setView( QVFbAbstractView *v );
-    void setSecondaryView( QVFbAbstractView *v );
+    explicit DeviceSkin(const DeviceSkinParameters &parameters,  QWidget *p );
+    ~DeviceSkin( );
+
+    QWidget *view() const { return m_view; }
+    void setView( QWidget *v );
+
+    QWidget *secondaryView() const { return m_secondaryView; }
+    void setSecondaryView( QWidget *v );
+
     void setZoom( double );
-    bool isValid() {return skinValid;}
 
     bool hasCursor() const;
-    static QSize screenSize(const QString &skinFile);
-    static QSize secondaryScreenSize(const QString &skinFile);
-    static bool hasSecondaryScreen(const QString &skinFile);
+
+    QString prefix() const  {return m_parameters.prefix;}
+
+signals:
+    void popupMenu();
+    void skinKeyPressEvent(int code, const QString& text, bool autorep);
+    void skinKeyReleaseEvent(int code, const QString& text, bool autorep);
 
 protected slots:
     void skinKeyRepeat();
@@ -51,73 +102,35 @@ protected:
     virtual void mouseReleaseEvent( QMouseEvent * );
 
 private:
-    QVFb *parent;
-    QVFbAbstractView *view;
-    QVFbAbstractView *secondaryView;
-    QPoint parentpos;
-    QPoint clickPos;
-    bool buttonPressed;
-    int buttonIndex;
-    bool skinValid;
-    double zoom;
     void calcRegions();
     void flip(bool open);
     void updateSecondaryScreen();
-
-    static QString skinFileName(const QString &skinFile, QString* prefix);
-    static void parseRect(const QString &, QRect *);
-    static bool parseSkinFileHeader(QTextStream& ts,
-                    QRect *screen, QRect *outsideScreen,
-                    QRect *outsideScreenClosed,
-		    int *numberOfAreas,
-		    QString* skinImageUpFileName,
-		    QString* skinImageDownFileName,
-		    QString* skinImageClosedFileName,
-		    QString* skinCursorFileName,
-		    QPoint* cursorHot,
-                    QStringList* closedAreas);
-
     void loadImages();
-    QString skinImageUpFileName;
-    QString skinImageDownFileName;
-    QString skinImageClosedFileName;
-    QString skinCursorFileName;
+    void startPress(int);
+    void endPress();
+
+    const DeviceSkinParameters m_parameters;
+    QVector<QRegion> buttonRegions;
     QPixmap skinImageUp;
     QPixmap skinImageDown;
     QPixmap skinImageClosed;
     QPixmap skinCursor;
-    QRect screenRect;
-    QRect backScreenRect;
-    QRect closedScreenRect;
-    int numberOfAreas;
+    QWidget *parent;
+    QWidget  *m_view;
+    QWidget *m_secondaryView;
+    QPoint parentpos;
+    QPoint clickPos;
+    bool buttonPressed;
+    int buttonIndex;
+    double zoom;
+    qvfb_internal::CursorWindow *cursorw;
 
-    typedef struct {
-	QString	name;
-        int	keyCode;
-        QPolygon area;
-        QRegion region;
-	QString text;
-        bool activeWhenClosed;
-    } ButtonAreas;
-
-    void startPress(int);
-    void endPress();
-
-    ButtonAreas *areas;
-
-    CursorWindow *cursorw;
-    QPoint cursorHot;
-
-    int joystick;
     bool joydown;
     QTimer *t_skinkey;
     QTimer *t_parentmove;
     int onjoyrelease;
 
     bool flipped_open;
-
-    void setupDefaultButtons();
-    QString prefix;
 };
 
 #endif

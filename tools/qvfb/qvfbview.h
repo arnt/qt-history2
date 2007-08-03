@@ -46,9 +46,6 @@ public:
     virtual int displayDepth() const = 0;
     virtual Rotation displayRotation() const = 0;
 
-    virtual void skinKeyPressEvent( int code, const QString& text, bool autorep=FALSE ) = 0;
-    virtual void skinKeyReleaseEvent( int code, const QString& text, bool autorep=FALSE ) = 0;
-
     virtual void setGamma(double gr, double gg, double gb) = 0;
     virtual double gammaRed() const = 0;
     virtual double gammaGreen() const = 0;
@@ -71,6 +68,8 @@ public slots:
     virtual void setZoom( double, double ) = 0;
     virtual void startAnimation( const QString& ) = 0;
     virtual void stopAnimation() = 0;
+    virtual void skinKeyPressEvent( int code, const QString& text, bool autorep=FALSE ) = 0;
+    virtual void skinKeyReleaseEvent( int code, const QString& text, bool autorep=FALSE ) = 0;
 };
 
 class QVFbView : public QVFbAbstractView
@@ -97,8 +96,6 @@ public:
     double gammaGreen() const { return ggreen; }
     double gammaBlue() const { return gblue; }
     void getGamma(int i, QRgb& rgb);
-    void skinKeyPressEvent(int code, const QString& text, bool autorep=FALSE);
-    void skinKeyReleaseEvent(int code, const QString& text, bool autorep=FALSE);
     void skinMouseEvent(QMouseEvent *e);
 
     double zoomH() const { return hzm; }
@@ -113,6 +110,8 @@ public slots:
     void setZoom(double, double);
     void startAnimation(const QString&);
     void stopAnimation();
+    void skinKeyPressEvent(int code, const QString& text, bool autorep=FALSE);
+    void skinKeyReleaseEvent(int code, const QString& text, bool autorep=FALSE);
 
 protected slots:
     void refreshDisplay(const QRect &);

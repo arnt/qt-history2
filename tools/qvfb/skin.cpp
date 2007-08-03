@@ -12,37 +12,300 @@
 ****************************************************************************/
 
 #include "skin.h"
-#include "qvfb.h"
-#include "qvfbview.h"
 
-#include <qnamespace.h>
-#include <QApplication>
-#include <QBitmap>
-#include <QPixmap>
-#include <QPainter>
-#include <QTextStream>
-#include <QFile>
-#include <QFileInfo>
-#include <QImage>
-#include <QTimer>
-#include <QDir>
-#include <QRegExp>
-#include <QMouseEvent>
-#include <QDebug>
+#include <QtCore/qnamespace.h>
+#include <QtGui/QApplication>
+#include <QtGui/QBitmap>
+#include <QtGui/QPixmap>
+#include <QtGui/QPainter>
+#include <QtCore/QTextStream>
+#include <QtCore/QFile>
+#include <QtCore/QFileInfo>
+#include <QtGui/QImage>
+#include <QtCore/QTimer>
+#include <QtCore/QDir>
+#include <QtCore/QRegExp>
+#include <QtGui/QMouseEvent>
+#include <QtCore/QDebug>
 
-#include <unistd.h>
-#include <stdlib.h>
+#ifdef TEST_SKIN
+#  include <QtGui/QMainWindow>
+#  include <QtGui/QDialog>
+#  include <QtGui/QDialogButtonBox>
+#  include <QtGui/QHBoxLayout>
+#endif
 
-const int key_repeat_delay = 500;
-const int key_repeat_period = 50;
-const int joydistance = 10;
+namespace {
+    enum { joydistance = 10, key_repeat_period = 50, key_repeat_delay = 500 };
+    enum { debugDeviceSkin = 0 };
+}
+
+static void parseRect(const QString &value, QRect *rect) {
+    const QStringList l = value.split(QLatin1Char(' '));
+    rect->setRect(l[0].toInt(), l[1].toInt(), l[2].toInt(), l[3].toInt());
+}
+
+static QString msgImageNotLoaded(const QString &f)        {
+    return DeviceSkin::tr("The image file '%1' could not be loaded.").arg(f);
+}
+
+// ------------ DeviceSkinButtonArea
+DeviceSkinButtonArea::DeviceSkinButtonArea() :
+    keyCode(0),
+    activeWhenClosed(0)
+{
+}
+
+QDebug &operator<<(QDebug &str, const DeviceSkinButtonArea &a)
+{
+
+    str << "Area: " <<  a.name << " keyCode=" << a.keyCode << " area=" <<  a.area
+        << " text=" << a.text << " activeWhenClosed=" << a.activeWhenClosed;
+    return str;
+}
+
+// ------------  DeviceSkinParameters
+
+QDebug operator<<(QDebug str, const DeviceSkinParameters &p)
+{
+    str << "Images " << p.skinImageUpFileName << ','
+	<< p.skinImageDownFileName<< ',' << p.skinImageClosedFileName
+	<<  ',' <<  p.skinCursorFileName <<"\nScreen: " << p.screenRect
+	<< " back: " << p.backScreenRect << " closed: " << p.closedScreenRect
+	<< " cursor: " << p.cursorHot << " Prefix: " <<  p.prefix
+	<< " Joystick: " << p.joystick;
+    const int numAreas = p.buttonAreas.size();
+    for (int i = 0; i < numAreas; i++)
+	str <<  p.buttonAreas[i];
+    return str;
+}
+
+QSize DeviceSkinParameters::secondaryScreenSize() const
+{
+    return backScreenRect.isNull() ?  closedScreenRect .size(): backScreenRect.size();
+}
+
+bool DeviceSkinParameters::hasSecondaryScreen() const
+{
+    return secondaryScreenSize() != QSize(0, 0);
+}
+
+bool DeviceSkinParameters::read(const QString &skinDirectory,  ReadMode rm,  QString *errorMessage)
+{
+    // Figure out the name. remove ending '/' if present
+    QString skinFile = skinDirectory;
+    if (skinFile.endsWith(QLatin1Char('/')))
+        skinFile.truncate(skinFile.length() - 1);
+
+    QFileInfo fi(skinFile);
+    QString fn;
+    if ( fi.isDir() ) {
+        prefix = skinFile;
+        prefix += QLatin1Char('/');
+        fn = prefix;
+        fn += fi.baseName();
+        fn += QLatin1String(".skin");
+    } else if (fi.isFile()){
+        fn = skinFile;
+        prefix = fi.path();
+        prefix += QLatin1Char('/');
+    } else {
+        *errorMessage =  DeviceSkin::tr("The skin directory '%1' does not contain a configuration file.").arg(skinDirectory);
+        return false;
+    }
+    QFile f(fn);
+    if (!f.open(QIODevice::ReadOnly )) {
+        *errorMessage =  DeviceSkin::tr("The skin configuration file '%1' could not be opened.").arg(fn);
+        return false;
+    }
+    QTextStream ts(&f);
+    const bool rc = read(ts, rm, errorMessage);
+    if (!rc)
+	*errorMessage =  DeviceSkin::tr("The skin configuration file '%1' could read: %2").arg(fn).arg(*errorMessage);
+    return rc;
+}
+bool DeviceSkinParameters::read(QTextStream &ts, ReadMode rm, QString *errorMessage)
+{
+    QStringList closedAreas;
+    int nareas = 0;
+    QString mark;
+    ts >> mark;
+    if ( mark == QLatin1String("[SkinFile]") ) {
+        const QString UpKey = QLatin1String("Up");
+        const QString DownKey = QLatin1String("Down");
+        const QString ClosedKey = QLatin1String("Closed");
+        const QString ClosedAreasKey = QLatin1String("ClosedAreas");
+        const QString ScreenKey = QLatin1String("Screen");
+        const QString BackScreenKey = QLatin1String("BackScreen");
+        const QString ClosedScreenKey = QLatin1String("ClosedScreen");
+        const QString CursorKey = QLatin1String("Cursor");
+        const QString AreasKey = QLatin1String("Areas");
+        // New
+        while (!nareas) {
+            QString line = ts.readLine();
+            if ( line.isNull() )
+                break;
+            if ( line[0] != QLatin1Char('#') && !line.isEmpty() ) {
+                int eq = line.indexOf(QLatin1Char('='));
+                if ( eq >= 0 ) {
+                    const QString key = line.left(eq);
+                    eq++;
+                    while (eq<line.length()-1 && line[eq].isSpace())
+                        eq++;
+                    const QString value = line.mid(eq);
+                    if ( key == UpKey ) {
+                        skinImageUpFileName = value;
+                    } else if ( key == DownKey ) {
+                        skinImageDownFileName = value;
+                    } else if ( key ==  ClosedKey ) {
+                        skinImageClosedFileName = value;
+                    } else if ( key == ClosedAreasKey ) {
+                        closedAreas = value.split(QLatin1Char(' '));
+                    } else if ( key == ScreenKey ) {
+                        parseRect( value, &screenRect);
+                    } else if ( key == BackScreenKey ) {
+                        parseRect(value, &backScreenRect);
+                    } else if ( key == ClosedScreenKey ) {
+                        parseRect( value, &closedScreenRect );
+                    } else if ( key == CursorKey ) {
+                        QStringList l = value.split(QLatin1Char(' '));
+                        skinCursorFileName = l[0];
+                        cursorHot = QPoint(l[1].toInt(),l[2].toInt());
+                    } else if ( key == AreasKey ) {
+                        nareas = value.toInt();
+                    }
+                } else {
+                    *errorMessage =  DeviceSkin::tr("Syntax error: %1").arg(line);
+                    return false;
+                }
+            }
+        }
+    } else {
+        // Old
+        skinImageUpFileName = mark;
+        QString s;
+        int x,y,w,h,na;
+        ts >> s >> x >> y >> w >> h >> na;
+        skinImageDownFileName = s;
+        screenRect.setRect(x, y, w, h);
+        nareas = na;
+    }
+    // Done for short mode
+    if (rm ==  ReadSizeOnly)
+        return true;
+    //  verify skin files exist
+    skinImageUpFileName.insert(0, prefix);
+    if (!QFile(skinImageUpFileName).exists()) {
+        *errorMessage =  DeviceSkin::tr("The skin up image file '%1' does not exist.").arg(skinImageUpFileName);
+        return false;
+    }
+    if (!skinImageUp.load(skinImageUpFileName)) {
+        *errorMessage = msgImageNotLoaded(skinImageUpFileName);
+        return false;
+    }
+
+    skinImageDownFileName.insert(0, prefix);
+    if (!QFile(skinImageDownFileName).exists()) {
+        *errorMessage =  DeviceSkin::tr("The skin down image file '%1' does not exist.").arg(skinImageDownFileName);
+        return false;
+    }
+    if (!skinImageDown.load(skinImageDownFileName)) {
+        *errorMessage = msgImageNotLoaded(skinImageDownFileName);
+        return false;
+    }
+
+    if (!skinImageClosedFileName.isEmpty()) {
+        skinImageClosedFileName.insert(0, prefix);
+        if (!QFile(skinImageClosedFileName).exists()) {
+            *errorMessage =  DeviceSkin::tr("The skin closed image file '%1' does not exist.").arg(skinImageClosedFileName);
+            return false;
+        }
+        if (!skinImageClosed.load(skinImageClosedFileName)) {
+            *errorMessage = msgImageNotLoaded(skinImageClosedFileName);
+            return false;
+        }
+    }
+
+    if (!skinCursorFileName.isEmpty()) {
+        skinCursorFileName.insert(0, prefix);
+        if (!QFile(skinCursorFileName).exists()) {
+            *errorMessage =  DeviceSkin::tr("The skin cursor image file '%1' does not exist.").arg(skinCursorFileName);
+            return false;
+        }
+        if (!skinCursor.load(skinCursorFileName)) {
+            *errorMessage = msgImageNotLoaded(skinCursorFileName);
+            return false;
+        }
+    }
+
+    // read areas
+    if (!nareas)
+        return true;
+    buttonAreas.reserve(nareas);
+
+    int i = 0;
+    ts.readLine(); // eol
+    joystick = -1;
+    const QString Joystick = QLatin1String("Joystick");
+    while (i < nareas && !ts.atEnd() ) {
+        buttonAreas.push_back(DeviceSkinButtonArea());
+        DeviceSkinButtonArea &area = buttonAreas.back();
+        const QString line = ts.readLine();
+        if ( line[0] != QLatin1Char('#') && !line.isEmpty() ) {
+            const QStringList tok = line.split(QRegExp(QLatin1String("[ \t][ \t]*")));
+            if ( tok.count()<6 ) {
+                *errorMessage =  DeviceSkin::tr("Syntax error in area definition: %1").arg(line);
+                return false;
+            } else {
+                area.name = tok[0];
+                QString k = tok[1];
+                if ( k.left(2).toLower() == QLatin1String("0x")) {
+                    area.keyCode = k.mid(2).toInt(0,16);
+                } else {
+                    area.keyCode = k.toInt();
+                }
+
+                int p=0;
+                for (int j=2; j < tok.count() - 1; ) {
+                    const int x = tok[j++].toInt();
+                    const int y = tok[j++].toInt();
+                    area.area.putPoints(p++,1,x,y);
+                }
+
+                const QChar doubleQuote = QLatin1Char('"');
+                if ( area.name[0] == doubleQuote && area.name.endsWith(doubleQuote)) {
+                    area.name.truncate(area.name.size() - 1);
+                    area.name.remove(0, 1);
+                }
+                if ( area.name.length() == 1 )
+                    area.text = area.name;
+                if ( area.name == Joystick)
+                    joystick = i;
+                area.activeWhenClosed = closedAreas.contains(area.name)
+                    || area.keyCode == Qt::Key_Flip; // must be to work
+                i++;
+            }
+        }
+    }
+    if (i != nareas) {
+	const QString message = DeviceSkin::tr("Mismatch in number of areas, expected %1, got %2.").arg(nareas).arg(i);
+	qWarning(message.toUtf8().constData());
+    }
+    if (debugDeviceSkin)
+	qDebug() << *this;
+    return true;
+}
+
+// --------- CursorWindow declaration
+
+namespace qvfb_internal {
 
 class CursorWindow : public QWidget
 {
 public:
-    CursorWindow( const QString& fn, QPoint hot, QWidget *sk);
+    explicit CursorWindow(const QImage &cursor, QPoint hot, QWidget *sk);
 
-    void setView(QVFbAbstractView*);
+    void setView(QWidget*);
     void setPos(QPoint);
     bool handleMouseEvent(QEvent *ev);
 
@@ -52,323 +315,108 @@ protected:
 
 private:
     QWidget *mouseRecipient;
-    QVFbAbstractView *view;
+    QWidget *m_view;
     QWidget *skin;
     QPoint hotspot;
 };
-
-QSize Skin::screenSize(const QString &skinFile)
-{
-    QString _skinFileName = skinFileName(skinFile,0);
-    if ( _skinFileName.isEmpty() )
-        return QSize(0,0);
-    QFile f( _skinFileName );
-    f.open( QIODevice::ReadOnly );
-    QTextStream ts( &f );
-    QRect rect;
-    parseSkinFileHeader(ts,
-            &rect, 0, 0,
-            0, 0, 0, 0, 0, 0, 0);
-    return rect.size();
 }
 
-QSize Skin::secondaryScreenSize(const QString &skinFile)
-{
-    QString _skinFileName = skinFileName(skinFile,0);
-    if ( _skinFileName.isEmpty() )
-        return QSize(0,0);
-    QFile f( _skinFileName );
-    f.open( QIODevice::ReadOnly );
-    QTextStream ts( &f );
-    QRect rect;
-    QRect crect;
-    parseSkinFileHeader(ts,
-            0, &rect, &crect,
-            0, 0, 0, 0, 0, 0, 0);
-    return (rect.isNull() ? crect.size() : rect.size());
-}
+// --------- Skin
 
-bool Skin::hasSecondaryScreen(const QString &skinFile)
-{
-    return secondaryScreenSize(skinFile) != QSize(0, 0);
-}
-
-QString Skin::skinFileName(const QString &rawSkinFile, QString* prefix)
-{
-    // remove ending '/' if present
-    QString skinFile = rawSkinFile;
-    if (skinFile.endsWith('/'))
-        skinFile.truncate(skinFile.length() - 1);
-
-    QFileInfo fi(skinFile);
-    QString pref;
-    QString fn;
-    if ( fi.isDir() ) {
-	pref = skinFile + "/";
-	fn = pref + fi.baseName() + ".skin";
-    } else if (fi.isFile()){
-	fn = skinFile;
-	pref = fi.path() + "/";
-    }else if (!skinFile.isNull()){
-	qDebug("Skin file \"%s\" not found", skinFile.toLatin1().constData());
-	return "";
-    }
-    if ( prefix ) *prefix = pref;
-    return fn;
-}
-
-void Skin::parseRect(const QString &value, QRect *rect) {
-    QStringList l = value.split(" ");
-    rect->setRect(l[0].toInt(), l[1].toInt(), l[2].toInt(), l[3].toInt());
-}
-
-bool Skin::parseSkinFileHeader(QTextStream& ts,
-                    QRect *screen, QRect *backScreen,
-                    QRect *closedScreen,
-		    int *numberOfAreas,
-		    QString* skinImageUpFileName,
-		    QString* skinImageDownFileName,
-		    QString* skinImageClosedFileName,
-		    QString* skinCursorFileName,
-		    QPoint* cursorHot,
-                    QStringList* closedAreas)
-{
-    QString mark;
-    ts >> mark;
-    if ( mark == "[SkinFile]" ) {
-	// New
-	int nareas=0;
-	while (!nareas) {
-	    QString line = ts.readLine();
-	    if ( line.isNull() )
-		break;
-	    if ( line[0] != '#' && !line.isEmpty() ) {
-		int eq = line.indexOf('=');
-		if ( eq >= 0 ) {
-		    QString key = line.left(eq);
-		    eq++;
-		    while (eq<(int)line.length()-1 && line[eq]==' ')
-			eq++;
-		    QString value = line.mid(eq);
-		    if ( key == "Up" ) {
-			if ( skinImageUpFileName ) *skinImageUpFileName = value;
-		    } else if ( key == "Down" ) {
-			if ( skinImageDownFileName ) *skinImageDownFileName = value;
-		    } else if ( key == "Closed" ) {
-			if ( skinImageClosedFileName ) *skinImageClosedFileName = value;
-		    } else if ( key == "ClosedAreas" ) {
-			if ( closedAreas ) {
-                            *closedAreas = value.split(" ");
-                        }
-		    } else if ( key == "Screen" ) {
-                        if ( screen ) parseRect( value, screen );
-		    } else if ( key == "BackScreen" ) {
-                        if ( backScreen ) parseRect( value, backScreen );
-		    } else if ( key == "ClosedScreen" ) {
-                        if ( closedScreen ) parseRect( value, closedScreen );
-		    } else if ( key == "Cursor" ) {
-			QStringList l = value.split(" ");
-			if ( skinCursorFileName ) *skinCursorFileName = l[0];
-			if ( cursorHot ) *cursorHot = QPoint(l[1].toInt(),l[2].toInt());
-		    } else if ( key == "Areas" ) {
-			nareas = value.toInt();
-		    }
-		} else {
-		    qDebug("Broken line: %s",line.toLatin1().constData());
-		}
-	    }
-	}
-	if ( numberOfAreas )
-	    *numberOfAreas = nareas;
-    } else {
-	// Old
-	if ( skinImageUpFileName ) *skinImageUpFileName = mark;
-	QString s;
-	int x,y,w,h,na;
-	ts >> s >> x >> y >> w >> h >> na;
-	if ( skinImageDownFileName ) *skinImageDownFileName = s;
-        if ( screen ) screen->setRect(x, y, w, h);
-	if ( numberOfAreas ) *numberOfAreas = na;
-    }
-    return true;
-}
-
-Skin::Skin( QVFb *p, const QString &skinFile, int &viewW, int &viewH ) :
-    QWidget(p), view(0), secondaryView(0),
-    buttonPressed(false), buttonIndex(0), skinValid(false),
-    zoom(1.0), numberOfAreas(0), areas(0),
+DeviceSkin::DeviceSkin(const DeviceSkinParameters &parameters,  QWidget *p ) :
+    QWidget(p),
+    m_parameters(parameters),
+    buttonRegions(parameters.buttonAreas.size(), QRegion()),
+    parent(p),
+    m_view(0),
+    m_secondaryView(0),
+    buttonPressed(false),
+    buttonIndex(0),
+    zoom(1.0),
     cursorw(0),
-    joystick(-1), joydown(0),
+    joydown(0),
+    t_skinkey(new QTimer(this)),
+    t_parentmove(new QTimer(this)),
     flipped_open(true)
 {
+    Q_ASSERT(p);
     setMouseTracking(true);
     setAttribute(Qt::WA_NoSystemBackground);
-    parent = p;
 
-    QString _skinFileName = skinFileName(skinFile,&prefix);
-    if ( _skinFileName.isEmpty() ) {
-        skinValid = false;
-        return;
-    }
-    QFile f( _skinFileName );
-    f.open( QIODevice::ReadOnly );
-    QStringList closedAreas;
-    QTextStream ts( &f );
-    parseSkinFileHeader(ts,
-            &screenRect, &backScreenRect, &closedScreenRect,
-            &numberOfAreas,
-	&skinImageUpFileName, &skinImageDownFileName, &skinImageClosedFileName,
-	&skinCursorFileName, &cursorHot, &closedAreas);
-
-    viewW = screenRect.width();
-    viewH = screenRect.height();
-
-//  Debug the skin file parsing
-    areas = new ButtonAreas[numberOfAreas];
-
-    skinImageUpFileName = prefix + skinImageUpFileName;
-    skinImageDownFileName = prefix + skinImageDownFileName;
-    if ( !skinImageClosedFileName.isEmpty() )
-	skinImageClosedFileName = prefix + skinImageClosedFileName;
-    if ( !skinCursorFileName.isEmpty() )
-	skinCursorFileName = prefix + skinCursorFileName;
-
-    // verify skin files exist
-    if (!QFile(skinImageUpFileName).exists()) {
-        qWarning() << "failed to find skin up image file named: " << skinImageUpFileName;
-        skinValid = false;
-        return;
-    }
-    if (!QFile(skinImageDownFileName).exists()) {
-        qWarning() << "failed to find skin down image file named: " << skinImageDownFileName;
-        skinValid = false;
-        return;
-    }
-    if (!skinImageClosedFileName.isEmpty() && !QFile(skinImageClosedFileName).exists()) {
-        qWarning() << "failed to find skin closed image file named: " << skinImageClosedFileName;
-        skinValid = false;
-        return;
-    }
-    if (!skinCursorFileName.isEmpty() && !QFile(skinCursorFileName).exists()) {
-        qWarning() << "failed to find skin cursor image file named: " << skinCursorFileName;
-        skinValid = false;
-        return;
-    }
-
-    int i = 0;
-    ts.readLine(); // eol
-    joystick = -1;
-    while (i < numberOfAreas && !ts.atEnd() ) {
-	QString line = ts.readLine();
-	if ( line[0] != '#' && !line.isEmpty() ) {
-	    QStringList tok = line.split(QRegExp("[ \t][ \t]*"));
-	    if ( tok.count()<6 ) {
-		qDebug("Broken line: %s",line.toLatin1().constData());
-	    } else {
-		areas[i].name = tok[0];
-		QString k = tok[1];
-		if ( k.left(2).toLower() == "0x" ) {
-		    areas[i].keyCode = k.mid(2).toInt(0,16);
-		} else {
-		    areas[i].keyCode = k.toInt();
-		}
-
-		int p=0;
-		for (int j=2; j < tok.count() - 1; ) {
-		    int x = tok[j++].toInt();
-		    int y = tok[j++].toInt();
-		    areas[i].area.putPoints(p++,1,x,y);
-		}
-
-		if ( areas[i].name[0] == '"' && areas[i].name.right(1) == "\"" )
-		    areas[i].name = areas[i].name.mid(1,areas[i].name.length()-2);
-		if ( areas[i].name.length() == 1 )
-		    areas[i].text = areas[i].name;
-		if ( areas[i].name == "Joystick" )
-		    joystick = i;
-		areas[i].activeWhenClosed = closedAreas.contains(areas[i].name)
-                    || areas[i].keyCode == Qt::Key_Flip; // must be to work
-		i++;
-	    }
-	}
-    }
     setZoom(1.0);
-    t_skinkey = new QTimer( this );
     connect( t_skinkey, SIGNAL(timeout()), this, SLOT(skinKeyRepeat()) );
-    t_parentmove = new QTimer( this );
     t_parentmove->setSingleShot( true );
     connect( t_parentmove, SIGNAL(timeout()), this, SLOT(moveParent()) );
-
-    skinValid = true;
 }
 
-void Skin::skinKeyRepeat()
+void DeviceSkin::skinKeyRepeat()
 {
-    if ( view ) {
-	view->skinKeyReleaseEvent( areas[buttonIndex].keyCode, areas[buttonIndex].text, true );
-	view->skinKeyPressEvent( areas[buttonIndex].keyCode, areas[buttonIndex].text, true );
+    if ( m_view ) {
+	const DeviceSkinButtonArea &area = m_parameters.buttonAreas[buttonIndex];
+	emit skinKeyReleaseEvent( area.keyCode,area.text, true );
+	emit skinKeyPressEvent( area.keyCode, area.text, true );
 	t_skinkey->start(key_repeat_period);
     }
 }
 
-void Skin::calcRegions()
+void DeviceSkin::calcRegions()
 {
-    for (int i=0; i<numberOfAreas; i++) {
-	QPolygon xa(areas[i].area.count());
-	int n = areas[i].area.count();
+    const int numAreas = m_parameters.buttonAreas.size();
+    for (int i=0; i<numAreas; i++) {
+	QPolygon xa(m_parameters.buttonAreas[i].area.count());
+	int n = m_parameters.buttonAreas[i].area.count();
 	for (int p=0; p<n; p++) {
 	    xa.setPoint(p,
-		int(areas[i].area[p].x()*zoom),
-		int(areas[i].area[p].y()*zoom));
+		int(m_parameters.buttonAreas[i].area[p].x()*zoom),
+		int(m_parameters.buttonAreas[i].area[p].y()*zoom));
 	}
 	if ( n == 2 ) {
-	    areas[i].region = QRegion(xa.boundingRect());
+	    buttonRegions[i] = QRegion(xa.boundingRect());
 	} else {
-	    areas[i].region = QRegion(xa);
+	    buttonRegions[i] = QRegion(xa);
 	}
     }
 }
 
-void Skin::loadImages()
+void DeviceSkin::loadImages()
 {
-    QImage iup;
-    if ( !skinImageUpFileName.isEmpty() )
-	iup.load(skinImageUpFileName);
-    QImage idown(skinImageDownFileName);
-    if ( !skinImageDownFileName.isEmpty() )
-	idown.load(skinImageDownFileName);
+    QImage iup = m_parameters.skinImageUp;
+    QImage idown = m_parameters.skinImageDown;
+
     QImage iclosed;
-    if ( !skinImageClosedFileName.isEmpty() )
-	iclosed.load(skinImageClosedFileName);
+    const bool hasClosedImage = !m_parameters.skinImageClosed.isNull();
+
+    if (hasClosedImage)
+	iclosed =  m_parameters.skinImageClosed;
     QImage icurs;
-    if ( !skinCursorFileName.isEmpty() )
-	icurs.load(skinCursorFileName);
+    const bool hasCursorImage = !m_parameters.skinCursor.isNull();
+    if (hasCursorImage)
+	icurs =  m_parameters.skinCursor;
 
     if ( zoom != int(zoom) ) {
 	iup = iup.scaled(int(iup.width()*zoom),int(iup.height()*zoom), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
 	idown = idown.scaled(int(idown.width()*zoom),int(idown.height()*zoom), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-	if ( !skinImageClosedFileName.isEmpty() )
+	if (hasClosedImage)
 	    iclosed = iclosed.scaled(int(idown.width()*zoom),int(idown.height()*zoom), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-	if ( !skinCursorFileName.isEmpty() )
+	if (hasCursorImage)
 	    icurs = icurs.scaled(int(idown.width()*zoom),int(idown.height()*zoom), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
     }
-    Qt::ImageConversionFlags conv = Qt::ThresholdAlphaDither|Qt::AvoidDither;
-    if ( !skinImageUpFileName.isEmpty() )
-	skinImageUp = QPixmap::fromImage(iup);
-    if ( !skinImageDownFileName.isEmpty() )
-	skinImageDown = QPixmap::fromImage(idown, conv);
-    if ( !skinImageClosedFileName.isEmpty() )
+    const Qt::ImageConversionFlags conv = Qt::ThresholdAlphaDither|Qt::AvoidDither;
+    skinImageUp = QPixmap::fromImage(iup);
+    skinImageDown = QPixmap::fromImage(idown, conv);
+    if (hasClosedImage)
 	skinImageClosed = QPixmap::fromImage(iclosed, conv);
-    if ( !skinCursorFileName.isEmpty() )
+    if (hasCursorImage)
 	skinCursor = QPixmap::fromImage(icurs, conv);
 
     if ( zoom == int(zoom) ) {
-	QMatrix scale; scale = scale.scale(zoom,zoom);
+	QMatrix scale;
+	scale = scale.scale(zoom,zoom);
 	skinImageUp = skinImageUp.transformed(scale);
 	skinImageDown = skinImageDown.transformed(scale);
-	if ( !skinImageClosedFileName.isEmpty() )
+	if (hasClosedImage)
 	    skinImageClosed = skinImageClosed.transformed(scale);
-	if ( !skinCursorFileName.isEmpty() )
+	if (hasCursorImage)
 	    skinCursor = skinCursor.transformed(scale);
     }
 
@@ -384,67 +432,65 @@ void Skin::loadImages()
 
     delete cursorw;
     cursorw = 0;
-    if ( !skinCursorFileName.isEmpty() ) {
-	cursorw = new CursorWindow(skinCursorFileName,cursorHot,this);
-	if ( view )
-	    cursorw->setView(view);
+    if (hasCursorImage) {
+	cursorw = new qvfb_internal::CursorWindow(m_parameters.skinCursor, m_parameters.cursorHot, this);
+	if ( m_view )
+	    cursorw->setView(m_view);
     }
 }
 
-Skin::~Skin( )
+DeviceSkin::~DeviceSkin( )
 {
     delete cursorw;
 }
 
-void Skin::setZoom( double z )
+void DeviceSkin::setZoom( double z )
 {
     zoom = z;
     calcRegions();
     loadImages();
-    if ( view )
-	view->move( int(screenRect.x()*zoom), int(screenRect.y()*zoom) );
+    if ( m_view )
+	m_view->move( int(m_parameters.screenRect.x()*zoom), int(m_parameters.screenRect.y()*zoom) );
     updateSecondaryScreen();
 }
 
-void Skin::updateSecondaryScreen()
+void DeviceSkin::updateSecondaryScreen()
 {
-    if (!secondaryView)
+    if (!m_secondaryView)
         return;
     if (flipped_open) {
-        if (backScreenRect.isNull()) {
-            secondaryView->hide();
+        if (m_parameters.backScreenRect.isNull()) {
+            m_secondaryView->hide();
         } else {
-            secondaryView->move( int(backScreenRect.x()*zoom), int(backScreenRect.y()*zoom) );
-            secondaryView->show();
+            m_secondaryView->move( int(m_parameters.backScreenRect.x()*zoom), int(m_parameters.backScreenRect.y()*zoom) );
+            m_secondaryView->show();
         }
     } else {
-        if (closedScreenRect.isNull()) {
-            secondaryView->hide();
+        if (m_parameters.closedScreenRect.isNull()) {
+            m_secondaryView->hide();
         } else {
-            secondaryView->move( int(closedScreenRect.x()*zoom), int(closedScreenRect.y()*zoom) );
-            secondaryView->show();
+            m_secondaryView->move( int(m_parameters.closedScreenRect.x()*zoom), int(m_parameters.closedScreenRect.y()*zoom) );
+            m_secondaryView->show();
         }
     }
 }
 
-void Skin::setView( QVFbAbstractView *v )
+void DeviceSkin::setView( QWidget *v )
 {
-    view = v;
-    view->setFocus();
-    view->move( int(screenRect.x()*zoom), int(screenRect.y()*zoom) );
+    m_view = v;
+    m_view->setFocus();
+    m_view->move( int(m_parameters.screenRect.x()*zoom), int(m_parameters.screenRect.y()*zoom) );
     if ( cursorw )
 	cursorw->setView(v);
-
-    setupDefaultButtons();
 }
 
-void Skin::setSecondaryView( QVFbAbstractView *v )
+void DeviceSkin::setSecondaryView( QWidget *v )
 {
-    secondaryView = v;
+    m_secondaryView = v;
     updateSecondaryScreen();
 }
 
-void Skin::paintEvent( QPaintEvent * )
+void DeviceSkin::paintEvent( QPaintEvent *)
 {
     QPainter p( this );
     if ( flipped_open ) {
@@ -453,28 +499,28 @@ void Skin::paintEvent( QPaintEvent * )
 	p.drawPixmap( 0, 0, skinImageClosed );
     }
     if (buttonPressed == true) {
-        ButtonAreas *ba = &areas[buttonIndex];
-        QRect r = ba->region.boundingRect();
-        if ( ba->area.count() > 2 )
-            p.setClipRegion(ba->region);
+	const DeviceSkinButtonArea &ba = m_parameters.buttonAreas[buttonIndex];
+        const QRect r = buttonRegions[buttonIndex].boundingRect();
+        if ( ba.area.count() > 2 )
+            p.setClipRegion(buttonRegions[buttonIndex]);
         p.drawPixmap( r.topLeft(), skinImageDown, r);
     }
 }
 
-
-void Skin::mousePressEvent( QMouseEvent *e )
+void DeviceSkin::mousePressEvent( QMouseEvent *e )
 {
     if (e->button() == Qt::RightButton) {
-	parent->popupMenu();
+	emit popupMenu();
     } else {
 	buttonPressed = false;
 
 	onjoyrelease = -1;
-        for (int i = 0; i < numberOfAreas; i++) {
-            ButtonAreas *ba = &areas[i];
-            if ( ba->region.contains( e->pos() ) ) {
-                if ( flipped_open || ba->activeWhenClosed ) {
-                    if ( joystick == i ) {
+	const int numAreas = m_parameters.buttonAreas.size();
+        for (int i = 0; i < numAreas ; i++) {
+	    const DeviceSkinButtonArea &ba = m_parameters.buttonAreas[i];
+            if (  buttonRegions[i].contains( e->pos() ) ) {
+                if ( flipped_open || ba.activeWhenClosed ) {
+                    if ( m_parameters.joystick == i ) {
                         joydown = true;
                     } else {
                         if ( joydown )
@@ -482,64 +528,66 @@ void Skin::mousePressEvent( QMouseEvent *e )
                         else
                             startPress(i);
                         break;
-//		Debug message to be sure we are clicking the right areas
-//		printf("%s clicked\n", areas[i].name);
+			if (debugDeviceSkin)// Debug message to be sure we are clicking the right areas
+			    qDebug()<< m_parameters.buttonAreas[i].name << " clicked";
                     }
                 }
             }
         }
-
+	clickPos = e->pos();
 //	This is handy for finding the areas to define rectangles for new skins
-//	printf("Clicked in %i,%i\n",  e->pos().x(),  e->pos().y());
+	if (debugDeviceSkin)
+	    qDebug()<< "Clicked in " <<  e->pos().x() << ',' <<  e->pos().y();
 	clickPos = e->pos();
     }
 }
 
-void Skin::flip(bool open)
+void DeviceSkin::flip(bool open)
 {
     if ( flipped_open == open )
 	return;
     if ( open ) {
 	parent->setMask( skinImageUp.mask() );
-	view->skinKeyReleaseEvent( Qt::Key(Qt::Key_Flip), QString() );
+	emit skinKeyReleaseEvent( Qt::Key(Qt::Key_Flip), QString(), false);
     } else {
 	parent->setMask( skinImageClosed.mask() );
-	view->skinKeyPressEvent( Qt::Key(Qt::Key_Flip), QString() );
+	emit skinKeyPressEvent( Qt::Key(Qt::Key_Flip), QString(), false);
     }
     flipped_open = open;
     updateSecondaryScreen();
     repaint();
 }
 
-void Skin::startPress(int i)
+void DeviceSkin::startPress(int i)
 {
     buttonPressed = true;
     buttonIndex = i;
-    if (view) {
-	if ( areas[buttonIndex].keyCode == Qt::Key_Flip ) {
+    if (m_view) {
+	const DeviceSkinButtonArea &ba = m_parameters.buttonAreas[buttonIndex];
+	if ( ba.keyCode == Qt::Key_Flip ) {
 	    flip(!flipped_open);
 	} else {
-	    view->skinKeyPressEvent( areas[buttonIndex].keyCode, areas[buttonIndex].text );
+	    emit skinKeyPressEvent( ba.keyCode, ba.text, false);
 	    t_skinkey->start(key_repeat_delay);
 	}
-	ButtonAreas *ba = &areas[buttonIndex];
-	repaint( ba->region.boundingRect() );
+	repaint( buttonRegions[buttonIndex].boundingRect() );
     }
 }
 
-void Skin::endPress()
+void DeviceSkin::endPress()
 {
-    if (view && areas[buttonIndex].keyCode != Qt::Key_Flip )
-	view->skinKeyReleaseEvent( areas[buttonIndex].keyCode, areas[buttonIndex].text );
+    const DeviceSkinButtonArea &ba = m_parameters.buttonAreas[buttonIndex];
+    if (m_view && ba.keyCode != Qt::Key_Flip )
+	emit skinKeyReleaseEvent(ba.keyCode, ba.text, false );
     t_skinkey->stop();
     buttonPressed = false;
-    ButtonAreas *ba = &areas[buttonIndex];
-    repaint( ba->region.boundingRect() );
+    repaint( buttonRegions[buttonIndex].boundingRect() );
 }
 
-void Skin::mouseMoveEvent( QMouseEvent *e )
+void DeviceSkin::mouseMoveEvent( QMouseEvent *e )
 {
     if ( e->buttons() & Qt::LeftButton ) {
+	const int joystick = m_parameters.joystick;
 	QPoint newpos =  e->globalPos() - clickPos;
 	if ( joydown ) {
 	    int k1=0, k2=0;
@@ -575,12 +623,12 @@ void Skin::mouseMoveEvent( QMouseEvent *e )
 	cursorw->setPos(e->globalPos());
 }
 
-void Skin::moveParent()
+void DeviceSkin::moveParent()
 {
     parent->move( parentpos );
 }
 
-void Skin::mouseReleaseEvent( QMouseEvent * )
+void DeviceSkin::mouseReleaseEvent( QMouseEvent * )
 {
     if ( buttonPressed )
 	endPress();
@@ -593,24 +641,14 @@ void Skin::mouseReleaseEvent( QMouseEvent * )
     }
 }
 
-
-bool Skin::hasCursor() const
+bool DeviceSkin::hasCursor() const
 {
-    return !skinCursorFileName.isEmpty();
+    return !skinCursor.isNull();
 }
 
-void Skin::setupDefaultButtons()
-{
-    QString destDir = QString("/tmp/qtembedded-%1/").arg(view->displayId());
-    QFileInfo src(prefix + "defaultbuttons.conf");
-    QFileInfo dst(destDir + "defaultbuttons.conf");
-    unlink(dst.absoluteFilePath().toLatin1().constData());
-    if (src.exists()) {
-        QFile::copy(src.absoluteFilePath(), dst.absoluteFilePath());
-    }
-}
+// ------------------ CursorWindow implementation
 
-// ====================================================================
+namespace qvfb_internal {
 
 bool CursorWindow::eventFilter( QObject *, QEvent *ev)
 {
@@ -631,15 +669,15 @@ bool CursorWindow::handleMouseEvent(QEvent *ev)
     static int inhere=0;
     if ( !inhere ) {
 	inhere++;
-	if ( view ) {
+	if ( m_view ) {
 	    if ( ev->type() >= QEvent::MouseButtonPress && ev->type() <= QEvent::MouseMove ) {
 		QMouseEvent *e = (QMouseEvent*)ev;
 		QPoint gp = e->globalPos();
-		QPoint vp = view->mapFromGlobal(gp);
+		QPoint vp = m_view->mapFromGlobal(gp);
 		QPoint sp = skin->mapFromGlobal(gp);
 		if ( e->type() == QEvent::MouseButtonPress || e->type() == QEvent::MouseButtonDblClick ) {
-		    if ( view->rect().contains(vp) )
-			mouseRecipient = view;
+		    if ( m_view->rect().contains(vp) )
+			mouseRecipient = m_view;
 		    else if ( skin->parentWidget()->geometry().contains(gp) )
 			mouseRecipient = skin;
 		    else
@@ -664,30 +702,29 @@ bool CursorWindow::handleMouseEvent(QEvent *ev)
     return handledEvent;
 }
 
-void CursorWindow::setView(QVFbAbstractView* v)
+void CursorWindow::setView(QWidget* v)
 {
-    if ( view ) {
-	view->removeEventFilter(this);
-	view->removeEventFilter(this);
+    if ( m_view ) {
+	m_view->removeEventFilter(this);
+	m_view->removeEventFilter(this);
     }
-    view = v;
-    view->installEventFilter(this);
-    view->installEventFilter(this);
+    m_view = v;
+    m_view->installEventFilter(this);
+    m_view->installEventFilter(this);
     mouseRecipient = 0;
 }
 
-CursorWindow::CursorWindow( const QString& fn, QPoint hot, QWidget* sk)
+CursorWindow::CursorWindow(const QImage &img, QPoint hot, QWidget* sk)
 	:QWidget(0),
-	view(0), skin(sk),
+	m_view(0), skin(sk),
 	hotspot(hot)
 {
     setWindowFlags( Qt::FramelessWindowHint );
     mouseRecipient = 0;
     setMouseTracking(true);
     setCursor(Qt::BlankCursor);
-    QImage img( fn );
     QPixmap p;
-    p = QPixmap::fromImage( img );
+    p = QPixmap::fromImage(img);
     if ( !p.mask() )
 	if ( img.hasAlphaChannel() ) {
 	    QBitmap bm;
@@ -712,3 +749,42 @@ void CursorWindow::setPos(QPoint p)
     show();
     raise();
 }
+}
+
+#ifdef TEST_SKIN
+
+int main(int argc,char *argv[])
+{
+    if (argc < 1)
+        return 1;
+    const QString skinFile = QString::fromUtf8(argv[1]);
+    QApplication app(argc,argv);
+    QMainWindow mw;
+
+    DeviceSkinParameters params;
+    QString errorMessage;
+    if (!params.read(skinFile, DeviceSkinParameters::ReadAll, &errorMessage)) {
+	qWarning() << errorMessage;
+	return 1;
+    }
+    DeviceSkin ds(params, &mw);
+    // View Dialog
+    QDialog *dialog = new QDialog();
+    QHBoxLayout *dialogLayout = new QHBoxLayout();
+    dialog->setLayout(dialogLayout);
+    QDialogButtonBox *dialogButtonBox = new QDialogButtonBox(QDialogButtonBox::Ok|QDialogButtonBox::Cancel);
+    QObject::connect(dialogButtonBox, SIGNAL(rejected()), dialog, SLOT(reject()));
+    QObject::connect(dialogButtonBox, SIGNAL(accepted()), dialog, SLOT(accept()));
+    dialogLayout->addWidget(dialogButtonBox);
+    dialog->setFixedSize(params.screenSize());
+    dialog->setParent(&ds, Qt::SubWindow);
+    dialog->setAutoFillBackground(true);
+    ds.setView(dialog);
+
+    QObject::connect(&ds, SIGNAL(popupMenu()), &mw, SLOT(close()));
+    QObject::connect(&ds, SIGNAL(skinKeyPressEvent(int,QString,bool)), &mw, SLOT(close()));
+    mw.show();
+    return app.exec();
+}
+
+#endif

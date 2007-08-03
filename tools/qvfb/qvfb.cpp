@@ -42,6 +42,7 @@
 #include <QPushButton>
 #include <QTextStream>
 #include <QFile>
+#include <QFileInfo>
 #include <QDebug>
 
 #include <unistd.h>
@@ -99,6 +100,20 @@ static const char *red_off_led_xpm[] = {
 "  ;=&-$$.  ",
 "   ;==&$   ",
 "           "};
+
+static bool copyButtonConfiguration(const QString &prefix, int displayId)
+{
+    const QString destDir = QString(QLatin1String("/tmp/qtembedded-%1/")).arg(displayId);
+    const QFileInfo src(prefix + QLatin1String("defaultbuttons.conf"));
+    const QFileInfo dst(destDir + QLatin1String("defaultbuttons.conf"));
+    unlink(dst.absoluteFilePath().toLatin1().constData());
+    if (!src.exists())
+        return false;
+    const bool rc = QFile::copy(src.absoluteFilePath(), dst.absoluteFilePath());
+    if (!rc)
+        qWarning() << "Failed to copy the button configuration file " << src.absoluteFilePath() << " to " <<  dst.absoluteFilePath() << '.';
+    return rc;
+}
 
 // =====================================================================
 
@@ -211,10 +226,14 @@ void QVFb::init( int display_id, int pw, int ph, int d, int r, const QString& sk
 			     ((r == 270) ? QVFbView::Rot270 :
 					   QVFbView::Rot0 )));
     if ( !skin_name.isEmpty() ) {
-	bool vis = isVisible();
-	int sw, sh;
-	skin = new Skin( this, skin_name, sw, sh );
-	if (skin && skin->isValid()){
+	const bool vis = isVisible();
+	DeviceSkinParameters parameters;
+	QString readError;
+	if (parameters.read(skin_name,DeviceSkinParameters::ReadAll, &readError)) {
+	    skin = new DeviceSkin(parameters, this);
+	    connect(skin, SIGNAL(popupMenu()), this, SLOT(popupMenu()));
+	    const int sw = parameters.screenSize().width();
+	    const int sh = parameters.screenSize().height();
             if ( !pw ) pw = sw;
             if ( !ph ) ph = sh;
     	    if ( vis ) hide();
@@ -228,7 +247,11 @@ void QVFb::init( int display_id, int pw, int ph, int d, int r, const QString& sk
 		view = new QVFbView( display_id, pw, ph, d, rot, skin );
 	    skin->setView( view );
 	    view->setContentsMargins( 0, 0, 0, 0 );
-	    view->setFixedSize( sw, sh );
+	    view->setFixedSize( sw, sh);
+	    connect(skin, SIGNAL(skinKeyPressEvent(int,QString,bool)), view, SLOT(skinKeyPressEvent(int,QString,bool)));
+	    connect(skin, SIGNAL(skinKeyReleaseEvent(int,QString,bool)), view, SLOT(skinKeyReleaseEvent(int,QString,bool)));
+
+	    copyButtonConfiguration(skin->prefix(), view->displayId());
 
 	    setCentralWidget( skin );
 	    adjustSize();
@@ -238,8 +261,8 @@ void QVFb::init( int display_id, int pw, int ph, int d, int r, const QString& sk
 		setZoom(skinscaleH);
 	    view->show();
 
-            if (Skin::hasSecondaryScreen(skin_name)) {
-                QSize ssize = Skin::secondaryScreenSize(skin_name);
+            if (parameters.hasSecondaryScreen()) {
+                const QSize ssize = parameters.secondaryScreenSize();
                 // assumes same depth and rotation
 #ifdef Q_WS_X11
 		if (displayType == X11)
@@ -253,8 +276,7 @@ void QVFb::init( int display_id, int pw, int ph, int d, int r, const QString& sk
 
 	    if ( vis ) show();
 	} else {
-	    delete skin;
-	    skin = 0;
+	    qWarning(readError.toUtf8().constData());
 	}
     }
 
@@ -664,7 +686,13 @@ void QVFb::skinConfigChosen(int i)
         }
     }
     if ( i ) {
-	chooseSize(Skin::screenSize(skinfiles[i-1]));
+	DeviceSkinParameters parameters;
+	QString readError;
+	if (parameters.read(skinfiles[i-1], DeviceSkinParameters::ReadSizeOnly, &readError)) {
+	    chooseSize(parameters.screenSize());
+	} else {
+	    qWarning(readError.toUtf8().constData());
+	}
     }
 }
 
