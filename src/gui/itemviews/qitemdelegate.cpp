@@ -480,11 +480,11 @@ QWidget *QItemDelegate::createEditor(QWidget *parent,
 }
 
 /*!
-    Sets the data to be displayed and edited by the \a editor for the
-    item specified by \a index.
+    Sets the data to be displayed and edited by the \a editor from the
+    data model item specified by the model \a index.
 
-    The default implementation uses the \a editor widget's \l {Qt's
-    Property System} {user property} to set values.
+    The default implementation stores the data in the \a editor
+    widget's \l {Qt's Property System} {user property}.
 
     \sa QMetaProperty::isUser()
 */
@@ -519,11 +519,15 @@ void QItemDelegate::setEditorData(QWidget *editor, const QModelIndex &index) con
 }
 
 /*!
-    Sets the data for the specified \a model and item \a index from that
-    supplied by the \a editor.
+    Gets data drom the \a editor widget and stores it in the specified
+    \a model at the item \a index.
 
-    The default implementation uses the \a editor widget's \l {Qt's
-    Property System} {user property} for the value.
+    The default implementation gets the value to be stored in the data
+    model from the \a editor widget's \l {Qt's Property System} {user
+    property}.
+
+    Note that the \a model parameter is redundant because the \a index
+    knows about its model.
 
     \sa QMetaProperty::isUser()
 */

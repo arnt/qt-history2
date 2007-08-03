@@ -47,8 +47,9 @@
     press buttons.
 
     \o A \c USER attribute that indicates whether the property is
-    designated as the one that the user can edit, or that is in some
-    other way significant.
+    designated as the user property for a class. Normally, the user
+    property is the one the user can edit. For example, QItemDelegate
+    gets and sets an widget's \c USER property.
 
     \endlist
 
