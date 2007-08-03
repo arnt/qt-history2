@@ -269,7 +269,8 @@ protected:
     friend class QPaintEngine;
     friend class QPainter;
     friend class QPainterPrivate;
-
+    friend class QMacPrintEnginePrivate;    
+    
     QPaintEngine::DirtyFlags dirtyFlags;
 };
 

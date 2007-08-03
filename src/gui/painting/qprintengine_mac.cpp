@@ -71,8 +71,8 @@ bool QMacPrintEngine::begin(QPaintDevice *dev)
     }
 
     d->state = QPrinter::Active;
-    d->newPage_helper();
     setActive(true);
+    d->newPage_helper();
     return true;
 }
 
@@ -480,6 +480,7 @@ bool QMacPrintEnginePrivate::newPage_helper()
     }
     QCoreGraphicsPaintEngine *cgEngine = static_cast<QCoreGraphicsPaintEngine*>(paintEngine);
     cgEngine->d_func()->hd = cgContext;
+
     // Set the resolution as a scaling ration of 72 (the default).
     CGContextScaleCTM(cgContext, 72 / resolution.hRes, 72 / resolution.vRes);
 
@@ -489,6 +490,8 @@ bool QMacPrintEnginePrivate::newPage_helper()
         CGContextTranslateCTM(cgContext, page.x() - paper.x(), page.y() - paper.y());
     cgEngine->d_func()->orig_xform = CGContextGetCTM(cgContext);
     cgEngine->d_func()->setClip(0);
+    cgEngine->state->dirtyFlags = QPaintEngine::AllDirty;
+    cgEngine->syncState();
     return true;
 }
 
@@ -643,7 +646,7 @@ void QMacPrintEngine::setProperty(PrintEnginePropertyKey key, const QVariant &va
             status = PMSetJobNameCFString(d->settings, QCFString(value.toString()));
 #endif
         }
-        if (status == noErr)
+        if (status != noErr)
             qWarning("QMacPrintEngine::setPrinterName: Error setting printer: %ld", long(status));
         break; }
     case PPK_SuppressSystemPrintStatus:

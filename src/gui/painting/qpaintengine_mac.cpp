@@ -982,6 +982,9 @@ QCoreGraphicsPaintEngine::updateCompositionMode(QPainter::CompositionMode mode)
     if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_5) {
         CGBlendMode cg_mode = kCGBlendModeNormal;
         switch(mode) {
+        case QPainter::CompositionMode_SourceOver:
+            cg_mode = kCGBlendModeNormal;
+            break;
         case QPainter::CompositionMode_Multiply:
             cg_mode = kCGBlendModeMultiply;
             break;
