@@ -359,7 +359,17 @@ int QTextDocumentPrivate::insertBlock(const QChar &blockSeparator,
 
     appendUndoItem(c);
     Q_ASSERT(undoState == undoStack.size());
+
+    // update revision numbers of the modified blocks. Close to the
+    // truth, but we may want to special case breaking a block before
+    // the first or behind the last character
     B->revision = undoState;
+    b = blocks.next(b);
+    if (b) {
+        B = blocks.fragment(b);
+        B->revision = undoState;
+    }
+
     if (formats.charFormat(charFormat).objectIndex() == -1)
         ensureMaximumBlockCount();
 
