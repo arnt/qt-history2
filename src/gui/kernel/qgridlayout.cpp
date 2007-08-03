@@ -1379,8 +1379,8 @@ QLayoutItem *QGridLayout::itemAtPosition(int row, int column) const
     int n = d->things.count();
     for (int i = 0; i < n; ++i) {
         QGridBox *box = d->things.at(i);
-        if (row >= box->row && row <= box->torow
-                && column >= box->col && column <= box->tocol) {
+        if (row >= box->row && row <= box->toRow(d->rr)
+                && column >= box->col && column <= box->toCol(d->cc)) {
             return box->item();
         }
     }
