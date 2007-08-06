@@ -1969,10 +1969,14 @@
            The icon size of the following widgets can be set using this 
            property.
                \list
-               \i QAbstractButton
+               \i QCheckBox
                \i QListView
+               \i QPushButton
+               \i QRadioButton
                \i QTabBar
                \i QToolBar
+               \i QToolBox
+               \i QTreeView
                \endlist
 
     \row
