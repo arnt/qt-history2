@@ -1571,8 +1571,9 @@ void QTextControlPrivate::mouseReleaseEvent(Qt::MouseButton button, const QPoint
             if (anchorPos != -1) {
                 cursor.setPosition(anchorPos);
 
-                activateLinkUnderCursor(anchorOnMousePress);
+                QString anchor = anchorOnMousePress;
                 anchorOnMousePress = QString();
+                activateLinkUnderCursor(anchor);
             }
         }
     }
