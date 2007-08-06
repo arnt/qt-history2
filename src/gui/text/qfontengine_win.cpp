@@ -819,9 +819,6 @@ void QFontEngineWin::addGlyphsToPath(glyph_t *glyphs, QFixedPoint *positions, in
 {
     LOGFONT lf = logfont;
     lf.lfHeight = unitsPerEm;
-    int flags = synthesized();
-    if(flags & SynthesizedItalic)
-        lf.lfItalic = false;
     lf.lfWidth = 0;
     HFONT hf;
     QT_WA({
