@@ -4,34 +4,40 @@
     \ingroup architecture
     \brief An overview of Qt's property system.
 
-    Qt provides a sophisticated property system similar to those supplied
-    by some compiler vendors. However, as a compiler- and
-    platform-independent library, Qt cannot rely on non-standard compiler
-    features like \c __property or \c [property]. Our solution works with
-    \e any standard C++ compiler on every platform we support. It's based
-    on the meta-object system that also provides object communication
-    through \l{signals and slots}.
+    Qt provides a sophisticated property system similar to the ones
+    supplied by some compiler vendors. However, as a compiler- and
+    platform-independent library, Qt does not rely on non-standard
+    compiler features like \c __property or \c [property]. The Qt
+    solution works with \e any standard C++ compiler on every platform
+    Qt supports. It is based on the \l {Meta-Object System} that also
+    provides object communication through \l{signals and slots}.
 
     \section1 Requirements
 
-    The Q_PROPERTY() macro in a class declaration declares a property.
-    Properties can only be declared in classes that inherit QObject.
+    When the Q_PROPERTY() macro appears in a class declaration that
+    inherits QObject, it declares a property.  Properties can only be
+    declared in classes that inherit QObject.
 
-    To the outer world, a property appears to be similar to a data member.
-    But properties have several features that distinguish them from
-    ordinary data members:
+    To the outer world, a property is similar to a data member, but
+    properties have additional features that ordinary data members
+    might not have.
 
-    \list
-    \o A \c READ function. This accessor function must always exist.
+    \list 
 
-    \o An optional \c WRITE function. Read-only properties do not need
-    a \c WRITE accessor function (e.g., QWidget::isDesktop() does not
-    have one).
+    \o A \c READ accessor function. This function must be provided
+    (e.g., QWidget::focus is a read-only property with the \c READ
+    function QWidget::hasFocus()).
 
-    \o A \c RESET function to set the property back to its context
-    specific default value. This is very rare, but QWidget::cursor
-    needs this, for example, since no call to QWidget::setCursor() can
-    mean \tt {reset to the context specific cursor}.
+    \o An optional \c WRITE accessor function. Read-only properties do
+    not need \c WRITE functions (e.g., QWidget::focus has no \c WRITE
+    function).
+
+    \o An optional \c RESET function to set the property back to its
+    context specific default value (e.g., QWidget::cursor has the
+    typical \c READ and \c WRITE functions, QWidget::cursor() and
+    QWidget::setCursor(), and it also has a \c RESET function,
+    QWidget::unsetCursor(), since no call to QWidget::setCursor() can
+    mean \tt {reset to the context specific cursor}).
 
     \o A \c STORED attribute that indicates persistence. Most
     properties are stored, but a few virtual properties are not. For
@@ -49,14 +55,14 @@
     \o A \c USER attribute that indicates whether the property is
     designated as the user property for a class. Normally, the user
     property is the one the user can edit. For example, QItemDelegate
-    gets and sets an widget's \c USER property.
+    gets and sets a widget's \c USER property.
 
     \endlist
 
-    The read, write and reset functions can be just about any member
-    functions, inherited or not, virtual or not. The only exception is
-    that member functions must be inherited from the first inherited class
-    in the case of multiple inheritance.
+    The \c READ, \c WRITE, and \c RESET functions can be just about
+    any member functions, inherited or not, virtual or not. The only
+    exception is that member functions must be inherited from the
+    first inherited class in the case of multiple inheritance.
 
     \section1 Reading and Writing Properties
 
@@ -75,11 +81,11 @@
     \endcode
 
     Equivalent, that is, except that the first is faster and provides
-    much better diagnostics at compile time. When practical, the first is
-    better. However, since you can get a list of all available properties
-    for any QObject through its QMetaObject, QObject::setProperty()
-    can give you control over classes that weren't available at compile
-    time.
+    much better diagnostics at compile time. When practical, the first
+    is better. However, because you can get a list of properties for
+    any QObject from its QMetaObject, using QObject::setProperty()
+    gives you access to properties in classes that weren't available
+    at compile time.
 
     As well as QObject::setProperty(), there is a corresponding
     QObject::property() function. QMetaObject::propertyCount()
