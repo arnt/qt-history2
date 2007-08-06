@@ -2309,19 +2309,6 @@ QPixmap QMessageBox::standardIcon(Icon icon, Qt::GUIStyle style)
 
 #endif
 
-/*!
-    \obsolete
-
-    Returns the pixmap used for a standard icon. This allows the
-    pixmaps to be used in more complex message boxes. \a icon
-    specifies the required icon, e.g. QMessageBox::Question,
-    QMessageBox::Information, QMessageBox::Warning or
-    QMessageBox::Critical.
-
-    Call QStyle::pixelMetric() with QStyle::SP_MessageBoxInformation etc.
-    instead.
-*/
-
 QPixmap QMessageBoxPrivate::standardIcon(QMessageBox::Icon icon, QMessageBox *mb)
 {
     QStyle *style = mb ? mb->style() : QApplication::style();
@@ -2346,6 +2333,19 @@ QPixmap QMessageBoxPrivate::standardIcon(QMessageBox::Icon icon, QMessageBox *mb
         return tmpIcon.pixmap(iconSize, iconSize);
     return QPixmap();
 }
+
+/*!
+    \obsolete
+
+    Returns the pixmap used for a standard icon. This allows the
+    pixmaps to be used in more complex message boxes. \a icon
+    specifies the required icon, e.g. QMessageBox::Question,
+    QMessageBox::Information, QMessageBox::Warning or
+    QMessageBox::Critical.
+
+    Call QStyle::pixelMetric() with QStyle::SP_MessageBoxInformation etc.
+    instead.
+*/
 
 QPixmap QMessageBox::standardIcon(Icon icon)
 {
