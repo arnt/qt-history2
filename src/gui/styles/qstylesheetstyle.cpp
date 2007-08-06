@@ -3742,6 +3742,7 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const 
     case PM_TabBarIconSize:
     case PM_MessageBoxIconSize:
     case PM_ButtonIconSize:
+    case PM_SmallIconSize:
         if (rule.hasStyleHint(QLatin1String("icon-size"))) {
             return rule.styleHint(QLatin1String("icon-size")).toSize().width();
         }

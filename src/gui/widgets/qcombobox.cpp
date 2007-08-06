@@ -1461,7 +1461,7 @@ QSize QComboBox::iconSize() const
     if (d->iconSize.isValid())
         return d->iconSize;
 
-    int iconWidth = style()->pixelMetric(QStyle::PM_SmallIconSize);
+    int iconWidth = style()->pixelMetric(QStyle::PM_SmallIconSize, 0, this);
     return QSize(iconWidth, iconWidth);
 }
 

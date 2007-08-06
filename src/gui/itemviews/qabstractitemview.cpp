@@ -3013,7 +3013,7 @@ QStyleOptionViewItem QAbstractItemView::viewOptions() const
     if (d->iconSize.isValid()) {
         option.decorationSize = d->iconSize;
     } else {
-        int pm = style()->pixelMetric(QStyle::PM_SmallIconSize);
+        int pm = style()->pixelMetric(QStyle::PM_SmallIconSize, 0, this);
         option.decorationSize = QSize(pm, pm);
     }
     option.decorationPosition = QStyleOptionViewItem::Left;

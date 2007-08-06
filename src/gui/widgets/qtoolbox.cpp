@@ -157,7 +157,7 @@ QSize QToolBoxButton::sizeHint() const
 {
     QSize iconSize(8, 8);
     if (!icon().isNull()) {
-        int icone = style()->pixelMetric(QStyle::PM_SmallIconSize);
+        int icone = style()->pixelMetric(QStyle::PM_SmallIconSize, 0, parentWidget() /* QToolBox */);
         iconSize += QSize(icone + 2, icone);
     }
     QSize textSize = fontMetrics().size(Qt::TextShowMnemonic, text()) + QSize(0, 8);
@@ -170,7 +170,7 @@ QSize QToolBoxButton::minimumSizeHint() const
 {
     if (icon().isNull())
         return QSize();
-    int icone = style()->pixelMetric(QStyle::PM_SmallIconSize);
+    int icone = style()->pixelMetric(QStyle::PM_SmallIconSize, 0, parentWidget() /* QToolBox */);
     return QSize(icone + 8, icone + 8);
 }
 
