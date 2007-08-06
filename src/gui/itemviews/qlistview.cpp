@@ -985,8 +985,8 @@ QStyleOptionViewItem QListView::viewOptions() const
     QStyleOptionViewItem option = QAbstractItemView::viewOptions();
     if (!d->iconSize.isValid()) { // otherwise it was already set in abstractitemview
         int pm = (d->viewMode == ListMode
-                  ? style()->pixelMetric(QStyle::PM_ListViewIconSize)
-                  : style()->pixelMetric(QStyle::PM_IconViewIconSize));
+                  ? style()->pixelMetric(QStyle::PM_ListViewIconSize, 0, this)
+                  : style()->pixelMetric(QStyle::PM_IconViewIconSize, 0, this));
         option.decorationSize = QSize(pm, pm);
     }
     if (d->viewMode == IconMode) {

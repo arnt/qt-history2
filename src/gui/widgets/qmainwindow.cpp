@@ -66,7 +66,7 @@ void QMainWindowPrivate::init()
 {
     Q_Q(QMainWindow);
     layout = new QMainWindowLayout(q);
-    const int metric = q->style()->pixelMetric(QStyle::PM_ToolBarIconSize);
+    const int metric = q->style()->pixelMetric(QStyle::PM_ToolBarIconSize, 0, q);
     iconSize = QSize(metric, metric);
     explicitIconSize = false;
 
@@ -358,7 +358,7 @@ void QMainWindow::setIconSize(const QSize &iconSize)
     Q_D(QMainWindow);
     QSize sz = iconSize;
     if (!sz.isValid()) {
-        const int metric = style()->pixelMetric(QStyle::PM_ToolBarIconSize);
+        const int metric = style()->pixelMetric(QStyle::PM_ToolBarIconSize, 0, this);
         sz = QSize(metric, metric);
     }
     if (d->iconSize != sz) {

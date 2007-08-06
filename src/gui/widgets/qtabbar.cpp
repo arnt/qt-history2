@@ -941,7 +941,7 @@ QSize QTabBar::iconSize() const
     Q_D(const QTabBar);
     if (d->iconSize.isValid())
         return d->iconSize;
-    int iconExtent = style()->pixelMetric(QStyle::PM_TabBarIconSize);
+    int iconExtent = style()->pixelMetric(QStyle::PM_TabBarIconSize, 0, this);
     return QSize(iconExtent, iconExtent);
 
 }

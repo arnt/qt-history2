@@ -204,6 +204,8 @@ public:
                 QMessageBox::Icon icon, const QString& title, const QString& text,
                 QMessageBox::StandardButtons buttons, QMessageBox::StandardButton defaultButton);
 
+    static QPixmap standardIcon(QMessageBox::Icon icon, QMessageBox *mb);
+
     QLabel *label;
     QMessageBox::Icon icon;
     QLabel *iconLabel;
@@ -1041,7 +1043,7 @@ QMessageBox::Icon QMessageBox::icon() const
 void QMessageBox::setIcon(Icon icon)
 {
     Q_D(QMessageBox);
-    setIconPixmap(QMessageBox::standardIcon((QMessageBox::Icon)icon));
+    setIconPixmap(QMessageBoxPrivate::standardIcon((QMessageBox::Icon)icon, this));
     d->icon = icon;
 }
 
@@ -2320,28 +2322,34 @@ QPixmap QMessageBox::standardIcon(Icon icon, Qt::GUIStyle style)
     instead.
 */
 
-QPixmap QMessageBox::standardIcon(Icon icon)
+QPixmap QMessageBoxPrivate::standardIcon(QMessageBox::Icon icon, QMessageBox *mb)
 {
-    int iconSize = QApplication::style()->pixelMetric(QStyle::PM_MessageBoxIconSize);
+    QStyle *style = mb ? mb->style() : QApplication::style();
+    int iconSize = style->pixelMetric(QStyle::PM_MessageBoxIconSize, 0, mb);
     QIcon tmpIcon;
     switch (icon) {
-    case Information:
-        tmpIcon = QApplication::style()->standardIcon(QStyle::SP_MessageBoxInformation);
+    case QMessageBox::Information:
+        tmpIcon = style->standardIcon(QStyle::SP_MessageBoxInformation);
         break;
-    case Warning:
-        tmpIcon = QApplication::style()->standardIcon(QStyle::SP_MessageBoxWarning);
+    case QMessageBox::Warning:
+        tmpIcon = style->standardIcon(QStyle::SP_MessageBoxWarning);
         break;
-    case Critical:
-        tmpIcon = QApplication::style()->standardIcon(QStyle::SP_MessageBoxCritical);
+    case QMessageBox::Critical:
+        tmpIcon = style->standardIcon(QStyle::SP_MessageBoxCritical);
         break;
-    case Question:
-        tmpIcon = QApplication::style()->standardIcon(QStyle::SP_MessageBoxQuestion);
+    case QMessageBox::Question:
+        tmpIcon = style->standardIcon(QStyle::SP_MessageBoxQuestion);
     default:
         break;
     }
     if (!tmpIcon.isNull())
         return tmpIcon.pixmap(iconSize, iconSize);
     return QPixmap();
+}
+
+QPixmap QMessageBox::standardIcon(Icon icon)
+{
+    return QMessageBoxPrivate::standardIcon(icon, 0);
 }
 
 /*!

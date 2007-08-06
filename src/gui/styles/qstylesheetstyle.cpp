@@ -291,9 +291,9 @@ public:
     QFont font;
     bool hasFont;
 
-    QHash<QString, int> styleHints;
+    QHash<QString, QVariant> styleHints;
     bool hasStyleHint(const QString& sh) const { return styleHints.contains(sh); }
-    int styleHint(const QString& sh) const { return styleHints.value(sh); }
+    QVariant styleHint(const QString& sh) const { return styleHints.value(sh); }
 
     void fixupBorder(int);
 
@@ -316,6 +316,7 @@ static const char *knownStyleHints[] = {
     "dither-disable-text",
     "etch-disabled-text",
     "gridline-color",
+    "icon-size",
     "lineedit-password-character",
     "menubar-altkey-navigation",
     "menubar-separator",
@@ -442,15 +443,20 @@ QRenderRule::QRenderRule(const QVector<Declaration> &declarations, const QWidget
             for (int i = 0; i < numKnownStyleHints; i++) {
                 QLatin1String styleHint(knownStyleHints[i]);
                 if (decl.property.compare(styleHint) == 0) {
-                   int hint;
-                   if (QString(styleHint).endsWith(QLatin1String("alignment"))) {
-                       hint = (int) decl.alignmentValue();
-                   } else if (QString(styleHint).endsWith(QLatin1String("color"))) {
-                       hint = (int) decl.colorValue().rgba();
+                   QString hintName = QString(styleHint);
+                   QVariant hintValue;
+                   if (hintName.endsWith(QLatin1String("alignment"))) {
+                       hintValue = (int) decl.alignmentValue();
+                   } else if (hintName.endsWith(QLatin1String("color"))) {
+                       hintValue = (int) decl.colorValue().rgba();
+                   } else if (hintName.endsWith(QLatin1String("size"))) {
+                       hintValue = decl.sizeValue();
                    } else {
-                       decl.intValue(&hint);
+                       int integer;
+                       decl.intValue(&integer);
+                       hintValue = integer;
                    }
-                   styleHints[decl.property] = hint;
+                   styleHints[decl.property] = hintValue;
                    knownStyleHint = true;
                    break;
                 }
@@ -3730,6 +3736,17 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const 
         return (opt->state & QStyle::State_Horizontal) ? size.height() : size.width();
                                     }
 
+    case PM_ToolBarIconSize:
+    case PM_ListViewIconSize:
+    case PM_IconViewIconSize:
+    case PM_TabBarIconSize:
+    case PM_MessageBoxIconSize:
+    case PM_ButtonIconSize:
+        if (rule.hasStyleHint(QLatin1String("icon-size"))) {
+            return rule.styleHint(QLatin1String("icon-size")).toSize().width();
+        }
+        break;
+
     default:
         break;
     }
@@ -3967,7 +3984,7 @@ int QStyleSheetStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWi
         default: break;
     }
     if (!s.isEmpty() && rule.hasStyleHint(s)) {
-        return rule.styleHint(s);
+        return rule.styleHint(s).toInt();
     }
 
     return baseStyle()->styleHint(sh, opt, w, shret);
