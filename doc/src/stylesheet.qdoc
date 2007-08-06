@@ -1962,6 +1962,20 @@
            See also \l{#width-prop}{width}.
 
     \row
+        \o \bold{\c icon-size} \target icon-size-prop
+        \o \l{#Length}{Length}
+        \o The width and height of the icon in a widget.
+
+           The icon size of the following widgets can be set using this 
+           property.
+               \list
+               \i QAbstractButton
+               \i QListView
+               \i QTabBar
+               \i QToolBar
+               \endlist
+
+    \row
         \o \bold{\c image}* \target image-prop
         \o \l{#Url}{Url}+
         \o The image that is drawn in the contents rectangle of a 
