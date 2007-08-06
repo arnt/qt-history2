@@ -867,6 +867,21 @@ void QWSDisplay::Data::fillQueue()
                 }
             }
 #endif // 0 (RegionModified)
+#ifndef QT_NO_QWS_PROPERTIES
+        } else if (e->type == QWSEvent::PropertyReply) {
+            QWSPropertyReplyEvent *pe = static_cast<QWSPropertyReplyEvent*>(e);
+            int len = pe->simpleData.len;
+            char *data;
+            if (len <= 0) {
+                data = 0;
+            } else {
+                data = new char[len];
+                memcpy(data, pe->data, len) ;
+            }
+            QPaintDevice::qwsDisplay()->getPropertyLen = len;
+            QPaintDevice::qwsDisplay()->getPropertyData = data;
+            delete e;
+#endif // QT_NO_QWS_PROPERTIES
         } else if (e->type==QWSEvent::MaxWindowRect && qt_screen) {
             // Process this ASAP, in case new widgets are created (startup)
             setMaxWindowRect((static_cast<QWSMaxWindowRectEvent*>(e))->simpleData.rect);
@@ -983,6 +998,21 @@ void QWSDisplay::Data::waitForCreation()
     }
 #endif
 }
+
+
+#ifndef QT_NO_QWS_MULTIPROCESS
+void QWSDisplay::Data::waitForPropertyReply()
+{
+    if (!csocket)
+        return;
+    fillQueue();
+    while (qt_fbdpy->getPropertyLen == -2) {
+        csocket->flush();
+        csocket->waitForReadyRead(1000);
+        fillQueue();
+    }
+}
+#endif
 
 #ifndef QT_NO_COP
 void QWSDisplay::Data::waitForQCopResponse()
@@ -1126,6 +1156,17 @@ void QWSDisplay::removeProperty(int winId, int property)
  */
 bool QWSDisplay::getProperty(int winId, int property, char *&data, int &len)
 {
+    if (d->directServerConnection()) {
+        const char *propertyData;
+        bool retval = qwsServer->d_func()->get_property(winId, property, propertyData, len);
+        if (len <= 0) {
+            data = 0;
+        } else {
+            data = new char[len];
+            memcpy(data, propertyData, len) ;
+        }
+        return retval;
+    }
     QWSGetPropertyCommand cmd;
     cmd.simpleData.windowid = winId;
     cmd.simpleData.property = property;
@@ -1134,8 +1175,7 @@ bool QWSDisplay::getProperty(int winId, int property, char *&data, int &len)
     getPropertyLen = -2;
     getPropertyData = 0;
 
-    while (getPropertyLen == -2)
-        qApp->processEvents(); //########## USE an ACK event instead. That's dangerous!
+    d->waitForPropertyReply();
 
     len = getPropertyLen;
     data = getPropertyData;
@@ -2472,18 +2512,6 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
             }
 #endif
         }
-    } else if (event->type == QWSEvent::PropertyReply) {
-        QWSPropertyReplyEvent *e = static_cast<QWSPropertyReplyEvent*>(event);
-        int len = e->simpleData.len;
-        char *data;
-        if (len <= 0) {
-            data = 0;
-        } else {
-            data = new char[len];
-            memcpy(data, e->data, len) ;
-        }
-        QPaintDevice::qwsDisplay()->getPropertyLen = len;
-        QPaintDevice::qwsDisplay()->getPropertyData = data;
     }
 #endif //QT_NO_QWS_PROPERTIES
 #ifndef QT_NO_COP

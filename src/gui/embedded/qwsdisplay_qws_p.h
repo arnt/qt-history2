@@ -49,6 +49,7 @@ public:
 #ifndef QT_NO_QWS_MULTIPROCESS
     void connectToPipe();
     void waitForConnection();
+    void waitForPropertyReply();
 //    void waitForRegionAck();
 #endif
     void waitForCreation();

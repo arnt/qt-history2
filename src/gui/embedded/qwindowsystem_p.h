@@ -97,6 +97,9 @@ private:
     void destroy_region(const QWSRegionDestroyCommand *);
     void name_region(const QWSRegionNameCommand *);
     void set_identity(const QWSIdentifyCommand *);
+#ifndef QT_NO_QWS_PROPERTIES
+    bool get_property(int winId, int property, const char *&data, int &len);
+#endif
 #ifndef QT_NO_QWS_INPUTMETHODS
     void im_response(const QWSIMResponseCommand *);
 

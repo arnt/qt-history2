@@ -2871,6 +2871,13 @@ void QWSServerPrivate::invokeRemoveProperty(QWSRemovePropertyCommand *cmd)
     }
 }
 
+
+bool QWSServerPrivate:: get_property(int winId, int property, const char *&data, int &len)
+{
+    return propertyManager.getProperty(winId, property, data, len);
+}
+
+
 void QWSServerPrivate::invokeGetProperty(QWSGetPropertyCommand *cmd, QWSClient *client)
 {
     const char *data;
