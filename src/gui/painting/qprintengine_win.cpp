@@ -486,9 +486,10 @@ void QAlphaPaintEnginePrivate::drawAlphaImage(const QRectF &rect)
     QTransform picscale;
     picscale.scale(xscale, yscale);
 
+    const int tileSize = 2048;
     QSize size((int(rect.width() * xscale)), int(rect.height() * yscale));
-    int divw = (size.width() / 1024);
-    int divh = (size.height() / 1024);
+    int divw = (size.width() / tileSize);
+    int divh = (size.height() / tileSize);
     divw += 1;
     divh += 1;
 
@@ -1002,7 +1003,7 @@ void QWin32PrintEngine::drawPixmap(const QRectF &targetRect,
     if (!continueCall())
         return;
 
-    const int tilesize = 2048;
+    const int tileSize = 2048;
 
     QRectF r = targetRect;
     QRectF sr = sourceRect;
@@ -1043,32 +1044,32 @@ void QWin32PrintEngine::drawPixmap(const QRectF &targetRect,
 
     int dc_state = SaveDC(d->hdc);
 
-    int tilesw = pixmap.width() / tilesize;
-    int tilesh = pixmap.height() / tilesize;
+    int tilesw = pixmap.width() / tileSize;
+    int tilesh = pixmap.height() / tileSize;
     ++tilesw;
     ++tilesh;
 
-    int txinc = tw / tilesw;
-    int tyinc = th / tilesh;
+    int txinc = tileSize*scaleX;
+    int tyinc = tileSize*scaleY;
 
     for (int y = 0; y < tilesh; ++y) {
         int tposy = ty + (y * tyinc);
-        int imgh = tilesize;
+        int imgh = tileSize;
         int height = tyinc;
         if (y == (tilesh - 1)) {
-            imgh = pixmap.height() - (y * tilesize);
+            imgh = pixmap.height() - (y * tileSize);
             height = (th - (y * tyinc));
         }
         for (int x = 0; x < tilesw; ++x) {
             int tposx = tx + (x * txinc);
-            int imgw = tilesize;
+            int imgw = tileSize;
             int width = txinc;
             if (x == (tilesw - 1)) {
-                imgw = pixmap.width() - (x * tilesize);
+                imgw = pixmap.width() - (x * tileSize);
                 width = (tw - (x * txinc));
             }
 
-            QPixmap p = pixmap.copy(tilesize * x, tilesize * y, imgw, imgh);
+            QPixmap p = pixmap.copy(tileSize * x, tileSize * y, imgw, imgh);
             HBITMAP hbitmap = p.toWinHBITMAP(QPixmap::NoAlpha);
             HDC hbitmap_hdc = CreateCompatibleDC(qt_win_display_dc());
             HGDIOBJ null_bitmap = SelectObject(hbitmap_hdc, hbitmap);
