@@ -1450,25 +1450,6 @@ void QTextLine::setNumColumns(int numColumns, qreal alignmentWidth)
     layout_helper(numColumns);
 }
 
-enum State {
-    Empty,
-    Characters,
-    WhiteSpace
-};
-
-enum Action {
-    NoAction,
-    AddWhiteSpace,
-    AddTemp,
-    ErrorState
-};
-
-const Action state_table[3][3] = {
-    { ErrorState, ErrorState, ErrorState },
-    { NoAction, NoAction, AddTemp },
-    { NoAction, AddWhiteSpace, NoAction },
-};
-
 #if 0
 #define LB_DEBUG qDebug
 #else
@@ -1546,7 +1527,6 @@ void QTextLine::layout_helper(int maxGlyphs)
     QScriptLine tmpData;
     QScriptLine spaceData;
 
-    State state = Empty;
     Qt::Alignment alignment = eng->option.alignment();
 
     const QCharAttributes *attributes = eng->attributes();
@@ -1568,23 +1548,6 @@ void QTextLine::layout_helper(int maxGlyphs)
             glyphs = eng->glyphs(&current);
         }
         const QScriptItem &current = eng->layoutData->items[item];
-
-        State newState = (attributes[pos].whiteSpace || current.isTab) ? WhiteSpace : Characters;
-
-        Action action = state_table[newState][state];
-        switch (action) {
-        case NoAction:
-            break;
-        case AddWhiteSpace:
-            break;
-        case ErrorState:
-            Q_ASSERT(false);
-            break;
-        case AddTemp:
-            if (checkFullOtherwiseExtend(line, tmpData, spaceData, glyphCount, maxGlyphs, minw, manualWrap))
-                goto found;
-        }
-        state = newState;
 
         tmpData.ascent = qMax(tmpData.ascent, current.ascent);
         tmpData.descent = qMax(tmpData.descent, current.descent);
