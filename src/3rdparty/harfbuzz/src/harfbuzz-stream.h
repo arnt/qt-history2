@@ -20,8 +20,8 @@ FT_BEGIN_HEADER
 typedef struct HB_StreamRec_
 {
     FT_Byte*             base;
-    unsigned long        size;
-    unsigned long        pos;
+    FT_ULong        size;
+    FT_ULong        pos;
     
     FT_Byte*             cursor;
 } HB_StreamRec, *HB_Stream;
@@ -54,13 +54,11 @@ void HB_close_stream(HB_Stream stream);
 #define  GET_ULong()     ((FT_ULong)GET_Long())
 #define  GET_Tag4()      GET_ULong()
 
-FT_Long _hb_stream_pos( HB_Stream   stream );
+FT_Long _hb_stream_pos( HB_Stream stream );
 
-HB_Error _hb_stream_seek( HB_Stream   stream,
-                    FT_Long     pos );
+HB_Error _hb_stream_seek( HB_Stream stream, FT_ULong pos );
 
-HB_Error _hb_stream_frame_enter( HB_Stream   stream,
-                           FT_ULong    size );
+HB_Error _hb_stream_frame_enter( HB_Stream stream, FT_ULong size );
 
 void _hb_stream_frame_exit( HB_Stream  stream );
 

@@ -44,9 +44,10 @@ HB_Error HB_open_stream(FT_Face face, FT_Tag tableTag, HB_Stream *stream)
     if (error)
         return error;
     *stream = malloc(sizeof(HB_StreamRec));
+    (*stream)->base = malloc(length);
     error = FT_Load_Sfnt_Table(face, tableTag, 0, (*stream)->base, NULL);
     if (error) {
-        free(*stream);
+        HB_close_stream(*stream);
         *stream = 0;
         return error;
     }
@@ -72,7 +73,7 @@ FT_Long _hb_stream_pos(HB_Stream stream)
 }
 
 
-HB_Error _hb_stream_seek(HB_Stream stream, FT_Long pos)
+HB_Error _hb_stream_seek(HB_Stream stream, FT_ULong pos)
 {
     HB_Error  error = 0;
     

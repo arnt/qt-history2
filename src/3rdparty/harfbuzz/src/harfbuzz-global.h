@@ -25,7 +25,7 @@ typedef uint8_t HB_Bool;
 typedef uint32_t HB_Fixed; /* 26.6 */
 
 typedef enum {
-    HB_Err_Ok,
+    HB_Err_Ok = 0,
     HB_Err_Invalid_Stream_Operation,
     HB_Err_Invalid_Argument,
     HB_Err_Out_Of_Memory,
