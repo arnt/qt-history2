@@ -46,6 +46,14 @@ typedef int32_t HB_16Dot16; /* 16.16 */
 typedef void * HB_Pointer;
 typedef uint32_t HB_Tag;
 
+#ifndef FALSE
+#define FALSE 0
+#endif
+
+#ifndef TRUE
+#define TRUE (!FALSE)
+#endif
+
 typedef enum {
     HB_Err_Ok = 0,
     HB_Err_Invalid_Stream_Operation,

@@ -25,28 +25,30 @@ typedef enum {
     XFinal,
     XInitial,
     XMedial,
-    // intermediate state
+    /* intermediate state */
     XCausing
 } ArabicShape;
 
+/*
 // these groups correspond to the groups defined in the Unicode standard.
 // Some of these groups are equal with regards to both joining and line breaking behaviour,
 // and thus have the same enum value
 //
 // I'm not sure the mapping of syriac to arabic enums is correct with regards to justification, but as
 // I couldn't find any better document I'll hope for the best.
-enum ArabicGroup {
-    // NonJoining
+*/
+typedef enum {
+    /* NonJoining */
     ArabicNone,
     ArabicSpace,
-    // Transparent
+    /* Transparent */
     Transparent,
-    // Causing
+    /* Causing */
     Center,
     Kashida,
 
-    // Arabic
-    // Dual
+    /* Arabic */
+    /* Dual */
     Beh,
     Noon,
     Meem = Noon,
@@ -65,7 +67,7 @@ enum ArabicGroup {
     Ain,
     Feh = Ain,
     Qaf = Ain,
-    // Right
+    /* Right */
     Alef,
     Waw,
     Dal,
@@ -75,8 +77,8 @@ enum ArabicGroup {
     YehWithTail = HamzaOnHehGoal,
     YehBarre = HamzaOnHehGoal,
 
-    // Syriac
-    // Dual
+    /* Syriac */
+    /* Dual */
     Beth = Beh,
     Gamal = Ain,
     Heth = Noon,
@@ -95,7 +97,7 @@ enum ArabicGroup {
     Shin = Noon,
     Fe = Ain,
 
-    // Right
+    /* Right */
     Alaph = Alef,
     Dalath = Dal,
     He = Dal,
@@ -105,10 +107,10 @@ enum ArabicGroup {
     Sadhe = HamzaOnHehGoal,
     Taw = Dal,
 
-    // Compiler bug? Otherwise ArabicGroupsEnd would be equal to Dal + 1.
+    /* Compiler bug? Otherwise ArabicGroupsEnd would be equal to Dal + 1. */
     Dummy = HamzaOnHehGoal,
     ArabicGroupsEnd
-};
+} ArabicGroup;
 
 static const unsigned char arabic_group[0x150] = {
     ArabicNone, ArabicNone, ArabicNone, ArabicNone,
@@ -131,7 +133,7 @@ static const unsigned char arabic_group[0x150] = {
     Tah, Ain, Ain, ArabicNone,
     ArabicNone, ArabicNone, ArabicNone, ArabicNone,
 
-    // 0x640
+    /* 0x640 */
     Kashida, Feh, Qaf, Kaf,
     Lam, Meem, Noon, Heh,
     Waw, Yeh, Yeh, Transparent,
@@ -152,7 +154,7 @@ static const unsigned char arabic_group[0x150] = {
     Yeh, Beh, Beh, Beh,
     Beh, Beh, Beh, Beh,
 
-    // 0x680
+    /* 0x680 */
     Beh, Hah, Hah, Hah,
     Hah, Hah, Hah, Hah,
     Dal, Dal, Dal, Dal,
@@ -173,7 +175,7 @@ static const unsigned char arabic_group[0x150] = {
     Lam, Noon, Noon, Noon,
     Noon, Noon, KnottedHeh, Hah,
 
-    // 0x6c0
+    /* 0x6c0 */
     TehMarbuta, HehGoal, HamzaOnHehGoal, HamzaOnHehGoal,
     Waw, Waw, Waw, Waw,
     Waw, Waw, Waw, Waw,
@@ -194,7 +196,7 @@ static const unsigned char arabic_group[0x150] = {
     ArabicNone, ArabicNone, Seen, Sad,
     Ain, ArabicNone, ArabicNone, KnottedHeh,
 
-    // 0x700
+    /* 0x700 */
     ArabicNone, ArabicNone, ArabicNone, ArabicNone,
     ArabicNone, ArabicNone, ArabicNone, ArabicNone,
     ArabicNone, ArabicNone, ArabicNone, ArabicNone,
@@ -221,7 +223,7 @@ static const unsigned char arabic_group[0x150] = {
     ArabicNone, Zain, Kaph, Fe,
 };
 
-static inline ArabicGroup arabicGroup(unsigned short uc)
+static ArabicGroup arabicGroup(unsigned short uc)
 {
     if (uc >= 0x0600 && uc < 0x750)
         return (ArabicGroup) arabic_group[uc-0x600];
@@ -267,53 +269,53 @@ static inline ArabicGroup arabicGroup(unsigned short uc)
    The state table below handles rules R1-R7.
 */
 
-enum Joining {
+typedef enum {
     JNone,
     JCausing,
     JDual,
     JRight,
     JTransparent
-};
+} Joining;
 
 static const Joining joining_for_group[ArabicGroupsEnd] = {
-    // NonJoining
-    JNone, // ArabicNone
-    JNone, // ArabicSpace
-    // Transparent
-    JTransparent, // Transparent
-    // Causing
-    JCausing, // Center
-    JCausing, // Kashida
-    // Dual
-    JDual, // Beh
-    JDual, // Noon
-    JDual, // Yeh
-    JDual, // Hah
-    JDual, // Seen
-    JDual, // Tah
-    JDual, // Ain
-    // Right
-    JRight, // Alef
-    JRight, // Waw
-    JRight, // Dal
-    JRight, // Reh
-    JRight  // HamzaOnHehGoal
+    /* NonJoining */
+    JNone, /* ArabicNone */
+    JNone, /* ArabicSpace */
+    /* Transparent */
+    JTransparent, /* Transparent */
+    /* Causing */
+    JCausing, /* Center */
+    JCausing, /* Kashida */
+    /* Dual */
+    JDual, /* Beh */
+    JDual, /* Noon */
+    JDual, /* Yeh */
+    JDual, /* Hah */
+    JDual, /* Seen */
+    JDual, /* Tah */
+    JDual, /* Ain */
+    /* Right */
+    JRight, /* Alef */
+    JRight, /* Waw */
+    JRight, /* Dal */
+    JRight, /* Reh */
+    JRight  /* HamzaOnHehGoal */
 };
 
 
-struct JoiningPair {
+typedef struct {
     ArabicShape form1;
     ArabicShape form2;
-};
+} JoiningPair;
 
 static const JoiningPair joining_table[5][4] =
-// None, Causing, Dual, Right
+/* None, Causing, Dual, Right */
 {
-    { { XIsolated, XIsolated }, { XIsolated, XCausing }, { XIsolated, XInitial }, { XIsolated, XIsolated } }, // XIsolated
-    { { XFinal, XIsolated }, { XFinal, XCausing }, { XFinal, XInitial }, { XFinal, XIsolated } }, // XFinal
-    { { XIsolated, XIsolated }, { XInitial, XCausing }, { XInitial, XMedial }, { XInitial, XFinal } }, // XInitial
-    { { XFinal, XIsolated }, { XMedial, XCausing }, { XMedial, XMedial }, { XMedial, XFinal } }, // XMedial
-    { { XIsolated, XIsolated }, { XIsolated, XCausing }, { XIsolated, XMedial }, { XIsolated, XFinal } }, // XCausing
+    { { XIsolated, XIsolated }, { XIsolated, XCausing }, { XIsolated, XInitial }, { XIsolated, XIsolated } }, /* XIsolated */
+    { { XFinal, XIsolated }, { XFinal, XCausing }, { XFinal, XInitial }, { XFinal, XIsolated } }, /* XFinal */
+    { { XIsolated, XIsolated }, { XInitial, XCausing }, { XInitial, XMedial }, { XInitial, XFinal } }, /* XInitial */
+    { { XFinal, XIsolated }, { XMedial, XCausing }, { XMedial, XMedial }, { XMedial, XFinal } }, /* XMedial */
+    { { XIsolated, XIsolated }, { XIsolated, XCausing }, { XIsolated, XMedial }, { XIsolated, XFinal } }, /* XCausing */
 };
 
 
@@ -361,17 +363,18 @@ This seems to imply that we have at most one kashida point per arabic word.
 
 static void getArabicProperties(const unsigned short *chars, int len, HB_ArabicProperties *properties)
 {
-//     qDebug("arabicSyriacOpenTypeShape: properties:");
+/*     qDebug("arabicSyriacOpenTypeShape: properties:"); */
     int lastPos = 0;
     int lastGroup = ArabicNone;
+    int i = 0;
 
     ArabicGroup group = arabicGroup(chars[0]);
     Joining j = joining_for_group[group];
     ArabicShape shape = joining_table[XIsolated][j].form2;
     properties[0].justification = HB_NoJustification;
 
-    for (int i = 1; i < len; ++i) {
-        // #### fix handling for spaces and punktuation
+    for (i = 1; i < len; ++i) {
+        /* #### fix handling for spaces and punktuation */
         properties[i].justification = HB_NoJustification;
 
         group = arabicGroup(chars[i]);
@@ -410,7 +413,7 @@ static void getArabicProperties(const unsigned short *chars, int len, HB_ArabicP
             break;
 
         default:
-            assert(false);
+            assert(FALSE);
         }
 
         lastGroup = ArabicNone;
@@ -418,7 +421,7 @@ static void getArabicProperties(const unsigned short *chars, int len, HB_ArabicP
         switch(group) {
         case ArabicNone:
         case Transparent:
-        // ### Center should probably be treated as transparent when it comes to justification.
+        /* ### Center should probably be treated as transparent when it comes to justification. */
         case Center:
             break;
         case ArabicSpace:
@@ -458,7 +461,7 @@ static void getArabicProperties(const unsigned short *chars, int len, HB_ArabicP
             lastGroup = Noon;
             break;
         case ArabicGroupsEnd:
-            assert(false);
+            assert(FALSE);
         }
 
         lastPos = i;
@@ -466,317 +469,318 @@ static void getArabicProperties(const unsigned short *chars, int len, HB_ArabicP
     properties[lastPos].shape = joining_table[shape][JNone].form1;
 
 
-//     for (int i = 0; i < len; ++i)
-//         qDebug("arabic properties(%d): uc=%x shape=%d, justification=%d", i, chars[i], properties[i].shape, properties[i].justification);
+    /*
+     for (int i = 0; i < len; ++i)
+         qDebug("arabic properties(%d): uc=%x shape=%d, justification=%d", i, chars[i], properties[i].shape, properties[i].justification);
+    */
 }
 
-
-
-
-
-
+/*
 // The unicode to unicode shaping codec.
 // does only presentation forms B at the moment, but that should be enough for
 // simple display
-static const ushort arabicUnicodeMapping[256][2] = {
-    // base of shaped forms, and number-1 of them (0 for non shaping,
-    // 1 for right binding and 3 for dual binding
+*/
+static const uint16_t arabicUnicodeMapping[256][2] = {
+    /* base of shaped forms, and number-1 of them (0 for non shaping,
+       1 for right binding and 3 for dual binding */
 
-    // These are just the glyphs available in Unicode,
-    // some characters are in R class, but have no glyphs in Unicode.
+    /* These are just the glyphs available in Unicode,
+       some characters are in R class, but have no glyphs in Unicode. */
 
-    { 0x0600, 0 }, // 0x0600
-    { 0x0601, 0 }, // 0x0601
-    { 0x0602, 0 }, // 0x0602
-    { 0x0603, 0 }, // 0x0603
-    { 0x0604, 0 }, // 0x0604
-    { 0x0605, 0 }, // 0x0605
-    { 0x0606, 0 }, // 0x0606
-    { 0x0607, 0 }, // 0x0607
-    { 0x0608, 0 }, // 0x0608
-    { 0x0609, 0 }, // 0x0609
-    { 0x060A, 0 }, // 0x060A
-    { 0x060B, 0 }, // 0x060B
-    { 0x060C, 0 }, // 0x060C
-    { 0x060D, 0 }, // 0x060D
-    { 0x060E, 0 }, // 0x060E
-    { 0x060F, 0 }, // 0x060F
+    { 0x0600, 0 }, /* 0x0600 */
+    { 0x0601, 0 }, /* 0x0601 */
+    { 0x0602, 0 }, /* 0x0602 */
+    { 0x0603, 0 }, /* 0x0603 */
+    { 0x0604, 0 }, /* 0x0604 */
+    { 0x0605, 0 }, /* 0x0605 */
+    { 0x0606, 0 }, /* 0x0606 */
+    { 0x0607, 0 }, /* 0x0607 */
+    { 0x0608, 0 }, /* 0x0608 */
+    { 0x0609, 0 }, /* 0x0609 */
+    { 0x060A, 0 }, /* 0x060A */
+    { 0x060B, 0 }, /* 0x060B */
+    { 0x060C, 0 }, /* 0x060C */
+    { 0x060D, 0 }, /* 0x060D */
+    { 0x060E, 0 }, /* 0x060E */
+    { 0x060F, 0 }, /* 0x060F */
 
-    { 0x0610, 0 }, // 0x0610
-    { 0x0611, 0 }, // 0x0611
-    { 0x0612, 0 }, // 0x0612
-    { 0x0613, 0 }, // 0x0613
-    { 0x0614, 0 }, // 0x0614
-    { 0x0615, 0 }, // 0x0615
-    { 0x0616, 0 }, // 0x0616
-    { 0x0617, 0 }, // 0x0617
-    { 0x0618, 0 }, // 0x0618
-    { 0x0619, 0 }, // 0x0619
-    { 0x061A, 0 }, // 0x061A
-    { 0x061B, 0 }, // 0x061B
-    { 0x061C, 0 }, // 0x061C
-    { 0x061D, 0 }, // 0x061D
-    { 0x061E, 0 }, // 0x061E
-    { 0x061F, 0 }, // 0x061F
+    { 0x0610, 0 }, /* 0x0610 */
+    { 0x0611, 0 }, /* 0x0611 */
+    { 0x0612, 0 }, /* 0x0612 */
+    { 0x0613, 0 }, /* 0x0613 */
+    { 0x0614, 0 }, /* 0x0614 */
+    { 0x0615, 0 }, /* 0x0615 */
+    { 0x0616, 0 }, /* 0x0616 */
+    { 0x0617, 0 }, /* 0x0617 */
+    { 0x0618, 0 }, /* 0x0618 */
+    { 0x0619, 0 }, /* 0x0619 */
+    { 0x061A, 0 }, /* 0x061A */
+    { 0x061B, 0 }, /* 0x061B */
+    { 0x061C, 0 }, /* 0x061C */
+    { 0x061D, 0 }, /* 0x061D */
+    { 0x061E, 0 }, /* 0x061E */
+    { 0x061F, 0 }, /* 0x061F */
 
-    { 0x0620, 0 }, // 0x0620
-    { 0xFE80, 0 }, // 0x0621            HAMZA
-    { 0xFE81, 1 }, // 0x0622    R       ALEF WITH MADDA ABOVE
-    { 0xFE83, 1 }, // 0x0623    R       ALEF WITH HAMZA ABOVE
-    { 0xFE85, 1 }, // 0x0624    R       WAW WITH HAMZA ABOVE
-    { 0xFE87, 1 }, // 0x0625    R       ALEF WITH HAMZA BELOW
-    { 0xFE89, 3 }, // 0x0626    D       YEH WITH HAMZA ABOVE
-    { 0xFE8D, 1 }, // 0x0627    R       ALEF
-    { 0xFE8F, 3 }, // 0x0628    D       BEH
-    { 0xFE93, 1 }, // 0x0629    R       TEH MARBUTA
-    { 0xFE95, 3 }, // 0x062A    D       TEH
-    { 0xFE99, 3 }, // 0x062B    D       THEH
-    { 0xFE9D, 3 }, // 0x062C    D       JEEM
-    { 0xFEA1, 3 }, // 0x062D    D       HAH
-    { 0xFEA5, 3 }, // 0x062E    D       KHAH
-    { 0xFEA9, 1 }, // 0x062F    R       DAL
+    { 0x0620, 0 }, /* 0x0620 */
+    { 0xFE80, 0 }, /* 0x0621            HAMZA */
+    { 0xFE81, 1 }, /* 0x0622    R       ALEF WITH MADDA ABOVE */
+    { 0xFE83, 1 }, /* 0x0623    R       ALEF WITH HAMZA ABOVE */
+    { 0xFE85, 1 }, /* 0x0624    R       WAW WITH HAMZA ABOVE */
+    { 0xFE87, 1 }, /* 0x0625    R       ALEF WITH HAMZA BELOW */
+    { 0xFE89, 3 }, /* 0x0626    D       YEH WITH HAMZA ABOVE */
+    { 0xFE8D, 1 }, /* 0x0627    R       ALEF */
+    { 0xFE8F, 3 }, /* 0x0628    D       BEH */
+    { 0xFE93, 1 }, /* 0x0629    R       TEH MARBUTA */
+    { 0xFE95, 3 }, /* 0x062A    D       TEH */
+    { 0xFE99, 3 }, /* 0x062B    D       THEH */
+    { 0xFE9D, 3 }, /* 0x062C    D       JEEM */
+    { 0xFEA1, 3 }, /* 0x062D    D       HAH */
+    { 0xFEA5, 3 }, /* 0x062E    D       KHAH */
+    { 0xFEA9, 1 }, /* 0x062F    R       DAL */
 
-    { 0xFEAB, 1 }, // 0x0630    R       THAL
-    { 0xFEAD, 1 }, // 0x0631    R       REH
-    { 0xFEAF, 1 }, // 0x0632    R       ZAIN
-    { 0xFEB1, 3 }, // 0x0633    D       SEEN
-    { 0xFEB5, 3 }, // 0x0634    D       SHEEN
-    { 0xFEB9, 3 }, // 0x0635    D       SAD
-    { 0xFEBD, 3 }, // 0x0636    D       DAD
-    { 0xFEC1, 3 }, // 0x0637    D       TAH
-    { 0xFEC5, 3 }, // 0x0638    D       ZAH
-    { 0xFEC9, 3 }, // 0x0639    D       AIN
-    { 0xFECD, 3 }, // 0x063A    D       GHAIN
-    { 0x063B, 0 }, // 0x063B
-    { 0x063C, 0 }, // 0x063C
-    { 0x063D, 0 }, // 0x063D
-    { 0x063E, 0 }, // 0x063E
-    { 0x063F, 0 }, // 0x063F
+    { 0xFEAB, 1 }, /* 0x0630    R       THAL */
+    { 0xFEAD, 1 }, /* 0x0631    R       REH */
+    { 0xFEAF, 1 }, /* 0x0632    R       ZAIN */
+    { 0xFEB1, 3 }, /* 0x0633    D       SEEN */
+    { 0xFEB5, 3 }, /* 0x0634    D       SHEEN */
+    { 0xFEB9, 3 }, /* 0x0635    D       SAD */
+    { 0xFEBD, 3 }, /* 0x0636    D       DAD */
+    { 0xFEC1, 3 }, /* 0x0637    D       TAH */
+    { 0xFEC5, 3 }, /* 0x0638    D       ZAH */
+    { 0xFEC9, 3 }, /* 0x0639    D       AIN */
+    { 0xFECD, 3 }, /* 0x063A    D       GHAIN */
+    { 0x063B, 0 }, /* 0x063B */
+    { 0x063C, 0 }, /* 0x063C */
+    { 0x063D, 0 }, /* 0x063D */
+    { 0x063E, 0 }, /* 0x063E */
+    { 0x063F, 0 }, /* 0x063F */
 
-    { 0x0640, 0 }, // 0x0640    C       TATWEEL // ### Join Causing, only one glyph
-    { 0xFED1, 3 }, // 0x0641    D       FEH
-    { 0xFED5, 3 }, // 0x0642    D       QAF
-    { 0xFED9, 3 }, // 0x0643    D       KAF
-    { 0xFEDD, 3 }, // 0x0644    D       LAM
-    { 0xFEE1, 3 }, // 0x0645    D       MEEM
-    { 0xFEE5, 3 }, // 0x0646    D       NOON
-    { 0xFEE9, 3 }, // 0x0647    D       HEH
-    { 0xFEED, 1 }, // 0x0648    R       WAW
-    { 0x0649, 3 }, // 0x0649            ALEF MAKSURA // ### Dual, glyphs not consecutive, handle in code.
-    { 0xFEF1, 3 }, // 0x064A    D       YEH
-    { 0x064B, 0 }, // 0x064B
-    { 0x064C, 0 }, // 0x064C
-    { 0x064D, 0 }, // 0x064D
-    { 0x064E, 0 }, // 0x064E
-    { 0x064F, 0 }, // 0x064F
+    { 0x0640, 0 }, /* 0x0640    C       TATWEEL // ### Join Causing, only one glyph */
+    { 0xFED1, 3 }, /* 0x0641    D       FEH */
+    { 0xFED5, 3 }, /* 0x0642    D       QAF */
+    { 0xFED9, 3 }, /* 0x0643    D       KAF */
+    { 0xFEDD, 3 }, /* 0x0644    D       LAM */
+    { 0xFEE1, 3 }, /* 0x0645    D       MEEM */
+    { 0xFEE5, 3 }, /* 0x0646    D       NOON */
+    { 0xFEE9, 3 }, /* 0x0647    D       HEH */
+    { 0xFEED, 1 }, /* 0x0648    R       WAW */
+    { 0x0649, 3 }, /* 0x0649            ALEF MAKSURA // ### Dual, glyphs not consecutive, handle in code. */
+    { 0xFEF1, 3 }, /* 0x064A    D       YEH */
+    { 0x064B, 0 }, /* 0x064B */
+    { 0x064C, 0 }, /* 0x064C */
+    { 0x064D, 0 }, /* 0x064D */
+    { 0x064E, 0 }, /* 0x064E */
+    { 0x064F, 0 }, /* 0x064F */
 
-    { 0x0650, 0 }, // 0x0650
-    { 0x0651, 0 }, // 0x0651
-    { 0x0652, 0 }, // 0x0652
-    { 0x0653, 0 }, // 0x0653
-    { 0x0654, 0 }, // 0x0654
-    { 0x0655, 0 }, // 0x0655
-    { 0x0656, 0 }, // 0x0656
-    { 0x0657, 0 }, // 0x0657
-    { 0x0658, 0 }, // 0x0658
-    { 0x0659, 0 }, // 0x0659
-    { 0x065A, 0 }, // 0x065A
-    { 0x065B, 0 }, // 0x065B
-    { 0x065C, 0 }, // 0x065C
-    { 0x065D, 0 }, // 0x065D
-    { 0x065E, 0 }, // 0x065E
-    { 0x065F, 0 }, // 0x065F
+    { 0x0650, 0 }, /* 0x0650 */
+    { 0x0651, 0 }, /* 0x0651 */
+    { 0x0652, 0 }, /* 0x0652 */
+    { 0x0653, 0 }, /* 0x0653 */
+    { 0x0654, 0 }, /* 0x0654 */
+    { 0x0655, 0 }, /* 0x0655 */
+    { 0x0656, 0 }, /* 0x0656 */
+    { 0x0657, 0 }, /* 0x0657 */
+    { 0x0658, 0 }, /* 0x0658 */
+    { 0x0659, 0 }, /* 0x0659 */
+    { 0x065A, 0 }, /* 0x065A */
+    { 0x065B, 0 }, /* 0x065B */
+    { 0x065C, 0 }, /* 0x065C */
+    { 0x065D, 0 }, /* 0x065D */
+    { 0x065E, 0 }, /* 0x065E */
+    { 0x065F, 0 }, /* 0x065F */
 
-    { 0x0660, 0 }, // 0x0660
-    { 0x0661, 0 }, // 0x0661
-    { 0x0662, 0 }, // 0x0662
-    { 0x0663, 0 }, // 0x0663
-    { 0x0664, 0 }, // 0x0664
-    { 0x0665, 0 }, // 0x0665
-    { 0x0666, 0 }, // 0x0666
-    { 0x0667, 0 }, // 0x0667
-    { 0x0668, 0 }, // 0x0668
-    { 0x0669, 0 }, // 0x0669
-    { 0x066A, 0 }, // 0x066A
-    { 0x066B, 0 }, // 0x066B
-    { 0x066C, 0 }, // 0x066C
-    { 0x066D, 0 }, // 0x066D
-    { 0x066E, 0 }, // 0x066E
-    { 0x066F, 0 }, // 0x066F
+    { 0x0660, 0 }, /* 0x0660 */
+    { 0x0661, 0 }, /* 0x0661 */
+    { 0x0662, 0 }, /* 0x0662 */
+    { 0x0663, 0 }, /* 0x0663 */
+    { 0x0664, 0 }, /* 0x0664 */
+    { 0x0665, 0 }, /* 0x0665 */
+    { 0x0666, 0 }, /* 0x0666 */
+    { 0x0667, 0 }, /* 0x0667 */
+    { 0x0668, 0 }, /* 0x0668 */
+    { 0x0669, 0 }, /* 0x0669 */
+    { 0x066A, 0 }, /* 0x066A */
+    { 0x066B, 0 }, /* 0x066B */
+    { 0x066C, 0 }, /* 0x066C */
+    { 0x066D, 0 }, /* 0x066D */
+    { 0x066E, 0 }, /* 0x066E */
+    { 0x066F, 0 }, /* 0x066F */
 
-    { 0x0670, 0 }, // 0x0670
-    { 0xFB50, 1 }, // 0x0671    R       ALEF WASLA
-    { 0x0672, 0 }, // 0x0672
-    { 0x0673, 0 }, // 0x0673
-    { 0x0674, 0 }, // 0x0674
-    { 0x0675, 0 }, // 0x0675
-    { 0x0676, 0 }, // 0x0676
-    { 0x0677, 0 }, // 0x0677
-    { 0x0678, 0 }, // 0x0678
-    { 0xFB66, 3 }, // 0x0679    D       TTEH
-    { 0xFB5E, 3 }, // 0x067A    D       TTEHEH
-    { 0xFB52, 3 }, // 0x067B    D       BEEH
-    { 0x067C, 0 }, // 0x067C
-    { 0x067D, 0 }, // 0x067D
-    { 0xFB56, 3 }, // 0x067E    D       PEH
-    { 0xFB62, 3 }, // 0x067F    D       TEHEH
+    { 0x0670, 0 }, /* 0x0670 */
+    { 0xFB50, 1 }, /* 0x0671    R       ALEF WASLA */
+    { 0x0672, 0 }, /* 0x0672 */
+    { 0x0673, 0 }, /* 0x0673 */
+    { 0x0674, 0 }, /* 0x0674 */
+    { 0x0675, 0 }, /* 0x0675 */
+    { 0x0676, 0 }, /* 0x0676 */
+    { 0x0677, 0 }, /* 0x0677 */
+    { 0x0678, 0 }, /* 0x0678 */
+    { 0xFB66, 3 }, /* 0x0679    D       TTEH */
+    { 0xFB5E, 3 }, /* 0x067A    D       TTEHEH */
+    { 0xFB52, 3 }, /* 0x067B    D       BEEH */
+    { 0x067C, 0 }, /* 0x067C */
+    { 0x067D, 0 }, /* 0x067D */
+    { 0xFB56, 3 }, /* 0x067E    D       PEH */
+    { 0xFB62, 3 }, /* 0x067F    D       TEHEH */
 
-    { 0xFB5A, 3 }, // 0x0680    D       BEHEH
-    { 0x0681, 0 }, // 0x0681
-    { 0x0682, 0 }, // 0x0682
-    { 0xFB76, 3 }, // 0x0683    D       NYEH
-    { 0xFB72, 3 }, // 0x0684    D       DYEH
-    { 0x0685, 0 }, // 0x0685
-    { 0xFB7A, 3 }, // 0x0686    D       TCHEH
-    { 0xFB7E, 3 }, // 0x0687    D       TCHEHEH
-    { 0xFB88, 1 }, // 0x0688    R       DDAL
-    { 0x0689, 0 }, // 0x0689
-    { 0x068A, 0 }, // 0x068A
-    { 0x068B, 0 }, // 0x068B
-    { 0xFB84, 1 }, // 0x068C    R       DAHAL
-    { 0xFB82, 1 }, // 0x068D    R       DDAHAL
-    { 0xFB86, 1 }, // 0x068E    R       DUL
-    { 0x068F, 0 }, // 0x068F
+    { 0xFB5A, 3 }, /* 0x0680    D       BEHEH */
+    { 0x0681, 0 }, /* 0x0681 */
+    { 0x0682, 0 }, /* 0x0682 */
+    { 0xFB76, 3 }, /* 0x0683    D       NYEH */
+    { 0xFB72, 3 }, /* 0x0684    D       DYEH */
+    { 0x0685, 0 }, /* 0x0685 */
+    { 0xFB7A, 3 }, /* 0x0686    D       TCHEH */
+    { 0xFB7E, 3 }, /* 0x0687    D       TCHEHEH */
+    { 0xFB88, 1 }, /* 0x0688    R       DDAL */
+    { 0x0689, 0 }, /* 0x0689 */
+    { 0x068A, 0 }, /* 0x068A */
+    { 0x068B, 0 }, /* 0x068B */
+    { 0xFB84, 1 }, /* 0x068C    R       DAHAL */
+    { 0xFB82, 1 }, /* 0x068D    R       DDAHAL */
+    { 0xFB86, 1 }, /* 0x068E    R       DUL */
+    { 0x068F, 0 }, /* 0x068F */
 
-    { 0x0690, 0 }, // 0x0690
-    { 0xFB8C, 1 }, // 0x0691    R       RREH
-    { 0x0692, 0 }, // 0x0692
-    { 0x0693, 0 }, // 0x0693
-    { 0x0694, 0 }, // 0x0694
-    { 0x0695, 0 }, // 0x0695
-    { 0x0696, 0 }, // 0x0696
-    { 0x0697, 0 }, // 0x0697
-    { 0xFB8A, 1 }, // 0x0698    R       JEH
-    { 0x0699, 0 }, // 0x0699
-    { 0x069A, 0 }, // 0x069A
-    { 0x069B, 0 }, // 0x069B
-    { 0x069C, 0 }, // 0x069C
-    { 0x069D, 0 }, // 0x069D
-    { 0x069E, 0 }, // 0x069E
-    { 0x069F, 0 }, // 0x069F
+    { 0x0690, 0 }, /* 0x0690 */
+    { 0xFB8C, 1 }, /* 0x0691    R       RREH */
+    { 0x0692, 0 }, /* 0x0692 */
+    { 0x0693, 0 }, /* 0x0693 */
+    { 0x0694, 0 }, /* 0x0694 */
+    { 0x0695, 0 }, /* 0x0695 */
+    { 0x0696, 0 }, /* 0x0696 */
+    { 0x0697, 0 }, /* 0x0697 */
+    { 0xFB8A, 1 }, /* 0x0698    R       JEH */
+    { 0x0699, 0 }, /* 0x0699 */
+    { 0x069A, 0 }, /* 0x069A */
+    { 0x069B, 0 }, /* 0x069B */
+    { 0x069C, 0 }, /* 0x069C */
+    { 0x069D, 0 }, /* 0x069D */
+    { 0x069E, 0 }, /* 0x069E */
+    { 0x069F, 0 }, /* 0x069F */
 
-    { 0x06A0, 0 }, // 0x06A0
-    { 0x06A1, 0 }, // 0x06A1
-    { 0x06A2, 0 }, // 0x06A2
-    { 0x06A3, 0 }, // 0x06A3
-    { 0xFB6A, 3 }, // 0x06A4    D       VEH
-    { 0x06A5, 0 }, // 0x06A5
-    { 0xFB6E, 3 }, // 0x06A6    D       PEHEH
-    { 0x06A7, 0 }, // 0x06A7
-    { 0x06A8, 0 }, // 0x06A8
-    { 0xFB8E, 3 }, // 0x06A9    D       KEHEH
-    { 0x06AA, 0 }, // 0x06AA
-    { 0x06AB, 0 }, // 0x06AB
-    { 0x06AC, 0 }, // 0x06AC
-    { 0xFBD3, 3 }, // 0x06AD    D       NG
-    { 0x06AE, 0 }, // 0x06AE
-    { 0xFB92, 3 }, // 0x06AF    D       GAF
+    { 0x06A0, 0 }, /* 0x06A0 */
+    { 0x06A1, 0 }, /* 0x06A1 */
+    { 0x06A2, 0 }, /* 0x06A2 */
+    { 0x06A3, 0 }, /* 0x06A3 */
+    { 0xFB6A, 3 }, /* 0x06A4    D       VEH */
+    { 0x06A5, 0 }, /* 0x06A5 */
+    { 0xFB6E, 3 }, /* 0x06A6    D       PEHEH */
+    { 0x06A7, 0 }, /* 0x06A7 */
+    { 0x06A8, 0 }, /* 0x06A8 */
+    { 0xFB8E, 3 }, /* 0x06A9    D       KEHEH */
+    { 0x06AA, 0 }, /* 0x06AA */
+    { 0x06AB, 0 }, /* 0x06AB */
+    { 0x06AC, 0 }, /* 0x06AC */
+    { 0xFBD3, 3 }, /* 0x06AD    D       NG */
+    { 0x06AE, 0 }, /* 0x06AE */
+    { 0xFB92, 3 }, /* 0x06AF    D       GAF */
 
-    { 0x06B0, 0 }, // 0x06B0
-    { 0xFB9A, 3 }, // 0x06B1    D       NGOEH
-    { 0x06B2, 0 }, // 0x06B2
-    { 0xFB96, 3 }, // 0x06B3    D       GUEH
-    { 0x06B4, 0 }, // 0x06B4
-    { 0x06B5, 0 }, // 0x06B5
-    { 0x06B6, 0 }, // 0x06B6
-    { 0x06B7, 0 }, // 0x06B7
-    { 0x06B8, 0 }, // 0x06B8
-    { 0x06B9, 0 }, // 0x06B9
-    { 0xFB9E, 1 }, // 0x06BA    R       NOON GHUNNA
-    { 0xFBA0, 3 }, // 0x06BB    D       RNOON
-    { 0x06BC, 0 }, // 0x06BC
-    { 0x06BD, 0 }, // 0x06BD
-    { 0xFBAA, 3 }, // 0x06BE    D       HEH DOACHASHMEE
-    { 0x06BF, 0 }, // 0x06BF
+    { 0x06B0, 0 }, /* 0x06B0 */
+    { 0xFB9A, 3 }, /* 0x06B1    D       NGOEH */
+    { 0x06B2, 0 }, /* 0x06B2 */
+    { 0xFB96, 3 }, /* 0x06B3    D       GUEH */
+    { 0x06B4, 0 }, /* 0x06B4 */
+    { 0x06B5, 0 }, /* 0x06B5 */
+    { 0x06B6, 0 }, /* 0x06B6 */
+    { 0x06B7, 0 }, /* 0x06B7 */
+    { 0x06B8, 0 }, /* 0x06B8 */
+    { 0x06B9, 0 }, /* 0x06B9 */
+    { 0xFB9E, 1 }, /* 0x06BA    R       NOON GHUNNA */
+    { 0xFBA0, 3 }, /* 0x06BB    D       RNOON */
+    { 0x06BC, 0 }, /* 0x06BC */
+    { 0x06BD, 0 }, /* 0x06BD */
+    { 0xFBAA, 3 }, /* 0x06BE    D       HEH DOACHASHMEE */
+    { 0x06BF, 0 }, /* 0x06BF */
 
-    { 0xFBA4, 1 }, // 0x06C0    R       HEH WITH YEH ABOVE
-    { 0xFBA6, 3 }, // 0x06C1    D       HEH GOAL
-    { 0x06C2, 0 }, // 0x06C2
-    { 0x06C3, 0 }, // 0x06C3
-    { 0x06C4, 0 }, // 0x06C4
-    { 0xFBE0, 1 }, // 0x06C5    R       KIRGHIZ OE
-    { 0xFBD9, 1 }, // 0x06C6    R       OE
-    { 0xFBD7, 1 }, // 0x06C7    R       U
-    { 0xFBDB, 1 }, // 0x06C8    R       YU
-    { 0xFBE2, 1 }, // 0x06C9    R       KIRGHIZ YU
-    { 0x06CA, 0 }, // 0x06CA
-    { 0xFBDE, 1 }, // 0x06CB    R       VE
-    { 0xFBFC, 3 }, // 0x06CC    D       FARSI YEH
-    { 0x06CD, 0 }, // 0x06CD
-    { 0x06CE, 0 }, // 0x06CE
-    { 0x06CF, 0 }, // 0x06CF
+    { 0xFBA4, 1 }, /* 0x06C0    R       HEH WITH YEH ABOVE */
+    { 0xFBA6, 3 }, /* 0x06C1    D       HEH GOAL */
+    { 0x06C2, 0 }, /* 0x06C2 */
+    { 0x06C3, 0 }, /* 0x06C3 */
+    { 0x06C4, 0 }, /* 0x06C4 */
+    { 0xFBE0, 1 }, /* 0x06C5    R       KIRGHIZ OE */
+    { 0xFBD9, 1 }, /* 0x06C6    R       OE */
+    { 0xFBD7, 1 }, /* 0x06C7    R       U */
+    { 0xFBDB, 1 }, /* 0x06C8    R       YU */
+    { 0xFBE2, 1 }, /* 0x06C9    R       KIRGHIZ YU */
+    { 0x06CA, 0 }, /* 0x06CA */
+    { 0xFBDE, 1 }, /* 0x06CB    R       VE */
+    { 0xFBFC, 3 }, /* 0x06CC    D       FARSI YEH */
+    { 0x06CD, 0 }, /* 0x06CD */
+    { 0x06CE, 0 }, /* 0x06CE */
+    { 0x06CF, 0 }, /* 0x06CF */
 
-    { 0xFBE4, 3 }, // 0x06D0    D       E
-    { 0x06D1, 0 }, // 0x06D1
-    { 0xFBAE, 1 }, // 0x06D2    R       YEH BARREE
-    { 0xFBB0, 1 }, // 0x06D3    R       YEH BARREE WITH HAMZA ABOVE
-    { 0x06D4, 0 }, // 0x06D4
-    { 0x06D5, 0 }, // 0x06D5
-    { 0x06D6, 0 }, // 0x06D6
-    { 0x06D7, 0 }, // 0x06D7
-    { 0x06D8, 0 }, // 0x06D8
-    { 0x06D9, 0 }, // 0x06D9
-    { 0x06DA, 0 }, // 0x06DA
-    { 0x06DB, 0 }, // 0x06DB
-    { 0x06DC, 0 }, // 0x06DC
-    { 0x06DD, 0 }, // 0x06DD
-    { 0x06DE, 0 }, // 0x06DE
-    { 0x06DF, 0 }, // 0x06DF
+    { 0xFBE4, 3 }, /* 0x06D0    D       E */
+    { 0x06D1, 0 }, /* 0x06D1 */
+    { 0xFBAE, 1 }, /* 0x06D2    R       YEH BARREE */
+    { 0xFBB0, 1 }, /* 0x06D3    R       YEH BARREE WITH HAMZA ABOVE */
+    { 0x06D4, 0 }, /* 0x06D4 */
+    { 0x06D5, 0 }, /* 0x06D5 */
+    { 0x06D6, 0 }, /* 0x06D6 */
+    { 0x06D7, 0 }, /* 0x06D7 */
+    { 0x06D8, 0 }, /* 0x06D8 */
+    { 0x06D9, 0 }, /* 0x06D9 */
+    { 0x06DA, 0 }, /* 0x06DA */
+    { 0x06DB, 0 }, /* 0x06DB */
+    { 0x06DC, 0 }, /* 0x06DC */
+    { 0x06DD, 0 }, /* 0x06DD */
+    { 0x06DE, 0 }, /* 0x06DE */
+    { 0x06DF, 0 }, /* 0x06DF */
 
-    { 0x06E0, 0 }, // 0x06E0
-    { 0x06E1, 0 }, // 0x06E1
-    { 0x06E2, 0 }, // 0x06E2
-    { 0x06E3, 0 }, // 0x06E3
-    { 0x06E4, 0 }, // 0x06E4
-    { 0x06E5, 0 }, // 0x06E5
-    { 0x06E6, 0 }, // 0x06E6
-    { 0x06E7, 0 }, // 0x06E7
-    { 0x06E8, 0 }, // 0x06E8
-    { 0x06E9, 0 }, // 0x06E9
-    { 0x06EA, 0 }, // 0x06EA
-    { 0x06EB, 0 }, // 0x06EB
-    { 0x06EC, 0 }, // 0x06EC
-    { 0x06ED, 0 }, // 0x06ED
-    { 0x06EE, 0 }, // 0x06EE
-    { 0x06EF, 0 }, // 0x06EF
+    { 0x06E0, 0 }, /* 0x06E0 */
+    { 0x06E1, 0 }, /* 0x06E1 */
+    { 0x06E2, 0 }, /* 0x06E2 */
+    { 0x06E3, 0 }, /* 0x06E3 */
+    { 0x06E4, 0 }, /* 0x06E4 */
+    { 0x06E5, 0 }, /* 0x06E5 */
+    { 0x06E6, 0 }, /* 0x06E6 */
+    { 0x06E7, 0 }, /* 0x06E7 */
+    { 0x06E8, 0 }, /* 0x06E8 */
+    { 0x06E9, 0 }, /* 0x06E9 */
+    { 0x06EA, 0 }, /* 0x06EA */
+    { 0x06EB, 0 }, /* 0x06EB */
+    { 0x06EC, 0 }, /* 0x06EC */
+    { 0x06ED, 0 }, /* 0x06ED */
+    { 0x06EE, 0 }, /* 0x06EE */
+    { 0x06EF, 0 }, /* 0x06EF */
 
-    { 0x06F0, 0 }, // 0x06F0
-    { 0x06F1, 0 }, // 0x06F1
-    { 0x06F2, 0 }, // 0x06F2
-    { 0x06F3, 0 }, // 0x06F3
-    { 0x06F4, 0 }, // 0x06F4
-    { 0x06F5, 0 }, // 0x06F5
-    { 0x06F6, 0 }, // 0x06F6
-    { 0x06F7, 0 }, // 0x06F7
-    { 0x06F8, 0 }, // 0x06F8
-    { 0x06F9, 0 }, // 0x06F9
-    { 0x06FA, 0 }, // 0x06FA
-    { 0x06FB, 0 }, // 0x06FB
-    { 0x06FC, 0 }, // 0x06FC
-    { 0x06FD, 0 }, // 0x06FD
-    { 0x06FE, 0 }, // 0x06FE
-    { 0x06FF, 0 }  // 0x06FF
+    { 0x06F0, 0 }, /* 0x06F0 */
+    { 0x06F1, 0 }, /* 0x06F1 */
+    { 0x06F2, 0 }, /* 0x06F2 */
+    { 0x06F3, 0 }, /* 0x06F3 */
+    { 0x06F4, 0 }, /* 0x06F4 */
+    { 0x06F5, 0 }, /* 0x06F5 */
+    { 0x06F6, 0 }, /* 0x06F6 */
+    { 0x06F7, 0 }, /* 0x06F7 */
+    { 0x06F8, 0 }, /* 0x06F8 */
+    { 0x06F9, 0 }, /* 0x06F9 */
+    { 0x06FA, 0 }, /* 0x06FA */
+    { 0x06FB, 0 }, /* 0x06FB */
+    { 0x06FC, 0 }, /* 0x06FC */
+    { 0x06FD, 0 }, /* 0x06FD */
+    { 0x06FE, 0 }, /* 0x06FE */
+    { 0x06FF, 0 }  /* 0x06FF */
 };
 
-// the arabicUnicodeMapping does not work for U+0649 ALEF MAKSURA, this table does
-static const ushort alefMaksura[4] = {0xFEEF, 0xFEF0, 0xFBE8, 0xFBE9};
+/* the arabicUnicodeMapping does not work for U+0649 ALEF MAKSURA, this table does */
+static const uint16_t alefMaksura[4] = {0xFEEF, 0xFEF0, 0xFBE8, 0xFBE9};
 
+/*
 // this is a bit tricky. Alef always binds to the right, so the second parameter descibing the shape
 // of the lam can be either initial of medial. So initial maps to the isolated form of the ligature,
 // medial to the final form
-static const ushort arabicUnicodeLamAlefMapping[6][4] = {
-    { 0xfffd, 0xfffd, 0xfef5, 0xfef6 }, // 0x622        R       Alef with Madda above
-    { 0xfffd, 0xfffd, 0xfef7, 0xfef8 }, // 0x623        R       Alef with Hamza above
-    { 0xfffd, 0xfffd, 0xfffd, 0xfffd }, // 0x624        // Just to fill the table ;-)
-    { 0xfffd, 0xfffd, 0xfef9, 0xfefa }, // 0x625        R       Alef with Hamza below
-    { 0xfffd, 0xfffd, 0xfffd, 0xfffd }, // 0x626        // Just to fill the table ;-)
-    { 0xfffd, 0xfffd, 0xfefb, 0xfefc }  // 0x627        R       Alef
+*/
+static const uint16_t arabicUnicodeLamAlefMapping[6][4] = {
+    { 0xfffd, 0xfffd, 0xfef5, 0xfef6 }, /* 0x622        R       Alef with Madda above */
+    { 0xfffd, 0xfffd, 0xfef7, 0xfef8 }, /* 0x623        R       Alef with Hamza above */
+    { 0xfffd, 0xfffd, 0xfffd, 0xfffd }, /* 0x624        // Just to fill the table ;-) */
+    { 0xfffd, 0xfffd, 0xfef9, 0xfefa }, /* 0x625        R       Alef with Hamza below */
+    { 0xfffd, 0xfffd, 0xfffd, 0xfffd }, /* 0x626        // Just to fill the table ;-) */
+    { 0xfffd, 0xfffd, 0xfefb, 0xfefc }  /* 0x627        R       Alef */
 };
 
-static inline int getShape(uint8_t cell, int shape)
+static int getShape(uint8_t cell, int shape)
 {
-    // the arabicUnicodeMapping does not work for U+0649 ALEF MAKSURA, handle this here
-    uint ch = (cell != 0x49)
+    /* the arabicUnicodeMapping does not work for U+0649 ALEF MAKSURA, handle this here */
+    int ch = (cell != 0x49)
               ? (shape ? arabicUnicodeMapping[cell][0] + shape : 0x600+cell)
               : alefMaksura[shape] ;
     return ch;
@@ -786,11 +790,11 @@ static inline int getShape(uint8_t cell, int shape)
 /*
   Two small helper functions for arabic shaping.
 */
-static inline const HB_UChar16 prevChar(const HB_UChar16 *str, int pos)
+static HB_UChar16 prevChar(const HB_UChar16 *str, int pos)
 {
-    //qDebug("leftChar: pos=%d", pos);
+    /*qDebug("leftChar: pos=%d", pos); */
+    const HB_UChar16 *ch = str + pos - 1;
     pos--;
-    const HB_UChar16 *ch = str + pos;
     while(pos > -1) {
         if(HB_GetUnicodeCharCategory(*ch) != HB_Mark_NonSpacing)
             return *ch;
@@ -800,15 +804,15 @@ static inline const HB_UChar16 prevChar(const HB_UChar16 *str, int pos)
     return ReplacementCharacter;
 }
 
-static inline const HB_UChar16 nextChar(const HB_UChar16 *str, uint32_t len, uint32_t pos)
+static HB_UChar16 nextChar(const HB_UChar16 *str, uint32_t len, uint32_t pos)
 {
+    const HB_UChar16 *ch = str + pos + 1;
     pos++;
-    const HB_UChar16 *ch = str + pos;
     while(pos < len) {
-        //qDebug("rightChar: %d isLetter=%d, joining=%d", pos, ch.isLetter(), ch.joining());
+        /*qDebug("rightChar: %d isLetter=%d, joining=%d", pos, ch.isLetter(), ch.joining()); */
         if(HB_GetUnicodeCharCategory(*ch) != HB_Mark_NonSpacing)
             return *ch;
-        // assume it's a transparent char, this might not be 100% correct
+        /* assume it's a transparent char, this might not be 100% correct */
         pos++;
         ch++;
     }
@@ -816,8 +820,18 @@ static inline const HB_UChar16 nextChar(const HB_UChar16 *str, uint32_t len, uin
 }
 
 static void shapedString(const HB_UChar16 *uc, uint32_t stringLength, uint32_t from, uint32_t len, HB_UChar16 *shapeBuffer, int *shapedLength,
-                         bool reverse, HB_GlyphAttributes *attributes, unsigned short *logClusters)
+                         HB_Bool reverse, HB_GlyphAttributes *attributes, unsigned short *logClusters)
 {
+    HB_ArabicProperties *properties;
+    int32_t f = from;
+    uint32_t l = len;
+    const HB_UChar16 *ch;
+    HB_UChar16 *data;
+    int clusterStart;
+    uint32_t i;
+    HB_STACKARRAY(HB_ArabicProperties, props, len + 2);
+    properties = props;
+
     assert(stringLength >= from + len);
 
     if(len == 0) {
@@ -825,10 +839,6 @@ static void shapedString(const HB_UChar16 *uc, uint32_t stringLength, uint32_t f
         return;
     }
 
-    HB_STACKARRAY(HB_ArabicProperties, props, len + 2)
-    HB_ArabicProperties *properties = props;
-    int32_t f = from;
-    uint32_t l = len;
     if (from > 0) {
         --f;
         ++l;
@@ -838,18 +848,18 @@ static void shapedString(const HB_UChar16 *uc, uint32_t stringLength, uint32_t f
         ++l;
     getArabicProperties(uc+f, l, props);
 
-    const HB_UChar16 *ch = uc + from;
-    HB_UChar16 *data = shapeBuffer;
-    int clusterStart = 0;
+    ch = uc + from;
+    data = shapeBuffer;
+    clusterStart = 0;
 
-    for (uint32_t i = 0; i < len; i++) {
+    for (i = 0; i < len; i++) {
         uint8_t r = *ch >> 8;
         int gpos = data - shapeBuffer;
 
         if (r != 0x06) {
             if (r == 0x20) {
                 if (*ch == 0x200c || *ch == 0x200d)
-                    // remove ZWJ and ZWNJ
+                    /* remove ZWJ and ZWNJ */
                     goto skip;
             }
             if (reverse)
@@ -860,11 +870,11 @@ static void shapedString(const HB_UChar16 *uc, uint32_t stringLength, uint32_t f
             uint8_t c = *ch & 0xff;
             int pos = i + from;
             int shape = properties[i].shape;
-//            qDebug("mapping U+%x to shape %d glyph=0x%x", ch->unicode(), shape, getShape(c, shape));
-            // take care of lam-alef ligatures (lam right of alef)
-            ushort map;
+/*            qDebug("mapping U+%x to shape %d glyph=0x%x", ch->unicode(), shape, getShape(c, shape)); */
+            /* take care of lam-alef ligatures (lam right of alef) */
+            uint16_t map;
             switch (c) {
-                case 0x44: { // lam
+                case 0x44: { /* lam */
                     const HB_UChar16 pch = nextChar(uc, stringLength, pos);
                     if ((pch >> 8) == 0x06) {
                         switch (pch & 0xff) {
@@ -872,7 +882,7 @@ static void shapedString(const HB_UChar16 *uc, uint32_t stringLength, uint32_t f
                             case 0x23:
                             case 0x25:
                             case 0x27:
-//                                 qDebug(" lam of lam-alef ligature");
+/*                                 qDebug(" lam of lam-alef ligature"); */
                                 map = arabicUnicodeLamAlefMapping[(pch & 0xff) - 0x22][shape];
                                 goto next;
                             default:
@@ -881,13 +891,13 @@ static void shapedString(const HB_UChar16 *uc, uint32_t stringLength, uint32_t f
                     }
                     break;
                 }
-                case 0x22: // alef with madda
-                case 0x23: // alef with hamza above
-                case 0x25: // alef with hamza below
-                case 0x27: // alef
+                case 0x22: /* alef with madda */
+                case 0x23: /* alef with hamza above */
+                case 0x25: /* alef with hamza below */
+                case 0x27: /* alef */
                     if (prevChar(uc, pos) == 0x0644) {
-                        // have a lam alef ligature
-                        //qDebug(" alef of lam-alef ligature");
+                        /* have a lam alef ligature */
+                        /*qDebug(" alef of lam-alef ligature"); */
                         goto skip;
                     }
                 default:
@@ -897,19 +907,19 @@ static void shapedString(const HB_UChar16 *uc, uint32_t stringLength, uint32_t f
         next:
             *data = map;
         }
-        // ##### Fixme
-        //glyphs[gpos].attributes.zeroWidth = zeroWidth;
+        /* ##### Fixme */
+        /*glyphs[gpos].attributes.zeroWidth = zeroWidth; */
         if (HB_GetUnicodeCharCategory(*ch) == HB_Mark_NonSpacing) {
-            attributes[gpos].mark = true;
-//             qDebug("glyph %d (char %d) is mark!", gpos, i);
+            attributes[gpos].mark = TRUE;
+/*             qDebug("glyph %d (char %d) is mark!", gpos, i); */
         } else {
-            attributes[gpos].mark = false;
+            attributes[gpos].mark = FALSE;
             clusterStart = data - shapeBuffer;
         }
         attributes[gpos].clusterStart = !attributes[gpos].mark;
         attributes[gpos].combiningClass = HB_GetUnicodeCharCombiningClass(*ch);
         attributes[gpos].justification = properties[i].justification;
-//         qDebug("data[%d] = %x (from %x)", gpos, (uint)data->unicode(), ch->unicode());
+/*         qDebug("data[%d] = %x (from %x)", gpos, (uint)data->unicode(), ch->unicode());*/
         data++;
     skip:
         ch++;
@@ -933,7 +943,7 @@ static const HB_OpenTypeFeature arabic_features[] = {
     { HB_MAKE_TAG('l', 'i', 'g', 'a'), LigaProperty },
     { HB_MAKE_TAG('d', 'l', 'i', 'g'), DligProperty },
     { HB_MAKE_TAG('c', 's', 'w', 'h'), CswhProperty },
-    // mset is used in old Win95 fonts that don't have a 'mark' positioning table.
+    /* mset is used in old Win95 fonts that don't have a 'mark' positioning table. */
     { HB_MAKE_TAG('m', 's', 'e', 't'), MsetProperty },
     {0, 0}
 };
@@ -954,21 +964,32 @@ static const HB_OpenTypeFeature syriac_features[] = {
     {0, 0}
 };
 
-static bool arabicSyriacOpenTypeShape(HB_ShaperItem *item, bool *ot_ok)
+static HB_Bool arabicSyriacOpenTypeShape(HB_ShaperItem *item, HB_Bool *ot_ok)
 {
-    *ot_ok = true;
-
+    const HB_UChar16 *uc;
     const int nglyphs = item->num_glyphs;
+    int32_t f;
+    uint32_t l;
+    HB_ArabicProperties *properties;
+    HB_DECLARE_STACKARRAY(HB_ArabicProperties, props)
+    HB_DECLARE_STACKARRAY(uint32_t, apply)
+    HB_Bool shaped;
+    int i = 0;
+
+    *ot_ok = TRUE;
+
     if (!HB_StringToGlyphs(item))
-        return false;
+        return FALSE;
     HB_HeuristicSetGlyphAttributes(item);
 
-    const HB_UChar16 *uc = item->string + item->item.pos;
+    HB_INIT_STACKARRAY(HB_ArabicProperties, props, item->item.length + 2);
+    HB_INIT_STACKARRAY(uint32_t, apply, item->num_glyphs);
 
-    HB_STACKARRAY(HB_ArabicProperties, props, item->item.length + 2);
-    HB_ArabicProperties *properties = props;
-    int32_t f = 0;
-    uint32_t l = item->item.length;
+    uc = item->string + item->item.pos;
+
+    properties = props;
+    f = 0;
+    l = item->item.length;
     if (item->item.pos > 0) {
         --f;
         ++l;
@@ -979,9 +1000,7 @@ static bool arabicSyriacOpenTypeShape(HB_ShaperItem *item, bool *ot_ok)
     }
     getArabicProperties(uc+f, l, props);
 
-    HB_STACKARRAY(uint, apply, item->num_glyphs);
-
-    for (uint32_t i = 0; i < item->num_glyphs; i++) {
+    for (i = 0; i < (int)item->num_glyphs; i++) {
         apply[i] = 0;
 
         if (properties[i].shape == XIsolated)
@@ -996,58 +1015,59 @@ static bool arabicSyriacOpenTypeShape(HB_ShaperItem *item, bool *ot_ok)
 
     HB_FREE_STACKARRAY(props);
 
-    bool shaped = HB_OpenTypeShape(item, apply);
+    shaped = HB_OpenTypeShape(item, apply);
 
     HB_FREE_STACKARRAY(apply);
 
     if (!shaped) {
-        *ot_ok = false;
-        return false;
+        *ot_ok = FALSE;
+        return FALSE;
     }
-    return HB_OpenTypePosition(item, nglyphs, /*doLogClusters*/true);
+    return HB_OpenTypePosition(item, nglyphs, /*doLogClusters*/TRUE);
 }
 
 #endif
 
-// #### stil missing: identify invalid character combinations
+/* #### stil missing: identify invalid character combinations */
 HB_Bool HB_ArabicShape(HB_ShaperItem *item)
 {
+    int slen;
+    HB_Bool haveGlyphs;
+    HB_STACKARRAY(HB_UChar16, shapedChars, item->item.length);
+
     assert(item->item.script == HB_Script_Arabic || item->item.script == HB_Script_Syriac);
 
 #ifndef NO_OPENTYPE
 
     if (HB_SelectScript(item, item->item.script == HB_Script_Arabic ? arabic_features : syriac_features)) {
-        bool ot_ok;
+        HB_Bool ot_ok;
         if (arabicSyriacOpenTypeShape(item, &ot_ok))
-            return true;
+            return TRUE;
         if (ot_ok)
-            return false;
-            // fall through to the non OT code
+            return FALSE;
+            /* fall through to the non OT code*/
     }
 #endif
 
     if (item->item.script == HB_Script_Syriac)
         return HB_BasicShape(item);
 
-    HB_STACKARRAY(HB_UChar16, shapedChars, item->item.length);
-
-    int slen;
     shapedString(item->string, item->stringLength, item->item.pos, item->item.length, shapedChars, &slen,
                   item->item.bidiLevel % 2,
                   item->attributes, item->log_clusters);
 
-    HB_Bool haveGlyphs = item->font->klass->stringToGlyphs(item->font,
-                                                           shapedChars, slen,
-                                                           item->glyphs, &item->num_glyphs,
-                                                           item->item.bidiLevel % 2);
+    haveGlyphs = item->font->klass->stringToGlyphs(item->font,
+                                                   shapedChars, slen,
+                                                   item->glyphs, &item->num_glyphs,
+                                                   item->item.bidiLevel % 2);
 
     HB_FREE_STACKARRAY(shapedChars);
 
     if (!haveGlyphs)
-        return false;
+        return FALSE;
 
     HB_HeuristicPosition(item);
-    return true;
+    return TRUE;
 }
 
 

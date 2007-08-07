@@ -54,7 +54,7 @@ typedef enum {
     CswhProperty = 0x200,
     MsetProperty = 0x400,
 
-    // used by indic and myanmar shaper
+    /* used by indic and myanmar shaper */
     NuktaProperty = 0x4,
     AkhantProperty = 0x8,
     RephProperty = 0x10,
@@ -73,7 +73,7 @@ typedef enum {
 
 } HB_OpenTypeProperty;
 
-// return true if ok.
+/* return true if ok. */
 typedef HB_Bool (*HB_ShapeFunction)(HB_ShaperItem *shaper_item);
 typedef void (*HB_AttributeFunction)(HB_Script script, const HB_UChar16 *string, uint32_t from, uint32_t len, HB_CharAttributes *attributes);
 
@@ -106,7 +106,7 @@ typedef struct {
     uint32_t property;
 } HB_OpenTypeFeature;
 
-enum { PositioningProperties = 0x80000000 };
+#define PositioningProperties 0x80000000
 
 HB_Bool HB_SelectScript(HB_ShaperItem *item, const HB_OpenTypeFeature *features);
 
@@ -116,34 +116,34 @@ HB_Bool HB_OpenTypePosition(HB_ShaperItem *item, int availableGlyphs, HB_Bool do
 void HB_HeuristicPosition(HB_ShaperItem *item);
 void HB_HeuristicSetGlyphAttributes(HB_ShaperItem *item);
 
-inline bool HB_IsControlChar(HB_UChar16 uc)
-{
-    return (uc >= 0x200b && uc <= 0x200f /* ZW Space, ZWNJ, ZWJ, LRM and RLM */)
-            || (uc >= 0x2028 && uc <= 0x202f /* LS, PS, LRE, RLE, PDF, LRO, RLO, NNBSP */)
-            || (uc >= 0x206a && uc <= 0x206f /* ISS, ASS, IAFS, AFS, NADS, NODS */);
-}
+#define HB_IsControlChar(uc) \
+    ((uc >= 0x200b && uc <= 0x200f /* ZW Space, ZWNJ, ZWJ, LRM and RLM */) \
+     || (uc >= 0x2028 && uc <= 0x202f /* LS, PS, LRE, RLE, PDF, LRO, RLO, NNBSP */) \
+     || (uc >= 0x206a && uc <= 0x206f /* ISS, ASS, IAFS, AFS, NADS, NODS */))
 
-inline HB_Bool HB_StringToGlyphs(HB_ShaperItem *shaper_item)
-{
-    return shaper_item->font->klass->stringToGlyphs(shaper_item->font,
-                                                    shaper_item->string + shaper_item->item.pos, shaper_item->item.length,
-                                                    shaper_item->glyphs, &shaper_item->num_glyphs,
-                                                    shaper_item->item.bidiLevel % 2);
-}
+#define HB_StringToGlyphs(shaper_item) \
+    shaper_item->font->klass->stringToGlyphs(shaper_item->font, \
+                                             shaper_item->string + shaper_item->item.pos, shaper_item->item.length, \
+                                             shaper_item->glyphs, &shaper_item->num_glyphs, \
+                                             shaper_item->item.bidiLevel % 2)
 
-inline void HB_GetAdvances(HB_ShaperItem *shaper_item)
-{
-    shaper_item->font->klass->getAdvances(shaper_item->font,
-                                          shaper_item->glyphs, shaper_item->num_glyphs,
-                                          shaper_item->advances,
+#define HB_GetAdvances(shaper_item) \
+    shaper_item->font->klass->getAdvances(shaper_item->font, \
+                                          shaper_item->glyphs, shaper_item->num_glyphs, \
+                                          shaper_item->advances, \
                                           shaper_item->face->current_flags);
-}
 
-#define HB_STACKARRAY(Type, Name, Length) \
+#define HB_DECLARE_STACKARRAY(Type, Name) \
     Type stack##Name[512]; \
-    Type *Name = stack##Name; \
+    Type *Name = stack##Name;
+
+#define HB_INIT_STACKARRAY(Type, Name, Length) \
     if ((Length) >= 512) \
         Name = (Type *)malloc((Length) * sizeof(Type));
+
+#define HB_STACKARRAY(Type, Name, Length) \
+    HB_DECLARE_STACKARRAY(Type, Name) \
+    HB_INIT_STACKARRAY(Type, Name, Length)
 
 #define HB_FREE_STACKARRAY(Name) \
     if (stack##Name != Name) \
@@ -151,4 +151,4 @@ inline void HB_GetAdvances(HB_ShaperItem *shaper_item)
 
 HB_END_HEADER
 
-#endif // HARFBUZZ_SHAPER_PRIVATE_H
+#endif

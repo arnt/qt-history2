@@ -130,58 +130,60 @@ getMyanmarCharClass (HB_UChar16 ch)
 
 static const signed char mymrStateTable[][Mymr_CC_COUNT] =
 {
-//   xx  c1, c2  ng  ya  ra  wa  ha  id zwnj vi  dl  db  da  dr  sa  sb  sp zwj
-    { 1,  4,  4,  2,  4,  4,  4,  4, 24,  1, 27, 17, 18, 19, 20, 21,  1,  1,  4}, //  0 - ground state
-    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}, //  1 - exit state (or sp to the right of the syllable)
-    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  3, 17, 18, 19, 20, 21, -1, -1,  4}, //  2 - NGA
-    {-1,  4,  4,  4,  4,  4,  4,  4, -1, 23, -1, -1, -1, -1, -1, -1, -1, -1, -1}, //  3 - Virama after NGA
-    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  5, 17, 18, 19, 20, 21,  1,  1, -1}, //  4 - Base consonant
-    {-2,  6, -2, -2,  7,  8,  9, 10, -2, 23, -2, -2, -2, -2, -2, -2, -2, -2, -2}, //  5 - First virama
-    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 25, 17, 18, 19, 20, 21, -1, -1, -1}, //  6 - c1 after virama
-    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 12, 17, 18, 19, 20, 21, -1, -1, -1}, //  7 - ya after virama
-    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 12, 17, 18, 19, 20, 21, -1, -1, -1}, //  8 - ra after virama
-    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 12, 17, 18, 19, 20, 21, -1, -1, -1}, //  9 - wa after virama
-    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 17, 18, 19, 20, 21, -1, -1, -1}, // 10 - ha after virama
-    {-1, -1, -1, -1,  7,  8,  9, 10, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}, // 11 - Virama after NGA+zwj
-    {-2, -2, -2, -2, -2, -2, 13, 14, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2}, // 12 - Second virama
-    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 15, 17, 18, 19, 20, 21, -1, -1, -1}, // 13 - wa after virama
-    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 17, 18, 19, 20, 21, -1, -1, -1}, // 14 - ha after virama
-    {-2, -2, -2, -2, -2, -2, -2, 16, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2}, // 15 - Third virama
-    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 17, 18, 19, 20, 21, -1, -1, -1}, // 16 - ha after virama
-    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 20, 21,  1,  1, -1}, // 17 - dl, Dependent vowel e
-    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 19, -1, 21,  1,  1, -1}, // 18 - db, Dependent vowel u,uu
-    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  1,  1,  1, -1}, // 19 - da, Dependent vowel i,ii,ai
-    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 22, -1, -1, -1, -1, -1,  1,  1, -1}, // 20 - dr, Dependent vowel aa
-    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  1,  1, -1}, // 21 - sa, Sign anusvara
-    {-1, -1, -1, -1, -1, -1, -1, -1, -1, 23, -1, -1, -1, -1, -1, -1, -1, -1, -1}, // 22 - atha
-    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  1,  1, -1}, // 23 - zwnj for atha
-    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  1, -1}, // 24 - Independent vowel
-    {-2, -2, -2, -2, 26, 26, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2}, // 25 - Virama after subscript consonant
-    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 12, 17, 18, 19, 20, 21, -1,  1, -1}, // 26 - ra/ya after subscript consonant + virama
-    {-1,  6, -1, -1,  7,  8,  9, 10, -1, 23, -1, -1, -1, -1, -1, -1, -1, -1, -1}, // 27 - Virama after ground state
-// exit state -2 is for invalid order of medials and combination of invalids
-// with virama where virama should treat as start of next syllable
+/*   xx  c1, c2  ng  ya  ra  wa  ha  id zwnj vi  dl  db  da  dr  sa  sb  sp zwj */
+    { 1,  4,  4,  2,  4,  4,  4,  4, 24,  1, 27, 17, 18, 19, 20, 21,  1,  1,  4}, /*  0 - ground state */
+    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}, /*  1 - exit state (or sp to the right of the syllable) */
+    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  3, 17, 18, 19, 20, 21, -1, -1,  4}, /*  2 - NGA */
+    {-1,  4,  4,  4,  4,  4,  4,  4, -1, 23, -1, -1, -1, -1, -1, -1, -1, -1, -1}, /*  3 - Virama after NGA */
+    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  5, 17, 18, 19, 20, 21,  1,  1, -1}, /*  4 - Base consonant */
+    {-2,  6, -2, -2,  7,  8,  9, 10, -2, 23, -2, -2, -2, -2, -2, -2, -2, -2, -2}, /*  5 - First virama */
+    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 25, 17, 18, 19, 20, 21, -1, -1, -1}, /*  6 - c1 after virama */
+    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 12, 17, 18, 19, 20, 21, -1, -1, -1}, /*  7 - ya after virama */
+    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 12, 17, 18, 19, 20, 21, -1, -1, -1}, /*  8 - ra after virama */
+    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 12, 17, 18, 19, 20, 21, -1, -1, -1}, /*  9 - wa after virama */
+    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 17, 18, 19, 20, 21, -1, -1, -1}, /* 10 - ha after virama */
+    {-1, -1, -1, -1,  7,  8,  9, 10, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}, /* 11 - Virama after NGA+zwj */
+    {-2, -2, -2, -2, -2, -2, 13, 14, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2}, /* 12 - Second virama */
+    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 15, 17, 18, 19, 20, 21, -1, -1, -1}, /* 13 - wa after virama */
+    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 17, 18, 19, 20, 21, -1, -1, -1}, /* 14 - ha after virama */
+    {-2, -2, -2, -2, -2, -2, -2, 16, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2}, /* 15 - Third virama */
+    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 17, 18, 19, 20, 21, -1, -1, -1}, /* 16 - ha after virama */
+    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 20, 21,  1,  1, -1}, /* 17 - dl, Dependent vowel e */
+    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 19, -1, 21,  1,  1, -1}, /* 18 - db, Dependent vowel u,uu */
+    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  1,  1,  1, -1}, /* 19 - da, Dependent vowel i,ii,ai */
+    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 22, -1, -1, -1, -1, -1,  1,  1, -1}, /* 20 - dr, Dependent vowel aa */
+    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  1,  1, -1}, /* 21 - sa, Sign anusvara */
+    {-1, -1, -1, -1, -1, -1, -1, -1, -1, 23, -1, -1, -1, -1, -1, -1, -1, -1, -1}, /* 22 - atha */
+    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  1,  1, -1}, /* 23 - zwnj for atha */
+    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  1, -1}, /* 24 - Independent vowel */
+    {-2, -2, -2, -2, 26, 26, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2}, /* 25 - Virama after subscript consonant */
+    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 12, 17, 18, 19, 20, 21, -1,  1, -1}, /* 26 - ra/ya after subscript consonant + virama */
+    {-1,  6, -1, -1,  7,  8,  9, 10, -1, 23, -1, -1, -1, -1, -1, -1, -1, -1, -1}, /* 27 - Virama after ground state */
+/* exit state -2 is for invalid order of medials and combination of invalids
+   with virama where virama should treat as start of next syllable
+ */
 };
 
 
 
-//#define MYANMAR_DEBUG
+/*#define MYANMAR_DEBUG */
 #ifdef MYANMAR_DEBUG
 #define MMDEBUG qDebug
 #else
 #define MMDEBUG if(0) printf
 #endif
 
+/*
 //  Given an input string of characters and a location in which to start looking
 //  calculate, using the state table, which one is the last character of the syllable
 //  that starts in the starting position.
-//
-static inline int myanmar_nextSyllableBoundary(const HB_UChar16 *s, int start, int end, bool *invalid)
+*/
+static int myanmar_nextSyllableBoundary(const HB_UChar16 *s, int start, int end, HB_Bool *invalid)
 {
-    *invalid = false;
     const HB_UChar16 *uc = s + start;
     int state = 0;
     int pos = start;
+    *invalid = FALSE;
 
     while (pos < end) {
         MymrCharClass charClass = getMyanmarCharClass(*uc);
@@ -203,8 +205,8 @@ static inline int myanmar_nextSyllableBoundary(const HB_UChar16 *s, int start, i
 }
 
 #ifndef NO_OPENTYPE
-// ###### might have to change order of above and below forms and substitutions,
-// but according to Unicode below comes before above
+/* ###### might have to change order of above and below forms and substitutions,
+   but according to Unicode below comes before above */
 static const HB_OpenTypeFeature myanmar_features[] = {
     { HB_MAKE_TAG('p', 'r', 'e', 'f'), PreFormProperty },
     { HB_MAKE_TAG('b', 'l', 'w', 'f'), BelowFormProperty },
@@ -214,12 +216,13 @@ static const HB_OpenTypeFeature myanmar_features[] = {
     { HB_MAKE_TAG('b', 'l', 'w', 's'), BelowSubstProperty },
     { HB_MAKE_TAG('a', 'b', 'v', 's'), AboveSubstProperty },
     { HB_MAKE_TAG('p', 's', 't', 's'), PostSubstProperty },
-    { HB_MAKE_TAG('r', 'l', 'i', 'g'), CligProperty }, // Myanmar1 uses this instead of the other features
+    { HB_MAKE_TAG('r', 'l', 'i', 'g'), CligProperty }, /* Myanmar1 uses this instead of the other features */
     { 0, 0 }
 };
 #endif
 
 
+/*
 // Visual order before shaping should be:
 //
 //    [Vowel Mark E]
@@ -232,57 +235,24 @@ static const HB_OpenTypeFeature myanmar_features[] = {
 //
 // This means that we can keep the logical order apart from having to
 // move the pre vowel, medial ra and kinzi
+*/
 
-static bool myanmar_shape_syllable(HB_Bool openType, HB_ShaperItem *item, bool invalid)
+static HB_Bool myanmar_shape_syllable(HB_Bool openType, HB_ShaperItem *item, HB_Bool invalid)
 {
-    // according to the table the max length of a syllable should be around 14 chars
-    assert(item->item.length < 32);
-
+    /*
 //    MMDEBUG("\nsyllable from %d len %d, str='%s'", item->item.pos, item->item.length,
 //	    item->string->mid(item->from, item->length).toUtf8().data());
+    */
 
-    const HB_UChar16 *uc = item->string + item->item.pos;
-#ifdef MYANMAR_DEBUG
-    printf("original:");
-    for (int i = 0; i < item->item.length; i++) {
-        printf("    %d: %4x", i, uc[i]);
-    }
+#ifndef NO_OPENTYPE
+    const int availableGlyphs = item->num_glyphs;
 #endif
+    const HB_UChar16 *uc = item->string + item->item.pos;
     int vowel_e = -1;
     int kinzi = -1;
     int medial_ra = -1;
     int base = -1;
-
-    for (uint32_t i = 0; i < item->item.length; ++i) {
-        HB_UChar16 chr = uc[i];
-
-        if (chr == Mymr_C_VOWEL_E) {
-            vowel_e = i;
-            continue;
-        }
-        if (i == 0
-            && chr == Mymr_C_NGA
-            && i + 2 < item->item.length
-            && uc[i+1] == Mymr_C_VIRAMA) {
-            int mc = getMyanmarCharClass(uc[i+2]);
-            //MMDEBUG("maybe kinzi: mc=%x", mc);
-            if ((mc & Mymr_CF_CONSONANT) == Mymr_CF_CONSONANT) {
-                kinzi = i;
-                continue;
-            }
-        }
-        if (base >= 0
-            && chr == Mymr_C_VIRAMA
-            && i + 1 < item->item.length
-            && uc[i+1] == Mymr_C_RA) {
-            medial_ra = i;
-            continue;
-        }
-        if (base < 0)
-            base = i;
-    }
-
-    MMDEBUG("\n  base=%d, vowel_e=%d, kinzi=%d, medial_ra=%d", base, vowel_e, kinzi, medial_ra);
+    int i;
     int len = 0;
     unsigned short reordered[32];
     unsigned char properties[32];
@@ -292,14 +262,56 @@ static bool myanmar_shape_syllable(HB_Bool openType, HB_ShaperItem *item, bool i
 	PostForm = 0x04,
 	BelowForm = 0x08
     };
+    HB_Bool lastWasVirama = FALSE;
+    int basePos = -1;
+
     memset(properties, 0, 32*sizeof(unsigned char));
 
-    // write vowel_e if found
+    /* according to the table the max length of a syllable should be around 14 chars */
+    assert(item->item.length < 32);
+
+#ifdef MYANMAR_DEBUG
+    printf("original:");
+    for (i = 0; i < (int)item->item.length; i++) {
+        printf("    %d: %4x", i, uc[i]);
+    }
+#endif
+    for (i = 0; i < (int)item->item.length; ++i) {
+        HB_UChar16 chr = uc[i];
+
+        if (chr == Mymr_C_VOWEL_E) {
+            vowel_e = i;
+            continue;
+        }
+        if (i == 0
+            && chr == Mymr_C_NGA
+            && i + 2 < (int)item->item.length
+            && uc[i+1] == Mymr_C_VIRAMA) {
+            int mc = getMyanmarCharClass(uc[i+2]);
+            /*MMDEBUG("maybe kinzi: mc=%x", mc);*/
+            if ((mc & Mymr_CF_CONSONANT) == Mymr_CF_CONSONANT) {
+                kinzi = i;
+                continue;
+            }
+        }
+        if (base >= 0
+            && chr == Mymr_C_VIRAMA
+            && i + 1 < (int)item->item.length
+            && uc[i+1] == Mymr_C_RA) {
+            medial_ra = i;
+            continue;
+        }
+        if (base < 0)
+            base = i;
+    }
+
+    MMDEBUG("\n  base=%d, vowel_e=%d, kinzi=%d, medial_ra=%d", base, vowel_e, kinzi, medial_ra);
+    /* write vowel_e if found */
     if (vowel_e >= 0) {
         reordered[0] = Mymr_C_VOWEL_E;
         len = 1;
     }
-    // write medial_ra
+    /* write medial_ra */
     if (medial_ra >= 0) {
         reordered[len] = Mymr_C_VIRAMA;
         reordered[len+1] = Mymr_C_RA;
@@ -308,20 +320,20 @@ static bool myanmar_shape_syllable(HB_Bool openType, HB_ShaperItem *item, bool i
         len += 2;
     }
 
-    // shall we add a dotted circle?
-    // If in the position in which the base should be (first char in the string) there is
-    // a character that has the Dotted circle flag (a character that cannot be a base)
-    // then write a dotted circle
+    /* shall we add a dotted circle?
+       If in the position in which the base should be (first char in the string) there is
+       a character that has the Dotted circle flag (a character that cannot be a base)
+       then write a dotted circle */
     if (invalid) {
         reordered[len] = C_DOTTED_CIRCLE;
         ++len;
     }
 
-    bool lastWasVirama = false;
-    int basePos = -1;
-    // copy the rest of the syllable to the output, inserting the kinzi
-    // at the correct place
-    for (int i = 0; i < (int)item->item.length; ++i) {
+    /* copy the rest of the syllable to the output, inserting the kinzi
+       at the correct place */
+    for (i = 0; i < (int)item->item.length; ++i) {
+        uint16_t chr = uc[i];
+        MymrCharClass cc;
         if (i == vowel_e)
             continue;
         if (i == medial_ra || i == kinzi) {
@@ -329,8 +341,7 @@ static bool myanmar_shape_syllable(HB_Bool openType, HB_ShaperItem *item, bool i
             continue;
         }
 
-        ushort chr = uc[i];
-        MymrCharClass cc = getMyanmarCharClass(uc[i]);
+        cc = getMyanmarCharClass(uc[i]);
         if (kinzi >= 0 && i > base && (cc & Mymr_CF_AFTER_KINZI)) {
             reordered[len] = Mymr_C_NGA;
             reordered[len+1] = Mymr_C_VIRAMA;
@@ -380,35 +391,32 @@ static bool myanmar_shape_syllable(HB_Bool openType, HB_ShaperItem *item, bool i
         len += 2;
     }
 
-#ifndef NO_OPENTYPE
-    const int availableGlyphs = item->num_glyphs;
-#endif
     if (!item->font->klass->stringToGlyphs(item->font,
                                            reordered, len,
                                            item->glyphs, &item->num_glyphs,
                                            item->item.bidiLevel % 2))
-        return false;
+        return FALSE;
 
     MMDEBUG("after shaping: len=%d", len);
-    for (int i = 0; i < len; i++) {
-	item->attributes[i].mark = false;
-	item->attributes[i].clusterStart = false;
+    for (i = 0; i < len; i++) {
+	item->attributes[i].mark = FALSE;
+	item->attributes[i].clusterStart = FALSE;
 	item->attributes[i].justification = 0;
-	item->attributes[i].zeroWidth = false;
+	item->attributes[i].zeroWidth = FALSE;
 	MMDEBUG("    %d: %4x property=%x", i, reordered[i], properties[i]);
     }
 
-    // now we have the syllable in the right order, and can start running it through open type.
+    /* now we have the syllable in the right order, and can start running it through open type. */
 
 #ifndef NO_OPENTYPE
     if (openType) {
 	unsigned short logClusters[32];
-	for (int i = 0; i < len; ++i)
+ 	uint32_t where[32];
+
+	for (i = 0; i < len; ++i)
 	    logClusters[i] = i;
 
- 	uint where[32];
-
-        for (int i = 0; i < len; ++i) {
+        for (i = 0; i < len; ++i) {
             where[i] = ~(PreSubstProperty
                          | BelowSubstProperty
                          | AboveSubstProperty
@@ -426,26 +434,21 @@ static bool myanmar_shape_syllable(HB_Bool openType, HB_ShaperItem *item, bool i
         }
 
         HB_OpenTypeShape(item, where);
-        if (!HB_OpenTypePosition(item, availableGlyphs, /*doLogClusters*/false))
-            return false;
+        if (!HB_OpenTypePosition(item, availableGlyphs, /*doLogClusters*/FALSE))
+            return FALSE;
     } else
 #endif
     {
 	MMDEBUG("Not using openType");
     }
 
-    item->attributes[0].clusterStart = true;
-    return true;
+    item->attributes[0].clusterStart = TRUE;
+    return TRUE;
 }
 
 HB_Bool HB_MyanmarShape(HB_ShaperItem *item)
 {
-    assert(item->item.script == HB_Script_Myanmar);
-
-    HB_Bool openType = false;
-#ifndef NO_OPENTYPE
-    openType = HB_SelectScript(item, myanmar_features);
-#endif
+    HB_Bool openType = FALSE;
     unsigned short *logClusters = item->log_clusters;
 
     HB_ShaperItem syllable = *item;
@@ -453,12 +456,19 @@ HB_Bool HB_MyanmarShape(HB_ShaperItem *item)
 
     int sstart = item->item.pos;
     int end = sstart + item->item.length;
+    int i = 0;
+
+    assert(item->item.script == HB_Script_Myanmar);
+#ifndef NO_OPENTYPE
+    openType = HB_SelectScript(item, myanmar_features);
+#endif
+
     MMDEBUG("myanmar_shape: from %d length %d", item->item.pos, item->item.length);
     while (sstart < end) {
-        bool invalid;
+        HB_Bool invalid;
         int send = myanmar_nextSyllableBoundary(item->string, sstart, end, &invalid);
         MMDEBUG("syllable from %d, length %d, invalid=%s", sstart, send-sstart,
-               invalid ? "true" : "false");
+               invalid ? "TRUE" : "FALSE");
         syllable.item.pos = sstart;
         syllable.item.length = send-sstart;
         syllable.glyphs = item->glyphs + first_glyph;
@@ -469,15 +479,15 @@ HB_Bool HB_MyanmarShape(HB_ShaperItem *item)
         if (!myanmar_shape_syllable(openType, &syllable, invalid)) {
             MMDEBUG("syllable shaping failed, syllable requests %d glyphs", syllable.num_glyphs);
             item->num_glyphs += syllable.num_glyphs;
-            return false;
+            return FALSE;
         }
 
-        // fix logcluster array
+        /* fix logcluster array */
         MMDEBUG("syllable:");
-        for (uint32_t i = first_glyph; i < first_glyph + syllable.num_glyphs; ++i)
+        for (i = first_glyph; i < first_glyph + (int)syllable.num_glyphs; ++i)
             MMDEBUG("        %d -> glyph %x", i, item->glyphs[i]);
         MMDEBUG("    logclusters:");
-        for (int i = sstart; i < send; ++i) {
+        for (i = sstart; i < send; ++i) {
             MMDEBUG("        %d -> glyph %d", i, first_glyph);
             logClusters[i-item->item.pos] = first_glyph;
         }
@@ -485,20 +495,20 @@ HB_Bool HB_MyanmarShape(HB_ShaperItem *item)
         first_glyph += syllable.num_glyphs;
     }
     item->num_glyphs = first_glyph;
-    return true;
+    return TRUE;
 }
 
-void HB_MyanmarAttributes(HB_Script /*script*/, const HB_UChar16 *text, uint32_t from, uint32_t len, HB_CharAttributes *attributes)
+void HB_MyanmarAttributes(HB_Script script, const HB_UChar16 *text, uint32_t from, uint32_t len, HB_CharAttributes *attributes)
 {
     int end = from + len;
     const HB_UChar16 *uc = text + from;
-    attributes += from;
     uint32_t i = 0;
+    attributes += from;
     while (i < len) {
-	bool invalid;
+	HB_Bool invalid;
 	uint32_t boundary = myanmar_nextSyllableBoundary(text, from+i, end, &invalid) - from;
 
-	attributes[i].charStop = true;
+	attributes[i].charStop = TRUE;
         if (from || i)
             attributes[i-1].lineBreakType = HB_Break;
 
@@ -506,7 +516,7 @@ void HB_MyanmarAttributes(HB_Script /*script*/, const HB_UChar16 *text, uint32_t
             boundary = len;
 	i++;
 	while (i < boundary) {
-	    attributes[i].charStop = false;
+	    attributes[i].charStop = FALSE;
 	    ++uc;
 	    ++i;
 	}

@@ -13,6 +13,7 @@
 
 #include <assert.h>
 
+/*
 // Hangul is a syllable based script. Unicode reserves a large range
 // for precomposed hangul, where syllables are already precomposed to
 // their final glyph shape. In addition, a so called jamo range is
@@ -34,6 +35,7 @@
 // A standard syllable is of the form L+V+T*. The above rules allow
 // nonstandard syllables L*V*T*. To transform them into standard
 // syllables fill characters L_f and V_f can be inserted.
+*/
 
 enum {
     Hangul_SBase = 0xac00,
@@ -47,24 +49,22 @@ enum {
     Hangul_NCount = 21*28
 };
 
-static inline bool hangul_isPrecomposed(unsigned short uc) {
-    return (uc >= Hangul_SBase && uc < Hangul_SBase + Hangul_SCount);
-}
+#define hangul_isPrecomposed(uc) \
+    (uc >= Hangul_SBase && uc < Hangul_SBase + Hangul_SCount)
 
-static inline bool hangul_isLV(unsigned short uc) {
-    return ((uc - Hangul_SBase) % Hangul_TCount == 0);
-}
+#define hangul_isLV(uc) \
+    ((uc - Hangul_SBase) % Hangul_TCount == 0)
 
-enum HangulType {
+typedef enum {
     L,
     V,
     T,
     LV,
     LVT,
     X
-};
+} HangulType;
 
-static inline HangulType hangul_type(unsigned short uc) {
+static HangulType hangul_type(unsigned short uc) {
     if (uc > Hangul_SBase && uc < Hangul_SBase + Hangul_SCount)
         return hangul_isLV(uc) ? LV : LVT;
     if (uc < Hangul_LBase || uc > 0x11ff)
@@ -122,13 +122,17 @@ static const HB_OpenTypeFeature hangul_features [] = {
 };
 #endif
 
-static bool hangul_shape_syllable(HB_ShaperItem *item, HB_Bool openType)
+static HB_Bool hangul_shape_syllable(HB_ShaperItem *item, HB_Bool openType)
 {
     const HB_UChar16 *ch = item->string + item->item.pos;
+    int len = item->item.length;
+#ifndef NO_OPENTYPE
+    const int availableGlyphs = item->num_glyphs;
+#endif
 
     int i;
     HB_UChar16 composed = 0;
-    // see if we can compose the syllable into a modern hangul
+    /* see if we can compose the syllable into a modern hangul */
     if (item->item.length == 2) {
         int LIndex = ch[0] - Hangul_LBase;
         int VIndex = ch[1] - Hangul_VBase;
@@ -146,32 +150,29 @@ static bool hangul_shape_syllable(HB_ShaperItem *item, HB_Bool openType)
     }
 
 
-    int len = item->item.length;
 
-    // if we have a modern hangul use the composed form
+    /* if we have a modern hangul use the composed form */
     if (composed) {
         ch = &composed;
         len = 1;
     }
 
-#ifndef NO_OPENTYPE
-    const int availableGlyphs = item->num_glyphs;
-#endif
     if (!item->font->klass->stringToGlyphs(item->font,
                                            ch, len,
                                            item->glyphs, &item->num_glyphs,
                                            item->item.bidiLevel % 2))
-        return false;
+        return FALSE;
     for (i = 0; i < len; i++) {
-        item->attributes[i].mark = false;
-        item->attributes[i].clusterStart = false;
+        item->attributes[i].mark = FALSE;
+        item->attributes[i].clusterStart = FALSE;
         item->attributes[i].justification = 0;
-        item->attributes[i].zeroWidth = false;
-        //IDEBUG("    %d: %4x", i, ch[i].unicode());
+        item->attributes[i].zeroWidth = FALSE;
+        /*IDEBUG("    %d: %4x", i, ch[i].unicode()); */
     }
 
 #ifndef NO_OPENTYPE
     if (!composed && openType) {
+        HB_Bool positioned;
 
         HB_STACKARRAY(unsigned short, logClusters, len);
         for (i = 0; i < len; ++i)
@@ -180,46 +181,47 @@ static bool hangul_shape_syllable(HB_ShaperItem *item, HB_Bool openType)
 
         HB_OpenTypeShape(item, /*properties*/0);
 
-        HB_Bool positioned = HB_OpenTypePosition(item, availableGlyphs, /*doLogClusters*/false);
+        positioned = HB_OpenTypePosition(item, availableGlyphs, /*doLogClusters*/FALSE);
 
         HB_FREE_STACKARRAY(logClusters);
 
         if (!positioned)
-            return false;
+            return FALSE;
     }
 #endif
 
-    item->attributes[0].clusterStart = true;
-    return true;
+    item->attributes[0].clusterStart = TRUE;
+    return TRUE;
 }
 
 HB_Bool HB_HangulShape(HB_ShaperItem *item)
 {
+    const HB_UChar16 *uc = item->string + item->item.pos;
+    HB_Bool allPrecomposed = TRUE;
+    int i;
+
     assert(item->item.script == HB_Script_Hangul);
 
-    const HB_UChar16 *uc = item->string + item->item.pos;;;;
-
-    bool allPrecomposed = true;
-    for (uint32_t i = 0; i < item->item.length; ++i) {
+    for (i = 0; i < (int)item->item.length; ++i) {
         if (!hangul_isPrecomposed(uc[i])) {
-            allPrecomposed = false;
+            allPrecomposed = FALSE;
             break;
         }
     }
 
     if (!allPrecomposed) {
-        HB_Bool openType = false;
+        HB_Bool openType = FALSE;
+        unsigned short *logClusters = item->log_clusters;
+        HB_ShaperItem syllable;
+        int first_glyph = 0;
+        int sstart = item->item.pos;
+        int end = sstart + item->item.length;
+
 #ifndef NO_OPENTYPE
         openType = HB_SelectScript(item, hangul_features);
 #endif
+        syllable = *item;
 
-        unsigned short *logClusters = item->log_clusters;
-
-        HB_ShaperItem syllable = *item;
-        int first_glyph = 0;
-
-        int sstart = item->item.pos;
-        int end = sstart + item->item.length;
         while (sstart < end) {
             int send = hangul_nextSyllableBoundary(item->string, sstart, end);
 
@@ -232,16 +234,16 @@ HB_Bool HB_HangulShape(HB_ShaperItem *item)
             syllable.num_glyphs = item->num_glyphs - first_glyph;
             if (!hangul_shape_syllable(&syllable, openType)) {
                 item->num_glyphs += syllable.num_glyphs;
-                return false;
+                return FALSE;
             }
-            // fix logcluster array
-            for (int i = sstart; i < send; ++i)
+            /* fix logcluster array */
+            for (i = sstart; i < send; ++i)
                 logClusters[i-item->item.pos] = first_glyph;
             sstart = send;
             first_glyph += syllable.num_glyphs;
         }
         item->num_glyphs = first_glyph;
-        return true;
+        return TRUE;
     }
 
     return HB_BasicShape(item);

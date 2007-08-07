@@ -12,13 +12,13 @@ MAINSOURCES =  \
 	harfbuzz-gsub.c \
 	harfbuzz-open.c \
 	harfbuzz-shaper.cpp \
-	harfbuzz-tibetan.cpp \
-	harfbuzz-khmer.cpp \
+	harfbuzz-tibetan.c \
+	harfbuzz-khmer.c \
 	harfbuzz-indic.cpp \
-	harfbuzz-hebrew.cpp \
-	harfbuzz-arabic.cpp \
-	harfbuzz-hangul.cpp \
-	harfbuzz-myanmar.cpp
+	harfbuzz-hebrew.c \
+	harfbuzz-arabic.c \
+	harfbuzz-hangul.c \
+	harfbuzz-myanmar.c
 
 EXTRA_SOURCES = harfbuzz.c
 
