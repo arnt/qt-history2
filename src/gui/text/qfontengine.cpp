@@ -470,6 +470,20 @@ void QFontEngine::getUnscaledGlyph(glyph_t glyph, QPainterPath *path, glyph_metr
     addGlyphsToPath(&glyph, &p, 1, path, QFlag(0));
 }
 
+QByteArray QFontEngine::getSfntTable(uint tag) const
+{
+    QByteArray table;
+    uint len = 0;
+    if (!getSfntTable(tag, 0, &len))
+        return table;
+    if (!len)
+        return table;
+    table.resize(len);
+    if (!getSfntTable(tag, reinterpret_cast<uchar *>(table.data()), &len))
+        return QByteArray();
+    return table;
+}
+
 #if defined(Q_WS_WIN) || defined(Q_WS_X11) || defined(Q_WS_QWS)
 static inline QFixed kerning(int left, int right, const QFontEngine::KernPair *pairs, int numPairs)
 {

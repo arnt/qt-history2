@@ -328,20 +328,17 @@ QFontEngine::Properties QFreetypeFace::properties() const
     return p;
 }
 
-QByteArray QFreetypeFace::getSfntTable(uint tag) const
+bool QFreetypeFace::getSfntTable(uint tag, uchar *buffer, uint *length) const
 {
-    QByteArray table;
+    bool result = false;
 #if (FREETYPE_MAJOR*10000 + FREETYPE_MINOR*100 + FREETYPE_PATCH) > 20103
     if (FT_IS_SFNT(face)) {
-        FT_ULong length = 0;
-        FT_Load_Sfnt_Table(face, tag, 0, 0, &length);
-        if (length != 0) {
-            table.resize(length);
-            FT_Load_Sfnt_Table(face, tag, 0, (FT_Byte *)table.data(), &length);
-        }
+        FT_ULong len = *length;
+        result = FT_Load_Sfnt_Table(face, tag, 0, buffer, &len) == FT_Err_Ok;
+        *length = len;
     }
 #endif
-    return table;
+    return result;
 }
 
 /* Some fonts (such as MingLiu rely on hinting to scale different
@@ -944,9 +941,9 @@ QFontEngine::Properties QFontEngineFT::properties() const
     return freetype->properties();
 }
 
-QByteArray QFontEngineFT::getSfntTable(uint tag) const
+bool QFontEngineFT::getSfntTable(uint tag, uchar *buffer, uint *length) const
 {
-    return freetype->getSfntTable(tag);
+    return freetype->getSfntTable(tag, buffer, length);
 }
 
 int QFontEngineFT::synthesized() const

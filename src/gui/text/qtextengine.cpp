@@ -684,6 +684,14 @@ void QTextEngine::shapeText(int item) const
 
 #include <private/qharfbuzz_p.h>
 
+static HB_Error hb_getSFntTable(void *font, HB_Tag tableTag, HB_Byte *buffer, HB_UInt *length)
+{
+    QFontEngine *fe = (QFontEngine *)font;
+    if (!fe->getSfntTable(tableTag, buffer, length))
+        return HB_Err_Invalid_Argument;
+    return HB_Err_Ok;
+}
+
 static HB_Bool hb_stringToGlyphs(HB_Font font, const HB_UChar16 *string, hb_uint32 length, HB_Glyph *glyphs, hb_uint32 *numGlyphs, HB_Bool rightToLeft)
 {
     QFontEngine *fe = (QFontEngine *)font->userData;
@@ -894,7 +902,7 @@ void QTextEngine::shapeTextWithHarfbuzz(int item) const
         } else
 #endif
        	{
-            shaper_item.face = qHBNewFace(0, 0);
+            shaper_item.face = qHBNewFace(actualFontEngine, hb_getSFntTable);
         }
 
         shaper_item.glyphIndicesPresent = true;

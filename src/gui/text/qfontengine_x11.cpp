@@ -659,17 +659,19 @@ void QFontEngineXLFD::getUnscaledGlyph(glyph_t glyph, QPainterPath *path, glyph_
 }
 
 
-QByteArray QFontEngineXLFD::getSfntTable(uint tag) const
+bool QFontEngineXLFD::getSfntTable(uint tag, uchar *buffer, uint *length) const
 {
 #ifndef QT_NO_FREETYPE
     if (face_id.index == -1)
         (void)faceId();
     if (!freetype)
-        return QByteArray();
-    return freetype->getSfntTable(tag);
+        return false;
+    return freetype->getSfntTable(tag, buffer, length);
 #else
     Q_UNUSED(tag);
-    return QByteArray();
+    Q_UNUSED(buffer);
+    Q_UNUSED(length);
+    return false;
 #endif
 }
 

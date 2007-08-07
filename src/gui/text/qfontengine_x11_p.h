@@ -55,7 +55,7 @@ public:
     QFontEngine::FaceId faceId() const;
     QFontEngine::Properties properties() const;
     void getUnscaledGlyph(glyph_t glyph, QPainterPath *path, glyph_metrics_t *metrics);
-    QByteArray getSfntTable(uint tag) const;
+    bool getSfntTable(uint tag, uchar *buffer, uint *length) const;
     int synthesized() const;
 
     bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs,

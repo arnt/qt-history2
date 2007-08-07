@@ -94,7 +94,8 @@ public:
     };
     virtual Properties properties() const;
     virtual void getUnscaledGlyph(glyph_t glyph, QPainterPath *path, glyph_metrics_t *metrics);
-    virtual QByteArray getSfntTable(uint /*tag*/) const { return QByteArray(); }
+    QByteArray getSfntTable(uint /*tag*/) const;
+    virtual bool getSfntTable(uint /*tag*/, uchar * /*buffer*/, uint * /*length*/) const { return false; }
 
     struct FaceId {
         FaceId() : index(0), encoding(0) {}
