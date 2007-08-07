@@ -1670,8 +1670,7 @@ static QFontEngine *loadFc(const QFontPrivate *fp, int script, const QFontDef &r
         FcFontSetDestroy(fs);
         FM_DEBUG("engine for script %d is %s\n", script, fe ? fe->fontDef.family.toLatin1().data(): "(null)");
     }
-    // ################################################### FIXME: HARFBUZZ
-    if (fe && false
+    if (fe
         && script == QUnicodeTables::Common
         && !(request.styleStrategy & QFont::NoFontMerging) && !fe->symbol) {
         fe = new QFontEngineMultiFT(fe, pattern, fp->screen, request);
