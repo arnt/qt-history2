@@ -337,6 +337,7 @@ public:
     virtual ~QFontEngineMac();
 
     virtual bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const;
+    virtual void recalcAdvances(int , QGlyphLayout *, QTextEngine::ShaperFlags) const;
 
     virtual glyph_metrics_t boundingBox(const QGlyphLayout *glyphs, int numGlyphs);
     virtual glyph_metrics_t boundingBox(glyph_t glyph);
@@ -377,8 +378,10 @@ private:
     mutable const unsigned char *cmap;
     mutable bool symbolCMap;
     mutable QByteArray cmapTable;
+    CGAffineTransform transform;
 };
 
+#if 0
 class QFontEngineMacMulti : public QFontEngineMulti
 {
     friend class QFontEngineMac;
@@ -418,6 +421,7 @@ private:
     mutable ATSUStyle style;
     CGAffineTransform transform;
 };
+#endif
 
 #endif
 

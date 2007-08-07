@@ -70,8 +70,10 @@ quint32 QFont::macFontID() const
 {
 #if 1
     QFontEngine *fe = d->engineForScript(QUnicodeTables::Common);
+#if 0 // ################### FIXME
     if (fe && fe->type() == QFontEngine::Mac)
         return static_cast<QFontEngineMacMulti*>(fe)->macFontID();
+#endif
 #else
     Str255 name;
     if(FMGetFontFamilyName((FMFontFamily)((UInt32)handle()), name) == noErr) {

@@ -668,8 +668,8 @@ void QTextEngine::bidiReorder(int numItems, const quint8 *levels, int *visualOrd
 
 #include "qfontengine_ft_p.h"
 
-#elif defined(Q_WS_MAC)
-# include "qtextengine_mac.cpp"
+//#elif defined(Q_WS_MAC)
+//# include "qtextengine_mac.cpp"
 #endif
 
 #include <private/qharfbuzz_p.h>
