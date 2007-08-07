@@ -64,7 +64,7 @@ enum break_class {
 #define CP CombiningProhibitedBreak
 #define PB ProhibitedBreak
 
-static const uint8_t breakTable[HB_LineBreak_JT+1][HB_LineBreak_JT+1] =
+static const hb_uint8 breakTable[HB_LineBreak_JT+1][HB_LineBreak_JT+1] =
 {
 /*          OP  CL  QU  GL  NS  EX  SY  IS  PR  PO  NU  AL  ID  IN  HY  BA  BB  B2  ZW  CM  WJ  H2  H3  JL  JV  JT */
 /* OP */ { PB, PB, PB, PB, PB, PB, PB, PB, PB, PB, PB, PB, PB, PB, PB, PB, PB, PB, PB, CP, PB, PB, PB, PB, PB, PB },
@@ -101,7 +101,7 @@ static const uint8_t breakTable[HB_LineBreak_JT+1][HB_LineBreak_JT+1] =
 #undef PB
 
 
-static void calcLineBreaks(const HB_UChar16 *uc, uint32_t len, HB_CharAttributes *charAttributes)
+static void calcLineBreaks(const HB_UChar16 *uc, hb_uint32 len, HB_CharAttributes *charAttributes)
 {
     if (!len)
         return;
@@ -116,7 +116,7 @@ static void calcLineBreaks(const HB_UChar16 *uc, uint32_t len, HB_CharAttributes
     charAttributes[0].charStop = true;
 
     int lcls = cls;
-    for (uint32_t i = 1; i < len; ++i) {
+    for (hb_uint32 i = 1; i < len; ++i) {
         charAttributes[i].whiteSpace = false;
         charAttributes[i].charStop = true;
 
@@ -397,7 +397,7 @@ void HB_HeuristicPosition(HB_ShaperItem *item)
 void HB_HeuristicSetGlyphAttributes(HB_ShaperItem *item)
 {
     const HB_UChar16 *uc = item->string + item->item.pos;
-    uint32_t length = item->item.length;
+    hb_uint32 length = item->item.length;
 
     // ### zeroWidth and justification are missing here!!!!!
 
@@ -407,8 +407,8 @@ void HB_HeuristicSetGlyphAttributes(HB_ShaperItem *item)
     HB_GlyphAttributes *attributes = item->attributes;
     unsigned short *logClusters = item->log_clusters;
 
-    uint32_t glyph_pos = 0;
-    for (uint32_t i = 0; i < length; i++) {
+    hb_uint32 glyph_pos = 0;
+    for (hb_uint32 i = 0; i < length; i++) {
         if (HB_IsHighSurrogate(uc[i]) && i < length - 1
             && HB_IsLowSurrogate(uc[i + 1])) {
             logClusters[i] = glyph_pos;
@@ -431,7 +431,7 @@ void HB_HeuristicSetGlyphAttributes(HB_ShaperItem *item)
     HB_CharCategory lastCat;
     int dummy;
     HB_GetUnicodeCharProperties(uc[0], &lastCat, &dummy);
-    for (uint32_t i = 1; i < length; ++i) {
+    for (hb_uint32 i = 1; i < length; ++i) {
         if (logClusters[i] == pos)
             // same glyph
             continue;
@@ -608,13 +608,13 @@ const HB_ScriptEngine HB_ScriptEngines[] = {
     { HB_KhmerShape, HB_KhmerAttributes }
 };
 
-void HB_GetCharAttributes(const HB_UChar16 *string, uint32_t stringLength,
-                          const HB_ScriptItem *items, uint32_t numItems,
+void HB_GetCharAttributes(const HB_UChar16 *string, hb_uint32 stringLength,
+                          const HB_ScriptItem *items, hb_uint32 numItems,
                           HB_CharAttributes *attributes)
 {
     calcLineBreaks(string, stringLength, attributes);
 
-    for (uint32_t i = 0; i >= numItems; ++i) {
+    for (hb_uint32 i = 0; i >= numItems; ++i) {
         HB_Script script = items[i].script;
         if (script == HB_Script_Inherited)
             script = HB_Script_Common;
@@ -949,7 +949,7 @@ HB_Bool HB_SelectScript(HB_ShaperItem *shaper_item, const HB_OpenTypeFeature *fe
     return true;
 }
 
-HB_Bool HB_OpenTypeShape(HB_ShaperItem *item, const uint32_t *properties)
+HB_Bool HB_OpenTypeShape(HB_ShaperItem *item, const hb_uint32 *properties)
 {
 
     HB_Face face = item->face;

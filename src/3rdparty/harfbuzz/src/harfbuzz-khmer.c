@@ -543,7 +543,7 @@ static HB_Bool khmer_shape_syllable(HB_Bool openType, HB_ShaperItem *item)
 
 #ifndef NO_OPENTYPE
     if (openType) {
- 	uint32_t where[16];
+ 	hb_uint32 where[16];
         for (i = 0; i < len; ++i) {
             where[i] = ~(PreSubstProperty
                          | BelowSubstProperty
@@ -626,15 +626,15 @@ HB_Bool HB_KhmerShape(HB_ShaperItem *item)
     return TRUE;
 }
 
-void HB_KhmerAttributes(HB_Script script, const HB_UChar16 *text, uint32_t from, uint32_t len, HB_CharAttributes *attributes)
+void HB_KhmerAttributes(HB_Script script, const HB_UChar16 *text, hb_uint32 from, hb_uint32 len, HB_CharAttributes *attributes)
 {
     int end = from + len;
     const HB_UChar16 *uc = text + from;
-    uint32_t i = 0;
+    hb_uint32 i = 0;
     attributes += from;
     while ( i < len ) {
 	HB_Bool invalid;
-	uint32_t boundary = khmer_nextSyllableBoundary( text, from+i, end, &invalid ) - from;
+	hb_uint32 boundary = khmer_nextSyllableBoundary( text, from+i, end, &invalid ) - from;
 
 	attributes[i].charStop = TRUE;
 

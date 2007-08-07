@@ -712,7 +712,7 @@ static HB_Error  Get_Anchor( GPOS_Instance*   gpi,
   case 2:
     if ( !gpi->dvi )
     {
-      uint32_t n_points = 0;
+      hb_uint32 n_points = 0;
       ap = an->af.af2.AnchorPoint;
       if (!gpi->font->klass->getPointInOutline)
           goto no_contour_point;

@@ -88,10 +88,10 @@ typedef enum {
 
 typedef struct
 {
-    uint32_t pos;
-    uint32_t length;
+    hb_uint32 pos;
+    hb_uint32 length;
     HB_Script script;
-    uint8_t bidiLevel;
+    hb_uint8 bidiLevel;
 } HB_ScriptItem;
 
 typedef enum {
@@ -109,8 +109,8 @@ typedef struct {
     unsigned int unused                  :4;
 } HB_CharAttributes;
 
-void HB_GetCharAttributes(const HB_UChar16 *string, uint32_t stringLength,
-                          const HB_ScriptItem *items, uint32_t numItems,
+void HB_GetCharAttributes(const HB_UChar16 *string, hb_uint32 stringLength,
+                          const HB_ScriptItem *items, hb_uint32 numItems,
                           HB_CharAttributes *attributes);
 
 
@@ -184,11 +184,11 @@ typedef struct {
 } HB_GlyphMetrics;
 
 typedef struct {
-    HB_Bool  (*stringToGlyphs)(HB_Font font, const HB_UChar16 *string, uint32_t length, HB_Glyph *glyphs, uint32_t *numGlyphs, HB_Bool rightToLeft);
+    HB_Bool  (*stringToGlyphs)(HB_Font font, const HB_UChar16 *string, hb_uint32 length, HB_Glyph *glyphs, hb_uint32 *numGlyphs, HB_Bool rightToLeft);
     void     (*getAdvances)(HB_Font font, const HB_Glyph *glyphs, int numGlyphs, HB_Fixed *advances, int flags /*HB_ShaperFlag*/);
-    HB_Bool  (*canRender)(HB_Font font, const HB_UChar16 *string, uint32_t length);
+    HB_Bool  (*canRender)(HB_Font font, const HB_UChar16 *string, hb_uint32 length);
     /* implementation needs to make sure to load a scaled glyph, so /no/ FT_LOAD_NO_SCALE */
-    HB_Error (*getPointInOutline)(HB_Font font, HB_Glyph glyph, int flags /*HB_ShaperFlag*/, uint32_t point, HB_Fixed *xpos, HB_Fixed *ypos, uint32_t *nPoints);
+    HB_Error (*getPointInOutline)(HB_Font font, HB_Glyph glyph, int flags /*HB_ShaperFlag*/, hb_uint32 point, HB_Fixed *xpos, HB_Fixed *ypos, hb_uint32 *nPoints);
     void     (*getGlyphMetrics)(HB_Font font, HB_Glyph glyph, HB_GlyphMetrics *metrics);
     HB_Fixed (*getAscent)(HB_Font font);
 } HB_FontClass;
@@ -206,16 +206,16 @@ typedef struct HB_Font_ {
 
 typedef struct {
     const HB_UChar16 *string;
-    uint32_t stringLength;
+    hb_uint32 stringLength;
     HB_ScriptItem item;
     HB_Font font;
     HB_Face face;
     int shaperFlags; /* HB_ShaperFlags */
 
     HB_Bool glyphIndicesPresent; /* set to true if the glyph indicies are already setup in the glyphs array */
-    uint32_t initialGlyphCount;
+    hb_uint32 initialGlyphCount;
 
-    uint32_t num_glyphs; /* in: available glyphs out: glyphs used/needed */
+    hb_uint32 num_glyphs; /* in: available glyphs out: glyphs used/needed */
     HB_Glyph *glyphs; /* out parameter */
     HB_GlyphAttributes *attributes; /* out */
     HB_Fixed *advances; /* out */

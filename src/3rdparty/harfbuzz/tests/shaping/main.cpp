@@ -34,7 +34,7 @@ static FT_Face loadFace(const char *name)
     return face;
 }
 
-static HB_UChar32 getChar(const HB_UChar16 *string, uint32_t length, uint32_t &i)
+static HB_UChar32 getChar(const HB_UChar16 *string, hb_uint32 length, hb_uint32 &i)
 {
     HB_UChar32 ch;
     if (HB_IsHighSurrogate(string[i])
@@ -48,14 +48,14 @@ static HB_UChar32 getChar(const HB_UChar16 *string, uint32_t length, uint32_t &i
     return ch;
 }
 
-static HB_Bool hb_stringToGlyphs(HB_Font font, const HB_UChar16 *string, uint32_t length, HB_Glyph *glyphs, uint32_t *numGlyphs, HB_Bool /*rightToLeft*/)
+static HB_Bool hb_stringToGlyphs(HB_Font font, const HB_UChar16 *string, hb_uint32 length, HB_Glyph *glyphs, hb_uint32 *numGlyphs, HB_Bool /*rightToLeft*/)
 {
     FT_Face face = (FT_Face)font->faceData;
     if (length > *numGlyphs)
         return false;
 
     int glyph_pos = 0;
-    for (uint32_t i = 0; i < length; ++i) {
+    for (hb_uint32 i = 0; i < length; ++i) {
         glyphs[glyph_pos] = FT_Get_Char_Index(face, getChar(string, length, i));
         ++glyph_pos;
     }
@@ -71,11 +71,11 @@ static void hb_getAdvances(HB_Font /*font*/, const HB_Glyph * /*glyphs*/, int nu
         advances[i] = 0; // ### not tested right now
 }
 
-static HB_Bool hb_canRender(HB_Font font, const HB_UChar16 *string, uint32_t length)
+static HB_Bool hb_canRender(HB_Font font, const HB_UChar16 *string, hb_uint32 length)
 {
     FT_Face face = (FT_Face)font->faceData;
 
-    for (uint32_t i = 0; i < length; ++i)
+    for (hb_uint32 i = 0; i < length; ++i)
         if (!FT_Get_Char_Index(face, getChar(string, length, i)))
             return false;
 
@@ -96,7 +96,7 @@ static HB_Error hb_getSFntTable(void *font, HB_Tag tableTag, HB_Byte *buffer, HB
     return (HB_Error)error;
 }
 
-HB_Error hb_getPointInOutline(HB_Font font, HB_Glyph glyph, int flags, uint32_t point, HB_Fixed *xpos, HB_Fixed *ypos, uint32_t *nPoints)
+HB_Error hb_getPointInOutline(HB_Font font, HB_Glyph glyph, int flags, hb_uint32 point, HB_Fixed *xpos, HB_Fixed *ypos, hb_uint32 *nPoints)
 {
     HB_Error error = HB_Err_Ok;
     FT_Face face = (FT_Face)font->faceData;
@@ -254,7 +254,7 @@ static bool shaping(FT_Face face, const ShapeTable *s, HB_Script script)
 
     HB_FreeFace(hbFace);
 
-    uint32_t nglyphs = 0;
+    hb_uint32 nglyphs = 0;
     const unsigned short *g = s->glyphs;
     while ( *g ) {
 	nglyphs++;
@@ -264,7 +264,7 @@ static bool shaping(FT_Face face, const ShapeTable *s, HB_Script script)
     if( nglyphs != shaper_item.num_glyphs )
 	goto error;
 
-    for (uint32_t i = 0; i < nglyphs; ++i) {
+    for (hb_uint32 i = 0; i < nglyphs; ++i) {
 	if ((shaper_item.glyphs[i]&0xffffff) != s->glyphs[i])
 	    goto error;
     }
@@ -282,7 +282,7 @@ static bool shaping(FT_Face face, const ShapeTable *s, HB_Script script)
            shaper_item.num_glyphs, nglyphs);
 
     str = "";
-    uint32_t i = 0;
+    hb_uint32 i = 0;
     while (i < shaper_item.num_glyphs) {
 	str += QString("%1 ").arg(shaper_item.glyphs[i], 4, 16);
 	++i;

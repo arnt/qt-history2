@@ -75,7 +75,7 @@ typedef enum {
 
 /* return true if ok. */
 typedef HB_Bool (*HB_ShapeFunction)(HB_ShaperItem *shaper_item);
-typedef void (*HB_AttributeFunction)(HB_Script script, const HB_UChar16 *string, uint32_t from, uint32_t len, HB_CharAttributes *attributes);
+typedef void (*HB_AttributeFunction)(HB_Script script, const HB_UChar16 *string, hb_uint32 from, hb_uint32 len, HB_CharAttributes *attributes);
 
 typedef struct {
     HB_ShapeFunction shape;
@@ -93,24 +93,24 @@ extern HB_Bool HB_MyanmarShape(HB_ShaperItem *shaper_item);
 extern HB_Bool HB_KhmerShape(HB_ShaperItem *shaper_item);
 extern HB_Bool HB_IndicShape(HB_ShaperItem *shaper_item);
 
-extern void HB_TibetanAttributes(HB_Script script, const HB_UChar16 *string, uint32_t from, uint32_t len, HB_CharAttributes *attributes);
+extern void HB_TibetanAttributes(HB_Script script, const HB_UChar16 *string, hb_uint32 from, hb_uint32 len, HB_CharAttributes *attributes);
 
-extern void HB_MyanmarAttributes(HB_Script script, const HB_UChar16 *string, uint32_t from, uint32_t len, HB_CharAttributes *attributes);
+extern void HB_MyanmarAttributes(HB_Script script, const HB_UChar16 *string, hb_uint32 from, hb_uint32 len, HB_CharAttributes *attributes);
 
-extern void HB_KhmerAttributes(HB_Script script, const HB_UChar16 *string, uint32_t from, uint32_t len, HB_CharAttributes *attributes);
+extern void HB_KhmerAttributes(HB_Script script, const HB_UChar16 *string, hb_uint32 from, hb_uint32 len, HB_CharAttributes *attributes);
 
-extern void HB_IndicAttributes(HB_Script script, const HB_UChar16 *string, uint32_t from, uint32_t len, HB_CharAttributes *attributes);
+extern void HB_IndicAttributes(HB_Script script, const HB_UChar16 *string, hb_uint32 from, hb_uint32 len, HB_CharAttributes *attributes);
 
 typedef struct {
-    uint32_t tag;
-    uint32_t property;
+    hb_uint32 tag;
+    hb_uint32 property;
 } HB_OpenTypeFeature;
 
 #define PositioningProperties 0x80000000
 
 HB_Bool HB_SelectScript(HB_ShaperItem *item, const HB_OpenTypeFeature *features);
 
-HB_Bool HB_OpenTypeShape(HB_ShaperItem *item, const uint32_t *properties);
+HB_Bool HB_OpenTypeShape(HB_ShaperItem *item, const hb_uint32 *properties);
 HB_Bool HB_OpenTypePosition(HB_ShaperItem *item, int availableGlyphs, HB_Bool doLogClusters);
 
 void HB_HeuristicPosition(HB_ShaperItem *item);

@@ -64,15 +64,15 @@ HB_Bool HB_HebrewShape(HB_ShaperItem *shaper_item)
         HB_Bool haveGlyphs;
         int slen = 1;
         int cluster_start = 0;
-        uint32_t i;
+        hb_uint32 i;
 
         HB_STACKARRAY(HB_UChar16, shapedChars, 2 * shaper_item->item.length);
         *shapedChars = *uc;
         logClusters[0] = 0;
 
         for (i = 1; i < shaper_item->item.length; ++i) {
-            uint16_t base = shapedChars[slen-1];
-            uint16_t shaped = 0;
+            hb_uint16 base = shapedChars[slen-1];
+            hb_uint16 shaped = 0;
             HB_Bool invalid = FALSE;
             if (uc[i] == Dagesh) {
                 if (base >= 0x5d0

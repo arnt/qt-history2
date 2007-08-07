@@ -11,7 +11,6 @@
 #ifndef HARFBUZZ_GLOBAL_H
 #define HARFBUZZ_GLOBAL_H
 
-#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -25,26 +24,33 @@
 
 HB_BEGIN_HEADER
 
-typedef uint8_t HB_Bool;
+typedef char hb_int8;
+typedef unsigned char hb_uint8;
+typedef short hb_int16;
+typedef unsigned short hb_uint16;
+typedef int hb_int32;
+typedef unsigned int hb_uint32;
 
-typedef uint8_t HB_Byte;
-typedef uint16_t HB_UShort;
-typedef uint32_t HB_UInt;
-typedef int8_t HB_Char;
-typedef int16_t HB_Short;
-typedef int32_t HB_Int;
+typedef hb_uint8 HB_Bool;
 
-typedef uint16_t HB_UChar16;
-typedef uint32_t HB_UChar32;
-typedef uint32_t HB_Glyph;
-typedef int32_t HB_Fixed; /* 26.6 */
+typedef hb_uint8 HB_Byte;
+typedef hb_uint16 HB_UShort;
+typedef hb_uint32 HB_UInt;
+typedef hb_int8 HB_Char;
+typedef hb_int16 HB_Short;
+typedef hb_int32 HB_Int;
+
+typedef hb_uint16 HB_UChar16;
+typedef hb_uint32 HB_UChar32;
+typedef hb_uint32 HB_Glyph;
+typedef hb_int32 HB_Fixed; /* 26.6 */
 
 #define HB_FIXED_CONSTANT(v) ((v) * 64)
 
-typedef int32_t HB_16Dot16; /* 16.16 */
+typedef hb_int32 HB_16Dot16; /* 16.16 */
 
 typedef void * HB_Pointer;
-typedef uint32_t HB_Tag;
+typedef hb_uint32 HB_Tag;
 
 #ifndef FALSE
 #define FALSE 0

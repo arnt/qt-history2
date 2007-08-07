@@ -480,7 +480,7 @@ static void getArabicProperties(const unsigned short *chars, int len, HB_ArabicP
 // does only presentation forms B at the moment, but that should be enough for
 // simple display
 */
-static const uint16_t arabicUnicodeMapping[256][2] = {
+static const hb_uint16 arabicUnicodeMapping[256][2] = {
     /* base of shaped forms, and number-1 of them (0 for non shaping,
        1 for right binding and 3 for dual binding */
 
@@ -761,14 +761,14 @@ static const uint16_t arabicUnicodeMapping[256][2] = {
 };
 
 /* the arabicUnicodeMapping does not work for U+0649 ALEF MAKSURA, this table does */
-static const uint16_t alefMaksura[4] = {0xFEEF, 0xFEF0, 0xFBE8, 0xFBE9};
+static const hb_uint16 alefMaksura[4] = {0xFEEF, 0xFEF0, 0xFBE8, 0xFBE9};
 
 /*
 // this is a bit tricky. Alef always binds to the right, so the second parameter descibing the shape
 // of the lam can be either initial of medial. So initial maps to the isolated form of the ligature,
 // medial to the final form
 */
-static const uint16_t arabicUnicodeLamAlefMapping[6][4] = {
+static const hb_uint16 arabicUnicodeLamAlefMapping[6][4] = {
     { 0xfffd, 0xfffd, 0xfef5, 0xfef6 }, /* 0x622        R       Alef with Madda above */
     { 0xfffd, 0xfffd, 0xfef7, 0xfef8 }, /* 0x623        R       Alef with Hamza above */
     { 0xfffd, 0xfffd, 0xfffd, 0xfffd }, /* 0x624        // Just to fill the table ;-) */
@@ -777,7 +777,7 @@ static const uint16_t arabicUnicodeLamAlefMapping[6][4] = {
     { 0xfffd, 0xfffd, 0xfefb, 0xfefc }  /* 0x627        R       Alef */
 };
 
-static int getShape(uint8_t cell, int shape)
+static int getShape(hb_uint8 cell, int shape)
 {
     /* the arabicUnicodeMapping does not work for U+0649 ALEF MAKSURA, handle this here */
     int ch = (cell != 0x49)
@@ -804,7 +804,7 @@ static HB_UChar16 prevChar(const HB_UChar16 *str, int pos)
     return ReplacementCharacter;
 }
 
-static HB_UChar16 nextChar(const HB_UChar16 *str, uint32_t len, uint32_t pos)
+static HB_UChar16 nextChar(const HB_UChar16 *str, hb_uint32 len, hb_uint32 pos)
 {
     const HB_UChar16 *ch = str + pos + 1;
     pos++;
@@ -819,16 +819,16 @@ static HB_UChar16 nextChar(const HB_UChar16 *str, uint32_t len, uint32_t pos)
     return ReplacementCharacter;
 }
 
-static void shapedString(const HB_UChar16 *uc, uint32_t stringLength, uint32_t from, uint32_t len, HB_UChar16 *shapeBuffer, int *shapedLength,
+static void shapedString(const HB_UChar16 *uc, hb_uint32 stringLength, hb_uint32 from, hb_uint32 len, HB_UChar16 *shapeBuffer, int *shapedLength,
                          HB_Bool reverse, HB_GlyphAttributes *attributes, unsigned short *logClusters)
 {
     HB_ArabicProperties *properties;
-    int32_t f = from;
-    uint32_t l = len;
+    hb_int32 f = from;
+    hb_uint32 l = len;
     const HB_UChar16 *ch;
     HB_UChar16 *data;
     int clusterStart;
-    uint32_t i;
+    hb_uint32 i;
     HB_STACKARRAY(HB_ArabicProperties, props, len + 2);
     properties = props;
 
@@ -853,7 +853,7 @@ static void shapedString(const HB_UChar16 *uc, uint32_t stringLength, uint32_t f
     clusterStart = 0;
 
     for (i = 0; i < len; i++) {
-        uint8_t r = *ch >> 8;
+        hb_uint8 r = *ch >> 8;
         int gpos = data - shapeBuffer;
 
         if (r != 0x06) {
@@ -867,12 +867,12 @@ static void shapedString(const HB_UChar16 *uc, uint32_t stringLength, uint32_t f
             else
                 *data = *ch;
         } else {
-            uint8_t c = *ch & 0xff;
+            hb_uint8 c = *ch & 0xff;
             int pos = i + from;
             int shape = properties[i].shape;
 /*            qDebug("mapping U+%x to shape %d glyph=0x%x", ch->unicode(), shape, getShape(c, shape)); */
             /* take care of lam-alef ligatures (lam right of alef) */
-            uint16_t map;
+            hb_uint16 map;
             switch (c) {
                 case 0x44: { /* lam */
                     const HB_UChar16 pch = nextChar(uc, stringLength, pos);
@@ -968,11 +968,11 @@ static HB_Bool arabicSyriacOpenTypeShape(HB_ShaperItem *item, HB_Bool *ot_ok)
 {
     const HB_UChar16 *uc;
     const int nglyphs = item->num_glyphs;
-    int32_t f;
-    uint32_t l;
+    hb_int32 f;
+    hb_uint32 l;
     HB_ArabicProperties *properties;
     HB_DECLARE_STACKARRAY(HB_ArabicProperties, props)
-    HB_DECLARE_STACKARRAY(uint32_t, apply)
+    HB_DECLARE_STACKARRAY(hb_uint32, apply)
     HB_Bool shaped;
     int i = 0;
 
@@ -983,7 +983,7 @@ static HB_Bool arabicSyriacOpenTypeShape(HB_ShaperItem *item, HB_Bool *ot_ok)
     HB_HeuristicSetGlyphAttributes(item);
 
     HB_INIT_STACKARRAY(HB_ArabicProperties, props, item->item.length + 2);
-    HB_INIT_STACKARRAY(uint32_t, apply, item->num_glyphs);
+    HB_INIT_STACKARRAY(hb_uint32, apply, item->num_glyphs);
 
     uc = item->string + item->item.pos;
 

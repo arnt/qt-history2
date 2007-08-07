@@ -909,7 +909,7 @@ enum IndicScriptProperties {
     HasSplit = 0x02
 };
 
-const uint8_t scriptProperties[10] = {
+const hb_uint8 scriptProperties[10] = {
     // Devanagari,
     HasReph,
     // Bengali,
@@ -1183,7 +1183,7 @@ static bool indic_shape_syllable(HB_Bool openType, HB_ShaperItem *item, bool inv
     }
 
     HB_STACKARRAY(HB_UChar16, reordered, len + 4);
-    HB_STACKARRAY(uint8_t, position, len + 4);
+    HB_STACKARRAY(hb_uint8, position, len + 4);
 
     unsigned char properties = scriptProperties[script-HB_Script_Devanagari];
 
@@ -1637,7 +1637,7 @@ static bool indic_shape_syllable(HB_Bool openType, HB_ShaperItem *item, bool inv
 
         if (control) {
             IDEBUG("found a control char in the syllable");
-            uint32_t i = 0, j = 0;
+            hb_uint32 i = 0, j = 0;
             while (i < item->num_glyphs) {
                 if (form(reordered[otl_glyphs[i].cluster]) == Control) {
                     ++i;
@@ -1793,7 +1793,7 @@ HB_Bool HB_IndicShape(HB_ShaperItem *item)
         }
         // fix logcluster array
         IDEBUG("syllable:");
-        for (uint32_t i = first_glyph; i < first_glyph + syllable.num_glyphs; ++i)
+        for (hb_uint32 i = first_glyph; i < first_glyph + syllable.num_glyphs; ++i)
             IDEBUG("        %d -> glyph %x", i, item->glyphs[i]);
         IDEBUG("    logclusters:");
         for (int i = sstart; i < send; ++i) {
@@ -1807,15 +1807,15 @@ HB_Bool HB_IndicShape(HB_ShaperItem *item)
     return true;
 }
 
-void HB_IndicAttributes(HB_Script script, const HB_UChar16 *text, uint32_t from, uint32_t len, HB_CharAttributes *attributes)
+void HB_IndicAttributes(HB_Script script, const HB_UChar16 *text, hb_uint32 from, hb_uint32 len, HB_CharAttributes *attributes)
 {
     int end = from + len;
     const HB_UChar16 *uc = text + from;
     attributes += from;
-    uint32_t i = 0;
+    hb_uint32 i = 0;
     while (i < len) {
         bool invalid;
-        uint32_t boundary = indic_nextSyllableBoundary(script, text, from+i, end, &invalid) - from;
+        hb_uint32 boundary = indic_nextSyllableBoundary(script, text, from+i, end, &invalid) - from;
          attributes[i].charStop = true;
 
         if (boundary > len-1) boundary = len;

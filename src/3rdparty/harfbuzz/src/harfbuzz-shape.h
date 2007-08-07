@@ -2,11 +2,11 @@
 
 /* Base Types */
 
-typedef uint16_t HB_CodePoint; /* UTF-16 codepoint (not character ) */
+typedef hb_uint16 HB_CodePoint; /* UTF-16 codepoint (not character ) */
 typedef char HB_Boolean;
-typedef uint32_t HB_Fixed; /* 26.6 */
-typedef uint32_t HB_Glyph;
-typedef uint32_t HB_Unichar;
+typedef hb_uint32 HB_Fixed; /* 26.6 */
+typedef hb_uint32 HB_Glyph;
+typedef hb_uint32 HB_Unichar;
 
 /* Metrics reported by the font backend for use of the shaper */
 typedef struct _HB_GlyphMetrics HB_GlyphMetrics;
