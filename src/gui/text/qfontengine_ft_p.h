@@ -147,7 +147,7 @@ public:
     QFontEngine::FaceId faceId() const;
     QFontEngine::Properties properties() const;
 
-    bool getSfntTable(uint tag, uchar *buffer, uint *length) const;
+    bool getSfntTableData(uint tag, uchar *buffer, uint *length) const;
     int synthesized() const;
 
     QFixed ascent() const;

@@ -941,7 +941,7 @@ QFontEngine::Properties QFontEngineFT::properties() const
     return freetype->properties();
 }
 
-bool QFontEngineFT::getSfntTable(uint tag, uchar *buffer, uint *length) const
+bool QFontEngineFT::getSfntTableData(uint tag, uchar *buffer, uint *length) const
 {
     return freetype->getSfntTable(tag, buffer, length);
 }

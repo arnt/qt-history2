@@ -687,7 +687,7 @@ void QTextEngine::shapeText(int item) const
 static HB_Error hb_getSFntTable(void *font, HB_Tag tableTag, HB_Byte *buffer, HB_UInt *length)
 {
     QFontEngine *fe = (QFontEngine *)font;
-    if (!fe->getSfntTable(tableTag, buffer, length))
+    if (!fe->getSfntTableData(tableTag, buffer, length))
         return HB_Err_Invalid_Argument;
     return HB_Err_Ok;
 }

@@ -474,12 +474,12 @@ QByteArray QFontEngine::getSfntTable(uint tag) const
 {
     QByteArray table;
     uint len = 0;
-    if (!getSfntTable(tag, 0, &len))
+    if (!getSfntTableData(tag, 0, &len))
         return table;
     if (!len)
         return table;
     table.resize(len);
-    if (!getSfntTable(tag, reinterpret_cast<uchar *>(table.data()), &len))
+    if (!getSfntTableData(tag, reinterpret_cast<uchar *>(table.data()), &len))
         return QByteArray();
     return table;
 }
