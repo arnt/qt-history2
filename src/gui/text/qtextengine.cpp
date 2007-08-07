@@ -746,15 +746,18 @@ static void hb_getGlyphMetrics(HB_Font font, HB_Glyph glyph, HB_GlyphMetrics *me
     metrics->yOffset = m.yoff.value();
 }
 
-static HB_Fixed hb_getAscent(HB_Font font)
+static HB_Fixed hb_getFontMetric(HB_Font font, HB_FontMetric metric)
 {
-    QFontEngine *fe = (QFontEngine *)font->userData;
-    return fe->ascent().value();
+    if (metric == HB_FontAscent) {
+        QFontEngine *fe = (QFontEngine *)font->userData;
+        return fe->ascent().value();
+    }
+    return 0;
 }
 
 const HB_FontClass hb_fontClass = {
     hb_stringToGlyphs, hb_getAdvances, hb_canRender, /*getPointInOutline*/0,
-    hb_getGlyphMetrics, hb_getAscent
+    hb_getGlyphMetrics, hb_getFontMetric
 };
 
 static bool stringToGlyphs(HB_ShaperItem *item, HB_Glyph *itemGlyphs, QFontEngine *fontEngine)
