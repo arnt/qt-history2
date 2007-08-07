@@ -237,7 +237,6 @@ void QFontDatabase::load(const QFontPrivate *d, int script)
     }
 
     if(e) {
-        Q_ASSERT(e->type() == QFontEngine::Multi || e->type() == QFontEngine::TestFontEngine);
         e->ref.ref();
         d->engineData->engine = e;
         return; // the font info and fontdef should already be filled
