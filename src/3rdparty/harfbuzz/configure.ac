@@ -53,7 +53,6 @@ AM_CONDITIONAL(QT, [test "x$QT" = xyes])
 AC_OUTPUT([
 Makefile
 src/Makefile
-test/Makefile
 tests/Makefile
 tests/linebreaking/Makefile
 tests/shaping/Makefile
