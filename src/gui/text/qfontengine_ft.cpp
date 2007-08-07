@@ -97,16 +97,17 @@ static HB_Stream hb_getSFntTable(HB_Font font, HB_Tag tableTag)
     FT_Error error;
     FT_ULong length = 0;
     HB_Stream stream = 0;
-    
-    if ( !FT_IS_SFNT(font->freetypeFace) ) 
+    FT_Face face = (FT_Face)font->faceData;
+
+    if ( !FT_IS_SFNT(face) ) 
         return 0;
 
-    error = FT_Load_Sfnt_Table(font->freetypeFace, tableTag, 0, 0, &length);
+    error = FT_Load_Sfnt_Table(face, tableTag, 0, 0, &length);
     if (error)
         return 0;
     stream = (HB_Stream)malloc(sizeof(HB_StreamRec));
     stream->base = (HB_Byte*)malloc(length);
-    error = FT_Load_Sfnt_Table(font->freetypeFace, tableTag, 0, stream->base, NULL);
+    error = FT_Load_Sfnt_Table(face, tableTag, 0, stream->base, NULL);
     if (error) {
         HB_close_stream(stream);
         return 0;
@@ -117,25 +118,28 @@ static HB_Stream hb_getSFntTable(HB_Font font, HB_Tag tableTag)
     return stream;
 }
 
-HB_Error hb_getPointInOutline(HB_Font font, HB_Glyph glyph, int load_flags, uint32_t point, HB_Fixed *xpos, HB_Fixed *ypos, uint32_t *nPoints)
+HB_Error hb_getPointInOutline(HB_Font font, HB_Glyph glyph, int flags, uint32_t point, HB_Fixed *xpos, HB_Fixed *ypos, uint32_t *nPoints)
 {
     HB_Error error = HB_Err_Ok;
+    FT_Face face = (FT_Face)font->faceData;
 
-    if ((error = (HB_Error)FT_Load_Glyph(font->freetypeFace, glyph, load_flags)))
+    int load_flags = (flags & HB_ShaperFlag_UseDesignMetrics) ? FT_LOAD_NO_HINTING : FT_LOAD_DEFAULT;
+
+    if ((error = (HB_Error)FT_Load_Glyph(face, glyph, load_flags)))
         return error;
 
-    if (font->freetypeFace->glyph->format != FT_GLYPH_FORMAT_OUTLINE)
+    if (face->glyph->format != FT_GLYPH_FORMAT_OUTLINE)
         return (HB_Error)HB_Err_Invalid_GPOS_SubTable;
 
-    *nPoints = font->freetypeFace->glyph->outline.n_points;
+    *nPoints = face->glyph->outline.n_points;
     if (!(*nPoints))
         return HB_Err_Ok;
 
     if (point > *nPoints)
         return (HB_Error)HB_Err_Invalid_GPOS_SubTable;
 
-    *xpos = font->freetypeFace->glyph->outline.points[point].x;
-    *ypos = font->freetypeFace->glyph->outline.points[point].y;
+    *xpos = face->glyph->outline.points[point].x;
+    *ypos = face->glyph->outline.points[point].y;
 
     return HB_Err_Ok;
 }
@@ -228,7 +232,7 @@ QFreetypeFace *QFreetypeFace::getFace(const QFontEngine::FaceId &face_id)
 
         freetype->hbBaseFont.klass = &hb_fontClass;
         freetype->hbBaseFont.userData = 0;
-        freetype->hbBaseFont.freetypeFace = face;
+        freetype->hbBaseFont.faceData = face;
         freetype->hbFace = HB_NewFace(&freetype->hbBaseFont);
         freetype->ref = 0;
         freetype->xsize = 0;
