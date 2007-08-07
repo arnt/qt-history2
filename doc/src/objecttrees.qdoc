@@ -17,7 +17,7 @@ user closes that window, the shorcut is deleted too.
 extends the parent-child relationship. A child normally also becomes a
 child widget, i.e. it is displayed in its parent's coordinate system
 and is graphically clipped by its parent's boundaries. For example,
-when the an application deletes a message box after it has been
+when the application deletes a message box after it has been
 closed, the message box's buttons and label are also deleted, just as
 we'd want, because the buttons and label are children of the message
 box.
