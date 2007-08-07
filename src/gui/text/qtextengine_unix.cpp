@@ -228,6 +228,8 @@ void QTextEngine::shapeText(int item) const
             shaper_item.face = qHBNewFace(0, 0);
         }
 
+        shaper_item.glyphIndicesPresent = true;
+
         while (1) {
             ensureSpace(glyph_pos + shaper_item.num_glyphs);
             shaper_item.num_glyphs = layoutData->num_glyphs - layoutData->used - glyph_pos;
@@ -242,8 +244,10 @@ void QTextEngine::shapeText(int item) const
             memset(hb_advances.data(), 0, hb_advances.size() * sizeof(HB_Fixed));
             memset(hb_offsets.data(), 0, hb_offsets.size() * sizeof(HB_FixedPoint));
 
-            memcpy(hb_glyphs.data(), hb_initial_glyphs.data() + initial_glyph_pos, sizeof(HB_Glyph) * shaper_item.initialGlyphCount);
-            shaper_item.glyphIndicesPresent = true;
+            if (shaper_item.glyphIndicesPresent) {
+                for (uint32_t i = 0; i < shaper_item.initialGlyphCount; ++i)
+                    hb_glyphs[i] = hb_initial_glyphs[initial_glyph_pos + i] & 0x00ffffff;
+            }
 
             shaper_item.glyphs = hb_glyphs.data();
             shaper_item.attributes = hb_attributes.data();
