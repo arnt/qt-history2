@@ -108,10 +108,10 @@ static HB_Bool tibetan_shape_syllable(HB_Bool openType, HB_ShaperItem *item, HB_
         str = reordered;
     }
 
-    haveGlyphs = item->font->klass->stringToGlyphs(item->font,
-                                                   str, len,
-                                                   item->glyphs, &item->num_glyphs,
-                                                   item->item.bidiLevel % 2);
+    haveGlyphs = item->font->klass->convertStringToGlyphIndices(item->font,
+                                                                str, len,
+                                                                item->glyphs, &item->num_glyphs,
+                                                                item->item.bidiLevel % 2);
 
     HB_FREE_STACKARRAY(reordered);
 

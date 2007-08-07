@@ -46,7 +46,7 @@ HB_Bool HB_HebrewShape(HB_ShaperItem *shaper_item)
     if (HB_SelectScript(shaper_item, hebrew_features)) {
 
         const int availableGlyphs = shaper_item->num_glyphs;
-        if (!HB_StringToGlyphs(shaper_item))
+        if (!HB_ConvertStringToGlyphIndices(shaper_item))
             return FALSE;
 
 
@@ -155,10 +155,11 @@ HB_Bool HB_HebrewShape(HB_ShaperItem *shaper_item)
             logClusters[i] = cluster_start;
         }
 
-        haveGlyphs = shaper_item->font->klass->stringToGlyphs(shaper_item->font,
-                                                                      shapedChars, slen,
-                                                                      shaper_item->glyphs, &shaper_item->num_glyphs,
-                                                                      shaper_item->item.bidiLevel % 2);
+        haveGlyphs = shaper_item->font->klass
+            ->convertStringToGlyphIndices(shaper_item->font,
+                                          shapedChars, slen,
+                                          shaper_item->glyphs, &shaper_item->num_glyphs,
+                                          shaper_item->item.bidiLevel % 2);
 
         HB_FREE_STACKARRAY(shapedChars);
 

@@ -121,13 +121,13 @@ void HB_HeuristicSetGlyphAttributes(HB_ShaperItem *item);
      || (uc >= 0x2028 && uc <= 0x202f /* LS, PS, LRE, RLE, PDF, LRO, RLO, NNBSP */) \
      || (uc >= 0x206a && uc <= 0x206f /* ISS, ASS, IAFS, AFS, NADS, NODS */))
 
-HB_Bool HB_StringToGlyphs(HB_ShaperItem *shaper_item);
+HB_Bool HB_ConvertStringToGlyphIndices(HB_ShaperItem *shaper_item);
 
-#define HB_GetAdvances(shaper_item) \
-    shaper_item->font->klass->getAdvances(shaper_item->font, \
-                                          shaper_item->glyphs, shaper_item->num_glyphs, \
-                                          shaper_item->advances, \
-                                          shaper_item->face->current_flags);
+#define HB_GetGlyphAdvances(shaper_item) \
+    shaper_item->font->klass->getGlyphAdvances(shaper_item->font, \
+                                               shaper_item->glyphs, shaper_item->num_glyphs, \
+                                               shaper_item->advances, \
+                                               shaper_item->face->current_flags);
 
 #define HB_DECLARE_STACKARRAY(Type, Name) \
     Type stack##Name[512]; \

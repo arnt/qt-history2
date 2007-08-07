@@ -978,7 +978,7 @@ static HB_Bool arabicSyriacOpenTypeShape(HB_ShaperItem *item, HB_Bool *ot_ok)
 
     *ot_ok = TRUE;
 
-    if (!HB_StringToGlyphs(item))
+    if (!HB_ConvertStringToGlyphIndices(item))
         return FALSE;
     HB_HeuristicSetGlyphAttributes(item);
 
@@ -1056,10 +1056,11 @@ HB_Bool HB_ArabicShape(HB_ShaperItem *item)
                   item->item.bidiLevel % 2,
                   item->attributes, item->log_clusters);
 
-    haveGlyphs = item->font->klass->stringToGlyphs(item->font,
-                                                   shapedChars, slen,
-                                                   item->glyphs, &item->num_glyphs,
-                                                   item->item.bidiLevel % 2);
+    haveGlyphs = item->font->klass
+        ->convertStringToGlyphIndices(item->font,
+                                      shapedChars, slen,
+                                      item->glyphs, &item->num_glyphs,
+                                      item->item.bidiLevel % 2);
 
     HB_FREE_STACKARRAY(shapedChars);
 

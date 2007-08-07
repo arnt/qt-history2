@@ -157,10 +157,10 @@ static HB_Bool hangul_shape_syllable(HB_ShaperItem *item, HB_Bool openType)
         len = 1;
     }
 
-    if (!item->font->klass->stringToGlyphs(item->font,
-                                           ch, len,
-                                           item->glyphs, &item->num_glyphs,
-                                           item->item.bidiLevel % 2))
+    if (!item->font->klass->convertStringToGlyphIndices(item->font,
+                                                        ch, len,
+                                                        item->glyphs, &item->num_glyphs,
+                                                        item->item.bidiLevel % 2))
         return FALSE;
     for (i = 0; i < len; i++) {
         item->attributes[i].mark = FALSE;

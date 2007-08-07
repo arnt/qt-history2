@@ -391,10 +391,10 @@ static HB_Bool myanmar_shape_syllable(HB_Bool openType, HB_ShaperItem *item, HB_
         len += 2;
     }
 
-    if (!item->font->klass->stringToGlyphs(item->font,
-                                           reordered, len,
-                                           item->glyphs, &item->num_glyphs,
-                                           item->item.bidiLevel % 2))
+    if (!item->font->klass->convertStringToGlyphIndices(item->font,
+                                                        reordered, len,
+                                                        item->glyphs, &item->num_glyphs,
+                                                        item->item.bidiLevel % 2))
         return FALSE;
 
     MMDEBUG("after shaping: len=%d", len);

@@ -376,7 +376,7 @@ static inline void positionCluster(HB_ShaperItem *item, int gfrom,  int glast)
 
 void HB_HeuristicPosition(HB_ShaperItem *item)
 {
-    HB_GetAdvances(item);
+    HB_GetGlyphAdvances(item);
     HB_GlyphAttributes *attributes = item->attributes;
 
     int cEnd = -1;
@@ -514,17 +514,18 @@ static const HB_OpenTypeFeature basic_features[] = {
 };
 #endif
 
-HB_Bool HB_StringToGlyphs(HB_ShaperItem *shaper_item)
+HB_Bool HB_ConvertStringToGlyphIndices(HB_ShaperItem *shaper_item)
 {
     if (shaper_item->glyphIndicesPresent) {
         shaper_item->num_glyphs = shaper_item->initialGlyphCount;
         shaper_item->glyphIndicesPresent = false;
         return true;
     }
-    return shaper_item->font->klass->stringToGlyphs(shaper_item->font,
-                                                    shaper_item->string + shaper_item->item.pos, shaper_item->item.length,
-                                                    shaper_item->glyphs, &shaper_item->num_glyphs,
-                                                    shaper_item->item.bidiLevel % 2);
+    return shaper_item->font->klass
+           ->convertStringToGlyphIndices(shaper_item->font,
+                                         shaper_item->string + shaper_item->item.pos, shaper_item->item.length,
+                                         shaper_item->glyphs, &shaper_item->num_glyphs,
+                                         shaper_item->item.bidiLevel % 2);
 }
 
 HB_Bool HB_BasicShape(HB_ShaperItem *shaper_item)
@@ -533,7 +534,7 @@ HB_Bool HB_BasicShape(HB_ShaperItem *shaper_item)
     const int availableGlyphs = shaper_item->num_glyphs;
 #endif
 
-    if (!HB_StringToGlyphs(shaper_item))
+    if (!HB_ConvertStringToGlyphIndices(shaper_item))
         return false;
 
     HB_HeuristicSetGlyphAttributes(shaper_item);
@@ -1011,7 +1012,7 @@ HB_Bool HB_OpenTypePosition(HB_ShaperItem *item, int availableGlyphs, HB_Bool do
     }
 
     if (!face->glyphs_substituted && !glyphs_positioned) {
-        HB_GetAdvances(item);
+        HB_GetGlyphAdvances(item);
         return true; // nothing to do for us
     }
 
@@ -1057,7 +1058,7 @@ HB_Bool HB_OpenTypePosition(HB_ShaperItem *item, int availableGlyphs, HB_Bool do
 
     // positioning code:
     if (glyphs_positioned) {
-        HB_GetAdvances(item);
+        HB_GetGlyphAdvances(item);
         HB_Position positions = face->buffer->positions;
         HB_Fixed *advances = item->advances;
 

@@ -1482,10 +1482,10 @@ static bool indic_shape_syllable(HB_Bool openType, HB_ShaperItem *item, bool inv
 #ifndef NO_OPENTYPE
     const int availableGlyphs = item->num_glyphs;
 #endif
-    if (!item->font->klass->stringToGlyphs(item->font,
-                                           reordered, len,
-                                           item->glyphs, &item->num_glyphs,
-                                           item->item.bidiLevel % 2))
+    if (!item->font->klass->convertStringToGlyphIndices(item->font,
+                                                        reordered, len,
+                                                        item->glyphs, &item->num_glyphs,
+                                                        item->item.bidiLevel % 2))
         goto error;
 
 
