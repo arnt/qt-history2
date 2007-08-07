@@ -185,23 +185,24 @@ void QTextEngine::shapeText(int item) const
         QVarLengthArray<HB_Fixed> hb_advances(shaper_item.num_glyphs);
         QVarLengthArray<HB_FixedPoint> hb_offsets(shaper_item.num_glyphs);
 
+        QFontEngine *actualFontEngine = font;
         QFontEngineFT *ftEngine = 0;
         uint engineIdx = 0;
         if (font->type() == QFontEngine::Multi) {
             engineIdx = uint(hb_initial_glyphs[itemBoundaries[k + 1]] >> 24);
 
-            QFontEngine *eng = static_cast<QFontEngineMulti *>(font)->engine(engineIdx);
-            Q_ASSERT(eng->type() == QFontEngine::Freetype);
-            ftEngine = static_cast<QFontEngineFT *>(eng);
-        } else if (font->type() == QFontEngine::Freetype) {
-            ftEngine = static_cast<QFontEngineFT *>(font);
+            actualFontEngine = static_cast<QFontEngineMulti *>(font)->engine(engineIdx);
+        }
+
+        if (actualFontEngine->type() == QFontEngine::Freetype) {
+            ftEngine = static_cast<QFontEngineFT *>(actualFontEngine);
         }
 
         HB_FontClass fontClass = hb_fontClass;
         HB_FontRec hbFont;
         memset(&hbFont, 0, sizeof(hbFont));
         hbFont.klass = &fontClass;
-        hbFont.userData = font;
+        hbFont.userData = actualFontEngine;
 
         shaper_item.font = &hbFont;
 
