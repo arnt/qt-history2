@@ -12,6 +12,8 @@
 
 #include <harfbuzz-global.h>
 
+HB_BEGIN_HEADER
+
 /* This header contains some methods that are not part of
    Harfbuzz itself, but referenced by it.
    They need to be provided by the application/library
@@ -80,5 +82,7 @@ void HB_GetUnicodeCharProperties(HB_UChar32 ch, HB_CharCategory *category, int *
 HB_CharCategory HB_GetUnicodeCharCategory(HB_UChar32 ch);
 int HB_GetUnicodeCharCombiningClass(HB_UChar32 ch);
 HB_UChar16 HB_GetMirroredChar(HB_UChar16 ch);
+
+HB_END_HEADER
 
 #endif

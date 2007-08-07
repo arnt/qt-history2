@@ -743,17 +743,17 @@ static HB_Bool checkScript(HB_Face face, int script)
     return true;
 }
 
-static HB_Stream getTableStream(HB_Font font, HB_Tag tag)
+static HB_Stream getTableStream(void *font, HB_GetFontTableFunc tableFunc, HB_Tag tag)
 {
     HB_Error error;
     HB_UInt length = 0;
     HB_Stream stream = 0;
-    error = font->klass->getSFntTable(font, tag, 0, &length);
+    error = tableFunc(font, tag, 0, &length);
     if (error)
         return 0;
     stream = (HB_Stream)malloc(sizeof(HB_StreamRec));
     stream->base = (HB_Byte*)malloc(length);
-    error = font->klass->getSFntTable(font, tag, stream->base, &length);
+    error = tableFunc(font, tag, stream->base, &length);
     if (error) {
         HB_close_stream(stream);
         return 0;
@@ -764,7 +764,7 @@ static HB_Stream getTableStream(HB_Font font, HB_Tag tag)
     return stream;
 }
 
-HB_Face HB_NewFace(HB_Font font)
+HB_Face HB_NewFace(void *font, HB_GetFontTableFunc tableFunc)
 {
     HB_Face face = (HB_Face )malloc(sizeof(HB_FaceRec));
 
@@ -783,14 +783,14 @@ HB_Face HB_NewFace(HB_Font font)
     HB_Stream stream;
     HB_Stream gdefStream;
 
-    gdefStream = getTableStream(font, TTAG_GDEF);
+    gdefStream = getTableStream(font, tableFunc, TTAG_GDEF);
     if (!gdefStream || (error = HB_Load_GDEF_Table(gdefStream, &face->gdef))) {
         //DEBUG("error loading gdef table: %d", error);
         face->gdef = 0;
     }
 
     //DEBUG() << "trying to load gsub table";
-    stream = getTableStream(font, TTAG_GSUB);
+    stream = getTableStream(font, tableFunc, TTAG_GSUB);
     if (!stream || (error = HB_Load_GSUB_Table(stream, &face->gsub, face->gdef, gdefStream))) {
         face->gsub = 0;
         if (error != HB_Err_Table_Missing) {
@@ -801,7 +801,7 @@ HB_Face HB_NewFace(HB_Font font)
     }
     HB_close_stream(stream);
 
-    stream = getTableStream(font, TTAG_GPOS);
+    stream = getTableStream(font, tableFunc, TTAG_GPOS);
     if (!stream || (error = HB_Load_GPOS_Table(stream, &face->gpos, face->gdef, gdefStream))) {
         face->gpos = 0;
         DEBUG("error loading gpos table: %d", error);

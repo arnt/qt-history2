@@ -82,9 +82,9 @@ static HB_Bool hb_canRender(HB_Font font, const HB_UChar16 *string, uint32_t len
     return true;
 }
 
-static HB_Error hb_getSFntTable(HB_Font font, HB_Tag tableTag, HB_Byte *buffer, HB_UInt *length)
+static HB_Error hb_getSFntTable(void *font, HB_Tag tableTag, HB_Byte *buffer, HB_UInt *length)
 {
-    FT_Face face = (FT_Face)font->faceData;
+    FT_Face face = (FT_Face)font;
     FT_ULong ftlen = *length;
     FT_Error error = 0;
 
@@ -134,7 +134,7 @@ HB_Fixed hb_getAscent(HB_Font font)
 }
 
 const HB_FontClass hb_fontClass = {
-    hb_stringToGlyphs, hb_getAdvances, hb_canRender, hb_getSFntTable,
+    hb_stringToGlyphs, hb_getAdvances, hb_canRender,
     hb_getPointInOutline, hb_getGlyphMetrics, hb_getAscent
 };
 
@@ -197,6 +197,8 @@ static bool shaping(FT_Face face, const ShapeTable *s, HB_Script script)
 {
     QString str = QString::fromUtf16( s->unicode );
 
+    HB_Face hbFace = HB_NewFace(face, hb_getSFntTable);
+
     HB_FontRec hbFont;
     hbFont.klass = &hb_fontClass;
     hbFont.userData = 0;
@@ -205,8 +207,6 @@ static bool shaping(FT_Face face, const ShapeTable *s, HB_Script script)
     hbFont.y_ppem  = face->size->metrics.y_ppem;
     hbFont.x_scale = face->size->metrics.x_scale;
     hbFont.y_scale = face->size->metrics.y_scale;
-
-    HB_Face hbFace = HB_NewFace(&hbFont);
 
     HB_ShaperItem shaper_item;
     shaper_item.kerning_applied = false;
