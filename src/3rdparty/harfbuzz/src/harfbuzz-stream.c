@@ -29,7 +29,7 @@ _hb_log( const char*   format, ... )
 #define  LOG(x)  do {} while (0)
 #endif
 
-HB_Error HB_open_stream(FT_Face face, FT_Tag tableTag, HB_Stream *stream)
+HB_Error HB_open_stream(FT_Face face, HB_Tag tableTag, HB_Stream *stream)
 {
     HB_Error error;
     FT_ULong length = 0;
@@ -42,14 +42,14 @@ HB_Error HB_open_stream(FT_Face face, FT_Tag tableTag, HB_Stream *stream)
 
     error = FT_Load_Sfnt_Table(face, tableTag, 0, 0, &length);
     if (error)
-        return error;
+        return HB_Err_Table_Missing;
     *stream = malloc(sizeof(HB_StreamRec));
     (*stream)->base = malloc(length);
     error = FT_Load_Sfnt_Table(face, tableTag, 0, (*stream)->base, NULL);
     if (error) {
         HB_close_stream(*stream);
         *stream = 0;
-        return error;
+        return HB_Err_Table_Missing;
     }
     (*stream)->size = length;
     (*stream)->pos = 0;

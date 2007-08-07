@@ -481,9 +481,9 @@ void HB_HeuristicSetGlyphAttributes(HB_ShaperItem *item)
 
 #ifndef NO_OPENTYPE
 static const HB_OpenTypeFeature basic_features[] = {
-    { FT_MAKE_TAG('c', 'c', 'm', 'p'), CcmpProperty },
-    { FT_MAKE_TAG('l', 'i', 'g', 'a'), CcmpProperty },
-    { FT_MAKE_TAG('c', 'l', 'i', 'g'), CcmpProperty },
+    { HB_MAKE_TAG('c', 'c', 'm', 'p'), CcmpProperty },
+    { HB_MAKE_TAG('l', 'i', 'g', 'a'), CcmpProperty },
+    { HB_MAKE_TAG('c', 'l', 'i', 'g'), CcmpProperty },
     {0, 0}
 };
 #endif
@@ -610,7 +610,7 @@ static void dump_string(HB_Buffer buffer)
 #endif
 
 #define DefaultLangSys 0xffff
-#define DefaultScript FT_MAKE_TAG('D', 'F', 'L', 'T')
+#define DefaultScript HB_MAKE_TAG('D', 'F', 'L', 'T')
 
 enum {
     RequiresGsub = 1,
@@ -623,59 +623,59 @@ struct OTScripts {
 };
 static const OTScripts ot_scripts [] = {
     // Common
-    { FT_MAKE_TAG('l', 'a', 't', 'n'), 0 },
+    { HB_MAKE_TAG('l', 'a', 't', 'n'), 0 },
     // Greek
-    { FT_MAKE_TAG('g', 'r', 'e', 'k'), 0 },
+    { HB_MAKE_TAG('g', 'r', 'e', 'k'), 0 },
     // Cyrillic
-    { FT_MAKE_TAG('c', 'y', 'r', 'l'), 0 },
+    { HB_MAKE_TAG('c', 'y', 'r', 'l'), 0 },
     // Armenian
-    { FT_MAKE_TAG('a', 'r', 'm', 'n'), 0 },
+    { HB_MAKE_TAG('a', 'r', 'm', 'n'), 0 },
     // Hebrew
-    { FT_MAKE_TAG('h', 'e', 'b', 'r'), 1 },
+    { HB_MAKE_TAG('h', 'e', 'b', 'r'), 1 },
     // Arabic
-    { FT_MAKE_TAG('a', 'r', 'a', 'b'), 1 },
+    { HB_MAKE_TAG('a', 'r', 'a', 'b'), 1 },
     // Syriac
-    { FT_MAKE_TAG('s', 'y', 'r', 'c'), 1 },
+    { HB_MAKE_TAG('s', 'y', 'r', 'c'), 1 },
     // Thaana
-    { FT_MAKE_TAG('t', 'h', 'a', 'a'), 1 },
+    { HB_MAKE_TAG('t', 'h', 'a', 'a'), 1 },
     // Devanagari
-    { FT_MAKE_TAG('d', 'e', 'v', 'a'), 1 },
+    { HB_MAKE_TAG('d', 'e', 'v', 'a'), 1 },
     // Bengali
-    { FT_MAKE_TAG('b', 'e', 'n', 'g'), 1 },
+    { HB_MAKE_TAG('b', 'e', 'n', 'g'), 1 },
     // Gurmukhi
-    { FT_MAKE_TAG('g', 'u', 'r', 'u'), 1 },
+    { HB_MAKE_TAG('g', 'u', 'r', 'u'), 1 },
     // Gujarati
-    { FT_MAKE_TAG('g', 'u', 'j', 'r'), 1 },
+    { HB_MAKE_TAG('g', 'u', 'j', 'r'), 1 },
     // Oriya
-    { FT_MAKE_TAG('o', 'r', 'y', 'a'), 1 },
+    { HB_MAKE_TAG('o', 'r', 'y', 'a'), 1 },
     // Tamil
-    { FT_MAKE_TAG('t', 'a', 'm', 'l'), 1 },
+    { HB_MAKE_TAG('t', 'a', 'm', 'l'), 1 },
     // Telugu
-    { FT_MAKE_TAG('t', 'e', 'l', 'u'), 1 },
+    { HB_MAKE_TAG('t', 'e', 'l', 'u'), 1 },
     // Kannada
-    { FT_MAKE_TAG('k', 'n', 'd', 'a'), 1 },
+    { HB_MAKE_TAG('k', 'n', 'd', 'a'), 1 },
     // Malayalam
-    { FT_MAKE_TAG('m', 'l', 'y', 'm'), 1 },
+    { HB_MAKE_TAG('m', 'l', 'y', 'm'), 1 },
     // Sinhala
-    { FT_MAKE_TAG('s', 'i', 'n', 'h'), 1 },
+    { HB_MAKE_TAG('s', 'i', 'n', 'h'), 1 },
     // Thai
-    { FT_MAKE_TAG('t', 'h', 'a', 'i'), 1 },
+    { HB_MAKE_TAG('t', 'h', 'a', 'i'), 1 },
     // Lao
-    { FT_MAKE_TAG('l', 'a', 'o', ' '), 1 },
+    { HB_MAKE_TAG('l', 'a', 'o', ' '), 1 },
     // Tibetan
-    { FT_MAKE_TAG('t', 'i', 'b', 't'), 1 },
+    { HB_MAKE_TAG('t', 'i', 'b', 't'), 1 },
     // Myanmar
-    { FT_MAKE_TAG('m', 'y', 'm', 'r'), 1 },
+    { HB_MAKE_TAG('m', 'y', 'm', 'r'), 1 },
     // Georgian
-    { FT_MAKE_TAG('g', 'e', 'o', 'r'), 0 },
+    { HB_MAKE_TAG('g', 'e', 'o', 'r'), 0 },
     // Hangul
-    { FT_MAKE_TAG('h', 'a', 'n', 'g'), 1 },
+    { HB_MAKE_TAG('h', 'a', 'n', 'g'), 1 },
     // Ogham
-    { FT_MAKE_TAG('o', 'g', 'a', 'm'), 0 },
+    { HB_MAKE_TAG('o', 'g', 'a', 'm'), 0 },
     // Runic
-    { FT_MAKE_TAG('r', 'u', 'n', 'r'), 0 },
+    { HB_MAKE_TAG('r', 'u', 'n', 'r'), 0 },
     // Khmer
-    { FT_MAKE_TAG('k', 'h', 'm', 'r'), 1 }
+    { HB_MAKE_TAG('k', 'h', 'm', 'r'), 1 }
 };
 enum { NumOTScripts = sizeof(ot_scripts)/sizeof(OTScripts) };
 
@@ -691,10 +691,10 @@ static HB_Bool checkScript(HB_Face face, int script)
             return false;
 
         HB_UShort script_index;
-        FT_Error error = HB_GSUB_Select_Script(face->gsub, tag, &script_index);
+        HB_Error error = HB_GSUB_Select_Script(face->gsub, tag, &script_index);
         if (error) {
             DEBUG("could not select script %d in GSub table: %d", (int)script, error);
-            error = HB_GSUB_Select_Script(face->gsub, FT_MAKE_TAG('D', 'F', 'L', 'T'), &script_index);
+            error = HB_GSUB_Select_Script(face->gsub, HB_MAKE_TAG('D', 'F', 'L', 'T'), &script_index);
             if (error)
                 return false;
         }
@@ -705,10 +705,10 @@ static HB_Bool checkScript(HB_Face face, int script)
             return false;
 
         HB_UShort script_index;
-        FT_Error error = HB_GPOS_Select_Script(face->gpos, script, &script_index);
+        HB_Error error = HB_GPOS_Select_Script(face->gpos, script, &script_index);
         if (error) {
             DEBUG("could not select script in gpos table: %d", error);
-            error = HB_GPOS_Select_Script(face->gpos, FT_MAKE_TAG('D', 'F', 'L', 'T'), &script_index);
+            error = HB_GPOS_Select_Script(face->gpos, HB_MAKE_TAG('D', 'F', 'L', 'T'), &script_index);
             if (error)
                 return false;
         }
@@ -733,7 +733,7 @@ HB_Face HB_NewFace(FT_Face ftface)
     face->tmpLogClusters = 0;
     face->glyphs_substituted = false;
 
-    FT_Error error;
+    HB_Error error;
     if ((error = HB_Load_GDEF_Table(ftface, &face->gdef))) {
         //DEBUG("error loading gdef table: %d", error);
         face->gdef = 0;
@@ -742,7 +742,7 @@ HB_Face HB_NewFace(FT_Face ftface)
     //DEBUG() << "trying to load gsub table";
     if ((error = HB_Load_GSUB_Table(ftface, &face->gsub, face->gdef))) {
         face->gsub = 0;
-        if (error != FT_Err_Table_Missing) {
+        if (error != HB_Err_Table_Missing) {
             //DEBUG("error loading gsub table: %d", error);
         } else {
             //DEBUG("face doesn't have a gsub table");
@@ -811,7 +811,7 @@ HB_Bool HB_SelectScript(HB_ShaperItem *shaper_item, const HB_OpenTypeFeature *fe
 #endif
         HB_GSUB_Clear_Features(face->gsub);
         HB_UShort script_index;
-        FT_Error error = HB_GSUB_Select_Script(face->gsub, tag, &script_index);
+        HB_Error error = HB_GSUB_Select_Script(face->gsub, tag, &script_index);
         if (!error) {
             DEBUG("script %s has script index %d", tag_to_string(script), script_index);
             while (features->tag) {
@@ -832,7 +832,7 @@ HB_Bool HB_SelectScript(HB_ShaperItem *shaper_item, const HB_OpenTypeFeature *fe
     if (face->gpos) {
         HB_GPOS_Clear_Features(face->gpos);
         HB_UShort script_index;
-        FT_Error error = HB_GPOS_Select_Script(face->gpos, tag, &script_index);
+        HB_Error error = HB_GPOS_Select_Script(face->gpos, tag, &script_index);
         if (!error) {
 #ifdef OT_DEBUG
             {
@@ -853,7 +853,7 @@ HB_Bool HB_SelectScript(HB_ShaperItem *shaper_item, const HB_OpenTypeFeature *fe
                 HB_UInt *feature_tag_list = feature_tag_list_buffer;
                 while (*feature_tag_list) {
                     HB_UShort feature_index;
-                    if (*feature_tag_list == FT_MAKE_TAG('k', 'e', 'r', 'n')) {
+                    if (*feature_tag_list == HB_MAKE_TAG('k', 'e', 'r', 'n')) {
                         if (face->current_flags & HB_ShaperFlag_NoKerning) {
                             ++feature_tag_list;
                             continue;

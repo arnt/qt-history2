@@ -26,7 +26,7 @@ typedef struct HB_StreamRec_
     HB_Byte*             cursor;
 } HB_StreamRec, *HB_Stream;
 
-HB_Error HB_open_stream(FT_Face face, FT_Tag tableTag, HB_Stream *stream);
+HB_Error HB_open_stream(FT_Face face, HB_Tag tableTag, HB_Stream *stream);
 void HB_close_stream(HB_Stream stream);
 
 
