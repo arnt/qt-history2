@@ -76,6 +76,7 @@ typedef struct {
 
 typedef struct HB_Font_ *HB_Font;
 typedef struct HB_StreamRec_ *HB_Stream;
+typedef struct HB_FaceRec_ *HB_Face;
 
 #define HB_IsHighSurrogate(ucs) \
     (((ucs) & 0xfc00) == 0xd800)

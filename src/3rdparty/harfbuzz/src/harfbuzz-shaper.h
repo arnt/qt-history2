@@ -157,7 +157,7 @@ typedef struct {
     unsigned int combiningClass  :8;
 } HB_GlyphAttributes;
 
-typedef struct {
+typedef struct HB_FaceRec_ {
     HB_Bool isSymbolFont;
 
     HB_GDEF gdef;
@@ -173,7 +173,7 @@ typedef struct {
     unsigned int *tmpLogClusters;
     int length;
     int orig_nglyphs;
-} HB_FaceRec, *HB_Face;
+} HB_FaceRec;
 
 typedef HB_Error (*HB_GetFontTableFunc)(void *font, HB_Tag tag, HB_Byte *buffer, HB_UInt *length);
 
