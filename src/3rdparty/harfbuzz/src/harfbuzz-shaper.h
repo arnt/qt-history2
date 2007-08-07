@@ -149,12 +149,12 @@ typedef enum {
  * it like that. If this is a problem please tell Trolltech :)
  */
 typedef struct {
-    unsigned int justification   :4;  /* Justification class */
-    unsigned int clusterStart    :1;  /* First glyph of representation of cluster */
-    unsigned int mark            :1;  /* needs to be positioned around base char */
-    unsigned int zeroWidth       :1;  /* ZWJ, ZWNJ etc, with no width */
-    unsigned int dontPrint       :1;
-    unsigned int combiningClass  :8;
+    unsigned short justification   :4;  /* Justification class */
+    unsigned short clusterStart    :1;  /* First glyph of representation of cluster */
+    unsigned short mark            :1;  /* needs to be positioned around base char */
+    unsigned short zeroWidth       :1;  /* ZWJ, ZWNJ etc, with no width */
+    unsigned short dontPrint       :1;
+    unsigned short combiningClass  :8;
 } HB_GlyphAttributes;
 
 typedef struct HB_FaceRec_ {
