@@ -933,19 +933,17 @@ void QFontEngineWin::getUnscaledGlyph(glyph_t glyph, QPainterPath *path, glyph_m
     DeleteObject(SelectObject(shared_dc, oldfont));
 }
 
-QByteArray QFontEngineWin::getSfntTable(uint tag) const
+bool QFontEngineWin::getSfntTableData(uint tag, uchar *buffer, uint *length) const
 {
     if (!ttf)
-        return QByteArray();
+        return false;
     SelectObject(shared_dc, hfont);
     DWORD t = qbswap<quint32>(tag);
-    int length = GetFontData(shared_dc, t, 0, NULL, 0);
-    QByteArray table;
-    if(length > 0) {
-        table.resize(length);
-        GetFontData(shared_dc, t, 0, table.data(), length);
-    }
-    return table;
+    *length = GetFontData(shared_dc, t, 0, buffer, *length);
+    return *length != GDI_ERROR;
+    if (*length == GDI_ERROR)
+        return false;
+
 }
 
 #if !defined(CLEARTYPE_QUALITY)
