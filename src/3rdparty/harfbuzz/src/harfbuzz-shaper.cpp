@@ -514,6 +514,18 @@ static const HB_OpenTypeFeature basic_features[] = {
 };
 #endif
 
+HB_Bool HB_StringToGlyphs(HB_ShaperItem *shaper_item)
+{
+    if (shaper_item->glyphIndicesPresent) {
+        shaper_item->num_glyphs = shaper_item->initialGlyphCount;
+        return true;
+    }
+    return shaper_item->font->klass->stringToGlyphs(shaper_item->font,
+                                                    shaper_item->string + shaper_item->item.pos, shaper_item->item.length,
+                                                    shaper_item->glyphs, &shaper_item->num_glyphs,
+                                                    shaper_item->item.bidiLevel % 2);
+}
+
 HB_Bool HB_BasicShape(HB_ShaperItem *shaper_item)
 {
 #ifndef NO_OPENTYPE

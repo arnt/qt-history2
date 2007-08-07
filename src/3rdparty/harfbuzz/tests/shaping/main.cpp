@@ -220,6 +220,8 @@ static bool shaping(FT_Face face, const ShapeTable *s, HB_Script script)
     shaper_item.font = &hbFont;
     shaper_item.face = hbFace;
     shaper_item.num_glyphs = shaper_item.item.length;
+    shaper_item.glyphIndicesPresent = false;
+    shaper_item.initialGlyphCount = 0;
 
     QVarLengthArray<HB_Glyph> hb_glyphs(shaper_item.num_glyphs);
     QVarLengthArray<HB_GlyphAttributes> hb_attributes(shaper_item.num_glyphs);

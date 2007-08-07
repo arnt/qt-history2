@@ -121,11 +121,7 @@ void HB_HeuristicSetGlyphAttributes(HB_ShaperItem *item);
      || (uc >= 0x2028 && uc <= 0x202f /* LS, PS, LRE, RLE, PDF, LRO, RLO, NNBSP */) \
      || (uc >= 0x206a && uc <= 0x206f /* ISS, ASS, IAFS, AFS, NADS, NODS */))
 
-#define HB_StringToGlyphs(shaper_item) \
-    shaper_item->font->klass->stringToGlyphs(shaper_item->font, \
-                                             shaper_item->string + shaper_item->item.pos, shaper_item->item.length, \
-                                             shaper_item->glyphs, &shaper_item->num_glyphs, \
-                                             shaper_item->item.bidiLevel % 2)
+HB_Bool HB_StringToGlyphs(HB_ShaperItem *shaper_item);
 
 #define HB_GetAdvances(shaper_item) \
     shaper_item->font->klass->getAdvances(shaper_item->font, \

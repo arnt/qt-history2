@@ -212,6 +212,9 @@ typedef struct {
     HB_Face face;
     int shaperFlags; /* HB_ShaperFlags */
 
+    HB_Bool glyphIndicesPresent; /* set to true if the glyph indicies are already setup in the glyphs array */
+    uint32_t initialGlyphCount;
+
     uint32_t num_glyphs; /* in: available glyphs out: glyphs used/needed */
     HB_Glyph *glyphs; /* out parameter */
     HB_GlyphAttributes *attributes; /* out */
