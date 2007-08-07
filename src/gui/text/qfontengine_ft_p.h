@@ -42,6 +42,8 @@
 
 #include <qmutex.h>
 
+#include <harfbuzz-shaper.h>
+
 struct QFreetypeFace
 {
     void computeSize(const QFontDef &fontDef, int *xsize, int *ysize, bool *outline_drawing);
@@ -61,6 +63,7 @@ struct QFreetypeFace
     }
 
     FT_Face face;
+    HB_Face hbFace;
 #ifndef QT_NO_FONTCONFIG
     FcCharSet *charset;
 #endif
@@ -222,6 +225,8 @@ public:
     virtual ~QFontEngineFT();
 
     bool init(FaceId faceId, bool antiaalias, GlyphFormat defaultFormat = Format_None);
+
+    inline HB_Font harfbuzzFont() const { return hbFont; }
 protected:
 
     void freeGlyphSets();
@@ -259,6 +264,8 @@ private:
     mutable QOpenType *_openType;
     FT_Size_Metrics metrics;
     mutable bool kerning_pairs_loaded;
+
+    HB_Font hbFont;
 };
 
 #endif // QT_NO_FREETYPE

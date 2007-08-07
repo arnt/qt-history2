@@ -53,6 +53,49 @@
 #define TRUNC(x)    ((x) >> 6)
 #define ROUND(x)    (((x)+32) & -64)
 
+
+static HB_Bool hb_stringToGlyphs(HB_Font font, const HB_UChar16 *string, uint32_t length, HB_Glyph *glyphs, uint32_t *numGlyphs, HB_Bool rightToLeft)
+{
+    QFontEngine *fe = (QFontEngine *)font->userData;
+
+    QVarLengthArray<QGlyphLayout> qglyphs(*numGlyphs);
+
+    int nGlyphs = *numGlyphs;
+    bool result = fe->stringToCMap(reinterpret_cast<const QChar *>(string), length, qglyphs.data(), &nGlyphs, rightToLeft ? QTextEngine::RightToLeft : QFlag(0));
+    *numGlyphs = nGlyphs;
+    if (!result)
+        return false;
+
+    for (uint32_t i = 0; i < *numGlyphs; ++i)
+        glyphs[i] = qglyphs[i].glyph;
+
+    return true;
+}
+
+static void hb_getAdvances(HB_Font font, const HB_Glyph *glyphs, int numGlyphs, HB_Fixed *advances)
+{
+    QFontEngine *fe = (QFontEngine *)font->userData;
+
+    QVarLengthArray<QGlyphLayout> qglyphs(numGlyphs);
+    for (int i = 0; i < numGlyphs; ++i)
+        qglyphs[i].glyph = glyphs[i];
+
+    fe->recalcAdvances(numGlyphs, qglyphs.data(), font->face->current_flags & HB_ShaperFlag_UseDesignMetrics ? QTextEngine::DesignMetrics : QFlag(0));
+
+    for (uint32_t i = 0; i < numGlyphs; ++i)
+        advances[i] = qglyphs[i].advance.x.value();
+}
+
+static HB_Bool hb_canRender(HB_Font font, const HB_UChar16 *string, uint32_t length)
+{
+    QFontEngine *fe = (QFontEngine *)font->userData;
+    return fe->canRender(reinterpret_cast<const QChar *>(string), length);
+}
+
+const HB_FontClass hb_fontClass = {
+    hb_stringToGlyphs, hb_getAdvances, hb_canRender
+};
+
 // -------------------------- Freetype support ------------------------------
 
 class QtFreetypeData
@@ -133,6 +176,7 @@ QFreetypeFace *QFreetypeFace::getFace(const QFontEngine::FaceId &face_id)
             return 0;
         }
         freetype->face = face;
+        freetype->hbFace = HB_NewFace(face);
         freetype->ref = 0;
         freetype->xsize = 0;
         freetype->ysize = 0;
@@ -198,6 +242,7 @@ void QFreetypeFace::release(const QFontEngine::FaceId &face_id)
 {
     QtFreetypeData *freetypeData = qt_getFreetypeData();
     if (!ref.deref()) {
+        HB_FreeFace(hbFace);
         FT_Done_Face(face);
 #ifndef QT_NO_FONTCONFIG
         if (charset)
@@ -442,6 +487,7 @@ QFontEngineFT::QFontEngineFT(const QFontDef &fd)
     subpixelType = Subpixel_None;
     defaultGlyphFormat = Format_None;
     canUploadGlyphsToServer = false;
+    hbFont = 0;
 }
 
 QFontEngineFT::~QFontEngineFT()
@@ -452,6 +498,7 @@ QFontEngineFT::~QFontEngineFT()
 #endif
     if (freetype)
         freetype->release(face_id);
+    delete hbFont;
 }
 
 void QFontEngineFT::freeGlyphSets()
@@ -472,6 +519,12 @@ bool QFontEngineFT::init(FaceId faceId, bool antialias, GlyphFormat defaultForma
         ysize = 0;
         return false;
     }
+
+    hbFont = new HB_FontRec;
+    hbFont->klass = &hb_fontClass;
+    hbFont->face = freetype->hbFace;
+    hbFont->userData = this;
+
     symbol = freetype->symbol_map != 0;
     PS_FontInfoRec psrec;
     // don't assume that type1 fonts are symbol fonts by default
