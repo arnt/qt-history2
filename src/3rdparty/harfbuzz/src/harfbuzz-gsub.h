@@ -73,7 +73,8 @@ typedef HB_GSUBHeader*  HB_GSUB;
 
 HB_Error  HB_Load_GSUB_Table( HB_Stream       stream,
 			      HB_GSUBHeader** gsub,
-			      HB_GDEFHeader*  gdef );
+			      HB_GDEFHeader*  gdef,
+                              HB_Stream       gdefStream );
 
 
 HB_Error  HB_Done_GSUB_Table( HB_GSUBHeader*  gsub );

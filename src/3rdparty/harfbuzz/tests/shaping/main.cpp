@@ -8,36 +8,113 @@
  *
  ******************************************************************/
 
-
-#ifdef Q_WS_X11
-#define private public
-#endif
-
-// cannot do private -> public on windows since it seems to mess up some stl headers
-#include <QtGui/qfont.h>
-
-#ifdef Q_WS_X11
-#undef private
-#endif
-
 #include <QtTest/QtTest>
 
-
-
-#if defined(Q_WS_X11)
-#define private public
-#include <private/qtextengine_p.h>
-#include <private/qfontengine_p.h>
-#include <private/qfontengine_ft_p.h>
-#include <QtGui/qtextlayout.h>
-#undef private
-#endif
-
-#include <QtGui/qfontdatabase.h>
-#include <QtGui/qfontinfo.h>
+#include <fontconfig/fontconfig.h>
+#include <ft2build.h>
+#include FT_FREETYPE_H
 
 #include <harfbuzz-shaper.h>
 
+static FT_Library freetype;
+
+static FT_Face loadFace(const char *fontPattern)
+{
+    FcPattern *pattern;
+    FcPattern *match;
+    FcFontSet *fontset;
+    FcResult  result;
+    FcChar8   *file;
+    int       index;
+    FT_Face   face;
+
+    pattern = FcNameParse((const FcChar8 *)fontPattern);
+    FcConfigSubstitute(0, pattern, FcMatchPattern);
+    FcDefaultSubstitute(pattern);
+
+    match = FcFontMatch(0, pattern, &result);
+    if (!match) {
+        qDebug("Cannot find font for pattern %s\n", fontPattern);
+        return 0;
+    }
+
+    fontset = FcFontSetCreate();
+    FcFontSetAdd(fontset, match);
+
+    if (fontset->nfont < 1) {
+        qDebug("Fontset is empty?!\n");
+        return 0;
+    }
+
+    if (FcPatternGetString(fontset->fonts[0], FC_FILE, 0, &file) != FcResultMatch) {
+        qDebug("Cannot get font filename\n");
+        return 0;
+    }
+
+    if (FcPatternGetInteger(fontset->fonts[0], FC_INDEX, 0, &index) != FcResultMatch) {
+        qDebug("Cannot get index in font\n");
+        return 0;
+    }
+
+    if (FT_New_Face(freetype, (const char *)file, index, &face)) {
+        qDebug("Cannot open font\n");
+        return 0;
+    }
+
+    FcPatternDestroy(pattern);
+    FcFontSetDestroy(fontset);
+
+    return face;
+}
+
+static HB_UChar32 getChar(const HB_UChar16 *string, uint32_t length, uint32_t &i)
+{
+    HB_UChar32 ch;
+    if (HB_IsHighSurrogate(string[i])
+        && i < length - 1
+        && HB_IsLowSurrogate(string[i + 1])) {
+        ch = HB_SurrogateToUcs4(string[i], string[i + 1]);
+        ++i;
+    } else {
+        ch = string[i];
+    }
+    return ch;
+}
+
+static HB_Bool hb_stringToGlyphs(HB_Font font, const HB_UChar16 *string, uint32_t length, HB_Glyph *glyphs, uint32_t *numGlyphs, HB_Bool /*rightToLeft*/)
+{
+    if (length > *numGlyphs)
+        return false;
+
+    int glyph_pos = 0;
+    for (uint32_t i = 0; i < length; ++i) {
+        glyphs[glyph_pos] = FT_Get_Char_Index(font->face->freetypeFace, getChar(string, length, i));
+        ++glyph_pos;
+    }
+
+    *numGlyphs = glyph_pos;
+
+    return true;
+}
+
+static void hb_getAdvances(HB_Font /*font*/, const HB_Glyph * /*glyphs*/, int numGlyphs, HB_Fixed *advances)
+{
+    for (int i = 0; i < numGlyphs; ++i)
+        advances[i] = 0; // ### not tested right now
+}
+
+static HB_Bool hb_canRender(HB_Font font, const HB_UChar16 *string, uint32_t length)
+{
+    for (uint32_t i = 0; i < length; ++i)
+        if (!FT_Get_Char_Index(font->face->freetypeFace, getChar(string, length, i)))
+            return false;
+
+    return true;
+}
+
+const HB_FontClass hb_fontClass = {
+    hb_stringToGlyphs, hb_getAdvances, hb_canRender
+};
 
 
 //TESTED_CLASS=
@@ -53,8 +130,8 @@ public:
 
 
 public slots:
-    void init();
-    void cleanup();
+    void initTestCase();
+    void cleanupTestCase();
 private slots:
     void devanagari();
     void bengali();
@@ -79,12 +156,16 @@ tst_QScriptEngine::~tst_QScriptEngine()
 {
 }
 
-void tst_QScriptEngine::init()
+void tst_QScriptEngine::initTestCase()
 {
+    FT_Init_FreeType(&freetype);
+    FcInit();
 }
 
-void tst_QScriptEngine::cleanup()
+void tst_QScriptEngine::cleanupTestCase()
 {
+    FT_Done_FreeType(freetype);
+    FcFini();
 }
 
 struct ShapeTable {
@@ -92,46 +173,40 @@ struct ShapeTable {
     unsigned short glyphs[16];
 };
 
-#if defined(Q_WS_X11)
-static bool shaping( const QFont &_f, const ShapeTable *s)
+static bool shaping(FT_Face face, const ShapeTable *s, HB_Script script)
 {
-    QFont f = _f;
-    f.setStyleStrategy(QFont::NoFontMerging);
     QString str = QString::fromUtf16( s->unicode );
-    QTextLayout layout(str, f);
-    QTextEngine *e = layout.d;
-    e->itemize();
 
-    QScriptItem &si = e->layoutData->items[0];
-    QFontEngine *fontEngine = e->fontEngine(si, &si.ascent, &si.descent);
-    Q_ASSERT(fontEngine->type() == QFontEngine::Freetype);
-
-    QFontEngineFT *ftEngine = static_cast<QFontEngineFT *>(fontEngine);
-    ftEngine->lockFace();
+    HB_Face hbFace = HB_NewFace(face);
+    HB_FontRec hbFont;
+    hbFont.klass = &hb_fontClass;
+    hbFont.userData = 0;
+    hbFont.face = hbFace;
 
     HB_ShaperItem shaper_item;
     shaper_item.kerning_applied = false;
     shaper_item.string = reinterpret_cast<const HB_UChar16 *>(str.constData());
     shaper_item.stringLength = str.length();
-    shaper_item.item.script = (HB_Script)si.analysis.script;
-    shaper_item.item.pos = si.position;
-    shaper_item.item.length = e->length(&si);
-    shaper_item.item.bidiLevel = si.analysis.bidiLevel;
+    shaper_item.item.script = script;
+    shaper_item.item.pos = 0;
+    shaper_item.item.length = shaper_item.stringLength;
+    shaper_item.item.bidiLevel = 0; // ###
     shaper_item.shaperFlags = 0;
-    shaper_item.font = ftEngine->harfbuzzFont();
+    shaper_item.font = &hbFont;
     shaper_item.num_glyphs = shaper_item.item.length;
 
     QVarLengthArray<HB_Glyph> hb_glyphs(shaper_item.num_glyphs);
     QVarLengthArray<HB_GlyphAttributes> hb_attributes(shaper_item.num_glyphs);
     QVarLengthArray<HB_Fixed> hb_advances(shaper_item.num_glyphs);
     QVarLengthArray<HB_FixedPoint> hb_offsets(shaper_item.num_glyphs);
+    QVarLengthArray<unsigned short> hb_logClusters(shaper_item.num_glyphs);
 
     while (1) {
-        e->ensureSpace(shaper_item.num_glyphs);
         hb_glyphs.resize(shaper_item.num_glyphs);
         hb_attributes.resize(shaper_item.num_glyphs);
         hb_advances.resize(shaper_item.num_glyphs);
         hb_offsets.resize(shaper_item.num_glyphs);
+        hb_logClusters.resize(shaper_item.num_glyphs);
 
         memset(hb_glyphs.data(), 0, hb_glyphs.size() * sizeof(HB_Glyph));
         memset(hb_attributes.data(), 0, hb_attributes.size() * sizeof(HB_GlyphAttributes));
@@ -142,18 +217,16 @@ static bool shaping( const QFont &_f, const ShapeTable *s)
         shaper_item.attributes = hb_attributes.data();
         shaper_item.advances = hb_advances.data();
         shaper_item.offsets = hb_offsets.data();
-        shaper_item.log_clusters = e->logClusters(&si);
+        shaper_item.log_clusters = hb_logClusters.data();
 
         if (HB_ShapeItem(&shaper_item))
             break;
 
     }
 
-    ftEngine->unlockFace();
+    HB_FreeFace(hbFace);
 
-    //e->shape(0);
-
-    int nglyphs = 0;
+    uint32_t nglyphs = 0;
     const unsigned short *g = s->glyphs;
     while ( *g ) {
 	nglyphs++;
@@ -163,7 +236,7 @@ static bool shaping( const QFont &_f, const ShapeTable *s)
     if( nglyphs != shaper_item.num_glyphs )
 	goto error;
 
-    for (int i = 0; i < nglyphs; ++i) {
+    for (uint32_t i = 0; i < nglyphs; ++i) {
 	if ((shaper_item.glyphs[i]&0xffffff) != s->glyphs[i])
 	    goto error;
     }
@@ -176,12 +249,12 @@ static bool shaping( const QFont &_f, const ShapeTable *s)
 	++uc;
     }
     qDebug("%s: shaping of string %s failed, nglyphs=%d, expected %d",
-           f.family().toLatin1().constData(),
+           face->family_name,
            str.toLatin1().constData(),
            shaper_item.num_glyphs, nglyphs);
 
     str = "";
-    int i = 0;
+    uint32_t i = 0;
     while (i < shaper_item.num_glyphs) {
 	str += QString("%1 ").arg(shaper_item.glyphs[i], 4, 16);
 	++i;
@@ -189,13 +262,12 @@ static bool shaping( const QFont &_f, const ShapeTable *s)
     qDebug("    glyph result = %s", str.toLatin1().constData());
     return false;
 }
-#endif
 
 void tst_QScriptEngine::devanagari()
 {
-#if defined(Q_WS_X11)
     {
-        if (QFontDatabase().families(QFontDatabase::Devanagari).contains("Raghindi")) {
+        FT_Face face = loadFace("Raghindi");
+        if (face) {
             QFont f("Raghindi");
 	    const ShapeTable shape_table [] = {
 		// Ka
@@ -239,17 +311,19 @@ void tst_QScriptEngine::devanagari()
 
 	    const ShapeTable *s = shape_table;
 	    while (s->unicode[0]) {
-		QVERIFY( shaping(f, s) );
+		QVERIFY( shaping(face, s, HB_Script_Devanagari) );
 		++s;
 	    }
+
+            FT_Done_Face(face);
 	} else {
 	    QSKIP("couln't find Raghindi", SkipAll);
 	}
     }
 
     {
-        if (QFontDatabase().families(QFontDatabase::Devanagari).contains("Mangal")) {
-            QFont f("Mangal");
+        FT_Face face = loadFace("Mangal");
+        if (face) {
 	    const ShapeTable shape_table [] = {
 		// Ka
 		{ { 0x0915, 0x0 },
@@ -291,24 +365,22 @@ void tst_QScriptEngine::devanagari()
 
 	    const ShapeTable *s = shape_table;
 	    while (s->unicode[0]) {
-		QVERIFY( shaping(f, s) );
+		QVERIFY( shaping(face, s, HB_Script_Devanagari) );
 		++s;
 	    }
+
+            FT_Done_Face(face);
 	} else {
 	    QSKIP("couldn't find mangal", SkipAll);
 	}
     }
-#else
-    QSKIP("X11 specific test", SkipAll);
-#endif
 }
 
 void tst_QScriptEngine::bengali()
 {
-#if defined(Q_WS_X11)
     {
-        if (QFontDatabase().families(QFontDatabase::Bengali).contains("Akaash")) {
-            QFont f("Akaash");
+        FT_Face face = loadFace("Akaash");
+        if (face) {
 	    const ShapeTable shape_table [] = {
 		// Ka
 		{ { 0x0995, 0x0 },
@@ -405,16 +477,18 @@ void tst_QScriptEngine::bengali()
 
 	    const ShapeTable *s = shape_table;
 	    while (s->unicode[0]) {
-		QVERIFY( shaping(f, s) );
+		QVERIFY( shaping(face, s, HB_Script_Bengali) );
 		++s;
 	    }
+
+            FT_Done_Face(face);
 	} else {
 	    QSKIP("couln't find Akaash", SkipAll);
 	}
     }
     {
-        if (QFontDatabase().families(QFontDatabase::Bengali).contains("Mukti Narrow")) {
-            QFont f("Mukti Narrow");
+        FT_Face face = loadFace("Mukti Narrow");
+        if (face) {
 	    const ShapeTable shape_table [] = {
 		// Ka
 		{ { 0x0995, 0x0 },
@@ -510,16 +584,18 @@ void tst_QScriptEngine::bengali()
 
 	    const ShapeTable *s = shape_table;
 	    while (s->unicode[0]) {
-		QVERIFY( shaping(f, s) );
+		QVERIFY( shaping(face, s, HB_Script_Bengali) );
 		++s;
 	    }
+
+            FT_Done_Face(face);
 	} else {
 	    QSKIP("couln't find Mukti", SkipAll);
 	}
     }
     {
-        if (QFontDatabase().families(QFontDatabase::Bengali).contains("Likhan")) {
-            QFont f("Likhan");
+        FT_Face face = loadFace("Likhan");
+        if (face) {
 	    const ShapeTable shape_table [] = {
 		{ { 0x09a8, 0x09cd, 0x09af, 0x0 },
 		  { 0x0192, 0x0 } },
@@ -538,24 +614,22 @@ void tst_QScriptEngine::bengali()
 
 	    const ShapeTable *s = shape_table;
 	    while (s->unicode[0]) {
-		QVERIFY( shaping(f, s) );
+		QVERIFY( shaping(face, s, HB_Script_Bengali) );
 		++s;
 	    }
+
+            FT_Done_Face(face);
 	} else {
 	    QSKIP("couln't find Likhan", SkipAll);
 	}
     }
-#else
-    QSKIP("X11 specific test", SkipAll);
-#endif
 }
 
 void tst_QScriptEngine::gurmukhi()
 {
-#if QT_VERSION >= 0x040001 && defined(Q_WS_X11)
     {
-        if (QFontDatabase().families(QFontDatabase::Gurmukhi).contains("Lohit Punjabi")) {
-            QFont f("Lohit Punjabi");
+        FT_Face face = loadFace("Lohit Punjabi");
+        if (face) {
 	    const ShapeTable shape_table [] = {
 		{ { 0xA15, 0xA4D, 0xa39, 0x0 },
 		  { 0x3b, 0x8b, 0x0 } },
@@ -565,22 +639,22 @@ void tst_QScriptEngine::gurmukhi()
 
 	    const ShapeTable *s = shape_table;
 	    while (s->unicode[0]) {
-		QVERIFY( shaping(f, s) );
+		QVERIFY( shaping(face, s, HB_Script_Gurmukhi) );
 		++s;
 	    }
+
+            FT_Done_Face(face);
 	} else {
 	    QSKIP("couln't find Lohit Punjabi", SkipAll);
 	}
     }
-#endif
 }
 
 void tst_QScriptEngine::oriya()
 {
-#if defined(Q_WS_X11)
     {
-        if (QFontDatabase().families(QFontDatabase::Oriya).contains("utkal")) {
-            QFont f("utkal");
+        FT_Face face = loadFace("utkal");
+        if (face) {
 	    const ShapeTable shape_table [] = {
                 { { 0xb15, 0xb4d, 0xb24, 0xb4d, 0xb30, 0x0 },
                   { 0x150, 0x125, 0x0 } }, 
@@ -602,25 +676,23 @@ void tst_QScriptEngine::oriya()
 
 	    const ShapeTable *s = shape_table;
 	    while (s->unicode[0]) {
-		QVERIFY( shaping(f, s) );
+		QVERIFY( shaping(face, s, HB_Script_Oriya) );
 		++s;
 	    }
+
+            FT_Done_Face(face);
 	} else {
 	    QSKIP("couln't find utkal", SkipAll);
 	}
     }
-#else
-    QSKIP("X11 specific test", SkipAll);
-#endif
 }
 
 
 void tst_QScriptEngine::tamil()
 {
-#if defined(Q_WS_X11)
     {
-        if (QFontDatabase().families(QFontDatabase::Tamil).contains("AkrutiTml1")) {
-            QFont f("AkrutiTml1");
+        FT_Face face = loadFace("AkrutiTml1");
+        if (face) {
 	    const ShapeTable shape_table [] = {
 		{ { 0x0b95, 0x0bc2, 0x0 },
 		  { 0x004e, 0x0 } },
@@ -673,25 +745,23 @@ void tst_QScriptEngine::tamil()
 
 	    const ShapeTable *s = shape_table;
 	    while (s->unicode[0]) {
-		QVERIFY( shaping(f, s) );
+		QVERIFY( shaping(face, s, HB_Script_Tamil) );
 		++s;
 	    }
+
+            FT_Done_Face(face);
 	} else {
 	    QSKIP("couln't find AkrutiTml1", SkipAll);
 	}
     }
-#else
-    QSKIP("X11 specific test", SkipAll);
-#endif
 }
 
 
 void tst_QScriptEngine::telugu()
 {
-#if defined(Q_WS_X11)
     {
-        if (QFontDatabase().families(QFontDatabase::Telugu).contains("Pothana2000")) {
-            QFont f("Pothana2000");
+        FT_Face face = loadFace("Pothana2000");
+        if (face) {
 	    const ShapeTable shape_table [] = {
                 { { 0xc15, 0xc4d, 0x0 },
                   { 0xbb, 0x0 } }, 
@@ -719,25 +789,23 @@ void tst_QScriptEngine::telugu()
 
 	    const ShapeTable *s = shape_table;
 	    while (s->unicode[0]) {
-		QVERIFY( shaping(f, s) );
+		QVERIFY( shaping(face, s, HB_Script_Telugu) );
 		++s;
 	    }
+
+            FT_Done_Face(face);
 	} else {
 	    QSKIP("couln't find Pothana2000", SkipAll);
 	}
     }
-#else
-    QSKIP("X11 specific test", SkipAll);
-#endif
 }
 
 
 void tst_QScriptEngine::kannada()
 {
-#if defined(Q_WS_X11)
     {
-        if (QFontDatabase().families(QFontDatabase::Kannada).contains("Sampige")) {
-            QFont f("Sampige");
+        FT_Face face = loadFace("Sampige");
+        if (face) {
 	    const ShapeTable shape_table [] = {
 		{ { 0x0ca8, 0x0ccd, 0x0ca8, 0x0 },
 		  { 0x0049, 0x00ba, 0x0 } },
@@ -766,16 +834,18 @@ void tst_QScriptEngine::kannada()
 
 	    const ShapeTable *s = shape_table;
 	    while (s->unicode[0]) {
-		QVERIFY( shaping(f, s) );
+		QVERIFY( shaping(face, s, HB_Script_Kannada) );
 		++s;
 	    }
+
+            FT_Done_Face(face);
 	} else {
 	    QSKIP("couln't find Sampige", SkipAll);
 	}
     }
     {
-        if (QFontDatabase().families(QFontDatabase::Kannada).contains("Tunga")) {
-            QFont f("Tunga");
+        FT_Face face = loadFace("Tunga");
+        if (face) {
 	    const ShapeTable shape_table [] = {
 		{ { 0x0cb7, 0x0cc6, 0x0 },
 		  { 0x00b0, 0x006c, 0x0 } },
@@ -788,26 +858,24 @@ void tst_QScriptEngine::kannada()
 
 	    const ShapeTable *s = shape_table;
 	    while (s->unicode[0]) {
-		QVERIFY( shaping(f, s) );
+		QVERIFY( shaping(face, s, HB_Script_Kannada) );
 		++s;
 	    }
+
+            FT_Done_Face(face);
 	} else {
 	    QSKIP("couln't find Tunga", SkipAll);
 	}
     }
-#else
-    QSKIP("X11 specific test", SkipAll);
-#endif
 }
 
 
 
 void tst_QScriptEngine::malayalam()
 {
-#if defined(Q_WS_X11)
     {
-        if (QFontDatabase().families(QFontDatabase::Malayalam).contains("AkrutiMal2")) {
-            QFont f("AkrutiMal2");
+        FT_Face face = loadFace("AkrutiMal2");
+        if (face) {
 	    const ShapeTable shape_table [] = {
 		{ { 0x0d15, 0x0d46, 0x0 },
 		  { 0x005e, 0x0034, 0x0 } },
@@ -843,26 +911,24 @@ void tst_QScriptEngine::malayalam()
 
 	    const ShapeTable *s = shape_table;
 	    while (s->unicode[0]) {
-		QVERIFY( shaping(f, s) );
+		QVERIFY( shaping(face, s, HB_Script_Malayalam) );
 		++s;
 	    }
+
+            FT_Done_Face(face);
 	} else {
 	    QSKIP("couln't find AkrutiMal2", SkipAll);
 	}
     }
-#else
-    QSKIP("X11 specific test", SkipAll);
-#endif
 }
 
 
 
 void tst_QScriptEngine::khmer()
 {
-#if defined(Q_WS_X11)
     {
-        if (QFontDatabase().families(QFontDatabase::Khmer).contains("Khmer OS")) {
-            QFont f("Khmer OS");
+        FT_Face face = loadFace("Khmer OS");
+        if (face) {
 	    const ShapeTable shape_table [] = {
 		{ { 0x179a, 0x17cd, 0x0 },
 		  { 0x24c, 0x27f, 0x0 } },
@@ -888,24 +954,22 @@ void tst_QScriptEngine::khmer()
 
 	    const ShapeTable *s = shape_table;
 	    while (s->unicode[0]) {
-		QVERIFY( shaping(f, s) );
+		QVERIFY( shaping(face, s, HB_Script_Khmer) );
 		++s;
 	    }
+
+            FT_Done_Face(face);
 	} else {
 	    QSKIP("couln't find Khmer OS", SkipAll);
 	}
     }
-#else
-    QSKIP("X11 specific test", SkipAll);
-#endif
 }
 
 void tst_QScriptEngine::linearB()
 {
-#if defined(Q_WS_X11)
     {
-        if (QFontDatabase().families(QFontDatabase::Any).contains("Penuturesu")) {
-            QFont f("Penuturesu");
+        FT_Face face = loadFace("Penuturesu");
+        if (face) {
 	    const ShapeTable shape_table [] = {
 		{ { 0xd800, 0xdc01, 0xd800, 0xdc02, 0xd800, 0xdc03,  0 },
                   { 0x5, 0x6, 0x7, 0 } },
@@ -915,16 +979,15 @@ void tst_QScriptEngine::linearB()
 
 	    const ShapeTable *s = shape_table;
 	    while (s->unicode[0]) {
-		QVERIFY( shaping(f, s) );
+		QVERIFY( shaping(face, s, HB_Script_Common) );
 		++s;
 	    }
+
+            FT_Done_Face(face);
 	} else {
 	    QSKIP("couln't find Penuturesu", SkipAll);
 	}
     }
-#else
-    QSKIP("X11 specific test", SkipAll);
-#endif
 }
 
 

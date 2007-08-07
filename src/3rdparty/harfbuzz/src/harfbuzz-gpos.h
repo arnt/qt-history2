@@ -99,7 +99,8 @@ typedef HB_GPOSHeader* HB_GPOS;
 
 HB_Error  HB_Load_GPOS_Table( HB_Stream stream, 
                               HB_GPOSHeader** gpos,
-			      HB_GDEFHeader*  gdef );
+			      HB_GDEFHeader*  gdef,
+                              HB_Stream       gdefStream );
 
 
 HB_Error  HB_Done_GPOS_Table( HB_GPOSHeader* gpos );

@@ -31,14 +31,13 @@ static HB_Error  GSUB_Do_Glyph_Lookup( HB_GSUBHeader*   gsub,
 
 HB_Error  HB_Load_GSUB_Table( HB_Stream stream,
 			      HB_GSUBHeader** retptr,
-			      HB_GDEFHeader*  gdef )
+			      HB_GDEFHeader*  gdef,
+                              HB_Stream       gdefStream )
 {
   HB_Error         error;
   HB_UInt         cur_offset, new_offset, base_offset;
 
-  HB_UShort        i, num_lookups;
   HB_GSUBHeader*  gsub;
-  HB_Lookup*      lo;
 
   if ( !retptr )
     return HB_Err_Invalid_Argument;
@@ -104,26 +103,10 @@ HB_Error  HB_Load_GSUB_Table( HB_Stream stream,
      `MarkAttachClassDef_offset' is not zero (nevertheless, a build of
      a constructed mark attach table is not supported currently).       */
 
-  if ( gdef &&
-       gdef->MarkAttachClassDef_offset && !gdef->MarkAttachClassDef.loaded )
-  {
-    lo          = gsub->LookupList.Lookup;
-    num_lookups = gsub->LookupList.LookupCount;
-
-    for ( i = 0; i < num_lookups; i++ )
-    {
-
-      if ( lo[i].LookupFlag & HB_LOOKUP_FLAG_IGNORE_SPECIAL_MARKS )
-      {
-	if ( FILE_Seek( gdef->MarkAttachClassDef_offset ) ||
-	     ( error = _HB_OPEN_Load_ClassDefinition( &gdef->MarkAttachClassDef,
-					     256, stream ) ) != HB_Err_Ok )
-	  goto Fail1;
-
-	break;
-      }
-    }
-  }
+  if ( ( error =  _HB_GDEF_LoadMarkAttachClassDef_From_LookupFlags( gdef, gdefStream,
+								     gsub->LookupList.Lookup,
+								     gsub->LookupList.LookupCount ) ) )
+    goto Fail1;
 
   *retptr = gsub;
 

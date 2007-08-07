@@ -59,13 +59,12 @@ static HB_Error  default_mmfunc( FT_Face      face,
 
 HB_Error  HB_Load_GPOS_Table( HB_Stream stream, 
 			      HB_GPOSHeader** retptr,
-			      HB_GDEFHeader*  gdef )
+			      HB_GDEFHeader*  gdef,
+			      HB_Stream       gdefStream )
 {
   HB_UInt         cur_offset, new_offset, base_offset;
 
-  HB_UShort        i, num_lookups;
   HB_GPOSHeader*  gpos;
-  HB_Lookup*      lo;
 
   HB_Error   error;
 
@@ -140,25 +139,10 @@ HB_Error  HB_Load_GPOS_Table( HB_Stream stream,
      `MarkAttachClassDef_offset' is not zero (nevertheless, a build of
      a constructed mark attach table is not supported currently).       */
 
-  if ( gdef &&
-       gdef->MarkAttachClassDef_offset && !gdef->MarkAttachClassDef.loaded )
-  {
-    lo          = gpos->LookupList.Lookup;
-    num_lookups = gpos->LookupList.LookupCount;
-
-    for ( i = 0; i < num_lookups; i++ )
-    {
-      if ( lo[i].LookupFlag & HB_LOOKUP_FLAG_IGNORE_SPECIAL_MARKS )
-      {
-	if ( FILE_Seek( gdef->MarkAttachClassDef_offset ) ||
-	     ( error = _HB_OPEN_Load_ClassDefinition( &gdef->MarkAttachClassDef,
-					     256, stream ) ) != HB_Err_Ok )
-	  goto Fail1;
-
-	break;
-      }
-    }
-  }
+  if ( ( error =  _HB_GDEF_LoadMarkAttachClassDef_From_LookupFlags( gdef, gdefStream,
+								     gpos->LookupList.Lookup,
+								     gpos->LookupList.LookupCount ) ) )
+    goto Fail1;
 
   *retptr = gpos;
 

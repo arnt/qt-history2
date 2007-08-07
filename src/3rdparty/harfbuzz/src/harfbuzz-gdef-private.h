@@ -96,6 +96,11 @@ HB_Error  _HB_GDEF_Check_Property( HB_GDEFHeader*   gdef,
 				   HB_UShort        flags,
 				   HB_UShort*       property );
 
+HB_Error _HB_GDEF_LoadMarkAttachClassDef_From_LookupFlags( HB_GDEFHeader* gdef,
+							   HB_Stream      stream,
+							   HB_Lookup*     lo,
+							   HB_UShort      num_lookups );
+
 HB_END_HEADER
 
 #endif /* HARFBUZZ_GDEF_PRIVATE_H */

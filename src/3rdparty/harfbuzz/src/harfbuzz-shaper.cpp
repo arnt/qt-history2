@@ -764,17 +764,17 @@ HB_Face HB_NewFace(FT_Face ftface)
 
     HB_Error error;
     HB_Stream stream;
+    HB_Stream gdefStream;
 
-    stream = HB_getTable(ftface, TTAG_GDEF);
-    if (!stream || (error = HB_Load_GDEF_Table(stream, &face->gdef))) {
+    gdefStream = HB_getTable(ftface, TTAG_GDEF);
+    if (!gdefStream || (error = HB_Load_GDEF_Table(gdefStream, &face->gdef))) {
         //DEBUG("error loading gdef table: %d", error);
         face->gdef = 0;
     }
-    HB_close_stream(stream);
 
     //DEBUG() << "trying to load gsub table";
     stream = HB_getTable(ftface, TTAG_GSUB);
-    if (!stream || (error = HB_Load_GSUB_Table(stream, &face->gsub, face->gdef))) {
+    if (!stream || (error = HB_Load_GSUB_Table(stream, &face->gsub, face->gdef, gdefStream))) {
         face->gsub = 0;
         if (error != HB_Err_Table_Missing) {
             //DEBUG("error loading gsub table: %d", error);
@@ -785,11 +785,13 @@ HB_Face HB_NewFace(FT_Face ftface)
     HB_close_stream(stream);
 
     stream = HB_getTable(ftface, TTAG_GPOS);
-    if (!stream || (error = HB_Load_GPOS_Table(stream, &face->gpos, face->gdef))) {
+    if (!stream || (error = HB_Load_GPOS_Table(stream, &face->gpos, face->gdef, gdefStream))) {
         face->gpos = 0;
         DEBUG("error loading gpos table: %d", error);
     }
     HB_close_stream(stream);
+
+    HB_close_stream(gdefStream);
 
     for (uint i = 0; i < HB_ScriptCount; ++i)
         face->supported_scripts[i] = checkScript(face, i);
