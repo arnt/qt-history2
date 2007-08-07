@@ -27,6 +27,8 @@
 #if defined(Q_WS_X11)
 #define private public
 #include <private/qtextengine_p.h>
+#include <private/qfontengine_p.h>
+#include <private/qfontengine_ft_p.h>
 #include <QtGui/qtextlayout.h>
 #undef private
 #endif
@@ -34,7 +36,7 @@
 #include <QtGui/qfontdatabase.h>
 #include <QtGui/qfontinfo.h>
 
-
+#include <harfbuzz-shaper.h>
 
 
 
@@ -91,13 +93,63 @@ struct ShapeTable {
 };
 
 #if defined(Q_WS_X11)
-static bool shaping( const QFont &f, const ShapeTable *s)
+static bool shaping( const QFont &_f, const ShapeTable *s)
 {
+    QFont f = _f;
+    f.setStyleStrategy(QFont::NoFontMerging);
     QString str = QString::fromUtf16( s->unicode );
     QTextLayout layout(str, f);
     QTextEngine *e = layout.d;
     e->itemize();
-    e->shape(0);
+
+    QScriptItem &si = e->layoutData->items[0];
+    QFontEngine *fontEngine = e->fontEngine(si, &si.ascent, &si.descent);
+    Q_ASSERT(fontEngine->type() == QFontEngine::Freetype);
+
+    QFontEngineFT *ftEngine = static_cast<QFontEngineFT *>(fontEngine);
+    ftEngine->lockFace();
+
+    HB_ShaperItem shaper_item;
+    shaper_item.kerning_applied = false;
+    shaper_item.string = reinterpret_cast<const HB_UChar16 *>(str.constData());
+    shaper_item.stringLength = str.length();
+    shaper_item.item.script = (HB_Script)si.analysis.script;
+    shaper_item.item.pos = si.position;
+    shaper_item.item.length = e->length(&si);
+    shaper_item.item.bidiLevel = si.analysis.bidiLevel;
+    shaper_item.shaperFlags = 0;
+    shaper_item.font = ftEngine->harfbuzzFont();
+    shaper_item.num_glyphs = shaper_item.item.length;
+
+    QVarLengthArray<HB_Glyph> hb_glyphs(shaper_item.num_glyphs);
+    QVarLengthArray<HB_GlyphAttributes> hb_attributes(shaper_item.num_glyphs);
+    QVarLengthArray<HB_Fixed> hb_advances(shaper_item.num_glyphs);
+    QVarLengthArray<HB_FixedPoint> hb_offsets(shaper_item.num_glyphs);
+
+    while (1) {
+        e->ensureSpace(shaper_item.num_glyphs);
+        hb_glyphs.resize(shaper_item.num_glyphs);
+        hb_attributes.resize(shaper_item.num_glyphs);
+        hb_advances.resize(shaper_item.num_glyphs);
+        hb_offsets.resize(shaper_item.num_glyphs);
+
+        memset(hb_glyphs.data(), 0, hb_glyphs.size() * sizeof(HB_Glyph));
+        memset(hb_attributes.data(), 0, hb_attributes.size() * sizeof(HB_GlyphAttributes));
+        memset(hb_advances.data(), 0, hb_advances.size() * sizeof(HB_Fixed));
+        memset(hb_offsets.data(), 0, hb_offsets.size() * sizeof(HB_FixedPoint));
+
+        shaper_item.glyphs = hb_glyphs.data();
+        shaper_item.attributes = hb_attributes.data();
+        shaper_item.advances = hb_advances.data();
+        shaper_item.offsets = hb_offsets.data();
+        shaper_item.log_clusters = e->logClusters(&si);
+
+        if (HB_ShapeItem(&shaper_item))
+            break;
+
+    }
+
+    //e->shape(0);
 
     int nglyphs = 0;
     const unsigned short *g = s->glyphs;
@@ -106,11 +158,11 @@ static bool shaping( const QFont &f, const ShapeTable *s)
 	g++;
     }
 
-    if( nglyphs != e->layoutData->items[0].num_glyphs )
+    if( nglyphs != shaper_item.num_glyphs )
 	goto error;
 
     for (int i = 0; i < nglyphs; ++i) {
-	if ((e->layoutData->glyphPtr[i].glyph&0xffffff) != s->glyphs[i])
+	if ((shaper_item.glyphs[i]&0xffffff) != s->glyphs[i])
 	    goto error;
     }
     return true;
@@ -124,12 +176,12 @@ static bool shaping( const QFont &f, const ShapeTable *s)
     qDebug("%s: shaping of string %s failed, nglyphs=%d, expected %d",
            f.family().toLatin1().constData(),
            str.toLatin1().constData(),
-           e->layoutData->items[0].num_glyphs, nglyphs);
+           shaper_item.num_glyphs, nglyphs);
 
     str = "";
     int i = 0;
-    while (i < e->layoutData->items[0].num_glyphs) {
-	str += QString("%1 ").arg(e->layoutData->glyphPtr[i].glyph, 4, 16);
+    while (i < shaper_item.num_glyphs) {
+	str += QString("%1 ").arg(shaper_item.glyphs[i], 4, 16);
 	++i;
     }
     qDebug("    glyph result = %s", str.toLatin1().constData());

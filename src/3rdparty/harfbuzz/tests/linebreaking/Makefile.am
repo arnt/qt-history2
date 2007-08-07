@@ -1,7 +1,7 @@
 
 check_PROGRAMS = linebreaking
 
-linebreaking_SOURCES = main.cpp
+linebreaking_SOURCES = main.cpp harfbuzz-qt.cpp
 linebreaking_LDADD = $(QT_GUI_LIBS) $(QT_QTEST_LIBS) ../../src/libharfbuzz-1.la
 
 main.o: main.moc
