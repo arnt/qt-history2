@@ -7,6 +7,11 @@ AM_PROG_LIBTOOL
 PKG_PROG_PKG_CONFIG
 AM_CONFIG_HEADER(config.h)
 
+if test "x$ac_compiler_gnu" = xyes; then
+    CFLAGS="$CFLAGS -Wall -W"
+    CXXFLAGS="$CXXFLAGS -Wall -W"
+fi
+
 AC_PATH_PROG(ft_config,freetype-config,no)
 if test "$ft_config" = "no"; then
     AC_MSG_ERROR([You must have freetype installed; see http://www.freetype.org/])
