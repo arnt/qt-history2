@@ -65,9 +65,9 @@ static HB_Bool hb_stringToGlyphs(HB_Font font, const HB_UChar16 *string, hb_uint
     return true;
 }
 
-static void hb_getAdvances(HB_Font /*font*/, const HB_Glyph * /*glyphs*/, int numGlyphs, HB_Fixed *advances, int /*flags*/)
+static void hb_getAdvances(HB_Font /*font*/, const HB_Glyph * /*glyphs*/, hb_uint32 numGlyphs, HB_Fixed *advances, int /*flags*/)
 {
-    for (int i = 0; i < numGlyphs; ++i)
+    for (hb_uint32 i = 0; i < numGlyphs; ++i)
         advances[i] = 0; // ### not tested right now
 }
 

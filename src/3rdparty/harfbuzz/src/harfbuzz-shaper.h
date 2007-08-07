@@ -185,7 +185,7 @@ typedef struct {
 
 typedef struct {
     HB_Bool  (*stringToGlyphs)(HB_Font font, const HB_UChar16 *string, hb_uint32 length, HB_Glyph *glyphs, hb_uint32 *numGlyphs, HB_Bool rightToLeft);
-    void     (*getAdvances)(HB_Font font, const HB_Glyph *glyphs, int numGlyphs, HB_Fixed *advances, int flags /*HB_ShaperFlag*/);
+    void     (*getAdvances)(HB_Font font, const HB_Glyph *glyphs, hb_uint32 numGlyphs, HB_Fixed *advances, int flags /*HB_ShaperFlag*/);
     HB_Bool  (*canRender)(HB_Font font, const HB_UChar16 *string, hb_uint32 length);
     /* implementation needs to make sure to load a scaled glyph, so /no/ FT_LOAD_NO_SCALE */
     HB_Error (*getPointInOutline)(HB_Font font, HB_Glyph glyph, int flags /*HB_ShaperFlag*/, hb_uint32 point, HB_Fixed *xpos, HB_Fixed *ypos, hb_uint32 *nPoints);
