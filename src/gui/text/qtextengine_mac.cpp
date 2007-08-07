@@ -80,6 +80,8 @@ void QTextEngine::shapeTextWithAtsui(int item) const
     if (option.useDesignMetrics())
 	flags |= DesignMetrics;
 
+    attributes(); // pre-initialize char attributes
+
     int num_glyphs = length(item);
 
     while (true) {
@@ -100,7 +102,6 @@ void QTextEngine::shapeTextWithAtsui(int item) const
                              attributes())) {
 
 		heuristicSetGlyphAttributes(str, len, g, log_clusters, num_glyphs);
-
 		break;
 	}
     }
