@@ -38,6 +38,7 @@ public:
     virtual int synthesized() const;
 
     bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const;
+    void recalcAdvances(int len, QGlyphLayout *glyphs, QTextEngine::ShaperFlags) const;
 
     void addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs, int numGlyphs, QPainterPath *path, QTextItem::RenderFlags flags);
     void addGlyphsToPath(glyph_t *glyphs, QFixedPoint *positions, int nglyphs,
@@ -66,7 +67,7 @@ public:
     virtual QImage alphaMapForGlyph(glyph_t);
 
     mutable unsigned char *widthCache;
-    mutable int widthCacheSize;
+    mutable uint widthCacheSize;
     mutable QFixed *designAdvances;
     mutable int designAdvancesSize;
 };
