@@ -702,6 +702,19 @@ void QTabWidget::setUpLayout(bool onlyCheck)
 }
 
 /*!
+    \internal
+*/
+static inline QSize basicSize(
+    bool horizontal, const QSize &lc, const QSize &rc, const QSize &s, const QSize &t)
+{
+    return horizontal
+        ? QSize(qMax(s.width(), t.width() + rc.width() + lc.width()),
+                s.height() + (qMax(rc.height(), qMax(lc.height(), t.height()))))
+        : QSize(s.width() + (qMax(rc.width(), qMax(lc.width(), t.width()))),
+                qMax(s.height(), t.height() + rc.height() + lc.height()));
+}
+
+/*!
     \reimp
 */
 QSize QTabWidget::sizeHint() const
@@ -726,13 +739,9 @@ QSize QTabWidget::sizeHint() const
         t = t.boundedTo(QSize(200,200));
     else
         t = t.boundedTo(QApplication::desktop()->size());
-    QSize sz;
-    if (d->pos == North || d->pos == South)
-        sz = QSize(qMax(s.width(), t.width() + rc.width() + lc.width()),
-                   s.height() + (qMax(rc.height(), qMax(lc.height(), t.height()))));
-    else
-        sz = QSize(s.width() + (qMax(rc.width(), qMax(lc.width(), t.width()))),
-                   qMax(s.height(), t.height() + rc.height() + lc.height()));
+
+    QSize sz = basicSize(d->pos == North || d->pos == South, lc, rc, s, t);
+
     return style()->sizeFromContents(QStyle::CT_TabWidget, &opt, sz, this)
                     .expandedTo(QApplication::globalStrut());
 }
@@ -759,8 +768,8 @@ QSize QTabWidget::minimumSizeHint() const
     QSize s(d->stack->minimumSizeHint());
     QSize t(d->tabs->minimumSizeHint());
 
-    QSize sz(qMax(s.width(), t.width() + rc.width() + lc.width()),
-              s.height() + (qMax(rc.height(), qMax(lc.height(), t.height()))));
+    QSize sz = basicSize(d->pos == North || d->pos == South, lc, rc, s, t);
+
     QStyleOption opt(0);
     opt.rect = rect();
     opt.palette = palette();
