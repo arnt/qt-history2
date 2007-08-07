@@ -518,6 +518,7 @@ HB_Bool HB_StringToGlyphs(HB_ShaperItem *shaper_item)
 {
     if (shaper_item->glyphIndicesPresent) {
         shaper_item->num_glyphs = shaper_item->initialGlyphCount;
+        shaper_item->glyphIndicesPresent = false;
         return true;
     }
     return shaper_item->font->klass->stringToGlyphs(shaper_item->font,
@@ -1125,11 +1126,14 @@ HB_Bool HB_OpenTypePosition(HB_ShaperItem *item, int availableGlyphs, HB_Bool do
 
 HB_Bool HB_ShapeItem(HB_ShaperItem *shaper_item)
 {
+    HB_Bool result = false;
     if (shaper_item->num_glyphs < shaper_item->item.length) {
         shaper_item->num_glyphs = shaper_item->item.length;
         return false;
     }
     assert(shaper_item->item.script < HB_ScriptCount);
-    return HB_ScriptEngines[shaper_item->item.script].shape(shaper_item);
+    result = HB_ScriptEngines[shaper_item->item.script].shape(shaper_item);
+    shaper_item->glyphIndicesPresent = false;
+    return result;
 }
 
