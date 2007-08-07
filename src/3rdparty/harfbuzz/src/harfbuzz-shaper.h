@@ -145,6 +145,9 @@ typedef enum {
     HB_Arabic_Kashida = 13   /* Kashida(U+640) in middle of word */
 } HB_JustificationClass;
 
+/* This structure is binary compatible with Uniscribe's SCRIPT_VISATTR. Would be nice to keep
+ * it like that. If this is a problem please tell Trolltech :)
+ */
 typedef struct {
     unsigned int justification   :4;  /* Justification class */
     unsigned int clusterStart    :1;  /* First glyph of representation of cluster */
