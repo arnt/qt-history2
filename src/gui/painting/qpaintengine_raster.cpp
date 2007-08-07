@@ -4932,15 +4932,29 @@ static void draw_text_item_win(const QPointF &_pos, const QTextItemInt &ti, HDC 
 
     bool has_kerning = ti.f && ti.f->kerning();
 
-    SelectObject(hdc, fe->hfont);
+    QFontEngineWin *winfe = (fe->type() == QFontEngine::Win) ? static_cast<QFontEngineWin *>(fe) : 0;
 
-    unsigned int options = (fe->ttf && !convertToText) ? ETO_GLYPH_INDEX : 0;
+    HFONT hfont;
+    bool ttf = false;
+    bool useTextOutA = false;
+
+    if (winfe) {
+        hfont = winfe->hfont;
+        ttf = winfe->ttf;
+        useTextOutA = winfe->useTextOutA;
+    } else {
+        hfont = (HFONT)GetStockObject(ANSI_VAR_FONT);
+    }
+
+    SelectObject(hdc, hfont);
+
+    unsigned int options = (ttf && !convertToText) ? ETO_GLYPH_INDEX : 0;
 
     wchar_t *convertedGlyphs = (wchar_t *)ti.chars;
 
     QGlyphLayout *glyphs = ti.glyphs;
 
-    if (!(ti.flags & QTextItem::RightToLeft) && fe->useTextOutA) {
+    if (!(ti.flags & QTextItem::RightToLeft) && useTextOutA) {
         qreal x = pos.x();
         qreal y = pos.y();
 

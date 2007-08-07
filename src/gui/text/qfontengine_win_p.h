@@ -31,6 +31,7 @@ public:
     QFontEngineWin(const QString &name, HFONT, bool, LOGFONT);
     ~QFontEngineWin();
 
+    virtual QFixed lineThickness() const;
     virtual Properties properties() const;
     virtual void getUnscaledGlyph(glyph_t glyph, QPainterPath *path, glyph_metrics_t *metrics);
     virtual FaceId faceId() const;
@@ -67,6 +68,32 @@ public:
 
     virtual QImage alphaMapForGlyph(glyph_t);
 
+    int getGlyphIndexes(const QChar *ch, int numChars, QGlyphLayout *glyphs, bool mirrored) const;
+    void getCMap();
+
+    QString        _name;
+    HFONT        hfont;
+    LOGFONT     logfont;
+    uint        stockFont   : 1;
+    uint        useTextOutA : 1;
+    uint        ttf         : 1;
+    union {
+        TEXTMETRICW        w;
+        TEXTMETRICA        a;
+    } tm;
+    int                lw;
+    const unsigned char *cmap;
+    QByteArray cmapTable;
+    void *script_cache;
+    mutable qreal lbearing;
+    mutable qreal rbearing;
+    QFixed designToDevice;
+    int unitsPerEm;
+    QFixed x_height;
+    FaceId _faceId;
+
+    mutable int synthesized_flags;
+    mutable QFixed lineWidth;
     mutable unsigned char *widthCache;
     mutable uint widthCacheSize;
     mutable QFixed *designAdvances;

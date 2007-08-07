@@ -172,34 +172,6 @@ public:
     bool symbol;
     mutable HB_FontRec hbFont;
     mutable HB_Face hbFace;
-
-#ifdef Q_WS_WIN
-    int getGlyphIndexes(const QChar *ch, int numChars, QGlyphLayout *glyphs, bool mirrored) const;
-    void getCMap();
-
-    QString        _name;
-    HFONT        hfont;
-    LOGFONT     logfont;
-    uint        stockFont   : 1;
-    uint        useTextOutA : 1;
-    uint        ttf         : 1;
-    union {
-        TEXTMETRICW        w;
-        TEXTMETRICA        a;
-    } tm;
-    int                lw;
-    const unsigned char *cmap;
-    QByteArray cmapTable;
-    void *script_cache;
-    qreal lbearing;
-    qreal rbearing;
-    QFixed designToDevice;
-    int unitsPerEm;
-    QFixed x_height;
-    FaceId _faceId;
-    mutable int synthesized_flags;
-    mutable QFixed lineWidth;
-#endif // Q_WS_WIN
 #if defined(Q_WS_WIN) || defined(Q_WS_X11) || defined(Q_WS_QWS)
     struct KernPair {
         uint left_right;

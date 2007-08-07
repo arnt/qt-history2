@@ -753,15 +753,16 @@ void QWin32PrintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem
     if (!continueCall())
         return;
 
+    const QTextItemInt &ti = static_cast<const QTextItemInt &>(textItem);
     QRgb brushColor = state->pen().brush().color().rgb();
     bool fallBack = state->pen().brush().style() != Qt::SolidPattern
                     || qAlpha(brushColor) != 0xff
-                    || QT_WA_INLINE(false, d->txop >= QTransform::TxScale);
+                    || QT_WA_INLINE(false, d->txop >= QTransform::TxScale)
+                    || ti.fontEngine->type() != QFontEngine::Win;
 
 
     if (!fallBack) {
-        const QTextItemInt &ti = static_cast<const QTextItemInt &>(textItem);
-        QFontEngine *fe = ti.fontEngine;
+        QFontEngineWin *fe = static_cast<QFontEngineWin *>(ti.fontEngine);
 
         // Try selecting the font to see if we get a substitution font
         SelectObject(d->hdc, fe->hfont);
@@ -786,8 +787,6 @@ void QWin32PrintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem
         QPaintEngine::drawTextItem(p, textItem);
         return ;
     }
-
-    const QTextItemInt &ti = static_cast<const QTextItemInt &>(textItem);
 
     // We only want to convert the glyphs to text if the entire string is latin1
     bool latin1String = true;

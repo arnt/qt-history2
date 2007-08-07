@@ -122,37 +122,12 @@ static inline HFONT systemFont()
 
 // general font engine
 
-QFontEngine::~QFontEngine()
-{
-    // make sure we aren't by accident still selected
-    SelectObject(shared_dc, systemFont());
-    // for Uniscribe
-    if (ScriptFreeCache && script_cache)
-        ScriptFreeCache(&script_cache);
-
-    qHBFreeFace(hbFace); // ### duplicated from QFontEngine::~QFontEngine
-}
-
-QFixed QFontEngine::lineThickness() const
+QFixed QFontEngineWin::lineThickness() const
 {
     if(lineWidth > 0)
         return lineWidth;
 
-    // ad hoc algorithm
-    int score = fontDef.weight * fontDef.pixelSize;
-    int lw = score / 700;
-
-    // looks better with thicker line for small pointsizes
-    if (lw < 2 && score >= 1050) lw = 2;
-    if (lw == 0) lw = 1;
-
-    return lw;
-}
-
-// ##### get these from windows
-QFixed QFontEngine::underlinePosition() const
-{
-    return (lineThickness() * 2 + 3) / 6;
+    return QFontEngine::lineThickness();
 }
 
 static OUTLINETEXTMETRICA *getOutlineTextMetric(HDC hdc)
@@ -163,7 +138,7 @@ static OUTLINETEXTMETRICA *getOutlineTextMetric(HDC hdc)
     return otm;
 }
 
-void QFontEngine::getCMap()
+void QFontEngineWin::getCMap()
 {
     QT_WA({
         ttf = (bool)(tm.w.tmPitchAndFamily & TMPF_TRUETYPE);
@@ -176,7 +151,7 @@ void QFontEngine::getCMap()
     if (ttf) {
         cmapTable = getSfntTable(qbswap<quint32>(MAKE_TAG('c', 'm', 'a', 'p')));
         int size = 0;
-        cmap = getCMap(reinterpret_cast<const uchar *>(cmapTable.constData()),
+        cmap = QFontEngine::getCMap(reinterpret_cast<const uchar *>(cmapTable.constData()),
                        cmapTable.size(), &symb, &size);
     }
     if (!cmap) {
@@ -216,7 +191,7 @@ inline unsigned int getChar(const QChar *str, int &i, const int len)
     return uc;
 }
 
-int QFontEngine::getGlyphIndexes(const QChar *str, int numChars, QGlyphLayout *glyphs, bool mirrored) const
+int QFontEngineWin::getGlyphIndexes(const QChar *str, int numChars, QGlyphLayout *glyphs, bool mirrored) const
 {
     QGlyphLayout *g = glyphs;
     if (mirrored) {
@@ -296,6 +271,8 @@ QFontEngineWin::QFontEngineWin(const QString &name, HFONT _hfont, bool stockFont
 
     _name = name;
 
+    script_cache = 0;
+    cmap = 0;
     hfont = _hfont;
     logfont = lf;
     SelectObject(shared_dc, hfont);
@@ -345,6 +322,12 @@ QFontEngineWin::~QFontEngineWin()
         free(designAdvances);
     if (widthCache)
         free(widthCache);
+
+    // make sure we aren't by accident still selected
+    SelectObject(shared_dc, systemFont());
+    // for Uniscribe
+    if (ScriptFreeCache && script_cache)
+        ScriptFreeCache(&script_cache);
 }
 
 HGDIOBJ QFontEngineWin::selectDesignFont(QFixed *overhang) const
@@ -785,8 +768,8 @@ qreal QFontEngineWin::minRightBearing() const
                 mr = -tm.a.tmOverhang;
             });
         }
-        ((QFontEngine *)this)->lbearing = ml;
-        ((QFontEngine *)this)->rbearing = mr;
+        lbearing = ml;
+        rbearing = mr;
     }
 
     return rbearing;
@@ -1169,13 +1152,9 @@ QFontEngineMultiWin::QFontEngineMultiWin(QFontEngineWin *first, const QStringLis
         : QFontEngineMulti(fallbacks.size()+1),
           fallbacks(fallbacks)
 {
-    ttf = false;
     engines[0] = first;
     first->ref.ref();
     fontDef = engines[0]->fontDef;
-
-    // ### initialize so that the handle() function returns something sensible...
-    hfont = (HFONT) GetStockObject(ANSI_VAR_FONT);
 }
 
 void QFontEngineMultiWin::loadEngine(int at)
@@ -1185,7 +1164,7 @@ void QFontEngineMultiWin::loadEngine(int at)
 
     QString fam = fallbacks.at(at-1);
 
-    LOGFONT lf = engines.at(0)->logfont;
+    LOGFONT lf = static_cast<QFontEngineWin *>(engines.at(0))->logfont;
     HFONT hfont;
     QT_WA({
         memcpy(lf.lfFaceName, fam.utf16(), sizeof(TCHAR)*qMin(fam.length()+1,32));  // 32 = Windows hard-coded

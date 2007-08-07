@@ -517,8 +517,10 @@ void QTextEngine::shapeText(int item) const
     si.glyph_data_offset = layoutData->used;
 
     QFontEngine *fontEngine = this->fontEngine(si, &si.ascent, &si.descent);
+    bool ttf = fontEngine->type() == QFontEngine::Win && static_cast<QFontEngineWin *>(fontEngine)->ttf;
 
-    if (hasUsp10 && fontEngine->ttf) {
+    if (hasUsp10 && ttf) {
+        QFontEngineWin *winfe = static_cast<QFontEngineWin *>(fontEngine);
         int l = len;
         si.analysis.logicalOrder = true;
         HRESULT res = E_OUTOFMEMORY;
@@ -529,12 +531,12 @@ void QTextEngine::shapeText(int item) const
         QVarLengthArray<SCRIPT_VISATTR> glyphAttributes(l);
 
         do {
-            res = ScriptShape(hdc, &fontEngine->script_cache, (WCHAR *)layoutData->string.unicode() + from, len,
+            res = ScriptShape(hdc, &winfe->script_cache, (WCHAR *)layoutData->string.unicode() + from, len,
                                l, &si.analysis, glyphs.data(), logClusters.data(), glyphAttributes.data(),
                                &si.num_glyphs);
             if (res == E_PENDING) {
                 hdc = GetDC(0);
-                SelectObject(hdc, fontEngine->hfont);
+                SelectObject(hdc, winfe->hfont);
             } else if (res == USP_E_SCRIPT_NOT_IN_FONT) {
                 si.analysis.script = 0;
             } else if (res == E_OUTOFMEMORY) {
@@ -557,13 +559,13 @@ void QTextEngine::shapeText(int item) const
             ABC abc;
             QVarLengthArray<int> advances(si.num_glyphs);
             QVarLengthArray<GOFFSET> offsets(si.num_glyphs);
-            res = ScriptPlace(hdc, &fontEngine->script_cache, glyphs.data(), si.num_glyphs,
+            res = ScriptPlace(hdc, &winfe->script_cache, glyphs.data(), si.num_glyphs,
                                glyphAttributes.data(), &si.analysis, advances.data(), offsets.data(), &abc);
             if (res == E_PENDING) {
                 Q_ASSERT(hdc == 0);
                 hdc = GetDC(0);
-                SelectObject(hdc, fontEngine->hfont);
-                ScriptPlace(hdc, &fontEngine->script_cache, glyphs.data(), si.num_glyphs,
+                SelectObject(hdc, winfe->hfont);
+                ScriptPlace(hdc, &winfe->script_cache, glyphs.data(), si.num_glyphs,
                              glyphAttributes.data(), &si.analysis, advances.data(), offsets.data(), &abc);
             }
             if (res != S_OK)

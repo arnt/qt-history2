@@ -126,10 +126,6 @@ QFontEngine::QFontEngine()
     ref = 0;
     cache_count = 0;
     fsType = 0;
-#if defined(Q_WS_WIN)
-    script_cache = 0;
-    cmap = 0;
-#endif
     symbol = false;
     memset(&hbFont, 0, sizeof(hbFont));
     hbFont.klass = &hb_fontClass;
@@ -138,10 +134,9 @@ QFontEngine::QFontEngine()
     hbFace = 0;
 }
 
-#ifndef Q_WS_WIN
 QFontEngine::~QFontEngine()
 {
-    qHBFreeFace(hbFace); // ### duplicated in qfontengine_win.cpp
+    qHBFreeFace(hbFace);
 }
 
 QFixed QFontEngine::lineThickness() const
@@ -161,7 +156,6 @@ QFixed QFontEngine::underlinePosition() const
 {
     return ((lineThickness() * 2) + 3) / 6;
 }
-#endif
 
 HB_Font QFontEngine::harfbuzzFont() const
 {
@@ -890,25 +884,10 @@ quint32 QFontEngine::getTrueTypeGlyphIndex(const uchar *cmap, uint unicode)
 // The box font engine
 // ------------------------------------------------------------------
 
-#ifdef Q_WS_WIN
-#include "qt_windows.h"
-#endif
-
 QFontEngineBox::QFontEngineBox(int size)
     : _size(size)
 {
     cache_cost = sizeof(QFontEngineBox);
-
-#ifdef Q_WS_WIN
-#ifndef Q_OS_TEMP
-    hfont = (HFONT)GetStockObject(ANSI_VAR_FONT);
-#endif
-    stockFont = true;
-    ttf = false;
-
-    cmap = 0;
-    script_cache = 0;
-#endif
 }
 
 QFontEngineBox::~QFontEngineBox()
