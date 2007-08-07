@@ -1207,17 +1207,3 @@ void QFontEngineMultiWin::loadEngine(int at)
     engines[at]->fontDef = fontDef;
 }
 
-
-// ----------------------------------------------------------------------------
-// True type support methods
-// ----------------------------------------------------------------------------
-
-static inline void tag_to_string(char *string, quint32 tag)
-{
-    string[0] = (tag >> 24)&0xff;
-    string[1] = (tag >> 16)&0xff;
-    string[2] = (tag >> 8)&0xff;
-    string[3] = tag&0xff;
-    string[4] = 0;
-}
-
