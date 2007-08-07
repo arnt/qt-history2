@@ -41,8 +41,8 @@ HB_UChar16 HB_GetMirroredChar(HB_UChar16 ch)
     return QChar::mirroredChar(ch);
 }
 
-void qGetCharAttributes(const HB_UChar16 *string, uint32_t stringLength,
-                        const HB_ScriptItem *items, uint32_t numItems,
+void qGetCharAttributes(const HB_UChar16 *string, hb_int32 stringLength,
+                        const HB_ScriptItem *items, hb_int32 numItems,
                        HB_CharAttributes *attributes)
 {
     HB_GetCharAttributes(string, stringLength, items, numItems, attributes);

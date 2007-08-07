@@ -22,7 +22,7 @@
 
 #include <private/qfontengine_ft_p.h>
 
-static HB_Bool hb_stringToGlyphs(HB_Font font, const HB_UChar16 *string, uint32_t length, HB_Glyph *glyphs, uint32_t *numGlyphs, HB_Bool rightToLeft)
+static HB_Bool hb_stringToGlyphs(HB_Font font, const HB_UChar16 *string, hb_uint32 length, HB_Glyph *glyphs, hb_uint32 *numGlyphs, HB_Bool rightToLeft)
 {
     QFontEngine *fe = (QFontEngine *)font->userData;
 
@@ -38,7 +38,7 @@ static HB_Bool hb_stringToGlyphs(HB_Font font, const HB_UChar16 *string, uint32_
     if (!result)
         return false;
 
-    for (uint32_t i = 0; i < *numGlyphs; ++i)
+    for (hb_uint32 i = 0; i < *numGlyphs; ++i)
         glyphs[i] = qglyphs[i].glyph;
 
     return true;
@@ -58,7 +58,7 @@ static void hb_getAdvances(HB_Font font, const HB_Glyph *glyphs, int numGlyphs, 
         advances[i] = qglyphs[i].advance.x.value();
 }
 
-static HB_Bool hb_canRender(HB_Font font, const HB_UChar16 *string, uint32_t length)
+static HB_Bool hb_canRender(HB_Font font, const HB_UChar16 *string, hb_uint32 length)
 {
     QFontEngine *fe = (QFontEngine *)font->userData;
     return fe->canRender(reinterpret_cast<const QChar *>(string), length);
@@ -104,7 +104,7 @@ static bool stringToGlyphs(HB_ShaperItem *item, HB_Glyph *itemGlyphs, QFontEngin
     if (!result)
         return false;
 
-    for (uint32_t i = 0; i < item->num_glyphs; ++i)
+    for (hb_uint32 i = 0; i < item->num_glyphs; ++i)
         itemGlyphs[i] = qglyphs[i].glyph;
 
     return true;
@@ -245,7 +245,7 @@ void QTextEngine::shapeText(int item) const
             memset(hb_offsets.data(), 0, hb_offsets.size() * sizeof(HB_FixedPoint));
 
             if (shaper_item.glyphIndicesPresent) {
-                for (uint32_t i = 0; i < shaper_item.initialGlyphCount; ++i)
+                for (hb_uint32 i = 0; i < shaper_item.initialGlyphCount; ++i)
                     hb_glyphs[i] = hb_initial_glyphs[initial_glyph_pos + i] & 0x00ffffff;
             }
 
@@ -262,7 +262,7 @@ void QTextEngine::shapeText(int item) const
 
             QGlyphLayout *g = glyphs(&si) + glyph_pos;
 
-            for (uint32_t i = 0; i < shaper_item.num_glyphs; ++i) {
+            for (hb_uint32 i = 0; i < shaper_item.num_glyphs; ++i) {
                 g[i].glyph = shaper_item.glyphs[i] | (engineIdx << 24);
                 g[i].advance.x = QFixed::fromFixed(shaper_item.advances[i]);
                 g[i].advance.y = QFixed();
@@ -277,7 +277,7 @@ void QTextEngine::shapeText(int item) const
                 g[i].attributes.combiningClass = shaper_item.attributes[i].combiningClass;
             }
 
-            for (uint32_t i = 0; i < shaper_item.item.length; ++i)
+            for (hb_uint32 i = 0; i < shaper_item.item.length; ++i)
                 shaper_item.log_clusters[i] += glyph_pos;
 
             if (kerningEnabled && !shaper_item.kerning_applied)
