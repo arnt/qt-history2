@@ -152,9 +152,9 @@ typedef struct {
     unsigned short combiningClass  :8;
 } HB_GlyphAttributes;
 
+typedef struct HB_Font_ *HB_Font;
 
 typedef struct {
-    FT_Face freetypeFace;
     HB_Bool isSymbolFont;
 
     HB_GDEF gdef;
@@ -173,20 +173,21 @@ typedef struct {
 } HB_FaceRec, *HB_Face;
 
 
-HB_Face HB_NewFace(FT_Face ftface);
+HB_Face HB_NewFace(HB_Font font);
 void HB_FreeFace(HB_Face face);
 
-typedef struct HB_Font_ *HB_Font;
+typedef struct HB_StreamRec_ *HB_Stream;
 
 typedef struct {
     HB_Bool (*stringToGlyphs)(HB_Font font, const HB_UChar16 *string, uint32_t length, HB_Glyph *glyphs, uint32_t *numGlyphs, HB_Bool rightToLeft);
-    void    (*getAdvances)(HB_Font font, const HB_Glyph *glyphs, int numGlyphs, HB_Fixed *advances);
+    void    (*getAdvances)(HB_Font font, const HB_Glyph *glyphs, int numGlyphs, HB_Fixed *advances, int flags /*HB_ShaperFlag*/);
     HB_Bool (*canRender)(HB_Font font, const HB_UChar16 *string, uint32_t length);
+    HB_Stream (*getSFntTable)(HB_Font font, HB_Tag tag);
 } HB_FontClass;
 
 typedef struct HB_Font_ {
     const HB_FontClass *klass;
-    HB_Face face;
+    FT_Face freetypeFace;
     void *userData;
 } HB_FontRec, *HB_Font;
 
@@ -195,6 +196,7 @@ typedef struct {
     uint32_t stringLength;
     HB_ScriptItem item;
     HB_Font font;
+    HB_Face face;
     int shaperFlags; // HB_ShaperFlags
 
     uint32_t num_glyphs; // in: available glyphs out: glyphs used/needed

@@ -400,7 +400,7 @@ void HB_HeuristicSetGlyphAttributes(HB_ShaperItem *item)
 
     // first char in a run is never (treated as) a mark
     int cStart = 0;
-    const bool symbolFont = item->font->face->isSymbolFont;
+    const bool symbolFont = item->face->isSymbolFont;
     attributes[0].mark = false;
     attributes[0].clusterStart = true;
     attributes[0].dontPrint = (!symbolFont && uc[0] == 0x00ad) || HB_IsControlChar(uc[0]);
@@ -721,36 +721,10 @@ static HB_Bool checkScript(HB_Face face, int script)
     return true;
 }
 
-static HB_Stream HB_getTable(FT_Face face, HB_Tag tableTag)
-{
-    FT_Error error;
-    FT_ULong length = 0;
-    HB_Stream stream = 0;
-    
-    if ( !FT_IS_SFNT(face) ) 
-        return 0;
-
-    error = FT_Load_Sfnt_Table(face, tableTag, 0, 0, &length);
-    if (error)
-        return 0;
-    stream = (HB_Stream)malloc(sizeof(HB_StreamRec));
-    stream->base = (HB_Byte*)malloc(length);
-    error = FT_Load_Sfnt_Table(face, tableTag, 0, stream->base, NULL);
-    if (error) {
-        HB_close_stream(stream);
-        return 0;
-    }
-    stream->size = length;
-    stream->pos = 0;
-    stream->cursor = NULL;
-    return stream;
-}
-
-HB_Face HB_NewFace(FT_Face ftface)
+HB_Face HB_NewFace(HB_Font font)
 {
     HB_Face face = (HB_Face )malloc(sizeof(HB_FaceRec));
 
-    face->freetypeFace = ftface;
     face->isSymbolFont = false;
     face->gdef = 0;
     face->gpos = 0;
@@ -766,14 +740,14 @@ HB_Face HB_NewFace(FT_Face ftface)
     HB_Stream stream;
     HB_Stream gdefStream;
 
-    gdefStream = HB_getTable(ftface, TTAG_GDEF);
+    gdefStream = font->klass->getSFntTable(font, TTAG_GDEF);
     if (!gdefStream || (error = HB_Load_GDEF_Table(gdefStream, &face->gdef))) {
         //DEBUG("error loading gdef table: %d", error);
         face->gdef = 0;
     }
 
     //DEBUG() << "trying to load gsub table";
-    stream = HB_getTable(ftface, TTAG_GSUB);
+    stream = font->klass->getSFntTable(font, TTAG_GSUB);
     if (!stream || (error = HB_Load_GSUB_Table(stream, &face->gsub, face->gdef, gdefStream))) {
         face->gsub = 0;
         if (error != HB_Err_Table_Missing) {
@@ -784,7 +758,7 @@ HB_Face HB_NewFace(FT_Face ftface)
     }
     HB_close_stream(stream);
 
-    stream = HB_getTable(ftface, TTAG_GPOS);
+    stream = font->klass->getSFntTable(font, TTAG_GPOS);
     if (!stream || (error = HB_Load_GPOS_Table(stream, &face->gpos, face->gdef, gdefStream))) {
         face->gpos = 0;
         DEBUG("error loading gpos table: %d", error);
@@ -822,10 +796,10 @@ HB_Bool HB_SelectScript(HB_ShaperItem *shaper_item, const HB_OpenTypeFeature *fe
 {
     HB_Script script = shaper_item->item.script;
 
-    if (!shaper_item->font->face->supported_scripts[script])
+    if (!shaper_item->face->supported_scripts[script])
         return false;
 
-    HB_Face face = shaper_item->font->face;
+    HB_Face face = shaper_item->face;
     if (face->current_script == script && face->current_flags == shaper_item->shaperFlags)
         return true;
 
@@ -915,7 +889,7 @@ HB_Bool HB_SelectScript(HB_ShaperItem *shaper_item, const HB_OpenTypeFeature *fe
 HB_Bool HB_OpenTypeShape(HB_ShaperItem *item, const uint32_t *properties)
 {
 
-    HB_Face face = item->font->face;
+    HB_Face face = item->face;
 
     face->length = item->num_glyphs;
 
@@ -964,14 +938,14 @@ HB_Bool HB_OpenTypeShape(HB_ShaperItem *item, const uint32_t *properties)
 
 HB_Bool HB_OpenTypePosition(HB_ShaperItem *item, int availableGlyphs, HB_Bool doLogClusters)
 {
-    HB_Face face = item->font->face;
+    HB_Face face = item->face;
 
     bool glyphs_positioned = false;
     if (face->gpos) {
         memset(face->buffer->positions, 0, face->buffer->in_length*sizeof(HB_PositionRec));
         int loadFlags = (face->current_flags & HB_ShaperFlag_UseDesignMetrics) ? FT_LOAD_NO_HINTING : FT_LOAD_DEFAULT;
         // #### check that passing "false,false" is correct
-        glyphs_positioned = HB_GPOS_Apply_String(face->freetypeFace, face->gpos, loadFlags, face->buffer, false, false) != HB_Err_Not_Covered;
+        glyphs_positioned = HB_GPOS_Apply_String(item->font->freetypeFace, face->gpos, loadFlags, face->buffer, false, false) != HB_Err_Not_Covered;
     }
 
     if (!face->glyphs_substituted && !glyphs_positioned) {

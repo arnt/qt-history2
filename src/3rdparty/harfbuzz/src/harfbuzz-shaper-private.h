@@ -135,7 +135,8 @@ inline void HB_GetAdvances(HB_ShaperItem *shaper_item)
 {
     shaper_item->font->klass->getAdvances(shaper_item->font,
                                           shaper_item->glyphs, shaper_item->num_glyphs,
-                                          shaper_item->advances);
+                                          shaper_item->advances,
+                                          shaper_item->face->current_flags);
 }
 
 #define HB_STACKARRAY(Type, Name, Length) \
