@@ -64,7 +64,6 @@ struct QFreetypeFace
 
     FT_Face face;
     HB_Face hbFace;
-    HB_FontRec hbBaseFont;
 #ifndef QT_NO_FONTCONFIG
     FcCharSet *charset;
 #endif

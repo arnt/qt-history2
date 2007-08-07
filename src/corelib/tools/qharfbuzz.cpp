@@ -53,9 +53,9 @@ HB_Bool qShapeItem(HB_ShaperItem *item)
     return HB_ShapeItem(item);
 }
 
-HB_Face qHBNewFace(HB_Font font)
+HB_Face qHBNewFace(void *font, HB_GetFontTableFunc tableFunc)
 {
-    return HB_NewFace(font);
+    return HB_NewFace(font, tableFunc);
 }
 
 void qHBFreeFace(HB_Face face)

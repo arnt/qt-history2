@@ -22,7 +22,7 @@ Q_CORE_EXPORT void qGetCharAttributes(const HB_UChar16 *string, uint32_t stringL
 Q_CORE_EXPORT HB_Bool qShapeItem(HB_ShaperItem *item);
 
 // ### temporary
-Q_CORE_EXPORT HB_Face qHBNewFace(HB_Font font);
+Q_CORE_EXPORT HB_Face qHBNewFace(void *font, HB_GetFontTableFunc tableFunc);
 Q_CORE_EXPORT void qHBFreeFace(HB_Face);
 
 
