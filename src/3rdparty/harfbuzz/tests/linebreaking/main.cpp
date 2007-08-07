@@ -51,8 +51,12 @@ HB_UChar16 HB_GetMirroredChar(HB_UChar16 ch)
 static QVector<HB_CharAttributes> getCharAttributes(const QString &str)
 {
     QVector<HB_CharAttributes> attrs(str.length());
+    HB_ScriptItem item;
+    item.pos = 0;
+    item.length = str.length();
+    item.script = HB_Script_Common;
     HB_GetCharAttributes(str.utf16(), str.length(),
-                         /*items*/ 0, /*numItems*/0,
+                         &item, 1,
                          attrs.data());
     return attrs;
 }
