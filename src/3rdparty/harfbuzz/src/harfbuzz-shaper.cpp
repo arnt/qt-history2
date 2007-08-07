@@ -56,7 +56,7 @@ enum break_class {
     DirectBreak,                // DB in table
     IndirectBreak,              // IB in table
     CombiningIndirectBreak,     // CI in table
-    CombiningProhibitedBreak,   // CP in table
+    CombiningProhibitedBreak    // CP in table
 };
 #define DB DirectBreak
 #define IB IndirectBreak
@@ -241,6 +241,7 @@ static inline void positionCluster(HB_ShaperItem *item, int gfrom,  int glast)
     int i;
     unsigned char lastCmb = 0;
     HB_GlyphMetrics attachmentRect;
+    memset(&attachmentRect, 0, sizeof(attachmentRect));
 
     for(i = 1; i <= nmarks; i++) {
         HB_Glyph mark = glyphs[gfrom+i];

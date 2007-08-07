@@ -712,8 +712,8 @@ static HB_Error  Get_Anchor( GPOS_Instance*   gpi,
   case 2:
     if ( !gpi->dvi )
     {
-      ap = an->af.af2.AnchorPoint;
       uint32_t n_points = 0;
+      ap = an->af.af2.AnchorPoint;
       error = gpi->font->klass->getPointInOutline(gpi->font, glyph_index, gpi->load_flags, ap, x_value, y_value, &n_points);
       if (error)
           return error;

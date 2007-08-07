@@ -8,7 +8,7 @@ PKG_PROG_PKG_CONFIG
 AM_CONFIG_HEADER(config.h)
 
 if test "x$ac_compiler_gnu" = xyes; then
-    CFLAGS="$CFLAGS -Wall -W"
+    CFLAGS="$CFLAGS -Wall -W -pedantic -ansi"
     CXXFLAGS="$CXXFLAGS -Wall -W"
 fi
 

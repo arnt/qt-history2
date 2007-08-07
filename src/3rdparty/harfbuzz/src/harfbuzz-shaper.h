@@ -103,10 +103,10 @@ typedef enum {
 
 
 typedef struct {
-    HB_LineBreakType lineBreakType  :2;
-    HB_Bool whiteSpace              :1;     // A unicode whitespace character, except NBSP, ZWNBSP
-    HB_Bool charStop                :1;     // Valid cursor position (for left/right arrow)
-    uint8_t unused                  :4;
+    /*HB_LineBreakType*/ unsigned int lineBreakType  :2;
+    /*HB_Bool*/ unsigned int whiteSpace              :1;     /* A unicode whitespace character, except NBSP, ZWNBSP */
+    /*HB_Bool*/ unsigned int charStop                :1;     /* Valid cursor position (for left/right arrow) */
+    unsigned int unused                  :4;
 } HB_CharAttributes;
 
 void HB_GetCharAttributes(const HB_UChar16 *string, uint32_t stringLength,
@@ -125,31 +125,33 @@ typedef enum {
     HB_ShaperFlag_UseDesignMetrics = 2
 } HB_ShaperFlag;
 
-// highest value means highest priority for justification. Justification is done by first inserting kashidas
-// starting with the highest priority positions, then stretching spaces, afterwards extending inter char
-// spacing, and last spacing between arabic words.
-// NoJustification is for example set for arabic where no Kashida can be inserted or for diacritics.
+/* 
+   highest value means highest priority for justification. Justification is done by first inserting kashidas
+   starting with the highest priority positions, then stretching spaces, afterwards extending inter char
+   spacing, and last spacing between arabic words.
+   NoJustification is for example set for arabic where no Kashida can be inserted or for diacritics.
+*/
 typedef enum {
-    HB_NoJustification= 0,   // Justification can't be applied after this glyph
-    HB_Arabic_Space   = 1,   // This glyph represents a space inside arabic text
-    HB_Character      = 2,   // Inter-character justification point follows this glyph
-    HB_Space          = 4,   // This glyph represents a blank outside an Arabic run
-    HB_Arabic_Normal  = 7,   // Normal Middle-Of-Word glyph that connects to the right (begin)
-    HB_Arabic_Waw     = 8,    // Next character is final form of Waw/Ain/Qaf/Fa
-    HB_Arabic_BaRa    = 9,   // Next two chars are Ba + Ra/Ya/AlefMaksura
-    HB_Arabic_Alef    = 10,  // Next character is final form of Alef/Tah/Lam/Kaf/Gaf
-    HB_Arabic_HaaDal  = 11,  // Next character is final form of Haa/Dal/Taa Marbutah
-    HB_Arabic_Seen    = 12,  // Initial or Medial form Of Seen/Sad
-    HB_Arabic_Kashida = 13   // Kashida(U+640) in middle of word
+    HB_NoJustification= 0,   /* Justification can't be applied after this glyph */
+    HB_Arabic_Space   = 1,   /* This glyph represents a space inside arabic text */
+    HB_Character      = 2,   /* Inter-character justification point follows this glyph */
+    HB_Space          = 4,   /* This glyph represents a blank outside an Arabic run */
+    HB_Arabic_Normal  = 7,   /* Normal Middle-Of-Word glyph that connects to the right (begin) */
+    HB_Arabic_Waw     = 8,   /* Next character is final form of Waw/Ain/Qaf/Fa */
+    HB_Arabic_BaRa    = 9,   /* Next two chars are Ba + Ra/Ya/AlefMaksura */
+    HB_Arabic_Alef    = 10,  /* Next character is final form of Alef/Tah/Lam/Kaf/Gaf */
+    HB_Arabic_HaaDal  = 11,  /* Next character is final form of Haa/Dal/Taa Marbutah */
+    HB_Arabic_Seen    = 12,  /* Initial or Medial form Of Seen/Sad */
+    HB_Arabic_Kashida = 13   /* Kashida(U+640) in middle of word */
 } HB_JustificationClass;
 
 typedef struct {
-    unsigned short justification   :4;  // Justification class
-    unsigned short clusterStart    :1;  // First glyph of representation of cluster
-    unsigned short mark            :1;  // needs to be positioned around base char
-    unsigned short zeroWidth       :1;  // ZWJ, ZWNJ etc, with no width
-    unsigned short dontPrint       :1;
-    unsigned short combiningClass  :8;
+    unsigned int justification   :4;  /* Justification class */
+    unsigned int clusterStart    :1;  /* First glyph of representation of cluster */
+    unsigned int mark            :1;  /* needs to be positioned around base char */
+    unsigned int zeroWidth       :1;  /* ZWJ, ZWNJ etc, with no width */
+    unsigned int dontPrint       :1;
+    unsigned int combiningClass  :8;
 } HB_GlyphAttributes;
 
 typedef struct {
@@ -161,7 +163,7 @@ typedef struct {
     HB_Bool supported_scripts[HB_ScriptCount];
     HB_Buffer buffer;
     HB_Script current_script;
-    int current_flags; // HB_ShaperFlags
+    int current_flags; /* HB_ShaperFlags */
     HB_Bool has_opentype_kerning;
     HB_Bool glyphs_substituted;
     HB_GlyphAttributes *tmpAttributes;
@@ -208,21 +210,21 @@ typedef struct {
     HB_ScriptItem item;
     HB_Font font;
     HB_Face face;
-    int shaperFlags; // HB_ShaperFlags
+    int shaperFlags; /* HB_ShaperFlags */
 
-    uint32_t num_glyphs; // in: available glyphs out: glyphs used/needed
-    HB_Glyph *glyphs; // out parameter
-    HB_GlyphAttributes *attributes; // out
-    HB_Fixed *advances; // out
-    HB_FixedPoint *offsets; // out
-    unsigned short *log_clusters; // out
+    uint32_t num_glyphs; /* in: available glyphs out: glyphs used/needed */
+    HB_Glyph *glyphs; /* out parameter */
+    HB_GlyphAttributes *attributes; /* out */
+    HB_Fixed *advances; /* out */
+    HB_FixedPoint *offsets; /* out */
+    unsigned short *log_clusters; /* out */
 
-    // internal
-    HB_Bool kerning_applied; // out: kerning applied by shaper
+    /* internal */
+    HB_Bool kerning_applied; /* out: kerning applied by shaper */
 } HB_ShaperItem;
 
 HB_Bool HB_ShapeItem(HB_ShaperItem *item);
 
 HB_END_HEADER
 
-#endif // HARFBUZZ_SHAPER_H
+#endif
