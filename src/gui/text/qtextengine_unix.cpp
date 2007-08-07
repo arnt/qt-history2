@@ -160,7 +160,7 @@ void QTextEngine::shapeText(int item) const
             shaper_item.attributes = hb_attributes.data();
             shaper_item.advances = hb_advances.data();
             shaper_item.offsets = hb_offsets.data();
-            shaper_item.log_clusters = logClusters(&si);
+            shaper_item.log_clusters = logClusters(&si) + shaper_item.item.pos - entire_shaper_item.item.pos;
 
 //          qDebug("    .. num_glyphs=%d, used=%d, item.num_glyphs=%d", num_glyphs, used, shaper_item.num_glyphs);
 
@@ -183,6 +183,9 @@ void QTextEngine::shapeText(int item) const
                 g[i].attributes.dontPrint = shaper_item.attributes[i].dontPrint;
                 g[i].attributes.combiningClass = shaper_item.attributes[i].combiningClass;
             }
+
+            for (uint32_t i = 0; i < shaper_item.item.length; ++i)
+                shaper_item.log_clusters[i] += glyph_pos;
 
             if (kerningEnabled && !shaper_item.kerning_applied)
                 font->doKerning(shaper_item.num_glyphs, g, option.useDesignMetrics() ? QFlag(QTextEngine::DesignMetrics) : QFlag(0));
