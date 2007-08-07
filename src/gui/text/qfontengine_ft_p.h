@@ -204,8 +204,6 @@ public:
     inline bool invalid() const { return xsize == 0 && ysize == 0; }
     inline bool isBitmapFont() const { return defaultGlyphFormat == Format_Mono; }
 
-    QOpenType *openType() const;
-
     inline Glyph *loadGlyph(uint glyph, GlyphFormat format = Format_None) const
     { return loadGlyph(&defaultGlyphSet, glyph, format); }
     Glyph *loadGlyph(QGlyphSet *set, uint glyph, GlyphFormat = Format_None) const;
@@ -261,7 +259,6 @@ private:
     QFixed line_thickness;
     QFixed underline_position;
 
-    mutable QOpenType *_openType;
     FT_Size_Metrics metrics;
     mutable bool kerning_pairs_loaded;
 

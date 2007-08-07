@@ -473,7 +473,6 @@ static const uint subpixel_filter[3][3] = {
 
 QFontEngineFT::QFontEngineFT(const QFontDef &fd)
 {
-    _openType = 0;
     fontDef = fd;
     matrix.xx = 0x10000;
     matrix.yy = 0x10000;
@@ -492,10 +491,6 @@ QFontEngineFT::QFontEngineFT(const QFontDef &fd)
 
 QFontEngineFT::~QFontEngineFT()
 {
-#ifndef QT_NO_OPENTYPE
-    delete _openType;
-    _openType = 0;
-#endif
     if (freetype)
         freetype->release(face_id);
     delete hbFont;
@@ -1067,24 +1062,6 @@ void QFontEngineFT::doKerning(int num_glyphs, QGlyphLayout *g, QTextEngine::Shap
         }
     }
     QFontEngine::doKerning(num_glyphs, g, flags);
-}
-
-QOpenType *QFontEngineFT::openType() const
-{
-#ifndef QT_NO_OPENTYPE
-    if (_openType)
-         return _openType;
-
-    FT_Face face = lockFace();
-    if (!face || !FT_IS_SFNT(face)) {
-        unlockFace();
-        return 0;
-    }
-
-    _openType = new QOpenType(const_cast<QFontEngineFT *>(this), face);
-    unlockFace();
-#endif
-    return _openType;
 }
 
 QFontEngineFT::QGlyphSet *QFontEngineFT::loadTransformedGlyphSet(glyph_t *glyphs, int num_glyphs, const QTransform &matrix,

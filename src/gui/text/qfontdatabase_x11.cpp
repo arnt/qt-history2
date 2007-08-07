@@ -1602,12 +1602,14 @@ static QFontEngine *tryPatternLoad(FcPattern *p, int screen,
         delete engine;
         engine = 0;
     } else if (scriptRequiresOpenType(script)) {
+#if 0 // ##################### HARFBUZZ
         QOpenType *ot = engine->openType();
         if (!ot || !ot->supportsScript(script)) {
             FM_DEBUG("  OpenType support missing for script\n");
             delete engine;
             engine = 0;
         }
+#endif
     }
 done:
     FcPatternDestroy(pattern);
