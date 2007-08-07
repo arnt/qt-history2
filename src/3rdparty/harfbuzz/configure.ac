@@ -23,10 +23,6 @@ FREETYPE_LIBS="`$ft_config --libs`"
 AC_SUBST(FREETYPE_LIBS)
 AC_SUBST(FREETYPE_CFLAGS)
 
-PKG_CHECK_MODULES([FONTCONFIG], [fontconfig])
-AC_SUBST(FONTCONFIG_CFLAGS)
-AC_SUBST(FONTCONFIG_LIBS)
-
 AC_ARG_ENABLE(qt, AS_HELP_STRING([--disable-qt], [Build Qt support (default: auto)]), [QT=$enableval], [QT=auto])
 
 if test "x$QT" = xauto; then

@@ -10,5 +10,5 @@ main.moc: $(srcdir)/main.cpp
 	$(QT_MOC) -o main.moc $(srcdir)/main.cpp
 
 INCLUDES = -I$(top_srcdir)/src $(FREETYPE_CFLAGS) $(QT_GUI_CFLAGS) $(QT_QTEST_CFLAGS)
-AM_CPPFLAGS = -DQT_GUI_LIB
+AM_CPPFLAGS = -DQT_GUI_LIB -DSRCDIR=\"$(srcdir)\"
 
