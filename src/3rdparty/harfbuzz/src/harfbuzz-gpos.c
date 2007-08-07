@@ -57,7 +57,7 @@ static HB_Error  default_mmfunc( FT_Face      face,
 
 
 
-HB_Error  HB_Load_GPOS_Table( FT_Face          face,
+HB_Error  HB_Load_GPOS_Table( HB_Stream stream, 
 			      HB_GPOSHeader** retptr,
 			      HB_GDEFHeader*  gdef )
 {
@@ -67,7 +67,6 @@ HB_Error  HB_Load_GPOS_Table( FT_Face          face,
   HB_GPOSHeader*  gpos;
   HB_Lookup*      lo;
 
-  HB_Stream  stream = 0;
   HB_Error   error;
 
 
@@ -77,8 +76,6 @@ HB_Error  HB_Load_GPOS_Table( FT_Face          face,
   if ( !stream )
     return HB_Err_Invalid_Face_Handle;
 
-  if (( error = HB_open_stream(face, TTAG_GPOS, &stream) ))
-    return error;
 
   base_offset = FILE_Pos();
 
@@ -165,7 +162,6 @@ HB_Error  HB_Load_GPOS_Table( FT_Face          face,
 
   *retptr = gpos;
 
-  HB_close_stream(stream);
   return HB_Err_Ok;
 
 Fail1:
@@ -178,7 +174,6 @@ Fail3:
   _HB_OPEN_Free_ScriptList( &gpos->ScriptList );
 
 Fail4:
-  HB_close_stream(stream);
   FREE( gpos );
 
   return error;

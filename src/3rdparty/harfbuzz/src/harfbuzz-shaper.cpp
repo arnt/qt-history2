@@ -12,7 +12,11 @@
 #include "harfbuzz-shaper-private.h"
 
 #include "harfbuzz-global.h"
+#include "harfbuzz-impl.h"
 #include <assert.h>
+
+#include <ft2build.h>
+#include FT_TRUETYPE_TABLES_H
 
 // -----------------------------------------------------------------------------------------------------
 //
@@ -717,6 +721,31 @@ static HB_Bool checkScript(HB_Face face, int script)
     return true;
 }
 
+static HB_Stream HB_getTable(FT_Face face, HB_Tag tableTag)
+{
+    FT_Error error;
+    FT_ULong length = 0;
+    HB_Stream stream = 0;
+    
+    if ( !FT_IS_SFNT(face) ) 
+        return 0;
+
+    error = FT_Load_Sfnt_Table(face, tableTag, 0, 0, &length);
+    if (error)
+        return 0;
+    stream = (HB_Stream)malloc(sizeof(HB_StreamRec));
+    stream->base = (HB_Byte*)malloc(length);
+    error = FT_Load_Sfnt_Table(face, tableTag, 0, stream->base, NULL);
+    if (error) {
+        HB_close_stream(stream);
+        return 0;
+    }
+    stream->size = length;
+    stream->pos = 0;
+    stream->cursor = NULL;
+    return stream;
+}
+
 HB_Face HB_NewFace(FT_Face ftface)
 {
     HB_Face face = (HB_Face )malloc(sizeof(HB_FaceRec));
@@ -734,13 +763,18 @@ HB_Face HB_NewFace(FT_Face ftface)
     face->glyphs_substituted = false;
 
     HB_Error error;
-    if ((error = HB_Load_GDEF_Table(ftface, &face->gdef))) {
+    HB_Stream stream;
+
+    stream = HB_getTable(ftface, TTAG_GDEF);
+    if (!stream || (error = HB_Load_GDEF_Table(stream, &face->gdef))) {
         //DEBUG("error loading gdef table: %d", error);
         face->gdef = 0;
     }
+    HB_close_stream(stream);
 
     //DEBUG() << "trying to load gsub table";
-    if ((error = HB_Load_GSUB_Table(ftface, &face->gsub, face->gdef))) {
+    stream = HB_getTable(ftface, TTAG_GSUB);
+    if (!stream || (error = HB_Load_GSUB_Table(stream, &face->gsub, face->gdef))) {
         face->gsub = 0;
         if (error != HB_Err_Table_Missing) {
             //DEBUG("error loading gsub table: %d", error);
@@ -748,11 +782,14 @@ HB_Face HB_NewFace(FT_Face ftface)
             //DEBUG("face doesn't have a gsub table");
         }
     }
+    HB_close_stream(stream);
 
-    if ((error = HB_Load_GPOS_Table(ftface, &face->gpos, face->gdef))) {
+    stream = HB_getTable(ftface, TTAG_GPOS);
+    if (!stream || (error = HB_Load_GPOS_Table(stream, &face->gpos, face->gdef))) {
         face->gpos = 0;
         DEBUG("error loading gpos table: %d", error);
     }
+    HB_close_stream(stream);
 
     for (uint i = 0; i < HB_ScriptCount; ++i)
         face->supported_scripts[i] = checkScript(face, i);

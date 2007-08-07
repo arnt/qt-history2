@@ -155,11 +155,10 @@ HB_Error  HB_New_GDEF_Table( HB_GDEFHeader** retptr )
 }
 
 
-HB_Error  HB_Load_GDEF_Table( FT_Face          face,
+HB_Error  HB_Load_GDEF_Table( HB_Stream stream, 
 			      HB_GDEFHeader** retptr )
 {
   HB_Error         error;
-  HB_Stream        stream = 0;
   HB_UInt         cur_offset, new_offset, base_offset;
 
   HB_GDEFHeader*  gdef;
@@ -167,9 +166,6 @@ HB_Error  HB_Load_GDEF_Table( FT_Face          face,
 
   if ( !retptr )
     return HB_Err_Invalid_Argument;
-
-  if (( error = HB_open_stream(face, TTAG_GDEF, &stream) ))
-    return error;
 
   if (( error = HB_New_GDEF_Table ( &gdef ) ))
     return error;
@@ -258,7 +254,6 @@ HB_Error  HB_Load_GDEF_Table( FT_Face          face,
 
   *retptr = gdef;
 
-  HB_close_stream(stream);
   return HB_Err_Ok;
 
 Fail3:
@@ -271,7 +266,6 @@ Fail1:
   _HB_OPEN_Free_ClassDefinition( &gdef->GlyphClassDef );
 
 Fail0:
-  HB_close_stream(stream);
   FREE( gdef );
 
   return error;

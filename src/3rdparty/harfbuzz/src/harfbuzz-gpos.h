@@ -97,8 +97,8 @@ typedef struct HB_GPOSHeader_  HB_GPOSHeader;
 typedef HB_GPOSHeader* HB_GPOS;
 
 
-HB_Error  HB_Load_GPOS_Table( FT_Face          face,
-			      HB_GPOSHeader** gpos,
+HB_Error  HB_Load_GPOS_Table( HB_Stream stream, 
+                              HB_GPOSHeader** gpos,
 			      HB_GDEFHeader*  gdef );
 
 

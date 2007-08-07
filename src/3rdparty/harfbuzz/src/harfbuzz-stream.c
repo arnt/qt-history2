@@ -9,7 +9,6 @@
  ******************************************************************/
 #include "harfbuzz-stream.h"
 #include <stdlib.h>
-#include FT_TRUETYPE_TABLES_H
 
 #if 0
 #include <stdio.h>
@@ -28,34 +27,6 @@ _hb_log( const char*   format, ... )
 #else
 #define  LOG(x)  do {} while (0)
 #endif
-
-HB_Error HB_open_stream(FT_Face face, HB_Tag tableTag, HB_Stream *stream)
-{
-    HB_Error error;
-    FT_ULong length = 0;
-    
-    *stream = 0;
-    if ( !FT_IS_SFNT(face) ) {
-        LOG(( "not a SFNT face !!\n" ));
-        return HB_Err_Invalid_Face_Handle;
-    }
-
-    error = FT_Load_Sfnt_Table(face, tableTag, 0, 0, &length);
-    if (error)
-        return HB_Err_Table_Missing;
-    *stream = malloc(sizeof(HB_StreamRec));
-    (*stream)->base = malloc(length);
-    error = FT_Load_Sfnt_Table(face, tableTag, 0, (*stream)->base, NULL);
-    if (error) {
-        HB_close_stream(*stream);
-        *stream = 0;
-        return HB_Err_Table_Missing;
-    }
-    (*stream)->size = length;
-    (*stream)->pos = 0;
-    (*stream)->cursor = NULL;
-    return HB_Err_Ok;
-}
 
 void HB_close_stream(HB_Stream stream)
 {

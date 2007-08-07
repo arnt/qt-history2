@@ -29,11 +29,10 @@ static HB_Error  GSUB_Do_Glyph_Lookup( HB_GSUBHeader*   gsub,
 
 
 
-HB_Error  HB_Load_GSUB_Table( FT_Face          face,
+HB_Error  HB_Load_GSUB_Table( HB_Stream stream,
 			      HB_GSUBHeader** retptr,
 			      HB_GDEFHeader*  gdef )
 {
-    HB_Stream        stream = 0;
   HB_Error         error;
   HB_UInt         cur_offset, new_offset, base_offset;
 
@@ -44,15 +43,10 @@ HB_Error  HB_Load_GSUB_Table( FT_Face          face,
   if ( !retptr )
     return HB_Err_Invalid_Argument;
 
-  if (( error = HB_open_stream(face, TTAG_GSUB, &stream) ))
-    return error;
-
   base_offset = FILE_Pos();
 
-  if ( ALLOC ( gsub, sizeof( *gsub ) ) ) {
-      HB_close_stream(stream);
+  if ( ALLOC ( gsub, sizeof( *gsub ) ) ) 
       return error;
-  }
   
 
   /* skip version */
@@ -133,7 +127,6 @@ HB_Error  HB_Load_GSUB_Table( FT_Face          face,
 
   *retptr = gsub;
 
-  HB_close_stream(stream);
   return HB_Err_Ok;
 
 Fail1:
@@ -146,7 +139,6 @@ Fail3:
   _HB_OPEN_Free_ScriptList( &gsub->ScriptList );
 
 Fail4:
-  HB_close_stream(stream);
   FREE ( gsub );
 
 

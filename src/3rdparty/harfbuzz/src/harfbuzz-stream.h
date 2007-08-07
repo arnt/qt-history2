@@ -17,14 +17,13 @@ HB_BEGIN_HEADER
 
 typedef struct HB_StreamRec_
 {
-    HB_Byte*             base;
+    HB_Byte*       base;
     HB_UInt        size;
     HB_UInt        pos;
     
-    HB_Byte*             cursor;
+    HB_Byte*       cursor;
 } HB_StreamRec, *HB_Stream;
 
-HB_Error HB_open_stream(FT_Face face, HB_Tag tableTag, HB_Stream *stream);
 void HB_close_stream(HB_Stream stream);
 
 
@@ -59,5 +58,7 @@ HB_Error _hb_stream_seek( HB_Stream stream, HB_UInt pos );
 HB_Error _hb_stream_frame_enter( HB_Stream stream, HB_UInt size );
 
 void _hb_stream_frame_exit( HB_Stream  stream );
+
+HB_END_HEADER
 
 #endif

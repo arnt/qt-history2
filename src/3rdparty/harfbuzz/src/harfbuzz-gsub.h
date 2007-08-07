@@ -71,7 +71,7 @@ typedef struct HB_GSUBHeader_   HB_GSUBHeader;
 typedef HB_GSUBHeader*  HB_GSUB;
 
 
-HB_Error  HB_Load_GSUB_Table( FT_Face          face,
+HB_Error  HB_Load_GSUB_Table( HB_Stream       stream,
 			      HB_GSUBHeader** gsub,
 			      HB_GDEFHeader*  gdef );
 

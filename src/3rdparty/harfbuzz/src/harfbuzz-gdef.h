@@ -14,6 +14,7 @@
 #define HARFBUZZ_GDEF_H
 
 #include "harfbuzz-open.h"
+#include "harfbuzz-stream.h"
 
 HB_BEGIN_HEADER
 
@@ -102,8 +103,7 @@ typedef struct HB_GDEFHeader_*  HB_GDEF;
 HB_Error  HB_New_GDEF_Table( HB_GDEFHeader** retptr );
       
 
-HB_Error  HB_Load_GDEF_Table( FT_Face          face,
-			      HB_GDEFHeader** gdef );
+HB_Error  HB_Load_GDEF_Table( HB_Stream stream, HB_GDEFHeader** gdef );
 
 
 HB_Error  HB_Done_GDEF_Table ( HB_GDEFHeader* gdef );
