@@ -671,11 +671,6 @@ void QTextEngine::bidiReorder(int numItems, const quint8 *levels, int *visualOrd
 
 #include "qfontengine_ft_p.h"
 
-void QTextEngine::shapeText(int item) const
-{
-    shapeTextWithHarfbuzz(item);
-}
-
 #elif defined(Q_WS_WIN)
 # include "qtextengine_win.cpp"
 #elif defined(Q_WS_MAC)
@@ -707,13 +702,25 @@ static bool stringToGlyphs(HB_ShaperItem *item, HB_Glyph *itemGlyphs, QFontEngin
     return true;
 }
 
-void QTextEngine::shapeTextWithHarfbuzz(int item) const
+void QTextEngine::shapeText(int item) const
 {
     Q_ASSERT(item < layoutData->items.size());
     QScriptItem &si = layoutData->items[item];
 
     if (si.num_glyphs)
         return;
+
+#if defined(Q_WS_WIN)
+    if (shapeTextNative(item))
+        return;
+#endif
+
+    shapeTextWithHarfbuzz(item);
+}
+
+void QTextEngine::shapeTextWithHarfbuzz(int item) const
+{
+    QScriptItem &si = layoutData->items[item];
 
     si.glyph_data_offset = layoutData->used;
 

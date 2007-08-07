@@ -495,18 +495,22 @@ static void uspAppendItems(QTextEngine *engine, int &start, int &stop, QBidiCont
 // -----------------------------------------------------------------------------------------------------
 
 
-void QTextEngine::shapeText(int item) const
+bool QTextEngine::shapeTextNative(int item) const
 {
-    QScriptItem &si = layoutData->items[item];
+    if (!hasUsp10)
+        return false;
 
-    if (si.num_glyphs)
-        return;
+    QScriptItem &si = layoutData->items[item];
+    QFontEngine *fontEngine = this->fontEngine(si, &si.ascent, &si.descent);
+    bool ttf = fontEngine->type() == QFontEngine::Win && static_cast<QFontEngineWin *>(fontEngine)->ttf;
+    if (!ttf)
+        return false;
+
+    QFontEngineWin *winfe = static_cast<QFontEngineWin *>(fontEngine);
 
     int script = si.analysis.script;
-    if (hasUsp10) {
-        const SCRIPT_PROPERTIES *script_prop = script_properties[si.analysis.script];
-        script = scriptForWinLanguage(script_prop->langid);
-    }
+    const SCRIPT_PROPERTIES *script_prop = script_properties[si.analysis.script];
+    script = scriptForWinLanguage(script_prop->langid);
 
     // Just to get the warning away
     int from = si.position;
@@ -516,109 +520,95 @@ void QTextEngine::shapeText(int item) const
 
     si.glyph_data_offset = layoutData->used;
 
-    QFontEngine *fontEngine = this->fontEngine(si, &si.ascent, &si.descent);
-    bool ttf = fontEngine->type() == QFontEngine::Win && static_cast<QFontEngineWin *>(fontEngine)->ttf;
+    int l = len;
+    si.analysis.logicalOrder = true;
+    HRESULT res = E_OUTOFMEMORY;
+    HDC hdc = 0;
 
-    if (hasUsp10 && ttf) {
-        QFontEngineWin *winfe = static_cast<QFontEngineWin *>(fontEngine);
-        int l = len;
-        si.analysis.logicalOrder = true;
-        HRESULT res = E_OUTOFMEMORY;
-        HDC hdc = 0;
+    QVarLengthArray<WORD> glyphs(l);
+    QVarLengthArray<WORD> logClusters(l);
+    QVarLengthArray<SCRIPT_VISATTR> glyphAttributes(l);
 
-        QVarLengthArray<WORD> glyphs(l);
-        QVarLengthArray<WORD> logClusters(l);
-        QVarLengthArray<SCRIPT_VISATTR> glyphAttributes(l);
-
-        do {
-            res = ScriptShape(hdc, &winfe->script_cache, (WCHAR *)layoutData->string.unicode() + from, len,
-                               l, &si.analysis, glyphs.data(), logClusters.data(), glyphAttributes.data(),
-                               &si.num_glyphs);
-            if (res == E_PENDING) {
-                hdc = GetDC(0);
-                SelectObject(hdc, winfe->hfont);
-            } else if (res == USP_E_SCRIPT_NOT_IN_FONT) {
-                si.analysis.script = 0;
-            } else if (res == E_OUTOFMEMORY) {
-                l += 32;
-                glyphs.resize(l);
-                logClusters.resize(l);
-                glyphAttributes.resize(l);
-            } else if (res != S_OK) {
-                goto fail;
-            }
-        } while(res != S_OK);
-
-        for(int i = 0; i < len; ++i) {
-            if(glyphs[logClusters[i]] == 0) {
-                glyphAttributes[logClusters[i]].clusterStart = true;
-                glyphAttributes[logClusters[i]].zeroWidth = false;
-            }
+    do {
+        res = ScriptShape(hdc, &winfe->script_cache, (WCHAR *)layoutData->string.unicode() + from, len,
+                          l, &si.analysis, glyphs.data(), logClusters.data(), glyphAttributes.data(),
+                          &si.num_glyphs);
+        if (res == E_PENDING) {
+            hdc = GetDC(0);
+            SelectObject(hdc, winfe->hfont);
+        } else if (res == USP_E_SCRIPT_NOT_IN_FONT) {
+            si.analysis.script = 0;
+        } else if (res == E_OUTOFMEMORY) {
+            l += 32;
+            glyphs.resize(l);
+            logClusters.resize(l);
+            glyphAttributes.resize(l);
+        } else if (res != S_OK) {
+            goto fail;
         }
-        {
-            ABC abc;
-            QVarLengthArray<int> advances(si.num_glyphs);
-            QVarLengthArray<GOFFSET> offsets(si.num_glyphs);
-            res = ScriptPlace(hdc, &winfe->script_cache, glyphs.data(), si.num_glyphs,
-                               glyphAttributes.data(), &si.analysis, advances.data(), offsets.data(), &abc);
-            if (res == E_PENDING) {
-                Q_ASSERT(hdc == 0);
-                hdc = GetDC(0);
-                SelectObject(hdc, winfe->hfont);
-                ScriptPlace(hdc, &winfe->script_cache, glyphs.data(), si.num_glyphs,
-                             glyphAttributes.data(), &si.analysis, advances.data(), offsets.data(), &abc);
-            }
-            if (res != S_OK)
-                goto fail;
+    } while(res != S_OK);
 
-            ensureSpace(si.num_glyphs);
-            si.glyph_data_offset = layoutData->used;
-            QGlyphLayout *g = this->glyphs(&si);
-            const int direction = (si.analysis.bidiLevel % 2) ? -1 : 1;
-            for(int i = 0; i < si.num_glyphs; ++i) {
-                g[i].glyph = glyphs[i];
-                g[i].advance.x = advances[i];
-                g[i].advance.y = 0;
-                g[i].offset.x = offsets[i].du * direction;
-                g[i].offset.y = offsets[i].dv;
-                g[i].attributes = glyphAttributes[i];
-            }
-            unsigned short *lc = this->logClusters(&si);
-            for(int i = 0; i < len; ++i)
-                lc[i] = logClusters[i];
-        }
-fail:
-        if (hdc)
-            ReleaseDC(0, hdc);
-        if(res == S_OK) {
-            QGlyphLayout *g = this->glyphs(&si);
-            unsigned short *lc = this->logClusters(&si);
-            int pos = 0;
-            while (pos < len) {
-                const ushort uc = layoutData->string.at(si.position + pos).unicode();
-                const bool dontPrint = ((uc == 0x00ad && !fontEngine->symbol) || qIsControlChar(uc));
-                const int gp = lc[pos];
-                g[gp].attributes.dontPrint = dontPrint;
-                ++pos;
-                while (pos < len && gp == lc[pos]) {
-                    g[gp].attributes.dontPrint = dontPrint;
-                    ++pos;
-                }
-            }
-            goto end;
+    for(int i = 0; i < len; ++i) {
+        if(glyphs[logClusters[i]] == 0) {
+            glyphAttributes[logClusters[i]].clusterStart = true;
+            glyphAttributes[logClusters[i]].zeroWidth = false;
         }
     }
-
     {
-        // non uniscribe code path, also used if uniscribe fails for some reason
-        Q_ASSERT(script < QUnicodeTables::ScriptCount);
-	shapeTextWithHarfbuzz(item);
-	return;
+        ABC abc;
+        QVarLengthArray<int> advances(si.num_glyphs);
+        QVarLengthArray<GOFFSET> offsets(si.num_glyphs);
+        res = ScriptPlace(hdc, &winfe->script_cache, glyphs.data(), si.num_glyphs,
+                          glyphAttributes.data(), &si.analysis, advances.data(), offsets.data(), &abc);
+        if (res == E_PENDING) {
+            Q_ASSERT(hdc == 0);
+            hdc = GetDC(0);
+            SelectObject(hdc, winfe->hfont);
+            ScriptPlace(hdc, &winfe->script_cache, glyphs.data(), si.num_glyphs,
+                        glyphAttributes.data(), &si.analysis, advances.data(), offsets.data(), &abc);
+            }
+        if (res != S_OK)
+            goto fail;
+
+        ensureSpace(si.num_glyphs);
+        si.glyph_data_offset = layoutData->used;
+        QGlyphLayout *g = this->glyphs(&si);
+        const int direction = (si.analysis.bidiLevel % 2) ? -1 : 1;
+        for(int i = 0; i < si.num_glyphs; ++i) {
+            g[i].glyph = glyphs[i];
+            g[i].advance.x = advances[i];
+            g[i].advance.y = 0;
+            g[i].offset.x = offsets[i].du * direction;
+            g[i].offset.y = offsets[i].dv;
+            g[i].attributes = glyphAttributes[i];
+        }
+        unsigned short *lc = this->logClusters(&si);
+        for(int i = 0; i < len; ++i)
+            lc[i] = logClusters[i];
     }
-end:
+fail:
+    if (hdc)
+        ReleaseDC(0, hdc);
+    if (res != S_OK)
+        return false;
+
+    QGlyphLayout *g = this->glyphs(&si);
+    unsigned short *lc = this->logClusters(&si);
+    int pos = 0;
+    while (pos < len) {
+        const ushort uc = layoutData->string.at(si.position + pos).unicode();
+        const bool dontPrint = ((uc == 0x00ad && !fontEngine->symbol) || qIsControlChar(uc));
+        const int gp = lc[pos];
+        g[gp].attributes.dontPrint = dontPrint;
+        ++pos;
+        while (pos < len && gp == lc[pos]) {
+            g[gp].attributes.dontPrint = dontPrint;
+            ++pos;
+        }
+    }
+
     si.analysis.script = script;
 
-    QGlyphLayout *g = glyphs(&si);
     if (this->font(si).d->kerning)
         fontEngine->doKerning(si.num_glyphs, g, QFlag(option.useDesignMetrics() ? DesignMetrics : 0));
 
@@ -629,4 +619,5 @@ end:
 
 
     layoutData->used += si.num_glyphs;
+    return true;
 }
