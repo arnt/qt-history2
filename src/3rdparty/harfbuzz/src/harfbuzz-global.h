@@ -15,9 +15,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <ft2build.h>
-#include FT_FREETYPE_H
-
 #ifdef __cplusplus
 #define HB_BEGIN_HEADER  extern "C" {
 #define HB_END_HEADER  }

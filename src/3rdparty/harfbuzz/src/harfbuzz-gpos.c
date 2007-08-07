@@ -687,7 +687,6 @@ static HB_Error  Get_Anchor( GPOS_Instance*   gpi,
   HB_UShort        ap;
 
   HB_Short         pixel_value;
-  HB_UShort        load_flags;
 
   HB_UShort        x_ppem, y_ppem;
   HB_16Dot16         x_scale, y_scale;
@@ -711,15 +710,11 @@ static HB_Error  Get_Anchor( GPOS_Instance*   gpi,
     break;
 
   case 2:
-    /* glyphs must be scaled */
-
-    load_flags = gpi->load_flags & ~FT_LOAD_NO_SCALE;
-
     if ( !gpi->dvi )
     {
       ap = an->af.af2.AnchorPoint;
       uint32_t n_points = 0;
-      error = gpi->font->klass->getPointInOutline(gpi->font, glyph_index, load_flags, ap, x_value, y_value, &n_points);
+      error = gpi->font->klass->getPointInOutline(gpi->font, glyph_index, gpi->load_flags, ap, x_value, y_value, &n_points);
       if (error)
           return error;
       /* if outline.n_points is set to zero, we use the

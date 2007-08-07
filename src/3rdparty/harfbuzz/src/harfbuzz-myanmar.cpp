@@ -12,6 +12,7 @@
 #include "harfbuzz-shaper-private.h"
 
 #include <assert.h>
+#include <stdio.h>
 
 enum MymrCharClassValues
 {

@@ -12,6 +12,7 @@
 #include "harfbuzz-shaper-private.h"
 
 #include <assert.h>
+#include <stdio.h>
 
 //  Vocabulary
 //      Base ->         A consonant or an independent vowel in its full (not subscript) form. It is the

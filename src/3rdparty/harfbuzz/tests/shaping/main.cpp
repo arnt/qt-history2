@@ -50,12 +50,13 @@ static HB_UChar32 getChar(const HB_UChar16 *string, uint32_t length, uint32_t &i
 
 static HB_Bool hb_stringToGlyphs(HB_Font font, const HB_UChar16 *string, uint32_t length, HB_Glyph *glyphs, uint32_t *numGlyphs, HB_Bool /*rightToLeft*/)
 {
+    FT_Face face = (FT_Face)font->faceData;
     if (length > *numGlyphs)
         return false;
 
     int glyph_pos = 0;
     for (uint32_t i = 0; i < length; ++i) {
-        glyphs[glyph_pos] = FT_Get_Char_Index(font->freetypeFace, getChar(string, length, i));
+        glyphs[glyph_pos] = FT_Get_Char_Index(face, getChar(string, length, i));
         ++glyph_pos;
     }
 
@@ -72,8 +73,10 @@ static void hb_getAdvances(HB_Font /*font*/, const HB_Glyph * /*glyphs*/, int nu
 
 static HB_Bool hb_canRender(HB_Font font, const HB_UChar16 *string, uint32_t length)
 {
+    FT_Face face = (FT_Face)font->faceData;
+
     for (uint32_t i = 0; i < length; ++i)
-        if (!FT_Get_Char_Index(font->freetypeFace, getChar(string, length, i)))
+        if (!FT_Get_Char_Index(face, getChar(string, length, i)))
             return false;
 
     return true;
@@ -81,19 +84,20 @@ static HB_Bool hb_canRender(HB_Font font, const HB_UChar16 *string, uint32_t len
 
 static HB_Stream hb_getSFntTable(HB_Font font, HB_Tag tableTag)
 {
+    FT_Face face = (FT_Face)font->faceData;
     FT_Error error;
     FT_ULong length = 0;
     HB_Stream stream = 0;
     
-    if ( !FT_IS_SFNT(font->freetypeFace) ) 
+    if ( !FT_IS_SFNT(face) ) 
         return 0;
 
-    error = FT_Load_Sfnt_Table(font->freetypeFace, tableTag, 0, 0, &length);
+    error = FT_Load_Sfnt_Table(face, tableTag, 0, 0, &length);
     if (error)
         return 0;
     stream = (HB_Stream)malloc(sizeof(HB_StreamRec));
     stream->base = (HB_Byte*)malloc(length);
-    error = FT_Load_Sfnt_Table(font->freetypeFace, tableTag, 0, stream->base, NULL);
+    error = FT_Load_Sfnt_Table(face, tableTag, 0, stream->base, NULL);
     if (error) {
         HB_close_stream(stream);
         return 0;
@@ -104,25 +108,28 @@ static HB_Stream hb_getSFntTable(HB_Font font, HB_Tag tableTag)
     return stream;
 }
 
-HB_Error hb_getPointInOutline(HB_Font font, HB_Glyph glyph, int load_flags, uint32_t point, HB_Fixed *xpos, HB_Fixed *ypos, uint32_t *nPoints)
+HB_Error hb_getPointInOutline(HB_Font font, HB_Glyph glyph, int flags, uint32_t point, HB_Fixed *xpos, HB_Fixed *ypos, uint32_t *nPoints)
 {
     HB_Error error = HB_Err_Ok;
+    FT_Face face = (FT_Face)font->faceData;
 
-    if ((error = (HB_Error)FT_Load_Glyph(font->freetypeFace, glyph, load_flags)))
+    int load_flags = (flags & HB_ShaperFlag_UseDesignMetrics) ? FT_LOAD_NO_HINTING : FT_LOAD_DEFAULT;
+
+    if ((error = (HB_Error)FT_Load_Glyph(face, glyph, load_flags)))
         return error;
 
-    if (font->freetypeFace->glyph->format != ft_glyph_format_outline)
+    if (face->glyph->format != ft_glyph_format_outline)
         return (HB_Error)HB_Err_Invalid_GPOS_SubTable;
 
-    *nPoints = font->freetypeFace->glyph->outline.n_points;
+    *nPoints = face->glyph->outline.n_points;
     if (!(*nPoints))
         return HB_Err_Ok;
 
     if (point > *nPoints)
         return (HB_Error)HB_Err_Invalid_GPOS_SubTable;
 
-    *xpos = font->freetypeFace->glyph->outline.points[point].x;
-    *ypos = font->freetypeFace->glyph->outline.points[point].y;
+    *xpos = face->glyph->outline.points[point].x;
+    *ypos = face->glyph->outline.points[point].y;
 
     return HB_Err_Ok;
 }
@@ -194,7 +201,7 @@ static bool shaping(FT_Face face, const ShapeTable *s, HB_Script script)
     HB_FontRec hbFont;
     hbFont.klass = &hb_fontClass;
     hbFont.userData = 0;
-    hbFont.freetypeFace = face;
+    hbFont.faceData = face;
     hbFont.x_ppem  = face->size->metrics.x_ppem;
     hbFont.y_ppem  = face->size->metrics.y_ppem;
     hbFont.x_scale = face->size->metrics.x_scale;

@@ -1,8 +1,5 @@
 ## Process this file with automake to produce Makefile.in
 
-INCLUDES = 					\
-	$(FREETYPE_CFLAGS)
-
 noinst_LTLIBRARIES = libharfbuzz-1.la
 
 MAINSOURCES =  \
@@ -50,9 +47,6 @@ libharfbuzz_1_la_SOURCES = \
 	$(MAINSOURCES) \
 	$(PUBLICHEADERS) \
 	$(PRIVATEHEADERS)
-
-libharfbuzz_1_la_LIBADD = \
-	$(FREETYPE_LIBS)
 
 #noinst_PROGRAMS = harfbuzz-dump
 #
