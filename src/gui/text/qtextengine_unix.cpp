@@ -18,35 +18,9 @@
 #  define FT_KERNING_UNFITTED ft_kerning_unfitted
 #endif
 
-#include <harfbuzz-shaper.h>
+#include <private/qharfbuzz_p.h>
 
 #include <private/qfontengine_ft_p.h>
-
-HB_LineBreakClass HB_GetLineBreakClass(HB_UChar32 ch)
-{
-    return (HB_LineBreakClass)QUnicodeTables::lineBreakClass(ch);
-}
-
-void HB_GetUnicodeCharProperties(HB_UChar32 ch, HB_CharCategory *category, int *combiningClass)
-{
-    *category = (HB_CharCategory)QChar::category(ch);
-    *combiningClass = QChar::combiningClass(ch);
-}
-
-HB_CharCategory HB_GetUnicodeCharCategory(HB_UChar32 ch)
-{
-    return (HB_CharCategory)QChar::category(ch);
-}
-
-int HB_GetUnicodeCharCombiningClass(HB_UChar32 ch)
-{
-    return QChar::combiningClass(ch);
-}
-
-HB_UChar16 HB_GetMirroredChar(HB_UChar16 ch)
-{
-    return QChar::mirroredChar(ch);
-}
 
 void QTextEngine::shapeText(int item) const
 {
@@ -143,7 +117,7 @@ void QTextEngine::shapeText(int item) const
 //        shaper_item.glyphs = glyphs(&si);
 //        shaper_item.log_clusters = logClusters(&si);
 
-        if (HB_ShapeItem(&shaper_item)) {
+        if (qShapeItem(&shaper_item)) {
             QGlyphLayout *g = glyphs(&si);
 
             for (uint32_t i = 0; i < shaper_item.num_glyphs; ++i) {

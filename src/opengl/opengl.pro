@@ -64,4 +64,6 @@ embedded {
     }
 }
 
+INCLUDEPATH += ../3rdparty/harfbuzz/src
+
 QMAKE_LIBS += $$QMAKE_LIBS_OPENGL

@@ -82,4 +82,12 @@ contains(QT_CONFIG, zlib) {
 #  win32:LIBS += libz.lib
 }
 
+DEFINES += HB_EXPORT=Q_CORE_EXPORT
+INCLUDEPATH += ../3rdparty/harfbuzz/src
+HEADERS += ../3rdparty/harfbuzz/src/harfbuzz.h
+SOURCES += ../3rdparty/harfbuzz/src/harfbuzz.c \
+           ../3rdparty/harfbuzz/src/harfbuzz-shaper-all.cpp \
+           tools/qharfbuzz.cpp
+HEADERS += tools/qharfbuzz_p.h
+
 !macx-icc:unix:LIBS += -lm

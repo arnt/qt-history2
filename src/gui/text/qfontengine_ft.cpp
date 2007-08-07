@@ -22,6 +22,8 @@
 #include "qfile.h"
 #include "qabstractfileengine.h"
 #include "qthreadstorage.h"
+#include <private/qpdf_p.h>
+#include <private/qharfbuzz_p.h>
 
 #include "qopentype_p.h"
 #include <private/qpdf_p.h>
@@ -92,30 +94,18 @@ static HB_Bool hb_canRender(HB_Font font, const HB_UChar16 *string, uint32_t len
     return fe->canRender(reinterpret_cast<const QChar *>(string), length);
 }
 
-static HB_Stream hb_getSFntTable(HB_Font font, HB_Tag tableTag)
+static HB_Error hb_getSFntTable(HB_Font font, HB_Tag tableTag, HB_Byte *buffer, HB_UInt *length)
 {
-    FT_Error error;
-    FT_ULong length = 0;
-    HB_Stream stream = 0;
     FT_Face face = (FT_Face)font->faceData;
+    FT_ULong ftlen = *length;
+    FT_Error error = 0;
 
     if ( !FT_IS_SFNT(face) ) 
-        return 0;
+        return HB_Err_Invalid_Argument;
 
-    error = FT_Load_Sfnt_Table(face, tableTag, 0, 0, &length);
-    if (error)
-        return 0;
-    stream = (HB_Stream)malloc(sizeof(HB_StreamRec));
-    stream->base = (HB_Byte*)malloc(length);
-    error = FT_Load_Sfnt_Table(face, tableTag, 0, stream->base, NULL);
-    if (error) {
-        HB_close_stream(stream);
-        return 0;
-    }
-    stream->size = length;
-    stream->pos = 0;
-    stream->cursor = NULL;
-    return stream;
+    error = FT_Load_Sfnt_Table(face, tableTag, 0, buffer, &ftlen);
+    *length = ftlen;
+    return (HB_Error)error;
 }
 
 HB_Error hb_getPointInOutline(HB_Font font, HB_Glyph glyph, int flags, uint32_t point, HB_Fixed *xpos, HB_Fixed *ypos, uint32_t *nPoints)
@@ -233,7 +223,7 @@ QFreetypeFace *QFreetypeFace::getFace(const QFontEngine::FaceId &face_id)
         freetype->hbBaseFont.klass = &hb_fontClass;
         freetype->hbBaseFont.userData = 0;
         freetype->hbBaseFont.faceData = face;
-        freetype->hbFace = HB_NewFace(&freetype->hbBaseFont);
+        freetype->hbFace = qHBNewFace(&freetype->hbBaseFont);
         freetype->ref = 0;
         freetype->xsize = 0;
         freetype->ysize = 0;
@@ -299,7 +289,7 @@ void QFreetypeFace::release(const QFontEngine::FaceId &face_id)
 {
     QtFreetypeData *freetypeData = qt_getFreetypeData();
     if (!ref.deref()) {
-        HB_FreeFace(hbFace);
+        qHBFreeFace(hbFace);
         FT_Done_Face(face);
 #ifndef QT_NO_FONTCONFIG
         if (charset)
