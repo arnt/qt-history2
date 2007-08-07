@@ -1164,7 +1164,7 @@ static HB_Error  Get_Class1( HB_ClassDefFormat1*  cdf1,
     *index = 0;
 
   if ( glyphID >= cdf1->StartGlyph &&
-       glyphID <= cdf1->StartGlyph + cdf1->GlyphCount )
+       glyphID < cdf1->StartGlyph + cdf1->GlyphCount )
   {
     *class = cva[glyphID - cdf1->StartGlyph];
     return HB_Err_Ok;
