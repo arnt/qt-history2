@@ -28,8 +28,12 @@ static HB_Bool hb_stringToGlyphs(HB_Font font, const HB_UChar16 *string, uint32_
 
     QVarLengthArray<QGlyphLayout> qglyphs(*numGlyphs);
 
+    QTextEngine::ShaperFlags shaperFlags(QTextEngine::GlyphIndicesOnly);
+    if (rightToLeft)
+        shaperFlags |= QTextEngine::RightToLeft;
+
     int nGlyphs = *numGlyphs;
-    bool result = fe->stringToCMap(reinterpret_cast<const QChar *>(string), length, qglyphs.data(), &nGlyphs, rightToLeft ? QTextEngine::RightToLeft : QFlag(0));
+    bool result = fe->stringToCMap(reinterpret_cast<const QChar *>(string), length, qglyphs.data(), &nGlyphs, shaperFlags);
     *numGlyphs = nGlyphs;
     if (!result)
         return false;

@@ -363,7 +363,8 @@ bool QFontEngineXLFD::stringToCMap(const QChar *s, int len, QGlyphLayout *glyphs
     }
     *nglyphs = len;
 
-    recalcAdvances(len, glyphs, flags);
+    if (!(flags & QTextEngine::GlyphIndicesOnly))
+        recalcAdvances(len, glyphs, flags);
     return true;
 }
 
