@@ -1628,6 +1628,20 @@ void tst_QScriptExtQObject::findChildren()
         }
     }
 
+    // find all
+    {
+        QScriptValue result = m_engine->evaluate("myObject.findChildren()");
+        QVERIFY(result.isArray());
+        int count = 3;
+        QCOMPARE(result.property("length").toInt32(), count);
+        for (int i = 0; i < 3; ++i) {
+            QObject *o = result.property(i).toQObject();
+            if (o == namelessChild || o == child || o == anotherChild)
+                --count;
+        }
+        QVERIFY(count == 0);
+    }
+
     delete anotherChild;
     delete namelessChild;
     delete child;

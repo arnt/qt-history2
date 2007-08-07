@@ -657,7 +657,7 @@ QScriptValueImpl QScript::ExtQObject::method_findChildren(QScriptContextPrivate 
         } else
 #endif
         {
-            QString name = arg.toString();
+            QString name = arg.isUndefined() ? QString() : arg.toString();
             found = qFindChildren<QObject*>(obj, name);
         }
         QScriptValueImpl result = eng->newArray(found.size());
