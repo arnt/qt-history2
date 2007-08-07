@@ -31,6 +31,9 @@ if test "x$QT" = xyes; then
     PKG_CHECK_MODULES(QT_GUI, [QtGui >= 4.3])
     PKG_CHECK_MODULES(QT_QTEST, [QtTest >= 4.3])
 
+    _PKG_CONFIG(QT_INCDIR, [variable=includedir], [QtGui >= 4.3])
+    QT_GUI_CFLAGS="$QT_GUI_CFLAGS -I$pkg_cv_QT_INCDIR/../Qt"
+
     AC_SUBST(QT_GUI_CFLAGS)
     AC_SUBST(QT_GUI_LIBS)
     AC_SUBST(QT_QTEST_CFLAGS)
@@ -48,4 +51,5 @@ src/Makefile
 test/Makefile
 tests/Makefile
 tests/linebreaking/Makefile
+tests/shaping/Makefile
 ])
