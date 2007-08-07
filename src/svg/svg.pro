@@ -35,3 +35,4 @@ SOURCES += \
         qgraphicssvgitem.cpp    \
         qsvggenerator.cpp
 
+INCLUDEPATH += ../3rdparty/harfbuzz/src
