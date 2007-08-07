@@ -63,7 +63,7 @@ QAxObject::QAxObject(QObject *parent)
 
 /*!
     Creates a QAxObject that wraps the COM object \a c. \a parent is
-    propagated to the QWidget contructor.
+    propagated to the QObject constructor.
 
     \sa setControl()
 */
@@ -75,7 +75,7 @@ QAxObject::QAxObject(const QString &c, QObject *parent)
 
 /*!
     Creates a QAxObject that wraps the COM object referenced by \a
-    iface. \a parent is propagated to the QObject contructor.
+    iface. \a parent is propagated to the QObject constructor.
 */
 QAxObject::QAxObject(IUnknown *iface, QObject *parent)
 : QObject(parent), QAxBase(iface)
