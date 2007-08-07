@@ -726,7 +726,7 @@ static HB_Bool checkScript(HB_Face face, int script)
     if (!face->gsub && !face->gpos)
         return false;
 
-    uint tag = ot_scripts[script].tag;
+    unsigned int tag = ot_scripts[script].tag;
     int requirements = ot_scripts[script].flags;
 
     if (requirements & RequiresGsub) {
@@ -831,7 +831,7 @@ HB_Face HB_NewFace(void *font, HB_GetFontTableFunc tableFunc)
 
     HB_close_stream(gdefStream);
 
-    for (uint i = 0; i < HB_ScriptCount; ++i)
+    for (unsigned int i = 0; i < HB_ScriptCount; ++i)
         face->supported_scripts[i] = checkScript(face, i);
 
     hb_buffer_new(&face->buffer);
@@ -874,7 +874,7 @@ HB_Bool HB_SelectScript(HB_ShaperItem *shaper_item, const HB_OpenTypeFeature *fe
 
     assert(script < HB_ScriptCount);
     // find script in our list of supported scripts.
-    uint tag = ot_scripts[script].tag;
+    unsigned int tag = ot_scripts[script].tag;
 
     if (face->gsub && features) {
 #ifdef OT_DEBUG
@@ -982,7 +982,7 @@ HB_Bool HB_OpenTypeShape(HB_ShaperItem *item, const hb_uint32 *properties)
 
     face->glyphs_substituted = false;
     if (face->gsub) {
-        uint error = HB_GSUB_Apply_String(face->gsub, face->buffer);
+        unsigned int error = HB_GSUB_Apply_String(face->gsub, face->buffer);
         if (error && error != HB_Err_Not_Covered)
             return false;
         face->glyphs_substituted = (error != HB_Err_Not_Covered);
