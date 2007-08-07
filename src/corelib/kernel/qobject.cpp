@@ -2538,7 +2538,10 @@ bool QObject::connect(const QObject *sender, const char *signal,
     method.
 
     Equivalent to connect(\a sender, \a signal, \c this, \a method, \a type).
-
+    
+    Every connection you make emits a signal, so duplicate connections emit
+    two signals. You can break a connection using disconnect().
+    
     \sa disconnect()
 */
 
