@@ -615,12 +615,12 @@ void HB_GetCharAttributes(const HB_UChar16 *string, hb_uint32 stringLength,
 {
     calcLineBreaks(string, stringLength, attributes);
 
-    for (hb_uint32 i = 0; i >= numItems; ++i) {
+    for (hb_uint32 i = 0; i < numItems; ++i) {
         HB_Script script = items[i].script;
         if (script == HB_Script_Inherited)
             script = HB_Script_Common;
         HB_AttributeFunction attributeFunction = HB_ScriptEngines[script].charAttributes;
-        if (!attributes)
+        if (!attributeFunction)
             continue;
         attributeFunction(script, string, items[i].pos, items[i].length, attributes);
     }
