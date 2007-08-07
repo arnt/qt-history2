@@ -684,14 +684,6 @@ void QTextEngine::shapeText(int item) const
 
 #include <private/qharfbuzz_p.h>
 
-static HB_Error hb_getSFntTable(void *font, HB_Tag tableTag, HB_Byte *buffer, HB_UInt *length)
-{
-    QFontEngine *fe = (QFontEngine *)font;
-    if (!fe->getSfntTableData(tableTag, buffer, length))
-        return HB_Err_Invalid_Argument;
-    return HB_Err_Ok;
-}
-
 static bool stringToGlyphs(HB_ShaperItem *item, HB_Glyph *itemGlyphs, QFontEngine *fontEngine)
 {
     int nGlyphs = item->num_glyphs;
@@ -825,15 +817,7 @@ void QTextEngine::shapeTextWithHarfbuzz(int item) const
 #endif
 
         shaper_item.font = actualFontEngine->harfbuzzFont();
-
-#if defined(Q_WS_X11) || defined(Q_WS_QWS)
-        if (ftEngine) {
-            shaper_item.face = ftEngine->harfbuzzFace();
-        } else
-#endif
-       	{
-            shaper_item.face = qHBNewFace(actualFontEngine, hb_getSFntTable);
-        }
+        shaper_item.face = actualFontEngine->harfbuzzFace();
 
         shaper_item.glyphIndicesPresent = true;
 
@@ -894,9 +878,7 @@ void QTextEngine::shapeTextWithHarfbuzz(int item) const
 #if defined(Q_WS_X11) || defined(Q_WS_QWS)
             if (ftEngine)
                 ftEngine->unlockFace();
-            else
 #endif
-                qHBFreeFace(shaper_item.face);
             break;
         }
 

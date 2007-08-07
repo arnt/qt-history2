@@ -841,6 +841,8 @@ HB_Face HB_NewFace(void *font, HB_GetFontTableFunc tableFunc)
 
 void HB_FreeFace(HB_Face face)
 {
+    if (!face)
+        return;
     if (face->gpos)
         HB_Done_GPOS_Table(face->gpos);
     if (face->gsub)

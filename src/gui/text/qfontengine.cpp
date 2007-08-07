@@ -110,6 +110,14 @@ static const HB_FontClass hb_fontClass = {
     hb_getGlyphMetrics, hb_getFontMetric
 };
 
+static HB_Error hb_getSFntTable(void *font, HB_Tag tableTag, HB_Byte *buffer, HB_UInt *length)
+{
+    QFontEngine *fe = (QFontEngine *)font;
+    if (!fe->getSfntTableData(tableTag, buffer, length))
+        return HB_Err_Invalid_Argument;
+    return HB_Err_Ok;
+}
+
 // QFontEngine
 
 QFontEngine::QFontEngine()
@@ -126,11 +134,14 @@ QFontEngine::QFontEngine()
     memset(&hbFont, 0, sizeof(hbFont));
     hbFont.klass = &hb_fontClass;
     hbFont.userData = this;
+
+    hbFace = 0;
 }
 
 #ifndef Q_WS_WIN
 QFontEngine::~QFontEngine()
 {
+    qHBFreeFace(hbFace); // ### duplicated in qfontengine_win.cpp
 }
 
 HB_Font QFontEngine::harfbuzzFont() const
@@ -143,6 +154,13 @@ HB_Font QFontEngine::harfbuzzFont() const
         hbFont.y_scale = (QFixed(hbFont.y_ppem * (1 << 16)) / emSquare).value();
     }
     return &hbFont;
+}
+
+HB_Face QFontEngine::harfbuzzFace() const
+{
+    if (!hbFace)
+        hbFace = qHBNewFace(const_cast<QFontEngine *>(this), hb_getSFntTable);
+    return hbFace;
 }
 
 QFixed QFontEngine::lineThickness() const

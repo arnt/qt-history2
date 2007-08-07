@@ -462,6 +462,7 @@ QFontEngineFT::~QFontEngineFT()
 {
     if (freetype)
         freetype->release(face_id);
+    hbFace = 0; // we share the face in QFreeTypeFace, don't let ~QFontEngine delete it
 }
 
 void QFontEngineFT::freeGlyphSets()
@@ -527,6 +528,8 @@ bool QFontEngineFT::init(FaceId faceId, bool antialias, GlyphFormat defaultForma
     hbFont.y_ppem  = face->size->metrics.y_ppem;
     hbFont.x_scale = face->size->metrics.x_scale;
     hbFont.y_scale = face->size->metrics.y_scale;
+
+    hbFace = freetype->hbFace;
 
     unlockFace();
 

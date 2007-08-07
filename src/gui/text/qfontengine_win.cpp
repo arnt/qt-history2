@@ -129,6 +129,8 @@ QFontEngine::~QFontEngine()
     // for Uniscribe
     if (ScriptFreeCache && script_cache)
         ScriptFreeCache(&script_cache);
+
+    qHBFreeFace(hbFace); // ### duplicated from QFontEngine::~QFontEngine
 }
 
 QFixed QFontEngine::lineThickness() const

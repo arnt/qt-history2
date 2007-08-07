@@ -157,6 +157,7 @@ public:
     virtual int glyphCount() const;
 
     HB_Font harfbuzzFont() const;
+    HB_Face harfbuzzFace() const;
 
     virtual HB_Error getPointInOutline(HB_Glyph glyph, int flags, hb_uint32 point, HB_Fixed *xpos, HB_Fixed *ypos, hb_uint32 *nPoints);
 
@@ -170,6 +171,7 @@ public:
     uint fsType : 16;
     bool symbol;
     mutable HB_FontRec hbFont;
+    mutable HB_Face hbFace;
 
 #ifdef Q_WS_WIN
     int getGlyphIndexes(const QChar *ch, int numChars, QGlyphLayout *glyphs, bool mirrored) const;
