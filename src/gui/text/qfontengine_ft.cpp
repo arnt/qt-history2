@@ -108,7 +108,7 @@ static HB_Error hb_getSFntTable(HB_Font font, HB_Tag tableTag, HB_Byte *buffer, 
     return (HB_Error)error;
 }
 
-HB_Error hb_getPointInOutline(HB_Font font, HB_Glyph glyph, int flags, uint32_t point, HB_Fixed *xpos, HB_Fixed *ypos, uint32_t *nPoints)
+static HB_Error hb_getPointInOutline(HB_Font font, HB_Glyph glyph, int flags, uint32_t point, HB_Fixed *xpos, HB_Fixed *ypos, uint32_t *nPoints)
 {
     HB_Error error = HB_Err_Ok;
     FT_Face face = (FT_Face)font->faceData;
@@ -134,9 +134,27 @@ HB_Error hb_getPointInOutline(HB_Font font, HB_Glyph glyph, int flags, uint32_t 
     return HB_Err_Ok;
 }
 
+static void hb_getGlyphMetrics(HB_Font font, HB_Glyph glyph, HB_GlyphMetrics *metrics)
+{
+    QFontEngine *fe = (QFontEngine *)font->userData;
+    glyph_metrics_t m = fe->boundingBox(glyph);
+    metrics->x = m.x.value();
+    metrics->y = m.y.value();
+    metrics->width = m.width.value();
+    metrics->height = m.height.value();
+    metrics->xOffset = m.xoff.value();
+    metrics->yOffset = m.yoff.value();
+}
+
+static HB_Fixed hb_getAscent(HB_Font font)
+{
+    QFontEngine *fe = (QFontEngine *)font->userData;
+    return fe->ascent().value();
+}
+
 const HB_FontClass hb_fontClass = {
     hb_stringToGlyphs, hb_getAdvances, hb_canRender, hb_getSFntTable,
-    hb_getPointInOutline
+    hb_getPointInOutline, hb_getGlyphMetrics, hb_getAscent
 };
 
 // -------------------------- Freetype support ------------------------------

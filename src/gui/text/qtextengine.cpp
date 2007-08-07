@@ -18,7 +18,6 @@
 #include "qabstracttextdocumentlayout.h"
 #include "qtextlayout.h"
 #include "qvarlengtharray.h"
-#include "qscriptengine_p.h"
 #include "qfont.h"
 #include "qfont_p.h"
 #include "qfontengine_p.h"
