@@ -583,6 +583,11 @@ bool QFontEngineFT::init(FaceId faceId, bool antialias, GlyphFormat defaultForma
 
     FT_Face face = lockFace();
 
+    hbFont->x_ppem  = face->size->metrics.x_ppem;
+    hbFont->y_ppem  = face->size->metrics.y_ppem;
+    hbFont->x_scale = face->size->metrics.x_scale;
+    hbFont->y_scale = face->size->metrics.y_scale;
+
     //underline metrics
     if (FT_IS_SCALABLE(face)) {
         line_thickness =  QFixed::fromFixed(FT_MulFix(face->underline_thickness, face->size->metrics.y_scale));
