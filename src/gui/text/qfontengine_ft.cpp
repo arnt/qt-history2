@@ -1037,6 +1037,10 @@ QOpenType *QFontEngineFT::openType() const
 QFontEngineFT::QGlyphSet *QFontEngineFT::loadTransformedGlyphSet(glyph_t *glyphs, int num_glyphs, const QTransform &matrix,
                                                                  GlyphFormat format)
 {
+    // FT_Set_Transform only supports scalable fonts
+    if (!FT_IS_SCALABLE(freetype->face))
+        return 0;
+
     // don't try to load huge fonts
     if (fontDef.pixelSize * qSqrt(matrix.det()) >= 64)
         return 0;
