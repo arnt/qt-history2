@@ -3884,7 +3884,7 @@ void Q3TextString::checkBidi() const
     textEngine.text = toString();
     textEngine.option.setTextDirection(rightToLeft ? Qt::RightToLeft : Qt::LeftToRight);
     textEngine.itemize();
-    const QCharAttributes *ca = textEngine.attributes() + length-1;
+    const HB_CharAttributes *ca = textEngine.attributes() + length-1;
     Q3TextStringChar *ch = (Q3TextStringChar *)end - 1;
     QScriptItem *item = &textEngine.layoutData->items[textEngine.layoutData->items.size()-1];
     unsigned char bidiLevel = item->analysis.bidiLevel;
@@ -3898,7 +3898,7 @@ void Q3TextString::checkBidi() const
             if (bidiLevel)
                 that->bidi = true;
         }
-        ch->softBreak = ca->lineBreakType >= QCharAttributes::Break;
+        ch->softBreak = ca->lineBreakType >= HB_Break;
         ch->whiteSpace = ca->whiteSpace;
         ch->charStop = ca->charStop;
         ch->bidiLevel = bidiLevel;
