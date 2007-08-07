@@ -1068,7 +1068,7 @@ static const unsigned short split_matras[]  = {
     0xffff
 };
 
-static inline void splitMatra(unsigned short *reordered, int matra, uint32_t &len, uint32_t &base)
+static inline void splitMatra(unsigned short *reordered, int matra, int &len, int &base)
 {
     unsigned short matra_uc = reordered[matra];
     //qDebug("matra=%d, reordered[matra]=%x", matra, reordered[matra]);
@@ -1173,10 +1173,10 @@ static bool indic_shape_syllable(HB_Bool openType, HB_ShaperItem *item, bool inv
     const unsigned short nukta = script_base + 0x3c;
     bool control = false;
 
-    uint32_t len = item->item.length;
+    int len = (int)item->item.length;
     IDEBUG(">>>>> indic shape: from=%d, len=%d invalid=%d", item->item.pos, item->item.length, invalid);
 
-    if (item->num_glyphs < len+4) {
+    if ((int)item->num_glyphs < len+4) {
         item->num_glyphs = len+4;
         return false;
     }
@@ -1196,8 +1196,8 @@ static bool indic_shape_syllable(HB_Bool openType, HB_ShaperItem *item, bool inv
     if (reordered[len-1] == 0x200c) // zero width non joiner
         len--;
 
-    uint32_t i;
-    uint32_t base = 0;
+    int i;
+    int base = 0;
     int reph = -1;
 
 #ifdef INDIC_DEBUG
@@ -1237,7 +1237,7 @@ static bool indic_shape_syllable(HB_Bool openType, HB_ShaperItem *item, bool inv
             base = (beginsWithRa ? 2 : 0);
             IDEBUG("    length = %d, beginsWithRa = %d, base=%d", len, beginsWithRa, base);
 
-            uint32_t lastConsonant = 0;
+            int lastConsonant = 0;
             int matra = -1;
             // we remember:
             // * the last consonant since we need it for rule 2
@@ -1331,7 +1331,7 @@ static bool indic_shape_syllable(HB_Bool openType, HB_ShaperItem *item, bool inv
             IDEBUG("    matra at %d with form %d, base=%d", matra, matra_position, base);
 
             if (beginsWithRa && base != 0) {
-                uint32_t toPos = base+1;
+                int toPos = base+1;
                 if (toPos < len && uc[toPos] == nukta)
                     toPos++;
                 if (toPos < len && uc[toPos] == halant)
@@ -1410,7 +1410,7 @@ static bool indic_shape_syllable(HB_Bool openType, HB_ShaperItem *item, bool inv
         }
 
         // all reordering happens now to the chars after the base
-        uint32_t fixed = base+1;
+        int fixed = base+1;
         if (fixed < len && uc[fixed] == nukta)
             fixed++;
         if (fixed < len && uc[fixed] == halant)
@@ -1605,15 +1605,15 @@ static bool indic_shape_syllable(HB_Bool openType, HB_ShaperItem *item, bool inv
         item->log_clusters = clusters;
         HB_OpenTypeShape(item, properties);
 
-        uint32_t newLen = item->font->face->buffer->in_length;
+        int newLen = item->font->face->buffer->in_length;
         HB_GlyphItem otl_glyphs = item->font->face->buffer->in_string;
 
         // move the left matra back to its correct position in malayalam and tamil
         if ((script == HB_Script_Malayalam || script == HB_Script_Tamil) && (form(reordered[0]) == Matra)) {
 //             qDebug("reordering matra, len=%d", newLen);
             // need to find the base in the shaped string and move the matra there
-            uint32_t basePos = 0;
-            while (basePos < newLen && (uint32_t)otl_glyphs[basePos].cluster <= base)
+            int basePos = 0;
+            while (basePos < newLen && (int)otl_glyphs[basePos].cluster <= base)
                 basePos++;
             --basePos;
             if (basePos < newLen && basePos > 1) {

@@ -149,6 +149,8 @@ static bool shaping( const QFont &_f, const ShapeTable *s)
 
     }
 
+    ftEngine->unlockFace();
+
     //e->shape(0);
 
     int nglyphs = 0;
