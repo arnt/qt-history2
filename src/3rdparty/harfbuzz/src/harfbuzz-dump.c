@@ -127,7 +127,7 @@ DEF_DUMP (ScriptList)
       fprintf (stream, "<ScriptTag>");
       Print_Tag (ScriptList->ScriptRecord[i].ScriptTag, stream);
       fprintf (stream, "</ScriptTag>\n");
-      RECURSE_NUM (Script, i, Script, &ScriptList->ScriptRecord[i].Script);
+      RECURSE_NUM (Script, i, ScriptTable, &ScriptList->ScriptRecord[i].Script);
     }
 }
 

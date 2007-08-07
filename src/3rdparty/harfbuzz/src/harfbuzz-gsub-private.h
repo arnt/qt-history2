@@ -13,6 +13,7 @@
 #ifndef HARFBUZZ_GSUB_PRIVATE_H
 #define HARFBUZZ_GSUB_PRIVATE_H
 
+#include "harfbuzz-stream.h"
 #include "harfbuzz-gsub.h"
 
 FT_BEGIN_HEADER
@@ -435,12 +436,11 @@ union  HB_GSUB_SubTable_
 
 
 
-FT_Error  _HB_GSUB_Load_SubTable( HB_GSUB_SubTable*  st,
-				  FT_Stream     stream,
+HB_Error  _HB_GSUB_Load_SubTable( HB_GSUB_SubTable*  st,
+				  HB_Stream     stream,
 				  FT_UShort     lookup_type );
 
 void  _HB_GSUB_Free_SubTable( HB_GSUB_SubTable*  st,
-			      FT_Memory     memory,
 			      FT_UShort     lookup_type );
 
 FT_END_HEADER

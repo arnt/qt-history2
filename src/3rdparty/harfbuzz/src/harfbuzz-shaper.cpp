@@ -11,7 +11,7 @@
 #include "harfbuzz-shaper.h"
 #include "harfbuzz-shaper-private.h"
 
-#include "ftglue.h"
+#include "harfbuzz-global.h"
 #include <assert.h>
 
 // -----------------------------------------------------------------------------------------------------
@@ -757,7 +757,7 @@ HB_Face HB_NewFace(FT_Face ftface)
     for (uint i = 0; i < HB_ScriptCount; ++i)
         face->supported_scripts[i] = checkScript(face, i);
 
-    hb_buffer_new(ftface->memory, &face->buffer);
+    hb_buffer_new(&face->buffer);
 
     return face;
 }
@@ -865,7 +865,6 @@ HB_Bool HB_SelectScript(HB_ShaperItem *shaper_item, const HB_OpenTypeFeature *fe
                         HB_GPOS_Add_Feature(face->gpos, feature_index, PositioningProperties);
                     ++feature_tag_list;
                 }
-                FT_Memory memory = face->gpos->memory;
                 FREE(feature_tag_list_buffer);
             }
         }

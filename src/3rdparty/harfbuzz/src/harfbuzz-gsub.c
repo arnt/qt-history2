@@ -15,7 +15,7 @@
 #include "harfbuzz-open-private.h"
 #include "harfbuzz-gdef-private.h"
 
-static FT_Error  GSUB_Do_Glyph_Lookup( HB_GSUBHeader*   gsub,
+static HB_Error  GSUB_Do_Glyph_Lookup( HB_GSUBHeader*   gsub,
 				       FT_UShort         lookup_index,
 				       HB_Buffer        buffer,
 				       FT_UShort         context_length,
@@ -29,13 +29,12 @@ static FT_Error  GSUB_Do_Glyph_Lookup( HB_GSUBHeader*   gsub,
 
 
 
-FT_Error  HB_Load_GSUB_Table( FT_Face          face,
+HB_Error  HB_Load_GSUB_Table( FT_Face          face,
 			      HB_GSUBHeader** retptr,
 			      HB_GDEFHeader*  gdef )
 {
-  FT_Stream        stream = face->stream;
-  FT_Memory        memory = face->memory;
-  FT_Error         error;
+    HB_Stream        stream = 0;
+  HB_Error         error;
   FT_ULong         cur_offset, new_offset, base_offset;
 
   FT_UShort        i, num_lookups;
@@ -43,17 +42,18 @@ FT_Error  HB_Load_GSUB_Table( FT_Face          face,
   HB_Lookup*      lo;
 
   if ( !retptr )
-    return FT_Err_Invalid_Argument;
+    return HB_Err_Invalid_Argument;
 
-  if (( error = _hb_ftglue_face_goto_table( face, TTAG_GSUB, stream ) ))
+  if (( error = HB_open_stream(face, TTAG_GSUB, &stream) ))
     return error;
 
   base_offset = FILE_Pos();
 
-  if ( ALLOC ( gsub, sizeof( *gsub ) ) )
-    return error;
-
-  gsub->memory = memory;
+  if ( ALLOC ( gsub, sizeof( *gsub ) ) ) {
+      HB_close_stream(stream);
+      return error;
+  }
+  
 
   /* skip version */
 
@@ -68,7 +68,7 @@ FT_Error  HB_Load_GSUB_Table( FT_Face          face,
   cur_offset = FILE_Pos();
   if ( FILE_Seek( new_offset ) ||
        ( error = _HB_OPEN_Load_ScriptList( &gsub->ScriptList,
-				  stream ) ) != FT_Err_Ok )
+				  stream ) ) != HB_Err_Ok )
     goto Fail4;
   (void)FILE_Seek( cur_offset );
 
@@ -82,7 +82,7 @@ FT_Error  HB_Load_GSUB_Table( FT_Face          face,
   cur_offset = FILE_Pos();
   if ( FILE_Seek( new_offset ) ||
        ( error = _HB_OPEN_Load_FeatureList( &gsub->FeatureList,
-				   stream ) ) != FT_Err_Ok )
+				   stream ) ) != HB_Err_Ok )
     goto Fail3;
   (void)FILE_Seek( cur_offset );
 
@@ -96,7 +96,7 @@ FT_Error  HB_Load_GSUB_Table( FT_Face          face,
   cur_offset = FILE_Pos();
   if ( FILE_Seek( new_offset ) ||
        ( error = _HB_OPEN_Load_LookupList( &gsub->LookupList,
-				  stream, HB_Type_GSUB ) ) != FT_Err_Ok )
+				  stream, HB_Type_GSUB ) ) != HB_Err_Ok )
     goto Fail2;
 
   gsub->gdef = gdef;      /* can be NULL */
@@ -123,7 +123,7 @@ FT_Error  HB_Load_GSUB_Table( FT_Face          face,
       {
 	if ( FILE_Seek( gdef->MarkAttachClassDef_offset ) ||
 	     ( error = _HB_OPEN_Load_ClassDefinition( &gdef->MarkAttachClassDef,
-					     256, stream ) ) != FT_Err_Ok )
+					     256, stream ) ) != HB_Err_Ok )
 	  goto Fail1;
 
 	break;
@@ -133,18 +133,20 @@ FT_Error  HB_Load_GSUB_Table( FT_Face          face,
 
   *retptr = gsub;
 
-  return FT_Err_Ok;
+  HB_close_stream(stream);
+  return HB_Err_Ok;
 
 Fail1:
-  _HB_OPEN_Free_LookupList( &gsub->LookupList, HB_Type_GSUB, memory );
+  _HB_OPEN_Free_LookupList( &gsub->LookupList, HB_Type_GSUB );
 
 Fail2:
-  _HB_OPEN_Free_FeatureList( &gsub->FeatureList, memory );
+  _HB_OPEN_Free_FeatureList( &gsub->FeatureList );
 
 Fail3:
-  _HB_OPEN_Free_ScriptList( &gsub->ScriptList, memory );
+  _HB_OPEN_Free_ScriptList( &gsub->ScriptList );
 
 Fail4:
+  HB_close_stream(stream);
   FREE ( gsub );
 
 
@@ -152,24 +154,22 @@ Fail4:
 }
 
 
-FT_Error   HB_Done_GSUB_Table( HB_GSUBHeader* gsub )
+HB_Error   HB_Done_GSUB_Table( HB_GSUBHeader* gsub )
 {
-  FT_Memory memory = gsub->memory;
-
-  _HB_OPEN_Free_LookupList( &gsub->LookupList, HB_Type_GSUB, memory );
-  _HB_OPEN_Free_FeatureList( &gsub->FeatureList, memory );
-  _HB_OPEN_Free_ScriptList( &gsub->ScriptList, memory );
+  _HB_OPEN_Free_LookupList( &gsub->LookupList, HB_Type_GSUB );
+  _HB_OPEN_Free_FeatureList( &gsub->FeatureList );
+  _HB_OPEN_Free_ScriptList( &gsub->ScriptList );
 
   FREE( gsub );
 
-  return FT_Err_Ok;
+  return HB_Err_Ok;
 }
 
 /*****************************
  * SubTable related functions
  *****************************/
 
-static FT_Error  Lookup_DefaultSubst( HB_GSUBHeader*    gsub,
+static HB_Error  Lookup_DefaultSubst( HB_GSUBHeader*    gsub,
 				      HB_GSUB_SubTable* st,
 				      HB_Buffer         buffer,
 				      FT_UShort          flags,
@@ -191,11 +191,10 @@ static FT_Error  Lookup_DefaultSubst( HB_GSUBHeader*    gsub,
 /* SingleSubstFormat1 */
 /* SingleSubstFormat2 */
 
-static FT_Error  Load_SingleSubst( HB_GSUB_SubTable* st,
-				   FT_Stream         stream )
+static HB_Error  Load_SingleSubst( HB_GSUB_SubTable* st,
+				   HB_Stream         stream )
 {
-  FT_Error error;
-  FT_Memory memory = stream->memory;
+  HB_Error error;
   HB_SingleSubst*  ss = &st->single;
 
   FT_UShort n, count;
@@ -216,7 +215,7 @@ static FT_Error  Load_SingleSubst( HB_GSUB_SubTable* st,
 
   cur_offset = FILE_Pos();
   if ( FILE_Seek( new_offset ) ||
-       ( error = _HB_OPEN_Load_Coverage( &ss->Coverage, stream ) ) != FT_Err_Ok )
+       ( error = _HB_OPEN_Load_Coverage( &ss->Coverage, stream ) ) != HB_Err_Ok )
     return error;
   (void)FILE_Seek( cur_offset );
 
@@ -261,19 +260,18 @@ static FT_Error  Load_SingleSubst( HB_GSUB_SubTable* st,
     return HB_Err_Invalid_GSUB_SubTable_Format;
   }
 
-  return FT_Err_Ok;
+  return HB_Err_Ok;
 
 Fail1:
   FREE( s );
 
 Fail2:
-  _HB_OPEN_Free_Coverage( &ss->Coverage, memory );
+  _HB_OPEN_Free_Coverage( &ss->Coverage );
   return error;
 }
 
 
-static void  Free_SingleSubst( HB_GSUB_SubTable* st,
-			       FT_Memory         memory )
+static void  Free_SingleSubst( HB_GSUB_SubTable* st )
 {
   HB_SingleSubst*  ss = &st->single;
 
@@ -287,11 +285,11 @@ static void  Free_SingleSubst( HB_GSUB_SubTable* st,
     break;
   }
 
-  _HB_OPEN_Free_Coverage( &ss->Coverage, memory );
+  _HB_OPEN_Free_Coverage( &ss->Coverage );
 }
 
 
-static FT_Error  Lookup_SingleSubst( HB_GSUBHeader*   gsub,
+static HB_Error  Lookup_SingleSubst( HB_GSUBHeader*   gsub,
 				     HB_GSUB_SubTable* st,
 				     HB_Buffer        buffer,
 				     FT_UShort         flags,
@@ -299,7 +297,7 @@ static FT_Error  Lookup_SingleSubst( HB_GSUBHeader*   gsub,
 				     int               nesting_level )
 {
   FT_UShort index, value, property;
-  FT_Error  error;
+  HB_Error  error;
   HB_SingleSubst*  ss = &st->single;
   HB_GDEFHeader*   gdef = gsub->gdef;
 
@@ -345,7 +343,7 @@ static FT_Error  Lookup_SingleSubst( HB_GSUBHeader*   gsub,
       return error;
   }
 
-  return FT_Err_Ok;
+  return HB_Err_Ok;
 }
 
 
@@ -353,11 +351,10 @@ static FT_Error  Lookup_SingleSubst( HB_GSUBHeader*   gsub,
 
 /* Sequence */
 
-static FT_Error  Load_Sequence( HB_Sequence*  s,
-				FT_Stream      stream )
+static HB_Error  Load_Sequence( HB_Sequence*  s,
+				HB_Stream      stream )
 {
-  FT_Error error;
-  FT_Memory memory = stream->memory;
+  HB_Error error;
 
   FT_UShort n, count;
   FT_UShort*  sub;
@@ -391,12 +388,11 @@ static FT_Error  Load_Sequence( HB_Sequence*  s,
     FORGET_Frame();
   }
 
-  return FT_Err_Ok;
+  return HB_Err_Ok;
 }
 
 
-static void  Free_Sequence( HB_Sequence*  s,
-			    FT_Memory      memory )
+static void  Free_Sequence( HB_Sequence*  s )
 {
   FREE( s->Substitute );
 }
@@ -404,11 +400,10 @@ static void  Free_Sequence( HB_Sequence*  s,
 
 /* MultipleSubstFormat1 */
 
-static FT_Error  Load_MultipleSubst( HB_GSUB_SubTable* st,
-				     FT_Stream         stream )
+static HB_Error  Load_MultipleSubst( HB_GSUB_SubTable* st,
+				     HB_Stream         stream )
 {
-  FT_Error error;
-  FT_Memory memory = stream->memory;
+  HB_Error error;
   HB_MultipleSubst*  ms = &st->multiple;
 
   FT_UShort      n = 0, m, count;
@@ -429,7 +424,7 @@ static FT_Error  Load_MultipleSubst( HB_GSUB_SubTable* st,
 
   cur_offset = FILE_Pos();
   if ( FILE_Seek( new_offset ) ||
-       ( error = _HB_OPEN_Load_Coverage( &ms->Coverage, stream ) ) != FT_Err_Ok )
+       ( error = _HB_OPEN_Load_Coverage( &ms->Coverage, stream ) ) != HB_Err_Ok )
     return error;
   (void)FILE_Seek( cur_offset );
 
@@ -458,27 +453,26 @@ static FT_Error  Load_MultipleSubst( HB_GSUB_SubTable* st,
 
     cur_offset = FILE_Pos();
     if ( FILE_Seek( new_offset ) ||
-	 ( error = Load_Sequence( &s[n], stream ) ) != FT_Err_Ok )
+	 ( error = Load_Sequence( &s[n], stream ) ) != HB_Err_Ok )
       goto Fail1;
     (void)FILE_Seek( cur_offset );
   }
 
-  return FT_Err_Ok;
+  return HB_Err_Ok;
 
 Fail1:
   for ( m = 0; m < n; m++ )
-    Free_Sequence( &s[m], memory );
+    Free_Sequence( &s[m] );
 
   FREE( s );
 
 Fail2:
-  _HB_OPEN_Free_Coverage( &ms->Coverage, memory );
+  _HB_OPEN_Free_Coverage( &ms->Coverage );
   return error;
 }
 
 
-static void  Free_MultipleSubst( HB_GSUB_SubTable* st,
-				 FT_Memory         memory )
+static void  Free_MultipleSubst( HB_GSUB_SubTable* st )
 {
   FT_UShort      n, count;
   HB_MultipleSubst*  ms = &st->multiple;
@@ -492,23 +486,23 @@ static void  Free_MultipleSubst( HB_GSUB_SubTable* st,
     s     = ms->Sequence;
 
     for ( n = 0; n < count; n++ )
-      Free_Sequence( &s[n], memory );
+      Free_Sequence( &s[n] );
 
     FREE( s );
   }
 
-  _HB_OPEN_Free_Coverage( &ms->Coverage, memory );
+  _HB_OPEN_Free_Coverage( &ms->Coverage );
 }
 
 
-static FT_Error  Lookup_MultipleSubst( HB_GSUBHeader*    gsub,
+static HB_Error  Lookup_MultipleSubst( HB_GSUBHeader*    gsub,
 				       HB_GSUB_SubTable* st,
 				       HB_Buffer         buffer,
 				       FT_UShort          flags,
 				       FT_UShort          context_length,
 				       int                nesting_level )
 {
-  FT_Error  error;
+  HB_Error  error;
   FT_UShort index, property, n, count;
   FT_UShort*s;
   HB_MultipleSubst*  ms = &st->multiple;
@@ -550,7 +544,7 @@ static FT_Error  Lookup_MultipleSubst( HB_GSUBHeader*    gsub,
     }
   }
 
-  return FT_Err_Ok;
+  return HB_Err_Ok;
 }
 
 
@@ -558,11 +552,10 @@ static FT_Error  Lookup_MultipleSubst( HB_GSUBHeader*    gsub,
 
 /* AlternateSet */
 
-static FT_Error  Load_AlternateSet( HB_AlternateSet*  as,
-				    FT_Stream          stream )
+static HB_Error  Load_AlternateSet( HB_AlternateSet*  as,
+				    HB_Stream          stream )
 {
-  FT_Error error;
-  FT_Memory memory = stream->memory;
+  HB_Error error;
 
   FT_UShort n, count;
   FT_UShort*  a;
@@ -593,12 +586,11 @@ static FT_Error  Load_AlternateSet( HB_AlternateSet*  as,
 
   FORGET_Frame();
 
-  return FT_Err_Ok;
+  return HB_Err_Ok;
 }
 
 
-static void  Free_AlternateSet( HB_AlternateSet*  as,
-				FT_Memory          memory )
+static void  Free_AlternateSet( HB_AlternateSet*  as )
 {
   FREE( as->Alternate );
 }
@@ -606,11 +598,10 @@ static void  Free_AlternateSet( HB_AlternateSet*  as,
 
 /* AlternateSubstFormat1 */
 
-static FT_Error  Load_AlternateSubst( HB_GSUB_SubTable* st,
-				      FT_Stream         stream )
+static HB_Error  Load_AlternateSubst( HB_GSUB_SubTable* st,
+				      HB_Stream         stream )
 {
-  FT_Error error;
-  FT_Memory memory = stream->memory;
+  HB_Error error;
   HB_AlternateSubst* as = &st->alternate;
 
   FT_UShort          n = 0, m, count;
@@ -631,7 +622,7 @@ static FT_Error  Load_AlternateSubst( HB_GSUB_SubTable* st,
 
   cur_offset = FILE_Pos();
   if ( FILE_Seek( new_offset ) ||
-       ( error = _HB_OPEN_Load_Coverage( &as->Coverage, stream ) ) != FT_Err_Ok )
+       ( error = _HB_OPEN_Load_Coverage( &as->Coverage, stream ) ) != HB_Err_Ok )
     return error;
   (void)FILE_Seek( cur_offset );
 
@@ -660,27 +651,26 @@ static FT_Error  Load_AlternateSubst( HB_GSUB_SubTable* st,
 
     cur_offset = FILE_Pos();
     if ( FILE_Seek( new_offset ) ||
-	 ( error = Load_AlternateSet( &aset[n], stream ) ) != FT_Err_Ok )
+	 ( error = Load_AlternateSet( &aset[n], stream ) ) != HB_Err_Ok )
       goto Fail1;
     (void)FILE_Seek( cur_offset );
   }
 
-  return FT_Err_Ok;
+  return HB_Err_Ok;
 
 Fail1:
   for ( m = 0; m < n; m++ )
-    Free_AlternateSet( &aset[m], memory );
+    Free_AlternateSet( &aset[m] );
 
   FREE( aset );
 
 Fail2:
-  _HB_OPEN_Free_Coverage( &as->Coverage, memory );
+  _HB_OPEN_Free_Coverage( &as->Coverage );
   return error;
 }
 
 
-static void  Free_AlternateSubst( HB_GSUB_SubTable* st,
-				  FT_Memory         memory )
+static void  Free_AlternateSubst( HB_GSUB_SubTable* st )
 {
   FT_UShort          n, count;
   HB_AlternateSubst* as = &st->alternate;
@@ -694,23 +684,23 @@ static void  Free_AlternateSubst( HB_GSUB_SubTable* st,
     aset  = as->AlternateSet;
 
     for ( n = 0; n < count; n++ )
-      Free_AlternateSet( &aset[n], memory );
+      Free_AlternateSet( &aset[n] );
 
     FREE( aset );
   }
 
-  _HB_OPEN_Free_Coverage( &as->Coverage, memory );
+  _HB_OPEN_Free_Coverage( &as->Coverage );
 }
 
 
-static FT_Error  Lookup_AlternateSubst( HB_GSUBHeader*    gsub,
+static HB_Error  Lookup_AlternateSubst( HB_GSUBHeader*    gsub,
 					HB_GSUB_SubTable* st,
 					HB_Buffer         buffer,
 					FT_UShort          flags,
 					FT_UShort          context_length,
 					int                nesting_level )
 {
-  FT_Error          error;
+  HB_Error          error;
   FT_UShort         index, alt_index, property;
   HB_AlternateSubst* as = &st->alternate;
   HB_GDEFHeader*     gdef = gsub->gdef;
@@ -753,7 +743,7 @@ static FT_Error  Lookup_AlternateSubst( HB_GSUBHeader*    gsub,
       return error;
   }
 
-  return FT_Err_Ok;
+  return HB_Err_Ok;
 }
 
 
@@ -761,11 +751,10 @@ static FT_Error  Lookup_AlternateSubst( HB_GSUBHeader*    gsub,
 
 /* Ligature */
 
-static FT_Error  Load_Ligature( HB_Ligature*  l,
-				FT_Stream      stream )
+static HB_Error  Load_Ligature( HB_Ligature*  l,
+				HB_Stream      stream )
 {
-  FT_Error error;
-  FT_Memory memory = stream->memory;
+  HB_Error error;
 
   FT_UShort n, count;
   FT_UShort*  c;
@@ -799,12 +788,11 @@ static FT_Error  Load_Ligature( HB_Ligature*  l,
 
   FORGET_Frame();
 
-  return FT_Err_Ok;
+  return HB_Err_Ok;
 }
 
 
-static void  Free_Ligature( HB_Ligature*  l,
-			    FT_Memory      memory )
+static void  Free_Ligature( HB_Ligature*  l )
 {
   FREE( l->Component );
 }
@@ -812,11 +800,10 @@ static void  Free_Ligature( HB_Ligature*  l,
 
 /* LigatureSet */
 
-static FT_Error  Load_LigatureSet( HB_LigatureSet*  ls,
-				   FT_Stream         stream )
+static HB_Error  Load_LigatureSet( HB_LigatureSet*  ls,
+				   HB_Stream         stream )
 {
-  FT_Error error;
-  FT_Memory memory = stream->memory;
+  HB_Error error;
 
   FT_UShort      n = 0, m, count;
   FT_ULong       cur_offset, new_offset, base_offset;
@@ -851,24 +838,23 @@ static FT_Error  Load_LigatureSet( HB_LigatureSet*  ls,
 
     cur_offset = FILE_Pos();
     if ( FILE_Seek( new_offset ) ||
-	 ( error = Load_Ligature( &l[n], stream ) ) != FT_Err_Ok )
+	 ( error = Load_Ligature( &l[n], stream ) ) != HB_Err_Ok )
       goto Fail;
     (void)FILE_Seek( cur_offset );
   }
 
-  return FT_Err_Ok;
+  return HB_Err_Ok;
 
 Fail:
   for ( m = 0; m < n; m++ )
-    Free_Ligature( &l[m], memory );
+    Free_Ligature( &l[m] );
 
   FREE( l );
   return error;
 }
 
 
-static void  Free_LigatureSet( HB_LigatureSet*  ls,
-			       FT_Memory         memory )
+static void  Free_LigatureSet( HB_LigatureSet*  ls )
 {
   FT_UShort      n, count;
 
@@ -881,7 +867,7 @@ static void  Free_LigatureSet( HB_LigatureSet*  ls,
     l     = ls->Ligature;
 
     for ( n = 0; n < count; n++ )
-      Free_Ligature( &l[n], memory );
+      Free_Ligature( &l[n] );
 
     FREE( l );
   }
@@ -890,11 +876,10 @@ static void  Free_LigatureSet( HB_LigatureSet*  ls,
 
 /* LigatureSubstFormat1 */
 
-static FT_Error  Load_LigatureSubst( HB_GSUB_SubTable* st,
-				     FT_Stream         stream )
+static HB_Error  Load_LigatureSubst( HB_GSUB_SubTable* st,
+				     HB_Stream         stream )
 {
-  FT_Error error;
-  FT_Memory memory = stream->memory;
+  HB_Error error;
   HB_LigatureSubst*  ls = &st->ligature;
 
   FT_UShort         n = 0, m, count;
@@ -915,7 +900,7 @@ static FT_Error  Load_LigatureSubst( HB_GSUB_SubTable* st,
 
   cur_offset = FILE_Pos();
   if ( FILE_Seek( new_offset ) ||
-       ( error = _HB_OPEN_Load_Coverage( &ls->Coverage, stream ) ) != FT_Err_Ok )
+       ( error = _HB_OPEN_Load_Coverage( &ls->Coverage, stream ) ) != HB_Err_Ok )
     return error;
   (void)FILE_Seek( cur_offset );
 
@@ -944,27 +929,26 @@ static FT_Error  Load_LigatureSubst( HB_GSUB_SubTable* st,
 
     cur_offset = FILE_Pos();
     if ( FILE_Seek( new_offset ) ||
-	 ( error = Load_LigatureSet( &lset[n], stream ) ) != FT_Err_Ok )
+	 ( error = Load_LigatureSet( &lset[n], stream ) ) != HB_Err_Ok )
       goto Fail1;
     (void)FILE_Seek( cur_offset );
   }
 
-  return FT_Err_Ok;
+  return HB_Err_Ok;
 
 Fail1:
   for ( m = 0; m < n; m++ )
-    Free_LigatureSet( &lset[m], memory );
+    Free_LigatureSet( &lset[m] );
 
   FREE( lset );
 
 Fail2:
-  _HB_OPEN_Free_Coverage( &ls->Coverage, memory );
+  _HB_OPEN_Free_Coverage( &ls->Coverage );
   return error;
 }
 
 
-static void  Free_LigatureSubst( HB_GSUB_SubTable* st,
-				 FT_Memory         memory )
+static void  Free_LigatureSubst( HB_GSUB_SubTable* st )
 {
   FT_UShort         n, count;
   HB_LigatureSubst*  ls = &st->ligature;
@@ -978,16 +962,16 @@ static void  Free_LigatureSubst( HB_GSUB_SubTable* st,
     lset  = ls->LigatureSet;
 
     for ( n = 0; n < count; n++ )
-      Free_LigatureSet( &lset[n], memory );
+      Free_LigatureSet( &lset[n] );
 
     FREE( lset );
   }
 
-  _HB_OPEN_Free_Coverage( &ls->Coverage, memory );
+  _HB_OPEN_Free_Coverage( &ls->Coverage );
 }
 
 
-static FT_Error  Lookup_LigatureSubst( HB_GSUBHeader*    gsub,
+static HB_Error  Lookup_LigatureSubst( HB_GSUBHeader*    gsub,
 				       HB_GSUB_SubTable* st,
 				       HB_Buffer         buffer,
 				       FT_UShort          flags,
@@ -995,7 +979,7 @@ static FT_Error  Lookup_LigatureSubst( HB_GSUBHeader*    gsub,
 				       int                nesting_level )
 {
   FT_UShort      index, property;
-  FT_Error       error;
+  HB_Error       error;
   FT_UShort      numlig, i, j, is_mark, first_is_mark = FALSE;
   FT_UShort*     c;
   HB_LigatureSubst*  ls = &st->ligature;
@@ -1108,7 +1092,7 @@ static FT_Error  Lookup_LigatureSubst( HB_GSUBHeader*    gsub,
       }
     }
 
-    return FT_Err_Ok;
+    return HB_Err_Ok;
 
   next_ligature:
     ;
@@ -1122,14 +1106,14 @@ static FT_Error  Lookup_LigatureSubst( HB_GSUBHeader*    gsub,
    5 or 6).  This is only called after we've determined that the input
    matches the subrule.                                                 */
 
-static FT_Error  Do_ContextSubst( HB_GSUBHeader*        gsub,
+static HB_Error  Do_ContextSubst( HB_GSUBHeader*        gsub,
 				  FT_UShort              GlyphCount,
 				  FT_UShort              SubstCount,
 				  HB_SubstLookupRecord* subst,
 				  HB_Buffer             buffer,
 				  int                    nesting_level )
 {
-  FT_Error  error;
+  HB_Error  error;
   FT_UShort i, old_pos;
 
 
@@ -1173,7 +1157,7 @@ static FT_Error  Do_ContextSubst( HB_GSUBHeader*        gsub,
     }
   }
 
-  return FT_Err_Ok;
+  return HB_Err_Ok;
 }
 
 
@@ -1181,11 +1165,10 @@ static FT_Error  Do_ContextSubst( HB_GSUBHeader*        gsub,
 
 /* SubRule */
 
-static FT_Error  Load_SubRule( HB_SubRule*  sr,
-			       FT_Stream     stream )
+static HB_Error  Load_SubRule( HB_SubRule*  sr,
+			       HB_Stream     stream )
 {
-  FT_Error error;
-  FT_Memory memory = stream->memory;
+  HB_Error error;
 
   FT_UShort               n, count;
   FT_UShort*              i;
@@ -1238,7 +1221,7 @@ static FT_Error  Load_SubRule( HB_SubRule*  sr,
 
   FORGET_Frame();
 
-  return FT_Err_Ok;
+  return HB_Err_Ok;
 
 Fail1:
   FREE( slr );
@@ -1249,8 +1232,7 @@ Fail2:
 }
 
 
-static void  Free_SubRule( HB_SubRule*  sr,
-			   FT_Memory     memory )
+static void  Free_SubRule( HB_SubRule*  sr )
 {
   FREE( sr->SubstLookupRecord );
   FREE( sr->Input );
@@ -1259,11 +1241,10 @@ static void  Free_SubRule( HB_SubRule*  sr,
 
 /* SubRuleSet */
 
-static FT_Error  Load_SubRuleSet( HB_SubRuleSet*  srs,
-				  FT_Stream        stream )
+static HB_Error  Load_SubRuleSet( HB_SubRuleSet*  srs,
+				  HB_Stream        stream )
 {
-  FT_Error error;
-  FT_Memory memory = stream->memory;
+  HB_Error error;
 
   FT_UShort     n = 0, m, count;
   FT_ULong      cur_offset, new_offset, base_offset;
@@ -1298,24 +1279,23 @@ static FT_Error  Load_SubRuleSet( HB_SubRuleSet*  srs,
 
     cur_offset = FILE_Pos();
     if ( FILE_Seek( new_offset ) ||
-	 ( error = Load_SubRule( &sr[n], stream ) ) != FT_Err_Ok )
+	 ( error = Load_SubRule( &sr[n], stream ) ) != HB_Err_Ok )
       goto Fail;
     (void)FILE_Seek( cur_offset );
   }
 
-  return FT_Err_Ok;
+  return HB_Err_Ok;
 
 Fail:
   for ( m = 0; m < n; m++ )
-    Free_SubRule( &sr[m], memory );
+    Free_SubRule( &sr[m] );
 
   FREE( sr );
   return error;
 }
 
 
-static void  Free_SubRuleSet( HB_SubRuleSet*  srs,
-			      FT_Memory        memory )
+static void  Free_SubRuleSet( HB_SubRuleSet*  srs )
 {
   FT_UShort     n, count;
 
@@ -1328,7 +1308,7 @@ static void  Free_SubRuleSet( HB_SubRuleSet*  srs,
     sr    = srs->SubRule;
 
     for ( n = 0; n < count; n++ )
-      Free_SubRule( &sr[n], memory );
+      Free_SubRule( &sr[n] );
 
     FREE( sr );
   }
@@ -1337,11 +1317,10 @@ static void  Free_SubRuleSet( HB_SubRuleSet*  srs,
 
 /* ContextSubstFormat1 */
 
-static FT_Error  Load_ContextSubst1( HB_ContextSubstFormat1*  csf1,
-				     FT_Stream                 stream )
+static HB_Error  Load_ContextSubst1( HB_ContextSubstFormat1*  csf1,
+				     HB_Stream                 stream )
 {
-  FT_Error error;
-  FT_Memory memory = stream->memory;
+  HB_Error error;
 
   FT_UShort        n = 0, m, count;
   FT_ULong         cur_offset, new_offset, base_offset;
@@ -1360,7 +1339,7 @@ static FT_Error  Load_ContextSubst1( HB_ContextSubstFormat1*  csf1,
 
   cur_offset = FILE_Pos();
   if ( FILE_Seek( new_offset ) ||
-       ( error = _HB_OPEN_Load_Coverage( &csf1->Coverage, stream ) ) != FT_Err_Ok )
+       ( error = _HB_OPEN_Load_Coverage( &csf1->Coverage, stream ) ) != HB_Err_Ok )
     return error;
   (void)FILE_Seek( cur_offset );
 
@@ -1389,27 +1368,26 @@ static FT_Error  Load_ContextSubst1( HB_ContextSubstFormat1*  csf1,
 
     cur_offset = FILE_Pos();
     if ( FILE_Seek( new_offset ) ||
-	 ( error = Load_SubRuleSet( &srs[n], stream ) ) != FT_Err_Ok )
+	 ( error = Load_SubRuleSet( &srs[n], stream ) ) != HB_Err_Ok )
       goto Fail1;
     (void)FILE_Seek( cur_offset );
   }
 
-  return FT_Err_Ok;
+  return HB_Err_Ok;
 
 Fail1:
   for ( m = 0; m < n; m++ )
-    Free_SubRuleSet( &srs[m], memory );
+    Free_SubRuleSet( &srs[m] );
 
   FREE( srs );
 
 Fail2:
-  _HB_OPEN_Free_Coverage( &csf1->Coverage, memory );
+  _HB_OPEN_Free_Coverage( &csf1->Coverage );
   return error;
 }
 
 
-static void  Free_ContextSubst1( HB_ContextSubstFormat1* csf1,
-			    FT_Memory                memory )
+static void  Free_ContextSubst1( HB_ContextSubstFormat1* csf1 )
 {
   FT_UShort        n, count;
 
@@ -1422,23 +1400,22 @@ static void  Free_ContextSubst1( HB_ContextSubstFormat1* csf1,
     srs   = csf1->SubRuleSet;
 
     for ( n = 0; n < count; n++ )
-      Free_SubRuleSet( &srs[n], memory );
+      Free_SubRuleSet( &srs[n] );
 
     FREE( srs );
   }
 
-  _HB_OPEN_Free_Coverage( &csf1->Coverage, memory );
+  _HB_OPEN_Free_Coverage( &csf1->Coverage );
 }
 
 
 /* SubClassRule */
 
-static FT_Error  Load_SubClassRule( HB_ContextSubstFormat2*  csf2,
+static HB_Error  Load_SubClassRule( HB_ContextSubstFormat2*  csf2,
 				    HB_SubClassRule*         scr,
-				    FT_Stream                 stream )
+				    HB_Stream                 stream )
 {
-  FT_Error error;
-  FT_Memory memory = stream->memory;
+  HB_Error error;
 
   FT_UShort               n, count;
 
@@ -1503,7 +1480,7 @@ static FT_Error  Load_SubClassRule( HB_ContextSubstFormat2*  csf2,
 
   FORGET_Frame();
 
-  return FT_Err_Ok;
+  return HB_Err_Ok;
 
 Fail1:
   FREE( slr );
@@ -1514,8 +1491,7 @@ Fail2:
 }
 
 
-static void  Free_SubClassRule( HB_SubClassRule*  scr,
-				FT_Memory          memory )
+static void  Free_SubClassRule( HB_SubClassRule*  scr )
 {
   FREE( scr->SubstLookupRecord );
   FREE( scr->Class );
@@ -1524,12 +1500,11 @@ static void  Free_SubClassRule( HB_SubClassRule*  scr,
 
 /* SubClassSet */
 
-static FT_Error  Load_SubClassSet( HB_ContextSubstFormat2*  csf2,
+static HB_Error  Load_SubClassSet( HB_ContextSubstFormat2*  csf2,
 				   HB_SubClassSet*          scs,
-				   FT_Stream                 stream )
+				   HB_Stream                 stream )
 {
-  FT_Error error;
-  FT_Memory memory = stream->memory;
+  HB_Error error;
 
   FT_UShort          n = 0, m, count;
   FT_ULong           cur_offset, new_offset, base_offset;
@@ -1565,24 +1540,23 @@ static FT_Error  Load_SubClassSet( HB_ContextSubstFormat2*  csf2,
     cur_offset = FILE_Pos();
     if ( FILE_Seek( new_offset ) ||
 	 ( error = Load_SubClassRule( csf2, &scr[n],
-				      stream ) ) != FT_Err_Ok )
+				      stream ) ) != HB_Err_Ok )
       goto Fail;
     (void)FILE_Seek( cur_offset );
   }
 
-  return FT_Err_Ok;
+  return HB_Err_Ok;
 
 Fail:
   for ( m = 0; m < n; m++ )
-    Free_SubClassRule( &scr[m], memory );
+    Free_SubClassRule( &scr[m] );
 
   FREE( scr );
   return error;
 }
 
 
-static void  Free_SubClassSet( HB_SubClassSet*  scs,
-			       FT_Memory         memory )
+static void  Free_SubClassSet( HB_SubClassSet*  scs )
 {
   FT_UShort          n, count;
 
@@ -1595,7 +1569,7 @@ static void  Free_SubClassSet( HB_SubClassSet*  scs,
     scr   = scs->SubClassRule;
 
     for ( n = 0; n < count; n++ )
-      Free_SubClassRule( &scr[n], memory );
+      Free_SubClassRule( &scr[n] );
 
     FREE( scr );
   }
@@ -1604,11 +1578,10 @@ static void  Free_SubClassSet( HB_SubClassSet*  scs,
 
 /* ContextSubstFormat2 */
 
-static FT_Error  Load_ContextSubst2( HB_ContextSubstFormat2*  csf2,
-				     FT_Stream                 stream )
+static HB_Error  Load_ContextSubst2( HB_ContextSubstFormat2*  csf2,
+				     HB_Stream                 stream )
 {
-  FT_Error error;
-  FT_Memory memory = stream->memory;
+  HB_Error error;
 
   FT_UShort         n = 0, m, count;
   FT_ULong          cur_offset, new_offset, base_offset;
@@ -1627,7 +1600,7 @@ static FT_Error  Load_ContextSubst2( HB_ContextSubstFormat2*  csf2,
 
   cur_offset = FILE_Pos();
   if ( FILE_Seek( new_offset ) ||
-       ( error = _HB_OPEN_Load_Coverage( &csf2->Coverage, stream ) ) != FT_Err_Ok )
+       ( error = _HB_OPEN_Load_Coverage( &csf2->Coverage, stream ) ) != HB_Err_Ok )
     return error;
   (void)FILE_Seek( cur_offset );
 
@@ -1646,7 +1619,7 @@ static FT_Error  Load_ContextSubst2( HB_ContextSubstFormat2*  csf2,
   cur_offset = FILE_Pos();
   if ( FILE_Seek( new_offset ) ||
        ( error = _HB_OPEN_Load_ClassDefinition( &csf2->ClassDef, count,
-				       stream ) ) != FT_Err_Ok )
+				       stream ) ) != HB_Err_Ok )
     goto Fail3;
   (void)FILE_Seek( cur_offset );
 
@@ -1672,7 +1645,7 @@ static FT_Error  Load_ContextSubst2( HB_ContextSubstFormat2*  csf2,
       cur_offset = FILE_Pos();
       if ( FILE_Seek( new_offset ) ||
 	   ( error = Load_SubClassSet( csf2, &scs[n],
-				       stream ) ) != FT_Err_Ok )
+				       stream ) ) != HB_Err_Ok )
 	goto Fail1;
       (void)FILE_Seek( cur_offset );
     }
@@ -1685,25 +1658,24 @@ static FT_Error  Load_ContextSubst2( HB_ContextSubstFormat2*  csf2,
     }
   }
 
-  return FT_Err_Ok;
+  return HB_Err_Ok;
 
 Fail1:
   for ( m = 0; m < n; m++ )
-    Free_SubClassSet( &scs[m], memory );
+    Free_SubClassSet( &scs[m] );
 
   FREE( scs );
 
 Fail2:
-  _HB_OPEN_Free_ClassDefinition( &csf2->ClassDef, memory );
+  _HB_OPEN_Free_ClassDefinition( &csf2->ClassDef );
 
 Fail3:
-  _HB_OPEN_Free_Coverage( &csf2->Coverage, memory );
+  _HB_OPEN_Free_Coverage( &csf2->Coverage );
   return error;
 }
 
 
-static void  Free_ContextSubst2( HB_ContextSubstFormat2*  csf2,
-			    FT_Memory                 memory )
+static void  Free_ContextSubst2( HB_ContextSubstFormat2*  csf2 )
 {
   FT_UShort         n, count;
 
@@ -1716,23 +1688,22 @@ static void  Free_ContextSubst2( HB_ContextSubstFormat2*  csf2,
     scs   = csf2->SubClassSet;
 
     for ( n = 0; n < count; n++ )
-      Free_SubClassSet( &scs[n], memory );
+      Free_SubClassSet( &scs[n] );
 
     FREE( scs );
   }
 
-  _HB_OPEN_Free_ClassDefinition( &csf2->ClassDef, memory );
-  _HB_OPEN_Free_Coverage( &csf2->Coverage, memory );
+  _HB_OPEN_Free_ClassDefinition( &csf2->ClassDef );
+  _HB_OPEN_Free_Coverage( &csf2->Coverage );
 }
 
 
 /* ContextSubstFormat3 */
 
-static FT_Error  Load_ContextSubst3( HB_ContextSubstFormat3*  csf3,
-				     FT_Stream                 stream )
+static HB_Error  Load_ContextSubst3( HB_ContextSubstFormat3*  csf3,
+				     HB_Stream                 stream )
 {
-  FT_Error error;
-  FT_Memory memory = stream->memory;
+  HB_Error error;
 
   FT_UShort               n = 0, m, count;
   FT_ULong                cur_offset, new_offset, base_offset;
@@ -1771,7 +1742,7 @@ static FT_Error  Load_ContextSubst3( HB_ContextSubstFormat3*  csf3,
 
     cur_offset = FILE_Pos();
     if ( FILE_Seek( new_offset ) ||
-	 ( error = _HB_OPEN_Load_Coverage( &c[n], stream ) ) != FT_Err_Ok )
+	 ( error = _HB_OPEN_Load_Coverage( &c[n], stream ) ) != HB_Err_Ok )
       goto Fail2;
     (void)FILE_Seek( cur_offset );
   }
@@ -1797,22 +1768,21 @@ static FT_Error  Load_ContextSubst3( HB_ContextSubstFormat3*  csf3,
 
   FORGET_Frame();
 
-  return FT_Err_Ok;
+  return HB_Err_Ok;
 
 Fail1:
   FREE( slr );
 
 Fail2:
   for ( m = 0; m < n; m++ )
-    _HB_OPEN_Free_Coverage( &c[m], memory );
+    _HB_OPEN_Free_Coverage( &c[m] );
 
   FREE( c );
   return error;
 }
 
 
-static void  Free_ContextSubst3( HB_ContextSubstFormat3*  csf3,
-			    FT_Memory                 memory )
+static void  Free_ContextSubst3( HB_ContextSubstFormat3*  csf3 )
 {
   FT_UShort      n, count;
 
@@ -1827,7 +1797,7 @@ static void  Free_ContextSubst3( HB_ContextSubstFormat3*  csf3,
     c     = csf3->Coverage;
 
     for ( n = 0; n < count; n++ )
-      _HB_OPEN_Free_Coverage( &c[n], memory );
+      _HB_OPEN_Free_Coverage( &c[n] );
 
     FREE( c );
   }
@@ -1836,10 +1806,10 @@ static void  Free_ContextSubst3( HB_ContextSubstFormat3*  csf3,
 
 /* ContextSubst */
 
-static FT_Error  Load_ContextSubst( HB_GSUB_SubTable* st,
-				    FT_Stream         stream )
+static HB_Error  Load_ContextSubst( HB_GSUB_SubTable* st,
+				    HB_Stream         stream )
 {
-  FT_Error error;
+  HB_Error error;
   HB_ContextSubst*  cs = &st->context;
 
 
@@ -1865,33 +1835,32 @@ static FT_Error  Load_ContextSubst( HB_GSUB_SubTable* st,
     return HB_Err_Invalid_GSUB_SubTable_Format;
   }
 
-  return FT_Err_Ok;               /* never reached */
+  return HB_Err_Ok;               /* never reached */
 }
 
 
-static void  Free_ContextSubst( HB_GSUB_SubTable* st,
-			        FT_Memory         memory )
+static void  Free_ContextSubst( HB_GSUB_SubTable* st )
 {
   HB_ContextSubst*  cs = &st->context;
 
   switch ( cs->SubstFormat )
   {
   case 1:
-    Free_ContextSubst1( &cs->csf.csf1, memory );
+    Free_ContextSubst1( &cs->csf.csf1 );
     break;
 
   case 2:
-    Free_ContextSubst2( &cs->csf.csf2, memory );
+    Free_ContextSubst2( &cs->csf.csf2 );
     break;
 
   case 3:
-    Free_ContextSubst3( &cs->csf.csf3, memory );
+    Free_ContextSubst3( &cs->csf.csf3 );
     break;
   }
 }
 
 
-static FT_Error  Lookup_ContextSubst1( HB_GSUBHeader*          gsub,
+static HB_Error  Lookup_ContextSubst1( HB_GSUBHeader*          gsub,
 				       HB_ContextSubstFormat1* csf1,
 				       HB_Buffer               buffer,
 				       FT_UShort                flags,
@@ -1900,7 +1869,7 @@ static FT_Error  Lookup_ContextSubst1( HB_GSUBHeader*          gsub,
 {
   FT_UShort        index, property;
   FT_UShort        i, j, k, numsr;
-  FT_Error         error;
+  HB_Error         error;
 
   HB_SubRule*     sr;
   HB_GDEFHeader*  gdef;
@@ -1954,7 +1923,7 @@ static FT_Error  Lookup_ContextSubst1( HB_GSUBHeader*          gsub,
 }
 
 
-static FT_Error  Lookup_ContextSubst2( HB_GSUBHeader*          gsub,
+static HB_Error  Lookup_ContextSubst2( HB_GSUBHeader*          gsub,
 				       HB_ContextSubstFormat2* csf2,
 				       HB_Buffer               buffer,
 				       FT_UShort                flags,
@@ -1962,8 +1931,7 @@ static FT_Error  Lookup_ContextSubst2( HB_GSUBHeader*          gsub,
 				       int                      nesting_level )
 {
   FT_UShort          index, property;
-  FT_Error           error;
-  FT_Memory          memory = gsub->memory;
+  HB_Error           error;
   FT_UShort          i, j, k, known_classes;
 
   FT_UShort*         classes;
@@ -2061,14 +2029,14 @@ End:
 }
 
 
-static FT_Error  Lookup_ContextSubst3( HB_GSUBHeader*          gsub,
+static HB_Error  Lookup_ContextSubst3( HB_GSUBHeader*          gsub,
 				       HB_ContextSubstFormat3* csf3,
 				       HB_Buffer               buffer,
 				       FT_UShort                flags,
 				       FT_UShort                context_length,
 				       int                      nesting_level )
 {
-  FT_Error         error;
+  HB_Error         error;
   FT_UShort        index, i, j, property;
 
   HB_Coverage*    c;
@@ -2112,7 +2080,7 @@ static FT_Error  Lookup_ContextSubst3( HB_GSUBHeader*          gsub,
 }
 
 
-static FT_Error  Lookup_ContextSubst( HB_GSUBHeader*    gsub,
+static HB_Error  Lookup_ContextSubst( HB_GSUBHeader*    gsub,
 				      HB_GSUB_SubTable* st,
 				      HB_Buffer         buffer,
 				      FT_UShort          flags,
@@ -2139,7 +2107,7 @@ static FT_Error  Lookup_ContextSubst( HB_GSUBHeader*    gsub,
     return HB_Err_Invalid_GSUB_SubTable_Format;
   }
 
-  return FT_Err_Ok;               /* never reached */
+  return HB_Err_Ok;               /* never reached */
 }
 
 
@@ -2147,11 +2115,10 @@ static FT_Error  Lookup_ContextSubst( HB_GSUBHeader*    gsub,
 
 /* ChainSubRule */
 
-static FT_Error  Load_ChainSubRule( HB_ChainSubRule*  csr,
-				    FT_Stream          stream )
+static HB_Error  Load_ChainSubRule( HB_ChainSubRule*  csr,
+				    HB_Stream          stream )
 {
-  FT_Error error;
-  FT_Memory memory = stream->memory;
+  HB_Error error;
 
   FT_UShort               n, count;
   FT_UShort*              b;
@@ -2260,7 +2227,7 @@ static FT_Error  Load_ChainSubRule( HB_ChainSubRule*  csr,
 
   FORGET_Frame();
 
-  return FT_Err_Ok;
+  return HB_Err_Ok;
 
 Fail1:
   FREE( slr );
@@ -2277,8 +2244,7 @@ Fail4:
 }
 
 
-static void  Free_ChainSubRule( HB_ChainSubRule*  csr,
-				FT_Memory          memory )
+static void  Free_ChainSubRule( HB_ChainSubRule*  csr )
 {
   FREE( csr->SubstLookupRecord );
   FREE( csr->Lookahead );
@@ -2289,11 +2255,10 @@ static void  Free_ChainSubRule( HB_ChainSubRule*  csr,
 
 /* ChainSubRuleSet */
 
-static FT_Error  Load_ChainSubRuleSet( HB_ChainSubRuleSet*  csrs,
-				       FT_Stream             stream )
+static HB_Error  Load_ChainSubRuleSet( HB_ChainSubRuleSet*  csrs,
+				       HB_Stream             stream )
 {
-  FT_Error error;
-  FT_Memory memory = stream->memory;
+  HB_Error error;
 
   FT_UShort          n = 0, m, count;
   FT_ULong           cur_offset, new_offset, base_offset;
@@ -2328,24 +2293,23 @@ static FT_Error  Load_ChainSubRuleSet( HB_ChainSubRuleSet*  csrs,
 
     cur_offset = FILE_Pos();
     if ( FILE_Seek( new_offset ) ||
-	 ( error = Load_ChainSubRule( &csr[n], stream ) ) != FT_Err_Ok )
+	 ( error = Load_ChainSubRule( &csr[n], stream ) ) != HB_Err_Ok )
       goto Fail;
     (void)FILE_Seek( cur_offset );
   }
 
-  return FT_Err_Ok;
+  return HB_Err_Ok;
 
 Fail:
   for ( m = 0; m < n; m++ )
-    Free_ChainSubRule( &csr[m], memory );
+    Free_ChainSubRule( &csr[m] );
 
   FREE( csr );
   return error;
 }
 
 
-static void  Free_ChainSubRuleSet( HB_ChainSubRuleSet*  csrs,
-				   FT_Memory             memory )
+static void  Free_ChainSubRuleSet( HB_ChainSubRuleSet*  csrs )
 {
   FT_UShort          n, count;
 
@@ -2358,7 +2322,7 @@ static void  Free_ChainSubRuleSet( HB_ChainSubRuleSet*  csrs,
     csr   = csrs->ChainSubRule;
 
     for ( n = 0; n < count; n++ )
-      Free_ChainSubRule( &csr[n], memory );
+      Free_ChainSubRule( &csr[n] );
 
     FREE( csr );
   }
@@ -2367,12 +2331,11 @@ static void  Free_ChainSubRuleSet( HB_ChainSubRuleSet*  csrs,
 
 /* ChainContextSubstFormat1 */
 
-static FT_Error  Load_ChainContextSubst1(
+static HB_Error  Load_ChainContextSubst1(
 		   HB_ChainContextSubstFormat1*  ccsf1,
-		   FT_Stream                      stream )
+		   HB_Stream                      stream )
 {
-  FT_Error error;
-  FT_Memory memory = stream->memory;
+  HB_Error error;
 
   FT_UShort             n = 0, m, count;
   FT_ULong              cur_offset, new_offset, base_offset;
@@ -2391,7 +2354,7 @@ static FT_Error  Load_ChainContextSubst1(
 
   cur_offset = FILE_Pos();
   if ( FILE_Seek( new_offset ) ||
-       ( error = _HB_OPEN_Load_Coverage( &ccsf1->Coverage, stream ) ) != FT_Err_Ok )
+       ( error = _HB_OPEN_Load_Coverage( &ccsf1->Coverage, stream ) ) != HB_Err_Ok )
     return error;
   (void)FILE_Seek( cur_offset );
 
@@ -2420,27 +2383,26 @@ static FT_Error  Load_ChainContextSubst1(
 
     cur_offset = FILE_Pos();
     if ( FILE_Seek( new_offset ) ||
-	 ( error = Load_ChainSubRuleSet( &csrs[n], stream ) ) != FT_Err_Ok )
+	 ( error = Load_ChainSubRuleSet( &csrs[n], stream ) ) != HB_Err_Ok )
       goto Fail1;
     (void)FILE_Seek( cur_offset );
   }
 
-  return FT_Err_Ok;
+  return HB_Err_Ok;
 
 Fail1:
   for ( m = 0; m < n; m++ )
-    Free_ChainSubRuleSet( &csrs[m], memory );
+    Free_ChainSubRuleSet( &csrs[m] );
 
   FREE( csrs );
 
 Fail2:
-  _HB_OPEN_Free_Coverage( &ccsf1->Coverage, memory );
+  _HB_OPEN_Free_Coverage( &ccsf1->Coverage );
   return error;
 }
 
 
-static void  Free_ChainContextSubst1( HB_ChainContextSubstFormat1*  ccsf1,
-				 FT_Memory                      memory )
+static void  Free_ChainContextSubst1( HB_ChainContextSubstFormat1*  ccsf1 )
 {
   FT_UShort             n, count;
 
@@ -2453,24 +2415,23 @@ static void  Free_ChainContextSubst1( HB_ChainContextSubstFormat1*  ccsf1,
     csrs  = ccsf1->ChainSubRuleSet;
 
     for ( n = 0; n < count; n++ )
-      Free_ChainSubRuleSet( &csrs[n], memory );
+      Free_ChainSubRuleSet( &csrs[n] );
 
     FREE( csrs );
   }
 
-  _HB_OPEN_Free_Coverage( &ccsf1->Coverage, memory );
+  _HB_OPEN_Free_Coverage( &ccsf1->Coverage );
 }
 
 
 /* ChainSubClassRule */
 
-static FT_Error  Load_ChainSubClassRule(
+static HB_Error  Load_ChainSubClassRule(
 		   HB_ChainContextSubstFormat2*  ccsf2,
 		   HB_ChainSubClassRule*         cscr,
-		   FT_Stream                      stream )
+		   HB_Stream                      stream )
 {
-  FT_Error error;
-  FT_Memory memory = stream->memory;
+  HB_Error error;
 
   FT_UShort               n, count;
 
@@ -2611,7 +2572,7 @@ static FT_Error  Load_ChainSubClassRule(
 
   FORGET_Frame();
 
-  return FT_Err_Ok;
+  return HB_Err_Ok;
 
 Fail1:
   FREE( slr );
@@ -2628,8 +2589,7 @@ Fail4:
 }
 
 
-static void  Free_ChainSubClassRule( HB_ChainSubClassRule*  cscr,
-				     FT_Memory               memory )
+static void  Free_ChainSubClassRule( HB_ChainSubClassRule*  cscr )
 {
   FREE( cscr->SubstLookupRecord );
   FREE( cscr->Lookahead );
@@ -2640,13 +2600,12 @@ static void  Free_ChainSubClassRule( HB_ChainSubClassRule*  cscr,
 
 /* SubClassSet */
 
-static FT_Error  Load_ChainSubClassSet(
+static HB_Error  Load_ChainSubClassSet(
 		   HB_ChainContextSubstFormat2*  ccsf2,
 		   HB_ChainSubClassSet*          cscs,
-		   FT_Stream                      stream )
+		   HB_Stream                      stream )
 {
-  FT_Error error;
-  FT_Memory memory = stream->memory;
+  HB_Error error;
 
   FT_UShort               n = 0, m, count;
   FT_ULong                cur_offset, new_offset, base_offset;
@@ -2683,24 +2642,23 @@ static FT_Error  Load_ChainSubClassSet(
     cur_offset = FILE_Pos();
     if ( FILE_Seek( new_offset ) ||
 	 ( error = Load_ChainSubClassRule( ccsf2, &cscr[n],
-					   stream ) ) != FT_Err_Ok )
+					   stream ) ) != HB_Err_Ok )
       goto Fail;
     (void)FILE_Seek( cur_offset );
   }
 
-  return FT_Err_Ok;
+  return HB_Err_Ok;
 
 Fail:
   for ( m = 0; m < n; m++ )
-    Free_ChainSubClassRule( &cscr[m], memory );
+    Free_ChainSubClassRule( &cscr[m] );
 
   FREE( cscr );
   return error;
 }
 
 
-static void  Free_ChainSubClassSet( HB_ChainSubClassSet*  cscs,
-				    FT_Memory              memory )
+static void  Free_ChainSubClassSet( HB_ChainSubClassSet*  cscs )
 {
   FT_UShort               n, count;
 
@@ -2713,19 +2671,19 @@ static void  Free_ChainSubClassSet( HB_ChainSubClassSet*  cscs,
     cscr  = cscs->ChainSubClassRule;
 
     for ( n = 0; n < count; n++ )
-      Free_ChainSubClassRule( &cscr[n], memory );
+      Free_ChainSubClassRule( &cscr[n] );
 
     FREE( cscr );
   }
 }
 
-static FT_Error GSUB_Load_EmptyOrClassDefinition( HB_ClassDefinition*  cd,
+static HB_Error GSUB_Load_EmptyOrClassDefinition( HB_ClassDefinition*  cd,
 					     FT_UShort             limit,
 					     FT_ULong              class_offset,
 					     FT_ULong              base_offset,
-					     FT_Stream             stream )
+					     HB_Stream             stream )
 {
-  FT_Error error;
+  HB_Error error;
   FT_ULong               cur_offset;
 
   cur_offset = FILE_Pos();
@@ -2738,7 +2696,7 @@ static FT_Error GSUB_Load_EmptyOrClassDefinition( HB_ClassDefinition*  cd,
   else
      error = _HB_OPEN_Load_EmptyClassDefinition ( cd, stream );
 
-  if (error == FT_Err_Ok)
+  if (error == HB_Err_Ok)
     (void)FILE_Seek( cur_offset ); /* Changes error as a side-effect */
 
   return error;
@@ -2747,12 +2705,11 @@ static FT_Error GSUB_Load_EmptyOrClassDefinition( HB_ClassDefinition*  cd,
 
 /* ChainContextSubstFormat2 */
 
-static FT_Error  Load_ChainContextSubst2(
+static HB_Error  Load_ChainContextSubst2(
 		   HB_ChainContextSubstFormat2*  ccsf2,
-		   FT_Stream                      stream )
+		   HB_Stream                      stream )
 {
-  FT_Error error;
-  FT_Memory memory = stream->memory;
+  HB_Error error;
 
   FT_UShort              n = 0, m, count;
   FT_ULong               cur_offset, new_offset, base_offset;
@@ -2772,7 +2729,7 @@ static FT_Error  Load_ChainContextSubst2(
 
   cur_offset = FILE_Pos();
   if ( FILE_Seek( new_offset ) ||
-       ( error = _HB_OPEN_Load_Coverage( &ccsf2->Coverage, stream ) ) != FT_Err_Ok )
+       ( error = _HB_OPEN_Load_Coverage( &ccsf2->Coverage, stream ) ) != HB_Err_Ok )
     return error;
   (void)FILE_Seek( cur_offset );
 
@@ -2793,16 +2750,16 @@ static FT_Error  Load_ChainContextSubst2(
 
   if ( ( error = GSUB_Load_EmptyOrClassDefinition( &ccsf2->BacktrackClassDef, 65535,
 					      backtrack_offset, base_offset,
-					      stream ) ) != FT_Err_Ok )
+					      stream ) ) != HB_Err_Ok )
       goto Fail5;
 
   if ( ( error = GSUB_Load_EmptyOrClassDefinition( &ccsf2->InputClassDef, count,
 					      input_offset, base_offset,
-					      stream ) ) != FT_Err_Ok )
+					      stream ) ) != HB_Err_Ok )
       goto Fail4;
   if ( ( error = GSUB_Load_EmptyOrClassDefinition( &ccsf2->LookaheadClassDef, 65535,
 					      lookahead_offset, base_offset,
-					      stream ) ) != FT_Err_Ok )
+					      stream ) ) != HB_Err_Ok )
     goto Fail3;
 
   ccsf2->ChainSubClassSet   = NULL;
@@ -2829,7 +2786,7 @@ static FT_Error  Load_ChainContextSubst2(
       cur_offset = FILE_Pos();
       if ( FILE_Seek( new_offset ) ||
 	   ( error = Load_ChainSubClassSet( ccsf2, &cscs[n],
-					    stream ) ) != FT_Err_Ok )
+					    stream ) ) != HB_Err_Ok )
 	goto Fail1;
       (void)FILE_Seek( cur_offset );
     }
@@ -2842,31 +2799,30 @@ static FT_Error  Load_ChainContextSubst2(
     }
   }
 
-  return FT_Err_Ok;
+  return HB_Err_Ok;
 
 Fail1:
   for ( m = 0; m < n; m++ )
-    Free_ChainSubClassSet( &cscs[m], memory );
+    Free_ChainSubClassSet( &cscs[m] );
 
   FREE( cscs );
 
 Fail2:
-  _HB_OPEN_Free_ClassDefinition( &ccsf2->LookaheadClassDef, memory );
+  _HB_OPEN_Free_ClassDefinition( &ccsf2->LookaheadClassDef );
 
 Fail3:
-  _HB_OPEN_Free_ClassDefinition( &ccsf2->InputClassDef, memory );
+  _HB_OPEN_Free_ClassDefinition( &ccsf2->InputClassDef );
 
 Fail4:
-  _HB_OPEN_Free_ClassDefinition( &ccsf2->BacktrackClassDef, memory );
+  _HB_OPEN_Free_ClassDefinition( &ccsf2->BacktrackClassDef );
 
 Fail5:
-  _HB_OPEN_Free_Coverage( &ccsf2->Coverage, memory );
+  _HB_OPEN_Free_Coverage( &ccsf2->Coverage );
   return error;
 }
 
 
-static void  Free_ChainContextSubst2( HB_ChainContextSubstFormat2*  ccsf2,
-				 FT_Memory                      memory )
+static void  Free_ChainContextSubst2( HB_ChainContextSubstFormat2*  ccsf2 )
 {
   FT_UShort              n, count;
 
@@ -2879,27 +2835,26 @@ static void  Free_ChainContextSubst2( HB_ChainContextSubstFormat2*  ccsf2,
     cscs  = ccsf2->ChainSubClassSet;
 
     for ( n = 0; n < count; n++ )
-      Free_ChainSubClassSet( &cscs[n], memory );
+      Free_ChainSubClassSet( &cscs[n] );
 
     FREE( cscs );
   }
 
-  _HB_OPEN_Free_ClassDefinition( &ccsf2->LookaheadClassDef, memory );
-  _HB_OPEN_Free_ClassDefinition( &ccsf2->InputClassDef, memory );
-  _HB_OPEN_Free_ClassDefinition( &ccsf2->BacktrackClassDef, memory );
+  _HB_OPEN_Free_ClassDefinition( &ccsf2->LookaheadClassDef );
+  _HB_OPEN_Free_ClassDefinition( &ccsf2->InputClassDef );
+  _HB_OPEN_Free_ClassDefinition( &ccsf2->BacktrackClassDef );
 
-  _HB_OPEN_Free_Coverage( &ccsf2->Coverage, memory );
+  _HB_OPEN_Free_Coverage( &ccsf2->Coverage );
 }
 
 
 /* ChainContextSubstFormat3 */
 
-static FT_Error  Load_ChainContextSubst3(
+static HB_Error  Load_ChainContextSubst3(
 		   HB_ChainContextSubstFormat3*  ccsf3,
-		   FT_Stream                      stream )
+		   HB_Stream                      stream )
 {
-  FT_Error error;
-  FT_Memory memory = stream->memory;
+  HB_Error error;
 
   FT_UShort               n, nb = 0, ni =0, nl = 0, m, count;
   FT_UShort               backtrack_count, input_count, lookahead_count;
@@ -2941,7 +2896,7 @@ static FT_Error  Load_ChainContextSubst3(
 
     cur_offset = FILE_Pos();
     if ( FILE_Seek( new_offset ) ||
-	 ( error = _HB_OPEN_Load_Coverage( &b[nb], stream ) ) != FT_Err_Ok )
+	 ( error = _HB_OPEN_Load_Coverage( &b[nb], stream ) ) != HB_Err_Ok )
       goto Fail4;
     (void)FILE_Seek( cur_offset );
   }
@@ -2973,7 +2928,7 @@ static FT_Error  Load_ChainContextSubst3(
 
     cur_offset = FILE_Pos();
     if ( FILE_Seek( new_offset ) ||
-	 ( error = _HB_OPEN_Load_Coverage( &i[ni], stream ) ) != FT_Err_Ok )
+	 ( error = _HB_OPEN_Load_Coverage( &i[ni], stream ) ) != HB_Err_Ok )
       goto Fail3;
     (void)FILE_Seek( cur_offset );
   }
@@ -3006,7 +2961,7 @@ static FT_Error  Load_ChainContextSubst3(
 
     cur_offset = FILE_Pos();
     if ( FILE_Seek( new_offset ) ||
-	 ( error = _HB_OPEN_Load_Coverage( &l[nl], stream ) ) != FT_Err_Ok )
+	 ( error = _HB_OPEN_Load_Coverage( &l[nl], stream ) ) != HB_Err_Ok )
       goto Fail2;
     (void)FILE_Seek( cur_offset );
   }
@@ -3039,34 +2994,33 @@ static FT_Error  Load_ChainContextSubst3(
 
   FORGET_Frame();
 
-  return FT_Err_Ok;
+  return HB_Err_Ok;
 
 Fail1:
   FREE( slr );
 
 Fail2:
   for ( m = 0; m < nl; m++ )
-    _HB_OPEN_Free_Coverage( &l[m], memory );
+    _HB_OPEN_Free_Coverage( &l[m] );
 
   FREE( l );
 
 Fail3:
   for ( m = 0; m < ni; m++ )
-    _HB_OPEN_Free_Coverage( &i[m], memory );
+    _HB_OPEN_Free_Coverage( &i[m] );
 
   FREE( i );
 
 Fail4:
   for ( m = 0; m < nb; m++ )
-    _HB_OPEN_Free_Coverage( &b[m], memory );
+    _HB_OPEN_Free_Coverage( &b[m] );
 
   FREE( b );
   return error;
 }
 
 
-static void  Free_ChainContextSubst3( HB_ChainContextSubstFormat3*  ccsf3,
-				 FT_Memory                      memory )
+static void  Free_ChainContextSubst3( HB_ChainContextSubstFormat3*  ccsf3 )
 {
   FT_UShort      n, count;
 
@@ -3081,7 +3035,7 @@ static void  Free_ChainContextSubst3( HB_ChainContextSubstFormat3*  ccsf3,
     c     = ccsf3->LookaheadCoverage;
 
     for ( n = 0; n < count; n++ )
-      _HB_OPEN_Free_Coverage( &c[n], memory );
+      _HB_OPEN_Free_Coverage( &c[n] );
 
     FREE( c );
   }
@@ -3092,7 +3046,7 @@ static void  Free_ChainContextSubst3( HB_ChainContextSubstFormat3*  ccsf3,
     c     = ccsf3->InputCoverage;
 
     for ( n = 0; n < count; n++ )
-      _HB_OPEN_Free_Coverage( &c[n], memory );
+      _HB_OPEN_Free_Coverage( &c[n] );
 
     FREE( c );
   }
@@ -3103,7 +3057,7 @@ static void  Free_ChainContextSubst3( HB_ChainContextSubstFormat3*  ccsf3,
     c     = ccsf3->BacktrackCoverage;
 
     for ( n = 0; n < count; n++ )
-      _HB_OPEN_Free_Coverage( &c[n], memory );
+      _HB_OPEN_Free_Coverage( &c[n] );
 
     FREE( c );
   }
@@ -3112,10 +3066,10 @@ static void  Free_ChainContextSubst3( HB_ChainContextSubstFormat3*  ccsf3,
 
 /* ChainContextSubst */
 
-static FT_Error  Load_ChainContextSubst( HB_GSUB_SubTable* st,
-					 FT_Stream         stream )
+static HB_Error  Load_ChainContextSubst( HB_GSUB_SubTable* st,
+					 HB_Stream         stream )
 {
-  FT_Error error;
+  HB_Error error;
   HB_ChainContextSubst*  ccs = &st->chain;
 
   if ( ACCESS_Frame( 2L ) )
@@ -3140,33 +3094,32 @@ static FT_Error  Load_ChainContextSubst( HB_GSUB_SubTable* st,
     return HB_Err_Invalid_GSUB_SubTable_Format;
   }
 
-  return FT_Err_Ok;               /* never reached */
+  return HB_Err_Ok;               /* never reached */
 }
 
 
-static void  Free_ChainContextSubst( HB_GSUB_SubTable* st,
-				     FT_Memory         memory )
+static void  Free_ChainContextSubst( HB_GSUB_SubTable* st )
 {
   HB_ChainContextSubst*  ccs = &st->chain;
 
   switch ( ccs->SubstFormat )
   {
   case 1:
-    Free_ChainContextSubst1( &ccs->ccsf.ccsf1, memory );
+    Free_ChainContextSubst1( &ccs->ccsf.ccsf1 );
     break;
 
   case 2:
-    Free_ChainContextSubst2( &ccs->ccsf.ccsf2, memory );
+    Free_ChainContextSubst2( &ccs->ccsf.ccsf2 );
     break;
 
   case 3:
-    Free_ChainContextSubst3( &ccs->ccsf.ccsf3, memory );
+    Free_ChainContextSubst3( &ccs->ccsf.ccsf3 );
     break;
   }
 }
 
 
-static FT_Error  Lookup_ChainContextSubst1( HB_GSUBHeader*               gsub,
+static HB_Error  Lookup_ChainContextSubst1( HB_GSUBHeader*               gsub,
 					    HB_ChainContextSubstFormat1* ccsf1,
 					    HB_Buffer                    buffer,
 					    FT_UShort                     flags,
@@ -3176,7 +3129,7 @@ static FT_Error  Lookup_ChainContextSubst1( HB_GSUBHeader*               gsub,
   FT_UShort          index, property;
   FT_UShort          i, j, k, num_csr;
   FT_UShort          bgc, igc, lgc;
-  FT_Error           error;
+  HB_Error           error;
 
   HB_ChainSubRule*  csr;
   HB_ChainSubRule   curr_csr;
@@ -3293,7 +3246,7 @@ static FT_Error  Lookup_ChainContextSubst1( HB_GSUBHeader*               gsub,
 }
 
 
-static FT_Error  Lookup_ChainContextSubst2( HB_GSUBHeader*               gsub,
+static HB_Error  Lookup_ChainContextSubst2( HB_GSUBHeader*               gsub,
 					    HB_ChainContextSubstFormat2* ccsf2,
 					    HB_Buffer                    buffer,
 					    FT_UShort                     flags,
@@ -3301,8 +3254,7 @@ static FT_Error  Lookup_ChainContextSubst2( HB_GSUBHeader*               gsub,
 					    int                           nesting_level )
 {
   FT_UShort              index, property;
-  FT_Memory              memory;
-  FT_Error               error;
+  HB_Error               error;
   FT_UShort              i, j, k;
   FT_UShort              bgc, igc, lgc;
   FT_UShort              known_backtrack_classes,
@@ -3323,7 +3275,6 @@ static FT_Error  Lookup_ChainContextSubst2( HB_GSUBHeader*               gsub,
 
 
   gdef = gsub->gdef;
-  memory = gsub->memory;
 
   if ( CHECK_Property( gdef, IN_CURITEM(), flags, &property ) )
     return error;
@@ -3495,7 +3446,7 @@ End3:
 }
 
 
-static FT_Error  Lookup_ChainContextSubst3( HB_GSUBHeader*               gsub,
+static HB_Error  Lookup_ChainContextSubst3( HB_GSUBHeader*               gsub,
 					    HB_ChainContextSubstFormat3* ccsf3,
 					    HB_Buffer                    buffer,
 					    FT_UShort                     flags,
@@ -3504,7 +3455,7 @@ static FT_Error  Lookup_ChainContextSubst3( HB_GSUBHeader*               gsub,
 {
   FT_UShort        index, i, j, property;
   FT_UShort        bgc, igc, lgc;
-  FT_Error         error;
+  HB_Error         error;
 
   HB_Coverage*    bc;
   HB_Coverage*    ic;
@@ -3604,7 +3555,7 @@ static FT_Error  Lookup_ChainContextSubst3( HB_GSUBHeader*               gsub,
 }
 
 
-static FT_Error  Lookup_ChainContextSubst( HB_GSUBHeader*    gsub,
+static HB_Error  Lookup_ChainContextSubst( HB_GSUBHeader*    gsub,
 					   HB_GSUB_SubTable* st,
 					   HB_Buffer         buffer,
 					   FT_UShort          flags,
@@ -3634,15 +3585,14 @@ static FT_Error  Lookup_ChainContextSubst( HB_GSUBHeader*    gsub,
     return HB_Err_Invalid_GSUB_SubTable_Format;
   }
 
-  return FT_Err_Ok;               /* never reached */
+  return HB_Err_Ok;               /* never reached */
 }
 
 
-static FT_Error  Load_ReverseChainContextSubst( HB_GSUB_SubTable* st,
-					        FT_Stream         stream )
+static HB_Error  Load_ReverseChainContextSubst( HB_GSUB_SubTable* st,
+					        HB_Stream         stream )
 {
-  FT_Error error;
-  FT_Memory memory = stream->memory;
+  HB_Error error;
   HB_ReverseChainContextSubst*  rccs = &st->reverse;
 
   FT_UShort               m, count;
@@ -3676,7 +3626,7 @@ static FT_Error  Load_ReverseChainContextSubst( HB_GSUB_SubTable* st,
 
   cur_offset = FILE_Pos();
   if ( FILE_Seek( new_offset ) ||
-       ( error = _HB_OPEN_Load_Coverage( &rccs->Coverage, stream ) ) != FT_Err_Ok )
+       ( error = _HB_OPEN_Load_Coverage( &rccs->Coverage, stream ) ) != HB_Err_Ok )
     return error;
   (void)FILE_Seek( cur_offset );
 
@@ -3709,7 +3659,7 @@ static FT_Error  Load_ReverseChainContextSubst( HB_GSUB_SubTable* st,
 
     cur_offset = FILE_Pos();
     if ( FILE_Seek( new_offset ) ||
-	 ( error = _HB_OPEN_Load_Coverage( &b[nb], stream ) ) != FT_Err_Ok )
+	 ( error = _HB_OPEN_Load_Coverage( &b[nb], stream ) ) != HB_Err_Ok )
       goto Fail3;
     (void)FILE_Seek( cur_offset );
   }
@@ -3743,7 +3693,7 @@ static FT_Error  Load_ReverseChainContextSubst( HB_GSUB_SubTable* st,
 
     cur_offset = FILE_Pos();
     if ( FILE_Seek( new_offset ) ||
-	 ( error = _HB_OPEN_Load_Coverage( &l[nl], stream ) ) != FT_Err_Ok )
+	 ( error = _HB_OPEN_Load_Coverage( &l[nl], stream ) ) != HB_Err_Ok )
       goto Fail2;
     (void)FILE_Seek( cur_offset );
   }
@@ -3773,38 +3723,37 @@ static FT_Error  Load_ReverseChainContextSubst( HB_GSUB_SubTable* st,
 
   FORGET_Frame();
 
-  return FT_Err_Ok;
+  return HB_Err_Ok;
 
 Fail1:
   FREE( sub );
 
 Fail2:
   for ( m = 0; m < nl; m++ )
-    _HB_OPEN_Free_Coverage( &l[m], memory );
+    _HB_OPEN_Free_Coverage( &l[m] );
 
   FREE( l );
 
 Fail3:
   for ( m = 0; m < nb; m++ )
-    _HB_OPEN_Free_Coverage( &b[m], memory );
+    _HB_OPEN_Free_Coverage( &b[m] );
 
   FREE( b );
 
 Fail4:
-  _HB_OPEN_Free_Coverage( &rccs->Coverage, memory );
+  _HB_OPEN_Free_Coverage( &rccs->Coverage );
   return error;
 }
 
 
-static void  Free_ReverseChainContextSubst( HB_GSUB_SubTable* st,
-					    FT_Memory         memory )
+static void  Free_ReverseChainContextSubst( HB_GSUB_SubTable* st )
 {
   FT_UShort      n, count;
   HB_ReverseChainContextSubst*  rccs = &st->reverse;
 
   HB_Coverage*  c;
 
-  _HB_OPEN_Free_Coverage( &rccs->Coverage, memory );
+  _HB_OPEN_Free_Coverage( &rccs->Coverage );
 
   if ( rccs->LookaheadCoverage )
   {
@@ -3812,7 +3761,7 @@ static void  Free_ReverseChainContextSubst( HB_GSUB_SubTable* st,
     c     = rccs->LookaheadCoverage;
 
     for ( n = 0; n < count; n++ )
-      _HB_OPEN_Free_Coverage( &c[n], memory );
+      _HB_OPEN_Free_Coverage( &c[n] );
 
     FREE( c );
   }
@@ -3823,7 +3772,7 @@ static void  Free_ReverseChainContextSubst( HB_GSUB_SubTable* st,
     c     = rccs->BacktrackCoverage;
 
     for ( n = 0; n < count; n++ )
-      _HB_OPEN_Free_Coverage( &c[n], memory );
+      _HB_OPEN_Free_Coverage( &c[n] );
 
     FREE( c );
   }
@@ -3832,7 +3781,7 @@ static void  Free_ReverseChainContextSubst( HB_GSUB_SubTable* st,
 }
 
 
-static FT_Error  Lookup_ReverseChainContextSubst( HB_GSUBHeader*    gsub,
+static HB_Error  Lookup_ReverseChainContextSubst( HB_GSUBHeader*    gsub,
 						  HB_GSUB_SubTable* st,
 						  HB_Buffer         buffer,
 						  FT_UShort          flags,
@@ -3840,7 +3789,7 @@ static FT_Error  Lookup_ReverseChainContextSubst( HB_GSUBHeader*    gsub,
 {
   FT_UShort        index, input_index, i, j, property;
   FT_UShort        bgc, lgc;
-  FT_Error         error;
+  HB_Error         error;
 
   HB_ReverseChainContextSubst*  rccs = &st->reverse;
   HB_Coverage*    bc;
@@ -3928,7 +3877,7 @@ static FT_Error  Lookup_ReverseChainContextSubst( HB_GSUBHeader*    gsub,
 
 
 
-FT_Error  HB_GSUB_Select_Script( HB_GSUBHeader*  gsub,
+HB_Error  HB_GSUB_Select_Script( HB_GSUBHeader*  gsub,
 				 FT_ULong         script_tag,
 				 FT_UShort*       script_index )
 {
@@ -3939,7 +3888,7 @@ FT_Error  HB_GSUB_Select_Script( HB_GSUBHeader*  gsub,
 
 
   if ( !gsub || !script_index )
-    return FT_Err_Invalid_Argument;
+    return HB_Err_Invalid_Argument;
 
   sl = &gsub->ScriptList;
   sr = sl->ScriptRecord;
@@ -3949,7 +3898,7 @@ FT_Error  HB_GSUB_Select_Script( HB_GSUBHeader*  gsub,
     {
       *script_index = n;
 
-      return FT_Err_Ok;
+      return HB_Err_Ok;
     }
 
   return HB_Err_Not_Covered;
@@ -3957,7 +3906,7 @@ FT_Error  HB_GSUB_Select_Script( HB_GSUBHeader*  gsub,
 
 
 
-FT_Error  HB_GSUB_Select_Language( HB_GSUBHeader*  gsub,
+HB_Error  HB_GSUB_Select_Language( HB_GSUBHeader*  gsub,
 				   FT_ULong         language_tag,
 				   FT_UShort        script_index,
 				   FT_UShort*       language_index,
@@ -3972,13 +3921,13 @@ FT_Error  HB_GSUB_Select_Language( HB_GSUBHeader*  gsub,
 
 
   if ( !gsub || !language_index || !req_feature_index )
-    return FT_Err_Invalid_Argument;
+    return HB_Err_Invalid_Argument;
 
   sl = &gsub->ScriptList;
   sr = sl->ScriptRecord;
 
   if ( script_index >= sl->ScriptCount )
-    return FT_Err_Invalid_Argument;
+    return HB_Err_Invalid_Argument;
 
   s   = &sr[script_index].Script;
   lsr = s->LangSysRecord;
@@ -3989,7 +3938,7 @@ FT_Error  HB_GSUB_Select_Language( HB_GSUBHeader*  gsub,
       *language_index = n;
       *req_feature_index = lsr[n].LangSys.ReqFeatureIndex;
 
-      return FT_Err_Ok;
+      return HB_Err_Ok;
     }
 
   return HB_Err_Not_Covered;
@@ -4000,7 +3949,7 @@ FT_Error  HB_GSUB_Select_Language( HB_GSUBHeader*  gsub,
    default language (DefaultLangSys)                              */
 
 
-FT_Error  HB_GSUB_Select_Feature( HB_GSUBHeader*  gsub,
+HB_Error  HB_GSUB_Select_Feature( HB_GSUBHeader*  gsub,
 				  FT_ULong         feature_tag,
 				  FT_UShort        script_index,
 				  FT_UShort        language_index,
@@ -4020,7 +3969,7 @@ FT_Error  HB_GSUB_Select_Feature( HB_GSUBHeader*  gsub,
 
 
   if ( !gsub || !feature_index )
-    return FT_Err_Invalid_Argument;
+    return HB_Err_Invalid_Argument;
 
   sl = &gsub->ScriptList;
   sr = sl->ScriptRecord;
@@ -4029,7 +3978,7 @@ FT_Error  HB_GSUB_Select_Feature( HB_GSUBHeader*  gsub,
   fr = fl->FeatureRecord;
 
   if ( script_index >= sl->ScriptCount )
-    return FT_Err_Invalid_Argument;
+    return HB_Err_Invalid_Argument;
 
   s   = &sr[script_index].Script;
   lsr = s->LangSysRecord;
@@ -4039,7 +3988,7 @@ FT_Error  HB_GSUB_Select_Feature( HB_GSUBHeader*  gsub,
   else
   {
     if ( language_index >= s->LangSysCount )
-      return FT_Err_Invalid_Argument;
+      return HB_Err_Invalid_Argument;
 
     ls = &lsr[language_index].LangSys;
   }
@@ -4055,7 +4004,7 @@ FT_Error  HB_GSUB_Select_Feature( HB_GSUBHeader*  gsub,
     {
       *feature_index = fi[n];
 
-      return FT_Err_Ok;
+      return HB_Err_Ok;
     }
   }
 
@@ -4066,12 +4015,11 @@ FT_Error  HB_GSUB_Select_Feature( HB_GSUBHeader*  gsub,
 /* The next three functions return a null-terminated list */
 
 
-FT_Error  HB_GSUB_Query_Scripts( HB_GSUBHeader*  gsub,
+HB_Error  HB_GSUB_Query_Scripts( HB_GSUBHeader*  gsub,
 				 FT_ULong**       script_tag_list )
 {
   FT_UShort          n;
-  FT_Error           error;
-  FT_Memory          memory;
+  HB_Error           error;
   FT_ULong*          stl;
 
   HB_ScriptList*    sl;
@@ -4079,9 +4027,8 @@ FT_Error  HB_GSUB_Query_Scripts( HB_GSUBHeader*  gsub,
 
 
   if ( !gsub || !script_tag_list )
-    return FT_Err_Invalid_Argument;
+    return HB_Err_Invalid_Argument;
 
-  memory = gsub->memory;
 
   sl = &gsub->ScriptList;
   sr = sl->ScriptRecord;
@@ -4095,18 +4042,17 @@ FT_Error  HB_GSUB_Query_Scripts( HB_GSUBHeader*  gsub,
 
   *script_tag_list = stl;
 
-  return FT_Err_Ok;
+  return HB_Err_Ok;
 }
 
 
 
-FT_Error  HB_GSUB_Query_Languages( HB_GSUBHeader*  gsub,
+HB_Error  HB_GSUB_Query_Languages( HB_GSUBHeader*  gsub,
 				   FT_UShort        script_index,
 				   FT_ULong**       language_tag_list )
 {
   FT_UShort           n;
-  FT_Error            error;
-  FT_Memory           memory;
+  HB_Error            error;
   FT_ULong*           ltl;
 
   HB_ScriptList*     sl;
@@ -4116,15 +4062,13 @@ FT_Error  HB_GSUB_Query_Languages( HB_GSUBHeader*  gsub,
 
 
   if ( !gsub || !language_tag_list )
-    return FT_Err_Invalid_Argument;
-
-  memory = gsub->memory;
+    return HB_Err_Invalid_Argument;
 
   sl = &gsub->ScriptList;
   sr = sl->ScriptRecord;
 
   if ( script_index >= sl->ScriptCount )
-    return FT_Err_Invalid_Argument;
+    return HB_Err_Invalid_Argument;
 
   s   = &sr[script_index].Script;
   lsr = s->LangSysRecord;
@@ -4138,7 +4082,7 @@ FT_Error  HB_GSUB_Query_Languages( HB_GSUBHeader*  gsub,
 
   *language_tag_list = ltl;
 
-  return FT_Err_Ok;
+  return HB_Err_Ok;
 }
 
 
@@ -4146,14 +4090,13 @@ FT_Error  HB_GSUB_Query_Languages( HB_GSUBHeader*  gsub,
    default language (DefaultLangSys)                              */
 
 
-FT_Error  HB_GSUB_Query_Features( HB_GSUBHeader*  gsub,
+HB_Error  HB_GSUB_Query_Features( HB_GSUBHeader*  gsub,
 				  FT_UShort        script_index,
 				  FT_UShort        language_index,
 				  FT_ULong**       feature_tag_list )
 {
   FT_UShort           n;
-  FT_Error            error;
-  FT_Memory           memory;
+  HB_Error            error;
   FT_ULong*           ftl;
 
   HB_ScriptList*     sl;
@@ -4168,9 +4111,7 @@ FT_Error  HB_GSUB_Query_Features( HB_GSUBHeader*  gsub,
 
 
   if ( !gsub || !feature_tag_list )
-    return FT_Err_Invalid_Argument;
-
-  memory = gsub->memory;
+    return HB_Err_Invalid_Argument;
 
   sl = &gsub->ScriptList;
   sr = sl->ScriptRecord;
@@ -4179,7 +4120,7 @@ FT_Error  HB_GSUB_Query_Features( HB_GSUBHeader*  gsub,
   fr = fl->FeatureRecord;
 
   if ( script_index >= sl->ScriptCount )
-    return FT_Err_Invalid_Argument;
+    return HB_Err_Invalid_Argument;
 
   s   = &sr[script_index].Script;
   lsr = s->LangSysRecord;
@@ -4189,7 +4130,7 @@ FT_Error  HB_GSUB_Query_Features( HB_GSUBHeader*  gsub,
   else
   {
     if ( language_index >= s->LangSysCount )
-      return FT_Err_Invalid_Argument;
+      return HB_Err_Invalid_Argument;
 
     ls = &lsr[language_index].LangSys;
   }
@@ -4212,11 +4153,11 @@ FT_Error  HB_GSUB_Query_Features( HB_GSUBHeader*  gsub,
 
   *feature_tag_list = ftl;
 
-  return FT_Err_Ok;
+  return HB_Err_Ok;
 }
 
 
-typedef FT_Error  (*Lookup_Subst_Func_Type)( HB_GSUBHeader*    gsub,
+typedef HB_Error  (*Lookup_Subst_Func_Type)( HB_GSUBHeader*    gsub,
 					     HB_GSUB_SubTable* st,
 					     HB_Buffer         buffer,
 					     FT_UShort          flags,
@@ -4238,15 +4179,15 @@ static const Lookup_Subst_Func_Type Lookup_Subst_Call_Table[] = {
  * signature is different too...
  */
 
-/* Do an individual subtable lookup.  Returns FT_Err_Ok if substitution
+/* Do an individual subtable lookup.  Returns HB_Err_Ok if substitution
    has been done, or HB_Err_Not_Covered if not.                        */
-static FT_Error  GSUB_Do_Glyph_Lookup( HB_GSUBHeader* gsub,
+static HB_Error  GSUB_Do_Glyph_Lookup( HB_GSUBHeader* gsub,
 				       FT_UShort       lookup_index,
 				       HB_Buffer      buffer,
 				       FT_UShort       context_length,
 				       int             nesting_level )
 {
-  FT_Error               error = HB_Err_Not_Covered;
+  HB_Error               error = HB_Err_Not_Covered;
   FT_UShort              i, flags, lookup_count;
   HB_Lookup*             lo;
   int                    lookup_type;
@@ -4289,8 +4230,8 @@ static FT_Error  GSUB_Do_Glyph_Lookup( HB_GSUBHeader* gsub,
 }
 
 
-static FT_Error  Load_DefaultSubst( HB_GSUB_SubTable* st,
-				    FT_Stream         stream )
+static HB_Error  Load_DefaultSubst( HB_GSUB_SubTable* st,
+				    HB_Stream         stream )
 {
   FT_UNUSED(st);
   FT_UNUSED(stream);
@@ -4298,8 +4239,8 @@ static FT_Error  Load_DefaultSubst( HB_GSUB_SubTable* st,
   return HB_Err_Invalid_GSUB_SubTable_Format;
 }
 
-typedef FT_Error  (*Load_Subst_Func_Type)( HB_GSUB_SubTable* st,
-					   FT_Stream         stream );
+typedef HB_Error  (*Load_Subst_Func_Type)( HB_GSUB_SubTable* st,
+					   HB_Stream         stream );
 static const Load_Subst_Func_Type Load_Subst_Call_Table[] = {
   Load_DefaultSubst,
   Load_SingleSubst,		/* HB_GSUB_LOOKUP_SINGLE        1 */
@@ -4312,8 +4253,8 @@ static const Load_Subst_Func_Type Load_Subst_Call_Table[] = {
   Load_ReverseChainContextSubst /* HB_GSUB_LOOKUP_REVERSE_CHAIN 8 */
 };
 
-FT_Error  _HB_GSUB_Load_SubTable( HB_GSUB_SubTable*  st,
-				  FT_Stream     stream,
+HB_Error  _HB_GSUB_Load_SubTable( HB_GSUB_SubTable*  st,
+				  HB_Stream     stream,
 				  FT_UShort     lookup_type )
 {
   Load_Subst_Func_Type Func;
@@ -4327,15 +4268,12 @@ FT_Error  _HB_GSUB_Load_SubTable( HB_GSUB_SubTable*  st,
 }
 
 
-static void  Free_DefaultSubst( HB_GSUB_SubTable* st,
-				FT_Memory         memory )
+static void  Free_DefaultSubst( HB_GSUB_SubTable* st )
 {
   FT_UNUSED(st);
-  FT_UNUSED(memory);
 }
 
-typedef void  (*Free_Subst_Func_Type)( HB_GSUB_SubTable* st,
-				       FT_Memory         memory );
+typedef void  (*Free_Subst_Func_Type)( HB_GSUB_SubTable* st );
 static const Free_Subst_Func_Type Free_Subst_Call_Table[] = {
   Free_DefaultSubst,
   Free_SingleSubst,		/* HB_GSUB_LOOKUP_SINGLE        1 */
@@ -4349,7 +4287,6 @@ static const Free_Subst_Func_Type Free_Subst_Call_Table[] = {
 };
 
 void  _HB_GSUB_Free_SubTable( HB_GSUB_SubTable*  st,
-			      FT_Memory     memory,
 			      FT_UShort     lookup_type )
 {
   Free_Subst_Func_Type Func;
@@ -4359,18 +4296,18 @@ void  _HB_GSUB_Free_SubTable( HB_GSUB_SubTable*  st,
 
   Func = Free_Subst_Call_Table[lookup_type];
 
-  Func ( st, memory );
+  Func ( st );
 }
 
 
 
 /* apply one lookup to the input string object */
 
-static FT_Error  GSUB_Do_String_Lookup( HB_GSUBHeader*   gsub,
+static HB_Error  GSUB_Do_String_Lookup( HB_GSUBHeader*   gsub,
 				   FT_UShort         lookup_index,
 				   HB_Buffer        buffer )
 {
-  FT_Error  error, retError = HB_Err_Not_Covered;
+  HB_Error  error, retError = HB_Err_Not_Covered;
 
   FT_UInt*  properties = gsub->LookupList.Properties;
 
@@ -4404,12 +4341,12 @@ static FT_Error  GSUB_Do_String_Lookup( HB_GSUBHeader*   gsub,
 }
 
 
-static FT_Error  Apply_ReverseChainContextSubst( HB_GSUBHeader*   gsub,
+static HB_Error  Apply_ReverseChainContextSubst( HB_GSUBHeader*   gsub,
 						 FT_UShort         lookup_index,
 						 HB_Buffer        buffer )
 {
   FT_UInt*     properties =  gsub->LookupList.Properties;
-  FT_Error     error, retError = HB_Err_Not_Covered;
+  HB_Error     error, retError = HB_Err_Not_Covered;
   FT_ULong     subtable_Count, string_index;
   FT_UShort    flags;
   HB_Lookup*  lo;
@@ -4445,7 +4382,7 @@ static FT_Error  Apply_ReverseChainContextSubst( HB_GSUBHeader*   gsub,
 }
 
 
-FT_Error  HB_GSUB_Add_Feature( HB_GSUBHeader*  gsub,
+HB_Error  HB_GSUB_Add_Feature( HB_GSUBHeader*  gsub,
 			       FT_UShort        feature_index,
 			       FT_UInt          property )
 {
@@ -4461,7 +4398,7 @@ FT_Error  HB_GSUB_Add_Feature( HB_GSUBHeader*  gsub,
   if ( !gsub ||
        feature_index >= gsub->FeatureList.FeatureCount ||
        gsub->FeatureList.ApplyCount == gsub->FeatureList.FeatureCount )
-    return FT_Err_Invalid_Argument;
+    return HB_Err_Invalid_Argument;
 
   gsub->FeatureList.ApplyOrder[gsub->FeatureList.ApplyCount++] = feature_index;
 
@@ -4478,12 +4415,12 @@ FT_Error  HB_GSUB_Add_Feature( HB_GSUBHeader*  gsub,
       properties[lookup_index] |= property;
   }
 
-  return FT_Err_Ok;
+  return HB_Err_Ok;
 }
 
 
 
-FT_Error  HB_GSUB_Clear_Features( HB_GSUBHeader*  gsub )
+HB_Error  HB_GSUB_Clear_Features( HB_GSUBHeader*  gsub )
 {
   FT_UShort i;
 
@@ -4491,7 +4428,7 @@ FT_Error  HB_GSUB_Clear_Features( HB_GSUBHeader*  gsub )
 
 
   if ( !gsub )
-    return FT_Err_Invalid_Argument;
+    return HB_Err_Invalid_Argument;
 
   gsub->FeatureList.ApplyCount = 0;
 
@@ -4500,35 +4437,35 @@ FT_Error  HB_GSUB_Clear_Features( HB_GSUBHeader*  gsub )
   for ( i = 0; i < gsub->LookupList.LookupCount; i++ )
     properties[i] = 0;
 
-  return FT_Err_Ok;
+  return HB_Err_Ok;
 }
 
 
 
-FT_Error  HB_GSUB_Register_Alternate_Function( HB_GSUBHeader*  gsub,
+HB_Error  HB_GSUB_Register_Alternate_Function( HB_GSUBHeader*  gsub,
 					       HB_AltFunction  altfunc,
 					       void*            data )
 {
   if ( !gsub )
-    return FT_Err_Invalid_Argument;
+    return HB_Err_Invalid_Argument;
 
   gsub->altfunc = altfunc;
   gsub->data    = data;
 
-  return FT_Err_Ok;
+  return HB_Err_Ok;
 }
 
 
 
-FT_Error  HB_GSUB_Apply_String( HB_GSUBHeader*   gsub,
+HB_Error  HB_GSUB_Apply_String( HB_GSUBHeader*   gsub,
 				HB_Buffer        buffer )
 {
-  FT_Error          error, retError = HB_Err_Not_Covered;
+  HB_Error          error, retError = HB_Err_Not_Covered;
   FT_UShort         i, j, lookup_count;
 
   if ( !gsub ||
        !buffer || buffer->in_length == 0 || buffer->in_pos >= buffer->in_length )
-    return FT_Err_Invalid_Argument;
+    return HB_Err_Invalid_Argument;
 
   lookup_count = gsub->LookupList.LookupCount;
 

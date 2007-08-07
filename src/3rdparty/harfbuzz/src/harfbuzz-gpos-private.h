@@ -13,6 +13,7 @@
 #ifndef HARFBUZZ_GPOS_PRIVATE_H
 #define HARFBUZZ_GPOS_PRIVATE_H
 
+#include "harfbuzz-stream.h"
 #include "harfbuzz-gpos.h"
 
 FT_BEGIN_HEADER
@@ -670,12 +671,11 @@ typedef union HB_GPOS_SubTable_  HB_GPOS_SubTable;
 
 
 
-FT_Error  _HB_GPOS_Load_SubTable( HB_GPOS_SubTable*  st,
-				  FT_Stream     stream,
+HB_Error  _HB_GPOS_Load_SubTable( HB_GPOS_SubTable*  st,
+				  HB_Stream     stream,
 				  FT_UShort     lookup_type );
 
 void  _HB_GPOS_Free_SubTable( HB_GPOS_SubTable*  st,
-			      FT_Memory     memory,
 			      FT_UShort     lookup_type );
 
 FT_END_HEADER
