@@ -692,74 +692,6 @@ static HB_Error hb_getSFntTable(void *font, HB_Tag tableTag, HB_Byte *buffer, HB
     return HB_Err_Ok;
 }
 
-static HB_Bool hb_stringToGlyphs(HB_Font font, const HB_UChar16 *string, hb_uint32 length, HB_Glyph *glyphs, hb_uint32 *numGlyphs, HB_Bool rightToLeft)
-{
-    QFontEngine *fe = (QFontEngine *)font->userData;
-
-    QVarLengthArray<QGlyphLayout> qglyphs(*numGlyphs);
-
-    QTextEngine::ShaperFlags shaperFlags(QTextEngine::GlyphIndicesOnly);
-    if (rightToLeft)
-        shaperFlags |= QTextEngine::RightToLeft;
-
-    int nGlyphs = *numGlyphs;
-    bool result = fe->stringToCMap(reinterpret_cast<const QChar *>(string), length, qglyphs.data(), &nGlyphs, shaperFlags);
-    *numGlyphs = nGlyphs;
-    if (!result)
-        return false;
-
-    for (hb_uint32 i = 0; i < *numGlyphs; ++i)
-        glyphs[i] = qglyphs[i].glyph;
-
-    return true;
-}
-
-static void hb_getAdvances(HB_Font font, const HB_Glyph *glyphs, hb_uint32 numGlyphs, HB_Fixed *advances, int flags)
-{
-    QFontEngine *fe = (QFontEngine *)font->userData;
-
-    QVarLengthArray<QGlyphLayout> qglyphs(numGlyphs);
-    for (hb_uint32 i = 0; i < numGlyphs; ++i)
-        qglyphs[i].glyph = glyphs[i];
-
-    fe->recalcAdvances(numGlyphs, qglyphs.data(), flags & HB_ShaperFlag_UseDesignMetrics ? QTextEngine::DesignMetrics : QFlag(0));
-
-    for (hb_uint32 i = 0; i < numGlyphs; ++i)
-        advances[i] = qglyphs[i].advance.x.value();
-}
-
-static HB_Bool hb_canRender(HB_Font font, const HB_UChar16 *string, hb_uint32 length)
-{
-    QFontEngine *fe = (QFontEngine *)font->userData;
-    return fe->canRender(reinterpret_cast<const QChar *>(string), length);
-}
-
-static void hb_getGlyphMetrics(HB_Font font, HB_Glyph glyph, HB_GlyphMetrics *metrics)
-{
-    QFontEngine *fe = (QFontEngine *)font->userData;
-    glyph_metrics_t m = fe->boundingBox(glyph);
-    metrics->x = m.x.value();
-    metrics->y = m.y.value();
-    metrics->width = m.width.value();
-    metrics->height = m.height.value();
-    metrics->xOffset = m.xoff.value();
-    metrics->yOffset = m.yoff.value();
-}
-
-static HB_Fixed hb_getFontMetric(HB_Font font, HB_FontMetric metric)
-{
-    if (metric == HB_FontAscent) {
-        QFontEngine *fe = (QFontEngine *)font->userData;
-        return fe->ascent().value();
-    }
-    return 0;
-}
-
-const HB_FontClass hb_fontClass = {
-    hb_stringToGlyphs, hb_getAdvances, hb_canRender, /*getPointInOutline*/0,
-    hb_getGlyphMetrics, hb_getFontMetric
-};
-
 static bool stringToGlyphs(HB_ShaperItem *item, HB_Glyph *itemGlyphs, QFontEngine *fontEngine)
 {
     int nGlyphs = item->num_glyphs;
@@ -888,24 +820,18 @@ void QTextEngine::shapeTextWithHarfbuzz(int item) const
 #if defined(Q_WS_X11) || defined(Q_WS_QWS)
         if (actualFontEngine->type() == QFontEngine::Freetype) {
             ftEngine = static_cast<QFontEngineFT *>(actualFontEngine);
+            ftEngine->lockFace();
         }
 #endif
 
-        HB_FontClass fontClass = hb_fontClass;
+        HB_FontClass fontClass;
         HB_FontRec hbFont;
-        memset(&hbFont, 0, sizeof(hbFont));
-        hbFont.klass = &fontClass;
-        hbFont.userData = actualFontEngine;
+        actualFontEngine->initHarfbuzzFont(&hbFont, &fontClass);
 
         shaper_item.font = &hbFont;
 
 #if defined(Q_WS_X11) || defined(Q_WS_QWS)
         if (ftEngine) {
-            Q_ASSERT(ftEngine);
-            ftEngine->lockFace();
-
-            ftEngine->setupHarfbuzzFont(&hbFont, &fontClass);
-
             shaper_item.face = ftEngine->harfbuzzFace();
         } else
 #endif

@@ -555,8 +555,9 @@ bool QFontEngineFT::init(FaceId faceId, bool antialias, GlyphFormat defaultForma
     return true;
 }
 
-void QFontEngineFT::setupHarfbuzzFont(HB_Font font, HB_FontClass *klass)
+void QFontEngineFT::initHarfbuzzFont(HB_Font font, HB_FontClass *klass)
 {
+    QFontEngine::initHarfbuzzFont(font, klass);
     font->faceData = freetype->face;
     font->x_ppem  = freetype->face->size->metrics.x_ppem;
     font->y_ppem  = freetype->face->size->metrics.y_ppem;

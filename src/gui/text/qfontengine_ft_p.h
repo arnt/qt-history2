@@ -225,7 +225,7 @@ public:
 
     bool init(FaceId faceId, bool antiaalias, GlyphFormat defaultFormat = Format_None);
 
-    void setupHarfbuzzFont(HB_Font font, HB_FontClass *klass);
+    virtual void initHarfbuzzFont(HB_Font font, HB_FontClass *klass);
     inline HB_Face harfbuzzFace() const { return freetype->hbFace; }
 protected:
 

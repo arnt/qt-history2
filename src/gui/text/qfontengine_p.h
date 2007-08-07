@@ -156,6 +156,8 @@ public:
 
     virtual int glyphCount() const;
 
+    virtual void initHarfbuzzFont(HB_Font font, HB_FontClass *klass);
+
     static const uchar *getCMap(const uchar *table, uint tableSize, bool *isSymbolFont, int *cmapSize);
     static quint32 getTrueTypeGlyphIndex(const uchar *cmap, uint unicode);
 
