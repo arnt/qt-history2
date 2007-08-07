@@ -302,7 +302,7 @@ FamilyFound:
     }
 #endif
 
-#if 0 // ########### FIXME
+#if 1
     QFontEngine *engine = new QFontEngineMacMulti(familyRef, fontRef, fontDef, d->kerning);
 #else
     ATSFontFamilyRef atsFamily = familyRef;

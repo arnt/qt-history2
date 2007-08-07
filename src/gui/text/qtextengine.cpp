@@ -668,8 +668,8 @@ void QTextEngine::bidiReorder(int numItems, const quint8 *levels, int *visualOrd
 
 #include "qfontengine_ft_p.h"
 
-//#elif defined(Q_WS_MAC)
-//# include "qtextengine_mac.cpp"
+#elif defined(Q_WS_MAC)
+# include "qtextengine_mac.cpp"
 #endif
 
 #include <private/qharfbuzz_p.h>
@@ -705,7 +705,11 @@ void QTextEngine::shapeText(int item) const
     if (si.num_glyphs)
         return;
 
+#if defined(Q_WS_MAC)
+    shapeTextWithAtsui(item);
+#else
     shapeTextWithHarfbuzz(item);
+#endif
 }
 
 void QTextEngine::shapeTextWithHarfbuzz(int item) const

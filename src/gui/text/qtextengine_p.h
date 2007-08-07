@@ -566,6 +566,9 @@ private:
     void addRequiredBoundaries() const;
     void shapeText(int item) const;
     void shapeTextWithHarfbuzz(int item) const;
+#if defined(Q_WS_MAC)
+    void shapeTextWithAtsui(int item) const;
+#endif
     void splitItem(int item, int pos) const;
 
     void resolveAdditionalFormats() const;

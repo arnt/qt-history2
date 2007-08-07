@@ -87,9 +87,6 @@ OSStatus QMacFontPath::closePath(void *data)
     return noErr;
 }
 
-#if 0
-#include "qscriptengine_p.h"
-
 QFontEngineMacMulti::QFontEngineMacMulti(const ATSFontFamilyRef &atsFamily, const ATSFontRef &atsFontRef, const QFontDef &fontDef, bool kerning)
     : QFontEngineMulti(0)
 {
@@ -178,7 +175,7 @@ struct QGlyphLayoutInfo
     bool callbackCalled;
     int *mappedFonts;
     QTextEngine::ShaperFlags flags;
-    QShaperItem *shaperItem;
+    QFontEngineMacMulti::ShaperItem *shaperItem;
 };
 
 static OSStatus atsuPostLayoutCallback(ATSULayoutOperationSelector selector, ATSULineRef lineRef, URefCon refCon,
@@ -214,12 +211,12 @@ static OSStatus atsuPostLayoutCallback(ATSULayoutOperationSelector selector, ATS
 
     int nextCharStop = -1;
     int currentClusterGlyph = -1; // first glyph in log cluster
-    QShaperItem *item = 0;
-    if (nfo->shaperItem) {
+    QFontEngineMacMulti::ShaperItem *item = nfo->shaperItem;
+    if (item->charAttributes) {
         item = nfo->shaperItem;
 #if !defined(QT_NO_DEBUG)
         int surrogates = 0;
-        const QString &str = *item->string;
+        const QChar *str = item->string;
         for (int i = item->from; i < item->from + item->length - 1; ++i) {
             surrogates += (str[i].unicode() >= 0xd800 && str[i].unicode() < 0xdc00
                            && str[i+1].unicode() >= 0xdc00 && str[i+1].unicode() < 0xe000);
@@ -265,7 +262,7 @@ static OSStatus atsuPostLayoutCallback(ATSULayoutOperationSelector selector, ATS
             *nfo->numGlyphs -= 1;
         }
 
-        if (item) {
+        if (item->log_clusters) {
             if (charOffset >= nextCharStop) {
                 nfo->glyphs[i].attributes.clusterStart = true;
                 currentClusterGlyph = i;
@@ -282,8 +279,8 @@ static OSStatus atsuPostLayoutCallback(ATSULayoutOperationSelector selector, ATS
 
             // surrogate handling
             if (charOffset < item->length - 1) {
-                QChar current = item->string->at(item->from + charOffset);
-                QChar next = item->string->at(item->from + charOffset + 1);
+                QChar current = item->string[item->from + charOffset];
+                QChar next = item->string[item->from + charOffset + 1];
                 if (current.unicode() >= 0xd800 && current.unicode() < 0xdc00
                     && next.unicode() >= 0xdc00 && next.unicode() < 0xe000) {
                     item->log_clusters[charOffset + 1] = currentClusterGlyph;
@@ -329,30 +326,40 @@ int QFontEngineMacMulti::fontIndexForFontID(ATSUFontID id) const
 
 bool QFontEngineMacMulti::stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const
 {
-    return stringToCMap(str, len, glyphs, nglyphs, flags, /*shaperItem=*/0);
+    return stringToCMap(str, len, glyphs, nglyphs, flags, /*logClusters=*/0, /*charAttributes=*/0);
 }
 
 bool QFontEngineMacMulti::stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags,
-                                  QShaperItem *shaperItem) const
+                                       unsigned short *logClusters, const HB_CharAttributes *charAttributes) const
 {
     if (*nglyphs < len) {
         *nglyphs = len;
         return false;
     }
 
+    ShaperItem shaperItem;
+    shaperItem.string = str;
+    shaperItem.from = 0;
+    shaperItem.length = len;
+    shaperItem.glyphs = glyphs;
+    shaperItem.num_glyphs = *nglyphs;
+    shaperItem.flags = flags;
+    shaperItem.log_clusters = logClusters;
+    shaperItem.charAttributes = charAttributes;
+
     const int maxChars = qMax(1,
                               int(SHRT_MAX / maxCharWidth())
                               - 10 // subtract a few to be on the safe side
                              );
     if (len < maxChars)
-        return stringToCMapInternal(str, len, glyphs, nglyphs, flags, shaperItem);
+        return stringToCMapInternal(str, len, glyphs, nglyphs, flags, &shaperItem);
 
     int charIdx = 0;
     int glyphIdx = 0;
-    QShaperItem tmpItem = *shaperItem;
+    ShaperItem tmpItem = shaperItem;
 
     do {
-        tmpItem.from = shaperItem->from + charIdx;
+        tmpItem.from = shaperItem.from + charIdx;
 
         int charCount = qMin(maxChars, len - charIdx);
 
@@ -363,7 +370,7 @@ bool QFontEngineMacMulti::stringToCMap(const QChar *str, int len, QGlyphLayout *
             if (tmpItem.charAttributes[i].whiteSpace) {
                 lastWhitespace = i;
                 break;
-            } if (tmpItem.charAttributes[i].lineBreakType != QCharAttributes::NoBreak) {
+            } if (tmpItem.charAttributes[i].lineBreakType != HB_NoBreak) {
                 lastSoftBreak = i;
             } if (tmpItem.charAttributes[i].charStop) {
                 lastCharStop = i;
@@ -371,32 +378,28 @@ bool QFontEngineMacMulti::stringToCMap(const QChar *str, int len, QGlyphLayout *
         }
         charCount = qMin(lastWhitespace, qMin(lastSoftBreak, lastCharStop)) - tmpItem.from + 1;
 
-        int glyphCount = shaperItem->num_glyphs - glyphIdx;
+        int glyphCount = shaperItem.num_glyphs - glyphIdx;
         if (glyphCount <= 0)
             return false;
         tmpItem.length = charCount;
         tmpItem.num_glyphs = glyphCount;
-        tmpItem.glyphs = shaperItem->glyphs + glyphIdx;
-        tmpItem.log_clusters = shaperItem->log_clusters + charIdx;
-        if (!stringToCMapInternal(tmpItem.string->constData() + tmpItem.from,
-                                  tmpItem.length,
-                                  tmpItem.glyphs,
-                                  &glyphCount,
-                                  flags, &tmpItem)) {
+        tmpItem.glyphs = shaperItem.glyphs + glyphIdx;
+        tmpItem.log_clusters = shaperItem.log_clusters + charIdx;
+        if (!stringToCMapInternal(tmpItem.string + tmpItem.from, tmpItem.length, 
+                                  tmpItem.glyphs, &tmpItem.num_glyphs, flags,
+                                  &tmpItem))
             return false;
-        }
         for (int i = 0; i < charCount; ++i)
             tmpItem.log_clusters[i] += glyphIdx;
         glyphIdx += glyphCount;
         charIdx += charCount;
     } while (charIdx < len);
-    shaperItem->num_glyphs = *nglyphs = glyphIdx;
+    *nglyphs = glyphIdx;
 
     return true;
 }
 
-bool QFontEngineMacMulti::stringToCMapInternal(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs,
-                                               QTextEngine::ShaperFlags flags, QShaperItem *shaperItem) const
+bool QFontEngineMacMulti::stringToCMapInternal(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags,ShaperItem *shaperItem) const
 {
     //qDebug() << "stringToCMap" << QString(str, len);
 
@@ -573,7 +576,6 @@ bool QFontEngineMacMulti::canRender(const QChar *string, int len)
 
     return e == noErr || e == kATSUFontsMatched;
 }
-#endif
 
 QFontEngineMac::QFontEngineMac(ATSUStyle baseStyle, ATSUFontID fontID, const QFontDef &def, QFontEngineMacMulti *multiEngine)
     : fontID(fontID), multiEngine(multiEngine), cmap(0), symbolCMap(false)

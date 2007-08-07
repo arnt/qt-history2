@@ -326,7 +326,7 @@ protected:
 
 #include "private/qcore_mac_p.h"
 
-struct QShaperItem;
+struct QCharAttributes;
 class QFontEngineMacMulti;
 
 class QFontEngineMac : public QFontEngine
@@ -381,17 +381,32 @@ private:
     CGAffineTransform transform;
 };
 
-#if 0
 class QFontEngineMacMulti : public QFontEngineMulti
 {
     friend class QFontEngineMac;
 public:
+    // internal
+    struct ShaperItem
+    {
+        inline ShaperItem() : string(0), from(0), length(0),
+        glyphs(0), num_glyphs(0), log_clusters(0), charAttributes(0) {}
+
+        const QChar *string;
+        int from;
+        int length;
+        QGlyphLayout *glyphs;
+        int num_glyphs;
+        unsigned short *log_clusters;
+        const HB_CharAttributes *charAttributes;
+        QTextEngine::ShaperFlags flags;
+    };
+
     QFontEngineMacMulti(const ATSFontFamilyRef &atsFamily, const ATSFontRef &atsFontRef, const QFontDef &fontDef, bool kerning);
     virtual ~QFontEngineMacMulti();
 
     virtual bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const;
     bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags,
-                      QShaperItem *shaperItem) const;
+                      unsigned short *logClusters, const HB_CharAttributes *charAttributes) const;
 
     virtual void recalcAdvances(int , QGlyphLayout *, QTextEngine::ShaperFlags) const;
     virtual void doKerning(int , QGlyphLayout *, QTextEngine::ShaperFlags) const;
@@ -409,8 +424,7 @@ private:
     inline const QFontEngineMac *engineAt(int i) const
     { return static_cast<const QFontEngineMac *>(engines.at(i)); }
 
-    bool stringToCMapInternal(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags,
-                              QShaperItem *shaperItem) const;
+    bool stringToCMapInternal(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags, ShaperItem *item) const;
 
     int fontIndexForFontID(ATSUFontID id) const;
 
@@ -421,7 +435,6 @@ private:
     mutable ATSUStyle style;
     CGAffineTransform transform;
 };
-#endif
 
 #endif
 
