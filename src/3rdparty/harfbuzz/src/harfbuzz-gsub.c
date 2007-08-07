@@ -1421,7 +1421,7 @@ static HB_Error  Load_SubClassRule( HB_ContextSubstFormat2*  csf2,
 
   HB_UShort*              c;
   HB_SubstLookupRecord*  slr;
-  FT_Bool*                d;
+  HB_Bool*                d;
 
 
   if ( ACCESS_Frame( 4L ) )
@@ -2439,7 +2439,7 @@ static HB_Error  Load_ChainSubClassRule(
   HB_UShort*              i;
   HB_UShort*              l;
   HB_SubstLookupRecord*  slr;
-  FT_Bool*                d;
+  HB_Bool*                d;
 
 
   if ( ACCESS_Frame( 2L ) )
@@ -4481,7 +4481,7 @@ HB_Error  HB_GSUB_Apply_String( HB_GSUBHeader*   gsub,
     {
       HB_UShort         lookup_index;
       HB_Lookup*       lookup;
-      FT_Bool           need_swap;
+      HB_Bool           need_swap;
 
       lookup_index = feature.LookupListIndex[j];
 

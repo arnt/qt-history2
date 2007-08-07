@@ -887,7 +887,7 @@ HB_Error  HB_GDEF_Build_ClassDefinition( HB_GDEFHeader*  gdef,
 
   /* A GlyphClassDef table contains at most 5 different class values */
 
-  if ( ALLOC_ARRAY( gcd->Defined, 5, FT_Bool ) )
+  if ( ALLOC_ARRAY( gcd->Defined, 5, HB_Bool ) )
     return error;
 
   gcd->cd.cd2.ClassRangeCount  = 0;

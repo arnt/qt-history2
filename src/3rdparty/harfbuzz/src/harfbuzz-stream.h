@@ -15,15 +15,15 @@
 #include FT_FREETYPE_H
 #include <harfbuzz-global.h>
 
-FT_BEGIN_HEADER
+HB_BEGIN_HEADER
 
 typedef struct HB_StreamRec_
 {
-    FT_Byte*             base;
+    HB_Byte*             base;
     HB_UInt        size;
     HB_UInt        pos;
     
-    FT_Byte*             cursor;
+    HB_Byte*             cursor;
 } HB_StreamRec, *HB_Stream;
 
 HB_Error HB_open_stream(FT_Face face, FT_Tag tableTag, HB_Stream *stream);
@@ -49,7 +49,7 @@ void HB_close_stream(HB_Stream stream);
 			 ))
 
 
-#define  GET_Char()      ((FT_Char)GET_Byte())
+#define  GET_Char()      ((HB_Char)GET_Byte())
 #define  GET_UShort()    ((HB_UShort)GET_Short())
 #define  GET_ULong()     ((HB_UInt)GET_Long())
 #define  GET_Tag4()      GET_ULong()

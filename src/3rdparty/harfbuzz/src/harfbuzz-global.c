@@ -29,11 +29,11 @@ _hb_log( const char*   format, ... )
 #endif
 
 
-FT_Pointer _hb_alloc(HB_UInt   size,
+HB_Pointer _hb_alloc(HB_UInt   size,
                             HB_Error  *perror )
 {
   HB_Error    error = 0;
-  FT_Pointer  block = NULL;
+  HB_Pointer  block = NULL;
 
   if ( size > 0 )
   {
@@ -49,12 +49,12 @@ FT_Pointer _hb_alloc(HB_UInt   size,
 }
 
 
-FT_Pointer _hb_realloc(FT_Pointer  block,
+HB_Pointer _hb_realloc(HB_Pointer  block,
                        HB_UInt    old_size,
                        HB_UInt    new_size,
                        HB_Error   *perror )
 {
-    FT_Pointer  block2 = NULL;
+    HB_Pointer  block2 = NULL;
     HB_Error    error  = 0;
 
     block2 = realloc( block, new_size );
@@ -71,7 +71,7 @@ FT_Pointer _hb_realloc(FT_Pointer  block,
 }
 
 
-void _hb_free( FT_Pointer  block )
+void _hb_free( HB_Pointer  block )
 {
   if ( block )
     free( block );

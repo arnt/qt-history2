@@ -16,7 +16,7 @@
 #include "harfbuzz-gdef.h"
 #include "harfbuzz-buffer.h"
 
-FT_BEGIN_HEADER
+HB_BEGIN_HEADER
 
 
 /* Attachment related structures */
@@ -80,7 +80,7 @@ typedef struct HB_CaretValue_  HB_CaretValue;
 
 struct  HB_LigGlyph_
 {
-  FT_Bool          loaded;
+  HB_Bool          loaded;
 
   HB_UShort        CaretCount;        /* number of caret values */
   HB_CaretValue*  CaretValue;        /* array of caret values  */
@@ -96,6 +96,6 @@ HB_Error  _HB_GDEF_Check_Property( HB_GDEFHeader*   gdef,
 				   HB_UShort        flags,
 				   HB_UShort*       property );
 
-FT_END_HEADER
+HB_END_HEADER
 
 #endif /* HARFBUZZ_GDEF_PRIVATE_H */

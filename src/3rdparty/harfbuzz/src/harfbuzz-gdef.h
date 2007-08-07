@@ -15,7 +15,7 @@
 
 #include "harfbuzz-open.h"
 
-FT_BEGIN_HEADER
+HB_BEGIN_HEADER
 
 #define HB_Err_Invalid_GDEF_SubTable_Format  0x1030
 #define HB_Err_Invalid_GDEF_SubTable         0x1031
@@ -34,7 +34,7 @@ typedef struct HB_AttachPoint_  HB_AttachPoint;
 
 struct  HB_AttachList_
 {
-  FT_Bool           loaded;
+  HB_Bool           loaded;
 
   HB_Coverage       Coverage;         /* Coverage table              */
   HB_UShort         GlyphCount;       /* number of glyphs with
@@ -48,7 +48,7 @@ typedef struct HB_LigGlyph_  HB_LigGlyph;
 
 struct  HB_LigCaretList_
 {
-  FT_Bool        loaded;
+  HB_Bool        loaded;
 
   HB_Coverage    Coverage;            /* Coverage table            */
   HB_UShort      LigGlyphCount;       /* number of ligature glyphs */
@@ -83,7 +83,7 @@ struct  HB_GDEFHeader_
 {
   HB_UInt             offset;
 
-  FT_Fixed             Version;
+  HB_16Dot16             Version;
 
   HB_ClassDefinition   GlyphClassDef;
   HB_AttachList        AttachList;
@@ -120,6 +120,6 @@ HB_Error  HB_GDEF_Build_ClassDefinition( HB_GDEFHeader*  gdef,
 					 HB_UShort*       class_array );
 
 
-FT_END_HEADER
+HB_END_HEADER
 
 #endif /* HARFBUZZ_GDEF_H */

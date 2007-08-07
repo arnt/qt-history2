@@ -18,7 +18,7 @@
 #include "harfbuzz-gsub-private.h"
 #include "harfbuzz-gpos-private.h"
 
-FT_BEGIN_HEADER
+HB_BEGIN_HEADER
 
 
 struct  HB_SubTable_
@@ -71,6 +71,6 @@ HB_Error  _HB_OPEN_Get_Device( HB_Device*  d,
 		      HB_UShort    size,
 		      HB_Short*    value );
 
-FT_END_HEADER
+HB_END_HEADER
 
 #endif /* HARFBUZZ_OPEN_PRIVATE_H */

@@ -19,14 +19,14 @@ struct  GPOS_Instance_
 {
   HB_GPOSHeader*  gpos;
   FT_Face          face;
-  FT_Bool          dvi;
+  HB_Bool          dvi;
   HB_UShort        load_flags;  /* how the glyph should be loaded */
-  FT_Bool          r2l;
+  HB_Bool          r2l;
 
   HB_UShort        last;        /* the last valid glyph -- used
 				   with cursive positioning     */
-  FT_Pos           anchor_x;    /* the coordinates of the anchor point */
-  FT_Pos           anchor_y;    /* of the last valid glyph             */
+  HB_Fixed           anchor_x;    /* the coordinates of the anchor point */
+  HB_Fixed           anchor_y;    /* of the last valid glyph             */
 };
 
 typedef struct GPOS_Instance_  GPOS_Instance;
@@ -45,7 +45,7 @@ static HB_Error  GPOS_Do_Glyph_Lookup( GPOS_Instance*    gpi,
 
 static HB_Error  default_mmfunc( FT_Face      face,
 				 HB_UShort    metric_id,
-				 FT_Pos*      metric_value,
+				 HB_Fixed*      metric_value,
 				 void*        data )
 {
   HB_UNUSED(face);
@@ -472,13 +472,13 @@ static HB_Error  Get_ValueRecord( GPOS_Instance*    gpi,
 				  HB_UShort         format,
 				  HB_Position      gd )
 {
-  FT_Pos           value;
+  HB_Fixed           value;
   HB_Short         pixel_value;
   HB_Error         error = HB_Err_Ok;
   HB_GPOSHeader*  gpos = gpi->gpos;
 
   HB_UShort  x_ppem, y_ppem;
-  FT_Fixed   x_scale, y_scale;
+  HB_16Dot16   x_scale, y_scale;
 
 
   if ( !format )
@@ -699,8 +699,8 @@ static void  Free_Anchor( HB_Anchor*  an)
 static HB_Error  Get_Anchor( GPOS_Instance*   gpi,
 			     HB_Anchor*      an,
 			     HB_UShort        glyph_index,
-			     FT_Pos*          x_value,
-			     FT_Pos*          y_value )
+			     HB_Fixed*          x_value,
+			     HB_Fixed*          y_value )
 {
   HB_Error  error = HB_Err_Ok;
 
@@ -712,7 +712,7 @@ static HB_Error  Get_Anchor( GPOS_Instance*   gpi,
   HB_UShort        load_flags;
 
   HB_UShort        x_ppem, y_ppem;
-  FT_Fixed         x_scale, y_scale;
+  HB_16Dot16         x_scale, y_scale;
 
 
   x_ppem  = gpi->face->size->metrics.x_ppem;
@@ -1795,8 +1795,8 @@ static HB_Error  Lookup_CursivePos( GPOS_Instance*    gpi,
   HB_CursivePos*  cp = &st->cursive;
 
   HB_EntryExitRecord*  eer;
-  FT_Pos                entry_x, entry_y;
-  FT_Pos                exit_x, exit_y;
+  HB_Fixed                entry_x, entry_y;
+  HB_Fixed                exit_x, exit_y;
 
   HB_UNUSED(nesting_level);
 
@@ -2226,7 +2226,7 @@ static HB_Error  Lookup_MarkBasePos( GPOS_Instance*    gpi,
 				     int               nesting_level )
 {
   HB_UShort        i, j, mark_index, base_index, property, class;
-  FT_Pos           x_mark_value, y_mark_value, x_base_value, y_base_value;
+  HB_Fixed           x_mark_value, y_mark_value, x_base_value, y_base_value;
   HB_Error         error;
   HB_GPOSHeader*  gpos = gpi->gpos;
   HB_MarkBasePos* mbp = &st->markbase;
@@ -2634,7 +2634,7 @@ static HB_Error  Lookup_MarkLigPos( GPOS_Instance*    gpi,
 {
   HB_UShort        i, j, mark_index, lig_index, property, class;
   HB_UShort        mark_glyph;
-  FT_Pos           x_mark_value, y_mark_value, x_lig_value, y_lig_value;
+  HB_Fixed           x_mark_value, y_mark_value, x_lig_value, y_lig_value;
   HB_Error         error;
   HB_GPOSHeader*  gpos = gpi->gpos;
   HB_MarkLigPos*  mlp = &st->marklig;
@@ -2974,7 +2974,7 @@ static HB_Error  Lookup_MarkMarkPos( GPOS_Instance*    gpi,
 				     int               nesting_level )
 {
   HB_UShort        i, j, mark1_index, mark2_index, property, class;
-  FT_Pos           x_mark1_value, y_mark1_value,
+  HB_Fixed           x_mark1_value, y_mark1_value,
 		   x_mark2_value, y_mark2_value;
   HB_Error         error;
   HB_GPOSHeader*  gpos = gpi->gpos;
@@ -3390,7 +3390,7 @@ static HB_Error  Load_PosClassRule( HB_ContextPosFormat2*  cpf2,
 
   HB_UShort*            c;
   HB_PosLookupRecord*  plr;
-  FT_Bool*              d;
+  HB_Bool*              d;
 
 
   if ( ACCESS_Frame( 4L ) )
@@ -4411,7 +4411,7 @@ static HB_Error  Load_ChainPosClassRule(
   HB_UShort*            i;
   HB_UShort*            l;
   HB_PosLookupRecord*  plr;
-  FT_Bool*              d;
+  HB_Bool*              d;
 
 
   if ( ACCESS_Frame( 2L ) )
@@ -6166,8 +6166,8 @@ HB_Error  HB_GPOS_Apply_String( FT_Face            face,
 				HB_GPOSHeader*    gpos,
 				HB_UShort          load_flags,
 				HB_Buffer         buffer,
-				FT_Bool            dvi,
-				FT_Bool            r2l )
+				HB_Bool            dvi,
+				HB_Bool            r2l )
 {
   HB_Error       error, retError = HB_Err_Not_Covered;
   GPOS_Instance  gpi;

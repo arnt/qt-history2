@@ -19,7 +19,7 @@
 
 #include "harfbuzz-global.h"
 
-FT_BEGIN_HEADER
+HB_BEGIN_HEADER
 
 #ifndef NULL
 # define NULL ((void *)0)
@@ -78,6 +78,6 @@ FT_BEGIN_HEADER
                                                   ) ) != HB_Err_Ok )
 
 
-FT_END_HEADER
+HB_END_HEADER
 
 #endif /* HARFBUZZ_IMPL_H */

@@ -466,7 +466,7 @@ static HB_Error  Load_Lookup( HB_Lookup*   l,
 
   HB_SubTable*  st;
 
-  FT_Bool        is_extension = FALSE;
+  HB_Bool        is_extension = FALSE;
 
 
   base_offset = FILE_Pos();
@@ -934,7 +934,7 @@ static HB_Error  Load_ClassDef1( HB_ClassDefinition*  cd,
   HB_UShort             n, count;
 
   HB_UShort*            cva;
-  FT_Bool*              d;
+  HB_Bool*              d;
 
   HB_ClassDefFormat1*  cdf1;
 
@@ -1004,7 +1004,7 @@ static HB_Error  Load_ClassDef2( HB_ClassDefinition*  cd,
   HB_UShort              n, count;
 
   HB_ClassRangeRecord*  crr;
-  FT_Bool*               d;
+  HB_Bool*               d;
 
   HB_ClassDefFormat2*   cdf2;
 
@@ -1072,7 +1072,7 @@ HB_Error  _HB_OPEN_Load_ClassDefinition( HB_ClassDefinition*  cd,
   HB_Error   error;
 
 
-  if ( ALLOC_ARRAY( cd->Defined, limit, FT_Bool ) )
+  if ( ALLOC_ARRAY( cd->Defined, limit, HB_Bool ) )
     return error;
 
   if ( ACCESS_Frame( 2L ) )
@@ -1116,7 +1116,7 @@ HB_Error  _HB_OPEN_Load_EmptyClassDefinition( HB_ClassDefinition*  cd,
   HB_Error   error;
   HB_UNUSED(stream);
 
-  if ( ALLOC_ARRAY( cd->Defined, 1, FT_Bool ) )
+  if ( ALLOC_ARRAY( cd->Defined, 1, HB_Bool ) )
     return error;
 
   cd->ClassFormat = 1; /* Meaningless */

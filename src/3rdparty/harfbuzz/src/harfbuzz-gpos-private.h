@@ -16,7 +16,7 @@
 #include "harfbuzz-stream.h"
 #include "harfbuzz-gpos.h"
 
-FT_BEGIN_HEADER
+HB_BEGIN_HEADER
 
 
 /* shared tables */
@@ -678,6 +678,6 @@ HB_Error  _HB_GPOS_Load_SubTable( HB_GPOS_SubTable*  st,
 void  _HB_GPOS_Free_SubTable( HB_GPOS_SubTable*  st,
 			      HB_UShort     lookup_type );
 
-FT_END_HEADER
+HB_END_HEADER
 
 #endif /* HARFBUZZ_GPOS_PRIVATE_H */

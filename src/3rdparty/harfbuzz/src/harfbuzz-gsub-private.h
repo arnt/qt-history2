@@ -16,7 +16,7 @@
 #include "harfbuzz-stream.h"
 #include "harfbuzz-gsub.h"
 
-FT_BEGIN_HEADER
+HB_BEGIN_HEADER
 
 
 typedef union HB_GSUB_SubTable_  HB_GSUB_SubTable;
@@ -443,6 +443,6 @@ HB_Error  _HB_GSUB_Load_SubTable( HB_GSUB_SubTable*  st,
 void  _HB_GSUB_Free_SubTable( HB_GSUB_SubTable*  st,
 			      HB_UShort     lookup_type );
 
-FT_END_HEADER
+HB_END_HEADER
 
 #endif /* HARFBUZZ_GSUB_PRIVATE_H */

@@ -16,7 +16,7 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
-FT_BEGIN_HEADER
+HB_BEGIN_HEADER
 
 /* Use this if a feature applies to all glyphs */
 #define HB_ALL_GLYPHS                    0xFFFF
@@ -242,9 +242,9 @@ typedef struct HB_ClassDefFormat2_  HB_ClassDefFormat2;
 
 struct  HB_ClassDefinition_
 {
-  FT_Bool    loaded;
+  HB_Bool    loaded;
 
-  FT_Bool*   Defined;                 /* array of Booleans.
+  HB_Bool*   Defined;                 /* array of Booleans.
 					 If Defined[n] is FALSE,
 					 class n contains no glyphs. */
   HB_UShort  ClassFormat;             /* 1 or 2                      */
@@ -280,6 +280,6 @@ enum  HB_Type_
 typedef enum HB_Type_  HB_Type;
 
 
-FT_END_HEADER
+HB_END_HEADER
 
 #endif /* HARFBUZZ_OPEN_H */

@@ -12,7 +12,7 @@
 
 #include <harfbuzz.h>
 
-FT_BEGIN_HEADER
+HB_BEGIN_HEADER
 
 typedef enum {
         HB_Script_Common,
@@ -210,6 +210,6 @@ typedef struct {
 
 HB_Bool HB_ShapeItem(HB_ShaperItem *item);
 
-FT_END_HEADER
+HB_END_HEADER
 
 #endif // HARFBUZZ_SHAPER_H

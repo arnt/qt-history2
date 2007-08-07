@@ -85,7 +85,7 @@ static void
 select_cmap (FT_Face face)
 {
   HB_UShort  i;
-  FT_CharMap cmap = NULL;
+  HB_CharMap cmap = NULL;
   
   for (i = 0; i < face->num_charmaps; i++)
     {

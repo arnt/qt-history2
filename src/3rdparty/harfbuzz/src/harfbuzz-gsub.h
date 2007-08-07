@@ -16,7 +16,7 @@
 #include "harfbuzz-gdef.h"
 #include "harfbuzz-buffer.h"
 
-FT_BEGIN_HEADER
+HB_BEGIN_HEADER
 
 #define HB_Err_Invalid_GSUB_SubTable_Format  0x1010
 #define HB_Err_Invalid_GSUB_SubTable         0x1011
@@ -52,7 +52,7 @@ struct  HB_GSUBHeader_
 {
   HB_UInt         offset;
 
-  FT_Fixed         Version;
+  HB_16Dot16         Version;
 
   HB_ScriptList   ScriptList;
   HB_FeatureList  FeatureList;
@@ -125,6 +125,6 @@ HB_Error  HB_GSUB_Apply_String( HB_GSUBHeader*   gsub,
 				HB_Buffer        buffer );
 
 
-FT_END_HEADER
+HB_END_HEADER
 
 #endif /* HARFBUZZ_GSUB_H */

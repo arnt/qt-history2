@@ -17,7 +17,7 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
-FT_BEGIN_HEADER
+HB_BEGIN_HEADER
 
 #define HB_GLYPH_PROPERTIES_UNKNOWN 0xFFFF
 
@@ -31,13 +31,13 @@ typedef struct HB_GlyphItemRec_ {
 } HB_GlyphItemRec, *HB_GlyphItem;
 
 typedef struct HB_PositionRec_ {
-  FT_Pos     x_pos;
-  FT_Pos     y_pos;
-  FT_Pos     x_advance;
-  FT_Pos     y_advance;
+  HB_Fixed     x_pos;
+  HB_Fixed     y_pos;
+  HB_Fixed     x_advance;
+  HB_Fixed     y_advance;
   HB_UShort  back;            /* number of glyphs to go back
 				 for drawing current glyph   */
-  FT_Bool    new_advance;     /* if set, the advance width values are
+  HB_Bool    new_advance;     /* if set, the advance width values are
 				 absolute, i.e., they won't be
 				 added to the original glyph's value
 				 but rather replace them.            */
@@ -99,6 +99,6 @@ hb_buffer_copy_output_glyph ( HB_Buffer buffer );
 HB_UShort
 hb_buffer_allocate_ligid( HB_Buffer buffer );
 
-FT_END_HEADER
+HB_END_HEADER
 
 #endif /* HARFBUZZ_BUFFER_H */

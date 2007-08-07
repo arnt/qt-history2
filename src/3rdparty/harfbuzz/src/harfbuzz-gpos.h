@@ -16,7 +16,7 @@
 #include "harfbuzz-gdef.h"
 #include "harfbuzz-buffer.h"
 
-FT_BEGIN_HEADER
+HB_BEGIN_HEADER
 
 #define HB_Err_Invalid_GPOS_SubTable_Format  0x1020
 #define HB_Err_Invalid_GPOS_SubTable         0x1021
@@ -66,13 +66,13 @@ typedef FT_Error  (*HB_GlyphFunction)(FT_Face      face,
 
 typedef HB_Error  (*HB_MMFunction)(FT_Face      face,
 				    HB_UShort    metric_id,
-				    FT_Pos*      metric_value,
+				    HB_Fixed*      metric_value,
 				    void*        data );
 
 
 struct  HB_GPOSHeader_
 {
-  FT_Fixed           Version;
+  HB_16Dot16           Version;
 
   HB_ScriptList     ScriptList;
   HB_FeatureList    FeatureList;
@@ -158,9 +158,9 @@ HB_Error  HB_GPOS_Apply_String( FT_Face           face,
 				HB_GPOSHeader*   gpos,
 				HB_UShort         load_flags,
 				HB_Buffer        buffer,
-				FT_Bool           dvi,
-				FT_Bool           r2l );
+				HB_Bool           dvi,
+				HB_Bool           r2l );
 
-FT_END_HEADER
+HB_END_HEADER
 
 #endif /* HARFBUZZ_GPOS_H */

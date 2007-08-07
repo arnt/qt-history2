@@ -10,7 +10,7 @@
 #ifndef HARFBUZZ_SHAPER_PRIVATE_H
 #define HARFBUZZ_SHAPER_PRIVATE_H
 
-FT_BEGIN_HEADER
+HB_BEGIN_HEADER
 
 enum {
     C_DOTTED_CIRCLE = 0x25CC
@@ -148,6 +148,6 @@ inline void HB_GetAdvances(HB_ShaperItem *shaper_item)
     if (stack##Name != Name) \
         free(Name);
 
-FT_END_HEADER
+HB_END_HEADER
 
 #endif // HARFBUZZ_SHAPER_PRIVATE_H

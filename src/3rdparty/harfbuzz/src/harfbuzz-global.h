@@ -16,11 +16,24 @@
 
 #include <stdint.h>
 
-FT_BEGIN_HEADER
+#ifdef __cplusplus
+#define HB_BEGIN_HEADER  extern "C" {
+#else
+#define HB_BEGIN_HEADER  /* nothing */
+#endif
+#ifdef __cplusplus
+#define HB_END_HEADER  }
+#else
+#define HB_END_HEADER  /* nothing */
+#endif
+
+
+HB_BEGIN_HEADER
 
 typedef uint8_t HB_Byte;
 typedef uint16_t HB_UShort;
 typedef uint32_t HB_UInt;
+typedef int8_t HB_Char;
 typedef int16_t HB_Short;
 typedef int32_t HB_Int;
 
@@ -29,6 +42,10 @@ typedef uint32_t HB_UChar32;
 typedef uint32_t HB_Glyph;
 typedef uint8_t HB_Bool;
 typedef uint32_t HB_Fixed; /* 26.6 */
+
+typedef uint32_t HB_16Dot16; /* 16.16 */
+
+typedef void * HB_Pointer;
 
 typedef enum {
     HB_Err_Ok = 0,
@@ -78,16 +95,16 @@ typedef struct {
 #define  MEM_Copy(dest,source,count)   memcpy( (char*)(dest), (const char*)(source), (size_t)(count) )
 
 
-FT_Pointer _hb_alloc( HB_UInt   size,
+HB_Pointer _hb_alloc( HB_UInt   size,
                       HB_Error  *perror_ );
 
-FT_Pointer _hb_realloc( FT_Pointer  block,
+HB_Pointer _hb_realloc( HB_Pointer  block,
                         HB_UInt    old_size,
                         HB_UInt    new_size,
                         HB_Error   *perror_ );
 
-void _hb_free( FT_Pointer  block );
+void _hb_free( HB_Pointer  block );
 
-FT_END_HEADER
+HB_END_HEADER
 
 #endif
