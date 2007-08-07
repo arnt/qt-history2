@@ -341,24 +341,6 @@ struct QGlyphLayout
         : glyph(0)
         {}
 
-    // highest value means highest priority for justification. Justification is done by first inserting kashidas
-    // starting with the highest priority positions, then stretching spaces, afterwards extending inter char
-    // spacing, and last spacing between arabic words.
-    // NoJustification is for example set for arabic where no Kashida can be inserted or for diacritics.
-    enum Justification {
-        NoJustification= 0,   // Justification can't be applied after this glyph
-        Arabic_Space   = 1,   // This glyph represents a space inside arabic text
-        Character      = 2,   // Inter-character justification point follows this glyph
-        Space          = 4,   // This glyph represents a blank outside an Arabic run
-        Arabic_Normal  = 7,   // Normal Middle-Of-Word glyph that connects to the right (begin)
-        Arabic_Waw     = 8,    // Next character is final form of Waw/Ain/Qaf/Fa
-        Arabic_BaRa    = 9,   // Next two chars are Ba + Ra/Ya/AlefMaksura
-        Arabic_Alef    = 10,  // Next character is final form of Alef/Tah/Lam/Kaf/Gaf
-        Arabic_HaaDal  = 11,  // Next character is final form of Haa/Dal/Taa Marbutah
-        Arabic_Seen    = 12,  // Initial or Medial form Of Seen/Sad
-        Arabic_Kashida = 13   // Kashida(U+640) in middle of word
-    };
-
     HB_Glyph glyph;
     HB_GlyphAttributes attributes;
     QFixedPoint advance;
