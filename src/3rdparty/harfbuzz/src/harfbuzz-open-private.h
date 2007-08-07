@@ -42,7 +42,7 @@ HB_Error  _HB_OPEN_Load_LookupList( HB_LookupList*  ll,
 HB_Error  _HB_OPEN_Load_Coverage( HB_Coverage*  c,
 			 HB_Stream      input );
 HB_Error  _HB_OPEN_Load_ClassDefinition( HB_ClassDefinition*  cd,
-				FT_UShort             limit,
+				HB_UShort             limit,
 				HB_Stream             input );
 HB_Error  _HB_OPEN_Load_EmptyClassDefinition( HB_ClassDefinition*  cd,
 				     HB_Stream             input );
@@ -61,15 +61,15 @@ void  _HB_OPEN_Free_Device( HB_Device*  d );
 
 
 HB_Error  _HB_OPEN_Coverage_Index( HB_Coverage*  c,
-			  FT_UShort      glyphID,
-			  FT_UShort*     index );
+			  HB_UShort      glyphID,
+			  HB_UShort*     index );
 HB_Error  _HB_OPEN_Get_Class( HB_ClassDefinition*  cd,
-		     FT_UShort             glyphID,
-		     FT_UShort*            class,
-		     FT_UShort*            index );
+		     HB_UShort             glyphID,
+		     HB_UShort*            class,
+		     HB_UShort*            index );
 HB_Error  _HB_OPEN_Get_Device( HB_Device*  d,
-		      FT_UShort    size,
-		      FT_Short*    value );
+		      HB_UShort    size,
+		      HB_Short*    value );
 
 FT_END_HEADER
 

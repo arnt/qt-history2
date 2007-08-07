@@ -18,6 +18,12 @@
 
 FT_BEGIN_HEADER
 
+typedef uint8_t HB_Byte;
+typedef uint16_t HB_UShort;
+typedef uint32_t HB_UInt;
+typedef int16_t HB_Short;
+typedef int32_t HB_Int;
+
 typedef uint16_t HB_UChar16;
 typedef uint32_t HB_UChar32;
 typedef uint32_t HB_Glyph;
@@ -72,13 +78,13 @@ typedef struct {
 #define  MEM_Copy(dest,source,count)   memcpy( (char*)(dest), (const char*)(source), (size_t)(count) )
 
 
-FT_Pointer _hb_alloc( FT_ULong   size,
-                             HB_Error  *perror_ );
+FT_Pointer _hb_alloc( HB_UInt   size,
+                      HB_Error  *perror_ );
 
 FT_Pointer _hb_realloc( FT_Pointer  block,
-                               FT_ULong    old_size,
-                               FT_ULong    new_size,
-                               HB_Error   *perror_ );
+                        HB_UInt    old_size,
+                        HB_UInt    new_size,
+                        HB_Error   *perror_ );
 
 void _hb_free( FT_Pointer  block );
 

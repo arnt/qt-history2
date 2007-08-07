@@ -586,7 +586,7 @@ void HB_GetCharAttributes(const HB_UChar16 *string, uint32_t stringLength,
     }
 }
 
-static inline char *tag_to_string(FT_ULong tag)
+static inline char *tag_to_string(HB_UInt tag)
 {
     static char string[5];
     string[0] = (tag >> 24)&0xff;
@@ -690,7 +690,7 @@ static HB_Bool checkScript(HB_Face face, int script)
         if (!face->gsub)
             return false;
 
-        FT_UShort script_index;
+        HB_UShort script_index;
         FT_Error error = HB_GSUB_Select_Script(face->gsub, tag, &script_index);
         if (error) {
             DEBUG("could not select script %d in GSub table: %d", (int)script, error);
@@ -704,7 +704,7 @@ static HB_Bool checkScript(HB_Face face, int script)
         if (!face->gpos)
             return false;
 
-        FT_UShort script_index;
+        HB_UShort script_index;
         FT_Error error = HB_GPOS_Select_Script(face->gpos, script, &script_index);
         if (error) {
             DEBUG("could not select script in gpos table: %d", error);
@@ -810,12 +810,12 @@ HB_Bool HB_SelectScript(HB_ShaperItem *shaper_item, const HB_OpenTypeFeature *fe
         }
 #endif
         HB_GSUB_Clear_Features(face->gsub);
-        FT_UShort script_index;
+        HB_UShort script_index;
         FT_Error error = HB_GSUB_Select_Script(face->gsub, tag, &script_index);
         if (!error) {
             DEBUG("script %s has script index %d", tag_to_string(script), script_index);
             while (features->tag) {
-                FT_UShort feature_index;
+                HB_UShort feature_index;
                 error = HB_GSUB_Select_Feature(face->gsub, features->tag, script_index, 0xffff, &feature_index);
                 if (!error) {
                     DEBUG("  adding feature %s", tag_to_string(features->tag));
@@ -831,7 +831,7 @@ HB_Bool HB_SelectScript(HB_ShaperItem *shaper_item, const HB_OpenTypeFeature *fe
 
     if (face->gpos) {
         HB_GPOS_Clear_Features(face->gpos);
-        FT_UShort script_index;
+        HB_UShort script_index;
         FT_Error error = HB_GPOS_Select_Script(face->gpos, tag, &script_index);
         if (!error) {
 #ifdef OT_DEBUG
@@ -841,18 +841,18 @@ HB_Bool HB_SelectScript(HB_ShaperItem *shaper_item, const HB_OpenTypeFeature *fe
                 DEBUG("gpos table has %d features", numfeatures);
                 for(int i = 0; i < numfeatures; i++) {
                     HB_FeatureRecord *r = featurelist.FeatureRecord + i;
-                    FT_UShort feature_index;
+                    HB_UShort feature_index;
                     HB_GPOS_Select_Feature(face->gpos, r->FeatureTag, script_index, 0xffff, &feature_index);
                     DEBUG("   feature '%s'", tag_to_string(r->FeatureTag));
                 }
             }
 #endif
-            FT_ULong *feature_tag_list_buffer;
+            HB_UInt *feature_tag_list_buffer;
             error = HB_GPOS_Query_Features(face->gpos, script_index, 0xffff, &feature_tag_list_buffer);
             if (!error) {
-                FT_ULong *feature_tag_list = feature_tag_list_buffer;
+                HB_UInt *feature_tag_list = feature_tag_list_buffer;
                 while (*feature_tag_list) {
-                    FT_UShort feature_index;
+                    HB_UShort feature_index;
                     if (*feature_tag_list == FT_MAKE_TAG('k', 'e', 'r', 'n')) {
                         if (face->current_flags & HB_ShaperFlag_NoKerning) {
                             ++feature_tag_list;

@@ -29,7 +29,7 @@ _hb_log( const char*   format, ... )
 #endif
 
 
-FT_Pointer _hb_alloc(FT_ULong   size,
+FT_Pointer _hb_alloc(HB_UInt   size,
                             HB_Error  *perror )
 {
   HB_Error    error = 0;
@@ -50,8 +50,8 @@ FT_Pointer _hb_alloc(FT_ULong   size,
 
 
 FT_Pointer _hb_realloc(FT_Pointer  block,
-                       FT_ULong    old_size,
-                       FT_ULong    new_size,
+                       HB_UInt    old_size,
+                       HB_UInt    new_size,
                        HB_Error   *perror )
 {
     FT_Pointer  block2 = NULL;

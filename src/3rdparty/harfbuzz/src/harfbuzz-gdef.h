@@ -37,7 +37,7 @@ struct  HB_AttachList_
   FT_Bool           loaded;
 
   HB_Coverage       Coverage;         /* Coverage table              */
-  FT_UShort         GlyphCount;       /* number of glyphs with
+  HB_UShort         GlyphCount;       /* number of glyphs with
 					 attachments                 */
   HB_AttachPoint*   AttachPoint;      /* array of AttachPoint tables */
 };
@@ -51,7 +51,7 @@ struct  HB_LigCaretList_
   FT_Bool        loaded;
 
   HB_Coverage    Coverage;            /* Coverage table            */
-  FT_UShort      LigGlyphCount;       /* number of ligature glyphs */
+  HB_UShort      LigGlyphCount;       /* number of ligature glyphs */
   HB_LigGlyph*   LigGlyph;            /* array of LigGlyph tables  */
 };
 
@@ -81,26 +81,25 @@ typedef struct HB_LigCaretList_  HB_LigCaretList;
 
 struct  HB_GDEFHeader_
 {
-  FT_ULong             offset;
+  HB_UInt             offset;
 
   FT_Fixed             Version;
 
   HB_ClassDefinition   GlyphClassDef;
   HB_AttachList        AttachList;
   HB_LigCaretList      LigCaretList;
-  FT_ULong             MarkAttachClassDef_offset;
+  HB_UInt             MarkAttachClassDef_offset;
   HB_ClassDefinition   MarkAttachClassDef;        /* new in OT 1.2 */
 
-  FT_UShort            LastGlyph;
-  FT_UShort**          NewGlyphClasses;
+  HB_UShort            LastGlyph;
+  HB_UShort**          NewGlyphClasses;
 };
 
 typedef struct HB_GDEFHeader_   HB_GDEFHeader;
 typedef struct HB_GDEFHeader_*  HB_GDEF;
 
 
-HB_Error  HB_New_GDEF_Table( FT_Face          face,
-			     HB_GDEFHeader** retptr );
+HB_Error  HB_New_GDEF_Table( HB_GDEFHeader** retptr );
       
 
 HB_Error  HB_Load_GDEF_Table( FT_Face          face,
@@ -111,14 +110,14 @@ HB_Error  HB_Done_GDEF_Table ( HB_GDEFHeader* gdef );
 
 
 HB_Error  HB_GDEF_Get_Glyph_Property( HB_GDEFHeader*  gdef,
-				      FT_UShort        glyphID,
-				      FT_UShort*       property );
+				      HB_UShort        glyphID,
+				      HB_UShort*       property );
 
 HB_Error  HB_GDEF_Build_ClassDefinition( HB_GDEFHeader*  gdef,
-					 FT_UShort        num_glyphs,
-					 FT_UShort        glyph_count,
-					 FT_UShort*       glyph_array,
-					 FT_UShort*       class_array );
+					 HB_UShort        num_glyphs,
+					 HB_UShort        glyph_count,
+					 HB_UShort*       glyph_array,
+					 HB_UShort*       class_array );
 
 
 FT_END_HEADER

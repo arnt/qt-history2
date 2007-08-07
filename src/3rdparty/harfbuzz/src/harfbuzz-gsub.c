@@ -16,9 +16,9 @@
 #include "harfbuzz-gdef-private.h"
 
 static HB_Error  GSUB_Do_Glyph_Lookup( HB_GSUBHeader*   gsub,
-				       FT_UShort         lookup_index,
+				       HB_UShort         lookup_index,
 				       HB_Buffer        buffer,
-				       FT_UShort         context_length,
+				       HB_UShort         context_length,
 				       int               nesting_level );
 
 
@@ -35,9 +35,9 @@ HB_Error  HB_Load_GSUB_Table( FT_Face          face,
 {
     HB_Stream        stream = 0;
   HB_Error         error;
-  FT_ULong         cur_offset, new_offset, base_offset;
+  HB_UInt         cur_offset, new_offset, base_offset;
 
-  FT_UShort        i, num_lookups;
+  HB_UShort        i, num_lookups;
   HB_GSUBHeader*  gsub;
   HB_Lookup*      lo;
 
@@ -172,16 +172,16 @@ HB_Error   HB_Done_GSUB_Table( HB_GSUBHeader* gsub )
 static HB_Error  Lookup_DefaultSubst( HB_GSUBHeader*    gsub,
 				      HB_GSUB_SubTable* st,
 				      HB_Buffer         buffer,
-				      FT_UShort          flags,
-				      FT_UShort          context_length,
+				      HB_UShort          flags,
+				      HB_UShort          context_length,
 				      int                nesting_level )
 {
-  FT_UNUSED(gsub);
-  FT_UNUSED(st);
-  FT_UNUSED(buffer);
-  FT_UNUSED(flags);
-  FT_UNUSED(context_length);
-  FT_UNUSED(nesting_level);
+  HB_UNUSED(gsub);
+  HB_UNUSED(st);
+  HB_UNUSED(buffer);
+  HB_UNUSED(flags);
+  HB_UNUSED(context_length);
+  HB_UNUSED(nesting_level);
   return HB_Err_Not_Covered;
 }
 
@@ -197,10 +197,10 @@ static HB_Error  Load_SingleSubst( HB_GSUB_SubTable* st,
   HB_Error error;
   HB_SingleSubst*  ss = &st->single;
 
-  FT_UShort n, count;
-  FT_ULong cur_offset, new_offset, base_offset;
+  HB_UShort n, count;
+  HB_UInt cur_offset, new_offset, base_offset;
 
-  FT_UShort*  s;
+  HB_UShort*  s;
 
 
   base_offset = FILE_Pos();
@@ -241,7 +241,7 @@ static HB_Error  Load_SingleSubst( HB_GSUB_SubTable* st,
 
     ss->ssf.ssf2.Substitute = NULL;
 
-    if ( ALLOC_ARRAY( ss->ssf.ssf2.Substitute, count, FT_UShort ) )
+    if ( ALLOC_ARRAY( ss->ssf.ssf2.Substitute, count, HB_UShort ) )
       goto Fail2;
 
     s = ss->ssf.ssf2.Substitute;
@@ -292,16 +292,16 @@ static void  Free_SingleSubst( HB_GSUB_SubTable* st )
 static HB_Error  Lookup_SingleSubst( HB_GSUBHeader*   gsub,
 				     HB_GSUB_SubTable* st,
 				     HB_Buffer        buffer,
-				     FT_UShort         flags,
-				     FT_UShort         context_length,
+				     HB_UShort         flags,
+				     HB_UShort         context_length,
 				     int               nesting_level )
 {
-  FT_UShort index, value, property;
+  HB_UShort index, value, property;
   HB_Error  error;
   HB_SingleSubst*  ss = &st->single;
   HB_GDEFHeader*   gdef = gsub->gdef;
 
-  FT_UNUSED(nesting_level);
+  HB_UNUSED(nesting_level);
 
 
   if ( context_length != 0xFFFF && context_length < 1 )
@@ -356,8 +356,8 @@ static HB_Error  Load_Sequence( HB_Sequence*  s,
 {
   HB_Error error;
 
-  FT_UShort n, count;
-  FT_UShort*  sub;
+  HB_UShort n, count;
+  HB_UShort*  sub;
 
 
   if ( ACCESS_Frame( 2L ) )
@@ -371,7 +371,7 @@ static HB_Error  Load_Sequence( HB_Sequence*  s,
 
   if ( count )
   {
-    if ( ALLOC_ARRAY( s->Substitute, count, FT_UShort ) )
+    if ( ALLOC_ARRAY( s->Substitute, count, HB_UShort ) )
       return error;
 
     sub = s->Substitute;
@@ -406,8 +406,8 @@ static HB_Error  Load_MultipleSubst( HB_GSUB_SubTable* st,
   HB_Error error;
   HB_MultipleSubst*  ms = &st->multiple;
 
-  FT_UShort      n = 0, m, count;
-  FT_ULong       cur_offset, new_offset, base_offset;
+  HB_UShort      n = 0, m, count;
+  HB_UInt       cur_offset, new_offset, base_offset;
 
   HB_Sequence*  s;
 
@@ -474,7 +474,7 @@ Fail2:
 
 static void  Free_MultipleSubst( HB_GSUB_SubTable* st )
 {
-  FT_UShort      n, count;
+  HB_UShort      n, count;
   HB_MultipleSubst*  ms = &st->multiple;
 
   HB_Sequence*  s;
@@ -498,17 +498,17 @@ static void  Free_MultipleSubst( HB_GSUB_SubTable* st )
 static HB_Error  Lookup_MultipleSubst( HB_GSUBHeader*    gsub,
 				       HB_GSUB_SubTable* st,
 				       HB_Buffer         buffer,
-				       FT_UShort          flags,
-				       FT_UShort          context_length,
+				       HB_UShort          flags,
+				       HB_UShort          context_length,
 				       int                nesting_level )
 {
   HB_Error  error;
-  FT_UShort index, property, n, count;
-  FT_UShort*s;
+  HB_UShort index, property, n, count;
+  HB_UShort*s;
   HB_MultipleSubst*  ms = &st->multiple;
   HB_GDEFHeader*     gdef = gsub->gdef;
 
-  FT_UNUSED(nesting_level);
+  HB_UNUSED(nesting_level);
 
   if ( context_length != 0xFFFF && context_length < 1 )
     return HB_Err_Not_Covered;
@@ -557,8 +557,8 @@ static HB_Error  Load_AlternateSet( HB_AlternateSet*  as,
 {
   HB_Error error;
 
-  FT_UShort n, count;
-  FT_UShort*  a;
+  HB_UShort n, count;
+  HB_UShort*  a;
 
 
   if ( ACCESS_Frame( 2L ) )
@@ -570,7 +570,7 @@ static HB_Error  Load_AlternateSet( HB_AlternateSet*  as,
 
   as->Alternate = NULL;
 
-  if ( ALLOC_ARRAY( as->Alternate, count, FT_UShort ) )
+  if ( ALLOC_ARRAY( as->Alternate, count, HB_UShort ) )
     return error;
 
   a = as->Alternate;
@@ -604,8 +604,8 @@ static HB_Error  Load_AlternateSubst( HB_GSUB_SubTable* st,
   HB_Error error;
   HB_AlternateSubst* as = &st->alternate;
 
-  FT_UShort          n = 0, m, count;
-  FT_ULong           cur_offset, new_offset, base_offset;
+  HB_UShort          n = 0, m, count;
+  HB_UInt           cur_offset, new_offset, base_offset;
 
   HB_AlternateSet*  aset;
 
@@ -672,7 +672,7 @@ Fail2:
 
 static void  Free_AlternateSubst( HB_GSUB_SubTable* st )
 {
-  FT_UShort          n, count;
+  HB_UShort          n, count;
   HB_AlternateSubst* as = &st->alternate;
 
   HB_AlternateSet*  aset;
@@ -696,17 +696,17 @@ static void  Free_AlternateSubst( HB_GSUB_SubTable* st )
 static HB_Error  Lookup_AlternateSubst( HB_GSUBHeader*    gsub,
 					HB_GSUB_SubTable* st,
 					HB_Buffer         buffer,
-					FT_UShort          flags,
-					FT_UShort          context_length,
+					HB_UShort          flags,
+					HB_UShort          context_length,
 					int                nesting_level )
 {
   HB_Error          error;
-  FT_UShort         index, alt_index, property;
+  HB_UShort         index, alt_index, property;
   HB_AlternateSubst* as = &st->alternate;
   HB_GDEFHeader*     gdef = gsub->gdef;
   HB_AlternateSet  aset;
 
-  FT_UNUSED(nesting_level);
+  HB_UNUSED(nesting_level);
 
   if ( context_length != 0xFFFF && context_length < 1 )
     return HB_Err_Not_Covered;
@@ -756,8 +756,8 @@ static HB_Error  Load_Ligature( HB_Ligature*  l,
 {
   HB_Error error;
 
-  FT_UShort n, count;
-  FT_UShort*  c;
+  HB_UShort n, count;
+  HB_UShort*  c;
 
 
   if ( ACCESS_Frame( 4L ) )
@@ -772,7 +772,7 @@ static HB_Error  Load_Ligature( HB_Ligature*  l,
 
   count = l->ComponentCount - 1;      /* only ComponentCount - 1 elements */
 
-  if ( ALLOC_ARRAY( l->Component, count, FT_UShort ) )
+  if ( ALLOC_ARRAY( l->Component, count, HB_UShort ) )
     return error;
 
   c = l->Component;
@@ -805,8 +805,8 @@ static HB_Error  Load_LigatureSet( HB_LigatureSet*  ls,
 {
   HB_Error error;
 
-  FT_UShort      n = 0, m, count;
-  FT_ULong       cur_offset, new_offset, base_offset;
+  HB_UShort      n = 0, m, count;
+  HB_UInt       cur_offset, new_offset, base_offset;
 
   HB_Ligature*  l;
 
@@ -856,7 +856,7 @@ Fail:
 
 static void  Free_LigatureSet( HB_LigatureSet*  ls )
 {
-  FT_UShort      n, count;
+  HB_UShort      n, count;
 
   HB_Ligature*  l;
 
@@ -882,8 +882,8 @@ static HB_Error  Load_LigatureSubst( HB_GSUB_SubTable* st,
   HB_Error error;
   HB_LigatureSubst*  ls = &st->ligature;
 
-  FT_UShort         n = 0, m, count;
-  FT_ULong          cur_offset, new_offset, base_offset;
+  HB_UShort         n = 0, m, count;
+  HB_UInt          cur_offset, new_offset, base_offset;
 
   HB_LigatureSet*  lset;
 
@@ -950,7 +950,7 @@ Fail2:
 
 static void  Free_LigatureSubst( HB_GSUB_SubTable* st )
 {
-  FT_UShort         n, count;
+  HB_UShort         n, count;
   HB_LigatureSubst*  ls = &st->ligature;
 
   HB_LigatureSet*  lset;
@@ -974,20 +974,20 @@ static void  Free_LigatureSubst( HB_GSUB_SubTable* st )
 static HB_Error  Lookup_LigatureSubst( HB_GSUBHeader*    gsub,
 				       HB_GSUB_SubTable* st,
 				       HB_Buffer         buffer,
-				       FT_UShort          flags,
-				       FT_UShort          context_length,
+				       HB_UShort          flags,
+				       HB_UShort          context_length,
 				       int                nesting_level )
 {
-  FT_UShort      index, property;
+  HB_UShort      index, property;
   HB_Error       error;
-  FT_UShort      numlig, i, j, is_mark, first_is_mark = FALSE;
-  FT_UShort*     c;
+  HB_UShort      numlig, i, j, is_mark, first_is_mark = FALSE;
+  HB_UShort*     c;
   HB_LigatureSubst*  ls = &st->ligature;
   HB_GDEFHeader*     gdef = gsub->gdef;
 
   HB_Ligature*  lig;
 
-  FT_UNUSED(nesting_level);
+  HB_UNUSED(nesting_level);
 
   if ( CHECK_Property( gdef, IN_CURITEM(), flags, &property ) )
     return error;
@@ -1025,7 +1025,7 @@ static HB_Error  Lookup_LigatureSubst( HB_GSUBHeader*    gsub,
 	if ( error && error != HB_Err_Not_Covered )
 	  return error;
 
-	if ( j + lig->ComponentCount - i == (FT_Long)buffer->in_length )
+	if ( j + lig->ComponentCount - i == (HB_Int)buffer->in_length )
 	  goto next_ligature;
 	j++;
       }
@@ -1060,7 +1060,7 @@ static HB_Error  Lookup_LigatureSubst( HB_GSUBHeader*    gsub,
       }
       else
       {
-	FT_UShort ligID = hb_buffer_allocate_ligid( buffer );
+	HB_UShort ligID = hb_buffer_allocate_ligid( buffer );
 	if ( ADD_String( buffer, i, 1, &lig->LigGlyph,
 			0xFFFF, ligID ) )
 	  return error;
@@ -1068,7 +1068,7 @@ static HB_Error  Lookup_LigatureSubst( HB_GSUBHeader*    gsub,
     }
     else
     {
-      FT_UShort ligID = hb_buffer_allocate_ligid( buffer );
+      HB_UShort ligID = hb_buffer_allocate_ligid( buffer );
       if ( ADD_Glyph( buffer, lig->LigGlyph,
 		      0xFFFF, ligID ) )
 	return error;
@@ -1107,14 +1107,14 @@ static HB_Error  Lookup_LigatureSubst( HB_GSUBHeader*    gsub,
    matches the subrule.                                                 */
 
 static HB_Error  Do_ContextSubst( HB_GSUBHeader*        gsub,
-				  FT_UShort              GlyphCount,
-				  FT_UShort              SubstCount,
+				  HB_UShort              GlyphCount,
+				  HB_UShort              SubstCount,
 				  HB_SubstLookupRecord* subst,
 				  HB_Buffer             buffer,
 				  int                    nesting_level )
 {
   HB_Error  error;
-  FT_UShort i, old_pos;
+  HB_UShort i, old_pos;
 
 
   i = 0;
@@ -1170,8 +1170,8 @@ static HB_Error  Load_SubRule( HB_SubRule*  sr,
 {
   HB_Error error;
 
-  FT_UShort               n, count;
-  FT_UShort*              i;
+  HB_UShort               n, count;
+  HB_UShort*              i;
 
   HB_SubstLookupRecord*  slr;
 
@@ -1188,7 +1188,7 @@ static HB_Error  Load_SubRule( HB_SubRule*  sr,
 
   count = sr->GlyphCount - 1;         /* only GlyphCount - 1 elements */
 
-  if ( ALLOC_ARRAY( sr->Input, count, FT_UShort ) )
+  if ( ALLOC_ARRAY( sr->Input, count, HB_UShort ) )
     return error;
 
   i = sr->Input;
@@ -1246,8 +1246,8 @@ static HB_Error  Load_SubRuleSet( HB_SubRuleSet*  srs,
 {
   HB_Error error;
 
-  FT_UShort     n = 0, m, count;
-  FT_ULong      cur_offset, new_offset, base_offset;
+  HB_UShort     n = 0, m, count;
+  HB_UInt      cur_offset, new_offset, base_offset;
 
   HB_SubRule*  sr;
 
@@ -1297,7 +1297,7 @@ Fail:
 
 static void  Free_SubRuleSet( HB_SubRuleSet*  srs )
 {
-  FT_UShort     n, count;
+  HB_UShort     n, count;
 
   HB_SubRule*  sr;
 
@@ -1322,8 +1322,8 @@ static HB_Error  Load_ContextSubst1( HB_ContextSubstFormat1*  csf1,
 {
   HB_Error error;
 
-  FT_UShort        n = 0, m, count;
-  FT_ULong         cur_offset, new_offset, base_offset;
+  HB_UShort        n = 0, m, count;
+  HB_UInt         cur_offset, new_offset, base_offset;
 
   HB_SubRuleSet*  srs;
 
@@ -1389,7 +1389,7 @@ Fail2:
 
 static void  Free_ContextSubst1( HB_ContextSubstFormat1* csf1 )
 {
-  FT_UShort        n, count;
+  HB_UShort        n, count;
 
   HB_SubRuleSet*  srs;
 
@@ -1417,9 +1417,9 @@ static HB_Error  Load_SubClassRule( HB_ContextSubstFormat2*  csf2,
 {
   HB_Error error;
 
-  FT_UShort               n, count;
+  HB_UShort               n, count;
 
-  FT_UShort*              c;
+  HB_UShort*              c;
   HB_SubstLookupRecord*  slr;
   FT_Bool*                d;
 
@@ -1439,7 +1439,7 @@ static HB_Error  Load_SubClassRule( HB_ContextSubstFormat2*  csf2,
 
   count = scr->GlyphCount - 1;        /* only GlyphCount - 1 elements */
 
-  if ( ALLOC_ARRAY( scr->Class, count, FT_UShort ) )
+  if ( ALLOC_ARRAY( scr->Class, count, HB_UShort ) )
     return error;
 
   c = scr->Class;
@@ -1506,8 +1506,8 @@ static HB_Error  Load_SubClassSet( HB_ContextSubstFormat2*  csf2,
 {
   HB_Error error;
 
-  FT_UShort          n = 0, m, count;
-  FT_ULong           cur_offset, new_offset, base_offset;
+  HB_UShort          n = 0, m, count;
+  HB_UInt           cur_offset, new_offset, base_offset;
 
   HB_SubClassRule*  scr;
 
@@ -1558,7 +1558,7 @@ Fail:
 
 static void  Free_SubClassSet( HB_SubClassSet*  scs )
 {
-  FT_UShort          n, count;
+  HB_UShort          n, count;
 
   HB_SubClassRule*  scr;
 
@@ -1583,8 +1583,8 @@ static HB_Error  Load_ContextSubst2( HB_ContextSubstFormat2*  csf2,
 {
   HB_Error error;
 
-  FT_UShort         n = 0, m, count;
-  FT_ULong          cur_offset, new_offset, base_offset;
+  HB_UShort         n = 0, m, count;
+  HB_UInt          cur_offset, new_offset, base_offset;
 
   HB_SubClassSet*  scs;
 
@@ -1677,7 +1677,7 @@ Fail3:
 
 static void  Free_ContextSubst2( HB_ContextSubstFormat2*  csf2 )
 {
-  FT_UShort         n, count;
+  HB_UShort         n, count;
 
   HB_SubClassSet*  scs;
 
@@ -1705,8 +1705,8 @@ static HB_Error  Load_ContextSubst3( HB_ContextSubstFormat3*  csf3,
 {
   HB_Error error;
 
-  FT_UShort               n = 0, m, count;
-  FT_ULong                cur_offset, new_offset, base_offset;
+  HB_UShort               n = 0, m, count;
+  HB_UInt                cur_offset, new_offset, base_offset;
 
   HB_Coverage*           c;
   HB_SubstLookupRecord*  slr;
@@ -1784,7 +1784,7 @@ Fail2:
 
 static void  Free_ContextSubst3( HB_ContextSubstFormat3*  csf3 )
 {
-  FT_UShort      n, count;
+  HB_UShort      n, count;
 
   HB_Coverage*  c;
 
@@ -1863,12 +1863,12 @@ static void  Free_ContextSubst( HB_GSUB_SubTable* st )
 static HB_Error  Lookup_ContextSubst1( HB_GSUBHeader*          gsub,
 				       HB_ContextSubstFormat1* csf1,
 				       HB_Buffer               buffer,
-				       FT_UShort                flags,
-				       FT_UShort                context_length,
+				       HB_UShort                flags,
+				       HB_UShort                context_length,
 				       int                      nesting_level )
 {
-  FT_UShort        index, property;
-  FT_UShort        i, j, k, numsr;
+  HB_UShort        index, property;
+  HB_UShort        i, j, k, numsr;
   HB_Error         error;
 
   HB_SubRule*     sr;
@@ -1902,7 +1902,7 @@ static HB_Error  Lookup_ContextSubst1( HB_GSUBHeader*          gsub,
 	if ( error && error != HB_Err_Not_Covered )
 	  return error;
 
-	if ( j + sr[k].GlyphCount - i == (FT_Long)buffer->in_length )
+	if ( j + sr[k].GlyphCount - i == (HB_Int)buffer->in_length )
 	  goto next_subrule;
 	j++;
       }
@@ -1926,16 +1926,16 @@ static HB_Error  Lookup_ContextSubst1( HB_GSUBHeader*          gsub,
 static HB_Error  Lookup_ContextSubst2( HB_GSUBHeader*          gsub,
 				       HB_ContextSubstFormat2* csf2,
 				       HB_Buffer               buffer,
-				       FT_UShort                flags,
-				       FT_UShort                context_length,
+				       HB_UShort                flags,
+				       HB_UShort                context_length,
 				       int                      nesting_level )
 {
-  FT_UShort          index, property;
+  HB_UShort          index, property;
   HB_Error           error;
-  FT_UShort          i, j, k, known_classes;
+  HB_UShort          i, j, k, known_classes;
 
-  FT_UShort*         classes;
-  FT_UShort*         cl;
+  HB_UShort*         classes;
+  HB_UShort*         cl;
 
   HB_SubClassSet*   scs;
   HB_SubClassRule*  sr;
@@ -1955,7 +1955,7 @@ static HB_Error  Lookup_ContextSubst2( HB_GSUBHeader*          gsub,
   if ( error )
     return error;
 
-  if ( ALLOC_ARRAY( classes, csf2->MaxContextLength, FT_UShort ) )
+  if ( ALLOC_ARRAY( classes, csf2->MaxContextLength, HB_UShort ) )
     return error;
 
   error = _HB_OPEN_Get_Class( &csf2->ClassDef, IN_CURGLYPH(),
@@ -1992,7 +1992,7 @@ static HB_Error  Lookup_ContextSubst2( HB_GSUBHeader*          gsub,
 	if ( error && error != HB_Err_Not_Covered )
 	  goto End;
 
-	if ( j + sr->GlyphCount - i < (FT_Long)buffer->in_length )
+	if ( j + sr->GlyphCount - i < (HB_Int)buffer->in_length )
 	  goto next_subclassrule;
 	j++;
       }
@@ -2032,12 +2032,12 @@ End:
 static HB_Error  Lookup_ContextSubst3( HB_GSUBHeader*          gsub,
 				       HB_ContextSubstFormat3* csf3,
 				       HB_Buffer               buffer,
-				       FT_UShort                flags,
-				       FT_UShort                context_length,
+				       HB_UShort                flags,
+				       HB_UShort                context_length,
 				       int                      nesting_level )
 {
   HB_Error         error;
-  FT_UShort        index, i, j, property;
+  HB_UShort        index, i, j, property;
 
   HB_Coverage*    c;
   HB_GDEFHeader*  gdef;
@@ -2063,7 +2063,7 @@ static HB_Error  Lookup_ContextSubst3( HB_GSUBHeader*          gsub,
       if ( error && error != HB_Err_Not_Covered )
 	return error;
 
-      if ( j + csf3->GlyphCount - i == (FT_Long)buffer->in_length )
+      if ( j + csf3->GlyphCount - i == (HB_Int)buffer->in_length )
 	return HB_Err_Not_Covered;
       j++;
     }
@@ -2083,8 +2083,8 @@ static HB_Error  Lookup_ContextSubst3( HB_GSUBHeader*          gsub,
 static HB_Error  Lookup_ContextSubst( HB_GSUBHeader*    gsub,
 				      HB_GSUB_SubTable* st,
 				      HB_Buffer         buffer,
-				      FT_UShort          flags,
-				      FT_UShort          context_length,
+				      HB_UShort          flags,
+				      HB_UShort          context_length,
 				      int                nesting_level )
 {
   HB_ContextSubst*  cs = &st->context;
@@ -2120,10 +2120,10 @@ static HB_Error  Load_ChainSubRule( HB_ChainSubRule*  csr,
 {
   HB_Error error;
 
-  FT_UShort               n, count;
-  FT_UShort*              b;
-  FT_UShort*              i;
-  FT_UShort*              l;
+  HB_UShort               n, count;
+  HB_UShort*              b;
+  HB_UShort*              i;
+  HB_UShort*              l;
 
   HB_SubstLookupRecord*  slr;
 
@@ -2139,7 +2139,7 @@ static HB_Error  Load_ChainSubRule( HB_ChainSubRule*  csr,
 
   count = csr->BacktrackGlyphCount;
 
-  if ( ALLOC_ARRAY( csr->Backtrack, count, FT_UShort ) )
+  if ( ALLOC_ARRAY( csr->Backtrack, count, HB_UShort ) )
     return error;
 
   b = csr->Backtrack;
@@ -2163,7 +2163,7 @@ static HB_Error  Load_ChainSubRule( HB_ChainSubRule*  csr,
 
   count = csr->InputGlyphCount - 1;  /* only InputGlyphCount - 1 elements */
 
-  if ( ALLOC_ARRAY( csr->Input, count, FT_UShort ) )
+  if ( ALLOC_ARRAY( csr->Input, count, HB_UShort ) )
     goto Fail4;
 
   i = csr->Input;
@@ -2187,7 +2187,7 @@ static HB_Error  Load_ChainSubRule( HB_ChainSubRule*  csr,
 
   count = csr->LookaheadGlyphCount;
 
-  if ( ALLOC_ARRAY( csr->Lookahead, count, FT_UShort ) )
+  if ( ALLOC_ARRAY( csr->Lookahead, count, HB_UShort ) )
     goto Fail3;
 
   l = csr->Lookahead;
@@ -2260,8 +2260,8 @@ static HB_Error  Load_ChainSubRuleSet( HB_ChainSubRuleSet*  csrs,
 {
   HB_Error error;
 
-  FT_UShort          n = 0, m, count;
-  FT_ULong           cur_offset, new_offset, base_offset;
+  HB_UShort          n = 0, m, count;
+  HB_UInt           cur_offset, new_offset, base_offset;
 
   HB_ChainSubRule*  csr;
 
@@ -2311,7 +2311,7 @@ Fail:
 
 static void  Free_ChainSubRuleSet( HB_ChainSubRuleSet*  csrs )
 {
-  FT_UShort          n, count;
+  HB_UShort          n, count;
 
   HB_ChainSubRule*  csr;
 
@@ -2337,8 +2337,8 @@ static HB_Error  Load_ChainContextSubst1(
 {
   HB_Error error;
 
-  FT_UShort             n = 0, m, count;
-  FT_ULong              cur_offset, new_offset, base_offset;
+  HB_UShort             n = 0, m, count;
+  HB_UInt              cur_offset, new_offset, base_offset;
 
   HB_ChainSubRuleSet*  csrs;
 
@@ -2404,7 +2404,7 @@ Fail2:
 
 static void  Free_ChainContextSubst1( HB_ChainContextSubstFormat1*  ccsf1 )
 {
-  FT_UShort             n, count;
+  HB_UShort             n, count;
 
   HB_ChainSubRuleSet*  csrs;
 
@@ -2433,11 +2433,11 @@ static HB_Error  Load_ChainSubClassRule(
 {
   HB_Error error;
 
-  FT_UShort               n, count;
+  HB_UShort               n, count;
 
-  FT_UShort*              b;
-  FT_UShort*              i;
-  FT_UShort*              l;
+  HB_UShort*              b;
+  HB_UShort*              i;
+  HB_UShort*              l;
   HB_SubstLookupRecord*  slr;
   FT_Bool*                d;
 
@@ -2456,7 +2456,7 @@ static HB_Error  Load_ChainSubClassRule(
 
   count = cscr->BacktrackGlyphCount;
 
-  if ( ALLOC_ARRAY( cscr->Backtrack, count, FT_UShort ) )
+  if ( ALLOC_ARRAY( cscr->Backtrack, count, HB_UShort ) )
     return error;
 
   b = cscr->Backtrack;
@@ -2492,7 +2492,7 @@ static HB_Error  Load_ChainSubClassRule(
 
   count = cscr->InputGlyphCount - 1; /* only InputGlyphCount - 1 elements */
 
-  if ( ALLOC_ARRAY( cscr->Input, count, FT_UShort ) )
+  if ( ALLOC_ARRAY( cscr->Input, count, HB_UShort ) )
     goto Fail4;
 
   i = cscr->Input;
@@ -2525,7 +2525,7 @@ static HB_Error  Load_ChainSubClassRule(
 
   count = cscr->LookaheadGlyphCount;
 
-  if ( ALLOC_ARRAY( cscr->Lookahead, count, FT_UShort ) )
+  if ( ALLOC_ARRAY( cscr->Lookahead, count, HB_UShort ) )
     goto Fail3;
 
   l = cscr->Lookahead;
@@ -2607,8 +2607,8 @@ static HB_Error  Load_ChainSubClassSet(
 {
   HB_Error error;
 
-  FT_UShort               n = 0, m, count;
-  FT_ULong                cur_offset, new_offset, base_offset;
+  HB_UShort               n = 0, m, count;
+  HB_UInt                cur_offset, new_offset, base_offset;
 
   HB_ChainSubClassRule*  cscr;
 
@@ -2660,7 +2660,7 @@ Fail:
 
 static void  Free_ChainSubClassSet( HB_ChainSubClassSet*  cscs )
 {
-  FT_UShort               n, count;
+  HB_UShort               n, count;
 
   HB_ChainSubClassRule*  cscr;
 
@@ -2678,13 +2678,13 @@ static void  Free_ChainSubClassSet( HB_ChainSubClassSet*  cscs )
 }
 
 static HB_Error GSUB_Load_EmptyOrClassDefinition( HB_ClassDefinition*  cd,
-					     FT_UShort             limit,
-					     FT_ULong              class_offset,
-					     FT_ULong              base_offset,
+					     HB_UShort             limit,
+					     HB_UInt              class_offset,
+					     HB_UInt              base_offset,
 					     HB_Stream             stream )
 {
   HB_Error error;
-  FT_ULong               cur_offset;
+  HB_UInt               cur_offset;
 
   cur_offset = FILE_Pos();
 
@@ -2711,9 +2711,9 @@ static HB_Error  Load_ChainContextSubst2(
 {
   HB_Error error;
 
-  FT_UShort              n = 0, m, count;
-  FT_ULong               cur_offset, new_offset, base_offset;
-  FT_ULong               backtrack_offset, input_offset, lookahead_offset;
+  HB_UShort              n = 0, m, count;
+  HB_UInt               cur_offset, new_offset, base_offset;
+  HB_UInt               backtrack_offset, input_offset, lookahead_offset;
 
   HB_ChainSubClassSet*  cscs;
 
@@ -2824,7 +2824,7 @@ Fail5:
 
 static void  Free_ChainContextSubst2( HB_ChainContextSubstFormat2*  ccsf2 )
 {
-  FT_UShort              n, count;
+  HB_UShort              n, count;
 
   HB_ChainSubClassSet*  cscs;
 
@@ -2856,9 +2856,9 @@ static HB_Error  Load_ChainContextSubst3(
 {
   HB_Error error;
 
-  FT_UShort               n, nb = 0, ni =0, nl = 0, m, count;
-  FT_UShort               backtrack_count, input_count, lookahead_count;
-  FT_ULong                cur_offset, new_offset, base_offset;
+  HB_UShort               n, nb = 0, ni =0, nl = 0, m, count;
+  HB_UShort               backtrack_count, input_count, lookahead_count;
+  HB_UInt                cur_offset, new_offset, base_offset;
 
   HB_Coverage*           b;
   HB_Coverage*           i;
@@ -3022,7 +3022,7 @@ Fail4:
 
 static void  Free_ChainContextSubst3( HB_ChainContextSubstFormat3*  ccsf3 )
 {
-  FT_UShort      n, count;
+  HB_UShort      n, count;
 
   HB_Coverage*  c;
 
@@ -3122,13 +3122,13 @@ static void  Free_ChainContextSubst( HB_GSUB_SubTable* st )
 static HB_Error  Lookup_ChainContextSubst1( HB_GSUBHeader*               gsub,
 					    HB_ChainContextSubstFormat1* ccsf1,
 					    HB_Buffer                    buffer,
-					    FT_UShort                     flags,
-					    FT_UShort                     context_length,
+					    HB_UShort                     flags,
+					    HB_UShort                     context_length,
 					    int                           nesting_level )
 {
-  FT_UShort          index, property;
-  FT_UShort          i, j, k, num_csr;
-  FT_UShort          bgc, igc, lgc;
+  HB_UShort          index, property;
+  HB_UShort          i, j, k, num_csr;
+  HB_UShort          bgc, igc, lgc;
   HB_Error           error;
 
   HB_ChainSubRule*  csr;
@@ -3204,7 +3204,7 @@ static HB_Error  Lookup_ChainContextSubst1( HB_GSUBHeader*               gsub,
 	if ( error && error != HB_Err_Not_Covered )
 	  return error;
 
-	if ( j + igc - i + lgc == (FT_Long)buffer->in_length )
+	if ( j + igc - i + lgc == (HB_Int)buffer->in_length )
 	  goto next_chainsubrule;
 	j++;
       }
@@ -3223,7 +3223,7 @@ static HB_Error  Lookup_ChainContextSubst1( HB_GSUBHeader*               gsub,
 	if ( error && error != HB_Err_Not_Covered )
 	  return error;
 
-	if ( j + lgc - i == (FT_Long)buffer->in_length )
+	if ( j + lgc - i == (HB_Int)buffer->in_length )
 	  goto next_chainsubrule;
 	j++;
       }
@@ -3249,25 +3249,25 @@ static HB_Error  Lookup_ChainContextSubst1( HB_GSUBHeader*               gsub,
 static HB_Error  Lookup_ChainContextSubst2( HB_GSUBHeader*               gsub,
 					    HB_ChainContextSubstFormat2* ccsf2,
 					    HB_Buffer                    buffer,
-					    FT_UShort                     flags,
-					    FT_UShort                     context_length,
+					    HB_UShort                     flags,
+					    HB_UShort                     context_length,
 					    int                           nesting_level )
 {
-  FT_UShort              index, property;
+  HB_UShort              index, property;
   HB_Error               error;
-  FT_UShort              i, j, k;
-  FT_UShort              bgc, igc, lgc;
-  FT_UShort              known_backtrack_classes,
+  HB_UShort              i, j, k;
+  HB_UShort              bgc, igc, lgc;
+  HB_UShort              known_backtrack_classes,
 			 known_input_classes,
 			 known_lookahead_classes;
 
-  FT_UShort*             backtrack_classes;
-  FT_UShort*             input_classes;
-  FT_UShort*             lookahead_classes;
+  HB_UShort*             backtrack_classes;
+  HB_UShort*             input_classes;
+  HB_UShort*             lookahead_classes;
 
-  FT_UShort*             bc;
-  FT_UShort*             ic;
-  FT_UShort*             lc;
+  HB_UShort*             bc;
+  HB_UShort*             ic;
+  HB_UShort*             lc;
 
   HB_ChainSubClassSet*  cscs;
   HB_ChainSubClassRule  ccsr;
@@ -3287,15 +3287,15 @@ static HB_Error  Lookup_ChainContextSubst2( HB_GSUBHeader*               gsub,
   if ( error )
     return error;
 
-  if ( ALLOC_ARRAY( backtrack_classes, ccsf2->MaxBacktrackLength, FT_UShort ) )
+  if ( ALLOC_ARRAY( backtrack_classes, ccsf2->MaxBacktrackLength, HB_UShort ) )
     return error;
   known_backtrack_classes = 0;
 
-  if ( ALLOC_ARRAY( input_classes, ccsf2->MaxInputLength, FT_UShort ) )
+  if ( ALLOC_ARRAY( input_classes, ccsf2->MaxInputLength, HB_UShort ) )
     goto End3;
   known_input_classes = 1;
 
-  if ( ALLOC_ARRAY( lookahead_classes, ccsf2->MaxLookaheadLength, FT_UShort ) )
+  if ( ALLOC_ARRAY( lookahead_classes, ccsf2->MaxLookaheadLength, HB_UShort ) )
     goto End2;
   known_lookahead_classes = 0;
 
@@ -3373,7 +3373,7 @@ static HB_Error  Lookup_ChainContextSubst2( HB_GSUBHeader*               gsub,
 	if ( error && error != HB_Err_Not_Covered )
 	  goto End1;
 
-	if ( j + igc - i + lgc == (FT_Long)buffer->in_length )
+	if ( j + igc - i + lgc == (HB_Int)buffer->in_length )
 	  goto next_chainsubclassrule;
 	j++;
       }
@@ -3403,7 +3403,7 @@ static HB_Error  Lookup_ChainContextSubst2( HB_GSUBHeader*               gsub,
 	if ( error && error != HB_Err_Not_Covered )
 	  goto End1;
 
-	if ( j + lgc - i == (FT_Long)buffer->in_length )
+	if ( j + lgc - i == (HB_Int)buffer->in_length )
 	  goto next_chainsubclassrule;
 	j++;
       }
@@ -3449,12 +3449,12 @@ End3:
 static HB_Error  Lookup_ChainContextSubst3( HB_GSUBHeader*               gsub,
 					    HB_ChainContextSubstFormat3* ccsf3,
 					    HB_Buffer                    buffer,
-					    FT_UShort                     flags,
-					    FT_UShort                     context_length,
+					    HB_UShort                     flags,
+					    HB_UShort                     context_length,
 					    int                           nesting_level )
 {
-  FT_UShort        index, i, j, property;
-  FT_UShort        bgc, igc, lgc;
+  HB_UShort        index, i, j, property;
+  HB_UShort        bgc, igc, lgc;
   HB_Error         error;
 
   HB_Coverage*    bc;
@@ -3515,7 +3515,7 @@ static HB_Error  Lookup_ChainContextSubst3( HB_GSUBHeader*               gsub,
       if ( error && error != HB_Err_Not_Covered )
 	return error;
 
-      if ( j + igc - i + lgc == (FT_Long)buffer->in_length )
+      if ( j + igc - i + lgc == (HB_Int)buffer->in_length )
 	return HB_Err_Not_Covered;
       j++;
     }
@@ -3537,7 +3537,7 @@ static HB_Error  Lookup_ChainContextSubst3( HB_GSUBHeader*               gsub,
       if ( error && error != HB_Err_Not_Covered )
 	return error;
 
-      if ( j + lgc - i == (FT_Long)buffer->in_length )
+      if ( j + lgc - i == (HB_Int)buffer->in_length )
 	return HB_Err_Not_Covered;
       j++;
     }
@@ -3558,8 +3558,8 @@ static HB_Error  Lookup_ChainContextSubst3( HB_GSUBHeader*               gsub,
 static HB_Error  Lookup_ChainContextSubst( HB_GSUBHeader*    gsub,
 					   HB_GSUB_SubTable* st,
 					   HB_Buffer         buffer,
-					   FT_UShort          flags,
-					   FT_UShort          context_length,
+					   HB_UShort          flags,
+					   HB_UShort          context_length,
 					   int                nesting_level )
 {
   HB_ChainContextSubst*  ccs = &st->chain;
@@ -3595,15 +3595,15 @@ static HB_Error  Load_ReverseChainContextSubst( HB_GSUB_SubTable* st,
   HB_Error error;
   HB_ReverseChainContextSubst*  rccs = &st->reverse;
 
-  FT_UShort               m, count;
+  HB_UShort               m, count;
 
-  FT_UShort               nb = 0, nl = 0, n;
-  FT_UShort               backtrack_count, lookahead_count;
-  FT_ULong                cur_offset, new_offset, base_offset;
+  HB_UShort               nb = 0, nl = 0, n;
+  HB_UShort               backtrack_count, lookahead_count;
+  HB_UInt                cur_offset, new_offset, base_offset;
 
   HB_Coverage*           b;
   HB_Coverage*           l;
-  FT_UShort*              sub;
+  HB_UShort*              sub;
 
   base_offset = FILE_Pos();
 
@@ -3710,7 +3710,7 @@ static HB_Error  Load_ReverseChainContextSubst( HB_GSUB_SubTable* st,
   count = rccs->GlyphCount;
 
   if ( ALLOC_ARRAY( rccs->Substitute, count,
-		    FT_UShort ) )
+		    HB_UShort ) )
     goto Fail2;
 
   sub = rccs->Substitute;
@@ -3748,7 +3748,7 @@ Fail4:
 
 static void  Free_ReverseChainContextSubst( HB_GSUB_SubTable* st )
 {
-  FT_UShort      n, count;
+  HB_UShort      n, count;
   HB_ReverseChainContextSubst*  rccs = &st->reverse;
 
   HB_Coverage*  c;
@@ -3784,11 +3784,11 @@ static void  Free_ReverseChainContextSubst( HB_GSUB_SubTable* st )
 static HB_Error  Lookup_ReverseChainContextSubst( HB_GSUBHeader*    gsub,
 						  HB_GSUB_SubTable* st,
 						  HB_Buffer         buffer,
-						  FT_UShort          flags,
-      /* note different signature here: */	  FT_ULong           string_index )
+						  HB_UShort          flags,
+      /* note different signature here: */	  HB_UInt           string_index )
 {
-  FT_UShort        index, input_index, i, j, property;
-  FT_UShort        bgc, lgc;
+  HB_UShort        index, input_index, i, j, property;
+  HB_UShort        bgc, lgc;
   HB_Error         error;
 
   HB_ReverseChainContextSubst*  rccs = &st->reverse;
@@ -3854,7 +3854,7 @@ static HB_Error  Lookup_ReverseChainContextSubst( HB_GSUBHeader*    gsub,
       if ( error && error != HB_Err_Not_Covered )
 	return error;
 
-      if ( j + lgc - i == (FT_Long)buffer->in_length )
+      if ( j + lgc - i == (HB_Int)buffer->in_length )
 	return HB_Err_Not_Covered;
       j++;
     }
@@ -3878,10 +3878,10 @@ static HB_Error  Lookup_ReverseChainContextSubst( HB_GSUBHeader*    gsub,
 
 
 HB_Error  HB_GSUB_Select_Script( HB_GSUBHeader*  gsub,
-				 FT_ULong         script_tag,
-				 FT_UShort*       script_index )
+				 HB_UInt         script_tag,
+				 HB_UShort*       script_index )
 {
-  FT_UShort          n;
+  HB_UShort          n;
 
   HB_ScriptList*    sl;
   HB_ScriptRecord*  sr;
@@ -3907,12 +3907,12 @@ HB_Error  HB_GSUB_Select_Script( HB_GSUBHeader*  gsub,
 
 
 HB_Error  HB_GSUB_Select_Language( HB_GSUBHeader*  gsub,
-				   FT_ULong         language_tag,
-				   FT_UShort        script_index,
-				   FT_UShort*       language_index,
-				   FT_UShort*       req_feature_index )
+				   HB_UInt         language_tag,
+				   HB_UShort        script_index,
+				   HB_UShort*       language_index,
+				   HB_UShort*       req_feature_index )
 {
-  FT_UShort           n;
+  HB_UShort           n;
 
   HB_ScriptList*     sl;
   HB_ScriptRecord*   sr;
@@ -3950,19 +3950,19 @@ HB_Error  HB_GSUB_Select_Language( HB_GSUBHeader*  gsub,
 
 
 HB_Error  HB_GSUB_Select_Feature( HB_GSUBHeader*  gsub,
-				  FT_ULong         feature_tag,
-				  FT_UShort        script_index,
-				  FT_UShort        language_index,
-				  FT_UShort*       feature_index )
+				  HB_UInt         feature_tag,
+				  HB_UShort        script_index,
+				  HB_UShort        language_index,
+				  HB_UShort*       feature_index )
 {
-  FT_UShort           n;
+  HB_UShort           n;
 
   HB_ScriptList*     sl;
   HB_ScriptRecord*   sr;
   HB_ScriptTable*    s;
   HB_LangSysRecord*  lsr;
   HB_LangSys*        ls;
-  FT_UShort*          fi;
+  HB_UShort*          fi;
 
   HB_FeatureList*    fl;
   HB_FeatureRecord*  fr;
@@ -4016,11 +4016,11 @@ HB_Error  HB_GSUB_Select_Feature( HB_GSUBHeader*  gsub,
 
 
 HB_Error  HB_GSUB_Query_Scripts( HB_GSUBHeader*  gsub,
-				 FT_ULong**       script_tag_list )
+				 HB_UInt**       script_tag_list )
 {
-  FT_UShort          n;
+  HB_UShort          n;
   HB_Error           error;
-  FT_ULong*          stl;
+  HB_UInt*          stl;
 
   HB_ScriptList*    sl;
   HB_ScriptRecord*  sr;
@@ -4033,7 +4033,7 @@ HB_Error  HB_GSUB_Query_Scripts( HB_GSUBHeader*  gsub,
   sl = &gsub->ScriptList;
   sr = sl->ScriptRecord;
 
-  if ( ALLOC_ARRAY( stl, sl->ScriptCount + 1, FT_ULong ) )
+  if ( ALLOC_ARRAY( stl, sl->ScriptCount + 1, HB_UInt ) )
     return error;
 
   for ( n = 0; n < sl->ScriptCount; n++ )
@@ -4048,12 +4048,12 @@ HB_Error  HB_GSUB_Query_Scripts( HB_GSUBHeader*  gsub,
 
 
 HB_Error  HB_GSUB_Query_Languages( HB_GSUBHeader*  gsub,
-				   FT_UShort        script_index,
-				   FT_ULong**       language_tag_list )
+				   HB_UShort        script_index,
+				   HB_UInt**       language_tag_list )
 {
-  FT_UShort           n;
+  HB_UShort           n;
   HB_Error            error;
-  FT_ULong*           ltl;
+  HB_UInt*           ltl;
 
   HB_ScriptList*     sl;
   HB_ScriptRecord*   sr;
@@ -4073,7 +4073,7 @@ HB_Error  HB_GSUB_Query_Languages( HB_GSUBHeader*  gsub,
   s   = &sr[script_index].Script;
   lsr = s->LangSysRecord;
 
-  if ( ALLOC_ARRAY( ltl, s->LangSysCount + 1, FT_ULong ) )
+  if ( ALLOC_ARRAY( ltl, s->LangSysCount + 1, HB_UInt ) )
     return error;
 
   for ( n = 0; n < s->LangSysCount; n++ )
@@ -4091,20 +4091,20 @@ HB_Error  HB_GSUB_Query_Languages( HB_GSUBHeader*  gsub,
 
 
 HB_Error  HB_GSUB_Query_Features( HB_GSUBHeader*  gsub,
-				  FT_UShort        script_index,
-				  FT_UShort        language_index,
-				  FT_ULong**       feature_tag_list )
+				  HB_UShort        script_index,
+				  HB_UShort        language_index,
+				  HB_UInt**       feature_tag_list )
 {
-  FT_UShort           n;
+  HB_UShort           n;
   HB_Error            error;
-  FT_ULong*           ftl;
+  HB_UInt*           ftl;
 
   HB_ScriptList*     sl;
   HB_ScriptRecord*   sr;
   HB_ScriptTable*    s;
   HB_LangSysRecord*  lsr;
   HB_LangSys*        ls;
-  FT_UShort*          fi;
+  HB_UShort*          fi;
 
   HB_FeatureList*    fl;
   HB_FeatureRecord*  fr;
@@ -4137,7 +4137,7 @@ HB_Error  HB_GSUB_Query_Features( HB_GSUBHeader*  gsub,
 
   fi = ls->FeatureIndex;
 
-  if ( ALLOC_ARRAY( ftl, ls->FeatureCount + 1, FT_ULong ) )
+  if ( ALLOC_ARRAY( ftl, ls->FeatureCount + 1, HB_UInt ) )
     return error;
 
   for ( n = 0; n < ls->FeatureCount; n++ )
@@ -4160,8 +4160,8 @@ HB_Error  HB_GSUB_Query_Features( HB_GSUBHeader*  gsub,
 typedef HB_Error  (*Lookup_Subst_Func_Type)( HB_GSUBHeader*    gsub,
 					     HB_GSUB_SubTable* st,
 					     HB_Buffer         buffer,
-					     FT_UShort          flags,
-					     FT_UShort          context_length,
+					     HB_UShort          flags,
+					     HB_UShort          context_length,
 					     int                nesting_level );
 static const Lookup_Subst_Func_Type Lookup_Subst_Call_Table[] = {
   Lookup_DefaultSubst,
@@ -4182,13 +4182,13 @@ static const Lookup_Subst_Func_Type Lookup_Subst_Call_Table[] = {
 /* Do an individual subtable lookup.  Returns HB_Err_Ok if substitution
    has been done, or HB_Err_Not_Covered if not.                        */
 static HB_Error  GSUB_Do_Glyph_Lookup( HB_GSUBHeader* gsub,
-				       FT_UShort       lookup_index,
+				       HB_UShort       lookup_index,
 				       HB_Buffer      buffer,
-				       FT_UShort       context_length,
+				       HB_UShort       context_length,
 				       int             nesting_level )
 {
   HB_Error               error = HB_Err_Not_Covered;
-  FT_UShort              i, flags, lookup_count;
+  HB_UShort              i, flags, lookup_count;
   HB_Lookup*             lo;
   int                    lookup_type;
   Lookup_Subst_Func_Type Func;
@@ -4233,8 +4233,8 @@ static HB_Error  GSUB_Do_Glyph_Lookup( HB_GSUBHeader* gsub,
 static HB_Error  Load_DefaultSubst( HB_GSUB_SubTable* st,
 				    HB_Stream         stream )
 {
-  FT_UNUSED(st);
-  FT_UNUSED(stream);
+  HB_UNUSED(st);
+  HB_UNUSED(stream);
 
   return HB_Err_Invalid_GSUB_SubTable_Format;
 }
@@ -4255,7 +4255,7 @@ static const Load_Subst_Func_Type Load_Subst_Call_Table[] = {
 
 HB_Error  _HB_GSUB_Load_SubTable( HB_GSUB_SubTable*  st,
 				  HB_Stream     stream,
-				  FT_UShort     lookup_type )
+				  HB_UShort     lookup_type )
 {
   Load_Subst_Func_Type Func;
 
@@ -4270,7 +4270,7 @@ HB_Error  _HB_GSUB_Load_SubTable( HB_GSUB_SubTable*  st,
 
 static void  Free_DefaultSubst( HB_GSUB_SubTable* st )
 {
-  FT_UNUSED(st);
+  HB_UNUSED(st);
 }
 
 typedef void  (*Free_Subst_Func_Type)( HB_GSUB_SubTable* st );
@@ -4287,7 +4287,7 @@ static const Free_Subst_Func_Type Free_Subst_Call_Table[] = {
 };
 
 void  _HB_GSUB_Free_SubTable( HB_GSUB_SubTable*  st,
-			      FT_UShort     lookup_type )
+			      HB_UShort     lookup_type )
 {
   Free_Subst_Func_Type Func;
 
@@ -4304,12 +4304,12 @@ void  _HB_GSUB_Free_SubTable( HB_GSUB_SubTable*  st,
 /* apply one lookup to the input string object */
 
 static HB_Error  GSUB_Do_String_Lookup( HB_GSUBHeader*   gsub,
-				   FT_UShort         lookup_index,
+				   HB_UShort         lookup_index,
 				   HB_Buffer        buffer )
 {
   HB_Error  error, retError = HB_Err_Not_Covered;
 
-  FT_UInt*  properties = gsub->LookupList.Properties;
+  HB_UInt*  properties = gsub->LookupList.Properties;
 
   int      nesting_level = 0;
 
@@ -4342,13 +4342,13 @@ static HB_Error  GSUB_Do_String_Lookup( HB_GSUBHeader*   gsub,
 
 
 static HB_Error  Apply_ReverseChainContextSubst( HB_GSUBHeader*   gsub,
-						 FT_UShort         lookup_index,
+						 HB_UShort         lookup_index,
 						 HB_Buffer        buffer )
 {
-  FT_UInt*     properties =  gsub->LookupList.Properties;
+  HB_UInt*     properties =  gsub->LookupList.Properties;
   HB_Error     error, retError = HB_Err_Not_Covered;
-  FT_ULong     subtable_Count, string_index;
-  FT_UShort    flags;
+  HB_UInt     subtable_Count, string_index;
+  HB_UShort    flags;
   HB_Lookup*  lo;
 
   if ( buffer->in_length == 0 )
@@ -4383,15 +4383,15 @@ static HB_Error  Apply_ReverseChainContextSubst( HB_GSUBHeader*   gsub,
 
 
 HB_Error  HB_GSUB_Add_Feature( HB_GSUBHeader*  gsub,
-			       FT_UShort        feature_index,
-			       FT_UInt          property )
+			       HB_UShort        feature_index,
+			       HB_UInt          property )
 {
-  FT_UShort    i;
+  HB_UShort    i;
 
   HB_Feature  feature;
-  FT_UInt*     properties;
-  FT_UShort*   index;
-  FT_UShort    lookup_count;
+  HB_UInt*     properties;
+  HB_UShort*   index;
+  HB_UShort    lookup_count;
 
   /* Each feature can only be added once */
 
@@ -4410,7 +4410,7 @@ HB_Error  HB_GSUB_Add_Feature( HB_GSUBHeader*  gsub,
 
   for ( i = 0; i < feature.LookupListCount; i++ )
   {
-    FT_UShort lookup_index = index[i];
+    HB_UShort lookup_index = index[i];
     if (lookup_index < lookup_count)
       properties[lookup_index] |= property;
   }
@@ -4422,9 +4422,9 @@ HB_Error  HB_GSUB_Add_Feature( HB_GSUBHeader*  gsub,
 
 HB_Error  HB_GSUB_Clear_Features( HB_GSUBHeader*  gsub )
 {
-  FT_UShort i;
+  HB_UShort i;
 
-  FT_UInt*  properties;
+  HB_UInt*  properties;
 
 
   if ( !gsub )
@@ -4461,7 +4461,7 @@ HB_Error  HB_GSUB_Apply_String( HB_GSUBHeader*   gsub,
 				HB_Buffer        buffer )
 {
   HB_Error          error, retError = HB_Err_Not_Covered;
-  FT_UShort         i, j, lookup_count;
+  HB_UShort         i, j, lookup_count;
 
   if ( !gsub ||
        !buffer || buffer->in_length == 0 || buffer->in_pos >= buffer->in_length )
@@ -4471,7 +4471,7 @@ HB_Error  HB_GSUB_Apply_String( HB_GSUBHeader*   gsub,
 
   for ( i = 0; i < gsub->FeatureList.ApplyCount; i++)
   {
-    FT_UShort         feature_index;
+    HB_UShort         feature_index;
     HB_Feature       feature;
 
     feature_index = gsub->FeatureList.ApplyOrder[i];
@@ -4479,7 +4479,7 @@ HB_Error  HB_GSUB_Apply_String( HB_GSUBHeader*   gsub,
 
     for ( j = 0; j < feature.LookupListCount; j++ )
     {
-      FT_UShort         lookup_index;
+      HB_UShort         lookup_index;
       HB_Lookup*       lookup;
       FT_Bool           need_swap;
 

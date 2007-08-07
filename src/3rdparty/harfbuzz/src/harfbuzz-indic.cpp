@@ -1478,7 +1478,7 @@ static bool indic_shape_syllable(HB_Bool openType, HB_ShaperItem *item, bool inv
                 reph = i;
     }
 
-#ifndef QT_NO_OPENTYPE
+#ifndef NO_OPENTYPE
     const int availableGlyphs = item->num_glyphs;
 #endif
     if (!item->font->klass->stringToGlyphs(item->font,
@@ -1503,7 +1503,7 @@ static bool indic_shape_syllable(HB_Bool openType, HB_ShaperItem *item, bool inv
     for (i = 0; i < len; ++i)
         control |= (form(reordered[i]) == Control);
 
-#ifndef QT_NO_OPENTYPE
+#ifndef NO_OPENTYPE
     if (openType) {
 
         // we need to keep track of where the base glyph is for some
@@ -1652,7 +1652,7 @@ static bool indic_shape_syllable(HB_Bool openType, HB_ShaperItem *item, bool inv
         }
 
     }
-#endif // QT_NO_OPENTYPE
+#endif // NO_OPENTYPE
     item->attributes[0].clusterStart = true;
 
     HB_FREE_STACKARRAY(reordered);
@@ -1762,7 +1762,7 @@ HB_Bool HB_IndicShape(HB_ShaperItem *item)
     assert(item->item.script >= HB_Script_Devanagari && item->item.script <= HB_Script_Sinhala);
 
     HB_Bool openType = false;
-#ifndef QT_NO_OPENTYPE
+#ifndef NO_OPENTYPE
     openType = HB_SelectScript(item, indic_features);
 #endif
     unsigned short *logClusters = item->log_clusters;

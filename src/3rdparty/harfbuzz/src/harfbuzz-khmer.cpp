@@ -507,7 +507,7 @@ static bool khmer_shape_syllable(HB_Bool openType, HB_ShaperItem *item)
         } // switch
     } // for
 
-#ifndef QT_NO_OPENTYPE
+#ifndef NO_OPENTYPE
     const int availableGlyphs = item->num_glyphs;
 #endif
     if (!item->font->klass->stringToGlyphs(item->font,
@@ -528,7 +528,7 @@ static bool khmer_shape_syllable(HB_Bool openType, HB_ShaperItem *item)
 
     // now we have the syllable in the right order, and can start running it through open type.
 
-#ifndef QT_NO_OPENTYPE
+#ifndef NO_OPENTYPE
     if (openType) {
  	uint where[16];
         for (int i = 0; i < len; ++i) {
@@ -566,7 +566,7 @@ HB_Bool HB_KhmerShape(HB_ShaperItem *item)
     assert(item->item.script == HB_Script_Khmer);
 
     HB_Bool openType = false;
-#ifndef QT_NO_OPENTYPE
+#ifndef NO_OPENTYPE
     openType = HB_SelectScript(item, khmer_features);
 #endif
     unsigned short *logClusters = item->log_clusters;

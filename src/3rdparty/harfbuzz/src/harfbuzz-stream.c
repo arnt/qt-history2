@@ -66,14 +66,14 @@ void HB_close_stream(HB_Stream stream)
 }
 
 
-FT_Long _hb_stream_pos(HB_Stream stream)
+HB_Int _hb_stream_pos(HB_Stream stream)
 {
   LOG(( "stream:pos() -> %ld\n", stream->pos ));
   return stream->pos;
 }
 
 
-HB_Error _hb_stream_seek(HB_Stream stream, FT_ULong pos)
+HB_Error _hb_stream_seek(HB_Stream stream, HB_UInt pos)
 {
     HB_Error  error = 0;
     
@@ -86,7 +86,7 @@ HB_Error _hb_stream_seek(HB_Stream stream, FT_ULong pos)
 }
 
 
-HB_Error _hb_stream_frame_enter(HB_Stream stream, FT_ULong count)
+HB_Error _hb_stream_frame_enter(HB_Stream stream, HB_UInt count)
 {
     /* check current and new position */
     if (stream->pos + count > stream->size) 
