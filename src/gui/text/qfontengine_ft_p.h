@@ -64,6 +64,7 @@ struct QFreetypeFace
 
     FT_Face face;
     HB_Face hbFace;
+    HB_FontRec hbBaseFont;
 #ifndef QT_NO_FONTCONFIG
     FcCharSet *charset;
 #endif
@@ -225,6 +226,7 @@ public:
     bool init(FaceId faceId, bool antiaalias, GlyphFormat defaultFormat = Format_None);
 
     inline HB_Font harfbuzzFont() const { return hbFont; }
+    inline HB_Face harfbuzzFace() const { return freetype->hbFace; }
 protected:
 
     void freeGlyphSets();

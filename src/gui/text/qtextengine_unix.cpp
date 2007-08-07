@@ -107,6 +107,7 @@ void QTextEngine::shapeText(int item) const
     QFontEngineFT *ftEngine = static_cast<QFontEngineFT *>(font);
     ftEngine->lockFace();
     shaper_item.font = ftEngine->harfbuzzFont();
+    shaper_item.face = ftEngine->harfbuzzFace();
     shaper_item.num_glyphs = qMax(uint32_t(layoutData->num_glyphs - layoutData->used), shaper_item.item.length);
 
     //shaper_item.flags = si.analysis.bidiLevel % 2 ? RightToLeft : 0;

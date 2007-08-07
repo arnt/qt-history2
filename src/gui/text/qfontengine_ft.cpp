@@ -72,7 +72,7 @@ static HB_Bool hb_stringToGlyphs(HB_Font font, const HB_UChar16 *string, uint32_
     return true;
 }
 
-static void hb_getAdvances(HB_Font font, const HB_Glyph *glyphs, int numGlyphs, HB_Fixed *advances)
+static void hb_getAdvances(HB_Font font, const HB_Glyph *glyphs, int numGlyphs, HB_Fixed *advances, int flags)
 {
     QFontEngine *fe = (QFontEngine *)font->userData;
 
@@ -80,7 +80,7 @@ static void hb_getAdvances(HB_Font font, const HB_Glyph *glyphs, int numGlyphs, 
     for (int i = 0; i < numGlyphs; ++i)
         qglyphs[i].glyph = glyphs[i];
 
-    fe->recalcAdvances(numGlyphs, qglyphs.data(), font->face->current_flags & HB_ShaperFlag_UseDesignMetrics ? QTextEngine::DesignMetrics : QFlag(0));
+    fe->recalcAdvances(numGlyphs, qglyphs.data(), flags & HB_ShaperFlag_UseDesignMetrics ? QTextEngine::DesignMetrics : QFlag(0));
 
     for (uint32_t i = 0; i < numGlyphs; ++i)
         advances[i] = qglyphs[i].advance.x.value();
@@ -92,8 +92,33 @@ static HB_Bool hb_canRender(HB_Font font, const HB_UChar16 *string, uint32_t len
     return fe->canRender(reinterpret_cast<const QChar *>(string), length);
 }
 
+static HB_Stream hb_getSFntTable(HB_Font font, HB_Tag tableTag)
+{
+    FT_Error error;
+    FT_ULong length = 0;
+    HB_Stream stream = 0;
+    
+    if ( !FT_IS_SFNT(font->freetypeFace) ) 
+        return 0;
+
+    error = FT_Load_Sfnt_Table(font->freetypeFace, tableTag, 0, 0, &length);
+    if (error)
+        return 0;
+    stream = (HB_Stream)malloc(sizeof(HB_StreamRec));
+    stream->base = (HB_Byte*)malloc(length);
+    error = FT_Load_Sfnt_Table(font->freetypeFace, tableTag, 0, stream->base, NULL);
+    if (error) {
+        HB_close_stream(stream);
+        return 0;
+    }
+    stream->size = length;
+    stream->pos = 0;
+    stream->cursor = NULL;
+    return stream;
+}
+
 const HB_FontClass hb_fontClass = {
-    hb_stringToGlyphs, hb_getAdvances, hb_canRender
+    hb_stringToGlyphs, hb_getAdvances, hb_canRender, hb_getSFntTable
 };
 
 // -------------------------- Freetype support ------------------------------
@@ -176,7 +201,11 @@ QFreetypeFace *QFreetypeFace::getFace(const QFontEngine::FaceId &face_id)
             return 0;
         }
         freetype->face = face;
-        freetype->hbFace = HB_NewFace(face);
+
+        freetype->hbBaseFont.klass = &hb_fontClass;
+        freetype->hbBaseFont.userData = 0;
+        freetype->hbBaseFont.freetypeFace = face;
+        freetype->hbFace = HB_NewFace(&freetype->hbBaseFont);
         freetype->ref = 0;
         freetype->xsize = 0;
         freetype->ysize = 0;
@@ -515,9 +544,7 @@ bool QFontEngineFT::init(FaceId faceId, bool antialias, GlyphFormat defaultForma
         return false;
     }
 
-    hbFont = new HB_FontRec;
-    hbFont->klass = &hb_fontClass;
-    hbFont->face = freetype->hbFace;
+    hbFont = new HB_FontRec(freetype->hbBaseFont);
     hbFont->userData = this;
 
     symbol = freetype->symbol_map != 0;
