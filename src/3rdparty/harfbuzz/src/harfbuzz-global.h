@@ -40,9 +40,9 @@ typedef int32_t HB_Int;
 typedef uint16_t HB_UChar16;
 typedef uint32_t HB_UChar32;
 typedef uint32_t HB_Glyph;
-typedef uint32_t HB_Fixed; /* 26.6 */
+typedef int32_t HB_Fixed; /* 26.6 */
 
-typedef uint32_t HB_16Dot16; /* 16.16 */
+typedef int32_t HB_16Dot16; /* 16.16 */
 
 typedef void * HB_Pointer;
 typedef uint32_t HB_Tag;
