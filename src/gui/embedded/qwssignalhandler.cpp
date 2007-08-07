@@ -54,7 +54,10 @@ QWSSignalHandler::QWSSignalHandler()
     for (int i = 0; i < n; ++i) {
         const int signum = signums[i];
         qt_sighandler_t old = signal(signum, handleSignal);
-        oldHandlers[signum] = (old == SIG_ERR ? SIG_DFL : old);
+        if (old == SIG_IGN) // don't remove shm and semaphores when ignored
+            signal(signum, old);
+        else
+            oldHandlers[signum] = (old == SIG_ERR ? SIG_DFL : old);
     }
 }
 
