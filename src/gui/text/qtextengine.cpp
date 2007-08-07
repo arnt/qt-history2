@@ -799,6 +799,11 @@ void QTextEngine::shapeTextWithHarfbuzz(int item) const
     entire_shaper_item.string = reinterpret_cast<const HB_UChar16 *>(layoutData->string.constData());
     entire_shaper_item.stringLength = layoutData->string.length();
     entire_shaper_item.item.script = (HB_Script)si.analysis.script;
+#ifdef Q_WS_WIN
+    if(hasUsp10) {
+        entire_shaper_item.item.script = (HB_Script)QUnicodeTables::script(layoutData->string.at(si.position));
+    }
+#endif
     entire_shaper_item.item.pos = si.position;
     entire_shaper_item.item.length = length(item);
     entire_shaper_item.item.bidiLevel = si.analysis.bidiLevel;
