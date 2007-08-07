@@ -748,6 +748,10 @@ static HB_Stream getTableStream(void *font, HB_GetFontTableFunc tableFunc, HB_Ta
     HB_Error error;
     HB_UInt length = 0;
     HB_Stream stream = 0;
+
+    if (!font)
+        return 0;
+
     error = tableFunc(font, tag, 0, &length);
     if (error)
         return 0;
