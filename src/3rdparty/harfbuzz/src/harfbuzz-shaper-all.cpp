@@ -1,10 +1,12 @@
 
 #include "harfbuzz-shaper.cpp"
-#include "harfbuzz-tibetan.cpp"
-#include "harfbuzz-khmer.cpp"
 #include "harfbuzz-indic.cpp"
-#include "harfbuzz-hebrew.cpp"
-#include "harfbuzz-arabic.cpp"
-#include "harfbuzz-hangul.cpp"
-#include "harfbuzz-myanmar.cpp"
+extern "C" {
+#include "harfbuzz-tibetan.c"
+#include "harfbuzz-khmer.c"
+#include "harfbuzz-hebrew.c"
+#include "harfbuzz-arabic.c"
+#include "harfbuzz-hangul.c"
+#include "harfbuzz-myanmar.c"
+}
 
