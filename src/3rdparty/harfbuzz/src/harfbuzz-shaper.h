@@ -186,6 +186,10 @@ typedef struct {
     HB_Fixed xOffset, yOffset;
 } HB_GlyphMetrics;
 
+typedef enum {
+    HB_FontAscent
+} HB_FontMetric;
+
 typedef struct {
     HB_Bool  (*convertStringToGlyphIndices)(HB_Font font, const HB_UChar16 *string, hb_uint32 length, HB_Glyph *glyphs, hb_uint32 *numGlyphs, HB_Bool rightToLeft);
     void     (*getGlyphAdvances)(HB_Font font, const HB_Glyph *glyphs, hb_uint32 numGlyphs, HB_Fixed *advances, int flags /*HB_ShaperFlag*/);
@@ -193,7 +197,7 @@ typedef struct {
     /* implementation needs to make sure to load a scaled glyph, so /no/ FT_LOAD_NO_SCALE */
     HB_Error (*getPointInOutline)(HB_Font font, HB_Glyph glyph, int flags /*HB_ShaperFlag*/, hb_uint32 point, HB_Fixed *xpos, HB_Fixed *ypos, hb_uint32 *nPoints);
     void     (*getGlyphMetrics)(HB_Font font, HB_Glyph glyph, HB_GlyphMetrics *metrics);
-    HB_Fixed (*getAscent)(HB_Font font);
+    HB_Fixed (*getFontMetric)(HB_Font font, HB_FontMetric metric);
 } HB_FontClass;
 
 typedef struct HB_Font_ {

@@ -227,7 +227,7 @@ static inline void positionCluster(HB_ShaperItem *item, int gfrom,  int glast)
 //     qDebug("---> positionCluster: cluster from %d to %d", gfrom, glast);
 //     qDebug("baseInfo: %f/%f (%f/%f) off=%f/%f", baseInfo.x, baseInfo.y, baseInfo.width, baseInfo.height, baseInfo.xoff, baseInfo.yoff);
 
-    HB_Fixed size = item->font->klass->getAscent(item->font) / 10;
+    HB_Fixed size = item->font->klass->getFontMetric(item->font, HB_FontAscent) / 10;
     HB_Fixed offsetBase = HB_FIXED_CONSTANT(1) + (size - HB_FIXED_CONSTANT(4)) / 4;
     if (size > HB_FIXED_CONSTANT(4))
         offsetBase += HB_FIXED_CONSTANT(4);
