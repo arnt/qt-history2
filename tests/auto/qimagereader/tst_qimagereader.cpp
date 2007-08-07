@@ -620,7 +620,7 @@ class Server : public QObject
 {
     Q_OBJECT
 public:
-    Server(const QByteArray &data)
+    Server(const QByteArray &data) :serverSocket(0)
     {
         connect(&server, SIGNAL(newConnection()), this, SLOT(acceptNewConnection()));
         server.listen();
