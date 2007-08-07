@@ -1256,7 +1256,7 @@ enum PseudoElement {
     PseudoElement_RightArrow,
     PseudoElement_Indicator,
     PseudoElement_ExclusiveIndicator,
-    PseudoElement_MenuIndicator,
+    PseudoElement_PushButtonMenuIndicator,
     PseudoElement_ComboBoxDropDown,
     PseudoElement_ComboBoxArrow,
     PseudoElement_Item,
@@ -1288,6 +1288,8 @@ enum PseudoElement {
     PseudoElement_MenuTearoff,
     PseudoElement_MenuCheckMark,
     PseudoElement_MenuSeparator,
+    PseudoElement_MenuIcon,
+    PseudoElement_MenuRightArrow,
     PseudoElement_TreeViewBranch,
     PseudoElement_HeaderViewSection,
     PseudoElement_HeaderViewUpArrow,
@@ -1353,6 +1355,8 @@ static PseudoElementInfo knownPseudoElements[NumPseudoElements] = {
     { QStyle::SC_None, "tearoff" },
     { QStyle::SC_None, "indicator" },
     { QStyle::SC_None, "separator" },
+    { QStyle::SC_None, "icon" },
+    { QStyle::SC_None, "right-arrow" },
     { QStyle::SC_None, "branch" },
     { QStyle::SC_None, "section" },
     { QStyle::SC_None, "down-arrow" },
@@ -1732,12 +1736,14 @@ static Origin defaultOrigin(int pe)
 
     case PseudoElement_SpinBoxUpButton:
     case PseudoElement_SpinBoxDownButton:
-    case PseudoElement_MenuIndicator:
+    case PseudoElement_PushButtonMenuIndicator:
     case PseudoElement_ComboBoxDropDown:
     case PseudoElement_ToolButtonDownArrow:
+    case PseudoElement_MenuCheckMark:
+    case PseudoElement_MenuIcon:
+    case PseudoElement_MenuRightArrow:
         return Origin_Padding;
 
-    case PseudoElement_MenuCheckMark:
     case PseudoElement_Indicator:
     case PseudoElement_ExclusiveIndicator:
     case PseudoElement_ComboBoxArrow:
@@ -1766,12 +1772,13 @@ static Qt::Alignment defaultPosition(int pe)
     case PseudoElement_Indicator:
     case PseudoElement_ExclusiveIndicator:
     case PseudoElement_MenuCheckMark:
+    case PseudoElement_MenuIcon:
         return Qt::AlignLeft | Qt::AlignVCenter;
 
     case PseudoElement_ScrollBarAddLine:
     case PseudoElement_ScrollBarLast:
     case PseudoElement_SpinBoxDownButton:
-    case PseudoElement_MenuIndicator:
+    case PseudoElement_PushButtonMenuIndicator:
     case PseudoElement_ToolButtonDownArrow:
         return Qt::AlignRight | Qt::AlignBottom;
 
@@ -1800,6 +1807,7 @@ static Qt::Alignment defaultPosition(int pe)
 
     case PseudoElement_HeaderViewUpArrow:
     case PseudoElement_HeaderViewDownArrow:
+    case PseudoElement_MenuRightArrow:
         return Qt::AlignRight | Qt::AlignVCenter;
 
     default:
@@ -1828,7 +1836,7 @@ QSize QStyleSheetStyle::defaultSize(const QWidget *w, QSize sz, const QRect& rec
             sz.setHeight(base->pixelMetric(PM_ExclusiveIndicatorHeight, 0, w));
         break;
 
-    case PseudoElement_MenuIndicator: {
+    case PseudoElement_PushButtonMenuIndicator: {
         int pm = base->pixelMetric(PM_MenuButtonIndicator, 0, w);
         if (sz.width() == -1)
             sz.setWidth(pm);
@@ -1846,6 +1854,7 @@ QSize QStyleSheetStyle::defaultSize(const QWidget *w, QSize sz, const QRect& rec
     case PseudoElement_DownArrow:
     case PseudoElement_ToolButtonMenuArrow:
     case PseudoElement_ToolButtonDownArrow:
+    case PseudoElement_MenuRightArrow:
         if (sz.width() == -1)
             sz.setWidth(13);
         if (sz.height() == -1)
@@ -2705,7 +2714,7 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
                 rule.drawBackgroundImage(p, btnOpt.rect);
                 rule.configurePalette(&btnOpt.palette, QPalette::ButtonText, QPalette::Button);
                 bool customMenu = (btn->features & QStyleOptionButton::HasMenu
-                                   && hasStyleRule(w, PseudoElement_MenuIndicator));
+                                   && hasStyleRule(w, PseudoElement_PushButtonMenuIndicator));
                 if (customMenu)
                     btnOpt.features &= ~QStyleOptionButton::HasMenu;
                 if (rule.baseStyleCanDraw()) {
@@ -2720,8 +2729,8 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
             }
 
             if (btn->features & QStyleOptionButton::HasMenu) {
-                QRenderRule subRule = renderRule(w, opt, PseudoElement_MenuIndicator);
-                QRect ir = positionRect(w, rule, subRule, PseudoElement_MenuIndicator, opt->rect, opt->direction);
+                QRenderRule subRule = renderRule(w, opt, PseudoElement_PushButtonMenuIndicator);
+                QRect ir = positionRect(w, rule, subRule, PseudoElement_PushButtonMenuIndicator, opt->rect, opt->direction);
                 if (subRule.hasDrawable()) {
                     subRule.drawRule(p, ir);
                 } else {
@@ -2875,40 +2884,88 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
             QStyleOptionMenuItem mi(*m);
             rule.configurePalette(&mi.palette, QPalette::ButtonText, QPalette::Button);
 
-            int pseudo = PseudoElement_Item;
-            if (mi.menuItemType == QStyleOptionMenuItem::Separator)
-                pseudo = PseudoElement_MenuSeparator;
-
+            int pseudo = (mi.menuItemType == QStyleOptionMenuItem::Separator) ? PseudoElement_MenuSeparator : PseudoElement_Item;
             QRenderRule subRule = renderRule(w, opt, pseudo);
             mi.rect = subRule.contentsRect(opt->rect);
             rule.configurePalette(&mi.palette, QPalette::ButtonText, QPalette::Button);
+            rule.configurePalette(&mi.palette, QPalette::HighlightedText, QPalette::Highlight);
             subRule.configurePalette(&mi.palette, QPalette::ButtonText, QPalette::Button);
+            subRule.configurePalette(&mi.palette, QPalette::HighlightedText, QPalette::Highlight);
             QFont oldFont = p->font();
             if (subRule.hasFont)
                 p->setFont(subRule.font.resolve(p->font()));
 
-            if (subRule.hasDrawable()
-                || (mi.menuItemType == QStyleOptionMenuItem::SubMenu && hasStyleRule(w, PseudoElement_RightArrow))
-                || (mi.checkType != QStyleOptionMenuItem::NotCheckable && hasStyleRule(w, PseudoElement_MenuCheckMark))) {
+            if ((pseudo == PseudoElement_MenuSeparator) && subRule.hasDrawable()) {
                 subRule.drawRule(p, opt->rect);
-                if (mi.menuItemType != QStyleOptionMenuItem::Separator) {
-                    if (subRule.hasBackground()) {
-                        mi.palette.setBrush(QPalette::Highlight, Qt::NoBrush);
-                        mi.palette.setBrush(QPalette::Button, Qt::NoBrush);
+            } else if ((pseudo == PseudoElement_Item) && (subRule.hasBox() || subRule.hasBorder())) {
+                subRule.drawRule(p, opt->rect);
+                if (subRule.hasBackground()) {
+                    mi.palette.setBrush(QPalette::Highlight, Qt::NoBrush);
+                    mi.palette.setBrush(QPalette::Button, Qt::NoBrush);
+                } else {
+                    mi.palette.setBrush(QPalette::Highlight, mi.palette.brush(QPalette::Button));
+                }
+                mi.palette.setBrush(QPalette::HighlightedText, mi.palette.brush(QPalette::ButtonText));
+
+                bool checkable = mi.checkType != QStyleOptionMenuItem::NotCheckable;
+                bool checked = checkable ? mi.checked : false;
+
+                bool dis = !(opt->state & QStyle::State_Enabled),
+                     act = opt->state & QStyle::State_Selected;
+
+                if (!mi.icon.isNull()) {
+                    QIcon::Mode mode = dis ? QIcon::Disabled : QIcon::Normal;
+                    if (act && !dis)
+                        mode = QIcon::Active;
+                    QPixmap pixmap;
+                    if (checked)
+                        pixmap = mi.icon.pixmap(pixelMetric(PM_SmallIconSize), mode, QIcon::On);
+                    else
+                        pixmap = mi.icon.pixmap(pixelMetric(PM_SmallIconSize), mode);
+                    int pixw = pixmap.width();
+                    int pixh = pixmap.height();
+                    QRenderRule iconRule = renderRule(w, opt, PseudoElement_MenuIcon);
+                    if (!iconRule.hasGeometry()) {
+                        iconRule.geo = new QStyleSheetGeometryData(pixw, pixh, pixw, pixh, -1, -1);
                     } else {
-                        mi.palette.setBrush(QPalette::Highlight, mi.palette.brush(QPalette::Button));
+                        iconRule.geo->width = pixw;
+                        iconRule.geo->height = pixh;
                     }
-                    mi.palette.setBrush(QPalette::HighlightedText, mi.palette.brush(QPalette::ButtonText));
-                    bool customCheckMark = mi.checkType != QStyleOptionMenuItem::NotCheckable && hasStyleRule(w, PseudoElement_MenuCheckMark);
-                    if (customCheckMark)
-                        mi.checkType = QStyleOptionMenuItem::NotCheckable;
-                    QWindowsStyle::drawControl(ce, &mi, p, w);
-                    if (customCheckMark) {
-                        QRenderRule subRule2 = renderRule(w, opt, PseudoElement_MenuCheckMark);
-                        mi.checkType = m->checkType;
-                        mi.rect = positionRect(w, rule, subRule2, PseudoElement_MenuCheckMark, mi.rect, mi.direction);
-                        drawPrimitive(PE_IndicatorMenuCheckMark, &mi, p, w);
+                    QRect iconRect = positionRect(w, subRule, iconRule, PseudoElement_MenuIcon, opt->rect, opt->direction);
+                    iconRule.drawRule(p, iconRect);
+                    QRect pmr(0, 0, pixw, pixh);
+                    pmr.moveCenter(iconRect.center());
+                    p->drawPixmap(pmr.topLeft(), pixmap);
+                } else if (checkable) {
+                    QRenderRule subSubRule = renderRule(w, opt, PseudoElement_MenuCheckMark);
+                    QStyleOptionMenuItem newMi = mi;
+                    newMi.rect = positionRect(w, subRule, subSubRule, PseudoElement_MenuCheckMark, opt->rect, opt->direction);
+                    drawPrimitive(PE_IndicatorMenuCheckMark, &newMi, p, w);
+                }
+
+                QRect textRect = subRule.contentsRect(opt->rect);
+                textRect.setWidth(textRect.width() - mi.tabWidth);
+                QString s = mi.text;
+                p->setPen(mi.palette.buttonText().color());
+                if (!s.isEmpty()) {
+                    int text_flags = Qt::AlignLeft | Qt::AlignVCenter | Qt::TextShowMnemonic | Qt::TextDontClip | Qt::TextSingleLine;
+                    if (!styleHint(SH_UnderlineShortcut, &mi, w))
+                        text_flags |= Qt::TextHideMnemonic;
+                    int t = s.indexOf(QLatin1Char('\t'));
+                    if (t >= 0) {
+                        QRect vShortcutRect = visualRect(opt->direction, mi.rect,
+                            QRect(textRect.topRight(), QPoint(mi.rect.right(), textRect.bottom())));
+                        p->drawText(vShortcutRect, text_flags, s.mid(t + 1));
+                        s = s.left(t);
                     }
+                    p->drawText(textRect, text_flags, s.left(t));
+                }
+
+                if (mi.menuItemType == QStyleOptionMenuItem::SubMenu) {// draw sub menu arrow
+                    PrimitiveElement arrow = (opt->direction == Qt::RightToLeft) ? PE_IndicatorArrowLeft : PE_IndicatorArrowRight;
+                    QRenderRule subRule2 = renderRule(w, opt, PseudoElement_MenuRightArrow);
+                    mi.rect = positionRect(w, subRule, subRule2, PseudoElement_MenuRightArrow, opt->rect, mi.direction);
+                    drawPrimitive(arrow, &mi, p, w);
                 }
             } else {
                 baseStyle()->drawControl(ce, &mi, p, w);
@@ -3545,7 +3602,7 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const 
         if (qobject_cast<const QToolButton *>(w) && (rule.hasBox() || !rule.hasNativeBorder()))
             return 0;
 #endif
-        subRule = renderRule(w, opt, PseudoElement_MenuIndicator);
+        subRule = renderRule(w, opt, PseudoElement_PushButtonMenuIndicator);
         if (subRule.hasContentsSize())
             return subRule.size().width();
         break;
@@ -3828,14 +3885,21 @@ QSize QStyleSheetStyle::sizeFromContents(ContentsType ct, const QStyleOption *op
 
     case CT_MenuItem:
         if (const QStyleOptionMenuItem *mi = qstyleoption_cast<const QStyleOptionMenuItem *>(opt)) {
-            if (mi->menuItemType == QStyleOptionMenuItem::Separator) {
-                QRenderRule subRule = renderRule(w, opt, PseudoElement_MenuSeparator);
-                if (subRule.hasContentsSize())
-                    return subRule.size();
-                break;
+            PseudoElement pe = (mi->menuItemType == QStyleOptionMenuItem::Separator)
+                                    ? PseudoElement_MenuSeparator : PseudoElement_Item;
+            QRenderRule subRule = renderRule(w, opt, pe);
+            if ((pe == PseudoElement_MenuSeparator) && subRule.hasContentsSize()) {
+                return QSize(sz.width(), subRule.size().height());
+            } else if ((pe == PseudoElement_Item) && (subRule.hasBox() || subRule.hasBorder())) {
+                int width = csz.width(), height = qMax(csz.height(), mi->fontMetrics.height());
+                if (!mi->icon.isNull())
+                    height = qMax(height, mi->icon.pixmap(pixelMetric(PM_SmallIconSize), QIcon::Normal).height());
+                width += mi->tabWidth;
+               return subRule.boxSize(csz.expandedTo(subRule.minimumContentsSize()));
             }
         }
-        // intentionally falls through
+        break;
+
     case CT_Splitter:
     case CT_MenuBarItem: {
         PseudoElement pe = (ct == CT_Splitter) ? PseudoElement_SplitterHandle : PseudoElement_Item;
