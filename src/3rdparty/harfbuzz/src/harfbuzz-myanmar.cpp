@@ -462,6 +462,8 @@ HB_Bool HB_MyanmarShape(HB_ShaperItem *item)
         syllable.item.length = send-sstart;
         syllable.glyphs = item->glyphs + first_glyph;
         syllable.attributes = item->attributes + first_glyph;
+        syllable.advances = item->advances + first_glyph;
+        syllable.offsets = item->offsets + first_glyph;
         syllable.num_glyphs = item->num_glyphs - first_glyph;
         if (!myanmar_shape_syllable(openType, &syllable, invalid)) {
             MMDEBUG("syllable shaping failed, syllable requests %d glyphs", syllable.num_glyphs);

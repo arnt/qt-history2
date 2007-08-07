@@ -227,6 +227,8 @@ HB_Bool HB_HangulShape(HB_ShaperItem *item)
             syllable.item.length = send-sstart;
             syllable.glyphs = item->glyphs + first_glyph;
             syllable.attributes = item->attributes + first_glyph;
+            syllable.offsets = item->offsets + first_glyph;
+            syllable.advances = item->advances + first_glyph;
             syllable.num_glyphs = item->num_glyphs - first_glyph;
             if (!hangul_shape_syllable(&syllable, openType)) {
                 item->num_glyphs += syllable.num_glyphs;
