@@ -15,7 +15,7 @@ QFrame {
     border: native;
 }
 
-QLabel {
+QLabel, QToolBox {
     border: none;
     background: none;
     border-image: none;

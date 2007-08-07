@@ -335,7 +335,6 @@ static const char *knownStyleHints[] = {
     "spincontrol-disable-on-bounds",
     "tabbar-elide-mode",
     "tabbar-prefer-no-arrows",
-    "toolbox-selected-page-title-bold",
     "toolbutton-popup-delay"
 };
 
@@ -3162,7 +3161,13 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
             QStyleOptionToolBox boxCopy(*box);
             QRenderRule subRule = renderRule(w, opt, PseudoElement_ToolBoxTab);
             subRule.configurePalette(&boxCopy.palette, QPalette::ButtonText, QPalette::Button);
-            baseStyle()->drawControl(ce, &boxCopy, p , w);
+            QFont oldFont = p->font();
+            if (subRule.hasFont)
+                p->setFont(subRule.font);
+            boxCopy.rect = subRule.contentsRect(opt->rect);
+            QWindowsStyle::drawControl(ce, &boxCopy, p , w);
+            if (subRule.hasFont)
+                p->setFont(oldFont);
             return;
         }
         break;
@@ -3949,7 +3954,10 @@ int QStyleSheetStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWi
         case SH_SpinControls_DisableOnBounds: s = QLatin1String("spincontrol-disable-on-bounds"); break;
         case SH_MessageBox_TextInteractionFlags: s = QLatin1String("messagebox-text-interaction-flags"); break;
         case SH_ToolButton_PopupDelay: s = QLatin1String("toolbutton-popup-delay"); break;
-        case SH_ToolBox_SelectedPageTitleBold: s= QLatin1String("toolbox-selected-page-title-bold"); break;
+        case SH_ToolBox_SelectedPageTitleBold:
+            if (renderRule(w, opt, PseudoElement_ToolBoxTab).hasFont)
+                return 0;
+            break;
         case SH_GroupBox_TextLabelColor:
             if (rule.hasPalette() && rule.palette()->foreground.style() != Qt::NoBrush)
                 return rule.palette()->foreground.color().rgba();
