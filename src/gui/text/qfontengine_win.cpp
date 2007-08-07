@@ -159,7 +159,6 @@ void QFontEngineWin::getCMap()
         symb = false;
     }
     symbol = symb;
-    script_cache = 0;
     designToDevice = 1;
     _faceId.index = 0;
     if(cmap) {
@@ -271,7 +270,6 @@ QFontEngineWin::QFontEngineWin(const QString &name, HFONT _hfont, bool stockFont
 
     _name = name;
 
-    script_cache = 0;
     cmap = 0;
     hfont = _hfont;
     logfont = lf;
@@ -325,9 +323,6 @@ QFontEngineWin::~QFontEngineWin()
 
     // make sure we aren't by accident still selected
     SelectObject(shared_dc, systemFont());
-    // for Uniscribe
-    if (ScriptFreeCache && script_cache)
-        ScriptFreeCache(&script_cache);
 }
 
 HGDIOBJ QFontEngineWin::selectDesignFont(QFixed *overhang) const

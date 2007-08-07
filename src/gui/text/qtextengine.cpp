@@ -112,14 +112,14 @@ struct QBidiControl {
     unsigned char level : 6;
 };
 
-static void qAppendItems(QTextEngine *engine, int &start, int &stop, QBidiControl &control, QChar::Direction dir)
+static void appendItems(QTextEngine *engine, int &start, int &stop, QBidiControl &control, QChar::Direction dir)
 {
     QScriptItemArray &items = engine->layoutData->items;
     const QChar *text = engine->layoutData->string.unicode();
 
     if (start > stop) {
         // #### the algorithm is currently not really safe against this. Still needs fixing.
-//         qWarning("QTextEngine: BiDi internal error in qAppendItems()");
+//         qWarning("QTextEngine: BiDi internal error in appendItems()");
         return;
     }
 
@@ -180,9 +180,6 @@ static void qAppendItems(QTextEngine *engine, int &start, int &stop, QBidiContro
     ++stop;
     start = stop;
 }
-
-typedef void (* fAppendItems)(QTextEngine *, int &start, int &stop, QBidiControl &control, QChar::Direction dir);
-static fAppendItems appendItems = qAppendItems;
 
 // creates the next QScript items.
 static bool bidiItemize(QTextEngine *engine, bool rightToLeft)
@@ -671,8 +668,6 @@ void QTextEngine::bidiReorder(int numItems, const quint8 *levels, int *visualOrd
 
 #include "qfontengine_ft_p.h"
 
-#elif defined(Q_WS_WIN)
-# include "qtextengine_win.cpp"
 #elif defined(Q_WS_MAC)
 # include "qtextengine_mac.cpp"
 #endif
@@ -710,11 +705,6 @@ void QTextEngine::shapeText(int item) const
     if (si.num_glyphs)
         return;
 
-#if defined(Q_WS_WIN)
-    if (shapeTextNative(item))
-        return;
-#endif
-
     shapeTextWithHarfbuzz(item);
 }
 
@@ -733,11 +723,6 @@ void QTextEngine::shapeTextWithHarfbuzz(int item) const
     entire_shaper_item.string = reinterpret_cast<const HB_UChar16 *>(layoutData->string.constData());
     entire_shaper_item.stringLength = layoutData->string.length();
     entire_shaper_item.item.script = (HB_Script)si.analysis.script;
-#ifdef Q_WS_WIN
-    if(hasUsp10) {
-        entire_shaper_item.item.script = (HB_Script)QUnicodeTables::script(layoutData->string.at(si.position));
-    }
-#endif
     entire_shaper_item.item.pos = si.position;
     entire_shaper_item.item.length = length(item);
     entire_shaper_item.item.bidiLevel = si.analysis.bidiLevel;
@@ -895,10 +880,6 @@ void QTextEngine::shapeTextWithHarfbuzz(int item) const
 
 static void init(QTextEngine *e)
 {
-#ifdef Q_WS_WIN
-    if(!resolvedUsp10)
-        resolveUsp10();
-#endif
     e->ignoreBidi = false;
     e->cacheGlyphs = false;
     e->forceJustification = false;
@@ -948,11 +929,6 @@ const HB_CharAttributes *QTextEngine::attributes() const
         hbScriptItems[i].length = length(i);
         hbScriptItems[i].bidiLevel = si.analysis.bidiLevel;
         hbScriptItems[i].script = (HB_Script)si.analysis.script;
-#ifdef Q_WS_WIN
-        if(hasUsp10) {
-            hbScriptItems[i].script = (HB_Script)QUnicodeTables::script(layoutData->string.at(si.position));
-        }
-#endif
     }
 
     qGetCharAttributes(reinterpret_cast<const HB_UChar16 *>(layoutData->string.constData()),
@@ -1249,12 +1225,6 @@ QFontEngine *QTextEngine::fontEngine(const QScriptItem &si, QFixed *ascent, QFix
     QFontEngine *engine;
     QFontEngine *scaledEngine = 0;
     int script = si.analysis.script;
-#if defined(Q_WS_WIN)
-    if (hasUsp10) {
-        const SCRIPT_PROPERTIES *script_prop = script_properties[si.analysis.script];
-        script = scriptForWinLanguage(script_prop->langid);
-    }
-#endif
 
     if (!hasFormats()) {
         engine = fnt.d->engineForScript(script);

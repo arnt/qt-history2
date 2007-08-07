@@ -84,7 +84,6 @@ public:
     int                lw;
     const unsigned char *cmap;
     QByteArray cmapTable;
-    void *script_cache;
     mutable qreal lbearing;
     mutable qreal rbearing;
     QFixed designToDevice;
