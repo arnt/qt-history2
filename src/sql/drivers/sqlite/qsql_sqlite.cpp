@@ -584,7 +584,7 @@ static QSqlIndex qGetTableInfo(QSqlQuery &q, const QString &tableName, bool only
             continue;
         QString typeName = q.value(2).toString().toLower();
         QSqlField fld(q.value(1).toString(), qGetColumnType(typeName));
-        if (isPk && typeName == QLatin1String("integer"))
+        if (isPk && (typeName == QLatin1String("integer") || typeName == QLatin1String("int")))
             // integer primary key fields are auto-generated in sqlite
             fld.setAutoValue(true);
         fld.setRequired(q.value(3).toInt() != 0);
