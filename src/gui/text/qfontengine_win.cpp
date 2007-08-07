@@ -315,15 +315,18 @@ QFontEngineWin::QFontEngineWin(const QString &name, HFONT _hfont, bool stockFont
            _name == QLatin1String("Webdings") || _name == QLatin1String("Wingdings")))
             useTextOutA = true;
 #endif
-    memset(widthCache, 0, sizeof(widthCache));
+    widthCache = 0;
+    widthCacheSize = 0;
     designAdvances = 0;
     designAdvancesSize = 0;
 }
 
 QFontEngineWin::~QFontEngineWin()
 {
-    if(designAdvances)
+    if (designAdvances)
         free(designAdvances);
+    if (widthCache)
+        free(widthCache);
 }
 
 HGDIOBJ QFontEngineWin::selectDesignFont(QFixed *overhang) const
@@ -405,8 +408,16 @@ bool QFontEngineWin::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
             bool surrogate = (str[i].unicode() >= 0xd800 && str[i].unicode() < 0xdc00 && i < len-1
                               && str[i+1].unicode() >= 0xdc00 && str[i+1].unicode() < 0xe000);
             unsigned int glyph = glyphs[glyph_pos].glyph;
-            glyphs[glyph_pos].advance.x = (glyph < widthCacheSize) ? widthCache[glyph] : 0;
+
             glyphs[glyph_pos].advance.y = 0;
+
+            if (glyph >= widthCacheSize) {
+                int newSize = (glyph + 256) >> 8 << 8;
+                widthCache = (unsigned char *)realloc(widthCache, newSize*sizeof(QFixed));
+                memset(widthCache + widthCacheSize, 0, newSize - widthCacheSize);
+                widthCacheSize = newSize;
+            }
+            glyphs[glyph_pos].advance.x = widthCache[glyph];
             // font-width cache failed
             if (glyphs[glyph_pos].advance.x == 0) {
                 SIZE size = {0, 0};
@@ -416,9 +427,10 @@ bool QFontEngineWin::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
                 size.cx -= overhang;
                 glyphs[glyph_pos].advance.x = size.cx;
                 // if glyph's within cache range, store it for later
-                if (glyph < widthCacheSize && size.cx > 0 && size.cx < 0x100)
+                if (size.cx > 0 && size.cx < 0x100)
                     widthCache[glyph] = size.cx;
             }
+
             if (surrogate)
                 ++i;
             ++glyph_pos;
@@ -941,9 +953,6 @@ bool QFontEngineWin::getSfntTableData(uint tag, uchar *buffer, uint *length) con
     DWORD t = qbswap<quint32>(tag);
     *length = GetFontData(shared_dc, t, 0, buffer, *length);
     return *length != GDI_ERROR;
-    if (*length == GDI_ERROR)
-        return false;
-
 }
 
 #if !defined(CLEARTYPE_QUALITY)

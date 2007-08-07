@@ -65,8 +65,8 @@ public:
 
     virtual QImage alphaMapForGlyph(glyph_t);
 
-    enum { widthCacheSize = 0x800, cmapCacheSize = 0x500 };
-    mutable unsigned char widthCache[widthCacheSize];
+    mutable unsigned char *widthCache;
+    mutable int widthCacheSize;
     mutable QFixed *designAdvances;
     mutable int designAdvancesSize;
 };
