@@ -1183,9 +1183,9 @@ void QTextEngine::justify(const QScriptLine &line)
         QGlyphLayout *g = glyphs(&si);
 
         for (int i = gs; i < ge; ++i) {
-            g[i].justificationType = QGlyphLayout::JustifyNone;
-            g[i].nKashidas = 0;
-            g[i].space_18d6 = 0;
+            g[i].justification.type = QGlyphJustification::JustifyNone;
+            g[i].justification.nKashidas = 0;
+            g[i].justification.space_18d6 = 0;
 
             justificationPoints.resize(nPoints+3);
             int justification = g[i].attributes.justification;
@@ -1247,9 +1247,9 @@ void QTextEngine::justify(const QScriptLine &line)
             for (int type = maxJustify; need >= minKashida && type >= QGlyphLayout::Arabic_Normal; --type) {
                 for (int i = 0; need >= minKashida && i < nPoints; ++i) {
                     if (justificationPoints[i].type == type && justificationPoints[i].kashidaWidth <= need) {
-                        justificationPoints[i].glyph->nKashidas++;
+                        justificationPoints[i].glyph->justification.nKashidas++;
                         // ############
-                        justificationPoints[i].glyph->space_18d6 += justificationPoints[i].kashidaWidth.value();
+                        justificationPoints[i].glyph->justification.space_18d6 += justificationPoints[i].kashidaWidth.value();
                         need -= justificationPoints[i].kashidaWidth;
 //                         qDebug("adding kashida type %d with width %x, neednow %x", type, justificationPoints[i].kashidaWidth, need.value());
                     }
@@ -1278,7 +1278,7 @@ void QTextEngine::justify(const QScriptLine &line)
             if (justificationPoints[i].type == type) {
                 QFixed add = need/n;
 //                  qDebug("adding %x to glyph %x", add.value(), justificationPoints[i].glyph->glyph);
-                justificationPoints[i].glyph->space_18d6 = add.value();
+                justificationPoints[i].glyph->justification.space_18d6 = add.value();
                 need -= add;
                 --n;
             }

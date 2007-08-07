@@ -262,8 +262,6 @@ struct glyph_metrics_t
 };
 Q_DECLARE_TYPEINFO(glyph_metrics_t, Q_PRIMITIVE_TYPE);
 
-typedef unsigned int glyph_t;
-
 #if defined(Q_WS_X11) || defined (Q_WS_QWS) || defined (Q_WS_MAC)
 
 
@@ -319,10 +317,28 @@ inline bool operator == (const QScriptAnalysis &sa1, const QScriptAnalysis &sa2)
 
 #endif
 
+struct QGlyphJustification
+{
+    inline QGlyphJustification()
+        : type(0), nKashidas(0), space_18d6(0)
+    {}
+
+    enum JustificationType {
+        JustifyNone,
+        JustifySpace,
+        JustifyKashida
+    };
+
+    uint type :2;
+    uint nKashidas : 6; // more do not make sense...
+    uint space_18d6 : 24;
+};
+Q_DECLARE_TYPEINFO(QGlyphJustification, Q_PRIMITIVE_TYPE);
+
 struct QGlyphLayout
 {
     inline QGlyphLayout()
-        : glyph(0), justificationType(0), nKashidas(0), space_18d6(0)
+        : glyph(0)
         {}
 
     // highest value means highest priority for justification. Justification is done by first inserting kashidas
@@ -343,27 +359,11 @@ struct QGlyphLayout
         Arabic_Kashida = 13   // Kashida(U+640) in middle of word
     };
 
-    glyph_t glyph;
-    struct Attributes {
-        unsigned short justification   :4;  // Justification class
-        unsigned short clusterStart    :1;  // First glyph of representation of cluster
-        unsigned short mark            :1;  // needs to be positioned around base char
-        unsigned short zeroWidth       :1;  // ZWJ, ZWNJ etc, with no width
-        unsigned short dontPrint       :1;
-        unsigned short combiningClass  :8;
-    };
-    Attributes attributes;
+    HB_Glyph glyph;
+    HB_GlyphAttributes attributes;
     QFixedPoint advance;
     QFixedPoint offset;
-
-    enum JustificationType {
-        JustifyNone,
-        JustifySpace,
-        JustifyKashida
-    };
-    uint justificationType :2;
-    uint nKashidas : 6; // more do not make sense...
-    uint space_18d6 : 24;
+    QGlyphJustification justification;
 };
 Q_DECLARE_TYPEINFO(QGlyphLayout, Q_PRIMITIVE_TYPE);
 

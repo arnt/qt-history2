@@ -4885,7 +4885,7 @@ void QPainter::drawTextItem(const QPointF &p, const QTextItem &_ti)
             // set the high byte to zero and calc the width
             for (i = start; i < end; ++i) {
                 glyphs[i].glyph = glyphs[i].glyph & 0xffffff;
-                ti2.width += (ti.glyphs[i].advance.x + QFixed::fromFixed(ti.glyphs[i].space_18d6)) * !ti.glyphs[i].attributes.dontPrint;
+                ti2.width += (ti.glyphs[i].advance.x + QFixed::fromFixed(ti.glyphs[i].justification.space_18d6)) * !ti.glyphs[i].attributes.dontPrint;
             }
 
             d->engine->drawTextItem(QPointF(x, y), ti2);
@@ -4925,7 +4925,7 @@ void QPainter::drawTextItem(const QPointF &p, const QTextItem &_ti)
         // set the high byte to zero and calc the width
         for (i = start; i < end; ++i) {
             glyphs[i].glyph = glyphs[i].glyph & 0xffffff;
-            ti2.width += (ti.glyphs[i].advance.x + QFixed::fromFixed(ti.glyphs[i].space_18d6)) * !ti.glyphs[i].attributes.dontPrint;
+            ti2.width += (ti.glyphs[i].advance.x + QFixed::fromFixed(ti.glyphs[i].justification.space_18d6)) * !ti.glyphs[i].attributes.dontPrint;
         }
 
         d->engine->drawTextItem(QPointF(x,y), ti2);

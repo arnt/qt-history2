@@ -958,7 +958,7 @@ QScriptItem &QTextLineItemIterator::next()
 
     itemWidth = 0;
     for (int g = glyphsStart; g < glyphsEnd; ++g)
-        itemWidth += (glyphs[g].advance.x + QFixed::fromFixed(glyphs[g].space_18d6)) * !glyphs[g].attributes.dontPrint;
+        itemWidth += (glyphs[g].advance.x + QFixed::fromFixed(glyphs[g].justification.space_18d6)) * !glyphs[g].attributes.dontPrint;
 
     return *si;
 }
@@ -992,14 +992,14 @@ bool QTextLineItemIterator::getSelectionBounds(QFixed *selectionX, QFixed *selec
         QFixed swidth;
         if (si->analysis.bidiLevel %2) {
             for (int g = glyphsEnd - 1; g >= end_glyph; --g)
-                soff += (glyphs[g].advance.x + QFixed::fromFixed(glyphs[g].space_18d6)) * !glyphs[g].attributes.dontPrint;
+                soff += (glyphs[g].advance.x + QFixed::fromFixed(glyphs[g].justification.space_18d6)) * !glyphs[g].attributes.dontPrint;
             for (int g = end_glyph - 1; g >= start_glyph; --g)
-                swidth += (glyphs[g].advance.x + QFixed::fromFixed(glyphs[g].space_18d6)) * !glyphs[g].attributes.dontPrint;
+                swidth += (glyphs[g].advance.x + QFixed::fromFixed(glyphs[g].justification.space_18d6)) * !glyphs[g].attributes.dontPrint;
         } else {
             for (int g = glyphsStart; g < start_glyph; ++g)
-                soff += (glyphs[g].advance.x + QFixed::fromFixed(glyphs[g].space_18d6)) * !glyphs[g].attributes.dontPrint;
+                soff += (glyphs[g].advance.x + QFixed::fromFixed(glyphs[g].justification.space_18d6)) * !glyphs[g].attributes.dontPrint;
             for (int g = start_glyph; g < end_glyph; ++g)
-                swidth += (glyphs[g].advance.x + QFixed::fromFixed(glyphs[g].space_18d6)) * !glyphs[g].attributes.dontPrint;
+                swidth += (glyphs[g].advance.x + QFixed::fromFixed(glyphs[g].justification.space_18d6)) * !glyphs[g].attributes.dontPrint;
         }
 
         *selectionX = x + soff;
@@ -1747,7 +1747,7 @@ static void drawMenuText(QPainter *p, QFixed x, QFixed y, const QScriptItem &si,
         gf.chars = eng->layoutData->string.unicode() + start;
         QFixed w = 0;
         while (gs < gtmp) {
-            w += (glyphs[gs].advance.x + QFixed::fromFixed(glyphs[gs].space_18d6)) * !glyphs[gs].attributes.dontPrint;
+            w += (glyphs[gs].advance.x + QFixed::fromFixed(glyphs[gs].justification.space_18d6)) * !glyphs[gs].attributes.dontPrint;
             ++gs;
         }
         start = stmp;
@@ -1769,7 +1769,7 @@ static void drawMenuText(QPainter *p, QFixed x, QFixed y, const QScriptItem &si,
             gf.logClusters = logClusters + start - si.position;
             w = 0;
             while (gs < gtmp) {
-                w += (glyphs[gs].advance.x + QFixed::fromFixed(glyphs[gs].space_18d6)) * !glyphs[gs].attributes.dontPrint;
+                w += (glyphs[gs].advance.x + QFixed::fromFixed(glyphs[gs].justification.space_18d6)) * !glyphs[gs].attributes.dontPrint;
                 ++gs;
             }
             ++start;
@@ -2075,7 +2075,7 @@ qreal QTextLine::cursorToX(int *cursorPos, Edge edge) const
         QGlyphLayout *glyphs = eng->glyphs(&si);
 
         while (gs <= ge) {
-            x += (glyphs[gs].advance.x + QFixed::fromFixed(glyphs[gs].space_18d6)) * !glyphs[gs].attributes.dontPrint;
+            x += (glyphs[gs].advance.x + QFixed::fromFixed(glyphs[gs].justification.space_18d6)) * !glyphs[gs].attributes.dontPrint;
             ++gs;
         }
     }
@@ -2093,12 +2093,12 @@ qreal QTextLine::cursorToX(int *cursorPos, Edge edge) const
             int end = qMin(lineEnd, si->position + l) - si->position;
             int glyph_end = end == l ? si->num_glyphs : logClusters[end];
             for (int i = glyph_end - 1; i >= glyph_pos; i--)
-                x += (glyphs[i].advance.x + QFixed::fromFixed(glyphs[i].space_18d6)) * !glyphs[i].attributes.dontPrint;
+                x += (glyphs[i].advance.x + QFixed::fromFixed(glyphs[i].justification.space_18d6)) * !glyphs[i].attributes.dontPrint;
         } else {
             int start = qMax(line.from - si->position, 0);
             int glyph_start = logClusters[start];
             for (int i = glyph_start; i < glyph_pos; i++)
-                x += (glyphs[i].advance.x + QFixed::fromFixed(glyphs[i].space_18d6)) *!glyphs[i].attributes.dontPrint;
+                x += (glyphs[i].advance.x + QFixed::fromFixed(glyphs[i].justification.space_18d6)) *!glyphs[i].attributes.dontPrint;
         }
     }
 
@@ -2183,7 +2183,7 @@ int QTextLine::xToCursor(qreal _x, CursorPosition cpos) const
             } else {
                 int g = gs;
                 while (g <= ge) {
-                    item_width += (glyphs[g].advance.x + QFixed::fromFixed(glyphs[g].space_18d6)) * !glyphs[g].attributes.dontPrint;
+                    item_width += (glyphs[g].advance.x + QFixed::fromFixed(glyphs[g].justification.space_18d6)) * !glyphs[g].attributes.dontPrint;
                     ++g;
                 }
             }
@@ -2217,7 +2217,7 @@ int QTextLine::xToCursor(qreal _x, CursorPosition cpos) const
                             glyph_pos = gs;
                             break;
                         }
-                        pos -= (glyphs[gs].advance.x + QFixed::fromFixed(glyphs[gs].space_18d6)) * !glyphs[gs].attributes.dontPrint;
+                        pos -= (glyphs[gs].advance.x + QFixed::fromFixed(glyphs[gs].justification.space_18d6)) * !glyphs[gs].attributes.dontPrint;
                         ++gs;
                     }
                 } else {
@@ -2228,7 +2228,7 @@ int QTextLine::xToCursor(qreal _x, CursorPosition cpos) const
                                 break;
                             glyph_pos = gs;
                         }
-                        pos += (glyphs[gs].advance.x + QFixed::fromFixed(glyphs[gs].space_18d6)) * !glyphs[gs].attributes.dontPrint;
+                        pos += (glyphs[gs].advance.x + QFixed::fromFixed(glyphs[gs].justification.space_18d6)) * !glyphs[gs].attributes.dontPrint;
                         ++gs;
                     }
                 }
@@ -2241,7 +2241,7 @@ int QTextLine::xToCursor(qreal _x, CursorPosition cpos) const
                             glyph_pos = gs;
                             dist = qAbs(x-pos);
                         }
-                        pos -= (glyphs[gs].advance.x + QFixed::fromFixed(glyphs[gs].space_18d6)) * !glyphs[gs].attributes.dontPrint;
+                        pos -= (glyphs[gs].advance.x + QFixed::fromFixed(glyphs[gs].justification.space_18d6)) * !glyphs[gs].attributes.dontPrint;
                         ++gs;
                     }
                 } else {
@@ -2250,7 +2250,7 @@ int QTextLine::xToCursor(qreal _x, CursorPosition cpos) const
                             glyph_pos = gs;
                             dist = qAbs(x-pos);
                         }
-                        pos += (glyphs[gs].advance.x + QFixed::fromFixed(glyphs[gs].space_18d6)) * !glyphs[gs].attributes.dontPrint;
+                        pos += (glyphs[gs].advance.x + QFixed::fromFixed(glyphs[gs].justification.space_18d6)) * !glyphs[gs].attributes.dontPrint;
                         ++gs;
                     }
                 }
