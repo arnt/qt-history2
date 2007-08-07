@@ -184,6 +184,9 @@ void QTextEngine::shapeText(int item) const
                 g[i].attributes.combiningClass = shaper_item.attributes[i].combiningClass;
             }
 
+            if (kerningEnabled && !shaper_item.kerning_applied)
+                font->doKerning(shaper_item.num_glyphs, g, option.useDesignMetrics() ? QFlag(QTextEngine::DesignMetrics) : QFlag(0));
+
             glyph_pos += shaper_item.num_glyphs;
             if (ftEngine)
                 ftEngine->unlockFace();
@@ -193,17 +196,10 @@ void QTextEngine::shapeText(int item) const
 
 //     qDebug("    -> item: script=%d num_glyphs=%d", shaper_item.script, shaper_item.num_glyphs);
     si.num_glyphs = glyph_pos;
-//    ftEngine->unlockFace();
 
     layoutData->used += si.num_glyphs;
 
     QGlyphLayout *g = glyphs(&si);
-    // ### handle per engine
-#if 0
-    if (kerningEnabled && !entire_shaper_item.kerning_applied) {
-        font->doKerning(si.num_glyphs, g, option.useDesignMetrics() ? QFlag(QTextEngine::DesignMetrics) : QFlag(0));
-    }
-#endif
 
     si.width = 0;
     QGlyphLayout *end = g + si.num_glyphs;
