@@ -4958,7 +4958,7 @@ static void draw_text_item_win(const QPointF &_pos, const QTextItemInt &ti, HDC 
     } else {
         bool fast = !has_kerning;
         for(int i = 0; i < ti.num_glyphs; i++) {
-            if (glyphs[i].offset.x != 0 || glyphs[i].offset.y != 0 || glyphs[i].space_18d6 != 0
+            if (glyphs[i].offset.x != 0 || glyphs[i].offset.y != 0 || glyphs[i].justification.space_18d6 != 0
                 || glyphs[i].attributes.dontPrint) {
                 fast = false;
                 break;

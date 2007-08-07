@@ -50,7 +50,7 @@ typedef struct tag_SCRIPT_ITEM {
     QScriptAnalysis  a;
 } SCRIPT_ITEM;
 
-typedef QGlyphLayout::Attributes SCRIPT_VISATTR;
+typedef HB_GlyphAttributes SCRIPT_VISATTR;
 
 typedef struct tagGOFFSET {
   LONG  du;
@@ -95,7 +95,6 @@ typedef HRESULT (WINAPI *fScriptPlace)(HDC, SCRIPT_CACHE *, const WORD *, int, c
                                         GOFFSET *, ABC *);
 typedef HRESULT (WINAPI *fScriptTextOut)(const HDC, SCRIPT_CACHE *, int, int, UINT, const RECT *, const QScriptAnalysis *,
                                          const WCHAR *, int, const WORD *, int, const int *, const int *, const GOFFSET *);
-typedef HRESULT (WINAPI *fScriptBreak)(const WCHAR *, int, const QScriptAnalysis *, QCharAttributes *);
 //typedef HRESULT (WINAPI *fScriptGetFontProperties)(HDC, SCRIPT_CACHE *, SCRIPT_FONTPROPERTIES *);
 typedef HRESULT (WINAPI *fScriptGetProperties)(const SCRIPT_PROPERTIES ***, int *);
 
@@ -104,7 +103,6 @@ static fScriptItemize ScriptItemize = 0;
 static fScriptShape ScriptShape = 0;
 static fScriptPlace ScriptPlace = 0;
 fScriptTextOut ScriptTextOut = 0;
-static fScriptBreak ScriptBreak = 0;
 //static fScriptGetFontProperties ScriptGetFontProperties = 0;
 static fScriptGetProperties ScriptGetProperties = 0;
 
@@ -145,7 +143,6 @@ static void resolveUsp10()
         ScriptShape = (fScriptShape) lib.resolve("ScriptShape");
         ScriptPlace = (fScriptPlace) lib.resolve("ScriptPlace");
         ScriptTextOut = (fScriptTextOut) lib.resolve("ScriptTextOut");
-        ScriptBreak = (fScriptBreak) lib.resolve("ScriptBreak");
         ScriptGetProperties = (fScriptGetProperties) lib.resolve("ScriptGetProperties");
 
         if (!ScriptFreeCache)
@@ -613,27 +610,8 @@ fail:
     {
         // non uniscribe code path, also used if uniscribe fails for some reason
         Q_ASSERT(script < QUnicodeTables::ScriptCount);
-
-        QShaperItem shaper_item;
-        shaper_item.script = script;
-        shaper_item.string = &layoutData->string;
-        shaper_item.from = si.position;
-        shaper_item.length = length(item);
-        shaper_item.font = fontEngine;
-        shaper_item.num_glyphs = qMax(layoutData->num_glyphs - layoutData->used, shaper_item.length);
-        shaper_item.flags = si.analysis.bidiLevel % 2 ? RightToLeft : 0;
-        if (option.useDesignMetrics())
-            shaper_item.flags |= DesignMetrics;
-
-        while (1) {
-            ensureSpace(shaper_item.num_glyphs);
-            shaper_item.num_glyphs = layoutData->num_glyphs - layoutData->used;
-            shaper_item.glyphs = glyphs(&si);
-            shaper_item.log_clusters = logClusters(&si);
-            if (qt_scriptEngines[shaper_item.script].shape(&shaper_item))
-                break;
-        }
-        si.num_glyphs = shaper_item.num_glyphs;
+	shapeTextWithHarfbuzz(item);
+	return;
     }
 end:
     si.analysis.script = script;

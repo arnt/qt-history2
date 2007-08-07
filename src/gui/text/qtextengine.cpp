@@ -859,7 +859,9 @@ void QTextEngine::shapeTextWithHarfbuzz(int item) const
         QVarLengthArray<HB_FixedPoint> hb_offsets(shaper_item.num_glyphs);
 
         QFontEngine *actualFontEngine = font;
+#if defined(Q_WS_X11) || defined(Q_WS_QWS)
         QFontEngineFT *ftEngine = 0;
+#endif
         uint engineIdx = 0;
         if (font->type() == QFontEngine::Multi) {
             engineIdx = uint(hb_initial_glyphs[itemBoundaries[k + 1]] >> 24);
@@ -867,9 +869,11 @@ void QTextEngine::shapeTextWithHarfbuzz(int item) const
             actualFontEngine = static_cast<QFontEngineMulti *>(font)->engine(engineIdx);
         }
 
+#if defined(Q_WS_X11) || defined(Q_WS_QWS)
         if (actualFontEngine->type() == QFontEngine::Freetype) {
             ftEngine = static_cast<QFontEngineFT *>(actualFontEngine);
         }
+#endif
 
         HB_FontClass fontClass = hb_fontClass;
         HB_FontRec hbFont;
@@ -879,6 +883,7 @@ void QTextEngine::shapeTextWithHarfbuzz(int item) const
 
         shaper_item.font = &hbFont;
 
+#if defined(Q_WS_X11) || defined(Q_WS_QWS)
         if (ftEngine) {
             Q_ASSERT(ftEngine);
             ftEngine->lockFace();
@@ -886,7 +891,9 @@ void QTextEngine::shapeTextWithHarfbuzz(int item) const
             ftEngine->setupHarfbuzzFont(&hbFont, &fontClass);
 
             shaper_item.face = ftEngine->harfbuzzFace();
-        } else {
+        } else
+#endif
+       	{
             shaper_item.face = qHBNewFace(0, 0);
         }
 
@@ -946,9 +953,11 @@ void QTextEngine::shapeTextWithHarfbuzz(int item) const
                 font->doKerning(shaper_item.num_glyphs, g, option.useDesignMetrics() ? QFlag(QTextEngine::DesignMetrics) : QFlag(0));
 
             glyph_pos += shaper_item.num_glyphs;
+#if defined(Q_WS_X11) || defined(Q_WS_QWS)
             if (ftEngine)
                 ftEngine->unlockFace();
             else
+#endif
                 qHBFreeFace(shaper_item.face);
             break;
         }
@@ -1028,7 +1037,7 @@ const HB_CharAttributes *QTextEngine::attributes() const
         hbScriptItems[i].script = (HB_Script)si.analysis.script;
 #ifdef Q_WS_WIN
         if(hasUsp10) {
-            hbScriptItems[i] = (HB_Script)QUnicodeTables::script(layoutData->string.at(si.position));
+            hbScriptItems[i].script = (HB_Script)QUnicodeTables::script(layoutData->string.at(si.position));
         }
 #endif
     }
