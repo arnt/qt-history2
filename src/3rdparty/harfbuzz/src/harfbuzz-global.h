@@ -11,24 +11,24 @@
 #ifndef HARFBUZZ_GLOBAL_H
 #define HARFBUZZ_GLOBAL_H
 
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
-#include <stdint.h>
-
 #ifdef __cplusplus
 #define HB_BEGIN_HEADER  extern "C" {
-#else
-#define HB_BEGIN_HEADER  /* nothing */
-#endif
-#ifdef __cplusplus
 #define HB_END_HEADER  }
 #else
+#define HB_BEGIN_HEADER  /* nothing */
 #define HB_END_HEADER  /* nothing */
 #endif
 
-
 HB_BEGIN_HEADER
+
+typedef uint8_t HB_Bool;
 
 typedef uint8_t HB_Byte;
 typedef uint16_t HB_UShort;
@@ -40,19 +40,20 @@ typedef int32_t HB_Int;
 typedef uint16_t HB_UChar16;
 typedef uint32_t HB_UChar32;
 typedef uint32_t HB_Glyph;
-typedef uint8_t HB_Bool;
 typedef uint32_t HB_Fixed; /* 26.6 */
 
 typedef uint32_t HB_16Dot16; /* 16.16 */
 
 typedef void * HB_Pointer;
+typedef uint32_t HB_Tag;
 
 typedef enum {
     HB_Err_Ok = 0,
     HB_Err_Invalid_Stream_Operation,
     HB_Err_Invalid_Argument,
     HB_Err_Out_Of_Memory,
-    HB_Err_Invalid_Face_Handle
+    HB_Err_Invalid_Face_Handle, 
+    HB_Err_Table_Missing
 } HB_Error;
 
 typedef struct {
@@ -69,6 +70,11 @@ typedef struct {
 #define HB_SurrogateToUcs4(high, low) \
     (((HB_UChar32)(high))<<10) + (low) - 0x35fdc00;
 
+#define HB_MAKE_TAG( _x1, _x2, _x3, _x4 ) \
+          ( ( (HB_UInt)_x1 << 24 ) |     \
+            ( (HB_UInt)_x2 << 16 ) |     \
+            ( (HB_UInt)_x3 <<  8 ) |     \
+              (HB_UInt)_x4         )
 
 /* memory macros used by the OpenType parser */
 #define  ALLOC(_ptr,_size)   \

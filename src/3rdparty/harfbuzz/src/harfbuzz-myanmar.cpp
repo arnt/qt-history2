@@ -205,15 +205,15 @@ static inline int myanmar_nextSyllableBoundary(const HB_UChar16 *s, int start, i
 // ###### might have to change order of above and below forms and substitutions,
 // but according to Unicode below comes before above
 static const HB_OpenTypeFeature myanmar_features[] = {
-    { FT_MAKE_TAG('p', 'r', 'e', 'f'), PreFormProperty },
-    { FT_MAKE_TAG('b', 'l', 'w', 'f'), BelowFormProperty },
-    { FT_MAKE_TAG('a', 'b', 'v', 'f'), AboveFormProperty },
-    { FT_MAKE_TAG('p', 's', 't', 'f'), PostFormProperty },
-    { FT_MAKE_TAG('p', 'r', 'e', 's'), PreSubstProperty },
-    { FT_MAKE_TAG('b', 'l', 'w', 's'), BelowSubstProperty },
-    { FT_MAKE_TAG('a', 'b', 'v', 's'), AboveSubstProperty },
-    { FT_MAKE_TAG('p', 's', 't', 's'), PostSubstProperty },
-    { FT_MAKE_TAG('r', 'l', 'i', 'g'), CligProperty }, // Myanmar1 uses this instead of the other features
+    { HB_MAKE_TAG('p', 'r', 'e', 'f'), PreFormProperty },
+    { HB_MAKE_TAG('b', 'l', 'w', 'f'), BelowFormProperty },
+    { HB_MAKE_TAG('a', 'b', 'v', 'f'), AboveFormProperty },
+    { HB_MAKE_TAG('p', 's', 't', 'f'), PostFormProperty },
+    { HB_MAKE_TAG('p', 'r', 'e', 's'), PreSubstProperty },
+    { HB_MAKE_TAG('b', 'l', 'w', 's'), BelowSubstProperty },
+    { HB_MAKE_TAG('a', 'b', 'v', 's'), AboveSubstProperty },
+    { HB_MAKE_TAG('p', 's', 't', 's'), PostSubstProperty },
+    { HB_MAKE_TAG('r', 'l', 'i', 'g'), CligProperty }, // Myanmar1 uses this instead of the other features
     { 0, 0 }
 };
 #endif

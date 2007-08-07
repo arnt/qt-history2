@@ -16,7 +16,7 @@
 // ligatures one does not want in modern Hebrew (as lam-alef ligatures).
 #ifndef NO_OPENTYPE
 static const HB_OpenTypeFeature hebrew_features[] = {
-    { FT_MAKE_TAG('c', 'c', 'm', 'p'), CcmpProperty },
+    { HB_MAKE_TAG('c', 'c', 'm', 'p'), CcmpProperty },
     {0, 0}
 };
 #endif

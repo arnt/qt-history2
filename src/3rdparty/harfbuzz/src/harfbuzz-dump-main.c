@@ -123,7 +123,7 @@ static void
 add_features (HB_GSUB gsub)
 {
   HB_Error error;
-  HB_UInt tag = FT_MAKE_TAG ('a', 'r', 'a', 'b');
+  HB_UInt tag = HB_MAKE_TAG ('a', 'r', 'a', 'b');
   HB_UShort script_index;
 
   error = HB_GSUB_Select_Script (gsub, tag, &script_index);
@@ -139,10 +139,10 @@ add_features (HB_GSUB gsub)
       croak ("HB_GSUB_Select_Script", error);
     }
 
-  maybe_add_feature (gsub, script_index, FT_MAKE_TAG ('i', 'n', 'i', 't'), I);
-  maybe_add_feature (gsub, script_index, FT_MAKE_TAG ('m', 'e', 'd', 'i'), M);
-  maybe_add_feature (gsub, script_index, FT_MAKE_TAG ('f', 'i', 'n', 'a'), F);
-  maybe_add_feature (gsub, script_index, FT_MAKE_TAG ('l', 'i', 'g', 'a'), L);
+  maybe_add_feature (gsub, script_index, HB_MAKE_TAG ('i', 'n', 'i', 't'), I);
+  maybe_add_feature (gsub, script_index, HB_MAKE_TAG ('m', 'e', 'd', 'i'), M);
+  maybe_add_feature (gsub, script_index, HB_MAKE_TAG ('f', 'i', 'n', 'a'), F);
+  maybe_add_feature (gsub, script_index, HB_MAKE_TAG ('l', 'i', 'g', 'a'), L);
 }
 #endif
 

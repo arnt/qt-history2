@@ -1095,20 +1095,20 @@ static inline void splitMatra(unsigned short *reordered, int matra, int &len, in
 
 #ifndef NO_OPENTYPE
 static const HB_OpenTypeFeature indic_features[] = {
-    { FT_MAKE_TAG('c', 'c', 'm', 'p'), CcmpProperty },
-    { FT_MAKE_TAG('i', 'n', 'i', 't'), InitProperty },
-    { FT_MAKE_TAG('n', 'u', 'k', 't'), NuktaProperty },
-    { FT_MAKE_TAG('a', 'k', 'h', 'n'), AkhantProperty },
-    { FT_MAKE_TAG('r', 'p', 'h', 'f'), RephProperty },
-    { FT_MAKE_TAG('b', 'l', 'w', 'f'), BelowFormProperty },
-    { FT_MAKE_TAG('h', 'a', 'l', 'f'), HalfFormProperty },
-    { FT_MAKE_TAG('p', 's', 't', 'f'), PostFormProperty },
-    { FT_MAKE_TAG('v', 'a', 't', 'u'), VattuProperty },
-    { FT_MAKE_TAG('p', 'r', 'e', 's'), PreSubstProperty },
-    { FT_MAKE_TAG('b', 'l', 'w', 's'), BelowSubstProperty },
-    { FT_MAKE_TAG('a', 'b', 'v', 's'), AboveSubstProperty },
-    { FT_MAKE_TAG('p', 's', 't', 's'), PostSubstProperty },
-    { FT_MAKE_TAG('h', 'a', 'l', 'n'), HalantProperty },
+    { HB_MAKE_TAG('c', 'c', 'm', 'p'), CcmpProperty },
+    { HB_MAKE_TAG('i', 'n', 'i', 't'), InitProperty },
+    { HB_MAKE_TAG('n', 'u', 'k', 't'), NuktaProperty },
+    { HB_MAKE_TAG('a', 'k', 'h', 'n'), AkhantProperty },
+    { HB_MAKE_TAG('r', 'p', 'h', 'f'), RephProperty },
+    { HB_MAKE_TAG('b', 'l', 'w', 'f'), BelowFormProperty },
+    { HB_MAKE_TAG('h', 'a', 'l', 'f'), HalfFormProperty },
+    { HB_MAKE_TAG('p', 's', 't', 'f'), PostFormProperty },
+    { HB_MAKE_TAG('v', 'a', 't', 'u'), VattuProperty },
+    { HB_MAKE_TAG('p', 'r', 'e', 's'), PreSubstProperty },
+    { HB_MAKE_TAG('b', 'l', 'w', 's'), BelowSubstProperty },
+    { HB_MAKE_TAG('a', 'b', 'v', 's'), AboveSubstProperty },
+    { HB_MAKE_TAG('p', 's', 't', 's'), PostSubstProperty },
+    { HB_MAKE_TAG('h', 'a', 'l', 'n'), HalantProperty },
     { 0, 0 }
 };
 #endif

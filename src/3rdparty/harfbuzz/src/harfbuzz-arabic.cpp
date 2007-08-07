@@ -923,34 +923,34 @@ static void shapedString(const HB_UChar16 *uc, uint32_t stringLength, uint32_t f
 #ifndef NO_OPENTYPE
 
 static const HB_OpenTypeFeature arabic_features[] = {
-    { FT_MAKE_TAG('c', 'c', 'm', 'p'), CcmpProperty },
-    { FT_MAKE_TAG('i', 's', 'o', 'l'), IsolProperty },
-    { FT_MAKE_TAG('f', 'i', 'n', 'a'), FinaProperty },
-    { FT_MAKE_TAG('m', 'e', 'd', 'i'), MediProperty },
-    { FT_MAKE_TAG('i', 'n', 'i', 't'), InitProperty },
-    { FT_MAKE_TAG('r', 'l', 'i', 'g'), RligProperty },
-    { FT_MAKE_TAG('c', 'a', 'l', 't'), CaltProperty },
-    { FT_MAKE_TAG('l', 'i', 'g', 'a'), LigaProperty },
-    { FT_MAKE_TAG('d', 'l', 'i', 'g'), DligProperty },
-    { FT_MAKE_TAG('c', 's', 'w', 'h'), CswhProperty },
+    { HB_MAKE_TAG('c', 'c', 'm', 'p'), CcmpProperty },
+    { HB_MAKE_TAG('i', 's', 'o', 'l'), IsolProperty },
+    { HB_MAKE_TAG('f', 'i', 'n', 'a'), FinaProperty },
+    { HB_MAKE_TAG('m', 'e', 'd', 'i'), MediProperty },
+    { HB_MAKE_TAG('i', 'n', 'i', 't'), InitProperty },
+    { HB_MAKE_TAG('r', 'l', 'i', 'g'), RligProperty },
+    { HB_MAKE_TAG('c', 'a', 'l', 't'), CaltProperty },
+    { HB_MAKE_TAG('l', 'i', 'g', 'a'), LigaProperty },
+    { HB_MAKE_TAG('d', 'l', 'i', 'g'), DligProperty },
+    { HB_MAKE_TAG('c', 's', 'w', 'h'), CswhProperty },
     // mset is used in old Win95 fonts that don't have a 'mark' positioning table.
-    { FT_MAKE_TAG('m', 's', 'e', 't'), MsetProperty },
+    { HB_MAKE_TAG('m', 's', 'e', 't'), MsetProperty },
     {0, 0}
 };
 
 static const HB_OpenTypeFeature syriac_features[] = {
-    { FT_MAKE_TAG('c', 'c', 'm', 'p'), CcmpProperty },
-    { FT_MAKE_TAG('i', 's', 'o', 'l'), IsolProperty },
-    { FT_MAKE_TAG('f', 'i', 'n', 'a'), FinaProperty },
-    { FT_MAKE_TAG('f', 'i', 'n', '2'), FinaProperty },
-    { FT_MAKE_TAG('f', 'i', 'n', '3'), FinaProperty },
-    { FT_MAKE_TAG('m', 'e', 'd', 'i'), MediProperty },
-    { FT_MAKE_TAG('m', 'e', 'd', '2'), MediProperty },
-    { FT_MAKE_TAG('i', 'n', 'i', 't'), InitProperty },
-    { FT_MAKE_TAG('r', 'l', 'i', 'g'), RligProperty },
-    { FT_MAKE_TAG('c', 'a', 'l', 't'), CaltProperty },
-    { FT_MAKE_TAG('l', 'i', 'g', 'a'), LigaProperty },
-    { FT_MAKE_TAG('d', 'l', 'i', 'g'), DligProperty },
+    { HB_MAKE_TAG('c', 'c', 'm', 'p'), CcmpProperty },
+    { HB_MAKE_TAG('i', 's', 'o', 'l'), IsolProperty },
+    { HB_MAKE_TAG('f', 'i', 'n', 'a'), FinaProperty },
+    { HB_MAKE_TAG('f', 'i', 'n', '2'), FinaProperty },
+    { HB_MAKE_TAG('f', 'i', 'n', '3'), FinaProperty },
+    { HB_MAKE_TAG('m', 'e', 'd', 'i'), MediProperty },
+    { HB_MAKE_TAG('m', 'e', 'd', '2'), MediProperty },
+    { HB_MAKE_TAG('i', 'n', 'i', 't'), InitProperty },
+    { HB_MAKE_TAG('r', 'l', 'i', 'g'), RligProperty },
+    { HB_MAKE_TAG('c', 'a', 'l', 't'), CaltProperty },
+    { HB_MAKE_TAG('l', 'i', 'g', 'a'), LigaProperty },
+    { HB_MAKE_TAG('d', 'l', 'i', 'g'), DligProperty },
     {0, 0}
 };
 

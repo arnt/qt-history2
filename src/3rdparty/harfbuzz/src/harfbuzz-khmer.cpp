@@ -315,15 +315,15 @@ static inline int khmer_nextSyllableBoundary(const HB_UChar16 *s, int start, int
 
 #ifndef NO_OPENTYPE
 static const HB_OpenTypeFeature khmer_features[] = {
-    { FT_MAKE_TAG( 'p', 'r', 'e', 'f' ), PreFormProperty },
-    { FT_MAKE_TAG( 'b', 'l', 'w', 'f' ), BelowFormProperty },
-    { FT_MAKE_TAG( 'a', 'b', 'v', 'f' ), AboveFormProperty },
-    { FT_MAKE_TAG( 'p', 's', 't', 'f' ), PostFormProperty },
-    { FT_MAKE_TAG( 'p', 'r', 'e', 's' ), PreSubstProperty },
-    { FT_MAKE_TAG( 'b', 'l', 'w', 's' ), BelowSubstProperty },
-    { FT_MAKE_TAG( 'a', 'b', 'v', 's' ), AboveSubstProperty },
-    { FT_MAKE_TAG( 'p', 's', 't', 's' ), PostSubstProperty },
-    { FT_MAKE_TAG( 'c', 'l', 'i', 'g' ), CligProperty },
+    { HB_MAKE_TAG( 'p', 'r', 'e', 'f' ), PreFormProperty },
+    { HB_MAKE_TAG( 'b', 'l', 'w', 'f' ), BelowFormProperty },
+    { HB_MAKE_TAG( 'a', 'b', 'v', 'f' ), AboveFormProperty },
+    { HB_MAKE_TAG( 'p', 's', 't', 'f' ), PostFormProperty },
+    { HB_MAKE_TAG( 'p', 'r', 'e', 's' ), PreSubstProperty },
+    { HB_MAKE_TAG( 'b', 'l', 'w', 's' ), BelowSubstProperty },
+    { HB_MAKE_TAG( 'a', 'b', 'v', 's' ), AboveSubstProperty },
+    { HB_MAKE_TAG( 'p', 's', 't', 's' ), PostSubstProperty },
+    { HB_MAKE_TAG( 'c', 'l', 'i', 'g' ), CligProperty },
     { 0, 0 }
 };
 #endif
