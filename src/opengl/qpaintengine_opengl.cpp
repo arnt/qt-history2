@@ -3961,7 +3961,7 @@ struct QGLFontTexture {
 typedef QHash<glyph_t, QGLGlyphCoord*>  QGLGlyphHash;
 typedef QHash<QFontEngine*, QGLGlyphHash*> QGLFontGlyphHash;
 typedef QHash<quint64, QGLFontTexture*> QGLFontTexHash;
-typedef QHash<QGLContext*, QGLFontGlyphHash*> QGLContextHash;
+typedef QHash<const QGLContext*, QGLFontGlyphHash*> QGLContextHash;
 
 class QGLGlyphCache : public QObject
 {
@@ -3973,9 +3973,9 @@ public:
     void cacheGlyphs(QGLContext *, const QTextItemInt &, const QVarLengthArray<glyph_t> &);
     void cleanCache();
     void allocTexture(int width, int height, GLuint texture);
-    void cleanupContext(QGLContext *);
 
 public slots:
+    void cleanupContext(const QGLContext *);
     void fontEngineDestroyed(QObject *);
     void widgetDestroyed(QObject *);
 
@@ -3995,8 +3995,8 @@ void QGLGlyphCache::fontEngineDestroyed(QObject *o)
 {
 //     qDebug() << "fontEngineDestroyed()";
     QFontEngine *fe = static_cast<QFontEngine *>(o); // safe, since only the type is used
-    QList<QGLContext *> keys = qt_context_cache.keys();
-    QGLContext *ctx = 0;
+    QList<const QGLContext *> keys = qt_context_cache.keys();
+    const QGLContext *ctx = 0;
 
     for (int i=0; i < keys.size(); ++i) {
         QGLFontGlyphHash *font_cache = qt_context_cache.value(keys.at(i));
@@ -4025,7 +4025,7 @@ void QGLGlyphCache::widgetDestroyed(QObject *)
     cleanCache(); // ###
 }
 
-void QGLGlyphCache::cleanupContext(QGLContext *ctx)
+void QGLGlyphCache::cleanupContext(const QGLContext *ctx)
 {
 //     qDebug() << "==> cleaning for: " << hex << ctx;
     QGLFontGlyphHash *font_cache = qt_context_cache.take(ctx);
@@ -4064,7 +4064,7 @@ void QGLGlyphCache::cleanCache()
     qDeleteAll(qt_font_textures);
     qt_font_textures.clear();
 
-    QList<QGLContext *> keys = qt_context_cache.keys();
+    QList<const QGLContext *> keys = qt_context_cache.keys();
     for (int i=0; i < keys.size(); ++i) {
         QGLFontGlyphHash *font_cache = qt_context_cache.value(keys.at(i));
         qDeleteAll(*font_cache);
@@ -4113,13 +4113,13 @@ void QGLGlyphCache::cacheGlyphs(QGLContext *context, const QTextItemInt &ti,
 {
     QGLContextHash::const_iterator dev_it = qt_context_cache.constFind(context);
     QGLFontGlyphHash *font_cache = 0;
-    QGLContext *context_key = 0;
+    const QGLContext *context_key = 0;
 
     if (dev_it == qt_context_cache.constEnd()) {
         // check for shared contexts
-        QList<QGLContext *> contexts = qt_context_cache.keys();
+        QList<const QGLContext *> contexts = qt_context_cache.keys();
         for (int i=0; i<contexts.size(); ++i) {
-            QGLContext *ctx = contexts.at(i);
+            const QGLContext *ctx = contexts.at(i);
             if (ctx != context && qgl_share_reg()->checkSharing(context, ctx)) {
                 context_key = ctx;
                 dev_it = qt_context_cache.constFind(context_key);
@@ -4136,6 +4136,8 @@ void QGLGlyphCache::cacheGlyphs(QGLContext *context, const QTextItemInt &ti,
         if (context->isValid() && context->device()->devType() == QInternal::Widget) {
             QWidget *widget = static_cast<QWidget *>(context->device());
             connect(widget, SIGNAL(destroyed(QObject*)), SLOT(widgetDestroyed(QObject*)));
+            connect(QGLProxy::signalProxy(), SIGNAL(aboutToDestroyContext(const QGLContext*)),
+                    SLOT(cleanupContext(const QGLContext*)));
         }
     } else {
         font_cache = dev_it.value();
