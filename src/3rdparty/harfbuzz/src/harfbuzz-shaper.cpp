@@ -396,7 +396,7 @@ void HB_HeuristicSetGlyphAttributes(HB_ShaperItem *item)
 
     // first char in a run is never (treated as) a mark
     int cStart = 0;
-    const bool symbolFont = item->font->face.isSymbolFont;
+    const bool symbolFont = item->font->face->isSymbolFont;
     attributes[0].mark = false;
     attributes[0].clusterStart = true;
     attributes[0].dontPrint = (!symbolFont && uc[0] == 0x00ad) || HB_IsControlChar(uc[0]);
@@ -679,7 +679,7 @@ static const OTScripts ot_scripts [] = {
 };
 enum { NumOTScripts = sizeof(ot_scripts)/sizeof(OTScripts) };
 
-static HB_Bool checkScript(HB_Face *face, int script)
+static HB_Bool checkScript(HB_Face face, int script)
 {
     assert(script < HB_ScriptCount);
 
@@ -717,9 +717,9 @@ static HB_Bool checkScript(HB_Face *face, int script)
     return true;
 }
 
-HB_Face *HB_NewFace(FT_Face ftface)
+HB_Face HB_NewFace(FT_Face ftface)
 {
-    HB_Face *face = (HB_Face *)malloc(sizeof(HB_Face));
+    HB_Face face = (HB_Face )malloc(sizeof(HB_FaceRec));
 
     face->freetypeFace = ftface;
     face->isSymbolFont = false;
@@ -762,7 +762,7 @@ HB_Face *HB_NewFace(FT_Face ftface)
     return face;
 }
 
-void HB_FreeFace(HB_Face *face)
+void HB_FreeFace(HB_Face face)
 {
     if (face->gpos)
         HB_Done_GPOS_Table(face->gpos);
@@ -783,10 +783,10 @@ HB_Bool HB_SelectScript(HB_ShaperItem *shaper_item, const HB_OpenTypeFeature *fe
 {
     HB_Script script = shaper_item->item.script;
 
-    if (!shaper_item->font->face.supported_scripts[script])
+    if (!shaper_item->font->face->supported_scripts[script])
         return false;
 
-    HB_Face *face = &shaper_item->font->face;
+    HB_Face face = shaper_item->font->face;
     if (face->current_script == script && face->current_flags == shaper_item->shaperFlags)
         return true;
 
@@ -877,7 +877,7 @@ HB_Bool HB_SelectScript(HB_ShaperItem *shaper_item, const HB_OpenTypeFeature *fe
 HB_Bool HB_OpenTypeShape(HB_ShaperItem *item, const uint32_t *properties)
 {
 
-    HB_Face *face = &item->font->face;
+    HB_Face face = item->font->face;
 
     face->length = item->num_glyphs;
 
@@ -926,7 +926,7 @@ HB_Bool HB_OpenTypeShape(HB_ShaperItem *item, const uint32_t *properties)
 
 HB_Bool HB_OpenTypePosition(HB_ShaperItem *item, int availableGlyphs, HB_Bool doLogClusters)
 {
-    HB_Face *face = &item->font->face;
+    HB_Face face = item->font->face;
 
     bool glyphs_positioned = false;
     if (face->gpos) {

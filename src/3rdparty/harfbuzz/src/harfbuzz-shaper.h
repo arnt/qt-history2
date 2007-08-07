@@ -261,26 +261,27 @@ typedef struct {
     unsigned int *tmpLogClusters;
     int length;
     int orig_nglyphs;
-} HB_Face;
+} HB_FaceRec, *HB_Face;
 
-typedef struct HB_Font_ HB_Font;
+typedef struct HB_Font_ *HB_Font;
 
 typedef struct {
-    HB_Bool (*stringToGlyphs)(HB_Font *font, const HB_UChar16 *string, uint32_t length, HB_Glyph *glyphs, uint32_t *numGlyphs, HB_Bool rightToLeft);
-    void    (*getAdvances)(HB_Font *font, const HB_Glyph *glyphs, int numGlyphs, HB_Fixed *advances);
-    HB_Bool (*canRender)(HB_Font *font, const HB_UChar16 *string, uint32_t length);
+    HB_Bool (*stringToGlyphs)(HB_Font font, const HB_UChar16 *string, uint32_t length, HB_Glyph *glyphs, uint32_t *numGlyphs, HB_Bool rightToLeft);
+    void    (*getAdvances)(HB_Font font, const HB_Glyph *glyphs, int numGlyphs, HB_Fixed *advances);
+    HB_Bool (*canRender)(HB_Font font, const HB_UChar16 *string, uint32_t length);
 } HB_FontClass;
 
 typedef struct HB_Font_ {
-    HB_FontClass *klass;
+    const HB_FontClass *klass;
     HB_Face face;
-} HB_Font;
+    void *userData;
+} HB_FontRec, *HB_Font;
 
 typedef struct {
     const HB_UChar16 *string;
     uint32_t stringLength;
     HB_ScriptItem item;
-    HB_Font *font;
+    HB_Font font;
     int shaperFlags; // HB_ShaperFlags
 
     uint32_t num_glyphs; // in: available glyphs out: glyphs used/needed
@@ -294,8 +295,8 @@ typedef struct {
     HB_Bool kerning_applied; // out: kerning applied by shaper
 } HB_ShaperItem;
 
-HB_Face *HB_NewFace(FT_Face ftface);
-void HB_FreeFace(HB_Face *face);
+HB_Face HB_NewFace(FT_Face ftface);
+void HB_FreeFace(HB_Face face);
 
 HB_Bool HB_ShapeItem(HB_ShaperItem *item);
 

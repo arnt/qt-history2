@@ -1605,8 +1605,8 @@ static bool indic_shape_syllable(HB_Bool openType, HB_ShaperItem *item, bool inv
         item->log_clusters = clusters;
         HB_OpenTypeShape(item, properties);
 
-        int newLen = item->font->face.buffer->in_length;
-        HB_GlyphItem otl_glyphs = item->font->face.buffer->in_string;
+        int newLen = item->font->face->buffer->in_length;
+        HB_GlyphItem otl_glyphs = item->font->face->buffer->in_string;
 
         // move the left matra back to its correct position in malayalam and tamil
         if ((script == HB_Script_Malayalam || script == HB_Script_Tamil) && (form(reordered[0]) == Matra)) {

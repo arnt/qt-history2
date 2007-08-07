@@ -496,7 +496,8 @@ void HB_MyanmarAttributes(HB_Script /*script*/, const HB_UChar16 *text, uint32_t
 	int boundary = myanmar_nextSyllableBoundary(text, from+i, end, &invalid) - from;
 
 	attributes[i].charStop = true;
-        attributes[i-1].lineBreakType = HB_Break;
+        if (from || i)
+            attributes[i-1].lineBreakType = HB_Break;
 
 	if (boundary > len-1)
             boundary = len;
