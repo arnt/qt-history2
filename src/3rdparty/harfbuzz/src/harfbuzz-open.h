@@ -24,14 +24,6 @@ HB_BEGIN_HEADER
 
 #define HB_MAX_NESTING_LEVEL             100
 
-#define HB_Err_Invalid_SubTable_Format   0x1000
-#define HB_Err_Invalid_SubTable          0x1001
-#define HB_Err_Not_Covered               0x1002
-#define HB_Err_Too_Many_Nested_Contexts  0x1003
-#define HB_Err_No_MM_Interpreter         0x1004
-#define HB_Err_Empty_Script              0x1005
-
-
 /* Script list related structures */
 
 struct  HB_LangSys_

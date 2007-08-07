@@ -18,10 +18,6 @@
 
 HB_BEGIN_HEADER
 
-#define HB_Err_Invalid_GDEF_SubTable_Format  0x1030
-#define HB_Err_Invalid_GDEF_SubTable         0x1031
-
-
 /* GDEF glyph properties.  Note that HB_GDEF_COMPONENT has no corresponding
  * flag in the LookupFlag field.     */
 #define HB_GDEF_BASE_GLYPH  0x0002

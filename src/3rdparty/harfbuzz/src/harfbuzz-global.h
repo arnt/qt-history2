@@ -67,7 +67,19 @@ typedef enum {
     HB_Err_Invalid_Argument,
     HB_Err_Out_Of_Memory,
     HB_Err_Invalid_Face_Handle, 
-    HB_Err_Table_Missing
+    HB_Err_Table_Missing,
+    HB_Err_Invalid_SubTable_Format  = 0x1000,
+    HB_Err_Invalid_SubTable         = 0x1001,
+    HB_Err_Not_Covered              = 0x1002,
+    HB_Err_Too_Many_Nested_Contexts = 0x1003,
+    HB_Err_No_MM_Interpreter        = 0x1004,
+    HB_Err_Empty_Script             = 0x1005,
+    HB_Err_Invalid_GSUB_SubTable_Format = 0x1010,
+    HB_Err_Invalid_GSUB_SubTable        = 0x1011,
+    HB_Err_Invalid_GPOS_SubTable_Format = 0x1020,
+    HB_Err_Invalid_GPOS_SubTable        = 0x1021,
+    HB_Err_Invalid_GDEF_SubTable_Format = 0x1030,
+    HB_Err_Invalid_GDEF_SubTable        = 0x1031
 } HB_Error;
 
 typedef struct {

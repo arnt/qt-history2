@@ -225,8 +225,10 @@ public:
 
     bool init(FaceId faceId, bool antiaalias, GlyphFormat defaultFormat = Format_None);
 
-    virtual void initHarfbuzzFont(HB_Font font, HB_FontClass *klass);
     inline HB_Face harfbuzzFace() const { return freetype->hbFace; }
+
+    virtual HB_Error getPointInOutline(HB_Glyph glyph, int flags, hb_uint32 point, HB_Fixed *xpos, HB_Fixed *ypos, hb_uint32 *nPoints);
+
 protected:
 
     void freeGlyphSets();

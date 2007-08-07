@@ -68,32 +68,6 @@ static HB_Error hb_getSFntTable(void *font, HB_Tag tableTag, HB_Byte *buffer, HB
     return (HB_Error)error;
 }
 
-static HB_Error hb_getPointInOutline(HB_Font font, HB_Glyph glyph, int flags, hb_uint32 point, HB_Fixed *xpos, HB_Fixed *ypos, hb_uint32 *nPoints)
-{
-    HB_Error error = HB_Err_Ok;
-    FT_Face face = (FT_Face)font->faceData;
-
-    int load_flags = (flags & HB_ShaperFlag_UseDesignMetrics) ? FT_LOAD_NO_HINTING : FT_LOAD_DEFAULT;
-
-    if ((error = (HB_Error)FT_Load_Glyph(face, glyph, load_flags)))
-        return error;
-
-    if (face->glyph->format != FT_GLYPH_FORMAT_OUTLINE)
-        return (HB_Error)HB_Err_Invalid_GPOS_SubTable;
-
-    *nPoints = face->glyph->outline.n_points;
-    if (!(*nPoints))
-        return HB_Err_Ok;
-
-    if (point > *nPoints)
-        return (HB_Error)HB_Err_Invalid_GPOS_SubTable;
-
-    *xpos = face->glyph->outline.points[point].x;
-    *ypos = face->glyph->outline.points[point].y;
-
-    return HB_Err_Ok;
-}
-
 // -------------------------- Freetype support ------------------------------
 
 class QtFreetypeData
@@ -548,22 +522,17 @@ bool QFontEngineFT::init(FaceId faceId, bool antialias, GlyphFormat defaultForma
 
     metrics = face->size->metrics;
 
+    hbFont.faceData = freetype->face;
+    hbFont.x_ppem  = face->size->metrics.x_ppem;
+    hbFont.y_ppem  = face->size->metrics.y_ppem;
+    hbFont.x_scale = face->size->metrics.x_scale;
+    hbFont.y_scale = face->size->metrics.y_scale;
+
     unlockFace();
 
     fsType = freetype->fsType();
     defaultGlyphSet.id = allocateServerGlyphSet();
     return true;
-}
-
-void QFontEngineFT::initHarfbuzzFont(HB_Font font, HB_FontClass *klass)
-{
-    QFontEngine::initHarfbuzzFont(font, klass);
-    font->faceData = freetype->face;
-    font->x_ppem  = freetype->face->size->metrics.x_ppem;
-    font->y_ppem  = freetype->face->size->metrics.y_ppem;
-    font->x_scale = freetype->face->size->metrics.x_scale;
-    font->y_scale = freetype->face->size->metrics.y_scale;
-    klass->getPointInOutline = hb_getPointInOutline;
 }
 
 QFontEngineFT::Glyph *QFontEngineFT::loadGlyph(QGlyphSet *set, uint glyph, GlyphFormat format) const
@@ -1545,5 +1514,38 @@ void QFontEngineFT::freeServerGlyphSet(unsigned long id)
 {
     Q_UNUSED(id);
 }
+
+HB_Error QFontEngineFT::getPointInOutline(HB_Glyph glyph, int flags, hb_uint32 point, HB_Fixed *xpos, HB_Fixed *ypos, hb_uint32 *nPoints)
+{
+    FT_Face face = lockFace();
+    HB_Error error = HB_Err_Ok;
+
+    int load_flags = (flags & HB_ShaperFlag_UseDesignMetrics) ? FT_LOAD_NO_HINTING : FT_LOAD_DEFAULT;
+
+    if ((error = (HB_Error)FT_Load_Glyph(face, glyph, load_flags)))
+        goto done;
+
+    if (face->glyph->format != FT_GLYPH_FORMAT_OUTLINE) {
+        error = HB_Err_Invalid_GPOS_SubTable;
+        goto done;
+    }
+
+    *nPoints = face->glyph->outline.n_points;
+    if (!(*nPoints))
+        goto done;
+
+    if (point > *nPoints) {
+        error = HB_Err_Invalid_GPOS_SubTable;
+        goto done;
+    }
+
+    *xpos = face->glyph->outline.points[point].x;
+    *ypos = face->glyph->outline.points[point].y;
+
+done:
+    unlockFace();
+    return error;
+}
+
 
 #endif // QT_NO_FREETYPE

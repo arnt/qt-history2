@@ -156,7 +156,9 @@ public:
 
     virtual int glyphCount() const;
 
-    virtual void initHarfbuzzFont(HB_Font font, HB_FontClass *klass);
+    HB_Font harfbuzzFont() const;
+
+    virtual HB_Error getPointInOutline(HB_Glyph glyph, int flags, hb_uint32 point, HB_Fixed *xpos, HB_Fixed *ypos, hb_uint32 *nPoints);
 
     static const uchar *getCMap(const uchar *table, uint tableSize, bool *isSymbolFont, int *cmapSize);
     static quint32 getTrueTypeGlyphIndex(const uchar *cmap, uint unicode);
@@ -167,6 +169,7 @@ public:
     int cache_count;
     uint fsType : 16;
     bool symbol;
+    mutable HB_FontRec hbFont;
 
 #ifdef Q_WS_WIN
     int getGlyphIndexes(const QChar *ch, int numChars, QGlyphLayout *glyphs, bool mirrored) const;

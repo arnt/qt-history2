@@ -824,11 +824,7 @@ void QTextEngine::shapeTextWithHarfbuzz(int item) const
         }
 #endif
 
-        HB_FontClass fontClass;
-        HB_FontRec hbFont;
-        actualFontEngine->initHarfbuzzFont(&hbFont, &fontClass);
-
-        shaper_item.font = &hbFont;
+        shaper_item.font = actualFontEngine->harfbuzzFont();
 
 #if defined(Q_WS_X11) || defined(Q_WS_QWS)
         if (ftEngine) {
@@ -837,14 +833,6 @@ void QTextEngine::shapeTextWithHarfbuzz(int item) const
 #endif
        	{
             shaper_item.face = qHBNewFace(actualFontEngine, hb_getSFntTable);
-        }
-
-        {
-            QFixed emSquare = actualFontEngine->emSquareSize();
-            hbFont.x_ppem = actualFontEngine->fontDef.pixelSize;
-            hbFont.y_ppem = actualFontEngine->fontDef.pixelSize * actualFontEngine->fontDef.stretch / 100;
-            hbFont.x_scale = (QFixed(hbFont.x_ppem * (1 << 16)) / emSquare).value();
-            hbFont.y_scale = (QFixed(hbFont.y_ppem * (1 << 16)) / emSquare).value();
         }
 
         shaper_item.glyphIndicesPresent = true;
