@@ -1155,12 +1155,20 @@ void QGraphicsScene::render(QPainter *painter, const QRectF &target, const QRect
             option.state |= QStyle::State_Sunken;
 
         // Calculate a simple level-of-detail metric.
-        QTransform neo = item->sceneTransform() * painter->transform();
-        option.levelOfDetail = ::sqrt(double(neo.map(v1).length() * neo.map(v2).length()));
-        option.matrix = neo.toAffine(); //### discards perspective
+        // ### almost identical code in QGraphicsView::paintEvent()
+        //     and QGraphicsView::render() - consider refactoring
+        QTransform itemToDeviceTransform;
+        if (item->d_ptr->itemIsUntransformable()) {
+            itemToDeviceTransform = item->deviceTransform(painter->worldTransform());
+        } else {
+            itemToDeviceTransform = item->sceneTransform() * painter->worldTransform();
+        }
+
+        option.levelOfDetail = ::sqrt(double(itemToDeviceTransform.map(v1).length() * itemToDeviceTransform.map(v2).length()));
+        option.matrix = itemToDeviceTransform.toAffine(); //### discards perspective
 
         option.exposedRect = item->boundingRect();
-        option.exposedRect &= neo.inverted().mapRect(targetRect);
+        option.exposedRect &= itemToDeviceTransform.inverted().mapRect(targetRect);
 
         styleOptionArray[i] = option;
     }

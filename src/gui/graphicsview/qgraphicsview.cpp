@@ -1659,14 +1659,21 @@ void QGraphicsView::render(QPainter *painter, const QRectF &target, const QRect 
             option.state |= QStyle::State_Sunken;
 
         // Calculate a simple level-of-detail metric.
-        QTransform neo = item->sceneTransform() * painterMatrix;
-        QTransform lodMatrix = neo * painter->worldTransform();
+        // ### almost identical code in QGraphicsScene::render()
+        //     and QGraphicsView::paintEvent() - consider refactoring
+        QTransform itemToViewportTransform;
+        if (item->d_ptr->itemIsUntransformable()) {
+            itemToViewportTransform = item->deviceTransform(painter->worldTransform());
+        } else {
+            itemToViewportTransform = item->sceneTransform() * painter->worldTransform();
+        }
+        QTransform lodMatrix = itemToViewportTransform * painter->worldTransform();
 
         option.levelOfDetail = ::sqrt(double(lodMatrix.map(v1).length() * lodMatrix.map(v2).length()));
-        option.matrix = neo.toAffine();
+        option.matrix = itemToViewportTransform.toAffine();
 
         option.exposedRect = item->boundingRect();
-        option.exposedRect &= neo.inverted().mapRect(targetRect);
+        option.exposedRect &= itemToViewportTransform.inverted().mapRect(targetRect);
 
         styleOptionArray[i] = option;
     }
@@ -3046,15 +3053,22 @@ void QGraphicsView::paintEvent(QPaintEvent *event)
             option.state |= QStyle::State_Sunken;
 
         // Calculate a simple level-of-detail metric.
-        QTransform itemSceneMatrix = item->sceneTransform();
-        QTransform neo = itemSceneMatrix * painter.transform();
-        option.levelOfDetail = ::sqrt(double(neo.map(v1).length() * neo.map(v2).length()));
-        option.matrix = neo.toAffine(); //### discards perspective
+        // ### almost identical code in QGraphicsScene::render()
+        //     and QGraphicsView::render() - consider refactoring
+        QTransform itemToViewportTransform;
+        if (item->d_ptr->itemIsUntransformable()) {
+            itemToViewportTransform = item->deviceTransform(painter.worldTransform());
+        } else {
+            itemToViewportTransform = item->sceneTransform() * painter.worldTransform();
+        }
+
+        option.levelOfDetail = ::sqrt(double(itemToViewportTransform.map(v1).length() * itemToViewportTransform.map(v2).length()));
+        option.matrix = itemToViewportTransform.toAffine(); //### discards perspective
 
         // Determine the item's exposed area
-        QTransform reverseMap = itemSceneMatrix.inverted();
-        foreach (QRectF rect, exposedRects)
-            option.exposedRect |= reverseMap.mapRect(rect);
+        QTransform reverseMap = itemToViewportTransform.inverted();
+        foreach (QRect rect, exposedRegion.rects())
+            option.exposedRect |= reverseMap.mapRect(QRectF(rect.adjusted(-1, -1, 1, 1)));
         option.exposedRect &= item->boundingRect();
 
         styleOptionArray[i] = option;
