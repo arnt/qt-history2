@@ -117,6 +117,9 @@ private slots:
     void scrollBarRanges_data();
     void scrollBarRanges();
     void acceptMousePressEvent();
+
+    // task specific tests below me
+    void task172231_untransformableItems();
 };
 
 void tst_QGraphicsView::construction()
@@ -3003,6 +3006,48 @@ void tst_QGraphicsView::acceptMousePressEvent()
     
     QApplication::sendEvent(view.viewport(), &event);
     QVERIFY(view.accepted);
+}
+
+class QGraphicsTextItem_task172231 : public QGraphicsTextItem
+{
+public:
+    QGraphicsTextItem_task172231(const QString & text, QGraphicsItem * parent = 0)
+        : QGraphicsTextItem(text, parent) {}
+    QRectF exposedRect;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+    {
+        exposedRect = option->exposedRect;
+        QGraphicsTextItem::paint(painter, option, widget);
+    }
+};
+
+void tst_QGraphicsView::task172231_untransformableItems()
+{
+    // check fix in QGraphicsView::paintEvent()
+
+    QGraphicsScene scene;
+
+    QGraphicsTextItem_task172231 *text =
+        new QGraphicsTextItem_task172231("abcdefghijklmnopqrstuvwxyz");
+    text->setFlag(QGraphicsItem::ItemIgnoresTransformations);
+    scene.addItem(text);
+
+    QGraphicsView view(&scene);
+
+    view.scale(2, 1);
+    view.show();
+    qApp->processEvents();
+    QRectF origExposedRect = text->exposedRect;
+
+    view.resize(int(0.75 * view.width()), view.height());
+    qApp->processEvents();
+
+    QCOMPARE(text->exposedRect, origExposedRect);
+
+    // notice that the fix also goes into QGraphicsView::render()
+    // and QGraphicsScene::render(), but in duplicated code that
+    // is pending a refactoring, so for now we omit autotesting
+    // these functions separately
 }
 
 QTEST_MAIN(tst_QGraphicsView)
