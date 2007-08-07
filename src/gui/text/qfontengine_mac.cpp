@@ -700,20 +700,13 @@ bool QFontEngineMac::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
 
 void QFontEngineMac::recalcAdvances(int len, QGlyphLayout *glyphs, QTextEngine::ShaperFlags flags) const
 {
-#if 1
-    for (int i = 0; i < len; ++i) {
-	glyph_metrics_t m = const_cast<QFontEngineMac *>(this)->boundingBox(glyphs[i].glyph);
-        glyphs[i].advance.x = m.xoff;
-        glyphs[i].advance.y = m.yoff;
-    }
-#else
     QVarLengthArray<GlyphID> atsuGlyphs(len);
     for (int i = 0; i < len; ++i)
         atsuGlyphs[i] = glyphs[i].glyph;
 
-    QVarLengthArray<ATSGlyphIdealMetrics> metrics(len);
+    QVarLengthArray<ATSGlyphScreenMetrics> metrics(len);
 
-    ATSUGlyphGetIdealMetrics(style, len, atsuGlyphs.data(), 0,
+    ATSUGlyphGetScreenMetrics(style, len, atsuGlyphs.data(), sizeof(GlyphID),
                               /* iForcingAntiAlias =*/ false,
                               /* iAntiAliasSwitch =*/true,
                               metrics.data());
@@ -722,7 +715,6 @@ void QFontEngineMac::recalcAdvances(int len, QGlyphLayout *glyphs, QTextEngine::
         glyphs[i].advance.x = QFixed::fromReal(metrics[i].deviceAdvance.x);
         glyphs[i].advance.y = QFixed::fromReal(metrics[i].deviceAdvance.y);
     }
-#endif
 }
 
 glyph_metrics_t QFontEngineMac::boundingBox(const QGlyphLayout *glyphs, int numGlyphs)
