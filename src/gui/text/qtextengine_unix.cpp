@@ -92,10 +92,14 @@ static bool stringToGlyphs(HB_ShaperItem *item, HB_Glyph *itemGlyphs, QFontEngin
     int nGlyphs = item->num_glyphs;
     QVarLengthArray<QGlyphLayout> qglyphs(nGlyphs);
 
+    QTextEngine::ShaperFlags shaperFlags(QTextEngine::GlyphIndicesOnly);
+    if (item->item.bidiLevel % 2)
+        shaperFlags |= QTextEngine::RightToLeft;
+
     bool result = fontEngine->stringToCMap(reinterpret_cast<const QChar *>(item->string + item->item.pos),
                                            item->item.length,
                                            qglyphs.data(), &nGlyphs,
-                                           (item->item.bidiLevel % 2) ? QTextEngine::RightToLeft : QFlag(0));
+                                           shaperFlags);
     item->num_glyphs = nGlyphs;
     if (!result)
         return false;
@@ -128,6 +132,7 @@ void QTextEngine::shapeText(int item) const
     entire_shaper_item.item.pos = si.position;
     entire_shaper_item.item.length = length(item);
     entire_shaper_item.item.bidiLevel = si.analysis.bidiLevel;
+    entire_shaper_item.glyphIndicesPresent = false;
 
     entire_shaper_item.shaperFlags = 0;
     if (!kerningEnabled)
@@ -170,6 +175,7 @@ void QTextEngine::shapeText(int item) const
         }
     }
 
+    int initial_glyph_pos = 0;
     int glyph_pos = 0;
     for (int k = 0; k < itemBoundaries.size(); k += 2) {
 
@@ -183,6 +189,7 @@ void QTextEngine::shapeText(int item) const
             shaper_item.item.length -= shaper_item.item.pos - entire_shaper_item.item.pos;
             shaper_item.num_glyphs -= itemBoundaries[k + 1];
         }
+        shaper_item.initialGlyphCount = shaper_item.num_glyphs;
 
         QVarLengthArray<HB_Glyph> hb_glyphs(shaper_item.num_glyphs);
         QVarLengthArray<HB_GlyphAttributes> hb_attributes(shaper_item.num_glyphs);
@@ -235,6 +242,9 @@ void QTextEngine::shapeText(int item) const
             memset(hb_advances.data(), 0, hb_advances.size() * sizeof(HB_Fixed));
             memset(hb_offsets.data(), 0, hb_offsets.size() * sizeof(HB_FixedPoint));
 
+            memcpy(hb_glyphs.data(), hb_initial_glyphs.data() + initial_glyph_pos, sizeof(HB_Glyph) * shaper_item.initialGlyphCount);
+            shaper_item.glyphIndicesPresent = true;
+
             shaper_item.glyphs = hb_glyphs.data();
             shaper_item.attributes = hb_attributes.data();
             shaper_item.advances = hb_advances.data();
@@ -276,6 +286,8 @@ void QTextEngine::shapeText(int item) const
                 qHBFreeFace(shaper_item.face);
             break;
         }
+
+        initial_glyph_pos += shaper_item.initialGlyphCount;
     }
 
 //     qDebug("    -> item: script=%d num_glyphs=%d", shaper_item.script, shaper_item.num_glyphs);
