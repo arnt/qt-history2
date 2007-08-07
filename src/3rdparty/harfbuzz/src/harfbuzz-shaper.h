@@ -211,7 +211,6 @@ typedef struct HB_Font_ {
     HB_UShort x_ppem, y_ppem;
     HB_16Dot16 x_scale, y_scale;
 
-    void *faceData;
     void *userData;
 } HB_FontRec;
 

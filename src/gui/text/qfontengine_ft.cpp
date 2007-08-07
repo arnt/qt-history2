@@ -546,7 +546,6 @@ bool QFontEngineFT::init(FaceId faceId, bool antialias, GlyphFormat defaultForma
 
     metrics = face->size->metrics;
 
-    hbFont.faceData = freetype->face;
     hbFont.x_ppem  = face->size->metrics.x_ppem;
     hbFont.y_ppem  = face->size->metrics.y_ppem;
     hbFont.x_scale = face->size->metrics.x_scale;
