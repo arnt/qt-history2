@@ -351,7 +351,7 @@ bool QFontEngineMacMulti::stringToCMap(const QChar *str, int len, QGlyphLayout *
                               int(SHRT_MAX / maxCharWidth())
                               - 10 // subtract a few to be on the safe side
                              );
-    if (len < maxChars)
+    if (len < maxChars || !charAttributes)
         return stringToCMapInternal(str, len, glyphs, nglyphs, flags, &shaperItem);
 
     int charIdx = 0;
@@ -386,9 +386,11 @@ bool QFontEngineMacMulti::stringToCMap(const QChar *str, int len, QGlyphLayout *
         tmpItem.glyphs = shaperItem.glyphs + glyphIdx;
         tmpItem.log_clusters = shaperItem.log_clusters + charIdx;
         if (!stringToCMapInternal(tmpItem.string + tmpItem.from, tmpItem.length, 
-                                  tmpItem.glyphs, &tmpItem.num_glyphs, flags,
-                                  &tmpItem))
+                                  tmpItem.glyphs, &glyphCount, flags,
+                                  &tmpItem)) {
+            *nglyphs = glyphIdx + glyphCount;
             return false;
+	}
         for (int i = 0; i < charCount; ++i)
             tmpItem.log_clusters[i] += glyphIdx;
         glyphIdx += glyphCount;
