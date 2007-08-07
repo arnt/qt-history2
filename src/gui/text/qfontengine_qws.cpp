@@ -19,7 +19,6 @@
 #include <private/qpaintengine_raster_p.h>
 #include <private/qpdf_p.h>
 #include "qtextengine_p.h"
-#include "qopentype_p.h"
 
 #include <qdebug.h>
 

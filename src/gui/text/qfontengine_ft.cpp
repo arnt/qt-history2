@@ -25,7 +25,6 @@
 #include <private/qpdf_p.h>
 #include <private/qharfbuzz_p.h>
 
-#include "qopentype_p.h"
 #include <private/qpdf_p.h>
 #include <private/qmath_p.h>
 

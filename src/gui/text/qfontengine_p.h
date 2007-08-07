@@ -37,7 +37,6 @@
 struct glyph_metrics_t;
 class QChar;
 typedef unsigned int glyph_t;
-class QOpenType;
 class QPainterPath;
 
 class QTextEngine;
@@ -116,7 +115,6 @@ public:
     /* returns 0 as glyph index for non existant glyphs */
     virtual bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const = 0;
 
-    virtual QOpenType *openType() const { return 0; }
     virtual void recalcAdvances(int , QGlyphLayout *, QTextEngine::ShaperFlags) const {}
     virtual void doKerning(int , QGlyphLayout *, QTextEngine::ShaperFlags) const;
 

@@ -48,7 +48,6 @@ class QFontPrivate;
 class QFontEngine;
 
 class QString;
-class QOpenType;
 class QPainter;
 
 class QAbstractTextDocumentLayout;

@@ -34,7 +34,6 @@
 #include "qfontengine_ft_p.h"
 #endif
 
-class QOpenType;
 class QFontEngine;
 class QFreetypeFace;
 
@@ -132,7 +131,7 @@ public:
     ~QFontEngineQPF();
 
     FaceId faceId() const { return face_id; }
-    QByteArray getSfntTable(uint tag) const;
+    bool getSfntTableData(uint tag, uchar *buffer, uint *length) const;
 
     bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const;
     void recalcAdvances(int , QGlyphLayout *, QTextEngine::ShaperFlags) const;
@@ -170,7 +169,6 @@ public:
 #if !defined(QT_NO_FREETYPE)
     FT_Face lockFace() const;
     void unlockFace() const;
-    QOpenType *openType() const;
     void doKerning(int num_glyphs, QGlyphLayout *g, QTextEngine::ShaperFlags flags) const;
 #endif
 
@@ -210,7 +208,6 @@ private:
     QFreetypeFace *freetype;
     FaceId face_id;
     QByteArray freetypeCMapTable;
-    mutable QOpenType *_openType;
     mutable bool kerning_pairs_loaded;
     QFontEngine *renderingFontEngine;
 };

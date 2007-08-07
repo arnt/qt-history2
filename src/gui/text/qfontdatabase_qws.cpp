@@ -794,13 +794,11 @@ QFontDatabase::findFont(int script, const QFontPrivate *fp,
             QFontCache::instance()->insertEngine(key, fe);
         }
 
-        if (scriptRequiresOpenType(script)) {
-#ifndef QT_NO_FREETYPE
-            QOpenType *ot = fe->openType();
-            if (!ot || !ot->supportsScript(script))
-#endif
-            {
-                FM_DEBUG("  OpenType support missing for script");
+        if (scriptRequiresOpenType(script) && fe->type() == QFontEngine::Freetype) {
+            HB_Face hbFace = static_cast<QFontEngineFT *>(fe)->harfbuzzFace();
+            if (!hbFace || !hbFace->supported_scripts[script]) {
+                FM_DEBUG("  OpenType support missing for script\n");
+                delete fe;
                 fe = 0;
             }
         }

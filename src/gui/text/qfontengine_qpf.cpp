@@ -22,7 +22,6 @@
 #include <QtCore/qbuffer.h>
 #if !defined(QT_NO_FREETYPE)
 #include "private/qfontengine_ft_p.h"
-#include "qopentype_p.h"
 #endif
 
 // for mmap
@@ -289,7 +288,6 @@ QFontEngineQPF::QFontEngineQPF(const QFontDef &def, int fileDescriptor, QFontEng
     fontDef = def;
     cache_cost = 100;
     freetype = 0;
-    _openType = 0;
     externalCMap = 0;
     cmapOffset = 0;
     cmapSize = 0;
@@ -402,15 +400,17 @@ QFontEngineQPF::QFontEngineQPF(const QFontDef &def, int fileDescriptor, QFontEng
     }
     if (freetype) {
         const quint32 qpfTtfRevision = extractHeaderField(fontData, Tag_FontRevision).toUInt();
-        const QByteArray head = freetype->getSfntTable(MAKE_TAG('h', 'e', 'a', 'd'));
-        if (head.size() < 8
-            || qFromBigEndian<quint32>(reinterpret_cast<const uchar *>(head.constData()) + 4) != qpfTtfRevision) {
+        uchar data[4];
+        uint length = 4;
+        bool ok = freetype->getSfntTable(MAKE_TAG('h', 'e', 'a', 'd'), data, &length);
+        if (!ok || length != 4
+            || qFromBigEndian<quint32>(data) != qpfTtfRevision) {
             freetype->release(face_id);
             freetype = 0;
         }
     }
     if (!cmapOffset && freetype) {
-        freetypeCMapTable = freetype->getSfntTable(MAKE_TAG('c', 'm', 'a', 'p'));
+        freetypeCMapTable = getSfntTable(MAKE_TAG('c', 'm', 'a', 'p'));
         externalCMap = reinterpret_cast<const uchar *>(freetypeCMapTable.constData());
         cmapSize = freetypeCMapTable.size();
     }
@@ -470,22 +470,21 @@ QFontEngineQPF::~QFontEngineQPF()
     if (fd != -1)
         ::close(fd);
 #if !defined(QT_NO_FREETYPE)
-    delete _openType;
-    _openType = 0;
     if (freetype)
         freetype->release(face_id);
 #endif
 }
 
-QByteArray QFontEngineQPF::getSfntTable(uint tag) const
+bool QFontEngineQPF::getSfntTableData(uint tag, uchar *buffer, uint *length) const
 {
 #if !defined(QT_NO_FREETYPE)
     if (freetype)
-        return freetype->getSfntTable(tag);
-#else
-    Q_UNUSED(tag);
+        return freetype->getSfntTable(tag, buffer, length);
 #endif
-    return QByteArray();
+    Q_UNUSED(tag);
+    Q_UNUSED(buffer);
+    *length = 0;
+    return false;
 }
 
 bool QFontEngineQPF::stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const
@@ -759,24 +758,6 @@ void QFontEngineQPF::unlockFace() const
     freetype->unlock();
 }
 
-QOpenType *QFontEngineQPF::openType() const
-{
-    if (!freetype)
-        return 0;
-    if (_openType)
-         return _openType;
-
-    FT_Face face = lockFace();
-    if (!face || !FT_IS_SFNT(face)) {
-        unlockFace();
-        return 0;
-    }
-
-    _openType = new QOpenType(const_cast<QFontEngineQPF *>(this), face);
-    unlockFace();
-    return _openType;
-}
-
 void QFontEngineQPF::doKerning(int num_glyphs, QGlyphLayout *g, QTextEngine::ShaperFlags flags) const
 {
     if (!kerning_pairs_loaded) {
@@ -986,9 +967,13 @@ void QPFGenerator::writeHeader()
     writeTaggedUInt32(QFontEngineQPF::Tag_FileIndex, face.index);
 
     {
-        const QByteArray head = fe->getSfntTable(MAKE_TAG('h', 'e', 'a', 'd'));
-        const quint32 revision = qFromBigEndian<quint32>(reinterpret_cast<const uchar *>(head.constData()) + 4);
-        writeTaggedUInt32(QFontEngineQPF::Tag_FontRevision, revision);
+        uchar data[4];
+        uint len = 4;
+        bool ok = fe->getSfntTableData(MAKE_TAG('h', 'e', 'a', 'd'), data, &len);
+        if (ok) {
+            const quint32 revision = qFromBigEndian<quint32>(data);
+            writeTaggedUInt32(QFontEngineQPF::Tag_FontRevision, revision);
+        }
     }
 
     writeTaggedQFixed(QFontEngineQPF::Tag_Ascent, fe->ascent());

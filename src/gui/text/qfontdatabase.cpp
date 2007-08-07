@@ -19,7 +19,6 @@
 #include "qvarlengtharray.h" // here or earlier - workaround for VC++6
 #include "private/qunicodetables_p.h"
 #include "qfontengine_p.h"
-#include "qopentype_p.h"
 
 #ifdef Q_WS_X11
 #include <locale.h>
