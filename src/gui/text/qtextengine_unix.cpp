@@ -104,7 +104,9 @@ void QTextEngine::shapeText(int item) const
     // ##### multi font engines...
     Q_ASSERT(font->type() != QFontEngine::Multi);
     Q_ASSERT(font->type() == QFontEngine::Freetype);
-    shaper_item.font = static_cast<QFontEngineFT *>(font)->harfbuzzFont();
+    QFontEngineFT *ftEngine = static_cast<QFontEngineFT *>(font);
+    ftEngine->lockFace();
+    shaper_item.font = ftEngine->harfbuzzFont();
     shaper_item.num_glyphs = qMax(uint32_t(layoutData->num_glyphs - layoutData->used), shaper_item.item.length);
 
     //shaper_item.flags = si.analysis.bidiLevel % 2 ? RightToLeft : 0;
@@ -164,6 +166,7 @@ void QTextEngine::shapeText(int item) const
 
 //     qDebug("    -> item: script=%d num_glyphs=%d", shaper_item.script, shaper_item.num_glyphs);
     si.num_glyphs = shaper_item.num_glyphs;
+    ftEngine->unlockFace();
 #endif
 
     layoutData->used += si.num_glyphs;
