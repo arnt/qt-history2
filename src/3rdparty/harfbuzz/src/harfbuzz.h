@@ -21,5 +21,6 @@
 #ifdef HARFBUZZ_DUMP
 #include "harfbuzz-dump.h"
 #endif
+#include "harfbuzz-shaper.h"
 
 #endif /* HARFBUZZ_OPEN_H */

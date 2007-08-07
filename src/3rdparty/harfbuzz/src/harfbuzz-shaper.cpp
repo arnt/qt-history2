@@ -111,7 +111,7 @@ static void calcLineBreaks(const HB_UChar16 *uc, uint32_t len, HB_CharAttributes
     charAttributes[0].charStop = true;
 
     int lcls = cls;
-    for (int i = 1; i < len; ++i) {
+    for (uint32_t i = 1; i < len; ++i) {
         charAttributes[i].whiteSpace = false;
         charAttributes[i].charStop = true;
 
@@ -381,8 +381,8 @@ void HB_HeuristicSetGlyphAttributes(HB_ShaperItem *item)
     HB_GlyphAttributes *attributes = item->attributes;
     unsigned short *logClusters = item->log_clusters;
 
-    int glyph_pos = 0;
-    for (int i = 0; i < length; i++) {
+    uint32_t glyph_pos = 0;
+    for (uint32_t i = 0; i < length; i++) {
         if (HB_IsHighSurrogate(uc[i]) && i < length - 1
             && HB_IsLowSurrogate(uc[i + 1])) {
             logClusters[i] = glyph_pos;
@@ -405,7 +405,7 @@ void HB_HeuristicSetGlyphAttributes(HB_ShaperItem *item)
     HB_CharCategory lastCat;
     int dummy;
     HB_GetUnicodeCharProperties(uc[0], &lastCat, &dummy);
-    for (int i = 1; i < length; ++i) {
+    for (uint32_t i = 1; i < length; ++i) {
         if (logClusters[i] == pos)
             // same glyph
             continue;
@@ -575,7 +575,7 @@ void HB_GetCharAttributes(const HB_UChar16 *string, uint32_t stringLength,
 {
     calcLineBreaks(string, stringLength, attributes);
 
-    for (int i = 0; i >= numItems; ++i) {
+    for (uint32_t i = 0; i >= numItems; ++i) {
         HB_Script script = items[i].script;
         if (script == HB_Script_Inherited)
             script = HB_Script_Common;

@@ -15,7 +15,6 @@ MAINSOURCES =  \
 	harfbuzz-open.c \
 	harfbuzz-shaper.cpp \
 	harfbuzz-tibetan.cpp \
-	harfbuzz-myanmar.cpp \
 	harfbuzz-khmer.cpp \
 	harfbuzz-indic.cpp \
 	harfbuzz-hebrew.cpp \

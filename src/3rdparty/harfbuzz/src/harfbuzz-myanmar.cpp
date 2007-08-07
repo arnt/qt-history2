@@ -13,10 +13,6 @@
 
 #include <assert.h>
 
-enum {
-    C_DOTTED_CIRCLE = 0x25CC
-};
-
 enum MymrCharClassValues
 {
     Mymr_CC_RESERVED             =  0,
@@ -256,7 +252,7 @@ static bool myanmar_shape_syllable(HB_Bool openType, HB_ShaperItem *item, bool i
     int medial_ra = -1;
     int base = -1;
 
-    for (int i = 0; i < item->item.length; ++i) {
+    for (uint32_t i = 0; i < item->item.length; ++i) {
         HB_UChar16 chr = uc[i];
 
         if (chr == Mymr_C_VOWEL_E) {
@@ -475,7 +471,7 @@ HB_Bool HB_MyanmarShape(HB_ShaperItem *item)
 
         // fix logcluster array
         MMDEBUG("syllable:");
-        for (int i = first_glyph; i < first_glyph + syllable.num_glyphs; ++i)
+        for (uint32_t i = first_glyph; i < first_glyph + syllable.num_glyphs; ++i)
             MMDEBUG("        %d -> glyph %x", i, item->glyphs[i]);
         MMDEBUG("    logclusters:");
         for (int i = sstart; i < send; ++i) {
@@ -494,7 +490,7 @@ void HB_MyanmarAttributes(HB_Script /*script*/, const HB_UChar16 *text, uint32_t
     int end = from + len;
     const HB_UChar16 *uc = text + from;
     attributes += from;
-    int i = 0;
+    uint32_t i = 0;
     while (i < len) {
 	bool invalid;
 	int boundary = myanmar_nextSyllableBoundary(text, from+i, end, &invalid) - from;

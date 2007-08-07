@@ -93,7 +93,6 @@ enum KhmerCharClassFlags {
 enum KhmerChar {
     C_SIGN_ZWNJ     = 0x200C,
     C_SIGN_ZWJ      = 0x200D,
-    C_DOTTED_CIRCLE = 0x25CC,
     C_RO            = 0x179A,
     C_VOWEL_AA      = 0x17B6,
     C_SIGN_NIKAHIT  = 0x17C6,

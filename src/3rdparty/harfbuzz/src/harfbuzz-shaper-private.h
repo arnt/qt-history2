@@ -12,6 +12,10 @@
 
 FT_BEGIN_HEADER
 
+enum {
+    C_DOTTED_CIRCLE = 0x25CC
+};
+
 typedef enum 
 {
     HB_Combining_BelowLeftAttached       = 200,

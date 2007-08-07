@@ -94,7 +94,7 @@ static bool tibetan_shape_syllable(HB_Bool openType, HB_ShaperItem *item, bool i
         return false;
     }
 
-    int i;
+    uint32_t i;
     HB_STACKARRAY(HB_UChar16, reordered, len + 4);
 
     const HB_UChar16 *str = item->string + item->item.pos;
@@ -229,7 +229,7 @@ extern "C" void HB_TibetanAttributes(HB_Script /*script*/, const HB_UChar16 *tex
     int end = from + len;
     const HB_UChar16 *uc = text + from;
     attributes += from;
-    int i = 0;
+    uint32_t i = 0;
     while (i < len) {
         bool invalid;
         int boundary = tibetan_nextSyllableBoundary(text, from+i, end, &invalid) - from;
