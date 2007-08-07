@@ -64,7 +64,7 @@ HB_Bool HB_HebrewShape(HB_ShaperItem *shaper_item)
     logClusters[0] = 0;
     int slen = 1;
     int cluster_start = 0;
-    for (int i = 1; i < shaper_item->item.length; ++i) {
+    for (uint32_t i = 1; i < shaper_item->item.length; ++i) {
         ushort base = shapedChars[slen-1];
         ushort shaped = 0;
         bool invalid = false;

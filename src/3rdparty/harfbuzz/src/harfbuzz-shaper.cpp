@@ -203,7 +203,7 @@ static void calcLineBreaks(const HB_UChar16 *uc, uint32_t len, HB_CharAttributes
 //
 // --------------------------------------------------------------------------------------------------------------------------------------------
 
-static inline void positionCluster(HB_ShaperItem *item, int gfrom,  int glast)
+static inline void positionCluster(HB_ShaperItem * /*item*/, int /*gfrom*/,  int /*glast*/)
 {
 #if 0
     int nmarks = glast - gfrom;

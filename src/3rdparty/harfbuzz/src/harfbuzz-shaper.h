@@ -253,9 +253,6 @@ typedef struct {
     HB_Script current_script;
     int current_flags; // HB_ShaperFlags
     HB_Bool has_opentype_kerning;
-#if 0
-    HB_Bool positioned;
-#endif
     HB_Bool glyphs_substituted;
     HB_GlyphAttributes *tmpAttributes;
     unsigned int *tmpLogClusters;

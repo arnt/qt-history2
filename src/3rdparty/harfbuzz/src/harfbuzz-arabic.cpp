@@ -800,7 +800,7 @@ static inline const HB_UChar16 prevChar(const HB_UChar16 *str, int pos)
     return ReplacementCharacter;
 }
 
-static inline const HB_UChar16 nextChar(const HB_UChar16 *str, uint32_t len, int pos)
+static inline const HB_UChar16 nextChar(const HB_UChar16 *str, uint32_t len, uint32_t pos)
 {
     pos++;
     const HB_UChar16 *ch = str + pos;
@@ -815,7 +815,7 @@ static inline const HB_UChar16 nextChar(const HB_UChar16 *str, uint32_t len, int
     return ReplacementCharacter;
 }
 
-static void shapedString(const HB_UChar16 *uc, uint32_t stringLength, int from, int len, HB_UChar16 *shapeBuffer, int *shapedLength,
+static void shapedString(const HB_UChar16 *uc, uint32_t stringLength, uint32_t from, uint32_t len, HB_UChar16 *shapeBuffer, int *shapedLength,
                          bool reverse, HB_GlyphAttributes *attributes, unsigned short *logClusters)
 {
     assert(stringLength >= from + len);
@@ -827,8 +827,8 @@ static void shapedString(const HB_UChar16 *uc, uint32_t stringLength, int from, 
 
     HB_STACKARRAY(HB_ArabicProperties, props, len + 2)
     HB_ArabicProperties *properties = props;
-    int f = from;
-    int l = len;
+    uint32_t f = from;
+    uint32_t l = len;
     if (from > 0) {
         --f;
         ++l;
@@ -842,7 +842,7 @@ static void shapedString(const HB_UChar16 *uc, uint32_t stringLength, int from, 
     HB_UChar16 *data = shapeBuffer;
     int clusterStart = 0;
 
-    for (int i = 0; i < len; i++) {
+    for (uint32_t i = 0; i < len; i++) {
         uint8_t r = *ch >> 8;
         int gpos = data - shapeBuffer;
 
@@ -967,8 +967,8 @@ static bool arabicSyriacOpenTypeShape(HB_ShaperItem *item, bool *ot_ok)
 
     HB_STACKARRAY(HB_ArabicProperties, props, item->item.length + 2);
     HB_ArabicProperties *properties = props;
-    int f = 0;
-    int l = item->item.length;
+    uint32_t f = 0;
+    uint32_t l = item->item.length;
     if (item->item.pos > 0) {
         --f;
         ++l;
@@ -981,7 +981,7 @@ static bool arabicSyriacOpenTypeShape(HB_ShaperItem *item, bool *ot_ok)
 
     HB_STACKARRAY(uint, apply, item->num_glyphs);
 
-    for (int i = 0; i < item->num_glyphs; i++) {
+    for (uint32_t i = 0; i < item->num_glyphs; i++) {
         apply[i] = 0;
 
         if (properties[i].shape == XIsolated)

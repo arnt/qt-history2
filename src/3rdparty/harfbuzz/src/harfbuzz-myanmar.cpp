@@ -320,7 +320,7 @@ static bool myanmar_shape_syllable(HB_Bool openType, HB_ShaperItem *item, bool i
     int basePos = -1;
     // copy the rest of the syllable to the output, inserting the kinzi
     // at the correct place
-    for (int i = 0; i < item->item.length; ++i) {
+    for (int i = 0; i < (int)item->item.length; ++i) {
         if (i == vowel_e)
             continue;
         if (i == medial_ra || i == kinzi) {
@@ -495,7 +495,7 @@ void HB_MyanmarAttributes(HB_Script /*script*/, const HB_UChar16 *text, uint32_t
     uint32_t i = 0;
     while (i < len) {
 	bool invalid;
-	int boundary = myanmar_nextSyllableBoundary(text, from+i, end, &invalid) - from;
+	uint32_t boundary = myanmar_nextSyllableBoundary(text, from+i, end, &invalid) - from;
 
 	attributes[i].charStop = true;
         if (from || i)

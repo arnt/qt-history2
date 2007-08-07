@@ -200,7 +200,7 @@ HB_Bool HB_HangulShape(HB_ShaperItem *item)
     const HB_UChar16 *uc = item->string + item->item.pos;;;;
 
     bool allPrecomposed = true;
-    for (int i = 0; i < item->item.length; ++i) {
+    for (uint32_t i = 0; i < item->item.length; ++i) {
         if (!hangul_isPrecomposed(uc[i])) {
             allPrecomposed = false;
             break;

@@ -596,7 +596,7 @@ HB_Bool HB_KhmerShape(HB_ShaperItem *item)
         }
         // fix logcluster array
         KHDEBUG("syllable:");
-        for (int i = first_glyph; i < first_glyph + syllable.num_glyphs; ++i)
+        for (uint32_t i = first_glyph; i < first_glyph + syllable.num_glyphs; ++i)
             KHDEBUG("        %d -> glyph %x", i, item->glyphs[i]);
         KHDEBUG("    logclusters:");
         for (int i = sstart; i < send; ++i) {
@@ -615,10 +615,10 @@ void HB_KhmerAttributes(HB_Script /*script*/, const HB_UChar16 *text, uint32_t f
     int end = from + len;
     const HB_UChar16 *uc = text + from;
     attributes += from;
-    int i = 0;
+    uint32_t i = 0;
     while ( i < len ) {
 	bool invalid;
-	int boundary = khmer_nextSyllableBoundary( text, from+i, end, &invalid ) - from;
+	uint32_t boundary = khmer_nextSyllableBoundary( text, from+i, end, &invalid ) - from;
 
 	attributes[i].charStop = true;
 

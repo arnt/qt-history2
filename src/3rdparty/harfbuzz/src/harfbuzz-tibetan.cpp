@@ -234,7 +234,7 @@ extern "C" void HB_TibetanAttributes(HB_Script /*script*/, const HB_UChar16 *tex
     uint32_t i = 0;
     while (i < len) {
         bool invalid;
-        int boundary = tibetan_nextSyllableBoundary(text, from+i, end, &invalid) - from;
+        uint32_t boundary = tibetan_nextSyllableBoundary(text, from+i, end, &invalid) - from;
 
         attributes[i].charStop = true;
 
