@@ -1,0 +1,149 @@
+/*******************************************************************
+ *
+ *  Copyright 2007  Trolltech ASA
+ *
+ *  This is part of HarfBuzz, an OpenType Layout engine library.
+ *
+ *  See the file name COPYING for licensing information.
+ *
+ ******************************************************************/
+#ifndef HARFBUZZ_SHAPER_PRIVATE_H
+#define HARFBUZZ_SHAPER_PRIVATE_H
+
+FT_BEGIN_HEADER
+
+typedef enum 
+{
+    HB_Combining_BelowLeftAttached       = 200,
+    HB_Combining_BelowAttached           = 202,
+    HB_Combining_BelowRightAttached      = 204,
+    HB_Combining_LeftAttached            = 208,
+    HB_Combining_RightAttached           = 210,
+    HB_Combining_AboveLeftAttached       = 212,
+    HB_Combining_AboveAttached           = 214,
+    HB_Combining_AboveRightAttached      = 216,
+
+    HB_Combining_BelowLeft               = 218,
+    HB_Combining_Below                   = 220,
+    HB_Combining_BelowRight              = 222,
+    HB_Combining_Left                    = 224,
+    HB_Combining_Right                   = 226,
+    HB_Combining_AboveLeft               = 228,
+    HB_Combining_Above                   = 230,
+    HB_Combining_AboveRight              = 232,
+
+    HB_Combining_DoubleBelow             = 233,
+    HB_Combining_DoubleAbove             = 234,
+    HB_Combining_IotaSubscript           = 240
+} HB_CombiningClass;
+
+typedef enum {
+    CcmpProperty = 0x1,
+    InitProperty = 0x2,
+    IsolProperty = 0x4,
+    FinaProperty = 0x8,
+    MediProperty = 0x10,
+    RligProperty = 0x20,
+    CaltProperty = 0x40,
+    LigaProperty = 0x80,
+    DligProperty = 0x100,
+    CswhProperty = 0x200,
+    MsetProperty = 0x400,
+
+    // used by indic and myanmar shaper
+    NuktaProperty = 0x4,
+    AkhantProperty = 0x8,
+    RephProperty = 0x10,
+    PreFormProperty = 0x20,
+    BelowFormProperty = 0x40,
+    AboveFormProperty = 0x80,
+    HalfFormProperty = 0x100,
+    PostFormProperty = 0x200,
+    VattuProperty = 0x400,
+    PreSubstProperty = 0x800,
+    BelowSubstProperty = 0x1000,
+    AboveSubstProperty = 0x2000,
+    PostSubstProperty = 0x4000,
+    HalantProperty = 0x8000,
+    CligProperty = 0x10000
+
+} HB_OpenTypeProperty;
+
+// return true if ok.
+typedef HB_Bool (*HB_ShapeFunction)(HB_ShaperItem *shaper_item);
+typedef void (*HB_AttributeFunction)(HB_Script script, const HB_UChar16 *string, uint32_t from, uint32_t len, HB_CharAttributes *attributes);
+
+typedef struct {
+    HB_ShapeFunction shape;
+    HB_AttributeFunction charAttributes;
+} HB_ScriptEngine;
+
+extern const HB_ScriptEngine hb_scriptEngines[];
+
+extern HB_Bool HB_BasicShape(HB_ShaperItem *shaper_item);
+extern HB_Bool HB_TibetanShape(HB_ShaperItem *shaper_item);
+extern HB_Bool HB_HebrewShape(HB_ShaperItem *shaper_item);
+extern HB_Bool HB_ArabicShape(HB_ShaperItem *shaper_item);
+extern HB_Bool HB_HangulShape(HB_ShaperItem *shaper_item);
+extern HB_Bool HB_MyanmarShape(HB_ShaperItem *shaper_item);
+extern HB_Bool HB_KhmerShape(HB_ShaperItem *shaper_item);
+extern HB_Bool HB_IndicShape(HB_ShaperItem *shaper_item);
+
+extern void HB_TibetanAttributes(HB_Script script, const HB_UChar16 *string, uint32_t from, uint32_t len, HB_CharAttributes *attributes);
+
+extern void HB_MyanmarAttributes(HB_Script script, const HB_UChar16 *string, uint32_t from, uint32_t len, HB_CharAttributes *attributes);
+
+extern void HB_KhmerAttributes(HB_Script script, const HB_UChar16 *string, uint32_t from, uint32_t len, HB_CharAttributes *attributes);
+
+extern void HB_IndicAttributes(HB_Script script, const HB_UChar16 *string, uint32_t from, uint32_t len, HB_CharAttributes *attributes);
+
+typedef struct {
+    uint32_t tag;
+    uint32_t property;
+} HB_OpenTypeFeature;
+
+enum { PositioningProperties = 0x80000000 };
+
+HB_Bool HB_SelectScript(HB_ShaperItem *item, const HB_OpenTypeFeature *features);
+
+HB_Bool HB_OpenTypeShape(HB_ShaperItem *item, const uint32_t *properties);
+HB_Bool HB_OpenTypePosition(HB_ShaperItem *item, int availableGlyphs, HB_Bool doLogClusters);
+
+void HB_HeuristicPosition(HB_ShaperItem *item);
+void HB_HeuristicSetGlyphAttributes(HB_ShaperItem *item);
+
+inline bool HB_IsControlChar(HB_UChar16 uc)
+{
+    return (uc >= 0x200b && uc <= 0x200f /* ZW Space, ZWNJ, ZWJ, LRM and RLM */)
+            || (uc >= 0x2028 && uc <= 0x202f /* LS, PS, LRE, RLE, PDF, LRO, RLO, NNBSP */)
+            || (uc >= 0x206a && uc <= 0x206f /* ISS, ASS, IAFS, AFS, NADS, NODS */);
+}
+
+inline HB_Bool HB_StringToGlyphs(HB_ShaperItem *shaper_item)
+{
+    return shaper_item->font->klass->stringToGlyphs(shaper_item->font,
+                                                    shaper_item->string + shaper_item->item.pos, shaper_item->item.length,
+                                                    shaper_item->glyphs, &shaper_item->num_glyphs,
+                                                    shaper_item->item.bidiLevel % 2);
+}
+
+inline void HB_GetAdvances(HB_ShaperItem *shaper_item)
+{
+    shaper_item->font->klass->getAdvances(shaper_item->font,
+                                          shaper_item->glyphs, shaper_item->num_glyphs,
+                                          shaper_item->advances);
+}
+
+#define HB_STACKARRAY(Type, Name, Length) \
+    Type stack##Name[512]; \
+    Type *Name = stack##Name; \
+    if ((Length) >= 512) \
+        Name = (Type *)malloc((Length) * sizeof(Type));
+
+#define HB_FREE_STACKARRAY(Name) \
+    if (stack##Name != Name) \
+        free(Name);
+
+FT_END_HEADER
+
+#endif // HARFBUZZ_SHAPER_PRIVATE_H
