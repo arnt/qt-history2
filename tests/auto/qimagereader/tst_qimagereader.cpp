@@ -1140,7 +1140,7 @@ void tst_QImageReader::readCorruptImage()
 
 void tst_QImageReader::readCorruptBmp()
 {
-    QCOMPARE(QPixmap::fromImage(QImage("images/tst7.bmp")), QPixmap("images/tst7.png"));
+    QCOMPARE(QPixmap::fromImage(QImage("images/tst7.bmp")).toImage().convertToFormat(QImage::Format_ARGB32_Premultiplied), QImage("images/tst7.png").convertToFormat(QImage::Format_ARGB32_Premultiplied));
 }
 
 #if QT_VERSION >= 0x040200
