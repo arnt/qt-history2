@@ -363,6 +363,12 @@ bool QFontEngineXLFD::stringToCMap(const QChar *s, int len, QGlyphLayout *glyphs
     }
     *nglyphs = len;
 
+    recalcAdvances(len, glyphs, flags);
+    return true;
+}
+
+void QFontEngineXLFD::recalcAdvances(int len, QGlyphLayout *glyphs, QTextEngine::ShaperFlags /*flags*/) const
+{
     QGlyphLayout *g = glyphs + len;
     XCharStruct *xcs;
     // inlined for better perfomance
@@ -405,7 +411,6 @@ bool QFontEngineXLFD::stringToCMap(const QChar *s, int len, QGlyphLayout *glyphs
             }
         }
     }
-    return true;
 }
 
 glyph_metrics_t QFontEngineXLFD::boundingBox(const QGlyphLayout *glyphs, int numGlyphs)
