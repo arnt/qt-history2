@@ -82,7 +82,7 @@ struct QFreetypeFace
     static void addBitmapToPath(FT_GlyphSlot slot, const QFixedPoint &point, QPainterPath *path, bool = false);
 
 private:
-    QFreetypeFace() {}
+    QFreetypeFace() : _lock(QMutex::Recursive) {}
     ~QFreetypeFace() {}
     QAtomic ref;
     QMutex _lock;
