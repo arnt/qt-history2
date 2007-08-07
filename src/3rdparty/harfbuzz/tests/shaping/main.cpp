@@ -128,14 +128,14 @@ void hb_getGlyphMetrics(HB_Font font, HB_Glyph glyph, HB_GlyphMetrics *metrics)
     metrics->x = metrics->y = metrics->width = metrics->height = metrics->xOffset = metrics->yOffset = 0;
 }
 
-HB_Fixed hb_getAscent(HB_Font font)
+HB_Fixed hb_getFontMetric(HB_Font font, HB_FontMetric metric)
 {
     return 0; // ####
 }
 
 const HB_FontClass hb_fontClass = {
     hb_stringToGlyphs, hb_getAdvances, hb_canRender,
-    hb_getPointInOutline, hb_getGlyphMetrics, hb_getAscent
+    hb_getPointInOutline, hb_getGlyphMetrics, hb_getFontMetric
 };
 
 
