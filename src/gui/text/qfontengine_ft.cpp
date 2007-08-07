@@ -55,45 +55,6 @@
 #define TRUNC(x)    ((x) >> 6)
 #define ROUND(x)    (((x)+32) & -64)
 
-
-static HB_Bool hb_stringToGlyphs(HB_Font font, const HB_UChar16 *string, uint32_t length, HB_Glyph *glyphs, uint32_t *numGlyphs, HB_Bool rightToLeft)
-{
-    QFontEngine *fe = (QFontEngine *)font->userData;
-
-    QVarLengthArray<QGlyphLayout> qglyphs(*numGlyphs);
-
-    int nGlyphs = *numGlyphs;
-    bool result = fe->stringToCMap(reinterpret_cast<const QChar *>(string), length, qglyphs.data(), &nGlyphs, rightToLeft ? QTextEngine::RightToLeft : QFlag(0));
-    *numGlyphs = nGlyphs;
-    if (!result)
-        return false;
-
-    for (uint32_t i = 0; i < *numGlyphs; ++i)
-        glyphs[i] = qglyphs[i].glyph;
-
-    return true;
-}
-
-static void hb_getAdvances(HB_Font font, const HB_Glyph *glyphs, int numGlyphs, HB_Fixed *advances, int flags)
-{
-    QFontEngine *fe = (QFontEngine *)font->userData;
-
-    QVarLengthArray<QGlyphLayout> qglyphs(numGlyphs);
-    for (int i = 0; i < numGlyphs; ++i)
-        qglyphs[i].glyph = glyphs[i];
-
-    fe->recalcAdvances(numGlyphs, qglyphs.data(), flags & HB_ShaperFlag_UseDesignMetrics ? QTextEngine::DesignMetrics : QFlag(0));
-
-    for (int i = 0; i < numGlyphs; ++i)
-        advances[i] = qglyphs[i].advance.x.value();
-}
-
-static HB_Bool hb_canRender(HB_Font font, const HB_UChar16 *string, uint32_t length)
-{
-    QFontEngine *fe = (QFontEngine *)font->userData;
-    return fe->canRender(reinterpret_cast<const QChar *>(string), length);
-}
-
 static HB_Error hb_getSFntTable(void *font, HB_Tag tableTag, HB_Byte *buffer, HB_UInt *length)
 {
     FT_Face face = (FT_Face)font;
@@ -133,29 +94,6 @@ static HB_Error hb_getPointInOutline(HB_Font font, HB_Glyph glyph, int flags, ui
 
     return HB_Err_Ok;
 }
-
-static void hb_getGlyphMetrics(HB_Font font, HB_Glyph glyph, HB_GlyphMetrics *metrics)
-{
-    QFontEngine *fe = (QFontEngine *)font->userData;
-    glyph_metrics_t m = fe->boundingBox(glyph);
-    metrics->x = m.x.value();
-    metrics->y = m.y.value();
-    metrics->width = m.width.value();
-    metrics->height = m.height.value();
-    metrics->xOffset = m.xoff.value();
-    metrics->yOffset = m.yoff.value();
-}
-
-static HB_Fixed hb_getAscent(HB_Font font)
-{
-    QFontEngine *fe = (QFontEngine *)font->userData;
-    return fe->ascent().value();
-}
-
-const HB_FontClass hb_fontClass = {
-    hb_stringToGlyphs, hb_getAdvances, hb_canRender,
-    hb_getPointInOutline, hb_getGlyphMetrics, hb_getAscent
-};
 
 // -------------------------- Freetype support ------------------------------
 
@@ -548,14 +486,12 @@ QFontEngineFT::QFontEngineFT(const QFontDef &fd)
     subpixelType = Subpixel_None;
     defaultGlyphFormat = Format_None;
     canUploadGlyphsToServer = false;
-    hbFont = 0;
 }
 
 QFontEngineFT::~QFontEngineFT()
 {
     if (freetype)
         freetype->release(face_id);
-    delete hbFont;
 }
 
 void QFontEngineFT::freeGlyphSets()
@@ -577,27 +513,19 @@ bool QFontEngineFT::init(FaceId faceId, bool antialias, GlyphFormat defaultForma
         return false;
     }
 
-    hbFont = new HB_FontRec;
-    hbFont->klass = &hb_fontClass;
-    hbFont->faceData = freetype->face;
-    hbFont->userData = this;
-
     symbol = freetype->symbol_map != 0;
     PS_FontInfoRec psrec;
     // don't assume that type1 fonts are symbol fonts by default
     if (FT_Get_PS_Font_Info(freetype->face, &psrec) == FT_Err_Ok) {
         symbol = bool(fontDef.family.contains(QLatin1String("symbol"), Qt::CaseInsensitive));
     }
+    // #####
+    freetype->hbFace->isSymbolFont = symbol;
 
     lbearing = rbearing = SHRT_MIN;
     freetype->computeSize(fontDef, &xsize, &ysize, &outline_drawing);
 
     FT_Face face = lockFace();
-
-    hbFont->x_ppem  = face->size->metrics.x_ppem;
-    hbFont->y_ppem  = face->size->metrics.y_ppem;
-    hbFont->x_scale = face->size->metrics.x_scale;
-    hbFont->y_scale = face->size->metrics.y_scale;
 
     //underline metrics
     if (FT_IS_SCALABLE(face)) {
@@ -629,6 +557,16 @@ bool QFontEngineFT::init(FaceId faceId, bool antialias, GlyphFormat defaultForma
     fsType = freetype->fsType();
     defaultGlyphSet.id = allocateServerGlyphSet();
     return true;
+}
+
+void QFontEngineFT::setupHarfbuzzFont(HB_Font font, HB_FontClass *klass)
+{
+    font->faceData = freetype->face;
+    font->x_ppem  = freetype->face->size->metrics.x_ppem;
+    font->y_ppem  = freetype->face->size->metrics.y_ppem;
+    font->x_scale = freetype->face->size->metrics.x_scale;
+    font->y_scale = freetype->face->size->metrics.y_scale;
+    klass->getPointInOutline = hb_getPointInOutline;
 }
 
 QFontEngineFT::Glyph *QFontEngineFT::loadGlyph(QGlyphSet *set, uint glyph, GlyphFormat format) const

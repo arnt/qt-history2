@@ -224,7 +224,7 @@ public:
 
     bool init(FaceId faceId, bool antiaalias, GlyphFormat defaultFormat = Format_None);
 
-    inline HB_Font harfbuzzFont() const { return hbFont; }
+    void setupHarfbuzzFont(HB_Font font, HB_FontClass *klass);
     inline HB_Face harfbuzzFace() const { return freetype->hbFace; }
 protected:
 
@@ -262,8 +262,6 @@ private:
 
     FT_Size_Metrics metrics;
     mutable bool kerning_pairs_loaded;
-
-    HB_Font hbFont;
 };
 
 #endif // QT_NO_FREETYPE

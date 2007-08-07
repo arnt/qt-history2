@@ -22,6 +22,67 @@
 
 #include <private/qfontengine_ft_p.h>
 
+static HB_Bool hb_stringToGlyphs(HB_Font font, const HB_UChar16 *string, uint32_t length, HB_Glyph *glyphs, uint32_t *numGlyphs, HB_Bool rightToLeft)
+{
+    QFontEngine *fe = (QFontEngine *)font->userData;
+
+    QVarLengthArray<QGlyphLayout> qglyphs(*numGlyphs);
+
+    int nGlyphs = *numGlyphs;
+    bool result = fe->stringToCMap(reinterpret_cast<const QChar *>(string), length, qglyphs.data(), &nGlyphs, rightToLeft ? QTextEngine::RightToLeft : QFlag(0));
+    *numGlyphs = nGlyphs;
+    if (!result)
+        return false;
+
+    for (uint32_t i = 0; i < *numGlyphs; ++i)
+        glyphs[i] = qglyphs[i].glyph;
+
+    return true;
+}
+
+static void hb_getAdvances(HB_Font font, const HB_Glyph *glyphs, int numGlyphs, HB_Fixed *advances, int flags)
+{
+    QFontEngine *fe = (QFontEngine *)font->userData;
+
+    QVarLengthArray<QGlyphLayout> qglyphs(numGlyphs);
+    for (int i = 0; i < numGlyphs; ++i)
+        qglyphs[i].glyph = glyphs[i];
+
+    fe->recalcAdvances(numGlyphs, qglyphs.data(), flags & HB_ShaperFlag_UseDesignMetrics ? QTextEngine::DesignMetrics : QFlag(0));
+
+    for (int i = 0; i < numGlyphs; ++i)
+        advances[i] = qglyphs[i].advance.x.value();
+}
+
+static HB_Bool hb_canRender(HB_Font font, const HB_UChar16 *string, uint32_t length)
+{
+    QFontEngine *fe = (QFontEngine *)font->userData;
+    return fe->canRender(reinterpret_cast<const QChar *>(string), length);
+}
+
+static void hb_getGlyphMetrics(HB_Font font, HB_Glyph glyph, HB_GlyphMetrics *metrics)
+{
+    QFontEngine *fe = (QFontEngine *)font->userData;
+    glyph_metrics_t m = fe->boundingBox(glyph);
+    metrics->x = m.x.value();
+    metrics->y = m.y.value();
+    metrics->width = m.width.value();
+    metrics->height = m.height.value();
+    metrics->xOffset = m.xoff.value();
+    metrics->yOffset = m.yoff.value();
+}
+
+static HB_Fixed hb_getAscent(HB_Font font)
+{
+    QFontEngine *fe = (QFontEngine *)font->userData;
+    return fe->ascent().value();
+}
+
+const HB_FontClass hb_fontClass = {
+    hb_stringToGlyphs, hb_getAdvances, hb_canRender, /*getPointInOutline*/0,
+    hb_getGlyphMetrics, hb_getAscent
+};
+
 static bool stringToGlyphs(HB_ShaperItem *item, HB_Glyph *itemGlyphs, QFontEngine *fontEngine)
 {
     int nGlyphs = item->num_glyphs;
@@ -132,15 +193,28 @@ void QTextEngine::shapeText(int item) const
             QFontEngine *eng = static_cast<QFontEngineMulti *>(font)->engine(engineIdx);
             Q_ASSERT(eng->type() == QFontEngine::Freetype);
             ftEngine = static_cast<QFontEngineFT *>(eng);
-        } else {
-            Q_ASSERT(font->type() == QFontEngine::Freetype);
+        } else if (font->type() == QFontEngine::Freetype) {
             ftEngine = static_cast<QFontEngineFT *>(font);
         }
 
-        Q_ASSERT(ftEngine);
-        ftEngine->lockFace();
-        shaper_item.font = ftEngine->harfbuzzFont();
-        shaper_item.face = ftEngine->harfbuzzFace();
+        HB_FontClass fontClass = hb_fontClass;
+        HB_FontRec hbFont;
+        memset(&hbFont, 0, sizeof(hbFont));
+        hbFont.klass = &fontClass;
+        hbFont.userData = font;
+
+        shaper_item.font = &hbFont;
+
+        if (ftEngine) {
+            Q_ASSERT(ftEngine);
+            ftEngine->lockFace();
+
+            ftEngine->setupHarfbuzzFont(&hbFont, &fontClass);
+
+            shaper_item.face = ftEngine->harfbuzzFace();
+        } else {
+            shaper_item.face = qHBNewFace(0, 0);
+        }
 
         while (1) {
             ensureSpace(glyph_pos + shaper_item.num_glyphs);
@@ -193,6 +267,8 @@ void QTextEngine::shapeText(int item) const
             glyph_pos += shaper_item.num_glyphs;
             if (ftEngine)
                 ftEngine->unlockFace();
+            else
+                qHBFreeFace(shaper_item.face);
             break;
         }
     }
