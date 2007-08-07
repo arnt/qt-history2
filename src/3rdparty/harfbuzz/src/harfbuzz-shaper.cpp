@@ -945,7 +945,7 @@ HB_Bool HB_OpenTypePosition(HB_ShaperItem *item, int availableGlyphs, HB_Bool do
         memset(face->buffer->positions, 0, face->buffer->in_length*sizeof(HB_PositionRec));
         int loadFlags = (face->current_flags & HB_ShaperFlag_UseDesignMetrics) ? FT_LOAD_NO_HINTING : FT_LOAD_DEFAULT;
         // #### check that passing "false,false" is correct
-        glyphs_positioned = HB_GPOS_Apply_String(item->font->freetypeFace, item->font, face->gpos, loadFlags, face->buffer, false, false) != HB_Err_Not_Covered;
+        glyphs_positioned = HB_GPOS_Apply_String(item->font, face->gpos, loadFlags, face->buffer, false, false) != HB_Err_Not_Covered;
     }
 
     if (!face->glyphs_substituted && !glyphs_positioned) {

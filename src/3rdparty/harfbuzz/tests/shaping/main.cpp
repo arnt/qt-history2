@@ -195,6 +195,10 @@ static bool shaping(FT_Face face, const ShapeTable *s, HB_Script script)
     hbFont.klass = &hb_fontClass;
     hbFont.userData = 0;
     hbFont.freetypeFace = face;
+    hbFont.x_ppem  = face->size->metrics.x_ppem;
+    hbFont.y_ppem  = face->size->metrics.y_ppem;
+    hbFont.x_scale = face->size->metrics.x_scale;
+    hbFont.y_scale = face->size->metrics.y_scale;
 
     HB_Face hbFace = HB_NewFace(&hbFont);
 

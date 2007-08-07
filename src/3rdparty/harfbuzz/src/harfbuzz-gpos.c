@@ -19,7 +19,6 @@
 struct  GPOS_Instance_
 {
   HB_GPOSHeader*  gpos;
-  FT_Face          face;
   HB_Font          font;
   HB_Bool          dvi;
   HB_UShort        load_flags;  /* how the glyph should be loaded */
@@ -45,12 +44,12 @@ static HB_Error  GPOS_Do_Glyph_Lookup( GPOS_Instance*    gpi,
 /* the client application must replace this with something more
    meaningful if multiple master fonts are to be supported.     */
 
-static HB_Error  default_mmfunc( FT_Face      face,
+static HB_Error  default_mmfunc( HB_Font      font,
 				 HB_UShort    metric_id,
 				 HB_Fixed*      metric_value,
 				 void*        data )
 {
-  HB_UNUSED(face);
+  HB_UNUSED(font);
   HB_UNUSED(metric_id);
   HB_UNUSED(metric_value);
   HB_UNUSED(data);
@@ -83,7 +82,6 @@ HB_Error  HB_Load_GPOS_Table( HB_Stream stream,
   if ( ALLOC ( gpos, sizeof( *gpos ) ) )
     return error;
 
-  gpos->gfunc = FT_Load_Glyph;
   gpos->mmfunc = default_mmfunc;
 
   /* skip version */
@@ -465,10 +463,10 @@ static HB_Error  Get_ValueRecord( GPOS_Instance*    gpi,
   if ( !format )
     return HB_Err_Ok;
 
-  x_ppem  = gpi->face->size->metrics.x_ppem;
-  y_ppem  = gpi->face->size->metrics.y_ppem;
-  x_scale = gpi->face->size->metrics.x_scale;
-  y_scale = gpi->face->size->metrics.y_scale;
+  x_ppem  = gpi->font->x_ppem;
+  y_ppem  = gpi->font->y_ppem;
+  x_scale = gpi->font->x_scale;
+  y_scale = gpi->font->y_scale;
 
   /* design units -> fractional pixel */
 
@@ -511,7 +509,7 @@ static HB_Error  Get_ValueRecord( GPOS_Instance*    gpi,
 
   if ( format & HB_GPOS_FORMAT_HAVE_X_ID_PLACEMENT )
   {
-    error = (gpos->mmfunc)( gpi->face, vr->XIdPlacement,
+    error = (gpos->mmfunc)( gpi->font, vr->XIdPlacement,
 			    &value, gpos->data );
     if ( error )
       return error;
@@ -519,7 +517,7 @@ static HB_Error  Get_ValueRecord( GPOS_Instance*    gpi,
   }
   if ( format & HB_GPOS_FORMAT_HAVE_Y_ID_PLACEMENT )
   {
-    error = (gpos->mmfunc)( gpi->face, vr->YIdPlacement,
+    error = (gpos->mmfunc)( gpi->font, vr->YIdPlacement,
 			    &value, gpos->data );
     if ( error )
       return error;
@@ -527,7 +525,7 @@ static HB_Error  Get_ValueRecord( GPOS_Instance*    gpi,
   }
   if ( format & HB_GPOS_FORMAT_HAVE_X_ID_ADVANCE )
   {
-    error = (gpos->mmfunc)( gpi->face, vr->XIdAdvance,
+    error = (gpos->mmfunc)( gpi->font, vr->XIdAdvance,
 			    &value, gpos->data );
     if ( error )
       return error;
@@ -535,7 +533,7 @@ static HB_Error  Get_ValueRecord( GPOS_Instance*    gpi,
   }
   if ( format & HB_GPOS_FORMAT_HAVE_Y_ID_ADVANCE )
   {
-    error = (gpos->mmfunc)( gpi->face, vr->YIdAdvance,
+    error = (gpos->mmfunc)( gpi->font, vr->YIdAdvance,
 			    &value, gpos->data );
     if ( error )
       return error;
@@ -695,10 +693,10 @@ static HB_Error  Get_Anchor( GPOS_Instance*   gpi,
   HB_16Dot16         x_scale, y_scale;
 
 
-  x_ppem  = gpi->face->size->metrics.x_ppem;
-  y_ppem  = gpi->face->size->metrics.y_ppem;
-  x_scale = gpi->face->size->metrics.x_scale;
-  y_scale = gpi->face->size->metrics.y_scale;
+  x_ppem  = gpi->font->x_ppem;
+  y_ppem  = gpi->font->y_ppem;
+  x_scale = gpi->font->x_scale;
+  y_scale = gpi->font->y_scale;
 
   switch ( an->PosFormat )
   {
@@ -754,12 +752,12 @@ static HB_Error  Get_Anchor( GPOS_Instance*   gpi,
     break;
 
   case 4:
-    error = (gpos->mmfunc)( gpi->face, an->af.af4.XIdAnchor,
+    error = (gpos->mmfunc)( gpi->font, an->af.af4.XIdAnchor,
 			    x_value, gpos->data );
     if ( error )
       return error;
 
-    error = (gpos->mmfunc)( gpi->face, an->af.af4.YIdAnchor,
+    error = (gpos->mmfunc)( gpi->font, an->af.af4.YIdAnchor,
 			    y_value, gpos->data );
     if ( error )
       return error;
@@ -6099,19 +6097,6 @@ HB_Error  HB_GPOS_Clear_Features( HB_GPOSHeader*  gpos )
 
 
 
-HB_Error  HB_GPOS_Register_Glyph_Function( HB_GPOSHeader*    gpos,
-					   HB_GlyphFunction  gfunc )
-{
-  if ( !gpos )
-    return HB_Err_Invalid_Argument;
-
-  gpos->gfunc = gfunc;
-
-  return HB_Err_Ok;
-}
-
-
-
 HB_Error  HB_GPOS_Register_MM_Function( HB_GPOSHeader*  gpos,
 					HB_MMFunction   mmfunc,
 					void*            data )
@@ -6129,8 +6114,7 @@ HB_Error  HB_GPOS_Register_MM_Function( HB_GPOSHeader*  gpos,
    tables are ignored -- you will get device independent values.         */
 
 
-HB_Error  HB_GPOS_Apply_String( FT_Face            face,
-				HB_Font            font,
+HB_Error  HB_GPOS_Apply_String( HB_Font            font,
 				HB_GPOSHeader*    gpos,
 				HB_UShort          load_flags,
 				HB_Buffer         buffer,
@@ -6142,11 +6126,10 @@ HB_Error  HB_GPOS_Apply_String( FT_Face            face,
   HB_UShort      i, j, feature_index, lookup_count;
   HB_Feature    feature;
 
-  if ( !face || !gpos ||
+  if ( !font || !gpos ||
        !buffer || buffer->in_length == 0 || buffer->in_pos >= buffer->in_length )
     return HB_Err_Invalid_Argument;
 
-  gpi.face       = face;
   gpi.font       = font;
   gpi.gpos       = gpos;
   gpi.load_flags = load_flags;

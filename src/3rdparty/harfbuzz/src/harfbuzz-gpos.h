@@ -34,25 +34,6 @@ HB_BEGIN_HEADER
 #define HB_GPOS_LOOKUP_CHAIN      8
 #define HB_GPOS_LOOKUP_EXTENSION  9
 
-
-/* A pointer to a function which loads a glyph.  Its parameters are
-   the same as in a call to Load_Glyph() -- if no glyph loading
-   function will be registered with HB_GPOS_Register_Glyph_Function(),
-   Load_Glyph() will be called indeed.  The purpose of this function
-   pointer is to provide a hook for caching glyph outlines and sbits
-   (using the instance's generic pointer to hold the data).
-
-   If for some reason no outline data is available (e.g. for an
-   embedded bitmap glyph), _glyph->outline.n_points should be set to
-   zero.  _glyph can be computed with
-
-      _glyph = HANDLE_Glyph( glyph )                                    */
-
-typedef FT_Error  (*HB_GlyphFunction)(FT_Face      face,
-				       HB_UInt      glyphIndex,
-				       HB_Int       loadFlags );
-
-
 /* A pointer to a function which accesses the PostScript interpreter.
    Multiple Master fonts need this interface to convert a metric ID
    (as stored in an OpenType font version 1.2 or higher) `metric_id'
@@ -64,7 +45,7 @@ typedef FT_Error  (*HB_GlyphFunction)(FT_Face      face,
    `metric_value' must be returned as a scaled value (but shouldn't
    be rounded).                                                       */
 
-typedef HB_Error  (*HB_MMFunction)(FT_Face      face,
+typedef HB_Error  (*HB_MMFunction)(HB_Font       font,
 				    HB_UShort    metric_id,
 				    HB_Fixed*      metric_value,
 				    void*        data );
@@ -79,11 +60,6 @@ struct  HB_GPOSHeader_
   HB_LookupList     LookupList;
 
   HB_GDEFHeader*    gdef;
-
-  /* the next field is used for a callback function to get the
-     glyph outline.                                            */
-
-  HB_GlyphFunction  gfunc;
 
   /* this is OpenType 1.2 -- Multiple Master fonts need this
      callback function to get various metric values from the
@@ -143,10 +119,6 @@ HB_Error  HB_GPOS_Add_Feature( HB_GPOSHeader*  gpos,
 HB_Error  HB_GPOS_Clear_Features( HB_GPOSHeader*  gpos );
 
 
-HB_Error  HB_GPOS_Register_Glyph_Function( HB_GPOSHeader*    gpos,
-					   HB_GlyphFunction  gfunc );
-
-
 HB_Error  HB_GPOS_Register_MM_Function( HB_GPOSHeader*  gpos,
 					HB_MMFunction   mmfunc,
 					void*            data );
@@ -155,8 +127,7 @@ HB_Error  HB_GPOS_Register_MM_Function( HB_GPOSHeader*  gpos,
    tables are ignored -- you will get device independent values.         */
 
 
-HB_Error  HB_GPOS_Apply_String( FT_Face           face,
-				HB_Font           font,
+HB_Error  HB_GPOS_Apply_String( HB_Font           font,
 				HB_GPOSHeader*   gpos,
 				HB_UShort         load_flags,
 				HB_Buffer        buffer,
