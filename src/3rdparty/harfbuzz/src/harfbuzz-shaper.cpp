@@ -719,6 +719,27 @@ static HB_Bool checkScript(HB_Face face, int script)
     return true;
 }
 
+static HB_Stream getTableStream(HB_Font font, HB_Tag tag)
+{
+    HB_Error error;
+    HB_UInt length = 0;
+    HB_Stream stream = 0;
+    error = font->klass->getSFntTable(font, tag, 0, &length);
+    if (error)
+        return 0;
+    stream = (HB_Stream)malloc(sizeof(HB_StreamRec));
+    stream->base = (HB_Byte*)malloc(length);
+    error = font->klass->getSFntTable(font, tag, stream->base, &length);
+    if (error) {
+        HB_close_stream(stream);
+        return 0;
+    }
+    stream->size = length;
+    stream->pos = 0;
+    stream->cursor = NULL;
+    return stream;
+}
+
 HB_Face HB_NewFace(HB_Font font)
 {
     HB_Face face = (HB_Face )malloc(sizeof(HB_FaceRec));
@@ -738,14 +759,14 @@ HB_Face HB_NewFace(HB_Font font)
     HB_Stream stream;
     HB_Stream gdefStream;
 
-    gdefStream = font->klass->getSFntTable(font, TTAG_GDEF);
+    gdefStream = getTableStream(font, TTAG_GDEF);
     if (!gdefStream || (error = HB_Load_GDEF_Table(gdefStream, &face->gdef))) {
         //DEBUG("error loading gdef table: %d", error);
         face->gdef = 0;
     }
 
     //DEBUG() << "trying to load gsub table";
-    stream = font->klass->getSFntTable(font, TTAG_GSUB);
+    stream = getTableStream(font, TTAG_GSUB);
     if (!stream || (error = HB_Load_GSUB_Table(stream, &face->gsub, face->gdef, gdefStream))) {
         face->gsub = 0;
         if (error != HB_Err_Table_Missing) {
@@ -756,7 +777,7 @@ HB_Face HB_NewFace(HB_Font font)
     }
     HB_close_stream(stream);
 
-    stream = font->klass->getSFntTable(font, TTAG_GPOS);
+    stream = getTableStream(font, TTAG_GPOS);
     if (!stream || (error = HB_Load_GPOS_Table(stream, &face->gpos, face->gdef, gdefStream))) {
         face->gpos = 0;
         DEBUG("error loading gpos table: %d", error);
