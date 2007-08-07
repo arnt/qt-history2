@@ -928,15 +928,21 @@ void QWSDisplay::Data::offsetPendingExpose(int window, const QPoint &offset)
 }
 #endif
 
+static int qws_connection_timeout = 5;
+
 #ifndef QT_NO_QWS_MULTIPROCESS
 void QWSDisplay::Data::connectToPipe()
 {
     Q_ASSERT(csocket);
 
+    int timeout = qgetenv("QWS_CONNECTION_TIMEOUT").toInt();
+    if (timeout)
+        qws_connection_timeout = timeout;
+
     const QString pipe = qws_qtePipeFilename();
     int i = 0;
     while (!csocket->connectToLocalFile(pipe)) {
-        if (++i > 5) {
+        if (++i > qws_connection_timeout) {
             qWarning("No Qtopia Core server appears to be running.");
             qWarning("If you want to run this program as a server,");
             qWarning("add the \"-qws\" command-line option.");
@@ -950,7 +956,7 @@ void QWSDisplay::Data::waitForConnection()
 {
     connected_event = 0;
 
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < qws_connection_timeout; i++) {
         fillQueue();
         if (connected_event)
             return;
