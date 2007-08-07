@@ -3,7 +3,160 @@
     \title Image Composition Example
 
     The Image Composition example lets the user combine images
-    together using any composition mode supported by QPainter.
+    together using any composition mode supported by QPainter, described
+    in detail in \l{QPainter#Composition Modes}{Composition Modes}.
 
     \image imagecomposition-example.png
-*/
+
+    \section1 Setting Up The Resource File
+
+    The Image Composition example requires two source images,
+    \e butterfly.png and \e checker.png that are embedded within
+    \e imagecomposition.qrc. The file contains the following code:
+
+    \quotefromfile painting/imagecomposition/imagecomposition.qrc
+    \skipto <!DOCTYPE RCC>
+    \printuntil </RCC>
+
+    For more information on resource files, see \l{The Qt Resource System}.
+
+    \section1 ImageComposer Class Definition
+
+    The \c ImageComposer class is a subclass of QWidget that implements three
+    private slots, \c chooseSource(), \c chooseDestination(), and
+    \c recalculateResult().
+
+    \quotefromfile painting/imagecomposition/imagecomposer.h
+    \skipto class ImageComposer
+    \printuntil void recalculateResult();
+
+    In addition, \c ImageComposer consists of five private functions,
+    \c addOp(), \c chooseImage(), \c loadImage(), \c currentMode(), and
+    \c imagePos(), as well as private instances of QToolButton, QComboBox,
+    QLabel, and QImage.
+
+    \skipto private:
+    \printuntil };
+
+    \section1 ImageComposer Class Implementation
+
+    We declare a QSize object, \c resultSize, as a static constant with width
+    and height equal to 200.
+
+    \quotefromfile painting/imagecomposition/imagecomposer.cpp
+    \skipto static const QSize
+    \printuntil (200, 200);
+
+    Within the constructor, we instantiate a QToolButton object,
+    \c sourceButton and set its \l{QAbstractButton::setIconSize()}{iconSize}
+    property to \c resultSize. The \c operatorComboBox is instantiated and
+    then populated using the \c addOp() function. This function accepts a
+    QPainter::CompositionMode, \a mode, and a QString, \a name, representing
+    the name of the composition mode.
+
+    \skipto ImageComposer::ImageComposer()
+    \printuntil addOp(QPainter::CompositionMode_Xor, tr("Xor"));
+
+    The \c destinationButton is instantiated and its
+    \l{QAbstractButton::setIconSize()}{iconSize} property is set to
+    \c resultSize as well. The \l{QLabel}s \c equalLabel and \c resultLabel
+    are created and \c{resultLabel}'s \l{QWidget::setMinimumWidth()}
+    {minimumWidth} is set.
+
+    \skipto destinationButton
+    \printuntil resultLabel->setMinimumWidth
+
+    We connect the following signals to their corresponding slots:
+    \list
+        \o \c{sourceButton}'s \l{QPushButton::clicked()}{clicked()} signal is
+            connected to \c chooseSource(),
+        \o \c{operatorComboBox}'s \l{QComboBox::activated()}{activated()}
+            signal is connected to \c recalculateResult(), and
+        \o \c{destinationButton}'s \l{QToolButton::clicked()}{clicked()} signal
+            is connected to \c chooseDestination().
+    \endlist
+
+    \skipto connect
+    \printuntil chooseDestination()));
+
+    A QGridLayout, \c mainLayout, is used to place all the widgets. Note
+    that \c{mainLayout}'s \l{QLayout::setSizeConstraint()}{sizeConstraint}
+    property is set to QLayout::SetFixedSize, which means that
+    \c{ImageComposer}'s size cannot be resized at all.
+
+    \skipto QGridLayout
+    \printuntil setLayout(mainLayout);
+
+    We create a QImage, \c resultImage, and we invoke \c loadImage() twice
+    to load both the image files in our \e imagecomposition.qrc file. Then,
+    we set the \l{QWidget::setWindowTitle()}{windowTitle} property to
+    "Image Composition".
+
+    \skipto resultImage
+    \printuntil /^\}/
+
+    The \c chooseSource() and \c chooseDestination() functions are
+    convenience functions that invoke \c chooseImage() with specific
+    parameters.
+
+    \skipto void ImageComposer::chooseSource()
+    \printuntil /^\}/
+
+    \skipto void ImageComposer::chooseDestination()
+    \printuntil /^\}/
+
+    The \c chooseImage() function loads an image of the user's choice,
+    depending on the \a title, \a image, and \a button.
+
+    \skipto void ImageComposer::chooseImage(const QString &title, QImage
+    \printuntil /^\}/
+
+    The \c recalculateResult() function is used to calculate amd display the
+    result of combining the two images together with the user's choice of
+    composition mode.
+
+    \quotefromfile painting/imagecomposition/imagecomposer.cpp
+    \skipto void ImageComposer::recalculateResult()
+    \printuntil /^\}/
+
+    The \c addOp() function adds an item to the \c operatorComboBox using
+    \l{QComboBox}'s \l{QComboBox::addItem()}{addItem} function. This function
+    accepts a QPainter::CompositionMode, \a mode, and a QString, \a name. The
+    rectangle is filled with Qt::Transparent and both the \c sourceImage and
+    \c destinationImage are painted, before displaying it on \c resultLabel.
+
+    \quotefromfile painting/imagecomposition/imagecomposer.cpp
+    \skipto void ImageComposer::addOp
+    \printuntil /^\}/
+
+    The \c loadImage() function paints a transparent background using
+    \l{QPainter::fillRect()}{fillRect()} and draws \c image in a
+    centralized position using \l{QPainter::drawImage()}{drawImage()}.
+    This \c image is then set as the \c{button}'s icon.
+
+    \skipto void ImageComposer::loadImage(const QString &fileName, QImage
+    \printuntil /^\}/
+
+    The \c currentMode() function returns the composition mode currently
+    selected in \c operatorComboBox.
+
+    \skipto QPainter::CompositionMode ImageComposer::currentMode() const
+    \printuntil /^\}/
+
+    We use the \c imagePos() function to ensure that images loaded onto the
+    QToolButton objects, \c sourceButton and \c destinationButton, are
+    centralized.
+
+    \skipto QPoint ImageComposer::imagePos(const QImage &image) const
+    \printuntil /^\}/
+
+    \section1 The \c main() Function
+
+    The \c main() function instantiates QApplication and \c ImageComposer
+    and invokes its \l{QWidget::show()}{show()} function.
+
+    \quotefromfile painting/imagecomposition/main.cpp
+    \skipto int main
+    \printuntil /^\}/
+
+    */
