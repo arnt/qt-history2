@@ -1069,11 +1069,16 @@ HB_Bool HB_OpenTypePosition(HB_ShaperItem *item, int availableGlyphs, HB_Bool do
 //                    (int)(positions[i].x_advance >> 6), (int)(positions[i].y_advance >> 6),
 //                    (int)(positions[i].x_pos >> 6), (int)(positions[i].y_pos >> 6),
 //                    positions[i].back, positions[i].new_advance);
-            // ###### fix the case where we have y advances. How do we handle this in Uniscribe?????
+
+            HB_Fixed adjustment = (item->item.bidiLevel % 2) ? -positions[i].x_advance : positions[i].x_advance;
+
+            if (!(face->current_flags & HB_ShaperFlag_UseDesignMetrics))
+                adjustment = HB_FIXED_ROUND(adjustment);
+
             if (positions[i].new_advance) {
-                advances[i] = item->item.bidiLevel % 2 ? -positions[i].x_advance : positions[i].x_advance;
+                advances[i] = adjustment;
             } else {
-                advances[i] += item->item.bidiLevel % 2 ? -positions[i].x_advance : positions[i].x_advance;
+                advances[i] += adjustment;
             }
 
             int back = 0;

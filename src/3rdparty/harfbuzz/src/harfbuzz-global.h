@@ -46,6 +46,7 @@ typedef hb_uint32 HB_Glyph;
 typedef hb_int32 HB_Fixed; /* 26.6 */
 
 #define HB_FIXED_CONSTANT(v) ((v) * 64)
+#define HB_FIXED_ROUND(v) (((v)+32) & -64)
 
 typedef hb_int32 HB_16Dot16; /* 16.16 */
 
