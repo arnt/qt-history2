@@ -799,22 +799,12 @@ void QTextEngine::shapeTextWithHarfbuzz(int item) const
         QVarLengthArray<HB_FixedPoint> hb_offsets(shaper_item.num_glyphs);
 
         QFontEngine *actualFontEngine = font;
-#if defined(Q_WS_X11) || defined(Q_WS_QWS)
-        QFontEngineFT *ftEngine = 0;
-#endif
         uint engineIdx = 0;
         if (font->type() == QFontEngine::Multi) {
             engineIdx = uint(hb_initial_glyphs[itemBoundaries[k + 1]] >> 24);
 
             actualFontEngine = static_cast<QFontEngineMulti *>(font)->engine(engineIdx);
         }
-
-#if defined(Q_WS_X11) || defined(Q_WS_QWS)
-        if (actualFontEngine->type() == QFontEngine::Freetype) {
-            ftEngine = static_cast<QFontEngineFT *>(actualFontEngine);
-            ftEngine->lockFace();
-        }
-#endif
 
         shaper_item.font = actualFontEngine->harfbuzzFont();
         shaper_item.face = actualFontEngine->harfbuzzFace();
@@ -875,10 +865,6 @@ void QTextEngine::shapeTextWithHarfbuzz(int item) const
                 font->doKerning(shaper_item.num_glyphs, g, option.useDesignMetrics() ? QFlag(QTextEngine::DesignMetrics) : QFlag(0));
 
             glyph_pos += shaper_item.num_glyphs;
-#if defined(Q_WS_X11) || defined(Q_WS_QWS)
-            if (ftEngine)
-                ftEngine->unlockFace();
-#endif
             break;
         }
 
