@@ -275,29 +275,12 @@ static bool read_dib_body(QDataStream &s, const BMP_INFOHDR &bi, int offset, int
     }
 
     int             bpl = image.bytesPerLine();
-#ifdef Q_WS_QWS
-    //
-    // Guess the number of bytes-per-line if we don't know how much
-    // image data is in the file (bogus image ?).
-    //
-    int bmpbpl = (bi.biHeight > 0 ? (bi.biSizeImage > 0 ?
-                                     bi.biSizeImage / bi.biHeight :
-                                     (d->size() - offset) / bi.biHeight)
-                                  : 0);
-    int pad = bmpbpl-bpl;
-#endif
     uchar *data = image.bits();
 
     if (nbits == 1) {                                // 1 bit BMP image
         while (--h >= 0) {
             if (d->read((char*)(data + h*bpl), bpl) != bpl)
                 break;
-#ifdef Q_WS_QWS
-            if (pad > 0) {
-                if (!d->isSequential())
-                    d->seek(d->pos()+pad);
-            }
-#endif
         }
         if (ncols == 2 && qGray(image.color(0)) < qGray(image.color(1)))
             swapPixel01(&image);                // pixel 0 is white!
@@ -456,12 +439,6 @@ static bool read_dib_body(QDataStream &s, const BMP_INFOHDR &bi, int offset, int
             while (--h >= 0) {
                 if (d->read((char *)data + h*bpl, bpl) != bpl)
                     break;
-#ifdef Q_WS_QWS
-                if (pad > 0) {
-                    if (!d->isSequential())
-                        d->seek(d->pos()+pad);
-                }
-#endif
             }
         }
     }
