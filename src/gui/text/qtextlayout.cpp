@@ -41,7 +41,7 @@ static inline QFixed leadingSpaceWidth(QTextEngine *eng, const QScriptLine &line
         return QFixed();
 
     int pos = line.length;
-    const QCharAttributes *attributes = eng->attributes();
+    const HB_CharAttributes *attributes = eng->attributes();
     while (pos > 0 && attributes[line.from + pos - 1].whiteSpace)
         --pos;
     return eng->width(line.from + pos, line.length - pos);
@@ -620,7 +620,7 @@ void QTextLayout::clearLayout()
 int QTextLayout::nextCursorPosition(int oldPos, CursorMode mode) const
 {
 //      qDebug("looking for next cursor pos for %d", oldPos);
-    const QCharAttributes *attributes = d->attributes();
+    const HB_CharAttributes *attributes = d->attributes();
     if (!attributes)
         return 0;
     int len = d->layoutData->string.length();
@@ -651,7 +651,7 @@ int QTextLayout::nextCursorPosition(int oldPos, CursorMode mode) const
 int QTextLayout::previousCursorPosition(int oldPos, CursorMode mode) const
 {
 //     qDebug("looking for previous cursor pos for %d", oldPos);
-    const QCharAttributes *attributes = d->attributes();
+    const HB_CharAttributes *attributes = d->attributes();
     if (!attributes || oldPos <= 0)
         return 0;
     oldPos--;
@@ -687,7 +687,7 @@ int QTextLayout::previousCursorPosition(int oldPos, CursorMode mode) const
 */
 bool QTextLayout::isValidCursorPosition(int pos) const
 {
-    const QCharAttributes *attributes = d->attributes();
+    const HB_CharAttributes *attributes = d->attributes();
     if (!attributes || pos < 0 || pos > (int)d->layoutData->string.length())
         return false;
     return attributes[pos].charStop;
@@ -1529,7 +1529,7 @@ void QTextLine::layout_helper(int maxGlyphs)
 
     Qt::Alignment alignment = eng->option.alignment();
 
-    const QCharAttributes *attributes = eng->attributes();
+    const HB_CharAttributes *attributes = eng->attributes();
     int pos = line.from;
     int end = 0;
     const QGlyphLayout *glyphs = 0;
@@ -1595,7 +1595,7 @@ void QTextLine::layout_helper(int maxGlyphs)
             do {
                 addNextCluster(pos, end, tmpData, glyphCount, current, logClusters, glyphs);
 
-                if (attributes[pos].whiteSpace || attributes[pos-1].lineBreakType != QCharAttributes::NoBreak) {
+                if (attributes[pos].whiteSpace || attributes[pos-1].lineBreakType != HB_NoBreak) {
                     sb_or_ws = true;
                     break;
                 } else if (breakany && attributes[pos].charStop) {
@@ -1605,7 +1605,7 @@ void QTextLine::layout_helper(int maxGlyphs)
             minw = qMax(tmpData.textWidth, minw);
 
             QFixed softHyphenWidth;
-            if (pos && attributes[pos - 1].lineBreakType == QCharAttributes::SoftHyphen) {
+            if (pos && attributes[pos - 1].lineBreakType == HB_SoftHyphen) {
                 // if we are splitting up a word because of
                 // a soft hyphen then we ...
                 //

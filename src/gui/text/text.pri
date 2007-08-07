@@ -8,7 +8,6 @@ HEADERS += \
 	text/qfontmetrics.h \
 	text/qfont_p.h \
 	text/qfontsubset_p.h \
-	text/qscriptengine_p.h \
 	text/qtextcontrol_p.h \
 	text/qtextcontrol_p_p.h \
 	text/qtextengine_p.h \
@@ -41,7 +40,6 @@ SOURCES += \
 	text/qfontsubset.cpp \
 	text/qfontmetrics.cpp \
 	text/qfontdatabase.cpp \
-	text/qscriptengine.cpp \
 	text/qtextcontrol.cpp \
 	text/qtextengine.cpp \
 	text/qtextlayout.cpp \

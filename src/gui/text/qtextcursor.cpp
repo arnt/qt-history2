@@ -308,7 +308,7 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
         break;
     case QTextCursor::StartOfWord: {
         QTextEngine *engine = layout->engine();
-        const QCharAttributes *attributes = engine->attributes();
+        const HB_CharAttributes *attributes = engine->attributes();
 
         if (relativePos == 0)
             return false;
@@ -379,7 +379,7 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
     }
     case QTextCursor::EndOfWord: {
         QTextEngine *engine = layout->engine();
-        const QCharAttributes *attributes = engine->attributes();
+        const HB_CharAttributes *attributes = engine->attributes();
         const QString string = engine->layoutData->string;
 
         const int len = layout->engine()->layoutData->string.length();

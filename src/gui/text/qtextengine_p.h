@@ -40,6 +40,7 @@
 #ifndef QT_BUILD_COMPAT_LIB
 #include "private/qtextdocument_p.h"
 #endif
+#include "private/qharfbuzz_p.h"
 
 #include <stdlib.h>
 
@@ -374,20 +375,6 @@ inline bool qIsControlChar(ushort uc)
             || uc >= 0x206a /* ISS, ASS, IAFS, AFS, NADS, NODS */);
 }
 
-
-struct QCharAttributes {
-    enum LineBreakType {
-        NoBreak,
-        SoftHyphen,
-        Break,
-        ForcedBreak
-    };
-    uchar lineBreakType  :2;
-    uchar whiteSpace     :1;     // A unicode whitespace character, except NBSP, ZWNBSP
-    uchar charStop       :1;     // Valid cursor position (for left/right arrow)
-};
-Q_DECLARE_TYPEINFO(QCharAttributes, Q_PRIMITIVE_TYPE);
-
 struct QScriptItem
 {
     inline QScriptItem() : position(0), isSpace(false), isTab(false),
@@ -496,7 +483,7 @@ public:
 
     static void bidiReorder(int numRuns, const quint8 *levels, int *visualOrder);
 
-    const QCharAttributes *attributes() const;
+    const HB_CharAttributes *attributes() const;
 
     void shape(int item) const;
 
