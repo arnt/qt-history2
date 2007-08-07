@@ -905,6 +905,14 @@ void QTextEngine::shapeTextWithHarfbuzz(int item) const
             shaper_item.face = qHBNewFace(actualFontEngine, hb_getSFntTable);
         }
 
+        {
+            QFixed emSquare = actualFontEngine->properties().emSquare;
+            hbFont.x_ppem = actualFontEngine->fontDef.pixelSize;
+            hbFont.y_ppem = actualFontEngine->fontDef.pixelSize * actualFontEngine->fontDef.stretch / 100;
+            hbFont.x_scale = (QFixed(hbFont.x_ppem * (1 << 16)) / emSquare).value();
+            hbFont.y_scale = (QFixed(hbFont.y_ppem * (1 << 16)) / emSquare).value();
+        }
+
         shaper_item.glyphIndicesPresent = true;
 
         while (1) {
