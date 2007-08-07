@@ -709,6 +709,9 @@ static HB_Bool checkScript(HB_Face face, int script)
 {
     assert(script < HB_ScriptCount);
 
+    if (!face->gsub && !face->gpos)
+        return false;
+
     uint tag = ot_scripts[script].tag;
     int requirements = ot_scripts[script].flags;
 
