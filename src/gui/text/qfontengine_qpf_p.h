@@ -170,6 +170,7 @@ public:
     FT_Face lockFace() const;
     void unlockFace() const;
     void doKerning(int num_glyphs, QGlyphLayout *g, QTextEngine::ShaperFlags flags) const;
+    virtual HB_Error getPointInOutline(HB_Glyph glyph, int flags, hb_uint32 point, HB_Fixed *xpos, HB_Fixed *ypos, hb_uint32 *nPoints);
 #endif
 
     inline QString fontFile() const { return fileName; }

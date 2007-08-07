@@ -108,6 +108,29 @@ int QFreetypeFace::fsType() const
     return fsType;
 }
 
+HB_Error QFreetypeFace::getPointInOutline(HB_Glyph glyph, int flags, hb_uint32 point, HB_Fixed *xpos, HB_Fixed *ypos, hb_uint32 *nPoints)
+{
+    int load_flags = (flags & HB_ShaperFlag_UseDesignMetrics) ? FT_LOAD_NO_HINTING : FT_LOAD_DEFAULT;
+
+    if (HB_Error error = (HB_Error)FT_Load_Glyph(face, glyph, load_flags))
+        return error;
+
+    if (face->glyph->format != FT_GLYPH_FORMAT_OUTLINE)
+        return HB_Err_Invalid_GPOS_SubTable;
+
+    *nPoints = face->glyph->outline.n_points;
+    if (!(*nPoints))
+        return HB_Err_Ok;
+
+    if (point > *nPoints)
+        return HB_Err_Invalid_GPOS_SubTable;
+
+    *xpos = face->glyph->outline.points[point].x;
+    *ypos = face->glyph->outline.points[point].y;
+
+    return HB_Err_Ok;
+}
+
 QFreetypeFace *QFreetypeFace::getFace(const QFontEngine::FaceId &face_id)
 {
     if (face_id.filename.isEmpty())
@@ -1520,34 +1543,10 @@ void QFontEngineFT::freeServerGlyphSet(unsigned long id)
 
 HB_Error QFontEngineFT::getPointInOutline(HB_Glyph glyph, int flags, hb_uint32 point, HB_Fixed *xpos, HB_Fixed *ypos, hb_uint32 *nPoints)
 {
-    FT_Face face = lockFace();
-    HB_Error error = HB_Err_Ok;
-
-    int load_flags = (flags & HB_ShaperFlag_UseDesignMetrics) ? FT_LOAD_NO_HINTING : FT_LOAD_DEFAULT;
-
-    if ((error = (HB_Error)FT_Load_Glyph(face, glyph, load_flags)))
-        goto done;
-
-    if (face->glyph->format != FT_GLYPH_FORMAT_OUTLINE) {
-        error = HB_Err_Invalid_GPOS_SubTable;
-        goto done;
-    }
-
-    *nPoints = face->glyph->outline.n_points;
-    if (!(*nPoints))
-        goto done;
-
-    if (point > *nPoints) {
-        error = HB_Err_Invalid_GPOS_SubTable;
-        goto done;
-    }
-
-    *xpos = face->glyph->outline.points[point].x;
-    *ypos = face->glyph->outline.points[point].y;
-
-done:
+    lockFace();
+    HB_Error result = freetype->getPointInOutline(glyph, flags, point, xpos, ypos, nPoints);
     unlockFace();
-    return error;
+    return result;
 }
 
 

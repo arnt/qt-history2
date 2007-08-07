@@ -772,6 +772,14 @@ void QFontEngineQPF::doKerning(int num_glyphs, QGlyphLayout *g, QTextEngine::Sha
     QFontEngine::doKerning(num_glyphs, g, flags);
 }
 
+HB_Error QFontEngineQPF::getPointInOutline(HB_Glyph glyph, int flags, hb_uint32 point, HB_Fixed *xpos, HB_Fixed *ypos, hb_uint32 *nPoints)
+{
+    lockFace();
+    HB_Error result = freetype->getPointInOutline(glyph, flags, point, xpos, ypos, nPoints);
+    unlockFace();
+    return result;
+}
+
 void QFontEngineQPF::ensureGlyphsLoaded(const QGlyphLayout *glyphs, int len)
 {
     if (readOnly)
