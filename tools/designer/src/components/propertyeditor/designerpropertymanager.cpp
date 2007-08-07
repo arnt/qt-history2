@@ -98,6 +98,7 @@ TextEditor::TextEditor(QWidget *parent) :
     connect(m_button, SIGNAL(clicked()), this, SLOT(buttonClicked()));
     setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed));
     m_button->setVisible(false);
+    setFocusProxy(m_editor);
 }
 
 void TextEditor::setSpacing(int spacing)
