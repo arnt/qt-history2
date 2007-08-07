@@ -774,10 +774,22 @@ void QFontEngineQPF::doKerning(int num_glyphs, QGlyphLayout *g, QTextEngine::Sha
 
 HB_Error QFontEngineQPF::getPointInOutline(HB_Glyph glyph, int flags, hb_uint32 point, HB_Fixed *xpos, HB_Fixed *ypos, hb_uint32 *nPoints)
 {
+    if (!freetype)
+        return HB_Err_Not_Covered;
     lockFace();
     HB_Error result = freetype->getPointInOutline(glyph, flags, point, xpos, ypos, nPoints);
     unlockFace();
     return result;
+}
+
+QFixed QFontEngineQPF::emSquareSize() const
+{
+    if (!freetype)
+        return QFontEngine::emSquareSize();
+    if (FT_IS_SCALABLE(freetype->face))
+        return freetype->face->units_per_EM;
+    else
+        return freetype->face->size->metrics.y_ppem;
 }
 
 void QFontEngineQPF::ensureGlyphsLoaded(const QGlyphLayout *glyphs, int len)
