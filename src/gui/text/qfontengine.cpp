@@ -144,25 +144,6 @@ QFontEngine::~QFontEngine()
     qHBFreeFace(hbFace); // ### duplicated in qfontengine_win.cpp
 }
 
-HB_Font QFontEngine::harfbuzzFont() const
-{
-    if (!hbFont.x_ppem) {
-        QFixed emSquare = emSquareSize();
-        hbFont.x_ppem = fontDef.pixelSize;
-        hbFont.y_ppem = fontDef.pixelSize * fontDef.stretch / 100;
-        hbFont.x_scale = (QFixed(hbFont.x_ppem * (1 << 16)) / emSquare).value();
-        hbFont.y_scale = (QFixed(hbFont.y_ppem * (1 << 16)) / emSquare).value();
-    }
-    return &hbFont;
-}
-
-HB_Face QFontEngine::harfbuzzFace() const
-{
-    if (!hbFace)
-        hbFace = qHBNewFace(const_cast<QFontEngine *>(this), hb_getSFntTable);
-    return hbFace;
-}
-
 QFixed QFontEngine::lineThickness() const
 {
     // ad hoc algorithm
@@ -181,6 +162,25 @@ QFixed QFontEngine::underlinePosition() const
     return ((lineThickness() * 2) + 3) / 6;
 }
 #endif
+
+HB_Font QFontEngine::harfbuzzFont() const
+{
+    if (!hbFont.x_ppem) {
+        QFixed emSquare = emSquareSize();
+        hbFont.x_ppem = fontDef.pixelSize;
+        hbFont.y_ppem = fontDef.pixelSize * fontDef.stretch / 100;
+        hbFont.x_scale = (QFixed(hbFont.x_ppem * (1 << 16)) / emSquare).value();
+        hbFont.y_scale = (QFixed(hbFont.y_ppem * (1 << 16)) / emSquare).value();
+    }
+    return &hbFont;
+}
+
+HB_Face QFontEngine::harfbuzzFace() const
+{
+    if (!hbFace)
+        hbFace = qHBNewFace(const_cast<QFontEngine *>(this), hb_getSFntTable);
+    return hbFace;
+}
 
 QFixed QFontEngine::xHeight() const
 {
