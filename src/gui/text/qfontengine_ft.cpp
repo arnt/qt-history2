@@ -941,6 +941,14 @@ QFontEngine::Properties QFontEngineFT::properties() const
     return freetype->properties();
 }
 
+QFixed QFontEngineFT::emSquareSize() const
+{
+    if (FT_IS_SCALABLE(freetype->face))
+        return freetype->face->units_per_EM;
+    else
+        return freetype->face->size->metrics.y_ppem;
+}
+
 bool QFontEngineFT::getSfntTableData(uint tag, uchar *buffer, uint *length) const
 {
     return freetype->getSfntTable(tag, buffer, length);

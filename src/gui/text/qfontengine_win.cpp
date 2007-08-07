@@ -1020,6 +1020,11 @@ int QFontEngineWin::synthesized() const
     return synthesized_flags;
 }
 
+QFixed QFontEngineWin::emSquareSize() const
+{
+    return unitsPerEm;
+}
+
 QFontEngine::Properties QFontEngineWin::properties() const
 {
 

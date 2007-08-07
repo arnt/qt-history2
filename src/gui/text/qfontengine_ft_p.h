@@ -146,6 +146,7 @@ public:
 
     QFontEngine::FaceId faceId() const;
     QFontEngine::Properties properties() const;
+    QFixed emSquareSize() const;
 
     bool getSfntTableData(uint tag, uchar *buffer, uint *length) const;
     int synthesized() const;

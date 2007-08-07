@@ -36,6 +36,7 @@ public:
     virtual FaceId faceId() const;
     bool getSfntTableData(uint tag, uchar *buffer, uint *length) const;
     virtual int synthesized() const;
+    virtual QFixed emSquareSize() const;
 
     bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const;
     void recalcAdvances(int len, QGlyphLayout *glyphs, QTextEngine::ShaperFlags) const;

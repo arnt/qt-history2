@@ -911,7 +911,7 @@ void QTextEngine::shapeTextWithHarfbuzz(int item) const
         }
 
         {
-            QFixed emSquare = actualFontEngine->properties().emSquare;
+            QFixed emSquare = actualFontEngine->emSquareSize();
             hbFont.x_ppem = actualFontEngine->fontDef.pixelSize;
             hbFont.y_ppem = actualFontEngine->fontDef.pixelSize * actualFontEngine->fontDef.stretch / 100;
             hbFont.x_scale = (QFixed(hbFont.x_ppem * (1 << 16)) / emSquare).value();
