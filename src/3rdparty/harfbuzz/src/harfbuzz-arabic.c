@@ -1011,6 +1011,8 @@ static HB_Bool arabicSyriacOpenTypeShape(HB_ShaperItem *item, HB_Bool *ot_ok)
             apply[i] |= IsolProperty|MediProperty|InitProperty;
         else if (properties[i].shape == XInitial)
             apply[i] |= IsolProperty|MediProperty|FinaProperty;
+
+        item->attributes[i].justification = properties[i].justification;
     }
 
     HB_FREE_STACKARRAY(props);
