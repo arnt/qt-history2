@@ -642,11 +642,9 @@ QFontEngineMac::QFontEngineMac(ATSUStyle baseStyle, ATSUFontID fontID, const QFo
     else
         fsType = 0;
 
-#if 0 // ######### FIXME
     if (multiEngine)
 	transform = multiEngine->transform;
     else
-#endif
 	transform = CGAffineTransformIdentity;
 }
 
