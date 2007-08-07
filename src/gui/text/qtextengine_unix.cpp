@@ -44,17 +44,17 @@ static HB_Bool hb_stringToGlyphs(HB_Font font, const HB_UChar16 *string, hb_uint
     return true;
 }
 
-static void hb_getAdvances(HB_Font font, const HB_Glyph *glyphs, int numGlyphs, HB_Fixed *advances, int flags)
+static void hb_getAdvances(HB_Font font, const HB_Glyph *glyphs, hb_uint32 numGlyphs, HB_Fixed *advances, int flags)
 {
     QFontEngine *fe = (QFontEngine *)font->userData;
 
     QVarLengthArray<QGlyphLayout> qglyphs(numGlyphs);
-    for (int i = 0; i < numGlyphs; ++i)
+    for (hb_uint32 i = 0; i < numGlyphs; ++i)
         qglyphs[i].glyph = glyphs[i];
 
     fe->recalcAdvances(numGlyphs, qglyphs.data(), flags & HB_ShaperFlag_UseDesignMetrics ? QTextEngine::DesignMetrics : QFlag(0));
 
-    for (int i = 0; i < numGlyphs; ++i)
+    for (hb_uint32 i = 0; i < numGlyphs; ++i)
         advances[i] = qglyphs[i].advance.x.value();
 }
 
