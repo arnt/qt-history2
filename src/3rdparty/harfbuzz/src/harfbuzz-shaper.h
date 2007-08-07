@@ -175,12 +175,20 @@ HB_Face HB_NewFace(HB_Font font);
 void HB_FreeFace(HB_Face face);
 
 typedef struct {
-    HB_Bool (*stringToGlyphs)(HB_Font font, const HB_UChar16 *string, uint32_t length, HB_Glyph *glyphs, uint32_t *numGlyphs, HB_Bool rightToLeft);
-    void    (*getAdvances)(HB_Font font, const HB_Glyph *glyphs, int numGlyphs, HB_Fixed *advances, int flags /*HB_ShaperFlag*/);
-    HB_Bool (*canRender)(HB_Font font, const HB_UChar16 *string, uint32_t length);
+    HB_Fixed x, y;
+    HB_Fixed width, height;
+    HB_Fixed xOffset, yOffset;
+} HB_GlyphMetrics;
+
+typedef struct {
+    HB_Bool  (*stringToGlyphs)(HB_Font font, const HB_UChar16 *string, uint32_t length, HB_Glyph *glyphs, uint32_t *numGlyphs, HB_Bool rightToLeft);
+    void     (*getAdvances)(HB_Font font, const HB_Glyph *glyphs, int numGlyphs, HB_Fixed *advances, int flags /*HB_ShaperFlag*/);
+    HB_Bool  (*canRender)(HB_Font font, const HB_UChar16 *string, uint32_t length);
     HB_Error (*getSFntTable)(HB_Font font, HB_Tag tag, HB_Byte *buffer, HB_UInt *length);
     /* implementation needs to make sure to load a scaled glyph, so /no/ FT_LOAD_NO_SCALE */
     HB_Error (*getPointInOutline)(HB_Font font, HB_Glyph glyph, int flags /*HB_ShaperFlag*/, uint32_t point, HB_Fixed *xpos, HB_Fixed *ypos, uint32_t *nPoints);
+    void     (*getGlyphMetrics)(HB_Font font, HB_Glyph glyph, HB_GlyphMetrics *metrics);
+    HB_Fixed (*getAscent)(HB_Font font);
 } HB_FontClass;
 
 typedef struct HB_Font_ {

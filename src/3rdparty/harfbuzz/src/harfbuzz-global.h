@@ -39,6 +39,8 @@ typedef uint32_t HB_UChar32;
 typedef uint32_t HB_Glyph;
 typedef int32_t HB_Fixed; /* 26.6 */
 
+#define HB_FIXED_CONSTANT(v) ((v) * 64)
+
 typedef int32_t HB_16Dot16; /* 16.16 */
 
 typedef void * HB_Pointer;

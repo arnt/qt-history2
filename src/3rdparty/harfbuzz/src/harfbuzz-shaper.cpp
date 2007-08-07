@@ -16,6 +16,9 @@
 #include <assert.h>
 #include <stdio.h>
 
+#define HB_MIN(a, b) ((a) < (b) ? (a) : (b))
+#define HB_MAX(a, b) ((a) > (b) ? (a) : (b))
+
 // -----------------------------------------------------------------------------------------------------
 //
 // The line break algorithm. See http://www.unicode.org/reports/tr14/tr14-13.html
@@ -205,45 +208,50 @@ static void calcLineBreaks(const HB_UChar16 *uc, uint32_t len, HB_CharAttributes
 //
 // --------------------------------------------------------------------------------------------------------------------------------------------
 
-static inline void positionCluster(HB_ShaperItem * /*item*/, int /*gfrom*/,  int /*glast*/)
+static inline void positionCluster(HB_ShaperItem *item, int gfrom,  int glast)
 {
-#if 0
     int nmarks = glast - gfrom;
     assert(nmarks > 0);
 
-    QGlyphLayout *glyphs = item->glyphs;
-    QFontEngine *f = item->font;
+    HB_Glyph *glyphs = item->glyphs;
+    HB_GlyphAttributes *attributes = item->attributes;
 
-    glyph_metrics_t baseInfo = f->boundingBox(glyphs[gfrom].glyph);
+    HB_GlyphMetrics baseMetrics;
+    item->font->klass->getGlyphMetrics(item->font, glyphs[gfrom], &baseMetrics);
 
-    if (item->script == QUnicodeTables::Hebrew)
+    if (item->item.script == HB_Script_Hebrew
+        && (-baseMetrics.y) > baseMetrics.height)
         // we need to attach below the baseline, because of the hebrew iud.
-        baseInfo.height = qMax(baseInfo.height, -baseInfo.y);
-
-    QRectF baseRect(baseInfo.x.toReal(), baseInfo.y.toReal(), baseInfo.width.toReal(), baseInfo.height.toReal());
+        baseMetrics.height = -baseMetrics.y;
 
 //     qDebug("---> positionCluster: cluster from %d to %d", gfrom, glast);
 //     qDebug("baseInfo: %f/%f (%f/%f) off=%f/%f", baseInfo.x, baseInfo.y, baseInfo.width, baseInfo.height, baseInfo.xoff, baseInfo.yoff);
 
-    qreal size = (f->ascent()/10).toReal();
-    qreal offsetBase = (size - 4) / 4 + qMin<qreal>(size, 4) + 1;
+    HB_Fixed size = item->font->klass->getAscent(item->font) / 10;
+    HB_Fixed offsetBase = HB_FIXED_CONSTANT(1) + (size - HB_FIXED_CONSTANT(4)) / 4;
+    if (size > HB_FIXED_CONSTANT(4))
+        offsetBase += HB_FIXED_CONSTANT(4);
+    else
+        offsetBase += size;
+    //qreal offsetBase = (size - 4) / 4 + qMin<qreal>(size, 4) + 1;
 //     qDebug("offset = %f", offsetBase);
 
-    bool rightToLeft = item->flags & QTextEngine::RightToLeft;
+    bool rightToLeft = item->item.bidiLevel % 2;
 
     int i;
     unsigned char lastCmb = 0;
-    QRectF attachmentRect;
+    HB_GlyphMetrics attachmentRect;
 
     for(i = 1; i <= nmarks; i++) {
-        glyph_t mark = glyphs[gfrom+i].glyph;
-        QPointF p;
-        glyph_metrics_t markInfo = f->boundingBox(mark);
-        QRectF markRect(markInfo.x.toReal(), markInfo.y.toReal(), markInfo.width.toReal(), markInfo.height.toReal());
+        HB_Glyph mark = glyphs[gfrom+i];
+        HB_GlyphMetrics markMetrics;
+        item->font->klass->getGlyphMetrics(item->font, mark, &markMetrics);
+        HB_FixedPoint p;
+        p.x = p.y = 0;
 //          qDebug("markInfo: %f/%f (%f/%f) off=%f/%f", markInfo.x, markInfo.y, markInfo.width, markInfo.height, markInfo.xoff, markInfo.yoff);
 
-        qreal offset = offsetBase;
-        unsigned char cmb = glyphs[gfrom+i].attributes.combiningClass;
+        HB_Fixed offset = offsetBase;
+        unsigned char cmb = attributes[gfrom+i].combiningClass;
 
         // ### maybe the whole position determination should move down to heuristicSetGlyphAttributes. Would save some
         // bits  in the glyphAttributes structure.
@@ -260,19 +268,19 @@ static inline void positionCluster(HB_ShaperItem * /*item*/, int /*gfrom*/,  int
             if ((cmb >= 10 && cmb <= 18) ||
                  cmb == 20 || cmb == 22 ||
                  cmb == 29 || cmb == 32)
-                cmb = QChar::Combining_Below;
+                cmb = HB_Combining_Below;
             // above
             else if (cmb == 23 || cmb == 27 || cmb == 28 ||
                       cmb == 30 || cmb == 31 || (cmb >= 33 && cmb <= 36))
-                cmb = QChar::Combining_Above;
+                cmb = HB_Combining_Above;
             //below-right
             else if (cmb == 9 || cmb == 103 || cmb == 118)
-                cmb = QChar::Combining_BelowRight;
+                cmb = HB_Combining_BelowRight;
             // above-right
             else if (cmb == 24 || cmb == 107 || cmb == 122)
-                cmb = QChar::Combining_AboveRight;
+                cmb = HB_Combining_AboveRight;
             else if (cmb == 25)
-                cmb = QChar::Combining_AboveLeft;
+                cmb = HB_Combining_AboveLeft;
             // fixed:
             //  19 21
 
@@ -281,73 +289,88 @@ static inline void positionCluster(HB_ShaperItem * /*item*/, int /*gfrom*/,  int
         // combining marks of different class don't interact. Reset the rectangle.
         if (cmb != lastCmb) {
             //qDebug("resetting rect");
-            attachmentRect = baseRect;
+            attachmentRect = baseMetrics;
         }
 
         switch(cmb) {
-        case QChar::Combining_DoubleBelow:
+        case HB_Combining_DoubleBelow:
                 // ### wrong in rtl context!
-        case QChar::Combining_BelowLeft:
-            p += QPointF(0, offset);
-        case QChar::Combining_BelowLeftAttached:
-            p += attachmentRect.bottomLeft() - markRect.topLeft();
+        case HB_Combining_BelowLeft:
+            p.y += offset;
+        case HB_Combining_BelowLeftAttached:
+            p.x += attachmentRect.x - markMetrics.x;
+            p.y += (attachmentRect.y + attachmentRect.height) - markMetrics.y;
             break;
-        case QChar::Combining_Below:
-            p += QPointF(0, offset);
-        case QChar::Combining_BelowAttached:
-            p += attachmentRect.bottomLeft() - markRect.topLeft();
-            p += QPointF((attachmentRect.width() - markRect.width())/2 , 0);
+        case HB_Combining_Below:
+            p.y += offset;
+        case HB_Combining_BelowAttached:
+            p.x += attachmentRect.x - markMetrics.x;
+            p.y += (attachmentRect.y + attachmentRect.height) - markMetrics.y;
+
+            p.x += (attachmentRect.width - markMetrics.width) / 2;
             break;
-            case QChar::Combining_BelowRight:
-            p += QPointF(0, offset);
-        case QChar::Combining_BelowRightAttached:
-            p += attachmentRect.bottomRight() - markRect.topRight();
+        case HB_Combining_BelowRight:
+            p.y += offset;
+        case HB_Combining_BelowRightAttached:
+            p.x += attachmentRect.x + attachmentRect.width - markMetrics.width - markMetrics.x;
+            p.y += attachmentRect.y + attachmentRect.height - markMetrics.y;
             break;
-            case QChar::Combining_Left:
-            p += QPointF(-offset, 0);
-        case QChar::Combining_LeftAttached:
+        case HB_Combining_Left:
+            p.x -= offset;
+        case HB_Combining_LeftAttached:
             break;
-            case QChar::Combining_Right:
-            p += QPointF(offset, 0);
-        case QChar::Combining_RightAttached:
+        case HB_Combining_Right:
+            p.x += offset;
+        case HB_Combining_RightAttached:
             break;
-        case QChar::Combining_DoubleAbove:
+        case HB_Combining_DoubleAbove:
             // ### wrong in RTL context!
-        case QChar::Combining_AboveLeft:
-            p += QPointF(0, -offset);
-        case QChar::Combining_AboveLeftAttached:
-            p += attachmentRect.topLeft() - markRect.bottomLeft();
+        case HB_Combining_AboveLeft:
+            p.y -= offset;
+        case HB_Combining_AboveLeftAttached:
+            p.x += attachmentRect.x - markMetrics.x;
+            p.y += attachmentRect.y - markMetrics.y - markMetrics.height;
             break;
-        case QChar::Combining_Above:
-            p += QPointF(0, -offset);
-        case QChar::Combining_AboveAttached:
-            p += attachmentRect.topLeft() - markRect.bottomLeft();
-            p += QPointF((attachmentRect.width() - markRect.width())/2 , 0);
+        case HB_Combining_Above:
+            p.y -= offset;
+        case HB_Combining_AboveAttached:
+            p.x += attachmentRect.x - markMetrics.x;
+            p.y += attachmentRect.y - markMetrics.y - markMetrics.height;
+
+            p.x += (attachmentRect.width - markMetrics.width) / 2;
             break;
-        case QChar::Combining_AboveRight:
-            p += QPointF(0, -offset);
-        case QChar::Combining_AboveRightAttached:
-            p += attachmentRect.topRight() - markRect.bottomRight();
+        case HB_Combining_AboveRight:
+            p.y -= offset;
+        case HB_Combining_AboveRightAttached:
+            p.x += attachmentRect.x + attachmentRect.width - markMetrics.x - markMetrics.width;
+            p.y += attachmentRect.y - markMetrics.y - markMetrics.height;
             break;
 
-        case QChar::Combining_IotaSubscript:
+        case HB_Combining_IotaSubscript:
             default:
                 break;
         }
 //          qDebug("char=%x combiningClass = %d offset=%f/%f", mark, cmb, p.x(), p.y());
-        markRect.translate(p.x(), p.y());
-        attachmentRect |= markRect;
+        markMetrics.x += p.x;
+        markMetrics.y += p.y;
+
+        HB_GlyphMetrics unitedAttachmentRect = attachmentRect;
+        unitedAttachmentRect.x = HB_MIN(attachmentRect.x, markMetrics.x);
+        unitedAttachmentRect.y = HB_MIN(attachmentRect.y, markMetrics.y);
+        unitedAttachmentRect.width = HB_MAX(attachmentRect.x + attachmentRect.width, markMetrics.x + markMetrics.width) - unitedAttachmentRect.x;
+        unitedAttachmentRect.height = HB_MAX(attachmentRect.y + attachmentRect.height, markMetrics.y + markMetrics.height) - unitedAttachmentRect.y;
+        attachmentRect = unitedAttachmentRect;
+
         lastCmb = cmb;
         if (rightToLeft) {
-            glyphs[gfrom+i].offset.x = QFixed::fromReal(p.x());
-            glyphs[gfrom+i].offset.y = QFixed::fromReal(p.y());
+            item->offsets[gfrom+i].x = p.x;
+            item->offsets[gfrom+i].y = p.y;
         } else {
-            glyphs[gfrom+i].offset.x = QFixed::fromReal(p.x()) - baseInfo.xoff;
-            glyphs[gfrom+i].offset.y = QFixed::fromReal(p.y()) - baseInfo.yoff;
+            item->offsets[gfrom+i].x = p.x - baseMetrics.xOffset;
+            item->offsets[gfrom+i].y = p.y - baseMetrics.yOffset;
         }
-        glyphs[gfrom+i].advance = QFixedPoint();
+        item->advances[gfrom+i] = 0;
     }
-#endif
 }
 
 void HB_HeuristicPosition(HB_ShaperItem *item)

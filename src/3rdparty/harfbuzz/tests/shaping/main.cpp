@@ -122,9 +122,20 @@ HB_Error hb_getPointInOutline(HB_Font font, HB_Glyph glyph, int flags, uint32_t 
     return HB_Err_Ok;
 }
 
+void hb_getGlyphMetrics(HB_Font font, HB_Glyph glyph, HB_GlyphMetrics *metrics)
+{
+    // ###
+    metrics->x = metrics->y = metrics->width = metrics->height = metrics->xOffset = metrics->yOffset = 0;
+}
+
+HB_Fixed hb_getAscent(HB_Font font)
+{
+    return 0; // ####
+}
+
 const HB_FontClass hb_fontClass = {
     hb_stringToGlyphs, hb_getAdvances, hb_canRender, hb_getSFntTable,
-    hb_getPointInOutline
+    hb_getPointInOutline, hb_getGlyphMetrics, hb_getAscent
 };
 
 
