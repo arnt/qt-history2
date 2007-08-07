@@ -89,7 +89,7 @@ struct CharMnemonic
 {
     char ch;
     char escape;
-    char *mnemonic;
+    const char *mnemonic;
 };
 
 static const CharMnemonic charCodeMnemonics[] = {
