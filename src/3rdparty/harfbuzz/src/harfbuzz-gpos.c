@@ -14,11 +14,13 @@
 #include "harfbuzz-gpos-private.h"
 #include "harfbuzz-open-private.h"
 #include "harfbuzz-gdef-private.h"
+#include "harfbuzz-shaper.h"
 
 struct  GPOS_Instance_
 {
   HB_GPOSHeader*  gpos;
   FT_Face          face;
+  HB_Font          font;
   HB_Bool          dvi;
   HB_UShort        load_flags;  /* how the glyph should be loaded */
   HB_Bool          r2l;
@@ -683,7 +685,6 @@ static HB_Error  Get_Anchor( GPOS_Instance*   gpi,
 {
   HB_Error  error = HB_Err_Ok;
 
-  FT_Outline       outline;
   HB_GPOSHeader*  gpos = gpi->gpos;
   HB_UShort        ap;
 
@@ -718,29 +719,16 @@ static HB_Error  Get_Anchor( GPOS_Instance*   gpi,
 
     if ( !gpi->dvi )
     {
-      error = (gpos->gfunc)( gpi->face, glyph_index, load_flags );
-      if ( error )
-	return error;
-
-      if ( gpi->face->glyph->format != ft_glyph_format_outline )
-	return HB_Err_Invalid_GPOS_SubTable;
-
       ap = an->af.af2.AnchorPoint;
-
-      outline = gpi->face->glyph->outline;
-
-      /* if outline.n_points is set to zero by gfunc(), we use the
+      uint32_t n_points = 0;
+      error = gpi->font->klass->getPointInOutline(gpi->font, glyph_index, load_flags, ap, x_value, y_value, &n_points);
+      if (error)
+          return error;
+      /* if outline.n_points is set to zero, we use the
 	 design coordinate value pair.  This can happen e.g. for
 	 sbit glyphs                                               */
-
-      if ( !outline.n_points )
-	goto no_contour_point;
-
-      if ( ap >= outline.n_points )
-	return HB_Err_Invalid_GPOS_SubTable;
-
-      *x_value = outline.points[ap].x;
-      *y_value = outline.points[ap].y;
+      if (!n_points)
+          goto no_contour_point;
     }
     else
     {
@@ -6142,6 +6130,7 @@ HB_Error  HB_GPOS_Register_MM_Function( HB_GPOSHeader*  gpos,
 
 
 HB_Error  HB_GPOS_Apply_String( FT_Face            face,
+				HB_Font            font,
 				HB_GPOSHeader*    gpos,
 				HB_UShort          load_flags,
 				HB_Buffer         buffer,
@@ -6158,6 +6147,7 @@ HB_Error  HB_GPOS_Apply_String( FT_Face            face,
     return HB_Err_Invalid_Argument;
 
   gpi.face       = face;
+  gpi.font       = font;
   gpi.gpos       = gpos;
   gpi.load_flags = load_flags;
   gpi.r2l        = r2l;

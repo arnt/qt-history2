@@ -22,7 +22,7 @@ typedef struct HB_StreamRec_
     HB_UInt        pos;
     
     HB_Byte*       cursor;
-} HB_StreamRec, *HB_Stream;
+} HB_StreamRec;
 
 void HB_close_stream(HB_Stream stream);
 

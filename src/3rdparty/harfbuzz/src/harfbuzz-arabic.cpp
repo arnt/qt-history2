@@ -827,7 +827,7 @@ static void shapedString(const HB_UChar16 *uc, uint32_t stringLength, uint32_t f
 
     HB_STACKARRAY(HB_ArabicProperties, props, len + 2)
     HB_ArabicProperties *properties = props;
-    uint32_t f = from;
+    int32_t f = from;
     uint32_t l = len;
     if (from > 0) {
         --f;
@@ -967,7 +967,7 @@ static bool arabicSyriacOpenTypeShape(HB_ShaperItem *item, bool *ot_ok)
 
     HB_STACKARRAY(HB_ArabicProperties, props, item->item.length + 2);
     HB_ArabicProperties *properties = props;
-    uint32_t f = 0;
+    int32_t f = 0;
     uint32_t l = item->item.length;
     if (item->item.pos > 0) {
         --f;
