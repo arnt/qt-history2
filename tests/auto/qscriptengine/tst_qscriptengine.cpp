@@ -76,6 +76,11 @@ static QScriptValue myFunction(QScriptContext *, QScriptEngine *eng)
     return eng->nullValue();
 }
 
+static QScriptValue myThrowingFunction(QScriptContext *ctx, QScriptEngine *)
+{
+    return ctx->throwError("foo");
+}
+
 void tst_QScriptEngine::newFunction()
 {
     QScriptEngine eng;
@@ -496,6 +501,8 @@ void tst_QScriptEngine::nestedEvaluate()
 void tst_QScriptEngine::uncaughtException()
 {
     QScriptEngine eng;
+    QScriptValue fun = eng.newFunction(myFunction);
+    QScriptValue throwFun = eng.newFunction(myThrowingFunction);
     for (int x = 0; x < 2; ++x) {
         {
             QScriptValue ret = eng.evaluate("a = 10;\nb = 20;\n0 = 0;\n", /*fileName=*/QString(), /*lineNumber=*/x);
@@ -503,9 +510,28 @@ void tst_QScriptEngine::uncaughtException()
             QCOMPARE(eng.uncaughtExceptionLineNumber(), x+2);
             QVERIFY(eng.uncaughtException().strictlyEquals(ret));
             (void)ret.toString();
+            QVERIFY(eng.hasUncaughtException());
+            QVERIFY(eng.uncaughtException().strictlyEquals(ret));
+            QVERIFY(fun.call().isNull());
+            QVERIFY(eng.hasUncaughtException());
+            QCOMPARE(eng.uncaughtExceptionLineNumber(), x+2);
+            QVERIFY(eng.uncaughtException().strictlyEquals(ret));
+            eng.clearExceptions();
             QVERIFY(!eng.hasUncaughtException());
             QCOMPARE(eng.uncaughtExceptionLineNumber(), x+2);
             QVERIFY(!eng.uncaughtException().isValid());
+
+            eng.evaluate("2 = 3");
+            QVERIFY(eng.hasUncaughtException());
+            QScriptValue ret2 = throwFun.call();
+            QVERIFY(ret2.isError());
+            QVERIFY(eng.hasUncaughtException());
+            QVERIFY(eng.uncaughtException().strictlyEquals(ret2));
+            QCOMPARE(eng.uncaughtExceptionLineNumber(), 0);
+            eng.clearExceptions();
+            QVERIFY(!eng.hasUncaughtException());
+            eng.evaluate("1 + 2");
+            QVERIFY(!eng.hasUncaughtException());
         }
         {
             QScriptValue ret = eng.evaluate("a = 10");
@@ -1105,6 +1131,8 @@ void tst_QScriptEngine::stacktrace()
     QVERIFY(result.isError());
 
     QCOMPARE(eng.uncaughtExceptionBacktrace(), backtrace);
+    QVERIFY(eng.hasUncaughtException());
+    QVERIFY(result.strictlyEquals(eng.uncaughtException()));
 
     QCOMPARE(result.property("fileName").toString(), fileName);
     QCOMPARE(result.property("lineNumber").toInt32(), 9);

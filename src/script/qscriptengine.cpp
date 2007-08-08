@@ -807,12 +807,10 @@ void QScriptEngine::popContext()
 }
 
 /*!
-  Returns true if the last script evaluation (whether direct or
-  indirect) resulted in an uncaught exception; otherwise returns
-  false.
+  Returns true if the last script evaluation resulted in an uncaught
+  exception; otherwise returns false.
 
-  The exception state is cleared every time a script function call is
-  done in the engine, or when evaluate() is called.
+  The exception state is cleared when evaluate() is called.
 
   \sa uncaughtException(), uncaughtExceptionLineNumber(),
       uncaughtExceptionBacktrace()

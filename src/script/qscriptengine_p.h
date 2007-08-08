@@ -414,14 +414,17 @@ inline void QScriptEnginePrivate::popContext()
     QScriptContext *context = m_context;
     m_context = context->parentContext();
     if (m_context) {
-        // propagate the state
         QScriptContextPrivate *p1 = QScriptContextPrivate::get(m_context);
         QScriptContextPrivate *p2 = QScriptContextPrivate::get(context);
-        p1->m_result = p2->m_result;
-        p1->m_state = p2->m_state;
-        // only update errorLineNumber if there actually was an exception
-        if (p2->state() == QScriptContext::ExceptionState)
-            p1->errorLineNumber = p2->errorLineNumber;
+        if ((p1->m_state != QScriptContext::ExceptionState)
+            || (p2->m_state == QScriptContext::ExceptionState)) {
+            // propagate the state
+            p1->m_result = p2->m_result;
+            p1->m_state = p2->m_state;
+            // only update errorLineNumber if there actually was an exception
+            if (p2->m_state == QScriptContext::ExceptionState)
+                p1->errorLineNumber = p2->errorLineNumber;
+        }
     }
     m_frameRepository.release(context);
 }
