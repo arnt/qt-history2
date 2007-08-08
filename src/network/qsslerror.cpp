@@ -26,6 +26,55 @@
 **
 ****************************************************************************/
 
+/*!
+    \class QSslError
+    \brief The QSslError class provides an SSL error.
+    \since 4.3
+
+    \reentrant
+    \ingroup io
+    \module network
+
+    QSslError provides a simple API for managing errors during QSslSocket's
+    SSL handshake.
+
+    \sa QSslSocket, QSslCertificate, QSslCipher
+*/
+
+/*!
+    \enum QSslError::SslError
+
+    Describes all recognized errors that can occur during an SSL handshake.
+    
+    \value NoError
+    \value UnableToGetIssuerCertificate
+    \value UnableToDecryptCertificateSignature
+    \value UnableToDecodeIssuerPublicKey
+    \value CertificateSignatureFailed
+    \value CertificateNotYetValid
+    \value CertificateExpired
+    \value InvalidNotBeforeField
+    \value InvalidNotAfterField
+    \value SelfSignedCertificate
+    \value SelfSignedCertificateInChain
+    \value UnableToGetLocalIssuerCertificate
+    \value UnableToVerifyFirstCertificate
+    \value CertificateRevoked
+    \value InvalidCaCertificate
+    \value PathLengthExceeded
+    \value InvalidPurpose
+    \value CertificateUntrusted
+    \value CertificateRejected
+    \value SubjectIssuerMismatch
+    \value AuthorityIssuerSerialNumberMismatch
+    \value NoPeerCertificate
+    \value HostNameMismatch
+    \value UnspecifiedError
+    \value NoSslSupport
+
+    \sa QSslError::errorString()
+*/
+
 #include "qsslerror.h"
 #ifndef QT_NO_DEBUG_STREAM
 #include <QtCore/qdebug.h>
@@ -38,6 +87,12 @@ public:
     QSslCertificate certificate;
 };
 
+/*!
+    Constructs a QSslError object. The two optional arguments specify the \a
+    error that occurred, and which \a certificate the error relates to.
+
+    \sa QSslCertificate
+*/
 QSslError::QSslError(SslError error, const QSslCertificate &certificate)
     : d(new QSslErrorPrivate)
 {
@@ -45,22 +100,38 @@ QSslError::QSslError(SslError error, const QSslCertificate &certificate)
     d->certificate = certificate;
 }
 
+/*!
+    Constructs an identical copy of \a other.
+*/
 QSslError::QSslError(const QSslError &other)
     : d(new QSslErrorPrivate)
 {
     *d = *other.d;
 }
 
+/*!
+    Destroys the QSslError object.
+*/
 QSslError::~QSslError()
 {
     delete d;
 }
 
+/*!
+    Returns the type of the error.
+
+    \sa errorString(), certificate()
+*/
 QSslError::SslError QSslError::error() const
 {
     return d->error;
 }
 
+/*!
+    Returns a short localized human-readable description of the error.
+
+    \sa error(), certificate()
+*/
 QString QSslError::errorString() const
 {
     QString errStr;
@@ -147,6 +218,12 @@ QString QSslError::errorString() const
     return errStr;
 }
 
+/*!
+    Returns the certificate associated with this error, or a null certificate
+    if the error does not relate to any certificate.
+
+    \sa error(), errorString()
+*/
 QSslCertificate QSslError::certificate() const
 {
     return d->certificate;
