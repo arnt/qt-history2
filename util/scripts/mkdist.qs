@@ -4,7 +4,7 @@
 const qtDir = System.getenv("QTDIR");
 const qmakeCommand = qtDir + "/bin/qmake";
 
-const qdocDir = qtDir + "/util/qdoc3";
+const qdocDir = qtDir + "/tools/qdoc3";
 const qdocCommand = qdocDir + "/qdoc3";
 
 const outputDir = System.getenv("PWD");
@@ -84,6 +84,7 @@ platformRemove["win"] = [ new RegExp("\\.qws"),
                           new RegExp("^tools/qconfig"),
                           new RegExp("^tools/qtconfig"),
                           new RegExp("^tools/qvfb"),
+                          new RegExp("^tools/qdoc3"),
                           new RegExp("_mac"),
                           new RegExp("_qnx4"),
                           new RegExp("_qnx6"),
@@ -108,6 +109,7 @@ platformRemove["x11"] = [ new RegExp("\\.qws"),
                           new RegExp("^src/tools/idc"),
                           new RegExp("^src/winmain"),
                           new RegExp("^src/gui/embedded"),
+                          new RegExp("^tools/qdoc3"),
                           new RegExp("^tools/activeqt"),
                           new RegExp("^tools/configure"),
                           new RegExp("^tools/designer/src/plugins/activeqt"),
@@ -140,6 +142,7 @@ platformRemove["mac"] = [ new RegExp("\\.qws"),
                           new RegExp("^tools/qconfig"),
                           new RegExp("^tools/qtconfig"),
                           new RegExp("^tools/qvfb"),
+                          new RegExp("^tools/qdoc3"),
                           new RegExp("_qnx4"),
                           new RegExp("_qnx6"),
                           new RegExp("_qws"),
@@ -162,14 +165,14 @@ platformRemove["core"] = [ new RegExp("^LICENSE.QPL"),
                            new RegExp("^tools/configure"),
                            new RegExp("^tools/designer/src/plugins/activeqt"),
                            new RegExp("^tools/qvfb"),
+                           new RegExp("^tools/qdoc3"),
                            new RegExp("_mac"),
                            new RegExp("_qnx4"),
                            new RegExp("_qnx6"),
                            new RegExp("_wce"),
                            new RegExp("_win") ];
 
-platformRemove["all"] = [  new RegExp("^doc/src"),
-                           new RegExp("_qnx4"),
+platformRemove["all"] = [  new RegExp("_qnx4"),
                            new RegExp("_qnx6"),
                            new RegExp("_qws"),
                            new RegExp("^src/plugins/decorations"),
