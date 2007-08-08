@@ -867,6 +867,19 @@ QStringList QScriptEngine::uncaughtExceptionBacktrace() const
 }
 
 /*!
+  \since 4.4
+
+  Clears any uncaught exceptions in this engine.
+
+  \sa hasUncaughtException()
+*/
+void QScriptEngine::clearExceptions()
+{
+    Q_D(QScriptEngine);
+    d->clearExceptions();
+}
+
+/*!
   Returns the default prototype associated with the given \a metaTypeId,
   or an invalid QScriptValue if no default prototype has been set.
 

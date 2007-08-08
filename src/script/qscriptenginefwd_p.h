@@ -149,6 +149,7 @@ public:
     inline bool hasUncaughtException() const;
     inline QScriptValueImpl uncaughtException() const;
     QStringList uncaughtExceptionBacktrace() const;
+    void clearExceptions();
 #ifndef QT_NO_QOBJECT
     void emitSignalHandlerException();
 #endif

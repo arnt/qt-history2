@@ -512,6 +512,12 @@ void tst_QScriptEngine::uncaughtException()
             QVERIFY(!eng.hasUncaughtException());
             QVERIFY(!eng.uncaughtException().isValid());
         }
+        {
+            QScriptValue ret = eng.evaluate("1 = 2");
+            QVERIFY(eng.hasUncaughtException());
+            eng.clearExceptions();
+            QVERIFY(!eng.hasUncaughtException());
+        }
     }
 }
 
