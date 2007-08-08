@@ -45,7 +45,7 @@ class QDateTime;
 class QIODevice;
 class QSslKey;
 class QStringList;
-template <typename T, typename U> class QMultiMap;
+template <typename T, typename U> class QMap;
 
 typedef struct x509_st X509; // ### check if this works
 
