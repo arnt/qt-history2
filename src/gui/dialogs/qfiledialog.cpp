@@ -1865,27 +1865,27 @@ QAbstractProxyModel *QFileDialog::proxyModel() const
 void QFileDialogPrivate::createToolButtons()
 {
     Q_Q(QFileDialog);
-    qFileDialogUi->backButton->setIcon(q->style()->standardIcon(QStyle::SP_ArrowBack));
+    qFileDialogUi->backButton->setIcon(q->style()->standardIcon(QStyle::SP_ArrowBack, 0, q));
     qFileDialogUi->backButton->setAutoRaise(true);
     qFileDialogUi->backButton->setEnabled(false);
     QObject::connect(qFileDialogUi->backButton, SIGNAL(clicked()), q, SLOT(_q_navigateBackward()));
 
-    qFileDialogUi->forwardButton->setIcon(q->style()->standardIcon(QStyle::SP_ArrowForward));
+    qFileDialogUi->forwardButton->setIcon(q->style()->standardIcon(QStyle::SP_ArrowForward, 0, q));
     qFileDialogUi->forwardButton->setAutoRaise(true);
     qFileDialogUi->forwardButton->setEnabled(false);
     QObject::connect(qFileDialogUi->forwardButton, SIGNAL(clicked()), q, SLOT(_q_navigateForward()));
 
-    qFileDialogUi->toParentButton->setIcon(q->style()->standardIcon(QStyle::SP_FileDialogToParent));
+    qFileDialogUi->toParentButton->setIcon(q->style()->standardIcon(QStyle::SP_FileDialogToParent, 0, q));
     qFileDialogUi->toParentButton->setAutoRaise(true);
     qFileDialogUi->toParentButton->setEnabled(false);
     QObject::connect(qFileDialogUi->toParentButton, SIGNAL(clicked()), q, SLOT(_q_navigateToParent()));
 
-    qFileDialogUi->listModeButton->setIcon(q->style()->standardIcon(QStyle::SP_FileDialogListView));
+    qFileDialogUi->listModeButton->setIcon(q->style()->standardIcon(QStyle::SP_FileDialogListView, 0, q));
     qFileDialogUi->listModeButton->setAutoRaise(true);
     qFileDialogUi->listModeButton->setDown(true);
     QObject::connect(qFileDialogUi->listModeButton, SIGNAL(clicked()), q, SLOT(_q_showListView()));
 
-    qFileDialogUi->detailModeButton->setIcon(q->style()->standardIcon(QStyle::SP_FileDialogDetailedView));
+    qFileDialogUi->detailModeButton->setIcon(q->style()->standardIcon(QStyle::SP_FileDialogDetailedView, 0, q));
     qFileDialogUi->detailModeButton->setAutoRaise(true);
     QObject::connect(qFileDialogUi->detailModeButton, SIGNAL(clicked()), q, SLOT(_q_showDetailsView()));
 
@@ -1896,7 +1896,7 @@ void QFileDialogPrivate::createToolButtons()
     qFileDialogUi->forwardButton->setFixedSize(toolSize);
     qFileDialogUi->toParentButton->setFixedSize(toolSize);
 
-    qFileDialogUi->newFolderButton->setIcon(q->style()->standardIcon(QStyle::SP_FileDialogNewFolder));
+    qFileDialogUi->newFolderButton->setIcon(q->style()->standardIcon(QStyle::SP_FileDialogNewFolder, 0, q));
     qFileDialogUi->newFolderButton->setFixedSize(toolSize);
     qFileDialogUi->newFolderButton->setAutoRaise(true);
     qFileDialogUi->newFolderButton->setEnabled(false);
