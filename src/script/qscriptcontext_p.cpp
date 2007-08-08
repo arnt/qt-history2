@@ -2232,7 +2232,13 @@ bool QScriptContextPrivate::eq_cmp_helper(QScriptValueImpl lhs, QScriptValueImpl
     else if (lhs.isString() && isNumerical(rhs))
         return eng->convertToNativeString(lhs) == eng->convertToNativeString(rhs);
 
-    if (lhs.isObject() && ! rhs.isNull()) {
+    else if (lhs.isBoolean())
+        return eq_cmp(QScriptValueImpl(eng, eng->convertToNativeDouble(lhs)), rhs);
+
+    else if (rhs.isBoolean())
+        return eq_cmp(lhs, QScriptValueImpl(eng, eng->convertToNativeDouble(rhs)));
+
+    else if (lhs.isObject() && ! rhs.isNull()) {
         lhs = eng->toPrimitive(lhs);
 
         if (lhs.isValid() && ! lhs.isObject())

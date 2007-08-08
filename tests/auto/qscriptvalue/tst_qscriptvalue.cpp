@@ -1473,6 +1473,7 @@ void tst_QScriptValue::equals()
     QCOMPARE(num.equals(QScriptValue(&eng, 321).toObject()), false);
     QCOMPARE(num.equals(QScriptValue(&eng, "123").toObject()), true);
     QCOMPARE(num.equals(QScriptValue(&eng, "321").toObject()), false);
+    QVERIFY(num.toObject().equals(num));
     QCOMPARE(num.equals(QScriptValue()), false);
 
     QScriptValue str = QScriptValue(&eng, "123");
@@ -1484,6 +1485,7 @@ void tst_QScriptValue::equals()
     QCOMPARE(str.equals(QScriptValue(&eng, "321").toObject()), false);
     QCOMPARE(str.equals(QScriptValue(&eng, 123).toObject()), true);
     QCOMPARE(str.equals(QScriptValue(&eng, 321).toObject()), false);
+    QVERIFY(str.toObject().equals(str));
     QCOMPARE(str.equals(QScriptValue()), false);
 
     QScriptValue date1 = eng.newDate(QDateTime(QDate(2000, 1, 1)));
@@ -1500,6 +1502,32 @@ void tst_QScriptValue::equals()
     QCOMPARE(null.equals(undefined), true);
     QCOMPARE(undefined.equals(QScriptValue()), false);
     QCOMPARE(null.equals(QScriptValue()), false);
+    QVERIFY(!null.equals(num));
+    QVERIFY(!undefined.equals(num));
+
+    QScriptValue sant = QScriptValue(&eng, true);
+    QVERIFY(sant.equals(QScriptValue(&eng, 1)));
+    QVERIFY(sant.equals(QScriptValue(&eng, "1")));
+    QVERIFY(sant.equals(sant));
+    QVERIFY(sant.equals(QScriptValue(&eng, 1).toObject()));
+    QVERIFY(sant.equals(QScriptValue(&eng, "1").toObject()));
+    QVERIFY(sant.equals(sant.toObject()));
+    QVERIFY(sant.toObject().equals(sant));
+    QVERIFY(!sant.equals(QScriptValue(&eng, 0)));
+    QVERIFY(!sant.equals(undefined));
+    QVERIFY(!sant.equals(null));
+
+    QScriptValue falskt = QScriptValue(&eng, false);
+    QVERIFY(falskt.equals(QScriptValue(&eng, 0)));
+    QVERIFY(falskt.equals(QScriptValue(&eng, "0")));
+    QVERIFY(falskt.equals(falskt));
+    QVERIFY(falskt.equals(QScriptValue(&eng, 0).toObject()));
+    QVERIFY(falskt.equals(QScriptValue(&eng, "0").toObject()));
+    QVERIFY(falskt.equals(falskt.toObject()));
+    QVERIFY(falskt.toObject().equals(falskt));
+    QVERIFY(!falskt.equals(sant));
+    QVERIFY(!falskt.equals(undefined));
+    QVERIFY(!falskt.equals(null));
 
     QScriptValue obj1 = eng.newObject();
     QScriptValue obj2 = eng.newObject();
@@ -1528,6 +1556,7 @@ void tst_QScriptValue::strictlyEquals()
     QCOMPARE(num.strictlyEquals(QScriptValue(&eng, 321).toObject()), false);
     QCOMPARE(num.strictlyEquals(QScriptValue(&eng, "123").toObject()), false);
     QCOMPARE(num.strictlyEquals(QScriptValue(&eng, "321").toObject()), false);
+    QVERIFY(!num.toObject().strictlyEquals(num));
 
     QScriptValue str = QScriptValue(&eng, "123");
     QCOMPARE(str.strictlyEquals(QScriptValue(&eng, "123")), true);
@@ -1538,6 +1567,7 @@ void tst_QScriptValue::strictlyEquals()
     QCOMPARE(str.strictlyEquals(QScriptValue(&eng, "321").toObject()), false);
     QCOMPARE(str.strictlyEquals(QScriptValue(&eng, 123).toObject()), false);
     QCOMPARE(str.strictlyEquals(QScriptValue(&eng, 321).toObject()), false);
+    QVERIFY(!str.toObject().strictlyEquals(str));
 
     QScriptValue date1 = eng.newDate(QDateTime(QDate(2000, 1, 1)));
     QScriptValue date2 = eng.newDate(QDateTime(QDate(1999, 1, 1)));
@@ -1551,6 +1581,30 @@ void tst_QScriptValue::strictlyEquals()
     QCOMPARE(null.strictlyEquals(null), true);
     QCOMPARE(undefined.strictlyEquals(null), false);
     QCOMPARE(null.strictlyEquals(undefined), false);
+
+    QScriptValue sant = QScriptValue(&eng, true);
+    QVERIFY(!sant.strictlyEquals(QScriptValue(&eng, 1)));
+    QVERIFY(!sant.strictlyEquals(QScriptValue(&eng, "1")));
+    QVERIFY(sant.strictlyEquals(sant));
+    QVERIFY(!sant.strictlyEquals(QScriptValue(&eng, 1).toObject()));
+    QVERIFY(!sant.strictlyEquals(QScriptValue(&eng, "1").toObject()));
+    QVERIFY(!sant.strictlyEquals(sant.toObject()));
+    QVERIFY(!sant.toObject().strictlyEquals(sant));
+    QVERIFY(!sant.strictlyEquals(QScriptValue(&eng, 0)));
+    QVERIFY(!sant.strictlyEquals(undefined));
+    QVERIFY(!sant.strictlyEquals(null));
+
+    QScriptValue falskt = QScriptValue(&eng, false);
+    QVERIFY(!falskt.strictlyEquals(QScriptValue(&eng, 0)));
+    QVERIFY(!falskt.strictlyEquals(QScriptValue(&eng, "0")));
+    QVERIFY(falskt.strictlyEquals(falskt));
+    QVERIFY(!falskt.strictlyEquals(QScriptValue(&eng, 0).toObject()));
+    QVERIFY(!falskt.strictlyEquals(QScriptValue(&eng, "0").toObject()));
+    QVERIFY(!falskt.strictlyEquals(falskt.toObject()));
+    QVERIFY(!falskt.toObject().strictlyEquals(falskt));
+    QVERIFY(!falskt.strictlyEquals(sant));
+    QVERIFY(!falskt.strictlyEquals(undefined));
+    QVERIFY(!falskt.strictlyEquals(null));
 
     QScriptValue obj1 = eng.newObject();
     QScriptValue obj2 = eng.newObject();
