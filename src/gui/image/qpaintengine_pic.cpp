@@ -375,7 +375,14 @@ void QPicturePaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const Q
 #endif
     int pos;
     SERIALIZE_CMD(QPicturePrivate::PdcDrawPixmap);
-    d->s << r << pm << sr;
+
+    if (d->pic_d->dont_stream_pixmaps) {
+        int index = d->pic_d->pixmap_list.size();
+        d->pic_d->pixmap_list.append(pm);
+        d->s << r << index << sr;
+    } else {
+        d->s << r << pm << sr;
+    }
     writeCmdLength(pos, r, false);
 }
 
@@ -387,7 +394,13 @@ void QPicturePaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap
 #endif
     int pos;
     SERIALIZE_CMD(QPicturePrivate::PdcDrawTiledPixmap);
-    d->s << r << pixmap << s;
+    if (d->pic_d->dont_stream_pixmaps) {
+        int index = d->pic_d->pixmap_list.size();
+        d->pic_d->pixmap_list.append(pixmap);
+        d->s << r << index << s;
+    } else {
+        d->s << r << pixmap << s;
+    }
     writeCmdLength(pos, r, false);
 }
 

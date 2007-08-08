@@ -709,14 +709,28 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
                 painter->drawPixmap(ir, pixmap);
             } else {
                 QRectF sr;
-                s >> r >> pixmap >> sr;
+                if (d->dont_stream_pixmaps) {
+                    int index;
+                    s >> r >> index >> sr;
+                    Q_ASSERT(index < d->pixmap_list.size());
+                    pixmap = d->pixmap_list.at(index);
+                } else {
+                    s >> r >> pixmap >> sr;
+                }
                 painter->drawPixmap(r, pixmap, sr);
             }
         }
             break;
         case QPicturePrivate::PdcDrawTiledPixmap: {
             QPixmap pixmap;
-            s >> r >> pixmap >> p;
+            if (d->dont_stream_pixmaps) {
+                int index;
+                s >> r >> index >> p;
+                Q_ASSERT(index < d->pixmap_list.size());
+                pixmap = d->pixmap_list.at(index);
+            } else {
+                s >> r >> pixmap >> p;
+            }
             painter->drawTiledPixmap(r, pixmap, p);
         }
             break;

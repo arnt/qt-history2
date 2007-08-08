@@ -26,6 +26,7 @@
 #include <qdebug.h>
 #include <qvector.h>
 #include <qpicture.h>
+#include <private/qpicture_p.h>
 
 // #define QT_DEBUG_DRAW
 
@@ -386,6 +387,7 @@ void QAlphaPaintEngine::flushAndInit(bool init)
         gccaps = AllFeatures;
 
         d->m_pic = new QPicture();
+        d->m_pic->d_ptr->dont_stream_pixmaps = true;
         d->m_picpainter = new QPainter(d->m_pic);
         d->m_picengine = d->m_picpainter->paintEngine();
 
