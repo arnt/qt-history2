@@ -275,6 +275,9 @@ void QTextBrowserPrivate::setSource(const QUrl &url)
         hbar->setValue(0);
         vbar->setValue(0);
     }
+#ifdef QT_KEYPAD_NAVIGATION 
+    lastKeypadScrollValue = vbar->value(); 
+#endif 
 
 #ifndef QT_NO_CURSOR
     if (q->isVisible())
@@ -490,6 +493,10 @@ void QTextBrowserPrivate::restoreHistoryEntry(const HistoryEntry entry)
         control->setCursorIsFocusIndicator(true);
         control->setTextCursor(cursor);
     }
+#ifdef QT_KEYPAD_NAVIGATION 
+    lastKeypadScrollValue = vbar->value(); 
+    prevFocus = control->textCursor(); 
+#endif 
 }
 
 /*!
