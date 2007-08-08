@@ -780,31 +780,33 @@ void PropertyEditor::setObject(QObject *object)
                 property = m_nameToProperty.value(propertyName);
             } else {
                 property = m_propertyManager->addProperty(type, propertyName);
-                property->setToolTip(propertyName);
-                newProperty = true;
-                if (property && type == DesignerPropertyManager::enumTypeId()) {
-                    const PropertySheetEnumValue e = qvariant_cast<PropertySheetEnumValue>(value);
-                    QStringList names;
-                    QStringListIterator it(e.metaEnum.keys());
-                    while (it.hasNext())
-                        names.append(it.next());
-                    m_updatingBrowser = true;
-                    property->setAttribute(QLatin1String("enumNames"), names);
-                    m_updatingBrowser = false;
-                } else if (property && type == DesignerPropertyManager::designerFlagTypeId()) {
-                    const PropertySheetFlagValue f = qvariant_cast<PropertySheetFlagValue>(value);
-                    QList<QPair<QString, uint> > flags;
-                    QStringListIterator it(f.metaFlags.keys());
-                    while (it.hasNext()) {
-                        const QString name = it.next();
-                        const uint val = f.metaFlags.keyToValue(name);
-                        flags.append(qMakePair(name, val));
+                if (property) {
+                    property->setToolTip(propertyName);
+                    newProperty = true;
+                    if (type == DesignerPropertyManager::enumTypeId()) {
+                        const PropertySheetEnumValue e = qvariant_cast<PropertySheetEnumValue>(value);
+                        QStringList names;
+                        QStringListIterator it(e.metaEnum.keys());
+                        while (it.hasNext())
+                            names.append(it.next());
+                        m_updatingBrowser = true;
+                        property->setAttribute(QLatin1String("enumNames"), names);
+                        m_updatingBrowser = false;
+                    } else if (type == DesignerPropertyManager::designerFlagTypeId()) {
+                        const PropertySheetFlagValue f = qvariant_cast<PropertySheetFlagValue>(value);
+                        QList<QPair<QString, uint> > flags;
+                        QStringListIterator it(f.metaFlags.keys());
+                        while (it.hasNext()) {
+                            const QString name = it.next();
+                            const uint val = f.metaFlags.keyToValue(name);
+                            flags.append(qMakePair(name, val));
+                        }
+                        m_updatingBrowser = true;
+                        QVariant v;
+                        qVariantSetValue(v, flags);
+                        property->setAttribute(QLatin1String("flags"), v);
+                        m_updatingBrowser = false;
                     }
-                    m_updatingBrowser = true;
-                    QVariant v;
-                    qVariantSetValue(v, flags);
-                    property->setAttribute(QLatin1String("flags"), v);
-                    m_updatingBrowser = false;
                 }
             }
 
