@@ -163,6 +163,11 @@ inline bool QScriptContextPrivate::eq_cmp(const QScriptValueImpl &lhs, const QSc
         case QScript::VariantType:
             return lhs.m_object_value == rhs.m_object_value || lhs.toVariant() == rhs.toVariant();
 
+#ifndef QT_NO_QOBJECT
+        case QScript::QObjectType:
+            return lhs.m_object_value == rhs.m_object_value || lhs.toQObject() == rhs.toQObject();
+#endif
+
         default:
             if (lhs.isObject())
                 return lhs.m_object_value == rhs.m_object_value;
@@ -198,9 +203,6 @@ inline bool QScriptContextPrivate::strict_eq_cmp(const QScriptValueImpl &lhs, co
         if (lhs.m_string_value->unique && rhs.m_string_value->unique)
             return lhs.m_string_value == rhs.m_string_value;
         return lhs.m_string_value->s == rhs.m_string_value->s;
-
-    case QScript::VariantType:
-        return lhs.m_object_value == rhs.m_object_value || lhs.toVariant() == rhs.toVariant();
 
     default:
         if (lhs.isObject())

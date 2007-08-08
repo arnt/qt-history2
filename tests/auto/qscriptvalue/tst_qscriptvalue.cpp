@@ -1536,6 +1536,48 @@ void tst_QScriptValue::equals()
     QCOMPARE(obj1.equals(obj1), true);
     QCOMPARE(obj2.equals(obj2), true);
 
+    QScriptValue qobj1 = eng.newQObject(this);
+    QScriptValue qobj2 = eng.newQObject(this);
+    QVERIFY(qobj1.equals(qobj2)); // compares the QObject pointers
+
+    {
+        QScriptValue var1 = eng.newVariant(QVariant(false));
+        QScriptValue var2 = eng.newVariant(QVariant(false));
+        QVERIFY(var1.equals(var2));
+    }
+    {
+        QScriptValue var1 = eng.newVariant(QVariant(false));
+        QScriptValue var2 = eng.newVariant(QVariant(0));
+        // QVariant::operator==() performs type conversion
+        QVERIFY(var1.equals(var2));
+    }
+    {
+        QScriptValue var1 = eng.newVariant(QVariant(QStringList() << "a"));
+        QScriptValue var2 = eng.newVariant(QVariant(QStringList() << "a"));
+        QVERIFY(var1.equals(var2));
+    }
+    {
+        QScriptValue var1 = eng.newVariant(QVariant(QStringList() << "a"));
+        QScriptValue var2 = eng.newVariant(QVariant(QStringList() << "b"));
+        QVERIFY(!var1.equals(var2));
+    }
+    {
+        QScriptValue var1 = eng.newVariant(QVariant(QPoint(1, 2)));
+        QScriptValue var2 = eng.newVariant(QVariant(QPoint(1, 2)));
+        QVERIFY(var1.equals(var2));
+    }
+    {
+        QScriptValue var1 = eng.newVariant(QVariant(QPoint(1, 2)));
+        QScriptValue var2 = eng.newVariant(QVariant(QPoint(3, 4)));
+        QVERIFY(!var1.equals(var2));
+    }
+    {
+        QScriptValue var1 = eng.newVariant(QVariant(int(1)));
+        QScriptValue var2 = eng.newVariant(QVariant(double(1)));
+        // QVariant::operator==() performs type conversion
+        QVERIFY(var1.equals(var2));
+    }
+
     QScriptEngine otherEngine;
     QTest::ignoreMessage(QtWarningMsg, "QScriptValue::equals: "
                          "cannot compare to a value created in "
@@ -1612,6 +1654,41 @@ void tst_QScriptValue::strictlyEquals()
     QCOMPARE(obj2.strictlyEquals(obj1), false);
     QCOMPARE(obj1.strictlyEquals(obj1), true);
     QCOMPARE(obj2.strictlyEquals(obj2), true);
+
+    QScriptValue qobj1 = eng.newQObject(this);
+    QScriptValue qobj2 = eng.newQObject(this);
+    QVERIFY(!qobj1.strictlyEquals(qobj2));
+
+    {
+        QScriptValue var1 = eng.newVariant(QVariant(false));
+        QScriptValue var2 = eng.newVariant(QVariant(false));
+        QVERIFY(!var1.strictlyEquals(var2));
+    }
+    {
+        QScriptValue var1 = eng.newVariant(QVariant(false));
+        QScriptValue var2 = eng.newVariant(QVariant(0));
+        QVERIFY(!var1.strictlyEquals(var2));
+    }
+    {
+        QScriptValue var1 = eng.newVariant(QVariant(QStringList() << "a"));
+        QScriptValue var2 = eng.newVariant(QVariant(QStringList() << "a"));
+        QVERIFY(!var1.strictlyEquals(var2));
+    }
+    {
+        QScriptValue var1 = eng.newVariant(QVariant(QStringList() << "a"));
+        QScriptValue var2 = eng.newVariant(QVariant(QStringList() << "b"));
+        QVERIFY(!var1.strictlyEquals(var2));
+    }
+    {
+        QScriptValue var1 = eng.newVariant(QVariant(QPoint(1, 2)));
+        QScriptValue var2 = eng.newVariant(QVariant(QPoint(1, 2)));
+        QVERIFY(!var1.strictlyEquals(var2));
+    }
+    {
+        QScriptValue var1 = eng.newVariant(QVariant(QPoint(1, 2)));
+        QScriptValue var2 = eng.newVariant(QVariant(QPoint(3, 4)));
+        QVERIFY(!var1.strictlyEquals(var2));
+    }
 
     QScriptEngine otherEngine;
     QTest::ignoreMessage(QtWarningMsg, "QScriptValue::strictlyEquals: "
