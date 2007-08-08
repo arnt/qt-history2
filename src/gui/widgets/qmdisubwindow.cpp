@@ -436,7 +436,7 @@ void ControlLabel::updateWindowIcon()
 {
     QIcon menuIcon = windowIcon();
     if (menuIcon.isNull())
-        menuIcon = style()->standardIcon(QStyle::SP_TitleBarMenuButton);
+        menuIcon = style()->standardIcon(QStyle::SP_TitleBarMenuButton, 0, parentWidget());
     label = menuIcon.pixmap(16, 16);
     update();
 }
@@ -974,19 +974,19 @@ void QMdiSubWindowPrivate::createSystemMenu()
     systemMenu = new QMenu(q);
     const QStyle *style = q->style();
     addToSystemMenu(RestoreAction, QMdiSubWindow::tr("&Restore"), SLOT(showNormal()));
-    actions[RestoreAction]->setIcon(style->standardIcon(QStyle::SP_TitleBarNormalButton));
+    actions[RestoreAction]->setIcon(style->standardIcon(QStyle::SP_TitleBarNormalButton, 0, q));
     actions[RestoreAction]->setEnabled(false);
     addToSystemMenu(MoveAction, QMdiSubWindow::tr("&Move"), SLOT(_q_enterInteractiveMode()));
     addToSystemMenu(ResizeAction, QMdiSubWindow::tr("&Size"), SLOT(_q_enterInteractiveMode()));
     addToSystemMenu(MinimizeAction, QMdiSubWindow::tr("Mi&nimize"), SLOT(showMinimized()));
-    actions[MinimizeAction]->setIcon(style->standardIcon(QStyle::SP_TitleBarMinButton));
+    actions[MinimizeAction]->setIcon(style->standardIcon(QStyle::SP_TitleBarMinButton, 0, q));
     addToSystemMenu(MaximizeAction, QMdiSubWindow::tr("Ma&ximize"), SLOT(showMaximized()));
-    actions[MaximizeAction]->setIcon(style->standardIcon(QStyle::SP_TitleBarMaxButton));
+    actions[MaximizeAction]->setIcon(style->standardIcon(QStyle::SP_TitleBarMaxButton, 0, q));
     addToSystemMenu(StayOnTopAction, QMdiSubWindow::tr("Stay on &Top"), SLOT(_q_updateStaysOnTopHint()));
     actions[StayOnTopAction]->setCheckable(true);
     systemMenu->addSeparator();
     addToSystemMenu(CloseAction, QMdiSubWindow::tr("&Close"), SLOT(close()));
-    actions[CloseAction]->setIcon(style->standardIcon(QStyle::SP_TitleBarCloseButton));
+    actions[CloseAction]->setIcon(style->standardIcon(QStyle::SP_TitleBarCloseButton, 0, q));
 #if !defined(QT_NO_SHORTCUT)
     actions[CloseAction]->setShortcut(QKeySequence::Close);
 #endif
@@ -2172,7 +2172,7 @@ QMdiSubWindow::QMdiSubWindow(QWidget *parent, Qt::WindowFlags flags)
     // We don't want the menu icon by default on mac.
 #ifndef Q_WS_MAC
     if (windowIcon().isNull())
-        d->menuIcon = style()->standardIcon(QStyle::SP_TitleBarMenuButton);
+        d->menuIcon = style()->standardIcon(QStyle::SP_TitleBarMenuButton, 0, this);
     else
         d->menuIcon = windowIcon();
 #endif
@@ -2755,7 +2755,7 @@ bool QMdiSubWindow::event(QEvent *event)
     case QEvent::WindowIconChange:
         d->menuIcon = windowIcon();
         if (d->menuIcon.isNull())
-            d->menuIcon = style()->standardIcon(QStyle::SP_TitleBarMenuButton);
+            d->menuIcon = style()->standardIcon(QStyle::SP_TitleBarMenuButton, 0, this);
         if (d->controlContainer)
             d->controlContainer->updateWindowIcon(d->menuIcon);
         if (!maximizedSystemMenuIconWidget())
