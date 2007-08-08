@@ -1636,11 +1636,12 @@ void QPdfBaseEnginePrivate::drawTextItem(const QPointF &p, const QTextItemInt &t
     if (!currentPage->fonts.contains(font->object_id))
         currentPage->fonts.append(font->object_id);
 
-    qreal size;
+    qreal size = ti.fontEngine->fontDef.pixelSize;
 #ifdef Q_WS_WIN
-    size = ti.fontEngine->tm.w.tmHeight;
-#else
-    size = ti.fontEngine->fontDef.pixelSize;
+    if (ti.fontEngine->type() == QFontEngine::Win) {
+        QFontEngineWin *fe = static_cast<QFontEngineWin *>(ti.fontEngine);
+        size = fe->tm.w.tmHeight;
+    }
 #endif
 
     QVarLengthArray<glyph_t> glyphs;

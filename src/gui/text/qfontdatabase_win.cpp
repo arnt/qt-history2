@@ -556,7 +556,7 @@ static inline void load(const QString &family = QString(), int = -1)
 
 
 
-static void initFontInfo(QFontEngine *fe, const QFontDef &request, const QFontPrivate *fp)
+static void initFontInfo(QFontEngineWin *fe, const QFontDef &request, const QFontPrivate *fp)
 {
     fe->fontDef = request;                                // most settings are equal
 
@@ -844,8 +844,9 @@ QFontEngine *loadEngine(int script, const QFontPrivate *fp, const QFontDef &requ
 #endif
 
     }
-    QFontEngine *fe = new QFontEngineWin(font_name, hfont, stockFont, lf);
-    initFontInfo(fe, request, fp);
+    QFontEngineWin *few = new QFontEngineWin(font_name, hfont, stockFont, lf);
+    QFontEngine *fe = few;
+    initFontInfo(few, request, fp);
     if(script == QUnicodeTables::Common
        && !(request.styleStrategy & QFont::NoFontMerging)
        && !(desc->family->writingSystems[QFontDatabase::Symbol] & QtFontFamily::Supported)) {
@@ -877,7 +878,7 @@ QFontEngine *loadEngine(int script, const QFontPrivate *fp, const QFontDef &requ
                 list << QLatin1String(*tf);
             ++tf;
         }
-        QFontEngine *mfe = new QFontEngineMultiWin(static_cast<QFontEngineWin *>(fe), list);
+        QFontEngine *mfe = new QFontEngineMultiWin(few, list);
         mfe->fontDef = fe->fontDef;
         fe = mfe;
     }

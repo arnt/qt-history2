@@ -112,7 +112,7 @@ HFONT QFont::handle() const
     if (engine->type() == QFontEngine::Multi)
         engine = static_cast<QFontEngineMulti *>(engine)->engine(0);
     if (engine->type() == QFontEngine::Win)
-	return engine->hfont;
+	return static_cast<QFontEngineWin *>(engine)->hfont;
     return 0;
 }
 
