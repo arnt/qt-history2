@@ -87,8 +87,7 @@ void QSslKeyPrivate::clear(bool deep)
     If \a passPhrase is non-empty, it will be used for decrypting
     \a pem.
 */
-void QSslKeyPrivate::decodePem(const QByteArray &pem,
-			       const QByteArray &passPhrase,
+void QSslKeyPrivate::decodePem(const QByteArray &pem, const QByteArray &passPhrase,
                                bool deepClear)
 {
     if (pem.isEmpty())
@@ -202,8 +201,7 @@ QByteArray QSslKeyPrivate::derFromPem(const QByteArray &pem) const
     if (headerIndex == -1 || footerIndex == -1)
         return QByteArray();
 
-    der = der.mid(headerIndex + header.size(),
-		  footerIndex - (headerIndex + header.size()));
+    der = der.mid(headerIndex + header.size(), footerIndex - (headerIndex + header.size()));
 
     return QByteArray::fromBase64(der); // ignores newlines
 }
@@ -217,17 +215,15 @@ QByteArray QSslKeyPrivate::derFromPem(const QByteArray &pem) const
     After construction, use isNull() to check if \a encoded contained
     a valid key.
 */
-QSslKey::QSslKey(const QByteArray &encoded,
-		 QSsl::KeyAlgorithm algorithm,
-                 QSsl::EncodingFormat encoding,
-		 QSsl::KeyType type,
-		 const QByteArray &passPhrase)
+QSslKey::QSslKey(const QByteArray &encoded, QSsl::KeyAlgorithm algorithm,
+                 QSsl::EncodingFormat encoding, QSsl::KeyType type, const QByteArray &passPhrase)
     : d(new QSslKeyPrivate)
 {
     d->type = type;
     d->algorithm = algorithm;
-    d->decodePem((encoding == QSsl::Der) ? d->pemFromDer(encoded) : encoded,
-		 passPhrase);
+    d->decodePem((encoding == QSsl::Der)
+                 ? d->pemFromDer(encoded) : encoded,
+                 passPhrase);
 }
 
 /*!
@@ -239,11 +235,8 @@ QSslKey::QSslKey(const QByteArray &encoded,
     After construction, use isNull() to check if \a device provided
     a valid key.
 */
-QSslKey::QSslKey(QIODevice *device,
-		 QSsl::KeyAlgorithm algorithm,
-                 QSsl::EncodingFormat encoding,
-		 QSsl::KeyType type,
-		 const QByteArray &passPhrase)
+QSslKey::QSslKey(QIODevice *device, QSsl::KeyAlgorithm algorithm, QSsl::EncodingFormat encoding,
+		 QSsl::KeyType type, const QByteArray &passPhrase)
     : d(new QSslKeyPrivate)
 {
     QByteArray encoded;
@@ -251,8 +244,9 @@ QSslKey::QSslKey(QIODevice *device,
         encoded = device->readAll();
     d->type = type;
     d->algorithm = algorithm;
-    d->decodePem((encoding == QSsl::Der) ? d->pemFromDer(encoded) : encoded,
-		 passPhrase);
+    d->decodePem((encoding == QSsl::Der) ?
+                 d->pemFromDer(encoded) : encoded,
+                 passPhrase);
 }
 
 /*!
@@ -314,8 +308,8 @@ int QSslKey::length() const
 {
     if (d->isNull)
         return -1;
-    return (d->algorithm == QSsl::Rsa) ? q_BN_num_bits(d->rsa->n)
-	: q_BN_num_bits(d->dsa->p);
+    return (d->algorithm == QSsl::Rsa)
+           ? q_BN_num_bits(d->rsa->n) : q_BN_num_bits(d->dsa->p);
 }
 
 /*!
