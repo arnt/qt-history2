@@ -462,6 +462,16 @@ bool QScriptValue::lessThan(const QScriptValue &other) const
   \l{ECMA-262} section 11.9.3, "The Abstract Equality Comparison
   Algorithm".
 
+  This function can return true even if the type of this QScriptValue
+  is different from the type of the \a other value; i.e. the
+  comparison is not strict.  For example, comparing the number 9 to
+  the string "9" returns true; comparing an undefined value to a null
+  value returns true; comparing a \c{Number} object whose primitive
+  value is 6 to a \c{String} object whose primitive value is "6"
+  returns true; and comparing the number 1 to the boolean value
+  \c{true} returns true. If you want to perform a comparison
+  without such implicit value conversion, use strictlyEquals().
+
   Note that if this QScriptValue or the \a other value are objects,
   calling this function has side effects on the script engine, since
   the engine will call the object's valueOf() function (and possibly
@@ -487,6 +497,20 @@ bool QScriptValue::equals(const QScriptValue &other) const
   follows the behavior described in \l{ECMA-262} section 11.9.6, "The
   Strict Equality Comparison Algorithm".
 
+  If the type of this QScriptValue is different from the type of the
+  \a other value, this function returns false. If the types are equal,
+  the result depends on the type, as shown in the following table:
+
+    \table
+    \header \o Type \o Result
+    \row    \o Undefined  \o true
+    \row    \o Null       \o true
+    \row    \o Boolean    \o true if both values are true, false otherwise
+    \row    \o Number     \o false if either value is NaN (Not-a-Number); true if values are equal, false otherwise
+    \row    \o String     \o true if both values are exactly the same sequence of characters, false otherwise
+    \row    \o Object     \o true if both values refer to the same object, false otherwise
+    \endtable
+  
   \sa equals()
 */
 bool QScriptValue::strictlyEquals(const QScriptValue &other) const
