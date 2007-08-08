@@ -2316,16 +2316,16 @@ QPixmap QMessageBoxPrivate::standardIcon(QMessageBox::Icon icon, QMessageBox *mb
     QIcon tmpIcon;
     switch (icon) {
     case QMessageBox::Information:
-        tmpIcon = style->standardIcon(QStyle::SP_MessageBoxInformation);
+        tmpIcon = style->standardIcon(QStyle::SP_MessageBoxInformation, 0, mb);
         break;
     case QMessageBox::Warning:
-        tmpIcon = style->standardIcon(QStyle::SP_MessageBoxWarning);
+        tmpIcon = style->standardIcon(QStyle::SP_MessageBoxWarning, 0, mb);
         break;
     case QMessageBox::Critical:
-        tmpIcon = style->standardIcon(QStyle::SP_MessageBoxCritical);
+        tmpIcon = style->standardIcon(QStyle::SP_MessageBoxCritical, 0, mb);
         break;
     case QMessageBox::Question:
-        tmpIcon = style->standardIcon(QStyle::SP_MessageBoxQuestion);
+        tmpIcon = style->standardIcon(QStyle::SP_MessageBoxQuestion, 0, mb);
     default:
         break;
     }
