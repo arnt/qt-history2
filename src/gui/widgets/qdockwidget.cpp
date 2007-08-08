@@ -600,12 +600,12 @@ void QDockWidgetPrivate::updateButtons()
 
     QAbstractButton *button
         = qobject_cast<QAbstractButton*>(layout->widget(QDockWidgetLayout::FloatButton));
-    button->setIcon(q->style()->standardIcon(QStyle::SP_TitleBarNormalButton));
+    button->setIcon(q->style()->standardIcon(QStyle::SP_TitleBarNormalButton, 0, q));
     button->setVisible(canFloat && !hideButtons);
 
     button
         = qobject_cast <QAbstractButton*>(layout->widget(QDockWidgetLayout::CloseButton));
-    button->setIcon(q->style()->standardIcon(QStyle::SP_TitleBarCloseButton));
+    button->setIcon(q->style()->standardIcon(QStyle::SP_TitleBarCloseButton, 0, q));
     button->setVisible(canClose && !hideButtons);
 
     q->setAttribute(Qt::WA_ContentsPropagated,
