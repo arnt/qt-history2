@@ -26,71 +26,6 @@
 **
 ****************************************************************************/
 
-/*!
-    \class QSslCertificate
-    \brief The QSslCertificate class provides a convenient API for an X509 certificate.
-    \since 4.3
-
-    \reentrant
-    \ingroup io
-    \module network
-
-    QSslCertificate stores an X509 certificate, and is commonly used
-    to verify the identity and store information about the local host,
-    a remotely connected peer, or a trusted third party Certificate
-    Authority.
-
-    There are many ways to construct a QSslCertificate. The most
-    common way is to call QSslSocket::peerCertificate(), which returns
-    a QSslCertificate object, or QSslSocket::peerCertificateChain(),
-    which returns a list of them. You can also load certificates from
-    a DER (binary) or PEM (Base64) encoded bundle, typically stored as
-    one or more local files, or in a Qt Resource.
-
-    You can call isNull() to check if your certificate is null. By
-    default, QSslCertificate constructs a null certificate. To check
-    if the certificate is valid, call isValid(). A null certificate is
-    invalid, but an invalid certificate is not necessarily null. If
-    you want to reset all contents in a certificate, call clear().
-
-    After loading a certificate, you can find information about the
-    certificate, its subject, and its issuer, by calling one of the
-    many accessor functions, including version(), serialNumber(),
-    issuerInfo() and subjectInfo(). You can call notValidBefore() and
-    notValidAfter() to check when the certificate was issued, and when
-    it expires. The publicKey() function returns the certificate
-    subject's public key as a QSslKey. You can call issuerInfo() or
-    subjectInfo() to get detailed information about the certificate
-    issuer and its subject.
-
-    Internally, QSslCertificate is stored as an X509 structure. You
-    can access this handle by calling handle(), but the results are
-    likely to not be portable.
-
-    \sa QSslSocket, QSslKey, QSslCipher, QSslError
-*/
-
-/*!
-    \enum QSslCertificate::SubjectInfo
-
-    Describes keys that you can pass to QSslCertificate::issuerInfo() or
-    QSslCertificate::subjectInfo() to get information about the certificate
-    issuer or subject.
-
-    \value Organization "O" The name of the organization.
-
-    \value CommonName "CN" The common name; most often this is used to store
-    the host name.
-
-    \value LocalityName "L" The locality.
-
-    \value OrganizationalUnitName "OU" The organizational unit name.
-
-    \value CountryName "C" The country.
-
-    \value StateOrProvinceName "ST" The state or province.
-*/
-
 #include "qsslsocket_openssl_symbols_p.h"
 #include "qsslcertificate.h"
 #include "qsslcertificate_p.h"
@@ -112,12 +47,6 @@
 
 #include <QtCore/qdebug.h>
 
-/*!
-    Constructs a QSslCertificate by reading \a format encoded data
-    from \a device and using the first certificate found. You can
-    later call isNull() to see if \a device contained a certificate,
-    and if this certificate was loaded successfully.
-*/
 QSslCertificate::QSslCertificate(QIODevice *device, QSsl::EncodingFormat format)
     : d(new QSslCertificatePrivate)
 {
@@ -126,12 +55,6 @@ QSslCertificate::QSslCertificate(QIODevice *device, QSsl::EncodingFormat format)
         d->init(device->readAll(), format);
 }
 
-/*!
-    Constructs a QSslCertificate by parsing the \a format encoded
-    \a data and using the first available certificate found. You can
-    later call isNull() to see if \a data contained a certificate,
-    and if this certificate was loaded successfully.
-*/
 QSslCertificate::QSslCertificate(const QByteArray &data, QSsl::EncodingFormat format)
     : d(new QSslCertificatePrivate)
 {
@@ -139,37 +62,23 @@ QSslCertificate::QSslCertificate(const QByteArray &data, QSsl::EncodingFormat fo
     d->init(data, format);
 }
 
-/*!
-    Constructs an identical copy of \a other.
-*/
 QSslCertificate::QSslCertificate(const QSslCertificate &other) : d(other.d)
 {
     d->ref.ref();
 }
 
-/*!
-    Destroys the QSslCertificate.
-*/
 QSslCertificate::~QSslCertificate()
 {
     if (!d->ref.deref())
         delete d;
 }
 
-/*!
-    Copies the contents of \a other into this certificate, making the two
-    certificates identical.
-*/
 QSslCertificate &QSslCertificate::operator=(const QSslCertificate &other)
 {
     qAtomicAssign(d, other.d);
     return *this;
 }
 
-/*!
-    Returns true if this certificate is the same as \a other; otherwise
-    returns false.
-*/
 bool QSslCertificate::operator==(const QSslCertificate &other) const
 {
     if (d == other.d)
@@ -181,49 +90,17 @@ bool QSslCertificate::operator==(const QSslCertificate &other) const
     return false;
 }
 
-/*!
-    \fn bool QSslCertificate::operator!=(const QSslCertificate &other) const
-
-    Returns true if this certificate is not the same as \a other; otherwise
-    returns false.
-*/
-
-/*!
-    Returns true if this is a null certificate (i.e., a certificate
-    with no contents); otherwise returns false.
-
-    By default, QSslCertificate constructs a null certificate.
-
-    \sa isValid(), clear()
-*/
 bool QSslCertificate::isNull() const
 {
     return d->null;
 }
 
-/*!
-    Returns true if this certificate is valid; otherwise returns
-    false.
-
-    Note: Currently, this function only checks that the current
-    data-time is within the date-time range during which the
-    certificate is considered valid. No other checks are
-    currently performed.
-
-    \sa isNull()
-*/
 bool QSslCertificate::isValid() const
 {
     const QDateTime currentTime = QDateTime::currentDateTime();
     return currentTime >= d->notValidBefore && currentTime <= d->notValidAfter;
 }
 
-/*!
-    Clears the contents of this certificate, making it a null
-    certificate.
-
-    \sa isNull()
-*/
 void QSslCertificate::clear()
 {
     if (!d->ref.deref()) {
@@ -232,27 +109,16 @@ void QSslCertificate::clear()
     }
 }
 
-/*!
-    Returns the certificate's version string.
-*/
 QByteArray QSslCertificate::version() const
 {
     return d->versionString;
 }
 
-/*!
-    Returns the certificate's serial number string.
-*/
 QByteArray QSslCertificate::serialNumber() const
 {
     return d->serialNumberString;
 }
 
-/*!
-    Returns a cryptographic digest of this certificate. By default,
-    and MD5 digest will be generated, but you can also specify a
-    custom \a algorithm.
-*/
 QByteArray QSslCertificate::digest(QCryptographicHash::Algorithm algorithm) const
 {
     return QCryptographicHash::hash(toDer(), algorithm);
@@ -272,72 +138,28 @@ static QString _q_SubjectInfoToString(QSslCertificate::SubjectInfo info)
     return str;
 }
 
-/*!
-  \fn QString QSslCertificate::issuerInfo(SubjectInfo subject) const
-  
-  Returns the issuer information for the \a subject from the
-  certificate, or an empty string if there is no information for
-  \a subject in the certificate.
-
-  \sa subjectInfo()
-*/
 QString QSslCertificate::issuerInfo(SubjectInfo info) const
 {
     return d->issuerInfo.value(_q_SubjectInfoToString(info));
 }
 
-/*!
-  Returns the issuer information for \a tag from the certificate,
-  or an empty string if there is no information for \a tag in the
-  certificate.
-
-  \sa subjectInfo()
-*/
 QString QSslCertificate::issuerInfo(const QByteArray &tag) const
 {
     // ### Use a QByteArray for the keys in the map
     return d->issuerInfo.value(QString::fromLatin1(tag));
 }
 
-/*!
-
-  \fn QString QSslCertificate::subjectInfo(SubjectInfo subject) const
-
-  Returns the information for the \a subject, or an empty string if
-  there is no information for \a subject in the certificate.
-
-    \sa issuerInfo()
-*/
 QString QSslCertificate::subjectInfo(SubjectInfo info) const
 {
     return d->subjectInfo.value(_q_SubjectInfoToString(info));
 }
 
-/*!
-    Returns the subject information for \a tag, or an empty string if
-    there is no information for \a tag in the certificate.
-
-    \sa issuerInfo()
-*/
 QString QSslCertificate::subjectInfo(const QByteArray &tag) const
 {
     // ### Use a QByteArray for the keys in the map
     return d->subjectInfo.value(QString::fromLatin1(tag));
 }
 
-/*!
-  Returns the list of alternative subject names for this
-  certificate. The alternate subject names typically contain host
-  names, optionally with wildcards, that are valid for this
-  certificate.
-  
-  These names are tested against the connected peer's host name, if
-  either the subject information for \l CommonName doesn't define a
-  valid host name, or the subject info name doesn't match the peer's
-  host name.
-  
-  \sa subjectInfo()
-*/
 QMultiMap<QSsl::AlternateNameEntryType, QString>
 QSslCertificate::alternateSubjectNames() const
 {
@@ -362,47 +184,21 @@ QSslCertificate::alternateSubjectNames() const
     return result;
 }
 
-/*!
-  Returns the date-time that the certificate becomes valid, or an
-  empty QDateTime if this is a null certificate.
-
-  \sa expiryDate()
-*/
 QDateTime QSslCertificate::effectiveDate() const
 {
     return d->notValidBefore;
 }
 
-/*!
-  Returns the date-time that the certificate expires, or an empty
-  QDateTime if this is a null certificate.
-
-    \sa effectiveDate()
-*/
 QDateTime QSslCertificate::expiryDate() const
 {
     return d->notValidAfter;
 }
 
-/*!
-    Returns a pointer to the native certificate handle, if there is
-    one, or a null pointer otherwise.
-
-    You can use this handle, together with the native API, to access
-    extended information about the certificate.
-
-    \warning Use of this function has a high probability of being
-    non-portable, and its return value may vary from platform to
-    platform or change from minor release to minor release.
-*/
 Qt::HANDLE QSslCertificate::handle() const
 {
     return Qt::HANDLE(d->x509);
 }
 
-/*!
-    Returns the certificate subject's public key.
-*/
 QSslKey QSslCertificate::publicKey() const
 {
     if (!d->x509)
@@ -433,10 +229,6 @@ QSslKey QSslCertificate::publicKey() const
     return key;
 }
 
-/*!
-    Returns this certificate converted to a PEM (Base64) encoded
-    representation.
-*/
 QByteArray QSslCertificate::toPem() const
 {
     if (!d->x509)
@@ -444,10 +236,6 @@ QByteArray QSslCertificate::toPem() const
     return d->QByteArray_from_X509(d->x509, QSsl::Pem);
 }
 
-/*!
-    Returns this certificate converted to a DER (binary) encoded
-    representation.
-*/
 QByteArray QSslCertificate::toDer() const
 {
     if (!d->x509)
@@ -455,14 +243,6 @@ QByteArray QSslCertificate::toDer() const
     return d->QByteArray_from_X509(d->x509, QSsl::Der);
 }
 
-/*!
-    Searches all files in the \a path for certificates encoded in
-    the specified \a format and returns them in a list. \a path can
-    be for an explicit file, or it can contain wildcards in the format
-    specified by \a syntax.
-
-    \sa fromData()
-*/
 QList<QSslCertificate>
 QSslCertificate::fromPath(const QString &path,
 			  QSsl::EncodingFormat format,
@@ -490,13 +270,6 @@ QSslCertificate::fromPath(const QString &path,
     return certs;
 }
 
-/*!
-    Searches for and parses all certificates in \a device that are
-    encoded in the specified \a format and returns them in a list of
-    certificates.
-
-    \sa fromData()
-*/
 QList<QSslCertificate>
 QSslCertificate::fromDevice(QIODevice *device, QSsl::EncodingFormat format)
 {
@@ -507,13 +280,6 @@ QSslCertificate::fromDevice(QIODevice *device, QSsl::EncodingFormat format)
     return fromData(device->readAll(), format);
 }
 
-/*!
-    Searches for and parses all certificates in \a data that are
-    encoded in the specified \a format and returns them in a list of
-    certificates.
-
-    \sa fromDevice()
-*/
 QList<QSslCertificate>
 QSslCertificate::fromData(const QByteArray &data, QSsl::EncodingFormat format)
 {

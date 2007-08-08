@@ -26,20 +26,6 @@
 **
 ****************************************************************************/
 
-/*!
-    \class QSslKey
-    \brief The QSslKey class provides an interface for private and public keys.
-    \since 4.3
-
-    \reentrant
-    \ingroup io
-    \module network
-
-    QSslKey provides a simple API for managing keys.
-
-    \sa QSslSocket, QSslCertificate, QSslCipher
-*/
-
 #include "qsslsocket_openssl_symbols_p.h"
 #include "qsslkey.h"
 #include "qsslkey_p.h"
@@ -53,10 +39,6 @@
 #include <QtCore/qdebug.h>
 #endif
 
-
-/*!
-    \internal
- */
 void QSslKeyPrivate::clear(bool deep)
 {
     isNull = true;
@@ -74,19 +56,6 @@ void QSslKeyPrivate::clear(bool deep)
     }
 }
 
-/*!
-    \internal
-
-    Allocates a new rsa or dsa struct and decodes \a pem into it
-    according to the current algorithm and type.
-
-    If \a deepClear is true, the rsa/dsa struct is freed if it is was
-    already allocated, otherwise we "leak" memory (which is exactly
-    what we want for copy construction).
-
-    If \a passPhrase is non-empty, it will be used for decrypting
-    \a pem.
-*/
 void QSslKeyPrivate::decodePem(const QByteArray &pem,
 			       const QByteArray &passPhrase,
                                bool deepClear)
@@ -134,9 +103,6 @@ QSslKey::QSslKey()
 {
 }
 
-/*!
-    \internal
-*/
 QByteArray QSslKeyPrivate::pemHeader() const
 {
     // ### use QByteArray::fromRawData() instead
@@ -147,9 +113,6 @@ QByteArray QSslKeyPrivate::pemHeader() const
     return QByteArray("-----BEGIN DSA PRIVATE KEY-----\n");
 }
 
-/*!
-    \internal
-*/
 QByteArray QSslKeyPrivate::pemFooter() const
 {
     // ### use QByteArray::fromRawData() instead
@@ -160,11 +123,6 @@ QByteArray QSslKeyPrivate::pemFooter() const
     return QByteArray("-----END DSA PRIVATE KEY-----\n");
 }
 
-/*!
-    \internal
-
-    Returns a DER key formatted as PEM.
-*/
 QByteArray QSslKeyPrivate::pemFromDer(const QByteArray &der) const
 {
     QByteArray pem(der.toBase64());
@@ -185,11 +143,6 @@ QByteArray QSslKeyPrivate::pemFromDer(const QByteArray &der) const
     return pem;
 }
 
-/*!
-    \internal
-
-    Returns a PEM key formatted as DER.
-*/
 QByteArray QSslKeyPrivate::derFromPem(const QByteArray &pem) const
 {
     const QByteArray header = pemHeader();
@@ -208,15 +161,6 @@ QByteArray QSslKeyPrivate::derFromPem(const QByteArray &pem) const
     return QByteArray::fromBase64(der); // ignores newlines
 }
 
-/*!
-    Constructs a QSslKey by decoding the string in the byte array
-    \a encoded using a specified \a algorithm and \a encoding format.
-    If the encoded key is encrypted, \a passPhrase is used to decrypt
-    it. \a type specifies whether the key is public or private.
-
-    After construction, use isNull() to check if \a encoded contained
-    a valid key.
-*/
 QSslKey::QSslKey(const QByteArray &encoded,
 		 QSsl::KeyAlgorithm algorithm,
                  QSsl::EncodingFormat encoding,
@@ -230,15 +174,6 @@ QSslKey::QSslKey(const QByteArray &encoded,
 		 passPhrase);
 }
 
-/*!
-    Constructs a QSslKey by reading and decoding data from a
-    \a device using a specified \a algorithm and \a encoding format.
-    If the encoded key is encrypted, \a passPhrase is used to decrypt
-    it. \a type specifies whether the key is public or private.
-
-    After construction, use isNull() to check if \a device provided
-    a valid key.
-*/
 QSslKey::QSslKey(QIODevice *device,
 		 QSsl::KeyAlgorithm algorithm,
                  QSsl::EncodingFormat encoding,
@@ -255,50 +190,28 @@ QSslKey::QSslKey(QIODevice *device,
 		 passPhrase);
 }
 
-/*!
-    Constructs an identical copy of \a other.
-*/
 QSslKey::QSslKey(const QSslKey &other) : d(other.d)
 {
     d->ref.ref();
 }
 
-/*!
-    Destroys the QSslKey object.
-*/
 QSslKey::~QSslKey()
 {
     if (!d->ref.deref())
         delete d;
 }
 
-/*!
-    Copies the contents of \a other into this key, making the two keys
-    identical.
-
-    Returns a reference to this QSslKey.
-*/
 QSslKey &QSslKey::operator=(const QSslKey &other)
 {
     qAtomicAssign(d, other.d);
     return *this;
 }
 
-/*!
-    Returns true if this is a null key; otherwise false.
-
-    \sa clear()
-*/
 bool QSslKey::isNull() const
 {
     return d->isNull;
 }
 
-/*!
-    Clears the contents of this key, making it a null key.
-
-    \sa isNull()
-*/
 void QSslKey::clear()
 {
     if (!d->ref.deref()) {
@@ -307,9 +220,6 @@ void QSslKey::clear()
     }
 }
 
-/*!
-    Returns the length of the key in bits, or -1 if the key is null.
-*/
 int QSslKey::length() const
 {
     if (d->isNull)
@@ -318,27 +228,16 @@ int QSslKey::length() const
 	: q_BN_num_bits(d->dsa->p);
 }
 
-/*!
-    Returns the type of the key (i.e., PublicKey or PrivateKey).
-*/
 QSsl::KeyType QSslKey::type() const
 {
     return d->type;
 }
 
-/*!
-    Returns the key algorithm.
-*/
 QSsl::KeyAlgorithm QSslKey::algorithm() const
 {
     return d->algorithm;
 }
 
-/*!
-  Returns the key in DER encoding. The result is encrypted with
-  \a passPhrase if the key is a private key and \a passPhrase is
-  non-empty.
-*/
 // ### autotest failure for non-empty passPhrase and private key
 QByteArray QSslKey::toDer(const QByteArray &passPhrase) const
 {
@@ -347,11 +246,6 @@ QByteArray QSslKey::toDer(const QByteArray &passPhrase) const
     return d->derFromPem(toPem(passPhrase));
 }
 
-/*!
-  Returns the key in PEM encoding. The result is encrypted with
-  \a passPhrase if the key is a private key and \a passPhrase is
-  non-empty.
-*/
 QByteArray QSslKey::toPem(const QByteArray &passPhrase) const
 {
     if (!QSslSocket::supportsSsl() || d->isNull)
@@ -401,25 +295,11 @@ QByteArray QSslKey::toPem(const QByteArray &passPhrase) const
     return pem;
 }
 
-/*!
-    Returns a pointer to the native key handle, if it is available;
-    otherwise a null pointer is returned.
-
-    You can use this handle together with the native API to access
-    extended information about the key.
-
-    \warning Use of this function has a high probability of being
-    non-portable, and its return value may vary across platforms, and
-    between minor Qt releases.
-*/
 Qt::HANDLE QSslKey::handle() const
 {
     return (d->algorithm == QSsl::Rsa) ? Qt::HANDLE(d->rsa) : Qt::HANDLE(d->dsa);
 }
 
-/*!
-    Returns true if this key is equal to \a other; otherwise returns false.
-*/
 bool QSslKey::operator==(const QSslKey &other) const
 {
     if (isNull())
@@ -434,12 +314,6 @@ bool QSslKey::operator==(const QSslKey &other) const
         return false;
     return toDer() == other.toDer();
 }
-
-/*! \fn bool QSslKey::operator!=(const QSslKey &other) const
-
-  Returns true if this key is not equal to key \a other; otherwise
-  returns false.
-*/
 
 #ifndef QT_NO_DEBUG_STREAM
 class QDebug;
