@@ -166,6 +166,8 @@ private slots:
     void moveChild_data();
     void moveChild();
 
+    void subtractOpaqueSiblings();
+
 #ifdef Q_WS_WIN
     void getDC();
     void setGeometry_win();
@@ -4183,6 +4185,42 @@ void tst_QWidget::moveChild()
                  child.color);
     VERIFY_COLOR(QRegion(parent.geometry()) - child.geometry().translated(tlwOffset),
                  parent.color);
+}
+
+void tst_QWidget::subtractOpaqueSiblings()
+{
+#if defined(Q_WIDGET_USE_DIRTYLIST) || (QT_VERSION >= 0x040400)
+    QWidget w;
+    w.setGeometry(50, 50, 300, 300);
+
+    ColorWidget *large = new ColorWidget(&w, Qt::red);
+    large->setGeometry(50, 50, 200, 200);
+
+    ColorWidget *medium = new ColorWidget(large, Qt::gray);
+    medium->setGeometry(50, 50, 100, 100);
+
+    ColorWidget *tall = new ColorWidget(&w, Qt::blue);
+    tall->setGeometry(100, 30, 50, 100);
+
+    w.show();
+    QApplication::processEvents();
+
+    large->reset();
+    medium->reset();
+    tall->reset();
+
+    medium->update();
+    QApplication::processEvents();
+
+    // QWidgetPrivate::subtractOpaqueSiblings() should prevent parts of medium
+    // to be repainted and tall from be repainted at all.
+
+    QCOMPARE(large->r, QRegion());
+    QCOMPARE(tall->r, QRegion());
+    QCOMPARE(medium->r.translated(medium->mapTo(&w, QPoint())),
+             QRegion(medium->geometry().translated(large->pos()))
+             - tall->geometry());
+#endif
 }
 
 void tst_QWidget::deleteStyle()
