@@ -98,6 +98,7 @@ private slots:
     void setDisabled();
     void removeSelectedItem();
     void removeCurrentItem();
+    void crashTest();
 
 private:
     QTreeWidget *testWidget;
@@ -2528,6 +2529,45 @@ void tst_QTreeWidget::removeCurrentItem()
     QTreeWidgetItem *item = new QTreeWidgetItem(&widget);
     widget.setCurrentItem(item);
     widget.deleteCurrent();
+}
+
+void tst_QTreeWidget::crashTest() // don't know how to call that test since it's hard to say what causes the crash in this example (qt 4.3)
+{
+    QTreeWidget *tree = new QTreeWidget();
+    tree->setColumnCount(1);
+    tree->show();
+
+    QTreeWidgetItem *item1 = new QTreeWidgetItem(tree);
+    item1->setText(0, "item1");
+    tree->setItemExpanded(item1, true);
+    QTreeWidgetItem *item2 = new QTreeWidgetItem(item1);
+    item2->setText(0, "item2");
+
+    QTreeWidgetItem *item3 = new QTreeWidgetItem(tree, item1);
+    item3->setText(0, "item3");
+    tree->setItemExpanded(item3, true);
+    QTreeWidgetItem *item4 = new QTreeWidgetItem(item3);
+    item4->setText(0, "item4");
+
+    QTreeWidgetItem *item5 = new QTreeWidgetItem(tree, item3);
+    item5->setText(0, "item5");
+    tree->setItemExpanded(item5, true);
+    QTreeWidgetItem *item6 = new QTreeWidgetItem(item5);
+    item6->setText(0, "item6");
+
+    for (int i = 0; i < 1000; i++) {
+        QTreeWidgetItem *newItem1 = new QTreeWidgetItem(tree, item1);
+        newItem1->setText(0, "newItem");
+        QTreeWidgetItem *newItem2 = new QTreeWidgetItem(newItem1);
+        newItem2->setText(0, "subItem1");
+        QTreeWidgetItem *newItem3 = new QTreeWidgetItem(newItem1, newItem2);
+        newItem3->setText(0, "subItem2");
+        delete item3;
+        item3 = newItem1;
+    }
+    qApp->processEvents();
+
+    delete tree;
 }
 
 QTEST_MAIN(tst_QTreeWidget)
