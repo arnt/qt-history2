@@ -1199,6 +1199,7 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
     glMatrixMode(GL_TEXTURE);
     glPushMatrix();
     glLoadIdentity();
+    glDisableClientState(GL_COLOR_ARRAY);
 
     if (QGLExtensions::glExtensions & QGLExtensions::SampleBuffers)
         glDisable(GL_MULTISAMPLE);
