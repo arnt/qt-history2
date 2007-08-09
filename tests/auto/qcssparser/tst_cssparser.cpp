@@ -1,6 +1,9 @@
 #include <QtTest/QtTest>
 #include <QtXml/QtXml>
 
+//TESTED_CLASS=QCss
+//TESTED_FILES=gui/text/qcssparser.cpp gui/text/qcssparser_p.h
+
 #if QT_VERSION >= 0x040200
 #include "private/qcssparser_p.h"
 
