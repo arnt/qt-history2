@@ -150,7 +150,7 @@ void ExtQObject::Instance::execute(QScriptContextPrivate *context)
         return;
     }
 
-    QtFunction fun(context->thisObject(), index, /*maybeOverloaded=*/true);
+    QtFunction fun(context->callee(), index, /*maybeOverloaded=*/true);
     fun.execute(context);
 }
 

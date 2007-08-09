@@ -268,8 +268,8 @@ public Q_SLOTS:
     void myOverloadedSlot(const QVariant &arg)
         { m_qtFunctionInvoked = 35; m_actuals << arg; }
 
-    void qscript_call()
-        { m_qtFunctionInvoked = 40; }
+    void qscript_call(int arg)
+        { m_qtFunctionInvoked = 40; m_actuals << arg; }
 
 protected Q_SLOTS:
     void myProtectedSlot() { m_qtFunctionInvoked = 36; }
@@ -1031,6 +1031,26 @@ void tst_QScriptExtQObject::callQtInvokable()
         QVERIFY(ret.isError());
         QCOMPARE(ret.toString(), QLatin1String("TypeError: incompatible type of argument(s) in call to myInvokableWithQBrushArg(); candidates were\n    myInvokableWithQBrushArg(QBrush)"));
         QCOMPARE(m_myObject->qtFunctionInvoked(), -1);
+    }
+
+    // qscript_call()
+    {
+        m_myObject->resetQtFunctionInvoked();
+        QScriptValue ret = m_engine->evaluate("new myObject(123)");
+        QVERIFY(!ret.isError());
+        QVERIFY(ret.isObject());
+        QVERIFY(!ret.isQObject());
+        QCOMPARE(m_myObject->qtFunctionInvoked(), 40);
+        QCOMPARE(m_myObject->qtFunctionActuals().size(), 1);
+        QCOMPARE(m_myObject->qtFunctionActuals().at(0).toInt(), 123);
+    }
+    {
+        m_myObject->resetQtFunctionInvoked();
+        QScriptValue ret = m_engine->evaluate("myObject(123)");
+        QVERIFY(ret.isUndefined());
+        QCOMPARE(m_myObject->qtFunctionInvoked(), 40);
+        QCOMPARE(m_myObject->qtFunctionActuals().size(), 1);
+        QCOMPARE(m_myObject->qtFunctionActuals().at(0).toInt(), 123);
     }
 }
 
