@@ -1573,7 +1573,30 @@ void QWidgetPrivate::subtractOpaqueSiblings(QRegion &rgn, const QPoint &offset) 
     if (disableSubtractOpaqueSiblings)
         return;
 
+#if defined(Q_WIDGET_USE_DIRTYLIST) || (QT_VERSION >= 0x040400)
     rgn -= getOpaqueSiblings().translated(offset);
+#else
+    Q_Q(const QWidget);
+
+    if (q->isWindow())
+        return;
+
+    QPoint myOffset = offset - q->data->crect.topLeft();
+    const QWidgetPrivate *pd = q->parentWidget()->d_func();
+    pd->subtractOpaqueSiblings(rgn, myOffset);
+
+    const int startIdx = pd->children.indexOf(const_cast<QWidget*>(q)) + 1;
+    for (int i = startIdx; i < pd->children.size(); ++i) {
+        const QWidget *sibling = qobject_cast<QWidget *>(pd->children.at(i));
+        if (!sibling || !sibling->isVisible() || sibling->isWindow())
+            continue;
+
+        QRegion childRgn = sibling->geometry().translated(myOffset) & q->rect();
+        const QWidgetPrivate *sd = sibling->d_func();
+        sd->subtractOpaqueChildren(rgn, childRgn,
+                                   myOffset + sibling->geometry().topLeft());
+    }
+#endif
 }
 
 #else // Q_WIDGET_CACHE_OPAQUEREGIONS
