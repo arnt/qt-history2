@@ -343,7 +343,6 @@ static const int numKnownStyleHints = sizeof(knownStyleHints)/sizeof(knownStyleH
 QRenderRule::QRenderRule(const QVector<Declaration> &declarations, const QWidget *widget)
 : features(0), hasFont(false), pal(0), b(0), bg(0), bd(0), geo(0), p(0), img(0)
 {
-    Q_ASSERT(widget);
     QPalette palette = qApp->palette(); // ###: ideally widget's palette
     ValueExtractor v(declarations, palette);
     features = v.extractStyleFeatures();
@@ -402,7 +401,7 @@ QRenderRule::QRenderRule(const QVector<Declaration> &declarations, const QWidget
     hasFont = v.extractFont(&font, &adj);
 
 #ifndef QT_NO_TOOLTIP
-    if (QString::fromLatin1(widget->metaObject()->className()) == QLatin1String("QTipLabel"))
+    if (widget && (QString::fromLatin1(widget->metaObject()->className()) == QLatin1String("QTipLabel")))
         palette = QToolTip::palette();
 #endif
 
@@ -465,9 +464,11 @@ QRenderRule::QRenderRule(const QVector<Declaration> &declarations, const QWidget
         }
     }
 
-    QStyleSheetStyle *style = qobject_cast<QStyleSheetStyle *>(widget->style());
-    Q_ASSERT(style);
-    fixupBorder(style->nativeFrameWidth(widget));
+    if (widget) {
+        QStyleSheetStyle *style = qobject_cast<QStyleSheetStyle *>(widget->style());
+        Q_ASSERT(style);
+        fixupBorder(style->nativeFrameWidth(widget));
+    }
     if (hasBorder() && border()->hasBorderImage())
         defaultBackground = QBrush();
 }
@@ -1073,6 +1074,8 @@ public:
 
     bool nodeNameEquals(NodePtr node, const QString& name) const
     {
+        if (isNullNode(node))
+            return false;
         if (WIDGET(node)->inherits(name.toLatin1()))
             return true;
 #ifndef QT_NO_TOOLTIP
@@ -1092,6 +1095,8 @@ public:
     }
     QString attribute(NodePtr node, const QString& name) const
     {
+        if (isNullNode(node))
+            return QString();
         QVariant value = WIDGET(node)->property(name.toLatin1());
         if (!value.isValid()) {
             if (name == QLatin1String("class")) {
@@ -1109,16 +1114,16 @@ public:
     bool hasAttribute(NodePtr node, const QString& name) const
     { return name == QLatin1String("class")
              || name == QLatin1String("style")
-             || WIDGET(node)->metaObject()->indexOfProperty(name.toLatin1()) != -1
-             || WIDGET(node)->dynamicPropertyNames().contains(name.toLatin1()); }
+             || (!isNullNode(node) && (WIDGET(node)->metaObject()->indexOfProperty(name.toLatin1()) != -1))
+             || (!isNullNode(node) && (WIDGET(node)->dynamicPropertyNames().contains(name.toLatin1()))); }
     bool hasAttributes(NodePtr) const
     { return true; }
     QStringList nodeIds(NodePtr node) const
-    { return QStringList(WIDGET(node)->objectName()); }
+    { return isNullNode(node) ? QStringList() : QStringList(WIDGET(node)->objectName()); }
     bool isNullNode(NodePtr node) const
     { return node.ptr == 0; }
     NodePtr parentNode(NodePtr node) const
-    { NodePtr n; n.ptr = WIDGET(node)->parentWidget(); return n; }
+    { NodePtr n; n.ptr = isNullNode(node) ? 0 : WIDGET(node)->parentWidget(); return n; }
     NodePtr previousSiblingNode(NodePtr) const
     { NodePtr n; n.ptr = 0; return n; }
     NodePtr duplicateNode(NodePtr node) const
@@ -1170,14 +1175,13 @@ static bool unstylable(const QWidget *w)
 
 QVector<QCss::StyleRule> QStyleSheetStyle::styleRules(const QWidget *w) const
 {
-    if (!w)
-        return QVector<StyleRule>();
-
     if (styleRulesCache->contains(w))
         return styleRulesCache->value(w);
 
-    QObject::connect(w, SIGNAL(destroyed(QObject*)), this, SLOT(widgetDestroyed(QObject*)));
-    if (unstylable(w)) {
+    if (w)
+        QObject::connect(w, SIGNAL(destroyed(QObject*)), this, SLOT(widgetDestroyed(QObject*)));
+
+    if (w && unstylable(w)) {
         QVector<StyleRule> emptyRule;
         styleRulesCache->insert(w, emptyRule);
         return emptyRule;
@@ -1241,7 +1245,7 @@ QVector<QCss::StyleRule> QStyleSheetStyle::styleRules(const QWidget *w) const
     StyleSelector::NodePtr n;
     n.ptr = (void *)w;
     QVector<QCss::StyleRule> rules = styleSelector.styleRulesForNode(n);
-    if (w->property("_q_stylesheet_polished").toBool() == true)
+    if (!w || w->property("_q_stylesheet_polished").toBool() == true)
         styleRulesCache->insert(w, rules);
     return rules;
 }
@@ -1466,9 +1470,6 @@ static int pseudoClass(QStyle::State state)
 
 QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, int element, int state) const
 {
-    if (!w)
-        return QRenderRule();
-
     const QString part = QLatin1String(knownPseudoElements[element].name);
     if (renderRulesCache->contains(w)) {
         QHash<int, QRenderRule> &renderRules = (*renderRulesCache)[w][part];
@@ -1479,16 +1480,13 @@ QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, int element, int stat
 
     QVector<Declaration> decls = declarations(styleRules(w), part, state);
     QRenderRule newRule(decls, w);
-    if (w->property("_q_stylesheet_polished").toBool() == true)
+    if (!w || w->property("_q_stylesheet_polished").toBool() == true)
         (*renderRulesCache)[w][part][state] = newRule;
     return newRule;
 }
 
 QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QStyleOption *opt, int pseudoElement) const
 {
-    if (!w)
-        return QRenderRule();
-
     int extraClass = 0;
     QStyle::State state = opt ? opt->state : QStyle::State(QStyle::State_None);
 
@@ -2152,6 +2150,8 @@ static void updateWidgets(const QList<const QWidget *>& widgets)
     }
     for (int i = 0; i < widgets.size(); ++i) {
         QWidget *widget = const_cast<QWidget *>(widgets.at(i));
+        if (widget == 0)
+            continue;
         widget->style()->polish(widget);
         QEvent event(QEvent::StyleChange);
         qApp->sendEvent(widget, &event);
