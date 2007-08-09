@@ -97,7 +97,7 @@ public:
     bool unsubscribeFromNotification(const QString &name);  // ### Qt 5: make virtual
     QStringList subscribedToNotifications() const;          // ### Qt 5: make virtual
 
-signals:
+Q_SIGNALS:
     void notification(const QString &name);
 
 protected:
