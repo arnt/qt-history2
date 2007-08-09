@@ -12,6 +12,9 @@
 #include <QMacStyle>
 #endif
 
+//TESTED_CLASS=QMessageBox
+//TESTED_FILES=gui/qmessagebox.cpp gui/qmessagebox.h 
+
 #define CONVENIENCE_FUNC_SYMS(func) \
     { \
         int x1 = QMessageBox::func(0, "Foo", "Bar"); \
