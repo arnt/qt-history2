@@ -1553,6 +1553,7 @@ QRegion QWidgetPrivate::getOpaqueSiblings() const
     const QWidgetPrivate *pd = q->parentWidget()->d_func();
 
     QRegion opaqueSiblings = pd->getOpaqueSiblings();
+
     const int startIdx = pd->children.indexOf(const_cast<QWidget*>(q)) + 1;
     for (int i = startIdx; i < pd->children.size(); ++i) {
         const QWidget *sibling = qobject_cast<QWidget *>(pd->children.at(i));
