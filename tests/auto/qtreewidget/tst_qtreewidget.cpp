@@ -98,6 +98,7 @@ private slots:
     void setDisabled();
     void removeSelectedItem();
     void removeCurrentItem();
+    void randomExpand();
     void crashTest();
 
 private:
@@ -2531,7 +2532,37 @@ void tst_QTreeWidget::removeCurrentItem()
     widget.deleteCurrent();
 }
 
-void tst_QTreeWidget::crashTest() // don't know how to call that test since it's hard to say what causes the crash in this example (qt 4.3)
+void tst_QTreeWidget::randomExpand()
+{
+    QTreeWidget *tree = new QTreeWidget();
+    tree->setColumnCount(1);
+
+    QTreeWidgetItem *item1 = new QTreeWidgetItem(tree);
+    item1->setText(0, "item1");
+    tree->setItemExpanded(item1, true);
+    QTreeWidgetItem *item2 = new QTreeWidgetItem(item1);
+    item2->setText(0, "item2");
+
+    QTreeWidgetItem *item3 = new QTreeWidgetItem(tree, item1);
+    item3->setText(0, "item3");
+    tree->setItemExpanded(item3, true);
+    QTreeWidgetItem *item4 = new QTreeWidgetItem(item3);
+    item4->setText(0, "item4");
+
+    for (int i = 0; i < 100; i++) {
+        QTreeWidgetItem *newItem1 = new QTreeWidgetItem(tree, item1);
+        newItem1->setText(0, "newItem");
+        tree->setItemExpanded(newItem1, true);
+        QTreeWidgetItem *newItem2 = new QTreeWidgetItem(newItem1);
+        newItem2->setText(0, "subItem1");
+
+        QCOMPARE(tree->isItemExpanded(newItem1), true);
+        QApplication::instance()->processEvents();
+        QCOMPARE(tree->isItemExpanded(newItem1), true);
+    }
+}
+
+void tst_QTreeWidget::crashTest() // don't know how to name that test since it's hard to say what causes the crash in this example (qt 4.3)
 {
     QTreeWidget *tree = new QTreeWidget();
     tree->setColumnCount(1);
@@ -2565,7 +2596,7 @@ void tst_QTreeWidget::crashTest() // don't know how to call that test since it's
         delete item3;
         item3 = newItem1;
     }
-    qApp->processEvents();
+    QApplication::instance()->processEvents();
 
     delete tree;
 }
