@@ -1411,6 +1411,8 @@ bool QPainter::end()
 
     bool ended = true;
 
+    d->fillrect_func = 0;
+
     if (d->engine->isActive()) {
         ended = d->engine->end();
         d->updateState(0);
