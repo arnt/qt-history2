@@ -1541,6 +1541,31 @@ void QWidgetPrivate::subtractOpaqueChildren(QRegion &rgn, const QRegion &clipRgn
         rgn -= (r.translated(offset) & clipRgn);
 }
 
+QRegion QWidgetPrivate::getOpaqueSiblings() const
+{
+    Q_Q(const QWidget);
+
+    if (q->isWindow()) // no siblings
+        return QRegion();
+
+    const QPoint myOffset = -q->data->crect.topLeft();
+    const QWidgetPrivate *pd = q->parentWidget()->d_func();
+
+    QRegion opaqueSiblings = pd->getOpaqueSiblings();
+    const int startIdx = pd->children.indexOf(const_cast<QWidget*>(q)) + 1;
+    for (int i = startIdx; i < pd->children.size(); ++i) {
+        const QWidget *sibling = qobject_cast<QWidget *>(pd->children.at(i));
+        if (!sibling || !sibling->isVisible() || sibling->isWindow())
+            continue;
+
+        const QPoint offset = sibling->geometry().topLeft();
+        const QWidgetPrivate *sd = sibling->d_func();
+        opaqueSiblings += sd->getOpaqueRegion().translated(offset);
+    }
+
+    return opaqueSiblings.translated(myOffset);
+}
+
 //subtract any relatives that are higher up than me --- this is too expensive !!!
 void QWidgetPrivate::subtractOpaqueSiblings(QRegion &rgn, const QPoint &offset) const
 {
@@ -1548,26 +1573,7 @@ void QWidgetPrivate::subtractOpaqueSiblings(QRegion &rgn, const QPoint &offset) 
     if (disableSubtractOpaqueSiblings)
         return;
 
-    Q_Q(const QWidget);
-
-    if (q->isWindow())
-        return;
-
-    QPoint myOffset = offset - q->data->crect.topLeft();
-    const QWidgetPrivate *pd = q->parentWidget()->d_func();
-    pd->subtractOpaqueSiblings(rgn, myOffset);
-
-    const int startIdx = pd->children.indexOf(const_cast<QWidget*>(q)) + 1;
-    for (int i = startIdx; i < pd->children.size(); ++i) {
-        const QWidget *sibling = qobject_cast<QWidget *>(pd->children.at(i));
-        if (!sibling || !sibling->isVisible() || sibling->isWindow())
-            continue;
-
-        QRegion childRgn = sibling->geometry().translated(myOffset) & q->rect();
-        const QWidgetPrivate *sd = sibling->d_func();
-        sd->subtractOpaqueChildren(rgn, childRgn,
-                                   myOffset + sibling->geometry().topLeft());
-    }
+    rgn -= getOpaqueSiblings().translated(offset);
 }
 
 #else // Q_WIDGET_CACHE_OPAQUEREGIONS

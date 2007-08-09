@@ -261,6 +261,8 @@ public:
     QRegion getOpaqueChildren() const;
     void setDirtyOpaqueRegion();
 
+    QRegion getOpaqueSiblings() const;
+
     QRegion opaqueChildren;
     bool dirtyOpaqueChildren;
 #endif
