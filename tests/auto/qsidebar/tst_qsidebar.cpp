@@ -13,7 +13,7 @@
 #include "../../../src/gui/dialogs/qfilesystemmodel_p.h"
 
 //TESTED_CLASS=QSidebar
-//TESTED_FILES=qsidebar.h qsidebar.cpp
+//TESTED_FILES=gui/dialogs/qsidebar.h gui/dialogs/qsidebar.cpp
 
 class tst_QSidebar : public QObject {
   Q_OBJECT

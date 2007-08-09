@@ -13,7 +13,7 @@
 #include <QFileIconProvider>
 
 //TESTED_CLASS=QFileSystemModel
-//TESTED_FILES=qfilesystemmodel.h qfilesystemmodel.cpp
+//TESTED_FILES=gui/dialogs/qfilesystemmodel.h gui/dialogs/qfilesystemmodel.cpp
 
 #define WAITTIME 1000
 

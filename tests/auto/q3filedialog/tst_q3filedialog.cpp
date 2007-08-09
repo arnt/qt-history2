@@ -16,7 +16,7 @@
 
 
 //TESTED_CLASS=
-//TESTED_FILES=q3filedialog.h
+//TESTED_FILES=qt3support/dialogs/q3filedialog.cpp
 
 class tst_Q3FileDialog : public QObject
 {

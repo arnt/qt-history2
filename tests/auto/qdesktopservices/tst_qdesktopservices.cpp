@@ -16,8 +16,8 @@ QTEST_NOOP_MAIN
 #include <qdebug.h>
 #include <qdesktopservices.h>
 
-//TESTED_CLASS=qdesktopservices
-//TESTED_FILES=qdesktopservices.h qdesktopservices.cpp
+//TESTED_CLASS=QDesktopServices
+//TESTED_FILES=gui/util/qdesktopservices.h gui/util/qdesktopservices.cpp
 
 class tst_qdesktopservices : public QObject {
   Q_OBJECT
