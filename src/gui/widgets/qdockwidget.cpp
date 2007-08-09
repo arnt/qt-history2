@@ -1329,6 +1329,11 @@ bool QDockWidget::event(QEvent *event)
     case QEvent::Move:
         d->moveEvent(static_cast<QMoveEvent*>(event));
         break;
+    case QEvent::Resize:
+        // if the mainwindow is plugging us, we don't want to update undocked geometry
+        if (isFloating() && layout != 0 && layout->pluggingWidget != this)
+            d->undockedGeometry = geometry();
+        break;
     default:
         break;
     }
