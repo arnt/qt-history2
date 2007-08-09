@@ -11,6 +11,9 @@
 
 #ifdef Q_WS_QWS
 
+//TESTED_CLASS=QMultiScreen
+//TESTED_FILES=gui/embedded/qscreenmulti_qws_p.h gui/embedded/qscreenmulti_qws.cpp
+
 #include <qdesktopwidget.h>
 #include <qscreen_qws.h>
 #include <qscreendriverfactory_qws.h>
