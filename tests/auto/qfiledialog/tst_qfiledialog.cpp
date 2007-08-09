@@ -35,8 +35,8 @@
         } \
     } while(0)
 
-//TESTED_CLASS=
-//TESTED_FILES=qfiledialog.h
+//TESTED_CLASS=QFileDialog
+//TESTED_FILES=qfiledialog.h qfiledialog.cpp
 
 class tst_QFiledialog : public QObject
 {

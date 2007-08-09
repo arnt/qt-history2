@@ -16,6 +16,9 @@ QTEST_NOOP_MAIN
 # endif
 #endif
 
+//TESTED_CLASS=QFileSystemWatcher
+//TESTED_FILES=qfilesystemwatcher.cpp
+
 class tst_QFileSystemWatcher : public QObject
 {
     Q_OBJECT
