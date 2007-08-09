@@ -204,12 +204,15 @@ public:
     QWSWindow::State state;
     Qt::WindowFlags windowFlags;
     QRegion dirtyOnScreen;
+    bool painted;
 };
 
 QWSWindowPrivate::QWSWindowPrivate()
+    :
 #ifndef QT_NO_QWSEMBEDWIDGET
-    : embedder(0), state(QWSWindow::NoState)
+    embedder(0), state(QWSWindow::NoState),
 #endif
+    painted(false)
 {
 }
 
@@ -3323,6 +3326,9 @@ void QWSServerPrivate::moveWindowRegion(QWSWindow *changingw, int dx, int dy)
     else
         expose = oldRegion + newRegion;
 
+    if (!changingw->d->painted && !expose.isEmpty())
+        expose = oldRegion - newRegion;
+
     int idx = windows.indexOf(changingw);
     exposeRegion(expose, idx);
     changingw->d->state = oldState;
@@ -3612,6 +3618,7 @@ void QWSServerPrivate::repaint_region(int wid, int windowFlags, bool opaque, QRe
     changingw->opaque = opaque;
     changingw->d->windowFlags = QFlag(windowFlags);
     changingw->d->dirtyOnScreen |= region;
+    changingw->d->painted = true;
     if (isOpaque != opaque)
         update_regions();
 
