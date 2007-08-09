@@ -18,7 +18,7 @@
 #include <qmovie.h>
 
 
-//TESTED_CLASS=
+//TESTED_CLASS=QLabel
 //TESTED_FILES=gui/widgets/qlabel.h gui/widgets/qlabel.cpp
 
 class Widget : public QWidget

@@ -9,7 +9,7 @@
 #include <QPointer>
 
 //TESTED_CLASS=QCompleter
-//TESTED_FILES=gui/qcompleter.cpp gui/qcompleter.h
+//TESTED_FILES=gui/util/qcompleter.cpp gui/util/qcompleter.h
 
 class CsvCompleter : public QCompleter
 {

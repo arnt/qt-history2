@@ -13,7 +13,7 @@
 #endif
 
 //TESTED_CLASS=QMessageBox
-//TESTED_FILES=gui/qmessagebox.cpp gui/qmessagebox.h 
+//TESTED_FILES=gui/dialogs/qmessagebox.cpp gui/dialogs/qmessagebox.h
 
 #define CONVENIENCE_FUNC_SYMS(func) \
     { \

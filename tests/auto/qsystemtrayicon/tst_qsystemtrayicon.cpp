@@ -18,8 +18,8 @@ QTEST_NOOP_MAIN
 #include <qsystemtrayicon.h>
 #include <qmenu.h>
 
-//TESTED_CLASS=
-//TESTED_FILES=qsystemtrayicon.h qsystemtrayicon.cpp
+//TESTED_CLASS=QSystemTrayIcon
+//TESTED_FILES=gui/util/qsystemtrayicon.h gui/util/qsystemtrayicon.cpp
 
 class tst_QSystemTrayIcon: public QObject
 {

@@ -6,6 +6,9 @@
 
 #include <private/qstylesheetstyle_p.h>
 
+//TESTED_CLASS=QStyleSheetStyle
+//TESTED_FILES=gui/styles/qstylesheetstyle.cpp gui/styles/qstylesheetstyle_p.h
+
 class tst_QStyleSheetStyle : public QObject
 {
     Q_OBJECT
