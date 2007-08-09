@@ -261,7 +261,9 @@ public:
     QRegion getOpaqueChildren() const;
     void setDirtyOpaqueRegion();
 
+#if defined(Q_WIDGET_USE_DIRTYLIST) || (QT_VERSION >= 0x040400)
     QRegion getOpaqueSiblings() const;
+#endif
 
     QRegion opaqueChildren;
     bool dirtyOpaqueChildren;

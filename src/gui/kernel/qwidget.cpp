@@ -1541,6 +1541,7 @@ void QWidgetPrivate::subtractOpaqueChildren(QRegion &rgn, const QRegion &clipRgn
         rgn -= (r.translated(offset) & clipRgn);
 }
 
+#if defined(Q_WIDGET_USE_DIRTYLIST) || (QT_VERSION >= 0x040400)
 QRegion QWidgetPrivate::getOpaqueSiblings() const
 {
     Q_Q(const QWidget);
@@ -1565,6 +1566,7 @@ QRegion QWidgetPrivate::getOpaqueSiblings() const
 
     return opaqueSiblings.translated(myOffset);
 }
+#endif
 
 //subtract any relatives that are higher up than me --- this is too expensive !!!
 void QWidgetPrivate::subtractOpaqueSiblings(QRegion &rgn, const QPoint &offset) const
