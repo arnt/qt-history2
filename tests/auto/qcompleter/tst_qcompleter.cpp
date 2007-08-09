@@ -8,6 +8,9 @@
 #include <QList>
 #include <QPointer>
 
+//TESTED_CLASS=QCompleter
+//TESTED_FILES=gui/qcompleter.cpp gui/qcompleter.h
+
 class CsvCompleter : public QCompleter
 {
     Q_OBJECT
