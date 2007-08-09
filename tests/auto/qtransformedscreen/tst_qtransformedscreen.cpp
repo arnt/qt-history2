@@ -11,6 +11,9 @@
 
 #if defined(Q_WS_QWS)
 
+//TESTED_CLASS=QTransformedScreen
+//TESTED_FILES=gui/embedded/qscreentransformed_qws.h gui/embedded/qscreentransformed_qws.cpp
+
 #include <qwindowsystem_qws.h>
 #include <qscreen_qws.h>
 #include <qscreendriverfactory_qws.h>

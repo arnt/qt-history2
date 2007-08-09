@@ -11,6 +11,9 @@
 
 #ifdef Q_WS_QWS
 
+//TESTED_CLASS=QWSInputMethod
+//TESTED_FILES=gui/embedded/qwindowsystem_qws.h gui/embedded/qwindowsystem_qws.cpp
+
 #include <QWSInputMethod>
 
 class tst_QWSInputMethod : public QObject

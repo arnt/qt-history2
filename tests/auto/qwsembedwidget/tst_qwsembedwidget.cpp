@@ -11,6 +11,9 @@
 
 #ifdef Q_WS_QWS
 
+//TESTED_CLASS=QWSEmbedWidget
+//TESTED_FILES=gui/embedded/qwsembedwidget.h gui/embedded/qwsembedwidget.cpp
+
 #include <QWSEmbedWidget>
 #include <QLabel>
 

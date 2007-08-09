@@ -11,6 +11,9 @@
 
 #ifdef Q_WS_QWS
 
+//TESTED_CLASS=QCopChannel
+//TESTED_FILES=gui/embedded/qcopchannel_qws.h gui/embedded/qcopchannel_qws.cpp
+
 #include <QCopChannel>
 #include <QProcess>
 

@@ -11,6 +11,9 @@
 
 #ifdef Q_WS_QWS
 
+//TESTED_CLASS=QDirectPainter
+//TESTED_FILES=gui/embedded/qdirectpainter_qws.h gui/embedded/qdirectpainter_qws.cpp
+
 #include <qwindowsystem_qws.h>
 #include <qpainter.h>
 #include <qdesktopwidget.h>
