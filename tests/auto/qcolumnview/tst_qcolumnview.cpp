@@ -54,6 +54,7 @@ private slots:
     void selectAll();
     void clicked();
     void selectedColumns();
+    void setSelectionModel();
 
     // grip
     void moveGrip();
@@ -440,7 +441,30 @@ void tst_QColumnView::selectedColumns()
             continue;
         QVERIFY(column->currentIndex().isValid());
     }
+}
 
+void tst_QColumnView::setSelectionModel()
+{
+    ColumnView view;
+    QDirModel model;
+    view.setModel(&model);
+    view.show();
+
+    QModelIndex home = model.index(QDir::homePath());
+    view.setCurrentIndex(home);
+    QTest::qWait(ANIMATION_DELAY);
+
+    QItemSelectionModel *selectionModel = new QItemSelectionModel(&model);
+    view.setSelectionModel(selectionModel);
+
+    bool found = false;
+    for (int i = 0; i < view.createdColumns.count(); ++i) {
+        if (view.createdColumns.at(i)->selectionModel() == selectionModel) {
+            found = true;
+            break;
+        }
+    }
+    QVERIFY(found);
 }
 
 void tst_QColumnView::moveGrip()
