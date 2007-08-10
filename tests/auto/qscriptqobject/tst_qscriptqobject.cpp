@@ -17,7 +17,7 @@
 #include <qlineedit.h>
 
 //TESTED_CLASS=
-//TESTED_FILES=qscriptextqobject.h qscriptextqobject.cpp
+//TESTED_FILES=script/qscriptextqobject_p.h script/qscriptextqobject.cpp
 
 struct CustomType
 {

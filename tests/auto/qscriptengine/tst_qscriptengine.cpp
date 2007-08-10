@@ -16,7 +16,7 @@
 #include <QtCore/qnumeric.h>
 
 //TESTED_CLASS=
-//TESTED_FILES=qscriptengine.h qscriptengine.cpp
+//TESTED_FILES=script/qscriptengine.h script/qscriptengine.cpp
 
 class tst_QScriptEngine : public QObject
 {

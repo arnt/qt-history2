@@ -13,7 +13,7 @@
 #include <QtScript/qscriptvalueiterator.h>
 
 //TESTED_CLASS=
-//TESTED_FILES=qscriptvalueiterator.h qscriptvalueiterator.cpp
+//TESTED_FILES=script/qscriptvalueiterator.h script/qscriptvalueiterator.cpp
 
 class tst_QScriptValueIterator : public QObject
 {

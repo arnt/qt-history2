@@ -13,7 +13,7 @@
 #include <QtScript/qscriptengine.h>
 
 //TESTED_CLASS=
-//TESTED_FILES=qscriptcontext.h qscriptcontext.cpp
+//TESTED_FILES=script/qscriptcontext.h script/qscriptcontext.cpp
 
 class tst_QScriptContext : public QObject
 {

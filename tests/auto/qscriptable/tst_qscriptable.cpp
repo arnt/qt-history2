@@ -14,7 +14,7 @@
 #include <QtScript/qscriptable.h>
 
 //TESTED_CLASS=
-//TESTED_FILES=
+//TESTED_FILES=script/qscriptable.h script/qscriptable.cpp
 
 class MyScriptable : public QObject, protected QScriptable
 {

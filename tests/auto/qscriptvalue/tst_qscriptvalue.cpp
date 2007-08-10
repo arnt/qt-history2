@@ -15,7 +15,7 @@
 #include <QtScript/qscriptengine.h>
 
 //TESTED_CLASS=
-//TESTED_FILES=qscriptvalue.h qscriptvalue.cpp
+//TESTED_FILES=script/qscriptvalue.h script/qscriptvalue.cpp
 
 class tst_QScriptValue : public QObject
 {
