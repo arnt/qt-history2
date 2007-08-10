@@ -140,6 +140,9 @@ private slots:
     void oci_xmltypeSupport_data() { generic_data(); }
     void oci_xmltypeSupport();
 
+    void sqlite_bindAndFetchUInt_data() { generic_data(); }
+    void sqlite_bindAndFetchUInt();
+
 private:
     void createTestTables(QSqlDatabase db);
     void dropTestTables(QSqlDatabase db);
@@ -1129,13 +1132,17 @@ void tst_QSqlDatabase::recordSQLite()
     CHECK_DATABASE(db);
     DBMS_SPECIFIC(db, "QSQLITE");
 
-    // well... SQLite has exactly two datatypes, so this test is rather
-    // short. But worthy because of the NULL check.
     static const FieldDef fieldDefs[] = {
-	FieldDef("char(20)", QVariant::String,         QString("Blah1")),
-	FieldDef("varchar(20)", QVariant::String,      QString("Blah2")),
+        // The affinity of these fields are TEXT so SQLite should give us strings, not ints or doubles.
+        FieldDef("char(20)", QVariant::String,          QString("123")),
+        FieldDef("varchar(20)", QVariant::String,       QString("123.4")),
+        FieldDef("clob", QVariant::String,              QString("123.45")),
+        FieldDef("text", QVariant::String,              QString("123.456")),
 
-	FieldDef(QString::null, QVariant::Invalid)
+        FieldDef("integer", QVariant::Int,              QVariant(13)),
+        FieldDef("int", QVariant::Int,                  QVariant(12)),
+
+        FieldDef(QString::null, QVariant::Invalid)
     };
 
     const uint fieldCount = createFieldTable(fieldDefs, db);
@@ -2086,6 +2093,30 @@ void tst_QSqlDatabase::eventNotificationPSQL()
     QList<QVariant> arguments = spy.takeFirst();
     QVERIFY(arguments.at(0).toString() == procedureName);
     QVERIFY2(db.driver()->unsubscribeFromNotification(procedureName), qPrintable(db.driver()->lastError().text()));
+}
+
+void tst_QSqlDatabase::sqlite_bindAndFetchUInt()
+{
+    QFETCH(QString, dbName);
+    QSqlDatabase db = QSqlDatabase::database(dbName);
+    CHECK_DATABASE(db);
+    DBMS_SPECIFIC(db, "QSQLITE");
+
+    QSqlQuery q(db);
+    QString tableName = qTableName("uint_test");
+    QVERIFY2(q.exec(QString("CREATE TABLE %1(uint_field UNSIGNED INTEGER)").arg(tableName)), q.lastError().text());
+    QVERIFY2(q.prepare(QString("INSERT INTO %1 VALUES(?)").arg(tableName)), q.lastError().text());
+    q.addBindValue((uint)4000000000);
+    QVERIFY2(q.exec(), q.lastError().text());
+    QVERIFY2(q.exec(QString("SELECT uint_field FROM %1").arg(tableName)), q.lastError().text());
+    QVERIFY2(q.next(), q.lastError().text());
+
+    // All integers in SQLite are signed, so even though we bound the value 
+    // as an UInt it will come back as a LongLong
+    QCOMPARE(q.value(0).type(), QVariant::LongLong);
+    QCOMPARE(q.value(0).toUInt(), (uint)4000000000);
+    
+    q.exec(QString("DROP TABLE %1").arg(tableName));
 }
 
 QTEST_MAIN(tst_QSqlDatabase)

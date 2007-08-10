@@ -50,7 +50,6 @@ static QVariant::Type qGetColumnType(const QString &tpName)
     return QVariant::String;
 }
 
-
 static QSqlError qMakeError(sqlite3 *access, const QString &descr, QSqlError::ErrorType type,
                             int errorCode = -1)
 {
@@ -311,6 +310,7 @@ bool QSQLiteResult::exec()
                 case QVariant::Double:
                     res = sqlite3_bind_double(d->stmt, i + 1, value.toDouble());
                     break;
+                case QVariant::UInt:
                 case QVariant::LongLong:
                     res = sqlite3_bind_int64(d->stmt, i + 1, value.toLongLong());
                     break;
@@ -584,8 +584,9 @@ static QSqlIndex qGetTableInfo(QSqlQuery &q, const QString &tableName, bool only
             continue;
         QString typeName = q.value(2).toString().toLower();
         QSqlField fld(q.value(1).toString(), qGetColumnType(typeName));
-        if (isPk && (typeName == QLatin1String("integer") || typeName == QLatin1String("int")))
-            // integer primary key fields are auto-generated in sqlite
+        if (isPk && (typeName == QLatin1String("integer")))
+            // INTEGER PRIMARY KEY fields are auto-generated in sqlite
+            // INT PRIMARY KEY is not the same as INTEGER PRIMARY KEY!
             fld.setAutoValue(true);
         fld.setRequired(q.value(3).toInt() != 0);
         fld.setDefaultValue(q.value(4));
