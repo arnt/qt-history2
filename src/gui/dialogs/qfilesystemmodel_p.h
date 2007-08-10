@@ -221,6 +221,14 @@ public:
         inline int visibleLocation(int childRow) {
             return visibleChildren.indexOf(childRow);
         }
+        void updateIcon(QFileIconProvider *iconProvider, const QString &path) {
+            if (info)
+                info->icon = iconProvider->icon(QFileInfo(path));
+            for (int i = 0; i < children.count(); ++i) {
+                children[i].updateIcon(iconProvider, path + QLatin1Char('/') + children[i].fileName);
+            }
+        }
+
         bool populatedChildren;
         QList<QFileSystemNode> children;
         QList<int> visibleChildren;
