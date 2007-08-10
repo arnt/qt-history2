@@ -15,6 +15,9 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 
+//TESTED_CLASS=QPainterPath
+//TESTED_FILES=gui/painting/qpainterpath.h gui/painting/qpainterpath.cpp
+
 class tst_QPainterPath : public QObject
 {
     Q_OBJECT

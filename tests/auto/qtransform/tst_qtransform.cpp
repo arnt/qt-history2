@@ -15,6 +15,9 @@
 
 Q_DECLARE_METATYPE(QRect)
 
+//TESTED_CLASS=QTransform
+//TESTED_FILES=gui/painting/qtransform.h gui/painting/qtransform.cpp
+
 class tst_QTransform : public QObject
 {
     Q_OBJECT
