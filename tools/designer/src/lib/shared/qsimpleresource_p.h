@@ -106,8 +106,10 @@ public:
     virtual bool copy(QIODevice *dev, const FormBuilderClipboard &selection) = 0;
     virtual DomUI *copy(const FormBuilderClipboard &selection) = 0;
 
-    virtual FormBuilderClipboard paste(DomUI *ui, QWidget *widgetParent = 0, QObject *actionParent = 0) = 0;
-    virtual FormBuilderClipboard paste(QIODevice *dev, QWidget *widgetParent = 0, QObject *actionParent = 0) = 0;
+    // A widget parent needs to be specified, otherwise, the widget factory cannot locate the form window via parent
+    // and thus is not able to construct special widgets (QLayoutWidget).
+    virtual FormBuilderClipboard paste(DomUI *ui, QWidget *widgetParent, QObject *actionParent = 0) = 0;
+    virtual FormBuilderClipboard paste(QIODevice *dev, QWidget *widgetParent, QObject *actionParent = 0) = 0;
 };
 
 } // namespace qdesigner_internal

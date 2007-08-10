@@ -1383,7 +1383,10 @@ void FormWindow::paste(PasteMode pasteMode)
     b.open(QIODevice::ReadOnly);
 
     QDesignerResource resource(this);
-    FormBuilderClipboard clipboard = resource.paste(&b);
+    // We don't know a container to paste yet, so we pass "this". The widgets need a parent,
+    // otherwise, the widget factory cannot locate the form window via parent
+    // and thus is not able to construct QLayoutWidgets (It will then default to widgets).
+    FormBuilderClipboard clipboard = resource.paste(&b, this);
     if ((pasteMode == PasteActionsOnly && clipboard.m_actions.empty()) || clipboard.empty()) {
         clipboard.deleteAll();
         return;

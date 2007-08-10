@@ -51,8 +51,8 @@ public:
     virtual bool copy(QIODevice *dev, const FormBuilderClipboard &selection);
     virtual DomUI *copy(const FormBuilderClipboard &selection);
 
-    virtual FormBuilderClipboard paste(DomUI *ui, QWidget *widgetParent = 0, QObject *actionParent = 0);
-    virtual FormBuilderClipboard paste(QIODevice *dev,  QWidget *widgetParent = 0, QObject *actionParent = 0);
+    virtual FormBuilderClipboard paste(DomUI *ui, QWidget *widgetParent, QObject *actionParent = 0);
+    virtual FormBuilderClipboard paste(QIODevice *dev,  QWidget *widgetParent, QObject *actionParent = 0);
 
 protected:
     using QEditorFormBuilder::create;
