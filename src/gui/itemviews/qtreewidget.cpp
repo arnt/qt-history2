@@ -3153,9 +3153,20 @@ QStringList QTreeWidget::mimeTypes() const
     If the list of items is empty, 0 is returned rather than a serialized
     empty list.
 */
-QMimeData *QTreeWidget::mimeData(const QList<QTreeWidgetItem*>) const
+QMimeData *QTreeWidget::mimeData(const QList<QTreeWidgetItem*> items) const
 {
-    return d_func()->model()->internalMimeData();
+    Q_D(const QTreeWidget);
+    if (d->model()->cachedIndexes.isEmpty()) {
+        QList<QModelIndex> indexes;
+        for (int i = 0; i < items.count(); ++i) {
+            QTreeWidgetItem *item = items.at(i);
+            for (int c = 0; c < item->values.count(); ++c) {
+                indexes << indexFromItem(item, c);
+            }
+        }
+        return model()->QAbstractItemModel::mimeData(indexes);
+    }
+    return d->model()->internalMimeData();
 }
 
 /*!
