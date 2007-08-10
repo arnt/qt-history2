@@ -2140,12 +2140,18 @@ void QFileDialogPrivate::_q_renameCurrent()
 */
 void QFileDialogPrivate::_q_deleteCurrent()
 {
-    QModelIndex index = qFileDialogUi->listView->currentIndex();
-    if (index == qFileDialogUi->listView->rootIndex())
+    if (model->isReadOnly())
         return;
-    index = mapToSource(index.sibling(index.row(), 0));
-    if (!index.isValid() || model->isReadOnly())
-        return;
+
+    QModelIndexList list = qFileDialogUi->listView->selectionModel()->selectedRows();
+    for (int i = list.count() - 1; i >= 0; --i) {
+        QModelIndex index = list.at(i);
+        if (index == qFileDialogUi->listView->rootIndex())
+            continue;
+
+        index = mapToSource(index.sibling(index.row(), 0));
+        if (!index.isValid())
+            continue;
 
     QString fileName = index.data(QFileSystemModel::FileNameRole).toString();
     QString filePath = index.data(QFileSystemModel::FilePathRole).toString();
@@ -2169,17 +2175,18 @@ void QFileDialogPrivate::_q_deleteCurrent()
         return;
 #endif // QT_NO_MESSAGEBOX
 
-    // the event loop has run, we can NOT reuse index because the model might have removed it.
-    if (isDir) {
-        QDir dir;
-        if (!dir.rmdir(filePath)) {
+        // the event loop has run, we can NOT reuse index because the model might have removed it.
+        if (isDir) {
+            QDir dir;
+            if (!dir.rmdir(filePath)) {
 #ifndef QT_NO_MESSAGEBOX
-        QMessageBox::warning(q, q->windowTitle(),
-                            QFileDialog::tr("Could not delete directory."));
+            QMessageBox::warning(q, q->windowTitle(),
+                                QFileDialog::tr("Could not delete directory."));
 #endif
+            }
+        } else {
+            QFile::remove(filePath);
         }
-    } else {
-        QFile::remove(filePath);
     }
 }
 
