@@ -10,113 +10,12 @@
     compiler features like \c __property or \c [property]. The Qt
     solution works with \e any standard C++ compiler on every platform
     Qt supports. It is based on the \l {Meta-Object System} that also
-    provides object communication through \l{signals and slots}.
+    provides inter-object communication via \l{signals and slots}.
 
-    \section1 Requirements
+    \section1 Requirements for Declaring Properties
 
-    When the Q_PROPERTY() macro appears in a class declaration that
-    inherits QObject, it declares a property.  Properties can only be
-    declared in classes that inherit QObject.
-
-    To the outer world, a property is similar to a data member, but
-    properties have additional features that ordinary data members
-    might not have.
-
-    \list 
-
-    \o A \c READ accessor function. This function must be provided
-    (e.g., QWidget::focus is a read-only property with the \c READ
-    function QWidget::hasFocus()).
-
-    \o An optional \c WRITE accessor function. Read-only properties do
-    not need \c WRITE functions (e.g., QWidget::focus has no \c WRITE
-    function).
-
-    \o An optional \c RESET function to set the property back to its
-    context specific default value (e.g., QWidget::cursor has the
-    typical \c READ and \c WRITE functions, QWidget::cursor() and
-    QWidget::setCursor(), and it also has a \c RESET function,
-    QWidget::unsetCursor(), since no call to QWidget::setCursor() can
-    mean \tt {reset to the context specific cursor}).
-
-    \o A \c STORED attribute that indicates persistence. Most
-    properties are stored, but a few virtual properties are not. For
-    example, QWidget::minimumWidth() isn't stored, since it's just a
-    view of QWidget::minimumSize() and has no data of its own.
-
-    \o A \c DESIGNABLE attribute that indicates whether it makes sense
-    to make the property available in a GUI builder (e.g., \l {Qt
-    Designer}). For most properties this makes sense. A case where it
-    does not make sense is the property \c QAbstractButton::down. The
-    user can press buttons, and the application programmer can cause
-    the program to press its own buttons, but a GUI design tool can't
-    press buttons.
-
-    \o A \c USER attribute that indicates whether the property is
-    designated as the user property for a class. Normally, the user
-    property is the one the user can edit. For example, QItemDelegate
-    gets and sets a widget's \c USER property.
-
-    \endlist
-
-    The \c READ, \c WRITE, and \c RESET functions can be just about
-    any member functions, inherited or not, virtual or not. The only
-    exception is that member functions must be inherited from the
-    first inherited class in the case of multiple inheritance.
-
-    \section1 Reading and Writing Properties
-
-    Properties can be read and written through generic functions in
-    QObject without knowing anything about the class in use. In the
-    code snippet below, the QObject::setProperty() call is equivalent
-    to the QAbstractButton::setDown() call:
-
-    \code
-        QPushButton *button = new QPushButton;
-        QObject *object = button;
-        // button and object point to the same object
-
-        button->setDown(true);
-        object->setProperty("down", true);
-    \endcode
-
-    Equivalent, that is, except that the first is faster and provides
-    much better diagnostics at compile time. When practical, the first
-    is better. However, because you can get a list of properties for
-    any QObject from its QMetaObject, using QObject::setProperty()
-    gives you access to properties in classes that weren't available
-    at compile time.
-
-    As well as QObject::setProperty(), there is a corresponding
-    QObject::property() function. QMetaObject::propertyCount()
-    returns the number of all available properties.
-    QMetaObject::property() returns the property data for a given
-    property index: a QMetaProperty object.
-
-    \section1 A Simple Example
-
-    Here's an example that shows the most important property functions
-    in use:
-
-    \code
-        class MyClass : public QObject
-        {
-            Q_OBJECT
-
-        public:
-            MyClass(QObject *parent = 0);
-            ~MyClass();
-
-            enum Priority { High, Low, VeryHigh, VeryLow };
-            void setPriority(Priority priority);
-            Priority priority() const;
-        };
-    \endcode
-
-    The class is meant to have a property \c priority, but this
-    property is not yet known to the meta-object system. To make
-    property \c priority known, you must declare it with the
-    Q_PROPERTY() macro. The syntax is as follows:
+    To declare a property, use the \l {Q_PROPERTY()} {Q_PROPERTY()}
+    macro in a class that inherits QObject. 
 
     \code
         Q_PROPERTY(type name
@@ -129,45 +28,153 @@
 		   [USER bool])
     \endcode
 
-    For the declaration to be valid, the \e READ function (priority()
-    in the example) must be \c const and must return the property type
-    (enum Priority in the example), or a pointer to that type, or a
-    reference to it. The optional \e WRITE function (setPriority() in
-    the example) must return void and must take exactly one argument
-    of the property type, or a pointer to that type, or a const
-    reference to it. The meta-object compiler enforces this.
-
-    The type of a property can be any QVariant supported type or an
-    enumeration type declared in the class itself. Since \c MyClass uses
-    the enumeration type \c Priority for the property, this type must be
-    registered with the property system as well.
-
-    It is possible to set a value by name, like this:
+    Here are some typical examples of property declarations taken from
+    class QWidget.
 
     \code
-        obj->setProperty("priority", "VeryHigh");
+        Q_PROPERTY(bool focus READ hasFocus)
+	Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled)
+	Q_PROPERTY(QCursor cursor READ cursor WRITE setCursor RESET unsetCursor)
     \endcode
 
-    In the case of QList and QMap properties, the value passes
-    is a QVariant whose value is the entire list or map.
+    A property behaves like a class data member, but it has additional
+    features that can be accessed through the \l {Meta-Object System}.
 
-    \section1 Header Files
+    \list 
 
-    It is usually necessary to include the header files for each value type
-    that you use in property definitions. For example:
+    \o A \c READ accessor function is required. It is for reading the
+    property value. It must be const and must return either the
+    property's type or a pointer or reference to that type. e.g.,
+    QWidget::focus is a read-only property with \c READ function
+    QWidget::hasFocus().
+
+    \o A \c WRITE accessor function is optional. It is for setting the
+    property value. It must return void and must take exactly one
+    argument, either of the property's type or a pointer or reference
+    to that type. e.g., QWidget::enabled has the \c WRITE function
+    QWidget::setEnabled().  Read-only properties do not need \c WRITE
+    functions. e.g., QWidget::focus has no \c WRITE function.
+
+    \o A \c RESET function is optional. It is for setting the property
+    back to its context specific default value. e.g., QWidget::cursor
+    has the typical \c READ and \c WRITE functions, QWidget::cursor()
+    and QWidget::setCursor(), and it also has a \c RESET function,
+    QWidget::unsetCursor(), since no call to QWidget::setCursor() can
+    mean \e {reset to the context specific cursor}. The \c RESET
+    function musrt return void and take no parameters.
+
+    \o The \c DESIGNABLE attribute indicates whether the property
+    should be visible in the property editor of GUI design tool (e.g.,
+    \l {Qt Designer}). Most properties are \c DESIGNABLE (default
+    true). Instead of true or false, you can specify a boolean
+    member function.
+
+    \o The \c SCRIPTABLE attribute indicates whether this property
+    should be accessible by a scripting engine (default true).
+    Instead of true or false, you can specify a boolean member
+    function.
+
+    \o The \c STORED attribute indicates whether the property should
+    be thought of as existing on its own or as depending on other
+    values. It also indicates whether the property value must be saved
+    when storing the object's state. Most properties are \c STORED
+    (default true), but e.g., QWidget::minimumWidth() has \c STORED
+    false, because its value is just taken from the width component
+    of property QWidget::minimumSize(), which is a QSize.
+
+    \o The \c USER attribute indicates whether the property is
+    designated as the user-facing or user-editable property for the
+    class. Normally, there is only one \c USER property per class
+    (default false). e.g., QAbstractButton::checked is the user
+    editable property for (checkable) buttons. Note that QItemDelegate
+    gets and sets a widget's \c USER property.
+
+    \endlist
+
+    The \c READ, \c WRITE, and \c RESET functions can be inherited.
+    They can also be virtual. When they are inherited in classes where
+    multiple inheritance is used, they must come from the first
+    inherited class.
+
+    The type in a Q_PROPERTY() declaration can be any QVariant
+    supported type, or it can be a user-defined type.
 
     \code
         Q_PROPERTY(QDate date READ getDate WRITE setDate)
     \endcode
 
-    Since the property is based on the QDate class, the \c{<QDate>} header
-    file should be included in the file containing the above property
-    definition.
+    Since the date property's type is the user-defined QDate class,
+    the \c{<QDate>} header file must be included for the above
+    property declaration.
 
-    \section2 Using Enums and Flags in Properties
+    In the case of QList and QMap properties, the property value is a
+    QVariant whose value is the entire list or map.  Note that the
+    Q_PROPERTY string cannot contain commas, since commas separate
+    macro arguments. Therefore, you must type \c QMap instead of \c
+    QMap<QString,QVariant>. For coherence, we also expect the same for
+    \c QValueList<QVariant>, the other template class supported by
+    QVariant.
 
-    Enumeration types are registered with the Q_ENUMS() macro. Here's the
-    final class declaration including the property related declarations:
+    \section1 Reading and Writing Properties with the Meta-Object System
+
+    A property can be read and written using the generic functions
+    QObject::property() and QObject::setProperty(), without knowing
+    anything about the owning class except the property's name.  In
+    the code snippet below, the call to QAbstractButton::setDown() and
+    the call to QObject::setProperty() both set property "down".
+
+    \code
+        QPushButton *button = new QPushButton;
+        QObject *object = button;
+        // button and object point to the same object
+
+        button->setDown(true);
+        object->setProperty("down", true);
+    \endcode
+
+    Accessing a property through its \c WRITE accessor is the better
+    of the two, because it is faster and gives better diagnostics at
+    compile time, but setting the property this way requires that you
+    know about the class at compile time. Accessing properties by name
+    lets you access classes you don't know about at compile time. You
+    can \e discover a class's properties at run time by querying its
+    QObject, QMetaObject, and \l {QMetaProperty} {QMetaProperties}.
+
+    \code
+	QObject *object = ...
+        const QMetaObject *metaobject = object->metaObject();
+	int count = metaobject->propertyCount();
+	for (int i=0; i<count; ++i) {
+	    QMetaProperty metaproperty = metaobject->property(i);
+	    const char *name = metaproperty.name();
+	    QVariant value = object->property(name);
+	    ...
+	}
+    \endcode
+
+    In the above snippet, QMetaObject::property() is used to get \l
+    {QMetaProperty} {metadata} about each property defined in some
+    unknown class. The property name is fetched from the metadata and
+    passed to QObject::property() to get the \l {QVariant} {value} of
+    the property in the current \l {QObject}{object}.
+
+    \section1 A Simple Example
+
+    Suppose we have a class MyClass, which is derived from QObject and
+    which contains the Q_OBJECT macro in its private section. We want
+    to declare a property in MyClass to keep track of priorty value.
+    The type of the property will be an enum defined in the class.
+
+    We include a Q_PROPERTY() macro in the private section of MyClass
+    to declare the property. The property is named priority, and its
+    type is enum Property.  The required \c READ function is also
+    named priority, and we include a \c WRITE function named
+    setPriority.  We must register enum Priority in the \l
+    {Meta-Object System} to make its values available as strings for
+    use in calls to QObject::setProperty(). The Q_ENUMS() macro is
+    used for this. We must also include our own declarations for the
+    \c READ and \c WRITE functions. The MyClass declaration then looks
+    like this:
 
     \code
         class MyClass : public QObject
@@ -181,60 +188,42 @@
             ~MyClass();
 
             enum Priority { High, Low, VeryHigh, VeryLow };
+
             void setPriority(Priority priority);
             Priority priority() const;
         };
     \endcode
 
-    Note that if you want to register an enum (using Q_ENUMS()) that
-    is declared in another class, the enum must be fully qualified
-    with the name of the class defining it. In addition, the class \e
-    defining the enum has to inherit QObject as well as declare the
-    enum using Q_ENUMS().
+    The \c READ function is const and returns the property type. The
+    \c WRITE function returns void and has exactly one parameter,
+    which is of the property type. The meta-object compiler enforces
+    these requirements.
 
-    Another similar macro is Q_FLAGS(). Like Q_ENUMS(), it
-    registers an enumeration type but marks it in addition as a set
-    of "flags", i.e. the enumeration values can be OR'd together. An
-    I/O class might have enumeration values \c Read and \c Write and
-    accept \c{Read | Write}: such an enum is best handled with
-    Q_FLAGS(), rather than Q_ENUMS().
+    Given a pointer to an instance of MyClass or a pointer to an
+    instance of QObject that happens to be an instance of MyClass, we
+    have two ways to set its priority property.
 
-    \section2 Property Types
-    \keyword designable
-    \keyword scriptable
+    \code
+        MyClass *myinstance = new MyClass;
+        QObject *object = myinstance;
 
-    In addition to the \c READ and \c WRITE keywords, each Q_PROPERTY()
-    declaration can contain additional keywords that supply information
-    about a property:
+        myinstance->setPriority(MyClass::VeryHigh);
+        object->setProperty("priority", "VeryHigh");
+    \endcode
 
-    \list
-    \o  \c RESET names a function that will set the property to its default
-        state (which may have changed since initialization). The function
-        must return void and take no arguments.
 
-    \o  \c DESIGNABLE declares whether this property is suitable for
-        modification by a GUI design tool. The default is true for
-        writable properties; otherwise false. Instead of true or
-        false, you can specify a boolean member function.
+    \section2 Using Enums and Flags as property types.
 
-    \o  \c NOTIFY indicates which signal will be emitted when a writable
-        property is changed. Only one signal can be specified per property.
+    If you want to register an enum that is declared in another class,
+    the enum must be fully qualified with the name of the class
+    defining it. In addition, the class defining the enum has to
+    inherit QObject as well as declare the enum using Q_ENUMS().
 
-    \o  \c SCRIPTABLE declares whether this property is suited for access by a
-        scripting engine. The default is true. Instead of true or false,
-        you can specify a boolean member function.
-
-    \o  \c STORED declares whether the property's value must be remembered
-        when storing an object's state. Stored makes only sense for writable
-        properties. The default value is true. Technically superfluous
-        properties (like QPoint pos if QRect geometry is already a property)
-        define this to be false.
-
-    \o  \c USER specifies that a particular property in a class (typically
-        a widget) contains user-facing information, and is the main property
-        that a user will modify via the GUI when using instances of the class in
-        an application.
-    \endlist
+    A similar macro, Q_FLAGS(), is also available. Like Q_ENUMS(), it
+    registers an enumeration type but marks it as a set of \e flags,
+    i.e. the enumeration values can be OR'd together. An I/O class
+    might have enumeration values \c Read and \c Write and accept
+    \c{Read | Write}. 
 
     \section1 Adding Additional Information to a Class
 
