@@ -2241,7 +2241,7 @@ void QWidget::overrideWindowState(Qt::WindowStates newstate)
   If the window is not visible (i.e. isVisible() returns false), the
   window state will take effect when show() is called. For visible
   windows, the change is immediate. For example, to toggle between
-  full-screen and mormal mode, use the following code:
+  full-screen and normal mode, use the following code:
 
   \code
         w->setWindowState(w->windowState() ^ Qt::WindowFullScreen);
