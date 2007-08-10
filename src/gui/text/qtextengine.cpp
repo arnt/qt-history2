@@ -65,10 +65,10 @@ enum { MaxBidiLevel = 61 };
 
 struct QBidiControl {
     inline QBidiControl(bool rtl)
-        : cCtx(0), base(rtl), override(false), level(rtl) {}
+        : cCtx(0), base(rtl), level(rtl ? 1 : 0), override(false) {}
 
     inline void embed(bool rtl, bool o = false) {
-        uchar plus2 = 0;
+        unsigned int plus2 = 0;
         if((level%2 != 0) == rtl ) {
             level++;
             plus2 = 2;
@@ -76,8 +76,8 @@ struct QBidiControl {
         level++;
         if (level <= MaxBidiLevel) {
             override = o;
-            unsigned char control = (plus2 + (override ? 1 : 0)) << (cCtx % 4)*2;
-            unsigned char mask = ~(0x3 << (cCtx % 4)*2);
+            unsigned int control = (plus2 + (override ? 1 : 0)) << (cCtx % 4)*2;
+            unsigned int mask = ~(0x3 << (cCtx % 4)*2);
             ctx[cCtx>>2] &= mask;
             ctx[cCtx>>2] |= control;
             cCtx++;
@@ -87,7 +87,7 @@ struct QBidiControl {
     inline void pdf() {
         Q_ASSERT(cCtx);
         (void) --cCtx;
-        unsigned char control = (ctx[cCtx>>2] >> ((cCtx % 4)*2)) & 0x3;
+        unsigned int control = (ctx[cCtx>>2] >> ((cCtx % 4)*2)) & 0x3;
         override = control & 0x1;
         level--;
         if (control & 0x2)
@@ -97,19 +97,18 @@ struct QBidiControl {
     inline QChar::Direction basicDirection() const {
         return (base ? QChar::DirR : QChar:: DirL);
     }
-    inline uchar baseLevel() const {
+    inline unsigned int baseLevel() const {
         return base;
     }
     inline QChar::Direction direction() const {
         return ((level%2) ? QChar::DirR : QChar:: DirL);
     }
 
-    unsigned char ctx[(MaxBidiLevel+3)/4];
-    unsigned char cCtx : 6;
-    unsigned char base : 1;
-    unsigned char override : 1;
-    unsigned char unused : 2;
-    unsigned char level : 6;
+    unsigned int ctx[(MaxBidiLevel+3)/4];
+    unsigned int cCtx;
+    unsigned int base;
+    unsigned int level;
+    bool override;
 };
 
 static void appendItems(QTextEngine *engine, int &start, int &stop, QBidiControl &control, QChar::Direction dir)
@@ -246,7 +245,7 @@ static bool bidiItemize(QTextEngine *engine, bool rightToLeft)
                 hasBidi |= rtl;
                 bool override = (dirCurrent == QChar::DirLRO || dirCurrent == QChar::DirRLO);
 
-                uchar level = control.level+1;
+                unsigned int level = control.level+1;
                 if ((level%2 != 0) == rtl) ++level;
                 if(level < MaxBidiLevel) {
                     eor = current-1;
@@ -609,8 +608,8 @@ void QTextEngine::bidiReorder(int numItems, const quint8 *levels, int *visualOrd
 {
 
     // first find highest and lowest levels
-    uchar levelLow = 128;
-    uchar levelHigh = 0;
+    quint8 levelLow = 128;
+    quint8 levelHigh = 0;
     int i = 0;
     while (i < numItems) {
         //printf("level = %d\n", r->level);
