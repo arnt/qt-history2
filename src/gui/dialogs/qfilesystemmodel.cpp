@@ -360,6 +360,8 @@ bool QFileSystemModel::canFetchMore(const QModelIndex &parent) const
 void QFileSystemModel::fetchMore(const QModelIndex &parent)
 {
     Q_D(QFileSystemModel);
+    if (!d->setRootPath)
+        return;
     QFileSystemModelPrivate::QFileSystemNode *indexNode = d->node(parent);
     if (indexNode->populatedChildren)
         return;
@@ -1036,6 +1038,7 @@ QFile::Permissions QFileSystemModel::permissions(const QModelIndex &index) const
 QModelIndex QFileSystemModel::setRootPath(const QString &newPath)
 {
     Q_D(QFileSystemModel);
+    d->setRootPath = true;
     if (d->rootDir.path() == newPath)
         return d->index(rootPath());
 

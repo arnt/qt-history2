@@ -22,6 +22,10 @@
 
 #ifndef QT_NO_FILESYSTEMWATCHER
 
+#if defined Q_AUTOTEST_EXPORT
+    Q_AUTOTEST_EXPORT bool QFileInfoGatherer_fetchedRoot = false;
+#endif
+
 /*!
     Creates thread
 */
@@ -41,7 +45,7 @@ QFileInfoGatherer::QFileInfoGatherer(QObject *parent) : QThread(parent)
 }
 
 /*!
-    Distroys thread
+    Destroys thread
 */
 QFileInfoGatherer::~QFileInfoGatherer()
 {
@@ -272,6 +276,9 @@ void QFileInfoGatherer::getFileInfos(const QString &path, const QStringList &fil
 
     // List drives
     if (path.isEmpty()) {
+#if defined Q_AUTOTEST_EXPORT
+        QFileInfoGatherer_fetchedRoot = true;
+#endif
         QFileInfoList infoList;
         if (files.isEmpty()) {
             infoList = QDir::drives();

@@ -236,6 +236,7 @@ public:
             sortColumn(0),
             sortOrder(Qt::AscendingOrder),
             readOnly(true),
+            setRootPath(false),
             filters(QDir::AllEntries | QDir::NoDotAndDotDot | QDir::AllDirs),
             nameFilterDisables(true) // false on windows, true on mac and unix
     {
@@ -340,6 +341,7 @@ public:
     int sortColumn;
     Qt::SortOrder sortOrder;
     bool readOnly;
+    bool setRootPath;
     QDir::Filters filters;
     QList<const QFileSystemNode*> bypassFilters;
     bool nameFilterDisables;
