@@ -765,6 +765,8 @@ void QTreeView::collapse(const QModelIndex &index)
 bool QTreeView::isExpanded(const QModelIndex &index) const
 {
     Q_D(const QTreeView);
+    if (d->delayedLayout.isActive())
+        const_cast<QTreeView*>(this)->doItemsLayout();
     int i = d->viewIndex(index);
     if (i != -1) // is visible
         return d->viewItems.at(i).expanded;
