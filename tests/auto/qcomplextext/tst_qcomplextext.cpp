@@ -8,15 +8,9 @@
 ****************************************************************************/
 
 #include <QtTest/QtTest>
-
+#include <private/qtextengine_p.h>
 
 #include "bidireorderstring.h"
-#if QT_VERSION < 0x030300
-#include <private/qcomplextext_p.h>
-#endif
-
-
-
 
 
 //TESTED_CLASS=
@@ -77,17 +71,10 @@ void tst_QComplexText::bidiReorderString_data()
     }
 }
 
-#if defined(Q_WS_X11)
-#include <private/qtextengine_p.h>
-#endif
-
 void tst_QComplexText::bidiReorderString()
 {
     QFETCH( QString, logical );
     QFETCH( int,  basicDir );
-#if defined(Q_WS_X11)
-    // QTextEngine is not Q_EXPORTed on Win, so we can only test in
-    // X11. This is fine since the code is platform independent.
 
     // replace \n with Unicode newline. The new algorithm ignores \n
     logical.replace(QChar('\n'), QChar(0x2028));
@@ -133,9 +120,6 @@ void tst_QComplexText::bidiReorderString()
     visual.replace(QChar(0x2028), QChar('\n'));
 
     QTEST(visual, "VISUAL");
-#else
-    QSKIP("Only tested on X11", SkipAll);
-#endif
 }
 
 
