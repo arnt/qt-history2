@@ -544,28 +544,42 @@ bool QTransportAuth::authorizeRequest( QTransportAuth::Data &d, const QString &r
         qWarning( "%s - denied: for Program Id %u [PID %d]"
                 , qPrintable(request), d.progId, d.processId );
 
-        char linkTarget[BUF_SIZE];
-        char exeLink[BUF_SIZE];
-        QString appIdentifier;
-        memset( linkTarget, 0, sizeof( char )*BUF_SIZE );
-        memset( exeLink, 0, sizeof( char )*BUF_SIZE );
+        char linkTarget[BUF_SIZE]="";
+        char exeLink[BUF_SIZE]="";
+        char cmdlinePath[BUF_SIZE]="";
+        char cmdline[BUF_SIZE]="";
+        
+        //get executable from /proc/pid/exe
         snprintf( exeLink, BUF_SIZE, "/proc/%d/exe", d.processId );
-        int rc = ::readlink( exeLink, linkTarget, BUF_SIZE );
-
-        if ( rc == -1 )
+        if ( -1 == ::readlink( exeLink, linkTarget, BUF_SIZE - 1 ) ) 
         {
-            syslog( LOG_ERR | LOG_LOCAL6, "SXE:- Error encountered in retrieving exe for pid %u : %s", 
+            qWarning( "SXE:- Error encountered in retrieving executable link target from /proc/%u/exe : %s", 
                 d.processId, strerror(errno) );
-            appIdentifier = "Unknown";
+            snprintf( linkTarget, BUF_SIZE, "%s", linkTarget );
+        }
+
+        //get cmdline from proc/pid/cmdline
+        snprintf( cmdlinePath, BUF_SIZE, "/proc/%d/cmdline", d.processId );
+        int  cmdlineFd = open( cmdlinePath, O_RDONLY ); 
+        if ( cmdlineFd == -1 )
+        {
+            qWarning( "SXE:- Error encountered in opening /proc/%u/cmdline: %s",
+                d.processId, strerror(errno) );
+            snprintf( cmdline, BUF_SIZE, "%s", "Unknown" );
         }
         else
         {
-            appIdentifier = QString::fromLatin1( linkTarget ); 
+            if ( -1 == ::read(cmdlineFd, cmdline, BUF_SIZE - 1 ) )
+            {
+                qWarning( "SXE:- Error encountered in reading /proc/%u/cmdline : %s",
+                    d.processId, strerror(errno) );
+                snprintf( cmdline, BUF_SIZE, "%s", "Unknown" );
+            }
+            close( cmdlineFd );
         }
-
-        syslog( LOG_ERR | LOG_LOCAL6, "%s PID:%u ProgId:%u Request:%s Exe:%s",
-                "<SXE Breach>", d.processId, d.progId, qPrintable(request), qPrintable(appIdentifier));
-
+        
+        syslog( LOG_ERR | LOG_LOCAL6, "%s PID:%u ProgId:%u Request:%s Exe:%s Cmdline:%s",
+                "<SXE Breach>", d.processId, d.progId, qPrintable(request), linkTarget, cmdline);
     }
 
     return isAuthorized;
@@ -640,8 +654,12 @@ const unsigned char *QTransportAuthPrivate::getClientKey(unsigned char progId)
     // This is hacky - fix in 4.3 - see documentation for setKeyFilePath
     QString manifestPath = m_keyFilePath + QLatin1String( "/manifest" );
     QString actualKeyPath( "/proc/lids/keys" );
+    bool noFailOnKeyMissing = true;
     if ( !QFile::exists( actualKeyPath ))
+    {
         actualKeyPath = m_keyFilePath + QLatin1String( "/" QSXE_KEYFILE );
+        noFailOnKeyMissing = false;
+    }
     QFile kf( actualKeyPath );
     QFile mn( manifestPath );
     if ( !__fileOpen( &mn ))
@@ -653,7 +671,10 @@ const unsigned char *QTransportAuthPrivate::getClientKey(unsigned char progId)
     if ( manifestMatchCount == 0 )
         goto key_not_found;
     if ( !__fileOpen( &kf ))
+    {
+        noFailOnKeyMissing = false;
         goto key_not_found;
+    }
     total_size = 2 * QSXE_MAGIC_BYTES + manifestMatchCount * QSXE_KEY_LEN;
     result = (char*)malloc( total_size );
     Q_CHECK_PTR( result );
@@ -704,6 +725,19 @@ const unsigned char *QTransportAuthPrivate::getClientKey(unsigned char progId)
     goto success_out;
 
 key_not_found:
+    if ( noFailOnKeyMissing )  // return an "empty" set of keys in this case
+    {
+        if ( result == 0 )
+        {
+            result = (char*)malloc( 2 * QSXE_MAGIC_BYTES );
+            Q_CHECK_PTR( result );
+        }
+        result_ptr = result;
+        for ( int i = 0; i < 2; ++i )
+            for ( int j = 0; j < QSXE_MAGIC_BYTES; ++j )
+                *result_ptr++ = magic[j];
+        return (unsigned char *)result;
+    }
     qWarning( "PID %d : Not found client key for prog %u", getpid(), progId );
     if ( result )
     {
@@ -1303,6 +1337,9 @@ bool QTransportAuth::authFromMessage( QTransportAuth::Data &d, const char *msg, 
     }
     while( true )
     {
+        if ( memcmp( auth_tok, magic, QSXE_MAGIC_BYTES ) == 0
+                && memcmp( auth_tok + QSXE_MAGIC_BYTES, magic, QSXE_MAGIC_BYTES ) == 0 )
+            break;
         if ( memcmp( msg + QSXE_KEY_IDX, auth_tok, QSXE_KEY_LEN ) == 0 )
         {
             d.status = ( d.status & QTransportAuth::StatusMask ) | QTransportAuth::Success;
@@ -1311,9 +1348,6 @@ bool QTransportAuth::authFromMessage( QTransportAuth::Data &d, const char *msg, 
         if ( !multi_tok )
             break;
         auth_tok += QSXE_KEY_LEN;
-        if ( memcmp( auth_tok, magic, QSXE_MAGIC_BYTES ) == 0
-                && memcmp( auth_tok + QSXE_MAGIC_BYTES, magic, QSXE_MAGIC_BYTES ) == 0 )
-            break;
     }
     d.status = ( d.status & QTransportAuth::StatusMask ) | QTransportAuth::FailMatch;
     emit authViolation( d );
