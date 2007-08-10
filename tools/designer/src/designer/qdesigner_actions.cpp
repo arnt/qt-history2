@@ -32,6 +32,7 @@
 #include <qdesigner_utils_p.h>
 #include <iconloader_p.h>
 #include <qsimpleresource_p.h>
+#include <previewmanager_p.h>
 // sdk
 #include <QtDesigner/QDesignerFormEditorInterface>
 #include <QtDesigner/QDesignerFormWindowInterface>
@@ -76,9 +77,9 @@
 #include <QtGui/QDesktopWidget>
 #include <QtXml/QDomDocument>
 
-#ifdef Q_WS_MAC
+//#ifdef Q_WS_MAC
 #  define NONMODAL_PREVIEW
-#endif
+//#endif
 
 static QString getFileExtension(QDesignerFormEditorInterface *core)
 {
@@ -145,7 +146,7 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
       m_windowActions(createActionGroup(this)),
       m_toolActions(createActionGroup(this, true)),
       m_helpActions(0),
-      m_styleActions(createActionGroup(this, true)),
+      m_styleActions(qdesigner_internal::PreviewManager::createStyleActionGroup(this)),
       m_editWidgetsAction(new QAction(tr("Edit Widgets"), this)),
       m_newFormAction(new QAction(qdesigner_internal::createIconSet(QLatin1String("filenew.png")), tr("&New Form..."), this)),
       m_openFormAction(new QAction(qdesigner_internal::createIconSet(QLatin1String("fileopen.png")), tr("&Open Form..."), this)),
@@ -164,7 +165,14 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
       m_bringAllToFrontAction(new QAction(tr("Bring All to Front"), this)),
       m_windowListSeparatorAction(createSeparator(this)),
       m_preferencesAction(new QAction(tr("Preferences..."), this)),
-      m_printer(QPrinter::HighResolution)
+      m_printer(QPrinter::HighResolution),
+      m_previewManager(new qdesigner_internal::PreviewManager(
+#ifdef NONMODAL_PREVIEW
+                       qdesigner_internal::PreviewManager::SingleFormNonModalPreview,
+#else
+                       qdesigner_internal::PreviewManager::ApplicationModalPreview,
+#endif
+                       this))
 {
     Q_ASSERT(m_workbench != 0);
 
@@ -333,6 +341,8 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
     m_previewFormAction->setShortcut(tr("CTRL+R"));
     connect(m_previewFormAction, SIGNAL(triggered()), this, SLOT(previewFormLater()));
     m_formActions->addAction(m_previewFormAction);
+    connect(m_previewManager, SIGNAL(firstPreviewOpened()), this, SLOT(updateCloseAction()));
+    connect(m_previewManager, SIGNAL(lastPreviewClosed()), this, SLOT(updateCloseAction()));
 
     connect(m_styleActions, SIGNAL(triggered(QAction*)), this, SLOT(previewForm(QAction*)));
 
@@ -341,17 +351,6 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
     m_formSettings->setEnabled(false);
     connect(m_formSettings, SIGNAL(triggered()), this, SLOT(showFormSettings()));
     m_formActions->addAction(m_formSettings);
-
-    foreach (const QString &style,  QStyleFactory::keys()) {
-        QAction *a = new QAction(tr("%1 Style").arg(style), this);
-        QString objName = QLatin1String("__qt_style_");
-        objName += style;
-        objName += QLatin1String("_action");
-        a->setObjectName(objName);
-        a->setData(style);
-        m_styleActions->addAction(a);
-    }
-
 //
 // window actions
 //
@@ -474,9 +473,7 @@ void QDesignerActions::createForm()
 
 void QDesignerActions::showNewFormDialog(const QString &fileName)
 {
-#ifdef NONMODAL_PREVIEW
     closePreview();
-#endif
     NewForm *dlg = new NewForm(workbench(), workbench()->core()->topLevel(), fileName);
     dlg->setAttribute(Qt::WA_DeleteOnClose);
     dlg->setAttribute(Qt::WA_ShowModal);
@@ -492,9 +489,7 @@ void QDesignerActions::slotOpenForm()
 
 bool QDesignerActions::openForm(QWidget *parent)
 {
-#ifdef NONMODAL_PREVIEW
     closePreview();
-#endif
     const QString extension = getFileExtension(core());
     const QStringList fileNames = QFileDialog::getOpenFileNames(parent, tr("Open Form"),
         m_openDirectory, tr("Designer UI files (*.%1);;All Files (*)").arg(extension), 0, QFileDialog::DontUseSheet);
@@ -588,10 +583,10 @@ bool QDesignerActions::saveForm(QDesignerFormWindowInterface *fw)
 
 void QDesignerActions::closeForm()
 {
-#ifdef NONMODAL_PREVIEW
-    if (closePreview())
+    if (m_previewManager->previewCount()) {
+        closePreview();
         return;
-#endif
+    }
 
     if (QDesignerFormWindowInterface *fw = core()->formWindowManager()->activeFormWindow())
         if (QWidget *parent = fw->parentWidget()) {
@@ -632,69 +627,34 @@ void QDesignerActions::previewFormLater(QAction *action)
                                 Q_ARG(QAction*, action));
 }
 
-bool QDesignerActions::closePreview()
+void QDesignerActions::closePreview()
 {
-    if (m_previewWidget) {
-        m_previewWidget->close();
-        return true;
-    }
-    return false;
+    m_previewManager->closeAllPreviews();
 }
 
 void QDesignerActions::previewForm(QAction *action)
 {
-#ifdef NONMODAL_PREVIEW
-    closePreview();
-#endif
     QDesignerFormWindowInterface *fw = core()->formWindowManager()->activeFormWindow();
     if (!fw)
         return;
 
     // Get style stored in action if any
-    QString styleName;
+    QString menuStyleName;
     if (action) {
         const QVariant data = action->data();
         if (data.type() == QVariant::String)
-            styleName = data.toString();
+            menuStyleName = data.toString();
     }
-    // check the preferences
-    QDesignerSettings settings;
-    if (styleName.isEmpty())
-        styleName = settings.style();
+    // check the preferences, observing the enabled flag of PreviewConfigurationWidgetState
+    const QDesignerSettings settings;
+    qdesigner_internal::PreviewConfiguration pc = settings.previewConfigurationWidgetState().previewConfiguration(settings.previewConfiguration());
 
-    // create and have form builder display errors.
-    QWidget *widget =  qdesigner_internal::QDesignerFormBuilder::createPreview(fw, styleName,  settings.appStyleSheet());
-    if (!widget)
-        return;
+    if (!menuStyleName.isEmpty())
+        pc.style = menuStyleName;
 
-#ifdef Q_WS_WIN
-    Qt::WindowFlags windwowFlags = (widget->windowType() == Qt::Window) ? Qt::Window | Qt::WindowMaximizeButtonHint : Qt::WindowFlags(Qt::Dialog);
-#else
-    // Only Dialogs have close buttons on mac
-    // On linux we don't want additional item on task bar and don't want minimize button, we want the preview to be on top
-    Qt::WindowFlags windwowFlags = Qt::Dialog;
-#endif
-    // Install filter for Escape key
-    widget->setParent(fw->window(), windwowFlags);
-
-#ifdef NONMODAL_PREVIEW
-    connect(fw, SIGNAL(changed()), widget, SLOT(close()));
-#else
-    // Cannot do this on the Mac as the dialog would have no close button
-    widget->setWindowModality(Qt::ApplicationModal);
-#endif
-
-    // Position over form window
-    widget->setAttribute(Qt::WA_DeleteOnClose, true);
-    widget->move(fw->mapToGlobal(QPoint(10, 10)));
-
-    widget->installEventFilter(this);
-    widget->show();
-    m_previewWidget = widget;
-
-#ifdef NONMODAL_PREVIEW
-    updateCloseAction();
-#endif
+    QString errorMessage;
+    if (!m_previewManager->showPreview(fw, pc, &errorMessage))
+        QMessageBox::warning(fw, tr("Preview failed"), errorMessage);
 }
 
 void QDesignerActions::fixActionContext()
@@ -895,10 +855,6 @@ void QDesignerActions::shutdown()
 void QDesignerActions::activeFormWindowChanged(QDesignerFormWindowInterface *formWindow)
 {
     const bool enable = formWindow != 0;
-#ifdef NONMODAL_PREVIEW
-    closePreview();
-#endif
-
     m_saveFormAction->setEnabled(enable);
     m_saveFormAsAction->setEnabled(enable);
     m_saveAllFormsAction->setEnabled(enable);
@@ -1120,47 +1076,9 @@ void QDesignerActions::showFormSettings()
     delete settingsDialog;
 }
 
-bool QDesignerActions::eventFilter(QObject *watched, QEvent *event)
-{
-    do {
-        if (!watched->isWidgetType())
-            break;
-        QWidget *previewWindow = qobject_cast<QWidget *>(watched);
-        if (!previewWindow || !previewWindow->isWindow())
-            break;
-
-        switch (event->type()) {
-        case QEvent::KeyPress:
-        case QEvent::ShortcutOverride:        {
-            const  QKeyEvent *keyEvent = static_cast<const QKeyEvent *>(event);
-            const int key = keyEvent->key();
-            if ((key == Qt::Key_Escape
-#ifdef Q_WS_MAC
-                 || (keyEvent->modifiers() == Qt::ControlModifier && key == Qt::Key_Period)
-#endif
-                 )) {
-                previewWindow->close();
-                return true;
-            }
-        }
-            break;
-#ifdef NONMODAL_PREVIEW
-        case QEvent::Close:
-            previewWindow->removeEventFilter(this);
-            m_previewWidget = 0;
-            updateCloseAction();
-            break;
-#endif
-        default:
-            break;
-        }
-    } while(false);
-    return QObject::eventFilter(watched, event);
-}
-
 void QDesignerActions::updateCloseAction()
 {
-    if (m_previewWidget) {
+    if (m_previewManager->previewCount()) {
         m_closeFormAction->setText(tr("&Close Preview"));
     } else {
         m_closeFormAction->setText(tr("&Close Form"));
@@ -1359,9 +1277,15 @@ QPixmap QDesignerActions::createPreviewPixmap(QDesignerFormWindowInterface *fw)
 {
     const QCursor oldCursor = core()->topLevel()->cursor();
     core()->topLevel()->setCursor(Qt::WaitCursor);
-    QDesignerSettings settings;
-    const QPixmap pixmap = qdesigner_internal::QDesignerFormBuilder::createPreviewPixmap(fw, settings.style(), settings.appStyleSheet());
+
+    const QDesignerSettings settings;
+    QString errorMessage;
+
+    const QPixmap pixmap = m_previewManager->createPreviewPixmap(fw, settings.previewConfiguration(), &errorMessage);
     core()->topLevel()->setCursor( oldCursor);
+    if (pixmap.isNull()) {
+        QMessageBox::warning(fw, tr("Preview failed"), errorMessage);
+    }
     return pixmap;
 }
 

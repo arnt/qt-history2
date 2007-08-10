@@ -6,7 +6,7 @@
     <x>0</x>
     <y>0</y>
     <width>455</width>
-    <height>441</height>
+    <height>359</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -36,19 +36,7 @@
         <widget class="FontPanel" name="m_fontPanel" />
        </item>
        <item>
-        <widget class="QGroupBox" name="m_styleGroupBox" >
-         <property name="title" >
-          <string>Preview/Print Style</string>
-         </property>
-         <property name="checkable" >
-          <bool>true</bool>
-         </property>
-         <layout class="QVBoxLayout" >
-          <item>
-           <widget class="QComboBox" name="m_styleCombo" />
-          </item>
-         </layout>
-        </widget>
+        <widget class="qdesigner_internal::PreviewConfigurationWidget" name="m_previewConfigurationWidget" />
        </item>
       </layout>
      </item>
@@ -101,32 +89,6 @@
     </layout>
    </item>
    <item>
-    <widget class="QGroupBox" name="m_appStyleSheetGroupBox" >
-     <property name="title" >
-      <string>Preview/Print Style Sheet</string>
-     </property>
-     <layout class="QHBoxLayout" >
-      <item>
-       <widget class="qdesigner_internal::TextPropertyEditor" name="m_appStyleSheetLineEdit" />
-      </item>
-      <item>
-       <widget class="QToolButton" name="m_appStyleSheetChangeButton" >
-        <property name="text" >
-         <string>...</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QToolButton" name="m_appStyleSheetClearButton" >
-        <property name="text" >
-         <string>...</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item>
     <widget class="Line" name="line" >
      <property name="orientation" >
       <enum>Qt::Horizontal</enum>
@@ -139,7 +101,7 @@
       <enum>Qt::Horizontal</enum>
      </property>
      <property name="standardButtons" >
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::NoButton|QDialogButtonBox::Ok</set>
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
      </property>
     </widget>
    </item>
@@ -159,9 +121,10 @@
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>qdesigner_internal::TextPropertyEditor</class>
-   <extends>QLineEdit</extends>
-   <header location="global" >textpropertyeditor_p.h</header>
+   <class>qdesigner_internal::PreviewConfigurationWidget</class>
+   <extends>QGroupBox</extends>
+   <header location="global" >previewconfigurationwidget_p.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>

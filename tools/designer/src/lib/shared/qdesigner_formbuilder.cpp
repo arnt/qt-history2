@@ -340,6 +340,12 @@ QWidget *QDesignerFormBuilder::createPreview(const QDesignerFormWindowInterface 
     return createPreview(fw, styleName, QString());
 }
 
+QWidget *QDesignerFormBuilder::createPreview(const QDesignerFormWindowInterface *fw, const QString &styleName, const QString &appStyleSheet, QString *errorMessage)
+{
+    ScriptErrors scriptErrors;
+    return  createPreview(fw, styleName, appStyleSheet, &scriptErrors, errorMessage);
+}
+
 QWidget *QDesignerFormBuilder::createPreview(const QDesignerFormWindowInterface *fw, const QString &styleName, const QString &appStyleSheet)
 {
     ScriptErrors scriptErrors;

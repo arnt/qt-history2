@@ -31,6 +31,10 @@ class QRect;
 class QWidget;
 class QPixmap;
 
+namespace qdesigner_internal {
+    class PreviewManager;
+}
+
 class QDesignerActions: public QObject
 {
     Q_OBJECT
@@ -64,8 +68,6 @@ public:
 
     void setBringAllToFrontVisible(bool visible);
     void setWindowListSeparatorVisible(bool visible);
-
-    virtual bool eventFilter(QObject *watched, QEvent *event);
 
     bool openForm(QWidget *parent);
 
@@ -101,6 +103,7 @@ private slots:
     void showPreferencesDialog();
     void savePreviewImage();
     void printPreviewImage();
+    void updateCloseAction();
 
 private:
     bool saveFormAs(QDesignerFormWindowInterface *fw);
@@ -108,8 +111,7 @@ private:
     void updateRecentFileActions();
     void addRecentFile(const QString &fileName);
     void showHelp(const QString &help);
-    void updateCloseAction();
-    bool closePreview();
+    void closePreview();
     QRect fixDialogRect(const QRect &rect) const;
     QString fixResourceFileBackupPath(QDesignerFormWindowInterface *fwi, const QDir& backupDir);
     void showStatusBarMessage(const QString &message) const;
@@ -163,8 +165,8 @@ private:
 
     QAction *m_preferencesAction;
 
-    QPointer<QWidget> m_previewWidget;
     QPrinter m_printer;
+    qdesigner_internal::PreviewManager *m_previewManager;
 };
 
 #endif // QDESIGNER_ACTIONS_H

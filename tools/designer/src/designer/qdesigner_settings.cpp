@@ -20,6 +20,8 @@
 #include "qdesigner_objectinspector.h"
 
 #include <qdesigner_utils_p.h>
+#include <previewconfigurationwidget_p.h>
+#include <previewmanager_p.h>
 
 #include <QtCore/QVariant>
 #include <QtCore/QDir>
@@ -37,8 +39,7 @@ static const char *toolBoxStateKey = "ToolBoxState";
 static const char *toolBarsStateKey = "ToolBarsState";
 static const char *backupOrgListKey = "backup/fileListOrg";
 static const char *backupBakListKey = "backup/fileListBak";
-static const char *styleKey = "style";
-static const char *appStyleSheetKey = "AppStyleSheet";
+static const char *previewKey = "Preview";
 static const char *defaultGridKey = "defaultGrid";
 static const char *formTemplatePathsKey = "FormTemplatePaths";
 static const char *recentFilesListKey = "recentFilesList";
@@ -212,30 +213,35 @@ QMap<QString, QString> QDesignerSettings::backup() const
     const QStringList bak = value(QLatin1String(backupBakListKey), QStringList()).toStringList();
 
     QMap<QString, QString> map;
-    for (int i = 0; i < org.count(); ++i)
+    const int orgCount = org.count();
+    for (int i = 0; i < orgCount; ++i)
         map.insert(org.at(i), bak.at(i));
 
     return map;
 }
 
-QString QDesignerSettings::style() const
+void QDesignerSettings::setPreviewConfiguration(const qdesigner_internal::PreviewConfiguration &pc)
 {
-    return value(QLatin1String(styleKey), QString()).toString();
+    pc.toSettings(QLatin1String(previewKey), *this);
 }
 
-void QDesignerSettings::setStyle(const QString &style)
+qdesigner_internal::PreviewConfiguration QDesignerSettings::previewConfiguration() const
 {
-    setValue(QLatin1String(styleKey), style);
+    qdesigner_internal::PreviewConfiguration rc;
+    rc.fromSettings(QLatin1String(previewKey), *this);
+    return rc;
 }
 
-QString QDesignerSettings::appStyleSheet() const
+qdesigner_internal::PreviewConfigurationWidgetState QDesignerSettings::previewConfigurationWidgetState() const
 {
-    return value(QLatin1String(appStyleSheetKey), QString()).toString();
+    qdesigner_internal::PreviewConfigurationWidgetState rc;
+    rc.fromSettings(QLatin1String(previewKey), *this);
+    return rc;
 }
 
-void QDesignerSettings::setAppStyleSheet(const QString &styleSheet)
+void QDesignerSettings::setPreviewConfigurationWidgetState(const qdesigner_internal::PreviewConfigurationWidgetState &pc)
 {
-     setValue(QLatin1String(appStyleSheetKey), styleSheet);
+    pc.toSettings(QLatin1String(previewKey), *this);
 }
 
 void QDesignerSettings::setPreferences(const Preferences& p)
@@ -248,8 +254,8 @@ void QDesignerSettings::setPreferences(const Preferences& p)
     endGroup();
     // grid
     setValue(QLatin1String(defaultGridKey), p.m_defaultGrid.toVariantMap());
-    setStyle(p.m_style);
-    setAppStyleSheet(p.m_appStyleSheet);
+    setPreviewConfigurationWidgetState(p.m_previewConfigurationWidgetState);
+    setPreviewConfiguration(p.m_previewConfiguration);
     // merge template paths
     QStringList templatePaths = defaultFormTemplatePaths();
     templatePaths += p.m_additionalTemplatePaths;
@@ -272,8 +278,8 @@ Preferences QDesignerSettings::preferences() const
     if (!defaultGridMap.empty())
         rc.m_defaultGrid.fromVariantMap(defaultGridMap);
     rc.m_additionalTemplatePaths = additionalFormTemplatePaths();
-    rc.m_style = style();
-    rc.m_appStyleSheet = appStyleSheet();
+    rc.m_previewConfigurationWidgetState = previewConfigurationWidgetState();
+    rc.m_previewConfiguration = previewConfiguration();
     return rc;
 }
 

@@ -21,6 +21,11 @@
 
 struct Preferences;
 
+namespace qdesigner_internal {
+    struct PreviewConfigurationWidgetState;
+    struct PreviewConfiguration;
+}
+
 class QDesignerSettings : public QSettings
 {
 public:
@@ -58,11 +63,11 @@ public:
 
     static const QStringList &defaultFormTemplatePaths();
 
-    QString style() const;
-    void setStyle(const QString &style);
+    qdesigner_internal::PreviewConfiguration previewConfiguration() const;
+    void setPreviewConfiguration(const qdesigner_internal::PreviewConfiguration &pc);
 
-    QString appStyleSheet() const;
-    void setAppStyleSheet(const QString &styleSheet);
+    qdesigner_internal::PreviewConfigurationWidgetState previewConfigurationWidgetState() const;
+    void setPreviewConfigurationWidgetState(const qdesigner_internal::PreviewConfigurationWidgetState &pc);
 
     int actionEditorViewMode() const;
     void setActionEditorViewMode(int vm);

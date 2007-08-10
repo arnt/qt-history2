@@ -311,9 +311,9 @@ void QDesignerWorkbench::initialize()
     QMenu *previewSubMenu = new QMenu(tr("Preview in"), m_formMenu);
     m_formMenu->insertMenu(m_actionManager->previewFormAction(), previewSubMenu);
 
-    foreach (QAction *action, m_actionManager->styleActions()->actions()) {
+    const QList<QAction*> styleActions = m_actionManager->styleActions()->actions();
+    foreach (QAction *action, styleActions)
         previewSubMenu->addAction(action);
-    }
 
     m_toolMenu = m_globalMenuBar->addMenu(tr("&Tools"));
 

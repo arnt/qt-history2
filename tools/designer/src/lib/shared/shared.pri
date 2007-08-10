@@ -2,13 +2,16 @@
 INCLUDEPATH += $$PWD
 QT += script
 
+include($$QT_SOURCE_TREE/tools/shared/deviceskin/deviceskin.pri)
+
 # Input
 FORMS += $$PWD/findicondialog.ui \
     $$PWD/orderdialog.ui \
     $$PWD/newactiondialog.ui \
     $$PWD/resourceeditor.ui \
     $$PWD/gridpanel.ui \
-    $$PWD/signalslotdialog.ui 
+    $$PWD/signalslotdialog.ui \
+    $$PWD/previewconfigurationwidget.ui 
 
 HEADERS += \
     $$PWD/shared_global_p.h \
@@ -77,7 +80,9 @@ HEADERS += \
     $$PWD/qdesigner_widgetbox_p.h \
     $$PWD/signalslotdialog_p.h \
     $$PWD/extensionfactory_p.h \
-    $$PWD/dialoggui_p.h
+    $$PWD/dialoggui_p.h \
+    $$PWD/previewmanager_p.h \
+    $$PWD/previewconfigurationwidget_p.h
 
 SOURCES += \
     $$PWD/spacer_widget.cpp \
@@ -142,4 +147,6 @@ SOURCES += \
     $$PWD/qdesigner_widgetbox.cpp \
     $$PWD/iconloader.cpp \
     $$PWD/signalslotdialog.cpp \
-    $$PWD/dialoggui.cpp
+    $$PWD/dialoggui.cpp \
+    $$PWD/previewmanager.cpp \
+    $$PWD/previewconfigurationwidget.cpp

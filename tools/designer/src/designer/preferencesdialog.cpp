@@ -15,10 +15,8 @@
 #include "ui_preferencesdialog.h"
 #include "preferences.h"
 #include <iconloader_p.h>
-#include <stylesheeteditor_p.h>
 
 #include <QtGui/QFileDialog>
-#include <QtGui/QStyleFactory>
 
 PreferencesDialog::PreferencesDialog(QWidget *parentWidget) :
     QDialog(parentWidget)
@@ -43,13 +41,6 @@ PreferencesDialog::PreferencesDialog(QWidget *parentWidget) :
     connect(m_ui->m_removeTemplatePathButton, SIGNAL(clicked()), this, SLOT(removeTemplatePath()));
     connect(m_ui->m_dialogButtonBox, SIGNAL(rejected()), this, SLOT(reject()));
     connect(m_ui->m_dialogButtonBox, SIGNAL(accepted()), this, SLOT(accept()));
-
-    m_ui->m_styleCombo->addItems(QStyleFactory::keys());
-
-    m_ui->m_appStyleSheetLineEdit->setTextPropertyValidationMode( qdesigner_internal::ValidationStyleSheet);
-    m_ui->m_appStyleSheetClearButton->setIcon(qdesigner_internal::createIconSet(QString::fromUtf8("resetproperty.png")));
-    connect(m_ui->m_appStyleSheetClearButton, SIGNAL(clicked()), m_ui->m_appStyleSheetLineEdit, SLOT(clear()));
-    connect(m_ui->m_appStyleSheetChangeButton, SIGNAL(clicked()), this, SLOT(editAppStyleSheet()));
 }
 
 PreferencesDialog::~PreferencesDialog()
@@ -84,15 +75,8 @@ void PreferencesDialog::setPreferences(const Preferences &p)
         m_ui->m_templatePathListWidget->setCurrentItem(m_ui->m_templatePathListWidget->item(0));
     }
     m_ui->m_gridPanel->setGrid(p.m_defaultGrid);
-
-    const bool hasStyle = !p.m_style.isEmpty();
-    m_ui->m_styleGroupBox->setChecked(hasStyle);
-
-    int styleIndex = hasStyle ?  m_ui->m_styleCombo->findText(p.m_style) : -1;
-    if (styleIndex == -1)
-        styleIndex = 0;
-    m_ui->m_styleCombo->setCurrentIndex(styleIndex);
-    m_ui->m_appStyleSheetLineEdit->setText(p.m_appStyleSheet);
+    m_ui->m_previewConfigurationWidget->setPreviewConfigurationWidgetState(p.m_previewConfigurationWidgetState);
+    m_ui->m_previewConfigurationWidget->setPreviewConfiguration(p.m_previewConfiguration);
 }
 
 void PreferencesDialog::getPreferences(Preferences &p) const
@@ -108,13 +92,8 @@ void PreferencesDialog::getPreferences(Preferences &p) const
         p.m_additionalTemplatePaths += m_ui->m_templatePathListWidget->item(i)->text();
     }
     p.m_defaultGrid = m_ui->m_gridPanel->grid();
-
-    if (m_ui->m_styleGroupBox->isChecked()) {
-        p.m_style = m_ui->m_styleCombo->currentText();
-    } else {
-        p.m_style.clear();
-    }
-    p.m_appStyleSheet = m_ui->m_appStyleSheetLineEdit->text();
+    p.m_previewConfigurationWidgetState = m_ui->m_previewConfigurationWidget->previewConfigurationWidgetState();
+    p.m_previewConfiguration = m_ui->m_previewConfigurationWidget->previewConfiguration();
 }
 
 void PreferencesDialog::addTemplatePath()
@@ -156,12 +135,4 @@ QString PreferencesDialog::chooseTemplatePath(QWidget *parent)
     if (rc.endsWith(QDir::separator()))
         rc.remove(rc.size() - 1, 1);
     return rc;
-}
-
-void PreferencesDialog::editAppStyleSheet()
-{
-    qdesigner_internal::StyleSheetEditorDialog dlg(this);
-    dlg.setText(m_ui->m_appStyleSheetLineEdit->text());
-    if (dlg.exec() == QDialog::Accepted)
-        m_ui->m_appStyleSheetLineEdit->setText(dlg.text());
 }

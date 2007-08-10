@@ -16,6 +16,8 @@
 
 #include "designer_enums.h"
 #include <grid_p.h>
+#include <previewconfigurationwidget_p.h>
+#include <previewmanager_p.h>
 
 #include <QtCore/QStringList>
 #include <QtCore/QPoint>
@@ -32,8 +34,8 @@ struct Preferences
     bool m_useFont;
     QStringList m_additionalTemplatePaths;
     qdesigner_internal::Grid m_defaultGrid;
-    QString m_style;
-    QString m_appStyleSheet;
+    qdesigner_internal::PreviewConfigurationWidgetState m_previewConfigurationWidgetState;
+    qdesigner_internal::PreviewConfiguration m_previewConfiguration;
 };
 
 #endif // QDESIGNER_PREFERENCES_H
