@@ -17,6 +17,7 @@
 #include <qurl.h>
 #include <qdebug.h>
 #include <qmessagebox.h>
+#include <qapplication.h>
 
 #ifndef QT_NO_FILESYSTEMWATCHER
 
