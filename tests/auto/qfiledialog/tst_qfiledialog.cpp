@@ -36,7 +36,7 @@
     } while(0)
 
 //TESTED_CLASS=QFileDialog
-//TESTED_FILES=qfiledialog.h qfiledialog.cpp
+//TESTED_FILES=gui/dialogs/qfiledialog.h gui/dialogs/qfiledialog.cpp
 
 class tst_QFiledialog : public QObject
 {
@@ -84,6 +84,7 @@ private slots:
     void enableChooseButton();
 
     void hooks();
+    void listRoot();
 
 private:
     QByteArray userSettings;
@@ -726,6 +727,15 @@ void tst_QFiledialog::hooks()
     QCOMPARE(QFileDialog::getSaveFileName(), QString("saveName"));
 }
 
+extern bool QFileInfoGatherer_fetchedRoot;
+
+void tst_QFiledialog::listRoot()
+{
+    QFileInfoGatherer_fetchedRoot = false;
+    QFileDialog fd;
+    fd.show();
+    QVERIFY(QFileInfoGatherer_fetchedRoot == false);
+}
 
 QTEST_MAIN(tst_QFiledialog)
 #include "tst_qfiledialog.moc"
