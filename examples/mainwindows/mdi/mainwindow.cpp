@@ -1,3 +1,5 @@
+#include <qt_windows.h>
+
 /****************************************************************************
 **
 ** Copyright (C) 2005-$THISYEAR$ $TROLLTECH$. All rights reserved.
@@ -53,7 +55,9 @@ void MainWindow::newFile()
     MdiChild *child = createMdiChild();
     child->newFile();
     child->show();
-}
+SetClassLong(fileMenu->winId(), GCL_STYLE, GetClassLong(fileMenu->winId(), GCL_STYLE) & ~0x20000 /*CS_DROPSHADOW*/ ); 
+
+	}
 
 void MainWindow::open()
 {
@@ -269,6 +273,8 @@ void MainWindow::createActions()
 void MainWindow::createMenus()
 {
     fileMenu = menuBar()->addMenu(tr("&File"));
+	
+
     fileMenu->addAction(newAct);
     fileMenu->addAction(openAct);
     fileMenu->addAction(saveAct);
