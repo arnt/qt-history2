@@ -523,6 +523,22 @@ QTextDocumentLayoutPrivate::hitTest(QTextFrame *frame, const QFixedPoint &point,
         }
     }
 
+    if (isFrameFromInlineObject(frame)) {
+        *position = frame->firstPosition() - 1;
+        return PointExact;
+    }
+
+    const QList<QTextFrame *> childFrames = frame->childFrames();
+    for (int i = 0; i < childFrames.size(); ++i) {
+        QTextFrame *child = childFrames.at(i);
+        if (isFrameFromInlineObject(child)
+            && child->frameFormat().position() != QTextFrameFormat::InFlow
+            && hitTest(child, relativePoint, position, l, accuracy) == PointExact)
+        {
+            return PointExact;
+        }
+    }
+
     if (QTextTable *table = qobject_cast<QTextTable *>(frame))
         return hitTest(table, relativePoint, position, l, accuracy);
 
