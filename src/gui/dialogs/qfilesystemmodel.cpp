@@ -1092,11 +1092,11 @@ QDir QFileSystemModel::rootDirectory() const
     Sets the \a provider of file icons for the directory model.
 */
 void QFileSystemModel::setIconProvider(QFileIconProvider *provider)
-    qApp->processEvents();
-    d->root.updateIcon(provider, QString());
 {
     Q_D(QFileSystemModel);
     d->fileInfoGatherer.setIconProvider(provider);
+    qApp->processEvents();
+    d->root.updateIcon(provider, QString());
 }
 
 /*!
