@@ -807,7 +807,7 @@ void QTextEngine::shapeTextWithHarfbuzz(int item) const
 
         shaper_item.glyphIndicesPresent = true;
 
-        while (1) {
+        do {
             ensureSpace(glyph_pos + shaper_item.num_glyphs);
             shaper_item.num_glyphs = layoutData->num_glyphs - layoutData->used - glyph_pos;
 
@@ -834,35 +834,32 @@ void QTextEngine::shapeTextWithHarfbuzz(int item) const
 
 //          qDebug("    .. num_glyphs=%d, used=%d, item.num_glyphs=%d", num_glyphs, used, shaper_item.num_glyphs);
 
-            if (!qShapeItem(&shaper_item))
-                continue;
+        } while (!qShapeItem(&shaper_item));
 
-            QGlyphLayout *g = glyphs(&si) + glyph_pos;
+        QGlyphLayout *g = glyphs(&si) + glyph_pos;
 
-            for (hb_uint32 i = 0; i < shaper_item.num_glyphs; ++i) {
-                g[i].glyph = shaper_item.glyphs[i] | (engineIdx << 24);
-                g[i].advance.x = QFixed::fromFixed(shaper_item.advances[i]);
-                g[i].advance.y = QFixed();
-                g[i].offset.x = QFixed::fromFixed(shaper_item.offsets[i].x);
-                g[i].offset.y = QFixed::fromFixed(shaper_item.offsets[i].y);
+        for (hb_uint32 i = 0; i < shaper_item.num_glyphs; ++i) {
+            g[i].glyph = shaper_item.glyphs[i] | (engineIdx << 24);
+            g[i].advance.x = QFixed::fromFixed(shaper_item.advances[i]);
+            g[i].advance.y = QFixed();
+            g[i].offset.x = QFixed::fromFixed(shaper_item.offsets[i].x);
+            g[i].offset.y = QFixed::fromFixed(shaper_item.offsets[i].y);
 
-                g[i].attributes.justification = shaper_item.attributes[i].justification;
-                g[i].attributes.clusterStart = shaper_item.attributes[i].clusterStart;
-                g[i].attributes.mark = shaper_item.attributes[i].mark;
-                g[i].attributes.zeroWidth = shaper_item.attributes[i].zeroWidth;
-                g[i].attributes.dontPrint = shaper_item.attributes[i].dontPrint;
-                g[i].attributes.combiningClass = shaper_item.attributes[i].combiningClass;
-            }
-
-            for (hb_uint32 i = 0; i < shaper_item.item.length; ++i)
-                shaper_item.log_clusters[i] += glyph_pos;
-
-            if (kerningEnabled && !shaper_item.kerning_applied)
-                font->doKerning(shaper_item.num_glyphs, g, option.useDesignMetrics() ? QFlag(QTextEngine::DesignMetrics) : QFlag(0));
-
-            glyph_pos += shaper_item.num_glyphs;
-            break;
+            g[i].attributes.justification = shaper_item.attributes[i].justification;
+            g[i].attributes.clusterStart = shaper_item.attributes[i].clusterStart;
+            g[i].attributes.mark = shaper_item.attributes[i].mark;
+            g[i].attributes.zeroWidth = shaper_item.attributes[i].zeroWidth;
+            g[i].attributes.dontPrint = shaper_item.attributes[i].dontPrint;
+            g[i].attributes.combiningClass = shaper_item.attributes[i].combiningClass;
         }
+
+        for (hb_uint32 i = 0; i < shaper_item.item.length; ++i)
+            shaper_item.log_clusters[i] += glyph_pos;
+
+        if (kerningEnabled && !shaper_item.kerning_applied)
+            font->doKerning(shaper_item.num_glyphs, g, option.useDesignMetrics() ? QFlag(QTextEngine::DesignMetrics) : QFlag(0));
+
+        glyph_pos += shaper_item.num_glyphs;
 
         initial_glyph_pos += shaper_item.initialGlyphCount;
     }
