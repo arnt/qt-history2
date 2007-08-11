@@ -161,6 +161,7 @@ static const QCssKnownValue properties[NumProperties - 1] = {
 };
 
 static const QCssKnownValue values[NumKnownValues - 1] = {
+    { "active", Value_Active },
     { "alternate-base", Value_AlternateBase },
     { "always", Value_Always },
     { "auto", Value_Auto },
@@ -175,6 +176,7 @@ static const QCssKnownValue values[NumKnownValues - 1] = {
     { "dark", Value_Dark },
     { "dashed", Value_Dashed },
     { "decimal", Value_Decimal },
+    { "disabled", Value_Disabled },
     { "disc", Value_Disc },
     { "dot-dash", Value_DotDash },
     { "dot-dot-dash", Value_DotDotDash },
@@ -201,12 +203,15 @@ static const QCssKnownValue values[NumKnownValues - 1] = {
     { "normal", Value_Normal },
     { "nowrap", Value_NoWrap },
     { "oblique", Value_Oblique },
+    { "off", Value_Off },
+    { "on", Value_On },
     { "outset", Value_Outset },
     { "overline", Value_Overline },
     { "pre", Value_Pre },
     { "pre-wrap", Value_PreWrap },
     { "ridge", Value_Ridge },
     { "right", Value_Right },
+    { "selected", Value_Selected },
     { "shadow", Value_Shadow },
     { "small" , Value_Small },
     { "solid", Value_Solid },
@@ -1297,13 +1302,37 @@ QIcon Declaration::iconValue() const
 {
     QIcon icon;
     for (int i = 0; i < values.count(); i++) {
-        const Value &value = values.at(i);
+        Value value = values.at(i++);
         if (value.type != Value::Uri)
-            continue;
+            break;
+        QString uri = value.variant.toString();
+        QIcon::Mode mode = QIcon::Normal;
+        QIcon::State state = QIcon::Off;
+        for (int j = 0; j < 2; j++) {
+            if (i != values.count() && values.at(i).type == Value::KnownIdentifier) {
+                switch (values.at(i).variant.toInt()) {
+                case Value_Disabled: mode = QIcon::Disabled; break;
+                case Value_Active: mode = QIcon::Active; break;
+                case Value_Selected: mode = QIcon::Selected; break;
+                case Value_Normal: mode = QIcon::Normal; break;
+                case Value_On: state = QIcon::On; break;
+                case Value_Off: state = QIcon::Off; break;
+                default: break;
+                }
+                ++i;
+            } else {
+                break;
+            }
+        }
+
+        // QIcon is soo broken
         if (icon.isNull())
-            icon = QIcon(value.variant.toString());
+            icon = QIcon(uri);
         else
-            icon.addPixmap(value.variant.toString());
+            icon.addPixmap(uri, mode, state);
+
+        if (i == values.count() || values.at(i).type != Value::TermOperatorComma)
+            break;
     }
     return icon;
 }

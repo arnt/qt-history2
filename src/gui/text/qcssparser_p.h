@@ -198,6 +198,12 @@ enum KnownValue {
     Value_AlternateBase,
     Value_LastColorRole = Value_AlternateBase,
 
+    Value_Disabled,
+    Value_Active,
+    Value_Selected,
+    Value_On,
+    Value_Off,
+
     NumKnownValues
 };
 
