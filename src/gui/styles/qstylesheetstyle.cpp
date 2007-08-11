@@ -310,20 +310,65 @@ public:
 static const char *knownStyleHints[] = {
     "activate-on-singleclick",
     "alignment",
+    "backward-icon",
     "button-layout",
+    "cd-icon",
     "combobox-list-mousetracking",
     "combobox-popup",
+    "computer-icon",
+    "desktop-icon",
+    "dialog-apply-icon",
+    "dialog-cancel-icon",
+    "dialog-close-icon",
+    "dialog-discard-icon",
+    "dialog-help-icon",
+    "dialog-no-icon",
+    "dialog-ok-icon",
+    "dialog-open-icon",
+    "dialog-reset-icon",
+    "dialog-save-icon",
+    "dialog-yes-icon",
+    "dialogbuttonbox-buttons-have-icons",
+    "directory-closed-icon",
+    "directory-icon",
+    "directory-link-icon",
+    "directory-open-icon",
     "dither-disable-text",
+    "dockwidget-close-icon",
+    "downarrow-icon",
+    "dvd-icon",
     "etch-disabled-text",
+    "file-icon",
+    "file-link-icon",
+    "filedialog-backward-icon", // unused
+    "filedialog-contentsview-icon",
+    "filedialog-detailedview-icon",
+    "filedialog-end-icon",
+    "filedialog-infoview-icon",
+    "filedialog-listview-icon",
+    "filedialog-new-directory-icon",
+    "filedialog-parent-directory-icon",
+    "filedialog-start-icon",
+    "floppy-icon",
+    "forward-icon",
     "gridline-color",
+    "harddisk-icon",
+    "home-icon",
     "icon-size",
+    "leftarrow-icon",
     "lineedit-password-character",
+    "menu-scrollable",
     "menubar-altkey-navigation",
     "menubar-separator",
-    "menu-scrollable",
+    "messagebox-critical-icon",
+    "messagebox-information-icon",
+    "messagebox-question-icon",
     "messagebox-text-interaction-flags",
+    "messagebox-warning-icon",
     "mouse-tracking",
+    "network-icon",
     "opacity",
+    "rightarrow-icon",
     "scrollbar-contextmenu",
     "scrollbar-leftclick-absolute-position",
     "scrollbar-middleclick-absolute-position",
@@ -335,7 +380,16 @@ static const char *knownStyleHints[] = {
     "spincontrol-disable-on-bounds",
     "tabbar-elide-mode",
     "tabbar-prefer-no-arrows",
-    "toolbutton-popup-delay"
+    "titlebar-contexthelp-icon",
+    "titlebar-maximize-icon",
+    "titlebar-menu-icon",
+    "titlebar-minimize-icon",
+    "titlebar-normal-icon",
+    "titlebar-shade-icon",
+    "titlebar-unshade-icon",
+    "toolbutton-popup-delay",
+    "trash-icon",
+    "uparrow-icon"
 };
 
 static const int numKnownStyleHints = sizeof(knownStyleHints)/sizeof(knownStyleHints[0]);
@@ -449,6 +503,8 @@ QRenderRule::QRenderRule(const QVector<Declaration> &declarations, const QWidget
                        hintValue = (int) decl.colorValue().rgba();
                    } else if (hintName.endsWith(QLatin1String("size"))) {
                        hintValue = decl.sizeValue();
+                   } else if (hintName.endsWith(QLatin1String("icon"))) {
+                       hintValue = decl.iconValue();
                    } else {
                        int integer;
                        decl.intValue(&integer);
@@ -460,7 +516,7 @@ QRenderRule::QRenderRule(const QVector<Declaration> &declarations, const QWidget
                 }
             }
             if (!knownStyleHint)
-                qWarning("Unknown property %s", qPrintable(decl.property));
+                qDebug("Unknown property %s", qPrintable(decl.property));
         }
     }
 
@@ -3950,16 +4006,77 @@ QSize QStyleSheetStyle::sizeFromContents(ContentsType ct, const QStyleOption *op
 /*!
     \internal
 */
-QIcon QStyleSheetStyle::standardIconImplementation(StandardPixmap standardIcon, const QStyleOption *opt,
-                                                   const QWidget *widget) const
+static QLatin1String propertyNameForStandardPixmap(QStyle::StandardPixmap sp)
 {
-    return QCommonStyle::standardIconImplementation(standardIcon, opt, widget);
+    switch (sp) {
+        case QStyle::SP_TitleBarMenuButton: return QLatin1String("titlebar-menu-icon");
+        case QStyle::SP_TitleBarMinButton: return QLatin1String("titlebar-minimize-icon");
+        case QStyle::SP_TitleBarMaxButton: return QLatin1String("titlebar-maximize-icon");
+        case QStyle::SP_TitleBarCloseButton: return QLatin1String("titlebar-close-icon");
+        case QStyle::SP_TitleBarNormalButton: return QLatin1String("titlebar-normal-icon");
+        case QStyle::SP_TitleBarShadeButton: return QLatin1String("titlebar-shade-icon");
+        case QStyle::SP_TitleBarUnshadeButton: return QLatin1String("titlebar-unshade-icon");
+        case QStyle::SP_TitleBarContextHelpButton: return QLatin1String("titlebar-contexthelp-icon");
+        case QStyle::SP_DockWidgetCloseButton: return QLatin1String("dockwidget-close-icon");
+        case QStyle::SP_MessageBoxInformation: return QLatin1String("messagebox-information-icon");
+        case QStyle::SP_MessageBoxWarning: return QLatin1String("messagebox-warning-icon");
+        case QStyle::SP_MessageBoxCritical: return QLatin1String("messagebox-critical-icon");
+        case QStyle::SP_MessageBoxQuestion: return QLatin1String("messagebox-question-icon");
+        case QStyle::SP_DesktopIcon: return QLatin1String("desktop-icon");
+        case QStyle::SP_TrashIcon: return QLatin1String("trash-icon");
+        case QStyle::SP_ComputerIcon: return QLatin1String("computer-icon");
+        case QStyle::SP_DriveFDIcon: return QLatin1String("floppy-icon");
+        case QStyle::SP_DriveHDIcon: return QLatin1String("harddisk-icon");
+        case QStyle::SP_DriveCDIcon: return QLatin1String("cd-icon");
+        case QStyle::SP_DriveDVDIcon: return QLatin1String("dvd-icon");
+        case QStyle::SP_DriveNetIcon: return QLatin1String("network-icon");
+        case QStyle::SP_DirOpenIcon: return QLatin1String("directory-open-icon");
+        case QStyle::SP_DirClosedIcon: return QLatin1String("directory-closed-icon");
+        case QStyle::SP_DirLinkIcon: return QLatin1String("directory-link-icon");
+        case QStyle::SP_FileIcon: return QLatin1String("file-icon");
+        case QStyle::SP_FileLinkIcon: return QLatin1String("file-link-icon");
+        case QStyle::SP_FileDialogStart: return QLatin1String("filedialog-start-icon");
+        case QStyle::SP_FileDialogEnd: return QLatin1String("filedialog-end-icon");
+        case QStyle::SP_FileDialogToParent: return QLatin1String("filedialog-parent-directory-icon");
+        case QStyle::SP_FileDialogNewFolder: return QLatin1String("filedialog-new-directory-icon");
+        case QStyle::SP_FileDialogDetailedView: return QLatin1String("filedialog-detailedview-icon");
+        case QStyle::SP_FileDialogInfoView: return QLatin1String("filedialog-infoview-icon");
+        case QStyle::SP_FileDialogContentsView: return QLatin1String("filedialog-contentsview-icon");
+        case QStyle::SP_FileDialogListView: return QLatin1String("filedialog-listview-icon");
+        case QStyle::SP_FileDialogBack: return QLatin1String("filedialog-backward-icon");
+        case QStyle::SP_DirIcon: return QLatin1String("directory-icon");
+        case QStyle::SP_DialogOkButton: return QLatin1String("dialog-ok-icon");
+        case QStyle::SP_DialogCancelButton: return QLatin1String("dialog-cancel-icon");
+        case QStyle::SP_DialogHelpButton: return QLatin1String("dialog-help-icon");
+        case QStyle::SP_DialogOpenButton: return QLatin1String("dialog-open-icon");
+        case QStyle::SP_DialogSaveButton: return QLatin1String("dialog-save-icon");
+        case QStyle::SP_DialogCloseButton: return QLatin1String("dialog-close-icon");
+        case QStyle::SP_DialogApplyButton: return QLatin1String("dialog-apply-icon");
+        case QStyle::SP_DialogResetButton: return QLatin1String("dialog-reset-icon");
+        case QStyle::SP_DialogDiscardButton: return QLatin1String("discard-icon");
+        case QStyle::SP_DialogYesButton: return QLatin1String("dialog-yes-icon");
+        case QStyle::SP_DialogNoButton: return QLatin1String("dialog-no-icon");
+        case QStyle::SP_ArrowUp: return QLatin1String("uparrow-icon");
+        case QStyle::SP_ArrowDown: return QLatin1String("downarrow-icon");
+        case QStyle::SP_ArrowLeft: return QLatin1String("leftarrow-icon");
+        case QStyle::SP_ArrowRight: return QLatin1String("rightarrow-icon");
+        case QStyle::SP_ArrowBack: return QLatin1String("backward-icon");
+        case QStyle::SP_ArrowForward: return QLatin1String("forward-icon");
+        case QStyle::SP_DirHomeIcon: return QLatin1String("home-icon");
+        default: return QLatin1String("");
+    }
 }
 
-QIcon QStyleSheetStyle::standardIcon(StandardPixmap standardIcon, const QStyleOption *option,
-                                 const QWidget* w) const
+QIcon QStyleSheetStyle::standardIconImplementation(StandardPixmap standardIcon, const QStyleOption *opt,
+                                                   const QWidget *w) const
 {
-    return baseStyle()->standardIcon(standardIcon, option, w);
+    QString s = propertyNameForStandardPixmap(standardIcon);
+    if (!s.isEmpty()) {
+        QRenderRule rule = renderRule(w, opt);
+        if (rule.hasStyleHint(s))
+            return qVariantValue<QIcon>(rule.styleHint(s));
+    }
+    return baseStyle()->standardIcon(standardIcon, opt, w);
 }
 
 QPalette QStyleSheetStyle::standardPalette() const
@@ -3967,10 +4084,18 @@ QPalette QStyleSheetStyle::standardPalette() const
     return baseStyle()->standardPalette();
 }
 
-QPixmap QStyleSheetStyle::standardPixmap(StandardPixmap standardPixmap, const QStyleOption *option,
-                                     const QWidget *w) const
+QPixmap QStyleSheetStyle::standardPixmap(StandardPixmap standardPixmap, const QStyleOption *opt,
+                                         const QWidget *w) const
 {
-    return baseStyle()->standardPixmap(standardPixmap, option, w);
+    QString s = propertyNameForStandardPixmap(standardPixmap);
+    if (!s.isEmpty()) {
+        QRenderRule rule = renderRule(w, opt);
+        if (rule.hasStyleHint(s)) {
+            QIcon icon = qVariantValue<QIcon>(rule.styleHint(s));
+            return icon.pixmap(16, 16); // ###: unhard-code this if someone complains
+        }
+    }
+    return baseStyle()->standardPixmap(standardPixmap, opt, w);
 }
 
 int QStyleSheetStyle::layoutSpacing(QSizePolicy::ControlType control1, QSizePolicy::ControlType control2,
@@ -4054,6 +4179,7 @@ int QStyleSheetStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWi
             }
 #endif // QT_NO_COMBOBOX
             break;
+        case SH_DialogButtonBox_ButtonsHaveIcons: s = QLatin1String("dialogbuttonbox-buttons-have-icons"); break;
         default: break;
     }
     if (!s.isEmpty() && rule.hasStyleHint(s)) {

@@ -72,7 +72,6 @@ public:
     void polish(QPalette &pal);
     QSize sizeFromContents(ContentsType ct, const QStyleOption *opt,
                            const QSize &contentsSize, const QWidget *widget = 0) const;
-    QIcon standardIcon(StandardPixmap standardIcon, const QStyleOption *option, const QWidget *w = 0) const;
     QPalette standardPalette() const;
     QPixmap standardPixmap(StandardPixmap standardPixmap, const QStyleOption *option = 0,
                            const QWidget *w = 0 ) const;
