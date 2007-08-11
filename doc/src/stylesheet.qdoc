@@ -1850,6 +1850,21 @@
            See also \l{Qt Style Sheets Reference#background-prop}{background} and
            \l{#selection-color-prop}{selection-color}.
 
+    \row
+        \o \bold{\c dialogbuttonbox-buttons-have-icons}
+        \o \l{#Boolean}{Boolean}
+        \o Whether the buttons in a QDialogButtonBox show icons
+
+        If this property is set to true, the buttons of a QDialogButtonBox
+        show icons.
+
+        See the \l{Qt Style Sheets Reference#list of icons}{List of Icons}
+        section for information on how to set icons.
+
+        \code
+            QDialogButtonBox { dialogbuttonbox-buttons-have-icons: true; }
+        \endcode
+
     \omit
     \row
         \o \bold{\c etch-disabled-text}*
@@ -2484,6 +2499,237 @@
 
     \endtable
 
+    \target list of icons
+    \section1 List of Icons
+
+    Icons used in Qt can be customized using the following properties. Each of
+    the properties listed in this section have the type \l{#Icon}{Icon}.
+
+    Note that for icons to appear in buttons in a QDialogButtonBox, you need to
+    set the dialogbuttonbox-buttons-have-icons property to true. Also, to
+    customize the size of the icons, use the icon-size property.
+
+    \table 100%
+    \header
+        \o Name
+        \o QStyle::StandardPixmap
+
+    \row
+        \o backward-icon
+        \o QStyle::SP_ArrowBack
+
+    \row
+        \o cd-icon
+        \o QStyle::SP_DriveCDIcon
+
+    \row
+        \o computer-icon
+        \o QStyle::SP_ComputerIcon
+
+    \row
+        \o desktop-icon
+        \o QStyle::SP_DesktopIcon
+
+    \row
+        \o dialog-apply-icon
+        \o QStyle::SP_DialogApplyButton
+
+    \row
+        \o dialog-cancel-icon
+        \o QStyle::SP_DialogCancelButton
+
+    \row
+        \o dialog-close-icon
+        \o QStyle::SP_DialogCloseButton
+
+    \row
+        \o dialog-discard-icon
+        \o QStyle::SP_DialogDiscardButton
+
+    \row
+        \o dialog-help-icon
+        \o QStyle::SP_DialogHelpButton
+
+    \row
+        \o dialog-no-icon
+        \o QStyle::SP_DialogNoButton
+
+    \row
+        \o dialog-ok-icon
+        \o QStyle::SP_DialogOkButton
+
+    \row
+        \o dialog-open-icon
+        \o QStyle::SP_DialogOpenButton
+
+    \row
+        \o dialog-reset-icon
+        \o QStyle::SP_DialogResetButton
+
+    \row
+        \o dialog-save-icon
+        \o QStyle::SP_DialogSaveButton
+
+    \row
+        \o dialog-yes-icon
+        \o QStyle::SP_DialogYesButton
+
+    \row
+        \o directory-closed-icon
+        \o QStyle::SP_DirClosedIcon
+
+    \row
+        \o directory-icon
+        \o QStyle::SP_DirIcon
+
+    \row
+        \o directory-link-icon
+        \o QStyle::SP_DirLinkIcon
+
+    \row
+        \o directory-open-icon
+        \o QStyle::SP_DirOpenIcon
+
+    \row
+        \o dockwidget-close-icon
+        \o QStyle::SP_DockWidgetCloseButton
+
+    \row
+        \o downarrow-icon
+        \o QStyle::SP_ArrowDown
+
+    \row
+        \o dvd-icon
+        \o QStyle::SP_DriveDVDIcon
+
+    \row
+        \o file-icon
+        \o QStyle::SP_FileIcon
+
+    \row
+        \o file-link-icon
+        \o QStyle::SP_FileLinkIcon
+
+    \omit
+    \row
+        \o filedialog-backward-icon
+        \o QStyle::SP_FileDialogBack
+    \endomit
+
+    \row
+        \o filedialog-contentsview-icon
+        \o QStyle::SP_FileDialogContentsView
+
+    \row
+        \o filedialog-detailedview-icon
+        \o QStyle::SP_FileDialogDetailedView
+
+    \row
+        \o filedialog-end-icon
+        \o QStyle::SP_FileDialogEnd
+
+    \row
+        \o filedialog-infoview-icon
+        \o QStyle::SP_FileDialogInfoView
+
+    \row
+        \o filedialog-listview-icon
+        \o QStyle::SP_FileDialogListView
+
+    \row
+        \o filedialog-new-directory-icon
+        \o QStyle::SP_FileDialogNewFolder
+
+    \row
+        \o filedialog-parent-directory-icon
+        \o QStyle::SP_FileDialogToParent
+
+    \row
+        \o filedialog-start-icon
+        \o  QStyle::SP_FileDialogStart
+
+    \row
+        \o floppy-icon
+        \o QStyle::SP_DriveFDIcon
+
+    \row
+        \o forward-icon
+        \o QStyle::SP_ArrowForward
+
+    \row
+        \o harddisk-icon
+        \o QStyle::SP_DriveHDIcon
+
+    \row
+        \o home-icon
+        \o QStyle::SP_DirHomeIcon
+
+    \row
+        \o leftarrow-icon
+        \o QStyle::SP_ArrowLeft
+
+    \row
+        \o messagebox-critical-icon
+        \o QStyle::SP_MessageBoxCritical
+
+    \row
+        \o messagebox-information-icon
+        \o QStyle::SP_MessageBoxInformation
+
+    \row
+        \o messagebox-question-icon
+        \o QStyle::SP_MessageBoxQuestion
+
+    \row
+        \o messagebox-warning-icon
+        \o QStyle::SP_MessageBoxWarning
+
+    \row
+        \o network-icon
+        \o QStyle::SP_DriveNetIcon
+
+    \row
+        \o rightarrow-icon
+        \o QStyle::SP_ArrowRight
+
+    \row
+        \o titlebar-contexthelp-icon
+        \o QStyle::SP_TitleBarContextHelpButton
+
+    \row
+        \o titlebar-maximize-icon
+        \o QStyle::SP_TitleBarMaxButton
+
+    \row
+        \o titlebar-menu-icon
+        \o QStyle::SP_TitleBarMenuButton
+
+    \row
+        \o titlebar-minimize-icon
+        \o QStyle::SP_TitleBarMinButton
+
+    \row
+        \o titlebar-normal-icon
+        \o QStyle::SP_TitleBarNormalButton
+
+    \row
+        \o titlebar-shade-icon
+        \o QStyle::SP_TitleBarShadeButton
+
+    \row
+        \o titlebar-unshade-icon
+        \o QStyle::SP_TitleBarUnshadeButton
+
+    \row
+        \o trash-icon
+        \o QStyle::SP_TrashIcon
+
+    \row
+        \o uparrow-icon
+        \o QStyle::SP_ArrowUp
+
+    \endtable
+
     \section1 List of Property Types
 
     The following table summarizes the syntax and meaning of the
@@ -2735,6 +2981,25 @@ blue green yellow * /
             } 
         \endcode
 
+    \row
+        \o \bold Icon \target Icon
+        \o (\l{#Url}{Url} (\c disabled | \c active | \c normal | \c selected)?
+            (\c on | \c off)? )*
+        \o A list of url, QIcon::Mode and QIcon::State.
+
+            Example:
+            \code
+                * {
+                    file-icon: url(file.png),
+                               url(file_selected.png) selected;
+                  }
+                
+                QMessageBox {
+                    dialogbuttonbox-buttons-have-icons: true;
+                    dialog-ok-button: url(ok.svg);
+                    dialog-cancel-button: url(cancel.svg);
+                }
+            \endcode
     \row
         \o \bold Length \target Length
         \o \l{#Number}{Number} (\c px | \c pt | \c em | \c ex)?
