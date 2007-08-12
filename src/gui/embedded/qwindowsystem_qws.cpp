@@ -4150,7 +4150,7 @@ void QWSServerPrivate::screenSave(int level)
     if (saver) {
         if (saver->save(level)) {
             if ( *screensaverinterval >= 1000 ) {
-                screensaverblockevents = (screensavereventblocklevel >= 0 && screensavereventblocklevel < level);
+                screensaverblockevents = (screensavereventblocklevel >= 0 && screensavereventblocklevel <= level);
 #ifdef EVENT_BLOCK_DEBUG
                 if ( screensaverblockevents )
                     qDebug( "ready to block events" );
