@@ -254,7 +254,7 @@ void QLocalSocketPrivate::_q_connectToSocket()
 bool QLocalSocket::setSocketDescriptor(int socketDescriptor, LocalSocketState socketState, OpenMode openMode)
 {
     Q_D(QLocalSocket);
-    QAbstractSocket::SocketState newSocketState;
+    QAbstractSocket::SocketState newSocketState = QAbstractSocket::UnconnectedState;
     switch (socketState) {
     case ConnectingState:
         newSocketState = QAbstractSocket::ConnectingState;
