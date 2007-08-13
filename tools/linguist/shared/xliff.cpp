@@ -490,17 +490,17 @@ bool XLIFFHandler::endElement(const QString& namespaceURI,
             popContext(XC_ph);
         } else if (localName == QLatin1String("trans-unit")) {
             if (!hasContext(XC_restype_plurals)) {
-                tor->insert( MetaTranslatorMessage(m_context.toAscii(), m_source.toAscii(),
-                                                m_comment.toAscii(), m_fileName, m_lineNumber, 
-                                                translations, false, m_type, false) );
+                tor->insert( MetaTranslatorMessage(m_context.toUtf8(), m_source.toUtf8(),
+                                                m_comment.toUtf8(), m_fileName, m_lineNumber, 
+                                                translations, true, m_type, false) );
                 translations.clear();
                 m_lineNumber = -1;
             }
         } else if (localName == QLatin1String("group")) {
             if (hasContext(XC_restype_plurals)) {
-                tor->insert( MetaTranslatorMessage(m_context.toAscii(), m_source.toAscii(),
-                                                m_comment.toAscii(), m_fileName, m_lineNumber, 
-                                                translations, false, m_type, true) );
+                tor->insert( MetaTranslatorMessage(m_context.toUtf8(), m_source.toUtf8(),
+                                                m_comment.toUtf8(), m_fileName, m_lineNumber, 
+                                                translations, true, m_type, true) );
                 popContext(XC_restype_plurals);
                 translations.clear();
                 m_lineNumber = -1;
