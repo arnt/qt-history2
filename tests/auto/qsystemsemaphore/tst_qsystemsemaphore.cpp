@@ -15,7 +15,7 @@
 #include <qsystemsemaphore.h>
 
 //TESTED_CLASS=QSystemSemaphore
-//TESTED_FILES=core/io/qsystemsemaphore.h gcore/io/qsystemsemaphore.cpp
+//TESTED_FILES=corelib/kernel/qsystemsemaphore.cpp
 
 #define EXISTING_SHARE "existing"
 
@@ -188,13 +188,13 @@ void tst_QSystemSemaphore::undo()
     release.setProcessChannelMode(QProcess::ForwardedChannels);
 
     acquire.start(LACKYLOC "/lackey", acquireArguments);
-    QVERIFY(acquire.waitForFinished(100));
+    QVERIFY(acquire.waitForFinished(1000));
     QVERIFY(acquire.state()== QProcess::NotRunning);
 
     // At process exit the kernel should auto undo
 
     acquire.start(LACKYLOC "/lackey", acquireArguments);
-    QVERIFY(acquire.waitForFinished(100));
+    QVERIFY(acquire.waitForFinished(1000));
     QVERIFY(acquire.state()== QProcess::NotRunning);
 }
 
