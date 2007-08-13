@@ -2225,7 +2225,6 @@ void tst_QTreeView::disabledButCheckable()
     view.setCurrentIndex(model.index(1,0));
     QCOMPARE(item->checkState(), Qt::Unchecked);
     view.show();
-    QTest::qWait(2000);
     
     QTest::keyClick(&view, Qt::Key_Space);
     QCOMPARE(item->checkState(), Qt::Unchecked);
