@@ -48,7 +48,35 @@ TRANSLATOR qdesigner_internal::WidgetFactory
 #include <QtCore/qdebug.h>
 
 namespace qdesigner_internal {
-
+// ---------------- WidgetFactory::Strings
+WidgetFactory::Strings::Strings() :
+    m_alignment(QLatin1String("alignment")),
+    m_bottomMargin(QLatin1String("bottomMargin")),
+    m_geometry(QLatin1String("geometry")),
+    m_leftMargin(QLatin1String("leftMargin")),
+    m_line(QLatin1String("Line")),
+    m_objectName(QLatin1String("objectName")),
+    m_orientation(QLatin1String("orientation")),
+    m_q3WidgetStack(QLatin1String("Q3WidgetStack")),
+    m_qAction(QLatin1String("QAction")),
+    m_qAxWidget(QLatin1String("QAxWidget")),
+    m_qDialog(QLatin1String("QDialog")),
+    m_qDockWidget(QLatin1String("QDockWidget")),
+    m_qLayoutWidget(QLatin1String("QLayoutWidget")),
+    m_qMenu(QLatin1String("QMenu")),
+    m_qMenuBar(QLatin1String("QMenuBar")),
+    m_qWidget(QLatin1String("QWidget")),
+    m_rightMargin(QLatin1String("rightMargin")),
+    m_sizeHint(QLatin1String("sizeHint")),
+    m_spacer(QLatin1String("Spacer")),
+    m_text(QLatin1String("text")),
+    m_title(QLatin1String("title")),
+    m_topMargin(QLatin1String("topMargin")),
+    m_windowIcon(QLatin1String("windowIcon")),
+    m_windowTitle(QLatin1String("windowTitle"))
+{
+}
+// ---------------- WidgetFactory
 QPointer<QWidget> *WidgetFactory::m_lastPassiveInteractor = new QPointer<QWidget>();
 bool WidgetFactory::m_lastWasAPassiveInteractor = false;
 
@@ -86,7 +114,7 @@ void WidgetFactory::loadPlugins()
 // Convencience to create non-widget objects. Returns 0 if unknown
 QObject* WidgetFactory::createObject(const QString &className, QObject* parent) const
 {
-    if (className == QLatin1String("QAction"))
+    if (className == m_strings.m_qAction)
         return new QAction(parent);
     return 0;
 }
@@ -126,46 +154,61 @@ QWidget*  WidgetFactory::createCustomWidget(const QString &className, QWidget *p
 
 QWidget *WidgetFactory::createWidget(const QString &widgetName, QWidget *parentWidget) const
 {
+    // Preview or for form window?
     QDesignerFormWindowInterface *fw = m_formWindow;
     if (! fw)
         fw = QDesignerFormWindowInterface::findFormWindow(parentWidget);
 
-    QWidget *w = createCustomWidget(widgetName, parentWidget);
+    QWidget *w = 0;
+    do {
+        // 1) custom
+        w = createCustomWidget(widgetName, parentWidget);
+        if (w)
+            break;
 
-    if (w) {
-    } else if (widgetName == QLatin1String("Line")) {
-        w = new Line(parentWidget);
-    } else if (widgetName == QLatin1String("QDockWidget")) {
-        w = new QDesignerDockWidget(parentWidget);
-    } else if (widgetName == QLatin1String("QMenuBar")) {
-        w = new QDesignerMenuBar(parentWidget);
-    } else if (widgetName == QLatin1String("QMenu")) {
-        w = new QDesignerMenu(parentWidget);
-    } else if (widgetName == QLatin1String("Spacer")) {
-        w = new Spacer(parentWidget);
-    } else if (widgetName == QLatin1String("QDockWidget")) {
-        w = new QDesignerDockWidget(parentWidget);
-    } else if (widgetName == QLatin1String("QLayoutWidget")) {
-        w = fw ? new QLayoutWidget(fw, parentWidget) : new QWidget(parentWidget);
-    } else if (widgetName == QLatin1String("QDialog")) {
-        if (fw) {
-            w = new QDesignerDialog(fw, parentWidget);
-        } else {
-            w = new QDialog(parentWidget);
+        // 2) Special widgets
+        if (widgetName == m_strings.m_line) {
+            w = new Line(parentWidget);
+        } else if (widgetName == m_strings.m_qDockWidget) {
+            w = new QDesignerDockWidget(parentWidget);
+        } else if (widgetName == m_strings.m_qMenuBar) {
+            w = new QDesignerMenuBar(parentWidget);
+        } else if (widgetName == m_strings.m_qMenu) {
+            w = new QDesignerMenu(parentWidget);
+        } else if (widgetName == m_strings.m_spacer) {
+            w = new Spacer(parentWidget);
+        } else if (widgetName == m_strings.m_qDockWidget) {
+            w = new QDesignerDockWidget(parentWidget);
+        } else if (widgetName == m_strings.m_qLayoutWidget) {
+            w = fw ? new QLayoutWidget(fw, parentWidget) : new QWidget(parentWidget);
+        } else if (widgetName == m_strings.m_qDialog) {
+            if (fw) {
+                w = new QDesignerDialog(fw, parentWidget);
+            } else {
+                w = new QDialog(parentWidget);
+            }
+        } else if (widgetName == m_strings.m_qWidget) {
+            if (fw && parentWidget &&
+                (qobject_cast<QDesignerFormWindowInterface*>(parentWidget) || qt_extension<QDesignerContainerExtension*>(m_core->extensionManager(), parentWidget))) {
+                w = new QDesignerWidget(fw, parentWidget);
+            } else {
+                w = new QWidget(parentWidget);
+            }
         }
-    } else if (widgetName == QLatin1String("QWidget")) {
-        if (fw && parentWidget &&
-             (qobject_cast<QDesignerFormWindowInterface*>(parentWidget) || qt_extension<QDesignerContainerExtension*>(m_core->extensionManager(), parentWidget))) {
-             w = new QDesignerWidget(fw, parentWidget);
-        } else {
-            w = new QWidget(parentWidget);
+        if (w)
+            break;
+
+        // 3) table
+        const QByteArray widgetNameBA = widgetName.toUtf8();
+        const char *widgetNameC = widgetNameBA.constData();
+
+        if (w) { // symmetry for macro
         }
-    }
 
 #define DECLARE_LAYOUT(L, C)
 #define DECLARE_COMPAT_WIDGET(W, C) /*DECLARE_WIDGET(W, C)*/
-#define DECLARE_WIDGET(W, C) else if (widgetName == QLatin1String(#W)) { Q_ASSERT(w == 0); w = new W(parentWidget); }
-#define DECLARE_WIDGET_1(W, C) else if (widgetName == QLatin1String(#W)) { Q_ASSERT(w == 0); w = new W(0, parentWidget); }
+#define DECLARE_WIDGET(W, C) else if (!qstrcmp(widgetNameC, #W)) { Q_ASSERT(w == 0); w = new W(parentWidget); }
+#define DECLARE_WIDGET_1(W, C) else if (!qstrcmp(widgetNameC, #W)) { Q_ASSERT(w == 0); w = new W(0, parentWidget); }
 
 #include "widgets.table"
 
@@ -174,8 +217,10 @@ QWidget *WidgetFactory::createWidget(const QString &widgetName, QWidget *parentW
 #undef DECLARE_WIDGET
 #undef DECLARE_WIDGET_1
 
-    if (w == 0) {
-        const QLatin1String fallBackBaseClass("QWidget");
+        if (w)
+            break;
+        // 4) fallBack
+        const QString fallBackBaseClass = m_strings.m_qWidget;
         QDesignerWidgetDataBaseInterface *db = core()->widgetDataBase();
         QDesignerWidgetDataBaseItemInterface *item = db->item(db->indexOfClassName(widgetName));
         if (item == 0) {
@@ -193,7 +238,7 @@ QWidget *WidgetFactory::createWidget(const QString &widgetName, QWidget *parentW
         }
         w = createWidget(baseClass, parentWidget);
         promoteWidget(core(),w,widgetName);
-    }
+    } while (false);
 
     Q_ASSERT(w != 0);
 
@@ -294,14 +339,14 @@ QLayout *WidgetFactory::createLayout(QWidget *widget, QLayout *parentLayout, int
         // Calling Q3GroupBox::setOrientation() invoked in turn setSpacing(0). Below fixes that
         widget->layout()->setSpacing(-1);
     } else if (widget->inherits("QLayoutWidget")) {
-        sheet->setProperty(sheet->indexOf(QLatin1String("leftMargin")), 0);
-        sheet->setProperty(sheet->indexOf(QLatin1String("topMargin")), 0);
-        sheet->setProperty(sheet->indexOf(QLatin1String("rightMargin")), 0);
-        sheet->setProperty(sheet->indexOf(QLatin1String("bottomMargin")), 0);
+        sheet->setProperty(sheet->indexOf(m_strings.m_leftMargin), 0);
+        sheet->setProperty(sheet->indexOf(m_strings.m_topMargin), 0);
+        sheet->setProperty(sheet->indexOf(m_strings.m_rightMargin), 0);
+        sheet->setProperty(sheet->indexOf(m_strings.m_bottomMargin), 0);
     }
 
     if (sheet)
-        sheet->setChanged(sheet->indexOf(QLatin1String("alignment")), true);
+        sheet->setChanged(sheet->indexOf(m_strings.m_alignment), true);
 
     if (metaDataBase->item(widget->layout()) == 0) {
         Q_ASSERT(layout->parent() == 0);
@@ -374,13 +419,13 @@ void WidgetFactory::initialize(QObject *object) const
     if (!sheet)
         return;
 
-    sheet->setChanged(sheet->indexOf(QLatin1String("objectName")), true);
-    sheet->setChanged(sheet->indexOf(QLatin1String("geometry")), true);
+    sheet->setChanged(sheet->indexOf(m_strings.m_objectName), true);
+    sheet->setChanged(sheet->indexOf(m_strings.m_geometry), true);
 
     if (qobject_cast<Spacer*>(object))
-        sheet->setChanged(sheet->indexOf(QLatin1String("sizeHint")), true);
+        sheet->setChanged(sheet->indexOf(m_strings.m_sizeHint), true);
 
-    int o = sheet->indexOf(QLatin1String("orientation"));
+    const int o = sheet->indexOf(m_strings.m_orientation);
     if (o != -1 && object->inherits("QSplitter"))
         sheet->setChanged(o, true);
 
@@ -394,20 +439,20 @@ void WidgetFactory::initialize(QObject *object) const
     }
 
     if (qobject_cast<QDockWidget*>(object) || qobject_cast<QToolBar*>(object)) {
-        sheet->setVisible(sheet->indexOf(QLatin1String("windowTitle")), true);
+        sheet->setVisible(sheet->indexOf(m_strings.m_windowTitle), true);
 
         if (qobject_cast<QDockWidget*>(object)) {
-            sheet->setVisible(sheet->indexOf(QLatin1String("windowIcon")), true);
+            sheet->setVisible(sheet->indexOf(m_strings.m_windowIcon), true);
         }
     }
 
     if (qobject_cast<QAction*>(object)) {
-        sheet->setChanged(sheet->indexOf(QLatin1String("text")), true);
+        sheet->setChanged(sheet->indexOf(m_strings.m_text), true);
     }
 
     if (qobject_cast<QMenu*>(object)) {
-        sheet->setChanged(sheet->indexOf(QLatin1String("geometry")), false);
-        sheet->setChanged(sheet->indexOf(QLatin1String("title")), true);
+        sheet->setChanged(sheet->indexOf(m_strings.m_geometry), false);
+        sheet->setChanged(sheet->indexOf(m_strings.m_title), true);
     }
 
     if (qobject_cast<QMenu*>(object) || qobject_cast<QMenuBar*>(object)) {
@@ -466,6 +511,7 @@ static bool isTabBarInteractor(const QTabBar *tabBar)
 
 bool WidgetFactory::isPassiveInteractor(QWidget *widget)
 {
+    static const QString qtPassive = QLatin1String("__qt__passive_");
     if (m_lastPassiveInteractor != 0 && (QWidget*)(*m_lastPassiveInteractor) == widget)
         return m_lastWasAPassiveInteractor;
 
@@ -502,7 +548,7 @@ bool WidgetFactory::isPassiveInteractor(QWidget *widget)
         }
     } else if (qstrcmp(widget->metaObject()->className(), "QDockWidgetTitle") == 0)
         return (m_lastWasAPassiveInteractor = true);
-    else if (widget->objectName().startsWith(QLatin1String("__qt__passive_")))
+    else if (widget->objectName().startsWith(qtPassive))
         return (m_lastWasAPassiveInteractor = true);
     return m_lastWasAPassiveInteractor;
 }

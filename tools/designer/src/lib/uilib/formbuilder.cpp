@@ -110,7 +110,8 @@ QFormBuilder::~QFormBuilder()
 QWidget *QFormBuilder::create(DomWidget *ui_widget, QWidget *parentWidget)
 {
     QFormBuilderExtra::instance(this)->setProcessingLayoutWidget(false);
-    if (ui_widget->attributeClass() == QLatin1String("QWidget") && !ui_widget->hasAttributeNative()
+    static const QString qWidget = QLatin1String("QWidget");
+    if (ui_widget->attributeClass() == qWidget && !ui_widget->hasAttributeNative()
             && parentWidget
 #ifndef QT_NO_MAINWINDOW
             && !qobject_cast<QMainWindow *>(parentWidget)
@@ -154,15 +155,22 @@ QWidget *QFormBuilder::createWidget(const QString &widgetName, QWidget *parentWi
 #endif
 
     // ### special-casing for Line (QFrame) -- fix for 4.2
-    if (widgetName == QLatin1String("Line")) {
-        w = new QFrame(parentWidget);
-        static_cast<QFrame*>(w)->setFrameStyle(QFrame::HLine | QFrame::Sunken);
-    }
+    static const QString line = QLatin1String("Line");
+    do {
+        if (widgetName == line) {
+            w = new QFrame(parentWidget);
+            static_cast<QFrame*>(w)->setFrameStyle(QFrame::HLine | QFrame::Sunken);
+            break;
+        }
+        const QByteArray widgetNameBA = widgetName.toUtf8();
+        const char *widgetNameC = widgetNameBA.constData();
+        if (w) { // symmetry for macro
+        }
 
 #define DECLARE_LAYOUT(L, C)
 #define DECLARE_COMPAT_WIDGET(W, C)
-#define DECLARE_WIDGET(W, C) else if (widgetName == QLatin1String(#W)) { Q_ASSERT(w == 0); w = new W(parentWidget); }
-#define DECLARE_WIDGET_1(W, C) else if (widgetName == QLatin1String(#W)) { Q_ASSERT(w == 0); w = new W(0, parentWidget); }
+#define DECLARE_WIDGET(W, C) else if (!qstrcmp(widgetNameC, #W)) { Q_ASSERT(w == 0); w = new W(parentWidget); }
+#define DECLARE_WIDGET_1(W, C) else if (!qstrcmp(widgetNameC, #W)) { Q_ASSERT(w == 0); w = new W(0, parentWidget); }
 
 #include "widgets.table"
 
@@ -171,11 +179,14 @@ QWidget *QFormBuilder::createWidget(const QString &widgetName, QWidget *parentWi
 #undef DECLARE_WIDGET
 #undef DECLARE_WIDGET_1
 
-    if (w == 0) { // try with a registered custom widget
+        if (w)
+            break;
+
+        // try with a registered custom widget
         QDesignerCustomWidgetInterface *factory = m_customWidgets.value(widgetName);
         if (factory != 0)
             w = factory->createWidget(parentWidget);
-    }
+    } while(false);
 
     if (w == 0) { // nothing to do
         qWarning() << QObject::tr("QFormBuilder was unable to create a widget of the class '%1'.").arg(widgetName);

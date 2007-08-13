@@ -73,8 +73,38 @@ public slots:
     void loadPlugins();
 
 private:
+    struct Strings { // Reduce string allocations by storing predefined strings
+        Strings();
+        const QString m_alignment;
+        const QString m_bottomMargin;
+        const QString m_geometry;
+        const QString m_leftMargin;
+        const QString m_line;
+        const QString m_objectName;
+        const QString m_orientation;
+        const QString m_q3WidgetStack;
+        const QString m_qAction;
+        const QString m_qAxWidget;
+        const QString m_qDialog;
+        const QString m_qDockWidget;
+        const QString m_qLayoutWidget;
+        const QString m_qMenu;
+        const QString m_qMenuBar;
+        const QString m_qWidget;
+        const QString m_rightMargin;
+        const QString m_sizeHint;
+        const QString m_spacer;
+        const QString m_text;
+        const QString m_title;
+        const QString m_topMargin;
+        const QString m_windowIcon;
+        const QString m_windowTitle;
+    };
+
     QWidget* createCustomWidget(const QString &className, QWidget *parentWidget) const;
-    
+    QDesignerFormWindowInterface *findFormWindow(QWidget *parentWidget) const;
+
+    const Strings m_strings;
     QDesignerFormEditorInterface *m_core;
     typedef QMap<QString, QDesignerCustomWidgetInterface*> CustomWidgetFactoryMap;
     CustomWidgetFactoryMap m_customFactory;
