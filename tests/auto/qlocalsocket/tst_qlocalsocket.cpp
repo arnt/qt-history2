@@ -18,7 +18,7 @@
 #include <qlocalserver.h>
 
 //TESTED_CLASS=QLocalServer, QLocalSocket
-//TESTED_FILES=qlocalserver.h qlocalserver.cpp qlocalsocket.h qlocalsocket.cpp
+//TESTED_FILES=tests/auto/qlocalsocket/src/qlocalserver.cpp tests/auto/qlocalsocket/src/qlocalsocket.cpp
 
 class tst_QLocalSocket : public QObject
 {
