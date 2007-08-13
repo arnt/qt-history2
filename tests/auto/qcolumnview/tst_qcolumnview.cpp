@@ -396,6 +396,7 @@ void tst_QColumnView::clicked()
     QTest::qWait(ANIMATION_DELAY);
 
     QModelIndex parent = home.parent();
+    QVERIFY(parent.isValid());
 
     //child = child.sibling(child.row()-1, 0);
 
@@ -404,6 +405,7 @@ void tst_QColumnView::clicked()
 
     // find the column to click on that contains child
     QRect rect = view.visualRect(parent);
+    QVERIFY(!rect.isNull());
     TRY_VERIFY(view.isVisible());
     QPoint globalPoint = view.mapToGlobal(rect.center());
     QVERIFY(!globalPoint.isNull());
