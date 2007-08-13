@@ -15,7 +15,7 @@
 #include <qsharedmemory.h>
 
 //TESTED_CLASS=QSharedMemory
-//TESTED_FILES=core/io/qsharedmemory.h gcore/io/qsharedmemory.cpp
+//TESTED_FILES=corelib/kernel/qsharedmemory.cpp
 
 #define EXISTING_SHARE "existing"
 #define EXISTING_SIZE 1024
