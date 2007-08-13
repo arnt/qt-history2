@@ -96,24 +96,24 @@
     multiple inheritance is used, they must come from the first
     inherited class.
 
-    The type in a Q_PROPERTY() declaration can be any QVariant
-    supported type, or it can be a user-defined type.
+    The type of a property declared with Q_PROPERTY(), can be any type
+    supported by QVariant, or it can be a user-defined type. In this
+    example, class QDate is considered a user-defined type.
 
     \code
         Q_PROPERTY(QDate date READ getDate WRITE setDate)
     \endcode
 
-    Since the date property's type is the user-defined QDate class,
-    the \c{<QDate>} header file must be included for the above
-    property declaration.
+    Because QDate is user-defined, you must include the \c{<QDate>}
+    header file with the property declaration.
 
-    In the case of QList and QMap properties, the property value is a
-    QVariant whose value is the entire list or map.  Note that the
-    Q_PROPERTY string cannot contain commas, since commas separate
-    macro arguments. Therefore, you must type \c QMap instead of \c
-    QMap<QString,QVariant>. For coherence, we also expect the same for
-    \c QValueList<QVariant>, the other template class supported by
-    QVariant.
+    For QMap, QList, and QValueList properties, the property value is
+    a QVariant whose value is the entire list or map.  Note that the
+    Q_PROPERTY string cannot contain commas, because commas separate
+    macro arguments. Therefore, you must use \c QMap as the property
+    type instead of \c QMap<QString,QVariant>. For consistency, also
+    use \c QList and \c QValueList instead of \c QList<QVariant> and
+    \c QValueList<QVariant>.
 
     \section1 Reading and Writing Properties with the Meta-Object System
 
@@ -126,7 +126,6 @@
     \code
         QPushButton *button = new QPushButton;
         QObject *object = button;
-        // button and object point to the same object
 
         button->setDown(true);
         object->setProperty("down", true);
@@ -163,18 +162,18 @@
     Suppose we have a class MyClass, which is derived from QObject and
     which contains the Q_OBJECT macro in its private section. We want
     to declare a property in MyClass to keep track of priorty value.
-    The type of the property will be an enum defined in the class.
+    The type of the property will be an enumeration type defined in
+    the class.
 
-    We include a Q_PROPERTY() macro in the private section of MyClass
-    to declare the property. The property is named priority, and its
-    type is enum Property.  The required \c READ function is also
-    named priority, and we include a \c WRITE function named
-    setPriority.  We must register enum Priority in the \l
-    {Meta-Object System} to make its values available as strings for
-    use in calls to QObject::setProperty(). The Q_ENUMS() macro is
-    used for this. We must also include our own declarations for the
-    \c READ and \c WRITE functions. The MyClass declaration then looks
-    like this:
+    Declare the property \c priority with enumeration type \c Priority
+    using a Q_PROPERTY() macro in the private section of the class.
+    The required \c READ function is also named \c priority, and the
+    \c WRITE function is named \c setPriority. The enumeration type
+    must be registered with the \l {Meta-Object System} to make its
+    enumeration values available as strings for use in calls to
+    QObject::setProperty(). The Q_ENUMS() macro is used for this.
+    Declarations for the \c READ and \c WRITE functions must also be
+    included. The declaration of MyClass then looks like this:
 
     \code
         class MyClass : public QObject
@@ -195,9 +194,9 @@
     \endcode
 
     The \c READ function is const and returns the property type. The
-    \c WRITE function returns void and has exactly one parameter,
-    which is of the property type. The meta-object compiler enforces
-    these requirements.
+    \c WRITE function returns void and has exactly one parameter of
+    the property type. The meta-object compiler enforces these
+    requirements.
 
     Given a pointer to an instance of MyClass or a pointer to an
     instance of QObject that happens to be an instance of MyClass, we
@@ -211,19 +210,46 @@
         object->setProperty("priority", "VeryHigh");
     \endcode
 
-
-    \section2 Using Enums and Flags as property types.
-
-    If you want to register an enum that is declared in another class,
-    the enum must be fully qualified with the name of the class
-    defining it. In addition, the class defining the enum has to
-    inherit QObject as well as declare the enum using Q_ENUMS().
+    In the example, the enumeration type used for the property type
+    was locally declared in MyClass. Had it been declared in another
+    class, its fully qualified name (i.e., OtherClass::Priority) would
+    be required.  In addition, that other class must also inherit
+    QObject and register the enum type using Q_ENUMS().
 
     A similar macro, Q_FLAGS(), is also available. Like Q_ENUMS(), it
-    registers an enumeration type but marks it as a set of \e flags,
-    i.e. the enumeration values can be OR'd together. An I/O class
-    might have enumeration values \c Read and \c Write and accept
-    \c{Read | Write}. 
+    registers an enumeration type, but it marks the type as being a
+    set of \e flags, i.e. values that can be OR'd together. An I/O
+    class might have enumeration values \c Read and \c Write and then
+    QObject::setProperty() could accept \c{Read | Write}. Q_FLAGS()
+    should be used to register this enumeration type.
+
+    \section1 Dynamic Properties
+
+    QObject::setProperty() can also be used to add \e new properties
+    to an instance of a class at runtime. When it is called with a
+    name and a value, if a property with the given name exists in the
+    QObject, and if the given value is compatible with the property's
+    type, the value is stored in the property, and true is returned.
+    If the value is \e not compatible with the property's type, the
+    property is \e not changed, and false is returned. But if the
+    property with the given name doesn't exist in the QObject (i.e.,
+    if it wasn't declared with Q_PROPERTY(), a new property with the
+    given name and value is automatically added to the QObject, but
+    false is still returned. This means that a return of false can't
+    be used to determine whether a partyicular property was actually
+    set, unless you know in advance that the property already exists
+    in the QObject.
+
+    Note that \e dynamic properties are added on a per instance basis,
+    i.e., they are added to QObject, not QMetaObject. A property can
+    be removed from an instance by passing the property name and an
+    invalid QVariant value to QObject::setProperty(). The default
+    constructor for QVariant constructs an invalid QVariant.
+
+    Dynamic properties can be queried with QObject::property(), just
+    like properties declared at compile time with Q_PROPERTY().
+
+    \sa {Meta-Object System}, {Signals and Slots}
 
     \section1 Adding Additional Information to a Class
 
@@ -237,15 +263,4 @@
 
     Like other meta-data, class information is accessible at run-time
     through the meta-object; see QMetaObject::classInfo() for details.
-
-    \section1 Dynamic Properties
-
-    In addition to properties defined using Q_PROPERTY in a class it is possible
-    to dynamically add and remove properties to any QObject at run-time.
-
-    If setProperty is called with a property not statically defined using Q_PROPERTY
-    it is automatically added as dynamic property and its value is stored in the object.
-    The value can be queried using the property() method, just like with static properties.
-
-    \sa {Meta-Object System}, {Signals and Slots}
 */
