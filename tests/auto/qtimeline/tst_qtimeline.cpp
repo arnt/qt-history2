@@ -18,7 +18,7 @@ QTEST_NOOP_MAIN
 #include <qtimeline.h>
 
 //TESTED_CLASS=QTimeLine
-//TESTED_FILES=qtimeline.h qtimeline.cpp
+//TESTED_FILES=corelib/tools/qtimeline.cpp
 
 class tst_QTimeLine : public QObject {
   Q_OBJECT
