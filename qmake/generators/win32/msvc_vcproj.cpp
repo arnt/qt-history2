@@ -1180,7 +1180,7 @@ void VcprojGenerator::initTranslationFiles()
 {
     vcProject.TranslationFiles.Name = "Translation Files";
     vcProject.TranslationFiles.ParseFiles = _False;
-    vcProject.TranslationFiles.Filter = "ts";
+    vcProject.TranslationFiles.Filter = "ts;xlf";
     vcProject.TranslationFiles.Guid = _GUIDTranslationFiles;
 
     vcProject.TranslationFiles.addFiles(project->values("TRANSLATIONS"));
@@ -1211,7 +1211,7 @@ void VcprojGenerator::initResourceFiles()
 {
     vcProject.ResourceFiles.Name = "Resource Files";
     vcProject.ResourceFiles.ParseFiles = _False;
-    vcProject.ResourceFiles.Filter = "qrc;*"; //"rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;ts;qrc";
+    vcProject.ResourceFiles.Filter = "qrc;*"; //"rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;ts;xlf;qrc";
     vcProject.ResourceFiles.Guid = _GUIDResourceFiles;
 
     // Bad hack, please look away -------------------------------------
