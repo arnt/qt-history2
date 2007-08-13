@@ -70,7 +70,7 @@ bool QGLFormat::hasOpenGL()
 
 bool QGLFormat::hasOpenGLOverlays()
 {
-    return true;
+    return false;
 }
 
 
@@ -670,6 +670,9 @@ void QGLWidgetPrivate::init(QGLContext *context, const QGLWidget* shareWidget)
     initContext(context, shareWidget);
     olcx = 0;
 
+#if 0
+    // overlays are not supported by the GL drivers on the Mac..
+    // ### remove all overlay code for Qt 5.0
     if(q->isValid() && glcx->format().hasOverlay()) {
         olcx = new QGLContext(QGLFormat::defaultOverlayFormat(), q);
         if(!olcx->create(shareWidget ? shareWidget->overlayContext() : 0)) {
@@ -678,6 +681,7 @@ void QGLWidgetPrivate::init(QGLContext *context, const QGLWidget* shareWidget)
             glcx->d_func()->glFormat.setOverlay(false);
         }
     }
+#endif    
     //updatePaintDevice();
 }
 
