@@ -406,6 +406,7 @@ void tst_QColumnView::clicked()
     QRect rect = view.visualRect(parent);
     TRY_VERIFY(view.isVisible());
     QPoint globalPoint = view.mapToGlobal(rect.center());
+    QVERIFY(!globalPoint.isNull());
     QWidget *w = QApplication::widgetAt(globalPoint);
     QVERIFY(w);
     QPoint localPoint = w->mapFromGlobal(globalPoint);
