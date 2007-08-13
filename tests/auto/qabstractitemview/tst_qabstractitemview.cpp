@@ -959,18 +959,14 @@ void tst_QAbstractItemView::setItemDelegate()
 
     QModelIndex index = v.model()->index(0, 0);
     v.edit(index);
-    QTest::qWait(100);
 
     // This will close the editor
+    TRY_COMPARE(QApplication::focusWidget() == 0, false);
     QWidget *editor = QApplication::focusWidget();
     QVERIFY(editor);
     editor->hide();
     delete editor;
     QCOMPARE(model.setData_count, 1);
-
-
-
-
 }
 
 QTEST_MAIN(tst_QAbstractItemView)
