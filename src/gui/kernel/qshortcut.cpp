@@ -45,7 +45,7 @@
     \target mnemonic
 
     On certain widgets, using '&' in front of a character will
-    autmatically create a mnemonic (a shortcut) for that character,
+    automatically create a mnemonic (a shortcut) for that character,
     e.g. "E&xit" will create the shortcut \gui Alt+X (use '&&' to
     display an actual ampersand). The widget might consume and perform
     an action on a given shortcut. On X11 the ampersand will not be
