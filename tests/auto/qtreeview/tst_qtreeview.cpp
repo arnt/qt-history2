@@ -153,6 +153,7 @@ private slots:
     void selectionWithHiddenItems();
 
     void proxyRowsRemoved();
+    void disabledButCheckable();
 };
 
 class QtTestModel: public QAbstractItemModel
@@ -2205,6 +2206,29 @@ void tst_QTreeView::removeAndInsertExpandedCol0()
 
     view.show();
     qApp->processEvents();
+}
+
+void tst_QTreeView::disabledButCheckable()
+{
+    QTreeView view;
+    QStandardItemModel model;
+    QStandardItem *item;
+    item = new QStandardItem(QLatin1String("Row 1 Item"));
+    model.insertRow(0, item);
+
+    item = new QStandardItem(QLatin1String("Row 2 Item"));
+    item->setCheckable(true);
+    item->setEnabled(false);
+    model.insertRow(1, item);
+
+    view.setModel(&model);
+    view.setCurrentIndex(model.index(1,0));
+    QCOMPARE(item->checkState(), Qt::Unchecked);
+    view.show();
+    QTest::qWait(2000);
+    
+    QTest::keyClick(&view, Qt::Key_Space);
+    QCOMPARE(item->checkState(), Qt::Unchecked);
 }
 
 // Task 160990

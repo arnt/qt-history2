@@ -1192,7 +1192,8 @@ bool QItemDelegate::editorEvent(QEvent *event,
 
     // make sure that the item is checkable
     Qt::ItemFlags flags = model->flags(index);
-    if (!(flags & Qt::ItemIsUserCheckable) || !(option.state & QStyle::State_Enabled))
+    if (!(flags & Qt::ItemIsUserCheckable) || !(option.state & QStyle::State_Enabled) 
+        || !(flags & Qt::ItemIsEnabled))
         return false;
 
     // make sure that we have a check state
