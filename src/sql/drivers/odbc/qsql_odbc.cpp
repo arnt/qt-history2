@@ -60,7 +60,7 @@ class QODBCDriverPrivate
 {
 public:
     QODBCDriverPrivate()
-    : hEnv(0), hDbc(0), useSchema(false), disconnectCount(0), isMySqlServer(false)
+    : hEnv(0), hDbc(0), useSchema(false), disconnectCount(0), isMySqlServer(false), hasSQLFetchScroll(true)
     {
         sql_char_type = sql_varchar_type = sql_longvarchar_type = QVariant::ByteArray;
         unicode = false;
@@ -76,10 +76,12 @@ public:
     QVariant::Type sql_longvarchar_type;
     int disconnectCount;
     bool isMySqlServer;
+    bool hasSQLFetchScroll;
 
     bool checkDriver() const;
     void checkUnicode();
     void checkMySqlServer();
+    void checkHasSQLFetchScroll();
     void checkSchemaUsage();
     bool setConnectionOptions(const QString& connOpts);
     void splitTableQualifier(const QString &qualifier, QString &catalog,
@@ -90,7 +92,7 @@ class QODBCPrivate
 {
 public:
     QODBCPrivate()
-    : hEnv(0), hDbc(0), hStmt(0), useSchema(false)
+    : hEnv(0), hDbc(0), hStmt(0), useSchema(false), hasSQLFetchScroll(true)
     {
         sql_char_type = sql_varchar_type = sql_longvarchar_type = QVariant::ByteArray;
         unicode = false;
@@ -113,6 +115,7 @@ public:
     QVector<QVariant> fieldCache;
     int fieldCacheIdx;
     int disconnectCount;
+    bool hasSQLFetchScroll;
 
     bool isStmtHandleValid(const QSqlDriver *driver);
     void updateStmtHandleState(const QSqlDriver *driver);
@@ -690,6 +693,7 @@ QODBCResult::QODBCResult(const QODBCDriver * db, QODBCDriverPrivate* p)
     d->sql_varchar_type = p->sql_varchar_type;
     d->sql_longvarchar_type = p->sql_longvarchar_type;
     d->disconnectCount = p->disconnectCount;
+    d->hasSQLFetchScroll = p->hasSQLFetchScroll;
 }
 
 QODBCResult::~QODBCResult()
@@ -817,9 +821,14 @@ bool QODBCResult::fetchNext()
 {
     SQLRETURN r;
     d->clearValues();
-    r = SQLFetchScroll(d->hStmt,
-                       SQL_FETCH_NEXT,
-                       0);
+
+    if (d->hasSQLFetchScroll)
+        r = SQLFetchScroll(d->hStmt,
+                           SQL_FETCH_NEXT,
+                           0);
+    else
+        r = SQLFetch(d->hStmt);
+
     if (r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO) {
         if (r != SQL_NO_DATA)
             setLastError(qMakeError(QCoreApplication::translate("QODBCResult",
@@ -1548,7 +1557,7 @@ bool QODBCDriver::open(const QString & db,
     d->checkUnicode();
     d->checkSchemaUsage();
     d->checkMySqlServer();
-
+    d->checkHasSQLFetchScroll();
     setOpen(true);
     setOpenError(false);
     return true;
@@ -1641,7 +1650,6 @@ void QODBCDriverPrivate::checkUnicode()
 bool QODBCDriverPrivate::checkDriver() const
 {
 #ifdef ODBC_CHECK_DRIVER
-    // do not query for SQL_API_SQLFETCHSCROLL because it can't be used at this time
     static const SQLUSMALLINT reqFunc[] = {
                 SQL_API_SQLDESCRIBECOL, SQL_API_SQLGETDATA, SQL_API_SQLCOLUMNS,
                 SQL_API_SQLGETSTMTATTR, SQL_API_SQLGETDIAGREC, SQL_API_SQLEXECDIRECT,
@@ -1655,7 +1663,6 @@ bool QODBCDriverPrivate::checkDriver() const
 
     SQLRETURN r;
     SQLUSMALLINT sup;
-
 
     int i;
     // check the required functions
@@ -1724,6 +1731,16 @@ void QODBCDriverPrivate::checkMySqlServer()
 #else
         isMySqlServer = QString::fromLocal8Bit(serverString, t).contains(QLatin1String("mysql"), Qt::CaseInsensitive);
 #endif
+}
+
+void QODBCDriverPrivate::checkHasSQLFetchScroll()
+{
+    SQLUSMALLINT sup;
+    SQLRETURN r = SQLGetFunctions(hDbc, SQL_API_SQLFETCHSCROLL, &sup);
+    if (r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO || sup != SQL_TRUE) {
+        hasSQLFetchScroll = false;
+        qWarning("QODBCDriver::checkHasSQLFetchScroll: Warning - Driver doesn't support scrollable result sets, use forward only mode for queries");
+    }
 }
 
 QSqlResult *QODBCDriver::createResult() const
@@ -1843,15 +1860,24 @@ QStringList QODBCDriver::tables(QSql::TableType type) const
 
     if (r != SQL_SUCCESS)
         qSqlWarning(QLatin1String("QODBCDriver::tables Unable to execute table list"), d);
-    r = SQLFetchScroll(hStmt,
-                        SQL_FETCH_NEXT,
-                        0);
+
+    if (d->hasSQLFetchScroll)
+        r = SQLFetchScroll(hStmt,
+                           SQL_FETCH_NEXT,
+                           0);
+    else
+        r = SQLFetch(hStmt);
+
     while (r == SQL_SUCCESS) {
         QString fieldVal = qGetStringData(hStmt, 2, -1, d->unicode);
         tl.append(fieldVal);
-        r = SQLFetchScroll(hStmt,
-                            SQL_FETCH_NEXT,
-                            0);
+
+        if (d->hasSQLFetchScroll)
+            r = SQLFetchScroll(hStmt,
+                               SQL_FETCH_NEXT,
+                               0);
+        else
+            r = SQLFetch(hStmt);
     }
 
     r = SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
@@ -1935,9 +1961,14 @@ QSqlIndex QODBCDriver::primaryIndex(const QString& tablename) const
                 usingSpecialColumns = true;
             }
     }
-    r = SQLFetchScroll(hStmt,
-                        SQL_FETCH_NEXT,
-                        0);
+
+    if (d->hasSQLFetchScroll)
+        r = SQLFetchScroll(hStmt,
+                           SQL_FETCH_NEXT,
+                           0);
+    else
+        r = SQLFetch(hStmt);
+
     int fakeId = 0;
     QString cName, idxName;
     // Store all fields in a StringList because some drivers can't detail fields in this FETCH loop
@@ -1951,9 +1982,14 @@ QSqlIndex QODBCDriver::primaryIndex(const QString& tablename) const
         }
         index.append(rec.field(cName));
         index.setName(idxName);
-        r = SQLFetchScroll(hStmt,
-                            SQL_FETCH_NEXT,
-                            0);
+
+        if (d->hasSQLFetchScroll)
+            r = SQLFetchScroll(hStmt,
+                               SQL_FETCH_NEXT,
+                               0);
+        else
+            r = SQLFetch(hStmt);
+
     }
     r = SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
     if (r!= SQL_SUCCESS)
@@ -2004,17 +2040,25 @@ QSqlRecord QODBCDriver::record(const QString& tablename) const
                      0);
     if (r != SQL_SUCCESS)
         qSqlWarning(QLatin1String("QODBCDriver::record: Unable to execute column list"), d);
-    r = SQLFetchScroll(hStmt,
-                        SQL_FETCH_NEXT,
-                        0);
+
+    if (d->hasSQLFetchScroll)
+        r = SQLFetchScroll(hStmt,
+                           SQL_FETCH_NEXT,
+                           0);
+    else
+        r = SQLFetch(hStmt);
+
     // Store all fields in a StringList because some drivers can't detail fields in this FETCH loop
     while (r == SQL_SUCCESS) {
 
         fil.append(qMakeFieldInfo(hStmt, d));
 
-        r = SQLFetchScroll(hStmt,
-                            SQL_FETCH_NEXT,
-                            0);
+        if (d->hasSQLFetchScroll)
+            r = SQLFetchScroll(hStmt,
+                               SQL_FETCH_NEXT,
+                               0);
+        else
+            r = SQLFetch(hStmt);
     }
 
     r = SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
