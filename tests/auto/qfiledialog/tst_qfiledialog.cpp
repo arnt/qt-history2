@@ -26,13 +26,25 @@
 #include <qlineedit.h>
 
 // Will try to wait for the condition while allowing event processing
-// for a maximum of 2 seconds.
-#define WAIT_FOR_CONDITION(expr, expected) \
+// for a maximum of 5 seconds.
+#define TRY_COMPARE(expr, expected) \
     do { \
-        const int step = 100; \
-        for (int i = 0; i < 2000 && expr != expected; i+=step) { \
+        const int step = 50; \
+        for (int i = 0; i < 5000 && ((expr) != (expected)); i+=step) { \
             QTest::qWait(step); \
         } \
+        QCOMPARE(expr, expected); \
+    } while(0)
+
+// Will try to wait for the condition while allowing event processing
+// for a maximum of 5 seconds.
+#define TRY_VERIFY(expr) \
+    do { \
+        const int step = 50; \
+        for (int i = 0; i < 5000 && !(expr); i+=step) { \
+            QTest::qWait(step); \
+        } \
+        QVERIFY(expr); \
     } while(0)
 
 //TESTED_CLASS=QFileDialog
@@ -401,6 +413,9 @@ void tst_QFiledialog::selectFile()
 
     // default value
     QCOMPARE(fd.selectedFiles().count(), 1);
+
+    fd.selectFile(QString());
+    QCOMPARE(fd.selectedFiles().count(), 1);
 }
 
 void tst_QFiledialog::selectFiles()
@@ -417,7 +432,7 @@ void tst_QFiledialog::selectFiles()
     QVERIFY(listView);
     for (int i = 0; i < list.count(); ++i) {
         fd.selectFile(fd.directory().path() + "/" + list.at(i));
-        QVERIFY(!listView->selectionModel()->selectedRows().isEmpty());
+        TRY_VERIFY(!listView->selectionModel()->selectedRows().isEmpty());
         toSelect.append(listView->selectionModel()->selectedRows().last());
     }
 
@@ -495,13 +510,13 @@ void tst_QFiledialog::focus()
 {
     QFileDialog fd;
     fd.show();
-    WAIT_FOR_CONDITION(fd.isVisible(), true);
+    TRY_COMPARE(fd.isVisible(), true);
     qApp->processEvents();
 
     QList<QWidget*> treeView = fd.findChildren<QWidget*>("fileNameEdit");
     QCOMPARE(treeView.count(), 1);
     QVERIFY(treeView.at(0));
-    WAIT_FOR_CONDITION(treeView.at(0)->hasFocus(), true);
+    TRY_COMPARE(treeView.at(0)->hasFocus(), true);
     QCOMPARE(treeView.at(0)->hasFocus(), true);
 }
 
@@ -655,9 +670,10 @@ void tst_QFiledialog::clearLineEdit()
     QVERIFY(list);
     QModelIndex root = list->rootIndex();
     QModelIndex subdir;
+    QVERIFY(list->model()->rowCount(root) > 0);
     for (int i = 0; i < list->model()->rowCount(root); ++i)
         if (list->model()->hasChildren(list->model()->index(i, 0, root)))
-                subdir = list->model()->index(i, 0, root);
+            subdir = list->model()->index(i, 0, root);
     QVERIFY(subdir.isValid());
 
     // saving a file the text shouldn't be cleared
