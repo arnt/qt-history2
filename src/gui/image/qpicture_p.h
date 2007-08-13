@@ -29,6 +29,7 @@
 #include "QtCore/qbuffer.h"
 #include "QtCore/qobjectdefs.h"
 #include "QtGui/qpicture.h"
+#include "QtGui/qpixmap.h"
 #include "QtCore/qrect.h"
 #include "private/qobject_p.h"
 
