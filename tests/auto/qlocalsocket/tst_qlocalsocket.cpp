@@ -180,7 +180,7 @@ void tst_QLocalSocket::listenAndConnect_data()
         int connections = i;
         if (i == 2) connections = 5;
         QTest::newRow(QString("null %1").arg(i).toLatin1()) << QString() << false << connections;
-        QTest::newRow(QString("foo %1").arg(i).toLatin1()) << "foo" << true << connections;
+        QTest::newRow(QString("tst_localsocket %1").arg(i).toLatin1()) << "tst_localsocket" << true << connections;
     }
 }
 
@@ -293,7 +293,7 @@ void tst_QLocalSocket::hitMaximumConnections()
 {
     QFETCH(int, max);
     LocalServer server;
-    QString name = "foo";
+    QString name = "tst_localsocket";
     server.setMaxPendingConnections(max);
     QCOMPARE(server.listen(name), true);
     int connections = server.maxPendingConnections() + 1;
