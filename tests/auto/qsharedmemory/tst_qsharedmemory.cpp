@@ -555,7 +555,7 @@ void tst_QSharedMemory::simpleThreadedProducerConsumer_data()
 {
     QTest::addColumn<bool>("producerIsThread");
     QTest::addColumn<int>("threads");
-    for (int i = 0; i < 10; ++i) {
+    for (int i = 0; i < 5; ++i) {
         QTest::newRow("1 consumer, producer is thread") << true << 1;
         QTest::newRow("1 consumer, producer is this") << false << 1;
         QTest::newRow("5 consumers, producer is thread") << true << 5;
@@ -589,9 +589,9 @@ void tst_QSharedMemory::simpleThreadedProducerConsumer()
     if (!producerIsThread)
         p.run();
 
-    p.wait();
+    p.wait(5000);
     while (!consumers.isEmpty()) {
-        QVERIFY(consumers.first()->wait(10000));
+        QVERIFY(consumers.first()->wait(5000));
         delete consumers.takeFirst();
     }
 }
