@@ -22,6 +22,17 @@
 //TESTED_CLASS=
 //TESTED_FILES=gui/itemviews/qabstractitemview.h gui/itemviews/qabstractitemview.cpp
 
+// Will try to wait for the condition while allowing event processing
+// for a maximum of 5 seconds.
+#define TRY_COMPARE(expr, expected) \
+    do { \
+        const int step = 50; \
+        for (int q = 0; q < 5000 && ((expr) != (expected)); q+=step) { \
+            QTest::qWait(step); \
+        } \
+        QCOMPARE(expr, expected); \
+    } while(0)
+
 class TestView : public QAbstractItemView
 {
     Q_OBJECT
@@ -649,29 +660,32 @@ void tst_QAbstractItemView::persistentEditorFocus()
 {
     QStandardItemModel model(1,3);
     for(int i = 0; i<model.columnCount();i++) {
-        model.setData( model.index(0,i), i);
+        model.setData(model.index(0,i), i);
     }
     QTableView view;
     view.setModel(&model);
 
-    view.openPersistentEditor( model.index(0,1));
-    view.openPersistentEditor(model.index(0,2));
+    view.openPersistentEditor(model.index(0, 1));
+    view.openPersistentEditor(model.index(0, 2));
 
     //these are spinboxes because we put numbers inside
     QList<QSpinBox*> list = view.viewport()->findChildren<QSpinBox*>();
     QCOMPARE(list.count(), 2); //these should be the 2 editors
 
-    view.setCurrentIndex( model.index(0,0));
-    QCOMPARE( view.currentIndex(), model.index(0,0));
+    view.setCurrentIndex(model.index(0,0));
+    QCOMPARE(view.currentIndex(), model.index(0,0));
     view.show();
-    QTest::qWait(500);
+    TRY_COMPARE(view.isVisible(), true);
+    QTest::qWait(100);
 
-    foreach(QSpinBox *spin, list) {
-        QMouseEvent mouseEvent(QEvent::MouseButtonPress, QPoint(10, 10), Qt::LeftButton,
+    for (int i = 0; i < list.count(); ++i) {
+        TRY_COMPARE(list.at(i)->isVisible(), true);
+        QPoint p = QPoint(5, 5);
+        QMouseEvent mouseEvent(QEvent::MouseButtonPress, p, Qt::LeftButton,
                                Qt::LeftButton, Qt::NoModifier);
-        qApp->sendEvent(spin, &mouseEvent);
-        QCOMPARE( qApp->focusWidget(), spin);
-        QCOMPARE( view.currentIndex(), model.index(0, spin->value()));
+        qApp->sendEvent(list.at(i), &mouseEvent);
+        TRY_COMPARE(qApp->focusWidget(), list.at(i));
+        QCOMPARE(view.currentIndex(), model.index(0, list.at(i)->value()));
     }
 }
 
