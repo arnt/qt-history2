@@ -743,9 +743,7 @@ void tst_QFiledialog::hooks()
     QCOMPARE(QFileDialog::getSaveFileName(), QString("saveName"));
 }
 
-#if defined Q_AUTOTEST_EXPORT
-extern bool QFileInfoGatherer_fetchedRoot;
-#endif
+bool Q_AUTOTEST_EXPORT QFileInfoGatherer_fetchedRoot;
 
 void tst_QFiledialog::listRoot()
 {
