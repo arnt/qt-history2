@@ -547,7 +547,7 @@ bool XLIFFHandler::fatalError( const QXmlParseException& exception )
     msg.sprintf( "Parse error at line %d, column %d (%s).",
                  exception.lineNumber(), exception.columnNumber(),
                  exception.message().toLatin1().data() );
-    if ( qApp == 0 )
+    if ( qobject_cast<QApplication*>(QCoreApplication::instance()) == 0 )
         qWarning("XML error: %s\n", msg.toLatin1().data() );
     else
         QMessageBox::information(0,
