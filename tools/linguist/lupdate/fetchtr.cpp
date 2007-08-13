@@ -916,7 +916,7 @@ void lupdateApplication::fetchtr_cpp( const QString &fileName, MetaTranslator *t
 
     startTokenizer( fileName, getCharFromFile, tor->codecForTr(),
         QTextCodec::codecForName(codecForSource) );
-    parse( tor, 0, defaultContext.toAscii() );
+    parse( tor, defaultContext.toAscii(), defaultContext.toAscii() );
     fclose( yyInFile );
 }
 
