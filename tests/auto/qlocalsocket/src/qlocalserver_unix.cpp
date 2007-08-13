@@ -29,10 +29,11 @@
 
 void QLocalServerPrivate::setError(const QString &function)
 {
-    switch (errno) {
-    case EAGAIN:
+    if (errno == EAGAIN)
         return;
-        break;
+
+    closeServer();
+    switch (errno) {
     case EACCES:
         errorString = QLocalServer::tr("%1: Permission denied").arg(function);
         error = QLocalServer::PermissionDeniedError;
@@ -58,7 +59,6 @@ void QLocalServerPrivate::setError(const QString &function)
         qWarning() << errorString << "serverNamePath:" << serverNamePath;
 #endif
     }
-    closeServer();
 }
 
 void QLocalServerPrivate::init()
