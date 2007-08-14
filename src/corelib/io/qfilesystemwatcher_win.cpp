@@ -205,10 +205,12 @@ QStringList QWindowsFileSystemWatcherEngine::addPaths(const QStringList &paths,
         it.remove();
     }
 
-    if (!isRunning())
+    if (!isRunning()) {
+        msg = '@';
         start();
-    else
+    } else {
         wakeup();
+    }
 
     return p;
 }
