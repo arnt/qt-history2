@@ -99,6 +99,9 @@ private slots:
 
     void clippedText();
 
+    void setOpacity_data();
+    void setOpacity();
+
 private:
     void fillData();
     QColor baseColor( int k, int intensity=255 );
@@ -1934,6 +1937,65 @@ void tst_QPainter::clippedText()
     }
 
     QVERIFY(true); // reached, don't trigger any valgrind errors
+}
+
+void tst_QPainter::setOpacity_data()
+{
+    QTest::addColumn<QImage::Format>("destFormat");
+    QTest::addColumn<QImage::Format>("srcFormat");
+
+    QTest::newRow("ARGB32P on ARGB32P") << QImage::Format_ARGB32_Premultiplied
+                                        << QImage::Format_ARGB32_Premultiplied;
+
+    QTest::newRow("ARGB32 on ARGB32") << QImage::Format_ARGB32
+                                      << QImage::Format_ARGB32;
+
+    QTest::newRow("RGB32 on RGB32") << QImage::Format_RGB32
+                                    << QImage::Format_RGB32;
+
+    QTest::newRow("RGB16 on RGB16") << QImage::Format_RGB16
+                                    << QImage::Format_RGB16;
+
+    QTest::newRow("RGB32 on RGB16") << QImage::Format_RGB16
+                                    << QImage::Format_RGB32;
+
+    QTest::newRow("RGB16 on RGB32") << QImage::Format_RGB32
+                                    << QImage::Format_RGB16;
+}
+
+void tst_QPainter::setOpacity()
+{
+    QFETCH(QImage::Format, destFormat);
+    QFETCH(QImage::Format, srcFormat);
+
+    const QSize imageSize(12, 12);
+    const QRect imageRect(QPoint(0, 0), imageSize);
+    QColor destColor = Qt::black;
+    QColor srcColor = Qt::white;
+
+    QImage dest(imageSize, destFormat);
+    QImage src(imageSize, srcFormat);
+
+    QPainter p;
+    p.begin(&dest);
+    p.fillRect(imageRect, destColor);
+    p.end();
+
+    p.begin(&src);
+    p.fillRect(imageRect, srcColor);
+    p.end();
+
+    p.begin(&dest);
+    p.setOpacity(0.5);
+    p.drawImage(imageRect, src, imageRect);
+    p.end();
+
+    QImage expected(imageSize, destFormat);
+    p.begin(&expected);
+    p.fillRect(imageRect, QColor(127, 127, 127));
+    p.end();
+
+    QCOMPARE(dest, expected);
 }
 
 QTEST_MAIN(tst_QPainter)
