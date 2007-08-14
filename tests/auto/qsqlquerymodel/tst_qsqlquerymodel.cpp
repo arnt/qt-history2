@@ -58,6 +58,8 @@ private slots:
     void withSortFilterProxyModel();
     void setQuerySignalEmission_data() { generic_data(); }
     void setQuerySignalEmission();
+    void setQueryWithNoRowsInResultSet_data() { generic_data(); }
+    void setQueryWithNoRowsInResultSet();
 
 private:
     void generic_data();
@@ -482,6 +484,26 @@ void tst_QSqlQueryModel::setQuerySignalEmission()
     QCOMPARE(modelRowsRemovedSpy.count(), 1);
     QCOMPARE(modelRowsRemovedSpy.value(0).value(1).toInt(), 0);
     QCOMPARE(modelRowsRemovedSpy.value(0).value(2).toInt(), 1);
+}
+
+// For task 170783: When the query's result set is empty no rows should be inserted,
+// i.e. no rowsAboutToBeInserted or rowsInserted signals should be emitted.
+void tst_QSqlQueryModel::setQueryWithNoRowsInResultSet()
+{
+    QFETCH(QString, dbName);
+    QSqlDatabase db = QSqlDatabase::database(dbName);
+    CHECK_DATABASE(db);
+
+    QSqlQueryModel model;
+    QSignalSpy modelRowsAboutToBeInsertedSpy(&model, SIGNAL(rowsAboutToBeInserted(const QModelIndex &, int, int)));
+    QSignalSpy modelRowsInsertedSpy(&model, SIGNAL(rowsInserted(const QModelIndex &, int, int)));
+
+    // The query's result set will be empty so no signals should be emitted!
+    QSqlQuery query(db);
+    QVERIFY2(query.exec("SELECT * FROM " + qTableName("test") + " where 0 = 1"), query.lastError().text().toLatin1());
+    model.setQuery(query); 
+    QCOMPARE(modelRowsAboutToBeInsertedSpy.count(), 0);
+    QCOMPARE(modelRowsInsertedSpy.count(), 0);
 }
 
 QTEST_MAIN(tst_QSqlQueryModel)
