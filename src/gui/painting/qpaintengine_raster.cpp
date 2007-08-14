@@ -4910,7 +4910,7 @@ void QSpanData::initTexture(const QImage *image, int alpha, TextureData::Type _t
     texture.bytesPerLine = image->bytesPerLine();
     texture.format = image->format();
     texture.colorTable = qt_image_colortable(*image);
-    texture.hasAlpha = image->format() != QImage::Format_RGB32 || alpha != 256;
+    texture.hasAlpha = image->hasAlphaChannel() || alpha != 256;
     texture.const_alpha = alpha;
     texture.type = _type;
 
