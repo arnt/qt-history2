@@ -16,6 +16,7 @@
 */
 
 #include "codemarker.h"
+#include "helpprojectwriter.h"
 #include "htmlgenerator.h"
 #include "node.h"
 #include "separator.h"
@@ -37,6 +38,7 @@ HtmlGenerator::HtmlGenerator()
 
 HtmlGenerator::~HtmlGenerator()
 {
+    delete helpProjectWriter;
 }
 
 void HtmlGenerator::initializeGenerator(const Config &config)
@@ -98,6 +100,16 @@ void HtmlGenerator::initializeGenerator(const Config &config)
     stylesheets = config.getStringList(HtmlGenerator::format() + Config::dot + HTMLGENERATOR_STYLESHEETS);
     customHeadElements = config.getStringList(HtmlGenerator::format() + Config::dot + HTMLGENERATOR_CUSTOMHEADELEMENTS);
     codeIndent = config.getInt(CONFIG_CODEINDENT);
+
+    QSet<QString> helpProjectNames = config.subVars(CONFIG_QHP);
+    QHash<QString, QString> helpProjectDefs;
+    foreach (QString helpProjectName, helpProjectNames) {
+        helpProjectDefs[helpProjectName] = config.getString(
+            CONFIG_QHP + Config::dot + helpProjectName);
+    }
+    if (helpProjectDefs.value("file").isEmpty())
+        helpProjectDefs["file"] = project.toLower() + ".qhp";
+    helpProjectWriter = new HelpProjectWriter(helpProjectDefs);
 }
 
 void HtmlGenerator::terminateGenerator()
@@ -162,6 +174,8 @@ void HtmlGenerator::generateTree(const Tree *tree, CodeMarker *marker)
     generateDcf("qmake", "qmake-manual.html", "qmake Manual", dcfQmakeRoot);
 
     generateIndex(project.toLower(), projectUrl, projectDescription);
+
+    helpProjectWriter->generate(tre, outputDir());
 }
 
 void HtmlGenerator::startText(const Node * /* relative */, CodeMarker * /* marker */)
@@ -377,6 +391,7 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
                 if ( !text.isEmpty() )
                     out() << " alt=\"" << protect( text ) << "\"";
                 out() << " />";
+                helpProjectWriter->addExtraFile(fileName);
             }
             if (atom->type() == Atom::Image)
                 out() << "</p>";

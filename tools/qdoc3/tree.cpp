@@ -1188,16 +1188,12 @@ QString Tree::fullDocumentName(const Node *node) const
         // The root namespace has no name - check for this before creating
         // an attribute containing the location of any documentation.
 
-        if (!node->name().isEmpty())
-            return node->name().toLower() + ".html";
+        if (!node->fileBase().isEmpty())
+            return node->fileBase() + ".html";
         else
             return "";
     } else if (node->type() == Node::Fake) {
-        QString base = node->name();
-	base.replace(QRegExp("[^A-Za-z0-9.]+"), "");
-	base = base.trimmed();
-	base = base.toLower();
-        return base;
+        return node->fileBase() + ".html";
     }
 
     QString parentName;
@@ -1211,31 +1207,31 @@ QString Tree::fullDocumentName(const Node *node) const
     switch (node->type()) {
         case Node::Class:
             if (parentNode && parentNode->type() == Node::Class)
-                return parentNode->name().toLower()
-                     + "-" + node->name().toLower()
+                return parentNode->fileBase().toLower()
+                     + "-" + node->fileBase().toLower()
                      + ".html";
             else
-                return node->name().toLower() + ".html";
+                return node->fileBase() + ".html";
         case Node::Function:
             {
                 // Functions can be overloaded.
                 const FunctionNode *functionNode = static_cast<const FunctionNode *>(node);
                 if (functionNode->overloadNumber() > 1)
-                    return parentName + "#" + node->name()
+                    return parentName + "#" + node->fileBase()
                            + "-" + QString::number(functionNode->overloadNumber());
-                return parentName + "#" + node->name();
+                return parentName + "#" + node->fileBase();
             }
 
         case Node::Enum:
-            return parentName + "#" + node->name() + "-enum";
+            return parentName + "#" + node->fileBase() + "-enum";
         case Node::Typedef:
-            return parentName + "#" + node->name() + "-typedef";
+            return parentName + "#" + node->fileBase() + "-typedef";
         case Node::Property:
-            return parentName + "#" + node->name() + "-prop";
+            return parentName + "#" + node->fileBase() + "-prop";
         case Node::Variable:
-            return parentName + "#" + node->name() + "-var";
+            return parentName + "#" + node->fileBase() + "-var";
         case Node::Target:
-            return parentName + "#" + node->name();
+            return parentName + "#" + node->fileBase();
         case Node::Namespace:
         case Node::Fake:
         default:

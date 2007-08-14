@@ -11,6 +11,13 @@ edition.Desktop         = QtCore QtGui QtNetwork QtOpenGL QtSql QtSvg QtXml QtSc
                           QAxServer QtUiTools QtTest QtDBus
 edition.DesktopLight    = QtCore QtGui Qt3SupportLight QtTest
 
+qhp.file                = qt.qhp
+qhp.namespace           = Qt
+qhp.virtualFolder       = doc.trolltech.com
+qhp.indexTitle          = Qt Reference Documentation
+qhp.indexPage           = index.html
+qhp.extraFiles          = images/classic.css images/qt-logo.png images/trolltech-logo.png
+
 language                = Cpp
 
 headerdirs              = $QTDIR/src \

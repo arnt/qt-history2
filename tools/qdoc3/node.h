@@ -77,6 +77,8 @@ public:
 
     void clearRelated() { rel = 0; }
 
+    QString fileBase() const;
+
 protected:
     Node( Type type, InnerNode *parent, const QString& name );
 

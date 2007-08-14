@@ -105,6 +105,7 @@ private:
 #define CONFIG_OUTPUTLANGUAGE           "outputlanguage"
 #define CONFIG_OUTPUTFORMATS            "outputformats"
 #define CONFIG_PROJECT                  "project"
+#define CONFIG_QHP                      "qhp"
 #define CONFIG_SLOW                     "slow"
 #define CONFIG_SOURCEDIRS               "sourcedirs"
 #define CONFIG_SOURCES                  "sources"

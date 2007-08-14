@@ -35,6 +35,8 @@ struct NavigationBar
 };
 #endif
 
+class HelpProjectWriter;
+
 class HtmlGenerator : public PageGenerator
 {
 public:
@@ -139,6 +141,7 @@ private:
     DcfSection dcfLinguistRoot;
     DcfSection dcfAssistantRoot;
     DcfSection dcfQmakeRoot;
+    HelpProjectWriter *helpProjectWriter;
     bool inLink;
     bool inContents;
     bool inSectionHeading;

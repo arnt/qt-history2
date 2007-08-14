@@ -90,6 +90,17 @@ Node::ThreadSafeness Node::inheritedThreadSafeness() const
     return saf;
 }
 
+QString Node::fileBase() const
+{
+    QString base = name();
+    if (base.endsWith(".html"))
+        base.chop(5);
+    base.replace(QRegExp("[^A-Za-z0-9]+"), " ");
+    base = base.trimmed();
+    base.replace(" ", "-");
+    return base.toLower();
+}
+
 InnerNode::~InnerNode()
 {
     deleteChildren();

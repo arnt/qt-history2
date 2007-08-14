@@ -23,6 +23,7 @@ HEADERS += apigenerator.h \
            doc.h \
 	   editdistance.h \
 	   generator.h \
+           helpprojectwriter.h \
 	   htmlgenerator.h \
            jambiapiparser.h \
 	   javacodemarker.h \
@@ -66,6 +67,7 @@ SOURCES += apigenerator.cpp \
            doc.cpp \
 	   editdistance.cpp \
 	   generator.cpp \
+           helpprojectwriter.cpp \
 	   htmlgenerator.cpp \
            jambiapiparser.cpp \
 	   javacodemarker.cpp \
