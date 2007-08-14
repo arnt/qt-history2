@@ -3569,7 +3569,10 @@ QDebug operator<<(QDebug dbg, const QObject *o) {
     \macro Q_PROPERTY(...)
     \relates QObject
 
-    This macro declares a QObject property. The syntax is:
+    This macro is used for declaring properties in classes that
+    inherit QObject. Properties behave like class data members, but
+    they have additional features accessible through the \l
+    {Meta-Object System}.
 
     \code
         Q_PROPERTY(type name
@@ -3578,14 +3581,24 @@ QDebug operator<<(QDebug dbg, const QObject *o) {
                    [RESET resetFunction]
                    [DESIGNABLE bool]
                    [SCRIPTABLE bool]
-                   [STORED bool])
+                   [STORED bool]
+		   [USER bool])
     \endcode
 
+    The property name and type and the \c READ function are required.
+    The type can be any type supported by QVariant, or it can be a
+    user-defined type.  The other items are optional, but a \c WRITE
+    function is common.  The attributes default to true except \c USER,
+    which defaults to false.
+    
     For example:
 
     \code
-        Q_PROPERTY(QString title READ title WRITE setTitle)
+        Q_PROPERTY(QString title READ title WRITE setTitle USER true)
     \endcode
+
+    For more details about how to use this macro, and a more detailed
+    example of its use, see the discussion on \l {Qt's Property System}.
 
     \sa {Qt's Property System}
 */

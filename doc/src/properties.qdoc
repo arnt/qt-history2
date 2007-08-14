@@ -38,7 +38,7 @@
     \endcode
 
     A property behaves like a class data member, but it has additional
-    features that can be accessed through the \l {Meta-Object System}.
+    features accessible through the \l {Meta-Object System}.
 
     \list 
 
@@ -96,9 +96,9 @@
     multiple inheritance is used, they must come from the first
     inherited class.
 
-    The type of a property declared with Q_PROPERTY(), can be any type
-    supported by QVariant, or it can be a user-defined type. In this
-    example, class QDate is considered a user-defined type.
+    The property type can be any type supported by QVariant, or it can
+    be a user-defined type. In this example, class QDate is considered
+    a user-defined type.
 
     \code
         Q_PROPERTY(QDate date READ getDate WRITE setDate)
@@ -160,20 +160,21 @@
     \section1 A Simple Example
 
     Suppose we have a class MyClass, which is derived from QObject and
-    which contains the Q_OBJECT macro in its private section. We want
-    to declare a property in MyClass to keep track of priorty value.
-    The type of the property will be an enumeration type defined in
-    the class.
+    which uses the Q_OBJECT macro in its private section. We want to
+    declare a property in MyClass to keep track of a priorty
+    value. The name of the property will be \e priority, and its type
+    will be an enumeration type named \e Priority, which is defined in
+    MyClass.
 
-    Declare the property \c priority with enumeration type \c Priority
-    using a Q_PROPERTY() macro in the private section of the class.
-    The required \c READ function is also named \c priority, and the
-    \c WRITE function is named \c setPriority. The enumeration type
-    must be registered with the \l {Meta-Object System} to make its
-    enumeration values available as strings for use in calls to
-    QObject::setProperty(). The Q_ENUMS() macro is used for this.
-    Declarations for the \c READ and \c WRITE functions must also be
-    included. The declaration of MyClass then looks like this:
+    We declare the property with the Q_PROPERTY() macro in the private
+    section of the class. The required \c READ function is named \c
+    priority, and we include a \c WRITE function named \c setPriority.
+    The enumeration type must be registered with the \l {Meta-Object
+    System} using the Q_ENUMS() macro. Registering an enumeration type
+    makes the enumerator names available for use in calls to
+    QObject::setProperty(). We must also provide our own declarations
+    for the \c READ and \c WRITE functions. The declaration of MyClass
+    then might look like this:
 
     \code
         class MyClass : public QObject
