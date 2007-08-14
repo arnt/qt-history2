@@ -806,7 +806,7 @@ QSize QWorkspaceTitleBar::sizeHint() const
     used in an MDI application.
     \ingroup application
 
-    This class is depracated. Use QMdiArea instead.
+    This class is deprecated. Use QMdiArea instead.
 
     Multiple Document Interface (MDI) applications are typically
     composed of a main window containing a menu bar, a toolbar, and
