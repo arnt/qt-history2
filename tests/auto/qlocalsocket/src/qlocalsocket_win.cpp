@@ -200,7 +200,7 @@ bool QLocalSocket::setSocketDescriptor(int socketDescriptor,
     Q_D(QLocalSocket);
     setOpenMode(openMode);
     d->handle = (int*)socketDescriptor;
-    d->state = ConnectedState;
+    d->state = socketState;
     emit stateChanged(d->state);
     d->handleNotifier.setHandle(d->handle);
     return true;
