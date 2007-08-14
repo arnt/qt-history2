@@ -10,6 +10,7 @@
 #include <QtTest/QtTest>
 #include <QtGui>
 
+#include <qsqldriver.h>
 #include <qsqldatabase.h>
 #include <qsqlerror.h>
 #include <qsqlfield.h>
@@ -18,6 +19,8 @@
 
 #include <qsqlquerymodel.h>
 #include <qsortfilterproxymodel.h>
+
+#include "../qsqldatabase/tst_databases.h"
 
 //TESTED_CLASS=
 //TESTED_FILES=sql/gui/qsqlquerymodel.h sql/gui/qsqlquerymodel.cpp
@@ -32,22 +35,36 @@ public:
     tst_QSqlQueryModel();
     virtual ~tst_QSqlQueryModel();
 
-
 public slots:
     void initTestCase();
     void cleanupTestCase();
     void init();
     void cleanup();
+
 private slots:
+    void insertColumn_data() { generic_data(); }
     void insertColumn();
+    void removeColumn_data() { generic_data(); }
     void removeColumn();
+    void record_data() { generic_data(); }
     void record();
+    void setHeaderData_data() { generic_data(); }
     void setHeaderData();
+    void fetchMore_data() { generic_data(); }
     void fetchMore();
 
     //problem specific tests
+    void withSortFilterProxyModel_data() { generic_data(); }
     void withSortFilterProxyModel();
+    void setQuerySignalEmission_data() { generic_data(); }
     void setQuerySignalEmission();
+
+private:
+    void generic_data();
+    void dropTestTables(QSqlDatabase db);
+    void createTestTables(QSqlDatabase db);
+    void populateTestTables(QSqlDatabase db);
+    tst_Databases dbs;
 };
 
 /* Stupid class that makes protected members public for testing */
@@ -68,31 +85,62 @@ tst_QSqlQueryModel::~tst_QSqlQueryModel()
 
 void tst_QSqlQueryModel::initTestCase()
 {
-    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
-    db.setDatabaseName(":memory:");
-    if (!db.open())
-        QFAIL(QString("could not open sqlite database: ").append(db.lastError().text()).toLatin1());
-
-    QSqlQuery q;
-    QVERIFY2(q.exec("create table test(id int primary key, name varchar(20), title int)"),
-            q.lastError().text().toLatin1());
-    QVERIFY2(q.exec("insert into test values(1, 'harry', 1)"), q.lastError().text().toLatin1());
-    QVERIFY2(q.exec("insert into test values(2, 'trond', 2)"), q.lastError().text().toLatin1());
-
-    QVERIFY2(q.exec("create table test2(id int primary key, title varchar(20))"),
-            q.lastError().text().toLatin1());
-    QVERIFY2(q.exec("insert into test2 values(1, 'herr')"), q.lastError().text().toLatin1());
-    QVERIFY2(q.exec("insert into test2 values(2, 'mister')"), q.lastError().text().toLatin1());
-
-    QVERIFY2(q.exec("create table test3(id int primary key)"), q.lastError().text().toLatin1());
-    for (int i = 0; i < 260; i++)
-        QVERIFY2(q.exec(QString("insert into test3 values(%1)").arg(i)), q.lastError().text().toLatin1());
-
     qRegisterMetaType<QModelIndex>("QModelIndex");
+    dbs.open();
+    for (QStringList::ConstIterator it = dbs.dbNames.begin(); it != dbs.dbNames.end(); ++it) {
+	QSqlDatabase db = QSqlDatabase::database((*it));
+	CHECK_DATABASE(db);
+	dropTestTables(db); //in case of leftovers
+	createTestTables(db);
+	populateTestTables(db);
+    }
+}
 
-    QVERIFY2(q.exec("create table many(id int primary key, name varchar(20))"),
+void tst_QSqlQueryModel::cleanupTestCase()
+{
+    for (QStringList::ConstIterator it = dbs.dbNames.begin(); it != dbs.dbNames.end(); ++it) {
+	QSqlDatabase db = QSqlDatabase::database((*it));
+	CHECK_DATABASE(db);
+	dropTestTables(db);
+    }
+    dbs.close();
+}
+
+void tst_QSqlQueryModel::dropTestTables(QSqlDatabase db)
+{
+    tst_Databases::safeDropTable(db, qTableName("test"));
+    tst_Databases::safeDropTable(db, qTableName("test2"));
+    tst_Databases::safeDropTable(db, qTableName("test3"));
+    tst_Databases::safeDropTable(db, qTableName("many"));
+}
+
+void tst_QSqlQueryModel::createTestTables(QSqlDatabase db)
+{
+    QSqlQuery q(db);
+    QVERIFY2(q.exec("create table " + qTableName("test") + "(id int primary key, name varchar(20), title int)"),
             q.lastError().text().toLatin1());
-    QVERIFY2(q.prepare("insert into many(id, name) values (?, ?)"),
+
+    QVERIFY2(q.exec("create table " + qTableName("test2") + "(id int primary key, title varchar(20))"),
+            q.lastError().text().toLatin1());
+
+    QVERIFY2(q.exec("create table " + qTableName("test3") + "(id int primary key)"), q.lastError().text().toLatin1());
+
+    QVERIFY2(q.exec("create table " + qTableName("many") + "(id int primary key, name varchar(20))"),
+            q.lastError().text().toLatin1());
+}
+
+void tst_QSqlQueryModel::populateTestTables(QSqlDatabase db)
+{
+    QSqlQuery q(db);
+    QVERIFY2(q.exec("insert into " + qTableName("test") + " values(1, 'harry', 1)"), q.lastError().text().toLatin1());
+    QVERIFY2(q.exec("insert into " + qTableName("test") + " values(2, 'trond', 2)"), q.lastError().text().toLatin1());
+    QVERIFY2(q.exec("insert into " + qTableName("test2") + " values(1, 'herr')"), q.lastError().text().toLatin1());
+    QVERIFY2(q.exec("insert into " + qTableName("test2") + " values(2, 'mister')"), q.lastError().text().toLatin1());
+
+    for (int i = 0; i < 260; i++)
+        QVERIFY2(q.exec(QString("insert into " + qTableName("test3") + " values(%1)").arg(i)), q.lastError().text().toLatin1());
+
+    QVERIFY2(q.prepare("insert into " + qTableName("many") + "(id, name) values (?, ?)"),
              q.lastError().text().toLatin1());
 
     for (int i = 0; i < 2048; ++i) {
@@ -102,10 +150,10 @@ void tst_QSqlQueryModel::initTestCase()
     }
 }
 
-void tst_QSqlQueryModel::cleanupTestCase()
+void tst_QSqlQueryModel::generic_data()
 {
-    QSqlDatabase::database().close();
-    QSqlDatabase::removeDatabase(QSqlDatabase::defaultConnection);
+    if (dbs.fillTestTable() == 0)
+	QSKIP("No database drivers are available in this Qt configuration", SkipAll);
 }
 
 void tst_QSqlQueryModel::init()
@@ -118,10 +166,12 @@ void tst_QSqlQueryModel::cleanup()
 
 void tst_QSqlQueryModel::removeColumn()
 {
-    QVERIFY(QSqlDatabase::database().isValid());
+    QFETCH(QString, dbName);
+    QSqlDatabase db = QSqlDatabase::database(dbName);
+    CHECK_DATABASE(db);
 
     DBTestModel model;
-    model.setQuery(QSqlQuery("select * from test"));
+    model.setQuery(QSqlQuery("select * from " + qTableName("test"), db));
     model.fetchMore();
     QSignalSpy spy(&model, SIGNAL(columnsAboutToBeRemoved(QModelIndex, int, int)));
 
@@ -198,10 +248,12 @@ void tst_QSqlQueryModel::removeColumn()
 
 void tst_QSqlQueryModel::insertColumn()
 {
-    QVERIFY(QSqlDatabase::database().isValid());
+    QFETCH(QString, dbName);
+    QSqlDatabase db = QSqlDatabase::database(dbName);
+    CHECK_DATABASE(db);
 
     DBTestModel model;
-    model.setQuery(QSqlQuery("select * from test"));
+    model.setQuery(QSqlQuery("select * from " + qTableName("test"), db));
     model.fetchMore(); // neccessary???
 
     QSignalSpy spy(&model, SIGNAL(columnsInserted(QModelIndex, int, int)));
@@ -275,8 +327,12 @@ void tst_QSqlQueryModel::insertColumn()
 
 void tst_QSqlQueryModel::record()
 {
+    QFETCH(QString, dbName);
+    QSqlDatabase db = QSqlDatabase::database(dbName);
+    CHECK_DATABASE(db);
+
     QSqlQueryModel model;
-    model.setQuery("select * from test");
+    model.setQuery(QSqlQuery("select * from " + qTableName("test"), db));
 
     QSqlRecord rec = model.record();
 
@@ -299,13 +355,17 @@ void tst_QSqlQueryModel::record()
 
 void tst_QSqlQueryModel::setHeaderData()
 {
+    QFETCH(QString, dbName);
+    QSqlDatabase db = QSqlDatabase::database(dbName);
+    CHECK_DATABASE(db);
+
     QSqlQueryModel model;
 
     QVERIFY(!model.setHeaderData(5, Qt::Vertical, "foo"));
     QVERIFY(model.headerData(5, Qt::Vertical).isValid());
 
     qRegisterMetaType<Qt::Orientation>("Qt::Orientation");
-    QSignalSpy spy(&model, SIGNAL(headerDataChanged(Qt::Orientation,int,int)));
+    QSignalSpy spy(&model, SIGNAL(headerDataChanged(Qt::Orientation, int, int)));
     QVERIFY(model.setHeaderData(2, Qt::Horizontal, "bar"));
     QCOMPARE(model.headerData(2, Qt::Horizontal).toString(), QString("bar"));
     QCOMPARE(spy.count(), 1);
@@ -316,7 +376,7 @@ void tst_QSqlQueryModel::setHeaderData()
     QVERIFY(model.setHeaderData(7, Qt::Horizontal, "foo", Qt::ToolTipRole));
     QVERIFY(model.headerData(7, Qt::Horizontal, Qt::ToolTipRole).isValid());
 
-    model.setQuery("select * from test");
+    model.setQuery(QSqlQuery("select * from " + qTableName("test"), db));
 
     QCOMPARE(model.headerData(0, Qt::Horizontal).toString(), QString("id"));
     QCOMPARE(model.headerData(1, Qt::Horizontal).toString(), QString("name"));
@@ -326,32 +386,46 @@ void tst_QSqlQueryModel::setHeaderData()
 
 void tst_QSqlQueryModel::fetchMore()
 {
-    QSqlQueryModel model;
-    QSignalSpy spy(&model, SIGNAL(rowsInserted(QModelIndex,int,int)));
+    QFETCH(QString, dbName);
+    QSqlDatabase db = QSqlDatabase::database(dbName);
+    CHECK_DATABASE(db);
 
-    model.setQuery("select * from many");
+    QSqlQueryModel model;
+    QSignalSpy spy(&model, SIGNAL(rowsInserted(QModelIndex, int, int)));
+
+    model.setQuery(QSqlQuery("select * from " + qTableName("many"), db));
     int rowCount = model.rowCount();
 
     QCOMPARE(spy.value(0).value(1).toInt(), 0);
     QCOMPARE(spy.value(0).value(2).toInt(), rowCount - 1);
-    spy.clear();
 
-    model.fetchMore();
-    int newRowCount = model.rowCount();
-
-    QCOMPARE(spy.value(0).value(1).toInt(), rowCount);
-    QCOMPARE(spy.value(0).value(2).toInt(), newRowCount - 1);
+    // If the driver doesn't return the query size fetchMore() causes the
+    // model to grow and new signals are emitted
+    if (!db.driver()->hasFeature(QSqlDriver::QuerySize)) {
+        spy.clear();
+        model.fetchMore();
+        int newRowCount = model.rowCount();
+        QCOMPARE(spy.value(0).value(1).toInt(), rowCount);
+        QCOMPARE(spy.value(0).value(2).toInt(), newRowCount - 1);
+    }
 }
 
 // For task 149491: When used with QSortFilterProxyModel, a view and a
 // database that doesn't support the QuerySize feature, blank rows was
 // appended if the query returned more than 256 rows and setQuery()
 // was called more than once. This because an insertion of rows was
-// triggered at the same time as the model was being clared.
+// triggered at the same time as the model was being cleared.
 void tst_QSqlQueryModel::withSortFilterProxyModel()
 {
+    QFETCH(QString, dbName);
+    QSqlDatabase db = QSqlDatabase::database(dbName);
+    CHECK_DATABASE(db);
+
+    if (db.driver()->hasFeature(QSqlDriver::QuerySize))
+        QSKIP("Test applies only for drivers not reporting the query size.", SkipSingle);
+
     QSqlQueryModel model;
-    model.setQuery("SELECT * FROM test3");
+    model.setQuery(QSqlQuery("SELECT * FROM " + qTableName("test3"), db));
     QSortFilterProxyModel proxy;
     proxy.setSourceModel(&model);
 
@@ -360,7 +434,7 @@ void tst_QSqlQueryModel::withSortFilterProxyModel()
 
     QSignalSpy modelRowsRemovedSpy(&model, SIGNAL(rowsRemoved(const QModelIndex &, int, int)));
     QSignalSpy modelRowsInsertedSpy(&model, SIGNAL(rowsInserted(const QModelIndex &, int, int)));
-    model.setQuery("SELECT * FROM test3");
+    model.setQuery(QSqlQuery("SELECT * FROM " + qTableName("test3"), db));
     view.scrollToBottom();
     
     QTestEventLoop::instance().enterLoop(1);
@@ -387,17 +461,21 @@ void tst_QSqlQueryModel::withSortFilterProxyModel()
 // not be emitted.
 void tst_QSqlQueryModel::setQuerySignalEmission()
 {
+    QFETCH(QString, dbName);
+    QSqlDatabase db = QSqlDatabase::database(dbName);
+    CHECK_DATABASE(db);
+
     QSqlQueryModel model;
     QSignalSpy modelRowsAboutToBeRemovedSpy(&model, SIGNAL(rowsAboutToBeRemoved(const QModelIndex &, int, int)));
     QSignalSpy modelRowsRemovedSpy(&model, SIGNAL(rowsRemoved(const QModelIndex &, int, int)));
 
     // First select, the model was empty and no rows had to be removed!
-    model.setQuery("SELECT * FROM test"); 
+    model.setQuery(QSqlQuery("SELECT * FROM " + qTableName("test"), db)); 
     QCOMPARE(modelRowsAboutToBeRemovedSpy.count(), 0);
     QCOMPARE(modelRowsRemovedSpy.count(), 0);
 
     // Second select, the model wasn't empty and two rows had to be removed!
-    model.setQuery("SELECT * FROM test"); 
+    model.setQuery(QSqlQuery("SELECT * FROM " + qTableName("test"), db)); 
     QCOMPARE(modelRowsAboutToBeRemovedSpy.count(), 1);
     QCOMPARE(modelRowsAboutToBeRemovedSpy.value(0).value(1).toInt(), 0);
     QCOMPARE(modelRowsAboutToBeRemovedSpy.value(0).value(2).toInt(), 1);
