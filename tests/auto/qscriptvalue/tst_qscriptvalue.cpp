@@ -571,6 +571,7 @@ void tst_QScriptValue::toQObject()
     QScriptValue qobject = eng.newQObject(this);
     QCOMPARE(qobject.toQObject(), (QObject *)this);
     QCOMPARE(qscriptvalue_cast<QObject*>(qobject), (QObject *)this);
+    QCOMPARE(qscriptvalue_cast<QWidget*>(qobject), (QWidget *)0);
 
     QScriptValue qobject2 = eng.newQObject(0);
     QCOMPARE(qobject2.toQObject(), (QObject *)0);

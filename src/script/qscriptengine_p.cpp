@@ -1264,10 +1264,17 @@ bool QScriptEnginePrivate::convert(const QScriptValueImpl &value,
 #endif
 #ifndef QT_NO_QOBJECT
     case QMetaType::QObjectStar:
-    case QMetaType::QWidgetStar:
         if (value.isQObject() || value.isNull()) {
             *reinterpret_cast<QObject* *>(ptr) = value.toQObject();
             return true;
+        } break;
+    case QMetaType::QWidgetStar:
+        if (value.isQObject() || value.isNull()) {
+            QObject *qo = value.toQObject();
+            if (!qo || qo->isWidgetType()) {
+                *reinterpret_cast<QWidget* *>(ptr) = reinterpret_cast<QWidget*>(qo);
+                return true;
+            }
         } break;
 #endif
     case QMetaType::QStringList:
