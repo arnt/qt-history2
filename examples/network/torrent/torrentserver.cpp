@@ -40,8 +40,8 @@ void TorrentServer::incomingConnection(int socketDescriptor)
     if (clients.isEmpty())
         client->abort();
 
-    if (ConnectionManager::instance()->canAddConnection()) {
-        if (client->setSocketDescriptor(socketDescriptor)) {
+    if (client->setSocketDescriptor(socketDescriptor)) {
+        if (ConnectionManager::instance()->canAddConnection()) {
             connect(client, SIGNAL(infoHashReceived(const QByteArray &)),
                     this, SLOT(processInfoHash(const QByteArray &)));
             connect(client, SIGNAL(error(QAbstractSocket::SocketError)),
