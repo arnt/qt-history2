@@ -1362,16 +1362,27 @@
            QMenu, QMenuBar, QPushButton, QRadioButton, QSplitter,
            QTextEdit, QToolTip, and plain \l{QWidget}s.
 
-           For QFrame and its subclasses, you must set the
-           QFrame::frameStyle property to QFrame::StyledPanel;
-           otherwise, the \c background property will not be
-           respected.
-
            Example:
 
            \code
                 QTextEdit { background: yellow }
            \endcode
+
+
+           Often, it is required to set a fill pattern similar to the styles
+           in Qt::BrushStyle. You can use the background-color property for
+           Qt::SolidPattern, Qt::RadialGradientPattern, Qt::LinearGradientPattern
+           and Qt::ConicalGradientPattern.  The other patterns are easily achieved 
+           by creating a background image that contains the pattern.
+
+           Example:
+
+           \code
+                QLabel { 
+                    background-image: url(dense6pattern.png);
+                    background-repeat: repeat-xy;
+                }
+            \endcode
 
            See also \l{#background-origin-prop}{background-origin},
            \l{#selection-background-color-prop}{selection-background-color},
