@@ -189,10 +189,8 @@ void MainWindow::setup()
 	qApp->restoreOverrideCursor();
     ui.actionGoPrevious->setEnabled(false);
     ui.actionGoNext->setEnabled(false);
-
     ui.actionEditCopy->setEnabled(false);
-    connect(tabs->currentBrowser(), SIGNAL(copyAvailable(bool)), this, SLOT(copyAvailable(bool)));
-
+    
     // set the current selected item in the treeview
     helpDialog()->locateContents(tabs->currentBrowser()->source().toString());
     connect(tabs, SIGNAL(browserUrlChanged(QString)), helpDock, SLOT(locateContents(QString)));
@@ -200,9 +198,12 @@ void MainWindow::setup()
 
 void MainWindow::browserTabChanged()
 {
-    if (tabs->currentBrowser()) {
-        ui.actionGoPrevious->setEnabled(tabs->currentBrowser()->isBackwardAvailable());
-        ui.actionGoNext->setEnabled(tabs->currentBrowser()->isForwardAvailable());
+    HelpWindow *win = tabs->currentBrowser();
+    if (win) {
+        QTextCursor cursor(win->textCursor());
+        ui.actionEditCopy->setEnabled(cursor.hasSelection());
+        ui.actionGoPrevious->setEnabled(win->isBackwardAvailable());
+        ui.actionGoNext->setEnabled(win->isForwardAvailable());
     }
 }
 

@@ -51,6 +51,8 @@ HelpWindow::HelpWindow(MainWindow *w, QWidget *parent)
 {
     FontSettings settings = Config::configuration()->fontSettings();
     setFont(settings.browserFont);
+
+    connect(this, SIGNAL(copyAvailable(bool)), w, SLOT(copyAvailable(bool)));
 }
 
 void HelpWindow::setSource(const QUrl &name)
