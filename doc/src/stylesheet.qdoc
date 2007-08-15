@@ -1238,6 +1238,15 @@
            \l{#down-arrow-sub}{::down-arrow}, \l{#left-arrow-sub}{::left-arrow}
            and \l{#right-arrow-sub}{::right-arrow} subcontrols are used.
 
+           \warning If you only set a background-color on a QToolButton, the background
+           will not appear unless you set the border property to some value. This is
+           because, by default, the QToolButton draws a native border which completely
+           overlaps the background-color. For example,
+
+           \code
+                QToolButton { background-color: red; border: none; }
+           \endcode
+
            See \l{Qt Style Sheets Examples#Customizing QToolButton}{Customizing QToolButton}
            for an example.
 
