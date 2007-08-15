@@ -17,6 +17,7 @@ AnimatedPixmapItem::AnimatedPixmapItem(const QList<QPixmap> &animation,
                                        QGraphicsScene *scene)
     : QGraphicsPixmapItem(0, scene), currentFrame(0), frames(animation), vx(0), vy(0)
 {
+    setShapeMode(QGraphicsPixmapItem::BoundingRectShape);
 }
 
 void AnimatedPixmapItem::setFrame(int frame)

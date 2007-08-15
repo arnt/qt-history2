@@ -91,6 +91,8 @@ KAsteroidsView::KAsteroidsView( QWidget *parent, const char *name )
     view.setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
     view.setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
     view.setCacheMode(QGraphicsView::CacheBackground);
+    view.setViewportUpdateMode(QGraphicsView::SmartViewportUpdate);
+    view.setOptimizationFlag(QGraphicsView::DontClipPainter);
     view.viewport()->setFocusProxy( this );
     rocks.setAutoDelete( TRUE );
     missiles.setAutoDelete( TRUE );
