@@ -201,7 +201,7 @@ struct QStyleSheetImageData : public QSharedData
 class QRenderRule
 {
 public:
-    QRenderRule() : features(0), hasFont(false), pal(0), b(0), bg(0), bd(0), geo(0), p(0), img(0) { }
+    QRenderRule() : features(0), hasFont(false), pal(0), b(0), bg(0), bd(0), geo(0), p(0), img(0), clipset(0) { }
     QRenderRule(const QVector<QCss::Declaration> &, const QWidget *);
     ~QRenderRule() { }
 
@@ -219,7 +219,7 @@ public:
     void drawBorder(QPainter *, const QRect&);
     void drawBorderImage(QPainter *, const QRect&);
     void drawBackground(QPainter *, const QRect&, const QPoint& = QPoint(0, 0));
-    void drawBackgroundImage(QPainter *, const QRect&, QPoint = QPoint(0, 0), bool = true);
+    void drawBackgroundImage(QPainter *, const QRect&, QPoint = QPoint(0, 0));
     void drawFrame(QPainter *, const QRect&);
     void drawImage(QPainter *p, const QRect &rect);
     void drawRule(QPainter *, const QRect&);
@@ -304,6 +304,12 @@ public:
     QSharedDataPointer<QStyleSheetGeometryData> geo;
     QSharedDataPointer<QStyleSheetPositionData> p;
     QSharedDataPointer<QStyleSheetImageData> img;
+
+    // Shouldn't be here
+    void setClip(QPainter *p, const QRect &rect);
+    void unsetClip(QPainter *);
+    int clipset;
+    QPainterPath clipPath;
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -684,6 +690,7 @@ static void qDrawCenterTiledPixmap(QPainter *p, const QRectF& r, const QPixmap& 
 // Note: Round is not supported
 void QRenderRule::drawBorderImage(QPainter *p, const QRect& rect)
 {
+    setClip(p, rect);
     const QRectF br(rect);
     const int *borders = border()->borders;
     const int &l = borders[LeftEdge], &r = borders[RightEdge],
@@ -800,6 +807,7 @@ void QRenderRule::drawBorderImage(QPainter *p, const QRect& rect)
     }
 
     p->setRenderHints(oldHints);
+    unsetClip(p);
 }
 
 QRect QRenderRule::originRect(const QRect &rect, Origin origin) const
@@ -817,7 +825,7 @@ QRect QRenderRule::originRect(const QRect &rect, Origin origin) const
     }
 }
 
-void QRenderRule::drawBackgroundImage(QPainter *p, const QRect &rect, QPoint off, bool clip)
+void QRenderRule::drawBackgroundImage(QPainter *p, const QRect &rect, QPoint off)
 {
     if (!hasBackground())
         return;
@@ -826,20 +834,11 @@ void QRenderRule::drawBackgroundImage(QPainter *p, const QRect &rect, QPoint off
     if (bgp.isNull())
         return;
 
-    QPainterPath clipPath;
-    if (clip) {
-        clipPath = borderClip(rect);
-        if (!clipPath.isEmpty()) {
-            p->save();
-            p->setClipPath(clipPath);
-        }
-    }
+    setClip(p, borderRect(rect));
 
     if (background()->origin != background()->clip) {
-        if (clipPath.isEmpty())
-            p->save();
-        clipPath.addRect(originRect(rect, background()->clip));
-        p->setClipPath(clipPath);
+        p->save();
+        p->setClipRect(originRect(rect, background()->clip), Qt::IntersectClip);
     }
 
     if (background()->attachment == Attachment_Fixed)
@@ -872,8 +871,11 @@ void QRenderRule::drawBackgroundImage(QPainter *p, const QRect &rect, QPoint off
         break;
     }
 
-    if (!clipPath.isEmpty())
+
+    if (background()->origin != background()->clip)
         p->restore();
+
+    unsetClip(p);
 }
 
 void QRenderRule::getRadii(const QRect &br, QSize *tlr, QSize *trr, QSize *blr, QSize *brr) const
@@ -1005,13 +1007,28 @@ QPainterPath QRenderRule::borderClip(QRect r)
     return path;
 }
 
+void QRenderRule::setClip(QPainter *p, const QRect &rect)
+{
+    if (clipset++)
+        return;
+    clipPath = borderClip(rect);
+    if (!clipPath.isEmpty()) {
+        p->save();
+        p->setClipPath(clipPath);
+    }
+}
+
+void QRenderRule::unsetClip(QPainter *p)
+{
+    if (--clipset)
+        return;
+    if (!clipPath.isEmpty())
+        p->restore();
+}
+
 void QRenderRule::drawBackground(QPainter *p, const QRect& rect, const QPoint& off)
 {
-    QPainterPath clip = borderClip(borderRect(rect));
-    if (!clip.isEmpty()) {
-        p->save();
-        p->setClipPath(clip);
-    }
+    setClip(p, borderRect(rect));
     QBrush brush = hasBackground() ? background()->brush : QBrush();
     if (brush.style() == Qt::NoBrush)
         brush = defaultBackground;
@@ -1022,9 +1039,8 @@ void QRenderRule::drawBackground(QPainter *p, const QRect& rect, const QPoint& o
         p->fillRect(originRect(rect, origin), brush);
     }
 
-    drawBackgroundImage(p, rect, off, false);
-    if (!clip.isEmpty())
-        p->restore();
+    drawBackgroundImage(p, rect, off);
+    unsetClip(p);
 }
 
 void QRenderRule::drawFrame(QPainter *p, const QRect& rect)
