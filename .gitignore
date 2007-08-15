@@ -1,0 +1,53 @@
+# This file is used to ignore files which are generated in the Qt build system
+# ----------------------------------------------------------------------------
+
+*.ib_pdb_index
+*.idb
+*.ilk
+*.moc
+*.o
+*.obj
+*.pdb
+*.sln
+*.vcproj
+*_pch.h.cpp
+*_resource.rc
+.qmake.cache
+Makefile*
+bin/Qt*.dll
+bin/assistant*
+bin/designer*
+bin/dumpcpp*
+bin/idc*
+bin/linguist*
+bin/lrelease*
+bin/lupdate*
+bin/moc*
+bin/pixeltool*
+bin/qmake*
+bin/qt3to4*
+bin/qtdemo*
+bin/rcc*
+bin/uic*
+configure.cache
+mkspecs/default
+mkspecs/qconfig.pri
+moc_*.cpp
+qmake/qmake.exe
+src/corelib/global/qconfig.cpp
+src/corelib/global/qconfig.h
+src/tools/uic/qclass_lib_map.h
+ui_*.h
+
+
+# Directories to ignore
+# ---------------------
+
+debug
+examples/tools/plugandpaint/plugins
+include/*
+include/*/*
+lib/*
+plugins/*/*
+release
+tmp
