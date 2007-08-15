@@ -1668,6 +1668,7 @@ relayout:
             continue;
         }
 
+        int rowCellCount = 0;
         for (int c = 0; c < columns; ++c) {
             QTextTableCell cell = table->cellAt(r, c);
             const int rspan = cell.rowSpan();
@@ -1687,6 +1688,8 @@ relayout:
                     continue;
                 }
             }
+
+            ++rowCellCount;
 
             const QFixed width = td->cellWidth(c, cspan);
             QLayoutStruct layoutStruct = layoutCell(table, cell, width,
@@ -1708,7 +1711,7 @@ relayout:
                 dropRowToNextPage = false;
         }
 
-        if (dropRowToNextPage) {
+        if (rowCellCount > 0 && dropRowToNextPage) {
             dropDistance = nextPageTop - td->rowPositions[r];
             td->rowPositions[r] = nextPageTop;
             td->heights[r] = 0;
