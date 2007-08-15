@@ -211,6 +211,7 @@ HelpDialog::HelpDialog(QWidget *parent, MainWindow *h)
     ui.listIndex->setLayoutMode(QListView::Batched);
     ui.listBookmarks->setItemHidden(ui.listBookmarks->headerItem(), true);
     ui.listContents->setItemHidden(ui.listContents->headerItem(), true);
+    ui.searchButton->setShortcut(QKeySequence(Qt::ALT|Qt::SHIFT|Qt::Key_S));
 }
 
 void HelpDialog::initialize()
