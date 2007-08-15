@@ -422,7 +422,7 @@ void Main::enlarge()
 
 void Main::shrink()
 {
-    canvas.setSceneRect(0, 0, canvas.width()*3/4, canvas.height()*3/4);
+    canvas.setSceneRect(0, 0, qMax(canvas.width()*3/4, 1.0), qMax(canvas.height()*3/4, 1.0));
 }
 
 void Main::rotateClockwise()
