@@ -18,14 +18,16 @@
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
+#include "config.h"
+
 class Node;
 class Tree;
 
 class HelpProjectWriter
 {
 public:
-    HelpProjectWriter(const QHash<QString, QString> defs);
-    void generate(const Tree *tre, const QString &outputDir);
+    HelpProjectWriter(const Config &config, const QString &defaultFileName);
+    void generate(const Tree *tre);
     void addExtraFile(const QString &file);
     void addExtraFiles(const QSet<QString> &files);
 
@@ -35,6 +37,7 @@ private:
 
     const Tree *tree;
 
+    QString outputDir;
     QList<QStringList> keywords;
     QSet<QString> files;
     QString helpNamespace;
@@ -43,6 +46,8 @@ private:
     QString indexPage;
     QString indexTitle;
     QSet<QString> extraFiles;
+    QSet<QString> filterAttributes;
+    QHash<QString, QSet<QString> > customFilters;
 };
 
 #endif

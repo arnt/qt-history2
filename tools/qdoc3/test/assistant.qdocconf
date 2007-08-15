@@ -1,8 +1,8 @@
 include(compat.qdocconf)
 include(macros.qdocconf)
 
-project                 = Qt
-description             = Qt Reference Documentation
+project                 = Qt Assistant
+description             = Qt Assistant Manual
 url                     = http://doc.trolltech.com/4.3
 
 edition.Console         = QtCore QtNetwork QtSql QtXml QtScript QtTest
@@ -11,45 +11,23 @@ edition.Desktop         = QtCore QtGui QtNetwork QtOpenGL QtSql QtSvg QtXml QtSc
                           QAxServer QtUiTools QtTest QtDBus
 edition.DesktopLight    = QtCore QtGui Qt3SupportLight QtTest
 
-qhp.file                = qt.qhp
-qhp.namespace           = com.trolltech.qt.440
+qhp.file                = assistant.qhp
+qhp.namespace           = com.trolltech.assistant.440
 qhp.virtualFolder       = qdoc
-qhp.indexTitle          = Qt Reference Documentation
-qhp.indexPage           = index.html
-qhp.extraFiles          = images/classic.css images/qt-logo.png images/trolltech-logo.png
-qhp.filterAttributes    = Qt API
-
-qhp.customFilters.Qt.name = Qt
-qhp.customFilters.Qt.filterAttributes = Qt API
+qhp.indexTitle          = Qt Assistant Manual
+qhp.indexPage           = assistant-manual.html
+qhp.extraFiles          = classic.css images/qt-logo.png images/trolltech-logo.png
 
 language                = Cpp
 
-headerdirs              = $QTDIR/src \
-                          $QTDIR/extensions/activeqt \
-                          $QTDIR/tools/assistant/lib \
-                          $QTDIR/tools/designer/src/uitools \
-                          $QTDIR/tools/designer/src/lib/extension \
-                          $QTDIR/tools/designer/src/lib/sdk \
-                          $QTDIR/tools/designer/src/lib/uilib \
-                          $QTDIR/tools/qtestlib/src \
-                          $QTDIR/tools/qdbus/src
-sourcedirs              = $QTDIR/src \
-                          $QTDIR/doc/src \
-                          $QTDIR/extensions/activeqt \
-                          $QTDIR/tools/assistant/lib \
-                          $QTDIR/tools/designer/src/uitools \
-                          $QTDIR/tools/designer/src/lib/extension \
-                          $QTDIR/tools/designer/src/lib/sdk \
-                          $QTDIR/tools/designer/src/lib/uilib \
-                          $QTDIR/tools/qtestlib/src \
-                          $QTDIR/tools/qdbus
+sources                 = $QTDIR/doc/src/assistant-manual.qdoc \
+                          $QTDIR/doc/src/examples/simpletextviewer.qdoc
+
 sources.fileextensions  = "*.cpp *.qdoc"
-exampledirs             = $QTDIR/doc/src \
-                          $QTDIR/examples \
-                          $QTDIR \
-                          $QTDIR/qmake/examples
-imagedirs               = $QTDIR/doc/src/images \
-                          $QTDIR/examples
+
+exampledirs             = $QTDIR/examples
+
+imagedirs               = $QTDIR/doc/src/images
 outputdir               = $QTDIR/doc/html
 base                    = file:$QTDIR/doc/html
 versionsym              = QT_VERSION_STR

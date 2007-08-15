@@ -102,15 +102,7 @@ void HtmlGenerator::initializeGenerator(const Config &config)
     customHeadElements = config.getStringList(HtmlGenerator::format() + Config::dot + HTMLGENERATOR_CUSTOMHEADELEMENTS);
     codeIndent = config.getInt(CONFIG_CODEINDENT);
 
-    QSet<QString> helpProjectNames = config.subVars(CONFIG_QHP);
-    QHash<QString, QString> helpProjectDefs;
-    foreach (QString helpProjectName, helpProjectNames) {
-        helpProjectDefs[helpProjectName] = config.getString(
-            CONFIG_QHP + Config::dot + helpProjectName);
-    }
-    if (helpProjectDefs.value("file").isEmpty())
-        helpProjectDefs["file"] = project.toLower() + ".qhp";
-    helpProjectWriter = new HelpProjectWriter(helpProjectDefs);
+    helpProjectWriter = new HelpProjectWriter(config, project.toLower() + ".qhp");
 }
 
 void HtmlGenerator::terminateGenerator()
@@ -176,7 +168,7 @@ void HtmlGenerator::generateTree(const Tree *tree, CodeMarker *marker)
 
     generateIndex(project.toLower(), projectUrl, projectDescription);
 
-    helpProjectWriter->generate(tre, outputDir());
+    helpProjectWriter->generate(tre);
 }
 
 void HtmlGenerator::startText(const Node * /* relative */, CodeMarker * /* marker */)

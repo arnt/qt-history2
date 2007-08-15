@@ -12,19 +12,35 @@
 ****************************************************************************/
 
 #include <QtXml>
+#include <QHash>
 
 #include "helpprojectwriter.h"
+#include "config.h"
 #include "node.h"
 #include "tree.h"
 
-HelpProjectWriter::HelpProjectWriter(const QHash<QString, QString> defs)
+HelpProjectWriter::HelpProjectWriter(const Config &config, const QString &defaultFileName)
 {
-    helpNamespace = defs.value("namespace");
-    virtualFolder = defs.value("virtualFolder");
-    fileName = defs.value("file");
-    extraFiles = defs.value("extraFiles").split(" ", QString::SkipEmptyParts).toSet();
-    indexPage = defs.value("indexPage");
-    indexTitle = defs.value("indexTitle");
+    // The output directory should already have been checked by the calling
+    // generator.
+    outputDir = config.getString(CONFIG_OUTPUTDIR);
+
+    helpNamespace = config.getString(CONFIG_QHP + Config::dot + "namespace");
+    virtualFolder = config.getString(CONFIG_QHP + Config::dot + "virtualFolder");
+    fileName = config.getString(CONFIG_QHP + Config::dot + "file");
+    if (fileName.isEmpty())
+        fileName = defaultFileName;
+    extraFiles = config.getStringList(CONFIG_QHP + Config::dot + "extraFiles").toSet();
+    indexPage = config.getString(CONFIG_QHP + Config::dot + "indexPage");
+    indexTitle = config.getString(CONFIG_QHP + Config::dot + "indexTitle");
+    filterAttributes = config.getStringList(CONFIG_QHP + Config::dot + "filterAttributes").toSet();
+    QSet<QString> customFilterNames = config.subVars(CONFIG_QHP + Config::dot + "customFilters");
+    foreach (QString filterName, customFilterNames) {
+        QString name = config.getString(CONFIG_QHP + Config::dot + "customFilters" + Config::dot + filterName + Config::dot + "name");
+        QSet<QString> filters = config.getStringList(CONFIG_QHP + Config::dot + "customFilters" + Config::dot + filterName + Config::dot + "filterAttributes").toSet();
+        customFilters[name] = filters;
+    }
+    //customFilters = config.defs.
 }
 
 void HelpProjectWriter::addExtraFile(const QString &file)
@@ -49,22 +65,28 @@ bool HelpProjectWriter::generateSection(QXmlStreamWriter &writer, const Node *no
     if (objName.isEmpty())
         return true;
 
+    QString href = tree->fullDocumentName(node);
+
     switch (node->type()) {
 
         case Node::Class:
-            writer.writeStartElement("section");
-            writer.writeAttribute("ref", tree->fullDocumentName(node));
-            writer.writeAttribute("title", objName);
-            writer.writeEndElement(); // section
-            files.insert(tree->fullDocumentName(node));
+            if (href != indexPage) {
+                writer.writeStartElement("section");
+                writer.writeAttribute("ref", href);
+                writer.writeAttribute("title", objName);
+                writer.writeEndElement(); // section
+                files.insert(tree->fullDocumentName(node));
+            }
             break;
 
         case Node::Namespace:
-            writer.writeStartElement("section");
-            writer.writeAttribute("ref", tree->fullDocumentName(node));
-            writer.writeAttribute("title", objName);
-            writer.writeEndElement(); // section
-            files.insert(tree->fullDocumentName(node));
+            if (href != indexPage) {
+                writer.writeStartElement("section");
+                writer.writeAttribute("ref", href);
+                writer.writeAttribute("title", objName);
+                writer.writeEndElement(); // section
+                files.insert(tree->fullDocumentName(node));
+            }
             break;
 
         case Node::Function:
@@ -84,13 +106,15 @@ bool HelpProjectWriter::generateSection(QXmlStreamWriter &writer, const Node *no
         // attributes.
         case Node::Fake: {
             const FakeNode *fakeNode = static_cast<const FakeNode*>(node);
-            if (fakeNode->subType() != FakeNode::ExternalPage) {
-                if (!fakeNode->links().contains(Node::ContentsLink)) {
-                    writer.writeStartElement("section");
-                    writer.writeAttribute("ref", tree->fullDocumentName(node));
-                    writer.writeAttribute("title", fakeNode->title());
-                    writer.writeEndElement(); // section
-                    files.insert(tree->fullDocumentName(node));
+            if (href != indexPage) {
+                if (fakeNode->subType() != FakeNode::ExternalPage) {
+                    if (!fakeNode->links().contains(Node::ContentsLink)) {
+                        writer.writeStartElement("section");
+                        writer.writeAttribute("ref", href);
+                        writer.writeAttribute("title", fakeNode->title());
+                        writer.writeEndElement(); // section
+                        files.insert(tree->fullDocumentName(node));
+                    }
                 }
             }
             break;
@@ -114,7 +138,7 @@ void HelpProjectWriter::generateSections(QXmlStreamWriter &writer, const Node *n
     }
 }
 
-void HelpProjectWriter::generate(const Tree *tre, const QString &outputDir)
+void HelpProjectWriter::generate(const Tree *tre)
 {
     this->tree = tre;
 
@@ -131,17 +155,29 @@ void HelpProjectWriter::generate(const Tree *tre, const QString &outputDir)
     // Write metaData, virtualFolder and namespace elements.
     writer.writeTextElement("namespace", helpNamespace);
     writer.writeTextElement("virtualFolder", virtualFolder);
+
     // Write customFilter elements.
+    QHash<QString, QSet<QString> >::ConstIterator it;
+    for (it = customFilters.begin(); it != customFilters.end(); ++it) {
+        writer.writeStartElement("customFilter");
+        writer.writeAttribute("name", it.key());
+        foreach (QString filter, it.value())
+            writer.writeTextElement("filterAttribute", filter);
+        writer.writeEndElement(); // customFilter
+    }
 
     // Start the filterSection.
     writer.writeStartElement("filterSection");
 
     // Write filterAttribute elements.
+    foreach (QString filterName, filterAttributes)
+        writer.writeTextElement("filterAttribute", filterName);
 
     writer.writeStartElement("toc");
     writer.writeStartElement("section");
     writer.writeAttribute("ref", indexPage);
     writer.writeAttribute("title", indexTitle);
+    files.insert(indexPage);
 
     generateSections(writer, tree->root());
 
