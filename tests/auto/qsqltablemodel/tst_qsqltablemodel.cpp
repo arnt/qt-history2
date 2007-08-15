@@ -430,23 +430,32 @@ void tst_QSqlTableModel::removeRows()
     model.setEditStrategy(QSqlTableModel::OnFieldChange);
     QVERIFY2(model.select(), model.lastError().text().toLatin1());
     QCOMPARE(model.rowCount(), 3);
-
+    
+    QSignalSpy beforeDeleteSpy(&model, SIGNAL(beforeDelete(int)));
     QVERIFY2(model.removeRows(0, 2), model.lastError().text().toLatin1());
+    QVERIFY(beforeDeleteSpy.count() == 2);
+    QVERIFY(beforeDeleteSpy.at(0).at(0).toInt() == 0);
+    QVERIFY(beforeDeleteSpy.at(1).at(0).toInt() == 1);
     QCOMPARE(model.rowCount(), 1);
     QCOMPARE(model.data(model.index(0, 1)).toString(), QString("vohi"));
     model.clear();
 
     recreateTestTables();
-
     model.setTable(qTableName("test"));
     model.setEditStrategy(QSqlTableModel::OnManualSubmit);
     QVERIFY2(model.select(), model.lastError().text().toLatin1());
     QCOMPARE(model.rowCount(), 3);
+    beforeDeleteSpy.clear();
 
-    QVERIFY(model.removeRows(0, 2,QModelIndex()));
+    // When the edit strategy is OnManualSubmit the beforeDelete() signal 
+    // isn't emitted until submitAll() is called 
+    QVERIFY(model.removeRows(0, 2, QModelIndex()));
     QCOMPARE(model.rowCount(), 3);
-
-    QVERIFY(model.submitAll());
+    QVERIFY(beforeDeleteSpy.count() == 0);
+    QVERIFY(model.submitAll()); 
+    QVERIFY(beforeDeleteSpy.count() == 2);
+    QVERIFY(beforeDeleteSpy.at(0).at(0).toInt() == 0);
+    QVERIFY(beforeDeleteSpy.at(1).at(0).toInt() == 1);
     QCOMPARE(model.rowCount(), 1);
     QCOMPARE(model.data(model.index(0, 1)).toString(), QString("vohi"));
 }
