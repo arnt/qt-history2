@@ -1207,6 +1207,9 @@ void QTextStream::skipWhiteSpace()
     Sets the current device to \a device. If a device has already been
     assigned, QTextStream will call flush() before the old device is
     replaced.
+    
+    \note This function resets the codec to the default codec,
+    QTextCodec::codecForLocale().
 
     \sa device(), setString()
 */
