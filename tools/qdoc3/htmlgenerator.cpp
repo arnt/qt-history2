@@ -32,13 +32,14 @@ static bool showBrokenLinks = false;
 
 HtmlGenerator::HtmlGenerator()
     : inLink(false), inContents(false), inSectionHeading(false), inTableHeader(false), numTableRows(0), threeColumnEnumValueTable(true),
-      funcLeftParen("\\S(\\()"), tre(0), slow(false)
+      funcLeftParen("\\S(\\()"), tre(0), slow(false), helpProjectWriter(0)
 {
 }
 
 HtmlGenerator::~HtmlGenerator()
 {
-    delete helpProjectWriter;
+    if (helpProjectWriter)
+        delete helpProjectWriter;
 }
 
 void HtmlGenerator::initializeGenerator(const Config &config)
