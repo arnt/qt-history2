@@ -1306,6 +1306,19 @@ void tst_QPainter::setClipRect()
         p.setClipRect(-10, -10, 100, 100);
         p.fillRect(-10, -10, 100, 100, QBrush(QColor(Qt::red)));
     }
+
+    // rects with negative width/height
+    {
+        QPainter p(&img);
+        p.setClipRect(QRect(10, 10, -10, 10));
+        QVERIFY(p.clipRegion().isEmpty());
+        p.setClipRect(QRect(10, 10, 10, -10));
+        QVERIFY(p.clipRegion().isEmpty());
+        p.setClipRect(QRectF(10.5, 10.5, -10.5, 10.5));
+        QVERIFY(p.clipRegion().isEmpty());
+        p.setClipRect(QRectF(10.5, 10.5, 10.5, -10.5));
+        QVERIFY(p.clipRegion().isEmpty());
+    }
 }
 
 /*

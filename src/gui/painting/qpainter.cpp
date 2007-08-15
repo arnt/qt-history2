@@ -1929,6 +1929,11 @@ void QPainter::setClipRect(const QRectF &rect, Qt::ClipOperation op)
         return;
     }
 
+    if (rect.isEmpty()) {
+        setClipRegion(QRegion(), op);
+        return;
+    }
+
     QPainterPath path;
     path.addRect(rect);
     setClipPath(path, op);
