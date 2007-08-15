@@ -276,6 +276,7 @@ private:
     QImageData *d;
 
     friend class QPixmap;
+    friend class QDetachedPixmap;
     friend Q_GUI_EXPORT qint64 qt_image_id(const QImage &image);
     friend const QVector<QRgb> *qt_image_colortable(const QImage &image);
 

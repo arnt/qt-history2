@@ -16,6 +16,12 @@
 #include "qobject.h"
 #include "qdebug.h"
 
+#ifdef Q_OS_WIN
+#include "qpaintengine.h"
+#include <private/qimage_p.h>
+#include <private/qpixmap_p.h>
+#endif
+
 /*!
     \class QPixmapCache
 
@@ -57,7 +63,15 @@ static int cache_limit = 1024;                        // 1024 KB cache limit
 class QDetachedPixmap : public QPixmap
 {
 public:
-    QDetachedPixmap(const QPixmap &pix) : QPixmap(pix) {};
+    QDetachedPixmap(const QPixmap &pix) : QPixmap(pix)
+    {
+#ifdef Q_OS_WIN
+        if (data->image.d->paintEngine && !data->image.d->paintEngine->isActive()) {
+            delete data->image.d->paintEngine;
+            data->image.d->paintEngine = 0;
+        }
+#endif
+    }
 };
 
 class QPMCache : public QObject, public QCache<qint64, QDetachedPixmap>

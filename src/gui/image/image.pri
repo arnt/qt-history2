@@ -7,6 +7,7 @@ HEADERS += \
         image/qbitmap.h \
         image/qicon.h \
         image/qimage.h \
+        image/qimage_p.h \
         image/qimageiohandler.h \
         image/qimagereader.h \
         image/qimagewriter.h \
