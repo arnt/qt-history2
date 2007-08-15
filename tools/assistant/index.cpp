@@ -23,6 +23,7 @@
 #include <QUrl>
 #include <QTextCodec>
 #include <ctype.h>
+#include <QTextDocument>
 
 struct Term {
     Term() : frequency(-1) {}
@@ -351,7 +352,15 @@ QString Index::getDocumentTitle( const QString &fullFileName )
     int start = text.indexOf(QLatin1String("<title>"), 0, Qt::CaseInsensitive) + 7;
     int end = text.indexOf(QLatin1String("</title>"), 0, Qt::CaseInsensitive);
 
-    QString title = ( end - start <= 0 ? tr("Untitled") : text.mid( start, end - start ) );
+    QString title = tr("Untitled");
+    if (end - start > 0) {
+        title = text.mid(start, end - start);
+        if (Qt::mightBeRichText(title)) {
+            QTextDocument doc;
+            doc.setHtml(title);
+            title = doc.toPlainText();
+        }
+    }
     documentTitleCache.insert(fileName, title);
     return title;
 }
