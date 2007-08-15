@@ -82,7 +82,7 @@ bool HelpProjectWriter::generateSection(QXmlStreamWriter &writer, const Node *no
 
         // Fake nodes (such as manual pages) contain subtypes, titles and other
         // attributes.
-        case Node::Fake:
+        case Node::Fake: {
             const FakeNode *fakeNode = static_cast<const FakeNode*>(node);
             if (fakeNode->subType() != FakeNode::ExternalPage) {
                 if (!fakeNode->links().contains(Node::ContentsLink)) {
@@ -94,7 +94,7 @@ bool HelpProjectWriter::generateSection(QXmlStreamWriter &writer, const Node *no
                 }
             }
             break;
-
+            }
         default:
             break;
     }
