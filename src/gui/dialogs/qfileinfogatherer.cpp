@@ -182,9 +182,9 @@ QFile::Permissions QFileInfoGatherer::translatePermissions(const QFileInfo &file
     return permissions;
 #else
     QFile::Permissions p = permissions;
-    p ^= QFile::ReadUser;
-    p ^= QFile::WriteUser;
-    p ^= QFile::ExeUser;
+    p ^= !QFile::ReadUser;
+    p ^= !QFile::WriteUser;
+    p ^= !QFile::ExeUser;
     if (                                     permissions & QFile::ReadOther
         || (fileInfo.ownerId() == userId  && permissions & QFile::ReadOwner)
         || (fileInfo.groupId() == groupId && permissions & QFile::ReadGroup))
