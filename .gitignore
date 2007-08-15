@@ -1,17 +1,25 @@
 # This file is used to ignore files which are generated in the Qt build system
 # ----------------------------------------------------------------------------
 
+
+*~
+*.a
+*.core
 *.ib_pdb_index
 *.idb
 *.ilk
 *.moc
 *.o
 *.obj
+*.orig
 *.pdb
+*.rej
 *.sln
+*.so
 *.vcproj
 *_pch.h.cpp
 *_resource.rc
+.#*
 .qmake.cache
 Makefile*
 bin/Qt*.dll
