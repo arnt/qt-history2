@@ -1059,7 +1059,7 @@ QMap<QString,QVariant> QSqlQuery::boundValues() const
 }
 
 /*!
-    Returns the last query that was executed.
+    Returns the last query that was successfully executed.
 
     In most cases this function returns the same string as
     lastQuery(). If a prepared query with placeholders is executed on
