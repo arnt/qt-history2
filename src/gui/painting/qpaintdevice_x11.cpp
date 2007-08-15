@@ -219,10 +219,10 @@ int QPaintDevice::metric(PaintDeviceMetric) const
     \oldcode
         Display *display = widget->x11Display();
     \newcode
-        Display *display = widget->x11Info().display();
+        Display *display = QX11Info::display();
     \endcode
 
-    \sa QWidget::x11Info(), QPixmap::x11Info()
+    \sa QWidget::x11Info(), QX11Infor::display()
 */
 Display *QPaintDevice::x11Display() const
 {
