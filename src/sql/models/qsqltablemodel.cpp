@@ -1023,7 +1023,9 @@ bool QSqlTableModel::removeColumns(int column, int count, const QModelIndex &par
     does not support hierarchical structures, \a parent must be
     an invalid model index.
 
-    Emits the beforeDelete() signal before a row is deleted.
+    Emits the beforeDelete() signal before a row is deleted. When
+    the edit strategy is OnManualSubmit signal emission is delayed
+    until submitAll() is called.
 
     Returns true if all rows could be removed; otherwise returns
     false. Detailed error information can be retrieved using
