@@ -515,7 +515,7 @@ void tst_QFileSystemModel::filters()
     else
         QVERIFY(xFactor.entryList(filters).count() == rowCount);
 
-    if (files.count() > 3 && rowCount >= 3 && rowCount != 5) {
+    if (files.count() >= 3 && rowCount >= 3 && rowCount != 5) {
         QString fileName1 = (tmp + QDir::separator() + files.at(0));
         QString fileName2 = (tmp + QDir::separator() + files.at(1));
         QString fileName3 = (tmp + QDir::separator() + files.at(2));
@@ -523,13 +523,14 @@ void tst_QFileSystemModel::filters()
         QVERIFY(QFile::setPermissions(fileName1, QFile::WriteOwner));
         QVERIFY(QFile::setPermissions(fileName2, QFile::ReadOwner));
         QVERIFY(QFile::setPermissions(fileName3, QFile::ExeOwner));
-        model->setFilter((QDir::Readable));
+
+        model->setFilter((QDir::Files | QDir::Readable));
         TRY_COMPARE(model->rowCount(root), 1);
 
-        model->setFilter((QDir::Writable));
+        model->setFilter((QDir::Files | QDir::Writable));
         TRY_COMPARE(model->rowCount(root), 1);
 
-        model->setFilter((QDir::Executable));
+        model->setFilter((QDir::Files | QDir::Executable));
         TRY_COMPARE(model->rowCount(root), 1);
 
         // reset permissions
