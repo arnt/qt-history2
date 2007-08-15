@@ -162,8 +162,7 @@
     \code
     QPainter painter(this);
     painter.setRenderHint(
-            Qt::Antialiasing);
-
+        QPainter::Antialiasing);
     painter.setPen(Qt::darkGreen);
     painter.drawRect(1, 2, 6, 4);
     \endcode
@@ -172,8 +171,7 @@
     \code
     QPainter painter(this);
     painter.setRenderHint(
-            Qt::Antialiasing);
-
+        QPainter::Antialiasing);
     painter.setPen(Qt::darkGreen);
     painter.drawLine(2, 7, 6, 1);
     \endcode
