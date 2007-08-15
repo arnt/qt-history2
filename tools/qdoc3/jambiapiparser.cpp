@@ -22,8 +22,7 @@
 #include "node.h"
 #include "tree.h"
 
-static const char USED_INTERNALLY[] = "This method is used internally by Qt Jambi.\n"
-                                      "Do not use it in your applications.";
+static const char USED_INTERNALLY[] = "";
 
 static Text textWithFixedBrief(const Text &text, const Text &beforeBrief,
                                const Text &afterBrief)
