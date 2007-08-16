@@ -1311,6 +1311,7 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view, const QStringList &strings, 
         QTreeModel *model = ::qobject_cast<QTreeModel*>(view->model());
         model->rootItem->addChild(this);
         values.reserve(model->headerItem->columnCount());
+        model->executePendingSort();
     }
 }
 
@@ -1336,6 +1337,7 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view, QTreeWidgetItem *after, int 
             int i = model->rootItem->indexOfChild(after) + 1;
             model->rootItem->insertChild(i, this);
             values.reserve(model->headerItem->columnCount());
+            model->executePendingSort();
         }
     }
 }
@@ -1355,6 +1357,12 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidgetItem *parent, int type)
 {
     if (parent)
         parent->addChild(this);
+     if (view) {
+        QTreeModel *model = ::qobject_cast<QTreeModel*>(view->model());
+        if (model) {
+            model->executePendingSort();
+        }
+    }
 }
 
 /*!
@@ -1375,7 +1383,12 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidgetItem *parent, const QStringList &str
         setText(i, strings.at(i));
     if (parent)
         parent->addChild(this);
-
+     if (view) {
+        QTreeModel *model = ::qobject_cast<QTreeModel*>(view->model());
+        if (model) {
+            model->executePendingSort();
+        }
+    }
 }
 
 /*!
@@ -1397,6 +1410,12 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidgetItem *parent, QTreeWidgetItem *after
     if (parent) {
         int i = parent->indexOfChild(after) + 1;
         parent->insertChild(i, this);
+    }
+    if (view) {
+        QTreeModel *model = ::qobject_cast<QTreeModel*>(view->model());
+        if (model) {
+            model->executePendingSort();
+        }
     }
 }
 

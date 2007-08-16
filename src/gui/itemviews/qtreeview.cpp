@@ -215,7 +215,7 @@ void QTreeView::setModel(QAbstractItemModel *model)
             this, SLOT(_q_columnsRemoved(QModelIndex,int,int)));
 
     connect(d->model, SIGNAL(modelAboutToBeReset()), SLOT(_q_modelAboutToBeReset()));
-    
+
     if (d->sortingEnabled)
         sortByColumn(header()->sortIndicatorSection());
 }
@@ -542,6 +542,7 @@ void QTreeView::setRowHidden(int row, const QModelIndex &parent, bool hide)
     if (!index.isValid())
         return;
 
+    d->executePostedLayout();
     if (hide) {
         QPersistentModelIndex persistent(index);
         if (!d->hiddenIndexes.contains(persistent))
@@ -629,6 +630,7 @@ void QTreeView::setFirstColumnSpanned(int row, const QModelIndex &parent, bool s
             d->spanningIndexes.remove(i);
     }
 
+    d->executePostedLayout();
     int i = d->viewIndex(index);
     if (i >= 0)
         d->viewItems[i].spanning = span;
@@ -643,7 +645,7 @@ void QTreeView::dataChanged(const QModelIndex &topLeft, const QModelIndex &botto
 {
     Q_D(QTreeView);
 
-    // if we are going to do a complete realyout anyway, there is no need to update
+    // if we are going to do a complete relayout anyway, there is no need to update
     if (d->delayedLayout.isActive())
         return;
 
@@ -713,6 +715,7 @@ void QTreeView::expand(const QModelIndex &index)
     Q_D(QTreeView);
     if (!d->isIndexValid(index))
         return;
+    d->executePostedLayout();
     int i = d->viewIndex(index);
     if (i != -1) { // is visible
         d->expand(i, true);
@@ -738,6 +741,7 @@ void QTreeView::collapse(const QModelIndex &index)
     Q_D(QTreeView);
     if (!d->isIndexValid(index))
         return;
+    d->executePostedLayout();
     int i = d->viewIndex(index);
     if (i != -1) { // is visible
         d->collapse(i, true);
@@ -765,8 +769,7 @@ void QTreeView::collapse(const QModelIndex &index)
 bool QTreeView::isExpanded(const QModelIndex &index) const
 {
     Q_D(const QTreeView);
-    if (d->delayedLayout.isActive())
-        const_cast<QTreeView*>(this)->doItemsLayout();
+    d->executePostedLayout();
     int i = d->viewIndex(index);
     if (i != -1) // is visible
         return d->viewItems.at(i).expanded;
@@ -944,6 +947,7 @@ void QTreeView::keyboardSearch(const QString &search)
             start = d->model->index(0, start.column(), d->root);
     }
 
+    d->executePostedLayout();
     int startIndex = d->viewIndex(start);
     if (startIndex <= -1)
         return;
@@ -1948,6 +1952,7 @@ void QTreeView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFl
     if (!selectionModel() || rect.isNull())
         return;
 
+    d->executePostedLayout();
     QPoint tl(isRightToLeft() ? qMax(rect.left(), rect.right())
               : qMin(rect.left(), rect.right()), qMin(rect.top(), rect.bottom()));
     QPoint br(isRightToLeft() ? qMin(rect.left(), rect.right()) :
@@ -2495,6 +2500,7 @@ int QTreeView::indexRowSizeHint(const QModelIndex &index) const
 int QTreeView::rowHeight(const QModelIndex &index) const
 {
     Q_D(const QTreeView);
+    d->executePostedLayout();
     int i = d->viewIndex(index);
     if (i == -1)
         return 0;
@@ -3378,6 +3384,7 @@ void QTreeView::selectionChanged(const QItemSelection &selected,
 int QTreeView::visualIndex(const QModelIndex &index) const
 {
     Q_D(const QTreeView);
+    d->executePostedLayout();
     return d->viewIndex(index);
 }
 
