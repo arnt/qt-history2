@@ -1296,10 +1296,6 @@ bool QAbstractItemView::event(QEvent *event)
     case QEvent::FocusOut:
         d->checkPersistentEditorFocus();
         break;
-    case QEvent::Show:
-        // the paint event sometimes comes before the layout
-        d->executePostedLayout();
-        break;
     default:
         break;
     }
