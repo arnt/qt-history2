@@ -222,7 +222,7 @@ int QPaintDevice::metric(PaintDeviceMetric) const
         Display *display = QX11Info::display();
     \endcode
 
-    \sa QWidget::x11Info(), QX11Infor::display()
+    \sa QWidget::x11Info(), QX11Info::display()
 */
 Display *QPaintDevice::x11Display() const
 {
