@@ -1758,6 +1758,23 @@ QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QStyleOption *o
                 extraClass |= PseudoClass_OnlyOne;
         }
 #endif // QT_NO_TOOLBAR
+#ifndef QT_NO_TOOLBOX
+        else if (const QStyleOptionToolBoxV2 *tab = qstyleoption_cast<const QStyleOptionToolBoxV2 *>(opt)) {
+            if (tab->position == QStyleOptionTab::OnlyOneTab)
+                extraClass |= PseudoClass_OnlyOne;
+            else if (tab->position == QStyleOptionTab::Beginning)
+                extraClass |= PseudoClass_First;
+            else if (tab->position == QStyleOptionTab::End)
+                extraClass |= PseudoClass_Last;
+            else if (tab->position == QStyleOptionTab::Middle)
+                extraClass |= PseudoClass_Middle;
+
+            if (tab->selectedPosition == QStyleOptionTab::NextIsSelected)
+                extraClass |= PseudoClass_NextSelected;
+            else if (tab->selectedPosition == QStyleOptionTab::PreviousIsSelected)
+                extraClass |= PseudoClass_PreviousSelected;
+        }
+#endif // QT_NO_TOOLBOX
 #ifndef QT_NO_LINEEDIT
         // LineEdit sets Sunken flag to indicate Sunken frame (argh)
         if (qobject_cast<const QLineEdit *>(w)) {
