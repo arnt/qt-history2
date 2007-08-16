@@ -2054,10 +2054,10 @@ void QGLContext::setDevice(QPaintDevice *pDev)
     the created GL rendering context.
 
     If \a shareContext points to a valid QGLContext, this method will
-    try to establish OpenGL display list sharing between this context
-    and the \a shareContext. Note that this may fail if the two
-    contexts have different formats. Use isSharing() to see if sharing
-    succeeded.
+    try to establish OpenGL display list and texture object sharing
+    between this context and the \a shareContext. Note that this may
+    fail if the two contexts have different \l {format()} {formats}.
+    Use isSharing() to see if sharing is in effect.
 
     \warning Implementation note: initialization of C++ class
     members usually takes place in the class constructor. QGLContext
@@ -2398,10 +2398,10 @@ const QGLContext* QGLContext::currentContext()
     to the QWidget constructor.
 
     If \a shareWidget is a valid QGLWidget, this widget will share
-    OpenGL display lists and texture objects with \a shareWidget. If
-    this widget and \a shareWidget have different \l {format()}
-    {formats}, display list sharing may fail. You can check whether
-    display list sharing succeeded by calling isSharing().
+    OpenGL display lists and texture objects with \a shareWidget. But
+    if \a shareWidget and this widget have different \l {format()}
+    {formats}, sharing might not be possible. You can check whether
+    sharing is in effect by calling isSharing().
 
     The initialization of OpenGL rendering state, etc. should be done
     by overriding the initializeGL() function, rather than in the
@@ -2437,10 +2437,10 @@ QGLWidget::QGLWidget(QWidget *parent, const QGLWidget* shareWidget, Qt::WindowFl
     to the QWidget constructor.
 
     If \a shareWidget is a valid QGLWidget, this widget will share
-    OpenGL display lists and texture objects with \a shareWidget. If
-    this widget and \a shareWidget have different \l {format()}
-    {formats}, display list sharing may fail. You can check whether
-    display list sharing succeeded by calling isSharing().
+    OpenGL display lists and texture objects with \a shareWidget. But
+    if \a shareWidget and this widget have different \l {format()}
+    {formats}, sharing might not be possible. You can check whether
+    sharing is in effect by calling isSharing().
 
     The initialization of OpenGL rendering state, etc. should be done
     by overriding the initializeGL() function, rather than in the
@@ -2474,10 +2474,10 @@ QGLWidget::QGLWidget(const QGLFormat &format, QWidget *parent, const QGLWidget* 
     to the QWidget constructor.
 
     If \a shareWidget is a valid QGLWidget, this widget will share
-    OpenGL display lists and texture objects with \a shareWidget. If
-    this widget and \a shareWidget have different \l {format()}
-    {formats}, display list sharing may fail. You can check whether
-    display list sharing succeeded by calling isSharing().
+    OpenGL display lists and texture objects with \a shareWidget. But
+    if \a shareWidget and this widget have different \l {format()}
+    {formats}, sharing might not be possible. You can check whether
+    sharing is in effect by calling isSharing().
 
     The initialization of OpenGL rendering state, etc. should be done
     by overriding the initializeGL() function, rather than in the
@@ -2574,9 +2574,8 @@ bool QGLWidget::isValid() const
     \fn bool QGLWidget::isSharing() const
 
     Returns true if this widget's GL context is shared with another GL
-    context, otherwise false is returned. The GL system may fail to
-    provide context sharing if the two QGLWidgets use different
-    formats.
+    context, otherwise false is returned. Context sharing might not be
+    possible if the QGLWidgets use different formats.
 
     \sa format()
 */
@@ -2673,8 +2672,10 @@ void QGLWidget::swapBuffers()
   function will be executed for this new context before the first
   resizeGL() or paintGL().
 
-  This method will try to keep any existing display list sharing with
-  other QGLWidgets, but it may fail. Use isSharing() to test.
+  This method will try to keep display list and texture object sharing
+  in effect with other QGLWidgets, but changing the format might make
+  sharing impossible. Use isSharing() to see if sharing is still in
+  effect.
 
   \sa format(), isSharing(), isValid()
 */
@@ -2712,11 +2713,12 @@ void QGLWidget::setFormat(const QGLFormat &format)
   it. The initializeGL() function will then be executed for the new
   context before the first resizeGL() or paintGL().
 
-  If \a context is invalid, this method will try to keep any existing
-  display list sharing with other QGLWidgets this widget currently
-  has, or (if \a shareContext points to a valid context) start display
-  list sharing with that context, but it may fail. Use isSharing() to
-  test.
+  If \a context is invalid, this method will try to keep display list
+  and texture object sharing in effect, or (if \a shareContext points
+  to a valid context) start display list and texture object sharing
+  with that context, but sharing might be impossible if the two
+  contexts have different \l {format()} {formats}. Use isSharing() to
+  see whether sharing is in effect.
 
   If \a deleteOldContext is true (the default), the existing context
   will be deleted. You may use false here if you have kept a pointer
