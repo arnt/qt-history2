@@ -329,7 +329,7 @@ QUuid::Version QUuid::version() const
 bool QUuid::operator<(const QUuid &other) const
 {
     if (variant() != other.variant())
-        return false;
+        return variant() < other.variant();
 
     ISLESS(data1, other.data1);
     ISLESS(data2, other.data2);
@@ -353,7 +353,7 @@ bool QUuid::operator<(const QUuid &other) const
 bool QUuid::operator>(const QUuid &other) const
 {
     if (variant() != other.variant())
-        return false;
+        return variant() > other.variant();
 
     ISMORE(data1, other.data1);
     ISMORE(data2, other.data2);
