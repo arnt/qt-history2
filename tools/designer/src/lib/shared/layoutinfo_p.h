@@ -27,8 +27,6 @@
 
 #include "shared_global_p.h"
 
-#include <QtCore/QList>
-
 class QWidget;
 class QLayout;
 class QDesignerFormEditorInterface;
@@ -40,35 +38,25 @@ class QDESIGNER_SHARED_EXPORT LayoutInfo
 public:
     enum Type
     {
+        NoLayout,
+        HSplitter,
+        VSplitter,
         HBox,
         VBox,
-        Grid,
-        Stacked,
-        NoLayout
+        Grid
     };
 
-    static void deleteLayout(QDesignerFormEditorInterface *core, QWidget *widget);
-    static Type layoutType(QDesignerFormEditorInterface *core, QWidget *w, QLayout *&layout);
-    static Type layoutType(QDesignerFormEditorInterface *core, QLayout *layout);
-    static Type layoutType(QDesignerFormEditorInterface *core, QWidget *w);
-    static QWidget *layoutParent(QDesignerFormEditorInterface *core, QLayout *layout);
-    static bool isWidgetLaidout(QDesignerFormEditorInterface *core, QWidget *widget);
+    static void deleteLayout(const QDesignerFormEditorInterface *core, QWidget *widget);
 
-    static QLayout *managedLayout(QDesignerFormEditorInterface *core, QWidget *widget);
-    static QLayout *managedLayout(QDesignerFormEditorInterface *core, QLayout *layout);
-    static QLayout *internalLayout(QWidget *widget);
+    static Type layoutType(const QDesignerFormEditorInterface *core, const QWidget *w);
+    static Type layoutType(const QDesignerFormEditorInterface *core, const QLayout *layout);
 
-    class Interval
-    {
-    public:
-        int v1, v2;
-        inline Interval(int _v1 = 0, int _v2 = 0)
-            : v1(_v1), v2(_v2) {}
-        bool operator < (const Interval &other) const
-            { return v1 < other.v1; }
-    };
-    typedef QList<Interval> IntervalList;
-    static void cells(QLayout *layout, IntervalList *rows, IntervalList *columns);
+    static QWidget *layoutParent(const QDesignerFormEditorInterface *core, QLayout *layout);
+    static bool isWidgetLaidout(const QDesignerFormEditorInterface *core, QWidget *widget);
+
+    static QLayout *managedLayout(const QDesignerFormEditorInterface *core, const QWidget *widget);
+    static QLayout *managedLayout(const QDesignerFormEditorInterface *core, QLayout *layout);
+    static QLayout *internalLayout(const QWidget *widget);
 };
 
 } // namespace qdesigner_internal

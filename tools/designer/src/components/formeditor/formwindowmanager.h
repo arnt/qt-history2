@@ -92,6 +92,7 @@ private slots:
     void slotActionGridLayoutActivated();
     void slotActionBreakLayoutActivated();
     void slotActionAdjustSizeActivated();
+    void slotActionSimplifyLayoutActivated();
 
     void slotUpdateActions();
 

@@ -53,9 +53,15 @@ Q_DECLARE_METATYPE(QWidgetList)
 namespace qdesigner_internal {
 
 // ---- InsertWidgetCommand ----
-InsertWidgetCommand::InsertWidgetCommand(QDesignerFormWindowInterface *formWindow)
-    : QDesignerFormWindowCommand(QString(), formWindow)
+InsertWidgetCommand::InsertWidgetCommand(QDesignerFormWindowInterface *formWindow)  :
+    QDesignerFormWindowCommand(QString(), formWindow),
+    m_layoutHelper(0)
 {
+}
+
+InsertWidgetCommand::~InsertWidgetCommand()
+{
+    delete m_layoutHelper;
 }
 
 void InsertWidgetCommand::init(QWidget *widget, bool already_in_form)
@@ -99,7 +105,10 @@ void InsertWidgetCommand::redo()
     QDesignerLayoutDecorationExtension *deco = qt_extension<QDesignerLayoutDecorationExtension*>(core->extensionManager(), parentWidget);
 
     if (deco != 0) {
-        if (LayoutInfo::layoutType(core, parentWidget) == LayoutInfo::Grid) {
+        const LayoutInfo::Type type = LayoutInfo::layoutType(core, parentWidget);
+        m_layoutHelper = LayoutHelper::createLayoutHelper(type);
+        m_layoutHelper->pushState(parentWidget);
+        if (type == LayoutInfo::Grid) {
             switch (m_insertMode) {
                 case QDesignerLayoutDecorationExtension::InsertRowMode: {
                     deco->insertRow(m_cell.first);
@@ -137,7 +146,7 @@ void InsertWidgetCommand::undo()
 
     if (deco) {
         deco->removeWidget(m_widget);
-        deco->simplify();
+        m_layoutHelper->popState(core, parentWidget);
     }
 
     if (!m_widgetWasManaged) {
@@ -214,9 +223,20 @@ void LowerWidgetCommand::undo()
 }
 
 // ---- DeleteWidgetCommand ----
-DeleteWidgetCommand::DeleteWidgetCommand(QDesignerFormWindowInterface *formWindow)
-    : QDesignerFormWindowCommand(QString(), formWindow)
+DeleteWidgetCommand::DeleteWidgetCommand(QDesignerFormWindowInterface *formWindow) :
+    QDesignerFormWindowCommand(QString(), formWindow),
+    m_layoutType(LayoutInfo::NoLayout),
+    m_layoutHelper(0),
+    m_splitterIndex(-1),
+    m_layoutSimplified(false),
+    m_formItem(0),
+    m_tabOrderIndex(-1)
 {
+}
+
+DeleteWidgetCommand::~DeleteWidgetCommand()
+{
+    delete  m_layoutHelper;
 }
 
 void DeleteWidgetCommand::init(QWidget *widget)
@@ -226,34 +246,23 @@ void DeleteWidgetCommand::init(QWidget *widget)
     m_geometry = widget->geometry();
 
     m_layoutType = LayoutInfo::NoLayout;
-    m_index = -1;
+    m_splitterIndex = -1;
     if (hasLayout(m_parentWidget)) {
         m_layoutType = LayoutInfo::layoutType(formWindow()->core(), m_parentWidget);
-
-        if (QSplitter *splitter = qobject_cast<QSplitter *>(m_parentWidget)) {
-            m_index = splitter->indexOf(widget);
-        } else {
-            switch (m_layoutType) {
-                case LayoutInfo::VBox:
-                    m_index = qobject_cast<QVBoxLayout*>(m_parentWidget->layout())->indexOf(m_widget);
-                    break;
-                case LayoutInfo::HBox:
-                    m_index = qobject_cast<QHBoxLayout*>(m_parentWidget->layout())->indexOf(m_widget);
-                    break;
-                case LayoutInfo::Grid: {
-                    m_index = 0;
-                    while (QLayoutItem *item = m_parentWidget->layout()->itemAt(m_index)) {
-                        if (item->widget() == m_widget)
-                            break;
-                        ++m_index;
-                    }
-
-                    static_cast<QGridLayout*>(m_parentWidget->layout())->getItemPosition(m_index, &m_row, &m_col, &m_rowspan, &m_colspan);
-                } break;
-
-                default:
-                    break;
-            } // end switch
+        switch (m_layoutType) {
+        case LayoutInfo::HSplitter:
+        case LayoutInfo::VSplitter: {
+            QSplitter *splitter = qobject_cast<QSplitter *>(m_parentWidget);
+            Q_ASSERT(splitter);
+            m_splitterIndex = splitter->indexOf(widget);
+        }
+            break;
+        case LayoutInfo::NoLayout:
+            break;
+        default:
+            m_layoutHelper = LayoutHelper::createLayoutHelper(m_layoutType);
+            m_layoutPosition = m_layoutHelper->itemInfo(m_parentWidget->layout(), m_widget);
+            break;
         }
     }
 
@@ -277,7 +286,8 @@ void DeleteWidgetCommand::redo()
     QDesignerFormEditorInterface *core = formWindow()->core();
 
     if (QDesignerContainerExtension *c = qt_extension<QDesignerContainerExtension*>(core->extensionManager(), m_parentWidget)) {
-        for (int i=0; i<c->count(); ++i) {
+        const int count = c->count();
+        for (int i=0; i<count; ++i) {
             if (c->widget(i) == m_widget) {
                 c->remove(i);
                 return;
@@ -285,9 +295,24 @@ void DeleteWidgetCommand::redo()
         }
     }
 
-    if (QDesignerLayoutDecorationExtension *deco = qt_extension<QDesignerLayoutDecorationExtension*>(core->extensionManager(), m_parentWidget)) {
+    if (QDesignerLayoutDecorationExtension *deco = qt_extension<QDesignerLayoutDecorationExtension*>(core->extensionManager(), m_parentWidget))
         deco->removeWidget(m_widget);
-    }
+
+    if (m_layoutHelper)
+        switch (m_layoutType) {
+        case LayoutInfo::NoLayout:
+        case LayoutInfo::HSplitter:
+        case LayoutInfo::VSplitter:
+            break;
+        default:
+            // Attempt to simplify grids if a row/column becomes empty
+            m_layoutSimplified = m_layoutHelper->canSimplify(m_parentWidget, m_layoutPosition);
+            if (m_layoutSimplified) {
+                m_layoutHelper->pushState(m_parentWidget);
+                m_layoutHelper->simplify(core, m_parentWidget, m_layoutPosition);
+            }
+            break;
+        }
 
     // Unmanage the managed children first
     foreach (QWidget *child, m_managedChildren)
@@ -325,24 +350,21 @@ void DeleteWidgetCommand::undo()
 
     // ### set up alignment
     switch (m_layoutType) {
-        case LayoutInfo::VBox: {
-            QVBoxLayout *vbox = static_cast<QVBoxLayout*>(m_parentWidget->layout());
-            insert_into_box_layout(vbox, m_index, m_widget);
-        } break;
-
-        case LayoutInfo::HBox: {
-            QHBoxLayout *hbox = static_cast<QHBoxLayout*>(m_parentWidget->layout());
-            insert_into_box_layout(hbox, m_index, m_widget);
-        } break;
-
-        case LayoutInfo::Grid: {
-            QGridLayout *grid = static_cast<QGridLayout*>(m_parentWidget->layout());
-            add_to_grid_layout(grid, m_widget, m_row, m_col, m_rowspan, m_colspan);
-        } break;
-
-        default:
-            break;
-    } // end switch
+    case LayoutInfo::NoLayout:
+        break;
+    case LayoutInfo::HSplitter:
+    case LayoutInfo::VSplitter: {
+        QSplitter *splitter = qobject_cast<QSplitter *>(m_widget->parent());
+        Q_ASSERT(splitter);
+        splitter->insertWidget(m_splitterIndex, m_widget);
+    } break;
+    default:
+        Q_ASSERT(m_layoutHelper);
+        if (m_layoutSimplified)
+            m_layoutHelper->popState(core, m_parentWidget);
+        m_layoutHelper->insertWidget(m_parentWidget->layout(), m_layoutPosition, m_widget);
+        break;
+    }
 
     m_widget->show();
 
@@ -475,6 +497,7 @@ void DemoteFromCustomWidgetCommand::undo()
 }
 
 // ---- LayoutCommand ----
+
 LayoutCommand::LayoutCommand(QDesignerFormWindowInterface *formWindow)
     : QDesignerFormWindowCommand(QString(), formWindow)
 {
@@ -485,32 +508,24 @@ LayoutCommand::~LayoutCommand()
     m_layout->deleteLater();
 }
 
-void LayoutCommand::init(QWidget *parentWidget, const QList<QWidget*> &widgets, LayoutInfo::Type layoutType,
-        QWidget *layoutBase, bool splitter)
+void LayoutCommand::init(QWidget *parentWidget, const QList<QWidget*> &widgets, LayoutInfo::Type layoutType, QWidget *layoutBase)
 {
     m_parentWidget = parentWidget;
     m_widgets = widgets;
     formWindow()->simplifySelection(&m_widgets);
-    const QPoint grid = formWindow()->grid();
-    const QSize sz(qMax(5, grid.x()), qMax(5, grid.y()));
-
+    m_layout = Layout::createLayout(widgets, parentWidget, formWindow(), layoutBase, layoutType);
     switch (layoutType) {
-        case LayoutInfo::Grid:
-            m_layout = new GridLayout(widgets, m_parentWidget, formWindow(), layoutBase, sz);
-            setText(QApplication::translate("Command", "Lay out using grid"));
-            break;
-
-        case LayoutInfo::VBox:
-            m_layout = new VerticalLayout(widgets, m_parentWidget, formWindow(), layoutBase, splitter);
-            setText(QApplication::translate("Command", "Lay out vertically"));
-            break;
-
-        case LayoutInfo::HBox:
-            m_layout = new HorizontalLayout(widgets, m_parentWidget, formWindow(), layoutBase, splitter);
-            setText(QApplication::translate("Command", "Lay out horizontally"));
-            break;
-        default:
-            Q_ASSERT(0);
+    case LayoutInfo::Grid:
+        setText(QApplication::translate("Command", "Lay out using grid"));
+        break;
+    case LayoutInfo::VBox:
+        setText(QApplication::translate("Command", "Lay out vertically"));
+        break;
+    case LayoutInfo::HBox:
+        setText(QApplication::translate("Command", "Lay out horizontally"));
+        break;
+    default:
+        break;
     }
 
     m_layout->setup();
@@ -544,55 +559,54 @@ void LayoutCommand::undo()
 }
 
 // ---- BreakLayoutCommand ----
-BreakLayoutCommand::BreakLayoutCommand(QDesignerFormWindowInterface *formWindow)
-    : QDesignerFormWindowCommand(QApplication::translate("Command", "Break layout"), formWindow)
+BreakLayoutCommand::BreakLayoutCommand(QDesignerFormWindowInterface *formWindow) :
+    QDesignerFormWindowCommand(QApplication::translate("Command", "Break layout"), formWindow),
+    m_layoutHelper(0),
+    m_properties(0),
+    m_propertyMask(0)
 {
 }
 
 BreakLayoutCommand::~BreakLayoutCommand()
 {
+    delete m_layoutHelper;
+    delete m_properties;
 }
 
 void BreakLayoutCommand::init(const QList<QWidget*> &widgets, QWidget *layoutBase)
 {
-    QDesignerFormEditorInterface *core = formWindow()->core();
+    enum Type { SplitterLayout, LayoutHasMarginSpacing, LayoutHasState };
 
+    const QDesignerFormEditorInterface *core = formWindow()->core();
     m_widgets = widgets;
     m_layoutBase = core->widgetFactory()->containerOfWidget(layoutBase);
-    m_layout = 0;
+    const LayoutInfo::Type layoutType = LayoutInfo::layoutType(core, m_layoutBase);
+    m_layout = Layout::createLayout(widgets, m_layoutBase, formWindow(), layoutBase, layoutType);
 
-    const QPoint grid = formWindow()->grid();
-
-    const LayoutInfo::Type lay = LayoutInfo::layoutType(core, m_layoutBase);
-    if (lay == LayoutInfo::HBox)
-        m_layout = new HorizontalLayout(widgets, m_layoutBase, formWindow(), m_layoutBase, qobject_cast<QSplitter*>(m_layoutBase) != 0);
-    else if (lay == LayoutInfo::VBox)
-        m_layout = new VerticalLayout(widgets, m_layoutBase, formWindow(), m_layoutBase, qobject_cast<QSplitter*>(m_layoutBase) != 0);
-    else if (lay == LayoutInfo::Grid)
-        m_layout = new GridLayout(widgets, m_layoutBase, formWindow(), m_layoutBase, QSize(qMax(5, grid.x()), qMax(5, grid.y())));
-    // ### StackedLayout
-
+    Type type = LayoutHasState;
+    switch (layoutType) {
+    case LayoutInfo::NoLayout:
+    case LayoutInfo::HSplitter:
+    case LayoutInfo::VSplitter:
+        type = SplitterLayout;
+        break;
+    case LayoutInfo::HBox:
+    case LayoutInfo::VBox: // Margin/spacing need to be saved
+        type = LayoutHasMarginSpacing;
+        break;
+    default: // Margin/spacing need to be saved + has a state (empty rows/columns of a grid)
+        type = LayoutHasState;
+        break;
+    }
     Q_ASSERT(m_layout != 0);
-
     m_layout->sort();
 
-    QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(core->extensionManager(), LayoutInfo::internalLayout(m_layoutBase));
-    if (sheet) {
-        m_leftMargin = sheet->property(sheet->indexOf("leftMargin")).toInt();
-        m_topMargin = sheet->property(sheet->indexOf("topMargin")).toInt();
-        m_rightMargin = sheet->property(sheet->indexOf("rightMargin")).toInt();
-        m_bottomMargin = sheet->property(sheet->indexOf("bottomMargin")).toInt();
-        m_spacing = sheet->property(sheet->indexOf("spacing")).toInt();
-        m_horizSpacing = sheet->property(sheet->indexOf("horizontalSpacing")).toInt();
-        m_vertSpacing = sheet->property(sheet->indexOf("verticalSpacing")).toInt();
-        m_leftMarginChanged = sheet->isChanged(sheet->indexOf(QLatin1String("leftMargin")));
-        m_topMarginChanged = sheet->isChanged(sheet->indexOf(QLatin1String("topMargin")));
-        m_rightMarginChanged = sheet->isChanged(sheet->indexOf(QLatin1String("rightMargin")));
-        m_bottomMarginChanged = sheet->isChanged(sheet->indexOf(QLatin1String("bottomMargin")));
-        m_spacingChanged = sheet->isChanged(sheet->indexOf(QLatin1String("spacing")));
-        m_horizSpacingChanged = sheet->isChanged(sheet->indexOf(QLatin1String("horizontalSpacing")));
-        m_vertSpacingChanged = sheet->isChanged(sheet->indexOf(QLatin1String("verticalSpacing")));
+    if (type >= LayoutHasMarginSpacing) {
+        m_properties = new LayoutProperties;
+        m_propertyMask = m_properties->fromPropertySheet(core, m_layoutBase->layout(), LayoutProperties::AllProperties);
     }
+    if (type >= LayoutHasState)
+         m_layoutHelper = LayoutHelper::createLayoutHelper(layoutType);
 }
 
 void BreakLayoutCommand::redo()
@@ -608,6 +622,8 @@ void BreakLayoutCommand::redo()
         deco = qt_extension<QDesignerLayoutDecorationExtension*>(core->extensionManager(), p);
 
     formWindow()->clearSelection(false);
+    if (m_layoutHelper)
+        m_layoutHelper->pushState(m_layoutBase);
     m_layout->breakLayout();
     delete deco; // release the extension
 
@@ -623,28 +639,75 @@ void BreakLayoutCommand::undo()
 
     formWindow()->clearSelection(false);
     m_layout->doLayout();
+    if (m_layoutHelper)
+        m_layoutHelper->popState(formWindow()->core(), m_layoutBase);
 
-    if (m_layoutBase && m_layoutBase->layout()) {
-        QDesignerFormEditorInterface *core = formWindow()->core();
-        QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(core->extensionManager(), LayoutInfo::internalLayout(m_layoutBase));
-        if (sheet) {
-            sheet->setProperty(sheet->indexOf("leftMargin"), m_leftMargin);
-            sheet->setChanged(sheet->indexOf("leftMargin"), m_leftMarginChanged);
-            sheet->setProperty(sheet->indexOf("topMargin"), m_topMargin);
-            sheet->setChanged(sheet->indexOf("topMargin"), m_topMarginChanged);
-            sheet->setProperty(sheet->indexOf("rightMargin"), m_rightMargin);
-            sheet->setChanged(sheet->indexOf("rightMargin"), m_rightMarginChanged);
-            sheet->setProperty(sheet->indexOf("bottomMargin"), m_bottomMargin);
-            sheet->setChanged(sheet->indexOf("bottomMargin"), m_bottomMarginChanged);
-            sheet->setProperty(sheet->indexOf("spacing"), m_spacing);
-            sheet->setChanged(sheet->indexOf("spacing"), m_spacingChanged);
-            sheet->setProperty(sheet->indexOf("horizontalSpacing"), m_horizSpacing);
-            sheet->setChanged(sheet->indexOf("horizontalSpacing"), m_horizSpacingChanged);
-            sheet->setProperty(sheet->indexOf("verticalSpacing"), m_vertSpacing);
-            sheet->setChanged(sheet->indexOf("verticalSpacing"), m_vertSpacingChanged);
+    if (m_properties && m_layoutBase && m_layoutBase->layout())
+        m_properties->toPropertySheet(formWindow()->core(), m_layoutBase->layout(), m_propertyMask);
+}
+// ---- SimplifyLayoutCommand
+SimplifyLayoutCommand::SimplifyLayoutCommand(QDesignerFormWindowInterface *formWindow) :
+    QDesignerFormWindowCommand(QApplication::translate("Command", "Simplify layout"), formWindow),
+    m_area(0, 0, 32767, 32767),
+    m_layoutBase(0),
+    m_layoutHelper(0),
+    m_layoutSimplified(false)
+{
+}
 
-        }
+SimplifyLayoutCommand::~SimplifyLayoutCommand()
+{
+    delete m_layoutHelper;
+}
+
+bool SimplifyLayoutCommand::canSimplify(QDesignerFormEditorInterface *core, const QWidget *w, int *layoutType)
+{
+    if (!w || !w->layout())
+        return false;
+    const LayoutInfo::Type type = LayoutInfo::layoutType(core, w);
+    if (layoutType)
+        *layoutType = type;
+    switch (type) { // Known negatives
+    case LayoutInfo::NoLayout:
+    case LayoutInfo::HSplitter:
+    case LayoutInfo::VSplitter:
+    case LayoutInfo::HBox:
+    case LayoutInfo::VBox:
+        return false;
+    default:
+        break;
     }
+    QLayout *layout = LayoutInfo::managedLayout(core, w);
+    if (!layout)
+        return false;
+    if (type == LayoutInfo::Grid)
+        return QLayoutSupport::canSimplifyQuickCheck(qobject_cast<QGridLayout*>(layout));
+    return true;
+}
+
+bool SimplifyLayoutCommand::init(QWidget *layoutBase)
+{
+    m_layoutSimplified = false;
+    int type;
+    if (canSimplify(formWindow()->core(), layoutBase, &type)) {
+        m_layoutBase = layoutBase;
+        m_layoutHelper = LayoutHelper::createLayoutHelper(type);
+        m_layoutSimplified = m_layoutHelper->canSimplify(layoutBase, m_area);
+    }
+    return m_layoutSimplified;
+}
+
+void SimplifyLayoutCommand::redo()
+{
+    if (m_layoutSimplified) {
+        m_layoutHelper->pushState(m_layoutBase);
+        m_layoutHelper->simplify(formWindow()->core(), m_layoutBase, m_area);
+    }
+}
+void SimplifyLayoutCommand::undo()
+{
+    if (m_layoutSimplified)
+         m_layoutHelper->popState(formWindow()->core(), m_layoutBase);
 }
 
 // ---- ToolBoxCommand ----
@@ -1509,7 +1572,10 @@ void ChangeLayoutItemGeometry::changeItemPosition(const QRect &g)
     QLayoutItem *item = grid->takeAt(itemIndex);
     delete item;
 
-    add_to_grid_layout(grid, m_widget, g.top(), g.left(), g.height(), g.width());
+    if (!QLayoutSupport::removeEmptyCells(grid, g))
+        qWarning() << "ChangeLayoutItemGeometry::changeItemPosition: Nonempty cell at " <<  g << '.';
+
+    grid->addWidget(m_widget, g.top(), g.left(), g.height(), g.width());
 
     grid->invalidate();
     grid->activate();
@@ -1529,28 +1595,6 @@ void ChangeLayoutItemGeometry::undo()
 {
     changeItemPosition(m_oldInfo);
 }
-
-// ---- InsertRowCommand ----
-InsertRowCommand::InsertRowCommand(QDesignerFormWindowInterface *formWindow)
-    : QDesignerFormWindowCommand(QApplication::translate("Command", "Insert Row"), formWindow)
-{
-}
-
-void InsertRowCommand::init(QWidget *widget, int row)
-{
-    m_widget = widget;
-    m_row = row;
-}
-
-void InsertRowCommand::redo()
-{
-}
-
-void InsertRowCommand::undo()
-{
-}
-
-
 
 // ---- ContainerWidgetCommand ----
 ContainerWidgetCommand::ContainerWidgetCommand(QDesignerFormWindowInterface *formWindow)

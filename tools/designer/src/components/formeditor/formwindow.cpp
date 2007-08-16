@@ -1817,7 +1817,7 @@ bool FormWindow::hasInsertedChildren(QWidget *widget) const // ### move
 void FormWindow::layoutHorizontalSplit()
 {
     LayoutCommand *cmd = new LayoutCommand(this);
-    cmd->init(mainContainer(), selectedWidgets(), LayoutInfo::HBox, /*layoutBase=*/ 0, /*splitter=*/ true);
+    cmd->init(mainContainer(), selectedWidgets(), LayoutInfo::HSplitter, /*layoutBase=*/ 0);
     clearSelection(false);
     commandHistory()->push(cmd);
 }
@@ -1825,7 +1825,7 @@ void FormWindow::layoutHorizontalSplit()
 void FormWindow::layoutVerticalSplit()
 {
     LayoutCommand *cmd = new LayoutCommand(this);
-    cmd->init(mainContainer(), selectedWidgets(), LayoutInfo::VBox, /*layoutBase=*/ 0, /*splitter=*/ true);
+    cmd->init(mainContainer(), selectedWidgets(), LayoutInfo::VSplitter, /*layoutBase=*/ 0);
     clearSelection(false);
     commandHistory()->push(cmd);
 }
@@ -1883,6 +1883,7 @@ QMenu *FormWindow::createPopupMenu(QWidget *w)
         layoutMenu->addAction(manager->actionSplitVertical());
     }
     layoutMenu->addAction(manager->actionBreakLayout());
+    layoutMenu->addAction(manager->actionSimplifyLayout());
 
     return popup;
 }

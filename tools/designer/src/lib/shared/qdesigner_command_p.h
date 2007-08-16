@@ -40,7 +40,6 @@
 
 class QDesignerContainerExtension;
 class QDesignerMetaDataBaseItemInterface;
-
 class QDesignerMenu;
 
 class QMenuBar;
@@ -61,12 +60,15 @@ class QMainWindow;
 namespace qdesigner_internal {
 
 class Layout;
+class LayoutHelper;
+struct LayoutProperties;
 
 class QDESIGNER_SHARED_EXPORT InsertWidgetCommand: public QDesignerFormWindowCommand
 {
 
 public:
     explicit InsertWidgetCommand(QDesignerFormWindowInterface *formWindow);
+    ~InsertWidgetCommand();
 
     void init(QWidget *widget, bool already_in_form = false);
 
@@ -79,6 +81,7 @@ private:
     QPointer<QWidget> m_widget;
     QDesignerLayoutDecorationExtension::InsertMode m_insertMode;
     QPair<int, int> m_cell;
+    LayoutHelper* m_layoutHelper;
     bool m_widgetWasManaged;
 };
 
@@ -133,6 +136,7 @@ class QDESIGNER_SHARED_EXPORT DeleteWidgetCommand: public QDesignerFormWindowCom
 
 public:
     explicit DeleteWidgetCommand(QDesignerFormWindowInterface *formWindow);
+    ~DeleteWidgetCommand();
 
     void init(QWidget *widget);
 
@@ -144,9 +148,10 @@ private:
     QPointer<QWidget> m_parentWidget;
     QRect m_geometry;
     LayoutInfo::Type m_layoutType;
-    int m_index;
-    int m_row, m_col;
-    int m_rowspan, m_colspan;
+    LayoutHelper* m_layoutHelper;
+    QRect m_layoutPosition;
+    int m_splitterIndex;
+    bool m_layoutSimplified;
     QDesignerMetaDataBaseItemInterface *m_formItem;
     int m_tabOrderIndex;
     QList<QPointer<QWidget> > m_managedChildren;
@@ -192,23 +197,6 @@ private:
     QRect m_newInfo;
 };
 
-class QDESIGNER_SHARED_EXPORT InsertRowCommand: public QDesignerFormWindowCommand
-{
-
-public:
-    explicit InsertRowCommand(QDesignerFormWindowInterface *formWindow);
-
-    void init(QWidget *widget, int row);
-
-    virtual void redo();
-    virtual void undo();
-
-private:
-    QPointer<QWidget> m_widget;
-    int m_row;
-};
-
-
 class QDESIGNER_SHARED_EXPORT TabOrderCommand: public QDesignerFormWindowCommand
 {
 
@@ -236,7 +224,7 @@ class QDESIGNER_SHARED_EXPORT PromoteToCustomWidgetCommand : public QDesignerFor
 {
 public:
     typedef QList<QPointer<QWidget> > WidgetList;
-    
+
     explicit PromoteToCustomWidgetCommand(QDesignerFormWindowInterface *formWindow);
 
     void init(const WidgetList &widgets, const QString &customClassName);
@@ -274,7 +262,7 @@ public:
     { return m_widgets; }
 
     void init(QWidget *parentWidget, const QList<QWidget*> &widgets, LayoutInfo::Type layoutType,
-        QWidget *layoutBase = 0, bool splitter = false);
+        QWidget *layoutBase = 0);
 
     virtual void redo();
     virtual void undo();
@@ -305,20 +293,30 @@ private:
     QList<QWidget*> m_widgets;
     QPointer<QWidget> m_layoutBase;
     QPointer<Layout> m_layout;
-    int m_leftMargin;
-    int m_topMargin;
-    int m_rightMargin;
-    int m_bottomMargin;
-    int m_spacing;
-    int m_horizSpacing;
-    int m_vertSpacing;
-    bool m_leftMarginChanged;
-    bool m_topMarginChanged;
-    bool m_rightMarginChanged;
-    bool m_bottomMarginChanged;
-    bool m_spacingChanged;
-    bool m_horizSpacingChanged;
-    bool m_vertSpacingChanged;
+    LayoutHelper* m_layoutHelper;
+    LayoutProperties *m_properties;
+    int m_propertyMask;
+};
+
+class QDESIGNER_SHARED_EXPORT SimplifyLayoutCommand: public QDesignerFormWindowCommand
+{
+public:
+    explicit SimplifyLayoutCommand(QDesignerFormWindowInterface *formWindow);
+    virtual ~SimplifyLayoutCommand();
+
+    bool init(QWidget *layoutBase);
+
+    // Quick check
+    static bool canSimplify(QDesignerFormEditorInterface *core, const QWidget *w, int *layoutType = 0);
+
+    virtual void redo();
+    virtual void undo();
+
+private:
+    const QRect m_area;
+    QWidget *m_layoutBase;
+    LayoutHelper* m_layoutHelper;
+    bool m_layoutSimplified;
 };
 
 class QDESIGNER_SHARED_EXPORT ToolBoxCommand: public QDesignerFormWindowCommand

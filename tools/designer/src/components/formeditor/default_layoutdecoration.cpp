@@ -13,110 +13,12 @@
 
 #include "default_layoutdecoration.h"
 #include "qlayout_widget_p.h"
-#include "qdesigner_widget_p.h"
 
 #include <QtDesigner/QDesignerMetaDataBaseItemInterface>
 #include <QtDesigner/QDesignerFormWindowInterface>
 #include <QtDesigner/QDesignerFormEditorInterface>
 
-#include <QtGui/QGridLayout>
-#include <QtCore/qdebug.h>
-
 namespace qdesigner_internal {
-
-// ---- QDesignerLayoutDecoration ----
-QDesignerLayoutDecoration::QDesignerLayoutDecoration(QLayoutWidget *widget, QObject *parent)
-    : QObject(parent),
-      m_layoutSupport(widget->support())
-{
-    Q_ASSERT(m_layoutSupport);
-}
-
-QDesignerLayoutDecoration::QDesignerLayoutDecoration(QDesignerFormWindowInterface *formWindow, QWidget *widget, QObject *parent)
-    : QObject(parent),
-      m_layoutSupport(new QLayoutSupport(formWindow, widget, this))
-{
-    Q_ASSERT(m_layoutSupport);
-}
-
-QDesignerLayoutDecoration::~QDesignerLayoutDecoration()
-{
-}
-
-QList<QWidget*> QDesignerLayoutDecoration::widgets(QLayout *layout) const
-{
-    return m_layoutSupport->widgets(layout);
-}
-
-QRect QDesignerLayoutDecoration::itemInfo(int index) const
-{
-    return m_layoutSupport->itemInfo(index);
-}
-
-int QDesignerLayoutDecoration::indexOf(QWidget *widget) const
-{
-    return m_layoutSupport->indexOf(widget);
-}
-
-int QDesignerLayoutDecoration::indexOf(QLayoutItem *item) const
-{
-    return m_layoutSupport->indexOf(item);
-}
-
-QDesignerLayoutDecoration::InsertMode QDesignerLayoutDecoration::currentInsertMode() const
-{
-    return m_layoutSupport->currentInsertMode();
-}
-
-void QDesignerLayoutDecoration::insertWidget(QWidget *widget, const QPair<int, int> &cell)
-{
-    m_layoutSupport->insertWidget(widget, cell);
-}
-
-void QDesignerLayoutDecoration::removeWidget(QWidget *widget)
-{
-    m_layoutSupport->removeWidget(widget);
-}
-
-void QDesignerLayoutDecoration::insertRow(int row)
-{
-    m_layoutSupport->insertRow(row);
-}
-
-void QDesignerLayoutDecoration::insertColumn(int column)
-{
-    m_layoutSupport->insertColumn(column);
-}
-
-void QDesignerLayoutDecoration::simplify()
-{
-    m_layoutSupport->simplifyLayout();
-}
-
-int QDesignerLayoutDecoration::currentIndex() const
-{
-    return m_layoutSupport->currentIndex();
-}
-
-QPair<int, int> QDesignerLayoutDecoration::currentCell() const
-{
-    return m_layoutSupport->currentCell();
-}
-
-int QDesignerLayoutDecoration::findItemAt(const QPoint &pos) const
-{
-    return m_layoutSupport->findItemAt(pos);
-}
-
-int QDesignerLayoutDecoration::findItemAt(int row, int column) const
-{
-    return m_layoutSupport->findItemAt(row, column);
-}
-
-void QDesignerLayoutDecoration::adjustIndicator(const QPoint &pos, int index)
-{
-    m_layoutSupport->adjustIndicator(pos, index);
-}
 
 // ---- QDesignerLayoutDecorationFactory ----
 QDesignerLayoutDecorationFactory::QDesignerLayoutDecorationFactory(QExtensionManager *parent)
@@ -126,18 +28,32 @@ QDesignerLayoutDecorationFactory::QDesignerLayoutDecorationFactory(QExtensionMan
 
 QObject *QDesignerLayoutDecorationFactory::createExtension(QObject *object, const QString &iid, QObject *parent) const
 {
-    if (iid != Q_TYPEID(QDesignerLayoutDecorationExtension))
+    if (!object->isWidgetType() || iid != Q_TYPEID(QDesignerLayoutDecorationExtension))
         return 0;
 
-    if (QLayoutWidget *widget = qobject_cast<QLayoutWidget*>(object)) {
-        return new QDesignerLayoutDecoration(widget, parent);
-    } else if (QWidget *widget = qobject_cast<QWidget*>(object)) {
-        if (QDesignerFormWindowInterface *fw = QDesignerFormWindowInterface::findFormWindow(widget)) {
-            QDesignerMetaDataBaseItemInterface *item = fw->core()->metaDataBase()->item(widget->layout());
-            return item ? new QDesignerLayoutDecoration(fw, widget, parent) : 0;
+    QDesignerFormWindowInterface *fw = 0;
+    QWidget *widget = qobject_cast<QWidget*>(object);
+    bool match = false;
+    do {
+        if (const QLayoutWidget *layoutWidget = qobject_cast<const QLayoutWidget*>(widget)) {
+            fw = layoutWidget->formWindow();
+            match = true;
+            break;
         }
-    }
 
+        QLayout *layout = widget->layout();
+        if (!layout)
+            break;
+
+        fw = QDesignerFormWindowInterface::findFormWindow(widget);
+        if (!fw)
+            break;
+
+        if (fw->core()->metaDataBase()->item(layout))
+            match = true;
+    } while (false);
+    if (match)
+        return QLayoutSupport::createLayoutSupport(fw, widget, parent);
     return 0;
 }
 }

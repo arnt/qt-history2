@@ -692,10 +692,6 @@ void QDesignerResource::applyProperties(QObject *o, const QList<DomProperty*> &p
         if (propertyName == objectNameProperty)
             changeObjectName(o, o->objectName());
     }
-
-    if (QSplitter *splitter = qobject_cast<QSplitter *>(o)) {
-        WidgetFactory::createUnmanagedLayout(splitter, splitter->orientation() == Qt::Horizontal ? LayoutInfo::HBox : LayoutInfo::VBox);
-    }
 }
 
 QWidget *QDesignerResource::createWidget(const QString &widgetName, QWidget *parentWidget, const QString &_name)
@@ -755,8 +751,6 @@ QLayout *QDesignerResource::createLayout(const QString &layoutName, QObject *par
         layoutType = LayoutInfo::VBox;
     else if (layoutName == QLatin1String("QHBoxLayout"))
         layoutType = LayoutInfo::HBox;
-    else if (layoutName == QLatin1String("QStackedLayout"))
-        layoutType = LayoutInfo::Stacked;
 
     QLayout *lay = core()->widgetFactory()->createLayout(layoutBase, layout, layoutType);
     if (lay != 0)
@@ -1358,11 +1352,10 @@ bool QDesignerResource::addItem(DomLayoutItem *ui_item, QLayoutItem *item, QLayo
     if (grid != 0) {
         const int rowSpan = ui_item->hasAttributeRowSpan() ? ui_item->attributeRowSpan() : 1;
         const int colSpan = ui_item->hasAttributeColSpan() ? ui_item->attributeColSpan() : 1;
-        add_to_grid_layout(grid, item->widget(), ui_item->attributeRow(), ui_item->attributeColumn(),
-                        rowSpan, colSpan, item->alignment());
+        grid->addWidget(item->widget(), ui_item->attributeRow(), ui_item->attributeColumn(), rowSpan, colSpan, item->alignment());
         return true;
     } else if (box != 0) {
-        add_to_box_layout(box, item->widget());
+        box->addItem(item);
         return true;
     }
 

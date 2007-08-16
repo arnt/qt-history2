@@ -40,16 +40,18 @@
 class QDesignerFormWindowInterface;
 
 namespace qdesigner_internal {
-
-void QDESIGNER_SHARED_EXPORT add_to_box_layout(QBoxLayout *box, QWidget *widget);
-void QDESIGNER_SHARED_EXPORT insert_into_box_layout(QBoxLayout *box, int index, QWidget *widget);
-void QDESIGNER_SHARED_EXPORT add_to_grid_layout(QGridLayout *grid, QWidget *widget, int r, int c, int rs, int cs, Qt::Alignment align = 0);
-
 class QDESIGNER_SHARED_EXPORT Layout : public QObject
 {
     Q_OBJECT
+
+protected:
+    Layout(const QWidgetList &wl, QWidget *p, QDesignerFormWindowInterface *fw, QWidget *lb, LayoutInfo::Type layoutType);
+
 public:
-    Layout(const QList<QWidget*> &wl, QWidget *p, QDesignerFormWindowInterface *fw, QWidget *lb, bool splitter = false);
+    static  Layout* createLayout(const QWidgetList &widgets,  QWidget *parentWidget,
+                                 QDesignerFormWindowInterface *fw,
+                                 QWidget *layoutBase, LayoutInfo::Type layoutType);
+
     virtual ~Layout();
 
     virtual void sort() = 0;
@@ -58,121 +60,36 @@ public:
     virtual void setup();
     virtual void undoLayout();
     virtual void breakLayout();
-    virtual bool prepareLayout(bool &needMove, bool &needReparent);
-    virtual void finishLayout(bool needMove, QLayout *layout);
 
-    QList<QWidget*> widgets() const { return m_widgets; }
-    QWidget *parentWidget() const { return m_parentWidget; }
-    QWidget *layoutBaseWidget() const { return m_layoutBase; }
+    const QWidgetList &widgets() const { return m_widgets; }
+    QWidget *parentWidget() const      { return m_parentWidget; }
+    QWidget *layoutBaseWidget() const  { return m_layoutBase; }
 
 protected:
-    QLayout *createLayout(int type);
+    virtual void finishLayout(bool needMove, QLayout *layout = 0);
+    virtual bool prepareLayout(bool &needMove, bool &needReparent);
 
-    QList<QWidget*> m_widgets;
+    void setWidgets(const  QWidgetList &widgets) { m_widgets = widgets; }
+    QLayout *createLayout(int type);
+    void reparentToLayoutBase(QWidget *w);
+
+private slots:
+    void widgetDestroyed();
+
+private:
+    Layout(const  Layout &);
+    Layout &operator=(const  Layout &);
+
+    QWidgetList m_widgets;
     QWidget *m_parentWidget;
     typedef QHash<QWidget *, QRect> WidgetGeometryHash;
     WidgetGeometryHash m_geometries;
     QWidget *m_layoutBase;
     QDesignerFormWindowInterface *m_formWindow;
-    bool m_useSplitter;
-
-
-protected slots:
-    void widgetDestroyed();
-
-private:
+    const LayoutInfo::Type m_layoutType;
     QPoint m_startPoint;
     QRect m_oldGeometry;
-    bool m_isBreak;
-};
-
-class QDESIGNER_SHARED_EXPORT HorizontalLayout : public Layout
-{
-public:
-    HorizontalLayout(const QList<QWidget*> &wl, QWidget *p, QDesignerFormWindowInterface *fw, QWidget *lb, bool splitter = false);
-
-    virtual void doLayout();
-    virtual void sort();
-};
-
-class QDESIGNER_SHARED_EXPORT VerticalLayout : public Layout
-{
-public:
-    VerticalLayout(const QList<QWidget*> &wl, QWidget *p, QDesignerFormWindowInterface *fw, QWidget *lb, bool splitter = false);
-
-    virtual void doLayout();
-    virtual void sort();
-};
-
-class QDESIGNER_SHARED_EXPORT StackedLayout : public Layout
-{
-public:
-    StackedLayout(const QList<QWidget*> &wl, QWidget *p, QDesignerFormWindowInterface *fw, QWidget *lb, bool splitter = false);
-
-    virtual void doLayout();
-    virtual void sort();
-};
-
-
-class Grid;
-
-class QDESIGNER_SHARED_EXPORT GridLayout : public Layout
-{
-public:
-    GridLayout(const QList<QWidget*> &wl, QWidget *p, QDesignerFormWindowInterface *fw, QWidget *lb, const QSize &res);
-    ~GridLayout();
-
-    virtual void doLayout();
-    virtual void sort();
-
-protected:
-    QWidget *widgetAt(QGridLayout *layout, int row, int column) const;
-
-protected:
-    void buildGrid();
-    QSize m_resolution;
-    Grid* m_grid;
-
-};
-
-class QDESIGNER_SHARED_EXPORT WidgetVerticalSorter
-{
-public:
-    bool operator()(const QWidget *a, const QWidget *b) const
-    { return a->y() < b->y(); }
-};
-
-class QDESIGNER_SHARED_EXPORT WidgetHorizontalSorter
-{
-public:
-    bool operator()(const QWidget *a, const QWidget *b) const
-    { return a->x() < b->x(); }
-};
-
-class VerticalLayoutList: public QList<QWidget*>
-{
-public:
-    VerticalLayoutList(const QList<QWidget*> &l)
-        : QList<QWidget*>(l) {}
-
-    static bool lessThan(const QWidget *a, const QWidget *b)
-    {  return a->y() < b->y(); }
-
-    void sort()
-    { qSort(this->begin(), this->end(), WidgetVerticalSorter()); }
-};
-
-class HorizontalLayoutList : public QList<QWidget*>
-{
-public:
-    explicit HorizontalLayoutList(const QList<QWidget*> &l)
-        : QList<QWidget*>(l) {}
-
-    static bool hLessThan(const QWidget *a, const QWidget *b)
-    { return a->x() < b->x(); }
-
-    void sort()
-    { qSort(this->begin(), this->end(), WidgetHorizontalSorter()); }
+    const bool m_isBreak;
 };
 
 namespace Utils

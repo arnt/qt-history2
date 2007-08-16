@@ -303,7 +303,6 @@ void FormWindowManager::setupActions()
     connect(m_actionLower, SIGNAL(triggered()), this, SLOT(slotActionLowerActivated()));
     m_actionLower->setEnabled(false);
 
-
     m_actionAdjustSize = new QAction(createIconSet(QLatin1String("adjustsize.png")), tr("Adjust &Size"), this);
     m_actionAdjustSize->setObjectName(QLatin1String("__qt_adjust_size_action"));
     m_actionAdjustSize->setShortcut(Qt::CTRL + Qt::Key_J);
@@ -361,6 +360,14 @@ void FormWindowManager::setupActions()
     m_actionBreakLayout->setWhatsThis(whatsThisFrom(QLatin1String("Layout|Break Layout")));
     connect(m_actionBreakLayout, SIGNAL(triggered()), this, SLOT(slotActionBreakLayoutActivated()));
     m_actionBreakLayout->setEnabled(false);
+
+    QAction *simplifyLayoutAction = new QAction(tr("Si&mplify Layout"), this);
+    simplifyLayoutAction->setObjectName(QLatin1String("__qt_simplify_layout_action"));
+    simplifyLayoutAction->setStatusTip(tr("Removes empty columns and rows"));
+    simplifyLayoutAction->setWhatsThis(whatsThisFrom(QLatin1String("Layout|Simplify Layout")));
+    connect(simplifyLayoutAction, SIGNAL(triggered()), this, SLOT(slotActionSimplifyLayoutActivated()));
+    simplifyLayoutAction->setEnabled(false);
+    setActionSimplifyLayout(simplifyLayoutAction);
 
     m_undoGroup = new QUndoGroup(this);
 
@@ -463,6 +470,21 @@ void FormWindowManager::slotActionBreakLayoutActivated()
     m_activeFormWindow->endCommand();
 }
 
+void FormWindowManager::slotActionSimplifyLayoutActivated()
+{
+    Q_ASSERT(m_activeFormWindow != 0);
+    QWidgetList selectedWidgets = m_activeFormWindow->selectedWidgets();
+    m_activeFormWindow->simplifySelection(&selectedWidgets);
+    if (selectedWidgets.size() != 1)
+        return;
+    SimplifyLayoutCommand *cmd = new SimplifyLayoutCommand(m_activeFormWindow);
+    if (cmd->init(selectedWidgets.front())) {
+        m_activeFormWindow->commandHistory()->push(cmd);
+    } else {
+        delete cmd;
+    }
+}
+
 void FormWindowManager::slotActionAdjustSizeActivated()
 {
     Q_ASSERT(m_activeFormWindow != 0);
@@ -530,7 +552,7 @@ QList<QWidget *> FormWindowManager::layoutsToBeBroken(QWidget *w) const
 
     QLayout *widgetLayout = widget->layout();
     QLayout *managedLayout = LayoutInfo::managedLayout(m_core, widgetLayout);
-    if (widgetLayout && !managedLayout) {
+    if (!managedLayout) {
         if (qobject_cast<const QSplitter *>(widget)) {
             if (debugFWM)
                 qDebug() << "layoutsToBeBroken: Splitter special";
@@ -625,6 +647,7 @@ void FormWindowManager::slotUpdateActions()
     bool pasteAvailable = false;
     bool layoutAvailable = false;
     bool breakAvailable = false;
+    bool simplifyAvailable = false;
     bool layoutContainer = false;
 
     do {
@@ -673,6 +696,7 @@ void FormWindowManager::slotUpdateActions()
         layoutContainer = (item->isContainer() || m_activeFormWindow->isMainContainer(widget));
 
         layoutAvailable = layoutContainer && m_activeFormWindow->hasInsertedChildren(widget) && managedLayout == 0;
+        simplifyAvailable = SimplifyLayoutCommand::canSimplify(m_core, widget);
         m_layoutChilds = layoutAvailable;
 
     } while(false);
@@ -696,6 +720,7 @@ void FormWindowManager::slotUpdateActions()
     m_actionGridLayout->setEnabled(layoutAvailable);
 
     m_actionBreakLayout->setEnabled(breakAvailable);
+    actionSimplifyLayout()->setEnabled(simplifyAvailable);
 }
 
 void FormWindowManager::layoutContainerHorizontal()

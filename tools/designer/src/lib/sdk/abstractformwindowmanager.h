@@ -22,10 +22,13 @@
 QT_BEGIN_HEADER
 
 class QAction;
+class QActionGroup;
 class QDesignerFormEditorInterface;
 class DomUI;
 class QWidget;
 class QDesignerDnDItemInterface;
+
+class QDesignerFormWindowManagerInterfacePrivate;
 
 class QDESIGNER_SDK_EXPORT QDesignerFormWindowManagerInterface: public QObject
 {
@@ -51,6 +54,7 @@ public:
     virtual QAction *actionGridLayout() const;
     virtual QAction *actionBreakLayout() const;
     virtual QAction *actionAdjustSize() const;
+    QAction *actionSimplifyLayout() const;
 
     virtual QDesignerFormWindowInterface *activeFormWindow() const;
 
@@ -72,6 +76,15 @@ public Q_SLOTS:
     virtual void addFormWindow(QDesignerFormWindowInterface *formWindow);
     virtual void removeFormWindow(QDesignerFormWindowInterface *formWindow);
     virtual void setActiveFormWindow(QDesignerFormWindowInterface *formWindow);
+
+protected:
+    void setActionSimplifyLayout(QAction *action);
+
+private:
+    Q_DECLARE_PRIVATE(QDesignerFormWindowManagerInterface)
+
+    QDesignerFormWindowManagerInterface(const QDesignerFormWindowManagerInterface &other);
+    QDesignerFormWindowManagerInterface &operator = (const QDesignerFormWindowManagerInterface &other);
 };
 
 QT_END_HEADER

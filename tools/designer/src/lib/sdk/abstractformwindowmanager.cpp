@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "abstractformwindowmanager.h"
+#include <private/qobject_p.h>
 
 /*!
     \class QDesignerFormWindowManagerInterface
@@ -73,12 +74,24 @@
     \sa QDesignerFormEditorInterface, QDesignerFormWindowInterface
 */
 
+// ------------- QDesignerFormWindowManagerInterfacePrivate
+class QDesignerFormWindowManagerInterfacePrivate : public  QObjectPrivate {
+public:
+    QDesignerFormWindowManagerInterfacePrivate();
+    QAction *m_simplifyLayoutAction;
+};
+
+QDesignerFormWindowManagerInterfacePrivate::QDesignerFormWindowManagerInterfacePrivate() :
+    m_simplifyLayoutAction(0)
+{
+}
+
 /*!
     Constructs an interface with the given \a parent for the form window
     manager.
 */
 QDesignerFormWindowManagerInterface::QDesignerFormWindowManagerInterface(QObject *parent)
-    : QObject(parent)
+    : QObject(*(new QDesignerFormWindowManagerInterfacePrivate), parent)
 {
 }
 
@@ -246,6 +259,33 @@ QAction *QDesignerFormWindowManagerInterface::actionBreakLayout() const
 QAction *QDesignerFormWindowManagerInterface::actionAdjustSize() const
 {
     return 0;
+}
+
+/*!
+    Allows you to intervene and control \QD's "simplify layout" action. The
+    function returns the original action.
+
+    \sa QAction
+    \since 4.4
+*/
+
+QAction *QDesignerFormWindowManagerInterface::actionSimplifyLayout() const
+{
+    Q_D(const QDesignerFormWindowManagerInterface);
+    return d->m_simplifyLayoutAction;
+}
+
+/*!
+    Sets the "simplify layout" action to \a action.
+
+    \internal
+    \since 4.4
+*/
+
+void QDesignerFormWindowManagerInterface::setActionSimplifyLayout(QAction *action)
+{
+    Q_D(QDesignerFormWindowManagerInterface);
+    d->m_simplifyLayoutAction = action;
 }
 
 /*!

@@ -26,99 +26,164 @@
 #define QLAYOUT_WIDGET_H
 
 #include "shared_global_p.h"
-#include "layoutdecoration.h"
 
-#include <QtDesigner/QDesignerMetaDataBaseInterface>
+#include <QtDesigner/QDesignerLayoutDecorationExtension>
 
 #include <QtCore/QPointer>
+#include <QtCore/QVector>
 #include <QtGui/QWidget>
-#include <QtGui/QGridLayout>
+#include <QtGui/QLayout>
 
 class QDesignerFormWindowInterface;
+class QDesignerFormEditorInterface;
+class QGridLayout;
 
-class QDESIGNER_SHARED_EXPORT QLayoutSupport: public QObject
+namespace qdesigner_internal {
+// ---- LayoutProperties: Helper struct that stores all layout-relevant properties 
+//      with functions to retrieve and apply to property sheets. Can be used to store the state
+//      for undo commands and while rebuilding layouts.
+struct QDESIGNER_SHARED_EXPORT LayoutProperties 
 {
-    Q_OBJECT
-public:
-    QLayoutSupport(QDesignerFormWindowInterface *formWindow, QWidget *widget, QObject *parent = 0);
-    virtual ~QLayoutSupport();
+    LayoutProperties();
+    void clear();
 
-    inline QWidget *widget() const
-    { return m_widget; }
+    enum Margins { LeftMargin, TopMargin, RightMargin, BottomMargin, MarginCount };
+    enum Spacings { Spacing, HorizSpacing, VertSpacing, SpacingsCount };
 
-    inline QLayout *layout() const
-    { return widget()->layout(); }
+    // Property names
+    static const QVector<QString> &marginPropertyNames();
+    static const QVector<QString> &spacingProperyNames();
 
-    inline QGridLayout *gridLayout() const
-    { return qobject_cast<QGridLayout*>(layout()); }
+    enum PropertyMask { LeftMarginProperty = 0x1, TopMarginProperty = 0x2, RightMarginProperty = 0x4, BottomMarginProperty = 0x8,
+                SpacingProperty = 0x10, HorizSpacingProperty = 0x20, VertSpacingProperty = 0x40, AllProperties = 0xFF};
 
-    inline QDesignerFormWindowInterface *formWindow() const
-    { return m_formWindow; }
+    // Retrieve from /apply to sheet: A property mask is returned indicating the properties found in the sheet
+    int fromPropertySheet(const QDesignerFormEditorInterface *core, QLayout *l, int mask = AllProperties);
+    int toPropertySheet(const QDesignerFormEditorInterface *core, QLayout *l, int mask = AllProperties, bool applyChanged = true) const;
 
-    QDesignerFormEditorInterface *core() const;
+    int m_margins[MarginCount];
+    bool m_marginsChanged[MarginCount];
 
-    inline int currentIndex() const
-    { return m_currentIndex; }
-
-    inline QDesignerLayoutDecorationExtension::InsertMode currentInsertMode() const
-    { return m_currentInsertMode; }
-
-    inline QPair<int, int> currentCell() const
-    { return m_currentCell; }
-
-    int findItemAt(const QPoint &pos) const;
-    QRect itemInfo(int index) const;
-    int indexOf(QWidget *widget) const;
-    int indexOf(QLayoutItem *item) const;
-
-    void adjustIndicator(const QPoint &pos, int index);
-
-    void insertWidget(QWidget *widget, const QPair<int, int> &cell);
-    void removeWidget(QWidget *widget);
-
-    QList<QWidget*> widgets(QLayout *layout) const;
-
-    void simplifyLayout();
-
-    void insertRow(int row);
-    void insertColumn(int column);
-
-    void removeRow(int row);
-    void removeColumn(int column);
-
-    QRect extendedGeometry(int index) const;
-
-//
-// QGridLayout helpers
-//
-    int findItemAt(int row, int column) const;
-
-    static int findItemAt(QGridLayout *, int row, int column);
-    static void createEmptyCells(QGridLayout *&gridLayout);
-
-    void computeGridLayout(QHash<QLayoutItem*, QRect> *layout);
-    void rebuildGridLayout(QHash<QLayoutItem*, QRect> *layout);
-    void insertWidget(int index, QWidget *widget);
-
-    inline bool isEmptyItem(QLayoutItem *item) const
-    { return item->spacerItem() != 0; }
-
-protected:
-    void tryRemoveRow(int row);
-    void tryRemoveColumn(int column);
-
-private:
-    QDesignerFormWindowInterface *m_formWindow;
-    QPointer<QWidget> m_widget;
-    QPointer<QWidget> m_indicatorLeft;
-    QPointer<QWidget> m_indicatorTop;
-    QPointer<QWidget> m_indicatorRight;
-    QPointer<QWidget> m_indicatorBottom;
-    int m_currentIndex;
-    QDesignerLayoutDecorationExtension::InsertMode m_currentInsertMode;
-    QPair<int, int> m_currentCell;
+    int m_spacings[SpacingsCount];
+    bool m_spacingsChanged[SpacingsCount];
 };
 
+// -- LayoutHelper: For use with the 'insert widget'/'delete widget' command,
+//    able to store and restore states.
+//    This could become part of 'QDesignerLayoutDecorationExtensionV2',
+//    but to keep any existing old extensions working, it is provided as
+//    separate class with factory function.
+class LayoutHelper {
+protected:
+    LayoutHelper();
+
+public:
+    virtual ~LayoutHelper();
+
+    static LayoutHelper *createLayoutHelper(int type);
+
+    static int indexOf(const QLayout *lt, const QWidget *widget);
+
+    // Return area of an item (x == columns)
+    QRect itemInfo(QLayout *lt, const QWidget *widget) const;
+
+    virtual QRect itemInfo(QLayout *lt, int index) const = 0;
+    virtual void insertWidget(QLayout *lt, const QRect &info, QWidget *w) = 0;
+    virtual void removeWidget(QLayout *lt, QWidget *widget) = 0;
+
+    // Simplify a grid, remove empty columns, rows within the rectangle
+    virtual bool canSimplify(const QWidget *widgetWithManagedLayout, const QRect &restrictionArea) const = 0;
+    virtual void simplify(const QDesignerFormEditorInterface *core, QWidget *widgetWithManagedLayout, const QRect &restrictionArea) = 0;
+
+    // Push and pop a state. Can be used for implementing undo for
+    // simplify/row, column insertion commands, provided that
+    // the widgets remain the same.
+    virtual void pushState(const QWidget *widgetWithManagedLayout)  = 0;
+    virtual void popState(const QDesignerFormEditorInterface *core, QWidget *widgetWithManagedLayout) = 0;
+};
+
+// Base class for layout decoration extensions.
+class QDESIGNER_SHARED_EXPORT QLayoutSupport: public QObject, public QDesignerLayoutDecorationExtension
+{
+    Q_OBJECT
+    Q_INTERFACES(QDesignerLayoutDecorationExtension)
+
+protected:
+    QLayoutSupport(QDesignerFormWindowInterface *formWindow, QWidget *widget, LayoutHelper *helper, QObject *parent = 0);
+
+public:
+    virtual ~QLayoutSupport();
+
+    inline QDesignerFormWindowInterface *formWindow() const   { return m_formWindow; }
+
+    // DecorationExtension V2
+    LayoutHelper* helper() const                              { return m_helper; }
+
+    // DecorationExtension
+    virtual int currentIndex() const                          { return m_currentIndex; }
+
+    virtual InsertMode currentInsertMode() const              { return m_currentInsertMode; }
+
+    virtual QPair<int, int> currentCell() const               { return m_currentCell; }
+
+    virtual int findItemAt(const QPoint &pos) const;
+    virtual int indexOf(QWidget *widget) const;
+    virtual int indexOf(QLayoutItem *item) const;
+
+    virtual void adjustIndicator(const QPoint &pos, int index);
+
+    virtual QList<QWidget*> widgets(QLayout *layout) const;
+
+    // Pad empty cells with dummy spacers. Called by layouting commands.
+    static void createEmptyCells(QGridLayout *gridLayout);
+
+    // remove dummy spacers in the area. Returns false if there are non-empty items in the way
+    static bool removeEmptyCells(QGridLayout *gridLayout, const QRect &area);
+
+    // grid helpers: find item index
+    static int findItemAt(QGridLayout *, int row, int column);
+    // grid helpers: Quick check whether simplify should be enabled for grids. May return false positives.
+    static bool canSimplifyQuickCheck(const QGridLayout *);
+    // Factory function, create layout support according to layout type of widget
+    static QLayoutSupport *createLayoutSupport(QDesignerFormWindowInterface *formWindow, QWidget *widget, QObject *parent = 0);
+
+protected:
+    // figure out insertion position and mode from indicator on empty cell if supported
+    virtual void setCurrentCellFromIndicatorOnEmptyCell(int index) = 0;
+    // figure out insertion position and mode from indicator
+    virtual void setCurrentCellFromIndicator(Qt::Orientation indicatorOrientation, int index, int increment) = 0;
+
+    // Overwrite to return the extended geometry of an item, that is,
+    // if it is a border item, include the widget border for the indicator to work correctly
+    virtual QRect extendedGeometry(int index) const = 0;
+    virtual bool supportsIndicatorOrientation(Qt::Orientation indicatorOrientation) const = 0;
+
+    QRect itemInfo(int index) const;
+    inline QLayout *layout() const       { return m_widget->layout(); }
+    QGridLayout *gridLayout() const;
+    QWidget *widget() const              { return m_widget; }
+
+    void setInsertMode(InsertMode im);
+    void setCurrentCell(const QPair<int, int> &cell);
+
+private:
+    enum Indicator { LeftIndicator, TopIndicator, RightIndicator, BottomIndicator, NumIndicators };
+
+    void hideIndicator(Indicator i);
+    void showIndicator(Indicator i, const QRect &geometry, const QPalette &);
+
+    QDesignerFormWindowInterface *m_formWindow;
+    LayoutHelper* m_helper;
+
+    QPointer<QWidget> m_widget;
+    QPointer<QWidget> m_indicators[NumIndicators];
+    int m_currentIndex;
+    InsertMode m_currentInsertMode;
+    QPair<int, int> m_currentCell;
+};
+} // namespace qdesigner_internal
+
+// Red layout widget.
 class QDESIGNER_SHARED_EXPORT QLayoutWidget: public QWidget
 {
     Q_OBJECT
@@ -137,80 +202,18 @@ public:
     int layoutBottomMargin() const;
     void setLayoutBottomMargin(int layoutMargin);
 
-    inline QDesignerFormWindowInterface *formWindow() const
-    { return m_formWindow; }
-
-    inline QLayoutSupport *support() const
-    { return const_cast<QLayoutSupport*>(&m_support); }
-
-    inline int findItemAt(const QPoint &pos) const
-    { return m_support.findItemAt(pos); }
-
-    inline QRect itemInfo(int index) const
-    { return m_support.itemInfo(index); }
-
-    inline void adjustIndicator(const QPoint &pos, int index)
-    { m_support.adjustIndicator(pos, index); }
-
-    inline void insertWidget(QWidget *widget, const QPair<int, int> &cell)
-    { m_support.insertWidget(widget, cell); }
-
-    inline void removeWidget(QWidget *widget)
-    { m_support.removeWidget(widget); }
+    inline QDesignerFormWindowInterface *formWindow() const    { return m_formWindow; }
 
 protected:
     virtual bool event(QEvent *e);
     virtual void paintEvent(QPaintEvent *e);
 
-    void updateMargin();
-
-    inline QList<QWidget*> widgets(QLayout *layout)
-    { return m_support.widgets(layout); }
-
-    inline void insertRow(int row)
-    { m_support.insertRow(row); }
-
-    inline void insertColumn(int column)
-    { m_support.insertColumn(column); }
-
-    inline void computeGridLayout(QHash<QLayoutItem*, QRect> *layout)
-    { m_support.computeGridLayout(layout); }
-
-    inline void rebuildGridLayout(QHash<QLayoutItem*, QRect> *layout)
-    { m_support.rebuildGridLayout(layout); }
-
 private:
     QDesignerFormWindowInterface *m_formWindow;
-    QLayoutSupport m_support;
     int m_leftMargin;
     int m_topMargin;
     int m_rightMargin;
     int m_bottomMargin;
-};
-
-class QLayoutWidgetItem: public QWidgetItem
-{
-public:
-    explicit QLayoutWidgetItem(QWidget *widget);
-
-    virtual void setGeometry(const QRect &r);
-    virtual QSize sizeHint() const;
-    virtual QSize minimumSize() const;
-    virtual QSize maximumSize() const;
-    virtual Qt::Orientations expandingDirections() const;
-    virtual bool hasHeightForWidth() const;
-    virtual int heightForWidth(int) const;
-    virtual int minimumHeightForWidth(int) const;
-
-    void addTo(QLayout *layout);
-    void removeFrom(QLayout *layout);
-
-protected:
-    inline QLayoutWidgetItem *me() const
-    { return const_cast<QLayoutWidgetItem*>(this); }
-
-    inline QLayout *theLayout() const
-    { Q_ASSERT(me()->widget()); return me()->widget()->layout(); }
 };
 
 #endif // QDESIGNER_WIDGET_H

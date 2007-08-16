@@ -336,6 +336,7 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
     m_formActions->addAction(formWindowManager->actionGridLayout());
     m_formActions->addAction(formWindowManager->actionBreakLayout());
     m_formActions->addAction(formWindowManager->actionAdjustSize());
+    m_formActions->addAction(formWindowManager->actionSimplifyLayout());
     m_formActions->addAction(createSeparator(this));
 
     m_previewFormAction->setShortcut(tr("CTRL+R"));

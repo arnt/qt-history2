@@ -20,51 +20,20 @@
 
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QSplitter>
-
-#include <QtCore/QMap>
-#include <QtCore/qdebug.h>
+#include <QtCore/QDebug>
 
 namespace qdesigner_internal {
-
-LayoutInfo::Type LayoutInfo::layoutType(QDesignerFormEditorInterface *core, QWidget *w, QLayout *&layout)
-{
-    layout = 0;
-
-    if (QDesignerContainerExtension *container = qt_extension<QDesignerContainerExtension*>(core->extensionManager(), w))
-        w = container->widget(container->currentIndex());
-
-    if (qobject_cast<QSplitter*>(w))
-        return static_cast<QSplitter*>(w)->orientation() == Qt::Horizontal ? HBox : VBox;
-
-    if (!w || !w->layout())
-        return NoLayout;
-
-    QLayout *lay = w->layout();
-
-    if (lay && core->metaDataBase()->item(lay) == 0) {
-        lay = qFindChild<QLayout*>(lay);
-    }
-    layout = lay;
-
-#ifdef QD_DEBUG
-    Q_ASSERT (lay == 0 || core->metaDataBase()->item(lay) != 0);
-#endif
-
-    return layoutType(core, lay);
-}
-
 /*!
   \overload
 */
-LayoutInfo::Type LayoutInfo::layoutType(QDesignerFormEditorInterface *core, QLayout *layout)
+LayoutInfo::Type LayoutInfo::layoutType(const QDesignerFormEditorInterface *core, const QLayout *layout)
 {
     Q_UNUSED(core)
-
-    if (qobject_cast<QHBoxLayout*>(layout))
+    if (qobject_cast<const QHBoxLayout*>(layout))
         return HBox;
-    else if (qobject_cast<QVBoxLayout*>(layout))
+    else if (qobject_cast<const QVBoxLayout*>(layout))
         return VBox;
-    else if (qobject_cast<QGridLayout*>(layout))
+    else if (qobject_cast<const QGridLayout*>(layout))
         return Grid;
     return NoLayout;
 }
@@ -72,12 +41,14 @@ LayoutInfo::Type LayoutInfo::layoutType(QDesignerFormEditorInterface *core, QLay
 /*!
   \overload
 */
-LayoutInfo::Type LayoutInfo::layoutType(QDesignerFormEditorInterface *core, QWidget *w)
+LayoutInfo::Type LayoutInfo::layoutType(const QDesignerFormEditorInterface *core, const QWidget *w)
 {
+    if (const QSplitter *splitter = qobject_cast<const QSplitter *>(w))
+        return  splitter->orientation() == Qt::Horizontal ? HSplitter : VSplitter;
     return layoutType(core, w->layout());
 }
 
-QWidget *LayoutInfo::layoutParent(QDesignerFormEditorInterface *core, QLayout *layout)
+QWidget *LayoutInfo::layoutParent(const QDesignerFormEditorInterface *core, QLayout *layout)
 {
     Q_UNUSED(core)
 
@@ -91,7 +62,7 @@ QWidget *LayoutInfo::layoutParent(QDesignerFormEditorInterface *core, QLayout *l
     return 0;
 }
 
-void LayoutInfo::deleteLayout(QDesignerFormEditorInterface *core, QWidget *widget)
+void LayoutInfo::deleteLayout(const QDesignerFormEditorInterface *core, QWidget *widget)
 {
     if (QDesignerContainerExtension *container = qt_extension<QDesignerContainerExtension*>(core->extensionManager(), widget))
         widget = container->widget(container->currentIndex());
@@ -108,34 +79,13 @@ void LayoutInfo::deleteLayout(QDesignerFormEditorInterface *core, QWidget *widge
     qDebug() << "trying to delete an unmanaged layout:" << "widget:" << widget << "layout:" << layout;
 }
 
-void LayoutInfo::cells(QLayout *layout, IntervalList *rows, IntervalList *columns)
-{
-    QMap<Interval, int> rowDict;
-    QMap<Interval, int> columnDict;
-
-    int i = 0;
-    while (QLayoutItem *item = layout->itemAt(i)) {
-        ++i;
-
-        QRect g = item->geometry();
-        columnDict.insert(Interval(g.left(), g.right()), 1);
-        rowDict.insert(Interval(g.top(), g.bottom()), 1);
-    }
-
-    if (columns)
-        *columns = columnDict.keys();
-
-    if (rows)
-        *rows = rowDict.keys();
-}
-
-bool LayoutInfo::isWidgetLaidout(QDesignerFormEditorInterface *core, QWidget *widget)
+bool LayoutInfo::isWidgetLaidout(const QDesignerFormEditorInterface *core, QWidget *widget)
 {
     Q_UNUSED(core);
 
-    QWidget *parent = widget->parentWidget();
+    const QWidget *parent = widget->parentWidget();
 
-    if (qobject_cast<QSplitter*>(parent)) { // ### generalize
+    if (qobject_cast<const QSplitter*>(parent)) { // ### generalize
         return true;
     }
 
@@ -143,7 +93,7 @@ bool LayoutInfo::isWidgetLaidout(QDesignerFormEditorInterface *core, QWidget *wi
         if (parent->layout()->indexOf(widget) != -1)
             return true;
 
-        QList<QLayout*> childLayouts = qFindChildren<QLayout*>(parent->layout());
+        const QList<QLayout*> childLayouts = qFindChildren<QLayout*>(parent->layout());
         foreach (QLayout *childLayout, childLayouts) {
             if (childLayout->indexOf(widget) != -1)
                 return true;
@@ -153,7 +103,7 @@ bool LayoutInfo::isWidgetLaidout(QDesignerFormEditorInterface *core, QWidget *wi
     return false;
 }
 
-QLayout *LayoutInfo::internalLayout(QWidget *widget)
+QLayout *LayoutInfo::internalLayout(const QWidget *widget)
 {
     QLayout *widgetLayout = widget->layout();
     if (widgetLayout && widget->inherits("Q3GroupBox")) {
@@ -167,25 +117,25 @@ QLayout *LayoutInfo::internalLayout(QWidget *widget)
 }
 
 
-QLayout *LayoutInfo::managedLayout(QDesignerFormEditorInterface *core, QWidget *widget)
+QLayout *LayoutInfo::managedLayout(const QDesignerFormEditorInterface *core, const QWidget *widget)
 {
     if (widget == 0)
         return 0;
-    
+
     QLayout *layout = widget->layout();
     if (!layout)
         return 0;
 
-    return managedLayout(core, layout);    
+    return managedLayout(core, layout);
 }
 
-QLayout *LayoutInfo::managedLayout(QDesignerFormEditorInterface *core, QLayout *layout)
+QLayout *LayoutInfo::managedLayout(const QDesignerFormEditorInterface *core, QLayout *layout)
 {
     QDesignerMetaDataBaseInterface *metaDataBase = core->metaDataBase();
 
     if (!metaDataBase)
         return layout;
-    
+
     const QDesignerMetaDataBaseItemInterface *item = metaDataBase->item(layout);
     if (item == 0) {
         layout = qFindChild<QLayout*>(layout);
@@ -195,6 +145,4 @@ QLayout *LayoutInfo::managedLayout(QDesignerFormEditorInterface *core, QLayout *
         return 0;
     return layout;
 }
-
-
 } // namespace qdesigner_internal
