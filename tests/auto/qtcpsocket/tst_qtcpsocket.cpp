@@ -1598,6 +1598,9 @@ void tst_QTcpSocket::connectToMultiIP()
     QFETCH_GLOBAL(bool, ssl);
     if (ssl)
         return;
+    QFETCH_GLOBAL(bool, setProxy);
+    if (setProxy)
+        QSKIP("This test takes too long if we also add the proxies.", SkipSingle);
 
     qDebug("Please wait, this test can take a while...");
 
