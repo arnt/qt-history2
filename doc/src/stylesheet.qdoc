@@ -2022,7 +2022,8 @@
 
            The image property accepts a list of \l{#Url}{Url}s or 
            an \c{svg}. The actual image that is drawn is determined
-           using the same algorithm as QIcon. If a \c{svg} is specified,
+           using the same algorithm as QIcon (i.e) the image is never scaled
+           up but always scaled down if necessary. If a \c{svg} is specified,
            the image is scaled to the size of the contents rectangle.
 
            Setting the image property on sub controls implicitly sets the 
