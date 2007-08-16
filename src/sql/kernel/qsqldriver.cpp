@@ -740,6 +740,7 @@ QStringList QSqlDriver::subscribedToNotifications() const
 */
 bool QSqlDriver::subscribeToNotificationImplementation(const QString &name)
 {
+    Q_UNUSED(name);
     return false;
 }
 
@@ -766,6 +767,7 @@ bool QSqlDriver::subscribeToNotificationImplementation(const QString &name)
 */
 bool QSqlDriver::unsubscribeFromNotificationImplementation(const QString &name)
 {
+    Q_UNUSED(name);
     return false;
 }
 
