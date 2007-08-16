@@ -66,7 +66,9 @@
     slots and are easily connected to menu entries.
 
     \img qmdiarea-arrange.png
-
+    
+    \note The default scroll bar property for QMdiArea is Qt::ScrollBarAlwaysOff.
+    
     \sa QMdiSubWindow
 */
 
