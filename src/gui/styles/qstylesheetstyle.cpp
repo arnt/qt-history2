@@ -1760,18 +1760,18 @@ QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QStyleOption *o
 #endif // QT_NO_TOOLBAR
 #ifndef QT_NO_TOOLBOX
         else if (const QStyleOptionToolBoxV2 *tab = qstyleoption_cast<const QStyleOptionToolBoxV2 *>(opt)) {
-            if (tab->position == QStyleOptionTab::OnlyOneTab)
+            if (tab->position == QStyleOptionToolBoxV2::OnlyOneTab)
                 extraClass |= PseudoClass_OnlyOne;
-            else if (tab->position == QStyleOptionTab::Beginning)
+            else if (tab->position == QStyleOptionToolBoxV2::Beginning)
                 extraClass |= PseudoClass_First;
-            else if (tab->position == QStyleOptionTab::End)
+            else if (tab->position == QStyleOptionToolBoxV2::End)
                 extraClass |= PseudoClass_Last;
-            else if (tab->position == QStyleOptionTab::Middle)
+            else if (tab->position == QStyleOptionToolBoxV2::Middle)
                 extraClass |= PseudoClass_Middle;
 
-            if (tab->selectedPosition == QStyleOptionTab::NextIsSelected)
+            if (tab->selectedPosition == QStyleOptionToolBoxV2::NextIsSelected)
                 extraClass |= PseudoClass_NextSelected;
-            else if (tab->selectedPosition == QStyleOptionTab::PreviousIsSelected)
+            else if (tab->selectedPosition == QStyleOptionToolBoxV2::PreviousIsSelected)
                 extraClass |= PseudoClass_PreviousSelected;
         }
 #endif // QT_NO_TOOLBOX
