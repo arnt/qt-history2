@@ -2719,6 +2719,16 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
         }
         break;
 #endif // QT_NO_SLIDER
+#ifndef QT_NO_SCROLLBAR
+    case CC_ScrollBar:
+        if (const QStyleOptionSlider *scrollbar = qstyleoption_cast<const QStyleOptionSlider *>(opt)) {
+            QStyleOptionSlider newScrollbar = *scrollbar;
+            if (scrollbar->minimum == scrollbar->maximum)
+                newScrollbar.state &= ~State_Enabled; //do not draw the slider.
+            QCommonStyle::drawComplexControl(cc, &newScrollbar, p, widget);
+        }
+        break;
+#endif // QT_NO_SCROLLBAR
 #ifdef QT3_SUPPORT
     case CC_Q3ListView:
         if (const QStyleOptionQ3ListView *lv = qstyleoption_cast<const QStyleOptionQ3ListView *>(opt)) {

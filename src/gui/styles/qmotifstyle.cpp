@@ -1623,7 +1623,12 @@ void QMotifStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComple
                             pixelMetric(PM_DefaultFrameWidth, opt, widget),
                             &opt->palette.brush((opt->state & State_Enabled) ? QPalette::Mid : QPalette::Window));
 
-        QCommonStyle::drawComplexControl(cc, opt, p, widget);
+        if (const QStyleOptionSlider *scrollbar = qstyleoption_cast<const QStyleOptionSlider *>(opt)) {
+            QStyleOptionSlider newScrollbar = *scrollbar;
+            if (scrollbar->minimum == scrollbar->maximum)
+                newScrollbar.state |= State_Enabled; // make sure that the slider is drawn.
+            QCommonStyle::drawComplexControl(cc, &newScrollbar, p, widget);
+        }
         break; }
 
 

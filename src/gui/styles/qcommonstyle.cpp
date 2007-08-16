@@ -2438,8 +2438,6 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
             // Make a copy here and reset it for each primitive.
             QStyleOptionSlider newScrollbar = *scrollbar;
             State saveFlags = scrollbar->state;
-            if (scrollbar->minimum == scrollbar->maximum)
-                saveFlags |= State_Enabled;
 
             if (scrollbar->subControls & SC_ScrollBarSubLine) {
                 newScrollbar.state = saveFlags;
