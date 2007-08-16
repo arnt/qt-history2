@@ -48,10 +48,10 @@ static void sendMousePress(QWidget *widget, const QPoint &point, Qt::MouseButton
     QApplication::sendEvent(widget, &event);
 }
 
-static void sendMouseMove(QWidget *widget, const QPoint &point, Qt::MouseButton button = Qt::NoButton)
+static void sendMouseMove(QWidget *widget, const QPoint &point, Qt::MouseButton button = Qt::NoButton, Qt::MouseButtons buttons = 0)
 {
     QTest::mouseMove(widget, point);
-    QMouseEvent event(QEvent::MouseMove, point, button, 0, 0);
+    QMouseEvent event(QEvent::MouseMove, point, button, buttons, 0);
     QApplication::sendEvent(widget, &event);
 }
 
@@ -662,7 +662,7 @@ void tst_QGraphicsView::dragMode_rubberBand()
 void tst_QGraphicsView::rubberBandSelectionMode()
 {
     QGraphicsScene scene;
-    QGraphicsRectItem *rect = scene.addRect(QRectF(0, 0, 100, 100));
+    QGraphicsRectItem *rect = scene.addRect(QRectF(10, 10, 80, 80));
     rect->setFlag(QGraphicsItem::ItemIsSelectable);
 
     QGraphicsView view(&scene);
@@ -670,19 +670,29 @@ void tst_QGraphicsView::rubberBandSelectionMode()
     view.setDragMode(QGraphicsView::RubberBandDrag);
     view.resize(120, 120);
     view.show();
-    
+
+    // Disable mouse tracking to prevent the window system from sending mouse
+    // move events to the viewport while we are synthesizing events. If
+    // QGraphicsView gets a mouse move event with no buttons down, it'll
+    // terminate the rubber band.
+    view.viewport()->setMouseTracking(false);
+
     QCOMPARE(scene.selectedItems(), QList<QGraphicsItem *>());
     sendMousePress(view.viewport(), QPoint(), Qt::LeftButton);
-    sendMouseMove(view.viewport(), view.viewport()->rect().center(), Qt::LeftButton);
+    sendMouseMove(view.viewport(), view.viewport()->rect().center(),
+                  Qt::LeftButton, Qt::LeftButton);
     QCOMPARE(scene.selectedItems(), QList<QGraphicsItem *>() << rect);
     sendMouseRelease(view.viewport(), QPoint(), Qt::LeftButton);
 
     view.setRubberBandSelectionMode(Qt::ContainsItemShape);
     QCOMPARE(view.rubberBandSelectionMode(), Qt::ContainsItemShape);
     sendMousePress(view.viewport(), QPoint(), Qt::LeftButton);
-    sendMouseMove(view.viewport(), view.viewport()->rect().center(), Qt::LeftButton);
     QCOMPARE(scene.selectedItems(), QList<QGraphicsItem *>());
-    sendMouseMove(view.viewport(), view.viewport()->rect().bottomRight(), Qt::LeftButton);
+    sendMouseMove(view.viewport(), view.viewport()->rect().center(),
+                  Qt::LeftButton, Qt::LeftButton);
+    QCOMPARE(scene.selectedItems(), QList<QGraphicsItem *>());
+    sendMouseMove(view.viewport(), view.viewport()->rect().bottomRight(),
+                  Qt::LeftButton, Qt::LeftButton);
     QCOMPARE(scene.selectedItems(), QList<QGraphicsItem *>() << rect);
 }
 
