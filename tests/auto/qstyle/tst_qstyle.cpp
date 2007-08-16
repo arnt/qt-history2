@@ -8,6 +8,7 @@
 ****************************************************************************/
 
 #include <QtTest/QtTest>
+#include <qlayout.h>
 #include "qstyle.h"
 #include <qevent.h>
 #include <qpainter.h>
@@ -34,6 +35,7 @@
 #include <qcombobox.h>
 #include <qradiobutton.h>
 #include <qlineedit.h>
+#include <qmdiarea.h>
 
 
 #if QT_VERSION >= 0x040200
@@ -52,7 +54,7 @@
 #include <qwidget.h>
 
 //TESTED_CLASS=
-//TESTED_FILES=gui/styles/qstyle.h gui/styles/qstyle.cpp
+//TESTED_FILES=gui/styles/qstyle.h gui/styles/qstyle.cpp gui/styles/qplastiquestyle.cpp gui/styles/qwindowsstyle.cpp gui/styles/qwindowsxpstyle.cpp gui/styles/qwindowsvistastyle.cpp gui/styles/qmotifstyle.cpp
 
 class tst_QStyle : public QObject
 {
@@ -81,8 +83,8 @@ private slots:
     void testStyleFactory();
     void pixelMetric();
     void progressBarChangeStyle();
-
 private:
+	void lineUpLayoutTest();
     QWidget *testWidget;
 };
 
@@ -257,6 +259,7 @@ void tst_QStyle::testPlastiqueStyle()
 {
     QPlastiqueStyle pstyle;
     testAllFunctions(&pstyle);
+	lineUpLayoutTest();
 }
 
 void tst_QStyle::testCleanlooksStyle()
@@ -265,12 +268,14 @@ void tst_QStyle::testCleanlooksStyle()
     QCleanlooksStyle cstyle;
     testAllFunctions(&cstyle);
 #endif
+	lineUpLayoutTest();
 }
 
 void tst_QStyle::testWindowsStyle()
 {
     QWindowsStyle wstyle;
     testAllFunctions(&wstyle);
+	lineUpLayoutTest();
 }
 
 void tst_QStyle::testWindowsXPStyle()
@@ -279,6 +284,7 @@ void tst_QStyle::testWindowsXPStyle()
     QWindowsXPStyle xpstyle;
     testAllFunctions(&xpstyle);
 #endif
+	lineUpLayoutTest();
 }
 
 void writeImage(const QString &fileName, QImage image)
@@ -382,6 +388,17 @@ void tst_QStyle::testPainting(QStyle *style, const QString &platform)
     lineedit.show();
     pixmap = QPixmap::grabWidget(&lineedit);
     lineedit.hide();
+    comparePixmap(fileName, pixmap);
+
+    //MDI
+    fileName = "images/" + platform + "/mdi.png";
+    QMdiArea mdiArea;
+    mdiArea.addSubWindow(new QWidget(&mdiArea));
+    mdiArea.resize(200, 200);
+    mdiArea.setStyle(style);
+    mdiArea.show();
+    pixmap = QPixmap::grabWidget(&mdiArea);
+    mdiArea.hide();
     comparePixmap(fileName, pixmap);
 }
 
@@ -507,6 +524,27 @@ void tst_QStyle::progressBarChangeStyle()
     QTest::qWait(100);
 
     //before the correction, there would be a crash here
+}
+
+void tst_QStyle::lineUpLayoutTest()
+{
+	QWidget widget;
+	QHBoxLayout layout;
+	QFont font;
+	font.setPointSize(9); //Plastique is lined up for odd numbers...
+	widget.setFont(font);
+	QSpinBox spinbox(&widget);
+	QLineEdit lineedit(&widget);
+	QComboBox combo(&widget);
+	combo.setEditable(true);
+	layout.addWidget(&spinbox);
+	layout.addWidget(&lineedit);
+	layout.addWidget(&combo);
+	widget.setLayout(&layout);
+	widget.show();
+	qApp->processEvents();
+    QCOMPARE(spinbox.height(), lineedit.height());
+	QCOMPARE(spinbox.height(), combo.height());
 }
 
 
