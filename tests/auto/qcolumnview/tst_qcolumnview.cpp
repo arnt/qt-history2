@@ -54,6 +54,7 @@ private slots:
     void selectAll();
     void clicked();
     void selectedColumns();
+    void setSelection();
     void setSelectionModel();
 
     // grip
@@ -94,6 +95,10 @@ public:
     bool IsIndexHidden(const QModelIndex&index) const
         { return isIndexHidden(index); }
 
+    void setSelection(const QRect & rect, QItemSelectionModel::SelectionFlags command )
+    {
+        QColumnView::setSelection(rect, command);
+    }
 
 protected:
     QAbstractItemView *createColumn(const QModelIndex &index) {
@@ -232,6 +237,7 @@ void tst_QColumnView::isIndexHidden()
 void tst_QColumnView::indexAt()
 {
     QColumnView view;
+    QCOMPARE(view.indexAt(QPoint(0,0)), QModelIndex());
     QDirModel model;
     view.setModel(&model);
 
@@ -369,6 +375,8 @@ void tst_QColumnView::moveCursor()
 void tst_QColumnView::selectAll()
 {
     ColumnView view;
+    view.selectAll();
+
     QDirModel model;
     view.selectAll();
 
@@ -444,6 +452,14 @@ void tst_QColumnView::selectedColumns()
             continue;
         QVERIFY(column->currentIndex().isValid());
     }
+}
+
+void tst_QColumnView::setSelection()
+{
+    ColumnView view;
+    // shouldn't do anything, it falls to the columns to handle this
+    QRect r;
+    view.setSelection(r, QItemSelectionModel::NoUpdate);
 }
 
 void tst_QColumnView::setSelectionModel()
@@ -531,6 +547,11 @@ void tst_QColumnView::gripMoved()
 void tst_QColumnView::preview()
 {
     QColumnView view;
+    QDirModel model;
+    view.setModel(&model);
+    QModelIndex home = model.index(QDir::homePath());
+    view.setCurrentIndex(home);
+
     QWidget *previewWidget = new QWidget(&view);
     QCOMPARE(view.previewWidget(), (QWidget*)0);
     view.setPreviewWidget(previewWidget);
