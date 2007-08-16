@@ -1204,7 +1204,7 @@ int QGridLayout::verticalSpacing() const
 }
 
 /*!
-    This functiob sets both the vertical and horizontal spacing to
+    This function sets both the vertical and horizontal spacing to
     \a spacing.
 
     \sa setVerticalSpacing(), setHorizontalSpacing()
