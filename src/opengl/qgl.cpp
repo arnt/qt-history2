@@ -2397,11 +2397,11 @@ const QGLContext* QGLContext::currentContext()
     The \a parent and widget flag, \a f, arguments are passed
     to the QWidget constructor.
 
-    If the \a shareWidget parameter points to a valid QGLWidget, this
-    widget will share OpenGL display lists with \a shareWidget. If
-    this widget and \a shareWidget have different \link format()
-    formats\endlink, display list sharing may fail. You can check
-    whether display list sharing succeeded by calling isSharing().
+    If \a shareWidget is a valid QGLWidget, this widget will share
+    OpenGL display lists and texture objects with \a shareWidget. If
+    this widget and \a shareWidget have different \l {format()}
+    {formats}, display list sharing may fail. You can check whether
+    display list sharing succeeded by calling isSharing().
 
     The initialization of OpenGL rendering state, etc. should be done
     by overriding the initializeGL() function, rather than in the
@@ -2436,11 +2436,11 @@ QGLWidget::QGLWidget(QWidget *parent, const QGLWidget* shareWidget, Qt::WindowFl
     The \a parent and widget flag, \a f, arguments are passed
     to the QWidget constructor.
 
-    If the \a shareWidget parameter points to a valid QGLWidget, this
-    widget will share OpenGL display lists with \a shareWidget. If
-    this widget and \a shareWidget have different \link format()
-    formats\endlink, display list sharing may fail. You can check
-    whether display list sharing succeeded by calling isSharing().
+    If \a shareWidget is a valid QGLWidget, this widget will share
+    OpenGL display lists and texture objects with \a shareWidget. If
+    this widget and \a shareWidget have different \l {format()}
+    {formats}, display list sharing may fail. You can check whether
+    display list sharing succeeded by calling isSharing().
 
     The initialization of OpenGL rendering state, etc. should be done
     by overriding the initializeGL() function, rather than in the
@@ -2473,11 +2473,11 @@ QGLWidget::QGLWidget(const QGLFormat &format, QWidget *parent, const QGLWidget* 
     The \a parent and widget flag, \a f, arguments are passed
     to the QWidget constructor.
 
-    If the \a shareWidget parameter points to a valid QGLWidget, this
-    widget will share OpenGL display lists with \a shareWidget. If
-    this widget and \a shareWidget have different \link format()
-    formats\endlink, display list sharing may fail. You can check
-    whether display list sharing succeeded by calling isSharing().
+    If \a shareWidget is a valid QGLWidget, this widget will share
+    OpenGL display lists and texture objects with \a shareWidget. If
+    this widget and \a shareWidget have different \l {format()}
+    {formats}, display list sharing may fail. You can check whether
+    display list sharing succeeded by calling isSharing().
 
     The initialization of OpenGL rendering state, etc. should be done
     by overriding the initializeGL() function, rather than in the
