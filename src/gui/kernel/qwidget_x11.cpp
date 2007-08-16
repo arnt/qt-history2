@@ -331,7 +331,7 @@ static QVector<Atom> getNetWmState(QWidget *w)
                                returnValue.size(), False, XA_ATOM, &actualType, &actualFormat,
                                &propertyLength, &bytesLeft, &propertyData) != Success) {
             returnValue.clear();
-        } else if (propertyLength != returnValue.size()) {
+        } else if (propertyLength != (ulong)returnValue.size()) {
             returnValue.resize(propertyLength);
         }
 
