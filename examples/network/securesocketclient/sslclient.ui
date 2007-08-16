@@ -54,7 +54,7 @@
    <item>
     <widget class="QPushButton" name="connectButton" >
      <property name="enabled" >
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
      <property name="text" >
       <string>Connect to host</string>

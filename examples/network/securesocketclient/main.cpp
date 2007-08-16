@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include <QApplication>
+#include <QMessageBox>
 
 #include "sslclient.h"
 
@@ -20,6 +21,12 @@ int main(int argc, char **argv)
     Q_INIT_RESOURCE(securesocketclient);
 
     QApplication app(argc, argv);
+
+    if (!QSslSocket::supportsSsl()) {
+	QMessageBox::information(0, "Secure Socket Client",
+				 "This system does not support OpenSSL.");
+        return -1;
+    }
 
     SslClient client;
     client.show();

@@ -52,9 +52,7 @@ void SslClient::updateEnabledState()
     form->hostNameLabel->setEnabled(unconnected);
     form->portBox->setEnabled(unconnected);
     form->portLabel->setEnabled(unconnected);
-    form->connectButton->setEnabled(unconnected
-                                    && !form->hostNameEdit->text().isEmpty()
-                                    && form->hostNameEdit->text() != "imap.example.com");
+    form->connectButton->setEnabled(unconnected && !form->hostNameEdit->text().isEmpty());
 
     bool connected = socket && socket->state() == QAbstractSocket::ConnectedState;
     form->sessionBox->setEnabled(connected);
