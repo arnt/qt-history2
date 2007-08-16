@@ -131,6 +131,7 @@ private slots:
     void ensureVisible();
     void cursor();
     //void textControlGetterSetter();
+    void defaultItemTest_QGraphicsLineItem();
     void defaultItemTest_QGraphicsPixmapItem();
     void itemChange();
     void sceneEventFilter();
@@ -3150,6 +3151,39 @@ void tst_QGraphicsItem::textControlGetterSetter()
     delete control;
 }
 */
+
+void tst_QGraphicsItem::defaultItemTest_QGraphicsLineItem()
+{
+    QGraphicsLineItem item;
+    QCOMPARE(item.line(), QLineF());
+    QCOMPARE(item.pen(), QPen());
+    QCOMPARE(item.shape(), QPainterPath());
+
+    item.setPen(QPen(Qt::black, 1));
+    QCOMPARE(item.pen(), QPen(Qt::black, 1));
+    item.setLine(QLineF(0, 0, 10, 0));
+    QCOMPARE(item.line(), QLineF(0, 0, 10, 0));
+    QCOMPARE(item.boundingRect(), QRectF(-0.5, -0.5, 11, 1));
+    QCOMPARE(item.shape().elementCount(), 11);
+
+    QPainterPath path;
+    path.moveTo(0, -0.5);
+    path.lineTo(10, -0.5);
+    path.lineTo(10.5, -0.5);
+    path.lineTo(10.5, 0.5);
+    path.lineTo(10, 0.5);
+    path.lineTo(0, 0.5);
+    path.lineTo(-0.5, 0.5);
+    path.lineTo(-0.5, -0.5);
+    path.lineTo(0, -0.5);
+    path.lineTo(0, 0);
+    path.lineTo(10, 0);
+    path.closeSubpath();
+
+    for (int i = 0; i < 11; ++i)
+        QCOMPARE(QPointF(item.shape().elementAt(i)), QPointF(path.elementAt(i)));
+}
+
 void tst_QGraphicsItem::defaultItemTest_QGraphicsPixmapItem()
 {
     QGraphicsPixmapItem item;
