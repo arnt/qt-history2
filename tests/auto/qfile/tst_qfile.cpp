@@ -1996,11 +1996,10 @@ void tst_QFile::handle()
 {
     QFile file("tst_qfile.cpp");
     QVERIFY(file.open(QIODevice::ReadOnly));
-#ifdef Q_OS_WIN
-    QCOMPARE(int(file.handle()), -1);
-#else
     QVERIFY(int(file.handle()) > 2);
-#endif
+    char c = '\0';
+    QT_READ(int(file.handle()), &c, 1);
+    QCOMPARE(c, '/');
 
     QFile file2;
     FILE *fp = fopen("tst_qfile.cpp", "r");

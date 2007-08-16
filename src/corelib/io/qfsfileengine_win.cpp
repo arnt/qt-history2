@@ -798,7 +798,12 @@ int QFSFileEnginePrivate::nativeHandle() const
 {
     if (fh || fd != -1)
         return fh ? QT_FILENO(fh) : fd;
-    return -1;
+    int flags = 0;
+    if (openMode & QIODevice::Append)
+        flags |= _O_APPEND;
+    if (!(openMode & QIODevice::WriteOnly))
+        flags |= _O_RDONLY;
+    return _open_osfhandle((intptr_t) fileHandle, flags);
 }
 
 /*
