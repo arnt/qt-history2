@@ -396,7 +396,16 @@ void tst_QSqlTableModel::removeRow()
     QVERIFY2(model.select(), model.lastError().text().toLatin1());
     QCOMPARE(model.rowCount(), 3);
 
+    // headerDataChanged must be emitted by the model when the edit strategy is OnManualSubmit,
+    // when OnFieldChange or OnRowChange it's not needed because the model will re-select.
+    qRegisterMetaType<Qt::Orientation>("Qt::Orientation");
+    QSignalSpy headerDataChangedSpy(&model, SIGNAL(headerDataChanged(Qt::Orientation, int, int)));
+
     QVERIFY(model.removeRow(1));
+    QCOMPARE(headerDataChangedSpy.count(), 1);
+    QCOMPARE(*static_cast<const Qt::Orientation *>(headerDataChangedSpy.at(0).value(0).constData()), Qt::Vertical);
+    QCOMPARE(headerDataChangedSpy.at(0).at(1).toInt(), 1);
+    QCOMPARE(headerDataChangedSpy.at(0).at(2).toInt(), 1);
     QVERIFY(model.submitAll());
     QCOMPARE(model.rowCount(), 2);
 
@@ -411,7 +420,9 @@ void tst_QSqlTableModel::removeRow()
     QVERIFY2(model.select(), model.lastError().text().toLatin1());
     QCOMPARE(model.rowCount(), 3);
 
+    headerDataChangedSpy.clear();
     QVERIFY(model.removeRow(1));
+    QCOMPARE(headerDataChangedSpy.count(), 0);
     QCOMPARE(model.rowCount(), 2);
 
     QCOMPARE(model.data(model.index(0, 1)).toString(), QString("harry"));
@@ -448,8 +459,15 @@ void tst_QSqlTableModel::removeRows()
     beforeDeleteSpy.clear();
 
     // When the edit strategy is OnManualSubmit the beforeDelete() signal 
-    // isn't emitted until submitAll() is called 
+    // isn't emitted until submitAll() is called.
+    qRegisterMetaType<Qt::Orientation>("Qt::Orientation");
+    QSignalSpy headerDataChangedSpy(&model, SIGNAL(headerDataChanged(Qt::Orientation, int, int)));
     QVERIFY(model.removeRows(0, 2, QModelIndex()));
+    QCOMPARE(headerDataChangedSpy.count(), 2);
+    QCOMPARE(headerDataChangedSpy.at(0).at(1).toInt(), 0);
+    QCOMPARE(headerDataChangedSpy.at(0).at(2).toInt(), 0);
+    QCOMPARE(headerDataChangedSpy.at(1).at(1).toInt(), 1);
+    QCOMPARE(headerDataChangedSpy.at(1).at(2).toInt(), 1);
     QCOMPARE(model.rowCount(), 3);
     QVERIFY(beforeDeleteSpy.count() == 0);
     QVERIFY(model.submitAll()); 

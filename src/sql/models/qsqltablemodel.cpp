@@ -1058,8 +1058,10 @@ bool QSqlTableModel::removeRows(int row, int count, const QModelIndex &parent)
                 return false;
             if (d->cache.value(idx).op == QSqlTableModelPrivate::Insert)
                 revertRow(idx);
-            else
+            else {
                 d->cache[idx].op = QSqlTableModelPrivate::Delete;
+                emit headerDataChanged(Qt::Vertical, idx, idx);
+            }
         }
         break;
     }
