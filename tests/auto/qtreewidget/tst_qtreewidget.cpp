@@ -2190,6 +2190,7 @@ void tst_QTreeWidget::insertExpandedItemsWithSorting()
     for (int i = 0; i < parentText.count(); ++i) {
         QTreeWidgetItem *parent = new QTreeWidgetItem(&tree, QStringList(parentText.at(i)));
         parent->setExpanded(true);
+        QVERIFY(parent->isExpanded());
         items << parent;
         for (int j = 0; j < childText.count(); ++j) {
             QTreeWidgetItem *child = new QTreeWidgetItem(parent, QStringList(childText.at(j)));
@@ -2532,34 +2533,48 @@ void tst_QTreeWidget::removeCurrentItem()
     widget.deleteCurrent();
 }
 
+class TreeWidget : QTreeWidget {
+
+public:
+    QModelIndex indexFromItem(QTreeWidgetItem *item, int column = 0) const {
+        return QTreeWidget::indexFromItem(item, column);
+    }
+    QTreeWidgetItem *itemFromIndex(const QModelIndex &index) const {
+        return QTreeWidget::itemFromIndex(index);
+    }
+};
+
+
 void tst_QTreeWidget::randomExpand()
 {
-    QTreeWidget *tree = new QTreeWidget();
-    tree->setColumnCount(1);
+    QTreeWidget tree;
+    QTreeWidgetItem *item1 = new QTreeWidgetItem(&tree);
+    QTreeWidgetItem *item3 = new QTreeWidgetItem(&tree, item1);
+    new QTreeWidgetItem(item1);
+    new QTreeWidgetItem(item3);
 
-    QTreeWidgetItem *item1 = new QTreeWidgetItem(tree);
-    item1->setText(0, "item1");
-    tree->setItemExpanded(item1, true);
-    QTreeWidgetItem *item2 = new QTreeWidgetItem(item1);
-    item2->setText(0, "item2");
+    tree.expandAll();
 
-    QTreeWidgetItem *item3 = new QTreeWidgetItem(tree, item1);
-    item3->setText(0, "item3");
-    tree->setItemExpanded(item3, true);
-    QTreeWidgetItem *item4 = new QTreeWidgetItem(item3);
-    item4->setText(0, "item4");
+    /*
+        item1
+         \- item2
+        item3
+         \- item4
+    */
 
+    QTreeWidgetItem *newItem1 = 0;
     for (int i = 0; i < 100; i++) {
-        QTreeWidgetItem *newItem1 = new QTreeWidgetItem(tree, item1);
-        newItem1->setText(0, "newItem");
-        tree->setItemExpanded(newItem1, true);
-        QTreeWidgetItem *newItem2 = new QTreeWidgetItem(newItem1);
-        newItem2->setText(0, "subItem1");
+        newItem1 = new QTreeWidgetItem(&tree, item1);
+        tree.setItemExpanded(newItem1, true);
+        QCOMPARE(tree.isItemExpanded(newItem1), true);
 
-        QCOMPARE(tree->isItemExpanded(newItem1), true);
-        QApplication::instance()->processEvents();
-        QCOMPARE(tree->isItemExpanded(newItem1), true);
+        QTreeWidgetItem *x = new QTreeWidgetItem();
+        QCOMPARE(tree.isItemExpanded(newItem1), true);
+        newItem1->addChild(x);
+
+        QCOMPARE(tree.isItemExpanded(newItem1), true);
     }
+
 }
 
 void tst_QTreeWidget::crashTest() // don't know how to name that test since it's hard to say what causes the crash in this example (qt 4.3)
