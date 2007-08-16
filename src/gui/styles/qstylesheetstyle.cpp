@@ -697,7 +697,7 @@ void QRenderRule::drawBorderImage(QPainter *p, const QRect& rect)
               &t = borders[TopEdge],  &b = borders[BottomEdge];
     QRectF pr = br.adjusted(l, t, -r, -b);
 
-    QPainter::RenderHints oldHints = p->renderHints();
+    bool wasSmoothPixmapTransform = p->renderHints() & QPainter::SmoothPixmapTransform;
     p->setRenderHint(QPainter::SmoothPixmapTransform);
 
     const QStyleSheetBorderImageData *bi = border()->borderImage();
@@ -806,7 +806,7 @@ void QRenderRule::drawBorderImage(QPainter *p, const QRect& rect)
         break;
     }
 
-    p->setRenderHints(oldHints);
+    p->setRenderHint(QPainter::SmoothPixmapTransform, wasSmoothPixmapTransform);
     unsetClip(p);
 }
 
@@ -914,7 +914,7 @@ void QRenderRule::drawBorder(QPainter *p, const QRect& rect)
     QSize tlr, trr, blr, brr;
     getRadii(rect, &tlr, &trr, &blr, &brr);
 
-    QPainter::RenderHints oldHints = p->renderHints();
+    bool wasAntialiased = p->renderHints() & QPainter::Antialiasing;
     p->setRenderHint(QPainter::Antialiasing);
 
     // Drawn in increasing order of precendence
@@ -966,7 +966,8 @@ void QRenderRule::drawBorder(QPainter *p, const QRect& rect)
         if (tlr.width() || trr.width())
             qDrawRoundedCorners(p, x1, y1, x2, y2, tlr, trr, TopEdge, styles[TopEdge], colors[TopEdge]);
     }
-    p->setRenderHints(oldHints);
+
+    p->setRenderHint(QPainter::Antialiasing, wasAntialiased);
 }
 
 QPainterPath QRenderRule::borderClip(QRect r)
