@@ -3390,7 +3390,9 @@ void QWSServer::closeMouse()
 
 /*!
     Opens the mouse devices specified by the QWS_MOUSE_PROTO
-    environment variable.
+    environment variable. Be advised that closeMouse() is called first
+    to delete all the existing mouse handlers. This behaviour could be
+    the cause of problems if you were not expecting it.
 
     \sa closeMouse(), mouseHandler()
 */
