@@ -1566,6 +1566,11 @@
     QDockWidget virtual member functions in Qt 3 that are no longer
     virtual in Qt 4.
 
+    \note \l{Q3DockWindow}'s
+    \l{Q3DockWindow::setHorizontallyStretchable()}{horizontallyStretchable}
+    property can be achieved in QDockWidget with
+    \l{QWidget#Size Hints and Size Policies}{size policies}.
+
     \section1 QDragObject
 
     The \c QDragObject class has been renamed Q3DragObject and
@@ -3910,6 +3915,11 @@
     must be \l {Q3Action}s.
 
     Use the new QToolBar class in new applications.
+
+    \note \l{Q3ToolBar}'s
+    \l{Q3DockWindow::setHorizontallyStretchable()}{horizontallyStretchable}
+    property can be achieved in QToolBar with
+    \l{QWidget#Size Hints and Size Policies}{size policies}.
 
     \section1 QToolButton
 
