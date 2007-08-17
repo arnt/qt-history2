@@ -11,7 +11,8 @@ DEFINES	       += QT_BOOTSTRAPPED \
                   QT_NO_UNICODETABLES QT_NO_LIBRARY QT_NO_SYSTEMLOCALE QT_NO_GEOM_VARIANT
 
 win32:DEFINES += QT_NODLL
-win32:LIBS += user32.lib
+win32:LIBS += -luser32
+
 
 CONFIG -= qt
 INCLUDEPATH	 = ../../corelib/arch/generic $$QT_BUILD_TREE/include . \
