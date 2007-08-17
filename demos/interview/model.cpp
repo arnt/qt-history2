@@ -52,8 +52,7 @@ QModelIndex Model::parent(const QModelIndex &child) const
 
 int Model::rowCount(const QModelIndex &parent) const
 {
-    Q_UNUSED(parent);
-    return rc;
+    return (parent.isValid() && parent.column() != 0) ? 0 : rc;
 }
 
 int Model::columnCount(const QModelIndex &parent) const
@@ -64,6 +63,8 @@ int Model::columnCount(const QModelIndex &parent) const
 
 QVariant Model::data(const QModelIndex &index, int role) const
 {
+    if (!index.isValid())
+        return QVariant();
     if (role == Qt::DisplayRole)
 	return "Item " + QString::number(index.row()) + ":" + QString::number(index.column());
     if (role == Qt::DecorationRole) {
@@ -86,12 +87,15 @@ QVariant Model::headerData(int section, Qt::Orientation orientation, int role) c
 
 bool Model::hasChildren(const QModelIndex &parent) const
 {
-    Q_UNUSED(parent);
+    if (parent.isValid() && parent.column() != 0)
+        return false;
     return rc > 0 && cc > 0;
 }
 
-Qt::ItemFlags Model::flags(const QModelIndex &) const
+Qt::ItemFlags Model::flags(const QModelIndex &index) const
 {
+    if (!index.isValid())
+        return 0;
     return (Qt::ItemIsDragEnabled|Qt::ItemIsSelectable|Qt::ItemIsEnabled);
 }
 
