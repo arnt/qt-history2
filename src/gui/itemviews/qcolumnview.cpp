@@ -256,8 +256,7 @@ void QColumnView::scrollTo(const QModelIndex &index, ScrollHint hint)
 
     // If it is already visible don't animate
     if (leftEdge > -horizontalOffset()
-        && rightEdge
-           <= ( -horizontalOffset() + viewport()->size().width())) {
+        && rightEdge <= ( -horizontalOffset() + viewport()->size().width())) {
             d->columns.at(indexColumn)->scrollTo(index);
             d->_q_changeCurrentColumn();
             return;
@@ -432,16 +431,14 @@ QRegion QColumnView::visualRegionForSelection(const QItemSelection &selection) c
         lastRow = qMax(lastRow, selection.at(i).bottom());
     }
 
-    QModelIndex firstItem =
-        model()->index(qMin(firstRow, lastRow), 0, rootIndex());
-    QModelIndex lastItem =
-        model()->index(qMax(firstRow, lastRow), 0, rootIndex());
+    QModelIndex firstIdx = model()->index(qMin(firstRow, lastRow), 0, rootIndex());
+    QModelIndex lastIdx = model()->index(qMax(firstRow, lastRow), 0, rootIndex());
 
-    if (firstItem == lastItem)
-        return visualRect(firstItem);
+    if (firstIdx == lastIdx)
+        return visualRect(firstIdx);
 
-    QRegion firstRegion = visualRect(firstItem);
-    QRegion lastRegion = visualRect(lastItem);
+    QRegion firstRegion = visualRect(firstIdx);
+    QRegion lastRegion = visualRect(lastIdx);
     return firstRegion.unite(lastRegion);
 }
 
