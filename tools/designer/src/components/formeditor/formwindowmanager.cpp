@@ -111,6 +111,11 @@ bool FormWindowManager::eventFilter(QObject *o, QEvent *e)
     if (!o->isWidgetType())
         return false;
 
+    // If we don't have an active form, we only listen for WindowActivate to speed up integrations
+    const QEvent::Type eventType = e->type();
+    if (m_activeFormWindow == 0 && eventType != QEvent::WindowActivate)
+        return false;
+
     QWidget *widget = static_cast<QWidget*>(o);
 
     if (qobject_cast<WidgetHandle*>(widget)) { // ### remove me
@@ -123,7 +128,7 @@ bool FormWindowManager::eventFilter(QObject *o, QEvent *e)
     }
 
     if (QWidget *managedWidget = findManagedWidget(fw, widget)) {
-       switch (e->type()) {
+       switch (eventType) {
         case QEvent::Hide: {
             if (widget == managedWidget && fw->isWidgetSelected(managedWidget))
                 fw->hideSelection(widget);
