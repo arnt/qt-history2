@@ -794,6 +794,7 @@ QFontDatabase::findFont(int script, const QFontPrivate *fp,
             QFontCache::instance()->insertEngine(key, fe);
         }
 
+#ifndef QT_NO_FREETYPE
         if (scriptRequiresOpenType(script) && fe->type() == QFontEngine::Freetype) {
             HB_Face hbFace = static_cast<QFontEngineFT *>(fe)->harfbuzzFace();
             if (!hbFace || !hbFace->supported_scripts[script]) {
@@ -802,6 +803,7 @@ QFontDatabase::findFont(int script, const QFontPrivate *fp,
                 fe = 0;
             }
         }
+#endif
     }
 
     if (!fe) {
