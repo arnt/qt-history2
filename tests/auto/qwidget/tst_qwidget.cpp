@@ -5187,17 +5187,26 @@ void tst_QWidget::hideOpaqueChildWhileHidden()
 
     w.show();
     QApplication::processEvents();
+#ifdef Q_WS_X11
+    qt_x11_wait_for_window_manager(&w);
+#endif
     VERIFY_COLOR(child2.rect().translated(child2.mapToGlobal(QPoint())),
                  child2.color);
 
     child.hide();
     child2.hide();
     QApplication::processEvents();
+#ifdef Q_WS_X11
+    qt_x11_wait_for_window_manager(&w);
+#endif
     VERIFY_COLOR(child.rect().translated(child.mapToGlobal(QPoint())),
                  w.color);
 
     child.show();
     QApplication::processEvents();
+#ifdef Q_WS_X11
+    qt_x11_wait_for_window_manager(&w);
+#endif
     VERIFY_COLOR(child.rect().translated(child.mapToGlobal(QPoint())),
                  child.color);
 }
