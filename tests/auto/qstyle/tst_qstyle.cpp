@@ -84,7 +84,7 @@ private slots:
     void pixelMetric();
     void progressBarChangeStyle();
 private:
-	void lineUpLayoutTest();
+	void lineUpLayoutTest(QStyle *);
     QWidget *testWidget;
 };
 
@@ -259,7 +259,7 @@ void tst_QStyle::testPlastiqueStyle()
 {
     QPlastiqueStyle pstyle;
     testAllFunctions(&pstyle);
-	lineUpLayoutTest();
+	lineUpLayoutTest(&pstyle);
 }
 
 void tst_QStyle::testCleanlooksStyle()
@@ -268,14 +268,14 @@ void tst_QStyle::testCleanlooksStyle()
     QCleanlooksStyle cstyle;
     testAllFunctions(&cstyle);
 #endif
-	lineUpLayoutTest();
+	lineUpLayoutTest(&cstyle);
 }
 
 void tst_QStyle::testWindowsStyle()
 {
     QWindowsStyle wstyle;
     testAllFunctions(&wstyle);
-	lineUpLayoutTest();
+	lineUpLayoutTest(&wstyle);
 }
 
 void tst_QStyle::testWindowsXPStyle()
@@ -284,7 +284,7 @@ void tst_QStyle::testWindowsXPStyle()
     QWindowsXPStyle xpstyle;
     testAllFunctions(&xpstyle);
 #endif
-	lineUpLayoutTest();
+	lineUpLayoutTest(&xpstyle);
 }
 
 void writeImage(const QString &fileName, QImage image)
@@ -526,9 +526,10 @@ void tst_QStyle::progressBarChangeStyle()
     //before the correction, there would be a crash here
 }
 
-void tst_QStyle::lineUpLayoutTest()
+void tst_QStyle::lineUpLayoutTest(QStyle *style)
 {
 	QWidget widget;
+	widget.setStyle(style);
 	QHBoxLayout layout;
 	QFont font;
 	font.setPointSize(9); //Plastique is lined up for odd numbers...
@@ -543,10 +544,10 @@ void tst_QStyle::lineUpLayoutTest()
 	widget.setLayout(&layout);
 	widget.show();
 	qApp->processEvents();
-    QCOMPARE(spinbox.height(), lineedit.height());
-	QCOMPARE(spinbox.height(), combo.height());
+	
+	QVERIFY(qAbs(spinbox.height() - lineedit.height()) <= 1);
+	QVERIFY(qAbs(spinbox.height() - combo.height()) <= 1);
 }
-
 
 QTEST_MAIN(tst_QStyle)
 #include "tst_qstyle.moc"
