@@ -999,7 +999,7 @@
 
     \value WA_MacAlwaysShowToolWindow On Mac OS X, show the tool
     window even when the application is not active.  By default, all
-    tool windows are hidden when the application is active.
+    tool windows are hidden when the application is inactive.
 
     \value WA_SetLocale Indicates the local should be taken into
     consideration in the widget.
