@@ -203,9 +203,9 @@ void tst_QLocalSocket::listenAndConnect()
     for (int i = 0; i < connections; ++i) {
         QLocalSocket *socket = new QLocalSocket;
         socket->connectToName(name);
+        QCOMPARE(socket->peerName(), name);
         sockets.append(socket);
         QCOMPARE(server.waitForNewConnection(-1), canListen);
-        QCOMPARE(socket->peerName(), name);
         QCOMPARE(server.hasPendingConnections(), canListen);
         if (canListen) {
             QCOMPARE(socket->errorString(), QString("Unknown error"));
@@ -262,7 +262,8 @@ void tst_QLocalSocket::sendData()
         QTextStream out(serverSocket);
         QTextStream in(&socket);
         out << testLine << endl;
-        QVERIFY(serverSocket->waitForBytesWritten(1000));
+	if (!(serverSocket->openMode() & QIODevice::Unbuffered))
+            QVERIFY(serverSocket->waitForBytesWritten(1000));
         if (!socket.canReadLine())
             QVERIFY(socket.waitForReadyRead());
         QCOMPARE(in.readLine(), testLine);
@@ -312,7 +313,7 @@ void tst_QLocalSocket::setSocketDescriptor()
     socket.setSocketDescriptor(-1, QLocalSocket::ConnectingState, QIODevice::Append);
     QCOMPARE(socket.socketDescriptor(), -1);
     QCOMPARE(socket.state(), QLocalSocket::ConnectingState);
-    QCOMPARE(socket.openMode(), QIODevice::Append);
+    QVERIFY((socket.openMode() & QIODevice::Append) != 0);
 }
 
 class Client : public QThread
@@ -325,8 +326,9 @@ public:
         QLocalSocket socket;
         socket.connectToName("test");
         QVERIFY(socket.waitForConnected(10000));
-        QVERIFY(socket.waitForReadyRead());
         QVERIFY(socket.state() == QLocalSocket::ConnectedState);
+	if (!(socket.openMode() & QIODevice::Unbuffered))
+	    QVERIFY(socket.waitForReadyRead());
         QTextStream in(&socket);
         QCOMPARE(in.readLine(), testLine);
         QCOMPARE(socket.errorString(), QString("Unknown error"));
@@ -351,7 +353,8 @@ public:
             QVERIFY(serverSocket);
             QTextStream out(serverSocket);
             out << testLine << endl;
-            QVERIFY(serverSocket->waitForBytesWritten(300000));
+	    if (!(serverSocket->openMode() & QIODevice::Unbuffered))
+                QVERIFY(serverSocket->waitForBytesWritten(300000));
             QCOMPARE(serverSocket->errorString(), QString("Unknown error"));
             --done;
             delete serverSocket;
