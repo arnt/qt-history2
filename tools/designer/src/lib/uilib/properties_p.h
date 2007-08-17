@@ -32,6 +32,8 @@
 #include <QtCore/QLocale>
 #include <QtGui/QWidget>
 
+#include "formbuilderextra_p.h"
+
 #ifdef QFORMINTERNAL_NAMESPACE
 namespace QFormInternal
 {
@@ -87,7 +89,6 @@ public:
 template <class EnumType>
 inline EnumType enumKeyToValue(const QMetaEnum &metaEnum,const char *key, const EnumType* = 0)
 {
-    void uiLibWarning(const QString &);
     int val = metaEnum.keyToValue(key);
     if (val == -1) {
 
