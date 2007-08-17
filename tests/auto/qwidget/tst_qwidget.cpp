@@ -192,6 +192,7 @@ private slots:
     void moveWindowInShowEvent();
 
     void repaintWhenChildDeleted();
+    void hideOpaqueChildWhileHidden();
 
 private:
     QWidget *testWidget;
@@ -5170,6 +5171,35 @@ void tst_QWidget::repaintWhenChildDeleted()
     qt_x11_wait_for_window_manager(&w);
 #endif
     VERIFY_COLOR(w.geometry(), w.color);
+}
+
+// task 175114
+void tst_QWidget::hideOpaqueChildWhileHidden()
+{
+    ColorWidget w(0, Qt::red);
+    w.setGeometry(50, 50, 100, 100);
+
+    ColorWidget child(&w, Qt::blue);
+    child.setGeometry(10, 10, 80, 80);
+
+    ColorWidget child2(&child, Qt::white);
+    child2.setGeometry(10, 10, 60, 60);
+
+    w.show();
+    QApplication::processEvents();
+    VERIFY_COLOR(child2.rect().translated(child2.mapToGlobal(QPoint())),
+                 child2.color);
+
+    child.hide();
+    child2.hide();
+    QApplication::processEvents();
+    VERIFY_COLOR(child.rect().translated(child.mapToGlobal(QPoint())),
+                 w.color);
+
+    child.show();
+    QApplication::processEvents();
+    VERIFY_COLOR(child.rect().translated(child.mapToGlobal(QPoint())),
+                 child.color);
 }
 
 QTEST_MAIN(tst_QWidget)
