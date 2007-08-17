@@ -34,7 +34,8 @@ QLayoutWidgetPropertySheet::~QLayoutWidgetPropertySheet()
 
 bool QLayoutWidgetPropertySheet::isVisible(int index) const
 {
-    if (propertyGroup(index) == QLatin1String("Layout"))
+    static const QString layoutPropertyGroup = QLatin1String("Layout");
+    if (propertyGroup(index) == layoutPropertyGroup)
         return QDesignerPropertySheet::isVisible(index);
     return false;
 }

@@ -53,6 +53,16 @@ static const QMetaObject *propertyIntroducedBy(const QMetaObject *meta, int inde
     return 0;
 }
 
+// Layout fake properties (prefixed by 'layout' to distinguish them from other 'margins'
+// that might be around. These are forwarded to the layout sheet.
+static const char *layoutLeftMarginC = "layoutLeftMargin";
+static const char *layoutTopMarginC = "layoutTopMargin";
+static const char *layoutRightMarginC = "layoutRightMargin";
+static const char *layoutBottomMarginC = "layoutBottomMargin";
+static const char *layoutSpacingC = "layoutSpacing";
+static const char *layoutHorizontalSpacingC = "layoutHorizontalSpacing";
+static const char *layoutVerticalSpacingC = "layoutVerticalSpacing";
+
 // Find the form editor in the hierarchy.
 // We know that the parent of the sheet is the extension manager
 // whose parent is the core.
@@ -265,24 +275,20 @@ QDesignerPropertySheet::PropertyType QDesignerPropertySheetPrivate::propertyType
 
 QString QDesignerPropertySheetPrivate::transformLayoutPropertyName(int index) const
 {
-    switch (propertyType(index)) {
-    case QDesignerPropertySheet::PropertyLayoutLeftMargin:
-        return QLatin1String("leftMargin");
-    case QDesignerPropertySheet::PropertyLayoutTopMargin:
-        return QLatin1String("topMargin");
-    case QDesignerPropertySheet::PropertyLayoutRightMargin:
-        return QLatin1String("rightMargin");
-    case QDesignerPropertySheet::PropertyLayoutBottomMargin:
-        return QLatin1String("bottomMargin");
-    case QDesignerPropertySheet::PropertyLayoutSpacing:
-        return QLatin1String("spacing");
-    case QDesignerPropertySheet::PropertyLayoutHorizontalSpacing:
-        return QLatin1String("horizontalSpacing");
-    case QDesignerPropertySheet::PropertyLayoutVerticalSpacing:
-        return QLatin1String("verticalSpacing");
-    default:
-        break;
+    typedef QMap<QDesignerPropertySheet::PropertyType, QString> TypeNameMap;
+    TypeNameMap typeNameMap;
+    if (typeNameMap.empty()) {
+        typeNameMap.insert(QDesignerPropertySheet::PropertyLayoutLeftMargin, QLatin1String("leftMargin"));
+        typeNameMap.insert(QDesignerPropertySheet::PropertyLayoutTopMargin, QLatin1String("topMargin"));
+        typeNameMap.insert(QDesignerPropertySheet::PropertyLayoutRightMargin, QLatin1String("rightMargin"));
+        typeNameMap.insert(QDesignerPropertySheet::PropertyLayoutBottomMargin, QLatin1String("bottomMargin"));
+        typeNameMap.insert(QDesignerPropertySheet::PropertyLayoutSpacing, QLatin1String("spacing"));
+        typeNameMap.insert(QDesignerPropertySheet::PropertyLayoutHorizontalSpacing, QLatin1String("horizontalSpacing"));
+        typeNameMap.insert(QDesignerPropertySheet::PropertyLayoutVerticalSpacing, QLatin1String("verticalSpacing"));
     }
+    const TypeNameMap::const_iterator it = typeNameMap.constFind(propertyType(index));
+    if (it != typeNameMap.constEnd())
+        return it.value();
     return QString();
 }
 
@@ -313,13 +319,13 @@ QDesignerPropertySheet::PropertyType QDesignerPropertySheet::propertyTypeFromNam
     typedef QHash<QString, PropertyType> PropertyTypeHash;
     static PropertyTypeHash propertyTypeHash;
     if (propertyTypeHash.empty()) {
-        propertyTypeHash.insert(QLatin1String("layoutLeftMargin"),        PropertyLayoutLeftMargin);
-        propertyTypeHash.insert(QLatin1String("layoutTopMargin"),         PropertyLayoutTopMargin);
-        propertyTypeHash.insert(QLatin1String("layoutRightMargin"),       PropertyLayoutRightMargin);
-        propertyTypeHash.insert(QLatin1String("layoutBottomMargin"),      PropertyLayoutBottomMargin);
-        propertyTypeHash.insert(QLatin1String("layoutSpacing"),           PropertyLayoutSpacing);
-        propertyTypeHash.insert(QLatin1String("layoutHorizontalSpacing"), PropertyLayoutHorizontalSpacing);
-        propertyTypeHash.insert(QLatin1String("layoutVerticalSpacing"),   PropertyLayoutVerticalSpacing);
+        propertyTypeHash.insert(QLatin1String(layoutLeftMarginC),         PropertyLayoutLeftMargin);
+        propertyTypeHash.insert(QLatin1String(layoutTopMarginC),          PropertyLayoutTopMargin);
+        propertyTypeHash.insert(QLatin1String(layoutRightMarginC),        PropertyLayoutRightMargin);
+        propertyTypeHash.insert(QLatin1String(layoutBottomMarginC),       PropertyLayoutBottomMargin);
+        propertyTypeHash.insert(QLatin1String(layoutSpacingC),            PropertyLayoutSpacing);
+        propertyTypeHash.insert(QLatin1String(layoutHorizontalSpacingC),  PropertyLayoutHorizontalSpacing);
+        propertyTypeHash.insert(QLatin1String(layoutVerticalSpacingC),    PropertyLayoutVerticalSpacing);
         propertyTypeHash.insert(QLatin1String("buddy"),                   PropertyBuddy);
         propertyTypeHash.insert(QLatin1String("sizeConstraint"),          PropertySizeConstraint);
         propertyTypeHash.insert(QLatin1String("geometry"),                PropertyGeometry);
@@ -382,40 +388,14 @@ QDesignerPropertySheet::QDesignerPropertySheet(QObject *object, QObject *parent)
 
         if (d->m_canHaveLayoutAttributes) {
             static const QString layoutGroup = QLatin1String("Layout");
-            int pindex = count();
-            createFakeProperty(QLatin1String("layoutLeftMargin"), 0);
-            setAttribute(pindex, true);
-            setPropertyGroup(pindex, layoutGroup);
-
-            pindex = count();
-            createFakeProperty(QLatin1String("layoutTopMargin"), 0);
-            setAttribute(pindex, true);
-            setPropertyGroup(pindex, layoutGroup);
-
-            pindex = count();
-            createFakeProperty(QLatin1String("layoutRightMargin"), 0);
-            setAttribute(pindex, true);
-            setPropertyGroup(pindex, layoutGroup);
-
-            pindex = count();
-            createFakeProperty(QLatin1String("layoutBottomMargin"), 0);
-            setAttribute(pindex, true);
-            setPropertyGroup(pindex, layoutGroup);
-
-            pindex = count();
-            createFakeProperty(QLatin1String("layoutSpacing"), 0);
-            setAttribute(pindex, true);
-            setPropertyGroup(pindex, layoutGroup);
-
-            pindex = count();
-            createFakeProperty(QLatin1String("layoutHorizontalSpacing"), 0);
-            setAttribute(pindex, true);
-            setPropertyGroup(pindex, layoutGroup);
-
-            pindex = count();
-            createFakeProperty(QLatin1String("layoutVerticalSpacing"), 0);
-            setAttribute(pindex, true);
-            setPropertyGroup(pindex, layoutGroup);
+            const char* fakeLayoutProperties[] = {layoutLeftMarginC, layoutTopMarginC, layoutRightMarginC, layoutBottomMarginC, layoutSpacingC, layoutHorizontalSpacingC, layoutVerticalSpacingC};
+            const int fakeLayoutPropertyCount = sizeof(fakeLayoutProperties)/sizeof(const char*);
+            const int size = count();
+            for (int i = 0; i < fakeLayoutPropertyCount; i++) {
+                createFakeProperty(QLatin1String(fakeLayoutProperties[i]), 0);
+                setAttribute(size  + i, true);
+                setPropertyGroup(size  + i, layoutGroup);
+            }
         }
 
         if (d->m_objectType == ObjectLabel)
@@ -955,7 +935,7 @@ bool QDesignerPropertySheet::isVisible(int index) const
     const PropertyType type = propertyType(index);
     if (isAdditionalProperty(index)) {
         if (isFakeLayoutProperty(index) && d->m_object->isWidgetType()) {
-            QLayout *currentLayout = d->layout();
+            const QLayout *currentLayout = d->layout();
             if (!currentLayout)
                 return false;
             switch (type) {

@@ -18,7 +18,7 @@
 
 // shared
 #include <qlayout_widget_p.h>
-#include <QtGui/QStyle>
+#include <QtCore/QHash>
 
 static const char *leftMargin = "leftMargin";
 static const char *topMargin = "topMargin";
@@ -28,6 +28,83 @@ static const char *horizontalSpacing = "horizontalSpacing";
 static const char *verticalSpacing = "verticalSpacing";
 static const char *spacing = "spacing";
 static const char *margin = "margin";
+
+namespace {
+    enum LayoutPropertyType {
+        LayoutPropertyNone,
+        LayoutPropertyMargin, // Deprecated
+        LayoutPropertyLeftMargin,
+        LayoutPropertyTopMargin,
+        LayoutPropertyRightMargin,
+        LayoutPropertyBottomMargin,
+        LayoutPropertySpacing,
+        LayoutPropertyHorizontalSpacing,
+        LayoutPropertyVerticalSpacing
+    };
+}
+
+// Quick lookup by name
+static LayoutPropertyType  layoutPropertyType(const QString &name)
+{
+    static QHash<QString, LayoutPropertyType> namePropertyMap;
+    if (namePropertyMap.empty()) {
+        namePropertyMap.insert(QLatin1String(leftMargin), LayoutPropertyLeftMargin);
+        namePropertyMap.insert(QLatin1String(topMargin), LayoutPropertyTopMargin);
+        namePropertyMap.insert(QLatin1String(rightMargin), LayoutPropertyRightMargin);
+        namePropertyMap.insert(QLatin1String(bottomMargin), LayoutPropertyBottomMargin);
+        namePropertyMap.insert(QLatin1String(horizontalSpacing), LayoutPropertyHorizontalSpacing);
+        namePropertyMap.insert(QLatin1String(verticalSpacing), LayoutPropertyVerticalSpacing);
+        namePropertyMap.insert(QLatin1String(spacing), LayoutPropertySpacing);
+        namePropertyMap.insert(QLatin1String(margin), LayoutPropertyMargin);
+    }
+    return namePropertyMap.value(name, LayoutPropertyNone);
+}
+
+// return the layout margin if it is  margin
+static int getLayoutMargin(const QLayout *l, LayoutPropertyType type)
+{
+    int left, top, right, bottom;
+    l->getContentsMargins(&left, &top, &right, &bottom);
+    switch (type) {
+    case LayoutPropertyLeftMargin:
+        return left;
+    case LayoutPropertyTopMargin:
+        return top;
+    case LayoutPropertyRightMargin:
+        return right;
+    case LayoutPropertyBottomMargin:
+        return bottom;
+    default:
+        Q_ASSERT(0);
+        break;
+    }
+    return 0;
+}
+
+// return the layout margin if it is  margin
+static void setLayoutMargin(QLayout *l, LayoutPropertyType type, int margin)
+{
+    int left, top, right, bottom;
+    l->getContentsMargins(&left, &top, &right, &bottom);
+    switch (type) {
+    case LayoutPropertyLeftMargin:
+        left = margin;
+        break;
+    case LayoutPropertyTopMargin:
+        top = margin;
+        break;
+    case LayoutPropertyRightMargin:
+        right = margin;
+        break;
+    case LayoutPropertyBottomMargin:
+        bottom = margin;
+        break;
+    default:
+        Q_ASSERT(0);
+        break;
+    }
+    l->setContentsMargins(left, top, right, bottom);
+}
 
 namespace qdesigner_internal {
 
@@ -51,8 +128,7 @@ LayoutPropertySheet::LayoutPropertySheet(QLayout *object, QObject *parent)
     createFakeProperty(QLatin1String(bottomMargin), 0);
     setPropertyGroup(pindex, layoutGroup);
 
-    QGridLayout *grid = qobject_cast<QGridLayout *>(m_layout);
-    if (grid) {
+    if (qobject_cast<const QGridLayout *>(m_layout)) {
         pindex = count();
         createFakeProperty(QLatin1String(horizontalSpacing), 0);
         setPropertyGroup(pindex, layoutGroup);
@@ -62,7 +138,6 @@ LayoutPropertySheet::LayoutPropertySheet(QLayout *object, QObject *parent)
         setPropertyGroup(pindex, layoutGroup);
 
         setAttribute(indexOf(QLatin1String(spacing)), true);
-    } else {
     }
 
     setAttribute(indexOf(QLatin1String(margin)), true);
@@ -74,116 +149,138 @@ LayoutPropertySheet::~LayoutPropertySheet()
 
 void LayoutPropertySheet::setProperty(int index, const QVariant &value)
 {
-    const QString pname = propertyName(index);
-    QLayoutWidget *lw = qobject_cast<QLayoutWidget *>(m_layout->parent());
-    if (lw) {
-        if (pname == QLatin1String(margin)) {
+    const LayoutPropertyType type = layoutPropertyType(propertyName(index));
+    if (QLayoutWidget *lw = qobject_cast<QLayoutWidget *>(m_layout->parent())) {
+        switch (type) {
+        case LayoutPropertyLeftMargin:
+            lw->setLayoutLeftMargin(value.toInt());
+            return;
+        case LayoutPropertyTopMargin:
+            lw->setLayoutTopMargin(value.toInt());
+            return;
+        case LayoutPropertyRightMargin:
+            lw->setLayoutRightMargin(value.toInt());
+            return;
+        case LayoutPropertyBottomMargin:
+            lw->setLayoutBottomMargin(value.toInt());
+            return;
+        case LayoutPropertyMargin: {
             const int v = value.toInt();
             lw->setLayoutLeftMargin(v);
             lw->setLayoutTopMargin(v);
             lw->setLayoutRightMargin(v);
             lw->setLayoutBottomMargin(v);
-            return;
         }
-        if (pname == QLatin1String(leftMargin)) {
-            lw->setLayoutLeftMargin(value.toInt());
             return;
-        }
-        if (pname == QLatin1String(topMargin)) {
-            lw->setLayoutTopMargin(value.toInt());
-            return;
-        }
-        if (pname == QLatin1String(rightMargin)) {
-            lw->setLayoutRightMargin(value.toInt());
-            return;
-        }
-        if (pname == QLatin1String(bottomMargin)) {
-            lw->setLayoutBottomMargin(value.toInt());
-            return;
+        default:
+            break;
         }
     }
-    QGridLayout *grid = qobject_cast<QGridLayout *>(m_layout);
-    int left, top, right, bottom;
-    m_layout->getContentsMargins(&left, &top, &right, &bottom);
-    if (pname == QLatin1String(leftMargin))
-        m_layout->setContentsMargins(value.toInt(), top, right, bottom);
-    else if (pname == QLatin1String(topMargin))
-        m_layout->setContentsMargins(left, value.toInt(), right, bottom);
-    else if (pname == QLatin1String(rightMargin))
-        m_layout->setContentsMargins(left, top, value.toInt(), bottom);
-    else if (pname == QLatin1String(bottomMargin))
-        m_layout->setContentsMargins(left, top, right, value.toInt());
-    else if (grid && pname == QLatin1String(horizontalSpacing))
-        grid->setHorizontalSpacing(value.toInt());
-    else if (grid && pname == QLatin1String(verticalSpacing))
-        grid->setVerticalSpacing(value.toInt());
-    else
-        QDesignerPropertySheet::setProperty(index, value);
+    switch (type) {
+    case LayoutPropertyLeftMargin:
+    case LayoutPropertyTopMargin:
+    case LayoutPropertyRightMargin:
+    case LayoutPropertyBottomMargin:
+        setLayoutMargin(m_layout, type, value.toInt());
+        return;
+    case LayoutPropertyHorizontalSpacing:
+        if (QGridLayout *grid = qobject_cast<QGridLayout *>(m_layout)) {
+            grid->setHorizontalSpacing(value.toInt());
+            return;
+        }
+        break;
+    case LayoutPropertyVerticalSpacing:
+        if (QGridLayout *grid = qobject_cast<QGridLayout *>(m_layout)) {
+            grid->setVerticalSpacing(value.toInt());
+            return;
+        }
+        break;
+    default:
+        break;
+    }
+    QDesignerPropertySheet::setProperty(index, value);
 }
 
 QVariant LayoutPropertySheet::property(int index) const
 {
-    const QString pname = propertyName(index);
-    QLayoutWidget *lw = qobject_cast<QLayoutWidget *>(m_layout->parent());
-    if (lw) {
-        if (pname == QLatin1String(leftMargin))
+    const LayoutPropertyType type = layoutPropertyType(propertyName(index));
+    if (const QLayoutWidget *lw = qobject_cast<QLayoutWidget *>(m_layout->parent())) {
+        switch (type) {
+        case LayoutPropertyLeftMargin:
             return lw->layoutLeftMargin();
-        if (pname == QLatin1String(topMargin))
+        case LayoutPropertyTopMargin:
             return lw->layoutTopMargin();
-        if (pname == QLatin1String(rightMargin))
+        case LayoutPropertyRightMargin:
             return lw->layoutRightMargin();
-        if (pname == QLatin1String(bottomMargin))
-            return lw->layoutBottomMargin();
+        case LayoutPropertyBottomMargin:
+             return lw->layoutBottomMargin();
+        default:
+            break;
+        }
     }
-    QGridLayout *grid = qobject_cast<QGridLayout *>(m_layout);
-    int left, top, right, bottom;
-    m_layout->getContentsMargins(&left, &top, &right, &bottom);
-    if (pname == QLatin1String(leftMargin))
-        return left;
-    if (pname == QLatin1String(topMargin))
-        return top;
-    if (pname == QLatin1String(rightMargin))
-        return right;
-    if (pname == QLatin1String(bottomMargin))
-        return bottom;
-    if (grid && pname == QLatin1String(horizontalSpacing))
-        return grid->horizontalSpacing();
-    if (grid && pname == QLatin1String(verticalSpacing))
-        return grid->verticalSpacing();
+    switch (type) {
+    case LayoutPropertyLeftMargin:
+    case LayoutPropertyTopMargin:
+    case LayoutPropertyRightMargin:
+    case LayoutPropertyBottomMargin:
+        return getLayoutMargin(m_layout, type);
+    case LayoutPropertyHorizontalSpacing:
+        if (const QGridLayout *grid = qobject_cast<QGridLayout *>(m_layout))
+            return grid->horizontalSpacing();
+        break;
+    case LayoutPropertyVerticalSpacing:
+        if (const QGridLayout *grid = qobject_cast<QGridLayout *>(m_layout))
+            return grid->verticalSpacing();
+    default:
+        break;
+    }
     return QDesignerPropertySheet::property(index);
 }
 
 bool LayoutPropertySheet::reset(int index)
 {
-    const QString pname = propertyName(index);
     int left, top, right, bottom;
     m_layout->getContentsMargins(&left, &top, &right, &bottom);
-    if (pname == QLatin1String(leftMargin))
+    const LayoutPropertyType type = layoutPropertyType(propertyName(index));
+    bool rc = true;
+    switch (type) {
+    case LayoutPropertyLeftMargin:
         m_layout->setContentsMargins(-1, top, right, bottom);
-    else if (pname == QLatin1String(topMargin))
+        break;
+    case LayoutPropertyTopMargin:
         m_layout->setContentsMargins(left, -1, right, bottom);
-    else if (pname == QLatin1String(rightMargin))
+        break;
+    case LayoutPropertyRightMargin:
         m_layout->setContentsMargins(left, top, -1, bottom);
-    else if (pname == QLatin1String(bottomMargin))
+        break;
+    case LayoutPropertyBottomMargin:
         m_layout->setContentsMargins(left, top, right, -1);
-    else
-        return QDesignerPropertySheet::reset(index);
-    return true;
+        break;
+    default:
+        rc = QDesignerPropertySheet::reset(index);
+        break;
+    }
+    return rc;
 }
 
 void LayoutPropertySheet::setChanged(int index, bool changed)
 {
-    QGridLayout *grid = qobject_cast<QGridLayout *>(m_layout);
-    const QString pname = propertyName(index);
-    if (pname == QLatin1String(margin)) {
+    const LayoutPropertyType type = layoutPropertyType(propertyName(index));
+    switch (type) {
+    case LayoutPropertySpacing:
+        if (qobject_cast<const QGridLayout *>(m_layout)) {
+            setChanged(indexOf(QLatin1String(horizontalSpacing)), changed);
+            setChanged(indexOf(QLatin1String(verticalSpacing)), changed);
+        }
+        break;
+    case LayoutPropertyMargin:
         setChanged(indexOf(QLatin1String(leftMargin)), changed);
         setChanged(indexOf(QLatin1String(topMargin)), changed);
         setChanged(indexOf(QLatin1String(rightMargin)), changed);
         setChanged(indexOf(QLatin1String(bottomMargin)), changed);
-    }
-    if (pname == QLatin1String(spacing) && grid) {
-        setChanged(indexOf(QLatin1String(horizontalSpacing)), changed);
-        setChanged(indexOf(QLatin1String(verticalSpacing)), changed);
+        break;
+    default:
+        break;
     }
     QDesignerPropertySheet::setChanged(index, changed);
 }
