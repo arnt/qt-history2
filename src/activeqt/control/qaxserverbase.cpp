@@ -3556,39 +3556,41 @@ HRESULT WINAPI QAxServerBase::TranslateAcceleratorW(MSG *pMsg)
 	    bool shift = ::GetKeyState(VK_SHIFT) < 0;
 	    bool giveUp = true;
             QWidget *curFocus = qt.widget->focusWidget();
-	    if (shift) {
-                if (!curFocus->isWindow()) {
-                    QWidget *nextFocus = curFocus->nextInFocusChain();
-                    QWidget *prevFocus = 0;
-                    QWidget *topLevel = 0;
-                    while (nextFocus != curFocus) {
-                        if (nextFocus->focusPolicy() & Qt::TabFocus) {
-                            prevFocus = nextFocus;
-                            topLevel = 0;
-                        } else if (nextFocus->isWindow()) {
-                            topLevel = nextFocus;
+            if (curFocus) {
+	        if (shift) {
+                    if (!curFocus->isWindow()) {
+                        QWidget *nextFocus = curFocus->nextInFocusChain();
+                        QWidget *prevFocus = 0;
+                        QWidget *topLevel = 0;
+                        while (nextFocus != curFocus) {
+                            if (nextFocus->focusPolicy() & Qt::TabFocus) {
+                                prevFocus = nextFocus;
+                                topLevel = 0;
+                            } else if (nextFocus->isWindow()) {
+                                topLevel = nextFocus;
+                            }
+                            nextFocus = nextFocus->nextInFocusChain();
                         }
-                        nextFocus = nextFocus->nextInFocusChain();
-                    }
 
-                    if (!topLevel) {
-                        giveUp = false;
-                        ((HackWidget*)curFocus)->focusNextPrevChild(false);
+                        if (!topLevel) {
+                            giveUp = false;
+                            ((HackWidget*)curFocus)->focusNextPrevChild(false);
+                        }
                     }
-                }
-	    } else {
-                QWidget *nextFocus = curFocus;
-                while (1) {
-                    nextFocus = nextFocus->nextInFocusChain();
-                    if (nextFocus->isWindow())
-                        break;
-                    if (nextFocus->focusPolicy() & Qt::TabFocus) {
-                        giveUp = false;
-                        ((HackWidget*)curFocus)->focusNextPrevChild(true);
-                        break;
+	        } else {
+                    QWidget *nextFocus = curFocus;
+                    while (1) {
+                        nextFocus = nextFocus->nextInFocusChain();
+                        if (nextFocus->isWindow())
+                            break;
+                        if (nextFocus->focusPolicy() & Qt::TabFocus) {
+                            giveUp = false;
+                            ((HackWidget*)curFocus)->focusNextPrevChild(true);
+                            break;
+                        }
                     }
-                }
-	    }
+	        }
+            }
 	    if (giveUp) {
 		HWND hwnd = ::GetParent(m_hWnd);
 		::SetFocus(hwnd);
