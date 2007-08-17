@@ -5586,7 +5586,11 @@ void QWidget::setVisible(bool visible)
         Q_D(QWidget);
 
 #ifdef Q_WIDGET_CACHE_OPAQUEREGIONS
-        if (!isWindow() && parentWidget() && !d->getOpaqueRegion().isEmpty())
+        // hw: The test on getOpaqueRegion() needs to be more intelligent
+        // currently it doesn't work if the widget is hidden (the region will
+        // be clipped). The real check should be testing the cached region
+        // (and dirty flag) directly.
+        if (!isWindow() && parentWidget()) // && !d->getOpaqueRegion().isEmpty())
             parentWidget()->d_func()->setDirtyOpaqueRegion();
 #endif
 
