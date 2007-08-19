@@ -12727,6 +12727,8 @@ SQLITE_PRIVATE ThreadData *sqlite3Os2ThreadSpecificData( int allocateFlag ){
 */
 #if OS_UNIX              /* This file is used on unix only */
 
+#include <qconfig.h>
+
 /* #define SQLITE_ENABLE_LOCKING_STYLE 0 */
 
 /*
@@ -12772,7 +12774,7 @@ SQLITE_PRIVATE ThreadData *sqlite3Os2ThreadSpecificData( int allocateFlag ){
 #ifndef THREADSAFE
 # define THREADSAFE 1
 #endif
-#if THREADSAFE
+#ifndef QT_NO_THREAD
 # include <pthread.h>
 # define SQLITE_UNIX_THREADS 1
 #endif
@@ -15864,6 +15866,8 @@ SQLITE_PRIVATE int sqlite3UnixCurrentTime(double *prNow){
 */
 #if OS_WIN               /* This file is used for windows only */
 
+#include <qconfig.h>
+
 #include <winbase.h>
 
 #ifdef __CYGWIN__
@@ -15873,7 +15877,7 @@ SQLITE_PRIVATE int sqlite3UnixCurrentTime(double *prNow){
 /*
 ** Macros used to determine whether or not to use threads.
 */
-#if defined(THREADSAFE) && THREADSAFE
+#ifndef QT_NO_THREAD
 # define SQLITE_W32_THREADS 1
 #endif
 
