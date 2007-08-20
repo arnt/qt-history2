@@ -770,6 +770,10 @@ QWidgetList QAbstractScrollArea::scrollBarWidgets(Qt::Alignment alignment)
     spreadsheets with "locked" rows and columns. The marginal space is
     is left blank; put widgets in the unused area.
 
+    Note that this function is frequently called by QTreeView and
+    QTableView, so margins must be implemented by QAbstractScrollArea
+    subclasses.
+
     By default all margins are zero.
 
 */
