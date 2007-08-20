@@ -63,6 +63,7 @@ public:
     int startupd;
 
     bool doGraphicsMode;
+    bool doGenericColors;
     int ttyfd;
     long oldKdMode;
     QString ttyDevice;
@@ -70,7 +71,8 @@ public:
 };
 
 QLinuxFbScreenPrivate::QLinuxFbScreenPrivate()
-    : fd(-1), doGraphicsMode(true), ttyfd(-1), oldKdMode(KD_TEXT)
+    : fd(-1), doGraphicsMode(true), doGenericColors(false),
+      ttyfd(-1), oldKdMode(KD_TEXT)
 {
     QWSSignalHandler::instance()->addObject(this);
 }
@@ -213,8 +215,13 @@ bool QLinuxFbScreen::connect(const QString &displaySpec)
     d_ptr->displaySpec = displaySpec;
 
     const QStringList args = displaySpec.split(QLatin1Char(':'));
+
     if (args.contains(QLatin1String("nographicsmodeswitch")))
         d_ptr->doGraphicsMode = false;
+
+    if (args.contains(QLatin1String("genericcolors")))
+        d_ptr->doGenericColors = true;
+
     QRegExp ttyRegExp(QLatin1String("tty=(.*)"));
     if (args.indexOf(ttyRegExp) != -1)
         d_ptr->ttyDevice = ttyRegExp.cap(1);
@@ -678,6 +685,16 @@ bool QLinuxFbScreen::initDevice()
     shared->clipright=0xffffffff;
     shared->clipbottom=0xffffffff;
     shared->rop=0xffffffff;
+
+    if (pixelFormat() == QImage::Format_Invalid && screencols == 0
+        && d_ptr->doGenericColors)
+    {
+        qt_set_generic_blit(this, vinfo.bits_per_pixel / 8,
+                            vinfo.red.length, vinfo.green.length,
+                            vinfo.blue.length, vinfo.transp.length,
+                            vinfo.red.offset, vinfo.green.offset,
+                            vinfo.blue.offset, vinfo.transp.offset);
+    }
 
 #ifndef QT_NO_QWS_CURSOR
     QScreenCursor::initSoftwareCursor();
