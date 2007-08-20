@@ -35,6 +35,10 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+#else
+#if !defined(__i386__) && !defined(__x86_64__)
+#define PNG_NO_ASSEMBLER_CODE
+#endif
 #endif
 
 /*
