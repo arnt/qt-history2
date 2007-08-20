@@ -283,8 +283,8 @@ void tst_QStyle::testWindowsXPStyle()
 #ifdef Q_WS_WIN
     QWindowsXPStyle xpstyle;
     testAllFunctions(&xpstyle);
+	  lineUpLayoutTest(&xpstyle);
 #endif
-	lineUpLayoutTest(&xpstyle);
 }
 
 void writeImage(const QString &fileName, QImage image)
