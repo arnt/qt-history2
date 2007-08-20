@@ -562,9 +562,11 @@ QLayout *QDesignerResource::create(DomLayout *ui_layout, QLayout *layout, QWidge
 QLayoutItem *QDesignerResource::create(DomLayoutItem *ui_layoutItem, QLayout *layout, QWidget *parentWidget)
 {
     if (ui_layoutItem->kind() == DomLayoutItem::Spacer) {
-        QHash<QString, DomProperty*> properties = propertyMap(ui_layoutItem->elementSpacer()->elementProperty());
-
-        Spacer *spacer = (Spacer*) core()->widgetFactory()->createWidget(QLatin1String("Spacer"), parentWidget);
+        const DomSpacer *domSpacer = ui_layoutItem->elementSpacer();
+        const QHash<QString, DomProperty*> properties = propertyMap(domSpacer->elementProperty());
+        Spacer *spacer = static_cast<Spacer*>(core()->widgetFactory()->createWidget(QLatin1String("Spacer"), parentWidget));
+        if (domSpacer->hasAttributeName())
+            spacer->setObjectName(domSpacer->attributeName());
         core()->metaDataBase()->add(spacer);
 
         spacer->setInteraciveMode(false);
@@ -582,12 +584,8 @@ QLayoutItem *QDesignerResource::create(DomLayoutItem *ui_layoutItem, QLayout *la
         DomLayout *ui_layout = ui_layoutItem->elementLayout();
         QLayoutWidget *layoutWidget = new QLayoutWidget(m_formWindow, parentWidget);
         core()->metaDataBase()->add(layoutWidget);
-        applyProperties(layoutWidget, ui_layout->elementProperty());
-
-        if (m_formWindow) {
+        if (m_formWindow)
             m_formWindow->manageWidget(layoutWidget);
-        }
-
         (void) create(ui_layout, 0, layoutWidget);
         return new QWidgetItem(layoutWidget);
     }
@@ -885,6 +883,9 @@ DomLayoutItem *QDesignerResource::createDom(QLayoutItem *item, DomLayout *ui_lay
             return 0;
 
         DomSpacer *spacer = new DomSpacer();
+        const QString objectName = s->objectName();
+        if (!objectName.isEmpty())
+            spacer->setAttributeName(objectName);
         const QList<DomProperty*> properties = computeProperties(item->widget());
         // ### filter the properties
         spacer->setElementProperty(properties);
@@ -893,6 +894,7 @@ DomLayoutItem *QDesignerResource::createDom(QLayoutItem *item, DomLayout *ui_lay
         ui_item->setElementSpacer(spacer);
         m_laidout.insert(item->widget(), true);
     } else if (QLayoutWidget *layoutWidget = qobject_cast<QLayoutWidget*>(item->widget())) {
+        // Do not save a QLayoutWidget if it is within a layout (else it is saved as "QWidget"
         Q_ASSERT(layoutWidget->layout());
         DomLayout *l = createDom(layoutWidget->layout(), ui_layout, ui_parentWidget);
         ui_item = new DomLayoutItem();
@@ -1496,7 +1498,7 @@ DomCustomWidgets *QDesignerResource::saveCustomWidgets()
     if (m_usedCustomWidgets.isEmpty())
         return 0;
 
-    // We would like the list to be in order of the widget database indexes 
+    // We would like the list to be in order of the widget database indexes
     // to ensure that base classes come first (nice optics)
     QDesignerFormEditorInterface *core = m_formWindow->core();
     QDesignerWidgetDataBaseInterface *db = core->widgetDataBase();

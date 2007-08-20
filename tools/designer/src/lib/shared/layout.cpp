@@ -371,20 +371,34 @@ void Layout::breakLayout()
         m_formWindow->selectWidget(m_formWindow);
 }
 
+static QString suggestLayoutName(const char *className)
+{
+    // Legacy
+    if (!qstrcmp(className, "QHBoxLayout"))
+        return QLatin1String("horizontalLayout");
+    if (!qstrcmp(className, "QVBoxLayout"))
+        return QLatin1String("verticalLayout");
+    if (!qstrcmp(className, "QGridLayout"))
+        return QLatin1String("gridLayout");
 
+    QString name = QString::fromUtf8(className);
+    qtify(name);
+    return name;
+}
 QLayout *Layout::createLayout(int type)
 {
     Q_ASSERT(m_layoutType != LayoutInfo::HSplitter && m_layoutType != LayoutInfo::VSplitter);
-
     QLayout *layout = m_formWindow->core()->widgetFactory()->createLayout(m_layoutBase, 0, type);
-    if (qobject_cast<QLayoutWidget*>(m_layoutBase)) {
-        QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(m_formWindow->core()->extensionManager(), layout);
-        if (sheet) {
-            sheet->setProperty(sheet->indexOf(QLatin1String("leftMargin")), 0);
-            sheet->setProperty(sheet->indexOf(QLatin1String("topMargin")), 0);
-            sheet->setProperty(sheet->indexOf(QLatin1String("rightMargin")), 0);
-            sheet->setProperty(sheet->indexOf(QLatin1String("bottomMargin")), 0);
-        }
+    // set a name
+    layout->setObjectName(suggestLayoutName(layout->metaObject()->className()));
+    m_formWindow->ensureUniqueObjectName(layout);
+    // QLayoutWidget
+    QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(m_formWindow->core()->extensionManager(), layout);
+    if (sheet && qobject_cast<QLayoutWidget*>(m_layoutBase)) {
+        sheet->setProperty(sheet->indexOf(QLatin1String("leftMargin")), 0);
+        sheet->setProperty(sheet->indexOf(QLatin1String("topMargin")), 0);
+        sheet->setProperty(sheet->indexOf(QLatin1String("rightMargin")), 0);
+        sheet->setProperty(sheet->indexOf(QLatin1String("bottomMargin")), 0);
     }
     return layout;
 }

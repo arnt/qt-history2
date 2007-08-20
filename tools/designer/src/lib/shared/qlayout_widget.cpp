@@ -39,6 +39,9 @@ namespace {
     enum { debugLayout = 0 };
 }
 
+static const char *objectNameC = "objectName";
+static const char *sizeConstraintC = "sizeConstraint";
+
 static inline bool isEmptyItem(QLayoutItem *item)
 {
     return item->spacerItem() != 0;
@@ -94,6 +97,11 @@ void LayoutProperties::clear()
     qFill(m_marginsChanged, m_marginsChanged + MarginCount, false);
     qFill(m_spacings, m_spacings + SpacingsCount, 0);
     qFill(m_spacingsChanged, m_spacingsChanged + SpacingsCount, false);
+
+    m_objectName.clear();
+    m_objectNameChanged = false;
+    m_sizeConstraint = QVariant(QLayout::SetDefaultConstraint);
+    m_sizeConstraintChanged = false;
 }
 
 const QVector<QString> &LayoutProperties::marginPropertyNames()
@@ -137,6 +145,14 @@ int LayoutProperties::fromPropertySheet(const QDesignerFormEditorInterface *core
     int rc = 0;
     const QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(core->extensionManager(), l);
     Q_ASSERT(sheet);
+    // name
+    if (mask & ObjectNameProperty) {
+        const int nameIndex = sheet->indexOf(QLatin1String(objectNameC));
+        Q_ASSERT(nameIndex != -1);
+        m_objectName = sheet->property(nameIndex).toString();
+        m_objectNameChanged =  sheet->isChanged(nameIndex);
+        rc |= ObjectNameProperty;
+    }
     // -- Margins
     const QVector<QString> &marginNames = marginPropertyNames();
     const int marginFlags[MarginCount] = { LeftMarginProperty, TopMarginProperty, RightMarginProperty, BottomMarginProperty};
@@ -151,6 +167,15 @@ int LayoutProperties::fromPropertySheet(const QDesignerFormEditorInterface *core
         if (mask & spacingFlags[i])
             if (intValueFromSheet(sheet, spacingNames[i], m_spacings + i, m_spacingsChanged + i))
                 rc |= spacingFlags[i];
+    // sizeConstraint
+    if (mask & SizeConstraintProperty) {
+        const int scIndex = sheet->indexOf(QLatin1String(sizeConstraintC));
+        if (scIndex != -1) {
+            m_sizeConstraint = sheet->property(scIndex);
+            m_sizeConstraintChanged =  sheet->isChanged(scIndex);
+            rc |= SizeConstraintProperty;
+        }
+    }
     return rc;
 }
 
@@ -174,6 +199,16 @@ int LayoutProperties::toPropertySheet(const QDesignerFormEditorInterface *core, 
     int rc = 0;
     QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(core->extensionManager(), l);
     Q_ASSERT(sheet);
+    // name
+    if (mask & ObjectNameProperty) {
+        const int nameIndex = sheet->indexOf(QLatin1String(objectNameC));
+        Q_ASSERT(nameIndex != -1);
+        sheet->setProperty(nameIndex, m_objectName);
+        if (applyChanged)
+           sheet->setChanged(nameIndex, m_objectNameChanged);
+        rc |= ObjectNameProperty;
+    }
+    // margins
     const QVector<QString> &marginNames = marginPropertyNames();
     const int marginFlags[MarginCount] = { LeftMarginProperty, TopMarginProperty, RightMarginProperty, BottomMarginProperty};
     for (int i = 0; i < MarginCount; i++)
@@ -187,6 +222,16 @@ int LayoutProperties::toPropertySheet(const QDesignerFormEditorInterface *core, 
         if (mask & spacingFlags[i])
             if (intValueToSheet(sheet, spacingNames[i], m_spacings[i], m_spacingsChanged[i], applyChanged))
                 rc |= spacingFlags[i];
+    // sizeConstraint
+    if (mask &  SizeConstraintProperty) {
+        const int scIndex = sheet->indexOf(QLatin1String(sizeConstraintC));
+        if (scIndex != -1) {
+            sheet->setProperty(scIndex, m_sizeConstraint);
+            if (applyChanged)
+                sheet->setChanged(scIndex, m_sizeConstraintChanged);
+            rc |= SizeConstraintProperty;
+        }
+    }
     return rc;
 }
 

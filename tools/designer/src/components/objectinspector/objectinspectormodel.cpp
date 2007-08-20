@@ -19,7 +19,6 @@ TRANSLATOR qdesigner_internal::ObjectInspector
 
 #include <qlayout_widget_p.h>
 #include <layout_p.h>
-#include <spacer_widget_p.h>
 #include <qdesigner_propertycommand_p.h>
 #include <qdesigner_utils_p.h>
 
@@ -34,6 +33,7 @@ TRANSLATOR qdesigner_internal::ObjectInspector
 #include <QtGui/QLayoutItem>
 #include <QtGui/QMenu>
 #include <QtCore/QSet>
+#include <QtCore/QDebug>
 
 namespace {
     enum { DataRole = 1000 };
@@ -57,13 +57,16 @@ static bool sameIcon(const QIcon &i1, const QIcon &i2)
     return i1.serialNumber() == i2.serialNumber();
 }
 
-// Cannot edit spacer items and layout widgets
-static bool isNameColumnEditable(const QObject *o)
+static inline QLayout *layoutOfQLayoutWidget(QObject *o)
 {
-    if (!o->isWidgetType())
-        return true;
-    if (qobject_cast<const Spacer*>(o) || qobject_cast<const QLayoutWidget*>(o))
-        return false;
+    if (o->isWidgetType() && !qstrcmp(o->metaObject()->className(), "QLayoutWidget"))
+        return static_cast<QWidget*>(o)->layout();
+    return 0;
+}
+
+// Cannot edit spacer items and layout widgets
+static inline bool isNameColumnEditable(const QObject */*o*/)
+{
     return true;
 }
 
@@ -142,9 +145,7 @@ namespace qdesigner_internal {
     // Recursive routine that creates the model by traversing the form window object tree.
     void createModelRecursion(const QDesignerFormWindowInterface *fwi, QObject *parent, QObject *object, ObjectModel &model)
     {
-        const QString qLayoutWidget = QLatin1String("QLayoutWidget");
         const QString designerPrefix = QLatin1String("QDesigner");
-        static const QString noName = QObject::tr("<noname>");
         static const QString separator =  QObject::tr("separator");
         const QDesignerWidgetDataBaseInterface *db = fwi->core()->widgetDataBase();
 
@@ -153,22 +154,21 @@ namespace qdesigner_internal {
         ObjectData entry(parent, object);
 
         entry.m_className = QLatin1String(object->metaObject()->className());
-        if (QDesignerWidgetDataBaseItemInterface *widgetItem = db->item(db->indexOfObject(object, true))) {
-            entry.m_className = widgetItem->name();
-
-            if (isWidget && entry.m_className == qLayoutWidget
-                    && static_cast<QWidget*>(object)->layout()) {
-                entry.m_className = QLatin1String(static_cast<QWidget*>(object)->layout()->metaObject()->className());
-            }
+        // Is this a QLayoutWidget?
+        const QLayout *layoutWidgetLayout = layoutOfQLayoutWidget(object);
+        if (const QDesignerWidgetDataBaseItemInterface *widgetItem = db->item(db->indexOfObject(object, true))) {
             entry.m_icon = widgetItem->icon();
+            if (layoutWidgetLayout) {
+                entry.m_className = QLatin1String(layoutWidgetLayout->metaObject()->className());
+            } else {
+                entry.m_className = widgetItem->name();
+            }
         }
 
         if (entry.m_className.startsWith(designerPrefix))
             entry.m_className.remove(1, designerPrefix.size() - 1);
 
-        entry.m_objectName = object->objectName();
-        if (entry.m_objectName.isEmpty())
-            entry.m_objectName = noName;
+        entry.m_objectName = layoutWidgetLayout ? layoutWidgetLayout->objectName() : object->objectName();
 
         if (const QAction *act = qobject_cast<const QAction*>(object)) { // separator is reserved
             if (act->isSeparator()) {
@@ -230,7 +230,6 @@ namespace qdesigner_internal {
     {
         m_objectIndexMultiMap.clear();
         m_model.clear();
-        m_formWindow = 0;
         removeRow(0);
     }
 
@@ -239,6 +238,7 @@ namespace qdesigner_internal {
         QWidget *mainContainer = fw ? fw->mainContainer() : static_cast<QWidget*>(0);
         if (!mainContainer) {
             clearItems();
+            m_formWindow = 0;
             return NoForm;
         }
         m_formWindow = fw;
@@ -332,6 +332,21 @@ namespace qdesigner_internal {
         }
     }
 
+    QVariant ObjectInspectorModel::data(const QModelIndex &index, int role) const
+    {
+        const QVariant rc = QStandardItemModel::data(index, role);
+        // Return <noname> if the string is empty for the display role
+        // only (else, editing starts with <noname>).
+        if (role == Qt::DisplayRole && rc.type() == QVariant::String) {
+            const QString s = rc.toString();
+            if (s.isEmpty()) {
+                static const QString noName = QObject::tr("<noname>");
+                return  QVariant(noName);
+            }
+        }
+        return rc;
+    }
+
     bool ObjectInspectorModel::setData(const QModelIndex &index, const QVariant &value, int role)
     {
         if (role != Qt::EditRole || !m_formWindow)
@@ -340,7 +355,9 @@ namespace qdesigner_internal {
         QObject *object = objectAt(index);
         if (!object)
             return false;
-        m_formWindow->commandHistory()->push(createTextPropertyCommand(QLatin1String("objectName"), value.toString(), object, m_formWindow));
+        // Is this a layout widget?
+        const QString nameProperty = layoutOfQLayoutWidget(object) ? QLatin1String("layoutName") : QLatin1String("objectName");
+        m_formWindow->commandHistory()->push(createTextPropertyCommand(nameProperty, value.toString(), object, m_formWindow));
         return true;
     }
 }

@@ -75,6 +75,7 @@ namespace qdesigner_internal {
         const QModelIndexList indexesOf(QObject *o) const { return m_objectIndexMultiMap.values(o); }
         QObject *objectAt(const QModelIndex &index) const;
 
+        virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
         virtual bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
 
     private:

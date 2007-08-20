@@ -39,7 +39,7 @@ namespace qdesigner_internal {
 class QDesignerIntegration;
 
 enum SpecialProperty {
-        SP_None, SP_ObjectName, SP_WindowTitle,
+        SP_None, SP_ObjectName, SP_LayoutName, SP_SpacerName,SP_WindowTitle,
         SP_MinimumSize, SP_MaximumSize, SP_Geometry, SP_Icon,SP_CurrentTabName,
         SP_AutoDefault, SP_Alignment
 };
@@ -98,7 +98,7 @@ private:
 
     void updateObject(QDesignerFormWindowInterface *fw, const QVariant &oldValue, const QVariant &newValue);
     QVariant findDefaultValue(QDesignerFormWindowInterface *fw) const;
-
+    void ensureUniqueObjectName(QDesignerFormWindowInterface *fw, QObject *object) const;
     SpecialProperty m_specialProperty;
 
     QPointer<QObject> m_object;

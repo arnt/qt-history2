@@ -862,7 +862,6 @@ void FormWindow::ensureUniqueObjectName(QObject *object)
         if (QDesignerWidgetDataBaseItemInterface *item = db->item(db->indexOfObject(object)))
             name = qdesigner_internal::qtify(item->name());
     }
-
     unify(object, name, true);
     object->setObjectName(name);
 }
@@ -894,6 +893,10 @@ bool FormWindow::unify(QObject *w, QString &s, bool changeIt)
     const QWidgetList widgetChildren = qFindChildren<QWidget*>(main);
     if (!widgetChildren.empty())
         insertNames(metaDataBase, widgetChildren.constBegin(), widgetChildren.constEnd(), w, existingNames);
+
+    const QList<QLayout *> layoutChildren = qFindChildren<QLayout*>(main);
+    if (!layoutChildren.empty())
+        insertNames(metaDataBase, layoutChildren.constBegin(), layoutChildren.constEnd(), w, existingNames);
 
     const QList<QAction *> actionChildren = qFindChildren<QAction*>(main);
     if (!actionChildren.empty())

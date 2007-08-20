@@ -8,7 +8,7 @@
 **
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-**
+**sw
 ****************************************************************************/
 
 #include "abstractformbuilder.h"
@@ -184,13 +184,13 @@ QWidget *QAbstractFormBuilder::create(DomUI *ui, QWidget *parentWidget)
     DomCustomWidgets *domCustomWidgets  = ui->elementCustomWidgets();
     createCustomWidgets(domCustomWidgets);
 
-#ifndef QT_FORMBUILDER_NO_SCRIPT  
+#ifndef QT_FORMBUILDER_NO_SCRIPT
     if (domCustomWidgets) {
         foreach(const DomCustomWidget* cw, domCustomWidgets->elementCustomWidget()) {
             if (const DomScript *domScript = cw->elementScript()) {
                 const QString script = domScript->text();
                 if (!script.isEmpty())
-                    formBuilderPrivate->storeCustomWidgetScript(cw->elementClass(), script);            
+                    formBuilderPrivate->storeCustomWidgetScript(cw->elementClass(), script);
             }
         }
     }
@@ -546,7 +546,7 @@ QLayout *QAbstractFormBuilder::create(DomLayout *ui_layout, QLayout *parentLayou
         p = parentWidget->layout();
     }
 
-    QLayout *layout = createLayout(ui_layout->attributeClass(), p, QString());
+    QLayout *layout = createLayout(ui_layout->attributeClass(), p, ui_layout->hasAttributeName() ? ui_layout->attributeName() : QString());
 
     if (layout == 0)
         return 0;
@@ -1174,6 +1174,9 @@ DomLayout *QAbstractFormBuilder::createDom(QLayout *layout, DomLayout *ui_layout
     Q_UNUSED(ui_layout)
     DomLayout *lay = new DomLayout();
     lay->setAttributeClass(QLatin1String(layout->metaObject()->className()));
+    const QString objectName = layout->objectName();
+    if (!objectName.isEmpty())
+        lay->setAttributeName(objectName);
     lay->setElementProperty(computeProperties(layout));
 
     QList<DomLayoutItem*> ui_items;

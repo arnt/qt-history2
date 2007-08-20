@@ -15,7 +15,7 @@
     <category name="Layouts">
         <widget class="QWidget"  name="Vertical Layout" icon="win/editvlayout.png">
             <property name="objectName">
-                <string notr="true">verticalLayout</string>
+                <string notr="true">verticalLayoutWidget</string>
             </property>
             <property name="geometry">
                 <rect>
@@ -25,13 +25,13 @@
                     <height>80</height>
                 </rect>
             </property>
-            <layout class="QVBoxLayout" >
+            <layout class="QVBoxLayout" name="verticalLayout">
             </layout>
         </widget>
 
         <widget class="QWidget"  name="Horizontal Layout" icon="win/edithlayout.png">
             <property name="objectName">
-                <string notr="true">horizontalLayout</string>
+                <string notr="true">horizontalLayoutWidget</string>
             </property>
             <property name="geometry">
                 <rect>
@@ -41,13 +41,13 @@
                     <height>80</height>
                 </rect>
             </property>
-            <layout class="QHBoxLayout" >
+            <layout class="QHBoxLayout" name="horizontalLayout">
             </layout>
         </widget>
 
         <widget class="QWidget"  name="Grid Layout" icon="win/editgrid.png">
             <property name="objectName">
-                <string notr="true">gridLayout</string>
+                <string notr="true">gridLayoutWidget</string>
             </property>
             <property name="geometry">
                 <rect>
@@ -57,7 +57,7 @@
                     <height>80</height>
                 </rect>
             </property>
-            <layout class="QGridLayout" >
+            <layout class="QGridLayout" name="gridLayout">
             </layout>
         </widget>
 

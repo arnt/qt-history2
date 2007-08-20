@@ -173,6 +173,7 @@
                         <xs:element name="item" type="LayoutItem" />
                 </xs:sequence>
                 <xs:attribute name="class" type="xs:string" />
+                <xs:attribute name="name" type="xs:string" />
         </xs:complexType>
 
         <xs:complexType name="LayoutItem">

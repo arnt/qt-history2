@@ -93,6 +93,7 @@ protected:
 
 public:
     enum PropertyType { PropertyNone,
+                        PropertyLayoutObjectName,
                         PropertyLayoutLeftMargin,
                         PropertyLayoutTopMargin,
                         PropertyLayoutRightMargin,
@@ -100,7 +101,7 @@ public:
                         PropertyLayoutSpacing,
                         PropertyLayoutHorizontalSpacing,
                         PropertyLayoutVerticalSpacing,
-                        PropertySizeConstraint,
+                        PropertyLayoutSizeConstraint,
                         PropertyBuddy,
                         PropertyAccessibility,
                         PropertyGeometry,

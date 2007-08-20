@@ -16,6 +16,7 @@
 #include "dynamicpropertysheet.h"
 #include "qdesigner_propertyeditor_p.h"
 #include "qdesigner_integration_p.h"
+#include "spacer_widget_p.h"
 
 #include <QtDesigner/QDesignerFormEditorInterface>
 #include <QtDesigner/QDesignerFormWindowInterface>
@@ -35,6 +36,7 @@
 #include <QtGui/QAction>
 #include <QtGui/QDialog>
 #include <QtGui/QPushButton>
+#include <QtGui/QLayout>
 #include <private/qfont_p.h>
 #include <qdebug.h>
 
@@ -463,6 +465,10 @@ enum SpecialProperty getSpecialProperty(const QString& propertyName)
 {
     if (propertyName == QLatin1String("objectName"))
         return SP_ObjectName;
+    if (propertyName == QLatin1String("layoutName"))
+        return SP_LayoutName;
+    if (propertyName == QLatin1String("spacerName"))
+        return SP_SpacerName;
     if (propertyName == QLatin1String("icon"))
         return SP_Icon;
     if (propertyName == QLatin1String("currentTabName"))
@@ -568,6 +574,8 @@ unsigned PropertyHelper::updateMask() const
     unsigned rc = 0;
     switch (m_specialProperty) {
     case SP_ObjectName:
+    case SP_LayoutName:
+    case SP_SpacerName:
     case SP_CurrentTabName:
         if (m_objectType != OT_FreeAction)
             rc |=  UpdateObjectInspector;
@@ -620,10 +628,45 @@ void PropertyHelper::updateObject(QDesignerFormWindowInterface *fw, const QVaria
         break;
     }
 
-    if (m_specialProperty == SP_ObjectName) {
-        QDesignerIntegration *integr = integration(fw);
-        if (integr)
+    switch (m_specialProperty) {
+    case SP_ObjectName:
+    case SP_LayoutName:
+    case SP_SpacerName:
+        if (QDesignerIntegration *integr = integration(fw))
             integr->emitObjectNameChanged(fw, m_object, newValue.toString());
+        break;
+    default:
+        break;
+    }
+}
+
+void PropertyHelper::ensureUniqueObjectName(QDesignerFormWindowInterface *fw, QObject *object) const
+{
+    switch (m_specialProperty) {
+    case SP_SpacerName:
+        if (object->isWidgetType()) {
+            if (Spacer *sp = qobject_cast<Spacer *>(object)) {
+                fw->ensureUniqueObjectName(sp);
+                return;
+            }
+        }
+        fw->ensureUniqueObjectName(object);
+        break;
+    case SP_LayoutName: // Layout name is invoked on the parent widget.
+        if (object->isWidgetType()) {
+            const QWidget * w = qobject_cast<const QWidget *>(object);
+            if (QLayout *wlayout = w->layout()) {
+                fw->ensureUniqueObjectName(wlayout);
+                return;
+            }
+        }
+        fw->ensureUniqueObjectName(object);
+        break;
+    case SP_ObjectName:
+        fw->ensureUniqueObjectName(object);
+        break;
+    default:
+        break;
     }
 }
 
@@ -651,9 +694,16 @@ PropertyHelper::Value PropertyHelper::applyValue(QDesignerFormWindowInterface *f
 
     m_propertySheet->setProperty(m_index, newValue.first);
     m_propertySheet->setChanged(m_index, newValue.second);
-    if (m_specialProperty == SP_ObjectName) {
-        fw->ensureUniqueObjectName(m_object);
+
+    switch (m_specialProperty) {
+    case SP_LayoutName:
+    case SP_ObjectName:
+    case SP_SpacerName:
+        ensureUniqueObjectName(fw, m_object);
         newValue.first = m_propertySheet->property(m_index);
+        break;
+    default:
+        break;
     }
 
     updateObject(fw, oldValue, newValue.first);
@@ -708,9 +758,15 @@ PropertyHelper::Value PropertyHelper::restoreDefaultValue(QDesignerFormWindowInt
         checkApplyWidgetValue(fw, qobject_cast<QWidget *>(m_object), m_specialProperty, defaultValue.first);
     }
 
-    if (m_specialProperty == SP_ObjectName) {
-        fw->ensureUniqueObjectName(m_object);
+    switch (m_specialProperty) {
+    case SP_LayoutName:
+    case SP_ObjectName:
+    case SP_SpacerName:
+        ensureUniqueObjectName(fw, m_object);
         defaultValue.first = m_propertySheet->property(m_index);
+        break;
+    default:
+        break;
     }
 
     updateObject(fw, currentValue, defaultValue.first);

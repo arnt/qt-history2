@@ -56,6 +56,7 @@ WidgetFactory::Strings::Strings() :
     m_leftMargin(QLatin1String("leftMargin")),
     m_line(QLatin1String("Line")),
     m_objectName(QLatin1String("objectName")),
+    m_spacerName(QLatin1String("spacerName")),
     m_orientation(QLatin1String("orientation")),
     m_q3WidgetStack(QLatin1String("Q3WidgetStack")),
     m_qAction(QLatin1String("QAction")),
@@ -322,6 +323,7 @@ QLayout *WidgetFactory::createLayout(QWidget *widget, QLayout *parentLayout, int
 
     QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(core()->extensionManager(), layout);
 
+    sheet->setChanged(sheet->indexOf(m_strings.m_objectName), true);
     if (widget->inherits("Q3GroupBox")) {
         layout->setContentsMargins(widget->style()->pixelMetric(QStyle::PM_LayoutLeftMargin),
                                     widget->style()->pixelMetric(QStyle::PM_LayoutTopMargin),
@@ -422,8 +424,10 @@ void WidgetFactory::initialize(QObject *object) const
     sheet->setChanged(sheet->indexOf(m_strings.m_objectName), true);
     sheet->setChanged(sheet->indexOf(m_strings.m_geometry), true);
 
-    if (qobject_cast<Spacer*>(object))
+    if (qobject_cast<Spacer*>(object)) {
+        sheet->setChanged(sheet->indexOf(m_strings.m_spacerName), true);
         sheet->setChanged(sheet->indexOf(m_strings.m_sizeHint), true);
+    }
 
     const int o = sheet->indexOf(m_strings.m_orientation);
     if (o != -1 && object->inherits("QSplitter"))

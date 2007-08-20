@@ -19,12 +19,9 @@
 #include <QtDesigner/QExtensionManager>
 
 #include <QtGui/QLayout>
-#include <QtCore/QMetaObject>
-#include <QtCore/QMetaProperty>
-#include <QtCore/qdebug.h>
 
-using namespace qdesigner_internal;
-
+namespace qdesigner_internal
+{
 SpacerPropertySheet::SpacerPropertySheet(Spacer *object, QObject *parent)
     : QDesignerPropertySheet(object, parent)
 {
@@ -37,9 +34,8 @@ SpacerPropertySheet::~SpacerPropertySheet()
 
 bool SpacerPropertySheet::isVisible(int index) const
 {
-    QString group = propertyGroup(index);
-
-    return group == QLatin1String("Spacer");
+    static const QString spacerGroup = QLatin1String("Spacer");
+    return propertyGroup(index) == spacerGroup;
 }
 
 void SpacerPropertySheet::setProperty(int index, const QVariant &value)
@@ -50,4 +46,5 @@ void SpacerPropertySheet::setProperty(int index, const QVariant &value)
 bool SpacerPropertySheet::dynamicPropertiesAllowed() const
 {
     return false;
+}
 }

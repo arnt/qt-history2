@@ -31,6 +31,7 @@
 
 #include <QtCore/QPointer>
 #include <QtCore/QVector>
+#include <QtCore/QVariant>
 #include <QtGui/QWidget>
 #include <QtGui/QLayout>
 
@@ -39,10 +40,10 @@ class QDesignerFormEditorInterface;
 class QGridLayout;
 
 namespace qdesigner_internal {
-// ---- LayoutProperties: Helper struct that stores all layout-relevant properties 
+// ---- LayoutProperties: Helper struct that stores all layout-relevant properties
 //      with functions to retrieve and apply to property sheets. Can be used to store the state
 //      for undo commands and while rebuilding layouts.
-struct QDESIGNER_SHARED_EXPORT LayoutProperties 
+struct QDESIGNER_SHARED_EXPORT LayoutProperties
 {
     LayoutProperties();
     void clear();
@@ -54,8 +55,12 @@ struct QDESIGNER_SHARED_EXPORT LayoutProperties
     static const QVector<QString> &marginPropertyNames();
     static const QVector<QString> &spacingProperyNames();
 
-    enum PropertyMask { LeftMarginProperty = 0x1, TopMarginProperty = 0x2, RightMarginProperty = 0x4, BottomMarginProperty = 0x8,
-                SpacingProperty = 0x10, HorizSpacingProperty = 0x20, VertSpacingProperty = 0x40, AllProperties = 0xFF};
+    enum PropertyMask {
+        ObjectNameProperty  = 0x1,
+        LeftMarginProperty = 0x2, TopMarginProperty = 0x4, RightMarginProperty = 0x8, BottomMarginProperty = 0x10,
+        SpacingProperty = 0x20, HorizSpacingProperty = 0x40, VertSpacingProperty = 0x80,
+        SizeConstraintProperty = 0x100,
+        AllProperties = 0xFFFF};
 
     // Retrieve from /apply to sheet: A property mask is returned indicating the properties found in the sheet
     int fromPropertySheet(const QDesignerFormEditorInterface *core, QLayout *l, int mask = AllProperties);
@@ -66,6 +71,11 @@ struct QDESIGNER_SHARED_EXPORT LayoutProperties
 
     int m_spacings[SpacingsCount];
     bool m_spacingsChanged[SpacingsCount];
+
+    QString m_objectName;
+    bool m_objectNameChanged;
+    QVariant m_sizeConstraint;
+    bool m_sizeConstraintChanged;
 };
 
 // -- LayoutHelper: For use with the 'insert widget'/'delete widget' command,

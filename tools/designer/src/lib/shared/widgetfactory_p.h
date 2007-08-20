@@ -81,6 +81,7 @@ private:
         const QString m_leftMargin;
         const QString m_line;
         const QString m_objectName;
+        const QString m_spacerName;
         const QString m_orientation;
         const QString m_q3WidgetStack;
         const QString m_qAction;

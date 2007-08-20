@@ -19,6 +19,9 @@
 // shared
 #include <qlayout_widget_p.h>
 #include <QtCore/QHash>
+#include <QtCore/QDebug>
+
+#define USE_LAYOUT_SIZE_CONSTRAINT
 
 static const char *leftMargin = "leftMargin";
 static const char *topMargin = "topMargin";
@@ -28,6 +31,7 @@ static const char *horizontalSpacing = "horizontalSpacing";
 static const char *verticalSpacing = "verticalSpacing";
 static const char *spacing = "spacing";
 static const char *margin = "margin";
+static const char *sizeConstraint = "sizeConstraint";
 
 namespace {
     enum LayoutPropertyType {
@@ -39,7 +43,8 @@ namespace {
         LayoutPropertyBottomMargin,
         LayoutPropertySpacing,
         LayoutPropertyHorizontalSpacing,
-        LayoutPropertyVerticalSpacing
+        LayoutPropertyVerticalSpacing,
+        LayoutPropertySizeConstraint
     };
 }
 
@@ -56,6 +61,7 @@ static LayoutPropertyType  layoutPropertyType(const QString &name)
         namePropertyMap.insert(QLatin1String(verticalSpacing), LayoutPropertyVerticalSpacing);
         namePropertyMap.insert(QLatin1String(spacing), LayoutPropertySpacing);
         namePropertyMap.insert(QLatin1String(margin), LayoutPropertyMargin);
+        namePropertyMap.insert(QLatin1String(sizeConstraint), LayoutPropertySizeConstraint);
     }
     return namePropertyMap.value(name, LayoutPropertyNone);
 }
@@ -141,6 +147,16 @@ LayoutPropertySheet::LayoutPropertySheet(QLayout *object, QObject *parent)
     }
 
     setAttribute(indexOf(QLatin1String(margin)), true);
+
+#ifdef USE_LAYOUT_SIZE_CONSTRAINT
+    // SizeConstraint cannot possibly be handled as a real property
+    // as it affects the layout parent widget and thus
+    // conflicts with Designer's special layout widget.
+    // It will take effect on the preview only.
+    pindex = count();
+    createFakeProperty(QLatin1String(sizeConstraint));
+    setPropertyGroup(pindex, layoutGroup);
+#endif
 }
 
 LayoutPropertySheet::~LayoutPropertySheet()
