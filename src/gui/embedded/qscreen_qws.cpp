@@ -878,12 +878,11 @@ static inline void qt_rectconvert_rgb(qrgb *dest, const SRC *src,
             SRC s = *src;
             const quint32 v = qt_convertToRgb<SRC>(*src++);
 #if Q_BYTE_ORDER == Q_BIG_ENDIAN
-            if (QSysInfo::ByteOrder == QSysInfo::BigEndian) {
-                for (int j = qrgb::bpp - 1; j >= 0; --j)
-                    *dest8++ = (v >> (8 * j)) & 0xff;
+            for (int j = qrgb::bpp - 1; j >= 0; --j)
+                *dest8++ = (v >> (8 * j)) & 0xff;
 #else
-                for (int j = 0; j < qrgb::bpp; ++j)
-                    *dest8++ = (v >> (8 * j)) & 0xff;
+            for (int j = 0; j < qrgb::bpp; ++j)
+                *dest8++ = (v >> (8 * j)) & 0xff;
 #endif
         }
 
